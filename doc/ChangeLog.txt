@@ -39,6 +39,73 @@
 		crypt_xor.inc.php
 		dele_js.php
 
+	* brdctl.class.php is new
+	* brdctl_class.inc is removed
+	* brdmenu.class.php is new
+	* brdmenu_class.inc is removed
+	* conf.inc.php
+	* conf_user.inc.php
+	* cookie.php
+	* crypt_xor.inc.php is removed
+	* dataphp.class.php
+	* dele.inc.php
+	* dele_js.php is removed
+	* editfavita.php
+	* editpref.php
+	* first_cont.php
+	* httpcmd.php is new
+	* index.php
+	* index_print_k.inc is removed
+	* index_print_k.inc.php is new
+	* info.php
+	* js/basic.js
+	* login.php
+	* login2ch.inc.php
+	* login2ch.php
+	* login_first.inc
+	* md5_crypt.inc.php is new
+	* menu.php
+	* menu_k.php
+	* menu_side.php
+	* p2util.class.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_footer.inc.php
+	* read_footer_k.inc
+	* read_header.inc.php
+	* read_header_k.inc
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.inc.php
+	* read_res_hist.php
+	* res_hist.class.php
+	* sb_footer.inc.php
+	* sb_footer_k.inc
+	* sb_header.inc.php
+	* sb_header_k.inc
+	* sb_print.inc
+	* sb_print_k.inc
+	* sb_toolbar_k.inc
+	* setfav.inc is removed
+	* setfav.inc.php is new
+	* setpalace.inc is removed
+	* setpalace.inc.php is new
+	* setting.php
+	* showbrdmenuk.class.php is new
+	* showbrdmenuk_class.inc is removed
+	* showbrdmenupc.class.php is new
+	* showbrdmenupc_class.inc is removed
+	* showthread.class.php
+	* showthreadk.class.php
+	* showthreadpc.class.php
+	* subject.php
+	* subject_new.php
+	* thread.class.php
+	* threadread.class.php
+	* title.php
+	* wap.class.php
+
 2005-03-06 aki
 	* p2 version 1.5.3
 
