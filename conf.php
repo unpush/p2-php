@@ -124,6 +124,7 @@ if(file_exists("./conf_style.inc")){
 $_conf['display_threads_num'] = 150; // (150) スレッドサブジェクト一覧のデフォルト表示数
 $posted_rec_num = 1000; // (1000) 書き込んだレスの最大記録数 //現在は機能していない
 
+$_conf['p2status_dl_interval'] = 180;	// (180) p2status のキャッシュを更新せずに保持する時間 (分)
 
 /* デフォルト設定 */
 if (!isset($login['use'])) { $login['use'] = 1; }
