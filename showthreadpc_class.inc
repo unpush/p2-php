@@ -333,7 +333,7 @@ EOP;
 	function transMsg($msg, $mynum)
 	{
 		global $_conf, $subject_php, $preview_thumbnail, $brocra_checker, $ext_win_target, $bbs_win_target;
-		global $field, $res_filter, $word_fm, $iframe_popup, $iframe_popup_delay, $p2ime_url;
+		global $field, $res_filter, $word_fm, $p2ime_url;
 		
 		// 2ch旧形式のdat
 		if ($this->thread->dat_type == "2ch_old") {
@@ -417,7 +417,7 @@ EOP;
 	 */
 	function iframe_popup_callback($s)
 	{
-		global $_conf, $ext_win_target, $iframe_popup, $iframe_popup_delay;
+		global $_conf, $ext_win_target;
 
 		if ($_conf['through_ime'] == "p2pm") {
 			$pop_url = str_replace("?url=", "?m=1&amp;url=", $s[1]);
@@ -425,11 +425,11 @@ EOP;
 			$pop_url = $s[1];
 		}
 
-		$ommouse_popup = " onMouseover=\"showHtmlPopUp('{$pop_url}',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
+		$ommouse_popup = " onMouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
 		
-		if ($iframe_popup == 1) {
+		if ($_conf['iframe_popup'] == 1) {
 			$r = "<a href=\"{$s[1]}\"{$ext_win_target}{$ommouse_popup}>{$s[2]}</a>";
-		} elseif ($iframe_popup == 2) {
+		} elseif ($_conf['iframe_popup'] == 2) {
 			$r = "(<a href=\"{$s[1]}\"{$ext_win_target}{$ommouse_popup}>p</a>)<a href=\"{$s[1]}\"{$ext_win_target}>{$s[2]}</a>";		
 		}
 
@@ -461,7 +461,7 @@ EOP;
 	 */
 	function quote_res_devide_callback($s)
 	{
-		global $_conf, $bbs_win_target, $iframe_popup, $iframe_popup_delay, $quote_res_view;
+		global $_conf, $bbs_win_target, $quote_res_view;
 		
 		$appointed_num = $s[3];
 		$qsign = "$s[1]$s[2]";
@@ -472,14 +472,14 @@ EOP;
 		
 		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}";
 		
-		if ($iframe_popup and strstr($appointed_num, "-")) {
+		if ($_conf['iframe_popup'] and strstr($appointed_num, "-")) {
 			$rs = <<<EOP
-<a href="{$read_url}n"{$bbs_win_target} onMouseover="showHtmlPopUp('{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}n&amp;renzokupop=true',event,{$iframe_popup_delay})" onMouseout="offHtmlPopUp()">{$qsign}{$appointed_num}</a>
+<a href="{$read_url}n"{$bbs_win_target} onMouseover="showHtmlPopUp('{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}n&amp;renzokupop=true',event,{$_conf['iframe_popup_delay']})" onMouseout="offHtmlPopUp()">{$qsign}{$appointed_num}</a>
 EOP;
 /*
-		} elseif ($iframe_popup==2 and strstr($appointed_num, "-")) {
+		} elseif ($_conf['iframe_popup'] == 2 and strstr($appointed_num, "-")) {
 			$rs=<<<EOP
-(<a href="{$read_url}n"{$bbs_win_target} onMouseover="showHtmlPopUp('{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}n&amp;renzokupop=true',event,{$iframe_popup_delay})" onMouseout="offHtmlPopUp()">p</a>)<a href="{$read_url}n"{$bbs_win_target}>{$qsign}{$appointed_num}</a>
+(<a href="{$read_url}n"{$bbs_win_target} onMouseover="showHtmlPopUp('{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}n&amp;renzokupop=true',event,{$_conf['iframe_popup_delay']})" onMouseout="offHtmlPopUp()">p</a>)<a href="{$read_url}n"{$bbs_win_target}>{$qsign}{$appointed_num}</a>
 EOP;
 */
 		} else {
@@ -503,20 +503,20 @@ EOP;
 	// 2ch bbspink 内リンク ===========================
 	function link2ch_callback($s)
 	{
-		global $_conf, $bbs_win_target, $iframe_popup, $iframe_popup_delay;
+		global $_conf, $bbs_win_target;
 		
 		$read_url = "{$_conf['read_php']}?host=$s[1]&amp;bbs=$s[3]&amp;key=$s[4]&amp;ls=$s[6]";
 		
 		// HTMLポップアップなし
-		if (!$iframe_popup) {
+		if (!$_conf['iframe_popup']) {
 			$rs = <<<EORS
 		<a href="{$read_url}"{$bbs_win_target}>$s[7]</a>
 EORS;
 		// HTMLポップアップあり
 		} else {
 			if (preg_match("/^[0-9-n]+$/", $s[6])) {
-				$ommouse_popup=" onMouseover=\"showHtmlPopUp('http://$s[1]/test/read.cgi/$s[3]/$s[4]$s[5]$s[6]',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
-				if ($iframe_popup == 1) {
+				$ommouse_popup=" onMouseover=\"showHtmlPopUp('http://$s[1]/test/read.cgi/$s[3]/$s[4]$s[5]$s[6]',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
+				if ($_conf['iframe_popup'] == 1) {
 					$rs = <<<EORS
 			<a href="{$read_url}"{$bbs_win_target}{$ommouse_popup}>$s[7]</a>
 EORS;
@@ -527,8 +527,8 @@ EORS;
 				}
 				
 			} else {
-				$ommouse_popup=" onMouseover=\"showHtmlPopUp('{$read_url}&amp;one=true',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
-				if ($iframe_popup == 1) {
+				$ommouse_popup=" onMouseover=\"showHtmlPopUp('{$read_url}&amp;one=true',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
+				if ($_conf['iframe_popup'] == 1) {
 					$rs = <<<EORS
 			<a href="{$read_url}"{$bbs_win_target}{$ommouse_popup}>$s[7]</a>
 EORS;
@@ -546,7 +546,7 @@ EORS;
 	// まちBBS / JBBS＠したらば  内リンク ===========================
 	function linkMachi_callback($s)
 	{
-		global $_conf, $bbs_win_target, $iframe_popup, $iframe_popup_delay;
+		global $_conf, $bbs_win_target;
 	
 	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[4]}&amp;key={$s[6]}&amp;ls={$s[9]}-{$s[12]}\"{$bbs_win_target}>{$s[13]}</a>";
 	}
@@ -554,7 +554,7 @@ EORS;
 	// JBBS＠したらば  内リンク 2 ===========================
 	function linkJBBS_callback($s)
 	{
-		global $_conf, $bbs_win_target, $iframe_popup, $iframe_popup_delay;
+		global $_conf, $bbs_win_target;
 	
 	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}/{$s[2]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[5]}\"{$bbs_win_target}>{$s[8]}</a>";
 	}
@@ -562,7 +562,7 @@ EORS;
 	// 2ch過去ログhtml =============================
 	function link2chkako_callback($s)
 	{
-		global $_conf, $iframe_popup, $iframe_popup_delay, $bbs_win_target;
+		global $_conf, $bbs_win_target;
 		/*
 		$msg=preg_replace_callback("/<a href=\"(http:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$ext_win_target}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
 		*/
@@ -570,15 +570,15 @@ EORS;
 		$kakolog_uri_en = urlencode($kakolog_uri);
 		$host = $s[2]; $bbs=$s[5]; $key=$s[7];
 		$read_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;kakolog={$kakolog_uri_en}";
-		$ommouse_popup = " onMouseover=\"showHtmlPopUp('{$read_url}&amp;one=true',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
+		$ommouse_popup = " onMouseover=\"showHtmlPopUp('{$read_url}&amp;one=true',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
 		// HTMLポップアップなし
-		if (!$iframe_popup) {
+		if (!$$_conf['iframe_popup']) {
 			$rs = <<<EOP
 <a href="{$read_url}"{$bbs_win_target}>{$kakolog_uri}.html</a>
 EOP;
 		// HTMLポップアップあり
 		} else {
-			if ($iframe_popup == 1) {
+			if ($_conf['iframe_popup'] == 1) {
 				$rs = <<<EOP
 <a href="{$read_url}"{$bbs_win_target}{$ommouse_popup}>{$kakolog_uri}.html</a>
 EOP;
@@ -595,19 +595,19 @@ EOP;
 	// 画像ポップアップ変換 ==========================
 	function view_img_callback($s)
 	{
-		global $ext_win_target, $iframe_popup, $iframe_popup_delay, $pre_thumb_height, $pre_thumb_width;
+		global $_conf, $ext_win_target, $pre_thumb_height, $pre_thumb_width;
 		
-		$ommouse_popup = " onMouseover=\"showHtmlPopUp('{$s[1]}',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
+		$ommouse_popup = " onMouseover=\"showHtmlPopUp('{$s[1]}',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
 		$img_tag = <<<EOIMG
 <img class="thumbnail" src="$s[1]" height="{$pre_thumb_height}" weight="{$pre_thumb_width}" hspace="4" vspace="4" align="middle">
 EOIMG;
 		
 		// HTMLポップアップあり
-		if ($iframe_popup == 1) {
+		if ($_conf['iframe_popup'] == 1) {
 			$rs = <<<EORS
 			<a href="$s[1]"{$ext_win_target}{$ommouse_popup}>{$img_tag}{$s[3]}</a>
 EORS;
-		} elseif ($iframe_popup == 2) {
+		} elseif ($_conf['iframe_popup'] == 2) {
 			$rs = <<<EORS
 			<a href="$s[1]"{$ext_win_target}{$ommouse_popup}>{$img_tag}</a><a  href="$s[1]"{$ext_win_target}>{$s[3]}</a>
 EORS;
