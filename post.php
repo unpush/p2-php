@@ -365,7 +365,7 @@ function postIt($URL, $request)
 	}
 	
 	// be.2ch.net 認証クッキー
-	if (P2Util::isHostBe2chNet($host)) {
+	if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['post_be2ch'])) {
 		$cookies_to_send .= ' MDMD='.$_conf['be_2ch_code'].';';	// be.2ch.netの認証コード(パスワードではない)
 		$cookies_to_send .= ' DMDM='.$_conf['be_2ch_mail'].';';	// be.2ch.netの登録メールアドレス
 	}
