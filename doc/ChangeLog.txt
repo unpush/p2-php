@@ -1,12 +1,7 @@
 2005-01-03 aki
 	* p2 version 1.3.1
-	- まちBBSタイプのリンクが表示されなかったのを修正
-	- 他、細かく
 
-	* conf.php
-	* read_machibbs.inc
-	* showthreadpc_class.inc
-	* title.php
+	- まちBBSタイプのリンクが表示されなかったのを修正
 
 2005-01-02 aki
 	* p2 version 1.3.0
