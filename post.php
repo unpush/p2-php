@@ -41,22 +41,12 @@ if (!$ttitle) {
 }
 
 // magic_quates 除去
-if( get_magic_quotes_gpc () ) {
+if (get_magic_quotes_gpc()) {
 	$FROM = stripslashes($FROM);
 	$mail = stripslashes($mail);
 	$MESSAGE = stripslashes($MESSAGE);
 	$subject = stripslashes($subject);
 	$submit = stripslashes($submit);
-}
-
-// be.2ch.net対応文字コード変換
-if (P2Util::isHostBe2chNet($host)) {
-	include_once './strctl_class.inc';
-	$FROM = StrCtl::p2SJIStoEUC($FROM);
-	$mail = StrCtl::p2SJIStoEUC($mail);
-	$MESSAGE = StrCtl::p2SJIStoEUC($MESSAGE);
-	$submit = StrCtl::p2SJIStoEUC($submit);
-	$subject = StrCtl::p2SJIStoEUC($subject);
 }
 
 // 美乳テーブルを使った文字コード判定
@@ -81,14 +71,14 @@ if (P2Util::isBrowserSafariGroup()) {
 	}
 }
 
-// p2_cookie.txt 読み込み===================================
+// p2_cookie.txt 読み込み ===================================
 $cookie_file = $prefdir."/p2_cookie/{$_POST['host']}/p2_cookie.txt";
 $cookie_cont = FileCtl::get_file_contents($cookie_file);
-if($cookie_cont){
+if ($cookie_cont) {
 	$p2cookies = unserialize($cookie_cont);
-	if($p2cookies['expires']){
-		if( time() > strtotime( $p2cookies['expires'] ) ){ //期限切れなら破棄
-			//echo "<p>期限切れのクッキーを削除しました</p>";
+	if ($p2cookies['expires']) {
+		if (time() > strtotime($p2cookies['expires'])) { // 期限切れなら破棄
+			// echo "<p>期限切れのクッキーを削除しました</p>";
 			unlink($cookie_file);
 			unset($cookie_cont, $p2cookies);
 		}
@@ -99,41 +89,41 @@ if($cookie_cont){
 $host = P2Util::adjustHostJbbs($host);
 
 // machibbs、JBBS@したらば なら
-if( P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host) ){
+if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
 	$bbs_cgi = "/bbs/write.cgi";
 	
 	// JBBS@したらば なら
-	if( P2Util::isHostJbbsShitaraba($host) ){	
+	if (P2Util::isHostJbbsShitaraba($host)) {	
 		$bbs_cgi = "../../bbs/write.cgi";
 		preg_match("/(\w+)$/", $host, $ar);
 		$dir = $ar[1];
 		$dir_k = "DIR";
 	}
 	
-	$submit_k="submit";
-	$bbs_k="BBS";
-	$key_k="KEY";
-	$time_k="TIME";
-	$FROM_k="NAME";
-	$mail_k="MAIL";
-	$MESSAGE_k="MESSAGE";
-	$subject_k="SUBJECT";
+	$submit_k = "submit";
+	$bbs_k = "BBS";
+	$key_k = "KEY";
+	$time_k = "TIME";
+	$FROM_k = "NAME";
+	$mail_k = "MAIL";
+	$MESSAGE_k = "MESSAGE";
+	$subject_k = "SUBJECT";
 	
 // 2ch
 } else { 
-	if($sub){
-		$bbs_cgi="/test/{$sub}bbs.cgi";
-	}else{
-		$bbs_cgi="/test/bbs.cgi";
+	if ($sub) {
+		$bbs_cgi = "/test/{$sub}bbs.cgi";
+	} else {
+		$bbs_cgi = "/test/bbs.cgi";
 	}
-	$submit_k="submit";
-	$bbs_k="bbs";
-	$key_k="key";
-	$time_k="time";
-	$FROM_k="FROM";
-	$mail_k="mail";
-	$MESSAGE_k="MESSAGE";
-	$subject_k="subject";
+	$submit_k = "submit";
+	$bbs_k = "bbs";
+	$key_k = "key";
+	$time_k = "time";
+	$FROM_k = "FROM";
+	$mail_k = "mail";
+	$MESSAGE_k = "MESSAGE";
+	$subject_k = "subject";
 
 }
 
@@ -186,9 +176,9 @@ $posted = postIt($URL, $request);
 // cookie 保存
 //=============================================
 FileCtl::make_datafile($cookie_file, $p2_perm); //なければ生成
-if($p2cookies){$cookie_cont=serialize($p2cookies);}
-if($cookie_cont){
-	$fp = @fopen($cookie_file,"w") or die("Error: $cookie_file を更新できませんでした");
+if ($p2cookies) {$cookie_cont=serialize($p2cookies);}
+if ($cookie_cont) {
+	$fp = @fopen($cookie_file, "wb") or die("Error: $cookie_file を更新できませんでした");
 	fputs($fp, $cookie_cont);
 	fclose($fp);
 }
@@ -196,7 +186,7 @@ if($cookie_cont){
 //=============================================
 // スレ立て成功なら、subjectからkeyを取得
 //=============================================
-if($_POST['newthread'] && $posted){
+if ($_POST['newthread'] && $posted) {
 	sleep(1);
 	$key = getKeyInSubject();
 }
@@ -204,7 +194,7 @@ if($_POST['newthread'] && $posted){
 //=============================================
 // key.idx 保存
 //=============================================
-if($host && $bbs && $key){
+if ($host && $bbs && $key) {
 	$datdir_host = datdirOfHost($host);
 	$keyidx = $datdir_host."/".$bbs."/".$key.".idx";
 	
@@ -243,7 +233,9 @@ if ($host && $bbs && $key) {
 	// 新規データ追加
 	$newdata = "$ttitle<>$key<><><><><><>$FROM<>$mail<><>$host<>$bbs";
 	$neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
-	while( sizeof($neolines) > $res_hist_rec_num ){ array_pop($neolines); }
+	while (sizeof($neolines) > $res_hist_rec_num) {
+		array_pop($neolines);
+	}
 	
 	// 書き込む
 	$fp = @fopen($rh_idx, "wb") or die("Error: {$rh_idx} を更新できませんでした");
@@ -279,7 +271,7 @@ if ($res_write_rec) {
 	// 新規データ
 	$newdata = "$FROM<>$mail<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key";
 
-	// まずタブを全て外して
+	// まずタブを全て外して（2chの書き込みではタブは削除される 2004/12/13）
 	$newdata = str_replace("\t", "", $newdata);
 	// <>をタブに変換して
 	$newdata = str_replace("<>", "\t", $newdata);
@@ -290,9 +282,9 @@ if ($res_write_rec) {
 	// 新しいデータを追加
 	@array_push($lines, $newdata);
 	// 先頭文を追加
-	@array_unshift($lines, "<?php /*");
+	@array_unshift($lines, '<?php /*');
 	// 末文を追加
-	@array_push($lines, "*/ ?>");
+	@array_push($lines, '*/ ?>');
 
 	
 	// 書き込む
@@ -373,12 +365,12 @@ function postIt($URL, $request)
 	if (strtoupper($method) == "POST") {
 	    while (list($name, $value) = each($post)) {
 		
-			// したらばなら、EUCに変換
-			if (P2Util::isHostJbbsShitaraba($host)) {
-				include_once './strctl_class.inc';
+			// したらば or be.2ch.netなら、EUCに変換
+			if (P2Util::isHostJbbsShitaraba($host) || P2Util::isHostBe2chNet($host)) {
+				include_once './strctl.class.php';
 				$value = StrCtl::p2SJIStoEUC($value);
 			}
-			
+
 	        $POST[] = $name."=".urlencode($value);
 	    }
 	    $postdata = implode("&", $POST);
