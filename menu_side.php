@@ -4,7 +4,6 @@
 	フレーム分割画面、左側部分
 */
 
-
 require_once("./conf.php");  //設定読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once("./datactl.inc");
@@ -16,22 +15,20 @@ authorize(); //ユーザ認証
 //================================================================
 // 変数設定
 //================================================================
-if($_SERVER['HTTPS']){ 
-	$me_url = "https://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME']; 
-}else{ 
-	$me_url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME']; 
-} 
+$s = $_SERVER['HTTPS'] ? 's' : '';
+$me_url = "http{$s}://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
 $me_dir_url = dirname($me_url);
-$menu_side_url = $me_dir_url."/menu_side.php"; //menu_side.php の URL。（ローカルパス指定はできないようだ）
+//menu_side.php の URL。（ローカルパス指定はできないようだ）
+$menu_side_url = $me_dir_url.'/menu_side.php';
 
-$_info_msg_ht="";
+$_info_msg_ht = "";
 $brd_menus = array();
 
 // 板検索 ====================================
 if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
-	$word = $_REQUEST['word']
-	if(get_magic_quotes_gpc()) {
+	$word = $_REQUEST['word'];
+	if (get_magic_quotes_gpc()) {
 		$word = stripslashes($word);
 	}
 	if (preg_match('/^\.+$/', $word)) {
