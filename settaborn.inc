@@ -46,7 +46,7 @@ function settaborn($host, $bbs, $key, $set)
 	if ($taborn_lines) {
 		foreach ($taborn_lines as $line) {
 			$line = rtrim($line);
-			$line = explode('<>', $line);
+			$lar = explode('<>', $line);
 			if ($lar[1] == $key) {
 				$aborn_attayo = true; // Šù‚É‚ ‚Ú[‚ñ’†‚Å‚ ‚é
 				if ($set == 0 or $set == 2) {
