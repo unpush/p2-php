@@ -1,5 +1,8 @@
 <?php
-// p2 -  お気にスレの同期
+/*
+	p2 -  お気にスレの同期
+		最近読んだスレ、書き込み履歴、スレの殿堂
+*/
 
 require_once("./brdctl_class.inc");
 
@@ -15,7 +18,7 @@ if (!file_exists($syncfile)) {
 $lines = @file($syncfile);
 
 //board読み込み
-$_current = BrdCtl::read_brd_online();
+$_current = BrdCtl::read_brds();
 
 //================================================
 // 処理
@@ -31,7 +34,8 @@ foreach ($_current as $brdmenu) {
 	}
 }
 
-//データの同期
+// ■データの同期
+// 2ch/bbspinkの場合、板リストと現データをbbs（板名）で照合して、板リストデータで現データを上書きする。
 $neolines = array();
 foreach ($lines as $line) {
 	$data = explode('<>', rtrim($line));
@@ -41,8 +45,8 @@ foreach ($lines as $line) {
 		$neolines[] = $line;
 		continue;
 	}
-	$findline = preg_grep($grep_pattern, $current);
-	if ($findline) {
+	if ($findline = preg_grep($grep_pattern, $current)) {
+		// $findlineは最初に見つかったものを利用。
 		$newdata = explode('<>', rtrim(array_shift($findline)));
 		$data[10] = $newdata[0];
 		$data[11] = $newdata[1];
@@ -53,13 +57,15 @@ foreach ($lines as $line) {
 }
 
 //================================================
-//書き込む
+// 更新があれば、書き込む
 //================================================
 if (serialize($lines) != serialize($neolines)) {
 	$fp = @fopen($syncfile, 'wb') or die("Error: $syncfile を更新できませんでした");
+	flock($fp, LOCK_EX);
 	foreach ($neolines as $l) {
 		fputs($fp, $l);
 	}
+	flock($fp, LOCK_UN);
 	fclose($fp);
 	$sync_ok = true;
 } else {

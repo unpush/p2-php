@@ -2,7 +2,7 @@
 // p2 ースタイル設定
 // 全般
 
-if($STYLE['a_underline_none'] == 1){
+if ($STYLE['a_underline_none'] == 1) {
 	$a_underline_none_css = "a{text-decoration:none;}";
 }
 
@@ -11,14 +11,15 @@ echo <<<EOP
 <!--
 EOP;
 
-if(strstr($ua, "Camino") || strstr($ua, "Chimera")){ /* ブラウザが Camino なら */
+// ブラウザが Camino なら
+if (strstr($_SERVER['HTTP_USER_AGENT'], "Camino") || strstr($_SERVER['HTTP_USER_AGENT'], "Chimera")) {
 	echo <<<EOP
 	input,option,select{
 		font-size:10px;
 		font-family:"Osaka"; /*  Camino ではフォームのフォントにヒラギノを指定するとline-heightが崩れる */
 	}
 EOP;
-}else{
+} else {
 	echo <<<EOP
 	input,option,select{
 		font-size:{$STYLE['form_fontsize']};

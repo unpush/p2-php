@@ -136,8 +136,7 @@ EOHEADER;
 echo <<<EOP
 	<script type="text/javascript" src="{$basic_js}"></script>
 	<script type="text/javascript" src="{$respopup_js}"></script>
-	<script type="text/javascript" src="js/htmlpopup.js"></script>
-	<script type="text/javascript" src="js/showhide.js"></script>\n
+	<script type="text/javascript" src="js/htmlpopup.js"></script>\n
 EOP;
 if ($_conf['bottom_res_form']) {
 	echo <<<EOP

@@ -1,50 +1,48 @@
 <?php
 /*
 	p2 -  クッキー認証処理
-
-	最新更新日: 2004/10/24
 */
 
-require_once("./conf.php");  //基本設定
+require_once("./conf.php");  // 基本設定
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
 
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
-if( isset($_GET['regist_cookie']) ){
+if (isset($_GET['regist_cookie'])) {
 	$regist_cookie = $_GET['regist_cookie'];
 }
 
 //================================================
 // 認証登録処理 cookie
 //================================================
-if( isset($regist_cookie) ){
-	if($regist_cookie=="in"){
+if (isset($regist_cookie)) {
+	if ($regist_cookie == "in") {
 		setcookie('p2_user', $login['user'], time()+60*60*24*1000);
 		setcookie('p2_pass', crypt($_SERVER['PHP_AUTH_PW'], $_SERVER['PHP_AUTH_PW']), time()+60*60*24*1000); //
 		$check_msg_st = "cookie認証登録...";
-	}elseif($regist_cookie=="out"){
-		setcookie ("p2_user", "", time() - 3600);
-		setcookie ("p2_pass", "", time() - 3600);
+	} elseif ($regist_cookie == "out") {
+		setcookie("p2_user", "", time() - 3600);
+		setcookie("p2_pass", "", time() - 3600);
 		$check_msg_st = "cookie認証解除...";
 	}
 }
 
 //書き出し用変数========================================
 
-$ptitle=$check_msg_st;
-$autho_user_ht="";
-$return_path="login.php";
+$ptitle = $check_msg_st;
+$autho_user_ht = "";
+$return_path = "login.php";
 
-$next_url=<<<EOP
+$next_url = <<<EOP
 {$return_path}?regist_cookie_check={$_GET['regist_cookie']}{$k_at_a}
 EOP;
 
 //$meta_refresh_ht="<meta http-equiv=\"refresh\" content=\"1;URL={$next_url}\">";
 
-$body_onload="";
-if(!$_conf['ktai']){
-	$body_onload=" onLoad=\"setWinTitle();\"";
+$body_onload = "";
+if (!$_conf['ktai']) {
+	$body_onload = " onLoad=\"setWinTitle();\"";
 }
 
 //=========================================================
@@ -52,7 +50,7 @@ if(!$_conf['ktai']){
 //=========================================================
 header_nocache();
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($doctype) { echo $doctype; }
 echo <<<EOP
 <html>
 <head>
@@ -63,7 +61,7 @@ echo <<<EOP
 	<title>{$ptitle}</title>
 EOP;
 
-if(!$_conf['ktai']){
+if (!$_conf['ktai']) {
 	@include("./style/style_css.inc");
 	echo <<<EOP
 	<script type="text/javascript" src="{$basic_js}"></script>
@@ -76,7 +74,7 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 echo <<<EOP
 {$ptitle}<br>

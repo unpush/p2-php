@@ -1,10 +1,9 @@
 <?php
 // p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
 
-$_conf['p2version'] = '1.3.9';
+$_conf['p2version'] = '1.4.0';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
-
 $_conf['p2name'] = 'P2';	// p2の名前。
 
 
@@ -13,16 +12,20 @@ $_conf['p2name'] = 'P2';	// p2の名前。
 //======================================================================
 error_reporting(E_ALL ^ E_NOTICE); 
 
+// 動作環境を確認
+if (version_compare(phpversion(), '4.3.0', 'lt')) {
+	die('<html><body><h1>PHPバージョン4.3.0未満では使えません。</h1></body></html>');
+} elseif (version_compare(phpversion(), '5.0.0', 'ge')) {
+	ini_set('zend.ze1_compatibility_mode', 'On'); // オブジェクトのふるまいをPHP4と同じに
+}
+
 require_once './p2util.class.php';
 
 putenv("TZ=JST-9"); //タイムゾーンをセット
 
-//PHP4.1.0未満と互換保持
-if (phpversion() < '4.1.0') {
-    $_GET = $HTTP_GET_VARS;
-    $_POST = $HTTP_POST_VARS;
-    $_SESSION = $HTTP_SESSION_VARS;
-}
+// session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
+// URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
+ini_set('arg_separator.output', '&amp;');
 
 // ■内部処理における文字コード指定
 if (extension_loaded('mbstring')) {
@@ -40,9 +43,7 @@ if (function_exists('mb_ereg_replace')) {
 }
 
 // UA判別 ===========================================
-$ua = $_SERVER['HTTP_USER_AGENT'];	// この変数（$ua）は廃止予定。$_SERVER['HTTP_USER_AGENT']を直接利用する。
-
-if (isset($_GET['k']) || isset($_POST['k'])) {
+if (!empty($_GET['k']) || !empty($_POST['k'])) {
 	$_conf['ktai'] = 1;
 	$k_at_a = "&amp;k=1";
 	$k_at_q = "?k=1";
@@ -78,7 +79,7 @@ EOP;
 	$_conf['ktai'] = true;
 	$pointer_at = "name";
 
-} elseif(preg_match('{^(J-PHONE|Vodafone)/}', $_SERVER['HTTP_USER_AGENT'])) {
+} elseif (preg_match('{^(J-PHONE|Vodafone)/}', $_SERVER['HTTP_USER_AGENT'])) {
 	//$browser = "JPHONE";
 	$_conf['ktai'] = true;
 	$accesskey = "DIRECTKEY";
@@ -94,9 +95,9 @@ $k_to_index_ht = <<<EOP
 <a {$accesskey}="0" href="index.php{$k_at_q}">0.TOP</a>
 EOP;
 
-//DOCTYPE HTML 宣言==========================
+// DOCTYPE HTML 宣言 ==========================
 $ie_strict = false;
-if(!$_conf['ktai']){
+if (empty($_conf['ktai'])) {
 	if($ie_strict){
 		$doctype=<<<EODOC
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"

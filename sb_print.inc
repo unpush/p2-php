@@ -18,8 +18,8 @@ function sb_print($aThreadList)
 	
 	// >>1 •\Ž¦
 	if (($_conf['sb_show_one'] == 1) or ($_conf['sb_show_one'] == 2 and ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus")) {
-		// ‘qŒÉ‚Íœ‚­
-		if ($aThreadList->spmode != "soko") {
+		// spmode‚Íœ‚­
+		if (empty($aThreadList->spmode)) {
 			$only_one_bool = true;
 		}
 	}
