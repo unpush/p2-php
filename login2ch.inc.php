@@ -2,7 +2,6 @@
 
 include_once './conf.inc.php';  // Šî–{İ’è
 require_once './filectl.class.php';
-require_once './crypt_xor.inc.php';
 
 /**
  * ¡2ch‚ÉƒƒOƒCƒ“‚·‚é

@@ -141,7 +141,7 @@ class DataPhp{
 	/**
 	 * データphp形式のファイルで、末尾にデータを追加する
 	 */
-	function putDataPhp($cont, $data_php, $perm = 0606)
+	function putDataPhp($cont, $data_php, $perm = 0606, $ncheck = false)
 	{
 		$pre_quote = preg_quote(DataPhp::getPre());
 		$hip_quote = preg_quote(DataPhp::getHip());
@@ -150,7 +150,23 @@ class DataPhp{
 
 		$old_cont = @file_get_contents($data_php);
 		if ($old_cont) {
-			$new_cont = preg_replace('{'.$hip_quote.'.*$}s', '', $old_cont) . $cont_esc .DataPhp::getHip();
+			// ファイルが、データphp形式以外の場合は、何もせずにfalseを返す
+			if (!preg_match("/^\s*<\?php\s\/\*/", $old_cont)) {
+				return false;
+			}
+			
+			$old_cut = preg_replace('{'.$hip_quote.'.*$}s', '', $old_cont);
+			
+			// 古い内容の末尾が改行でなければ、改行を追加する
+			if ($ncheck) {
+				if (substr($old_cut, -1) != "\n") {
+					$old_cut .= "\n";
+				}
+			}
+			
+			$new_cont = $old_cut . $cont_esc .DataPhp::getHip();
+			
+		// データ内容がまだなければ、新規データphp
 		} else {
 			$new_cont = DataPhp::getPre().$cont_esc.DataPhp::getHip();
 		}
@@ -163,6 +179,8 @@ class DataPhp{
 		fwrite($fp, $new_cont);
 		@flock($fp, LOCK_UN);
 		fclose($fp);
+		
+		return true;
 	}
 	
 	/**

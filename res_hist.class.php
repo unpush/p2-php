@@ -1,13 +1,11 @@
 <?php
 // p2 - 書き込み履歴のクラス
 
-require_once './p2util.class.php';
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 
-//======================================================================
-//クラス
-//======================================================================
-
-//レス記事のクラス
+/**
+ * ■レス記事のクラス
+ */
 class ResArticle{
 	var $name;
 	var $mail;
@@ -21,72 +19,90 @@ class ResArticle{
 	var $order; //記事番号
 }
 
-//書き込み履歴のクラス
+/**
+ * ■書き込みログのクラス
+ */
 class ResHist{
 	var $articles; // クラス ResArticle のオブジェクトを格納する配列
 	var $num; // 格納された BrdMenuCate オブジェクトの数
 	
 	var $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
 	
+	/**
+	 * コンストラクタ
+	 */
 	function ResHist()
 	{
 		$this->articles = array();
 		$this->num = 0;
 	}
 	
+	/**
+	 * ■レスを追加する
+	 */
 	function addRes($aResArticle)
 	{
 		$this->articles[] = $aResArticle;
 		$this->num++;
 	}	
 	
-	//レス記事を表示するメソッド ===============================================
+	/**
+	 * ■レス記事を表示する PC用
+	 */
 	function showArticles()
 	{
 		global $_conf, $STYLE;
-		global $k_at_a, $k_at_q, $k_input_ht;
-	
-		$tores="<dl>";
+		
+		$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+		
+		echo "<dl>";
 		
 		foreach ($this->articles as $a_res) {
 			$htm['daytime'] = htmlspecialchars($a_res->daytime);
+			
 			$href_ht = "";
-			if($a_res->key){
-				$href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$k_at_a}#footer";
+			if ($a_res->key) {
+				$href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$_conf['k_at_a']}#footer";
 			}
 			$info_view_ht = <<<EOP
-		<a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$k_at_a}" target="_self" onClick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1',{$STYLE['info_pop_size']},0,0)">情報</a>
+		<a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$_conf['k_at_a']}" target="_self" onClick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1',{$STYLE['info_pop_size']},0,0)">情報</a>
 EOP;
 
 			$res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$htm['daytime']}\"> ";
-			$res_ht .= "{$a_res->order} ："; //番号
-			$res_ht .= "<span class=\"name\"><b>{$a_res->name}</b></span> ："; //名前
-			if($a_res->mail){$res_ht .= "{$a_res->mail} ：";} //メール
-			$res_ht .= "{$htm['daytime']}</dt>\n"; //日付とID
-			$res_ht .= "<dd><a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$k_at_a}\" target=\"subject\">{$a_res->itaj}</a> / ";
-			if($href_ht){
+			$res_ht .= "{$a_res->order} ："; // 番号
+			$res_ht .= "<span class=\"name\"><b>{$a_res->name}</b></span> ："; // 名前
+			// メール
+			if ($a_res->mail) {
+				$res_ht .= "{$a_res->mail} ：";
+			}
+			$res_ht .= "{$htm['daytime']}</dt>\n"; // 日付とID
+			$res_ht .= "<dd><a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\" target=\"subject\">{$a_res->itaj}</a> / ";
+			if ($href_ht) {
 				$res_ht .= "<a href=\"{$href_ht}\"><b>{$a_res->ttitle}</b></a> - {$info_view_ht}\n";
-			}elseif($a_res->ttitle){
+			} elseif ($a_res->ttitle) {
 				$res_ht .= "<b>{$a_res->ttitle}</b>\n";
 			}
 			$res_ht .= "<br><br>";
-			$res_ht .= "{$a_res->msg}<br><br></dd>\n"; //内容
+			$res_ht .= "{$a_res->msg}<br><br></dd>\n"; // 内容
 
-			$tores .= $res_ht;
+			echo $res_ht;
+			flush();
 		}
 		
-		$tores .= "</dl>";
+		echo "</dl>";
 		
-		echo $tores;
+		return true;
 	}
 	
-	//携帯用ナビを表示するメソッド=====================================================
+	/**
+	 * ■携帯用ナビを表示する
+	 * 表示範囲もセットされる
+	 */
 	function showNaviK($position)
 	{
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht;
 
-		//表示数制限====================
+		// 表示数制限
 		$list_disp_all_num = $this->num;
 		$list_disp_range = $_conf['k_rnum_range'];
 		
@@ -99,10 +115,13 @@ EOP;
 				}
 			}
 		} else {
-			$list_disp_from = $this->num-$list_disp_range+1;
+			$list_disp_from = 1;
+			/*
+			$list_disp_from = $this->num - $list_disp_range + 1;
 			if ($list_disp_from < 1) {
 				$list_disp_from = 1;
 			}
+			*/
 		}
 		$disp_navi = P2Util::getListNaviRange($list_disp_from, $list_disp_range, $list_disp_all_num);
 		
@@ -113,22 +132,22 @@ EOP;
 		if ($disp_navi['from'] > 1) {
 			if ($position == "footer") {
 				$mae_ht = <<<EOP
-		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}" href="read_res_hist.php?from={$disp_navi['mae_from']}{$k_at_a}">{$_conf['k_accesskey']['prev']}.前</a>
+		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}" href="read_res_hist.php?from={$disp_navi['mae_from']}{$_conf['k_at_a']}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
 			} else {
 				$mae_ht = <<<EOP
-		<a href="read_res_hist.php?from={$disp_navi['mae_from']}{$k_at_a}">前</a>
+		<a href="read_res_hist.php?from={$disp_navi['mae_from']}{$_conf['k_at_a']}">前</a>
 EOP;
 			}
 		}
 		if ($disp_navi['end'] < $list_disp_all_num) {
 			if ($position == "footer") {
 				$tugi_ht = <<<EOP
-		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}" href="read_res_hist.php?from={$disp_navi['tugi_from']}{$k_at_a}">{$_conf['k_accesskey']['next']}.次</a>
+		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}" href="read_res_hist.php?from={$disp_navi['tugi_from']}{$_conf['k_at_a']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
 			} else {
 				$tugi_ht = <<<EOP
-		<a href="read_res_hist.php?from={$disp_navi['tugi_from']}{$k_at_a}">次</a>
+		<a href="read_res_hist.php?from={$disp_navi['tugi_from']}{$_conf['k_at_a']}">次</a>
 EOP;
 			}
 		}
@@ -143,33 +162,32 @@ EOP;
 	
 	}
 	
-	//レス記事を表示するメソッド 携帯用============================================
+	/**
+	 * ■レス記事を表示するメソッド 携帯用
+	 */
 	function showArticlesK()
 	{
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht;
-	
-		//=============
-		$tores="";
+		
 		foreach($this->articles as $a_res){
 			$htm['daytime'] = htmlspecialchars($a_res->daytime);
 			
-			if($a_res->order < $this->resrange['start'] or $a_res->order > $this->resrange['to']){
+			if ($a_res->order < $this->resrange['start'] or $a_res->order > $this->resrange['to']) {
 				continue;
 			}
 		
-			$href_ht="";
-			if($a_res->key){
-				$href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$k_at_a}#footer";
+			$href_ht = "";
+			if ($a_res->key) {
+				$href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$_conf['k_at_a']}#footer";
 			}
 		
-		//大きさ制限
-		if(! $_GET['k_continue']){
-			$msg=$a_res->msg;
-			if( strlen($msg) > $_conf['ktai_res_size']){
+		// 大きさ制限
+		if (!$_GET['k_continue']) {
+			$msg = $a_res->msg;
+			if (strlen($msg) > $_conf['ktai_res_size']) {
 				$msg = substr($msg, 0, $_conf['ktai_ryaku_size']);
 				
-				//末尾に<br>があれば取り除く
+				// 末尾に<br>があれば取り除く
 				if( substr($msg, -1)==">" ){
 					$msg = substr($msg, 0, strlen($msg)-1);
 				}
@@ -184,28 +202,28 @@ EOP;
 				}
 				
 				$msg = $msg."  ";
-				$a_res->msg = $msg."<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$k_at_a}\">略</a>";
+				$a_res->msg = $msg."<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
 			}
 		}
 
-			$res_ht = "[$a_res->order]"; //番号
-			$res_ht .= "{$a_res->name}:"; //名前
-			if($a_res->mail){$res_ht .= "{$a_res->mail}:";} //メール
-			$res_ht .= "{$htm['daytime']}<br>\n"; //日付とID
-			$res_ht .= "<a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$k_at_a}\">{$a_res->itaj}</a> / ";
-			if($href_ht){
+			$res_ht = "[$a_res->order]"; // 番号
+			$res_ht .= "{$a_res->name}:"; // 名前
+			if ($a_res->mail) {$res_ht .= "{$a_res->mail}:";} // メール
+			$res_ht .= "{$htm['daytime']}<br>\n"; // 日付とID
+			$res_ht .= "<a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\">{$a_res->itaj}</a> / ";
+			if ($href_ht) {
 				$res_ht .= "<a href=\"{$href_ht}\">{$a_res->ttitle}</a>\n";
-			}elseif($a_res->ttitle){
+			} elseif ($a_res->ttitle) {
 				$res_ht .= "{$a_res->ttitle}\n";
 			}
 			$res_ht .= "<br>";
-			$res_ht .= "{$a_res->msg}<hr>\n"; //内容
+			$res_ht .= "{$a_res->msg}<hr>\n"; // 内容
 			
-			$tores .= $res_ht;
+			echo $res_ht;
 	
 		}
 		
-		echo $tores;
+		return true;
 
 	}
 }

@@ -4,7 +4,6 @@
 include_once './conf.inc.php';  // 基本設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './filectl.class.php';
-require_once './crypt_xor.inc.php';
 
 authorize(); // ユーザ認証
 
@@ -78,8 +77,8 @@ if (!$_conf['ktai']) {
 	$body_onload = " onLoad=\"setWinTitle();\"";
 }
 
-header_nocache();
-header_content_type();
+P2Util::header_nocache();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
@@ -132,7 +131,7 @@ if (file_exists($_conf['sid2ch_php'])) {
 	$form_now_log = <<<EOFORM
 	<form id="form_logout" method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
 		現在、2ちゃんねるに{$login_st}中です 
-		{$k_input_ht}
+		{$_conf['k_input_ht']}
 		<input type="hidden" name="login2ch" value="out">
 		<input type="submit" name="submit" value="{$logout_st}する">
 	</form>\n
@@ -144,7 +143,7 @@ EOFORM;
 		$form_now_log = <<<EOFORM
 	<form id="form_logout" method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
 		現在、{$login_st}していません 
-		{$k_input_ht}
+		{$_conf['k_input_ht']}
 		<input type="hidden" name="login2ch" value="in">
 		<input type="submit" name="submit" value="再{$login_st}する">
 	</form>\n
@@ -177,7 +176,7 @@ if ($_conf['ktai']) {
 
 echo <<<EOFORM
 <form id="login_with_id" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
-	{$k_input_ht}
+	{$_conf['k_input_ht']}
 	ID: <input type="text" name="login2chID" value="{$login2chID}"{$id_input_size_at}><br>
 	{$password_st}: <input type="password" name="login2chPW" id="login2chPW"{$pass_input_size_at}><br>
 	<input type="checkbox" id="autoLogin2ch" name="autoLogin2ch" value="1"{$autoLogin2ch_checked}><label for="autoLogin2ch">起動時に自動{$login_st}する</label><br>

@@ -5,10 +5,10 @@ require_once './p2util.class.php';
 require_once './filectl.class.php';
 require_once("./login.inc");
 
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
-if( isset($_GET['regist_cookie']) ){ $regist_cookie = $_GET['regist_cookie']; }
-if( isset($_POST['regist_cookie']) ){ $regist_cookie = $_POST['regist_cookie']; }
+if (isset($_GET['regist_cookie'])) { $regist_cookie = $_GET['regist_cookie']; }
+if (isset($_POST['regist_cookie'])) { $regist_cookie = $_POST['regist_cookie']; }
 
 //パーミッション注意喚起================
 if ($_conf['pref_dir'] == $datdir) {
@@ -66,7 +66,7 @@ EOP;
 $login_form_ht =<<<EOP
 <p>認証{$user_st}と{$password_st}を新規登録します</p>
 <form id="login" method="POST" action="{$_SERVER['REQUEST_URI']}" target="_self">
-	{$k_input_ht}
+	{$_conf['k_input_ht']}
 	{$user_st}: <input type="text" name="login_user" value="{$_POST['login_user']}"><br>
 	{$password_st}: <input type="password" name="login_pass" value="{$_POST['login_pass']}"><br>
 	{$auth_sub_input_ht}
@@ -107,7 +107,7 @@ EOP;
 		regist_set_cookie();
 
 		$body_ht .= "<p class=\"infomsg\">○ 認証{$user_st}「{$_POST['login_user']}」を登録しました</p>";
-		$body_ht .= "<p><a href=\"{$_SERVER['REQUEST_URI']}{$k_at_q}\">p2 start</a></p>";
+		$body_ht .= "<p><a href=\"{$_SERVER['REQUEST_URI']}{$_conf['k_at_q']}\">p2 start</a></p>";
 		
 	}
 	
@@ -128,8 +128,8 @@ EOP;
 //=========================================================
 // HTMLプリント
 //=========================================================
-header_nocache();
-header_content_type();
+P2Util::header_nocache();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $doctype; }
 echo <<<EOP
 <html>

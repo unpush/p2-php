@@ -5,7 +5,8 @@
 
 include_once './conf.inc.php';  // 基本設定ファイル読込
 require_once("./brdctl_class.inc");
-require_once("./showbrdmenuk_class.inc");
+require_once './showbrdmenuk.class.php';
+require_once './p2util.class.php';
 
 authorize(); //ユーザ認証
 
@@ -61,7 +62,7 @@ if($_GET['view']=="favita"){
 	$ptitle="ﾕﾋﾞｷﾀｽp2";
 }
 
-header_content_type();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
@@ -152,20 +153,20 @@ if ((isset($_REQUEST['word']) && $_REQUEST['word'] == "") or $_GET['view'] == "c
 //==============================================================
 // カテゴリの板を表示
 //==============================================================
-if(isset($_GET['cateid'])){
-	if($brd_menus){
-		foreach($brd_menus as $a_brd_menu){
+if (isset($_GET['cateid'])) {
+	if ($brd_menus) {
+		foreach ($brd_menus as $a_brd_menu) {
 			$aShowBrdMenuK->printIta($a_brd_menu->categories);
 		}
 	}
-	$modori_url_ht=<<<EOP
-<a href="menu_k.php?view=cate&amp;nr=1{$k_at_a}">板ﾘｽﾄ</a><br>
+	$modori_url_ht = <<<EOP
+<a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">板ﾘｽﾄ</a><br>
 EOP;
 }
 
 	
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 //==============================================================
 // フッタを表示

@@ -15,6 +15,29 @@ class ShowThread{
 	}
 
 	/**
+	 * BEプロファイルリンク変換
+	 */
+	function replaceBeId($date_id)
+	{
+		global $_conf;
+		
+		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/{$this->thread->key}/\"{$_conf['ext_win_target']}>Lv.\$2</a>";		
+		
+		//<BE:23457986:1>
+		$be_match = '|<BE:(\d+):(\d+)>|i';
+		if (preg_match($be_match, $date_id)) {
+			$date_id = preg_replace($be_match, $beid_replace, $date_id);
+		
+		} else {
+		
+			$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/{$this->thread->key}/\"{$_conf['ext_win_target']}>?\$2</a>";
+			$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
+		}
+		
+		return $date_id;
+	}
+
+	/**
 	 * NGあぼーんチェック
 	 */
 	function ngAbornCheck($code, $resfield)

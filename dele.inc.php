@@ -1,12 +1,15 @@
 <?php
 /*
-	p2 - スレッドデータ、DATを削除する
+	p2 - スレッドデータ、DATを削除するための関数郡
 */
 
 require_once 'p2util.class.php';
+require_once './setfav.inc.php';
+require_once './setpalace.inc.php';
 
 /**
- * ■指定した配列keysのログ（idx (,dat)）を削除して、ついでに履歴からも外す
+ * ■指定した配列keysのログ（idx, (dat, srd)）を削除して、
+ * ついでに履歴からも外す。お気にスレ、殿堂からも外す。
  *
  * ユーザがログを削除する時は、通常この関数が呼ばれる
  *
@@ -15,12 +18,15 @@ require_once 'p2util.class.php';
  * @return int 失敗があれば0, 削除できたら1, 削除対象がなければ2を返す。
  */
 function deleteLogs($host, $bbs, $keys)
-{		
+{	
 	// 指定keyのログを削除（対象が一つの時）
 	if (is_string($keys)) {
-		offRecent($host, $bbs, $keys);
-		offResHist($host, $bbs, $keys);
-		$r = deleteThisKey($host, $bbs, $keys);
+		$akey = $keys;
+		offRecent($host, $bbs, $akey);
+		offResHist($host, $bbs, $akey);
+		setFav($host, $bbs, $akey, 0);
+		setPal($host, $bbs, $akey, 0);
+		$r = deleteThisKey($host, $bbs, $akey);
 	
 	// 指定key配列のログを削除
 	} elseif (is_array($keys)) {
@@ -28,6 +34,8 @@ function deleteLogs($host, $bbs, $keys)
 		foreach ($keys as $akey) {
 			offRecent($host, $bbs, $akey);
 			offResHist($host, $bbs, $akey);
+			setFav($host, $bbs, $akey, 0);
+			setPal($host, $bbs, $akey, 0);
 			$rs[] = deleteThisKey($host, $bbs, $akey);
 		}
 		if (array_search(0, $rs) !== false) {
@@ -48,10 +56,13 @@ function deleteLogs($host, $bbs, $keys)
  *
  * 通常は、この関数を直接呼び出すことはない。deleteLogs() から呼び出される。
  *
+ * @see deleteLogs()
  * @return int 失敗があれば0, 削除できたら1, 削除対象がなければ2を返す。
  */
 function deleteThisKey($host, $bbs, $key)
 {
+	global $_conf;
+
 	$datdir_host = P2Util::datdirOfHost($host);
 	
 	$anidx = "$datdir_host/{$bbs}/{$key}.idx";
@@ -90,18 +101,22 @@ function deleteThisKey($host, $bbs, $key)
 
 
 /**
- * 指定したキーが最近読んだスレに入ってるかどうかをチェックする
+ * ■指定したキーが最近読んだスレに入ってるかどうかをチェックする
+ *
+ * @public
  */
 function checkRecent($host, $bbs, $key)
 {
 	global $_conf;
 
-	$lines = @file($_conf['rct_file']); // 読み込み
-	if ($lines) { // あればtrue
+	$lines = @file($_conf['rct_file']);
+	// あればtrue
+	if (is_array($lines)) {
 		foreach ($lines as $l) {
 			$l = rtrim($l);
 			$lar = explode('<>', $l);
-			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) { // あったら
+			// あったら
+			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
 				return true;
 			}
 		}
@@ -110,19 +125,23 @@ function checkRecent($host, $bbs, $key)
 }
 
 /**
- * 指定したキーが書き込み履歴に入ってるかどうかをチェックする
+ * ■指定したキーが書き込み履歴に入ってるかどうかをチェックする
+ *
+ * @public
  */
 function checkResHist($host, $bbs, $key)
 {
 	global $_conf;
 	
 	$rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
-	$lines = @file($rh_idx); // 読み込み
-	if ($lines) {	// あればtrue
+	$lines = @file($rh_idx);
+	// あればtrue
+	if (is_array($lines)) {
 		foreach ($lines as $l) {
 			$l = rtrim($l);
 			$lar = explode('<>', $l);
-			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) { // あったら
+			// あったら
+			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
 				return true;
 			}
 		}
@@ -131,18 +150,22 @@ function checkResHist($host, $bbs, $key)
 }
 
 /**
- * 指定したキーの履歴を削除する
+ * ■指定したキーの履歴（最近読んだスレ）を削除する
+ *
+ * @public
  */
 function offRecent($host, $bbs, $key)
 {
 	global $_conf;
 
-	$lines = @file($_conf['rct_file']); // 読み込み
-	if ($lines) { // あれば削除
+	$lines = @file($_conf['rct_file']);
+	// あれば削除
+	if (is_array($lines)) {
 		foreach ($lines as $line) {
 			$line = rtrim($line);
 			$lar = explode('<>', $line);
-			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) { // 削除
+			// 削除
+			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
 				$done = true;
 				continue;
 			}
@@ -151,10 +174,10 @@ function offRecent($host, $bbs, $key)
 	}
 
 	// 書き込む
-	$fp = @fopen($_conf['rct_file'], "wb") or die("Error: cannot write. ({$_conf['rct_file']})");
+	$fp = @fopen($_conf['rct_file'], 'wb') or die("Error: cannot write. ({$_conf['rct_file']})");
 	if ($neolines) {
 		@flock($fp, LOCK_EX);
-		foreach($neolines as $l){
+		foreach ($neolines as $l) {
 			fputs($fp, $l."\n");
 		}
 		@flock($fp, LOCK_UN);
@@ -169,19 +192,23 @@ function offRecent($host, $bbs, $key)
 }
 
 /**
- * 指定したキーの書き込み履歴を削除する
+ * ■指定したキーの書き込み履歴を削除する
+ *
+ * @public
  */
 function offResHist($host, $bbs, $key)
 {
 	global $_conf;
 	
-	$rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
-	$lines = @file($rh_idx); // 読み込み
-	if ($lines) {	// あれば削除
+	$rh_idx = $_conf['pref_dir'].'/p2_res_hist.idx';
+	$lines = @file($rh_idx);
+	// あれば削除
+	if (is_array($lines)) {
 		foreach($lines as $l){
 			$l = rtrim($l);
 			$lar = explode('<>', $l);
-			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) { // 削除
+			// 削除
+			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
 				$done = true;
 				continue;
 			}
@@ -190,7 +217,7 @@ function offResHist($host, $bbs, $key)
 	}
 
 	// 書き込む
-	$fp = @fopen($rh_idx, "wb") or die("Error: cannot write. ({$rh_idx})");
+	$fp = @fopen($rh_idx, 'wb') or die("Error: cannot write. ({$rh_idx})");
 	if ($neolines) {
 		@flock($fp, LOCK_EX);
 		foreach ($neolines as $l) {

@@ -87,7 +87,7 @@ class BrdMenu{
 				if ($word_fm) {
 					if (StrCtl::filterMatch($word_fm, $aBrdMenuIta->itaj)) {
 						$this->categories[$this->num-1]->match_attayo = true;
-						$mikke++;
+						$GLOBALS['ita_mikke']['num']++;
 
 						// マーキング
 						$aBrdMenuIta->itaj_ht = StrCtl::filterMarking($word_fm, $aBrdMenuIta->itaj);

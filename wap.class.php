@@ -1,10 +1,14 @@
 <?php
-// WWW Access in PHP
+// WWW Access on PHP
 // http://member.nifty.ne.jp/hippo2000/perltips/LWP.html を参考にしつつ似たような簡易のものを
 
-//======================================================
-// UserAgent クラス
-//======================================================
+/**
+ * UserAgent クラス
+ *
+ *	setAgent() : ua をセットする。
+ *	setTimeout()
+ *	request() : リクエストをサーバに送信して、レスポンスを返す。
+ */
 class UserAgent{
 	/* 
 	setAgent() : ua をセットする。
@@ -16,67 +20,74 @@ class UserAgent{
 	var $agent;  // User-Agent。アプリケーションの名前。
 	var $timeout;
 	
-	//=======================================
+	/**
+	 * setAgent
+	 */
 	function setAgent($agent_name){
 		$this->agent = $agent_name;
 		return;
 	}
 	
-	//=======================================
-	function setTimeout($timeout){
+	/**
+	 * setTimeout
+	 */
+	function setTimeout($timeout)
+	{
 		$this->timeout = $timeout;
 		return;
 	}
 	
-	//=======================================
-	//http://www.spencernetwork.org/memo/tips-3.php を参考にさせて頂きました。
-
-	function request($req){
-	
+	/**
+	 * request
+	 *
+	 * http://www.spencernetwork.org/memo/tips-3.php を参考にさせて頂きました。
+	 */
+	function request($req)
+	{
 		$res = new Response;
 		
-		$URL=parse_url($req->url); //URL分解
-		if (isset($URL['query'])) { //クエリー
-		    $URL['query'] = "?".$URL['query'];
+		$purl = parse_url($req->url); // URL分解
+		if (isset($purl['query'])) { // クエリー
+		    $purl['query'] = "?".$purl['query'];
 		} else {
-		    $URL['query'] = "";
+		    $purl['query'] = "";
 		}
-	    if (!isset($URL['port'])){$URL['port'] = 80;} //デフォルトのポートは80
+	    if (!isset($purl['port'])){$purl['port'] = 80;} // デフォルトのポートは80
 	
-		//プロキシ
-		if($req->proxy){
+		// プロキシ
+		if ($req->proxy) {
 			$send_host = $req->proxy['host'];
 			$send_port = $req->proxy['port'];
 			$send_path = $req->url;
-		}else{
-			$send_host = $URL['host'];
-			$send_port = $URL['port'];
-			$send_path = $URL['path'].$URL['query'];
+		} else {
+			$send_host = $purl['host'];
+			$send_port = $purl['port'];
+			$send_path = $purl['path'].$purl['query'];
 		}
 	
 		$request = $req->method." ".$send_path." HTTP/1.0\r\n";
-		$request .= "Host: ".$URL['host']."\r\n";
-		if($this->agent){
+		$request .= "Host: ".$purl['host']."\r\n";
+		if ($this->agent) {
 			$request .= "User-Agent: ".$this->agent."\r\n";
 		}
 		$request .= "Connection: Close\r\n";
 		//$request .= "Accept-Encoding: gzip\r\n";
 		
-		if($req->modified){
+		if ($req->modified) {
 			$request .= "If-Modified-Since: {$req->modified}\r\n";
 		}
 		
-		/* Basic認証用のヘッダ */
-		if (isset($URL['user']) && isset($URL['pass'])) {
-		    $request .= "Authorization: Basic ".base64_encode($URL['user'].":".$URL['pass'])."\r\n";
+		// Basic認証用のヘッダ
+		if (isset($purl['user']) && isset($purl['pass'])) {
+		    $request .= "Authorization: Basic ".base64_encode($purl['user'].":".$purl['pass'])."\r\n";
 		}
 
-		/* 追加ヘッダ */
-		if($req->headers){
+		// 追加ヘッダ
+		if ($req->headers) {
 	    	$request .= $req->headers;
 		}
 		
-		/* POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付 */
+		// POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付
 		if (strtoupper($req->method) == "POST") {
 		    while (list($name, $value) = each($req->post)) {
 		        $POST[] = $name."=".urlencode($value);
@@ -90,21 +101,21 @@ class UserAgent{
 		    $request .= "\r\n";
 		}
 	
-		/* WEBサーバへ接続 */
-		if($this->timeout){
+		// WEBサーバへ接続
+		if ($this->timeout) {
 			$fp = fsockopen($send_host, $send_port, $errno, $errstr, $this->timeout);
-		}else{
+		} else {
 			$fp = fsockopen($send_host, $send_port, $errno, $errstr);
 		}
 		
-		if($fp){
+		if ($fp) {
 			fputs($fp, $request);
 			$body = "";
-			while (!feof($fp)){
+			while (!feof($fp)) {
 			
-				if($start_here){
+				if ($start_here) {
 					$body .= fread($fp, 4096);
-				}else{
+				} else {
 					$l = fgets($fp,128000);
 					//echo $l."<br>"; //
 					if( preg_match("/HTTP\/1\.\d (\d+) (.+)\r\n/", $l, $matches) ){ // ex) HTTP/1.1 304 Not Modified

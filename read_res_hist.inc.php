@@ -19,6 +19,9 @@ function deleMsg($checked_hists)
 	}
 	$reslines = array_map('rtrim', $reslines);
 	
+	// ファイルの下に記録されているものが新しいので逆順に
+	$reslines = array_reverse($reslines);
+	
 	// チェックして整えて
 	$neolines = "";
 	if ($reslines) {
@@ -35,6 +38,9 @@ function deleMsg($checked_hists)
 		}
 		$neolines = rmLine($rmnums, $reslines);
 	}
+	
+	// 行順を戻す
+	$neolines = array_reverse($neolines);
 
 	$cont = "";
 	if ($neolines) {
@@ -61,7 +67,7 @@ function checkMsgID($checked_hists, $order, $date)
 }
 
 /**
- * 指定した番号（配列指定）を行リストから削除する関数
+ * 指定した番号（配列指定）を行リストから削除する
  */
 function rmLine($order_list, $lines)
 {
@@ -69,7 +75,7 @@ function rmLine($order_list, $lines)
 		$i = 0;
 		foreach ($lines as $l) {
 			$i++;
-			if( checkOrder($order_list, $i) ){ continue; } // 削除扱い
+			if (checkOrder($order_list, $i)) { continue; } // 削除扱い
 			$neolines[] = $l;
 		}
 		return $neolines;
@@ -84,7 +90,7 @@ function checkOrder($order_list, $order)
 {
 	if ($order_list) {
 		foreach ($order_list as $n) {
-			if ($n==$order) {
+			if ($n == $order) {
 				return true;
 			}
 		}

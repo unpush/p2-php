@@ -1,7 +1,8 @@
 /* p2 - 基本JavaScriptファイル */
 
 // サブウィンドウをポップアップする
-function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR){
+function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR)
+{
 	var proparty3rd = "width=" + inWidth + ",height=" + inHeight + ",scrollbars=" + boolS + ",resizable=1";
 	SubWin = window.open(inUrl,"",proparty3rd);
 	if (boolR == 1){
@@ -14,7 +15,13 @@ function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR){
 // HTMLドキュメントのタイトルをセットする関数
 function setWinTitle()
 {
-	if (top != self) { top.document.title = self.document.title; }
+	if (top != self) {
+		try {
+			top.document.title = self.document.title;
+		} catch (e) {
+			// 何もしない
+		}
+	}
 }
 
 // p2GetElementById -- DOMオブジェクトを取得

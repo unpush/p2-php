@@ -3,6 +3,7 @@
 
 include_once './conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
+require_once './p2util.class.php';
 
 authorize(); //ユーザ認証
 
@@ -41,8 +42,8 @@ if(!$_conf['ktai']){
 //=========================================================
 // HTMLプリント
 //=========================================================
-header_nocache();
-header_content_type();
+P2Util::header_nocache();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
@@ -90,21 +91,21 @@ echo "<ul id=\"setting_menu\">";
 
 if($login['use']){
 	echo <<<EOP
-	<li><a href="login.php{$k_at_q}"{$access_login_at}>p2認証ユーザ管理</a></li>
+	<li><a href="login.php{$_conf['k_at_q']}"{$access_login_at}>p2認証ユーザ管理</a></li>
 EOP;
 }
 
 echo <<<EOP
-	<li><a href="login2ch.php{$k_at_q}"{$access_login2ch_at}>2chログイン管理</a></li>
+	<li><a href="login2ch.php{$_conf['k_at_q']}"{$access_login2ch_at}>2chログイン管理</a></li>
 EOP;
 
 if(!$_conf['ktai']){
 	echo <<<EOP
-	<li><a href="editpref.php{$k_at_q}">設定ファイル編集</a></li>
+	<li><a href="editpref.php{$_conf['k_at_q']}">設定ファイル編集</a></li>
 EOP;
 } else {
 	echo <<<EOP
-	<li><a href="editpref.php{$k_at_q}">ホストの同期</a>（2chの板移転に対応します）</li>
+	<li><a href="editpref.php{$_conf['k_at_q']}">ホストの同期</a>（2chの板移転に対応します）</li>
 EOP;
 }
 

@@ -17,17 +17,17 @@ authorize(); // ユーザ認証
 //======================================================================
 // 変数
 //======================================================================
-$newtime = date("gis");
-$p2_res_hist_dat_php = $_conf['pref_dir']."/p2_res_hist.dat.php";
+$newtime = date('gis');
+$p2_res_hist_dat_php = $_conf['pref_dir'].'/p2_res_hist.dat.php';
 
-$_info_msg_ht = "";
-$deletemsg_st = "削除";
-$ptitle = "書き込んだレスの記録";
+$_info_msg_ht = '';
+$deletemsg_st = '削除';
+$ptitle = '書き込んだレスの記録';
 
 //================================================================
 //特殊な前置処理
 //================================================================
-//削除
+// 削除
 if ($_POST['submit'] == $deletemsg_st) {
 	deleMsg($_POST['checked_hists']);
 }
@@ -48,6 +48,9 @@ if (!$datlines = DataPhp::fileDataPhp($p2_res_hist_dat_php)) {
 }
 
 $datlines = array_map('rtrim', $datlines);
+
+// ファイルの下に記録されているものが新しい
+$datlines = array_reverse($datlines);
 
 $aResHist = new ResHist;
 
@@ -78,15 +81,28 @@ if ($datlines) {
 	}
 }
 
+// HTMLプリント用変数
+$htm['checkall'] = '全てのチェックボックスを 
+<input type="button" onclick="hist_checkAll(true)" value="選択"> 
+<input type="button" onclick="hist_checkAll(false)" value="解除">';
+
+$htm['toolbar'] = <<<EOP
+			チェックした項目を<input type="submit" name="submit" value="{$deletemsg_st}">
+			　{$htm['checkall']}
+EOP;
+
 //==================================================================
 // ヘッダ 表示
 //==================================================================
-header_content_type();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
-<html>
+<html lang="ja">
 <head>
+	{$_conf['meta_charset_ht']}
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 EOP;
 
@@ -97,6 +113,18 @@ if (!$_conf['ktai']) {
 	echo <<<EOSCRIPT
 	<script type="text/javascript" src="js/basic.js"></script>
 	<script type="text/javascript" src="js/respopup.js"></script>
+	<script type="text/javascript"> 
+	function hist_checkAll(mode) { 
+		if (!document.getElementsByName) { 
+			return; 
+		} 
+		var checkboxes = document.getElementsByName('checked_hists[]'); 
+		var cbnum = checkboxes.length; 
+		for (var i = 0; i < cbnum; i++) { 
+			checkboxes[i].checked = mode; 
+		} 
+	} 
+	</script> 
 EOSCRIPT;
 }
 
@@ -112,34 +140,23 @@ if ($_conf['ktai']) {
 	echo "{$ptitle}<br>";
 	echo "<div {$_conf['pointer_name']}=\"header\">";
 	$aResHist->showNaviK("header");
-	echo " <a {$_conf['accesskey']}=\"8\" href=\"#footer\"{$k_at_a}>8.▼</a><br>";
+	echo " <a {$_conf['accesskey']}=\"8\" href=\"#footer\"{$_conf['k_at_a']}>8.▼</a><br>";
 	echo "</div>";
 	echo "<hr>";
 	
 } else {
 	echo <<<EOP
-<form method="POST" action="./read_res_hist.php#footer" target="_self">
+<form method="POST" action="./read_res_hist.php" target="_self">
 EOP;
 
 	echo <<<EOP
 <table id="header" width="100%" style="padding:0px 10px 0px 0px;">
 	<tr>
-		<td align="left">
-			&nbsp;
-		</td>
-		<td align="right"><a href="#footer">▼</a></td>
-	</tr>
-</table>\n
-EOP;
-
-	echo <<<EOP
-<table id="header" width="100%" style="padding:0px 10px 0px 0px;">
-	<tr>
-		<td align="left">
+		<td>
 			<h3 class="thread_title">{$ptitle}</h3>
 		</td>
-		<td align="right">&nbsp;
-		</td>
+		<td align="right"><!--{$htm['toolbar']}--></td>
+		<td align="right" style="padding-left:12px;"><a href="#footer">▼</a></td>
 	</tr>
 </table>\n
 EOP;
@@ -161,7 +178,7 @@ if ($_conf['ktai']) {
 if ($_conf['ktai']) {
 	echo "<div {$_conf['pointer_name']}=\"footer\">";
 	$aResHist->showNaviK("footer");
-	echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$k_at_a}>2.▲</a><br>";
+	echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$_conf['k_at_a']}>2.▲</a><br>";
 	echo "</div>";
 	echo "<p>{$k_to_index_ht}</p>";
 } else {
@@ -169,10 +186,8 @@ if ($_conf['ktai']) {
 	echo <<<EOP
 <table id="footer" width="100%" style="padding:0px 10px 0px 0px;">
 	<tr>
-		<td align="left">
-			チェックした項目を<input type="submit" name="submit" value="{$deletemsg_st}">
-		</td>
-		<td align="right"><a href="#header">▲</a></td>
+		<td>{$htm['toolbar']}</td>
+		<td align="right" style="padding-left:12px;"><a href="#header">▲</a></td>
 	</tr>
 </table>\n
 EOP;

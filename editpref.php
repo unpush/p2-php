@@ -5,6 +5,7 @@
 
 include_once './conf.inc.php';  //基本設定
 require_once './filectl.class.php';
+require_once './p2util.class.php';
 
 authorize(); //ユーザ認証
 
@@ -36,23 +37,23 @@ if (isset($_POST['sync'])) {
 	}
 }
 
-//書き出し用変数========================================
+// 書き出し用変数========================================
 $ptitle = "設定ファイル編集";
 
 if ($_conf['ktai']) {
-	$status_st="ｽﾃｰﾀｽ";
-	$autho_user_st="認証ﾕｰｻﾞ";
-	$client_host_st="端末ﾎｽﾄ";
-	$client_ip_st="端末IPｱﾄﾞﾚｽ";
-	$browser_ua_st="ﾌﾞﾗｳｻﾞUA";
-	$p2error_st="p2 ｴﾗｰ";
+	$status_st = 'ｽﾃｰﾀｽ';
+	$autho_user_st = '認証ﾕｰｻﾞ';
+	$client_host_st = '端末ﾎｽﾄ';
+	$client_ip_st = '端末IPｱﾄﾞﾚｽ';
+	$browser_ua_st = 'ﾌﾞﾗｳｻﾞUA';
+	$p2error_st = 'p2 ｴﾗｰ';
 } else {
-	$status_st="ステータス";
-	$autho_user_st="認証ユーザ";
-	$client_host_st="端末ホスト";
-	$client_ip_st="端末IPアドレス";
-	$browser_ua_st="ブラウザUA";
-	$p2error_st="p2 エラー";
+	$status_st = 'ステータス';
+	$autho_user_st = '認証ユーザ';
+	$client_host_st = '端末ホスト';
+	$client_ip_st = '端末IPアドレス';
+	$browser_ua_st = 'ブラウザUA';
+	$p2error_st = 'p2 エラー';
 }
 
 $autho_user_ht = "";
@@ -60,8 +61,8 @@ $autho_user_ht = "";
 //=========================================================
 // HTMLプリント
 //=========================================================
-header_nocache();
-header_content_type();
+P2Util::header_nocache();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
@@ -211,12 +212,13 @@ EOP;
 //=====================================================
 function printEditFileForm($path_value, $submit_value)
 {
-	global $k_input_ht;
+	global $_conf;
+	
 	$rows = 36; //18
 	$cols = 92; //90
 	echo <<<EOFORM
 <form action="editfile.php" method="POST" target="editfile">
-	{$k_input_ht}
+	{$_conf['k_input_ht']}
 	<input type="hidden" name="path" value="{$path_value}">
 	<input type="hidden" name="encode" value="Shift_JIS">
 	<input type="hidden" name="rows" value="{$rows}">
@@ -230,10 +232,11 @@ EOFORM;
  * ホストの同期用フォームをプリントする
  */
 function printSyncFavoritesForm($path_value, $submit_value){
-	global $k_input_ht;
+	global $_conf;
+	
 	echo <<<EOFORM
 <form action="editpref.php" method="POST" target="_self">
-	{$k_input_ht}
+	{$_conf['k_input_ht']}
 	<input type="hidden" name="sync" value="{$path_value}">
 	<input type="submit" value="{$submit_value}">
 </form>\n

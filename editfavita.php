@@ -3,8 +3,9 @@
 
 include_once './conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
+require_once './p2util.class.php';
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
 
 //変数=============
 $_info_msg_ht = "";
@@ -36,7 +37,7 @@ EOFORM;
 //================================================================
 // ヘッダ
 //================================================================
-header_content_type();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">

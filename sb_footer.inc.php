@@ -7,7 +7,8 @@
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 $bbs_q = "&amp;bbs=".$aThreadList->bbs;
-	
+$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+
 //dat倉庫=======================
 if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){ //スペシャルモードでなければ、またはあぼーんリストなら
 	$dat_soko_ht =<<<EOP
@@ -16,7 +17,7 @@ EOP;
 }
 
 //あぼーん中のスレッド=================
-if($ta_num){
+if ($ta_num) {
 	$taborn_link_ht=<<<EOP
 	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn" target="_self">あぼーん中のスレッド ({$ta_num})</a> | 
 EOP;

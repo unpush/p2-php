@@ -17,7 +17,7 @@ if ($word) {
 
 if ($aThreadList->spmode=="fav" && $sb_view=="shinchaku") {
 	$allfav_ht = <<<EOP
-	<p><a href="subject.php?spmode=fav{$norefresh_q}{$k_at_a}">全てのお気にｽﾚを表示</a></p>
+	<p><a href="subject.php?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></p>
 EOP;
 }
 
@@ -43,13 +43,13 @@ EOP;
 // ナビ ===============================
 if ($disp_navi['from'] > 1) {
 	$mae_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$word_at}{$k_at_a}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
 }
 
 if ($disp_navi['tugi_from'] < $sb_disp_all_num) {
 	$tugi_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$word_at}{$k_at_a}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
 }
 
@@ -69,21 +69,21 @@ EOP;
 // dat倉庫 =======================
 if (!$aThreadList->spmode or $aThreadList->spmode == "taborn") { // スペシャルモードでなければ、またはあぼーんリストなら
 	$dat_soko_ht = <<<EOP
-	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$k_at_a}">dat倉庫</a> 
+	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$_conf['k_at_a']}">dat倉庫</a> 
 EOP;
 }
 
 // あぼーん中のスレッド=================
 if ($ta_num) {
 	$taborn_link_ht = <<<EOP
-	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$k_at_a}">ｱﾎﾞﾝ中({$ta_num})</a> 
+	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$_conf['k_at_a']}">ｱﾎﾞﾝ中({$ta_num})</a> 
 EOP;
 }
 
 //新規スレッド作成=======
 if(!$aThreadList->spmode){
 	$buildnewthread_ht =<<<EOP
-	<a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=1{$k_at_a}">ｽﾚ立て</a>
+	<a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=1{$_conf['k_at_a']}">ｽﾚ立て</a>
 EOP;
 }
 
@@ -98,7 +98,7 @@ echo $taborn_link_ht;
 echo $buildnewthread_ht;
 echo "</p>";
 echo "<hr>";
-echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$k_at_q}\">0.TOP</a></p>";
+echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></p>";
 echo <<<EOP
 </body>
 </html>

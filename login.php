@@ -6,12 +6,13 @@
 include_once './conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
 require_once("./login.inc");
+require_once './p2util.class.php';
 
 authorize(); //ユーザ認証
 
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
-if(!$login['use']){
+if (!$login['use']) {
 	die("p2 info: 現在、ユーザ認証は「利用しない」設定になっています。<br>この機能を管理するためには、まず conf.inc.php で設定を有効にして下さい。");
 }
 
@@ -63,12 +64,12 @@ if($login['use']){
 if($_SERVER['HTTP_X_UP_SUBNO']){
 	if( file_exists($_conf['auth_ez_file']) ){
 		$auth_ctl_ht=<<<EOP
-EZ端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?regist_ez=out{$k_at_a}">解除</a>]<br>
+EZ端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?regist_ez=out{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
 	}else{
 		if($_SERVER['PHP_AUTH_USER']){
 			$auth_ctl_ht=<<<EOP
-[<a href="{$_SERVER['PHP_SELF']}?regist_ez=in{$k_at_a}">EZ端末IDで認証を登録</a>]<br>
+[<a href="{$_SERVER['PHP_SELF']}?regist_ez=in{$_conf['k_at_a']}">EZ端末IDで認証を登録</a>]<br>
 EOP;
 		}
 		$auth_sub_input_ht=<<<EOP
@@ -80,12 +81,12 @@ EOP;
 } elseif (preg_match('{(J-PHONE|Vodafone)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
 	if (file_exists($_conf['auth_jp_file'])) {
 		$auth_ctl_ht=<<<EOP
-J端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?regist_jp=out{$k_at_a}">解除</a>]<br>
+J端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?regist_jp=out{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
 	} else {
 		if ($_SERVER['PHP_AUTH_USER']) {
 			$auth_ctl_ht = <<<EOP
-[<a href="{$_SERVER['PHP_SELF']}?regist_jp=in{$k_at_a}">J端末IDで認証を登録</a>]<br>
+[<a href="{$_SERVER['PHP_SELF']}?regist_jp=in{$_conf['k_at_a']}">J端末IDで認証を登録</a>]<br>
 EOP;
 		}
 		$auth_sub_input_ht = <<<EOP
@@ -97,12 +98,12 @@ EOP;
 }else{
 	if( ($_COOKIE["p2_user"]==$login['user']) && ($_COOKIE["p2_pass"] == $login['pass'])){
 			$auth_cookie_ht = <<<EOP
-cookie認証登録済[<a href="cookie.php?regist_cookie=out{$k_at_a}">解除</a>]<br>
+cookie認証登録済[<a href="cookie.php?regist_cookie=out{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
 	}else{
-		if($_SERVER['PHP_AUTH_USER']){
+		if ($_SERVER['PHP_AUTH_USER']) {
 			$auth_cookie_ht = <<<EOP
-[<a href="cookie.php?regist_cookie=in{$k_at_a}">cookieで認証を登録</a>]<br>
+[<a href="cookie.php?regist_cookie=in{$_conf['k_at_a']}">cookieで認証を登録</a>]<br>
 EOP;
 		}
 	}
@@ -144,7 +145,7 @@ if( isset($_POST['login_user']) ){
 $login_form_ht =<<<EOP
 <form id="login_change" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
 	認証{$user_st}名と{$password_st}の変更<br>
-	{$k_input_ht}
+	{$_conf['k_input_ht']}
 	{$user_st}: <input type="text" name="login_user" value="{$ivalue_user}"><br>
 	{$password_st}: <input type="password" name="login_pass"><br>
 	{$auth_sub_input_ht}
@@ -198,8 +199,8 @@ if (!$_conf['ktai']) {
 //=========================================================
 // HTMLプリント
 //=========================================================
-header_nocache();
-header_content_type();
+P2Util::header_nocache();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>

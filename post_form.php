@@ -80,7 +80,7 @@ if (!$_conf['ktai']) {
 	$mail_size_at = ' size="19"';
 	$msg_cols_at = ' cols="'.$STYLE['post_msg_cols'].'"';
 } else {
-	$STYLE['post_msg_rows'] = 2;
+	$STYLE['post_msg_rows'] = 3;
 }
 
 // スレ立て
@@ -97,7 +97,7 @@ if ($_GET['newthread']) {
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at} value="{$_htm['subject']}"><br>
 EOP;
 	if ($_conf['ktai']) {
-		$subject_ht = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$k_at_a}\">{$itaj}</a><br>".$subject_ht;
+		$subject_ht = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>".$subject_ht;
 	}
 	$newthread_hidden_ht = "<input type=\"hidden\" name=\"newthread\" value=\"1\">";
 
@@ -113,13 +113,16 @@ EOP;
 		$submit_value = "書き込む";
 	}
 	$ttitle_ht = <<<EOP
-<p><b><a{$class_ttitle} href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$k_at_a}"{$target_read}>{$ttitle}</a></b></p>
+<p><b><a{$class_ttitle} href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}"{$target_read}>{$ttitle}</a></b></p>
 EOP;
+	$newthread_hidden_ht = '';
 }
+
+$readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name="from_read_new" value="1">' : '';
 
 // Be.2ch
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-	$htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"><label for="post_be2ch">Be.2chのコードを送信</label>'."\n";
+	$htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"><label for="post_be2ch">Be.2chのコードを送信</label><br>'."\n";
 }
 
 //==========================================================
@@ -135,7 +138,7 @@ EOP;
 EOP;
 }
 
-header_content_type();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html lang="ja">
@@ -168,10 +171,10 @@ echo <<<EOP
 <form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
 	<input type="hidden" name="detect_hint" value="◎◇">
 	{$subject_ht}
-	{$isMaruChar}名前： <input name="FROM" type="text" value="{$htm['FROM']}"{$name_size_at}> 
+	{$isMaruChar}名前： <input id="FROM" name="FROM" type="text" value="{$htm['FROM']}"{$name_size_at}> 
 	 E-mail : <input id="mail" name="mail" type="text" value="{$htm['mail']}"{$mail_size_at}{$on_check_sage}>
 	{$sage_cb_ht}
-	<textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="off">{$htm['MESSAGE']}</textarea>	
+	<textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="off">{$htm['MESSAGE']}</textarea>
 	<input type="submit" name="submit" value="{$submit_value}"><br>
 	{$htm['be2ch']}
 
@@ -183,8 +186,8 @@ echo <<<EOP
 	<input type="hidden" name="popup" value="{$popup}">
 	<input type="hidden" name="rescount" value="{$rescount}">
 	<input type="hidden" name="ttitle_en" value="{$ttitle_en}">
-	{$newthread_hidden_ht}
-	{$k_input_ht}
+	{$newthread_hidden_ht}{$readnew_hidden_ht}
+	{$_conf['k_input_ht']}
 </form>
 </body>
 </html>

@@ -3,8 +3,9 @@
 // フレーム3分割画面、右下部分
 
 include_once './conf.inc.php';  // 基本設定ファイル読込
+require_once './p2util.class.php';
 
-header_content_type();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">
