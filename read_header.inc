@@ -16,13 +16,13 @@ $latest_st="最新";
 $dores_st="レス";
 $aborn_st="あぼん";
 
-$motothre_url=$aThread->getMotoThread();
-$ttitle_en=base64_encode($aThread->ttitle);
-$ttitle_en_q="&amp;ttitle_en=".$ttitle_en;
-$bbs_q="&amp;bbs=".$aThread->bbs;
-$key_q="&amp;key=".$aThread->key;
-$popup_q="&amp;popup=1";
-$offline_q="&amp;offline=1";
+$motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
+$ttitle_en = base64_encode($aThread->ttitle);
+$ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
+$bbs_q = "&amp;bbs=".$aThread->bbs;
+$key_q = "&amp;key=".$aThread->key;
+$popup_q = "&amp;popup=1";
+$offline_q = "&amp;offline=1";
 
 //=================================================================
 // ヘッダ

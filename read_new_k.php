@@ -266,8 +266,8 @@ function readNew($aThread){
 			$from_num = $aThread->rescount -$respointer - $before_respointer_new;
 		}
 
-		//if(! $ls){
-			$ls="$from_num-";
+		//if (!$ls) {
+			$ls = "$from_num-";
 		//}
 	}
 	
@@ -276,13 +276,13 @@ function readNew($aThread){
 	//==================================================================
 	// ƒwƒbƒ_ •\Ž¦
 	//==================================================================
-	$motothre_url=$aThread->getMotoThread();
+	$motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
 	
-	$ttitle_en=base64_encode($aThread->ttitle);
-	$ttitle_en_q="&amp;ttitle_en=".$ttitle_en;
-	$bbs_q="&amp;bbs=".$aThread->bbs;
-	$key_q="&amp;key=".$aThread->key;
-	$popup_q="&amp;popup=1";
+	$ttitle_en = base64_encode($aThread->ttitle);
+	$ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
+	$bbs_q = "&amp;bbs=".$aThread->bbs;
+	$key_q = "&amp;key=".$aThread->key;
+	$popup_q = "&amp;popup=1";
 	
 	//include($read_header_inc);
 	

@@ -13,12 +13,12 @@ $moto_thre_st="Œ³";
 $latest_st="V";
 $dores_st="Ú½";
 
-$motothre_url=$aThread->getMotoThread();
-$ttitle_en=base64_encode($aThread->ttitle);
-$ttitle_en_q="&amp;ttitle_en=".$ttitle_en;
-$bbs_q="&amp;bbs=".$aThread->bbs;
-$key_q="&amp;key=".$aThread->key;
-$offline_q="&amp;offline=1";
+$motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
+$ttitle_en = base64_encode($aThread->ttitle);
+$ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
+$bbs_q = "&amp;bbs=".$aThread->bbs;
+$key_q = "&amp;key=".$aThread->key;
+$offline_q = "&amp;offline=1";
 
 //=================================================================
 // ƒwƒbƒ_
