@@ -26,7 +26,6 @@ class Thread{
 	
 	var $torder; //スレッド新しい順番号
 	var $unum; //未読（新着レス）数
-	var $kitoku; //既得かどうか(bool)
 	
 	var $keyidx; //idxファイルパス
 	var $keydat; //ローカルdatファイルパス
@@ -75,6 +74,17 @@ class Thread{
 		$this->keydat = "{$datdir_host}/{$this->bbs}/{$this->key}.dat";
 	}
 
+	/**
+	 * ■スレッドが既得済みならtrueを返す
+	 */
+	function isKitoku() {
+		if ($this->rnum > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	//============================================================================
 	// getThreadInfoFromIdx -- 既得スレッドデータをkey.idxから取得するメソッド
 	//============================================================================	
@@ -98,8 +108,7 @@ class Thread{
 			$this->newline = 1;
 		}
 		
-		if($lar[3]){
-			$this->kitoku = true;
+		if ($lar[3]) {
 			$this->rnum = $lar[3];
 			if($this->rescount){
 				$this->unum = $this->rescount - ($this->newline -1);

@@ -79,7 +79,7 @@ function sb_print_k($aThreadList)
 		// V’…ƒŒƒX” =============================================
 		$unum_ht = "";
 		// Šù“¾Ï‚İ
-		if ($aThread->kitoku) { 
+		if ($aThread-isKitoku()) { 
 			$unum_ht="{$aThread->unum}";
 		
 			$anum = $aThread->rescount - $aThread->unum +1 -$respointer;

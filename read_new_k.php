@@ -258,7 +258,7 @@ function readNew($aThread){
 	//===========================================================
 	// •\Ž¦ƒŒƒX”Ô‚Ì”ÍˆÍ‚ðÝ’è
 	//===========================================================
-	if($aThread->kitoku){ //Žæ“¾Ï‚Ý‚È‚ç
+	if ($aThread->isKitoku()) { // Žæ“¾Ï‚Ý‚È‚ç
 		$from_num = $aThread->newline -$respointer - $before_respointer_new;
 		if($from_num < 1){
 			$from_num = 1;
