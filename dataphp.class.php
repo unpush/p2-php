@@ -36,7 +36,12 @@ class DataPhp{
 			$pre_quote = preg_quote(DataPhp::getPre());
 			$hip_quote = preg_quote(DataPhp::getHip());
 			// 先頭文と末文を削除
-			$cont = preg_replace("{".$pre_quote."(.*)".$hip_quote.".*}s", "$1", $cont);
+			if (preg_match("{".$pre_quote."(.*?)".$hip_quote.".*}s", $cont, $m)) {
+				$cont = $m[1];
+			} else {
+				return false;
+			}
+
 			// アンエスケープする
 			$cont = DataPhp::unescapeDataPhp($cont);
 
@@ -59,9 +64,11 @@ class DataPhp{
 				return array();
 			}
 		} else {
-
 			// 行データに変換
 			$lines = array();
+			
+			/*
+			// この処理は重いようだ
 			while (strlen($cont) > 0) {
 				if (preg_match("{(.*?\n)(.*)}s", $cont, $matches)) {
 					$lines[] = $matches[1];
@@ -70,6 +77,25 @@ class DataPhp{
 					$lines[] = $cont;
 					break;
 				}
+			}
+			*/
+			
+			$lines = explode("\n", $cont);
+			$count = count($lines);
+			
+			$i = 1;
+			foreach ($lines as $l) {
+				if ($i != $count) {
+					$newlines[] = $l."\n";
+				// 最終行なら
+				} else {
+					// 空っぽでなければ追加
+					if ($l !== "") {
+						$newlines[] = $l;
+					}
+					break;
+				}
+				$i++;
 			}
 			
 			/*
@@ -82,8 +108,7 @@ class DataPhp{
 			}
 			*/
 			
-			//var_dump($lines);
-			return $lines;
+			return $newlines;
 		}
 	}
 
@@ -125,9 +150,9 @@ class DataPhp{
 
 		$old_cont = @file_get_contents($data_php);
 		if ($old_cont) {
-			$new_cont = preg_replace('{('.$hip_quote.'.*$)}s', '', $old_cont) . $cont_esc .DataPhp::getHip();
+			$new_cont = preg_replace('{'.$hip_quote.'.*$}s', '', $old_cont) . $cont_esc .DataPhp::getHip();
 		} else {
-			$new_cont = DataPhp::getPre().$cont.DataPhp::getHip();
+			$new_cont = DataPhp::getPre().$cont_esc.DataPhp::getHip();
 		}
 		
 		// ファイルがなければ生成
