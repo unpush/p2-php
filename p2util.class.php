@@ -383,7 +383,7 @@ class P2Util{
 		}
 		
 		// êVÇµÇ¢ÉçÉOçsÇê›íË
-		$newdata = $date."<>".$_SERVER['REMOTE_ADDR']."<>".$remoto_host."<>".$_SERVER['HTTP_USER_AGENT']."<>".$_SERVER['HTTP_REFERER']."<>".""."<>".$user."\n";
+		$newdata = $date."<>".$_SERVER['REMOTE_ADDR']."<>".$remoto_host."<>".$_SERVER['HTTP_USER_AGENT']."<>".$_SERVER['HTTP_REFERER']."<>".""."<>".$user;
 		//$newdata = htmlspecialchars($newdata);
 
 
