@@ -3,10 +3,11 @@
 
 	- [改良] 書き込みログが多い時の、書き込み時の処理速度を改善
 	- [改良] レス表示で「次X」のリンク先がが正しくなかったのを修正
-conf.inc.php
-dataphp.class.php
-post.php
-
+	
+	* conf.inc.php
+	* dataphp.class.php
+	* post.php
+	* read_footer.inc.php
 
 2005-03-05 aki
 	* p2 version 1.5.1
