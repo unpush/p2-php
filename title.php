@@ -171,7 +171,7 @@ function checkUpdatan()
 <div class="kakomi">
 	{$kita}<br>
 	オンライン上に p2 の最新バージョンを見つけますた。<br>
-	p2 version {$update_ver} → <a href="{$p2web_url_r}cgi/dl/dl.php?dl=p2">ダウンロード</a> / <a href="{$p2web_url_r}p2/doc/ChangeLog.txt"{$ext_win_target}>更新記録</a>
+	p2 version {$update_ver} → <a href="{$p2web_url_r}cgi/dl/dl.php?dl=p2">ダウンロード</a> / <a href="{$p2web_url_r}p2/doc/ChangeLog.txt"{$_conf['ext_win_target']}>更新記録</a>
 </div>
 <hr class="invisible">
 EOP;

@@ -37,6 +37,8 @@ class Thread{
 	
 	var $dat_type; // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
 
+	var $idcount;	// 配列。key = ID記号、value = ID出現回数。
+	
 	/**
 	 * コンストラクタ
 	 */

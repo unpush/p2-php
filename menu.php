@@ -194,15 +194,17 @@ $brd_menus = BrdCtl::read_brds();
 //===========================================================
 // プリント
 //===========================================================
-if ($word != "") {
-	if (!$mikke) {
-		$_info_msg_ht .=  "<p>\"{$word}\"を含む板は見つかりませんでした。</p>\n";
+if (isset($word) && strlen($word) > 0) {
+
+	$word_ht = htmlspecialchars($word);
+
+	if (!$GLOBALS['mikke']) {
+		$_info_msg_ht .=  "<p>\"{$word_ht}\"を含む板は見つかりませんでした。</p>\n";
 		unset($word);
 	} else {
-		$_info_msg_ht .=  "<p>\"{$word}\"を含む板 {$mikke}hit!</p>\n";
+		$_info_msg_ht .=  "<p>\"{$word_ht}\"を含む板 {$GLOBALS['mikke']}hit!</p>\n";
 	}
 }
-
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
@@ -210,7 +212,7 @@ $_info_msg_ht = "";
 echo <<<EOFORM
 <form method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
 	<p>
-		<input type="text" id="word" name="word" value="{$word}" size="14">
+		<input type="text" id="word" name="word" value="{$word_ht}" size="14">
 		<input type="submit" name="submit" value="板検索">
 	</p>
 </form>\n

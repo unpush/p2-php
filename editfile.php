@@ -1,12 +1,11 @@
 <?php
 /*
 	ファイルをブラウザで編集する
-
-	最新更新日: 2004/10/24
 */
 
 require_once("./conf.php"); // 基本設定読込
 require_once("./filectl_class.inc");
+require_once './p2util.class.php';
 
 authorize(); // ユーザ認証
 
@@ -133,6 +132,13 @@ function editFile($path, $encode)
 		$modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";
 	}
 	
+	
+	if (P2Util::isBrowserSafariGroup()) {
+		$accept_charset = 'UTF-8';
+	} else {
+		$accept_charset = 'Shift_JIS';
+	}
+
 	//プリント
 	echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -150,7 +156,7 @@ EOHEADER;
 
 	echo "Edit: ".$path;
 	echo <<<EOFORM
-<form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="{$_conf['accept_charset']}">
+<form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="{$accept_charset}">
 	<input type="hidden" name="detect_hint" value="◎◇">
 	<input type="hidden" name="path" value="{$path}">
 	<input type="hidden" name="modori_url" value="{$modori_url}">

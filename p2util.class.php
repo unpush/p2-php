@@ -15,7 +15,7 @@ class P2Util{
 	 */
 	function fileDownload($url, $localfile, $disp_error = 1)
 	{
-		global $_conf, $_info_msg_ht, $ext_win_target, $fsockopen_time_limit, $proxy;
+		global $_conf, $_info_msg_ht, $fsockopen_time_limit, $proxy;
 
 		$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 	
@@ -40,7 +40,7 @@ class P2Util{
 		if ($wap_res->is_error() && $disp_error) {
 			$url_t = P2Util::throughIme($wap_req->url);
 			$_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-			$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$wap_req->url}</a> に接続できませんでした。</div>";
+			$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target']}>{$wap_req->url}</a> に接続できませんでした。</div>";
 		}
 	
 		// 更新されていたら
@@ -59,7 +59,7 @@ class P2Util{
 	 */
 	function subjectDownload($url, $subjectfile)
 	{
-		global $_conf, $datdir, $_info_msg_ht, $ext_win_target, $fsockopen_time_limit, $proxy;
+		global $_conf, $datdir, $_info_msg_ht, $fsockopen_time_limit, $proxy;
 
 		$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 	
@@ -98,7 +98,7 @@ class P2Util{
 		if ($wap_res->is_error()) {
 			$url_t = P2Util::throughIme($wap_req->url);
 			$_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-			$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$wap_req->url}</a> に接続できませんでした。</div>";
+			$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target']}>{$wap_req->url}</a> に接続できませんでした。</div>";
 		} else {
 			$body = $wap_res->content;
 		}

@@ -1,3 +1,35 @@
+2004-12-31 aki
+	* p2 version 1.2.5
+	
+	- IDポップアップの自動リンクを追加（$_conf['flex_idpopup']）
+	- レスフィルタの条件に「全体で」を追加
+	- したらばの解析処理を調整
+	- be.2ch.net のCookie送信処理を修正
+	- strctl_class.inc を srtctl.class.phpにファイル名変更
+	
+	* conf.php
+	* conf_user.php
+	* editfile.php
+	* menu.php
+	* menu_k.php
+	* menu_side.php
+	* p2util.class.php
+	* post.php
+	* read.php
+	* read_header.inc
+	* read_machibbs.inc
+	* showthreadk_class.inc
+	* showthreadpc_class.inc
+	* strctl.class.php: NEW!
+	* strctl_class.inc: removed
+	* subject.php
+	* subject_new.php
+	* thread_class.inc
+	* threadlist_class.inc
+	* threadread_class.inc
+	* title.php
+	* viewtxt.php
+
 2004-12-29 aki
 	* p2 version 1.2.4
 	- したらばの仕様変更に対応、スレが読めるようになった

@@ -38,8 +38,8 @@ detectThread();
 //=================================================
 if ($_POST['word']) { $word = $_POST['word']; }
 if ($_GET['word']) { $word = $_GET['word']; }
-if ($_POST['field']) { $field = $res_filter['field'] = $_POST['field']; }
-if ($_GET['field']) { $field = $res_filter['field'] = $_GET['field']; }
+if ($_POST['field']) { $res_filter['field'] = $_POST['field']; }
+if ($_GET['field']) { $res_filter['field'] = $_GET['field']; }
 if ($_POST['match']) { $res_filter['match'] = $_POST['match']; }
 if ($_GET['match']) { $res_filter['match'] = $_GET['match']; }
 if ($_POST['method']) { $res_filter['method'] = $_POST['method']; }
@@ -47,7 +47,6 @@ if ($_GET['method']) { $res_filter['method'] = $_GET['method']; }
 if (get_magic_quotes_gpc()) {
 	$word = stripslashes($word);
 }
-if ($word == '.') {$word = '';}
 if (isset($word) && strlen($word) > 0) {
 	if (!((!$_conf['enable_exfilter'] || $res_filter['method'] == 'regex') && preg_match('/^\.+$/', $word))) {
 		include_once './strctl.class.php';
@@ -67,23 +66,31 @@ if (isset($word) && strlen($word) > 0) {
 //=================================================
 // フィルタ値保存
 //=================================================
-$cachefile = $prefdir . "/p2_res_filter.txt";
+$cachefile = $prefdir . '/p2_res_filter.txt';
 
-if (isset($res_filter)) { // 指定があれば ファイル に保存
+// フィルタ指定があれば
+if (isset($res_filter)) {
 
-	FileCtl::make_datafile($cachefile, $p2_perm); //ファイルがなければ生成
-	if($res_filter){$res_filter_cont=serialize($res_filter);}
-	if($res_filter_cont){
-		$fp = @fopen($cachefile, "wb") or die("Error: $cachefile を更新できませんでした");
-		fputs($fp, $res_filter_cont);
-		fclose($fp);
+	//IDポップアップでなければ、ファイルに保存
+	if (!isset($_REQUEST['idpopup'])) {
+		FileCtl::make_datafile($cachefile, $_conf['p2_perm']); // ファイルがなければ生成
+		if ($res_filter) {
+			$res_filter_cont = serialize($res_filter);
+		}
+		if ($res_filter_cont && !$popup_filter) {
+			$fp = @fopen($cachefile, 'wb') or die("Error: $cachefile を更新できませんでした");
+			fputs($fp, $res_filter_cont);
+			fclose($fp);
+		}
 	}
-
-}else{ //指定がなければ前回保存を読み込み
-	$res_filter_cont = FileCtl::get_file_contents($cachefile);
-	if($res_filter_cont){$res_filter=unserialize($res_filter_cont);}
+	
+// フィルタ指定がなければ前回保存を読み込み
+} else {
+	if ($res_filter_cont = FileCtl::get_file_contents($cachefile)) {
+		$res_filter = unserialize($res_filter_cont);
+	}
 }
-unset($cachefile);
+
 
 //=================================================
 // あぼーん&NGワード設定読み込み
