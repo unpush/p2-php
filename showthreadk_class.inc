@@ -22,14 +22,14 @@ class ShowThreadK extends ShowThread{
 		$status_title = str_replace("'", "\'", $status_title);
 		$status_title = str_replace('"', "\'\'", $status_title);
 		
-		if(!$nofirst){ //1を表示
+		if (!$nofirst) { //1を表示
 			$cont_ht .= $this->transRes($this->thread->datlines[0], 1);
 		}
 
-		for($i=$start; $i<=$to; $i++){
-			if(!$nofirst and $i==1){continue;}
-			if(!$this->thread->datlines[$i-1]){
-				$this->thread->newline=$i; 
+		for ($i=$start; $i<=$to; $i++) {
+			if (!$nofirst and $i==1) {continue;}
+			if (!$this->thread->datlines[$i-1]) {
+				$this->thread->readnum = $i-1; 
 				break;
 			}
 			$cont_ht .= $this->transRes($this->thread->datlines[$i-1], $i);
@@ -182,20 +182,20 @@ EOMSG;
 	
 		/*
 		//「ここから新着」画像を挿入========================
-		if($i == $this->thread->newline){
+		if($i == $this->thread->readnum +1){
 			$tores .=<<<EOP
 				<div><img src="img/image.png" alt="新着レス" border="0" vspace="4"></div>
 EOP;
 		}
 		*/
 
-		if($this->thread->onthefly){ //ontheflyresorder
+		if ($this->thread->onthefly) { // ontheflyresorder
 			$newres_to_show=true;
 			$tores .= "<div {$pointer_at}=\"r{$i}\">[<font color=\"#00aa00'\">{$i}</font>]"; //番号（オンザフライ時）
-		}elseif($i>=$this->thread->newline){
-			$newres_to_show=true;
+		} elseif ($i > $this->thread->readnum) {
+			$newres_to_show = true;
 			$tores .= "<div {$pointer_at}=\"r{$i}\">[<font color=\"{$STYLE['read_newres_color']}\">{$i}</font>]"; //番号（新着レス時）
-		}else{
+		} else {
 			$tores .= "<div {$pointer_at}=\"r{$i}\">[{$i}]"; //番号			
 		}
 		$tores .= $name.":"; //名前

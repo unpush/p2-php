@@ -9,19 +9,19 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 class Thread{
 
-	var $ttitle; //スレタイトル // idxline[0]
-	var $key; //スレッドID // idxline[1]
-	var $length; //local Dat Bytes(int) // idxline[2]
-	var $rnum; //既読レス数 // idxline[3]
+	var $ttitle; // スレタイトル // idxline[0]
+	var $key; // スレッドID // idxline[1]
+	var $length; // local Dat Bytes(int) // idxline[2]
+	var $gotnum; // （個人にとっての）既得レス数 // idxline[3]
 	var $rescount; // スレッドの総レス数（未取得分も含む）
-	var $modified; //datのLast-Modified // idxline[4]
-	//last res
-	var $fav; //お気に入り(bool) // idxline[6]
-	// name // idxline[6] ここでは利用せず（他所で利用）
-	// mail // idxline[7] ここでは利用せず（他所で利用）
-	var $newline; // 次に読む新規レス番号 // idxline[9]
+	var $modified; // datのLast-Modified // idxline[4]
+	var $readnum; // 既読レス数	// idxline[5] // MacMoeではレス表示位置だったと思う（last res）
+	var $fav; //お気に入り(bool) // idxline[6] key.idxのは旧互換用途のみ
+	// name // ここでは利用せず idxline[7]（他所で利用）
+	// mail // ここでは利用せず idxline[8]（他所で利用）
+	// var $newline; // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
 	
-	// ※hostとはいうものの、2ch外の場合は、host以下のディレクトリまで含まれていたりする…。
+	// ※hostとはいうものの、2ch外の場合は、host以下のディレクトリまで含まれていたりする。
 	var $host; // ex)pc.2ch.net // idxline[10]
 	var $bbs; // ex)mac // idxline[11]
 	var $itaj; // 板名 ex)新・mac
@@ -83,12 +83,21 @@ class Thread{
 	/**
 	 * ■スレッドが既得済みならtrueを返す
 	 */
-	function isKitoku() {
-		if ($this->rnum > 0) {
+	function isKitoku()
+	{
+		if (file_exists($this->keyidx)) {
 			return true;
 		} else {
 			return false;
 		}
+		
+		/*
+		if ($this->readnum) {
+			return true;
+		} else {
+			return false;
+		}
+		*/
 	}
 
 	/**
@@ -108,20 +117,26 @@ class Thread{
 			}
 		}
 		
-		if ($lar[9]) {
-			$this->newline = $lar[9];
-		} else {
-			$this->newline = 1;
+		if ($lar[5]) {
+			$this->readnum = $lar[5];
+		
+		// 旧互換措置（$lar[9] newlineの廃止）
+		} elseif ($lar[9]) {
+			$this->readnum = $lar[9] -1;
 		}
 		
 		if ($lar[3]) {
-			$this->rnum = $lar[3];
+			$this->gotnum = $lar[3];
+		
 			if ($this->rescount) {
-				$this->unum = $this->rescount - ($this->newline -1);
+				$this->unum = $this->rescount - $this->readnum;
 				// machi bbs はsubjectの更新にディレイがあるようなので調整しておく
-				if ($this->unum < 0) { $this->unum = 0; }
+				if ($this->unum < 0) {
+					$this->unum = 0;
+				}
 			}
 		}
+
 		/*
 		// 現在このidxでのカラムは使用していない。datサイズは直接ファイルの大きさを読み取って調べる
 		if ($lar[2]) {
@@ -134,10 +149,10 @@ class Thread{
 	}
 	
 	//============================================================================
-	// getDatBytesFromLocalDat -- ローカルDATのファイルサイズを取得するメソッド
+	// ローカルDATのファイルサイズを取得する
 	//============================================================================	
-
-	function getDatBytesFromLocalDat(){
+	function getDatBytesFromLocalDat()
+	{
 		clearstatcache();
 		if( $this->length=@filesize($this->keydat) ){
 			return $this->length;
@@ -147,7 +162,7 @@ class Thread{
 	}
 	
 	//============================================================================
-	// subject.txt の一行からスレ情報を取得するメソッド
+	// subject.txt の一行からスレ情報を取得する
 	//============================================================================	
 	function getThreadInfoFromSubjectTxtLine($l)
 	{
@@ -163,9 +178,12 @@ class Thread{
 		}
 		
 		$this->rescount = $matches[6];
-		if($this->newline){
-			$this->unum = $this->rescount - ($this->newline -1);
-			if($this->unum<0){$this->unum=0;} //machi bbs はsageでsubjectの更新が行われないそうなので調整しておく
+		if ($this->readnum) {
+			$this->unum = $this->rescount - $this->readnum;
+			// machi bbs はsageでsubjectの更新が行われないそうなので調整しておく
+			if ($this->unum < 0) {
+				$this->unum = 0;
+			}
 		}
 	}
 
@@ -213,7 +231,7 @@ class Thread{
 	 */
 	function getMotoThread($ls = "")
 	{
-		global $ktai;
+		global $_conf;
 
 		if (P2Util::isHostMachiBbs($this->host)) {
 			$motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";
@@ -224,7 +242,7 @@ class Thread{
 			$motothre_url = "http://{$host_bbs_cgi}/{$this->bbs}/{$this->key}/{$ls}";
 			//$motothre_url = "http://{$this->host}/bbs/read.cgi?BBS={$this->bbs}&KEY={$this->key}";
 		} elseif (P2Util::isHost2chs($this->host)) {
-			if ($ktai) {
+			if ($_conf['ktai']) {
 				if (P2Util::isHostBbsPink($this->host)) {
 					$motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$ls}";
 				} else {

@@ -15,7 +15,7 @@ authorize(); //ユーザ認証
 //==================================================================
 // 変数
 //==================================================================
-$k_rnum_all_range = $_conf['k_rnum_range'];
+$GLOBALS['rnum_all_range'] = $_conf['k_rnum_range'];
 
 $sb_view="shinchaku";
 $newtime= date("gis");
@@ -112,11 +112,13 @@ $_info_msg_ht="";
 // それぞれの行解析
 //==============================================================
 
-$linesize= sizeof($lines);
+$linesize = sizeof($lines);
 
-for( $x = 0; $x < $linesize ; $x++ ){
+for ($x = 0; $x < $linesize ; $x++) {
 
-	if($k_rnum_all_range <= 0){break;}
+	if (isset($GLOBALS['rnum_all_range']) and $GLOBALS['rnum_all_range'] <= 0) {
+		break;
+	}
 
 	$l=$lines[$x];
 	$aThread = new ThreadRead;
@@ -261,7 +263,7 @@ function readNew($aThread)
 	// 表示レス番の範囲を設定
 	//===========================================================
 	if ($aThread->isKitoku()) { // 取得済みなら
-		$from_num = $aThread->newline - $_conf['respointer'] - $_conf['before_respointer_new'];
+		$from_num = $aThread->readnum +1 - $_conf['respointer'] - $_conf['before_respointer_new'];
 		if($from_num < 1){
 			$from_num = 1;
 		}elseif($from_num > $aThread->rescount){
@@ -273,7 +275,7 @@ function readNew($aThread)
 		//}
 	}
 	
-	$aThread->lsToPoint($ls, $aThread->rescount);
+	$aThread->lsToPoint($ls);
 	
 	//==================================================================
 	// ヘッダ 表示
@@ -385,22 +387,13 @@ EOP;
 	//==================================================================
 	// key.idxの値設定
 	//==================================================================
-	
 	if ($aThread->rescount) {
 	
-		if ($aThread->resrange['to'] +1 >= $aThread->newline) {
-			$aThread->newline = $aThread->resrange['to'] +1;
-		} else {
-			$aThread->newline = $data[9];
-		}
-		//異常値修正
-		if ($aThread->newline > $aThread->rescount +1) {
-			$aThread->newline = $aThread->rescount +1;
-		} elseif ($aThread->newline < 1) {
-			$aThread->newline = 1;
-		}
+		$aThread->readnum = min($aThread->rescount, max(0, $data[5], $aThread->resrange['to']));
 		
-		$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>{$aThread->newline}";
+		$newline = $aThread->readnum + 1;	// $newlineは廃止予定だが、旧互換用に念のため
+		
+		$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}";
 		setKeyIdx($aThread->keyidx, $s); // key.idxに記録
 	}
 
@@ -416,7 +409,7 @@ if (!$aThreadList->num) {
 	echo "<hr>";
 }
 
-if ($k_rnum_all_range > 0) {
+if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0) {
 	echo <<<EOP
 	<div>
 		{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$k_at_a}" {$accesskey}="{$k_accesskey['next']}">{$k_accesskey['next']}.新まとめを更新</a>

@@ -74,14 +74,14 @@ function regist_set_cookie()
  */
 function regist_auth($keyw, $sub_id, $auth_file)
 {
-	global $_info_msg_ht, $pass_perm, $p2error_st;
+	global $_info_msg_ht, $_conf, $p2error_st;
 
 	$cont = <<<EOP
 <?php
 \${$keyw}='{$sub_id}';
 ?>
 EOP;
-	FileCtl::make_datafile($auth_file, $pass_perm);
+	FileCtl::make_datafile($auth_file, $_conf['pass_perm']);
 	$fp = @fopen($auth_file, 'wb');
 	if (!$fp) {
 		$_info_msg_ht .= "<p>{$p2error_st}: {$auth_file} ‚ğ•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B”FØ“o˜^¸”sB</p>";

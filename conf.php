@@ -1,7 +1,7 @@
 <?php
 // p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
 
-$_conf['p2version'] = '1.3.3';
+$_conf['p2version'] = '1.3.4';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
 
@@ -43,12 +43,12 @@ if (function_exists('mb_ereg_replace')) {
 $ua = $_SERVER['HTTP_USER_AGENT'];	// この変数（$ua）は廃止予定。$_SERVER['HTTP_USER_AGENT']を直接利用する。
 
 if (isset($_GET['k']) || isset($_POST['k'])) {
-	$ktai = 1;
+	$_conf['ktai'] = 1;
 	$k_at_a = "&amp;k=1";
 	$k_at_q = "?k=1";
 	$k_input_ht = '<input type="hidden" name="k" value="1">';
 }
-//$ktai = 1;//
+//$_conf['ktai'] = 1;//
 $doctype = "";
 $accesskey = "accesskey";
 $pointer_at = "id";
@@ -64,7 +64,7 @@ EOP;
 //携帯===================================
 if (strstr($_SERVER['HTTP_USER_AGENT'], "UP.Browser/")) {
 	$browser = "EZweb";
-	$ktai = true;
+	$_conf['ktai'] = true;
 	/*
 	$doctype=<<<EOP
 <?xml version="1.0" encoding="Shift_JIS"?>
@@ -75,18 +75,18 @@ EOP;
 
 } elseif (preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'])) {
 	//$browser = "DoCoMo";
-	$ktai = true;
+	$_conf['ktai'] = true;
 	$pointer_at = "name";
 
 } elseif(preg_match('{^(J-PHONE|Vodafone)/}', $_SERVER['HTTP_USER_AGENT'])) {
 	//$browser = "JPHONE";
-	$ktai = true;
+	$_conf['ktai'] = true;
 	$accesskey = "DIRECTKEY";
 	$pointer_at = "name";
 
 } elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'DDIPOCKET')) {
 	//$browser="DDIPOCKET";
-	$ktai = true;
+	$_conf['ktai'] = true;
 	$pointer_at = "name";
 }
 
@@ -96,7 +96,7 @@ EOP;
 
 //DOCTYPE HTML 宣言==========================
 $ie_strict = false;
-if(!$ktai){
+if(!$_conf['ktai']){
 	if($ie_strict){
 		$doctype=<<<EODOC
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -184,13 +184,13 @@ $favlistfile_name = "p2_favlist.idx";
 $favlistfile = $prefdir."/".$favlistfile_name;
 $favita_name = "p2_favita.brd";
 $favita_path = $prefdir."/".$favita_name;
-$idpw2ch_php = $prefdir."/p2_idpw2ch.php";
-$sid2ch_php = $prefdir."/p2_sid2ch.php";
+$_conf['idpw2ch_php'] = $prefdir."/p2_idpw2ch.php";
+$_conf['sid2ch_php'] = $prefdir."/p2_sid2ch.php";
 $auth_user_file = $prefdir."/p2_auth_user.php";
 $auth_ez_file = $prefdir."/p2_auth_ez.php";
 $auth_jp_file = $prefdir."/p2_auth_jp.php";
 $_conf['login_log_file'] = $prefdir . "/p2_login.log.php";
-$crypt_xor_key = $_SERVER["SERVER_NAME"].$_SERVER["SERVER_SOFTWARE"];
+$_conf['crypt_xor_key'] = $_SERVER["SERVER_NAME"].$_SERVER["SERVER_SOFTWARE"];
 $_conf['menu_dl_interval'] = 1;	// (1) 板 menu のキャッシュを更新せずに保持する時間 (hour)
 $fsockopen_time_limit = 15;	// ネットワーク接続タイムアウト時間(秒)
 set_time_limit(60); 		// スクリプト実行制限時間(秒)
@@ -199,7 +199,7 @@ $data_dir_perm = 0707;		// データ保存用ディレクトリのパーミッション
 $dat_perm = 0606; 		// datファイルのパーミッション
 $key_perm = 0606; 		// key.idx ファイルのパーミッション
 $_conf['dl_perm'] = 0606;	// その他のp2が内部的にDL保存するファイル（キャッシュ等）のパーミッション
-$pass_perm = 0604;		// パスワードファイルのパーミッション
+$_conf['pass_perm'] = 0604;		// パスワードファイルのパーミッション
 $p2_perm = 0606; 		// その他のp2の内部保存データファイル
 $palace_perm = 0606;		// 殿堂入り記録ファイルのパーミッション
 $favita_perm = 0606;		// お気に板記録ファイルのパーミッション
@@ -229,9 +229,9 @@ function header_content_type()
  */
 function authorize()
 {
-	global $login;
-	global $auth_ez_file, $auth_jp_file, $login_file, $auth_user_file, $pass_perm;
-	global $_info_msg_ht, $doctype, $STYLE, $ktai, $auth_ez_file, $auth_jp_file, $prefdir, $datdir;
+	global $_conf, $login;
+	global $auth_ez_file, $auth_jp_file, $login_file, $auth_user_file;
+	global $_info_msg_ht, $doctype, $STYLE, $auth_ez_file, $auth_jp_file, $prefdir, $datdir;
 	
 	if ($login['use']) {
 

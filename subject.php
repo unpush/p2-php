@@ -100,7 +100,7 @@ if ($p2_setting['viewnum'] == "all") {$threads_num = $threads_num_max;}
 elseif ($sb_view == "shinchaku") {$threads_num = $threads_num_max;}
 elseif ($sb_view == "edit") {$threads_num = $threads_num_max;}
 elseif ($_GET['word']) {$threads_num = $threads_num_max;}
-elseif ($ktai) {$threads_num = $threads_num_max;}
+elseif ($_conf['ktai']) {$threads_num = $threads_num_max;}
 
 //submit ==========================================
 $submit = $_POST['submit'];
@@ -324,7 +324,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 			continue;
 		} else {
 			$mikke++;
-			if ($ktai) {
+			if ($_conf['ktai']) {
 				$aThread->ttitle_ht = $aThread->ttitle;
 			} else {
 				$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
@@ -414,8 +414,8 @@ for( $x = 0; $x < $linesize ; $x++ ){
 					$aThread->isonline = true;
 					$aThread->ttitle = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['ttitle'];
 					$aThread->rescount = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['rescount'];
-					if ($aThread->newline) {
-						$aThread->unum = $aThread->rescount - ($aThread->newline -1);
+					if ($aThread->readnum) {
+						$aThread->unum = $aThread->rescount - $aThread->readnum;
 						// machi bbs はsageでsubjectの更新が行われないそうなので調整しておく
 						if ($aThread->unum < 0) { $aThread->unum = 0; }
 					}
@@ -472,7 +472,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 				continue;
 			} else {
 				$mikke++;
-				if ($ktai) {
+				if ($_conf['ktai']) {
 					$aThread->ttitle_ht = $aThread->ttitle;
 				} else {
 					$$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
@@ -481,17 +481,19 @@ for( $x = 0; $x < $linesize ; $x++ ){
 		}
 	}
 	
-	if(! $aThread->rescount){
-		if($aThread->rnum){$aThread->rescount=$aThread->rnum;}
+	// subjexctからrescountが取れなかった場合は、gotnumを利用する。
+	if ((!$aThread->rescount) and $aThread->gotnum) {
+		$aThread->rescount = $aThread->gotnum;
 	}
-	if(!$aThread->ttitle_ht){$aThread->ttitle_ht=$aThread->ttitle;}
+	if (!$aThread->ttitle_ht) {$aThread->ttitle_ht = $aThread->ttitle;}
 	
-	if($aThread->unum > 0){ //新着あり
-		$shinchaku_attayo=true;
-		$shinchaku_num=$shinchaku_num+$aThread->unum; //新着数set
-	}elseif($aThread->fav){ //お気にスレ
+	// 新着あり
+	if ($aThread->unum > 0) {
+		$shinchaku_attayo = true;
+		$shinchaku_num = $shinchaku_num + $aThread->unum; //新着数set
+	} elseif ($aThread->fav) { //お気にスレ
 		;
-	}elseif($aThread->new){ //新規スレ
+	} elseif ($aThread->new) { //新規スレ
 		;
 		
 	} elseif ($_conf['viewall_kitoku'] && $aThread->isKitoku()) {	// 既得スレ
@@ -499,7 +501,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 		
 	} else {
 		// 携帯、ニュースチェック以外で
-		if (!$ktai and $spmode != "news") {
+		if (!$_conf['ktai'] and $spmode != "news") {
 			// 指定数を越えていたらカット
 			if ($x >= $threads_num) {
 				unset($aThread);
@@ -529,14 +531,14 @@ for( $x = 0; $x < $linesize ; $x++ ){
 }
 
 //既にdat落ちしているスレは自動的にあぼーんを解除する=========================
-if(!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys){
+if (!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys) {
 	include_once("settaborn_off.inc");
 	//echo sizeof($ta_keys)."*<br>";
 	$ta_vkeys = array_keys($ta_keys);
 	settaborn_off($aThreadList->host, $aThreadList->bbs, $ta_vkeys);
-	foreach($ta_vkeys as $k){
+	foreach ($ta_vkeys as $k) {
 		$ta_num--;
-		if($k){
+		if ($k) {
 			$ks.="key:$k ";
 		}
 	}
@@ -547,7 +549,7 @@ if(!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys){
 // ソート
 //============================================================
 if ($aThreadList->threads) {
-	if ($p2_setting['sort'] == "midoku" or $ktai) {
+	if ($p2_setting['sort'] == "midoku" or $_conf['ktai']) {
 		if ($aThreadList->spmode == "soko") { usort($aThreadList->threads, "cmp_key"); }
 		else { usort($aThreadList->threads, "cmp_midoku"); }
 	}
@@ -583,7 +585,7 @@ if ($aThreadList->spmode == "news") {
 //===============================================================
 // プリント
 //===============================================================
-if ($ktai) {
+if ($_conf['ktai']) {
 	
 	//倉庫にtorder付与================
 	if($aThreadList->spmode == "soko"){
@@ -648,11 +650,11 @@ if ($ktai) {
 //============================================================
 // p2_setting 記録
 //============================================================
-if($viewnum_pre!=$p2_setting['viewnum'] or $sort_pre!=$p2_setting['sort'] or $itaj_pre!=$p2_setting['itaj']){
+if ($viewnum_pre!=$p2_setting['viewnum'] or $sort_pre!=$p2_setting['sort'] or $itaj_pre!=$p2_setting['itaj']) {
 	FileCtl::make_datafile($p2_setting_txt, $p2_perm);
-	if($p2_setting){$p2_setting_cont = serialize($p2_setting);}
-	if($p2_setting_cont){
-		$fp = fopen($p2_setting_txt, "w") or die("Error: $p2_setting_txt を更新できませんでした");
+	if ($p2_setting) {$p2_setting_cont = serialize($p2_setting);}
+	if ($p2_setting_cont) {
+		$fp = fopen($p2_setting_txt, "wb") or die("Error: $p2_setting_txt を更新できませんでした");
 		fputs($fp, $p2_setting_cont);
 		fclose($fp);
 	}
@@ -662,7 +664,7 @@ if($viewnum_pre!=$p2_setting['viewnum'] or $sort_pre!=$p2_setting['sort'] or $it
 // $subject_keys をシリアライズして保存
 //============================================================
 //if(file_exists($sb_keys_b_txt)){ unlink($sb_keys_b_txt); }
-if($subject_keys){
+if ($subject_keys) {
 	if(file_exists($sb_keys_txt)){
 		copy($sb_keys_txt, $sb_keys_b_txt);
 	}else{

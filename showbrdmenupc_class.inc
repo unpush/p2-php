@@ -79,7 +79,8 @@ EOP;
 				<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}" onClick="chMenuColor({$matome_i});">{$matches[3]}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$matches[1]}&amp;bbs={$matches[2]}" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
 
-					}else{	// 新着数を表示しない場合
+					// 新着数を表示しない場合
+					} else {
 						echo <<<EOP
 				<a href="{$_SERVER['PHP_SELF']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav">★</a>
 				<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}">{$matches[3]}</a><br>
@@ -89,12 +90,16 @@ EOP;
 					}
 
 				}
-			}
+				
+				flush();
+				
+			} // foreach
 			
 			echo "	</div>\n";
 			echo "</div>\n";
 			
-		}else{//空っぽなら
+		// 空っぽなら
+		} else {
 			echo <<<EOP
 	<div class="menu_cate"><b>お気に板</b> [<a href="editfavita.php" target="subject">編集</a>]<br>
 		<div class="itas" id="c_favita">

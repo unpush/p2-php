@@ -190,7 +190,7 @@ if( file_exists($aThread->keydat) or file_exists($aThread->keyidx)  ){$existLog=
 //=================================================================
 // HTMLプリント
 //=================================================================
-if(!$ktai){
+if(!$_conf['ktai']){
 	$target_read_at = " target=\"read\"";
 	$target_sb_at = " target=\"sbject\"";
 }
@@ -214,7 +214,7 @@ echo <<<EOHEADER
 	<title>{$title_st}</title>\n
 EOHEADER;
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	echo "<!-- ".$key_line." -->\n";
 	@include("./style/style_css.inc"); //基本スタイルシート読込
 	@include("./style/info_css.inc");
@@ -241,7 +241,7 @@ echo "<p>\n";
 echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}{$k_at_a}\"{$target_read_at}>{$ttitle_name}</a></b>\n";
 echo "</p>\n";
 
-if($ktai){
+if($_conf['ktai']){
 	if($info_msg){
 		echo "<p>".$info_msg."</p>\n";
 	}
@@ -251,15 +251,15 @@ if(checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($aT
 	$offrec_ht=" / [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;offrec=true{$popup_ht}{$ttitle_en_ht}{$k_at_a}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
 }
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	echo "<table cellspacing=\"0\">\n";
 }
 print_info_line("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$motothre_url}</a>");
-if(!$ktai){
+if(!$_conf['ktai']){
 	print_info_line("ホスト", $aThread->host);
 }
 print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$k_at_a}\"{$target_sb_at}>{$aThread->itaj}</a>");
-if(!$ktai){
+if(!$_conf['ktai']){
 	print_info_line("key", $aThread->key);
 }
 if( $existLog ){
@@ -267,14 +267,14 @@ if( $existLog ){
 }else{
 	print_info_line("ログ", "未取得{$offrec_ht}");
 }
-if($aThread->rnum){
-	print_info_line("既得レス数", $aThread->rnum);
-}elseif(!$aThread->rnum and $existLog ){
+if ($aThread->gotnum) {
+	print_info_line("既得レス数", $aThread->gotnum);
+} elseif (!$aThread->gotnum and $existLog) {
 	print_info_line("既得レス数", "0");
-}else{
+} else {
 	print_info_line("既得レス数", "-");
 }
-if (!$ktai) {
+if (!$_conf['ktai']) {
 	if (file_exists($aThread->keydat)) {
 		if ($aThread->length) {
 			print_info_line("datサイズ", $aThread->length.' バイト');
@@ -294,11 +294,11 @@ print_info_line("お気にスレ", $fav_ht);
 print_info_line("殿堂入り", $pal_ht);
 print_info_line("表示", $taborn_ht);
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	echo "</table>\n";
 }
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	if($info_msg){
 		echo "<span class=\"infomsg\">".$info_msg."</span>\n";
 	}else{
@@ -318,7 +318,7 @@ EOP;
 	echo "</div>\n";
 }
 
-if($ktai){
+if($_conf['ktai']){
 	echo <<<EOP
 <hr>
 $k_to_index_ht
@@ -333,9 +333,10 @@ EOFOOTER;
 //===============================================
 // 関数
 //===============================================
-function print_info_line($s, $c){
-	global $ktai;
-	if($ktai){
+function print_info_line($s, $c)
+{
+	global $_conf;
+	if($_conf['ktai']){
 		echo "{$s}: {$c}<br>";
 	}else{
 		echo "<tr><td class=\"tdleft\" nowrap><b>{$s}</b>&nbsp;</td><td class=\"tdcont\">{$c}</td></tr>\n";

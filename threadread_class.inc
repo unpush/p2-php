@@ -34,7 +34,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat()
 	{
-		global $sid2ch_php, $uaMona, $SID2ch, $dat_response_msg;
+		global $_conf, $uaMona, $SID2ch, $dat_response_msg;
 		
 		// まちBBS
 		if (P2Util::isHostMachiBbs($this->host)) {
@@ -50,7 +50,7 @@ class ThreadRead extends Thread{
 			//2ch bbspink●読み
 			if (P2Util::isHost2chs($this->host) and $_GET['maru']) {
 				//ログインしてなければ or ログイン後、24時間以上経過していたら自動再ログイン
-				if ((!file_exists($sid2ch_php) or $_REQUEST['relogin2ch']) or (@filemtime($sid2ch_php) < time() - 60*60*24)) {
+				if ((!file_exists($_conf['sid2ch_php']) or $_REQUEST['relogin2ch']) or (@filemtime($sid2ch_php) < time() - 60*60*24)) {
 					include_once("./login2ch.inc");
 					if (!login2ch()) {
 						$dat_response_msg = $this->get2chDatError();
@@ -59,7 +59,7 @@ class ThreadRead extends Thread{
 					}
 				}
 
-				include($sid2ch_php);
+				include($_conf['sid2ch_php']);
 				$this->downloadDat2chMaru();
 
 			// 2chの過去ログ倉庫読み
@@ -617,7 +617,7 @@ class ThreadRead extends Thread{
 	 */
 	function get2chDatError()
 	{
-		global $_conf, $ls, $idpw2ch_php, $sid2ch_php;
+		global $_conf, $ls;
 		global $fsockopen_time_limit, $_info_msg_ht;
 	
 		$read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}";
@@ -654,7 +654,7 @@ class ThreadRead extends Thread{
 		
 		if(preg_match($kakosoko_match, $read_response, $matches)){ //<title>がこのスレッドは過去ログ倉庫に
 			$dat_response_status="このスレッドは過去ログ倉庫に格納されています。";
-			//if(file_exists($idpw2ch_php) || file_exists($sid2ch_php)){
+			//if(file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])){
 				$marutori_ht="<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;maru=true\">●IDでp2に取り込む</a>";
 			//}else{
 			//	$marutori_ht="<a href=\"login2ch.php\" target=\"subject\">●IDログイン</a>";
@@ -829,7 +829,10 @@ class ThreadRead extends Thread{
 			$this->onthefly = true;
 			
 		} else {
-			if (!$this->newline) { $this->newline = 2; } // 便宜上
+			// 便宜上
+			if (!$this->readnum) {
+				$this->readnum = 1;
+			}
 		}
 
 		$this->onthefly && $body .= "<div><span class=\"onthefly\">on the fly</span></div>";
@@ -856,11 +859,11 @@ class ThreadRead extends Thread{
 	}
 	
 	//============================================================================
-	// $lsを分解してstartとtoとnofirstを求めるメソッド
+	// $lsを分解してstartとtoとnofirstを求める
 	//============================================================================
-	function lsToPoint($ls, $data_size)
+	function lsToPoint($ls)
 	{
-		global $_conf, $ktai, $k_rnum_all_range;
+		global $_conf;
 
 		$to = false;
 		
@@ -873,36 +876,43 @@ class ThreadRead extends Thread{
 		if (sizeof($n)==1) {
 			if (substr($n[0],0,1)=="l") {
 				$nn = substr($n[0],1);
-				if ($ktai) {
+				if ($_conf['ktai']) {
 					if ($nn > $_conf['k_rnum_range']) {
 						$nn = $_conf['k_rnum_range'];
 					}
 				}
-				$start = $data_size - $nn;
+				$start = $this->rescount - $nn;
 				if ($start < 1) { $start=1; }
 				
-				$to = $data_size;
+				$to = $this->rescount;
 			} elseif ($ls == "all") {
-				$start = 1; $to = $data_size;
+				$start = 1;
+				$to = $this->rescount;
 			} else {
-				$start = $ls; $to = $ls; $nofirst = true;
+				$start = $ls;
+				$to = $ls;
+				$nofirst = true;
 			}
 		} else {
-			$start = $n[0];
-			if (!$start) {$start = 1;}
-			$to = $n[1];
-			if (!$to) {$to = $data_size;}
+			if (!$start = $n[0]) {
+				$start = 1;
+			}
+			if (!$to = $n[1]) {
+				$to = $this->rescount;
+			}
 		}
 		
-		if ($ktai) {
-			if ($k_rnum_all_range > 0) {
-				if ($start + $k_rnum_all_range <= $to) {
-					$to = $start + $k_rnum_all_range;
-				}
-				$k_rnum_all_range = $k_rnum_all_range - ($to - $start);
-				$all_end = true;
+		// まとめ読みの表示数制限
+		if (isset($GLOBALS['rnum_all_range']) and $GLOBALS['rnum_all_range'] > 0) {
+			if ($start + $GLOBALS['rnum_all_range'] <= $to) {
+				$to = $start + $GLOBALS['rnum_all_range'];
 			}
-			if (!$all_end) {
+			$GLOBALS['rnum_all_range'] = $GLOBALS['rnum_all_range'] - ($to - $start);
+			$all_end = true;
+		
+		} else {
+			// 携帯用の表示数制限
+			if ($_conf['ktai']) {
 				if ($start + $_conf['k_rnum_range'] <= $to) {
 					$to = $start + $_conf['k_rnum_range'];
 				}

@@ -41,7 +41,7 @@ if (isset($_POST['sync'])) {
 //書き出し用変数========================================
 $ptitle = "設定ファイル編集";
 
-if ($ktai) {
+if ($_conf['ktai']) {
 	$status_st="ｽﾃｰﾀｽ";
 	$autho_user_st="認証ﾕｰｻﾞ";
 	$client_host_st="端末ﾎｽﾄ";
@@ -73,7 +73,7 @@ echo <<<EOP
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 EOP;
-if(!$ktai){
+if(!$_conf['ktai']){
 	@include("./style/style_css.inc");
 	@include("./style/editpref_css.inc");
 }
@@ -82,7 +82,7 @@ echo <<<EOP
 <body>
 EOP;
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	echo <<<EOP
 <p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
 EOP;
@@ -102,7 +102,7 @@ $ng_mail_txt = $prefdir."/p2_ng_mail.txt";
 $ng_msg_txt = $prefdir."/p2_ng_msg.txt";
 $ng_id_txt = $prefdir."/p2_ng_id.txt";
 
-if (!$ktai) {
+if (!$_conf['ktai']) {
 
 	echo <<<EOP
 <table><tr><td>
@@ -192,7 +192,7 @@ EOP;
 }
 
 //フッタプリント===================
-if ($ktai) {
+if ($_conf['ktai']) {
 	echo "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
 	foreach ($synctitle as $syncpath => $syncname) {
 		if (is_writable($syncpath)) {

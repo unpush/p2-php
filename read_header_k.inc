@@ -47,15 +47,15 @@ $read_navi_latest_btm = "";
 //----------------------------------------------
 // $read_navi_range -- 1- 101- 201-
 
-for($i=1; $i <= $aThread->rescount; $i=$i+$rnum_range){
-	$offline_range_q="";
+for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
+	$offline_range_q = "";
 	$accesskey_at = "";
-	if($i==1){
+	if ($i == 1) {
 		$accesskey_at = " $accesskey=\"1\"";
 	}
-	$ito=$i+$rnum_range-1;
-	if($ito <= $aThread->rnum){
-		$offline_range_q=$offline_q;
+	$ito = $i + $rnum_range -1;
+	if ($ito <= $aThread->gotnum) {
+		$offline_range_q = $offline_q;
 	}
 	$read_navi_range = $read_navi_range."<a{$accesskey_at} href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$i}-{$ito}{$offline_range_q}{$k_at_a}\">{$i}-</a>\t";
 	break;//1-‚Ì‚Ý•\Ž¦

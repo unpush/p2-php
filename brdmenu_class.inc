@@ -41,8 +41,9 @@ class BrdMenu{
 	}
 
 	//データを読み込んで、カテゴリと板を登録するメソッド===================
-	function setBrdList($data){
-		global $word, $word_fm, $mikke, $ktai;
+	function setBrdList($data)
+	{
+		global $_conf, $word, $word_fm, $mikke;
 		
 		if(!$data){return false;}
 
@@ -90,8 +91,8 @@ class BrdMenu{
 						// マーキング
 						$aBrdMenuIta->itaj_ht = StrCtl::filterMarking($word_fm, $aBrdMenuIta->itaj);
 						
-					} else { //検索が見つからなくて、さらに携帯の時
-						if ($ktai) {
+					} else { // 検索が見つからなくて、さらに携帯の時
+						if ($_conf['ktai']) {
 							continue;
 						}
 					}

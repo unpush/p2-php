@@ -11,7 +11,7 @@ $_info_msg_ht="";
 //書き出し用変数========================================
 $ptitle="設定";
 
-if($ktai){
+if($_conf['ktai']){
 	$status_st="ｽﾃｰﾀｽ";
 	$autho_user_st="認証ﾕｰｻﾞ";
 	$client_host_st="端末ﾎｽﾄ";
@@ -34,7 +34,7 @@ if($login['use']){
 
 
 $body_onload="";
-if(!$ktai){
+if(!$_conf['ktai']){
 	$body_onload=" onLoad=\"setWinTitle();\"";
 }
 
@@ -52,7 +52,7 @@ echo <<<EOP
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 EOP;
-if(!$ktai){
+if(!$_conf['ktai']){
 	@include("./style/style_css.inc");
 	@include("./style/setting_css.inc");
 	echo <<<EOP
@@ -64,7 +64,7 @@ echo <<<EOP
 <body{$body_onload}>
 EOP;
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	echo <<<EOP
 <p id="pan_menu">設定</p>
 EOP;
@@ -74,13 +74,13 @@ echo $_info_msg_ht;
 $_info_msg_ht="";
 
 /*
-if($ktai){
+if($_conf['ktai']){
 	echo "<hr>";
 }
 */
 
 /*
-if($ktai){
+if($_conf['ktai']){
 	$access_login_at=" {$accesskey}=\"1\"";
 	$access_login2ch_at=" {$accesskey}=\"2\"";
 }
@@ -98,7 +98,7 @@ echo <<<EOP
 	<li><a href="login2ch.php{$k_at_q}"{$access_login2ch_at}>2chログイン管理</a></li>
 EOP;
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	echo <<<EOP
 	<li><a href="editpref.php{$k_at_q}">設定ファイル編集</a></li>
 EOP;
@@ -112,7 +112,7 @@ echo <<<EOP
 	</ul>
 EOP;
 
-if($ktai){
+if($_conf['ktai']){
 	echo "<hr>";
 }
 
@@ -127,7 +127,7 @@ echo "</p>";
 
 
 //フッタプリント===================
-if($ktai){
+if($_conf['ktai']){
 	echo <<<EOP
 <hr>
 {$k_to_index_ht}

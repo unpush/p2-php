@@ -38,7 +38,7 @@ class ShowThreadPc extends ShowThread{
 		
 			if (!$nofirst and $i == 1) { continue; }
 			if (!$this->thread->datlines[$i-1]) {
-				$this->thread->newline = $i;
+				$this->thread->readnum = $i-1;
 				break;
 			}
 			$cont_ht .= $this->transRes($this->thread->datlines[$i-1], $i);
@@ -228,7 +228,7 @@ EOMSG;
 	
 		/*
 		//「ここから新着」画像を挿入========================
-		if($i == $this->thread->newline){
+		if($i == $this->thread->readnum +1){
 			$tores .=<<<EOP
 				<div><img src="img/image.png" alt="新着レス" border="0" vspace="4"></div>
 EOP;
@@ -238,7 +238,7 @@ EOP;
 		if ($this->thread->onthefly) {
 			$newres_to_show = true;
 			$tores .= "<dt id=\"r{$i}\"><span class=\"ontheflyresorder\">{$i}</span> ："; //番号（オンザフライ時）
-		} elseif ($i>=$this->thread->newline) {
+		} elseif ($i > $this->thread->readnum) {
 			$newres_to_show = true;
 			$tores .= "<dt id=\"r{$i}\"><font color=\"{$STYLE['read_newres_color']}\">{$i}</font> ："; //番号（新着レス時）
 		} else {

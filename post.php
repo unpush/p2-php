@@ -157,15 +157,15 @@ if($_POST['newthread']){
 //JavaScriptに含ませる時はurlエンコードしては逆にダメと（&amp;）
 
 //2chで●ログイン中ならsid追加
-if( P2Util::isHost2chs($host) and file_exists($sid2ch_php) ){
+if( P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php']) ){
 	$isMaruChar="●";
 	
-	if( file_exists($idpw2ch_php) and @filemtime($sid2ch_php) < time() - 60*60*24){	//ログイン後、24時間以上経過していたら自動再ログイン
+	if( file_exists($_conf['idpw2ch_php']) and @filemtime($_conf['sid2ch_php']) < time() - 60*60*24){	//ログイン後、24時間以上経過していたら自動再ログイン
 		include_once("./login2ch.inc");
 		login2ch();
 	}
 	
-	include($sid2ch_php);
+	include($_conf['sid2ch_php']);
 	$post['sid'] = $SID2ch;
 }else{
 	$isMaruChar="";
@@ -321,7 +321,7 @@ if ($_conf['res_write_rec']) {
 function postIt($URL, $request)
 {
 	global $_conf, $post_result, $post_error2ch, $p2cookies, $bbs, $host, $popup, $rescount, $ttitle_en, $STYLE, $fsockopen_time_limit;
-	global $ktai, $bbs_cgi, $post;
+	global $bbs_cgi, $post;
 	
 	$method = "POST";
 	$url = "http://" . $host.  $bbs_cgi;
@@ -496,7 +496,7 @@ function postIt($URL, $request)
 	
 		$h_b = explode("</head>", $response);
 		echo $h_b[0];
-		if (!$ktai) {
+		if (!$_conf['ktai']) {
 			@include("style/style_css.inc"); //スタイルシート
 			@include("style/post_css.inc"); //スタイルシート
 		}
@@ -530,11 +530,11 @@ EOSCRIPT;
  */
 function showPostMsg($isDone, $result_msg, $reload)
 {
-	global $location_ht, $popup, $STYLE, $ttitle;
-	global $ktai, $_info_msg_ht;
+	global $_conf, $location_ht, $popup, $STYLE, $ttitle;
+	global $_info_msg_ht;
 	
 	//プリント用変数===============
-	if (!$ktai) {
+	if (!$_conf['ktai']) {
 		$class_ttitle = " class=\"thre_title\"";
 	}
 	$ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
@@ -575,7 +575,7 @@ EOHEADER;
 		echo "<title>{$ptitle}</title>";
 	}
 
-	if (!$ktai) {
+	if (!$_conf['ktai']) {
 		@include("style/style_css.inc"); //スタイルシート
 		@include("style/post_css.inc"); //スタイルシート
 		if ($popup) {

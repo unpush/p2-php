@@ -89,7 +89,7 @@ echo <<<EOP
 	<title>{$ptitle}</title>
 EOP;
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	@include("style/style_css.inc"); //スタイルシート
 	@include("style/read_css.inc"); //スタイルシート
 
@@ -107,7 +107,7 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht="";
 
-if($ktai){
+if($_conf['ktai']){
 	echo "{$ptitle}<br>";
 	echo "<div {$pointer_at}=\"header\">";
 	$aResHist->showNaviK("header");
@@ -148,7 +148,7 @@ EOP;
 //==================================================================
 // レス記事 表示
 //==================================================================
-if($ktai){
+if($_conf['ktai']){
 	$aResHist->showArticlesK();
 }else{
 	$aResHist->showArticles();
@@ -157,7 +157,7 @@ if($ktai){
 //==================================================================
 // フッタ 表示
 //==================================================================
-if($ktai){
+if($_conf['ktai']){
 	echo "<div {$pointer_at}=\"footer\">";
 	$aResHist->showNaviK("footer");
 	echo " <a {$accesskey}=\"2\" href=\"#header\"{$k_at_a}>2.▲</a><br>";
@@ -179,7 +179,7 @@ EOP;
 
 $debug && $prof->printTimers( true );//
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	echo <<<EOP
 	</form>
 EOP;

@@ -46,11 +46,11 @@ $read_navi_range="";
 
 //----------------------------------------------
 // $read_navi_range -- 1- 101- 201-
-for($i=1; $i <= $aThread->rescount; $i=$i+$rnum_range){
-	$offline_range_q="";
-	$ito=$i+$rnum_range-1;
-	if($ito <= $aThread->rnum){
-		$offline_range_q=$offline_q;
+for ($i=1; $i <= $aThread->rescount; $i=$i+$rnum_range) {
+	$offline_range_q = "";
+	$ito = $i + $rnum_range-1;
+	if ($ito <= $aThread->gotnum) {
+		$offline_range_q = $offline_q;
 	}
 	$read_navi_range = $read_navi_range . "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$i}-{$ito}{$offline_range_q}\">{$i}-</a>\n";
 
@@ -86,13 +86,13 @@ if($aThread->resrange['to'] == $aThread->rescount){
 }
 $after_rnum=$aThread->resrange['to']+$rnum_range;
 
-$offline_range_q="";
-if($after_rnum <= $aThread->rnum){
-	$offline_range_q=$offline_q;
+$offline_range_q = "";
+if ($after_rnum <= $aThread->gotnum) {
+	$offline_range_q = $offline_q;
 }
 
 //if(!$read_navi_next_isInvisible){
-$read_navi_next="<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
+$read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
 //}
 
 //----------------------------------------------

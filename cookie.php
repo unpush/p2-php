@@ -43,7 +43,7 @@ EOP;
 //$meta_refresh_ht="<meta http-equiv=\"refresh\" content=\"1;URL={$next_url}\">";
 
 $body_onload="";
-if(!$ktai){
+if(!$_conf['ktai']){
 	$body_onload=" onLoad=\"setWinTitle();\"";
 }
 
@@ -63,7 +63,7 @@ echo <<<EOP
 	<title>{$ptitle}</title>
 EOP;
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	@include("./style/style_css.inc");
 	echo <<<EOP
 	<script type="text/javascript" src="{$basic_js}"></script>
