@@ -12,6 +12,9 @@ $_conf['p2name'] = "p2";	// p2の名前。
 // 基本設定処理
 //======================================================================
 error_reporting(E_ALL ^ E_NOTICE); 
+
+require_once './p2util.class.php';
+
 putenv("TZ=JST-9"); //タイムゾーンをセット
 
 //PHP4.1.0未満と互換保持
@@ -30,7 +33,12 @@ if (extension_loaded('mbstring')) {
 }
 
 //UA判別===========================================
-$ua = $_SERVER['HTTP_USER_AGENT'];
+$ua = $_SERVER['HTTP_USER_AGENT'];	//この変数（$ua）は廃止予定。$_SERVER['HTTP_USER_AGENT']を直接利用する。
+if (P2Util::isBrowserSafariGroup()) {
+	$_conf['accept_charset'] = 'UTF-8';
+} else {
+	$_conf['accept_charset'] = 'Shift_JIS';
+}
 if (isset($_GET['k']) ||  isset($_POST['k'])) {
 	$ktai = 1;
 	$k_at_a = "&amp;k=1";
