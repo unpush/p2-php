@@ -34,13 +34,7 @@ $offline_q = "&amp;offline=1";
 // ヘッダ
 //=================================================================
 
-//お気にマーク設定==================================================
-
-if ($aThread->fav) {$favmark = "<span class=\"fav\">★</span>";} else {$favmark = "<span class=\"fav\">+</span>";}
-if ($aThread->fav) {$favdo = 0;} else {$favdo = 1;}
-
-//レスナビ設定=====================================================
-
+// レスナビ設定
 $rnum_range = 100;
 $latest_show_res_num = 50; //最新XX
 
@@ -111,17 +105,25 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
 //====================================================================
 
 // ツールバー部分HTML =======
+$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+
+// お気にマーク設定
+$favmark = (!empty($aThread->fav)) ? '★' : '+';
+$favdo = (!empty($aThread->fav)) ? 0 : 1;
+$favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
+$favdo_q = '&amp;setfav='.$favdo;
+
 $toolbar_right_ht = <<<EOTOOLBAR
-			<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject">{$aThread->itaj}</a>
-			<!-- <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;setfav={$favdo}" target="subject" title="お気にスレマーク">{$favmark}</a> -->
-			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}{$popup_q}',{$STYLE['info_pop_size']},0,0)">{$info_st}</a> 
-			<span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('dele_js.php?host={$aThread->host}{$bbs_q}{$key_q}', this);" title="ログを削除する">{$delete_st}</a></span> 
+			<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$aThread->itaj}</a>
+			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}{$popup_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a> 
+			<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}" target="info" onClick="return setFav('{$aThread->host}', '{$aThread->bbs}', '{$aThread->key}', '{$favdo}', this);" title="{$favtitle}">お気に{$favmark}</a></span> 
+			<span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}', this);" title="ログを削除する">{$delete_st}</a></span> 
 <!--			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
 			<a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">{$moto_thre_st}</a>
 EOTOOLBAR;
 
 //=====================================
-header_content_type();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html lang="ja">
@@ -157,8 +159,62 @@ echo <<<EOHEADER
 	<script type="text/javascript">
 	<!--
 	gIsPageLoaded = false;
+	
+	// お気にセット関数
+	function setFav(host, bbs, key, favdo, obj)
+	{
+		// ページの読み込みが完了していなければ、なにもしない
+		// （読み込み完了時にidx記録が生成されるため）
+		if (!gIsPageLoaded) {
+			return false;
+		}
+		
+		var objHTTP = getXmlHttp();
+		if (!objHTTP) {
+			// alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
+			// XMLHTTP（と obj.parentNode.innerHTML） に未対応なら小窓で
+			return OpenSubWin('info.php?host='+host+'&amp;bbs='+bbs+'&amp;key='+key+'&amp;setfav='+favdo+'{$ttitle_en_q}&amp;popup=2',{$STYLE['info_pop_size']},0,0);
+		}
+		// キャッシュ回避用
+		var now = new Date();
+		// 引数の文字列は encodeURIComponent でエスケープするのがよい
+		query = 'host='+host+'&bbs='+bbs+'&key='+key+'&setfav='+favdo+'&nc='+now.getTime();
+		url = 'httpcmd.php?' + query + '&cmd=setfav';	// スクリプトと、コマンド指定
+		objHTTP.open('GET', url, false);
+		objHTTP.send(null);
+		if (objHTTP.status != 200 || objHTTP.readyState != 4 && !objHTTP.responseText) {
+			// alert("Error: XMLHTTP 結果の受信に失敗しました") ;
+		}
+		var res = objHTTP.responseText;
+		var rmsg = "";
+		if (res) {
+			if (res == '1') {
+				rmsg = '完了';
+			}
+			if (rmsg) {
+				if (favdo == '1') {
+					nextset = '0';
+					favmark = '★';
+					favtitle = 'お気にスレから外す';
+				} else {
+					nextset = '1';
+					favmark = '+';
+					favtitle = 'お気にスレに追加';
+				}
+				var favhtm = '<a href="info.php?host='+host+'&amp;bbs='+bbs+'&amp;key='+key+'&amp;setfav='+nextset+'" target="info" onClick="return setFav(\''+host+'\', \''+bbs+'\', \''+key+'\', \''+nextset+'\', this);" title="'+favtitle+'">お気に'+favmark+'</a>';
+				var span = document.getElementsByTagName('span');
+				for (var i = 0; i < span.length; i++) {
+					if (span[i].className == 'favdo') {
+						span[i].innerHTML = favhtm;
+					}
+				}
+			}
+		}
+		return false;
+	}
 
-	function deleLog(url, obj)
+	// 削除関数
+	function deleLog(query, obj)
 	{
 		
 		// ページの読み込みが完了していなければ、なにもしない
@@ -180,19 +236,15 @@ echo <<<EOHEADER
 		// キャッシュ回避用
 		var now = new Date();
 		// 引数の文字列は encodeURIComponent でエスケープするのがよい
-		url = url+'&nc='+now.getTime();
-
+		query = query + '&nc='+now.getTime();
+		url = 'httpcmd.php?' + query + '&cmd=delelog';	// スクリプトと、コマンド指定
 		objHTTP.open('GET', url, false);
-	
 		objHTTP.send(null);
-		
-		if (objHTTP.status!=200 || objHTTP.readyState!=4 && !objHTTP.responseText) {
+		if (objHTTP.status != 200 || objHTTP.readyState != 4 && !objHTTP.responseText) {
 			// alert("Error: XMLHTTP 結果の受信に失敗しました") ;
 		}
-		
 		var res = objHTTP.responseText;
 		var rmsg = "";
-		
 		if (res) {
 			if (res == '1') {
 				rmsg = '完了';
@@ -328,9 +380,9 @@ EOP;
 EOP;
 }
 
-// p2フレーム 3ペインで開く
+// {{{ p2フレーム 3ペインで開く
 $htm['p2frame'] = <<<EOP
-<a href="index.php?url={$motothre_url}">p2フレーム 3ペインで開く</a> | 
+<a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く</a> | 
 EOP;
 $htm['p2frame'] = <<<EOP
 <script type="text/javascript">
@@ -341,6 +393,7 @@ if (top == self) {
 -->
 </script>\n
 EOP;
+// }}}
 
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and !$_GET['renzokupop']) {
 

@@ -1,7 +1,7 @@
 <?php
 // p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
 
-$_conf['p2version'] = '1.5.3';
+$_conf['p2version'] = '1.5.4';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
 $_conf['p2name'] = 'P2';	// p2の名前。
@@ -75,9 +75,9 @@ if (P2Util::isBrowserSafariGroup()) {
 // UA判別 ===========================================
 if (!empty($_GET['k']) || !empty($_POST['k'])) {
 	$_conf['ktai'] = 1;
-	$k_at_a = "&amp;k=1";
-	$k_at_q = "?k=1";
-	$k_input_ht = '<input type="hidden" name="k" value="1">';
+	$_conf['k_at_a'] = "&amp;k=1";
+	$_conf['k_at_q'] = "?k=1";
+	$_conf['k_input_ht'] = '<input type="hidden" name="k" value="1">';
 }
 //$_conf['ktai'] = 1;//
 $_conf['doctype'] = "";
@@ -126,7 +126,7 @@ EOP;
 }
 
 $k_to_index_ht = <<<EOP
-<a {$_conf['accesskey']}="0" href="index.php{$k_at_q}">0.TOP</a>
+<a {$_conf['accesskey']}="0" href="index.php{$_conf['k_at_q']}">0.TOP</a>
 EOP;
 
 // DOCTYPE HTML 宣言 ==========================
@@ -227,7 +227,7 @@ $_conf['auth_jp_file'] = $_conf['pref_dir']."/p2_auth_jp.php";
 $_conf['login_log_file'] = $_conf['pref_dir'] . "/p2_login.log.php";
 $_conf['failed_post_file'] = $_conf['pref_dir'].'/p2_failed_post.data.php';
 
-$_conf['crypt_xor_key'] = $_SERVER["SERVER_NAME"].$_SERVER["SERVER_SOFTWARE"];
+$_conf['md5_crypt_key'] = $_SERVER['SERVER_NAME'].$_SERVER['SERVER_SOFTWARE'];
 $_conf['menu_dl_interval'] = 1;	// (1) 板 menu のキャッシュを更新せずに保持する時間 (hour)
 $_conf['fsockopen_time_limit'] = 10;	// (10) ネットワーク接続タイムアウト時間(秒)
 set_time_limit(60); 		// スクリプト実行制限時間(秒)
@@ -248,22 +248,6 @@ $_conf['res_write_perm'] = 0606;		// 書き込み履歴記録ファイルのパーミッション
 //=====================================================================
 // 関数
 //=====================================================================
-/**
- * http header 出力関数
- */
-function header_nocache()
-{
-	header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // 日付が過去
-	header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); // 常に修正されている
-	header("Cache-Control: no-store, no-cache, must-revalidate"); // HTTP/1.1
-	header("Cache-Control: post-check=0, pre-check=0", false);
-	header("Pragma: no-cache"); // HTTP/1.0
-}
-
-function header_content_type()
-{
-	header("Content-Type: text/html; charset=Shift_JIS");
-}
 
 /**
  * 認証関数

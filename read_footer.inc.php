@@ -86,6 +86,8 @@ EOP;
 }
 
 // ============================================================
+$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+
 if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
 	if (!$aThread->diedat) {

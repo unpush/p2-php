@@ -71,23 +71,23 @@ $ptitle_ht=  "{$aThreadList->ptitle} の 新着まとめ読み";
 //&amp;sb_view={$sb_view}
 if ($aThreadList->spmode) {
 	$sb_ht = <<<EOP
-		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$k_at_a}">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$aThreadList->ptitle}</a>
 EOP;
 	$sb_ht_btm = <<<EOP
-		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$k_at_a}">{$_conf['k_accesskey']['up']}.{$aThreadList->ptitle}</a>
+		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$aThreadList->ptitle}</a>
 EOP;
 }else{
 	$sb_ht = <<<EOP
-		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$aThreadList->ptitle}</a>
 EOP;
 	$sb_ht_btm = <<<EOP
-		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}">{$_conf['k_accesskey']['up']}.{$aThreadList->ptitle}</a>
+		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$aThreadList->ptitle}</a>
 EOP;
 }
 
 //include($read_header_inc);
 
-header_content_type();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html>
@@ -228,7 +228,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 function readNew(&$aThread)
 {
 	global $_conf, $newthre_num, $STYLE, $browser;
-	global $_info_msg_ht, $spmode, $k_at_a;
+	global $_info_msg_ht, $spmode;
 
 	$newthre_num++;
 	
@@ -357,28 +357,28 @@ EOP;
 	{$read_range_on}/{$aThread->rescount}<br>
 EOP;
 
-	$read_footer_navi_new="<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$k_at_a}#r{$aThread->rescount}\">新着ﾚｽの表示</a>";
+	$read_footer_navi_new="<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\">新着ﾚｽの表示</a>";
 	
 	$dores_ht=<<<EOP
-		<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$k_at_a}">ﾚｽ</a>
+		<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
 EOP;
 
 	//ツールバー部分HTML=======
 	if ($spmode) {
 		$toolbar_itaj_ht = <<<EOP
-(<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$k_at_a}">{$aThread->itaj}</a>)
+(<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}">{$aThread->itaj}</a>)
 EOP;
 	}
 	$toolbar_right_ht .=<<<EOTOOLBAR
-			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$k_at_a}">{$info_st}</a> 
-			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$k_at_a}">{$delete_st}</a> 
+			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a> 
+			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a> 
 			<a href="{$motothre_url}">元ｽﾚ</a>
 EOTOOLBAR;
 
 	$read_footer_ht = <<<EOP
 		<div {$_conf['pointer_name']}="ntt_bt{$newthre_num}">
 			$read_range_ht 
-			<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$k_at_a}#r{$aThread->rescount}">{$aThread->ttitle}</a>{$toolbar_itaj_ht} 
+			<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle}</a>{$toolbar_itaj_ht} 
 			<a href="#ntt{$newthre_num}">▲</a>
 		</div>
 		<hr>
@@ -419,13 +419,13 @@ if (!$aThreadList->num) {
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0) {
 	echo <<<EOP
 	<div>
-		{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$k_at_a}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめを更新</a>
+		{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめを更新</a>
 	</div>\n
 EOP;
 } else {
 	echo <<<EOP
 	<div>
-		{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1{$k_at_a}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめの続き</a>
+		{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめの続き</a>
 	</div>\n
 EOP;
 }

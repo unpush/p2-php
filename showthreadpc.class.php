@@ -217,20 +217,8 @@ EOP;
 		$msg = $this->transMsg($msg, $i); // メッセージHTML変換
 
 		
-		// {{{ transRes - BEプロファイルリンク変換
-		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target_at']}>Lv.\$2</a>";		
-		
-		//<BE:23457986:1>
-		$be_match = '|<BE:(\d+):(\d+)>|i';
-		if (preg_match($be_match, $date_id)) {
-			$date_id = preg_replace($be_match, $beid_replace, $date_id);
-		
-		} else {
-		
-			$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target_at']}>?\$2</a>";
-			$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
-		
-		}
+		// BEプロファイルリンク変換
+		$date_id = $this->replaceBeId($date_id);
 
 		// HTMLポップアップ
 		if ($_conf['iframe_popup']) {
@@ -264,7 +252,7 @@ EOMAIL;
 <div id="ngn{$ngaborns_hits['ng_mail']}" style="display:none;">$msg</div>
 EOMSG;
 
-		//NGID変換======================================
+		// NGID変換 ======================================
 		} elseif ($isNgId) {
 			$date_id = <<<EOID
 <s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_hits['ng_id']}').style.display = 'block';">$date_id</s>
@@ -376,20 +364,8 @@ EOP;
 		$mail = $resar[1];
 		$date_id = $resar[2];
 		
-		// {{{ qRes - BEプロファイルリンク変換
-		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target_at']}>Lv.\$2</a>";		
-		
-		//<BE:23457986:1>
-		$be_match = '|<BE:(\d+):(\d+)>|i';
-		if (preg_match($be_match, $date_id)) {
-			$date_id = preg_replace($be_match, $beid_replace, $date_id);
-		
-		} else {
-		
-			$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target_at']}>?\$2</a>";
-			$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
-		
-		}
+		// BEプロファイルリンク変換
+		$date_id = $this->replaceBeId($date_id);
 
 		// HTMLポップアップ
 		if ($_conf['iframe_popup']) {
@@ -639,8 +615,8 @@ EOP;
 */
 		} else {
 			$qnum = intval($appointed_num);
-			// 未来過ぎるレスは変換しない
-			if ($qnum > sizeof($this->thread->datlines)) {
+			// 1未満と未来過ぎるレスは変換しない
+			if ($qnum < 1 || $qnum > sizeof($this->thread->datlines)) {
 				return $s[0];
 			}
 			if ($_conf['quote_res_view']) {
@@ -789,7 +765,7 @@ EORS;
 		$id = $s[1];
 		
 		$num_ht = '';
-		if ($this->thread->idcount[$id] > 1) {
+		if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
 			$num_ht = '('.$this->thread->idcount[$id].')';
 		} else {
 			return $s[0];

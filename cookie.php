@@ -4,6 +4,7 @@
 */
 
 include_once './conf.inc.php';  // 基本設定
+require_once './p2util.class.php';
 
 authorize(); // ユーザ認証
 
@@ -28,14 +29,14 @@ if (isset($regist_cookie)) {
 	}
 }
 
-//書き出し用変数========================================
+// 書き出し用変数========================================
 
 $ptitle = $check_msg_st;
 $autho_user_ht = "";
 $return_path = "login.php";
 
 $next_url = <<<EOP
-{$return_path}?regist_cookie_check={$_GET['regist_cookie']}{$k_at_a}
+{$return_path}?regist_cookie_check={$_GET['regist_cookie']}{$_conf['k_at_a']}
 EOP;
 
 //$meta_refresh_ht="<meta http-equiv=\"refresh\" content=\"1;URL={$next_url}\">";
@@ -48,8 +49,8 @@ if (!$_conf['ktai']) {
 //=========================================================
 // HTMLプリント
 //=========================================================
-header_nocache();
-header_content_type();
+P2Util::header_nocache();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>

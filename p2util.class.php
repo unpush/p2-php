@@ -10,7 +10,7 @@ require_once './filectl.class.php';
 * @create  2004/07/15
 */
 class P2Util{
-
+	
 	/**
 	 * ■ ファイルをダウンロード保存する
 	 */
@@ -25,7 +25,7 @@ class P2Util{
 		} else {
 			$modified = false;
 		}
-
+	
 		// DL
 		include_once './wap.class.php';
 		$wap_ua = new UserAgent;
@@ -488,6 +488,26 @@ class P2Util{
 		}
 		return $str;
 	}
+
+	/**
+	* ■ http header no cache を出力
+	*/
+	function header_nocache()
+	{
+		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // 日付が過去
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); // 常に修正されている
+		header("Cache-Control: no-store, no-cache, must-revalidate"); // HTTP/1.1
+		header("Cache-Control: post-check=0, pre-check=0", false);
+		header("Pragma: no-cache"); // HTTP/1.0
+	}
+
+	/**
+	* ■ http header Content-Type 出力
+	*/
+	function header_content_type()
+	{
+		header("Content-Type: text/html; charset=Shift_JIS");
+	}
 	
 	/**
 	 * ■旧形式の書き込み履歴を新形式に変換する
@@ -513,7 +533,7 @@ class P2Util{
 				$cont = str_replace("\t", "", $cont);
 				// <>をタブに変換して
 				$cont = str_replace("<>", "\t", $cont);
-
+				
 				// データPHP形式で保存
 				DataPhp::writeDataPhp($cont, $rh_dat_php, $_conf['res_write_perm']);
 			}
@@ -622,10 +642,9 @@ class P2Util{
 	{
 		global $_conf;
 		
-		include_once './crypt_xor.inc.php';
+		include_once './md5_crypt.inc.php';
 		
-		$crypted_login2chPW = encrypt_xor($login2chPW, $_conf['crypt_xor_key']);
-		$crypted_login2chPW = base64_encode($crypted_login2chPW);
+		$crypted_login2chPW = md5_encrypt($login2chPW, $_conf['md5_crypt_key']);
 	$idpw2ch_cont = <<<EOP
 <?php
 \$rec_login2chID = '{$login2chID}';
@@ -650,7 +669,7 @@ EOP;
 	{
 		global $_conf;
 		
-		include_once './crypt_xor.inc.php';
+		include_once './md5_crypt.inc.php';
 		
 		if (!file_exists($_conf['idpw2ch_php'])) {
 			return false;
@@ -664,8 +683,7 @@ EOP;
 
 		// パスを複合化
 		if (!empty($rec_login2chPW)) {
-			$rec_login2chPW = base64_decode($rec_login2chPW);
-			$login2chPW = decrypt_xor($rec_login2chPW, $_conf['crypt_xor_key']);
+			$login2chPW = md5_decrypt($rec_login2chPW, $_conf['md5_crypt_key']);
 		}
 		
 		return array($rec_login2chID, $login2chPW, $rec_autoLogin2ch);

@@ -58,7 +58,6 @@ class ShowThreadK extends ShowThread{
 		global $STYLE, $mae_msg, $res_filter, $word_fm;
 		global $ngaborns_hits;
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht;
 		
 		$tores = "";
 		$rpop = "";
@@ -158,25 +157,13 @@ class ShowThreadK extends ShowThread{
 		$name = $this->transName($name); // 名前HTML変換
 		$msg = $this->transMsg($msg, $i); // メッセージHTML変換
 		
-		// {{{ transRes - BEプロファイルリンク変換
-		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>Lv.\$2</a>";		
-		
-		//<BE:23457986:1>
-		$be_match = '|<BE:(\d+):(\d+)>|i';
-		if (preg_match($be_match, $date_id)) {
-			$date_id = preg_replace($be_match, $beid_replace, $date_id);
-		
-		} else {
-		
-			$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>?\$2</a>";
-			$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
-		
-		}
+		// BEプロファイルリンク変換
+		$date_id = $this->replaceBeId($date_id);
 		
 		// NGメッセージ変換======================================
 		if ($isNgMsg) {
 			$msg = <<<EOMSG
-<s><font color="{$STYLE['read_ngword']}">NGﾜｰﾄﾞ:{$a_ng_msg}</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$k_at_a}">確</a>
+<s><font color="{$STYLE['read_ngword']}">NGﾜｰﾄﾞ:{$a_ng_msg}</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
 EOMSG;
 		}
 		
@@ -186,7 +173,7 @@ EOMSG;
 <s><font color="{$STYLE['read_ngword']}">$name</font></s>
 EONAME;
 			$msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$k_at_a}">確</a>
+<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
 EOMSG;
 		
 		// NGメール変換======================================
@@ -204,7 +191,7 @@ EOMSG;
 <s><font color="{$STYLE['read_ngword']}">$date_id</font></s>
 EOID;
 			$msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$k_at_a}">確</a>
+<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
 EOMSG;
 		}
 	
@@ -241,7 +228,6 @@ EOP;
 	function transName($name)
 	{
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht;
 		
 		$nameID = "";
 
@@ -275,7 +261,6 @@ EOP;
 	{
 		global $_conf;
 		global $res_filter, $word_fm;
-		global $k_at_a, $k_at_q, $k_input_ht;
 		
 		$ryaku = false;
 		$str_in_url = '-_.!~*a-zA-Z0-9;\/?:@&=+\$,%#';
@@ -310,7 +295,7 @@ EOP;
 				}
 				
 				$msg = $msg." ";
-				$msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1{$k_at_a}\">略</a>";
+				$msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\">略</a>";
 				$ryaku=true;
 			}
 		}
@@ -340,12 +325,12 @@ EOP;
 		$ande = "(&|&amp;)";
 		$msg = preg_replace_callback("{<a href=\"http://(([^/]+\.machibbs\.com|[^/]+\.machi\.to|jbbs\.livedoor\.jp|jbbs\.livedoor\.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)(&|&amp;)KEY=([0-9]+)((&|&amp;)START=([0-9]+))?((&|&amp;)END=([0-9]+))?[^\"]*\"{$_conf['ext_win_target_at']}>(h?t?tp://[^<>]+)</a>}", array($this, 'linkMachi_callback'), $msg);
 		$msg = preg_replace_callback("{<a href=\"http://(jbbs\.livedoor\.jp|jbbs\.livedoor\.com|jbbs\.shitaraba\.com)/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^\"]*?\"{$_conf['ext_win_target_at']}>(h?t?tp://[^<>]+)</a>}", array($this, 'linkJBBS_callback'), $msg);
-		//$msg=preg_replace("/&(amp;)?ls=-/", "", $msg);// 空の範囲指定は除去
+		// $msg = preg_replace("/&(amp;)?ls=-/", "", $msg);// 空の範囲指定は除去
 		
 		// 2chとbbspinkの板
-		$msg = preg_replace("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/([^\/]+)\/\"{$_conf['ext_win_target_at']}>h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/([^\/]+)\/<\/a>/", "\\0 [<a href=\"{$_conf['subject_php']}?host=\\1&amp;bbs=\\3{$k_at_a}\">板をp2で開く</a>]", $msg);
+		$msg = preg_replace("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/([^\/]+)\/\"{$_conf['ext_win_target_at']}>h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/([^\/]+)\/<\/a>/", "\\0 [<a href=\"{$_conf['subject_php']}?host=\\1&amp;bbs=\\3{$_conf['k_at_a']}\">板をp2で開く</a>]", $msg);
 		
-		//2chとbbspinkの過去ログ
+		// 2chとbbspinkの過去ログ
 		$msg = preg_replace_callback("/<a href=\"(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$_conf['ext_win_target_at']}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
 		
 		/*
@@ -354,13 +339,18 @@ EOP;
 			$msg = preg_replace("/<a href=\"(s?https?:\/\/[{$str_in_url}]+)\"{$_conf['ext_win_target_at']}>(s?h?t?tps?:\/\/[{$str_in_url}]+)<\/a>/","<a href=\"\\1\"{$_conf['ext_win_target_at']}>\\2</a> [<a href=\"{$_conf['brocra_checker_url']}?{$_conf['brocra_checker_query']}=\\1\"{$_conf['ext_win_target_at']}>チェック</a>]", $msg);
 		}
 		*/
-	
-		/*
-		// 画像URLリンクをサムネイル化
-		if ($_conf['preview_thumbnail']) {
+		
+		// 携帯用外部URL変換
+		if ($_conf['k_use_tsukin']) {
+			$msg = preg_replace_callback("{<a href=\"(s?https?://[{$str_in_url}]+)\"{$_conf['ext_win_target_at']}>(s?h?t?tps?://[{$str_in_url}]+)</a>}", array($this, 'ktai_exturl_callback'), $msg);
+		}
+		
+		// 画像URLリンクを変換
+		//if ($_conf['preview_thumbnail']) {
+		if ($_conf['k_use_picto']) {
 			$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[{$str_in_url}]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))\"{$_conf['ext_win_target_at']}>(s?h?t?tps?:\/\/[{$str_in_url}]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))<\/a>/", array($this, 'view_img_callback') ,$msg);
 		}
-		*/
+		
 		
 		// ■ ime
 		$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[{$str_in_url}]+)\"{$_conf['ext_win_target_at']}>([^><]+)<\/a>/", array($this, 'ime_callback'), $msg);
@@ -371,6 +361,46 @@ EOP;
 	//=============================================================
 	//コールバックメソッド
 	//=============================================================
+	/**
+	 * ■携帯用外部URL変換
+	 */
+	function ktai_exturl_callback($s)
+	{
+		global $_conf;
+		
+		$in_url = $s[1];
+		
+		// 通勤ブラウザ
+		$tsukin_link = '';
+		if ($_conf['k_use_tsukin']) {
+			if (!preg_match('{\.(jpe?g|gif|png)$}i', $in_url)) {
+				$tsukin_url = 'http://www.sjk.co.jp/c/w.exe?y='.urlencode($in_url);
+				$tsukin_link = '<a href="'.$tsukin_url.'"'.$_conf['ext_win_target_at'].'>通</a>';
+			}
+		}
+		/*
+		// jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
+		$jig_link = '';
+		if (!preg_match('{\.(jpe?g|gif|png)$}i', $in_url)) {
+			$jig_url = 'http://bw5032.jig.jp/fweb/?_jig_='.urlencode($in_url);
+			$jig_link = '<a href="'.$jig_url.'"'.$_conf['ext_win_target_at'].'>j</a>';
+		}
+		*/
+		
+		$sepa ='';
+		if ($tsukin_link && $jig_link) {
+			$sepa = '|';
+		}
+		
+		$ext_pre = '';
+		if ($tsukin_link || $jig_link) {
+			$ext_pre = '('.$tsukin_link.$sepa.$jig_link.')';
+		}
+		
+		$r = $ext_pre.'<a href="' . $in_url . '"' . $_conf['ext_win_target_at'] . '>' . $s[2] . '</a>';
+		
+		return $r;
+	}
 
 	/**
 	 * ime_callback
@@ -395,7 +425,6 @@ EOP;
 	function quote_res_devide_callback($s)
 	{
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht;
 		
 		$appointed_num = $s[3];
 		$qsign = "$s[1]$s[2]";
@@ -404,7 +433,7 @@ EOP;
 			return $s[0];
 		}
 		
-		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}{$k_at_a}";
+		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}{$_conf['k_at_a']}";
 
 		$qnum = $appointed_num + 0;
 		if ($qnum > sizeof($this->thread->datlines)) { // 未来過ぎるレスは変換しない
@@ -422,9 +451,8 @@ EOP;
 	function link2ch_callback($s)
 	{
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht;
 		
-		$read_url = "{$_conf['read_php']}?host=$s[1]&amp;bbs=$s[3]&amp;key=$s[4]&amp;ls=$s[6]{$k_at_a}";
+		$read_url = "{$_conf['read_php']}?host=$s[1]&amp;bbs=$s[3]&amp;key=$s[4]&amp;ls=$s[6]{$_conf['k_at_a']}";
 
 		$rs = <<<EORS
 		<a href="{$read_url}">$s[7]</a>
@@ -439,9 +467,8 @@ EORS;
 	function linkMachi_callback($s)
 	{
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht;
 	
-	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[4]}&amp;key={$s[6]}&amp;ls={$s[9]}-{$s[12]}{$k_at_a}\">{$s[13]}</a>";
+	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[4]}&amp;key={$s[6]}&amp;ls={$s[9]}-{$s[12]}{$_conf['k_at_a']}\">{$s[13]}</a>";
 	 }
 	
 	/**
@@ -460,14 +487,14 @@ EORS;
 	function link2chkako_callback($s)
 	{
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht;
+
 		/*
 		$msg = preg_replace_callback("/<a href=\"(http:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$_conf['ext_win_target_at']}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
 		*/
 		$kakolog_uri = $s[1];
 		$kakolog_uri_en = urlencode($kakolog_uri);
 		$host = $s[2]; $bbs = $s[5]; $key = $s[7];
-		$read_url="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;kakolog={$kakolog_uri_en}{$k_at_a}";
+		$read_url="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;kakolog={$kakolog_uri_en}{$_conf['k_at_a']}";
 
 			$rs=<<<EOP
 <a href="{$read_url}">{$kakolog_uri}.html</a>
@@ -483,13 +510,24 @@ EOP;
 	{
 		global $_conf;
 	
+		$in_url = $s[1];
+		
+		/*
 		$img_tag = <<<EOIMG
-<img class="thumbnail" src="$s[1]" height="{$_conf['pre_thumb_height']}" weight="{$_conf['pre_thumb_width']}" hspace="4" vspace="4" align="middle">
+<img class="thumbnail" src="{$in_url}" height="{$_conf['pre_thumb_height']}" weight="{$_conf['pre_thumb_width']}" hspace="4" vspace="4" align="middle">
 EOIMG;
-
-		$rs = <<<EORS
-			<a href="$s[1]">{$img_tag}{$s[3]}</a>
-EORS;
+		*/
+		
+		// ピクト
+		$picto_tag = '';
+		if ($_conf['k_use_picto']) {
+			if (preg_match('{^(http://)(.+)}', $in_url, $m)) {
+				$picto_url = $m[1].'pic.to/'.$m[2];
+				$picto_tag = '<a href="'.$picto_url.'">(ﾋﾟ)</a> ';
+			}
+		}
+		
+		$rs = "{$picto_tag}<a href=\"{$in_url}\">{$img_tag}{$s[3]}</a>";
 		
 		return $rs;
 	}

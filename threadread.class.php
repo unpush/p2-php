@@ -14,7 +14,7 @@ class ThreadRead extends Thread{
 	var $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
 	
 	var $onbytes; // サーバから取得したdatサイズ
-	var $diedat; // サーバからdat取得ができなければtrue
+	var $diedat; // サーバからdat取得しようとしてできなかった時にtrueがセットされる
 	var $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
 
 	var $idcount;	// 配列。key は ID記号, value は ID出現回数
@@ -110,11 +110,11 @@ class ThreadRead extends Thread{
 		$url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
 		//$url="http://news2.2ch.net/test/read.cgi?bbs=newsplus&key=1038486598";
 
-		$URL = parse_url($url); //URL分解
-		if (isset($URL['query'])) { //クエリー
-		    $URL['query'] = "?".$URL['query'];
+		$purl = parse_url($url); //URL分解
+		if (isset($purl['query'])) { //クエリー
+		    $purl['query'] = "?".$purl['query'];
 		} else {
-		    $URL['query'] = "";
+		    $purl['query'] = "";
 		}
 
 		//プロキシ
@@ -123,27 +123,33 @@ class ThreadRead extends Thread{
 			$send_port = $_conf['proxy_port'];
 			$send_path = $url;
 		} else {
-			$send_host = $URL['host'];
-			$send_port = $URL['port'];
-			$send_path = $URL['path'].$URL['query'];
+			$send_host = $purl['host'];
+			$send_port = $purl['port'];
+			$send_path = $purl['path'].$purl['query'];
 		}
 		
-		if (!$send_port){$send_port = 80;}//デフォルトを80
+		if (!$send_port) {$send_port = 80;}	// デフォルトを80
 			
 		$request = $method." ".$send_path." HTTP/1.0\r\n";
-		$request .= "Host: ".$URL['host']."\r\n";
+		$request .= "Host: ".$purl['host']."\r\n";
 		$request .= "Accept: */*\r\n";
 		//$request .= "Accept-Charset: Shift_JIS\r\n";
 		//$request .= "Accept-Encoding: gzip, deflate\r\n";
 		$request .= "Accept-Language: ja, en\r\n";
 		$request .= "User-Agent: ".$p2ua."\r\n";
-		if(!$zero_read){$request .= "Range: bytes={$from_bytes}-\r\n";}
-		$request .= "Referer: http://{$URL['host']}/{$this->bbs}/\r\n";
-		$request .= "Connection: Close\r\n";
+		if (!$zero_read) {$request .= "Range: bytes={$from_bytes}-\r\n";}
+		$request .= "Referer: http://{$purl['host']}/{$this->bbs}/\r\n";
 
-		if($this->modified){
+		if ($this->modified) {
 			$request .= "If-Modified-Since: ".$this->modified."\r\n";
 		}
+		
+		// Basic認証用のヘッダ
+		if (isset($purl['user']) && isset($purl['pass'])) {
+		    $request .= "Authorization: Basic ".base64_encode($purl['user'].":".$purl['pass'])."\r\n";
+		}
+
+		$request .= "Connection: Close\r\n";
 	
 		$request .= "\r\n";
 		
@@ -296,11 +302,11 @@ class ThreadRead extends Thread{
 		$SID2ch = urlencode($SID2ch);
 		$url = "http://" . $this->host . "/test/offlaw.cgi/{$this->bbs}/{$this->key}/?raw=0.0&sid={$SID2ch}";
 
-		$URL = parse_url($url); // URL分解
-		if (isset($URL['query'])) { // クエリー
-		    $URL['query'] = "?".$URL['query'];
+		$purl = parse_url($url); // URL分解
+		if (isset($purl['query'])) { // クエリー
+		    $purl['query'] = "?".$purl['query'];
 		} else {
-		    $URL['query'] = "";
+		    $purl['query'] = "";
 		}
 	
 		// プロキシ
@@ -309,15 +315,15 @@ class ThreadRead extends Thread{
 			$send_port = $_conf['proxy_port'];
 			$send_path = $url;
 		} else {
-			$send_host = $URL['host'];
-			$send_port = $URL['port'];
-			$send_path = $URL['path'].$URL['query'];
+			$send_host = $purl['host'];
+			$send_port = $purl['port'];
+			$send_path = $purl['path'].$purl['query'];
 		}
 		
 		if (!$send_port){$send_port = 80;}//デフォルトを80
 
 		$request = $method." ".$send_path." HTTP/1.0\r\n";
-		$request .= "Host: ".$URL['host']."\r\n";
+		$request .= "Host: ".$purl['host']."\r\n";
 		$request .= "Accept-Encoding: gzip, deflate\r\n";
 		//$request .= "Accept-Language: ja, en\r\n";
 		$request .= "User-Agent: ".$p2ua."\r\n";
@@ -496,11 +502,11 @@ class ThreadRead extends Thread{
 			$httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
 		}
 		
-		$URL = parse_url($url); // URL分解
-		if (isset($URL['query'])) { // クエリー
-		    $URL['query'] = "?".$URL['query'];
+		$purl = parse_url($url); // URL分解
+		if (isset($purl['query'])) { // クエリー
+		    $purl['query'] = "?".$purl['query'];
 		} else {
-		    $URL['query'] = "";
+		    $purl['query'] = "";
 		}
 	
 		// プロキシ
@@ -509,14 +515,14 @@ class ThreadRead extends Thread{
 			$send_port = $_conf['proxy_port'];
 			$send_path = $url;
 		} else {
-			$send_host = $URL['host'];
-			$send_port = $URL['port'];
-			$send_path = $URL['path'].$URL['query'];
+			$send_host = $purl['host'];
+			$send_port = $purl['port'];
+			$send_path = $purl['path'].$purl['query'];
 		}
 		if (!$send_port) {$send_port = 80;}//デフォルトを80
 	
 		$request = $method." ".$send_path." HTTP/1.0\r\n";
-		$request .= "Host: ".$URL['host']."\r\n";
+		$request .= "Host: ".$purl['host']."\r\n";
 		$request .= "User-Agent: ".$httpua."\r\n";
 		$request .= "Connection: Close\r\n";
 		//$request .= "Accept-Encoding: gzip\r\n";
@@ -800,34 +806,40 @@ class ThreadRead extends Thread{
 			$method = "GET";
 			$url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
 			
-			$URL = parse_url($url); // URL分解
-			if (isset($URL['query'])) { // クエリー
-			    $URL['query'] = "?".$URL['query'];
+			$purl = parse_url($url); // URL分解
+			if (isset($purl['query'])) { // クエリー
+			    $purl['query'] = "?".$purl['query'];
 			} else {
-			    $URL['query'] = "";
+			    $purl['query'] = "";
 			}
 		
-			//プロキシ
+			// プロキシ
 			if ($_conf['proxy_use']) {
 				$send_host = $_conf['proxy_host'];
 				$send_port = $_conf['proxy_port'];
 				$send_path = $url;
 			} else {
-				$send_host = $URL['host'];
-				$send_port = $URL['port'];
-				$send_path = $URL['path'].$URL['query'];
+				$send_host = $purl['host'];
+				$send_port = $purl['port'];
+				$send_path = $purl['path'].$purl['query'];
 			}
 			
 			if (!$send_port) {$send_port = 80;} // デフォルトを80
 	
 			$request = $method." ".$send_path." HTTP/1.0\r\n";
-			$request .= "Host: ".$URL['host']."\r\n";
+			$request .= "Host: ".$purl['host']."\r\n";
 			$request .= "User-Agent: Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")"."\r\n";
-			//$request .= "Range: bytes={$from_bytes}-\r\n";
+			// $request .= "Range: bytes={$from_bytes}-\r\n";
+	
+			// Basic認証用のヘッダ
+			if (isset($purl['user']) && isset($purl['pass'])) {
+			    $request .= "Authorization: Basic ".base64_encode($purl['user'].":".$purl['pass'])."\r\n";
+			}
+			
 			$request .= "Connection: Close\r\n";
 			$request .= "\r\n";
 			
-			/* WEBサーバへ接続 */
+			// WEBサーバへ接続
 			$fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
 			if (!$fp) {
 				$url_t = P2Util::throughIme($url);

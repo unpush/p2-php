@@ -14,16 +14,15 @@ require_once './showthread.class.php'; // HTML表示クラス
 
 $debug = 0;
 $debug && include_once("profiler.inc"); //
-$debug && $prof = new Profiler( true ); //
+$debug && $prof = new Profiler(true); //
 
 authorize(); //ユーザ認証
 
 //================================================================
 // 変数
 //================================================================
-
-$newtime = date("gis");  // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
-// $_today = date("y/m/d");
+$newtime = date('gis');  // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
+// $_today = date('y/m/d');
 
 $_info_msg_ht = "";
 
@@ -97,7 +96,7 @@ if (isset($res_filter)) {
 $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
 //==================================================================
-// メイン
+// ■メイン
 //==================================================================
 
 if (!isset($aThread)) {
@@ -109,7 +108,9 @@ if (!isset($aThread)) {
 //==========================================================
 
 // hostを分解してidxファイルのパスを求める
-$aThread->setThreadPathInfo($host, $bbs, $key);
+if (!isset($aThread->keyidx)) {
+	$aThread->setThreadPathInfo($host, $bbs, $key);
+}
 
 // 板ディレクトリが無ければ作る
 // FileCtl::mkdir_for($aThread->keyidx);
@@ -146,7 +147,7 @@ if (empty($_GET['offline'])) {
 	}
 }
 
-// DATを読み込み
+// ■DATを読み込み
 $aThread->readDat();
 
 // オフライン指定でもログがなければ、改めて強制読み込み
@@ -198,20 +199,20 @@ if ($aThread->isKitoku()) {
 }
 
 // フィルタリングの時は、all固定とする
-if (isset($_REQUEST['word'])) {
+if (isset($word)) {
 	$ls = 'all';
 }
 
 $aThread->lsToPoint($ls);
 
 //===============================================================
-// プリント
+// ■プリント
 //===============================================================
 $ptitle_ht = $aThread->itaj." / ".$aThread->ttitle;
 
 if ($_conf['ktai']) {
 	
-	// ヘッダプリント
+	// ■ヘッダプリント
 	include("./read_header_k.inc");
 	
 	if ($aThread->rescount) {
@@ -220,7 +221,7 @@ if ($_conf['ktai']) {
 		$aShowThread->datToHtml();
 	}
 	
-	// フッタプリント
+	// ■フッタプリント
 	include("./read_footer_k.inc");
 	
 } else {
@@ -297,7 +298,7 @@ EOP;
 }
 
 //===========================================================
-// idxの値設定
+// idxの値を設定、記録
 //===========================================================
 if ($aThread->rescount) {
 
@@ -313,21 +314,21 @@ if ($aThread->rescount) {
 // 履歴を記録
 //===========================================================
 if ($aThread->rescount) {
-	$newdata = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
+	$newdata = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<><><>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
 	recRecent($newdata);
 }
 
 // ■NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
 
-// ■以上---------------------------------------------------------------
+// ■以上 ---------------------------------------------------------------
 exit;
 
 
 
-//==================================================================
+//===============================================================================
 // ■関数
-//==================================================================
+//===============================================================================
 
 /**
  * スレッドを指定する
@@ -375,17 +376,22 @@ function detectThread()
 			}
 	
 	} else {
-		if($_GET['host']){$host = $_GET['host'];} //"pc.2ch.net"
-		if($_POST['host']){$host = $_POST['host'];}
-		if($_GET['bbs']){$bbs = $_GET['bbs'];} //"php"
-		if($_POST['bbs']){$bbs = $_POST['bbs'];}
-		if($_GET['key']){$key = $_GET['key'];} //"1022999539"
-		if($_POST['key']){$key = $_POST['key'];}
-		if($_GET['ls']){$ls = $_GET['ls'];} //"all"
-		if($_POST['ls']){$ls = $_POST['ls'];}
+		if ($_GET['host']) { $host = $_GET['host']; } // "pc.2ch.net"
+		if ($_POST['host']) { $host = $_POST['host']; }
+		if ($_GET['bbs']) { $bbs = $_GET['bbs']; } // "php"
+		if ($_POST['bbs']) { $bbs = $_POST['bbs']; }
+		if ($_GET['key']) { $key = $_GET['key']; } // "1022999539"
+		if ($_POST['key']) { $key = $_POST['key']; }
+		if ($_GET['ls']) {$ls = $_GET['ls']; } // "all"
+		if ($_POST['ls']) { $ls = $_POST['ls']; }
 	}
 	
-	if(!($host && $bbs && $key)){die("p2 - {$_conf['read_php']}: スレッドの指定が変です。");}
+	if (!($host && $bbs && $key)) {
+		$htm['nama_url'] = htmlspecialchars($nama_url);
+		$msg = "p2 - {$_conf['read_php']}: スレッドの指定が変です。<br>"
+			. "<a href=\"{$htm['nama_url']}\">" .$htm['nama_url']."</a>";
+		die($msg);
+	}
 }
 
 /**
@@ -395,13 +401,14 @@ function recRecent($data)
 {
 	global $_conf;
 	
-	FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']); // ファイルがなければ生成
+	// $_conf['rct_file'] ファイルがなければ生成
+	FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']);
 	
-	$lines= @file($_conf['rct_file']); // 読み込み
+	$lines = @file($_conf['rct_file']); // 読み込み
 
 	// 最初に重複要素を削除
 	if ($lines) {
-		foreach($lines as $line) {
+		foreach ($lines as $line) {
 			$line = rtrim($line);
 			$lar = explode('<>', $line);
 			$data_ar = explode('<>', $data);
@@ -419,7 +426,7 @@ function recRecent($data)
 	}
 	
 	// 書き込む
-	$fp = @fopen($_conf['rct_file'], "wb") or die("Error: {$_conf['rct_file']} を更新できませんでした");
+	$fp = @fopen($_conf['rct_file'], 'wb') or die("Error: {$_conf['rct_file']} を更新できませんでした");
 	if ($neolines) {
 		@flock($fp, LOCK_EX);
 		foreach ($neolines as $l) {

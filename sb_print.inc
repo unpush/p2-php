@@ -122,7 +122,8 @@ EOP;
 	if ($aThreadList->spmode) {
 		$spmode_q = "&amp;spmode={$aThreadList->spmode}";
 	}
-
+	$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+	
 	$i = 0;
 	foreach ($aThreadList->threads as $aThread) {
 		$i++;

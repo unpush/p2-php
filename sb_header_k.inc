@@ -2,6 +2,8 @@
 // p2 -  サブジェクト - 携帯ヘッダ表示
 // for subject.php
 
+require_once './p2util.class.php';
+
 //===============================================================
 // HTML表示用変数
 //===============================================================
@@ -10,9 +12,9 @@ $norefresh_q = "&amp;norefresh=1";
 
 // ページタイトル部分URL設定 ====================================
 if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
-	$ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}";
+	$ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}";
 } elseif ($aThreadList->spmode == "res_hist") {
-	$ptitle_url = "./read_res_hist.php{$k_at_q}#footer";
+	$ptitle_url = "./read_res_hist.php{$_conf['k_at_q']}#footer";
 } elseif (!$aThreadList->spmode) {
 	$ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
 	if (preg_match("/www\.onpuch\.jp/", $aThreadList->host)) {$ptitle_url = $ptitle_url."index2.html";}
@@ -45,7 +47,7 @@ $sb_form_hidden_ht = <<<EOP
 	<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
 	<input type="hidden" name="host" value="{$aThreadList->host}">
 	<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-	{$k_input_ht}
+	{$_conf['k_input_ht']}
 EOP;
 
 // フィルタ検索 ==================================================
@@ -68,8 +70,8 @@ if ($mikke) {
 //=================================================
 //ヘッダプリント
 //=================================================
-header_nocache();
-header_content_type();
+P2Util::header_nocache();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>

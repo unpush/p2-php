@@ -40,6 +40,7 @@ if (!isset($ttitle)) {
 
 /*
 // 2004/12/13 特に必要ないかなということでコメントアウト
+// 変換すると「長すぎる行があります」の規制に引っかかりやすくなるようだ。
 
 // メッセージに連続した半角スペースがあれば、&nbsp; に変換する
 $MESSAGE = preg_replace_callback(
@@ -114,13 +115,14 @@ if ($_POST['newthread']) {
 	if (P2Util::isHostJbbsShitaraba($host)) {
 		$post[$dir_k] = $dir;
 	}
-	$location_ht = "{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$k_at_a}";
+	$location_ht = "{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}";
+	
 } else {
 	$post = array($submit_k => $submit, $bbs_k => $bbs, $key_k => $key, $time_k => $time, $FROM_k => $FROM, $mail_k => $mail, $MESSAGE_k => $MESSAGE);
 	if (P2Util::isHostJbbsShitaraba($host)) {
 		$post[$dir_k] = $dir;
 	}
-	$location_ht = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$rescount}-&amp;nt={$newtime}{$k_at_a}#r{$rescount}";
+	$location_ht = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$rescount}-&amp;refresh=1&amp;nt={$newtime}{$_conf['k_at_a']}#r{$rescount}";
 }
 // JavaScriptに含ませる時はurlエンコードしては逆にダメと（&amp;）
 
@@ -201,10 +203,10 @@ if ($host && $bbs && $key) {
 	$rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
 	FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']); // なければ生成
 	
-	//読み込み;
+	// 読み込み;
 	$lines = @file($rh_idx);
 	
-	//最初に重複要素を削除
+	// 最初に重複要素を削除
 	if (is_array($lines)) {
 		foreach ($lines as $line) {
 			$line = rtrim($line);
@@ -240,7 +242,7 @@ if ($host && $bbs && $key) {
 //=============================================
 if ($_conf['res_write_rec']) {
 
-	// 旧形式の書き込み履歴を新形式に変換する
+	// 旧形式（p2_res_hist.dat, <>区切り）の書き込み履歴を新形式（p2_res_hist.dat.php, タブ区切り）に変換する
 	P2Util::transResHistLog();
 
 	$date_and_id = date("y/m/d H:i");
@@ -269,7 +271,10 @@ if ($_conf['res_write_rec']) {
 	$cont = $newdata."\n";
 	
 	// 書き込み処理
-	DataPhp::putDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm']);
+	if (DataPhp::putDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm'], true)) {
+		// これは実際は表示されないけれども
+		$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
+	}
 	
 	/*
 	// 新しいデータを最後に追加
@@ -316,7 +321,7 @@ function postIt($URL, $request)
 	}
 
 	if (!$send_port) { $send_port = 80; }	// デフォルトを80
-		
+	
 	$request = $method." ".$send_path." HTTP/1.0\r\n";
 	$request .= "Host: ".$URL['host']."\r\n";
 	
@@ -455,7 +460,8 @@ function postIt($URL, $request)
 	
 	// カキコミ成功
 	if (preg_match($kakikonda_match, $response, $matches) or $post_seikou) {
-		showPostMsg(true, '書きこみが終わりました。', true);
+		$reload = empty($_POST['from_read_new']);
+		showPostMsg(true, '書きこみが終わりました。', $reload);
 		
 		// 投稿失敗記録を削除
 		if (file_exists($failed_post_file)) {
@@ -465,15 +471,17 @@ function postIt($URL, $request)
 		return true;
 		//$response_ht = htmlspecialchars($response);
 		//echo "<pre>{$response_ht}</pre>";
-		
+	
 	// cookie確認
 	} elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
-		if ($_POST['newthread']) {
-			$newthread_hidden_ht = "<input type=\"hidden\" name=\"newthread\" value=\"1\">";
-		}
-		if ($_POST['post_be2ch']) {
-			$be2ch_hidden_ht = "<input type=\"hidden\" name=\"post_be2ch\" value=\"1\">";
+		$more_hidden_ht = '';
+		$more_hidden_keys = array('newthread','post_be2ch','from_read_new');
+		foreach ($more_hidden_keys as $hk) {
+			if (isset($_POST[$hk])) {
+				$value_hs = htmlspecialchars($_POST[$hk]);
+				$more_hidden_ht = "<input type=\"hidden\" name=\"{$hk}\" value=\"{$value_hs}\">\n";
+			}
 		}
 
 		$form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i';
@@ -485,10 +493,10 @@ function postIt($URL, $request)
 	<input type="hidden" name="rescount" value="{$rescount}">
 	<input type="hidden" name="ttitle_en" value="{$ttitle_en}">
 	<input type="hidden" name="sub" value="\$1">
-	{$newthread_hidden_ht}{$be2ch_hidden_ht}
+	{$more_hidden_ht}
 EOFORM;
 		$response = preg_replace($form_pattern, $form_replace, $response);
-	
+		
 		$h_b = explode("</head>", $response);
 		echo $h_b[0];
 		if (!$_conf['ktai']) {
@@ -555,7 +563,7 @@ EOP;
 	}
 
 	// プリント ==============
-	header_content_type();
+	P2Util::header_content_type();
 	if ($_conf['doctype']) { echo $_conf['doctype']; }
 	echo <<<EOHEADER
 <html lang="ja">

@@ -2,21 +2,21 @@
 // p2 - スレッド クラス
 
 require_once './p2util.class.php';	// p2用のユーティリティクラス
+require_once './filectl.class.php';
 
-//=============================================================================
-// スレッドクラス
-//=============================================================================
-
+/**
+ * ■スレッドクラス
+ */
 class Thread{
 
 	var $ttitle; // スレタイトル // idxline[0]
 	var $key; // スレッドID // idxline[1]
 	var $length; // local Dat Bytes(int) // idxline[2]
-	var $gotnum; // （個人にとっての）既得レス数 // idxline[3]
+	var $gotnum; //（個人にとっての）既得レス数 // idxline[3]
 	var $rescount; // スレッドの総レス数（未取得分も含む）
 	var $modified; // datのLast-Modified // idxline[4]
 	var $readnum; // 既読レス数	// idxline[5] // MacMoeではレス表示位置だったと思う（last res）
-	var $fav; //お気に入り(bool) // idxline[6] key.idxのは旧互換用途のみ
+	var $fav; //お気に入り(bool的に) // idxline[6] favlist.idxも参照
 	// name // ここでは利用せず idxline[7]（他所で利用）
 	// mail // ここでは利用せず idxline[8]（他所で利用）
 	// var $newline; // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
@@ -50,9 +50,9 @@ class Thread{
 	 * fav, recent用の拡張idxリストからラインデータを取得する
 	 */
 
-	function getThreadInfoFromExtIdxLine($l){
-		$l = rtrim($l);
-		$la = explode('<>', $l);
+	function getThreadInfoFromExtIdxLine($l)
+	{
+		$la = explode('<>', rtrim($l));
 		$this->host = $la[10];
 		$this->bbs = $la[11];
 		$this->key = $la[1];
@@ -63,12 +63,16 @@ class Thread{
 			}
 		}
 		
-		//if ($la[6]) { $this->fav = $la[6]; }
+		/*
+		if ($la[6]) {
+			$this->fav = $la[6];
+		}
+		*/
 	}
 
-	//============================================================================
-	// setThreadPathInfo -- Set Path infoメソッド
-	//============================================================================	
+	/**
+	 * ■ Set Path info
+	 */
 	function setThreadPathInfo($host, $bbs, $key)
 	{	
 		$this->host = $host;
@@ -85,23 +89,15 @@ class Thread{
 	 */
 	function isKitoku()
 	{
-		if (file_exists($this->keyidx)) {
+		// if (file_exists($this->keyidx)) {
+		if ($this->gotnum || $this->readnum || $this->newline > 1) {
 			return true;
-		} else {
-			return false;
 		}
-		
-		/*
-		if ($this->readnum) {
-			return true;
-		} else {
-			return false;
-		}
-		*/
+		return false;
 	}
 
 	/**
-	 * 既得スレッドデータをkey.idxから取得する
+	 * ■既得スレッドデータをkey.idxから取得する
 	 */
 	function getThreadInfoFromIdx()
 	{
@@ -137,8 +133,12 @@ class Thread{
 			}
 		}
 
+		if ($lar[6]) {
+			$this->fav = $lar[6];
+		}
+		
 		/*
-		// 現在このidxでのカラムは使用していない。datサイズは直接ファイルの大きさを読み取って調べる
+		// 現在key.idxのこのカラムは使用していない。datサイズは直接ファイルの大きさを読み取って調べる
 		if ($lar[2]) {
 			$this->length = $lar[2];
 		}
@@ -148,22 +148,22 @@ class Thread{
 		return $key_line; 
 	}
 	
-	//============================================================================
-	// ローカルDATのファイルサイズを取得する
-	//============================================================================	
+	/**
+	 * ■ローカルDATのファイルサイズを取得する
+	 */
 	function getDatBytesFromLocalDat()
 	{
 		clearstatcache();
-		if( $this->length=@filesize($this->keydat) ){
+		if ($this->length = @filesize($this->keydat)) {
 			return $this->length;
-		}else{
+		} else {
 			return false;
 		}
 	}
 	
-	//============================================================================
-	// subject.txt の一行からスレ情報を取得する
-	//============================================================================	
+	/**
+	 * ■ subject.txt の一行からスレ情報を取得する
+	 */
 	function getThreadInfoFromSubjectTxtLine($l)
 	{
 		preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches);
@@ -186,12 +186,12 @@ class Thread{
 		}
 	}
 
-	//=========================================
-	// スレタイトル取得メソッド
-	//=========================================
+	/**
+	 * ■スレタイトル取得メソッド
+	 */
 	function setTitleFromLocal()
 	{
-		if (!$this->ttitle) {
+		if (!isset($this->ttitle)) {
 		
 			if ($this->datlines) {
 				$firstdatline = rtrim($this->datlines[0]);
@@ -201,8 +201,8 @@ class Thread{
 			// ローカルdatの1行目から取得
 			} elseif (is_readable($this->keydat)) {
 				$fd = fopen($this->keydat, "rb");
-				$l = fgets ($fd, 32800);
-				fclose ($fd);
+				$l = fgets($fd, 32800);
+				fclose($fd);
 				$firstdatline = rtrim($l);
 				if (strstr($firstdatline, "<>")) {
 					$datline_sepa = "<>";

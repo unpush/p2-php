@@ -56,8 +56,8 @@ if ($_conf['ktai']) {
 	//======================================================
 	// PC—p HTMLƒvƒŠƒ“ƒg
 	//======================================================
-	header_nocache();
-	header_content_type();
+	P2Util::header_nocache();
+	P2Util::header_content_type();
 	if ($_conf['doctype']) { echo $_conf['doctype']; }
 	echo <<<EOHEADER
 <html lang="ja">

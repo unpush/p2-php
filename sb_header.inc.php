@@ -4,20 +4,22 @@
 	for subject.php
 */
 
+require_once './p2util.class.php';
+
 //===================================================================
 // 変数
 //===================================================================
-$newtime= date("gis");
+$newtime = date("gis");
 $reloaded_time = date("m/d G:i:s"); //更新時刻
 
 // スレあぼーんチェック、倉庫 =============================================
-if($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads){
-	$offline_num=$aThreadList->num - $online_num;
+if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
+	$offline_num = $aThreadList->num - $online_num;
 	$taborn_check_ht = <<<EOP
 	<form class="check" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">\n
 EOP;
-	if($offline_num>0){
-		if($aThreadList->spmode == "taborn"){
+	if ($offline_num > 0) {
+		if ($aThreadList->spmode == "taborn") {
 			$taborn_check_ht .= <<<EOP
 		<p>{$aThreadList->num}件中、{$offline_num}件のスレッドが既に板サーバのスレッド一覧から外れているようです（自動でチェックがつきます）</p>\n
 EOP;
@@ -166,7 +168,7 @@ EOP;
 // HTMLプリント
 //===================================================================
 
-header_content_type();
+P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">
