@@ -11,6 +11,26 @@ require_once './filectl_class.inc';
 class P2Util{
 
 	/**
+	 * ƒQ[ƒg‚ğ’Ê‚·‚½‚ß‚ÌURL•ÏŠ·
+	 */
+	function throughIme($url)
+	{
+		global $_conf, $p2ime_url;
+	
+		if ($_conf['through_ime'] == "2ch") {
+			$purl = parse_url($url);
+			$url_r = $purl['scheme'] . "://ime.nu/" . $purl['host'] . $purl['path'];
+		} elseif ($_conf['through_ime'] == "p2" || $_conf['through_ime'] == "p2pm") {
+			$url_r = $p2ime_url . "?url=" . $url;
+		} elseif ($_conf['through_ime'] == "p2m") {
+			$url_r = $p2ime_url . "?m=1&amp;url=" . $url;
+		} else {
+			$url_r = $url;
+		}
+		return $url_r;
+	}
+
+	/**
 	 * ¡ host ‚ª 2ch or bbspink ‚È‚ç true ‚ğ•Ô‚·
 	 */
 	function isHost2chs($host)

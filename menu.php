@@ -3,6 +3,7 @@
 // フレーム分割画面、左側部分
 
 require_once("./conf.php");  //基本設定ファイル読込
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once("./datactl.inc");
 require_once("./brdctl_class.inc");
 require_once("./showbrdmenupc_class.inc");
@@ -141,7 +142,7 @@ $aShowBrdMenuPc->print_favIta();
 // 特別
 //==============================================================
 $bbs_table_url = "http://www6.ocn.ne.jp/~mirv/bbstable.html";
-$bbs_table_url_t = throughIme($bbs_table_url);
+$bbs_table_url_t = P2Util::throughIme($bbs_table_url);
 $norefresh_q = "&amp;norefresh=true";
 
 echo <<<EOP

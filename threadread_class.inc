@@ -130,8 +130,8 @@ class ThreadRead extends Thread{
 		
 		/* WEBサーバへ接続 */
 		$fp = fsockopen($send_host, $send_port, $errno, $errstr, $fsockopen_time_limit);
-		if(!$fp){
-			$url_t = throughIme($url);
+		if (!$fp) {
+			$url_t = P2Util::throughIme($url);
 			$_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$url}</a> に接続できませんでした。</p>";
 			$this->diedat=true; return false;
 		}
@@ -296,16 +296,16 @@ class ThreadRead extends Thread{
 		
 		/* WEBサーバへ接続 */
 		$fp = fsockopen($send_host, $send_port, $errno, $errstr, $fsockopen_time_limit);
-		if(!$fp){
-			$url_t = throughIme($url);
-			$_info_msg_ht .="<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$ext_win_target}>{$url}</a> に接続できませんでした。</p>";
+		if (!$fp) {
+			$url_t = P2Util::throughIme($url);
+			$_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$ext_win_target}>{$url}</a> に接続できませんでした。</p>";
 			$this->diedat = true;
 			return false;
 		}
 		
 		fputs($fp, $request);
 		$body = "";
-		while (!feof($fp)){
+		while (!feof($fp)) {
 
 			if($start_here){
 
@@ -477,16 +477,16 @@ class ThreadRead extends Thread{
 	
 		/* WEBサーバへ接続 */
 		$fp = fsockopen($send_host, $send_port, $errno, $errstr, $fsockopen_time_limit);
-		if(!$fp){
-			$url_t = throughIme($url);
+		if (!$fp) {
+			$url_t = P2Util::throughIme($url);
 			echo "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$ext_win_target}>$url</a> に接続できませんでした。</p>";
-			$this->diedat=true;
+			$this->diedat = true;
 			return false;
 		}
 
 		fputs($fp, $request);
 		$body = "";
-		while (!feof($fp)){
+		while (!feof($fp)) {
 		
 			if($start_here){
 			
@@ -613,12 +613,12 @@ class ThreadRead extends Thread{
 		}
 		$wap_res = $wap_ua->request($wap_req);
 		
-		if($wap_res->is_error() ){
-			$url_t = throughIme($wap_req->url);
+		if ($wap_res->is_error()) {
+			$url_t = P2Util::throughIme($wap_req->url);
 			$_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
 			$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$wap_req->url}</a> に接続できませんでした。</div>";
 			$read_response = false;
-		}else{
+		} else {
 			$read_response = $wap_res->content;
 		}
 		unset($wap_ua, $wap_req, $wap_res);		
@@ -746,7 +746,7 @@ class ThreadRead extends Thread{
 			/* WEBサーバへ接続 */
 			$fp = fsockopen($send_host, $send_port, $errno, $errstr, $fsockopen_time_limit);
 			if (!$fp) {
-				$url_t = throughIme($url);
+				$url_t = P2Util::throughIme($url);
 				$_info_msg_ht .= "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$ext_win_target}>{$url}</a> に接続できませんでした。</p>";
 				$this->diedat = true;
 				return false;

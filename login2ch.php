@@ -2,6 +2,7 @@
 // p2 - 2ch●ログイン管理
 
 require_once("./conf.php");  // 基本設定
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once("./filectl_class.inc");
 require_once("./datactl.inc");
 require_once("./crypt_xor.inc");
@@ -171,11 +172,11 @@ if($autoLogin2ch){
 }
 
 $tora3_url = "http://2ch.tora3.net/";
-$tora3_url_r = throughIme($tora3_url);
+$tora3_url_r = P2Util::throughIme($tora3_url);
 
-if(!$ktai){
-	$id_input_size_at=" size=\"30\"";
-	$pass_input_size_at=" size=\"24\"";
+if (!$ktai) {
+	$id_input_size_at = " size=\"30\"";
+	$pass_input_size_at = " size=\"24\"";
 }
 
 //プリント=================================
