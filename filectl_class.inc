@@ -1,0 +1,91 @@
+<?php
+// FileCtl -- ファイルを操作するクラス
+
+class FileCtl{
+	
+	//===============================================
+	// 書き込み用のファイルがなければ生成してパーミッションを調整する関数
+	//===============================================
+	function make_datafile($file, $perm=0606)
+	{
+		if(! file_exists($file)){
+			FileCtl::mkdir_for($file) or die("Error: cannot make parent dirs. ( $file )"); //親ディレクトリが無ければ作る
+			touch($file) or die("Error: cannot touch. ( $file )");
+			chmod($file, $perm);
+		}else{
+			if(! is_writable($file)){
+				$cont = FileCtl::get_file_contents($file);
+				unlink($file);
+				touch($file);
+				//書き込む
+				$fp = @fopen($file,"wb") or die("Error: cannot write. ( $file )");
+				fputs($fp, $cont );
+				fclose($fp);
+				chmod($file, $perm);
+			}		
+		}
+		return true;
+	}
+
+	/**
+	 * 親ディレクトリがなければ生成してパーミッションを調整する関数
+	 */
+	function mkdir_for($apath)
+	{
+		global $data_dir_perm;
+		
+		$dir_limit = 50;	// 親階層を上る制限回数
+		
+		$perm = (isset($data_dir_perm)) ? $data_dir_perm : 0707;
+
+		if (!$parentdir = dirname($apath)) {
+			die("Error: cannot mkdir. ( {$parentdir} )<br>親ディレクトリが空白です。");
+		}
+		$i = 1;
+		if (!is_dir($parentdir)) {
+			if ($i > $dir_limit) {
+				die("Error: cannot mkdir. ( {$parentdir} )<br>階層を上がり過ぎたので、ストップしました。");
+			}
+			FileCtl::mkdir_for($parentdir);
+			mkdir($parentdir, $perm) or die("Error: cannot mkdir. ( {$parentdir} )");
+			chmod($parentdir, $perm);
+			$i++;
+		}
+		return true;
+	}
+	
+	//===============================================
+	// ファイルの中身を取得する関数
+	//===============================================
+	function get_file_contents($filepath){
+		if(is_readable($filepath)){
+			$fp = fopen($filepath, "rb");
+			$contents = fread($fp, filesize($filepath));
+			fclose ($fp);
+			return $contents;
+		}else{
+			if( file_exists($filepath) ){
+				die("Error: cannot read. ( $filepath )");
+			}else{
+				return false;
+			}
+		}
+	}
+	
+	//===============================================
+	// gzファイルの中身を取得する関数
+	//===============================================
+	function get_gzfile_contents($filepath){
+		if(is_readable($filepath)){
+			ob_start();
+	    	readgzfile($filepath);
+	    	$contents = ob_get_contents();
+	   		ob_end_clean();
+	    	return $contents;
+		}else{
+			return false;
+		}
+	}
+
+}
+?>
