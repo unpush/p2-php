@@ -120,7 +120,12 @@ class Thread{
 				if ($this->unum < 0) { $this->unum = 0; }
 			}
 		}
-		//if ($lar[2]) { $this->length = $lar[2]; }
+		/*
+		// 現在このidxでのカラムは使用していない。datサイズは直接ファイルの大きさを読み取って調べる
+		if ($lar[2]) {
+			$this->length = $lar[2];
+		}
+		*/
 		if ($lar[4]) { $this->modified = $lar[4]; }
 		
 		return $key_line; 

@@ -71,6 +71,20 @@ if (P2Util::isBrowserSafariGroup()) {
 	}
 }
 
+/*
+// 2004/12/13 特に必要ないかなぁということでコメントアウト
+
+// メッセージに連続した半角スペースがあれば、&nbsp;に変換する
+$MESSAGE = preg_replace_callback(
+	'/ {2,}/',
+    create_function(
+	   '$matches',
+	   'return str_replace(" ", "&nbsp;", $matches[0]);'
+	),
+	$MESSAGE
+);
+*/
+
 // p2_cookie.txt 読み込み ===================================
 $cookie_file = $prefdir."/p2_cookie/{$_POST['host']}/p2_cookie.txt";
 $cookie_cont = FileCtl::get_file_contents($cookie_file);
