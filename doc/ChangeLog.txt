@@ -2,6 +2,10 @@
 	* p2 version 1.3.2
 	- 2chの変更に追随して、datを取得できなかった時の表示処理を調整した
 	- スレッド一覧で元スレリンクのlsのall指定をなくした
+	
+	* conf.php
+	* sb_print.inc
+	* threadread_class.inc
 
 2005-01-03 aki
 	* p2 version 1.3.1
