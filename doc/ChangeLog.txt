@@ -1,6 +1,16 @@
+2004-12-22 aki
+	* p2 version 1.1.9
+	- 複数のスレッドあぼーん登録ができなかったバグを修正
+	- 一部JavaScriptの警告が表示されることがあったのを修正
+	
+	* conf.php
+	* p2_1x/settaborn.inc
+	* p2_1x/js/post_form.js
+
 2004-12-13 aki
 	* p2 version 1.1.8
 	- 携帯モードで、スレッド一覧を表示できなかったバグを修正
+	
 	* conf.php
 	* sb_print_k.inc: タイプミスを修正 $aThread->isKitoku()
 	
