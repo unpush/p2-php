@@ -382,7 +382,7 @@ function postIt($URL, $request)
 		
 			// ÇµÇΩÇÁÇŒ or be.2ch.netÇ»ÇÁÅAEUCÇ…ïœä∑
 			if (P2Util::isHostJbbsShitaraba($host) || P2Util::isHostBe2chNet($host)) {
-				include_once './strctl_class.inc';
+				include_once './strctl.class.php';
 				$value = StrCtl::p2SJIStoEUC($value);
 			}
 

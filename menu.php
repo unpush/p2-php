@@ -31,11 +31,13 @@ if (isset($_REQUEST['word'])) {
 	if (get_magic_quotes_gpc()) {
 		$word = stripslashes($word);
 	}
-	if ($word == "." ) { $word = ""; }
+	if (preg_match('/^\.+$/', $word)) {
+		$word = '';
+	}
 	
 	// ê≥ãKï\åªåüçı
-	include_once './strctl_class.inc';
-	$word_fm = StrCtl::wordForMatch($word);
+	include_once './strctl.class.php';
+	$GLOBALS['word_fm'] = StrCtl::wordForMatch($word);
 }
 
 

@@ -60,7 +60,7 @@ function viewTxtFile($file, $encode)
 	$cont = FileCtl::get_file_contents($file);
 	
 	if ($encode == "EUC-JP") {
-		include_once("./strctl_class.inc");
+		include_once './strctl.class.php';
 		$cont = StrCtl::p2EUCtoSJIS($cont);
 	}
 	

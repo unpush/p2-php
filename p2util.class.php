@@ -108,7 +108,7 @@ class P2Util{
 		
 			// ‚µ‚½‚ç‚Î‚È‚çEUC‚ðSJIS‚É•ÏŠ·
 			if (strstr($subjectfile, $datdir."/jbbs.shitaraba.com") || strstr($subjectfile, $datdir."/jbbs.livedoor.com") || strstr($subjectfile, $datdir."/jbbs.livedoor.jp")) {
-				include_once("./strctl_class.inc");
+				include_once './strctl.class.php';
 				$body = StrCtl::p2EUCtoSJIS($body);
 			}
 		

@@ -48,13 +48,19 @@ if (get_magic_quotes_gpc()) {
 	$word = stripslashes($word);
 }
 if ($word == '.') {$word = '';}
-if ($word) {
-	include_once './strctl_class.inc';
-	$word_fm = StrCtl::wordForMatch($word, $res_filter['method']);
-	$word = htmlspecialchars($word);
-	if ($res_filter['method'] != 'just') {
-		$words_fm = @preg_split('/\s+/', $word_fm);
-		$word_fm = @preg_replace('/\s+/', "|", $word_fm);
+if (isset($word) && strlen($word) > 0) {
+	if (!((!$_conf['enable_exfilter'] || $res_filter['method'] == 'regex') && preg_match('/^\.+$/', $word))) {
+		include_once './strctl.class.php';
+		$word_fm = StrCtl::wordForMatch($word, $res_filter['method']);
+		if ($res_filter['method'] != 'just') {
+			if (P2_MBREGEX_AVAILABLE == 1) {
+				$words_fm = @mb_split('\s+', $word_fm);
+				$word_fm = @mb_ereg_replace('\s+', '|', $word_fm);
+			} else {
+				$words_fm = @preg_split('/\s+/u', $word_fm);
+				$word_fm = @preg_replace('/\s+/u', '|', $word_fm);
+			}
+		}
 	}
 }
 
@@ -63,12 +69,12 @@ if ($word) {
 //=================================================
 $cachefile = $prefdir . "/p2_res_filter.txt";
 
-if( isset($res_filter)){ // 指定があれば ファイル に保存
+if (isset($res_filter)) { // 指定があれば ファイル に保存
 
 	FileCtl::make_datafile($cachefile, $p2_perm); //ファイルがなければ生成
 	if($res_filter){$res_filter_cont=serialize($res_filter);}
 	if($res_filter_cont){
-		$fp = @fopen($cachefile,"w") or die("Error: $cachefile を更新できませんでした");
+		$fp = @fopen($cachefile, "wb") or die("Error: $cachefile を更新できませんでした");
 		fputs($fp, $res_filter_cont);
 		fclose($fp);
 	}

@@ -60,7 +60,7 @@ function machiDownload()
 	
 		$temp_data = FileCtl::get_file_contents($tempfile);
 		
-		include_once("./strctl_class.inc");
+		include_once './strctl.class.php';
 		$temp_data = StrCtl::p2EUCtoSJIS($temp_data);
 		$fp = @fopen($tempfile, 'wb') or die("Error: $tempfile ‚ğXV‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½");
 		fputs($fp, $temp_data);

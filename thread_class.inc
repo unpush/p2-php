@@ -156,7 +156,7 @@ class Thread{
 		
 		// be.2ch.net ならEUC→SJIS変換
 		if (P2Util::isHostBe2chNet($this->host)) {
-			include_once './strctl_class.inc';
+			include_once './strctl.class.php';
 			$this->ttitle = StrCtl::p2EUCtoSJIS($this->ttitle);
 		}
 		
@@ -196,7 +196,7 @@ class Thread{
 				
 				// be.2ch.net ならEUC→SJIS変換
 				if (P2Util::isHostBe2chNet($this->host)) {
-					include_once './strctl_class.inc';
+					include_once './strctl.class.php';
 					$this->ttitle = StrCtl::p2EUCtoSJIS($this->ttitle);
 				}
 			}
@@ -207,12 +207,12 @@ class Thread{
 	}
 
 	/**
-	 * ■元スレURLを返すメソッド
+	 * ■元スレURLを返す
 	 */
 	function getMotoThread($ls = "")
 	{
 		global $ktai;
-		
+
 		if (P2Util::isHostMachiBbs($this->host)) {
 			$motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";
 		} elseif (P2Util::isHostMachiBbsNet($this->host)) {

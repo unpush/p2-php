@@ -228,7 +228,7 @@ class ThreadList{
 			
 			// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 			if (P2Util::isHostBe2chNet($this->host)) {
-				include_once './strctl_class.inc';
+				include_once './strctl.class.php';
 				$lines = array_map(create_function('$str', 'return StrCtl::p2EUCtoSJIS($str);'), $lines);
 			}
 			
