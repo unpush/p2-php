@@ -143,7 +143,11 @@ class ShowThreadK extends ShowThread{
 		
 		$name = $this->transName($name); // 名前HTML変換
 		$msg = $this->transMsg($msg, $i); //メッセージHTML変換
-
+		
+		// {{{ transRes - BEプロファイルリンク変換
+		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>?\$2</a>";
+		$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
+		// }}}
 		
 		//NGメッセージ変換======================================
 		if($isNgMsg){

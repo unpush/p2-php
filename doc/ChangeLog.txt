@@ -1,4 +1,11 @@
 2005-01-22 aki
+	* p2 version 1.3.7
+	- Œg‘Ñ‚Å‚àBE ID‚ğ•\¦‚Å‚«‚é‚æ‚¤‚É‚µ‚½
+	
+	* conf.php
+	* showthreadk_class.inc
+
+2005-01-22 aki
 	* p2 version 1.3.6
 	- BE ID‚Ì•\¦‚ğ‰ü—Ç’²®‚µ‚½
 	
