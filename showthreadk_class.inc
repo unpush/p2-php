@@ -236,7 +236,7 @@ EOP;
 		global $ktai_res_size, $ktai_ryaku_size;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
-		$ryaku=false;
+		$ryaku = false;
 		
 		//2ch旧形式のdat
 		if($this->thread->dat_type == "2ch_old"){
@@ -246,7 +246,7 @@ EOP;
 
 		// >>1のリンクをいったん外す
 		// <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
-		$msg=preg_replace("/<a href=\"\.\.\/test\/read\.cgi\/{$this->thread->bbs}\/{$this->thread->key}\/([-0-9]+)\" target=\"_blank\">&gt;&gt;([-0-9]+)<\/a>/","&gt;&gt;\\1", $msg);
+		$msg = preg_replace("/<a href=\"\.\.\/test\/read\.cgi\/{$this->thread->bbs}\/{$this->thread->key}\/([-0-9]+)\" target=\"_blank\">&gt;&gt;([-0-9]+)<\/a>/","&gt;&gt;\\1", $msg);
 	
 		//大きさ制限
 		if(! $_GET['k_continue']){
@@ -283,7 +283,7 @@ EOP;
 		*/
 		
 		// >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
-		$msg=preg_replace_callback("/(&gt;|＞)?(&gt;|＞)([0-9- ,=&.]|、)+/", array($this, 'quote_res_callback'), $msg);
+		$msg = preg_replace_callback("/(&gt;|＞)?(&gt;|＞)([0-9- ,=.]|、)+/", array($this, 'quote_res_callback'), $msg);
 	
 		if($ryaku){
 			return $msg;
@@ -304,7 +304,7 @@ EOP;
 		// まちBBS / JBBS＠したらば 
 		// http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
 		// http://jbbs.shitaraba.com/study/bbs/read.cgi?BBS=389&KEY=1036227774&LAST=100
-		$ande="(&|&amp;)";
+		$ande = "(&|&amp;)";
 		$msg = preg_replace_callback("{<a href=\"http://(([^/]+\.machibbs\.com|[^/]+\.machi\.to|jbbs\.livedoor\.jp|jbbs\.livedoor\.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)(&|&amp;)KEY=([0-9]+)((&|&amp;)START=([0-9]+))?((&|&amp;)END=([0-9]+))?[^\"]*\"{$_conf['ext_win_target_at']}>(h?t?tp://[^<>]+)</a>}", array($this, 'linkMachi_callback'), $msg);
 		$msg = preg_replace_callback("{<a href=\"http://(jbbs\.livedoor\.jp|jbbs\.livedoor\.com|jbbs\.shitaraba\.com)/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^\"]*?\"{$_conf['ext_win_target_at']}>(h?t?tp://[^<>]+)</a>}", array($this, 'linkJBBS_callback'), $msg);
 		//$msg=preg_replace("/&(amp;)?ls=-/", "", $msg);// 空の範囲指定は除去
