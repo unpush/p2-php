@@ -1,10 +1,9 @@
 <?php
 // p2 -  タイトルページ
 
-include("./conf.php");   //基本設定ファイル読込
+include_once './conf.inc.php';   // 基本設定ファイル読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './filectl.class.php';
-require_once("./datactl.inc");
 
 authorize(); //ユーザ認証
 
@@ -13,30 +12,31 @@ authorize(); //ユーザ認証
 //=========================================================
 $_info_msg_ht = "";
 
-$p2web_url_r = P2Util::throughIme($p2web_url);
+$p2web_url_r = P2Util::throughIme($_conf['p2web_url']);
 
 // パーミッション注意喚起 ================
-if ($prefdir == $datdir) {
-	datadir_writable_check($prefdir);
+if ($_conf['pref_dir'] == $datdir) {
+	P2Util::checkDirWritable($_conf['pref_dir']);
 } else {
-	datadir_writable_check($prefdir);
-	datadir_writable_check($datdir);
+	P2Util::checkDirWritable($_conf['pref_dir']);
+	P2Util::checkDirWritable($datdir);
 }
 
 //=========================================================
-// ●ID 2ch オートログイン
+// 前処理
 //=========================================================
-if (file_exists($_conf['idpw2ch_php'])) {
-	include($_conf['idpw2ch_php']);
-	$login2chPW = base64_decode($login2chPW);
-	include_once("./crypt_xor.inc");
-	$login2chPW = decrypt_xor($login2chPW, $_conf['crypt_xor_key']);
-	if($autoLogin2ch){
-		include_once("./login2ch.inc");
+// ●ID 2ch オートログイン
+if ($array = P2Util::readIdPw2ch()) {
+	list($login2chID, $login2chPW, $autoLogin2ch) = $array;
+	if ($autoLogin2ch) {
+		include_once './login2ch.inc.php';
 		login2ch();
 	}
 }
 
+//=========================================================
+// プリント設定
+//=========================================================
 $p_htm = array();
 
 // 最新版チェック
@@ -97,7 +97,7 @@ EOP;
 $ptitle = "p2 - title";
 
 header_content_type();
-if ($doctype) { echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -122,13 +122,13 @@ echo <<<EOP
 <br>
 <div class="container">
 	{$newversion_found}
-	<p>p2 version {$_conf['p2version']} 　<a href="{$p2web_url_r}" target="_blank">{$p2web_url}</a></p>
+	<p>p2 version {$_conf['p2version']} 　<a href="{$p2web_url_r}" target="_blank">{$_conf['p2web_url']}</a></p>
 	<ul>
 		<li><a href="viewtxt.php?file=doc/README.txt">README.txt</a></li>
 		<li><a href="img/how_to_use.png">ごく簡単な操作法</a></li>
 		<li><a href="viewtxt.php?file=doc/ChangeLog.txt">ChangeLog（更新記録）</a></li>
 	</ul>
-	<!-- <p><a href="{$p2web_url_r}" target="_blank">p2 web &lt;{$p2web_url}&gt;</a></p> -->
+	<!-- <p><a href="{$p2web_url_r}" target="_blank">p2 web &lt;{$_conf['p2web_url']}&gt;</a></p> -->
 	{$autho_user_ht}
 	{$p_htm['last_login']}
 </div>
@@ -144,10 +144,10 @@ EOP;
 */
 function checkUpdatan()
 {
-	global $_conf, $p2web_url, $p2web_url_r, $prefdir;
+	global $_conf, $p2web_url_r;
 
-	$ver_txt_url = $p2web_url . 'p2status.txt';
-	$cachefile = $prefdir . '/p2_cache/p2status.txt';
+	$ver_txt_url = $_conf['p2web_url'] . 'p2status.txt';
+	$cachefile = $_conf['pref_dir'] . '/p2_cache/p2status.txt';
 	FileCtl::mkdir_for($cachefile);
 	
 	if (file_exists($cachefile)) {
@@ -166,7 +166,7 @@ function checkUpdatan()
 	$kita = 'ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!';
 	//$kita = 'ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!';
 	
-	if (compVars($_conf['p2version'], $update_ver)) {
+	if ($update_ver && version_compare($update_ver, $_conf['p2version'], '>')) {
 		$newversion_found = <<<EOP
 <div class="kakomi">
 	{$kita}<br>
@@ -177,31 +177,6 @@ function checkUpdatan()
 EOP;
 	}
 	return $newversion_found;
-}
-
-/**
- * .で区切ったバージョン番号の大きさを比較する
- *
- * @return boolean チェック対象バージョンの方が大きければtrue
- */
-function compVars($myvar, $checkvar)
-{
-	$myvar_sp = explode('.', $myvar);
-	$checkvar_sp = explode('.', $checkvar);
-	
-	$i = 0;
-	while (isset($checkvar_sp[$i])) {
-		if (!isset($myvar_sp[$i])) {
-			return true;
-		}
-		if ($checkvar_sp[$i] > $myvar_sp[$i]) {
-			return true;
-		} elseif ($checkvar_sp[$i] < $myvar_sp[$i]) {
-			return false;
-		}
-		$i++;
-	}
-	return false;
 }
 
 ?>

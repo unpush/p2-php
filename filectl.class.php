@@ -24,7 +24,9 @@ class FileCtl{
 				touch($file);
 				//èëÇ´çûÇﬁ
 				$fp = @fopen($file, "wb") or die("Error: cannot write. ( $file )");
+				@flock($fp, LOCK_EX);
 				fputs($fp, $cont);
+				@flock($fp, LOCK_UN);
 				fclose($fp);
 				chmod($file, $perm);
 			}		

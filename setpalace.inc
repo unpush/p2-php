@@ -1,8 +1,8 @@
 <?php
 // p2 -  殿堂入り関係の処理
 
+require_once './p2util.class.php';
 require_once './filectl.class.php';
-require_once("datactl.inc");
 
 //==================================================================
 // 変数
@@ -17,7 +17,7 @@ if ($_GET['setpal']=="0" or $_GET['setpal'] == "1") {
 //==================================================================
 
 //idxfileのパスを求めて
-$datdir_host = datdirOfHost($_GET["host"]);
+$datdir_host = P2Util::datdirOfHost($_GET["host"]);
 $idxfile = $datdir_host."/".$_GET['bbs']."/".$_GET['key'].".idx";
 
 //データがあるなら読み込んで
@@ -30,7 +30,7 @@ if (is_readable($idxfile)) {
 //==================================================================
 // p2_palace.idxに書き込む
 //==================================================================
-$palace_idx = $prefdir. '/p2_palace.idx';
+$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
 
 //================================================
 // 読み込み
@@ -88,6 +88,7 @@ if($_GET['setpal']==1 or $_GET['setpal']=="top"){
 //書き込む
 //================================================
 $fp = @fopen($palace_idx,"wb") or die("Error: $palace_idx を更新できませんでした");
+@flock($fp, LOCK_EX);
 if($neolines){
 	$i=0;
 	foreach($neolines as $l){
@@ -100,6 +101,7 @@ if($neolines){
 }else{
 	fputs($fp, $newdata);
 }
+@flock($fp, LOCK_UN);
 fclose($fp);
 
 ?>

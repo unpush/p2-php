@@ -87,7 +87,9 @@ EOP;
 		$_info_msg_ht .= "<p>{$p2error_st}: {$auth_file} を保存できませんでした。認証登録失敗。</p>";
 		return false;
 	}
+	@flock($fp, LOCK_EX);
 	fwrite($fp, $cont);
+	@flock($fp, LOCK_UN);
 	fclose($fp);
 	return true;
 }
@@ -101,23 +103,6 @@ function regist_auth_off($auth_file)
 		unlink($auth_file);
 	}
 	return;
-}
-
-/**
- * 文字列が英数字かどうかをチェックする
- */
-function isStrInvalid($strings)
-{
-	$length = strlen($strings);
-	while ($length) {
-		$h = substr($strings, 0, 1);
-		if (!preg_match("/[0-9a-zA-Z_]/", $h)) {
-			return true;
-		}
-		$strings = substr($strings, 1, $length);
-		$length--;
-	}
-	return false;
 }
 
 ?>

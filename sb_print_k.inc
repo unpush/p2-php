@@ -7,7 +7,7 @@
  */
 function sb_print_k($aThreadList)
 {
-	global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE, $accesskey;
+	global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
 	global $sb_view;
 	global $k_at_a, $k_at_q, $k_input_ht;
 		
@@ -166,7 +166,7 @@ function sb_print_k($aThreadList)
 		/*
 		$access_ht = "";
 		if ($aThread->torder >= 1 and $aThread->torder <= 9) {
-			$access_ht = " {$accesskey}=\"{$aThread->torder}\"";
+			$access_ht = " {$_conf['accesskey']}=\"{$aThread->torder}\"";
 		}
 		*/
 		

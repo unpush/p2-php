@@ -4,9 +4,8 @@
 	フレーム分割画面、左側部分
 */
 
-require_once("./conf.php");  //設定読込
+include_once './conf.inc.php';  // 設定読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
-require_once("./datactl.inc");
 require_once("./brdctl_class.inc");
 require_once("./showbrdmenupc_class.inc");
 
@@ -24,13 +23,15 @@ $menu_side_url = $me_dir_url.'/menu_side.php';
 $_info_msg_ht = "";
 $brd_menus = array();
 
-// 板検索 ====================================
-if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
+if (isset($_GET['word'])){
+	$word = $_GET['word'];
+} elseif (isset($_POST['word'])) {
+	$word = $_POST['word'];
+}
 
-	$word = $_REQUEST['word'];
-	if (get_magic_quotes_gpc()) {
-		$word = stripslashes($word);
-	}
+// ■板検索 ====================================
+if (isset($word) && strlen($word) > 0) {
+
 	if (preg_match('/^\.+$/', $word)) {
 		$word = '';
 	}
@@ -42,10 +43,10 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
 
 //================================================================
-//特殊な前置処理
+// 特殊な前置処理
 //================================================================
-//お気に板の追加・削除
-if( isset($_GET['setfavita']) ){
+// お気に板の追加・削除
+if (isset($_GET['setfavita'])) {
 	include("./setfavita.inc");
 }
 
@@ -57,11 +58,11 @@ $aShowBrdMenuPc = new ShowBrdMenuPc;
 //==============================================================
 // ヘッダ
 //==============================================================
-$reloaded_time = date("n/j G:i:s"); //更新時刻
+$reloaded_time = date("n/j G:i:s"); // 更新時刻
 $ptitle="p2 - menu";
 
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
 <head>
@@ -136,7 +137,7 @@ $bbs_table_url_r = P2Util::throughIme($bbs_table_url);
 $norefresh_q = "&amp;norefresh=true";
 
 echo <<<EOP
-<div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_spacial');">特別</a></b><br>
+<div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_spacial');" target="_self">特別</a></b><br>
 	<div class="itas" id="c_spacial">
 EOP;
 
@@ -154,22 +155,22 @@ EOP;
 
 	initMenuNew("res_hist");	// 新着数を初期化
 	echo <<<EOP
-	　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}" onClick="chMenuColor({$matome_i});">書き込み履歴</a> <a href="read_res_hist.php#footer" target="read">※</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+	　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}" onClick="chMenuColor({$matome_i});">書き込み履歴</a> <a href="read_res_hist.php#footer" target="read">ログ</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
 
 }else{	// 新着数を表示しない場合
 	echo <<<EOP
 	　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" accesskey="f">お気にスレ</a><br>
 	　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" accesskey="h">最近読んだスレ</a><br>
-	　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}">書き込み履歴</a> (<a href="./read_res_hist.php#footer" target="read">※</a>)<br>
+	　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}">書込履歴</a> (<a href="./read_res_hist.php#footer" target="read">※</a>)<br>
 EOP;
 }
 
 echo <<<EOP
 	　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}">スレの殿堂</a><br>
-	<!--　<a href="{$_conf['subject_php']}?spmode=news">ニュースチェック</a><br>-->
-	　<a href="setting.php">設定</a><!--<br>
-	　<a href="{$bbs_table_url_t}">BBS TABLE</a>-->
+	　<a href="setting.php">ログインユーザ管理</a><br>
+	　<a href="editpref.php">設定編集</a><br>
+	　<a href="http://find.2ch.net/" target="_blank">2ch検索</a>
 	</div>
 </div>\n
 EOP;
@@ -187,11 +188,11 @@ if (isset($word) && strlen($word) > 0) {
 
 	$word_ht = htmlspecialchars($word);
 	
-	if (!$GLOBALS['mikke']) {
+	if (!$GLOBALS['ita_mikke']['num']) {
 		$_info_msg_ht .=  "<p>\"{$word_ht}\"を含む板は見つかりませんでした。</p>\n";
 		unset($word);
 	} else {
-		$_info_msg_ht .=  "<p>\"{$word_ht}\"を含む板 {$GLOBALS['mikke']}hit!</p>\n";
+		$_info_msg_ht .=  "<p>\"{$word_ht}\"を含む板 {$GLOBALS['ita_mikke']['num']}hit!</p>\n";
 	}
 }
 		
@@ -200,7 +201,8 @@ $_info_msg_ht = "";
 
 // 板検索
 echo <<<EOFORM
-<form method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
+<form method="GET" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+	<input type="hidden" name="detect_hint" value="◎◇">
 	<p>
 		<input type="text" id="word" name="word" value="{$word_ht}" size="14">
 		<input type="submit" name="submit" value="板検索">

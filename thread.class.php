@@ -69,13 +69,13 @@ class Thread{
 	//============================================================================
 	// setThreadPathInfo -- Set Path infoメソッド
 	//============================================================================	
-
-	function setThreadPathInfo($host, $bbs, $key){	
+	function setThreadPathInfo($host, $bbs, $key)
+	{	
 		$this->host = $host;
 		$this->bbs = $bbs;
 		$this->key = $key;
 		
-		$datdir_host = datdirOfHost($this->host);
+		$datdir_host = P2Util::datdirOfHost($this->host);
 		$this->keyidx = "{$datdir_host}/{$this->bbs}/{$this->key}.idx";
 		$this->keydat = "{$datdir_host}/{$this->bbs}/{$this->key}.dat";
 	}
@@ -103,9 +103,9 @@ class Thread{
 	/**
 	 * 既得スレッドデータをkey.idxから取得する
 	 */
-	function getThreadInfoFromIdx($keyidx)
+	function getThreadInfoFromIdx()
 	{
-		if (!$lines = @file($keyidx)) {
+		if (!$lines = @file($this->keyidx)) {
 			return false;
 		}
 		
@@ -173,8 +173,7 @@ class Thread{
 		
 		// be.2ch.net ならEUC→SJIS変換
 		if (P2Util::isHostBe2chNet($this->host)) {
-			include_once './strctl.class.php';
-			$this->ttitle = StrCtl::p2EUCtoSJIS($this->ttitle);
+			$this->ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
 		}
 		
 		$this->rescount = $matches[6];
@@ -200,9 +199,9 @@ class Thread{
 				$this->ttitle = $d[4];
 			
 			// ローカルdatの1行目から取得
-			} elseif (is_readable($this->keydat)){
-				$fd = fopen($this->keydat, "r");
-				$l = fgets ($fd,32800);
+			} elseif (is_readable($this->keydat)) {
+				$fd = fopen($this->keydat, "rb");
+				$l = fgets ($fd, 32800);
 				fclose ($fd);
 				$firstdatline = rtrim($l);
 				if (strstr($firstdatline, "<>")) {
@@ -216,8 +215,7 @@ class Thread{
 				
 				// be.2ch.net ならEUC→SJIS変換
 				if (P2Util::isHostBe2chNet($this->host)) {
-					include_once './strctl.class.php';
-					$this->ttitle = StrCtl::p2EUCtoSJIS($this->ttitle);
+					$this->ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
 				}
 			}
 			
@@ -270,10 +268,13 @@ class Thread{
 		if (!$nowtime) {
 			$nowtime = time();
 		}
-		$pastsc = $nowtime - $this->key;
-		$this->dayres = $this->rescount / $pastsc * 60 * 60 * 24;
-		return true;
+		if ($pastsc = $nowtime - $this->key) {
+			$this->dayres = $this->rescount / $pastsc * 60 * 60 * 24;
+			return true;
+		}
+		return false;
 	}
+
 
 	/**
 	 * ■レス間隔（時間/レス）を取得する

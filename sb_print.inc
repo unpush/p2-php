@@ -177,18 +177,9 @@ EOP;
 		
 			// subject.txtにない時
 			if (!$aThread->isonline) {
-				/*
-				$unum_ht_c="<a class=\"un_n\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;dele=true',{$STYLE['info_pop_size']},0,0)\">-</a>";
-				
-				if($aThreadList->spmode == "soko" or $aThreadList->spmode == "palace" or $aThreadList->spmode == "fav"){
-				*/
-					// 誤動作防止のためログ削除操作をロック
-					$unum_ht_c = "<span class=\"un_n\">-</span>";
-				/*
-				}
-				*/
-				
-			}	
+				// JavaScriptでの確認ダイアログあり
+				$unum_ht_c = "<a class=\"un_n\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"if (!window.confirm('ログを削除しますか？')) {return false;} return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=2&amp;dele=true',{$STYLE['info_pop_size']},0,0)\">-</a>";
+			}
 
 		}
 		
@@ -314,7 +305,9 @@ EOP;
 		$ikioi_ht = "";
 		if ($_conf['sb_show_ikioi']) {
 			if ($aThread->dayres > 0) {
-				$dayres_st = sprintf("%01.2f", $aThread->dayres);
+				// 0.0 とならないように小数点第2位で切り上げ
+				$dayres = ceil($aThread->dayres * 10) / 10;
+				$dayres_st = sprintf("%01.1f", $dayres);
 			} else {
 				$dayres_st = "-";
 			}

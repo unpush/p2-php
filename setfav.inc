@@ -4,9 +4,8 @@
 
 	お気にスレの追加削除や、順序変更で呼ばれる
 */
-
+require_once './p2util.class.php';
 require_once './filectl.class.php';
-require_once("./datactl.inc");
 
 //==================================================================
 // 変数
@@ -20,7 +19,7 @@ if ($_GET['setfav'] == '0' or $_GET['setfav'] == '1') {
 //==================================================================
 
 // idxfileのパスを求めて
-$datdir_host = datdirOfHost($_GET['host']);
+$datdir_host = P2Util::datdirOfHost($_GET['host']);
 $idxfile = "$datdir_host/{$_GET['bbs']}/{$_GET['key']}.idx";
 
 // 板ディレクトリが無ければ作る
@@ -45,10 +44,10 @@ if (is_readable($idxfile)) {
 //================================================
 
 //favlistファイルがなければ生成
-FileCtl::make_datafile($favlistfile, $_conf['favlist_perm']);
+FileCtl::make_datafile($_conf['favlist_file'], $_conf['favlist_perm']);
 
 //favlist読み込み;
-$favlines = @file($favlistfile);
+$favlines = @file($_conf['favlist_file']);
 
 //================================================
 // 処理
@@ -103,8 +102,8 @@ if ($_GET['setfav'] == 1 or $_GET['setfav'] == 'top') {
 //================================================
 //書き込む
 //================================================
-$fp = @fopen($favlistfile, "wb") or die("Error: $favlistfile を更新できませんでした");
-
+$fp = @fopen($_conf['favlist_file'], "wb") or die("Error: {$_conf['favlist_file']} を更新できませんでした");
+@flock($fp, LOCK_EX);
 if (!empty($neolines)) {
 	$i = 0;
 	foreach ($neolines as $l) {
@@ -121,6 +120,7 @@ if (!empty($neolines)) {
 } else {
 	fputs($fp, $newdata."\n");
 }
+@flock($fp, LOCK_UN);
 fclose($fp);
 
 //================================================
@@ -134,7 +134,7 @@ if ($_conf['join_favrank']) {
 	} else {
 		return;
 	}
-	$itaj = getItaName($_GET['host'], $_GET['bbs']);
+	$itaj = P2Util::getItaName($_GET['host'], $_GET['bbs']);
 	$post = array("host" => $_GET['host'], "bbs" => $_GET['bbs'], "key" => $_GET['key'], "ttitle" => $data[0], "ita" => $itaj, "act" => $act);
 	postFavRank($post);
 }
@@ -144,12 +144,12 @@ if ($_conf['join_favrank']) {
  */
 function postFavRank($post)
 {
-	global $_conf, $favrank_url;
+	global $_conf;
 
 	$method = "POST";
 	$httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
 	
-	$URL = parse_url($favrank_url); //URL分解
+	$URL = parse_url($_conf['favrank_url']); //URL分解
 	if (isset($URL['query'])) { //クエリー
 	    $URL['query'] = "?".$URL['query'];
 	} else {
@@ -190,11 +190,11 @@ function postFavRank($post)
 
 	/* WEBサーバへ接続 */
 	$fp = fsockopen($send_host, $send_port, $errno, $errstr, 3);
-	if(!$fp){
+	if (!$fp) {
 		//echo "サーバ接続エラー: $errstr ($errno)<br>\n";
-		//echo "p2 info: {$favrank_url} に接続できませんでした。<br>";
+		//echo "p2 info: {$_conf['favrank_url']} に接続できませんでした。<br>";
 		return false;
-	}else{
+	} else {
 		fputs($fp, $request);
 		/*
 		while (!feof($fp)){

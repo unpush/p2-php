@@ -5,7 +5,6 @@
 
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './filectl.class.php';
-require_once("./datactl.inc");
 require_once './brdmenu_class.inc';
 
 
@@ -68,7 +67,7 @@ class BrdCtl{
 		$brd_menus = array();
 		
 		if ($_conf['brdfile_online']) {
-			$cachefile = cacheForDL($_conf['brdfile_online']);
+			$cachefile = P2Util::cacheFileForDL($_conf['brdfile_online']);
 			
 			$noDL = false;
 			

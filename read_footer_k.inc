@@ -5,28 +5,28 @@
 // フッタ
 //=====================================================================
 //表示範囲
-if($aThread->resrange['start']==$aThread->resrange['to']){
-	$read_range_on=$aThread->resrange['start'];
-}else{
-	$read_range_on="{$aThread->resrange['start']}-{$aThread->resrange['to']}";
+if ($aThread->resrange['start'] == $aThread->resrange['to']) {
+	$read_range_on = $aThread->resrange['start'];
+} else {
+	$read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
 }
-$read_range_ht=<<<EOP
+$read_range_ht = <<<EOP
 {$read_range_on}/{$aThread->rescount}<br>
 EOP;
 
-//プリント============================================================
-if( ($aThread->rescount or $_GET['one'] && !$aThread->diedat)){ // and (!$_GET['renzokupop'])
+// プリント============================================================
+if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
-	if(!$aThread->diedat){
-		$dores_ht=<<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$k_at_a}">{$dores_st}</a>
+	if (!$aThread->diedat) {
+		$dores_ht = <<<EOP
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$k_at_a}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
 EOP;
 	}
-	if($res1['body']){
-		$q_ichi=$res1['body']." | ";
+	if ($res1['body']) {
+		$q_ichi = $res1['body']." | ";
 	}
 	echo <<<EOP
-<p {$pointer_at}="footer">
+<p {$_conf['pointer_name']}="footer">
 	{$read_range_ht}
 	{$read_navi_previous_btm} 
 	{$read_navi_next_btm} 
@@ -35,7 +35,7 @@ EOP;
 	{$dores_ht}<br>
 </p>
 <p>
-	{$toolbar_right_ht} <a {$accesskey}="2" href="#header">2.▲</a>
+	{$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a>
 </p>
 EOP;
 	if($diedat_msg){

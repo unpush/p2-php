@@ -1,8 +1,8 @@
 <?php
 // p2 - スレッドあぼーんの関数
 
+require_once './p2util.class.php';
 require_once './filectl.class.php';
-require_once("./datactl.inc");
 
 /**
  * スレッドあぼーんをオンオフする
@@ -18,7 +18,7 @@ function settaborn($host, $bbs, $key, $set)
 	//==================================================================
 	
 	// idxfileのパスを求めて
-	$datdir_host = datdirOfHost($host);
+	$datdir_host = P2Util::datdirOfHost($host);
 	$idxfile = "{$datdir_host}/{$bbs}/{$key}.idx";
 	
 	// データがあるなら読み込む
@@ -33,7 +33,7 @@ function settaborn($host, $bbs, $key, $set)
 	//==================================================================
 	
 	// p2_threads_aborn.idx のパス取得
-	$datdir_host = datdirOfHost($host);
+	$datdir_host = P2Util::datdirOfHost($host);
 	$taborn_idx = "{$datdir_host}/{$bbs}/p2_threads_aborn.idx";
 	
 	// p2_threads_aborn.idx がなければ生成
@@ -71,9 +71,11 @@ function settaborn($host, $bbs, $key, $set)
 	// 書き込む
 	$fp = @fopen($taborn_idx, "wb") or die("Error: $taborn_idx を更新できませんでした");
 	if ($neolines) {
+		@flock($fp, LOCK_EX);
 		foreach ($neolines as $l) {
 			fputs($fp, $l."\n");
 		}
+		@flock($fp, LOCK_UN);
 	}
 	fclose($fp);
 	

@@ -2,13 +2,13 @@
 // p2 - スレッド表示スクリプト
 // フレーム分割画面、右下部分
 
-require_once("./conf.php"); //基本設定読込
-require_once("./thread_class.inc"); //スレッドクラス読込
-require_once("./threadread_class.inc"); //スレッドリードクラス読込
+include_once './conf.inc.php'; // 基本設定読込
+require_once './p2util.class.php';
+require_once './thread.class.php'; // スレッドクラス読込
+require_once './threadread.class.php'; // スレッドリードクラス読込
 require_once './filectl.class.php';
-require_once("./datactl.inc");
-require_once("./read.inc");
-require_once("./showthread_class.inc"); //HTML表示クラス
+require_once './ngabornctl.class.php';
+require_once("./showthread_class.inc"); // HTML表示クラス
 
 $debug = 0;
 $debug && include_once("profiler.inc"); //
@@ -33,17 +33,15 @@ detectThread();
 //=================================================
 // レスフィルタ
 //=================================================
-if ($_POST['word']) { $word = $_POST['word']; }
-if ($_GET['word']) { $word = $_GET['word']; }
-if ($_POST['field']) { $res_filter['field'] = $_POST['field']; }
-if ($_GET['field']) { $res_filter['field'] = $_GET['field']; }
-if ($_POST['match']) { $res_filter['match'] = $_POST['match']; }
-if ($_GET['match']) { $res_filter['match'] = $_GET['match']; }
-if ($_POST['method']) { $res_filter['method'] = $_POST['method']; }
-if ($_GET['method']) { $res_filter['method'] = $_GET['method']; }
-if (get_magic_quotes_gpc()) {
-	$word = stripslashes($word);
-}
+if (isset($_POST['word'])) { $word = $_POST['word']; }
+if (isset($_GET['word'])) { $word = $_GET['word']; }
+if (isset($_POST['field'])) { $res_filter['field'] = $_POST['field']; }
+if (isset($_GET['field'])) { $res_filter['field'] = $_GET['field']; }
+if (isset($_POST['match'])) { $res_filter['match'] = $_POST['match']; }
+if (isset($_GET['match'])) { $res_filter['match'] = $_GET['match']; }
+if (isset($_POST['method'])) { $res_filter['method'] = $_POST['method']; }
+if (isset($_GET['method'])) { $res_filter['method'] = $_GET['method']; }
+
 if (isset($word) && strlen($word) > 0) {
 	if (!((!$_conf['enable_exfilter'] || $res_filter['method'] == 'regex') && preg_match('/^\.+$/', $word))) {
 		include_once './strctl.class.php';
@@ -63,7 +61,7 @@ if (isset($word) && strlen($word) > 0) {
 //=================================================
 // フィルタ値保存
 //=================================================
-$cachefile = $prefdir . '/p2_res_filter.txt';
+$cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 
 // フィルタ指定があれば
 if (isset($res_filter)) {
@@ -76,7 +74,9 @@ if (isset($res_filter)) {
 		}
 		if ($res_filter_cont && !$popup_filter) {
 			$fp = @fopen($cachefile, 'wb') or die("Error: $cachefile を更新できませんでした");
+			@flock($fp, LOCK_EX);
 			fputs($fp, $res_filter_cont);
+			@flock($fp, LOCK_UN);
 			fclose($fp);
 		}
 	}
@@ -92,7 +92,7 @@ if (isset($res_filter)) {
 //=================================================
 // あぼーん&NGワード設定読み込み
 //=================================================
-readNgAbornFile();
+$GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
 //==================================================================
 // メイン
@@ -110,7 +110,7 @@ $aThread->setThreadPathInfo($host, $bbs, $key);
 // 板ディレクトリが無ければ作る
 // FileCtl::mkdir_for($aThread->keyidx);
 
-$aThread->itaj = getItaName($host, $bbs);
+$aThread->itaj = P2Util::getItaName($host, $bbs);
 if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 
 // idxファイルがあれば読み込む
@@ -118,7 +118,7 @@ if (is_readable($aThread->keyidx)) {
 	$lines = @file($aThread->keyidx);
 	$data = explode('<>', rtrim($lines[0]));
 }
-$aThread->getThreadInfoFromIdx($aThread->keyidx);
+$aThread->getThreadInfoFromIdx();
 
 //==========================================================
 // preview >>1
@@ -136,14 +136,22 @@ if ($_GET['one']) {
 //===========================================================
 // DATのダウンロード
 //===========================================================
-if (!$_GET['offline']) {
+if (empty($_GET['offline'])) {
 	if (!($word and file_exists($aThread->keydat))) {
 		$aThread->downloadDat();
 	}
 }
 
-//DATを読み込み========================================
-$aThread->readDat($aThread->keydat);
+// DATを読み込み
+$aThread->readDat();
+
+// オフライン指定でもログがなければ、改めて強制読み込み
+if (empty($aThread->datlines) && !empty($_GET['offline'])) {
+	$aThread->downloadDat();
+	$aThread->readDat();
+}
+
+
 $aThread->setTitleFromLocal(); //タイトルを取得して設定
 
 //===========================================================
@@ -254,18 +262,21 @@ if ($aThread->rescount) {
 	$newline = $aThread->readnum + 1;	// $newlineは廃止予定だが、旧互換用に念のため
 
 	$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}";
-	setKeyIdx($aThread->keyidx, $s); // key.idxに記録
+	P2Util::recKeyIdx($aThread->keyidx, $s); // key.idxに記録
 }
 
 //===========================================================
-//履歴を記録
+// 履歴を記録
 //===========================================================
 if ($aThread->rescount) {
 	$newdata = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
 	recRecent($newdata);
 }
 
-//以上---------------------------------------------------------------
+// ■NGあぼーんを記録
+NgAbornCtl::saveNgAborns();
+
+// 以上---------------------------------------------------------------
 exit;
 
 
@@ -337,11 +348,11 @@ function detectThread()
  */
 function recRecent($data)
 {
-	global $_conf, $rctfile;
+	global $_conf;
 	
-	FileCtl::make_datafile($rctfile, $_conf['rct_perm']); //$rctfileファイルがなければ生成
+	FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']); // ファイルがなければ生成
 	
-	$lines= @file($rctfile); //読み込み
+	$lines= @file($_conf['rct_file']); // 読み込み
 
 	// 最初に重複要素を削除
 	if ($lines) {
@@ -363,11 +374,13 @@ function recRecent($data)
 	}
 	
 	// 書き込む
-	$fp = @fopen($rctfile, "wb") or die("Error: $rctfile を更新できませんでした");
+	$fp = @fopen($_conf['rct_file'], "wb") or die("Error: {$_conf['rct_file']} を更新できませんでした");
 	if ($neolines) {
+		@flock($fp, LOCK_EX);
 		foreach ($neolines as $l) {
 			fputs($fp, $l."\n");
 		}
+		@flock($fp, LOCK_UN);
 	}
 	fclose($fp);
 }

@@ -1,67 +1,54 @@
 <?php
 // p2 - 2ch●ログイン管理
 
-require_once("./conf.php");  // 基本設定
+include_once './conf.inc.php';  // 基本設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './filectl.class.php';
-require_once("./datactl.inc");
-require_once("./crypt_xor.inc");
+require_once './crypt_xor.inc.php';
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
 
 //================================================================
 // 変数
 //================================================================
 
-if($_POST['login2chID']){$login2chID = $_POST['login2chID'];}
-if($_POST['login2chPW']){$login2chPW = $_POST['login2chPW'];}
-if($_POST['autoLogin2ch']){$autoLogin2ch = $_POST['autoLogin2ch'];}
-if(get_magic_quotes_gpc()) {
-	$login2chID = stripslashes($login2chID);
-	$login2chPW = stripslashes($login2chPW);
-}
+if (isset($_POST['login2chID'])) { $login2chID = $_POST['login2chID']; }
+if (isset($_POST['login2chPW'])) { $login2chPW = $_POST['login2chPW']; }
+if (isset($_POST['autoLogin2ch'])) { $autoLogin2ch = $_POST['autoLogin2ch']; }
 
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 //==============================================================
 // IDとPWを登録保存
 //==============================================================
-if( isset($_POST['login2chID']) && isset($_POST['login2chPW']) ){
-	if(!$autoLogin2ch){$autoLogin2ch=0;}
-	
-	$crypted_login2chPW = encrypt_xor($login2chPW, $_conf['crypt_xor_key']);
-	$crypted_login2chPW = base64_encode($crypted_login2chPW);
-	$idpw2ch_cont =<<<EOP
-<?php
-\$autoLogin2ch='{$autoLogin2ch}';
-\$login2chID='{$login2chID}';
-\$login2chPW='{$crypted_login2chPW}';
-?>
-EOP;
-	FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']); // idpw2ch_php がなければ生成
-	$fp = @fopen($_conf['idpw2ch_php'], "wb") or die("p2 Error: $idpw2ch_php を更新できませんでした");
-	fputs($fp, $idpw2ch_cont);
-	fclose($fp);
+if (isset($_POST['login2chID']) && isset($_POST['login2chPW'])) {
 
-	include_once("./login2ch.inc");
+	if (isset($_POST['autoLogin2ch'])) {
+		$autoLogin2ch = $_POST['autoLogin2ch'];
+	} else {
+		$autoLogin2ch = 0;
+	}
+
+	P2Util::saveIdPw2ch($_POST['login2chID'], $_POST['login2chPW'], $autoLogin2ch);
+
+	include_once './login2ch.inc.php';
 	login2ch();
 }
-if(file_exists($_conf['idpw2ch_php'])){
-	include($_conf['idpw2ch_php']);
-	$login2chPW = base64_decode($login2chPW);
-	$login2chPW = decrypt_xor($login2chPW, $_conf['crypt_xor_key']);
-}
 
+// （フォーム入力用に）ID, PW設定を読み込む
+if ($array = P2Util::readIdPw2ch()) {
+	list($login2chID, $login2chPW, $autoLogin2ch) = $array;
+}
 
 //==============================================================
 // 2chログイン処理
 //==============================================================
-if( isset($_GET['login2ch']) ){
-	if($_GET['login2ch']=="in"){
-		include_once("./login2ch.inc");
+if (isset($_GET['login2ch'])) {
+	if ($_GET['login2ch'] == "in") {
+		include_once './login2ch.inc.php';
 		login2ch();
-	}elseif($_GET['login2ch']=="out"){
-		if( file_exists($_conf['sid2ch_php']) ){
+	} elseif ($_GET['login2ch'] == "out") {
+		if (file_exists($_conf['sid2ch_php'])) {
 			unlink($_conf['sid2ch_php']);
 		}
 	}
@@ -70,30 +57,30 @@ if( isset($_GET['login2ch']) ){
 //================================================================
 // ヘッダ
 //================================================================
-if($_conf['ktai']){
-	$login_st="ﾛｸﾞｲﾝ";
-	$logout_st="ﾛｸﾞｱｳﾄ";
-	$password_st="ﾊﾟｽﾜｰﾄﾞ";
-}else{
-	$login_st="ログイン";
-	$logout_st="ログアウト";
-	$password_st="パスワード";
+if ($_conf['ktai']) {
+	$login_st = "ﾛｸﾞｲﾝ";
+	$logout_st = "ﾛｸﾞｱｳﾄ";
+	$password_st = "ﾊﾟｽﾜｰﾄﾞ";
+} else {
+	$login_st = "ログイン";
+	$logout_st = "ログアウト";
+	$password_st = "パスワード";
 }
 
-if( file_exists($_conf['sid2ch_php']) ){ //2ch●書き込み
-	$ptitle="●2ch{$login_st}管理";
-}else{
-	$ptitle="2ch{$login_st}管理";
+if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
+	$ptitle = "●2ch{$login_st}管理";
+} else {
+	$ptitle = "2ch{$login_st}管理";
 }
 
-$body_onload="";
-if(!$_conf['ktai']){
-	$body_onload=" onLoad=\"setWinTitle();\"";
+$body_onload = "";
+if (!$_conf['ktai']) {
+	$body_onload = " onLoad=\"setWinTitle();\"";
 }
 
 header_nocache();
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
 <head>
@@ -103,11 +90,11 @@ echo <<<EOP
 	<title>{$ptitle}</title>
 EOP;
 
-if(!$_conf['ktai']){
+if (!$_conf['ktai']) {
 	@include("./style/style_css.inc");
 	@include("./style/login2ch_css.inc");
 	echo <<<EOP
-	<script type="text/javascript" src="{$basic_js}"></script>
+	<script type="text/javascript" src="js/basic.js"></script>
 EOP;
 }
 
@@ -134,14 +121,14 @@ EOP;
 }
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 //================================================================
 // 2ch●ログインフォーム
 //================================================================
 
-if(file_exists($_conf['sid2ch_php'])){
-	$idsub_str="再{$login_st}する";
+if (file_exists($_conf['sid2ch_php'])) {
+	$idsub_str = "再{$login_st}する";
 	$form_now_log = <<<EOFORM
 	<form id="form_logout" method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
 		現在、2ちゃんねるに{$login_st}中です 
@@ -151,9 +138,9 @@ if(file_exists($_conf['sid2ch_php'])){
 	</form>\n
 EOFORM;
 
-}else{
-	$idsub_str="新規{$login_st}する";
-	if(file_exists($_conf['idpw2ch_php'])){
+} else {
+	$idsub_str = "新規{$login_st}する";
+	if (file_exists($_conf['idpw2ch_php'])) {
 		$form_now_log = <<<EOFORM
 	<form id="form_logout" method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
 		現在、{$login_st}していません 
@@ -162,13 +149,13 @@ EOFORM;
 		<input type="submit" name="submit" value="再{$login_st}する">
 	</form>\n
 EOFORM;
-	}else{
-		$form_now_log ="<p>現在、{$login_st}していません</p>";
+	} else {
+		$form_now_log = "<p>現在、{$login_st}していません</p>";
 	}
 }
 
-if($autoLogin2ch){
-	$autoLogin2ch_checked=" checked=\"true\"";
+if ($autoLogin2ch) {
+	$autoLogin2ch_checked = " checked=\"true\"";
 }
 
 $tora3_url = "http://2ch.tora3.net/";
@@ -184,7 +171,7 @@ echo "<div id=\"login_status\">";
 echo $form_now_log;
 echo "</div>";
 
-if($_conf['ktai']){
+if ($_conf['ktai']) {
 	echo "<hr>";
 }
 
@@ -193,12 +180,12 @@ echo <<<EOFORM
 	{$k_input_ht}
 	ID: <input type="text" name="login2chID" value="{$login2chID}"{$id_input_size_at}><br>
 	{$password_st}: <input type="password" name="login2chPW" id="login2chPW"{$pass_input_size_at}><br>
-	<input type="checkbox" name="autoLogin2ch" value="1"{$autoLogin2ch_checked}>起動時に自動{$login_st}する<br>
+	<input type="checkbox" id="autoLogin2ch" name="autoLogin2ch" value="1"{$autoLogin2ch_checked}><label for="autoLogin2ch">起動時に自動{$login_st}する</label><br>
 	<input type="submit" name="submit" value="{$idsub_str}" onClick="return checkPass2ch();">
 </form>\n
 EOFORM;
 
-if($_conf['ktai']){
+if ($_conf['ktai']) {
 	echo "<hr>";
 }
 
@@ -210,7 +197,7 @@ echo <<<EOP
 <p>2ch IDについての詳細はこちら→ <a href="{$tora3_url_r}" target="_blank">{$tora3_url}</a></p>
 EOP;
 
-if($_conf['ktai']){
+if ($_conf['ktai']) {
 	echo "<hr>";
 	echo $k_to_index_ht;
 }

@@ -26,8 +26,12 @@ $offline_q = "&amp;offline=1";
 
 // お気にマーク設定 ==================================================
 
-if ($aThread->fav) {$favmark="<span class=\"fav\">★</span>";}else{$favmark="<span class=\"fav\">+</span>";}
-if ($aThread->fav) {$favdo=0;}else{$favdo=1;}
+if ($aThread->fav) {
+	$favmark = "<span class=\"fav\">★</span>";
+} else {
+	$favmark = "<span class=\"fav\">+</span>";
+}
+if ($aThread->fav) {$favdo = 0;} else {$favdo = 1;}
 
 // レスナビ設定 =====================================================
 
@@ -51,7 +55,7 @@ for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
 	$offline_range_q = "";
 	$accesskey_at = "";
 	if ($i == 1) {
-		$accesskey_at = " $accesskey=\"1\"";
+		$accesskey_at = " {$_conf['accesskey']}=\"1\"";
 	}
 	$ito = $i + $rnum_range -1;
 	if ($ito <= $aThread->gotnum) {
@@ -64,53 +68,53 @@ for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
 
 //----------------------------------------------
 // $read_navi_previous -- 前100
-$before_rnum=$aThread->resrange['start']-$rnum_range;
-if($before_rnum<1){$before_rnum=1;}
-if($aThread->resrange['start']==1){
-	$read_navi_previous_isInvisible=true;
+$before_rnum = $aThread->resrange['start'] - $rnum_range;
+if ($before_rnum < 1) { $before_rnum = 1; }
+if ($aThread->resrange['start'] == 1) {
+	$read_navi_previous_isInvisible = true;
 }
-//if($before_rnum!=1){
-//	$read_navi_previous_anchor="#r{$before_rnum}";
+//if ($before_rnum! = 1) {
+//	$read_navi_previous_anchor = "#r{$before_rnum}";
 //}
 
-if(!$read_navi_previous_isInvisible){
+if (!$read_navi_previous_isInvisible) {
 	$read_navi_previous = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}n{$offline_q}{$k_at_a}{$read_navi_previous_anchor}\">{$prev_st}</a>";
-	$read_navi_previous_btm = "<a {$accesskey}=\"{$k_accesskey['prev']}\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}n{$offline_q}{$k_at_a}{$read_navi_previous_anchor}\">{$k_accesskey['prev']}.{$prev_st}</a>";
+	$read_navi_previous_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['prev']}\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}n{$offline_q}{$k_at_a}{$read_navi_previous_anchor}\">{$_conf['k_accesskey']['prev']}.{$prev_st}</a>";
 }
 
 //----------------------------------------------
-//$read_navi_next -- 次100
-if($aThread->resrange['to'] >= $aThread->rescount){
+// $read_navi_next -- 次100
+if ($aThread->resrange['to'] >= $aThread->rescount) {
 	$aThread->resrange['to'] = $aThread->rescount;
-	//$read_navi_next_anchor="#r{$aThread->rescount}";
-	$read_navi_next_isInvisible=true;
-}else{
-	//$read_navi_next_anchor="#r{$aThread->resrange['to']}";
+	//$read_navi_next_anchor = "#r{$aThread->rescount}";
+	$read_navi_next_isInvisible = true;
+ }else {
+	// $read_navi_next_anchor = "#r{$aThread->resrange['to']}";
 }
-if($aThread->resrange['to'] == $aThread->rescount){
+if ($aThread->resrange['to'] == $aThread->rescount) {
 	$read_navi_next_anchor="#r{$aThread->rescount}";
 }
-$after_rnum=$aThread->resrange['to']+$rnum_range;
+$after_rnum=$aThread->resrange['to'] + $rnum_range;
 
-if(!$read_navi_next_isInvisible){
+if (!$read_navi_next_isInvisible) {
 	$read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}n{$offline_q}&amp;nt={$newtime}{$k_at_a}{$read_navi_next_anchor}\">{$next_st}</a>";
-	$read_navi_next_btm = "<a {$accesskey}=\"{$k_accesskey['next']}\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}n{$offline_q}&amp;nt={$newtime}{$k_at_a}{$read_navi_next_anchor}\">{$k_accesskey['next']}.{$next_st}</a>";
+	$read_navi_next_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}n{$offline_q}&amp;nt={$newtime}{$k_at_a}{$read_navi_next_anchor}\">{$_conf['k_accesskey']['next']}.{$next_st}</a>";
 }
 
 //----------------------------------------------
 // $read_footer_navi_new  続きを読む 新着レスの表示
 
-if($aThread->resrange['to'] == $aThread->rescount){
-	$read_footer_navi_new="<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-n&amp;nt={$newtime}{$k_at_a}#r{$aThread->rescount}\">{$shinchaku_st}</a>";
-	$read_footer_navi_new_btm="<a {$accesskey}=\"{$k_accesskey['next']}\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-n&amp;nt={$newtime}{$k_at_a}#r{$aThread->rescount}\">{$k_accesskey['next']}.{$shinchaku_st}</a>";
+if($aThread->resrange['to'] == $aThread->rescount) {
+	$read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-n&amp;nt={$newtime}{$k_at_a}#r{$aThread->rescount}\">{$shinchaku_st}</a>";
+	$read_footer_navi_new_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-n&amp;nt={$newtime}{$k_at_a}#r{$aThread->rescount}\">{$_conf['k_accesskey']['next']}.{$shinchaku_st}</a>";
 }
-$read_navi_next_isInvisible; 
-if(!$read_navi_next_isInvisible){
-	$read_navi_latest=<<<EOP
+
+if (!$read_navi_next_isInvisible) {
+	$read_navi_latest = <<<EOP
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}{$k_at_a}">{$latest_st}{$latest_show_res_num}</a> 
 EOP;
-	$read_navi_latest_btm=<<<EOP
-<a {$accesskey}="{$k_accesskey['latest']}" href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}{$k_at_a}">{$k_accesskey['latest']}.{$latest_st}{$latest_show_res_num}</a> 
+	$read_navi_latest_btm = <<<EOP
+<a {$_conf['accesskey']}="{$_conf['k_accesskey']['latest']}" href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}{$k_at_a}">{$_conf['k_accesskey']['latest']}.{$latest_st}{$latest_show_res_num}</a> 
 EOP;
 }
 
@@ -118,9 +122,9 @@ EOP;
 // HTMLプリント
 //====================================================================
 
-//ツールバー部分HTML=======
+// ツールバー部分HTML =======
 $toolbar_right_ht = <<<EOTOOLBAR
-	<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$k_at_a}" {$accesskey}="{$k_accesskey['above']}">{$k_accesskey['above']}.{$aThread->itaj}</a>
+	<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$k_at_a}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.{$aThread->itaj}</a>
 	<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$k_at_a}">{$info_st}</a> 
 	<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$k_at_a}">{$delete_st}</a> 
 	<a href="{$motothre_url}">{$moto_thre_st}</a>
@@ -128,7 +132,7 @@ EOTOOLBAR;
 
 //=====================================
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html>
 <head>
@@ -142,16 +146,13 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 // スレが板サーバになければ============================
 if ($aThread->diedat) { 
 
 	if ($aThread->getdat_error_msg_ht) {
-		$dat_response_msg .= $aThread->getdat_error_msg_ht;
-	}
-	if ($dat_response_msg) {
-		$diedat_msg = $dat_response_msg;
+		$diedat_msg = $aThread->getdat_error_msg_ht;
 	} else {
 		$diedat_msg = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
 	}
@@ -164,7 +165,7 @@ if ($aThread->diedat) {
 	echo "</p>";
 	echo "<hr>";
 	
-	if(!$aThread->rescount){ //既得レスがなければツールバー表示
+	if (!$aThread->rescount) { // 既得レスがなければツールバー表示
 		echo <<<EOP
 <p>
 	{$toolbar_right_ht}
@@ -214,7 +215,7 @@ EOP;
 if( ($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])){
 
 	//if($_GET['one']){
-		$pointer_header=" {$pointer_at}=\"header\"";
+		$pointer_header=" {$_conf['pointer_name']}=\"header\"";
 	//}
 	echo <<<EOP
 <p{$pointer_header}>
@@ -222,7 +223,7 @@ if( ($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzo
 	{$read_navi_previous}
 	{$read_navi_next}
 	{$read_navi_latest}
-	<a {$accesskey}="8" href="#footer">8.▼</a>
+	<a {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#footer">{$_conf['k_accesskey']['bottom']}.▼</a>
 </p>\n
 EOP;
 

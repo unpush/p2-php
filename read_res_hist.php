@@ -2,23 +2,23 @@
 // p2 - 書き込み履歴 レス内容表示
 // フレーム分割画面、右下部分
 
-require_once("./conf.php"); //基本設定読込
+include_once './conf.inc.php'; // 基本設定読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
-require_once("datactl.inc");
-require_once("res_hist_class.inc");
-require_once("read_res_hist.inc");
+require_once './dataphp.class.php';
+require_once './res_hist.class.php';
+require_once './read_res_hist.inc.php';
 
-//$debug=true;
+$debug = 0;
 $debug && include_once("./profiler.inc"); //
-$debug && $prof = new Profiler( true ); //
+$debug && $prof = new Profiler(true); //
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
 
 //======================================================================
 // 変数
 //======================================================================
 $newtime = date("gis");
-$p2_res_hist_dat_php = $prefdir."/p2_res_hist.dat.php";
+$p2_res_hist_dat_php = $_conf['pref_dir']."/p2_res_hist.dat.php";
 
 $_info_msg_ht = "";
 $deletemsg_st = "削除";
@@ -43,18 +43,17 @@ P2Util::transResHistLog();
 // 特殊DAT読み
 //==================================================================
 // 読み込んで
-if (!$datlines = P2Util::fileDataPhp($p2_res_hist_dat_php)) {
+if (!$datlines = DataPhp::fileDataPhp($p2_res_hist_dat_php)) {
 	die("p2 - 書き込み履歴内容は空っぽのようです");
 }
+
+$datlines = array_map('rtrim', $datlines);
 
 $aResHist = new ResHist;
 
 $n = 1;
 if ($datlines) {
 	foreach ($datlines as $aline) {
-
-		// &<>/ → &xxx; のエスケープを元に戻す
-		$aline = P2Util::unescapeDataPhp($aline);
 
 		$aResArticle = new ResArticle;
 		
@@ -66,8 +65,10 @@ if ($datlines) {
 		$aResArticle->ttitle = $resar[4];
 		$aResArticle->host = $resar[5];
 		$aResArticle->bbs = $resar[6];
-		$aResArticle->itaj = getItaName($aResArticle->host, $aResArticle->bbs);
-		if (!$aResArticle->itaj) {$aResArticle->itaj = $aResArticle->bbs;}
+		$aResArticle->itaj = P2Util::getItaName($aResArticle->host, $aResArticle->bbs);
+		if (!$aResArticle->itaj) {
+			$aResArticle->itaj = $aResArticle->bbs;
+		}
 		$aResArticle->key = trim($resar[7]);
 		$aResArticle->order = $n;
 		
@@ -81,7 +82,7 @@ if ($datlines) {
 // ヘッダ 表示
 //==================================================================
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
 <head>
@@ -89,13 +90,13 @@ echo <<<EOP
 	<title>{$ptitle}</title>
 EOP;
 
-if(!$_conf['ktai']){
-	@include("style/style_css.inc"); //スタイルシート
-	@include("style/read_css.inc"); //スタイルシート
+if (!$_conf['ktai']) {
+	@include("style/style_css.inc"); // スタイルシート
+	@include("style/read_css.inc"); // スタイルシート
 
 	echo <<<EOSCRIPT
-	<script type="text/javascript" src="{$basic_js}"></script>
-	<script type="text/javascript" src="{$respopup_js}"></script>
+	<script type="text/javascript" src="js/basic.js"></script>
+	<script type="text/javascript" src="js/respopup.js"></script>
 EOSCRIPT;
 }
 
@@ -105,17 +106,17 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
-if($_conf['ktai']){
+if ($_conf['ktai']) {
 	echo "{$ptitle}<br>";
-	echo "<div {$pointer_at}=\"header\">";
+	echo "<div {$_conf['pointer_name']}=\"header\">";
 	$aResHist->showNaviK("header");
-	echo " <a {$accesskey}=\"8\" href=\"#footer\"{$k_at_a}>8.▼</a><br>";
+	echo " <a {$_conf['accesskey']}=\"8\" href=\"#footer\"{$k_at_a}>8.▼</a><br>";
 	echo "</div>";
 	echo "<hr>";
 	
-}else{
+} else {
 	echo <<<EOP
 <form method="POST" action="./read_res_hist.php#footer" target="_self">
 EOP;
@@ -148,22 +149,22 @@ EOP;
 //==================================================================
 // レス記事 表示
 //==================================================================
-if($_conf['ktai']){
+if ($_conf['ktai']) {
 	$aResHist->showArticlesK();
-}else{
+} else {
 	$aResHist->showArticles();
 }
 
 //==================================================================
 // フッタ 表示
 //==================================================================
-if($_conf['ktai']){
-	echo "<div {$pointer_at}=\"footer\">";
+if ($_conf['ktai']) {
+	echo "<div {$_conf['pointer_name']}=\"footer\">";
 	$aResHist->showNaviK("footer");
-	echo " <a {$accesskey}=\"2\" href=\"#header\"{$k_at_a}>2.▲</a><br>";
+	echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$k_at_a}>2.▲</a><br>";
 	echo "</div>";
 	echo "<p>{$k_to_index_ht}</p>";
-}else{
+} else {
 	echo "<hr>";
 	echo <<<EOP
 <table id="footer" width="100%" style="padding:0px 10px 0px 0px;">
@@ -177,17 +178,17 @@ if($_conf['ktai']){
 EOP;
 }
 
-$debug && $prof->printTimers( true );//
+$debug && $prof->printTimers(true);//
 
-if(!$_conf['ktai']){
+if (!$_conf['ktai']) {
 	echo <<<EOP
 	</form>
 EOP;
 }
 
-echo <<<EOFOOTER
+echo '
 </body>
 </html>
-EOFOOTER;
+';
 
 ?>

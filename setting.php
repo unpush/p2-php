@@ -1,7 +1,7 @@
 <?php
 // p2 -  設定
 
-require_once("./conf.php");  //基本設定
+include_once './conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
 
 authorize(); //ユーザ認証
@@ -43,7 +43,7 @@ if(!$_conf['ktai']){
 //=========================================================
 header_nocache();
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
 <head>
@@ -56,7 +56,7 @@ if(!$_conf['ktai']){
 	@include("./style/style_css.inc");
 	@include("./style/setting_css.inc");
 	echo <<<EOP
-	<script type="text/javascript" src="{$basic_js}"></script>
+	<script type="text/javascript" src="js/basic.js"></script>
 EOP;
 }
 echo <<<EOP
@@ -81,8 +81,8 @@ if($_conf['ktai']){
 
 /*
 if($_conf['ktai']){
-	$access_login_at=" {$accesskey}=\"1\"";
-	$access_login2ch_at=" {$accesskey}=\"2\"";
+	$access_login_at=" {$_conf['accesskey']}=\"1\"";
+	$access_login2ch_at=" {$_conf['accesskey']}=\"2\"";
 }
 */
 

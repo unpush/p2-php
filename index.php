@@ -1,7 +1,7 @@
 <?php
 // p2 -  インデックスページ
 
-require_once("./conf.php");  //基本設定ファイル読込
+include_once './conf.inc.php';  // 基本設定ファイル読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 authorize(); //ユーザ認証
@@ -39,7 +39,7 @@ if ($_conf['ktai']) {
 	//======================================================
 	header_nocache();
 	header_content_type();
-	if($doctype){ echo $doctype;}
+	if ($_conf['doctype']) { echo $_conf['doctype']; }
 	echo <<<EOHEADER
 <html lang="ja">
 <head>

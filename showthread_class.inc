@@ -2,36 +2,52 @@
 // p2 - スレッドを表示する クラス
 
 class ShowThread{
-	var $thread; //スレッドオブジェクト
+
+	var $thread; // スレッドオブジェクト
 	
-	function ShowThread($aThread){
+	
+	/**
+	 * コンストラクタ
+	 */
+	function ShowThread($aThread)
+	{
 		$this->thread = $aThread;
 	}
 
-	//===================================
-	// 透明あぼーんメソッド
-	//===================================
-	function aborn($aborn_list, $resfield){
-		if($aborn_list){
-			foreach($aborn_list as $an_aborn_word){
-				$an_aborn_word = trim($an_aborn_word);
-				if( @strstr($resfield, $an_aborn_word) ){
-					return true;
+	/**
+	 * NGあぼーんチェック
+	 */
+	function ngAbornCheck($code, $resfield)
+	{
+		global $ngaborns;
+		
+		if (is_array($ngaborns[$code]['data'])) {
+			foreach ($ngaborns[$code]['data'] as $k => $v) {
+				if (@strstr($resfield, $ngaborns[$code]['data'][$k]['word'])) {
+					$ngaborns[$code]['data'][$k]['lasttime'] = date('Y/m/d G:i');	// HIT時間を更新
+					$ngaborns[$code]['data'][$k]['hits']++;	// HIT回数を更新
+					return $ngaborns[$code]['data'][$k]['word'];
 				}
 			}
 		}
 		return false;
 	}
 
-	//===================================
-	// NGチェックメソッド
-	//===================================
-	function ngCheck($ng_list, $resfield){
-		if($ng_list){
-			foreach($ng_list as $a_ng_word){
-				$a_ng_word = trim($a_ng_word);
-				if( @strstr($resfield, $a_ng_word) ){
-					return $a_ng_word;
+	/**
+	 * 特定レスの透明あぼーんチェック
+	 */
+	function abornResCheck($host, $bbs, $key, $resnum)
+	{
+		global $ngaborns;
+		
+		$target = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
+		
+		if ($ngaborns['aborn_res']['data']) {
+			foreach ($ngaborns['aborn_res']['data'] as $k => $v) {
+				if ($ngaborns['aborn_res']['data'][$k]['word'] == $target) {
+					$ngaborns['aborn_res']['data'][$k]['lasttime'] = date('Y/m/d G:i');	// HIT時間を更新
+					$ngaborns['aborn_res']['data'][$k]['hits']++;	// HIT回数を更新
+					return true;
 				}
 			}
 		}

@@ -1,11 +1,9 @@
 <?php
 /*
 	p2 -  設定編集
-	
-	最新更新日: 2004/10/24
 */
 
-require_once("./conf.php");  //基本設定
+include_once './conf.inc.php';  //基本設定
 require_once './filectl.class.php';
 
 authorize(); //ユーザ認証
@@ -13,22 +11,22 @@ authorize(); //ユーザ認証
 $_info_msg_ht = "";
 
 // ホストの同期用設定
-if (!isset($rh_idx))     { $rh_idx     = $prefdir . '/p2_res_hist.idx'; }
-if (!isset($palace_idx)) { $palace_idx = $prefdir . '/p2_palace.idx'; }
+if (!isset($rh_idx))     { $rh_idx     = $_conf['pref_dir'] . '/p2_res_hist.idx'; }
+if (!isset($palace_idx)) { $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx'; }
 
 $synctitle = array(
-	$favita_path => 'お気に板',
-	$favlistfile => 'お気にスレ',
-	$rctfile     => '最近読んだスレ',
+	$_conf['favita_path'] => 'お気に板',
+	$_conf['favlist_file'] => 'お気にスレ',
+	$_conf['rct_file']     => '最近読んだスレ',
 	$rh_idx      => '書き込み履歴',
 	$palace_idx  => 'スレの殿堂',
 );
 
 if (isset($_POST['sync'])) {
-	$syncfile = (get_magic_quotes_gpc()) ? stripslashes($_POST['sync']) : $_POST['sync'];
-	if ($syncfile == $favita_path) {
+	$syncfile = $_POST['sync'];
+	if ($syncfile == $_conf['favita_path']) {
 		include_once './syncfavita.inc';
-	} elseif (in_array($syncfile, array($favlistfile, $rctfile, $rh_idx, $palace_idx))) {
+	} elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
 		include_once './syncindex.inc';
 	}
 	if ($sync_ok) {
@@ -64,7 +62,7 @@ $autho_user_ht = "";
 //=========================================================
 header_nocache();
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
 <head>
@@ -82,7 +80,7 @@ echo <<<EOP
 <body>
 EOP;
 
-if(!$_conf['ktai']){
+if (!$_conf['ktai']) {
 	echo <<<EOP
 <p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
 EOP;
@@ -90,17 +88,17 @@ EOP;
 
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 //設定プリント=====================
-$aborn_name_txt = $prefdir."/p2_aborn_name.txt";
-$aborn_mail_txt = $prefdir."/p2_aborn_mail.txt";
-$aborn_msg_txt = $prefdir."/p2_aborn_msg.txt";
-$aborn_id_txt = $prefdir."/p2_aborn_id.txt";
-$ng_name_txt = $prefdir."/p2_ng_name.txt";
-$ng_mail_txt = $prefdir."/p2_ng_mail.txt";
-$ng_msg_txt = $prefdir."/p2_ng_msg.txt";
-$ng_id_txt = $prefdir."/p2_ng_id.txt";
+$aborn_name_txt = $_conf['pref_dir']."/p2_aborn_name.txt";
+$aborn_mail_txt = $_conf['pref_dir']."/p2_aborn_mail.txt";
+$aborn_msg_txt = $_conf['pref_dir']."/p2_aborn_msg.txt";
+$aborn_id_txt = $_conf['pref_dir']."/p2_aborn_id.txt";
+$ng_name_txt = $_conf['pref_dir']."/p2_ng_name.txt";
+$ng_mail_txt = $_conf['pref_dir']."/p2_ng_mail.txt";
+$ng_msg_txt = $_conf['pref_dir']."/p2_ng_msg.txt";
+$ng_id_txt = $_conf['pref_dir']."/p2_ng_id.txt";
 
 if (!$_conf['ktai']) {
 
@@ -143,23 +141,23 @@ EOP;
 </td></tr><tr><td colspan="2">
 EOP;
 
-	if( is_writable("conf_user.php") || is_writable("conf_style.inc") || is_writable("conf.php")){
+	if( is_writable("conf_user.inc.php") || is_writable("conf_user_style.inc.php") || is_writable("conf.inc.php")){
 		echo <<<EOP
 <fieldset>
 <legend>その他</legend>
 <table><tr>
 <td>
 EOP;
-		if( is_writable("conf_user.php") ){
-			printEditFileForm("conf_user.php", "conf_user.php");
+		if (is_writable("conf_user.inc.php")) {
+			printEditFileForm("conf_user.inc.php", "conf_user.inc.php");
 		}
 		echo "</td><td>";
-		if( is_writable("conf_style.inc") ){
-			printEditFileForm("conf_style.inc", "conf_style.inc");
+		if (is_writable("conf_user_style.inc.php")) {
+			printEditFileForm("conf_user_style.inc.php", "conf_user_style.inc.php");
 		}
 		echo "</td><td>";
-		if( is_writable("conf.php") ){
-			printEditFileForm("conf.php", "conf.php");
+		if (is_writable("conf.inc.php")) {
+			printEditFileForm("conf.inc.php", "conf.inc.php");
 		}
 		echo <<<EOP
 </td>

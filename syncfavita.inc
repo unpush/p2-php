@@ -7,12 +7,12 @@ require_once("./brdctl_class.inc");
 // 読み込み
 //================================================
 //favita_pathファイルがなければ終了
-if (!file_exists($favita_path)) {
+if (!file_exists($_conf['favita_path'])) {
 	return;
 }
 
 //favita_path読み込み;
-$lines = @file($favita_path);
+$lines = @file($_conf['favita_path']);
 
 //board読み込み
 $_current = BrdCtl::read_brds();
@@ -59,12 +59,12 @@ foreach ($lines as $line) {
 // 更新があれば、書き込む
 //================================================
 if (serialize($lines) != serialize($neolines)) {
-	$fp = @fopen($favita_path, 'wb') or die("Error: $favita_path を更新できませんでした");
-	flock($fp, LOCK_EX);
+	$fp = @fopen($_conf['favita_path'], 'wb') or die("Error: {$_conf['favita_path']} を更新できませんでした");
+	@flock($fp, LOCK_EX);
 	foreach ($neolines as $l) {
 		fputs($fp, $l);
 	}
-	flock($fp, LOCK_UN);
+	@flock($fp, LOCK_UN);
 	fclose($fp);
 	$sync_ok = true;
 } else {
