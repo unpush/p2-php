@@ -20,8 +20,10 @@ class P2Util{
 		$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 	
 		if (file_exists($subjectfile)) {
-			if ($_GET['norefresh'] or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku'])) { // 検索
-				return;
+			if ($_GET['norefresh'] or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku'])) {
+				return;	// 更新しない場合は、その場で抜けてしまう
+			} elseif ((!$_POST['newthread']) and P2Util::isSubjectFresh($subjectfile)) {
+				return;	// 新規スレ立て時でなく、更新が新しい場合も抜ける
 			}
 			$modified = gmdate("D, d M Y H:i:s", filemtime($subjectfile))." GMT";
 		} else {
@@ -29,7 +31,7 @@ class P2Util{
 		}
 
 		if (extension_loaded('zlib') and strstr($url, ".2ch.net")){
-			$headers="Accept-Encoding: gzip\r\n";
+			$headers = "Accept-Encoding: gzip\r\n";
 		}
 
 		// したらばのlivedoor移転に対応。読込先をlivedoorとする。
