@@ -411,9 +411,9 @@ class P2Util{
 		// 新しいデータを一番上に追加
 		@array_unshift($lines, $newdata);
 		// 先頭文を追加
-		@array_unshift($lines, "<?php /*\n");
+		@array_unshift($lines, '<?php /*');
 		// 末文を追加
-		@array_push($lines, "*/ ?>\n");
+		@array_push($lines, '*/ ?>');
 
 		// 書き込む
 		$fp = @fopen($logfile, "wb") or die("Error: {$logfile} を更新できませんでした");
