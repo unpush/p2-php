@@ -1,7 +1,7 @@
 <?php
 /* p2 - まちBBS用の関数（兼 JBBS@したらば）*/
 
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 /**
@@ -11,15 +11,15 @@ function machiDownload()
 {
 	global $aThread, $machi_latest_num;
 
-	$machi_latest_num="";
+	$machi_latest_num = "";
 	
 	//既得datの取得レス数が適性かどうかを念のためチェック
-	if(file_exists($aThread->keydat)){
-		$dls=@file($aThread->keydat);
-		if( sizeof($dls) != $aThread->rnum){
+	if (file_exists($aThread->keydat)) {
+		$dls = @file($aThread->keydat);
+		if (sizeof($dls) != $aThread->rnum) {
 			//echo "bad size!<br>";
 			unlink($aThread->keydat);
-			$aThread->rnum=0;
+			$aThread->rnum = 0;
 		}
 	}
 	
@@ -32,14 +32,14 @@ function machiDownload()
 	}
 
 	$START = $zero_read ? 1 : $aThread->rnum + 1;
-	
-	// したらばのlivedoor移転に対応。読込先をlivedoorとする。
-	$host = P2Util::adjustHostJbbs($aThread->host);
-	
+
 	// JBBS@したらば
 	if (P2Util::isHostJbbsShitaraba($aThread->host)) {
-		$host_bbs_cgi = preg_replace('{(jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp)}', '$1/bbs/read.cgi', $host);
-		$machiurl = "http://{$host_bbs_cgi}/{$aThread->bbs}/{$aThread->key}/{$START}-";
+		// したらばのlivedoor移転に対応。読込先をlivedoorとする。
+		$host = P2Util::adjustHostJbbs($aThread->host);
+		list($host, $category, ) = explode('/', $host);
+		$machiurl = "http://{$host}/bbs/read.cgi/{$category}/{$aThread->bbs}/{$aThread->key}/{$START}-";
+		
 	// まちBBS
 	} else { 
 		$machiurl = "http://{$aThread->host}/bbs/read.pl?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
@@ -62,7 +62,7 @@ function machiDownload()
 		
 		include_once("./strctl_class.inc");
 		$temp_data = StrCtl::p2EUCtoSJIS($temp_data);
-		$fp = @fopen($tempfile,"w") or die("Error: $tempfile を更新できませんでした");
+		$fp = @fopen($tempfile, 'wb') or die("Error: $tempfile を更新できませんでした");
 		fputs($fp, $temp_data);
 		fclose($fp);
 	}
@@ -95,7 +95,7 @@ function machiDownload()
 	}
 	fclose($fp);
 	
-	$aThread->isonline=true;
+	$aThread->isonline = true;
 	return true;
 }
 
@@ -103,7 +103,8 @@ function machiDownload()
 /**
  * まちBBSのread.plで読み込んだHTMLをdatに変換する
  */
-function machiHtmltoDatLines($mlines){
+function machiHtmltoDatLines($mlines)
+{
 	global $machi_latest_num;
 
 	if (!$mlines) {return false;}
@@ -145,10 +146,10 @@ function machiHtmltoDatLines($mlines){
 
 		// したらばJBBS jbbs.livedoor.com のlink.cgiを除去
 		// <a href="http://jbbs.livedoor.jp/bbs/link.cgi?url=http://dempa.2ch.net/gazo/free/img-box/img20030424164949.gif" target="_blank">http://dempa.2ch.net/gazo/free/img-box/img20030424164949.gif</a>
-		$body = preg_replace('{<a href="(?:http://(?:jbbs\.livedoor\.jp|jbbs\.livedoor\.com|jbbs\.shitaraba\.com))?/bbs/link\.cgi\?url=([^"]+)" target="_blank">([^><]+)</a>}i', '$1', $body);
+		$body = preg_replace('{<a href="(?:http://jbbs\.(?:shitaraba\.com|livedoor\.(?:com|jp)))?/bbs/link\.cgi\?url=([^"]+)" target="_blank">([^><]+)</a>}i', '$1', $body);
 		
 		// リンク外し
-		$body = preg_replace("/<a href=\"(https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\" target=\"_blank\">(https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)<\/a>/i","\\1", $body);
+		$body = preg_replace('{<a href="(https?://[-_.!~*\'()a-zA-Z0-9;/?:@&=+\$,%#]+)" target="_blank">(https?://[-_.!~*\'()a-zA-Z0-9;/?:@&=+\$,%#]+)</a>}i', '$1', $body);
 		
 		if ($order == 1) {
 			$datline = $name.'<>'.$mail.'<>'.$date.'<>'.$body.'<>'.$mtitle."\n";
