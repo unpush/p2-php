@@ -150,7 +150,18 @@ function checkUpdatan()
 	$ver_txt_url = $p2web_url . "p2status.txt";
 	$cachefile = $prefdir . "/p2_cache/p2status.txt";
 	FileCtl::mkdir_for($cachefile);
-	fileDownload($ver_txt_url, $cachefile);
+	
+	if (file_exists($cachefile)) {
+		// キャッシュの更新が指定時間以内なら
+		if (@filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
+			$no_p2status_dl_flag = true;
+		}
+	}
+	
+	if (!$no_p2status_dl_flag) {
+		fileDownload($ver_txt_url, $cachefile);
+	}
+	
 	$ver_txt = file($cachefile);
 	$update_ver = $ver_txt[0];
 	$kita = "ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!";
