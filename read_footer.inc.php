@@ -113,15 +113,16 @@ EOP;
 	$read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
 	*/
 
-	$read_navi_next_anchor = "";
-	if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
-		$read_navi_next_anchor = "#r{$aThread->rescount}";
-	}
-	$after_rnum = $GLOBALS['last_hit_resnum'] + $rnum_range;
-	$read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
-
 	if (!empty($GLOBALS['last_hit_resnum'])) {
-	$read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+		$read_navi_next_anchor = "";
+		if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
+			$read_navi_next_anchor = "#r{$aThread->rescount}";
+		}
+		$after_rnum = $GLOBALS['last_hit_resnum'] + $rnum_range;
+		$read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
+
+		// u‘±‚«‚ğ“Ç‚Şv
+		$read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
 	}
 	// }}}
 

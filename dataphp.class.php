@@ -2,18 +2,29 @@
 
 /*
 	データファイルにWebから直接アクセスされても中をみられないようにphp形式のファイルでデータを取り扱うクラス
-	ファイルの保存形式は、以下のような感じ。
+	インスタンスを作らずにクラスメソッドで利用する。ファイルの保存形式は、以下のような感じ。
 	
 	＜？php ／*
 	データ
 	*／ ？＞
-
 */
 
 class DataPhp{
 
+	function getPre()
+	{
+		return "<?php /*\n";
+	}
+
+	function getHip()
+	{
+		return "\n*/ ?>";
+	}
+
 	/**
 	 * ■データphp形式のファイルを読み込む
+	 *
+	 * 文字列のアンエスケープも行う
 	 */
 	function getDataPhpCont($data_php)
 	{
@@ -22,8 +33,10 @@ class DataPhp{
 			return $cont;
 			
 		} else {
+			$pre_quote = preg_quote(DataPhp::getPre());
+			$hip_quote = preg_quote(DataPhp::getHip());
 			// 先頭文と末文を削除
-			$cont = preg_replace("{<\?php /\*\n(.*)\n\*/ \?>.*}s", "$1", $cont);
+			$cont = preg_replace("{".$pre_quote."(.*)".$hip_quote.".*}s", "$1", $cont);
 			// アンエスケープする
 			$cont = DataPhp::unescapeDataPhp($cont);
 
@@ -83,21 +96,48 @@ class DataPhp{
 	function writeDataPhp($cont, $data_php, $perm = 0606)
 	{
 		// &<>/ を &xxx; にエスケープして
-		$cont = DataPhp::escapeDataPhp($cont);
+		$new_cont = DataPhp::escapeDataPhp($cont);
 		
 		// 先頭文と末文を追加
-		$cont = '<?php /*'."\n".$cont."\n".'*/ ?>';
+		$new_cont = DataPhp::getPre().$new_cont.DataPhp::getHip();
 		
 		// ファイルがなければ生成
 		FileCtl::make_datafile($data_php, $perm);
 		// 書き込む
 		$fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
 		@flock($fp, LOCK_EX);
-		fputs($fp, $cont);
+		fwrite($fp, $new_cont);
 		@flock($fp, LOCK_UN);
 		fclose($fp);
 		
 		return true;
+	}
+	
+	/**
+	 * データphp形式のファイルで、末尾にデータを追加する
+	 */
+	function putDataPhp($cont, $data_php, $perm = 0606)
+	{
+		$pre_quote = preg_quote(DataPhp::getPre());
+		$hip_quote = preg_quote(DataPhp::getHip());
+
+		$cont_esc = DataPhp::escapeDataPhp($cont);
+
+		$old_cont = @file_get_contents($data_php);
+		if ($old_cont) {
+			$new_cont = preg_replace('{('.$hip_quote.'.*$)}s', '', $old_cont) . $cont_esc .DataPhp::getHip();
+		} else {
+			$new_cont = DataPhp::getPre().$cont.DataPhp::getHip();
+		}
+		
+		// ファイルがなければ生成
+		FileCtl::make_datafile($data_php, $perm);
+		// 書き込む
+		$fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
+		@flock($fp, LOCK_EX);
+		fwrite($fp, $new_cont);
+		@flock($fp, LOCK_UN);
+		fclose($fp);
 	}
 	
 	/**
@@ -106,7 +146,7 @@ class DataPhp{
 	function escapeDataPhp($str)
 	{
 		// &<>/ → &xxx; のエスケープをする
-		$str = str_replace("&", "&amp;", $str);	
+		$str = str_replace("&", "&amp;", $str);
 		$str = str_replace("<", "&lt;", $str);
 		$str = str_replace(">", "&gt;", $str);
 		$str = str_replace("/", "&frasl;", $str);
@@ -127,4 +167,5 @@ class DataPhp{
 	}
 
 }
+
 ?>

@@ -14,7 +14,7 @@ authorize(); // ユーザ認証
 // ■変数
 //================================================================
 $_info_msg_ht = "";
-$newtime = date("gis"); 
+$newtime = date('gis');
 
 $post_keys = array(
 	'FROM','mail','MESSAGE',
@@ -41,7 +41,7 @@ if (!isset($ttitle)) {
 /*
 // 2004/12/13 特に必要ないかなということでコメントアウト
 
-// メッセージに連続した半角スペースがあれば、&nbsp;に変換する
+// メッセージに連続した半角スペースがあれば、&nbsp; に変換する
 $MESSAGE = preg_replace_callback(
 	'/^ +| {2,}/',
     create_function(
@@ -250,11 +250,13 @@ if ($_conf['res_write_rec']) {
 	$p2_res_hist_dat_php = $_conf['pref_dir']."/p2_res_hist.dat.php"; 
 	FileCtl::make_datafile($p2_res_hist_dat_php, $_conf['res_write_perm']); // なければ生成
 
+	/*
 	// 読み込んで
 	if (!$lines = DataPhp::fileDataPhp($p2_res_hist_dat_php)) {
 		$lines = array();
 	}
 	$lines = array_map('rtrim', $lines);
+	*/
 	
 	// 新規データ
 	$newdata = "$FROM<>$mail<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key";
@@ -263,7 +265,13 @@ if ($_conf['res_write_rec']) {
 	$newdata = str_replace("\t", "", $newdata);
 	// <>をタブに変換して
 	$newdata = str_replace("<>", "\t", $newdata);
-
+	
+	$cont = $newdata."\n";
+	
+	// 書き込み処理
+	DataPhp::putDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm']);
+	
+	/*
 	// 新しいデータを最後に追加
 	@array_push($lines, $newdata);
 		
@@ -271,6 +279,7 @@ if ($_conf['res_write_rec']) {
 	
 	// 書き込み処理
 	DataPhp::writeDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm']);
+	*/
 }
 
 //===========================================================
@@ -349,7 +358,7 @@ function postIt($URL, $request)
 			if (P2Util::isHostJbbsShitaraba($host) || P2Util::isHostBe2chNet($host)) {
 				$value = mb_convert_encoding($value, 'EUC-JP', 'SJIS-win');
 			}
-
+			
 	        $POST[] = $name."=".urlencode($value);
 	    }
 	    $postdata = implode("&", $POST);
@@ -380,13 +389,13 @@ function postIt($URL, $request)
 	while (!feof($fp)) {
 	
 		if ($start_here) {
-
+		
 			while (!feof($fp)) {
 				$wr .= fread($fp, 164000);
 			}
 			$response = $wr;
 			break;
-
+			
 		} else {
 			$l = fgets($fp, 164000);
 			//echo $l ."<br>"; // for debug
@@ -436,7 +445,7 @@ function postIt($URL, $request)
 		//<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">
 		$response = preg_replace("{(<head>.*<META http-equiv=\"Content-Type\" content=\"text/html; charset=)EUC-JP(\">.*</head>)}is", "$1Shift_JIS$2", $response);
 	}
-
+	
 	$kakikonda_match = "/<title>.*(書きこみました|■ 書き込みました ■|書き込み終了 - SubAll BBS).*<\/title>/";
 	$cookie_kakunin_match = "/<!-- 2ch_X:cookie -->|<title>■ 書き込み確認 ■<\/title>|>書き込み確認。</";
 	
@@ -483,8 +492,8 @@ EOFORM;
 		$h_b = explode("</head>", $response);
 		echo $h_b[0];
 		if (!$_conf['ktai']) {
-			@include("style/style_css.inc"); //スタイルシート
-			@include("style/post_css.inc"); //スタイルシート
+			@include("style/style_css.inc"); // スタイルシート
+			@include("style/post_css.inc"); // スタイルシート
 		}
 		if ($popup) {
 			$mado_okisa = explode(',', $STYLE['post_pop_size']);
@@ -503,7 +512,7 @@ EOSCRIPT;
 		echo $h_b[1];
 		
 		return false;
-
+		
 	// その他はレスポンスをそのまま表示
 	} else {
 		$response = ereg_replace('こちらでリロードしてください。<a href="\.\./[a-z]+/index\.html"> GO! </a><br>', "", $response);
@@ -565,8 +574,8 @@ EOHEADER;
 	}
 
 	if (!$_conf['ktai']) {
-		@include("style/style_css.inc"); //スタイルシート
-		@include("style/post_css.inc"); //スタイルシート
+		@include("style/style_css.inc"); // スタイルシート
+		@include("style/post_css.inc"); // スタイルシート
 		if ($popup) {
 			echo <<<EOSCRIPT
 			<script language="JavaScript">
