@@ -66,7 +66,7 @@ $meta_charset_ht = <<<EOP
 EOP;
 
 //携帯===================================
-if (strstr($ua, "UP.Browser/")) {
+if (strstr($_SERVER['HTTP_USER_AGENT'], "UP.Browser/")) {
 	$browser = "EZweb";
 	$ktai = true;
 	/*
@@ -77,27 +77,21 @@ if (strstr($ua, "UP.Browser/")) {
 EOP;
 	*/
 
-}elseif(strstr($ua, "DoCoMo/")){
-	$browser="DoCoMo";
-	$ktai=true;
-	$pointer_at="name";
+} elseif (preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'])) {
+	//$browser = "DoCoMo";
+	$ktai = true;
+	$pointer_at = "name";
 
-}elseif(strstr($ua, "J-PHONE/")){
-	$browser="JPHONE";
-	$ktai=true;
-	$accesskey="DIRECTKEY";
-	$pointer_at="name";
+} elseif(preg_match('{^(J-PHONE|Vodafone)/}', $_SERVER['HTTP_USER_AGENT'])) {
+	//$browser = "JPHONE";
+	$ktai = true;
+	$accesskey = "DIRECTKEY";
+	$pointer_at = "name";
 
-}elseif(strstr($ua, "DDIPOCKET")){
-	$browser="DDIPOCKET";
-	$ktai=true;
-	$pointer_at="name";
-
-//PC =====================================
-}elseif(strstr($ua, "MSIE")){
-	$browser="IE";
-}elseif(strstr($ua, "Safari")){
-	$browser="Safari";
+} elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'DDIPOCKET')) {
+	//$browser="DDIPOCKET";
+	$ktai = true;
+	$pointer_at = "name";
 }
 
 $k_to_index_ht = <<<EOP
@@ -266,10 +260,11 @@ function authorize()
 			}
 			
 			// J-PHONE認証スルーパス //パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
-			if (preg_match("/J-PHONE\/[^\/]+\/[^\/]+\/SN(.+?) /", $_SERVER['HTTP_USER_AGENT'], $matches)) {
+			// http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
+			if (preg_match('{(J-PHONE|Vodafone)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
 				if (file_exists($auth_jp_file)) {
 					include($auth_jp_file);
-					if ($matches[1] == $registed_jp) {
+					if ($matches[3] == $registed_jp) {
 						return true;
 					}
 				}

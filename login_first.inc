@@ -46,11 +46,11 @@ if($_SERVER['HTTP_X_UP_SUBNO']){
 EOP;
 	}
 
-//J認証================
-}elseif( preg_match("/J-PHONE\/[^\/]+\/[^\/]+\/SN(.+?) /", $_SERVER['HTTP_USER_AGENT'], $matches) ){
-	if( file_exists($auth_jp_file) ){
-	}else{
-		$auth_sub_input_ht=<<<EOP
+// J認証 ================
+} elseif (preg_match('{(J-PHONE|Vodafone)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
+	if (file_exists($auth_jp_file)) {
+	} else {
+		$auth_sub_input_ht = <<<EOP
 	<input type="checkbox" name="regist_jp" value="in" checked>J端末IDで認証を登録<br>
 EOP;
 	}
