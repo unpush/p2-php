@@ -4,8 +4,8 @@
 	- ˆê•”JavaScript‚ÌŒx‚ª•\¦‚³‚ê‚é‚±‚Æ‚ª‚ ‚Á‚½‚Ì‚ğC³
 	
 	* conf.php
-	* p2_1x/settaborn.inc
-	* p2_1x/js/post_form.js
+	* settaborn.inc
+	* js/post_form.js
 
 2004-12-13 aki
 	* p2 version 1.1.8
