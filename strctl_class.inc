@@ -4,7 +4,7 @@
 */
 
 if (!extension_loaded('mbstring')) {
-	include_once 'jcode/jcode_wrapper.php';
+	include_once './jcode/jcode_wrapper.php';
 }
 
 class StrCtl{
@@ -14,7 +14,7 @@ class StrCtl{
 		if (extension_loaded('mbstring')) {
 			$str = mb_convert_encoding($str, 'EUC-JP', 'SJIS-win');
 		} else {
-			$str = jcode_convert_encoding($str, 'EUC-JP', 'SJIS-win');
+			$str = jcode_convert_encoding($str, 'euc', 'sjis');
 		}
 		return $str;
 	}
@@ -24,7 +24,7 @@ class StrCtl{
 		if (extension_loaded('mbstring')) {
 			$str = mb_convert_encoding($str, 'SJIS-win', 'EUC-JP');
 		} else {
-			$str = jcode_convert_encoding($str, 'SJIS-win', 'EUC-JP');
+			$str = jcode_convert_encoding($str, 'sjis', 'euc');
 		}
 		return $str;
 	}
@@ -34,7 +34,7 @@ class StrCtl{
 		if (extension_loaded('mbstring')) {
 			$str = mb_convert_encoding($str, 'UTF-8', 'SJIS-win');
 		} else {
-			$str = jcode_convert_encoding($str, 'UTF-8', 'SJIS-win');
+			$str = jcode_convert_encoding($str, 'utf8', 'sjis');
 		}
 		return $str;
 	}
@@ -44,10 +44,11 @@ class StrCtl{
 		if (extension_loaded('mbstring')) {
 			$str = mb_convert_encoding($str, 'SJIS-win', 'UTF-8');
 		} else {
-			$str = jcode_convert_encoding($str, 'SJIS-win', 'UTF-8');
+			$str = jcode_convert_encoding($str, 'sjis', 'utf8');
 		}
 		return $str;
 	}
+
 
 	/**
 	 * フォームから送られてきたワードをマッチ関数に適合させる
