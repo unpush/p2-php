@@ -1,9 +1,15 @@
 2005-01-22 aki
+	* p2 version 1.3.5
+	- BE ID表示への対応を向上させた （マージ感謝！→rskさん）
+	
+	* conf.php
+	* showthreadpc_class.inc
+	
+2005-01-22 aki
 	* p2 version 1.3.4
 	
 	- 新着まとめ読みで一度に表示するレス数にリミットをつけた
 	  （conf_user.php:  $_conf['rnum_all_range']）
-	- BE ID表示への対応を向上させた （マージ感謝！→rskさん）
 	- スレ一覧で>>1の表示を設定できるようにした
 	  （conf_user.php: $_conf['sb_show_one']）
 	- CURLを利用する時、コマンドライン版とPHP関数版のどちらを優先するかを設定できるようにした
