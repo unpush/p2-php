@@ -72,7 +72,7 @@ if (P2Util::isBrowserSafariGroup()) {
 }
 
 /*
-// 2004/12/13 特に必要ないかなぁということでコメントアウト
+// 2004/12/13 特に必要ないかなということでコメントアウト
 
 // メッセージに連続した半角スペースがあれば、&nbsp;に変換する
 $MESSAGE = preg_replace_callback(
@@ -355,23 +355,24 @@ function postIt($URL, $request)
 	$request .= "p2-Client-IP: ".$_SERVER['REMOTE_ADDR']."/\r\n";
 	
 	// クッキー
+	$cookies_to_send = "";
 	if ($p2cookies) {
-		$cookies_to_send = "";
 		foreach ($p2cookies as $cname => $cvalue) {
-			if ($cname!="expires") {
+			if ($cname != "expires") {
 				$cookies_to_send .= " {$cname}={$cvalue};";
 			}
 		}
 	}
-	if (!$cookies_to_send) {$cookies_to_send=" ;";}
-	$request .= "Cookie:{$cookies_to_send}\r\n";
-	//$request .= "Cookie: PON=".$SPID."; NAME=".$FROM."; MAIL=".$mail."\r\n";
 	
-	// be.2ch.net 認証
+	// be.2ch.net 認証クッキー
 	if (P2Util::isHostBe2chNet($host)) {
-		$request .= "Cookie: MDMD=".$_conf['be_2ch_code']."\r\n";	// be.2ch.netの認証コード(パスワードではない)
-		$request .= "Cookie: DMDM=".$_conf['be_2ch_mail']."\r\n";	// be.2ch.netの登録メールアドレス
+		$cookies_to_send .= ' MDMD='.$_conf['be_2ch_code'].';';	// be.2ch.netの認証コード(パスワードではない)
+		$cookies_to_send .= ' DMDM='.$_conf['be_2ch_mail'].';';	// be.2ch.netの登録メールアドレス
 	}
+	
+	if (!$cookies_to_send) { $cookies_to_send = ' ;'; }
+	$request .= 'Cookie:'.$cookies_to_send."\r\n";
+	//$request .= 'Cookie: PON='.$SPID.'; NAME='.$FROM.'; MAIL='.$mail."\r\n";
 	
 	$request .= "Connection: Close\r\n";
 	
