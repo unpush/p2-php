@@ -317,7 +317,7 @@ class P2Util{
 				$cont = P2Util::escapeDataPhp($cont);
 				
 				// æ“ª•¶‚Æ––•¶‚ğ’Ç‰Á
-				$cont = "<?php /*\n".$cont."*/ ?>\n";
+				$cont = '<?php /*'."\n".$cont.'*/ ?>'."\n";
 				
 				// p2_res_hist.dat.php ‚Æ‚µ‚Ä•Û‘¶
 				FileCtl::make_datafile($rh_dat_php, $res_write_perm);
