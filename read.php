@@ -241,9 +241,10 @@ if($aThread->rescount){
 //===========================================================
 //óöóÇãLò^
 //===========================================================
-$newdata="{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>{$aThread->newline}<>{$aThread->host}<>{$aThread->bbs}";
-recRecent($newdata);
-
+if ($aThread->rescount) {
+	$newdata = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>{$aThread->newline}<>{$aThread->host}<>{$aThread->bbs}";
+	recRecent($newdata);
+}
 
 //à»è„---------------------------------------------------------------
 exit;
