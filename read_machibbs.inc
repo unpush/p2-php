@@ -1,11 +1,13 @@
 <?php
-/* p2 - まちBBS用の関数（兼 JBBS@したらば）*/
+/*
+	p2 - まちBBS用の関数（兼 JBBS@したらば）
+*/
 
 require_once './filectl.class.php';
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 /**
- * まちBBSのread.pl を読んで datに保存する
+ * まちBBSの read.pl を読んで datに保存する
  */
 function machiDownload()
 {
@@ -13,11 +15,11 @@ function machiDownload()
 
 	$machi_latest_num = "";
 	
-	//既得datの取得レス数が適性かどうかを念のためチェック
+	// 既得datの取得レス数が適性かどうかを念のためチェック
 	if (file_exists($aThread->keydat)) {
 		$dls = @file($aThread->keydat);
 		if (sizeof($dls) != $aThread->rnum) {
-			//echo "bad size!<br>";
+			// echo 'bad size!<br>';
 			unlink($aThread->keydat);
 			$aThread->rnum = 0;
 		}
@@ -45,13 +47,13 @@ function machiDownload()
 		$machiurl = "http://{$aThread->host}/bbs/read.pl?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
 	}
 
-	$tempfile=$aThread->keydat.".html.temp";
-	FileCtl::mkdir_for($tempfile);
+	$tempfile = $aThread->keydat.'.html.temp';
 	
+	FileCtl::mkdir_for($tempfile);	
 	$machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
 	
-	if( $machiurl_res->is_error() ){
-		$aThread->diedat=true;
+	if ($machiurl_res->is_error()) {
+		$aThread->diedat = true;
 		return false;
 	}
 	
@@ -68,7 +70,9 @@ function machiDownload()
 	}
 	
 	$mlines = @file($tempfile);
-	if (file_exists($tempfile)) { unlink($tempfile); }
+	if (file_exists($tempfile)) {
+		unlink($tempfile);
+	}
 
 	// （まちBBS）<html>error</html>
 	if (trim($mlines[0]) == "<html>error</html>") {
@@ -84,12 +88,12 @@ function machiDownload()
 	
 	$mdatlines = machiHtmltoDatLines($mlines);
 
-	//書き込む=====================================
+	// 書き込む =====================================
 	$fp = @fopen($aThread->keydat, $mode) or die("Error: $aThread->keydat を更新できませんでした");
-	for($i=$START; $i<=$machi_latest_num; $i++){
-		if($mdatlines[$i]){
+	for ($i = $START; $i <= $machi_latest_num; $i++) {
+		if ($mdatlines[$i]) {
 			fputs($fp, $mdatlines[$i]);
-		}else{
+		} else {
 			fputs($fp, "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n");
 		}
 	}
@@ -112,11 +116,13 @@ function machiHtmltoDatLines($mlines)
 	
 	foreach ($mlines as $ml) {
 		$ml = rtrim($ml);
-		if (!$tuduku) {unset($order,$mail ,$name ,$date, $ip ,$body);}
+		if (!$tuduku) {
+			unset($order, $mail, $name, $date, $ip, $body);
+		}
 
 		if ($tuduku) {
 			if (preg_match("/^ \]<\/font><br><dd>(.*) <br><br>$/i", $ml, $matches)) {
-				$body=$matches[1];
+				$body = $matches[1];
 			} else {
 				unset($tuduku);
 				continue;
@@ -127,13 +133,13 @@ function machiHtmltoDatLines($mlines)
 			$name = preg_replace("/<font color=\"?#.+?\"?>(.+)<\/font>/i", "\\1", $matches[4]);
 			$date = $matches[6];
 			$body = $matches[7];
-		} elseif (preg_match("/<title>(.*)<\/title>/i", $ml, $matches)){
+		} elseif (preg_match('{<title>(.*)</title>}i', $ml, $matches)) {
 			$mtitle = $matches[1];
 			continue;
 		} elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+) <font size=1>\[ (.+)$/i", $ml, $matches)) {
 			$order = $matches[1];
 			$mail = $matches[3];
-			$name = preg_replace("/<font color=\"?#.+?\"?>(.+)<\/font>/i", "\\1", $matches[4]);
+			$name = preg_replace('{<font color="?#.+?"?>(.+)</font>}i', '$1', $matches[4]);
 			$date = $matches[6];
 			$ip = $matches[7];
 			$tuduku = true;
@@ -156,7 +162,7 @@ function machiHtmltoDatLines($mlines)
 		} else {
 			$datline = $name.'<>'.$mail.'<>'.$date.'<>'.$body.'<>'."\n";
 		}
-		$mdatlines[$order]=$datline;
+		$mdatlines[$order] = $datline;
 		if ($order > $machi_latest_num) {
 			$machi_latest_num = $order;
 		}
