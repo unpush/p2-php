@@ -1,4 +1,9 @@
 2004-12-13 aki
+	* p2 version 1.1.8
+	- 携帯モードで、スレッド一覧を表示できなかったバグを修正
+	* sb_print_k.inc: タイプミスを修正 $aThread->isKitoku()
+	
+2004-12-13 aki
 	* p2 version 1.1.7
 	
 	- subject.txtの取得にキャッシュの更新間隔を設定した
