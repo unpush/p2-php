@@ -1,6 +1,9 @@
 <?php
-// p2 -  板メニュー（Mozillaサイドバー用）
-// フレーム分割画面、左側部分
+/*
+	p2 -  板メニュー（Mozillaサイドバー用）
+	フレーム分割画面、左側部分
+*/
+
 
 require_once("./conf.php");  //設定読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
@@ -34,7 +37,7 @@ if( isset($_GET['word'])||isset($_POST['word']) ){
 	}
 	if($word=="."){$word="";}
 	
-	//正規表現検索
+	// 正規表現検索
 	include_once("./strctl_class.inc");
 	$word_fm = StrCtl::wordForMatch($word);
 }
@@ -192,18 +195,9 @@ if($word!=""){
 }
 		
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
-if($brd_menus){
-	foreach($brd_menus as $a_brd_menu){
-		$aShowBrdMenuPc->printBrdMenu($a_brd_menu->categories);
-	}
-}
-
-//==============================================================
-// フッタを表示
-//==============================================================
-//板検索===============================
+// 板検索
 echo <<<EOFORM
 <form method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
 	<p>
@@ -213,6 +207,16 @@ echo <<<EOFORM
 </form>\n
 EOFORM;
 
+// 板カテゴリメニューを表示
+if ($brd_menus) {
+	foreach ($brd_menus as $a_brd_menu) {
+		$aShowBrdMenuPc->printBrdMenu($a_brd_menu->categories);
+	}
+}
+
+//==============================================================
+// フッタを表示
+//==============================================================
 echo <<<EOFOOTER
 </body>
 </html>
@@ -222,7 +226,8 @@ EOFOOTER;
 // 関数
 //==============================================================
 // menuの新着数を初期化する関数
-function initMenuNew($spmode_in){
+function initMenuNew($spmode_in)
+{
 	global $shinchaku_num, $matome_i, $host, $bbs, $spmode, $STYLE, $class_newres_num;
 	$matome_i++;
 	$host = "";

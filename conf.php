@@ -24,16 +24,23 @@ if (phpversion()<"4.1.0") {
     $_SESSION = $HTTP_SESSION_VARS;
 }
 
-//内部処理における文字コード指定
+// ■内部処理における文字コード指定
 if (extension_loaded('mbstring')) {
-	//mb_detect_order("SJIS,EUC-JP,ASCII");
-	mb_http_output('SJIS');
-	mb_internal_encoding('SJIS');
-	//ob_start('mb_output_handler');
+	// mb_detect_order("SJIS,EUC-JP,ASCII");
+	mb_internal_encoding('SJIS-win');
+	mb_http_output('pass');
+	// ob_start('mb_output_handler');
 }
 
-//UA判別===========================================
-$ua = $_SERVER['HTTP_USER_AGENT'];	//この変数（$ua）は廃止予定。$_SERVER['HTTP_USER_AGENT']を直接利用する。
+if (function_exists('mb_ereg_replace')) {
+	define('P2_MBREGEX_AVAILABLE', 1);
+	mb_regex_encoding('SJIS-win');
+} else {
+	define('P2_MBREGEX_AVAILABLE', 0);
+}
+
+// UA判別 ===========================================
+$ua = $_SERVER['HTTP_USER_AGENT'];	// この変数（$ua）は廃止予定。$_SERVER['HTTP_USER_AGENT']を直接利用する。
 if (P2Util::isBrowserSafariGroup()) {
 	$_conf['accept_charset'] = 'UTF-8';
 } else {

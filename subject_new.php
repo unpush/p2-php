@@ -1,6 +1,12 @@
 <?php
-// p2 -  スレッドサブジェクト表示スクリプト
-// フレーム分割画面、右上部分
+/*	p2 -  スレッドサブジェクト表示スクリプト
+	フレーム分割画面、右上部分
+
+	新着数を知るために使用している	// $shinchaku_num, $_newthre_num をセット
+
+	subject.php と兄弟なので一緒に面倒をみる
+*/
+
 
 require_once("./conf.php");  // 設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
@@ -297,20 +303,18 @@ for( $x = 0; $x < $linesize ; $x++ ){
 	if(!($aThread->host && $aThread->bbs && $aThread->key)){unset($aThread); continue;} //hostもbbsもkeyも不明ならスキップ
 	
 	$debug && $prof->startTimer( "word_filter_for_sb" );
-	//ワードフィルタ(for subject)====================================
-	if( !$aThreadList->spmode || $aThreadList->spmode=="news" and $word_fm){
-		$target = StrCtl::p2SJIStoEUC($aThread->ttitle);
-		if(! preg_match("/{$word_fm}/i", $target)){
+	// ■ワードフィルタ(for subject) ====================================
+	if (!$aThreadList->spmode || $aThreadList->spmode=="news" and $word_fm) {
+		$target = $aThread->ttitle;
+		if (!StrCtl::filterMatch($word_fm, $target)) {
 			unset($aThread);
 			continue;
-		}else{
+		} else {
 			$mikke++;
 			if($ktai){
 				$aThread->ttitle_ht = $aThread->ttitle;
 			}else{
-				$ttitle_euc = StrCtl::p2SJIStoEUC($aThread->ttitle);
-				$ttitle_euc = @preg_replace("/{$word_fm}/i", "<b class=\"filtering\">\\0</b>", $ttitle_euc);
-				$aThread->ttitle_ht = StrCtl::p2EUCtoSJIS($ttitle_euc);
+				$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
 			}
 		}
 	}
@@ -435,10 +439,11 @@ for( $x = 0; $x < $linesize ; $x++ ){
 		}
 		
 			
-		//ワードフィルタ(for spmode)==================================
+		/*	
+		// ■ワードフィルタ(for spmode) ==================================
 		if ($word_fm) {
-			$target = StrCtl::p2SJIStoEUC($aThread->ttitle);
-			if(!preg_match("/{$word_fm}/i", $target)) {
+			$target = $aThread->ttitle;
+			if (!StrCtl::filterMatch($word_fm, $target)) {
 				unset($aThread);
 				continue;
 			} else {
@@ -446,12 +451,11 @@ for( $x = 0; $x < $linesize ; $x++ ){
 				if ($ktai) {
 					$aThread->ttitle_ht = $aThread->ttitle;
 				} else {
-					$ttitle_euc = StrCtl::p2SJIStoEUC($aThread->ttitle);
-					$ttitle_euc = @preg_replace("/{$word_fm}/i", "<b class=\"filtering\">\\0</b>", $ttitle_euc);
-					$aThread->ttitle_ht = StrCtl::p2EUCtoSJIS($ttitle_euc);
+					$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
 				}
 			}
 		}
+		*/
 	}
 	
 	if (!$aThread->rescount) {

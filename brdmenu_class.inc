@@ -1,18 +1,21 @@
 <?php
-// p2 - ボードメニュークラス for menu.php
+/*
+	p2 - ボードメニュークラス for menu.php
+*/
 
-require_once("./filectl_class.inc");
+require_once './filectl_class.inc';
 require_once("./datactl.inc");
 
-//==========================================================
-// ボードメニュークラス
-//==========================================================
+/**
+ * ボードメニュークラス
+ */
 class BrdMenu{
-	var $categories; //クラス BrdMenuCate のオブジェクトを格納する配列
-	var $num; //格納された BrdMenuCate オブジェクトの数
-	var $format; //html形式か、brd形式か("html", "brd")
-	var $cate_match; //カテゴリーマッチ
-	var $ita_match; //板マッチ
+
+	var $categories; // クラス BrdMenuCate のオブジェクトを格納する配列
+	var $num; // 格納された BrdMenuCate オブジェクトの数
+	var $format; // html形式か、brd形式か("html", "brd")
+	var $cate_match; // カテゴリーマッチ
+	var $ita_match; // 板マッチ
 	
 	function BrdMenu(){
 		$this->num=0;
@@ -75,37 +78,25 @@ class BrdMenu{
 				$aBrdMenuIta->itaj = rtrim($itaj_match);
 				$aBrdMenuIta->itaj_en = base64_encode($aBrdMenuIta->itaj);
 				
-				//板検索マッチ===================================
+				// 板検索マッチ ===================================
 				$aBrdMenuIta->itaj_ht = $aBrdMenuIta->itaj;
-				
-				//正規表現検索
-				if($word_fm){
-					$target = StrCtl::p2SJIStoEUC($aBrdMenuIta->itaj);
-					if(preg_match("/{$word_fm}/i", $target)){
-						$this->categories[$this->num-1]->match_attayo=true;
+
+				// 正規表現検索
+				if ($word_fm) {
+					if (StrCtl::filterMatch($word_fm, $aBrdMenuIta->itaj)) {
+						$this->categories[$this->num-1]->match_attayo = true;
 						$mikke++;
 
-						$itaj_euc = StrCtl::p2SJIStoEUC($aBrdMenuIta->itaj);
-						if(!$ktai){
-							$itaj_euc = @preg_replace("/{$word_fm}/i", "<b class=\"filtering\">\\0</b>", $itaj_euc); //マーキング
-						}
-						$aBrdMenuIta->itaj_ht = StrCtl::p2EUCtoSJIS($itaj_euc);
-
-					}else{ //検索が見つからなくて、さらに携帯の時
-						if($ktai){
+						// マーキング
+						$aBrdMenuIta->itaj_ht = StrCtl::filterMarking($word_fm, $aBrdMenuIta->itaj);
+						
+					} else { //検索が見つからなくて、さらに携帯の時
+						if ($ktai) {
 							continue;
 						}
 					}
 				}
-				/*
-				if($word){
-					if(strstr($aBrdMenuIta->itaj, $word)){
-						$this->categories[$this->num-1]->match_attayo=true;
-						$mikke++;
-						$aBrdMenuIta->itaj_ht = @str_replace($word, "<b class='filtering'>$word</b>", $aBrdMenuIta->itaj_ht);
-					}
-				}
-				*/
+
 				if($this->num){
 					$this->categories[$this->num-1]->addBrdMenuIta($aBrdMenuIta);
 				}
@@ -113,8 +104,13 @@ class BrdMenu{
 		}
 	}
 
-	//brdファイルを生成するメソッド。brdファイルのパスを返す。==============
-	function makeBrdFile($cachefile){
+	/**
+	* brdファイルを生成するメソッド
+	*
+	* @return	string	brdファイルのパス
+	*/
+	function makeBrdFile($cachefile)
+	{
 	global $_info_msg_ht, $p2_perm, $word;
 	
 		$p2brdfile = $cachefile.".p2.brd";
@@ -134,7 +130,7 @@ class BrdMenu{
 		}
 
 		if($cont){
-			$fp = @fopen($p2brdfile,"w") or die("Error: {$p2brdfile} を更新できませんでした");
+			$fp = @fopen($p2brdfile, 'wb') or die("p2 error: {$p2brdfile} を更新できませんでした");
 			fputs($fp, $cont);
 			fclose($fp);
 			return $p2brdfile;

@@ -1,6 +1,8 @@
 <?php
-// p2 -  サブジェクト - ヘッダ表示
-// for subject.php
+/*
+	p2 -  サブジェクト - ヘッダ表示
+	for subject.php
+*/
 
 //===================================================================
 // 変数
@@ -68,7 +70,7 @@ EOP;
 
 //ビュー部分設定 ==============================================
 if($aThreadList->spmode){ //スペシャルモード時
-	if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){//お気にスレ or 殿堂なら
+	if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){	// お気にスレ or 殿堂なら
 		if($sb_view=="edit"){
 			$edit_ht="<a class=\"narabi\" href=\"{$subject_php}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
 		}else{
@@ -122,11 +124,30 @@ if(!$aThreadList->spmode || $aThreadList->spmode=="news"){
 EOP;
 }
 
-//フィルタ検索 ==================================================
+// フィルタ検索 ==================================================
+if ($_conf['enable_exfilter'] == 2) {
+
+	$filter_method_checked = array(' checked', '', '');
+	if ($sb_filter_method == 'or') {
+		$filter_method_checked[0] = '';
+		$filter_method_checked[1] = ' checked';
+	} elseif ($sb_filter_method == 'reg') {
+		$filter_method_checked[0] = '';
+		$filter_method_checked[2] = ' checked';
+	}
+	$sb_form_method_ht =<<<EOP
+
+			<input type="radio" name="method" value="and"{$filter_method_checked[0]}>AND
+			<input type="radio" name="method" value="or"{$filter_method_checked[1]}>OR
+			<input type="radio" name="method" value="reg"{$filter_method_checked[2]}>正規表現
+EOP;
+}
+
+$word = htmlspecialchars($word);
 $filter_form_ht =<<<EOP
 		<form class="toolbar" method="GET" action="subject.php" target="_self">
 		$sb_form_hidden_ht
-			<input type="text" id="word" name="word" value="{$word}" size="16">
+			<input type="text" id="word" name="word" value="{$word}" size="16">{$sb_form_method_ht}
 			<input type="submit" name="submit_kensaku" value="検索">
 		</form>
 EOP;

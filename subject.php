@@ -112,19 +112,24 @@ if (get_magic_quotes_gpc ()) {
 $abornoff_st = "あぼーん解除";
 $deletelog_st = "ログを削除";
 
-//ワードフィルタ====================================
-if(!$submit or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku'])){ // 検索
+// ■ワードフィルタ ====================================
+if (!$submit or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku'])) { // 検索
 	if ($_POST['word']) {$word = $_POST['word'];}
 	if ($_GET['word']) {$word = $_GET['word'];}
+	if ($_POST['method']) { $sb_filter_method = $_POST['method']; }
+	if ($_GET['method']) { $sb_filter_method = $_GET['method']; }
 	if (get_magic_quotes_gpc()) {
 		$word = stripslashes($word);
 	}
 	if ($word == ".") {$word = "";}
 	if ($word) {
-		include_once("./strctl_class.inc");
-		$word_fm = StrCtl::wordForMatch($word);
+		include_once './strctl_class.inc';
+		$word_fm = StrCtl::wordForMatch($word, $sb_filter_method);
+		$words_fm = @preg_split('/\s+/', $word_fm);
+		$word_fm = @preg_replace('/\s+/', "|", $word_fm);
 	}
 }
+
 
 $nowtime = time();
 
@@ -133,13 +138,13 @@ $nowtime = time();
 //============================================================
 
 // 削除
-if($_GET['dele'] or ($_POST['submit']==$deletelog_st)){
-	if($host && $bbs){
+if ($_GET['dele'] or ($_POST['submit'] == $deletelog_st)) {
+	if ($host && $bbs) {
 		include_once("dele.inc");
-		if($_POST['checkedkeys']){
-			$dele_keys=$_POST['checkedkeys'];
-		}else{
-			$dele_keys=array($_GET['key']);
+		if ($_POST['checkedkeys']) {
+			$dele_keys = $_POST['checkedkeys'];
+		} else {
+			$dele_keys = array($_GET['key']);
 		}
 		deleteLogs($host, $bbs, $dele_keys);
 	}
@@ -290,20 +295,32 @@ for( $x = 0; $x < $linesize ; $x++ ){
 	if (!($aThread->host && $aThread->bbs && $aThread->key)) {unset($aThread); continue;}
 	
 	$debug && $prof->startTimer( "word_filter_for_sb" );
-	//ワードフィルタ(for subject)====================================
-	if( !$aThreadList->spmode || $aThreadList->spmode=="news" and $word_fm){
-		$target = StrCtl::p2SJIStoEUC($aThread->ttitle);
-		if(! preg_match("/{$word_fm}/i", $target)){
+	// ワードフィルタ(for subject) ====================================
+	if (!$aThreadList->spmode || $aThreadList->spmode == "news" and $word_fm) {
+		$target = $aThread->ttitle;
+		$sb_filter_match = true;
+		if ($sb_filter_method == "and") {
+			reset($words_fm);
+			foreach ($words_fm as $word_fm_ao) {
+				if (!StrCtl::filterMatch($word_fm_ao, $target)) {
+					$sb_filter_match = false;
+					break;
+				}
+			}
+		} else {
+			if (!StrCtl::filterMatch($word_fm, $target)) {
+				$sb_filter_match = false;
+			}
+		}
+		if (!$sb_filter_match) {
 			unset($aThread);
 			continue;
-		}else{
+		} else {
 			$mikke++;
-			if($ktai){
+			if ($ktai) {
 				$aThread->ttitle_ht = $aThread->ttitle;
-			}else{
-				$ttitle_euc = StrCtl::p2SJIStoEUC($aThread->ttitle);
-				$ttitle_euc = @preg_replace("/{$word_fm}/i", "<b class=\"filtering\">\\0</b>", $ttitle_euc);
-				$aThread->ttitle_ht = StrCtl::p2EUCtoSJIS($ttitle_euc);
+			} else {
+				$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
 			}
 		}
 	}
@@ -428,20 +445,30 @@ for( $x = 0; $x < $linesize ; $x++ ){
 		}
 		
 			
-		//ワードフィルタ(for spmode)==================================
-		if($word_fm){
-			$target = StrCtl::p2SJIStoEUC($aThread->ttitle);
-			if(! preg_match("/{$word_fm}/i", $target)){
+		// ■ワードフィルタ(for spmode) ==================================
+		if ($word_fm) {
+			$target = $aThread->ttitle;
+			$sb_filter_match = true;
+			if ($sb_filter_method == "and") {
+				reset($words_fm);
+				foreach ($words_fm as $word_fm_ao) {
+					if (! StrCtl::filterMatch($word_fm_ao, $target)) {
+						$sb_filter_match = false;
+						break;
+					}
+				}
+			} else {
+				if (! StrCtl::filterMatch($word_fm, $target)) { $sb_filter_match = false; }
+			}
+			if (!$sb_filter_match) {
 				unset($aThread);
 				continue;
-			}else{
+			} else {
 				$mikke++;
-				if($ktai){
+				if ($ktai) {
 					$aThread->ttitle_ht = $aThread->ttitle;
-				}else{
-					$ttitle_euc = StrCtl::p2SJIStoEUC($aThread->ttitle);
-					$ttitle_euc = @preg_replace("/{$word_fm}/i", "<b class=\"filtering\">\\0</b>", $ttitle_euc);
-					$aThread->ttitle_ht = StrCtl::p2EUCtoSJIS($ttitle_euc);
+				} else {
+					$$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
 				}
 			}
 		}
