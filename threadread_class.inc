@@ -641,7 +641,7 @@ class ThreadRead extends Thread{
 		unset($wap_ua, $wap_req, $wap_res);		
 		//=============================
 		
-		$kakosoko_match="/<title><hr>■　このスレッドは過去ログ倉庫に格..されています。<hr><\/title>/";
+		$kakosoko_match = "/■ このスレッドは過去ログ倉庫に格.{1,2}されています/";
 		$naidesu_match="/<title>そんな板orスレッドないです。<\/title>/";
 		
 		//<a href="../../../../mac/kako/1004/10046/1004680972.html">
