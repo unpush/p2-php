@@ -73,14 +73,11 @@ if (isset($_POST['sort'])) { $p2_setting['sort'] = $_POST['sort']; }
 
 // ソートのデフォルト指定
 if (!$p2_setting['sort']) {
-	$p2_setting['sort'] = "ikioi";
-	/*
-	if ($spmode == "news") {
-		$p2_setting['sort'] = "ikioi";
+	if ($spmode) {
+		$p2_setting['sort'] = "midoku";	// 新着
 	} else {
-		$p2_setting['sort'] = "midoku";
+		$p2_setting['sort'] = "ikioi";
 	}
-	*/
 }
 
 if( isset($_GET['itaj_en']) ){ $p2_setting['itaj'] = base64_decode($_GET['itaj_en']); }
