@@ -11,6 +11,50 @@ require_once './filectl_class.inc';
 class P2Util{
 
 	/**
+	 * ファイルをダウンロードして保存する
+	 */
+	function fileDownload($url, $localfile, $disp_error = 1)
+	{
+		global $_conf, $_info_msg_ht, $ext_win_target, $fsockopen_time_limit, $proxy;
+
+		$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
+	
+		if (file_exists($localfile)) {
+			$modified = gmdate("D, d M Y H:i:s", filemtime($localfile))." GMT";
+		} else {
+			$modified = false;
+		}
+
+		// DL
+		include_once("./wap.inc");
+		$wap_ua = new UserAgent;
+		$wap_ua->setTimeout($fsockopen_time_limit);
+		$wap_req = new Request;
+		$wap_req->setUrl($url);
+		$wap_req->setModified($modified);
+		if ($proxy['use']) {
+			$wap_req->setProxy($proxy['host'], $proxy['port']);
+		}
+		$wap_res = $wap_ua->request($wap_req);
+	
+		if ($wap_res->is_error() && $disp_error) {
+			$url_t = P2Util::throughIme($wap_req->url);
+			$_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
+			$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$wap_req->url}</a> に接続できませんでした。</div>";
+		}
+	
+		// 更新されていたら
+		if ($wap_res->is_success() && $wap_res->code != "304") {
+			$fdat = fopen($localfile, "wb") or die("Error: {$localfile} を更新できませんでした");
+			fwrite($fdat, $wap_res->content);
+			fclose($fdat);
+			chmod($localfile, $perm);
+		}
+
+		return $wap_res;
+	}
+
+	/**
 	 * subject.txtをダウンロードして保存する
 	 */
 	function subjectDownload($url, $subjectfile)

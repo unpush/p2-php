@@ -1,6 +1,7 @@
 <?php
 // p2 - BrdCtl -- ボードリストコントロールクラス for menu.php
 
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once("./filectl_class.inc");
 require_once("./datactl.inc");
 require_once("./brdmenu_class.inc");
@@ -77,7 +78,7 @@ class BrdCtl{
 				;
 			}else{	// DLする
 				//echo "DL!<br>";//
-				$brdfile_online_res = fileDownload($brdfile_online, $cachefile);
+				$brdfile_online_res = P2Util::fileDownload($brdfile_online, $cachefile);
 				if( $brdfile_online_res->is_success() && $brdfile_online_res->code!="304" ){
 					$isNewDL = true;
 				}

@@ -159,7 +159,7 @@ function checkUpdatan()
 	}
 	
 	if (!$no_p2status_dl_flag) {
-		fileDownload($ver_txt_url, $cachefile);
+		P2Util::fileDownload($ver_txt_url, $cachefile);
 	}
 	
 	$ver_txt = file($cachefile);

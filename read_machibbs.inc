@@ -53,7 +53,7 @@ function machiDownload()
 	$tempfile=$aThread->keydat.".html.temp";
 	FileCtl::mkdir_for($tempfile);
 	
-	$machiurl_res = fileDownload($machiurl, $tempfile);
+	$machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
 	
 	if( $machiurl_res->is_error() ){
 		$aThread->diedat=true;
