@@ -162,7 +162,7 @@ EOP;
 		//新着レス数 =============================================
 		$unum_ht_c = "&nbsp;";
 		// 既得済み
-		if ($aThread->kitoku) {
+		if ($aThread->isKitoku()) {
 			$unum_ht_c = "<a class=\"un\" href=\"{$subject_php}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=2&amp;dele=true',{$STYLE['info_pop_size']},0,0)\">{$aThread->unum}</a>";
 		
 			$anum = $aThread->rescount - $aThread->unum +1 -$respointer;
@@ -245,7 +245,7 @@ EOP;
 		
 		// 元スレ
 		$moto_thre_ht = "";
-		if (!$aThread->kitoku) {
+		if (!$aThread->isKitoku()) {
 			$moto_thre_ht = '<a class="thre_title" href="'.$aThread->getMotoThread('all').'">・</a> ';
 		}
 		

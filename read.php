@@ -132,19 +132,19 @@ $aThread->setTitleFromLocal(); //タイトルを取得して設定
 //===========================================================
 // 表示レス番の範囲を設定
 //===========================================================
-if($ktai){
+if ($ktai) {
 	$before_respointer = $before_respointer_k;
 }
-if($aThread->kitoku){ //取得済みなら
+if ($aThread->isKitoku()) { // 取得済みなら
 	
-	if($_GET['nt']){ //「新着レスの表示」の時は特別にちょっと前のレスから表示
+	if ($_GET['nt']) { //「新着レスの表示」の時は特別にちょっと前のレスから表示
 		if( substr($ls, -1) == "-" ){
 			$n = $ls - $before_respointer;
 			if($n<1){$n=1;}
 			$ls="$n-";
 		}
 		
-	}elseif(! $ls){
+	} elseif (!$ls) {
 		$from_num = $aThread->newline -$respointer - $before_respointer;
 		if($from_num < 1){
 			$from_num = 1;

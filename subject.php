@@ -462,7 +462,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 	}elseif($aThread->new){ //新規スレ
 		;
 		
-	}elseif($c_viewall_kitoku && $aThread->kitoku){	//既得スレ
+	} elseif ($c_viewall_kitoku && $aThread->isKitoku()) {	// 既得スレ
 		;
 		
 	}else{
