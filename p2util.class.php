@@ -420,7 +420,7 @@ class P2Util{
 		flock($fp, LOCK_EX);
 		$i = 1;
 		foreach ($lines as $l) {
-			fputs($fp, $l);
+			fputs($fp, $l."\n");
 		}
 		flock($fp, LOCK_UN);
 		fclose($fp);
