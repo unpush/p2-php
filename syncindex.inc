@@ -4,7 +4,7 @@
 		最近読んだスレ、書き込み履歴、スレの殿堂
 */
 
-require_once("./brdctl_class.inc");
+require_once './brdctl.class.php';
 
 //================================================
 // 読み込み

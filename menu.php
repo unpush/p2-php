@@ -6,7 +6,7 @@
 
 include_once './conf.inc.php';  // 基本設定ファイル読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
-require_once("./brdctl_class.inc");
+require_once './brdctl.class.php';
 require_once './showbrdmenupc.class.php';
 
 authorize(); //ユーザ認証
