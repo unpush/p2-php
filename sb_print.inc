@@ -2,9 +2,9 @@
 // p2 スレッドサブジェクト表示関数
 // for subject.php
 
-//==================================================================
-// sb_print - スレッド一覧を表示する関数 (<tr>～</tr>)
-//==================================================================
+/**
+ * sb_print - スレッド一覧を表示する (<tr>～</tr>)
+ */
 function sb_print($aThreadList)
 {
 	global $browser, $respointer, $subject_php, $_conf, $sb_view, $p2_setting, $STYLE;
@@ -65,7 +65,7 @@ EOP;
 			$sortq_host = "&amp;host={$aThreadList->host}";
 			$sortq_ita = "&amp;bbs={$aThreadList->bbs}";
 		}
-	}else{
+	} else {
 		$sortq_host = "&amp;host={$aThreadList->host}";
 		$sortq_ita = "&amp;bbs={$aThreadList->bbs}";
 	}
@@ -104,7 +104,9 @@ EOP;
 		echo "<td class=\"ts\"><a{$class_sort_spd} href=\"{$_conf['subject_php']}?sort=spd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">すばやさ</a></td>";
 	}
 	// 勢い
-	echo "<td class=\"ti\"><a{$class_sort_ikioi} href=\"{$subject_php}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">勢い</a></td>";
+	if ($_conf['sb_show_ikioi']) {
+		echo "<td class=\"ti\"><a{$class_sort_ikioi} href=\"{$subject_php}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">勢い</a></td>";
+	}
 	// Birthday
 	echo "<td class=\"t\"><a{$class_sort_bd} href=\"{$subject_php}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">Birthday</a></td>";
 	// お気に入り
@@ -309,12 +311,15 @@ EOP;
 		}
 		
 		// 勢い
-		if ($aThread->dayres > 0) {
-			$dayres_st = sprintf("%01.2f", $aThread->dayres);
-		} else {
-			$dayres_st = "-";
+		$ikioi_ht = "";
+		if ($_conf['sb_show_ikioi']) {
+			if ($aThread->dayres > 0) {
+				$dayres_st = sprintf("%01.2f", $aThread->dayres);
+			} else {
+				$dayres_st = "-";
+			}
+			$ikioi_ht = "<td{$class_ti}>".$dayres_st."</td>";
 		}
-		$ikioi_ht = "<td{$class_ti}>".$dayres_st."</td>";
 		
 		// Birthday
 		$birthday = date("y/m/d", $aThread->key); // (y/m/d H:i)
