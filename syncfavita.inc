@@ -1,7 +1,7 @@
 <?php
 // p2 -  ‚¨‹C‚É”Â‚Ì“¯Šú
 
-require_once("./brdctl_class.inc");
+require_once './brdctl.class.php';
 
 //================================================
 // “Ç‚Ýž‚Ý
