@@ -601,16 +601,16 @@ EOP;
 			return $s[0];
 		}
 		
-		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}";
+		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}&amp;offline=1";
 		
 		if ($_conf['iframe_popup'] and strstr($appointed_num, "-")) {
 			$rs = <<<EOP
-<a href="{$read_url}n"{$_conf['bbs_win_target_at']} onMouseover="showHtmlPopUp('{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}n&amp;renzokupop=true',event,{$_conf['iframe_popup_delay']})" onMouseout="offHtmlPopUp()">{$qsign}{$appointed_num}</a>
+<a href="{$read_url}n"{$_conf['bbs_win_target_at']} onMouseover="showHtmlPopUp('{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}n&amp;renzokupop=true&amp;offline=1',event,{$_conf['iframe_popup_delay']})" onMouseout="offHtmlPopUp()">{$qsign}{$appointed_num}</a>
 EOP;
 /*
 		} elseif ($_conf['iframe_popup'] == 2 and strstr($appointed_num, "-")) {
 			$rs = <<<EOP
-(<a href="{$read_url}n"{$_conf['bbs_win_target_at']} onMouseover="showHtmlPopUp('{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}n&amp;renzokupop=true',event,{$_conf['iframe_popup_delay']})" onMouseout="offHtmlPopUp()">p</a>)<a href="{$read_url}n"{$_conf['bbs_win_target_at']}>{$qsign}{$appointed_num}</a>
+(<a href="{$read_url}n"{$_conf['bbs_win_target_at']} onMouseover="showHtmlPopUp('{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}n&amp;renzokupop=true&amp;offline=1',event,{$_conf['iframe_popup_delay']})" onMouseout="offHtmlPopUp()">p</a>)<a href="{$read_url}n"{$_conf['bbs_win_target_at']}>{$qsign}{$appointed_num}</a>
 EOP;
 */
 		} else {
@@ -772,7 +772,7 @@ EORS;
 		}
 		
 		$word = rawurlencode($s[1]);
-		$fl = "{$_conf['read_php']}?bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;host={$this->thread->host}&amp;ls=all&amp;field=id&amp;word={$word}&amp;method=just&amp;match=on&amp;idpopup=1";
+		$fl = "{$_conf['read_php']}?bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;host={$this->thread->host}&amp;ls=all&amp;field=id&amp;word={$word}&amp;method=just&amp;match=on&amp;idpopup=1&amp;offline=1";
 		$onmouse_popup = " onMouseover=\"showHtmlPopUp('{$fl}',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
 		if ($_conf['iframe_popup'] == 1) {
 			$rs = "<a href=\"{$fl}\"{$onmouse_popup}{$_conf['bbs_win_target_at']}>{$s[0]}</a>{$num_ht}";

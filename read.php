@@ -142,9 +142,7 @@ if ($_GET['one']) {
 // DATのダウンロード
 //===========================================================
 if (empty($_GET['offline'])) {
-	if (!($word and file_exists($aThread->keydat))) {
-		$aThread->downloadDat();
-	}
+	$aThread->downloadDat();
 }
 
 // ■DATを読み込み

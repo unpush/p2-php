@@ -145,6 +145,10 @@ function sb_print_k($aThreadList)
 				$aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";		
 			//}
 		}	
+
+		// 全角英数スペースカナを半角に
+		$aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'ask');
+
 		$aThread->ttitle_ht = $aThread->ttitle_ht." (".$rescount_ht.")";
 		
 		// 新規スレ

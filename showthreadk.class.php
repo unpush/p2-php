@@ -433,7 +433,7 @@ EOP;
 			return $s[0];
 		}
 		
-		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}{$_conf['k_at_a']}";
+		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}&amp;offline=1{$_conf['k_at_a']}";
 
 		$qnum = $appointed_num + 0;
 		if ($qnum > sizeof($this->thread->datlines)) { // –¢—ˆ‰ß‚¬‚éƒŒƒX‚Í•ÏŠ·‚µ‚È‚¢
