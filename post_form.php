@@ -10,7 +10,9 @@ authorize(); //ユーザ認証
 //==================================================
 // 変数
 //==================================================
-$_info_msg_ht="";
+$_info_msg_ht = "";
+
+$p_htm = array();
 
 $fake_time = -10; // time を10分前に偽装
 $time = time()-9*60*60;
@@ -24,10 +26,10 @@ $rescount = $_GET['rc'];
 $popup = $_GET['popup'];
 
 $itaj = getItaName($host, $bbs);
-if(!$itaj){$itaj=$bbs;}
+if (!$itaj) {$itaj=$bbs;}
 
 $_GET['ttitle_en'] && $ttitle_en = $_GET['ttitle_en'];
-if(! $ttitle){
+if(!$ttitle){
 	if($ttitle_en){ $ttitle=base64_decode($ttitle_en); }
 }
 
@@ -67,7 +69,7 @@ EOP;
 	}else{ //2ch
 		$submit_value="書き込む";
 	}
-	$ttitle_ht=<<<EOP
+	$ttitle_ht = <<<EOP
 <p><b><a{$class_ttitle} href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$k_at_a}"{$target_read}>{$ttitle}</a></b></p>
 EOP;
 }
@@ -101,6 +103,11 @@ EOP;
 } else {
 	$accept_charset_ht = "";
 	$safari_fix_ht = "";
+}
+
+// Be.2ch
+if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
+	$p_htm['be2ch'] = '<input type="checkbox" name="post_be2ch" value="1">Be.2chのコードを送信'."\n";
 }
 
 //==========================================================
@@ -152,8 +159,8 @@ echo <<<EOP
 	 E-mail : <input id="mail" name="mail" type="text" value="{$mail}"{$mail_size_at}{$on_check_sage}>
 	{$sage_cb_ht}
 	<textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="off"></textarea>	
-	<input type="submit" name="submit" value="{$submit_value}">
-	{$safari_fix_ht}
+	<input type="submit" name="submit" value="{$submit_value}"><br>
+	{$safari_fix_ht}{$p_htm['be2ch']}
 
 	<input type="hidden" name="binyu" value="美乳">
 

@@ -8,6 +8,9 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
 //=====================================================================
 
 if ($bottom_res_form) {
+
+	$p_htm = array();
+	
 	$fake_time = -10; // time を10分前に偽装
 	$time = time()-9*60*60;
 	$time = $time + $fake_time*60;
@@ -59,7 +62,12 @@ EOP;
 	} else {
 		$safari_fix_ht = "";
 	}
-	
+
+	// Be.2ch
+	if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
+		$p_htm['be2ch'] = '<input type="checkbox" name="post_be2ch" value="1">Be.2chのコードを送信'."\n";
+	}
+		
 	$res_form_ht = <<<EOP
 <div id="kakiko">
 {$ttitle_ht}
@@ -68,8 +76,8 @@ EOP;
 	 E-mail : <input id="mail" name="mail" type="text" value="{$mail}" size="19" onChange="checkSage(this);">
 	<input id="sage" type="checkbox" onClick="mailSage(this);"><label for="sage">sage</label><br>
 	<textarea id="MESSAGE" rows="{$STYLE['post_msg_rows']}" cols="{$STYLE['post_msg_cols']}" wrap="off" name="MESSAGE"></textarea>	
-	<input type="submit" name="submit" value="{$submit_value}">
-	{$safari_fix_ht}
+	<input type="submit" name="submit" value="{$submit_value}"><br>
+	{$safari_fix_ht}{$p_htm['be2ch']}
 
 	<input type="hidden" name="binyu" value="美乳">
 	
