@@ -11,9 +11,19 @@
 	- [内部仕様変更] 変数$uaを廃止。$_SERVER['HTTP_USER_AGENT']を直接利用することに。
 	  (modified: conf_style.inc, style/style_css.inc)
 	
+	- 他こまごま
+
 	* conf.php
+	* conf_style.inc
+	* conf_user.php
 	* read_footer.inc
-	
+	* read_header.inc
+	* sb_print.inc
+	* syncfavita.inc
+	* syncindex.inc
+	* js/showhide.js
+	* style/style_css.inc
+
 2005-01-22 aki
 	* p2 version 1.3.9
 	
