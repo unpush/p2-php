@@ -92,7 +92,7 @@ class ShowThreadPc extends ShowThread{
 						return;
 					}
 				case 'msg':
-					$target = $msg;
+					$target = $msg; break;
 				default:	// 'hole'
 					$target = strval($i) . '<>' . $ares;
 			}
@@ -521,6 +521,7 @@ EOP;
 			return $s[0];
 		}
 		
+		// p2pm w’è‚Ìê‡‚Ì‚İA“Á•Ê‚Émw’è‚ğ’Ç‰Á‚·‚é
 		if ($_conf['through_ime'] == "p2pm") {
 			$pop_url = str_replace("?url=", "?m=1&amp;url=", $url);
 		} else {
