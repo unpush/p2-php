@@ -931,16 +931,17 @@ class ThreadRead extends Thread{
 		return $this->datlines;
 	}
 
-	//=========================================
-	// datline‚ðexplode‚·‚éƒƒ\ƒbƒh
-	//=========================================
-	function explodeDatLine($aLine){
-		$aLine = rtrim($aLine);
+	/**
+	 * datline‚ðexplode‚·‚é
+	 */
+	function explodeDatLine($aline)
+	{
+		$aline = rtrim($aline);
 
-		if($this->dat_type == "2ch_old"){
-			$parts = explode(",", $aLine);
-		}else{
-			$parts = explode("<>", $aLine);
+		if ($this->dat_type == "2ch_old") {
+			$parts = explode(",", $aline);
+		} else {
+			$parts = explode('<>', $aline);
 		}
 		
 		return $parts;

@@ -191,9 +191,9 @@ if ($spmode) {
 	
 	if ($tabornlines) {
 		$ta_num = sizeof($tabornlines);
-		foreach ($tabornlines as $taline) {
-			$tarray = explode("<>", $taline);	
-			$ta_keys[ $tarray[1] ] = true;
+		foreach ($tabornlines as $l) {
+			$data = explode('<>', rtrim($l));	
+			$ta_keys[ $data[1] ] = true;
 		}
 	}
 
@@ -205,9 +205,9 @@ $lines = $aThreadList->readList();
 //お気にスレリスト 読込
 $favlines = @file($favlistfile);
 if ($favlines) {
-	foreach ($favlines as $favaline) {
-		$favarray = explode("<>", $favaline);
-		$fav_keys[ $favarray[1] ] = true;
+	foreach ($favlines as $l) {
+		$data = explode('<>', rtrim($l));
+		$fav_keys[ $data[1] ] = true;
 	}
 }
 
@@ -219,7 +219,7 @@ $linesize= sizeof($lines);
 
 for( $x = 0; $x < $linesize ; $x++ ){
 
-	$l=$lines[$x];
+	$l = rtrim($lines[$x]);
 	
 	$aThread = new Thread;
 	

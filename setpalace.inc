@@ -23,8 +23,8 @@ $idxfile = $datdir_host."/".$_GET['bbs']."/".$_GET['key'].".idx";
 //ƒf[ƒ^‚ª‚ ‚é‚È‚ç“Ç‚İ‚ñ‚Å
 if (is_readable($idxfile)) {
 	$lines = @file($idxfile);
-	$data = explode('<>', $lines[0]);
-	$data = array_map('rtrim', $data);
+	$l = rtrim($lines[0]);
+	$data = explode('<>', $l);
 }
 
 //==================================================================

@@ -87,28 +87,28 @@ $aThread = new ThreadRead;
 // idxの読み込み
 //==========================================================
 
-//hostを分解してidxファイルのパスを求める
+// hostを分解してidxファイルのパスを求める
 $aThread->setThreadPathInfo($host, $bbs, $key);
 
-//板ディレクトリが無ければ作る
-//FileCtl::mkdir_for($aThread->keyidx);
+// 板ディレクトリが無ければ作る
+// FileCtl::mkdir_for($aThread->keyidx);
 
 $aThread->itaj = getItaName($host, $bbs);
-if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
+if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 
-//idxファイルがあれば読み込む
-if( is_readable($aThread->keyidx) ){
-	$lines=@file($aThread->keyidx);
-	$data = explode("<>", $lines[0]);
+// idxファイルがあれば読み込む
+if (is_readable($aThread->keyidx)) {
+	$lines = @file($aThread->keyidx);
+	$data = explode('<>', rtrim($lines[0]));
 }
 $aThread->getThreadInfoFromIdx($aThread->keyidx);
 
-// ==========================================================
+//==========================================================
 // preview >>1
-// ==========================================================
+//==========================================================
 
-if($_GET['one']){
-	$body=$aThread->previewOne();
+if ($_GET['one']) {
+	$body = $aThread->previewOne();
 	$ptitle_ht = $aThread->itaj." / ".$aThread->ttitle;
 	include($read_header_inc);
 	echo $body;
@@ -117,10 +117,10 @@ if($_GET['one']){
 }
 
 //===========================================================
-//DATのダウンロード
+// DATのダウンロード
 //===========================================================
-if(!$_GET['offline']){
-	if(! ($word and file_exists($aThread->keydat)) ){
+if (!$_GET['offline']) {
+	if (!($word and file_exists($aThread->keydat))) {
 		$aThread->downloadDat();
 	}
 }
@@ -138,28 +138,29 @@ if ($ktai) {
 if ($aThread->isKitoku()) { // 取得済みなら
 	
 	if ($_GET['nt']) { //「新着レスの表示」の時は特別にちょっと前のレスから表示
-		if( substr($ls, -1) == "-" ){
+		if (substr($ls, -1) == "-") {
 			$n = $ls - $before_respointer;
-			if($n<1){$n=1;}
-			$ls="$n-";
+			if ($n<1) { $n = 1; }
+			$ls = "$n-";
 		}
 		
 	} elseif (!$ls) {
 		$from_num = $aThread->newline -$respointer - $before_respointer;
-		if($from_num < 1){
+		if ($from_num < 1) {
 			$from_num = 1;
-		}elseif($from_num > $aThread->rescount){
+		} elseif ($from_num > $aThread->rescount) {
 			$from_num = $aThread->rescount -$respointer - $before_respointer;
 		}
-		$ls="$from_num-";
+		$ls = "$from_num-";
 	}
 	
-	if( $ktai && (!strstr($ls, "n")) ){
-		$ls=$ls."n";
+	if ($ktai && (!strstr($ls, "n"))) {
+		$ls = $ls."n";
 	}
 	
-}else{ //未取得なら
-	if(! $ls){$ls=$get_new_res;}
+// 未取得なら
+} else {
+	if (!$ls) { $ls = $get_new_res; }
 }
 
 $aThread->lsToPoint($ls, $aThread->rescount);
@@ -235,7 +236,7 @@ if($aThread->rescount){
 	}
 	
 	$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>{$aThread->newline}";
-	setKeyIdx($aThread->keyidx, $s); //key.idxに記録
+	setKeyIdx($aThread->keyidx, $s); // key.idxに記録
 }
 
 //===========================================================
@@ -255,14 +256,14 @@ exit;
 // 関数
 //==================================================================
 
-//===========================================================
-// スレッドを指定する関数
-//===========================================================
+/**
+ * スレッドを指定する
+ */
 function detectThread()
 {
 	global $_conf, $host, $bbs, $key, $ls;
 	
-	if($nama_url = $_GET["nama_url"]){ //スレURLの直接指定
+	if ($nama_url = $_GET['nama_url']) { // スレURLの直接指定
 	
 			// 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
 			if( preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches) ){
@@ -313,39 +314,42 @@ function detectThread()
 	if(!($host && $bbs && $key)){die("p2 - {$_conf['read_php']}: スレッドの指定が変です。");}
 }
 
-//===========================================================
-// 履歴を記録する関数
-//===========================================================
-function recRecent($data){
+/**
+ * 履歴を記録する
+ */
+function recRecent($data)
+{
 	global $rctfile, $rct_rec_num, $rct_perm;
 	
 	FileCtl::make_datafile($rctfile, $rct_perm); //$rctfileファイルがなければ生成
 	
 	$lines= @file($rctfile); //読み込み
 
-	//最初に重複要素を削除
-	if($lines){
-		foreach($lines as $l){
-			$l=trim($l);
-			$lar = explode("<>", $l);
-			$data_ar = explode("<>", $data);
-			if( $lar[1] == $data_ar[1] ){ continue; } // keyで重複回避
-			if(! $lar[1]){continue;} //keyのないものは不正データ
-			$neolines[]=$l;
+	// 最初に重複要素を削除
+	if ($lines) {
+		foreach($lines as $line){
+			$line = rtrim($line);
+			$lar = explode('<>', $line);
+			$data_ar = explode('<>', $data);
+			if ($lar[1] == $data_ar[1]) { continue; } // keyで重複回避
+			if (!$lar[1]) { continue; } // keyのないものは不正データ
+			$neolines[] = $line;
 		}
 	}
 	
-	//新規データ追加
-	$neolines ? array_unshift($neolines, $data) : $neolines=array($data);
+	// 新規データ追加
+	$neolines ? array_unshift($neolines, $data) : $neolines = array($data);
 
-	while( sizeof($neolines) > $rct_rec_num ){
+	while (sizeof($neolines) > $rct_rec_num) {
 		array_pop($neolines);
 	}
 	
-	//書き込む
-	$fp = @fopen($rctfile,"w") or die("Error: $rctfile を更新できませんでした");
-	if($neolines){
-		foreach($neolines as $l){ fputs($fp, $l."\n"); }
+	// 書き込む
+	$fp = @fopen($rctfile, "wb") or die("Error: $rctfile を更新できませんでした");
+	if ($neolines) {
+		foreach ($neolines as $l) {
+			fputs($fp, $l."\n");
+		}
 	}
 	fclose($fp);
 }

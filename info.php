@@ -108,12 +108,14 @@ if($aThread->ttitle){
 
 // favlist チェック =====================================
 $favlines = @file($favlistfile); //お気にスレリスト 読込
-if($favlines){
-	foreach($favlines as $favaline){
-		$favarray = explode("<>", $favaline);
-		if($aThread->key==$favarray[1]){
+if ($favlines) {
+	foreach($favlines as $l){
+		$favarray = explode('<>', rtrim($l));
+		if ($aThread->key == $favarray[1]) {
 			$aThread->fav = "1";
-			if($favarray[0]) $aThread->ttitle = $favarray[0];
+			if ($favarray[0]) {
+				$aThread->ttitle = $favarray[0];
+			}
 			break;
 		}
 	}
@@ -130,12 +132,14 @@ EOP;
 $palace_idx = $prefdir. '/p2_palace.idx';
 
 $pallines = @file($palace_idx); //殿堂入りスレリスト 読込
-if($pallines){
-	foreach($pallines as $palaline){
-		$palarray = explode("<>", $palaline);
-		if($aThread->key==$palarray[1]){
-			$isPalace=true;
-			if($palarray[0]){ $aThread->ttitle = $palarray[0]; }
+if ($pallines) {
+	foreach ($pallines as $l) {
+		$palarray = explode('<>', rtrim($l));
+		if ($aThread->key == $palarray[1]) {
+			$isPalace = true;
+			if ($palarray[0]) {
+				$aThread->ttitle = $palarray[0];
+			}
 			break;
 		}
 	}
@@ -154,11 +158,11 @@ if($isPalace){
 //スレッドあぼーんリスト読込
 $datdir_host = datdirOfHost($host);
 $tabornlist = @file("{$datdir_host}/{$bbs}/p2_threads_aborn.idx");
-if($tabornlist){
-	foreach($tabornlist as $taline){
-		$tarray = explode("<>", $taline);
-		if($aThread->key==$tarray[1]){
-			$isTaborn=true;
+if ($tabornlist) {
+	foreach ($tabornlist as $l) {
+		$tarray = explode('<>', rtrim($l));
+		if ($aThread->key == $tarray[1]) {
+			$isTaborn = true;
 			break;
 		}
 	}

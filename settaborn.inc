@@ -6,6 +6,7 @@ require_once("./datactl.inc");
 
 /**
  * スレッドあぼーんをオンオフする
+ *
  * $set は、0(解除), 1(追加), 2(トグル)
  */
 function settaborn($host, $bbs, $key, $set)
@@ -23,8 +24,8 @@ function settaborn($host, $bbs, $key, $set)
 	// データがあるなら読み込む
 	if (is_readable($idxfile)) {
 		$lines = @file($idxfile);
-		$data = explode('<>', $lines[0]);
-		$data = array_map('rtrim', $data);
+		$l = rtrim($lines[0]);
+		$data = explode('<>', $l);
 	}
 	
 	//==================================================================
@@ -41,40 +42,43 @@ function settaborn($host, $bbs, $key, $set)
 	// p2_threads_aborn.idx 読み込み;
 	$taborn_lines= @file($taborn_idx);
 	
-	//最初に重複要素を削除
-	if($taborn_lines){
-		foreach($taborn_lines as $tal){
-			$lar = explode("<>", $tal);
-			if($lar[1]==$key){
-				$aborn_attayo=true; //既にあぼーん中である
-				if($set==0 or $set==2){
-					$title_msg_pre="+ あぼーん 解除しますた";
-					$info_msg_pre="+ あぼーん 解除しますた";
+
+	if ($taborn_lines) {
+		foreach ($taborn_lines as $line) {
+			$line = rtrim($line);
+			$line = explode('<>', $line);
+			if ($lar[1] == $key) {
+				$aborn_attayo = true; // 既にあぼーん中である
+				if ($set == 0 or $set == 2) {
+					$title_msg_pre = "+ あぼーん 解除しますた";
+					$info_msg_pre = "+ あぼーん 解除しますた";
 				}
 				continue;
-			} //重複回避
-			if(! $lar[1]){continue;} //keyのないものは不正データ
-			$neolines[]=$tal;
+			}
+			if (!$lar[1]) { continue; } // keyのないものは不正データ
+			$neolines[] = $line;
 		}
 	}
 	
-	//新規データ追加
-	if($set==1 or !$aborn_attayo && $set==2){
-		$newdata="$data[0]<>{$key}<><><><><><><><>\n";
-		$neolines ? array_unshift($neolines, $newdata) : $neolines=array($newdata);
-		$title_msg_pre="○ あぼーん しますた";
-		$info_msg_pre="○ あぼーん しますた";
+	// 新規データ追加
+	if ($set==1 or !$aborn_attayo && $set == 2) {
+		$newdata="$data[0]<>{$key}<><><><><><><><>";
+		$neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
+		$title_msg_pre = "○ あぼーん しますた";
+		$info_msg_pre = "○ あぼーん しますた";
 	}
 	
-	//書き込む
-	$fp = @fopen($taborn_idx,"w") or die("Error: $taborn_idx を更新できませんでした");
-	if($neolines){
-		foreach($neolines as $l){ fputs($fp,"$l"); }
+	// 書き込む
+	$fp = @fopen($taborn_idx, "wb") or die("Error: $taborn_idx を更新できませんでした");
+	if ($neolines) {
+		foreach ($neolines as $l) {
+			fputs($fp, $l."\n");
+		}
 	}
 	fclose($fp);
 	
-	$title_msg=$title_msg_pre;
-	$info_msg=$info_msg_pre;
+	$title_msg = $title_msg_pre;
+	$info_msg = $info_msg_pre;
 	return true;
 }
 
