@@ -15,8 +15,8 @@ $_info_msg_ht = "";
 
 $p2web_url_r = P2Util::throughIme($p2web_url);
 
-//パーミッション注意喚起================
-if ($prefdir==$datdir) {
+// パーミッション注意喚起 ================
+if ($prefdir == $datdir) {
 	datadir_writable_check($prefdir);
 } else {
 	datadir_writable_check($prefdir);
@@ -26,7 +26,7 @@ if ($prefdir==$datdir) {
 //=========================================================
 // ●ID 2ch オートログイン
 //=========================================================
-if(file_exists($idpw2ch_php)){
+if (file_exists($idpw2ch_php)) {
 	include($idpw2ch_php);
 	$login2chPW = base64_decode($login2chPW);
 	include_once("./crypt_xor.inc");
@@ -53,7 +53,7 @@ if ($login['use']) {
 $last_login_ht = "";
 if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
 	if (($alog = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
-		$last_login_ht =<<<EOP
+		$last_login_ht = <<<EOP
 前回のログイン情報 - {$alog['date']}<br>
 ユーザ: {$alog['user']}<br>
 IP: {$alog['ip']}<br>
@@ -98,7 +98,7 @@ EOP;
 $ptitle = "p2 - title";
 
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($doctype) { echo $doctype;}
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -117,13 +117,13 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 echo <<<EOP
 <br>
 <div class="container">
 	{$newversion_found}
-	<p>p2 version {$p2version} 　<a href="{$p2web_url_r}" target="_blank">{$p2web_url}</a></p>
+	<p>p2 version {$_conf['p2version']} 　<a href="{$p2web_url_r}" target="_blank">{$p2web_url}</a></p>
 	<ul>
 		<li><a href="viewtxt.php?file=doc/README.txt">README.txt</a></li>
 		<li><a href="img/how_to_use.png">ごく簡単な操作法</a></li>
@@ -141,20 +141,21 @@ EOP;
 // ■関数
 //==================================================
 /**
-* オンライン上のp2最新版をチェックする関数
+* オンライン上のp2最新版をチェックする
 */
-function checkUpdatan(){
-	global $p2web_url, $p2web_url_r, $prefdir, $p2version;
+function checkUpdatan()
+{
+	global $_conf, $p2web_url, $p2web_url_r, $prefdir;
 
 	$ver_txt_url = $p2web_url . "p2status.txt";
 	$cachefile = $prefdir . "/p2_cache/p2status.txt";
 	FileCtl::mkdir_for($cachefile);
 	fileDownload($ver_txt_url, $cachefile);
-	$ver_txt=file($cachefile);
-	$update_ver=$ver_txt[0];
-	$kita="ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!";
-	//$kita="ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!";
-	if( preg_match("/^\d\.\d\.\d$/", $update_ver) and ($update_ver > $p2version) ){
+	$ver_txt = file($cachefile);
+	$update_ver = $ver_txt[0];
+	$kita = "ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!";
+	//$kita = "ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!";
+	if (preg_match("/^\d\.\d\.\d$/", $update_ver) and ($update_ver > $_conf['p2version'])) {
 		$newversion_found =<<<EOP
 <div class="kakomi">
 	{$kita}<br>

@@ -129,35 +129,35 @@ if($join_favrank){
 	postFavRank($post);
 }
 
-//================================================
-// postFavRank -- お気にスレ共有でポストする関数
-//================================================
+/**
+ * お気にスレ共有でポストする関数
+ */
+function postFavRank($post)
+{
+	global $_conf, $favrank_url, $proxy;
 
-function postFavRank($post){
-	global $p2version, $favrank_url, $proxy;
-
-	$method="POST";
-	$httpua="Monazilla/1.00 p2/".$p2version;
+	$method = "POST";
+	$httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
 	
-	$URL=parse_url($favrank_url); //URL分解
+	$URL = parse_url($favrank_url); //URL分解
 	if (isset($URL['query'])) { //クエリー
 	    $URL['query'] = "?".$URL['query'];
 	} else {
 	    $URL['query'] = "";
 	}
 
-	//プロキシ
-	if($proxy['use']){
-		$send_host=$proxy['host'];
-		$send_port=$proxy['port'];
-		$send_path=$url;
-	}else{
-		$send_host=$URL['host'];
-		$send_port=$URL['port'];
-		$send_path=$URL['path'].$URL['query'];
+	// プロキシ
+	if ($proxy['use']) {
+		$send_host = $proxy['host'];
+		$send_port = $proxy['port'];
+		$send_path = $url;
+	} else {
+		$send_host = $URL['host'];
+		$send_port = $URL['port'];
+		$send_path = $URL['path'].$URL['query'];
 	}
 	
-	if (!$send_port){$send_port = 80;}//デフォルトを80
+	if (!$send_port) {$send_port = 80;}	// デフォルトを80
 	
 	$request = $method." ".$send_path." HTTP/1.0\r\n";
 	$request .= "Host: ".$URL['host']."\r\n";

@@ -312,7 +312,7 @@ if ($res_write_rec) {
 function postIt($URL, $request)
 {
 	global $_conf, $post_result, $post_error2ch, $p2cookies, $bbs, $host, $popup, $rescount, $ttitle_en, $STYLE, $fsockopen_time_limit, $proxy;
-	global $ktai, $bbs_cgi, $p2version, $post;
+	global $ktai, $bbs_cgi, $post;
 	
 	$method = "POST";
 	$url = "http://" . $host.  $bbs_cgi;
@@ -335,14 +335,11 @@ function postIt($URL, $request)
 		$send_path = $URL['path'].$URL['query'];
 	}
 
-	if (!$send_port){$send_port = 80;}	// デフォルトを80
-
-	// 書き込み時のp2の名前
-	$posting_p2name = (empty($_conf['posting_p2name'])) ? "p2" : $_conf['posting_p2name'];
-			
+	if (!$send_port) {$send_port = 80;}	// デフォルトを80
+		
 	$request = $method." ".$send_path." HTTP/1.0\r\n";
 	$request .= "Host: ".$URL['host']."\r\n";
-	$request .= "User-Agent: Monazilla/1.00 ".$posting_p2name."/".$p2version."\r\n";
+	$request .= "User-Agent: Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")"."\r\n";
 	$request .= "Referer: http://".$URL['host']."/\r\n";
 	
 	// クライアントのIPを送信するp2独自のヘッダ
