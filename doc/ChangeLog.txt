@@ -1,3 +1,31 @@
+2005-03-05 aki
+	* p2 version 1.5.1
+
+	- [改良] スレッドのレス表示を逐次表示にして、大量のレスを表示する時の体感速度を向上した 
+	- [改良] レス表示でフィルタ表示した時の、次Xと続きを読むの表示を、
+	  ちゃんと最後にヒットしたレスから、表示されるようにした。
+	- [改良] 携帯モードでのBE対応を向上
+	- [新機能] 単独スレ表示から、フレームで開けるようにした
+
+	* conf.inc.php
+	* conf_user.inc.php
+	* dataphp.class.php
+	* index.php
+	* read.php
+	* read_footer.inc.php
+	* read_header.inc.php
+	* read_new.php
+	* read_new_k.php
+	* showthread.class.php is new
+	* showthread_class.inc is removed
+	* showthreadk.class.php is new
+	* showthreadk_class.inc is removed
+	* showthreadpc.class.php is new
+	* showthreadpc_class.inc is removed
+	* threadread.class.php
+	* doc/ChangeLog.txt
+	* js/htmlpopup.js
+
 2005-03-04 aki
 	* p2 version 1.5.0
 	
