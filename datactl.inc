@@ -44,10 +44,10 @@ function subjectDownload($url, $subjectfile)
 	$wap_res = $wap_ua->request($wap_req);
 	
 	if ($wap_res->is_error()) {
-		$url_t = throughIme($wap_req->url);
+		$url_t = P2Util::throughIme($wap_req->url);
 		$_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
 		$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$wap_req->url}</a> に接続できませんでした。</div>";
-	}else{
+	} else {
 		$body = $wap_res->content;
 	}
 	
@@ -97,7 +97,7 @@ function fileDownload($url, $localfile, $disp_error = 1)
 	$wap_res = $wap_ua->request($wap_req);
 	
 	if ($wap_res->is_error() && $disp_error) {
-		$url_t = throughIme($wap_req->url);
+		$url_t = P2Util::throughIme($wap_req->url);
 		$_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
 		$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$wap_req->url}</a> に接続できませんでした。</div>";
 	}
@@ -205,25 +205,6 @@ function setKeyIdx($keyidx, $data){
 	$fp=fopen($keyidx, "w") or die("Error: {$keyidx} を更新できませんでした");
 	fputs($fp, $data);
 	fclose($fp);
-}
-
-//===============================================
-// ゲートを通すためのURL変換関数
-//===============================================
-function throughIme($url){
-	global $through_ime, $p2ime_url;
-	
-	if($through_ime=="2ch"){
-		$purl = parse_url($url);
-		$url_r = $purl[scheme] . "://ime.nu/" . $purl[host] . $purl[path];
-	}elseif($through_ime=="p2"){
-		$url_r = $p2ime_url . "?url=" . $url;
-	}elseif($through_ime=="p2m"){
-		$url_r = $p2ime_url . "?m=1&amp;url=" . $url;
-	}else{
-		$url_r = $url;
-	}
-	return $url_r;
 }
 
 

@@ -13,16 +13,7 @@ authorize(); //ユーザ認証
 //=========================================================
 $_info_msg_ht = "";
 
-/*
-if ($through_ime=="2ch") {
-	$url = parse_url($p2web_url);
-	$p2web_url_r = $url[scheme] . "://ime.nu/" . $url[host] . $url[path];
-} else {
-	$p2web_url_r = $p2web_url;
-}
-*/
-
-$p2web_url_r = throughIme($p2web_url);
+$p2web_url_r = P2Util::throughIme($p2web_url);
 
 //パーミッション注意喚起================
 if ($prefdir==$datdir) {

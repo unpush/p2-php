@@ -231,7 +231,7 @@ EOP;
 	//============================================================================	
 	function transMsg($msg, $mynum)
 	{
-		global $_conf, $subject_php, $preview_thumbnail, $brocra_checker, $ext_win_target, $through_ime;
+		global $_conf, $subject_php, $preview_thumbnail, $brocra_checker, $ext_win_target;
 		global $field, $res_filter, $word_fm, $iframe_popup, $iframe_popup_delay, $p2ime_url;
 		global $ktai_res_size, $ktai_ryaku_size;
 		global $k_at_a, $k_at_q, $k_input_ht;
@@ -285,21 +285,21 @@ EOP;
 		// >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
 		$msg = preg_replace_callback("/(&gt;|＞)?(&gt;|＞)([0-9- ,=.]|、)+/", array($this, 'quote_res_callback'), $msg);
 	
-		if($ryaku){
+		if ($ryaku) {
 			return $msg;
 		}
 	
 		// FTPリンクの有効化
-		$msg=preg_replace("/ftp:\/\/[-_.!~*'a-zA-Z0-9;\/?:@&=+\$,%#]+/","<a href=\"\\0\"{$ext_win_target}>\\0</a>", $msg);
+		$msg = preg_replace("/ftp:\/\/[-_.!~*'a-zA-Z0-9;\/?:@&=+\$,%#]+/","<a href=\"\\0\"{$ext_win_target}>\\0</a>", $msg);
 		
 		// （h抜きも含めた）URLリンクの有効化
-		$msg=preg_replace("/([^f])(h?t?)(tps?:\/\/[-_.!~*'a-zA-Z0-9;\/?:@&=+\$,%#]+)/","\\1<a href=\"ht\\3\"{$ext_win_target}>\\2\\3</a>", $msg);
-		$msg=preg_replace("/&gt;\"{$ext_win_target}>(.+)&gt;<\/a>/","\"{$ext_win_target}>\\1</a>&gt;", $msg); //末尾の&gt;（>）だけ外している
+		$msg = preg_replace("/([^f])(h?t?)(tps?:\/\/[-_.!~*'a-zA-Z0-9;\/?:@&=+\$,%#]+)/","\\1<a href=\"ht\\3\"{$ext_win_target}>\\2\\3</a>", $msg);
+		$msg = preg_replace("/&gt;\"{$ext_win_target}>(.+)&gt;<\/a>/","\"{$ext_win_target}>\\1</a>&gt;", $msg); //末尾の&gt;（>）だけ外している
 		
 		// 板サーバ内リンクはp2表示で
 		// 2ch bbspink
 		// http://choco.2ch.net/test/read.cgi/event/1027770702/
-		$msg=preg_replace_callback("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?\"{$ext_win_target}>(h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?)<\/a>/", array($this, 'link2ch_callback'), $msg);
+		$msg = preg_replace_callback("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?\"{$ext_win_target}>(h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?)<\/a>/", array($this, 'link2ch_callback'), $msg);
 			
 		// まちBBS / JBBS＠したらば 
 		// http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
@@ -310,33 +310,27 @@ EOP;
 		//$msg=preg_replace("/&(amp;)?ls=-/", "", $msg);// 空の範囲指定は除去
 		
 		// 2chとbbspinkの板
-		$msg=preg_replace("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/([^\/]+)\/\"{$ext_win_target}>h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/([^\/]+)\/<\/a>/", "\\0 [<a href=\"{$subject_php}?host=\\1&amp;bbs=\\3{$k_at_a}\">板をp2で開く</a>]", $msg);
+		$msg = preg_replace("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/([^\/]+)\/\"{$ext_win_target}>h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/([^\/]+)\/<\/a>/", "\\0 [<a href=\"{$subject_php}?host=\\1&amp;bbs=\\3{$k_at_a}\">板をp2で開く</a>]", $msg);
 		
 		//2chとbbspinkの過去ログ
-		$msg=preg_replace_callback("/<a href=\"(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$ext_win_target}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
+		$msg = preg_replace_callback("/<a href=\"(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$ext_win_target}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
 		
 		/*
 		// ブラクラチェッカ
-		if($brocra_checker['use']){
-			$msg=preg_replace("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>(s?h?t?tps?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)<\/a>/","<a href=\"\\1\"{$ext_win_target}>\\2</a> [<a href=\"{$brocra_checker['url']}?{$brocra_checker['query']}=\\1\"{$ext_win_target}>チェック</a>]", $msg);
+		if ($brocra_checker['use']) {
+			$msg = preg_replace("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>(s?h?t?tps?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)<\/a>/","<a href=\"\\1\"{$ext_win_target}>\\2</a> [<a href=\"{$brocra_checker['url']}?{$brocra_checker['query']}=\\1\"{$ext_win_target}>チェック</a>]", $msg);
 		}
 		*/
 	
 		/*
 		// 画像URLリンクをサムネイル化
-		if($preview_thumbnail){
-			$msg=preg_replace_callback("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))\"{$ext_win_target}>(s?h?t?tps?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))<\/a>/", array($this, 'view_img_callback') ,$msg);
+		if ($preview_thumbnail) {
+			$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))\"{$ext_win_target}>(s?h?t?tps?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))<\/a>/", array($this, 'view_img_callback') ,$msg);
 		}
 		*/
 		
-		// ime
-		if($through_ime=="p2"){	//p2 ime
-			$msg=preg_replace("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/","<a href=\"{$p2ime_url}?url=\\1\"{$ext_win_target}>\\2</a>", $msg);
-		}elseif($through_ime=="p2m"){	//p2m ime
-			$msg=preg_replace("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/","<a href=\"{$p2ime_url}?m=1&amp;url=\\1\"{$ext_win_target}>\\2</a>", $msg);
-		}elseif($through_ime=="2ch"){ // ime.nu
-			$msg=preg_replace("/<a href=\"(s?https?:\/\/)([-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/","<a href=\"\\1ime.nu/\\2\"{$ext_win_target}>\\3</a>", $msg);
-		}
+		// ■ ime
+		$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/", array($this, 'ime_callback'), $msg);
 
 		return $msg;
 	}
@@ -344,9 +338,21 @@ EOP;
 	//=============================================================
 	//コールバックメソッド
 	//=============================================================
-	
-	//引用レス変換===========================
-	function quote_res_callback($s){
+
+	/**
+	 * ime_callback
+	 */
+	function ime_callback($s)
+	{
+		global $_conf, $ext_win_target;
+		
+		$r = '<a href="' . P2Util::throughIme($s[1]) . '"' . $ext_win_target . '>' . $s[2] . '</a>';
+		return $r;
+	}
+		
+	// 引用レス変換 ===========================
+	function quote_res_callback($s)
+	{
 		$rs = preg_replace_callback("/(&gt;|＞)?(&gt;|＞)?([0-9-]+)/", array($this, 'quote_res_devide_callback'), $s[0]);
 		return $rs;
 	}

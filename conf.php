@@ -37,23 +37,23 @@ if (isset($_GET['k']) ||  isset($_POST['k'])) {
 	$k_at_q = "?k=1";
 	$k_input_ht = '<input type="hidden" name="k" value="1">';
 }
-//$ktai=1;//
-$doctype="";
-$accesskey="accesskey";
-$pointer_at="id";
-$k_accesskey['prev']="4";
-$k_accesskey['next']="6";
-$k_accesskey['latest']="9";
-$k_accesskey['matome']="3";
-$k_accesskey['above']="5";
-$meta_charset_ht=<<<EOP
+//$ktai = 1;//
+$doctype = "";
+$accesskey = "accesskey";
+$pointer_at = "id";
+$k_accesskey['prev'] = "4";
+$k_accesskey['next'] = "6";
+$k_accesskey['latest'] = "9";
+$k_accesskey['matome'] = "3";
+$k_accesskey['above'] = "5";
+$meta_charset_ht = <<<EOP
 <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 EOP;
 
 //携帯===================================
-if( strstr($ua, "UP.Browser/") ){
-	$browser="EZweb";
-	$ktai=true;
+if (strstr($ua, "UP.Browser/")) {
+	$browser = "EZweb";
+	$ktai = true;
 	/*
 	$doctype=<<<EOP
 <?xml version="1.0" encoding="Shift_JIS"?>
@@ -85,12 +85,12 @@ EOP;
 	$browser="Safari";
 }
 
-$k_to_index_ht=<<<EOP
+$k_to_index_ht = <<<EOP
 <a {$accesskey}="0" href="index.php{$k_at_q}">0.TOP</a>
 EOP;
 
 //DOCTYPE HTML 宣言==========================
-$ie_strict=false;
+$ie_strict = false;
 if(!$ktai){
 	if($ie_strict){
 		$doctype=<<<EODOC
@@ -107,10 +107,10 @@ EODOC;
 //======================================================================
 
 if(file_exists("./conf_user.php")){
-	include_once("./conf_user.php"); //ユーザ設定 読込
+	include_once("./conf_user.php"); // ユーザ設定 読込
 }
 if(file_exists("./conf_style.inc")){
-	include_once("./conf_style.inc"); //デザイン設定 読込
+	include_once("./conf_style.inc"); // デザイン設定 読込
 }
 
 $_conf['display_threads_num'] = 150; // (150) スレッドサブジェクト一覧のデフォルト表示数
@@ -140,8 +140,8 @@ if (!isset($STYLE['post_msg_cols'])) { $STYLE['post_msg_cols'] = 70; }
 if (!isset($STYLE['info_pop_size'])) { $STYLE['info_pop_size'] = "600,380"; }
 
 /* ユーザ設定の調整処理 */
-$ext_win_target && $ext_win_target=" target=\"$ext_win_target\"";
-$bbs_win_target && $bbs_win_target=" target=\"$bbs_win_target\"";
+$ext_win_target && $ext_win_target = " target=\"$ext_win_target\"";
+$bbs_win_target && $bbs_win_target = " target=\"$bbs_win_target\"";
 
 if ($get_new_res) {
 	if ($get_new_res != "all") { $get_new_res = "l".$get_new_res; }
@@ -156,9 +156,9 @@ $_conf['login_log_rec'] = 1;	// ログインログの記録可否
 $_conf['login_log_rec_num'] = 100;	// ログインログの記録数
 $_conf['last_login_log_show'] = 1;	// 前回ログイン情報表示可否
 
-$p2web_url="http://akid.s17.xrea.com/";
-$p2ime_url="http://akid.s17.xrea.com/p2ime.php";
-$favrank_url="http://akid.s17.xrea.com:8080/favrank/favrank.php";
+$p2web_url = "http://akid.s17.xrea.com/";
+$p2ime_url = "http://akid.s17.xrea.com/p2ime.php";
+$favrank_url = "http://akid.s17.xrea.com:8080/favrank/favrank.php";
 $menu_php = "menu.php";
 $subject_php = "subject.php";
 $_conf['read_php'] = "read.php";
@@ -187,8 +187,8 @@ $_conf['login_log_file'] = $prefdir . "/p2_login.log.php";
 $crypt_xor_key = $_SERVER["SERVER_NAME"].$_SERVER["SERVER_SOFTWARE"];
 $brocra_checker['url'] = "http://www.jah.ne.jp/~fild/cgi-bin/LBCC/lbcc.cgi"; // ブラクラチェッカURL
 $brocra_checker['query'] = "url";
-$ktai_read_cgi="r.i";
-$before_respointer_k=0;
+$ktai_read_cgi = "r.i";
+$before_respointer_k = 0;
 $ktai_res_size = 500; 		// 携帯用、一つのレスの最大表示サイズ
 $ktai_ryaku_size = 120; 	// 携帯用、レスを省略したときの表示サイズ
 $c_menu_dl_interval = 1;	// menuのキャッシュを更新せずに保持する時間(hour)
@@ -219,57 +219,61 @@ function header_nocache()
 	header("Pragma: no-cache"); // HTTP/1.0
 }
 
-function header_content_type(){
+function header_content_type()
+{
 	header("Content-Type: text/html; charset=Shift_JIS");
 }
 
-//認証関数============================================================
+/**
+ * 認証関数
+ */
 function authorize()
 {
 	global $login;
 	global $auth_ez_file, $auth_jp_file, $login_file, $auth_user_file, $pass_perm;
 	global $_info_msg_ht, $doctype, $STYLE, $ktai, $auth_ez_file, $auth_jp_file, $prefdir, $datdir;
 	
-	if( $login['use'] ){
+	if ($login['use']) {
 
-		//認証ユーザ設定読み込み========
-		if( file_exists($auth_user_file) ){
+		// 認証ユーザ設定読み込み ========
+		if (file_exists($auth_user_file)) {
 			include($auth_user_file);
 	
-			//EZweb認証スルーパス サブスクライバID=======
-			if($_SERVER['HTTP_X_UP_SUBNO']){
-				if( file_exists($auth_ez_file) ){
+			// EZweb認証スルーパス サブスクライバID
+			if ($_SERVER['HTTP_X_UP_SUBNO']) {
+				if (file_exists($auth_ez_file)) {
 					include($auth_ez_file);
-					if($_SERVER['HTTP_X_UP_SUBNO']==$registed_ez){
+					if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
 						return true;
 					}
 				}
 			}
 			
-			//J-PHONE認証スルーパス //パケット対応機 要ユーザID通知ONの設定 端末シリアル番号=====
-			if( preg_match("/J-PHONE\/[^\/]+\/[^\/]+\/SN(.+?) /", $_SERVER['HTTP_USER_AGENT'], $matches) ){
-				if( file_exists($auth_jp_file) ){
+			// J-PHONE認証スルーパス //パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
+			if (preg_match("/J-PHONE\/[^\/]+\/[^\/]+\/SN(.+?) /", $_SERVER['HTTP_USER_AGENT'], $matches)) {
+				if (file_exists($auth_jp_file)) {
 					include($auth_jp_file);
-					if($matches[1]==$registed_jp){
+					if ($matches[1] == $registed_jp) {
 						return true;
 					}
 				}
 			}
 
-			//クッキー認証スルーパス======
-			if( ($_COOKIE["p2_user"]==$login['user']) && ($_COOKIE["p2_pass"] == $login['pass']) ){
+			// クッキー認証スルーパス
+			if (($_COOKIE["p2_user"] == $login['user']) && ($_COOKIE["p2_pass"] == $login['pass'])) {
 				return true;
 			}
 		
-			//Basic認証===============
-			if(!isset($_SERVER['PHP_AUTH_USER']) || !( ($_SERVER['PHP_AUTH_USER'] == $login['user']) && (crypt($_SERVER['PHP_AUTH_PW'], $login['pass']) == $login['pass']) ) ) {
+			// Basic認証
+			if (!isset($_SERVER['PHP_AUTH_USER']) || !( ($_SERVER['PHP_AUTH_USER'] == $login['user']) && (crypt($_SERVER['PHP_AUTH_PW'], $login['pass']) == $login['pass']))) {
 				header('WWW-Authenticate: Basic realm="p2"');
 				header('HTTP/1.0 401 Unauthorized');
 				echo "Login Failed. ユーザ認証が必要です。";
 				exit;
 			}
 
-		}else{ //設定ファイルがなかった
+		// 設定ファイルがなかった
+		} else {
 			include("./login_first.inc");
 			exit;
 		}

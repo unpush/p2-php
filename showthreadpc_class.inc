@@ -7,7 +7,8 @@ class ShowThreadPc extends ShowThread{
 	var $quote_res_nums_done; //ポップアップ表示される記録済みレス番号を登録した配列
 	var $quote_check_depth; //レス番号チェックの再帰の深さ checkQuoteResNums()
 
-	function ShowThreadPc($aThread){
+	function ShowThreadPc($aThread)
+	{
 		$this->thread = $aThread;
 	}
 	
@@ -29,15 +30,15 @@ class ShowThreadPc extends ShowThread{
 		$status_title = str_replace('"', "\'\'", $status_title);
 		$cont_ht = "<dl onMouseover=\"window.top.status='{$status_title}';\">";
 		
-		if(!$nofirst){ //1を表示
+		if (!$nofirst) { // 1を表示
 			$cont_ht .= $this->transRes($this->thread->datlines[0], 1);
 		}
 
-		for($i=$start; $i<=$to; $i++){
+		for ($i = $start; $i <= $to; $i++) {
 		
-			if(!$nofirst and $i==1){continue;}
-			if(!$this->thread->datlines[$i-1]){
-				$this->thread->newline=$i;
+			if (!$nofirst and $i == 1) { continue; }
+			if (!$this->thread->datlines[$i-1]) {
+				$this->thread->newline = $i;
 				break;
 			}
 			$cont_ht .= $this->transRes($this->thread->datlines[$i-1], $i);
@@ -45,7 +46,7 @@ class ShowThreadPc extends ShowThread{
 
 		$cont_ht .= "</dl>\n";
 		
-		//$s2e=array($start, $i-1);
+		//$s2e = array($start, $i-1);
 		//return $s2e;
 		return $cont_ht;
 	}
@@ -66,10 +67,10 @@ class ShowThreadPc extends ShowThread{
 		$isNgMsg = false;
 		
 		$resar = $this->thread->explodeDatLine($ares);
-		$name=$resar[0];
+		$name = $resar[0];
 		$mail = $resar[1];
 		$date_id = $resar[2];
-		$msg=$resar[3];
+		$msg = $resar[3];
 
 		if ($field) {
 			if (!$word_fm) { return; }
@@ -155,7 +156,7 @@ class ShowThreadPc extends ShowThread{
 		//=============================================================
 		
 		$name = $this->transName($name); // 名前HTML変換
-		$msg = $this->transMsg($msg, $i); //メッセージHTML変換
+		$msg = $this->transMsg($msg, $i); // メッセージHTML変換
 
 		
 		// NGメッセージ変換 ======================================
@@ -245,7 +246,7 @@ EOP;
 			return false;
 		}
 		
-		$dummy_msg="";
+		$dummy_msg = "";
 		$this->quote_check_depth=0;
 		$quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
 		foreach ($quote_res_nums as $rnv) {
@@ -254,9 +255,9 @@ EOP;
 					$ds = "<b>{$this->thread->ttitle}</b><br><br>";
 				}
 				$ds .= $this->qRes( $this->thread->datlines[$rnv-1], $rnv );
-				$onPopUp_at=" onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
+				$onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
 				$rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></div>\n";
-				$this->quote_res_nums_done[$rnv]=true;
+				$this->quote_res_nums_done[$rnv] = true;
 			}
 		}
 		$res1['q'] = $rpop;
@@ -269,22 +270,22 @@ EOP;
 	/*
 	 * レス引用HTML
 	 */
-	function qRes($ares,$i){
-
+	function qRes($ares,$i)
+	{
 		$resar = $this->thread->explodeDatLine($ares);
 		$name = $resar[0];
 		$name = $this->transName($name);
 		$msg = $resar[3];
-		$msg = $this->transMsg($msg, $i); //メッセージ変換
+		$msg = $this->transMsg($msg, $i); // メッセージ変換
 		$mail = $resar[1];
 		$date_id = $resar[2];
 		
 		// $toresにまとめて出力
-		$tores = "$i ："; //番号			
-		$tores .= "<b>$name</b> ："; //名前
-		if($mail){$tores .= $mail." ：";} //メール
-		$tores .= $date_id."<br>"; //日付とID
-		$tores .= $msg."<br>\n"; //内容
+		$tores = "$i ："; // 番号			
+		$tores .= "<b>$name</b> ："; // 名前
+		if($mail){$tores .= $mail." ：";} // メール
+		$tores .= $date_id."<br>"; // 日付とID
+		$tores .= $msg."<br>\n"; // 内容
 		
 		return $tores;
 	}
@@ -331,7 +332,7 @@ EOP;
 	 */
 	function transMsg($msg, $mynum)
 	{
-		global $_conf, $subject_php, $preview_thumbnail, $brocra_checker, $ext_win_target, $bbs_win_target, $through_ime;
+		global $_conf, $subject_php, $preview_thumbnail, $brocra_checker, $ext_win_target, $bbs_win_target;
 		global $field, $res_filter, $word_fm, $iframe_popup, $iframe_popup_delay, $p2ime_url;
 		
 		// 2ch旧形式のdat
@@ -395,29 +396,56 @@ EOP;
 		if ($preview_thumbnail) {
 			$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))\"{$ext_win_target}>(s?h?t?tps?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))<\/a>/", array($this, 'view_img_callback') ,$msg);
 		}
-	
-		// ime
-		if ($through_ime == "p2") {	//p2 ime
-			$msg=preg_replace("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/","<a href=\"{$p2ime_url}?url=\\1\"{$ext_win_target}>\\2</a>", $msg);
-		} elseif ($through_ime == "p2m"){	//p2 ime
-			$msg=preg_replace("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/","<a href=\"{$p2ime_url}?m=1&amp;url=\\1\"{$ext_win_target}>\\2</a>", $msg);
-		} elseif ($through_ime == "2ch") { // ime.nu
-			$msg=preg_replace("/<a href=\"(s?https?:\/\/)([-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/","<a href=\"\\1ime.nu/\\2\"{$ext_win_target}>\\3</a>", $msg);
+
+		// ■ imeを通す
+		$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/", array($this, 'ime_callback'), $msg);
+		
+		// ■ HTMLポップアップ
+		if ($_conf['iframe_popup']) {
+			$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/", array($this, 'iframe_popup_callback'), $msg);
 		}
-	
-		// HTMLポップアップ
-		$ommouse_popup = " onMouseover=\"showHtmlPopUp('\\1',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
-		if ($iframe_popup == 1) {
-			$msg = preg_replace("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/","<a href=\"\\1\"{$ext_win_target}{$ommouse_popup}>\\2</a>", $msg);
-		} elseif ($iframe_popup == 2) {
-			$msg = preg_replace("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/","(<a href=\"\\1\"{$ext_win_target}{$ommouse_popup}>p</a>)<a href=\"\\1\"{$ext_win_target}>\\2</a>", $msg);		
-}
+		
 		return $msg;
 	}
 
 	//=============================================================
 	// コールバックメソッド
 	//=============================================================
+
+	/**
+	 * iframe_popup_callback
+	 */
+	function iframe_popup_callback($s)
+	{
+		global $_conf, $ext_win_target, $iframe_popup, $iframe_popup_delay;
+
+		if ($_conf['through_ime'] == "p2pm") {
+			$pop_url = str_replace("?url=", "?m=1&amp;url=", $s[1]);
+		} else {
+			$pop_url = $s[1];
+		}
+
+		$ommouse_popup = " onMouseover=\"showHtmlPopUp('{$pop_url}',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
+		
+		if ($iframe_popup == 1) {
+			$r = "<a href=\"{$s[1]}\"{$ext_win_target}{$ommouse_popup}>{$s[2]}</a>";
+		} elseif ($iframe_popup == 2) {
+			$r = "(<a href=\"{$s[1]}\"{$ext_win_target}{$ommouse_popup}>p</a>)<a href=\"{$s[1]}\"{$ext_win_target}>{$s[2]}</a>";		
+		}
+
+		return $r;
+	}
+
+	/**
+	 * ime_callback
+	 */
+	function ime_callback($s)
+	{
+		global $_conf, $ext_win_target;
+		
+		$r = '<a href="' . P2Util::throughIme($s[1]) . '"' . $ext_win_target . '>' . $s[2] . '</a>';
+		return $r;
+	}
 	
 	/**
 	 * 引用レス変換
@@ -472,7 +500,7 @@ EOP;
 		return $rs;
 	}
 	
-	//2ch bbspink 内リンク===========================
+	// 2ch bbspink 内リンク ===========================
 	function link2ch_callback($s)
 	{
 		global $_conf, $bbs_win_target, $iframe_popup, $iframe_popup_delay;
@@ -486,7 +514,7 @@ EOP;
 EORS;
 		// HTMLポップアップあり
 		} else {
-			if( preg_match("/^[0-9-n]+$/", $s[6]) ){
+			if (preg_match("/^[0-9-n]+$/", $s[6])) {
 				$ommouse_popup=" onMouseover=\"showHtmlPopUp('http://$s[1]/test/read.cgi/$s[3]/$s[4]$s[5]$s[6]',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
 				if ($iframe_popup == 1) {
 					$rs = <<<EORS
@@ -515,7 +543,7 @@ EORS;
 		return $rs;
 	}
 	
-	// まちBBS / JBBS＠したらば  内リンク===========================
+	// まちBBS / JBBS＠したらば  内リンク ===========================
 	function linkMachi_callback($s)
 	{
 		global $_conf, $bbs_win_target, $iframe_popup, $iframe_popup_delay;
@@ -523,7 +551,7 @@ EORS;
 	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[4]}&amp;key={$s[6]}&amp;ls={$s[9]}-{$s[12]}\"{$bbs_win_target}>{$s[13]}</a>";
 	}
 	 
-	// JBBS＠したらば  内リンク 2===========================
+	// JBBS＠したらば  内リンク 2 ===========================
 	function linkJBBS_callback($s)
 	{
 		global $_conf, $bbs_win_target, $iframe_popup, $iframe_popup_delay;
@@ -531,7 +559,7 @@ EORS;
 	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}/{$s[2]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[5]}\"{$bbs_win_target}>{$s[8]}</a>";
 	}
 	 
-	//2ch過去ログhtml=============================
+	// 2ch過去ログhtml =============================
 	function link2chkako_callback($s)
 	{
 		global $_conf, $iframe_popup, $iframe_popup_delay, $bbs_win_target;
@@ -564,7 +592,7 @@ EOP;
 		return $rs;
 	}
 	
-	// 画像ポップアップ変換==========================
+	// 画像ポップアップ変換 ==========================
 	function view_img_callback($s)
 	{
 		global $ext_win_target, $iframe_popup, $iframe_popup_delay, $pre_thumb_height, $pre_thumb_width;
@@ -610,7 +638,7 @@ EORS;
 		$name = preg_replace("/(◆.*)/", "", $name, 1);
 		
 		// 名前
-		if (preg_match("/[0-9]+/", $name, $matches)){
+		if (preg_match("/[0-9]+/", $name, $matches)) {
 			$a_quote_res_num=$matches[0];
 			
 			if ($a_quote_res_num) {
