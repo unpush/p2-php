@@ -1,3 +1,12 @@
+2004-12-29 aki
+	* p2 version 1.2.4
+	- したらばの仕様変更に対応、スレが読めるようになった
+	
+	* conf.php
+	* menu.php
+	* read_machibbs.inc
+	* thread_class.inc
+
 2004-12-24 aki
 	* p2 version 1.2.3
 	- Safariでeditfile.phpが文字化けするのを修正

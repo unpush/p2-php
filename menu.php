@@ -15,13 +15,11 @@ authorize(); //ユーザ認証
 //==============================================================
 // 変数設定
 //==============================================================
-if ($_SERVER['HTTPS']) { 
-	$me_url = "https://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME']; 
-} else { 
-	$me_url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME']; 
-} 
+$s = $_SERVER['HTTPS'] ? 's' : '';
+$me_url = "http{$s}://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME']; 
+
 $me_dir_url = dirname($me_url);
-$menu_side_url = $me_dir_url."/menu_side.php"; //menu_side.php の URL。（ローカルパス指定はできないようだ）
+$menu_side_url = $me_dir_url."/menu_side.php"; // menu_side.php の URL。（ローカルパス指定はできないようだ）
 
 $_info_msg_ht = "";
 $brd_menus = array();
@@ -194,17 +192,17 @@ $brd_menus = BrdCtl::read_brds();
 //===========================================================
 // プリント
 //===========================================================
-if($word!=""){
-	if(!$mikke){
+if ($word != "") {
+	if (!$mikke) {
 		$_info_msg_ht .=  "<p>\"{$word}\"を含む板は見つかりませんでした。</p>\n";
 		unset($word);
-	}else{
+	} else {
 		$_info_msg_ht .=  "<p>\"{$word}\"を含む板 {$mikke}hit!</p>\n";
 	}
 }
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 // 板検索
 echo <<<EOFORM
@@ -248,16 +246,17 @@ EOFOOTER;
 // 関数
 //==============================================================
 // menuの新着数を初期化する関数
-function initMenuNew($spmode_in){
+function initMenuNew($spmode_in)
+{
 	global $shinchaku_num, $matome_i, $host, $bbs, $spmode, $STYLE, $class_newres_num;
 	$matome_i++;
 	$host = "";
 	$bbs = "";
 	$spmode = $spmode_in;
 	include("./subject_new.php");
-	if($shinchaku_num>0){
+	if ($shinchaku_num>0) {
 		$class_newres_num = " class=\"newres_num\"";
-	}else{
+	} else {
 		$class_newres_num = " class=\"newres_num_zero\"";
 	}
 }

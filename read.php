@@ -36,10 +36,10 @@ detectThread();
 //=================================================
 // レスフィルタ
 //=================================================
-if ($_POST['word']) {$word = $_POST['word'];}
-if ($_GET['word']) {$word = $_GET['word'];}
-if ($_POST['field']) { $field = $_POST['field']; $res_filter['field'] = $_POST['field']; }
-if ($_GET['field']) { $field = $_GET['field']; $res_filter['field'] = $_GET['field']; }
+if ($_POST['word']) { $word = $_POST['word']; }
+if ($_GET['word']) { $word = $_GET['word']; }
+if ($_POST['field']) { $field = $res_filter['field'] = $_POST['field']; }
+if ($_GET['field']) { $field = $res_filter['field'] = $_GET['field']; }
 if ($_POST['match']) { $res_filter['match'] = $_POST['match']; }
 if ($_GET['match']) { $res_filter['match'] = $_GET['match']; }
 if ($_POST['method']) { $res_filter['method'] = $_POST['method']; }
