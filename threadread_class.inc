@@ -15,6 +15,16 @@ class ThreadRead extends Thread{
 	var $onbytes; // サーバから取得したdatサイズ
 	var $diedat; // サーバからdat取得ができなければtrue
 	var $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
+	
+	var $getdat_error_msg_ht;	// dat取得に失敗した時に表示されるメッセージ（HTML）
+
+	/*
+	 * ■コンストラクタ
+	 */
+	function ThreadRead()
+	{
+		$getdat_error_msg_ht = "";
+	}
 
 	/**
 	 * DATをダウンロードする
