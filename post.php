@@ -369,6 +369,13 @@ function postIt($URL, $request)
 	/* POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付 */
 	if (strtoupper($method) == "POST") {
 	    while (list($name, $value) = each($post)) {
+		
+			// したらばなら、EUCに変換
+			if (P2Util::isHostJbbsShitaraba($host)) {
+				include_once './strctl_class.inc';
+				$value = StrCtl::p2SJIStoEUC($value);
+			}
+			
 	        $POST[] = $name."=".urlencode($value);
 	    }
 	    $postdata = implode("&", $POST);
