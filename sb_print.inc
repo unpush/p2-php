@@ -242,8 +242,12 @@ EOP;
 		if (!$aThread->ttitle_ht) { 
 			$aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
 		}
+		
 		// 元スレ
-		$moto_thre_ht = '<a class="thre_title" href="'.$aThread->getMotoThread('all').'">・</a> ';
+		$moto_thre_ht = "";
+		if (!$aThread->kitoku) {
+			$moto_thre_ht = '<a class="thre_title" href="'.$aThread->getMotoThread('all').'">・</a> ';
+		}
 		
 		// 新規スレ
 		if ($aThread->new) { 
