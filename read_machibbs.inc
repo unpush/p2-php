@@ -145,10 +145,10 @@ function machiHtmltoDatLines($mlines){
 
 		// したらばJBBS jbbs.livedoor.com のlink.cgiを除去
 		// <a href="http://jbbs.livedoor.jp/bbs/link.cgi?url=http://dempa.2ch.net/gazo/free/img-box/img20030424164949.gif" target="_blank">http://dempa.2ch.net/gazo/free/img-box/img20030424164949.gif</a>
-		$body = preg_replace("{<a href=\"http://(jbbs\.livedoor\.jp|jbbs\.livedoor\.com|jbbs\.shitaraba\.com)/bbs/link\.cgi\?url=([^\"]+)\" target=\"_blank\">([^><]+)</a>}i","\\2", $body);
+		$body = preg_replace('{<a href="(?:http://(?:jbbs\.livedoor\.jp|jbbs\.livedoor\.com|jbbs\.shitaraba\.com))?/bbs/link\.cgi\?url=([^"]+)" target="_blank">([^><]+)</a>}i', '$1', $body);
 		
 		// リンク外し
-		$body = preg_replace("/<a href=\"(https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\" target=\"_blank\">(https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)<\/a>/i","\\1", $body); //リンク外し
+		$body = preg_replace("/<a href=\"(https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\" target=\"_blank\">(https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)<\/a>/i","\\1", $body);
 		
 		if ($order == 1) {
 			$datline = $name.'<>'.$mail.'<>'.$date.'<>'.$body.'<>'.$mtitle."\n";
