@@ -642,7 +642,7 @@ EOIMG;
 EORS;
 		} elseif ($_conf['iframe_popup'] == 2) {
 			$rs = <<<EORS
-			<a href="$s[1]"{$ext_win_target}{$ommouse_popup}>{$img_tag}</a><a  href="$s[1]"{$ext_win_target}>{$s[3]}</a>
+			<a href="$s[1]"{$ext_win_target}{$ommouse_popup}>{$img_tag}</a><a href="$s[1]"{$ext_win_target}>{$s[3]}</a>
 EORS;
 		} else {
 			$rs = <<<EORS
