@@ -17,13 +17,15 @@ function sb_print($aThreadList)
 	// 変数 ================================================
 	
 	// >>1
+	/*
 	if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus" || $aThreadList->spmode == "news") {
 		// 倉庫は除く
 		if ($aThreadList->spmode != "soko") {
 			$only_one_bool = true;
 		}
 	}
-
+	*/
+	
 	// チェックボックス
 	if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 		$checkbox_bool = true;
