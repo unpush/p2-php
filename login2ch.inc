@@ -5,28 +5,29 @@ require_once("./filectl_class.inc");
 require_once("./datactl.inc");
 require_once("./crypt_xor.inc");
 
-//===================================================
-// ■2chにログインする関数
-//===================================================
-function login2ch(){
-	global $p2version, $prefdir, $idpw2ch_php, $sid2ch_php, $proxy;
+/**
+ * ■2chにログインする関数
+ */
+function login2ch()
+{
+	global $_conf, $prefdir, $idpw2ch_php, $sid2ch_php, $proxy;
 	global $_info_msg_ht, $pass_perm, $crypt_xor_key;
 
 	$php_curl_done_flag = false;
 	
 	// ■2ch ID&PW 読み込み
-	if( file_exists($idpw2ch_php) ){
+	if (file_exists($idpw2ch_php)) {
 		include($idpw2ch_php);
 		$login2chPW = base64_decode($login2chPW);
 		$login2chPW = decrypt_xor($login2chPW, $crypt_xor_key);
-	}else{
+	} else {
 		$_info_msg_ht .= "<p>p2 Error: ログインのためのIDとパスワードを登録して下さい。[<a href=\"login2ch.php\" target=\"subject\">2chログイン管理</a>]</p>";
 		return false;
 	}
 
 	$auth2ch_url = "https://2chv.tora3.net/futen.cgi";
 	$postf = "ID=".$login2chID."&PW=".$login2chPW;
-	$x_2ch_ua = "X-2ch-UA: p2/".$p2version;
+	$x_2ch_ua = "X-2ch-UA: ".$_conf['p2name']."/".$_conf['p2version'];
 	$dolib2ch = "DOLIB/1.00";
 	$tempfile = $prefdir."/p2temp.php";
 	

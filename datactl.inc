@@ -9,7 +9,7 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
  */
 function subjectDownload($url, $subjectfile)
 {
-	global $_conf, $datdir, $_info_msg_ht, $p2version, $ext_win_target, $fsockopen_time_limit, $proxy;
+	global $_conf, $datdir, $_info_msg_ht, $ext_win_target, $fsockopen_time_limit, $proxy;
 
 	$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 	
@@ -32,7 +32,7 @@ function subjectDownload($url, $subjectfile)
 	//DL
 	include_once("./wap.inc");
 	$wap_ua = new UserAgent;
-	$wap_ua->setAgent("Monazilla/1.00 p2/".$p2version);
+	$wap_ua->setAgent("Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")");
 	$wap_ua->setTimeout($fsockopen_time_limit);
 	$wap_req = new Request;
 	$wap_req->setUrl($url);

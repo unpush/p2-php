@@ -66,11 +66,12 @@ class ThreadRead extends Thread{
 	
 	}
 	
-	//============================================================================
-	// 2ch用 DAT ダウンロード関数する
-	//============================================================================
-	function downloadDat2ch($from_bytes){
-		global $p2version, $dat_response_msg, $ls, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
+	/**
+	 * 2ch用 DATをダウンロードする
+	 */
+	function downloadDat2ch($from_bytes)
+	{
+		global $_conf, $dat_response_msg, $ls, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
 		global $debug, $prof;
 	
 		if(!($this->host && $this->bbs && $this->key)){return false;}
@@ -84,11 +85,11 @@ class ThreadRead extends Thread{
 			$from_bytes=$from_bytes-1;
 		}
 		
-		$method="GET";
-		if(! $uaMona){$uaMona="Monazilla/1.00";}
-		$p2ua=$uaMona." (p2/".$p2version.")";
+		$method = "GET";
+		if (!$uaMona) {$uaMona = "Monazilla/1.00";}
+		$p2ua = $uaMona." (".$_conf['p2name']."/".$_conf['p2version'].")";
 		
-		$url="http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
+		$url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
 		//$url="http://news2.2ch.net/test/read.cgi?bbs=newsplus&key=1038486598";
 
 		$URL = parse_url($url); //URL分解
@@ -245,26 +246,26 @@ class ThreadRead extends Thread{
 		return false;		
 	}
 	
-	//============================================================================
-	// 2ch●用 DAT ダウンロードする
-	//============================================================================
+	/**
+	 * 2ch●用 DATをダウンロードする
+	 */
 	function downloadDat2chMaru()
 	{
-		global $p2version, $dat_response_msg, $uaMona, $SID2ch, $relogin2ch, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
+		global $_conf, $dat_response_msg, $uaMona, $SID2ch, $relogin2ch, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
 
-		if(!($this->host && $this->bbs && $this->key)){return false;}
+		if (!($this->host && $this->bbs && $this->key)) {return false;}
 		
 		unset($datgz_attayo, $start_here, $isGzip, $done_gunzip, $marudatlines, $code);
 		
-		$method="GET";
-		$p2ua=$uaMona." (p2/".$p2version.")";
+		$method = "GET";
+		$p2ua = $uaMona." (".$_conf['p2name']."/".$_conf['p2version'].")";
 		
 		//  GET /test/offlaw.cgi?bbs=板名&key=スレッド番号&sid=セッションID HTTP/1.1
 		$SID2ch = urlencode($SID2ch);
-		$url="http://" . $this->host . "/test/offlaw.cgi/{$this->bbs}/{$this->key}/?raw=0.0&sid={$SID2ch}";
+		$url = "http://" . $this->host . "/test/offlaw.cgi/{$this->bbs}/{$this->key}/?raw=0.0&sid={$SID2ch}";
 
-		$URL = parse_url($url); //URL分解
-		if (isset($URL['query'])) { //クエリー
+		$URL = parse_url($url); // URL分解
+		if (isset($URL['query'])) { // クエリー
 		    $URL['query'] = "?".$URL['query'];
 		} else {
 		    $URL['query'] = "";
@@ -288,7 +289,7 @@ class ThreadRead extends Thread{
 		$request .= "Accept-Encoding: gzip, deflate\r\n";
 		//$request .= "Accept-Language: ja, en\r\n";
 		$request .= "User-Agent: ".$p2ua."\r\n";
-		//$request .= "X-2ch-UA: p2/".$p2version."\r\n";
+		//$request .= "X-2ch-UA: ".$_conf['p2name']."/".$_conf['p2version']."\r\n";
 		//$request .= "Range: bytes={$from_bytes}-\r\n";
 		$request .= "Connection: Close\r\n";
 		if($modified){$request .= "If-Modified-Since: $modified\r\n";}
@@ -434,19 +435,21 @@ class ThreadRead extends Thread{
 		}
 	}
 	
-	//============================================================================
-	// 2chの過去ログ倉庫からdat.gzをダウンロード＆解凍する
-	//============================================================================
+	/**
+	 * 2chの過去ログ倉庫からdat.gzをダウンロード＆解凍する
+	 */
 	function downloadDat2chKako($uri, $ext)
 	{
-		global $p2version, $dat_response_msg, $bbs_win_target, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
+		global $_conf, $dat_response_msg, $bbs_win_target, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
 
-		$url=$uri.$ext;
+		$url = $uri.$ext;
 	
-		$method="GET";
-		if(!$httpua){$httpua="Monazilla/1.00 p2/".$p2version;}
+		$method = "GET";
+		if (!$httpua) {
+			$httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
+		}
 		
-		$URL=parse_url($url); //URL分解
+		$URL = parse_url($url); //URL分解
 		if (isset($URL['query'])) { //クエリー
 		    $URL['query'] = "?".$URL['query'];
 		} else {
@@ -591,24 +594,24 @@ class ThreadRead extends Thread{
 
 	}
 	
-	//============================================================================
-	// 2chのdatを取得できなかった原因を返す
-	//============================================================================
+	/**
+	 * 2chのdatを取得できなかった原因を返す
+	 */
 	function get2chDatError()
 	{
-		global $_conf, $p2version, $ls, $idpw2ch_php, $sid2ch_php, $bbs_win_target;
+		global $_conf, $ls, $idpw2ch_php, $sid2ch_php, $bbs_win_target;
 		global $fsockopen_time_limit, $_info_msg_ht, $ext_win_target, $proxy;
 	
 		$read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}";
 		
-		//read.cgi 取得 ====================
+		// read.cgi 取得 ====================
 		include_once("./wap.inc");
 		$wap_ua = new UserAgent;
-		$wap_ua->setAgent("p2/".$p2version); // "Monazilla/" をつけるとNG
+		$wap_ua->setAgent($_conf['p2name']."/".$_conf['p2version']); // ここは、"Monazilla/" をつけるとNG
 		$wap_ua->setTimeout($fsockopen_time_limit);
 		$wap_req = new Request;
 		$wap_req->setUrl($read_url);
-		if($proxy['use']){
+		if ($proxy['use']) {
 			$wap_req->setProxy($proxy['host'], $proxy['port']);
 		}
 		$wap_res = $wap_ua->request($wap_req);
@@ -678,12 +681,12 @@ class ThreadRead extends Thread{
 		return $dat_response_msg;
 	}
 	
-	//============================================================================
-	// >>1のみをプレビューする
-	//============================================================================
+	/**
+	 * >>1のみをプレビューする
+	 */
 	function previewOne()
 	{
-		global $p2version, $dat_response_msg, $ls, $ptitle_ht, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $proxy;
+		global $_conf, $dat_response_msg, $ls, $ptitle_ht, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $proxy;
 
 		if (!($this->host && $this->bbs && $this->key)) {return false;}
 		
@@ -738,7 +741,7 @@ class ThreadRead extends Thread{
 	
 			$request = $method." ".$send_path." HTTP/1.0\r\n";
 			$request .= "Host: ".$URL['host']."\r\n";
-			$request .= "User-Agent: Monazilla/1.00 p2/".$p2version."\r\n";
+			$request .= "User-Agent: Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")"."\r\n";
 			//$request .= "Range: bytes={$from_bytes}-\r\n";
 			$request .= "Connection: Close\r\n";
 			$request .= "\r\n";
