@@ -1,22 +1,28 @@
 <?php
-// p2 - スレッドを表示する クラス PC用
+/*
+	p2 - スレッドを表示する クラス PC用
+*/
 
 class ShowThreadPc extends ShowThread{
 	
 	var $quote_res_nums_checked; // ポップアップ表示されるチェック済みレス番号を登録した配列
 	var $quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
 	var $quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
-
+	
+	/**
+	 * コンストラクタ
+	 */
 	function ShowThreadPc($aThread)
 	{
-		$this->thread = $aThread;
+		$this->thread =& $aThread;
 	}
 	
 	/**
-	 * DatをHTMLに変換表示する
+	 * ■DatをHTMLに変換表示する
 	 */
 	function datToHtml()
 	{
+		// 表示レス範囲が指定されていなければ
 		if (!$this->thread->resrange) {
 			echo '<b>p2 error: {$this->resrange} is false at datToHtml()</b>';
 		}
@@ -28,41 +34,43 @@ class ShowThreadPc extends ShowThread{
 		$status_title = $this->thread->itaj." / ".$this->thread->ttitle;
 		$status_title = str_replace("'", "\'", $status_title);
 		$status_title = str_replace('"', "\'\'", $status_title);
-		$cont_ht = "<dl onMouseover=\"window.top.status='{$status_title}';\">";
+		echo "<dl onMouseover=\"window.top.status='{$status_title}';\">";
 		
-		// 1を表示
+		// まず 1 を表示
 		if (!$nofirst) {
-			$cont_ht .= $this->transRes($this->thread->datlines[0], 1);
+			echo $this->transRes($this->thread->datlines[0], 1);
 		}
 
 		for ($i = $start; $i <= $to; $i++) {
 		
-			if (!$nofirst and $i == 1) { continue; }
+			if (!$nofirst and $i == 1) {
+				continue;
+			}
 			if (!$this->thread->datlines[$i-1]) {
 				$this->thread->readnum = $i-1;
 				break;
 			}
-			$cont_ht .= $this->transRes($this->thread->datlines[$i-1], $i);
+			echo $this->transRes($this->thread->datlines[$i-1], $i);
+			flush();
 		}
 
-		$cont_ht .= "</dl>\n";
+		echo "</dl>\n";
 		
 		//$s2e = array($start, $i-1);
 		//return $s2e;
-		return $cont_ht;
+		return true;
 	}
 
 
 	/**
-	 * DatレスをHTMLレスに変換する
+	 * ■ DatレスをHTMLレスに変換する
+	 *
 	 * 引数 - datの1ライン, レス番号
 	 */
-	function transRes($ares,$i)
+	function transRes($ares, $i)
 	{
-		global $_conf;
-		global $STYLE, $mae_msg, $res_filter, $word_fm;
-		global $ngaborns_hits, $newres_to_show;
-		global $filter_hits;
+		global $_conf, $STYLE, $mae_msg, $res_filter, $word_fm;
+		global $ngaborns_hits;
 		
 		$tores = "";
 		$rpop = "";
@@ -75,7 +83,9 @@ class ShowThreadPc extends ShowThread{
 		$date_id = $resar[2];
 		$msg = $resar[3];
 
+		//=============================================================
 		// フィルタリング
+		//=============================================================
 		if (isset($_REQUEST['word'])) {
 			if (!$word_fm) { return; }
 
@@ -110,14 +120,26 @@ class ShowThreadPc extends ShowThread{
 					}
 				}
 				if ($words_fm_hit == count($GLOBALS['words_fm'])) { return; }
-			} elseif (StrCtl::filterMatch($word_fm, $target) == $failed) {
-				return;
+			} else {
+				if (StrCtl::filterMatch($word_fm, $target) == $failed) {
+					return;
+				}
 			}
-			$filter_hits++;
-			$last_hit_resnum = $i;
+			$GLOBALS['filter_hits']++;
+			$GLOBALS['last_hit_resnum'] = $i;
+			
+			echo <<<EOP
+<script type="text/javascript">
+<!--
+filterCount({$GLOBALS['filter_hits']});
+-->
+</script>\n
+EOP;
 		}
 		
-		// あぼーんチェック====================================
+		//=============================================================
+		// あぼーんチェック
+		//=============================================================
 		$aborned_res .= "<dt id=\"r{$i}\" class=\"aborned\"><span>&nbsp;</span></dt>\n"; // 名前
 		$aborned_res .= "<!-- <dd class=\"aborned\">&nbsp;</dd> -->\n"; // 内容
 
@@ -179,7 +201,7 @@ class ShowThreadPc extends ShowThread{
 			
 			foreach ($quote_res_nums as $rnv) {
 				if (!$this->quote_res_nums_done[$rnv]) {
-					$ds = $this->qRes( $this->thread->datlines[$rnv-1], $rnv );
+					$ds = $this->qRes($this->thread->datlines[$rnv-1], $rnv);
 					$onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
 					$rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></dd>\n";
 					$this->quote_res_nums_done[$rnv] = true;
@@ -263,10 +285,10 @@ EOP;
 		*/
 
 		if ($this->thread->onthefly) {
-			$newres_to_show = true;
+			$GLOBALS['newres_to_show_flag'] = true;
 			$tores .= "<dt id=\"r{$i}\"><span class=\"ontheflyresorder\">{$i}</span> ："; //番号（オンザフライ時）
 		} elseif ($i > $this->thread->readnum) {
-			$newres_to_show = true;
+			$GLOBALS['newres_to_show_flag'] = true;
 			$tores .= "<dt id=\"r{$i}\"><font color=\"{$STYLE['read_newres_color']}\">{$i}</font> ："; //番号（新着レス時）
 		} else {
 			$tores .= "<dt id=\"r{$i}\">{$i} ："; //番号			

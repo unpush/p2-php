@@ -1,14 +1,16 @@
 <?php
-// p2 - スレッド表示スクリプト
-// フレーム分割画面、右下部分
+/*
+	p2 - スレッド表示スクリプト
+	フレーム分割画面、右下部分
+*/
 
 include_once './conf.inc.php'; // 基本設定読込
-require_once './p2util.class.php';
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './thread.class.php'; // スレッドクラス読込
 require_once './threadread.class.php'; // スレッドリードクラス読込
 require_once './filectl.class.php';
 require_once './ngabornctl.class.php';
-require_once("./showthread_class.inc"); // HTML表示クラス
+require_once './showthread.class.php'; // HTML表示クラス
 
 $debug = 0;
 $debug && include_once("profiler.inc"); //
@@ -20,15 +22,15 @@ authorize(); //ユーザ認証
 // 変数
 //================================================================
 
-$newtime = date("gis");  //同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
-//$_today = date("y/m/d");
+$newtime = date("gis");  // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
+// $_today = date("y/m/d");
 
 $_info_msg_ht = "";
 
 //=================================================
 // スレの指定
 //=================================================
-detectThread();
+detectThread();	// global $host, $bbs, $key, $ls
 
 //=================================================
 // レスフィルタ
@@ -98,7 +100,9 @@ $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 // メイン
 //==================================================================
 
-$aThread = new ThreadRead;
+if (!isset($aThread)) {
+	$aThread = new ThreadRead;
+}
 
 //==========================================================
 // idxの読み込み
@@ -152,7 +156,7 @@ if (empty($aThread->datlines) && !empty($_GET['offline'])) {
 }
 
 
-$aThread->setTitleFromLocal(); //タイトルを取得して設定
+$aThread->setTitleFromLocal(); // タイトルを取得して設定
 
 //===========================================================
 // 表示レス番の範囲を設定
@@ -163,9 +167,11 @@ if ($_conf['ktai']) {
 	$before_respointer = $_conf['before_respointer'];
 }
 
-if ($aThread->isKitoku()) { // 取得済みなら
+// 取得済みなら
+if ($aThread->isKitoku()) {
 	
-	if ($_GET['nt']) { //「新着レスの表示」の時は特別にちょっと前のレスから表示
+	//「新着レスの表示」の時は特別にちょっと前のレスから表示
+	if ($_GET['nt']) {
 		if (substr($ls, -1) == "-") {
 			$n = $ls - $before_respointer;
 			if ($n<1) { $n = 1; }
@@ -191,6 +197,11 @@ if ($aThread->isKitoku()) { // 取得済みなら
 	if (!$ls) { $ls = $_conf['get_new_res_l']; }
 }
 
+// フィルタリングの時は、all固定とする
+if (isset($_REQUEST['word'])) {
+	$ls = 'all';
+}
+
 $aThread->lsToPoint($ls);
 
 //===============================================================
@@ -198,55 +209,88 @@ $aThread->lsToPoint($ls);
 //===============================================================
 $ptitle_ht = $aThread->itaj." / ".$aThread->ttitle;
 
-if($_conf['ktai']){
+if ($_conf['ktai']) {
 	
-	//ヘッダプリント
+	// ヘッダプリント
 	include("./read_header_k.inc");
 	
-	if($aThread->rescount){
-		include_once("./showthreadk_class.inc"); //HTML表示クラス
+	if ($aThread->rescount) {
+		include_once './showthreadk.class.php'; // HTML表示クラス
 		$aShowThread = new ShowThreadK($aThread);
-		echo $aShowThread->datToHtml();
+		$aShowThread->datToHtml();
 	}
 	
-	//フッタプリント
+	// フッタプリント
 	include("./read_footer_k.inc");
 	
-}else{
-	//===========================================================
-	// ヘッダ 表示
-	//===========================================================
-	include($read_header_inc);
+} else {
+
+	// ■ヘッダ 表示
+	include './read_header.inc.php';
+	flush();
 	
 	//===========================================================
 	// ローカルDatを変換してHTML表示
 	//===========================================================
-	$debug && $prof->startTimer( "datToHtml" );
+	// レスがあり、検索指定があれば
+	if (isset($word) && $aThread->rescount) {
 	
-	if($aThread->rescount){
-		//echo $aThread->datToHtml(); //dat を html に変換表示
+		$all = $aThread->rescount;
 		
-		include_once("./showthreadpc_class.inc"); //HTML表示クラス
+		$GLOBALS['filter_hits'] = 0;
+		
+		$hits_line = "<p><b id=\"filerstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>";
+		echo <<<EOP
+<script type="text/javascript">
+<!--
+document.writeln('{$hits_line}');
+var searching = document.getElementById('searching');
+
+function filterCount(n){
+	if (searching) {
+		searching.innerHTML = n;
+	}
+}
+-->
+</script>
+EOP;
+	}
+	
+	$debug && $prof->startTimer("datToHtml");
+	
+	if ($aThread->rescount) {
+
+		include_once './showthreadpc.class.php'; // HTML表示クラス
 		$aShowThread = new ShowThreadPc($aThread);
 		
-		$res1 = $aShowThread->quoteOne(); //>>1ポップアップ用
+		$res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
 		echo $res1['q'];
 
-		echo $aShowThread->datToHtml();
+		$aShowThread->datToHtml();
 	}
+	
+	$debug && $prof->stopTimer("datToHtml");
 	
 	// フィルタ結果を表示
 	if ($word && $aThread->rescount) {
-		$all = $aThread->rescount;
-		echo "<p><b class=\"filtering\">{$all}レス中 {$filter_hits}レスがヒット</b></p>\n";
+		echo <<<EOP
+<script type="text/javascript">
+<!--
+var filerstart = document.getElementById('filerstart');
+if (filerstart) {
+	filerstart.style.backgroundColor = 'yellow';
+	filerstart.style.fontWeight = 'bold';
+}
+-->
+</script>\n
+EOP;
+		if ($GLOBALS['filter_hits'] > 5) {
+			echo "<p><b class=\"filtering\">{$all}レス中 {$GLOBALS['filter_hits']}レスがヒット</b></p>\n";
+		}
 	}
-		
-	$debug && $prof->stopTimer( "datToHtml" );
 	
-	//===========================================================
-	// フッタ 表示
-	//===========================================================
-	include($read_footer_inc);
+	// ■フッタ 表示
+	include 'read_footer.inc.php';
 	
 	$debug && $prof->printTimers( true );
 
@@ -276,13 +320,13 @@ if ($aThread->rescount) {
 // ■NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
 
-// 以上---------------------------------------------------------------
+// ■以上---------------------------------------------------------------
 exit;
 
 
 
 //==================================================================
-// 関数
+// ■関数
 //==================================================================
 
 /**
@@ -292,29 +336,30 @@ function detectThread()
 {
 	global $_conf, $host, $bbs, $key, $ls;
 	
-	if ($nama_url = $_GET['nama_url']) { // スレURLの直接指定
+	// スレURLの直接指定
+	if (($nama_url = $_GET['nama_url']) || ($nama_url = $_GET['url'])) { 
 	
 			// 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-			if( preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches) ){
-				$host=$matches[1];
-				$bbs=$matches[3];
-				$key=$matches[4];
-				$ls=$matches[6];
+			if (preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches)) {
+				$host = $matches[1];
+				$bbs = $matches[3];
+				$key = $matches[4];
+				$ls = $matches[6];
 				
 			// 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
 			} elseif ( preg_match("/(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html/", $nama_url, $matches) ){ //2ch pink 過去ログhtml
-				$host=$matches[2];
-				$bbs=$matches[5];
-				$key=$matches[7];
+				$host = $matches[2];
+				$bbs = $matches[5];
+				$key = $matches[7];
 				$kakolog_uri = $matches[1];
-				$_GET['kakolog']= urlencode($kakolog_uri);
+				$_GET['kakolog'] = urlencode($kakolog_uri);
 				
 			// まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
 			} elseif ( preg_match("/http:\/\/([^\/]+\.machibbs\.com|[^\/]+\.machi\.to)\/bbs\/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*/", $nama_url, $matches) ){
-				$host=$matches[1];
-				$bbs=$matches[3];
-				$key=$matches[4];
-				$ls=$matches[6] ."-". $matches[8];
+				$host = $matches[1];
+				$bbs = $matches[3];
+				$key = $matches[4];
+				$ls = $matches[6] ."-". $matches[8];
 			} elseif (preg_match("{http://((jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}", $nama_url, $matches)) {
 				$host = $matches[1];
 				$bbs = $matches[5];
@@ -329,7 +374,7 @@ function detectThread()
 				$ls = $matches[5];
 			}
 	
-	}else{
+	} else {
 		if($_GET['host']){$host = $_GET['host'];} //"pc.2ch.net"
 		if($_POST['host']){$host = $_POST['host'];}
 		if($_GET['bbs']){$bbs = $_GET['bbs'];} //"php"
@@ -356,7 +401,7 @@ function recRecent($data)
 
 	// 最初に重複要素を削除
 	if ($lines) {
-		foreach($lines as $line){
+		foreach($lines as $line) {
 			$line = rtrim($line);
 			$lar = explode('<>', $line);
 			$data_ar = explode('<>', $data);

@@ -17,20 +17,39 @@ if ($_conf['login_log_rec']) {
 	}
 }
 
+$s = $_SERVER['HTTPS'] ? 's' : '';
+$me_url = "http{$s}://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
+$me_dir_url = dirname($me_url);
+
 if ($_conf['ktai']) {
 
 	//=========================================================
 	// 携帯用 インデックス
 	//=========================================================
+	// url指定があれば、そのままスレッド読みへ飛ばす
+	if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
+		header('Location: '.$me_dir_url.'/read.php?'.$_SERVER['QUERY_STRING']);
+		exit;
+	}
 	include("./index_print_k.inc");
 	index_print_k();
 	
 } else {
 	//=========================================
-	// 変数
+	// PC用 変数
 	//=========================================
 	$title_page = "title.php";
-	if (!$_conf['first_page']) { $_conf['first_page'] = "first_cont.php"; }
+	
+	if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
+		$htm['read_page'] = "read.php?".$_SERVER['QUERY_STRING'];
+	} else {
+		if (!empty($_conf['first_page'])) {
+			$htm['read_page'] = $_conf['first_page'];
+		} else {
+			$htm['read_page'] = 'first_cont.php';
+		}
+	}
+	
 	$sidebar = $_GET['sidebar'];
 	
 	$ptitle = " p2";
@@ -60,7 +79,7 @@ EOMENUFRAME;
 	echo <<<EOMAINFRAME
 	<frameset rows="40%,60%" frameborder="1" border="2">
 		<frame src="{$title_page}" name="subject" scrolling="auto">
-		<frame src="{$_conf['first_page']}" name="read" scrolling="auto">
+		<frame src="{$htm['read_page']}" name="read" scrolling="auto">
 	</frameset>
 EOMAINFRAME;
 

@@ -25,22 +25,26 @@ class ShowThreadK extends ShowThread{
 		$status_title = str_replace("'", "\'", $status_title);
 		$status_title = str_replace('"', "\'\'", $status_title);
 		
-		if (!$nofirst) { // 1を表示
-			$cont_ht .= $this->transRes($this->thread->datlines[0], 1);
+		// 1を表示
+		if (!$nofirst) {
+			echo $this->transRes($this->thread->datlines[0], 1);
 		}
 
 		for ($i = $start; $i <= $to; $i++) {
-			if (!$nofirst and $i==1) { continue; }
+			if (!$nofirst and $i==1) {
+				continue;
+			}
 			if (!$this->thread->datlines[$i-1]) {
 				$this->thread->readnum = $i-1; 
 				break;
 			}
-			$cont_ht .= $this->transRes($this->thread->datlines[$i-1], $i);
+			echo $this->transRes($this->thread->datlines[$i-1], $i);
+			flush();
 		}
 		
 		//$s2e = array($start, $i-1);
 		//return $s2e;
-		return $cont_ht;
+		return true;
 	}
 
 
@@ -53,7 +57,7 @@ class ShowThreadK extends ShowThread{
 	{
 		global $STYLE, $mae_msg, $res_filter, $word_fm;
 		global $ngaborns_hits;
-		global $_conf, $newres_to_show;
+		global $_conf;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
 		$tores = "";
@@ -152,12 +156,22 @@ class ShowThreadK extends ShowThread{
 		//=============================================================
 		
 		$name = $this->transName($name); // 名前HTML変換
-		$msg = $this->transMsg($msg, $i); //メッセージHTML変換
+		$msg = $this->transMsg($msg, $i); // メッセージHTML変換
 		
 		// {{{ transRes - BEプロファイルリンク変換
-		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target_at']}>?\$2</a>";
-		$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
-		// }}}
+		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>Lv.\$2</a>";		
+		
+		//<BE:23457986:1>
+		$be_match = '|<BE:(\d+):(\d+)>|i';
+		if (preg_match($be_match, $date_id)) {
+			$date_id = preg_replace($be_match, $beid_replace, $date_id);
+		
+		} else {
+		
+			$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>?\$2</a>";
+			$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
+		
+		}
 		
 		// NGメッセージ変換======================================
 		if ($isNgMsg) {
@@ -204,10 +218,10 @@ EOP;
 		*/
 
 		if ($this->thread->onthefly) { // ontheflyresorder
-			$newres_to_show = true;
+			$GLOBALS['newres_to_show_flag'] = true;
 			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[<font color=\"#00aa00'\">{$i}</font>]"; // 番号（オンザフライ時）
 		} elseif ($i > $this->thread->readnum) {
-			$newres_to_show = true;
+			$GLOBALS['newres_to_show_flag'] = true;
 			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[<font color=\"{$STYLE['read_newres_color']}\">{$i}</font>]"; // 番号（新着レス時）
 		} else {
 			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[{$i}]"; // 番号

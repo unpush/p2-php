@@ -900,8 +900,8 @@ class ThreadRead extends Thread{
 		$this->onthefly && $body .= "<div><span class=\"onthefly\">on the fly</span></div>";
 		$body .= "<dl>";
 		
-		include_once("./showthread_class.inc");	// HTML表示クラス
-		include_once("./showthreadpc_class.inc");	// HTML表示クラス
+		include_once './showthread.class.php';	// HTML表示クラス
+		include_once './showthreadpc.class.php';	// HTML表示クラス
 		$aShowThread = new ShowThreadPc($this);
 		$body .= $aShowThread->transRes($first_line, 1);	// 1を表示
 		unset($aShowThread);
