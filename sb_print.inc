@@ -247,8 +247,10 @@ EOP;
 		
 		// 元スレ
 		$moto_thre_ht = "";
-		if (!$aThread->isKitoku()) {
-			$moto_thre_ht = '<a class="thre_title" href="'.$aThread->getMotoThread('all').'">・</a> ';
+		if ($_conf['sb_show_motothre']) {
+			if (!$aThread->isKitoku()) {
+				$moto_thre_ht = '<a class="thre_title" href="'.$aThread->getMotoThread('all').'">・</a> ';
+			}
 		}
 		
 		// 新規スレ
