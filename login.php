@@ -6,7 +6,7 @@
 */
 
 require_once("./conf.php");  //基本設定
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./login.inc");
 
 authorize(); //ユーザ認証

@@ -3,7 +3,7 @@
 
 include("./conf.php");   //基本設定ファイル読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./datactl.inc");
 
 authorize(); //ユーザ認証

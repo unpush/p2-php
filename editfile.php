@@ -4,7 +4,7 @@
 */
 
 require_once("./conf.php"); // 基本設定読込
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once './p2util.class.php';
 
 authorize(); // ユーザ認証

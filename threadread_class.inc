@@ -1,7 +1,7 @@
 <?php
 // p2 - スレッド リード クラス
 
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 /**

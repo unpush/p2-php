@@ -1,7 +1,7 @@
 <?php
 // p2 - お気にスレ関係の処理スクリプト
 
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./datactl.inc");
 
 //==================================================================

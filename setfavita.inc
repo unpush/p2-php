@@ -1,7 +1,7 @@
 <?php
 // p2 -  ‚¨‹C‚É”Â‚Ìˆ—
 
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 
 //===============================================
 // •Ï”

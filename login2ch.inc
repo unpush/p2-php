@@ -1,12 +1,12 @@
 <?php
 
 require_once("./conf.php");  //基本設定
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./datactl.inc");
 require_once("./crypt_xor.inc");
 
 /**
- * ■2chにログインする関数
+ * ■2chにログインする
  */
 function login2ch()
 {
@@ -25,7 +25,7 @@ function login2ch()
 		return false;
 	}
 
-	$auth2ch_url = "https://2chv.tora3.net/futen.cgi";
+	$auth2ch_url = 'https://2chv.tora3.net/futen.cgi';
 	$postf = "ID=".$login2chID."&PW=".$login2chPW;
 	$x_2ch_ua = "X-2ch-UA: ".$_conf['p2name']."/".$_conf['p2version'];
 	$dolib2ch = "DOLIB/1.00";

@@ -1,6 +1,6 @@
 <?php
 
-require_once './filectl_class.inc';
+require_once './filectl.class.php';
 
 /**
 * p2 - p2用のユーティリティクラス

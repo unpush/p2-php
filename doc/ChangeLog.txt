@@ -1,11 +1,19 @@
 2004-12-31 aki
+	* p2 version 1.2.6
+	
+	- したらば、まちBBSが表示できなかったのを修正
+	- filectl_class.inc を filectl.class.php にファイル名変更
+
+
+
+2004-12-31 aki
 	* p2 version 1.2.5
 	
 	- IDポップアップの自動リンクを追加（$_conf['flex_idpopup']）
 	- レスフィルタの条件に「全体で」を追加
 	- したらばの解析処理を調整
 	- be.2ch.net のCookie送信処理を修正
-	- strctl_class.inc を srtctl.class.phpにファイル名変更
+	- strctl_class.inc を srtctl.class.php にファイル名変更
 	
 	* conf.php
 	* conf_user.php

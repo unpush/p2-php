@@ -3,9 +3,9 @@
 
 class FileCtl{
 	
-	//===============================================
-	// 書き込み用のファイルがなければ生成してパーミッションを調整する関数
-	//===============================================
+	/**
+	 * 書き込み用のファイルがなければ生成してパーミッションを調整する
+	 */
 	function make_datafile($file, $perm=0606)
 	{
 		if(! file_exists($file)){
@@ -28,7 +28,7 @@ class FileCtl{
 	}
 
 	/**
-	 * 親ディレクトリがなければ生成してパーミッションを調整する関数
+	 * 親ディレクトリがなければ生成してパーミッションを調整する
 	 */
 	function mkdir_for($apath)
 	{
@@ -54,10 +54,11 @@ class FileCtl{
 		return true;
 	}
 	
-	//===============================================
-	// ファイルの中身を取得する関数
-	//===============================================
-	function get_file_contents($filepath){
+	/**
+	 * ファイルの中身を取得する
+	 */
+	function get_file_contents($filepath)
+	{
 		if(is_readable($filepath)){
 			$fp = fopen($filepath, "rb");
 			$contents = fread($fp, filesize($filepath));
@@ -72,10 +73,11 @@ class FileCtl{
 		}
 	}
 	
-	//===============================================
-	// gzファイルの中身を取得する関数
-	//===============================================
-	function get_gzfile_contents($filepath){
+	/**
+	 * gzファイルの中身を取得する
+	 */
+	function get_gzfile_contents($filepath)
+	{
 		if(is_readable($filepath)){
 			ob_start();
 	    	readgzfile($filepath);
