@@ -1,3 +1,28 @@
+2004-11-30 aki
+	* p2 version 1.1.5
+	
+	- p2imeで、プレビュー(p)は手動転送、それ以外は自動転送の設定を追加
+	 （$_conf['through_ime'] = "p2pm";）
+	- subject.txtの保存パーミッションを606に変更した
+	- >> 引用リンク化処理の調整
+	- 他ごにょごにょ
+
+	* conf.php: $_conf['p2version'], $_conf['p2name']
+	* conf_user.php: $_conf['through_ime'], $_conf['iframe_popup'], $_conf['iframe_popup_delay']
+	* datactl.inc
+	* login2ch.inc
+	* login2ch.php
+	* menu.php
+	* menu_side.php
+	* p2util.class.php
+	* post.php
+	* read_header.inc
+	* setfav.inc
+	* showthreadk_class.inc
+	* showthreadpc_class.inc
+	* threadread_class.inc
+	* title.php
+
 2004-11-22 aki
 	* p2 version 1.1.4
 	
