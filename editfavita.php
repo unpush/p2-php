@@ -72,7 +72,7 @@ $lines= file($favita_path);
 
 
 echo <<<EOP
-<div><b>お気に板の編集</b> [<a href="{$_SERVER['PHP_SELF']}" onClick='parent.menu.location.href="{$menu_php}?nr=1"'>メニューを更新</a>]</div>
+<div><b>お気に板の編集</b> [<a href="{$_SERVER['PHP_SELF']}" onClick='parent.menu.location.href="{$_conf['menu_php']}?nr=1"'>メニューを更新</a>]</div>
 EOP;
 
 echo $add_favita_form_ht;
@@ -89,7 +89,7 @@ if($lines){
 			echo <<<EOP
 			<tr>
 			<td><a href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}&setfavita=0" class="fav">★</a></td>
-			<td><a href="{$subject_php}?host={$host}&bbs={$bbs}">{$matches[3]}</a></td>
+			<td><a href="{$_conf['subject_php']}?host={$host}&bbs={$bbs}">{$matches[3]}</a></td>
 			<td>[ <a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=top">▲</a></td>
 			<td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=up">↑</a></td>
 			<td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=down">↓</a></td>

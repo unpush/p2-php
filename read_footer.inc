@@ -7,7 +7,7 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
 // フッタ
 //=====================================================================
 
-if ($bottom_res_form) {
+if ($_conf['bottom_res_form']) {
 
 	$p_htm = array();
 	

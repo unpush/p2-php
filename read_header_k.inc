@@ -31,8 +31,8 @@ if ($aThread->fav) {$favdo=0;}else{$favdo=1;}
 
 // レスナビ設定 =====================================================
 
-$rnum_range = $k_rnum_range;
-$latest_show_res_num = $k_rnum_range; //最新XX
+$rnum_range = $_conf['k_rnum_range'];
+$latest_show_res_num = $_conf['k_rnum_range']; //最新XX
 
 $read_navi_range = "";
 $read_navi_previous = "";
@@ -119,8 +119,8 @@ EOP;
 //====================================================================
 
 //ツールバー部分HTML=======
-$toolbar_right_ht=<<<EOTOOLBAR
-	<a href="{$subject_php}?host={$aThread->host}{$bbs_q}{$key_q}{$k_at_a}" {$accesskey}="{$k_accesskey['above']}">{$k_accesskey['above']}.{$aThread->itaj}</a>
+$toolbar_right_ht = <<<EOTOOLBAR
+	<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$k_at_a}" {$accesskey}="{$k_accesskey['above']}">{$k_accesskey['above']}.{$aThread->itaj}</a>
 	<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$k_at_a}">{$info_st}</a> 
 	<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$k_at_a}">{$delete_st}</a> 
 	<a href="{$motothre_url}">{$moto_thre_st}</a>

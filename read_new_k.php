@@ -15,7 +15,7 @@ authorize(); //ユーザ認証
 //==================================================================
 // 変数
 //==================================================================
-$k_rnum_all_range = $k_rnum_range;
+$k_rnum_all_range = $_conf['k_rnum_range'];
 
 $sb_view="shinchaku";
 $newtime= date("gis");
@@ -73,17 +73,17 @@ $ptitle_ht="{$aThreadList->ptitle} の 新着まとめ読み";
 //&amp;sb_view={$sb_view}
 if($aThreadList->spmode){
 	$sb_ht =<<<EOP
-		<a href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$k_at_a}">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$k_at_a}">{$aThreadList->ptitle}</a>
 EOP;
 	$sb_ht_btm =<<<EOP
-		<a {$accesskey}="{$k_accesskey['above']}" href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$k_at_a}">{$k_accesskey['above']}.{$aThreadList->ptitle}</a>
+		<a {$accesskey}="{$k_accesskey['above']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$k_at_a}">{$k_accesskey['above']}.{$aThreadList->ptitle}</a>
 EOP;
 }else{
 	$sb_ht =<<<EOP
-		<a href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}">{$aThreadList->ptitle}</a>
 EOP;
 	$sb_ht_btm =<<<EOP
-		<a {$accesskey}="{$k_accesskey['above']}" href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}">{$k_accesskey['above']}.{$aThreadList->ptitle}</a>
+		<a {$accesskey}="{$k_accesskey['above']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}">{$k_accesskey['above']}.{$aThreadList->ptitle}</a>
 EOP;
 }
 
@@ -220,9 +220,10 @@ for( $x = 0; $x < $linesize ; $x++ ){
 
 //==================================================================
 
-function readNew($aThread){
-	global $_conf, $respointer, $before_respointer_new, $newthre_num, $STYLE, $browser;
-	global $_info_msg_ht, $newres_to_show, $pointer_at, $spmode, $subject_php, $k_accesskey, $k_at_a;
+function readNew($aThread)
+{
+	global $_conf, $newthre_num, $STYLE, $browser;
+	global $_info_msg_ht, $newres_to_show, $pointer_at, $spmode, $k_accesskey, $k_at_a;
 
 	$newthre_num++;
 	
@@ -260,11 +261,11 @@ function readNew($aThread){
 	// 表示レス番の範囲を設定
 	//===========================================================
 	if ($aThread->isKitoku()) { // 取得済みなら
-		$from_num = $aThread->newline -$respointer - $before_respointer_new;
+		$from_num = $aThread->newline - $_conf['respointer'] - $_conf['before_respointer_new'];
 		if($from_num < 1){
 			$from_num = 1;
 		}elseif($from_num > $aThread->rescount){
-			$from_num = $aThread->rescount -$respointer - $before_respointer_new;
+			$from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer_new'];
 		}
 
 		//if (!$ls) {
@@ -354,9 +355,9 @@ EOP;
 EOP;
 
 	//ツールバー部分HTML=======
-	if($spmode){
+	if ($spmode) {
 		$toolbar_itaj_ht = <<<EOP
-(<a href="{$subject_php}?host={$aThread->host}{$bbs_q}{$key_q}{$k_at_a}">{$aThread->itaj}</a>)
+(<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$k_at_a}">{$aThread->itaj}</a>)
 EOP;
 	}
 	$toolbar_right_ht .=<<<EOTOOLBAR
@@ -375,7 +376,7 @@ EOTOOLBAR;
 EOP;
 
 	//透明あぼーんで表示がない場合はスキップ
-	if($newres_to_show){
+	if ($newres_to_show) {
 		echo $read_header_ht;
 		echo $read_cont_ht;
 		echo $read_footer_ht;
@@ -387,15 +388,15 @@ EOP;
 	
 	if ($aThread->rescount) {
 	
-		if($aThread->resrange['to']+1 > $aThread->newline){
-			$aThread->newline = $aThread->resrange['to']+1;
-		}else{
+		if ($aThread->resrange['to'] +1 >= $aThread->newline) {
+			$aThread->newline = $aThread->resrange['to'] +1;
+		} else {
 			$aThread->newline = $data[9];
 		}
 		//異常値修正
-		if($aThread->newline > $aThread->rescount+1){
-			$aThread->newline = $aThread->rescount+1;
-		}elseif($aThread->newline < 1){
+		if ($aThread->newline > $aThread->rescount +1) {
+			$aThread->newline = $aThread->rescount +1;
+		} elseif ($aThread->newline < 1) {
 			$aThread->newline = 1;
 		}
 		
@@ -410,18 +411,18 @@ EOP;
 //==================================================================
 $newthre_num++;
 
-if(!$aThreadList->num){
+if (!$aThreadList->num) {
 	echo "新着ﾚｽはないぽ";
 	echo "<hr>";
 }
 
-if($k_rnum_all_range > 0){
+if ($k_rnum_all_range > 0) {
 	echo <<<EOP
 	<div>
 		{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$k_at_a}" {$accesskey}="{$k_accesskey['next']}">{$k_accesskey['next']}.新まとめを更新</a>
 	</div>\n
 EOP;
-}else{
+} else {
 	echo <<<EOP
 	<div>
 		{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1{$k_at_a}" {$accesskey}="{$k_accesskey['next']}">{$k_accesskey['next']}.新まとめの続き</a>

@@ -15,7 +15,7 @@ class P2Util{
 	 */
 	function fileDownload($url, $localfile, $disp_error = 1)
 	{
-		global $_conf, $_info_msg_ht, $fsockopen_time_limit, $proxy;
+		global $_conf, $_info_msg_ht, $fsockopen_time_limit;
 
 		$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 	
@@ -32,8 +32,8 @@ class P2Util{
 		$wap_req = new Request;
 		$wap_req->setUrl($url);
 		$wap_req->setModified($modified);
-		if ($proxy['use']) {
-			$wap_req->setProxy($proxy['host'], $proxy['port']);
+		if ($_conf['proxy_use']) {
+			$wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
 		}
 		$wap_res = $wap_ua->request($wap_req);
 	
@@ -59,7 +59,7 @@ class P2Util{
 	 */
 	function subjectDownload($url, $subjectfile)
 	{
-		global $_conf, $datdir, $_info_msg_ht, $fsockopen_time_limit, $proxy;
+		global $_conf, $datdir, $_info_msg_ht, $fsockopen_time_limit;
 
 		$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 	
@@ -90,8 +90,8 @@ class P2Util{
 		$wap_req->setUrl($url);
 		$wap_req->setModified($modified);
 		$wap_req->setHeaders($headers);
-		if($proxy['use']){
-			$wap_req->setProxy($proxy['host'], $proxy['port']);
+		if ($_conf['proxy_use']) {
+			$wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
 		}
 		$wap_res = $wap_ua->request($wap_req);
 	
@@ -293,20 +293,20 @@ class P2Util{
 	 */
 	function transResHistLog()
 	{
-		global $prefdir, $res_write_rec, $res_write_perm;
+		global $_conf, $prefdir, $res_write_perm;
 
 		$rh_dat_php = $prefdir."/p2_res_hist.dat.php";
 		$rh_dat = $prefdir."/p2_res_hist.dat";
 
 		// 書き込み履歴を記録しない設定の場合は何もしない
-		if ($res_write_rec == 0) {
+		if ($_conf['res_write_rec'] == 0) {
 			return true;
 		}
 
 		// p2_res_hist.dat.php（新） がなくて、p2_res_hist.dat（旧） が読み込み可能であったら		
 		if ((!file_exists($rh_dat_php)) and is_readable($rh_dat)) {
 			// 読み込んで
-			if($cont = FileCtl::get_file_contents($rh_dat)) {
+			if($cont = @file_get_contents($rh_dat)) {
 				// <>区切りからタブ区切りに変更する
 				// まずタブを全て外して
 				$cont = str_replace("\t", "", $cont);

@@ -63,12 +63,12 @@ class BrdCtl{
 	*/
 	function read_brd_online()
 	{
-		global $_info_msg_ht, $brdfile_online, $c_menu_dl_interval;
+		global $_conf, $_info_msg_ht;
 		
 		$brd_menus = array();
 		
-		if ($brdfile_online) {
-			$cachefile = cacheForDL($brdfile_online);
+		if ($_conf['brdfile_online']) {
+			$cachefile = cacheForDL($_conf['brdfile_online']);
 			
 			$noDL = false;
 			
@@ -83,17 +83,17 @@ class BrdCtl{
 				}
 			}
 			
-			if( $noDL  ){	// DLしない
+			if ($noDL) {	// DLしない
 				;
-			}else{	// DLする
+			} else {	// DLする
 				//echo "DL!<br>";//
-				$brdfile_online_res = P2Util::fileDownload($brdfile_online, $cachefile);
-				if( $brdfile_online_res->is_success() && $brdfile_online_res->code!="304" ){
+				$brdfile_online_res = P2Util::fileDownload($_conf['brdfile_online'], $cachefile);
+				if ($brdfile_online_res->is_success() && $brdfile_online_res->code != "304") {
 					$isNewDL = true;
 				}
 			}
 		
-			if( preg_match("/html?$/", $brdfile_online) ){ //html形式なら
+			if( preg_match("/html?$/", $_conf['brdfile_online']) ){ //html形式なら
 			
 				//更新されていたら新規キャッシュ作成
 				if( $isNewDL ){

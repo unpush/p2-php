@@ -41,13 +41,14 @@ class ResHist{
 	//レス記事を表示するメソッド ===============================================
 	function showArticles()
 	{
-		global $_conf, $subject_php, $STYLE;
+		global $_conf, $STYLE;
 		global $k_at_a, $k_at_q, $k_input_ht;
 	
 		$tores="<dl>";
 		
-		foreach($this->articles as $a_res){
-			$href_ht="";
+		foreach ($this->articles as $a_res) {
+			$htm['daytime'] = htmlspecialchars($a_res->daytime);
+			$href_ht = "";
 			if($a_res->key){
 				$href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$k_at_a}#footer";
 			}
@@ -55,12 +56,12 @@ class ResHist{
 		<a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$k_at_a}" target="_self" onClick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1',{$STYLE['info_pop_size']},0,0)">情報</a>
 EOP;
 
-			$res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$a_res->daytime}\"> ";
+			$res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$htm['daytime']}\"> ";
 			$res_ht .= "{$a_res->order} ："; //番号
 			$res_ht .= "<span class=\"name\"><b>{$a_res->name}</b></span> ："; //名前
 			if($a_res->mail){$res_ht .= "{$a_res->mail} ：";} //メール
-			$res_ht .= "{$a_res->daytime}</dt>\n"; //日付とID
-			$res_ht .= "<dd><a href=\"{$subject_php}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$k_at_a}\" target=\"subject\">{$a_res->itaj}</a> / ";
+			$res_ht .= "{$htm['daytime']}</dt>\n"; //日付とID
+			$res_ht .= "<dd><a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$k_at_a}\" target=\"subject\">{$a_res->itaj}</a> / ";
 			if($href_ht){
 				$res_ht .= "<a href=\"{$href_ht}\"><b>{$a_res->ttitle}</b></a> - {$info_view_ht}\n";
 			}elseif($a_res->ttitle){
@@ -80,12 +81,12 @@ EOP;
 	//携帯用ナビを表示するメソッド=====================================================
 	function showNaviK($position)
 	{
-		global $k_rnum_range;
+		global $_conf;
 		global $k_at_a, $k_at_q, $k_input_ht, $accesskey, $k_accesskey;
 
 		//表示数制限====================
 		$list_disp_all_num = $this->num;
-		$list_disp_range=$k_rnum_range;
+		$list_disp_range = $_conf['k_rnum_range'];
 		
 		if($_GET['from']){
 			$list_disp_from=$_GET['from'];
@@ -143,13 +144,14 @@ EOP;
 	//レス記事を表示するメソッド 携帯用============================================
 	function showArticlesK()
 	{
-		global $_conf, $subject_php, $ktai_res_size, $ktai_ryaku_size;
+		global $_conf;
 		global $k_at_a, $k_at_q, $k_input_ht;
 	
 		//=============
 		$tores="";
 		foreach($this->articles as $a_res){
-		
+			$htm['daytime'] = htmlspecialchars($a_res->daytime);
+			
 			if($a_res->order < $this->resrange['start'] or $a_res->order > $this->resrange['to']){
 				continue;
 			}
@@ -162,8 +164,8 @@ EOP;
 		//大きさ制限
 		if(! $_GET['k_continue']){
 			$msg=$a_res->msg;
-			if( strlen($msg) > $ktai_res_size){
-				$msg = substr($msg, 0, $ktai_ryaku_size);
+			if( strlen($msg) > $_conf['ktai_res_size']){
+				$msg = substr($msg, 0, $_conf['ktai_ryaku_size']);
 				
 				//末尾に<br>があれば取り除く
 				if( substr($msg, -1)==">" ){
@@ -187,8 +189,8 @@ EOP;
 			$res_ht = "[$a_res->order]"; //番号
 			$res_ht .= "{$a_res->name}:"; //名前
 			if($a_res->mail){$res_ht .= "{$a_res->mail}:";} //メール
-			$res_ht .= "{$a_res->daytime}<br>\n"; //日付とID
-			$res_ht .= "<a href=\"{$subject_php}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$k_at_a}\">{$a_res->itaj}</a> / ";
+			$res_ht .= "{$htm['daytime']}<br>\n"; //日付とID
+			$res_ht .= "<a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$k_at_a}\">{$a_res->itaj}</a> / ";
 			if($href_ht){
 				$res_ht .= "<a href=\"{$href_ht}\">{$a_res->ttitle}</a>\n";
 			}elseif($a_res->ttitle){

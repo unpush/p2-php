@@ -28,13 +28,14 @@ function cacheForCookie($host){
 //===============================================
 // host‚Æbbs‚©‚ç”Â–¼‚ğ•Ô‚·ŠÖ”
 //===============================================
-function getItaName($host, $bbs){
+function getItaName($host, $bbs)
+{
 	global $prefdir, $ita_names, $p2_perm;
 	
 	if(! isset($ita_names["$host/$bbs"]) ){
 		$datdir_host = datdirOfHost($host);
 		$p2_setting_txt = $datdir_host."/".$bbs."/p2_setting.txt";
-		$p2_setting_cont = FileCtl::get_file_contents($p2_setting_txt);
+		$p2_setting_cont = @file_get_contents($p2_setting_txt);
 		if($p2_setting_cont){$p2_setting = unserialize($p2_setting_cont);}
 		$ita_names["$host/$bbs"] = $p2_setting['itaj'];
 	}

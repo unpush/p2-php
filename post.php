@@ -87,7 +87,7 @@ $MESSAGE = preg_replace_callback(
 
 // p2_cookie.txt 読み込み ===================================
 $cookie_file = $prefdir."/p2_cookie/{$_POST['host']}/p2_cookie.txt";
-$cookie_cont = FileCtl::get_file_contents($cookie_file);
+$cookie_cont = @file_get_contents($cookie_file);
 if ($cookie_cont) {
 	$p2cookies = unserialize($cookie_cont);
 	if ($p2cookies['expires']) {
@@ -146,7 +146,7 @@ if($_POST['newthread']){
 	if( P2Util::isHostJbbsShitaraba($host) ){
 		$post[$dir_k] = $dir;
 	}
-	$location_ht = "{$subject_php}?host={$host}&amp;bbs={$bbs}{$k_at_a}";
+	$location_ht = "{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$k_at_a}";
 }else{
 	$post = array($submit_k=>$submit, $bbs_k=>$bbs, $key_k=>$key, $time_k=>$time, $FROM_k=>$FROM, $mail_k=>$mail, $MESSAGE_k=>$MESSAGE);
 	if( P2Util::isHostJbbsShitaraba($host) ){
@@ -247,7 +247,7 @@ if ($host && $bbs && $key) {
 	// 新規データ追加
 	$newdata = "$ttitle<>$key<><><><><><>$FROM<>$mail<><>$host<>$bbs";
 	$neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
-	while (sizeof($neolines) > $res_hist_rec_num) {
+	while (sizeof($neolines) > $_conf['res_hist_rec_num']) {
 		array_pop($neolines);
 	}
 	
@@ -265,7 +265,7 @@ if ($host && $bbs && $key) {
 //=============================================
 // 書き込みログ
 //=============================================
-if ($res_write_rec) {
+if ($_conf['res_write_rec']) {
 
 	// 旧形式の書き込み履歴を新形式に変換する
 	P2Util::transResHistLog();
@@ -320,7 +320,7 @@ if ($res_write_rec) {
  */
 function postIt($URL, $request)
 {
-	global $_conf, $post_result, $post_error2ch, $p2cookies, $bbs, $host, $popup, $rescount, $ttitle_en, $STYLE, $fsockopen_time_limit, $proxy;
+	global $_conf, $post_result, $post_error2ch, $p2cookies, $bbs, $host, $popup, $rescount, $ttitle_en, $STYLE, $fsockopen_time_limit;
 	global $ktai, $bbs_cgi, $post;
 	
 	$method = "POST";
@@ -334,9 +334,9 @@ function postIt($URL, $request)
 	}
 
 	// プロキシ
-	if ($proxy['use']) {
-		$send_host = $proxy['host'];
-		$send_port = $proxy['port'];
+	if ($_conf['proxy_use']) {
+		$send_host = $_conf['proxy_host'];
+		$send_port = $_conf['proxy_port'];
 		$send_path = $url;
 	} else {
 		$send_host = $URL['host'];

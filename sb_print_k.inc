@@ -7,7 +7,7 @@
  */
 function sb_print_k($aThreadList)
 {
-	global $browser, $respointer, $subject_php, $_conf, $sb_view, $p2_setting, $STYLE, $accesskey;
+	global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE, $accesskey;
 	global $sb_view;
 	global $k_at_a, $k_at_q, $k_input_ht;
 		
@@ -54,7 +54,7 @@ function sb_print_k($aThreadList)
 		$sortq_ita = "&amp;bbs={$aThreadList->bbs}";
 	}
 	
-	$midoku_sort_ht = "<a href=\"{$subject_php}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}{$k_at_a}\">新着</a>";
+	$midoku_sort_ht = "<a href=\"{$_conf['subject_php']}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}{$k_at_a}\">新着</a>";
 
 	//=====================================================
 	// ボディ
@@ -82,7 +82,7 @@ function sb_print_k($aThreadList)
 		if ($aThread->isKitoku()) { 
 			$unum_ht="{$aThread->unum}";
 		
-			$anum = $aThread->rescount - $aThread->unum +1 -$respointer;
+			$anum = $aThread->rescount - $aThread->unum +1 - $_conf['respointer'];
 			if ($anum > $aThread->rescount) { $anum = $aThread->rescount; }
 			$anum_ht = "#r{$anum}";
 			
@@ -112,7 +112,7 @@ function sb_print_k($aThreadList)
 		// 板名 ============================================
 		if ($ita_name_bool) {
 			$ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
-			// $ita_ht = "(<a href=\"{$subject_php}?host={$aThread->host}{$bbs_q}{$k_at_a}\">{$ita_name}</a>)";
+			// $ita_ht = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$k_at_a}\">{$ita_name}</a>)";
 			$ita_ht = "({$ita_name})";
 		}
 		

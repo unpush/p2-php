@@ -39,7 +39,7 @@ $norefresh_q="&amp;norefresh=true";
 
 // ページタイトル部分URL設定 ====================================
 if($aThreadList->spmode=="taborn" or $aThreadList->spmode=="soko"){
-	$ptitle_url = "{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}";
+	$ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}";
 }elseif($aThreadList->spmode=="res_hist"){
 	$ptitle_url = "./read_res_hist.php#footer";
 }elseif(! $aThreadList->spmode){
@@ -72,9 +72,9 @@ EOP;
 if($aThreadList->spmode){ //スペシャルモード時
 	if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){	// お気にスレ or 殿堂なら
 		if($sb_view=="edit"){
-			$edit_ht="<a class=\"narabi\" href=\"{$subject_php}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
+			$edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
 		}else{
-			$edit_ht="<a class=\"narabi\" href=\"{$subject_php}?spmode={$aThreadList->spmode}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
+			$edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
 
 		}
 	}
@@ -184,9 +184,9 @@ echo <<<EOP
 	<meta http-equiv="Content-Script-Type" content="text/javascript">\n
 EOP;
 
-if($refresh_time){
-	$refresh_time_s = $refresh_time*60;
-	$refresh_url="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}";
+if ($_conf['refresh_time']) {
+	$refresh_time_s = $_conf['refresh_time'] * 60;
+	$refresh_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}";
 	echo <<<EOP
 	<meta http-equiv="refresh" content="{$refresh_time_s};URL={$refresh_url}">
 EOP;

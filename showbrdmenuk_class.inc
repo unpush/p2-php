@@ -2,15 +2,17 @@
 // p2 - ボードメニューを表示する クラス(携帯)
 
 class ShowBrdMenuK{
+
 	var $cate_id; //カテゴリーID
 	
 	function ShowBrdMenuK(){
 		$this->cate_id = 1;
 	}
 
-	//板メニューカテゴリをプリントするメソッド for 携帯===============================
-	function printCate($categories){
-		global $k_sb_disp_range, $list_navi_ht;
+	// 板メニューカテゴリをプリントするメソッド for 携帯===============================
+	function printCate($categories)
+	{
+		global $_conf, $list_navi_ht;
 		global $k_at_a, $k_at_q, $k_input_ht;
 
 		if($categories){
@@ -22,7 +24,7 @@ class ShowBrdMenuK{
 				$list_disp_from=1;
 			}
 			$list_disp_all_num = sizeof($categories);
-			$disp_navi = getListNaviRange($list_disp_from, $k_sb_disp_range, $list_disp_all_num);
+			$disp_navi = getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
 		
 			if($disp_navi['from'] > 1){
 				$mae_ht = <<<EOP
@@ -51,9 +53,10 @@ EOP;
 	}
 
 
-	//板メニューカテゴリの板をプリントするメソッド for 携帯===============================
-	function printIta($categories){
-		global $subject_php, $accesskey, $k_sb_disp_range, $list_navi_ht;
+	// 板メニューカテゴリの板をプリントするメソッド for 携帯 ===============================
+	function printIta($categories)
+	{
+		global $_conf, $accesskey, $list_navi_ht;
 		global $k_at_a, $k_at_q, $k_input_ht;
 
 		if($categories){
@@ -72,7 +75,7 @@ EOP;
 							$list_disp_from=1;
 						}
 						$list_disp_all_num = $cate->num;
-						$disp_navi = getListNaviRange($list_disp_from, $k_sb_disp_range, $list_disp_all_num);
+						$disp_navi = getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
 				
 						if($disp_navi['from'] > 1){
 							$mae_ht = <<<EOP
@@ -103,7 +106,7 @@ EOP;
 								$akey_at="";
 							}
 							if($i >= $disp_navi['from'] and $i <= $disp_navi['end']){
-								echo "{$access_num_st}<a href=\"{$subject_php}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$k_at_a}\"{$akey_at}>{$mita->itaj_ht}</a><br>\n";
+								echo "{$access_num_st}<a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$k_at_a}\"{$akey_at}>{$mita->itaj_ht}</a><br>\n";
 							}
 						}
 					
@@ -114,10 +117,11 @@ EOP;
 		}
 	}
 
-	//板名を検索してプリントするメソッド for 携帯===============================
-	function printItaSearch($categories){
-		global $subject_php, $_info_msg_ht, $word, $mikke;
-		global $k_sb_disp_range, $list_navi_ht;
+	// 板名を検索してプリントするメソッド for 携帯===============================
+	function printItaSearch($categories)
+	{
+		global $_conf, $_info_msg_ht, $word, $mikke;
+		global $list_navi_ht;
 		global $k_at_a, $k_at_q, $k_input_ht;
 	
 		if($categories){
@@ -129,7 +133,7 @@ EOP;
 				$list_disp_from=1;
 			}
 			$list_disp_all_num = $mikke; //
-			$disp_navi = getListNaviRange($list_disp_from, $k_sb_disp_range, $list_disp_all_num);
+			$disp_navi = getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
 		
 			if($disp_navi['from'] > 1){
 				$mae_ht = <<<EOP
@@ -158,7 +162,7 @@ EOP;
 						if($i >= $disp_navi['from'] and $i <= $disp_navi['end']){
 							if(!$t){echo "<b>{$cate->name}</b><br>\n";}
 							$t=true;
-							echo "　<a href=\"{$subject_php}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$k_at_a}\">{$mita->itaj_ht}</a><br>\n";
+							echo "　<a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$k_at_a}\">{$mita->itaj_ht}</a><br>\n";
 						}
 					}
 
@@ -171,8 +175,9 @@ EOP;
 	//=========================================================
 	// お気に板をプリントする関数 for 携帯
 	//=========================================================
-	function print_favIta(){
-		global $favita_path, $subject_php, $accesskey;
+	function print_favIta()
+	{
+		global $_conf, $favita_path, $accesskey;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
 		$lines= @file($favita_path); // favita読み込み
@@ -193,7 +198,7 @@ EOP;
 						$key_num_st="";					
 					}
 					echo <<<EOP
-	{$key_num_st}<a href="{$subject_php}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$k_at_a}"{$access_at}>{$matches[3]}</a><br>
+	{$key_num_st}<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$k_at_a}"{$access_at}>{$matches[3]}</a><br>
 EOP;
 				}
 			}

@@ -172,7 +172,7 @@ EOP;
 </td></tr><tr><td colspan="2">
 
 <fieldset>
-<legend>ホストの同期</legend>
+<legend>ホストの同期（2chの板移転に対応します）</legend>
 <table><tr>
 EOP;
 	foreach ($synctitle as $syncpath => $syncname) {
@@ -193,7 +193,7 @@ EOP;
 
 //フッタプリント===================
 if ($ktai) {
-	echo "<p>ホストの同期</p>\n";
+	echo "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
 	foreach ($synctitle as $syncpath => $syncname) {
 		if (is_writable($syncpath)) {
 			printSyncFavoritesForm($syncpath, $syncname);
