@@ -105,7 +105,7 @@ function setFile($path, $cont, $encode)
  */
 function editFile($path, $encode)
 {
-	global $modori_url, $_info_msg_ht, $rows, $cols;
+	global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
 	
 	$filename = basename($path);
 	$ptitle = "Edit: ".$filename;
@@ -138,11 +138,12 @@ function editFile($path, $encode)
 <body onLoad="top.document.title=self.document.title;">
 EOHEADER;
 
-echo $modori_url_ht;
+	echo $modori_url_ht;
 
-echo "Edit: ".$path;
-echo <<<EOFORM
-<form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="Shift_JIS">
+	echo "Edit: ".$path;
+	echo <<<EOFORM
+<form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="{$_conf['accept_charset']}">
+	<input type="hidden" name="detect_hint" value="ž">
 	<input type="hidden" name="path" value="{$path}">
 	<input type="hidden" name="modori_url" value="{$modori_url}">
 	<input type="hidden" name="encode" value="{$encode}">
@@ -153,7 +154,7 @@ echo <<<EOFORM
 </form>
 EOFORM;
 
-echo <<<EOFOOTER
+	echo <<<EOFOOTER
 </body>
 </html>
 EOFOOTER;
