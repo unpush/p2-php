@@ -45,7 +45,7 @@ if (is_readable($idxfile)) {
 //================================================
 
 //favlistƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
-FileCtl::make_datafile($favlistfile, $favlist_perm);
+FileCtl::make_datafile($favlistfile, $_conf['favlist_perm']);
 
 //favlist“Ç‚İ‚İ;
 $favlines = @file($favlistfile);

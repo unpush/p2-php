@@ -227,6 +227,12 @@ if($_conf['ktai']){
 		echo $aShowThread->datToHtml();
 	}
 	
+	// フィルタ結果を表示
+	if ($word && $aThread->rescount) {
+		$all = $aThread->rescount;
+		echo "<p><b class=\"filtering\">{$all}レス中 {$filter_hits}レスがヒット</b></p>\n";
+	}
+		
 	$debug && $prof->stopTimer( "datToHtml" );
 	
 	//===========================================================
@@ -331,9 +337,9 @@ function detectThread()
  */
 function recRecent($data)
 {
-	global $_conf, $rctfile, $rct_perm;
+	global $_conf, $rctfile;
 	
-	FileCtl::make_datafile($rctfile, $rct_perm); //$rctfileファイルがなければ生成
+	FileCtl::make_datafile($rctfile, $_conf['rct_perm']); //$rctfileファイルがなければ生成
 	
 	$lines= @file($rctfile); //読み込み
 

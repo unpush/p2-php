@@ -222,7 +222,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 
 //==================================================================
 
-function readNew($aThread)
+function readNew(&$aThread)
 {
 	global $_conf, $newthre_num, $STYLE, $browser;
 	global $_info_msg_ht, $newres_to_show, $pointer_at, $spmode, $k_accesskey, $k_at_a;

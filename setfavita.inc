@@ -38,7 +38,7 @@ if( empty($itaj) ){$itaj = $bbs;}
 // “Ç‚İ‚İ
 //================================================
 //favita_pathƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
-FileCtl::make_datafile($favita_path, $favita_perm);
+FileCtl::make_datafile($favita_path, $_conf['favita_perm']);
 
 //favita_path“Ç‚İ‚İ;
 $lines= @file($favita_path);

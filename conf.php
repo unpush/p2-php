@@ -1,7 +1,7 @@
 <?php
 // p2 - Šî–{Ý’èƒtƒ@ƒCƒ‹i“Á‚É——R‚Ì–³‚¢ŒÀ‚è•ÏX‚µ‚È‚¢‚±‚Æj
 
-$_conf['p2version'] = '1.3.7';
+$_conf['p2version'] = '1.3.8';
 
 //$_conf['p2name'] = 'p2';	// p2‚Ì–¼‘OB
 
@@ -150,7 +150,9 @@ $_conf['ext_win_target'] && $_conf['ext_win_target'] = " target=\"{$_conf['ext_w
 $_conf['bbs_win_target'] && $_conf['bbs_win_target'] = " target=\"{$_conf['bbs_win_target']}\"";
 
 if ($_conf['get_new_res']) {
-	if ($_conf['get_new_res'] != 'all') {
+	if ($_conf['get_new_res'] == 'all') {
+		$_conf['get_new_res_l'] = $_conf['get_new_res'];
+	} else {
 		$_conf['get_new_res_l'] = 'l'.$_conf['get_new_res'];
 	}
 } else {
@@ -195,17 +197,17 @@ $_conf['menu_dl_interval'] = 1;	// (1) ”Â menu ‚ÌƒLƒƒƒbƒVƒ…‚ðXV‚¹‚¸‚É•ÛŽ‚·‚éŽ
 $fsockopen_time_limit = 15;	// ƒlƒbƒgƒ[ƒNÚ‘±ƒ^ƒCƒ€ƒAƒEƒgŽžŠÔ(•b)
 set_time_limit(60); 		// ƒXƒNƒŠƒvƒgŽÀs§ŒÀŽžŠÔ(•b)
 
-$data_dir_perm = 0707;		// ƒf[ƒ^•Û‘¶—pƒfƒBƒŒƒNƒgƒŠ‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$dat_perm = 0606; 		// datƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$key_perm = 0606; 		// key.idx ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
+$_conf['data_dir_perm'] = 0707;		// ƒf[ƒ^•Û‘¶—pƒfƒBƒŒƒNƒgƒŠ‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
+$_conf['dat_perm'] = 0606; 		// datƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
+$_conf['key_perm'] = 0606; 		// key.idx ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
 $_conf['dl_perm'] = 0606;	// ‚»‚Ì‘¼‚Ìp2‚ª“à•”“I‚ÉDL•Û‘¶‚·‚éƒtƒ@ƒCƒ‹iƒLƒƒƒbƒVƒ…“™j‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
 $_conf['pass_perm'] = 0604;		// ƒpƒXƒ[ƒhƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$p2_perm = 0606; 		// ‚»‚Ì‘¼‚Ìp2‚Ì“à•”•Û‘¶ƒf[ƒ^ƒtƒ@ƒCƒ‹
-$palace_perm = 0606;		// “a“°“ü‚è‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$favita_perm = 0606;		// ‚¨‹C‚É”Â‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$favlist_perm = 0606;		// ‚¨‹C‚ÉƒXƒŒ‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$rct_perm = 0606;		// Å‹ß“Ç‚ñ‚¾ƒXƒŒ‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$res_write_perm = 0606;		// ‘‚«ž‚Ý—š—ð‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
+$_conf['p2_perm'] = 0606; 		// ‚»‚Ì‘¼‚Ìp2‚Ì“à•”•Û‘¶ƒf[ƒ^ƒtƒ@ƒCƒ‹
+$_conf['palace_perm'] = 0606;		// “a“°“ü‚è‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
+$_conf['favita_perm'] = 0606;		// ‚¨‹C‚É”Â‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
+$_conf['favlist_perm'] = 0606;		// ‚¨‹C‚ÉƒXƒŒ‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
+$_conf['rct_perm'] = 0606;		// Å‹ß“Ç‚ñ‚¾ƒXƒŒ‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
+$_conf['res_write_perm'] = 0606;		// ‘‚«ž‚Ý—š—ð‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
 
 /**
  * http header o—ÍŠÖ”

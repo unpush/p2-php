@@ -84,7 +84,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2ch($from_bytes)
 	{
-		global $_conf, $dat_response_msg, $ls, $fsockopen_time_limit, $_info_msg_ht, $dat_perm;
+		global $_conf, $dat_response_msg, $ls, $fsockopen_time_limit, $_info_msg_ht;
 		global $debug, $prof;
 	
 		if(!($this->host && $this->bbs && $this->key)){return false;}
@@ -172,7 +172,7 @@ class ThreadRead extends Thread{
 						}
 						$wr=substr($wr, 1);
 					}
-					FileCtl::make_datafile($this->keydat, $dat_perm);
+					FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
 					$fdat = fopen($this->keydat, $mode);
 					fwrite($fdat, $wr);
 					fclose ($fdat);
@@ -265,7 +265,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2chMaru()
 	{
-		global $_conf, $dat_response_msg, $uaMona, $SID2ch, $fsockopen_time_limit, $_info_msg_ht, $dat_perm;
+		global $_conf, $dat_response_msg, $uaMona, $SID2ch, $fsockopen_time_limit, $_info_msg_ht;
 
 		if (!($this->host && $this->bbs && $this->key)) {return false;}
 		
@@ -365,7 +365,7 @@ class ThreadRead extends Thread{
 					}
 					
 					if(!$done_gunzip){
-						FileCtl::make_datafile($this->keydat, $dat_perm);
+						FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
 						$fdat = fopen($this->keydat, "w");
 						fwrite($fdat, $body);
 						fclose ($fdat);
@@ -378,7 +378,7 @@ class ThreadRead extends Thread{
 						if(! strstr($firstline, "+OK") ){ // チャンクとか
 							$secondline = array_shift($marudatlines);
 						}
-						FileCtl::make_datafile($this->keydat, $dat_perm);
+						FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
 						$fdat = fopen($this->keydat, "w");
 						foreach($marudatlines as $aline){
 							if($chunked){ //チャンクエンコーディングが欲しいところ(HTTP 1.0でしのぐ)
@@ -454,7 +454,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2chKako($uri, $ext)
 	{
-		global $_conf, $dat_response_msg, $fsockopen_time_limit, $_info_msg_ht, $dat_perm;
+		global $_conf, $dat_response_msg, $fsockopen_time_limit, $_info_msg_ht;
 
 		$url = $uri.$ext;
 	
@@ -547,7 +547,7 @@ class ThreadRead extends Thread{
 					}
 
 					if(!$done_gunzip){
-						FileCtl::make_datafile($this->keydat, $dat_perm);
+						FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
 						$fdat = fopen($this->keydat, "w");
 						fwrite($fdat, $body);
 						fclose ($fdat);
@@ -867,37 +867,49 @@ class ThreadRead extends Thread{
 
 		$to = false;
 		
-		if (strstr($ls, "n")) {
+		// nを含んでいる場合は、>>1を表示しない（$nofirst）
+		if (strstr($ls, 'n')) {
 			$nofirst = true;
 			$ls = preg_replace("/n/", "", $ls);
 		}
 
-		$n = explode("-", $ls);
-		if (sizeof($n)==1) {
-			if (substr($n[0],0,1)=="l") {
-				$nn = substr($n[0],1);
+		// 範囲指定で分割
+		$n = explode('-', $ls);
+		// 範囲指定がなければ
+		if (sizeof($n) == 1) {
+			// l指定があれば
+			if (substr($n[0], 0, 1) == "l") {
+				$ln = intval(substr($n[0], 1));
 				if ($_conf['ktai']) {
-					if ($nn > $_conf['k_rnum_range']) {
-						$nn = $_conf['k_rnum_range'];
+					if ($ln > $_conf['k_rnum_range']) {
+						$ln = $_conf['k_rnum_range'];
 					}
 				}
-				$start = $this->rescount - $nn;
-				if ($start < 1) { $start=1; }
-				
+				$start = $this->rescount - $ln;
+				if ($start < 1) {
+					$start = 1;
+				}
 				$to = $this->rescount;
 			} elseif ($ls == "all") {
 				$start = 1;
 				$to = $this->rescount;
 			} else {
-				$start = $ls;
-				$to = $ls;
-				$nofirst = true;
+				if (intval($ls) > 0) {
+					$start = $ls;
+					$to = $ls;
+					$nofirst = true;
+				// 指定がない or 不正な場合は、allと同じ表示にする
+				} else {
+					$start = 1;
+					$to = $this->rescount;
+				}
 			}
+		// 範囲指定があれば
 		} else {
-			if (!$start = $n[0]) {
+			if (!$start = intval($n[0])) {
 				$start = 1;
 			}
-			if (!$to = $n[1]) {
+			if (!$to = intval($n[1])) {
 				$to = $this->rescount;
 			}
 		}

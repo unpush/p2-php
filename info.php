@@ -23,11 +23,11 @@ $ttitle_en = $_GET['ttitle_en'];
 if($_GET['popup']){$popup_ht="&amp;popup=1";}
 
 //================================================================
-//特殊な前置処理
+// 特殊な前置処理
 //================================================================
 
-//削除
-if($_GET['dele'] && $key && $host && $bbs){
+// 削除
+if ($_GET['dele'] && $key && $host && $bbs) {
 	include_once("dele.inc");
 	$r = deleteLogs($host, $bbs, array($key));
 	//echo $r;
@@ -170,16 +170,17 @@ if ($tabornlist) {
 	}
 }
 
-if($isTaborn){
-	$tastr1="あぼーん中";
-	$tastr2="あぼーん解除する";
-}else{
-	$tastr1="通常";
-	$tastr2="あぼーんする";
+if (!empty($isTaborn)) {
+	$tastr1 = "あぼーん中";
+	$tastr2 = "あぼーん解除する";
+	$taborndo = 0;
+} else {
+	$tastr1 = "通常";
+	$tastr2 = "あぼーんする";
+	$taborndo = 1;
 }
-if($isTaborn){$taborndo=0;}else{$taborndo=1;}
 
-$taborn_ht=<<<EOP
+$taborn_ht = <<<EOP
 {$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_ht}{$ttitle_en_ht}{$k_at_a}">{$tastr2}</a>]
 EOP;
 

@@ -37,7 +37,7 @@ $palace_idx = $prefdir. '/p2_palace.idx';
 //================================================
 
 // p2_palace ƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
-FileCtl::make_datafile($palace_idx, $palace_perm);
+FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
 
 //palace_idx“Ç‚İ‚İ;
 $pallines = @file($palace_idx);

@@ -11,7 +11,7 @@ require_once("./datactl.inc");
  */
 function settaborn($host, $bbs, $key, $set)
 {
-	global $title_msg, $info_msg, $p2_perm;
+	global $_conf, $title_msg, $info_msg;
 	
 	//==================================================================
 	// key.idx ì«Ç›çûÇﬁ
@@ -37,7 +37,7 @@ function settaborn($host, $bbs, $key, $set)
 	$taborn_idx = "{$datdir_host}/{$bbs}/p2_threads_aborn.idx";
 	
 	// p2_threads_aborn.idx Ç™Ç»ÇØÇÍÇŒê∂ê¨
-	FileCtl::make_datafile($taborn_idx, $p2_perm);
+	FileCtl::make_datafile($taborn_idx, $_conf['p2_perm']);
 	
 	// p2_threads_aborn.idx ì«Ç›çûÇ›;
 	$taborn_lines= @file($taborn_idx);

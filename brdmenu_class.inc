@@ -112,10 +112,10 @@ class BrdMenu{
 	*/
 	function makeBrdFile($cachefile)
 	{
-	global $_info_msg_ht, $p2_perm, $word;
+	global $_conf, $_info_msg_ht, $word;
 	
 		$p2brdfile = $cachefile.".p2.brd";
-		FileCtl::make_datafile($p2brdfile, $p2_perm);
+		FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
 		$data = @file($cachefile);
 		$this->setBrdMatch($cachefile); //パターンマッチ形式を登録
 		$this->setBrdList($data); //カテゴリーと板をセット
