@@ -216,7 +216,8 @@ EOP;
 		}
 		
 		// torder(info) =================================================
-		if ($aThread->fav) { //お気にスレ
+		// お気にスレ
+		if ($aThread->fav) {
 			$torder_st = "<b>{$aThread->torder}</b>";
 		} else {
 			$torder_st = $aThread->torder;
@@ -239,6 +240,8 @@ EOP;
 		if (!$aThread->ttitle_ht) { 
 			$aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
 		}
+		// 元スレ
+		$moto_thre_ht = '<a class="thre_title" href="'.$aThread->getMotoThread('all').'">・</a> ';
 		
 		// 新規スレ
 		if ($aThread->new) { 
@@ -291,7 +294,7 @@ EOP;
 EOP;
 		}
 		
-		// すばやさ（レス間隔）
+		// すばやさ（＝ 時間/レス ＝ レス間隔）
 		$spd_ht = "";
 		if ($_conf['sb_show_spd']) {
 			if ($spd_st = $aThread->getTimePerRes()) {
@@ -323,7 +326,7 @@ EOP;
 					$one_ht
 					$checkbox_ht
 					<td{$class_to}>{$torder_ht}</td>
-					<td{$class_tl} nowrap><a id=\"tt{$i}\" href=\"{$thre_url}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a></td>
+					<td{$class_tl} nowrap>$moto_thre_ht<a id=\"tt{$i}\" href=\"{$thre_url}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a></td>
 					$ita_ht
 					$spd_ht
 					$ikioi_ht
