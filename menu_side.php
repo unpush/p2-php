@@ -28,10 +28,9 @@ $_info_msg_ht="";
 $brd_menus = array();
 
 // ”ÂŒŸõ ====================================
-if( isset($_GET['word'])||isset($_POST['word']) ){
+if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
-	if($_POST['word']){ $word = $_POST['word']; }
-	if($_GET['word']){ $word = $_GET['word']; }
+	$word = $_REQUEST['word']
 	if(get_magic_quotes_gpc()) {
 		$word = stripslashes($word);
 	}

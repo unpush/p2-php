@@ -25,7 +25,7 @@ $_info_msg_ht = "";
 $brd_menus = array();
 
 // ”ÂŒŸõ ====================================
-if (isset($_REQUEST['word'])) {
+if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
 	$word = $_REQUEST['word'];
 	if (get_magic_quotes_gpc()) {
