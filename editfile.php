@@ -41,6 +41,14 @@ if (get_magic_quotes_gpc()) {
 	}
 }
 
+// ï∂éöÉRÅ[ÉhîªíË
+if (isset($_POST['detect_hint']) && extension_loaded('mbstring')) {
+	$encoding = mb_detect_encoding($_POST['detect_hint'], 'JIS,UTF-8,EUC-JP,SJIS');
+	if ($encoding != 'SJIS') {
+		$filecont = mb_convert_encoding($filecont, 'SJIS-win', $encoding);
+	}
+}
+
 $_info_msg_ht = "";
 
 
@@ -89,7 +97,7 @@ editFile($path, $encode);
  */
 function setFile($path, $cont, $encode)
 {
-	if ($encode=="EUC-JP") {
+	if ($encode == "EUC-JP") {
 		include_once("./strctl_class.inc");
 		$cont = StrCtl::p2EUCtoSJIS($cont);
 	}
@@ -114,7 +122,7 @@ function editFile($path, $encode)
 	FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
 	$cont = FileCtl::get_file_contents($path);
 	
-	if ($encode=="EUC-JP") {
+	if ($encode == "EUC-JP") {
 		include_once("./strctl_class.inc");
 		$cont = StrCtl::p2EUCtoSJIS($cont);
 	}
