@@ -3,8 +3,13 @@
 	
 	- [Bug Fix] 独立したレス書き込みフォームで、記憶された名前やメールが読み込まれていなかったのを修正
 	
-	* conf_inc.php
-	* post_form.php 
+	* conf.inc.php
+	* post_form.php
+	* read.php
+	* read_footer.inc.php
+	* sb_print_k.inc
+	* showthreadk.class.php
+	* showthreadpc.class.php
 
 2005-03-13 aki
 	* p2 version 1.5.6
