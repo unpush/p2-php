@@ -196,6 +196,8 @@ function compVars($myvar, $checkvar)
 		}
 		if ($checkvar_sp[$i] > $myvar_sp[$i]) {
 			return true;
+		} elseif ($checkvar_sp[$i] < $myvar_sp[$i]) {
+			return false;
 		}
 		$i++;
 	}
