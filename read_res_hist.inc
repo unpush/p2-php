@@ -35,18 +35,19 @@ function deleMsg($checked_hists)
 		}
 		$neolines = rmLine($rmnums, $reslines);
 	}
-
+	
+	// 先頭文を追加
+	@array_unshift($neolines, '<?php /*');
+	// 末文を追加
+	@array_push($neolines, '*/ ?>');
+	
 	// 書き込む
 	$fp = @fopen($p2_res_hist_dat_php, "wb") or die("p2 Error: {$p2_res_hist_dat_php} を更新できませんでした");
 	if ($neolines) {
-		// 先頭行を追加
-		fputs($fp, '<?php /*'."\n");
 		foreach ($neolines as $l) {			
 			// データ行を記録
 			fputs($fp, $l."\n");
 		}
-		// 末行を追加
-		fputs($fp, '*/ ?>'."\n");
 	}
 	fclose($fp);
 }
