@@ -106,7 +106,7 @@ EOFORM;
 //===========================================================
 // ŒŸõŒ‹‰Ê‚ğƒvƒŠƒ“ƒg
 //===========================================================
-if ((isset($_REQUEST['word']) && $_REQUEST['word'] == "") {
+if (isset($_REQUEST['word']) && $_REQUEST['word'] == '') {
 
 	$word_ht = htmlspecialchars($word);
 
