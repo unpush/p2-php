@@ -182,11 +182,11 @@ if ($aThread->diedat) {
 	
 	$motothre_popup = " onMouseover=\"showHtmlPopUp('{$motothre_url}',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
 	if ($_conf['iframe_popup'] == 1) {
-		$motothre_ht = "<a href=\"{$motothre_url}\"{$bbs_win_target}{$motothre_popup}>{$motothre_url}</a>";
+		$motothre_ht = "<a href=\"{$motothre_url}\"{$_conf['bbs_win_target']}{$motothre_popup}>{$motothre_url}</a>";
 	} elseif ($_conf['iframe_popup'] == 2) {
-		$motothre_ht = "(<a href=\"{$motothre_url}\"{$bbs_win_target}{$motothre_popup}>p</a>)<a href=\"{$motothre_url}\"{$bbs_win_target}>{$motothre_url}</a>";
+		$motothre_ht = "(<a href=\"{$motothre_url}\"{$_conf['bbs_win_target']}{$motothre_popup}>p</a>)<a href=\"{$motothre_url}\"{$_conf['bbs_win_target']}>{$motothre_url}</a>";
 	} else {
-		$motothre_ht = "<a href=\"{$motothre_url}\"{$bbs_win_target}>{$motothre_url}</a>";
+		$motothre_ht = "<a href=\"{$motothre_url}\"{$_conf['bbs_win_target']}>{$motothre_url}</a>";
 	}
 	
 	echo $diedat_msg;
@@ -195,7 +195,8 @@ if ($aThread->diedat) {
 	echo "</p>";
 	echo "<hr>";
 	
-	if(!$aThread->rescount){ //既得レスがなければツールバー表示
+	// 既得レスがなければツールバー表示
+	if(!$aThread->rescount){
 		echo <<<EOP
 <table width="100%" style="padding:0px 0px 10px 0px;">
 	<tr>
@@ -214,47 +215,50 @@ EOP;
 
 if($aThread->rescount and (!$_GET['renzokupop']) ){
 // レスフィルタ ===============================
-	if ($res_filter['field'] == "name") { $selected_name = " selected"; }
-	elseif ($res_filter['field'] == "mail") { $selected_mail = " selected"; }
-	elseif ($res_filter['field'] == "date") { $selected_date = " selected"; }
-	elseif ($res_filter['field'] == "id") { $selected_id = " selected"; }
-	elseif ($res_filter['field'] == "msg") { $selected_msg = " selected"; }
-	if ($res_filter['match'] == "off") { $selected_off = " selected"; }
-	if ($res_filter['method'] == "or") { $selected_or = " selected"; }
-	elseif ($res_filter['method'] == "just") { $selected_just = " selected"; }
-	elseif ($res_filter['method'] == "regex") { $selected_regex = " selected"; }
+	$selected_field = array('hole' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'msg' => '');
+	$selected_field[($res_filter['field'])] = ' selected';
 
+	$selected_match = array('on' => '', 'off' => '');
+	$selected_match[($res_filter['match'])] = ' selected';
+	
+	// 拡張条件
 	if ($_conf['enable_exfilter']) {
+		$selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '');
+		$selected_method[($res_filter['method'])] = ' selected';
 		$select_method_ht = <<<EOP
 	の
 	<select id="method" name="method">
-		<option value="and">すべて</option>
-		<option value="or"{$selected_or}>いずれか</option>
-		<option value="just"{$selected_just}>そのまま</option>
-		<option value="regex"{$selected_regex}>正規表現</option>
+		<option value="or"{$selected_method['or']}>いずれか</option>
+		<option value="and"{$selected_method['and']}>すべて</option>
+		<option value="just"{$selected_method['just']}>そのまま</option>
+		<option value="regex"{$selected_method['regex']}>正規表現</option>
 	</select>
 EOP;
 	}
+	
+	$word_ht = htmlspecialchars($GLOBALS['word']);
+	
 	echo <<<EOP
 <form id="header" method="GET" action="{$_conf['read_php']}" style="white-space:nowrap">
+	<input type="hidden" name="detect_hint" value="◎◇">
 	<input type="hidden" name="bbs" value="{$aThread->bbs}">
 	<input type="hidden" name="key" value="{$aThread->key}">
 	<input type="hidden" name="host" value="{$aThread->host}">
 	<input type="hidden" name="ls" value="all">
 	<input type="hidden" name="offline" value="1">
 	<select id="field" name="field">
-		<option value="name"{$selected_name}>名前</option>
-		<option value="mail"{$selected_mail}>メール</option>
-		<option value="date"{$selected_date}>日付</option>
-		<option value="id"{$selected_id}>ID</option>
-		<option value="msg"{$selected_msg}>メッセージ</option>
+		<option value="hole"{$selected_field['hole']}>全体で</option>
+		<option value="name"{$selected_field['name']}>名前が</option>
+		<option value="mail"{$selected_field['mail']}>メールが</option>
+		<option value="date"{$selected_field['date']}>日付が</option>
+		<option value="id"{$selected_field['id']}>IDが</option>
+		<option value="msg"{$selected_field['msg']}>メッセージが</option>
 	</select>
-	が
-	<input id="word" name="word" value="{$word}" size="24">{$select_method_ht}
+	<input id="word" name="word" value="{$word_ht}" size="24">{$select_method_ht}
 	を
 	<select id="match" name="match">
-		<option value="on">含む</option>
-		<option value="off"{$selected_off}>含まない</option>
+		<option value="on"{$selected_match['on']}>含む</option>
+		<option value="off"{$selected_match['off']}>含まない</option>
 	</select>
 	レスを
 	<input type="submit" name="submit" value="フィルタ表示">

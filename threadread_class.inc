@@ -81,7 +81,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2ch($from_bytes)
 	{
-		global $_conf, $dat_response_msg, $ls, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
+		global $_conf, $dat_response_msg, $ls, $fsockopen_time_limit, $_info_msg_ht, $dat_perm, $proxy;
 		global $debug, $prof;
 	
 		if(!($this->host && $this->bbs && $this->key)){return false;}
@@ -143,7 +143,7 @@ class ThreadRead extends Thread{
 		$fp = fsockopen($send_host, $send_port, $errno, $errstr, $fsockopen_time_limit);
 		if (!$fp) {
 			$url_t = P2Util::throughIme($url);
-			$_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$url}</a> に接続できませんでした。</p>";
+			$_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target']}>{$url}</a> に接続できませんでした。</p>";
 			$this->diedat=true; return false;
 		}
 		$wr = "";
@@ -261,7 +261,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2chMaru()
 	{
-		global $_conf, $dat_response_msg, $uaMona, $SID2ch, $relogin2ch, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
+		global $_conf, $dat_response_msg, $uaMona, $SID2ch, $relogin2ch, $fsockopen_time_limit, $_info_msg_ht, $dat_perm, $proxy;
 
 		if (!($this->host && $this->bbs && $this->key)) {return false;}
 		
@@ -309,7 +309,7 @@ class ThreadRead extends Thread{
 		$fp = fsockopen($send_host, $send_port, $errno, $errstr, $fsockopen_time_limit);
 		if (!$fp) {
 			$url_t = P2Util::throughIme($url);
-			$_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$ext_win_target}>{$url}</a> に接続できませんでした。</p>";
+			$_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target']}>{$url}</a> に接続できませんでした。</p>";
 			$this->diedat = true;
 			return false;
 		}
@@ -450,7 +450,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2chKako($uri, $ext)
 	{
-		global $_conf, $dat_response_msg, $bbs_win_target, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $dat_perm, $proxy;
+		global $_conf, $dat_response_msg, $fsockopen_time_limit, $_info_msg_ht, $dat_perm, $proxy;
 
 		$url = $uri.$ext;
 	
@@ -459,14 +459,14 @@ class ThreadRead extends Thread{
 			$httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
 		}
 		
-		$URL = parse_url($url); //URL分解
-		if (isset($URL['query'])) { //クエリー
+		$URL = parse_url($url); // URL分解
+		if (isset($URL['query'])) { // クエリー
 		    $URL['query'] = "?".$URL['query'];
 		} else {
 		    $URL['query'] = "";
 		}
 	
-		//プロキシ
+		// プロキシ
 		if($proxy['use']){
 			$send_host=$proxy['host'];
 			$send_port=$proxy['port'];
@@ -492,7 +492,7 @@ class ThreadRead extends Thread{
 		$fp = fsockopen($send_host, $send_port, $errno, $errstr, $fsockopen_time_limit);
 		if (!$fp) {
 			$url_t = P2Util::throughIme($url);
-			echo "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$ext_win_target}>$url</a> に接続できませんでした。</p>";
+			echo "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target']}>$url</a> に接続できませんでした。</p>";
 			$this->diedat = true;
 			return false;
 		}
@@ -588,18 +588,22 @@ class ThreadRead extends Thread{
 		return true;
 	}
 	
-	function downloadDat2chKakoNotFound($uri, $ext){
-		global $dat_response_msg, $bbs_win_target;
+	/**
+	 * downloadDat2chKakoNotFound
+	 */
+	function downloadDat2chKakoNotFound($uri, $ext)
+	{
+		global $_conf, $dat_response_msg;
 					
-		if($ext==".dat.gz"){
+		if ($ext == ".dat.gz") {
 			return $this->downloadDat2chKako($uri, ".dat"); //.dat.gzがなかったら.datでもう一度
 		}
-		if($_GET['kakolog']){
-			$kakolog_ht = "<p><a href=\"{$_GET['kakolog']}.html\"{$bbs_win_target}>{$_GET['kakolog']}.html</a></p>";
+		if ($_GET['kakolog']) {
+			$kakolog_ht = "<p><a href=\"{$_GET['kakolog']}.html\"{$_conf['bbs_win_target']}>{$_GET['kakolog']}.html</a></p>";
 		}
 		$dat_response_msg = "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みに失敗しました。</p>";
 		$dat_response_msg .= $kakolog_ht;
-		$this->diedat=true;
+		$this->diedat = true;
 		return false;
 
 	}
@@ -609,8 +613,8 @@ class ThreadRead extends Thread{
 	 */
 	function get2chDatError()
 	{
-		global $_conf, $ls, $idpw2ch_php, $sid2ch_php, $bbs_win_target;
-		global $fsockopen_time_limit, $_info_msg_ht, $ext_win_target, $proxy;
+		global $_conf, $ls, $idpw2ch_php, $sid2ch_php;
+		global $fsockopen_time_limit, $_info_msg_ht, $proxy;
 	
 		$read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}";
 		
@@ -629,7 +633,7 @@ class ThreadRead extends Thread{
 		if ($wap_res->is_error()) {
 			$url_t = P2Util::throughIme($wap_req->url);
 			$_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-			$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$ext_win_target}>{$wap_req->url}</a> に接続できませんでした。</div>";
+			$_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target']}>{$wap_req->url}</a> に接続できませんでした。</div>";
 			$read_response = false;
 		} else {
 			$read_response = $wap_res->content;
@@ -660,7 +664,7 @@ class ThreadRead extends Thread{
 				$kakolog_uri = "http://{$this->host}/{$matches[1]}";
 				$kakolog_url_en = urlencode($kakolog_uri);
 				$read_kako_url="{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;kakolog={$kakolog_url_en}&amp;kakoget=1";
-				$dat_response_msg="<p>2ch info - 隊長! 過去ログ倉庫で、<a href=\"{$kakolog_uri}.html\"{$bbs_win_target}>スレッド {$matches[3]}.html</a> を発見しました。 [<a href=\"{$read_kako_url}\">p2に取り込んで読む</a>]</p>";
+				$dat_response_msg="<p>2ch info - 隊長! 過去ログ倉庫で、<a href=\"{$kakolog_uri}.html\"{$_conf['bbs_win_target']}>スレッド {$matches[3]}.html</a> を発見しました。 [<a href=\"{$read_kako_url}\">p2に取り込んで読む</a>]</p>";
 				
 			}elseif( preg_match($waithtml_match, $read_response, $matches) ){
 				$dat_response_status="隊長! スレッドはhtml化されるのを待っているようです。";
@@ -673,7 +677,7 @@ class ThreadRead extends Thread{
 					$kako_html_url=urldecode($_GET['kakolog']).".html";
 					$read_kako_url="{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
 					$dat_response_msg = "<p>2ch info - そんな板orスレッドないです。</p>";
-					$dat_response_msg .= "<p><a href=\"{$kako_html_url}\"{$bbs_win_target}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
+					$dat_response_msg .= "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
 				}else{				
 					$dat_response_status="そんな板orスレッドないです。";
 					$dat_response_msg="<p>2ch info - そんな板orスレッドないです。</p>";
@@ -684,7 +688,7 @@ class ThreadRead extends Thread{
 			$dat_response_status="";
 			$kako_html_url=urldecode($_GET['kakolog']).".html";
 			$read_kako_url="{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
-			$dat_response_msg="<p><a href=\"{$kako_html_url}\"{$bbs_win_target}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
+			$dat_response_msg="<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
 		
 		}
 		
@@ -696,7 +700,7 @@ class ThreadRead extends Thread{
 	 */
 	function previewOne()
 	{
-		global $_conf, $dat_response_msg, $ls, $ptitle_ht, $fsockopen_time_limit, $ext_win_target, $_info_msg_ht, $proxy;
+		global $_conf, $dat_response_msg, $ls, $ptitle_ht, $fsockopen_time_limit, $_info_msg_ht, $proxy;
 
 		if (!($this->host && $this->bbs && $this->key)) {return false;}
 		
@@ -760,7 +764,7 @@ class ThreadRead extends Thread{
 			$fp = fsockopen($send_host, $send_port, $errno, $errstr, $fsockopen_time_limit);
 			if (!$fp) {
 				$url_t = P2Util::throughIme($url);
-				$_info_msg_ht .= "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$ext_win_target}>{$url}</a> に接続できませんでした。</p>";
+				$_info_msg_ht .= "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target']}>{$url}</a> に接続できませんでした。</p>";
 				$this->diedat = true;
 				return false;
 			}
@@ -905,11 +909,13 @@ class ThreadRead extends Thread{
 	}
 	
 	/**
-	 * Datを読み込むメソッド
+	 * Datを読み込む
 	 * $this->datlines を set する
 	 */
 	function readDat($keydat)
 	{
+		global $_conf;
+		
 		if (file_exists($keydat)) {
 			if ($this->datlines = @file($keydat)) {
 			
@@ -927,9 +933,31 @@ class ThreadRead extends Thread{
 			return false;
 		}
 		$this->rescount = sizeof($this->datlines);
-
+		
+		if ($_conf['flex_idpopup']) {
+			$this->setIdCount($this->datlines);
+		}
+		
 		return $this->datlines;
 	}
+
+	/**
+	 * 一つのスレ内でのID出現数をセットする
+	 */
+	function setIdCount($lines)
+	{
+		if ($lines) {
+			foreach ($lines as $line) {
+				$lar = explode('<>', $line);
+				if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,10})|', $lar[2], $matches)) {
+					$id = $matches[1];
+					$this->idcount[$id]++;
+				}
+			}
+		}
+		return;
+	}
+	
 
 	/**
 	 * datlineをexplodeする
@@ -939,7 +967,7 @@ class ThreadRead extends Thread{
 		$aline = rtrim($aline);
 
 		if ($this->dat_type == "2ch_old") {
-			$parts = explode(",", $aline);
+			$parts = explode(',', $aline);
 		} else {
 			$parts = explode('<>', $aline);
 		}

@@ -1,7 +1,7 @@
 <?php
 // p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
 
-$_conf['p2version'] = '1.2.4';
+$_conf['p2version'] = '1.2.5';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
 
@@ -41,12 +41,6 @@ if (function_exists('mb_ereg_replace')) {
 
 // UA判別 ===========================================
 $ua = $_SERVER['HTTP_USER_AGENT'];	// この変数（$ua）は廃止予定。$_SERVER['HTTP_USER_AGENT']を直接利用する。
-
-if (P2Util::isBrowserSafariGroup()) {
-	$_conf['accept_charset'] = 'UTF-8';
-} else {
-	$_conf['accept_charset'] = 'Shift_JIS';
-}
 
 if (isset($_GET['k']) || isset($_POST['k'])) {
 	$ktai = 1;
@@ -151,9 +145,9 @@ if (!isset($STYLE['post_msg_rows'])) { $STYLE['post_msg_rows'] = 10; }
 if (!isset($STYLE['post_msg_cols'])) { $STYLE['post_msg_cols'] = 70; }
 if (!isset($STYLE['info_pop_size'])) { $STYLE['info_pop_size'] = "600,380"; }
 
-/* ユーザ設定の調整処理 */
-$ext_win_target && $ext_win_target = " target=\"$ext_win_target\"";
-$bbs_win_target && $bbs_win_target = " target=\"$bbs_win_target\"";
+// ユーザ設定の調整処理
+$_conf['ext_win_target'] && $_conf['ext_win_target'] = " target=\"{$_conf['ext_win_target']}\"";
+$_conf['bbs_win_target'] && $_conf['bbs_win_target'] = " target=\"{$_conf['bbs_win_target']}\"";
 
 if ($get_new_res) {
 	if ($get_new_res != "all") { $get_new_res = "l".$get_new_res; }

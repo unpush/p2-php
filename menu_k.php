@@ -106,10 +106,12 @@ EOFORM;
 //===========================================================
 // 検索結果をプリント
 //===========================================================
-if ($_REQUEST['word'] != "") {
+if ((isset($_REQUEST['word']) && $_REQUEST['word'] == "") {
+
+	$word_ht = htmlspecialchars($word);
 
 	if ($GLOBALS['mikke']) {
-		$hit_ht = "<br>\"{$word}\" {$GLOBALS['mikke']}hit!";
+		$hit_ht = "<br>\"{$word_ht}\" {$GLOBALS['mikke']}hit!";
 	}
 	echo "板ﾘｽﾄ検索結果{$hit_ht}<hr>";
 	if ($word) {
@@ -123,7 +125,7 @@ if ($_REQUEST['word'] != "") {
 		
 	}
 	if (!$GLOBALS['mikke']) {
-		$_info_msg_ht .=  "<p>\"{$word}\"を含む板は見つかりませんでした。</p>\n";
+		$_info_msg_ht .=  "<p>\"{$word_ht}\"を含む板は見つかりませんでした。</p>\n";
 		unset($word);
 	}
 	$modori_url_ht = <<<EOP
