@@ -1,7 +1,7 @@
 <?php
 // p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
 
-$_conf['p2version'] = '1.2.2';
+$_conf['p2version'] = '1.2.3';
 
 $_conf['p2name'] = 'p2';	// p2の名前。
 
@@ -34,19 +34,21 @@ if (extension_loaded('mbstring')) {
 
 if (function_exists('mb_ereg_replace')) {
 	define('P2_MBREGEX_AVAILABLE', 1);
-	mb_regex_encoding('SJIS-win');
+	@mb_regex_encoding('SJIS-win');
 } else {
 	define('P2_MBREGEX_AVAILABLE', 0);
 }
 
 // UA判別 ===========================================
 $ua = $_SERVER['HTTP_USER_AGENT'];	// この変数（$ua）は廃止予定。$_SERVER['HTTP_USER_AGENT']を直接利用する。
+
 if (P2Util::isBrowserSafariGroup()) {
 	$_conf['accept_charset'] = 'UTF-8';
 } else {
 	$_conf['accept_charset'] = 'Shift_JIS';
 }
-if (isset($_GET['k']) ||  isset($_POST['k'])) {
+
+if (isset($_GET['k']) || isset($_POST['k'])) {
 	$ktai = 1;
 	$k_at_a = "&amp;k=1";
 	$k_at_q = "?k=1";

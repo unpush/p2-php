@@ -1,3 +1,17 @@
+2004-12-24 aki
+	* p2 version 1.2.3
+	- Safari‚Åeditfile.php‚ª•¶š‰»‚¯‚·‚é‚Ì‚ğC³
+	- Œ³ƒXƒŒƒŠƒ“ƒN‚Ìlsw’è‚ªŒø‚¢‚Ä‚¢‚È‚©‚Á‚½‚Ì‚ğC³
+	
+	* conf.php
+	* editfile.php
+	* info.php
+	* read_header.inc
+	* read_header_k.inc
+	* read_new.php
+	* read_new_k.php
+	* showthreadpc_class.inc
+
 2004-12-23 aki
 	* p2 version 1.2.2
 	- Œg‘ÑUA Vodafone‚É‘Î‰‚µ‚½
