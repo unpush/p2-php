@@ -27,7 +27,7 @@ $popup = $_POST['popup'];
 $rescount = $_POST['rescount'];
 
 $subject = $_POST['subject'];
-$submit=$_POST['submit'];
+$submit = $_POST['submit'];
 
 $sub = $_POST['sub'];
 
