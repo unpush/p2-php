@@ -1,11 +1,11 @@
 <?php
 // p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
 
-$_conf['p2version'] = "1.2.1";
+$_conf['p2version'] = '1.2.2';
 
-$_conf['p2name'] = "p2";	// p2の名前。
+$_conf['p2name'] = 'p2';	// p2の名前。
 
-// $_conf['p2name'] = "P2";	// p2の名前。
+// $_conf['p2name'] = 'P2';	// p2の名前。
 
 
 //======================================================================
@@ -18,7 +18,7 @@ require_once './p2util.class.php';
 putenv("TZ=JST-9"); //タイムゾーンをセット
 
 //PHP4.1.0未満と互換保持
-if (phpversion()<"4.1.0") {
+if (phpversion() < "4.1.0") {
     $_GET = $HTTP_GET_VARS;
     $_POST = $HTTP_POST_VARS;
     $_SESSION = $HTTP_SESSION_VARS;
