@@ -306,9 +306,9 @@ if ($res_write_rec) {
 // 関数
 //===========================================================
 
-//=================================================
-// レス書き込み関数
-//=================================================
+/**
+ * レス書き込み関数
+ */
 function postIt($URL, $request)
 {
 	global $_conf, $post_result, $post_error2ch, $p2cookies, $bbs, $host, $popup, $rescount, $ttitle_en, $STYLE, $fsockopen_time_limit, $proxy;
@@ -393,14 +393,19 @@ function postIt($URL, $request)
 	while (!feof($fp)) {
 	
 		if ($start_here) {
-			$wr = fread($fp, 32800);
+
+			while (!feof($fp)) {
+				$wr .= fread($fp, 164000);
+			}
 			$response = $wr;
 			break;
+
 		} else {
-			$l = fgets($fp,32800);
+			$l = fgets($fp, 164000);
 			//echo $l ."<br>"; //for debug
 			$response_header_ht .= $l."<br>";
-			if (preg_match("/Set-Cookie: (.+?)\r\n/", $l, $matches)) { // クッキーキタ
+			// クッキーキタ
+			if (preg_match("/Set-Cookie: (.+?)\r\n/", $l, $matches)) {
 				//echo "<p>".$matches[0]."</p>"; //
 				$cgroups = explode(";", $matches[1]);
 				if ($cgroups) {
