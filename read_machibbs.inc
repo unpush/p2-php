@@ -4,10 +4,11 @@
 require_once("./filectl_class.inc");
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 
-//=====================================================
-// まちBBSのread.pl を読んで datに保存する関数
-//=====================================================
-function machiDownload(){
+/**
+ * まちBBSのread.pl を読んで datに保存する
+ */
+function machiDownload()
+{
 	global $aThread, $machi_latest_num;
 
 	$machi_latest_num="";
@@ -71,11 +72,18 @@ function machiDownload(){
 		fclose($fp);
 	}
 	
-	$mlines=@file($tempfile);
-	if(file_exists($tempfile)){unlink($tempfile);}
-	
-	if($mlines[1]=="<html>error</html>\r\n"){
-		$aThread->diedat=true;
+	$mlines = @file($tempfile);
+	if (file_exists($tempfile)) { unlink($tempfile); }
+
+	// （まちBBS）<html>error</html>
+	if (trim($mlines[0]) == "<html>error</html>") {
+		$aThread->getdat_error_msg_ht .= "error";
+		$aThread->diedat = true;
+		return false;
+	// （JBBS）ERROR!: スレッドがありません。過去ログ倉庫にもありません。
+	} elseif (preg_match("/^ERROR.*$/i", $mlines[0], $matches)) {
+		$aThread->getdat_error_msg_ht .= $matches[0];
+		$aThread->diedat = true;
 		return false;
 	}
 	
