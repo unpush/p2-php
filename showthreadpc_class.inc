@@ -617,10 +617,10 @@ EORS;
 	{
 		global $_conf;
 	
-	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[4]}&amp;key={$s[6]}&amp;ls={$s[9]}-{$s[12]}\"{$_conf['bbs_win_target']}>{$s[13]}</a>";
+	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[5]}&amp;key={$s[7]}&amp;ls={$s[10]}-{$s[13]}\"{$_conf['bbs_win_target_at']}>{$s[14]}</a>";
 	}
 	 
-	// JBBS—‚µ‚½‚ç‚Î  “àƒŠƒ“ƒN 2 ===========================
+	// JBBS—‚µ‚½‚ç‚Î  “àƒŠƒ“ƒN ===========================
 	function linkJBBS_callback($s)
 	{
 		global $_conf;
