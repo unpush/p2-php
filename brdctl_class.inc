@@ -34,16 +34,16 @@ class BrdCtl{
 		$brd_dir = "./board";
 		
 		if ($cdir = @dir($brd_dir)) {
-			while( $entry = $cdir->read() ) {//ディレクトリ走査
-				if($entry == "." || $entry == ".." || $entry == ".DS_Store"){ continue; }
+			while ($entry = $cdir->read()) {	//ディレクトリ走査
+				if (preg_match('/^\./', $entry)) { continue; }
 				$filepath = $brd_dir."/".$entry;
-				if( $data = @file($filepath) ){
+				if ($data = @file($filepath)) {
 					$aBrdMenu = new BrdMenu; //クラス BrdMenu のオブジェクトを生成
 					$aBrdMenu->setBrdMatch($filepath); //パターンマッチ形式を登録
 					$aBrdMenu->setBrdList($data); //カテゴリーと板をセット
 					$brd_menus[] = $aBrdMenu;
 					unset($data, $aBrdMenu);
-				}else{
+				} else {
 					$_info_msg_ht .= "<p>p2 エラー: 板リスト {$entry} が読み込めませんでした。</p>\n";
 				}
 			}
