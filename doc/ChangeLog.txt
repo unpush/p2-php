@@ -1,3 +1,34 @@
+2004-12-23 aki
+	* p2 version 1.2.0
+	- 検索、フィルタリングを強化
+	 （マージ感謝！→rskさん）
+	- 一部JavaScriptの警告が表示されることがあったのを修正
+	- jcode.phpをセットで同梱（jcodeディレクトリ）
+	 （感謝→TOMOさん）
+	 
+	* brdctl_class.inc
+	* brdmenu_class.inc
+	* conf.php
+	* conf_user.php
+	* jcode.phps: removed
+	* menu.php
+	* menu_k.php
+	* menu_side.php
+	* read.php
+	* read_header.inc
+	* sb_footer.inc
+	* sb_header.inc
+	* showthreadk_class.inc
+	* showthreadpc_class.inc
+	* strctl_class.inc
+	* subject.php
+	* subject_new.php
+	* jcode/code_table.jis2ucs: new
+	* jcode/code_table.ucs2jis: new
+	* jcode/jcode.php: new
+	* jcode/jcode_wrapper.php: new
+	* jcode/readme.txt: new
+
 2004-12-22 aki
 	* p2 version 1.1.9
 	- 複数のスレッドあぼーん登録ができなかったバグを修正
