@@ -2,15 +2,15 @@
 
 //showHtmlDelaySec = 0.2 * 1000; //HTML表示ディレイタイム。マイクロ秒。
 
-showHtmlTimerID=0;
-node_div=false;
-node_close=false;
-tUrl=""; //URLテンポラリ変数
-gUrl=""; //URLグローバル変数
-gX=0;
-gY=0;
-ecX=0;
-ecY=0;
+showHtmlTimerID = 0;
+node_div = false;
+node_close = false;
+tUrl = ""; // URLテンポラリ変数
+gUrl = ""; // URLグローバル変数
+gX = 0;
+gY = 0;
+ecX = 0;
+ecY = 0;
 
 //==============================================================
 // showHtmlPopUp -- HTMLプアップを表示する関数
@@ -18,11 +18,14 @@ ecY=0;
 //==============================================================
 
 function showHtmlPopUp(url,ev,showHtmlDelaySec){
-	if(! document.createElement){return;} //DOM非対応
+	
+	if (!document.createElement) { return; } // DOM非対応
+	
+	if (!gIsPageLoaded) { return; }	// まだ onLoad されていなければ、抜ける
 	
 	showHtmlDelaySec = showHtmlDelaySec * 1000;
 
-	if(! node_div || url!=gUrl){
+	if (!node_div || url!=gUrl) {
 		tUrl=url;
 		gX=ev.pageX;
 		gY=ev.pageY;

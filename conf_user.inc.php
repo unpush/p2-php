@@ -43,7 +43,7 @@ $_conf['sort_zero_adjust'] = 0.1;	// (0.1) V’…ƒ\[ƒg‚Å‚ÌuŠù“¾‚È‚µv‚ÌuV’…”ƒ
 $_conf['cmp_dayres_midoku'] = 1;	// (1) ¨‚¢ƒ\[ƒg‚ÉV’…ƒŒƒX‚Ì‚ ‚éƒXƒŒ‚ğ—Dæ (‚·‚é:1, ‚µ‚È‚¢:0)
 $_conf['k_sb_disp_range'] = 30;	// (30) Œg‘Ñ‰{——Aˆê“x‚É•\¦‚·‚éƒXƒŒ‚Ì”
 $_conf['viewall_kitoku'] = 1;	// (1) Šù“¾ƒXƒŒ‚Í•\¦Œ”‚ÉŠÖ‚í‚ç‚¸•\¦ (‚·‚é:1, ‚µ‚È‚¢:0)
-$_conf['sb_dl_interval'] = 180;	// (180) subject.txt ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b)
+$_conf['sb_dl_interval'] = 300;	// (300) subject.txt ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b)
 
 /* read ============================================================ */
 $_conf['respointer'] = 1;	// (1) ƒXƒŒ‰{——A–¢“Ç‚Ì‰½ƒR‘O‚ÌƒŒƒX‚Éƒ|ƒCƒ“ƒ^‚ğ‡‚í‚¹‚é‚©
@@ -82,7 +82,7 @@ $_conf['brocra_checker_query'] = "url";	// ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJ‚ÌƒNƒGƒŠ[
 $_conf['enable_exfilter'] = 1;	// (1) ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÅAND/ORŒŸõ‚ğ‰Â”\‚É‚·‚éioff:0, ƒŒƒX‚Ì‚İ:1, ƒTƒuƒWƒFƒNƒg‚à:2j
 $_conf['flex_idpopup'] = 1;	// (1) ID:xxxxxxxx‚ğIDƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÌƒŠƒ“ƒN‚É•ÏŠ·ioff:0, on:1j
 $_conf['precede_phpcurl'] = 0;		// (0) curl‚ğg‚¤AƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å‚ÆŠÖ””Å‚Ç‚¿‚ç‚ğ—Dæ‚·‚é‚© (ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“:0, ŠÖ”:1)
-$_conf['ngaborn_daylimit'] = 180;	// (180) ‚±‚ÌŠúŠÔANG‚ ‚Ú[‚ñ‚ÉHIT‚µ‚È‚¯‚ê‚ÎA©“®“I‚ÉŠO‚·i“ú”j
+$_conf['ngaborn_daylimit'] = 180;	// (180) ‚±‚ÌŠúŠÔANG‚ ‚Ú[‚ñ‚ÉHIT‚µ‚È‚¯‚ê‚ÎA“o˜^ƒ[ƒh‚ğ©“®“I‚ÉŠO‚·i“ú”j
 
 $_conf['proxy_use'] = 0;	// (0) ƒvƒƒLƒV‚ğ—˜—p(‚·‚é:1, ‚µ‚È‚¢:0)
 $_conf['proxy_host'] = "";	// ("") ƒvƒƒLƒVƒzƒXƒg ex)"127.0.0.1", "www.p2proxy.com"

@@ -133,8 +133,8 @@ echo <<<EOHEADER
 	<title>{$ptitle_ht}</title>\n
 EOHEADER;
 
-@include("style/style_css.inc"); //スタイルシート
-@include("style/read_css.inc"); //スタイルシート
+@include("style/style_css.inc"); // スタイルシート
+@include("style/read_css.inc"); // スタイルシート
 
 echo <<<EOP
 	<script type="text/javascript" src="js/basic.js"></script>
@@ -156,16 +156,17 @@ if (empty($_GET['one'])) {
 echo <<<EOHEADER
 	<script type="text/javascript">
 	<!--
-	isLoaded = false;
+	gIsPageLoaded = false;
 
 	function deleLog(url, obj)
 	{
-		/*
-		// ページの読み込み完了していなければリンクで
-		if (!isLoaded) {
-			return true;
+		
+		// ページの読み込みが完了していなければ、なにもしない
+		// （読み込み完了時にidx記録が生成されるため）
+		if (!gIsPageLoaded) {
+			return false;
 		}
-		*/
+		
 		
 		var objHTTP = getXmlHttp();
 		
@@ -209,9 +210,9 @@ echo <<<EOHEADER
 		return false;
 	}
 	
-	function loaded()
+	function pageLoaded()
 	{
-		isLoaded = true;
+		gIsPageLoaded = true;
 		{$onLoad_script}
 	}
 	-->
@@ -220,7 +221,7 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="loaded();">\n
+<body onLoad="pageLoaded();">\n
 EOP;
 
 echo $_info_msg_ht;
@@ -327,6 +328,20 @@ EOP;
 EOP;
 }
 
+// p2フレーム 3ペインで開く
+$htm['p2frame'] = <<<EOP
+<a href="index.php?url={$motothre_url}">p2フレーム 3ペインで開く</a> | 
+EOP;
+$htm['p2frame'] = <<<EOP
+<script type="text/javascript">
+<!--
+if (top == self) {
+	document.writeln('{$htm['p2frame']}');
+}
+-->
+</script>\n
+EOP;
+
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and !$_GET['renzokupop']) {
 
 	if ($_GET['one']) { $id_header = " id=\"header\""; }
@@ -340,6 +355,7 @@ if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and !$_GET['renzok
 			<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
 		</td>
 		<td align="right">
+			{$htm['p2frame']}
 			{$toolbar_right_ht}
 		</td>
 		<td align="right">

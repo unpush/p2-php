@@ -11,8 +11,6 @@ require_once './dataphp.class.php';
 //=====================================================================
 
 if ($_conf['bottom_res_form']) {
-
-	$htm = array();
 	
 	$fake_time = -10; // time を10分前に偽装
 	$time = time() - 9*60*60;
@@ -105,7 +103,28 @@ EOP;
 	if ($spd_st = $aThread->getTimePerRes() and $spd_st != "-") {
 		$spd_ht = '<span class="spd" title="すばやさ＝時間/レス">'."" . $spd_st."".'</span>';
 	}
-		
+	
+	// {{{ フィルタヒットがあった場合、次Xと続きを読むを更新
+	/*
+	//if (!$read_navi_next_isInvisible) {
+	$read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
+	//}
+	
+	$read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+	*/
+
+	$read_navi_next_anchor = "";
+	if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
+		$read_navi_next_anchor = "#r{$aThread->rescount}";
+	}
+	$after_rnum = $GLOBALS['last_hit_resnum'] + $rnum_range;
+	$read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
+
+	if (!empty($GLOBALS['last_hit_resnum'])) {
+	$read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+	}
+	// }}}
+
 	// ■プリント
 	echo <<<EOP
 <hr>
@@ -122,6 +141,7 @@ EOP;
 			{$spd_ht}
 		</td>
 		<td align="right">
+			{$htm['p2frame']}
 			{$toolbar_right_ht}
 		</td>
 		<td align="right">

@@ -109,13 +109,13 @@ EOHEADER;
 echo <<<EOHEADER
 	<script type="text/javascript">
 	<!--
-	isLoaded = false;
+	gIsPageLoaded = false;
 
 	function deleLog(url, obj)
 	{
 		/*
 		// ページの読み込み完了していなければリンクで
-		if (!isLoaded) {
+		if (!gIsPageLoaded) {
 			return true;
 		}
 		*/
@@ -158,9 +158,9 @@ echo <<<EOHEADER
 		return false;
 	}
 	
-	function loaded()
+	function pageLoaded()
 	{
-		isLoaded = true;
+		gIsPageLoaded = true;
 		setWinTitle();
 	}
 	-->
@@ -169,7 +169,7 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="loaded();">\n
+<body onLoad="pageLoaded();">\n
 EOP;
 
 echo $_info_msg_ht;
@@ -312,7 +312,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 function readNew(&$aThread)
 {
 	global $_conf, $newthre_num, $STYLE, $browser;
-	global $_info_msg_ht, $newres_to_show;
+	global $_info_msg_ht;
 
 	$newthre_num++;
 	
@@ -405,17 +405,21 @@ EOP;
 	// ■ローカルDatを読み込んでHTML表示
 	//==================================================================
 	$aThread->resrange['nofirst'] = true;
-	$newres_to_show = false;
+	$GLOBALS['newres_to_show_flag'] = false;
 	if ($aThread->rescount) {
-		//$aThread->datToHtml(); //dat を html に変換表示
-		include_once("./showthread_class.inc"); //HTML表示クラス
-		include_once("./showthreadpc_class.inc"); //HTML表示クラス
+		// $aThread->datToHtml(); //dat を html に変換表示
+		include_once './showthread.class.php'; // HTML表示クラス
+		include_once './showthreadpc.class.php'; // HTML表示クラス
 		$aShowThread = new ShowThreadPc($aThread);
 
 		$res1 = $aShowThread->quoteOne();
 		$read_cont_ht = $res1['q'];
+		
+		ob_start();
+		$aShowThread->datToHtml();
+		$read_cont_ht .= ob_get_contents();
+		ob_end_clean();
 
-		$read_cont_ht .= $aShowThread->datToHtml();
 		unset($aShowThread);
 	}
 	
@@ -472,7 +476,7 @@ EOTOOLBAR;
 EOP;
 
 	// 透明あぼーんで表示がない場合はスキップ
-	if ($newres_to_show) {
+	if ($GLOBALS['newres_to_show_flag']) {
 		echo '<div style="width:100%;">'."\n";	// ほぼIE ActiveXのGray()のためだけに囲ってある
 		echo $read_header_ht;
 		echo $read_cont_ht;

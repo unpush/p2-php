@@ -228,7 +228,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 function readNew(&$aThread)
 {
 	global $_conf, $newthre_num, $STYLE, $browser;
-	global $_info_msg_ht, $newres_to_show, $spmode, $k_at_a;
+	global $_info_msg_ht, $spmode, $k_at_a;
 
 	$newthre_num++;
 	
@@ -317,15 +317,19 @@ EOP;
 	//==================================================================
 	// ローカルDatを読み込んでHTML表示
 	//==================================================================
-	$aThread->resrange['nofirst']=true;
-	$newres_to_show=false;
-	if($aThread->rescount){
-		//$aThread->datToHtml(); //dat を html に変換表示
-		include_once("./showthread_class.inc"); //HTML表示クラス
-		include_once("./showthreadk_class.inc"); //HTML表示クラス
+	$aThread->resrange['nofirst'] = true;
+	$GLOBALS['newres_to_show_flag'] = false;
+	if ($aThread->rescount) {
+		//$aThread->datToHtml(); // dat を html に変換表示
+		include_once './showthread.class.php'; // HTML表示クラス
+		include_once './showthreadk.class.php'; // HTML表示クラス
 		$aShowThread = new ShowThreadK($aThread);
-
-		$read_cont_ht .= $aShowThread->datToHtml();
+		
+		ob_start();
+		$aShowThread->datToHtml();
+		$read_cont_ht .= ob_get_contents();
+		ob_end_clean();
+		
 		unset($aShowThread);
 	}
 	
@@ -381,7 +385,7 @@ EOTOOLBAR;
 EOP;
 
 	//透明あぼーんで表示がない場合はスキップ
-	if ($newres_to_show) {
+	if ($GLOBALS['newres_to_show_flag']) {
 		echo $read_header_ht;
 		echo $read_cont_ht;
 		echo $read_footer_ht;
