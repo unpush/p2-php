@@ -375,7 +375,7 @@ EOP;
 		<option value="off"{$selected_match['off']}>含まない</option>
 	</select>
 	レスを
-	<input type="submit" name="submit" value="フィルタ表示">
+	<input type="submit" name="submit_filter" value="フィルタ表示">
 </form>\n
 EOP;
 }
@@ -397,7 +397,9 @@ EOP;
 
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and !$_GET['renzokupop']) {
 
-	if ($_GET['one']) { $id_header = " id=\"header\""; }
+	if ($_GET['one']) {
+		$id_header = ' id="header"';
+	}
 	echo <<<EOP
 <table{$id_header} width="100%" style="padding:0px 0px 10px 0px;">
 	<tr>
@@ -422,7 +424,7 @@ EOP;
 
 
 //if(!$_GET['renzokupop'] ){
-	echo "<h3 class=\"thread_title\">{$aThread->ttitle}</h3>\n";
+	echo "<h3 class=\"thread_title\">{$aThread->ttitle_hd}</h3>\n";
 //}
 
 

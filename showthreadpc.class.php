@@ -31,7 +31,7 @@ class ShowThreadPc extends ShowThread{
 		$to = $this->thread->resrange['to'];
 		$nofirst = $this->thread->resrange['nofirst'];
 
-		$status_title = $this->thread->itaj." / ".$this->thread->ttitle;
+		$status_title = htmlspecialchars($this->thread->itaj)." / ".$this->thread->ttitle_hd;
 		$status_title = str_replace("'", "\'", $status_title);
 		$status_title = str_replace('"', "\'\'", $status_title);
 		echo "<dl onMouseover=\"window.top.status='{$status_title}';\">";
@@ -333,8 +333,8 @@ EOP;
 		$quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
 		foreach ($quote_res_nums as $rnv) {
 			if (!$this->quote_res_nums_done[$rnv]) {
-				if ($this->thread->ttitle) {
-					$ds = "<b>{$this->thread->ttitle}</b><br><br>";
+				if ($this->thread->ttitle_hd) {
+					$ds = "<b>{$this->thread->ttitle_hd}</b><br><br>";
 				}
 				$ds .= $this->qRes( $this->thread->datlines[$rnv-1], $rnv );
 				$onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
@@ -601,7 +601,7 @@ EOP;
 			return $s[0];
 		}
 		
-		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}&amp;offline=1";
+		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
 		
 		if ($_conf['iframe_popup'] and strstr($appointed_num, "-")) {
 			$rs = <<<EOP

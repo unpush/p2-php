@@ -26,7 +26,7 @@ EOP;
 		$q_ichi = $res1['body']." | ";
 	}
 	echo <<<EOP
-<p {$_conf['pointer_name']}="footer">
+<p id="footer" name="footer">
 	{$read_range_ht}
 	{$read_navi_previous_btm} 
 	{$read_navi_next_btm} 
@@ -38,7 +38,7 @@ EOP;
 	{$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.Å£</a>
 </p>
 EOP;
-	if($diedat_msg){
+	if ($diedat_msg) {
 		echo "<hr>";
 		echo $diedat_msg;
 		echo "<p>";
@@ -46,11 +46,8 @@ EOP;
 		echo "</p>";
 	}
 }
-echo "<hr>".$k_to_index_ht;
+echo '<hr>'.$_conf['k_to_index_ht'];
 
-echo <<<EOP
-</body>
-</html>
-EOP;
+echo '</body></html>';
 
 ?>

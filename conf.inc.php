@@ -1,7 +1,7 @@
 <?php
 // p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
 
-$_conf['p2version'] = '1.5.7';
+$_conf['p2version'] = '1.5.8';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
 $_conf['p2name'] = 'P2';	// p2の名前。
@@ -82,7 +82,6 @@ if (!empty($_GET['k']) || !empty($_POST['k'])) {
 //$_conf['ktai'] = 1;//
 $_conf['doctype'] = "";
 $_conf['accesskey'] = "accesskey";
-$_conf['pointer_name'] = "id";
 $_conf['k_accesskey']['matome'] = '3';	// 新まとめ	// 3
 $_conf['k_accesskey']['latest'] = '3';	// 新 // 9
 $_conf['k_accesskey']['res'] = '7';		// ﾚｽ
@@ -91,6 +90,8 @@ $_conf['k_accesskey']['up'] = '5';	// （板） // 5
 $_conf['k_accesskey']['prev'] = '4';	// 前 // 4
 $_conf['k_accesskey']['bottom'] = '8';	// 下 // 8
 $_conf['k_accesskey']['next'] = '6';	// 次 // 6
+$_conf['k_accesskey']['info'] = '9';	// 情
+$_conf['k_accesskey']['dele'] = '*';	// 削
 
 $meta_charset_ht = <<<EOP
 <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
@@ -111,21 +112,18 @@ EOP;
 } elseif (preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'])) {
 	//$browser = "DoCoMo";
 	$_conf['ktai'] = true;
-	$_conf['pointer_name'] = "name";
 
 } elseif (preg_match('{^(J-PHONE|Vodafone)/}', $_SERVER['HTTP_USER_AGENT'])) {
 	//$browser = "JPHONE";
 	$_conf['ktai'] = true;
 	$_conf['accesskey'] = "DIRECTKEY";
-	$_conf['pointer_name'] = "name";
 
 } elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'DDIPOCKET')) {
 	//$browser="DDIPOCKET";
 	$_conf['ktai'] = true;
-	$_conf['pointer_name'] = "name";
 }
 
-$k_to_index_ht = <<<EOP
+$_conf['k_to_index_ht'] = <<<EOP
 <a {$_conf['accesskey']}="0" href="index.php{$_conf['k_at_q']}">0.TOP</a>
 EOP;
 

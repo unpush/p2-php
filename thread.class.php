@@ -9,7 +9,7 @@ require_once './filectl.class.php';
  */
 class Thread{
 
-	var $ttitle; // スレタイトル // idxline[0]
+	var $ttitle; // スレタイトル // idxline[0] // < は &lt; だったりする
 	var $key; // スレッドID // idxline[1]
 	var $length; // local Dat Bytes(int) // idxline[2]
 	var $gotnum; //（個人にとっての）既得レス数 // idxline[3]
@@ -34,7 +34,11 @@ class Thread{
 	
 	var $isonline; // 板サーバにあればtrue。subject.txtやdat取得時に確認してセットされる。
 	var $new; // 新規スレならtrue
-	var $ttitle_ht; // HTML表示用タイトル
+	
+	var $ttitle_hc;	// < が &lt; であったりするので、デコードしたスレタイトル
+	var $ttitle_hd;	// HTML表示用に、エンコードされたスレタイトル
+	var $ttitle_ht;	// スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
+	
 	var $dayres; // 一日当たりのレス数。勢い。
 	
 	var $dat_type; // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
@@ -46,6 +50,19 @@ class Thread{
 	{
 	}
 
+	/**
+	 * ttitleをセットする（ついでにttitle_hc, ttitle_hd, ttitle_htも）
+	 */
+	function setTtitle($ttitle)
+	{
+		$this->ttitle = $ttitle;
+		// < が &lt; であったりするので、まずデコードしたものを
+		$this->ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');	
+		// HTML表示用に htmlspecialchars() したもの
+		$this->ttitle_hd = htmlspecialchars($this->ttitle_hc);
+		$this->ttitle_ht = $this->ttitle_hd;
+	}
+	
 	/**
 	 * fav, recent用の拡張idxリストからラインデータを取得する
 	 */
@@ -59,7 +76,7 @@ class Thread{
 		
 		if (!$this->ttitle) {
 			if ($la[0]) {
-				$this->ttitle = rtrim($la[0]);
+				$this->setTtitle(rtrim($la[0]));
 			}
 		}
 		
@@ -109,7 +126,7 @@ class Thread{
 		$lar = explode('<>', $key_line);
 		if (!$this->ttitle) {
 			if ($lar[0]) {
-				$this->ttitle = rtrim($lar[0]);
+				$this->setTtitle(rtrim($lar[0]));
 			}
 		}
 		
@@ -169,11 +186,12 @@ class Thread{
 		preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches);
 		$this->isonline = true;
 		$this->key = $matches[1];
-		$this->ttitle = rtrim($matches[4]);
+		$this->setTtitle(rtrim($matches[4]));
 		
 		// be.2ch.net ならEUC→SJIS変換
 		if (P2Util::isHostBe2chNet($this->host)) {
-			$this->ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
+			$ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
+			$this->setTtitle($ttitle);
 		}
 		
 		$this->rescount = $matches[6];
@@ -196,7 +214,7 @@ class Thread{
 			if ($this->datlines) {
 				$firstdatline = rtrim($this->datlines[0]);
 				$d = $this->explodeDatLine($firstdatline);
-				$this->ttitle = $d[4];
+				$this->setTtitle($d[4]);
 			
 			// ローカルdatの1行目から取得
 			} elseif (is_readable($this->keydat)) {
@@ -211,11 +229,12 @@ class Thread{
 					$this->dat_type = "2ch_old";
 				}
 				$d = explode($datline_sepa, $firstdatline);
-				$this->ttitle = $d[4];
+				$this->setTtitle($d[4]);
 				
 				// be.2ch.net ならEUC→SJIS変換
 				if (P2Util::isHostBe2chNet($this->host)) {
-					$this->ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
+					$ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
+					$this->setTtitle($ttitle);
 				}
 			}
 			

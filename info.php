@@ -16,20 +16,25 @@ authorize(); // ユーザ認証
 //================================================================
 $_info_msg_ht = "";
 
-$host = $_GET['host']; //"pc.2ch.net"
-$bbs = $_GET['bbs']; //"php"
-$key = $_GET['key']; //"1022999539"
-$ttitle_en = $_GET['ttitle_en'];
+isset($_GET['host']) and $host = $_GET['host']; // "pc.2ch.net"
+isset($_GET['bbs']) and $bbs = $_GET['bbs']; // "php"
+isset($_GET['key']) and $key = $_GET['key']; // "1022999539"
+isset($_GET['ttitle_en']) and $ttitle_en = $_GET['ttitle_en'];
 
-// popup 0(false),1(true),2(true,クローズタイマー付)
+// popup 0(false), 1(true), 2(true, クローズタイマー付)
 if (!empty($_GET['popup'])) { $popup_ht = "&amp;popup=1"; }
+
+// 以下どれか一つがなくてもダメ出し
+if (empty($host) || empty($bbs) || empty($key)) {
+	die('p2 error: 引数が正しくありません。');
+}
 
 //================================================================
 // ■特殊な前置処理
 //================================================================
 
 // ■削除
-if ($_GET['dele'] && $key && $host && $bbs) {
+if (!empty($_GET['dele']) && $key && $host && $bbs) {
 	$r = deleteLogs($host, $bbs, array($key));
 	//echo $r;
 	if (empty($r)) {
@@ -86,12 +91,14 @@ $aThread->setThreadPathInfo($host, $bbs, $key);
 $key_line = $aThread->getThreadInfoFromIdx();
 $aThread->getDatBytesFromLocalDat(); // $aThread->length をset
 
-$aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
+if (!$aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs)) {
+	$aThread->itaj = $aThread->bbs;
+}
+$hc['itaj'] = $aThread->itaj;
 
 if (!$aThread->ttitle) {
-	if ($ttitle_en) {
-		$aThread->ttitle = base64_decode($ttitle_en);
+	if (isset($ttitle_en)) {
+		$aThread->setTtitle(base64_decode($ttitle_en));
 	} else {
 		$aThread->setTitleFromLocal();
 	}
@@ -104,10 +111,10 @@ if (!$ttitle_en) {
 }
 if ($ttitle_en) { $ttitle_en_ht = "&amp;ttitle_en={$ttitle_en}"; }
 
-if ($aThread->ttitle) {
-	$ttitle_name = $aThread->ttitle;
+if ($aThread->ttitle_hc) {
+	$hc['ttitle_name'] = $aThread->ttitle_hc;
 } else {
-	$ttitle_name = "スレッドタイトル未取得";
+	$hc['ttitle_name'] = "スレッドタイトル未取得";
 }
 
 // favlist チェック =====================================
@@ -118,7 +125,7 @@ if ($favlines) {
 		if ($aThread->key == $favarray[1]) {
 			$aThread->fav = "1";
 			if ($favarray[0]) {
-				$aThread->ttitle = $favarray[0];
+				$aThread->setTtitle($favarray[0]);
 			}
 			break;
 		}
@@ -150,7 +157,7 @@ if ($pallines) {
 		if ($aThread->key == $palarray[1]) {
 			$isPalace = true;
 			if ($palarray[0]) {
-				$aThread->ttitle = $palarray[0];
+				$aThread->setTtitle($palarray[0]);
 			}
 			break;
 		}
@@ -203,22 +210,25 @@ EOP;
 
 
 // ログありなしフラグセット ===========
-if( file_exists($aThread->keydat) or file_exists($aThread->keyidx)  ){$existLog=true;}
+if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) { $existLog = true; }
 
 //=================================================================
 // ■HTMLプリント
 //=================================================================
-if (!$_conf['ktai']) {
-	$target_read_at = " target=\"read\"";
-	$target_sb_at = " target=\"sbject\"";
+if (!empty($_conf['ktai'])) {
+	$target_read_at = ' target="read"';
+	$target_sb_at = ' target="sbject"';
 }
 
 $motothre_url = $aThread->getMotoThread($GLOBALS['ls']);
 if ($title_msg) {
-	$title_st = $title_msg;
+	$hs['title'] = $title_msg;
 } else {
-	$title_st = "info - {$ttitle_name}";
+	$hs['title'] = "info - {$hc['ttitle_name']}";
 }
+
+$hd = array_map('htmlspecialchars', $hc);
+
 
 P2Util::header_nocache();
 P2Util::header_content_type();
@@ -229,7 +239,7 @@ echo <<<EOHEADER
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 	<meta http-equiv="Content-Style-Type" content="text/css">
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
-	<title>{$title_st}</title>\n
+	<title>{$hd['title']}</title>\n
 EOHEADER;
 
 if (!$_conf['ktai']) {
@@ -256,7 +266,7 @@ echo $_info_msg_ht;
 $_info_msg_ht = "";
 
 echo "<p>\n";
-echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}{$_conf['k_at_a']}\"{$target_read_at}>{$ttitle_name}</a></b>\n";
+echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
 echo "</p>\n";
 
 if ($_conf['ktai']) {
@@ -276,7 +286,7 @@ print_info_line("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$mototh
 if (!$_conf['ktai']) {
 	print_info_line("ホスト", $aThread->host);
 }
-print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$aThread->itaj}</a>");
+print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$hd['itaj']}</a>");
 if (!$_conf['ktai']) {
 	print_info_line("key", $aThread->key);
 }
@@ -338,16 +348,10 @@ EOP;
 }
 
 if ($_conf['ktai']) {
-	echo <<<EOP
-<hr>
-{$k_to_index_ht}
-EOP;
+	echo '<hr>'.$_conf['k_to_index_ht'];
 }
 
-echo <<<EOFOOTER
-</body>
-</html>
-EOFOOTER;
+echo '</body></html>';
 
 //===============================================
 // ■関数

@@ -172,14 +172,10 @@ $_info_msg_ht = "";
 // フッタを表示
 //==============================================================
 
-echo <<<EOFOOTER
-<hr>
-$list_navi_ht
-$modori_url_ht
-$k_to_index_ht
-</body>
-</html>
-EOFOOTER;
-
+echo '<hr>';
+echo $list_navi_ht;
+echo $modori_url_ht;
+echo $_conf['k_to_index_ht'];
+echo '</body></html>';
 
 ?>

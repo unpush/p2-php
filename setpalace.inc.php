@@ -69,7 +69,7 @@ function setPal($host, $bbs, $key, $setpal)
 
 	// 新規データ設定
 	if ($setpal) {
-		$newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
+		$newline = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}"."\n";
 	}
 	
 	if ($setpal == 1 or $setpal == "top") {
@@ -96,17 +96,17 @@ function setPal($host, $bbs, $key, $setpal)
 		$i = 0;
 		foreach ($neolines as $l) {
 			if ($i === $after_line_num) {
-				fputs($fp, $newdata."\n");
+				fputs($fp, $newline);
 			}
 			fputs($fp, $l."\n");
 			$i++;
 		}
 		if ($after_line_num === 'bottom') {
-			fputs($fp, $newdata."\n");
+			fputs($fp, $newline);
 		}
 		//「$after_line_num == "bottom"」だと誤動作するよ。
 	} else {
-		fputs($fp, $newdata."\n");
+		fputs($fp, $newline);
 	}
 	@flock($fp, LOCK_UN);
 	fclose($fp);

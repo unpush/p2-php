@@ -192,7 +192,7 @@ EOP;
 		// ”Â–¼ ============================================
 		if ($ita_name_bool) {
 			$ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
-			$ita_ht = "<td{$class_t} nowrap><a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}\" target=\"_self\">{$ita_name}</a></td>";
+			$htm['ita_td'] = "<td{$class_t} nowrap><a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}\" target=\"_self\">".htmlspecialchars($ita_name)."</a></td>";
 		}
 		
 		
@@ -332,7 +332,7 @@ EOP;
 					$checkbox_ht
 					<td{$class_to}>{$torder_ht}</td>
 					<td{$class_tl} nowrap>$moto_thre_ht<a id=\"tt{$i}\" href=\"{$thre_url}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a></td>
-					$ita_ht
+					{$htm['ita_td']}
 					$spd_ht
 					$ikioi_ht
 					$birth_ht

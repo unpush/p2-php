@@ -110,6 +110,9 @@ if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
 
 $post_cache = array('bbs' => $bbs, 'key' => $key, 'time' => $time, 'FROM' => $FROM, 'mail' => $mail, 'MESSAGE' => $MESSAGE, 'subject' =>$subject);
 
+// submit は書き込むで固定してしまう（Beで書き込むの場合もあるため）
+$submit = '書き込む';
+
 if ($_POST['newthread']) {
 	$post = array($submit_k => $submit, $bbs_k => $bbs, $subject_k => $subject, $time_k => $time, $FROM_k => $FROM, $mail_k => $mail, $MESSAGE_k => $MESSAGE);
 	if (P2Util::isHostJbbsShitaraba($host)) {
@@ -155,7 +158,7 @@ if ($_POST['newthread']) {
 //=============================================
 // ポスト実行 
 //=============================================
-$posted = postIt($URL, $request);
+$posted = postIt($URL);
 
 //=============================================
 // cookie 保存
@@ -181,26 +184,37 @@ if ($_POST['newthread'] && $posted) {
 //=============================================
 // ■ key.idx 保存
 //=============================================
+// <> を外す。。
+$tag_rec['FROM'] = str_replace('<>', '', $FROM);
+$tag_rec['mail'] = str_replace('<>', '', $mail);
+
+// 名前とメール、空白時は P2NULL を記録
+$tag_rec_n['FROM'] = ($tag_rec['FROM'] == '') ? 'P2NULL' : $tag_rec['FROM'];
+$tag_rec_n['mail'] = ($tag_rec['mail'] == '') ? 'P2NULL' : $tag_rec['mail'];
+
 if ($host && $bbs && $key) {
 	$datdir_host = P2Util::datdirOfHost($host);
-	$keyidx = $datdir_host."/".$bbs."/".$key.".idx";
+	
+	$keyidx = $datdir_host.'/'.$bbs.'/'.$key.'.idx';
 	
 	// 読み込み
 	if ($keylines = @file($keyidx)) {
 		$akeyline = explode('<>', rtrim($keylines[0]));
 	}
-	$s = "$akeyline[0]<>$akeyline[1]<>$akeyline[2]<>$akeyline[3]<>$akeyline[4]<>$akeyline[5]<>$akeyline[6]<>$FROM<>$mail<>$akeyline[9]";
+	$s = "$akeyline[0]<>$akeyline[1]<>$akeyline[2]<>$akeyline[3]<>$akeyline[4]<>$akeyline[5]<>$akeyline[6]<>".$tag_rec_n['FROM'].'<>'.$tag_rec_n['mail'].'<>'.$akeyline[9];
 	P2Util::recKeyIdx($keyidx, $s); // key.idxに記録
 }
 
 //=============================================
 // 書き込み履歴
 //=============================================
-if (!$posted) { return; }
+if (!$posted) {
+	exit;
+}
 
 if ($host && $bbs && $key) {
 	
-	$rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
+	$rh_idx = $_conf['pref_dir'].'/p2_res_hist.idx';
 	FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']); // なければ生成
 	
 	// 読み込み;
@@ -218,7 +232,7 @@ if ($host && $bbs && $key) {
 	}
 	
 	// 新規データ追加
-	$newdata = "$ttitle<>$key<><><><><><>$FROM<>$mail<><>$host<>$bbs";
+	$newdata = "$ttitle<>$key<><><><><><>".$tag_rec['FROM'].'<>'.$tag_rec['mail']."<><>$host<>$bbs";
 	$neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
 	while (sizeof($neolines) > $_conf['res_hist_rec_num']) {
 		array_pop($neolines);
@@ -261,12 +275,12 @@ if ($_conf['res_write_rec']) {
 	*/
 	
 	// 新規データ
-	$newdata = "$FROM<>$mail<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key";
+	$newdata = $tag_rec['FROM'].'<>'.$tag_rec['mail']."<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key";
 
 	// まずタブを全て外して（2chの書き込みではタブは削除される 2004/12/13）
-	$newdata = str_replace("\t", "", $newdata);
+	$newdata = str_replace("\t", '', $newdata);
 	// <>をタブに変換して
-	$newdata = str_replace("<>", "\t", $newdata);
+	$newdata = str_replace('<>', "\t", $newdata);
 	
 	$cont = $newdata."\n";
 	
@@ -294,7 +308,7 @@ if ($_conf['res_write_rec']) {
 /**
  * ■レス書き込み関数
  */
-function postIt($URL, $request)
+function postIt($URL)
 {
 	global $_conf, $post_result, $post_error2ch, $p2cookies, $host, $bbs, $key, $popup, $rescount, $ttitle_en, $STYLE;
 	global $bbs_cgi, $post, $post_cache;
@@ -328,7 +342,7 @@ function postIt($URL, $request)
 	$add_user_info = "; p2-client-ip: {$_SERVER['REMOTE_ADDR']}";
 	
 	$request .= "User-Agent: Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version']."{$add_user_info})"."\r\n";
-	$request .= "Referer: http://".$URL['host']."/\r\n";
+	$request .= 'Referer: http://'.$URL['host'].'/'."\r\n";
 	
 	// クライアントのIPを送信するp2独自のヘッダ
 	$request .= "p2-Client-IP: ".$_SERVER['REMOTE_ADDR']."/\r\n";
@@ -344,7 +358,7 @@ function postIt($URL, $request)
 	}
 	
 	// be.2ch.net 認証クッキー
-	if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['post_be2ch'])) {
+	if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['submit_beres'])) {
 		$cookies_to_send .= ' MDMD='.$_conf['be_2ch_code'].';';	// be.2ch.netの認証コード(パスワードではない)
 		$cookies_to_send .= ' DMDM='.$_conf['be_2ch_mail'].';';	// be.2ch.netの登録メールアドレス
 	}

@@ -797,7 +797,7 @@ class ThreadRead extends Thread{
 				$this->dat_type = "2ch_old";
 			}
 			$d = explode($datline_sepa, $first_datline);
-			$this->ttitle = $d[4];
+			$this->setTtitle($d[4]);
 		}
 		
 		// ローカルdatなければオンラインから
@@ -898,7 +898,7 @@ class ThreadRead extends Thread{
 				$this->dat_type = "2ch_old";
 			}
 			$d = explode($datline_sepa, $first_datline);
-			$this->ttitle = $d[4];
+			$this->setTtitle($d[4]);
 			
 			$this->onthefly = true;
 			

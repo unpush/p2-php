@@ -111,8 +111,9 @@ function sb_print_k($aThreadList)
 		// ”Â–¼ ============================================
 		if ($ita_name_bool) {
 			$ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
-			// $ita_ht = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name}</a>)";
-			$ita_ht = "({$ita_name})";
+			$ita_name_hd = htmlspecialchars($ita_name);
+			// $htm['ita'] = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hd}</a>)";
+			$htm['ita'] = "({$ita_name_hd})";
 		}
 		
 		// torder(info) =================================================
@@ -180,7 +181,7 @@ function sb_print_k($aThreadList)
 		//ƒ{ƒfƒB
 		echo <<<EOP
 <div>
-	$unum_ht{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>$ita_ht
+	$unum_ht{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>{$htm['ita']}
 </div>
 EOP;
 	}

@@ -16,16 +16,15 @@ if ($_conf['bottom_res_form']) {
 	$time = time() - 9*60*60;
 	$time = $time + $fake_time * 60;
 
-	$submit_value = "書き込む";
+	$submit_value = '書き込む';
 	
 	// ■ key.idxから名前とメールを読込み
 	if (file_exists($aThread->keyidx)) {
 		unset($lines);
 		if ($lines = @file($aThread->keyidx)) {
 			$line = explode('<>', rtrim($lines[0]));
-			$line = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $line);
-			$htm['FROM'] = $line[7];
-			$htm['mail'] = $line[8];
+			$hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
+			$hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
 		}
 	}
 	
@@ -33,32 +32,49 @@ if ($_conf['bottom_res_form']) {
 	$failed_post_file = P2Util::getFailedPostFilePath($aThread->host, $aThread->bbs, $aThread->key);
 	if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
 		$last_posted = unserialize($cont_srd);
-		$last_posted = array_map('htmlspecialchars', $last_posted);
+		
+		// まとめてサニタイズ
+		$last_posted = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $last_posted);
 
-		$htm['FROM'] = $last_posted['FROM'];
-		$htm['mail'] = $last_posted['mail'];
-		$htm['MESSAGE'] = $last_posted['MESSAGE'];	
-
+		$hd['FROM'] = $last_posted['FROM'];
+		$hd['mail'] = $last_posted['mail'];
+		$hd['MESSAGE'] = $last_posted['MESSAGE'];	
 	}
+	
+	// 空白はユーザ設定値に変換
+	$hd['FROM'] = ($hd['FROM'] == '') ? htmlspecialchars($_conf['my_FROM']) : $hd['FROM'];
+	$hd['mail'] = ($hd['mail'] == '') ? htmlspecialchars($_conf['my_mail']) : $hd['mail'];
+	
+	// P2NULLは空白に変換
+	$hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
+	$hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
+	
 	$onmouse_showform_ht = <<<EOP
  onMouseover="document.getElementById('kakiko').style.display = 'block';"
 EOP;
 
 	$ttitle_ht = <<<EOP
-<p><b class="thre_title">{$aThread->ttitle}</b></p>
+<p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
 
 
 	// 2chで●ログイン中なら
 	if (P2Util::isHost2chs($aThread->host) and file_exists($_conf['sid2ch_php'])) {
-		$isMaruChar = "●";
+		$isMaruChar = '●';
 	} else {
-		$isMaruChar = "";
+		$isMaruChar = '';
 	}
 
 	// Be.2ch
-	if (!P2Util::isHostBe2chNet($host) and P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-		$htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"><label for="post_be2ch">Be.2chのコードを送信</label><br>'."\n";
+	if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
+		/*
+		$checked = '';
+		if (P2Util::isHostBe2chNet($host)) {
+			$checked = ' checked';
+		}
+		*/
+		$htm['be2ch'] = '<input type="submit" name="submit_beres" value="BEで書き込む">';
+		// $htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"'.$checked.'><label for="post_be2ch">Be.2chのコードを送信</label><br>'."\n";
 	}
 		
 	$res_form_ht = <<<EOP
@@ -66,12 +82,13 @@ EOP;
 {$ttitle_ht}
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
 	<input type="hidden" name="detect_hint" value="◎◇">
-	 {$isMaruChar}名前： <input name="FROM" type="text" value="{$htm['FROM']}" size="19"> 
-	 E-mail : <input id="mail" name="mail" type="text" value="{$htm['mail']}" size="19" onChange="checkSage();">
+	 {$isMaruChar}名前： <input name="FROM" type="text" value="{$hd['FROM']}" size="19"> 
+	 E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}" size="19" onChange="checkSage();">
 	<input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label>{$options_ht}<br>
-	<textarea id="MESSAGE" rows="{$STYLE['post_msg_rows']}" cols="{$STYLE['post_msg_cols']}" wrap="off" name="MESSAGE">{$htm['MESSAGE']}</textarea>	
-	<input type="submit" name="submit" value="{$submit_value}"><br>
+	<textarea id="MESSAGE" rows="{$STYLE['post_msg_rows']}" cols="{$STYLE['post_msg_cols']}" wrap="off" name="MESSAGE">{$hd['MESSAGE']}</textarea>	
+	<input type="submit" name="submit" value="{$submit_value}">
 	{$htm['be2ch']}
+	<br>
 	
 	<input type="hidden" name="bbs" value="{$aThread->bbs}">
 	<input type="hidden" name="key" value="{$aThread->key}">
@@ -81,7 +98,7 @@ EOP;
 	<input type="hidden" name="rescount" value="{$aThread->rescount}">
 	<input type="hidden" name="ttitle_en" value="{$ttitle_en}">
 </form>
-</div>
+</div>\n
 EOP;
 }
 

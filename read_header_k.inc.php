@@ -125,10 +125,11 @@ EOP;
 //====================================================================
 
 // ツールバー部分HTML =======
+$itaj_hd = htmlspecialchars($aThread->itaj);
 $toolbar_right_ht = <<<EOTOOLBAR
-	<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.{$aThread->itaj}</a>
-	<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a> 
-	<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a> 
+	<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.{$itaj_hd}</a>
+	<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['info']}">{$_conf['k_accesskey']['info']}.{$info_st}</a> 
+	<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['dele']}">{$_conf['k_accesskey']['dele']}.{$delete_st}</a> 
 	<a href="{$motothre_url}">{$moto_thre_st}</a>
 EOTOOLBAR;
 
@@ -217,7 +218,7 @@ EOP;
 if( ($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])){
 
 	//if($_GET['one']){
-		$pointer_header=" {$_conf['pointer_name']}=\"header\"";
+		$pointer_header = ' id="header" name="header"';
 	//}
 	echo <<<EOP
 <p{$pointer_header}>
@@ -232,7 +233,7 @@ EOP;
 }
 
 echo "<hr>";
-echo "<h3>{$aThread->ttitle}</h3>\n";
+echo "<h3>{$aThread->ttitle_hd}</h3>\n";
 echo "<hr>";
 
  ?>

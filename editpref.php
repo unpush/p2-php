@@ -199,7 +199,7 @@ if ($_conf['ktai']) {
 		}
 	}
 	echo "<hr>\n";
-	echo $k_to_index_ht;
+	echo $_conf['k_to_index_ht'];
 }
 
 echo <<<EOP

@@ -1,7 +1,37 @@
+2005-04-01 aki
+	* p2 version 1.5.8
+
+	- [新機能] 書き込み時のデフォルトの名前とメールを設定できるようにした
+	- [新機能] 携帯でもお気に板の編集が可能になった
+	- [新機能] 携帯のアクセスキーを追加（削除=*、情報=9）
+
+	- [Bug Fix] $_conf['ext_win_target'] の設定が正常に反映されていない箇所があったのを修正
+	- [Bug Fix] お気にスレ、殿堂入りから外した時に、リスト順番号が崩れることがあったのを修正
+	- [Bug Fix] 書き込みで名前やメールに<>が含まれていると、記録データが崩れていたのを修正
+
+	- [仕様変更] BEで書き込むのボタンをつけた
+	- [仕様変更] オンラインの板メニュー指定で、URLの拡張子がcgiのものも、html形式として認識するようにした
+	- [仕様変更] 携帯利用時、HTMLのidとnameを両記載するようにした
+
+	- 他いろいろ
+
+	- ファイル名変更
+		sb_header_k.inc → sb_header_k.inc.php
+		read_footer_k.inc → read_footer_k.inc.php
+		read_header_k.inc → read_header_k.inc.php
+		sb_footer_k.inc → sb_footer_k.inc.php
+		sb_print.inc → sb_print.inc.php
+		sb_print_k.inc → sb_print_k.inc.php
+
+	- 新規追加ファイル
+		menu.inc.php
+
+
 2005-03-21 aki
 	* p2 version 1.5.7
 	
 	- [Bug Fix] 独立したレス書き込みフォームで、記憶された名前やメールが読み込まれていなかったのを修正
+	- 他こまごま
 	
 	* conf.inc.php
 	* post_form.php

@@ -37,41 +37,43 @@ EOP;
 // HTML表示用変数 for ツールバー(sb_toolbar.inc) 
 //===============================================================
 
-$norefresh_q="&amp;norefresh=true";
+$norefresh_q = "&amp;norefresh=true";
 
 // ページタイトル部分URL設定 ====================================
-if($aThreadList->spmode=="taborn" or $aThreadList->spmode=="soko"){
+if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 	$ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}";
-}elseif($aThreadList->spmode=="res_hist"){
+} elseif ($aThreadList->spmode == "res_hist") {
 	$ptitle_url = "./read_res_hist.php#footer";
-}elseif(! $aThreadList->spmode){
+} elseif (!$aThreadList->spmode) {
 	$ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/";
-	if( preg_match("/www\.onpuch\.jp/", $aThreadList->host) ){$ptitle_url = $ptitle_url."index2.html";}
-	if( preg_match("/livesoccer\.net/", $aThreadList->host) ){$ptitle_url = $ptitle_url."index2.html";}
-	//match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
+	if (preg_match("/www\.onpuch\.jp/", $aThreadList->host)) {$ptitle_url = $ptitle_url."index2.html";}
+	if (preg_match("/livesoccer\.net/", $aThreadList->host)) {$ptitle_url = $ptitle_url."index2.html";}
+	// match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
 }
 
 // ページタイトル部分HTML設定 ====================================
-if($aThreadList->spmode == "taborn"){
+$ptitle_hd = htmlspecialchars($aThreadList->ptitle);
+
+if ($aThreadList->spmode == "taborn") {
 	$ptitle_ht = <<<EOP
-	<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj}</b></a>（あぼーん中）</span>
+	<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（あぼーん中）</span>
 EOP;
-}elseif($aThreadList->spmode == "soko"){
+} elseif ($aThreadList->spmode == "soko") {
 	$ptitle_ht = <<<EOP
-	<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj}</b></a>（dat倉庫）</span>
+	<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）</span>
 EOP;
-}elseif($ptitle_url){
+} elseif ($ptitle_url) {
 	$ptitle_ht = <<<EOP
-	<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}"><b>{$aThreadList->ptitle}</b></a></span>
+	<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}"><b>{$ptitle_hd}</b></a></span>
 EOP;
-}else{
+} else {
 	$ptitle_ht = <<<EOP
-	<span class="itatitle"><b>{$aThreadList->ptitle}</b></span>
+	<span class="itatitle"><b>{$ptitle_hd}</b></span>
 EOP;
 }
 
-//ビュー部分設定 ==============================================
-if($aThreadList->spmode){ //スペシャルモード時
+// ビュー部分設定 ==============================================
+if ($aThreadList->spmode) { // スペシャルモード時
 	if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){	// お気にスレ or 殿堂なら
 		if($sb_view=="edit"){
 			$edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
@@ -187,7 +189,7 @@ EOP;
 }
 
 echo <<<EOP
-	<title>{$aThreadList->ptitle}</title>
+	<title>{$ptitle_hd}</title>
 	<base target="read">
 EOP;
 
@@ -247,7 +249,7 @@ echo <<<EOJS
 	</script>
 EOJS;
 
-if($aThreadList->spmode=="taborn" or $aThreadList->spmode=="soko")
+if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 	echo <<<EOJS
 	<script language="javascript">
 	<!--
@@ -265,6 +267,7 @@ if($aThreadList->spmode=="taborn" or $aThreadList->spmode=="soko")
 	// -->
 	</script>
 EOJS;
+}
 
 echo <<<EOP
 </head>
@@ -274,7 +277,7 @@ EOP;
 include("./sb_toolbar.inc");
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 echo <<<EOP
 	$taborn_check_ht
