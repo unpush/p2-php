@@ -232,7 +232,7 @@ echo <<<EOP
 <script type="text/JavaScript">
 <!--
 if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
-	document.writeln("<p><a href=\"javascript:void(0);\" onClick=\"addSidebar('P2 Menu', '{$menu_side_url}');\">P2 Memu‚ð Sidebar ‚É’Ç‰Á</a></p>");
+	document.writeln("<p><a href=\"javascript:void(0);\" onClick=\"addSidebar('P2 Menu', '{$menu_side_url}');\">P2 Menu‚ð Sidebar ‚É’Ç‰Á</a></p>");
 }
 -->
 </script>\n
