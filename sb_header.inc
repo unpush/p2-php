@@ -209,16 +209,24 @@ echo <<<EOJS
 			}
 		}
 	}
-	
 	function chUnColor(idnum){
-		unid='un'+idnum;
-		document.getElementById(unid).style.color="{$STYLE['sb_ttcolor']}";
+		var unid = 'un'+idnum;
+		var unid_obj = document.getElementById(unid);
+		if (unid_obj) {
+			unid_obj.style.color="{$STYLE['sb_ttcolor']}";
+		}
 	}
 	function chTtColor(idnum){
-		ttid="tt"+idnum;
-		toid="to"+idnum;
-		document.getElementById(ttid).style.color="{$STYLE['thre_title_color_v']}";
-		document.getElementById(toid).style.color="{$STYLE['thre_title_color_v']}";
+		var ttid = "tt"+idnum;
+		var toid = "to"+idnum;
+		var ttid_obj = document.getElementById(ttid);
+		if (ttid_obj) {
+			ttid_obj.style.color="{$STYLE['thre_title_color_v']}";
+		}
+		var toid_obj = document.getElementById(toid);
+		if (toid_obj) {
+			toid_obj.style.color="{$STYLE['thre_title_color_v']}";
+		}
 	}
 	// -->
 	</script>
