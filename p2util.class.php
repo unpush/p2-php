@@ -253,6 +253,7 @@ class P2Util{
 			return $lines;
 		
 		} else {
+			$lines = array_map('rtrim', $lines);
 			// 最初の行はphpの開始行なので飛ばす
 			@array_shift($lines);
 			// 最後の行もphpの閉じたタグなのでカットする
