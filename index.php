@@ -31,7 +31,7 @@ if ($_conf['ktai']) {
 		header('Location: '.$me_dir_url.'/read.php?'.$_SERVER['QUERY_STRING']);
 		exit;
 	}
-	include("./index_print_k.inc");
+	include './index_print_k.inc.php';
 	index_print_k();
 	
 } else {
