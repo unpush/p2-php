@@ -1,5 +1,7 @@
 <?php
-// p2 -  板メニュー 携帯用
+/*
+	p2 -  板メニュー 携帯用
+*/
 
 require_once("./conf.php");  //基本設定ファイル読込
 require_once("./brdctl_class.inc");
@@ -15,17 +17,16 @@ $_info_msg_ht="";
 $brd_menus = array();
 
 // 板検索 ====================================
-if( isset($_GET['word'])||isset($_POST['word']) ){
+if (isset($_REQUEST['word'])) {
 
-	if($_POST['word']){ $word = $_POST['word']; }
-	if($_GET['word']){ $word = $_GET['word']; }
-	if(get_magic_quotes_gpc()) {
+	$word = $_REQUEST['word'];
+	if (get_magic_quotes_gpc()) {
 		$word = stripslashes($word);
 	}
-	if($word=="."){$word="";}
+	if ($word == '.') {$word = '';}
 	
 	//正規表現検索
-	include_once("./strctl_class.inc");
+	include_once './strctl_class.inc';
 	$word_fm = StrCtl::wordForMatch($word);
 }
 
@@ -79,15 +80,59 @@ $_info_msg_ht="";
 if($_GET['view']=="favita"){
 	$aShowBrdMenuK->print_favIta();
 
-}else{ //それ以外ならbrd読み込み
-	//brd読み込み
+// それ以外ならbrd読み込み
+}else{
 	$brd_menus =  BrdCtl::read_brds();		
+}
+//===========================================================
+// 板検索
+//===========================================================
+if ($_GET['view'] != "favita" && $_GET['view'] != "rss" && !$_GET['cateid']) {
+	$kensaku_form_ht = <<<EOFORM
+<form method="GET" action="{$_SERVER['PHP_SELF']}">
+	{$_conf['k_input_ht']}
+	<input type="hidden" name="nr" value="1">
+	<input type="text" id="word" name="word" value="{$word}" size="12">
+	<input type="submit" name="submit" value="板検索">
+</form>\n
+EOFORM;
+
+	echo $kensaku_form_ht;
+	echo "<br>";
+}
+
+//===========================================================
+// 検索結果をプリント
+//===========================================================
+if ($_REQUEST['word'] != "") {
+
+	if ($GLOBALS['mikke']) {
+		$hit_ht = "<br>\"{$word}\" {$GLOBALS['mikke']}hit!";
+	}
+	echo "板ﾘｽﾄ検索結果{$hit_ht}<hr>";
+	if ($word) {
+
+		// 板名を検索してプリントする ==========================
+		if ($brd_menus) {
+			foreach ($brd_menus as $a_brd_menu) {
+				$aShowBrdMenuK->printItaSearch($a_brd_menu->categories);
+			}
+		}
+		
+	}
+	if (!$GLOBALS['mikke']) {
+		$_info_msg_ht .=  "<p>\"{$word}\"を含む板は見つかりませんでした。</p>\n";
+		unset($word);
+	}
+	$modori_url_ht = <<<EOP
+<div><a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">板ﾘｽﾄ</a></div>
+EOP;
 }
 
 //==============================================================
 // カテゴリを表示
 //==============================================================
-if($_GET['view']=="cate"){
+if ((isset($_REQUEST['word']) && $_REQUEST['word'] == "") or $_GET['view'] == "cate") {
 	echo "板ﾘｽﾄ<hr>";
 	if($brd_menus){
 		foreach($brd_menus as $a_brd_menu){
@@ -111,33 +156,7 @@ if(isset($_GET['cateid'])){
 EOP;
 }
 
-//===========================================================
-// 検索結果をプリント
-//===========================================================
-if( isset($_GET['word'])||isset($_POST['word']) ){
-	if($mikke){
-		$hit_ht="<br>\"{$word}\" {$mikke}hit!";
-	}
-	echo "板ﾘｽﾄ検索結果{$hit_ht}<hr>";
-	if($word){
-
-		//板名を検索してプリントする==========================
-		if($brd_menus){
-			foreach($brd_menus as $a_brd_menu){
-				$aShowBrdMenuK->printItaSearch($a_brd_menu->categories);
-			}
-		}
-		
-	}
-	if(!$mikke){
-		$_info_msg_ht .=  "<p>\"{$word}\"を含む板は見つかりませんでした。</p>\n";
-		unset($word);
-	}
-	$modori_url_ht=<<<EOP
-<div><a href="menu_k.php?view=cate&amp;nr=1{$k_at_a}">板ﾘｽﾄ</a></div>
-EOP;
-}
-		
+	
 echo $_info_msg_ht;
 $_info_msg_ht="";
 
@@ -145,22 +164,9 @@ $_info_msg_ht="";
 // フッタを表示
 //==============================================================
 
-//板検索===============================
-if($_GET['view']!="favita" and !$_GET['cateid']){
-	$kensaku_form_ht = <<<EOFORM
-<form method="GET" action="{$_SERVER['PHP_SELF']}">
-	{$k_input_ht}
-	<input type="hidden" name="nr" value="1">
-	<input type="text" id="word" name="word" value="{$word}" size="12">
-	<input type="submit" name="submit" value="板検索">
-</form>\n
-EOFORM;
-}
-
 echo <<<EOFOOTER
 <hr>
 $list_navi_ht
-$kensaku_form_ht
 $modori_url_ht
 $k_to_index_ht
 </body>

@@ -272,16 +272,7 @@ EOP;
 				$ryaku=true;
 			}
 		}
-		
-		/*
-		//フィルタ色分け
-		if($field and $res_filter['field']=="msg" && $word_fm && $res_filter['match']=="on"){
-			$msg_euc = StrCtl::p2SJIStoEUC($msg);
-			$msg_euc = @preg_replace("/{$word_fm}/i", "<b class='filtering'>\\0</b>", $msg_euc);
-			$msg = StrCtl::p2EUCtoSJIS($msg_euc);
-		}
-		*/
-		
+
 		// >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
 		$msg = preg_replace_callback("/(&gt;|＞)?(&gt;|＞)([0-9- ,=.]|、)+/", array($this, 'quote_res_callback'), $msg);
 	

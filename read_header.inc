@@ -1,24 +1,28 @@
 <?php
-// p2 -  スレッド表示 -  ヘッダ部分 -  for read.php
+/*
+	p2 -  スレッド表示 -  ヘッダ部分 -  for read.php
+*/
 
-//変数
-$diedat_msg="";
+// 変数
+$diedat_msg = "";
 
-$info_st="情報";
-$delete_st="削除";
-$all_st="全部";
-$prev_st="前";
-$next_st="次";
-$shinchaku_st="新着レスの表示";
-$tuduki_st="続きを読む";
-$moto_thre_st="元スレ";
-$latest_st="最新";
-$dores_st="レス";
-$aborn_st="あぼん";
+$info_st = "情報";
+$delete_st = "削除";
+$all_st = "全部";
+$prev_st = "前";
+$next_st = "次";
+$shinchaku_st = "新着レスの表示";
+$midoku_st = "未読レスの表示";
+$tuduki_st = "続きを読む";
+$moto_thre_st = "元スレ";
+$latest_st = "最新";
+$dores_st = "レス";
+$aborn_st = "あぼん";
 
 $motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
 $ttitle_en = base64_encode($aThread->ttitle);
-$ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
+$ttitle_urlen = rawurlencode($ttitle_en);
+$ttitle_en_q = "&amp;ttitle_en=".$ttitle_urlen;
 $bbs_q = "&amp;bbs=".$aThread->bbs;
 $key_q = "&amp;key=".$aThread->key;
 $popup_q = "&amp;popup=1";
@@ -209,31 +213,48 @@ EOP;
 
 
 if($aThread->rescount and (!$_GET['renzokupop']) ){
-//レスフィルタ===============================
-	if($res_filter['field']=="name"){$selected_name=" selected";}
-	elseif($res_filter['field']=="mail"){$selected_mail=" selected";}
-	elseif($res_filter['field']=="id"){$selected_id=" selected";}
-	elseif($res_filter['field']=="msg"){$selected_msg=" selected";}
-	if($res_filter['match']=="off"){$selected_off=" selected";}
+// レスフィルタ ===============================
+	if ($res_filter['field'] == "name") { $selected_name = " selected"; }
+	elseif ($res_filter['field'] == "mail") { $selected_mail = " selected"; }
+	elseif ($res_filter['field'] == "date") { $selected_date = " selected"; }
+	elseif ($res_filter['field'] == "id") { $selected_id = " selected"; }
+	elseif ($res_filter['field'] == "msg") { $selected_msg = " selected"; }
+	if ($res_filter['match'] == "off") { $selected_off = " selected"; }
+	if ($res_filter['method'] == "or") { $selected_or = " selected"; }
+	elseif ($res_filter['method'] == "just") { $selected_just = " selected"; }
+	elseif ($res_filter['method'] == "regex") { $selected_regex = " selected"; }
 
+	if ($_conf['enable_exfilter']) {
+		$select_method_ht = <<<EOP
+	の
+	<select id="method" name="method">
+		<option value="and">すべて</option>
+		<option value="or"{$selected_or}>いずれか</option>
+		<option value="just"{$selected_just}>そのまま</option>
+		<option value="regex"{$selected_regex}>正規表現</option>
+	</select>
+EOP;
+	}
 	echo <<<EOP
-<form id="header" method="GET" action="{$_conf['read_php']}">
+<form id="header" method="GET" action="{$_conf['read_php']}" style="white-space:nowrap">
 	<input type="hidden" name="bbs" value="{$aThread->bbs}">
 	<input type="hidden" name="key" value="{$aThread->key}">
 	<input type="hidden" name="host" value="{$aThread->host}">
 	<input type="hidden" name="ls" value="all">
+	<input type="hidden" name="offline" value="1">
 	<select id="field" name="field">
-		<option value="name"{$selected_name}>名前
-		<option value="mail"{$selected_mail}>メール
-		<option value="id"{$selected_id}>ID
-		<option value="msg"{$selected_msg}>メッセージ
+		<option value="name"{$selected_name}>名前</option>
+		<option value="mail"{$selected_mail}>メール</option>
+		<option value="date"{$selected_date}>日付</option>
+		<option value="id"{$selected_id}>ID</option>
+		<option value="msg"{$selected_msg}>メッセージ</option>
 	</select>
 	が
-	<input id="word" name="word" value="{$word}" size="24">
+	<input id="word" name="word" value="{$word}" size="24">{$select_method_ht}
 	を
 	<select id="match" name="match">
-		<option value="on">含む
-		<option value="off"{$selected_off}>含まない
+		<option value="on">含む</option>
+		<option value="off"{$selected_off}>含まない</option>
 	</select>
 	レスを
 	<input type="submit" name="submit" value="フィルタ表示">

@@ -1,10 +1,12 @@
 <?php
-// p2 - BrdCtl -- ボードリストコントロールクラス for menu.php
+/*
+	p2 - BrdCtl -- 板リストコントロールクラス for menu.php
+*/
 
 require_once './p2util.class.php';	// p2用のユーティリティクラス
-require_once("./filectl_class.inc");
+require_once './filectl_class.inc';
 require_once("./datactl.inc");
-require_once("./brdmenu_class.inc");
+require_once './brdmenu_class.inc';
 
 
 /**
@@ -31,20 +33,23 @@ class BrdCtl{
 		global $_info_msg_ht;
 	
 		$brd_menus = array();
-		$brd_dir = "./board";
+		$brd_dir = './board';
 		
 		if ($cdir = @dir($brd_dir)) {
-			while ($entry = $cdir->read()) {	//ディレクトリ走査
-				if (preg_match('/^\./', $entry)) { continue; }
-				$filepath = $brd_dir."/".$entry;
+			// ディレクトリ走査
+			while ($entry = $cdir->read()) {
+				if (preg_match('/^\./', $entry)) {
+					continue;
+				}
+				$filepath = $brd_dir.'/'.$entry;
 				if ($data = @file($filepath)) {
-					$aBrdMenu = new BrdMenu; //クラス BrdMenu のオブジェクトを生成
-					$aBrdMenu->setBrdMatch($filepath); //パターンマッチ形式を登録
-					$aBrdMenu->setBrdList($data); //カテゴリーと板をセット
+					$aBrdMenu = new BrdMenu;	// クラス BrdMenu のオブジェクトを生成
+					$aBrdMenu->setBrdMatch($filepath);	// パターンマッチ形式を登録
+					$aBrdMenu->setBrdList($data);	// カテゴリーと板をセット
 					$brd_menus[] = $aBrdMenu;
 					unset($data, $aBrdMenu);
 				} else {
-					$_info_msg_ht .= "<p>p2 エラー: 板リスト {$entry} が読み込めませんでした。</p>\n";
+					$_info_msg_ht .= "<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n";
 				}
 			}
 			$cdir->close();
@@ -66,10 +71,14 @@ class BrdCtl{
 			$cachefile = cacheForDL($brdfile_online);
 			
 			$noDL = false;
-			if(  file_exists($cachefile.".p2.brd") ){	//キャッシュがある場合
-				if($_GET['nr']){	// norefreshならDLしない
+			
+			// キャッシュがある場合
+			if (file_exists($cachefile.'.p2.brd')) {
+				// norefreshならDLしない
+				if ($_GET['nr']) {
 					$noDL = true;
-				}elseif( @filemtime($cachefile.".p2.brd") > time() - 60*60*$c_menu_dl_interval){	//キャッシュの更新が指定時間以内ならDLしない
+				// キャッシュの更新が指定時間以内ならDLしない
+				}elseif (@filemtime($cachefile.'.p2.brd') > time() - 60 * 60 * $_conf['menu_dl_interval']) {
 					$noDL = true;
 				}
 			}

@@ -72,6 +72,7 @@ $_conf['through_ime'] = "p2pm";	// ("p2pm") ŠO•”URLƒWƒƒƒ“ƒv‚·‚éÛ‚É’Ê‚·ƒQ[ƒgB
 $join_favrank = 1;	// (1) ‚¨‹C‚ÉƒXƒŒ‹¤—L‚ÉQ‰Ái‚·‚é:1, ‚µ‚È‚¢:0j
 $c_enable_menu_new = 0;	// (0) ”Âƒƒjƒ…[‚ÉV’…”‚ğ•\¦i‚·‚é:1, ‚µ‚È‚¢:0, ‚¨‹C‚É”Â‚Ì‚İ:2j
 $c_menu_refresh_time = 0;	// (0) ”Âƒƒjƒ…[•”•ª‚Ì©“®XVŠÔŠui•ªw’èB0‚È‚ç©“®XV‚µ‚È‚¢Bj
+$_conf['enable_exfilter'] = 1;	// (1) ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÅAND/ORŒŸõ‚ğ‰Â”\‚É‚·‚éioff:0, ƒŒƒX‚Ì‚İ:1, ƒTƒuƒWƒFƒNƒg‚à:2j
 
 $proxy['use'] = 0;	// (0) ƒvƒƒLƒV‚ğ—˜—p(‚·‚é:1, ‚µ‚È‚¢:0)
 $proxy['host'] = "";	// ("") ƒvƒƒLƒVƒzƒXƒg ex)"127.0.0.1", "www.p2proxy.com"

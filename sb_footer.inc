@@ -1,6 +1,8 @@
 <?php
-// p2 -  サブジェクト - フッタ表示
-// for subject.php
+/*
+	p2 - サブジェクト - フッタ表示
+	for subject.php
+*/
 
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 

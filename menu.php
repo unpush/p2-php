@@ -1,6 +1,8 @@
 <?php
-// p2 -  板メニュー
-// フレーム分割画面、左側部分
+/*
+	p2 -  板メニュー
+	フレーム分割画面、左側部分
+*/
 
 require_once("./conf.php");  //基本設定ファイル読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
@@ -13,29 +15,28 @@ authorize(); //ユーザ認証
 //==============================================================
 // 変数設定
 //==============================================================
-if($_SERVER['HTTPS']){ 
+if ($_SERVER['HTTPS']) { 
 	$me_url = "https://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME']; 
-}else{ 
+} else { 
 	$me_url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME']; 
 } 
 $me_dir_url = dirname($me_url);
 $menu_side_url = $me_dir_url."/menu_side.php"; //menu_side.php の URL。（ローカルパス指定はできないようだ）
 
-$_info_msg_ht="";
+$_info_msg_ht = "";
 $brd_menus = array();
 
 // 板検索 ====================================
-if( isset($_GET['word'])||isset($_POST['word']) ){
+if (isset($_REQUEST['word'])) {
 
-	if($_POST['word']){ $word = $_POST['word']; }
-	if($_GET['word']){ $word = $_GET['word']; }
-	if(get_magic_quotes_gpc()) {
+	$word = $_REQUEST['word'];
+	if (get_magic_quotes_gpc()) {
 		$word = stripslashes($word);
 	}
-	if($word=="."){$word="";}
+	if ($word == "." ) { $word = ""; }
 	
-	//正規表現検索
-	include_once("./strctl_class.inc");
+	// 正規表現検索
+	include_once './strctl_class.inc';
 	$word_fm = StrCtl::wordForMatch($word);
 }
 
@@ -205,16 +206,7 @@ if($word!=""){
 echo $_info_msg_ht;
 $_info_msg_ht="";
 
-if($brd_menus){
-	foreach($brd_menus as $a_brd_menu){
-		$aShowBrdMenuPc->printBrdMenu($a_brd_menu->categories);
-	}
-}
-
-//==============================================================
-// フッタを表示
-//==============================================================
-//板検索===============================
+// 板検索
 echo <<<EOFORM
 <form method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
 	<p>
@@ -223,6 +215,17 @@ echo <<<EOFORM
 	</p>
 </form>\n
 EOFORM;
+
+// 板カテゴリメニューを表示
+if ($brd_menus) {
+	foreach ($brd_menus as $a_brd_menu) {
+		$aShowBrdMenuPc->printBrdMenu($a_brd_menu->categories);
+	}
+}
+
+//==============================================================
+// フッタを表示
+//==============================================================
 
 //for Mozilla Sidebar==========================================
 echo <<<EOP

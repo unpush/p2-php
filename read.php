@@ -26,7 +26,7 @@ $newtime= date("gis");  //同じリンクをクリックしても再読込しない仕様に対抗するダ
 if($_GET['relogin2ch']){
 	$relogin2ch=$_GET['relogin2ch'];
 }
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 //=================================================
 // スレの指定
@@ -36,19 +36,26 @@ detectThread();
 //=================================================
 // レスフィルタ
 //=================================================
-if($_POST['word']){$word=$_POST['word'];}
-if($_GET['word']){$word=$_GET['word'];}
-if($_POST['field']){ $field=$_POST['field']; $res_filter['field']=$_POST['field']; }
-if($_GET['field']){ $field=$_GET['field']; $res_filter['field']=$_GET['field']; }
-if($_POST['match']){ $res_filter['match']=$_POST['match']; }
-if($_GET['match']){ $res_filter['match']=$_GET['match']; }
-if(get_magic_quotes_gpc()) {
+if ($_POST['word']) {$word = $_POST['word'];}
+if ($_GET['word']) {$word = $_GET['word'];}
+if ($_POST['field']) { $field = $_POST['field']; $res_filter['field'] = $_POST['field']; }
+if ($_GET['field']) { $field = $_GET['field']; $res_filter['field'] = $_GET['field']; }
+if ($_POST['match']) { $res_filter['match'] = $_POST['match']; }
+if ($_GET['match']) { $res_filter['match'] = $_GET['match']; }
+if ($_POST['method']) { $res_filter['method'] = $_POST['method']; }
+if ($_GET['method']) { $res_filter['method'] = $_GET['method']; }
+if (get_magic_quotes_gpc()) {
 	$word = stripslashes($word);
 }
-if($word=="."){$word="";}
-if($word){
-	include_once("./strctl_class.inc");
-	$word_fm = StrCtl::wordForMatch($word);
+if ($word == '.') {$word = '';}
+if ($word) {
+	include_once './strctl_class.inc';
+	$word_fm = StrCtl::wordForMatch($word, $res_filter['method']);
+	$word = htmlspecialchars($word);
+	if ($res_filter['method'] != 'just') {
+		$words_fm = @preg_split('/\s+/', $word_fm);
+		$word_fm = @preg_replace('/\s+/', "|", $word_fm);
+	}
 }
 
 //=================================================

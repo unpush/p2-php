@@ -60,6 +60,7 @@ class ShowThreadPc extends ShowThread{
 	{
 		global $STYLE, $mae_msg, $field, $res_filter, $word_fm, $quote_res_view;
 		global $aborn_words, $ng_words, $ng_num, $newres_to_show;
+		global $words_fm, $filter_hits;
 		
 		$tores = "";
 		$rpop = "";
@@ -75,28 +76,58 @@ class ShowThreadPc extends ShowThread{
 		if ($field) {
 			if (!$word_fm) { return; }
 
-			if ($res_filter['field'] == "name") {$target = StrCtl::p2SJIStoEUC($name);}
-			elseif ($res_filter['field'] == "mail") {$target = StrCtl::p2SJIStoEUC($mail);}
-			elseif ($res_filter['field'] == "id") {$target = StrCtl::p2SJIStoEUC($date_id);} //実際は日付も含まれる
-			elseif ($res_filter['field'] == "msg") {$target= StrCtl::p2SJIStoEUC($msg);}
-			if ($res_filter['match'] == "on") {
-				if (!@preg_match("/{$word_fm}/i", $target)) {return;}
-			} else {
-				if (@preg_match("/{$word_fm}/i", $target)) {return;}
+			if ($res_filter['field'] == "name") {
+				$target = $name;
+			} elseif ($res_filter['field'] == "mail") {
+				$target = $mail;
+			} elseif ($res_filter['field'] == "date") {
+				$target = preg_replace("/ID:([0-9a-zA-Z\/\.\+]+)/", "", $date_id);
+			} elseif ($res_filter['field'] == "id") {
+				$target = preg_replace("/^.*ID:([0-9a-zA-Z\/\.\+]+).*$/", "\\1", $date_id);
+			} elseif ($res_filter['field'] == "msg") {
+				$target = $msg;
 			}
+			
+			$target = strip_tags($target);
+			if ($res_filter['match'] == "on") {
+				switch ($res_filter['method']) {
+					case "and":
+						reset($words_fm);
+						foreach ($words_fm as $word_fm_ao) {
+							if (! StrCtl::filterMatch($word_fm_ao, $target)) { return; }
+						}
+						break;
+					default:
+						if (! StrCtl::filterMatch($word_fm, $target)) { return; }
+				}
+			} else {
+				switch ($res_filter['method']) {
+					case "and":
+						reset($words_fm);
+						$words_fm_hit = 0;
+						foreach ($words_fm as $word_fm_ao) {
+							if (StfCtl::filterMatch($word_fm_ao, $target)) { $words_fm_hit++; }
+						}
+						if ($words_fm_hit == count($words_fm)) { return; }
+						break;
+					default:
+						if (StrCtl::filterMatch($word_fm, $target)) { return; }
+				}
+			}
+			$filter_hits++;
 		}
 		
 		// あぼーんチェック====================================
 		$aborned_res .= "<dt id=\"r{$i}\" class=\"aborned\"><span>&nbsp;</span></dt>\n"; // 名前
 		$aborned_res .= "<!-- <dd class=\"aborned\">&nbsp;</dd> -->\n"; // 内容
 
-		//あぼーんネーム=================================
-		if( $this->aborn($aborn_words['name'], $name, $i) ){
+		// あぼーんネーム
+		if ($this->aborn($aborn_words['name'], $name, $i)) {
 			return $aborned_res;
 		}
 
-		//あぼーんメール=================================
-		if( $this->aborn($aborn_words['mail'], $mail, $i) ){
+		// あぼーんメール
+		if ($this->aborn($aborn_words['mail'], $mail, $i)) {
 			return $aborned_res;
 		}
 		
@@ -345,13 +376,9 @@ EOP;
 		// <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
 		$msg = preg_replace("/<a href=\"\.\.\/test\/read\.cgi\/{$this->thread->bbs}\/{$this->thread->key}\/([-0-9]+)\" target=\"_blank\">&gt;&gt;([-0-9]+)<\/a>/","&gt;&gt;\\1", $msg);
 		
-		//フィルタ色分け
-		if ($field and $res_filter['field'] == "msg" && $word_fm && $res_filter['match'] == "on") {
-			$msg_euc = StrCtl::p2SJIStoEUC($msg);
-			$msg_euc = @preg_replace("/{$word_fm}/i", "<b class='filtering'>\\0</b>", $msg_euc);
-			$msg = StrCtl::p2EUCtoSJIS($msg_euc);
-		}
-
+		// Safariから投稿されたリンク中チルダの文字化け補正
+		$msg = preg_replace('{(h?t?tp://[\w\.\-]+/)～([\w\.\-%]+/?)}', '$1~$2', $msg);
+		
 		// target="_blank" を ユーザ設定{$ext_win_target}に変換
 		$msg = preg_replace("/(<a href=.+?) target=\"_blank\">/", "\\1{$ext_win_target}>", $msg);
 	
@@ -403,6 +430,12 @@ EOP;
 		// ■ HTMLポップアップ
 		if ($_conf['iframe_popup']) {
 			$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\"{$ext_win_target}>([^><]+)<\/a>/", array($this, 'iframe_popup_callback'), $msg);
+		}
+		
+		// フィルタ色分け（リンク保持）
+		if ($field && $res_filter['field'] == "msg" && $word_fm && $res_filter['match'] == "on") { 
+			//$msg = $this->filterColoredNotTag($word_fm, $msg);
+			$msg = StrCtl::filterMarking($word_fm, $msg);
 		}
 		
 		return $msg;
