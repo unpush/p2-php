@@ -147,8 +147,8 @@ function checkUpdatan()
 {
 	global $_conf, $p2web_url, $p2web_url_r, $prefdir;
 
-	$ver_txt_url = $p2web_url . "p2status.txt";
-	$cachefile = $prefdir . "/p2_cache/p2status.txt";
+	$ver_txt_url = $p2web_url . 'p2status.txt';
+	$cachefile = $prefdir . '/p2_cache/p2status.txt';
 	FileCtl::mkdir_for($cachefile);
 	
 	if (file_exists($cachefile)) {
@@ -164,9 +164,9 @@ function checkUpdatan()
 	
 	$ver_txt = file($cachefile);
 	$update_ver = $ver_txt[0];
-	$kita = "ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!";
-	//$kita = "ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!";
-	if (preg_match("/^\d\.\d\.\d$/", $update_ver) and ($update_ver > $_conf['p2version'])) {
+	$kita = 'ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!';
+	//$kita = 'ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!';
+	if (preg_match('/^\d\.\d\.\d$/', $update_ver) and ($update_ver > $_conf['p2version'])) {
 		$newversion_found =<<<EOP
 <div class="kakomi">
 	{$kita}<br>
