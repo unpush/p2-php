@@ -26,6 +26,7 @@ $idxfile="$datdir_host/{$_GET['bbs']}/{$_GET['key']}.idx";
 if( is_readable($idxfile) ){
 	$lines=@file($idxfile);
 	$data = explode("<>", $lines[0]);
+	$data = array_map('rtrim', $data);
 }
 
 //ílê›íË
