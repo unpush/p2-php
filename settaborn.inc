@@ -4,25 +4,27 @@
 require_once("./filectl_class.inc");
 require_once("./datactl.inc");
 
-//====================================================================
-// settaborn - スレッドあぼーんをオンオフする関数
-// $set は、0(解除), 1(追加), 2(トグル)
-//====================================================================
-function settaborn($host, $bbs, $key, $set){
+/**
+ * スレッドあぼーんをオンオフする
+ * $set は、0(解除), 1(追加), 2(トグル)
+ */
+function settaborn($host, $bbs, $key, $set)
+{
 	global $title_msg, $info_msg, $p2_perm;
 	
 	//==================================================================
 	// key.idx 読み込む
 	//==================================================================
 	
-	//idxfileのパスを求めて
-	$datdir_host=datdirOfHost($host);
-	$idxfile="{$datdir_host}/{$bbs}/{$key}.idx";
+	// idxfileのパスを求めて
+	$datdir_host = datdirOfHost($host);
+	$idxfile = "{$datdir_host}/{$bbs}/{$key}.idx";
 	
-	//データがあるなら読み込む
-	if( is_readable($idxfile) ){
-		$lines=@file($idxfile);
-		$data = explode("<>", $lines[0]);
+	// データがあるなら読み込む
+	if (is_readable($idxfile)) {
+		$lines = @file($idxfile);
+		$data = explode('<>', $lines[0]);
+		$data = array_map('rtrim', $data);
 	}
 	
 	//==================================================================

@@ -8,8 +8,8 @@ require_once("datactl.inc");
 // 変数
 //==================================================================
 
-if($_GET['setpal']=="0" or $_GET['setpal']=="1"){
-	$palbool=$_GET['setpal'];
+if ($_GET['setpal']=="0" or $_GET['setpal'] == "1") {
+	$palbool = $_GET['setpal'];
 }
 
 //==================================================================
@@ -21,9 +21,10 @@ $datdir_host = datdirOfHost($_GET["host"]);
 $idxfile = $datdir_host."/".$_GET['bbs']."/".$_GET['key'].".idx";
 
 //データがあるなら読み込んで
-if( is_readable($idxfile) ){
-	$lines=@file($idxfile);
-	$data = explode("<>", $lines[0]);
+if (is_readable($idxfile)) {
+	$lines = @file($idxfile);
+	$data = explode('<>', $lines[0]);
+	$data = array_map('rtrim', $data);
 }
 
 //==================================================================
@@ -39,32 +40,32 @@ $palace_idx = $prefdir. '/p2_palace.idx';
 FileCtl::make_datafile($palace_idx, $palace_perm);
 
 //palace_idx読み込み;
-$pallines= @file($palace_idx);
+$pallines = @file($palace_idx);
 
 //================================================
 // 処理
 //================================================
 
-//最初に重複要素を削除
-if($pallines){
-	$i=-1;
+// 最初に重複要素を削除
+if ($pallines) {
+	$i = -1;
 	unset($neolines);
-	foreach($pallines as $pall){
+	foreach ($pallines as $pall) {
 		$i++;
-		$lar = explode("<>", $pall);
-		if($lar[1]==$_GET['key']){ //重複回避
-			$before_line_num=$i;
+		$lar = explode('<>', $pall);
+		if ($lar[1] == $_GET['key']) { // 重複回避
+			$before_line_num = $i;
 			continue;
-		}elseif(! $lar[1]){ //keyのないものは不正データ
+		} elseif (!$lar[1]) { // keyのないものは不正データ
 			continue;
-		}else{
-			$neolines[]=$pall;
+		} else {
+			$neolines[] = $pall;
 		}
 	}
 }
 
-//新規データ設定
-if($_GET['setpal']){
+// 新規データ設定
+if ($_GET['setpal']) {
 	$newdata="$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$_GET['host']}<>{$_GET['bbs']}\n";
 }
 	
