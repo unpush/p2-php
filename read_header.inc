@@ -158,27 +158,27 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht="";
 
-//スレが板サーバになければ============================
-if($aThread->diedat){ 
+// スレが板サーバになければ ============================
+if ($aThread->diedat) { 
 
-	if($dat_response_msg){
-		$diedat_msg=$dat_response_msg;
-	}else{
-		$diedat_msg="<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
+	if ($dat_response_msg) {
+		$diedat_msg = $dat_response_msg;
+	} else {
+		$diedat_msg = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
 	}
 	
-	if($iframe_popup==1){
-		$motothre_popup=" onMouseover=\"showHtmlPopUp('{$motothre_url}',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
-	}elseif($iframe_popup==2){
-		$motothre_popup=" onMouseover=\"showHtmlPopUp('{$motothre_url}',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
+	if ($_conf['iframe_popup'] == 1) {
+		$motothre_popup=" onMouseover=\"showHtmlPopUp('{$motothre_url}',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
+	} elseif ($_conf['iframe_popup'] == 2) {
+		$motothre_popup=" onMouseover=\"showHtmlPopUp('{$motothre_url}',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
 	}
 	
-	$motothre_popup=" onMouseover=\"showHtmlPopUp('{$motothre_url}',event,{$iframe_popup_delay})\" onMouseout=\"offHtmlPopUp()\"";
-	if($iframe_popup==1){
+	$motothre_popup = " onMouseover=\"showHtmlPopUp('{$motothre_url}',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
+	if ($_conf['iframe_popup'] == 1) {
 		$motothre_ht = "<a href=\"{$motothre_url}\"{$bbs_win_target}{$motothre_popup}>{$motothre_url}</a>";
-	}elseif($iframe_popup==2){
+	} elseif ($_conf['iframe_popup'] == 2) {
 		$motothre_ht = "(<a href=\"{$motothre_url}\"{$bbs_win_target}{$motothre_popup}>p</a>)<a href=\"{$motothre_url}\"{$bbs_win_target}>{$motothre_url}</a>";
-	}else{
+	} else {
 		$motothre_ht = "<a href=\"{$motothre_url}\"{$bbs_win_target}>{$motothre_url}</a>";
 	}
 	

@@ -232,7 +232,7 @@ EOP;
 	function transMsg($msg, $mynum)
 	{
 		global $_conf, $subject_php, $preview_thumbnail, $brocra_checker, $ext_win_target;
-		global $field, $res_filter, $word_fm, $iframe_popup, $iframe_popup_delay, $p2ime_url;
+		global $field, $res_filter, $word_fm, $p2ime_url;
 		global $ktai_res_size, $ktai_ryaku_size;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
@@ -408,7 +408,7 @@ EORS;
 	// JBBSÅóÇµÇΩÇÁÇŒ  ì‡ÉäÉìÉN 2===========================
 	function linkJBBS_callback($s)
 	{
-		global $_conf, $bbs_win_target, $iframe_popup, $iframe_popup_delay;
+		global $_conf, $bbs_win_target;
 	
 	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}/{$s[2]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[5]}\"{$bbs_win_target}>{$s[8]}</a>";
 	}
