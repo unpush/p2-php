@@ -3,6 +3,7 @@
 // フレーム分割画面、右下部分
 
 require_once("./conf.php"); // 設定
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once("threadlist_class.inc"); // スレッドリスト クラス
 require_once("thread_class.inc"); //スレッド クラス
 require_once("threadread_class.inc"); //スレッドリード クラス
@@ -170,7 +171,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 			$subjectfile="{$datdir_host}/{$aThread->bbs}/subject.txt";
 			FileCtl::mkdir_for($subjectfile); //板ディレクトリが無ければ作る
 			if(! ($word_fm and file_exists($subjectfile)) ){
-				subjectDownload($subject_url, $subjectfile);
+				P2Util::subjectDownload($subject_url, $subjectfile);
 			}
 			if(extension_loaded('zlib') and strstr($aThread->host, ".2ch.net")){
 				$subject_txts["$aThread->host/$aThread->bbs"] = @gzfile($subjectfile);

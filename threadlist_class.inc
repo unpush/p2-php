@@ -1,6 +1,8 @@
 <?php
 // p2 - スレッドリストクラス
 
+require_once './p2util.class.php';	// p2用のユーティリティクラス
+
 //=============================================================================
 // ThreadList クラス
 //=============================================================================
@@ -14,13 +16,17 @@ class ThreadList{
 	var $spmode; //普通板以外のスペシャルモード
 	var $ptitle; //ページタイトル
 	
-	//==============================================
-	function ThreadList(){
+	/**
+	 * コンストラクタ
+	 */
+	function ThreadList()
+	{
 		$this->num=0;
 	}
 	
 	//==============================================
-	function setSpMode($name){
+	function setSpMode($name)
+	{
 		global $ktai;
 		if($name=="recent"){
 			$this->spmode=$name;
@@ -111,7 +117,7 @@ class ThreadList{
 			
 					FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
 		
-					subjectDownload($subject_url, $subjectfile);
+					P2Util::subjectDownload($subject_url, $subjectfile);
 					
 					if (extension_loaded('zlib') and strstr($n['host'], ".2ch.net")) {
 						$slines = @gzfile($subjectfile);
@@ -207,7 +213,7 @@ class ThreadList{
 			FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
 
 			// subjectダウンロード
-			subjectDownload($subject_url, $subjectfile);
+			P2Util::subjectDownload($subject_url, $subjectfile);
 			
 			if (extension_loaded('zlib') and strstr($this->host, ".2ch.net")) {
 				$lines = @gzfile($subjectfile);

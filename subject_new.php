@@ -3,6 +3,7 @@
 // フレーム分割画面、右上部分
 
 require_once("./conf.php");  // 設定
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once("./threadlist_class.inc"); // スレッドリスト クラス
 require_once("./thread_class.inc"); // スレッド クラス
 require_once("./filectl_class.inc");
@@ -346,7 +347,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 			$subject_url = "http://{$aThread->host}/{$aThread->bbs}/subject.txt";
 			$subjectfile = "{$datdir_host}/{$aThread->bbs}/subject.txt";
 			FileCtl::mkdir_for($subjectfile); //板ディレクトリが無ければ作る
-			subjectDownload($subject_url, $subjectfile);
+			P2Util::subjectDownload($subject_url, $subjectfile);
 			
 			$debug && $prof->startTimer( "subthre_read" );//
 			if($aThreadList->spmode=="soko" or $aThreadList->spmode=="taborn"){

@@ -596,9 +596,9 @@ echo <<<EOP
 EOP;
 }
 
-//======================================
-// subjectからkeyを取得する関数
-//======================================
+/**
+ * subjectからkeyを取得する
+ */
 function getKeyInSubject()
 {
 	global $host, $bbs, $ttitle;
@@ -607,7 +607,7 @@ function getKeyInSubject()
 	$subject_url = "http://{$host}/{$bbs}/subject.txt";
 	$subjectfile = $datdir_host."/".$bbs."/subject.txt";
 	FileCtl::mkdir_for($subjectfile); //板ディレクトリが無ければ作る
-	subjectDownload($subject_url, $subjectfile);
+	P2Util::subjectDownload($subject_url, $subjectfile);
 	if(extension_loaded('zlib') and strstr($host, ".2ch.net")){
 		$subject_txt_lines = @gzfile($subjectfile);
 	}else{
