@@ -4,7 +4,6 @@
 */
 
 require_once './filectl.class.php';
-require_once("./datactl.inc");
 
 /**
  * ボードメニュークラス
@@ -22,13 +21,15 @@ class BrdMenu{
 	}
 	
 	//カテゴリーを追加するメソッド=================================
-	function addBrdMenuCate($aBrdMenuCate){
+	function addBrdMenuCate($aBrdMenuCate)
+	{
 		$this->categories[] = $aBrdMenuCate;
 		$this->num++;
 	}
 	
 	//パターンマッチの形式を登録するメソッド==========================
-	function setBrdMatch($brdName){
+	function setBrdMatch($brdName)
+	{
 		if( preg_match("/html?$/", $brdName) ){ //html形式
 			$this->format = "html";
 			$this->cate_match="/<B>(.+)<\/B><BR>.*$/i";
@@ -132,7 +133,9 @@ class BrdMenu{
 
 		if($cont){
 			$fp = @fopen($p2brdfile, 'wb') or die("p2 error: {$p2brdfile} を更新できませんでした");
+			@flock($fp, LOCK_EX);
 			fputs($fp, $cont);
+			@flock($fp, LOCK_UN);
 			fclose($fp);
 			return $p2brdfile;
 		}else{

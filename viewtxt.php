@@ -1,11 +1,9 @@
 <?php
 /*
 	p2 - txt を 表示
-
-	最新更新日: 2004/10/24
 */
 
-include("./conf.php");   //基本設定ファイル読込
+include_once './conf.inc.php';   // 基本設定ファイル読込
 
 authorize(); //ユーザ認証
 
@@ -59,8 +57,7 @@ function viewTxtFile($file, $encode)
 	$cont = @file_get_contents($file);
 	
 	if ($encode == "EUC-JP") {
-		include_once './strctl.class.php';
-		$cont = StrCtl::p2EUCtoSJIS($cont);
+		$cont = mb_convert_encoding($cont, 'SJIS-win', 'EUC-JP');
 	}
 	
 	$cont_area = htmlspecialchars($cont);

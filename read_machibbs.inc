@@ -62,10 +62,11 @@ function machiDownload()
 	
 		$temp_data = @file_get_contents($tempfile);
 		
-		include_once './strctl.class.php';
-		$temp_data = StrCtl::p2EUCtoSJIS($temp_data);
+		$temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'EUC-JP');
 		$fp = @fopen($tempfile, 'wb') or die("Error: $tempfile を更新できませんでした");
+		@flock($fp, LOCK_EX);
 		fputs($fp, $temp_data);
+		@flock($fp, LOCK_UN);
 		fclose($fp);
 	}
 	
@@ -90,6 +91,7 @@ function machiDownload()
 
 	// 書き込む =====================================
 	$fp = @fopen($aThread->keydat, $mode) or die("Error: $aThread->keydat を更新できませんでした");
+	@flock($fp, LOCK_EX);
 	for ($i = $START; $i <= $machi_latest_num; $i++) {
 		if ($mdatlines[$i]) {
 			fputs($fp, $mdatlines[$i]);
@@ -97,6 +99,7 @@ function machiDownload()
 			fputs($fp, "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n");
 		}
 	}
+	@flock($fp, LOCK_UN);
 	fclose($fp);
 	
 	$aThread->isonline = true;

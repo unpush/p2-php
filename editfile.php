@@ -3,7 +3,7 @@
 	ファイルをブラウザで編集する
 */
 
-require_once("./conf.php"); // 基本設定読込
+include_once './conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
 require_once './p2util.class.php';
 
@@ -30,24 +30,6 @@ if (isset($_POST['filecont'])) {
 	$filecont = $_POST['filecont'];
 }
 
-//magic_quates 除去
-if (get_magic_quotes_gpc()) {
-	$path = stripslashes($path);
-	$modori_url = stripslashes($modori_url);
-	$encode = stripslashes($encode);
-	if (isset($filecont)) {
-		$filecont = stripslashes($filecont);
-	}
-}
-
-// 文字コード判定
-if (isset($_POST['detect_hint']) && extension_loaded('mbstring')) {
-	$encoding = mb_detect_encoding($_POST['detect_hint'], 'JIS,UTF-8,EUC-JP,SJIS');
-	if ($encoding != 'SJIS') {
-		$filecont = mb_convert_encoding($filecont, 'SJIS-win', $encoding);
-	}
-}
-
 $_info_msg_ht = "";
 
 
@@ -56,7 +38,7 @@ $_info_msg_ht = "";
 //=========================================================
 // 書き込めるファイルを限定する
 $writable_files = array(
-						"conf.php", "conf_user.php", "conf_style.inc",
+						"conf.inc.php", "conf_user.inc.php", "conf_user_style.inc.php",
 						"p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
 						"p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
 						"conf_user_ex.php", "conf_constant.inc", "p2_aborn_res.txt",
@@ -97,12 +79,13 @@ editFile($path, $encode);
 function setFile($path, $cont, $encode)
 {
 	if ($encode == "EUC-JP") {
-		include_once './strctl.class.php';
-		$cont = StrCtl::p2EUCtoSJIS($cont);
+		$cont = mb_convert_encoding($cont, 'SJIS-win', 'EUC-JP');
 	}
-	//書き込む
+	// 書き込む
 	$fp = @fopen($path, "wb") or die("Error: cannot write. ( $path )");
-	fputs($fp, $cont); 
+	@flock($fp, LOCK_EX);
+	fputs($fp, $cont);
+	@flock($fp, LOCK_UN);
 	fclose($fp);
 	return true;
 }
@@ -122,8 +105,7 @@ function editFile($path, $encode)
 	$cont = @file_get_contents($path);
 	
 	if ($encode == "EUC-JP") {
-		include_once './strctl.class.php';
-		$cont = StrCtl::p2EUCtoSJIS($cont);
+		$cont = mb_convert_encoding($cont, 'SJIS-win', 'EUC-JP');
 	}
 	
 	$cont_area = htmlspecialchars($cont);
@@ -131,15 +113,8 @@ function editFile($path, $encode)
 	if ($modori_url) {
 		$modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";
 	}
-	
-	
-	if (P2Util::isBrowserSafariGroup()) {
-		$accept_charset = 'UTF-8';
-	} else {
-		$accept_charset = 'Shift_JIS';
-	}
 
-	//プリント
+	// プリント
 	echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
@@ -156,7 +131,7 @@ EOHEADER;
 
 	echo "Edit: ".$path;
 	echo <<<EOFORM
-<form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="{$accept_charset}">
+<form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="{$_conf['accept_charset']}">
 	<input type="hidden" name="detect_hint" value="◎◇">
 	<input type="hidden" name="path" value="{$path}">
 	<input type="hidden" name="modori_url" value="{$modori_url}">

@@ -1,6 +1,8 @@
 <?php
 // p2 - 書き込み履歴のクラス
 
+require_once './p2util.class.php';
+
 //======================================================================
 //クラス
 //======================================================================
@@ -82,56 +84,56 @@ EOP;
 	function showNaviK($position)
 	{
 		global $_conf;
-		global $k_at_a, $k_at_q, $k_input_ht, $accesskey, $k_accesskey;
+		global $k_at_a, $k_at_q, $k_input_ht;
 
 		//表示数制限====================
 		$list_disp_all_num = $this->num;
 		$list_disp_range = $_conf['k_rnum_range'];
 		
-		if($_GET['from']){
-			$list_disp_from=$_GET['from'];
-			if($_GET['end']){
-				$list_disp_range=$_GET['end']-$list_disp_from+1;
-				if($list_disp_range<1){
-					$list_disp_range=1;
+		if ($_GET['from']) {
+			$list_disp_from = $_GET['from'];
+			if ($_GET['end']) {
+				$list_disp_range = $_GET['end'] - $list_disp_from + 1;
+				if ($list_disp_range < 1) {
+					$list_disp_range = 1;
 				}
 			}
-		}else{
-			$list_disp_from=$this->num-$list_disp_range+1;
-			if($list_disp_from<1){
-				$list_disp_from=1;
+		} else {
+			$list_disp_from = $this->num-$list_disp_range+1;
+			if ($list_disp_from < 1) {
+				$list_disp_from = 1;
 			}
 		}
-		$disp_navi = getListNaviRange($list_disp_from, $list_disp_range, $list_disp_all_num);
+		$disp_navi = P2Util::getListNaviRange($list_disp_from, $list_disp_range, $list_disp_all_num);
 		
-		$this->resrange['start']=$disp_navi['from'];
-		$this->resrange['to']=$disp_navi['end'];
-		$this->resrange['nofirst']=false;
+		$this->resrange['start'] = $disp_navi['from'];
+		$this->resrange['to'] = $disp_navi['end'];
+		$this->resrange['nofirst'] = false;
 
-		if($disp_navi['from'] > 1){
-			if($position=="footer"){
+		if ($disp_navi['from'] > 1) {
+			if ($position == "footer") {
 				$mae_ht = <<<EOP
-		<a {$accesskey}="{$k_accesskey['prev']}" href="read_res_hist.php?from={$disp_navi['mae_from']}{$k_at_a}">{$k_accesskey['prev']}.前</a>
+		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}" href="read_res_hist.php?from={$disp_navi['mae_from']}{$k_at_a}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
-			}else{
+			} else {
 				$mae_ht = <<<EOP
 		<a href="read_res_hist.php?from={$disp_navi['mae_from']}{$k_at_a}">前</a>
 EOP;
 			}
 		}
-		if($disp_navi['end'] < $list_disp_all_num){
-			if($position=="footer"){
+		if ($disp_navi['end'] < $list_disp_all_num) {
+			if ($position == "footer") {
 				$tugi_ht = <<<EOP
-		<a {$accesskey}="{$k_accesskey['next']}" href="read_res_hist.php?from={$disp_navi['tugi_from']}{$k_at_a}">{$k_accesskey['next']}.次</a>
+		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}" href="read_res_hist.php?from={$disp_navi['tugi_from']}{$k_at_a}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
-			}else{
+			} else {
 				$tugi_ht = <<<EOP
 		<a href="read_res_hist.php?from={$disp_navi['tugi_from']}{$k_at_a}">次</a>
 EOP;
 			}
 		}
 		
-		if(!$disp_navi['all_once']){
+		if (!$disp_navi['all_once']) {
 			$list_navi_ht = <<<EOP
 		{$disp_navi['range_st']}{$mae_ht} {$tugi_ht}
 EOP;

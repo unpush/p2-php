@@ -70,13 +70,13 @@ class StrCtl{
 		if (in_array($method, array('and', 'or', 'just'))) {
 			// preg_quote()で2バイト目が0x5B("[")の"ー"なども変換されてしまうので
 			// UTF-8にしてから正規表現の特殊文字をエスケープ
-			$word_fm = StrCtl::p2SJIStoUTF($word_fm);
+			$word_fm = mb_convert_encoding($word_fm, 'UTF-8', 'SJIS-win');
 			if (P2_MBREGEX_AVAILABLE == 1) {
 				$word_fm = preg_quote($word_fm);
 			} else {
 				$word_fm = preg_quote($word_fm, '/');
 			}
-			$word_fm = StrCtl::p2UTFtoSJIS($word_fm);
+			$word_fm = mb_convert_encoding($word_fm, 'SJIS-win', 'UTF-8');
 		} else {
 			if (P2_MBREGEX_AVAILABLE == 0) {
 				$word_fm = str_replace('/', '\/', $word_fm);
@@ -100,10 +100,10 @@ class StrCtl{
 			$result = @mb_eregi($pattern, $target);
 		} else {
 			// UTF-8に変換してから処理する
-			$pattern_utf8 = '/' . StrCtl::p2SJIStoUTF($pattern) . '/iu';
-			$target_utf8 = StrCtl::p2SJIStoUTF($target);
+			$pattern_utf8 = '/' . mb_convert_encoding($pattern, 'UTF-8', 'SJIS-win') . '/iu';
+			$target_utf8 = mb_convert_encoding($target, 'UTF-8', 'SJIS-win');
 			$result = @preg_match($pattern_utf8, $target_utf8);
-			//$result = StrCtl::p2UTFtoSJIS($result);
+			//$result = mb_convert_encoding($result, 'SJIS-win', 'UTF-8');
 		}
 		if ($result) {
 			return true;
@@ -127,10 +127,10 @@ class StrCtl{
 			$result = @mb_eregi_replace($pattern, $marker, $target);
 		} else {
 			// UTF-8に変換してから処理する
-			$pattern_utf8 = '/' . StrCtl::p2SJIStoUTF($pattern) . '/iu';
-			$target_utf8 = StrCtl::p2SJIStoUTF($target);
+			$pattern_utf8 = '/' . mb_convert_encoding($pattern, 'UTF-8', 'SJIS-win') . '/iu';
+			$target_utf8 = mb_convert_encoding($target, 'UTF-8', 'SJIS-win');
 			$result = @preg_replace($pattern_utf8, $marker, $target_utf8);
-			$result = StrCtl::p2UTFtoSJIS($result);
+			$result = mb_convert_encoding($result, 'SJIS-win', 'UTF-8');
 		}
 
 		if (!$result) {

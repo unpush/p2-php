@@ -1,32 +1,47 @@
 <?php
-// p2 -  スレッド表示 -  フッタ部分 -  for read.php
+/*
+	p2 -  スレッド表示 -  フッタ部分 -  for read.php
+*/
 
 require_once './p2util.class.php';	// p2用のユーティリティクラス
+require_once './dataphp.class.php';
 
 //=====================================================================
-// フッタ
+// ■フッタ
 //=====================================================================
 
 if ($_conf['bottom_res_form']) {
 
-	$p_htm = array();
+	$htm = array();
 	
 	$fake_time = -10; // time を10分前に偽装
-	$time = time()-9*60*60;
-	$time = $time + $fake_time*60;
+	$time = time() - 9*60*60;
+	$time = $time + $fake_time * 60;
 
 	$submit_value = "書き込む";
 	
-	//key.idxから名前とメールを読込み
+	// ■ key.idxから名前とメールを読込み
 	if (file_exists($aThread->keyidx)) {
 		unset($lines);
 		if ($lines = @file($aThread->keyidx)) {
 			$line = explode('<>', rtrim($lines[0]));
-			$FROM = $line[7];
-			$mail = $line[8];
+			$line = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $line);
+			$htm['FROM'] = $line[7];
+			$htm['mail'] = $line[8];
 		}
 	}
+	
+	// 前回のPOST失敗があれば
+	$failed_post_file = P2Util::getFailedPostFilePath($aThread->host, $aThread->bbs, $aThread->key);
+	if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
+		$last_posted = unserialize($cont_srd);
+		$last_posted = array_map('htmlspecialchars', $last_posted);
 
+		$htm['FROM'] = $last_posted['FROM'];
+		$htm['mail'] = $last_posted['mail'];
+		$htm['MESSAGE'] = $last_posted['MESSAGE'];	
+
+	}
 	$onmouse_showform_ht = <<<EOP
  onMouseover="document.getElementById('kakiko').style.display = 'block';"
 EOP;
@@ -36,49 +51,29 @@ EOP;
 EOP;
 
 
-	//2chで●ログイン中なら
+	// 2chで●ログイン中なら
 	if (P2Util::isHost2chs($aThread->host) and file_exists($_conf['sid2ch_php'])) {
 		$isMaruChar = "●";
 	} else {
 		$isMaruChar = "";
 	}
 
-	// Safari補正用フォーム要素
-	if (P2Util::isBrowserSafariGroup()) {
-		// mbstring有効時、Safari/KonquerorはUTF-8で投稿することで バックスラッシュとチルダが全角になるのを防ぐ【\~＼～】 
-		if (extension_loaded('mbstring')) {
-			$accept_charset_ht = ' accept-charset="UTF-8"';
-			$safari_fix_ht = "";
-		} else {
-			$accept_charset_ht = "";
-			$safari_fix_ht = <<<EOP
-<br>
-	Safari対策
-	<input type="checkbox" name="fix_tilde" id="fix_tilde" value="1"><label for="fix_tilde">～→~</label>
-	<input type="checkbox" name="fix_bslash" id="fix_bslash" value="1"><label for="fix_bslash">＼→\\</label>\n
-EOP;
-		}
-	} else {
-		$safari_fix_ht = "";
-	}
-
 	// Be.2ch
 	if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-		$p_htm['be2ch'] = '<input type="checkbox" name="post_be2ch" value="1">Be.2chのコードを送信'."\n";
+		$htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"><label for="post_be2ch">Be.2chのコードを送信</label><br>'."\n";
 	}
 		
 	$res_form_ht = <<<EOP
 <div id="kakiko">
 {$ttitle_ht}
-<form id="resform" method="POST" action="./post.php" {$accept_charset_ht}>
-	 {$isMaruChar}名前： <input name="FROM" type="text" value="{$FROM}" size="19"> 
-	 E-mail : <input id="mail" name="mail" type="text" value="{$mail}" size="19" onChange="checkSage(this);">
-	<input id="sage" type="checkbox" onClick="mailSage(this);"><label for="sage">sage</label><br>
-	<textarea id="MESSAGE" rows="{$STYLE['post_msg_rows']}" cols="{$STYLE['post_msg_cols']}" wrap="off" name="MESSAGE"></textarea>	
-	<input type="submit" name="submit" value="{$submit_value}"><br>
-	{$safari_fix_ht}{$p_htm['be2ch']}
-
+<form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
 	<input type="hidden" name="detect_hint" value="◎◇">
+	 {$isMaruChar}名前： <input name="FROM" type="text" value="{$htm['FROM']}" size="19"> 
+	 E-mail : <input id="mail" name="mail" type="text" value="{$htm['mail']}" size="19" onChange="checkSage();">
+	<input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label>{$options_ht}<br>
+	<textarea id="MESSAGE" rows="{$STYLE['post_msg_rows']}" cols="{$STYLE['post_msg_cols']}" wrap="off" name="MESSAGE">{$htm['MESSAGE']}</textarea>	
+	<input type="submit" name="submit" value="{$submit_value}"><br>
+	{$htm['be2ch']}
 	
 	<input type="hidden" name="bbs" value="{$aThread->bbs}">
 	<input type="hidden" name="key" value="{$aThread->key}">
@@ -123,7 +118,8 @@ EOP;
 			{$read_navi_next} 
 			<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a> 
 			| {$read_footer_navi_new} 
-			{$dores_ht} {$spd_ht}
+			{$dores_ht}
+			{$spd_ht}
 		</td>
 		<td align="right">
 			{$toolbar_right_ht}

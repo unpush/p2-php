@@ -74,20 +74,20 @@ class ThreadList{
 	 */
 	function readList()
 	{
-		global $rctfile, $favlistfile, $datdir, $prefdir, $word_fm, $debug, $prof, $_info_msg_ht;
+		global $_conf, $datdir, $word_fm, $debug, $prof, $_info_msg_ht;
 		
 		if ($this->spmode) {
 		
 			// ローカルの履歴ファイル 読み込み
 			if ($this->spmode == "recent") {
-				if ($lines = @file($rctfile)) {
+				if ($lines = @file($_conf['rct_file'])) {
 					//$_info_msg_ht = "<p>履歴は空っぽです</p>";
 					//return false;
 				}
 			
 			// ローカルの書き込み履歴ファイル 読み込み
 			} elseif ($this->spmode == "res_hist") {
-				$rh_idx = $prefdir."/p2_res_hist.idx";
+				$rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
 				if ($lines = @file($rh_idx)) {
 					//$_info_msg_ht = "<p>書き込み履歴は空っぽです</p>";
 					//return false;
@@ -95,7 +95,7 @@ class ThreadList{
 			
 			//ローカルのお気にファイル 読み込み
 			} elseif ($this->spmode == "fav") {
-				if ($lines = @file($favlistfile)) {
+				if ($lines = @file($_conf['favlist_file'])) {
 					//$_info_msg_ht = "<p>お気にスレは空っぽです</p>";
 					//return false;
 				}
@@ -112,7 +112,7 @@ class ThreadList{
 				
 				foreach ($news as $n) {
 
-					$datdir_host = datdirOfHost($n['host']);
+					$datdir_host = P2Util::datdirOfHost($n['host']);
 					$subject_url = "http://".$n['host']."/".$n['bbs']."/subject.txt";
 					$subjectfile = $datdir_host."/".$n['bbs']."/subject.txt";
 			
@@ -143,13 +143,13 @@ class ThreadList{
 		
 			// p2_threads_aborn.idx 読み込み
 			} elseif ($this->spmode=="taborn") {
-				$datdir_host = datdirOfHost($this->host);
+				$datdir_host = P2Util::datdirOfHost($this->host);
 				$lines = @file($datdir_host."/".$this->bbs."/p2_threads_aborn.idx");
 			
 			// dat倉庫 ======================
 			} elseif ($this->spmode == "soko") {
 
-				$itadir = datdirOfHost($this->host)."/".$this->bbs;
+				$itadir = P2Util::datdirOfHost($this->host)."/".$this->bbs;
 				$lines = array();
 				
 				$debug && $prof->startTimer( "dat" );//
@@ -172,7 +172,7 @@ class ThreadList{
 									$arnum = sizeof($datlines);
 									$anewline = $arnum;
 									$data = "$atitle<>$matches[1]<><>$arnum<><><><><><>$anewline";
-									setKeyIdx($theidx, $data);
+									P2Util::recKeyIdx($theidx, $data);
 								}
 							}
 							// array_push($lines, $idl[0]);
@@ -197,7 +197,7 @@ class ThreadList{
 				$debug && $prof->stopTimer( "idx" );//
 				
 			} elseif ($this->spmode == "palace") { // p2_palace.idx 読み込み
-				$palace_idx = $prefdir. '/p2_palace.idx';
+				$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
 				if ($lines = @file($palace_idx)) {
 					//$_info_msg_ht = "<p>殿堂はがらんどうです</p>";
 					//return false;
@@ -207,7 +207,7 @@ class ThreadList{
 		// オンライン上の subject.txt を読み込む（ノーマル板モード）
 		} else {
 			
-			$datdir_host = datdirOfHost($this->host);
+			$datdir_host = P2Util::datdirOfHost($this->host);
 			$subject_url = "http://".$this->host."/".$this->bbs."/subject.txt";
 			$subjectfile = $datdir_host."/".$this->bbs."/subject.txt";
 	
@@ -229,8 +229,7 @@ class ThreadList{
 			
 			// be.2ch.net ならEUC→SJIS変換
 			if (P2Util::isHostBe2chNet($this->host)) {
-				include_once './strctl.class.php';
-				$lines = array_map(create_function('$str', 'return StrCtl::p2EUCtoSJIS($str);'), $lines);
+				$lines = array_map(create_function('$str', 'return mb_convert_encoding($str, "SJIS-win", "EUC-JP");'), $lines);
 			}
 			
 		}

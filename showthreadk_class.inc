@@ -3,31 +3,34 @@
 
 class ShowThreadK extends ShowThread{
 	
-	function ShowThreadK($aThread){
+	function ShowThreadK($aThread)
+	{
 		$this->thread = $aThread;
 	}
 	
-	//============================================================================
-	// datToHtml -- DatをHTMLに変換表示するメソッド
-	//============================================================================	
-	function datToHtml(){
-	
-		if(!$this->thread->resrange){echo '<p><b>p2 error: {$this->resrange} is false at datToHtml() in threadread_class.inc</b></p>';}
+	/**
+	 * DatをHTMLに変換表示する
+	 */
+	function datToHtml()
+	{
+		if (!$this->thread->resrange) {
+			echo '<p><b>p2 error: {$this->resrange} is false at datToHtml()</b></p>';
+		}
 
-		$start=$this->thread->resrange['start'];
-		$to=$this->thread->resrange['to'];
-		$nofirst=$this->thread->resrange['nofirst'];
+		$start = $this->thread->resrange['start'];
+		$to = $this->thread->resrange['to'];
+		$nofirst = $this->thread->resrange['nofirst'];
 
 		$status_title = $this->thread->itaj." / ".$this->thread->ttitle;
 		$status_title = str_replace("'", "\'", $status_title);
 		$status_title = str_replace('"', "\'\'", $status_title);
 		
-		if (!$nofirst) { //1を表示
+		if (!$nofirst) { // 1を表示
 			$cont_ht .= $this->transRes($this->thread->datlines[0], 1);
 		}
 
-		for ($i=$start; $i<=$to; $i++) {
-			if (!$nofirst and $i==1) {continue;}
+		for ($i = $start; $i <= $to; $i++) {
+			if (!$nofirst and $i==1) { continue; }
 			if (!$this->thread->datlines[$i-1]) {
 				$this->thread->readnum = $i-1; 
 				break;
@@ -35,33 +38,34 @@ class ShowThreadK extends ShowThread{
 			$cont_ht .= $this->transRes($this->thread->datlines[$i-1], $i);
 		}
 		
-		//$s2e=array($start, $i-1);
+		//$s2e = array($start, $i-1);
 		//return $s2e;
 		return $cont_ht;
 	}
 
 
-	//============================================================================
-	// transRes -- DatレスをHTMLレスに変換する
-	// 引数 - datの1ライン, レス番号
-	//============================================================================
+	/**
+	 * DatレスをHTMLレスに変換する
+	 *
+	 * 引数 - datの1ライン, レス番号
+	 */
 	function transRes($ares,$i)
 	{
 		global $STYLE, $mae_msg, $res_filter, $word_fm;
-		global $aborn_words, $ng_words, $ng_num;
-		global $pointer_at, $_conf, $newres_to_show;
+		global $ngaborns_hits;
+		global $_conf, $newres_to_show;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
-		$tores="";
-		$rpop="";
-		$isNgName=false;
-		$isNgMsg=false;
+		$tores = "";
+		$rpop = "";
+		$isNgName = false;
+		$isNgMsg = false;
 		
 		$resar = $this->thread->explodeDatLine($ares);
 		$name=$resar[0];
 		$mail = $resar[1];
 		$date_id = $resar[2];
-		$msg=$resar[3];
+		$msg = $resar[3];
 
 		// フィルタリング
 		/*
@@ -88,52 +92,58 @@ class ShowThreadK extends ShowThread{
 		*/
 		
 		//あぼーんチェック====================================
-		$aborned_res .= "<div {$pointer_at}=\"r{$i}\">&nbsp;</div>\n"; //名前
+		$aborned_res .= "<div {$_conf['pointer_name']}=\"r{$i}\">&nbsp;</div>\n"; //名前
 		$aborned_res .= ""; //内容
 
-		//あぼーんネーム=================================
-		if( $this->aborn($aborn_words['name'], $name, $i) ){
+		// あぼーんネーム
+		if ($this->ngAbornCheck('aborn_name', $name) !== false) {
+			$ngaborns_hits['aborn_name']++;
 			return $aborned_res;
 		}
 
-		//あぼーんメール=================================
-		if( $this->aborn($aborn_words['mail'], $mail, $i) ){
+		// あぼーんメール
+		if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
+			$ngaborns_hits['aborn_mail']++;
 			return $aborned_res;
 		}
 		
-		//あぼーんID===================================
-		if( $this->aborn($aborn_words['id'], $date_id, $i) ){
+		// あぼーんID
+		if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
+			$ngaborns_hits['aborn_id']++;
 			return $aborned_res;
 		}
 		
-		//あぼーんメッセージ==============================
-		if( $this->aborn($aborn_words['msg'], $msg, $i) ){
+		// あぼーんメッセージ
+		if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
+			$ngaborns_hits['aborn_msg']++;
 			return $aborned_res;
 		}
 
-		if(!$_GET['nong']){
-			//NGネームチェック======================================
-			if( $this->ngCheck($ng_words['name'], $name) ){
-				$ng_num['name']++;
-				$isNgName=true;
+		// NGチェック ========
+		if (!$_GET['nong']) {
+			// NGネームチェック
+			if ($this->ngAbornCheck('ng_name', $name) !== false) {
+				$ngaborns_hits['ng_name']++;
+				$isNgName = true;
 			}
 
-			//NGメールチェック===============================
-			if( $this->ngCheck($ng_words['mail'], $mail) ){
-				$ng_num['mail']++;
-				$isNgMail=true;
+			// NGメールチェック
+			if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
+				$ngaborns_hits['ng_mail']++;
+				$isNgMail = true;
 			}
 		
-			//NGIDチェック======================================
-			if( $this->ngCheck($ng_words['id'], $date_id) ){
-				$ng_num['id']++;
-				$isNgId=true;
+			// NGIDチェック
+			if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
+				$ngaborns_hits['ng_id']++;
+				$isNgId = true;
 			}
 	
-			//NGメッセージチェック======================================
-			if( $a_ng_msg = $this->ngCheck($ng_words['msg'], $msg) ){
-				$ng_num['msg']++;
-				$isNgMsg=true;
+			// NGメッセージチェック
+			$a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
+			if ($a_ng_msg !== false) {
+				$ngaborns_hits['ng_msg']++;
+				$isNgMsg = true;
 			}
 		}
 		
@@ -145,95 +155,99 @@ class ShowThreadK extends ShowThread{
 		$msg = $this->transMsg($msg, $i); //メッセージHTML変換
 		
 		// {{{ transRes - BEプロファイルリンク変換
-		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>?\$2</a>";
+		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target_at']}>?\$2</a>";
 		$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
 		// }}}
 		
-		//NGメッセージ変換======================================
-		if($isNgMsg){
-			$msg=<<<EOMSG
+		// NGメッセージ変換======================================
+		if ($isNgMsg) {
+			$msg = <<<EOMSG
 <s><font color="{$STYLE['read_ngword']}">NGﾜｰﾄﾞ:{$a_ng_msg}</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$k_at_a}">確</a>
 EOMSG;
 		}
 		
-		//NGネーム変換======================================
-		if($isNgName){
-			$name=<<<EONAME
+		// NGネーム変換======================================
+		if ($isNgName) {
+			$name = <<<EONAME
 <s><font color="{$STYLE['read_ngword']}">$name</font></s>
 EONAME;
-			$msg=<<<EOMSG
+			$msg = <<<EOMSG
 <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$k_at_a}">確</a>
 EOMSG;
 		
-		//NGメール変換======================================
-		}elseif($isNgMail){
-			$mail=<<<EOMAIL
-<s class="ngword" onMouseover="document.getElementById('ngn{$ng_num['mail']}').style.display = 'block';">$mail</s>
+		// NGメール変換======================================
+		} elseif ($isNgMail) {
+			$mail = <<<EOMAIL
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_hits['ng_mail']}').style.display = 'block';">$mail</s>
 EOMAIL;
-			$msg=<<<EOMSG
-<div id="ngn{$ng_num['mail']}" style="display:none;">$msg</div>
+			$msg = <<<EOMSG
+<div id="ngn{$ngaborns_hits['ng_mail']}" style="display:none;">$msg</div>
 EOMSG;
 
-		//NGID変換======================================
-		}elseif($isNgId){
-			$date_id=<<<EOID
+		// NGID変換======================================
+		} elseif ($isNgId) {
+			$date_id = <<<EOID
 <s><font color="{$STYLE['read_ngword']}">$date_id</font></s>
 EOID;
-			$msg=<<<EOMSG
+			$msg = <<<EOMSG
 <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$k_at_a}">確</a>
 EOMSG;
 		}
 	
 		/*
 		//「ここから新着」画像を挿入========================
-		if($i == $this->thread->readnum +1){
-			$tores .=<<<EOP
+		if ($i == $this->thread->readnum +1) {
+			$tores .= <<<EOP
 				<div><img src="img/image.png" alt="新着レス" border="0" vspace="4"></div>
 EOP;
 		}
 		*/
 
 		if ($this->thread->onthefly) { // ontheflyresorder
-			$newres_to_show=true;
-			$tores .= "<div {$pointer_at}=\"r{$i}\">[<font color=\"#00aa00'\">{$i}</font>]"; //番号（オンザフライ時）
+			$newres_to_show = true;
+			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[<font color=\"#00aa00'\">{$i}</font>]"; // 番号（オンザフライ時）
 		} elseif ($i > $this->thread->readnum) {
 			$newres_to_show = true;
-			$tores .= "<div {$pointer_at}=\"r{$i}\">[<font color=\"{$STYLE['read_newres_color']}\">{$i}</font>]"; //番号（新着レス時）
+			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[<font color=\"{$STYLE['read_newres_color']}\">{$i}</font>]"; // 番号（新着レス時）
 		} else {
-			$tores .= "<div {$pointer_at}=\"r{$i}\">[{$i}]"; //番号			
+			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[{$i}]"; // 番号
 		}
-		$tores .= $name.":"; //名前
-		if($mail){$tores .= $mail.": ";} //メール
-		$tores .= $date_id."<br>\n"; //日付とID
-		$tores .= $rpop; //レスポップアップ用引用
-		$tores .= "{$msg}</div><hr>\n"; //内容
+		$tores .= $name.":"; // 名前
+		if ($mail) {$tores .= $mail.": ";} // メール
+		$tores .= $date_id."<br>\n"; // 日付とID
+		$tores .= $rpop; // レスポップアップ用引用
+		$tores .= "{$msg}</div><hr>\n"; // 内容
 		
 		return $tores;
 	}
 	
-	//============================================================================
-	// transName -- 名前をHTML用に変換するメソッド
-	//============================================================================
+	/**
+	 * 名前をHTML用に変換する
+	 */
 	function transName($name)
 	{
 		global $_conf;
 		global $k_at_a, $k_at_q, $k_input_ht;
-		$nameID="";
+		
+		$nameID = "";
+
+		// ID付なら分解する
+		if (preg_match("/(.*)(◆.*)/", $name, $matches)) {
+			$name = $matches[1];
+			$nameID = $matches[2];
+		}
+
+		// 数字を引用レスポップアップリンク化
+		// </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
+		//$name && $name = preg_replace_callback("/(?!<\/b>[^>]*)([1-9][0-9]{0,3})(?![^<]*<b>)/", array($this, 'quote_res_callback'), $name, 1);
+		$name && $name = preg_replace_callback("/(^|(?:&gt;)+)(\s*[1-9][0-9]{0,3})(?=\s*$)/", array($this, 'quote_res_callback'), $name, 1);
+		
+		if ($nameID) {$name = $name . $nameID;}
+		
+		$name = $name." "; // 文字化け回避
 
 		$name = str_replace("</b>", "", $name);
 		$name = str_replace("<b>", "", $name);
-
-		if( preg_match("/(.*)(◆.*)/", $name, $matches) ){ //名前
-			$name=$matches[1];
-			$nameID=$matches[2];
-		}
-
-		// 1をリンク化
-		$name && $name=preg_replace("/([0-9]+)/","<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=\\1{$k_at_a}\">\\1</a>",$name, 1);
-		
-		if($nameID){$name = $name . $nameID;}
-		
-		$name=$name." "; //文字化け回避
 	
 		return $name;
 	}
@@ -246,7 +260,7 @@ EOP;
 	function transMsg($msg, $mynum)
 	{
 		global $_conf;
-		global $res_filter, $word_fm, $p2ime_url;
+		global $res_filter, $word_fm;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
 		$ryaku = false;
@@ -295,16 +309,16 @@ EOP;
 		}
 	
 		// FTPリンクの有効化
-		$msg = preg_replace("/ftp:\/\/[{$str_in_url}]+/","<a href=\"\\0\"{$_conf['ext_win_target']}>\\0</a>", $msg);
+		$msg = preg_replace("/ftp:\/\/[{$str_in_url}]+/","<a href=\"\\0\"{$_conf['ext_win_target_at']}>\\0</a>", $msg);
 		
 		// （h抜きも含めた）URLリンクの有効化
-		$msg = preg_replace("/([^f])(h?t?)(tps?:\/\/[{$str_in_url}]+)/","\\1<a href=\"ht\\3\"{$_conf['ext_win_target']}>\\2\\3</a>", $msg);
-		$msg = preg_replace("/&gt;\"{$_conf['ext_win_target']}>(.+)&gt;<\/a>/","\"{$_conf['ext_win_target']}>\\1</a>&gt;", $msg); //末尾の&gt;（>）だけ外している
+		$msg = preg_replace("/([^f])(h?t?)(tps?:\/\/[{$str_in_url}]+)/","\\1<a href=\"ht\\3\"{$_conf['ext_win_target_at']}>\\2\\3</a>", $msg);
+		$msg = preg_replace("/&gt;\"{$_conf['ext_win_target_at']}>(.+)&gt;<\/a>/","\"{$_conf['ext_win_target_at']}>\\1</a>&gt;", $msg); //末尾の&gt;（>）だけ外している
 		
 		// 板サーバ内リンクはp2表示で
 		// 2ch bbspink
 		// http://choco.2ch.net/test/read.cgi/event/1027770702/
-		$msg = preg_replace_callback("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?\"{$_conf['ext_win_target']}>(h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?)<\/a>/", array($this, 'link2ch_callback'), $msg);
+		$msg = preg_replace_callback("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?\"{$_conf['ext_win_target_at']}>(h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?)<\/a>/", array($this, 'link2ch_callback'), $msg);
 			
 		// まちBBS / JBBS＠したらば 
 		// http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
@@ -315,27 +329,27 @@ EOP;
 		//$msg=preg_replace("/&(amp;)?ls=-/", "", $msg);// 空の範囲指定は除去
 		
 		// 2chとbbspinkの板
-		$msg = preg_replace("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/([^\/]+)\/\"{$_conf['ext_win_target']}>h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/([^\/]+)\/<\/a>/", "\\0 [<a href=\"{$_conf['subject_php']}?host=\\1&amp;bbs=\\3{$k_at_a}\">板をp2で開く</a>]", $msg);
+		$msg = preg_replace("/<a href=\"http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/([^\/]+)\/\"{$_conf['ext_win_target_at']}>h?t?tp:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))\/([^\/]+)\/<\/a>/", "\\0 [<a href=\"{$_conf['subject_php']}?host=\\1&amp;bbs=\\3{$k_at_a}\">板をp2で開く</a>]", $msg);
 		
 		//2chとbbspinkの過去ログ
-		$msg = preg_replace_callback("/<a href=\"(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$_conf['ext_win_target']}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
+		$msg = preg_replace_callback("/<a href=\"(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$_conf['ext_win_target_at']}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
 		
 		/*
 		// ブラクラチェッカ
 		if ($_conf['brocra_checker_use']) {
-			$msg = preg_replace("/<a href=\"(s?https?:\/\/[{$str_in_url}]+)\"{$_conf['ext_win_target']}>(s?h?t?tps?:\/\/[{$str_in_url}]+)<\/a>/","<a href=\"\\1\"{$_conf['ext_win_target']}>\\2</a> [<a href=\"{$_conf['brocra_checker_url']}?{$_conf['brocra_checker_query']}=\\1\"{$_conf['ext_win_target']}>チェック</a>]", $msg);
+			$msg = preg_replace("/<a href=\"(s?https?:\/\/[{$str_in_url}]+)\"{$_conf['ext_win_target_at']}>(s?h?t?tps?:\/\/[{$str_in_url}]+)<\/a>/","<a href=\"\\1\"{$_conf['ext_win_target_at']}>\\2</a> [<a href=\"{$_conf['brocra_checker_url']}?{$_conf['brocra_checker_query']}=\\1\"{$_conf['ext_win_target_at']}>チェック</a>]", $msg);
 		}
 		*/
 	
 		/*
 		// 画像URLリンクをサムネイル化
 		if ($_conf['preview_thumbnail']) {
-			$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[{$str_in_url}]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))\"{$_conf['ext_win_target']}>(s?h?t?tps?:\/\/[{$str_in_url}]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))<\/a>/", array($this, 'view_img_callback') ,$msg);
+			$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[{$str_in_url}]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))\"{$_conf['ext_win_target_at']}>(s?h?t?tps?:\/\/[{$str_in_url}]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))<\/a>/", array($this, 'view_img_callback') ,$msg);
 		}
 		*/
 		
 		// ■ ime
-		$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[{$str_in_url}]+)\"{$_conf['ext_win_target']}>([^><]+)<\/a>/", array($this, 'ime_callback'), $msg);
+		$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[{$str_in_url}]+)\"{$_conf['ext_win_target_at']}>([^><]+)<\/a>/", array($this, 'ime_callback'), $msg);
 
 		return $msg;
 	}
@@ -351,11 +365,13 @@ EOP;
 	{
 		global $_conf;
 		
-		$r = '<a href="' . P2Util::throughIme($s[1]) . '"' . $_conf['ext_win_target'] . '>' . $s[2] . '</a>';
+		$r = '<a href="' . P2Util::throughIme($s[1]) . '"' . $_conf['ext_win_target_at'] . '>' . $s[2] . '</a>';
 		return $r;
 	}
-		
-	// 引用レス変換 ===========================
+	
+	/**
+	 * 引用レス変換
+	 */
 	function quote_res_callback($s)
 	{
 		$rs = preg_replace_callback("/(&gt;|＞)?(&gt;|＞)?([0-9-]+)/", array($this, 'quote_res_devide_callback'), $s[0]);
@@ -367,41 +383,45 @@ EOP;
 		global $_conf;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
-		$appointed_num=$s[3];
-		$qsign="$s[1]$s[2]";
+		$appointed_num = $s[3];
+		$qsign = "$s[1]$s[2]";
 		
-		if($appointed_num=="-"){
+		if ($appointed_num == "-") {
 			return $s[0];
 		}
 		
-		$read_url="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}{$k_at_a}";
+		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}{$k_at_a}";
 
-		$qnum=$appointed_num+0;
-		if($qnum > sizeof($this->thread->datlines)){ //未来過ぎるレスは変換しない
+		$qnum = $appointed_num + 0;
+		if ($qnum > sizeof($this->thread->datlines)) { // 未来過ぎるレスは変換しない
 			return $s[0];
 		}
-		$rs=<<<EOP
+		$rs = <<<EOP
 <a href="{$read_url}">{$qsign}{$appointed_num}</a>
 EOP;
 		return $rs;
 	}
 	
-	//2ch bbspink 内リンク===========================
+	/**
+	 * 2ch bbspink 内リンク
+	 */
 	function link2ch_callback($s)
 	{
 		global $_conf;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
-		$read_url="{$_conf['read_php']}?host=$s[1]&amp;bbs=$s[3]&amp;key=$s[4]&amp;ls=$s[6]{$k_at_a}";
+		$read_url = "{$_conf['read_php']}?host=$s[1]&amp;bbs=$s[3]&amp;key=$s[4]&amp;ls=$s[6]{$k_at_a}";
 
-		$rs=<<<EORS
+		$rs = <<<EORS
 		<a href="{$read_url}">$s[7]</a>
 EORS;
 
 		return $rs;
 	}
 	
-	// まちBBS / JBBS＠したらば  内リンク===========================
+	/**
+	 * まちBBS / JBBS＠したらば  内リンク
+	 */
 	function linkMachi_callback($s)
 	{
 		global $_conf;
@@ -409,26 +429,30 @@ EORS;
 	
 	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[4]}&amp;key={$s[6]}&amp;ls={$s[9]}-{$s[12]}{$k_at_a}\">{$s[13]}</a>";
 	 }
-	 
-	// JBBS＠したらば  内リンク 2===========================
+	
+	/**
+	 * JBBS＠したらば  内リンク 2
+	 */
 	function linkJBBS_callback($s)
 	{
 		global $_conf;
 	
-	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}/{$s[2]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[5]}\"{$_conf['bbs_win_target']}>{$s[8]}</a>";
+	 	return "<a href=\"{$_conf['read_php']}?host={$s[1]}/{$s[2]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[5]}\"{$_conf['bbs_win_target_at']}>{$s[8]}</a>";
 	}
-	 
-	// 2ch過去ログhtml =============================
+	
+	/**
+	 * 2ch過去ログhtml
+	 */
 	function link2chkako_callback($s)
 	{
 		global $_conf;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		/*
-		$msg = preg_replace_callback("/<a href=\"(http:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$_conf['ext_win_target']}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
+		$msg = preg_replace_callback("/<a href=\"(http:\/\/([^\/]+(\.2ch\.net|\.bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html\"{$_conf['ext_win_target_at']}>h?t?tp:\/\/[^\/]+(\.2ch\.net|\.bbspink\.com)(\/[^\/]+)?\/[^\/]+\/kako\/\d+(\/\d+)?\/\d+.html<\/a>/", array($this, 'link2chkako_callback'), $msg);
 		*/
 		$kakolog_uri = $s[1];
 		$kakolog_uri_en = urlencode($kakolog_uri);
-		$host=$s[2]; $bbs=$s[5]; $key=$s[7];
+		$host = $s[2]; $bbs = $s[5]; $key = $s[7];
 		$read_url="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;kakolog={$kakolog_uri_en}{$k_at_a}";
 
 			$rs=<<<EOP
@@ -438,16 +462,18 @@ EOP;
 		return $rs;
 	}
 	
-	//画像ポップアップ変換==========================
+	/**
+	 * 画像ポップアップ変換
+	 */
 	function view_img_callback($s)
 	{
 		global $_conf;
 	
-		$img_tag=<<<EOIMG
+		$img_tag = <<<EOIMG
 <img class="thumbnail" src="$s[1]" height="{$_conf['pre_thumb_height']}" weight="{$_conf['pre_thumb_width']}" hspace="4" vspace="4" align="middle">
 EOIMG;
 
-		$rs =<<<EORS
+		$rs = <<<EORS
 			<a href="$s[1]">{$img_tag}{$s[3]}</a>
 EORS;
 		

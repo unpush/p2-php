@@ -80,21 +80,12 @@ if($aThreadList->spmode){ //スペシャルモード時
 	}
 }
 
-//フォームhidden==================================================
-if($aThreadList->bbs){
-	$input_bbs_ht="<input type=\"hidden\" name=\"bbs\" value=\"{$aThreadList->bbs}\">";
-}
-if($aThreadList->host){
-	$input_host_ht="<input type=\"hidden\" name=\"host\" value=\"{$aThreadList->host}\">";
-}
-if($aThreadList->spmode){
-	$input_spmode_ht="<input type=\"hidden\" name=\"spmode\" value=\"{$aThreadList->spmode}\">";
-}
-
-$sb_form_hidden_ht =<<<EOP
-		$input_bbs_ht
-		$input_host_ht
-		$input_spmode_ht
+// フォームhidden ==================================================
+$sb_form_hidden_ht = <<<EOP
+	<input type="hidden" name="detect_hint" value="◎◇">
+	<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
+	<input type="hidden" name="host" value="{$aThreadList->host}">
+	<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
 EOP;
 
 //表示件数 ==================================================
@@ -144,10 +135,11 @@ EOP;
 }
 
 $word = htmlspecialchars($word);
-$filter_form_ht =<<<EOP
-		<form class="toolbar" method="GET" action="subject.php" target="_self">
-		$sb_form_hidden_ht
-			<input type="text" id="word" name="word" value="{$word}" size="16">{$sb_form_method_ht}
+$filter_form_ht = <<<EOP
+		<form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
+			{$sb_form_hidden_ht}
+			<input type="text" id="word" name="word" value="{$word}" size="16">
+			{$sb_form_method_ht}
 			<input type="submit" name="submit_kensaku" value="検索">
 		</form>
 EOP;
@@ -155,13 +147,13 @@ EOP;
 
 
 // チェックフォーム =====================================
-if($aThreadList->spmode == "taborn"){
-	$abornoff_ht=<<<EOP
+if ($aThreadList->spmode == "taborn") {
+	$abornoff_ht = <<<EOP
 	<input type="submit" name="submit" value="{$abornoff_st}">
 EOP;
 }
-if($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads){
-	$check_form_ht=<<<EOP
+if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
+	$check_form_ht = <<<EOP
 	<p>
 		チェックした項目の
 		<input type="submit" name="submit" value="{$deletelog_st}">
@@ -175,7 +167,7 @@ EOP;
 //===================================================================
 
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -201,7 +193,7 @@ EOP;
 @include("./style/subject_css.inc"); //subject用スタイルシート読込
 
 echo <<<EOJS
-	<script type="text/javascript" src="{$basic_js}"></script>
+	<script type="text/javascript" src="js/basic.js"></script>
 	<script language="JavaScript">
 	<!--
 	function setWinTitle(){

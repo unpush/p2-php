@@ -1,22 +1,20 @@
 <?php
 
-require_once("./conf.php");  //基本設定
+include_once './conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
-require_once("./datactl.inc");
-require_once("./crypt_xor.inc");
+require_once './crypt_xor.inc.php';
 
 /**
  * ■2chにログインする
  */
 function login2ch()
 {
-	global $_conf, $prefdir, $_info_msg_ht;
+	global $_conf, $_info_msg_ht;
 
-	// ■2ch ID&PW 読み込み
-	if (file_exists($_conf['idpw2ch_php'])) {
-		include $_conf['idpw2ch_php'];
-		$login2chPW = base64_decode($login2chPW);
-		$login2chPW = decrypt_xor($login2chPW, $_conf['crypt_xor_key']);
+	// 2ch●ID, PW設定を読み込む
+	if ($array = P2Util::readIdPw2ch()) {
+		list($login2chID, $login2chPW, $autoLogin2ch) = $array;
+
 	} else {
 		$_info_msg_ht .= "<p>p2 Error: ログインのためのIDとパスワードを登録して下さい。[<a href=\"login2ch.php\" target=\"subject\">2chログイン管理</a>]</p>";
 		return false;
@@ -26,7 +24,7 @@ function login2ch()
 	$postf = "ID=".$login2chID."&PW=".$login2chPW;
 	$x_2ch_ua = "X-2ch-UA: ".$_conf['p2name']."/".$_conf['p2version'];
 	$dolib2ch = "DOLIB/1.00";
-	$tempfile = $prefdir."/p2temp.php";
+	$tempfile = $_conf['pref_dir']."/p2temp.php";
 	
 	// 念のためあらかじめtempファイルを除去しておく
 	if (file_exists($tempfile)) { unlink($tempfile); }
@@ -66,11 +64,11 @@ function login2ch()
 	echo $r = getHttpContents($auth2ch_url, "", "POST", $headers, $post, $dolib2ch);
 	*/
 	
-	// 失敗ならば
+	// 接続失敗ならば
 	if (empty($r)) {
-		if (file_exists($_conf['sid2ch_php'])) {
-			unlink($_conf['sid2ch_php']);
-		}
+		if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
+		if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
+		
 		$_info_msg_ht .= "<p>p2 info: 2ちゃんねるへの●IDログインを行うには、systemでcurlコマンドが使用可能であるか、PHPの<a href=\"http://www.php.net/manual/ja/ref.curl.php\">CURL関数</a>が有効である必要があります。</p>";
 
 		$_info_msg_ht .= "<p>p2 Error: 2chログイン処理に失敗しました。{$curl_msg}</p>";
@@ -94,6 +92,7 @@ function login2ch()
 		return false;
 	}
 	
+	// 認証照合失敗なら
 	if ($uaMona == "ERROR") {
 		if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
 		if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
@@ -116,7 +115,9 @@ EOP;
 		$_info_msg_ht .= "<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>";
 		return false;
 	}
-	fwrite($fp,$cont);
+	@flock($fp, LOCK_EX);
+	fwrite($fp, $cont);
+	@flock($fp, LOCK_UN);
 	fclose($fp);
 
 	return $SID2ch;
@@ -191,6 +192,7 @@ function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $
 	
 	$ch = curl_init();
 	$fp = fopen($tempfile, 'wb');
+	@flock($fp, LOCK_EX);
 	curl_setopt($ch, CURLOPT_FILE, $fp);
 	curl_setopt($ch, CURLOPT_URL, $auth2ch_url);
 	curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -208,6 +210,7 @@ function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $
 	}
 	curl_exec($ch);
 	curl_close($ch);
+	@flock($fp, LOCK_UN);
 	fclose($fp);
 	
 	return;

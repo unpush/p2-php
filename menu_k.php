@@ -3,7 +3,7 @@
 	p2 -  板メニュー 携帯用
 */
 
-require_once("./conf.php");  //基本設定ファイル読込
+include_once './conf.inc.php';  // 基本設定ファイル読込
 require_once("./brdctl_class.inc");
 require_once("./showbrdmenuk_class.inc");
 
@@ -12,17 +12,19 @@ authorize(); //ユーザ認証
 //==============================================================
 // 変数設定
 //==============================================================
-$_conf['ktai']=1;
-$_info_msg_ht="";
+$_conf['ktai'] = 1;
+$_info_msg_ht = "";
 $brd_menus = array();
 
-// 板検索 ====================================
-if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
+if (isset($_GET['word'])) {
+	$word = $_GET['word'];
+} elseif (isset($_POST['word'])) {
+	$word = $_POST['word'];
+}
 
-	$word = $_REQUEST['word'];
-	if (get_magic_quotes_gpc()) {
-		$word = stripslashes($word);
-	}
+// ■板検索 ====================================
+if (isset($word) && strlen($word) > 0) {
+
 	if (preg_match('/^\.+$/', $word)) {
 		$word = '';
 	}
@@ -34,10 +36,10 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
 
 //============================================================
-//特殊な前置処理
+// 特殊な前置処理
 //============================================================
-//お気に板の追加・削除
-if( isset($_GET['setfavita']) ){
+// お気に板の追加・削除
+if (isset($_GET['setfavita'])) {
 	include("./setfavita.inc");
 }
 
@@ -60,7 +62,7 @@ if($_GET['view']=="favita"){
 }
 
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html>
 <head>
@@ -91,7 +93,8 @@ if($_GET['view']=="favita"){
 //===========================================================
 if ($_GET['view'] != "favita" && $_GET['view'] != "rss" && !$_GET['cateid']) {
 	$kensaku_form_ht = <<<EOFORM
-<form method="GET" action="{$_SERVER['PHP_SELF']}">
+<form method="GET" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}">
+	<input type="hidden" name="detect_hint" value="◎◇">
 	{$_conf['k_input_ht']}
 	<input type="hidden" name="nr" value="1">
 	<input type="text" id="word" name="word" value="{$word}" size="12">
@@ -110,8 +113,8 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
 	$word_ht = htmlspecialchars($word);
 
-	if ($GLOBALS['mikke']) {
-		$hit_ht = "<br>\"{$word_ht}\" {$GLOBALS['mikke']}hit!";
+	if ($GLOBALS['ita_mikke']['num']) {
+		$hit_ht = "<br>\"{$word_ht}\" {$GLOBALS['ita_mikke']['num']}hit!";
 	}
 	echo "板ﾘｽﾄ検索結果{$hit_ht}<hr>";
 	if ($word) {
@@ -124,7 +127,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 		}
 		
 	}
-	if (!$GLOBALS['mikke']) {
+	if (!$GLOBALS['ita_mikke']['num']) {
 		$_info_msg_ht .=  "<p>\"{$word_ht}\"を含む板は見つかりませんでした。</p>\n";
 		unset($word);
 	}

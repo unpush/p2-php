@@ -6,7 +6,7 @@
 //===========================================================
 // HTML表示用変数
 //===========================================================
-/* 主なHTML表示用変数は sb_header.inc にて設定 */
+/* 主なHTML表示用変数は sb_header.inc.php にて設定 */
 
 //新着まとめ読み =========================================
 $new_matome_i++;
@@ -44,7 +44,7 @@ echo <<<EOP
 				$ptitle_ht
 			</td>
 			<td align="left" valign="middle" nowrap>	
-				<form class="toolbar" method="GET" action="subject.php" target="_self">
+				<form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
 					$sb_form_hidden_ht
 					<input type="submit" name="submit" value="更新">
 					$sb_disp_num_ht

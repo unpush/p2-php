@@ -7,41 +7,39 @@ require_once './filectl.class.php';
 // 変数
 //===============================================
 
-if(! isset($setfavita) ){$setfavita = $_GET['setfavita'];}
-if(! isset($setfavita) ){$setfavita = $_POST['setfavita'];}
+if (isset($_GET['setfavita'])) {
+	$setfavita = $_GET['setfavita'];
+} elseif (isset($_POST['setfavita'])) {
+	$setfavita = $_POST['setfavita'];
+}
 
 $host = $_GET['host'];
 $bbs = $_GET['bbs'];
-if($_POST['url']){
-	if( preg_match("/http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?/", $_POST['url'], $matches) ){
+if ($_POST['url']) {
+	if (preg_match("/http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?/", $_POST['url'], $matches)) {
 		$host = $matches[1];
 		$bbs = $matches[2];
-	}else{
+	} else {
 		$_info_msg_ht .= "<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>";
 	}
 }
 
-if($_POST['itaj']){
-	//magic_quates 除去
-	if(get_magic_quotes_gpc()) {
-		$itaj = stripslashes($_POST['itaj']);
-	} else { 
-		$itaj = $_POST['itaj']; 
-	} 
+if (isset($_POST['itaj'])){
+	$itaj = $_POST['itaj']; 
 }
-if(! isset($itaj) && isset($_GET['itaj_en']) ){
+if (!isset($itaj) && isset($_GET['itaj_en'])) {
 	$itaj = base64_decode($_GET['itaj_en']);
 } 
-if( empty($itaj) ){$itaj = $bbs;} 
+if (empty($itaj)) { $itaj = $bbs; }
 
 //================================================
 // 読み込み
 //================================================
 //favita_pathファイルがなければ生成
-FileCtl::make_datafile($favita_path, $_conf['favita_perm']);
+FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 
 //favita_path読み込み;
-$lines= @file($favita_path);
+$lines= @file($_conf['favita_path']);
 
 //================================================
 // 処理
@@ -96,19 +94,21 @@ if($setfavita==1 or $setfavita=="top"){
 //================================================
 //書き込む
 //================================================
-$fp = @fopen($favita_path,"wb") or die("Error: $favita_path を更新できませんでした");
-if($neolines){
-	$i=0;
-	foreach($neolines as $l){
-		if($i===$after_line_num){fputs($fp, $newdata);}
+$fp = @fopen($_conf['favita_path'], "wb") or die("Error: {$_conf['favita_path']} を更新できませんでした");
+@flock($fp, LOCK_EX);
+if ($neolines) {
+	$i = 0;
+	foreach ($neolines as $l) {
+		if ($i === $after_line_num) { fputs($fp, $newdata); }
 		fputs($fp, $l);
 		$i++;
 	}
-	if($after_line_num==="bottom"){	fputs($fp, $newdata); }
-	//「$after_line_num=="bottom"」だと誤動作する。
-}else{
+	if ($after_line_num === "bottom") {	fputs($fp, $newdata); }
+	//「$after_line_num == "bottom"」だと誤動作する。
+} else {
 	fputs($fp, $newdata);
 }
+@flock($fp, LOCK_UN);
 fclose($fp);
 
 ?>

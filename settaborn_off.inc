@@ -1,19 +1,20 @@
 <?php
 // p2 - スレッドあぼーん複数一括解除処理
 
-require_once("datactl.inc");
+require_once './p2util.class.php';
 
 //====================================================================
 // スレッドあぼーんを複数一括解除する関数
 //====================================================================
-function settaborn_off($host, $bbs, $taborn_off_keys){
+function settaborn_off($host, $bbs, $taborn_off_keys)
+{
 	
 	//==============================================================
 	// p2_threads_aborn.idxに書き込む
 	//==============================================================
 	
 	// p2_threads_aborn.idx のパス取得
-	$datdir_host = datdirOfHost($host);
+	$datdir_host = P2Util::datdirOfHost($host);
 	$taborn_idx = "{$datdir_host}/{$bbs}/p2_threads_aborn.idx";
 	
 	// p2_threads_aborn.idx がなければ
@@ -51,9 +52,11 @@ function settaborn_off($host, $bbs, $taborn_off_keys){
 		}
 		$fp = @fopen($taborn_idx, "wb") or die("Error: $taborn_idx を更新できませんでした");
 		if ($neolines) {
+			@flock($fp, LOCK_EX);
 			foreach ($neolines as $l) {
 				fputs($fp, $l."\n");
 			}
+			@flock($fp, LOCK_UN);
 		}
 		fclose($fp);
 	

@@ -1,6 +1,8 @@
 <?php
 // p2 - ボードメニューを表示する クラス(携帯)
 
+require_once './p2util.class.php';
+
 class ShowBrdMenuK{
 
 	var $cate_id; //カテゴリーID
@@ -24,7 +26,7 @@ class ShowBrdMenuK{
 				$list_disp_from=1;
 			}
 			$list_disp_all_num = sizeof($categories);
-			$disp_navi = getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
+			$disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
 		
 			if($disp_navi['from'] > 1){
 				$mae_ht = <<<EOP
@@ -56,7 +58,7 @@ EOP;
 	// 板メニューカテゴリの板をプリントするメソッド for 携帯 ===============================
 	function printIta($categories)
 	{
-		global $_conf, $accesskey, $list_navi_ht;
+		global $_conf, $list_navi_ht;
 		global $k_at_a, $k_at_q, $k_input_ht;
 
 		if($categories){
@@ -75,7 +77,7 @@ EOP;
 							$list_disp_from=1;
 						}
 						$list_disp_all_num = $cate->num;
-						$disp_navi = getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
+						$disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
 				
 						if($disp_navi['from'] > 1){
 							$mae_ht = <<<EOP
@@ -100,7 +102,7 @@ EOP;
 							$i++;
 							if($i<=9){
 								$access_num_st="$i ";
-								$akey_at=" {$accesskey}=\"{$i}\"";
+								$akey_at=" {$_conf['accesskey']}=\"{$i}\"";
 							}else{
 								$access_num_st="";
 								$akey_at="";
@@ -133,7 +135,7 @@ EOP;
 				$list_disp_from=1;
 			}
 			$list_disp_all_num = $mikke; //
-			$disp_navi = getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
+			$disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
 		
 			if($disp_navi['from'] > 1){
 				$mae_ht = <<<EOP
@@ -177,10 +179,10 @@ EOP;
 	//=========================================================
 	function print_favIta()
 	{
-		global $_conf, $favita_path, $accesskey;
+		global $_conf;
 		global $k_at_a, $k_at_q, $k_input_ht;
 		
-		$lines= @file($favita_path); // favita読み込み
+		$lines= @file($_conf['favita_path']); // favita読み込み
 		if($lines){
 			echo "お気に板<hr>";
 			$i=0;
@@ -191,7 +193,7 @@ EOP;
 					$itaj = rtrim($matches[3]);
 					$itaj_en = base64_encode($itaj);
 					if($i<=9){
-						$access_at=" {$accesskey}={$i}";
+						$access_at=" {$_conf['accesskey']}={$i}";
 						$key_num_st="$i ";
 					}else{
 						$access_at="";

@@ -1,28 +1,29 @@
 <?php
 // p2 -  お気に入り編集
 
-require_once("./conf.php");  // 基本設定
+include_once './conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
 
 authorize(); //ユーザ認証
 
 //変数=============
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 //================================================================
 //特殊な前置処理
 //================================================================
 
-//お気に板の追加・削除、並び替え
-if( isset($_GET['setfavita']) or isset($_POST['setfavita']) ){
+// お気に板の追加・削除、並び替え
+if (isset($_GET['setfavita']) or isset($_POST['setfavita'])) {
 	include("./setfavita.inc");
 }
 
-//プリント用変数======================================================
+// プリント用変数======================================================
 
 // お気に板追加フォーム=================================================
 $add_favita_form_ht = <<<EOFORM
-<form method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
+<form method="POST" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+	<input type="hidden" name="detect_hint" value="◎◇">
 	<p>
 		URL: <input type="text" id="url" name="url" value="http://" size="48">
 		板名: <input type="text" id="itaj" name="itaj" value="" size="16">
@@ -36,7 +37,7 @@ EOFORM;
 // ヘッダ
 //================================================================
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -55,7 +56,7 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 
 //================================================================
 // メイン部分HTML表示
@@ -66,9 +67,9 @@ $_info_msg_ht="";
 //================================================================
 
 // favitaファイルがなければ生成
-FileCtl::make_datafile($favita_path, $_conf['favita_perm']);
+FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 // favita読み込み
-$lines= file($favita_path);
+$lines= file($_conf['favita_path']);
 
 
 echo <<<EOP
@@ -77,23 +78,25 @@ EOP;
 
 echo $add_favita_form_ht;
 
-if($lines){
+if ($lines) {
 	echo "<table>";
-	foreach($lines as $l){
+	foreach ($lines as $l) {
 		$l = rtrim($l);
-		if( preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches) ){
-			$itaj_en=base64_encode($matches[3]);
-			$host=$matches[1];
-			$bbs=$matches[2];
-			$itaj_ht="&amp;itaj_en=".$itaj_en;
+		if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
+			$itaj = rtrim($matches[3]);
+			$itaj_en = base64_encode($itaj);
+			$host = $matches[1];
+			$bbs = $matches[2];
+			$itaj_view = htmlspecialchars($itaj);
+			$itaj_ht = "&amp;itaj_en=".$itaj_en;
 			echo <<<EOP
 			<tr>
-			<td><a href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}&setfavita=0" class="fav">★</a></td>
+			<td><a href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}&setfavita=0" class="fav" title="「{$itaj_view}」をお気に板から外す">★</a></td>
 			<td><a href="{$_conf['subject_php']}?host={$host}&bbs={$bbs}">{$matches[3]}</a></td>
-			<td>[ <a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=top">▲</a></td>
-			<td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=up">↑</a></td>
-			<td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=down">↓</a></td>
-			<td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=bottom">▼</a> ]</td>
+			<td>[ <a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=top" title="一番上に移動">▲</a></td>
+			<td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=up" title="一つ上に移動">↑</a></td>
+			<td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=down" title="一つ下に移動">↓</a></td>
+			<td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&bbs={$bbs}{$itaj_ht}&setfavita=bottom" title="一番下に移動">▼</a> ]</td>
 			</tr>
 EOP;
 		}

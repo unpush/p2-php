@@ -1,3 +1,68 @@
+2005-03-04 aki
+	* p2 version 1.5.0
+	
+	- [新機能] 投稿に失敗した時は、その内容を保存して、次回自動的に呼び出されるようにした。
+	  （スレッドごとに記憶される）
+	- [新機能] p2imeを#のページ内アンカーにも対応
+	- [改良] 新しいread.cgiの仕様変更に対応。（過去ログhtmlを読み込めるように）
+	- [改良] Be IDの認識を向上
+	- [改良] 名前部分の数字のレス引用変換判定を改良
+	- [改良] スレッド一覧でレス数をクリックしてログを削除するとき、すでにdat落ちしているものについては、
+	  JavaScriptで確認ダイアログを表示してから削除できるようにした。
+	- [改良] スレッド表示（read.php）でログがなかった時は、$_GET['offline']指定でもログ取得を試みるようにした。
+	- [改良] メニューのカテゴリー開閉のリンクターゲットを「_self」とした。
+	- [仕様変更] PHPのmbstring拡張なしを非サポートとした。mbstring拡張が必須となります。
+	- [仕様変更] 携帯のアクセスキーを少し変更した。「新」（3）と「ﾚｽ」（7）
+	- [仕様変更] ユーザ設定ファイルのファイル名が変更されています。
+	  conf.php → conf_user.inc.php、conf_style.inc → conf_user_style.inc.php
+	- [仕様変更] conf_user.inc.php で $prefdir → $_conf['pref_dir'] の変更
+	
+	- [新機能] NGあぼーんを強化
+	
+	  NGあぼーんの編集で、最新HIT時刻とHIT回数がわかるようになった。
+	  書式は、「ワード<TAB>最新HIT時刻<TAB>HIT回数」
+	  HIT時刻と回数は、自動で更新されるので、ワード登録の方法は、これまで通りワードのみを記述すればよい。
+	
+	  $_conf['ngaborn_daylimit'] で設定された期間（デフォルト半年）に、一度もHITしなかった時は、
+	  そのワード設定を自動で解除するようにした。
+	
+	  NGあぼーんの内部仕様変更
+	  $aborn_words, $ng_words → $ng_aborns
+	  $ng_num → $ngaborns_hits
+	
+	- 他いろいろ、細かな修正
+	- 拡張パックさんのコードもいろんなところで取り込ませてもらってます。 THX!
+	
+	新規追加されたファイル
+		dataphp.class.php
+		dele_js.php
+		ngabornctl.class.php
+	
+	廃棄されたファイル
+		datactl.inc
+		read.inc
+	
+	ファイル名変更
+		conf.php → conf.inc.php
+		conf_user.php → conf_user.inc.php
+		conf_style.inc → conf_user_style.inc.php
+		crypt_xor.inc → crypt_xor.inc.php
+		dele.inc → dele.inc.php
+		login2ch.inc → login2ch.inc.php
+		read_footer.inc → read_footer.inc.php
+		read_header.inc → read_header.inc.php
+		read_res_hist.inc → read_res_hist.inc.php
+		res_hist_class.inc → res_hist.class.php
+		sb_footer.inc → sb_footer.inc.php
+		sb_header.inc → sb_header.inc.php
+		thread_class.inc → thread.class.php
+		threadread_class.inc → threadread.class.php
+		wap.inc → wap.class.php
+	
+	今回は、ほぼ全てのファイルを更新した。
+	逆に、更新していないファイルは、
+	style ディレクトリのファイルと、とjsディレクトリの、basic.js, post_form.js 以外です。
+
 2005-01-30 aki
 	* p2 version 1.4.2
 

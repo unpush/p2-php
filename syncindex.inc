@@ -61,11 +61,11 @@ foreach ($lines as $line) {
 //================================================
 if (serialize($lines) != serialize($neolines)) {
 	$fp = @fopen($syncfile, 'wb') or die("Error: $syncfile ÇçXêVÇ≈Ç´Ç‹ÇπÇÒÇ≈ÇµÇΩ");
-	flock($fp, LOCK_EX);
+	@flock($fp, LOCK_EX);
 	foreach ($neolines as $l) {
 		fputs($fp, $l);
 	}
-	flock($fp, LOCK_UN);
+	@flock($fp, LOCK_UN);
 	fclose($fp);
 	$sync_ok = true;
 } else {

@@ -2,10 +2,10 @@
 // p2 -  スレッド表示部分の初期表示
 // フレーム3分割画面、右下部分
 
-include("./conf.php");  //基本設定ファイル読込
+include_once './conf.inc.php';  // 基本設定ファイル読込
 
 header_content_type();
-if($doctype){ echo $doctype;}
+if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">
 <head>
