@@ -367,7 +367,7 @@ function postIt($URL, $request)
 		
 			// ‚µ‚½‚ç‚Î or be.2ch.net‚È‚çAEUC‚É•ÏŠ·
 			if (P2Util::isHostJbbsShitaraba($host) || P2Util::isHostBe2chNet($host)) {
-				include_once './strctl.class.php';
+				include_once './strctl_class.inc';
 				$value = StrCtl::p2SJIStoEUC($value);
 			}
 
@@ -510,9 +510,9 @@ EOSCRIPT;
 	}
 }
 
-//============================================================
-// ‘‚«‚İˆ—Œ‹‰Ê•\¦ŠÖ”
-//============================================================
+/**
+ * ‘‚«‚İˆ—Œ‹‰Ê‚ğ•\¦‚·‚é
+ */
 function showPostMsg($isDone, $result_msg, $reload)
 {
 	global $location_ht, $popup, $STYLE, $ttitle;
