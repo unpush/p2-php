@@ -32,11 +32,11 @@ EOP;
 EOP;
 } elseif ($ptitle_url) {
 	$ptitle_ht = <<<EOP
-	<a  href="{$ptitle_url}"><b>{$aThreadList->ptitle}</b></a>
+	<a  href="{$ptitle_url}"><b>{$ptitle_hd}</b></a>
 EOP;
 } else {
 	$ptitle_ht = <<<EOP
-	<b>{$aThreadList->ptitle}</b>
+	<b>{$ptitle_hd}</b>
 EOP;
 }
 

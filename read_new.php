@@ -33,8 +33,8 @@ if (isset($_GET['host'])) { $host = $_GET['host']; }
 if (isset($_POST['host'])) { $host = $_POST['host']; }
 if (isset($_GET['bbs'])) { $bbs = $_GET['bbs']; }
 if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
-if (!$spmode) { $spmode = $_GET['spmode']; }
-if (!$spmode) { $spmode = $_POST['spmode']; }
+if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
+if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
 
 //=================================================
 // あぼーん&NGワード設定読み込み
@@ -341,8 +341,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 		}
 	}
 	
-	if (!$aThread->ttitle_ht) { $aThread->ttitle_ht = $aThread->ttitle; }
- 	if ($aThread->isonline) { $online_num++; }	// 生存数set
+	if ($aThread->isonline) { $online_num++; }	// 生存数set
 	
 	echo $_info_msg_ht;
 	$_info_msg_ht = "";
@@ -452,7 +451,7 @@ function readNew(&$aThread)
 	<table id="ntt{$newthre_num}" width="100%" style="padding:0px 10px 0px 0px;">
 		<tr>
 			<td align="left">
-				<h3 class="thread_title">{$aThread->ttitle}</h3>
+				<h3 class="thread_title">{$aThread->ttitle_hd}</h3>
 			</td>
 			<td align="right">
 				{$prev_thre_ht}
@@ -511,9 +510,10 @@ EOP;
 	$favdo = (!empty($aThread->fav)) ? 0 : 1;
 	$favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
 	$favdo_q = '&amp;setfav='.$favdo;
-
+	$itaj_hd = htmlspecialchars($aThread->itaj);
+	
 	$toolbar_right_ht = <<<EOTOOLBAR
-			<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$aThread->itaj}</a>
+			<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
 			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a> 
 			<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFav('{$aThread->host}', '{$aThread->bbs}', '{$aThread->key}', '{$favdo}', this);" title="{$favtitle}">お気に{$favmark}</a></span> 
 			<span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}', this);" title="ログを削除する">{$delete_st}</a></span> 
@@ -532,7 +532,7 @@ EOTOOLBAR;
 		<table width="100%" style="padding:0px 10px 0px 0px;">
 			<tr>
 				<td align="left">
-					{$res1['body']} | <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}#r{$aThread->rescount}">{$aThread->ttitle}</a> | {$dores_ht} {$spd_ht}
+					{$res1['body']} | <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rc={$aThread->rescount}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> | {$dores_ht} {$spd_ht}
 				</td>
 				<td align="right">
 					{$toolbar_right_ht}
@@ -541,7 +541,7 @@ EOTOOLBAR;
 					<a href="#ntt{$newthre_num}">▲</a>
 				</td>
 			</tr>
-		</table>
+		</table>\n
 EOP;
 
 	// 透明あぼーんで表示がない場合はスキップ
@@ -595,10 +595,8 @@ EOP;
 EOP;
 }
 
-echo <<<EOP
-</body>
-</html>
-EOP;
+echo '</body></html>';
+
 
 // ■NGあぼーんを記録
 NgAbornCtl::saveNgAborns();

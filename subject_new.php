@@ -269,7 +269,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 	    case "news": // ニュースの勢い
 	        $aThread->isonline = true;
 			$aThread->key = $l['key'];
-			$aThread->ttitle = $l['ttitle'];
+			$aThread->setTtitle($l['ttitle']);
 			$aThread->rescount = $l['rescount'];
 			$aThread->host = $l['host'];
 			$aThread->bbs = $l['bbs'];
@@ -392,7 +392,8 @@ for( $x = 0; $x < $linesize ; $x++ ){
 					// subject.txt からスレ情報取得
 					// $aThread->getThreadInfoFromSubjectTxtLine($l);
 					$aThread->isonline = true;
-					$aThread->ttitle = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['ttitle'];
+					$ttitle = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['ttitle'];
+					$aThread->setTtitle($ttitle);
 					$aThread->rescount = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['rescount'];
 					if ($aThread->readnum) {
 						$aThread->unum = $aThread->rescount - $aThread->readnum;
@@ -595,13 +596,13 @@ if($_conf['ktai']){
 	$aThreadList->num = sizeof($aThreadList->threads);
 
 	// ヘッダプリント
-	include("./sb_header_k.inc");
+	include './sb_header_k.inc.php';
 	
-	require_once("./sb_print_k.inc"); //スレッドサブジェクトメイン部分HTML表示関数
+	require_once './sb_print_k.inc.php'; //スレッドサブジェクトメイン部分HTML表示関数
 	sb_print_k($aThreadList);
 	
 	// フッタプリント
-	include("./sb_footer_k.inc");
+	include './sb_footer_k.inc.php';
 		
 } else {
 	//============================================================
@@ -612,7 +613,7 @@ if($_conf['ktai']){
 	//============================================================
 	// スレッドサブジェクトメイン部分HTML表示
 	//============================================================
-	require_once("./sb_print.inc"); // スレッドサブジェクトメイン部分HTML表示関数
+	require_once './sb_print.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
 
 	$debug && $prof->startTimer("sb_print");
 	sb_print($aThreadList);

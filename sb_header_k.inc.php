@@ -23,21 +23,23 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 }
 
 // ページタイトル部分HTML設定 ====================================
+$ptitle_hd = htmlspecialchars($aThreadList->ptitle);
+
 if ($aThreadList->spmode == "taborn") {
 	$ptitle_ht = <<<EOP
-	<a href="{$ptitle_url}"><b>{$aThreadList->itaj}</b></a>（ｱﾎﾞﾝ中）
+	<a href="{$ptitle_url}"><b>{$aThreadList->itaj_hd}</b></a>（ｱﾎﾞﾝ中）
 EOP;
 } elseif ($aThreadList->spmode == "soko") {
 	$ptitle_ht = <<<EOP
-	<a  href="{$ptitle_url}"><b>{$aThreadList->itaj}</b></a>（dat倉庫）
+	<a  href="{$ptitle_url}"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）
 EOP;
 } elseif ($ptitle_url) {
 	$ptitle_ht = <<<EOP
-	<a  href="{$ptitle_url}"><b>{$aThreadList->ptitle}</b></a>
+	<a  href="{$ptitle_url}"><b>{$ptitle_hd}</b></a>
 EOP;
 } else {
 	$ptitle_ht = <<<EOP
-	<b>{$aThreadList->ptitle}</b>
+	<b>{$ptitle_hd}</b>
 EOP;
 }
 
@@ -77,7 +79,7 @@ echo <<<EOP
 <html>
 <head>
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-	<title>{$aThreadList->ptitle}</title>
+	<title>{$ptitle_hd}</title>
 </head>
 <body>
 EOP;

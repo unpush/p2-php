@@ -89,7 +89,7 @@ function setFav($host, $bbs, $key, $setfav)
 
 	// 新規データ設定
 	if ($setfav) {
-		$newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>1<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
+		$newline = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>1<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}"."\n";
 	}
 	
 	if ($setfav == 1 or $setfav == 'top') {
@@ -120,17 +120,17 @@ function setFav($host, $bbs, $key, $setfav)
 		$i = 0;
 		foreach ($neolines as $l) {
 			if ($i === $after_line_num) {
-				fputs($fp, $newdata."\n");
+				fputs($fp, $newline);
 			}
 			fputs($fp, $l."\n");
 			$i++;
 		}
 		if ($after_line_num === 'bottom') {
-			fputs($fp, $newdata."\n");
+			fputs($fp, $newline);
 		}
 		//「$after_line_num == "bottom"」だと誤動作する。
 	} else {
-		fputs($fp, $newdata."\n");
+		fputs($fp, $newline);
 	}
 	@flock($fp, LOCK_UN);
 	fclose($fp);

@@ -196,13 +196,14 @@ EOP;
 		
 		$lines = @file($_conf['favita_path']); // favita“Ç‚İ‚İ
 		if ($lines) {
-			echo "‚¨‹C‚É”Â<hr>";
+			echo '‚¨‹C‚É”Â [<a href="editfavita.php?k=1">•ÒW</a>]<hr>';
 			$i = 0;
 			foreach ($lines as $l) {
 				$i++;
 				$l = rtrim($l);
 				if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
 					$itaj = rtrim($matches[3]);
+					$itaj_view = htmlspecialchars($itaj);
 					$itaj_en = rawurlencode(base64_encode($itaj));
 					if ($i <= 9) {
 						$access_at = " {$_conf['accesskey']}={$i}";
@@ -212,8 +213,9 @@ EOP;
 						$key_num_st = "";
 					}
 					echo <<<EOP
-	<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$_conf['k_at_a']}"{$access_at}>{$key_num_st}{$matches[3]}</a> [<a href="{$_SERVER['PHP_SELF']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;view=favita{$_conf['k_at_a']}">í</a>]<br>
+	<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$_conf['k_at_a']}"{$access_at}>{$key_num_st}{$itaj_view}</a><br>
 EOP;
+					//  [<a href="{$_SERVER['PHP_SELF']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;view=favita{$_conf['k_at_a']}">í</a>]
 					$show_flag = true;
 				}
 			}

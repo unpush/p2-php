@@ -55,10 +55,12 @@ class ResHist{
 		
 		$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 		
-		echo "<dl>";
+		echo '<dl>';
 		
 		foreach ($this->articles as $a_res) {
-			$htm['daytime'] = htmlspecialchars($a_res->daytime);
+			$hd['daytime'] = htmlspecialchars($a_res->daytime);
+			$hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'));
+			$hd['itaj'] = htmlspecialchars($a_res->itaj);
 			
 			$href_ht = "";
 			if ($a_res->key) {
@@ -68,19 +70,20 @@ class ResHist{
 		<a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$_conf['k_at_a']}" target="_self" onClick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1',{$STYLE['info_pop_size']},0,0)">情報</a>
 EOP;
 
-			$res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$htm['daytime']}\"> ";
+			$res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$hd['daytime']}\"> ";
 			$res_ht .= "{$a_res->order} ："; // 番号
-			$res_ht .= "<span class=\"name\"><b>{$a_res->name}</b></span> ："; // 名前
+			$res_ht .= '<span class="name"><b>'.htmlspecialchars($a_res->name).'</b></span> ：'; // 名前
 			// メール
 			if ($a_res->mail) {
-				$res_ht .= "{$a_res->mail} ：";
+				$res_ht .= htmlspecialchars($a_res->mail).' ：';
 			}
-			$res_ht .= "{$htm['daytime']}</dt>\n"; // 日付とID
-			$res_ht .= "<dd><a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\" target=\"subject\">{$a_res->itaj}</a> / ";
+			$res_ht .= "{$hd['daytime']}</dt>\n"; // 日付とID
+			// 板名
+			$res_ht .= "<dd><a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\" target=\"subject\">{$hd['itaj']}</a> / ";
 			if ($href_ht) {
-				$res_ht .= "<a href=\"{$href_ht}\"><b>{$a_res->ttitle}</b></a> - {$info_view_ht}\n";
-			} elseif ($a_res->ttitle) {
-				$res_ht .= "<b>{$a_res->ttitle}</b>\n";
+				$res_ht .= "<a href=\"{$href_ht}\"><b>{$hd['ttitle']}</b></a> - {$info_view_ht}\n";
+			} elseif ($hd['ttitle']) {
+				$res_ht .= "<b>{$hd['ttitle']}</b>\n";
 			}
 			$res_ht .= "<br><br>";
 			$res_ht .= "{$a_res->msg}<br><br></dd>\n"; // 内容
@@ -89,7 +92,7 @@ EOP;
 			flush();
 		}
 		
-		echo "</dl>";
+		echo '</dl>';
 		
 		return true;
 	}
@@ -170,7 +173,9 @@ EOP;
 		global $_conf;
 		
 		foreach($this->articles as $a_res){
-			$htm['daytime'] = htmlspecialchars($a_res->daytime);
+			$hd['daytime'] = htmlspecialchars($a_res->daytime);
+			$hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'));
+			$hd['itaj'] = htmlspecialchars($a_res->itaj);
 			
 			if ($a_res->order < $this->resrange['start'] or $a_res->order > $this->resrange['to']) {
 				continue;
@@ -207,16 +212,19 @@ EOP;
 		}
 
 			$res_ht = "[$a_res->order]"; // 番号
-			$res_ht .= "{$a_res->name}:"; // 名前
-			if ($a_res->mail) {$res_ht .= "{$a_res->mail}:";} // メール
-			$res_ht .= "{$htm['daytime']}<br>\n"; // 日付とID
-			$res_ht .= "<a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\">{$a_res->itaj}</a> / ";
-			if ($href_ht) {
-				$res_ht .= "<a href=\"{$href_ht}\">{$a_res->ttitle}</a>\n";
-			} elseif ($a_res->ttitle) {
-				$res_ht .= "{$a_res->ttitle}\n";
+			$res_ht .= htmlspecialchars($a_res->name).':'; // 名前
+			// メール
+			if ($a_res->mail) {
+				$res_ht .= htmlspecialchars($a_res->mail).':';
 			}
-			$res_ht .= "<br>";
+			$res_ht .= "{$hd['daytime']}<br>\n"; // 日付とID
+			$res_ht .= "<a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\">{$hd['itaj']}</a> / ";
+			if ($href_ht) {
+				$res_ht .= "<a href=\"{$href_ht}\">{$hd['ttitle']}</a>\n";
+			} elseif ($hd['ttitle']) {
+				$res_ht .= "{$hd['ttitle']}\n";
+			}
+			$res_ht .= '<br>';
 			$res_ht .= "{$a_res->msg}<hr>\n"; // 内容
 			
 			echo $res_ht;

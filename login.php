@@ -239,20 +239,17 @@ echo <<<EOP
 EOP;
 echo "</p>";
 
-if($_conf['ktai']){
+if ($_conf['ktai']) {
 	echo "<hr>";
 }
 
 echo $login_form_ht;
 
-if($_conf['ktai']){
+if ($_conf['ktai']) {
 	echo "<hr>\n";
-	echo $k_to_index_ht;
+	echo $_conf['k_to_index_ht'];
 }
 
-echo <<<EOP
-</body>
-</html>
-EOP;
+echo '</body></html>';
 
 ?>

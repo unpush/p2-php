@@ -57,7 +57,7 @@ $_conf['pre_thumb_height'] = "32";	// ("32") ‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ìc‚Ì‘å‚«‚³‚ğw’èiƒ
 $_conf['pre_thumb_width'] = "32";	// ("32") ‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ì‰¡‚Ì‘å‚«‚³‚ğw’èiƒsƒNƒZƒ‹j
 $_conf['iframe_popup'] = 2;	// (2) HTMLƒ|ƒbƒvƒAƒbƒvi‚·‚é:1, ‚µ‚È‚¢:0, p‚Å‚·‚é:2j
 $_conf['iframe_popup_delay'] = 0.2;	// (0.2) HTMLƒ|ƒbƒvƒAƒbƒv‚Ì•\¦’x‰„ŠÔi•bj
-$_conf['ext_win_target'] = "";	// ("") ŠO•”ƒTƒCƒg“™‚ÖƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼i“¯‘‹:"", V‘‹:"_blank"j
+$_conf['ext_win_target'] = "_blank";	// ("") ŠO•”ƒTƒCƒg“™‚ÖƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼i“¯‘‹:"", V‘‹:"_blank"j
 $_conf['bbs_win_target'] = "";	// ("") p2‘Î‰BBSƒTƒCƒg“à‚ÅƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼i“¯‘‹:"", V‘‹:"_blank"j
 $_conf['bottom_res_form'] = 1;	// (1) ƒXƒŒƒbƒh‰º•”‚É‘‚«‚İƒtƒH[ƒ€‚ğ•\¦i‚·‚é:1, ‚µ‚È‚¢:0j
 $_conf['quote_res_view'] = 1;	// (1) ˆø—pƒŒƒX‚ğ•\¦i‚·‚é:1, ‚µ‚È‚¢:0j
@@ -69,6 +69,9 @@ $_conf['k_use_tsukin'] = 1;	// (1) Œg‘Ñ‰{——AŠO•”ƒŠƒ“ƒN‚É’Ê‹Îƒuƒ‰ƒEƒU(’Ê)‚ğ—˜—
 $_conf['k_use_picto'] = 1;	// (1) Œg‘Ñ‰{——A‰æ‘œƒŠƒ“ƒN‚Épic.to(Ëß)‚ğ—˜—p(‚·‚é:1, ‚µ‚È‚¢:0)
 
 // ETC ==============================================================
+$_conf['my_FROM'] = "";	// ("") ƒŒƒX‘‚«‚İ‚ÌƒfƒtƒHƒ‹ƒg‚Ì–¼‘O
+$_conf['my_mail'] = "sage";	// ("sage") ƒŒƒX‘‚«‚İ‚ÌƒfƒtƒHƒ‹ƒg‚Ìmail
+
 $_conf['get_new_res'] = 200;	// (200) V‚µ‚¢ƒXƒŒƒbƒh‚ğæ“¾‚µ‚½‚É•\¦‚·‚éƒŒƒX”(‘S‚Ä•\¦‚·‚éê‡:"all")
 $_conf['rct_rec_num'] = 20;	// (20) Å‹ß“Ç‚ñ‚¾ƒXƒŒ‚Ì‹L˜^”
 $_conf['res_hist_rec_num'] = 20;	// (20) ‘‚«‚İ—š—ğ‚Ì‹L˜^”

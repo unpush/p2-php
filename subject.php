@@ -286,7 +286,7 @@ for ($x = 0; $x < $linesize; $x++) {
 	    case "news": // ニュースの勢い
 	        $aThread->isonline = true;
 			$aThread->key = $l['key'];
-			$aThread->ttitle = $l['ttitle'];
+			$aThread->setTtitle($l['ttitle']);
 			$aThread->rescount = $l['rescount'];
 			$aThread->host = $l['host'];
 			$aThread->bbs = $l['bbs'];
@@ -339,9 +339,9 @@ for ($x = 0; $x < $linesize; $x++) {
 		} else {
 			$mikke++;
 			if ($_conf['ktai']) {
-				$aThread->ttitle_ht = $aThread->ttitle;
+				$aThread->ttitle_ht = $aThread->ttitle_hd;
 			} else {
-				$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
+				$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle_hd);
 			}
 		}
 	}
@@ -428,7 +428,8 @@ for ($x = 0; $x < $linesize; $x++) {
 				} elseif ($aThreadList->spmode == "taborn") {
 					// $aThread->getThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
 					$aThread->isonline = true;
-					$aThread->ttitle = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['ttitle'];
+					$ttitle = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['ttitle'];
+					$aThread->setTtitle($ttitle);
 					$aThread->rescount = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['rescount'];
 					if ($aThread->readnum) {
 						$aThread->unum = $aThread->rescount - $aThread->readnum;
@@ -492,9 +493,9 @@ for ($x = 0; $x < $linesize; $x++) {
 			} else {
 				$mikke++;
 				if ($_conf['ktai']) {
-					$aThread->ttitle_ht = $aThread->ttitle;
+					$aThread->ttitle_ht = $aThread->ttitle_hd;
 				} else {
-					$$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
+					$$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle_hd);
 				}
 			}
 		}
@@ -504,7 +505,7 @@ for ($x = 0; $x < $linesize; $x++) {
 	if ((!$aThread->rescount) and $aThread->gotnum) {
 		$aThread->rescount = $aThread->gotnum;
 	}
-	if (!$aThread->ttitle_ht) { $aThread->ttitle_ht = $aThread->ttitle; }
+	if (!$aThread->ttitle_ht) { $aThread->ttitle_ht = $aThread->ttitle_hd; }
 	
 	// 新着あり
 	if ($aThread->unum > 0) {
@@ -635,14 +636,14 @@ if ($_conf['ktai']) {
 	$aThreadList->threads = $newthreads;
 	$aThreadList->num = sizeof($aThreadList->threads);
 
-	//ヘッダプリント
-	include("./sb_header_k.inc");
+	// ヘッダプリント
+	include './sb_header_k.inc.php';
 	
-	require_once("./sb_print_k.inc"); //スレッドサブジェクトメイン部分HTML表示関数
+	require_once './sb_print_k.inc.php'; //スレッドサブジェクトメイン部分HTML表示関数
 	sb_print_k($aThreadList);
 	
-	//フッタプリント
-	include("./sb_footer_k.inc");
+	// フッタプリント
+	include './sb_footer_k.inc.php';
 		
 } else {
 	//============================================================
@@ -654,7 +655,7 @@ if ($_conf['ktai']) {
 	//============================================================
 	// スレッドサブジェクトメイン部分HTML表示
 	//============================================================
-	require_once("./sb_print.inc"); // スレッドサブジェクトメイン部分HTML表示関数
+	require_once './sb_print.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
 
 	$debug && $prof->startTimer("sb_print");
 	sb_print($aThreadList);

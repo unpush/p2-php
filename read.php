@@ -16,7 +16,7 @@ $debug = 0;
 $debug && include_once("profiler.inc"); //
 $debug && $prof = new Profiler(true); //
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
 
 //================================================================
 // 変数
@@ -44,6 +44,12 @@ if (isset($_POST['method'])) { $res_filter['method'] = $_POST['method']; }
 if (isset($_GET['method'])) { $res_filter['method'] = $_GET['method']; }
 
 if (isset($word) && strlen($word) > 0) {
+
+	// デフォルトオプション
+	if (!$res_filter['field']) { $res_filter['field'] = "hole"; }
+	if (!$res_filter['match']) { $res_filter['match'] = "on"; }
+	if (!$res_filter['method']) { $res_filter['method'] = "or"; }
+
 	if (!((!$_conf['enable_exfilter'] || $res_filter['method'] == 'regex') && preg_match('/^\.+$/', $word))) {
 		include_once './strctl.class.php';
 		$word_fm = StrCtl::wordForMatch($word, $res_filter['method']);
@@ -64,11 +70,18 @@ if (isset($word) && strlen($word) > 0) {
 //=================================================
 $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 
-// フィルタ指定があれば
-if (isset($res_filter)) {
+// フィルタ指定がなければ前回保存を読み込む（フォームのデフォルト値で利用）
+if (!isset($GLOBALS['word'])) {
 
-	//IDポップアップでなければ、ファイルに保存
-	if (!isset($_REQUEST['idpopup'])) {
+	if ($res_filter_cont = @file_get_contents($cachefile)) {
+		$res_filter = unserialize($res_filter_cont);
+	}
+	
+// フィルタ指定があれば
+} else {
+
+	// ボタンが押されていたなら、ファイルに設定を保存
+	if (isset($_REQUEST['submit_filter'])) {	// !isset($_REQUEST['idpopup'])
 		FileCtl::make_datafile($cachefile, $_conf['p2_perm']); // ファイルがなければ生成
 		if ($res_filter) {
 			$res_filter_cont = serialize($res_filter);
@@ -80,12 +93,6 @@ if (isset($res_filter)) {
 			@flock($fp, LOCK_UN);
 			fclose($fp);
 		}
-	}
-	
-// フィルタ指定がなければ前回保存を読み込み
-} else {
-	if ($res_filter_cont = @file_get_contents($cachefile)) {
-		$res_filter = unserialize($res_filter_cont);
 	}
 }
 
@@ -131,7 +138,7 @@ $aThread->getThreadInfoFromIdx();
 
 if ($_GET['one']) {
 	$body = $aThread->previewOne();
-	$ptitle_ht = $aThread->itaj." / ".$aThread->ttitle;
+	$ptitle_ht = htmlspecialchars($aThread->itaj)." / ".$aThread->ttitle_hd;
 	include($read_header_inc);
 	echo $body;
 	include($read_footer_inc);
@@ -206,12 +213,12 @@ $aThread->lsToPoint($ls);
 //===============================================================
 // ■プリント
 //===============================================================
-$ptitle_ht = $aThread->itaj." / ".$aThread->ttitle;
+$ptitle_ht = htmlspecialchars($aThread->itaj)." / ".$aThread->ttitle_hd;
 
 if ($_conf['ktai']) {
 	
 	// ■ヘッダプリント
-	include("./read_header_k.inc");
+	include './read_header_k.inc.php';
 	
 	if ($aThread->rescount) {
 		include_once './showthreadk.class.php'; // HTML表示クラス
@@ -220,7 +227,7 @@ if ($_conf['ktai']) {
 	}
 	
 	// ■フッタプリント
-	include("./read_footer_k.inc");
+	include './read_footer_k.inc.php';
 	
 } else {
 

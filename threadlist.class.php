@@ -8,11 +8,13 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
 //=============================================================================
 
 class ThreadList{
+
 	var $threads; //クラスThreadのオブジェクトを格納する配列
 	var $num; //格納されたThreadオブジェクトの数
 	var $host; // ex)pc.2ch.net
 	var $bbs; // ex)mac
-	var $itaj; //板名 ex)新・mac板
+	var $itaj; // 板名 ex)新・mac板
+	var $itaj_hd;	// HTML表示用に、板名を htmlspecialchars() したもの
 	var $spmode; //普通板以外のスペシャルモード
 	var $ptitle; //ページタイトル
 	
@@ -21,7 +23,7 @@ class ThreadList{
 	 */
 	function ThreadList()
 	{
-		$this->num=0;
+		$this->num = 0;
 	}
 	
 	//==============================================
@@ -53,20 +55,32 @@ class ThreadList{
 		}
 	}
 	
-	//==============================================
-	// setIta -- 板情報をセットするメソッド
-	//==============================================
-	function setIta($host, $bbs, $itaj=""){
+	/**
+	 * ■ 総合的に板情報（host, bbs, 板名）をセットする
+	 */
+	function setIta($host, $bbs, $itaj = "")
+	{
 		$this->host = $host;
 		$this->bbs = $bbs;
-		if(!$this->itaj){
-			if($itaj){
-				$this->itaj = $itaj;
-			}else{
-				$this->itaj = $bbs;
-			}
+		$this->setItaj($itaj);
+		
+		return true;
+	}
+	
+	/**
+	 * ■板名をセットする
+	 */
+	function setItaj($itaj)
+	{
+		if ($itaj) {
+			$this->itaj = $itaj;
+		} else {
+			$this->itaj = $this->bbs;
 		}
+		$this->itaj_hd = htmlspecialchars($this->itaj);
 		$this->ptitle = $this->itaj;
+		
+		return true;
 	}
 	
 	/**

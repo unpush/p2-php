@@ -138,7 +138,7 @@ $_info_msg_ht = "";
 
 if ($_conf['ktai']) {
 	echo "{$ptitle}<br>";
-	echo "<div {$_conf['pointer_name']}=\"header\">";
+	echo '<div id="header" name="header">';
 	$aResHist->showNaviK("header");
 	echo " <a {$_conf['accesskey']}=\"8\" href=\"#footer\"{$_conf['k_at_a']}>8.▼</a><br>";
 	echo "</div>";
@@ -176,11 +176,11 @@ if ($_conf['ktai']) {
 // フッタ 表示
 //==================================================================
 if ($_conf['ktai']) {
-	echo "<div {$_conf['pointer_name']}=\"footer\">";
+	echo '<div id="footer" name="footer">';
 	$aResHist->showNaviK("footer");
 	echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$_conf['k_at_a']}>2.▲</a><br>";
 	echo "</div>";
-	echo "<p>{$k_to_index_ht}</p>";
+	echo "<p>{$_conf['k_to_index_ht']}</p>";
 } else {
 	echo "<hr>";
 	echo <<<EOP
@@ -196,14 +196,9 @@ EOP;
 $debug && $prof->printTimers(true);//
 
 if (!$_conf['ktai']) {
-	echo <<<EOP
-	</form>
-EOP;
+	echo '</form>';
 }
 
-echo '
-</body>
-</html>
-';
+echo '</body></html>';
 
 ?>

@@ -21,10 +21,6 @@ class ShowThreadK extends ShowThread{
 		$to = $this->thread->resrange['to'];
 		$nofirst = $this->thread->resrange['nofirst'];
 
-		$status_title = $this->thread->itaj." / ".$this->thread->ttitle;
-		$status_title = str_replace("'", "\'", $status_title);
-		$status_title = str_replace('"', "\'\'", $status_title);
-		
 		// 1を表示
 		if (!$nofirst) {
 			echo $this->transRes($this->thread->datlines[0], 1);
@@ -95,7 +91,7 @@ class ShowThreadK extends ShowThread{
 		*/
 		
 		//あぼーんチェック====================================
-		$aborned_res .= "<div {$_conf['pointer_name']}=\"r{$i}\">&nbsp;</div>\n"; //名前
+		$aborned_res .= "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; //名前
 		$aborned_res .= ""; //内容
 
 		// あぼーんネーム
@@ -206,12 +202,12 @@ EOP;
 
 		if ($this->thread->onthefly) { // ontheflyresorder
 			$GLOBALS['newres_to_show_flag'] = true;
-			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[<font color=\"#00aa00'\">{$i}</font>]"; // 番号（オンザフライ時）
+			$tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"#00aa00'\">{$i}</font>]"; // 番号（オンザフライ時）
 		} elseif ($i > $this->thread->readnum) {
 			$GLOBALS['newres_to_show_flag'] = true;
-			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[<font color=\"{$STYLE['read_newres_color']}\">{$i}</font>]"; // 番号（新着レス時）
+			$tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['read_newres_color']}\">{$i}</font>]"; // 番号（新着レス時）
 		} else {
-			$tores .= "<div {$_conf['pointer_name']}=\"r{$i}\">[{$i}]"; // 番号
+			$tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$i}]"; // 番号
 		}
 		$tores .= $name.":"; // 名前
 		if ($mail) {$tores .= $mail.": ";} // メール
@@ -433,7 +429,7 @@ EOP;
 			return $s[0];
 		}
 		
-		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$appointed_num}&amp;offline=1{$_conf['k_at_a']}";
+		$read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1{$_conf['k_at_a']}&amp;ls={$appointed_num}";
 
 		$qnum = $appointed_num + 0;
 		if ($qnum > sizeof($this->thread->datlines)) { // 未来過ぎるレスは変換しない
