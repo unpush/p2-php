@@ -9,6 +9,20 @@ require_once './filectl_class.inc';
 * @create  2004/07/15
 */
 class P2Util{
+	/**
+	 * ■ subject.txt が新鮮なら true を返す
+	 */
+	function isSubjectFresh($subjectfile)
+	{
+		global $_conf;
+		if (file_exists($subjectfile)) {	// キャッシュがある場合
+			// キャッシュの更新が指定時間以内なら
+			if (@filemtime($subjectfile) > time() - $_conf['sb_dl_interval']) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * ゲートを通すためのURL変換
