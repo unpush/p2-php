@@ -23,32 +23,27 @@ function machiDownload()
 		}
 	}
 	
-	if($aThread->rnum==""){$aThread->rnum=0;}
-	if($aThread->rnum==0){
-		$mode="w";
-		$zero_read=true;
-	}else{
-		$mode="a";
+	$aThread->rnum = intval($aThread->rnum);
+	if ($aThread->rnum == 0) {
+		$mode = 'wb';
+		$zero_read = true;
+	} else {
+		$mode = 'ab';
 	}
 
-	if($zero_read){
-		$START=1;
-	}else{
-		$START=$aThread->rnum+1;
-	}
-	
-	//JBBS@したらば
-	if (P2Util::isHostJbbsShitaraba($aThread->host)) { 
-		$read_cgi="read.cgi";
-	//まちBBS
-	} else { 
-		$read_cgi="read.pl";
-	}
+	$START = $zero_read ? 1 : $aThread->rnum + 1;
 	
 	// したらばのlivedoor移転に対応。読込先をlivedoorとする。
 	$host = P2Util::adjustHostJbbs($aThread->host);
 	
-	$machiurl="http://{$aThread->host}/bbs/{$read_cgi}?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
+	// JBBS@したらば
+	if (P2Util::isHostJbbsShitaraba($aThread->host)) {
+		$host_bbs_cgi = preg_replace('{(jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp)}', '$1/bbs/read.cgi', $host);
+		$machiurl = "http://{$host_bbs_cgi}/{$aThread->bbs}/{$aThread->key}/{$START}-";
+	// まちBBS
+	} else { 
+		$machiurl = "http://{$aThread->host}/bbs/read.pl?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
+	}
 
 	$tempfile=$aThread->keydat.".html.temp";
 	FileCtl::mkdir_for($tempfile);
@@ -105,42 +100,42 @@ function machiDownload()
 }
 
 
-//=====================================================
-//  まちBBSのread.plで読み込んだHTMLをdatに変換する関数
-//=====================================================
+/**
+ * まちBBSのread.plで読み込んだHTMLをdatに変換する
+ */
 function machiHtmltoDatLines($mlines){
 	global $machi_latest_num;
 
-	if(!$mlines){return false;}
-	$mdatlines="";
+	if (!$mlines) {return false;}
+	$mdatlines = "";
 	
-	foreach($mlines as $ml){
+	foreach ($mlines as $ml) {
 		$ml = rtrim($ml);
-		if(!$tuduku){unset($order,$mail ,$name ,$date, $ip ,$body);}
+		if (!$tuduku) {unset($order,$mail ,$name ,$date, $ip ,$body);}
 
-		if($tuduku){
-			if(preg_match("/^ \]<\/font><br><dd>(.*) <br><br>$/i", $ml, $matches)){
+		if ($tuduku) {
+			if (preg_match("/^ \]<\/font><br><dd>(.*) <br><br>$/i", $ml, $matches)) {
 				$body=$matches[1];
-			}else{
+			} else {
 				unset($tuduku);
 				continue;
 			}
-		}elseif(preg_match("/^<dt>(\d+) 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+)<br><dd>(.*) <br><br>$/i", $ml, $matches)){
-			$order= $matches[1];
-			$mail= $matches[3];
-			$name= preg_replace("/<font color=\"?#.+?\"?>(.+)<\/font>/i", "\\1", $matches[4]);
-			$date= $matches[6];
-			$body= $matches[7];
-		}elseif(preg_match("/<title>(.*)<\/title>/i", $ml, $matches)){
-			$mtitle=$matches[1];
+		} elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+)<br><dd>(.*) <br><br>$/i", $ml, $matches)) {
+			$order = $matches[1];
+			$mail = $matches[3];
+			$name = preg_replace("/<font color=\"?#.+?\"?>(.+)<\/font>/i", "\\1", $matches[4]);
+			$date = $matches[6];
+			$body = $matches[7];
+		} elseif (preg_match("/<title>(.*)<\/title>/i", $ml, $matches)){
+			$mtitle = $matches[1];
 			continue;
-		}elseif(preg_match("/^<dt>(\d+) 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+) <font size=1>\[ (.+)$/i", $ml, $matches)){
-			$order= $matches[1];
-			$mail= $matches[3];
-			$name= preg_replace("/<font color=\"?#.+?\"?>(.+)<\/font>/i", "\\1", $matches[4]);
-			$date= $matches[6];
-			$ip= $matches[7];
-			$tuduku=true;
+		} elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+) <font size=1>\[ (.+)$/i", $ml, $matches)) {
+			$order = $matches[1];
+			$mail = $matches[3];
+			$name = preg_replace("/<font color=\"?#.+?\"?>(.+)<\/font>/i", "\\1", $matches[4]);
+			$date = $matches[6];
+			$ip = $matches[7];
+			$tuduku = true;
 			continue;
 		}
 		
@@ -155,13 +150,15 @@ function machiHtmltoDatLines($mlines){
 		// リンク外し
 		$body = preg_replace("/<a href=\"(https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)\" target=\"_blank\">(https?:\/\/[-_.!~*'()a-zA-Z0-9;\/?:@&=+\$,%#]+)<\/a>/i","\\1", $body); //リンク外し
 		
-		if($order==1){
-			$datline = $name."<>".$mail."<>".$date."<>".$body."<>".$mtitle."\n";
-		}else{
-			$datline = $name."<>".$mail."<>".$date."<>".$body."<>\n";
+		if ($order == 1) {
+			$datline = $name.'<>'.$mail.'<>'.$date.'<>'.$body.'<>'.$mtitle."\n";
+		} else {
+			$datline = $name.'<>'.$mail.'<>'.$date.'<>'.$body.'<>'."\n";
 		}
 		$mdatlines[$order]=$datline;
-		if($order > $machi_latest_num){$machi_latest_num = $order;}
+		if ($order > $machi_latest_num) {
+			$machi_latest_num = $order;
+		}
 		unset($tuduku);
 	}
 	
