@@ -98,11 +98,11 @@ editFile($path, $encode);
 function setFile($path, $cont, $encode)
 {
 	if ($encode == "EUC-JP") {
-		include_once("./strctl_class.inc");
+		include_once './strctl.class.php';
 		$cont = StrCtl::p2EUCtoSJIS($cont);
 	}
 	//èëÇ´çûÇﬁ
-	$fp = @fopen($path,"wb") or die("Error: cannot write. ( $path )");
+	$fp = @fopen($path, "wb") or die("Error: cannot write. ( $path )");
 	fputs($fp, $cont); 
 	fclose($fp);
 	return true;
@@ -123,7 +123,7 @@ function editFile($path, $encode)
 	$cont = FileCtl::get_file_contents($path);
 	
 	if ($encode == "EUC-JP") {
-		include_once("./strctl_class.inc");
+		include_once './strctl.class.php';
 		$cont = StrCtl::p2EUCtoSJIS($cont);
 	}
 	

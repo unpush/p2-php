@@ -124,22 +124,6 @@ if (get_magic_quotes_gpc ()) {
 $abornoff_st = "あぼーん解除";
 $deletelog_st = "ログを削除";
 
-/*
-//ワードフィルタ====================================
-if (!$submit or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku'])) { // 検索
-	if ($_POST['word']) {$word=$_POST['word'];}
-	if ($_GET['word']) {$word=$_GET['word'];}
-	if (get_magic_quotes_gpc()) {
-		$word = stripslashes($word);
-	}
-	if ($word==".") {$word="";}
-	if ($word) {
-		include_once("./strctl_class.inc");
-		$word_fm = StrCtl::wordForMatch($word);
-	}
-}
-*/
-
 $nowtime = time();
 
 //============================================================

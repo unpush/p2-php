@@ -121,12 +121,19 @@ if (!$submit or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku']
 	if (get_magic_quotes_gpc()) {
 		$word = stripslashes($word);
 	}
-	if ($word == ".") {$word = "";}
-	if ($word) {
-		include_once './strctl_class.inc';
+	if (preg_match('/^\.+$/', $word)) {
+		$word = '';
+	}
+	if (strlen($word) > 0)  {
+		require_once './strctl.class.php';
 		$word_fm = StrCtl::wordForMatch($word, $sb_filter_method);
-		$words_fm = @preg_split('/\s+/', $word_fm);
-		$word_fm = @preg_replace('/\s+/', "|", $word_fm);
+		if (P2_MBREGEX_AVAILABLE == 1) {
+			$words_fm = @mb_split('\s+', $word_fm);
+			$word_fm = @mb_ereg_replace('\s+', '|', $word_fm);
+		} else {
+			$words_fm = @preg_split('/\s+/u', $word_fm);
+			$word_fm = @preg_replace('/\s+/u', '|', $word_fm);
+		}
 	}
 }
 
@@ -228,24 +235,24 @@ for( $x = 0; $x < $linesize ; $x++ ){
 	
 	$aThread = new Thread;
 	
-	if($aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko"){
+	if ($aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko") {
 		$aThread->torder=$x+1;
 	}
 
-	//データ読み込み
-	if($aThreadList->spmode){
+	// データ読み込み
+	if ($aThreadList->spmode) {
 		switch ($aThreadList->spmode) {
-	    case "recent": //履歴
+	    case "recent": // 履歴
 	        $aThread->getThreadInfoFromExtIdxLine($l);
 			$aThread->itaj = getItaName($aThread->host, $aThread->bbs);
 			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
 	        break;
-	    case "res_hist": //書き込み履歴
+	    case "res_hist": // 書き込み履歴
 	        $aThread->getThreadInfoFromExtIdxLine($l);
 			$aThread->itaj = getItaName($aThread->host, $aThread->bbs);
 			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
 	        break;
-	    case "fav": //お気に
+	    case "fav": // お気に
 	        $aThread->getThreadInfoFromExtIdxLine($l);
 			$aThread->itaj = getItaName($aThread->host, $aThread->bbs);
 			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
@@ -267,7 +274,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 			$aThread->itaj = getItaName($aThread->host, $aThread->bbs);
 			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
 	        break;
-	    case "news": //ニュースの勢い
+	    case "news": // ニュースの勢い
 	        $aThread->isonline = true;
 			$aThread->key = $l['key'];
 			$aThread->ttitle = $l['ttitle'];
@@ -279,7 +286,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
 	        break;
 		}
-	}else{// subject (not spmode)
+	} else {	// subject (not spmode)
 		$aThread->getThreadInfoFromSubjectTxtLine($l);
 		$aThread->host = $aThreadList->host;
 		$aThread->bbs = $aThreadList->bbs;
@@ -294,7 +301,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 	// hostもbbsもkeyも不明ならスキップ
 	if (!($aThread->host && $aThread->bbs && $aThread->key)) {unset($aThread); continue;}
 	
-	$debug && $prof->startTimer( "word_filter_for_sb" );
+	$debug && $prof->startTimer("word_filter_for_sb");
 	// ワードフィルタ(for subject) ====================================
 	if (!$aThreadList->spmode || $aThreadList->spmode == "news" and $word_fm) {
 		$target = $aThread->ttitle;
@@ -324,7 +331,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 			}
 		}
 	}
-	$debug && $prof->stopTimer( "word_filter_for_sb" );
+	$debug && $prof->stopTimer("word_filter_for_sb");
 	
 	//スレッドあぼーんチェック =====================================
 	if($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]){ 

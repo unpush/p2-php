@@ -708,7 +708,7 @@ class ThreadRead extends Thread{
 			
 			// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 			if (P2Util::isHostBe2chNet($this->host)) {
-				include_once './strctl_class.inc';
+				include_once './strctl.class.php';
 				$first_line = StrCtl::p2EUCtoSJIS($first_line);
 			}
 	
@@ -803,7 +803,7 @@ class ThreadRead extends Thread{
 			
 			// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 			if (P2Util::isHostBe2chNet($this->host)) {
-				include_once './strctl_class.inc';
+				include_once './strctl.class.php';
 				$first_line = StrCtl::p2EUCtoSJIS($first_line);
 			}
 
@@ -915,7 +915,7 @@ class ThreadRead extends Thread{
 			
 				// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 				if (P2Util::isHostBe2chNet($this->host)) {
-					include_once './strctl_class.inc';
+					include_once './strctl.class.php';
 					$this->datlines = array_map(create_function('$str', 'return StrCtl::p2EUCtoSJIS($str);'), $this->datlines);
 				}
 			

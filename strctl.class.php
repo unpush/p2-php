@@ -53,7 +53,7 @@ class StrCtl{
 	/**
 	 * フォームから送られてきたワードをマッチ関数に適合させる
 	 *
-	 * @return string $word_fm 適合パターン。P2_MBREGEX_AVAILABLEが1ならSJIS、それ以外ならUTFで返される。
+	 * @return string $word_fm 適合パターン。SJISで返す。
 	 */
 	function wordForMatch($word, $method = '')
 	{
@@ -72,14 +72,13 @@ class StrCtl{
 			// UTF-8にしてから正規表現の特殊文字をエスケープ
 			$word_fm = StrCtl::p2SJIStoUTF($word_fm);
 			if (P2_MBREGEX_AVAILABLE == 1) {
-				$word_fm = quotemeta($word_fm);
-				$word_fm = StrCtl::p2UTFtoSJIS($word_fm);
+				$word_fm = preg_quote($word_fm);
 			} else {
 				$word_fm = preg_quote($word_fm, '/');
 			}
+			$word_fm = StrCtl::p2UTFtoSJIS($word_fm);
 		} else {
 			if (P2_MBREGEX_AVAILABLE == 0) {
-				$word_fm = StrCtl::p2SJIStoUTF($word_fm);
 				$word_fm = str_replace('/', '\/', $word_fm);
 			}
 		}
@@ -89,7 +88,7 @@ class StrCtl{
 	/**
 	 * マルチバイト対応の正規表現マッチメソッド
 	 *
-	 * @param string $pattern マッチ文字列。P2_MBREGEX_AVAILABLEが1ならSJIS、それ以外ならUTFで入ってくる。
+	 * @param string $pattern マッチ文字列。SJISで入ってくる。
 	 * @param string $target 検索対象文字列。SJISで入ってくる。
 	 */
 	function filterMatch($pattern, &$target)
@@ -100,9 +99,11 @@ class StrCtl{
 		if (P2_MBREGEX_AVAILABLE == 1) {
 			$result = @mb_eregi($pattern, $target);
 		} else {
-			$pattern = '/' . $pattern . '/iu';
-			$utf8txt = StrCtl::p2SJIStoUTF($target);
-			$result = @preg_match($pattern, $utf8txt);
+			// UTF-8に変換してから処理する
+			$pattern_utf8 = '/' . StrCtl::p2SJIStoUTF($pattern) . '/iu';
+			$target_utf8 = StrCtl::p2SJIStoUTF($target);
+			$result = @preg_match($pattern_utf8, $target_utf8);
+			//$result = StrCtl::p2UTFtoSJIS($result);
 		}
 		if ($result) {
 			return true;
@@ -112,40 +113,9 @@ class StrCtl{
 	}
 
 	/**
-	 * マルチバイト対応の正規表現置換メソッド
-	 *
-	 * @param string $pattern マッチ文字列。P2_MBREGEX_AVAILABLEが1ならSJIS、それ以外ならUTFで入ってくる。
-	 * @param string $target 置換対象文字列。SJISで入ってくる。
-	 */
-	 
-	 /*
-	 // 2004/12/22 現在は使用されていない
-	 
-	function filterReplace($pattern, $replace, $target)
-	{
-		// HTML要素にマッチさせないための否定先読みパターンを付加
-		$pattern = '(' . $pattern . ')(?![^<]*>)';
-
-		if (P2_MBREGEX_AVAILABLE == 1) {
-			$result = @mb_eregi_replace($pattern, $replace, $target);
-		} else {
-			$pattern = '/' . $pattern . '/iu';
-			$utf8txt = StrCtl::p2SJIStoUTF($target);
-			$result = @preg_replace($pattern, $marker, $utf8txt);
-			$result = StrCtl::p2UTFtoSJIS($result);
-		}
-		
-		if (!$result) {
-			return $target;
-		}
-		return $result;
-	}
-	*/
-	
-	/**
 	 * マルチバイト対応のマーキング
 	 *
-	 * @param string $pattern マッチ文字列。P2_MBREGEX_AVAILABLEが1ならSJIS、それ以外ならUTFで入ってくる。
+	 * @param string $pattern マッチ文字列。SJISで入ってくる。
 	 * @param string $target 置換対象文字列。SJISで入ってくる。
 	 */
 	function filterMarking($pattern, &$target, $marker = '<b class="filtering">\\1</b>')
@@ -156,9 +126,10 @@ class StrCtl{
 		if (P2_MBREGEX_AVAILABLE == 1) {
 			$result = @mb_eregi_replace($pattern, $marker, $target);
 		} else {
-			$pattern = '/' . $pattern . '/iu';
-			$utf8txt = StrCtl::p2SJIStoUTF($target);
-			$result = @preg_replace($pattern, $marker, $utf8txt);
+			// UTF-8に変換してから処理する
+			$pattern_utf8 = '/' . StrCtl::p2SJIStoUTF($pattern) . '/iu';
+			$target_utf8 = StrCtl::p2SJIStoUTF($target);
+			$result = @preg_replace($pattern_utf8, $marker, $target_utf8);
 			$result = StrCtl::p2UTFtoSJIS($result);
 		}
 

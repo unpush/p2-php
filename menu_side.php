@@ -35,10 +35,12 @@ if( isset($_GET['word'])||isset($_POST['word']) ){
 	if(get_magic_quotes_gpc()) {
 		$word = stripslashes($word);
 	}
-	if($word=="."){$word="";}
+	if (preg_match('/^\.+$/', $word)) {
+		$word = '';
+	}
 	
 	// ê≥ãKï\åªåüçı
-	include_once("./strctl_class.inc");
+	include_once './strctl.class.php';
 	$word_fm = StrCtl::wordForMatch($word);
 }
 
