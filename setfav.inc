@@ -126,7 +126,7 @@ fclose($fp);
 //================================================
 // お気にスレ共有
 //================================================
-if ($join_favrank) {
+if ($_conf['join_favrank']) {
 	if ($_GET['setfav'] == "0") {
 		$act = "out";
 	} elseif ($_GET['setfav'] == "1") {
@@ -144,7 +144,7 @@ if ($join_favrank) {
  */
 function postFavRank($post)
 {
-	global $_conf, $favrank_url, $proxy;
+	global $_conf, $favrank_url;
 
 	$method = "POST";
 	$httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
@@ -157,9 +157,9 @@ function postFavRank($post)
 	}
 
 	// プロキシ
-	if ($proxy['use']) {
-		$send_host = $proxy['host'];
-		$send_port = $proxy['port'];
+	if ($_conf['proxy_use']) {
+		$send_host = $_conf['proxy_host'];
+		$send_port = $_conf['proxy_port'];
 		$send_path = $url;
 	} else {
 		$send_host = $URL['host'];

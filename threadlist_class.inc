@@ -170,7 +170,7 @@ class ThreadList{
 									$atitle = $d[4];
 									$arnum = sizeof($datlines);
 									$anewline = $arnum;
-									$data = "$atitle<>$matches[1]<><>$arnum<><><><><><>$anewline\n";
+									$data = "$atitle<>$matches[1]<><>$arnum<><><><><><>$anewline";
 									setKeyIdx($theidx, $data);
 								}
 							}

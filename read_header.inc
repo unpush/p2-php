@@ -110,8 +110,8 @@ if($aThread->resrange['to'] == $aThread->rescount){
 
 //ツールバー部分HTML=======
 $toolbar_right_ht=<<<EOTOOLBAR
-			<a href="{$subject_php}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject">{$aThread->itaj}</a>
-			<!-- <a href="{$subject_php}?host={$aThread->host}{$bbs_q}{$key_q}&amp;setfav={$favdo}" target="subject" title="お気にスレマーク">{$favmark}</a> -->
+			<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject">{$aThread->itaj}</a>
+			<!-- <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;setfav={$favdo}" target="subject" title="お気にスレマーク">{$favmark}</a> -->
 			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}{$popup_q}',{$STYLE['info_pop_size']},0,0)">{$info_st}</a> 
 			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;popup=2&amp;dele=true',{$STYLE['info_pop_size']},0,0)" title="ログを削除する">{$delete_st}</a> 
 <!--			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
@@ -139,7 +139,7 @@ echo <<<EOP
 	<script type="text/javascript" src="js/htmlpopup.js"></script>
 	<script type="text/javascript" src="js/showhide.js"></script>\n
 EOP;
-if($bottom_res_form){
+if ($_conf['bottom_res_form']) {
 	echo <<<EOP
 	<script type="text/javascript" src="js/post_form.js"></script>\n
 EOP;

@@ -8,36 +8,36 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
 //=============================================================================
 
 class Thread{
-	var $ttitle; //スレタイトル //datline[0]
-	var $key; //スレッドID //datline[1]
-	var $length; //local Dat Bytes(int) //datline[2]
-	var $rnum; //既読レス数 //datline[3]
-	var $rescount; //総レス数
-	var $modified; //datのLast-Modified //datline[4]
+
+	var $ttitle; //スレタイトル // idxline[0]
+	var $key; //スレッドID // idxline[1]
+	var $length; //local Dat Bytes(int) // idxline[2]
+	var $rnum; //既読レス数 // idxline[3]
+	var $rescount; // スレッドの総レス数（未取得分も含む）
+	var $modified; //datのLast-Modified // idxline[4]
 	//last res
-	var $fav; //お気に入り(bool) //datline[6]
-	//name
-	//mail
-	var $newline; //新規レス番 //datline[9]
+	var $fav; //お気に入り(bool) // idxline[6]
+	// name // idxline[6] ここでは利用せず（他所で利用）
+	// mail // idxline[7] ここでは利用せず（他所で利用）
+	var $newline; // 次に読む新規レス番号 // idxline[9]
 	
-	var $host; // ex)pc.2ch.net //datline[10]
-	var $bbs; // ex)mac //datline[11]
-	var $itaj; //板名 ex)新・mac
+	// ※hostとはいうものの、2ch外の場合は、host以下のディレクトリまで含まれていたりする…。
+	var $host; // ex)pc.2ch.net // idxline[10]
+	var $bbs; // ex)mac // idxline[11]
+	var $itaj; // 板名 ex)新・mac
 	
-	var $torder; //スレッド新しい順番号
-	var $unum; //未読（新着レス）数
+	var $torder; // スレッド新しい順番号
+	var $unum; // 未読（新着レス）数
 	
-	var $keyidx; //idxファイルパス
-	var $keydat; //ローカルdatファイルパス
+	var $keyidx;	// idxファイルパス
+	var $keydat;	// ローカルdatファイルパス
 	
-	var $isonline; //板サーバにあればtrue
-	var $new; //新規スレならtrue
-	var $ttitle_ht; //HTML表示用タイトル
-	var $dayres; //一日当たりのレス数。勢い。
+	var $isonline; // 板サーバにあればtrue。subject.txtやdat取得時に確認してセットされる。
+	var $new; // 新規スレならtrue
+	var $ttitle_ht; // HTML表示用タイトル
+	var $dayres; // 一日当たりのレス数。勢い。
 	
 	var $dat_type; // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
-
-	var $idcount;	// 配列。key = ID記号、value = ID出現回数。
 	
 	/**
 	 * コンストラクタ

@@ -258,7 +258,7 @@ print_info_line("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$mototh
 if(!$ktai){
 	print_info_line("ホスト", $aThread->host);
 }
-print_info_line("板", "<a href=\"{$subject_php}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$k_at_a}\"{$target_sb_at}>{$aThread->itaj}</a>");
+print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$k_at_a}\"{$target_sb_at}>{$aThread->itaj}</a>");
 if(!$ktai){
 	print_info_line("key", $aThread->key);
 }

@@ -8,6 +8,7 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
  * スレッドリードクラス
  */
 class ThreadRead extends Thread{
+
 	var $datlines; // datから読み込んだラインを格納する配列
 	
 	var $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
@@ -15,6 +16,8 @@ class ThreadRead extends Thread{
 	var $onbytes; // サーバから取得したdatサイズ
 	var $diedat; // サーバからdat取得ができなければtrue
 	var $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
+
+	var $idcount;	// 配列。key は ID記号, value は ID出現回数
 	
 	var $getdat_error_msg_ht;	// dat取得に失敗した時に表示されるメッセージ（HTML）
 
@@ -31,7 +34,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat()
 	{
-		global $sid2ch_php, $uaMona, $SID2ch, $dat_response_msg, $relogin2ch;
+		global $sid2ch_php, $uaMona, $SID2ch, $dat_response_msg;
 		
 		// まちBBS
 		if (P2Util::isHostMachiBbs($this->host)) {
@@ -47,7 +50,7 @@ class ThreadRead extends Thread{
 			//2ch bbspink●読み
 			if (P2Util::isHost2chs($this->host) and $_GET['maru']) {
 				//ログインしてなければ or ログイン後、24時間以上経過していたら自動再ログイン
-				if ((!file_exists($sid2ch_php) or $relogin2ch) or (@filemtime($sid2ch_php) < time() - 60*60*24)) {
+				if ((!file_exists($sid2ch_php) or $_REQUEST['relogin2ch']) or (@filemtime($sid2ch_php) < time() - 60*60*24)) {
 					include_once("./login2ch.inc");
 					if (!login2ch()) {
 						$dat_response_msg = $this->get2chDatError();
@@ -81,7 +84,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2ch($from_bytes)
 	{
-		global $_conf, $dat_response_msg, $ls, $fsockopen_time_limit, $_info_msg_ht, $dat_perm, $proxy;
+		global $_conf, $dat_response_msg, $ls, $fsockopen_time_limit, $_info_msg_ht, $dat_perm;
 		global $debug, $prof;
 	
 		if(!($this->host && $this->bbs && $this->key)){return false;}
@@ -110,14 +113,14 @@ class ThreadRead extends Thread{
 		}
 
 		//プロキシ
-		if($proxy['use']){
-			$send_host=$proxy['host'];
-			$send_port=$proxy['port'];
-			$send_path=$url;
-		}else{
-			$send_host=$URL['host'];
-			$send_port=$URL['port'];
-			$send_path=$URL['path'].$URL['query'];
+		if ($_conf['proxy_use']) {
+			$send_host = $_conf['proxy_host'];
+			$send_port = $_conf['proxy_port'];
+			$send_path = $url;
+		} else {
+			$send_host = $URL['host'];
+			$send_port = $URL['port'];
+			$send_path = $URL['path'].$URL['query'];
 		}
 		
 		if (!$send_port){$send_port = 80;}//デフォルトを80
@@ -192,13 +195,14 @@ class ThreadRead extends Thread{
 						}
 					}
 					$debug && $prof->stopTimer( "dat_size_check" );
-					
-				}else{  //スレッドがないと判断
+				
+				// スレッドがないと判断
+				} else {
 					fclose ($fp);
 					return $this->downloadDat2chNotFound();
 				}
 				
-			}else{
+			} else {
 				$l = fgets($fp,32800);
 				if( preg_match("/^HTTP\/1\.\d (\d+) (.+)\r\n/", $l, $matches) ){ // ex) HTTP/1.1 304 Not Modified
 					$code = $matches[1];
@@ -261,7 +265,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2chMaru()
 	{
-		global $_conf, $dat_response_msg, $uaMona, $SID2ch, $relogin2ch, $fsockopen_time_limit, $_info_msg_ht, $dat_perm, $proxy;
+		global $_conf, $dat_response_msg, $uaMona, $SID2ch, $fsockopen_time_limit, $_info_msg_ht, $dat_perm;
 
 		if (!($this->host && $this->bbs && $this->key)) {return false;}
 		
@@ -282,14 +286,14 @@ class ThreadRead extends Thread{
 		}
 	
 		//プロキシ
-		if($proxy['use']){
-			$send_host=$proxy['host'];
-			$send_port=$proxy['port'];
-			$send_path=$url;
-		}else{
-			$send_host=$URL['host'];
-			$send_port=$URL['port'];
-			$send_path=$URL['path'].$URL['query'];
+		if ($_conf['proxy_use']) {
+			$send_host = $_conf['proxy_host'];
+			$send_port = $_conf['proxy_port'];
+			$send_path = $url;
+		} else {
+			$send_host = $URL['host'];
+			$send_port = $URL['port'];
+			$send_path = $URL['path'].$URL['query'];
 		}
 		
 		if (!$send_port){$send_port = 80;}//デフォルトを80
@@ -433,9 +437,9 @@ class ThreadRead extends Thread{
 
 	function downloadDat2chMaruNotFound()
 	{
-		global $_conf, $dat_response_msg, $relogin2ch;
-		if (!$relogin2ch) {
-			$relogin2ch=true;
+		global $_conf, $dat_response_msg;
+		if (empty($_REQUEST['relogin2ch'])) {
+			$_REQUEST['relogin2ch'] = true;
 			return $this->downloadDat();
 		} else {
 			$remarutori_ht="<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;maru=true&amp;relogin2ch=true\">再取得を試みる</a>";
@@ -450,7 +454,7 @@ class ThreadRead extends Thread{
 	 */
 	function downloadDat2chKako($uri, $ext)
 	{
-		global $_conf, $dat_response_msg, $fsockopen_time_limit, $_info_msg_ht, $dat_perm, $proxy;
+		global $_conf, $dat_response_msg, $fsockopen_time_limit, $_info_msg_ht, $dat_perm;
 
 		$url = $uri.$ext;
 	
@@ -467,16 +471,16 @@ class ThreadRead extends Thread{
 		}
 	
 		// プロキシ
-		if($proxy['use']){
-			$send_host=$proxy['host'];
-			$send_port=$proxy['port'];
-			$send_path=$url;
-		}else{
-			$send_host=$URL['host'];
-			$send_port=$URL['port'];
-			$send_path=$URL['path'].$URL['query'];
+		if ($_conf['proxy_use']) {
+			$send_host = $_conf['proxy_host'];
+			$send_port = $_conf['proxy_port'];
+			$send_path = $url;
+		} else {
+			$send_host = $URL['host'];
+			$send_port = $URL['port'];
+			$send_path = $URL['path'].$URL['query'];
 		}
-		if (!$send_port){$send_port = 80;}//デフォルトを80
+		if (!$send_port) {$send_port = 80;}//デフォルトを80
 	
 		$request = $method." ".$send_path." HTTP/1.0\r\n";
 		$request .= "Host: ".$URL['host']."\r\n";
@@ -614,7 +618,7 @@ class ThreadRead extends Thread{
 	function get2chDatError()
 	{
 		global $_conf, $ls, $idpw2ch_php, $sid2ch_php;
-		global $fsockopen_time_limit, $_info_msg_ht, $proxy;
+		global $fsockopen_time_limit, $_info_msg_ht;
 	
 		$read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}";
 		
@@ -625,8 +629,8 @@ class ThreadRead extends Thread{
 		$wap_ua->setTimeout($fsockopen_time_limit);
 		$wap_req = new Request;
 		$wap_req->setUrl($read_url);
-		if ($proxy['use']) {
-			$wap_req->setProxy($proxy['host'], $proxy['port']);
+		if ($_conf['proxy_use']) {
+			$wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
 		}
 		$wap_res = $wap_ua->request($wap_req);
 		
@@ -700,7 +704,7 @@ class ThreadRead extends Thread{
 	 */
 	function previewOne()
 	{
-		global $_conf, $dat_response_msg, $ls, $ptitle_ht, $fsockopen_time_limit, $_info_msg_ht, $proxy;
+		global $_conf, $dat_response_msg, $ls, $ptitle_ht, $fsockopen_time_limit, $_info_msg_ht;
 
 		if (!($this->host && $this->bbs && $this->key)) {return false;}
 		
@@ -741,9 +745,9 @@ class ThreadRead extends Thread{
 			}
 		
 			//プロキシ
-			if ($proxy['use']) {
-				$send_host = $proxy['host'];
-				$send_port = $proxy['port'];
+			if ($_conf['proxy_use']) {
+				$send_host = $_conf['proxy_host'];
+				$send_port = $_conf['proxy_port'];
 				$send_path = $url;
 			} else {
 				$send_host = $URL['host'];
@@ -852,54 +856,55 @@ class ThreadRead extends Thread{
 	}
 	
 	//============================================================================
-	// lsToPoint -- $lsを分解してstartとtoとnofirstを求めるメソッド
+	// $lsを分解してstartとtoとnofirstを求めるメソッド
 	//============================================================================
-	function lsToPoint($ls, $data_size){
-		global $ktai, $k_rnum_range, $k_rnum_all_range;
+	function lsToPoint($ls, $data_size)
+	{
+		global $_conf, $ktai, $k_rnum_all_range;
 
-		$to=false;
+		$to = false;
 		
-		if( strstr($ls, "n") ){
-			$nofirst=true;
-			$ls=preg_replace("/n/", "", $ls);
+		if (strstr($ls, "n")) {
+			$nofirst = true;
+			$ls = preg_replace("/n/", "", $ls);
 		}
 
-		$n=explode("-", $ls);
-		if(sizeof($n)==1){
-			if(substr($n[0],0,1)=="l"){
-				$nn=substr($n[0],1);
-				if($ktai){
-					if($nn > $k_rnum_range){
-						$nn=$k_rnum_range;
+		$n = explode("-", $ls);
+		if (sizeof($n)==1) {
+			if (substr($n[0],0,1)=="l") {
+				$nn = substr($n[0],1);
+				if ($ktai) {
+					if ($nn > $_conf['k_rnum_range']) {
+						$nn = $_conf['k_rnum_range'];
 					}
 				}
-				$start = $data_size-$nn;
-				if($start<1){ $start=1; }
+				$start = $data_size - $nn;
+				if ($start < 1) { $start=1; }
 				
-				$to=$data_size;
-			}elseif($ls=="all"){
-				$start=1; $to=$data_size;
-			}else{
-				$start=$ls; $to=$ls; $nofirst=true;
+				$to = $data_size;
+			} elseif ($ls == "all") {
+				$start = 1; $to = $data_size;
+			} else {
+				$start = $ls; $to = $ls; $nofirst = true;
 			}
-		}else{
-			$start=$n[0];
-			if(!$start){$start=1;}
-			$to=$n[1];
-			if(!$to){$to=$data_size;}
+		} else {
+			$start = $n[0];
+			if (!$start) {$start = 1;}
+			$to = $n[1];
+			if (!$to) {$to = $data_size;}
 		}
 		
-		if($ktai){
-			if($k_rnum_all_range > 0){
-				if($start + $k_rnum_all_range <= $to){
+		if ($ktai) {
+			if ($k_rnum_all_range > 0) {
+				if ($start + $k_rnum_all_range <= $to) {
 					$to = $start + $k_rnum_all_range;
 				}
 				$k_rnum_all_range = $k_rnum_all_range - ($to - $start);
-				$all_end=true;
+				$all_end = true;
 			}
-			if(!$all_end){
-				if($start + $k_rnum_range <= $to){
-					$to = $start + $k_rnum_range;
+			if (!$all_end) {
+				if ($start + $_conf['k_rnum_range'] <= $to) {
+					$to = $start + $_conf['k_rnum_range'];
 				}
 			}
 		}

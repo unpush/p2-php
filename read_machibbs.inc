@@ -60,7 +60,7 @@ function machiDownload()
 	// ‚µ‚½‚ç‚Î‚È‚çEUC‚ðSJIS‚É•ÏŠ·
 	if (P2Util::isHostJbbsShitaraba($aThread->host)) { 
 	
-		$temp_data = FileCtl::get_file_contents($tempfile);
+		$temp_data = @file_get_contents($tempfile);
 		
 		include_once './strctl.class.php';
 		$temp_data = StrCtl::p2EUCtoSJIS($temp_data);

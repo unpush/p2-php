@@ -71,8 +71,8 @@ echo <<<EOP
 EOP;
 
 
-if($c_menu_refresh_time){	// 自動更新
-	$refresh_time_s = $c_menu_refresh_time * 60;
+if ($_conf['menu_refresh_time']) {	// 自動更新
+	$refresh_time_s = $_conf['menu_refresh_time'] * 60;
 	echo <<<EOP
 	<meta http-equiv="refresh" content="{$refresh_time_s};URL={$me_url}?new=1">
 EOP;
@@ -117,7 +117,7 @@ echo <<<EOP
 EOP;
 
 
-if($c_enable_menu_new){
+if ($_conf['enable_menu_new']) {
 	echo <<<EOP
 $reloaded_time [<a href="{$_SERVER['PHP_SELF']}?new=1" target="_self">更新</a>]
 EOP;
@@ -140,34 +140,34 @@ echo <<<EOP
 	<div class="itas" id="c_spacial">
 EOP;
 
-if($c_enable_menu_new==1 and  $_GET['new']){	// 新着数を表示する場合
+if ($_conf['enable_menu_new'] == 1 and  $_GET['new']) {	// 新着数を表示する場合
 
 	initMenuNew("fav");	// 新着数を初期化
 	echo <<<EOP
-	　<a href="{$subject_php}?spmode=fav{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="f">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+	　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="f">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
 
 	initMenuNew("recent");	// 新着数を初期化
 	echo <<<EOP
-	　<a href="{$subject_php}?spmode=recent{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="h">最近読んだスレ</a> (<a href="{$_conf['read_new_php']}?spmode=recent" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+	　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="h">最近読んだスレ</a> (<a href="{$_conf['read_new_php']}?spmode=recent" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
 
 	initMenuNew("res_hist");	// 新着数を初期化
 	echo <<<EOP
-	　<a href="{$subject_php}?spmode=res_hist{$norefresh_q}" onClick="chMenuColor({$matome_i});">書き込み履歴</a> <a href="read_res_hist.php#footer" target="read">※</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+	　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}" onClick="chMenuColor({$matome_i});">書き込み履歴</a> <a href="read_res_hist.php#footer" target="read">※</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
 
 }else{	// 新着数を表示しない場合
 	echo <<<EOP
-	　<a href="{$subject_php}?spmode=fav{$norefresh_q}" accesskey="f">お気にスレ</a><br>
-	　<a href="{$subject_php}?spmode=recent{$norefresh_q}" accesskey="h">最近読んだスレ</a><br>
-	　<a href="{$subject_php}?spmode=res_hist{$norefresh_q}">書き込み履歴</a> (<a href="./read_res_hist.php#footer" target="read">※</a>)<br>
+	　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" accesskey="f">お気にスレ</a><br>
+	　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" accesskey="h">最近読んだスレ</a><br>
+	　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}">書き込み履歴</a> (<a href="./read_res_hist.php#footer" target="read">※</a>)<br>
 EOP;
 }
 
 echo <<<EOP
-	　<a href="{$subject_php}?spmode=palace{$norefresh_q}">スレの殿堂</a><br>
-	<!--　<a href="{$subject_php}?spmode=news">ニュースチェック</a><br>-->
+	　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}">スレの殿堂</a><br>
+	<!--　<a href="{$_conf['subject_php']}?spmode=news">ニュースチェック</a><br>-->
 	　<a href="setting.php">設定</a><!--<br>
 	　<a href="{$bbs_table_url_t}">BBS TABLE</a>-->
 	</div>

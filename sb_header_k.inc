@@ -10,7 +10,7 @@ $norefresh_q="&amp;norefresh=1";
 
 // ページタイトル部分URL設定 ====================================
 if($aThreadList->spmode=="taborn" or $aThreadList->spmode=="soko"){
-	$ptitle_url = "{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}";
+	$ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$k_at_a}";
 }elseif($aThreadList->spmode=="res_hist"){
 	$ptitle_url = "./read_res_hist.php{$k_at_q}#footer";
 }elseif(! $aThreadList->spmode){

@@ -11,14 +11,14 @@ $bbs_q = "&amp;bbs=".$aThreadList->bbs;
 //dat倉庫=======================
 if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){ //スペシャルモードでなければ、またはあぼーんリストなら
 	$dat_soko_ht =<<<EOP
-	<a href="{$subject_php}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko" target="_self">dat倉庫</a> | 
+	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko" target="_self">dat倉庫</a> | 
 EOP;
 }
 
 //あぼーん中のスレッド=================
 if($ta_num){
 	$taborn_link_ht=<<<EOP
-	<a href="{$subject_php}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn" target="_self">あぼーん中のスレッド ({$ta_num})</a> | 
+	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn" target="_self">あぼーん中のスレッド ({$ta_num})</a> | 
 EOP;
 }
 

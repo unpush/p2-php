@@ -60,7 +60,7 @@ if($_GET['newthread']){
 	$subject_ht=<<<EOP
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at}><br>
 EOP;
-	if($ktai){$subject_ht="<a href=\"{$subject_php}?host={$host}&amp;bbs={$bbs}{$k_at_a}\">{$itaj}</a><br>".$subject_ht;}
+	if($ktai){$subject_ht="<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$k_at_a}\">{$itaj}</a><br>".$subject_ht;}
 	$newthread_hidden_ht="<input type=\"hidden\" name=\"newthread\" value=\"1\">";
 }else{
 	$ptitle="{$itaj} - レス書き込み";

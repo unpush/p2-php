@@ -43,13 +43,13 @@ EOP;
 //ナビ===============================
 if($disp_navi['from'] > 1){
 	$mae_ht = <<<EOP
-<a href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$word_at}{$k_at_a}" {$accesskey}="{$k_accesskey['prev']}">{$k_accesskey['prev']}.前</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$word_at}{$k_at_a}" {$accesskey}="{$k_accesskey['prev']}">{$k_accesskey['prev']}.前</a>
 EOP;
 }
 
 if($disp_navi['tugi_from'] < $sb_disp_all_num){
 	$tugi_ht = <<<EOP
-<a href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$word_at}{$k_at_a}" {$accesskey}="{$k_accesskey['next']}">{$k_accesskey['next']}.次</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$word_at}{$k_at_a}" {$accesskey}="{$k_accesskey['next']}">{$k_accesskey['next']}.次</a>
 EOP;
 }
 
@@ -69,14 +69,14 @@ EOP;
 //dat倉庫=======================
 if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){ //スペシャルモードでなければ、またはあぼーんリストなら
 	$dat_soko_ht =<<<EOP
-	<a href="{$subject_php}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$k_at_a}">dat倉庫</a> 
+	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$k_at_a}">dat倉庫</a> 
 EOP;
 }
 
 //あぼーん中のスレッド=================
 if($ta_num){
 	$taborn_link_ht=<<<EOP
-	<a href="{$subject_php}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$k_at_a}">ｱﾎﾞﾝ中({$ta_num})</a> 
+	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$k_at_a}">ｱﾎﾞﾝ中({$ta_num})</a> 
 EOP;
 }
 

@@ -11,9 +11,9 @@ class ShowBrdMenuPc{
 	//=========================================================
 	//板メニューをプリントするメソッド
 	//=========================================================
-	function printBrdMenu($categories){
-		global $subject_php, $_info_msg_ht;
-		global $k_sb_disp_range;
+	function printBrdMenu($categories)
+	{
+		global $_conf, $_info_msg_ht;
 
 		if($categories){
 			foreach($categories as $cate){
@@ -26,7 +26,7 @@ class ShowBrdMenuPc{
 						echo "	<div class=\"itas_hide\" id=\"c{$this->cate_id}\">\n";
 					}
 					foreach($cate->menuitas as $mita){
-						echo "		<a href=\"{$_SERVER['PHP_SELF']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1\" target=\"_self\" class=\"fav\">+</a> <a href=\"{$subject_php}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}\">{$mita->itaj_ht}</a><br>\n";
+						echo "		<a href=\"{$_SERVER['PHP_SELF']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1\" target=\"_self\" class=\"fav\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}\">{$mita->itaj_ht}</a><br>\n";
 					}
 					echo "	</div>\n";
 					echo "</div>\n";
@@ -42,7 +42,7 @@ class ShowBrdMenuPc{
 	//=========================================================
 	function print_favIta()
 	{
-		global $_conf, $favita_path, $subject_php, $matome_i, $STYLE, $c_enable_menu_new;
+		global $_conf, $favita_path, $matome_i, $STYLE;
 		
 		$lines= @file($favita_path); // favita読み込み
 		
@@ -57,7 +57,7 @@ EOP;
 					$itaj = rtrim($matches[3]);
 					$itaj_en = base64_encode($itaj);
 					
-					if($c_enable_menu_new && $_GET['new']){	// 新着数を表示する場合
+					if ($_conf['enable_menu_new'] && $_GET['new']) {	// 新着数を表示する場合
 						$matome_i++;
 						$host = $matches[1];
 						$bbs = $matches[2];
@@ -76,13 +76,13 @@ EOP;
 						}
 						echo <<<EOP
 				<a href="{$_SERVER['PHP_SELF']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav">★</a>
-				<a href="{$subject_php}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}" onClick="chMenuColor({$matome_i});">{$matches[3]}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$matches[1]}&amp;bbs={$matches[2]}" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+				<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}" onClick="chMenuColor({$matome_i});">{$matches[3]}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$matches[1]}&amp;bbs={$matches[2]}" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
 
 					}else{	// 新着数を表示しない場合
 						echo <<<EOP
 				<a href="{$_SERVER['PHP_SELF']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav">★</a>
-				<a href="{$subject_php}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}">{$matches[3]}</a><br>
+				<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}">{$matches[3]}</a><br>
 EOP;
 
 				

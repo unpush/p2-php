@@ -37,9 +37,10 @@ if (file_exists($idpw2ch_php)) {
 	}
 }
 
+$p_htm = array();
 
 // 最新版チェック
-if ($updatan_haahaa) {
+if ($_conf['updatan_haahaa']) {
 	$newversion_found = checkUpdatan();
 }
 
@@ -50,20 +51,20 @@ if ($login['use']) {
 }
 
 // 前回のログイン情報
-$last_login_ht = "";
 if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
-	if (($alog = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
-		$last_login_ht = <<<EOP
-前回のログイン情報 - {$alog['date']}<br>
-ユーザ: {$alog['user']}<br>
-IP: {$alog['ip']}<br>
-HOST: {$alog['host']}<br>
-UA: {$alog['ua']}<br>
-REFERER: {$alog['referer']}
+	if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
+		$p_htm['log'] = array_map('htmlspecialchars', $log);
+		$p_htm['last_login'] =<<<EOP
+前回のログイン情報 - {$p_htm['log']['date']}<br>
+ユーザ: {$p_htm['log']['user']}<br>
+IP: {$p_htm['log']['ip']}<br>
+HOST: {$p_htm['log']['host']}<br>
+UA: {$p_htm['log']['ua']}<br>
+REFERER: {$p_htm['log']['referer']}
 EOP;
 	}
 /*
-	$last_login_ht =<<<EOP
+	$p_htm['log'] =<<<EOP
 <table cellspacing="0" cellpadding="2";>
 	<tr>
 		<td colspan="2">前回のログイン情報</td>
@@ -88,8 +89,6 @@ EOP;
 </table>
 EOP;
 */
-} else {
-	$last_login_ht = "";
 }
 
 //=========================================================
@@ -131,7 +130,7 @@ echo <<<EOP
 	</ul>
 	<!-- <p><a href="{$p2web_url_r}" target="_blank">p2 web &lt;{$p2web_url}&gt;</a></p> -->
 	{$autho_user_ht}
-	{$last_login_ht}
+	{$p_htm['last_login']}
 </div>
 </body>
 </html>

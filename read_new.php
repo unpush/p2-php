@@ -70,11 +70,11 @@ $ptitle_ht="{$aThreadList->ptitle} の 新着まとめ読み";
 
 if($aThreadList->spmode){
 	$sb_ht =<<<EOP
-		<a href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}" target="subject">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}" target="subject">{$aThreadList->ptitle}</a>
 EOP;
 }else{
 	$sb_ht =<<<EOP
-		<a href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}" target="subject">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}" target="subject">{$aThreadList->ptitle}</a>
 EOP;
 }
 
@@ -217,8 +217,8 @@ for( $x = 0; $x < $linesize ; $x++ ){
 
 function readNew($aThread)
 {
-	global $_conf, $respointer, $before_respointer_new, $newthre_num, $STYLE, $browser;
-	global $_info_msg_ht, $newres_to_show, $subject_php;
+	global $_conf, $newthre_num, $STYLE, $browser;
+	global $_info_msg_ht, $newres_to_show;
 
 	$newthre_num++;
 	
@@ -256,11 +256,11 @@ function readNew($aThread)
 	// 表示レス番の範囲を設定
 	//===========================================================
 	if ($aThread->isKitoku()) { // 取得済みなら
-		$from_num = $aThread->newline -$respointer - $before_respointer_new;
+		$from_num = $aThread->newline - $_conf['respointer'] - $_conf['before_respointer_new'];
 		if($from_num < 1){
 			$from_num = 1;
 		}elseif($from_num > $aThread->rescount){
-			$from_num = $aThread->rescount -$respointer - $before_respointer_new;
+			$from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer_new'];
 		}
 
 		//if(! $ls){
@@ -310,9 +310,9 @@ EOP;
 	//==================================================================
 	// ローカルDatを読み込んでHTML表示
 	//==================================================================
-	$aThread->resrange['nofirst']=true;
-	$newres_to_show=false;
-	if($aThread->rescount){
+	$aThread->resrange['nofirst'] = true;
+	$newres_to_show = false;
+	if ($aThread->rescount) {
 		//$aThread->datToHtml(); //dat を html に変換表示
 		include_once("./showthread_class.inc"); //HTML表示クラス
 		include_once("./showthreadpc_class.inc"); //HTML表示クラス
@@ -347,7 +347,7 @@ EOP;
 
 	// ■ツールバー部分HTML =======
 	$toolbar_right_ht = <<<EOTOOLBAR
-			<a href="{$subject_php}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject">{$aThread->itaj}</a>
+			<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject">{$aThread->itaj}</a>
 			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}',{$STYLE['info_pop_size']},0,0)">{$info_st}</a> 
 			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;popup=2&amp;dele=true',{$STYLE['info_pop_size']},0,0)" title="ログを削除する">{$delete_st}</a> 
 <!--			<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">あぼん</a> -->
@@ -391,14 +391,14 @@ EOP;
 	
 	if ($aThread->rescount) {
 	
-		if ($aThread->resrange['to']+1 > $aThread->newline) {
-			$aThread->newline = $aThread->resrange['to']+1;
+		if ($aThread->resrange['to']+1 >= $aThread->newline) {
+			$aThread->newline = $aThread->resrange['to'] +1;
 		} else {
 			$aThread->newline = $data[9];
 		}
 		// 異常値修正
-		if ($aThread->newline > $aThread->rescount+1) {
-			$aThread->newline = $aThread->rescount+1;
+		if ($aThread->newline > $aThread->rescount +1) {
+			$aThread->newline = $aThread->rescount +1;
 		} elseif ($aThread->newline < 1) {
 			$aThread->newline = 1;
 		}

@@ -10,7 +10,7 @@ require_once("./crypt_xor.inc");
  */
 function login2ch()
 {
-	global $_conf, $prefdir, $idpw2ch_php, $sid2ch_php, $proxy;
+	global $_conf, $prefdir, $idpw2ch_php, $sid2ch_php;
 	global $_info_msg_ht, $pass_perm, $crypt_xor_key;
 
 	$php_curl_done_flag = false;
@@ -38,8 +38,8 @@ function login2ch()
 	// ■systemコマンドでcurlを実行
 	$curlrtn=1;
 	// proxyの設定
-	if($proxy['use']){
-		$with_proxy = " -x ".$proxy['host'].":".$proxy['port'];
+	if ($_conf['proxy_use']) {
+		$with_proxy = " -x ".$_conf['proxy_host'].":".$_conf['proxy_port'];
 	}else{
 		$with_proxy = "";
 	}
@@ -79,7 +79,7 @@ function login2ch()
 	echo $r=getHttpContents($auth2ch_url, "", "POST", $headers, $post, $dolib2ch);
 	*/
 	
-	if(! $r = FileCtl::get_file_contents($tempfile) ){
+	if(! $r = @file_get_contents($tempfile) ){
 		if( file_exists($sid2ch_php) ){ unlink($sid2ch_php); }
 		if( $php_curl_done_flag ){
 			$setsumei = "（「systemのcurlコマンド」「PHPのcurl」の両方とも実行失敗しました）";
@@ -136,27 +136,28 @@ EOP;
 //===================================================
 // ■PHPのcurlで2chログインのSIDを得る関数
 //===================================================
-function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, $withk=false){
-	global $proxy;
+function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, $withk=false)
+{
+	global $_conf;
 	
 	$ch = curl_init();
-	$fp = fopen ($tempfile, "w");
-	curl_setopt ($ch, CURLOPT_FILE, $fp);
-	curl_setopt ($ch, CURLOPT_URL, $auth2ch_url);
-	curl_setopt ($ch, CURLOPT_HEADER, 0);
-	curl_setopt ($ch, CURLOPT_HTTPHEADER, array($x_2ch_ua));
-	curl_setopt ($ch, CURLOPT_USERAGENT, $dolib2ch);
-	curl_setopt ($ch, CURLOPT_POST, 1);
-	curl_setopt ($ch, CURLOPT_POSTFIELDS, $postf);
-	if($withk){	// 証明書の検証をしないなら
-		curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	$fp = fopen($tempfile, "wb");
+	curl_setopt($ch, CURLOPT_FILE, $fp);
+	curl_setopt($ch, CURLOPT_URL, $auth2ch_url);
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array($x_2ch_ua));
+	curl_setopt($ch, CURLOPT_USERAGENT, $dolib2ch);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $postf);
+	if ($withk) {	// 証明書の検証をしないなら
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 	}
-	if($proxy['use']){
-		curl_setopt ($ch, CURLOPT_PROXY, $proxy['host'].':'.$proxy['port']);
+	if ($_conf['proxy_use']) {
+		curl_setopt($ch, CURLOPT_PROXY, $_conf['proxy_host'].':'.$_conf['proxy_port']);
 	}
-	curl_exec ($ch);
-	curl_close ($ch);
-	fclose ($fp);
+	curl_exec($ch);
+	curl_close($ch);
+	fclose($fp);
 }
 
 ?>

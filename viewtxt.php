@@ -6,7 +6,6 @@
 */
 
 include("./conf.php");   //基本設定ファイル読込
-require_once './filectl.class.php';
 
 authorize(); //ユーザ認証
 
@@ -57,7 +56,7 @@ function viewTxtFile($file, $encode)
 	$ptitle = $filename;
 	
 	//ファイル内容読み込み
-	$cont = FileCtl::get_file_contents($file);
+	$cont = @file_get_contents($file);
 	
 	if ($encode == "EUC-JP") {
 		include_once './strctl.class.php';

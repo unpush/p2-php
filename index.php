@@ -29,11 +29,11 @@ if ($ktai) {
 	//=========================================
 	// ïœêî
 	//=========================================
-	$title_page="title.php";
-	if(!$first_page){$first_page="first_cont.php";}
-	$sidebar=$_GET['sidebar'];
+	$title_page = "title.php";
+	if (!$_conf['first_page']) { $_conf['first_page'] = "first_cont.php"; }
+	$sidebar = $_GET['sidebar'];
 	
-	$ptitle=" p2";
+	$ptitle = " p2";
 	//======================================================
 	// PCóp HTMLÉvÉäÉìÉg
 	//======================================================
@@ -60,7 +60,7 @@ EOMENUFRAME;
 	echo <<<EOMAINFRAME
 	<frameset rows="40%,60%" frameborder="1" border="2">
 		<frame src="{$title_page}" name="subject" scrolling="auto">
-		<frame src="{$first_page}" name="read" scrolling="auto">
+		<frame src="{$_conf['first_page']}" name="read" scrolling="auto">
 	</frameset>
 EOMAINFRAME;
 

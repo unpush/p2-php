@@ -10,12 +10,14 @@ function index_print_k()
 	global $doctype, $accesskey;
 	global $k_at_a, $k_at_q;
 	
-	$newtime = date("gis");
+	$p_htm = array();
+	
+	$newtime = date('gis');
 	
 	$body = "";
 	$autho_user_ht = "";
 	$ptitle = "ﾕﾋﾞｷﾀｽp2";
-
+	
 	// 認証ユーザ情報
 	$autho_user_ht = "";
 	if ($login['use']) {
@@ -23,19 +25,20 @@ function index_print_k()
 	}
 	
 	// 前回のログイン情報
-	if ($_conf['login_log_rec'] && $_conf['last_login_log_show'] and ($alog = P2Util::getLastAccessLog($_conf['login_log_file']))) {
-		$last_login_ht =<<<EOP
-前回のログイン情報 - {$alog['date']}<br>
-ユーザ: {$alog['user']}<br>
-IP: {$alog['ip']}<br>
-HOST: {$alog['host']}<br>
-UA: {$alog['ua']}<br>
-REFERER: {$alog['referer']}
+	if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
+		if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
+			$p_htm['log'] = array_map('htmlspecialchars', $log);
+			$p_htm['last_login'] =<<<EOP
+前回のﾛｸﾞｲﾝ情報 - {$p_htm['log']['date']}<br>
+ﾕｰｻﾞ: {$p_htm['log']['user']}<br>
+IP: {$p_htm['log']['ip']}<br>
+HOST: {$p_htm['log']['host']}<br>
+UA: {$p_htm['log']['ua']}<br>
+REFERER: {$p_htm['log']['referer']}
 EOP;
-	} else {
-		$last_login_ht = "";
+		}
 	}
-
+	
 	//=========================================================
 	// 携帯用 HTML プリント
 	//=========================================================
@@ -65,7 +68,7 @@ EOP;
 </ol>
 <br>
 {$autho_user_ht}
-{$last_login_ht}
+{$p_htm['last_login']}
 </body>
 </html>
 EOP;

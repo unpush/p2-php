@@ -54,11 +54,11 @@ if($spmode){
 	$sb_keys_txt = $datdir_host."/".$bbs."/p2_sb_keys.txt";
 
 	if($_GET['norefresh']){
-		if( $prepre_sb_cont = FileCtl::get_file_contents($sb_keys_b_txt) ){
+		if( $prepre_sb_cont = @file_get_contents($sb_keys_b_txt) ){
 			$prepre_sb_keys = unserialize($prepre_sb_cont);
 		}
 	}else{
-		if($pre_sb_cont = FileCtl::get_file_contents($sb_keys_txt)){
+		if($pre_sb_cont = @file_get_contents($sb_keys_txt)){
 			$pre_sb_keys = unserialize($pre_sb_cont);
 		}
 	}
@@ -66,7 +66,7 @@ if($spmode){
 }
 
 // ¡p2_setting “Ç‚Ýž‚Ý
-$p2_setting_cont = FileCtl::get_file_contents($p2_setting_txt);
+$p2_setting_cont = @file_get_contents($p2_setting_txt);
 if ($p2_setting_cont) {$p2_setting = unserialize($p2_setting_cont);}
 
 $viewnum_pre = $p2_setting['viewnum'];
@@ -101,9 +101,9 @@ $threads_num_max=2000;
 if(!$spmode || $spmode=="news"){
 	$threads_num = $p2_setting['viewnum'];
 }elseif($spmode=="recent"){
-	$threads_num = $rct_rec_num;
+	$threads_num = $_conf['rct_rec_num'];
 }elseif($spmode=="res_hist"){
-	$threads_num = $res_hist_rec_num;
+	$threads_num = $_conf['res_hist_rec_num'];
 }else{
 	$threads_num = 2000;
 }
@@ -516,7 +516,7 @@ if ($aThreadList->threads) {
 	elseif($p2_setting['sort']=="title"){usort($aThreadList->threads, "cmp_title"); }
 	elseif($p2_setting['sort']=="ita"){usort($aThreadList->threads, "cmp_ita"); }
 	elseif($p2_setting['sort']=="ikioi" || $p2_setting['sort'] == "spd"){
-		if($cmp_dayres_midoku){
+		if ($_conf['cmp_dayres_midoku']) {
 			usort($aThreadList->threads, "cmp_dayres_midoku");
 		}else{
 			usort($aThreadList->threads, "cmp_dayres");
@@ -564,7 +564,7 @@ if($ktai){
 	$aThreadList->num = sizeof($aThreadList->threads); //‚È‚ñ‚Æ‚È‚­”O‚Ì‚½‚ß
 	$sb_disp_all_num = $aThreadList->num;
 	
-	$disp_navi = getListNaviRange($sb_disp_from , $k_sb_disp_range, $sb_disp_all_num);
+	$disp_navi = getListNaviRange($sb_disp_from , $_conf['k_sb_disp_range'], $sb_disp_all_num);
 
 	$newthreads=array();
 	for( $i = $disp_navi['from']; $i <= $disp_navi['end']; $i++ ){

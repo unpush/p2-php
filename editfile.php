@@ -119,7 +119,7 @@ function editFile($path, $encode)
 	
 	//ファイル内容読み込み
 	FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
-	$cont = FileCtl::get_file_contents($path);
+	$cont = @file_get_contents($path);
 	
 	if ($encode == "EUC-JP") {
 		include_once './strctl.class.php';

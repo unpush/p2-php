@@ -127,18 +127,18 @@ $_conf['p2status_dl_interval'] = 180;	// (180) p2status のキャッシュを更新せずに
 if (!isset($login['use'])) { $login['use'] = 1; }
 if (!is_dir($prefdir)) { $prefdir = "./data"; }
 if (!is_dir($datdir)) { $datdir = "./data"; }
-if (!isset($rct_rec_num)) { $rct_rec_num = 20; }
-if (!isset($res_hist_rec_num)) { $res_hist_rec_num = 20; }
+if (!isset($_conf['rct_rec_num'])) { $_conf['rct_rec_num'] = 20; }
+if (!isset($_conf['res_hist_rec_num'])) { $_conf['res_hist_rec_num'] = 20; }
 if (!isset($posted_rec_num)) { $posted_rec_num = 1000; }
-if (!isset($before_respointer)) { $before_respointer = 20; }
-if (!isset($sort_zero_adjust)) { $sort_zero_adjust = 0.1; }
+if (!isset($_conf['before_respointer'])) { $_conf['before_respointer'] = 20; }
+if (!isset($_conf['sort_zero_adjust'])) { $_conf['sort_zero_adjust'] = 0.1; }
 if (!isset($_conf['display_threads_num'])) { $_conf['display_threads_num'] = 150; }
-if (!isset($cmp_dayres_midoku)) { $cmp_dayres_midoku = 1; }
-if (!isset($k_sb_disp_range)) { $k_sb_disp_range = 30; }
-if (!isset($k_rnum_range)) { $k_rnum_range = 10; }
-if (!isset($pre_thumb_height)) { $pre_thumb_height = "32"; }
-if (!isset($quote_res_view)) { $quote_res_view = 1; }
-if (!isset($res_write_rec)) { $res_write_rec = 1; }
+if (!isset($_conf['cmp_dayres_midoku'])) { $_conf['cmp_dayres_midoku'] = 1; }
+if (!isset($_conf['k_sb_disp_range'])) { $_conf['k_sb_disp_range'] = 30; }
+if (!isset($_conf['k_rnum_range'])) { $_conf['k_rnum_range'] = 10; }
+if (!isset($_conf['pre_thumb_height'])) { $_conf['pre_thumb_height'] = "32"; }
+if (!isset($_conf['quote_res_view'])) { $_conf['quote_res_view'] = 1; }
+if (!isset($_conf['res_write_rec'])) { $_conf['res_write_rec'] = 1; }
 
 if (!isset($STYLE['post_pop_size'])) { $STYLE['post_pop_size'] = "610,350"; }
 if (!isset($STYLE['post_msg_rows'])) { $STYLE['post_msg_rows'] = 10; }
@@ -149,10 +149,12 @@ if (!isset($STYLE['info_pop_size'])) { $STYLE['info_pop_size'] = "600,380"; }
 $_conf['ext_win_target'] && $_conf['ext_win_target'] = " target=\"{$_conf['ext_win_target']}\"";
 $_conf['bbs_win_target'] && $_conf['bbs_win_target'] = " target=\"{$_conf['bbs_win_target']}\"";
 
-if ($get_new_res) {
-	if ($get_new_res != "all") { $get_new_res = "l".$get_new_res; }
+if ($_conf['get_new_res']) {
+	if ($_conf['get_new_res'] != 'all') {
+		$_conf['get_new_res_l'] = 'l'.$_conf['get_new_res'];
+	}
 } else {
-	$get_new_res = "l200";
+	$_conf['get_new_res_l'] = 'l200';
 }
 
 //======================================================================
@@ -165,13 +167,11 @@ $_conf['last_login_log_show'] = 1;	// 前回ログイン情報表示可否
 $p2web_url = "http://akid.s17.xrea.com/";
 $p2ime_url = "http://akid.s17.xrea.com/p2ime.php";
 $favrank_url = "http://akid.s17.xrea.com:8080/favrank/favrank.php";
-$menu_php = "menu.php";
-$subject_php = "subject.php";
+$_conf['menu_php'] = "menu.php";
+$_conf['subject_php'] = "subject.php";
 $_conf['read_php'] = "read.php";
 $_conf['read_new_php'] = "read_new.php";
 $_conf['read_new_k_php'] = "read_new_k.php";
-$recent_php = "recent.php";
-$fav_php = "fav.php";
 $sb_header_inc = "sb_header.inc";
 $sb_footer_inc = "sb_footer.inc";
 $read_header_inc = "read_header.inc";
@@ -191,13 +191,7 @@ $auth_ez_file = $prefdir."/p2_auth_ez.php";
 $auth_jp_file = $prefdir."/p2_auth_jp.php";
 $_conf['login_log_file'] = $prefdir . "/p2_login.log.php";
 $crypt_xor_key = $_SERVER["SERVER_NAME"].$_SERVER["SERVER_SOFTWARE"];
-$brocra_checker['url'] = "http://www.jah.ne.jp/~fild/cgi-bin/LBCC/lbcc.cgi"; // ブラクラチェッカURL
-$brocra_checker['query'] = "url";
-$ktai_read_cgi = "r.i";
-$before_respointer_k = 0;
-$ktai_res_size = 500; 		// 携帯用、一つのレスの最大表示サイズ
-$ktai_ryaku_size = 120; 	// 携帯用、レスを省略したときの表示サイズ
-$c_menu_dl_interval = 1;	// menuのキャッシュを更新せずに保持する時間(hour)
+$_conf['menu_dl_interval'] = 1;	// (1) 板 menu のキャッシュを更新せずに保持する時間 (hour)
 $fsockopen_time_limit = 15;	// ネットワーク接続タイムアウト時間(秒)
 set_time_limit(60); 		// スクリプト実行制限時間(秒)
 

@@ -104,7 +104,7 @@ if(!$ktai){
 EOP;
 } else {
 	echo <<<EOP
-	<li><a href="editpref.php{$k_at_q}">ホストの同期</a></li>
+	<li><a href="editpref.php{$k_at_q}">ホストの同期</a>（2chの板移転に対応します）</li>
 EOP;
 }
 

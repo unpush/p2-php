@@ -10,7 +10,7 @@ require_once("./datactl.inc");
 require_once("./read.inc");
 require_once("./showthread_class.inc"); //HTML表示クラス
 
-$debug=0;
+$debug = 0;
 $debug && include_once("profiler.inc"); //
 $debug && $prof = new Profiler( true ); //
 
@@ -20,12 +20,9 @@ authorize(); //ユーザ認証
 // 変数
 //================================================================
 
-$newtime= date("gis");  //同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
+$newtime = date("gis");  //同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 //$_today = date("y/m/d");
 
-if($_GET['relogin2ch']){
-	$relogin2ch=$_GET['relogin2ch'];
-}
 $_info_msg_ht = "";
 
 //=================================================
@@ -86,7 +83,7 @@ if (isset($res_filter)) {
 	
 // フィルタ指定がなければ前回保存を読み込み
 } else {
-	if ($res_filter_cont = FileCtl::get_file_contents($cachefile)) {
+	if ($res_filter_cont = @file_get_contents($cachefile)) {
 		$res_filter = unserialize($res_filter_cont);
 	}
 }
@@ -153,23 +150,23 @@ $aThread->setTitleFromLocal(); //タイトルを取得して設定
 // 表示レス番の範囲を設定
 //===========================================================
 if ($ktai) {
-	$before_respointer = $before_respointer_k;
+	$_conf['before_respointer'] = $_conf['before_respointer_k'];
 }
 if ($aThread->isKitoku()) { // 取得済みなら
 	
 	if ($_GET['nt']) { //「新着レスの表示」の時は特別にちょっと前のレスから表示
 		if (substr($ls, -1) == "-") {
-			$n = $ls - $before_respointer;
+			$n = $ls - $_conf['before_respointer'];
 			if ($n<1) { $n = 1; }
 			$ls = "$n-";
 		}
 		
 	} elseif (!$ls) {
-		$from_num = $aThread->newline -$respointer - $before_respointer;
+		$from_num = $aThread->newline - $_conf['respointer'] - $_conf['before_respointer'];
 		if ($from_num < 1) {
 			$from_num = 1;
 		} elseif ($from_num > $aThread->rescount) {
-			$from_num = $aThread->rescount -$respointer - $before_respointer;
+			$from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer'];
 		}
 		$ls = "$from_num-";
 	}
@@ -180,7 +177,7 @@ if ($aThread->isKitoku()) { // 取得済みなら
 	
 // 未取得なら
 } else {
-	if (!$ls) { $ls = $get_new_res; }
+	if (!$ls) { $ls = $_conf['get_new_res_l']; }
 }
 
 $aThread->lsToPoint($ls, $aThread->rescount);
@@ -241,17 +238,17 @@ if($ktai){
 //===========================================================
 // idxの値設定
 //===========================================================
-if($aThread->rescount){
+if ($aThread->rescount) {
 
-	if($aThread->resrange['to']+1 > $aThread->newline){
-		$aThread->newline = $aThread->resrange['to']+1;
-	}else{
+	if ($aThread->resrange['to'] +1 >= $aThread->newline) {
+		$aThread->newline = $aThread->resrange['to'] +1;
+	} else {
 		$aThread->newline = $data[9];
 	}
-	//異常値修正
-	if($aThread->newline > $aThread->rescount+1){
-		$aThread->newline = $aThread->rescount+1;
-	}elseif($aThread->newline < 1){
+	// 異常値修正
+	if ($aThread->newline > $aThread->rescount +1) {
+		$aThread->newline = $aThread->rescount +1;
+	} elseif ($aThread->newline < 1) {
 		$aThread->newline = 1;
 	}
 	
@@ -339,7 +336,7 @@ function detectThread()
  */
 function recRecent($data)
 {
-	global $rctfile, $rct_rec_num, $rct_perm;
+	global $_conf, $rctfile, $rct_perm;
 	
 	FileCtl::make_datafile($rctfile, $rct_perm); //$rctfileファイルがなければ生成
 	
@@ -360,7 +357,7 @@ function recRecent($data)
 	// 新規データ追加
 	$neolines ? array_unshift($neolines, $data) : $neolines = array($data);
 
-	while (sizeof($neolines) > $rct_rec_num) {
+	while (sizeof($neolines) > $_conf['rct_rec_num']) {
 		array_pop($neolines);
 	}
 	
