@@ -165,8 +165,9 @@ function checkUpdatan()
 	$update_ver = $ver_txt[0];
 	$kita = 'ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!';
 	//$kita = 'ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!';
-	if (preg_match('/^\d\.\d\.\d$/', $update_ver) and ($update_ver > $_conf['p2version'])) {
-		$newversion_found =<<<EOP
+	
+	if (compVars($_conf['p2version'], $update_ver)) {
+		$newversion_found = <<<EOP
 <div class="kakomi">
 	{$kita}<br>
 	オンライン上に p2 の最新バージョンを見つけますた。<br>
@@ -176,6 +177,29 @@ function checkUpdatan()
 EOP;
 	}
 	return $newversion_found;
+}
+
+/**
+ * .で区切ったバージョン番号の大きさを比較する
+ *
+ * @return boolean チェック対象バージョンの方が大きければtrue
+ */
+function compVars($myvar, $checkvar)
+{
+	$myvar_sp = explode('.', $myvar);
+	$checkvar_sp = explode('.', $checkvar);
+	
+	$i = 0;
+	while (isset($checkvar_sp[$i])) {
+		if (!isset($myvar_sp[$i])) {
+			return true;
+		}
+		if ($checkvar_sp[$i] > $myvar_sp[$i]) {
+			return true;
+		}
+		$i++;
+	}
+	return false;
 }
 
 ?>
