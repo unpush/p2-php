@@ -651,7 +651,7 @@ if ($_conf['ktai']) {
 // p2_setting ãLò^
 //============================================================
 if ($viewnum_pre!=$p2_setting['viewnum'] or $sort_pre!=$p2_setting['sort'] or $itaj_pre!=$p2_setting['itaj']) {
-	FileCtl::make_datafile($p2_setting_txt, $p2_perm);
+	FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
 	if ($p2_setting) {$p2_setting_cont = serialize($p2_setting);}
 	if ($p2_setting_cont) {
 		$fp = fopen($p2_setting_txt, "wb") or die("Error: $p2_setting_txt ÇçXêVÇ≈Ç´Ç‹ÇπÇÒÇ≈ÇµÇΩ");
@@ -668,7 +668,7 @@ if ($subject_keys) {
 	if(file_exists($sb_keys_txt)){
 		copy($sb_keys_txt, $sb_keys_b_txt);
 	}else{
-		FileCtl::make_datafile($sb_keys_txt, $p2_perm);
+		FileCtl::make_datafile($sb_keys_txt, $_conf['p2_perm']);
 	}
 	if($subject_keys){$sb_keys_cont = serialize($subject_keys);}
 	if($sb_keys_cont){

@@ -49,9 +49,9 @@ if (get_magic_quotes_gpc()) {
 	$submit = stripslashes($submit);
 }
 
-// 美乳テーブルを使った文字コード判定
-if (isset($_POST['binyu']) && extension_loaded('mbstring')) {
-	$encoding = mb_detect_encoding($_POST['binyu'], 'JIS,UTF-8,EUC-JP,SJIS');
+// 文字コード判定
+if (isset($_POST['detect_hint']) && extension_loaded('mbstring')) {
+	$encoding = mb_detect_encoding($_POST['detect_hint'], 'JIS,UTF-8,EUC-JP,SJIS');
 	if ($encoding != 'SJIS') {
 		$FROM = mb_convert_encoding($FROM, 'SJIS-win', $encoding);
 		$mail = mb_convert_encoding($mail, 'SJIS-win', $encoding);
@@ -189,7 +189,7 @@ $posted = postIt($URL, $request);
 //=============================================
 // cookie 保存
 //=============================================
-FileCtl::make_datafile($cookie_file, $p2_perm); //なければ生成
+FileCtl::make_datafile($cookie_file, $_conf['p2_perm']); //なければ生成
 if ($p2cookies) {$cookie_cont=serialize($p2cookies);}
 if ($cookie_cont) {
 	$fp = @fopen($cookie_file, "wb") or die("Error: $cookie_file を更新できませんでした");
@@ -228,7 +228,7 @@ if (!$posted) { return; }
 if ($host && $bbs && $key) {
 	
 	$rh_idx = $prefdir."/p2_res_hist.idx";
-	FileCtl::make_datafile($rh_idx, $res_write_perm); //なければ生成
+	FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']); //なければ生成
 	
 	//読み込み;
 	$lines = @file($rh_idx);
@@ -275,7 +275,7 @@ if ($_conf['res_write_rec']) {
 	$message = preg_replace("/\r?\n/", "<br>", $message);
 
 	$p2_res_hist_dat_php = $prefdir."/p2_res_hist.dat.php"; 
-	FileCtl::make_datafile($p2_res_hist_dat_php, $res_write_perm); // なければ生成
+	FileCtl::make_datafile($p2_res_hist_dat_php, $_conf['res_write_perm']); // なければ生成
 
 	// 読み込んで
 	if (!$lines = P2Util::fileDataPhp($p2_res_hist_dat_php)) {
@@ -487,12 +487,26 @@ function postIt($URL, $request)
 		if ($_POST['newthread']) {
 			$newthread_hidden_ht = "<input type=\"hidden\" name=\"newthread\" value=\"1\">";
 		}
+		if ($_POST['post_be2ch']) {
+			$be2ch_hidden_ht = "<input type=\"hidden\" name=\"post_be2ch\" value=\"1\">";
+		}
 		// mbstring有効時、Safari/KonquerorはUTF-8で投稿することで バックスラッシュとチルダが全角になるのを防ぐ【\~＼～】 
 		$accept_charset_ht = '';
 		if (extension_loaded('mbstring') && P2Util::isBrowserSafariGroup()) {
 			$accept_charset_ht = ' accept-charset="UTF-8"';
 		}
-		$response = preg_replace("/<form method=\"?POST\"? action=\"?\.\.\/test\/(sub)?bbs\.cgi\"?>/i", "<form method=\"POST\" action=\"./post.php\"{$accept_charset_ht}><input type=\"hidden\" name=\"host\" value=\"{$host}\"><input type=\"hidden\" name=\"popup\" value=\"{$popup}\"><input type=\"hidden\" name=\"rescount\" value=\"{$rescount}\"><input type=\"hidden\" name=\"ttitle_en\" value=\"{$ttitle_en}\"><input type=\"hidden\" name=\"sub\" value=\"\\1\"><input type=\"hidden\" name=\"binyu\" value=\"美乳\">{$newthread_hidden_ht}", $response);
+		$form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i';
+		$form_replace = <<<EOFORM
+<form method="POST" action="./post.php" accept-charset="{$accept_charset_ht}">
+<input type="hidden" name="detect_hint" value="◎◇">
+<input type="hidden" name="host" value="{$host}">
+<input type="hidden" name="popup" value="{$popup}">
+<input type="hidden" name="rescount" value="{$rescount}">
+<input type="hidden" name="ttitle_en" value="{$ttitle_en}">
+<input type="hidden" name="sub" value="\$1">
+{$newthread_hidden_ht}{$be2ch_hidden_ht}
+EOFORM;
+		$response = preg_replace($form_pattern, $form_replace, $response);
 	
 		$h_b = explode("</head>", $response);
 		echo $h_b[0];

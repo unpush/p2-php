@@ -66,7 +66,7 @@ $_info_msg_ht="";
 //================================================================
 
 // favitaƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
-FileCtl::make_datafile($favita_path, $favita_perm);
+FileCtl::make_datafile($favita_path, $_conf['favita_perm']);
 // favita“Ç‚İ‚İ
 $lines= file($favita_path);
 

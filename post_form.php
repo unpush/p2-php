@@ -162,7 +162,7 @@ echo <<<EOP
 	<input type="submit" name="submit" value="{$submit_value}"><br>
 	{$safari_fix_ht}{$p_htm['be2ch']}
 
-	<input type="hidden" name="binyu" value="”ü“û">
+	<input type="hidden" name="detect_hint" value="ž">
 
 	<input type="hidden" name="bbs" value="{$bbs}">
 	<input type="hidden" name="key" value="{$key}">

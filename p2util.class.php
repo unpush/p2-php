@@ -293,7 +293,7 @@ class P2Util{
 	 */
 	function transResHistLog()
 	{
-		global $_conf, $prefdir, $res_write_perm;
+		global $_conf, $prefdir;
 
 		$rh_dat_php = $prefdir."/p2_res_hist.dat.php";
 		$rh_dat = $prefdir."/p2_res_hist.dat";
@@ -320,7 +320,7 @@ class P2Util{
 				$cont = '<?php /*'."\n".$cont.'*/ ?>'."\n";
 				
 				// p2_res_hist.dat.php として保存
-				FileCtl::make_datafile($rh_dat_php, $res_write_perm);
+				FileCtl::make_datafile($rh_dat_php, $_conf['res_write_perm']);
 				// 書き込む
 				$fp = @fopen($rh_dat_php, "wb") or die("Error: {$rh_dat_php} を更新できませんでした");
 				flock($fp, LOCK_EX);
@@ -363,7 +363,7 @@ class P2Util{
 	 */
 	function recAccessLog($logfile, $maxline="100")
 	{
-		global $res_write_perm, $login;
+		global $_conf, $login;
 		
 		// 変数設定
 		$date = date("Y/m/d (D) G:i:s");
@@ -396,7 +396,7 @@ class P2Util{
 		$newdata = P2Util::escapeDataPhp($newdata);
 
 		//■書き込み処理
-		FileCtl::make_datafile($logfile, $res_write_perm); // なければ生成
+		FileCtl::make_datafile($logfile, $_conf['res_write_perm']); // なければ生成
 
 		// ログファイルの中身を取得する
 		if (!$lines = P2Util::fileDataPhp($logfile)) {

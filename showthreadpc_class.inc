@@ -61,7 +61,7 @@ class ShowThreadPc extends ShowThread{
 		global $_conf;
 		global $STYLE, $mae_msg, $res_filter, $word_fm;
 		global $aborn_words, $ng_words, $ng_num, $newres_to_show;
-		global $words_fm, $filter_hits;
+		global $filter_hits;
 		
 		$tores = "";
 		$rpop = "";
@@ -97,7 +97,7 @@ class ShowThreadPc extends ShowThread{
 					$target = strval($i) . '<>' . $ares;
 			}
 			
-			$target = strip_tags($target);
+			$target = @strip_tags($target, '<>');
 			
 			$failed = ($res_filter['match'] == 'on') ? FALSE : TRUE;
 			if ($res_filter['method'] == 'and') {
@@ -121,7 +121,7 @@ class ShowThreadPc extends ShowThread{
 		$aborned_res .= "<!-- <dd class=\"aborned\">&nbsp;</dd> -->\n"; // 内容
 
 		// あぼーんネーム
-		if ($this->aborn($aborn_words['name'], $name, $i)) {
+		if ($this->aborn($aborn_words['name'], strip_tags($name), $i)) {
 			return $aborned_res;
 		}
 
@@ -281,6 +281,11 @@ EOP;
 		$tores .= $rpop; // レスポップアップ用引用
 		$tores .= "<dd>{$msg}<br><br></dd>\n"; // 内容
 		
+		// まとめてフィルタ色分け（乱暴かな？）
+		if ($word_fm && $res_filter['match'] == 'on') {
+			$tores = StrCtl::filterMarking($word_fm, $tores);
+		}
+				
 		return $tores;
 	}
 
@@ -348,6 +353,11 @@ EOP;
 		if($mail){$tores .= $mail." ：";} // メール
 		$tores .= $date_id."<br>"; // 日付とID
 		$tores .= $msg."<br>\n"; // 内容
+		
+		// まとめてフィルタ色分け（乱暴かな？）
+		if ($word_fm && $res_filter['match'] == 'on') {
+			$tores = StrCtl::filterMarking($word_fm, $tores);
+		}
 		
 		return $tores;
 	}
@@ -472,10 +482,13 @@ EOP;
 			$msg = preg_replace_callback("/ID: ?([0-9a-zA-Z\/\.\+]+)/", array($this, 'idfilter_callback'), $msg);
 		}
 		
+		/*
+		// transRes() でまとめて色分けするのでここはコメントアウト
 		// フィルタ色分け
 		if ($word_fm && $res_filter['match'] == 'on' && ($res_filter['field'] == "msg" || $res_filter['field'] == "hole")) { 
 			$msg = StrCtl::filterMarking($word_fm, $msg);
 		}
+		*/
 		
 		return $msg;
 	}
