@@ -57,7 +57,7 @@ EOP;
 	}
 
 	// Be.2ch
-	if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
+	if (!P2Util::isHostBe2chNet($host) and P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
 		$htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"><label for="post_be2ch">Be.2chのコードを送信</label><br>'."\n";
 	}
 		

@@ -41,8 +41,8 @@ $key_idx = $datdir_host."/".$bbs."/".$key.".idx";
 if ($lines = @file($key_idx)) {
 	$line = explode('<>', rtrim($lines[0]));
 	$line = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $line);
-	$FROM = $line[7];
-	$mail = $line[8];
+	$htm['FROM'] = $line[7];
+	$htm['mail'] = $line[8];
 }
 
 // 前回のPOST失敗があれば呼び出し
@@ -121,7 +121,7 @@ EOP;
 $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name="from_read_new" value="1">' : '';
 
 // Be.2ch
-if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
+if (!P2Util::isHostBe2chNet($host) and P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
 	$htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"><label for="post_be2ch">Be.2chのコードを送信</label><br>'."\n";
 }
 
