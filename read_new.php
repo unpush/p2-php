@@ -273,7 +273,7 @@ function readNew($aThread)
 	//==================================================================
 	// ƒwƒbƒ_ •\Ž¦
 	//==================================================================
-	$motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
+	$motothre_url = $aThread->getMotoThread($GLOBALS['ls']);
 	
 	$ttitle_en = base64_encode($aThread->ttitle);
 	$ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
