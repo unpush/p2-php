@@ -19,7 +19,7 @@ $latest_st = "ÅV";
 $dores_st = "ƒŒƒX";
 $aborn_st = "‚ ‚Ú‚ñ";
 
-$motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
+$motothre_url = $aThread->getMotoThread($GLOBALS['ls']);
 $ttitle_en = base64_encode($aThread->ttitle);
 $ttitle_urlen = rawurlencode($ttitle_en);
 $ttitle_en_q = "&amp;ttitle_en=".$ttitle_urlen;

@@ -195,7 +195,7 @@ if(!$ktai){
 	$target_sb_at = " target=\"sbject\"";
 }
 
-$motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
+$motothre_url = $aThread->getMotoThread($GLOBALS['ls']);
 if ($title_msg) {
 	$title_st = $title_msg;
 } else {
