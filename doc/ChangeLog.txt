@@ -4,33 +4,7 @@
 	- したらば、まちBBSが表示できなかったのを修正
 	- filectl_class.inc を filectl.class.php にファイル名変更
 
-	* brdctl_class.inc
-	* brdmenu_class.inc
-	* conf.php
-	* datactl.inc
-	* editfavita.php
-	* editfile.php
-	* editpref.php
-	* filectl.class.php: NEW!
-	* filectl_class.inc: removed
-	* info.php
-	* login.php
-	* login2ch.inc
-	* login2ch.php
-	* login_first.inc
-	* p2util.class.php
-	* post.php
-	* read.php
-	* setfav.inc
-	* setfavita.inc
-	* setpalace.inc
-	* settaborn.inc
-	* setting.php
-	* subject.php
-	* subject_new.php
-	* threadread_class.inc
-	* title.php
-	* viewtxt.php
+
 
 2004-12-31 aki
 	* p2 version 1.2.5
