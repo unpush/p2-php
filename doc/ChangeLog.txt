@@ -1,4 +1,11 @@
 2004-12-23 aki
+	* p2 version 1.2.1
+	- jcode_convert_encoding()の引数を修正
+	 
+	* conf.php
+	* strctl_class.inc
+
+2004-12-23 aki
 	* p2 version 1.2.0
 	- 検索、フィルタリングを強化
 	 （マージ感謝！→rskさん）
