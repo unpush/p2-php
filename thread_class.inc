@@ -37,27 +37,31 @@ class Thread{
 	
 	var $dat_type; // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
 
-	function Thread(){
+	/**
+	 * コンストラクタ
+	 */
+	function Thread()
+	{
 	}
 
-	//============================================================================
-	// getThreadInfoFromExtIdxLine -- fav, recent用の拡張idxリストからラインデータを取得するメソッド
-	//============================================================================	
+	/**
+	 * fav, recent用の拡張idxリストからラインデータを取得する
+	 */
 
 	function getThreadInfoFromExtIdxLine($l){
 		$l = rtrim($l);
-		$la = explode("<>", $l);
+		$la = explode('<>', $l);
 		$this->host = $la[10];
 		$this->bbs = $la[11];
 		$this->key = $la[1];
 		
-		if(! $this->ttitle){
-			if($la[0]){
-				$this->ttitle=rtrim($la[0]);
+		if (!$this->ttitle) {
+			if ($la[0]) {
+				$this->ttitle = rtrim($la[0]);
 			}
 		}
 		
-		//if($la[6]){$this->fav = $la[6];}
+		//if ($la[6]) { $this->fav = $la[6]; }
 	}
 
 	//============================================================================
@@ -85,38 +89,39 @@ class Thread{
 		}
 	}
 
-	//============================================================================
-	// getThreadInfoFromIdx -- 既得スレッドデータをkey.idxから取得するメソッド
-	//============================================================================	
-
-	function getThreadInfoFromIdx($keyidx){
-		if(! $lines=@file($keyidx) ){
+	/**
+	 * 既得スレッドデータをkey.idxから取得する
+	 */
+	function getThreadInfoFromIdx($keyidx)
+	{
+		if (!$lines = @file($keyidx)) {
 			return false;
 		}
 		
 		$key_line = rtrim($lines[0]);
-		$lar = explode("<>", $key_line);
-		if(! $this->ttitle){
-			if($lar[0]){
+		$lar = explode('<>', $key_line);
+		if (!$this->ttitle) {
+			if ($lar[0]) {
 				$this->ttitle = rtrim($lar[0]);
 			}
 		}
 		
-		if($lar[9]){
+		if ($lar[9]) {
 			$this->newline = $lar[9];
-		}else{
+		} else {
 			$this->newline = 1;
 		}
 		
 		if ($lar[3]) {
 			$this->rnum = $lar[3];
-			if($this->rescount){
+			if ($this->rescount) {
 				$this->unum = $this->rescount - ($this->newline -1);
-				if($this->unum<0){ $this->unum=0; } //machi bbs はsubjectの更新にディレイがあるようなので調整しておく
+				// machi bbs はsubjectの更新にディレイがあるようなので調整しておく
+				if ($this->unum < 0) { $this->unum = 0; }
 			}
 		}
-		//if($lar[2]){ $this->length=$lar[2]; }
-		if($lar[4]){ $this->modified = $lar[4]; }
+		//if ($lar[2]) { $this->length = $lar[2]; }
+		if ($lar[4]) { $this->modified = $lar[4]; }
 		
 		return $key_line; 
 	}

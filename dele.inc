@@ -54,18 +54,19 @@ function deleteThisKey($datdir_host, $bbs, $key){
 }
 
 
-// ==================================================
-// 指定したキーが最近読んだスレに入ってるかどうかをチェックする関数
-// ==================================================
-function checkRecent($host, $bbs, $key){
+/**
+ * 指定したキーが最近読んだスレに入ってるかどうかをチェックする
+ */
+function checkRecent($host, $bbs, $key)
+{
 	global $rctfile;
 
-	$lines = @file($rctfile); //読み込み
-	if($lines){ //あればtrue
-		foreach($lines as $l){
-			$l=trim($l);
-			$lar = explode("<>", $l);
-			if( $lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs){ // あったら
+	$lines = @file($rctfile); // 読み込み
+	if ($lines) { // あればtrue
+		foreach ($lines as $l) {
+			$l = rtrim($l);
+			$lar = explode('<>', $l);
+			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) { // あったら
 				return true;
 			}
 		}
@@ -73,19 +74,20 @@ function checkRecent($host, $bbs, $key){
 	return false;
 }
 
-// ==================================================
-// 指定したキーが書き込み履歴に入ってるかどうかをチェックする関数
-// ==================================================
-function checkResHist($host, $bbs, $key){
+/**
+ * 指定したキーが書き込み履歴に入ってるかどうかをチェックする
+ */
+function checkResHist($host, $bbs, $key)
+{
 	global $prefdir;
 	
-	$rh_idx=$prefdir."/p2_res_hist.idx";
-	$lines = @file($rh_idx); //読み込み
-	if($lines){//あればtrue
-		foreach($lines as $l){
-			$l=trim($l);
-			$lar = explode("<>", $l);
-			if( $lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs){ // あったら
+	$rh_idx = $prefdir."/p2_res_hist.idx";
+	$lines = @file($rh_idx); // 読み込み
+	if ($lines) {	// あればtrue
+		foreach ($lines as $l) {
+			$l = rtrim($l);
+			$lar = explode('<>', $l);
+			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) { // あったら
 				return true;
 			}
 		}
@@ -93,69 +95,75 @@ function checkResHist($host, $bbs, $key){
 	return false;
 }
 
-// ==================================================
-// 指定したキーの履歴を削除する関数
-// ==================================================
-function offRecent($host, $bbs, $key){
+/**
+ * 指定したキーの履歴を削除する
+ */
+function offRecent($host, $bbs, $key)
+{
 	global $rctfile;
 
-	$lines = @file($rctfile); //読み込み
-	if($lines){ //あれば削除
-		foreach($lines as $l){
-			$l=trim($l);
-			$lar = explode("<>", $l);
-			if( $lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs){ // 削除
+	$lines = @file($rctfile); // 読み込み
+	if ($lines) { // あれば削除
+		foreach ($lines as $line) {
+			$line = rtrim($line);
+			$lar = explode('<>', $line);
+			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) { // 削除
 				$done = true;
 				continue;
 			}
-			$neolines[]=$l;
+			$neolines[] = $line;
 		}
 	}
 
 	//書き込む
-	$fp = @fopen($rctfile,"w") or die("Error: cannot write. ({$rctfile})");
-	if($neolines){
-		foreach($neolines as $l){ fputs($fp, $l."\n"); }
+	$fp = @fopen($rctfile, "wb") or die("Error: cannot write. ({$rctfile})");
+	if ($neolines) {
+		foreach($neolines as $l){
+			fputs($fp, $l."\n");
+		}
 	}
 	fclose($fp);
 	
-	if($done){
+	if ($done) {
 		return 1;
-	}else{
+	} else {
 		return 2;
 	}
 }
 
-// ==================================================
-// 指定したキーの書き込み履歴を削除する関数
-// ==================================================
-function offResHist($host, $bbs, $key){
+/**
+ * 指定したキーの書き込み履歴を削除する
+ */
+function offResHist($host, $bbs, $key)
+{
 	global $prefdir;
 	
-	$rh_idx=$prefdir."/p2_res_hist.idx";
-	$lines = @file($rh_idx); //読み込み
-	if($lines){//あれば削除
+	$rh_idx = $prefdir."/p2_res_hist.idx";
+	$lines = @file($rh_idx); // 読み込み
+	if ($lines) {	// あれば削除
 		foreach($lines as $l){
-			$l=trim($l);
-			$lar = explode("<>", $l);
-			if( $lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs){ // 削除
+			$l = rtrim($l);
+			$lar = explode('<>', $l);
+			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) { // 削除
 				$done = true;
 				continue;
 			}
-			$neolines[]=$l;
+			$neolines[] = $l;
 		}
 	}
 
-	//書き込む
-	$fp = @fopen($rh_idx,"w") or die("Error: cannot write. ({$rh_idx})");
-	if($neolines){
-		foreach($neolines as $l){ fputs($fp, $l."\n"); }
+	// 書き込む
+	$fp = @fopen($rh_idx,"wb") or die("Error: cannot write. ({$rh_idx})");
+	if ($neolines) {
+		foreach ($neolines as $l) {
+			fputs($fp, $l."\n");
+		}
 	}
 	fclose($fp);
 	
-	if($done){
+	if ($done) {
 		return 1;
-	}else{
+	} else {
 		return 2;
 	}
 }

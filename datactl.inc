@@ -86,15 +86,18 @@ function datdirOfHost($host){
 	return $datdir_host;
 }
 
-//===============================================
-// key.idx に data を記録する関数
-//===============================================
-function setKeyIdx($keyidx, $data){
+/**
+ * key.idx に data を記録する
+ */
+function setKeyIdx($keyidx, $data)
+{
 	global $key_perm;
 	
+	$data = rtrim($data);
+	
 	FileCtl::make_datafile($keyidx, $key_perm);
-	$fp=fopen($keyidx, "w") or die("Error: {$keyidx} を更新できませんでした");
-	fputs($fp, $data);
+	$fp = fopen($keyidx, "wb") or die("Error: {$keyidx} を更新できませんでした");
+	fputs($fp, $data."\n");
 	fclose($fp);
 }
 

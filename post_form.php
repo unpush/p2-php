@@ -76,8 +76,8 @@ EOP;
 $datdir_host = datdirOfHost($host);
 $key_idx = $datdir_host."/".$bbs."/".$key.".idx";
 if (file_exists($key_idx)) {
-	if ($lines=@file($key_idx)) {
-		$line = explode("<>", $lines[0]);
+	if ($lines = @file($key_idx)) {
+		$line = explode('<>', rtrim($lines[0]));
 		$FROM = $line[7];
 		$mail = $line[8];
 	}

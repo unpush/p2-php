@@ -208,46 +208,49 @@ if($host && $bbs && $key){
 	$datdir_host = datdirOfHost($host);
 	$keyidx = $datdir_host."/".$bbs."/".$key.".idx";
 	
-	//読み込み
-	if( $keylines=@file($keyidx) ){
-		$akeyline = explode("<>", $keylines[0]);
+	// 読み込み
+	if ($keylines = @file($keyidx)) {
+		$akeyline = explode('<>', rtrim($keylines[0]));
 	}
 	$s = "$akeyline[0]<>$akeyline[1]<>$akeyline[2]<>$akeyline[3]<>$akeyline[4]<>$akeyline[5]<>$akeyline[6]<>$FROM<>$mail<>$akeyline[9]";
-	setKeyIdx($keyidx, $s); //key.idxに記録
+	setKeyIdx($keyidx, $s); // key.idxに記録
 }
 
 //=============================================
 // 書き込み履歴
 //=============================================
-if(!$posted){return;}
+if (!$posted) { return; }
 
-if($host && $bbs && $key){
+if ($host && $bbs && $key) {
 	
-	$rh_idx=$prefdir."/p2_res_hist.idx";
+	$rh_idx = $prefdir."/p2_res_hist.idx";
 	FileCtl::make_datafile($rh_idx, $res_write_perm); //なければ生成
 	
 	//読み込み;
-	$lines= @file($rh_idx);
+	$lines = @file($rh_idx);
 	
 	//最初に重複要素を削除
-	if($lines){
-		foreach($lines as $l){
-			$lar = explode("<>", $l);
-			if($lar[1]==$key){continue;} //重複回避
-			if(! $lar[1]){continue;} //keyのないものは不正データ
-			$neolines[]=$l;
+	if ($lines) {
+		foreach ($lines as $line) {
+			$line = rtrim($line);
+			$lar = explode('<>', $line);
+			if ($lar[1] == $key) { continue; } // 重複回避
+			if (!$lar[1]) { continue; } // keyのないものは不正データ
+			$neolines[] = $line;
 		}
 	}
 	
-	//新規データ追加
-	$newdata="$ttitle<>$key<><><><><><>$FROM<>$mail<><>$host<>$bbs\n";
-	$neolines ? array_unshift($neolines, $newdata) : $neolines=array($newdata);
+	// 新規データ追加
+	$newdata = "$ttitle<>$key<><><><><><>$FROM<>$mail<><>$host<>$bbs";
+	$neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
 	while( sizeof($neolines) > $res_hist_rec_num ){ array_pop($neolines); }
 	
-	//書き込む
-	$fp = @fopen($rh_idx,"w") or die("Error: $rh_idx を更新できませんでした");
-	if($neolines){
-		foreach($neolines as $l){ fputs($fp,"$l"); }
+	// 書き込む
+	$fp = @fopen($rh_idx, "wb") or die("Error: {$rh_idx} を更新できませんでした");
+	if ($neolines) {
+		foreach ($neolines as $l) {
+			fputs($fp, $l."\n");
+		}
 	}
 	fclose($fp);
 
@@ -274,7 +277,7 @@ if ($res_write_rec) {
 	}
 
 	// 新規データ
-	$newdata = "$FROM<>$mail<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key\n";
+	$newdata = "$FROM<>$mail<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key";
 
 	// まずタブを全て外して
 	$newdata = str_replace("\t", "", $newdata);
@@ -287,16 +290,16 @@ if ($res_write_rec) {
 	// 新しいデータを追加
 	@array_push($lines, $newdata);
 	// 先頭文を追加
-	@array_unshift($lines, "<?php /*\n");
+	@array_unshift($lines, "<?php /*");
 	// 末文を追加
-	@array_push($lines, "*/ ?>\n");
+	@array_push($lines, "*/ ?>");
 
 	
 	// 書き込む
-	$fp = @fopen($p2_res_hist_dat_php,"wb") or die("Error: {$p2_res_hist_dat_php} を更新できませんでした");
+	$fp = @fopen($p2_res_hist_dat_php, "wb") or die("Error: {$p2_res_hist_dat_php} を更新できませんでした");
 	flock($fp, LOCK_EX);
 	foreach ($lines as $l) {
-		fputs($fp, $l);
+		fputs($fp, $l."\n");
 	}
 	flock($fp, LOCK_UN);
 	fclose($fp);
@@ -613,16 +616,16 @@ function getKeyInSubject()
 	$datdir_host = datdirOfHost($host);
 	$subject_url = "http://{$host}/{$bbs}/subject.txt";
 	$subjectfile = $datdir_host."/".$bbs."/subject.txt";
-	FileCtl::mkdir_for($subjectfile); //板ディレクトリが無ければ作る
+	FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
 	P2Util::subjectDownload($subject_url, $subjectfile);
-	if(extension_loaded('zlib') and strstr($host, ".2ch.net")){
+	if (extension_loaded('zlib') and strstr($host, ".2ch.net")) {
 		$subject_txt_lines = @gzfile($subjectfile);
-	}else{
+	} else {
 		$subject_txt_lines = @file($subjectfile);
 	}
-	foreach($subject_txt_lines as $l){
-		if(strstr($l, $ttitle)){
-			if( preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches) ){
+	foreach ($subject_txt_lines as $l) {
+		if (strstr($l, $ttitle)) {
+			if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches)) {
 				return $key = $matches[1];
 			}
 		}

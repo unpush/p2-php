@@ -18,7 +18,7 @@ if ($bottom_res_form) {
 	if (file_exists($aThread->keyidx)) {
 		unset($lines);
 		if ($lines = @file($aThread->keyidx)) {
-			$line = explode("<>", $lines[0]);
+			$line = explode('<>', rtrim($lines[0]));
 			$FROM = $line[7];
 			$mail = $line[8];
 		}

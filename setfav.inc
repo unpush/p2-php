@@ -15,28 +15,22 @@ if($_GET['setfav']=="0" or $_GET['setfav']=="1"){
 // key.idx
 //==================================================================
 
-//idxfileのパスを求めて
-$datdir_host=datdirOfHost($_GET['host']);
-$idxfile="$datdir_host/{$_GET['bbs']}/{$_GET['key']}.idx";
+// idxfileのパスを求めて
+$datdir_host = datdirOfHost($_GET['host']);
+$idxfile = "$datdir_host/{$_GET['bbs']}/{$_GET['key']}.idx";
 
-//板ディレクトリが無ければ作る
-//FileCtl::mkdir_for($idxfile);
+// 板ディレクトリが無ければ作る
+// FileCtl::mkdir_for($idxfile);
 
-//データがあるなら読み込んで
-if( is_readable($idxfile) ){
-	$lines=@file($idxfile);
-	$data = explode("<>", $lines[0]);
-	$data = array_map('rtrim', $data);
+// データがあるなら読み込んで
+if (is_readable($idxfile)) {
+	$lines = @file($idxfile);
+	$l = rtrim($lines[0]);
+	$data = explode('<>', $l);
 }
 
-//値設定
-$s="$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>{$favbool}<>$data[7]<>$data[8]<>$data[9]";
-/*	
-//書き込む
-$fp=fopen($idxfile,"w") or die("Error: $idxfile を更新できませんでした");
-fputs($fp,$s);
-fclose($fp);
-*/
+// 値設定
+$s = "$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>{$favbool}<>$data[7]<>$data[8]<>$data[9]";
 
 //==================================================================
 // favlist.idxに書き込む
@@ -57,24 +51,25 @@ $favlines= @file($favlistfile);
 //================================================
 
 //最初に重複要素を削除
-if($favlines){
-	$i=-1;
+if (!empty($favlines)) {
+	$i = -1;
 	unset($neolines);
-	foreach($favlines as $favl){
+	foreach ($favlines as $line) {
 		$i++;
-		$lar = explode("<>", $favl);
-		if($lar[1]==$_GET['key']){ //重複回避
-			$before_line_num=$i;
+		$line = rtrim($line);
+		$lar = explode('<>', $line);
+		if ($lar[1] == $_GET['key']) { // 重複回避
+			$before_line_num = $i;
 			continue;
-		}elseif(! $lar[1]){ //keyのないものは不正データ
+		} elseif (!$lar[1]) { // keyのないものは不正データ
 			continue;
-		}else{
-			$neolines[]=$favl;
+		} else {
+			$neolines[] = $line;
 		}
 	}
 }
 
-//新規データ設定
+// 新規データ設定
 if($_GET['setfav']){
 	$newdata="$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>{$favbool}<>$data[7]<>$data[8]<>$data[9]<>{$_GET['host']}<>{$_GET['bbs']}\n";
 }
@@ -97,19 +92,23 @@ if($_GET['setfav']==1 or $_GET['setfav']=="top"){
 //================================================
 //書き込む
 //================================================
-$fp = @fopen($favlistfile,"wb") or die("Error: $favlistfile を更新できませんでした");
+$fp = @fopen($favlistfile, "wb") or die("Error: $favlistfile を更新できませんでした");
 
-if($neolines){
-	$i=0;
-	foreach($neolines as $l){
-		if($i===$after_line_num){fputs($fp, $newdata);}
-		fputs($fp, $l);
+if ($neolines) {
+	$i = 0;
+	foreach ($neolines as $l) {
+		if ($i === $after_line_num) {
+			fputs($fp, $newdata."\n");
+		}
+		fputs($fp, $l."\n");
 		$i++;
 	}
-	if($after_line_num==="bottom"){fputs($fp, $newdata);}
-	//「$after_line_num=="bottom"」だと誤動作する。
-}else{
-	fputs($fp, $newdata);
+	if ($after_line_num === "bottom") {
+		fputs($fp, $newdata."\n");
+	}
+	//「$after_line_num == "bottom"」だと誤動作する。
+} else {
+	fputs($fp, $newdata."\n");
 }
 fclose($fp);
 

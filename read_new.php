@@ -53,10 +53,10 @@ if($spmode){
 	//スレッドあぼーんリスト読込
 	$datdir_host = datdirOfHost($host);
 	$tabornlines = @file($datdir_host."/".$bbs."/p2_threads_aborn.idx");
-	if($tabornlines){
-		$ta_num=sizeOf($tabornlines);
-		foreach($tabornlines as $taline){
-			$tarray = explode("<>", $taline);
+	if ($tabornlines) {
+		$ta_num = sizeOf($tabornlines);
+		foreach ($tabornlines as $l) {
+			$tarray = explode('<>', rtrim($l));
 			$ta_keys[ $tarray[1] ] = true;
 		}
 	}
@@ -234,10 +234,10 @@ function readNew($aThread)
 	$aThread->itaj = getItaName($aThread->host, $aThread->bbs);
 	if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
 
-	//idxファイルがあれば読み込む
-	if( is_readable($aThread->keyidx) ){
-		$idxlines=@file($aThread->keyidx);
-		$data = explode("<>", $idxlines[0]);
+	// idxファイルがあれば読み込む
+	if (is_readable($aThread->keyidx)) {
+		$lines = @file($aThread->keyidx);
+		$data = explode('<>', rtrim($lines[0]));
 	}
 	$aThread->getThreadInfoFromIdx($aThread->keyidx);
 	
@@ -250,7 +250,7 @@ function readNew($aThread)
 	
 	//DATを読み込み
 	$aThread->readDat($aThread->keydat);
-	$aThread->setTitleFromLocal(); //ローカルからタイトルを取得して設定
+	$aThread->setTitleFromLocal(); // ローカルからタイトルを取得して設定
 	
 	//===========================================================
 	// 表示レス番の範囲を設定
@@ -389,22 +389,22 @@ EOP;
 	// key.idxの値設定
 	//==================================================================
 	
-	if($aThread->rescount){
+	if ($aThread->rescount) {
 	
-		if($aThread->resrange['to']+1 > $aThread->newline){
+		if ($aThread->resrange['to']+1 > $aThread->newline) {
 			$aThread->newline = $aThread->resrange['to']+1;
-		}else{
+		} else {
 			$aThread->newline = $data[9];
 		}
-		//異常値修正
-		if($aThread->newline > $aThread->rescount+1){
+		// 異常値修正
+		if ($aThread->newline > $aThread->rescount+1) {
 			$aThread->newline = $aThread->rescount+1;
-		}elseif($aThread->newline < 1){
+		} elseif ($aThread->newline < 1) {
 			$aThread->newline = 1;
 		}
 		
 		$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>{$aThread->newline}";
-		setKeyIdx($aThread->keyidx, $s); //key.idxに記録
+		setKeyIdx($aThread->keyidx, $s); // key.idxに記録
 	}
 
 }
