@@ -9,8 +9,10 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
  */
 function subjectDownload($url, $subjectfile)
 {
-	global $datdir, $_info_msg_ht, $p2version, $ext_win_target, $fsockopen_time_limit, $proxy;
+	global $_conf, $datdir, $_info_msg_ht, $p2version, $ext_win_target, $fsockopen_time_limit, $proxy;
 
+	$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
+	
 	if (file_exists($subjectfile)) {
 		if ($_GET['norefresh'] or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku'])) { // 検索
 			return;
@@ -61,7 +63,7 @@ function subjectDownload($url, $subjectfile)
 		$fp = @fopen($subjectfile,"wb") or die("Error: {$subjectfile} を更新できませんでした");
 		fwrite($fp, $body);
 		fclose($fp);
-		
+		chmod($subjectfile, $perm);
 	}
 	
 	return $wap_res;
