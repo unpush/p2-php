@@ -1,5 +1,9 @@
 <?php
-// p2 - お気にスレ関係の処理スクリプト
+/*
+	p2 - お気にスレ関係の処理スクリプト
+
+	お気にスレの追加削除や、順序変更で呼ばれる
+*/
 
 require_once './filectl.class.php';
 require_once("./datactl.inc");
@@ -7,8 +11,8 @@ require_once("./datactl.inc");
 //==================================================================
 // 変数
 //==================================================================
-if($_GET['setfav']=="0" or $_GET['setfav']=="1"){
-	$favbool=$_GET['setfav'];
+if ($_GET['setfav'] == '0' or $_GET['setfav'] == '1') {
+	$favbool = $_GET['setfav'];	// スレ個別idxでのお気に入りフラグは現在は使用（機能）していない。お気にスレ情報は、favlist.idxでまとめて受け持つ。
 }
 
 //==================================================================
@@ -22,7 +26,7 @@ $idxfile = "$datdir_host/{$_GET['bbs']}/{$_GET['key']}.idx";
 // 板ディレクトリが無ければ作る
 // FileCtl::mkdir_for($idxfile);
 
-// データがあるなら読み込んで
+// 既にidxデータがあるなら読み込む
 if (is_readable($idxfile)) {
 	$lines = @file($idxfile);
 	$l = rtrim($lines[0]);
@@ -30,10 +34,10 @@ if (is_readable($idxfile)) {
 }
 
 // 値設定
-$s = "$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>{$favbool}<>$data[7]<>$data[8]<>$data[9]";
+//$s = "$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>{$favbool}<>$data[7]<>$data[8]<>$data[9]";
 
 //==================================================================
-// favlist.idxに書き込む
+// favlist.idx
 //==================================================================
 
 //================================================
@@ -44,24 +48,27 @@ $s = "$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>{$favboo
 FileCtl::make_datafile($favlistfile, $favlist_perm);
 
 //favlist読み込み;
-$favlines= @file($favlistfile);
+$favlines = @file($favlistfile);
 
 //================================================
 // 処理
 //================================================
 
-//最初に重複要素を削除
+// 最初に重複要素を削除しておく
 if (!empty($favlines)) {
 	$i = -1;
-	unset($neolines);
+	$neolines = array();
 	foreach ($favlines as $line) {
 		$i++;
 		$line = rtrim($line);
 		$lar = explode('<>', $line);
-		if ($lar[1] == $_GET['key']) { // 重複回避
-			$before_line_num = $i;
+		$lar[1]."<br>";
+		// 重複回避
+		if ($lar[1] == $_GET['key']) {
+			$before_line_num = $i;	// 移動前の行番号
 			continue;
-		} elseif (!$lar[1]) { // keyのないものは不正データ
+		// keyのないものは不正データなのでスキップ
+		} elseif (!$lar[1]) {
 			continue;
 		} else {
 			$neolines[] = $line;
@@ -70,23 +77,27 @@ if (!empty($favlines)) {
 }
 
 // 新規データ設定
-if($_GET['setfav']){
-	$newdata="$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>{$favbool}<>$data[7]<>$data[8]<>$data[9]<>{$_GET['host']}<>{$_GET['bbs']}\n";
+if ($_GET['setfav']) {
+	$newdata = "$data[0]<>{$_GET['key']}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>{$favbool}<>$data[7]<>$data[8]<>$data[9]<>{$_GET['host']}<>{$_GET['bbs']}";
 }
 	
-if($_GET['setfav']==1 or $_GET['setfav']=="top"){
-	$after_line_num=0;
+if ($_GET['setfav'] == 1 or $_GET['setfav'] == 'top') {
+	$after_line_num = 0;	// 移動後の行番号
 	
-}elseif($_GET['setfav']=="up"){
-	$after_line_num=$before_line_num-1;
-	if($after_line_num<0){$after_line_num=0;}
+} elseif ($_GET['setfav'] == 'up') {
+	$after_line_num = $before_line_num - 1;
+	if ($after_line_num < 0) {
+		$after_line_num = 0;
+	}
 	
-}elseif($_GET['setfav']=="down"){
-	$after_line_num=$before_line_num+1;
-	if( $after_line_num >= sizeof($neolines) ){$after_line_num="bottom";}
+} elseif ($_GET['setfav'] == 'down') {
+	$after_line_num = $before_line_num + 1;
+	if ($after_line_num >= sizeof($neolines)) {
+		$after_line_num = 'bottom';
+	}
 	
-}elseif($_GET['setfav']=="bottom"){
-	$after_line_num="bottom";
+} elseif ($_GET['setfav'] == 'bottom') {
+	$after_line_num = 'bottom';
 }
 
 //================================================
@@ -94,7 +105,7 @@ if($_GET['setfav']==1 or $_GET['setfav']=="top"){
 //================================================
 $fp = @fopen($favlistfile, "wb") or die("Error: $favlistfile を更新できませんでした");
 
-if ($neolines) {
+if (!empty($neolines)) {
 	$i = 0;
 	foreach ($neolines as $l) {
 		if ($i === $after_line_num) {
@@ -115,13 +126,12 @@ fclose($fp);
 //================================================
 // お気にスレ共有
 //================================================
-
-if($join_favrank){
-	if($_GET['setfav']=="0"){
-		$act="out";
-	}elseif($_GET['setfav']=="1"){
-		$act="add";
-	}else{
+if ($join_favrank) {
+	if ($_GET['setfav'] == "0") {
+		$act = "out";
+	} elseif ($_GET['setfav'] == "1") {
+		$act = "add";
+	} else {
 		return;
 	}
 	$itaj = getItaName($_GET['host'], $_GET['bbs']);
