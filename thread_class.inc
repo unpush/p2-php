@@ -190,7 +190,7 @@ class Thread{
 	/**
 	 * ■元スレURLを返すメソッド
 	 */
-	function getMotoThread($ls)
+	function getMotoThread($ls = "")
 	{
 		global $ktai;
 		
