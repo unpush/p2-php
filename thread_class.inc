@@ -219,7 +219,7 @@ class Thread{
 			$motothre_url = "http://{$this->host}/test/read.cgi?bbs={$this->bbs}&key={$this->key}";	
 		} elseif (P2Util::isHostJbbsShitaraba($this->host)) {
 			$host_bbs_cgi = preg_replace('{(jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp)}', '$1/bbs/read.cgi', $this->host);
-			$motothre_url = "http://{$host_bbs_cgi}/{$this->bbs}/{$this->key}/";
+			$motothre_url = "http://{$host_bbs_cgi}/{$this->bbs}/{$this->key}/{$ls}";
 			//$motothre_url = "http://{$this->host}/bbs/read.cgi?BBS={$this->bbs}&KEY={$this->key}";
 		} elseif (P2Util::isHost2chs($this->host)) {
 			if ($ktai) {
