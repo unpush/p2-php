@@ -2,6 +2,7 @@
 	* p2 version 1.2.7
 	- 携帯で板メニューがみられなかったバグを修正
 
+	* conf.php
 	* menu_k.php
 	
 
