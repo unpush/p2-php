@@ -185,15 +185,15 @@ if( file_exists($aThread->keydat) or file_exists($aThread->keyidx)  ){$existLog=
 // HTMLƒvƒŠƒ“ƒg
 //=================================================================
 if(!$ktai){
-	$target_read_at=" target=\"read\"";
-	$target_sb_at=" target=\"sbject\"";
+	$target_read_at = " target=\"read\"";
+	$target_sb_at = " target=\"sbject\"";
 }
 
-$motothre_url=$aThread->getMotoThread();
-if($title_msg){
-	$title_st=$title_msg;
-}else{
-	$title_st="info - {$ttitle_name}";
+$motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
+if ($title_msg) {
+	$title_st = $title_msg;
+} else {
+	$title_st = "info - {$ttitle_name}";
 }
 
 header_nocache();

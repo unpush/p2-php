@@ -190,9 +190,9 @@ class Thread{
 	/**
 	 * ■元スレURLを返すメソッド
 	 */
-	function getMotoThread()
+	function getMotoThread($ls)
 	{
-		global $ls, $ktai;
+		global $ktai;
 		
 		if (P2Util::isHostMachiBbs($this->host)) {
 			$motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";

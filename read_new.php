@@ -15,20 +15,19 @@ authorize(); //ユーザ認証
 // 変数
 //==================================================================
 
-$sb_view="shinchaku";
-$newtime= date("gis");
-$_info_msg_ht="";
+$sb_view = "shinchaku";
+$newtime = date("gis");
+$_info_msg_ht = "";
 
 //=================================================
 // 板の指定
 //=================================================
-
-if($_GET['host']){$host = $_GET['host'];}
-if($_POST['host']){$host = $_POST['host'];}
-if($_GET['bbs']){$bbs = $_GET['bbs'];}
-if($_POST['bbs']){$bbs = $_POST['bbs'];}
-if(! $spmode){$spmode = $_GET['spmode'];}
-if(! $spmode){$spmode = $_POST['spmode'];}
+if (isset($_GET['host'])) { $host = $_GET['host']; }
+if (isset($_POST['host'])) { $host = $_POST['host']; }
+if (isset($_GET['bbs'])) { $bbs = $_GET['bbs']; }
+if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
+if (!$spmode) { $spmode = $_GET['spmode']; }
+if (!$spmode) { $spmode = $_POST['spmode']; }
 
 //=================================================
 // あぼーん&NGワード設定読み込み
@@ -273,13 +272,13 @@ function readNew($aThread)
 	//==================================================================
 	// ヘッダ 表示
 	//==================================================================
-	$motothre_url=$aThread->getMotoThread();
+	$motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
 	
-	$ttitle_en=base64_encode($aThread->ttitle);
-	$ttitle_en_q="&amp;ttitle_en=".$ttitle_en;
-	$bbs_q="&amp;bbs=".$aThread->bbs;
-	$key_q="&amp;key=".$aThread->key;
-	$popup_q="&amp;popup=1";
+	$ttitle_en = base64_encode($aThread->ttitle);
+	$ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
+	$bbs_q = "&amp;bbs=".$aThread->bbs;
+	$key_q = "&amp;key=".$aThread->key;
+	$popup_q = "&amp;popup=1";
 	
 	//include($read_header_inc);
 	
