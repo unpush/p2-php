@@ -18,22 +18,22 @@ function machiDownload()
 	// 既得datの取得レス数が適性かどうかを念のためチェック
 	if (file_exists($aThread->keydat)) {
 		$dls = @file($aThread->keydat);
-		if (sizeof($dls) != $aThread->rnum) {
+		if (sizeof($dls) != $aThread->gotnum) {
 			// echo 'bad size!<br>';
 			unlink($aThread->keydat);
-			$aThread->rnum = 0;
+			$aThread->gotnum = 0;
 		}
 	}
 	
-	$aThread->rnum = intval($aThread->rnum);
-	if ($aThread->rnum == 0) {
+	$aThread->gotnum = intval($aThread->gotnum);
+	
+	if ($aThread->gotnum == 0) {
 		$mode = 'wb';
-		$zero_read = true;
+		$START = 1;
 	} else {
 		$mode = 'ab';
+		$START = $aThread->gotnum + 1;
 	}
-
-	$START = $zero_read ? 1 : $aThread->rnum + 1;
 
 	// JBBS@したらば
 	if (P2Util::isHostJbbsShitaraba($aThread->host)) {

@@ -149,29 +149,32 @@ $aThread->setTitleFromLocal(); //タイトルを取得して設定
 //===========================================================
 // 表示レス番の範囲を設定
 //===========================================================
-if ($ktai) {
-	$_conf['before_respointer'] = $_conf['before_respointer_k'];
+if ($_conf['ktai']) {
+	$before_respointer = $_conf['before_respointer_k'];
+} else {
+	$before_respointer = $_conf['before_respointer'];
 }
+
 if ($aThread->isKitoku()) { // 取得済みなら
 	
 	if ($_GET['nt']) { //「新着レスの表示」の時は特別にちょっと前のレスから表示
 		if (substr($ls, -1) == "-") {
-			$n = $ls - $_conf['before_respointer'];
+			$n = $ls - $before_respointer;
 			if ($n<1) { $n = 1; }
 			$ls = "$n-";
 		}
 		
 	} elseif (!$ls) {
-		$from_num = $aThread->newline - $_conf['respointer'] - $_conf['before_respointer'];
+		$from_num = $aThread->readnum +1 - $_conf['respointer'] - $before_respointer;
 		if ($from_num < 1) {
 			$from_num = 1;
 		} elseif ($from_num > $aThread->rescount) {
-			$from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer'];
+			$from_num = $aThread->rescount - $_conf['respointer'] - $before_respointer;
 		}
 		$ls = "$from_num-";
 	}
 	
-	if ($ktai && (!strstr($ls, "n"))) {
+	if ($_conf['ktai'] && (!strstr($ls, "n"))) {
 		$ls = $ls."n";
 	}
 	
@@ -180,14 +183,14 @@ if ($aThread->isKitoku()) { // 取得済みなら
 	if (!$ls) { $ls = $_conf['get_new_res_l']; }
 }
 
-$aThread->lsToPoint($ls, $aThread->rescount);
+$aThread->lsToPoint($ls);
 
 //===============================================================
 // プリント
 //===============================================================
 $ptitle_ht = $aThread->itaj." / ".$aThread->ttitle;
 
-if($ktai){
+if($_conf['ktai']){
 	
 	//ヘッダプリント
 	include("./read_header_k.inc");
@@ -240,19 +243,11 @@ if($ktai){
 //===========================================================
 if ($aThread->rescount) {
 
-	if ($aThread->resrange['to'] +1 >= $aThread->newline) {
-		$aThread->newline = $aThread->resrange['to'] +1;
-	} else {
-		$aThread->newline = $data[9];
-	}
-	// 異常値修正
-	if ($aThread->newline > $aThread->rescount +1) {
-		$aThread->newline = $aThread->rescount +1;
-	} elseif ($aThread->newline < 1) {
-		$aThread->newline = 1;
-	}
+	$aThread->readnum = min($aThread->rescount, max(0, $data[5], $aThread->resrange['to'])); 
 	
-	$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>{$aThread->newline}";
+	$newline = $aThread->readnum + 1;	// $newlineは廃止予定だが、旧互換用に念のため
+
+	$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}";
 	setKeyIdx($aThread->keyidx, $s); // key.idxに記録
 }
 
@@ -260,7 +255,7 @@ if ($aThread->rescount) {
 //履歴を記録
 //===========================================================
 if ($aThread->rescount) {
-	$newdata = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>{$aThread->newline}<>{$aThread->host}<>{$aThread->bbs}";
+	$newdata = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
 	recRecent($newdata);
 }
 

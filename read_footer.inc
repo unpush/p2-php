@@ -37,7 +37,7 @@ EOP;
 
 
 	//2ch‚ÅœƒƒOƒCƒ“’†‚È‚ç
-	if (P2Util::isHost2chs($aThread->host) and file_exists($sid2ch_php)) {
+	if (P2Util::isHost2chs($aThread->host) and file_exists($_conf['sid2ch_php'])) {
 		$isMaruChar = "œ";
 	} else {
 		$isMaruChar = "";

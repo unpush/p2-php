@@ -26,7 +26,7 @@ $ptitle="p2";
 $auth_sub_input_ht="";
 $body_ht="";
 
-if($ktai){
+if($_conf['ktai']){
 	$user_st="Õ°»Ş";
 	$password_st="Êß½Ü°ÄŞ";
 	
@@ -93,7 +93,7 @@ if($_POST['login_user'] && $_POST['login_pass']){
 \$login['pass']='{$crypted_login_pass}';
 ?>
 EOP;
-		FileCtl::make_datafile($auth_user_file, $pass_perm); //$auth_user_file ‚ª‚È‚¯‚ê‚Î¶¬
+		FileCtl::make_datafile($auth_user_file, $_conf['pass_perm']); //$auth_user_file ‚ª‚È‚¯‚ê‚Î¶¬
 		$fp = @fopen($auth_user_file,"w") or die("p2 error: $auth_user_file ‚ğ•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B”FØ{$user_st}“o˜^¸”sB");
 		fputs($fp, $auth_user_cont);
 		fclose($fp);
@@ -137,7 +137,7 @@ echo <<<EOP
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 EOP;
-if(!$ktai){
+if(!$_conf['ktai']){
 	@include("./style/style_css.inc");
 	@include("./style/login_first_css.inc");
 }

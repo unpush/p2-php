@@ -15,6 +15,9 @@ authorize(); //ユーザ認証
 //==================================================================
 // 変数
 //==================================================================
+if (isset($_conf['rnum_all_range']) and $_conf['rnum_all_range'] > 0) {
+	$GLOBALS['rnum_all_range'] = $_conf['rnum_all_range'];
+}
 
 $sb_view = "shinchaku";
 $newtime = date("gis");
@@ -111,8 +114,12 @@ $_info_msg_ht="";
 
 $linesize= sizeof($lines);
 
-for( $x = 0; $x < $linesize ; $x++ ){
-
+for ($x = 0; $x < $linesize ; $x++) {
+	
+	if (isset($GLOBALS['rnum_all_range']) and $GLOBALS['rnum_all_range'] <= 0) {
+		break;
+	}
+	
 	$l=$lines[$x];
 	$aThread = new ThreadRead;
 	
@@ -242,7 +249,7 @@ function readNew($aThread)
 	$aThread->getThreadInfoFromIdx($aThread->keyidx);
 	
 	//==================================================================
-	//DATのダウンロード
+	// DATのダウンロード
 	//==================================================================
 	if(! ($word and file_exists($aThread->keydat)) ){
 		$aThread->downloadDat();
@@ -256,19 +263,19 @@ function readNew($aThread)
 	// 表示レス番の範囲を設定
 	//===========================================================
 	if ($aThread->isKitoku()) { // 取得済みなら
-		$from_num = $aThread->newline - $_conf['respointer'] - $_conf['before_respointer_new'];
-		if($from_num < 1){
+		$from_num = $aThread->readnum +1 - $_conf['respointer'] - $_conf['before_respointer_new'];
+		if ($from_num < 1) {
 			$from_num = 1;
-		}elseif($from_num > $aThread->rescount){
+		} elseif ($from_num > $aThread->rescount) {
 			$from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer_new'];
 		}
 
 		//if(! $ls){
-			$ls="$from_num-";
+			$ls = "$from_num-";
 		//}
 	}
 	
-	$aThread->lsToPoint($ls, $aThread->rescount);
+	$aThread->lsToPoint($ls);
 	
 	//==================================================================
 	// ヘッダ 表示
@@ -385,25 +392,18 @@ EOP;
 		echo $read_footer_ht;
 	}
 
+	flush();
+	
 	//==================================================================
 	// key.idxの値設定
 	//==================================================================
-	
 	if ($aThread->rescount) {
 	
-		if ($aThread->resrange['to']+1 >= $aThread->newline) {
-			$aThread->newline = $aThread->resrange['to'] +1;
-		} else {
-			$aThread->newline = $data[9];
-		}
-		// 異常値修正
-		if ($aThread->newline > $aThread->rescount +1) {
-			$aThread->newline = $aThread->rescount +1;
-		} elseif ($aThread->newline < 1) {
-			$aThread->newline = 1;
-		}
+		$aThread->readnum = min($aThread->rescount, max(0, $data[5], $aThread->resrange['to']));
 		
-		$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>{$aThread->newline}";
+		$newline = $aThread->readnum + 1;	// $newlineは廃止予定だが、旧互換用に念のため
+		
+		$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}";
 		setKeyIdx($aThread->keyidx, $s); // key.idxに記録
 	}
 
@@ -419,11 +419,19 @@ if (!$aThreadList->num) {
 	echo "<hr>";
 }
 
-echo <<<EOP
-	<div id="ntt{$newthre_num}" align="center">
-		$sb_ht の <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt=$newtime">新着まとめ読みを更新</a>
+if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0) {
+	echo <<<EOP
+	<div id="ntt{$_newthre_num}" align="center">
+		{$sb_ht} の <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}">新着まとめ読みを更新</a>
 	</div>\n
 EOP;
+} else {
+	 echo <<<EOP
+	<div id="ntt{$_newthre_num}" align="center">
+		{$sb_ht} の <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1">新着まとめ読みの続き</a>
+	</div>\n
+EOP;
+}
 
 echo <<<EOP
 </body>

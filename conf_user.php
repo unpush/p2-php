@@ -35,6 +35,7 @@ $_conf['brdfile_online'] = "http://azlucky.s25.xrea.com/2chboard/bbsmenu.html";
 /* subject ========================================================== */
 $_conf['refresh_time'] = 20;	// (20) ƒXƒŒƒbƒhˆê——‚Ì©“®XVŠÔŠuBi•ªw’èB0‚È‚ç©“®XV‚µ‚È‚¢Bj
 $_conf['sb_show_motothre'] = 1;	// (1) ƒXƒŒƒbƒhˆê——‚Å–¢æ“¾ƒXƒŒ‚É‘Î‚µ‚ÄŒ³ƒXƒŒ‚Ö‚ÌƒŠƒ“ƒNiEj‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚¢:0)
+$_conf['sb_show_one'] = 0;	// (0) ƒXƒŒƒbƒhˆê——‚Å>>1‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚¢:0, ƒjƒ…[ƒXŒn‚Ì‚İ:2)
 $_conf['sb_show_spd'] = 0;	// (0) ƒXƒŒƒbƒhˆê——‚Å‚·‚Î‚â‚³‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚¢:0)
 $_conf['sb_show_ikioi'] = 1;	// (1) ƒXƒŒƒbƒhˆê——‚Å¨‚¢i1“ú‚ ‚½‚è‚ÌƒŒƒX”j‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚¢:0)
 $_conf['sb_show_fav'] = 0;	// (0) ƒXƒŒƒbƒhˆê——‚Å‚¨‹C‚ÉƒXƒŒƒ}[ƒNš‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚¢:0)
@@ -48,6 +49,7 @@ $_conf['sb_dl_interval'] = 120;	// (120) subject.txt ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û
 $_conf['respointer'] = 1;	// (1) ƒXƒŒ‰{——A–¢“Ç‚Ì‰½ƒR‘O‚ÌƒŒƒX‚Éƒ|ƒCƒ“ƒ^‚ğ‡‚í‚¹‚é‚©
 $_conf['before_respointer'] = 20;	// (20) ƒ|ƒCƒ“ƒ^‚Ì‰½ƒR‘O‚ÌƒŒƒX‚©‚ç•\¦‚·‚é‚©
 $_conf['before_respointer_new'] = 0;	// (0) V’…‚Ü‚Æ‚ß“Ç‚İ‚ÌAƒ|ƒCƒ“ƒ^‚Ì‰½ƒR‘O‚ÌƒŒƒX‚©‚ç•\¦‚·‚é‚©
+$_conf['rnum_all_range'] = 200;	// (200) V’…‚Ü‚Æ‚ß“Ç‚İ‚Åˆê“x‚É•\¦‚·‚éƒŒƒX”
 $_conf['preview_thumbnail'] = 0;	// (0) ‰æ‘œURL‚Ìæ“Ç‚İƒTƒ€ƒlƒCƒ‹ (•\¦‚·‚é:1, ‚µ‚È‚¢:0)
 $_conf['pre_thumb_height'] = "32";	// ("32") ‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ìc‚Ì‘å‚«‚³‚ğw’èiƒsƒNƒZƒ‹j
 $_conf['pre_thumb_width'] = "32";	// ("32") ‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ì‰¡‚Ì‘å‚«‚³‚ğw’èiƒsƒNƒZƒ‹j
@@ -79,6 +81,7 @@ $_conf['brocra_checker_url'] = "http://www.jah.ne.jp/~fild/cgi-bin/LBCC/lbcc.cgi
 $_conf['brocra_checker_query'] = "url";	// ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJ‚ÌƒNƒGƒŠ[
 $_conf['enable_exfilter'] = 1;	// (1) ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÅAND/ORŒŸõ‚ğ‰Â”\‚É‚·‚éioff:0, ƒŒƒX‚Ì‚İ:1, ƒTƒuƒWƒFƒNƒg‚à:2j
 $_conf['flex_idpopup'] = 1;	// (1) ID:xxxxxxxx‚ğIDƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÌƒŠƒ“ƒN‚É•ÏŠ·ioff:0, on:1j
+$_conf['precede_phpcurl'] = 0;		// (0) curl‚ğg‚¤AƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å‚ÆŠÖ””Å‚Ç‚¿‚ç‚ğ—Dæ‚·‚é‚© (ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“:0, ŠÖ”:1)
 
 $_conf['proxy_use'] = 0;	// (0) ƒvƒƒLƒV‚ğ—˜—p(‚·‚é:1, ‚µ‚È‚¢:0)
 $_conf['proxy_host'] = "";	// ("") ƒvƒƒLƒVƒzƒXƒg ex)"127.0.0.1", "www.p2proxy.com"

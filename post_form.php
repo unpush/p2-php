@@ -33,13 +33,13 @@ if(!$ttitle){
 	if($ttitle_en){ $ttitle=base64_decode($ttitle_en); }
 }
 
-if( P2Util::isHost2chs($host) and file_exists($sid2ch_php) ){ //2ch●書き込み
+if( P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php']) ){ //2ch●書き込み
 	$isMaruChar="●";
 }else{
 	$isMaruChar="";
 }
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	$class_ttitle=" class=\"thre_title\"";
 	$target_read=" target=\"read\"";
 	$sub_size_at=" size=\"40\"";
@@ -60,7 +60,7 @@ if($_GET['newthread']){
 	$subject_ht=<<<EOP
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at}><br>
 EOP;
-	if($ktai){$subject_ht="<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$k_at_a}\">{$itaj}</a><br>".$subject_ht;}
+	if($_conf['ktai']){$subject_ht="<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$k_at_a}\">{$itaj}</a><br>".$subject_ht;}
 	$newthread_hidden_ht="<input type=\"hidden\" name=\"newthread\" value=\"1\">";
 }else{
 	$ptitle="{$itaj} - レス書き込み";
@@ -113,7 +113,7 @@ if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']
 //==========================================================
 // HTMLプリント
 //==========================================================
-if (!$ktai) {
+if (!$_conf['ktai']) {
 	$body_on_load=<<<EOP
  onLoad="setFocus('MESSAGE'); checkSage(document.getElementById('mail'));"
 EOP;
@@ -135,7 +135,7 @@ echo <<<EOHEADER
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 EOHEADER;
-if(!$ktai){
+if(!$_conf['ktai']){
 	@include("style/style_css.inc"); //スタイルシート
 	@include("style/post_css.inc"); //スタイルシート
 echo <<<EOSCRIPT

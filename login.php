@@ -33,7 +33,7 @@ $auth_ctl_ht="";
 $auth_sub_input_ht="";
 $ivalue_user="";
 
-if($ktai){
+if($_conf['ktai']){
 	$status_st="ｽﾃｰﾀｽ";
 	$autho_user_st="認証ﾕｰｻﾞ";
 	$client_host_st="端末ﾎｽﾄ";
@@ -170,7 +170,7 @@ if ($_POST['login_user'] && $_POST['login_pass']) {
 \$login['pass'] = '{$crypted_login_pass}';
 ?>
 EOP;
-		FileCtl::make_datafile($auth_user_file, $pass_perm); //$auth_user_file がなければ生成
+		FileCtl::make_datafile($auth_user_file, $_conf['pass_perm']); //$auth_user_file がなければ生成
 		$fp = @fopen($auth_user_file,"w") or die("p2 Error: $auth_user_file を保存できませんでした。認証ユーザ登録失敗。");
 		fputs($fp, $auth_user_cont);
 		fclose($fp);
@@ -191,7 +191,7 @@ EOP;
 }
 
 $body_onload="";
-if(!$ktai){
+if(!$_conf['ktai']){
 	$body_onload=" onLoad=\"setWinTitle();\"";
 }
 
@@ -209,7 +209,7 @@ echo <<<EOP
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 EOP;
-if(!$ktai){
+if(!$_conf['ktai']){
 	@include("./style/style_css.inc");
 	@include("./style/login_css.inc");
 	echo <<<EOP
@@ -221,7 +221,7 @@ echo <<<EOP
 <body{$body_onload}>
 EOP;
 
-if(!$ktai){
+if(!$_conf['ktai']){
 	echo <<<EOP
 <p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
 EOP;
@@ -238,13 +238,13 @@ echo <<<EOP
 EOP;
 echo "</p>";
 
-if($ktai){
+if($_conf['ktai']){
 	echo "<hr>";
 }
 
 echo $login_form_ht;
 
-if($ktai){
+if($_conf['ktai']){
 	echo "<hr>\n";
 	echo $k_to_index_ht;
 }

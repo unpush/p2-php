@@ -26,11 +26,11 @@ if ($prefdir == $datdir) {
 //=========================================================
 // ●ID 2ch オートログイン
 //=========================================================
-if (file_exists($idpw2ch_php)) {
-	include($idpw2ch_php);
+if (file_exists($_conf['idpw2ch_php'])) {
+	include($_conf['idpw2ch_php']);
 	$login2chPW = base64_decode($login2chPW);
 	include_once("./crypt_xor.inc");
-	$login2chPW = decrypt_xor($login2chPW, $crypt_xor_key);
+	$login2chPW = decrypt_xor($login2chPW, $_conf['crypt_xor_key']);
 	if($autoLogin2ch){
 		include_once("./login2ch.inc");
 		login2ch();

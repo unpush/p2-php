@@ -27,28 +27,29 @@ class ThreadList{
 	//==============================================
 	function setSpMode($name)
 	{
-		global $ktai;
-		if($name=="recent"){
-			$this->spmode=$name;
-			$ktai?$this->ptitle="最近読んだｽﾚ":$this->ptitle="最近読んだスレ";
-		}elseif($name=="res_hist"){
-			$this->spmode=$name;
-			$this->ptitle="書き込み履歴";
-		}elseif($name=="fav"){
-			$this->spmode=$name;
-			$ktai?$this->ptitle="お気にｽﾚ":$this->ptitle="お気にスレ";
-		}elseif($name=="taborn"){
-			$this->spmode=$name;
-			$ktai?$this->ptitle="$this->itaj (ｱﾎﾞﾝ中)":$this->ptitle="$this->itaj (あぼーん中)";
-		}elseif($name=="soko"){
-			$this->spmode=$name;
-			$this->ptitle="$this->itaj (dat倉庫)";
-		}elseif($name=="palace"){
-			$this->spmode=$name;
-			$ktai?$this->ptitle="ｽﾚの殿堂":$this->ptitle="スレの殿堂";
-		}elseif($name=="news"){
-			$this->spmode=$name;
-			$ktai?$this->ptitle="ﾆｭｰｽﾁｪｯｸ":$this->ptitle="ニュースチェック";
+		global $_conf;
+		
+		if ($name == "recent") {
+			$this->spmode = $name;
+			$this->ptitle = $_conf['ktai'] ? "最近読んだｽﾚ" : "最近読んだスレ";
+		} elseif ($name == "res_hist") {
+			$this->spmode = $name;
+			$this->ptitle = "書き込み履歴";
+		} elseif ($name == "fav") {
+			$this->spmode = $name;
+			$this->ptitle = $_conf['ktai'] ? "お気にｽﾚ" : "お気にスレ";
+		} elseif ($name == "taborn") {
+			$this->spmode = $name;
+			$this->ptitle = $_conf['ktai'] ? "$this->itaj (ｱﾎﾞﾝ中)" : "$this->itaj (あぼーん中)";
+		} elseif ($name == "soko") {
+			$this->spmode = $name;
+			$this->ptitle = "$this->itaj (dat倉庫)";
+		} elseif ($name == "palace") {
+			$this->spmode = $name;
+			$this->ptitle = $_conf['ktai'] ? "ｽﾚの殿堂" : "スレの殿堂";
+		} elseif ($name == "news") {
+			$this->spmode = $name;
+			$this->ptitle = $_conf['ktai'] ? "ﾆｭｰｽﾁｪｯｸ" : "ニュースチェック";
 		}
 	}
 	

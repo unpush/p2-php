@@ -1,3 +1,65 @@
+2005-01-22 aki
+	* p2 version 1.3.4
+	
+	- 新着まとめ読みで一度に表示するレス数にリミットをつけた
+	  （conf_user.php:  $_conf['rnum_all_range']）
+	- BE ID表示への対応を向上させた （マージ感謝！→rskさん）
+	- スレ一覧で>>1の表示を設定できるようにした
+	  （conf_user.php: $_conf['sb_show_one']）
+	- CURLを利用する時、コマンドライン版とPHP関数版のどちらを優先するかを設定できるようにした
+	  （conf_user.php: $_conf['precede_phpcurl']）
+	- IDフィルタリングポップアップ変換を微改良
+	  （本文中のIDで出現数が0のものは、リンク変換しない）
+	- URL文字列として「'」を含めないようにした
+	- 未読管理の処理を改良した
+	- ユーザ設定の変数名を多数変更した（$_conf['xxx']）
+	- 他、こまごま
+
+	* brdctl_class.inc
+	* conf.php
+	* conf_user.php
+	* datactl.inc
+	* editfavita.php
+	* editfile.php
+	* editpref.php
+	* filectl.class.php
+	* index.php
+	* index_print_k.inc
+	* info.php
+	* login2ch.inc
+	* menu.php
+	* menu_side.php
+	* p2util.class.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_footer.inc
+	* read_header.inc
+	* read_header_k.inc
+	* read_machibbs.inc
+	* read_new.php
+	* read_new_k.php
+	* res_hist_class.inc
+	* sb_footer.inc
+	* sb_footer_k.inc
+	* sb_header.inc
+	* sb_header_k.inc
+	* sb_print.inc
+	* sb_print_k.inc
+	* setfav.inc
+	* setting.php
+	* showbrdmenuk_class.inc
+	* showbrdmenupc_class.inc
+	* showthreadk_class.inc
+	* showthreadpc_class.inc
+	* subject.php
+	* subject_new.php
+	* thread_class.inc
+	* threadlist_class.inc
+	* threadread_class.inc
+	* title.php
+	* viewtxt.php
+
 2005-01-09 aki
 	* p2 version 1.3.3
 	- datを取得できなかった時の表示処理をさらに調整した

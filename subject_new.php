@@ -112,7 +112,7 @@ if($p2_setting['viewnum']=="all"){$threads_num = $threads_num_max;}
 elseif($sb_view=="shinchaku"){$threads_num = $threads_num_max;}
 elseif($sb_view=="edit"){$threads_num = $threads_num_max;}
 elseif($_GET['word']){$threads_num = $threads_num_max;}
-elseif($ktai){$threads_num = $threads_num_max;}
+elseif($_conf['ktai']){$threads_num = $threads_num_max;}
 
 //submit ==========================================
 $submit = $_POST['submit'];
@@ -295,7 +295,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 			continue;
 		} else {
 			$mikke++;
-			if($ktai){
+			if($_conf['ktai']){
 				$aThread->ttitle_ht = $aThread->ttitle;
 			}else{
 				$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
@@ -385,8 +385,8 @@ for( $x = 0; $x < $linesize ; $x++ ){
 					$aThread->isonline = true;
 					$aThread->ttitle = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['ttitle'];
 					$aThread->rescount = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['rescount'];
-					if ($aThread->newline) {
-						$aThread->unum = $aThread->rescount - ($aThread->newline -1);
+					if ($aThread->readnum) {
+						$aThread->unum = $aThread->rescount - $aThread->readnum;
 						// machi bbs はsageでsubjectの更新が行われないそうなので調整しておく
 						if ($aThread->unum < 0 ) { $aThread->unum = 0; }
 					}
@@ -432,7 +432,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 				continue;
 			} else {
 				$mikke++;
-				if ($ktai) {
+				if ($_conf['ktai']) {
 					$aThread->ttitle_ht = $aThread->ttitle;
 				} else {
 					$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
@@ -442,20 +442,21 @@ for( $x = 0; $x < $linesize ; $x++ ){
 		*/
 	}
 	
-	if (!$aThread->rescount) {
-		if ($aThread->rnum) { $aThread->rescount=$aThread->rnum; }
+	// subjexctからrescountが取れなかった場合は、gotnumを利用する。
+	if ((!$aThread->rescount) and $aThread->gotnum) {
+		$aThread->rescount = $aThread->gotnum;
 	}
-	if (!$aThread->ttitle_ht) { $aThread->ttitle_ht=$aThread->ttitle; }
+	if (!$aThread->ttitle_ht) { $aThread->ttitle_ht = $aThread->ttitle; }
 	
-	if($aThread->unum > 0){ //新着あり
-		$shinchaku_attayo=true;
-		$shinchaku_num=$shinchaku_num+$aThread->unum; //新着数set
-	}elseif($aThread->fav){ //お気にスレ
+	if ($aThread->unum > 0) { //新着あり
+		$shinchaku_attayo = true;
+		$shinchaku_num = $shinchaku_num + $aThread->unum; //新着数set
+	} elseif ($aThread->fav) { //お気にスレ
 		;
-	}elseif($aThread->new){ //新規スレ
+	} elseif ($aThread->new) { //新規スレ
 		$_newthre_num++; //※showbrdmenupc_class.inc
-	}else{
-		if($ktai or $spmode!="news"){ //携帯とニュースチェック以外で
+	} else {
+		if($_conf['ktai'] or $spmode!="news"){ //携帯とニュースチェック以外で
 			if($x >= $threads_num){unset($aThread); continue;} //指定数を越えていたらカット
 		}
 	}
@@ -508,7 +509,7 @@ if(!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys){
 // ソート
 //============================================================
 if ($aThreadList->threads) {
-	if($p2_setting['sort']=="midoku" or $ktai){
+	if($p2_setting['sort']=="midoku" or $_conf['ktai']){
 		if($aThreadList->spmode == "soko"){usort($aThreadList->threads, "cmp_key"); }
 		else{usort($aThreadList->threads, "cmp_midoku"); }
 	}
@@ -545,7 +546,7 @@ if ($aThreadList->spmode=="news") {
 //===============================================================
 // プリント
 //===============================================================
-if($ktai){
+if($_conf['ktai']){
 	
 	//倉庫にtorder付与================
 	if($aThreadList->spmode == "soko"){
