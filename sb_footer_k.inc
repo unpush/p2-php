@@ -1,0 +1,107 @@
+<?php
+// p2 -  サブジェクト - 携帯フッタ表示
+// for subject.php
+
+//=================================================
+//フッタプリント
+//=================================================
+$mae_ht = "";
+
+$bbs_q="&amp;bbs=".$aThreadList->bbs;
+
+if($word){
+	$word_at="&amp;word=$word";
+}else{
+	$word_at="";
+}
+
+if($aThreadList->spmode=="fav" && $sb_view=="shinchaku"){
+	$allfav_ht = <<<EOP
+	<p><a href="subject.php?spmode=fav{$norefresh_q}{$k_at_a}">全てのお気にｽﾚを表示</a></p>
+EOP;
+}
+
+// ページタイトル部分HTML設定 ====================================
+if($aThreadList->spmode == "taborn"){
+	$ptitle_ht = <<<EOP
+	<a href="{$ptitle_url}" {$accesskey}="{$k_accesskey['above']}">{$k_accesskey['above']}.<b>{$aThreadList->itaj}</b></a>（ｱﾎﾞﾝ中）
+EOP;
+}elseif($aThreadList->spmode == "soko"){
+	$ptitle_ht = <<<EOP
+	<a  href="{$ptitle_url}" {$accesskey}="{$k_accesskey['above']}">{$k_accesskey['above']}.<b>{$aThreadList->itaj}</b></a>（dat倉庫）
+EOP;
+}elseif($ptitle_url){
+	$ptitle_ht = <<<EOP
+	<a  href="{$ptitle_url}"><b>{$aThreadList->ptitle}</b></a>
+EOP;
+}else{
+	$ptitle_ht = <<<EOP
+	<b>{$aThreadList->ptitle}</b>
+EOP;
+}
+
+//ナビ===============================
+if($disp_navi['from'] > 1){
+	$mae_ht = <<<EOP
+<a href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$word_at}{$k_at_a}" {$accesskey}="{$k_accesskey['prev']}">{$k_accesskey['prev']}.前</a>
+EOP;
+}
+
+if($disp_navi['tugi_from'] < $sb_disp_all_num){
+	$tugi_ht = <<<EOP
+<a href="{$subject_php}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$word_at}{$k_at_a}" {$accesskey}="{$k_accesskey['next']}">{$k_accesskey['next']}.次</a>
+EOP;
+}
+
+if($disp_navi['from']==$disp_navi['end']){
+	$sb_range_on=$disp_navi['from'];
+}else{
+	$sb_range_on="{$disp_navi['from']}-{$disp_navi['end']}";
+}
+$sb_range_st="{$sb_range_on}/{$sb_disp_all_num} ";
+
+if(! $disp_navi['all_once']){
+	$k_sb_navi_ht = <<<EOP
+<p>{$sb_range_st}{$mae_ht} {$tugi_ht}</p>
+EOP;
+}
+	
+//dat倉庫=======================
+if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){ //スペシャルモードでなければ、またはあぼーんリストなら
+	$dat_soko_ht =<<<EOP
+	<a href="{$subject_php}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$k_at_a}">dat倉庫</a> 
+EOP;
+}
+
+//あぼーん中のスレッド=================
+if($ta_num){
+	$taborn_link_ht=<<<EOP
+	<a href="{$subject_php}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$k_at_a}">ｱﾎﾞﾝ中({$ta_num})</a> 
+EOP;
+}
+
+//新規スレッド作成=======
+if(!$aThreadList->spmode){
+	$buildnewthread_ht =<<<EOP
+	<a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=1{$k_at_a}">ｽﾚ立て</a>
+EOP;
+}
+
+// HTMLプリント==============================================
+echo "<hr>";
+echo $k_sb_navi_ht;
+include("./sb_toolbar_k.inc");
+echo $allfav_ht;
+echo "<p>";
+echo $dat_soko_ht;
+echo $taborn_link_ht;
+echo $buildnewthread_ht;
+echo "</p>";
+echo "<hr>";
+echo "<p><a {$accesskey}=\"0\" href=\"index.php{$k_at_q}\">0.TOP</a></p>";
+echo <<<EOP
+</body>
+</html>
+EOP;
+
+?>
