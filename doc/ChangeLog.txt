@@ -1,4 +1,18 @@
 2005-01-22 aki
+	* p2 version 1.3.9
+	
+	- menuのカテゴリ開閉のJavaScriptを微改良
+	  (js/showhide.js)
+	- 引用文中でもBE ID変換表示するようにした
+	  (showthreadpc_class.inc: qRes())
+	- レスフィルタリング時に、Warning表示が出ることがあったのを修正。
+	  (showthreadpc_class.inc)
+	
+	* conf.php
+	* showthreadpc_class.inc
+	* js/showhide.js
+
+2005-01-22 aki
 	* p2 version 1.3.8
 	
 	- メッセージ部分以外もフィルタの色分けがされるようにした。 
@@ -14,6 +28,27 @@
 	  (modified: post.php) 
 	- [その他] read_new.phpでreadNew()関数が$aThreadをリファレンスとして受け取るようにした。
 
+	* brdmenu_class.inc
+	* conf.php
+	* datactl.inc
+	* editfavita.php
+	* filectl.class.php
+	* info.php
+	* p2util.class.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_footer.inc
+	* read_new.php
+	* read_new_k.php
+	* setfav.inc
+	* setfavita.inc
+	* setpalace.inc
+	* settaborn.inc
+	* showthreadpc_class.inc
+	* subject.php
+	* subject_new.php
+	* threadread_class.inc
 
 2005-01-22 aki
 	* p2 version 1.3.7

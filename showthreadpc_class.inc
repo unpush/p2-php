@@ -102,13 +102,13 @@ class ShowThreadPc extends ShowThread{
 			$failed = ($res_filter['match'] == 'on') ? FALSE : TRUE;
 			if ($res_filter['method'] == 'and') {
 				$words_fm_hit = 0;
-				foreach ($words_fm as $word_fm_ao) {
+				foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
 					if (StrCtl::filterMatch($word_fm_ao, $target) == $failed) {
 						if ($res_filter['match'] == 'on') { return; }
 						else { $words_fm_hit++; }
 					}
 				}
-				if ($words_fm_hit == count($words_fm)) { return; }
+				if ($words_fm_hit == count($GLOBALS['words_fm'])) { return; }
 			} elseif (StrCtl::filterMatch($word_fm, $target) == $failed) {
 				return;
 			}
@@ -336,6 +336,16 @@ EOP;
 		$msg = $this->transMsg($msg, $i); // メッセージ変換
 		$mail = $resar[1];
 		$date_id = $resar[2];
+		
+		// {{{ qRes - BEプロファイルリンク変換
+		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>?\$2</a>";
+		$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
+
+		// HTMLポップアップ
+		if ($_conf['iframe_popup']) {
+			$date_id = preg_replace_callback("|<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"{$_conf['ext_win_target']}>(\?#*)</a>|", array($this, 'iframe_popup_callback'), $date_id);
+		}
+		// }}}
 		
 		// IDフィルタ
 		if ($_conf['flex_idpopup'] == 1) {

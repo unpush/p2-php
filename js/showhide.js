@@ -1,20 +1,28 @@
 /* p2 - メニューカテゴリの開閉のためのJavaScript */
 
-if(document.getElementById){
+var gHideClass = 'itas_hide';
+
+if (document.getElementById) {
 	document.writeln('<style type="text/css" media="all">');
 	document.writeln('<!--');
-	document.writeln('.itas_hide{display:none;}');
+	document.writeln('.' + gHideClass + '{ display:none; }');
 	document.writeln('-->');
 	document.writeln('</style>');
 }
 
-function showHide(id){
-	var disp = document.getElementById(id).style.display;
+function showHide(id) {
+	var obj = document.getElementById(id);
 
-	if(disp == "block"){
-		document.getElementById(id).style.display = "none";
-	}else{
-		document.getElementById(id).style.display = "block";
+	if (obj.style.display == 'block') {
+		obj.style.display = "none";
+	} else if(obj.style.display == 'none') {
+		obj.style.display = "block";
+	} else {
+		if (obj.className == gHideClass) {
+			obj.style.display = "block";
+		} else {
+			obj.style.display = "none";
+		}
 	}
 	return false;
 }
