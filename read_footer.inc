@@ -52,7 +52,6 @@ EOP;
 		} else {
 			$accept_charset_ht = "";
 			$safari_fix_ht = <<<EOP
-		$safari_fix_ht = <<<EOP
 <br>
 	Safari‘Îô
 	<input type="checkbox" name="fix_tilde" id="fix_tilde" value="1"><label for="fix_tilde">`¨~</label>

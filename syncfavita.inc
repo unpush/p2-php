@@ -31,7 +31,8 @@ foreach ($_current as $brdmenu) {
 	}
 }
 
-//データの同期
+// ■データの同期
+// 2ch/bbspinkの場合、板リストと現データをbbs（板名）で照合して、板リストデータで現データを上書きする。
 $neolines = array();
 foreach ($lines as $line) {
 	$data = explode("\t", rtrim($line));
@@ -41,8 +42,8 @@ foreach ($lines as $line) {
 		$neolines[] = $line;
 		continue;
 	}
-	$findline = preg_grep($grep_pattern, $current);
-	if ($findline) {
+	if ($findline = preg_grep($grep_pattern, $current)) {
+		// itajは現データを優先。$findlineは最初に見つかったものを利用。
 		if ($data[3]) {
 			$newdata = explode("\t", rtrim(array_shift($findline)));
 			$neolines[] = "\t{$newdata[1]}\t{$newdata[2]}\t{$data[3]}\n";
@@ -55,13 +56,15 @@ foreach ($lines as $line) {
 }
 
 //================================================
-//書き込む
+// 更新があれば、書き込む
 //================================================
 if (serialize($lines) != serialize($neolines)) {
 	$fp = @fopen($favita_path, 'wb') or die("Error: $favita_path を更新できませんでした");
+	flock($fp, LOCK_EX);
 	foreach ($neolines as $l) {
 		fputs($fp, $l);
 	}
+	flock($fp, LOCK_UN);
 	fclose($fp);
 	$sync_ok = true;
 } else {
