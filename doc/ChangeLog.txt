@@ -2,15 +2,11 @@
 	* p2 version 1.3.9
 	
 	- menuのカテゴリ開閉のJavaScriptを微改良
-	  (js/showhide.js)
+	  (showhide.js)
 	- 引用文中でもBE ID変換表示するようにした
 	  (showthreadpc_class.inc: qRes())
 	- レスフィルタリング時に、Warning表示が出ることがあったのを修正。
 	  (showthreadpc_class.inc)
-	
-	* conf.php
-	* showthreadpc_class.inc
-	* js/showhide.js
 
 2005-01-22 aki
 	* p2 version 1.3.8
