@@ -1,7 +1,7 @@
 <?php
 // p2 ƒƒOƒCƒ“
 
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./datactl.inc");
 require_once("./login.inc");
 

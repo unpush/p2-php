@@ -3,7 +3,7 @@
 	p2 - ボードメニュークラス for menu.php
 */
 
-require_once './filectl_class.inc';
+require_once './filectl.class.php';
 require_once("./datactl.inc");
 
 /**

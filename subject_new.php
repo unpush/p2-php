@@ -12,7 +12,7 @@ require_once("./conf.php");  // 設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once("./threadlist_class.inc"); // スレッドリスト クラス
 require_once("./thread_class.inc"); // スレッド クラス
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./datactl.inc");
 
 $shinchaku_num=0;

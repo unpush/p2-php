@@ -5,7 +5,7 @@
 require_once("./conf.php"); //基本設定読込
 require_once("./thread_class.inc"); //スレッドクラス読込
 require_once("./threadread_class.inc"); //スレッドリードクラス読込
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./datactl.inc");
 require_once("./read.inc");
 require_once("./showthread_class.inc"); //HTML表示クラス

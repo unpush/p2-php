@@ -6,7 +6,7 @@
 */
 
 include("./conf.php");   //基本設定ファイル読込
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 
 authorize(); //ユーザ認証
 

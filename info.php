@@ -3,7 +3,7 @@
 
 require_once("./conf.php");  //基本設定ファイル
 require_once("./thread_class.inc"); //スレッドクラス
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./datactl.inc"); //データ処理関数群
 include_once("./dele.inc");
 

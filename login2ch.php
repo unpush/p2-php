@@ -3,7 +3,7 @@
 
 require_once("./conf.php");  // 基本設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
-require_once("./filectl_class.inc");
+require_once './filectl.class.php';
 require_once("./datactl.inc");
 require_once("./crypt_xor.inc");
 
