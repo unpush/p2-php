@@ -82,8 +82,10 @@ elseif( isset($_GET['taborn']) && $key && $host && $bbs){
 
 $aThread = new Thread;
 
-$aThread->setThreadPathInfo($host, $bbs, $key); //hostを分解してidxファイルのパスを求める
+// hostを分解してidxファイルのパスを求める
+$aThread->setThreadPathInfo($host, $bbs, $key);
 $key_line = $aThread->getThreadInfoFromIdx($aThread->keyidx);
+$aThread->getDatBytesFromLocalDat(); // $aThread->length をset
 
 $aThread->itaj = getItaName($aThread->host, $aThread->bbs);
 if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
@@ -272,17 +274,18 @@ if($aThread->rnum){
 }else{
 	print_info_line("既得レス数", "-");
 }
-if($aThread->length){print_info_line("取得サイズ", $aThread->length);}
-
-if(!$ktai){
-	if(file_exists($aThread->keydat)){
+if (!$ktai) {
+	if (file_exists($aThread->keydat)) {
+		if ($aThread->length) {
+			print_info_line("datサイズ", $aThread->length.' バイト');
+		}
 		print_info_line("dat", $aThread->keydat);
-	}else{
+	} else {
 		print_info_line("dat", "-");
 	}
-	if(file_exists($aThread->keyidx)){
+	if (file_exists($aThread->keyidx)) {
 		print_info_line("idx", $aThread->keyidx);
-	}else{
+	} else {
 		print_info_line("idx", "-");
 	}
 }
