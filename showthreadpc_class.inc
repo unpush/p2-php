@@ -190,12 +190,12 @@ class ShowThreadPc extends ShowThread{
 
 		
 		// {{{ transRes - BEプロファイルリンク変換
-		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>BE:\$1</a>-\$2";
+		$beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/{$this->thread->bbs}/\"{$_conf['ext_win_target']}>?\$2</a>";
 		$date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
 
 		// HTMLポップアップ
 		if ($_conf['iframe_popup']) {
-			$date_id = preg_replace_callback("|<a href=\"(http://[-_.!~*'()a-zA-Z0-9;/?:@&=+\$,%#]+)\"{$_conf['ext_win_target']}>(BE:\d+)</a>|", array($this, 'iframe_popup_callback'), $date_id);
+			$date_id = preg_replace_callback("|<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"{$_conf['ext_win_target']}>(\?#*)</a>|", array($this, 'iframe_popup_callback'), $date_id);
 		}
 		// }}}
 				

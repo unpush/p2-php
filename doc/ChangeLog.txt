@@ -1,4 +1,11 @@
 2005-01-22 aki
+	* p2 version 1.3.6
+	- BE IDの表示を改良調整した
+	
+	* conf.php
+	* showthreadpc_class.inc
+
+2005-01-22 aki
 	* p2 version 1.3.5
 	- BE ID表示への対応を向上させた （マージ感謝！→rskさん）
 	
