@@ -161,6 +161,9 @@ $_info_msg_ht="";
 // スレが板サーバになければ ============================
 if ($aThread->diedat) { 
 
+	if ($aThread->getdat_error_msg_ht) {
+		$dat_response_msg .= $aThread->getdat_error_msg_ht;
+	}
 	if ($dat_response_msg) {
 		$diedat_msg = $dat_response_msg;
 	} else {

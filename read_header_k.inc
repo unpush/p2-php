@@ -1,17 +1,17 @@
 <?php
 // p2 -  スレッド表示 -  ヘッダ部分 -  携帯用 for read.php
 
-//変数=====================================
-$diedat_msg="";
+// 変数 =====================================
+$diedat_msg = "";
 
-$info_st="情";
-$delete_st="削";
-$prev_st="前";
-$next_st="次";
-$shinchaku_st="新着";
-$moto_thre_st="元";
-$latest_st="新";
-$dores_st="ﾚｽ";
+$info_st = "情";
+$delete_st = "削";
+$prev_st = "前";
+$next_st = "次";
+$shinchaku_st = "新着";
+$moto_thre_st = "元";
+$latest_st = "新";
+$dores_st = "ﾚｽ";
 
 $motothre_url = $aThread->getMotoThread($GLOBAL['ls']);
 $ttitle_en = base64_encode($aThread->ttitle);
@@ -24,25 +24,25 @@ $offline_q = "&amp;offline=1";
 // ヘッダ
 //=================================================================
 
-//お気にマーク設定==================================================
+// お気にマーク設定 ==================================================
 
-if($aThread->fav){$favmark="<span class=\"fav\">★</span>";}else{$favmark="<span class=\"fav\">+</span>";}
-if($aThread->fav){$favdo=0;}else{$favdo=1;}
+if ($aThread->fav) {$favmark="<span class=\"fav\">★</span>";}else{$favmark="<span class=\"fav\">+</span>";}
+if ($aThread->fav) {$favdo=0;}else{$favdo=1;}
 
-//レスナビ設定=====================================================
+// レスナビ設定 =====================================================
 
 $rnum_range = $k_rnum_range;
 $latest_show_res_num = $k_rnum_range; //最新XX
 
-$read_navi_range="";
-$read_navi_previous="";
-$read_navi_previous_btm="";
-$read_navi_next="";
-$read_navi_next_btm="";
-$read_footer_navi_new="";
-$read_footer_navi_new_btm="";
-$read_navi_latest="";
-$read_navi_latest_btm="";
+$read_navi_range = "";
+$read_navi_previous = "";
+$read_navi_previous_btm = "";
+$read_navi_next = "";
+$read_navi_next_btm = "";
+$read_footer_navi_new = "";
+$read_footer_navi_new_btm = "";
+$read_navi_latest = "";
+$read_navi_latest_btm = "";
 
 //----------------------------------------------
 // $read_navi_range -- 1- 101- 201-
@@ -144,13 +144,16 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht="";
 
-//スレが板サーバになければ============================
-if($aThread->diedat){ 
+// スレが板サーバになければ============================
+if ($aThread->diedat) { 
 
-	if($dat_response_msg){
-		$diedat_msg=$dat_response_msg;
-	}else{
-		$diedat_msg="<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
+	if ($aThread->getdat_error_msg_ht) {
+		$dat_response_msg .= $aThread->getdat_error_msg_ht;
+	}
+	if ($dat_response_msg) {
+		$diedat_msg = $dat_response_msg;
+	} else {
+		$diedat_msg = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
 	}
 
 	$motothre_ht = "<a href=\"{$motothre_url}\">{$motothre_url}</a>";
