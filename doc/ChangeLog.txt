@@ -1,4 +1,21 @@
 2004-11-30 aki
+	* p2 version 1.1.6
+	
+	- スレッド一覧で元スレへのリンクを追加した。（・）
+	- 長過ぎる書き込み時に確認表示が切れることがあったのを修正
+	- スレッド一覧のソートのデフォルトを「勢い」に変更
+
+	* info.php
+	* post.php
+	* read_header.inc
+	* read_header_k.inc
+	* read_new.php
+	* read_new_k.php
+	* sb_print.inc
+	* subject.php
+	* thread_class.inc
+
+2004-11-30 aki
 	* p2 version 1.1.5
 	
 	- p2imeで、プレビュー(p)は手動転送、それ以外は自動転送の設定を追加
