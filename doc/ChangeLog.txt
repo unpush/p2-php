@@ -1,3 +1,10 @@
+2005-01-02 aki
+	* p2 version 1.2.9
+	- menu_side.php が表示できなかったバグを修正
+
+	* conf.php
+	* menu_side.php
+	
 2005-01-01 aki
 	* p2 version 1.2.8
 	- 2ch全体での、Be.2ch書き込みに対応
