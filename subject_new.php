@@ -159,13 +159,13 @@ elseif (isset($_GET['setpal']) && $_GET['key'] && $host && $bbs) {
 
 // あぼーんスレッド解除
 elseif (($_POST['submit'] == $abornoff_st) && $host && $bbs && $_POST['checkedkeys']) {
-	include_once("settaborn_off.inc");
+	include_once 'settaborn_off.inc.php';
 	settaborn_off($host, $bbs, $_POST['checkedkeys']);
 }
 
 // スレッドあぼーん
 elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-	include_once("settaborn.inc");
+	include_once 'settaborn.inc.php';
 	settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
@@ -509,15 +509,15 @@ for( $x = 0; $x < $linesize ; $x++ ){
 
 /*
 // 既にdat落ちしているスレは自動的にあぼーんを解除する =========================
-if(!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys){
-	include_once("settaborn_off.inc");
+if (!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys) {
+	include_once 'settaborn_off.inc.php';
 	//echo sizeof($ta_keys)."*<br>";
 	$ta_vkeys = array_keys($ta_keys);
 	settaborn_off($aThreadList->host, $aThreadList->bbs, $ta_vkeys);
 	foreach ($ta_vkeys as $k) {
 		$ta_num--;
 		if ($k) {
-			$ks.="key:$k ";
+			$ks .= "key:$k ";
 		}
 	}
 	$ks && $_info_msg_ht .= "<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>";

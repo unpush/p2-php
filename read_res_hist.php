@@ -25,7 +25,7 @@ $deletemsg_st = '削除';
 $ptitle = '書き込んだレスの記録';
 
 //================================================================
-//特殊な前置処理
+// 特殊な前置処理
 //================================================================
 // 削除
 if ($_POST['submit'] == $deletemsg_st) {
@@ -95,7 +95,9 @@ EOP;
 // ヘッダ 表示
 //==================================================================
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+if (isset($_conf['doctype'])) {
+	echo $_conf['doctype'];
+}
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -106,6 +108,7 @@ echo <<<EOP
 	<title>{$ptitle}</title>
 EOP;
 
+// PC用表示
 if (!$_conf['ktai']) {
 	@include("style/style_css.inc"); // スタイルシート
 	@include("style/read_css.inc"); // スタイルシート
@@ -113,6 +116,7 @@ if (!$_conf['ktai']) {
 	echo <<<EOSCRIPT
 	<script type="text/javascript" src="js/basic.js"></script>
 	<script type="text/javascript" src="js/respopup.js"></script>
+	
 	<script type="text/javascript"> 
 	function hist_checkAll(mode) { 
 		if (!document.getElementsByName) { 
@@ -130,12 +134,13 @@ EOSCRIPT;
 
 echo <<<EOP
 </head>
-<body>
+<body onLoad="gIsPageLoaded = true;">\n
 EOP;
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
+// 携帯用表示
 if ($_conf['ktai']) {
 	echo "{$ptitle}<br>";
 	echo '<div id="header" name="header">';
@@ -143,10 +148,11 @@ if ($_conf['ktai']) {
 	echo " <a {$_conf['accesskey']}=\"8\" href=\"#footer\"{$_conf['k_at_a']}>8.▼</a><br>";
 	echo "</div>";
 	echo "<hr>";
-	
+
+// PC用表示
 } else {
 	echo <<<EOP
-<form method="POST" action="./read_res_hist.php" target="_self">
+<form method="POST" action="./read_res_hist.php" target="_self" onSubmit="if(gIsPageLoaded){return true;}else{alert('まだページを読み込み中なんです。もうちょっと待って。');return false;}">
 EOP;
 
 	echo <<<EOP
@@ -155,7 +161,7 @@ EOP;
 		<td>
 			<h3 class="thread_title">{$ptitle}</h3>
 		</td>
-		<td align="right"><!--{$htm['toolbar']}--></td>
+		<td align="right">{$htm['toolbar']}</td>
 		<td align="right" style="padding-left:12px;"><a href="#footer">▼</a></td>
 	</tr>
 </table>\n
@@ -175,28 +181,31 @@ if ($_conf['ktai']) {
 //==================================================================
 // フッタ 表示
 //==================================================================
+// 携帯用表示
 if ($_conf['ktai']) {
 	echo '<div id="footer" name="footer">';
 	$aResHist->showNaviK("footer");
 	echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$_conf['k_at_a']}>2.▲</a><br>";
 	echo "</div>";
 	echo "<p>{$_conf['k_to_index_ht']}</p>";
+
+// PC用表示
 } else {
 	echo "<hr>";
 	echo <<<EOP
 <table id="footer" width="100%" style="padding:0px 10px 0px 0px;">
 	<tr>
-		<td>{$htm['toolbar']}</td>
+		<td align="right">{$htm['toolbar']}</td>
 		<td align="right" style="padding-left:12px;"><a href="#header">▲</a></td>
 	</tr>
 </table>\n
 EOP;
 }
 
-$debug && $prof->printTimers(true);//
+$debug && $prof->printTimers(true); //
 
 if (!$_conf['ktai']) {
-	echo '</form>';
+	echo '</form>'."\n";
 }
 
 echo '</body></html>';

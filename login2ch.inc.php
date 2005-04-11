@@ -4,7 +4,7 @@ include_once './conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
 
 /**
- * ■2chにログインする
+ * ■2ch IDにログインする
  */
 function login2ch()
 {
@@ -70,7 +70,7 @@ function login2ch()
 		
 		$_info_msg_ht .= "<p>p2 info: 2ちゃんねるへの●IDログインを行うには、systemでcurlコマンドが使用可能であるか、PHPの<a href=\"http://www.php.net/manual/ja/ref.curl.php\">CURL関数</a>が有効である必要があります。</p>";
 
-		$_info_msg_ht .= "<p>p2 Error: 2chログイン処理に失敗しました。{$curl_msg}</p>";
+		$_info_msg_ht .= "<p>p2 error: 2chログイン処理に失敗しました。{$curl_msg}</p>";
 		return false;
 	}
 	
@@ -95,13 +95,13 @@ function login2ch()
 	if ($uaMona == "ERROR") {
 		if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
 		if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
-		$_info_msg_ht .= "<p>p2 Error: SESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>";
+		$_info_msg_ht .= "<p>p2 error: SESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>";
 		return false;
 	}
 
 	//echo $r;//
 	
-	// SIDの記録保持 =======================
+	// {{{ SIDの記録保持
 	$cont = <<<EOP
 <?php
 \$uaMona='{$uaMona}';
@@ -118,7 +118,8 @@ EOP;
 	fwrite($fp, $cont);
 	@flock($fp, LOCK_UN);
 	fclose($fp);
-
+	// }}}
+	
 	return $SID2ch;
 }
 
@@ -139,11 +140,11 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
 		$with_proxy = "";
 	}
 	
-	// ●「systemコマンドでcurl」（証明書検証あり）を実行
+	// 「systemコマンドでcurl」（証明書検証あり）を実行
 	$curlcmd = "curl -H \"{$x_2ch_ua}\" -A {$dolib2ch} -d ID={$login2chID} -d PW={$login2chPW} -o {$tempfile}{$with_proxy} {$auth2ch_url}";
 	system($curlcmd, $curlrtn);
 	
-	// ●「systemコマンドのcurl」（証明書検証あり）で無理だったなら、（証明書検証なし）で再チャレンジ
+	// 「systemコマンドのcurl」（証明書検証あり）で無理だったなら、（証明書検証なし）で再チャレンジ
 	if ($curlrtn != 0) {
 		$curlcmd = "curl -H \"{$x_2ch_ua}\" -A {$dolib2ch} -d ID={$login2chID} -d PW={$login2chPW} -o {$tempfile}{$with_proxy} -k {$auth2ch_url}";
 		system($curlcmd, $curlrtn);
@@ -165,11 +166,11 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
 {
 	global $_conf;
 	
-	// ■PHPのCURLが使えるなら、それでチャレンジ
+	// PHPのCURLが使えるなら、それでチャレンジ
 	if (extension_loaded('curl')) {
-		// ●「PHPのcurl」（証明書検証あり）で実行
+		// 「PHPのcurl」（証明書検証あり）で実行
 		execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, true);
-		// ●「PHPのcurl」（証明書検証あり）で無理なら、「PHPのcurl」（証明書検証なし）で再チャレンジ
+		// 「PHPのcurl」（証明書検証あり）で無理なら、「PHPのcurl」（証明書検証なし）で再チャレンジ
 		if (!@file_get_contents($tempfile)) {
 			execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, false);
 		}

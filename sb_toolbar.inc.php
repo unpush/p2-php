@@ -46,7 +46,7 @@ echo <<<EOP
 			<td align="left" valign="middle" nowrap>	
 				<form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
 					$sb_form_hidden_ht
-					<input type="submit" name="submit" value="更新">
+					<input type="submit" name="submit_refresh" value="更新">
 					$sb_disp_num_ht
 				</form>
 			</td>

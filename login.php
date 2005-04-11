@@ -25,54 +25,54 @@ regist_set_cookie();
 //=========================================================
 // 書き出し用変数
 //=========================================================
-$ptitle="p2認証ユーザ管理";
+$ptitle = "p2認証ユーザ管理";
 
-$autho_user_ht="";
-$auth_ctl_ht="";
-$auth_sub_input_ht="";
-$ivalue_user="";
+$autho_user_ht = "";
+$auth_ctl_ht = "";
+$auth_sub_input_ht = "";
+$ivalue_user = "";
 
-if($_conf['ktai']){
-	$status_st="ｽﾃｰﾀｽ";
-	$autho_user_st="認証ﾕｰｻﾞ";
-	$client_host_st="端末ﾎｽﾄ";
-	$client_ip_st="端末IPｱﾄﾞﾚｽ";
-	$browser_ua_st="ﾌﾞﾗｳｻﾞUA";
-	$p2error_st="p2 ｴﾗｰ";
+if ($_conf['ktai']) {
+	$status_st = "ｽﾃｰﾀｽ";
+	$autho_user_st = "認証ﾕｰｻﾞ";
+	$client_host_st = "端末ﾎｽﾄ";
+	$client_ip_st = "端末IPｱﾄﾞﾚｽ";
+	$browser_ua_st = "ﾌﾞﾗｳｻﾞUA";
+	$p2error_st = "p2 ｴﾗｰ";
 	
-	$user_st="ﾕｰｻﾞ";
-	$password_st="ﾊﾟｽﾜｰﾄﾞ";
-}else{
-	$status_st="ステータス";
-	$autho_user_st="認証ユーザ";
-	$client_host_st="端末ホスト";
-	$client_ip_st="端末IPアドレス";
-	$browser_ua_st="ブラウザUA";
-	$p2error_st="p2 エラー";
+	$user_st = "ﾕｰｻﾞ";
+	$password_st = "ﾊﾟｽﾜｰﾄﾞ";
+} else {
+	$status_st = "ステータス";
+	$autho_user_st = "認証ユーザ";
+	$client_host_st = "端末ホスト";
+	$client_ip_st = "端末IPアドレス";
+	$browser_ua_st = "ブラウザUA";
+	$p2error_st = "p2 エラー";
 	
-	$user_st="ユーザ";
-	$password_st="パスワード";
+	$user_st = "ユーザ";
+	$password_st = "パスワード";
 }
 
 
-if($login['use']){
-	$autho_user_ht="{$autho_user_st}: {$login['user']}<br>";
+if ($login['use']) {
+	$autho_user_ht = "{$autho_user_st}: {$login['user']}<br>";
 }
 
-//補助認証=====================================
-//EZ認証===============
-if($_SERVER['HTTP_X_UP_SUBNO']){
-	if( file_exists($_conf['auth_ez_file']) ){
+// 補助認証 =====================================
+// EZ認証 ===============
+if ($_SERVER['HTTP_X_UP_SUBNO']) {
+	if (file_exists($_conf['auth_ez_file'])) {
 		$auth_ctl_ht=<<<EOP
 EZ端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?regist_ez=out{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
-	}else{
-		if($_SERVER['PHP_AUTH_USER']){
-			$auth_ctl_ht=<<<EOP
+	} else {
+		if ($_SERVER['PHP_AUTH_USER']) {
+			$auth_ctl_ht = <<<EOP
 [<a href="{$_SERVER['PHP_SELF']}?regist_ez=in{$_conf['k_at_a']}">EZ端末IDで認証を登録</a>]<br>
 EOP;
 		}
-		$auth_sub_input_ht=<<<EOP
+		$auth_sub_input_ht = <<<EOP
 	<input type="checkbox" name="regist_ez" value="in" checked>EZ端末IDで認証を登録<br>
 EOP;
 	}
@@ -94,13 +94,13 @@ EOP;
 EOP;
 	}
 	
-//Cookie認証================
-}else{
-	if( ($_COOKIE["p2_user"]==$login['user']) && ($_COOKIE["p2_pass"] == $login['pass'])){
+// Cookie認証================
+} else {
+	if (($_COOKIE["p2_user"] == $login['user']) && ($_COOKIE["p2_pass"] == $login['pass'])) {
 			$auth_cookie_ht = <<<EOP
 cookie認証登録済[<a href="cookie.php?regist_cookie=out{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
-	}else{
+	} else {
 		if ($_SERVER['PHP_AUTH_USER']) {
 			$auth_cookie_ht = <<<EOP
 [<a href="cookie.php?regist_cookie=in{$_conf['k_at_a']}">cookieで認証を登録</a>]<br>
@@ -115,15 +115,15 @@ EOP;
 // Cookie認証チェック ====================================
 if ($_GET['regist_cookie_check']) {
 	if (($_COOKIE["p2_user"] == $login['user']) && ($_COOKIE["p2_pass"] == $login['pass'])) {
-		if($_GET['regist_cookie_check']=="in"){
+		if ($_GET['regist_cookie_check'] == "in") {
 			$_info_msg_ht .= "<p>○cookie認証登録完了</p>";
-		}elseif($_GET['regist_cookie_check']=="out"){
+		} elseif ($_GET['regist_cookie_check']=="out"){
 			$_info_msg_ht .= "<p>×cookie認証解除失敗</p>";
 		}
-	}else{
-		if($_GET['regist_cookie_check']=="out"){
+	} else {
+		if ($_GET['regist_cookie_check'] == "out") {
 			$_info_msg_ht .= "<p>○cookie認証解除完了</p>";
-		}elseif($_GET['regist_cookie_check']=="in"){
+		} elseif ($_GET['regist_cookie_check'] == "in") {
 			$_info_msg_ht .= "<p>×cookie認証登録失敗</p>";
 		}
 	}
@@ -133,16 +133,16 @@ if ($_GET['regist_cookie_check']) {
 // 認証ユーザ設定読み込み ========
 if (file_exists($_conf['auth_user_file'])) {
 	include($_conf['auth_user_file']);	
-	if( isset($login['user']) ){
+	if (isset($login['user'])) {
 		$ivalue_user=$login['user'];
 	}
 }
-if( isset($_POST['login_user']) ){
+if (isset($_POST['login_user'])) {
 	$ivalue_user=$_POST['login_user'];
 }
 	
 // 認証ユーザ登録フォーム================
-$login_form_ht =<<<EOP
+$login_form_ht = <<<EOP
 <form id="login_change" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
 	認証{$user_st}名と{$password_st}の変更<br>
 	{$_conf['k_input_ht']}
@@ -154,6 +154,9 @@ $login_form_ht =<<<EOP
 </form>\n
 EOP;
 
+if ($_conf['ktai']) {
+	$login_form_ht = '<hr>'.$login_form_ht;
+}
 
 // ユーザ登録処理=================================
 if ($_POST['login_user'] && $_POST['login_pass']) {
@@ -210,7 +213,7 @@ echo <<<EOP
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 EOP;
-if(!$_conf['ktai']){
+if (!$_conf['ktai']) {
 	@include("./style/style_css.inc");
 	@include("./style/login_css.inc");
 	echo <<<EOP
@@ -222,14 +225,14 @@ echo <<<EOP
 <body{$body_onload}>
 EOP;
 
-if(!$_conf['ktai']){
+if (!$_conf['ktai']) {
 	echo <<<EOP
 <p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
 EOP;
 }
 
 echo $_info_msg_ht;
-$_info_msg_ht="";
+$_info_msg_ht = "";
 	
 echo "<p id=\"login_status\">";
 echo <<<EOP
@@ -238,10 +241,6 @@ echo <<<EOP
 {$auth_cookie_ht}
 EOP;
 echo "</p>";
-
-if ($_conf['ktai']) {
-	echo "<hr>";
-}
 
 echo $login_form_ht;
 

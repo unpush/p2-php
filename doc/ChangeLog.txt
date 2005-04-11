@@ -1,4 +1,26 @@
 2005-04-01 aki
+	* p2 version 1.5.9
+	
+	- [新機能] 一度に表示する画像サムネイルの数を設定できるようになった
+	- [新機能] 板表示のスレッド一覧でのデフォルトのソート指定を設定できるようにした（初期値は勢い） 
+		$_conf['sb_sort_ita']
+	- [改良] p2のフィルタ（検索）表示で、全角/半角のどちらでもマッチするように、あまり区別しないようにした
+	- [改良] 書き込みログの削除ボタンをページの上部にも付けた
+	- [Bug Fix] 書き込み時にクッキー確認があると、BE書き込みが無効になっていたのを修正
+	- 他、こまごま
+
+	- ファイル名変更
+		read_machibbs.inc → read_machibbs.inc.php
+		sb_toolbar.inc → sb_toolbar.inc.php
+		sb_toolbar_k.inc → sb_toolbar_k.inc.php
+		setfavita.inc → setfavita.inc.php
+		settaborn.inc → settaborn.inc.php
+		settaborn_off.inc.php → settaborn_off.inc.php
+		syncfavita.inc → syncfavita.inc.php
+		syncindex.inc → syncindex.inc.php
+
+
+2005-04-01 aki
 	* p2 version 1.5.8
 
 	- [新機能] 書き込み時のデフォルトの名前とメールを設定できるようにした
@@ -25,7 +47,55 @@
 
 	- 新規追加ファイル
 		menu.inc.php
-
+		
+	* brdmenu.class.php
+	* conf.inc.php
+	* conf_user.inc.php
+	* editfavita.php
+	* editpref.php
+	* info.php
+	* login.php
+	* login2ch.php
+	* menu.inc.php is new
+	* menu.php
+	* menu_k.php
+	* menu_side.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_footer.inc.php
+	* read_footer_k.inc is removed
+	* read_footer_k.inc.php is new
+	* read_header.inc.php
+	* read_header_k.inc is removed
+	* read_header_k.inc.php is new
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.php
+	* res_hist.class.php
+	* sb_footer_k.inc is removed
+	* sb_footer_k.inc.php is new
+	* sb_header.inc.php
+	* sb_header_k.inc is removed
+	* sb_header_k.inc.php is new
+	* sb_print.inc is removed
+	* sb_print.inc.php is new
+	* sb_print_k.inc is removed
+	* sb_print_k.inc.php is new
+	* setfav.inc.php
+	* setpalace.inc.php
+	* setting.php
+	* showbrdmenuk.class.php
+	* showbrdmenupc.class.php
+	* showthread.class.php
+	* showthreadk.class.php
+	* showthreadpc.class.php
+	* subject.php
+	* subject_new.php
+	* thread.class.php
+	* threadlist.class.php
+	* threadread.class.php
+	* title.php
 
 2005-03-21 aki
 	* p2 version 1.5.7

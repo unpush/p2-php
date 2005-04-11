@@ -76,7 +76,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 
 // スレッドあぼーん
 } elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-	include_once("settaborn.inc");
+	include_once 'settaborn.inc.php';
 	settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
@@ -243,8 +243,8 @@ echo <<<EOHEADER
 EOHEADER;
 
 if (!$_conf['ktai']) {
-	echo "<!-- ".$key_line." -->\n";
-	@include("./style/style_css.inc"); //基本スタイルシート読込
+	// echo "<!-- ".$key_line." -->\n";
+	@include("./style/style_css.inc"); // 基本スタイルシート読込
 	@include("./style/info_css.inc");
 }
 

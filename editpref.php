@@ -26,9 +26,9 @@ $synctitle = array(
 if (isset($_POST['sync'])) {
 	$syncfile = $_POST['sync'];
 	if ($syncfile == $_conf['favita_path']) {
-		include_once './syncfavita.inc';
+		include_once './syncfavita.inc.php';
 	} elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
-		include_once './syncindex.inc';
+		include_once './syncindex.inc.php';
 	}
 	if ($sync_ok) {
 		$_info_msg_ht .= "<p>{$synctitle[$syncfile]}ÇìØä˙ÇµÇ‹ÇµÇΩÅB</p>";

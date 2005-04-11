@@ -77,55 +77,58 @@ class BrdCtl{
 				if ($_GET['nr']) {
 					$noDL = true;
 				// キャッシュの更新が指定時間以内ならDLしない
-				}elseif (@filemtime($cachefile.'.p2.brd') > time() - 60 * 60 * $_conf['menu_dl_interval']) {
+				} elseif (@filemtime($cachefile.'.p2.brd') > time() - 60 * 60 * $_conf['menu_dl_interval']) {
 					$noDL = true;
 				}
 			}
 			
-			if ($noDL) {	// DLしない
+			// DLしない
+			if ($noDL) {
 				;
-			} else {	// DLする
+			// DLする
+			} else {
 				//echo "DL!<br>";//
 				$brdfile_online_res = P2Util::fileDownload($_conf['brdfile_online'], $cachefile);
 				if ($brdfile_online_res->is_success() && $brdfile_online_res->code != "304") {
 					$isNewDL = true;
 				}
 			}
-		
-			if( preg_match("/html?$/", $_conf['brdfile_online']) ){ //html形式なら
 			
-				//更新されていたら新規キャッシュ作成
-				if( $isNewDL ){
+			// html形式なら
+			if (preg_match("/html?$/", $_conf['brdfile_online'])) {
+			
+				// 更新されていたら新規キャッシュ作成
+				if ($isNewDL) {
 					//echo "NEW!<br>";//
-					$aBrdMenu = new BrdMenu; //クラス BrdMenu のオブジェクトを生成
-					$aBrdMenu->makeBrdFile($cachefile); //.p2.brdファイルを生成
+					$aBrdMenu = new BrdMenu; // クラス BrdMenu のオブジェクトを生成
+					$aBrdMenu->makeBrdFile($cachefile); // .p2.brdファイルを生成
 					$brd_menus[] = $aBrdMenu;
 					$read_html_flag = true;
 					unset($aBrdMenu);
 				}
 				
-				if( file_exists($cachefile.".p2.brd") ){
-					$cashe_brd = $cachefile.".p2.brd";
-				}else{
+				if (file_exists($cachefile.'.p2.brd')) {
+					$cashe_brd = $cachefile.'.p2.brd';
+				} else {
 					$cashe_brd = $cachefile;
 				}
 				
-			}else{
+			} else {
 				$cashe_brd = $cachefile;
 			}
 			
-			if(! $read_html_flag){
-				if( $data = @file($cashe_brd) ){
-					$aBrdMenu = new BrdMenu; //クラス BrdMenu のオブジェクトを生成
-					$aBrdMenu->setBrdMatch($cashe_brd); //パターンマッチ形式を登録
-					$aBrdMenu->setBrdList($data); //カテゴリーと板をセット
-					if($aBrdMenu->num){
+			if (!$read_html_flag) {
+				if ($data = @file($cashe_brd)) {
+					$aBrdMenu = new BrdMenu; // クラス BrdMenu のオブジェクトを生成
+					$aBrdMenu->setBrdMatch($cashe_brd); // パターンマッチ形式を登録
+					$aBrdMenu->setBrdList($data); // カテゴリーと板をセット
+					if ($aBrdMenu->num) {
 						$brd_menus[] = $aBrdMenu;
-					}else{
+					} else {
 						$_info_msg_ht .=  "<p>p2 エラー: {$cashe_brd} から板メニューを生成することはできませんでした。</p>\n";
 					}
 					unset($data, $aBrdMenu);
-				}else{
+				} else {
 					$_info_msg_ht .=  "<p>p2 エラー: {$cachefile} は読み込めませんでした。</p>\n";
 				}
 			}

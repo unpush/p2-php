@@ -4,7 +4,7 @@
 	for subject.php
 */
 
-require_once './p2util.class.php';
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 //===================================================================
 // 変数
@@ -25,7 +25,7 @@ EOP;
 EOP;
 		}
 		/*
-		elseif($aThreadList->spmode == "soko"){
+		elseif ($aThreadList->spmode == "soko") {
 			$taborn_check_ht .= <<<EOP
 		<p>{$aThreadList->num}件のdat落ちスレッドが保管されています。</p>\n
 EOP;
@@ -34,7 +34,7 @@ EOP;
 }
 
 //===============================================================
-// HTML表示用変数 for ツールバー(sb_toolbar.inc) 
+// HTML表示用変数 for ツールバー(sb_toolbar.inc.php) 
 //===============================================================
 
 $norefresh_q = "&amp;norefresh=true";
@@ -274,7 +274,7 @@ echo <<<EOP
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onLoad="setWinTitle();">
 EOP;
 
-include("./sb_toolbar.inc");
+include './sb_toolbar.inc.php';
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";
