@@ -45,7 +45,7 @@ echo <<<EOP
 EOP;
 	
 // sbject ツールバー =====================================
-include("./sb_toolbar.inc");
+include './sb_toolbar.inc.php';
 
 echo "<p>";
 echo $dat_soko_ht;

@@ -1,4 +1,26 @@
 2005-04-01 aki
+	* p2 version 1.5.9
+	
+	- [新機能] 一度に表示する画像サムネイルの数を設定できるようになった
+	- [新機能] 板表示のスレッド一覧でのデフォルトのソート指定を設定できるようにした（初期値は勢い） 
+		$_conf['sb_sort_ita']
+	- [改良] p2のフィルタ（検索）表示で、全角/半角のどちらでもマッチするように、あまり区別しないようにした
+	- [改良] 書き込みログの削除ボタンをページの上部にも付けた
+	- [Bug Fix] 書き込み時にクッキー確認があると、BE書き込みが無効になっていたのを修正
+	- 他、こまごま
+
+	- ファイル名変更
+		read_machibbs.inc → read_machibbs.inc.php
+		sb_toolbar.inc → sb_toolbar.inc.php
+		sb_toolbar_k.inc → sb_toolbar_k.inc.php
+		setfavita.inc → setfavita.inc.php
+		settaborn.inc → settaborn.inc.php
+		settaborn_off.inc.php → settaborn_off.inc.php
+		syncfavita.inc → syncfavita.inc.php
+		syncindex.inc → syncindex.inc.php
+
+
+2005-04-01 aki
 	* p2 version 1.5.8
 
 	- [新機能] 書き込み時のデフォルトの名前とメールを設定できるようにした

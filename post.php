@@ -490,7 +490,7 @@ function postIt($URL)
 	} elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
 		$more_hidden_ht = '';
-		$more_hidden_keys = array('newthread','post_be2ch','from_read_new');
+		$more_hidden_keys = array('newthread','submit_beres','from_read_new');
 		foreach ($more_hidden_keys as $hk) {
 			if (isset($_POST[$hk])) {
 				$value_hs = htmlspecialchars($_POST[$hk]);

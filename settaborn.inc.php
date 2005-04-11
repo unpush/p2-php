@@ -61,8 +61,8 @@ function settaborn($host, $bbs, $key, $set)
 	}
 	
 	// 新規データ追加
-	if ($set==1 or !$aborn_attayo && $set == 2) {
-		$newdata="$data[0]<>{$key}<><><><><><><><>";
+	if ($set == 1 or !$aborn_attayo && $set == 2) {
+		$newdata = "$data[0]<>{$key}<><><><><><><><>";
 		$neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
 		$title_msg_pre = "○ あぼーん しますた";
 		$info_msg_pre = "○ あぼーん しますた";
@@ -81,6 +81,7 @@ function settaborn($host, $bbs, $key, $set)
 	
 	$title_msg = $title_msg_pre;
 	$info_msg = $info_msg_pre;
+	
 	return true;
 }
 

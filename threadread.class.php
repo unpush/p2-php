@@ -38,11 +38,11 @@ class ThreadRead extends Thread{
 		
 		// ‚Ü‚¿BBS
 		if (P2Util::isHostMachiBbs($this->host)) {
-			include_once("read_machibbs.inc");
+			require_once 'read_machibbs.inc.php';
 			machiDownload();
 		// JBBS@‚µ‚½‚ç‚Î
 		} elseif (P2Util::isHostJbbsShitaraba($this->host)) {
-			include_once("read_machibbs.inc");
+			require_once 'read_machibbs.inc.php';
 			machiDownload();
 		} else {
 			$this->getDatBytesFromLocalDat(); // $aThread->length ‚ğset
@@ -59,7 +59,7 @@ class ThreadRead extends Thread{
 					}
 				}
 
-				include($_conf['sid2ch_php']);
+				include $_conf['sid2ch_php'];
 				$this->downloadDat2chMaru();
 
 			// 2ch‚Ì‰ß‹ƒƒO‘qŒÉ“Ç‚İ

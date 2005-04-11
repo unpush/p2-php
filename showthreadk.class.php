@@ -3,9 +3,12 @@
 
 class ShowThreadK extends ShowThread{
 	
-	function ShowThreadK($aThread)
+	/**
+	 * コンストラクタ
+	 */
+	function ShowThreadK(&$aThread)
 	{
-		$this->thread = $aThread;
+		$this->ShowThread($aThread);
 	}
 	
 	/**

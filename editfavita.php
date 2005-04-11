@@ -18,11 +18,11 @@ $_info_msg_ht = '';
 
 // お気に板の追加・削除、並び替え
 if (isset($_GET['setfavita']) or isset($_POST['setfavita'])) {
-	include("./setfavita.inc");
+	include './setfavita.inc.php';
 }
 // お気に板のホストを同期
 if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
-	include './syncfavita.inc';
+	include './syncfavita.inc.php';
 }
 
 // プリント用変数 ======================================================
@@ -88,11 +88,19 @@ FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 // favita読み込み
 $lines = file($_conf['favita_path']);
 
+// PC用
 if (!$_conf['ktai']) {
 	$onclick = " onClick='parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"'";
+	$m_php = $_SERVER['PHP_SELF'];
+	
+// 携帯用
+} else {
+	$onclick = '';
+	$m_php = 'menu_k.php?view=favita&amp;nr=1'.$_conf['k_at_a'].'&amp;nt='.time();
 }
+
 echo <<<EOP
-<div><b>お気に板の編集</b> [<a href="{$_SERVER['PHP_SELF']}{$_conf['k_at_q']}"{$onclick}>メニューを更新</a>]</div>
+<div><b>お気に板の編集</b> [<a href="{$m_php}"{$onclick}>メニューを更新</a>]</div>
 EOP;
 
 echo $add_favita_form_ht;

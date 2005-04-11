@@ -53,7 +53,7 @@ if ($_conf['bottom_res_form']) {
  onMouseover="document.getElementById('kakiko').style.display = 'block';"
 EOP;
 
-	$ttitle_ht = <<<EOP
+	$htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
 
@@ -79,7 +79,7 @@ EOP;
 		
 	$res_form_ht = <<<EOP
 <div id="kakiko">
-{$ttitle_ht}
+{$htm['resform_ttitle']}
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
 	<input type="hidden" name="detect_hint" value="◎◇">
 	 {$isMaruChar}名前： <input name="FROM" type="text" value="{$hd['FROM']}" size="19"> 
@@ -108,7 +108,7 @@ $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
 	if (!$aThread->diedat) {
-		$dores_ht = <<<EOP
+		$htm['dores'] = <<<EOP
 	  | <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}&amp;popup=1',{$STYLE['post_pop_size']},0,0)"{$onmouse_showform_ht}>{$dores_st}</a>
 EOP;
 		$res_form_ht_pb = $res_form_ht;
@@ -118,9 +118,9 @@ EOP;
 	}
 	
 	// レスのすばやさ
-	$spd_ht = "";
-	if ($spd_st = $aThread->getTimePerRes() and $spd_st != "-") {
-		$spd_ht = '<span class="spd" title="すばやさ＝時間/レス">'."" . $spd_st."".'</span>';
+	$htm['spd'] = '';
+	if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
+		$htm['spd'] = '<span class="spd" title="すばやさ＝時間/レス">'."" . $spd_st."".'</span>';
 	}
 	
 	// {{{ フィルタヒットがあった場合、次Xと続きを読むを更新
@@ -157,8 +157,8 @@ EOP;
 			{$read_navi_next} 
 			<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a> 
 			| {$read_footer_navi_new} 
-			{$dores_ht}
-			{$spd_ht}
+			{$htm['dores']}
+			{$htm['spd']}
 		</td>
 		<td align="right">
 			{$htm['p2frame']}

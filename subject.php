@@ -35,13 +35,13 @@ if (isset($_POST['from'])) { $sb_disp_from = $_POST['from']; }
 if (!isset($sb_disp_from)) { $sb_disp_from = 1; }
 
 // ■p2_setting 設定 ======================================
-if ($spmode) {
+if (!empty($spmode)) {
 	$p2_setting_txt = $_conf['pref_dir'].'/p2_setting_'.$spmode.'.txt';
 } else {
 	$datdir_host = P2Util::datdirOfHost($host);
-	$p2_setting_txt = $datdir_host."/".$bbs."/p2_setting.txt";
-	$sb_keys_b_txt = $datdir_host."/".$bbs."/p2_sb_keys_b.txt";
-	$sb_keys_txt = $datdir_host."/".$bbs."/p2_sb_keys.txt";
+	$p2_setting_txt = $datdir_host.'/'.$bbs.'/p2_setting.txt';
+	$sb_keys_b_txt = $datdir_host.'/'.$bbs.'/p2_sb_keys_b.txt';
+	$sb_keys_txt = $datdir_host.'/'.$bbs.'/p2_sb_keys.txt';
 
 	if ($_GET['norefresh']) {
 		if ($prepre_sb_cont = @file_get_contents($sb_keys_b_txt)) {
@@ -67,7 +67,7 @@ $itaj_pre = $p2_setting['itaj'];
 
 if (isset($_GET['sb_view'])) { $sb_view = $_GET['sb_view']; }
 if (isset($_POST['sb_view'])) { $sb_view = $_POST['sb_view']; }
-if (!$sb_view) {$sb_view = "normal";}
+if (empty($sb_view)) {$sb_view = "normal";}
 
 if (isset($_GET['viewnum'])) { $p2_setting['viewnum'] = $_GET['viewnum']; }
 if (isset($_POST['viewnum'])) { $p2_setting['viewnum'] = $_POST['viewnum']; }
@@ -77,11 +77,15 @@ if (isset($_GET['sort'])) { $p2_setting['sort'] = $_GET['sort']; }
 if (isset($_POST['sort'])) { $p2_setting['sort'] = $_POST['sort']; }
 
 // ソートのデフォルト指定
-if (!$p2_setting['sort']) {
-	if ($spmode) {
+if (empty($p2_setting['sort'])) {
+	if (!empty($spmode)) {
 		$p2_setting['sort'] = "midoku";	// 新着
 	} else {
-		$p2_setting['sort'] = "ikioi";
+		if (!empty($_conf['sb_sort_ita'])) {
+			$p2_setting['sort'] = $_conf['sb_sort_ita'];
+		} else {
+			$p2_setting['sort'] = "ikioi";	// 勢い
+		}
 	}
 }
 
@@ -90,7 +94,7 @@ if (isset($_GET['itaj_en'])) { $p2_setting['itaj'] = base64_decode($_GET['itaj_e
 // ■表示スレッド数 ====================================
 $threads_num_max = 2000;
 
-if (!$spmode || $spmode=="news") {
+if (empty($spmode) || $spmode == 'news') {
 	$threads_num = $p2_setting['viewnum'];
 } elseif ($spmode == 'recent') {
 	$threads_num = $_conf['rct_rec_num'];
@@ -103,22 +107,15 @@ if (!$spmode || $spmode=="news") {
 if ($p2_setting['viewnum'] == 'all') { $threads_num = $threads_num_max; }
 elseif ($sb_view == 'shinchaku') { $threads_num = $threads_num_max; }
 elseif ($sb_view == 'edit') { $threads_num = $threads_num_max; }
-elseif ($_GET['word']) { $threads_num = $threads_num_max; }
+elseif (isset($_GET['word'])) { $threads_num = $threads_num_max; }
 elseif ($_conf['ktai']) { $threads_num = $threads_num_max; }
-
-// submit ==========================================
-if (isset($_GET['submit'])) {
-	$submit = $_GET['submit'];
-} elseif (isset($_POST['submit'])) {
-	$submit = $_POST['submit'];
-}
 
 $abornoff_st = 'あぼーん解除';
 $deletelog_st = 'ログを削除';
 
-// ■ワードフィルタ ====================================
-// 検索
-if (!$submit or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku'])) {
+// {{{ ワードフィルタ ====================================
+// 検索指定があれば
+if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
 	if (isset($_GET['word'])) {
 		$word = $_GET['word'];
 	} elseif (isset($_POST['word'])) {
@@ -140,11 +137,12 @@ if (!$submit or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku']
 			$words_fm = @mb_split('\s+', $word_fm);
 			$word_fm = @mb_ereg_replace('\s+', '|', $word_fm);
 		} else {
-			$words_fm = @preg_split('/\s+/u', $word_fm);
-			$word_fm = @preg_replace('/\s+/u', '|', $word_fm);
+			$words_fm = @preg_split('/\s+/', $word_fm);
+			$word_fm = @preg_replace('/\s+/', '|', $word_fm);
 		}
 	}
 }
+// }}}
 
 $nowtime = time();
 
@@ -153,7 +151,7 @@ $nowtime = time();
 //============================================================
 
 // 削除
-if ($_GET['dele'] or ($_POST['submit'] == $deletelog_st)) {
+if (!empty($_GET['dele']) or ($_POST['submit'] == $deletelog_st)) {
 	if ($host && $bbs) {
 		include_once 'dele.inc.php';
 		if ($_POST['checkedkeys']) {
@@ -176,12 +174,12 @@ if ($_GET['dele'] or ($_POST['submit'] == $deletelog_st)) {
 
 // あぼーんスレッド解除
 } elseif (($_POST['submit'] == $abornoff_st) && $host && $bbs && $_POST['checkedkeys']) {
-	include_once("settaborn_off.inc");
+	include_once 'settaborn_off.inc.php';
 	settaborn_off($host, $bbs, $_POST['checkedkeys']);
 
 // スレッドあぼーん
 } elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-	include_once("settaborn.inc");
+	include_once 'settaborn.inc.php';
 	settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
@@ -459,12 +457,12 @@ for ($x = 0; $x < $linesize; $x++) {
 		$debug && $prof->stopTimer("subthre_check"); //
 		
 		if ($aThreadList->spmode == "taborn") {
-			if (!$aThread->torder) { $aThread->torder = "-"; }
+			if (!$aThread->torder) { $aThread->torder = '-'; }
 		}
 
 		
 		// ■新着のみ(for spmode) ===============================
-		if ($sb_view == "shinchaku" and !$_GET['word']) { 
+		if ($sb_view == 'shinchaku' and !isset($_REQUEST['word'])) {
 			if ($aThread->unum < 1) {
 				unset($aThread);
 				continue;
@@ -552,7 +550,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
 // ■既にdat落ちしているスレは自動的にあぼーんを解除する =========================
 if (!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys) {
-	include_once("settaborn_off.inc");
+	include_once 'settaborn_off.inc.php';
 	//echo sizeof($ta_keys)."*<br>";
 	$ta_vkeys = array_keys($ta_keys);
 	settaborn_off($aThreadList->host, $aThreadList->bbs, $ta_vkeys);
@@ -570,8 +568,11 @@ if (!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys) {
 //============================================================
 if ($aThreadList->threads) {
 	if ($p2_setting['sort'] == "midoku" or $_conf['ktai']) {
-		if ($aThreadList->spmode == "soko") { usort($aThreadList->threads, "cmp_key"); }
-		else { usort($aThreadList->threads, "cmp_midoku"); }
+		if ($aThreadList->spmode == "soko") {
+			usort($aThreadList->threads, "cmp_key");
+		} else {
+			usort($aThreadList->threads, "cmp_midoku");
+		}
 	}
 	elseif ($p2_setting['sort'] == "res") { usort($aThreadList->threads, "cmp_res"); }
 	elseif ($p2_setting['sort'] == "title") { usort($aThreadList->threads, "cmp_title"); }
@@ -586,8 +587,11 @@ if ($aThreadList->threads) {
 	elseif ($p2_setting['sort'] == "bd") { usort($aThreadList->threads, "cmp_key"); }
 	elseif ($p2_setting['sort'] == "fav") { usort($aThreadList->threads, "cmp_fav"); }
 	if ($p2_setting['sort'] == "no") {
-		if ($aThreadList->spmode == "soko") { usort($aThreadList->threads, "cmp_key"); }
-		else { usort($aThreadList->threads, "cmp_no"); }
+		if ($aThreadList->spmode == "soko") {
+			usort($aThreadList->threads, "cmp_key");
+		} else {
+			usort($aThreadList->threads, "cmp_no");
+		}
 	}
 }
 

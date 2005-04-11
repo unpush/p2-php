@@ -1,7 +1,7 @@
 <?php
 /*
 	p2 -  板メニュー
-	フレーム分割画面、左側部分
+	フレーム分割画面、左側部分 PC用
 	
 	menu.php, menu_side.php より読み込まれる
 */
@@ -49,7 +49,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-	include("./setfavita.inc");
+	include './setfavita.inc.php';
 }
 
 //================================================================
@@ -193,7 +193,7 @@ echo <<<EOP
 	　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}">スレの殿堂</a><br>
 	　<a href="setting.php">ログインユーザ管理</a><br>
 	　<a href="editpref.php">設定編集</a><br>
-	　<a href="http://find.2ch.net/" target="_blank">2ch検索</a>
+	　<a href="http://find.2ch.net/" target="_blank" title="2ch検索">find.2ch.net</a>
 	</div>
 </div>\n
 EOP;

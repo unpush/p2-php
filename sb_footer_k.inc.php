@@ -90,7 +90,7 @@ EOP;
 // HTMLƒvƒŠƒ“ƒg==============================================
 echo "<hr>";
 echo $k_sb_navi_ht;
-include("./sb_toolbar_k.inc");
+include './sb_toolbar_k.inc.php';
 echo $allfav_ht;
 echo "<p>";
 echo $dat_soko_ht;
@@ -99,9 +99,7 @@ echo $buildnewthread_ht;
 echo "</p>";
 echo "<hr>";
 echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></p>";
-echo <<<EOP
-</body>
-</html>
-EOP;
+
+echo '</body></html>';
 
 ?>

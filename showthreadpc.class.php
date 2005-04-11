@@ -502,7 +502,12 @@ EOP;
 		}
 	
 		// 画像URLリンクをサムネイル化
-		if ($_conf['preview_thumbnail']) {
+		// 表示制限数
+		if (!isset($GLOBALS['pre_thumb_limit']) && isset($_conf['pre_thumb_limit'])) {
+			$GLOBALS['pre_thumb_limit'] = $_conf['pre_thumb_limit'];
+			$GLOBALS['pre_thumb_limit_i'] = $_conf['pre_thumb_limit'];	// iframe_popup_callback 用
+		}
+		if ($_conf['preview_thumbnail'] && !empty($GLOBALS['pre_thumb_limit'])) {
 			$msg = preg_replace_callback("/<a href=\"(s?https?:\/\/[{$str_in_url}]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))\"{$_conf['ext_win_target_at']}>(s?h?t?tps?:\/\/[{$str_in_url}]+\.([jJ][pP][eE]?[gG]|[gG][iI][fF]|[pP][nN][gG]))<\/a>/", array($this, 'view_img_callback') ,$msg);
 		}
 
@@ -544,9 +549,13 @@ EOP;
 		
 		$url = $s[1];
 		$link_title = $s[2];
-				
-		if ($_conf['preview_thumbnail'] and preg_match("/\.(jpe?g|gif|png)$/i", $url)) {
-			return $s[0];
+		
+		// 画像サムネイル表示時は、サムネイルが(p)の代わりとなる
+		if (!empty($GLOBALS['pre_thumb_limit_i'])) {
+			if ($_conf['preview_thumbnail'] and preg_match("/\.(jpe?g|gif|png)$/i", $url)) {
+				$GLOBALS['pre_thumb_limit_i']--;
+				return $s[0];
+			}
 		}
 		
 		// p2pm 指定の場合のみ、特別にm指定を追加する
@@ -725,7 +734,9 @@ EOP;
 		return $rs;
 	}
 	
-	// 画像ポップアップ変換 ==========================
+	/**
+	 * ■画像ポップアップ変換
+	 */
 	function view_img_callback($s)
 	{
 		global $_conf;
@@ -750,6 +761,11 @@ EORS;
 			$rs = <<<EORS
 			<a href="{$img_url}"{$_conf['ext_win_target_at']}>{$img_tag}{$s[3]}</a>
 EORS;
+		}
+		
+		// 表示数制限
+		if (!empty($GLOBALS['pre_thumb_limit'])) {
+			$GLOBALS['pre_thumb_limit']--;
 		}
 		
 		return $rs;

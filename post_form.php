@@ -102,11 +102,11 @@ if ($_GET['newthread']) {
 	} else {
 		$submit_value = "新規スレッド作成";
 	}
-	$subject_ht = <<<EOP
+	$htm['subject'] = <<<EOP
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
 EOP;
 	if ($_conf['ktai']) {
-		$subject_ht = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>".$subject_ht;
+		$htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>".$subject_ht;
 	}
 	$newthread_hidden_ht = "<input type=\"hidden\" name=\"newthread\" value=\"1\">";
 
@@ -121,7 +121,7 @@ EOP;
 	} else {
 		$submit_value = "書き込む";
 	}
-	$ttitle_ht = <<<EOP
+	$htm['resform_ttitle'] = <<<EOP
 <p><b><a{$class_ttitle} href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}"{$target_read}>{$ttitle_hd}</a></b></p>
 EOP;
 	$newthread_hidden_ht = '';
@@ -175,18 +175,18 @@ EOSCRIPT;
 }
 echo <<<EOP
 </head>
-<body{$body_on_load}>
+<body{$body_on_load}>\n
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
 echo <<<EOP
-{$ttitle_ht}
+{$htm['resform_ttitle']}
 <form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
 	<input type="hidden" name="detect_hint" value="◎◇">
-	{$subject_ht}
+	{$htm['subject']}
 	{$isMaruChar}名前： <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}> 
 	 E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}>
 	{$sage_cb_ht}

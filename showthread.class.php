@@ -9,9 +9,10 @@ class ShowThread{
 	/**
 	 * コンストラクタ
 	 */
-	function ShowThread($aThread)
+	function ShowThread(&$aThread)
 	{
-		$this->thread = $aThread;
+		// スレッドオブジェクトを登録
+		$this->thread = &$aThread;
 	}
 
 	/**

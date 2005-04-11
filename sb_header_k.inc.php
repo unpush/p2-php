@@ -87,7 +87,7 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
-include("./sb_toolbar_k.inc");
+include './sb_toolbar_k.inc.php';
 
 echo $filter_form_ht;
 echo $hit_ht;
