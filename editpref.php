@@ -3,7 +3,7 @@
 	p2 -  設定編集
 */
 
-include_once './conf.inc.php';  //基本設定
+include_once './conf/conf.inc.php';  //基本設定
 require_once './filectl.class.php';
 require_once './p2util.class.php';
 
@@ -81,9 +81,10 @@ echo <<<EOP
 <body>
 EOP;
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
+//<p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
 	echo <<<EOP
-<p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
+<p id="pan_menu">{$ptitle}</p>
 EOP;
 }
 
@@ -91,7 +92,7 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
-//設定プリント=====================
+// 設定プリント =====================
 $aborn_name_txt = $_conf['pref_dir']."/p2_aborn_name.txt";
 $aborn_mail_txt = $_conf['pref_dir']."/p2_aborn_mail.txt";
 $aborn_msg_txt = $_conf['pref_dir']."/p2_aborn_msg.txt";
@@ -142,23 +143,23 @@ EOP;
 </td></tr><tr><td colspan="2">
 EOP;
 
-	if( is_writable("conf_user.inc.php") || is_writable("conf_user_style.inc.php") || is_writable("conf.inc.php")){
+	if (is_writable("conf/conf_user.inc.php") || is_writable("conf/conf_user_style.inc.php") || is_writable("conf/conf.inc.php")) {
 		echo <<<EOP
 <fieldset>
 <legend>その他</legend>
 <table><tr>
 <td>
 EOP;
-		if (is_writable("conf_user.inc.php")) {
-			printEditFileForm("conf_user.inc.php", "conf_user.inc.php");
+		if (is_writable("conf/conf_user.inc.php")) {
+			printEditFileForm("conf/conf_user.inc.php", 'ユーザ設定');
 		}
 		echo "</td><td>";
-		if (is_writable("conf_user_style.inc.php")) {
-			printEditFileForm("conf_user_style.inc.php", "conf_user_style.inc.php");
+		if (is_writable("conf/conf_user_style.inc.php")) {
+			printEditFileForm("conf/conf_user_style.inc.php", 'デザイン設定');
 		}
 		echo "</td><td>";
-		if (is_writable("conf.inc.php")) {
-			printEditFileForm("conf.inc.php", "conf.inc.php");
+		if (is_writable("conf/conf.inc.php")) {
+			printEditFileForm("conf/conf.inc.php", '基本設定');
 		}
 		echo <<<EOP
 </td>
@@ -168,44 +169,93 @@ EOP;
 	}
 
 	echo <<<EOP
-</td></tr><tr><td colspan="2">
+</td></tr>
+<tr><td colspan="2">\n
+EOP;
 
+	// ホストの同期 HTMLのセット
+	$htm['sync'] = <<<EOP
 <fieldset>
 <legend>ホストの同期（2chの板移転に対応します）</legend>
 <table><tr>
 EOP;
+	$exist_sync_flag = false;
 	foreach ($synctitle as $syncpath => $syncname) {
 		if (is_writable($syncpath)) {
-			echo '<td>';
-			printSyncFavoritesForm($syncpath, $syncname);
-			echo '</td>';
+			$exist_sync_flag = true;
+			$htm['sync'] .= '<td>';
+			$htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
+			$htm['sync'] .= '</td>';
 		}
 	}
-	echo <<<EOP
+	$htm['sync'] .= <<<EOP
 </tr></table>
-</fieldset>
+</fieldset>\n
+EOP;
 
-</td></tr></table>
+	if ($exist_sync_flag) {
+		echo $htm['sync'];
+	} else {
+		echo "&nbsp;";
+		// echo "<p>ホストの同期は必要ありません</p>";
+	}
 
+	echo <<<EOP
+</td></tr></table>\n
 EOP;
 }
 
-//フッタプリント===================
+// 携帯用表示
 if ($_conf['ktai']) {
-	echo "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
+	$htm['sync'] .= "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
+	$exist_sync_flag = false;
 	foreach ($synctitle as $syncpath => $syncname) {
 		if (is_writable($syncpath)) {
-			printSyncFavoritesForm($syncpath, $syncname);
+			$exist_sync_flag = true;
+			$htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
 		}
+	}	
+	if ($exist_sync_flag) {
+		echo $htm['sync'];
+	} else {
+		// echo "<p>ﾎｽﾄの同期は必要ありません</p>";
 	}
-	echo "<hr>\n";
-	echo $_conf['k_to_index_ht'];
 }
 
-echo <<<EOP
-</body>
-</html>
-EOP;
+// {{{ 新着まとめ読みのキャッシュ表示
+$max = $_conf['matome_cache_max'];
+for ($i = 0; $i <= $max; $i++) {
+	$dnum = ($i) ? '.'.$i : '';
+	$ai = '&amp;cnum='.$i;
+	$file = $_conf['matome_cache_path'].$dnum.$_conf['matome_cache_ext'];
+	//echo '<!-- '.$file.' -->';
+	if (file_exists($file)) {
+		$date = date('Y/m/d G:i:s', filemtime($file));
+		$b = filesize($file)/1024;
+		$kb = round($b, 0);
+		$url = 'read_new.php?cview=1'.$ai;
+		if ($i == 0) {
+			$links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
+		} else {
+			$links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
+		}
+	}
+}
+if (!empty($links)) {
+	if ($_conf['ktai']) {
+		echo '<hr>'."\n";
+	}
+	echo $htm['matome'] = '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>';
+}
+// }}}
+
+// 携帯用フッタ
+if ($_conf['ktai']) {
+	echo "<hr>\n";
+	echo $_conf['k_to_index_ht']."\n";
+}
+
+echo '</body></html>';
 
 //=====================================================
 // 関数
@@ -229,19 +279,21 @@ EOFORM;
 }
 
 /**
- * ホストの同期用フォームをプリントする
+ * ホストの同期用フォームのHTMLを取得する
  */
-function printSyncFavoritesForm($path_value, $submit_value){
+function getSyncFavoritesFormHt($path_value, $submit_value)
+{
 	global $_conf;
 	
-	echo <<<EOFORM
+	$ht = <<<EOFORM
 <form action="editpref.php" method="POST" target="_self">
 	{$_conf['k_input_ht']}
 	<input type="hidden" name="sync" value="{$path_value}">
 	<input type="submit" value="{$submit_value}">
 </form>\n
 EOFORM;
-}
 
+	return $ht;
+}
 
 ?>

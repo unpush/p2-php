@@ -3,7 +3,7 @@
 	p2 -  板メニュー 携帯用
 */
 
-include_once './conf.inc.php';  // 基本設定ファイル読込
+include_once './conf/conf.inc.php';  // 基本設定ファイル読込
 require_once './brdctl.class.php';
 require_once './showbrdmenuk.class.php';
 require_once './p2util.class.php';

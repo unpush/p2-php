@@ -12,6 +12,20 @@ class ShowThreadK extends ShowThread{
 	}
 	
 	/**
+	 * DatをHTML変換したものを取得する
+	 */
+	function getDatToHtml()
+	{
+		$html = '';
+		ob_start();
+		$this->datToHtml();
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	}
+		
+	/**
 	 * DatをHTMLに変換表示する
 	 */
 	function datToHtml()
@@ -217,6 +231,11 @@ EOP;
 		$tores .= $date_id."<br>\n"; // 日付とID
 		$tores .= $rpop; // レスポップアップ用引用
 		$tores .= "{$msg}</div><hr>\n"; // 内容
+		
+		// 全角英数スペースカナを半角に
+		if (!empty($_conf['k_save_packet'])) {
+			$tores = mb_convert_kana($tores, 'ask');
+		}
 		
 		return $tores;
 	}

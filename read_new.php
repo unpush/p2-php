@@ -4,14 +4,27 @@
 	フレーム分割画面、右下部分
 */
 
-include_once './conf.inc.php'; // 設定
+include_once './conf/conf.inc.php'; // 設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './threadlist.class.php'; // スレッドリスト クラス
 require_once './thread.class.php'; // スレッド クラス
 require_once './threadread.class.php'; // スレッドリード クラス
 require_once './ngabornctl.class.php';
 
+require_once './read_new.inc.php';
+
 authorize(); // ユーザ認証
+
+// まとめよみのキャッシュ読み
+if (!empty($_GET['cview'])) {
+	$cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
+	if ($cont = getMatomeCache($cnum)) {
+		echo $cont;
+	} else {
+		echo 'p2 error: 新着まとめ読みのキャッシュがないよ';
+	}
+	exit;
+}
 
 //==================================================================
 // ■変数
@@ -36,6 +49,10 @@ if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
 if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
 if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
 
+if (!isset($host) || !isset($bbs)) {
+	die('p2 error: 必要な引数が指定されていません');
+}
+
 //=================================================
 // あぼーん&NGワード設定読み込み
 //=================================================
@@ -45,6 +62,9 @@ $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 // ■メイン
 //====================================================================
 
+register_shutdown_function('saveMatomeCache');
+
+$read_new_html = '';
 ob_start();
 
 $aThreadList = new ThreadList;
@@ -75,15 +95,16 @@ if ($spmode) {
 $lines = $aThreadList->readList();
 
 // ■ページヘッダ表示 ===================================
-$ptitle_ht = "{$aThreadList->ptitle} の 新着まとめ読み";
+$ptitle_hd = htmlspecialchars($aThreadList->ptitle);
+$ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
 
 if ($aThreadList->spmode) {
 	$sb_ht = <<<EOP
-		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}" target="subject">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}" target="subject">{$ptitle_hd}</a>
 EOP;
 } else {
 	$sb_ht = <<<EOP
-		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}" target="subject">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}" target="subject">{$ptitle_hd}</a>
 EOP;
 }
 
@@ -228,6 +249,8 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
+//echo $ptitle_ht."<br>";
+
 //==============================================================
 // ■それぞれの行解析
 //==============================================================
@@ -346,11 +369,13 @@ for ($x = 0; $x < $linesize ; $x++) {
 	echo $_info_msg_ht;
 	$_info_msg_ht = "";
 	
+	$read_new_html .= ob_get_contents();
+	@ob_end_flush();
+	ob_start();
+	
 	if (($aThread->readnum < 1) || $aThread->unum) {
-		@ob_end_flush();
 		readNew($aThread);
 	} elseif ($aThread->diedat) {
-		@ob_end_flush();
 		echo $aThread->getdat_error_msg_ht;
 		echo "<hr>\n";
 	}
@@ -475,10 +500,7 @@ EOP;
 		$res1 = $aShowThread->quoteOne();
 		$read_cont_ht = $res1['q'];
 		
-		ob_start();
-		$aShowThread->datToHtml();
-		$read_cont_ht .= ob_get_contents();
-		ob_end_clean();
+		$read_cont_ht .= $aShowThread->getDatToHtml();
 
 		unset($aShowThread);
 	}
@@ -577,6 +599,7 @@ EOP;
 $newthre_num++;
 
 if (!$aThreadList->num) {
+	$GLOBALS['matome_naipo'] = TRUE;
 	echo "新着レスはないぽ";
 	echo "<hr>";
 }
@@ -597,6 +620,8 @@ EOP;
 
 echo '</body></html>';
 
+$read_new_html .= ob_get_contents();
+@ob_end_flush();
 
 // ■NGあぼーんを記録
 NgAbornCtl::saveNgAborns();

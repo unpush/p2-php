@@ -1,7 +1,9 @@
 <?php
-// p2 -  スレッド表示 -  ヘッダ部分 -  携帯用 for read.php
+/*
+	p2 -  スレッド表示 -  ヘッダ部分 -  携帯用 for read.php
+*/
 
-require_once './p2util.class.php';
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 // 変数 =====================================
 $diedat_msg = "";
@@ -16,7 +18,7 @@ $latest_st = "新";
 $dores_st = "ﾚｽ";
 
 $motothre_url = $aThread->getMotoThread($GLOBALS['ls']);
-$ttitle_en = base64_encode($aThread->ttitle);
+$ttitle_en = rawurlencode(base64_encode($aThread->ttitle));
 $ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
 $bbs_q = "&amp;bbs=".$aThread->bbs;
 $key_q = "&amp;key=".$aThread->key;
@@ -26,19 +28,14 @@ $offline_q = "&amp;offline=1";
 // ヘッダ
 //=================================================================
 
-// お気にマーク設定 ==================================================
-
-if ($aThread->fav) {
-	$favmark = "<span class=\"fav\">★</span>";
-} else {
-	$favmark = "<span class=\"fav\">+</span>";
-}
-if ($aThread->fav) {$favdo = 0;} else {$favdo = 1;}
+// お気にマーク設定
+$favmark = ($aThread->fav) ? '<span class="fav">★</span>' : '<span class="fav">+</span>';
+$favdo = ($aThread->fav) ? 0 : 1;
 
 // レスナビ設定 =====================================================
 
 $rnum_range = $_conf['k_rnum_range'];
-$latest_show_res_num = $_conf['k_rnum_range']; //最新XX
+$latest_show_res_num = $_conf['k_rnum_range']; // 最新XX
 
 $read_navi_range = "";
 $read_navi_previous = "";
@@ -50,9 +47,12 @@ $read_footer_navi_new_btm = "";
 $read_navi_latest = "";
 $read_navi_latest_btm = "";
 
-//----------------------------------------------
-// $read_navi_range -- 1- 101- 201-
+$pointer_header_at = ' id="header" name="header"';
 
+//----------------------------------------------
+// $htm['read_navi_range'] -- 1- 101- 201-
+
+$htm['read_navi_range'] = '';
 for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
 	$offline_range_q = "";
 	$accesskey_at = "";
@@ -63,8 +63,8 @@ for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
 	if ($ito <= $aThread->gotnum) {
 		$offline_range_q = $offline_q;
 	}
-	$read_navi_range = $read_navi_range."<a{$accesskey_at} href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$i}-{$ito}{$offline_range_q}{$_conf['k_at_a']}\">{$i}-</a>\t";
-	break;//1-のみ表示
+	$htm['read_navi_range'] .= "<a{$accesskey_at}{$pointer_header_at} href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$i}-{$ito}{$offline_range_q}{$_conf['k_at_a']}\">{$i}-</a>\t";
+	break;	// 1-のみ表示
 }
 
 
@@ -75,7 +75,7 @@ if ($before_rnum < 1) { $before_rnum = 1; }
 if ($aThread->resrange['start'] == 1) {
 	$read_navi_previous_isInvisible = true;
 }
-//if ($before_rnum! = 1) {
+//if ($before_rnum != 1) {
 //	$read_navi_previous_anchor = "#r{$before_rnum}";
 //}
 
@@ -168,7 +168,8 @@ if ($aThread->diedat) {
 	echo "</p>";
 	echo "<hr>";
 	
-	if (!$aThread->rescount) { // 既得レスがなければツールバー表示
+	// 既得レスがなければツールバー表示
+	if (!$aThread->rescount) {
 		echo <<<EOP
 <p>
 	{$toolbar_right_ht}
@@ -215,14 +216,11 @@ EOP;
 }
 */
 
-if( ($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])){
+if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])) {
 
-	//if($_GET['one']){
-		$pointer_header = ' id="header" name="header"';
-	//}
 	echo <<<EOP
-<p{$pointer_header}>
-	{$read_navi_range}
+<p>
+	{$htm['read_navi_range']}
 	{$read_navi_previous}
 	{$read_navi_next}
 	{$read_navi_latest}

@@ -3,7 +3,7 @@
 	p2 ログイン
 */
 
-include_once './conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
 require_once("./login.inc");
 require_once './p2util.class.php';
@@ -227,7 +227,7 @@ EOP;
 
 if (!$_conf['ktai']) {
 	echo <<<EOP
-<p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
+<p id="pan_menu"><a href="setting.php">ログイン管理</a> &gt; {$ptitle}</p>
 EOP;
 }
 

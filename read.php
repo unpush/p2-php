@@ -4,7 +4,7 @@
 	フレーム分割画面、右下部分
 */
 
-include_once './conf.inc.php'; // 基本設定読込
+include_once './conf/conf.inc.php'; // 基本設定読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './thread.class.php'; // スレッドクラス読込
 require_once './threadread.class.php'; // スレッドリードクラス読込

@@ -7,7 +7,7 @@
 	subject.php と兄弟なので一緒に面倒をみる
 */
 
-include_once './conf.inc.php';  // 設定
+include_once './conf/conf.inc.php';  // 設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './threadlist.class.php'; // スレッドリスト クラス
 require_once './thread.class.php';	// スレッド クラス

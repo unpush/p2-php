@@ -3,7 +3,7 @@
 	p2 -  お気に入り編集
 */
 
-include_once './conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';  // 基本設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './filectl.class.php';
 

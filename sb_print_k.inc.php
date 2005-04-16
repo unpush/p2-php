@@ -105,13 +105,19 @@ function sb_print_k($aThreadList)
 			$unum_ht = "[<font color=\"#ff0000\">新</font>]";
 		}
 				
-		//総レス数 =============================================
+		// 総レス数 =============================================
 		$rescount_ht = "{$aThread->rescount}";
 
 		// 板名 ============================================
 		if ($ita_name_bool) {
 			$ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
 			$ita_name_hd = htmlspecialchars($ita_name);
+			
+			// 全角英数カナスペースを半角に
+			if (!empty($_conf['k_save_packet'])) {
+				$ita_name_hd = mb_convert_kana($ita_name_hd, 'ask');
+			}
+			
 			// $htm['ita'] = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hd}</a>)";
 			$htm['ita'] = "({$ita_name_hd})";
 		}
@@ -147,9 +153,11 @@ function sb_print_k($aThreadList)
 			//}
 		}	
 
-		// 全角英数スペースカナを半角に
-		$aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'ask');
-
+		// 全角英数カナスペースを半角に
+		if (!empty($_conf['k_save_packet'])) {
+			$aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'ask');
+		}
+		
 		$aThread->ttitle_ht = $aThread->ttitle_ht." (".$rescount_ht.")";
 		
 		// 新規スレ

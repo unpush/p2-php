@@ -1,7 +1,7 @@
 <?php
 // p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
 
-$_conf['p2version'] = '1.5.9';
+$_conf['p2version'] = '1.5.10';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
 $_conf['p2name'] = 'P2';	// p2の名前。
@@ -144,11 +144,11 @@ EODOC;
 
 //======================================================================
 
-if (file_exists("./conf_user.inc.php")) {
-	include_once "./conf_user.inc.php"; // ユーザ設定 読込
+if (file_exists("./conf/conf_user.inc.php")) {
+	include_once "./conf/conf_user.inc.php"; // ユーザ設定 読込
 }
-if (file_exists("./conf_user_style.inc.php")) {
-	include_once "./conf_user_style.inc.php"; // デザイン設定 読込
+if (file_exists("./conf/conf_user_style.inc.php")) {
+	include_once "./conf/conf_user_style.inc.php"; // デザイン設定 読込
 }
 
 $_conf['display_threads_num'] = 150; // (150) スレッドサブジェクト一覧のデフォルト表示数
@@ -223,7 +223,10 @@ $_conf['auth_user_file'] = $_conf['pref_dir']."/p2_auth_user.php";
 $_conf['auth_ez_file'] = $_conf['pref_dir']."/p2_auth_ez.php";
 $_conf['auth_jp_file'] = $_conf['pref_dir']."/p2_auth_jp.php";
 $_conf['login_log_file'] = $_conf['pref_dir'] . "/p2_login.log.php";
-$_conf['failed_post_file'] = $_conf['pref_dir'].'/p2_failed_post.data.php';
+$_conf['matome_cache_path'] = $_conf['pref_dir'] . '/matome_cache';
+$_conf['matome_cache_path'] = realpath(dirname($_conf['matome_cache_path'])).'/'.basename($_conf['matome_cache_path']);
+$_conf['matome_cache_ext'] = '.htm';
+$_conf['matome_cache_max'] = 3;	// 予備キャッシュの数
 
 $_conf['md5_crypt_key'] = $_SERVER['SERVER_NAME'].$_SERVER['SERVER_SOFTWARE'];
 $_conf['menu_dl_interval'] = 1;	// (1) 板 menu のキャッシュを更新せずに保持する時間 (hour)
