@@ -6,6 +6,24 @@
 	- [Bug Fix] スレ一覧のsmpodeでフィルタリング時に、強調表示されていなかったのを修正
 	- 他、細かな修正など
 
+	* brdctl.class.php
+	* brdmenu.class.php
+	* editpref.php
+	* index_print_k.inc.php
+	* info.php
+	* menu.inc.php
+	* menu_k.php
+	* p2util.class.php
+	* read.php
+	* read_new.inc.php
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.php
+	* subject.php
+	* subject_new.php
+	* threadread.class.php
+	* wap.class.php
+	* conf/conf.inc.php
 
 2005-04-16 aki
 	* p2 version 1.5.11
