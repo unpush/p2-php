@@ -1,10 +1,10 @@
-2005-03-21 aki
+2005-04-16 aki
 	* p2 version 1.5.10
 	
 	- [新機能] 新着まとめ読みの前回キャッシュを表示できるようになった（「設定編集」から）
 	- [新機能] 携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換できるようにした
 		$_conf['k_save_packet']
-	- [Bug Fix] DoCoMoなどでも▼が効くように修正した
+	- [Bug Fix] DoCoMoなどでも▼移動が効くように修正した
 	- 他、こまごま
 	
 	- conf系ファイルをconfディレクトリに移動した
@@ -17,6 +17,46 @@
 
 	- 削除されたファイル
 		jcode ディレクトリ以下
+
+	* conf.inc.php is removed
+	* conf_user.inc.php is removed
+	* conf_user_style.inc.php is removed
+	* cookie.php
+	* editfavita.php
+	* editfile.php
+	* editpref.php
+	* filectl.class.php
+	* first_cont.php
+	* httpcmd.php
+	* index.php
+	* index_print_k.inc.php
+	* info.php
+	* login.php
+	* login2ch.inc.php
+	* login2ch.php
+	* menu.inc.php
+	* menu_k.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_footer_k.inc.php
+	* read_header_k.inc.php
+	* read_new.inc.php is new
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.php
+	* sb_print_k.inc.php
+	* setting.php
+	* showthreadk.class.php
+	* showthreadpc.class.php
+	* strctl.class.php
+	* subject.php
+	* subject_new.php
+	* title.php
+	* viewtxt.php
+	* conf/conf.inc.php is new
+	* conf/conf_user.inc.php is new
+	* conf/conf_user_style.inc.php is new
 	
 2005-04-12 aki
 	* p2 version 1.5.9
