@@ -222,9 +222,9 @@ if (!empty($_conf['ktai'])) {
 
 $motothre_url = $aThread->getMotoThread($GLOBALS['ls']);
 if ($title_msg) {
-	$hs['title'] = $title_msg;
+	$hc['title'] = $title_msg;
 } else {
-	$hs['title'] = "info - {$hc['ttitle_name']}";
+	$hc['title'] = "info - {$hc['ttitle_name']}";
 }
 
 $hd = array_map('htmlspecialchars', $hc);
