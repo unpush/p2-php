@@ -1,3 +1,12 @@
+2005-04-17 aki
+	* p2 version 1.5.12
+	
+	- [Bug Fix] read_new.php?spmode=recent などで
+	  「p2 error: 必要な引数が指定されていません」とエラー表示されていたのを修正
+	- [Bug Fix] スレ一覧のsmpodeでフィルタリング時に、強調表示されていなかったのを修正
+	- 他、細かな修正など
+
+
 2005-04-16 aki
 	* p2 version 1.5.11
 	

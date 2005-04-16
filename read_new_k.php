@@ -45,7 +45,7 @@ if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
 if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
 if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
 
-if (!isset($host) || !isset($bbs)) {
+if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
 	die('p2 error: 必要な引数が指定されていません');
 }
 
@@ -63,7 +63,7 @@ register_shutdown_function('saveMatomeCache');
 $read_new_html = '';
 ob_start();
 
-$aThreadList = new ThreadList;
+$aThreadList =& new ThreadList();
 
 // 板とモードのセット===================================
 if ($spmode) {
@@ -145,7 +145,7 @@ for ($x = 0; $x < $linesize; $x++) {
 	}
 
 	$l = $lines[$x];
-	$aThread = new ThreadRead;
+	$aThread =& new ThreadRead();
 	
 	$aThread->torder = $x + 1;
 
@@ -261,7 +261,7 @@ for ($x = 0; $x < $linesize; $x++) {
 	unset($aThread);
 }
 
-//$aThread = new ThreadRead;
+//$aThread =& new ThreadRead();
 
 //==================================================================
 
@@ -365,7 +365,7 @@ EOP;
 		//$aThread->datToHtml(); // dat を html に変換表示
 		include_once './showthread.class.php'; // HTML表示クラス
 		include_once './showthreadk.class.php'; // HTML表示クラス
-		$aShowThread = new ShowThreadK($aThread);
+		$aShowThread =& new ShowThreadK($aThread);
 		
 		$read_cont_ht .= $aShowThread->getDatToHtml();
 		

@@ -42,7 +42,7 @@ class BrdCtl{
 				}
 				$filepath = $brd_dir.'/'.$entry;
 				if ($data = @file($filepath)) {
-					$aBrdMenu = new BrdMenu;	// クラス BrdMenu のオブジェクトを生成
+					$aBrdMenu =& new BrdMenu();	// クラス BrdMenu のオブジェクトを生成
 					$aBrdMenu->setBrdMatch($filepath);	// パターンマッチ形式を登録
 					$aBrdMenu->setBrdList($data);	// カテゴリーと板をセット
 					$brd_menus[] = $aBrdMenu;
@@ -99,8 +99,8 @@ class BrdCtl{
 			
 				// 更新されていたら新規キャッシュ作成
 				if ($isNewDL) {
-					//echo "NEW!<br>";//
-					$aBrdMenu = new BrdMenu; // クラス BrdMenu のオブジェクトを生成
+					//echo "NEW!<br>"; //
+					$aBrdMenu =& new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
 					$aBrdMenu->makeBrdFile($cachefile); // .p2.brdファイルを生成
 					$brd_menus[] = $aBrdMenu;
 					$read_html_flag = true;
@@ -119,7 +119,7 @@ class BrdCtl{
 			
 			if (!$read_html_flag) {
 				if ($data = @file($cashe_brd)) {
-					$aBrdMenu = new BrdMenu; // クラス BrdMenu のオブジェクトを生成
+					$aBrdMenu =& new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
 					$aBrdMenu->setBrdMatch($cashe_brd); // パターンマッチ形式を登録
 					$aBrdMenu->setBrdList($data); // カテゴリーと板をセット
 					if ($aBrdMenu->num) {

@@ -1,6 +1,6 @@
 <?php
 /*
-	p2 -  設定編集
+	p2 -  設定管理
 */
 
 include_once './conf/conf.inc.php';  //基本設定
@@ -38,7 +38,7 @@ if (isset($_POST['sync'])) {
 }
 
 // 書き出し用変数========================================
-$ptitle = "設定ファイル編集";
+$ptitle = "設定管理";
 
 if ($_conf['ktai']) {
 	$status_st = 'ｽﾃｰﾀｽ';

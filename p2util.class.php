@@ -28,9 +28,9 @@ class P2Util{
 	
 		// DL
 		include_once './wap.class.php';
-		$wap_ua = new UserAgent;
+		$wap_ua =& new UserAgent();
 		$wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-		$wap_req = new Request;
+		$wap_req =& new Request();
 		$wap_req->setUrl($url);
 		$wap_req->setModified($modified);
 		if ($_conf['proxy_use']) {
@@ -292,7 +292,7 @@ class P2Util{
 		$perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 	
 		if (file_exists($subjectfile)) {
-			if ($_GET['norefresh'] or isset($_GET['submit_kensaku']) || isset($_POST['submit_kensaku'])) {
+			if ($_GET['norefresh'] || isset($_REQUEST['word'])) {
 				return;	// 更新しない場合は、その場で抜けてしまう
 			} elseif ((!$_POST['newthread']) and P2Util::isSubjectFresh($subjectfile)) {
 				return;	// 新規スレ立て時でなく、更新が新しい場合も抜ける
@@ -311,10 +311,10 @@ class P2Util{
 
 		// ■DL
 		include_once './wap.class.php';
-		$wap_ua = new UserAgent;
+		$wap_ua =& new UserAgent();
 		$wap_ua->setAgent("Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")");
 		$wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-		$wap_req = new Request;
+		$wap_req =& new Request();
 		$wap_req->setUrl($url);
 		$wap_req->setModified($modified);
 		$wap_req->setHeaders($headers);

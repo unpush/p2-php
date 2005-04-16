@@ -14,7 +14,7 @@ require_once './showthread.class.php'; // HTML表示クラス
 
 $debug = 0;
 $debug && include_once("profiler.inc"); //
-$debug && $prof = new Profiler(true); //
+$debug && $prof =& new Profiler(true); //
 
 authorize(); // ユーザ認証
 
@@ -107,7 +107,7 @@ $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 //==================================================================
 
 if (!isset($aThread)) {
-	$aThread = new ThreadRead;
+	$aThread =& new ThreadRead();
 }
 
 //==========================================================
@@ -222,7 +222,7 @@ if ($_conf['ktai']) {
 	
 	if ($aThread->rescount) {
 		include_once './showthreadk.class.php'; // HTML表示クラス
-		$aShowThread = new ShowThreadK($aThread);
+		$aShowThread =& new ShowThreadK($aThread);
 		$aShowThread->datToHtml();
 	}
 	
@@ -267,7 +267,7 @@ EOP;
 	if ($aThread->rescount) {
 
 		include_once './showthreadpc.class.php'; // HTML表示クラス
-		$aShowThread = new ShowThreadPc($aThread);
+		$aShowThread =& new ShowThreadPc($aThread);
 		
 		$res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
 		echo $res1['q'];
