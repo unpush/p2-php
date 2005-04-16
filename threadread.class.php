@@ -679,10 +679,10 @@ class ThreadRead extends Thread{
 		// {{{ ■ read.cgi からHTMLを取得
 		$read_response_html = "";
 		include_once './wap.class.php';
-		$wap_ua = new UserAgent;
+		$wap_ua =& new UserAgent();
 		$wap_ua->setAgent($_conf['p2name']."/".$_conf['p2version']); // ここは、"Monazilla/" をつけるとNG
 		$wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-		$wap_req = new Request;
+		$wap_req =& new Request();
 		$wap_req->setUrl($read_url);
 		if ($_conf['proxy_use']) {
 			$wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
@@ -914,7 +914,7 @@ class ThreadRead extends Thread{
 		
 		include_once './showthread.class.php';	// HTML表示クラス
 		include_once './showthreadpc.class.php';	// HTML表示クラス
-		$aShowThread = new ShowThreadPc($this);
+		$aShowThread =& new ShowThreadPc($this);
 		$body .= $aShowThread->transRes($first_line, 1);	// 1を表示
 		unset($aShowThread);
 		

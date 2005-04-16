@@ -22,9 +22,9 @@ if ($aThreadList) {
 /*
 $debug = false;
 $debug && include_once("./profiler.inc"); //
-$debug && $prof = new Profiler( true ); //
+$debug && $prof =& new Profiler(true); //
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
 */
 
 //============================================================
@@ -54,7 +54,7 @@ if ($spmode) {
 	$sb_keys_b_txt = $datdir_host."/".$bbs."/p2_sb_keys_b.txt";
 	$sb_keys_txt = $datdir_host."/".$bbs."/p2_sb_keys.txt";
 
-	if ($_GET['norefresh']) {
+	if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
 		if ($prepre_sb_cont = @file_get_contents($sb_keys_b_txt)) {
 			$prepre_sb_keys = unserialize($prepre_sb_cont);
 		}
@@ -175,7 +175,7 @@ elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
 // ■メイン
 //============================================================
 
-$aThreadList = new ThreadList;
+$aThreadList =& new ThreadList();
 
 // ■板とモードのセット ===================================
 if ($spmode) {
@@ -221,33 +221,33 @@ if (is_array($favlines)) {
 
 $linesize = sizeof($lines);
 
-for( $x = 0; $x < $linesize ; $x++ ){
+for ($x = 0; $x < $linesize ; $x++) {
 
 	$l = rtrim($lines[$x]);
 	
-	$aThread = new Thread;
+	$aThread =& new Thread();
 	
-	if($aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko"){
+	if ($aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko") {
 		$aThread->torder = $x + 1;
 	}
 
 	// ■データ読み込み
-	if($aThreadList->spmode){
+	if ($aThreadList->spmode) {
 		switch ($aThreadList->spmode) {
 	    case "recent": // 履歴
 	        $aThread->getThreadInfoFromExtIdxLine($l);
 			$aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
+			if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
 	        break;
 	    case "res_hist": // 書き込み履歴
 	        $aThread->getThreadInfoFromExtIdxLine($l);
 			$aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
+			if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
 	        break;
 	    case "fav": // お気に
 	        $aThread->getThreadInfoFromExtIdxLine($l);
 			$aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
+			if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
 	        break;
 		case "taborn":	// スレッドあぼーん
 			$la = explode("<>", $l);
@@ -264,7 +264,7 @@ for( $x = 0; $x < $linesize ; $x++ ){
 		case "palace":	// スレの殿堂
 	        $aThread->getThreadInfoFromExtIdxLine($l);
 			$aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
+			if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
 	        break;
 	    case "news": // ニュースの勢い
 	        $aThread->isonline = true;
@@ -275,14 +275,15 @@ for( $x = 0; $x < $linesize ; $x++ ){
 			$aThread->bbs = $l['bbs'];
 
 			$aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-			if(!$aThread->itaj){$aThread->itaj=$aThread->bbs;}
+			if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
 	        break;
 		}
-	} else {	// subject (not spmode)
+	// subject (not spmode)
+	} else {
 		$aThread->getThreadInfoFromSubjectTxtLine($l);
 		$aThread->host = $aThreadList->host;
 		$aThread->bbs = $aThreadList->bbs;
-		if ($_GET['norefresh']) {
+		if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
 			if (!$prepre_sb_keys[$aThread->key]) { $aThread->new = true; }
 		} else {
 			if (!$pre_sb_keys[$aThread->key]) { $aThread->new = true; }

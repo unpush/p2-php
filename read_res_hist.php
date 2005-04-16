@@ -10,7 +10,7 @@ require_once './read_res_hist.inc.php';
 
 $debug = 0;
 $debug && include_once("./profiler.inc"); //
-$debug && $prof = new Profiler(true); //
+$debug && $prof =& new Profiler(true); //
 
 authorize(); // ユーザ認証
 
@@ -52,13 +52,13 @@ $datlines = array_map('rtrim', $datlines);
 // ファイルの下に記録されているものが新しい
 $datlines = array_reverse($datlines);
 
-$aResHist = new ResHist;
+$aResHist =& new ResHist();
 
 $n = 1;
 if ($datlines) {
 	foreach ($datlines as $aline) {
 
-		$aResArticle = new ResArticle;
+		$aResArticle =& new ResArticle();
 		
 		$resar = explode("\t", $aline);
 		$aResArticle->name = $resar[0];

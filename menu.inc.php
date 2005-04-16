@@ -55,7 +55,7 @@ if (isset($_GET['setfavita'])) {
 //================================================================
 // ■メイン
 //================================================================
-$aShowBrdMenuPc = new ShowBrdMenuPc;
+$aShowBrdMenuPc =& new ShowBrdMenuPc();
 
 //============================================================
 // ■ヘッダ
@@ -192,8 +192,8 @@ EOP;
 echo <<<EOP
 	　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}">スレの殿堂</a><br>
 	　<a href="setting.php">ログイン管理</a><br>
-	　<a href="editpref.php">設定編集</a><br>
-	　<a href="http://find.2ch.net/" target="_blank" title="2ch検索">find.2ch.net</a>
+	　<a href="editpref.php">設定管理</a><br>
+	　<a href="http://find.2ch.net/" target="_blank" title="2ch公式検索">find.2ch.net</a>
 	</div>
 </div>\n
 EOP;

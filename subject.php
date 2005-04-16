@@ -13,7 +13,7 @@ require_once './filectl.class.php';
 
 $debug = false;
 $debug && include_once("./profiler.inc"); //
-$debug && $prof = new Profiler( true ); //
+$debug && $prof =& new Profiler(true); //
 
 authorize(); // ユーザ認証
 
@@ -30,6 +30,10 @@ if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
 if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
 if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
 
+if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
+	die('p2 error: 必要な引数が指定されていません');
+}
+
 if (isset($_GET['from'])) { $sb_disp_from = $_GET['from']; }
 if (isset($_POST['from'])) { $sb_disp_from = $_POST['from']; }
 if (!isset($sb_disp_from)) { $sb_disp_from = 1; }
@@ -43,7 +47,8 @@ if (!empty($spmode)) {
 	$sb_keys_b_txt = $datdir_host.'/'.$bbs.'/p2_sb_keys_b.txt';
 	$sb_keys_txt = $datdir_host.'/'.$bbs.'/p2_sb_keys.txt';
 
-	if ($_GET['norefresh']) {
+	// 更新しない場合は、2つ前のと１つ前のを比べて、新規スレを調べる
+	if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
 		if ($prepre_sb_cont = @file_get_contents($sb_keys_b_txt)) {
 			$prepre_sb_keys = unserialize($prepre_sb_cont);
 		}
@@ -187,7 +192,7 @@ if (!empty($_GET['dele']) or ($_POST['submit'] == $deletelog_st)) {
 // ■メイン
 //============================================================
 
-$aThreadList = new ThreadList;
+$aThreadList =& new ThreadList();
 
 // ■板とモードのセット ===================================
 if ($spmode) {
@@ -239,7 +244,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
 	$l = rtrim($lines[$x]);
 	
-	$aThread = new Thread;
+	$aThread =& new Thread();
 	
 	if ($aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') {
 		$aThread->torder = $x + 1;
@@ -299,7 +304,7 @@ for ($x = 0; $x < $linesize; $x++) {
 		$aThread->getThreadInfoFromSubjectTxtLine($l);
 		$aThread->host = $aThreadList->host;
 		$aThread->bbs = $aThreadList->bbs;
-		if ($_GET['norefresh']) {
+		if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
 			if (!$prepre_sb_keys[$aThread->key]) { $aThread->new = true; }
 		} else {
 			if (!$pre_sb_keys[$aThread->key]) { $aThread->new = true; }
@@ -493,7 +498,7 @@ for ($x = 0; $x < $linesize; $x++) {
 				if ($_conf['ktai']) {
 					$aThread->ttitle_ht = $aThread->ttitle_hd;
 				} else {
-					$$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle_hd);
+					$aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle_hd);
 				}
 			}
 		}
@@ -698,7 +703,9 @@ if ($subject_keys) {
 	} else {
 		FileCtl::make_datafile($sb_keys_txt, $_conf['p2_perm']);
 	}
-	if ($subject_keys) {$sb_keys_cont = serialize($subject_keys);}
+	if ($subject_keys) {
+		$sb_keys_cont = serialize($subject_keys);
+	}
 	if ($sb_keys_cont) {
 		$fp = fopen($sb_keys_txt, 'wb') or die("Error: {$sb_keys_txt} を更新できませんでした");
 		@flock($fp, LOCK_EX);

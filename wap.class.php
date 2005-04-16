@@ -23,7 +23,8 @@ class UserAgent{
 	/**
 	 * setAgent
 	 */
-	function setAgent($agent_name){
+	function setAgent($agent_name)
+	{
 		$this->agent = $agent_name;
 		return;
 	}
@@ -44,7 +45,7 @@ class UserAgent{
 	 */
 	function request($req)
 	{
-		$res = new Response;
+		$res =& new Response();
 		
 		$purl = parse_url($req->url); // URL•ª‰ğ
 		if (isset($purl['query'])) { // ƒNƒGƒŠ[

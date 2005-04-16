@@ -38,7 +38,7 @@ function saveMatomeCache()
 	}
 	
 	// êVãKãLò^
-	$cont = &$GLOBALS['read_new_html'];
+	$cont =& $GLOBALS['read_new_html'];
 	$file = $_conf['matome_cache_path'].$_conf['matome_cache_ext'];
 	//echo "<!-- {$file} -->";
 

@@ -68,7 +68,7 @@ EOP;
 <a {$_conf['accesskey']}="7" href="subject.php?spmode=res_hist{$_conf['k_at_a']}">7.‘—š—ğ</a> <a href="read_res_hist.php?nt={$newtime}{$_conf['k_at_a']}">Û¸Ş</a><br>
 <a {$_conf['accesskey']}="8" href="subject.php?spmode=palace&amp;norefresh=true{$_conf['k_at_a']}">8.½Ú‚Ì“a“°</a><br>
 <a {$_conf['accesskey']}="9" href="setting.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">9.Û¸Ş²İŠÇ—</a><br>
-<a {$_conf['accesskey']}="0" href="editpref.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">0.İ’è•ÒW</a><br>
+<a {$_conf['accesskey']}="0" href="editpref.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">0.İ’èŠÇ—</a><br>
 
 <hr>
 {$autho_user_ht}
