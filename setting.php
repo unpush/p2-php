@@ -1,16 +1,18 @@
 <?php
-// p2 -  設定
+/*
+	p2 -  設定管理ページ
+*/
 
-include_once './conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';  // 基本設定
+require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './filectl.class.php';
-require_once './p2util.class.php';
 
 authorize(); // ユーザ認証
 
 $_info_msg_ht = "";
 
-//書き出し用変数========================================
-$ptitle = "設定";
+// 書き出し用変数 ========================================
+$ptitle = 'ログイン管理';
 
 if ($_conf['ktai']) {
 	$status_st = "ｽﾃｰﾀｽ";
@@ -39,15 +41,30 @@ if (!$_conf['ktai']) {
 	$body_onload = " onLoad=\"setWinTitle();\"";
 }
 
+// HOSTを取得
+if (!$hc[remoto_host] = $_SERVER['REMOTE_HOST']) {
+	$hc[remoto_host] = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+}
+if ($hc[remoto_host] == $_SERVER['REMOTE_ADDR']) {
+	$hc[remoto_host] = "";
+}
+
+$hc['ua'] = $_SERVER['HTTP_USER_AGENT'];
+
+$hd = array_map('htmlspecialchars', $hc);
+
 //=========================================================
-// HTMLプリント
+// ■ HTMLプリント
 //=========================================================
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+if ($_conf['doctype']) {
+	echo $_conf['doctype'];
+}
 echo <<<EOP
 <html>
 <head>
+	{$_conf['meta_charset_ht']}
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 	<meta http-equiv="Content-Style-Type" content="text/css">
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
@@ -57,7 +74,7 @@ if (!$_conf['ktai']) {
 	@include("./style/style_css.inc");
 	@include("./style/setting_css.inc");
 	echo <<<EOP
-	<script type="text/javascript" src="js/basic.js"></script>
+	<script type="text/javascript" src="js/basic.js"></script>\n
 EOP;
 }
 echo <<<EOP
@@ -65,33 +82,22 @@ echo <<<EOP
 <body{$body_onload}>
 EOP;
 
+// 携帯用表示
 if (!$_conf['ktai']) {
 	echo <<<EOP
-<p id="pan_menu">設定</p>
+<p id="pan_menu">ログイン管理</p>
 EOP;
 }
 
+// インフォメッセージ表示
 echo $_info_msg_ht;
 $_info_msg_ht = "";
-
-/*
-if ($_conf['ktai']) {
-	echo "<hr>";
-}
-*/
-
-/*
-if ($_conf['ktai']) {
-	$access_login_at = " {$_conf['accesskey']}=\"1\"";
-	$access_login2ch_at = " {$_conf['accesskey']}=\"2\"";
-}
-*/
 
 echo "<ul id=\"setting_menu\">";
 
 if ($login['use']) {
 	echo <<<EOP
-	<li><a href="login.php{$_conf['k_at_q']}"{$access_login_at}>p2認証ユーザ管理</a></li>
+	<li><a href="login.php{$_conf['k_at_q']}"{$access_login_at}>p2ログイン管理</a></li>
 EOP;
 }
 
@@ -99,19 +105,7 @@ echo <<<EOP
 	<li><a href="login2ch.php{$_conf['k_at_q']}"{$access_login2ch_at}>2chログイン管理</a></li>
 EOP;
 
-if (!$_conf['ktai']) {
-	echo <<<EOP
-	<li><a href="editpref.php{$_conf['k_at_q']}">設定ファイル編集</a></li>
-EOP;
-} else {
-	echo <<<EOP
-	<li><a href="editpref.php{$_conf['k_at_q']}">ホストの同期</a>（2chの板移転に対応します）</li>
-EOP;
-}
-
-echo <<<EOP
-	</ul>
-EOP;
+echo '</ul>'."\n";
 
 if ($_conf['ktai']) {
 	echo "<hr>";
@@ -120,16 +114,16 @@ if ($_conf['ktai']) {
 echo "<p id=\"client_status\">";
 echo <<<EOP
 {$autho_user_ht}
-{$client_host_st}: {$_SERVER['REMOTE_HOST']}<br>
+{$client_host_st}: {$hd['remoto_host']}<br>
 {$client_ip_st}: {$_SERVER['REMOTE_ADDR']}<br>
-{$browser_ua_st}: {$_SERVER['HTTP_USER_AGENT']}<br>
+{$browser_ua_st}: {$hd['ua']}<br>
 EOP;
-echo "</p>";
+echo "</p>\n";
 
 
 // フッタプリント===================
 if ($_conf['ktai']) {
-	echo '<hr>'.$_conf['k_to_index_ht'];
+	echo '<hr>'.$_conf['k_to_index_ht']."\n";
 }
 
 echo '</body></html>';

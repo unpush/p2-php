@@ -3,7 +3,7 @@
 	p2 - スレッド情報ウィンドウ
 */
 
-include_once './conf.inc.php';  // 基本設定ファイル
+include_once './conf/conf.inc.php';  // 基本設定ファイル
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './thread.class.php'; // スレッドクラス
 require_once './filectl.class.php';

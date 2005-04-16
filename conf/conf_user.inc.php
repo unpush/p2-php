@@ -89,6 +89,10 @@ $_conf['menu_refresh_time'] = 0;	// (0) ”Âƒƒjƒ…[•”•ª‚Ì©“®XVŠÔŠui•ªw’èB0‚
 $_conf['brocra_checker_use'] = 0;	// (0) ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJ (‚Â‚¯‚é:1, ‚Â‚¯‚È‚¢:0)
 $_conf['brocra_checker_url'] = "http://www.jah.ne.jp/~fild/cgi-bin/LBCC/lbcc.cgi"; // ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJURL
 $_conf['brocra_checker_query'] = "url";	// ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJ‚ÌƒNƒGƒŠ[
+
+// Œg‘Ñ‰{——AƒpƒPƒbƒg—Ê‚ğŒ¸‚ç‚·‚½‚ßA‘SŠp‰p”EƒJƒiEƒXƒy[ƒX‚ğ”¼Šp‚É•ÏŠ· (‚·‚é:1, ‚µ‚È‚¢:0)
+$_conf['k_save_packet'] = 1;	// (1) 
+
 $_conf['enable_exfilter'] = 1;	// (1) ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÅAND/ORŒŸõ‚ğ‰Â”\‚É‚·‚éioff:0, ƒŒƒX‚Ì‚İ:1, ƒTƒuƒWƒFƒNƒg‚à:2j
 $_conf['flex_idpopup'] = 1;	// (1) ID:xxxxxxxx‚ğIDƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÌƒŠƒ“ƒN‚É•ÏŠ·ioff:0, on:1j
 $_conf['precede_phpcurl'] = 0;		// (0) curl‚ğg‚¤AƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å‚ÆŠÖ””Å‚Ç‚¿‚ç‚ğ—Dæ‚·‚é‚© (ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“:0, ŠÖ”:1)

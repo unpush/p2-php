@@ -3,7 +3,7 @@
 	p2 -  クッキー認証処理
 */
 
-include_once './conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';  // 基本設定
 require_once './p2util.class.php';
 
 authorize(); // ユーザ認証

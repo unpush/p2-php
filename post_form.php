@@ -3,7 +3,7 @@
 	p2 - レス書き込みフォーム
 */
 
-include_once './conf.inc.php';  // 基本設定ファイル読込
+include_once './conf/conf.inc.php';  // 基本設定ファイル読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './dataphp.class.php';
 

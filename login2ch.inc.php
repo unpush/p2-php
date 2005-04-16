@@ -1,6 +1,6 @@
 <?php
 
-include_once './conf.inc.php';  // Šî–{Ý’è
+include_once './conf/conf.inc.php';  // Šî–{Ý’è
 require_once './filectl.class.php';
 
 /**

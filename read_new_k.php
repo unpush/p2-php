@@ -1,15 +1,30 @@
 <?php
-// p2 - スレッド表示スクリプト - 新着まとめ読み（携帯）
-// フレーム分割画面、右下部分
+/*
+	p2 - スレッド表示スクリプト - 新着まとめ読み（携帯）
+	フレーム分割画面、右下部分
+*/
 
-include_once './conf.inc.php'; // 設定
+include_once './conf/conf.inc.php'; // 設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './threadlist.class.php'; // スレッドリスト クラス
 require_once './thread.class.php'; // スレッド クラス
 require_once './threadread.class.php'; // スレッドリード クラス
 require_once './ngabornctl.class.php';
 
+require_once './read_new.inc.php';
+
 authorize(); // ユーザ認証
+
+// まとめよみのキャッシュ読み
+if (!empty($_GET['cview'])) {
+	$cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
+	if ($cont = getMatomeCache($cnum)) {
+		echo $cont;
+	} else {
+		echo 'p2 error: 新着まとめ読みのキャッシュがないよ';
+	}
+	exit;
+}
 
 //==================================================================
 // 変数
@@ -30,6 +45,10 @@ if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
 if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
 if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
 
+if (!isset($host) || !isset($bbs)) {
+	die('p2 error: 必要な引数が指定されていません');
+}
+
 //=================================================
 // あぼーん&NGワード設定読み込み
 //=================================================
@@ -38,6 +57,11 @@ $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 //====================================================================
 // メイン
 //====================================================================
+
+register_shutdown_function('saveMatomeCache');
+
+$read_new_html = '';
+ob_start();
 
 $aThreadList = new ThreadList;
 
@@ -50,7 +74,7 @@ if ($spmode) {
 } else {
 	$aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
 
-	//スレッドあぼーんリスト読込
+	// スレッドあぼーんリスト読込
 	$datdir_host = P2Util::datdirOfHost($host);
 	$tabornlines = @file($datdir_host."/".$bbs."/p2_threads_aborn.idx");
 	if ($tabornlines) {
@@ -62,26 +86,27 @@ if ($spmode) {
 	}
 }
 
-// ソースリスト読込==================================
+// ソースリスト読込 ==================================
 $lines = $aThreadList->readList();
 
-// ページヘッダ表示===================================
-$ptitle_ht = "{$aThreadList->ptitle} の 新着まとめ読み";
+// ページヘッダ表示 ===================================
+$ptitle_hd = htmlspecialchars($aThreadList->ptitle);
+$ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
 
-//&amp;sb_view={$sb_view}
+// &amp;sb_view={$sb_view}
 if ($aThreadList->spmode) {
 	$sb_ht = <<<EOP
-		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$ptitle_hd}</a>
 EOP;
 	$sb_ht_btm = <<<EOP
-		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$aThreadList->ptitle}</a>
+		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
 EOP;
 } else {
 	$sb_ht = <<<EOP
-		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$aThreadList->ptitle}</a>
+		<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hd}</a>
 EOP;
 	$sb_ht_btm = <<<EOP
-		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$aThreadList->ptitle}</a>
+		<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
 EOP;
 }
 
@@ -92,8 +117,9 @@ if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html>
 <head>
+	{$_conf['meta_charset_ht']}
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-	<title>{$ptitle_ht}</title>
+	<title>{$ptitle_ht}</title>\n
 EOHEADER;
 
 echo <<<EOP
@@ -101,7 +127,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-echo "<p>{$sb_ht}の新まとめ</p>";
+echo "<p>{$sb_ht}の新まとめ</p>\n";
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";
@@ -121,7 +147,7 @@ for ($x = 0; $x < $linesize; $x++) {
 	$l = $lines[$x];
 	$aThread = new ThreadRead;
 	
-	$aThread->torder = $x+1;
+	$aThread->torder = $x + 1;
 
 	// データ読み込み
 	if ($aThreadList->spmode) {
@@ -162,7 +188,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
 	// 新着のみ(for subject) =========================================
 	if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) { 
-		if	($aThread->unum < 1) {
+		if ($aThread->unum < 1) {
 			unset($aThread);
 			continue;
 		}
@@ -170,8 +196,8 @@ for ($x = 0; $x < $linesize; $x++) {
 
 	// スレッドあぼーんチェック =====================================
 	if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) { 
-			unset($ta_keys[$aThread->key]);
-			continue; //あぼーんスレはスキップ
+		unset($ta_keys[$aThread->key]);
+		continue; //あぼーんスレはスキップ
 	}
 
 	// spmode(殿堂入りを除く)なら	====================================
@@ -205,7 +231,7 @@ for ($x = 0; $x < $linesize; $x++) {
 		}
 		
 		// 新着のみ(for spmode) ===============================
-		if ($sb_view == "shinchaku" and ! $_GET['word']) {
+		if ($sb_view == "shinchaku" and !$_GET['word']) {
 			if ($aThread->unum < 1) {
 				unset($aThread);
 				continue;
@@ -218,6 +244,10 @@ for ($x = 0; $x < $linesize; $x++) {
 	echo $_info_msg_ht;
 	$_info_msg_ht = "";
 	
+	$read_new_html .= ob_get_contents();
+	@ob_end_flush();
+	ob_start();
+		
 	if (($aThread->readnum < 1) || $aThread->unum) {
 		readNew($aThread);
 	} elseif ($aThread->diedat) {
@@ -237,7 +267,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
 function readNew(&$aThread)
 {
-	global $_conf, $newthre_num, $STYLE, $browser;
+	global $_conf, $newthre_num, $STYLE;
 	global $_info_msg_ht, $spmode;
 
 	$newthre_num++;
@@ -264,7 +294,7 @@ function readNew(&$aThread)
 	//==================================================================
 	// DATのダウンロード
 	//==================================================================
-	if(! ($word and file_exists($aThread->keydat)) ){
+	if (!($word and file_exists($aThread->keydat))) {
 		$aThread->downloadDat();
 	}
 	
@@ -277,9 +307,9 @@ function readNew(&$aThread)
 	//===========================================================
 	if ($aThread->isKitoku()) { // 取得済みなら
 		$from_num = $aThread->readnum +1 - $_conf['respointer'] - $_conf['before_respointer_new'];
-		if($from_num < 1){
+		if ($from_num < 1) {
 			$from_num = 1;
-		}elseif($from_num > $aThread->rescount){
+		} elseif ($from_num > $aThread->rescount) {
 			$from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer_new'];
 		}
 
@@ -337,10 +367,7 @@ EOP;
 		include_once './showthreadk.class.php'; // HTML表示クラス
 		$aShowThread = new ShowThreadK($aThread);
 		
-		ob_start();
-		$aShowThread->datToHtml();
-		$read_cont_ht .= ob_get_contents();
-		ob_end_clean();
+		$read_cont_ht .= $aShowThread->getDatToHtml();
 		
 		unset($aShowThread);
 	}
@@ -422,6 +449,7 @@ EOP;
 $newthre_num++;
 
 if (!$aThreadList->num) {
+	$GLOBALS['matome_naipo'] = TRUE;
 	echo "新着ﾚｽはないぽ";
 	echo "<hr>";
 }
@@ -443,6 +471,9 @@ EOP;
 echo '<hr>'.$_conf['k_to_index_ht']."\n";
 
 echo '</body></html>';
+
+$read_new_html .= ob_get_contents();
+@ob_end_flush();
 
 // ■NGあぼーんを記録
 NgAbornCtl::saveNgAborns();

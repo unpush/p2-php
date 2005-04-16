@@ -2,7 +2,7 @@
 // p2 -  スレッド表示部分の初期表示
 // フレーム3分割画面、右下部分
 
-include_once './conf.inc.php';  // 基本設定ファイル読込
+include_once './conf/conf.inc.php';  // 基本設定ファイル読込
 require_once './p2util.class.php';
 
 P2Util::header_content_type();

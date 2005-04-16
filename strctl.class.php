@@ -3,10 +3,6 @@
 	p2 - StrCtl -- •¶š—ñ‘€ìƒNƒ‰ƒX
 */
 
-if (!extension_loaded('mbstring')) {
-	include_once './jcode/jcode_wrapper.php';
-}
-
 class StrCtl{
 
 	/**

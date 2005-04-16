@@ -6,7 +6,7 @@
 	menu.php, menu_side.php より読み込まれる
 */
 
-include_once './conf.inc.php';  // 基本設定ファイル読込
+include_once './conf/conf.inc.php';  // 基本設定ファイル読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './brdctl.class.php';
 require_once './showbrdmenupc.class.php';
@@ -191,7 +191,7 @@ EOP;
 
 echo <<<EOP
 	　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}">スレの殿堂</a><br>
-	　<a href="setting.php">ログインユーザ管理</a><br>
+	　<a href="setting.php">ログイン管理</a><br>
 	　<a href="editpref.php">設定編集</a><br>
 	　<a href="http://find.2ch.net/" target="_blank" title="2ch検索">find.2ch.net</a>
 	</div>

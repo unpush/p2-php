@@ -18,6 +18,20 @@ class ShowThreadPc extends ShowThread{
 	}
 	
 	/**
+	 * Dat‚ğHTML•ÏŠ·‚µ‚½‚à‚Ì‚ğæ“¾‚·‚é
+	 */
+	function getDatToHtml()
+	{
+		$html = '';
+		ob_start();
+		$this->datToHtml();
+		$html .= ob_get_contents();
+		ob_end_clean();
+		
+		return $html;
+	}
+	
+	/**
 	 * ¡Dat‚ğHTML‚É•ÏŠ·•\¦‚·‚é
 	 */
 	function datToHtml()

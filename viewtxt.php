@@ -3,7 +3,7 @@
 	p2 - txt を 表示
 */
 
-include_once './conf.inc.php';   // 基本設定ファイル読込
+include_once './conf/conf.inc.php';   // 基本設定ファイル読込
 
 authorize(); //ユーザ認証
 

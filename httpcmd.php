@@ -4,7 +4,7 @@
 	返り値は、テキストで返す
 */
 
-include_once './conf.inc.php';  // 基本設定ファイル
+include_once './conf/conf.inc.php';  // 基本設定ファイル
 
 authorize(); // ユーザ認証
 

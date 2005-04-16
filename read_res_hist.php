@@ -2,7 +2,7 @@
 // p2 - 書き込み履歴 レス内容表示
 // フレーム分割画面、右下部分
 
-include_once './conf.inc.php'; // 基本設定読込
+include_once './conf/conf.inc.php'; // 基本設定読込
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './dataphp.class.php';
 require_once './res_hist.class.php';

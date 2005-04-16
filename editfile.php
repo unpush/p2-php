@@ -3,7 +3,7 @@
 	ファイルをブラウザで編集する
 */
 
-include_once './conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
 require_once './p2util.class.php';
 
@@ -42,7 +42,7 @@ $writable_files = array(
 						"p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
 						"p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
 						"conf_user_ex.php", "conf_constant.inc", "p2_aborn_res.txt",
-						"conf.inc.php", "conf_user.inc.php", "conf_user_style.inc.php", "conf_user_ex.inc.php", "conf_user_constant.inc.php"
+						"conf_user_ex.inc.php", "conf_user_constant.inc.php"
 					);
 
 if ($writable_files and (!in_array(basename($path), $writable_files))) {
