@@ -6,7 +6,7 @@
 */
 
 
-$_conf['p2version'] = '1.5.13';
+$_conf['p2version'] = '1.5.14';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
 $_conf['p2name'] = 'P2';	// p2の名前。

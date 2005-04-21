@@ -84,9 +84,7 @@ EOP;
 //}
 
 //================
-echo <<<EOP
-</body>
-</html>
-EOP;
+echo '</body>
+</html>';
 
 ?>

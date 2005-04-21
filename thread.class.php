@@ -57,7 +57,7 @@ class Thread{
 	{
 		$this->ttitle = $ttitle;
 		// < が &lt; であったりするので、まずデコードしたものを
-		$this->ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');	
+		$this->ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');
 		// HTML表示用に htmlspecialchars() したもの
 		$this->ttitle_hd = htmlspecialchars($this->ttitle_hc);
 		$this->ttitle_ht = $this->ttitle_hd;
@@ -139,7 +139,7 @@ class Thread{
 		}
 		
 		if ($lar[3]) {
-			$this->gotnum = $lar[3];
+			$this->gotnum = intval($lar[3]);
 		
 			if ($this->rescount) {
 				$this->unum = $this->rescount - $this->readnum;
@@ -148,7 +148,9 @@ class Thread{
 					$this->unum = 0;
 				}
 			}
-		}
+		} else {
+            $this->gotnum = 0;
+        }
 
 		if ($lar[6]) {
 			$this->fav = $lar[6];

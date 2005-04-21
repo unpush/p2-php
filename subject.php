@@ -13,7 +13,7 @@ require_once './filectl.class.php';
 
 $debug = 0;
 if ($debug) {
-	require_once 'Benchmark/Profiler.php';
+	include_once 'Benchmark/Profiler.php';
 	$profiler =& new Benchmark_Profiler();
 	$profiler->start();
 }

@@ -234,4 +234,4 @@ echo "<hr>";
 echo "<h3>{$aThread->ttitle_hd}</h3>\n";
 echo "<hr>";
 
- ?>
+?>

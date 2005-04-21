@@ -42,20 +42,22 @@ if (!isset($ttitle)) {
 	}
 }
 
-/*
-// 2004/12/13 特に必要ないかなということでコメントアウト
-// 変換すると「長すぎる行があります」の規制に引っかかりやすくなるようだ。
-
-// メッセージに連続した半角スペースがあれば、&nbsp; に変換する
-$MESSAGE = preg_replace_callback(
-	'/^ +| {2,}/',
-    create_function(
-	   '$matches',
-	   'return str_replace(" ", "&nbsp;", $matches[0]);'
-	),
-	$MESSAGE
-);
-*/
+// {{{ ソースコードがきれいに再現されるように変換
+if (!empty($_POST['fix_source'])) {
+	// タブをスペースに
+	$MESSAGE = tab2space($MESSAGE);
+	// 特殊文字を実体参照に
+	$MESSAGE = htmlspecialchars($MESSAGE);
+	// 自動URLリンク回避
+	$MESSAGE = str_replace('tp://', 't&#112;://', $MESSAGE);
+	// 行頭のスペースを実体参照に
+	$MESSAGE = preg_replace('/^ /m', '&nbsp;', $MESSAGE);
+	// 二つ続くスペースの一つ目を実体参照に
+	$MESSAGE = preg_replace('/(?<!&nbsp;)  /', '&nbsp; ', $MESSAGE);
+	// 奇数回スペースがくり返すときの仕上げ
+	$MESSAGE = preg_replace('/(?<=&nbsp;)  /', ' &nbsp;', $MESSAGE);
+}
+// }}}
 
 // ■ クッキーの読み込み
 $cookie_file = P2Util::cachePathForCookie($host);
@@ -516,6 +518,9 @@ EOFORM;
 		$response = preg_replace($form_pattern, $form_replace, $response);
 		
 		$h_b = explode("</head>", $response);
+        
+        // HTMLプリント
+        P2Util::header_content_type();
 		echo $h_b[0];
 		if (!$_conf['ktai']) {
 			@include("style/style_css.inc"); // スタイルシート
@@ -662,6 +667,41 @@ function getKeyInSubject()
 		}
 	}
 	return false;
+}
+
+/**
+ * 整形を維持しながら、タブをスペースに置き換える
+ */
+function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
+{
+	$out_str = '';
+	$lines = preg_split('/\r\n|\r|\n/', $in_str);
+	$ln = count($lines);
+
+	for ($i = 0; $i < $ln; $i++) {
+		$parts = explode("\t", rtrim($lines[$i]));
+		$pn = count($parts);
+
+		for ($j = 0; $j < $pn; $j++) {
+			if ($j == 0) {
+				$l = $parts[$j];
+			} else {
+				//$t = $tabwidth - (strlen($l) % $tabwidth);
+				$sn = $tabwidth - (mb_strwidth($l) % $tabwidth); // UTF-8でも全角文字幅を2とカウントする
+				for ($k = 0; $k < $sn; $k++) {
+					$l .= ' ';
+				}
+				$l .= $parts[$j];
+			}
+		}
+
+		$out_str .= $l;
+		if ($i + 1 < $ln) {
+			$out_str .= $crlf;
+		}
+	}
+
+	return $out_str;
 }
 
 ?>

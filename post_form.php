@@ -150,6 +150,9 @@ if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']
 	// $htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"'.$checked.'><label for="post_be2ch">Be.2chのコードを送信</label><br>'."\n";
 }
 
+// フォームのオプション読み込み
+include './post_options_loader.inc.php';
+
 //==========================================================
 // ■HTMLプリント
 //==========================================================
@@ -203,7 +206,8 @@ echo <<<EOP
 	<input type="submit" name="submit" value="{$submit_value}">
 	{$htm['be2ch']}
 	<br>
-
+    {$htm['src_fix']}
+    
 	<input type="hidden" name="bbs" value="{$bbs}">
 	<input type="hidden" name="key" value="{$key}">
 	<input type="hidden" name="time" value="{$time}">

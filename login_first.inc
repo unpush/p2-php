@@ -152,13 +152,11 @@ EOP;
 echo $_info_msg_ht;
 echo $body_ht;
 
-if($show_login_form){
+if ($show_login_form) {
 	echo $login_form_ht;
 }
 
-echo <<<EOP
-</body>
-</html>
-EOP;
+echo '</body>
+</html>';
 
 ?>

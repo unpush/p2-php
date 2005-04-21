@@ -21,8 +21,8 @@ class ThreadRead extends Thread{
 	
 	var $getdat_error_msg_ht;	// dat取得に失敗した時に表示されるメッセージ（HTML）
 
-	/*
-	 * ■コンストラクタ
+	/**
+	 * コンストラクタ
 	 */
 	function ThreadRead()
 	{
@@ -42,14 +42,16 @@ class ThreadRead extends Thread{
 			machiDownload();
 		// JBBS@したらば
 		} elseif (P2Util::isHostJbbsShitaraba($this->host)) {
-			require_once 'read_machibbs.inc.php';
-			machiDownload();
+			include_once 'read_shitaraba.inc.php';
+			shitarabaDownload();
+		
+		// 2ch系
 		} else {
 			$this->getDatBytesFromLocalDat(); // $aThread->length をset
 
 			// 2ch bbspink●読み
 			if (P2Util::isHost2chs($this->host) and $_GET['maru']) {
-				//ログインしてなければ or ログイン後、24時間以上経過していたら自動再ログイン
+				// ログインしてなければ or ログイン後、24時間以上経過していたら自動再ログイン
 				if ((!file_exists($_conf['sid2ch_php']) or $_REQUEST['relogin2ch']) or (@filemtime($sid2ch_php) < time() - 60*60*24)) {
 					include_once './login2ch.inc.php';
 					if (!login2ch()) {
@@ -65,11 +67,12 @@ class ThreadRead extends Thread{
 			// 2chの過去ログ倉庫読み
 			} elseif ($_GET['kakolog'] && $_GET['kakoget']) {
 				if ($_GET['kakoget'] == 1) {
-					$ext = ".dat.gz";
+					$ext = '.dat.gz';
 				} elseif ($_GET['kakoget'] == 2) {
-					$ext = ".dat";
+					$ext = '.dat';
 				}
 				$this->downloadDat2chKako(urldecode($_GET['kakolog']), $ext);
+                
 			// 2ch or 2ch互換
 			} else {
 				// DATを差分DLする
@@ -174,7 +177,8 @@ class ThreadRead extends Thread{
 						$wr .= fread($fp, 4096);
 					}
 					
-					if(!$zero_read){ //末尾の改行であぼーんチェック
+                    // 末尾の改行であぼーんチェック
+					if (!$zero_read) {
 						if(substr($wr, 0, 1)!="\n"){
 							//echo "あぼーん検出";
 							fclose ($fp);
@@ -182,7 +186,7 @@ class ThreadRead extends Thread{
 							unset($this->modified);
 							return $this->downloadDat2ch(0); //あぼーん検出。全部取り直し。
 						}
-						$wr=substr($wr, 1);
+						$wr = substr($wr, 1);
 					}
 					FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
 					$fdat = fopen($this->keydat, $mode);
@@ -546,7 +550,7 @@ class ThreadRead extends Thread{
 		
 			if ($start_here) {
 			
-				if ($code=="200") {
+				if ($code == "200") {
 					
 					while (!feof($fp)) {
 						$body .= fread($fp, 4096);
