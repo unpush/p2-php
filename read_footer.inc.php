@@ -11,7 +11,7 @@ require_once './dataphp.class.php';
 //=====================================================================
 
 if ($_conf['bottom_res_form']) {
-	
+    
 	$fake_time = -10; // time を10分前に偽装
 	$time = time() - 9*60*60;
 	$time = $time + $fake_time * 60;
@@ -28,7 +28,7 @@ if ($_conf['bottom_res_form']) {
 		}
 	}
 	
-	// 前回のPOST失敗があれば
+	// 前回のPOST失敗があれば呼び出し
 	$failed_post_file = P2Util::getFailedPostFilePath($aThread->host, $aThread->bbs, $aThread->key);
 	if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
 		$last_posted = unserialize($cont_srd);
@@ -38,17 +38,17 @@ if ($_conf['bottom_res_form']) {
 
 		$hd['FROM'] = $last_posted['FROM'];
 		$hd['mail'] = $last_posted['mail'];
-		$hd['MESSAGE'] = $last_posted['MESSAGE'];	
+		$hd['MESSAGE'] = $last_posted['MESSAGE'];
 	}
 	
 	// 空白はユーザ設定値に変換
 	$hd['FROM'] = ($hd['FROM'] == '') ? htmlspecialchars($_conf['my_FROM']) : $hd['FROM'];
 	$hd['mail'] = ($hd['mail'] == '') ? htmlspecialchars($_conf['my_mail']) : $hd['mail'];
-	
+    
 	// P2NULLは空白に変換
 	$hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
 	$hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
-	
+    
 	$onmouse_showform_ht = <<<EOP
  onMouseover="document.getElementById('kakiko').style.display = 'block';"
 EOP;
@@ -76,7 +76,11 @@ EOP;
 		$htm['be2ch'] = '<input type="submit" name="submit_beres" value="BEで書き込む">';
 		// $htm['be2ch'] = '<input type="checkbox" id="post_be2ch" name="post_be2ch" value="1"'.$checked.'><label for="post_be2ch">Be.2chのコードを送信</label><br>'."\n";
 	}
-		
+    
+    // フォームのオプション読み込み
+    include './post_options_loader.inc.php';
+    
+    // フォーム
 	$res_form_ht = <<<EOP
 <div id="kakiko">
 {$htm['resform_ttitle']}
@@ -85,11 +89,12 @@ EOP;
 	 {$isMaruChar}名前： <input name="FROM" type="text" value="{$hd['FROM']}" size="19"> 
 	 E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}" size="19" onChange="checkSage();">
 	<input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label>{$options_ht}<br>
-	<textarea id="MESSAGE" rows="{$STYLE['post_msg_rows']}" cols="{$STYLE['post_msg_cols']}" wrap="off" name="MESSAGE">{$hd['MESSAGE']}</textarea>	
+	<textarea id="MESSAGE" rows="{$STYLE['post_msg_rows']}" cols="{$STYLE['post_msg_cols']}" wrap="off" name="MESSAGE">{$hd['MESSAGE']}</textarea>
 	<input type="submit" name="submit" value="{$submit_value}">
 	{$htm['be2ch']}
 	<br>
-	
+    {$htm['src_fix']}
+    
 	<input type="hidden" name="bbs" value="{$aThread->bbs}">
 	<input type="hidden" name="key" value="{$aThread->key}">
 	<input type="hidden" name="time" value="{$time}">
@@ -113,6 +118,7 @@ if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
 EOP;
 		$res_form_ht_pb = $res_form_ht;
 	}
+    
 	if ($res1['body']) {
 		$q_ichi = $res1['body']." | ";
 	}
@@ -131,7 +137,7 @@ EOP;
 	
 	$read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
 	*/
-
+    
 	if (!empty($GLOBALS['last_hit_resnum'])) {
 		$read_navi_next_anchor = "";
 		if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
@@ -144,7 +150,7 @@ EOP;
 		$read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
 	}
 	// }}}
-
+    
 	// ■プリント
 	echo <<<EOP
 <hr>
@@ -182,8 +188,7 @@ EOP;
 }
 
 // ====
-echo '
-</body>
+echo '</body>
 </html>
 ';
 

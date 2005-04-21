@@ -16,7 +16,11 @@ require_once './filectl.class.php';
 function saveMatomeCache()
 {
 	global $_conf;
-	
+    
+    if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
+        return false;
+    }
+    
 	if (!empty($GLOBALS['matome_naipo'])) {
 		return true;
 	}
@@ -40,12 +44,11 @@ function saveMatomeCache()
 	}
 	
 	// êVãKãLò^
-	$cont =& $GLOBALS['read_new_html'];
 	$file = $_conf['matome_cache_path'].$_conf['matome_cache_ext'];
 	//echo "<!-- {$file} -->";
 
 	FileCtl::make_datafile($file, $_conf['p2_perm']);
-	FileCtl::file_write_contents($file, $cont) or die("Error: cannot write file. ({$file})");
+	FileCtl::file_write_contents($file, $GLOBALS['read_new_html']) or die("Error: cannot write file. ({$file})");
 	
 	return true;
 }

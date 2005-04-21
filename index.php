@@ -67,7 +67,7 @@ if ($_conf['ktai']) {
 </head>
 EOHEADER;
 
-	if(!$sidebar){
+	if (!$sidebar) {
 		echo <<<EOMENUFRAME
 <frameset cols="156,*" frameborder="1" border="1">
 	<frame src="menu.php" name="menu" scrolling="auto">
@@ -81,15 +81,11 @@ EOMENUFRAME;
 	</frameset>
 EOMAINFRAME;
 
-	if(!$sidebar){
-		echo <<<EOMENUFRAME
-</frameset>
-EOMENUFRAME;
+	if (!$sidebar) {
+		echo '</frameset>'."\n";
 	}
 	
-	echo <<<EOFOOTER
-</html>
-EOFOOTER;
+	echo '</html>';
 
 }
 

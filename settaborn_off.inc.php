@@ -66,7 +66,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
 		}else{
 			//echo "‚ ‚Ú[‚ñ‰ğœAŠ®—¹‚µ‚Ü‚µ‚½B";
 		}
-		*/		
+		*/
 	
 	}
 
