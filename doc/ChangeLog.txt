@@ -6,6 +6,46 @@
 	  （ちょっぴりはやくなって、メモリの負担が軽減したかもしれない）
 	- [改良] 明示的にソート方法が変更された場合のみ、ソート方法が変更記録されるように調整した。 
 	
+	* brdctl.class.php
+	* brdmenu.class.php
+	* cookie.php
+	* dataphp.class.php
+	* editfavita.php
+	* editfile.php
+	* editpref.php
+	* index.php
+	* info.php
+	* login.php
+	* login2ch.php
+	* login_first.inc
+	* menu.inc.php
+	* menu_k.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_machibbs.inc.php
+	* read_new.inc.php
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.inc.php
+	* read_res_hist.php
+	* res_hist.class.php
+	* sb_footer_k.inc.php
+	* sb_print.inc.php
+	* sb_print_k.inc.php
+	* setting.php
+	* showbrdmenuk.class.php
+	* showbrdmenupc.class.php
+	* showthreadk.class.php
+	* showthreadpc.class.php
+	* subject.php
+	* subject_new.php
+	* thread.class.php
+	* threadlist.class.php
+	* title.php
+	* viewtxt.php
+	* wap.class.php
+	* conf/conf.inc.php
 	
 2005-04-17 aki
 	* p2 version 1.5.12
