@@ -6,8 +6,6 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
 
 authorize(); //ユーザ認証
 
-$_info_msg_ht = "";
-
 // アクセスログを記録
 if ($_conf['login_log_rec']) {
 	if (isset($_conf['login_log_rec_num'])) {

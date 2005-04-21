@@ -183,25 +183,28 @@ class Thread{
 	 */
 	function getThreadInfoFromSubjectTxtLine($l)
 	{
-		preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches);
-		$this->isonline = true;
-		$this->key = $matches[1];
-		$this->setTtitle(rtrim($matches[4]));
+		if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches)) {
+			$this->isonline = true;
+			$this->key = $matches[1];
+			$this->setTtitle(rtrim($matches[4]));
 		
-		// be.2ch.net ならEUC→SJIS変換
-		if (P2Util::isHostBe2chNet($this->host)) {
-			$ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
-			$this->setTtitle($ttitle);
-		}
-		
-		$this->rescount = $matches[6];
-		if ($this->readnum) {
-			$this->unum = $this->rescount - $this->readnum;
-			// machi bbs はsageでsubjectの更新が行われないそうなので調整しておく
-			if ($this->unum < 0) {
-				$this->unum = 0;
+			// be.2ch.net ならEUC→SJIS変換
+			if (P2Util::isHostBe2chNet($this->host)) {
+				$ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
+				$this->setTtitle($ttitle);
 			}
+		
+			$this->rescount = $matches[6];
+			if ($this->readnum) {
+				$this->unum = $this->rescount - $this->readnum;
+				// machi bbs はsageでsubjectの更新が行われないそうなので調整しておく
+				if ($this->unum < 0) {
+					$this->unum = 0;
+				}
+			}
+			return TRUE;
 		}
+		return FALSE;
 	}
 
 	/**

@@ -9,8 +9,6 @@ require_once './filectl.class.php';
 
 authorize(); // ユーザ認証
 
-$_info_msg_ht = "";
-
 // 書き出し用変数 ========================================
 $ptitle = 'ログイン管理';
 

@@ -15,8 +15,6 @@ if (isset($_POST['login2chID'])) { $login2chID = $_POST['login2chID']; }
 if (isset($_POST['login2chPW'])) { $login2chPW = $_POST['login2chPW']; }
 if (isset($_POST['autoLogin2ch'])) { $autoLogin2ch = $_POST['autoLogin2ch']; }
 
-$_info_msg_ht = "";
-
 //==============================================================
 // ID‚ÆPW‚ð“o˜^•Û‘¶
 //==============================================================

@@ -10,8 +10,6 @@ require_once './p2util.class.php';
 
 authorize(); //ユーザ認証
 
-$_info_msg_ht = "";
-
 if (!$login['use']) {
 	die("p2 info: 現在、ユーザ認証は「利用しない」設定になっています。<br>この機能を管理するためには、まず conf.inc.php で設定を有効にして下さい。");
 }

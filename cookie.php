@@ -8,8 +8,6 @@ require_once './p2util.class.php';
 
 authorize(); // ƒ†[ƒU”FØ
 
-$_info_msg_ht = "";
-
 if (isset($_GET['regist_cookie'])) {
 	$regist_cookie = $_GET['regist_cookie'];
 }

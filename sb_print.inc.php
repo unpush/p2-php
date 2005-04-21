@@ -5,7 +5,7 @@
 /**
  * sb_print - スレッド一覧を表示する (<tr>～</tr>)
  */
-function sb_print($aThreadList)
+function sb_print(&$aThreadList)
 {
 	global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
 	
@@ -48,22 +48,22 @@ function sb_print($aThreadList)
 	$class_sort_ikioi = "";		// 勢い
 	$class_sort_bd = "";		// Birthday
 	$class_sort_fav = "";		// お気に入り
-	if ($p2_setting['sort']) {
+	if ($GLOBALS['now_sort']) {
 		$nowsort_code = <<<EOP
-\$class_sort_{$p2_setting['sort']}=' class="now_sort"';
+\$class_sort_{$GLOBALS['now_sort']}=' class="now_sort"';
 EOP;
 		eval($nowsort_code);
 	}
 
-	// スペシャルモード時
-	if ($aThreadList->spmode) {
+	$sortq_spmode = '';
+	$sortq_host = '';
+	$sortq_ita = '';
+	// spmode時
+	if ($aThreadList->spmode) { 
 		$sortq_spmode = "&amp;spmode={$aThreadList->spmode}";
-		// あぼーんなら
-		if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
-			$sortq_host = "&amp;host={$aThreadList->host}";
-			$sortq_ita = "&amp;bbs={$aThreadList->bbs}";
-		}
-	} else {
+	}
+	// spmodeでない、または、spmodeがあぼーん or dat倉庫なら
+	if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko") { 
 		$sortq_host = "&amp;host={$aThreadList->host}";
 		$sortq_ita = "&amp;bbs={$aThreadList->bbs}";
 	}

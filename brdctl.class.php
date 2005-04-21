@@ -7,7 +7,6 @@ require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './filectl.class.php';
 require_once './brdmenu.class.php';
 
-
 /**
 * 板リスト コントロール クラス
 */
@@ -45,8 +44,8 @@ class BrdCtl{
 					$aBrdMenu =& new BrdMenu();	// クラス BrdMenu のオブジェクトを生成
 					$aBrdMenu->setBrdMatch($filepath);	// パターンマッチ形式を登録
 					$aBrdMenu->setBrdList($data);	// カテゴリーと板をセット
-					$brd_menus[] = $aBrdMenu;
-					unset($data, $aBrdMenu);
+					$brd_menus[] =& $aBrdMenu;
+					
 				} else {
 					$_info_msg_ht .= "<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n";
 				}
@@ -68,7 +67,6 @@ class BrdCtl{
 		
 		if ($_conf['brdfile_online']) {
 			$cachefile = P2Util::cacheFileForDL($_conf['brdfile_online']);
-			
 			$noDL = false;
 			
 			// キャッシュがある場合
@@ -89,13 +87,13 @@ class BrdCtl{
 			} else {
 				//echo "DL!<br>";//
 				$brdfile_online_res = P2Util::fileDownload($_conf['brdfile_online'], $cachefile);
-				if ($brdfile_online_res->is_success() && $brdfile_online_res->code != "304") {
+				if ($brdfile_online_res->is_success() && $brdfile_online_res->code != '304') {
 					$isNewDL = true;
 				}
 			}
 			
 			// html形式なら
-			if (preg_match("/html?$/", $_conf['brdfile_online'])) {
+			if (preg_match('/html?$/', $_conf['brdfile_online'])) {
 			
 				// 更新されていたら新規キャッシュ作成
 				if ($isNewDL) {
@@ -123,7 +121,7 @@ class BrdCtl{
 					$aBrdMenu->setBrdMatch($cashe_brd); // パターンマッチ形式を登録
 					$aBrdMenu->setBrdList($data); // カテゴリーと板をセット
 					if ($aBrdMenu->num) {
-						$brd_menus[] = $aBrdMenu;
+						$brd_menus[] =& $aBrdMenu;
 					} else {
 						$_info_msg_ht .=  "<p>p2 エラー: {$cashe_brd} から板メニューを生成することはできませんでした。</p>\n";
 					}

@@ -10,6 +10,8 @@ require_once './filectl.class.php';
 //===============================================
 /**
  * 新着まとめ読みのキャッシュを残す
+ *
+ * register_shutdown_function() から呼ばれる。（相対パスのファイルは扱えない？）
  */
 function saveMatomeCache()
 {

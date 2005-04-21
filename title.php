@@ -10,7 +10,10 @@ authorize(); //ƒ†[ƒU”FØ
 //=========================================================
 // •Ï”
 //=========================================================
-$_info_msg_ht = "";
+
+if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
+	$_info_msg_ht .= '<p>'.$GLOBALS['pref_dir_realpath_failed_msg'].'</p>';
+}
 
 $p2web_url_r = P2Util::throughIme($_conf['p2web_url']);
 

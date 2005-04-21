@@ -67,19 +67,6 @@ class DataPhp{
 			// 行データに変換
 			$lines = array();
 			
-			/*
-			// この処理は重いようだ
-			while (strlen($cont) > 0) {
-				if (preg_match("{(.*?\n)(.*)}s", $cont, $matches)) {
-					$lines[] = $matches[1];
-					$cont = $matches[2];
-				} else {
-					$lines[] = $cont;
-					break;
-				}
-			}
-			*/
-			
 			$lines = explode("\n", $cont);
 			$count = count($lines);
 			
@@ -157,7 +144,7 @@ class DataPhp{
 			
 			$old_cut = preg_replace('{'.$hip_quote.'.*$}s', '', $old_cont);
 			
-			// 古い内容の末尾が改行でなければ、改行を追加する
+			// 指定に応じて、古い内容の末尾が改行でなければ、改行を追加する
 			if ($ncheck) {
 				if (substr($old_cut, -1) != "\n") {
 					$old_cut .= "\n";

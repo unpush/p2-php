@@ -13,8 +13,8 @@ class BrdMenu{
 	var $categories; // クラス BrdMenuCate のオブジェクトを格納する配列
 	var $num; // 格納された BrdMenuCate オブジェクトの数
 	var $format; // html形式か、brd形式か("html", "brd")
-	var $cate_match; // カテゴリーマッチ
-	var $ita_match; // 板マッチ
+	var $cate_match; // カテゴリーマッチ形式
+	var $ita_match; // 板マッチ形式
 	
 	function BrdMenu()
 	{
@@ -24,9 +24,9 @@ class BrdMenu{
 	/**
 	 * カテゴリーを追加する
 	 */
-	function addBrdMenuCate($aBrdMenuCate)
+	function addBrdMenuCate(&$aBrdMenuCate)
 	{
-		$this->categories[] = $aBrdMenuCate;
+		$this->categories[] =& $aBrdMenuCate;
 		$this->num++;
 	}
 	
@@ -38,13 +38,13 @@ class BrdMenu{
 		// html形式
 		if (preg_match("/(html?|cgi)$/", $brdName)) {
 			$this->format = "html";
-			$this->cate_match="/<B>(.+)<\/B><BR>.*$/i";
-			$this->ita_match="/^<A HREF=\"?(http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?)\"?( target=\"?_blank\"?)?>(.+)<\/A>(<br>)?$/i";
+			$this->cate_match = "/<B>(.+)<\/B><BR>.*$/i";
+			$this->ita_match = "/^<A HREF=\"?(http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?)\"?( target=\"?_blank\"?)?>(.+)<\/A>(<br>)?$/i";
 		// brd形式
 		} else {
 			$this->format = "brd";
-			$this->cate_match="/^(.+)	([0-9])$/";
-			$this->ita_match="/^\t?(.+)\t(.+)\t(.+)$/";
+			$this->cate_match = "/^(.+)	([0-9])$/";
+			$this->ita_match = "/^\t?(.+)\t(.+)\t(.+)$/";
 		}
 	}
 
@@ -53,7 +53,7 @@ class BrdMenu{
 	*/
 	function setBrdList($data)
 	{
-		global $_conf, $word, $word_fm, $mikke;
+		global $_conf, $word, $word_fm;
 		
 		if (empty($data)) { return false; }
 
@@ -65,21 +65,23 @@ class BrdMenu{
 			
 			// カテゴリを探す
 			if (preg_match($this->cate_match, $v, $matches)) {
-				$aBrdMenuCate =& new BrdMenuCate();
-				$aBrdMenuCate->name = $matches[1];
-				if ($this->format == "brd") { $aBrdMenuCate->is_open = $matches[2]; }
-				$this->addBrdMenuCate($aBrdMenuCate);
+				$aBrdMenuCate =& new BrdMenuCate($matches[1]);
+				if ($this->format == 'brd') {
+					$aBrdMenuCate->is_open = $matches[2];
+				}
+				$this->addBrdMenuCate(&$aBrdMenuCate);
+				
 			// 板を探す
 			} elseif (preg_match($this->ita_match, $v, $matches)) {
 				// html形式なら除外URLを外す
-				if ($this->format == "html") {
+				if ($this->format == 'html') {
 					foreach ($not_bbs_list as $not_a_bbs) {
 						if ($not_a_bbs == $matches[1]) { continue 2; }
 					}
 				}
 				$aBrdMenuIta =& new BrdMenuIta();
 				// html形式
-				if ($this->format == "html") {
+				if ($this->format == 'html') {
 					$aBrdMenuIta->host = $matches[2];
 					$aBrdMenuIta->bbs = $matches[3];
 					$itaj_match = $matches[6];
@@ -92,7 +94,6 @@ class BrdMenu{
 				$aBrdMenuIta->setItaj(rtrim($itaj_match));
 				
 				// 板検索マッチ ===================================
-				$aBrdMenuIta->itaj_ht = $aBrdMenuIta->itaj;
 
 				// 正規表現検索
 				if ($word_fm) {
@@ -102,8 +103,9 @@ class BrdMenu{
 
 						// マーキング
 						$aBrdMenuIta->itaj_ht = StrCtl::filterMarking($word_fm, $aBrdMenuIta->itaj);
-						
-					} else { // 検索が見つからなくて、さらに携帯の時
+					
+					// 検索が見つからなくて、さらに携帯の時
+					} else {
 						if ($_conf['ktai']) {
 							continue;
 						}
@@ -124,7 +126,7 @@ class BrdMenu{
 	*/
 	function makeBrdFile($cachefile)
 	{
-	global $_conf, $_info_msg_ht, $word;
+		global $_conf, $_info_msg_ht, $word;
 	
 		$p2brdfile = $cachefile.".p2.brd";
 		FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
@@ -143,11 +145,9 @@ class BrdMenu{
 		}
 
 		if ($cont) {
-			$fp = @fopen($p2brdfile, 'wb') or die("p2 error: {$p2brdfile} を更新できませんでした");
-			@flock($fp, LOCK_EX);
-			fputs($fp, $cont);
-			@flock($fp, LOCK_UN);
-			fclose($fp);
+			if (!FileCtl::file_write_contents($p2brdfile, $cont)) {
+				die("p2 error: {$p2brdfile} を更新できませんでした");
+			}
 			return $p2brdfile;
 		} else {
 			if (!$word) {
@@ -159,32 +159,39 @@ class BrdMenu{
 	
 }
 
-//==========================================================
-// ボードメニューカテゴリークラス
-//==========================================================
+/**
+* ボードメニューカテゴリークラス
+*/
 class BrdMenuCate{
-	var $name; // カテゴリーの名前
-	var $menuitas; // クラスBrdMenuItaのオブジェクトを格納する配列
-	var $num; // 格納されたBrdMenuItaオブジェクトの数
-	var $is_open; // 開閉状態(bool)
+
+	var $name;		// カテゴリーの名前
+	var $menuitas;	// クラスBrdMenuItaのオブジェクトを格納する配列
+	var $num;		// 格納されたBrdMenuItaオブジェクトの数
+	var $is_open;	// 開閉状態(bool)
 	var $match_attayo;
 	
-	function BrdMenuCate()
+	/**
+	* コンストラクタ
+	*/
+	function BrdMenuCate($name)
 	{
 		$this->num = 0;
+		$this->menuitas = array();
+		
+		$this->name = $name;
 	}
 	
-	function addBrdMenuIta($aBrdMenuIta)
+	function addBrdMenuIta(&$aBrdMenuIta)
 	{
-		$this->menuitas[] = $aBrdMenuIta;
+		$this->menuitas[] =& $aBrdMenuIta;
 		$this->num++;
 	}
 	
 }
 
-//==========================================================
-// ボードメニュー板クラス
-//==========================================================
+/**
+* ボードメニュー板クラス
+*/
 class BrdMenuIta{
 	var $host;
 	var $bbs;

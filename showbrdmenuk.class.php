@@ -20,7 +20,7 @@ class ShowBrdMenuK{
 	/**
 	 * ■板メニューカテゴリをプリントする for 携帯
 	 */
-	function printCate($categories)
+	function printCate(&$categories)
 	{
 		global $_conf, $list_navi_ht;
 

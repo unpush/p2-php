@@ -3,26 +3,34 @@
 	p2 - レス書き込みフォーム
 */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル読込
+include_once './conf/conf.inc.php';  // 基本設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './dataphp.class.php';
 
 authorize(); //ユーザ認証
 
+// 引数エラー
+if (empty($_GET['host'])) {
+	die('p2 error: 引数の指定が変です');
+}
+
 //==================================================
 // 変数
 //==================================================
-$_info_msg_ht = '';
-
 $htm = array();
 
 $fake_time = -10; // time を10分前に偽装
 $time = time() - 9*60*60;
 $time = $time + $fake_time * 60;
 
+if (!empty($_GET['host'])) {
+	$host = $_GET['host'];
+} else {
+	die('p2 error: host が指定されていません');
+}
+
 $bbs = isset($_GET['bbs']) ? $_GET['bbs'] : '';
 $key = isset($_GET['key']) ? $_GET['key'] : '';
-$host = isset($_GET['host']) ? $_GET['host'] : '';
 
 $rescount = isset($_GET['rc']) ? $_GET['rc'] : 1;
 $popup = isset($_GET['popup']) ? $_GET['popup'] : 0;
@@ -35,7 +43,7 @@ $ttitle = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
 $ttitle_hd = htmlspecialchars($ttitle);
 
 
-// ■key.idxから名前とメールを読込み
+// {{{ key.idxから名前とメールを読込み
 $datdir_host = P2Util::datdirOfHost($host);
 $key_idx = $datdir_host."/".$bbs."/".$key.".idx";
 if ($lines = @file($key_idx)) {
@@ -43,6 +51,7 @@ if ($lines = @file($key_idx)) {
 	$hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
 	$hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
 }
+// }}}
 
 // 前回のPOST失敗があれば呼び出し
 $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);

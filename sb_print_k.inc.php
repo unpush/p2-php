@@ -5,7 +5,7 @@
 /**
  * sb_print - スレッド一覧を表示する (<tr>～</tr>)
  */
-function sb_print_k($aThreadList)
+function sb_print_k(&$aThreadList)
 {
 	global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
 	global $sb_view;

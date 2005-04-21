@@ -13,7 +13,7 @@ class ShowBrdMenuPc{
 	/**
 	 * 板メニューをプリントする
 	 */
-	function printBrdMenu($categories)
+	function printBrdMenu(&$categories)
 	{
 		global $_conf, $_info_msg_ht;
 

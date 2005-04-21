@@ -22,7 +22,6 @@ $me_dir_url = dirname($me_url);
 // menu_side.php の URL。（ローカルパス指定はできないようだ）
 $menu_side_url = $me_dir_url.'/menu_side.php';
 
-$_info_msg_ht = '';
 $brd_menus = array();
 
 if (isset($_GET['word'])) {

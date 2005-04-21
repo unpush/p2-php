@@ -12,7 +12,7 @@ class ShowThreadPc extends ShowThread{
 	/**
 	 * コンストラクタ
 	 */
-	function ShowThreadPc($aThread)
+	function ShowThreadPc(&$aThread)
 	{
 		$this->thread =& $aThread;
 	}

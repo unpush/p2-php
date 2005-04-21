@@ -110,7 +110,7 @@ function machiDownload()
 /**
  * ‚Ü‚¿BBS‚Ìread.pl‚Å“Ç‚İ‚ñ‚¾HTML‚ğdat‚É•ÏŠ·‚·‚é
  */
-function machiHtmltoDatLines($mlines)
+function machiHtmltoDatLines(&$mlines)
 {
 	global $machi_latest_num;
 

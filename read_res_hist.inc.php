@@ -19,11 +19,10 @@ function deleMsg($checked_hists)
 	}
 	$reslines = array_map('rtrim', $reslines);
 	
-	// ファイルの下に記録されているものが新しいので逆順に
+	// ファイルの下に記録されているものが新しいので逆順にする
 	$reslines = array_reverse($reslines);
 	
 	// チェックして整えて
-	$neolines = "";
 	if ($reslines) {
 		$n = 1;
 		foreach ($reslines as $ares) {
@@ -39,15 +38,17 @@ function deleMsg($checked_hists)
 		$neolines = rmLine($rmnums, $reslines);
 	}
 	
-	// 行順を戻す
-	$neolines = array_reverse($neolines);
-
-	$cont = "";
-	if ($neolines) {
-		$cont = implode("\n", $neolines) . "\n";
+	if (is_array($neolines)) {
+		// 行順を戻す
+		$neolines = array_reverse($neolines);
+		
+		$cont = "";
+		if ($neolines) {
+			$cont = implode("\n", $neolines) . "\n";
+		}
+		// 書き込み処理
+		DataPhp::writeDataPhp($cont, $p2_res_hist_dat_php);
 	}
-	// 書き込み処理
-	DataPhp::writeDataPhp($cont, $p2_res_hist_dat_php);
 }
 
 /**
@@ -72,6 +73,7 @@ function checkMsgID($checked_hists, $order, $date)
 function rmLine($order_list, $lines)
 {
 	if ($lines) {
+		$neolines = array();
 		$i = 0;
 		foreach ($lines as $l) {
 			$i++;

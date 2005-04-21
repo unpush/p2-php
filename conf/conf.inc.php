@@ -1,7 +1,12 @@
 <?php
-// p2 - 基本設定ファイル（特に理由の無い限り変更しないこと）
+/*
+	p2 - 基本設定ファイル
 
-$_conf['p2version'] = '1.5.12';
+	このファイルは、特に理由の無い限り変更しないこと
+*/
+
+
+$_conf['p2version'] = '1.5.13';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
 $_conf['p2name'] = 'P2';	// p2の名前。
@@ -10,7 +15,9 @@ $_conf['p2name'] = 'P2';	// p2の名前。
 //======================================================================
 // 基本設定処理
 //======================================================================
-error_reporting(E_ALL ^ E_NOTICE); 
+error_reporting(E_ALL ^ E_NOTICE);	// エラー出力設定
+
+$_info_msg_ht = '';
 
 // 動作環境を確認
 if (version_compare(phpversion(), '4.3.0', 'lt')) {
@@ -27,14 +34,14 @@ if (!extension_loaded('mbstring')) {
 
 require_once './p2util.class.php';
 
-@putenv("TZ=JST-9"); // タイムゾーンをセット
+@putenv('TZ=JST-9'); // タイムゾーンをセット
 
 // session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
 // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
 ini_set('arg_separator.output', '&amp;');
 
 // ■内部処理における文字コード指定
-// mb_detect_order("SJIS,EUC-JP,ASCII");
+// mb_detect_order("SJIS-win,EUC-JP,ASCII");
 mb_internal_encoding('SJIS-win');
 mb_http_output('pass');
 // ob_start('mb_output_handler');
@@ -72,16 +79,11 @@ if (P2Util::isBrowserSafariGroup()) {
 	$_conf['accept_charset'] = 'Shift_JIS';
 }
 
-// UA判別 ===========================================
-if (!empty($_GET['k']) || !empty($_POST['k'])) {
-	$_conf['ktai'] = 1;
-	$_conf['k_at_a'] = "&amp;k=1";
-	$_conf['k_at_q'] = "?k=1";
-	$_conf['k_input_ht'] = '<input type="hidden" name="k" value="1">';
-}
-//$_conf['ktai'] = 1;//
-$_conf['doctype'] = "";
-$_conf['accesskey'] = "accesskey";
+
+$_conf['doctype'] = '';
+$_conf['accesskey'] = 'accesskey';
+
+// {{{ 携帯アクセスキー
 $_conf['k_accesskey']['matome'] = '3';	// 新まとめ	// 3
 $_conf['k_accesskey']['latest'] = '3';	// 新 // 9
 $_conf['k_accesskey']['res'] = '7';		// ﾚｽ
@@ -93,13 +95,11 @@ $_conf['k_accesskey']['next'] = '6';	// 次 // 6
 $_conf['k_accesskey']['info'] = '9';	// 情
 $_conf['k_accesskey']['dele'] = '*';	// 削
 
-$meta_charset_ht = <<<EOP
-<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-EOP;
+$_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">'."\n";
 
-// 携帯 ===================================
-if (strstr($_SERVER['HTTP_USER_AGENT'], "UP.Browser/")) {
-	$browser = "EZweb";
+// ■携帯チェック
+if (strstr($_SERVER['HTTP_USER_AGENT'], 'UP.Browser/')) {
+	//$browser = "EZweb";
 	$_conf['ktai'] = true;
 	/*
 	$_conf['doctype'] = <<<EOP
@@ -110,24 +110,52 @@ EOP;
 	*/
 
 } elseif (preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'])) {
-	//$browser = "DoCoMo";
+	//$browser = 'DoCoMo';
 	$_conf['ktai'] = true;
 
 } elseif (preg_match('{^(J-PHONE|Vodafone)/}', $_SERVER['HTTP_USER_AGENT'])) {
-	//$browser = "JPHONE";
+	//$browser = 'JPHONE';
 	$_conf['ktai'] = true;
-	$_conf['accesskey'] = "DIRECTKEY";
+	$_conf['accesskey'] = 'DIRECTKEY';
 
 } elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'DDIPOCKET')) {
-	//$browser="DDIPOCKET";
+	//$browser = 'DDIPOCKET';
 	$_conf['ktai'] = true;
 }
+
+// {{{ クエリーによる強制ビュー指定
+
+// b=pc はまだリンク先が完全でない
+// output_add_rewrite_var() は便利だが、出力がバッファされて体感速度が落ちるのが難点。。
+// 体感速度を落とさない良い方法ないかな？
+
+// PC（b=pc）
+if ($_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
+    $_conf['b'] = 'pc';
+    $_conf['ktai'] = false;
+    //output_add_rewrite_var('b', 'pc');
+
+	$_conf['k_at_a'] = '&amp;b=pc';
+	$_conf['k_at_q'] = '?b=pc';
+    $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
+
+// 携帯（b=k。k=1は過去互換用）
+} elseif (!empty($_GET['k']) || !empty($_POST['k']) || $_GET['b'] == 'k' || $_POST['b'] == 'k') {
+    $_conf['b'] = 'k';
+	$_conf['ktai'] = true;
+    //output_add_rewrite_var('b', 'k');
+    
+	$_conf['k_at_a'] = '&amp;b=k';
+	$_conf['k_at_q'] = '?b=k';
+    $_conf['k_input_ht'] = '<input type="hidden" name="b" value="k">';
+}
+// }}}
 
 $_conf['k_to_index_ht'] = <<<EOP
 <a {$_conf['accesskey']}="0" href="index.php{$_conf['k_at_q']}">0.TOP</a>
 EOP;
 
-// DOCTYPE HTML 宣言 ==========================
+// {{{ DOCTYPE HTML 宣言
 $ie_strict = false;
 if (empty($_conf['ktai'])) {
 	if ($ie_strict) {
@@ -141,6 +169,7 @@ EODOC;
 EODOC;
 	}
 }
+// }}}
 
 //======================================================================
 
@@ -211,7 +240,7 @@ $sb_header_inc = "sb_header.inc.php";
 $sb_footer_inc = "sb_footer.inc.php";
 $read_header_inc = "read_header.inc.php";
 $read_footer_inc = "read_footer.inc.php";
-$_conf['rct_file'] = $_conf['pref_dir']."/"."p2_recent.idx";
+$_conf['rct_file'] = $_conf['pref_dir'] . '/' . 'p2_recent.idx';
 $_conf['cache_dir'] = $_conf['pref_dir'].'/p2_cache';
 $_conf['cookie_dir'] = $_conf['pref_dir'].'/p2_cookie';	// cookie 保存ディレクトリ
 $_conf['cookie_file_name'] = 'p2_cookie.txt';
@@ -223,8 +252,19 @@ $_conf['auth_user_file'] = $_conf['pref_dir']."/p2_auth_user.php";
 $_conf['auth_ez_file'] = $_conf['pref_dir']."/p2_auth_ez.php";
 $_conf['auth_jp_file'] = $_conf['pref_dir']."/p2_auth_jp.php";
 $_conf['login_log_file'] = $_conf['pref_dir'] . "/p2_login.log.php";
-$_conf['matome_cache_path'] = $_conf['pref_dir'] . '/matome_cache';
-$_conf['matome_cache_path'] = realpath(dirname($_conf['matome_cache_path'])).'/'.basename($_conf['matome_cache_path']);
+
+// saveMatomeCache() のために $_conf['pref_dir'] を絶対パスに変換する
+// ※環境によっては、realpath() で値を取得できない場合がある？
+if ($rp = realpath($_conf['pref_dir'])) {
+	$_conf['matome_cache_path'] = $rp.'/matome_cache';
+} else {
+	if (substr($_conf['pref_dir'], 0, 1) == '/') {
+		$_conf['matome_cache_path'] = $_conf['pref_dir'] . '/matome_cache';
+	} else {
+		$GLOBALS['pref_dir_realpath_failed_msg'] = 'p2 error: realpath()の取得ができませんでした。ファイル conf.inc.php の $_conf[\'pref_dir\'] をルートからの絶対パス指定で設定してください。';
+	}
+}
+
 $_conf['matome_cache_ext'] = '.htm';
 $_conf['matome_cache_max'] = 3;	// 予備キャッシュの数
 

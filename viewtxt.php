@@ -5,14 +5,17 @@
 
 include_once './conf/conf.inc.php';   // 基本設定ファイル読込
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
+
+// 引数エラー
+if (!isset($_GET['file'])) {
+	die('Error: file が指定されていません');
+}
 
 //=========================================================
 // 変数
 //=========================================================
-$_info_msg_ht = "";
-
-$file = $_GET['file'];
+$file = (isset($_GET['file'])) ? $_GET['file'] : NULL;
 $encode = "Shift_JIS";
 
 //=========================================================
@@ -21,7 +24,7 @@ $encode = "Shift_JIS";
 // 読み込めるファイルを限定する
 $readable_files = array("doc/README.txt", "doc/ChangeLog.txt");
 
-if ($readable_files and (!in_array($file, $readable_files))) {
+if ($readable_files && $file and (!in_array($file, $readable_files))) {
 	$i = 0;
 	foreach ($readable_files as $afile) {
 		if ($i != 0) {
@@ -49,7 +52,11 @@ if (preg_match("/\.txt$/i", $file)) {
 function viewTxtFile($file, $encode)
 {
 	global $_info_msg_ht;
-
+	
+	if ($file == '') {
+		die('Error: file が指定されていません');
+	}
+	
 	$filename = basename($file);
 	$ptitle = $filename;
 	
@@ -62,28 +69,27 @@ function viewTxtFile($file, $encode)
 	
 	$cont_area = htmlspecialchars($cont);
 
-	//プリント
+	// プリント
 	echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<html lang="ja">
 <head>
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 </head>
-<body onLoad="top.document.title=self.document.title;">
+<body onLoad="top.document.title=self.document.title;">\n
 EOHEADER;
 
-echo $_info_msg_ht;
-echo "<pre>";
-echo $cont_area;
-echo "</pre>";
-echo <<<EOFOOTER
-</body>
-</html>
-EOFOOTER;
+	echo $_info_msg_ht;
+	echo "<pre>";
+	echo $cont_area;
+	echo "</pre>";
+	echo '</body></html>';
 
+	return TRUE;
 }
 
 ?>
