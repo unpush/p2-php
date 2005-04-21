@@ -7,7 +7,7 @@
 	subject.php と兄弟なので一緒に面倒をみる
 */
 
-include_once './conf/conf.inc.php';  // 設定
+include_once './conf/conf.inc.php';  // 基本設定
 require_once './p2util.class.php';	// p2用のユーティリティクラス
 require_once './threadlist.class.php'; // スレッドリスト クラス
 require_once './thread.class.php';	// スレッド クラス
@@ -82,17 +82,6 @@ if (isset($_GET['viewnum'])) { $p2_setting['viewnum'] = $_GET['viewnum']; }
 if (isset($_POST['viewnum'])) { $p2_setting['viewnum'] = $_POST['viewnum']; }
 if (!$p2_setting['viewnum']) { $p2_setting['viewnum'] = $_conf['display_threads_num']; } // デフォルト値
 
-if (isset($_GET['sort'])) { $p2_setting['sort'] = $_GET['sort']; }
-if (isset($_POST['sort'])) { $p2_setting['sort'] = $_POST['sort']; }
-
-// ソートのデフォルト指定
-if (!$p2_setting['sort']) {
-	if ($spmode == "news") {
-		$p2_setting['sort'] = "ikioi";
-	} else {
-		$p2_setting['sort'] = "midoku";
-	}
-}
 
 if (isset($_GET['itaj_en'])) { $p2_setting['itaj'] = base64_decode($_GET['itaj_en']); }
 
@@ -526,124 +515,6 @@ if (!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys) {
 
 
 //============================================================
-// ■ソート
-//============================================================
-if ($aThreadList->threads) {
-	if($p2_setting['sort']=="midoku" or $_conf['ktai']){
-		if($aThreadList->spmode == "soko"){usort($aThreadList->threads, "cmp_key"); }
-		else{usort($aThreadList->threads, "cmp_midoku"); }
-	}
-	elseif($p2_setting['sort'] == "res"){usort($aThreadList->threads, "cmp_res"); }
-	elseif($p2_setting['sort'] == "title"){usort($aThreadList->threads, "cmp_title"); }
-	elseif($p2_setting['sort'] == "ita"){usort($aThreadList->threads, "cmp_ita"); }
-	elseif($p2_setting['sort'] == "ikioi" || $p2_setting['sort'] == "spd"){
-		if ($_conf['cmp_dayres_midoku']) {
-			usort($aThreadList->threads, "cmp_dayres_midoku");
-		}else{
-			usort($aThreadList->threads, "cmp_dayres");
-		}
-	}
-	elseif($p2_setting['sort']=="bd"){usort($aThreadList->threads, "cmp_key"); }
-	elseif($p2_setting['sort']=="fav"){usort($aThreadList->threads, "cmp_fav"); }
-	if($p2_setting['sort']=="no"){
-		if($aThreadList->spmode == "soko"){usort($aThreadList->threads, "cmp_key"); }
-		else{usort($aThreadList->threads, "cmp_no");}
-	}
-}
-
-// ニュースチェック
-if ($aThreadList->spmode=="news") { 
-	for( $i = 0; $i < $threads_num ; $i++ ){
-		if($aThreadList->threads){
-			$newthreads[]=array_shift($aThreadList->threads);
-		}
-	}
-	$aThreadList->threads = $newthreads;
-	$aThreadList->num = sizeof($aThreadList->threads);
-}
-
-
-//===============================================================
-// ■プリント
-//===============================================================
-if($_conf['ktai']){
-	
-	// 倉庫にtorder付与 ================
-	if($aThreadList->spmode == "soko"){
-		if($aThreadList->threads){
-			$soko_torder=1;
-			$newthreads=array();
-			foreach($aThreadList->threads as $at){
-				$at->torder = $soko_torder++;
-				$newthreads[] = $at;
-			}
-			$aThreadList->threads = $newthreads;
-		}
-	}
-
-	// 表示数制限 =====
-	$aThreadList->num = sizeof($aThreadList->threads); // なんとなく念のため
-	$sb_disp_all_num = $aThreadList->num;
-	
-	$disp_navi = P2Util::getListNaviRange($sb_disp_from , $_conf['k_sb_disp_range'], $sb_disp_all_num);
-
-	$newthreads=array();
-	for( $i = $disp_navi['from']; $i <= $disp_navi['end']; $i++ ){
-		if($aThreadList->threads[$i-1]){
-			$newthreads[]=$aThreadList->threads[$i-1];
-		}
-	}
-	$aThreadList->threads = $newthreads;
-	$aThreadList->num = sizeof($aThreadList->threads);
-
-	// ヘッダプリント
-	include './sb_header_k.inc.php';
-	
-	require_once './sb_print_k.inc.php'; //スレッドサブジェクトメイン部分HTML表示関数
-	sb_print_k($aThreadList);
-	
-	// フッタプリント
-	include './sb_footer_k.inc.php';
-		
-} else {
-	//============================================================
-	// ヘッダHTMLを表示
-	//============================================================
-	include($sb_header_inc);
-	
-	//============================================================
-	// スレッドサブジェクトメイン部分HTML表示
-	//============================================================
-	require_once './sb_print.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
-
-	$debug && $prof->startTimer("sb_print");
-	sb_print($aThreadList);
-	$debug && $prof->stopTimer("sb_print");
-	
-	$debug && $prof->printTimers(true);
-	
-	//============================================================
-	// フッタHTML表示
-	//============================================================
-	include($sb_footer_inc);
-}
-
-//============================================================
-// p2_setting 記録
-//============================================================
-if($viewnum_pre!=$p2_setting['viewnum'] or $sort_pre!=$p2_setting['sort'] or $itaj_pre!=$p2_setting['itaj']){
-	FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
-	if($p2_setting){$p2_setting_cont = serialize($p2_setting);}
-	if($p2_setting_cont){
-		$fp = fopen($p2_setting_txt, "wb") or die("Error: $p2_setting_txt を更新できませんでした");
-		@flock($fp, LOCK_EX);
-		fputs($fp, $p2_setting_cont);
-		@flock($fp, LOCK_UN);
-		fclose($fp);
-	}
-}
-
-//============================================================
 // $subject_keys をシリアライズして保存
 //============================================================
 //if(file_exists($sb_keys_b_txt)){ unlink($sb_keys_b_txt); }
@@ -662,92 +533,6 @@ if($subject_keys){
 		fclose($fp);
 	}
 }
-
-
-//============================================================
-// ■ソート関数
-//============================================================
-
-// 新着ソート =========================================
-function cmp_midoku($a, $b) {
-	if( $a->new == $b->new ){
-		if( ($a->unum == $b->unum) or ($a->unum<0) && ($b->unum<0) ){
-			return ($a->torder > $b->torder) ? 1 : -1;
-		}else{
-	 	   return ($a->unum < $b->unum) ? 1 : -1;
-		}
-	}else{
-		return ($a->new < $b->new) ? 1 : -1;
-	}
-}
-
-//レス数 ソート====================
-function cmp_res ($a, $b) { 
-    if ($a->rescount == $b->rescount){
-		return ($a->torder > $b->torder) ? 1 : -1;
-    }else{
-		return ($a->rescount < $b->rescount) ? 1 : -1;
-	}
-}
-
-//タイトル ソート====================
-function cmp_title($a, $b){ 
-    if($a->ttitle == $b->ttitle){
-		return ($a->torder > $b->torder) ? 1 : -1;
-    }else{
-		return strcmp($a->ttitle,$b->ttitle);
-	}
-}
-
-//板 ソート====================
-function cmp_ita($a, $b){ 
-    if($a->itaj == $b->itaj){
-		return ($a->torder > $b->torder) ? 1 : -1;
-    }else{
-		return strcmp($a->itaj,$b->itaj);
-	}
-}
-
-//お気に ソート====================
-function cmp_fav($a, $b){ 
-    if($a->fav == $b->fav){
-		return ($a->torder > $b->torder) ? 1 : -1;
-    }else{
-		return strcmp($b->fav,$a->fav);
-	}
-}
-
-//勢いソート（新着レス優先）====================
-function cmp_dayres_midoku($a, $b){
-	if( $a->new == $b->new ){
-		if( ($a->unum == $b->unum) or ($a->unum>=1) && ($b->unum>=1) ){
-			return ($a->dayres < $b->dayres) ? 1 : -1;
-		}else{
-			return ($a->unum < $b->unum) ? 1 : -1;
-		}
-	}else{
-		return ($a->new < $b->new) ? 1 : -1;
-	}
-}
-
-//勢いソート====================
-function cmp_dayres($a, $b){
-	if( $a->new == $b->new ){
-		return ($a->dayres < $b->dayres) ? 1 : -1;
-	}else{
-		return ($a->new < $b->new) ? 1 : -1;
-	}
-}
-
-//key ソート====================
-function cmp_key($a, $b){
-    return ($a->key < $b->key) ? 1 : -1;
-}
-
-//No. ソート====================
-function cmp_no ($a, $b) { 
-	return ($a->torder > $b->torder) ? 1 : -1;
-} 
 
 */
 ?>

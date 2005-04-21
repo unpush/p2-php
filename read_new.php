@@ -35,7 +35,6 @@ if (isset($_conf['rnum_all_range']) and $_conf['rnum_all_range'] > 0) {
 
 $sb_view = "shinchaku";
 $newtime = date("gis");
-$_info_msg_ht = "";
 
 $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
@@ -374,7 +373,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 	ob_start();
 	
 	if (($aThread->readnum < 1) || $aThread->unum) {
-		readNew($aThread);
+		readNew(&$aThread);
 	} elseif ($aThread->diedat) {
 		echo $aThread->getdat_error_msg_ht;
 		echo "<hr>\n";
@@ -495,7 +494,7 @@ EOP;
 		// $aThread->datToHtml(); //dat を html に変換表示
 		include_once './showthread.class.php'; // HTML表示クラス
 		include_once './showthreadpc.class.php'; // HTML表示クラス
-		$aShowThread =& new ShowThreadPc($aThread);
+		$aShowThread =& new ShowThreadPc(&$aThread);
 
 		$res1 = $aShowThread->quoteOne();
 		$read_cont_ht = $res1['q'];
@@ -590,7 +589,8 @@ EOP;
 		$s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}";
 		P2Util::recKeyIdx($aThread->keyidx, $s); // key.idxに記録
 	}
-
+	
+	unset($aThread);
 }
 
 //==================================================================

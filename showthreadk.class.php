@@ -8,7 +8,7 @@ class ShowThreadK extends ShowThread{
 	 */
 	function ShowThreadK(&$aThread)
 	{
-		$this->ShowThread($aThread);
+		$this->ShowThread(&$aThread);
 	}
 	
 	/**

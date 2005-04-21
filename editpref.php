@@ -9,8 +9,6 @@ require_once './p2util.class.php';
 
 authorize(); //ユーザ認証
 
-$_info_msg_ht = "";
-
 // ホストの同期用設定
 if (!isset($rh_idx))     { $rh_idx     = $_conf['pref_dir'] . '/p2_res_hist.idx'; }
 if (!isset($palace_idx)) { $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx'; }

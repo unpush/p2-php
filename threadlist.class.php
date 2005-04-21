@@ -253,9 +253,9 @@ class ThreadList{
 	/**
 	 * ¡ addThread ƒƒ\ƒbƒh
 	 */
-	function addThread($aThread)
+	function addThread(&$aThread)
 	{
-		$this->threads[] = $aThread;
+		$this->threads[] =& $aThread;
 		$this->num++;
 		return $this->num;
 	}

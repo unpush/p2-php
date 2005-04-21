@@ -20,7 +20,6 @@ authorize(); // ユーザ認証
 $newtime = date('gis');
 $p2_res_hist_dat_php = $_conf['pref_dir'].'/p2_res_hist.dat.php';
 
-$_info_msg_ht = '';
 $deletemsg_st = '削除';
 $ptitle = '書き込んだレスの記録';
 
@@ -75,7 +74,7 @@ if ($datlines) {
 		$aResArticle->key = trim($resar[7]);
 		$aResArticle->order = $n;
 		
-		$aResHist->addRes($aResArticle);
+		$aResHist->addRes(&$aResArticle);
 		
 		$n++;
 	}

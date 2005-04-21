@@ -40,9 +40,9 @@ class ResHist{
 	/**
 	 * ¡ƒŒƒX‚ğ’Ç‰Á‚·‚é
 	 */
-	function addRes($aResArticle)
+	function addRes(&$aResArticle)
 	{
-		$this->articles[] = $aResArticle;
+		$this->articles[] =& $aResArticle;
 		$this->num++;
 	}	
 	

@@ -2,6 +2,8 @@
 // WWW Access on PHP
 // http://member.nifty.ne.jp/hippo2000/perltips/LWP.html を参考にしつつ似たような簡易のものを
 
+// 2005/04/20 aki このクラスは役割終了にして、PEAR利用に移行したい（HTTP_Clientなど）
+
 /**
  * UserAgent クラス
  *

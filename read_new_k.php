@@ -33,7 +33,6 @@ $GLOBALS['rnum_all_range'] = $_conf['k_rnum_range'];
 
 $sb_view = "shinchaku";
 $newtime = date("gis");
-$_info_msg_ht = "";
 
 //=================================================
 // 板の指定
@@ -365,7 +364,7 @@ EOP;
 		//$aThread->datToHtml(); // dat を html に変換表示
 		include_once './showthread.class.php'; // HTML表示クラス
 		include_once './showthreadk.class.php'; // HTML表示クラス
-		$aShowThread =& new ShowThreadK($aThread);
+		$aShowThread =& new ShowThreadK(&$aThread);
 		
 		$read_cont_ht .= $aShowThread->getDatToHtml();
 		
@@ -441,6 +440,7 @@ EOP;
 		P2Util::recKeyIdx($aThread->keyidx, $s); // key.idxに記録
 	}
 
+	unset($aThread);
 }
 
 //==================================================================

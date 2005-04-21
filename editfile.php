@@ -3,35 +3,26 @@
 	ファイルをブラウザで編集する
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';	// 基本設定読込
 require_once './filectl.class.php';
 require_once './p2util.class.php';
 
 authorize(); // ユーザ認証
 
+// 引数エラー
+if (!isset($_POST['path'])) {
+	die('Error: path が指定されていません');
+}
+
 // 変数 ==================================
-$path = $_POST['path'];
-$modori_url = $_POST['modori_url'];
-$encode = $_POST['encode'];
+isset($_POST['path']) and $path = $_POST['path'];
+isset($_POST['modori_url']) and $modori_url = $_POST['modori_url'];
+isset($_POST['encode']) and $encode = $_POST['encode'];
 
-if (isset($_POST['rows'])) {
-	$rows = $_POST['rows'];
-} else {
-	$rows = 36; // デフォルト値
-}
-if (isset($_POST['cols'])) {
-	$cols = $_POST['cols'];
-} else {
-	$cols = 128; // デフォルト値
-}
+$rows = (isset($_POST['rows'])) ? $_POST['rows'] : 36; // デフォルト値
+$cols = (isset($_POST['cols'])) ? $_POST['cols'] : 128; // デフォルト値
 
-
-if (isset($_POST['filecont'])) {
-	$filecont = $_POST['filecont'];
-}
-
-$_info_msg_ht = "";
-
+isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 
 //=========================================================
 // 前処理
@@ -78,11 +69,15 @@ editFile($path, $encode);
  */
 function setFile($path, $cont, $encode)
 {
+	if ($path == '') {
+		die('Error: path が指定されていません');
+	}
+
 	if ($encode == "EUC-JP") {
 		$cont = mb_convert_encoding($cont, 'SJIS-win', 'EUC-JP');
 	}
 	// 書き込む
-	$fp = @fopen($path, "wb") or die("Error: cannot write. ( $path )");
+	$fp = @fopen($path, 'wb') or die("Error: cannot write. ( $path )");
 	@flock($fp, LOCK_EX);
 	fputs($fp, $cont);
 	@flock($fp, LOCK_UN);
@@ -96,6 +91,10 @@ function setFile($path, $cont, $encode)
 function editFile($path, $encode)
 {
 	global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
+	
+	if ($path == '') {
+		die('Error: path が指定されていません');
+	}
 	
 	$filename = basename($path);
 	$ptitle = "Edit: ".$filename;
@@ -113,15 +112,16 @@ function editFile($path, $encode)
 	if ($modori_url) {
 		$modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";
 	}
-
+	
 	// プリント
 	echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<html lang="ja">
 <head>
+	{$_conf['meta_charset_ht']}
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<meta http-equiv="Content-Style-Type" content="text/css">
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
-	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 	<title>{$ptitle}</title>
 </head>
 <body onLoad="top.document.title=self.document.title;">
@@ -143,11 +143,9 @@ EOHEADER;
 </form>
 EOFORM;
 
-	echo <<<EOFOOTER
-</body>
-</html>
-EOFOOTER;
+	echo '</body></html>';
 
+	return true;
 }
 
 ?>

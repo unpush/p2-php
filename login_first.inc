@@ -5,8 +5,6 @@ require_once './p2util.class.php';
 require_once './filectl.class.php';
 require_once("./login.inc");
 
-$_info_msg_ht = "";
-
 if (isset($_GET['regist_cookie'])) { $regist_cookie = $_GET['regist_cookie']; }
 if (isset($_POST['regist_cookie'])) { $regist_cookie = $_POST['regist_cookie']; }
 
