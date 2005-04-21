@@ -7,7 +7,11 @@
 	- [新機能] 書き込み時に、ソースコードを崩さないように補正できるオプションが付いた（拡張パックより）great! > rskさん
 	  $_conf['editor_srcfix']
 
+	- 新規ファイル
+		read_shitaraba.inc.php
+		post_options_loader.inc.php
 
+	- 変更されたファイルは多数につき、表記省略
 
 2005-04-21 aki
 	* p2 version 1.5.13
