@@ -89,17 +89,17 @@ if (!empty($_POST['sort'])) {
 	$GLOBALS['now_sort'] = $_GET['sort'];
 }
 
-// ソートのデフォルト指定
+// ソートの指定
 if (empty($now_sort)) {
-	if (empty($spmode)) {
-		$GLOBALS['now_sort'] = (!empty($_conf['sb_sort_ita'])) ? $_conf['sb_sort_ita'] : 'ikioi';	// 勢い
-	} else {
-		$GLOBALS['now_sort'] = 'midoku';	// 新着
-	}
-}
-
-if (isset($_GET['itaj_en'])) {
-	$p2_setting['itaj'] = base64_decode($_GET['itaj_en']);
+    if (!empty($p2_setting['sort'])) {
+        $GLOBALS['now_sort'] = $p2_setting['sort'];
+    } else {
+    	if (empty($spmode)) {
+    		$GLOBALS['now_sort'] = (!empty($_conf['sb_sort_ita'])) ? $_conf['sb_sort_ita'] : 'ikioi';	// 勢い
+    	} else {
+    		$GLOBALS['now_sort'] = 'midoku';	// 新着
+    	}
+    }
 }
 
 // ■表示スレッド数 ====================================

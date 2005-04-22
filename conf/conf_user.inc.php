@@ -98,6 +98,7 @@ $_conf['k_save_packet'] = 1;	// (1)
 
 $_conf['enable_exfilter'] = 1;	// (1) フィルタリングでAND/OR検索を可能にする（off:0, レスのみ:1, サブジェクトも:2）
 $_conf['flex_idpopup'] = 1;	// (1) ID:xxxxxxxxをIDフィルタリングのリンクに変換（off:0, on:1）
+$_conf['precede_openssl'] = 0;	// (0) まずはopensslで●ログインを試みる。ただしPHP 4.3.0以降で、OpenSSLが静的にリンクされていること (する:1, しない:0)
 $_conf['precede_phpcurl'] = 0;		// (0) curlを使う時、コマンドライン版と関数版どちらを優先するか (コマンドライン:0, 関数:1)
 $_conf['ngaborn_daylimit'] = 180;	// (180) この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）
 
