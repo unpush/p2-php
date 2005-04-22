@@ -1,8 +1,18 @@
 2005-04-21 aki
+	* p2 version 1.5.15
+
+	- [Bug Fix] ソートで、切り替えた指定が残らないのと、spmodeの時、新着に固定されていたのを修正。
+	
+	- [新機能] cURLを使わずにOpenSSLで●ログインできるようにした。（拡張パックより） THX! > rskさん
+	  $_conf['precede_openssl']
+	  ※ただしPHPがバージョン4.3.0以降でconfigureのオプションに--with-opensslを付けてコンパイルされていないといけないので、
+	  DSOでopensslを読み込んでいる場合にこの機能を使うとエラーが出るので注意。
+	
+2005-04-21 aki
 	* p2 version 1.5.14
 	
 	- [Bug Fix] したらばJBBSの取得ログが崩れていたのを対応修正
-	- [Bug Fix] 書き込みした時のクッキー確認で文字化けしないように、Content-Type の header を出力するようにした。 >>269
+	- [Bug Fix] 書き込みした時のクッキー確認で文字化けしないように、Content-Type の header を出力するようにした。
 	
 	- [新機能] 書き込み時に、ソースコードを崩さないように補正できるオプションが付いた（拡張パックより）great! > rskさん
 	  $_conf['editor_srcfix']
@@ -247,91 +257,23 @@
 
 	- 新規追加ファイル
 		menu.inc.php
-		
-	* brdmenu.class.php
-	* conf.inc.php
-	* conf_user.inc.php
-	* editfavita.php
-	* editpref.php
-	* info.php
-	* login.php
-	* login2ch.php
-	* menu.inc.php is new
-	* menu.php
-	* menu_k.php
-	* menu_side.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_footer.inc.php
-	* read_footer_k.inc is removed
-	* read_footer_k.inc.php is new
-	* read_header.inc.php
-	* read_header_k.inc is removed
-	* read_header_k.inc.php is new
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.php
-	* res_hist.class.php
-	* sb_footer_k.inc is removed
-	* sb_footer_k.inc.php is new
-	* sb_header.inc.php
-	* sb_header_k.inc is removed
-	* sb_header_k.inc.php is new
-	* sb_print.inc is removed
-	* sb_print.inc.php is new
-	* sb_print_k.inc is removed
-	* sb_print_k.inc.php is new
-	* setfav.inc.php
-	* setpalace.inc.php
-	* setting.php
-	* showbrdmenuk.class.php
-	* showbrdmenupc.class.php
-	* showthread.class.php
-	* showthreadk.class.php
-	* showthreadpc.class.php
-	* subject.php
-	* subject_new.php
-	* thread.class.php
-	* threadlist.class.php
-	* threadread.class.php
-	* title.php
 
 2005-03-21 aki
 	* p2 version 1.5.7
 	
 	- [Bug Fix] 独立したレス書き込みフォームで、記憶された名前やメールが読み込まれていなかったのを修正
 	- 他こまごま
-	
-	* conf.inc.php
-	* post_form.php
-	* read.php
-	* read_footer.inc.php
-	* sb_print_k.inc
-	* showthreadk.class.php
-	* showthreadpc.class.php
 
 2005-03-13 aki
 	* p2 version 1.5.6
 	
 	- [Bug Fix] ファイル名ミスのため、携帯用ページが表示できなかったバグを修正
-	
-	* conf_inc.php
-	* index.php
 
 2005-03-13 aki
 	* p2 version 1.5.5
 	
 	- [Bug Fix] ファイル名ミスのため、板メニューなどが表示できなかったバグを修正
-	
-	* brdctl.class.php
-	* conf_inc.php
-	* menu.php
-	* menu_k.php
-	* menu_side.php
-	* syncfavita.inc
-	* syncindex.inc
-	
+
 2005-03-13 aki
 	* p2 version 1.5.4
 	
@@ -373,91 +315,16 @@
 		crypt_xor.inc.php
 		dele_js.php
 
-	* brdctl.class.php is new
-	* brdctl_class.inc is removed
-	* brdmenu.class.php is new
-	* brdmenu_class.inc is removed
-	* conf.inc.php
-	* conf_user.inc.php
-	* cookie.php
-	* crypt_xor.inc.php is removed
-	* dataphp.class.php
-	* dele.inc.php
-	* dele_js.php is removed
-	* editfavita.php
-	* editpref.php
-	* first_cont.php
-	* httpcmd.php is new
-	* index.php
-	* index_print_k.inc is removed
-	* index_print_k.inc.php is new
-	* info.php
-	* js/basic.js
-	* login.php
-	* login2ch.inc.php
-	* login2ch.php
-	* login_first.inc
-	* md5_crypt.inc.php is new
-	* menu.php
-	* menu_k.php
-	* menu_side.php
-	* p2util.class.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_footer.inc.php
-	* read_footer_k.inc
-	* read_header.inc.php
-	* read_header_k.inc
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.inc.php
-	* read_res_hist.php
-	* res_hist.class.php
-	* sb_footer.inc.php
-	* sb_footer_k.inc
-	* sb_header.inc.php
-	* sb_header_k.inc
-	* sb_print.inc
-	* sb_print_k.inc
-	* sb_toolbar_k.inc
-	* setfav.inc is removed
-	* setfav.inc.php is new
-	* setpalace.inc is removed
-	* setpalace.inc.php is new
-	* setting.php
-	* showbrdmenuk.class.php is new
-	* showbrdmenuk_class.inc is removed
-	* showbrdmenupc.class.php is new
-	* showbrdmenupc_class.inc is removed
-	* showthread.class.php
-	* showthreadk.class.php
-	* showthreadpc.class.php
-	* subject.php
-	* subject_new.php
-	* thread.class.php
-	* threadread.class.php
-	* title.php
-	* wap.class.php
-
 2005-03-06 aki
 	* p2 version 1.5.3
 
 	- [改善] 書き込みログが多い時の、表示が遅かったのを改善した
 
-	* conf.inc.php
-	* dataphp.class.php
-	
 2005-03-06 aki
 	* p2 version 1.5.2
 
 	- [Bug Fix] レス表示で「次X」のリンク先が正しくなかったのを修正
 	- [改良] 書き込みログが多い時の、書き込み時の処理速度を改善
-	
-	* conf.inc.php
-	* dataphp.class.php
-	* post.php
-	* read_footer.inc.php
 
 2005-03-05 aki
 	* p2 version 1.5.1
@@ -467,25 +334,6 @@
 	  ちゃんと最後にヒットしたレスから、表示されるようにした。
 	- [改良] 携帯モードでのBE対応を向上
 	- [新機能] 単独スレ表示から、フレームで開けるようにした
-
-	* conf.inc.php
-	* conf_user.inc.php
-	* dataphp.class.php
-	* index.php
-	* read.php
-	* read_footer.inc.php
-	* read_header.inc.php
-	* read_new.php
-	* read_new_k.php
-	* showthread.class.php is new
-	* showthread_class.inc is removed
-	* showthreadk.class.php is new
-	* showthreadk_class.inc is removed
-	* showthreadpc.class.php is new
-	* showthreadpc_class.inc is removed
-	* threadread.class.php
-	* doc/ChangeLog.txt
-	* js/htmlpopup.js
 
 2005-03-04 aki
 	* p2 version 1.5.0
@@ -557,9 +405,6 @@
 
 	- [Bug Fix] バージョンチェックの判定処理にバグがあったのを修正
 
-	* conf.php
-	* title.php
-
 2005-01-30 aki
 	* p2 version 1.4.1
 	
@@ -567,10 +412,6 @@
 	  (modified: showthreadpc_class.inc)
 	- バージョンチェックの判定処理を改良
 	  (modified: title.php)
-	
-	* conf.php
-	* showthreadpc_class.inc
-	* title.php
 	
 2005-01-22 aki
 	* p2 version 1.4.0
@@ -587,17 +428,6 @@
 	
 	- 他こまごま
 
-	* conf.php
-	* conf_style.inc
-	* conf_user.php
-	* read_footer.inc
-	* read_header.inc
-	* sb_print.inc
-	* syncfavita.inc
-	* syncindex.inc
-	* js/showhide.js
-	* style/style_css.inc
-
 2005-01-22 aki
 	* p2 version 1.3.9
 	
@@ -607,10 +437,6 @@
 	  (showthreadpc_class.inc: qRes())
 	- レスフィルタリング時に、Warning表示が出ることがあったのを修正。
 	  (showthreadpc_class.inc)
-	
-	* conf.php
-	* showthreadpc_class.inc
-	* js/showhide.js
 
 2005-01-22 aki
 	* p2 version 1.3.8
@@ -628,48 +454,17 @@
 	  (modified: post.php) 
 	- [その他] read_new.phpでreadNew()関数が$aThreadをリファレンスとして受け取るようにした。
 
-	* brdmenu_class.inc
-	* conf.php
-	* datactl.inc
-	* editfavita.php
-	* filectl.class.php
-	* info.php
-	* p2util.class.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_footer.inc
-	* read_new.php
-	* read_new_k.php
-	* setfav.inc
-	* setfavita.inc
-	* setpalace.inc
-	* settaborn.inc
-	* showthreadpc_class.inc
-	* subject.php
-	* subject_new.php
-	* threadread_class.inc
-
 2005-01-22 aki
 	* p2 version 1.3.7
 	- 携帯でもBE IDを表示できるようにした
-	
-	* conf.php
-	* showthreadk_class.inc
 
 2005-01-22 aki
 	* p2 version 1.3.6
 	- BE IDの表示を改良調整した
-	
-	* conf.php
-	* showthreadpc_class.inc
 
 2005-01-22 aki
 	* p2 version 1.3.5
 	- BE ID表示への対応を向上させた （マージ感謝！→rskさん）
-	
-	* conf.php
-	* showthreadpc_class.inc
 	
 2005-01-22 aki
 	* p2 version 1.3.4
@@ -687,146 +482,44 @@
 	- ユーザ設定の変数名を多数変更した（$_conf['xxx']）
 	- 他、こまごま
 
-	* brdctl_class.inc
-	* conf.php
-	* conf_user.php
-	* datactl.inc
-	* editfavita.php
-	* editfile.php
-	* editpref.php
-	* filectl.class.php
-	* index.php
-	* index_print_k.inc
-	* info.php
-	* login2ch.inc
-	* menu.php
-	* menu_side.php
-	* p2util.class.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_footer.inc
-	* read_header.inc
-	* read_header_k.inc
-	* read_machibbs.inc
-	* read_new.php
-	* read_new_k.php
-	* res_hist_class.inc
-	* sb_footer.inc
-	* sb_footer_k.inc
-	* sb_header.inc
-	* sb_header_k.inc
-	* sb_print.inc
-	* sb_print_k.inc
-	* setfav.inc
-	* setting.php
-	* showbrdmenuk_class.inc
-	* showbrdmenupc_class.inc
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* subject.php
-	* subject_new.php
-	* thread_class.inc
-	* threadlist_class.inc
-	* threadread_class.inc
-	* title.php
-	* viewtxt.php
-
 2005-01-09 aki
 	* p2 version 1.3.3
 	- datを取得できなかった時の表示処理をさらに調整した
 	 （古いタイプの表示でも●取得ができるようになった）
-
-	* conf.php
-	* threadread_class.inc
 
 2005-01-09 aki
 	* p2 version 1.3.2
 	- 2chの仕様変更に追随して、datを取得できなかった時の表示処理を調整した
 	 （●取得ができるようになった）
 	- スレッド一覧で元スレリンクのlsのall指定をなくした
-	
-	* conf.php
-	* sb_print.inc
-	* threadread_class.inc
 
 2005-01-03 aki
 	* p2 version 1.3.1
 	- まちBBSタイプのリンクが表示されなかったのを修正
 	- 他、細かく
 
-	* conf.php
-	* read_machibbs.inc
-	* showthreadpc_class.inc
-	* title.php
-
 2005-01-02 aki
 	* p2 version 1.3.0
 	- お気にスレリストの順番番号が崩れることがあったのを修正
-
-	* conf.php
-	* setfav.inc
 	
 2005-01-02 aki
 	* p2 version 1.2.9
 	- menu_side.php が表示できなかったバグを修正
 
-	* conf.php
-	* menu_side.php
-	
 2005-01-01 aki
 	* p2 version 1.2.8
 	- 2ch全体での、Be.2ch書き込みに対応
 	- 携帯モードの板メニューで検索ができなかったバグを修正
 
-	* conf.php
-	* menu.php
-	* menu_k.php
-	* menu_side.php
-	* post.php
-	* post_form.php
-	* read_footer.inc
-
 2004-12-31 aki
 	* p2 version 1.2.7
 	- 携帯モードで板メニューが見られなかったバグを修正
-
-	* conf.php
-	* menu_k.php
 
 2004-12-31 aki
 	* p2 version 1.2.6
 	
 	- したらば、まちBBSが表示できなかったのを修正
 	- filectl_class.inc を filectl.class.php にファイル名変更
-
-	* brdctl_class.inc
-	* brdmenu_class.inc
-	* conf.php
-	* datactl.inc
-	* editfavita.php
-	* editfile.php
-	* editpref.php
-	* filectl.class.php: NEW!
-	* filectl_class.inc: removed
-	* info.php
-	* login.php
-	* login2ch.inc
-	* login2ch.php
-	* login_first.inc
-	* p2util.class.php
-	* post.php
-	* read.php
-	* setfav.inc
-	* setfavita.inc
-	* setpalace.inc
-	* settaborn.inc
-	* setting.php
-	* subject.php
-	* subject_new.php
-	* threadread_class.inc
-	* title.php
-	* viewtxt.php
 
 2004-12-31 aki
 	* p2 version 1.2.5
@@ -836,68 +529,23 @@
 	- したらばの解析処理を調整
 	- be.2ch.net のCookie送信処理を修正
 	- strctl_class.inc を srtctl.class.php にファイル名変更
-	
-	* conf.php
-	* conf_user.php
-	* editfile.php
-	* menu.php
-	* menu_k.php
-	* menu_side.php
-	* p2util.class.php
-	* post.php
-	* read.php
-	* read_header.inc
-	* read_machibbs.inc
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* strctl.class.php: NEW!
-	* strctl_class.inc: removed
-	* subject.php
-	* subject_new.php
-	* thread_class.inc
-	* threadlist_class.inc
-	* threadread_class.inc
-	* title.php
-	* viewtxt.php
 
 2004-12-29 aki
 	* p2 version 1.2.4
 	- したらばの仕様変更に対応、スレが読めるようになった
-	
-	* conf.php
-	* menu.php
-	* read_machibbs.inc
-	* thread_class.inc
 
 2004-12-24 aki
 	* p2 version 1.2.3
 	- Safariでeditfile.phpが文字化けするのを修正
 	- 元スレリンクのls指定が効いていなかったのを修正
-	
-	* conf.php
-	* editfile.php
-	* info.php
-	* read_header.inc
-	* read_header_k.inc
-	* read_new.php
-	* read_new_k.php
-	* showthreadpc_class.inc
 
 2004-12-23 aki
 	* p2 version 1.2.2
 	- 携帯UA Vodafoneに対応した
-	 
-	* conf.php
-	* login.inc
-	* login.php
-	* login_first.inc
 
 2004-12-23 aki
 	* p2 version 1.2.1
 	- jcode_convert_encoding()の引数を修正
-	 
-	* conf.php
-	* strctl_class.inc
 
 2004-12-23 aki
 	* p2 version 1.2.0
@@ -906,38 +554,11 @@
 	- 一部JavaScriptの警告が表示されることがあったのを修正
 	- jcode.phpをセットで同梱（jcodeディレクトリ）
 	 （感謝→TOMOさん）
-	 
-	* brdctl_class.inc
-	* brdmenu_class.inc
-	* conf.php
-	* conf_user.php
-	* jcode.phps: removed
-	* menu.php
-	* menu_k.php
-	* menu_side.php
-	* read.php
-	* read_header.inc
-	* sb_footer.inc
-	* sb_header.inc
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* strctl_class.inc
-	* subject.php
-	* subject_new.php
-	* jcode/code_table.jis2ucs: new
-	* jcode/code_table.ucs2jis: new
-	* jcode/jcode.php: new
-	* jcode/jcode_wrapper.php: new
-	* jcode/readme.txt: new
 
 2004-12-22 aki
 	* p2 version 1.1.9
 	- 複数のスレッドあぼーん登録ができなかったバグを修正
 	- 一部JavaScriptの警告が表示されることがあったのを修正
-	
-	* conf.php
-	* settaborn.inc
-	* js/post_form.js
 
 2004-12-13 aki
 	* p2 version 1.1.8
@@ -969,37 +590,6 @@
 	- （conf.php: $_conf['p2status_dl_interval']）
 	- 今回は、idxファイル読み書き時の改行取り扱い処理を、広範に変更しています。
 	 （基本的に、読み込み時は改行を外して、書き込み時に改行を追加する）
-
-	* brdctl_class.inc
-	* conf.php: $_conf['p2status_dl_interval']
-	* conf_user.php: $_conf['sb_dl_interval'], $_conf['sb_show_motothre'], $_conf['sb_show_ikioi']
-	* datactl.inc
-	* dele.inc
-	* editfile.php
-	* info.php
-	* p2util.class.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_footer.inc
-	* read_header.inc
-	* read_header_k.inc
-	* read_machibbs.inc
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.inc
-	* sb_print.inc
-	* sb_print_k.inc
-	* setfav.inc
-	* setpalace.inc
-	* settaborn.inc
-	* settaborn_off.inc
-	* subject.php
-	* subject_new.php
-	* thread_class.inc
-	* threadlist_class.inc
-	* threadread_class.inc
-	* title.php
 	
 2004-11-30 aki
 	* p2 version 1.1.6
@@ -1007,16 +597,6 @@
 	- スレッド一覧で元スレへのリンクを追加した。（・）
 	- 長過ぎる書き込み時に確認表示が切れることがあったのを修正
 	- スレッド一覧のソートのデフォルトを「勢い」に変更
-
-	* info.php
-	* post.php
-	* read_header.inc
-	* read_header_k.inc
-	* read_new.php
-	* read_new_k.php
-	* sb_print.inc
-	* subject.php
-	* thread_class.inc
 
 2004-11-30 aki
 	* p2 version 1.1.5
@@ -1027,42 +607,15 @@
 	- >> 引用リンク化処理の調整
 	- 他ごにょごにょ
 
-	* conf.php: $_conf['p2version'], $_conf['p2name']
-	* conf_user.php: $_conf['through_ime'], $_conf['iframe_popup'], $_conf['iframe_popup_delay']
-	* datactl.inc
-	* login2ch.inc
-	* login2ch.php
-	* menu.php
-	* menu_side.php
-	* p2util.class.php
-	* post.php
-	* read_header.inc
-	* setfav.inc
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* threadread_class.inc
-	* title.php
-
 2004-11-22 aki
 	* p2 version 1.1.4
 	
 	- レスのすばやさをスレッド下部に表示した
 	
-	* read_footer.inc
-	* read_new.php
-	
 2004-11-22 aki
 	* p2 version 1.1.3
 	
 	- be.2ch.netの書き込みに暫定対応
-	
-	* conf_user.php
-	* p2util.class.php 
-	* post.php
-	* showthreadpc_class.inc
-	* thread_class.inc
-	* threadlist_class.inc
-	* threadread_class.inc
 
 2004-11-22 aki
 	* p2 version 1.1.2
@@ -1078,27 +631,6 @@
 	- PHP5でエラー表示が出るのを修正（brdctl_class.inc）
 	- p2がDLしたファイル（キャッシュ等）の基本パーミッションを606に変更
 	- 感謝 → みなさん
-	
-	* brdctl_class.inc
-	* conf.php
-	* conf_user.php
-	* datactl.inc
-	* filectl_class.inc
-	* p2util.class.php
-	* post.php
-	* post_form.php
-	* read_footer.inc
-	* read_new.php
-	* sb_print.inc
-	* sb_print_k.inc
-	* style/read_css.inc
-	* style/subject_css.inc
-	* subject.php
-	* subject_new.php
-	* threadlist_class.inc
-	* threadread_class.inc
-	* thread_class.inc
-	* title.php
 
 2004-11-06 aki
 	* p2 version 1.1.1
@@ -1119,38 +651,6 @@
 		$_conf['read_new_k_php'] = "read_new_k.php";
 	- 他、微修正
 	- 感謝 → みなさん
-	
-	* brdctl_class.inc
-	* conf.php
-	* datactl.inc
-	* info.php
-	* menu_side.php
-	* p2util.class.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_footer.inc
-	* read_header.inc
-	* read_header_k.inc
-	* read_new.php
-	* read_new_k.php
-	* res_hist_class.inc
-	* sb_footer.inc
-	* sb_header.inc
-	* sb_header_k.inc
-	* sb_print.inc
-	* sb_print_k.inc
-	* sb_toolbar.inc
-	* sb_toolbar_k.inc
-	* showbrdmenupc_class.inc
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* style/read_css.inc
-	* subject.php
-	* subject_new.php
-	* threadlist_class.inc
-	* threadread_class.inc
-	* thread_class.inc
 
 2004-10-26 aki
 	* p2 version 1.1.0
@@ -1177,50 +677,6 @@
 	- 掲示板書き込み時に、p2独自のHTTPヘッダとして、「p2-Client-IP」を掲示板サイトへ送信するようにしました。
 	「p2-Client-IP」は、クライアントユーザのIPアドレスを示します。
 
-	* conf.php
-	* conf_user.php
-	* cookie.php
-	* datactl.inc
-	* editfavita.php
-	* editfile.php
-	* editpref.php
-	* filectl_class.inc
-	* first_cont.php
-	* index.php
-	* index_print_k.inc
-	* info.php
-	* login.php
-	* login2ch.php
-	* login_first.inc
-	* menu.php
-	* menu_k.php
-	* menu_side.php
-	* p2util.class.php: NEW!
-	* post.php
-	* post_form.php
-	* read.php
-	* read_footer.inc
-	* read_header.inc
-	* read_header_k.inc
-	* read_machibbs.inc
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.php
-	* sb_footer.inc
-	* sb_header.inc
-	* sb_header_k.inc
-	* setfavita.inc
-	* setting.php
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* style/editpref_css.inc
-	* syncfavita.inc: NEW! 拡張パックより
-	* syncindex.inc: NEW! 拡張パックより
-	* threadread_class.inc
-	* thread_class.inc
-	* title.php
-	* viewtxt.php
-
 2004-06-21 aki
 	* p2 version 1.0.5
 	- したらばURL解釈の正規表現を修正
@@ -1232,8 +688,6 @@
 2004-06-14 aki
 	* p2 version 1.0.4
 	- 板メニューの解析処理を修正
-
-	* brdmenu_class.inc
 
 2004-06-14 aki
 	* p2 version 1.0.3
@@ -1257,18 +711,6 @@
 	- k=1で携帯モードにしている時、レス書き込み後に携帯モードを抜けてしまうのを修正
 	- 感謝→2ch p2スレッドの皆さん
 
-	* conf.php
-	* datactl.inc
-	* post_form.php
-	* post.php
-	* read_footer.inc
-	* read.php
-	* sb_footer.inc
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* thread_class.inc
-	* threadread_class.inc
-
 2003-07-27 aki
 	* p2 version 1.0.1
 	- スレの殿堂が表示されなくなっていたバグを修正
@@ -1276,20 +718,10 @@
 		マージ感謝！>184さん
 	- 板メニューの自動更新は、「お気に板のみ」をデフォルト設定とした
 	- 他、メニュー表示を微修正
-	
-	* conf_user.php
-	* conf.php
-	* menu_side.php
-	* menu.php
-	* threadlist_class.inc
 
 2003-07-21 aki
 	* p2 version 1.0.0
 	- お気にスレ一覧などが表示されなくなっていたバグを修正
-	
-	* brdctl_class.inc	
-	* conf.inc ($c_menu_dl_interval)
-	* threadlist_class.inc
 
 2003-07-21 aki
 	* p2 version 0.9.9
@@ -1302,52 +734,14 @@
 	- スレッド情報ウィンドウに「履歴から外す」を追加
 	- 2chログイン後、24時間以上経っていた場合は、自動で再ログインするようにした
 
-	* brdctl_class.inc
-	* conf_style.inc ($STYLE['sb_now_sort_color'], $STYLE['sb_thre_title_new_color'],
-		$STYLE['sb_tool_newres_color'], $STYLE['menu_newres_color'], $STYLE['menu_color'],
-		$STYLE['read_newres_color'], $STYLE['menu_newthre_color']) : $STYLE['newres_color'] は分離消滅
-	* conf_user.php ($c_enable_menu_new, $c_menu_refresh_time, $c_viewall_kitoku)
-	* conf.php
-	* dele.inc
-	* index.php
-	* info.php
-	* login_first.inc
-	* login.inc
-	* login.php
-	* login2ch.inc
-	* login2ch.php
-	* menu.php
-	* post.php
-	* read_footer.inc
-	* read_machibbs.inc
-	* read_new_k.php
-	* sb_toolbar.inc
-	* setfav.inc
-	* setfavita.inc
-	* showbrdmenupc_class.inc
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* style/menu_css.inc
-	* style/subject_css.inc
-	* subject_new.php: NEW!
-	* subject.php
-	* threadlist_class.inc
-	* threadread_class.inc
-	* wap.inc
-
 2003-05-15 aki
 	* p2 version 0.9.8
 	- スレッドタイトルで検索ができなかったのを修正
-	* conf.php
-	* sb_header.inc
 
 2003-05-15 aki
 	* p2 version 0.9.7
 	- タイムゾーンの指定形式を再度変更
 	- 0.9.6でsb_toolbar.incがなかったのを補完
-	
-	* conf.php
-	* sb_toolbar.inc
 	
 2003-05-15 aki
 	* p2 version 0.9.6
@@ -1355,44 +749,12 @@
 	- NGワードにメール欄を追加
 	- タイムゾーン指定の形式を変更
 	- 他こまごま
-	
-	* conf.php
-	* editpref.php
-	* read_header_k.inc
-	* read_new_k.php
-	* read_new.php
-	* read.inc
-	* res_hist_class.inc
-	* sb_footer_k.inc
-	* sb_header_k.inc
-	* sb_header.inc
-	* sb_print_k.inc
-	* sb_toolbar_k.inc : NEW!
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* subject.php
-	* viewtxt.php
 
 2003-05-10 aki
 	* p2 version 0.9.5
 	- まちBBSで読み込めないスレがあったのを修正
 	- ユーザ名、パスワードに"_"を使えるようにした
 	- 他こまごま
-	
-	* conf.php
-	* editfile.php
-	* index_print_k.inc
-	* login.inc
-	* login2ch.inc
-	* login2ch.php
-	* read_header_k.inc
-	* read_machibbs.inc
-	* read_new_k.php
-	* read_new.php
-	* read_res_hist.php
-	* res_hist_class.inc
-	* title.php
-	* viewtxt.php : NEW!
 
 2003-05-07 aki
 	* p2 version 0.9.4
@@ -1408,77 +770,6 @@
 	- 意味なく出力文字をバッファリングしてた箇所があったのを修正した。
 	- conf.inc を conf.php に名前変更。
 	- 他いろいろ。
-
-	* brdctl.inc : brdctl_class.incに変更のため廃棄
-	* brdctl_class.inc : NEW!
-	* brdmenu_class.inc
-	* conf_style.inc ($STYLE['a_underline_none'], $STYLE['read_ngword']) : $STYLE['a_underline'] はなくなった
-	* conf_user.php ($login['use'], $refresh_time) : $refresh_timeは値を分単位に変更。$login_user と $login_pass はなくなった
-	* conf.inc : conf.phpに変更のため廃棄
-	* conf.php : NEW!
-	* cookie.php
-	* crypt_xor.inc : NEW!
-	* datactl.inc
-	* editfavita.php
-	* editfile.php : NEW!
-	* editpref.php : NEW!
-	* filectl_class.inc : NEW!
-	* first_cont.php
-	* img/p2white.jpg : NEW!
-	* index_print_k.inc
-	* index.php
-	* info.php
-	* js/basic.js
-	* js/respopup.js
-	* login_first.inc : NEW!
-	* login.php : NEW!
-	* login2ch.inc
-	* login2ch.php
-	* menu_k.php
-	* menu_side.php
-	* menu.php
-	* post_form.php
-	* post.php
-	* read_footer_k.inc
-	* read_header_k.inc
-	* read_header.inc
-	* read_machibbs.inc
-	* read_new_k.php : NEW!
-	* read_new.php
-	* read_res_hist.php
-	* read.php
-	* res_hist_class.inc
-	* sb_footer_k.inc
-	* sb_footer.inc
-	* sb_header_k.inc
-	* sb_header.inc
-	* sb_print_k.inc
-	* sb_toolbar.inc
-	* setting.php : NEW!
-	* setfav.inc
-	* setfavita.inc
-	* setpalace.inc
-	* settaborn.inc
-	* showbrdmenuk_class.inc : NEW!
-	* showbrdmenupc_class.inc : NEW!
-	* showthreadk_class.inc
-	* showthreadpc_class.inc
-	* status.php : setting.phpに統合のため、廃棄
-	* style/editpref_css.inc : NEW!
-	* style/info_css.inc
-	* style/login_css.inc : NEW!
-	* style/login_first_css.inc : NEW!
-	* style/login2ch_css.inc
-	* style/post_css.inc
-	* style/read_css.inc
-	* style/setting_css.inc : NEW!
-	* style/status_css.inc : 廃棄
-	* style/style_css.inc
-	* style/subject_css.inc
-	* subject.php
-	* threadlist_class.inc
-	* threadread_class.inc
-	* title.php
 
 2003-04-19 aki
 	* p2 version 0.9.3
