@@ -7,7 +7,14 @@
 	  $_conf['precede_openssl']
 	  ※ただしPHPがバージョン4.3.0以降でconfigureのオプションに--with-opensslを付けてコンパイルされていないといけないので、
 	  DSOでopensslを読み込んでいる場合にこの機能を使うとエラーが出るので注意。
-	
+	  
+	  - 変更されたファイル
+		login2ch.inc.php
+		subject.php
+		wap.class.php
+		conf/conf.inc.php
+		conf/conf_user.inc.php
+
 2005-04-21 aki
 	* p2 version 1.5.14
 	
