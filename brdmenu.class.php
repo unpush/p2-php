@@ -69,7 +69,7 @@ class BrdMenu{
 				if ($this->format == 'brd') {
 					$aBrdMenuCate->is_open = $matches[2];
 				}
-				$this->addBrdMenuCate(&$aBrdMenuCate);
+				$this->addBrdMenuCate($aBrdMenuCate);
 				
 			// ”Â‚ð’T‚·
 			} elseif (preg_match($this->ita_match, $v, $matches)) {

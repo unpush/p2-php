@@ -27,9 +27,10 @@
    てな具合にp2ディレクトリへアクセス。
 
  ※PHPが確かに動いているかどうかを確かめたい時は？
- http://127.0.0.1/~(ユーザ名)/p2/test_first.php
+ http://127.0.0.1/~(ユーザ名)/p2/phpifno.php
  てなとこにアクセスしてみて下さい。
  ずらずらーっとPHPの環境情報が表示されたならば、PHPは正常に動作しています。
+ （確認ができましたら、phpinfo.php はもう必要ないので削除しても構いません）
 
  ※Mac OS XでPHPが動かない人（標準そのままでは動かない）は、
  http://homepage1.nifty.com/glass/tom_neko/web/web_cgi_osx.html#php

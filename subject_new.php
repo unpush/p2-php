@@ -288,13 +288,13 @@ for ($x = 0; $x < $linesize ; $x++) {
 	
 	$debug && $prof->startTimer('word_filter_for_sb');
 	// ■ワードフィルタ(for subject) ====================================
-	if (!$aThreadList->spmode || $aThreadList->spmode=="news" and $word_fm) {
+	if (!$aThreadList->spmode || $aThreadList->spmode == "news" and $word_fm) {
 		$target = $aThread->ttitle;
 		if (!StrCtl::filterMatch($word_fm, $target)) {
 			unset($aThread);
 			continue;
 		} else {
-			$mikke++;
+			$GLOBALS['sb_mikke_num']++;
 			if ($_conf['ktai']) {
 				$aThread->ttitle_ht = $aThread->ttitle;
 			} else {
@@ -433,7 +433,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 				unset($aThread);
 				continue;
 			} else {
-				$mikke++;
+				$GLOBALS['sb_mikke_num']++;
 				if ($_conf['ktai']) {
 					$aThread->ttitle_ht = $aThread->ttitle;
 				} else {

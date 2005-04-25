@@ -17,6 +17,21 @@
 	- ファイル名の変更
 		test_first.php → phpinfo.php
 
+	* brdmenu.class.php
+	* filectl.class.php
+	* ngabornctl.class.php
+	* p2util.class.php
+	* phpinfo.php is new
+	* read_new.php
+	* read_res_hist.php
+	* sb_header_k.inc.php
+	* showthreadk.class.php
+	* subject.php
+	* subject_new.php
+	* test_first.php is removed
+	* conf/conf.inc.php
+	* doc/README.txt 
+
 2005-04-21 aki
 	* p2 version 1.5.15
 
