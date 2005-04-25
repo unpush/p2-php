@@ -5,8 +5,7 @@
 	このファイルは、特に理由の無い限り変更しないこと
 */
 
-
-$_conf['p2version'] = '1.5.15';
+$_conf['p2version'] = '1.5.16';
 
 //$_conf['p2name'] = 'p2';	// p2の名前。
 $_conf['p2name'] = 'P2';	// p2の名前。
@@ -19,7 +18,7 @@ error_reporting(E_ALL ^ E_NOTICE);	// エラー出力設定
 
 $_info_msg_ht = '';
 
-// 動作環境を確認
+// {{{ 動作環境を確認
 if (version_compare(phpversion(), '4.3.0', 'lt')) {
 	die('<html><body><h1>p2 info: PHPバージョン4.3.0未満では使えません。</h1></body></html>');
 } elseif (version_compare(phpversion(), '5.0.0', 'ge')) {
@@ -31,14 +30,21 @@ if (ini_get('safe_mode')) {
 if (!extension_loaded('mbstring')) {
 	die('<html><body><h1>p2 info: mbstring拡張モジュールがロードされていません。</h1></body></html>');
 }
-
-require_once './p2util.class.php';
+// }}}
 
 @putenv('TZ=JST-9'); // タイムゾーンをセット
 
 // session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
 // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
 ini_set('arg_separator.output', '&amp;');
+
+// 自動フラッシュをオフにする
+ob_implicit_flush(0);
+
+// クライアントから接続を切られても処理を続行する
+ignore_user_abort(1);
+
+require_once './p2util.class.php';
 
 // ■内部処理における文字コード指定
 // mb_detect_order("SJIS-win,EUC-JP,ASCII");

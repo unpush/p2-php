@@ -96,7 +96,7 @@ class NgAbornCtl{
 	}
 
 	/**
-	 * loadNgAbornFromFile
+	 * readNgAbornFromFile
 	 *
 	 * @private
 	 */

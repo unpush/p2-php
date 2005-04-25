@@ -354,7 +354,7 @@ for ($x = 0; $x < $linesize; $x++) {
 			unset($aThread);
 			continue;
 		} else {
-			$mikke++;
+			$GLOBALS['sb_mikke_num']++;
 			if ($_conf['ktai']) {
 				$aThread->ttitle_ht = $aThread->ttitle_hd;
 			} else {
@@ -509,7 +509,7 @@ for ($x = 0; $x < $linesize; $x++) {
 				unset($aThread);
 				continue;
 			} else {
-				$mikke++;
+				$GLOBALS['sb_mikke_num']++;
 				if ($_conf['ktai']) {
 					$aThread->ttitle_ht = $aThread->ttitle_hd;
 				} else {
@@ -567,7 +567,7 @@ for ($x = 0; $x < $linesize; $x++) {
 	
 	// ■リストに追加
 	$debug && $profiler->enterSection('addThread()');
-	$aThreadList->addThread(&$aThread);
+	$aThreadList->addThread($aThread);
 	$debug && $profiler->leaveSection('addThread()');
 	unset($aThread);
 	
@@ -685,7 +685,7 @@ if ($_conf['ktai']) {
 	include './sb_header_k.inc.php';
 	
 	require_once './sb_print_k.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
-	sb_print_k(&$aThreadList);
+	sb_print_k($aThreadList);
 	
 	// フッタプリント
 	include './sb_footer_k.inc.php';

@@ -74,7 +74,7 @@ if ($datlines) {
 		$aResArticle->key = trim($resar[7]);
 		$aResArticle->order = $n;
 		
-		$aResHist->addRes(&$aResArticle);
+		$aResHist->addRes($aResArticle);
 		
 		$n++;
 	}

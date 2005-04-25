@@ -373,7 +373,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 	ob_start();
 	
 	if (($aThread->readnum < 1) || $aThread->unum) {
-		readNew(&$aThread);
+		readNew($aThread);
 	} elseif ($aThread->diedat) {
 		echo $aThread->getdat_error_msg_ht;
 		echo "<hr>\n";
@@ -494,7 +494,7 @@ EOP;
 		// $aThread->datToHtml(); //dat を html に変換表示
 		include_once './showthread.class.php'; // HTML表示クラス
 		include_once './showthreadpc.class.php'; // HTML表示クラス
-		$aShowThread =& new ShowThreadPc(&$aThread);
+		$aShowThread =& new ShowThreadPc($aThread);
 
 		$res1 = $aShowThread->quoteOne();
 		$read_cont_ht = $res1['q'];
