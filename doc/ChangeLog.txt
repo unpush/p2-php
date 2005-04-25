@@ -1,3 +1,22 @@
+2005-04-25 aki
+	* p2 version 1.5.16
+	
+	- [改良] subjext.txtのDLに失敗した時も、更新間隔を取るようにした
+	  modified: p2util.class.php
+
+	- [修正] 携帯で板へのリンクを c.2ch.net に変更修正した
+	  modified: sb_header_k.inc.php
+
+	- [内部仕様変更] クライアントから接続を切られても処理を続行するようにした
+	  modified: conf.php: ignore_user_abort(1);
+	  
+	- [内部仕様変更] 関数コール時にリファレンスとして引数を渡さないように改めた
+
+	- 他こまかく
+
+	- ファイル名の変更
+		test_first.php → phpinfo.php
+
 2005-04-21 aki
 	* p2 version 1.5.15
 
