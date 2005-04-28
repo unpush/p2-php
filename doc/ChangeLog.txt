@@ -6,21 +6,6 @@
 	- [改良修正] ページの読み込みが完了していない状態でHTMLポップアップができなかったのを改良修正
 	
 	今回の変更は全てrskさんのパッチより。THX!
-	
-	- 変更されたファイル
-		editfile.php
-		p2util.class.php
-		post.php
-		read_header.inc.php
-		read_new.php
-		read_shitaraba.inc.php chang
-		strctl.class.php
-		thread.class.php
-		threadlist.class.php
-		threadread.class.php
-		viewtxt.php
-		conf/conf.inc.php
-		js/htmlpopup.js
 
 2005-04-25 aki
 	* p2 version 1.5.16
