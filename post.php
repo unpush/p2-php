@@ -381,7 +381,7 @@ function postIt($URL)
 		
 			// したらば or be.2ch.netなら、EUCに変換
 			if (P2Util::isHostJbbsShitaraba($host) || P2Util::isHostBe2chNet($host)) {
-				$value = mb_convert_encoding($value, 'EUC-JP', 'SJIS-win');
+				$value = mb_convert_encoding($value, 'eucJP-win', 'SJIS-win');
 			}
 			
 	        $POST[] = $name."=".urlencode($value);
@@ -465,7 +465,7 @@ function postIt($URL)
 	
 	// be.2ch.net 文字コード変換 EUC→SJIS
 	if (P2Util::isHostBe2chNet($host)) {
-		$response = mb_convert_encoding($response, 'SJIS-win', 'EUC-JP');
+		$response = mb_convert_encoding($response, 'SJIS-win', 'eucJP-win');
 		
 		//<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">
 		$response = preg_replace("{(<head>.*<META http-equiv=\"Content-Type\" content=\"text/html; charset=)EUC-JP(\">.*</head>)}is", "$1Shift_JIS$2", $response);

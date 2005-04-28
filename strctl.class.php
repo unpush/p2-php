@@ -51,11 +51,11 @@ class StrCtl{
 	function filterMatch($pattern, &$target)
 	{
 		// 全角/半角を（ある程度）区別なくマッチ
-		$pattern_han = mb_convert_kana($pattern, 'ak');
+		$pattern_han = mb_convert_kana($pattern, 'rnk');
 		if ($pattern != $pattern_han) {
 			$pattern = $pattern.'|'.$pattern_han;
 		}
-		$pattern_zen = mb_convert_kana($pattern, 'AKV');
+		$pattern_zen = mb_convert_kana($pattern, 'RNKV');
 		if ($pattern != $pattern_zen) {
 			$pattern = $pattern.'|'.$pattern_zen;
 		}
@@ -89,11 +89,11 @@ class StrCtl{
 	function filterMarking($pattern, &$target, $marker = '<b class="filtering">\\1</b>')
 	{
 		// 全角/半角を（ある程度）区別なくマッチ
-		$pattern_han = mb_convert_kana($pattern, 'ak');
+		$pattern_han = mb_convert_kana($pattern, 'rnk');
 		if ($pattern != $pattern_han) {
 			$pattern = $pattern.'|'.$pattern_han;
 		}
-		$pattern_zen = mb_convert_kana($pattern, 'AKV');
+		$pattern_zen = mb_convert_kana($pattern, 'RNKV');
 		if ($pattern != $pattern_zen) {
 			$pattern = $pattern.'|'.$pattern_zen;
 		}

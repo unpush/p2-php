@@ -790,7 +790,7 @@ class ThreadRead extends Thread{
 			
 			// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 			if (P2Util::isHostBe2chNet($this->host)) {
-				$first_line = mb_convert_encoding($first_line, 'SJIS-win', 'EUC-JP');
+				$first_line = mb_convert_encoding($first_line, 'SJIS-win', 'eucJP-win');
 			}
 	
 			$first_datline = rtrim($first_line);
@@ -890,7 +890,7 @@ class ThreadRead extends Thread{
 			
 			// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 			if (P2Util::isHostBe2chNet($this->host)) {
-				$first_line = mb_convert_encoding($first_line, 'SJIS-win', 'EUC-JP');
+				$first_line = mb_convert_encoding($first_line, 'SJIS-win', 'eucJP-win');
 			}
 
 			$first_datline = rtrim($first_line);

@@ -273,7 +273,8 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">\n
+<body onLoad="pageLoaded();">
+<div id="popUpContainer"></div>\n
 EOP;
 
 echo $_info_msg_ht;
