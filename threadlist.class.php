@@ -243,7 +243,7 @@ class ThreadList{
 			
 			// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 			if (P2Util::isHostBe2chNet($this->host)) {
-				$lines = array_map(create_function('$str', 'return mb_convert_encoding($str, "SJIS-win", "EUC-JP");'), $lines);
+				$lines = array_map(create_function('$str', 'return mb_convert_encoding($str, "SJIS-win", "eucJP-win");'), $lines);
 			}
 			
 		}

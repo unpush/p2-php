@@ -64,7 +64,7 @@ function viewTxtFile($file, $encode)
 	$cont = @file_get_contents($file);
 	
 	if ($encode == "EUC-JP") {
-		$cont = mb_convert_encoding($cont, 'SJIS-win', 'EUC-JP');
+		$cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
 	}
 	
 	$cont_area = htmlspecialchars($cont);

@@ -1,3 +1,12 @@
+2005-04-28 aki
+	* p2 version 1.5.17
+	
+	- [修正] フィルタリング時に正規表現を誤認してしまう可能性がある問題を修正
+	- [修正] 文字コードの変換を SJIS-win <-> eucJP-win で統一
+	- [改良修正] ページの読み込みが完了していない状態でHTMLポップアップができなかったのを改良修正
+	
+	今回の変更は全てrskさんのパッチより。THX!
+
 2005-04-25 aki
 	* p2 version 1.5.16
 	
@@ -228,48 +237,6 @@
 		settaborn_off.inc.php → settaborn_off.inc.php
 		syncfavita.inc → syncfavita.inc.php
 		syncindex.inc → syncindex.inc.php
-
-	* brdctl.class.php
-	* conf.inc.php
-	* conf_user.inc.php
-	* editfavita.php
-	* editpref.php
-	* info.php
-	* login.php
-	* login2ch.inc.php
-	* menu.inc.php
-	* menu_k.php
-	* post.php
-	* post_form.php
-	* read_footer.inc.php
-	* read_machibbs.inc is removed
-	* read_machibbs.inc.php is new
-	* read_res_hist.php
-	* sb_footer.inc.php
-	* sb_footer_k.inc.php
-	* sb_header.inc.php
-	* sb_header_k.inc.php
-	* sb_toolbar.inc is removed
-	* sb_toolbar.inc.php is new
-	* sb_toolbar_k.inc is removed
-	* sb_toolbar_k.inc.php is new
-	* setfavita.inc is removed
-	* setfavita.inc.php is new
-	* settaborn.inc is removed
-	* settaborn.inc.php is new
-	* settaborn_off.inc is removed
-	* settaborn_off.inc.php is new
-	* showthread.class.php
-	* showthreadk.class.php
-	* showthreadpc.class.php
-	* strctl.class.php
-	* subject.php
-	* subject_new.php
-	* syncfavita.inc is removed
-	* syncfavita.inc.php is new
-	* syncindex.inc is removed
-	* syncindex.inc.php is new
-	* threadread.class.php
 
 2005-04-01 aki
 	* p2 version 1.5.8

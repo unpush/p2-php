@@ -5,7 +5,7 @@
 	‚±‚Ìƒtƒ@ƒCƒ‹‚ÍA“Á‚É——R‚Ì–³‚¢ŒÀ‚è•ÏX‚µ‚È‚¢‚±‚Æ
 */
 
-$_conf['p2version'] = '1.5.16';
+$_conf['p2version'] = '1.5.17';
 
 //$_conf['p2name'] = 'p2';	// p2‚Ì–¼‘OB
 $_conf['p2name'] = 'P2';	// p2‚Ì–¼‘OB
@@ -47,7 +47,7 @@ ignore_user_abort(1);
 require_once './p2util.class.php';
 
 // ¡“à•”ˆ—‚É‚¨‚¯‚é•¶šƒR[ƒhw’è
-// mb_detect_order("SJIS-win,EUC-JP,ASCII");
+// mb_detect_order("SJIS-win,eucJP-win,ASCII");
 mb_internal_encoding('SJIS-win');
 mb_http_output('pass');
 // ob_start('mb_output_handler');
@@ -191,7 +191,7 @@ $posted_rec_num = 1000; // (1000) ‘‚«‚ñ‚¾ƒŒƒX‚ÌÅ‘å‹L˜^” //Œ»İ‚Í‹@”\‚µ‚Ä‚¢‚
 
 $_conf['p2status_dl_interval'] = 360;	// (360) p2statusiƒAƒbƒvƒf[ƒgƒ`ƒFƒbƒNj‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•ª)
 
-/* ƒfƒtƒHƒ‹ƒgİ’è */
+// ƒfƒtƒHƒ‹ƒgİ’è
 if (!isset($login['use'])) { $login['use'] = 1; }
 if (!is_dir($_conf['pref_dir'])) { $_conf['pref_dir'] = "./data"; }
 if (!is_dir($datdir)) { $datdir = "./data"; }
@@ -279,18 +279,19 @@ $_conf['menu_dl_interval'] = 1;	// (1) ”Â menu ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚é
 $_conf['fsockopen_time_limit'] = 10;	// (10) ƒlƒbƒgƒ[ƒNÚ‘±ƒ^ƒCƒ€ƒAƒEƒgŠÔ(•b)
 set_time_limit(60); 		// ƒXƒNƒŠƒvƒgÀs§ŒÀŠÔ(•b)
 
-$_conf['data_dir_perm'] = 0707;		// ƒf[ƒ^•Û‘¶—pƒfƒBƒŒƒNƒgƒŠ‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['dat_perm'] = 0606; 		// datƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['key_perm'] = 0606; 		// key.idx ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['dl_perm'] = 0606;	// ‚»‚Ì‘¼‚Ìp2‚ª“à•”“I‚ÉDL•Û‘¶‚·‚éƒtƒ@ƒCƒ‹iƒLƒƒƒbƒVƒ…“™j‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['pass_perm'] = 0604;		// ƒpƒXƒ[ƒhƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['p2_perm'] = 0606; 		// ‚»‚Ì‘¼‚Ìp2‚Ì“à•”•Û‘¶ƒf[ƒ^ƒtƒ@ƒCƒ‹
-$_conf['palace_perm'] = 0606;		// “a“°“ü‚è‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['favita_perm'] = 0606;		// ‚¨‹C‚É”Â‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['favlist_perm'] = 0606;		// ‚¨‹C‚ÉƒXƒŒ‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['rct_perm'] = 0606;		// Å‹ß“Ç‚ñ‚¾ƒXƒŒ‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-$_conf['res_write_perm'] = 0606;		// ‘‚«‚İ—š—ğ‹L˜^ƒtƒ@ƒCƒ‹‚Ìƒp[ƒ~ƒbƒVƒ‡ƒ“
-
+// {{{ ƒp[ƒ~ƒbƒVƒ‡ƒ“İ’è
+$_conf['data_dir_perm'] = 0707; // ƒf[ƒ^•Û‘¶—pƒfƒBƒŒƒNƒgƒŠ
+$_conf['dat_perm'] = 0606; // datƒtƒ@ƒCƒ‹
+$_conf['key_perm'] = 0606; // key.idx ƒtƒ@ƒCƒ‹
+$_conf['dl_perm'] = 0606; // ‚»‚Ì‘¼‚Ìp2‚ª“à•”“I‚ÉDL•Û‘¶‚·‚éƒtƒ@ƒCƒ‹iƒLƒƒƒbƒVƒ…“™j
+$_conf['pass_perm'] = 0604; // ƒpƒXƒ[ƒhƒtƒ@ƒCƒ‹
+$_conf['p2_perm'] = 0606; // ‚»‚Ì‘¼‚Ìp2‚Ì“à•”•Û‘¶ƒf[ƒ^ƒtƒ@ƒCƒ‹
+$_conf['palace_perm'] = 0606; // “a“°“ü‚è‹L˜^ƒtƒ@ƒCƒ‹
+$_conf['favita_perm'] = 0606; // ‚¨‹C‚É”Â‹L˜^ƒtƒ@ƒCƒ‹
+$_conf['favlist_perm'] = 0606; // ‚¨‹C‚ÉƒXƒŒ‹L˜^ƒtƒ@ƒCƒ‹
+$_conf['rct_perm'] = 0606; // Å‹ß“Ç‚ñ‚¾ƒXƒŒ‹L˜^ƒtƒ@ƒCƒ‹
+$_conf['res_write_perm'] = 0606; // ‘‚«‚İ—š—ğ‹L˜^ƒtƒ@ƒCƒ‹
+// }}}
 
 //=====================================================================
 // ŠÖ”

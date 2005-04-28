@@ -74,7 +74,7 @@ function setFile($path, $cont, $encode)
 	}
 
 	if ($encode == "EUC-JP") {
-		$cont = mb_convert_encoding($cont, 'SJIS-win', 'EUC-JP');
+		$cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
 	}
 	// èëÇ´çûÇﬁ
 	$fp = @fopen($path, 'wb') or die("Error: cannot write. ( $path )");
@@ -104,7 +104,7 @@ function editFile($path, $encode)
 	$cont = @file_get_contents($path);
 	
 	if ($encode == "EUC-JP") {
-		$cont = mb_convert_encoding($cont, 'SJIS-win', 'EUC-JP');
+		$cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
 	}
 	
 	$cont_area = htmlspecialchars($cont);

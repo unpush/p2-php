@@ -332,7 +332,7 @@ class P2Util{
         
             // したらばならEUCをSJISに変換
             if (strstr($subjectfile, $datdir."/jbbs.shitaraba.com") || strstr($subjectfile, $datdir."/jbbs.livedoor.com") || strstr($subjectfile, $datdir."/jbbs.livedoor.jp")) {
-                $body = mb_convert_encoding($body, 'SJIS-win', 'EUC-JP');
+                $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
             }
         
             // ファイルに保存する
@@ -354,8 +354,11 @@ class P2Util{
     function isSubjectFresh($subjectfile)
     {
         global $_conf;
-        if (file_exists($subjectfile)) {    // キャッシュがある場合
+        
+        // キャッシュがある場合
+        if (file_exists($subjectfile)) {
             // キャッシュの更新が指定時間以内なら
+            // clearstatcache();
             if (@filemtime($subjectfile) > time() - $_conf['sb_dl_interval']) {
                 return true;
             }

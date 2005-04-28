@@ -192,7 +192,7 @@ class Thread{
 		
 			// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 			if (P2Util::isHostBe2chNet($this->host)) {
-				$ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
+				$ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'eucJP-win');
 				$this->setTtitle($ttitle);
 			}
 		
@@ -238,7 +238,7 @@ class Thread{
 				
 				// be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
 				if (P2Util::isHostBe2chNet($this->host)) {
-					$ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'EUC-JP');
+					$ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'eucJP-win');
 					$this->setTtitle($ttitle);
 				}
 			}

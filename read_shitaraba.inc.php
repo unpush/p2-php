@@ -57,7 +57,7 @@ function shitarabaDownload()
 	// {{{ ‚µ‚½‚ç‚Î‚È‚çEUC‚ğSJIS‚É•ÏŠ·
 	if (P2Util::isHostJbbsShitaraba($aThread->host)) {
 		$temp_data = @file_get_contents($tempfile);
-		$temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'EUC-JP');
+		$temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'eucJP-win');
 		FileCtl::file_write_contents($tempfile, $temp_data) or die("Error: {$tempfile} ‚ğXV‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½");
 	}
     // }}}
