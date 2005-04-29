@@ -11,8 +11,17 @@
 
 	- 他こまかく。ほんの少し、スレ一覧表示の動作の高速化など。
 
-
-
+	- 変更のあったファイル
+		post_form.inc.php
+		post_form.php
+		post_options_loader.inc.php
+		read.php
+		read_footer.inc.php
+		showthread.class.php
+		showthreadk.class.php
+		showthreadpc.class.php
+		thread.class.php
+		conf/conf.inc.php
 
 2005-04-29 aki
 	* p2 version 1.5.18
