@@ -19,14 +19,17 @@ if ($_conf['bottom_res_form']) {
     
     $submit_value = '書き込む';
 
-    $keyidx = $aThread->keyidx;
+    $key_idx = $aThread->keyidx;
+
+    // フォームのオプション読み込み
+    include './post_options_loader.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
     
     include './post_form.inc.php';
-    
+
     // フォーム
     $res_form_ht = <<<EOP
 <div id="kakiko">
