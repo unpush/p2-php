@@ -1,6 +1,6 @@
 <?php
 // p2 ースタイル設定
-// for login_first.inc
+// for login_first
 
 echo <<<EOSTYLE
 

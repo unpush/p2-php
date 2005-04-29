@@ -30,8 +30,9 @@ $_conf['first_page'] = "first_cont.php";	// ("first_cont.php") ‰E‰º•”•ª‚ÉÅ‰‚É•
 /* ”ÂƒŠƒXƒg‚ğƒIƒ“ƒ‰ƒCƒ“URL($_conf['brdfile_online'])‚©‚ç©“®‚Å“Ç‚İ‚ŞB
 w’èæ‚Í menu.html Œ`®A2channel.brd Œ`®‚Ì‚Ç‚¿‚ç‚Å‚à‚æ‚¢B
 •K—v‚È‚¯‚ê‚ÎA–³w’è("")‚É‚·‚é‚©AƒRƒƒ“ƒgƒAƒEƒg‚µ‚Ä‚¨‚­B */
-// ("http://azlucky.s25.xrea.com/2chboard/bbsmenu.html")	//2ch + ŠO•”BBS
-// ("http://www6.ocn.ne.jp/%7Emirv/2chmenu.html")	//2chŠî–{
+// ("http://azlucky.s25.xrea.com/2chboard/bbsmenu.html") //2ch + ŠO•”BBS
+// ("http://www6.ocn.ne.jp/%7Emirv/2chmenu.html") // 2chŠî–{iŒÃ‚¢Hj
+// ("http://www.ff.iij4u.or.jp/~ch2/bbsmenu.html") // 2chŠî–{iV‚µ‚¢Hj
 $_conf['brdfile_online'] = "http://azlucky.s25.xrea.com/2chboard/bbsmenu.html";
 
 // subject ==========================================================
