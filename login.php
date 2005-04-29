@@ -5,7 +5,6 @@
 
 include_once './conf/conf.inc.php';  // 基本設定
 require_once './filectl.class.php';
-require_once("./login.inc");
 require_once './p2util.class.php';
 
 authorize(); //ユーザ認証
@@ -13,12 +12,6 @@ authorize(); //ユーザ認証
 if (!$login['use']) {
 	die("p2 info: 現在、ユーザ認証は「利用しない」設定になっています。<br>この機能を管理するためには、まず conf.inc.php で設定を有効にして下さい。");
 }
-
-//=========================================================
-// 前置処理
-//=========================================================
-regist_set_ktai($_conf['auth_ez_file'], $_conf['auth_jp_file']);
-regist_set_cookie();
 
 //=========================================================
 // 書き出し用変数
@@ -94,35 +87,34 @@ EOP;
 	
 // Cookie認証================
 } else {
-	if (($_COOKIE["p2_user"] == $login['user']) && ($_COOKIE["p2_pass"] == $login['pass'])) {
+	if (($_COOKIE['p2_user'] == $login['user']) && ($_COOKIE['p2_pass'] == $login['pass'])) {
 			$auth_cookie_ht = <<<EOP
-cookie認証登録済[<a href="cookie.php?regist_cookie=out{$_conf['k_at_a']}">解除</a>]<br>
+cookie認証登録済[<a href="cookie.php?ctl_regist_cookie=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
 	} else {
 		if ($_SERVER['PHP_AUTH_USER']) {
 			$auth_cookie_ht = <<<EOP
-[<a href="cookie.php?regist_cookie=in{$_conf['k_at_a']}">cookieで認証を登録</a>]<br>
+[<a href="cookie.php?ctl_regist_cookie=1&amp;regist_cookie=1{$_conf['k_at_a']}">cookieで認証を登録</a>]<br>
 EOP;
 		}
 	}
-	$auth_sub_input_ht = <<<EOP
-	<input type="checkbox" name="regist_cookie" value="in" checked>cookieに保存する<br>
-EOP;
 }
 
-// Cookie認証チェック ====================================
-if ($_GET['regist_cookie_check']) {
-	if (($_COOKIE["p2_user"] == $login['user']) && ($_COOKIE["p2_pass"] == $login['pass'])) {
-		if ($_GET['regist_cookie_check'] == "in") {
+//====================================================
+// Cookie認証チェック
+//====================================================
+if (!empty($_REQUEST['check_regist_cookie'])) {
+	if (($_COOKIE['p2_user'] == $login['user']) && ($_COOKIE['p2_pass'] == $login['pass'])) {
+		if ($_REQUEST['regist_cookie'] == '1') {
 			$_info_msg_ht .= "<p>○cookie認証登録完了</p>";
-		} elseif ($_GET['regist_cookie_check']=="out"){
+		} else {
 			$_info_msg_ht .= "<p>×cookie認証解除失敗</p>";
 		}
 	} else {
-		if ($_GET['regist_cookie_check'] == "out") {
-			$_info_msg_ht .= "<p>○cookie認証解除完了</p>";
-		} elseif ($_GET['regist_cookie_check'] == "in") {
-			$_info_msg_ht .= "<p>×cookie認証登録失敗</p>";
+		if ($_REQUEST['regist_cookie'] == '1') {
+			$_info_msg_ht .= '<p>×cookie認証登録失敗</p>';
+		} else  {
+			$_info_msg_ht .= '<p>○cookie認証解除完了</p>';
 		}
 	}
 }
@@ -132,7 +124,7 @@ if ($_GET['regist_cookie_check']) {
 if (file_exists($_conf['auth_user_file'])) {
 	include($_conf['auth_user_file']);	
 	if (isset($login['user'])) {
-		$ivalue_user=$login['user'];
+		$ivalue_user = $login['user'];
 	}
 }
 if (isset($_POST['login_user'])) {
