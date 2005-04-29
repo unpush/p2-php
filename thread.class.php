@@ -57,7 +57,12 @@ class Thread{
 	{
 		$this->ttitle = $ttitle;
 		// < が &lt; であったりするので、まずデコードしたものを
-		$this->ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');
+		//$this->ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');
+        
+        // html_entity_decode() は結構重いので代替、、こっちだと半分くらいの処理時間
+        $a_ttiile = str_replace('&lt;', '<', $this->ttitle);
+        $this->ttitle_hc = str_replace('&gt;', '>', $a_ttiile);
+        
 		// HTML表示用に htmlspecialchars() したもの
 		$this->ttitle_hd = htmlspecialchars($this->ttitle_hc);
 		$this->ttitle_ht = $this->ttitle_hd;

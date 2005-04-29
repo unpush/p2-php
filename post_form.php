@@ -35,6 +35,9 @@ $ttitle_hd = htmlspecialchars($ttitle);
 $datdir_host = P2Util::datdirOfHost($host);
 $key_idx = $datdir_host."/".$bbs."/".$key.".idx";
 
+// フォームのオプション読み込み
+include './post_options_loader.inc.php';
+
 // 表示指定
 if (!$_conf['ktai']) {
     $class_ttitle = ' class="thre_title"';
@@ -42,9 +45,10 @@ if (!$_conf['ktai']) {
     $sub_size_at = ' size="40"';
 }
 
-// スレ立て
+// {{{ スレ立てなら
 if ($_GET['newthread']) {
     $ptitle = "{$itaj} - 新規スレッド作成";
+    
     // machibbs、JBBS@したらば なら
     if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
         $submit_value = "新規書き込み";
@@ -52,6 +56,7 @@ if ($_GET['newthread']) {
     } else {
         $submit_value = "新規スレッド作成";
     }
+    
     $htm['subject'] = <<<EOP
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
 EOP;
@@ -59,23 +64,20 @@ EOP;
         $htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>".$htm['subject'];
     }
     $newthread_hidden_ht = "<input type=\"hidden\" name=\"newthread\" value=\"1\">";
+// }}}
 
-// 書き込み
+// {{{ 書き込みなら
 } else {
     $ptitle = "{$itaj} - レス書き込み";
     
-    // machibbs、JBBS@したらば なら
-    if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
-        $submit_value = "書き込む";
-    // 2chなら
-    } else {
-        $submit_value = "書き込む";
-    }
+    $submit_value = "書き込む";
+
     $htm['resform_ttitle'] = <<<EOP
 <p><b><a{$class_ttitle} href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}"{$target_read}>{$ttitle_hd}</a></b></p>
 EOP;
     $newthread_hidden_ht = '';
 }
+// }}}
 
 $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name="from_read_new" value="1">' : '';
 

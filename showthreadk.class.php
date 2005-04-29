@@ -12,20 +12,6 @@ class ShowThreadK extends ShowThread{
 	}
 	
 	/**
-	 * Dat‚ðHTML•ÏŠ·‚µ‚½‚à‚Ì‚ðŽæ“¾‚·‚é
-	 */
-	function getDatToHtml()
-	{
-		$html = '';
-		ob_start();
-		$this->datToHtml();
-		$html .= ob_get_contents();
-		ob_end_clean();
-		
-		return $html;
-	}
-		
-	/**
 	 * Dat‚ðHTML‚É•ÏŠ·•\Ž¦‚·‚é
 	 */
 	function datToHtml()
