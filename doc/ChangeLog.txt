@@ -15,6 +15,19 @@
 	- 新規ファイル
 		post_form.inc.php
 
+	* cookie.php
+	* login.inc is removed
+	* login.inc.php is new
+	* login.php
+	* login_first.inc is removed
+	* login_first.inc.php is new
+	* post.php
+	* post_form.inc.php is new
+	* post_form.php
+	* post_options_loader.inc.php
+	* read_footer.inc.php
+	* conf/conf.inc.php
+	* conf/conf_user.inc.php
 
 2005-04-28 aki
 	* p2 version 1.5.17
