@@ -211,7 +211,9 @@ if ($host && $bbs && $key) {
     if ($keylines = @file($keyidx)) {
         $akeyline = explode('<>', rtrim($keylines[0]));
     }
-    $s = "$akeyline[0]<>$akeyline[1]<>$akeyline[2]<>$akeyline[3]<>$akeyline[4]<>$akeyline[5]<>$akeyline[6]<>".$tag_rec_n['FROM'].'<>'.$tag_rec_n['mail'].'<>'.$akeyline[9];
+    $sar = array($akeyline[0], $akeyline[1], $akeyline[2], $akeyline[3], $akeyline[4],
+                 $akeyline[5], $akeyline[6], $tag_rec_n['FROM'], $tag_rec_n['mail'], $akeyline[9]);
+    $s = implode('<>', $sar);
     P2Util::recKeyIdx($keyidx, $s); // key.idx‚É‹L˜^
 }
 

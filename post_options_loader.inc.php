@@ -68,7 +68,7 @@ EOP;
 $htm['maru_post'] = '';
 if (P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php'])) {
     $htm['maru_post'] = <<<EOP
-<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox" checked><label for="maru">●</label></span>
+<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox"><label for="maru">●</label></span>
 EOP;
 }
 // }}}

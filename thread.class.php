@@ -178,11 +178,7 @@ class Thread{
 	function getDatBytesFromLocalDat()
 	{
 		clearstatcache();
-		if ($this->length = @filesize($this->keydat)) {
-			return $this->length;
-		} else {
-			return false;
-		}
+        return $this->length = intval(@filesize($this->keydat));
 	}
 	
 	/**
