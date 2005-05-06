@@ -1,18 +1,8 @@
-2005-05-07 aki
+2005-04-30 aki
 	* p2 version 1.5.20
 	
 	- [バグ修正] しらたば、まちBBSでidxが存在して、datが存在しない時に、datの取得が変になっていたのを修正
-	  modified: read_shitaraba.inc.php, read_machibbs.inc.php
-	
-	- 変更のあったファイル
-		post.php
-		post_options_loader.inc.php
-		read_machibbs.inc.php
-		read_shitaraba.inc.php
-		subject.php
-		thread.class.php
-		threadread.class.php
-		conf/conf.inc.php
+	  modified: read_shitaraba.inc.php, read_machibbs.inc.php	
 
 2005-04-30 aki
 	* p2 version 1.5.19
