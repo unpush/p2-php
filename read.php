@@ -110,6 +110,11 @@ if (!isset($aThread)) {
     $aThread =& new ThreadRead();
 }
 
+// lsのセット
+if (!empty($ls)) {
+    $aThread->ls = $ls;
+}
+
 //==========================================================
 // idxの読み込み
 //==========================================================
@@ -178,37 +183,37 @@ if ($aThread->isKitoku()) {
     
     //「新着レスの表示」の時は特別にちょっと前のレスから表示
     if ($_GET['nt']) {
-        if (substr($ls, -1) == "-") {
-            $n = $ls - $before_respointer;
-            if ($n<1) { $n = 1; }
-            $ls = "$n-";
+        if (substr($aThread->ls, -1) == "-") {
+            $n = $aThread->ls - $before_respointer;
+            if ($n < 1) { $n = 1; }
+            $aThread->ls = "$n-";
         }
         
-    } elseif (!$ls) {
+    } elseif (!$aThread->ls) {
         $from_num = $aThread->readnum +1 - $_conf['respointer'] - $before_respointer;
         if ($from_num < 1) {
             $from_num = 1;
         } elseif ($from_num > $aThread->rescount) {
             $from_num = $aThread->rescount - $_conf['respointer'] - $before_respointer;
         }
-        $ls = "$from_num-";
+        $aThread->ls = "$from_num-";
     }
     
-    if ($_conf['ktai'] && (!strstr($ls, "n"))) {
-        $ls = $ls."n";
+    if ($_conf['ktai'] && (!strstr($aThread->ls, "n"))) {
+        $aThread->ls = $aThread->ls."n";
     }
     
 // 未取得なら
 } else {
-    if (!$ls) { $ls = $_conf['get_new_res_l']; }
+    if (!$aThread->ls) { $aThread->ls = $_conf['get_new_res_l']; }
 }
 
 // フィルタリングの時は、all固定とする
 if (isset($word)) {
-    $ls = 'all';
+    $aThread->ls = 'all';
 }
 
-$aThread->lsToPoint($ls);
+$aThread->lsToPoint();
 
 //===============================================================
 // ■プリント

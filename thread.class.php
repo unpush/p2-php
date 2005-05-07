@@ -42,7 +42,9 @@ class Thread{
 	var $dayres; // 一日当たりのレス数。勢い。
 	
 	var $dat_type; // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
-	
+
+	var $ls = ''; // 表示レス番号の指定
+    
 	/**
 	 * コンストラクタ
 	 */
@@ -252,7 +254,7 @@ class Thread{
 	/**
 	 * ■元スレURLを返す
 	 */
-	function getMotoThread($ls = "")
+	function getMotoThread()
 	{
 		global $_conf;
 
@@ -262,20 +264,20 @@ class Thread{
 			$motothre_url = "http://{$this->host}/test/read.cgi?bbs={$this->bbs}&key={$this->key}";	
 		} elseif (P2Util::isHostJbbsShitaraba($this->host)) {
 			$host_bbs_cgi = preg_replace('{(jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp)}', '$1/bbs/read.cgi', $this->host);
-			$motothre_url = "http://{$host_bbs_cgi}/{$this->bbs}/{$this->key}/{$ls}";
+			$motothre_url = "http://{$host_bbs_cgi}/{$this->bbs}/{$this->key}/{$this->ls}";
 			//$motothre_url = "http://{$this->host}/bbs/read.cgi?BBS={$this->bbs}&KEY={$this->key}";
 		} elseif (P2Util::isHost2chs($this->host)) {
 			if ($_conf['ktai']) {
 				if (P2Util::isHostBbsPink($this->host)) {
-					$motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$ls}";
+					$motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
 				} else {
-					$motothre_url = "http://c.2ch.net/test/-/{$this->bbs}/{$this->key}/{$ls}";
+					$motothre_url = "http://c.2ch.net/test/-/{$this->bbs}/{$this->key}/{$this->ls}";
 				}
 			} else {
-				$motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$ls}";
+				$motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
 			}
 		} else {
-			$motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$ls}";
+			$motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
 		}
 		
 		return $motothre_url;

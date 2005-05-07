@@ -101,9 +101,10 @@ EOP;
 ?>
 EOP;
             FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']); // ƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
-            FileCtl::file_write_contents($_conf['auth_user_file'], $auth_user_cont)
-             or die("p2 error: {$_conf['auth_user_file']} ‚ğ•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B”FØ{$user_st}“o˜^¸”sB");
-    
+            if (FileCtl::file_write_contents($_conf['auth_user_file'], $auth_user_cont) === false) {
+                die("p2 error: {$_conf['auth_user_file']} ‚ğ•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B”FØ{$user_st}“o˜^¸”sB");
+            }
+            
             // “o˜^Š®—¹ ======================================================
 
             $body_ht .= "<p class=\"infomsg\">› ”FØ{$user_st}u{$_POST['login_user']}v‚ğ“o˜^‚µ‚Ü‚µ‚½</p>";

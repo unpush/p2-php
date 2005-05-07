@@ -90,7 +90,7 @@ class ThreadRead extends Thread{
      */
     function downloadDat2ch($from_bytes)
     {
-        global $_conf, $ls, $_info_msg_ht;
+        global $_conf, $_info_msg_ht;
         global $debug, $prof;
     
         if (!($this->host && $this->bbs && $this->key)) {
@@ -488,7 +488,7 @@ class ThreadRead extends Thread{
             $_REQUEST['relogin2ch'] = true;
             return $this->downloadDat();
         } else {
-            $remarutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;maru=true&amp;relogin2ch=true\">再取得を試みる</a>";
+            $remarutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true&amp;relogin2ch=true\">再取得を試みる</a>";
             $this->getdat_error_msg_ht = "<p>p2 info - ●IDでのスレッド取得に失敗しました。[{$remarutori_ht}]</p>";
             $this->diedat = true;
             return false;
@@ -678,8 +678,7 @@ class ThreadRead extends Thread{
      */
     function get2chDatError()
     {
-        global $_conf, $ls;
-        global $_info_msg_ht;
+        global $_conf, $_info_msg_ht;
     
         $read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}";
         
@@ -728,7 +727,7 @@ class ThreadRead extends Thread{
         if (preg_match($kakosoko_match, $read_response_html, $matches)) {
             $dat_response_status = "このスレッドは過去ログ倉庫に格納されています。";
             //if (file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])) {
-                $marutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;maru=true\">●IDでp2に取り込む</a>";
+                $marutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>";
             //} else {
             //    $marutori_ht = "<a href=\"login2ch.php\" target=\"subject\">●IDログイン</a>";
             //}
@@ -743,19 +742,19 @@ class ThreadRead extends Thread{
                 $dat_response_status = "隊長! 過去ログ倉庫で、html化されたスレッドを発見しました。";
                 $kakolog_uri = "http://{$this->host}/{$matches[1]}";
                 $kakolog_url_en = urlencode($kakolog_uri);
-                $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;kakolog={$kakolog_url_en}&amp;kakoget=1";
+                $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$kakolog_url_en}&amp;kakoget=1";
                 $dat_response_msg = "<p>2ch info - 隊長! 過去ログ倉庫で、<a href=\"{$kakolog_uri}.html\"{$_conf['bbs_win_target_at']}>スレッド {$matches[3]}.html</a> を発見しました。 [<a href=\"{$read_kako_url}\">p2に取り込んで読む</a>]</p>";
                 
             } elseif (preg_match($waithtml_match, $read_response_html, $matches)) {
                 $dat_response_status = "隊長! スレッドはhtml化されるのを待っているようです。";
-                $marutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;maru=true\">●IDでp2に取り込む</a>";
+                $marutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>";
                 $dat_response_msg = "<p>2ch info - 隊長! スレッドはhtml化されるのを待っているようです。 [{$marutori_ht}]</p>";
                 
             } else {
                 if ($_GET['kakolog']) {
                     $dat_response_status = "そんな板orスレッドないです。";
                     $kako_html_url = urldecode($_GET['kakolog']).".html";
-                    $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
+                    $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
                     $dat_response_msg = "<p>2ch info - そんな板orスレッドないです。</p>";
                     $dat_response_msg .= "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
                 } else {                
@@ -768,7 +767,7 @@ class ThreadRead extends Thread{
         } elseif ($_GET['kakolog']) {
             $dat_response_status = "";
             $kako_html_url = urldecode($_GET['kakolog']).".html";
-            $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
+            $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
             $dat_response_msg = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
         
         }
@@ -781,7 +780,7 @@ class ThreadRead extends Thread{
      */
     function previewOne()
     {
-        global $_conf, $ls, $ptitle_ht, $_info_msg_ht;
+        global $_conf, $ptitle_ht, $_info_msg_ht;
 
         if (!($this->host && $this->bbs && $this->key)) { return false; }
         
@@ -945,20 +944,20 @@ class ThreadRead extends Thread{
     /**
      * $lsを分解してstartとtoとnofirstを求める
      */
-    function lsToPoint($ls)
+    function lsToPoint()
     {
         global $_conf;
 
         $to = false;
         
         // nを含んでいる場合は、>>1を表示しない（$nofirst）
-        if (strstr($ls, 'n')) {
+        if (strstr($this->ls, 'n')) {
             $nofirst = true;
-            $ls = preg_replace("/n/", "", $ls);
+            $this->ls = preg_replace("/n/", "", $this->ls);
         }
 
         // 範囲指定で分割
-        $n = explode('-', $ls);
+        $n = explode('-', $this->ls);
         // 範囲指定がなければ
         if (sizeof($n) == 1) {
             // l指定があれば
@@ -974,16 +973,17 @@ class ThreadRead extends Thread{
                     $start = 1;
                 }
                 $to = $this->rescount;
-            } elseif ($ls == "all") {
+            // all指定なら
+            } elseif ($this->ls == "all") {
                 $start = 1;
                 $to = $this->rescount;
             
             } else {
                 // レス番指定
-                if (intval($ls) > 0) {
-                    $ls = intval($ls);
-                    $start = $ls;
-                    $to = $ls;
+                if (intval($this->ls) > 0) {
+                    $this->ls = intval($this->ls);
+                    $start = $this->ls;
+                    $to = $this->ls;
                     $nofirst = true;
                 // 指定がない or 不正な場合は、allと同じ表示にする
                 } else {
