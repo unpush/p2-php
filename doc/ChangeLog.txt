@@ -28,7 +28,6 @@
 		subject.php
 		thread.class.php
 		threadread.class.php
-		conf/conf.inc.php
 
 2005-05-07 aki
 	* p2 version 1.5.20
