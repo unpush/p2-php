@@ -1,4 +1,13 @@
 2005-05-07 aki
+	* p2 version 1.5.22
+	
+	- [バグ修正] 書き込み終了後に、間違ったエラー表示がされていたのを修正
+	
+	- 変更のあったファイル
+		post.php
+		conf/conf.inc.php
+
+2005-05-07 aki
 	* p2 version 1.5.21
 	
 	- 環境によっては、新着まとめ読みのキャッシュができなかったのを修正したつもり
@@ -28,6 +37,7 @@
 		subject.php
 		thread.class.php
 		threadread.class.php
+		conf/conf.inc.php
 
 2005-05-07 aki
 	* p2 version 1.5.20
