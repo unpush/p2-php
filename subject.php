@@ -729,7 +729,9 @@ if ($viewnum_pre != $p2_setting['viewnum'] or $sort_pre != $now_sort or $itaj_pr
     FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
     if ($p2_setting) {
         if ($p2_setting_cont = serialize($p2_setting)) {
-            FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) or die("Error: {$p2_setting_txt} を更新できませんでした");
+            if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
+                die("Error: {$p2_setting_txt} を更新できませんでした");
+            }
         }
     }
 }
@@ -749,7 +751,9 @@ if ($subject_keys) {
     }
     if ($subject_keys) {
         if ($sb_keys_cont = serialize($subject_keys)) {
-            FileCtl::file_write_contents($sb_keys_txt, $sb_keys_cont) or die("Error: {$sb_keys_txt} を更新できませんでした");
+            if (FileCtl::file_write_contents($sb_keys_txt, $sb_keys_cont) === false) {
+                die("Error: {$sb_keys_txt} を更新できませんでした");
+            }
         }
     }
 }

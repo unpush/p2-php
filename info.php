@@ -218,7 +218,7 @@ if (!empty($_conf['ktai'])) {
 	$target_sb_at = ' target="sbject"';
 }
 
-$motothre_url = $aThread->getMotoThread($GLOBALS['ls']);
+$motothre_url = $aThread->getMotoThread();
 if ($title_msg) {
 	$hc['title'] = $title_msg;
 } else {

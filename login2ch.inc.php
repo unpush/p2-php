@@ -122,7 +122,7 @@ function login2ch()
 ?>
 EOP;
 	FileCtl::make_datafile($_conf['sid2ch_php'], $_conf['pass_perm']); // $_conf['sid2ch_php'] がなければ生成
-    if (!FileCtl::file_write_contents($_conf['sid2ch_php'], $cont)) {
+    if (FileCtl::file_write_contents($_conf['sid2ch_php'], $cont) === false) {
 		$_info_msg_ht .= "<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>";
 		return false;
     }

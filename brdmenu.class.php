@@ -145,7 +145,7 @@ class BrdMenu{
 		}
 
 		if ($cont) {
-			if (!FileCtl::file_write_contents($p2brdfile, $cont)) {
+			if (FileCtl::file_write_contents($p2brdfile, $cont) === false) {
 				die("p2 error: {$p2brdfile} ‚ğXV‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½");
 			}
 			return $p2brdfile;

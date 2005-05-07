@@ -60,7 +60,9 @@ function shitarabaDownload()
     if (P2Util::isHostJbbsShitaraba($aThread->host)) {
         $temp_data = @file_get_contents($tempfile);
         $temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'eucJP-win');
-        FileCtl::file_write_contents($tempfile, $temp_data) or die("Error: {$tempfile} を更新できませんでした");
+        if (FileCtl::file_write_contents($tempfile, $temp_data) === false) {
+            die("Error: {$tempfile} を更新できませんでした");
+        }
     }
     // }}}
     

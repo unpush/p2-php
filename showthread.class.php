@@ -6,6 +6,9 @@ class ShowThread{
 
     var $thread; // スレッドオブジェクト
     
+    var $str_to_link_regex; // リンクすべき文字列の正規表現
+    
+    var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列
     
     /**
      * コンストラクタ
@@ -14,6 +17,34 @@ class ShowThread{
     {
         // スレッドオブジェクトを登録
         $this->thread = &$aThread;
+        
+        $this->str_to_link_regex = '{'
+            . '(?P<link>(<[Aa] .+?>)(.*?)(</[Aa]>))' // リンク（PCREの特性上、必ずこのパターンを最初に試行する）
+            . '|'
+            . '(?:'
+            .   '(?P<quote>' // 引用
+            .       '((?:&gt;|＞){1,2} ?)' // 引用符
+            .       '('
+            .           '(?:[1-9]\\d{0,3})' // 1つ目の番号
+            .           '(?:'
+            .               '(?: ?(?:[,=]|、) ?[1-9]\\d{0,3})+' // 連続
+            .               '|'
+            .               '-(?:[1-9]\\d{0,3})?' // 範囲
+            .           ')?'
+            .       ')'
+            .       '(?=\\D|$)'
+            .   ')' // 引用ここまで
+            . '|'
+            .   '(?P<url>'
+            .       '(ftp|h?t?tps?)://([0-9A-Za-z][\\w/\\#~:;.,?+=&%@!\\-]+?)' // URL
+            .       '(?=[^\\w/\\#~:;.,?+=&%@!\\-]|$)' // 無効な文字か行末の先読み
+            .   ')'
+            . '|'
+            .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
+            . ')'
+            . '}';
+        
+        $this->url_handlers = array();
     }
     
     /**
@@ -31,7 +62,7 @@ class ShowThread{
     {
         ob_start();
         $this->datToHtml();
-        $html = ob_get_clean();
+        $html = ob_get_contents();
         ob_end_clean();
         
         return $html;
@@ -169,6 +200,24 @@ class ShowThread{
                 $v['hits']++; // HIT回数を更新
             }
         }
+    }
+
+    /**
+     * url_handlersに関数・メソッドを追加する
+     *
+     * url_handlersは最後にaddURLHandler()されたものから実行される
+     */
+    function addURLHandler($name, $handler)
+    {
+        ;
+    }
+
+    /**
+     * url_handlersから関数・メソッドを削除する
+     */
+    function removeURLHandler($name)
+    {
+        ;
     }
 
 }

@@ -17,7 +17,7 @@ $moto_thre_st = "Œ³";
 $latest_st = "V";
 $dores_st = "Ú½";
 
-$motothre_url = $aThread->getMotoThread($GLOBALS['ls']);
+$motothre_url = $aThread->getMotoThread();
 $ttitle_en = rawurlencode(base64_encode($aThread->ttitle));
 $ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
 $bbs_q = "&amp;bbs=".$aThread->bbs;

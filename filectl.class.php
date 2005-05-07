@@ -24,7 +24,9 @@ class FileCtl{
             if (!is_writable($file)) {
                 $cont = @file_get_contents($file);
                 unlink($file);
-                FileCtl::file_write_contents($file, $cont) or die("Error: cannot write. ( $file )");
+                if (FileCtl::file_write_contents($file, $cont) === false) {
+                    die("Error: cannot write. ( $file )");
+                }
                 chmod($file, $perm);
             }
         }
@@ -76,18 +78,69 @@ class FileCtl{
     
     /**
      * 文字列をファイルに書き込む
-     * （PHP5のfile_put_contentsの代替）
+     * （PHP5のfile_put_contentsの代替的役割）
+     *
+     * このfunctionは、PHP License に基づく、Aidan Lister氏 <aidan@php.net> による、
+     * PHP_Compat の file_put_contents.php のコードを元に、独自の変更（flock() など）を加えたものです。
+     * "This product includes PHP, freely available from <http://www.php.net/>".
      */
-    function file_write_contents($file, &$cont)
+    function file_write_contents($filename, &$cont, $flags = null, $resource_context = null)
     {
-        if (!$fp = @fopen($file, 'wb')) {
+        // If $cont is an array, convert it to a string
+        if (is_array($cont)) {
+            $content = implode('', $cont);
+        } else {
+            $content =& $cont;
+        }
+        // If we don't have a string, throw an error
+        if (!is_string($content)) {
+            trigger_error('file_write_contents() The 2nd parameter should be either a string or an array', E_USER_WARNING);
             return false;
         }
-        @flock($fp, LOCK_EX);
-        fwrite($fp, $cont);
-        @flock($fp, LOCK_UN);
-        fclose($fp);
         
-        return true;
+        // Get the length of date to write
+        $length = strlen($content);
+        
+        // Check what mode we are using
+        $mode = ($flags & FILE_APPEND) ?
+                    $mode = 'a' :
+                    $mode = 'w';
+        
+        // Check if we're using the include path
+        $use_inc_path = ($flags & FILE_USE_INCLUDE_PATH) ?
+                    true :
+                    false;
+        
+        // Open the file for writing
+        if (($fh = @fopen($filename, $mode, $use_inc_path)) === false) {
+            trigger_error('file_write_contents() failed to open stream: Permission denied', E_USER_WARNING);
+            return false;
+        }
+        
+        @flock($fh, LOCK_EX);
+        
+        // Write to the file
+        $bytes = 0;
+        if (($bytes = @fwrite($fh, $content)) === false) {
+            $errormsg = sprintf('file_write_contents() Failed to write %d bytes to %s',
+                            $length,
+                            $filename);
+            trigger_error($errormsg, E_USER_WARNING);
+            return false;
+        }
+        
+        @flock($fh, LOCK_UN);
+        fclose($fh);
+        
+        if ($bytes != $length) {
+            $errormsg = sprintf('file_put_contents() Only %d of %d bytes written, possibly out of free disk space.',
+                            $bytes,
+                            $length);
+            trigger_error($errormsg, E_USER_WARNING);
+            return false;
+        }
+        
+        return $bytes;
     }
 }
+?>

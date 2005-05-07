@@ -46,7 +46,9 @@ class P2Util{
     
         // 更新されていたら
         if ($wap_res->is_success() && $wap_res->code != "304") {
-            FileCtl::file_write_contents($localfile, $wap_res->content) or die("Error: {$localfile} を更新できませんでした");
+            if (FileCtl::file_write_contents($localfile, $wap_res->content) === false) {
+                die("Error: {$localfile} を更新できませんでした");
+            }
             chmod($localfile, $perm);
         }
 
@@ -336,7 +338,9 @@ class P2Util{
             }
         
             // ファイルに保存する
-            FileCtl::file_write_contents($subjectfile, $body) or die("Error: {$subjectfile} を更新できませんでした");
+            if (FileCtl::file_write_contents($subjectfile, $body) === false) {
+                die("Error: {$subjectfile} を更新できませんでした");
+            }
             chmod($subjectfile, $perm);
             
         } else {

@@ -298,8 +298,9 @@ if ($_conf['res_write_rec']) {
     
     // 書き込み処理
     if (DataPhp::putDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm'], true)) {
+        trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
-        $_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
+        //$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
     }
     
     /*
