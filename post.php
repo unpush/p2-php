@@ -139,7 +139,6 @@ if (!empty($_POST['newthread'])) {
     }
     $location_ht = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$rescount}-&amp;refresh=1&amp;nt={$newtime}{$_conf['k_at_a']}#r{$rescount}";
 }
-// JavaScriptに含ませる時はurlエンコードしては逆にダメと（&amp;）
 
 // {{{ 2chで●ログイン中ならsid追加
 if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
@@ -297,7 +296,7 @@ if ($_conf['res_write_rec']) {
     $cont = $newdata."\n";
     
     // 書き込み処理
-    if (DataPhp::putDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm'], true)) {
+    if (DataPhp::putDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm'], true) === false) {
         trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
         //$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
@@ -569,10 +568,11 @@ function showPostMsg($isDone, $result_msg, $reload)
     
     // プリント用変数 ===============
     if (!$_conf['ktai']) {
-        $class_ttitle = " class=\"thre_title\"";
+        $class_ttitle = ' class="thre_title"';
     }
     $ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
-    
+    // 2005/03/01 aki: jigブラウザに対応するため、&amp; ではなく & で
+    // 2005/04/25 rsk: <script>タグ内もCDATAとして扱われるため、&amp;にしてはいけない
     $location_noenc = preg_replace("/&amp;/", "&", $location_ht);
     if ($popup) {
         $popup_ht = <<<EOJS
@@ -586,7 +586,6 @@ function showPostMsg($isDone, $result_msg, $reload)
 EOJS;
 
     } else {
-        // 2005/03/01 jigブラウザに対応するため、&amp; ではなく & で
         $meta_refresh_ht = <<<EOP
         <meta http-equiv="refresh" content="1;URL={$location_noenc}">
 EOP;
