@@ -102,6 +102,9 @@ if (empty($now_sort)) {
         }
     }
 }
+if (isset($_GET['itaj_en'])) {
+    $p2_setting['itaj'] = base64_decode($_GET['itaj_en']);
+}
 
 // ■表示スレッド数 ====================================
 $threads_num_max = 2000;

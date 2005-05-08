@@ -84,8 +84,7 @@ if (!$_conf['ktai']) {
 }
 // }}}
 
-// @see post.php
-$csrfid = md5($login['user'] . $login['pass'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE']);
+$csrfid = P2Util::getCsrfId();
 
 /*
 // {{{ –{•¶‚ª‹ó‚Ì‚Æ‚«‚âsage‚Ä‚È‚¢‚Æ‚«‚É‘—M‚µ‚æ‚¤‚Æ‚·‚é‚Æ’ˆÓ‚·‚é

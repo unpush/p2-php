@@ -15,11 +15,7 @@ if (empty($_POST['host'])) {
     die('p2 error: 引数の指定が変です');
 }
 
-// @see post_options_loader.inc.php
-$csrfid = md5($login['user'] . $login['pass'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE']);
-if ($_POST['csrfid'] != $csrfid) {
-    die('p2 error: 不正なポストです');
-}
+P2Util::checkCsrfId($_POST['csrfid']);
 
 //================================================================
 // ■変数

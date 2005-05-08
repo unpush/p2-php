@@ -692,6 +692,28 @@ EOP;
         
         return array($rec_login2chID, $login2chPW, $rec_autoLogin2ch);
     }
+    
+    /**
+     * getCsrfId
+     */
+    function getCsrfId()
+    {
+        global $login;
+        
+        return md5($login['user'] . $login['pass'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE']);
+    }
+    
+    /**
+     * checkCsrfId
+     */
+    function checkCsrfId($str)
+    {
+        $csrfid = P2Util::getCsrfId();
+
+        if ($str != $csrfid) {
+            die('p2 error: 不正なポストです');
+        }
+    }
 }
 
 ?>

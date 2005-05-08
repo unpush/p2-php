@@ -8,27 +8,25 @@ echo <<<EOSTYLE
 <style type="text/css" media="all">
 <!--
 
-	p#pan_menu{
-		border-bottom: solid 1px #ccc;
-	}
+    p#pan_menu{
+        border-bottom: solid 1px #ccc;
+    }
 
-	/*
-	table{
-		padding:6px;
-		border:solid 1px #ccc;
-	}
-	*/
-	
-	fieldset{
-		padding:6px;
-		border:solid 1px #ccc;
-	}
-	
-	fieldset table{
-		margin-left:auto;
-		margin-right:auto;
-	}
-	
+    table#editpref td {
+        text-align: left;
+        vertical-align: top;
+    }
+    
+    fieldset{
+        padding:6px;
+        border:solid 1px #ccc;
+    }
+    
+    fieldset table{
+        margin-left:auto;
+        margin-right:auto;
+    }
+    
 -->
 </style>
 
