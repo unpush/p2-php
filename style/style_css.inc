@@ -73,6 +73,10 @@ echo <<<EOP
 	
 	.filtering{background-color:yellow;} /* フィルタのワード色分け */
 	
+	form.inline-form {
+		display: inline;
+	}
+
 -->
 </style>\n
 EOP;

@@ -1,9 +1,32 @@
+2005-05-08 aki
+	* p2 version 1.5.23
+
+	- [バグ修正] 携帯表示時の「略」がたまにリンク表示されていなかったのを修正
+	- [バグ修正] スレ一覧で板名の表示が日本語で登録できないことがあったのを修正
+	- [改良] 設定で編集できないファイルのボタンを、disable表示にした。（拡張パックより THX!→rskさん）
+	
+	- 他こまかく
+	
+	- 変更のあったファイル
+		editpref.php
+		p2util.class.php
+		post.php
+		post_options_loader.inc.php
+		showthreadk.class.php
+		subject.php
+		conf/conf.inc.php
+		style/editpref_css.inc
+		style/style_css.inc
+
 2005-05-07 aki
 	* p2 version 1.5.22
 	
 	- [バグ修正] 書き込み終了後に、間違ったエラー表示がされていたのを修正
 	
-	
+	- 変更のあったファイル
+		post.php
+		conf/conf.inc.php
+
 2005-05-07 aki
 	* p2 version 1.5.21
 	
