@@ -49,7 +49,7 @@ function saveMatomeCache()
 
     FileCtl::make_datafile($file, $_conf['p2_perm']);
     if (FileCtl::file_write_contents($file, $GLOBALS['read_new_html']) === false) {
-        die("Error: cannot write file. ({$file})");
+        die('Error: cannot write file.');
     }
     
     return true;

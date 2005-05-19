@@ -34,7 +34,8 @@ class ThreadRead extends Thread{
      */
     function downloadDat()
     {
-        global $_conf, $uaMona, $SID2ch;
+        global $_conf;
+        global $uaMona, $SID2ch;    // include_once './login2ch.inc.php';
         
         // まちBBS
         if (P2Util::isHostMachiBbs($this->host)) {
@@ -91,7 +92,7 @@ class ThreadRead extends Thread{
     function downloadDat2ch($from_bytes)
     {
         global $_conf, $_info_msg_ht;
-        global $debug, $prof;
+        global $debug;
     
         if (!($this->host && $this->bbs && $this->key)) {
             return false;
@@ -100,16 +101,16 @@ class ThreadRead extends Thread{
         $from_bytes = intval($from_bytes);
         
         if ($from_bytes == 0) {
-            $mode = "wb";
             $zero_read = true;
         } else {
-            $mode = "a";
+            $zero_read = false;
             $from_bytes = $from_bytes-1;
         }
         
         $method = "GET";
-        if (!$uaMona) {$uaMona = "Monazilla/1.00";}
-        $p2ua = $uaMona." (".$_conf['p2name']."/".$_conf['p2version'].")";
+        $uaMona = "Monazilla/1.00";
+        
+        $p2ua = $uaMona.' ('.$_conf['p2name'].'/'.$_conf['p2version'].')';
         
         $url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
         //$url="http://news2.2ch.net/test/read.cgi?bbs=newsplus&key=1038486598";
@@ -157,7 +158,7 @@ class ThreadRead extends Thread{
     
         $request .= "\r\n";
         
-        /* WEBサーバへ接続 */
+        // WEBサーバへ接続
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
@@ -180,9 +181,9 @@ class ThreadRead extends Thread{
                     
                     // 末尾の改行であぼーんチェック
                     if (!$zero_read) {
-                        if(substr($wr, 0, 1)!="\n"){
+                        if (substr($wr, 0, 1)!="\n"){
                             //echo "あぼーん検出";
-                            fclose ($fp);
+                            fclose($fp);
                             unset($this->onbytes);
                             unset($this->modified);
                             return $this->downloadDat2ch(0); //あぼーん検出。全部取り直し。
@@ -190,14 +191,14 @@ class ThreadRead extends Thread{
                         $wr = substr($wr, 1);
                     }
                     FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                    $fdat = fopen($this->keydat, $mode);
-                    @flock($fdat, LOCK_EX);
-                    fwrite($fdat, $wr);
-                    @flock($fdat, LOCK_UN);
-                    fclose ($fdat);
-                    //echo $wr."<br>";// for debug
+
+                    $file_append = ($zero_read) ? 0 : FILE_APPEND;
                     
-                    $debug && $prof->enterSection("dat_size_check");
+                    if (FileCtl::file_write_contents($this->keydat, $wr, $file_append) === false) {
+                        die('Error: cannot write file.');
+                    }
+                    
+                    $debug && $GLOBALS['profiler']->enterSection("dat_size_check");
                     // 取得後サイズチェック
                     if ($zero_read == false && $this->onbytes) {
                         $this->getDatBytesFromLocalDat(); // $aThread->length をset
@@ -206,22 +207,22 @@ class ThreadRead extends Thread{
                             unset($this->onbytes);
                             unset($this->modified);
                             $_info_msg_ht .= "p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>";
-                            $debug && $prof->leaveSection("dat_size_check");
+                            $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
                             return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
                         
                         // サイズが同じならそのまま
                         } elseif ($this->onbytes == $this->length) {
                             fclose($fp);
                             $this->isonline = true;
-                            $debug && $prof->leaveSection("dat_size_check");
+                            $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
                             return true;
                         }
                     }
-                    $debug && $prof->leaveSection("dat_size_check");
+                    $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
                 
                 // スレッドがないと判断
                 } else {
-                    fclose ($fp);
+                    fclose($fp);
                     $this->downloadDat2chNotFound();
                     return false;
                 }
@@ -287,7 +288,7 @@ class ThreadRead extends Thread{
         if (P2Util::isHost2chs($this->host)) {
             $this->getdat_error_msg_ht .= $this->get2chDatError();
         }
-        $this->diedat = true;
+        //$this->diedat = true;
         return false;
     }
     
@@ -297,13 +298,15 @@ class ThreadRead extends Thread{
     function downloadDat2chMaru()
     {
         global $_conf, $uaMona, $SID2ch, $_info_msg_ht;
-
-        if (!($this->host && $this->bbs && $this->key)) {return false;}
+        
+        if (!($this->host && $this->bbs && $this->key && $this->keydat)) {
+            return false;
+        }
         
         unset($datgz_attayo, $start_here, $isGzip, $done_gunzip, $marudatlines, $code);
         
         $method = "GET";
-        $p2ua = $uaMona." (".$_conf['p2name']."/".$_conf['p2version'].")";
+        $p2ua = $uaMona." (".$_conf['p2name']."/".$_conf['p2version'].")"; // $uaMona → @see login2ch.inc.php
         
         //  GET /test/offlaw.cgi?bbs=板名&key=スレッド番号&sid=セッションID HTTP/1.1
         $SID2ch = urlencode($SID2ch);
@@ -365,11 +368,9 @@ class ThreadRead extends Thread{
                     if ($isGzip) {
                         $gztempfile = $this->keydat.".gz";
                         FileCtl::mkdir_for($gztempfile);
-                        $ftemp = fopen($gztempfile, "wb") or die("Error: {$gztempfile} を更新できませんでした");
-                        @flock($ftemp, LOCK_EX);
-                        fwrite($ftemp, $body);
-                        @flock($ftemp, LOCK_UN);
-                        fclose ($ftemp);
+                        if (FileCtl::file_write_contents($gztempfile, $body) === false) {
+                            die("Error: cannot write file. downloadDat2chMaru()");
+                        }
                         if (extension_loaded('zlib')) {
                             $body = FileCtl::get_gzfile_contents($gztempfile);
                         } else {
@@ -406,32 +407,32 @@ class ThreadRead extends Thread{
                     
                     if (!$done_gunzip) {
                         FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                        $fdat = fopen($this->keydat, "wb");
-                        @flock($fdat, LOCK_EX);
-                        fwrite($fdat, $body);
-                        @flock($fdat, LOCK_UN);
-                        fclose ($fdat);
+                        if (FileCtl::file_write_contents($this->keydat, $body) === false) {
+                            die("Error: cannot write file. downloadDat2chMaru()");
+                        }
                     }
                     
                     // クリーニング =====
                     $marudatlines = @file($this->keydat);
                     if ($marudatlines) {
                         $firstline = array_shift($marudatlines);
-                        if (!strstr($firstline, "+OK")) { // チャンクとか
+                        // チャンクとか
+                        if (!strstr($firstline, "+OK")) {
                             $secondline = array_shift($marudatlines);
                         }
-                        FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                        $fdat = fopen($this->keydat, "wb");
-                        @flock($fdat, LOCK_EX);
+                        $cont = '';
                         foreach ($marudatlines as $aline) {
-                            if ($chunked) { // チャンクエンコーディングが欲しいところ(HTTP 1.0でしのぐ)
-                                fwrite($fdat, $aline);
+                            // チャンクエンコーディングが欲しいところ(HTTP 1.0でしのぐ)
+                            if ($chunked) {
+                                $cont .= $aline;
                             } else {
-                                fwrite($fdat, $aline);
+                                $cont .= $aline;
                             }
                         }
-                        @flock($fdat, LOCK_UN);
-                        fclose ($fdat);
+                        FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
+                        if (FileCtl::file_write_contents($this->keydat, $cont) === false) {
+                            die("Error: cannot write file. downloadDat2chMaru()");
+                        }
                     }
                     
                 // dat.gzはなかったと判断
@@ -450,7 +451,7 @@ class ThreadRead extends Thread{
                         ;
                     } elseif ($code == "304") {
                         fclose($fp);
-                        $this->isonline = true;
+                        //$this->isonline = true;
                         return "304 Not Modified";
                     } else {
                         fclose($fp);
@@ -475,7 +476,8 @@ class ThreadRead extends Thread{
             
         }
         fclose ($fp);
-        $this->isonline = true;
+        //$this->isonline = true;
+        //$this->datochiok = 1;
         return true;
     }
     
@@ -484,6 +486,9 @@ class ThreadRead extends Thread{
      */
     function downloadDat2chMaruNotFound()
     {
+        global $_conf;
+
+        // 再チャレンジがまだなら、再チャレンジする。SIDが変更されてしまっている場合がある時のための自動チャレンジ。
         if (empty($_REQUEST['relogin2ch'])) {
             $_REQUEST['relogin2ch'] = true;
             return $this->downloadDat();
@@ -562,11 +567,9 @@ class ThreadRead extends Thread{
                     if ($isGzip) {
                         $gztempfile = $this->keydat.".gz";
                         FileCtl::mkdir_for($gztempfile);
-                        $ftemp = fopen($gztempfile, "wb") or die("Error: $gztempfile を更新できませんでした");
-                        @flock($ftemp, LOCK_EX);
-                        fwrite($ftemp, $body);
-                        @flock($ftemp, LOCK_UN);
-                        fclose($ftemp);
+                        if (FileCtl::file_write_contents($gztempfile, $body) === false) {
+                            die("Error: cannot write file. downloadDat2chKako()");
+                        }
                         if (extension_loaded('zlib')) {
                             $body = FileCtl::get_gzfile_contents($gztempfile);
                         } else {
@@ -601,11 +604,9 @@ class ThreadRead extends Thread{
 
                     if (!$done_gunzip) {
                         FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                        $fdat = fopen($this->keydat, "wb");
-                        @flock($fdat, LOCK_EX);
-                        fwrite($fdat, $body);
-                        @flock($fdat, LOCK_UN);
-                        fclose($fdat);
+                        if (FileCtl::file_write_contents($this->keydat, $body) === false) {
+                            die("Error: cannot write file. downloadDat2chKako()");
+                        }
                     }
                     
                 } else { // なかったと判断
@@ -623,7 +624,7 @@ class ThreadRead extends Thread{
                         ;
                     } elseif ($code == "304") {
                         fclose($fp);
-                        $this->isonline = true;
+                        //$this->isonline = true;
                         return "304 Not Modified";
                     } else {
                         fclose($fp);
@@ -643,7 +644,7 @@ class ThreadRead extends Thread{
             
         }
         fclose($fp);
-        $this->isonline = true;
+        //$this->isonline = true;
         return true;
     }
     
@@ -1054,7 +1055,7 @@ class ThreadRead extends Thread{
             $this->setIdCount($this->datlines);
         }
         
-        return $this->datlines;
+        return true;
     }
 
     /**
@@ -1087,6 +1088,9 @@ class ThreadRead extends Thread{
         } else {
             $parts = explode('<>', $aline);
         }
+        
+        // iframe を削除。2chが正常化して必要なくなったらこのコードは外したい。2005/05/19
+        $parts[3] = preg_replace('{<(iframe|script)( .*?)?>.*?</\\1>}i', '', $parts[3]);
         
         return $parts;
     }

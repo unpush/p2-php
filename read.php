@@ -15,7 +15,7 @@ require_once './showthread.class.php'; // HTML表示クラス
 $debug = 0;
 if ($debug) {
     include_once 'Benchmark/Profiler.php';
-    $prof =& new Benchmark_Profiler(true);
+    $profiler =& new Benchmark_Profiler(true);
 }
 
 authorize(); // ユーザ認証
@@ -87,11 +87,9 @@ if (!isset($GLOBALS['word'])) {
             $res_filter_cont = serialize($res_filter);
         }
         if ($res_filter_cont && !$popup_filter) {
-            $fp = @fopen($cachefile, 'wb') or die("Error: $cachefile を更新できませんでした");
-            @flock($fp, LOCK_EX);
-            fputs($fp, $res_filter_cont);
-            @flock($fp, LOCK_UN);
-            fclose($fp);
+            if (FileCtl::file_write_contents($cachefile, $res_filter_cont) === false) {
+                die("Error: cannot write file.");
+            }
         }
     }
 }
@@ -267,7 +265,7 @@ function filterCount(n){
 EOP;
     }
     
-    $debug && $prof->enterSection("datToHtml");
+    $debug && $profiler->enterSection("datToHtml");
     
     if ($aThread->rescount) {
 
@@ -280,7 +278,7 @@ EOP;
         $aShowThread->datToHtml();
     }
     
-    $debug && $prof->leaveSection("datToHtml");
+    $debug && $profiler->leaveSection("datToHtml");
     
     // フィルタ結果を表示
     if ($word && $aThread->rescount) {
@@ -314,8 +312,10 @@ if ($aThread->rescount) {
     
     $newline = $aThread->readnum + 1; // $newlineは廃止予定だが、旧互換用に念のため
 
-    $s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}";
-    P2Util::recKeyIdx($aThread->keyidx, $s); // key.idxに記録
+    $sar = array($aThread->ttitle, $aThread->key, $data[2], $aThread->rescount, '',
+                $aThread->readnum, $data[6], $data[7], $data[8], $newline,
+                $data[10], $data[11], $aThread->datochiok);
+    P2Util::recKeyIdx($aThread->keyidx, $sar); // key.idxに記録
 }
 
 //===========================================================
@@ -434,15 +434,15 @@ function recRecent($data)
     }
     
     // 書き込む
-    $fp = @fopen($_conf['rct_file'], 'wb') or die("Error: {$_conf['rct_file']} を更新できませんでした");
     if ($neolines) {
-        @flock($fp, LOCK_EX);
+        $cont = '';
         foreach ($neolines as $l) {
-            fputs($fp, $l."\n");
+            $cont .= $l."\n";
         }
-        @flock($fp, LOCK_UN);
+        if (FileCtl::file_write_contents($_conf['rct_file'], $cont) === false) {
+            die('Error: cannot write file. recRecent()');
+        }
     }
-    fclose($fp);
 }
 
 

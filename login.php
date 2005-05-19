@@ -69,7 +69,7 @@ EOP;
 	}
 
 // JîFèÿ ================
-} elseif (preg_match('{(J-PHONE|Vodafone)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
+} elseif (preg_match('{^(J-PHONE|Vodafone|MOT)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
 	if (file_exists($_conf['auth_jp_file'])) {
 		$auth_ctl_ht=<<<EOP
 Jí[ññIDîFèÿìoò^çœ[<a href="{$_SERVER['PHP_SELF']}?regist_jp=out{$_conf['k_at_a']}">âèú</a>]<br>

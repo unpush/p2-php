@@ -31,10 +31,10 @@ function shitarabaDownload()
     // }}}
     
     if ($aThread->gotnum == 0) {
-        $mode = 'wb';
+        $file_append = false;
         $START = 1;
     } else {
-        $mode = 'ab';
+        $file_append = true;
         $START = $aThread->gotnum + 1;
     }
 
@@ -61,7 +61,7 @@ function shitarabaDownload()
         $temp_data = @file_get_contents($tempfile);
         $temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'eucJP-win');
         if (FileCtl::file_write_contents($tempfile, $temp_data) === false) {
-            die("Error: {$tempfile} を更新できませんでした");
+            die('Error: cannot write file.');
         }
     }
     // }}}
@@ -69,9 +69,7 @@ function shitarabaDownload()
     $mlines = @file($tempfile);
     
     // 一時ファイルを削除する
-    if (file_exists($tempfile)) {
-        unlink($tempfile);
-    }
+    unlink($tempfile);
 
     // ↓rawmode.cgiではこれは出ないだろう
     /*
@@ -85,18 +83,20 @@ function shitarabaDownload()
     
     // {{{ DATを書き込む
     if ($mdatlines =& shitarabaDatTo2chDatLines($mlines)) {
-        
-        $fp = @fopen($aThread->keydat, $mode) or die("Error: {$aThread->keydat} を更新できませんでした");
-        @flock($fp, LOCK_EX);
+
+        $file_append = ($file_append) ? FILE_APPEND : 0;
+
+        $cont = '';
         for ($i = $START; $i <= $GLOBALS['machi_latest_num']; $i++) {
             if ($mdatlines[$i]) {
-                fputs($fp, $mdatlines[$i]);
+                $cont .= $mdatlines[$i];
             } else {
-                fputs($fp, "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n");
+                $cont .= "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n";
             }
         }
-        @flock($fp, LOCK_UN);
-        fclose($fp);
+        if (FileCtl::file_write_contents($aThread->keydat, $cont, $file_append) === false) {
+            die('Error: cannot write file.');
+        }
     }
     // }}}
     

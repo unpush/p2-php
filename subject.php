@@ -733,7 +733,7 @@ if ($viewnum_pre != $p2_setting['viewnum'] or $sort_pre != $now_sort or $itaj_pr
     if ($p2_setting) {
         if ($p2_setting_cont = serialize($p2_setting)) {
             if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
-                die("Error: {$p2_setting_txt} を更新できませんでした");
+                die("Error: cannot write file.");
             }
         }
     }
@@ -755,7 +755,7 @@ if ($subject_keys) {
     if ($subject_keys) {
         if ($sb_keys_cont = serialize($subject_keys)) {
             if (FileCtl::file_write_contents($sb_keys_txt, $sb_keys_cont) === false) {
-                die("Error: {$sb_keys_txt} を更新できませんでした");
+                die("Error: cannot write file.");
             }
         }
     }

@@ -15,7 +15,9 @@ if (empty($_POST['host'])) {
     die('p2 error: 引数の指定が変です');
 }
 
-P2Util::checkCsrfId($_POST['csrfid']);
+if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
+    die('p2 error: 不正なポストです');
+}
 
 //================================================================
 // ■変数
@@ -171,11 +173,9 @@ $posted = postIt($URL);
 FileCtl::make_datafile($cookie_file, $_conf['p2_perm']); // なければ生成
 if ($p2cookies) {$cookie_cont = serialize($p2cookies);}
 if ($cookie_cont) {
-    $fp = @fopen($cookie_file, "wb") or die("Error: $cookie_file を更新できませんでした");
-    @flock($fp, LOCK_EX);
-    fputs($fp, $cookie_cont);
-    @flock($fp, LOCK_UN);
-    fclose($fp);
+    if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
+        die("Error: cannot write file.");
+    }
 }
 
 //=============================================
@@ -207,9 +207,9 @@ if ($host && $bbs && $key) {
         $akeyline = explode('<>', rtrim($keylines[0]));
     }
     $sar = array($akeyline[0], $akeyline[1], $akeyline[2], $akeyline[3], $akeyline[4],
-                 $akeyline[5], $akeyline[6], $tag_rec_n['FROM'], $tag_rec_n['mail'], $akeyline[9]);
-    $s = implode('<>', $sar);
-    P2Util::recKeyIdx($keyidx, $s); // key.idxに記録
+                 $akeyline[5], $akeyline[6], $tag_rec_n['FROM'], $tag_rec_n['mail'], $akeyline[9],
+                 $akeyline[10], $akeyline[11], $akeyline[12]);
+    P2Util::recKeyIdx($keyidx, $sar); // key.idxに記録
 }
 
 //=============================================
@@ -246,15 +246,15 @@ if ($host && $bbs && $key) {
     }
     
     // 書き込む
-    $fp = @fopen($rh_idx, 'wb') or die("Error: {$rh_idx} を更新できませんでした");
     if ($neolines) {
-        @flock($fp, LOCK_EX);
+        $cont = '';
         foreach ($neolines as $l) {
-            fputs($fp, $l."\n");
+            $cont .= $l."\n";
         }
-        @flock($fp, LOCK_UN);
+        if (FileCtl::file_write_contents($rh_idx, $cont) === false) {
+            die('Error: cannot write file.');
+        }
     }
-    fclose($fp);
 
 }
 
@@ -270,12 +270,11 @@ if ($_conf['res_write_rec']) {
     $message = htmlspecialchars($MESSAGE, ENT_NOQUOTES);
     $message = preg_replace("/\r?\n/", "<br>", $message);
 
-    $p2_res_hist_dat_php = $_conf['pref_dir']."/p2_res_hist.dat.php"; 
-    FileCtl::make_datafile($p2_res_hist_dat_php, $_conf['res_write_perm']); // なければ生成
+    FileCtl::make_datafile($_conf['p2_res_hist_dat_php'], $_conf['res_write_perm']); // なければ生成
 
     /*
     // 読み込んで
-    if (!$lines = DataPhp::fileDataPhp($p2_res_hist_dat_php)) {
+    if (!$lines = DataPhp::fileDataPhp($_conf['p2_res_hist_dat_php'])) {
         $lines = array();
     }
     $lines = array_map('rtrim', $lines);
@@ -292,7 +291,7 @@ if ($_conf['res_write_rec']) {
     $cont = $newdata."\n";
     
     // 書き込み処理
-    if (DataPhp::putDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm'], true) === false) {
+    if (DataPhp::putDataPhp($cont, $_conf['p2_res_hist_dat_php'], $_conf['res_write_perm'], true) === false) {
         trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
         //$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
@@ -305,7 +304,7 @@ if ($_conf['res_write_rec']) {
     $cont = implode("\n", $lines) . "\n";
     
     // 書き込み処理
-    DataPhp::writeDataPhp($cont, $p2_res_hist_dat_php, $_conf['res_write_perm']);
+    DataPhp::writeDataPhp($cont, $_conf['p2_res_hist_dat_php'], $_conf['res_write_perm']);
     */
 }
 

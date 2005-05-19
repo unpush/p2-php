@@ -99,7 +99,7 @@ class ShowThread{
     {
         global $ngaborns;
         
-        $GLOBALS['debug'] && $GLOBALS['prof']->enterSection('ngAbornCheck()');
+        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
         
         $method = $ic ? 'stristr' : 'strstr';
         
@@ -112,7 +112,7 @@ class ShowThread{
                 /*
                 if ($method($resfield, $v['word'])) {
                     $this->ngAbornUpdate($code, $k);
-                    $GLOBALS['debug'] && $GLOBALS['prof']->leaveSection('ngAbornCheck()');
+                    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                     return $v['word'];
                 } else {
                     continue;
@@ -146,7 +146,7 @@ class ShowThread{
                     // マッチ
                     if ($re_method($re_pattern, $resfield)) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['prof']->leaveSection('ngAbornCheck()');
+                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['word'];
                     //if ($re_method($re_pattern, $resfield, $matches)) {
                         //return htmlspecialchars($matches[0]);
@@ -155,12 +155,12 @@ class ShowThread{
                 // 単純に文字列が含まれるかどうかをチェック
                 } elseif ($method($resfield, $v['word'])) {
                     $this->ngAbornUpdate($code, $k);
-                    $GLOBALS['debug'] && $GLOBALS['prof']->leaveSection('ngAbornCheck()');
+                    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                     return $v['word'];
                 }
             }
         }
-        $GLOBALS['debug'] && $GLOBALS['prof']->leaveSection('ngAbornCheck()');
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
         return false;
     }
 

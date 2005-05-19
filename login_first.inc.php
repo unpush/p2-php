@@ -53,7 +53,7 @@ EOP;
     // }}}
     
     // {{{ JîFèÿ
-    } elseif (preg_match('{(J-PHONE|Vodafone)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
+    } elseif (preg_match('{^(J-PHONE|Vodafone|MOT)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
         if (file_exists($_conf['auth_jp_file'])) {
         } else {
             $auth_sub_input_ht = <<<EOP

@@ -320,7 +320,7 @@ EOP;
             // <br>以外のタグを除去し、長さを切り詰める
             $msg = strip_tags($msg, '<br>');
             $msg = mb_strcut($msg, 0, $_conf['ktai_ryaku_size']);
-            $msg = preg_replace('/( *<b?r?\>? *)+$/i', '', $msg);
+            $msg = preg_replace('/ *<[^>]*$/i', '', $msg);
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
             $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quote_res_callback'), $msg);
