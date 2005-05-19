@@ -15,6 +15,48 @@
 	- 新規ファイル
 		getsetposlines.inc.php
 
+	* cookie.php
+	* dataphp.class.php
+	* dele.inc.php
+	* editfavita.php
+	* filectl.class.php
+	* getsetposlines.inc.php is new
+	* httpcmd.php
+	* info.php
+	* login.inc.php
+	* login.php
+	* login_first.inc.php
+	* menu.inc.php
+	* menu_k.php
+	* p2util.class.php
+	* post.php
+	* read.php
+	* read_machibbs.inc.php
+	* read_new.inc.php
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.inc.php
+	* read_res_hist.php
+	* read_shitaraba.inc.php
+	* sb_footer.inc.php
+	* setfav.inc.php
+	* setfavita.inc.php
+	* setpalace.inc.php
+	* settaborn.inc.php
+	* settaborn_off.inc.php
+	* showbrdmenuk.class.php
+	* showthread.class.php
+	* showthreadk.class.php
+	* subject.php
+	* subject_new.php
+	* syncfavita.inc.php
+	* syncindex.inc.php
+	* thread.class.php
+	* threadlist.class.php
+	* threadread.class.php
+	* conf/conf.inc.php
+	* doc/ChangeLog.txt
+
 2005-05-09 aki
 	* p2 version 1.5.23
 
