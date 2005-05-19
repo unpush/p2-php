@@ -47,7 +47,7 @@ class P2Util{
         // 更新されていたら
         if ($wap_res->is_success() && $wap_res->code != "304") {
             if (FileCtl::file_write_contents($localfile, $wap_res->content) === false) {
-                die("Error: {$localfile} を更新できませんでした");
+                die("Error: cannot write file.");
             }
             chmod($localfile, $perm);
         }
@@ -260,23 +260,30 @@ class P2Util{
     
     }
 
-
     /**
      * ■ key.idx に data を記録する
+     *
+     * @param $data 配列。要素の順番に意味あり。
      */
     function recKeyIdx($keyidx, $data)
     {
         global $_conf;
-    
-        $data = rtrim($data);
-    
-        FileCtl::make_datafile($keyidx, $_conf['key_perm']);
-        $fp = fopen($keyidx, 'wb') or die("Error: {$keyidx} を更新できませんでした");
-        @flock($fp, LOCK_EX);
-        fputs($fp, $data."\n");
-        @flock($fp, LOCK_UN);
-        fclose($fp);
         
+        // 基本は配列で受け取る
+        if (is_array($data)) {
+            $cont = implode('<>', $data);
+        // 旧互換用にstringも受付
+        } else {
+            $cont = rtrim($data);
+        }
+        
+        $cont = $cont."\n";
+        
+        FileCtl::make_datafile($keyidx, $_conf['key_perm']);
+        if (FileCtl::file_write_contents($keyidx, $cont) === false) {
+            die("Error: cannot write file. recKeyIdx()");
+        }
+
         return true;
     }
 
@@ -339,7 +346,7 @@ class P2Util{
         
             // ファイルに保存する
             if (FileCtl::file_write_contents($subjectfile, $body) === false) {
-                die("Error: {$subjectfile} を更新できませんでした");
+                die("Error: cannot write file.");
             }
             chmod($subjectfile, $perm);
             
@@ -701,18 +708,6 @@ EOP;
         global $login;
         
         return md5($login['user'] . $login['pass'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE']);
-    }
-    
-    /**
-     * checkCsrfId
-     */
-    function checkCsrfId($str)
-    {
-        $csrfid = P2Util::getCsrfId();
-
-        if ($str != $csrfid) {
-            die('p2 error: 不正なポストです');
-        }
     }
 }
 

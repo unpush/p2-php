@@ -438,8 +438,10 @@ EOP;
         
         $newline = $aThread->readnum + 1; // $newline‚Í”p~—\’è‚¾‚ªA‹ŒŒİŠ·—p‚É”O‚Ì‚½‚ß
         
-        $s = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<>{$aThread->rescount}<>{$aThread->modified}<>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}";
-        P2Util::recKeyIdx($aThread->keyidx, $s); // key.idx‚É‹L˜^
+        $sar = array($aThread->ttitle, $aThread->key, $data[2], $aThread->rescount, $aThread->modified,
+                    $aThread->readnum, $data[6], $data[7], $data[8], $newline,
+                    $data[10], $data[11], $aThread->datochiok);
+        P2Util::recKeyIdx($aThread->keyidx, $sar); // key.idx‚É‹L˜^
     }
 
     unset($aThread);

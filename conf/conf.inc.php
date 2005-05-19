@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.5.23';
+$_conf['p2version'] = '1.5.24';
 
 //$_conf['p2name'] = 'p2';  // p2の名前。
 $_conf['p2name'] = 'P2';    // p2の名前。
@@ -42,7 +42,7 @@ ini_set('arg_separator.output', '&amp;');
 ob_implicit_flush(0);
 
 // クライアントから接続を切られても処理を続行する
-ignore_user_abort(1);
+// ignore_user_abort(1);
 
 require_once './p2util.class.php';
 
@@ -104,7 +104,12 @@ $_conf['k_accesskey']['dele'] = '*';    // 削
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">'."\n";
 
 // ■携帯チェック
-if (strstr($_SERVER['HTTP_USER_AGENT'], 'UP.Browser/')) {
+if (preg_match('{^(J-PHONE|Vodafone|MOT)/}', $_SERVER['HTTP_USER_AGENT'])) {
+    //$browser = 'JPHONE';
+    $_conf['ktai'] = true;
+    $_conf['accesskey'] = 'DIRECTKEY';
+    
+} elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'UP.Browser/')) {
     //$browser = "EZweb";
     $_conf['ktai'] = true;
     /*
@@ -118,11 +123,6 @@ EOP;
 } elseif (preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'])) {
     //$browser = 'DoCoMo';
     $_conf['ktai'] = true;
-
-} elseif (preg_match('{^(J-PHONE|Vodafone)/}', $_SERVER['HTTP_USER_AGENT'])) {
-    //$browser = 'JPHONE';
-    $_conf['ktai'] = true;
-    $_conf['accesskey'] = 'DIRECTKEY';
 
 } elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'DDIPOCKET')) {
     //$browser = 'DDIPOCKET';
@@ -249,6 +249,7 @@ $sb_footer_inc = "sb_footer.inc.php";
 $read_header_inc = "read_header.inc.php";
 $read_footer_inc = "read_footer.inc.php";
 $_conf['rct_file'] = $_conf['pref_dir'] . '/' . 'p2_recent.idx';
+$_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'].'/p2_res_hist.dat.php'; // 書き込みログファイル
 $_conf['cache_dir'] = $_conf['pref_dir'].'/p2_cache';
 $_conf['cookie_dir'] = $_conf['pref_dir'].'/p2_cookie'; // cookie 保存ディレクトリ
 $_conf['cookie_file_name'] = 'p2_cookie.txt';

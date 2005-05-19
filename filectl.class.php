@@ -25,7 +25,7 @@ class FileCtl{
                 $cont = @file_get_contents($file);
                 unlink($file);
                 if (FileCtl::file_write_contents($file, $cont) === false) {
-                    die("Error: cannot write. ( $file )");
+                    die('Error: cannot write.');
                 }
                 chmod($file, $perm);
             }
@@ -82,7 +82,7 @@ class FileCtl{
      *
      * このfunctionは、PHP License に基づく、Aidan Lister氏 <aidan@php.net> による、
      * PHP_Compat の file_put_contents.php のコードを元に、独自の変更（flock() など）を加えたものです。
-     * "This product includes PHP, freely available from <http://www.php.net/>".
+     * This product includes PHP, freely available from <http://www.php.net/>
      */
     function file_write_contents($filename, &$cont, $flags = null, $resource_context = null)
     {
@@ -92,19 +92,23 @@ class FileCtl{
         } else {
             $content =& $cont;
         }
+        
+        /*
+        shift_jisの文字が途中から入ったりすると、stringではない判断されることがある？
         // If we don't have a string, throw an error
         if (!is_string($content)) {
-            trigger_error('file_write_contents() The 2nd parameter should be either a string or an array', E_USER_WARNING);
+            trigger_error('file_write_contents() '.$filename.', The 2nd parameter should be either a string or an array', E_USER_WARNING);
             return false;
         }
+        */
         
         // Get the length of date to write
         $length = strlen($content);
         
         // Check what mode we are using
         $mode = ($flags & FILE_APPEND) ?
-                    $mode = 'a' :
-                    $mode = 'w';
+                    $mode = 'ab' :
+                    $mode = 'wb';
         
         // Check if we're using the include path
         $use_inc_path = ($flags & FILE_USE_INCLUDE_PATH) ?
@@ -113,11 +117,16 @@ class FileCtl{
         
         // Open the file for writing
         if (($fh = @fopen($filename, $mode, $use_inc_path)) === false) {
-            trigger_error('file_write_contents() failed to open stream: Permission denied', E_USER_WARNING);
+            trigger_error('file_write_contents() '.$filename.', failed to open stream: Permission denied', E_USER_WARNING);
             return false;
         }
         
         @flock($fh, LOCK_EX);
+        $last = ignore_user_abort(1);
+        
+        if ($mode == 'wb') {
+            ftruncate($fh, 0);
+        }
         
         // Write to the file
         $bytes = 0;
@@ -126,9 +135,11 @@ class FileCtl{
                             $length,
                             $filename);
             trigger_error($errormsg, E_USER_WARNING);
+            ignore_user_abort($last);
             return false;
         }
         
+        ignore_user_abort($last);
         @flock($fh, LOCK_UN);
         fclose($fh);
         

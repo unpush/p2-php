@@ -77,7 +77,7 @@ EOP;
 echo <<<EOP
 	<form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
 			ƒXƒŒURL‚ð’¼ÚŽw’è
-			<input id="url_text" type="text" value="{$ini_url_text}" name="nama_url" size="54">
+			<input id="url_text" type="text" value="{$ini_url_text}" name="url" size="62">
 			<input type="submit" name="btnG" value="•\Ž¦" onClick='{$onClick_ht}'>
 	</form>\n
 EOP;

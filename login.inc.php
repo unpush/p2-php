@@ -37,7 +37,7 @@ function authCheck()
 	
 	// J-PHONE認証スルーパス // パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
 	// http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-	if (preg_match('{(J-PHONE|Vodafone)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
+	if (preg_match('{^(J-PHONE|Vodafone|MOT)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
 		if (file_exists($_conf['auth_jp_file'])) {
 			include $_conf['auth_jp_file'];
 			if ($matches[3] == $registed_jp) {
@@ -87,7 +87,7 @@ function registKtaiId()
     
 	// {{{ 認証登録処理 J-PHONE
 	} elseif (isset($_REQUEST['regist_jp'])) {
-		if (preg_match('{(J-PHONE|Vodafone)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
+		if (preg_match('{^(J-PHONE|Vodafone|MOT)/([^/]+?/)+?SN(.+?) }', $_SERVER['HTTP_USER_AGENT'], $matches)) {
 			if ($_REQUEST['regist_jp'] == "in") {
 				regist_auth("registed_jp", $matches[3], $_conf['auth_jp_file']);
 			} elseif ($_REQUEST['regist_jp'] == "out") {

@@ -1,9 +1,9 @@
 <?php
-/*
-	p2 -  クッキー認証処理
-	
-	内部文字エンコーディング: Shift_JIS
-*/
+/**
+ * p2 -  クッキー認証処理
+ * 
+ * 内部文字エンコーディング: Shift_JIS
+ */
 
 include_once './conf/conf.inc.php'; // 基本設定
 require_once './p2util.class.php';  // p2用のユーティリティクラス

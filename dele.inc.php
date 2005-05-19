@@ -1,9 +1,10 @@
 <?php
 /*
-	p2 - スレッドデータ、DATを削除するための関数郡
+    p2 - スレッドデータ、DATを削除するための関数郡
 */
 
-require_once 'p2util.class.php';
+require_once './p2util.class.php'; // p2用のユーティリティクラス
+require_once './filectl.class.php';
 require_once './setfav.inc.php';
 require_once './setpalace.inc.php';
 
@@ -18,37 +19,37 @@ require_once './setpalace.inc.php';
  * @return int 失敗があれば0, 削除できたら1, 削除対象がなければ2を返す。
  */
 function deleteLogs($host, $bbs, $keys)
-{	
-	// 指定keyのログを削除（対象が一つの時）
-	if (is_string($keys)) {
-		$akey = $keys;
-		offRecent($host, $bbs, $akey);
-		offResHist($host, $bbs, $akey);
-		setFav($host, $bbs, $akey, 0);
-		setPal($host, $bbs, $akey, 0);
-		$r = deleteThisKey($host, $bbs, $akey);
-	
-	// 指定key配列のログを削除
-	} elseif (is_array($keys)) {
-		$rs = array();
-		foreach ($keys as $akey) {
-			offRecent($host, $bbs, $akey);
-			offResHist($host, $bbs, $akey);
-			setFav($host, $bbs, $akey, 0);
-			setPal($host, $bbs, $akey, 0);
-			$rs[] = deleteThisKey($host, $bbs, $akey);
-		}
-		if (array_search(0, $rs) !== false) {
-			$r = 0;
-		} elseif (array_search(1, $rs) !== false) {
-			$r = 1;
-		} elseif (array_search(2, $rs) !== false) {
-			$r = 2;
-		} else {
-			$r = 0;
-		}
-	}
-	return $r;
+{    
+    // 指定keyのログを削除（対象が一つの時）
+    if (is_string($keys)) {
+        $akey = $keys;
+        offRecent($host, $bbs, $akey);
+        offResHist($host, $bbs, $akey);
+        setFav($host, $bbs, $akey, 0);
+        setPal($host, $bbs, $akey, 0);
+        $r = deleteThisKey($host, $bbs, $akey);
+    
+    // 指定key配列のログを削除
+    } elseif (is_array($keys)) {
+        $rs = array();
+        foreach ($keys as $akey) {
+            offRecent($host, $bbs, $akey);
+            offResHist($host, $bbs, $akey);
+            setFav($host, $bbs, $akey, 0);
+            setPal($host, $bbs, $akey, 0);
+            $rs[] = deleteThisKey($host, $bbs, $akey);
+        }
+        if (array_search(0, $rs) !== false) {
+            $r = 0;
+        } elseif (array_search(1, $rs) !== false) {
+            $r = 1;
+        } elseif (array_search(2, $rs) !== false) {
+            $r = 2;
+        } else {
+            $r = 0;
+        }
+    }
+    return $r;
 }
 
 /**
@@ -61,42 +62,42 @@ function deleteLogs($host, $bbs, $keys)
  */
 function deleteThisKey($host, $bbs, $key)
 {
-	global $_conf;
+    global $_conf;
 
-	$datdir_host = P2Util::datdirOfHost($host);
-	
-	$anidx = "$datdir_host/{$bbs}/{$key}.idx";
-	$adat = "$datdir_host/{$bbs}/{$key}.dat";
-	
-	// Fileの削除処理
-	// idx（個人用設定）
-	if (file_exists($anidx)) {
-		if (unlink($anidx)) {
-			$deleted_flag = true;
-		} else {
-			$failed_flag = true;
-		}
-	}
-	
-	// datの削除処理
-	if (file_exists($adat)) {
-		if (unlink($adat)) {
-			$deleted_flag = true;
-		} else {
-			$failed_flag = true;
-		}
-	}
-	
-	// 失敗があれば
-	if (!empty($failed_flag)) {
-		return 0;
-	// 削除できたら
-	} elseif (!empty($deleted_flag)) {
-		return 1;
-	// 削除対象がなければ
-	} else {
-		return 2;
-	}
+    $datdir_host = P2Util::datdirOfHost($host);
+    
+    $anidx = "$datdir_host/{$bbs}/{$key}.idx";
+    $adat = "$datdir_host/{$bbs}/{$key}.dat";
+    
+    // Fileの削除処理
+    // idx（個人用設定）
+    if (file_exists($anidx)) {
+        if (unlink($anidx)) {
+            $deleted_flag = true;
+        } else {
+            $failed_flag = true;
+        }
+    }
+    
+    // datの削除処理
+    if (file_exists($adat)) {
+        if (unlink($adat)) {
+            $deleted_flag = true;
+        } else {
+            $failed_flag = true;
+        }
+    }
+    
+    // 失敗があれば
+    if (!empty($failed_flag)) {
+        return 0;
+    // 削除できたら
+    } elseif (!empty($deleted_flag)) {
+        return 1;
+    // 削除対象がなければ
+    } else {
+        return 2;
+    }
 }
 
 
@@ -107,21 +108,21 @@ function deleteThisKey($host, $bbs, $key)
  */
 function checkRecent($host, $bbs, $key)
 {
-	global $_conf;
+    global $_conf;
 
-	$lines = @file($_conf['rct_file']);
-	// あればtrue
-	if (is_array($lines)) {
-		foreach ($lines as $l) {
-			$l = rtrim($l);
-			$lar = explode('<>', $l);
-			// あったら
-			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
-				return true;
-			}
-		}
-	}
-	return false;
+    $lines = @file($_conf['rct_file']);
+    // あればtrue
+    if (is_array($lines)) {
+        foreach ($lines as $l) {
+            $l = rtrim($l);
+            $lar = explode('<>', $l);
+            // あったら
+            if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /**
@@ -131,22 +132,22 @@ function checkRecent($host, $bbs, $key)
  */
 function checkResHist($host, $bbs, $key)
 {
-	global $_conf;
-	
-	$rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
-	$lines = @file($rh_idx);
-	// あればtrue
-	if (is_array($lines)) {
-		foreach ($lines as $l) {
-			$l = rtrim($l);
-			$lar = explode('<>', $l);
-			// あったら
-			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
-				return true;
-			}
-		}
-	}
-	return false;
+    global $_conf;
+    
+    $rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
+    $lines = @file($rh_idx);
+    // あればtrue
+    if (is_array($lines)) {
+        foreach ($lines as $l) {
+            $l = rtrim($l);
+            $lar = explode('<>', $l);
+            // あったら
+            if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /**
@@ -156,39 +157,39 @@ function checkResHist($host, $bbs, $key)
  */
 function offRecent($host, $bbs, $key)
 {
-	global $_conf;
+    global $_conf;
 
-	$lines = @file($_conf['rct_file']);
-	// あれば削除
-	if (is_array($lines)) {
-		foreach ($lines as $line) {
-			$line = rtrim($line);
-			$lar = explode('<>', $line);
-			// 削除
-			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
-				$done = true;
-				continue;
-			}
-			$neolines[] = $line;
-		}
-	}
+    $lines = @file($_conf['rct_file']);
+    // あれば削除
+    if (is_array($lines)) {
+        foreach ($lines as $line) {
+            $line = rtrim($line);
+            $lar = explode('<>', $line);
+            // 削除
+            if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
+                $done = true;
+                continue;
+            }
+            $neolines[] = $line;
+        }
+    }
 
-	// 書き込む
-	$fp = @fopen($_conf['rct_file'], 'wb') or die("Error: cannot write. ({$_conf['rct_file']})");
-	if ($neolines) {
-		@flock($fp, LOCK_EX);
-		foreach ($neolines as $l) {
-			fputs($fp, $l."\n");
-		}
-		@flock($fp, LOCK_UN);
-	}
-	fclose($fp);
-	
-	if ($done) {
-		return 1;
-	} else {
-		return 2;
-	}
+    // 書き込む
+    if ($neolines) {
+        $cont = '';
+        foreach ($neolines as $l) {
+            $cont .= $l."\n";
+        }
+        if (FileCtl::file_write_contents($_conf['rct_file'], $cont) === false) {
+            die("Error: cannot write file.");
+        }
+    }
+    
+    if ($done) {
+        return 1;
+    } else {
+        return 2;
+    }
 }
 
 /**
@@ -198,40 +199,40 @@ function offRecent($host, $bbs, $key)
  */
 function offResHist($host, $bbs, $key)
 {
-	global $_conf;
-	
-	$rh_idx = $_conf['pref_dir'].'/p2_res_hist.idx';
-	$lines = @file($rh_idx);
-	// あれば削除
-	if (is_array($lines)) {
-		foreach($lines as $l){
-			$l = rtrim($l);
-			$lar = explode('<>', $l);
-			// 削除
-			if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
-				$done = true;
-				continue;
-			}
-			$neolines[] = $l;
-		}
-	}
+    global $_conf;
+    
+    $rh_idx = $_conf['pref_dir'].'/p2_res_hist.idx';
+    $lines = @file($rh_idx);
+    // あれば削除
+    if (is_array($lines)) {
+        foreach ($lines as $l) {
+            $l = rtrim($l);
+            $lar = explode('<>', $l);
+            // 削除
+            if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
+                $done = true;
+                continue;
+            }
+            $neolines[] = $l;
+        }
+    }
 
-	// 書き込む
-	$fp = @fopen($rh_idx, 'wb') or die("Error: cannot write. ({$rh_idx})");
-	if ($neolines) {
-		@flock($fp, LOCK_EX);
-		foreach ($neolines as $l) {
-			fputs($fp, $l."\n");
-		}
-		@flock($fp, LOCK_UN);
-	}
-	fclose($fp);
-	
-	if ($done) {
-		return 1;
-	} else {
-		return 2;
-	}
+    // 書き込む
+    if ($neolines) {
+        $cont = '';
+        foreach ($neolines as $l) {
+            $cont .= $l."\n";
+        }
+        if (FileCtl::file_write_contents($rh_idx, $cont) === false) {
+            die("Error: cannot write file.");
+        }
+    }
+    
+    if ($done) {
+        return 1;
+    } else {
+        return 2;
+    }
 }
 
 ?>

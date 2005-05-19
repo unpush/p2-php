@@ -3,112 +3,108 @@
 
 require_once './filectl.class.php';
 
-//===============================================
-// 変数
-//===============================================
+/**
+ * お気に板をセットする
+ *
+ * $set は、0(解除), 1(追加), top, up, down, bottom
+ */
+function setFavIta()
+{
+    global $_conf, $_info_msg_ht;
 
-if (isset($_GET['setfavita'])) {
-	$setfavita = $_GET['setfavita'];
-} elseif (isset($_POST['setfavita'])) {
-	$setfavita = $_POST['setfavita'];
+    if (isset($_GET['setfavita'])) {
+        $setfavita = $_GET['setfavita'];
+    } elseif (isset($_POST['setfavita'])) {
+        $setfavita = $_POST['setfavita'];
+    }
+
+    $host = isset($_GET['host']) ? $_GET['host'] : NULL;
+    $bbs = isset($_GET['bbs']) ? $_GET['bbs'] : NULL;
+
+    if ($_POST['url']) {
+        if (preg_match("/http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?/", $_POST['url'], $matches)) {
+            $host = $matches[1];
+            $bbs = $matches[2];
+        } else {
+            $_info_msg_ht .= "<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>";
+        }
+    }
+    
+    if (!$host && !$bbs) {
+        $_info_msg_ht .= "<p>p2 info: 板の指定が変です</p>";
+        return false;
+    }
+
+    if (isset($_POST['itaj'])) {
+        $itaj = $_POST['itaj'];
+    }
+    if (!isset($itaj) && isset($_GET['itaj_en'])) {
+        $itaj = base64_decode($_GET['itaj_en']);
+    } 
+    if (empty($itaj)) { $itaj = $bbs; }
+
+    //================================================
+    // 読み込み
+    //================================================
+    //favita_pathファイルがなければ生成
+    FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
+
+    //favita_path読み込み;
+    $lines = @file($_conf['favita_path']);
+
+    //================================================
+    // 処理
+    //================================================
+    $neolines = array();
+    $before_line_num = 0;
+    
+    // 最初に重複要素を消去
+    if (!empty($lines)) {
+        $i = -1;
+        foreach ($lines as $l) {
+            $i++;
+            $l = rtrim($l);
+        
+            // {{{ 旧データ（ver0.6.0以下）移行措置
+            if (!preg_match("/^\t/", $l)) {
+                $l = "\t".$l;
+            }
+            // }}}
+        
+            $lar = explode("\t", $l);
+        
+            if ($lar[1] == $host and $lar[2] == $bbs) { // 重複回避
+                $before_line_num = $i;
+                continue;
+            } elseif (!$lar[1] || !$lar[2]) { // 不正データ（host, bbsなし）もアウト
+                continue;
+            } else {
+                $neolines[] = $l;
+            }
+        }
+    }
+
+    // 記録データ設定
+    if ($setfavita and $host && $bbs && $itaj) {
+        $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
+        include_once './getsetposlines.inc.php';
+        $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
+    } else {
+        $rec_lines = $neolines;
+    }
+
+    $cont = '';
+    if (!empty($rec_lines)) {
+        foreach ($rec_lines as $l) {
+            $cont .= $l."\n";
+        }
+    }
+
+    // 書き込む
+    if (FileCtl::file_write_contents($_conf['favita_path'], $cont) === false) {
+        die('Error: cannot write file.');
+    }
+    
+    return true;
 }
-
-$host = $_GET['host'];
-$bbs = $_GET['bbs'];
-if ($_POST['url']) {
-	if (preg_match("/http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?/", $_POST['url'], $matches)) {
-		$host = $matches[1];
-		$bbs = $matches[2];
-	} else {
-		$_info_msg_ht .= "<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>";
-	}
-}
-
-if (isset($_POST['itaj'])){
-	$itaj = $_POST['itaj']; 
-}
-if (!isset($itaj) && isset($_GET['itaj_en'])) {
-	$itaj = base64_decode($_GET['itaj_en']);
-} 
-if (empty($itaj)) { $itaj = $bbs; }
-
-//================================================
-// 読み込み
-//================================================
-//favita_pathファイルがなければ生成
-FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
-
-//favita_path読み込み;
-$lines= @file($_conf['favita_path']);
-
-//================================================
-// 処理
-//================================================
-
-//最初に重複要素を消去
-if($lines){
-	$i=-1;
-	unset($neolines);
-	foreach($lines as $l){
-		$i++;
-		
-		/* 旧データ（ver0.6.0以下）移行措置 */
-		if(! preg_match("/^\t/", $l)){ $l="\t".$l;}
-		/*------------------------*/
-		
-		$lar = explode("\t", $l);
-		
-		if( $lar[1]==$host and $lar[2]==$bbs ){ //重複回避
-			$before_line_num=$i;
-			continue;
-		//}elseif(!$lar[3]){//不正データ（板名なし）もアウト
-		//	continue;
-		}else{
-			$neolines[]=$l;
-		}
-	}
-}
-
-//新規データ設定
-if($setfavita){
-	if($host && $bbs && $itaj){
-		$newdata="\t{$host}\t{$bbs}\t{$itaj}\n";
-	}
-}
-	
-if($setfavita==1 or $setfavita=="top"){
-	$after_line_num=0;
-
-}elseif($setfavita=="up"){
-	$after_line_num=$before_line_num-1;
-	if($after_line_num<0){$after_line_num=0;}
-	
-}elseif($setfavita=="down"){
-	$after_line_num=$before_line_num+1;
-	if( $after_line_num >= sizeof($neolines) ){$after_line_num="bottom";}
-	
-}elseif($setfavita=="bottom"){
-	$after_line_num="bottom";
-}
-
-//================================================
-//書き込む
-//================================================
-$fp = @fopen($_conf['favita_path'], "wb") or die("Error: {$_conf['favita_path']} を更新できませんでした");
-@flock($fp, LOCK_EX);
-if ($neolines) {
-	$i = 0;
-	foreach ($neolines as $l) {
-		if ($i === $after_line_num) { fputs($fp, $newdata); }
-		fputs($fp, $l);
-		$i++;
-	}
-	if ($after_line_num === "bottom") {	fputs($fp, $newdata); }
-	//「$after_line_num == "bottom"」だと誤動作する。
-} else {
-	fputs($fp, $newdata);
-}
-@flock($fp, LOCK_UN);
-fclose($fp);
-
 ?>
