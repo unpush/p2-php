@@ -1,3 +1,12 @@
+2005-05-21 aki
+	* p2 version 1.5.25
+
+	- [バグ修正] DATが過去ログ倉庫にあるときなどの表示が正常にされなかったのを修正
+	
+	- 変更されたファイル
+		threadread.class.php
+		conf/conf.inc.php
+
 2005-05-19 aki
 	* p2 version 1.5.24
 	
