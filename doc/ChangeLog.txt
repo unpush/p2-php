@@ -1,3 +1,10 @@
+2005-05-27 aki
+	* p2 version 1.5.27
+
+	[改良] スレ一覧からのログ削除もAjaxで行えるようにした
+	[仕様変更] >>a-b のリンクは(p)表示をしないようにした
+	- 拡張パックさんのコードをちょこちょこ入れてます。THX!
+
 2005-05-26 aki
 	* p2 version 1.5.26
 
@@ -29,7 +36,6 @@
 	* threadread.class.php
 	* conf/conf.inc.php
 	* conf/conf_user.inc.php
-	* doc/ChangeLog.txt
 	* js/basic.js
 	* js/delelog.js is new
 	* js/setfavjs.js is new
