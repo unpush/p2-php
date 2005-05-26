@@ -15,11 +15,11 @@ if (!isset($rh_idx))     { $rh_idx     = $_conf['pref_dir'] . '/p2_res_hist.idx'
 if (!isset($palace_idx)) { $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx'; }
 
 $synctitle = array(
-    $_conf['favita_path']  => 'お気に板',
-    $_conf['favlist_file'] => 'お気にスレ',
-    $_conf['rct_file']     => '最近読んだスレ',
-    $rh_idx     => '書き込み履歴',
-    $palace_idx => 'スレの殿堂'
+    basename($_conf['favita_path'])  => 'お気に板',
+    basename($_conf['favlist_file']) => 'お気にスレ',
+    basename($_conf['rct_file'])     => '最近読んだスレ',
+    basename($rh_idx)                => '書き込み履歴',
+    basename($palace_idx)            => 'スレの殿堂'
 );
 
 // }}}
@@ -27,16 +27,17 @@ $synctitle = array(
 
 // ホストの同期
 if (isset($_POST['sync'])) {
-    $syncfile = $_POST['sync'];
+    $syncfile = $_conf['pref_dir'].'/'.$_POST['sync'];
+    $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {
         include_once './syncfavita.inc.php';
     } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
         include_once './syncindex.inc.php';
     }
     if ($sync_ok) {
-        $_info_msg_ht .= "<p>{$synctitle[$syncfile]}を同期しました。</p>";
+        $_info_msg_ht .= "<p>{$synctitle[$sync_name]}を同期しました。</p>";
     } else {
-        $_info_msg_ht .= "<p>{$synctitle[$syncfile]}は変更されませんでした。</p>";
+        $_info_msg_ht .= "<p>{$synctitle[$sync_name]}は変更されませんでした。</p>";
     }
     unset($syncfile);
 }
@@ -175,7 +176,7 @@ EOP;
 EOP;
     $exist_sync_flag = false;
     foreach ($synctitle as $syncpath => $syncname) {
-        if (is_writable($syncpath)) {
+        if (is_writable($_conf['pref_dir'].'/'.$syncpath)) {
             $exist_sync_flag = true;
             $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
         }
@@ -202,7 +203,7 @@ if ($_conf['ktai']) {
     $htm['sync'] .= "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
     $exist_sync_flag = false;
     foreach ($synctitle as $syncpath => $syncname) {
-        if (is_writable($syncpath)) {
+        if (is_writable($_conf['pref_dir'].'/'.$syncpath)) {
             $exist_sync_flag = true;
             $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
         }

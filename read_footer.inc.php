@@ -123,6 +123,16 @@ EOP;
     }
 }
 
+if (!empty($_GET['showres'])) {
+    echo <<<EOP
+    <script type="text/javascript">
+    <!--
+    document.getElementById('kakiko').style.display = 'block';
+    //-->
+    </script>\n
+EOP;
+}
+
 // ====
 echo '</body>
 </html>

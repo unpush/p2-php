@@ -22,8 +22,8 @@ if (empty($_GET['host'])) {
 $bbs = isset($_GET['bbs']) ? $_GET['bbs'] : '';
 $key = isset($_GET['key']) ? $_GET['key'] : '';
 
-$rescount = isset($_GET['rc']) ? $_GET['rc'] : 1;
-$popup = isset($_GET['popup']) ? $_GET['popup'] : 0;
+$rescount = isset($_GET['rc']) ? intval($_GET['rc']) : 1;
+$popup = isset($_GET['popup']) ? intval($_GET['popup']) : 0;
 
 $itaj = P2Util::getItaName($host, $bbs);
 if (!$itaj) { $itaj = $bbs; }
@@ -118,6 +118,7 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = '';
 
+// $htm['post_form'] ‚ðŽæ“¾
 include './post_form.inc.php';
 
 echo $htm['post_form'];

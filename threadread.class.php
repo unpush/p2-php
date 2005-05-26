@@ -1035,19 +1035,51 @@ class ThreadRead extends Thread{
             }
         }
         
-        // まとめ読みの表示数制限
+        // 新着まとめ読みの表示数制限
         if (isset($GLOBALS['rnum_all_range']) and $GLOBALS['rnum_all_range'] > 0) {
-            if ($start + $GLOBALS['rnum_all_range'] <= $to) {
-                $to = $start + $GLOBALS['rnum_all_range'];
-            }
-            $GLOBALS['rnum_all_range'] = $GLOBALS['rnum_all_range'] - ($to - $start);
-            $all_end = true;
         
+            /*
+            ■携帯の新着まとめ読みが、ちょっきしで終わった時に、の「続きor更新」判定問題
+
+            リミット < スレの表示範囲
+            次リミットは　0
+            スレの表示範囲を終える前にリミット数消化
+            →続き
+
+            リミット > スレの表示範囲
+            次リミットは +
+            リミット数が残っている間に、スレの表示範囲を終えた
+            →更新
+
+            リミット = スレの表示範囲
+            次リミットは 0
+            スレの表示範囲丁度でリミットを消化した
+            →続き? 更新?
+            続きの場合も更新の場合もある。逐次処理のため、
+            他のスレの残り新着数があるかどうかが不明で判定できない。
+            */
+            
+            // リミットがスレの表示範囲より小さい場合は、スレの表示範囲をリミットに合わせる
+            $limit_to = $start + $GLOBALS['rnum_all_range'] -1;
+            
+            if ($limit_to < $to) {
+                $to = $limit_to;
+            
+            // スレの表示範囲丁度でリミットを消化した場合
+            } elseif ($limit_to == $to) {
+                $GLOBALS['limit_to_eq_to'] = TRUE;
+            }
+            
+            // 次のリミットは、今回のスレの表示範囲分を減らした数
+            $GLOBALS['rnum_all_range'] = $GLOBALS['rnum_all_range'] - ($to - $start) -1;
+            
+            //print_r("$start, $to, {$GLOBALS['rnum_all_range']}");
+            
         } else {
             // 携帯用の表示数制限
             if ($_conf['ktai']) {
                 if ($start + $_conf['k_rnum_range'] <= $to) {
-                    $to = $start + $_conf['k_rnum_range'];
+                    $to = $start + $_conf['k_rnum_range'] -1;
                 }
             }
         }

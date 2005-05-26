@@ -128,109 +128,15 @@ EOHEADER;
 echo <<<EOHEADER
     <script type="text/javascript" src="js/basic.js"></script>
     <script type="text/javascript" src="js/respopup.js"></script>
-    <script type="text/javascript" src="js/htmlpopup.js"></script>\n
+    <script type="text/javascript" src="js/htmlpopup.js"></script>
+    <script type="text/javascript" src="js/setfavjs.js"></script>
+    <script type="text/javascript" src="js/delelog.js"></script>\n
 EOHEADER;
 
 echo <<<EOHEADER
     <script type="text/javascript">
     <!--
     gIsPageLoaded = false;
-    // お気にセット関数
-    function setFav(host, bbs, key, favdo, obj)
-    {
-        /*
-        // ページの読み込みが完了していなければ、なにもしない
-        if (!gIsPageLoaded) {
-            return false;
-        }
-        */
-        
-        var objHTTP = getXmlHttp();
-        if (!objHTTP) {
-            // alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
-            // XMLHTTP（と obj.parentNode.innerHTML） に未対応なら小窓で
-            return OpenSubWin('info.php?host='+host+'&amp;bbs='+bbs+'&amp;key='+key+'&amp;setfav='+favdo+'&amp;popup=2',{$STYLE['info_pop_size']},0,0);
-        }
-        // キャッシュ回避用
-        var now = new Date();
-        // 引数の文字列は encodeURIComponent でエスケープするのがよい
-        query = 'host='+host+'&bbs='+bbs+'&key='+key+'&setfav='+favdo+'&nc='+now.getTime();
-        url = 'httpcmd.php?' + query + '&cmd=setfav';    // スクリプトと、コマンド指定
-        objHTTP.open('GET', url, false);
-        objHTTP.send(null);
-        if (objHTTP.status != 200 || objHTTP.readyState != 4 && !objHTTP.responseText) {
-            // alert("Error: XMLHTTP 結果の受信に失敗しました") ;
-        }
-        var res = objHTTP.responseText;
-        var rmsg = "";
-        if (res) {
-            if (res == '1') {
-                rmsg = '完了';
-            }
-            if (rmsg) {
-                if (favdo == '1') {
-                    nextset = '0';
-                    favmark = '★';
-                    favtitle = 'お気にスレから外す';
-                } else {
-                    nextset = '1';
-                    favmark = '+';
-                    favtitle = 'お気にスレに追加';
-                }
-                var favhtm = '<a href="info.php?host='+host+'&amp;bbs='+bbs+'&amp;key='+key+'&amp;setfav='+nextset+'" target="info" onClick="return setFav(\''+host+'\', \''+bbs+'\', \''+key+'\', \''+nextset+'\', this);" title="'+favtitle+'">お気に'+favmark+'</a>';
-                obj.parentNode.innerHTML = favhtm;
-            }
-        }
-        return false;
-    }
-
-    // ログ削除関数
-    function deleLog(query, obj)
-    {
-        /*
-        // ページの読み込み完了していなければリンクで
-        if (!gIsPageLoaded) {
-            return true;
-        }
-        */
-
-        var objHTTP = getXmlHttp();
-        
-        if (!objHTTP) {
-            // alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
-            
-            // XMLHTTP（と obj.parentNode.innerHTML） に未対応なら通常リンクで // [better]小窓の方がベター
-            return true;
-        }
-
-        // キャッシュ回避用
-        var now = new Date();
-        // 引数の文字列は encodeURIComponent でエスケープするのがよい
-        query = query + '&nc='+now.getTime();
-        url = 'httpcmd.php?' + query + '&cmd=delelog'; // スクリプトと、コマンド指定
-        objHTTP.open('GET', url, false);
-        objHTTP.send(null);
-        if (objHTTP.status != 200 || objHTTP.readyState != 4 && !objHTTP.responseText) {
-            // alert("Error: XMLHTTP 結果の受信に失敗しました") ;
-        }
-        var res = objHTTP.responseText;
-        var rmsg = "";
-        
-        if (res) {
-            // alert(res);
-            if (res == '1') {
-                rmsg = '完了';
-            } else if (res == '2') {
-                rmsg = 'なし';
-            }
-            if (rmsg) {
-                obj.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.style.filter = 'Gray()';    // IE ActiveX用
-                obj.parentNode.innerHTML = rmsg;
-            }
-        }
-
-        return false;
-    }
     
     function pageLoaded()
     {
@@ -433,12 +339,14 @@ function readNew(&$aThread)
     //===========================================================
     // ■表示レス番の範囲を設定
     //===========================================================
-    if ($aThread->isKitoku()) { // 取得済みなら
+    // 取得済みなら
+    if ($aThread->isKitoku()) {
         $from_num = $aThread->readnum +1 - $_conf['respointer'] - $_conf['before_respointer_new'];
+        if ($from_num > $aThread->rescount) {
+            $from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer_new'];
+        }
         if ($from_num < 1) {
             $from_num = 1;
-        } elseif ($from_num > $aThread->rescount) {
-            $from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer_new'];
         }
 
         //if (!$aThread->ls) {
@@ -538,8 +446,8 @@ EOP;
     $toolbar_right_ht = <<<EOTOOLBAR
             <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
             <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a> 
-            <span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFav('{$aThread->host}', '{$aThread->bbs}', '{$aThread->key}', '{$favdo}', this);" title="{$favtitle}">お気に{$favmark}</a></span> 
-            <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}', this);" title="ログを削除する">{$delete_st}</a></span> 
+            <span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this);" title="{$favtitle}">お気に{$favmark}</a></span> 
+            <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}', {$STYLE['info_pop_size']}, 'read_new', this);" title="ログを削除する">{$delete_st}</a></span> 
 <!--            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">あぼん</a> -->
             <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">元スレ</a>
 EOTOOLBAR;
@@ -606,7 +514,7 @@ if (!$aThreadList->num) {
     echo "<hr>";
 }
 
-if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0) {
+if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     echo <<<EOP
     <div id="ntt{$_newthre_num}" align="center">
         {$sb_ht} の <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}">新着まとめ読みを更新</a>

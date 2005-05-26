@@ -25,10 +25,10 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     // p2_threads_aborn.idx “Ç‚İ‚İ
     $taborn_lines = @file($taborn_idx);
     
-    $neolines = array();
-    
     // w’èkey‚ğíœ
     foreach ($taborn_off_keys as $val) {
+        
+        $neolines = array();
         
         if ($taborn_lines) {
             foreach ($taborn_lines as $line) {
@@ -53,8 +53,8 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     }
 
     $cont = '';
-    if ($neolines) {
-        foreach ($neolines as $l) {
+    if (is_array($taborn_lines)) {
+        foreach ($taborn_lines as $l) {
             $cont .= $l."\n";
         }
     }

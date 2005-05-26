@@ -160,6 +160,9 @@ function offRecent($host, $bbs, $key)
     global $_conf;
 
     $lines = @file($_conf['rct_file']);
+    
+    $neolines = array();
+    
     // ‚ ‚ê‚Îíœ
     if (is_array($lines)) {
         foreach ($lines as $line) {
@@ -175,7 +178,7 @@ function offRecent($host, $bbs, $key)
     }
 
     // ‘‚«‚Ş
-    if ($neolines) {
+    if (is_array($neolines)) {
         $cont = '';
         foreach ($neolines as $l) {
             $cont .= $l."\n";
@@ -203,6 +206,9 @@ function offResHist($host, $bbs, $key)
     
     $rh_idx = $_conf['pref_dir'].'/p2_res_hist.idx';
     $lines = @file($rh_idx);
+    
+    $neolines = array();
+    
     // ‚ ‚ê‚Îíœ
     if (is_array($lines)) {
         foreach ($lines as $l) {
@@ -218,7 +224,7 @@ function offResHist($host, $bbs, $key)
     }
 
     // ‘‚«‚Ş
-    if ($neolines) {
+    if (is_array($neolines)) {
         $cont = '';
         foreach ($neolines as $l) {
             $cont .= $l."\n";

@@ -306,12 +306,14 @@ function readNew(&$aThread)
     //===========================================================
     // 表示レス番の範囲を設定
     //===========================================================
-    if ($aThread->isKitoku()) { // 取得済みなら
+    // 取得済みなら
+    if ($aThread->isKitoku()) {
         $from_num = $aThread->readnum +1 - $_conf['respointer'] - $_conf['before_respointer_new'];
+        if ($from_num > $aThread->rescount) {
+            $from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer_new'];
+        }
         if ($from_num < 1) {
             $from_num = 1;
-        } elseif ($from_num > $aThread->rescount) {
-            $from_num = $aThread->rescount - $_conf['respointer'] - $_conf['before_respointer_new'];
         }
 
         //if (!$aThread->ls) {
@@ -422,7 +424,7 @@ EOTOOLBAR;
         <hr>\n
 EOP;
 
-    // 透明あぼーんで表示がない場合はスキップ
+    // 透明あぼーんや表示数制限で新しいレス表示がない場合はスキップ
     if ($GLOBALS['newres_to_show_flag']) {
         echo $read_header_ht;
         echo $read_cont_ht;
@@ -458,7 +460,7 @@ if (!$aThreadList->num) {
     echo "<hr>";
 }
 
-if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0) {
+if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     echo <<<EOP
     <div>
         {$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめを更新</a>

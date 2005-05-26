@@ -5,8 +5,23 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定ファイル
+require_once './p2util.class.php';  // p2用のユーティリティクラス
 
 authorize(); // ユーザ認証
+
+// {{{ HTTPヘッダとXML宣言
+
+if (P2Util::isBrowserSafariGroup()) {
+	header('Content-Type: application/xml; charset=UTF-8');
+	$xmldec = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";
+} else {
+	header('Content-Type: text/html; charset=Shift_JIS');
+	// 半角で「？＞」が入ってる文字列をコメントにするとパースエラー
+	//$xmldec = '<' . '?xml version="1.0" encoding="Shift_JIS" ?' . '>' . "\n";
+	$xmldec = '';
+}
+
+// }}}
 
 $r_msg = "";
 
@@ -22,7 +37,8 @@ if (isset($_GET['cmd'])) {
     $cmd = $_POST['cmd'];
 }
 
-// ■ログ削除
+// {{{ ログ削除
+
 if ($cmd == 'delelog') { 
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
         include_once './dele.inc.php';
@@ -35,8 +51,10 @@ if ($cmd == 'delelog') {
             $r_msg = "2"; // なし
         }
     }
+    
+// }}}
+// {{{ お気にスレ
 
-// ■お気にスレ
 } elseif ($cmd == 'setfav') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
         include_once './setfav.inc.php';
@@ -48,12 +66,15 @@ if ($cmd == 'delelog') {
         }
     }
 }
+// }}}
+// {{{ 結果出力
 
-
-// 結果プリント
-
-//$r_msg = mb_convert_encoding($r_msg, 'UTF-8', 'SJIS-win');
-
+if (P2Util::isBrowserSafariGroup()) {
+	$r_msg = mb_convert_encoding($r_msg, 'UTF-8', 'SJIS-win');
+}
+echo $xmldec;
 echo $r_msg;
+
+// }}}
 
 ?>
