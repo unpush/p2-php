@@ -4,6 +4,13 @@
 	[改良] スレ一覧からのログ削除もAjaxで行えるようにした
 	[仕様変更] >>a-b のリンクは(p)表示をしないようにした
 	- 拡張パックさんのコードをちょこちょこ入れてます。THX!
+	
+	- 変更のあったファイル
+		sb_header.inc.php
+		sb_print.inc.php
+		showthreadpc.class.php
+		conf/conf.inc.php
+		js/delelog.js
 
 2005-05-26 aki
 	* p2 version 1.5.26

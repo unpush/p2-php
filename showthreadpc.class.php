@@ -617,7 +617,7 @@ EOP;
 
         if ($_conf['iframe_popup']) {
             $pop_url = $read_url . "&amp;renzokupop=true";
-            return $this->iframe_popup(array($read_url, $pop_url), $full, $_conf['bbs_win_target_at']);
+            return $this->iframe_popup(array($read_url, $pop_url), $full, $_conf['bbs_win_target_at'], 1);
         }
 
         // 普通にリンク
@@ -644,10 +644,11 @@ EOP;
     /**
      * ■HTMLポップアップ変換
      */
-    function iframe_popup($url, $str, $attributes = '')
+    function iframe_popup($url, $str, $attr = '', $mode = NULL)
     {
-        global $_conf;
+        global $_conf, $_exconf;
 
+        // リンク用URLとポップアップ用URL
         if (is_array($url)) {
             $link_url = $url[0];
             $pop_url = $url[1];
@@ -656,6 +657,7 @@ EOP;
             $pop_url = $url;
         }
 
+        // リンク文字列とポップアップの印
         if (is_array($str)) {
             $link_str = $str[0];
             $pop_str = $str[1];
@@ -664,33 +666,56 @@ EOP;
             $pop_str = NULL;
         }
 
-        if (is_array($attributes)) {
-            $_attributes = $attributes;
-            $attributes = '';
-            foreach ($_attributes as $key => $value) {
-                $attributes .= ' ' . $key . '="' . htmlspecialchars($value) . '"';
+        // リンクの属性
+        if (is_array($attr)) {
+            $_attr = $attr;
+            $attr = '';
+            foreach ($_attr as $key => $value) {
+                $attr .= ' ' . $key . '="' . htmlspecialchars($value) . '"';
             }
-        } elseif ($attributes !== '' && substr($attributes, 0, 1) != ' ') {
-            $attributes = ' ' . $attributes;
+        } elseif ($attr !== '' && substr($attr, 0, 1) != ' ') {
+            $attr = ' ' . $attr;
         }
 
-        $pop_attributes = $attributes;
-        $pop_attributes .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
-        $pop_attributes .= " onmouseout=\"offHtmlPopUp()\"";
+        // リンクの属性にHTMLポップアップ用のイベントハンドラを加える
+        $pop_attr = $attr;
+        $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
+        $pop_attr .= " onmouseout=\"offHtmlPopUp()\"";
 
-        switch ($_conf['iframe_popup']) {
+        // 最終調整
+        if (is_null($mode)) {
+            $mode = $_conf['iframe_popup'];
+        }
+        if ($mode == 2 && !is_null($pop_str)) {
+            $mode = 3;
+        } elseif ($mode == 3 && is_null($pop_str)) {
+            global $skin, $STYLE;
+            $custom_pop_img = "skin/{$skin}/pop.png";
+            if (file_exists($custom_pop_img)) {
+                $pop_img = htmlspecialchars($custom_pop_img);
+                $x = $STYLE['iframe_popup_mark_width'];
+                $y = $STYLE['iframe_popup_mark_height'];
+            } else {
+                $pop_img = 'img/pop.png';
+                $y = $x = 12;
+            }
+            $pop_str = "<img src=\"{$pop_img}\" width=\"{$x}\" height=\"{$y}\" hspace=\"2\" vspace=\"0\" border=\"0\" align=\"top\">";
+        }
+
+        // リンク作成
+        switch ($mode) {
+            // マーク無し
             case 1:
-                return "<a href=\"{$link_url}\"{$pop_attributes}>{$link_str}</a>";
+                return "<a href=\"{$link_url}\"{$pop_attr}>{$link_str}</a>";
+            // (p)マーク
             case 2:
-                // (p)マーク
-                if (is_null($pop_str)) {
-                    return "(<a href=\"{$link_url}\"{$pop_attributes}>p</a>)<a href=\"{$link_url}\"{$attributes}>{$link_str}</a>";
-                // サムネイルからのポップアップを想定
-                } else {
-                    return "<a href=\"{$link_url}\"{$pop_attributes}>{$pop_str}</a><a href=\"{$link_url}\"{$attributes}>{$link_str}</a>";
-                }
+                return "(<a href=\"{$link_url}\"{$pop_attr}>p</a>)<a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
+            // [p]画像、サムネイルなど
+            case 3:
+                return "<a href=\"{$link_url}\"{$pop_attr}>{$pop_str}</a><a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
+            // ポップアップしない
             default:
-                return "<a href=\"{$link_url}\"{$attributes}>{$link_str}</a>";
+                return "<a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
         }
     }
 

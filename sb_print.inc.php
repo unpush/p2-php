@@ -139,7 +139,7 @@ EOP;
 
         // td欄 cssクラス
         if (($i % 2) == 0) {
-            $class_t = " class=\"t\"";        // 基本
+            $class_t = " class=\"t\"";      // 基本
             $class_te = " class=\"te\"";    // 並び替え
             $class_tu = " class=\"tu\"";    // 新着レス数
             $class_tn = " class=\"tn\"";    // レス数
@@ -164,22 +164,27 @@ EOP;
         $unum_ht_c = "&nbsp;";
         // 既得済み
         if ($aThread->isKitoku()) {
-            $unum_ht_c = "<a class=\"un\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=2&amp;dele=true',{$STYLE['info_pop_size']},0,0)\">{$aThread->unum}</a>";
+
+            // $ttitle_en_q は節減省略
+            $onclick_at = " onClick=\"return deleLog('host={$aThread->host}{$bbs_q}{$key_q}', {$STYLE['info_pop_size']}, 'subject', this);\"";
+            $title_at = " title=\"クリックするとログ削除\"";
+            
+            $unum_ht_c = "<a class=\"un\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\"{$onclick_at}{$title_at}>{$aThread->unum}</a>";
         
-            $anum = $aThread->rescount - $aThread->unum +1 - $_conf['respointer'];
+            $anum = $aThread->rescount - $aThread->unum + 1 - $_conf['respointer'];
             if ($anum > $aThread->rescount) { $anum = $aThread->rescount; }
             $anum_ht = "#r".$anum;
             
             // 新着あり
             if ($aThread->unum > 0) {
                 $midoku_ari = true;
-                $unum_ht_c = "<a id=\"un{$i}\" class=\"un_a\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=2&amp;dele=true',{$STYLE['info_pop_size']},0,0)\">$aThread->unum</a>";
+                $unum_ht_c = "<a id=\"un{$i}\" class=\"un_a\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\"{$onclick_at}{$title_at}>$aThread->unum</a>";
             }
         
             // subject.txtにない時
             if (!$aThread->isonline) {
                 // JavaScriptでの確認ダイアログあり
-                $unum_ht_c = "<a class=\"un_n\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"if (!window.confirm('ログを削除しますか？')) {return false;} return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=2&amp;dele=true',{$STYLE['info_pop_size']},0,0)\">-</a>";
+                $unum_ht_c = "<a class=\"un_n\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"if (!window.confirm('ログを削除しますか？')) {return false;} return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this)\"{$title_at}>-</a>";
             }
 
         }
