@@ -8,6 +8,7 @@ $fake_time = -10; // time を10分前に偽装
 $time = time() - 9*60*60;
 $time = $time + $fake_time * 60;
 
+$csrfid = P2Util::getCsrfId();
 
 // {{{ key.idxから名前とメールを読込み
 if ($lines = @file($key_idx)) {
@@ -48,7 +49,7 @@ if (!$_conf['ktai']) {
     $mail_size_at = ' size="19"';
     $msg_cols_at = ' cols="'.$STYLE['post_msg_cols'].'"';
 } else {
-    $STYLE['post_msg_rows'] = 3;
+    $STYLE['post_msg_rows'] = 4;
 }
 
 // Be.2ch
@@ -83,8 +84,6 @@ if (!$_conf['ktai']) {
     }
 }
 // }}}
-
-$csrfid = P2Util::getCsrfId();
 
 /*
 // {{{ 本文が空のときやsageてないときに送信しようとすると注意する

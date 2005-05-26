@@ -13,6 +13,26 @@
 		js/setfavjs.js
 		js/delelog.js
 
+	* dele.inc.php
+	* editpref.php
+	* httpcmd.php
+	* post_form.inc.php
+	* post_form.php
+	* post_options_loader.inc.php
+	* read_footer.inc.php
+	* read_header.inc.php
+	* read_new.php
+	* read_new_k.php
+	* sb_header.inc.php
+	* sb_print.inc.php
+	* settaborn_off.inc.php
+	* threadread.class.php
+	* conf/conf.inc.php
+	* conf/conf_user.inc.php
+	* doc/ChangeLog.txt
+	* js/basic.js
+	* js/delelog.js is new
+	* js/setfavjs.js is new
 
 2005-05-21 aki
 	* p2 version 1.5.25

@@ -12,7 +12,7 @@ $htm['post_form'] = <<<EOP
     {$htm['maru_post']} –¼‘OF <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}> 
      E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}>
     {$sage_cb_ht}
-    <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="off">{$hd['MESSAGE']}</textarea>
+    <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="soft">{$hd['MESSAGE']}</textarea>
     <input type="submit" name="submit" value="{$submit_value}">
     {$htm['be2ch']}
     <br>
