@@ -41,7 +41,7 @@ $_conf['sb_show_motothre'] = 1;	// (1) ƒXƒŒƒbƒhˆê——‚Å–¢Žæ“¾ƒXƒŒ‚É‘Î‚µ‚ÄŒ³ƒXƒŒ‚Ö‚
 $_conf['sb_show_one'] = 0;	// (0) ƒXƒŒƒbƒhˆê——i”Â•\Ž¦j‚Å>>1‚ð•\Ž¦ (‚·‚é:1, ‚µ‚È‚¢:0, ƒjƒ…[ƒXŒn‚Ì‚Ý:2)
 $_conf['sb_show_spd'] = 0;	// (0) ƒXƒŒƒbƒhˆê——‚Å‚·‚Î‚â‚³‚ð•\Ž¦ (‚·‚é:1, ‚µ‚È‚¢:0)
 $_conf['sb_show_ikioi'] = 1;	// (1) ƒXƒŒƒbƒhˆê——‚Å¨‚¢i1“ú‚ ‚½‚è‚ÌƒŒƒX”j‚ð•\Ž¦ (‚·‚é:1, ‚µ‚È‚¢:0)
-$_conf['sb_show_fav'] = 1;	// (0) ƒXƒŒƒbƒhˆê——‚Å‚¨‹C‚ÉƒXƒŒƒ}[ƒNš‚ð•\Ž¦ (‚·‚é:1, ‚µ‚È‚¢:0)
+$_conf['sb_show_fav'] = 0;	// (0) ƒXƒŒƒbƒhˆê——‚Å‚¨‹C‚ÉƒXƒŒƒ}[ƒNš‚ð•\Ž¦ (‚·‚é:1, ‚µ‚È‚¢:0)
 
 $_conf['sb_sort_ita'] = 'ikioi';	// ('ikioi') ”Â•\Ž¦‚ÌƒXƒŒƒbƒhˆê——‚Å‚ÌƒfƒtƒHƒ‹ƒg‚Ìƒ\[ƒgŽw’è
 // (V’…:'midoku', ƒŒƒX:'res', No.:'no', ƒ^ƒCƒgƒ‹:'title', ‚·‚Î‚â‚³:'spd', ¨‚¢:'ikioi', Birthday:'bd', ‚¨‹C‚ÉƒXƒŒ:'fav')
