@@ -199,6 +199,7 @@ EOP;
 echo <<<EOJS
     <script type="text/javascript" src="js/basic.js"></script>
     <script type="text/javascript" src="js/setfavjs.js"></script>
+    <script type="text/javascript" src="js/delelog.js"></script>
     <script language="JavaScript">
     <!--
     function setWinTitle(){
