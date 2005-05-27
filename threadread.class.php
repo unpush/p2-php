@@ -1002,7 +1002,7 @@ class ThreadRead extends Thread{
                         $ln = $_conf['k_rnum_range'];
                     }
                 }
-                $start = $this->rescount - $ln;
+                $start = $this->rescount - $ln + 1;
                 if ($start < 1) {
                     $start = 1;
                 }
