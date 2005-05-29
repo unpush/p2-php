@@ -45,6 +45,7 @@ function printLoginFirst()
 
 
     // ¡•â•”FØ
+    $mobile = &Net_UserAgent_Mobile::singleton();
     
     // {{{ EZ”FØ
     if ($_SERVER['HTTP_X_UP_SUBNO']) {
@@ -57,7 +58,6 @@ EOP;
     // }}}
     
     // {{{ J”FØ
-    $mobile = &Net_UserAgent_Mobile::singleton();
     } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
         if (file_exists($_conf['auth_jp_file'])) {
         } else {
