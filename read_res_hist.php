@@ -3,14 +3,9 @@
 // フレーム分割画面、右下部分
 
 include_once './conf/conf.inc.php'; // 基本設定読込
-require_once './p2util.class.php'; // p2用のユーティリティクラス
-require_once './dataphp.class.php';
-require_once './res_hist.class.php';
-require_once './read_res_hist.inc.php';
-
-$debug = 0;
-$debug && include_once("./profiler.inc"); //
-$debug && $profiler =& new Profiler(true); //
+require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once (P2_LIBRARY_DIR . '/res_hist.class.php');
+require_once (P2_LIBRARY_DIR . '/read_res_hist.inc.php');
 
 authorize(); // ユーザ認証
 
@@ -30,8 +25,8 @@ if ($_POST['submit'] == $deletemsg_st) {
     deleMsg($_POST['checked_hists']);
 }
 
-// 旧形式の書き込み履歴を新形式に変換する
-P2Util::transResHistLog();
+// データPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、dat形式（p2_res_hist.dat, <>区切り）に変換する
+P2Util::transResHistLogPhpToDat();
 
 //======================================================================
 // メイン
@@ -41,7 +36,7 @@ P2Util::transResHistLog();
 // 特殊DAT読み
 //==================================================================
 // 読み込んで
-if (!$datlines = DataPhp::fileDataPhp($_conf['p2_res_hist_dat_php'])) {
+if (!$datlines = @file($_conf['p2_res_hist_dat'])) {
     die("p2 - 書き込み履歴内容は空っぽのようです");
 }
 
@@ -58,7 +53,7 @@ if ($datlines) {
 
         $aResArticle =& new ResArticle();
         
-        $resar = explode("\t", $aline);
+        $resar = explode("<>", $aline);
         $aResArticle->name = $resar[0];
         $aResArticle->mail = $resar[1];
         $aResArticle->daytime = $resar[2];
@@ -199,8 +194,6 @@ if ($_conf['ktai']) {
 </table>\n
 EOP;
 }
-
-$debug && $profiler->printTimers(true); //
 
 if (!$_conf['ktai']) {
     echo '</form>'."\n";

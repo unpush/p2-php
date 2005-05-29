@@ -3,11 +3,10 @@
     p2 - スレッド情報ウィンドウ
 */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル
-require_once './p2util.class.php'; // p2用のユーティリティクラス
-require_once './thread.class.php'; // スレッドクラス
-require_once './filectl.class.php';
-require_once './dele.inc.php'; // 削除処理用の関数郡
+include_once './conf/conf.inc.php';  // 基本設定
+require_once (P2_LIBRARY_DIR . '/thread.class.php');
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once (P2_LIBRARY_DIR . '/dele.inc.php'); // 削除処理用の関数郡
 
 authorize(); // ユーザ認証
 
@@ -64,17 +63,17 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 
 // お気に入りスレッド
 } elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
-    include_once 'setfav.inc.php';
+    include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
     setFav($host, $bbs, $key, $_GET['setfav']);
 
 // 殿堂入り
 } elseif (isset($_GET['setpal']) && $key && $host && $bbs) {
-    include_once 'setpalace.inc.php';
+    include_once (P2_LIBRARY_DIR . '/setpalace.inc.php');
     setPal($host, $bbs, $key, $_GET['setpal']);
 
 // スレッドあぼーん
 } elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-    include_once 'settaborn.inc.php';
+    include_once (P2_LIBRARY_DIR . '/settaborn.inc.php');
     settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
@@ -176,8 +175,8 @@ if ($isPalace) {
 
 // ■スレッドあぼーんチェック =====================================
 // スレッドあぼーんリスト読込
-$datdir_host = P2Util::datdirOfHost($host);
-$tabornlist = @file("{$datdir_host}/{$bbs}/p2_threads_aborn.idx");
+$idx_host_dir = P2Util::idxDirOfHost($host);
+$tabornlist = @file($idx_host_dir.'/'.$bbs.'/p2_threads_aborn.idx');
 if ($tabornlist) {
     foreach ($tabornlist as $l) {
         $tarray = explode('<>', rtrim($l));

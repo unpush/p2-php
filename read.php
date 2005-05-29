@@ -4,19 +4,12 @@
     フレーム分割画面、右下部分
 */
 
-include_once './conf/conf.inc.php'; // 基本設定読込
-require_once './p2util.class.php'; // p2用のユーティリティクラス
-require_once './thread.class.php'; // スレッドクラス読込
-require_once './threadread.class.php'; // スレッドリードクラス読込
-require_once './filectl.class.php';
-require_once './ngabornctl.class.php';
-require_once './showthread.class.php'; // HTML表示クラス
-
-$debug = 0;
-if ($debug) {
-    include_once 'Benchmark/Profiler.php';
-    $profiler =& new Benchmark_Profiler(true);
-}
+include_once './conf/conf.inc.php'; // 基本設定
+require_once (P2_LIBRARY_DIR . '/thread.class.php');
+require_once (P2_LIBRARY_DIR . '/threadread.class.php');
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once (P2_LIBRARY_DIR . '/ngabornctl.class.php');
+require_once (P2_LIBRARY_DIR . '/showthread.class.php');
 
 authorize(); // ユーザ認証
 
@@ -51,7 +44,7 @@ if (isset($word) && strlen($word) > 0) {
     if (!$res_filter['method']) { $res_filter['method'] = "or"; }
 
     if (!((!$_conf['enable_exfilter'] || $res_filter['method'] == 'regex') && preg_match('/^\.+$/', $word))) {
-        include_once './strctl.class.php';
+        include_once (P2_LIBRARY_DIR . '/strctl.class.php');
         $word_fm = StrCtl::wordForMatch($word, $res_filter['method']);
         if ($res_filter['method'] != 'just') {
             if (P2_MBREGEX_AVAILABLE == 1) {
@@ -142,9 +135,9 @@ $aThread->getThreadInfoFromIdx();
 if ($_GET['one']) {
     $body = $aThread->previewOne();
     $ptitle_ht = htmlspecialchars($aThread->itaj)." / ".$aThread->ttitle_hd;
-    include($read_header_inc);
+    include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
     echo $body;
-    include($read_footer_inc);
+    include_once (P2_LIBRARY_DIR . '/read_footer.inc.php');
     return;
 }
 
@@ -221,21 +214,21 @@ $ptitle_ht = htmlspecialchars($aThread->itaj)." / ".$aThread->ttitle_hd;
 if ($_conf['ktai']) {
     
     // ■ヘッダプリント
-    include './read_header_k.inc.php';
+    include_once (P2_LIBRARY_DIR . '/read_header_k.inc.php');
     
     if ($aThread->rescount) {
-        include_once './showthreadk.class.php'; // HTML表示クラス
+        include_once (P2_LIBRARY_DIR . '/showthreadk.class.php');
         $aShowThread =& new ShowThreadK($aThread);
         $aShowThread->datToHtml();
     }
     
     // ■フッタプリント
-    include './read_footer_k.inc.php';
+    include_once (P2_LIBRARY_DIR . '/read_footer_k.inc.php');
     
 } else {
 
     // ■ヘッダ 表示
-    include './read_header.inc.php';
+    include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
     flush();
     
     //===========================================================
@@ -269,7 +262,7 @@ EOP;
     
     if ($aThread->rescount) {
 
-        include_once './showthreadpc.class.php'; // HTML表示クラス
+        include_once (P2_LIBRARY_DIR . '/showthreadpc.class.php');
         $aShowThread =& new ShowThreadPc($aThread);
         
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
@@ -299,7 +292,7 @@ EOP;
     }
     
     // ■フッタ 表示
-    include 'read_footer.inc.php';
+    include_once (P2_LIBRARY_DIR . '/read_footer.inc.php');
 
 }
 

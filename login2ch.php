@@ -2,8 +2,7 @@
 // p2 - 2ch●ログイン管理
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once './p2util.class.php';	// p2用のユーティリティクラス
-require_once './filectl.class.php';
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 authorize(); // ユーザ認証
 
@@ -28,7 +27,7 @@ if (isset($_POST['login2chID']) && isset($_POST['login2chPW'])) {
 
 	P2Util::saveIdPw2ch($_POST['login2chID'], $_POST['login2chPW'], $autoLogin2ch);
 
-	include_once './login2ch.inc.php';
+	include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
 	login2ch();
 }
 
@@ -42,7 +41,7 @@ if ($array = P2Util::readIdPw2ch()) {
 //==============================================================
 if (isset($_GET['login2ch'])) {
 	if ($_GET['login2ch'] == "in") {
-		include_once './login2ch.inc.php';
+		include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
 		login2ch();
 	} elseif ($_GET['login2ch'] == "out") {
 		if (file_exists($_conf['sid2ch_php'])) {

@@ -6,7 +6,6 @@
  */
 
 include_once './conf/conf.inc.php'; // 基本設定
-require_once './p2util.class.php';  // p2用のユーティリティクラス
 
 authorize(); // ユーザ認証
 

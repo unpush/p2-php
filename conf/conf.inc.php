@@ -5,7 +5,7 @@
     ‚±‚Ìƒtƒ@ƒCƒ‹‚ÍA“Á‚É——R‚Ì–³‚¢ŒÀ‚è•ÏX‚µ‚È‚¢‚±‚Æ
 */
 
-$_conf['p2version'] = '1.5.29';
+$_conf['p2version'] = '1.6.0';
 
 //$_conf['p2name'] = 'p2';  // p2‚Ì–¼‘OB
 $_conf['p2name'] = 'P2';    // p2‚Ì–¼‘OB
@@ -16,13 +16,22 @@ $_conf['p2name'] = 'P2';    // p2‚Ì–¼‘OB
 //======================================================================
 error_reporting(E_ALL ^ E_NOTICE); // ƒGƒ‰[o—Íİ’è
 
+$debug = 0;
+isset($_GET['debug']) and $debug = $_GET['debug'];
+if ($debug) {
+    include_once 'Benchmark/Profiler.php';
+    $profiler =& new Benchmark_Profiler(true);
+    
+    // printMemoryUsage();
+    register_shutdown_function('printMemoryUsage');
+}
+
 $_info_msg_ht = '';
 
 // {{{ “®ìŠÂ‹«‚ğŠm”F
+
 if (version_compare(phpversion(), '4.3.0', 'lt')) {
     die('<html><body><h1>p2 info: PHPƒo[ƒWƒ‡ƒ“4.3.0–¢–‚Å‚Íg‚¦‚Ü‚¹‚ñB</h1></body></html>');
-} elseif (version_compare(phpversion(), '5.0.0', 'ge')) {
-    ini_set('zend.ze1_compatibility_mode', 'On'); // ƒIƒuƒWƒFƒNƒg‚Ì‚Ó‚é‚Ü‚¢‚ğPHP4‚Æ“¯‚¶‚É
 }
 if (ini_get('safe_mode')) {
     die('<html><body><h1>p2 info: ƒZ[ƒtƒ‚[ƒh‚Å“®ì‚·‚éPHP‚Å‚Íg‚¦‚Ü‚¹‚ñB</h1></body></html>');
@@ -31,12 +40,9 @@ if (!extension_loaded('mbstring')) {
     die('<html><body><h1>p2 info: mbstringŠg’£ƒ‚ƒWƒ…[ƒ‹‚ªƒ[ƒh‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB</h1></body></html>');
 }
 // }}}
+// {{{ ŠÂ‹«İ’è
 
 @putenv('TZ=JST-9'); // ƒ^ƒCƒ€ƒ][ƒ“‚ğƒZƒbƒg
-
-// session.trans_sid—LŒø ‚â output_add_rewrite_var(), http_build_query() “™‚Å¶¬E•ÏX‚³‚ê‚é
-// URL‚ÌGETƒpƒ‰ƒ[ƒ^‹æØ‚è•¶š(—ñ)‚ğ"&amp;"‚É‚·‚éBiƒfƒtƒHƒ‹ƒg‚Í"&"j
-ini_set('arg_separator.output', '&amp;');
 
 // ©“®ƒtƒ‰ƒbƒVƒ…‚ğƒIƒt‚É‚·‚é
 ob_implicit_flush(0);
@@ -44,12 +50,28 @@ ob_implicit_flush(0);
 // ƒNƒ‰ƒCƒAƒ“ƒg‚©‚çÚ‘±‚ğØ‚ç‚ê‚Ä‚àˆ—‚ğ‘±s‚·‚é
 // ignore_user_abort(1);
 
-require_once './p2util.class.php';
+// session.trans_sid—LŒø ‚â output_add_rewrite_var(), http_build_query() “™‚Å¶¬E•ÏX‚³‚ê‚é
+// URL‚ÌGETƒpƒ‰ƒ[ƒ^‹æØ‚è•¶š(—ñ)‚ğ"&amp;"‚É‚·‚éBiƒfƒtƒHƒ‹ƒg‚Í"&"j
+ini_set('arg_separator.output', '&amp;');
+
+// ƒŠƒNƒGƒXƒgID‚ğİ’è
+define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
+
+// OS”»’è
+if (strstr(PHP_OS, 'WIN')) {
+    // Windows
+    defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ';');
+    defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '\\');
+} else {
+    defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ':');
+    defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '/');
+}
 
 // ¡“à•”ˆ—‚É‚¨‚¯‚é•¶šƒR[ƒhw’è
 // mb_detect_order("SJIS-win,eucJP-win,ASCII");
 mb_internal_encoding('SJIS-win');
 mb_http_output('pass');
+mb_substitute_character(63); // •¶šƒR[ƒh•ÏŠ·‚É¸”s‚µ‚½•¶š‚ª "?" ‚É‚È‚é
 // ob_start('mb_output_handler');
 
 if (function_exists('mb_ereg_replace')) {
@@ -58,6 +80,55 @@ if (function_exists('mb_ereg_replace')) {
 } else {
     define('P2_MBREGEX_AVAILABLE', 0);
 }
+
+// }}}
+// {{{ ƒ‰ƒCƒuƒ‰ƒŠ—Ş‚ÌƒpƒXİ’è
+
+// Šî–{“I‚È‹@”\‚ğ’ñ‹Ÿ‚·‚é‚·‚éƒ‰ƒCƒuƒ‰ƒŠ
+define('P2_LIBRARY_DIR', './lib');
+
+// ‚¨‚Ü‚¯“I‚È‹@”\‚ğ’ñ‹Ÿ‚·‚é‚·‚éƒ‰ƒCƒuƒ‰ƒŠ
+define('P2EX_LIBRARY_DIR', './lib/expack');
+
+// ƒXƒ^ƒCƒ‹ƒV[ƒg
+define('P2_STYLE_DIR', './style');
+
+// PEARƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠAŒŸõƒpƒX‚É’Ç‰Á‚³‚ê‚é
+define('P2_PEAR_DIR', './includes');
+
+// PEAR‚ğƒnƒbƒN‚µ‚½ƒtƒ@ƒCƒ‹—pƒfƒBƒŒƒNƒgƒŠA’Êí‚ÌPEAR‚æ‚è—Dæ“I‚ÉŒŸõƒpƒX‚É’Ç‰Á‚³‚ê‚é
+// Cache/Container/db.php(PEAR::Cache)‚ªMySQL”›‚è‚¾‚Á‚½‚Ì‚ÅA”Ä—p“I‚É‚µ‚½‚à‚Ì‚ğ’u‚¢‚Ä‚¢‚é
+define('P2_PEAR_HACK_DIR', './lib/pear_hack');
+
+// ŒŸõƒpƒX‚ğƒZƒbƒg
+if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
+    $_include_path = '.';
+    if (is_dir(P2_PEAR_HACK_DIR)) {
+        $_include_path .= PATH_SEPARATOR . realpath(P2_PEAR_HACK_DIR);
+    }
+    if (is_dir(P2_PEAR_DIR)) {
+        $_include_path .= PATH_SEPARATOR . realpath(P2_PEAR_DIR);
+    }
+    $_include_path .= PATH_SEPARATOR . ini_get('include_path');
+    ini_set('include_path', $_include_path);
+}
+
+// ƒ†[ƒeƒBƒŠƒeƒBƒNƒ‰ƒX‚ğ“Ç‚İ‚Ş
+require_once (P2_LIBRARY_DIR . '/p2util.class.php');
+
+// }}}
+// {{{ PEAR::PHP_Compat‚ÅPHP5ŒİŠ·‚ÌŠÖ”‚ğ“Ç‚İ‚Ş
+/*
+if (version_compare(phpversion(), '5.0.0', '<')) {
+    require_once 'PHP/Compat.php';
+    PHP_Compat::loadFunction('clone');
+    PHP_Compat::loadFunction('scandir');
+    PHP_Compat::loadFunction('http_build_query');
+    PHP_Compat::loadFunction('array_walk_recursive');
+}
+*/
+// }}}
+// {{{ ƒtƒH[ƒ€‚©‚ç‚Ì“ü—Í‚ğˆêŠ‡‚ÅƒTƒjƒ^ƒCƒY
 
 /**
  * ƒtƒH[ƒ€‚©‚ç‚Ì“ü—Í‚ğˆêŠ‡‚ÅƒNƒH[ƒgœ‹••¶šƒR[ƒh•ÏŠ·
@@ -78,6 +149,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_GET);
     $_GET = array_map('nullfilter_r', $_GET);
 }
+
+// }}}
 
 if (P2Util::isBrowserSafariGroup()) {
     $_conf['accept_charset'] = 'UTF-8';
@@ -103,32 +176,34 @@ $_conf['k_accesskey']['dele'] = '*';    // í
 
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">'."\n";
 
-// ¡Œg‘Ñƒ`ƒFƒbƒN
-if (preg_match('{^(J-PHONE|Vodafone|MOT)/}', $_SERVER['HTTP_USER_AGENT'])) {
-    //$browser = 'JPHONE';
-    $_conf['ktai'] = true;
-    $_conf['accesskey'] = 'DIRECTKEY';
-    
-} elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'UP.Browser/')) {
-    //$browser = "EZweb";
-    $_conf['ktai'] = true;
-    /*
-    $_conf['doctype'] = <<<EOP
-<?xml version="1.0" encoding="Shift_JIS"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
-"http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">
-EOP;
-    */
+// {{{ ’[––”»’è
 
-} elseif (preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'])) {
-    //$browser = 'DoCoMo';
-    $_conf['ktai'] = true;
+require_once 'Net/UserAgent/Mobile.php';
+$mobile = &Net_UserAgent_Mobile::singleton();
 
-} elseif (strstr($_SERVER['HTTP_USER_AGENT'], 'DDIPOCKET')) {
-    //$browser = 'DDIPOCKET';
-    $_conf['ktai'] = true;
+// PC
+if ($mobile->isNonMobile()) {
+    $_conf['ktai'] = FALSE;
+
+    if (P2Util::isBrowserSafariGroup()) {
+        $_conf['accept_charset'] = 'UTF-8';
+    } else {
+        $_conf['accept_charset'] = 'Shift_JIS';
+    }
+
+// Œg‘Ñ
+} else {
+    $_conf['ktai'] = TRUE;
+    $_conf['accept_charset'] = 'Shift_JIS';
+
+    // ƒxƒ“ƒ_”»’è
+    // Vodafone Live!
+    if ($mobile->isVodafone()) {
+        $_conf['accesskey'] = 'DIRECTKEY';
+    }
 }
 
+// }}}
 // {{{ ƒNƒGƒŠ[‚É‚æ‚é‹­§ƒrƒ…[w’è
 
 // b=pc ‚Í‚Ü‚¾ƒŠƒ“ƒNæ‚ªŠ®‘S‚Å‚È‚¢
@@ -194,7 +269,7 @@ $_conf['p2status_dl_interval'] = 360; // (360) p2statusiƒAƒbƒvƒf[ƒgƒ`ƒFƒbƒNj‚
 // {{{ ƒfƒtƒHƒ‹ƒgİ’è
 if (!isset($login['use'])) { $login['use'] = 1; }
 if (!is_dir($_conf['pref_dir'])) { $_conf['pref_dir'] = "./data"; }
-if (!is_dir($datdir)) { $datdir = "./data"; }
+if (!is_dir($_conf['dat_dir'])) { $_conf['dat_dir'] = "./data"; }
 if (!isset($_conf['rct_rec_num'])) { $_conf['rct_rec_num'] = 20; }
 if (!isset($_conf['res_hist_rec_num'])) { $_conf['res_hist_rec_num'] = 20; }
 if (!isset($posted_rec_num)) { $posted_rec_num = 1000; }
@@ -244,23 +319,22 @@ $_conf['subject_php'] = "subject.php";
 $_conf['read_php'] = "read.php";
 $_conf['read_new_php'] = "read_new.php";
 $_conf['read_new_k_php'] = "read_new_k.php";
-$sb_header_inc = "sb_header.inc.php";
-$sb_footer_inc = "sb_footer.inc.php";
-$read_header_inc = "read_header.inc.php";
-$read_footer_inc = "read_footer.inc.php";
 $_conf['rct_file'] = $_conf['pref_dir'] . '/' . 'p2_recent.idx';
-$_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'].'/p2_res_hist.dat.php'; // ‘‚«‚İƒƒOƒtƒ@ƒCƒ‹
-$_conf['cache_dir'] = $_conf['pref_dir'].'/p2_cache';
-$_conf['cookie_dir'] = $_conf['pref_dir'].'/p2_cookie'; // cookie •Û‘¶ƒfƒBƒŒƒNƒgƒŠ
+$_conf['p2_res_hist_dat'] = $_conf['pref_dir'] . '/p2_res_hist.dat'; // ‘‚«‚İƒƒOƒtƒ@ƒCƒ‹idatj
+$_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // ‘‚«‚İƒƒOƒtƒ@ƒCƒ‹iƒf[ƒ^PHPj
+$_conf['cache_dir'] = $_conf['pref_dir'] . '/p2_cache';
+$_conf['cookie_dir'] = $_conf['pref_dir'] . '/p2_cookie'; // cookie •Û‘¶ƒfƒBƒŒƒNƒgƒŠ
 $_conf['cookie_file_name'] = 'p2_cookie.txt';
-$_conf['favlist_file'] = $_conf['pref_dir']."/"."p2_favlist.idx";
-$_conf['favita_path'] = $_conf['pref_dir']."/"."p2_favita.brd";
-$_conf['idpw2ch_php'] = $_conf['pref_dir']."/p2_idpw2ch.php";
-$_conf['sid2ch_php'] = $_conf['pref_dir']."/p2_sid2ch.php";
-$_conf['auth_user_file'] = $_conf['pref_dir']."/p2_auth_user.php";
-$_conf['auth_ez_file'] = $_conf['pref_dir']."/p2_auth_ez.php";
-$_conf['auth_jp_file'] = $_conf['pref_dir']."/p2_auth_jp.php";
+$_conf['favlist_file'] = $_conf['pref_dir'] . "/" . "p2_favlist.idx";
+$_conf['favita_path'] = $_conf['pref_dir'] . "/" . "p2_favita.brd";
+$_conf['idpw2ch_php'] = $_conf['pref_dir'] . "/p2_idpw2ch.php";
+$_conf['sid2ch_php'] = $_conf['pref_dir'] . "/p2_sid2ch.php";
+$_conf['auth_user_file'] = $_conf['pref_dir'] . "/p2_auth_user.php";
+$_conf['auth_ez_file'] = $_conf['pref_dir'] . "/p2_auth_ez.php";
+$_conf['auth_jp_file'] = $_conf['pref_dir'] . "/p2_auth_jp.php";
 $_conf['login_log_file'] = $_conf['pref_dir'] . "/p2_login.log.php";
+
+$_conf['idx_dir'] = $_conf['dat_dir'];
 
 // saveMatomeCache() ‚Ì‚½‚ß‚É $_conf['pref_dir'] ‚ğâ‘ÎƒpƒX‚É•ÏŠ·‚·‚é
 // ¦ŠÂ‹«‚É‚æ‚Á‚Ä‚ÍArealpath() ‚Å’l‚ğæ“¾‚Å‚«‚È‚¢ê‡‚ª‚ ‚éH
@@ -309,12 +383,12 @@ function authorize()
     
     if ($login['use']) {
     
-        include_once './login.inc.php';
+        include_once (P2_LIBRARY_DIR . '/login.inc.php');
     
         // ”FØƒ`ƒFƒbƒN
         if (!authCheck()) {
             // ƒƒOƒCƒ“¸”s
-            include_once './login_first.inc.php';
+            include_once (P2_LIBRARY_DIR . '/login_first.inc.php');
             printLoginFirst();
             exit;
         }
@@ -362,5 +436,9 @@ function nullfilter_r($var, $r = 0)
     }
     return $var;
 }
-    
+
+function printMemoryUsage()
+{
+    echo memory_get_usage();
+}
 ?>

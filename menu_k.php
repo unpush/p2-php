@@ -3,12 +3,11 @@
     p2 -  板メニュー 携帯用
 */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル読込
-require_once './brdctl.class.php';
-require_once './showbrdmenuk.class.php';
-require_once './p2util.class.php';
+include_once './conf/conf.inc.php';  // 基本設定
+require_once (P2_LIBRARY_DIR . '/brdctl.class.php');
+require_once (P2_LIBRARY_DIR . '/showbrdmenuk.class.php');
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
 
 //==============================================================
 // 変数設定
@@ -30,7 +29,7 @@ if (isset($word) && strlen($word) > 0) {
     }
     
     //正規表現検索
-    include_once './strctl.class.php';
+    include_once (P2_LIBRARY_DIR . '/strctl.class.php');
     $GLOBALS['word_fm'] = StrCtl::wordForMatch($word);
 }
 
@@ -40,7 +39,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include './setfavita.inc.php';
+    include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
     setFavIta();
 }
 

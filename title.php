@@ -2,10 +2,9 @@
 // p2 -  タイトルページ
 
 include_once './conf/conf.inc.php';   // 基本設定ファイル読込
-require_once './p2util.class.php';	// p2用のユーティリティクラス
-require_once './filectl.class.php';
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); //ユーザ認証
+authorize(); // ユーザ認証
 
 //=========================================================
 // 変数
@@ -17,13 +16,19 @@ if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
 
 $p2web_url_r = P2Util::throughIme($_conf['p2web_url']);
 
-// パーミッション注意喚起 ================
-if ($_conf['pref_dir'] == $datdir) {
-	P2Util::checkDirWritable($_conf['pref_dir']);
-} else {
-	P2Util::checkDirWritable($_conf['pref_dir']);
-	P2Util::checkDirWritable($datdir);
+// {{{ データ保存ディレクトリのパーミッションの注意を喚起する
+P2Util::checkDirWritable($_conf['dat_dir']);
+$checked_dirs[] = $_conf['dat_dir']; // チェック済みのディレクトリを格納する配列に
+
+if (!in_array($_conf['idx_dir'], $checked_dirs)) {
+    P2Util::checkDirWritable($_conf['idx_dir']);
+    $checked_dirs[] = $_conf['idx_dir'];
 }
+if (!in_array($_conf['pref_dir'], $checked_dirs)) {
+    P2Util::checkDirWritable($_conf['pref_dir']);
+    $checked_dirs[] = $_conf['pref_dir'];
+}
+// }}}
 
 //=========================================================
 // 前処理
@@ -32,7 +37,7 @@ if ($_conf['pref_dir'] == $datdir) {
 if ($array = P2Util::readIdPw2ch()) {
 	list($login2chID, $login2chPW, $autoLogin2ch) = $array;
 	if ($autoLogin2ch) {
-		include_once './login2ch.inc.php';
+		include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
 		login2ch();
 	}
 }

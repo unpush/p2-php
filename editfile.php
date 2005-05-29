@@ -3,9 +3,8 @@
 	ファイルをブラウザで編集する
 */
 
-include_once './conf/conf.inc.php';	// 基本設定読込
-require_once './filectl.class.php';
-require_once './p2util.class.php';
+include_once './conf/conf.inc.php'; // 基本設定読込
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 authorize(); // ユーザ認証
 

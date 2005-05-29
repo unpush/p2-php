@@ -5,7 +5,6 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定ファイル
-require_once './p2util.class.php';  // p2用のユーティリティクラス
 
 authorize(); // ユーザ認証
 
@@ -41,7 +40,7 @@ if (isset($_GET['cmd'])) {
 
 if ($cmd == 'delelog') { 
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
-        include_once './dele.inc.php';
+        include_once (P2_LIBRARY_DIR . '/dele.inc.php');
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
         if (empty($r)) {
             $r_msg = "0"; // 失敗
@@ -57,7 +56,7 @@ if ($cmd == 'delelog') {
 
 } elseif ($cmd == 'setfav') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
-        include_once './setfav.inc.php';
+        include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
         $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav']);
         if (empty($r)) {
             $r_msg = "0"; // 失敗

@@ -9,10 +9,9 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once './p2util.class.php'; // p2用のユーティリティクラス
-require_once './threadlist.class.php'; // スレッドリスト クラス
-require_once './thread.class.php'; // スレッド クラス
-require_once './filectl.class.php';
+require_once (P2_LIBRARY_DIR . '/threadlist.class.php');
+require_once (P2_LIBRARY_DIR . '/thread.class.php');
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 $shinchaku_num = 0;
 if ($aThreadList) {
@@ -20,27 +19,9 @@ if ($aThreadList) {
 }
 
 
-/*
-$debug = false;
-$debug && include_once("./profiler.inc"); //
-$debug && $profiler =& new Profiler(true); //
-
-authorize(); // ユーザ認証
-*/
-
 //============================================================
 // ■変数設定
 //============================================================
-
-// ホスト、板、モード設定 =================================
-/*
-if (!$host) {$host = $_GET['host'];}
-if (!$host) {$host = $_POST['host'];}
-if (!$bbs) {$bbs = $_GET['bbs'];}
-if (!$bbs) {$bbs = $_POST['bbs'];}
-if (!$spmode) {$spmode = $_GET['spmode'];}
-if (!$spmode) {$spmode = $_POST['spmode'];}
-*/
 
 if (isset($_GET['from'])) { $sb_disp_from = $_GET['from']; }
 if (isset($_POST['from'])) { $sb_disp_from = $_POST['from']; }
@@ -50,10 +31,12 @@ if (!isset($sb_disp_from)) { $sb_disp_from = 1; }
 if ($spmode) {
     $p2_setting_txt = $_conf['pref_dir']."/p2_setting_".$spmode.".txt";
 } else {
-    $datdir_host = P2Util::datdirOfHost($host);
-    $p2_setting_txt = $datdir_host."/".$bbs."/p2_setting.txt";
-    $sb_keys_b_txt = $datdir_host."/".$bbs."/p2_sb_keys_b.txt";
-    $sb_keys_txt = $datdir_host."/".$bbs."/p2_sb_keys.txt";
+    $idx_host_dir = P2Util::idxDirOfHost($host);
+    $idx_bbs_dir_s = $idx_host_dir . '/' . $bbs . '/';
+
+    $p2_setting_txt = $idx_bbs_dir_s . "p2_setting.txt";
+    $sb_keys_b_txt = $idx_bbs_dir_s . "p2_sb_keys_b.txt";
+    $sb_keys_txt = $idx_bbs_dir_s . "p2_sb_keys.txt";
 
     if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
         if ($prepre_sb_cont = @file_get_contents($sb_keys_b_txt)) {
@@ -117,50 +100,6 @@ $deletelog_st = 'ログを削除';
 
 $nowtime = time();
 
-/*
-//============================================================
-// ■特殊な前置処理
-//============================================================
-
-// 削除
-if ($_GET['dele'] or ($_POST['submit'] == $deletelog_st)) {
-    if ($host && $bbs) {
-        include_once 'dele.inc.php';
-        if ($_POST['checkedkeys']) {
-            $dele_keys = $_POST['checkedkeys'];
-        } else {
-            $dele_keys = array($_GET['key']);
-        }
-        deleteLogs($host, $bbs, $dele_keys);
-    }
-}
-
-// お気に入りスレッド
-elseif (isset($_GET['setfav']) && $_GET['key'] && $host && $bbs) {
-    include_once 'setfav.inc.php';
-    setFav($host, $bbs, $_GET['key'], $_GET['setfav']);
-}
-
-// 殿堂入り
-elseif (isset($_GET['setpal']) && $_GET['key'] && $host && $bbs) {
-    include_once 'setpalace.inc.php';
-    setPal($host, $bbs, $_GET['key'], $_GET['setpal']);
-}
-
-// あぼーんスレッド解除
-elseif (($_POST['submit'] == $abornoff_st) && $host && $bbs && $_POST['checkedkeys']) {
-    include_once 'settaborn_off.inc.php';
-    settaborn_off($host, $bbs, $_POST['checkedkeys']);
-}
-
-// スレッドあぼーん
-elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-    include_once 'settaborn.inc.php';
-    settaborn($host, $bbs, $key, $_GET['taborn']);
-}
-
-*/
-
 //============================================================
 // ■メイン
 //============================================================
@@ -178,8 +117,8 @@ if ($spmode) {
     $aThreadList->setIta($host, $bbs, $p2_setting['itaj']);
     
     // ■スレッドあぼーんリスト読込===================================
-    $datdir_host = P2Util::datdirOfHost($aThreadList->host);
-    $taborn_idx = $datdir_host."/".$aThreadList->bbs."/p2_threads_aborn.idx";
+    $idx_host_dir = P2Util::idxDirOfHost($aThreadList->host);
+    $taborn_idx = $idx_host_dir."/".$aThreadList->bbs."/p2_threads_aborn.idx";
 
     $tabornlines = @file($taborn_idx);
     
@@ -326,13 +265,13 @@ for ($x = 0; $x < $linesize ; $x++) {
     $debug && $profiler->leaveSection('favlist_check');
     
     // ■ spmode(殿堂入り、newsを除く)なら ====================================
-    if($aThreadList->spmode && $aThreadList->spmode!="news" && $sb_view!="edit"){ 
+    if ($aThreadList->spmode && $aThreadList->spmode!="news" && $sb_view!="edit") { 
         
         // ■ subject.txtが未DLなら落としてデータを配列に格納
-        if(! $subject_txts["$aThread->host/$aThread->bbs"]){
-            $datdir_host = P2Util::datdirOfHost($aThread->host);
+        if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
+            $dat_host_dir = P2Util::datDirOfHost($aThread->host);
             $subject_url = "http://{$aThread->host}/{$aThread->bbs}/subject.txt";
-            $subjectfile = "{$datdir_host}/{$aThread->bbs}/subject.txt";
+            $subjectfile = "{$dat_host_dir}/{$aThread->bbs}/subject.txt";
             FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
             P2Util::subjectDownload($subject_url, $subjectfile);
             
@@ -502,7 +441,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 /*
 // 既にdat落ちしているスレは自動的にあぼーんを解除する =========================
 if (!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys) {
-    include_once 'settaborn_off.inc.php';
+    include_once (P2_LIBRARY_DIR . '/settaborn_off.inc.php');
     //echo sizeof($ta_keys)."*<br>";
     $ta_vkeys = array_keys($ta_keys);
     settaborn_off($aThreadList->host, $aThreadList->bbs, $ta_vkeys);
