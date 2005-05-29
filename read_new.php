@@ -4,14 +4,12 @@
     フレーム分割画面、右下部分
 */
 
-include_once './conf/conf.inc.php'; // 設定
-require_once './p2util.class.php'; // p2用のユーティリティクラス
-require_once './threadlist.class.php'; // スレッドリスト クラス
-require_once './thread.class.php'; // スレッド クラス
-require_once './threadread.class.php'; // スレッドリード クラス
-require_once './ngabornctl.class.php';
-
-require_once './read_new.inc.php';
+include_once './conf/conf.inc.php'; // 基本設定
+require_once (P2_LIBRARY_DIR . '/threadlist.class.php');
+require_once (P2_LIBRARY_DIR . '/thread.class.php');
+require_once (P2_LIBRARY_DIR . '/threadread.class.php');
+require_once (P2_LIBRARY_DIR . '/ngabornctl.class.php');
+require_once (P2_LIBRARY_DIR . '/read_new.inc.php');
 
 authorize(); // ユーザ認証
 
@@ -80,8 +78,9 @@ if ($spmode) {
     $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
 
     // ■スレッドあぼーんリスト読込
-    $datdir_host = P2Util::datdirOfHost($host);
-    $tabornlines = @file($datdir_host."/".$bbs."/p2_threads_aborn.idx");
+    $idx_host_dir = P2Util::idxDirOfHost($host);
+    $tabornlines = @file($idx_host_dir."/".$bbs."/p2_threads_aborn.idx");
+    
     if ($tabornlines) {
         $ta_num = sizeOf($tabornlines);
         foreach ($tabornlines as $l) {
@@ -108,7 +107,7 @@ EOP;
 EOP;
 }
 
-//include($read_header_inc);
+// include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
 
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
@@ -235,10 +234,10 @@ for ($x = 0; $x < $linesize ; $x++) {
         
         // subject.txt が未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
-            $datdir_host = P2Util::datdirOfHost($aThread->host);
+            $dat_host_dir = P2Util::datDirOfHost($aThread->host);
             $subject_url = "http://{$aThread->host}/{$aThread->bbs}/subject.txt";
             
-            $subjectfile = "{$datdir_host}/{$aThread->bbs}/subject.txt";
+            $subjectfile = "{$dat_host_dir}/{$aThread->bbs}/subject.txt";
             
             FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
             if (!($word_fm and file_exists($subjectfile))) {
@@ -368,7 +367,7 @@ function readNew(&$aThread)
     $key_q = "&amp;key=".$aThread->key;
     $popup_q = "&amp;popup=1";
     
-    //include($read_header_inc);
+    // include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
     
     $prev_thre_num = $newthre_num - 1;
     $next_thre_num = $newthre_num + 1;
@@ -402,8 +401,8 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
         // $aThread->datToHtml(); //dat を html に変換表示
-        include_once './showthread.class.php'; // HTML表示クラス
-        include_once './showthreadpc.class.php'; // HTML表示クラス
+        include_once (P2_LIBRARY_DIR . '/showthread.class.php');
+        include_once (P2_LIBRARY_DIR . '/showthreadpc.class.php');
         $aShowThread =& new ShowThreadPc($aThread);
 
         $res1 = $aShowThread->quoteOne();

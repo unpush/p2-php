@@ -4,8 +4,7 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once './p2util.class.php'; // p2用のユーティリティクラス
-require_once './filectl.class.php';
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 authorize(); // ユーザ認証
 
@@ -15,12 +14,12 @@ authorize(); // ユーザ認証
 
 // お気に板の追加・削除、並び替え
 if (isset($_GET['setfavita']) or isset($_POST['setfavita'])) {
-    include './setfavita.inc.php';
+    include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
     setFavIta();
 }
 // お気に板のホストを同期
 if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
-    include './syncfavita.inc.php';
+    include_once (P2_LIBRARY_DIR . '/syncfavita.inc.php');
 }
 
 // プリント用変数 ======================================================

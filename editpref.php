@@ -4,8 +4,7 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once './filectl.class.php';
-require_once './p2util.class.php';
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 authorize(); // ユーザ認証
 
@@ -30,9 +29,9 @@ if (isset($_POST['sync'])) {
     $syncfile = $_conf['pref_dir'].'/'.$_POST['sync'];
     $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {
-        include_once './syncfavita.inc.php';
+        include_once (P2_LIBRARY_DIR . '/syncfavita.inc.php');
     } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
-        include_once './syncindex.inc.php';
+        include_once (P2_LIBRARY_DIR . '/syncindex.inc.php');
     }
     if ($sync_ok) {
         $_info_msg_ht .= "<p>{$synctitle[$sync_name]}を同期しました。</p>";

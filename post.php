@@ -4,9 +4,8 @@
 */
 
 include_once './conf/conf.inc.php'; // 基本設定ファイル読込
-require_once './p2util.class.php';  // p2用のユーティリティクラス
-require_once './dataphp.class.php';
-require_once './filectl.class.php';
+require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 authorize(); // ユーザ認証
 
@@ -143,7 +142,7 @@ if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['
     
     // ログイン後、24時間以上経過していたら自動再ログイン
     if (file_exists($_conf['idpw2ch_php']) and @filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
-        include_once './login2ch.inc.php';
+        include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
         login2ch();
     }
     
@@ -198,9 +197,9 @@ $tag_rec_n['FROM'] = ($tag_rec['FROM'] == '') ? 'P2NULL' : $tag_rec['FROM'];
 $tag_rec_n['mail'] = ($tag_rec['mail'] == '') ? 'P2NULL' : $tag_rec['mail'];
 
 if ($host && $bbs && $key) {
-    $datdir_host = P2Util::datdirOfHost($host);
+    $idx_host_dir = P2Util::idxDirOfHost($host);
     
-    $keyidx = $datdir_host.'/'.$bbs.'/'.$key.'.idx';
+    $keyidx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
     
     // 読み込み
     if ($keylines = @file($keyidx)) {
@@ -263,22 +262,14 @@ if ($host && $bbs && $key) {
 //=============================================
 if ($_conf['res_write_rec']) {
 
-    // 旧形式（p2_res_hist.dat, <>区切り）の書き込み履歴を新形式（p2_res_hist.dat.php, タブ区切り）に変換する
-    P2Util::transResHistLog();
+    // データPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、dat形式（p2_res_hist.dat, <>区切り）に変換する
+    P2Util::transResHistLogPhpToDat();
 
     $date_and_id = date("y/m/d H:i");
     $message = htmlspecialchars($MESSAGE, ENT_NOQUOTES);
     $message = preg_replace("/\r?\n/", "<br>", $message);
 
-    FileCtl::make_datafile($_conf['p2_res_hist_dat_php'], $_conf['res_write_perm']); // なければ生成
-
-    /*
-    // 読み込んで
-    if (!$lines = DataPhp::fileDataPhp($_conf['p2_res_hist_dat_php'])) {
-        $lines = array();
-    }
-    $lines = array_map('rtrim', $lines);
-    */
+    FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']); // なければ生成
     
     // 新規データ
     $newdata = $tag_rec['FROM'].'<>'.$tag_rec['mail']."<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key";
@@ -286,26 +277,16 @@ if ($_conf['res_write_rec']) {
     // まずタブを全て外して（2chの書き込みではタブは削除される 2004/12/13）
     $newdata = str_replace("\t", '', $newdata);
     // <>をタブに変換して
-    $newdata = str_replace('<>', "\t", $newdata);
+    //$newdata = str_replace('<>', "\t", $newdata);
     
     $cont = $newdata."\n";
     
     // 書き込み処理
-    if (DataPhp::putDataPhp($cont, $_conf['p2_res_hist_dat_php'], $_conf['res_write_perm'], true) === false) {
+    if (FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont, FILE_APPEND) === false) {
         trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
         //$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
     }
-    
-    /*
-    // 新しいデータを最後に追加
-    @array_push($lines, $newdata);
-        
-    $cont = implode("\n", $lines) . "\n";
-    
-    // 書き込み処理
-    DataPhp::writeDataPhp($cont, $_conf['p2_res_hist_dat_php'], $_conf['res_write_perm']);
-    */
 }
 
 //===========================================================
@@ -400,7 +381,7 @@ function postIt($URL)
     // 書き込みを一時的に保存
     $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
     $cont = serialize($post_cache);
-    DataPhp::writeDataPhp($cont, $failed_post_file, $_conf['res_write_perm']);
+    DataPhp::writeDataPhp($failed_post_file, $cont, $_conf['res_write_perm']);
     
     // WEBサーバへ接続
     $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
@@ -650,9 +631,11 @@ function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    $datdir_host = P2Util::datdirOfHost($host);
+    $dat_host_dir = P2Util::datDirOfHost($host);
     $subject_url = "http://{$host}/{$bbs}/subject.txt";
-    $subjectfile = $datdir_host."/".$bbs."/subject.txt";
+    
+    $subjectfile = $dat_host_dir."/".$bbs."/subject.txt";
+    
     FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
     P2Util::subjectDownload($subject_url, $subjectfile);
     if (extension_loaded('zlib') and strstr($host, ".2ch.net")) {

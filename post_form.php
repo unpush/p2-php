@@ -4,8 +4,7 @@
 */
 
 include_once './conf/conf.inc.php'; // 基本設定
-require_once './p2util.class.php';  // p2用のユーティリティクラス
-require_once './dataphp.class.php';
+require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
 
 authorize(); //ユーザ認証
 
@@ -32,11 +31,11 @@ $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
 $ttitle = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
 $ttitle_hd = htmlspecialchars($ttitle);
 
-$datdir_host = P2Util::datdirOfHost($host);
-$key_idx = $datdir_host."/".$bbs."/".$key.".idx";
+$idx_host_dir = P2Util::idxDirOfHost($host);
+$key_idx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 
 // フォームのオプション読み込み
-include './post_options_loader.inc.php';
+include_once (P2_LIBRARY_DIR . '/post_options_loader.inc.php');
 
 // 表示指定
 if (!$_conf['ktai']) {
@@ -119,7 +118,7 @@ echo $_info_msg_ht;
 $_info_msg_ht = '';
 
 // $htm['post_form'] を取得
-include './post_form.inc.php';
+include_once (P2_LIBRARY_DIR . '/post_form.inc.php');
 
 echo $htm['post_form'];
 
