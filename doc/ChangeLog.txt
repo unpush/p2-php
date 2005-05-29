@@ -2,8 +2,13 @@
 	* p2 version 1.6.1
 	
 	- [バグ修正] dat保存ディレクトリと初期設定保存ディレクトリを別々に設定していると
-	エラーが出ていたのを修正
+	  エラーが出ていたのを修正
 	- [バグ修正] loginfirst.inc.php でエラーが出るのを修正できたかもしれない
+
+	- 変更のあったファイル
+		login.php
+		conf/conf.inc.php
+		lib/login_first.inc.php
 
 2005-05-29 aki
 	* p2 version 1.6.0
