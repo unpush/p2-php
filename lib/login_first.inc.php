@@ -22,7 +22,7 @@ function printLoginFirst()
     }
     if (!in_array($_conf['pref_dir'], $checked_dirs)) {
         P2Util::checkDirWritable($_conf['pref_dir']);
-        $checked_dirs[] = $_conf['pref_dir']
+        $checked_dirs[] = $_conf['pref_dir'];
     }
     // }}}
     
@@ -58,7 +58,7 @@ EOP;
     
     // {{{ J”FØ
     $mobile = &Net_UserAgent_Mobile::singleton();
-    } elseif ($mobile->isVodafone() && $mobile->getSerialNumber()) {
+    } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
         if (file_exists($_conf['auth_jp_file'])) {
         } else {
             $auth_sub_input_ht = <<<EOP
