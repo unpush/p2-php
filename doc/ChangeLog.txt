@@ -1,3 +1,58 @@
+2005-05-29 aki
+	* p2 version 1.6.0
+	
+	- [新機能] スレ一覧で、取得済みDATの本文を検索できるようになった
+	
+	- [新機能] スレッド移動のgoボタンを付けた。（拡張パックより。THX!）
+	- [改良] Net_UserAgent_Mobileを導入した。最近のvodafoneに対応できたかもしれない。
+	  （拡張パックより。THX!）
+	- [改良] 携帯の書き込みフォームの大きさを少し調整した
+
+	- [改良] データディレクトリに .htaccess がなければ、
+	  アクセス拒否用の .htaccess を自動生成するようにした。（Modified: index.php）
+	  .htaccess の中身は、
+	      Order allow,deny
+	      Deny from all
+	  となっている。ただし、.htaccess は サーバの設定次第で、機能しない場合もあるので、
+	  過信しないこと。
+	  また、libディレクトリには、この .htaccess が最初から置かれています。
+
+	- [仕様変更] Pear の Net_UserAgent_Mobile が必要になった。
+
+		Net_UserAgent_Mobile が、サーバにインストールされていない場合は、
+		pearコマンドを使って、自分でサーバにインストールするか、
+		p2のディレクトリに includes ディレクトリを作成し、
+		その中にネットからダウンロードしてきたファイルを入れてやるとOKです。
+
+		pear install でサーバにインストールする場合、Net_UserAgent_Mobile は現在betaなので、
+		betaでもインストールできるように、
+		pear install -f Net_UserAgent_Mobile
+		と -f オプションをつけて、コマンドを打つとよいかも。
+
+		includesディレクトリで利用する場合は、
+		拡張パックさんの p2pear がそのまま使えます。
+		http://moonshine.s32.xrea.com/
+
+	- [仕様変更] $datdir を $_conf['dat_dir'] と $_conf['idx_dir'] に分けた
+	- [仕様変更] サブジェクト検索のデフォルトを「正規表現」から「いずれか」に変更した
+
+	- [内部仕様変更] 書き込みログの形式を変更。（以前の形式に戻した）
+	  自動で変換します。変換前の古いファイルは、.bakで残しています。
+
+	- [内部仕様変更] DataPhp::writeDataPhp() と DataPhp::putDataPhp() の
+	  引数を取る順番が変わったので注意
+
+	- [内部仕様変更] 拡張パックにあわせて、lib ディレクトリを追加し、
+	  ソースツリー構造が変更された。
+	
+	- 他いろいろ
+	- 今回は、ほとんど全てのPHPファイルが変更された
+
+2005-05-27 aki
+	* p2 version 1.5.29
+	
+	[修正] v1.5.28のアーカイブで threadread.class.php のアクセス権がおかしかったのを修正
+
 2005-05-27 aki
 	* p2 version 1.5.29
 	
