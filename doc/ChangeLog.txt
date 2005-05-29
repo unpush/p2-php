@@ -1,3 +1,12 @@
+2005-05-30 aki
+	* p2 version 1.6.2
+
+	- [バグ修正] loginfirst.inc.php でエラーが出るのを修正した THX! p2スレ23 >>519
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/login_first.inc.php
+
 2005-05-29 aki
 	* p2 version 1.6.1
 	
