@@ -84,7 +84,7 @@ class ShowThreadPc extends ShowThread{
      */
     function transRes($ares, $i)
     {
-        global $_conf, $STYLE, $mae_msg, $res_filter, $word_fm;
+        global $_conf, $STYLE, $mae_msg, $res_filter;
         global $ngaborns_hits;
 
         $tores = "";
@@ -98,59 +98,19 @@ class ShowThreadPc extends ShowThread{
         $date_id = $resar[2];
         $msg = $resar[3];
 
-        //=============================================================
-        // フィルタリング
-        //=============================================================
-        if (isset($_REQUEST['word'])) {
-            if (!$word_fm) { return; }
-
-            switch ($res_filter['field']) {
-                case 'name':
-                    $target = $name; break;
-                case 'mail':
-                    $target = $mail; break;
-                case 'date':
-                    $target = preg_replace('| ?ID:[0-9A-Za-z/.+?]+.*$|', '', $date_id); break;
-                case 'id':
-                    if ($target = preg_replace('|^.*ID:([0-9A-Za-z/.+?]+).*$|', '$1', $date_id)) {
-                        break;
-                    } else {
-                        return;
-                    }
-                case 'msg':
-                    $target = $msg; break;
-                default: // 'hole'
-                    $target = strval($i) . '<>' . $ares;
+        // {{{ フィルタリング
+        if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
+            if (strlen($GLOBALS['word_fm']) <= 0) {
+                return '';
+            // ターゲット設定
+            } elseif (!$target = $this->getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)) {
+                return '';
+            // マッチング
+            } elseif (!$this->filterMatch($target, $i)) {
+                return '';
             }
-
-            $target = @strip_tags($target, '<>');
-
-            $failed = ($res_filter['match'] == 'off') ? TRUE : FALSE;
-            if ($res_filter['method'] == 'and') {
-                $words_fm_hit = 0;
-                foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
-                    if (StrCtl::filterMatch($word_fm_ao, $target) == $failed) {
-                        if ($res_filter['match'] != 'off') { return; }
-                        else { $words_fm_hit++; }
-                    }
-                }
-                if ($words_fm_hit == count($GLOBALS['words_fm'])) { return; }
-            } else {
-                if (StrCtl::filterMatch($word_fm, $target) == $failed) {
-                    return;
-                }
-            }
-            $GLOBALS['filter_hits']++;
-            $GLOBALS['last_hit_resnum'] = $i;
-
-            echo <<<EOP
-<script type="text/javascript">
-<!--
-filterCount({$GLOBALS['filter_hits']});
--->
-</script>\n
-EOP;
         }
+        // }}}
 
         //=============================================================
         // あぼーんチェック
@@ -329,8 +289,8 @@ EOP;
         $tores .= "<dd>{$msg}<br><br></dd>\n"; // 内容
 
         // まとめてフィルタ色分け
-        if ($word_fm && $res_filter['match'] != 'off') {
-            $tores = StrCtl::filterMarking($word_fm, $tores);
+        if ($GLOBALS['word_fm'] && $res_filter['match'] != 'off') {
+            $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
         }
 
         return $tores;
@@ -391,7 +351,7 @@ EOP;
         if ($_conf['iframe_popup']) {
             $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
         }
-        // }}}
+        //
 
         // IDフィルタ
         if ($_conf['flex_idpopup'] == 1) {
@@ -462,8 +422,6 @@ EOP;
      */
     function transMsg($msg, $mynum)
     {
-        // global  $_conf, $res_filter, $word_fm;
-        
         // 2ch旧形式のdat
         if ($this->thread->dat_type == "2ch_old") {
             $msg = str_replace('＠｀', ',', $msg);

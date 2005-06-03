@@ -86,29 +86,20 @@ class ShowThreadK extends ShowThread{
         $date_id = $resar[2];
         $msg = $resar[3];
 
-        // フィルタリング
-        /*
-        if (isset($_REQUEST['field'])) {
-            if (!$word_fm) { return; }
-            
-            if ($res_filter['field'] == 'name') {
-                $target = $name;
-            } elseif ($res_filter['field'] == 'mail') {
-                $target = $mail;
-            } elseif ($res_filter['field'] == 'date') {
-                $target = preg_replace("/ID:([0-9a-zA-Z\/\.\+]+)/", "", $date_id);
-            } elseif ($res_filter['field'] == 'id') {
-                $target = preg_replace("/^.*ID:([0-9a-zA-Z\/\.\+]+).*$/", "\\1", $date_id);
-            } elseif ($res_filter['field'] == 'msg') {
-                $target = $msg;
-            }
-            if ($res_filter['match'] == 'on') {
-                if (!StrCtl::filterMatch($word_fm, $target)) { return; }
-            } else {
-                if (StrCtl::filterMatch($word_fm, $target)) { return; }
+        // {{{ フィルタリング
+        if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
+            if (strlen($GLOBALS['word_fm']) <= 0) {
+                return '';
+            // ターゲット設定
+            } elseif (!$target = $this->getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)) {
+                return '';
+            // マッチング
+            } elseif (!$this->filterMatch($target, $i)) {
+                return '';
             }
         }
-        */
+        // }}}
+        
         
         // あぼーんチェック ========
         $aborned_res .= "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; // 名前
@@ -238,9 +229,7 @@ EOP;
             $tores .= $mail.": ";
         }
         
-        /*
-        // 携帯にフィルタリングまだつけてなかった
-        // IDフィルタ
+        // {{ IDフィルタ
         if ($_conf['flex_idpopup'] == 1) {
             if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,10})|', $date_id, $matches)) {
                 $id = $matches[1];
@@ -249,11 +238,16 @@ EOP;
                 }
             }
         }
-        */
+        // }}}
         
         $tores .= $date_id."<br>\n"; // 日付とID
         $tores .= $rpop; // レスポップアップ用引用
         $tores .= "{$msg}</div><hr>\n"; // 内容
+        
+        // まとめてフィルタ色分け
+        if ($GLOBALS['word_fm'] && $GLOBALS['res_filter']['match'] != 'off') {
+            $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
+        }
         
         // 全角英数スペースカナを半角に
         if (!empty($_conf['k_save_packet'])) {

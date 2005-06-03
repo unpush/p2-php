@@ -219,6 +219,87 @@ class ShowThread{
     {
         ;
     }
+    
+    /**
+     * レスフィルタリングのターゲットを得る
+     */
+    function getFilterTarget(&$ares, &$i, &$name, &$mail, &$date_id, &$msg)
+    {
+        switch ($GLOBALS['res_filter']['field']) {
+            case 'name':
+                $target = $name; break;
+            case 'mail':
+                $target = $mail; break;
+            case 'date':
+                $target = preg_replace('| ?ID:[0-9A-Za-z/.+?]+.*$|', '', $date_id); break;
+            case 'id':
+                if ($target = preg_replace('|^.*ID:([0-9A-Za-z/.+?]+).*$|', '$1', $date_id)) {
+                    break;
+                } else {
+                    return '';
+                }
+            case 'msg':
+                $target = $msg; break;
+            default: // 'hole'
+                $target = strval($i) . '<>' . $ares;
+        }
 
+        $target = @strip_tags($target, '<>');
+        
+        return $target;
+    }
+
+    /**
+     * レスフィルタリングのマッチ判定
+     */
+    function filterMatch(&$target, &$resnum)
+    {
+        global $_conf;
+        global $filter_hits, $filter_range;
+        
+        $failed = ($GLOBALS['res_filter']['match'] == 'off') ? TRUE : FALSE;
+        
+        if ($GLOBALS['res_filter']['method'] == 'and') {
+            $words_fm_hit = 0;
+            foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
+                if (StrCtl::filterMatch($word_fm_ao, $target) == $failed) {
+                    if ($GLOBALS['res_filter']['match'] != 'off') {
+                        return false;
+                    } else {
+                        $words_fm_hit++;
+                    }
+                }
+            }
+            if ($words_fm_hit == count($GLOBALS['words_fm'])) {
+                return false;
+            }
+        } else {
+            if (StrCtl::filterMatch($GLOBALS['word_fm'], $target) == $failed) {
+                return false;
+            }
+        }
+
+        $GLOBALS['filter_hits']++;
+        
+        if ($_conf['filtering'] && !empty($filter_range) &&
+            ($filter_hits < $filter_range['start'] || $filter_hits > $filter_range['to'])
+        ) {
+            return false;
+        }
+        
+        $GLOBALS['last_hit_resnum'] = $resnum;
+
+        if (empty($_conf['ktai'])) {
+            echo <<<EOP
+<script type="text/javascript">
+<!--
+filterCount({$GLOBALS['filter_hits']});
+-->
+</script>\n
+EOP;
+        }
+        
+        return true;
+    }
 }
 ?>
