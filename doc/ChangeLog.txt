@@ -1,4 +1,13 @@
 2005-06-03 aki
+	* p2 version 1.6.4
+	
+	- [バグ修正] スレ一覧の検索条件で「すべて」が機能していなかったのを修正した
+	
+	- 変更のあったファイル
+		subject.php
+		conf/conf.inc.php
+	
+2005-06-03 aki
 	* p2 version 1.6.3
 	
 	- [新機能] 携帯のスレ内容表示で検索（フィルタリング）できるようになった。
@@ -8,6 +17,17 @@
 	- 新規追加されたファイル
 		read_filter_k.php
 		lib/read_filter_k.inc.php
+		
+	* read.php
+	* read_filter_k.php is new
+	* conf/conf.inc.php
+	* lib/read_filter_k.inc.php is new
+	* lib/read_footer_k.inc.php
+	* lib/read_header_k.inc.php
+	* lib/showthread.class.php
+	* lib/showthreadk.class.php
+	* lib/showthreadpc.class.php
+	* lib/threadread.class.php
 
 2005-05-30 aki
 	* p2 version 1.6.2
