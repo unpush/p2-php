@@ -1075,10 +1075,22 @@ class ThreadRead extends Thread{
             //print_r("$start, $to, {$GLOBALS['rnum_all_range']}");
             
         } else {
-            // 携帯用の表示数制限
+            // 携帯用
             if ($_conf['ktai']) {
-                if ($start + $_conf['k_rnum_range'] <= $to) {
+                // 表示数制限
+                /*
+                if ($start + $_conf['k_rnum_range'] -1 <= $to) {
                     $to = $start + $_conf['k_rnum_range'] -1;
+                }
+                */
+                // 次X件では、前一つを含み、実質+1となるので、1つおまけする
+                if ($start + $_conf['k_rnum_range'] <= $to) {
+                    $to = $start + $_conf['k_rnum_range'];
+                }
+                if ($_conf['filtering']) {
+                    $start = 1;
+                    $to = $this->rescount;
+                    $nofirst = false;
                 }
             }
         }

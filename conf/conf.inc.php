@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.6.2';
+$_conf['p2version'] = '1.6.3';
 
 //$_conf['p2name'] = 'p2';  // p2の名前。
 $_conf['p2name'] = 'P2';    // p2の名前。
@@ -173,6 +173,7 @@ $_conf['k_accesskey']['bottom'] = '8';  // 下
 $_conf['k_accesskey']['next'] = '6';    // 次
 $_conf['k_accesskey']['info'] = '9';    // 情
 $_conf['k_accesskey']['dele'] = '*';    // 削
+$_conf['k_accesskey']['filter'] = '#';  // 索
 
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">'."\n";
 

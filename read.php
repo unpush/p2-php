@@ -39,11 +39,12 @@ if (isset($_GET['method'])) { $res_filter['method'] = $_GET['method']; }
 if (isset($word) && strlen($word) > 0) {
 
     // デフォルトオプション
-    if (!$res_filter['field']) { $res_filter['field'] = "hole"; }
-    if (!$res_filter['match']) { $res_filter['match'] = "on"; }
-    if (!$res_filter['method']) { $res_filter['method'] = "or"; }
+    if (empty($res_filter['field']))  { $res_filter['field']  = "hole"; }
+    if (empty($res_filter['match']))  { $res_filter['match']  = "on"; }
+    if (empty($res_filter['method'])) { $res_filter['method'] = "or"; }
 
-    if (!((!$_conf['enable_exfilter'] || $res_filter['method'] == 'regex') && preg_match('/^\.+$/', $word))) {
+    if (!($res_filter['method'] == 'regex' && preg_match('/^\.+$/', $word))) {
+        $_conf['filtering'] = true;
         include_once (P2_LIBRARY_DIR . '/strctl.class.php');
         $word_fm = StrCtl::wordForMatch($word, $res_filter['method']);
         if ($res_filter['method'] != 'just') {
@@ -56,6 +57,14 @@ if (isset($word) && strlen($word) > 0) {
             }
         }
     }
+    if ($_conf['ktai']) {
+        $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
+        $filter_range = array();
+        $filter_range['start'] = ($page - 1) * $_conf['k_rnum_range'] + 1;
+        $filter_range['to'] = $filter_range['start'] + $_conf['k_rnum_range'] - 1;
+    }
+} else {
+    $word = null;
 }
 
 //=================================================
@@ -103,7 +112,7 @@ if (!isset($aThread)) {
 
 // lsのセット
 if (!empty($ls)) {
-    $aThread->ls = $ls;
+    $aThread->ls = mb_convert_kana($ls, 'a');
 }
 
 //==========================================================
@@ -212,6 +221,12 @@ $aThread->lsToPoint();
 $ptitle_ht = htmlspecialchars($aThread->itaj)." / ".$aThread->ttitle_hd;
 
 if ($_conf['ktai']) {
+
+    if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
+        $GLOBALS['filter_hits'] = 0;
+    } else {
+        $GLOBALS['filter_hits'] = NULL;
+    }
     
     // ■ヘッダプリント
     include_once (P2_LIBRARY_DIR . '/read_header_k.inc.php');
@@ -223,6 +238,9 @@ if ($_conf['ktai']) {
     }
     
     // ■フッタプリント
+    if ($filter_hits !== NULL) {
+        resetReadNaviFooterK();
+    }
     include_once (P2_LIBRARY_DIR . '/read_footer_k.inc.php');
     
 } else {
