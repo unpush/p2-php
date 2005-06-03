@@ -777,19 +777,17 @@ function matchSbFilter(&$aThread)
         $dat_cont = file_get_contents($aThread->keydat);
     }
     
-    $target_cont = $GLOBALS['word_fm'];
-    // be.2ch.net はEUC
-    if (P2Util::isHostBe2chNet($aThread->host)) {
-        $target_cont = mb_convert_encoding($target_cont, 'eucJP-win', 'SJIS-win');
-    }
-    
-    if ($sb_filter['method'] == "and") {
+    if ($GLOBALS['sb_filter']['method'] == "and") {
         reset($GLOBALS['words_fm']);
         foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
             // 全文検索でdatがあれば、内容を検索
             if (!empty($_REQUEST['find_cont']) && file_exists($aThread->keydat)) {
+                // be.2ch.net はEUC
+                if (P2Util::isHostBe2chNet($aThread->host)) {
+                   $target_cont = mb_convert_encoding($word_fm_ao, 'eucJP-win', 'SJIS-win');
+                }
                 if (!StrCtl::filterMatch($target_cont, $dat_cont)) {
-                    return false;
+                   return false;
                 }
             
             // スレタイを検索
@@ -801,6 +799,11 @@ function matchSbFilter(&$aThread)
     } else {
         // 全文検索でdatがあれば、内容を検索
         if (!empty($_REQUEST['find_cont']) && file_exists($aThread->keydat)) {
+            $target_cont = $GLOBALS['word_fm'];
+            // be.2ch.net はEUC
+            if (P2Util::isHostBe2chNet($aThread->host)) {
+                $target_cont = mb_convert_encoding($target_cont, 'eucJP-win', 'SJIS-win');
+            }
             if (!StrCtl::filterMatch($target_cont, $dat_cont)) {
                 return false;
             }
