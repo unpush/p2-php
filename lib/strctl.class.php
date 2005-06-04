@@ -9,7 +9,7 @@ class StrCtl{
      *
      * @return string $word_fm 適合パターン。SJISで返す。
      */
-    function wordForMatch($word, $method = '')
+    function wordForMatch($word, $method = 'regex')
     {
         $word_fm = $word;
         
@@ -32,7 +32,7 @@ class StrCtl{
             }
             $word_fm = mb_convert_encoding($word_fm, 'SJIS-win', 'UTF-8');
             
-        // 「正規表現」なら
+        // 他、regex（正規表現）なら
         } else {
             if (P2_MBREGEX_AVAILABLE == 0) {
                 $word_fm = str_replace('/', '\/', $word_fm);

@@ -134,7 +134,7 @@ EOP;
     
         if ($categories) {
         
-            // ï\é¶êîêßå¿ ====================
+            // {{{ ï\é¶êîêßå¿
             if ($_GET['from']) {
                 $list_disp_from = $_GET['from'];
             } else {
@@ -159,15 +159,16 @@ EOP;
 {$disp_navi['range_st']}{$mae_ht} {$tugi_ht}<br>
 EOP;
             }
-    
+            // }}}
+            
             $i = 0;
             foreach ($categories as $cate) {
                 if ($cate->num > 0) {
 
                     $t = false;
                     foreach ($cate->menuitas as $mita) {
-                        $i++;
-                        if ($i >= $disp_navi['from'] and $i <= $disp_navi['end']) {
+                        $GLOBALS['menu_show_ita_num']++;
+                        if ($GLOBALS['menu_show_ita_num'] >= $disp_navi['from'] and $GLOBALS['menu_show_ita_num'] <= $disp_navi['end']) {
                             if (!$t) {
                                 echo "<b>{$cate->name}</b><br>\n";
                             }

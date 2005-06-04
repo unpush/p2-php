@@ -35,9 +35,16 @@ if (isset($word) && strlen($word) > 0) {
         $word = '';
     }
     
-    // 正規表現検索
+    // and検索
     include_once (P2_LIBRARY_DIR . '/strctl.class.php');
-    $GLOBALS['word_fm'] = StrCtl::wordForMatch($word);
+    $word_fm = StrCtl::wordForMatch($word, 'and');
+    if (P2_MBREGEX_AVAILABLE == 1) {
+        $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
+        $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
+    } else {
+        $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
+        $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
+    }
 }
 
 
@@ -205,16 +212,40 @@ $brd_menus = BrdCtl::read_brds();
 //===========================================================
 // ■プリント
 //===========================================================
+
+// {{{ 検索ワードがあれば
+
 if (isset($word) && strlen($word) > 0) {
 
     $word_ht = htmlspecialchars($word);
-
+    
+    $msg_ht .=  '<p>';
     if (!$GLOBALS['ita_mikke']['num']) {
-        $_info_msg_ht .= "<p>\"{$word_ht}\"を含む板は見つかりませんでした。</p>\n";
+        if (empty($GLOBALS['threti_match_ita_num'])) {
+            $msg_ht .=  "\"{$word_ht}\"を含む板は見つかりませんでした。\n";
+        }
     } else {
-        $_info_msg_ht .= "<p>\"{$word_ht}\"を含む板 {$GLOBALS['ita_mikke']['num']}hit!</p>\n";
+        $msg_ht .=  "\"{$word_ht}\"を含む板 {$GLOBALS['ita_mikke']['num']}hit!\n";
+        
+        // 検索結果が一つなら、自動で板一覧を開く
+        if ($GLOBALS['ita_mikke']['num'] == 1) {
+        $msg_ht .= '（自動オープン）';
+            echo <<<EOP
+<script type="text/javascript">
+<!--
+    parent.subject.location.href="{$_conf['subject_php']}?host={$GLOBALS['ita_mikke']['host']}&bbs={$GLOBALS['ita_mikke']['bbs']}&itaj_en={$GLOBALS['ita_mikke']['itaj_en']}";
+// -->
+</script>
+EOP;
+        }
     }
+    $msg_ht .= '</p>';
+    
+    $_info_msg_ht .= $msg_ht;
 }
+
+// }}}
+
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
