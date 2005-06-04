@@ -14,6 +14,9 @@ authorize(); // ユーザ認証
 //==============================================================
 $_conf['ktai'] = 1;
 $brd_menus = array();
+$GLOBALS['menu_show_ita_num'] = 0;
+
+// {{{ 板検索のための設定
 
 if (isset($_GET['word'])) {
     $word = $_GET['word'];
@@ -21,18 +24,25 @@ if (isset($_GET['word'])) {
     $word = $_POST['word'];
 }
 
-// ■板検索 ====================================
 if (isset($word) && strlen($word) > 0) {
 
     if (preg_match('/^\.+$/', $word)) {
         $word = '';
     }
     
-    //正規表現検索
+    // and検索
     include_once (P2_LIBRARY_DIR . '/strctl.class.php');
-    $GLOBALS['word_fm'] = StrCtl::wordForMatch($word);
+    $word_fm = StrCtl::wordForMatch($word, 'and');
+    if (P2_MBREGEX_AVAILABLE == 1) {
+        $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
+        $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
+    } else {
+        $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
+        $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
+    }
 }
 
+// }}}
 
 //============================================================
 // 特殊な前置処理
@@ -109,6 +119,8 @@ EOFORM;
 //===========================================================
 // 検索結果をプリント
 //===========================================================
+// {{{ 検索ワードがあれば
+
 if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
     $word_ht = htmlspecialchars($word);
@@ -119,7 +131,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
     echo "板ﾘｽﾄ検索結果{$hit_ht}<hr>";
     if ($word) {
 
-        // 板名を検索してプリントする ==========================
+        // 板名を検索してプリントする
         if ($brd_menus) {
             foreach ($brd_menus as $a_brd_menu) {
                 $aShowBrdMenuK->printItaSearch($a_brd_menu->categories);
@@ -136,6 +148,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 EOP;
 }
 
+// }}}
 //==============================================================
 // カテゴリを表示
 //==============================================================

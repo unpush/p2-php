@@ -10,6 +10,8 @@ $norefresh_q = "&amp;norefresh=1";
 
 // {{{ ページタイトル部分URL設定
 
+$p2_subject_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}";
+
 // あぼーん or 倉庫
 if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
     $ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}";
@@ -32,7 +34,11 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
         $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
     // 携帯
     } else {
-        $ptitle_url = "http://c.2ch.net/test/-/{$aThreadList->bbs}/i";
+        if (!empty($GLOBALS['word'])) {
+            $ptitle_url = $p2_subject_url;
+        } else {
+            $ptitle_url = "http://c.2ch.net/test/-/{$aThreadList->bbs}/i";
+        }
     }
 }
 // }}}

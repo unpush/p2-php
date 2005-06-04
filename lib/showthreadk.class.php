@@ -231,10 +231,10 @@ EOP;
         
         // {{ IDフィルタ
         if ($_conf['flex_idpopup'] == 1) {
-            if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,10})|', $date_id, $matches)) {
+            if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $date_id, $matches)) {
                 $id = $matches[1];
                 if ($this->thread->idcount[$id] > 1) {
-                    $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,10})|', array($this, 'idfilter_callback'), $date_id);
+                    $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
                 }
             }
         }
@@ -343,7 +343,7 @@ EOP;
             $s['link']  = $s[1];
             $s['quote'] = $s[5];
             $s['url']   = $s[8];
-            $s['id']    = $s[12];
+            $s['id']    = $s[11];
         }
 
         // マッチしたサブパターンに応じて分岐
@@ -373,7 +373,7 @@ EOP;
 
         // ID
         } elseif ($s['id'] && $_conf['flex_idpopup']) { // && $_conf['flex_idlink_k']
-            return $this->idfilter_callback(array($s['id'], $s[13]));
+            return $this->idfilter_callback(array($s['id'], $s[12]));
 
         // その他（予備）
         } else {
@@ -544,15 +544,15 @@ EOP;
             $idflag = $s[2];
         }
         */
+        $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
+        
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $num_ht = '('.$this->thread->idcount[$id].')';
+            $num_ht = '(' . "<a href=\"{$filter_url}\">" . $this->thread->idcount[$id] . '</a>)';
         } else {
             return $idstr;
         }
 
-        $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
-
-        return "<a href=\"{$filter_url}\">{$idstr}</a>{$num_ht}";
+        return "{$idstr}{$num_ht}";
     }
 
     // }}}
