@@ -3,7 +3,7 @@
 	
 	- [改良] PEAR の Net_UserAgent_Mobile がインストールされていない時は、その旨をエラー表示するようにした
 	
-	
+	* conf/conf.inc.php
 	
 2005-06-07 aki
 	* p2 version 1.6.6
