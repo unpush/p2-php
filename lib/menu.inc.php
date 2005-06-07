@@ -217,15 +217,15 @@ $brd_menus = BrdCtl::read_brds();
 
 if (isset($word) && strlen($word) > 0) {
 
-    $word_ht = htmlspecialchars($word);
+    $hd['word'] = htmlspecialchars($word);
     
     $msg_ht .=  '<p>';
     if (!$GLOBALS['ita_mikke']['num']) {
         if (empty($GLOBALS['threti_match_ita_num'])) {
-            $msg_ht .=  "\"{$word_ht}\"を含む板は見つかりませんでした。\n";
+            $msg_ht .=  "\"{$hd['word']}\"を含む板は見つかりませんでした。\n";
         }
     } else {
-        $msg_ht .=  "\"{$word_ht}\"を含む板 {$GLOBALS['ita_mikke']['num']}hit!\n";
+        $msg_ht .=  "\"{$hd['word']}\"を含む板 {$GLOBALS['ita_mikke']['num']}hit!\n";
         
         // 検索結果が一つなら、自動で板一覧を開く
         if ($GLOBALS['ita_mikke']['num'] == 1) {
@@ -254,7 +254,7 @@ echo <<<EOFORM
 <form method="GET" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
     <input type="hidden" name="detect_hint" value="◎◇">
     <p>
-        <input type="text" id="word" name="word" value="{$word_ht}" size="14">
+        <input type="text" id="word" name="word" value="{$hd['word']}" size="14">
         <input type="submit" name="submit" value="板検索">
     </p>
 </form>\n

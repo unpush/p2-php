@@ -9,8 +9,11 @@ function sb_print(&$aThreadList)
 {
     global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
     
+    $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sb_print()');
+    
     if (!$aThreadList->threads) {
         print "<tr><td>　該当サブジェクトはなかったぽ</td></tr>";
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
         return;
     }
     
@@ -358,6 +361,8 @@ EOP;
 
     }
 
+    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
+    return true;
 }
 
 ?>

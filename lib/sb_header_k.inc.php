@@ -14,7 +14,7 @@ $p2_subject_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$a
 
 // あぼーん or 倉庫
 if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
-    $ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}";
+    $ptitle_url = $p2_subject_url;
     
 // 書き込み履歴
 } elseif ($aThreadList->spmode == 'res_hist') {
@@ -41,9 +41,10 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
         }
     }
 }
-// }}}
 
-// ページタイトル部分HTML設定 ====================================
+// }}}
+// {{{ ページタイトル部分HTML設定
+
 $ptitle_hd = htmlspecialchars($aThreadList->ptitle);
 
 if ($aThreadList->spmode == "taborn") {
@@ -64,6 +65,7 @@ EOP;
 EOP;
 }
 
+// }}}
 // フォーム ==================================================
 $sb_form_hidden_ht = <<<EOP
     <input type="hidden" name="detect_hint" value="◎◇">

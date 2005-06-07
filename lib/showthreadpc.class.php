@@ -193,7 +193,7 @@ class ShowThreadPc extends ShowThread{
 
 
         // BEプロファイルリンク変換
-        $date_id = $this->replaceBeId($date_id);
+        $date_id = $this->replaceBeId($date_id, $i);
 
         // HTMLポップアップ
         if ($_conf['iframe_popup']) {
@@ -345,7 +345,7 @@ EOP;
         $date_id = $resar[2];
 
         // BEプロファイルリンク変換
-        $date_id = $this->replaceBeId($date_id);
+        $date_id = $this->replaceBeId($date_id, $i);
 
         // HTMLポップアップ
         if ($_conf['iframe_popup']) {

@@ -116,7 +116,8 @@ if ($spmode) {
     // if(!$p2_setting['itaj']){$p2_setting['itaj'] = P2Util::getItaName($host, $bbs);}
     $aThreadList->setIta($host, $bbs, $p2_setting['itaj']);
     
-    // ■スレッドあぼーんリスト読込===================================
+    // {{{ ■スレッドあぼーんリスト読込
+    
     $idx_host_dir = P2Util::idxDirOfHost($aThreadList->host);
     $taborn_idx = $idx_host_dir."/".$aThreadList->bbs."/p2_threads_aborn.idx";
 
@@ -129,10 +130,12 @@ if ($spmode) {
             $ta_keys[ $data[1] ] = true;
         }
     }
+    
+    // }}}
 
 }
 
-// ■ソースリスト読込==================================
+// ■ソースリスト読込
 $lines = $aThreadList->readList();
 
 // ■お気にスレリスト 読込
@@ -212,6 +215,17 @@ for ($x = 0; $x < $linesize ; $x++) {
         $aThread->getThreadInfoFromSubjectTxtLine($l);
         $aThread->host = $aThreadList->host;
         $aThread->bbs = $aThreadList->bbs;
+    }
+
+    // hostかbbsかkeyが不明ならスキップ
+    if (!($aThread->host && $aThread->bbs && $aThread->key)) {
+        unset($aThread);
+        continue;
+    } 
+    
+    // {{{ 新しいかどうか(for subject)
+    
+    if (!$aThreadList->spmode) {
         if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
             if (!$prepre_sb_keys[$aThread->key]) { $aThread->new = true; }
         } else {
@@ -219,15 +233,11 @@ for ($x = 0; $x < $linesize ; $x++) {
             $subject_keys[$aThread->key] = true;
         }
     }
-
-    // hostもbbsもkeyも不明ならスキップ
-    if (!($aThread->host && $aThread->bbs && $aThread->key)) {
-        unset($aThread);
-        continue;
-    }
+    
+    // }}}
+    // {{{ ■ワードフィルタ(for subject)
     
     $debug && $profiler->enterSection('word_filter_for_sb');
-    // ■ワードフィルタ(for subject) ====================================
     if (!$aThreadList->spmode || $aThreadList->spmode == "news" and $word_fm) {
         $target = $aThread->ttitle;
         if (!StrCtl::filterMatch($word_fm, $target)) {
@@ -244,7 +254,9 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
     $debug && $profiler->leaveSection('word_filter_for_sb');
     
-    // ■スレッドあぼーんチェック =====================================
+    // }}}
+    // {{{ ■スレッドあぼーんチェック
+    
     if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) { 
             unset($ta_keys[$aThread->key]);
             continue; //あぼーんスレはスキップ
@@ -253,9 +265,10 @@ for ($x = 0; $x < $linesize ; $x++) {
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
     $aThread->getThreadInfoFromIdx(); // 既得スレッドデータをidxから取得
 
+    // }}}
+    // {{{ ■ favlistチェック =====================================
 
     $debug && $profiler->enterSection('favlist_check');
-    // ■ favlistチェック =====================================
     // if ($x <= $threads_num) {
         if ($aThreadList->spmode != 'taborn' and $fav_keys[$aThread->key]) {
             $aThread->fav = 1;
@@ -264,30 +277,25 @@ for ($x = 0; $x < $linesize ; $x++) {
     // }
     $debug && $profiler->leaveSection('favlist_check');
     
+    // }}}
+    
     // ■ spmode(殿堂入り、newsを除く)なら ====================================
     if ($aThreadList->spmode && $aThreadList->spmode!="news" && $sb_view!="edit") { 
         
         // ■ subject.txtが未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
-            $dat_host_dir = P2Util::datDirOfHost($aThread->host);
-            $subject_url = "http://{$aThread->host}/{$aThread->bbs}/subject.txt";
-            $subjectfile = "{$dat_host_dir}/{$aThread->bbs}/subject.txt";
-            FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
-            P2Util::subjectDownload($subject_url, $subjectfile);
+
+            require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+            $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
             
-            $debug && $profiler->enterSection( "subthre_read" ); //
+            $debug && $profiler->enterSection('subthre_read'); //
             if ($aThreadList->spmode == "soko" or $aThreadList->spmode == "taborn") {
-            
-                if (extension_loaded('zlib') and strstr($aThread->host, ".2ch.net")) {
-                    $sblines = @gzfile($subjectfile);
-                } else {
-                    $sblines = @file($subjectfile);
-                }
-                if (is_array($sblines)) {
+
+                if (is_array($aSubjectTxt->subject_lines)) {
                     $it = 1;
-                    foreach ($sblines as $asbl) {
+                    foreach ($aSubjectTxt->subject_lines as $asbl) {
                         if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $asbl, $matches)) {
-                            $akey=$matches[1];
+                            $akey = $matches[1];
                             $subject_txts["$aThread->host/$aThread->bbs"][$akey]['ttitle'] = rtrim($matches[4]);
                             $subject_txts["$aThread->host/$aThread->bbs"][$akey]['rescount'] = $matches[6];
                             $subject_txts["$aThread->host/$aThread->bbs"][$akey]['torder'] = $it;
@@ -297,12 +305,7 @@ for ($x = 0; $x < $linesize ; $x++) {
                 }
                 
             } else {
-            
-                if (extension_loaded('zlib') and strstr($aThread->host, '.2ch.net')) {
-                    $subject_txts["$aThread->host/$aThread->bbs"] = @gzfile($subjectfile);
-                } else {
-                    $subject_txts["$aThread->host/$aThread->bbs"] = @file($subjectfile);
-                }
+                $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
                 
             }
             $debug && $profiler->leaveSection('subthre_read');//
@@ -385,7 +388,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         */
     }
     
-    // subjexctからrescountが取れなかった場合は、gotnumを利用する。
+    // subjectからrescountが取れなかった場合は、gotnumを利用する。
     if ((!$aThread->rescount) and $aThread->gotnum) {
         $aThread->rescount = $aThread->gotnum;
     }
@@ -438,42 +441,4 @@ for ($x = 0; $x < $linesize ; $x++) {
 
 // $shinchaku_num
 
-/*
-// 既にdat落ちしているスレは自動的にあぼーんを解除する =========================
-if (!$aThreadList->spmode and !$word and $aThreadList->threads and $ta_keys) {
-    include_once (P2_LIBRARY_DIR . '/settaborn_off.inc.php');
-    //echo sizeof($ta_keys)."*<br>";
-    $ta_vkeys = array_keys($ta_keys);
-    settaborn_off($aThreadList->host, $aThreadList->bbs, $ta_vkeys);
-    foreach ($ta_vkeys as $k) {
-        $ta_num--;
-        if ($k) {
-            $ks .= "key:$k ";
-        }
-    }
-    $ks && $_info_msg_ht .= "<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>";
-}
-
-
-//============================================================
-// $subject_keys をシリアライズして保存
-//============================================================
-//if(file_exists($sb_keys_b_txt)){ unlink($sb_keys_b_txt); }
-if($subject_keys){
-    if(file_exists($sb_keys_txt)){
-        copy($sb_keys_txt, $sb_keys_b_txt);
-    }else{
-        FileCtl::make_datafile($sb_keys_txt, $_conf['p2_perm']);
-    }
-    if($subject_keys){$sb_keys_cont = serialize($subject_keys);}
-    if($sb_keys_cont){
-        $fp = fopen($sb_keys_txt, "wb") or die("Error: $sb_keys_txt を更新できませんでした");
-        @flock($fp, LOCK_EX);
-        fputs($fp, $sb_keys_cont);
-        @flock($fp, LOCK_UN);
-        fclose($fp);
-    }
-}
-
-*/
 ?>

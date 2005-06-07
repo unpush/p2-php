@@ -83,7 +83,9 @@ class ThreadList{
      */
     function readList()
     {
-        global $_conf, $word_fm, $debug, $prof, $_info_msg_ht;
+        global $_conf, $_info_msg_ht;
+        
+        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
         
         if ($this->spmode) {
         
@@ -120,22 +122,12 @@ class ThreadList{
                 $news[] = array(host=>"news3.2ch.net", bbs=>"news2"); // ニュース議論
                 
                 foreach ($news as $n) {
-
-                    $dat_host_dir = P2Util::datDirOfHost($n['host']);
-                    $subject_url = "http://".$n['host']."/".$n['bbs']."/subject.txt";
-                    $subjectfile = $dat_host_dir."/".$n['bbs']."/subject.txt";
-            
-                    FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
-        
-                    P2Util::subjectDownload($subject_url, $subjectfile);
                     
-                    if (extension_loaded('zlib') and strstr($n['host'], ".2ch.net")) {
-                        $slines = @gzfile($subjectfile);
-                    } else {
-                        $slines = @file($subjectfile);
-                    }
-                    if ($slines) {
-                        foreach ($slines as $l) {
+                    require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+                    $aSubjectTxt =& new SubjectTxt($n['host'], $n['bbs']);
+                    
+                    if (is_array($aSubjectTxt->subject_lines)) {
+                        foreach ($aSubjectTxt->subject_lines as $l) {
                             if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches)) {
                                 //$this->isonline = true;
                                 unset($al);
@@ -151,7 +143,7 @@ class ThreadList{
                 }
         
             // p2_threads_aborn.idx 読み込み
-            } elseif ($this->spmode=="taborn") {
+            } elseif ($this->spmode == "taborn") {
                 $dat_host_dir = P2Util::datDirOfHost($this->host);
                 $lines = @file($dat_host_dir."/".$this->bbs."/p2_threads_aborn.idx");
             
@@ -169,7 +161,7 @@ class ThreadList{
                 
                 $lines = array();
                 
-                $debug && $profiler->enterSection('dat'); //
+                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat'); //
                 // ■datログディレクトリを走査して孤立datにidx付加 =================
                 if ($cdir = dir($dat_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     // ディレクトリ走査
@@ -200,9 +192,9 @@ class ThreadList{
                     }
                     $cdir->close();
                 }            
-                $debug && $profiler->leaveSection('dat');//
+                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat');//
                 
-                $debug && $profiler->enterSection('idx');//
+                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx');//
                 // {{{ idxログディレクトリを走査してidx情報を抽出してリスト化
                 if ($cdir = dir($idx_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     // ディレクトリ走査
@@ -215,7 +207,7 @@ class ThreadList{
                     $cdir->close();
                 }
                 // }}}
-                $debug && $profiler->leaveSection('idx');//
+                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx');//
             
             // ■スレの殿堂の場合  // p2_palace.idx 読み込み
             } elseif ($this->spmode == "palace") {
@@ -226,35 +218,16 @@ class ThreadList{
                 }
             }
         
-        // オンライン上の subject.txt を読み込む（ノーマル板モード）
+        // ■オンライン上の subject.txt を読み込む（spmodeでない場合）
         } else {
-            
-            $dat_host_dir = P2Util::datDirOfHost($this->host);
-            $subject_url = "http://".$this->host."/".$this->bbs."/subject.txt";
-            $subjectfile = $dat_host_dir."/".$this->bbs."/subject.txt";
-    
-            FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
-
-            // subjectダウンロード
-            P2Util::subjectDownload($subject_url, $subjectfile);
-            
-            if (extension_loaded('zlib') and strstr($this->host, ".2ch.net")) {
-                $lines = @gzfile($subjectfile);
-            } else {
-                $lines = @file($subjectfile);
-            }
-            
-            // JBBS@したらばなら重複スレタイを削除する
-            if (P2Util::isHostJbbsShitaraba($this->host)) {
-                $lines = array_unique($lines);
-            }
-            
-            // be.2ch.net ならEUC→SJIS変換
-            if (P2Util::isHostBe2chNet($this->host)) {
-                $lines = array_map(create_function('$str', 'return mb_convert_encoding($str, "SJIS-win", "eucJP-win");'), $lines);
-            }
+            require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+            $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
+            $lines =& $aSubjectTxt->subject_lines;
             
         }
+        
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('readList()');
+        
         return $lines;
     }
     
@@ -263,8 +236,13 @@ class ThreadList{
      */
     function addThread(&$aThread)
     {
+        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('addThread()');
+        
         $this->threads[] =& $aThread;
         $this->num++;
+        
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('addThread()');
+        
         return $this->num;
     }
 
