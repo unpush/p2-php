@@ -31,13 +31,13 @@ $_info_msg_ht = '';
 // {{{ 動作環境を確認
 
 if (version_compare(phpversion(), '4.3.0', 'lt')) {
-    die('<html><body><h1>p2 info: PHPバージョン4.3.0未満では使えません。</h1></body></html>');
+    die('<html><body><h3>p2 error: PHPバージョン4.3.0未満では使えません。</h3></body></html>');
 }
 if (ini_get('safe_mode')) {
-    die('<html><body><h1>p2 info: セーフモードで動作するPHPでは使えません。</h1></body></html>');
+    die('<html><body><h3>p2 error: セーフモードで動作するPHPでは使えません。</h3></body></html>');
 }
 if (!extension_loaded('mbstring')) {
-    die('<html><body><h1>p2 info: mbstring拡張モジュールがロードされていません。</h1></body></html>');
+    die('<html><body><h3>p2 error: mbstring拡張モジュールがロードされていません。</h3></body></html>');
 }
 // }}}
 // {{{ 環境設定
@@ -113,8 +113,12 @@ if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
     ini_set('include_path', $_include_path);
 }
 
-// ユーティリティクラスを読み込む
+// ライブラリを読み込む
 require_once (P2_LIBRARY_DIR . '/p2util.class.php');
+
+if (!include_once('Net/UserAgent/Mobile.php')) {
+    die('<html><body><h3>p2 error: PEAR の Net_UserAgent_Mobile がインストールされていません</h3></body></html>');
+}
 
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
@@ -163,23 +167,21 @@ $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
 
 // {{{ 携帯アクセスキー
-$_conf['k_accesskey']['matome'] = '3';  // 新まとめ
-$_conf['k_accesskey']['latest'] = '3';  // 新
-$_conf['k_accesskey']['res'] = '7';     // ﾚｽ
-$_conf['k_accesskey']['above'] = '2';   // 上
-$_conf['k_accesskey']['up'] = '5';      // （板）
-$_conf['k_accesskey']['prev'] = '4';    // 前
-$_conf['k_accesskey']['bottom'] = '8';  // 下
-$_conf['k_accesskey']['next'] = '6';    // 次
-$_conf['k_accesskey']['info'] = '9';    // 情
-$_conf['k_accesskey']['dele'] = '*';    // 削
-$_conf['k_accesskey']['filter'] = '#';  // 索
+$_conf['k_accesskey']['matome'] = '3'; // 新まとめ
+$_conf['k_accesskey']['latest'] = '3'; // 新
+$_conf['k_accesskey']['res'] =    '7'; // ﾚｽ
+$_conf['k_accesskey']['above'] =  '2'; // 上
+$_conf['k_accesskey']['up'] =     '5'; // （板）
+$_conf['k_accesskey']['prev'] =   '4'; // 前
+$_conf['k_accesskey']['bottom'] = '8'; // 下
+$_conf['k_accesskey']['next'] =   '6'; // 次
+$_conf['k_accesskey']['info'] =   '9'; // 情
+$_conf['k_accesskey']['dele'] =   '*'; // 削
+$_conf['k_accesskey']['filter'] = '#'; // 索
 
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">'."\n";
 
 // {{{ 端末判定
-
-require_once 'Net/UserAgent/Mobile.php';
 $mobile = &Net_UserAgent_Mobile::singleton();
 
 // PC
