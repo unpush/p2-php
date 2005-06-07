@@ -9,6 +9,25 @@
 	- 新規ファイル
 		lib/SubjectTxt.class.php
 
+	* menu_k.php
+	* post.php
+	* read_new.php
+	* read_new_k.php
+	* subject.php
+	* subject_new.php
+	* conf/conf.inc.php
+	* doc/README.txt
+	* lib/SubjectTxt.class.php is new
+	* lib/brdmenu.class.php
+	* lib/menu.inc.php
+	* lib/p2util.class.php
+	* lib/sb_header_k.inc.php
+	* lib/sb_print.inc.php
+	* lib/showthread.class.php
+	* lib/showthreadk.class.php
+	* lib/showthreadpc.class.php
+	* lib/thread.class.php
+	* lib/threadlist.class.php
 
 2005-06-04 aki
 	* p2 version 1.6.5
