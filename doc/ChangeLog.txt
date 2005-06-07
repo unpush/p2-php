@@ -1,3 +1,15 @@
+2005-06-07 aki
+	* p2 version 1.6.6
+	
+	- [改良] 板検索が、ディレクトリ名(例:operate)でもマッチするようになった
+	- [改良] Beポイントを送る時のリファラをレス番号まで送るようにした
+
+	- [内部整理] subject.txtまわりをクラス化して整理した
+
+	- 新規ファイル
+		lib/SubjectTxt.class.php
+
+
 2005-06-04 aki
 	* p2 version 1.6.5
 	
@@ -6,7 +18,18 @@
 	  （「ID:XXXXXX(N)」のN部分をリンクにした）
 	- [仕様変更] 板メニューの検索を、正規表現から、and検索に変更した
 	- 他細かく
-	
+
+	- 変更のあったファイル
+		menu_k.php
+		conf/conf.inc.php
+		lib/brdctl.class.php
+		lib/brdmenu.class.php
+		lib/menu.inc.php
+		lib/sb_header_k.inc.php
+		lib/showbrdmenuk.class.php
+		lib/showbrdmenupc.class.php
+		lib/showthreadk.class.php
+		lib/strctl.class.php
 
 2005-06-03 aki
 	* p2 version 1.6.4
@@ -113,17 +136,12 @@
 2005-05-27 aki
 	* p2 version 1.5.29
 	
-	[修正] v1.5.28のアーカイブで threadread.class.php のアクセス権がおかしかったのを修正
-
-2005-05-27 aki
-	* p2 version 1.5.29
-	
-	[バグ修正] v1.5.28で threadread.class.php のアクセス権がおかしかったのを修正
+	- [修正] v1.5.28のアーカイブで threadread.class.php のアクセス権がおかしかったのを修正
 
 2005-05-27 aki
 	* p2 version 1.5.28
 	
-	[バグ修正] 携帯で最新X件数表示が、一つ前のレスまでしか表示されていなかったのを修正
+	- [バグ修正] 携帯で最新X件数表示が、一つ前のレスまでしか表示されていなかったのを修正
 
 	- 変更のあったファイル
 		threadread.class.php
@@ -132,8 +150,8 @@
 2005-05-27 aki
 	* p2 version 1.5.27
 
-	[改良] スレ一覧からのログ削除もAjaxで行えるようにした
-	[仕様変更] >>a-b のリンクは(p)表示をしないようにした
+	- [改良] スレ一覧からのログ削除もAjaxで行えるようにした
+	- [仕様変更] >>a-b のリンクは(p)表示をしないようにした
 	- 拡張パックさんのコードをちょこちょこ入れてます。THX!
 	
 	- 変更のあったファイル
@@ -182,10 +200,6 @@
 	* p2 version 1.5.25
 
 	- [バグ修正] DATが過去ログ倉庫にあるときなどの表示が正常にされなかったのを修正
-	
-	- 変更されたファイル
-		threadread.class.php
-		conf/conf.inc.php
 
 2005-05-19 aki
 	* p2 version 1.5.24
@@ -252,76 +266,24 @@
 	- [バグ修正] 携帯表示時の「略」がたまにリンク表示されていなかったのを修正
 	- [バグ修正] スレ一覧で板名の表示が日本語で登録できないことがあったのを修正
 	- [改良] 設定で編集できないファイルのボタンを、disable表示にした。（拡張パックより THX!→rskさん）
-	
 	- 他こまかく
-	
-	- 変更のあったファイル
-		editpref.php
-		p2util.class.php
-		post.php
-		post_options_loader.inc.php
-		showthreadk.class.php
-		subject.php
-		conf/conf.inc.php
-		style/editpref_css.inc
-		style/style_css.inc
 
 2005-05-07 aki
 	* p2 version 1.5.22
 	
 	- [バグ修正] 書き込み終了後に、間違ったエラー表示がされていたのを修正
-	
-	- 変更のあったファイル
-		post.php
-		conf/conf.inc.php
 
 2005-05-07 aki
 	* p2 version 1.5.21
 	
 	- 環境によっては、新着まとめ読みのキャッシュができなかったのを修正したつもり
-	
 	- 内部変更いろいろ。スレッド表示部分において、rskさんのコードを大きくマージしました。THX!
-	
-	- 変更のあったファイル
-		brdmenu.class.php
-		dataphp.class.php
-		filectl.class.php
-		info.php
-		login2ch.inc.php
-		login_first.inc.php
-		ngabornctl.class.php
-		p2util.class.php
-		post.php
-		read.php
-		read_header.inc.php
-		read_header_k.inc.php
-		read_new.inc.php
-		read_new.php
-		read_new_k.php
-		read_shitaraba.inc.php
-		showthread.class.php
-		showthreadk.class.php
-		showthreadpc.class.php
-		subject.php
-		thread.class.php
-		threadread.class.php
-		conf/conf.inc.php
 
 2005-05-07 aki
 	* p2 version 1.5.20
 	
 	- [バグ修正] しらたば、まちBBSでidxが存在して、datが存在しない時に、datの取得が変になっていたのを修正
 	  modified: read_shitaraba.inc.php, read_machibbs.inc.php
-	
-	- 変更のあったファイル
-		post.php
-		post_options_loader.inc.php
-		read_machibbs.inc.php
-		read_shitaraba.inc.php
-		subject.php
-		thread.class.php
-		threadread.class.php
-		conf/conf.inc.php
 
 2005-04-30 aki
 	* p2 version 1.5.19
@@ -335,18 +297,6 @@
 	- [バグ修正] スレ立て失敗した時に、キャッシュは残るのにタイトルだけ出ないのを修正 
 
 	- 他こまかく。ほんの少し、スレ一覧表示の動作の高速化など。
-
-	- 変更のあったファイル
-		post_form.inc.php
-		post_form.php
-		post_options_loader.inc.php
-		read.php
-		read_footer.inc.php
-		showthread.class.php
-		showthreadk.class.php
-		showthreadpc.class.php
-		thread.class.php
-		conf/conf.inc.php
 
 2005-04-29 aki
 	* p2 version 1.5.18
@@ -388,21 +338,6 @@
 	- [改良修正] ページの読み込みが完了していない状態でHTMLポップアップができなかったのを修正
 	
 	今回の変更は全てrskさんのパッチより。THX!
-	
-	- 変更されたファイル
-		editfile.php
-		p2util.class.php
-		post.php
-		read_header.inc.php
-		read_new.php
-		read_shitaraba.inc.php chang
-		strctl.class.php
-		thread.class.php
-		threadlist.class.php
-		threadread.class.php
-		viewtxt.php
-		conf/conf.inc.php
-		js/htmlpopup.js
 
 2005-04-25 aki
 	* p2 version 1.5.16
@@ -447,13 +382,6 @@
 	  $_conf['precede_openssl']
 	  ※ただしPHPがバージョン4.3.0以降でconfigureのオプションに--with-opensslを付けてコンパイルされていないといけないので、
 	  DSOでopensslを読み込んでいる場合にこの機能を使うとエラーが出るので注意。
-	  
-	  - 変更されたファイル
-		login2ch.inc.php
-		subject.php
-		wap.class.php
-		conf/conf.inc.php
-		conf/conf_user.inc.php
 
 2005-04-21 aki
 	* p2 version 1.5.14
@@ -478,47 +406,6 @@
 	  （ちょっぴりはやくなって、メモリの負担が軽減したかもしれない）
 	- [改良] 明示的にソート方法が変更された場合のみ、ソート方法が変更記録されるように調整した。 
 	
-	* brdctl.class.php
-	* brdmenu.class.php
-	* cookie.php
-	* dataphp.class.php
-	* editfavita.php
-	* editfile.php
-	* editpref.php
-	* index.php
-	* info.php
-	* login.php
-	* login2ch.php
-	* login_first.inc
-	* menu.inc.php
-	* menu_k.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_machibbs.inc.php
-	* read_new.inc.php
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.inc.php
-	* read_res_hist.php
-	* res_hist.class.php
-	* sb_footer_k.inc.php
-	* sb_print.inc.php
-	* sb_print_k.inc.php
-	* setting.php
-	* showbrdmenuk.class.php
-	* showbrdmenupc.class.php
-	* showthreadk.class.php
-	* showthreadpc.class.php
-	* subject.php
-	* subject_new.php
-	* thread.class.php
-	* threadlist.class.php
-	* title.php
-	* viewtxt.php
-	* wap.class.php
-	* conf/conf.inc.php
-	
 2005-04-17 aki
 	* p2 version 1.5.12
 	
@@ -527,32 +414,9 @@
 	- [Bug Fix] スレ一覧のsmpodeで、フィルタリング時に強調表示されていなかったのを修正
 	- 他、細かな修正など
 
-	* brdctl.class.php
-	* brdmenu.class.php
-	* editpref.php
-	* index_print_k.inc.php
-	* info.php
-	* menu.inc.php
-	* menu_k.php
-	* p2util.class.php
-	* read.php
-	* read_new.inc.php
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.php
-	* subject.php
-	* subject_new.php
-	* threadread.class.php
-	* wap.class.php
-	* conf/conf.inc.php
-
 2005-04-16 aki
 	* p2 version 1.5.11
-	
 	- [Bug Fix] スレッド情報画面のタイトルが表示されていなかったのを修正
-	
-	* conf/conf.inc.php
-	* info.php
 	
 2005-04-16 aki
 	* p2 version 1.5.10
@@ -665,18 +529,15 @@
 
 2005-03-21 aki
 	* p2 version 1.5.7
-	
 	- [Bug Fix] 独立したレス書き込みフォームで、記憶された名前やメールが読み込まれていなかったのを修正
 	- 他こまごま
 
 2005-03-13 aki
 	* p2 version 1.5.6
-	
 	- [Bug Fix] ファイル名ミスのため、携帯用ページが表示できなかったバグを修正
 
 2005-03-13 aki
 	* p2 version 1.5.5
-	
 	- [Bug Fix] ファイル名ミスのため、板メニューなどが表示できなかったバグを修正
 
 2005-03-13 aki

@@ -165,7 +165,7 @@ class ShowThreadK extends ShowThread{
         $msg = $this->transMsg($msg, $i); // メッセージHTML変換
 
         // BEプロファイルリンク変換
-        $date_id = $this->replaceBeId($date_id);
+        $date_id = $this->replaceBeId($date_id, $i);
         
         // NGメッセージ変換
         if ($isNgMsg) {

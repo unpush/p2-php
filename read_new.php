@@ -90,7 +90,7 @@ if ($spmode) {
     }
 }
 
-// ■ソースリスト読込 ==================================
+// ■ソースリスト読込
 $lines = $aThreadList->readList();
 
 // ■ページヘッダ表示 ===================================
@@ -233,22 +233,12 @@ for ($x = 0; $x < $linesize ; $x++) {
     if ($aThreadList->spmode && $sb_view != "edit") { 
         
         // subject.txt が未DLなら落としてデータを配列に格納
-        if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
-            $dat_host_dir = P2Util::datDirOfHost($aThread->host);
-            $subject_url = "http://{$aThread->host}/{$aThread->bbs}/subject.txt";
-            
-            $subjectfile = "{$dat_host_dir}/{$aThread->bbs}/subject.txt";
-            
-            FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
-            if (!($word_fm and file_exists($subjectfile))) {
-                P2Util::subjectDownload($subject_url, $subjectfile);
-            }
-            if (extension_loaded('zlib') and strstr($aThread->host, ".2ch.net")) {
-                $subject_txts["$aThread->host/$aThread->bbs"] = @gzfile($subjectfile);
-            } else {
-                $subject_txts["$aThread->host/$aThread->bbs"] = @file($subjectfile);
-            }
-            
+        if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
+
+            require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+            $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
+
+            $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
         }
         
         // ■スレ情報取得 =============================

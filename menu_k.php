@@ -123,10 +123,10 @@ EOFORM;
 
 if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
-    $word_ht = htmlspecialchars($word);
+    $hd['word'] = htmlspecialchars($word);
 
     if ($GLOBALS['ita_mikke']['num']) {
-        $hit_ht = "<br>\"{$word_ht}\" {$GLOBALS['ita_mikke']['num']}hit!";
+        $hit_ht = "<br>\"{$hd['word']}\" {$GLOBALS['ita_mikke']['num']}hit!";
     }
     echo "”ÂØ½ÄŒŸõŒ‹‰Ê{$hit_ht}<hr>";
     if ($word) {
@@ -140,7 +140,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
         
     }
     if (!$GLOBALS['ita_mikke']['num']) {
-        $_info_msg_ht .=  "<p>\"{$word_ht}\"‚ğŠÜ‚Ş”Â‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B</p>\n";
+        $_info_msg_ht .=  "<p>\"{$hd['word']}\"‚ğŠÜ‚Ş”Â‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B</p>\n";
         unset($word);
     }
     $modori_url_ht = <<<EOP

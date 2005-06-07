@@ -631,19 +631,10 @@ function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    $dat_host_dir = P2Util::datDirOfHost($host);
-    $subject_url = "http://{$host}/{$bbs}/subject.txt";
-    
-    $subjectfile = $dat_host_dir."/".$bbs."/subject.txt";
-    
-    FileCtl::mkdir_for($subjectfile); // 板ディレクトリが無ければ作る
-    P2Util::subjectDownload($subject_url, $subjectfile);
-    if (extension_loaded('zlib') and strstr($host, ".2ch.net")) {
-        $subject_txt_lines = @gzfile($subjectfile);
-    } else {
-        $subject_txt_lines = @file($subjectfile);
-    }
-    foreach ($subject_txt_lines as $l) {
+    require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+    $aSubjectTxt =& new SubjectTxt($host, $bbs);
+
+    foreach ($aSubjectTxt->subject_lines as $l) {
         if (strstr($l, $ttitle)) {
             if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches)) {
                 return $key = $matches[1];

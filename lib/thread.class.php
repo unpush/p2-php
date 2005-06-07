@@ -98,19 +98,22 @@ class Thread{
      * ■ Set Path info
      */
     function setThreadPathInfo($host, $bbs, $key)
-    {    
-        $this->host = $host;
-        $this->bbs = $bbs;
-        $this->key = $key;
+    {
+        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('setThreadPathInfo()');
+        
+        $this->host =   $host;
+        $this->bbs =    $bbs;
+        $this->key =    $key;
         
         $dat_host_dir = P2Util::datDirOfHost($this->host);
         $idx_host_dir = P2Util::idxDirOfHost($this->host);
+
+        $this->keydat = $dat_host_dir . '/' . $this->bbs . '/' . $this->key . '.dat';
+        $this->keyidx = $idx_host_dir . '/' . $this->bbs . '/' . $this->key . '.idx';
         
-        $dat_bbs_dir_s = $dat_host_dir . '/' . $this->bbs . '/';
-        $idx_bbs_dir_s = $idx_host_dir . '/' . $this->bbs . '/';
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setThreadPathInfo()');
         
-        $this->keydat = $dat_bbs_dir_s . "{$this->key}.dat";
-        $this->keyidx = $idx_bbs_dir_s . "{$this->key}.idx";
+        return true;
     }
 
     /**
@@ -130,7 +133,10 @@ class Thread{
      */
     function getThreadInfoFromIdx()
     {
+        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('getThreadInfoFromIdx');
+        
         if (!$lines = @file($this->keyidx)) {
+            $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromIdx');
             return false;
         }
         
@@ -180,6 +186,8 @@ class Thread{
         */
         if ($lar[4]) { $this->modified = $lar[4]; }
         
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromIdx');
+        
         return $key_line; 
     }
     
@@ -197,17 +205,13 @@ class Thread{
      */
     function getThreadInfoFromSubjectTxtLine($l)
     {
+        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('getThreadInfoFromSubjectTxtLine()');
+        
         if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches)) {
             $this->isonline = true;
             $this->key = $matches[1];
             $this->setTtitle(rtrim($matches[4]));
-        
-            // be.2ch.net ならEUC→SJIS変換
-            if (P2Util::isHostBe2chNet($this->host)) {
-                $ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'eucJP-win');
-                $this->setTtitle($ttitle);
-            }
-        
+
             $this->rescount = $matches[6];
             if ($this->readnum) {
                 $this->unum = $this->rescount - $this->readnum;
@@ -216,8 +220,12 @@ class Thread{
                     $this->unum = 0;
                 }
             }
+            
+            $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromSubjectTxtLine()');
             return TRUE;
         }
+        
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromSubjectTxtLine()');
         return FALSE;
     }
 
@@ -298,7 +306,10 @@ class Thread{
      */
     function setDayRes($nowtime = false)
     {
+        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('setDayRes()');
+        
         if (!isset($this->key) || !isset($this->rescount)) {
+            $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setDayRes()');
             return false;
         }
         
@@ -307,11 +318,13 @@ class Thread{
         }
         if ($pastsc = $nowtime - $this->key) {
             $this->dayres = $this->rescount / $pastsc * 60 * 60 * 24;
+            $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setDayRes()');
             return true;
         }
+        
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setDayRes()');
         return false;
     }
-
 
     /**
      * ■レス間隔（時間/レス）を取得する

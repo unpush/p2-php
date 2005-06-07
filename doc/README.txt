@@ -11,7 +11,8 @@
  PHP4.3.8以降。PHP5でも動きます。
  OSは、UNIX、Linux、Windows、Mac OS Xでの動作報告あり。
  
- ※PHPは、mbstring が必要です。
+ ※PHPのPEAR（Net_UserAgent_Mobile）を利用しています。
+ ※PHPは、mbstring が有効である必要があります。
  ※2ちゃんねるの「●ログイン」にはSSL通信を利用するので、PHPのcurl拡張が有効か、システムのcurlにパスが通っていないとdat落ちした過去ログが読めません。 cURLはOpenSSLが有効でコンパイルされている必要がある点に注意してください。
  
 ■動作環境：クライアントサイド
@@ -46,18 +47,19 @@
  Finderで「data」フォルダを選択後、「情報を見る」＞「所有権とアクセス権」を選ぶ。
  オーナー、その他のアクセスを「読み／書き」可能に設定。
 
-■Pearのインストール
+■PEARのインストール
 
- p2は Pear の Net_UserAgent_Mobile を利用しています。
+ p2は PEAR の Net_UserAgent_Mobile を利用しています。
  Net_UserAgent_Mobile が、サーバにインストールされていない場合は、
  pearコマンドを使って、自分でサーバにインストールするか、
  p2のディレクトリに includes ディレクトリを作成し、
- その中にネットからダウンロードしてきたファイルを入れてやるとOKです。
+ その中にネットからダウンロードしてきたファイルを入れてやってください。
 
  pear install でサーバにインストールする場合、Net_UserAgent_Mobile は現在betaなので、
- betaでもインストールできるように、
- pear install -f Net_UserAgent_Mobile
- と -f オプションをつけて、コマンドを打つとよいかも。
+ pear install Net_UserAgent_Mobile
+ でインストールできない時は、
+ pear install Net_UserAgent_Mobile-beta
+ とコマンドを打つとよいかも。
 
  includesディレクトリで利用する場合は、拡張パックさんの p2pear がそのまま使えます。
  http://moonshine.s32.xrea.com/

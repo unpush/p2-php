@@ -98,7 +98,8 @@ class BrdMenu{
                     $no_match = false;
                     
                     foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
-                        if (!StrCtl::filterMatch($word_fm_ao, $aBrdMenuIta->itaj)) {
+                        $target = $aBrdMenuIta->itaj."\t".$aBrdMenuIta->bbs;
+                        if (!StrCtl::filterMatch($word_fm_ao, $target)) {
                             $no_match = true;
                         }
                     }
@@ -112,7 +113,12 @@ class BrdMenu{
 
                         // マーキング
                         $aBrdMenuIta->itaj_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aBrdMenuIta->itaj);
-                    
+                        
+                        // マッチマーキングなければ（bbsでマッチしたとき）、全部マーキング
+                        if ($aBrdMenuIta->itaj_ht == $aBrdMenuIta->itaj) {
+                            $aBrdMenuIta->itaj_ht = '<b class="filtering">'.$aBrdMenuIta->itaj_ht.'</b>';
+                        }
+                        
                     // 検索が見つからなくて、さらに携帯の時
                     } else {
                         if ($_conf['ktai']) {
