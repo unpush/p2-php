@@ -1,0 +1,236 @@
+<?php
+/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0 fdm=marker: */
+/* mi: charset=Shift_JIS */
+
+// {{{ 表示用変数
+
+if ($atom) {
+	$atom_q = '&amp;atom=1';
+	$atom_ht = '<input type="hidden" name="atom" value="1">';
+	$atom_chk = ' checked';
+} else {
+	$atom_q = '';
+	$atom_ht = '';
+	$atom_chk = '';
+}
+if ($mtime) {
+	$mtime_q = '&amp;mt=' . $mtime;
+} else {
+	$mtime_q = '';
+}
+
+// }}}
+// {{{ ツールバー
+
+if ($rss_parse_success) {
+
+	// タイトル画像をポップアップ表示
+	$onmouse_popup = '';
+	$popup_header = '';
+	if ($_exconf['kanban']['*'] && $_exconf['rss']['with_kanban'] && P2_RSS_IMAGECACHE_AVAILABLE) {
+		$images = $rss->getImages();
+		if (count($images) > 0) {
+			foreach ($images as $image) {
+				if ($image) {
+					$titleImage = rss_get_image($image['url'], $channel['title']);
+					$titleLink = P2Util::throughIme($image['link']);
+					$titleAlt = mb_convert_encoding($image['title'], 'SJIS-win', 'ASCII,JIS,UTF-8,eucJP-win,SJIS-win');
+					$titleAlt = P2Util::re_htmlspecialchars($titleAlt);
+					$onmouse_popup = " onmouseover=\"showResPopUp('titleImage',event)\" onmouseout=\"hideResPopUp('titleImage')\"";
+					$popup_header = <<<EOP
+	<script type="text/javascript" src="js/respopup.js"></script>
+	<link rel="stylesheet" href="css.php?css=kanban&amp;skin={$skin_en}" type="text/css">
+EOP;
+					$_info_msg_ht .= <<<EOP
+<div id="titleImage"{$onmouse_popup}><a href="{$titleLink}"><img src="{$titleImage[0][0]}" {$titleImage[0][1]} alt="{$titleAlt}"></a></div>
+EOP;
+					break;
+				}
+			}
+		}
+	}
+
+	// ツールバー共通部品
+	$matomeyomi = '';
+	if (rss_item_exists($items, 'content:encoded') || rss_item_exists($items, 'description')) {
+		$all_en = rawurlencode(base64_encode(base64_decode($site_en) . ' の 概要まとめ読み'));
+		$matomeyomi = <<<EOP
+<a class="toolanchor" href="read_rss.php?xml={$xml_en}&amp;title_en={$all_en}&amp;num=all{$atom_q}" target="read">概要まとめ読み</a>\n
+EOP;
+	}
+	$ch_link = P2Util::throughIme($channel['link'], TRUE);
+	$ch_dscr = strip_tags($channel['description']);
+	$rss_toolbar_ht = <<<EOP
+			<span class="itatitle"><a class="aitatitle" href="{$ch_link}"{$onmouse_popup}><b>{$title}</b></a></span> <span class="time">{$ch_dscr}</span>
+		</td>
+		<td align="left" valign="middle" width="100%" nowrap>
+			<form class="toolbar" method="get" action="subject_rss.php" target="_self">
+				<input type="hidden" name="xml" value="{$xml}">
+				<input type="hidden" name="site_en" value="{$site_en}">
+				<input type="hidden" name="refresh" value="1">{$atom_ht}
+				<input type="submit" name="submit" value="更新">
+			</form>
+		</td>
+		<td align="right" valign="middle" nowrap>
+			{$matomeyomi}<span class="time">{$reloaded_time}</span>
+EOP;
+
+}
+
+// }}}
+// {{{ ヘッダ
+
+echo <<<EOH
+<html lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<title>{$title}</title>
+	<base target="{$_exconf['rss']['target_frame']}">
+	<link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+	<link rel="stylesheet" href="css.php?css=subject&amp;skin={$skin_en}" type="text/css">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+{$popup_header}
+	<script type="text/javascript" src="js/basic.js"></script>
+	<script type="text/javascript">
+	<!--
+	function setWinTitle(){
+		if (top != self) {top.document.title=self.document.title;}
+	}
+	// -->
+	</script>
+</head>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="setWinTitle();">
+{$_info_msg_ht}
+
+EOH;
+
+// RSSがパースできなかったとき
+if (!$rss_parse_success) {
+	echo "<h1>{$title}</h1></body></html>";
+	exit;
+}
+
+echo <<<EOTB
+<table id="sbtoolbar1" class="toolbar" cellspacing="0" cellpadding="4">
+	<tr>
+		<td align="left" valign="middle" nowrap>
+{$rss_toolbar_ht}
+			<a class="toolanchor" href="#sbtoolbar2" target="_self">▼</a>
+		</td>
+	</tr>
+</table>
+<table cellspacing="0" width="100%">
+
+EOTB;
+
+// }}}
+// {{{ 見出し
+
+$description_column_ht = '';
+$subject_column_ht = '';
+$creator_column_ht = '';
+$date_column_ht = '';
+if ($matomeyomi) {
+	$description_column_ht = '<td class="tu">概要</td>';
+}
+if (rss_item_exists($items, 'dc:subject')) {
+	$subject_column_ht = '<td class="t">トピック</td>';
+}
+if (rss_item_exists($items, 'dc:creator')) {
+	$creator_column_ht = '<td class="t">文責</td>';
+}
+if (rss_item_exists($items, 'dc:date') || rss_item_exists($items, 'dc:pubdate')) {
+	$date_column_ht = '<td class="t">日時</td>';
+}
+echo <<<EOP
+	<tr class="tableheader">
+		{$description_column_ht}<td class="tl">タイトル</td>{$subject_column_ht}{$creator_column_ht}{$date_column_ht}
+	</tr>\n
+EOP;
+
+// 一覧
+reset($items);
+$i = 0;
+foreach ($items as $item) {
+	// 変数の初期化
+	$date = '';
+	$date_ht = '';
+	$subject_ht = '';
+	$creator_ht = '';
+	$description_ht = '';
+	$target_ht = '';
+	$preview_one = '';
+	// 偶数列か奇数列か
+	$r =  ($i % 2 == 0) ? '2' : '';
+	// 概要
+	if ($description_column_ht) {
+		if (isset($item['content:encoded']) || isset($item['description'])) {
+			$title_en = rawurlencode(base64_encode($item['title']));
+			$description_ht = "<td class=\"tu{$r}\"><a class=\"thre_title\" href=\"read_rss.php?xml={$xml_en}&amp;title_en={$title_en}&amp;num={$i}{$atom_q}{$mtime_q}\" target=\"{$_exconf['rss']['desc_target_frame']}\">●</a></td>";
+		} else {
+			$description_ht = "<td class=\"tu{$r}\"></td>";
+		}
+	}
+	// トピック
+	if ($subject_column_ht) {
+		$subject_ht = "<td class=\"t{$r}\">" . P2Util::re_htmlspecialchars($item['dc:subject']) . "</td>";
+	}
+	// 文責
+	if ($creator_column_ht) {
+		$creator_ht = "<td class=\"t{$r}\">" . P2Util::re_htmlspecialchars($item['dc:creator']) . "</td>";
+	}
+	// 日時
+	if ($date_column_ht) {
+		if (!empty($item['dc:date'])) {
+			$date = rss_format_date($item['dc:date']);
+		} elseif (!empty($item['dc:pubdate'])) {
+			$date = rss_format_date($item['dc:pubdate']);
+		}
+		$date_ht = "<td class=\"t{$r}\">{$date}</td>";
+	}
+	// 2ch,bbspinkのスレッドをp2で表示
+	if (preg_match('/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/', $item['link'])) {
+		$link_orig = preg_replace_callback('/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/', 'rss_link2ch_callback', $item['link']);
+		$preview_one = "<a href=\"{$link_orig}&amp;one=true\">&gt;&gt;1</a> ";
+	} else {
+		$link_orig = P2Util::throughIme($item['link'], TRUE);
+	}
+	// 一列表示
+	$item_title = $item['title'];
+	echo <<<EOP
+	<tr>
+		{$description_ht}<td class="tl{$r}" nowrap>{$preview_one}<a id="tt{$i}" class="thre_title" href="{$link_orig}">{$item_title}</a></td>{$subject_ht}{$creator_ht}{$date_ht}
+	</tr>\n
+EOP;
+	$i++;
+}
+
+// }}}
+// {{{ フッタ
+
+echo <<<EOF
+</table>
+<table id="sbtoolbar2" class="toolbar" cellspacing="0" cellpadding="4">
+	<tr>
+		<td align="left" valign="middle" nowrap>
+{$rss_toolbar_ht}
+			<a class="toolanchor" href="#sbtoolbar1" target="_self">▲</a>
+		</td>
+	</tr>
+</table>
+<form id="urlform" method="get" action="{$_SERVER['PHP_SELF']}" target="_self">
+	RSS/Atomを直接指定
+	<input id="url_text" type="text" value="{$xml_ht}" name="xml" size="54">
+	(<label><input type="checkbox" name="atom" value="1"{$atom_chk}>Atom</label>)
+	<input type="submit" name="btnG" value="表示">
+</form>
+</body>
+</html>
+EOF;
+
+// }}}
+
+?>

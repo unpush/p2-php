@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="Shift_JIS"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+	<title>{title}</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=iv2&amp;skin={skin}" />
+	<script type="text/javascript" src="js/basic.js"></script>
+	<script type="text/javascript" src="js/iv2.js"></script>
+	<script type="text/javascript" src="js/iv2m.js"></script>
+	{js:h}
+</head>
+<body onload="setWinTitle()">
+
+<div id="header">
+<flexy:include src="_iv2_ctrl.tpl.html"/>
+</div>
+
+{if:removedFiles}
+<p>以下のファイルを削除しました。</p>
+<p flexy:if="toBlackListAll">削除した画像はブラックリストに登録されます。</p>
+<p flexy:if="toBlackListPartial">削除した画像の一部はブラックリストに登録されます。</p>
+<ul>
+<li flexy:foreach="removedFiles,removedPath">{removedPath}</li>
+</ul>
+{end:}
+
+<div id="content">
+{if:nomatch}
+<flexy:include src="_iv2_reset.tpl.html"/>
+{else:}
+{editFormHeader:h}
+
+{foreach:items,i,item}
+
+{if:matrix.isFirstColumn(i)}
+<table class="list" border="0" cellspacing="4" cellpadding="0">
+	<tr>
+		<th>Up<!-- Update --></th>
+		<th>Preview</th>
+		<th>UserData</th>
+		<th>Info</th>
+	</tr>
+{end:}
+{if:item}
+	<tr>
+		<td align="center" valign="middle">
+			{item[f_change]:h}
+		</td>
+		<td align="center" valign="middle">
+			<a href="{item[src]}" target="_blank">
+				<img src="{item[thumb]}" id="img{item[id]}" width="{item[t_width]}" height="{item[t_height]}" alt="{item[name]}" border="0" />
+			</a>
+		</td>
+		<td align="left" valign="middle">
+			<b>Rank:</b>
+				{item[f_aborn]:h}<label for="img{item[id]}_aborn">あぼーん</label>
+				{item[f_rank][0]:h}<label for="img{item[id]}_rank0">0</label>
+				{item[f_rank][1]:h}<label for="img{item[id]}_rank1">1</label>
+				{item[f_rank][2]:h}<label for="img{item[id]}_rank2">2</label>
+				{item[f_rank][3]:h}<label for="img{item[id]}_rank3">3</label>
+				{item[f_rank][4]:h}<label for="img{item[id]}_rank4">4</label>
+				{item[f_rank][5]:h}<label for="img{item[id]}_rank5">5</label>
+				{item[f_hidden_rank]:h}<br />
+			<b>Memo:</b><br />
+				{item[f_memo]:h}
+				{item[f_hidden_msg]:h}<br />
+			<b>Delete:</b>
+				{item[f_remove]:h}<label for="img{item[id]}_remove">削除する</label>
+				{item[f_black]:h}<label for="img{item[id]}_black">ブラックリストに入れる</label>
+		</td>
+		<td align="left" valign="middle">
+			<b>URL:</b> <code>{item[uri_w]:h}</code><br />
+			<b>MIME:</b> <code>{item[mime]}</code><br />
+			<b>Size:</b> <code>{item[width]}&times;{item[height]}, {item[size_f]}</code><br />
+			<b>MD5:</b> <code>{item[md5]}</code><br />
+			<b>Date:</b> <code>{item[date]}</code>
+		</td>
+	</tr>
+{end:}
+{if:matrix.isLastColumn(i)}
+</table>
+<div class="centered">
+{editForm.submit(i):h}&nbsp;{editForm.reset(i):h}
+</div>
+{end:}
+
+{end:}
+
+</form>
+{end:}
+
+</div>
+
+<div id="footer">
+</div>
+
+</body>
+</html>

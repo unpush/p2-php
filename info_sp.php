@@ -1,0 +1,347 @@
+<?php
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* mi: charset=Shift_JIS */
+
+// p2 - しおり＆スマートあぼーん
+
+require_once 'conf/conf.php'; //基本設定読込
+
+authorize(); // ユーザ認証
+
+//=====================================================
+// 変数の設定
+//=====================================================
+$host = $_GET['host'];
+$bbs  = $_GET['bbs'];
+$key  = $_GET['key'];
+$rc   = $_GET['rc'];
+$ttitle_en = $_GET['ttitle_en'];
+$resnum = $_GET['resnum'];
+$popup  = $_GET['popup'];
+$mode   = $_GET['mode'];
+
+if (isset($_GET['aborn_str_en'])) {
+    $aborn_str_en = $_GET['aborn_str_en'];
+    $aborn_str = base64_decode($aborn_str_en);
+} elseif (isset($_GET['aborn_str'])) {
+    $aborn_str = $_GET['aborn_str'];
+}
+
+$itaj = P2Util::getItaName($host, $bbs);
+if (!$itaj) { $itaj = $bbs; }
+
+$ttitle_name = base64_decode($ttitle_en);
+
+$target_read_at = ' target="read"';
+$target_sb_at = ' target="sbject"';
+
+
+
+//=====================================================
+// データファイルの読み書き
+//=====================================================
+if (preg_match('/^(aborn|ng)_/', $mode)) {
+    $path = $datdir . '/p2_' . $mode . '.txt';
+} elseif ($mode == 'readhere') {
+    $path = P2Util::datdirOfHost($host) . '/' . $bbs . '/p2_read_here.txt';
+}
+
+if ($popup == 1 || $_exconf['spm']['confirm'] == 0) {
+    $_GET['popup'] = 2;
+    require_once (P2_LIBRARY_DIR . '/thread.class.php');
+    require_once (P2_LIBRARY_DIR . '/threadread.class.php');
+    $aThread = &new ThreadRead;
+    $aThread->setThreadPathInfo($host, $bbs, $key);
+    $aThread->readDat($aThread->keydat);
+    $resar = $aThread->explodeDatLine($aThread->datlines[$resnum-1]);
+    $resar = array_map('trim', $resar);
+    $resar = array_map('strip_tags', $resar);
+    $aborn_id = substr(strstr($resar[2], "ID:"), 3);
+    if (preg_match('/ID: ?([^ ]+?)(?= |$)/', $resar[2], $idar)) {
+        $aborn_id = $idar[1];
+    } else {
+        $aborn_id = '';
+    }
+    if ($_exconf['spm']['confirm'] == 0 && !isset($aborn_str)) {
+        if ($mode == 'aborn_res') {
+            $aborn_str = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
+        } elseif (strstr($mode, '_name')) {
+            $aborn_str = $resar[0];
+        } elseif (strstr($mode, '_mail')) {
+            $aborn_str = $resar[1];
+        } elseif (strstr($mode, '_id')) {
+            $aborn_str = $aborn_id;
+        } elseif (strstr($mode, '_msg')) {
+            $popup = 1;
+        }
+    }
+}
+
+if ($popup == 2) {
+    // あぼーん・NGワード登録
+    if (preg_match('/^(aborn|ng)_/', $mode) && ($aborn_str = trim($aborn_str)) !== '') {
+        if (file_exists($path) && ($data = @file($path))) {
+            $data = array_map('trim', $data);
+            $data = array_filter($data, create_function('$v', 'return ($v !== "");'));
+            array_unshift($data, $aborn_str);
+            $data = array_unique($data);
+        } else {
+            $data = array($aborn_str);
+        }
+        $fp = fopen($path, 'wb');
+        flock($fp, LOCK_EX);
+        fputs($fp, implode("\n", $data));
+        fputs($fp, "\n");
+        flock($fp, LOCK_UN);
+        fclose($fp);
+
+    // しおり登録
+    } elseif ($mode == 'readhere') {
+        $key_exists = false;
+        if (file_exists($path)) {
+            $data = file($path);
+            $data = array_map('trim', $data);
+            foreach ($data as $idx => $value) {
+                if (preg_match("/^{$key}:/", $value)) {
+                    $data[$idx] = $key . ':' . $resnum;
+                    $key_exists = true;
+                    break;
+                }
+            }
+        } else {
+            $data = array();
+        }
+        if (!$key_exists) {
+            $data[] = $key . ':' . $resnum;
+        }
+        $fp = fopen($path, 'wb+');
+        flock($fp, LOCK_EX);
+        fputs($fp, implode("\n", $data));
+        fputs($fp, "\n");
+        flock($fp, LOCK_UN);
+        fclose($fp);
+    } elseif ($mode == 'resethere') {
+        $path = P2Util::datdirOfHost($host) . '/' . $bbs . '/p2_read_here.txt';
+        if (file_exists($path)) {
+            unlink($path);
+        }
+    }
+}
+
+if (strstr($mode, '_msg')) {
+    if (isset($_GET['selected_string'])) {
+        include_once (P2_LIBRARY_DIR . '/strctl.class.php');
+        $aborn_str = trim($_GET['selected_string']);
+        $aborn_str = preg_replace('/\r\n|\r|\n/u', ' <br> ', $aborn_str);
+        // $selected_stringはJavaScriptのencodeURIComponent()関数でURLエンコードされており、
+        // encodeURIComponent()はECMA-262 3rd Editionの仕様により文字列をUTF-8で扱うため。
+        $aborn_str = mb_convert_encoding($aborn_str, 'SJIS-win', 'UTF-8');
+        $aborn_str = htmlspecialchars($aborn_str);
+    } elseif (!isset($aborn_str)) {
+        $aborn_str = '';
+    }
+}
+
+//=====================================================
+// メッセージ設定
+//=====================================================
+switch ($mode) {
+    case 'readhere':
+        $title_st = 'p2 - ' . $itaj . '：しおり';
+        if ($popup == 2) {
+            $msg = $resnum . ' レス目にしおりを設定しました。';
+        } else {
+            $msg = $resnum . ' レス目にしおりを設定してよろしいですか？';
+        }
+        break;
+    case 'resethere':
+        $title_st = 'p2 - ' . $itaj . '：しおりをリセット';
+        if ($popup == 2) {
+            $msg = $itaj . 'のしおりをリセットしました。';
+        } else {
+            $msg = $itaj . 'しおりをリセットしました。';
+        }
+        break;
+    case 'aborn_res':
+        $title_st = 'p2 - このレスをあぼーん';
+        if ($popup == 2) {
+            $msg = '<b>' . $aborn_str . '</b> をあぼーんしました。';
+        } else {
+            $aborn_str = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
+            $msg = '<b>' . $aborn_str . '</b> をあぼーんしてよろしいですか？';
+            $aborn_str_en = base64_encode($aborn_str);
+        }
+        $edit_value = 'あぼーんレス編集';
+        break;
+    case 'aborn_name':
+        $title_st = 'p2 - あぼーんワード登録：名前';
+        if ($popup == 2) {
+            $msg = 'あぼーんワード（名前）に <b>' . $aborn_str . '</b> を登録しました。';
+        } elseif ($resar[0] != "") {
+            $msg = 'あぼーんワード（名前）に <b>' . $resar[0] . '</b> を登録してよろしいですか？';
+            $aborn_str_en = base64_encode($resar[0]);
+        }
+        $edit_value = 'あぼーんワード編集：名前';
+        break;
+    case 'aborn_mail':
+        $title_st = 'p2 - あぼーんワード登録：メール';
+        if ($popup == 2) {
+            $msg = 'あぼーんワード（メール）に <b>' . $aborn_str . '</b> を登録しました。';
+        } elseif ($resar[1] != "") {
+            $msg = 'あぼーんワード（メール）に <b>' . $resar[1] . '</b> を登録してよろしいですか？';
+            $aborn_str_en = base64_encode($resar[1]);
+        }
+        $edit_value = 'あぼーんワード編集：メール';
+        break;
+    case 'aborn_msg':
+        $title_st = 'p2 - あぼーんワード登録：メッセージ';
+        if ($popup == 2) {
+            $msg = 'あぼーんワード（メッセージ）に <b>' . $aborn_str . '</b> を登録しました。';
+        } else {
+            $msg = 'あぼーんワード（メッセージ）<br><input type="text" name="aborn_str" size="50" value="' . $aborn_str . '">';
+        }
+        $edit_value = 'あぼーんワード編集：メッセージ';
+        break;
+    case 'aborn_id':
+        $title_st = 'p2 - あぼーんワード登録：ID';
+        if ($popup == 2) {
+            $msg = 'あぼーんワード（ID）に <b>' . $aborn_str . '</b> を登録しました。';
+        } elseif ($aborn_id != "") {
+            $msg = 'あぼーんワード（ID）に <b>' . $aborn_id . '</b> を登録してよろしいですか？';
+            $aborn_str_en = base64_encode($aborn_id);
+        }
+        $edit_value = 'あぼーんワード編集：ID';
+        break;
+    case 'ng_name':
+        $title_st = 'p2 - NGワード登録：名前';
+        if ($popup == 2) {
+            $msg = 'NGワード（名前）に <b>' . $aborn_str . '</b> を登録しました。';
+        } elseif ($resar[0] != "") {
+            $msg = 'NGワード（名前）に <b>' . $resar[0] . '</b> を登録してよろしいですか？';
+            $aborn_str_en = base64_encode($resar[0]);
+        }
+        $edit_value = 'NGワード編集：名前';
+        break;
+    case 'ng_mail':
+        $title_st = 'p2 - NGワード登録：メール';
+        if ($popup == 2) {
+            $msg = 'NGワード（メール）に <b>' . $aborn_str . '</b> を登録しました。';
+        } elseif ($resar[1] != "") {
+            $msg = 'NGワード（メール）に <b>' . $resar[1] . '</b> を登録してよろしいですか？';
+            $aborn_str_en = base64_encode($resar[1]);
+        }
+        $edit_value = 'NGワード編集：メール';
+        break;
+    case 'ng_msg':
+        $title_st = 'p2 - NGワード登録：メッセージ';
+        if ($popup == 2) {
+            $msg = 'NGワード（メッセージ）に <b>' . $aborn_str . '</b> を登録しました。';
+        } else {
+            $msg = 'NGワード（メッセージ）<br><input type="text" name="aborn_str" size="50" value="' . $aborn_str . '">';
+        }
+        $edit_value = 'NGワード編集：メッセージ';
+        break;
+    case 'ng_id':
+        $title_st = 'p2 - NGワード登録：ID';
+        if ($popup == 2) {
+            $msg = 'NGワード（ID）に <b>' . $aborn_str . '</b> を登録しました。';
+        } elseif ($aborn_id != "") {
+            $msg = 'NGワード（ID）に <b>' . $aborn_id . '</b> を登録してよろしいですか？';
+            $aborn_str_en = base64_encode($aborn_id);
+        }
+        $edit_value = 'NGワード編集：ID';
+        break;
+    default:
+        /*放置*/
+}
+
+
+//=====================================================
+// HTMLプリント
+//=====================================================
+P2Util::header_nocache();
+P2Util::header_content_type();
+if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo <<<EOHEADER
+<html lang="ja">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <title>{$title_st}</title>
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+EOHEADER;
+
+$body_onload = '';
+if ($popup == 2) {
+    echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js\"></script>\n";
+    $body_onload = " onload=\"startTimer(document.getElementById('timerbutton'))\"";
+}
+
+echo <<<EOP
+</head>
+<body{$body_onload}>
+<p><b><a class="thre_title" href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}"{$target_read_at}>{$ttitle_name}</a></b></p>
+<hr>
+<div align="center">
+EOP;
+
+echo "<form action=\"info_sp.php\" method=\"get\" accept-charset=\"{$_conf['accept_charset']}\">\n";
+echo "\t<input type=\"hidden\" name=\"detect_hint\" value=\"◎◇\">\n";
+echo "<p>{$msg}</p>\n";
+if ($popup == 1 && $msg != "") {
+    foreach ($_GET as $idx => $value) {
+        if ($idx == 'selected_string') {
+            continue;
+        }
+        echo "\t<input type=\"hidden\" name=\"{$idx}\" value=\"{$value}\">\n";
+    }
+    if (isset($aborn_str_en)) {
+        echo "\t<input type=\"hidden\" name=\"aborn_str_en\" value=\"{$aborn_str_en}\">\n";
+    }
+    echo "\t<input type=\"submit\" value=\"　Ｏ　Ｋ　\">\n";
+    echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
+} elseif ($popup == 2) {
+    echo <<<EOB
+    <input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))">\n
+EOB;
+}
+echo "</form>\n";
+
+//データファイルの編集ボタン
+if ($mode == 'readhere') {
+    $_GET['mode'] = 'resethere';
+    echo "<form action=\"info_sp.php\" method=\"get\">\n";
+    foreach ($_GET as $idx => $value) {
+        echo "\t<input type=\"hidden\" name=\"{$idx}\" value=\"{$value}\">\n";
+    }
+    echo "\t<input type=\"submit\" value=\"この板のしおりをリセット\">\n";
+    echo "</form>\n";
+} elseif (isset($edit_value)) {
+    $rows = 36; //18
+    $cols = 92; //90
+    echo <<<EOFORM
+<form action="editfile.php" method="post" target="editfile">
+    <input type="hidden" name="path" value="{$path}">
+    <input type="hidden" name="encode" value="Shift_JIS">
+    <input type="hidden" name="rows" value="{$rows}">
+    <input type="hidden" name="cols" value="{$cols}">
+    <input type="submit" value="{$edit_value}">\n
+EOFORM;
+    if ($popup == 1 && $msg == "") {
+        echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
+    }
+    echo "</form>\n";
+}
+
+echo "</div>\n";
+
+echo "<hr>\n";
+
+echo '</body></html>';
+
+
+?>

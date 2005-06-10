@@ -1,0 +1,1339 @@
+2005-05-08 aki
+	* p2 version 1.5.23
+
+	- [バグ修正] 携帯表示時の「略」がたまにリンク表示されていなかったのを修正
+	- [バグ修正] スレ一覧で板名の表示が日本語で登録できないことがあったのを修正
+	- [改良] 設定で編集できないファイルのボタンを、disable表示にした。（拡張パックより THX!→rskさん）
+	
+	- 他こまかく
+	
+	- 変更のあったファイル
+		editpref.php
+		p2util.class.php
+		post.php
+		post_options_loader.inc.php
+		showthreadk.class.php
+		subject.php
+		conf/conf.inc.php
+		style/editpref_css.inc
+		style/style_css.inc
+
+2005-05-07 aki
+	* p2 version 1.5.22
+	
+	- [バグ修正] 書き込み終了後に、間違ったエラー表示がされていたのを修正
+	
+	- 変更のあったファイル
+		post.php
+		conf/conf.inc.php
+
+2005-05-07 aki
+	* p2 version 1.5.21
+	
+	- 環境によっては、新着まとめ読みのキャッシュができなかったのを修正したつもり
+	
+	- 内部変更いろいろ。スレッド表示部分において、rskさんのコードを大きくマージしました。THX!
+	
+	- 変更のあったファイル
+		brdmenu.class.php
+		dataphp.class.php
+		filectl.class.php
+		info.php
+		login2ch.inc.php
+		login_first.inc.php
+		ngabornctl.class.php
+		p2util.class.php
+		post.php
+		read.php
+		read_header.inc.php
+		read_header_k.inc.php
+		read_new.inc.php
+		read_new.php
+		read_new_k.php
+		read_shitaraba.inc.php
+		showthread.class.php
+		showthreadk.class.php
+		showthreadpc.class.php
+		subject.php
+		thread.class.php
+		threadread.class.php
+		conf/conf.inc.php
+
+2005-05-07 aki
+	* p2 version 1.5.20
+	
+	- [バグ修正] しらたば、まちBBSでidxが存在して、datが存在しない時に、datの取得が変になっていたのを修正
+	  modified: read_shitaraba.inc.php, read_machibbs.inc.php
+	
+	- 変更のあったファイル
+		post.php
+		post_options_loader.inc.php
+		read_machibbs.inc.php
+		read_shitaraba.inc.php
+		subject.php
+		thread.class.php
+		threadread.class.php
+		conf/conf.inc.php
+
+2005-04-30 aki
+	* p2 version 1.5.19
+	
+	- [新機能] あぼーん/NGワードに正規表現が使えるようになった
+	  あぼーん/NGワード登録・編集時に行頭が <regex> となっていると、それ以降の文字列を正規表現として扱う。
+	  大文字小文字を区別したくないときは <regex:i> とする。
+	  （拡張パックより。THX!→rskさん）
+
+	- [バグ修正] スレッド下部の書き込みフォームで、前回書き込んだ名前とメールが呼び出し表示されなかったのを修正
+	- [バグ修正] スレ立て失敗した時に、キャッシュは残るのにタイトルだけ出ないのを修正 
+
+	- 他こまかく。ほんの少し、スレ一覧表示の動作の高速化など。
+
+	- 変更のあったファイル
+		post_form.inc.php
+		post_form.php
+		post_options_loader.inc.php
+		read.php
+		read_footer.inc.php
+		showthread.class.php
+		showthreadk.class.php
+		showthreadpc.class.php
+		thread.class.php
+		conf/conf.inc.php
+
+2005-04-29 aki
+	* p2 version 1.5.18
+	
+	- [バグ修正] 書き込み時に、クッキー確認があると、一部のhidden値が欠落する可能性があったのを修正
+	  modified: post.php
+	- [バグ修正] フォームのチェックボックスからのcookie認証登録が正常動作していなかったのを修正
+	- [バグ修正] 携帯表示で、書き込みフォームにスレッドタイトルが表示されていなかったのを修正
+	- [新機能] 書き込み時に2ch●IDの使用を選択できるようになった。
+	- [改良] CSRF対策を施した
+	- [内部変更] 書き込みフォームまわりの冗長なコードを多少整理した
+
+	- ファイル名変更
+		login.inc → login.inc.php
+		login_first.inc → login_first.inc.php
+
+	- 新規ファイル
+		post_form.inc.php
+
+	* cookie.php
+	* login.inc is removed
+	* login.inc.php is new
+	* login.php
+	* login_first.inc is removed
+	* login_first.inc.php is new
+	* post.php
+	* post_form.inc.php is new
+	* post_form.php
+	* post_options_loader.inc.php
+	* read_footer.inc.php
+	* conf/conf.inc.php
+	* conf/conf_user.inc.php
+
+2005-04-28 aki
+	* p2 version 1.5.17
+	
+	- [修正] フィルタリング時に正規表現を誤認してしまう可能性がある問題を修正
+	- [修正] 文字コードの変換を SJIS-win <-> eucJP-win で統一
+	- [改良修正] ページの読み込みが完了していない状態でHTMLポップアップができなかったのを修正
+	
+	今回の変更は全てrskさんのパッチより。THX!
+	
+	- 変更されたファイル
+		editfile.php
+		p2util.class.php
+		post.php
+		read_header.inc.php
+		read_new.php
+		read_shitaraba.inc.php chang
+		strctl.class.php
+		thread.class.php
+		threadlist.class.php
+		threadread.class.php
+		viewtxt.php
+		conf/conf.inc.php
+		js/htmlpopup.js
+
+2005-04-25 aki
+	* p2 version 1.5.16
+	
+	- [改良] subjext.txtのDLに失敗した時も、更新間隔を取るようにした
+	  modified: p2util.class.php
+
+	- [修正] 携帯で板へのリンクを c.2ch.net に変更修正した
+	  modified: sb_header_k.inc.php
+
+	- [内部仕様変更] クライアントから接続を切られても処理を続行するようにした
+	  modified: conf.php: ignore_user_abort(1);
+	  
+	- [内部仕様変更] 関数コール時にリファレンスとして引数を渡さないように改めた
+
+	- 他こまかく
+
+	- ファイル名の変更
+		test_first.php → phpinfo.php
+
+	* brdmenu.class.php
+	* filectl.class.php
+	* ngabornctl.class.php
+	* p2util.class.php
+	* phpinfo.php is new
+	* read_new.php
+	* read_res_hist.php
+	* sb_header_k.inc.php
+	* showthreadk.class.php
+	* subject.php
+	* subject_new.php
+	* test_first.php is removed
+	* conf/conf.inc.php
+	* doc/README.txt 
+
+2005-04-21 aki
+	* p2 version 1.5.15
+
+	- [Bug Fix] ソートで、切り替えた指定が残らないのと、spmodeの時、新着に固定されていたのを修正。
+	
+	- [新機能] cURLを使わずにOpenSSLで●ログインできるようにした。（拡張パックより） THX! > rskさん
+	  $_conf['precede_openssl']
+	  ※ただしPHPがバージョン4.3.0以降でconfigureのオプションに--with-opensslを付けてコンパイルされていないといけないので、
+	  DSOでopensslを読み込んでいる場合にこの機能を使うとエラーが出るので注意。
+	  
+	  - 変更されたファイル
+		login2ch.inc.php
+		subject.php
+		wap.class.php
+		conf/conf.inc.php
+		conf/conf_user.inc.php
+
+2005-04-21 aki
+	* p2 version 1.5.14
+	
+	- [Bug Fix] したらばJBBSの取得ログが崩れていたのを対応修正
+	- [Bug Fix] 書き込みした時のクッキー確認で文字化けしないように、Content-Type の header を出力するようにした。
+	
+	- [新機能] 書き込み時に、ソースコードを崩さないように補正できるオプションが付いた（拡張パックより）great! > rskさん
+	  $_conf['editor_srcfix']
+
+	- 新規ファイル
+		read_shitaraba.inc.php
+		post_options_loader.inc.php
+
+	- 変更されたファイルは多数につき、表記省略
+
+2005-04-21 aki
+	* p2 version 1.5.13
+	
+	- [新機能] 携帯でもソート方法を変更できるようにした
+	- [改良] オブジェクトは参照渡しにする方向で調整した
+	  （ちょっぴりはやくなって、メモリの負担が軽減したかもしれない）
+	- [改良] 明示的にソート方法が変更された場合のみ、ソート方法が変更記録されるように調整した。 
+	
+	* brdctl.class.php
+	* brdmenu.class.php
+	* cookie.php
+	* dataphp.class.php
+	* editfavita.php
+	* editfile.php
+	* editpref.php
+	* index.php
+	* info.php
+	* login.php
+	* login2ch.php
+	* login_first.inc
+	* menu.inc.php
+	* menu_k.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_machibbs.inc.php
+	* read_new.inc.php
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.inc.php
+	* read_res_hist.php
+	* res_hist.class.php
+	* sb_footer_k.inc.php
+	* sb_print.inc.php
+	* sb_print_k.inc.php
+	* setting.php
+	* showbrdmenuk.class.php
+	* showbrdmenupc.class.php
+	* showthreadk.class.php
+	* showthreadpc.class.php
+	* subject.php
+	* subject_new.php
+	* thread.class.php
+	* threadlist.class.php
+	* title.php
+	* viewtxt.php
+	* wap.class.php
+	* conf/conf.inc.php
+	
+2005-04-17 aki
+	* p2 version 1.5.12
+	
+	- [Bug Fix] read_new.php?spmode=recent などで
+	  「p2 error: 必要な引数が指定されていません」とエラー表示されていたのを修正
+	- [Bug Fix] スレ一覧のsmpodeで、フィルタリング時に強調表示されていなかったのを修正
+	- 他、細かな修正など
+
+	* brdctl.class.php
+	* brdmenu.class.php
+	* editpref.php
+	* index_print_k.inc.php
+	* info.php
+	* menu.inc.php
+	* menu_k.php
+	* p2util.class.php
+	* read.php
+	* read_new.inc.php
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.php
+	* subject.php
+	* subject_new.php
+	* threadread.class.php
+	* wap.class.php
+	* conf/conf.inc.php
+
+2005-04-16 aki
+	* p2 version 1.5.11
+	
+	- [Bug Fix] スレッド情報画面のタイトルが表示されていなかったのを修正
+	
+	* conf/conf.inc.php
+	* info.php
+	
+2005-04-16 aki
+	* p2 version 1.5.10
+	
+	- [新機能] 新着まとめ読みの前回キャッシュを表示できるようになった（「設定編集」から）
+	- [新機能] 携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換できるようにした
+		$_conf['k_save_packet']
+	- [Bug Fix] DoCoMoなどでも▼移動が効くように修正した
+	- 他、こまごま
+	
+	- conf系ファイルをconfディレクトリに移動した
+		conf.inc.php → conf/conf.inc.php
+		conf_user.inc.php → conf/conf_user.inc.php
+		conf_user_style.inc.php → conf/conf_user_style.inc.php
+
+	- 新規追加されたファイル
+		read_new.inc.php
+
+	- 削除されたファイル
+		jcode ディレクトリ以下
+
+	* conf.inc.php is removed
+	* conf_user.inc.php is removed
+	* conf_user_style.inc.php is removed
+	* cookie.php
+	* editfavita.php
+	* editfile.php
+	* editpref.php
+	* filectl.class.php
+	* first_cont.php
+	* httpcmd.php
+	* index.php
+	* index_print_k.inc.php
+	* info.php
+	* login.php
+	* login2ch.inc.php
+	* login2ch.php
+	* menu.inc.php
+	* menu_k.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_footer_k.inc.php
+	* read_header_k.inc.php
+	* read_new.inc.php is new
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.php
+	* sb_print_k.inc.php
+	* setting.php
+	* showthreadk.class.php
+	* showthreadpc.class.php
+	* strctl.class.php
+	* subject.php
+	* subject_new.php
+	* title.php
+	* viewtxt.php
+	* conf/conf.inc.php is new
+	* conf/conf_user.inc.php is new
+	* conf/conf_user_style.inc.php is new
+	
+2005-04-12 aki
+	* p2 version 1.5.9
+	
+	- [新機能] 画像URLの先読みサムネイルを一度に表示する制限数を設定できるようになった
+	- [新機能] 板表示のスレッド一覧でのデフォルトのソート指定を設定できるようにした（初期値は勢い） 
+		conf_user.inc.php: $_conf['sb_sort_ita']
+	- [改良] p2のフィルタ（検索）表示で、全角/半角のどちらでもマッチするように、あまり区別しないようにした
+	- [改良] 書き込みログの削除ボタンをページの上部にも付けた
+	- [Bug Fix] 書き込み時にクッキー確認があると、BE書き込みが無効になっていたのを修正（THX! rskさん）
+	- 他、こまごま
+
+	- ファイル名変更
+		read_machibbs.inc → read_machibbs.inc.php
+		sb_toolbar.inc → sb_toolbar.inc.php
+		sb_toolbar_k.inc → sb_toolbar_k.inc.php
+		setfavita.inc → setfavita.inc.php
+		settaborn.inc → settaborn.inc.php
+		settaborn_off.inc.php → settaborn_off.inc.php
+		syncfavita.inc → syncfavita.inc.php
+		syncindex.inc → syncindex.inc.php
+
+2005-04-01 aki
+	* p2 version 1.5.8
+
+	- [新機能] 書き込み時のデフォルトの名前とメールを設定できるようにした
+	- [新機能] 携帯でもお気に板の編集が可能になった
+	- [新機能] 携帯のアクセスキーを追加（削除=*、情報=9）
+
+	- [Bug Fix] $_conf['ext_win_target'] の設定が正常に反映されていない箇所があったのを修正
+	- [Bug Fix] お気にスレ、殿堂入りから外した時に、リスト順番号が崩れることがあったのを修正
+	- [Bug Fix] 書き込みで名前やメールに<>が含まれていると、記録データが崩れていたのを修正
+
+	- [仕様変更] BEで書き込むのボタンをつけた
+	- [仕様変更] オンラインの板メニュー指定で、URLの拡張子がcgiのものも、html形式として認識するようにした
+	- [仕様変更] 携帯利用時、HTMLのidとnameを両記載するようにした
+
+	- 他いろいろ
+
+	- ファイル名変更
+		sb_header_k.inc → sb_header_k.inc.php
+		read_footer_k.inc → read_footer_k.inc.php
+		read_header_k.inc → read_header_k.inc.php
+		sb_footer_k.inc → sb_footer_k.inc.php
+		sb_print.inc → sb_print.inc.php
+		sb_print_k.inc → sb_print_k.inc.php
+
+	- 新規追加ファイル
+		menu.inc.php
+
+2005-03-21 aki
+	* p2 version 1.5.7
+	
+	- [Bug Fix] 独立したレス書き込みフォームで、記憶された名前やメールが読み込まれていなかったのを修正
+	- 他こまごま
+
+2005-03-13 aki
+	* p2 version 1.5.6
+	
+	- [Bug Fix] ファイル名ミスのため、携帯用ページが表示できなかったバグを修正
+
+2005-03-13 aki
+	* p2 version 1.5.5
+	
+	- [Bug Fix] ファイル名ミスのため、板メニューなどが表示できなかったバグを修正
+
+2005-03-13 aki
+	* p2 version 1.5.4
+	
+	- [新機能] 携帯閲覧時、外部URLには、通勤ブラウザのリンクをつけた(通)
+	- [新機能] 携帯閲覧時、画像URLには、pic.toのリンクをつけた(ﾋﾟ)
+	- [新機能] 携帯でも、お気に板登録ができるようになった
+	- [新機能] スレッド表示、右肩にお気にスレ情報が表示されるようにした
+	- [新機能] Basic認証の必要な板のスレッド読み込みに対応した
+	- [改良] 書き込みログの体感表示速度が向上した
+	  （新しい書き込みが一番上に表示されるようになった）
+	  
+	- [Bug Fix] 板検索でHITしても、HITしてないとメッセージ表示されていたバグを修正
+	- [Bug Fix] Be IDのポイント送付時のスレッドリファラで、スレッドキーが含まれていなかったのを修正
+	
+	- [仕様変更] お気にスレ共有をデフォルトオフにした
+	- [仕様変更] ログを削除した時は、お気にスレ、殿堂入りからも外れるようにした
+	- [内部仕様変更] スレッド.idxにもお気にスレ情報を記録するようにした
+	  移行直後は、スレッド右肩でのお気にスレ表示は反映されていない場合があります
+	- [内部仕様変更] 2chログインパスワードの暗号化処理を変更
+
+	- [仕様変更] 新着まとめ読みからの投稿は元のフレームorウインドウをリロードしないようにした。（拡張パックより。THX!）
+	- [Bug Fix] 本文中で一回しか出てこないIDもポップアップするようにした（拡張パックより。THX!）
+	- [Bug Fix] 未来過ぎるレス番号同様、>>0もポップアップしないように（拡張パックより。THX!）
+
+	- ファイル名変更
+		brdctl_class.inc → brdctl.class.php
+		brdmenu_class.inc → brdmenu.class.php
+		index_print_k.inc → index_print_k.inc.php
+		setfav.inc → setfav.inc.php
+		setpalace.inc → setpalace.inc.php
+		showbrdmenuk_class.inc → showbrdmenuk.class.php
+		showbrdmenupc_class.inc → showbrdmenupc.class.php
+
+	- 新規追加されたファイル
+		httpcmd.php
+		md5_crypt.inc.php
+	
+	- 廃棄されたファイル
+		crypt_xor.inc.php
+		dele_js.php
+
+2005-03-06 aki
+	* p2 version 1.5.3
+
+	- [改善] 書き込みログが多い時の、表示が遅かったのを改善した
+
+2005-03-06 aki
+	* p2 version 1.5.2
+
+	- [Bug Fix] レス表示で「次X」のリンク先が正しくなかったのを修正
+	- [改良] 書き込みログが多い時の、書き込み時の処理速度を改善
+
+2005-03-05 aki
+	* p2 version 1.5.1
+
+	- [改良] スレッドのレス表示を逐次表示にして、大量のレスを表示する時の体感速度を向上した 
+	- [改良] レス表示でフィルタ表示した時の、次Xと続きを読むの表示を、
+	  ちゃんと最後にヒットしたレスから、表示されるようにした。
+	- [改良] 携帯モードでのBE対応を向上
+	- [新機能] 単独スレ表示から、フレームで開けるようにした
+
+2005-03-04 aki
+	* p2 version 1.5.0
+	
+	- [新機能] 投稿に失敗した時は、その内容を保存して、次回自動的に呼び出されるようにした。
+	  （スレッドごとに記憶される）
+	- [新機能] p2imeを#のページ内アンカーにも対応
+	- [改良] 新しいread.cgiの仕様変更に対応。（過去ログhtmlを読み込めるように）
+	- [改良] Be IDの認識を向上
+	- [改良] 名前部分の数字のレス引用変換判定を改良
+	- [改良] スレッド一覧でレス数をクリックしてログを削除するとき、すでにdat落ちしているものについては、
+	  JavaScriptで確認ダイアログを表示してから削除できるようにした。
+	- [改良] スレッド表示（read.php）でログがなかった時は、$_GET['offline']指定でもログ取得を試みるようにした。
+	- [改良] メニューのカテゴリー開閉のリンクターゲットを「_self」とした。
+	- [仕様変更] PHPのmbstring拡張なしを非サポートとした。mbstring拡張が必須となります。
+	- [仕様変更] 携帯のアクセスキーを少し変更した。「新」（3）と「ﾚｽ」（7）
+	- [仕様変更] ユーザ設定ファイルのファイル名が変更されています。
+	  conf_user.php → conf_user.inc.php、conf_style.inc → conf_user_style.inc.php
+	- [仕様変更] conf_user.inc.php で $prefdir → $_conf['pref_dir'] の変更
+	
+	- [新機能] NGあぼーんを強化
+	
+	  NGあぼーんの編集で、最新HIT時刻とHIT回数がわかるようになった。
+	  書式は、「ワード<TAB>最新HIT時刻<TAB>HIT回数」
+	  HIT時刻と回数は、自動で更新されるので、ワード登録の方法は、これまで通りワードのみを記述すればよい。
+	
+	  $_conf['ngaborn_daylimit'] で設定された期間（デフォルト半年）に、
+	  一度もHITしなかったワードは自動で解除するようにした。
+	
+	  NGあぼーんの内部仕様変更
+	  $aborn_words, $ng_words → $ng_aborns
+	  $ng_num → $ngaborns_hits
+	
+	- 他いろいろ、細かな修正
+	- 拡張パックさんのコードもいろんなところで取り込ませてもらってます。 THX!
+	
+	新規追加されたファイル
+		dataphp.class.php
+		dele_js.php
+		ngabornctl.class.php
+	
+	廃棄されたファイル
+		datactl.inc
+		read.inc
+	
+	ファイル名変更
+		conf.php → conf.inc.php
+		conf_user.php → conf_user.inc.php
+		conf_style.inc → conf_user_style.inc.php
+		crypt_xor.inc → crypt_xor.inc.php
+		dele.inc → dele.inc.php
+		login2ch.inc → login2ch.inc.php
+		read_footer.inc → read_footer.inc.php
+		read_header.inc → read_header.inc.php
+		read_res_hist.inc → read_res_hist.inc.php
+		res_hist_class.inc → res_hist.class.php
+		sb_footer.inc → sb_footer.inc.php
+		sb_header.inc → sb_header.inc.php
+		thread_class.inc → thread.class.php
+		threadread_class.inc → threadread.class.php
+		wap.inc → wap.class.php
+	
+	今回は、ほぼ全てのファイルを更新した。
+	逆に、更新していないファイルは、
+	style ディレクトリのファイルと、とjsディレクトリの basic.js, post_form.js 以外です。
+
+2005-01-30 aki
+	* p2 version 1.4.2
+
+	- [Bug Fix] バージョンチェックの判定処理にバグがあったのを修正
+
+2005-01-30 aki
+	* p2 version 1.4.1
+	
+	- [Bug Fix] スレ内検索で、「メッセージが」の指定が、「全体で」と同じように扱われていたのを修正
+	  (modified: showthreadpc_class.inc)
+	- バージョンチェックの判定処理を改良
+	  (modified: title.php)
+	
+2005-01-22 aki
+	* p2 version 1.4.0
+	
+	- [Bug Fix] mbstringが無効でSafariを使っているときに、書き込みフォームの表示が
+	  崩れていたのを修正
+	  (modified: read_footer.inc)
+	
+	- [仕様変更] スレッド一覧表示が、板表示以外のときは、どんな設定でも>>1を非表示とした。
+	  (modified: sb_print.inc)
+	  
+	- [内部仕様変更] 変数$uaを廃止。$_SERVER['HTTP_USER_AGENT']を直接利用することに。
+	  (modified: conf_style.inc, style/style_css.inc)
+	
+	- 他こまごま
+
+2005-01-22 aki
+	* p2 version 1.3.9
+	
+	- menuのカテゴリ開閉のJavaScriptを微改良
+	  (js/showhide.js)
+	- 引用文中でもBE ID変換表示するようにした
+	  (showthreadpc_class.inc: qRes())
+	- レスフィルタリング時に、Warning表示が出ることがあったのを修正。
+	  (showthreadpc_class.inc)
+
+2005-01-22 aki
+	* p2 version 1.3.8
+	
+	- メッセージ部分以外もフィルタの色分けがされるようにした。 
+	  (modified: showthreadpc_class.inc)
+	- 表示範囲の設定処理を調整
+	  ($_conf['get_new_res'] = "all" で新規取得スレが表示できなかったバグを修正)
+
+	↓以下は拡張パックでの修正、変更を統合（マージ感謝→rskさん）
+	- [Bug] レスフィルタリングの前回フィルタ値キャッシュファイルを作成する際にパーミッションが正しく設定されないバグを修正。
+	  (modified: read.php) 
+	- [Bug] 「Be.2chのコードを送信」にチェックを入れてポストしたとき、
+	  クッキー確認のときもhidden要素でpost_be2ch=1をフォームに含めるように。
+	  (modified: post.php) 
+	- [その他] read_new.phpでreadNew()関数が$aThreadをリファレンスとして受け取るようにした。
+
+2005-01-22 aki
+	* p2 version 1.3.7
+	- 携帯でもBE IDを表示できるようにした
+
+2005-01-22 aki
+	* p2 version 1.3.6
+	- BE IDの表示を改良調整した
+
+2005-01-22 aki
+	* p2 version 1.3.5
+	- BE ID表示への対応を向上させた （マージ感謝！→rskさん）
+	
+2005-01-22 aki
+	* p2 version 1.3.4
+	
+	- 新着まとめ読みで一度に表示するレス数にリミットをつけた
+	  （conf_user.php:  $_conf['rnum_all_range']）
+	- スレ一覧で>>1の表示を設定できるようにした
+	  （conf_user.php: $_conf['sb_show_one']）
+	- CURLを利用する時、コマンドライン版とPHP関数版のどちらを優先するかを設定できるようにした
+	  （conf_user.php: $_conf['precede_phpcurl']）
+	- IDフィルタリングポップアップ変換を微改良
+	  （本文中のIDで出現数が0のものは、リンク変換しない）
+	- URL文字列として「'」を含めないようにした
+	- 未読管理の処理を改良した
+	- ユーザ設定の変数名を多数変更した（$_conf['xxx']）
+	- 他、こまごま
+
+2005-01-09 aki
+	* p2 version 1.3.3
+	- datを取得できなかった時の表示処理をさらに調整した
+	 （古いタイプの表示でも●取得ができるようになった）
+
+2005-01-09 aki
+	* p2 version 1.3.2
+	- 2chの仕様変更に追随して、datを取得できなかった時の表示処理を調整した
+	 （●取得ができるようになった）
+	- スレッド一覧で元スレリンクのlsのall指定をなくした
+
+2005-01-03 aki
+	* p2 version 1.3.1
+	- まちBBSタイプのリンクが表示されなかったのを修正
+	- 他、細かく
+
+2005-01-02 aki
+	* p2 version 1.3.0
+	- お気にスレリストの順番番号が崩れることがあったのを修正
+	
+2005-01-02 aki
+	* p2 version 1.2.9
+	- menu_side.php が表示できなかったバグを修正
+
+2005-01-01 aki
+	* p2 version 1.2.8
+	- 2ch全体での、Be.2ch書き込みに対応
+	- 携帯モードの板メニューで検索ができなかったバグを修正
+
+2004-12-31 aki
+	* p2 version 1.2.7
+	- 携帯モードで板メニューが見られなかったバグを修正
+
+2004-12-31 aki
+	* p2 version 1.2.6
+	
+	- したらば、まちBBSが表示できなかったのを修正
+	- filectl_class.inc を filectl.class.php にファイル名変更
+
+2004-12-31 aki
+	* p2 version 1.2.5
+	
+	- IDポップアップの自動リンクを追加（$_conf['flex_idpopup']）
+	- レスフィルタの条件に「全体で」を追加
+	- したらばの解析処理を調整
+	- be.2ch.net のCookie送信処理を修正
+	- strctl_class.inc を srtctl.class.php にファイル名変更
+
+2004-12-29 aki
+	* p2 version 1.2.4
+	- したらばの仕様変更に対応、スレが読めるようになった
+
+2004-12-24 aki
+	* p2 version 1.2.3
+	- Safariでeditfile.phpが文字化けするのを修正
+	- 元スレリンクのls指定が効いていなかったのを修正
+
+2004-12-23 aki
+	* p2 version 1.2.2
+	- 携帯UA Vodafoneに対応した
+
+2004-12-23 aki
+	* p2 version 1.2.1
+	- jcode_convert_encoding()の引数を修正
+
+2004-12-23 aki
+	* p2 version 1.2.0
+	- 検索、フィルタリングを強化
+	 （マージ感謝！→rskさん）
+	- 一部JavaScriptの警告が表示されることがあったのを修正
+	- jcode.phpをセットで同梱（jcodeディレクトリ）
+	 （感謝→TOMOさん）
+
+2004-12-22 aki
+	* p2 version 1.1.9
+	- 複数のスレッドあぼーん登録ができなかったバグを修正
+	- 一部JavaScriptの警告が表示されることがあったのを修正
+
+2004-12-13 aki
+	* p2 version 1.1.8
+	- 携帯モードで、スレッド一覧を表示できなかったバグを修正
+	
+	* conf.php
+	* sb_print_k.inc: タイプミスを修正 $aThread->isKitoku()
+	
+2004-12-13 aki
+	* p2 version 1.1.7
+	
+	- subject.txtの取得にキャッシュの更新間隔を設定した
+	 （conf_user.php: $_conf['sb_dl_interval']）
+	- スレッド一覧で、元スレへのリンク表示と勢いの表示を設定できるようにした
+	 （conf_user.php: $_conf['sb_show_motothre'], $_conf['sb_show_ikioi']）
+	- スレッド一覧で、元スレへのリンク表示を未取得スレのみにした
+	- したらば書き込み時に、EUC変換するようにした
+	 （半角カナが文字化けすることがあったのを修正）
+	- be.2ch.net書き込み時の文字コード変換処理を修正
+	- ブラウザ上の設定編集で（edifile.php）safari化けしないようにした。（マージ感謝→rskさん）
+	- スレッド情報にdatのサイズも表示するようにした
+	- 外部から移行したidxファイルが、部分的にまだ不完全な状態で、お気に入りに追加すると、
+	 p2_favlist.idx が壊れてしまう場合があったのを修正
+	- スレ一覧ソートのデフォルト設定を変更（spmode時は新着に）
+	- 取得できなかったスレは履歴に含めないようにした
+	- まちBBS、JBBSでのスレッド取得エラー表示を改良した 
+	- threadクラスにisKitoku()メソッドを新規追加、kitokuプロパティを廃止した
+	- p2の更新チェックにキャッシュインターバルを設けた
+	- （conf.php: $_conf['p2status_dl_interval']）
+	- 今回は、idxファイル読み書き時の改行取り扱い処理を、広範に変更しています。
+	 （基本的に、読み込み時は改行を外して、書き込み時に改行を追加する）
+	
+2004-11-30 aki
+	* p2 version 1.1.6
+	
+	- スレッド一覧で元スレへのリンクを追加した。（・）
+	- 長過ぎる書き込み時に確認表示が切れることがあったのを修正
+	- スレッド一覧のソートのデフォルトを「勢い」に変更
+
+2004-11-30 aki
+	* p2 version 1.1.5
+	
+	- p2imeで、プレビュー(p)は手動転送、それ以外は自動転送の設定を追加
+	 （$_conf['through_ime'] = "p2pm";）
+	- subject.txtの保存パーミッションを606に変更した
+	- >> 引用リンク化処理の調整
+	- 他ごにょごにょ
+
+2004-11-22 aki
+	* p2 version 1.1.4
+	
+	- レスのすばやさをスレッド下部に表示した
+	
+2004-11-22 aki
+	* p2 version 1.1.3
+	
+	- be.2ch.netの書き込みに暫定対応
+
+2004-11-22 aki
+	* p2 version 1.1.2
+	
+	- be.2ch.netに閲覧のみ暫定対応
+	（DAT保存はEUCで生のまま、読み出し時にSJIS変換）
+	- レスのすばやさを表示するようにしてみた
+	- mbstring有効時、Safari/KonquerorはUTF-8で投稿することで
+	バックスラッシュとチルダが全角になるのを防ぐようにした（\~＼～）
+	（マージ感謝→707さん）
+	- 2ch、bbspink.comの携帯用の元スレURLを修正した。
+	（http://c.2ch.net/z/-/ から http://c.2ch.net/test/-/ に、bbspink.com は r.i に）
+	- PHP5でエラー表示が出るのを修正（brdctl_class.inc）
+	- p2がDLしたファイル（キャッシュ等）の基本パーミッションを606に変更
+	- 感謝 → みなさん
+
+2004-11-06 aki
+	* p2 version 1.1.1
+	
+	- まちビねっと（MachiBBS.net）に対応
+	- 携帯用の元スレを http://c.2ch.net/test/-/ に変更修正した
+	- 書き込み時の美乳文字コード判定を追加（拡張パックより）
+	- 書き込み時のSafari補正用フォームを追加（拡張パックより）
+	- したらばのスレタイ重複に対応修正
+	- 透明あぼーんの空白を無くした
+	- 新着まとめ読み時のJavaScriptエラーを修正
+	- brdctl_class.inc のPHP5での動作不具合を修正
+	- ファイルの改行コードをLFに統一修正
+	- favicon.icoを同梱した
+	- read[_new[_k]].phpを変数化した
+		$_conf['read_php'] = "read.php";
+		$_conf['read_new_php'] = "read_new.php";
+		$_conf['read_new_k_php'] = "read_new_k.php";
+	- 他、微修正
+	- 感謝 → みなさん
+
+2004-10-26 aki
+	* p2 version 1.1.0
+	
+	- したらば jbbs.livedoor.com 対応
+	- ホストの同期機能を追加（拡張パックより統合。感謝→707さん）
+	- p2へのログイン情報を記録するようにした（不正アクセス防止）
+	- セキュリティ修正 viewtxt.php, editfile.php
+	- HTMLヘッダにロボット検索除けコードを追加した
+	- クッキー保存の仕様変更
+	- 書き込みログの仕様変更
+	- 掲示板書き込み時に「p2-Client-IP」を送るようにした
+	- 設定を調整した
+	- 他、細かな修正
+
+	- クッキーの保存仕様を少し変更しました。クッキー認証を利用していた方は、
+	「ログインユーザ管理」の「p2認証ユーザ管理」で改めて「変更登録」してください。
+
+	- 書き込みログの書式とファイル名を変更しました。
+	新形式への変換は、書き込みログ閲覧時、または書き込み時に自動的に行われます。
+	変換後は、初期設定フォルダに、p2_res_hist.dat.php という新しいファイルが生成されます。
+	古い p2_res_hist.dat は不要となりますので、捨ててしまって構いません。
+
+	- 掲示板書き込み時に、p2独自のHTTPヘッダとして、「p2-Client-IP」を掲示板サイトへ送信するようにしました。
+	「p2-Client-IP」は、クライアントユーザのIPアドレスを示します。
+
+2004-06-21 aki
+	* p2 version 1.0.5
+	- したらばURL解釈の正規表現を修正
+
+	* read.php : したらばURL解釈の正規表現を修正
+	* showthreadk_class.inc : したらばURL解釈の正規表現を修正
+	* showthreadpc_class.inc : したらばURL解釈の正規表現を修正
+
+2004-06-14 aki
+	* p2 version 1.0.4
+	- 板メニューの解析処理を修正
+
+2004-06-14 aki
+	* p2 version 1.0.3
+	- ●ログインでのCURL利用処理を改良
+		手助け感謝！ → p2スレッドのみなさん
+	- したらばのPATH_INFO形式のURLに対応した
+		マージ感謝！ → 707さん
+	- 細かな設定の調整
+
+	* conf.php : $ktai_res_size, $ktai_ryaku_size, $fsockopen_time_limit
+	* login2ch.inc : CURL調整
+	* read.php : したらばのPATH_INFO形式のURLに対応
+	* showthreadk_class.inc : したらばのPATH_INFO形式のURLに対応
+	* showthreadpc_class.inc : したらばのPATH_INFO形式のURLに対応
+	* title.php : p2 webを新窓で開くようにした
+
+2003-12-14 aki
+	* p2 version 1.0.2
+	- JBBS@したらばの新write.cgiに対応
+	- まちBBS の machi.to に対応
+	- k=1で携帯モードにしている時、レス書き込み後に携帯モードを抜けてしまうのを修正
+	- 感謝→2ch p2スレッドの皆さん
+
+2003-07-27 aki
+	* p2 version 1.0.1
+	- スレの殿堂が表示されなくなっていたバグを修正
+	- p2をhttpsで利用している場合、menu.phpが自動更新する際にnot foundとなる問題を修正
+		マージ感謝！>184さん
+	- 板メニューの自動更新は、「お気に板のみ」をデフォルト設定とした
+	- 他、メニュー表示を微修正
+
+2003-07-21 aki
+	* p2 version 1.0.0
+	- お気にスレ一覧などが表示されなくなっていたバグを修正
+
+2003-07-21 aki
+	* p2 version 0.9.9
+	- fread関数の仕様変更により、PHP 4.3.2でリモートファイルが正しく取得できない問題を修正
+		マージ感謝! > 707さん他
+	- プロキシ経由で接続できないことがあったバグを修正
+	- 板メニューのお気に板で新着数が表示されるようにした
+	- スレッド一覧で、既得スレは表示件数に関わらず表示するようにした（conf_user.phpで設定可）
+	- jbbs.shitaraba.comのlink.cgiを外すようにした。
+	- スレッド情報ウィンドウに「履歴から外す」を追加
+	- 2chログイン後、24時間以上経っていた場合は、自動で再ログインするようにした
+
+2003-05-15 aki
+	* p2 version 0.9.8
+	- スレッドタイトルで検索ができなかったのを修正
+
+2003-05-15 aki
+	* p2 version 0.9.7
+	- タイムゾーンの指定形式を再度変更
+	- 0.9.6でsb_toolbar.incがなかったのを補完
+	
+2003-05-15 aki
+	* p2 version 0.9.6
+	- README.txt等が読めないことがあったバグを修正
+	- NGワードにメール欄を追加
+	- タイムゾーン指定の形式を変更
+	- 他こまごま
+
+2003-05-10 aki
+	* p2 version 0.9.5
+	- まちBBSで読み込めないスレがあったのを修正
+	- ユーザ名、パスワードに"_"を使えるようにした
+	- 他こまごま
+
+2003-05-07 aki
+	* p2 version 0.9.4
+	- ユビキタスp2に新着まとめ読みを付けた。
+	- パスワードを暗号化して保存するようにした。
+	- URLの引数にk=1を付けると、どんな環境であっても携帯用モードで閲覧できるようになった。
+	- ブラウザからNGワードを編集できるようにした。
+	- daap://リンクに対応
+	- Safari等、ブラウザによっては、returnキーでスレッド一覧の検索ができなかったのを対策。
+	- 携帯からスレ立てができるようになった。
+	- p2 imeが手動転送に設定対応。
+	- mail欄のsageの色分けを修正。
+	- 意味なく出力文字をバッファリングしてた箇所があったのを修正した。
+	- conf.inc を conf.php に名前変更。
+	- 他いろいろ。
+
+2003-04-19 aki
+	* p2 version 0.9.3
+	- レスポップアップの数が多くなると機能しなくなっていたのを修正
+	- mail欄に色を付けられるようになった
+
+2003-04-17 aki
+	* p2 version 0.9.2
+	- 新着まとめ読みでレスを2重に取得することがあった不具合を修正
+	- まれに表示されないレスがあったのを修正
+	- プロキシ対応
+
+2003-04-15 aki
+	* p2 version 0.9.1
+	- 認証中のユーザ表示を分かりやすくした
+
+2003-04-15 aki
+	* p2 version 0.9
+	- 「ユビキタスp2」携帯端末からのアクセスに対応
+	（EZweb, i-mode, J-PHONE,  AirH"PHONE）
+	- セキュリティの向上
+	- cookieによる認証登録が可能になった
+	- データファイルのパーミッションをこれまでより厳格にした
+	- 未読数表示アルゴリズムを改善
+	- 板サーバへのアクセス頻度を軽減
+	- 一部の2chサーバで●IDによるdatの読み込みができなかったのを修正
+	- 勢いでソートした時に新着レスのあるスレを優先するようにした（設定変更可）
+	- 引用レスの表示のオン、オフを設定できるようにした
+		>>710
+	- Windowsサーバで改行コード処理の違いから、
+		お気にスレ等が正常に処理されなかったことがあったのを修正。
+		>>714
+	- スクリプト実行制限時間、ネットワーク接続タイムアウト時間に余裕を持たせた。
+		>>731-732
+	- あぼーんされた書き込み跡の余白を残さないようにした
+		>>759
+	- 他さまざま
+
+2003-03-25 aki
+	* p2 version 0.8.7
+	- 内部処理における文字コードを、環境判別して指定するようにした
+
+2003-03-25 aki
+	* p2 version 0.8.6
+	- 環境によってはエラーが出るため、内部処理における文字コードを明示的に指定するのを中止
+
+2003-03-25 aki
+	* p2 version 0.8.5
+	- 内部処理における文字コードを明示的に指定するようにした
+ 	- Winサーバで過去ログ取得時に文字化けすることがあった問題を修正
+	- スレッド表示で、「 >-」が「-」と誤変換表示されていたバグを修正
+
+2003-03-06 aki
+	* p2 version 0.8.4
+	- 1050以上のレスも一括表示できるようになった
+ 	- ログを削除したスレは、履歴からも削除されるようになった
+	- NGワードの対象にIDを追加
+ 	- Safari v51の文字欠け対策を解除 
+
+2003-02-15 aki
+	* p2 version 0.8.3
+	- bbspinkでの●IDに対応
+	- まれにスレッド表示が、意図せずボールドフォントになってしまうことがあった現象に対策
+	- >>n のポップアップで「、」もセパレータとして認識するようになった
+	- スレの殿堂の並替で一番上へ移動（▲）をすると項目が消えてしまっていたバグを修正
+	- お気にスレ、スレの殿堂の並替表示がトグル可能になった
+
+2003-02-09 aki
+	* p2 version 0.8.2
+	- 新サーバであぼーん検出ができないことがあったのを修正
+	- お気にスレ共有への参加設定が無効になっていたのを修正
+
+2003-02-08 aki
+	* p2 version 0.8.1
+	- 書き込みの文字列から、英数字が消えてしまうことがあったバグを解消
+	- 極端にサイズの大きい過去ログの取り込みにも対応
+
+2003-02-05 aki
+	* p2 version 0.8.0
+	- subbbs.cgi 経由のスレ立てに対応
+	- "ftp://"を"http://"と誤認処理していたのを修正
+	- HTMLポップアップ方法のデフォルトを変更
+
+2003-02-04 aki
+	* p2 version 0.7.9
+	- p2 ime を通すと画像サムネイルが表示されなくなっていたのを修正
+
+2003-02-03 aki
+	* p2 version 0.7.8
+	- fsockopen のタイムアウト時間を変更
+
+2003-02-03 aki
+	* p2 version 0.7.7
+	- Safariで表示が崩れることがあった問題に対処
+	- 新着まとめ読みでのメモリ使用量を軽減した
+	- 旧形式datで "＠｀" → "," の置換がされていなかったのを修正（協力：名無しさん）
+	- "tp://"もURLとしてリンク有効化するようにした
+	- "()" はURL文字列としてリンク有効化しないことにした
+	- 画像サムネイル表示の大きさを設定できるようになった
+
+2003-02-01 aki
+	* p2 version 0.7.6
+	- 2ちゃんねる旧形式のdat、過去ログに対応（協力：名無しさん）
+	- スレッド下部に書き込みフォームを表示できるようにした（$bottom_res_form）
+	- 一部、JavaScriptエラーが出ることがあったのを修正
+	- Win IE6で常に横スクロールバーが表示されていた問題に対処
+	- スレ立ての履歴がkey情報を含めて記録されるようになった
+	- クッキーのexpiresを反映処理するようになった
+	- その他、通信処理の調整など
+
+2003-01-29 aki
+	* p2 version 0.7.5
+	- dat倉庫とあぼーん中のスレッドの一覧表示を高速化した
+	- スレッドあぼーんリストの、2ちゃんねるサーバ移転に対する追随性を高めた
+	- bbspinkのhtml化された過去ログの読み込みに対応
+	- ソート条件を変更しても、新スレ強調表示がクリアされないようにした
+
+2003-01-26 aki
+	* p2 version 0.7.4
+	- NGワード機能搭載
+	- 新規スレッドを立てられるようになった
+	- スレッド一覧でのお気にスレマーク表示を設定できるようにした
+	- 一部、JavaScriptエラーが出ることがあったのを修正
+
+2003-01-21 aki
+	* p2 version 0.7.3
+	- 新着スレ、お気にスレがスレッド一覧の表示件数に関わらず、
+	必ずしも常に表示されるようになっていなかったのを修正。
+
+2003-01-20 aki
+	* p2 version 0.7.2
+	- スレッド一覧で新規スレッドは色分け表示するようにした
+
+2003-01-18 aki
+	* p2 version 0.7.1
+	- PHPのzlib拡張モジュールの代替手段として、systemのgzipが機能していなかったのを修正
+
+2003-01-18 aki
+	* p2 version 0.7.0
+	- ●IDに対応
+	- html化された過去ログを取りこめるようになった
+	- 板名を日本語表示するようにした
+	- URL指定でお気に板の追加ができるようになった（お気に板の編集）
+	- 2chの板リンクをp2で直接開けるようになった
+	- まちBBSで一部の板のスレが表示されなかった問題を解消
+	- お気にスレや殿堂スレが一つしかない時に、外すことができなくなっていたバグを修正
+	- 変数 $ita を $bbs に仕様変更
+
+2003-01-10 aki
+	* p2 version 0.6.2
+	- p2対応BBSサイト内でジャンプする時に開くウィンドウターゲットの設定が、
+	 うまく反映されていなかったバグを修正。
+
+2003-01-09 aki
+	* p2 version 0.6.1
+	- data/p2_favita.idx を data/p2_favita.brd にデータ形式と名前を変更。
+		（しばらくは自動移行のための処理コードを残しておきます）
+	- ソートに「勢い」を追加
+	- Safariでの表示乱れに対応調整
+	- 他いろいろ
+
+2003-01-02 aki
+	* p2 version 0.6.0
+	- HTML（兼画像）ポップアップ機能を追加
+	- ソートにBirthdayを追加
+	- あらゆるクッキーに対応できるように改良
+	- レスポップアップが画面からはみ出ないように改良
+	- 書き込み時のtime問題に偽装timeで対策
+	- スレ一覧表示で、お気にスレは表示件数に関わらず、リストアップするようにした
+	- subject.txtをDLする頻度を減少
+	- p2_setting.txtの保存形式を仕様変更
+	- p2_cache/p2_cookie_filter.txt を p2_res_filter.txt に保存ファイル名変更
+
+2002-12-21 aki
+	* p2 version 0.5.9
+	- 2chのサーバ負荷が高くて書き込みができない場合は、
+	 その旨メッセージ表示されるようにした。
+	- Windowsサーバで使用している時、 gzip圧縮されたsubject.txtが壊れることがあったのを修正。
+
+2002-12-15 aki
+	* p2 version 0.5.8
+	- 2chのクッキー仕様変更（PON）に対応。
+
+2002-12-13 aki
+	* p2 version 0.5.7
+	- 一部、ポップアップウィンドウの大きさが変だったのを修正。
+
+2002-12-13 aki
+	* p2 version 0.5.6
+	- レス引用ポップアップ(>>1)で、「,」「=」「.」に対応。
+	- Mozillaで板一覧検索が動作しなかったのをとりあえず修正。
+	- スレ一覧表示で、新着レスのあるスレッドは表示件数に関わらず、リストアップするようにした。
+	- 新着ソートの優先順位パターンをより細かくカスタマイズできるようにした。
+	- 板サーバ上の板リスト（subject.txt）から外れたスレッドは、
+	 自動的にスレッドあぼーんリストから解除されるようにした。
+	- あぼーんリストのファイル名を threads_aborn.idx から p2_threads_aborn.idx に仕様変更
+
+2002-12-08 aki
+	* p2 version 0.5.5
+	- zlibが無効な場合、スレの表示がされなかったバグを修正。
+
+2002-12-08 aki
+	* p2 version 0.5.4
+	- ソート機能実装。（新着フィルタは廃止）
+	- zlib有効だとbbspinkのスレ一覧が見れなかった問題を解消。
+	- Win IE6でレスポップアップが変だったのを修正。（マージ感謝→502さん）
+
+2002-12-06 aki
+	* p2 version 0.5.3
+	- スレッド一覧情報を正しく取得できないことがあったバグを修正。
+
+2002-12-06 aki
+	* p2 version 0.5.2
+	- PHPをWindowsサーバで動かしている場合、スレッド一覧表示が正常に表示されなかった問題を解消。
+
+2002-12-04 aki
+	* p2 version 0.5.1
+	- あぼーん検出にバグがあったのを直した。
+	- zlib関数が有効な場合は、subject.txtをgzip転送で取得するようにした。
+
+2002-12-02 aki
+	* p2 version 0.5.0
+	- JBBS@したらばに対応
+	- 連番引用レスは最初の一つ目のみをポップアップ表示するようにした。
+	 （リンククリックすれば指定範囲レスを表示）
+
+2002-11-26 aki
+	* p2 version 0.4.9
+	- まちBBSで新着レスまとめ読みをした時に、
+	 予期しない連続あぼーんが発生することがあったバグを解消。
+
+2002-11-25 aki
+	* p2 version 0.4.6
+	- dat倉庫完備（過去ログ管理）
+	- mbstringが有効な場合はmbstringの関数を使うようにした。
+	 （PHPの環境によって、フィルタ、検索の処理速度が向上します）
+
+2002-11-22 aki
+	* p2 version 0.4.5
+	- まちBBSでレス取得時の不具合を解消
+
+2002-11-22 aki
+	* p2 version 0.4.4
+	- まちBBSでスレッドにアクセスできない時のメッセージを表示するようにした
+	- まちBBSのリンクもp2内で表示するようにした（マージ感謝→347さん）
+	- 他、こまごま（マージ感謝→376さん）
+
+2002-11-22 aki
+	* p2 version 0.4.3
+	- まちBBS閲覧時のデータ処理にバグがあったのを修正
+
+2002-11-22 aki
+	* p2 version 0.4.2
+	- まちBBSであぼーんがあるとスレが読めなくなっていた問題を解消
+
+2002-11-22  aki
+	* p2 version 0.4.1
+	- まちBBSに対応
+	- 「新着まとめ読み」を実装。
+	- スレッド内容表示のレスポンスが高速化した。
+	- スレッド一覧のタイトルクリック時、未読数のカラー変更が正常に動作しないことがあったバグを修正。
+
+2002-11-17  aki
+	* p2 version 0.4.0
+	- 一部文字化けするバグを修正
+
+2002-11-17  aki
+	* p2 version 0.3.9
+	- レスフィルタの処理を最適化して若干高速化。
+	- スレッド一覧にもフィルタ搭載。
+	- 板メニューの検索を装備。
+
+2002-11-13  aki
+	* p2 version 0.3.8
+	- スレッド一覧表示の処理を最適化
+	- お気に板、お気にスレ、スレの殿堂の並び替えが可能になった。
+	- レス書き込みログで「<」「>」がHTMLエンティティ変換されずに記録されていたバグを修正。
+
+2002-11-12  aki
+	* p2 version 0.3.7
+	- レスフィルタで「<」「>」がマッチしなかった不具合を解消。
+	- 引用レス番リンク化のマッチ条件を修正
+
+2002-11-10  aki
+	* p2 version 0.3.6
+	- レスフィルタを改良。条件に「含まない」を追加
+
+2002-11-09  aki
+	* p2 version 0.3.5
+	- レスフィルタ搭載。
+	- dat落ち等でスレがすでにない場合に、スレにアクセスすると
+	 DLできなくても読んだことになってしまう問題を解消。
+	- 新規スレッドを取得する時、全部表示しないように設定が可能となった。
+	- ダウンロードキャッシュが機能的に働くようになった。
+
+	【p2 ver 0.3.4 よりの仕様変更】
+	http://akid.s17.xrea.com/p2/from034.php.txt 参照のこと。
+	上記URLのテキストをDLして、from034.phpとリネーム後、
+	p2ディレクトリに置いて、移行処理を実行して下さい。
+
+2002-11-06  aki
+	* p2 version 0.3.4 beta
+	- 書き込み履歴がついた
+	- 書き込みの名前とメールがスレごとに記憶されるようになった
+	- スレ一覧表示時のビュー形式を記憶するようになった
+	- ニュー速+で>>1のみのプレビューが可能となった
+	- デザイン設定ファイルをconf_user.phpからconf_style.incに分離独立した
+	（デザイン関連の変数は$STYLE 配列に統一）
+	- スレッドあぼーん表示で、「標準表示」や「新着フィルタ」をクリックすると、
+	 別のページへジャンプしていたバグを修正。
+
+2002-11-03  aki
+	* p2 version 0.3.3 beta
+	- レス数の少ないスレで、「新着レスの表示」 をクリックすると、
+	 1しか表示されないことがあったバグを修正。
+
+2002-11-02  aki
+	* p2 version 0.3.2 beta
+	- p2からレスの書き込みができるようになった
+
+2002-10-30  aki
+	* p2 version 0.3.1 beta
+	- スレの殿堂を建築した
+
+2002-10-29  aki
+	* p2 version 0.3.0 beta
+	- セキュリティ保持のため、conf_user.inc を conf_user.php へとファイル名変更した。
+	- スレッド一覧でクリック済みのスレが動的に色分けされ、わかりやすくなった。
+	- CSS関連の改良
+
+2002-10-29  aki
+	* p2 version 0.2.9 beta
+	- 新着フィルタ装備
+	- オンライン上の板メニューで読み込める対応URLを増やした
+	- ローカル板メニューの読み込み指定が無効となることがあったバグを修正
+
+2002-10-27  aki
+	* p2 version 0.2.8 beta
+	- スレッドあぼーん機能装備
+	- 情報ウィンドウ実装
+	- お気にスレ関連のマイナーバグフィックス
+	
+2002-10-25  aki
+
+	* p2 version 0.2.7 beta
+	- p2ウプデータン自動確認機能装備
+	- 外部URLを開く際にime.nuを通すオプションを追加
+
+2002-10-24  aki
+
+	* p2 version 0.2.6 beta
+	- register_globalsがoffの場合、conf_user.incのクライアント別フォントサイズ振り分けが
+	うまく反映されていなかった問題を解消
+	- register_globalsがoffの場合、スレッド一覧の全て表示が機能しなかった問題を解消
+	
+2002-10-23  aki
+
+	* p2 version 0.2.5 beta
+	- 簡易ユーザ認証に対応（デフォルトはオフ、conf_user.incで設定）
+	- register_globalsがoffの場合、お気に板の登録ができなかった問題を解消
+
+2002-10-22  aki
+
+	* p2 version 0.2.4 beta
+	- 0.2.2のアップデートで、dat落ちしたスレにアクセスした時の注意メッセージが
+	表示されなくなっていた問題を修正。
+
+2002-10-21  aki
+
+	* p2 version 0.2.2 beta
+	- スレッド取得レスポンスが高速化した。
+	- オンラインからの板メニューの読込みが2、3倍高速化した。
+	
+2002-10-20  aki
+
+	* p2 version 0.2.1 beta
+	- お気にスレ、履歴の表示が約1.1～2倍高速化した。
+
+2002-10-19  aki
+
+	* p2 version 0.2.0 beta
+	- スレッド一覧リスト、お気にスレ、履歴の表示が2、3倍高速化した。
+	- ユーザ設定で外部リンクを新規ウィンドウで開けるようになった。
+	- 名前の数字もポップアップするようになった。
+	- read.php部分に、2chのread.cgiを模したナビゲーションがついた。
+	- スレURLを直接指定できるようになった
+
+2002-10-17  aki
+
+	* p2 version 0.1.8 beta
+	- 初期設定ファイル conf_user.inc を新規追加
+	- 引用レス処理がループすることにより、まれに見られないスレがあったバグを解消
+	- 引用レスポップアップを改良
+	- ログ削除時の操作を改良
+
+2002-10-14  aki
+
+	* p2 version 0.1.7 beta
+	- 引用レス多段ポップアップに対応した。
+	- ブラクラチェッカをつけた。
+
+2002-10-12  aki
+
+	* p2 version 0.1.6 beta
+	- ディレクトリ構造変更。スタイルシート関係はstyleディレクトリに、cssディレクトリは廃止。
+
+2002-10-09  aki
+
+	* p2 version 0.1 beta
+	
