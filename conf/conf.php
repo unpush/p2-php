@@ -8,7 +8,7 @@
 */
 
 $_conf['p2version'] = "1.5.x";
-$_conf['p2expack'] = "050610.0100";
+$_conf['p2expack'] = "050616.0100";
 
 $_conf['p2name'] = "WaterWeasel";   // p2の名前
 //$_conf['p2name'] = "p2";
@@ -344,7 +344,7 @@ $_conf['last_login_log_show'] = 1;  // 前回ログイン情報表示可否
 $_conf['p2web_url']         = 'http://akid.s17.xrea.com/';
 $_conf['p2ime_url']         = 'http://akid.s17.xrea.com/p2ime.php';
 $_conf['favrank_url']       = 'http://akid.s17.xrea.com:8080/favrank/favrank.php';
-$_conf['expack_url']        = 'http://moonshine.s32.xrea.com/';
+$_conf['expack_url']        = 'http://p2-php.sourceforge.jp/p2ex.html';
 $_conf['tgrep_url']         = 'http://moonshine.s32.xrea.com/test/tgrep.cgi';
 $_conf['menu_php']          = 'menu.php';
 $_conf['subject_php']       = 'subject.php';
