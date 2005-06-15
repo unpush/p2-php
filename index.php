@@ -57,27 +57,92 @@ if ($_conf['ktai']) {
 
     $ptitle = 'p2';
 
-    $frame_split['menu'] = 'cols="156,*"';
-    $frame_split['content'] = 'rows="40%,60%"';
     $frame_name['read']     = 'read';
     $frame_name['subject']  = 'subject';
 
     //======================================================
     // PC—p HTMLƒvƒŠƒ“ƒg
     //======================================================
-    $frameset = <<<EOFRAMESET
-<frameset {$frame_split['content']} frameborder="1" border="2">
-    <frame src="{$htm['title_page']}" name="{$frame_name['subject']}" scrolling="auto">
-    <frame src="{$htm['read_page']}" name="{$frame_name['read']}" scrolling="auto">
-</frameset>
-EOFRAMESET;
-    if (!$sidebar) {
-        $frameset = <<<EOFRAMESET
-<frameset {$frame_split['menu']} frameborder="1" border="1">
-<frame src="{$htm['menu_page']}" name="menu" scrolling="auto">
-{$frameset}
-</frameset>
-EOFRAMESET;
+    function get_frameset_open(&$tablevel, $frameborder, $border, $type, $typed)
+    {
+      $str  = str_repeat("\t", $tablevel);
+      $str .= <<<EOS
+<frameset {$type}="{$typed}" frameborder="{$frameborder}" border="{$border}">\n
+EOS;
+      $tablevel++;
+      return $str;
+    }
+    function get_frameset_close(&$tablevel)
+    {
+      $tablevel--;
+      $str  = str_repeat("\t", $tablevel);
+      $str .= "</frameset>\n";
+      return $str;
+    }
+    function get_frame(&$tablevel, $src, $name, $scrolling)
+    {
+      $str  = str_repeat("\t", $tablevel);
+      $str .= <<<EOS
+	<frame src="{$src}" name="{$name}" scrolling="{$scrolling}">\n
+EOS;
+      return $str;
+    }
+    function get_frame_menu(&$tablevel)
+    {
+      global $_conf, $htm, $frame_name;
+      return get_frame($tablevel, $htm['menu_page'], "menu", "auto");
+    }
+    function get_frame_subject(&$tablevel)
+    {
+      global $_conf, $htm, $frame_name;
+      return get_frame($tablevel, $htm['title_page'], $frame_name['subject'], "auto");
+    }
+    function get_frame_read(&$tablevel)
+    {
+      global $_conf, $htm, $frame_name;
+      return get_frame($tablevel, $htm['read_page'], $frame_name['read'], "auto");
+    }
+    $tablevel=0;
+    switch($_conf['frame_type']){
+     default: // 0,1,4,5
+      $frameset = "";
+      if(!$sidebar){
+        $frameset .= get_frameset_open($tablevel, 1, 1, "cols", $_conf['frame_cols']);
+        if(!$_conf['frame_type'] % 2){
+          $frameset .= get_frame_menu($tablevel);
+        }
+      }
+      $frameset .= get_frameset_open($tablevel, 1, 2, "rows", $_conf['frame_rows']);
+      $frameset .= get_frame_subject($tablevel);
+      $frameset .= get_frame_read($tablevel);
+      $frameset .= get_frameset_close($tablevel);
+      if(!$sidebar){
+        if($_conf['frame_type'] % 2){
+          $frameset .= get_frame_menu($tablevel);
+        }
+        $frameset .= get_frameset_close($tablevel);
+      }
+      break;
+     case 2: case 3:
+      $frameset = get_frameset_open($tablevel, 1, 2, "rows", $_conf['frame_rows']);
+      if(!$sidebar && $_conf['frame_type'] == 2){
+        $frameset .= get_frameset_open($tablevel, 1, 1, "cols", $_conf['frame_cols']);
+        $frameset .= get_frame_menu($tablevel);
+      }
+      $frameset .= get_frame_subject($tablevel);
+      if(!$sidebar && $_conf['frame_type'] == 2){
+        $frameset .= get_frameset_close($tablevel);
+      }
+      if(!$sidebar && $_conf['frame_type'] == 3){
+        $frameset .= get_frameset_open($tablevel, 1, 1, "cols", $_conf['frame_cols']);
+        $frameset .= get_frame_menu($tablevel);
+      }
+      $frameset .= get_frame_read($tablevel);
+      if(!$sidebar && $_conf['frame_type'] == 3){
+        $frameset .= get_frameset_close($tablevel);
+      }
+      $frameset .= get_frameset_close($tablevel);
+      break;
     }
 
     P2Util::header_nocache();

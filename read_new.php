@@ -6,6 +6,9 @@
     フレーム分割画面、右下部分
 */
 
+//プロセス開始時間記録
+$CPU_start=microtime();
+
 require_once 'conf/conf.php'; // 設定
 require_once (P2_LIBRARY_DIR . '/threadlist.class.php');    // スレッドリスト クラス
 require_once (P2_LIBRARY_DIR . '/thread.class.php');    //スレッド クラス
@@ -629,6 +632,15 @@ EOP;
             <a href="{$motothre_url_ime}" title="板サーバ上のオリジナルスレを表示">元スレ</a>
 EOTOOLBAR;
 
+    if($_exconf['status']['datsize'] ){
+	// 現在読んでいるスレの.dat容量を取得する
+	require_once(P2EX_LIBRARY_DIR . '/status/datsize.inc.php');
+	$thread_size = getthread_dir( $aThread->host, $aThread->bbs, $aThread->key) ." KB";
+	$thread_size_ht = <<<EOT
+        <div align="right">dat : {$thread_size}</div>\n
+EOT;
+    }
+
     // レスのすばやさ
     $spd_ht = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != "-") {
@@ -649,7 +661,8 @@ EOTOOLBAR;
                     <a href="#ntt{$newthre_num}">▲</a>
                 </td>
             </tr>
-        </table>\n
+        </table>
+{$thread_size_ht}
 EOP;
 
     // 透明あぼーんで表示がない場合はスキップ
@@ -695,6 +708,18 @@ if (!$aThreadList->num) {
     $GLOBALS['matome_naipo'] = TRUE;
     echo '新着レスはないぽ';
     echo '<hr>';
+}
+
+if( $_exconf['status']['processtime'] ){
+	// プロセスタイム完了までに要した時間を取得する
+	require_once(P2EX_LIBRARY_DIR . '/status/process_time.inc.php');
+	$process_time = getprocess_time( $CPU_start ) ." sec";
+	echo <<<EOP
+
+<div align="right">
+	CPU : {$process_time}
+</div>\n
+EOP;
 }
 
 if ($onlyfav) {

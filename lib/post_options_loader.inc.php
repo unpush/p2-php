@@ -127,6 +127,7 @@ if (!$_conf['ktai']) {
 $htm['dpreview_onoff'] = '';
 $htm['dpreview']  = '';
 $htm['dpreview2'] = '';
+$js['dp_startup'] = '';
 $js['dp_setname'] = '';
 $js['dp_setmail'] = '';
 $js['dp_setmailsage'] = '';
@@ -137,7 +138,7 @@ $dp_msg_at  = '';
 
 if (!$_conf['ktai']) {
     if ($_exconf['editor']['dpreview']) {
-        $dpreview_pos = ($_exconf['editor']['dpreview'] == 2) ? 'dpreview2' : 'dpreview';
+        $dpreview_pos = ($_exconf['editor']['dpreview'] & 2) ? 'dpreview2' : 'dpreview';
         $htm[$dpreview_pos] = <<<EOP
 <fieldset id="dpreview" style="display:none;">
 <legend>Preview:</legend>
@@ -150,7 +151,11 @@ if (!$_conf['ktai']) {
     <div id="dp_msg" class="prvw_msg"></div>
 </fieldset>
 EOP;
-        $htm['dpreview_onoff'] = "<input type=\"button\" value=\"プレビュー\" onclick=\"DPInit();showHide('dpreview');\">";
+        if ($_exconf['editor']['dpreview'] & 4) {
+            $js['dp_startup'] = " DPInit();document.getElementById('dpreview').style.display = 'block'";
+        } else {
+            $htm['dpreview_onoff'] = "<input type=\"button\" value=\"プレビュー\" onclick=\"DPInit();showHide('dpreview');\">";
+        }
         $js['dp_setname'] = 'DPSetName(this.value);';
         $js['dp_setmail'] = 'DPSetMail(this.value);';
         $js['dp_setmailsage'] = "DPSetMail(document.getElementById('mail').value);";

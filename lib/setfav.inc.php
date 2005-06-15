@@ -187,7 +187,7 @@ function postFavRank($post)
 	global $_conf;
 
 	$method = 'POST';
-	$httpua = 'Monazilla/1.00 ('.$_conf['p2name'].'/'.$_conf['p2expack'].')';
+	$httpua = 'Monazilla/1.00 ('.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'].')';
 
 	$URL = parse_url($_conf['favrank_url']); // URLï™â
 	if (isset($URL['query'])) { // ÉNÉGÉäÅ[

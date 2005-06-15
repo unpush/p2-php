@@ -1,6 +1,13 @@
 /* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0: */
 /* mi: charset=Shift_JIS */
 
+function inputHandle(obj) {
+	handle=document.getElementById('FROM');
+	handle.value=obj.options[obj.selectedIndex].value;
+	//これあるとdpreviewの邪魔 obj.options[0].selected=true;
+	handle.focus();
+}
+
 function setFocus(ID) {
 	document.getElementById(ID).focus();
 }

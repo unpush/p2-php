@@ -38,7 +38,7 @@ if ($_conf['bottom_res_form']) {
 {$htm['dpreview2']}
 EOP;
 
-    $onmouse_showform_ht = " onmouseover=\"document.getElementById('kakiko').style.display = 'block';\"";
+    $onmouse_showform_ht = " onmouseover=\"document.getElementById('kakiko').style.display = 'block';{$js['dp_startup']}\"";
 }
 
 // ============================================================
@@ -94,6 +94,29 @@ GOTO;
         $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
     }
     // }}}
+    
+    if($_exconf['status']['processtime'] || $_exconf['status']['datsize']){
+	$status_ht="<div align=\"right\">\n\t";
+	if($_exconf['status']['datsize']){
+	    // 現在読んでいるスレの.dat容量
+	    require_once(P2EX_LIBRARY_DIR . '/status/datsize.inc.php');
+	    $status_ht .= "dat: ".getthread_dir($host, $bbs, $key)."KB";
+	    if($_exconf['status']['datdirsize']){
+		// dataディレクトリの総容量
+		require_once(P2EX_LIBRARY_DIR . '/status/datdirsize.inc.php');
+		$status_ht .= " / ".getdirfile($datdir)."MB";
+	    }
+	}
+	if($_exconf['status']['processtime']){
+	    // プロセスタイム(完了までに要した時間)
+	    if($_exconf['status']['datsize']){
+		$status_ht .=" | ";
+	    }
+	    require_once(P2EX_LIBRARY_DIR . '/status/process_time.inc.php');
+	    $status_ht .= "CPU : " . getprocess_time( $CPU_start ) . " sec";
+	}
+	$status_ht.="\n</div>\n";
+    }
 
     // ■プリント
     echo <<<EOP
@@ -121,7 +144,7 @@ GOTO;
         </td>
     </tr>
 </table>
-{$res_form_ht_pb}
+{$status_ht}{$res_form_ht_pb}
 EOP;
     if ($diedat_msg) {
         echo '<hr>';

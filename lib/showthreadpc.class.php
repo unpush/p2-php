@@ -52,10 +52,13 @@ class ShowThreadPc extends ShowThread {
         // URL書き換えハンドラを登録
         $this->url_handlers = array(
             array('this' => 'plugin_link2ch'),
+            array('this' => 'plugin_linkmmobbs'),
             array('this' => 'plugin_linkMachi'),
             array('this' => 'plugin_linkJBBS'),
             array('this' => 'plugin_link2chKako'),
             array('this' => 'plugin_link2chSubject'),
+            array('this' => 'plugin_linkmmobbsKako'),
+            array('this' => 'plugin_linkmmobbsSubject'),
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
             $this->url_handlers[] = array('this' => 'plugin_imageCache2');
@@ -1183,6 +1186,60 @@ EOJS;
         global $_conf, $_exconf;
 
         if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
+            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
+            if ($_conf['iframe_popup']) {
+                $pop_url = $read_url . '&amp;one=true';
+                return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
+            }
+            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
+        }
+        return FALSE;
+    }
+
+    /**
+     * mmobbs  板リンク
+     */
+    function plugin_linkmmobbsSubject($url, $purl, $str)
+    {
+        global $_conf, $_exconf;
+
+        if (preg_match('{^http://(\\w+\\.(?:mmobbs\\.com))/([^/]+)/$}', $url, $m)) {
+            $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
+            return "<a href=\"{$url}\" target=\"subject\">{$str}</a> [<a href=\"{$subject_url}\" target=\"subject\">板をp2で開く</a>]";
+        }
+        return FALSE;
+    }
+
+    /**
+     * mmobbs  スレッドリンク
+     */
+    function plugin_linkmmobbs($url, $purl, $str)
+    {
+        global $_conf, $_exconf;
+
+        if (preg_match('{^http://(\\w+\\.(?:mmobbs\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
+            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
+            if ($_conf['iframe_popup']) {
+                if (preg_match('/^[0-9n\\-]+$/', $m[4])) {
+                    $pop_url = $url;
+                } else {
+                    $pop_url = $read_url . '&amp;one=true';
+                }
+                return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
+            }
+            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
+        }
+        return FALSE;
+    }
+
+    /**
+     * mmobbs 過去ログhtml
+     */
+    function plugin_linkmmobbsKako($url, $purl, $str)
+    {
+        global $_conf, $_exconf;
+
+        if (preg_match('{^http://(\\w+(?:\\.mmobbs\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
             if ($_conf['iframe_popup']) {
                 $pop_url = $read_url . '&amp;one=true';

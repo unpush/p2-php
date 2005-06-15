@@ -10,7 +10,7 @@
  */
 function sb_print(&$aThreadList)
 {
-	global $_conf, $browser, $sb_view, $p2_setting, $STYLE;
+	global $_conf, $_exconf, $browser, $sb_view, $p2_setting, $STYLE;
 
 	if (!$aThreadList->threads) {
 		print "<tr><td>　該当サブジェクトはなかったぽ</td></tr>";
@@ -109,7 +109,11 @@ function sb_print(&$aThreadList)
 		echo "<td class=\"ti\"><a{$class_sort_ikioi} href=\"{$_conf['subject_php']}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">勢い</a></td>";
 	}
 	// Birthday
-	echo "<td class=\"t\"><a{$class_sort_bd} href=\"{$_conf['subject_php']}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">Birthday</a></td>";
+	if ($_exconf['status']['sb_show_datsize']) {
+		echo "<td class=\"ti\">KB</td>";
+	}else{
+		echo "<td class=\"t\"><a{$class_sort_bd} href=\"{$_conf['subject_php']}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">Birthday</a></td>";
+	}
 	//お気に入り
 	if ($_conf['sb_show_fav'] && $aThreadList->spmode != 'taborn') {
 		echo "<td class=\"t\"><a{$class_sort_fav} href=\"{$_conf['subject_php']}?sort=fav{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\" title=\"お気にスレ\">☆</a></td>";
@@ -320,9 +324,16 @@ EOP;
 			$ikioi_ht = "<td{$class_ti}>".$dayres_st."</td>";
 		}
 
-		// Birthday
-		$birthday = date('y/m/d', $aThread->key); // (y/m/d H:i)
-		$birth_ht = "<td{$class_t}>{$birthday}</td>";
+		if($_exconf['status']['sb_show_datsize']){
+			//スレサイズ
+			require_once(P2EX_LIBRARY_DIR . '/status/datsize.inc.php');
+			$thread_size = getthread_dir( $aThread->host, $aThread->bbs, $aThread->key);
+			$thread_size_ht = "<td{$class_ti}>{$thread_size}</td>";
+		}else{
+			// Birthday
+			$birthday = date('y/m/d', $aThread->key); // (y/m/d H:i)
+			$birth_ht = "<td{$class_t}>{$birthday}</td>";
+		}
 
 		//====================================================================================
 		// スレッド一覧 table ボディ HTMLプリント <tr></tr>
@@ -341,6 +352,7 @@ EOP;
 					{$spd_ht}
 					{$ikioi_ht}
 					{$birth_ht}
+					{$thread_size_ht}
 					{$fav_ht}
 				</tr>\n";
 

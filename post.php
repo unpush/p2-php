@@ -383,14 +383,13 @@ function postIt($URL)
     }
 
     // 書き込み時のp2の名前
-    $_conf['p2name'] = (empty($_conf['p2name'])) ? "p2" : $_conf['p2name'];
 
     $request = $method." ".$send_path." HTTP/1.0\r\n";
     $request .= "Host: ".$URL['host']."\r\n";
 
     //$add_user_info = "; p2-client-ip: {$_SERVER['REMOTE_ADDR']}";
     //$request .= 'User-Agent: Monazilla/1.00 ('.$_conf['p2name'].'/'.$_conf['p2expack'].$add_user_info.')'."\r\n";
-    $request .= 'User-Agent: Monazilla/1.00 ('.$_conf['p2name'].'/'.$_conf['p2expack'].')'."\r\n";
+    $request .= 'User-Agent: Monazilla/1.00 ('.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'].')'."\r\n";
     //$request .= 'User-Agent: ' . $_SERVER['HTTP_USER_AGENT'] . "\r\n";
 
     $request .= 'Referer: http://'.$URL['host'].'/'."\r\n";
@@ -516,8 +515,8 @@ function postIt($URL)
     }
     fclose($fp);
 
-    // be.2ch.net 文字コード変換 EUC→SJIS
-    if (P2Util::isHostBe2chNet($host)) {
+    // be.2ch.net 及び したらばはEUCなので EUC→SJIS
+    if (P2Util::isHostBe2chNet($host) or P2Util::isHostJbbsShitaraba($host)) {
         $response = mb_convert_encoding($response, 'SJIS-win', 'eucJP-win');
 
         //<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">

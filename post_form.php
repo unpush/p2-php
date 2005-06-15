@@ -83,7 +83,7 @@ $htm['readnew_hidden'] = !empty($_GET['from_read_new']) ? '<input type="hidden" 
 //==========================================================
 $body_on_load = '';
 if (!$_conf['ktai']) {
-    $body_on_load = " onload=\"setFocus('MESSAGE'); checkSage();\"";
+    $body_on_load = " onload=\"setFocus('MESSAGE'); checkSage();{$js['dp_startup']}\"";
 }
 
 P2Util::header_content_type();

@@ -5,12 +5,18 @@
  *  p2 書き込みフォーム
  */
 
+// handle記入支援
+if ($_exconf['handle']['*']) {
+    @include(P2EX_LIBRARY_DIR . '/handle.inc.php');
+}
+
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
 $htm['post_form'] = <<<EOP
 {$htm['resform_ttitle']}
 {$htm['orig_msg']}
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}" {$js['onsubmit']}>
     <input type="hidden" name="detect_hint" value="◎◇">
+    {$htm['handle_ht']}
     {$htm['subject']}
     {$htm['maru_post']} 名前：<input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}{$dp_name_at}>
     E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}{$dp_mail_at}>

@@ -14,6 +14,9 @@ $_conf['p2name'] = "WaterWeasel";   // p2ÇÃñºëO
 //$_conf['p2name'] = "p2";
 //$_conf['p2name'] = "P2";
 //$_conf['p2name'] = "p++";
+$_conf['p2name_ua'] = $_conf['p2name'];
+//$_conf['p2version_ua'] = $_conf['p2version'];
+$_conf['p2version_ua'] = $_conf['p2expack'];
 
 //======================================================================
 // äÓñ{ê›íËèàóù
@@ -302,6 +305,9 @@ if (!isset($_conf['k_rnum_range'])) { $_conf['k_rnum_range'] = 10; }
 if (!isset($_conf['pre_thumb_height'])) { $_conf['pre_thumb_height'] = "32"; }
 if (!isset($_conf['quote_res_view'])) { $_conf['quote_res_view'] = 1; }
 if (!isset($_conf['res_write_rec'])) { $_conf['res_write_rec'] = 1; }
+if (!isset($_conf['frame_type'])) { $_conf['frame_type'] = 0; }
+if (!isset($_conf['frame_cols'])) { $_conf['frame_cols'] = "156,*"; }
+if (!isset($_conf['frame_rows'])) { $_conf['frame_rows'] = "40%,60%"; }
 
 if (!isset($STYLE['post_pop_size'])) { $STYLE['post_pop_size'] = "610,350"; }
 if (!isset($STYLE['post_msg_rows'])) { $STYLE['post_msg_rows'] = 10; }

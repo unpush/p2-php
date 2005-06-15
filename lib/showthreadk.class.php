@@ -40,10 +40,13 @@ class ShowThreadK extends ShowThread {
         // URL書き換えハンドラを登録
         $this->url_handlers = array(
             array('this' => 'plugin_link2ch'),
+            array('this' => 'plugin_linkmmobbs'),
             array('this' => 'plugin_linkMachi'),
             array('this' => 'plugin_linkJBBS'),
             array('this' => 'plugin_link2chKako'),
             array('this' => 'plugin_link2chSubject'),
+            array('this' => 'plugin_linkmmobbsKako'),
+            array('this' => 'plugin_linkmmobbsSubject'),
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
             $this->url_handlers[] = array('this' => 'plugin_imageCache2');
@@ -709,6 +712,48 @@ EOP;
          global $_conf, $_exconf;
 
         if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
+            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
+            return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
+        }
+        return FALSE;
+    }
+
+    /**
+     * mmobbs  板リンク
+     */
+    function plugin_linkmmobbsSubject($url, $purl, $str)
+    {
+        global $_conf, $_exconf;
+
+        if (preg_match('{^http://(\\w+\\.(?:mmobbs\\.com))/([^/]+)/$}', $url, $m)) {
+            $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
+            return "<a href=\"{$url}\">{$str}</a> [<a href=\"{$subject_url}{$_conf['k_at_a']}\">板をp2で開く</a>]";
+        }
+        return FALSE;
+    }
+
+    /**
+     * mmobbs  スレッドリンク
+     */
+    function plugin_linkmmobbs($url, $purl, $str)
+    {
+        global $_conf, $_exconf;
+
+        if (preg_match('{^http://(\\w+\\.(?:mmobbs\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
+            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
+            return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
+        }
+        return FALSE;
+    }
+
+    /**
+     * mmobbs　過去ログhtml
+     */
+    function plugin_linkmmobbsKako($url, $purl, $str)
+    {
+         global $_conf, $_exconf;
+
+        if (preg_match('{^http://(\\w+(?:\\.mmobbs\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
             return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
         }

@@ -399,7 +399,7 @@ class P2Util{
         // ¡DL
         include_once (P2_LIBRARY_DIR . '/wap.class.php');
         $wap_ua = &new UserAgent;
-        $wap_ua->setAgent('Monazilla/1.00 ('.$_conf['p2name'].'/'.$_conf['p2expack'].')');
+        $wap_ua->setAgent('Monazilla/1.00 ('.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'].')');
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req = &new Request;
         $wap_req->setUrl($url);

@@ -24,7 +24,7 @@ function login2ch()
 
     $auth2ch_url = 'https://2chv.tora3.net/futen.cgi';
     $postf    = 'ID='.$login2chID.'&PW='.$login2chPW;
-    $x_2ch_ua = 'X-2ch-UA: '.$_conf['p2name'].'/'.$_conf['p2expack'];
+    $x_2ch_ua = 'X-2ch-UA: '.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'];
     $dolib2ch = 'DOLIB/1.00';
     $tempfile = $_conf['pref_dir']."/p2temp.php";
 

@@ -123,7 +123,7 @@ class ThreadRead extends Thread{
 
         $method = 'GET';
         if (!isset($uaMona)) { $uaMona = 'Monazilla/1.00'; }
-        $p2ua = $uaMona.' ('.$_conf['p2name'].'/'.$_conf['p2expack'].')';
+        $p2ua = $uaMona.' ('.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'].')';
 
         $url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
         //$url = 'http://news2.2ch.net/test/read.cgi?bbs=newsplus&key=1038486598';
@@ -329,7 +329,7 @@ class ThreadRead extends Thread{
         unset($datgz_attayo, $start_here, $isGzip, $done_gunzip, $marudatlines, $code);
 
         $method = 'GET';
-        $p2ua = $uaMona.' ('.$_conf['p2name'].'/'.$_conf['p2expack'].')';
+        $p2ua = $uaMona.' ('.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'].')';
 
         //  GET /test/offlaw.cgi?bbs=板名&key=スレッド番号&sid=セッションID HTTP/1.1
         $SID2ch = urlencode($SID2ch);
@@ -360,7 +360,7 @@ class ThreadRead extends Thread{
         $request .= "Accept-Encoding: gzip, deflate\r\n";
         //$request .= "Accept-Language: ja, en\r\n";
         $request .= "User-Agent: ".$p2ua."\r\n";
-        //$request .= "X-2ch-UA: ".$_conf['p2name'].'/'.$_conf['p2expack']."\r\n";
+        //$request .= "X-2ch-UA: ".$_conf['p2name_ua'].'/'.$_conf['p2version_ua']."\r\n";
         //$request .= "Range: bytes={$from_bytes}-\r\n";
         $request .= "Connection: Close\r\n";
         if ($modified) { $request .= "If-Modified-Since: $modified\r\n"; }
@@ -543,7 +543,7 @@ class ThreadRead extends Thread{
 
         $method = 'GET';
         if (!$httpua) {
-            $httpua = 'Monazilla/1.00 ('.$_conf['p2name'].'/'.$_conf['p2expack'].')';
+            $httpua = 'Monazilla/1.00 ('.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'].')';
         }
 
         $purl = parse_url($url); // URL分解
@@ -736,7 +736,7 @@ class ThreadRead extends Thread{
         // {{{ ■ read.cgi からHTMLを取得
         include_once (P2_LIBRARY_DIR . '/wap.class.php');
         $wap_ua = &new UserAgent;
-        $wap_ua->setAgent($_conf['p2name'].'/'.$_conf['p2expack']); // ここは、"Monazilla/" をつけるとNG
+        $wap_ua->setAgent($_conf['p2name_ua'].'/'.$_conf['p2version_ua']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req = &new Request;
         $wap_req->setUrl($read_url);
@@ -885,7 +885,7 @@ class ThreadRead extends Thread{
 
             $request = $method." ".$send_path." HTTP/1.0\r\n";
             $request .= "Host: ".$purl['host']."\r\n";
-            $request .= 'User-Agent: Monazilla/1.00 ('.$_conf['p2name'].'/'.$_conf['p2expack'].')'."\r\n";
+            $request .= 'User-Agent: Monazilla/1.00 ('.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'].')'."\r\n";
             //$request .= "Range: bytes={$from_bytes}-\r\n";
 
             // Basic認証用のヘッダ
