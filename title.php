@@ -118,7 +118,8 @@ echo <<<EOP
     {$newversion_found}
     <p>p2-expack rev.{$_conf['p2expack']}; based on p2-{$_conf['p2version']}<br>
     　p2 web: <a href="{$p2web_url_r}" target="_blank">{$_conf['p2web_url']}</a><br>
-    　expack: <a href="{$expack_url_r}p2ex.html" target="_blank">{$_conf['expack_url']}</a></p>
+    　expack(rsk): <a href="http://moonshine.s32.xrea.com/" target="_blank">http://moonshine.s32.xrea.com/</a><br>
+    　expack(SF): <a href="{$expack_url_r}p2ex.html" target="_blank">{$_conf['expack_url']}p2ex.html</a></p>
     <ul>
         <li><a href="viewtxt.php?file=doc/README.txt">README.txt</a></li>
         <li><a href="viewtxt.php?file=doc/README-EX.txt">README-EX.txt</a></li>
