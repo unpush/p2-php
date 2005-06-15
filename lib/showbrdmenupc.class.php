@@ -38,7 +38,7 @@ class ShowBrdMenuPc {
                     }
                     foreach ($cate->menuitas as $mita) {
                         // フィルタリング時にitaj_htを使ってはいけない
-                        $mita_itaj_js = htmlspecialchars($mita->itaj);
+                        $mita_itaj_js = str_replace("'", "\\'", $mita->itaj_ht);
                         echo <<<EOP
         <span class="fav" onclick="setFavIta('{$menu_php_url}','{$mita_itaj_js}','{$mita->host}','{$mita->bbs}','{$mita->itaj_en}',1);">+</span> <a href="{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}">{$mita->itaj_ht}</a><br>\n
 EOP;
@@ -83,12 +83,13 @@ EOP;
                     $bbs = $matches[2];
                     $itaj = rtrim($matches[3]);
                     $itaj_view = htmlspecialchars($itaj);
+                    $itaj_js = str_replace("'", "\\'", $itaj_view);
                     $itaj_en = rawurlencode(base64_encode($itaj));
                     //$itaj_js = str_replace("'", "\\'", str_replace("\\", "\\\\", $itaj_view));
 
                     // お気に板を解除するときはJavaScriptでダイアログを表示し、確認する。
                     $p_htm['star'] = <<<EOP
-<span class="fav" onclick="unSetFavIta('{$menu_php_url}','{$itaj_view}','{$host}','{$bbs}',0);">★</span>
+<span class="fav" onclick="unSetFavIta('{$menu_php_url}','{$itaj_js}','{$host}','{$bbs}',0);">★</span>
 EOP;
 
                     // 新着数を表示する場合
@@ -116,7 +117,7 @@ EOP;
                             $newthre_ht = $_newthre_num;
                         }
                         echo <<<EOP
-        {$p_htm['star']} <a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}&amp;itaj_en={$itaj_en}" onclick="chMenuColor({$matome_i});">{$itaj}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$matome_url_ht}&amp;fav=1" target="read" id="unf{$matome_i}"{$class_newfav_num}>{$shinokini_num}</a>/<a href="{$matome_url_ht}" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>\n
+        {$p_htm['star']} <a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}&amp;itaj_en={$itaj_en}" onclick="chMenuColor({$matome_i});">{$itaj_view}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$matome_url_ht}&amp;fav=1" target="read" id="unf{$matome_i}"{$class_newfav_num}>{$shinokini_num}</a>/<a href="{$matome_url_ht}" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>\n
 EOP;
 
                     // 新着数を表示しない場合

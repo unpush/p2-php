@@ -972,9 +972,9 @@ class ShowThreadPc extends ShowThread {
 
         // BE
         if (isset($p['be'])) {
-            $be_prof_ref = rawurlencode('http://' . $this->thread->host . '/test/read.cgi/' . $this->thread->bbs . '/' . $this->thread->key . '/' . $GLOBALS['ls']);
+            $be_prof_ref = rawurlencode($this->thread->getMotoThread());
             $be_prof_url = 'http://be.2ch.net/test/p.php?i=' . $p['beid'] . '&u=d:' . $be_prof_ref;
-            $be_prof_lv  = 'Lv.' . $p['belv'];
+            $be_prof_lv  = sprintf('?%\'#' . intval($p['belv']) . 's', '');
             if ($_conf['iframe_popup']) {
                 $be_prof_link = $this->iframe_popup($be_prof_url, $be_prof_lv, $_conf['ext_win_target_at']);
             } else {
@@ -1059,7 +1059,9 @@ EOJS;
             $_exconf['spm']['flex_target'] = '_self';
         }
 
-        $motothre_url = str_replace('"', '\\"', $this->thread->getMotoThread());
+        $motothre_url = $this->thread->getMotoThread();
+        $motothre_url = substr($motothre_url, 0, strlen($this->thread->ls) * -1);
+        $motothre_url = str_replace('"', '\\"', $motothre_url);
         $ttitle = str_replace('"', '\\"', $this->thread->ttitle);
 
         echo <<<EOJS
@@ -1070,7 +1072,7 @@ var {$this->spmObjName} = {
     title:"{$ttitle}",
     ttitle_en:"{$ttitle_urlen}",
     url:"{$motothre_url}",
-    host:"{$this->thread->host}", bbs:"{$this->thread->bbs}", key:"{$this->thread->key}",
+    host:"{$this->thread->host}", bbs:"{$this->thread->bbs}", key:"{$this->thread->key}", ls:"{$this->thread->ls}",
     spmHeader:"{$_exconf['spm']['header']}",
     spmOption:[{$_exconf['spm']['confirm']},{$_exconf['spm']['kokores']},{$_exconf['bookmark']['*']},{$_exconf['spm']['aborn']},{$_exconf['spm']['ng']},{$_exconf['spm']['with_aMona']},{$_exconf['spm']['with_flex']},{$_exconf['spm']['fortune']}]
 };

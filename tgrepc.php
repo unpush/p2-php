@@ -98,39 +98,39 @@ tr#pager td {
 STYLESHEET;
 
 // CSS-Œg‘Ñ—p
-$ktay_body_style = '';
+$ktai_body_style = '';
 if ($_exconf['ubiq']['c_bgcolor']) {
-    $ktay_body_style .= " background: {$_exconf['ubiq']['c_bgcolor']};";
+    $ktai_body_style .= " background: {$_exconf['ubiq']['c_bgcolor']};";
 }
 if ($_exconf['ubiq']['c_text']) {
-    $ktay_body_style .= " text: {$_exconf['ubiq']['c_text']};";
+    $ktai_body_style .= " color: {$_exconf['ubiq']['c_text']};";
 }
-if ($ktay_body_style) {
-    $ktay_body_style = 'body {' . $ktay_body_style . ' }';
+if ($ktai_body_style) {
+    $ktai_body_style = 'body {' . $ktai_body_style . ' }';
 }
-$ktay_link_style = '';
+$ktai_link_style = '';
 if ($_exconf['ubiq']['c_link']) {
-    $ktay_link_style .= " a.link { color: {$_exconf['ubiq']['c_link']}; }";
+    $ktai_link_style .= " a:link { color: {$_exconf['ubiq']['c_link']}; }";
 }
 if ($_exconf['ubiq']['c_vlink']) {
-    $ktay_link_style .= " a.visited { color: {$_exconf['ubiq']['c_vlink']}; }";
+    $ktai_link_style .= " a:visited { color: {$_exconf['ubiq']['c_vlink']}; }";
 }
-$ktay_filter_style = '';
+$ktai_filter_style = '';
 if ($_exconf['ubiq']['c_match']) {
-    $ktay_filter_style .= " color: {$_exconf['ubiq']['c_match']};";
+    $ktai_filter_style .= " color: {$_exconf['ubiq']['c_match']};";
 }
 if (!$_exconf['ubiq']['b_match']) {
-    $ktay_filter_style .= ' font-weight: normal;';
+    $ktai_filter_style .= ' font-weight: normal;';
 }
-if ($ktay_filter_style) {
-    $ktay_filter_style = 'b.filtering {' . $ktay_filter_style . ' }';
+if ($ktai_filter_style) {
+    $ktai_filter_style = 'b.filtering {' . $ktai_filter_style . ' }';
 }
 $ktai_style = <<<KTAI_STYLE
 <style type="text/css">
 <!--
-{$ktay_body_style}
-{$ktay_link_style}
-{$ktay_filter_style}
+{$ktai_body_style}
+{$ktai_link_style}
+{$ktai_filter_style}
 p#pager { text-align: center; }
 -->
 </style>

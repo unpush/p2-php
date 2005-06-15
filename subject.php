@@ -33,6 +33,7 @@ $newtime = date('gis');
 // ■ホスト、板、モード設定 =================================
 $host   = isset($_REQUEST['host'])   ? $_REQUEST['host']   : NULL;
 $bbs    = isset($_REQUEST['bbs'])    ? $_REQUEST['bbs']    : NULL;
+$key    = isset($_REQUEST['key'])    ? $_REQUEST['key']    : NULL;
 $spmode = isset($_REQUEST['spmode']) ? $_REQUEST['spmode'] : NULL;
 $sb_disp_from = isset($_REQUEST['from']) ? $_REQUEST['from'] : 1;
 

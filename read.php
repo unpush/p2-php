@@ -260,16 +260,13 @@ if ($aThread->isKitoku()) {
                 $set_bookmark = false;
             }
         }
-        if (file_exists($readhere_file)) {
-            $readhere_arr = @file($readhere_file);
+        if (file_exists($readhere_file) && $readhere_arr = @file($readhere_file)) {
+            $readhere_arr = array_map('rtrim', $readhere_arr);
             if ($set_bookmark) {
                 $bookmark_data = $aThread->key . ':' . $set_bookmark . "\n";
-                if ($readhere_arr) {
-                    foreach ($readhere_arr as $value) {
-                        $value = trim($value);
-                        if ($value && !preg_match("/^{$aThread->key}:/", $value)) {
-                            $bookmark_data .= $value . "\n";
-                        }
+                foreach ($readhere_arr as $value) {
+                    if ($value && !preg_match("/^{$aThread->key}:/", $value)) {
+                        $bookmark_data .= $value . "\n";
                     }
                 }
                 if (FileCtl::file_write_contents($readhere_file, $bookmark_data) === FALSE) {

@@ -628,9 +628,10 @@ EOP;
         }
 
         // BE
-        if ($p_dateid['be']) {
-            $be_prof_ref = rawurlencode("http://{$this->thread->host}/test/read.cgi/{$this->thread->bbs}/{$this->thread->key}/{$GLOBALS['ls']}");
-            $date_id .= " <a href=\"http://be.2ch.net/test/p.php?i={$p_dateid['beid']}&u=d:{$be_prof_ref}\">Lv.{$p_dateid['belv']}</a>";
+        if ($p['be']) {
+            $be_prof_ref = rawurlencode($this->thread->getMotoThread());
+            $be_prof_format = ' <a href="http://be.2ch.net/test/p.php?i=%s&u=d:%s">?%\'#' . intval($p['belv']) . 's</a>';
+            $date_id .= sprintf($be_prof_format, $p_dateid['beid'], $be_prof_ref, '');
         }
 
         return $date_id;

@@ -8,7 +8,7 @@
 */
 
 $_conf['p2version'] = "1.5.x";
-$_conf['p2expack'] = "050616.0100";
+$_conf['p2expack'] = "050616.0101";
 
 $_conf['p2name'] = "WaterWeasel";   // p2‚Ì–¼‘O
 //$_conf['p2name'] = "p2";
