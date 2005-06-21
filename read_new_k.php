@@ -11,7 +11,7 @@ require_once (P2_LIBRARY_DIR . '/threadread.class.php');
 require_once (P2_LIBRARY_DIR . '/ngabornctl.class.php');
 require_once (P2_LIBRARY_DIR . '/read_new.inc.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 // まとめよみのキャッシュ読み
 if (!empty($_GET['cview'])) {
@@ -108,6 +108,15 @@ EOP;
 EOP;
 }
 
+$body_at = '';
+if (!empty($STYLE['read_k_bgcolor'])) {
+    $body_at .= " bgcolor=\"{$STYLE['read_k_bgcolor']}\"";
+}
+if (!empty($STYLE['read_k_color'])) {
+    $body_at .= " text=\"{$STYLE['read_k_color']}\"";
+}
+
+// ========================================================
 // include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
 
 P2Util::header_content_type();
@@ -122,7 +131,7 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body>\n
+<body{$body_at}>\n
 EOP;
 
 echo "<p>{$sb_ht}の新まとめ</p>\n";
@@ -346,7 +355,7 @@ function readNew(&$aThread)
     
     $read_header_ht = <<<EOP
         <hr>
-        <p id="ntt{$newthre_num}" name="ntt{$newthre_num}"><b>{$aThread->ttitle_hd}</b>{$read_header_itaj_ht} {$next_thre_ht}</p>
+        <p id="ntt{$newthre_num}" name="ntt{$newthre_num}"><font color="{$STYLE['read_k_thread_title_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</p>
         <hr>\n
 EOP;
 
@@ -390,9 +399,15 @@ EOP;
 
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\">新着ﾚｽの表示</a>";
     
-    $dores_ht = <<<EOP
+    if (!empty($_conf['disable_res'])) {
+        $dores_ht = <<<EOP
+          <a href="{$motothre_url}" target="_blank">ﾚｽ</a>
+EOP;
+    } else {
+        $dores_ht = <<<EOP
         <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
 EOP;
+    }
 
     // ツールバー部分HTML =======
     if ($spmode) {

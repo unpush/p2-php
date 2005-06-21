@@ -604,7 +604,7 @@ EOP;
      */
     function iframe_popup($url, $str, $attr = '', $mode = NULL)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         // リンク用URLとポップアップ用URL
         if (is_array($url)) {

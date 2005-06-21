@@ -1,10 +1,10 @@
 <?php
-// p2 -  インデックスページ
+// rep2 -  インデックスページ
 
 include_once './conf/conf.inc.php';  // 基本設定ファイル読込
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); //ユーザ認証
+$_login->authorize(); //ユーザ認証
 
 //=============================================================
 // 前処理
@@ -15,15 +15,6 @@ makeDenyHtaccess($_conf['dat_dir']);
 makeDenyHtaccess($_conf['idx_dir']);
 
 //=============================================================
-
-// アクセスログを記録
-if ($_conf['login_log_rec']) {
-    if (isset($_conf['login_log_rec_num'])) {
-        P2Util::recAccessLog($_conf['login_log_file'], $_conf['login_log_rec_num']);
-    } else {
-        P2Util::recAccessLog($_conf['login_log_file']);
-    }
-}
 
 $s = $_SERVER['HTTPS'] ? 's' : '';
 $me_url = "http{$s}://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
@@ -60,7 +51,7 @@ if ($_conf['ktai']) {
     
     $sidebar = $_GET['sidebar'];
     
-    $ptitle = " p2";
+    $ptitle = "rep2";
     //======================================================
     // PC用 HTMLプリント
     //======================================================

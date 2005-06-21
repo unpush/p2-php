@@ -544,12 +544,18 @@ class P2Util{
     /**
      * ■アクセス情報をログに記録する
      */
-    function recAccessLog($logfile, $maxline = 100)
+    function recAccessLog($logfile, $maxline = 100, $format = 'dataphp')
     {
-        global $_conf, $login;
-
+        global $_conf, $_login;
+        
         // ログファイルの中身を取得する
-        if ($lines = DataPhp::fileDataPhp($logfile)) {
+        if ($format == 'dataphp') {
+            $lines = DataPhp::fileDataPhp($logfile);
+        } else {
+            $lines = @file($logfile);
+        }
+        
+        if ($lines) {
             // 制限行調整
             while (sizeof($lines) > $maxline -1) {
                 array_pop($lines);
@@ -570,29 +576,30 @@ class P2Util{
             $remoto_host = "";
         }
 
-        if (isset($login['user'])) {
-            $user = $login['user'];
-        } else {
-            $user = "";
-        }
+        $user = (isset($_login->user_u)) ? $_login->user_u : "";
         
         // 新しいログ行を設定
         $newdata = $date."<>".$_SERVER['REMOTE_ADDR']."<>".$remoto_host."<>".$_SERVER['HTTP_USER_AGENT']."<>".$_SERVER['HTTP_REFERER']."<>".""."<>".$user;
         //$newdata = htmlspecialchars($newdata);
 
-
         // まずタブを全て外して
         $newdata = str_replace("\t", "", $newdata);
         // <>をタブに変換して
         $newdata = str_replace("<>", "\t", $newdata);
-                
+
         // 新しいデータを一番上に追加
         @array_unshift($lines, $newdata);
         
         $cont = implode("\n", $lines) . "\n";
-        
+
+        FileCtl::make_datafile($logfile, $_conf['p2_perm']);
+
         // 書き込み処理
-        DataPhp::writeDataPhp($logfile, $cont, $_conf['res_write_perm']);
+        if ($format == 'dataphp') {
+            DataPhp::writeDataPhp($logfile, $cont, $_conf['p2_perm']);
+        } else {
+            FileCtl::file_write_contents($logfile, $cont);
+        }
 
         return true;
     }
@@ -618,7 +625,8 @@ class P2Util{
         
         include_once (P2_LIBRARY_DIR . '/md5_crypt.inc.php');
         
-        $crypted_login2chPW = md5_encrypt($login2chPW, $_conf['md5_crypt_key']);
+        $md5_crypt_key = P2Util::getAngoKey();
+        $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
     $idpw2ch_cont = <<<EOP
 <?php
 \$rec_login2chID = '{$login2chID}';
@@ -656,11 +664,22 @@ EOP;
         include $_conf['idpw2ch_php'];
 
         // パスを複合化
-        if (!empty($rec_login2chPW)) {
-            $login2chPW = md5_decrypt($rec_login2chPW, $_conf['md5_crypt_key']);
+        if (!is_null($rec_login2chPW)) {
+            $md5_crypt_key = P2Util::getAngoKey();
+            $login2chPW = md5_decrypt($rec_login2chPW, $md5_crypt_key, 32);
         }
         
         return array($rec_login2chID, $login2chPW, $rec_autoLogin2ch);
+    }
+    
+    /**
+     * getAngoKey
+     */
+    function getAngoKey()
+    {
+        global $_login;
+        
+        return $_login->user . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
     }
     
     /**
@@ -668,9 +687,36 @@ EOP;
      */
     function getCsrfId()
     {
-        global $login;
+        global $_login;
         
-        return md5($login['user'] . $login['pass'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE']);
+        return md5($_login->user . $_login->pass_x . $_SERVER['HTTP_USER_AGENT']);
+    }
+    
+    /**
+     * 403 Fobbidenを出力する
+     */
+    function print403($msg = '')
+    {
+        header('HTTP/1.0 403 Forbidden');
+        echo <<<ERR
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    <title>403 Forbidden</title>
+</head>
+<body>
+    <h1>403 Forbidden</h1>
+    <p>{$msg}</p>
+</body>
+</html>
+ERR;
+        // IEデフォルトのメッセージを表示させないようにスペースを出力
+        if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+            for ($i = 0 ; $i < 512; $i++) {
+                echo ' ';
+            }
+        }
+        exit;
     }
 }
 

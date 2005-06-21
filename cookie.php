@@ -7,7 +7,7 @@
 
 include_once './conf/conf.inc.php'; // 基本設定
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 
 // 書き出し用変数

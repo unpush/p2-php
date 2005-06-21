@@ -1,8 +1,11 @@
 <?php
-// p2 - デザイン用 設定ファイル
 /*
-	コメント冒頭の() 内はデフォルト値
-	設定は style/*_css.inc と連動
+    rep2 - デザイン用 設定ファイル
+
+    コメント冒頭の() 内はデフォルト値
+    設定は style/*_css.inc と連動
+    
+    このファイルの設定は、お好みに応じて変更してください
 */
  
 //======================================================================
@@ -107,7 +110,6 @@ $STYLE['sb_thre_title_new_color'] = "red";	// ("red") subject 新規スレタイトルの
 $STYLE['sb_tool_newres_color'] = "#ff3300"; // ("#ff3300") subject ツールバー内 新規レス数の色
 $STYLE['sb_newres_color'] = "#ff3300"; // ("#ff3300") subject 新着レス数の色
 
-
 // スレ内容(read)====================
 $STYLE['read_bgcolor'] = "#efefef"; // ("#efefef") スレッド表示の背景色
 $STYLE['read_color'] = "#000"; // ("#000") スレッド表示のテキスト色
@@ -123,6 +125,11 @@ $STYLE['read_name_color'] = "#1144aa"; // ("#1144aa") 投稿者の名前の色
 $STYLE['read_mail_color'] = ""; // ("") 投稿者のmailの色 ex)"#a00000"
 $STYLE['read_mail_sage_color'] = ""; // ("") sageの時の投稿者のmailの色 ex)"#00b000"
 $STYLE['read_ngword'] = "#bbbbbb"; // ("#bbbbbb") NGワードの色
+
+// 携帯用
+$STYLE['read_k_thread_title_color'] = "#1144aa"; // ("#1144aa") スレッドタイトル色
+$STYLE['read_k_bgcolor'] = ""; // ("#efefef") スレッド表示の背景色
+$STYLE['read_k_color'] = ""; // ("#000000") スレッド表示のテキスト色
 
 // レス書き込みフォーム================
 $STYLE['post_pop_size'] = "610,350"; // ("610,350") レス書き込みポップアップウィンドウの大きさ（横,縦）

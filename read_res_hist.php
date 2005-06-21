@@ -7,7 +7,7 @@ require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
 require_once (P2_LIBRARY_DIR . '/res_hist.class.php');
 require_once (P2_LIBRARY_DIR . '/read_res_hist.inc.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //======================================================================
 // 変数

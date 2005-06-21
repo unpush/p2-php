@@ -7,24 +7,25 @@
 $bbs_q = "&amp;bbs=".$aThreadList->bbs;
 $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
-//dat倉庫=======================
-if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){ //スペシャルモードでなければ、またはあぼーんリストなら
+// dat倉庫 =======================
+// スペシャルモードでなければ、またはあぼーんリストなら
+if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){
 	$dat_soko_ht =<<<EOP
 	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko" target="_self">dat倉庫</a> | 
 EOP;
 }
 
-//あぼーん中のスレッド=================
+// あぼーん中のスレッド =================
 if ($ta_num) {
-	$taborn_link_ht=<<<EOP
+	$taborn_link_ht = <<<EOP
 	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn" target="_self">あぼーん中のスレッド ({$ta_num})</a> | 
 EOP;
 }
 
-//新規スレッド作成=======
-if(!$aThreadList->spmode){
-	$buildnewthread_ht =<<<EOP
-	<a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true&amp;popup=1',{$STYLE['post_pop_size']},0,0)">新規スレッド作成</a>
+// 新規スレッド作成 =======
+if (!$aThreadList->spmode) {
+	$buildnewthread_ht = <<<EOP
+	<a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},0,0)">新規スレッド作成</a>
 EOP;
 }
 

@@ -78,7 +78,7 @@ function setFav($host, $bbs, $key, $setfav)
             $line = rtrim($line);
             $lar = explode('<>', $line);
             // 重複回避
-            if ($lar[1] == $key) {
+            if ($lar[1] == $key && $lar[11] == $bbs) {
                 $before_line_num = $i; // 移動前の行番号をセット
                 continue;
             // keyのないものは不正データなのでスキップ

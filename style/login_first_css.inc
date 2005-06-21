@@ -8,10 +8,11 @@ echo <<<EOSTYLE
 <!--
 	
 	body{
-		background-image:url('img/p2white.jpg');
+		background-image:url('img/rep2_loginbg.gif');
 		background-repeat: no-repeat;
 		padding:24px;
 		color:#333;
+        background-color:#ccc;
 	}
 
 	p.infomsg{

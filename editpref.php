@@ -6,7 +6,7 @@
 include_once './conf/conf.inc.php';  // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 // {{{ ホストの同期用設定
 
@@ -46,20 +46,20 @@ if (isset($_POST['sync'])) {
 
 $ptitle = '設定管理';
 
-if ($_conf['ktai']) {
-    $status_st = 'ｽﾃｰﾀｽ';
-    $autho_user_st = '認証ﾕｰｻﾞ';
+if (!empty($_conf['ktai'])) {
+    $status_st      = 'ｽﾃｰﾀｽ';
+    $autho_user_st  = '認証ﾕｰｻﾞ';
     $client_host_st = '端末ﾎｽﾄ';
-    $client_ip_st = '端末IPｱﾄﾞﾚｽ';
-    $browser_ua_st = 'ﾌﾞﾗｳｻﾞUA';
-    $p2error_st = 'p2 ｴﾗｰ';
+    $client_ip_st   = '端末IPｱﾄﾞﾚｽ';
+    $browser_ua_st  = 'ﾌﾞﾗｳｻﾞUA';
+    $p2error_st     = 'rep2 ｴﾗｰ';
 } else {
-    $status_st = 'ステータス';
-    $autho_user_st = '認証ユーザ';
+    $status_st      = 'ステータス';
+    $autho_user_st  = '認証ユーザ';
     $client_host_st = '端末ホスト';
-    $client_ip_st = '端末IPアドレス';
-    $browser_ua_st = 'ブラウザUA';
-    $p2error_st = 'p2 エラー';
+    $client_ip_st   = '端末IPアドレス';
+    $browser_ua_st  = 'ブラウザUA';
+    $p2error_st     = 'rep2 エラー';
 }
 
 $autho_user_ht = '';
@@ -83,7 +83,7 @@ echo <<<EOP
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>\n
 EOP;
-if(!$_conf['ktai']){
+if (empty($_conf['ktai'])) {
     @include("./style/style_css.inc");
     @include("./style/editpref_css.inc");
 }
@@ -111,6 +111,15 @@ $ng_name_txt    = $_conf['pref_dir'] . '/p2_ng_name.txt';
 $ng_mail_txt    = $_conf['pref_dir'] . '/p2_ng_mail.txt';
 $ng_msg_txt     = $_conf['pref_dir'] . '/p2_ng_msg.txt';
 $ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
+
+echo <<<EOP
+<p>　<a href="edit_conf_user.php{$_conf['k_at_q']}">ユーザ設定編集</a></p>
+EOP;
+
+// 携帯用表示
+if (!empty($_conf['ktai'])) {
+    echo '<hr>';
+}
 
 if (empty($_conf['ktai'])) {
     
@@ -149,10 +158,14 @@ EOP;
 EOP;
 
     echo "</td></tr>";
+    
     // }}}
     // {{{ PC - その他 の設定
+    
     echo "<td>\n\n";
-
+    /*
+    php は editfile しない
+    
     echo <<<EOP
 <fieldset>
 <legend>その他</legend>
@@ -163,7 +176,9 @@ EOP;
     echo <<<EOP
 </fieldset>\n
 EOP;
+    */
     // }}}
+    echo '&nbsp;';
 
     echo "</td></tr>\n\n";
     $htm['sync'] = "<tr><td colspan=\"2\">\n\n";

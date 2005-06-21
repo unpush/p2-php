@@ -6,7 +6,7 @@
 
 include_once './conf/conf.inc.php';  // 基本設定ファイル
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 // {{{ HTTPヘッダとXML宣言
 

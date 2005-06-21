@@ -155,6 +155,14 @@ $toolbar_right_ht = <<<EOTOOLBAR
 EOTOOLBAR;
 // }}}
 
+$body_at = '';
+if (!empty($STYLE['read_k_bgcolor'])) {
+    $body_at .= " bgcolor=\"{$STYLE['read_k_bgcolor']}\"";
+}
+if (!empty($STYLE['read_k_color'])) {
+    $body_at .= " text=\"{$STYLE['read_k_color']}\"";
+}
+
 //=====================================
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
@@ -167,7 +175,7 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body>\n
+<body{$body_at}>\n
 EOP;
 
 echo $_info_msg_ht;
@@ -209,7 +217,6 @@ if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzo
 {$read_navi_previous}
 {$read_navi_next}
 {$read_navi_latest}
-{$read_navi_filter}
 <a {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#footer">{$_conf['k_accesskey']['bottom']}.¥</a>
 </p>\n
 EOP;
@@ -217,7 +224,7 @@ EOP;
 }
 
 echo "<hr>";
-echo "<h3>{$aThread->ttitle_hd}</h3>\n";
+echo "<h3><font color=\"{$STYLE['read_k_thread_title_color']}\">{$aThread->ttitle_hd}</font></h3>\n";
 
 $filter_fields = array('hole' => '', 'msg' => 'Ò¯¾°¼Ş‚ª', 'name' => '–¼‘O‚ª', 'mail' => 'Ò°Ù‚ª', 'date' => '“ú•t‚ª', 'id' => 'ID‚ª', 'belv' => 'Îß²İÄ‚ª');
 

@@ -33,9 +33,15 @@ GOTO;
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
-        $dores_ht = <<<EOP
+        if (!empty($_conf['disable_res'])) {
+            $dores_ht = <<<EOP
+      | <a href="{$motothre_url}" target="_blank" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+EOP;
+        } else {
+            $dores_ht = <<<EOP
 <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
 EOP;
+        }
     }
     if ($res1['body']) {
         $q_ichi = $res1['body']." | ";

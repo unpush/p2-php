@@ -7,15 +7,19 @@ include_once './conf/conf.inc.php'; // 基本設定ファイル読込
 require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
+
+if ($_conf['disable_res']) {
+    P2Util::print403('p2 error: 書き込み機能は無効です。');
+}
 
 // 引数エラー
 if (empty($_POST['host'])) {
-    die('p2 error: 引数の指定が変です');
+    P2Util::print403('p2 error: 引数の指定が変です');
 }
 
 if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-    die('p2 error: 不正なポストです');
+    P2Util::print403('p2 error: 不正なポストです');
 }
 
 //================================================================
@@ -445,15 +449,15 @@ function postIt($URL)
     }
     fclose($fp);
     
-    // be.2ch.net 文字コード変換 EUC→SJIS
-    if (P2Util::isHostBe2chNet($host)) {
+    // be.2ch.net or JBBSしたらば 文字コード変換 EUC→SJIS
+    if (P2Util::isHostBe2chNet($host) || P2Util::isHostJbbsShitaraba($host)) {
         $response = mb_convert_encoding($response, 'SJIS-win', 'eucJP-win');
         
         //<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">
         $response = preg_replace("{(<head>.*<META http-equiv=\"Content-Type\" content=\"text/html; charset=)EUC-JP(\">.*</head>)}is", "$1Shift_JIS$2", $response);
     }
     
-    $kakikonda_match = "/<title>.*(書きこみました|■ 書き込みました ■|書き込み終了 - SubAll BBS).*<\/title>/";
+    $kakikonda_match = "/<title>.*(書きこみました|■ 書き込みました ■|書き込み終了 - SubAll BBS).*<\/title>/is";
     $cookie_kakunin_match = "/<!-- 2ch_X:cookie -->|<title>■ 書き込み確認 ■<\/title>|>書き込み確認。</";
     
     if (eregi("(<.+>)", $response, $matches)) {

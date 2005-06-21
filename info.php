@@ -8,7 +8,7 @@ require_once (P2_LIBRARY_DIR . '/thread.class.php');
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 require_once (P2_LIBRARY_DIR . '/dele.inc.php'); // 削除処理用の関数郡
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //================================================================
 // ■変数設定
@@ -114,12 +114,13 @@ if ($aThread->ttitle_hc) {
     $hc['ttitle_name'] = "スレッドタイトル未取得";
 }
 
-// favlist チェック =====================================
+/*
+// favlist チェック
 $favlines = @file($_conf['favlist_file']); // お気にスレリスト 読込
-if ($favlines) {
+if (is_array($favlines)) {
     foreach ($favlines as $l) {
         $favarray = explode('<>', rtrim($l));
-        if ($aThread->key == $favarray[1]) {
+        if ($aThread->key == $favarray[1] && $aThread->bbs == $favarray[11]) {
             $aThread->fav = "1";
             if ($favarray[0]) {
                 $aThread->setTtitle($favarray[0]);
@@ -128,6 +129,7 @@ if ($favlines) {
         }
     }
 }
+*/
 
 if ($aThread->fav) {
     $favmark = "<span class=\"fav\">★</span>";

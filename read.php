@@ -11,7 +11,7 @@ require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 require_once (P2_LIBRARY_DIR . '/ngabornctl.class.php');
 require_once (P2_LIBRARY_DIR . '/showthread.class.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //================================================================
 // 変数

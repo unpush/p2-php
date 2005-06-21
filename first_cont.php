@@ -1,5 +1,5 @@
 <?php
-// p2 -  スレッド表示部分の初期表示
+// rep2 -  スレッド表示部分の初期表示
 // フレーム3分割画面、右下部分
 
 include_once './conf/conf.inc.php';  // 基本設定
@@ -38,7 +38,7 @@ echo <<<EOP
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 	<meta http-equiv="Content-Style-Type" content="text/css">
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
-	<title>p2</title>
+	<title>rep2</title>
 EOP;
 
 @include("./style/style_css.inc"); // 基本スタイルシート 読込
@@ -50,7 +50,7 @@ echo <<<EOP
 <div class="container">
     {$htm['urlform']}
     <hr>
-	<h1><img src="img/p2.gif" alt="p2" width="98" height="86"></h1>
+	<h1><img src="img/rep2.gif" alt="rep2" width="131" height="63"></h1>
 </div>
 </body>
 </html>
