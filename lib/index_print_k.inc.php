@@ -1,6 +1,6 @@
 <?php
 /*
-	p2 -  携帯用インデックスプリント関数
+	rep2 -  携帯用インデックスプリント関数
 */
 
 /**
@@ -8,7 +8,7 @@
 */
 function index_print_k()
 {
-	global $_conf, $login, $_info_msg_ht;
+	global $_conf, $_login, $_info_msg_ht;
 	
 	$p_htm = array();
 	
@@ -16,13 +16,10 @@ function index_print_k()
 	
 	$body = "";
 	$autho_user_ht = "";
-	$ptitle = "ﾕﾋﾞｷﾀｽp2";
+	$ptitle = "rep2ﾓﾊﾞｲﾙ";
 	
 	// 認証ユーザ情報
-	$autho_user_ht = "";
-	if ($login['use']) {
-		$autho_user_ht = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$login['user']} - ".date("Y/m/d (D) G:i:s")."</p>\n";
-	}
+	$autho_user_ht = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - ".date("Y/m/d (D) G:i:s")."</p>\n";
 	
 	// 前回のログイン情報
 	if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {

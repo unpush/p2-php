@@ -109,8 +109,8 @@ class DataPhp{
         $new_cont = DataPhp::escapeDataPhp($cont);
         
         // æ“ª•¶‚Æ––•¶‚ğ’Ç‰Á
-        $new_cont = DataPhp::getPre().$new_cont.DataPhp::getHip();
-        
+        $new_cont = DataPhp::getPre() . $new_cont . DataPhp::getHip();
+
         // ƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
         FileCtl::make_datafile($data_php, $perm);
         // ‘‚«‚Ş

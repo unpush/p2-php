@@ -6,7 +6,7 @@
 include_once './conf/conf.inc.php';  // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //================================================================
 // ■特殊な前置処理

@@ -5,7 +5,7 @@
 
 include_once './conf/conf.inc.php';   // 基本設定ファイル読込
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 // 引数エラー
 if (!isset($_GET['file'])) {

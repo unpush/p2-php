@@ -4,7 +4,7 @@
 include_once './conf/conf.inc.php';   // 基本設定ファイル読込
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //=========================================================
 // 変数
@@ -53,10 +53,7 @@ if ($_conf['updatan_haahaa']) {
 }
 
 // 認証ユーザ情報
-$autho_user_ht = "";
-if ($login['use']) {
-	$autho_user_ht = "<p>ログインユーザ: {$login['user']} - ".date("Y/m/d (D) G:i")."</p>\n";
-}
+$autho_user_ht = "<p>ログインユーザ: {$_login->user_u} - ".date("Y/m/d (D) G:i")."</p>\n";
 
 // 前回のログイン情報
 if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
@@ -102,7 +99,7 @@ EOP;
 //=========================================================
 // HTMLプリント
 //=========================================================
-$ptitle = "p2 - title";
+$ptitle = "rep2 - title";
 
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
@@ -130,13 +127,13 @@ echo <<<EOP
 <br>
 <div class="container">
 	{$newversion_found}
-	<p>p2 version {$_conf['p2version']} 　<a href="{$p2web_url_r}" target="_blank">{$_conf['p2web_url']}</a></p>
+	<p>rep2 version {$_conf['p2version']} 　<a href="{$p2web_url_r}" target="_blank">{$_conf['p2web_url']}</a></p>
 	<ul>
 		<li><a href="viewtxt.php?file=doc/README.txt">README.txt</a></li>
 		<li><a href="img/how_to_use.png">ごく簡単な操作法</a></li>
 		<li><a href="viewtxt.php?file=doc/ChangeLog.txt">ChangeLog（更新記録）</a></li>
 	</ul>
-	<!-- <p><a href="{$p2web_url_r}" target="_blank">p2 web &lt;{$_conf['p2web_url']}&gt;</a></p> -->
+	<!-- <p><a href="{$p2web_url_r}" target="_blank">rep2 web &lt;{$_conf['p2web_url']}&gt;</a></p> -->
 	{$autho_user_ht}
 	{$p_htm['last_login']}
 </div>
@@ -148,7 +145,7 @@ EOP;
 // ■関数
 //==================================================
 /**
-* オンライン上のp2最新版をチェックする
+* オンライン上のrep2最新版をチェックする
 */
 function checkUpdatan()
 {
@@ -178,8 +175,8 @@ function checkUpdatan()
 		$newversion_found = <<<EOP
 <div class="kakomi">
 	{$kita}<br>
-	オンライン上に p2 の最新バージョンを見つけますた。<br>
-	p2<!-- version {$update_ver}--> → <a href="{$p2web_url_r}cgi/dl/dl.php?dl=p2">ダウンロード</a> / <a href="{$p2web_url_r}p2/doc/ChangeLog.txt"{$_conf['ext_win_target_at']}>更新記録</a>
+	オンライン上に rep2 の最新バージョンを見つけますた。<br>
+	rep2<!-- version {$update_ver}--> → <a href="{$p2web_url_r}cgi/dl/dl.php?dl=p2">ダウンロード</a> / <a href="{$p2web_url_r}p2/doc/ChangeLog.txt"{$_conf['ext_win_target_at']}>更新記録</a>
 </div>
 <hr class="invisible">
 EOP;

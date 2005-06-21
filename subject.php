@@ -13,7 +13,7 @@ require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //============================================================
 // ■変数設定
@@ -204,9 +204,9 @@ if (!empty($_GET['dele']) or ($_POST['submit'] == $deletelog_st)) {
     settaborn_off($host, $bbs, $_POST['checkedkeys']);
 
 // スレッドあぼーん
-} elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
+} elseif (isset($_GET['taborn']) && !is_null($_GET['key']) && $host && $bbs) {
     include_once (P2_LIBRARY_DIR . '/settaborn.inc.php');
-    settaborn($host, $bbs, $key, $_GET['taborn']);
+    settaborn($host, $bbs, $_GET['key'], $_GET['taborn']);
 }
 
 //============================================================
@@ -252,7 +252,7 @@ $favlines = @file($_conf['favlist_file']);
 if (is_array($favlines)) {
     foreach ($favlines as $l) {
         $data = explode('<>', rtrim($l));
-        $fav_keys[ $data[1] ] = true;
+        $fav_keys[ $data[1] ] = $data[11];
     }
 }
 // }}}
@@ -404,7 +404,7 @@ for ($x = 0; $x < $linesize; $x++) {
     
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('favlist_check');
     // if ($x <= $threads_num) {
-        if ($aThreadList->spmode != 'taborn' and $fav_keys[$aThread->key]) {
+        if ($aThreadList->spmode != 'taborn' and isset($fav_keys[$aThread->key]) && $fav_keys[$aThread->key] == $aThread->bbs) {
             $aThread->fav = 1;
             unset($fav_keys[$aThread->key]);
         }

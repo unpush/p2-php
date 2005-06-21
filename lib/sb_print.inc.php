@@ -169,7 +169,7 @@ EOP;
         if ($aThread->isKitoku()) {
 
             // $ttitle_en_q は節減省略
-            $onclick_at = " onClick=\"return deleLog('host={$aThread->host}{$bbs_q}{$key_q}', {$STYLE['info_pop_size']}, 'subject', this);\"";
+            $onclick_at = " onClick=\"return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this);\"";
             $title_at = " title=\"クリックするとログ削除\"";
             
             $unum_ht_c = "<a class=\"un\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\"{$onclick_at}{$title_at}>{$aThread->unum}</a>";
@@ -227,7 +227,7 @@ EOP;
         } else {
             $torder_st = $aThread->torder;
         }
-        $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?host={$aThread->host}{$bbs_q}{$key_q}\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=1',{$STYLE['info_pop_size']},0,0)\">{$torder_st}</a>";
+        $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?host={$aThread->host}{$bbs_q}{$key_q}\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)\">{$torder_st}</a>";
         
         // title =================================================
         $chUnColor_ht = "";

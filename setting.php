@@ -1,12 +1,12 @@
 <?php
 /*
-	p2 -  設定管理ページ
+	rep2 -  設定管理ページ
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 // 書き出し用変数 ========================================
 $ptitle = 'ログイン管理';
@@ -17,20 +17,17 @@ if ($_conf['ktai']) {
 	$client_host_st = "端末ﾎｽﾄ";
 	$client_ip_st = "端末IPｱﾄﾞﾚｽ";
 	$browser_ua_st = "ﾌﾞﾗｳｻﾞUA";
-	$p2error_st = "p2 ｴﾗｰ";
+	$p2error_st = "rep2 ｴﾗｰ";
 } else {
 	$status_st = "ステータス";
 	$autho_user_st = "認証ユーザ";
 	$client_host_st = "端末ホスト";
 	$client_ip_st = "端末IPアドレス";
 	$browser_ua_st = "ブラウザUA";
-	$p2error_st = "p2 エラー";
+	$p2error_st = "rep2 エラー";
 }
 
-$autho_user_ht = "";
-if ($login['use']) {
-	$autho_user_ht = "{$autho_user_st}: {$login['user']}<br>";
-}
+$autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
 
 
 $body_onload = "";
@@ -92,11 +89,9 @@ $_info_msg_ht = "";
 
 echo "<ul id=\"setting_menu\">";
 
-if ($login['use']) {
-	echo <<<EOP
-	<li><a href="login.php{$_conf['k_at_q']}"{$access_login_at}>p2ログイン管理</a></li>
+echo <<<EOP
+	<li><a href="login.php{$_conf['k_at_q']}"{$access_login_at}>rep2ログイン管理</a></li>
 EOP;
-}
 
 echo <<<EOP
 	<li><a href="login2ch.php{$_conf['k_at_q']}"{$access_login2ch_at}>2chログイン管理</a></li>

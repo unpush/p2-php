@@ -94,7 +94,7 @@ class SubjectTxt{
         // ¡DL
         include_once (P2_LIBRARY_DIR . '/wap.class.php');
         $wap_ua =& new UserAgent();
-        $wap_ua->setAgent("Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")");
+        $wap_ua->setAgent('Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req =& new Request();
         $wap_req->setUrl($this->subject_url);
@@ -123,8 +123,8 @@ class SubjectTxt{
                 $body = gzinflate($body);
             }
         
-            // ‚µ‚½‚ç‚Î‚È‚çEUC‚ğSJIS‚É•ÏŠ·
-            if (P2Util::isHostJbbsShitaraba($this->host)) {
+            // ‚µ‚½‚ç‚Î or be.2ch.net ‚È‚çEUC‚ğSJIS‚É•ÏŠ·
+            if (P2Util::isHostJbbsShitaraba($this->host) || P2Util::isHostBe2chNet($this->host)) {
                 $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
             }
             
@@ -180,11 +180,10 @@ class SubjectTxt{
     function setSubjectLines($cont = '')
     {
         if ($this->storage == 'eashm') {
-            if ($cont) {
-                $this->subject_lines = explode("\n", $cont);
-            } else {
-                $this->subject_lines = eaccelerator_get("$this->host/$this->bbs");
+            if (!$cont) {
+                $cont = eaccelerator_get("$this->host/$this->bbs");
             }
+            $this->subject_lines = explode("\n", $cont);
         
         } elseif ($this->storage == 'file') {
             if (extension_loaded('zlib') and strstr($this->host, '.2ch.net')) {
@@ -199,10 +198,12 @@ class SubjectTxt{
             $this->subject_lines = array_unique($this->subject_lines);
         }
         
+        /*
         // be.2ch.net ‚È‚çEUC¨SJIS•ÏŠ·
         if (P2Util::isHostBe2chNet($this->host)) {
             $this->subject_lines = array_map(create_function('$str', 'return mb_convert_encoding($str, "SJIS-win", "eucJP-win");'), $this->subject_lines);
         }
+        */
         
         if ($this->subject_lines) {
             return true;

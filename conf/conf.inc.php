@@ -1,20 +1,33 @@
 <?php
 /*
-    p2 - 基本設定ファイル
+    rep2 - 基本設定ファイル
 
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.6.7';
+$_conf['p2version'] = '1.7.0';
 
-//$_conf['p2name'] = 'p2';  // p2の名前。
-$_conf['p2name'] = 'P2';    // p2の名前。
+$_conf['p2name'] = 'rep2';    // rep2の名前。
 
 
 //======================================================================
 // 基本設定処理
 //======================================================================
 error_reporting(E_ALL ^ E_NOTICE); // エラー出力設定
+
+// {{{ 基本変数
+
+$_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
+$_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.php';
+$_conf['favrank_url']           = 'http://akid.s17.xrea.com:8080/favrank/favrank.php';
+$_conf['menu_php']              = 'menu.php';
+$_conf['subject_php']           = 'subject.php';
+$_conf['read_php']              = 'read.php';
+$_conf['read_new_php']          = 'read_new.php';
+$_conf['read_new_k_php']        = 'read_new_k.php';
+$_conf['cookie_file_name']      = 'p2_cookie.txt';
+
+// }}}
 
 $debug = 0;
 isset($_GET['debug']) and $debug = $_GET['debug'];
@@ -44,6 +57,8 @@ if (!extension_loaded('mbstring')) {
 
 @putenv('TZ=JST-9'); // タイムゾーンをセット
 
+@set_time_limit(60); // (60) スクリプト実行制限時間(秒)
+
 // 自動フラッシュをオフにする
 ob_implicit_flush(0);
 
@@ -67,7 +82,7 @@ if (strstr(PHP_OS, 'WIN')) {
     defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '/');
 }
 
-// ■内部処理における文字コード指定
+// 内部処理における文字コード指定
 // mb_detect_order("SJIS-win,eucJP-win,ASCII");
 mb_internal_encoding('SJIS-win');
 mb_http_output('pass');
@@ -116,8 +131,17 @@ if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
 // ライブラリを読み込む
 require_once (P2_LIBRARY_DIR . '/p2util.class.php');
 
+require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once (P2_LIBRARY_DIR . '/session.class.php');
+require_once (P2_LIBRARY_DIR . '/login.class.php');
+
 if (!include_once('Net/UserAgent/Mobile.php')) {
-    die('<html><body><h3>p2 error: PEAR の Net_UserAgent_Mobile がインストールされていません</h3></body></html>');
+    $url = 'http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
+    $url_t = $_conf['p2ime_url'] . "?enc=1&amp;url=" . rawurlencode($url);
+    $msg = '<html><body><h3>p2 error: PEAR の Net_UserAgent_Mobile がインストールされていません</h3>
+        <p><a href="' . $url_t . '" target="_blank">p2Wiki: PEARのインストール</a></p>
+        </body></html>';
+    die($msg);
 }
 
 // }}}
@@ -156,28 +180,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // }}}
 
-if (P2Util::isBrowserSafariGroup()) {
-    $_conf['accept_charset'] = 'UTF-8';
-} else {
-    $_conf['accept_charset'] = 'Shift_JIS';
+// ■管理者用設定を読み込み
+if (!include_once './conf/conf_admin.inc.php') {
+    die('p2 error: 管理者用設定ファイルを読み込めませんでした。');
 }
-
 
 $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
-
-// {{{ 携帯アクセスキー
-$_conf['k_accesskey']['matome'] = '3'; // 新まとめ
-$_conf['k_accesskey']['latest'] = '3'; // 新
-$_conf['k_accesskey']['res'] =    '7'; // ﾚｽ
-$_conf['k_accesskey']['above'] =  '2'; // 上
-$_conf['k_accesskey']['up'] =     '5'; // （板）
-$_conf['k_accesskey']['prev'] =   '4'; // 前
-$_conf['k_accesskey']['bottom'] = '8'; // 下
-$_conf['k_accesskey']['next'] =   '6'; // 次
-$_conf['k_accesskey']['info'] =   '9'; // 情
-$_conf['k_accesskey']['dele'] =   '*'; // 削
-$_conf['k_accesskey']['filter'] = '#'; // 索
 
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">'."\n";
 
@@ -187,6 +196,7 @@ $mobile = &Net_UserAgent_Mobile::singleton();
 // PC
 if ($mobile->isNonMobile()) {
     $_conf['ktai'] = FALSE;
+    $_conf['disable_cookie'] = FALSE;
 
     if (P2Util::isBrowserSafariGroup()) {
         $_conf['accept_charset'] = 'UTF-8';
@@ -196,13 +206,45 @@ if ($mobile->isNonMobile()) {
 
 // 携帯
 } else {
+    require_once (P2_LIBRARY_DIR . '/hostcheck.class.php');
+    
     $_conf['ktai'] = TRUE;
     $_conf['accept_charset'] = 'Shift_JIS';
 
     // ベンダ判定
+    // DoCoMo i-Mode
+    if ($mobile->isDoCoMo()) {
+        if (!HostCheck::isAddrDocomo()) {
+            die('UAがDoCoMoですが、IPアドレス帯域がマッチしません。');
+        }
+        $_conf['disable_cookie'] = TRUE;
+    // EZweb (au or Tu-Ka)
+    } elseif ($mobile->isEZweb()) {
+        if (!HostCheck::isAddrAu()) {
+            die('UAがEZwebですが、IPアドレス帯域がマッチしません。');
+        }
+        $_conf['disable_cookie'] = FALSE;
     // Vodafone Live!
-    if ($mobile->isVodafone()) {
+    } elseif ($mobile->isVodafone()) {
+        if (!HostCheck::isAddrVodafone()) {
+            die('UAがVodafoneですが、IPアドレス帯域がマッチしません。');
+        }
         $_conf['accesskey'] = 'DIRECTKEY';
+        // W型端末と3GC型端末はCookieが使える
+        if ($mobile->isTypeW() || $mobile->isType3GC()) {
+            $_conf['disable_cookie'] = FALSE;
+        } else {
+            $_conf['disable_cookie'] = TRUE;
+        }
+    // AirH" Phone
+    } elseif ($mobile->isAirHPhone()) {
+        if (!HostCheck::isAddrAirh()) {
+            die('UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。');
+        }
+        $_conf['disable_cookie'] = FALSE;
+    // その他
+    } else {
+        $_conf['disable_cookie'] = TRUE;
     }
 }
 
@@ -213,7 +255,7 @@ if ($mobile->isNonMobile()) {
 // output_add_rewrite_var() は便利だが、出力がバッファされて体感速度が落ちるのが難点。。
 // 体感速度を落とさない良い方法ないかな？
 
-// PC（b=pc）
+// 強制PCビュー指定
 if ($_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['b'] = 'pc';
     $_conf['ktai'] = false;
@@ -223,7 +265,7 @@ if ($_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['k_at_q'] = '?b=pc';
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
 
-// 携帯（b=k。k=1は過去互換用）
+// 強制携帯ビュー指定（b=k。k=1は過去互換用）
 } elseif (!empty($_GET['k']) || !empty($_POST['k']) || $_GET['b'] == 'k' || $_POST['b'] == 'k') {
     $_conf['b'] = 'k';
     $_conf['ktai'] = true;
@@ -253,29 +295,43 @@ EODOC;
 EODOC;
     }
 }
+
 // }}}
 
 //======================================================================
 
+// {{{ ■ユーザ設定 読込
+
+// デフォルト設定（conf_user_def.inc.php）を読み込む
+include_once './conf/conf_user_def.inc.php';
+$_conf = array_merge($_conf, $conf_user_def);
+
+// ユーザ設定があれば読み込む
+$_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.inc.php';
+$conf_user = array();
+if ($cont = DataPhp::getDataPhpCont($_conf['conf_user_file'])) {
+    $conf_user = unserialize($cont);
+    $_conf = array_merge($_conf, $conf_user);
+}
+
+// }}}
+/*
 if (file_exists("./conf/conf_user.inc.php")) {
     include_once "./conf/conf_user.inc.php"; // ユーザ設定 読込
 }
+*/
 if (file_exists("./conf/conf_user_style.inc.php")) {
     include_once "./conf/conf_user_style.inc.php"; // デザイン設定 読込
 }
 
-$_conf['display_threads_num'] = 150; // (150) スレッドサブジェクト一覧のデフォルト表示数
-$posted_rec_num = 1000; // (1000) 書き込んだレスの最大記録数 //現在は機能していない
-
-$_conf['p2status_dl_interval'] = 360; // (360) p2status（アップデートチェック）のキャッシュを更新せずに保持する時間 (分)
-
 // {{{ デフォルト設定
-if (!isset($login['use'])) { $login['use'] = 1; }
-if (!is_dir($_conf['pref_dir'])) { $_conf['pref_dir'] = "./data"; }
-if (!is_dir($_conf['dat_dir'])) { $_conf['dat_dir'] = "./data"; }
-if (!isset($_conf['rct_rec_num'])) { $_conf['rct_rec_num'] = 20; }
+
+if (!is_dir($_conf['pref_dir']))    { $_conf['pref_dir'] = "./data"; }
+if (!is_dir($_conf['dat_dir']))     { $_conf['dat_dir'] = "./data"; }
+if (!is_dir($_conf['idx_dir']))     { $_conf['idx_dir'] = "./data"; }
+if (!isset($_conf['rct_rec_num']))  { $_conf['rct_rec_num'] = 20; }
 if (!isset($_conf['res_hist_rec_num'])) { $_conf['res_hist_rec_num'] = 20; }
-if (!isset($posted_rec_num)) { $posted_rec_num = 1000; }
+if (!isset($_conf['posted_rec_num'])) { $_conf['posted_rec_num'] = 1000; }
 if (!isset($_conf['before_respointer'])) { $_conf['before_respointer'] = 20; }
 if (!isset($_conf['sort_zero_adjust'])) { $_conf['sort_zero_adjust'] = 0.1; }
 if (!isset($_conf['display_threads_num'])) { $_conf['display_threads_num'] = 150; }
@@ -290,9 +346,10 @@ if (!isset($STYLE['post_pop_size'])) { $STYLE['post_pop_size'] = "610,350"; }
 if (!isset($STYLE['post_msg_rows'])) { $STYLE['post_msg_rows'] = 10; }
 if (!isset($STYLE['post_msg_cols'])) { $STYLE['post_msg_cols'] = 70; }
 if (!isset($STYLE['info_pop_size'])) { $STYLE['info_pop_size'] = "600,380"; }
-// }}}
 
+// }}}
 // {{{ ユーザ設定の調整処理
+
 $_conf['ext_win_target'] && $_conf['ext_win_target_at'] = " target=\"{$_conf['ext_win_target']}\"";
 $_conf['bbs_win_target'] && $_conf['bbs_win_target_at'] = " target=\"{$_conf['bbs_win_target']}\"";
 
@@ -305,39 +362,26 @@ if ($_conf['get_new_res']) {
 } else {
     $_conf['get_new_res_l'] = 'l200';
 }
+
 // }}}
 
 //======================================================================
 // 変数設定
 //======================================================================
-$_conf['login_log_rec'] = 1; // ログインログの記録可否
-$_conf['login_log_rec_num'] = 100; // ログインログの記録数
-$_conf['last_login_log_show'] = 1; // 前回ログイン情報表示可否
-
-$_conf['p2web_url'] = "http://akid.s17.xrea.com/";
-$_conf['p2ime_url'] = "http://akid.s17.xrea.com/p2ime.php";
-$_conf['favrank_url'] = "http://akid.s17.xrea.com:8080/favrank/favrank.php";
-$_conf['menu_php'] = "menu.php";
-$_conf['subject_php'] = "subject.php";
-$_conf['read_php'] = "read.php";
-$_conf['read_new_php'] = "read_new.php";
-$_conf['read_new_k_php'] = "read_new_k.php";
-$_conf['rct_file'] = $_conf['pref_dir'] . '/' . 'p2_recent.idx';
+$_conf['rct_file'] =        $_conf['pref_dir'] . '/p2_recent.idx';
 $_conf['p2_res_hist_dat'] = $_conf['pref_dir'] . '/p2_res_hist.dat'; // 書き込みログファイル（dat）
 $_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // 書き込みログファイル（データPHP）
-$_conf['cache_dir'] = $_conf['pref_dir'] . '/p2_cache';
-$_conf['cookie_dir'] = $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
-$_conf['cookie_file_name'] = 'p2_cookie.txt';
-$_conf['favlist_file'] = $_conf['pref_dir'] . "/" . "p2_favlist.idx";
-$_conf['favita_path'] = $_conf['pref_dir'] . "/" . "p2_favita.brd";
-$_conf['idpw2ch_php'] = $_conf['pref_dir'] . "/p2_idpw2ch.php";
-$_conf['sid2ch_php'] = $_conf['pref_dir'] . "/p2_sid2ch.php";
-$_conf['auth_user_file'] = $_conf['pref_dir'] . "/p2_auth_user.php";
-$_conf['auth_ez_file'] = $_conf['pref_dir'] . "/p2_auth_ez.php";
-$_conf['auth_jp_file'] = $_conf['pref_dir'] . "/p2_auth_jp.php";
-$_conf['login_log_file'] = $_conf['pref_dir'] . "/p2_login.log.php";
-
-$_conf['idx_dir'] = $_conf['dat_dir'];
+$_conf['cache_dir'] =       $_conf['pref_dir'] . '/p2_cache';
+$_conf['cookie_dir'] =      $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
+$_conf['favlist_file'] =    $_conf['pref_dir'] . "/p2_favlist.idx";
+$_conf['favita_path'] =     $_conf['pref_dir'] . "/p2_favita.brd";
+$_conf['idpw2ch_php'] =     $_conf['pref_dir'] . "/p2_idpw2ch.php";
+$_conf['sid2ch_php'] =      $_conf['pref_dir'] . "/p2_sid2ch.php";
+$_conf['auth_user_file'] =  $_conf['pref_dir'] . "/p2_auth_user.php";
+$_conf['auth_ez_file'] =    $_conf['pref_dir'] . "/p2_auth_ez.php";
+$_conf['auth_jp_file'] =    $_conf['pref_dir'] . "/p2_auth_jp.php";
+$_conf['login_log_file'] =  $_conf['pref_dir'] . "/p2_login.log.php";
+$_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';
 
 // saveMatomeCache() のために $_conf['pref_dir'] を絶対パスに変換する
 // ※環境によっては、realpath() で値を取得できない場合がある？
@@ -354,57 +398,49 @@ if ($rp = realpath($_conf['pref_dir'])) {
 $_conf['matome_cache_ext'] = '.htm';
 $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
-$_conf['md5_crypt_key'] = $_SERVER['SERVER_NAME'].$_SERVER['SERVER_SOFTWARE'];
-$_conf['menu_dl_interval'] = 1; // (1) 板 menu のキャッシュを更新せずに保持する時間 (hour)
-$_conf['fsockopen_time_limit'] = 10; // (10) ネットワーク接続タイムアウト時間(秒)
-set_time_limit(60); // スクリプト実行制限時間(秒)
+// {{{ ありえない引数のエラー
 
-// {{{ パーミッション設定
-$_conf['data_dir_perm'] = 0707; // データ保存用ディレクトリ
-$_conf['dat_perm'] = 0606; // datファイル
-$_conf['key_perm'] = 0606; // key.idx ファイル
-$_conf['dl_perm'] = 0606; // その他のp2が内部的にDL保存するファイル（キャッシュ等）
-$_conf['pass_perm'] = 0604; // パスワードファイル
-$_conf['p2_perm'] = 0606; // その他のp2の内部保存データファイル
-$_conf['palace_perm'] = 0606; // 殿堂入り記録ファイル
-$_conf['favita_perm'] = 0606; // お気に板記録ファイル
-$_conf['favlist_perm'] = 0606; // お気にスレ記録ファイル
-$_conf['rct_perm'] = 0606; // 最近読んだスレ記録ファイル
-$_conf['res_write_perm'] = 0606; // 書き込み履歴記録ファイル
+// 新規ログインとメンバーログインの同時指定はありえないので、エラー出す
+if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
+    die('p2 Error: 無効なURLです。');
+}
+
 // }}}
+// {{{ ホストチェック
+
+if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
+    require_once (P2_LIBRARY_DIR . '/hostcheck.class.php');
+    if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == FALSE) ||
+        ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == TRUE)
+    ) {
+        HostCheck::forbidden();
+    }
+}
+
+// }}}
+// {{ ■セッション
+
+session_name('PS');
+// css.php は特別にセッションから外す。
+//if (basename($_SERVER['PHP_SELF']) != 'css.php') {
+    if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) { 
+        $_p2session =& new Session();
+        if ($_conf['disable_cookie'] && !ini_get('session.use_trans_sid')) {
+            output_add_rewrite_var(session_name(), session_id());
+        }
+    }
+//}
+
+// }}}
+
+// ■ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
+@require_once (P2_LIBRARY_DIR . '/login.class.php');
+$_login =& new Login();
+
 
 //=====================================================================
 // 関数
 //=====================================================================
-
-/**
- * 認証関数
- */
-function authorize()
-{
-    global $login;
-    
-    if ($login['use']) {
-    
-        include_once (P2_LIBRARY_DIR . '/login.inc.php');
-    
-        // 認証チェック
-        if (!authCheck()) {
-            // ログイン失敗
-            include_once (P2_LIBRARY_DIR . '/login_first.inc.php');
-            printLoginFirst();
-            exit;
-        }
-        
-        // 要求があれば、補助認証を登録
-        registCookie();
-        registKtaiId();
-     }
-    
-    return true;
-}
-
-
 /**
  * 再帰的にstripslashesをかける
  * GET/POST/COOKIE変数用なのでオブジェクトのプロパティには対応しない
@@ -440,6 +476,9 @@ function nullfilter_r($var, $r = 0)
     return $var;
 }
 
+/**
+ * メモリの使用量を表示する
+ */
 function printMemoryUsage()
 {
     echo memory_get_usage();
