@@ -12,6 +12,7 @@
 	  デザイン設定は、conf/conf_style.inc.php で。
 	  その他のユーザの設定は、ログイン後の「設定管理」＞「ユーザ設定編集」で。
 
+	  ※conf/conf_user.inc.php は廃止されました。
 	  ※conf.inc.php, conf_style.inc.php はWeb上から編集できなくなりました。
 	  （conf_style.inc.phpの方はそのうち対応予定）
 
@@ -40,7 +41,65 @@
 	- [仕様変更] be.2ch.netのsubject.txtは保存時に文字コード変換するようにした
 	  移行直後は古いキャッシュが残って、be.2ch.netのスレ一覧が文字化け表示する場合があります。
 
-	- ホストチェック、BBQなど、拡張パックのコードを取り込ませてもらってます。感謝。
+	- ホストチェック、BBQなど、拡張パックさんのコードを取り込ませてもらってます。感謝。
+
+	* cookie.php
+	* edit_conf_user.php is new
+	* editfavita.php
+	* editfile.php
+	* editpref.php
+	* first_cont.php
+	* httpcmd.php
+	* index.php
+	* info.php
+	* login.php
+	* login2ch.php
+	* menu_k.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_filter_k.php
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.php
+	* setting.php
+	* subject.php
+	* title.php
+	* viewtxt.php
+	* conf/conf.inc.php
+	* conf/conf_admin.inc.php is new
+	* conf/conf_hostcheck.php is new
+	* conf/conf_user.inc.php is removed
+	* conf/conf_user_def.inc.php is new
+	* conf/conf_user_style.inc.php
+	* doc/README.txt
+	* img/rep2.gif is new
+	* img/rep2_loginbg.gif is new
+	* lib/SubjectTxt.class.php
+	* lib/dataphp.class.php
+	* lib/hostcheck.class.php is new
+	* lib/index_print_k.inc.php
+	* lib/login.class.php is new
+	* lib/login.inc.php is removed
+	* lib/login2ch.inc.php
+	* lib/login_first.inc.php
+	* lib/menu.inc.php
+	* lib/p2util.class.php
+	* lib/read_footer.inc.php
+	* lib/read_footer_k.inc.php
+	* lib/read_header.inc.php
+	* lib/read_header_k.inc.php
+	* lib/res_hist.class.php
+	* lib/sb_footer.inc.php
+	* lib/sb_print.inc.php
+	* lib/session.class.php is new
+	* lib/setfav.inc.php
+	* lib/setpalace.inc.php
+	* lib/showbrdmenuk.class.php
+	* lib/showthread.class.php
+	* lib/showthreadpc.class.php
+	* style/edit_conf_user_css.inc is new
+	* style/login_first_css.inc
 
 2005-06-07 aki
 	* p2 version 1.6.7
