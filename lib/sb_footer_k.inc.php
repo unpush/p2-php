@@ -15,7 +15,7 @@ if ($word) {
 	$word_at = "";
 }
 
-if ($aThreadList->spmode=="fav" && $sb_view=="shinchaku") {
+if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
 	$allfav_ht = <<<EOP
 	<p><a href="subject.php?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></p>
 EOP;
@@ -92,38 +92,49 @@ EOP;
 // }}}
 
 // {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
-$sortq_spmode = '';
-$sortq_host = '';
-$sortq_ita = '';
-// spmode時
-if ($aThreadList->spmode) { 
-	$sortq_spmode = "&amp;spmode={$aThreadList->spmode}";
-}
-// spmodeでない、または、spmodeがあぼーん or dat倉庫なら
-if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko") { 
-	$sortq_host = "&amp;host={$aThreadList->host}";
-	$sortq_ita = "&amp;bbs={$aThreadList->bbs}";
-}
 
 $sorts = array('midoku' => '新着', 'res' => 'ﾚｽ', 'no' => 'No.', 'title' => 'ﾀｲﾄﾙ');
-if ($aThreadList->spmode and $aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') { $sorts['ita'] = '板'; }
-if ($_conf['sb_show_spd']) { $sorts['spd'] = 'すばやさ'; }
-if ($_conf['sb_show_ikioi']) { $sorts['ikioi'] = '勢い'; }
-$sorts['bd'] = 'Birthday';
-if ($_conf['sb_show_fav'] and $aThreadList->spmode != 'taborn') { $sorts['fav'] = '☆'; }
-
-foreach ($sorts as $k => $v) {
-	if ($GLOBALS['now_sort'] == $k) {
-		//$sorts_ht[$k] = "<font color=\"{$STYLE['sb_now_sort_color']}\">{$v}</font>";
-		$sorts_ht[$k] = $v;
-	} else {
-		$sorts_ht[$k] = "<a href=\"{$_conf['subject_php']}?sort={$k}{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}{$_conf['k_at_a']}\">{$v}</a>";
-	}
+if ($aThreadList->spmode and $aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') {
+    $sorts['ita'] = '板';
 }
-$htm['change_sort'] = 'ｿｰﾄ変更→' . implode(' ', $sorts_ht);
+if ($_conf['sb_show_spd']) {
+    $sorts['spd'] = 'すばやさ';
+}
+if ($_conf['sb_show_ikioi']) {
+    $sorts['ikioi'] = '勢い';
+}
+$sorts['bd'] = 'Birthday';
+if ($_conf['sb_show_fav'] and $aThreadList->spmode != 'taborn') {
+    $sorts['fav'] = '☆';
+}
+
+$htm['change_sort'] = "<form method=\"get\" action=\"{$_conf['subject_php']}\">";
+$htm['change_sort'] .= $_conf['k_input_ht'];
+$htm['change_sort'] .= '<input type="hidden" name="norefresh" value="1">';
+// spmode時
+if ($aThreadList->spmode) {
+    $htm['change_sort'] .= "<input type=\"hidden\" name=\"spmode\" value=\"{$aThreadList->spmode}\">";
+}
+// spmodeでない、または、spmodeがあぼーん or dat倉庫なら
+if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko") {
+    $htm['change_sort'] .= "<input type=\"hidden\" name=\"host\" value=\"{$aThreadList->host}\">";
+    $htm['change_sort'] .= "<input type=\"hidden\" name=\"bbs\" value=\"{$aThreadList->bbs}\">";
+}
+$htm['change_sort'] .= 'ｿｰﾄ:<select name="sort">';
+foreach ($sorts as $k => $v) {
+    if ($GLOBALS['now_sort'] == $k) {
+        $selected = ' selected';
+    } else {
+        $selected = '';
+    }
+    $htm['change_sort'] .= "<option value=\"{$k}\"{$selected}>{$v}</option>";
+}
+$htm['change_sort'] .= '</select>';
+$htm['change_sort'] .= '<input type="submit" value="変更"></form>';
+
 // }}}
 
-// HTMLプリント==============================================
+// HTMLプリント ==============================================
 echo "<hr>";
 echo $k_sb_navi_ht;
 include (P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php');

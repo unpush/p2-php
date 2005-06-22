@@ -8,6 +8,14 @@
 	- [仕様変更] Air H"はUA⇔IPチェックの対象から外してみた
 	- [仕様変更] 携帯のスレ一覧でのソート変更のUIを変更（拡張パックより。感謝）
 
+	- 変更のあったファイル
+		edit_conf_user.php
+		editpref.php
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		lib/login.class.php
+		lib/sb_footer_k.inc.php
+
 2005-06-22 aki
 	* rep2 version 1.7.0
 	

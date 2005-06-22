@@ -3,7 +3,7 @@
     p2 -  設定管理
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php'; // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 $_login->authorize(); // ユーザ認証

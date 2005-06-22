@@ -259,16 +259,16 @@ class Login{
                 $this->clearCookieAuth();
             }
         }
+
+        $mobile = &Net_UserAgent_Mobile::singleton();
         
         // ■EZweb認証スルーパス サブスクライバID
-        if (isset($_SERVER['HTTP_X_UP_SUBNO']) && file_exists($_conf['auth_ez_file'])) {
+        if ($mobile->isEZweb() && isset($_SERVER['HTTP_X_UP_SUBNO']) && file_exists($_conf['auth_ez_file'])) {
             include $_conf['auth_ez_file'];
             if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
                 return true;
             }
         }
-    
-        $mobile = &Net_UserAgent_Mobile::singleton();
         
         // ■J-PHONE認証スルーパス
         // パケット対応機 要ユーザID通知ONの設定 端末シリアル番号

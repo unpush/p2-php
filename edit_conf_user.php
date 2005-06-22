@@ -28,8 +28,7 @@ if (!empty($_POST['submit_save'])) {
     $_POST['conf_edit'] = array_map('trim', $_POST['conf_edit']);
     
     // 選択肢にないもの → デフォルト矯正
-    $names = array_keys($conf_user_sel);
-    notSelToDef($names);
+    notSelToDef();
     
     // empty → デフォルト矯正
     emptyToDef();
@@ -38,8 +37,8 @@ if (!empty($_POST['submit_save'])) {
     notIntExceptMinusToDef();
 
     /**
-     * デフォルト値 $conf_user_def と変更値 $_POST['conf_edit'] が両方存在していて、
-     * デフォルトと変更値が異なる場合のみ設定保存する（その他のデータは保存されず、破棄される）
+     * デフォルト値 $conf_user_def と変更値 $_POST['conf_edit'] の両方が存在していて、
+     * デフォルト値と変更値が異なる場合のみ設定保存する（その他のデータは保存されず、破棄される）
      */
     $conf_save = array();
     foreach ($conf_user_def as $k => $v) {
@@ -331,13 +330,13 @@ function notIntExceptMinusToDef()
 }
 
 /**
- * 指定のnameにおいて、選択肢にない値はデフォルトセットする
- *
- * @param array $names 指定するnameを格納した配列
+ * 選択肢にない値はデフォルトセットする
  */
-function notSelToDef($names)
+function notSelToDef()
 {
     global $conf_user_def, $conf_user_sel;
+    
+    $names = array_keys($conf_user_sel);
     
     if (is_array($names)) {
         foreach ($names as $n) {

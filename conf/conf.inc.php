@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.0';
+$_conf['p2version'] = '1.7.1';
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 
@@ -191,6 +191,9 @@ $_conf['accesskey'] = 'accesskey';
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">'."\n";
 
 // {{{ 端末判定
+
+$_conf['login_check_ip']  = 1; // ログイン時にIPアドレスを検証する
+
 $mobile = &Net_UserAgent_Mobile::singleton();
 
 // PC
@@ -214,19 +217,19 @@ if ($mobile->isNonMobile()) {
     // ベンダ判定
     // DoCoMo i-Mode
     if ($mobile->isDoCoMo()) {
-        if (!HostCheck::isAddrDocomo()) {
+        if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
             die('UAがDoCoMoですが、IPアドレス帯域がマッチしません。');
         }
         $_conf['disable_cookie'] = TRUE;
     // EZweb (au or Tu-Ka)
     } elseif ($mobile->isEZweb()) {
-        if (!HostCheck::isAddrAu()) {
+        if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
             die('UAがEZwebですが、IPアドレス帯域がマッチしません。');
         }
         $_conf['disable_cookie'] = FALSE;
     // Vodafone Live!
     } elseif ($mobile->isVodafone()) {
-        if (!HostCheck::isAddrVodafone()) {
+        if ($_conf['login_check_ip'] && !HostCheck::isAddrVodafone()) {
             die('UAがVodafoneですが、IPアドレス帯域がマッチしません。');
         }
         $_conf['accesskey'] = 'DIRECTKEY';
@@ -238,9 +241,12 @@ if ($mobile->isNonMobile()) {
         }
     // AirH" Phone
     } elseif ($mobile->isAirHPhone()) {
-        if (!HostCheck::isAddrAirh()) {
+        /*
+        // AirH"では端末ID認証を行わないので、コメントアウト
+        if ($_conf['login_check_ip'] && !HostCheck::isAddrAirh()) {
             die('UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。');
         }
+        */
         $_conf['disable_cookie'] = FALSE;
     // その他
     } else {
@@ -368,19 +374,20 @@ if ($_conf['get_new_res']) {
 //======================================================================
 // 変数設定
 //======================================================================
-$_conf['rct_file'] =        $_conf['pref_dir'] . '/p2_recent.idx';
-$_conf['p2_res_hist_dat'] = $_conf['pref_dir'] . '/p2_res_hist.dat'; // 書き込みログファイル（dat）
+$_conf['rct_file'] =            $_conf['pref_dir'] . '/p2_recent.idx';
+$_conf['p2_res_hist_dat'] =     $_conf['pref_dir'] . '/p2_res_hist.dat'; // 書き込みログファイル（dat）
 $_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // 書き込みログファイル（データPHP）
-$_conf['cache_dir'] =       $_conf['pref_dir'] . '/p2_cache';
-$_conf['cookie_dir'] =      $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
-$_conf['favlist_file'] =    $_conf['pref_dir'] . "/p2_favlist.idx";
-$_conf['favita_path'] =     $_conf['pref_dir'] . "/p2_favita.brd";
-$_conf['idpw2ch_php'] =     $_conf['pref_dir'] . "/p2_idpw2ch.php";
-$_conf['sid2ch_php'] =      $_conf['pref_dir'] . "/p2_sid2ch.php";
-$_conf['auth_user_file'] =  $_conf['pref_dir'] . "/p2_auth_user.php";
-$_conf['auth_ez_file'] =    $_conf['pref_dir'] . "/p2_auth_ez.php";
-$_conf['auth_jp_file'] =    $_conf['pref_dir'] . "/p2_auth_jp.php";
-$_conf['login_log_file'] =  $_conf['pref_dir'] . "/p2_login.log.php";
+$_conf['cache_dir'] =           $_conf['pref_dir'] . '/p2_cache';
+$_conf['cookie_dir'] =          $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
+$_conf['favlist_file'] =        $_conf['pref_dir'] . "/p2_favlist.idx";
+$_conf['favita_path'] =         $_conf['pref_dir'] . "/p2_favita.brd";
+$_conf['idpw2ch_php'] =         $_conf['pref_dir'] . "/p2_idpw2ch.php";
+$_conf['sid2ch_php'] =          $_conf['pref_dir'] . "/p2_sid2ch.php";
+$_conf['auth_user_file'] =      $_conf['pref_dir'] . "/p2_auth_user.php";
+$_conf['auth_ez_file'] =        $_conf['pref_dir'] . "/p2_auth_ez.php";
+$_conf['auth_jp_file'] =        $_conf['pref_dir'] . "/p2_auth_jp.php";
+$_conf['auth_docomo_file'] =    $_conf['pref_dir'] . '/p2_auth_docomo.php';
+$_conf['login_log_file'] =      $_conf['pref_dir'] . "/p2_login.log.php";
 $_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';
 
 // saveMatomeCache() のために $_conf['pref_dir'] を絶対パスに変換する
