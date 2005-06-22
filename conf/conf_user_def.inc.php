@@ -259,9 +259,9 @@ $conf_user_def['frame_read_width'] = "60%"; // ("40%")
 $conf_user_def['precede_openssl'] = 0;  // (0)
 $conf_user_sel['precede_openssl'] = array('1' => 'Yes', '0' => 'No');
 
-// curlを使う時、コマンドライン版とPHP関数版どちらを優先するか (コマンドライン版:0, 関数版:1)
+// curlを使う時、コマンドライン版とPHP関数版どちらを優先するか (コマンドライン版:0, PHP関数版:1)
 $conf_user_def['precede_phpcurl'] = 0;  // (0)
-$conf_user_sel['precede_phpcurl'] = array('1' => 'コマンドライン版', '0' => 'PHP関数版');
+$conf_user_sel['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP関数版');
 
 // }}}
 ?>

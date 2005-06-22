@@ -37,13 +37,13 @@ class P2Util{
             $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
         }
         $wap_res = $wap_ua->request($wap_req);
-    
+        
         if ($wap_res->is_error() && $disp_error) {
             $url_t = P2Util::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
         }
-    
+        
         // 更新されていたら
         if ($wap_res->is_success() && $wap_res->code != "304") {
             if (FileCtl::file_write_contents($localfile, $wap_res->content) === false) {
@@ -104,13 +104,12 @@ class P2Util{
         $save_uri .= $parsed['path'] ? $parsed['path'] : ''; 
         $save_uri .= $parsed['query'] ? '?'.$parsed['query'] : '';
         
-        $cachefile = $_conf['cache_dir'] . "/".$save_uri;
+        $cachefile = $_conf['cache_dir'] . "/" . $save_uri;
 
         FileCtl::mkdir_for($cachefile);
         
         return $cachefile;
     }
-
 
     /**
      * ■ hostとbbsから板名を返す
@@ -118,12 +117,12 @@ class P2Util{
     function getItaName($host, $bbs)
     {
         global $_conf, $ita_names;
-    
+        
         if (!isset($ita_names["$host/$bbs"])) {
             $idx_host_dir = P2Util::idxDirOfHost($host);
             
             $p2_setting_txt = $idx_host_dir."/".$bbs."/p2_setting.txt";
-            
+
             $p2_setting_cont = @file_get_contents($p2_setting_txt);
             if ($p2_setting_cont) { $p2_setting = unserialize($p2_setting_cont); }
             $ita_names["$host/$bbs"] = $p2_setting['itaj'];
@@ -160,10 +159,9 @@ class P2Util{
             }
         }
         */
-    
+        
         return $ita_names["$host/$bbs"];
     }
-
 
     /**
      * hostからdatの保存ディレクトリを返す
@@ -235,9 +233,9 @@ class P2Util{
         }    
 
         $disp_navi['from'] = $disp_from;
-    
+        
         $disp_range = $disp_range-1;
-    
+        
         // fromが越えた
         if ($disp_navi['from'] > $disp_all_num) {
             $disp_navi['from'] = $disp_all_num - $disp_range;
@@ -274,9 +272,7 @@ class P2Util{
         }
         $disp_navi['range_st'] = "{$range_on_st}/{$disp_all_num} ";
 
-
         return $disp_navi;
-    
     }
 
     /**
@@ -328,7 +324,7 @@ class P2Util{
         global $_conf;
     
         // p2imeは、enc, m, url の引数順序が固定されているので注意
-    
+        
         if ($_conf['through_ime'] == "2ch") {
             $purl = parse_url($url);
             $url_r = $purl['scheme'] . "://ime.nu/" . $purl['host'] . $purl['path'];
@@ -389,7 +385,7 @@ class P2Util{
             return false;
         }
     }
-    
+
     /**
      * ■ host が machibbs.net まちビねっと なら true を返す
      */
@@ -401,7 +397,7 @@ class P2Util{
             return false;
         }
     }
-        
+    
     /**
      * ■ host が JBBS@したらば なら true を返す
      */
@@ -448,7 +444,7 @@ class P2Util{
     {
         header("Content-Type: text/html; charset=Shift_JIS");
     }
-    
+
     /**
      * ■データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
      *
@@ -593,14 +589,14 @@ class P2Util{
         $cont = implode("\n", $lines) . "\n";
 
         FileCtl::make_datafile($logfile, $_conf['p2_perm']);
-
+        
         // 書き込み処理
         if ($format == 'dataphp') {
             DataPhp::writeDataPhp($logfile, $cont, $_conf['p2_perm']);
         } else {
             FileCtl::file_write_contents($logfile, $cont);
         }
-
+        
         return true;
     }
 
@@ -627,7 +623,7 @@ class P2Util{
         
         $md5_crypt_key = P2Util::getAngoKey();
         $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
-    $idpw2ch_cont = <<<EOP
+        $idpw2ch_cont = <<<EOP
 <?php
 \$rec_login2chID = '{$login2chID}';
 \$rec_login2chPW = '{$crypted_login2chPW}';

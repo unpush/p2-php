@@ -1,4 +1,13 @@
 <?php
+
+if (!defined('FILE_USE_INCLUDE_PATH')) {
+    define('FILE_USE_INCLUDE_PATH', 1);
+}
+
+if (!defined('FILE_APPEND')) {
+    define('FILE_APPEND', 8);
+}
+
 /**
  * ファイルを操作するクラス
  * インスタンスを作らずにクラスメソッドで利用する
@@ -25,7 +34,7 @@ class FileCtl{
                 $cont = @file_get_contents($file);
                 unlink($file);
                 if (FileCtl::file_write_contents($file, $cont) === false) {
-                    die('Error: cannot write.');
+                    die('Error: cannot write file.');
                 }
                 chmod($file, $perm);
             }
