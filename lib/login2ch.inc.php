@@ -235,7 +235,6 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
     $wap_ua =& new UserAgent;
     $wap_ua->setAgent($dolib2ch);
     $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-
     $wap_req =& new Request;
     $wap_req->setMethod('POST');
     $wap_req->post['ID'] = $login2chID;

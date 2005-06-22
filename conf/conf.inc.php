@@ -5,9 +5,9 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.1';
+$_conf['p2version'] = '1.7.2';
 
-$_conf['p2name'] = 'rep2';    // rep2の名前。
+$_conf['p2name'] = 'REP2';    // rep2の名前。
 
 
 //======================================================================
@@ -82,7 +82,7 @@ if (strstr(PHP_OS, 'WIN')) {
     defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '/');
 }
 
-// 内部処理における文字コード指定
+// 内部処理における文字コードを指定
 // mb_detect_order("SJIS-win,eucJP-win,ASCII");
 mb_internal_encoding('SJIS-win');
 mb_http_output('pass');
@@ -288,6 +288,7 @@ $_conf['k_to_index_ht'] = <<<EOP
 EOP;
 
 // {{{ DOCTYPE HTML 宣言
+
 $ie_strict = false;
 if (empty($_conf['ktai'])) {
     if ($ie_strict) {

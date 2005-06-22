@@ -1,5 +1,7 @@
 <?php
-// p2 - 2ch●ログイン管理
+/**
+ *    p2 - 2ch●ログイン管理
+ */
 
 include_once './conf/conf.inc.php';  // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
@@ -9,14 +11,13 @@ $_login->authorize(); // ユーザ認証
 //================================================================
 // 変数
 //================================================================
-
 if (isset($_POST['login2chID']))   { $login2chID = $_POST['login2chID']; }
 if (isset($_POST['login2chPW']))   { $login2chPW = $_POST['login2chPW']; }
 if (isset($_POST['autoLogin2ch'])) { $autoLogin2ch = $_POST['autoLogin2ch']; }
 
-//==============================================================
-// IDとPWを登録保存
-//==============================================================
+//===============================================================
+// ログインなら、IDとPWを登録保存して、ログインする
+//===============================================================
 if (isset($_POST['login2chID']) && isset($_POST['login2chPW'])) {
 
     if (isset($_POST['autoLogin2ch'])) {
@@ -78,8 +79,9 @@ P2Util::header_nocache();
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
-<html>
+<html lang="ja">
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
@@ -98,10 +100,11 @@ echo <<<EOP
     <script type="text/javascript">
     <!--
     function checkPass2ch(){ 
-        pass2ch_input = document.getElementById('login2chPW');
-        if(pass2ch_input.value==""){
-            alert("パスワードを入力して下さい");
-            return false;
+        if (pass2ch_input = document.getElementById('login2chPW')) {
+            if (pass2ch_input.value == "") {
+                alert("パスワードを入力して下さい");
+                return false;
+            }
         }
     }
     // -->
@@ -110,7 +113,7 @@ echo <<<EOP
 <body{$body_onload}>
 EOP;
 
-if(!$_conf['ktai']){
+if (!$_conf['ktai']) {
     echo <<<EOP
 <p id="pan_menu"><a href="setting.php">ログイン管理</a> &gt; {$ptitle}</p>
 EOP;
@@ -123,6 +126,7 @@ $_info_msg_ht = "";
 // 2ch●ログインフォーム
 //================================================================
 
+// ログイン中なら
 if (file_exists($_conf['sid2ch_php'])) {
     $idsub_str = "再{$login_st}する";
     $form_now_log = <<<EOFORM
@@ -162,7 +166,7 @@ if (!$_conf['ktai']) {
     $pass_input_size_at = " size=\"24\"";
 }
 
-//プリント=================================
+// プリント =================================
 echo "<div id=\"login_status\">";
 echo $form_now_log;
 echo "</div>";

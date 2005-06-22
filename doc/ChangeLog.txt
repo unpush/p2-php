@@ -1,3 +1,18 @@
+2005-06-23 aki
+	* rep2 version 1.7.2
+	
+	[修正] ●ログインできるようにした
+	[バグ修正] precede_phpcurl の設定表示が、逆になっていたのを修正
+	
+	- 変更のあったファイル
+		login2ch.php
+		conf/conf.inc.php
+		conf/conf_admin.inc.php
+		conf/conf_user_def.inc.php
+		lib/filectl.class.php
+		lib/login2ch.inc.php
+		lib/p2util.class.php
+	
 2005-06-22 aki
 	* rep2 version 1.7.1
 	
