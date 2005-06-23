@@ -969,6 +969,9 @@ EOP;
                 case 2:
                     $view_img = $this->iframe_popup($url, array($str, $img_tag), $_conf['ext_win_target_at']);
                     break;
+                case 3:
+                    $view_img = $this->iframe_popup($url, array($str, $img_tag), $_conf['ext_win_target_at']);
+                    break;
                 default:
                     $view_img = "<a href=\"{$url}\"{$_conf['ext_win_target_at']}>{$img_tag}{$str}</a>";
             }

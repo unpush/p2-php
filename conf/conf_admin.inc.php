@@ -60,7 +60,7 @@ $_conf['sb_dl_interval'] = 300;     // (300) subject.txt ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚
 $_conf['p2status_dl_interval'] = 360; // (360) p2statusiƒAƒbƒvƒf[ƒgƒ`ƒFƒbƒNj‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•ª)
 
 $_conf['login_log_rec'] = 1;        // (1) ƒƒOƒCƒ“ƒƒO‚ğ‹L˜^i‚·‚é:1, ‚µ‚È‚¢:0j
-$_conf['login_log_rec_num'] = 100;  // (100) ƒƒOƒCƒ“ƒƒO‚Ì‹L˜^”
+$_conf['login_log_rec_num'] = 200;  // (200) ƒƒOƒCƒ“ƒƒO‚Ì‹L˜^”
 $_conf['last_login_log_show'] = 1;  // (1) ‘O‰ñƒƒOƒCƒ“î•ñ‚ğ•\¦i‚·‚é:1, ‚µ‚È‚¢:0j
 
 $_conf['cid_expire_day'] = 30;      // (30) Cookie ID‚Ì—LŒøŠúŒÀ“ú”

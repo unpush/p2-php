@@ -118,9 +118,9 @@ $conf_user_def['pre_thumb_height'] = "32"; // ("32")
 // 画像サムネイルの横の大きさを指定（ピクセル）
 $conf_user_def['pre_thumb_width'] = "32"; // ("32")
 
-// HTMLポップアップ（する:1, しない:0, pでする:2）
+// HTMLポップアップ（する:1, しない:0, pでする:2, 画像でする:3）
 $conf_user_def['iframe_popup'] = 2; // (2)
-$conf_user_sel['iframe_popup'] = array('1' => 'する', '0' => 'しない', '2' => 'pでする');
+$conf_user_sel['iframe_popup'] = array('1' => 'する', '0' => 'しない', '2' => 'pでする', '3' => '画像でする');
 
 // HTMLポップアップの表示遅延時間（秒）
 $conf_user_def['iframe_popup_delay'] = 0.2; // (0.2)
