@@ -44,7 +44,7 @@ function printLoginFirst(&$_login)
     // Œg‘Ñ—p•\¦•¶š—ñ‘SŠp¨”¼Šp•ÏŠ·
     if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
         foreach ($p_str as $k => $v) {
-            $p_str[$k] = mb_convert_kana($v, 'rnask');
+            $p_str[$k] = mb_convert_kana($v, 'rnsk');
         }
     }
 
