@@ -115,7 +115,7 @@ function sb_print_k(&$aThreadList)
 			
 			// 全角英数カナスペースを半角に
 			if (!empty($_conf['k_save_packet'])) {
-				$ita_name_hd = mb_convert_kana($ita_name_hd, 'ask');
+				$ita_name_hd = mb_convert_kana($ita_name_hd, 'rnsk');
 			}
 			
 			// $htm['ita'] = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hd}</a>)";
@@ -155,7 +155,7 @@ function sb_print_k(&$aThreadList)
 
 		// 全角英数カナスペースを半角に
 		if (!empty($_conf['k_save_packet'])) {
-			$aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'ask');
+			$aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
 		}
 		
 		$aThread->ttitle_ht = $aThread->ttitle_ht." (".$rescount_ht.")";

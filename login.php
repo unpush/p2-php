@@ -26,7 +26,7 @@ $p_str = array(
 // Œg‘Ñ—p•\¦•¶š—ñ•ÏŠ·
 if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
     foreach ($p_str as $k => $v) {
-        $p_str[$k] = mb_convert_kana($v, 'rnask');
+        $p_str[$k] = mb_convert_kana($v, 'rnsk');
     }
 }
 

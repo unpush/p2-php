@@ -1,4 +1,17 @@
 2005-06-24 aki
+	* rep2 version 1.7.4
+	
+	[バグ修正] 携帯用表示で、正しく表示されないことがあったのを修正
+	
+	- 変更のあったファイル
+		login.php
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		lib/login_first.inc.php
+		lib/sb_print_k.inc.php
+		lib/showthreadk.class.php
+
+2005-06-24 aki
 	* rep2 version 1.7.3
 	
 	- [新機能] (p)を画像で表示できるようになった。ユーザ設定で。（拡張パックより。感謝）

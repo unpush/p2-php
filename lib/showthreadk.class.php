@@ -251,7 +251,7 @@ EOP;
         
         // 全角英数スペースカナを半角に
         if (!empty($_conf['k_save_packet'])) {
-            $tores = mb_convert_kana($tores, 'ask');
+            $tores = mb_convert_kana($tores, 'rnsk'); // SJIS-win だと ask で ＜ を < に変換してしまうようだ
         }
         
         return $tores;
