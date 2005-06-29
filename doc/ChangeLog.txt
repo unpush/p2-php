@@ -1,3 +1,28 @@
+2005-06-29 aki
+	* rep2 version 1.7.5
+	
+	- [修正] PHPのセッションで、HTTPヘッダによるキャッシュコントロールをしないように調整した。
+	DoCoMoでページを戻ると、更新されてしまうのが直った。
+
+	- [バグ修正] b=kで携帯モードにしているとき、書き込んだ後にCookie確認があると、
+	モード指定が解除されてしまっていたのを修正した
+
+	- [修正] 携帯でbbspinkの元板へのリンクを修正した
+
+	- [仕様変更] cookieの保存場所をp2で管理するように変更した（拡張パック取り込み。感謝）
+	PHPデフォルトにも設定可能
+
+
+	- [新規設定追加] $_conf['data_dir'] を追加（conf_admin.inc.php）
+	- [新規設定追加] $_conf['session_save'] を追加 （conf_admin.inc.php）
+	- [内部仕様変更] $_conf['admin_dir'] を追加（conf.inc.php）
+	- [内部仕様変更] $_conf['cache_dir'] の値を変更（conf.inc.php）
+
+	- [内部仕様変更] p2_bbq_burned.txt, p2_bbq_passed.txtの保存場所を、
+	$_conf['pref_dir'] から $_conf['admin_dir'] に変更。
+
+	- 他こまごま
+
 2005-06-24 aki
 	* rep2 version 1.7.4
 	
