@@ -82,9 +82,9 @@ EOF;
         }
 
         // èâä˙âª
-        $bbq_burned_file = $_conf['pref_dir'] . '/p2_bbq_burned.txt';
+        $bbq_burned_file = $_conf['admin_dir'] . '/p2_bbq_burned.txt';
         $bbq_burned = array();
-        $bbq_passed_file = $_conf['pref_dir'] . '/p2_bbq_passed.txt';
+        $bbq_passed_file = $_conf['admin_dir'] . '/p2_bbq_passed.txt';
         $bbq_passed = array();
         $remote_addr = $_SERVER['REMOTE_ADDR'];
 
@@ -133,6 +133,7 @@ EOF;
             }
             $fp = @fopen($bbq_burned_file, 'wb') or die("{$bbq_burned_file}Ç…èëÇ´çûÇﬂÇ‹ÇπÇÒÇ≈ÇµÇΩÅB");
             flock($fp, LOCK_EX);
+            ftruncate($fp, 0);
             fwrite($fp, $lines);
             flock($fp, LOCK_UN);
             fclose($fp);
@@ -151,6 +152,7 @@ EOF;
         }
         $fp = @fopen($bbq_passed_file, 'wb') or die("{$bbq_passed_file}Ç…èëÇ´çûÇﬂÇ‹ÇπÇÒÇ≈ÇµÇΩÅB");
         flock($fp, LOCK_EX);
+        ftruncate($fp, 0);
         fwrite($fp, $lines);
         flock($fp, LOCK_UN);
         fclose($fp);

@@ -27,10 +27,10 @@ if (empty($host) || empty($bbs) || empty($key)) {
 }
 
 //================================================================
-// ■特殊な前置処理
+// ■特殊な前処理
 //================================================================
+// {{{ 削除
 
-// ■削除
 if (!empty($_GET['dele']) && $key && $host && $bbs) {
     $r = deleteLogs($host, $bbs, array($key));
     //echo $r;
@@ -46,7 +46,9 @@ if (!empty($_GET['dele']) && $key && $host && $bbs) {
     }
 }
 
-// 履歴削除
+// }}}
+// {{{ 履歴削除
+
 if (!empty($_GET['offrec']) && $key && $host && $bbs) {
     $r1 = offRecent($host, $bbs, $key);
     $r2 = offResHist($host, $bbs, $key);
@@ -61,22 +63,29 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
         $info_msg = "- 履歴にはありませんでした";
     }
 
-// お気に入りスレッド
+// }}}
+// {{{ お気に入りスレッド
+
 } elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
     include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
     setFav($host, $bbs, $key, $_GET['setfav']);
 
-// 殿堂入り
+// }}}
+// {{{ 殿堂入り
+
 } elseif (isset($_GET['setpal']) && $key && $host && $bbs) {
     include_once (P2_LIBRARY_DIR . '/setpalace.inc.php');
     setPal($host, $bbs, $key, $_GET['setpal']);
 
-// スレッドあぼーん
+// }}}
+// {{{ スレッドあぼーん
+
 } elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
     include_once (P2_LIBRARY_DIR . '/settaborn.inc.php');
     settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
+// }}}
 //=================================================================
 // ■メイン
 //=================================================================
@@ -114,10 +123,12 @@ if ($aThread->ttitle_hc) {
     $hc['ttitle_name'] = "スレッドタイトル未取得";
 }
 
+
+// {{{ favlist チェック
+
 /*
-// favlist チェック
-$favlines = @file($_conf['favlist_file']); // お気にスレリスト 読込
-if (is_array($favlines)) {
+// お気にスレリスト 読込
+if ($favlines = @file($_conf['favlist_file'])) {
     foreach ($favlines as $l) {
         $favarray = explode('<>', rtrim($l));
         if ($aThread->key == $favarray[1] && $aThread->bbs == $favarray[11]) {
@@ -136,21 +147,19 @@ if ($aThread->fav) {
 } else {
     $favmark = "<span class=\"fav\">+</span>";
 }
-if ($aThread->fav) {
-    $favdo = 0;
-} else {
-    $favdo = 1;
-}
+
+$favdo = $aThread->fav ? 0 : 1;
 
 $fav_ht = <<<EOP
 <a href="info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setfav={$favdo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}">{$favmark}</a>
 EOP;
 
-// palace チェック =========================================
-$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
+// }}}
+// {{{ palace チェック
 
-$pallines = @file($palace_idx); // 殿堂入りスレリスト 読込
-if ($pallines) {
+// 殿堂入りスレリスト 読込
+$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
+if ($pallines = @file($palace_idx)) {
     foreach ($pallines as $l) {
         $palarray = explode('<>', rtrim($l));
         if ($aThread->key == $palarray[1]) {
@@ -162,11 +171,9 @@ if ($pallines) {
         }
     }
 }
-if ($isPalace) {
-    $paldo = 0;
-} else {
-    $paldo = 1;
-}
+
+$paldo = $isPalace ? 0 : 1;
+
 $pal_a_ht = "info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setpal={$paldo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}";
 
 if ($isPalace) {
@@ -175,11 +182,13 @@ if ($isPalace) {
     $pal_ht = "<a href=\"{$pal_a_ht}\">+</a>";
 }
 
-// ■スレッドあぼーんチェック =====================================
+// }}}
+// {{{ スレッドあぼーんチェック
+
 // スレッドあぼーんリスト読込
 $idx_host_dir = P2Util::idxDirOfHost($host);
-$tabornlist = @file($idx_host_dir.'/'.$bbs.'/p2_threads_aborn.idx');
-if ($tabornlist) {
+$taborn_file = $idx_host_dir . '/' . $bbs . '/p2_threads_aborn.idx';
+if ($tabornlist = @file($taborn_file)) {
     foreach ($tabornlist as $l) {
         $tarray = explode('<>', rtrim($l));
         if ($aThread->key == $tarray[1]) {
@@ -207,9 +216,12 @@ $taborn_ht = <<<EOP
 {$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}"{$taborndo_title_at}>{$tastr2}</a>]
 EOP;
 
+// }}}
 
-// ログありなしフラグセット ===========
-if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) { $existLog = true; }
+// ログありなしフラグセット
+if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) {
+    $existLog = true;
+}
 
 //=================================================================
 // ■HTMLプリント
@@ -220,7 +232,7 @@ if (!empty($_conf['ktai'])) {
 }
 
 $motothre_url = $aThread->getMotoThread();
-if ($title_msg) {
+if (!is_null($title_msg)) {
     $hc['title'] = $title_msg;
 } else {
     $hc['title'] = "info - {$hc['ttitle_name']}";
@@ -352,9 +364,12 @@ if ($_conf['ktai']) {
 
 echo '</body></html>';
 
-//===============================================
+// 終了
+exit();
+
+//=======================================================
 // ■関数
-//===============================================
+//=======================================================
 function print_info_line($s, $c)
 {
     global $_conf;

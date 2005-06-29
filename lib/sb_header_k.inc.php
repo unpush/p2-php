@@ -37,7 +37,11 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
         if (!empty($GLOBALS['word'])) {
             $ptitle_url = $p2_subject_url;
         } else {
-            $ptitle_url = "http://c.2ch.net/test/-/{$aThreadList->bbs}/i";
+            if (P2Util::isHostBbsPink($aThreadList->host)) {
+                $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
+            } else {
+                $ptitle_url = "http://c.2ch.net/test/-/{$aThreadList->bbs}/i";
+            }
         }
     }
 }

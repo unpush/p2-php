@@ -228,11 +228,9 @@ if ($spmode) {
     // {{{ スレッドあぼーんリスト読込
     
     $idx_host_dir = P2Util::idxDirOfHost($aThreadList->host);
-    $taborn_idx = $idx_host_dir.'/'.$aThreadList->bbs.'/p2_threads_aborn.idx';
+    $taborn_file = $idx_host_dir.'/'.$aThreadList->bbs.'/p2_threads_aborn.idx';
 
-    $tabornlines = @file($taborn_idx);
-    
-    if (is_array($tabornlines)) {
+    if ($tabornlines = @file($taborn_file)) {
         $ta_num = sizeof($tabornlines);
         foreach ($tabornlines as $l) {
             $data = explode('<>', rtrim($l));

@@ -1,6 +1,6 @@
 <?php
 /*
-	rep2 -  携帯用インデックスプリント関数
+    rep2 -  携帯用インデックスプリント関数
 */
 
 /**
@@ -8,24 +8,24 @@
 */
 function index_print_k()
 {
-	global $_conf, $_login, $_info_msg_ht;
-	
-	$p_htm = array();
-	
-	$newtime = date('gis');
-	
-	$body = "";
-	$autho_user_ht = "";
-	$ptitle = "rep2ﾓﾊﾞｲﾙ";
-	
-	// 認証ユーザ情報
-	$autho_user_ht = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - ".date("Y/m/d (D) G:i:s")."</p>\n";
-	
-	// 前回のログイン情報
-	if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
-		if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
-			$log_hd = array_map('htmlspecialchars', $log);
-			$p_htm['last_login'] =<<<EOP
+    global $_conf, $_login, $_info_msg_ht;
+    
+    $p_htm = array();
+    
+    $newtime = date('gis');
+    
+    $body = "";
+    $autho_user_ht = "";
+    $ptitle = "rep2ﾓﾊﾞｲﾙ";
+    
+    // 認証ユーザ情報
+    $autho_user_ht = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - ".date("Y/m/d (D) G:i:s")."</p>\n";
+    
+    // 前回のログイン情報
+    if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
+        if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
+            $log_hd = array_map('htmlspecialchars', $log);
+            $p_htm['last_login'] =<<<EOP
 前回のﾛｸﾞｲﾝ情報 - {$log_hd['date']}<br>
 ﾕｰｻﾞ: {$log_hd['user']}<br>
 IP: {$log_hd['ip']}<br>
@@ -33,22 +33,23 @@ HOST: {$log_hd['host']}<br>
 UA: {$log_hd['ua']}<br>
 REFERER: {$log_hd['referer']}
 EOP;
-		}
-	}
-	
-	//=========================================================
-	// 携帯用 HTML プリント
-	//=========================================================
-	P2Util::header_content_type();
-	if ($_conf['doctype']) {
-		echo $_conf['doctype'];
-	}
-	echo <<<EOP
+        }
+    }
+    
+    //=========================================================
+    // 携帯用 HTML プリント
+    //=========================================================
+    P2Util::header_nocache();
+    P2Util::header_content_type();
+    if (isset($_conf['doctype'])) {
+        echo $_conf['doctype'];
+    }
+    echo <<<EOP
 <html>
 <head>
-	{$_conf['meta_charset_ht']}
-	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-	<title>{$ptitle}</title>
+    {$_conf['meta_charset_ht']}
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <title>{$ptitle}</title>
 </head>
 <body>
 <h1>{$ptitle}</h1>

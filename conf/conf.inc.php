@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.4';
+$_conf['p2version'] = '1.7.5';
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -27,11 +27,14 @@ $_conf['read_new_php']          = 'read_new.php';
 $_conf['read_new_k_php']        = 'read_new_k.php';
 $_conf['cookie_file_name']      = 'p2_cookie.txt';
 
+$_info_msg_ht = '';
+
 // }}}
+// {{{ デバッグ
 
 $debug = 0;
 isset($_GET['debug']) and $debug = $_GET['debug'];
-if ($debug) {
+if (!empty($debug)) {
     include_once 'Benchmark/Profiler.php';
     $profiler =& new Benchmark_Profiler(true);
     
@@ -39,8 +42,7 @@ if ($debug) {
     register_shutdown_function('printMemoryUsage');
 }
 
-$_info_msg_ht = '';
-
+// }}}
 // {{{ 動作環境を確認
 
 if (version_compare(phpversion(), '4.3.0', 'lt')) {
@@ -129,12 +131,6 @@ if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
 }
 
 // ライブラリを読み込む
-require_once (P2_LIBRARY_DIR . '/p2util.class.php');
-
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
-require_once (P2_LIBRARY_DIR . '/session.class.php');
-require_once (P2_LIBRARY_DIR . '/login.class.php');
-
 if (!include_once('Net/UserAgent/Mobile.php')) {
     $url = 'http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
     $url_t = $_conf['p2ime_url'] . "?enc=1&amp;url=" . rawurlencode($url);
@@ -143,6 +139,10 @@ if (!include_once('Net/UserAgent/Mobile.php')) {
         </body></html>';
     die($msg);
 }
+require_once (P2_LIBRARY_DIR . '/p2util.class.php');
+require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once (P2_LIBRARY_DIR . '/session.class.php');
+require_once (P2_LIBRARY_DIR . '/login.class.php');
 
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
@@ -184,6 +184,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 if (!include_once './conf/conf_admin.inc.php') {
     die('p2 error: 管理者用設定ファイルを読み込めませんでした。');
 }
+
+// 管理用保存ディレクトリ (パーミッションは707)
+$_conf['admin_dir'] = $_conf['data_dir'].'/admin';
+
+// cache 保存ディレクトリ (パーミッションは707)
+$_conf['cache_dir'] = $_conf['data_dir'].'/cache'; // 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
 
 $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
@@ -378,7 +384,6 @@ if ($_conf['get_new_res']) {
 $_conf['rct_file'] =            $_conf['pref_dir'] . '/p2_recent.idx';
 $_conf['p2_res_hist_dat'] =     $_conf['pref_dir'] . '/p2_res_hist.dat'; // 書き込みログファイル（dat）
 $_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // 書き込みログファイル（データPHP）
-$_conf['cache_dir'] =           $_conf['pref_dir'] . '/p2_cache';
 $_conf['cookie_dir'] =          $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
 $_conf['favlist_file'] =        $_conf['pref_dir'] . "/p2_favlist.idx";
 $_conf['favita_path'] =         $_conf['pref_dir'] . "/p2_favita.brd";
@@ -395,11 +400,13 @@ $_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php
 // ※環境によっては、realpath() で値を取得できない場合がある？
 if ($rp = realpath($_conf['pref_dir'])) {
     $_conf['matome_cache_path'] = $rp.'/matome_cache';
+    define('P2_PREF_DIR_REAL_PATH', $rp);
 } else {
     if (substr($_conf['pref_dir'], 0, 1) == '/') {
         $_conf['matome_cache_path'] = $_conf['pref_dir'] . '/matome_cache';
+        define('P2_PREF_DIR_REAL_PATH', $_conf['pref_dir']);
     } else {
-        $GLOBALS['pref_dir_realpath_failed_msg'] = 'p2 error: realpath()の取得ができませんでした。ファイル conf.inc.php の $_conf[\'pref_dir\'] をルートからの絶対パス指定で設定してください。';
+        $GLOBALS['pref_dir_realpath_failed_msg'] = 'p2 error: realpath()の取得ができませんでした。ファイル conf_user.inc.php の $_conf[\'pref_dir\'] をルートからの絶対パス指定で設定してください。';
     }
 }
 
@@ -426,12 +433,56 @@ if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
 }
 
 // }}}
-// {{ ■セッション
+// {{{ ■セッション
 
+// 名前は、セッションクッキーを破棄するときのために、セッション利用の有無に関わらず設定する
 session_name('PS');
+
+// {{{ セッションデータ保存ディレクトリを規定
+
+if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
+
+    // $_conf['data_dir'] を絶対パスに変換する
+    // ※環境によっては、realpath() で値を取得できない場合がある？
+    if ($rp = realpath($_conf['data_dir'])) {
+        define('P2_DATA_DIR_REAL_PATH', $rp);
+    } else {
+        if (substr($_conf['data_dir'], 0, 1) == '/') {
+            define('P2_DATA_DIR_REAL_PATH', $_conf['data_dir']);
+        } else {
+            die('p2 error: realpath()の取得ができませんでした。ファイル conf_user.inc.php の $_conf[\'data_dir\'] をルートからの絶対パス指定で設定してください。');
+        }
+    }
+    
+    $_conf['session_dir'] = P2_DATA_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'session';
+}
+
+// }}}
+
 // css.php は特別にセッションから外す。
 //if (basename($_SERVER['PHP_SELF']) != 'css.php') {
     if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) { 
+    
+        // {{{ セッションデータ保存ディレクトリを設定
+        
+        if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
+        
+            if (!is_dir($_conf['session_dir'])) {
+                require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+                FileCtl::mkdir_for($_conf['session_dir'] . '/dummy_filename');
+            } elseif (!is_writable($_conf['session_dir'])) {
+                die("Error: セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
+            }
+
+            session_save_path($_conf['session_dir']);
+
+            // session.save_path のパスの深さが2より大きいとガーベッジコレクションが行われないので
+            // 自前でガーベッジコレクションする
+            P2Util::session_gc();
+        }
+        
+        // }}}
+
         $_p2session =& new Session();
         if ($_conf['disable_cookie'] && !ini_get('session.use_trans_sid')) {
             output_add_rewrite_var(session_name(), session_id());

@@ -9,7 +9,7 @@ include_once './conf/conf.inc.php';  // 基本設定ファイル
 $_login->authorize(); // ユーザ認証
 
 // {{{ HTTPヘッダとXML宣言
-
+P2Util::header_nocache();
 if (P2Util::isBrowserSafariGroup()) {
 	header('Content-Type: application/xml; charset=UTF-8');
 	$xmldec = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";

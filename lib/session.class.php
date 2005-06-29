@@ -6,6 +6,17 @@ $_session_version = 1; // セッションのバージョン（全ての稼動途中セッションを強制
 
 /**
  * Session Class
+ *
+ * ※重要※
+ * php.ini で session.auto_start = 0 (PHPのデフォルトのまま) になっていること。
+ * さもないとほとんどのセッション関連のパラメータがスクリプト内で変更できない。
+ * .htaccessで変更が許可されているなら
+ *
+ * <IfModule mod_php4.c>
+ *    php_flag session.auto_start Off
+ * </IfModule>
+ *
+ * でもOK。
  */
 class Session{
 
@@ -14,10 +25,17 @@ class Session{
      */
     function Session($sname = NULL, $sid = NULL)
     {
-        // session_cache_limiter('public'); // キャッシュ有効
+        session_cache_limiter('none'); // キャッシュ制御なし
+        
         if ($sname) { session_name($sname); } // セッションの名前をセット
         if ($sid)   { session_id($sid); }
         session_start(); // セッション開始
+        
+        /*
+        Expires: Thu, 19 Nov 1981 08:52:00 GMT
+        Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+        Pragma: no-cache
+        */
     }
 
     /**
@@ -187,9 +205,13 @@ class Session{
      *
      * セッションがない、もしくは正しくない場合などに
      * http://jp.php.net/manual/ja/function.session-destroy.php
+     *
+     * @ public
      */
     function unSession()
     {
+        global $_conf;
+        
         // セッションの初期化
         // session_name("something")を使用している場合は特にこれを忘れないように!
         @session_start();
@@ -200,12 +222,19 @@ class Session{
         // セッションを切断するにはセッションクッキーも削除する。
         // Note: セッション情報だけでなくセッションを破壊する。
         if (isset($_COOKIE[session_name()])) {
+           unset($_COOKIE[session_name()]);
            setcookie(session_name(), '', time() - 42000);
         }
         
         // 最終的に、セッションを破壊する
-        session_destroy();
-    
+        if (isset($_conf['session_dir'])) {
+            @unlink($_conf['session_dir'] . '/sess_' . session_id());
+        } else {
+            @unlink(session_save_path() . '/sess_' . session_id());
+        }
+        
+        @session_destroy();
+        
         return;
     }
 
