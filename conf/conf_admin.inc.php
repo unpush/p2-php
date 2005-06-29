@@ -10,14 +10,23 @@
 
 // (それぞれパーミッションは 707 or 777 に。Web公開外ディレクトリに設定するのが望ましい) 
 
-// 初期設定データ保存ディレクトリ
-$_conf['pref_dir'] = "./data";      // ("./data")
+// p2で使用する基本のデータ保存ディレクトリ
+$_conf['data_dir'] = "./data";      // ("./data")
 
 // 取得スレッドの dat データ保存ディレクトリ
 $_conf['dat_dir'] = "./data";       // ("./data")
 
 // 取得スレッドの idx データ保存ディレクトリ
 $_conf['idx_dir'] = "./data";       // ("./data")
+
+// 初期設定データ保存ディレクトリ
+$_conf['pref_dir'] = "./data";      // ("./data")
+
+
+// 将来的には以下のようにしたい予定
+// $_conf['dat_dir']  = $_conf['data_dir'] . '/dat';
+// $_conf['idx_dir']  = $_conf['data_dir'] . '/idx';
+// $_conf['pref_dir'] = $_conf['data_dir'] . '/pref';
 
 // }}}
 // ----------------------------------------------------------------------
@@ -44,6 +53,8 @@ $_conf['disable_res'] = 0;          // (0)
 
 // セッションを使う場合は、PHPの設定で session.use_trans_sid を有効にすることを推奨する
 $_conf['use_session'] = 2;          // (2) セッションを利用（する:1, しない:0, cookie認証が利用されていない時のみする:2）
+
+$_conf['session_save'] = 'p2';      // ('p2') sessionデータの保存管理 (PHPデフォルト:'', p2でファイル管理:'p2')
 
 $_conf['fsockopen_time_limit'] = 7; // (7) ネットワーク接続タイムアウト時間 (秒)
 

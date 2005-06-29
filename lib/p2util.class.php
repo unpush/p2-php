@@ -605,11 +605,7 @@ class P2Util{
      */
     function isBrowserSafariGroup()
     {
-        if (strstr($_SERVER['HTTP_USER_AGENT'], 'Safari') || strstr($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') || strstr($_SERVER['HTTP_USER_AGENT'], 'Konqueror')) {
-            return true;
-        } else {
-            return false;
-        }
+        return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $_SERVER['HTTP_USER_AGENT']);
     }
 
     /**
@@ -714,6 +710,128 @@ ERR;
         }
         exit;
     }
+    
+    // {{{ scandir_r()
+
+    /**
+     * 再帰的にディレクトリを走査する
+     *
+     * リストをファイルとディレクトリに分けて返す。それそれのリストは単純な配列
+     */
+    function scandir_r($dir)
+    {
+        $dir = realpath($dir);
+        $list = array('files' => array(), 'dirs' => array());
+        $files = scandir($dir);
+        foreach ($files as $filename) {
+            if ($filename == '.' || $filename == '..') {
+                continue;
+            }
+            $filename = $dir . DIRECTORY_SEPARATOR . $filename;
+            if (is_dir($filename)) {
+                $child = P2Util::scandir_r($filename);
+                if ($child) {
+                    $list['dirs'] = array_merge($list['dirs'], $child['dirs']);
+                    $list['files'] = array_merge($list['files'], $child['files']);
+                }
+                $list['dirs'][] = $filename;
+            } else {
+                $list['files'][] = $filename;
+            }
+        }
+        return $list;
+    }
+
+    // }}}
+    // {{{ garbageCollection()
+
+    /**
+     * いわゆるひとつのガベコレ
+     *
+     * $targetDirから最終更新より$lifeTime秒以上たったファイルを削除
+     *
+     * @access  public
+     * @param   string   $targetDir  ガーベッジコレクション対象ディレクトリ
+     * @param   integer  $lifeTime   ファイルの有効期限（秒）
+     * @param   string   $prefix     対象ファイル名の接頭辞（オプション）
+     * @param   string   $suffix     対象ファイル名の接尾辞（オプション）
+     * @param   boolean  $recurive   再帰的にガーベッジコレクションするか否か（デフォルトではFALSE）
+     * @return  array    削除に成功したファイルと失敗したファイルを別々に記録した二次元の配列
+     */
+    function garbageCollection($targetDir, $lifeTime, $prefix = '', $suffix = '', $recursive = FALSE)
+    {
+        $result = array('successed' => array(), 'failed' => array(), 'skipped' => array());
+        $expire = time() - $lifeTime;
+        //ファイルリスト取得
+        if ($recursive) {
+            $list = P2Util::scandir_r($targetDir);
+            $files = &$list['files'];
+        } else {
+            $list = scandir($targetDir);
+            $files = array();
+            $targetDir = realpath($targetDir) . DIRECTORY_SEPARATOR;
+            foreach ($list as $filename) {
+                if ($filename == '.' || $filename == '..') { continue; }
+                $files[] = $targetDir . $filename;
+            }
+        }
+        //検索パターン設定（$prefixと$suffixにスラッシュを含まないように）
+        if ($prefix || $suffix) {
+            $prefix = (is_array($prefix)) ? implode('|', array_map('preg_quote', $prefix)) : preg_quote($prefix);
+            $suffix = (is_array($suffix)) ? implode('|', array_map('preg_quote', $suffix)) : preg_quote($suffix);
+            $pattern = '/^' . $prefix . '.+' . $suffix . '$/';
+        } else {
+            $pattern = '';
+        }
+        //ガベコレ開始
+        foreach ($files as $filename) {
+            if ($pattern && !preg_match($pattern, basename($filename))) {
+                //$result['skipped'][] = $filename;
+                continue;
+            }
+            if (filemtime($filename) < $expire) {
+                if (@unlink($filename)) {
+                    $result['successed'][] = $filename;
+                } else {
+                    $result['failed'][] = $filename;
+                }
+            }
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ session_gc()
+
+    /**
+     * セッションファイルのガーベッジコレクション
+     *
+     * session.save_pathのパスの深さが2より大きい場合、ガーベッジコレクションは行われないため
+     * 自分でガーベッジコレクションしないといけない。
+     *
+     * @access  public
+     * @return  void
+     *
+     * @link http://jp.php.net/manual/ja/ref.session.php#ini.session.save-path
+     */
+    function session_gc()
+    {
+        global $_conf;
+
+        if (session_module_name() != 'files') {
+            return;
+        }
+
+        $d = (int)ini_get('session.gc_divisor');
+        $p = (int)ini_get('session.gc_probability');
+        mt_srand();
+        if (mt_rand(1, $d) <= $p) {
+            $m = (int)ini_get('session.gc_maxlifetime');
+            P2Util::garbageCollection($_conf['session_dir'], $m);
+        }
+    }
+
+    // }}}
 }
 
 ?>

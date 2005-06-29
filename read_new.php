@@ -79,9 +79,9 @@ if ($spmode) {
 
     // ■スレッドあぼーんリスト読込
     $idx_host_dir = P2Util::idxDirOfHost($host);
-    $tabornlines = @file($idx_host_dir."/".$bbs."/p2_threads_aborn.idx");
+    $taborn_file = $idx_host_dir."/".$bbs."/p2_threads_aborn.idx";
     
-    if ($tabornlines) {
+    if ($tabornlines = @file($taborn_file)) {
         $ta_num = sizeOf($tabornlines);
         foreach ($tabornlines as $l) {
             $tarray = explode('<>', rtrim($l));

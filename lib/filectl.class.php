@@ -103,7 +103,7 @@ class FileCtl{
         }
         
         /*
-        shift_jis‚Ì•¶š‚ª“r’†‚©‚ç“ü‚Á‚½‚è‚·‚é‚ÆAstring‚Å‚Í‚È‚¢”»’f‚³‚ê‚é‚±‚Æ‚ª‚ ‚éH
+        shift_jis‚Ì•¶š‚ª“r’†‚©‚ç“ü‚Á‚½‚è‚·‚é‚ÆAstring‚Å‚Í‚È‚¢‚Æ”»’f‚³‚ê‚é‚±‚Æ‚ª‚ ‚éH
         // If we don't have a string, throw an error
         if (!is_string($content)) {
             trigger_error('file_write_contents() '.$filename.', The 2nd parameter should be either a string or an array', E_USER_WARNING);
