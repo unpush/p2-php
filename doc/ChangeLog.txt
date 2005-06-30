@@ -1,4 +1,4 @@
-2005-06-29 aki
+2005-07-01 aki
 	* rep2 version 1.7.6
 	
 	- [バグ修正] $_conf['disable_res'] が二つあったのを修正（conf_admin.inc.php）
