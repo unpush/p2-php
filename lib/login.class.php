@@ -77,8 +77,8 @@ class Login{
             $login_user = $_SESSION['login_user'];
 
         /*
-        // BasicîFèÿ
-        } elseif (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_]+$/", $_SERVER['PHP_AUTH_USER']))) {
+        // BasicîFèÿÇ≈éwíË
+        } elseif (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SERVER['PHP_AUTH_USER']))) {
             $login_user = $_SERVER['PHP_AUTH_USER'];
         */
 

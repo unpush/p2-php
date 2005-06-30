@@ -1,4 +1,14 @@
 2005-06-29 aki
+	* rep2 version 1.7.6
+	
+	- [バグ修正] $_conf['disable_res'] が二つあったのを修正（conf_admin.inc.php）
+	
+	- 変更のあったファイル
+		post.php
+		conf/conf.inc.php
+		conf/conf_admin.inc.php
+
+2005-06-29 aki
 	* rep2 version 1.7.5
 	
 	- [修正] PHPのセッションで、HTTPヘッダによるキャッシュコントロールをしないように調整した。

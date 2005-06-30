@@ -9,7 +9,7 @@ require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 $_login->authorize(); // ユーザ認証
 
-if ($_conf['disable_res']) {
+if (!empty($_conf['disable_res'])) {
     P2Util::print403('p2 error: 書き込み機能は無効です。');
 }
 
