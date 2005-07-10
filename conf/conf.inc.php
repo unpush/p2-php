@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.6';
+$_conf['p2version'] = '1.7.7';
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -146,15 +146,15 @@ require_once (P2_LIBRARY_DIR . '/login.class.php');
 
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
-/*
+
 if (version_compare(phpversion(), '5.0.0', '<')) {
     require_once 'PHP/Compat.php';
-    PHP_Compat::loadFunction('clone');
+    //PHP_Compat::loadFunction('clone');
     PHP_Compat::loadFunction('scandir');
-    PHP_Compat::loadFunction('http_build_query');
-    PHP_Compat::loadFunction('array_walk_recursive');
+    //PHP_Compat::loadFunction('http_build_query');
+    //PHP_Compat::loadFunction('array_walk_recursive');
 }
-*/
+
 // }}}
 // {{{ フォームからの入力を一括でサニタイズ
 

@@ -75,26 +75,21 @@ class Login{
         // Sessionで指定
         } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SESSION['login_user'])) {
             $login_user = $_SESSION['login_user'];
-
+        
         /*
         // Basic認証で指定
-        } elseif (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SERVER['PHP_AUTH_USER']))) {
-            $login_user = $_SERVER['PHP_AUTH_USER'];
-        */
-
-        } else {
-            /*
-            // Basic認証
-            if () {    // ここにBasic認証を指定するフラグGET or POST
-                header('WWW-Authenticate: Basic realm="p2"');
+        } elseif (!empty($_REQUEST['basic'])) {
+        
+            if (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SERVER['PHP_AUTH_USER']))) {
+                $login_user = $_SERVER['PHP_AUTH_USER'];
+        
+            } else {
+                header('WWW-Authenticate: Basic realm="zone1"');
                 header('HTTP/1.0 401 Unauthorized');
-                if (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_]+$/", $_SERVER['PHP_AUTH_USER']))) {
-                    $login_user = $_SERVER['PHP_AUTH_USER'];
-                } else {
-                    die('p2 ログインに失敗しました');
-                }
+                echo 'Login Failed. ユーザ認証に失敗しました。';
+                exit;
             }
-            */
+        */
         }
         
         return $login_user;
@@ -323,10 +318,7 @@ class Login{
                 $this->clearCookieAuth();
 
                 // ログインログを記録する
-                if (!empty($_conf['login_log_rec'])) {
-                    $recnum = isset($_conf['login_log_rec_num']) ? intval($_conf['login_log_rec_num']) : 100;
-                    P2Util::recAccessLog($_conf['login_log_file'], $recnum);
-                }
+                $this->logLoginSuccess();
 
                 return true;
             
@@ -336,24 +328,69 @@ class Login{
                 $_login_failed_flag = true;
                 
                 // ログイン失敗ログを記録する
-                if (!empty($_conf['login_log_rec'])) {
-                    $recnum = isset($_conf['login_log_rec_num']) ? intval($_conf['login_log_rec_num']) : 100;
-                    P2Util::recAccessLog($_conf['login_failed_log_file'], $recnum);
-                }
+                $this->logLoginFailed();
             }
         }
     
-        /* 
+        /*
         // Basic認証
-        if (!isset($_SERVER['PHP_AUTH_USER']) || !(($_SERVER['PHP_AUTH_USER'] == $this->user_u) && (sha1($_SERVER['PHP_AUTH_PW']) == $this->pass_x))) {
-            header('WWW-Authenticate: Basic realm="zone"');
-            header('HTTP/1.0 401 Unauthorized');
-            //echo 'Login Failed. ユーザ認証に失敗しました。';
-            exit;
+        if (!empty($_REQUEST['basic'])) {
+            if (isset($_SERVER['PHP_AUTH_USER']) and ($_SERVER['PHP_AUTH_USER'] == $this->user_u) && (sha1($_SERVER['PHP_AUTH_PW']) == $this->pass_x)) {
+                
+                // 古いクッキーをクリアしておく
+                $this->clearCookieAuth();
+
+                // ログインログを記録する
+                $this->logLoginSuccess();
+                
+                return true;
+                
+            } else {
+            
+                header('WWW-Authenticate: Basic realm="zone2"');
+                header('HTTP/1.0 401 Unauthorized');
+                echo 'Login Failed. ユーザ認証に失敗しました。';
+                
+                // ログイン失敗ログを記録する
+                $this->logLoginFailed();
+                
+                exit;
+                
+            }
         }
         */
-
+        
         return false;
+    }
+
+    /**
+     * ログインログを記録する
+     */
+    function logLoginSuccess()
+    {
+        global $_conf;
+
+        if (!empty($_conf['login_log_rec'])) {
+            $recnum = isset($_conf['login_log_rec_num']) ? intval($_conf['login_log_rec_num']) : 100;
+            P2Util::recAccessLog($_conf['login_log_file'], $recnum);
+        }
+        
+        return true;
+    }
+
+    /**
+     * ログイン失敗ログを記録する
+     */
+    function logLoginFailed()
+    {
+        global $_conf;
+        
+        if (!empty($_conf['login_log_rec'])) {
+            $recnum = isset($_conf['login_log_rec_num']) ? intval($_conf['login_log_rec_num']) : 100;
+            P2Util::recAccessLog($_conf['login_failed_log_file'], $recnum, 'txt');
+        }
+        
+        return true;
     }
     
     /**
