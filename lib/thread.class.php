@@ -271,29 +271,41 @@ class Thread{
     /**
      * ¡Œ³ƒXƒŒURL‚ğ•Ô‚·
      */
-    function getMotoThread()
+    function getMotoThread($original = false)
     {
         global $_conf;
 
+        // ‹­§w’è
+        if ($mode == '2ch') {
+            return $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
+        }
+
+        // ‚Ü‚¿BBS
         if (P2Util::isHostMachiBbs($this->host)) {
             $motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";
+        // ‚Ü‚¿‚Ñ‚Ë‚Á‚Æ
         } elseif (P2Util::isHostMachiBbsNet($this->host)) {
-            $motothre_url = "http://{$this->host}/test/read.cgi?bbs={$this->bbs}&key={$this->key}";    
+            $motothre_url = "http://{$this->host}/test/read.cgi?bbs={$this->bbs}&key={$this->key}";
+        // JBBS‚µ‚½‚ç‚Î
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
             $host_bbs_cgi = preg_replace('{(jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp)}', '$1/bbs/read.cgi', $this->host);
             $motothre_url = "http://{$host_bbs_cgi}/{$this->bbs}/{$this->key}/{$this->ls}";
             //$motothre_url = "http://{$this->host}/bbs/read.cgi?BBS={$this->bbs}&KEY={$this->key}";
+        // 2chŒn
         } elseif (P2Util::isHost2chs($this->host)) {
-            if ($_conf['ktai']) {
+            // PC
+            if (empty($_conf['ktai']) || $original) {
+                $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";            
+            // Œg‘Ñ
+            } else {
                 if (P2Util::isHostBbsPink($this->host)) {
                     $motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
                 } else {
                     $mail = urlencode($_conf['my_mail']);
-                    $motothre_url = "http://c.2ch.net/test/-!mail={$mail}/{$this->bbs}/{$this->key}/{$this->ls}";
+                    $motothre_url = "http://c.2ch.net/test/--3!mail={$mail}/{$this->bbs}/{$this->key}/{$this->ls}";
                 }
-            } else {
-                $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
             }
+        // ‚»‚Ì‘¼
         } else {
             $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
         }

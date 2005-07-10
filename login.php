@@ -32,7 +32,7 @@ if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
 
 // （携帯）ログイン用URL
 $s = $_SERVER['HTTPS'] ? 's' : '';
-$url = 'http'.$s.'://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF'])).'/';//.'?user='.$_login->user_u.'&amp;k=1';
+$url = 'http'.$s.'://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF'])).'/'.'?user='.$_login->user_u.'&amp;b=k';
 $p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_blank">'.$url.'</a><br>';
 
 //====================================================

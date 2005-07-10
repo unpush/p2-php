@@ -117,7 +117,7 @@ if (!$ttitle_en) {
 }
 if ($ttitle_en) { $ttitle_en_ht = "&amp;ttitle_en={$ttitle_en}"; }
 
-if ($aThread->ttitle_hc) {
+if (!is_null($aThread->ttitle_hc)) {
     $hc['ttitle_name'] = $aThread->ttitle_hc;
 } else {
     $hc['ttitle_name'] = "スレッドタイトル未取得";
@@ -232,6 +232,13 @@ if (!empty($_conf['ktai'])) {
 }
 
 $motothre_url = $aThread->getMotoThread();
+if (P2Util::isHost2chs($aThread->host)) {
+    $motothre_org_url = $aThread->getMotoThread(true);
+} else {
+    $motothre_org_url = $motothre_url;
+}
+
+
 if (!is_null($title_msg)) {
     $hc['title'] = $title_msg;
 } else {
@@ -253,7 +260,7 @@ echo <<<EOHEADER
     <title>{$hd['title']}</title>\n
 EOHEADER;
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     // echo "<!-- ".$key_line." -->\n";
     @include("./style/style_css.inc"); // 基本スタイルシート読込
     @include("./style/info_css.inc");
@@ -280,8 +287,9 @@ echo "<p>\n";
 echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
 echo "</p>\n";
 
-if ($_conf['ktai']) {
-    if ($info_msg) {
+// 携帯なら冒頭で表示
+if (!empty($_conf['ktai'])) {
+    if (!empty($info_msg)) {
         echo "<p>".$info_msg."</p>\n";
     }
 }
@@ -290,11 +298,11 @@ if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($a
     $offrec_ht = " / [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;offrec=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
 }
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     echo "<table cellspacing=\"0\">\n";
 }
 print_info_line("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$motothre_url}</a>");
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     print_info_line("ホスト", $aThread->host);
 }
 print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$hd['itaj']}</a>");
@@ -313,7 +321,9 @@ if ($aThread->gotnum) {
 } else {
     print_info_line("既得レス数", "-");
 }
-if (!$_conf['ktai']) {
+
+// PC
+if (empty($_conf['ktai'])) {
     if (file_exists($aThread->keydat)) {
         if ($aThread->length) {
             print_info_line("datサイズ", $aThread->length.' バイト');
@@ -333,20 +343,27 @@ print_info_line("お気にスレ", $fav_ht);
 print_info_line("殿堂入り", $pal_ht);
 print_info_line("表示", $taborn_ht);
 
-if (!$_conf['ktai']) {
+// PC
+if (empty($_conf['ktai'])) {
     echo "</table>\n";
 }
 
-if (!$_conf['ktai']) {
-    if ($info_msg) {
+if (empty($_conf['ktai'])) {
+    if (!empty($info_msg)) {
         echo "<span class=\"infomsg\">".$info_msg."</span>\n";
     } else {
         echo "　\n";
     }
 }
 
-// 閉じるボタン
-if ($_GET['popup']) {
+// 携帯コピペ用フォーム
+if (!empty($_conf['ktai'])) {
+    echo getCopypaFormHt($motothre_org_url, $hd['ttitle_name']);
+}
+
+// {{{ 閉じるボタン
+
+if (!empty($_GET['popup'])) {
     echo '<div align="center">';
     if ($_GET['popup'] == 1) {
         echo '<form action=""><input type="button" value="ウィンドウを閉じる" onClick="window.close();"></form>';
@@ -355,10 +372,12 @@ if ($_GET['popup']) {
     <form action=""><input id="timerbutton" type="button" value="Close Timer" onClick="stopTimer(document.getElementById('timerbutton'))"></form>
 EOP;
     }
-    echo "</div>\n";
+    echo '</div>' . "\n";
 }
 
-if ($_conf['ktai']) {
+// }}}
+
+if (!empty($_conf['ktai'])) {
     echo '<hr>'.$_conf['k_to_index_ht'];
 }
 
@@ -370,15 +389,41 @@ exit();
 //=======================================================
 // ■関数
 //=======================================================
-function print_info_line($s, $c)
+/**
+ * スレ情報HTMLを表示する
+ */
+function print_info_line($s, $c_ht)
 {
     global $_conf;
     
-    if ($_conf['ktai']) {
-        echo "{$s}: {$c}<br>";
+    // 携帯
+    if (!empty($_conf['ktai'])) {
+        echo "{$s}: {$c_ht}<br>";
+    // PC
     } else {
-        echo "<tr><td class=\"tdleft\" nowrap><b>{$s}</b>&nbsp;</td><td class=\"tdcont\">{$c}</td></tr>\n";
+        echo "<tr><td class=\"tdleft\" nowrap><b>{$s}</b>&nbsp;</td><td class=\"tdcont\">{$c_ht}</td></tr>\n";
     }
 }
 
+/**
+ * スレタイとURLのコピペ用のフォームを取得する
+ */
+function getCopypaFormHt($url, $ttitle_name_hd)
+{
+    $url_hd = htmlspecialchars($url);
+    
+    $s = $_SERVER['HTTPS'] ? 's' : '';
+    $me_url = "http{$s}://" . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
+    // $_SERVER['REQUEST_URI']
+    
+    $htm = <<<EOP
+<form action="{$me_url}">
+ <textarea name="copy">{$ttitle_name_hd}&#13;{$url_hd}</textarea>
+</form>
+EOP;
+// <input type="text" name="url" value="{$url_hd}">
+// <textarea name="msg_txt">{$msg_txt}</textarea><br>
+
+    return $htm;
+}
 ?>
