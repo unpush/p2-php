@@ -1,6 +1,7 @@
 2005-07-11 aki
 	* rep2 version 1.7.7
 	
+	- [仕様変更] PEARのPHP_Compatが必要になった
 	- [バグ修正] Fatal error: Call to undefined function: scandir()
 	  というエラー表示が出て、不要ファイルの自動破棄ができないことがあったの修正
 	- [改良] 携帯でスレ情報にコピペフォームをつけた

@@ -48,8 +48,8 @@
 
 ■PEARのインストール
 
- rep2は PEAR の Net_UserAgent_Mobile を利用しています。
- Net_UserAgent_Mobile が、サーバにインストールされていない場合は、
+ rep2は PEAR の Net_UserAgent_Mobile, PHP_Compat を利用しています。
+ PEAR が、サーバにインストールされていない場合は、
  pearコマンドを使って、自分でサーバにインストールするか、
  rep2のディレクトリに includes ディレクトリを作成し、
  その中にネットからダウンロードしてきたファイルを入れてやってください。
