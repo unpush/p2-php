@@ -22,6 +22,8 @@ function deleMsg($checked_hists)
     // ファイルの下に記録されているものが新しいので逆順にする
     $reslines = array_reverse($reslines);
     
+    $neolines = array();
+    
     // チェックして整えて
     if ($reslines) {
         $n = 1;
@@ -46,13 +48,22 @@ function deleMsg($checked_hists)
         if ($neolines) {
             $cont = implode("\n", $neolines) . "\n";
         }
-        // 書き込み処理
-        FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont);
+        
+        // {{{ 書き込み処理
+        
+        $temp_file = $_conf['p2_res_hist_dat'] . '.tmp';
+        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $_conf['p2_res_hist_dat'])) {
+            die('p2 error: cannot write file. deleMsg()');
+        }
+        
+        // ]}}
     }
 }
 
 /**
  * 番号と日付が一致するかをチェックする
+ *
+ * @return boolean
  */
 function checkMsgID($checked_hists, $order, $date)
 {

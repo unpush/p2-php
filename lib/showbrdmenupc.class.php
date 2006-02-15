@@ -58,7 +58,7 @@ EOP;
                 $l = rtrim($l);
                 if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
                     $itaj = rtrim($matches[3]);
-                    $itaj_view = htmlspecialchars($itaj);
+                    $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
                     $itaj_en = base64_encode($itaj);
                     
                     $p_htm['star'] = <<<EOP

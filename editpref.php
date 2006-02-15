@@ -141,13 +141,15 @@ EOP;
 EOP;
 
     echo "</td>";
+    
     // }}}
     // {{{ PC - あぼーんワード編集
+    
     echo "<td>\n\n";
 
     echo <<<EOP
 <fieldset>
-<legend>あぼーんワード編集</legend>
+<legend>あぼーんワード編集</legend>\n
 EOP;
     printEditFileForm($aborn_name_txt, "名前");
     printEditFileForm($aborn_mail_txt, "メール");
@@ -177,13 +179,16 @@ EOP;
 </fieldset>\n
 EOP;
     */
+    
     // }}}
+    
     echo '&nbsp;';
 
     echo "</td></tr>\n\n";
     $htm['sync'] = "<tr><td colspan=\"2\">\n\n";
 
     // {{{ PC - ホストの同期 HTMLのセット
+    
     $htm['sync'] .= <<<EOP
 <fieldset>
 <legend>ホストの同期 （2chの板移転に対応します）</legend>
@@ -207,6 +212,7 @@ EOP;
         echo "&nbsp;";
         // echo "<p>ホストの同期は必要ありません</p>";
     }
+    
     // }}}
     
     echo "</table>\n";
@@ -231,17 +237,19 @@ if ($_conf['ktai']) {
 }
 
 // {{{ 新着まとめ読みのキャッシュ表示
+
 $max = $_conf['matome_cache_max'];
 for ($i = 0; $i <= $max; $i++) {
     $dnum = ($i) ? '.'.$i : '';
-    $ai = '&amp;cnum='.$i;
-    $file = $_conf['matome_cache_path'].$dnum.$_conf['matome_cache_ext'];
+    $ai = '&amp;cnum=' . $i;
+    $file = $_conf['matome_cache_path'] . $dnum . $_conf['matome_cache_ext'];
     //echo '<!-- '.$file.' -->';
     if (file_exists($file)) {
-        $date = date('Y/m/d G:i:s', filemtime($file));
+        $filemtime = filemtime($file);
+        $date = date('Y/m/d G:i:s', $filemtime);
         $b = filesize($file)/1024;
         $kb = round($b, 0);
-        $url = 'read_new.php?cview=1'.$ai;
+        $url = 'read_new.php?cview=1' . $ai . '&amp;filemtime=' . $filemtime;
         $links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
     }
 }
@@ -251,6 +259,7 @@ if (!empty($links)) {
     }
     echo $htm['matome'] = '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>';
 }
+
 // }}}
 
 // 携帯用フッタ

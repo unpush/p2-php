@@ -108,7 +108,7 @@ function login2ch()
     if ($uaMona == 'ERROR') {
         if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
         if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
-        $_info_msg_ht .= "<p>p2 error: SESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>";
+        $_info_msg_ht .= "<p>p2 error: 2ch●ログインのSESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>";
         return false;
     }
 

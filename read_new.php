@@ -90,11 +90,11 @@ if ($spmode) {
     }
 }
 
-// ■ソースリスト読込
+// ソースリスト読込
 $lines = $aThreadList->readList();
 
-// ■ページヘッダ表示 ===================================
-$ptitle_hd = htmlspecialchars($aThreadList->ptitle);
+// ページヘッダ表示 ===================================
+$ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 $ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
 
 if ($aThreadList->spmode) {
@@ -436,7 +436,7 @@ EOP;
     $favdo = (!empty($aThread->fav)) ? 0 : 1;
     $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $favdo_q = '&amp;setfav='.$favdo;
-    $itaj_hd = htmlspecialchars($aThread->itaj);
+    $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
     
     $toolbar_right_ht = <<<EOTOOLBAR
             <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>

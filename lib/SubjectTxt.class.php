@@ -1,12 +1,12 @@
 <?php
 
 /*
-define(P2_SUBJECT_TXT_STORAGE, 'eashm');
+define(P2_SUBJECT_TXT_STORAGE, 'eashm');    // 要eAccelerator
 
 [仕様] shmだと長期キャッシュしない
 [仕様] shmだとmodifiedをつけない
 
-shmにしてもパフォーマンスはほとんど変わらない
+shmにしてもパフォーマンスはほとんど変わらない（ようだ）
 */
 
 /**
@@ -47,6 +47,8 @@ class SubjectTxt{
 
     /**
      * subject.txtをダウンロード＆セットする
+     *
+     * @return boolean セットできれば true、できなければ false
      */
     function dlAndSetSubject()
     {
@@ -58,13 +60,18 @@ class SubjectTxt{
         if (!$cont || !empty($_POST['newthread'])) {
             $cont = $this->downloadSubject();
         }
-        $this->setSubjectLines($cont);
         
-        return true;
+        if ($this->setSubjectLines($cont)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * subject.txtをダウンロードする
+     *
+     * @return string subject.txt の中身
      */
     function &downloadSubject()
     {
@@ -92,33 +99,43 @@ class SubjectTxt{
         }
 
         // ■DL
-        include_once (P2_LIBRARY_DIR . '/wap.class.php');
-        $wap_ua =& new UserAgent();
-        $wap_ua->setAgent('Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
-        $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req =& new Request();
-        $wap_req->setUrl($this->subject_url);
-        $wap_req->setModified($modified);
-        $wap_req->setHeaders($headers);
-        if ($_conf['proxy_use']) {
-            $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
-        }
-        $wap_res = $wap_ua->request($wap_req);
+        include_once "HTTP/Request.php";
         
-        if ($wap_res->is_error()) {
-            $url_t = P2Util::throughIme($wap_req->url);
-            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
+        $params = array("timeout" => $_conf['fsockopen_time_limit']);
+        if ($_conf['proxy_use']) {
+            $params = array("proxy_host" => $_conf['proxy_host']);
+            $params = array("proxy_port" => $_conf['proxy_port']);
+        }
+        $req =& new HTTP_Request($this->subject_url, $params);
+        $modified && $req->addHeader("If-Modified-Since", $modified);
+        $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
+    
+        $response = $req->sendRequest();
+
+        if (PEAR::isError($response)) {
+            $error_msg = $response->getMessage();
+        } else {
+            $code = $req->getResponseCode();
+            if (!($code == 200 || $code == 206 || $code == 304)) {
+                //var_dump($req->getResponseHeader());
+                $error_msg = $code;
+            }
+        }
+    
+        if (isset($error_msg) && strlen($error_msg) > 0) {
+            $url_t = P2Util::throughIme($this->subject_url);
+            $_info_msg_ht .= "<div>Error: {$error_msg}<br>";
+            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> に接続できませんでした。</div>";
             $body = '';
         } else {
-            $body = $wap_res->content;
+            $body = $req->getResponseBody();
         }
-        
+
         // ■ DL成功して かつ 更新されていたら
-        if ($wap_res->is_success() && $wap_res->code != "304") {
+        if ($body && $code != "304") {
             
             // gzipを解凍する
-            if ($wap_res->headers['Content-Encoding'] == 'gzip') {
+            if ($req->getResponseHeader['Content-Encoding'] == 'gzip') {
                 $body = substr($body, 10);
                 $body = gzinflate($body);
             }
@@ -157,6 +174,8 @@ class SubjectTxt{
     
     /**
      * subject.txt が新鮮なら true を返す
+     *
+     * @return boolean 新鮮なら true。そうでなければ false。
      */
     function isSubjectTxtFresh()
     {
@@ -176,6 +195,11 @@ class SubjectTxt{
 
     /**
      * subject.txt を読み込む
+     *
+     * 成功すれば、$this->subject_lines がセットされる
+     *
+     * @param string $cont これは eashm 用に渡している。
+     * @return boolean 実行成否
      */
     function setSubjectLines($cont = '')
     {

@@ -29,7 +29,7 @@ if (!$itaj) { $itaj = $bbs; }
 
 $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
 $ttitle = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
-$ttitle_hd = htmlspecialchars($ttitle);
+$ttitle_hd = htmlspecialchars($ttitle, ENT_QUOTES);
 
 $idx_host_dir = P2Util::idxDirOfHost($host);
 $key_idx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';

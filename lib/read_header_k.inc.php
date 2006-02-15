@@ -24,7 +24,7 @@ $bbs_q = "&amp;bbs=".$aThread->bbs;
 $key_q = "&amp;key=".$aThread->key;
 $offline_q = "&amp;offline=1";
 
-$hd['word'] = htmlspecialchars($GLOBALS['word']);
+$hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
 
 //=================================================================
 // ヘッダ
@@ -146,13 +146,15 @@ if ($filter_hits !== NULL) {
 //====================================================================
 
 // {{{ ツールバー部分HTML
-$itaj_hd = htmlspecialchars($aThread->itaj);
+
+$itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 $toolbar_right_ht = <<<EOTOOLBAR
     <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.{$itaj_hd}</a>
     <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['info']}">{$_conf['k_accesskey']['info']}.{$info_st}</a> 
     <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['dele']}">{$_conf['k_accesskey']['dele']}.{$delete_st}</a> 
     <a href="{$motothre_url}">{$moto_thre_st}</a>
 EOTOOLBAR;
+
 // }}}
 
 $body_at = '';

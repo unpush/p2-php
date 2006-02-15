@@ -224,7 +224,7 @@ class BrdMenuIta{
     {
         $this->itaj = $itaj;
         $this->itaj_en = rawurlencode(base64_encode($this->itaj));
-        $this->itaj_ht = htmlspecialchars($this->itaj);
+        $this->itaj_ht = htmlspecialchars($this->itaj, ENT_QUOTES);
     }
 }
 

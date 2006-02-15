@@ -10,7 +10,7 @@ class ThreadRead extends Thread{
 
     var $datlines; // datから読み込んだラインを格納する配列
     
-    var $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
+    var $resrange; // array('start' => i, 'to' => i, 'nofirst' => bool)
     
     var $onbytes; // サーバから取得したdatサイズ
     var $diedat; // サーバからdat取得しようとしてできなかった時にtrueがセットされる
@@ -713,7 +713,7 @@ class ThreadRead extends Thread{
     {
         global $_conf, $_info_msg_ht;
     
-        $read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}";
+        $read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/";
         
         // {{{ ■ read.cgi からHTMLを取得
         $read_response_html = "";

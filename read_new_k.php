@@ -84,11 +84,11 @@ if ($spmode) {
     }
 }
 
-// ■ソースリスト読込
+// ソースリスト読込
 $lines = $aThreadList->readList();
 
 // ページヘッダ表示 ===================================
-$ptitle_hd = htmlspecialchars($aThreadList->ptitle);
+$ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 $ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
 
 // &amp;sb_view={$sb_view}

@@ -123,7 +123,7 @@ EOFORM;
 
 if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
 
-    $hd['word'] = htmlspecialchars($word);
+    $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
 
     if ($GLOBALS['ita_mikke']['num']) {
         $hit_ht = "<br>\"{$hd['word']}\" {$GLOBALS['ita_mikke']['num']}hit!";

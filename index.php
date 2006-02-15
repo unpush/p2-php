@@ -15,9 +15,7 @@ makeDenyHtaccess($_conf['dat_dir']);
 makeDenyHtaccess($_conf['idx_dir']);
 
 //=============================================================
-
-$s = $_SERVER['HTTPS'] ? 's' : '';
-$me_url = "http{$s}://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
+$me_url = $me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
 
 if ($_conf['ktai']) {

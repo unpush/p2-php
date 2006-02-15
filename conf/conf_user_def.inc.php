@@ -31,8 +31,7 @@ $conf_user_def['first_page'] = "first_cont.php"; // ("first_cont.php")
     必要なければ、無指定("")にする。
 */
 // ("http://azlucky.s25.xrea.com/2chboard/bbsmenu.html")    // 2ch + 外部BBS
-// ("http://www6.ocn.ne.jp/%7Emirv/2chmenu.html")           // 2ch基本（古い？）
-// ("http://www.ff.iij4u.or.jp/~ch2/bbsmenu.html")          // 2ch基本（新しい？）
+// ("http://menu.2ch.net/bbsmenu.html")                     // 2ch基本
 
 $conf_user_def['brdfile_online'] = "http://azlucky.s25.xrea.com/2chboard/bbsmenu.html";
 $conf_user_rules['brdfile_online'] = array('NotEmpty');

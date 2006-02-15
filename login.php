@@ -31,8 +31,9 @@ if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
 }
 
 // （携帯）ログイン用URL
-$s = $_SERVER['HTTPS'] ? 's' : '';
-$url = 'http'.$s.'://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF'])).'/'.'?user='.$_login->user_u.'&amp;b=k';
+$user_u_q = empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
+$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
+
 $p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_blank">'.$url.'</a><br>';
 
 //====================================================
@@ -68,6 +69,8 @@ EOP;
 //====================================================
 // 補助認証
 //====================================================
+$mobile = &Net_UserAgent_Mobile::singleton();
+
 // EZ認証
 if (!is_null($_SERVER['HTTP_X_UP_SUBNO'])) {
     if (file_exists($_conf['auth_ez_file'])) {
@@ -97,7 +100,7 @@ EOP;
     }
     
 // DoCoMo認証
-} elseif (preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'], $matches)) {
+} elseif ($mobile->isDoCoMo()) {
     if (file_exists($_conf['auth_docomo_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
 DoCoMo端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_docomo=1{$_conf['k_at_a']}">解除</a>]<br>

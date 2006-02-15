@@ -46,7 +46,7 @@ class ShowThreadPc extends ShowThread{
         $to = $this->thread->resrange['to'];
         $nofirst = $this->thread->resrange['nofirst'];
 
-        $status_title = htmlspecialchars($this->thread->itaj)." / ".$this->thread->ttitle_hd;
+        $status_title = htmlspecialchars($this->thread->itaj, ENT_QUOTES) . " / " . $this->thread->ttitle_hd;
         $status_title = str_replace("'", "\'", $status_title);
         $status_title = str_replace('"', "\'\'", $status_title);
         echo "<dl onMouseover=\"window.top.status='{$status_title}';\">";
@@ -629,7 +629,7 @@ EOP;
             $_attr = $attr;
             $attr = '';
             foreach ($_attr as $key => $value) {
-                $attr .= ' ' . $key . '="' . htmlspecialchars($value) . '"';
+                $attr .= ' ' . $key . '="' . htmlspecialchars($value, ENT_QUOTES) . '"';
             }
         } elseif ($attr !== '' && substr($attr, 0, 1) != ' ') {
             $attr = ' ' . $attr;
@@ -650,7 +650,7 @@ EOP;
             global $skin, $STYLE;
             $custom_pop_img = "skin/{$skin}/pop.png";
             if (file_exists($custom_pop_img)) {
-                $pop_img = htmlspecialchars($custom_pop_img);
+                $pop_img = htmlspecialchars($custom_pop_img, ENT_QUOTES);
                 $x = $STYLE['iframe_popup_mark_width'];
                 $y = $STYLE['iframe_popup_mark_height'];
             } else {

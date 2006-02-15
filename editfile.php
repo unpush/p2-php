@@ -106,7 +106,7 @@ function editFile($path, $encode)
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
     }
     
-    $cont_area = htmlspecialchars($cont);
+    $cont_area = htmlspecialchars($cont, ENT_QUOTES);
     
     if ($modori_url) {
         $modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";

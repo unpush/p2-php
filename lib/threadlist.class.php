@@ -4,14 +4,14 @@
  */
 class ThreadList{
 
-    var $threads; //クラスThreadのオブジェクトを格納する配列
-    var $num; //格納されたThreadオブジェクトの数
-    var $host; // ex)pc.2ch.net
-    var $bbs; // ex)mac
-    var $itaj; // 板名 ex)新・mac板
-    var $itaj_hd; // HTML表示用に、板名を htmlspecialchars() したもの
-    var $spmode; //普通板以外のスペシャルモード
-    var $ptitle; //ページタイトル
+    var $threads;   // クラスThreadのオブジェクトを格納する配列
+    var $num;       // 格納されたThreadオブジェクトの数
+    var $host;      // ex)pc.2ch.net
+    var $bbs;       // ex)mac
+    var $itaj;      // 板名 ex)新・mac板
+    var $itaj_hd;   // HTML表示用に、板名を htmlspecialchars() したもの
+    var $spmode;    // 普通板以外のスペシャルモード
+    var $ptitle;    // ページタイトル
     
     /**
      * コンストラクタ
@@ -72,7 +72,7 @@ class ThreadList{
         } else {
             $this->itaj = $this->bbs;
         }
-        $this->itaj_hd = htmlspecialchars($this->itaj);
+        $this->itaj_hd = htmlspecialchars($this->itaj, ENT_QUOTES);
         $this->ptitle = $this->itaj;
         
         return true;

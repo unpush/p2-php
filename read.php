@@ -143,7 +143,7 @@ $aThread->getThreadInfoFromIdx();
 
 if ($_GET['one']) {
     $body = $aThread->previewOne();
-    $ptitle_ht = htmlspecialchars($aThread->itaj)." / ".$aThread->ttitle_hd;
+    $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . " / " . $aThread->ttitle_hd;
     include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
     echo $body;
     include_once (P2_LIBRARY_DIR . '/read_footer.inc.php');
@@ -218,7 +218,7 @@ $aThread->lsToPoint();
 //===============================================================
 // ■プリント
 //===============================================================
-$ptitle_ht = htmlspecialchars($aThread->itaj)." / ".$aThread->ttitle_hd;
+$ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . " / " . $aThread->ttitle_hd;
 
 if ($_conf['ktai']) {
 
@@ -406,9 +406,9 @@ function detectThread()
     }
     
     if (!($host && $bbs && $key)) {
-        $htm['nama_url'] = htmlspecialchars($nama_url);
+        $htm['nama_url'] = htmlspecialchars($nama_url, ENT_QUOTES);
         $msg = "p2 - {$_conf['read_php']}: スレッドの指定が変です。<br>"
-            . "<a href=\"{$htm['nama_url']}\">" .$htm['nama_url']."</a>";
+            . "<a href=\"{$htm['nama_url']}\">" . $htm['nama_url'] . "</a>";
         die($msg);
     }
 }
@@ -423,10 +423,12 @@ function recRecent($data)
     // $_conf['rct_file'] ファイルがなければ生成
     FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']);
     
-    $lines = @file($_conf['rct_file']); // 読み込み
+    $lines = @file($_conf['rct_file']);
+    $neolines = array();
 
-    // 最初に重複要素を削除
-    if ($lines) {
+    // {{{ 最初に重複要素を削除しておく
+    
+    if (is_array($lines)) {
         foreach ($lines as $line) {
             $line = rtrim($line);
             $lar = explode('<>', $line);
@@ -437,23 +439,31 @@ function recRecent($data)
         }
     }
     
+    // }}}
+    
     // 新規データ追加
-    $neolines ? array_unshift($neolines, $data) : $neolines = array($data);
+    array_unshift($neolines, $data);
 
     while (sizeof($neolines) > $_conf['rct_rec_num']) {
         array_pop($neolines);
     }
     
-    // 書き込む
+    // {{{ 書き込む
+    
+    $temp_file = $_conf['rct_file'] . '.tmp';
     if ($neolines) {
         $cont = '';
         foreach ($neolines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
-        if (FileCtl::file_write_contents($_conf['rct_file'], $cont) === false) {
-            die('Error: cannot write file. recRecent()');
+        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $_conf['rct_file'])) {
+            die('p2 error: cannot write file. recRecent()');
         }
     }
+    
+    // }}}
+    
+    return true;
 }
 
 

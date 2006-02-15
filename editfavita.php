@@ -30,7 +30,7 @@ $add_favita_form_ht = <<<EOFORM
     <input type="hidden" name="detect_hint" value="ž">
     <p>
         {$_conf['k_input_ht']}
-        URL: <input type="text" id="url" name="url" value="http://" size="48">
+        ”ÂURL: <input type="text" id="url" name="url" value="http://" size="48">
         ”Â–¼: <input type="text" id="itaj" name="itaj" value="" size="16">
         <input type="hidden" id="setfavita" name="setfavita" value="1">
         <input type="submit" name="submit" value="V‹K’Ç‰Á">
@@ -111,7 +111,7 @@ if ($lines) {
             $itaj_en = rawurlencode(base64_encode($itaj));
             $host = $matches[1];
             $bbs = $matches[2];
-            $itaj_view = htmlspecialchars($itaj);
+            $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
             $itaj_q = '&amp;itaj_en='.$itaj_en;
             echo <<<EOP
             <tr>

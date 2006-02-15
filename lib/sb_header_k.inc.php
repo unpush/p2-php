@@ -49,7 +49,7 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
 // }}}
 // {{{ ページタイトル部分HTML設定
 
-$ptitle_hd = htmlspecialchars($aThreadList->ptitle);
+$ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 
 if ($aThreadList->spmode == "taborn") {
     $ptitle_ht = <<<EOP
@@ -80,11 +80,12 @@ $sb_form_hidden_ht = <<<EOP
 EOP;
 
 // フィルタ検索 ==================================================
+$hd['word'] = htmlspecialchars($word, ENT_QUOTES);
 if (!$aThreadList->spmode) {
     $filter_form_ht = <<<EOP
 <form method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}">
     {$sb_form_hidden_ht}
-    <input type="text" id="word" name="word" value="{$word}" size="12">
+    <input type="text" id="word" name="word" value="{$hd['word']}" size="12">
     <input type="submit" name="submit_kensaku" value="検索">
 </form>\n
 EOP;

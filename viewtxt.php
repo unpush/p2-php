@@ -67,7 +67,7 @@ function viewTxtFile($file, $encode)
 		$cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
 	}
 	
-	$cont_area = htmlspecialchars($cont);
+	$cont_area = htmlspecialchars($cont, ENT_QUOTES);
 
 	// ƒvƒŠƒ“ƒg
 	echo <<<EOHEADER

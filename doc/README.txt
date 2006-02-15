@@ -11,7 +11,7 @@
  PHP4.3.8以降。PHP5でも動きます。
  OSは、UNIX、Linux、Windows、Mac OS Xでの動作報告あり。
  
- ※PHPのPEAR（Net_UserAgent_Mobile）を利用しています。
+ ※PHPのPEARを利用しています。
  ※PHPは、mbstring が有効である必要があります。
  ※2ちゃんねるの「●ログイン」にはSSL通信を利用するので、PHPのcurl拡張が有効か、システムのcurlにパスが通っていないとdat落ちした過去ログが読めません。 cURLはOpenSSLが有効でコンパイルされている必要がある点に注意してください。
  

@@ -14,14 +14,11 @@ function setPal($host, $bbs, $key, $setpal)
 {
     global $_conf;
 
-    //==================================================================
-    // key.idx を読み込む
-    //==================================================================
-    // idxfileのパスを求めて
+    // key.idx のパスを求めて
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $idxfile = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 
-    // 既にidxデータがあるなら読み込む
+    // 既に key.idx データがあるなら読み込む
     if ($lines = @file($idxfile)) {
         $l = rtrim($lines[0]);
         $data = explode('<>', $l);
@@ -32,23 +29,17 @@ function setPal($host, $bbs, $key, $setpal)
     //==================================================================
     $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
 
-    //================================================
-    // 読み込み
-    //================================================
-
-    // p2_palace ファイルがなければ生成
+    // palace_idx ファイルがなければ生成
     FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
 
     // palace_idx 読み込み
     $pallines = @file($palace_idx);
 
-    //================================================
-    // 処理
-    //================================================
     $neolines = array();
     $before_line_num = 0;
     
-    // 最初に重複要素を削除しておく
+    // {{{ 最初に重複要素を削除しておく
+    
     if (!empty($pallines)) {
         $i = -1;
         foreach ($pallines as $l) {
@@ -67,11 +58,13 @@ function setPal($host, $bbs, $key, $setpal)
             }
         }
     }
-
+    
+    // }}}
+    
     // 新規データ設定
     if ($setpal) {
         $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once (P2_LIBRARY_DIR . '/getsetposlines.inc.php');
+        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setpal);
     } else {
         $rec_lines = $neolines;
@@ -80,14 +73,18 @@ function setPal($host, $bbs, $key, $setpal)
     $cont = '';
     if (!empty($rec_lines)) {
         foreach ($rec_lines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
     }
     
-    // 書き込む
-    if (FileCtl::file_write_contents($palace_idx, $cont) === false) {
-        die('Error: cannot write file.');
+    // {{{ 書き込む
+    
+    $temp_file = $palace_idx . '.tmp';
+    if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $palace_idx)) {
+        die('Error: cannot write file. setPal()');
     }
+    
+    // }}}
     
     return true;
 }

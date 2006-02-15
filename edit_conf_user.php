@@ -182,7 +182,7 @@ echo getEditConfHtml('brdfile_online',
     指定先は menu.html 形式、2channel.brd 形式のどちらでもよい。
     <!-- 必要なければ、空白に。 --><br>
 
-    2ch基本 <a href="http://www.ff.iij4u.or.jp/~ch2/bbsmenu.html" target="_blank">http://www.ff.iij4u.or.jp/~ch2/bbsmenu.html</a><br>
+    2ch基本 <a href="http://menu.2ch.net/bbsmenu.html" target="_blank">http://menu.2ch.net/bbsmenu.html</a><br>
     2ch + 外部BBS <a href="http://azlucky.s25.xrea.com/2chboard/bbsmenu.html" target="_blank">http://azlucky.s25.xrea.com/2chboard/bbsmenu.html</a><br>
     ');
 
@@ -395,14 +395,14 @@ function getEditConfHtml($name, $description_ht)
     if ($conf_user_sel[$name]) {
         $form_ht = getEditConfSelHtml($name);
         $key = $conf_user_def[$name];
-        $def_views[$name] = htmlspecialchars($conf_user_sel[$name][$key]);
+        $def_views[$name] = htmlspecialchars($conf_user_sel[$name][$key], ENT_QUOTES);
     // input 入力式なら
     } else {
         $form_ht = <<<EOP
 <input type="text" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>\n
 EOP;
         if (is_string($conf_user_def[$name])) {
-            $def_views[$name] = htmlspecialchars($conf_user_def[$name]);
+            $def_views[$name] = htmlspecialchars($conf_user_def[$name], ENT_QUOTES);
         } else {
             $def_views[$name] = $conf_user_def[$name];
         }
@@ -447,8 +447,8 @@ function getEditConfSelHtml($name)
         if ($_conf[$name] == $key) {
             $selected = " selected";
         }
-        $key_ht = htmlspecialchars($key);
-        $value_ht = htmlspecialchars($value);
+        $key_ht = htmlspecialchars($key, ENT_QUOTES);
+        $value_ht = htmlspecialchars($value, ENT_QUOTES);
         $options_ht .= "\t<option value=\"{$key_ht}\"{$selected}>{$value_ht}</option>\n";
     } // foreach
     

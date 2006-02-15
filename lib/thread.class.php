@@ -67,7 +67,7 @@ class Thread{
         $this->ttitle_hc = str_replace('&gt;', '>', $a_ttiile);
         
         // HTML•\Ž¦—p‚É htmlspecialchars() ‚µ‚½‚à‚Ì
-        $this->ttitle_hd = htmlspecialchars($this->ttitle_hc);
+        $this->ttitle_hd = htmlspecialchars($this->ttitle_hc, ENT_QUOTES);
         $this->ttitle_ht = $this->ttitle_hd;
     }
     

@@ -1,5 +1,9 @@
 function setFocus(ID){
-	document.getElementById(ID).focus();
+	if (obj = document.getElementById(ID)) {
+		if (obj.disabled != true) {
+			obj.focus();
+		}
+	}
 }
 
 // sageチェックに合わせて、メール欄の内容を書き換える

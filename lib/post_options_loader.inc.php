@@ -10,12 +10,63 @@ $time = $time + $fake_time * 60;
 
 $csrfid = P2Util::getCsrfId();
 
+$htm['disable_js'] = <<<EOP
+<script type="text/javascript">
+<!--
+// Thanks naoya <http://d.hatena.ne.jp/naoya/20050804/1123152230>
+
+function isNetFront() {
+  var ua = navigator.userAgent;
+  if (ua.indexOf("NetFront") != -1 || ua.indexOf("AVEFront/") != -1 || ua.indexOf("AVE-Front/") != -1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function disableSubmit(form) {
+
+  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
+  if (isNetFront()) {
+    return;
+  }
+  
+  var elements = form.elements;
+  for (var i = 0; i < elements.length; i++) {
+    if (elements[i].type == 'submit') {
+      elements[i].disabled = true;
+    }
+  }
+}
+
+function setHiddenValue(button) {
+  
+  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
+  if (isNetFront()) {
+    return;
+  }
+  
+  if (button.name) {
+    var q = document.createElement('input');
+    q.type = 'hidden';
+    q.name = button.name;
+    q.value = button.value;
+    button.form.appendChild(q);
+  }
+}
+
+//-->
+</script>\n
+EOP;
+
 // {{{ key.idxから名前とメールを読込み
+
 if ($lines = @file($key_idx)) {
     $line = explode('<>', rtrim($lines[0]));
     $hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
     $hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
 }
+
 // }}}
 
 // 前回のPOST失敗があれば呼び出し
@@ -44,21 +95,28 @@ $hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
 
 
 // 表示指定
+// 参考 クラシック COLS='60' ROWS='8'
+$mobile = &Net_UserAgent_Mobile::singleton();
 // PC
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     $name_size_at = ' size="19"';
     $mail_size_at = ' size="19"';
-    $msg_cols_at = ' cols="'.$STYLE['post_msg_cols'].'"';
+    $msg_cols_at = ' cols="' . $STYLE['post_msg_cols'] . '"';
     $wrap = 'off';
+// willcom
+} elseif($mobile->isAirHPhone()) {
+    $msg_cols_at = ' cols="' . $STYLE['post_msg_cols'] . '"';
+    $wrap = 'soft';
 // 携帯
 } else {
     $STYLE['post_msg_rows'] = 5;
+    $msg_cols_at = '';
     $wrap = 'soft';
 }
 
 // Be.2ch
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-    $htm['be2ch'] = '<input type="submit" name="submit_beres" value="BEで書き込む">';
+    $htm['be2ch'] = '<input type="submit" name="submit_beres" value="BEで書き込む" onClick="setHiddenValue(this);">';
 }
 
 // PC用 sage checkbox
@@ -70,15 +128,17 @@ EOP;
 }
 
 // {{{ 2ch●書き込み
+
 $htm['maru_post'] = '';
 if (P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php'])) {
     $htm['maru_post'] = <<<EOP
-<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox"><label for="maru">●</label></span>
+<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox" value="1"><label for="maru">●</label></span>
 EOP;
 }
-// }}}
 
+// }}}
 // {{{ソースコード補正用チェックボックス
+
 $src_fix_ht = '';
 if (!$_conf['ktai']) {
     if ($_conf['editor_srcfix'] == 1 ||
@@ -87,6 +147,7 @@ if (!$_conf['ktai']) {
         $htm['src_fix'] = '<input type="checkbox" id="fix_source" name="fix_source" value="1"><label for="fix_source">ソースコード補正</label>';
     }
 }
+
 // }}}
 
 /*
