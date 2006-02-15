@@ -80,10 +80,16 @@ function setPal($host, $bbs, $key, $setpal)
     // {{{ èëÇ´çûÇﬁ
     
     $temp_file = $palace_idx . '.tmp';
-    if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $palace_idx)) {
-        die('Error: cannot write file. setPal()');
+    $write_file = strstr(PHP_OS, 'WIN') ? $palace_idx : $temp_file;
+    if (FileCtl::file_write_contents($write_file, $cont) === false) {
+        die('Error: cannot write file. ' . __FUNCTION__ . '()');
     }
-    
+    if (!strstr(PHP_OS, 'WIN')) {
+        if (!rename($write_file, $palace_idx)) {
+            die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+        }
+    }
+        
     // }}}
     
     return true;

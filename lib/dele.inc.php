@@ -187,8 +187,16 @@ function offRecent($host, $bbs, $key)
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
-        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $_conf['rct_file'])) {
-            die("p2 error: cannot write file. offRecent()");
+        
+        // Windows Ç≈ÇÕ rename() Ç≈è„èëÇ´Ç≈Ç´Ç»Ç¢ÇÁÇµÇ¢ÅBhttp://ns1.php.gr.jp/pipermail/php-users/2005-October/027827.html
+        $write_file = strstr(PHP_OS, 'WIN') ? $_conf['rct_file'] : $temp_file;
+        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+            die("p2 error: " . __FUNCTION__ . "(): cannot write file.");
+        }
+        if (!strstr(PHP_OS, 'WIN')) {
+            if (!rename($write_file, $_conf['rct_file'])) {
+                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+            }
         }
     }
     
@@ -239,8 +247,16 @@ function offResHist($host, $bbs, $key)
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
-        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $rh_idx)) {
-            die("p2 error: cannot write file. offResHist()");
+        
+        // Windows Ç≈ÇÕ rename() Ç≈è„èëÇ´Ç≈Ç´Ç»Ç¢ÇÁÇµÇ¢ÅBhttp://ns1.php.gr.jp/pipermail/php-users/2005-October/027827.html
+        $write_file = strstr(PHP_OS, 'WIN') ? $rh_idx : $temp_file;
+        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+            die("p2 error: " . __FUNCTION__ . "(): cannot write file.");
+        }
+        if (!strstr(PHP_OS, 'WIN')) {
+            if (!rename($write_file, $_conf['rct_file'])) {
+                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+            }
         }
     }
     
