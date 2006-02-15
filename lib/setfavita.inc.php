@@ -24,6 +24,7 @@ function setFavIta()
     if ($_POST['url']) {
         if (preg_match("/http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?/", $_POST['url'], $matches)) {
             $host = $matches[1];
+            $host = preg_replace('{/test/read\.cgi$}', '', $host);
             $bbs = $matches[2];
         } else {
             $_info_msg_ht .= "<p>p2 info: u{$_POST['url']}v‚Í”Â‚ÌURL‚Æ‚µ‚Ä–³Œø‚Å‚·B</p>";

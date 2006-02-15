@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.7';
+$_conf['p2version'] = '1.7.8';
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -74,9 +74,8 @@ ini_set('arg_separator.output', '&amp;');
 // リクエストIDを設定
 define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
 
-// OS判定
+// Windows なら
 if (strstr(PHP_OS, 'WIN')) {
-    // Windows
     defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ';');
     defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '\\');
 } else {
@@ -84,11 +83,14 @@ if (strstr(PHP_OS, 'WIN')) {
     defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '/');
 }
 
-// 内部処理における文字コードを指定
+// }}}
+// {{{ 文字コードの指定
+
 // mb_detect_order("SJIS-win,eucJP-win,ASCII");
 mb_internal_encoding('SJIS-win');
 mb_http_output('pass');
 mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
+//mb_substitute_character(0x3013); // 〓
 // ob_start('mb_output_handler');
 
 if (function_exists('mb_ereg_replace')) {
@@ -537,9 +539,15 @@ function nullfilter_r($var, $r = 0)
 
 /**
  * メモリの使用量を表示する
+ *
+ * @return void
  */
 function printMemoryUsage()
 {
-    echo memory_get_usage();
+    $kb = memory_get_usage() / 1024;
+    $kb = number_format($kb, 2, '.', '');
+    
+    echo 'Memory Usage: ' . $kb . 'KB';
 }
+
 ?>

@@ -50,11 +50,12 @@ if (!isset($ttitle)) {
 }
 
 // {{{ ソースコードがきれいに再現されるように変換
+
 if (!empty($_POST['fix_source'])) {
     // タブをスペースに
     $MESSAGE = tab2space($MESSAGE);
     // 特殊文字を実体参照に
-    $MESSAGE = htmlspecialchars($MESSAGE);
+    $MESSAGE = htmlspecialchars($MESSAGE, ENT_QUOTES);
     // 自動URLリンク回避
     $MESSAGE = str_replace('tp://', 't&#112;://', $MESSAGE);
     // 行頭のスペースを実体参照に
@@ -64,9 +65,10 @@ if (!empty($_POST['fix_source'])) {
     // 奇数回スペースがくり返すときの仕上げ
     $MESSAGE = preg_replace('/(?<=&nbsp;)  /', ' &nbsp;', $MESSAGE);
 }
-// }}}
 
-// ■ クッキーの読み込み
+// }}}
+// {{{ クッキーの読み込み
+
 $cookie_file = P2Util::cachePathForCookie($host);
 if ($cookie_cont = @file_get_contents($cookie_file)) {
     $p2cookies = unserialize($cookie_cont);
@@ -78,6 +80,8 @@ if ($cookie_cont = @file_get_contents($cookie_file)) {
         }
     }
 }
+
+// }}}
 
 // したらばのlivedoor移転に対応。post先をlivedoorとする。
 $host = P2Util::adjustHostJbbs($host);
@@ -142,6 +146,7 @@ if (!empty($_POST['newthread'])) {
 }
 
 // {{{ 2chで●ログイン中ならsid追加
+
 if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
     
     // ログイン後、24時間以上経過していたら自動再ログイン
@@ -153,6 +158,7 @@ if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['
     include $_conf['sid2ch_php'];
     $post['sid'] = $SID2ch;
 }
+
 // }}}
 
 if (!empty($_POST['newthread'])) {
@@ -218,19 +224,20 @@ if ($host && $bbs && $key) {
 //=============================================
 // 書き込み履歴
 //=============================================
-if (!$posted) {
+if (empty($posted)) {
     exit;
 }
 
 if ($host && $bbs && $key) {
     
-    $rh_idx = $_conf['pref_dir'].'/p2_res_hist.idx';
+    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
     FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']); // なければ生成
     
-    // 読み込み;
     $lines = @file($rh_idx);
+    $neolines = array();
     
-    // 最初に重複要素を削除
+    // {{{ 最初に重複要素を削除しておく
+    
     if (is_array($lines)) {
         foreach ($lines as $line) {
             $line = rtrim($line);
@@ -241,24 +248,29 @@ if ($host && $bbs && $key) {
         }
     }
     
+    // }}}
+    
     // 新規データ追加
     $newdata = "$ttitle<>$key<><><><><><>".$tag_rec['FROM'].'<>'.$tag_rec['mail']."<><>$host<>$bbs";
-    $neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
+    array_unshift($neolines, $newdata);
     while (sizeof($neolines) > $_conf['res_hist_rec_num']) {
         array_pop($neolines);
     }
     
-    // 書き込む
+    // {{{ 書き込む
+    
+    $temp_file = $rh_idx . '.tmp';
     if ($neolines) {
         $cont = '';
         foreach ($neolines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
-        if (FileCtl::file_write_contents($rh_idx, $cont) === false) {
-            die('Error: cannot write file.');
+        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $rh_idx)) {
+            die('p2 error: cannot write file.');
         }
     }
-
+    
+    // }}}
 }
 
 //=============================================
@@ -298,7 +310,7 @@ if ($_conf['res_write_rec']) {
 //===========================================================
 
 /**
- * ■レス書き込み関数
+ * レス書き込み関数
  */
 function postIt($URL)
 {
@@ -475,7 +487,7 @@ function postIt($URL)
         }
         
         return true;
-        //$response_ht = htmlspecialchars($response);
+        //$response_ht = htmlspecialchars($response, ENT_QUOTES);
         //echo "<pre>{$response_ht}</pre>";
     
     // ■cookie確認（post再チャレンジ）
@@ -485,7 +497,7 @@ function postIt($URL)
         $more_hidden_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru', 'csrfid', 'k', 'b');
         foreach ($more_hidden_keys as $hk) {
             if (isset($_POST[$hk])) {
-                $value_hd = htmlspecialchars($_POST[$hk]);
+                $value_hd = htmlspecialchars($_POST[$hk], ENT_QUOTES);
                 $htm['more_hidden_post'] .= "<input type=\"hidden\" name=\"{$hk}\" value=\"{$value_hd}\">\n";
             }
         }
@@ -539,7 +551,7 @@ EOSCRIPT;
 }
 
 /**
- * ■書き込み処理結果表示する
+ * 書き込み処理結果表示する
  */
 function showPostMsg($isDone, $result_msg, $reload)
 {
@@ -611,10 +623,8 @@ EOSCRIPT;
 EOP;
     }
     
-    echo <<<EOP
-</head>
-<body>
-EOP;
+    echo "</head>\n";
+    echo "<body>\n";
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";
@@ -629,7 +639,7 @@ EOP;
 }
 
 /**
- * ■ subjectからkeyを取得する
+ * subjectからkeyを取得する
  */
 function getKeyInSubject()
 {

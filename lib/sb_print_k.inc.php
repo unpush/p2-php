@@ -111,7 +111,7 @@ function sb_print_k(&$aThreadList)
 		// 板名 ============================================
 		if ($ita_name_bool) {
 			$ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
-			$ita_name_hd = htmlspecialchars($ita_name);
+			$ita_name_hd = htmlspecialchars($ita_name, ENT_QUOTES);
 			
 			// 全角英数カナスペースを半角に
 			if (!empty($_conf['k_save_packet'])) {

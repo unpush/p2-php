@@ -16,7 +16,7 @@ $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
 $ttitle = base64_decode($_GET['ttitle_en']);
 $ttitle_back = (isset($_SERVER['HTTP_REFERER']))
-    ? '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER']) . '" title="–ß‚é">' . $ttitle . '</a>'
+    ? '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="–ß‚é">' . $ttitle . '</a>'
     : $ttitle;
 
 /**

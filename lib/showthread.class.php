@@ -149,7 +149,7 @@ class ShowThread{
                         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['word'];
                     //if ($re_method($re_pattern, $resfield, $matches)) {
-                        //return htmlspecialchars($matches[0]);
+                        //return htmlspecialchars($matches[0], ENT_QUOTES);
                     }
 
                 // 単純に文字列が含まれるかどうかをチェック

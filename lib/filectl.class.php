@@ -93,13 +93,11 @@ class FileCtl{
      * PHP_Compat の file_put_contents.php のコードを元に、独自の変更（flock() など）を加えたものです。
      * This product includes PHP, freely available from <http://www.php.net/>
      */
-    function file_write_contents($filename, &$cont, $flags = null, $resource_context = null)
+    function file_write_contents($filename, $content, $flags = null, $resource_context = null)
     {
         // If $cont is an array, convert it to a string
-        if (is_array($cont)) {
-            $content = implode('', $cont);
-        } else {
-            $content =& $cont;
+        if (is_array($content)) {
+            $content = implode('', $content);
         }
         
         /*
@@ -115,9 +113,8 @@ class FileCtl{
         $length = strlen($content);
         
         // Check what mode we are using
-        $mode = ($flags & FILE_APPEND) ?
-                    $mode = 'ab' :
-                    $mode = 'wb';
+        $file_append = ($flags & FILE_APPEND) ? true : false;
+        $mode = $file_append ? 'ab' : 'ab';
         
         // Check if we're using the include path
         $use_inc_path = ($flags & FILE_USE_INCLUDE_PATH) ?
@@ -133,12 +130,13 @@ class FileCtl{
         @flock($fh, LOCK_EX);
         $last = ignore_user_abort(1);
         
-        if ($mode == 'wb') {
+        // Write to the file
+        $bytes = 0;
+        
+        if (!$file_append) {
             ftruncate($fh, 0);
         }
         
-        // Write to the file
-        $bytes = 0;
         if (($bytes = @fwrite($fh, $content)) === false) {
             $errormsg = sprintf('file_write_contents() Failed to write %d bytes to %s',
                             $length,

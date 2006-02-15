@@ -3,7 +3,6 @@
     p2 -  スレッド表示 -  ヘッダ部分 -  for read.php
 */
 
-
 // 変数
 $diedat_msg = "";
 
@@ -179,7 +178,7 @@ echo <<<EOHEADER
         gIsPageLoaded = true;
         {$onLoad_script}
     }
-    -->
+    //-->
     </script>\n
 EOHEADER;
 
@@ -257,7 +256,7 @@ if ($aThread->rescount and (!$_GET['renzokupop'])) {
 EOP;
     }
     
-    $hd['word'] = htmlspecialchars($GLOBALS['word']);
+    $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
     
     echo <<<EOP
 <form id="header" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
@@ -297,7 +296,7 @@ $htm['p2frame'] = <<<EOP
 if (top == self) {
     document.writeln('{$htm['p2frame']}');
 }
--->
+//-->
 </script>\n
 EOP;
 // }}}

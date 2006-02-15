@@ -50,7 +50,7 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 }
 
 // ページタイトル部分HTML設定 ====================================
-$ptitle_hd = htmlspecialchars($aThreadList->ptitle);
+$ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 
 if ($aThreadList->spmode == "taborn") {
     $ptitle_ht = <<<EOP
@@ -134,7 +134,7 @@ if ($_conf['enable_exfilter'] == 2) {
 EOP;
 }
 
-$hd['word'] = htmlspecialchars($word);
+$hd['word'] = htmlspecialchars($word, ENT_QUOTES);
 $checked_ht['find_cont'] = (!empty($_REQUEST['find_cont'])) ? 'checked' : '';
 
 $input_find_cont_ht = <<<EOP

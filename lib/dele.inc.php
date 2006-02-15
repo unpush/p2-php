@@ -163,12 +163,13 @@ function offRecent($host, $bbs, $key)
     
     $neolines = array();
     
-    // あれば削除
+    // {{{ あれば削除
+    
     if (is_array($lines)) {
         foreach ($lines as $line) {
             $line = rtrim($line);
             $lar = explode('<>', $line);
-            // 削除
+            // 削除（スキップ）
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
                 $done = true;
                 continue;
@@ -176,19 +177,24 @@ function offRecent($host, $bbs, $key)
             $neolines[] = $line;
         }
     }
-
-    // 書き込む
+    
+    // }}}
+    // {{{ 書き込む
+    
+    $temp_file = $_conf['rct_file'] . '.tmp';
     if (is_array($neolines)) {
         $cont = '';
         foreach ($neolines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
-        if (FileCtl::file_write_contents($_conf['rct_file'], $cont) === false) {
-            die("Error: cannot write file.");
+        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $_conf['rct_file'])) {
+            die("p2 error: cannot write file. offRecent()");
         }
     }
     
-    if ($done) {
+    // }}}
+    
+    if (!empty($done)) {
         return 1;
     } else {
         return 2;
@@ -209,12 +215,13 @@ function offResHist($host, $bbs, $key)
     
     $neolines = array();
     
-    // あれば削除
+    // {{{ あれば削除
+    
     if (is_array($lines)) {
         foreach ($lines as $l) {
             $l = rtrim($l);
             $lar = explode('<>', $l);
-            // 削除
+            // 削除（スキップ）
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
                 $done = true;
                 continue;
@@ -222,19 +229,24 @@ function offResHist($host, $bbs, $key)
             $neolines[] = $l;
         }
     }
-
-    // 書き込む
+    
+    // }}}
+    // {{{ 書き込む
+    
+    $temp_file = $rh_idx . '.tmp';
     if (is_array($neolines)) {
         $cont = '';
         foreach ($neolines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
-        if (FileCtl::file_write_contents($rh_idx, $cont) === false) {
-            die("Error: cannot write file.");
+        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $rh_idx)) {
+            die("p2 error: cannot write file. offResHist()");
         }
     }
     
-    if ($done) {
+    // }}}
+    
+    if (!empty($done)) {
         return 1;
     } else {
         return 2;

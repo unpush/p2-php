@@ -2,7 +2,7 @@
 // p2 - 書き込み履歴のクラス
 
 /**
- * ■レス記事のクラス
+ * レス記事のクラス
  */
 class ResArticle{
     var $name;
@@ -18,7 +18,7 @@ class ResArticle{
 }
 
 /**
- * ■書き込みログのクラス
+ * 書き込みログのクラス
  */
 class ResHist{
     var $articles; // クラス ResArticle のオブジェクトを格納する配列
@@ -36,7 +36,9 @@ class ResHist{
     }
     
     /**
-     * ■レスを追加する
+     * レスを追加する
+     *
+     * @return void
      */
     function addRes(&$aResArticle)
     {
@@ -45,20 +47,47 @@ class ResHist{
     }    
     
     /**
-     * ■レス記事を表示する PC用
+     * レス記事を表示する PC用
+     *
+     * @return void
      */
     function showArticles()
     {
         global $_conf, $STYLE;
         
-        $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+        $sid_q = (defined('SID')) ? '&amp;' . strip_tags(SID) : '';
+        
+        // Pager 準備
+        require_once 'Pager/Pager.php';
+        $perPage = 100;
+        $params = array(
+            'mode'       => 'Jumping',
+            'itemData'   => $this->articles,
+            'perPage'    => $perPage,
+            'delta'      => 10,
+            'clearIfVoid' => true,
+            'prevImg' => "前の{$perPage}件",
+            'nextImg' => "次の{$perPage}件",
+            //'separator' => '|',
+            //'expanded' => true,
+            'spacesBeforeSeparator' => 2,
+            'spacesAfterSeparator' => 0,
+        );
+
+        $pager = & Pager::factory($params);
+        $links = $pager->getLinks();
+        $data  = $pager->getPageData();
+
+        if ($pager->links) {
+            echo "<div>{$pager->links}</div>";
+        }
         
         echo '<dl>';
         
-        foreach ($this->articles as $a_res) {
-            $hd['daytime'] = htmlspecialchars($a_res->daytime);
-            $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'));
-            $hd['itaj'] = htmlspecialchars($a_res->itaj);
+        foreach ($data as $a_res) {
+            $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
+            $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
+            $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
             
             $href_ht = "";
             if ($a_res->key) {
@@ -70,10 +99,10 @@ EOP;
 
             $res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$hd['daytime']}\"> ";
             $res_ht .= "{$a_res->order} ："; // 番号
-            $res_ht .= '<span class="name"><b>'.htmlspecialchars($a_res->name).'</b></span> ：'; // 名前
+            $res_ht .= '<span class="name"><b>' . htmlspecialchars($a_res->name, ENT_QUOTES) . '</b></span> ：'; // 名前
             // メール
             if ($a_res->mail) {
-                $res_ht .= htmlspecialchars($a_res->mail).' ：';
+                $res_ht .= htmlspecialchars($a_res->mail, ENT_QUOTES) . ' ：';
             }
             $res_ht .= "{$hd['daytime']}</dt>\n"; // 日付とID
             // 板名
@@ -92,11 +121,13 @@ EOP;
         
         echo '</dl>';
         
-        return true;
+        if ($pager->links) {
+            echo "<div>{$pager->links}</div>";
+        }
     }
     
     /**
-     * ■携帯用ナビを表示する
+     * 携帯用ナビを表示する
      * 表示範囲もセットされる
      */
     function showNaviK($position)
@@ -164,16 +195,16 @@ EOP;
     }
     
     /**
-     * ■レス記事を表示するメソッド 携帯用
+     * レス記事を表示するメソッド 携帯用
      */
     function showArticlesK()
     {
         global $_conf;
         
-        foreach($this->articles as $a_res){
-            $hd['daytime'] = htmlspecialchars($a_res->daytime);
-            $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'));
-            $hd['itaj'] = htmlspecialchars($a_res->itaj);
+        foreach ($this->articles as $a_res) {
+            $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
+            $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
+            $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
             
             if ($a_res->order < $this->resrange['start'] or $a_res->order > $this->resrange['to']) {
                 continue;
@@ -191,16 +222,16 @@ EOP;
                 $msg = substr($msg, 0, $_conf['ktai_ryaku_size']);
                 
                 // 末尾に<br>があれば取り除く
-                if( substr($msg, -1)==">" ){
+                if (substr($msg, -1)==">") {
                     $msg = substr($msg, 0, strlen($msg)-1);
                 }
-                if( substr($msg, -1)=="r" ){
+                if (substr($msg, -1)=="r") {
                     $msg = substr($msg, 0, strlen($msg)-1);
                 }
-                if( substr($msg, -1)=="b" ){
+                if (substr($msg, -1)=="b") {
                     $msg = substr($msg, 0, strlen($msg)-1);
                 }
-                if( substr($msg, -1)=="<" ){
+                if (substr($msg, -1)=="<") {
                     $msg = substr($msg, 0, strlen($msg)-1);
                 }
                 
@@ -210,10 +241,10 @@ EOP;
         }
 
             $res_ht = "[$a_res->order]"; // 番号
-            $res_ht .= htmlspecialchars($a_res->name).':'; // 名前
+            $res_ht .= htmlspecialchars($a_res->name, ENT_QUOTES) . ':'; // 名前
             // メール
             if ($a_res->mail) {
-                $res_ht .= htmlspecialchars($a_res->mail).':';
+                $res_ht .= htmlspecialchars($a_res->mail, ENT_QUOTES) . ':';
             }
             $res_ht .= "{$hd['daytime']}<br>\n"; // 日付とID
             $res_ht .= "<a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\">{$hd['itaj']}</a> / ";
@@ -230,7 +261,6 @@ EOP;
         }
         
         return true;
-
     }
 }
 

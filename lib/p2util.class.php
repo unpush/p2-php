@@ -278,7 +278,7 @@ class P2Util{
     /**
      * ■ key.idx に data を記録する
      *
-     * @param $data 配列。要素の順番に意味あり。
+     * @param   array   $data   要素の順番に意味あり。
      */
     function recKeyIdx($keyidx, $data)
     {
@@ -292,7 +292,7 @@ class P2Util{
             $cont = rtrim($data);
         }
         
-        $cont = $cont."\n";
+        $cont = $cont . "\n";
         
         FileCtl::make_datafile($keyidx, $_conf['key_perm']);
         if (FileCtl::file_write_contents($keyidx, $cont) === false) {
@@ -576,7 +576,7 @@ class P2Util{
         
         // 新しいログ行を設定
         $newdata = $date."<>".$_SERVER['REMOTE_ADDR']."<>".$remoto_host."<>".$_SERVER['HTTP_USER_AGENT']."<>".$_SERVER['HTTP_REFERER']."<>".""."<>".$user;
-        //$newdata = htmlspecialchars($newdata);
+        //$newdata = htmlspecialchars($newdata, ENT_QUOTES);
 
         // まずタブを全て外して
         $newdata = str_replace("\t", "", $newdata);
@@ -832,6 +832,56 @@ ERR;
     }
 
     // }}}
+
+    /**
+     * Webページを取得する
+     *
+     * 200 OK
+     * 206 Partial Content
+     * 304 Not Modified → 失敗扱い
+     *
+     * @return mixed 成功したらページ内容を返す。失敗したらfalseを返す。
+     */
+    function getWebPage($url, &$error_msg, $timeout = 15)
+    {
+        include_once "HTTP/Request.php";
+    
+        $params = array("timeout" => $timeout);
+
+        $req =& new HTTP_Request($url, $params);
+        //$req->addHeader("X-PHP-Version", phpversion());
+
+        $response = $req->sendRequest();
+
+        if (PEAR::isError($response)) {
+            $error_msg = $response->getMessage();
+        } else {
+            $code = $req->getResponseCode();
+            if ($code == 200 || $code == 206) { // || $code == 304) {
+                return $req->getResponseBody();
+            } else {
+                //var_dump($req->getResponseHeader());
+                $error_msg = $code;
+            }
+        }
+    
+        return false;
+    }
+    
+    /**
+     * 現在のURLを取得する（GETクエリーはなし）
+     *
+     * @return string
+     * @see http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
+     */
+    function getMyUrl()
+    {
+        $s = empty($_SERVER['HTTPS']) ? '' : 's';
+        $port = ($_SERVER['SERVER_PORT'] == '80') ? '' : ':' . $_SERVER['SERVER_PORT'];
+        $url = "http{$s}://" . $_SERVER['HTTP_HOST'] . $port . $_SERVER['SCRIPT_NAME'];
+    
+        return $url;
+    }
 }
 
 ?>

@@ -200,7 +200,7 @@ EOP;
         // ”Â–¼ ============================================
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
-            $htm['ita_td'] = "<td{$class_t} nowrap><a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}\" target=\"_self\">".htmlspecialchars($ita_name)."</a></td>";
+            $htm['ita_td'] = "<td{$class_t} nowrap><a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}\" target=\"_self\">" . htmlspecialchars($ita_name, ENT_QUOTES) . "</a></td>";
         }
         
         

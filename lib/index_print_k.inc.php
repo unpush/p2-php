@@ -64,7 +64,7 @@ EOP;
 <a {$_conf['accesskey']}="5" href="subject.php?spmode=recent&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">5.Å‹ß“Ç‚ñ‚¾½Ú‚ÌV’…</a><br>
 <a {$_conf['accesskey']}="6" href="subject.php?spmode=recent{$_conf['k_at_a']}{$user_at_a}">6.Å‹ß“Ç‚ñ‚¾½Ú‚Ì‘S‚Ä</a><br>
 <a {$_conf['accesskey']}="7" href="subject.php?spmode=res_hist{$_conf['k_at_a']}{$user_at_a}">7.‘ž—š—ð</a> <a href="read_res_hist.php?nt={$newtime}{$_conf['k_at_a']}">Û¸Þ</a><br>
-<a {$_conf['accesskey']}="8" href="subject.php?spmode=palace&amp;norefresh=true{$_conf['k_at_a']}{$user_at_a}">8.½Ú‚Ì“a“°</a><br>
+<a {$_conf['accesskey']}="8" href="subject.php?spmode=palace&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">8.½Ú‚Ì“a“°</a><br>
 <a {$_conf['accesskey']}="9" href="setting.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">9.Û¸Þ²ÝŠÇ—</a><br>
 <a {$_conf['accesskey']}="0" href="editpref.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">0.Ý’èŠÇ—</a><br>
 

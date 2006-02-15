@@ -410,15 +410,14 @@ function print_info_line($s, $c_ht)
  */
 function getCopypaFormHt($url, $ttitle_name_hd)
 {
-    $url_hd = htmlspecialchars($url);
+    $url_hd = htmlspecialchars($url, ENT_QUOTES);
     
-    $s = $_SERVER['HTTPS'] ? 's' : '';
-    $me_url = "http{$s}://" . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'];
+    $me_url = $me_url = P2Util::getMyUrl();
     // $_SERVER['REQUEST_URI']
     
     $htm = <<<EOP
 <form action="{$me_url}">
- <textarea name="copy">{$ttitle_name_hd}&#13;{$url_hd}</textarea>
+ <textarea name="copy">{$ttitle_name_hd}&#10;{$url_hd}</textarea>
 </form>
 EOP;
 // <input type="text" name="url" value="{$url_hd}">

@@ -109,8 +109,9 @@ class Login{
     function authorize()
     {
         global $_conf, $_p2session;
-
-        // 認証チェック
+        
+        // {{{ 認証チェック
+        
         if (!$this->authCheck()) {
             // ログイン失敗
             include_once (P2_LIBRARY_DIR . '/login_first.inc.php');
@@ -118,9 +119,12 @@ class Login{
             exit;
         }
         
+        // }}}
+        
         // ■ログインOKなら
         
         // {{{ ログアウトの指定があれば
+        
         if (!empty($_REQUEST['logout'])) {
         
             // セッションをクリア（アクティブ、非アクティブを問わず）
@@ -137,39 +141,37 @@ class Login{
             } elseif ($mobile->isVodafone()) {
                 file_exists($_conf['auth_jp_file']) && unlink($_conf['auth_jp_file']);
             
-            } elseif ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+            /* DoCoMoはログイン画面が表示されるので、補助認証情報を自動破棄しない
+            } elseif ($mobile->isDoCoMo()) {
                 file_exists($_conf['auth_docomo_file']) && unlink($_conf['auth_docomo_file']);
+            */
             }
             
-            $s = $_SERVER['HTTPS'] ? 's' : '';
-            $url = 'http'.$s.'://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF'])).'/';//.'?user='.$this->user_u;
+            // $user_u_q = empty($_conf['ktai']) ? '' : '?user=' . $this->user_u;
+
+            $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/'; // . $user_u_q;
             
             header('Location: '.$url);
             exit;
         }
         
         // }}}
-        // {{{ セッションが利用されているなら、セッションの登録を確認実行
+        // {{{ セッションが利用されているなら、セッション変数の更新
         
         if (isset($_p2session)) {
 
-            if (!$_p2session->autoBegin()) {
-                $_p2session->unSession();
-                // ログイン失敗
-                include_once (P2_LIBRARY_DIR . '/login_first.inc.php');
-                printLoginFirst($this);
-                exit;
-            }
-
             // ユーザ名とパスXを更新
-            $_SESSION['login_user'] = $this->user_u;
+            $_SESSION['login_user']   = $this->user_u;
             $_SESSION['login_pass_x'] = $this->pass_x;
         }
-        // }}}
         
-        // 要求があれば、補助認証を登録
+        // }}}
+        // {{{ 要求があれば、補助認証を登録
+        
         $this->registCookie();
         $this->registKtaiId();
+        
+        // }}}
         
         // 認証後はセッションを閉じる
         session_write_close();
@@ -293,17 +295,27 @@ class Login{
 
         // ■すでにセッションが登録されていたら、セッションで認証
         if (isset($_SESSION['login_user']) && isset($_SESSION['login_pass_x'])) {
-
+        
+            // {{{ セッションが利用されているなら、セッションの妥当性チェック
+        
+            if (isset($_p2session)) {
+                if ($msg = $_p2session->checkSessionError()) {
+                    $GLOBALS['_info_msg_ht'] .= '<p>p2 error: ' . htmlspecialchars($msg) . '</p>';
+                    //$_p2session->unSession();
+                    // ログイン失敗
+                    return false;
+                }
+            }
+        
+            // }}}
+            
             if ($this->user_u == $_SESSION['login_user']) {
-
-                // セッションの妥当性をチェックする
-                if ($_p2session->checkSession() and $_SESSION['login_pass_x'] == $this->pass_x) {
-
-                    return true;
-                } else {
-
+                if ($_SESSION['login_pass_x'] != $this->pass_x) {
                     $_p2session->unSession();
                     return false;
+
+                } else {
+                    return true;
                 }
             }
         }

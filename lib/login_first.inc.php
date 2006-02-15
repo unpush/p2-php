@@ -76,7 +76,7 @@ function printLoginFirst(&$_login)
     // }}}
     // {{{ DoCoMo認証
     
-    } elseif (preg_match('{^DoCoMo}', $_SERVER['HTTP_USER_AGENT'], $matches)) {
+    } elseif ($mobile->isDoCoMo()) {
         if (file_exists($_conf['auth_docomo_file'])) {
         } else {
             $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_docomo" value="1">'."\n".
@@ -108,26 +108,26 @@ function printLoginFirst(&$_login)
     }
 
     if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_login->user_u)) {
-        $hd['form_login_id'] = htmlspecialchars($_login->user_u);
+        $hd['form_login_id'] = htmlspecialchars($_login->user_u, ENT_QUOTES);
     } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_POST['form_login_id'])) {
-        $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id']);
+        $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
     }
     
     
     if (preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
-        $hd['form_login_pass'] = htmlspecialchars($_POST['form_login_pass']);
+        $hd['form_login_pass'] = htmlspecialchars($_POST['form_login_pass'], ENT_QUOTES);
     }
 
     // DoCoMoの固有端末認証（セッション利用時のみ有効）
     $docomo_utn_ht = '';
     
-    if ($_conf['use_session'] && $_login->user_u && preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'])) {
+    if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
         $docomo_utn_ht = '<p><a href="' . $myname //. '?user=' . $_login->user_u 
             . '" utn>DoCoMo固有端末認証</a></p>';
     }
 
     // DoCoMoならpasswordにしない
-    if (preg_match('{^DoCoMo/}', $_SERVER['HTTP_USER_AGENT'])) {
+    if ($mobile->isDoCoMo()) {
         $type = "text";
     } else {
         $type = "password";
@@ -135,7 +135,7 @@ function printLoginFirst(&$_login)
 
     // {{{ ログイン用フォームを生成
     
-    $hd['REQUEST_URI'] = htmlspecialchars($_SERVER['REQUEST_URI']);
+    $hd['REQUEST_URI'] = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES);
     
     if (file_exists($_conf['auth_user_file'])) {
         $submit_ht = '<input type="submit" name="submit_member" value="ユーザログイン">';
@@ -177,21 +177,15 @@ EOP;
             $_login->makeUser($_POST['form_login_id'], $_POST['form_login_pass']);
             
             // 新規登録成功
-            $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id']);
+            $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
             $body_ht .= "<p class=\"infomsg\">○ 認証{$p_str['user']}「{$hd['form_login_id']}」を登録しました</p>";
             $body_ht .= "<p><a href=\"{$myname}?form_login_id={$hd['form_login_id']}{$_conf['k_at_a']}\">rep2 start</a></p>";
         
             $_login->setUser($_POST['form_login_id']);
             $_login->pass_x = sha1($_POST['form_login_pass']);
             
-            // セッションが利用されているなら、セッションの登録を確認実行
+            // セッションが利用されているなら、セッションを更新
             if (isset($_p2session)) {
-                if (!$_p2session->autoBegin()) {
-                    $_p2session->unSession();
-                    // ログイン失敗
-                    printLoginFirst($_login);
-                    exit;
-                }
                 // ユーザ名とパスXを更新
                 $_SESSION['login_user'] = $_login->user_u;
                 $_SESSION['login_pass_x'] = $_login->pass_x;

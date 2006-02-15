@@ -14,8 +14,7 @@ $_login->authorize(); //ユーザ認証
 //==============================================================
 // 変数設定
 //==============================================================
-$s = $_SERVER['HTTPS'] ? 's' : '';
-$me_url = "http{$s}://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
+$me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
 // menu_side.php の URL。（ローカルパス指定はできないようだ）
 $menu_side_url = $me_dir_url.'/menu_side.php';
@@ -217,10 +216,10 @@ $brd_menus = BrdCtl::read_brds();
 
 if (isset($word) && strlen($word) > 0) {
 
-    $hd['word'] = htmlspecialchars($word);
+    $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
     
     $msg_ht .=  '<p>';
-    if (!$GLOBALS['ita_mikke']['num']) {
+    if (empty($GLOBALS['ita_mikke']['num'])) {
         if (empty($GLOBALS['threti_match_ita_num'])) {
             $msg_ht .=  "\"{$hd['word']}\"を含む板は見つかりませんでした。\n";
         }
@@ -229,7 +228,7 @@ if (isset($word) && strlen($word) > 0) {
         
         // 検索結果が一つなら、自動で板一覧を開く
         if ($GLOBALS['ita_mikke']['num'] == 1) {
-        $msg_ht .= '（自動オープン）';
+        $msg_ht .= '（自動オープンするよ）';
             echo <<<EOP
 <script type="text/javascript">
 <!--
