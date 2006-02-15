@@ -1,4 +1,15 @@
 2006-02-15 aki
+	* rep2 version 1.7.9
+	
+	- 新しく PEAR の File を利用するようになりました。
+
+	- PEAR の File_Util を利用して確実に絶対パスを取得できるようにした。
+	  （conf/conf.inc.php） patchありがとう! > rskさん
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		
+2006-02-15 aki
 	* rep2 version 1.7.8
 	
 	今回から新しく PEAR の HTTP/Request.php と Pager を利用しています。
