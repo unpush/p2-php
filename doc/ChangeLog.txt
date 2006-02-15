@@ -1,7 +1,7 @@
 2006-02-15 aki
 	* rep2 version 1.7.8
 	
-	今回は、新しく PEAR の HTTP/Request.php と Pager を利用しています。
+	今回から新しく PEAR の HTTP/Request.php と Pager を利用しています。
 
 	- [改良] 書き込んだレスをページを分割して表示するようにした（PEARのPager）
 	- [改良] port番号のついているURLに設置しても動くように改良修正した。
