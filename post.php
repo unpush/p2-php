@@ -10,16 +10,16 @@ require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 $_login->authorize(); // ユーザ認証
 
 if (!empty($_conf['disable_res'])) {
-    P2Util::print403('p2 error: 書き込み機能は無効です。');
+    P2Util::printSimpleHtml('p2 error: 書き込み機能は無効です。');
 }
 
 // 引数エラー
 if (empty($_POST['host'])) {
-    P2Util::print403('p2 error: 引数の指定が変です');
+    P2Util::printSimpleHtml('p2 error: 引数の指定が変です');
 }
 
 if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-    P2Util::print403('p2 error: 不正なポストです');
+    P2Util::printSimpleHtml('p2 error: 不正なポストです');
 }
 
 //================================================================

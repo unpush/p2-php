@@ -1,4 +1,19 @@
 2006-02-16 aki
+	* rep2 version 1.7.11
+	
+	- [修正] 書き込み履歴を解除できないバグを修正した。
+	- [変更] 403でHTML文を出力した時に、出力したHTML文を表示しない携帯があるそうなので、一部、403で出力しないようにした。
+	- [変更] 新着まとめ読みの続きがあるかどうかが分からない場合は、「更新/続き」と併記するようにした。
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		post.php
+		read_new.php
+		read_new_k.php
+		lib/dele.inc.php
+		lib/p2util.class.php
+		
+2006-02-16 aki
 	* rep2 version 1.7.10
 	
 	- [修正] Windowsサーバで利用している場合、rename() でファイルを上書きできないそうなので、これに対応修正した。

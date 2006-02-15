@@ -254,7 +254,7 @@ function offResHist($host, $bbs, $key)
             die("p2 error: " . __FUNCTION__ . "(): cannot write file.");
         }
         if (!strstr(PHP_OS, 'WIN')) {
-            if (!rename($write_file, $_conf['rct_file'])) {
+            if (!rename($write_file, $rh_idx)) {
                 die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
             }
         }
