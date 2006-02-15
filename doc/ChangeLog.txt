@@ -1,3 +1,80 @@
+2006-02-15 aki
+	* rep2 version 1.7.8
+	
+	今回は、新しく PEAR の HTTP/Request.php と Pager を利用しています。
+
+	- [改良] 書き込んだレスをページを分割して表示するようにした（PEARのPager）
+	- [改良] port番号のついているURLに設置しても動くように改良修正した。
+	- [改良] 検索時に全角/半角の区別を完全に吸収するようにした
+	- [更新] willcomのIP帯域を更新（hostcheck.class.php）
+	- [修正] 携帯の情報画面のコピペフォームで、au端末で選択すると、
+	  URLが消えてしまうことがあったのを修正（p2スレ27の>>444）
+	- [修正] sb_header_k.inc.php で$wordはサニタイズされていなかったのを修正
+	- [修正] 携帯から●書き込みができないことがあったバグを修正
+	  lib/post_options_loader.inc.php
+	- [修正] input checkboxのvalue値が抜けていたのを修正
+	  （ブラウザによっては "on" となるが、ブラウザによっては、値がなくなってしまう
+	- [仕様変更] SubjectTxt.class.php で PEAR の HTTP/Request.php を採用した
+
+	- 新規追加されたファイル
+		conf/.htaccess
+
+	- 変更のあったファイル
+		edit_conf_user.php
+		editfavita.php
+		editfile.php
+		editpref.php
+		index.php
+		info.php
+		login.php
+		menu_k.php
+		post.php
+		post_form.php
+		read.php
+		read_filter_k.php
+		read_new.php
+		read_new_k.php
+		title.php
+		viewtxt.php
+		conf/conf.inc.php
+		conf/conf_user_def.inc.php
+		doc/ChangeLog.txt
+		doc/README.txt
+		js/post_form.js
+		lib/SubjectTxt.class.php
+		lib/brdmenu.class.php
+		lib/dele.inc.php
+		lib/filectl.class.php
+		lib/hostcheck.class.php
+		lib/index_print_k.inc.php
+		lib/login.class.php
+		lib/login2ch.inc.php
+		lib/login_first.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/post_form.inc.php
+		lib/post_options_loader.inc.php
+		lib/read_footer.inc.php
+		lib/read_header.inc.php
+		lib/read_header_k.inc.php
+		lib/read_res_hist.inc.php
+		lib/res_hist.class.php
+		lib/sb_header.inc.php
+		lib/sb_header_k.inc.php
+		lib/sb_print.inc.php
+		lib/sb_print_k.inc.php
+		lib/session.class.php
+		lib/setfavita.inc.php
+		lib/setpalace.inc.php
+		lib/showbrdmenuk.class.php
+		lib/showbrdmenupc.class.php
+		lib/showthread.class.php
+		lib/showthreadpc.class.php
+		lib/strctl.class.php
+		lib/thread.class.php
+		lib/threadlist.class.php
+		lib/threadread.class.php
+
 2005-07-11 aki
 	* rep2 version 1.7.7
 	
@@ -17,7 +94,6 @@
 		lib/index_print_k.inc.php
 		lib/login.class.php
 		lib/thread.class.php
-
 
 2005-07-01 aki
 	* rep2 version 1.7.6
