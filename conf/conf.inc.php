@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.8';
+$_conf['p2version'] = '1.7.9';
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -137,7 +137,7 @@ $pear_required = array(
     'File/Util.php'             => 'File',
     'Net/UserAgent/Mobile.php'  => 'Net_UserAgent_Mobile',
     'PHP/Compat.php'            => 'PHP/Compat.php',
-    'HTTP/Request'              => 'HTTP_Request'
+    'HTTP/Request.php'          => 'HTTP_Request'
 );
 foreach ($pear_required as $pear_file => $pear_pkg) {
     if (!include_once($pear_file)) {
