@@ -1,3 +1,30 @@
+2006-02-16 aki
+	* rep2 version 1.7.10
+	
+	- [修正] Windowsサーバで利用している場合、rename() でファイルを上書きできないそうなので、これに対応修正した。
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/dele.inc.php
+		lib/p2util.class.php
+		lib/read_new.inc.php
+		lib/read_res_hist.inc.php
+		lib/setpalace.inc.php
+		lib/threadread.class.php
+		post.php
+		read.php
+
+2006-02-15 aki
+	* rep2 version 1.7.9
+	
+	- 新しく PEAR の File を利用するようになりました。
+
+	- PEAR の File_Util を利用して確実に絶対パスを取得できるようにした。
+	  （conf/conf.inc.php） patchありがとう! > rskさん
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		
 2006-02-15 aki
 	* rep2 version 1.7.8
 	
