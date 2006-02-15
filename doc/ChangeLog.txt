@@ -6,14 +6,14 @@
 	- [改良] 書き込んだレスをページを分割して表示するようにした（PEARのPager）
 	- [改良] port番号のついているURLに設置しても動くように改良修正した。
 	- [改良] 検索時に全角/半角の区別を完全に吸収するようにした
-	- [更新] willcomのIP帯域を更新（hostcheck.class.php）
+	- [更新] willcomのIP帯域を更新（lib/hostcheck.class.php）
 	- [修正] 携帯の情報画面のコピペフォームで、au端末で選択すると、
 	  URLが消えてしまうことがあったのを修正（p2スレ27の>>444）
-	- [修正] sb_header_k.inc.php で$wordはサニタイズされていなかったのを修正
+	- [修正] sb_header_k.inc.php で $word がサニタイズされていなかったのを修正
 	- [修正] 携帯から●書き込みができないことがあったバグを修正
-	  lib/post_options_loader.inc.php
+	  （lib/post_options_loader.inc.php）
 	- [修正] input checkboxのvalue値が抜けていたのを修正
-	  （ブラウザによっては "on" となるが、ブラウザによっては、値がなくなってしまう
+	  （ブラウザによっては "on" となるが、ブラウザによっては、値がなくなってしまう）
 	- [仕様変更] SubjectTxt.class.php で PEAR の HTTP/Request.php を採用した
 
 	- 新規追加されたファイル
