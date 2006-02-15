@@ -890,6 +890,16 @@ ERR;
     
         return $url;
     }
+    
+    /**
+     * ƒVƒ“ƒvƒ‹‚ÉHTML‚ð•\Ž¦‚·‚é
+     *
+     * @return void
+     */
+    function printSimpleHtml($body)
+    {
+        echo "<html><body>{$body}</body></html>";
+    }
 }
 
 ?>

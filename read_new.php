@@ -510,9 +510,14 @@ if (!$aThreadList->num) {
 }
 
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
+    if (!empty($GLOBALS['limit_to_eq_to'])) {
+        $str = '新着まとめ読みの更新/続き';
+    } else {
+        $str = '新着まとめ読みを更新';
+    }
     echo <<<EOP
     <div id="ntt{$_newthre_num}" align="center">
-        {$sb_ht} の <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}">新着まとめ読みを更新</a>
+        {$sb_ht} の <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}">{$str}</a>
     </div>\n
 EOP;
 } else {
