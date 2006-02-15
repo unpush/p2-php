@@ -456,9 +456,17 @@ function recRecent($data)
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
-        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $_conf['rct_file'])) {
-            die('p2 error: cannot write file. recRecent()');
+
+        $write_file = strstr(PHP_OS, 'WIN') ? $_conf['rct_file'] : $temp_file;
+        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+            die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
         }
+        if (!strstr(PHP_OS, 'WIN')) {
+            if (!rename($write_file, $_conf['rct_file'])) {
+                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+            }
+        }
+        
     }
     
     // }}}

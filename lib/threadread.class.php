@@ -390,10 +390,10 @@ class ThreadRead extends Thread{
                         } else {
                             // 既に存在するなら一時バックアップ退避
                             if (file_exists($this->keydat)) {
-                                if (file_exists($this->keydat.".bak")) {
-                                    unlink($this->keydat.".bak");
+                                if (file_exists($this->keydat . ".bak")) {
+                                    unlink($this->keydat . ".bak");
                                 }
-                                rename($this->keydat, $this->keydat.".bak");
+                                rename($this->keydat, $this->keydat . ".bak");
                             }
                             $rcode = 1;
                             // 解凍する

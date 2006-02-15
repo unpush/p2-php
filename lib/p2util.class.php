@@ -468,7 +468,11 @@ class P2Util{
 
                 // p2_res_hist.dat があれば、名前を変えてバックアップ。（もう要らない）
                 if (file_exists($_conf['p2_res_hist_dat'])) {
-                    rename($_conf['p2_res_hist_dat'], $_conf['p2_res_hist_dat'].'.bak');
+                    $bak_file = $_conf['p2_res_hist_dat'] . '.bak';
+                    if (strstr(PHP_OS, 'WIN') and file_exists($bak_file)) {
+                        unlink($bak_file);
+                    }
+                    rename($_conf['p2_res_hist_dat'], $bak_file);
                 }
                 
                 // 保存
@@ -476,7 +480,11 @@ class P2Util{
                 FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont);
                 
                 // p2_res_hist.dat.php を名前を変えてバックアップ。（もう要らない）
-                rename($_conf['p2_res_hist_dat_php'], $_conf['p2_res_hist_dat_php'].'.bak');
+                $bak_file = $_conf['p2_res_hist_dat_php'] . '.bak';
+                if (strstr(PHP_OS, 'WIN') and file_exists($bak_file)) {
+                    unlink($bak_file);
+                }
+                rename($_conf['p2_res_hist_dat_php'], $bak_file);
             }
         }
         return true;

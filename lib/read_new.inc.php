@@ -37,6 +37,9 @@ function saveMatomeCache()
             if ($i == $max) {
                 unlink($tfile);
             } else {
+                if (strstr(PHP_OS, 'WIN') and file_exists($nfile)) {
+                    unlink($nfile);
+                }
                 rename($tfile, $nfile);
             }
         }

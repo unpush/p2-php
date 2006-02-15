@@ -265,8 +265,15 @@ if ($host && $bbs && $key) {
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
-        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $rh_idx)) {
-            die('p2 error: cannot write file.');
+        
+        $write_file = strstr(PHP_OS, 'WIN') ? $rh_idx : $temp_file;
+        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+            die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
+        }
+        if (!strstr(PHP_OS, 'WIN')) {
+            if (!rename($write_file, $rh_idx)) {
+                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+            }
         }
     }
     

@@ -52,8 +52,14 @@ function deleMsg($checked_hists)
         // {{{ èëÇ´çûÇ›èàóù
         
         $temp_file = $_conf['p2_res_hist_dat'] . '.tmp';
-        if (FileCtl::file_write_contents($temp_file, $cont) === false or !rename($temp_file, $_conf['p2_res_hist_dat'])) {
-            die('p2 error: cannot write file. deleMsg()');
+        $write_file = strstr(PHP_OS, 'WIN') ? $_conf['p2_res_hist_dat'] : $temp_file;
+        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+            die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
+        }
+        if (!strstr(PHP_OS, 'WIN')) {
+            if (!rename($write_file, $_conf['p2_res_hist_dat'])) {
+                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+            }
         }
         
         // ]}}
