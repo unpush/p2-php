@@ -1,3 +1,14 @@
+2006-02-17 aki
+	* rep2 version 1.7.12
+	
+	- [修正] ログイン画面でDoCoMoの端末認証用のURLが表示されないことがあったバグを修正
+	  
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/login_first.inc.php
+		login.php
+		title.php
+		
 2006-02-16 aki
 	* rep2 version 1.7.11
 	
