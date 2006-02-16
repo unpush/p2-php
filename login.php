@@ -31,7 +31,7 @@ if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
 }
 
 // （携帯）ログイン用URL
-$user_u_q = empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
+$user_u_q = !empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
 $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
 
 $p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_blank">'.$url.'</a><br>';

@@ -57,7 +57,7 @@ if (!empty($_conf['updatan_haahaa'])) {
 $htm['auth_user'] = "<p>ログインユーザ: {$_login->user_u} - ".date("Y/m/d (D) G:i")."</p>\n";
 
 // （携帯）ログイン用URL
-$user_u_q = empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
+$user_u_q = !empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
 $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
 $htm['ktai_url'] = '<p>携帯ログイン用URL <a href="'.$url.'" target="_blank">'.$url.'</a></p>'."\n";
 
