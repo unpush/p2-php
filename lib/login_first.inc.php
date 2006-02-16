@@ -121,7 +121,8 @@ function printLoginFirst(&$_login)
     // DoCoMoの固有端末認証（セッション利用時のみ有効）
     $docomo_utn_ht = '';
     
-    if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
+    //if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
+    if ($_conf['use_session'] && $mobile->isDoCoMo()) {
         $docomo_utn_ht = '<p><a href="' . $myname //. '?user=' . $_login->user_u 
             . '" utn>DoCoMo固有端末認証</a></p>';
     }
