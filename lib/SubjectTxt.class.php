@@ -133,13 +133,7 @@ class SubjectTxt{
 
         // ¡ DL¬Œ÷‚µ‚Ä ‚©‚Â XV‚³‚ê‚Ä‚¢‚½‚ç
         if ($body && $code != "304") {
-            
-            // gzip‚ð‰ð“€‚·‚é
-            if ($req->getResponseHeader('Content-Encoding') == 'gzip') {
-                $body = substr($body, 10);
-                $body = gzinflate($body);
-            }
-        
+
             // ‚µ‚½‚ç‚Î or be.2ch.net ‚È‚çEUC‚ðSJIS‚É•ÏŠ·
             if (P2Util::isHostJbbsShitaraba($this->host) || P2Util::isHostBe2chNet($this->host)) {
                 $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
