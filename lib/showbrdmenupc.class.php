@@ -59,7 +59,7 @@ EOP;
                 if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
                     $itaj = rtrim($matches[3]);
                     $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
-                    $itaj_en = base64_encode($itaj);
+                    $itaj_en = rawurlencode(base64_encode($itaj));
                     
                     $p_htm['star'] = <<<EOP
 <a href="{$_SERVER['PHP_SELF']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す">★</a>
