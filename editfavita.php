@@ -3,13 +3,13 @@
     p2 -  お気に入り編集
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
 //================================================================
-// ■特殊な前置処理
+// 特殊な前置処理
 //================================================================
 
 // お気に板の追加・削除、並び替え
@@ -19,8 +19,10 @@ if (isset($_GET['setfavita']) or isset($_POST['setfavita'])) {
 }
 // お気に板のホストを同期
 if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
-    include_once (P2_LIBRARY_DIR . '/syncfavita.inc.php');
+    include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+    BbsMap::syncBrd($_conf['favita_path']);
 }
+
 
 // プリント用変数 ======================================================
 

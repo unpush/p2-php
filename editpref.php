@@ -26,17 +26,13 @@ $synctitle = array(
 
 // ホストの同期
 if (isset($_POST['sync'])) {
+    include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
     $syncfile = $_conf['pref_dir'].'/'.$_POST['sync'];
     $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {
-        include_once (P2_LIBRARY_DIR . '/syncfavita.inc.php');
+        BbsMap::syncBrd($syncfile);
     } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
-        include_once (P2_LIBRARY_DIR . '/syncindex.inc.php');
-    }
-    if ($sync_ok) {
-        $_info_msg_ht .= "<p>{$synctitle[$sync_name]}を同期しました。</p>";
-    } else {
-        $_info_msg_ht .= "<p>{$synctitle[$sync_name]}は変更されませんでした。</p>";
+        BbsMap::syncIdx($syncfile);
     }
     unset($syncfile);
 }

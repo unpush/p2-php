@@ -93,10 +93,6 @@ class SubjectTxt{
                 $modified = false;
             }
         }
-        
-        if (extension_loaded('zlib') and strstr($this->subject_url, ".2ch.net")) {
-            $headers = "Accept-Encoding: gzip\r\n";
-        }
 
         // ¡DL
         include_once "HTTP/Request.php";
@@ -116,6 +112,16 @@ class SubjectTxt{
             $error_msg = $response->getMessage();
         } else {
             $code = $req->getResponseCode();
+            if ($code == 302) {
+                // ƒzƒXƒg‚ÌˆÚ“]‚ð’ÇÕ
+                include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+                $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
+                if ($new_host != $this->host) {
+                    $aNewSubjectTxt = &new SubjectTxt($new_host, $this->bbs);
+                    $body = &$aNewSubjectTxt->downloadSubject();
+                    return $body;
+                }
+            }
             if (!($code == 200 || $code == 206 || $code == 304)) {
                 //var_dump($req->getResponseHeader());
                 $error_msg = $code;
