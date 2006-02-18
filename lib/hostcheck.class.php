@@ -398,6 +398,7 @@ EOF;
     /**
      * WILLCOM?
      *
+     * @link http://www.willcom-inc.com/ja/service/contents_service/club_air_edge/for_phone/ip/index.html
      * @link http://www.willcom-inc.com/p_s/products/airh_phone/ip.html
      */
     function isAddrAirh($addr = '')
