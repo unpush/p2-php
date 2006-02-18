@@ -1,4 +1,13 @@
 2006-02-18 aki
+	* rep2 version 1.7.14
+	
+	- [更新] willcomのIPアドレス帯を更新した（感謝→p2スレpart31の>>551-552さん）
+	  
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		
+2006-02-18 aki
 	* rep2 version 1.7.13
 	
 	- [改良] ホストの移転を自動追尾するようになった。rskさんのグレートなパッチを適用。感謝。
