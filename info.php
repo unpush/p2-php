@@ -358,7 +358,7 @@ if (empty($_conf['ktai'])) {
 
 // 携帯コピペ用フォーム
 if (!empty($_conf['ktai'])) {
-    echo getCopypaFormHt($motothre_org_url, $hd['ttitle_name']);
+    echo getCopypaFormHtml($motothre_org_url, $hd['ttitle_name']);
 }
 
 // {{{ 閉じるボタン
@@ -408,7 +408,7 @@ function print_info_line($s, $c_ht)
 /**
  * スレタイとURLのコピペ用のフォームを取得する
  */
-function getCopypaFormHt($url, $ttitle_name_hd)
+function getCopypaFormHtml($url, $ttitle_name_hd)
 {
     $url_hd = htmlspecialchars($url, ENT_QUOTES);
     
