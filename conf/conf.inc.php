@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.12';
+$_conf['p2version'] = '1.7.13';
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -196,10 +196,10 @@ if (!include_once './conf/conf_admin.inc.php') {
 }
 
 // 管理用保存ディレクトリ (パーミッションは707)
-$_conf['admin_dir'] = $_conf['data_dir'].'/admin';
+$_conf['admin_dir'] = $_conf['data_dir'] . '/admin';
 
 // cache 保存ディレクトリ (パーミッションは707)
-$_conf['cache_dir'] = $_conf['data_dir'].'/cache'; // 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
+$_conf['cache_dir'] = $_conf['data_dir'] . '/cache'; // 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
 
 $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
@@ -248,7 +248,7 @@ if ($mobile->isNonMobile()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrVodafone()) {
             die('UAがVodafoneですが、IPアドレス帯域がマッチしません。');
         }
-        $_conf['accesskey'] = 'DIRECTKEY';
+        //$_conf['accesskey'] = 'DIRECTKEY';
         // W型端末と3GC型端末はCookieが使える
         if ($mobile->isTypeW() || $mobile->isType3GC()) {
             $_conf['disable_cookie'] = FALSE;

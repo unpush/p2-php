@@ -273,7 +273,7 @@ class BbsMap
         // {{{ 設定
 
         $bbsmenu_url = 'http://menu.2ch.net/bbsmenu.html';
-        $map_cache_path = $_conf['pref_dir'] . '/p2_cache/host_bbs_map.txt';
+        $map_cache_path = $_conf['cache_dir'] . '/host_bbs_map.txt';
         $map_cache_lifetime = 600; // TTLは少し短めに
         $errfmt = '<p>rep2 error: BbsMap: %s - %s をダウンロードできませんでした。</p>';
 
