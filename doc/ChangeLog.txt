@@ -1,4 +1,13 @@
 2006-02-18 aki
+	* rep2 version 1.7.15
+	
+	- [修正] お気に板で正常に表示されないことがあったのを修正（感謝→p2スレpart31の>>562さん）
+	  
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/showbrdmenupc.class.php
+		
+2006-02-18 aki
 	* rep2 version 1.7.14
 	
 	- [更新] willcomのIPアドレス帯を更新した（感謝→p2スレpart31の>>551-552さん）
