@@ -19,6 +19,8 @@ class ThreadRead extends Thread{
     var $idcount; // 配列。key は ID記号, value は ID出現回数
     
     var $getdat_error_msg_ht; // dat取得に失敗した時に表示されるメッセージ（HTML）
+    
+    var $old_host;  // ホスト移転検出時、移転前のホストを保持する
 
     /**
      * コンストラクタ
@@ -238,6 +240,20 @@ class ThreadRead extends Thread{
                     
                     if ($code == "200" || $code == "206") { // Partial Content
                         ;
+                    } elseif ($code == "302") { // Found
+                        // ホストの移転を追跡
+                        include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+                        $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
+                        if ($new_host != $this->host) {
+                            fclose($fp);
+                            $this->old_host = $this->host;
+                            $this->host = $new_host;
+                            return $this->downloadDat2ch($from_bytes);
+                        } else {
+                            fclose($fp);
+                            $this->downloadDat2chNotFound();
+                            return false;
+                        }
                     } elseif ($code == "304") { // Not Modified
                         fclose($fp);
                         $this->isonline = true;
@@ -704,18 +720,24 @@ class ThreadRead extends Thread{
     }
     
     /**
-     * ■ 2chのdatを取得できなかった原因を返す
+     * 2chのdatを取得できなかった原因を返す
      *
      * @private
-     * @return string エラーメッセージ（原因がわからない場合は空で返す）
+     * @return  string エラーメッセージ（原因がわからない場合は空で返す）
      */
     function get2chDatError()
     {
         global $_conf, $_info_msg_ht;
-    
+        
+        // ホスト移転検出で変更したホストを元に戻す
+        if ($this->old_host) {
+            $this->host = $this->old_host;
+        }
+        
         $read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/";
         
-        // {{{ ■ read.cgi からHTMLを取得
+        // {{{ read.cgi からHTMLを取得
+        
         $read_response_html = "";
         include_once (P2_LIBRARY_DIR . '/wap.class.php');
         $wap_ua =& new UserAgent();
@@ -736,6 +758,7 @@ class ThreadRead extends Thread{
             $read_response_html = $wap_res->content;
         }
         unset($wap_ua, $wap_req, $wap_res);
+        
         // }}}
 
         // ■取得したHTML（$read_response_html）を解析して、原因を見つける

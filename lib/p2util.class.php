@@ -117,50 +117,46 @@ class P2Util{
     function getItaName($host, $bbs)
     {
         global $_conf, $ita_names;
-        
-        if (!isset($ita_names["$host/$bbs"])) {
-            $idx_host_dir = P2Util::idxDirOfHost($host);
-            
-            $p2_setting_txt = $idx_host_dir."/".$bbs."/p2_setting.txt";
 
-            $p2_setting_cont = @file_get_contents($p2_setting_txt);
-            if ($p2_setting_cont) { $p2_setting = unserialize($p2_setting_cont); }
-            $ita_names["$host/$bbs"] = $p2_setting['itaj'];
+        $id = $host . '/' . $bbs;
+        
+        if (isset($ita_names[$id])) {
+            return $ita_names[$id];
         }
 
-        /* 板名Longの取得
-        // itaj未セットで2ch pink ならSETTING.TXTを読んでセット
-        if (!$p2_setting['itaj']) {
-            if (P2Util::isHost2chs($host)) {
-                $tempfile = $_conf['pref_dir']."/SETTING.TXT.temp";
-                P2Util::fileDownload("http://{$host}/{$bbs}/SETTING.TXT", $tempfile);
-                // $setting = getHttpContents("http://{$host}/{$bbs}/SETTING.TXT", "", "GET", "", array(""), $httpua="p2");
-                $setting = file($tempfile);
-                if (file_exists($tempfile)) { unlink($tempfile); }
-                if ($setting) {
-                    foreach ($setting as $sl) {
-                        $sl = trim($sl);
-                        if (preg_match("/^BBS_TITLE=(.+)/", $sl, $matches)) {
-                            $p2_setting['itaj'] = $matches[1];
-                        }
-                    }
-                    if ($p2_setting['itaj']) {
-                        FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
-                        if ($p2_setting) {$p2_setting_cont = serialize($p2_setting);}
-                        if ($p2_setting_cont) {
-                            $fp = fopen($p2_setting_txt, "wb") or die("Error: $p2_setting_txt を更新できませんでした");
-                            @flock($fp, LOCK_EX);
-                            fputs($fp, $p2_setting_cont);
-                            @flock($fp, LOCK_UN);
-                            fclose($fp);
-                        }
-                    }
+        $idx_host_dir = P2Util::idxDirOfHost($host);
+        $p2_setting_txt = $idx_host_dir . "/" . $bbs . "/p2_setting.txt";
+        
+        if (file_exists($p2_setting_txt)) {
+
+            $p2_setting_cont = @file_get_contents($p2_setting_txt);
+
+            if ($p2_setting_cont) {
+                $p2_setting = unserialize($p2_setting_cont);
+                if (isset($p2_setting['itaj'])) {
+                    $ita_names[$id] = $p2_setting['itaj'];
+                    return $ita_names[$id];
                 }
             }
         }
-        */
+
+        // 板名Longの取得
+        if (!isset($p2_setting['itaj'])) {
+            require_once (P2_LIBRARY_DIR . '/BbsMap.class.php');
+            $itaj = BbsMap::getBbsName($host, $bbs);
+            if ($itaj != $bbs) {
+                $ita_names[$id] = $p2_setting['itaj'] = $itaj;
+                
+                FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
+                $p2_setting_cont = serialize($p2_setting);
+                if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
+                    die("Error: {$p2_setting_txt} を更新できませんでした");
+                }
+                return $ita_names[$id];
+            }
+        }
         
-        return $ita_names["$host/$bbs"];
+        return null;
     }
 
     /**
