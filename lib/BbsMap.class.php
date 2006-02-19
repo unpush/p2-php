@@ -290,7 +290,11 @@ class BbsMap
                 $map = unserialize($map_cahce);
                 return $map;
             }
+        } else {
+            FileCtl::mkdir_for($map_cache_path);
         }
+        touch($map_cache_path);
+        clearstatcache();
 
         // }}}
         // {{{ メニューをダウンロード
@@ -298,6 +302,8 @@ class BbsMap
         $params = array();
         if (isset($mtime)) {
             $params['requestHeaders'] = array('If-Modified-Since' => gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+            $params['timeout'] = $_conf['fsockopen_time_limit'];
+            //$params['readTimeout'] = array($_conf['fsockopen_time_limit'], 0);
         }
         $req = &new HTTP_Request($bbsmenu_url, $params);
         $req->setMethod('GET');
@@ -318,7 +324,6 @@ class BbsMap
         if ($code == 304) {
             $map_cahce = file_get_contents($map_cache_path);
             $map = unserialize($map_cahce);
-            touch($map_cache_path);
             return $map;
         } elseif ($code != 200) {
             $_info_msg_ht .= sprintf($errfmt, htmlspecialchars(strval($code)), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
