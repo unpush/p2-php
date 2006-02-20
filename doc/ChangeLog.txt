@@ -1,4 +1,16 @@
 2006-02-20 aki
+	* rep2 version 1.7.17
+	
+	- [改良] お気に板の並び替えをJavaScriptで行えるようにした
+	  （パッチ感謝 → ysanoさん）
+
+	- 変更のあったファイル
+		editfavita.php
+		conf/conf.inc.php
+		lib/setfavita.inc.php
+		style/editfavita_css.inc
+		
+2006-02-20 aki
 	* rep2 version 1.7.16
 	
 	- [修正] BbsMapの取得タイムアウトが長かったのと、取得失敗時にキャッシュインターバルが効かなかったのを修正
