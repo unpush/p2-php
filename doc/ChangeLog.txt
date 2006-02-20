@@ -3,7 +3,10 @@
 	
 	- [改良] お気に板の並び替えをJavaScriptで行えるようにした
 	  （パッチ感謝 → ysanoさん）
-
+	  
+	- 新規追加されたファイル
+		lib/BbsMap.class.php
+		
 	- 変更のあったファイル
 		editfavita.php
 		conf/conf.inc.php
