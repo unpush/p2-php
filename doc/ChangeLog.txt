@@ -5,7 +5,7 @@
 	  （パッチ感謝 → ysanoさん）
 	  
 	- 新規追加されたファイル
-		lib/BbsMap.class.php
+		js/order.js
 		
 	- 変更のあったファイル
 		editfavita.php
