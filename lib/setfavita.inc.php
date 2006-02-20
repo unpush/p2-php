@@ -31,7 +31,9 @@ function setFavIta()
         }
     }
     
-    if (!$host && !$bbs) {
+    $list = $_POST['list'];
+    
+    if (!$host && !$bbs and (!($setfavita == 'submit' && $list))) {
         $_info_msg_ht .= "<p>p2 info: 板の指定が変です</p>";
         return false;
     }
@@ -68,7 +70,7 @@ function setFavIta()
         
             // {{{ 旧データ（ver0.6.0以下）移行措置
             if (!preg_match("/^\t/", $l)) {
-                $l = "\t".$l;
+                $l = "\t" . $l;
             }
             // }}}
         
@@ -86,10 +88,19 @@ function setFavIta()
     }
 
     // 記録データ設定
-    if ($setfavita and $host && $bbs && $itaj) {
+    if ($setfavita == "submit" && $list) {
+        $rec_lines = array();
+        foreach (explode(',', $list) as $aList) {
+            list($host, $bbs, $itaj_en) = explode('@', $aList);
+            $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
+        }
+        
+    } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
         include_once (P2_LIBRARY_DIR . '/getsetposlines.inc.php');
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
+    
+    // 解除
     } else {
         $rec_lines = $neolines;
     }
@@ -97,7 +108,7 @@ function setFavIta()
     $cont = '';
     if (!empty($rec_lines)) {
         foreach ($rec_lines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
     }
 

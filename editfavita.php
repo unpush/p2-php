@@ -23,7 +23,6 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
     BbsMap::syncBrd($_conf['favita_path']);
 }
 
-
 // プリント用変数 ======================================================
 
 // お気に板追加フォーム
@@ -46,7 +45,7 @@ $sync_favita_form_ht = <<<EOFORM
     <p>
         {$_conf['k_input_ht']}
         <input type="hidden" id="syncfavita" name="syncfavita" value="1">
-        <input type="submit" name="submit" value="板リストと同期">
+        <input type="submit" name="submit" value="板リストとホストを同期する">
     </p>
 </form>\n
 EOFORM;
@@ -54,6 +53,7 @@ EOFORM;
 //================================================================
 // ヘッダ
 //================================================================
+P2Util::header_nocache();
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
@@ -64,6 +64,7 @@ echo <<<EOP
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>p2 - お気に板の並び替え</title>
+    <script type="text/javascript" src="js/order.js"></script>
 EOP;
 
 @include("./style/style_css.inc");
@@ -103,12 +104,73 @@ echo <<<EOP
 EOP;
 
 echo $add_favita_form_ht;
+echo '<hr>';
 
+echo 'お気に板の並び替え';
+
+// PC
+if (empty($_conf['ktai'])) {
+
+    if ($lines) {
+        $size = sizeof($lines);
+        $script_enable_html .= <<<EOP
+        <div class="itas">
+        <form name="form" method="post" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+        <select name="select" size="{$size}">
+EOP;
+        foreach ($lines as $l) {
+            $l = rtrim($l);
+            if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
+                $itaj = rtrim($matches[3]);
+                $itaj_en = base64_encode($itaj);
+                $host = $matches[1];
+                $bbs = $matches[2];
+                $itaj_view = htmlspecialchars($itaj);
+                $itaj_ht = "&amp;itaj_en=".$itaj_en;
+                $script_enable_html .= '<option value="'.$host."@".$bbs."@".$itaj_en.'">'.$itaj_view.'</option>'."\n";
+            }
+        }
+    }
+
+    $script_enable_html .= <<<EOP
+</select>
+<input type="hidden" name="setfavita" value="submit">
+<input type="hidden" name="list">
+</form>
+</div>
+<div class="favita_menu">
+    <span class="favita_menu"><a class="te" href="javascript:order('top');" title="一番上に移動">▲</a></span>
+    <span class="favita_menu"><a class="te" href="javascript:order('up');" title="一つ上に移動">↑</a></span>
+    <span class="favita_menu"><a class="te" href="javascript:order('down');" title="一つ下に移動">↓</a></span>
+    <span class="favita_menu"><a class="te" href="javascript:order('bottom');" title="一番下に移動">▼</a></span>
+    <span class="favita_menu"><a class="te" href="javascript:order('delete');" title="削除する">×</a></span>
+    <span class="favita_menu"><a class="te" href="javascript:submitApply(); parent.menu.location.href='{$_conf['menu_php']}?nr=1'">変更を適用</a></span>
+</div>
+EOP;
+    $regex = array('/"/','/\n/');
+    $replace = array('\"', null);
+    $out = preg_replace($regex,$replace,$script_enable_html);
+
+    echo <<<EOP
+<script language=Javascript> <!-- 
+document.write("{$out}"); 
+//--></script>
+EOP;
+
+}
+
+//================================================================
+// NOSCRIPT時のHTML表示
+//================================================================
 if ($lines) {
-    echo "<table>";
+    // PC
+    if (empty($_conf['ktai'])) {
+        echo '<noscript>';
+    }
+    echo '<table>';
     foreach ($lines as $l) {
         $l = rtrim($l);
-        if (preg_match('/^\t?(.+)\t(.+)\t(.+)$/', $l, $matches)) {
+        if (preg_match('/^\t?(.+?)\t(.+?)\t(.+?)$/', $l, $matches)) {
             $itaj = rtrim($matches[3]);
             $itaj_en = rawurlencode(base64_encode($itaj));
             $host = $matches[1];
@@ -128,9 +190,15 @@ EOP;
         }
     }
     echo "</table>";
+    // PC
+    if (empty($_conf['ktai'])) {
+        echo '</noscript>';
+    }
 }
 
-if (!$_conf['ktai']) {
+// PC
+if (empty($_conf['ktai'])) {
+    echo '<hr>';
     echo $sync_favita_form_ht;
 }
 
