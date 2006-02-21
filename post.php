@@ -11,15 +11,18 @@ $_login->authorize(); // ユーザ認証
 
 if (!empty($_conf['disable_res'])) {
     P2Util::printSimpleHtml('p2 error: 書き込み機能は無効です。');
+    die('');
 }
 
 // 引数エラー
 if (empty($_POST['host'])) {
     P2Util::printSimpleHtml('p2 error: 引数の指定が変です');
+    die('');
 }
 
 if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
     P2Util::printSimpleHtml('p2 error: 不正なポストです');
+    die('');
 }
 
 //================================================================
