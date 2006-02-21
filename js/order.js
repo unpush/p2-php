@@ -2,18 +2,20 @@
 
 function makeOptionList(form_idx) 
 {
-    if (form_idx == null){fidx = 0;}
+    if (form_idx == null) {fidx = 0;}
     val = "";
     for (j=0; j<document.form[fidx].length; j++) {
         if (val > "") { val += ","; }
-        if (document.form[fidx].options[j].value > "") val += document.form[fidx].options[j].value;
+        if (document.form[fidx].options[j].value > "") {
+			val += document.form[fidx].options[j].value;
+		}
     } 
     return val;
 }
 
 function submitApply(form_idx)
 {
-    if (form_idx == null){fidx = 0;}
+    if (form_idx == null) {fidx = 0;}
     document.form['list'].value = makeOptionList(fidx);
     document.form.submit();
 }

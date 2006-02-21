@@ -33,7 +33,7 @@ function setFavIta()
     
     $list = $_POST['list'];
     
-    if (!$host && !$bbs and (!($setfavita == 'submit' && $list))) {
+    if (!$host && !$bbs and (!(!empty($_POST['submit_setfavita']) && $list))) {
         $_info_msg_ht .= "<p>p2 info: 板の指定が変です</p>";
         return false;
     }
@@ -88,7 +88,7 @@ function setFavIta()
     }
 
     // 記録データ設定
-    if ($setfavita == "submit" && $list) {
+    if (!empty($_POST['submit_setfavita']) && $list) {
         $rec_lines = array();
         foreach (explode(',', $list) as $aList) {
             list($host, $bbs, $itaj_en) = explode('@', $aList);
