@@ -13,7 +13,7 @@ $_login->authorize(); // ユーザ認証
 //================================================================
 
 // お気に板の追加・削除、並び替え
-if (isset($_GET['setfavita']) or isset($_POST['setfavita'])) {
+if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['submit_setfavita'])) {
     include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
     setFavIta();
 }
@@ -45,7 +45,7 @@ $sync_favita_form_ht = <<<EOFORM
     <p>
         {$_conf['k_input_ht']}
         <input type="hidden" id="syncfavita" name="syncfavita" value="1">
-        <input type="submit" name="submit" value="板リストとホストを同期する">
+        <input type="submit" name="submit" value="板リストとホストを同期する">（板のホスト移転に対応します）
     </p>
 </form>\n
 EOFORM;
@@ -64,7 +64,18 @@ echo <<<EOP
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>p2 - お気に板の並び替え</title>
-    <script type="text/javascript" src="js/order.js"></script>
+<script type="text/javascript" src="js/yui/YAHOO.js" ></script>
+<script type="text/javascript" src="js/yui/log.js" ></script>
+<script type="text/javascript" src="js/yui/event.js" ></script>
+<script type="text/javascript" src="js/yui/dom.js"></script>
+
+<script type="text/javascript" src="js/yui/dragdrop.js" ></script>
+		<script type="text/javascript" src="js/yui/ygDDOnTop.js" ></script>
+		<script type="text/javascript" src="js/yui/ygDDSwap.js" ></script>
+		<script type="text/javascript" src="js/yui/ygDDMy.js" ></script>
+		<script type="text/javascript" src="js/yui/ygDDMy2.js" ></script>
+		<script type="text/javascript" src="js/yui/ygDDList.js" ></script>
+		<script type="text/javascript" src="js/yui/ygDDPlayer.js" ></script>
 EOP;
 
 @include("./style/style_css.inc");
@@ -89,14 +100,72 @@ FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 $lines = file($_conf['favita_path']);
 
 // PC用
-if (!$_conf['ktai']) {
-    $onclick = " onClick='parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"'";
+if (empty($_conf['ktai']) and !empty($lines)) {
+?>
+<script type="text/javascript">
+	// var gLogger = new ygLogger("test_noimpl.php");
+	var dd = []
+	
+	function dragDropInit() {
+		var i = 0;
+		for (j = 0; j < <?php echo count($lines); ?>; ++j) {
+			dd[i++] = new ygDDList("li" + j);
+		}
+
+		dd[i++] = new ygDDListBoundary("hidden1");
+
+	    YAHOO.util.DDM.mode = 0; // 0:Point, :Intersect
+	}
+
+	YAHOO.util.Event.addListener(window, "load", dragDropInit);
+	// YAHOO.util.DDM.useCache = false;
+
+
+function makeOptionList()
+{
+    var values = [];
+	var elem = document.getElementById('italist');
+    var childs = elem.childNodes;
+    for (var i = 0; i < childs.length; i++) {
+        var c = childs[i];
+        if ((c.style.display != 'none') && (c.style.visibility != 'hidden')) {
+        	values[i] = c.name;
+        }
+    }
+    
+    var val = "";
+    for (var j = 0; j < values.length; j++) {
+        if (val > "") {
+            val += ",";
+        }
+        if (values[j] > "") {
+			val += values[j];
+		}
+    }
+    //alert(val);
+    
+    return val;
+}
+
+function submitApply()
+{
+    document.form['list'].value = makeOptionList();
+    //alert(document.form['list'].value);
+    //document.form.submit();
+}
+</script>
+<?php
+}
+
+// PC用
+if (empty($_conf['ktai'])) {
+    $onclick = " onClick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['PHP_SELF'];
     
 // 携帯用
 } else {
     $onclick = '';
-    $m_php = 'menu_k.php?view=favita&amp;nr=1'.$_conf['k_at_a'].'&amp;nt='.time();
+    $m_php = 'menu_k.php?view=favita&amp;nr=1' . $_conf['k_at_a'] . '&amp;nt=' . time();
 }
 
 echo <<<EOP
@@ -106,53 +175,64 @@ EOP;
 echo $add_favita_form_ht;
 echo '<hr>';
 
-echo 'お気に板の並び替え';
 
-// PC
-if (empty($_conf['ktai'])) {
+// PC（NetFrontを除外）
+if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
 
     if ($lines) {
-        $size = sizeof($lines);
         $script_enable_html .= <<<EOP
-        <div class="itas">
-        <form name="form" method="post" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-        <select name="select" size="{$size}">
+お気に板の並び替え（ドラッグアンドドロップ）
+<div class="itas">
+<form id="form" name="form" method="post" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+        
+<table border="0">
+<tr>
+<td class="italist" id="ddrange">
+
+<ul id="italist">
+	<li id="hidden6" class="sortList" style="visibility:hidden;">Hidden</li>
 EOP;
+        $i = 0;
         foreach ($lines as $l) {
             $l = rtrim($l);
             if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
-                $itaj = rtrim($matches[3]);
-                $itaj_en = base64_encode($itaj);
-                $host = $matches[1];
-                $bbs = $matches[2];
-                $itaj_view = htmlspecialchars($itaj);
-                $itaj_ht = "&amp;itaj_en=".$itaj_en;
-                $script_enable_html .= '<option value="'.$host."@".$bbs."@".$itaj_en.'">'.$itaj_view.'</option>'."\n";
+                $itaj       = rtrim($matches[3]);
+                $itaj_en    = base64_encode($itaj);
+                $host       = $matches[1];
+                $bbs        = $matches[2];
+                $itaj_view  = htmlspecialchars($itaj);
+                $itaj_ht    = "&amp;itaj_en=" . $itaj_en;
+                //$script_enable_html .= '<option value="' . $host . "@" . $bbs . "@" . $itaj_en . '">' . $itaj_view . '</option>'."\n";
+                $script_enable_html .= '<li id="li' . $i . '" name="' . $host . "@" . $bbs . "@" . $itaj_en . '" class="sortList">' . $itaj_view . '</li>';
+                
+                $i++;
             }
         }
     }
 
     $script_enable_html .= <<<EOP
-</select>
-<input type="hidden" name="setfavita" value="submit">
+    <li id="hidden1" style="visibility:hidden;">Hidden</li>
+</ul>
+
+</td>
+</tr>
+</table>
+
 <input type="hidden" name="list">
+
+<input type="submit" value="元に戻す">
+<input type="submit" name="submit_setfavita" value="変更を適用する" onClick="submitApply(); if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }">
+
+</div>
 </form>
-</div>
-<div class="favita_menu">
-    <span class="favita_menu"><a class="te" href="javascript:order('top');" title="一番上に移動">▲</a></span>
-    <span class="favita_menu"><a class="te" href="javascript:order('up');" title="一つ上に移動">↑</a></span>
-    <span class="favita_menu"><a class="te" href="javascript:order('down');" title="一つ下に移動">↓</a></span>
-    <span class="favita_menu"><a class="te" href="javascript:order('bottom');" title="一番下に移動">▼</a></span>
-    <span class="favita_menu"><a class="te" href="javascript:order('delete');" title="削除する">×</a></span>
-    <span class="favita_menu"><a class="te" href="javascript:submitApply(); parent.menu.location.href='{$_conf['menu_php']}?nr=1'">変更を適用</a></span>
-</div>
 EOP;
-    $regex = array('/"/','/\n/');
+
+    $regex = array('/"/', '/\n/');
     $replace = array('\"', null);
-    $out = preg_replace($regex,$replace,$script_enable_html);
+    $out = preg_replace($regex, $replace, $script_enable_html);
 
     echo <<<EOP
-<script language=Javascript> <!-- 
+<script language="Javascript"> <!-- 
 document.write("{$out}"); 
 //--></script>
 EOP;
@@ -163,10 +243,11 @@ EOP;
 // NOSCRIPT時のHTML表示
 //================================================================
 if ($lines) {
-    // PC
-    if (empty($_conf['ktai'])) {
+    // PC（NetFrontを除外）
+    if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
         echo '<noscript>';
     }
+    echo 'お気に板の並び替え';
     echo '<table>';
     foreach ($lines as $l) {
         $l = rtrim($l);
@@ -190,8 +271,8 @@ EOP;
         }
     }
     echo "</table>";
-    // PC
-    if (empty($_conf['ktai'])) {
+    // PC（NetFrontを除外）
+    if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
         echo '</noscript>';
     }
 }

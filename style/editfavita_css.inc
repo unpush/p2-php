@@ -14,21 +14,15 @@ echo <<<EOSTYLE
 		font-size:{$STYLE['menu_fontsize']};
 	}
 	
-	a:link.te{color:#999;} /* •À‚Ñ‘Ö‚¦ */
-	a:visited.te{color:#999;}
+	a:link.te{ color:#999; } /* •À‚Ñ‘Ö‚¦ */
+	a:visited.te{ color:#999; }
 	a:hover.te{color:{$STYLE['menu_ita_color_h']};}
 
-
-	span.favita_menu{
-		background-color: #dddddd;
-		color: #000;
-		border-style: solid;
-		border-color: #eef #aaf #aaa #eee;
-		border-width: 1px;
-		padding: 2px;
+	td.italist {
+		border:1px solid #dddddd;
 	}
-	span.favita_menu a:link, span.favita_menu a:visited, span.favita_menu a:hover{
-	    text-decoration: none;
+	.sortList {
+		cursor:move; width:200px; padding:4px 16px 0 0;
 	}
 
 -->

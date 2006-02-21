@@ -40,11 +40,11 @@ function showResPopUp(divID,ev){
 		//----------------------------------------
 		*/
 		
-	}else{
+	} else {
 		zNum++;
 		theResPopCtl.addResPopUp(divID); //新しいポップアップを追加
 	}
-	if(aResPopUp.timerID){clearTimeout(aResPopUp.timerID);} //非表示タイマーを解除
+	if (aResPopUp.timerID) {clearTimeout(aResPopUp.timerID);} //非表示タイマーを解除
 
 	aResPopUp.showResPopUp(ev);
 }
@@ -55,9 +55,9 @@ function showResPopUp(divID,ev){
 //==============================================================
 
 function hideResPopUp(divID){
-	if( divID.indexOf("-") != -1 ){return;} //連番(>>1-100)は非対応
+	if (divID.indexOf("-") != -1) {return;} //連番(>>1-100)は非対応
 	aResPopUp = theResPopCtl.getResPopUp(divID);
-	if(aResPopUp){
+	if (aResPopUp) {
 		aResPopUp.hideResPopUp();
 	}
 }
@@ -132,50 +132,50 @@ function ResPopCtl(){
 // ResPopUp -- レスポップアップクラス
 //==============================================================
 
-function ResPopUp(divID){
+function ResPopUp(divID) {
     this.divID = divID;
 	this.zNum = zNum;
-	this.timerID=0;
-	 if(document.all){ //IE用
+	this.timerID = 0;
+	 if (document.all) { // IE用
 		this.popOBJ = document.all[this.divID];
-	}else if(document.getElementById){ //DOM対応用（Mozilla）
+	} else if (document.getElementById) { // DOM対応用（Mozilla）
 		this.popOBJ = document.getElementById(this.divID);
 	}
 	
 	//==================================================
 	// showResPopUp -- レスポップアップを表示する関数
 	//==================================================
-	function ResPopUp_showResPopUp(ev){
-		var x_adjust=10; //x軸位置調整
-		var y_adjust=-68; //y軸位置調整
-		if(this.popOBJ.style.visibility != "visible"){
+	function ResPopUp_showResPopUp(ev) {
+		var x_adjust = 10; // x軸位置調整
+		var y_adjust = -68; // y軸位置調整
+		if (this.popOBJ.style.visibility != "visible") {
 			this.popOBJ.style.zIndex = this.zNum;
-			if(document.all){ //IE用
+			if (document.all) { // IE用
 				var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
-				x = body.scrollLeft+event.clientX; //現在のマウス位置のX座標
-				y = body.scrollTop+event.clientY; //現在のマウス位置のY座標
+				x = body.scrollLeft + event.clientX; // 現在のマウス位置のX座標
+				y = body.scrollTop + event.clientY; // 現在のマウス位置のY座標
 				this.popOBJ.style.pixelLeft  = x + x_adjust; //ポップアップ位置
 				this.popOBJ.style.pixelTop  = y + y_adjust;
 				
 				if( (this.popOBJ.offsetTop + this.popOBJ.offsetHeight) > (body.scrollTop + body.clientHeight) ){
 					this.popOBJ.style.pixelTop = body.scrollTop + body.clientHeight - this.popOBJ.offsetHeight -20;
 				}
-				if(this.popOBJ.offsetTop < body.scrollTop){
+				if (this.popOBJ.offsetTop < body.scrollTop) {
 					this.popOBJ.style.pixelTop = body.scrollTop -2;
 				}
 				
-			}else if(document.getElementById){ //DOM対応用（Mozilla）
-				x = ev.pageX; //現在のマウス位置のX座標
-				y = ev.pageY; //現在のマウス位置のY座標
+			} else if (document.getElementById) { // DOM対応用（Mozilla）
+				x = ev.pageX; // 現在のマウス位置のX座標
+				y = ev.pageY; // 現在のマウス位置のY座標
 				this.popOBJ.style.left = x + x_adjust + "px"; //ポップアップ位置
 				this.popOBJ.style.top = y + y_adjust + "px";
 				//alert(window.pageYOffset);
 				//alert(this.popOBJ.offsetTop);
 				
-				if( (this.popOBJ.offsetTop + this.popOBJ.offsetHeight) > (window.pageYOffset + window.innerHeight) ){
+				if ((this.popOBJ.offsetTop + this.popOBJ.offsetHeight) > (window.pageYOffset + window.innerHeight)) {
 					this.popOBJ.style.top = window.pageYOffset + window.innerHeight - this.popOBJ.offsetHeight -20 + "px";
 				}
-				if(this.popOBJ.offsetTop < window.pageYOffset){
+				if (this.popOBJ.offsetTop < window.pageYOffset) {
 					this.popOBJ.style.top = window.pageYOffset -2 + "px";
 				}
 				
