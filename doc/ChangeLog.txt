@@ -1,4 +1,14 @@
 2006-02-21 aki
+	* rep2 version 1.7.20
+
+	- [修正] ドラッグアンドドロップによるお気に板の並び替え後のメニューのリロードのタイミングを修正した
+	
+	- 変更のあったファイル
+		editfavita.php
+		conf/conf.inc.php
+		lib/setfavita.inc.php
+		
+2006-02-21 aki
 	* rep2 version 1.7.19
 
 	- [修正] ドラッグアンドドロップによるお気に板の並び替えがFireFoxで動作しなかったのを修正した

@@ -94,6 +94,7 @@ function setFavIta()
             list($host, $bbs, $itaj_en) = explode('@', $aList);
             $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
         }
+        $_info_msg_ht .= "<script language=\"javascript\">if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
         
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";

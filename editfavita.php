@@ -240,7 +240,7 @@ EOP;
 <input type="hidden" name="list">
 
 <input type="submit" value="元に戻す">
-<input type="submit" name="submit_setfavita" value="変更を適用する" onClick="submitApply(); if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }">
+<input type="submit" name="submit_setfavita" value="変更を適用する" onClick="submitApply();">
 
 </div>
 </form>
