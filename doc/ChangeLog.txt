@@ -1,3 +1,33 @@
+2006-02-21 aki
+	* rep2 version 1.7.18
+	
+	- [改良] お気に板の並び替えをドラッグアンドドロップで行えるようにした
+	  （ライブラリ公開感謝 → Yahoo! User Interface Library）
+	  
+	- [バグ修正] 無効な書き込みが無効になっていなかったのを修正した
+	
+	- 新規追加されたファイル
+		js/yui/YAHOO.js
+		js/yui/dom.js
+		js/yui/dragdrop.js
+		js/yui/event.js
+		js/yui/log.js
+		js/yui/ygDDList.js
+		js/yui/ygDDMy.js
+		js/yui/ygDDMy2.js
+		js/yui/ygDDOnTop.js
+		js/yui/ygDDPlayer.js
+		js/yui/ygDDSwap.js
+		
+	- 変更のあったファイル
+		editfavita.php
+		post.php
+		conf/conf.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/setfavita.inc.php
+		style/editfavita_css.inc
+
 2006-02-20 aki
 	* rep2 version 1.7.17
 	
