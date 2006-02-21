@@ -896,6 +896,20 @@ ERR;
     {
         echo "<html><body>{$body}</body></html>";
     }
+    
+    /**
+     * isNetFront?
+     *
+     * @return boolean
+     */
+    function isNetFront()
+    {
+        if (preg_match('/(NetFront|AVEFront\/|AVE-Front\/)/', $_SERVER['HTTP_USER_AGENT'])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 ?>
