@@ -98,6 +98,25 @@ $_info_msg_ht = '';
 FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 // favita読み込み
 $lines = file($_conf['favita_path']);
+$okini_itas = array();
+
+$i = 0;
+if (is_array($lines)) {
+    foreach ($lines as $l) {
+        if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)$/", rtrim($l), $matches)) {
+            $id = "li{$i}";
+            $okini_itas[$id]['itaj']       = $itaj = rtrim($matches[3]);
+            $okini_itas[$id]['itaj_en']    = $itaj_en = base64_encode($itaj);
+            $okini_itas[$id]['host']       = $host = $matches[1];
+            $okini_itas[$id]['bbs']        = $bbs = $matches[2];
+            $okini_itas[$id]['itaj_view']  = htmlspecialchars($itaj);
+            $okini_itas[$id]['itaj_ht']    = "&amp;itaj_en=" . $itaj_en;
+            $okini_itas[$id]['value']      = $host . "@" . $bbs . "@" . $itaj_en;
+
+            $i++;
+        }
+    }
+}
 
 // PC用
 if (empty($_conf['ktai']) and !empty($lines)) {
@@ -105,12 +124,21 @@ if (empty($_conf['ktai']) and !empty($lines)) {
 <script type="text/javascript">
 	// var gLogger = new ygLogger("test_noimpl.php");
 	var dd = []
-	
+	var gVarObj = new Object();
+    
 	function dragDropInit() {
 		var i = 0;
-		for (j = 0; j < <?php echo count($lines); ?>; ++j) {
-			dd[i++] = new ygDDList("li" + j);
+		var id = '';
+        for (j = 0; j < <?php echo count($lines); ?>; ++j) {
+            id = "li" + j;
+			dd[i++] = new ygDDList(id);
+            //gVarObj[id] = '<?php echo $host . "@" . $bbs . "@" . $itaj_en; ?>';
 		}
+        <?php
+        foreach ($okini_itas as $k => $v) {
+            echo "gVarObj['{$k}'] = '{$v['host']}@{$v['bbs']}@{$v['itaj_en']}';";
+        }
+        ?>
 
 		dd[i++] = new ygDDListBoundary("hidden1");
 
@@ -127,9 +155,12 @@ function makeOptionList()
 	var elem = document.getElementById('italist');
     var childs = elem.childNodes;
     for (var i = 0; i < childs.length; i++) {
-        var c = childs[i];
-        if ((c.style.display != 'none') && (c.style.visibility != 'hidden')) {
-        	values[i] = c.name;
+        if (childs[i].style.visibility != 'hidden') {
+            
+            if (childs[i].style.display != 'none') {
+                values[i] = gVarObj[childs[i].id];
+                //alert(values[i]);
+            }
         }
     }
     
@@ -189,30 +220,18 @@ if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
 <tr>
 <td class="italist" id="ddrange">
 
-<ul id="italist">
-	<li id="hidden6" class="sortList" style="visibility:hidden;">Hidden</li>
+<ul id="italist"><li id="hidden6" class="sortList" style="visibility:hidden;">Hidden</li>
 EOP;
-        $i = 0;
-        foreach ($lines as $l) {
-            $l = rtrim($l);
-            if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
-                $itaj       = rtrim($matches[3]);
-                $itaj_en    = base64_encode($itaj);
-                $host       = $matches[1];
-                $bbs        = $matches[2];
-                $itaj_view  = htmlspecialchars($itaj);
-                $itaj_ht    = "&amp;itaj_en=" . $itaj_en;
-                //$script_enable_html .= '<option value="' . $host . "@" . $bbs . "@" . $itaj_en . '">' . $itaj_view . '</option>'."\n";
-                $script_enable_html .= '<li id="li' . $i . '" name="' . $host . "@" . $bbs . "@" . $itaj_en . '" class="sortList">' . $itaj_view . '</li>';
-                
-                $i++;
+        if (is_array($okini_itas)) {
+            foreach ($okini_itas as $k => $v) {
+                $script_enable_html .= '<li id="' . $k . '" class="sortList">' . $v['itaj_view'] . '</li>';
             }
         }
+
     }
 
     $script_enable_html .= <<<EOP
-    <li id="hidden1" style="visibility:hidden;">Hidden</li>
-</ul>
+<li id="hidden1" style="visibility:hidden;">Hidden</li></ul>
 
 </td>
 </tr>
@@ -249,15 +268,15 @@ if ($lines) {
     }
     echo 'お気に板の並び替え';
     echo '<table>';
+    
     foreach ($lines as $l) {
-        $l = rtrim($l);
-        if (preg_match('/^\t?(.+?)\t(.+?)\t(.+?)$/', $l, $matches)) {
-            $itaj = rtrim($matches[3]);
-            $itaj_en = rawurlencode(base64_encode($itaj));
-            $host = $matches[1];
-            $bbs = $matches[2];
-            $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
-            $itaj_q = '&amp;itaj_en='.$itaj_en;
+        if (preg_match('/^\t?(.+?)\t(.+?)\t(.+?)$/', rtrim($l), $matches)) {
+            $itaj       = rtrim($matches[3]);
+            $itaj_en    = rawurlencode(base64_encode($itaj));
+            $host       = $matches[1];
+            $bbs        = $matches[2];
+            $itaj_view  = htmlspecialchars($itaj, ENT_QUOTES);
+            $itaj_q     = '&amp;itaj_en=' . $itaj_en;
             echo <<<EOP
             <tr>
             <td><a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}">{$itaj_view}</a></td>
@@ -270,6 +289,7 @@ if ($lines) {
 EOP;
         }
     }
+    
     echo "</table>";
     // PC（NetFrontを除外）
     if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
@@ -287,7 +307,7 @@ if (empty($_conf['ktai'])) {
 // フッタHTML表示
 //================================================================
 if ($_conf['ktai']) {
-    echo '<hr>'.$_conf['k_to_index_ht'];
+    echo '<hr>' . $_conf['k_to_index_ht'];
 }
 
 echo '</body></html>';
