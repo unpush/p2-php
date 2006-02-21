@@ -67,6 +67,7 @@ $aShowBrdMenuPc =& new ShowBrdMenuPc();
 $reloaded_time = date('n/j G:i:s'); // çXêVéûçè
 $ptitle = 'p2 - menu';
 
+P2Util::header_nocache();
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
