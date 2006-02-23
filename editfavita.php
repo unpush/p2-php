@@ -155,12 +155,9 @@ function makeOptionList()
 	var elem = document.getElementById('italist');
     var childs = elem.childNodes;
     for (var i = 0; i < childs.length; i++) {
-        if (childs[i].style.visibility != 'hidden') {
-            
-            if (childs[i].style.display != 'none') {
-                values[i] = gVarObj[childs[i].id];
-                //alert(values[i]);
-            }
+        if (childs[i].tagName == 'LI' && childs[i].style.visibility != 'hidden' && childs[i].style.display != 'none') {
+            values[i] = gVarObj[childs[i].id];
+            //alert(values[i]);
         }
     }
     
