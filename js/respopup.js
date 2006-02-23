@@ -10,141 +10,152 @@ document.writeln('</style>');
 document.close;
 */
 
-delaySec = 0.3 * 1000;	//レスポップアップを非表示にする遅延時間。秒。
-zNum=0;
+delaySec = 0.3 * 1000;	// レスポップアップを非表示にする遅延時間。秒。
+zNum = 0;
 
 //==============================================================
-// POPS -- ResPopUp オブジェクトを格納する配列。
-// 配列 POPS の要素数が、現在生きている ResPopUp オブジェクトの数となる。
+// gPOPS -- ResPopUp オブジェクトを格納する配列。
+// 配列 gPOPS の要素数が、現在生きている ResPopUp オブジェクトの数となる。
 //==============================================================
-POPS = new Array(); 
+gPOPS = new Array(); 
 
-theResPopCtl = new ResPopCtl();
+gResPopCtl = new ResPopCtl();
 
-//==============================================================
-// showResPopUp -- レスポップアップを表示する関数
-// 引用レス番に onMouseover で呼び出される
-//==============================================================
-
-function showResPopUp(divID,ev){
-	if( divID.indexOf("-") != -1 ){return;} //連番(>>1-100)は非対応
-	aResPopUp = theResPopCtl.getResPopUp(divID);
-	if(aResPopUp){
+/**
+ * レスポップアップを表示する
+ *
+ * 引用レス番に onMouseover で呼び出される
+ */
+function showResPopUp(divID, ev) {
+	if (divID.indexOf("-") != -1 ) { return; } // 連番 (>>1-100) は非対応
+	
+	aResPopUp = gResPopCtl.getResPopUp(divID);
+	if (aResPopUp) {
 	
 		/*
 		//再表示時の zIndex 処理------------------------
 		// しかしなぜか期待通りの動作をしてくれない。
 		// IEとMozillaで挙動も違う。よって非アクティブ。
-		aResPopUp.zNum=zNum;
-		aResPopUp.popOBJ.style.zIndex=aResPopUp.zNum;
+		aResPopUp.zNum = zNum;
+		aResPopUp.popOBJ.style.zIndex = aResPopUp.zNum;
 		//----------------------------------------
 		*/
 		
 	} else {
 		zNum++;
-		theResPopCtl.addResPopUp(divID); // 新しいポップアップを追加
+		gResPopCtl.addResPopUp(divID); // 新しいポップアップを追加
 	}
-	if (aResPopUp.timerID) {clearTimeout(aResPopUp.timerID);} // 非表示タイマーを解除
+	if (aResPopUp.timerID) { clearTimeout(aResPopUp.timerID); } // 非表示タイマーを解除
 
 	aResPopUp.showResPopUp(ev);
 }
 
-//==============================================================
-// レスポップアップを非表示タイマーする
-// 引用レス番から onMouseout で呼び出される
-//==============================================================
+/**
+ * レスポップアップを非表示タイマーする
+ *
+ * 引用レス番から onMouseout で呼び出される
+ */
 function hideResPopUp(divID) {
-	if (divID.indexOf("-") != -1) {return;} // 連番(>>1-100)は非対応
-	aResPopUp = theResPopCtl.getResPopUp(divID);
+	if (divID.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応
+	
+	aResPopUp = gResPopCtl.getResPopUp(divID);
 	if (aResPopUp) {
 		aResPopUp.hideResPopUp();
 	}
 }
 
-//==============================================================
-// レスポップアップを非表示にする
-//==============================================================
-function hideResPopUp2(divID) {
-	aResPopUp = theResPopCtl.getResPopUp(divID);
-	aResPopUp.hideResPopUp2();
+/**
+ * レスポップアップを非表示にする
+ */
+function doHideResPopUp(divID) {
+	aResPopUp = gResPopCtl.getResPopUp(divID);
+	if (aResPopUp)
+		aResPopUp.doHideResPopUp();
+	}
 }
 
 
-//==============================================================
-// ResPopCtl  -- オブジェクトデータをコントロールするクラス
-//==============================================================
+/**
+ * オブジェクトデータをコントロールするクラス
+ */
+function ResPopCtl() {
 
-function ResPopCtl(){
-
-	//==================================================
-	// 配列 POPS に新規 ResPopUp オブジェクト を追加する
-	//==================================================
-	function ResPopCtl_addResPopUp(divID){
+	/**
+	 * 配列 gPOPS に新規 ResPopUp オブジェクト を追加する
+	 */
+	ResPopCtl.prototype.addResPopUp = function (divID) {
 		aResPopUp = new ResPopUp(divID);
-		//POPS.push(aResPopUp); Array.push はIE5.5未満未対応なので代替処理
-		POPS[POPS.length] = aResPopUp;
+		// gPOPS.push(aResPopUp); Array.push はIE5.5未満未対応なので代替処理
+		gPOPS[gPOPS.length] = aResPopUp;
 	}
-	ResPopCtl.prototype.addResPopUp = ResPopCtl_addResPopUp;
 	
-	//==================================================
-	// 配列 POPS から 指定の ResPopUp オブジェクト を削除する
-	//==================================================
-	function ResPopCtl_rmResPopUp(divID){
-		for (i = 0; i < POPS.length; i++) {
-	    	if(POPS[i].divID == divID){
-				//POPS.splice(i, 1); Array.splice はIE5.5未満未対応なので代替処理
-				
-				POPS2 = new Array();
-				for(j=0; j < POPS.length; j++){
-					if(j != i){
-						POPS2[POPS2.length]=POPS[j];
-					}
-				}
-				POPS=POPS2;
-				
+	/**
+	 * 配列 gPOPS から 指定の ResPopUp オブジェクト を削除する
+	 */
+	ResPopCtl.prototype.rmResPopUp = function (divID) {
+		for (i = 0; i < gPOPS.length; i++) {
+	    	if (gPOPS[i].divID == divID) {
+
+				gPOPS = arraySplice(gPOPS, i);
+			
 				return true;
 			}
 		}
 		return false;
 	}
-	ResPopCtl.prototype.rmResPopUp = ResPopCtl_rmResPopUp;
 
-	//==================================================
-	// 配列 POPS で指定 divID の ResPopUp オブジェクトを返す
-	//==================================================
-	function ResPopCtl_getResPopUp(divID){
-		for (i = 0; i < POPS.length; i++) {
-	    	if(POPS[i].divID == divID){
-				return POPS[i];
+	/**
+	 * 配列 gPOPS で指定 divID の ResPopUp オブジェクトを返す
+	 */
+	ResPopCtl.prototype.getResPopUp = function (divID) {
+		for (i = 0; i < gPOPS.length; i++) {
+	    	if (gPOPS[i].divID == divID) {
+				return gPOPS[i];
 			}
 		}
 		return false;
 	}
-	ResPopCtl.prototype.getResPopUp = ResPopCtl_getResPopUp;
 	
 	return this;
 }
 
+/**
+ * arraySplice
+ *
+ * anArray.splice(i, 1); Array.splice はIE5.5未満未対応なので代替処理
+ * @return array
+ */
+function arraySplice(anArray, i) {
+	var newArray = new Array();
+	for (j = 0; j < anArray.length; j++) {
+		if (j != i) {
+			newArray[newArray.length] = anArray[j];
+		}
+	}
+	return newArray;
+}
 
-//==============================================================
-// レスポップアップクラス
-//==============================================================
+/**
+ * レスポップアップクラス
+ */
 function ResPopUp(divID) {
+	
     this.divID = divID;
 	this.zNum = zNum;
 	this.timerID = 0;
-	 if (document.all) { // IE用
+	
+	if (document.all) { // IE用
 		this.popOBJ = document.all[this.divID];
 	} else if (document.getElementById) { // DOM対応用（Mozilla）
 		this.popOBJ = document.getElementById(this.divID);
 	}
 	
-	//==================================================
-	// レスポップアップを表示する
-	//==================================================
-	function ResPopUp_showResPopUp(ev) {
-		var x_adjust = 10; // x軸位置調整
-		var y_adjust = -68; // y軸位置調整
+	/**
+	 * レスポップアップを表示する
+	 */
+	ResPopUp.prototype.showResPopUp = function (ev) {
+		var x_adjust = 10;	// x軸位置調整
+		var y_adjust = -68;	// y軸位置調整
 		if (this.popOBJ.style.visibility != "visible") {
 			this.popOBJ.style.zIndex = this.zNum;
 			if (document.all) { // IE用
@@ -177,38 +188,35 @@ function ResPopUp(divID) {
 				}
 				
 			}
-			this.popOBJ.style.visibility = "visible"; //レスポップアップ表示
+			this.popOBJ.style.visibility = "visible"; // レスポップアップ表示
 		}
     }
-	ResPopUp.prototype.showResPopUp = ResPopUp_showResPopUp;
 	
-	//==================================================
-	// レスポップアップを非表示タイマーする
-	//==================================================
-	function ResPopUp_hideResPopUp(){
-		this.timerID = setTimeout("hideResPopUp2('"+this.divID+"')", delaySec); //一定時間表示したら消す
+	/**
+	 * レスポップアップを非表示タイマーする
+	 */
+	ResPopUp.prototype.hideResPopUp = function () {
+		this.timerID = setTimeout("doHideResPopUp('" + this.divID + "')", delaySec); // 一定時間表示したら消す
 	}
-	ResPopUp.prototype.hideResPopUp = ResPopUp_hideResPopUp;
 
-	//==================================================
-	// レスポップアップを非表示にする
-	//==================================================
-	function ResPopUp_hideResPopUp2(){
+	/**
+	 * レスポップアップを非表示にする
+	 */
+	ResPopUp.prototype.doHideResPopUp = function () {
 
-		for (i=0; i < POPS.length; i++) {
+		for (i=0; i < gPOPS.length; i++) {
 		
-			if(this.zNum < POPS[i].zNum){
-				//clearTimeout(this.timerID); //タイマーを解除
-				this.timerID = setTimeout("hideResPopUp('"+this.divID+"')", delaySec); //一定時間表示したら消す
+			if (this.zNum < gPOPS[i].zNum) {
+				//clearTimeout(this.timerID); // タイマーを解除
+				this.timerID = setTimeout("hideResPopUp('" + this.divID + "')", delaySec); // 一定時間表示したら消す
 				return;
 			}
 		}
 		
-		this.popOBJ.style.visibility = "hidden"; //レスポップアップ非表示
-		//clearTimeout(this.timerID); //タイマーを解除
-		theResPopCtl.rmResPopUp(this.divID);
+		this.popOBJ.style.visibility = "hidden"; // レスポップアップ非表示
+		// clearTimeout(this.timerID); // タイマーを解除
+		gResPopCtl.rmResPopUp(this.divID);
 	}
-	ResPopUp.prototype.hideResPopUp2 = ResPopUp_hideResPopUp2;
-		
+	
 	return this;
 }
