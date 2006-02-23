@@ -27,13 +27,13 @@ gResPopCtl = new ResPopCtl();
  * 引用レス番に onMouseover で呼び出される
  */
 function showResPopUp(divID, ev) {
-	if (divID.indexOf("-") != -1 ) { return; } // 連番 (>>1-100) は非対応
+	if (divID.indexOf("-") != -1 ) { return; } // 連番 (>>1-100) は非対応なので抜ける
 	
 	aResPopUp = gResPopCtl.getResPopUp(divID);
 	if (aResPopUp) {
 	
 		/*
-		//再表示時の zIndex 処理------------------------
+		// 再表示時の zIndex 処理 ------------------------
 		// しかしなぜか期待通りの動作をしてくれない。
 		// IEとMozillaで挙動も違う。よって非アクティブ。
 		aResPopUp.zNum = zNum;
@@ -45,7 +45,7 @@ function showResPopUp(divID, ev) {
 		zNum++;
 		gResPopCtl.addResPopUp(divID); // 新しいポップアップを追加
 	}
-	if (aResPopUp.timerID) { clearTimeout(aResPopUp.timerID); } // 非表示タイマーを解除
+	if (aResPopUp.hideTimerID) { clearTimeout(aResPopUp.hideTimerID); } // 非表示タイマーを解除
 
 	aResPopUp.showResPopUp(ev);
 }
@@ -56,7 +56,7 @@ function showResPopUp(divID, ev) {
  * 引用レス番から onMouseout で呼び出される
  */
 function hideResPopUp(divID) {
-	if (divID.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応
+	if (divID.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
 	
 	aResPopUp = gResPopCtl.getResPopUp(divID);
 	if (aResPopUp) {
@@ -69,7 +69,7 @@ function hideResPopUp(divID) {
  */
 function doHideResPopUp(divID) {
 	aResPopUp = gResPopCtl.getResPopUp(divID);
-	if (aResPopUp)
+	if (aResPopUp) {
 		aResPopUp.doHideResPopUp();
 	}
 }
@@ -142,7 +142,7 @@ function ResPopUp(divID) {
 	
     this.divID = divID;
 	this.zNum = zNum;
-	this.timerID = 0;
+	this.hideTimerID = 0;
 	
 	if (document.all) { // IE用
 		this.popOBJ = document.all[this.divID];
@@ -196,7 +196,7 @@ function ResPopUp(divID) {
 	 * レスポップアップを非表示タイマーする
 	 */
 	ResPopUp.prototype.hideResPopUp = function () {
-		this.timerID = setTimeout("doHideResPopUp('" + this.divID + "')", delaySec); // 一定時間表示したら消す
+		this.hideTimerID = setTimeout("doHideResPopUp('" + this.divID + "')", delaySec); // 一定時間表示したら消す
 	}
 
 	/**
@@ -207,14 +207,14 @@ function ResPopUp(divID) {
 		for (i=0; i < gPOPS.length; i++) {
 		
 			if (this.zNum < gPOPS[i].zNum) {
-				//clearTimeout(this.timerID); // タイマーを解除
-				this.timerID = setTimeout("hideResPopUp('" + this.divID + "')", delaySec); // 一定時間表示したら消す
+				//clearTimeout(this.hideTimerID); // タイマーを解除
+				this.hideTimerID = setTimeout("hideResPopUp('" + this.divID + "')", delaySec); // 一定時間表示したら消す
 				return;
 			}
 		}
 		
 		this.popOBJ.style.visibility = "hidden"; // レスポップアップ非表示
-		// clearTimeout(this.timerID); // タイマーを解除
+		// clearTimeout(this.hideTimerID); // タイマーを解除
 		gResPopCtl.rmResPopUp(this.divID);
 	}
 	
