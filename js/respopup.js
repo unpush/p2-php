@@ -42,20 +42,19 @@ function showResPopUp(divID,ev){
 		
 	} else {
 		zNum++;
-		theResPopCtl.addResPopUp(divID); //新しいポップアップを追加
+		theResPopCtl.addResPopUp(divID); // 新しいポップアップを追加
 	}
-	if (aResPopUp.timerID) {clearTimeout(aResPopUp.timerID);} //非表示タイマーを解除
+	if (aResPopUp.timerID) {clearTimeout(aResPopUp.timerID);} // 非表示タイマーを解除
 
 	aResPopUp.showResPopUp(ev);
 }
 
 //==============================================================
-// hideResPopUp -- レスポップアップを非表示タイマーする関数
+// レスポップアップを非表示タイマーする
 // 引用レス番から onMouseout で呼び出される
 //==============================================================
-
-function hideResPopUp(divID){
-	if (divID.indexOf("-") != -1) {return;} //連番(>>1-100)は非対応
+function hideResPopUp(divID) {
+	if (divID.indexOf("-") != -1) {return;} // 連番(>>1-100)は非対応
 	aResPopUp = theResPopCtl.getResPopUp(divID);
 	if (aResPopUp) {
 		aResPopUp.hideResPopUp();
@@ -63,10 +62,9 @@ function hideResPopUp(divID){
 }
 
 //==============================================================
-// hideResPopUp2 -- レスポップアップを非表示にする関数
+// レスポップアップを非表示にする
 //==============================================================
-
-function hideResPopUp2(divID){
+function hideResPopUp2(divID) {
 	aResPopUp = theResPopCtl.getResPopUp(divID);
 	aResPopUp.hideResPopUp2();
 }
@@ -79,7 +77,7 @@ function hideResPopUp2(divID){
 function ResPopCtl(){
 
 	//==================================================
-	// 配列 POPS に新規 ResPopUp オブジェクト を追加する関数
+	// 配列 POPS に新規 ResPopUp オブジェクト を追加する
 	//==================================================
 	function ResPopCtl_addResPopUp(divID){
 		aResPopUp = new ResPopUp(divID);
@@ -89,7 +87,7 @@ function ResPopCtl(){
 	ResPopCtl.prototype.addResPopUp = ResPopCtl_addResPopUp;
 	
 	//==================================================
-	// 配列 POPS から 指定の ResPopUp オブジェクト を削除する関数
+	// 配列 POPS から 指定の ResPopUp オブジェクト を削除する
 	//==================================================
 	function ResPopCtl_rmResPopUp(divID){
 		for (i = 0; i < POPS.length; i++) {
@@ -112,7 +110,7 @@ function ResPopCtl(){
 	ResPopCtl.prototype.rmResPopUp = ResPopCtl_rmResPopUp;
 
 	//==================================================
-	// 配列 POPS で指定 divID の ResPopUp オブジェクトを返す関数
+	// 配列 POPS で指定 divID の ResPopUp オブジェクトを返す
 	//==================================================
 	function ResPopCtl_getResPopUp(divID){
 		for (i = 0; i < POPS.length; i++) {
@@ -129,9 +127,8 @@ function ResPopCtl(){
 
 
 //==============================================================
-// ResPopUp -- レスポップアップクラス
+// レスポップアップクラス
 //==============================================================
-
 function ResPopUp(divID) {
     this.divID = divID;
 	this.zNum = zNum;
@@ -143,7 +140,7 @@ function ResPopUp(divID) {
 	}
 	
 	//==================================================
-	// showResPopUp -- レスポップアップを表示する関数
+	// レスポップアップを表示する
 	//==================================================
 	function ResPopUp_showResPopUp(ev) {
 		var x_adjust = 10; // x軸位置調整
@@ -186,7 +183,7 @@ function ResPopUp(divID) {
 	ResPopUp.prototype.showResPopUp = ResPopUp_showResPopUp;
 	
 	//==================================================
-	// hideResPopUp -- レスポップアップを非表示タイマーする関数
+	// レスポップアップを非表示タイマーする
 	//==================================================
 	function ResPopUp_hideResPopUp(){
 		this.timerID = setTimeout("hideResPopUp2('"+this.divID+"')", delaySec); //一定時間表示したら消す
@@ -194,11 +191,11 @@ function ResPopUp(divID) {
 	ResPopUp.prototype.hideResPopUp = ResPopUp_hideResPopUp;
 
 	//==================================================
-	// hideResPopUp2 -- レスポップアップを非表示にする関数
+	// レスポップアップを非表示にする
 	//==================================================
 	function ResPopUp_hideResPopUp2(){
 
-		for(i=0; i < POPS.length; i++){
+		for (i=0; i < POPS.length; i++) {
 		
 			if(this.zNum < POPS[i].zNum){
 				//clearTimeout(this.timerID); //タイマーを解除
