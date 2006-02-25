@@ -230,8 +230,9 @@ if (empty($errors) && $_SERVER['REQUEST_METHOD'] != 'POST') {
         } else {
             $parts = $aThread->explodeDatLine($aThread->datlines[$offset]);
             $text = $parts[3];
-            $text = strip_tags($text, '<br>');
-            $text = preg_replace('/\s*<br>\s*/', "\n", $text);
+            $text = strip_tags($text, '<br><hr>');
+            $text = preg_replace('/\s*<br[^<>]*>\s*/i', "\n", $text);
+            $text = preg_replace('/\s*<hr[^<>]*>\s*/i', "\n------------------------\n", $text);
             $text = trim($text);
         }
     }
