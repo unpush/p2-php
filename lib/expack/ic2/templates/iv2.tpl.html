@@ -15,8 +15,9 @@
 	<script type="text/javascript" src="js/iv2.js"></script>
 	<script type="text/javascript" src="js/respopup.js"></script>
 	{js:h}
+	{lightbox:h}
 </head>
-<body onload="setWinTitle()">
+<body>
 
 <div id="header"><flexy:include src="_iv2_ctrl.tpl.html"/></div>
 
@@ -39,7 +40,7 @@
 {end:}
 		<td align="center" valign="middle">
 {if:item}
-			<a href="{item[src]}" target="_blank">
+			<a href="{item[src]}" target="_blank" flexy:raw="{item[lightbox_attr]:h}">
 				<img src="{item[thumb]}" id="img{item[id]}" width="{item[t_width]:h}" height="{item[t_height]:h}" alt="{item[name]}" border="0" />
 			</a>
 {if:popup}

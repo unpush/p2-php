@@ -181,6 +181,7 @@ if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">\n
@@ -197,17 +198,13 @@ EOP;
 echo <<<EOP
     <title>{$ptitle_hd}</title>
     <base target="read">
-EOP;
-
-@include("./style/style_css.inc"); //基本スタイルシート読込
-@include("./style/subject_css.inc"); //subject用スタイルシート読込
-
-echo <<<EOJS
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=subject&amp;skin={$skin_en}" type="text/css">
     <script type="text/javascript" src="js/basic.js"></script>
     <script type="text/javascript" src="js/setfavjs.js"></script>
     <script type="text/javascript" src="js/settabornjs.js"></script>
     <script type="text/javascript" src="js/delelog.js"></script>
-    <script language="JavaScript">
+    <script type="text/javascript">
     <!--
     function setWinTitle(){
         var shinchaku_ari = "$shinchaku_attayo";
@@ -217,7 +214,6 @@ echo <<<EOJS
             if (top != self) {top.document.title=self.document.title;}
         }
     }
-
     function chNewAllColor()
     {
         var smynum1 = document.getElementById('smynum1');
@@ -255,12 +251,12 @@ echo <<<EOJS
         }
     }
     // -->
-    </script>
-EOJS;
+    </script>\n
+EOP;
 
 if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
     echo <<<EOJS
-    <script language="javascript">
+    <script type="text/javascript">
     <!--
     function checkAll(){
         var trk = 0;

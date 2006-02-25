@@ -86,7 +86,7 @@ function DBGetTrip(tk)
 	if (!objHTTP) {
 		return 'ÅüXMLHTTP Disabled.';
 	}
-	var uri = 'tripper.php?tk=' + encodeURI(tk);
+	var uri = 'tripper.php?tk=' + encodeURIComponent(tk);
 	objHTTP.open('GET', uri, false);
 	objHTTP.send(null);
 	if ((objHTTP.status != 200 || objHTTP.readyState != 4) && !objHTTP.responseText) {

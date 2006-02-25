@@ -148,13 +148,10 @@ EOP;
 if (empty($_conf['ktai'])) {
     echo <<<EOP
     <script type="text/javascript" src="js/basic.js"></script>
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
 EOP;
-}
-
-if (empty($_conf['ktai'])) {
-    @include("./style/style_css.inc");
-    @include("./style/edit_conf_user_css.inc");
 }
 
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';

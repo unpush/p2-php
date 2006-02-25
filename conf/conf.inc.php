@@ -5,8 +5,8 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.15';
-$_conf['p2expack'] = '060220.0248';
+$_conf['p2version'] = '1.7.21';
+$_conf['p2expack'] = '060226.0650';
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 
@@ -230,7 +230,7 @@ $_conf['cache_dir'] = $_conf['data_dir'] . '/cache'; // 2005/6/29 $_conf['pref_d
 $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
 
-$_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">'."\n";
+$_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">';
 
 // {{{ 端末判定
 
@@ -661,10 +661,13 @@ $_login =& new Login();
  */
 function stripslashes_r($var, $r = 0)
 {
-    if (is_array($var) && $r < 3) {
-        foreach ($var as $key => $value) {
-            $var[$key] = stripslashes_r($value, ++$r);
-        }
+    if (is_array($var)) {
+        if ($r < 3) {
+            $r++;
+            foreach ($var as $key => $value) {
+                $var[$key] = stripslashes_r($value, $r);
+            }
+        } /* else { die("too deep multi dimentional array given."); } */
     } elseif (is_string($var)) {
         $var = stripslashes($var);
     }
@@ -677,10 +680,13 @@ function stripslashes_r($var, $r = 0)
  */
 function addslashes_r($var, $r = 0)
 {
-    if (is_array($var) && $r < 3) {
-        foreach ($var as $key => $value) {
-            $var[$key] = addslashes_r($value, ++$r);
-        }
+    if (is_array($var)) {
+        if ($r < 3) {
+            $r++;
+            foreach ($var as $key => $value) {
+                $var[$key] = addslashes_r($value, $r);
+            }
+        } /* else { die("too deep multi dimentional array given."); } */
     } elseif (is_string($var)) {
         $var = addslashes($var);
     }
@@ -695,12 +701,15 @@ function addslashes_r($var, $r = 0)
  */
 function nullfilter_r($var, $r = 0)
 {
-    if (is_array($var) && $r < 3) {
-        foreach ($var as $key => $value) {
-            $var[$key] = nullfilter_r($value, ++$r);
-        }
+    if (is_array($var)) {
+        if ($r < 3) {
+            $r++;
+            foreach ($var as $key => $value) {
+                $var[$key] = nullfilter_r($value, $r);
+            }
+        } /* else { die("too deep multi dimentional array given."); } */
     } elseif (is_string($var)) {
-        $var = str_replace(chr(0), '', $var);
+        $var = str_replace("\x00", '', $var);
     }
     return $var;
 }
@@ -789,8 +798,8 @@ function fontconfig_detect_agent($ua = null)
  */
 function fontconfig_apply_custom()
 {
-    global $STYLE, $_conf, $skin_en;
-
+    global $STYLE, $_conf, $skin_en, $font_hash;
+    $font_hash = '';
     if ($_conf['expack.skin.enabled']) {
         $_conf['expack.am.fontfamily.orig'] = (isset($_conf['expack.am.fontfamily']))
             ? $_conf['expack.am.fontfamily'] : '';
@@ -803,8 +812,9 @@ function fontconfig_apply_custom()
             $current_fontconfig = array('enabled' => false, 'custom' => array());
         }
         if ($current_fontconfig['enabled'] && is_array($current_fontconfig['custom'][$type])) {
-            $skin_en = preg_replace('/&amp;fchash=[0-9a-f]{32}\b/', '', $skin_en);
-            $skin_en .= '&amp;fchash=' . md5($fontconfig_data);
+            $font_hash = md5($fontconfig_data);
+            $skin_en = preg_replace('/&amp;hash=[0-9a-f]{32}\b/', '', $skin_en);
+            $skin_en .= '&amp;hash=' . $font_hash;
             foreach ($current_fontconfig['custom'][$type] as $key => $value) {
                 if (strstr($key, 'fontfamily') && $value == '-') {
                     if ($key == 'fontfamily_aa') {
@@ -823,6 +833,28 @@ function fontconfig_apply_custom()
                 }
             }
         }
+    }
+}
+
+/**
+ * スタイルシートを読み込むタグを表示
+ */
+function print_style_tags()
+{
+    global $skin_name, $font_hash;
+    $style_a = '';
+    if ($skin_name) { $style_a .= '&skin=' . urlencode($skin_name); }
+    if ($font_hash) { $style_a .= '&hash=' . urlencode($font_hash); }
+    if ($styles = func_get_args()) {
+        echo "\t<style type=\"text/css\">\n";
+        echo "\t<!-->\n";
+        foreach ($styles as $style) {
+            if (file_exists(P2_STYLE_DIR . '/' . $style . '_css.inc')) {
+                printf("\t@import 'css.php?css=%s%s';\n", $style, $style_a);
+            }
+        }
+        echo "\t-->\n";
+        echo "\t</style>\n";
     }
 }
 
@@ -874,7 +906,7 @@ function _combinehfskana($m)
     if ($m[1]) {
         $C = unpack('C*', $m[1]);
         $C[3] += 1;
-    } else {
+    } elseif ($m[2]) {
         $C = unpack('C*', $m[2]);
         $C[3] += 2;
     }

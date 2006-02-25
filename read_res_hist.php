@@ -102,27 +102,27 @@ echo <<<EOP
 EOP;
 
 // PC用表示
-if (!$_conf['ktai']) {
-    @include("style/style_css.inc"); // スタイルシート
-    @include("style/read_css.inc"); // スタイルシート
-
-    echo <<<EOSCRIPT
+if (empty($_conf['ktai'])) {
+    echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
     <script type="text/javascript" src="js/basic.js"></script>
     <script type="text/javascript" src="js/respopup.js"></script>
-    
-    <script type="text/javascript"> 
-    function hist_checkAll(mode) { 
-        if (!document.getElementsByName) { 
-            return; 
-        } 
-        var checkboxes = document.getElementsByName('checked_hists[]'); 
-        var cbnum = checkboxes.length; 
-        for (var i = 0; i < cbnum; i++) { 
-            checkboxes[i].checked = mode; 
-        } 
-    } 
-    </script> 
-EOSCRIPT;
+    <script type="text/javascript">
+    <!--
+    function hist_checkAll(mode) {
+        if (!document.getElementsByName) {
+            return;
+        }
+        var checkboxes = document.getElementsByName('checked_hists[]');
+        var cbnum = checkboxes.length;
+        for (var i = 0; i < cbnum; i++) {
+            checkboxes[i].checked = mode;
+        }
+    }
+    // -->
+    </script>\n
+EOP;
 }
 
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="gIsPageLoaded = true;"';

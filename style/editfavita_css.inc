@@ -13,11 +13,18 @@ echo <<<EOSTYLE
 		background:{$STYLE['menu_bgcolor']} {$STYLE['menu_background']};
 		font-size:{$STYLE['menu_fontsize']};
 	}
-	
-	a:link.te{color:#999;} /* •À‚Ñ‘Ö‚¦ */
-	a:visited.te{color:#999;}
+
+	a:link.te{ color:#999; } /* •À‚Ñ‘Ö‚¦ */
+	a:visited.te{ color:#999; }
 	a:hover.te{color:{$STYLE['menu_ita_color_h']};}
-	
+
+	td.italist {
+		border:1px solid #dddddd;
+	}
+	.sortList {
+		cursor:move; width:200px; padding:4px 16px 0 0;
+	}
+
 -->
 </style>
 

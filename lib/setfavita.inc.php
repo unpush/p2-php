@@ -30,8 +30,10 @@ function setFavIta()
             $_info_msg_ht .= "<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>";
         }
     }
-    
-    if (!$host && !$bbs) {
+
+    $list = $_POST['list'];
+
+    if (!$host && !$bbs and (!(!empty($_POST['submit_setfavita']) && $list))) {
         $_info_msg_ht .= "<p>p2 info: 板の指定が変です</p>";
         return false;
     }
@@ -41,7 +43,7 @@ function setFavIta()
     }
     if (!isset($itaj) && isset($_GET['itaj_en'])) {
         $itaj = base64_decode($_GET['itaj_en']);
-    } 
+    }
     if (empty($itaj)) { $itaj = $bbs; }
 
     //================================================
@@ -58,22 +60,22 @@ function setFavIta()
     //================================================
     $neolines = array();
     $before_line_num = 0;
-    
+
     // 最初に重複要素を消去
     if (!empty($lines)) {
         $i = -1;
         foreach ($lines as $l) {
             $i++;
             $l = rtrim($l);
-        
+
             // {{{ 旧データ（ver0.6.0以下）移行措置
             if (!preg_match("/^\t/", $l)) {
                 $l = "\t".$l;
             }
             // }}}
-        
+
             $lar = explode("\t", $l);
-        
+
             if ($lar[1] == $host and $lar[2] == $bbs) { // 重複回避
                 $before_line_num = $i;
                 continue;
@@ -86,10 +88,20 @@ function setFavIta()
     }
 
     // 記録データ設定
-    if ($setfavita and $host && $bbs && $itaj) {
+    if (!empty($_POST['submit_setfavita']) && $list) {
+        $rec_lines = array();
+        foreach (explode(',', $list) as $aList) {
+            list($host, $bbs, $itaj_en) = explode('@', $aList);
+            $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
+        }
+        $_info_msg_ht .= "<script type=\"text/javascript\">if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
+
+    } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
         include_once (P2_LIBRARY_DIR . '/getsetposlines.inc.php');
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
+
+    // 解除
     } else {
         $rec_lines = $neolines;
     }
@@ -97,7 +109,7 @@ function setFavIta()
     $cont = '';
     if (!empty($rec_lines)) {
         foreach ($rec_lines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
     }
 
@@ -105,7 +117,7 @@ function setFavIta()
     if (FileCtl::file_write_contents($_conf['favita_path'], $cont) === false) {
         die('Error: cannot write file.');
     }
-    
+
     return true;
 }
 ?>

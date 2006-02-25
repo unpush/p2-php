@@ -166,7 +166,7 @@ if ($profile) {
 // サーチボックスの属性
 if ($_conf['input_type_search']) {
     $htm['search_attr'] = ' type="search" autosave="rep2.expack.search.thread" results="';
-    $htm['search_attr'] .= $_conf['expack.tgrep.recent_num'] . '" placeholder="tGrep"';
+    $htm['search_attr'] .= $_conf['expack.tgrep.recent2_num'] . '" placeholder="tGrep"';
 } else {
     $htm['search_attr'] = ' type="text"';
 }

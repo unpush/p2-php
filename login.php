@@ -187,15 +187,17 @@ echo <<<EOP
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <title>{$p_str['ptitle']}</title>
+    <title>{$p_str['ptitle']}</title>\n
 EOP;
+
 if (empty($_conf['ktai'])) {
-    @include("./style/style_css.inc");
-    @include("./style/login_css.inc");
     echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=login&amp;skin={$skin_en}" type="text/css">
     <script type="text/javascript" src="js/basic.js"></script>\n
 EOP;
 }
+
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $p_htm['body_onload'];
 echo <<<EOP
 </head>

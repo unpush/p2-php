@@ -36,16 +36,16 @@ require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
 require_once 'HTML/Template/Flexy/Element.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/quickrules.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/editform.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/managedb.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/getvalidvalue.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/buildimgcell.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/matrix.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/quickrules.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/editform.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/managedb.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/getvalidvalue.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/buildimgcell.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/matrix.class.php';
 
 
 // }}}
@@ -347,6 +347,7 @@ $mode      = getValidValue('mode',      $_defaults['mode'], 'intval');
 
 // 携帯用に調整
 if ($_conf['ktai']) {
+    $lightbox = false;
     $mode = 1;
     $inum = (int) $ini['Viewer']['inum'];
     $overwritable_params = array('order', 'sort', 'field', 'key', 'threshold', 'compare');
@@ -395,8 +396,9 @@ if ($_conf['ktai']) {
             }
         }
     }
+} else {
+    $lightbox = ($ini['Viewer']['lightbox'] && ($mode == 0 || $mode == 3));
 }
-
 
 // }}}
 // {{{ query
@@ -826,6 +828,13 @@ if ($all == 0) {
             $item['exif'] = NULL;
         }
 
+        // Lightbox JS用パラメータを設定
+        if ($lightbox) {
+            $item['lightbox_attr'] = ' rel="lightbox" title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
+        } else {
+            $item['lightbox_attr'] = '';
+        }
+
         $items[] = $item;
     }
 
@@ -893,6 +902,17 @@ $flexy->setData('mode', $mode);
 $flexy->setData('js', $qf->getValidationScript());
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
+if ($lightbox) {
+    $lightbox_js_css = '<script type="text/javascript" src="lightbox/lightbox.js"></script>';
+    $lightbox_js_css .= '<script type="text/javascript">';
+    $lightbox_js_css .= "loadingImage='lightbox/loading.gif';";
+    $lightbox_js_css .= "closeButton='lightbox/close.gif';";
+    $lightbox_js_css .= '</script>';
+    $lightbox_js_css .= '<link rel="stylesheet" type="text/css" href="lightbox/lightbox.css">';
+    $flexy->setData('lightbox', $lightbox_js_css);
+} else {
+    $flexy->setData('lightbox', '');
+}
 
 // ページを表示
 P2Util::header_nocache();

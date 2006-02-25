@@ -10,11 +10,12 @@
  *
  * 主に携帯からAAを閲覧したいときに利用。
  * 一部表示できない文字があるのは仕方ない。
- * モナーフォント2.90で動作確認、行間をチューニングしている。
- * （ただし、モナーフォントではいわゆる機種依存文字のおおくが表示できない）
+ * <del>モナーフォント2.90で動作確認、行間をチューニングしている。
+ * （ただし、モナーフォントではいわゆる機種依存文字の多くが表示できない）</del>
+ * <ins>IPA モナーフォント 1.0.3 で動作確認、行間をチューニングしている。</ins>
  * 
  * Dependencies:
- * - PHP Version: 4.2.0 or higher (rep2-expack requires 4.4.1 or higher)
+ * - PHP Version: 4.2.0 or newer (rep2-expack requires 4.4.1 or newer)
  * - PHP Extension: gd (with FreeType 2)
  * - PHP Extension: mbstring
  * - PHP Extension: pcre
@@ -173,6 +174,7 @@ $entity_map = array(
 
 // 環境チェック
 $errors = array();
+$font = $_conf['expack.aas.font_path'];
 
 if (!extension_loaded('gd')) {
     $errors[] = 'PHPのGD機能拡張が無効です。';
@@ -182,7 +184,7 @@ if (!extension_loaded('gd')) {
 if (!function_exists('mb_decode_numericentity')) {
     $errors[] = 'mb_decode_numericentity() 関数が使えません。';
 }
-if (!file_exists($_conf['expack.aas.font_path'])) {
+if (!file_exists($font)) {
     $errors[] = 'フォントがありません。';
 }
 
@@ -195,7 +197,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $text = preg_replace('/\r\n?/', "\n", $text);
         $text = preg_replace('/&(?!(#x?)?\\w+;)/', '&amp;', $text);
     }
+    $inline = false;
     $rotate = !empty($_POST['aas_rotate']);
+    $bold   = ($_conf['expack.aas.bold'] || !empty($_POST['aas_bold']));
 } else {
     $params = array('host' => 'string', 'bbs' => 'string', 'key' => 'int', 'resnum' => 'int');
     foreach ($params as $name => $type) {
@@ -207,7 +211,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             break;
         }
     }
+    $inline = !empty($_GET['inline']);
     $rotate = !empty($_GET['rotate']);
+    $bold   = ($_conf['expack.aas.bold'] || !empty($_GET['bold']));
 }
 
 // レス読み込み
@@ -255,12 +261,12 @@ $text = mb_convert_encoding($text, AAS_INTERNAL_CHARSET, 'SJIS-win');
 
 // 制御文字以外をすべて数値文字参照に変換
 $regex = '/&(\\w+|#x([[:xdigit:]]{1,4}))(;|\\b)/';
-$text = preg_replace_callback($regex, 'toNumericEntity', $text);
+$text = preg_replace_callback($regex, 'aas_toNumericEntity', $text);
 $text = mb_encode_numericentity($text, $encode_convert_map, AAS_INTERNAL_CHARSET);
 /*
 // 実体参照・数値参照を変換
 $regex = '/&(amp|gt|lt|quot|nbsp|#\\d{1,5}|#x[[:xdigit:]]{1,4})(;|\\b)/';
-$text = preg_replace_callback($regex, 'decodeHTMLEntity', $text);
+$text = preg_replace_callback($regex, 'aas_decodeHTMLEntity', $text);
 
 // 全角スペースが文字化けするので止むを得ず半角スペースx2に変換
 $u3000 = mb_convert_encoding('　', AAS_INTERNAL_CHARSET, AAS_SCRIPT_CHARSET);
@@ -271,9 +277,9 @@ $text = mb_convert_encoding($text, $_conf['expack.aas.output_charset'], AAS_INTE
 */
 // エラーハンドラを設定
 /*if (version_compare(phpversion(), '5.0.0', '>')) {
-    set_error_handler('ttfErrorHandler', E_WARNING);
+    set_error_handler('aas_ttfErrorHandler', E_WARNING);
 } else {
-    set_error_handler('ttfErrorHandler');
+    set_error_handler('aas_ttfErrorHandler');
 }*/
 
 // 元のテキストの文字数が多いとエラーになるので
@@ -287,7 +293,7 @@ $lc = count($lines);
 $c = 0;
 foreach ($lines as $line) {
     if (strlen($line) > 0) {
-        $b = imagettfbbox(12, 0, $_conf['expack.aas.font_path'], $line);
+        $b = imagettfbbox(12, 0, $font, $line);
         if (!$c) {
             $c = $b[2];
             $hint = $line;
@@ -302,7 +308,7 @@ foreach ($lines as $line) {
 }
 
 // 画像サイズを決定
-if (!empty($_GET['inline'])) {
+if ($inline) {
     $default_width  = $_conf['expack.aas.image_width_il'];
     $default_height = $_conf['expack.aas.image_height_il'];
 } elseif (empty($_conf['ktai'])) {
@@ -317,18 +323,27 @@ if ($rotate) {
 }
 
 // 画像サイズに合わせてフォントサイズを調節
-$size = $_conf['expack.aas.max_fontsize'];
-$max_width = $default_width - 2;
-$max_height = $default_height - 2;
-while (!isTextInPicture($size, $_conf['expack.aas.font_path'], $hint, $lc, $max_width, $max_height)
-    && $size > $_conf['expack.aas.min_fontsize']
-) {
-    $size--;
+if ($inline && $_conf['expack.aas.inline_fontsize']) {
+    $size = $_conf['expack.aas.inline_fontsize'];
+} else {
+    $size = $_conf['expack.aas.max_fontsize'];
+    list($width, $height) = aas_getTextBoxSize($size, $font, $hint, $lc);
+    $max_width = $default_width - 2;
+    $max_height = $default_height - 2;
+    $ratio = max($max_width / $width, $max_height / $height);
+    if ($ratio > 1.0) {
+        $size = max(floor($_conf['expack.aas.max_fontsize'] / $ratio), $_conf['expack.aas.min_fontsize']);
+        while ($size > $_conf['expack.aas.min_fontsize'] && 
+            !aas_isTextInPicture($size, $font, $hint, $lc, $max_width, $max_height))
+        {
+            $size--;
+        }
+    }
 }
 
 // イメージ作成
 if ($_conf['expack.aas.trim']) {
-    list($width, $height) = getTextBoxSize($size, $_conf['expack.aas.font_path'], $hint, $lc);
+    list($width, $height) = aas_getTextBoxSize($size, $font, $hint, $lc);
     $width = min($default_width, $width + 5);
     $height = min($default_height, $height + 5);
 } else {
@@ -347,10 +362,14 @@ $y_adjust = $size + floor($size / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2;
 $x_pos = $x_adjust;
 $y_pos = $y_adjust;
 // まとめて描画しようとすると長い文字列でエラーが出るので
-//imagettftext($image, $size, 0, $x_pos, $y_pos, $black, $_conf['expack.aas.font_path'], $text);
+//imagettftext($image, $size, 0, $x_pos, $y_pos, $black, $font, $text);
 // 一行ずつ描画する
 foreach ($lines as $line) {
-    imagettftext($image, $size, 0, $x_pos, $y_pos, $black, $_conf['expack.aas.font_path'], $line);
+    imagettftext($image, $size, 0, $x_pos, $y_pos, $black, $font, $line);
+    // 太字は1ピクセル右に重ねて描画
+    if ($bold) {
+        imagettftext($image, $size, 0, $x_pos + 1, $y_pos, $black, $font, $line);
+    }
     $y_pos += $y_adjust;
 }
 
@@ -395,7 +414,7 @@ exit;
  *
  * ASCII の文字はそのまま返す
  */
-function toNumericEntity($e)
+function aas_toNumericEntity($e)
 {
     global $_conf, $entity_map, $entity_map_ascii;
     if ($e[2]) {
@@ -432,7 +451,7 @@ function toNumericEntity($e)
  *
  * 二重にデコードされないよう、preg_replace_callbackで一括処理
  */
-function decodeHTMLEntity($e)
+function aas_decodeHTMLEntity($e)
 {
     global $_conf;
     $specialchars = array(
@@ -475,7 +494,7 @@ function decodeHTMLEntity($e)
 /**
  * テキストボックスの大きさを計算する
  */
-function getTextBoxSize($size, $font, $hint, $lines)
+function aas_getTextBoxSize($size, $font, $hint, $lines)
 {
     $x_adjust = 5;
     $y_adjust = ($size + floor($size / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2) * ($lines - 1);
@@ -488,9 +507,9 @@ function getTextBoxSize($size, $font, $hint, $lines)
 /**
  * テキストが画像に収まり切るかチェックする
  */
-function isTextInPicture($size, $font, $hint, $lines, $max_width, $max_height)
+function aas_isTextInPicture($size, $font, $hint, $lines, $max_width, $max_height)
 {
-    list($box_width, $box_height) = getTextBoxSize($size, $font, $hint, $lines);
+    list($box_width, $box_height) = aas_getTextBoxSize($size, $font, $hint, $lines);
     if ($box_width > $max_width || $box_height > $max_height) {
         return false;
     }
@@ -500,7 +519,7 @@ function isTextInPicture($size, $font, $hint, $lines, $max_width, $max_height)
 /**
  * imagettftext(), imagettfbbox() の入力文字列が大きすぎたときのエラー処理
  */
-function ttfErrorHandler($errno, $errstr, $errfile, $errline)
+function aas_ttfErrorHandler($errno, $errstr, $errfile, $errline)
 {
     P2Util::header_nocache();
     P2Util::header_content_type();

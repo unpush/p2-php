@@ -153,7 +153,7 @@ include($skin);
 if ($updated_fontconfig['enabled']) {
     fontconfig_apply_custom();
 } else {
-    $skin_en = preg_replace('/&amp;fchash=[0-9a-f]{32}\b/', '', $skin_en);
+    $skin_en = preg_replace('/&amp;hash=[0-9a-f]{32}\b/', '', $skin_en);
 }
 $controllerObject->STYLE = $STYLE;
 $controllerObject->skin = $skin_en;

@@ -125,13 +125,9 @@ echo <<<EOP
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>
     <base target="read">
-EOP;
-
-@include("./style/style_css.inc");
-
-echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
 </head>
-<body>
+<body>\n
 EOP;
 
 // 情報メッセージ表示

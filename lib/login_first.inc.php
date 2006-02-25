@@ -7,6 +7,7 @@ function printLoginFirst(&$_login)
 {
     global $_info_msg_ht, $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
+    global $skin_en;
     
     // {{{ データ保存ディレクトリのパーミッションの注意を喚起する
     P2Util::checkDirWritable($_conf['dat_dir']);
@@ -253,9 +254,9 @@ EOP;
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>
 EOP;
-    if (!$_conf['ktai']) {
-        @include("./style/style_css.inc");
-        @include("./style/login_first_css.inc");
+    if (empty($_conf['ktai'])) {
+        @include 'style/style_css.inc';
+        @include 'style/login_first_css.inc';
     }
     echo "</head><body>\n";
     echo "<h3>{$ptitle}</h3>\n";

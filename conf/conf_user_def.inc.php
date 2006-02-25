@@ -125,9 +125,11 @@ $conf_user_rules['pre_thumb_limit'] = array('IntExceptMinus');
 
 // 画像サムネイルの縦の大きさを指定（ピクセル）
 $conf_user_def['pre_thumb_height'] = "32"; // ("32")
+//$conf_user_rules['pre_thumb_height'] = array('NotEmpty', 'IntExceptMinus');
 
 // 画像サムネイルの横の大きさを指定（ピクセル）
 $conf_user_def['pre_thumb_width'] = "32"; // ("32")
+//$conf_user_rules['pre_thumb_width'] = array('NotEmpty', 'IntExceptMinus');
 
 // HTMLポップアップ（する:1, しない:0, pでする:2, 画像でする:3）
 $conf_user_def['iframe_popup'] = 2; // (2)
@@ -135,6 +137,7 @@ $conf_user_sel['iframe_popup'] = array('1' => 'する', '0' => 'しない', '2' => 'p
 
 // HTMLポップアップの表示遅延時間（秒）
 $conf_user_def['iframe_popup_delay'] = 0.2; // (0.2)
+//$conf_user_rules['iframe_popup_delay'] = array('FloatExceptMinus');
 
 // 外部サイト等へジャンプする時に開くウィンドウのターゲット名（同窓:"", 新窓:"_blank"）
 $conf_user_def['ext_win_target'] = "_blank"; // ("_blank")
@@ -252,6 +255,7 @@ $conf_user_rad['enable_menu_new'] = array('1' => 'する', '0' => 'しない', '2' =>
 
 // 板メニュー部分の自動更新間隔（分指定。0なら自動更新しない。）
 $conf_user_def['menu_refresh_time'] = 0; // (0)
+$conf_user_rules['menu_refresh_time'] = array('IntExceptMinus');
 
 // 板カテゴリ一覧を閉じた状態にする(する:1, しない:0)
 $conf_user_def['menu_hide_brds'] = 0; // (0)
@@ -271,13 +275,13 @@ $conf_user_def['brocra_checker_query'] = "url";
 $conf_user_def['enable_exfilter'] = 2; // (2)
 $conf_user_sel['enable_exfilter'] = array('1' => 'レスのみする', '0' => 'しない', '2' => 'レス、サブジェクトともする');
 
-// 携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する:1, しない:0)
-$conf_user_def['k_save_packet'] = 1; // (1) 
-$conf_user_rad['k_save_packet'] = array('1' => 'する', '0' => 'しない');
-
 // ID:xxxxxxxxをIDフィルタリングのリンクに変換（する:1, しない:0）
 $conf_user_def['flex_idpopup'] = 1; // (1)
 $conf_user_rad['flex_idpopup'] = array('1' => 'する', '0' => 'しない');
+
+// 携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する:1, しない:0)
+$conf_user_def['k_save_packet'] = 1; // (1) 
+$conf_user_rad['k_save_packet'] = array('1' => 'する', '0' => 'しない');
 
 // プロキシを利用(する:1, しない:0)
 $conf_user_def['proxy_use'] = 0; // (0)

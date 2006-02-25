@@ -133,12 +133,8 @@ echo <<<EOHEADER
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle_ht}</title>
-EOHEADER;
-
-@include("style/style_css.inc"); //スタイルシート
-@include("style/read_css.inc"); //スタイルシート
-
-echo <<<EOHEADER
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
     <script type="text/javascript" src="js/basic.js"></script>
     <script type="text/javascript" src="js/respopup.js"></script>
     <script type="text/javascript" src="js/htmlpopup.js"></script>

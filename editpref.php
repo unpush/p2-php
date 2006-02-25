@@ -83,10 +83,14 @@ echo <<<EOP
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>\n
 EOP;
+
 if (empty($_conf['ktai'])) {
-    @include("./style/style_css.inc");
-    @include("./style/editpref_css.inc");
+    echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=editpref&amp;skin={$skin_en}" type="text/css">\n
+EOP;
 }
+
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
 echo <<<EOP
 </head>

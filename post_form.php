@@ -101,14 +101,17 @@ echo <<<EOHEADER
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>\n
 EOHEADER;
-if (!$_conf['ktai']) {
-    @include("style/style_css.inc"); // スタイルシート
-    @include("style/post_css.inc"); // スタイルシート
-echo <<<EOSCRIPT
+
+if (empty($_conf['ktai'])) {
+    echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">
     <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/showhide.js"></script>
     <script type="text/javascript" src="js/post_form.js"></script>\n
-EOSCRIPT;
+EOP;
 }
+
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_on_load;
 echo <<<EOP
 </head>
@@ -122,7 +125,9 @@ $_info_msg_ht = '';
 include_once (P2_LIBRARY_DIR . '/post_form.inc.php');
 
 echo $htm['orig_msg'];
+echo $htm['dpreview'];
 echo $htm['post_form'];
+echo $htm['dpreview2'];
 
 echo '</body></html>';
 

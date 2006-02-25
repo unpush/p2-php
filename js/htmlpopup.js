@@ -14,10 +14,11 @@ gY = 0;
 ecX = 0;
 ecY = 0;
 
-//==============================================================
-// showHtmlPopUp -- HTMLプアップを表示する関数
-// 複数の引用レス番や(p)の onMouseover で呼び出される
-//==============================================================
+/**
+ * HTMLプアップを表示する
+ *
+ * 複数の引用レス番や(p)の onMouseover で呼び出される
+ */
 function showHtmlPopUp(url,ev,showHtmlDelaySec)
 {
 	if (!document.createElement) { return; } // DOM非対応
@@ -41,13 +42,17 @@ function showHtmlPopUp(url,ev,showHtmlDelaySec)
 	}
 }
 
+/**
+ * HTMLポップアップの実行
+ */
 function showHtmlPopUpDo()
 {
+	// あらかじめ既存のHTMLポップアップを閉じておく
 	hideHtmlPopUp();
 
 	gUrl = tUrl;
-	var x_adjust = 7; // x軸位置調整
-	var y_adjust = -46; // y軸位置調整
+	var x_adjust = 7;	// x軸位置調整
+	var y_adjust = -46;	// y軸位置調整
 	var closebox_width = 18;
 
 	if (!node_div) {
@@ -102,10 +107,9 @@ function showHtmlPopUpDo()
 	}
 }
 
-//==============================================================
-// hideHtmlPopUp -- HTMLポップアップを非表示にする関数
-// 引用レス番から onMouseout で呼び出される
-//==============================================================
+/**
+ * HTMLポップアップを非表示にする
+ */
 function hideHtmlPopUp()
 {
 	if (!document.createElement) { return; } // DOM非対応
@@ -122,12 +126,15 @@ function hideHtmlPopUp()
 	}
 }
 
-//==============================================================
-// HTML表示タイマーを解除する関数
-//==============================================================
+/**
+ * HTML表示タイマーを解除する
+ *
+ * (p)の onMouseout で呼び出される
+ */
 function offHtmlPopUp()
 {
+	// HTML表示ディレイタイマーがあれば解除しておく
 	if (showHtmlTimerID) {
-		clearTimeout(showHtmlTimerID); // HTML表示ディレイタイマーを解除
+		clearTimeout(showHtmlTimerID);
 	}
 }

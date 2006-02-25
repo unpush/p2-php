@@ -36,6 +36,9 @@ if (!empty($_POST['submit_save'])) {
     // ³‚Ì®” or 0 ‚Å‚È‚¢‚à‚Ì ¨ ƒfƒtƒHƒ‹ƒg‹¸³
     notIntExceptMinusToDef();
 
+    // ³‚ÌÀ” or 0 ‚Å‚È‚¢‚à‚Ì ¨ ƒfƒtƒHƒ‹ƒg‹¸³
+    //notFloatExceptMinusToDef();
+
     /**
      * ƒfƒtƒHƒ‹ƒg’l $conf_user_def ‚Æ•ÏX’l $_POST['conf_edit'] ‚Ì—¼•û‚ª‘¶İ‚µ‚Ä‚¢‚ÄA
      * ƒfƒtƒHƒ‹ƒg’l‚Æ•ÏX’l‚ªˆÙ‚È‚éê‡‚Ì‚İİ’è•Û‘¶‚·‚éi‚»‚Ì‘¼‚Ìƒf[ƒ^‚Í•Û‘¶‚³‚ê‚¸A”jŠü‚³‚ê‚éj
@@ -105,13 +108,10 @@ EOP;
 if (empty($_conf['ktai'])) {
     echo <<<EOP
     <script type="text/javascript" src="js/basic.js"></script>
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
 EOP;
-}
-
-if (empty($_conf['ktai'])) {
-    @include("./style/style_css.inc");
-    @include("./style/edit_conf_user_css.inc");
 }
 
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
@@ -232,8 +232,8 @@ echo getEditConfHtml('before_respointer_new', 'V’…‚Ü‚Æ‚ß“Ç‚İ‚ÌAƒ|ƒCƒ“ƒ^‚Ì‰½ƒ
 echo getEditConfHtml('rnum_all_range', 'V’…‚Ü‚Æ‚ß“Ç‚İ‚Åˆê“x‚É•\¦‚·‚éƒŒƒX”');
 echo getEditConfHtml('preview_thumbnail', '‰æ‘œURL‚Ìæ“Ç‚İƒTƒ€ƒlƒCƒ‹‚ğ•\¦i‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('pre_thumb_limit', '‰æ‘œURL‚Ìæ“Ç‚İƒTƒ€ƒlƒCƒ‹‚ğˆê“x‚É•\¦‚·‚é§ŒÀ” (0‚Å–³§ŒÀ)');
-//echo getEditConfHtml('preview_thumbnail', '‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ìc‚Ì‘å‚«‚³‚ğw’è (ƒsƒNƒZƒ‹)');
-////echo getEditConfHtml('pre_thumb_width', '‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ì‰¡‚Ì‘å‚«‚³‚ğw’è (ƒsƒNƒZƒ‹)');
+//echo getEditConfHtml('pre_thumb_height', '‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ìc‚Ì‘å‚«‚³‚ğw’è (ƒsƒNƒZƒ‹)');
+//echo getEditConfHtml('pre_thumb_width', '‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ì‰¡‚Ì‘å‚«‚³‚ğw’è (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('iframe_popup', 'HTMLƒ|ƒbƒvƒAƒbƒv (‚·‚é, ‚µ‚È‚¢, p‚Å‚·‚é, ‰æ‘œ‚Å‚·‚é)');
 //echo getEditConfHtml('iframe_popup_delay', 'HTMLƒ|ƒbƒvƒAƒbƒv‚Ì•\¦’x‰„ŠÔ (•b)');
 echo getEditConfHtml('ext_win_target', 'ŠO•”ƒTƒCƒg“™‚ÖƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼ (“¯‘‹:&quot;&quot;, V‘‹:&quot;_blank&quot;)');
@@ -259,6 +259,7 @@ echo getEditConfHtml('ngaborn_frequent_num', '•poID‚ ‚Ú[‚ñ‚Ì‚µ‚«‚¢’lioŒ»‰ñ”
 echo getEditConfHtml('ngaborn_frequent_dayres', '¨‚¢‚Ì‘¬‚¢ƒXƒŒ‚Å‚Í•poID‚ ‚Ú[‚ñ‚µ‚È‚¢i‘ƒŒƒX”/ƒXƒŒ—§‚Ä‚©‚ç‚Ì“ú”A0‚È‚ç–³Œøj');
 echo getEditConfHtml('ngaborn_chain', '˜A½NG‚ ‚Ú[‚ñ(‚·‚é, ‚µ‚È‚¢, ‚ ‚Ú[‚ñƒŒƒX‚Ö‚ÌƒŒƒX‚àNG‚É‚·‚é) <br>ˆ—‚ğŒy‚­‚·‚é‚½‚ßA•\¦”ÍˆÍ‚ÌƒŒƒX‚É‚µ‚©˜A½‚µ‚È‚¢');
 echo getEditConfHtml('ngaborn_daylimit', '‚±‚ÌŠúŠÔANG‚ ‚Ú[‚ñ‚ÉHIT‚µ‚È‚¯‚ê‚ÎA“o˜^ƒ[ƒh‚ğ©“®“I‚ÉŠO‚·i“ú”j');
+
 // }}}
 // {{{ ETC
 
@@ -279,9 +280,12 @@ echo getEditConfHtml('join_favrank', '<a href="http://akid.s17.xrea.com:8080/fav
 echo getEditConfHtml('enable_menu_new', '”Âƒƒjƒ…[‚ÉV’…”‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢, ‚¨‹C‚É”Â‚Ì‚İ)');
 echo getEditConfHtml('menu_refresh_time', '”Âƒƒjƒ…[•”•ª‚Ì©“®XVŠÔŠu (•ªw’èB0‚È‚ç©“®XV‚µ‚È‚¢B)');
 echo getEditConfHtml('menu_hide_brds', '”ÂƒJƒeƒSƒŠˆê——‚ğ•Â‚¶‚½ó‘Ô‚É‚·‚é(‚·‚é, ‚µ‚È‚¢)');
-echo getEditConfHtml('k_save_packet', 'Œg‘Ñ‰{——AƒpƒPƒbƒg—Ê‚ğŒ¸‚ç‚·‚½‚ßA‘SŠp‰p”EƒJƒiEƒXƒy[ƒX‚ğ”¼Šp‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
+//echo getEditConfHtml('brocra_checker_use', 'ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJ(‚Â‚¯‚é, ‚Â‚¯‚È‚¢)');
+//echo getEditConfHtml('brocra_checker_url', 'ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJURL');
+//echo getEditConfHtml('brocra_checker_query', 'ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJ‚ÌƒNƒGƒŠ[');
 echo getEditConfHtml('enable_exfilter', 'ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÅAND/ORŒŸõ‚ğ‰Â”\‚É‚·‚é (off, ƒŒƒX‚Ì‚İ, ƒTƒuƒWƒFƒNƒg‚à)');
 echo getEditConfHtml('flex_idpopup', 'ID:xxxxxxxx‚ğIDƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÌƒŠƒ“ƒN‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('k_save_packet', 'Œg‘Ñ‰{——AƒpƒPƒbƒg—Ê‚ğŒ¸‚ç‚·‚½‚ßA‘SŠp‰p”EƒJƒiEƒXƒy[ƒX‚ğ”¼Šp‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('precede_openssl', 'œƒƒOƒCƒ“‚ğA‚Ü‚¸‚Íopenssl‚Å‚İ‚éB¦PHP 4.3.0ˆÈ~‚ÅAOpenSSL‚ªÃ“I‚ÉƒŠƒ“ƒN‚³‚ê‚Ä‚¢‚é•K—v‚ª‚ ‚éB');
 echo getEditConfHtml('precede_phpcurl', 'curl‚ğg‚¤AƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å‚ÆPHPŠÖ””Å‚Ç‚¿‚ç‚ğ—Dæ‚·‚é‚© (ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å, PHPŠÖ””Å)');
 
@@ -307,6 +311,7 @@ echo getEditConfHtml('mobile.match_color', 'ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚Åƒ}ƒbƒ`‚µ‚½ƒL[ƒ[ƒh
 echo getGroupSepaHtml('expack - tGrep');
 echo getEditConfHtml('expack.tgrep.quicksearch', 'ˆê”­ŒŸõi•\¦, ”ñ•\¦j');
 echo getEditConfHtml('expack.tgrep.recent_num', 'ŒŸõ—š—ğ‚ğ‹L˜^‚·‚é”i‹L˜^‚µ‚È‚¢:0j');
+echo getEditConfHtml('expack.tgrep.recent2_num', 'ƒT[ƒ`ƒ{ƒbƒNƒX‚ÉŒŸõ—š—ğ‚ğ‹L˜^‚·‚é”ASafariê—pi‹L˜^‚µ‚È‚¢:0j');
 
 // }}}
 // {{{ expack - ƒXƒ}[ƒgƒ|ƒbƒvƒAƒbƒvƒƒjƒ…[
@@ -317,6 +322,9 @@ if ($_conf['expack.spm.enabled']) {
     echo getGroupSepaHtml('<s>expack - ƒXƒ}[ƒgƒ|ƒbƒvƒAƒbƒvƒƒjƒ…[</s> (–³Œø: see conf_admin_ex.inc.php)');
 }
 if ($_conf['disable_res']) {
+    echo getEditConfHtml('expack.spm.kokores', '<s>‚±‚±‚ÉƒŒƒX</s> (‘‚«‚İ–³Œø)');
+    echo getEditConfHtml('expack.spm.kokores_orig', '<s>‚±‚±‚ÉƒŒƒX‚ÅŠJ‚­ƒtƒH[ƒ€‚ÉŒ³ƒŒƒX‚Ì“à—e‚ğ•\¦‚·‚é</s>');
+} else {
     echo getEditConfHtml('expack.spm.kokores', '‚±‚±‚ÉƒŒƒX');
     echo getEditConfHtml('expack.spm.kokores_orig', '‚±‚±‚ÉƒŒƒX‚ÅŠJ‚­ƒtƒH[ƒ€‚ÉŒ³ƒŒƒX‚Ì“à—e‚ğ•\¦‚·‚é');
 }
@@ -341,6 +349,15 @@ echo getEditConfHtml('expack.am.fontsize', 'AA—p‚Ì•¶š‚Ì‘å‚«‚³');
 echo getEditConfHtml('expack.am.display', 'ƒXƒCƒbƒ`‚ğ•\¦‚·‚éˆÊ’u');
 echo getEditConfHtml('expack.am.autodetect', '©“®‚Å”»’è‚µAAA—p•\¦‚ğ‚·‚éiPCj');
 echo getEditConfHtml('expack.am.autong_k', '©“®‚Å”»’è‚µANGƒ[ƒh‚É‚·‚éBAAS ‚ª—LŒø‚È‚ç AAS ‚ÌƒŠƒ“ƒN‚àì¬iŒg‘Ñj');
+
+// }}}
+// {{{ expack - “ü—Íx‰‡
+
+echo getGroupSepaHtml('expack - “ü—Íx‰‡');
+echo getEditConfHtml('expack.editor.constant', '’èŒ^•¶');
+echo getEditConfHtml('expack.editor.dpreview', 'ƒŠƒAƒ‹ƒ^ƒCƒ€EƒvƒŒƒrƒ…[');
+echo getEditConfHtml('expack.editor.check_message', '–{•¶‚ª‹ó‚Å‚È‚¢‚©ƒ`ƒFƒbƒN');
+echo getEditConfHtml('expack.editor.check_sage', 'sageƒ`ƒFƒbƒN');
 
 // }}}
 // {{{ expack - RSSƒŠ[ƒ_
@@ -386,18 +403,20 @@ if ($_conf['expack.aas.enabled']) {
 } else {
     echo getGroupSepaHtml('<s>expack - AAS</s> (–³Œø: see conf_admin_ex.inc.php)');
 }
-echo getEditConfHtml('expack.aas.inline', '©“® AA ”»’è‚Æ˜A“®‚µAƒCƒ“ƒ‰ƒCƒ“•\¦ (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('expack.aas.inline', 'Œg‘Ñ‚Å©“® AA ”»’è‚Æ˜A“®‚µAƒCƒ“ƒ‰ƒCƒ“•\¦ (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('expack.aas.image_type', '‰æ‘œŒ`® (PNG, JPEG, GIF)');
+echo getEditConfHtml('expack.aas.jpeg_quality', 'JPEG‚Ì•i¿ (0-100)');
 echo getEditConfHtml('expack.aas.image_width', 'Œg‘Ñ—p‚Ì‰æ‘œ‚Ì‰¡• (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('expack.aas.image_height', 'Œg‘Ñ—p‚Ì‰æ‘œ‚Ì‚‚³ (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('expack.aas.image_width_pc', 'PC—p‚Ì‰æ‘œ‚Ì‰¡• (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('expack.aas.image_height_pc', 'PC—p‚Ì‰æ‘œ‚Ì‚‚³ (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('expack.aas.image_width_il', 'ƒCƒ“ƒ‰ƒCƒ“‰æ‘œ‚Ì‰¡• (ƒsƒNƒZƒ‹)');
-echo getEditConfHtml('expack.aas.image_height_in', 'ƒCƒ“ƒ‰ƒCƒ“‰æ‘œ‚Ì‚‚³ (ƒsƒNƒZƒ‹)');
-echo getEditConfHtml('expack.aas.jpeg_quality', 'JPEG‚Ì•i¿ (0-100)');
+echo getEditConfHtml('expack.aas.image_height_il', 'ƒCƒ“ƒ‰ƒCƒ“‰æ‘œ‚Ì‚‚³ (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('expack.aas.trim', '‰æ‘œ‚Ì—]”’‚ğƒgƒŠƒ~ƒ“ƒO (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('expack.aas.bold', '‘¾š (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('expack.aas.max_fontsize', 'Å‘å‚Ì•¶šƒTƒCƒY (ƒ|ƒCƒ“ƒg)');
 echo getEditConfHtml('expack.aas.min_fontsize', 'Å¬‚Ì•¶šƒTƒCƒY (ƒ|ƒCƒ“ƒg)');
+echo getEditConfHtml('expack.aas.inline_fontsize', 'ƒCƒ“ƒ‰ƒCƒ“•\¦‚Ì•¶šƒTƒCƒY (ƒ|ƒCƒ“ƒg)');
 
 // }}}
 // }}}
@@ -488,6 +507,42 @@ function notIntExceptMinusToDef()
     }
     return true;
 }
+
+/**
+ * ƒ‹[ƒ‹İ’èi$conf_user_rulesj‚ÉŠî‚Ã‚¢‚ÄA
+ * POSTw’è‚ğ³‚ÌÀ”‰»‚Å‚«‚é‚Í³‚ÌÀ”‰»i0‚ğŠÜ‚Şj‚µA
+ * ‚Å‚«‚È‚¢‚ÍAƒfƒtƒHƒ‹ƒgƒZƒbƒg‚·‚é
+ */
+/*function notFloatExceptMinusToDef()
+{
+    global $conf_user_def, $conf_user_rules;
+    
+    $rule = 'FloatExceptMinus';
+    
+    if (is_array($conf_user_rules)) {
+        foreach ($conf_user_rules as $n => $va) {
+            if (in_array($rule, $va)) {
+                if (isset($_POST['conf_edit'][$n])) {
+                    // ‘SŠp¨”¼Šp ‹¸³
+                    $_POST['conf_edit'][$n] = mb_convert_kana($_POST['conf_edit'][$n], 'a');
+                    // À”‰»‚Å‚«‚é‚È‚ç
+                    if (is_numeric($_POST['conf_edit'][$n])) {
+                        // À”‰»‚·‚é
+                        $_POST['conf_edit'][$n] = floatval($_POST['conf_edit'][$n]);
+                        // •‰‚Ì” or –³Œø‚È”’l‚ÍƒfƒtƒHƒ‹ƒg‚É
+                        if (!is_finite($_POST['conf_edit'][$n]) || $_POST['conf_edit'][$n] < 0) {
+                            $_POST['conf_edit'][$n] = floatval($conf_user_def[$n]);
+                        }
+                    // À”‰»‚Å‚«‚È‚¢‚à‚Ì‚ÍAƒfƒtƒHƒ‹ƒg‚É
+                    } else {
+                        $_POST['conf_edit'][$n] = floatval($conf_user_def[$n]);
+                    }
+                }
+            }
+        } // foreach
+    }
+    return true;
+}*/
 
 /**
  * ‘I‘ğˆ‚É‚È‚¢’l‚ÍƒfƒtƒHƒ‹ƒgƒZƒbƒg‚·‚é

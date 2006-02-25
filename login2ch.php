@@ -85,14 +85,14 @@ echo <<<EOP
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <title>{$ptitle}</title>
+    <title>{$ptitle}</title>\n
 EOP;
 
-if (!$_conf['ktai']) {
-    @include("./style/style_css.inc");
-    @include("./style/login2ch_css.inc");
+if (empty($_conf['ktai'])) {
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=login2ch&amp;skin={$skin_en}" type="text/css">
+    <script type="text/javascript" src="js/basic.js"></script>\n
 EOP;
 }
 

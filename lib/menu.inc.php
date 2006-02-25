@@ -69,6 +69,7 @@ $aShowBrdMenuPc =& new ShowBrdMenuPc();
 $reloaded_time = date('n/j G:i:s'); // çXêVéûçè
 $ptitle = 'p2 - menu';
 
+P2Util::header_nocache();
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
@@ -91,12 +92,8 @@ EOP;
 echo <<<EOP
     <title>{$ptitle}</title>
     <base target="subject">
-EOP;
-
-@include("./style/style_css.inc");
-@include("./style/menu_css.inc");
-
-echo <<<EOSCRIPT
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=menu&amp;skin={$skin_en}" type="text/css">
     <script type="text/javascript" src="js/basic.js"></script>
     <script type="text/javascript" src="js/showhide.js"></script>
     <script type="text/javascript" src="js/menu.js"></script>
@@ -131,11 +128,9 @@ echo <<<EOSCRIPT
     }
     
     // -->
-    </script>\n
-EOSCRIPT;
-echo <<<EOP
+    </script>
 </head>
-<body>
+<body>\n
 EOP;
 
 echo $_info_msg_ht;

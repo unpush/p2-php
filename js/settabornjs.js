@@ -84,12 +84,14 @@ function setTAbornJs(tquery, tabdo, info_pop_width, info_pop_height, page, obj)
 //スレッドあぼーんのスイッチを表示する
 function showTAborn(i, tabdo, info_pop_width, info_pop_height, page, obj)
 {
-	var th, th2, to, closure, cBox, nObj;
+	var th, th2, to, tx, closure, cBox, nObj;
+	
+	tx = '1em';
 	
 	if (th = document.getElementById('sb_th_no')) {
 		th2 = document.createElement(th.tagName);
 		th2.className = th.className;
-		th2.style.width = '1em';
+		th2.style.width = tx;
 		th2.appendChild(document.createTextNode('Ｘ'));
 		if (th.nextSibling) {
 			th.parentNode.insertBefore(th2, th.nextSibling);
@@ -100,12 +102,13 @@ function showTAborn(i, tabdo, info_pop_width, info_pop_height, page, obj)
 	
 	while (to = document.getElementById('to' + i.toString())) {
 		closure = function() {
-			var td, td2, tquery, cObj, pObj;
+			var td, td2, tparam, tquery, cObj, pObj;
 			
-			tquery = to.href.substring(to.href.indexOf('?') + 1, to.href.length) + '&taborn=' + tabdo;
+			tparam = '&taborn=' + tabdo;
+			tquery = to.href.substring(to.href.indexOf('?') + 1, to.href.length) + tparam;
 			
 			cObj = document.createElement('a');
-			cObj.href = to.href;
+			cObj.href = to.href + tparam;
 			if (to.target) {
 				cObj.target = to.target;
 			}
@@ -131,7 +134,7 @@ function showTAborn(i, tabdo, info_pop_width, info_pop_height, page, obj)
 			}
 			td2 = document.createElement('td');
 			td2.className = td.className;
-			td2.style.width = '1em';
+			td2.style.width = tx;
 			td2.appendChild(pObj);
 			if (td.nextSibling) {
 				td.parentNode.insertBefore(td2, td.nextSibling);

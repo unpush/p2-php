@@ -116,7 +116,7 @@ echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
-<body>
+<body>\n
 EOP;
 
 echo $_info_msg_ht;

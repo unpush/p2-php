@@ -218,7 +218,7 @@ if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html lang="ja">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    {$_conf['meta_charset_ht']}
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">

@@ -139,7 +139,7 @@ EOTOOLBAR;
 //=====================================
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
-echo <<<EOHEADER
+echo <<<EOP
 <html lang="ja">
 <head>
     {$_conf['meta_charset_ht']}
@@ -147,13 +147,10 @@ echo <<<EOHEADER
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle_ht}</title>\n
-EOHEADER;
-
-@include("style/style_css.inc"); // スタイルシート
-@include("style/read_css.inc"); // スタイルシート
-
-echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
     <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/showhide.js"></script>
     <script type="text/javascript" src="js/respopup.js"></script>
     <script type="text/javascript" src="js/htmlpopup.js"></script>
     <script type="text/javascript" src="js/invite.js"></script>

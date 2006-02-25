@@ -1,6 +1,8 @@
 <?php
 // p2 - レス書き込みフォームの機能読み込み
 
+$js = array();
+
 $fake_time = -10; // time を10分前に偽装
 $time = time() - 9*60*60;
 $time = $time + $fake_time * 60;
@@ -118,8 +120,8 @@ if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']
 // PC用 sage checkbox
 if (!$_conf['ktai']) {
     $on_check_sage = 'onChange="checkSage();"';
-    $sage_cb_ht = <<<EOP
-<input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label><br>
+    $htm['sage_cb'] = <<<EOP
+<input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label>
 EOP;
 }
 
@@ -135,7 +137,7 @@ EOP;
 // }}}
 // {{{ソースコード補正用チェックボックス
 
-$src_fix_ht = '';
+$htm['src_fix'] = '';
 if (!$_conf['ktai']) {
     if ($_conf['editor_srcfix'] == 1 ||
         ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d\.2ch\.net/', $host))
@@ -146,23 +148,24 @@ if (!$_conf['ktai']) {
 
 // }}}
 // {{{ 定型文・アクティブモナー
-/*
+
 $htm['options'] = '';
 $htm['options_k'] = '';
 
-if (!$_conf['ktai']) {
-    if ($_exconf['editor']['constant'] || $_exconf['editor']['with_aMona']) {
-        @include (P2EX_LIBRARY_DIR . '/post_options.inc.php');
-    }
-} else {
-    if ($_exconf['editor']['constant']) {
-        @include (P2EX_LIBRARY_DIR . '/post_options_k.inc.php');
+$_aapreview_activemona = (!$_conf['ktai'] && $_conf['expack.am.enabled'] && $_conf['expack.editor.with_activemona']);
+$_aapreveiw_aas = ($_conf['expack.aas.enabled'] && $_conf['expack.editor.with_aas']);
+
+if ($_conf['expack.editor.constant'] || $_aapreview_activemona || $_aapreveiw_aas) {
+    if (!$_conf['ktai']) {
+        @include P2EX_LIBRARY_DIR . '/post_options.inc.php';
+    } else {
+        @include P2EX_LIBRARY_DIR . '/post_options_k.inc.php';
     }
 }
-*/
+
 // }}}
 // {{{ 書き込みプレビュー
-/*
+
 $htm['dpreview_onoff'] = '';
 $htm['dpreview']  = '';
 $htm['dpreview2'] = '';
@@ -175,9 +178,16 @@ $dp_mail_at = '';
 $dp_msg_at  = '';
 
 if (!$_conf['ktai']) {
-    if ($_exconf['editor']['dpreview']) {
-        $dpreview_pos = ($_exconf['editor']['dpreview'] == 2) ? 'dpreview2' : 'dpreview';
-        $htm[$dpreview_pos] = <<<EOP
+    if ($_conf['expack.editor.dpreview']) {
+        $_dpreview_pos = ($_conf['expack.editor.dpreview'] == 2) ? 'dpreview2' : 'dpreview';
+        $_dpreview_ok = strval(intval($_conf['expack.editor.dpreview']));
+        $htm[$_dpreview_pos] = <<<EOP
+<script type="text/javascript" src="js/dpreview.js"></script>
+<script type="text/javascript">
+<!--
+var dpreview_ok = {$_dpreview_ok};
+// -->
+</script>
 <fieldset id="dpreview" style="display:none;">
 <legend>Preview:</legend>
     <div>
@@ -205,7 +215,7 @@ EOP;
         $dp_msg_at  = " onkeyup=\"{$js['dp_setmsg']}\" onchange=\"{$js['dp_setmsg']}\"";
     }
 }
-*/
+
 // }}}
 // {{{ ここにレス
 
@@ -214,8 +224,8 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
     $q_resnum = $_GET['resnum'];
     $hd['MESSAGE'] = "&gt;&gt;" . $q_resnum . "\r\n";
     if (!empty($_GET['inyou'])) {
-        require_once (P2_LIBRARY_DIR . '/thread.class.php');
-        require_once (P2_LIBRARY_DIR . '/threadread.class.php');
+        require_once P2_LIBRARY_DIR . '/thread.class.php';
+        require_once P2_LIBRARY_DIR . '/threadread.class.php';
         $aThread = &new ThreadRead;
         $aThread->setThreadPathInfo($host, $bbs, $key);
         $aThread->readDat($aThread->keydat);
@@ -246,17 +256,17 @@ EOM;
 
 // }}}
 // {{{ 本文が空のときやsageてないときに送信しようとすると注意する
-/*
-$onsubmit_ht = '';
+
+$onsubmit_at = '';
 
 if (!$_conf['ktai']) {
     if ($_conf['expack.editor.check_message'] || $_conf['expack.editor.check_sage']) {
-        $_check_message = (int) $_conf['expack.editor.check_message'];
-        $_check_sage = (int) $_conf['expack.editor.check_sage'];
-        $onsubmit_ht = " onsubmit=\"return validateAll({$_check_message},{$_check_sage})\"";
+        $onsubmit_at = sprintf(' onsubmit="return validateAll(%s,%s)"', 
+            (($_conf['expack.editor.check_message']) ? 'true' : 'false'),
+            (($_conf['expack.editor.check_sage'])    ? 'true' : 'false'));
     }
 }
-*/
+
 // }}}
 
 ?>

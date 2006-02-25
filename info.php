@@ -261,9 +261,10 @@ echo <<<EOHEADER
 EOHEADER;
 
 if (empty($_conf['ktai'])) {
-    // echo "<!-- ".$key_line." -->\n";
-    @include("./style/style_css.inc"); // 基本スタイルシート読込
-    @include("./style/info_css.inc");
+    echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">\n
+EOP;
 }
 
 if ($_GET['popup'] == 2) {
