@@ -1,9 +1,10 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 require_once 'PEAR.php';
 require_once 'SOAP/Client.php';
+require_once 'SOAP/WSDL.php';
 require_once dirname(__FILE__) . '/search.class.php';
 
 class GoogleSearch_PHP4 extends GoogleSearch_Common
@@ -37,12 +38,21 @@ class GoogleSearch_PHP4 extends GoogleSearch_Common
     function init($wsdl, $key)
     {
         if (!file_exists($wsdl)) {
-            return PEAR::raiseError('GoogleSearch.wsdl not found.');
+            //return PEAR::raiseError('GoogleSearch.wsdl not found.');
+
+            /* SOAPサーバのURIを指定してSOAP_Clientクラスを使う
+               @link http://www.googleduel.com/apiexample.php */
+            $soapClient = &new SOAP_Client('http://api.google.com/search/beta2');
+        } else {
+            /* SOAP_ClientクラスにWSDLを指定する */
+            //$soapClient = &new SOAP_Client($wsdl, TRUE);
+
+            /* SOAP_WSDLクラスにSOAP_Clientを継承したクラスを生成させる */
+            $wsdl = &new SOAP_WSDL($wsdl);
+            $soapClient = &$wsdl->getProxy();
         }
 
         $this->setConf($wsdl, $key);
-
-        $soapClient = &new SOAP_Client($this->wsdl, TRUE);
 
         if (PEAR::isError($soapClient)) {
             return $soapClient;
@@ -68,7 +78,7 @@ class GoogleSearch_PHP4 extends GoogleSearch_Common
     function &doSearch($q, $maxResults = 10, $start = 0)
     {
         $params = $this->prepareParams($q, $maxResults, $start);
-        $result = &$this->soapClient->call('doGoogleSearch', $params);
+        $result = &$this->soapClient->call('doGoogleSearch', $params, $this->options);
         return $result;
     }
 

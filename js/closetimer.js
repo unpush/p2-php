@@ -1,8 +1,5 @@
 /* p2 - ポップアップウィンドウ、クローズタイマーのJavaScript */
 
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0: */
-/* mi: charset=Shift_JIS */
-
 var delay = 5 // ページが変わるまでの時間（秒単位）
 
 var _swForm=0;

@@ -1,3 +1,9 @@
+/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
+/* mi: charset=Shift_JIS */
+/*
+	ImageCache2::Viewer-Manager
+*/
+
 function updateDB(tgtId)
 {
 	document.getElementById(tgtId+'_change').checked = true;

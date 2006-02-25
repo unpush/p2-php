@@ -1,102 +1,129 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2 ログイン
-*/
+/**
+ * rep2 ログイン
+ */
 
-require_once 'conf/conf.php';  //基本設定
+include_once './conf/conf.inc.php'; // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-require_once (P2_LIBRARY_DIR . '/login.inc.php');
 
-authorize(); // ユーザ認証
-
-if (!$login['use']) {
-    die("p2 info: 現在、ユーザ認証は「利用しない」設定になっています。<br>この機能を管理するためには、まず conf/conf.php で設定を有効にして下さい。");
-}
+$_login->authorize(); // ユーザ認証
 
 //=========================================================
 // 書き出し用変数
 //=========================================================
-$ptitle = 'p2認証ユーザ管理';
+$p_htm = array();
 
-$autho_user_ht = '';
-$auth_ctl_ht = '';
-$auth_sub_input_ht = '';
-$ivalue_user = '';
+// 表示文字
+$p_str = array(
+    'ptitle'        => 'rep2認証ユーザ管理',
+    'autho_user'    => '認証ユーザ',
+    'logout'        => 'ログアウト',
+    'password'      => 'パスワード',
+    'login'         => 'ログイン',
+    'user'          => 'ユーザ'
+);
 
-if ($_conf['ktai']) {
-    $status_st = 'ｽﾃｰﾀｽ';
-    $autho_user_st = '認証ﾕｰｻﾞ';
-    $client_host_st = '端末ﾎｽﾄ';
-    $client_ip_st = '端末IPｱﾄﾞﾚｽ';
-    $browser_ua_st = 'ﾌﾞﾗｳｻﾞUA';
-    $p2error_st = 'p2 ｴﾗｰ';
-
-    $user_st = 'ﾕｰｻﾞ';
-    $password_st = 'ﾊﾟｽﾜｰﾄﾞ';
-} else {
-    $status_st = 'ステータス';
-    $autho_user_st = '認証ユーザ';
-    $client_host_st = '端末ホスト';
-    $client_ip_st = '端末IPアドレス';
-    $browser_ua_st = 'ブラウザUA';
-    $p2error_st = 'p2 エラー';
-
-    $user_st = 'ユーザ';
-    $password_st = 'パスワード';
+// 携帯用表示文字列変換
+if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
+    foreach ($p_str as $k => $v) {
+        $p_str[$k] = mb_convert_kana($v, 'rnsk');
+    }
 }
 
+// （携帯）ログイン用URL
+//$user_u_q = !empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
+//$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
+$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=k';
 
-if ($login['use']) {
-    $autho_user_ht = "{$autho_user_st}: {$login['user']}<br>";
+$p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_blank">'.$url.'</a><br>';
+
+//====================================================
+// ユーザ登録処理
+//====================================================
+if (isset($_POST['form_login_pass'])) {
+
+    // 入力チェック
+    if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
+        $_info_msg_ht .= "<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>";
+
+    // パスワード変更登録処理を行う
+    } else {
+        $crypted_login_pass = sha1($_POST['form_login_pass']);
+        $auth_user_cont = <<<EOP
+<?php
+\$rec_login_user_u = '{$_login->user_u}';
+\$rec_login_pass_x = '{$crypted_login_pass}';
+?>
+EOP;
+        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']); // ファイルがなければ生成
+        $fp = @fopen($_conf['auth_user_file'], "wb") or die("rep2 Error: {$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
+        @flock($fp, LOCK_EX);
+        fputs($fp, $auth_user_cont);
+        @flock($fp, LOCK_UN);
+        fclose($fp);
+        
+        $_info_msg_ht .= '<p>○認証パスワードを変更登録しました</p>';
+    }
+    
 }
 
-// 補助認証 =====================================
-// EZ認証 ===============
-if ($_SERVER['HTTP_X_UP_SUBNO']) {
+//====================================================
+// 補助認証
+//====================================================
+$mobile = &Net_UserAgent_Mobile::singleton();
+
+// EZ認証
+if (!is_null($_SERVER['HTTP_X_UP_SUBNO'])) {
     if (file_exists($_conf['auth_ez_file'])) {
-        $auth_ctl_ht = <<<EOP
-EZ端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?regist_ez=out">解除</a>]<br>
+        $p_htm['auth_ctl'] = <<<EOP
+EZ端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_ez=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
     } else {
-        if ($_SERVER['PHP_AUTH_USER']) {
-            $auth_ctl_ht = <<<EOP
-[<a href="{$_SERVER['PHP_SELF']}?regist_ez=in">EZ端末IDで認証を登録</a>]<br>
+        if ($_login->pass_x) {
+            $p_htm['auth_ctl'] = <<<EOP
+[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_ez=1&amp;regist_ez=1{$_conf['k_at_a']}">EZ端末IDで認証を登録</a>]<br>
 EOP;
         }
-        $auth_sub_input_ht = <<<EOP
-    <input type="checkbox" name="regist_ez" value="in" checked>EZ端末IDで認証を登録<br>
-EOP;
     }
 
-// J認証 ================
-} elseif ($mobile->isVodafone()) {
+// J認証
+} elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
     if (file_exists($_conf['auth_jp_file'])) {
-        $auth_ctl_ht = <<<EOP
-J端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?regist_jp=out">解除</a>]<br>
+        $p_htm['auth_ctl'] = <<<EOP
+J端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_jp=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
     } else {
-        if ($_SERVER['PHP_AUTH_USER']) {
-            $auth_ctl_ht = <<<EOP
-[<a href="{$_SERVER['PHP_SELF']}?regist_jp=in">J端末IDで認証を登録</a>]<br>
+        if ($_login->pass_x) {
+            $p_htm['auth_ctl'] = <<<EOP
+[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_jp=1&amp;regist_jp=1{$_conf['k_at_a']}">J端末IDで認証を登録</a>]<br>
 EOP;
         }
-        $auth_sub_input_ht = <<<EOP
-    <input type="checkbox" name="regist_jp" value="in" checked>J端末IDで認証を登録<br>
-EOP;
     }
-
-// Cookie認証 ================
-} else {
-    if (($_COOKIE['p2_user'] == $login['user']) && ($_COOKIE['p2_pass'] == $login['pass'])) {
-            $auth_cookie_ht = <<<EOP
-cookie認証登録済[<a href="cookie.php?ctl_regist_cookie=1">解除</a>]<br>
+    
+// DoCoMo認証
+} elseif ($mobile->isDoCoMo()) {
+    if (file_exists($_conf['auth_docomo_file'])) {
+        $p_htm['auth_ctl'] = <<<EOP
+DoCoMo端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_docomo=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
     } else {
-        if ($_SERVER['PHP_AUTH_USER']) {
-            $auth_cookie_ht = <<<EOP
-[<a href="cookie.php?ctl_regist_cookie=1&amp;regist_cookie=1">cookieで認証を登録</a>]<br>
+        if ($_login->pass_x) {
+            $p_htm['auth_ctl'] = <<<EOP
+[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_docomo=1&amp;regist_docomo=1{$_conf['k_at_a']}" utn>DoCoMo端末IDで認証を登録</a>]<br>
+EOP;
+        }
+    }
+    
+// Cookie認証
+} else {
+    if ($_login->checkUserPwWithCid($_COOKIE['cid'])) {
+            $p_htm['auth_cookie'] = <<<EOP
+cookie認証登録済[<a href="cookie.php?ctl_regist_cookie=1{$_conf['k_at_a']}">解除</a>]<br>
+EOP;
+    } else {
+        if ($_login->pass_x) {
+            $p_htm['auth_cookie'] = <<<EOP
+[<a href="cookie.php?ctl_regist_cookie=1&amp;regist_cookie=1{$_conf['k_at_a']}">cookieで認証を登録</a>]<br>
 EOP;
         }
     }
@@ -106,12 +133,14 @@ EOP;
 // Cookie認証チェック
 //====================================================
 if (!empty($_REQUEST['check_regist_cookie'])) {
-    if (($_COOKIE['p2_user'] == $login['user']) && ($_COOKIE['p2_pass'] == $login['pass'])) {
+
+    if ($_login->checkUserPwWithCid($_COOKIE['cid'])) {
         if ($_REQUEST['regist_cookie'] == '1') {
             $_info_msg_ht .= '<p>○cookie認証登録完了</p>';
         } else {
             $_info_msg_ht .= '<p>×cookie認証解除失敗</p>';
         }
+        
     } else {
         if ($_REQUEST['regist_cookie'] == '1') {
             $_info_msg_ht .= '<p>×cookie認証登録失敗</p>';
@@ -121,25 +150,14 @@ if (!empty($_REQUEST['check_regist_cookie'])) {
     }
 }
 
-
-// 認証ユーザ設定読み込み ========
-if (file_exists($_conf['auth_user_file'])) {
-    include ($_conf['auth_user_file']);
-    if (isset($login['user'])) {
-        $ivalue_user = $login['user'];
-    }
-}
-if (isset($_POST['login_user'])) {
-    $ivalue_user = $_POST['login_user'];
-}
-
-// 認証ユーザ登録フォーム ================
+//====================================================
+// 認証ユーザ登録フォーム
+//====================================================
 $login_form_ht = <<<EOP
 <form id="login_change" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
-    認証{$user_st}名と{$password_st}の変更<br>
-    {$user_st}: <input type="text" name="login_user" value="{$ivalue_user}"><br>
-    {$password_st}: <input type="password" name="login_pass"><br>
-    {$auth_sub_input_ht}
+    {$p_str['password']}の変更<br>
+    {$_conf['k_input_ht']}
+    新しい{$p_str['password']}: <input type="password" name="form_login_pass">
     <br>
     <input type="submit" name="submit" value="変更登録">
 </form>\n
@@ -149,96 +167,67 @@ if ($_conf['ktai']) {
     $login_form_ht = '<hr>'.$login_form_ht;
 }
 
-// ユーザ登録処理 =================================
-if (isset($_POST['login_user']) && isset($_POST['login_pass'])) {
-
-    if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['login_user']) || !preg_match('/^[0-9a-zA-Z_]+$/', $_POST['login_pass'])) {
-        $_info_msg_ht.="<p>p2 error: {$user_st}名と{$password_st}は半角英数字で入力して下さい。</p>";
-
-    } else {
-        $crypted_login_pass = crypt($_POST['login_pass'], $_POST['login_pass']);
-        $auth_user_cont =<<<EOP
-<?php
-\$login['user'] = '{$_POST["login_user"]}';
-\$login['pass'] = '{$crypted_login_pass}';
-?>
-EOP;
-        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']); //$_conf['auth_user_file'] がなければ生成
-        $fp = @fopen($_conf['auth_user_file'], 'wb') or die("p2 Error: {$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
-        @flock($fp, LOCK_EX);
-        fputs($fp, $auth_user_cont);
-        @flock($fp, LOCK_UN);
-        fclose($fp);
-
-        $_info_msg_ht.="<p>○認証{$user_st}「{$_POST['login_user']}」を登録しました</p>";
-    }
-
-} else {
-
-    if (isset($_POST['login_user']) || isset($_POST['login_pass'])) {
-        if (!isset($_POST['login_user'])) {
-            $_info_msg_ht.="<p>p2 error: {$user_st}名が入力されていません。</p>";
-        } elseif (!isset($_POST['login_pass'])) {
-            $_info_msg_ht.="<p>p2 error: {$password_st}が入力されていません。</p>";
-        }
-    }
-
-}
-
-$body_onload = '';
-if (!$_conf['ktai']) {
-    $body_onload = ' onload="setWinTitle();"';
-}
-
 //=========================================================
 // HTMLプリント
 //=========================================================
+$p_htm['body_onload'] = '';
+if (empty($_conf['ktai'])) {
+    $p_htm['body_onload'] = ' onLoad="setWinTitle();"';
+}
+
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+if (!empty($_conf['doctype'])) {
+    echo $_conf['doctype'];
+}
 echo <<<EOP
 <html lang="ja">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    {$_conf['meta_charset_ht']}
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$ptitle}</title>
+    <title>{$p_str['ptitle']}</title>
 EOP;
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
+    @include("./style/style_css.inc");
+    @include("./style/login_css.inc");
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=login&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <script type="text/javascript" src="js/basic.js"></script>\n
 EOP;
 }
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $p_htm['body_onload'];
 echo <<<EOP
 </head>
-<body{$k_color_settings}{$body_onload}>
+<body{$body_at}>
 EOP;
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     echo <<<EOP
-<p id="pan_menu"><a href="setting.php">ログイン管理</a> &gt; {$ptitle}</p>
+<p id="pan_menu"><a href="setting.php">ログイン管理</a> &gt; {$p_str['ptitle']}</p>
 EOP;
 }
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
-
+// 情報表示
+if (!is_null($_info_msg_ht)) {
+    echo $_info_msg_ht;
+    $_info_msg_ht = "";
+}
+    
 echo '<p id="login_status">';
 echo <<<EOP
-{$autho_user_ht}
-{$auth_ctl_ht}
-{$auth_cookie_ht}
+{$p_str['autho_user']}: {$_login->user_u}<br>
+{$p_htm['auth_ctl']}
+{$p_htm['auth_cookie']}
+<br>
+[<a href="./index.php?logout=1" target="_parent">{$p_str['logout']}する</a>]
 EOP;
 echo '</p>';
 
 echo $login_form_ht;
 
 if ($_conf['ktai']) {
-    echo '<hr>';
+    echo "<hr>\n";
     echo $_conf['k_to_index_ht'];
 }
 

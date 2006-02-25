@@ -6,12 +6,12 @@
 
 // {{{ p2基本設定読み込み＆認証
 
-require_once 'conf/conf.php';
+require_once 'conf/conf.inc.php';
 
-authorize();
+$_login->authorize();
 
-if ($_exconf['imgCache']['*'] == 0) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_user_ex.phpの設定を変えてください。</p></body></html>');
+if ($_conf['expack.ic2.enabled'] == 0) {
+    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
 
 // }}}
@@ -44,19 +44,46 @@ $options = array('database' => $ini['General']['dsn'], 'quote_identifiers' => TR
 // 設定関連のエラーはこれらのクラスのコンストラクタでチェックされる
 $thumbnailer = &new ThumbNailer;
 $icdb = &new IC2DB_images;
-$db =& $icdb->getDatabaseConnection();
+$db = &$icdb->getDatabaseConnection();
 
 // }}}
 // {{{ SQL生成
 
-// 連番で主キーとなる列の型
+// 連番で主キーとなる列の型など
 preg_match('/^(\w+)(?:\((\w+)\))?:/', $ini['General']['dsn'], $m);
 switch ($m[1]) { // phptype
-    case 'mysql': case 'mysqli': $serial = 'INTEGER PRIMARY KEY AUTO_INCREMENT'; break;
-    case 'pgsql': $serial = 'SERIAL PRIMARY KEY'; break;
-    case 'sqlite': $serial = 'INTEGER PRIMARY KEY'; break;
-    default:
-        die('MySQL, PostgreSQL, SQLite以外のデータベースには対応していません。');
+case 'mysql':
+case 'mysqli':
+    $serial = 'INTEGER PRIMARY KEY AUTO_INCREMENT';
+    $table_extra_defs = ' TYPE=MyISAM';
+    $version = &$db->getRow("SHOW VARIABLES LIKE 'version'", array(), DB_FETCHMODE_ORDERED);
+    if (!DB::isError($version) && version_compare($version[1], '4.1.0') != -1) {
+        $charset = &$db->getRow("SHOW VARIABLES LIKE 'character_set_database'", array(), DB_FETCHMODE_ORDERED);
+        if (!DB::isError($charset) && $charset[1] == 'latin1') {
+            $errmsg = "<p><b>Warning:</b> データベースの文字セットが latin1 に設定されています。</p>";
+            $errmsg .= "<p>mysqld の default-character-set が binary, ujis, utf8 等でないと日本語の文字が壊れるので ";
+            $errmsg .= "<a href=\"http://www.mysql.gr.jp/frame/modules/bwiki/?FAQ#content_1_40\">日本MySQLユーザ会のFAQ</a>";
+            $errmsg .= " を参考に my.cnf の設定を変えてください。</p>";
+            die($errmsg);
+        }
+        $db->query('SET NAMES utf8');
+        if (version_compare($version[1], '4.1.2') != -1) {
+            $table_extra_defs = ' ENGINE=MyISAM DEFAULT CHARACTER SET utf8';
+            //$table_extra_defs = ' ENGINE=MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci';
+            //$table_extra_defs = ' ENGINE=MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_bin';
+        }
+    }
+    break;
+case 'pgsql':
+    $serial = 'SERIAL PRIMARY KEY';
+    $table_extra_defs = '';
+    break;
+case 'sqlite':
+    $serial = 'INTEGER PRIMARY KEY';
+    $table_extra_defs = '';
+    break;
+default:
+    die('MySQL, PostgreSQL, SQLite以外のデータベースには対応していません。');
 }
 
 // テーブル名は設定によってはDBの予約語が使われるかもしれないのでDB_xxx::quoteIdentifier()で
@@ -82,7 +109,7 @@ CREATE TABLE $imgcache_table_quoted (
     time   INTEGER NOT NULL,
     rank   SMALLINT NOT NULL DEFAULT 0,
     memo   TEXT
-);
+)$table_extra_defs;
 EOQ;
 
 // メインテーブルのインデックス（URL）
@@ -117,7 +144,7 @@ CREATE TABLE $datacache_table_quoted (
     expires    INTEGER NOT NULL,
     changed    INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (id, cachegroup)
-);
+)$table_extra_defs;
 EOQ;
 
 // データキャッシュ用テーブルのインデックス（有効期限）
@@ -135,7 +162,7 @@ CREATE TABLE $ic2error_table_quoted (
     errcode VARCHAR(64) NOT NULL,
     errmsg  TEXT,
     occured INTEGER NOT NULL
-);
+)$table_extra_defs;
 EOQ;
 
 // エラーログのインデックス（URL）
@@ -154,7 +181,7 @@ CREATE TABLE $blacklist_table_quoted (
     size   INTEGER NOT NULL,
     md5    CHAR (32) NOT NULL,
     type   SMALLINT NOT NULL DEFAULT 0
-);
+)$table_extra_defs;
 EOQ;
 
 // ブラックリストのインデックス（URL）

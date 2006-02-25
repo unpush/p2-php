@@ -1,3 +1,9 @@
+/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
+/* mi: charset=Shift_JIS */
+/*
+	ImageCache2::View-DB-Table
+*/
+
 function vt_checkAll(mode)
 {
 	var cboxes = document.getElementsByName('target[]');

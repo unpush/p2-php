@@ -1,21 +1,21 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /*
     expack - スレッドをツリー表示する
     ツリー表示以外のルーチンはread.phpから拝借
 */
 
-require_once 'conf/conf.php';
+require_once 'conf/conf.inc.php';
 require_once (P2_LIBRARY_DIR . '/thread.class.php');    //スレッドクラス読込
 require_once (P2_LIBRARY_DIR . '/threadread.class.php');    //スレッドリードクラス読込
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 require_once (P2_LIBRARY_DIR . '/ngabornctl.class.php');
 require_once (P2_LIBRARY_DIR . '/showthread.class.php');    //HTML表示クラス
 require_once (P2_LIBRARY_DIR . '/showthreadpc.class.php');  //HTML表示クラス
-require_once (P2_LIBRARY_DIR . '/showthreadtree.class.php'); // ツリー表示クラス
+//require_once (P2_LIBRARY_DIR . '/showthreadtree.class.php'); // ツリー表示クラス
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //================================================================
 // 変数
@@ -96,13 +96,14 @@ $aThread->setTitleFromLocal(); // タイトルを取得して設定
 //===========================================================
 $aThread->ls = $_GET['ls'];
 $rn = (int)$aThread->ls; // string "256n" => integer 256
+$rp = $rn - 1;
 $aThread->lsToPoint();
 
 
 //===============================================================
 // ■プリント
 //===============================================================
-$ptitle_ht = htmlspecialchars($aThread->itaj).' / '.$aThread->ttitle_hd;
+$ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES).' / '.$aThread->ttitle_hd;
 
 // {{{ HTTPヘッダとXML宣言
 
@@ -123,27 +124,27 @@ $node = 'ないぽ。';
 
 if ($aThread->rescount) {
 
-    $aShowThread = &new ShowThreadTree($aThread);
+    //$aShowThread = &new ShowThreadTree($aThread);
+    $aShowThread = &new ShowThreadPc($aThread);
 
-    if (isset($aShowThread->pDatLines[$rn])) {
+    if (isset($aShowThread->thread->datlines[$rp])) {
+        $ares = $aShowThread->thread->datlines[$rp];
+        $part = $aShowThread->thread->explodeDatLine($ares);
         switch ($mode) {
             // レスポップアップ
             case 1:
-                $node = $aShowThread->qRes($rn);
+                $node = $aShowThread->qRes($ares, $rn);
                 break;
             // コピペ
             case 2:
-                $part = $aShowThread->pDatLines[$rn];
                 $node = $rn;
-                $node .= ' ：' . $part['name'];
-                $node .= ' ：' . $part['mail'];
-                $node .= ' ：' . $part['date_id'] . "\n";
-                $node .= trim($part['msg']);
-                $node = strip_tags($node, '<br>');
-                $node = preg_replace('/ *<br.*?> */i', "\n", $node);
-                break;
+                $node .= ' ：' . strip_tags($part[0]);
+                $node .= ' ：' . strip_tags($part[1]);
+                $node .= ' ：' . strip_tags($part[2]) . "\n";
+                $node .= trim(preg_replace('/ *<br.*?> */i', "\n", strip_tags($part[3], '<br>')));
+                 break;
             default:
-                $node = $aShowThread->transMsg($aShowThread->pDatLines[$rn]['msg'], $rn);
+                $node = $aShowThread->transMsg($part[3], $rn);
         }
     }
 
@@ -182,9 +183,9 @@ if ($aThread->rescount) {
     $newline = $aThread->readnum + 1;   // $newlineは廃止予定だが、旧互換用に念のため
 
     $sar = array($aThread->ttitle, $aThread->key, $data[2], $aThread->rescount, $aThread->modified,
-                 $aThread->readnum, $data[6], $data[7], $data[8], $newline);
-    $s = implode('<>', $sar);
-    P2Util::recKeyIdx($aThread->keyidx, $s); // key.idxに記録
+                 $aThread->readnum, $data[6], $data[7], $data[8], $newline,
+                 $data[10], $data[11], $aThread->datochiok);
+    P2Util::recKeyIdx($aThread->keyidx, $sar); // key.idxに記録
 }
 
 //===========================================================

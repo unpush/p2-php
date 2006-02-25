@@ -1,26 +1,25 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/*
+    p2 - スレッド情報ウィンドウ
+*/
 
-// p2 - スレッド情報ウィンドウ
-
-require_once 'conf/conf.php';   // 基本設定ファイル
-require_once (P2_LIBRARY_DIR . '/thread.class.php');    // スレッドクラス
+include_once './conf/conf.inc.php';  // 基本設定
+require_once (P2_LIBRARY_DIR . '/thread.class.php');
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-require_once (P2_LIBRARY_DIR . '/dele.inc.php');    // 削除処理用の関数郡
+require_once (P2_LIBRARY_DIR . '/dele.inc.php'); // 削除処理用の関数郡
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //================================================================
-// 変数設定
+// ■変数設定
 //================================================================
-isset($_GET['host']) && $host = $_GET['host'];  // "pc.2ch.net"
-isset($_GET['bbs'])  && $bbs  = $_GET['bbs'];   // "php"
-isset($_GET['key'])  && $key  = $_GET['key'];   // "1022999539"
-$ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
+isset($_GET['host']) and $host = $_GET['host']; // "pc.2ch.net"
+isset($_GET['bbs']) and $bbs = $_GET['bbs']; // "php"
+isset($_GET['key']) and $key = $_GET['key']; // "1022999539"
+isset($_GET['ttitle_en']) and $ttitle_en = $_GET['ttitle_en'];
 
-//popup 0(false),1(true),2(true,クローズタイマー付)
-$popup_ht = !empty($_GET['popup']) ? '&amp;popup=1' : '';
+// popup 0(false), 1(true), 2(true, クローズタイマー付)
+if (!empty($_GET['popup'])) { $popup_ht = "&amp;popup=1"; }
 
 // 以下どれか一つがなくてもダメ出し
 if (empty($host) || empty($bbs) || empty($key)) {
@@ -28,61 +27,70 @@ if (empty($host) || empty($bbs) || empty($key)) {
 }
 
 //================================================================
-// 特殊な前置処理
+// ■特殊な前処理
 //================================================================
+// {{{ 削除
 
-// ■削除
-if (!empty($_GET['dele'])) {
+if (!empty($_GET['dele']) && $key && $host && $bbs) {
     $r = deleteLogs($host, $bbs, array($key));
     //echo $r;
     if (empty($r)) {
-        $title_msg = '× ログ削除失敗';
-        $info_msg = '× ログ削除失敗';
+        $title_msg = "× ログ削除失敗";
+        $info_msg = "× ログ削除失敗";
     } elseif ($r == 1) {
-        $title_msg = '○ ログ削除完了';
-        $info_msg = '○ ログ削除完了';
+        $title_msg = "○ ログ削除完了";
+        $info_msg = "○ ログ削除完了";
     } elseif ($r == 2) {
-        $title_msg = '- ログはありませんでした';
-        $info_msg = '- ログはありませんでした';
+        $title_msg = "- ログはありませんでした";
+        $info_msg = "- ログはありませんでした";
     }
 }
 
-// 履歴削除
-if (!empty($_GET['offrec'])) {
+// }}}
+// {{{ 履歴削除
+
+if (!empty($_GET['offrec']) && $key && $host && $bbs) {
     $r1 = offRecent($host, $bbs, $key);
     $r2 = offResHist($host, $bbs, $key);
-    if (empty($r1) || empty($r2)) {
-        $title_msg = '× 履歴解除失敗';
-        $info_msg = '× 履歴解除失敗';
+    if ((empty($r1)) or (empty($r2))) {
+        $title_msg = "× 履歴解除失敗";
+        $info_msg = "× 履歴解除失敗";
     } elseif ($r1 == 1 || $r2 == 1) {
-        $title_msg = '○ 履歴解除完了';
-        $info_msg = '○ 履歴解除完了';
+        $title_msg = "○ 履歴解除完了";
+        $info_msg = "○ 履歴解除完了";
     } elseif ($r1 == 2 && $r2 == 2) {
-        $title_msg = '- 履歴にはありませんでした';
-        $info_msg = '- 履歴にはありませんでした';
+        $title_msg = "- 履歴にはありませんでした";
+        $info_msg = "- 履歴にはありませんでした";
     }
 
-// お気に入りスレッド
-} elseif (isset($_GET['setfav'])) {
-    require_once (P2_LIBRARY_DIR . '/setfav.inc.php');
+// }}}
+// {{{ お気に入りスレッド
+
+} elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
+    include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
     setFav($host, $bbs, $key, $_GET['setfav']);
 
-// 殿堂入り
-} elseif (isset($_GET['setpal'])) {
-    require_once (P2_LIBRARY_DIR . '/setpalace.inc.php');
+// }}}
+// {{{ 殿堂入り
+
+} elseif (isset($_GET['setpal']) && $key && $host && $bbs) {
+    include_once (P2_LIBRARY_DIR . '/setpalace.inc.php');
     setPal($host, $bbs, $key, $_GET['setpal']);
 
-// スレッドあぼーん
-} elseif (isset($_GET['taborn'])) {
-    require_once (P2_LIBRARY_DIR . '/settaborn.inc.php');
+// }}}
+// {{{ スレッドあぼーん
+
+} elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
+    include_once (P2_LIBRARY_DIR . '/settaborn.inc.php');
     settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
+// }}}
 //=================================================================
 // ■メイン
 //=================================================================
 
-$aThread = &new Thread;
+$aThread =& new Thread();
 
 // hostを分解してidxファイルのパスを求める
 $aThread->setThreadPathInfo($host, $bbs, $key);
@@ -95,7 +103,7 @@ if (!$aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs)) {
 $hc['itaj'] = $aThread->itaj;
 
 if (!$aThread->ttitle) {
-    if ($ttitle_en) {
+    if (isset($ttitle_en)) {
         $aThread->setTtitle(base64_decode($ttitle_en));
     } else {
         $aThread->setTitleFromLocal();
@@ -107,22 +115,24 @@ if (!$ttitle_en) {
         //$ttitle_urlen = rawurlencode($ttitle_en);
     }
 }
-$ttitle_en_ht = ($ttitle_en) ? "&amp;ttitle_en={$ttitle_en}" : '';
+if ($ttitle_en) { $ttitle_en_ht = "&amp;ttitle_en={$ttitle_en}"; }
 
-if ($aThread->ttitle) {
+if (!is_null($aThread->ttitle_hc)) {
     $hc['ttitle_name'] = $aThread->ttitle_hc;
 } else {
-    $hc['ttitle_name'] = 'スレッドタイトル未取得';
+    $hc['ttitle_name'] = "スレッドタイトル未取得";
 }
 
-// favlist チェック =====================================
-//お気にスレリスト 読込
-if (file_exists($_conf['favlist_file']) && ($favlines = file($_conf['favlist_file']))) {
+
+// {{{ favlist チェック
+
+/*
+// お気にスレリスト 読込
+if ($favlines = @file($_conf['favlist_file'])) {
     foreach ($favlines as $l) {
-        $l = rtrim($l);
-        $favarray = explode('<>', $l);
-        if ($aThread->key == $favarray[1]) {
-            $aThread->fav = '1';
+        $favarray = explode('<>', rtrim($l));
+        if ($aThread->key == $favarray[1] && $aThread->bbs == $favarray[11]) {
+            $aThread->fav = "1";
             if ($favarray[0]) {
                 $aThread->setTtitle($favarray[0]);
             }
@@ -130,39 +140,41 @@ if (file_exists($_conf['favlist_file']) && ($favlines = file($_conf['favlist_fil
         }
     }
 }
+*/
 
 if ($aThread->fav) {
-    $favmark = '<span class="fav">★</span>';
-    $favdo = 0;
+    $favmark = "<span class=\"fav\">★</span>";
 } else {
-    $favmark = '<span class="fav">+</span>';
-    $favdo = 1;
+    $favmark = "<span class=\"fav\">+</span>";
 }
 
+$favdo = $aThread->fav ? 0 : 1;
+
 $fav_ht = <<<EOP
-<a href="info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setfav={$favdo}{$popup_ht}{$ttitle_en_ht}">{$favmark}</a>
+<a href="info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setfav={$favdo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}">{$favmark}</a>
 EOP;
 
-// palace チェック =========================================
-$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
+// }}}
+// {{{ palace チェック
 
-//殿堂入りスレリスト 読込
-$isPalace = false;
-if (file_exists($palace_idx) && ($pallines = file($palace_idx))) {
+// 殿堂入りスレリスト 読込
+$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
+if ($pallines = @file($palace_idx)) {
     foreach ($pallines as $l) {
-        $l = rtrim($l);
-        $palarray = explode('<>', $l);
+        $palarray = explode('<>', rtrim($l));
         if ($aThread->key == $palarray[1]) {
             $isPalace = true;
             if ($palarray[0]) {
-                $aThread->ttitle = $palarray[0];
+                $aThread->setTtitle($palarray[0]);
             }
             break;
         }
     }
 }
-$paldo = ($isPalace) ? 0 : 1;
-$pal_a_ht = "info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setpal={$paldo}{$popup_ht}{$ttitle_en_ht}";
+
+$paldo = $isPalace ? 0 : 1;
+
+$pal_a_ht = "info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setpal={$paldo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}";
 
 if ($isPalace) {
     $pal_ht = "<a href=\"{$pal_a_ht}\">★</a>";
@@ -170,17 +182,15 @@ if ($isPalace) {
     $pal_ht = "<a href=\"{$pal_a_ht}\">+</a>";
 }
 
-// ■スレッドあぼーんチェック =====================================
+// }}}
+// {{{ スレッドあぼーんチェック
+
 // スレッドあぼーんリスト読込
-$datdir_host = P2Util::datdirOfHost($host);
-$taborn_idx = "{$datdir_host}/{$bbs}/p2_threads_aborn.idx";
-
-//スレッドあぼーんリスト読込
-
-if (file_exists($taborn_idx) && ($tabornlist = file($taborn_idx))) {
+$idx_host_dir = P2Util::idxDirOfHost($host);
+$taborn_file = $idx_host_dir . '/' . $bbs . '/p2_threads_aborn.idx';
+if ($tabornlist = @file($taborn_file)) {
     foreach ($tabornlist as $l) {
-        $l = rtrim($l);
-        $tarray = explode('<>', $l);
+        $tarray = explode('<>', rtrim($l));
         if ($aThread->key == $tarray[1]) {
             $isTaborn = true;
             break;
@@ -190,41 +200,46 @@ if (file_exists($taborn_idx) && ($tabornlist = file($taborn_idx))) {
 
 $taborndo_title_at = '';
 if (!empty($isTaborn)) {
-    $tastr1 = 'あぼーん中';
-    $tastr2 = 'あぼーん解除する';
+    $tastr1 = "あぼーん中";
+    $tastr2 = "あぼーん解除する";
     $taborndo = 0;
 } else {
-    $tastr1 = '通常';
-    $tastr2 = 'あぼーんする';
+    $tastr1 = "通常";
+    $tastr2 = "あぼーんする";
     $taborndo = 1;
-    if (!$_conf['ktai']) {
+    if (empty($_conf['ktai'])) {
         $taborndo_title_at = ' title="スレッド一覧で非表示にします"';
     }
 }
 
 $taborn_ht = <<<EOP
-{$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_ht}{$ttitle_en_ht}"{$taborndo_title_at}>{$tastr2}</a>]
+{$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}"{$taborndo_title_at}>{$tastr2}</a>]
 EOP;
 
+// }}}
 
-// ログありなしフラグセット ===========
-if (file_exists($aThread->keydat) or file_exists($aThread->keyidx) ) { $existLog = true; }
+// ログありなしフラグセット
+if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) {
+    $existLog = true;
+}
 
 //=================================================================
-// HTMLプリント
+// ■HTMLプリント
 //=================================================================
-if (!$_conf['ktai']) {
+if (!empty($_conf['ktai'])) {
     $target_read_at = ' target="read"';
     $target_sb_at = ' target="sbject"';
 }
 
 $motothre_url = $aThread->getMotoThread();
-if ($_conf['motothre_ime']) {
-    $motothre_url_ime = P2Util::throughIme($motothre_url, TRUE);
+if (P2Util::isHost2chs($aThread->host)) {
+    $motothre_org_url = $aThread->getMotoThread(true);
 } else {
-    $motothre_url_ime = htmlspecialchars($motothre_url);
+    $motothre_org_url = $motothre_url;
 }
-if (isset($title_msg)) {
+
+
+if (!is_null($title_msg)) {
     $hc['title'] = $title_msg;
 } else {
     $hc['title'] = "info - {$hc['ttitle_name']}";
@@ -237,64 +252,66 @@ P2Util::header_nocache();
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
-<html lang="ja">
+<html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$hd['title']}</title>\n
 EOHEADER;
 
-if (!$_conf['ktai']) {
-    echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+if (empty($_conf['ktai'])) {
+    // echo "<!-- ".$key_line." -->\n";
+    @include("./style/style_css.inc"); // 基本スタイルシート読込
+    @include("./style/info_css.inc");
+}
+
+if ($_GET['popup'] == 2) {
+    echo <<<EOSCRIPT
+    <script type="text/javascript" src="js/closetimer.js"></script>
+EOSCRIPT;
+    $body_onload = <<<EOP
+ onLoad="startTimer(document.getElementById('timerbutton'))"
 EOP;
 }
 
-$body_onload = '';
-if (isset($_GET['popup']) && $_GET['popup'] == 2) {
-    echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js\"></script>\n";
-    $body_onload = " onload=\"startTimer(document.getElementById('timerbutton'))\"";
-}
-
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
 echo <<<EOP
 </head>
-<body{$k_color_settings}{$body_onload}>
+<body{$body_at}>
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = '';
+$_info_msg_ht = "";
 
 echo "<p>\n";
-echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
+echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
 echo "</p>\n";
 
-if ($_conf['ktai']) {
-    if (isset($info_msg)) {
+// 携帯なら冒頭で表示
+if (!empty($_conf['ktai'])) {
+    if (!empty($info_msg)) {
         echo "<p>".$info_msg."</p>\n";
     }
 }
 
 if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($aThread->host, $aThread->bbs, $aThread->key)) {
-    $offrec_ht = " / [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;offrec=true{$popup_ht}{$ttitle_en_ht}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
+    $offrec_ht = " / [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;offrec=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
 }
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     echo "<table cellspacing=\"0\">\n";
 }
-print_info_line("元スレ", "<a href=\"{$motothre_url_ime}\"{$target_read_at}>{$motothre_url}</a>");
-if (!$_conf['ktai']) {
+print_info_line("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$motothre_url}</a>");
+if (empty($_conf['ktai'])) {
     print_info_line("ホスト", $aThread->host);
 }
-print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}\"{$target_sb_at}>{$hd['itaj']}</a>");
+print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$hd['itaj']}</a>");
 if (!$_conf['ktai']) {
     print_info_line("key", $aThread->key);
 }
 if ($existLog) {
-    print_info_line("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}\">削除する</a>]{$offrec_ht}");
+    print_info_line("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\">削除する</a>]{$offrec_ht}");
 } else {
     print_info_line("ログ", "未取得{$offrec_ht}");
 }
@@ -305,9 +322,9 @@ if ($aThread->gotnum) {
 } else {
     print_info_line("既得レス数", "-");
 }
-if ($aThread->length) {print_info_line("取得サイズ", $aThread->length);}
 
-if (!$_conf['ktai']) {
+// PC
+if (empty($_conf['ktai'])) {
     if (file_exists($aThread->keydat)) {
         if ($aThread->length) {
             print_info_line("datサイズ", $aThread->length.' バイト');
@@ -327,48 +344,86 @@ print_info_line("お気にスレ", $fav_ht);
 print_info_line("殿堂入り", $pal_ht);
 print_info_line("表示", $taborn_ht);
 
-if (!$_conf['ktai']) {
+// PC
+if (empty($_conf['ktai'])) {
     echo "</table>\n";
 }
 
-if (!$_conf['ktai']) {
-    if (isset($info_msg)) {
+if (empty($_conf['ktai'])) {
+    if (!empty($info_msg)) {
         echo "<span class=\"infomsg\">".$info_msg."</span>\n";
     } else {
         echo "　\n";
     }
 }
 
-// 閉じるボタン
+// 携帯コピペ用フォーム
+if (!empty($_conf['ktai'])) {
+    echo getCopypaFormHtml($motothre_org_url, $hd['ttitle_name']);
+}
+
+// {{{ 閉じるボタン
+
 if (!empty($_GET['popup'])) {
     echo '<div align="center">';
     if ($_GET['popup'] == 1) {
-        echo '<form action=""><input type="button" value="ウィンドウを閉じる" onclick="window.close();"></form>';
+        echo '<form action=""><input type="button" value="ウィンドウを閉じる" onClick="window.close();"></form>';
     } elseif ($_GET['popup'] == 2) {
         echo <<<EOP
-    <form action=""><input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))"></form>
+    <form action=""><input id="timerbutton" type="button" value="Close Timer" onClick="stopTimer(document.getElementById('timerbutton'))"></form>
 EOP;
     }
-    echo "</div>\n";
+    echo '</div>' . "\n";
 }
 
-if ($_conf['ktai']) {
-    echo "<hr>".$_conf['k_to_index_ht'];
+// }}}
+
+if (!empty($_conf['ktai'])) {
+    echo '<hr>'.$_conf['k_to_index_ht'];
 }
 
 echo '</body></html>';
 
-//===============================================
+// 終了
+exit();
+
+//=======================================================
 // ■関数
-//===============================================
-function print_info_line($s, $c)
+//=======================================================
+/**
+ * スレ情報HTMLを表示する
+ */
+function print_info_line($s, $c_ht)
 {
     global $_conf;
-    if ($_conf['ktai']) {
-        echo "{$s}: {$c}<br>";
+    
+    // 携帯
+    if (!empty($_conf['ktai'])) {
+        echo "{$s}: {$c_ht}<br>";
+    // PC
     } else {
-        echo "<tr><td class=\"tdleft\" nowrap><b>{$s}</b>&nbsp;</td><td class=\"tdcont\">{$c}</td></tr>\n";
+        echo "<tr><td class=\"tdleft\" nowrap><b>{$s}</b>&nbsp;</td><td class=\"tdcont\">{$c_ht}</td></tr>\n";
     }
 }
 
+/**
+ * スレタイとURLのコピペ用のフォームを取得する
+ */
+function getCopypaFormHtml($url, $ttitle_name_hd)
+{
+    $url_hd = htmlspecialchars($url, ENT_QUOTES);
+    
+    $me_url = $me_url = P2Util::getMyUrl();
+    // $_SERVER['REQUEST_URI']
+    
+    $htm = <<<EOP
+<form action="{$me_url}">
+ <textarea name="copy">{$ttitle_name_hd}&#10;{$url_hd}</textarea>
+</form>
+EOP;
+// <input type="text" name="url" value="{$url_hd}">
+// <textarea name="msg_txt">{$msg_txt}</textarea><br>
+
+    return $htm;
+}
 ?>

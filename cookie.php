@@ -1,26 +1,28 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2 -  クッキー認証処理
+/**
+ * p2 -  クッキー認証処理
+ * 
+ * 内部文字エンコーディング: Shift_JIS
+ */
 
-    内部文字エンコーディング: Shift_JIS
-*/
+include_once './conf/conf.inc.php'; // 基本設定
 
-require_once 'conf/conf.php'; // 基本設定
-
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 
 // 書き出し用変数
 
 $return_path = 'login.php';
 
-$next_url = $return_path . '?check_regist_cookie=1&amp;regist_cookie=' . $_REQUEST['regist_cookie'];
+$next_url = <<<EOP
+{$return_path}?check_regist_cookie=1&amp;regist_cookie={$_REQUEST['regist_cookie']}{$_conf['k_at_a']}
+EOP;
+
 
 $next_url = str_replace('&amp;', '&', $next_url);
 
-header('Location: '.$next_url);
+$sid_q = (defined('SID')) ? '&'.strip_tags(SID) : '';
+header('Location: '.$next_url.$sid_q);
 exit;
 
 ?>

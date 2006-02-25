@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 // {{{ class ExpackLoader
@@ -13,14 +13,14 @@ class ExpackLoader
 
     function loadActiveMona()
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (defined('P2_ACTIVEMONA_AVAILABLE')) {
             return;
         }
 
-        if ((!$_conf['ktai'] && ($_exconf['aMona']['*'] || $_exconf['spm']['with_aMona'])) ||
-            ($_conf['ktai'] && $_exconf['aMona']['*'] && $_exconf['aMona']['aaryaku_k'])
+        if ((!$_conf['ktai'] && $_conf['expack.am.enabled']) ||
+            ($_conf['ktai'] && $_conf['expack.am.enabled'] && $_conf['expack.am.autong_k'])
         ) {
             require_once (P2EX_LIBRARY_DIR . '/activemona.class.php');
             define('P2_ACTIVEMONA_AVAILABLE', 1);
@@ -34,20 +34,25 @@ class ExpackLoader
 
     function initActiveMona(&$aShowThread)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
-        $aShowThread->activemona = &ActiveMona::singleton($_exconf['aMona']);
+        $aShowThread->activeMona = &ActiveMona::singleton();
+        $aShowThread->am_enabled = true;
 
         if (!$_conf['ktai']) {
-            if ($_exconf['aMona']['*'] >= 2 && $_exconf['aMona']['aaryaku']) {
-                $aShowThread->am_aaryaku = $_exconf['aMona']['aaryaku'];
-                $aShowThread->am_aaryaku_msg = htmlspecialchars('<<AA—ª>>');
-            } else {
-                $aShowThread->am_enabled = TRUE;
+            if ($_conf['expack.am.autodetect']) {
+                $aShowThread->am_autodetect = true;
             }
-        } else {
-            $aShowThread->am_aaryaku = $_exconf['aMona']['aaryaku_k'];
-            $aShowThread->am_aaryaku_msg = htmlspecialchars('<<AA—ª>>');
+            if ($_conf['expack.am.display'] == 0) {
+                $aShowThread->am_side_of_id = true;
+            } elseif ($_conf['expack.am.display'] == 1) {
+                $aShowThread->am_on_spm = true;
+            } elseif ($_conf['expack.am.display'] == 2) {
+                $aShowThread->am_side_of_id = true;
+                $aShowThread->am_on_spm = true;
+            }
+        } elseif ($_conf['expack.am.autong_k']) {
+            $aShowThread->am_autong = true;
         }
     }
 
@@ -56,14 +61,14 @@ class ExpackLoader
 
     function loadImageCache()
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (defined('P2_IMAGECACHE_AVAILABLE')) {
             return;
         }
 
-        if ((!$_conf['ktai'] && $_exconf['imgCache']['*'] % 2 == 1) ||
-            ($_conf['ktai'] && $_exconf['imgCache']['*'] >= 2)
+        if ((!$_conf['ktai'] && $_conf['expack.ic2.enabled'] % 2 == 1) ||
+            ($_conf['ktai'] && $_conf['expack.ic2.enabled'] >= 2)
         ) {
             require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
             require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
@@ -77,11 +82,33 @@ class ExpackLoader
     }
 
     // }}}
+    // {{{ loadAAS()
+
+    function loadAAS()
+    {
+        global $_conf;
+
+        if (defined('P2_AAS_AVAILABLE')) {
+            return;
+        }
+
+        if ($_conf['expack.aas.enabled']) {
+            if ($_conf['expack.aas.inline']) {
+                define('P2_AAS_AVAILABLE', 2);
+            } else {
+                define('P2_AAS_AVAILABLE', 1);
+            }
+        } else {
+            define('P2_AAS_AVAILABLE', 0);
+        }
+    }
+
+    // }}}
     // {{{ initImageCache()
 
     function initImageCache(&$aShowThread)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (!$_conf['ktai']) {
             $aShowThread->thumbnailer = &new ThumbNailer(1);
@@ -102,36 +129,27 @@ class ExpackLoader
     }
 
     // }}}
-    // {{{ loadLiveView()
+    // {{{ initAAS()
 
-    function loadLiveView()
+    function initAAS(&$aShowThread)
     {
-        global $_conf, $_exconf;
-
-        if (!$_conf['ktai'] && $_exconf['liveView']['*']) {
-            require_once (P2EX_LIBRARY_DIR . '/arraycleaner.class.php');
-        }
-    }
-
-    // }}}
-    // {{{ initLiveView(()
-
-    function initLiveView(&$aShowThread)
-    {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (!$_conf['ktai']) {
-            $aShowThread->lv_enabled = TRUE;
-            $aShowThread->arraycleaner = &ArrayCleaner::singleton(2, 'SJIS');
-            if ($_exconf['aMona']['*']) {
-                if ($_exconf['aMona']['aaryaku_l']) {
-                    $aShowThread->am_aaryaku = $_exconf['aMona']['aaryaku_l'];
-                    $aShowThread->am_aaryaku_msg = htmlspecialchars('<<AA—ª>>');
-                    $aShowThread->am_enabled = FALSE;
-                } elseif ($_exconf['aMona']['aaryaku']) {
-                    $aShowThread->am_aaryaku = FALSE;
-                    $aShowThread->am_enabled = TRUE;
-                }
+            //
+        } else {
+            $mobile = &Net_UserAgent_Mobile::singleton();
+            /**
+             * @link http://www.nttdocomo.co.jp/p_s/imode/tag/emoji/e1.html
+             * @link http://www.au.kddi.com/ezfactory/tec/spec/3.html
+             * @link http://developers.vodafone.jp/dp/tool_dl/web/picword_top.php
+             */
+            if ($mobile->isDoCoMo()) {
+                $aShowThread->aas_rotate = '&#63962;';      // ƒŠƒTƒCƒNƒ‹, Šg42, F9DA
+            } elseif ($mobile->isEZweb()) {
+                $aShowThread->aas_rotate = '&#xF47D;';      // zŠÂ–îˆó, 807
+            } elseif ($mobile->isVodafone()) {
+                $aShowThread->aas_rotate = "\x1b\$Pc\x0f";  // ‰QŠª, 414
             }
         }
     }

@@ -1,64 +1,41 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     p2 - スレッドを表示する クラス PC用
 */
 
-require_once (P2_LIBRARY_DIR . '/showthread.class.php');
 require_once (P2EX_LIBRARY_DIR . '/expack_loader.class.php');
-
+ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
 ExpackLoader::loadImageCache();
-ExpackLoader::loadLiveView();
 
-class ShowThreadPc extends ShowThread {
+class ShowThreadPc extends ShowThread{
 
     var $quote_res_nums_checked; // ポップアップ表示されるチェック済みレス番号を登録した配列
     var $quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
     var $quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
 
-    var $activemona; // アクティブモナークラスのインスタンス
-    var $am_enabled = FALSE;
-    var $am_aaryaku = FALSE;
-
-    var $thumbnailer; // サムネイル作成クラスのインスタンス
-    var $img_memo; // DBの画像情報に付加するメモ（UTF-8エンコードしたスレタイ）
-    var $img_memo_query;
-
-    var $lv_enabled = FALSE; // 実況表示フラグ
-    var $arraycleaner; // 配列処理クラスのインスタンス
+    var $am_autodetect = false; // AA自動判定をするか否か
+    var $am_side_of_id = false; // AAスイッチをIDの横に表示する
+    var $am_on_spm = false; // AAスイッチをSPMに表示する
 
     var $asyncObjName;  // 非同期読み込み用JavaScriptオブジェクト名
-    var $spmObjName;    // スマートポップアップメニュー用JavaScriptオブジェクト名
+    var $spmObjName; // スマートポップアップメニュー用JavaScriptオブジェクト名
 
     /**
-     * コンストラクタ (PHP4 style)
+     * コンストラクタ
      */
     function ShowThreadPc(&$aThread)
     {
-        $this->__construct($aThread);
-    }
+        parent::ShowThread($aThread);
 
-    /**
-     * コンストラクタ (PHP5 style)
-     */
-    function __construct(&$aThread)
-    {
-        parent::__construct($aThread);
+        global $_conf;
 
-        global $_conf, $_exconf;
-
-        // URL書き換えハンドラを登録
         $this->url_handlers = array(
             array('this' => 'plugin_link2ch'),
-            array('this' => 'plugin_linkmmobbs'),
             array('this' => 'plugin_linkMachi'),
             array('this' => 'plugin_linkJBBS'),
             array('this' => 'plugin_link2chKako'),
             array('this' => 'plugin_link2chSubject'),
-            array('this' => 'plugin_linkmmobbsKako'),
-            array('this' => 'plugin_linkmmobbsSubject'),
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
             $this->url_handlers[] = array('this' => 'plugin_imageCache2');
@@ -69,7 +46,7 @@ class ShowThreadPc extends ShowThread {
 
         // サムネイル表示制限数を設定
         if (!isset($GLOBALS['pre_thumb_unlimited']) || !isset($GLOBALS['pre_thumb_limit'])) {
-            if (isset($_conf['pre_thumb_limit']) && $_conf['pre_thumb_limit'] >= 0) {
+            if (isset($_conf['pre_thumb_limit']) && $_conf['pre_thumb_limit'] > 0) {
                 $GLOBALS['pre_thumb_limit'] = $_conf['pre_thumb_limit'];
                 $GLOBALS['pre_thumb_unlimited'] = FALSE;
             } else {
@@ -89,18 +66,10 @@ class ShowThreadPc extends ShowThread {
             ExpackLoader::initImageCache($this);
         }
 
-        // 実況モード初期化
-        if ($_exconf['liveView']['*'] == 1 || ($_exconf['liveView']['*'] == 2 &&
-            (preg_match('/^live\d+\.2ch\.net/', $this->thread->host) || $this->thread->bbs == 'liveplus'))
-        ) {
-            ExpackLoader::initLiveView($this);
-        }
-
         // 非同期レスポップアップ・SPM初期化
         $jsObjId = md5($this->thread->keydat);
         $this->asyncObjName = 'asp_' . $jsObjId;
         $this->spmObjName = 'spm_' . $jsObjId;
-
     }
 
     /**
@@ -108,6 +77,7 @@ class ShowThreadPc extends ShowThread {
      */
     function datToHtml()
     {
+        // 表示レス範囲が指定されていなければ
         if (!$this->thread->resrange) {
             echo '<b>p2 error: {$this->resrange} is FALSE at datToHtml()</b>';
             return false;
@@ -117,31 +87,33 @@ class ShowThreadPc extends ShowThread {
         $to = $this->thread->resrange['to'];
         $nofirst = $this->thread->resrange['nofirst'];
 
-        $status_title = htmlspecialchars($this->thread->itaj).' / '.$this->thread->ttitle_hd;
+        $status_title = htmlspecialchars($this->thread->itaj, ENT_QUOTES) . " / " . $this->thread->ttitle_hd;
         $status_title = str_replace("'", "\'", $status_title);
         $status_title = str_replace('"', "\'\'", $status_title);
-        echo "<dl onmouseover=\"window.top.status='{$status_title}';\">";
+        echo "<dl onMouseover=\"window.top.status='{$status_title}';\">";
 
         // まず 1 を表示
         if (!$nofirst) {
-            echo $this->transRes(1);
+            echo $this->transRes($this->thread->datlines[0], 1);
         }
 
         for ($i = $start; $i <= $to; $i++) {
-            if (!$nofirst && $i == 1) {
+
+            if (!$nofirst and $i == 1) {
                 continue;
             }
-            if (!isset($this->pDatLines[$i])) {
+            if (!$this->thread->datlines[$i-1]) {
                 $this->thread->readnum = $i-1;
                 break;
             }
-            echo $this->transRes($i);
+            echo $this->transRes($this->thread->datlines[$i-1], $i);
             flush();
         }
+
         echo "</dl>\n";
 
-        // $s2e = array($start, $i-1);
-        // return $s2e;
+        //$s2e = array($start, $i-1);
+        //return $s2e;
         return true;
     }
 
@@ -149,58 +121,169 @@ class ShowThreadPc extends ShowThread {
     /**
      * ■ DatレスをHTMLレスに変換する
      *
-     * 引数 - レス番号
+     * 引数 - datの1ライン, レス番号
      */
-    function transRes($i)
+    function transRes($ares, $i)
     {
-        global $_conf, $_exconf;
-        global $STYLE, $mae_msg, $res_filter, $word_fm;
+        global $_conf, $STYLE, $mae_msg, $res_filter;
         global $ngaborns_hits;
+        static $ngaborns_head_hits = 0;
+        static $ngaborns_body_hits = 0;
 
-        $tores = '';
-        $rpop = '';
-        if (basename($_SERVER['SCRIPT_NAME']) != basename($_conf['read_new_php'])) {
-            $resAnchor = " id=\"r{$i}\"";
+        $resar = $this->thread->explodeDatLine($ares);
+        $name = $resar[0];
+        $mail = $resar[1];
+        $date_id = $resar[2];
+        $msg = $resar[3];
+
+        // {{{ フィルタリング
+        if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
+            if (strlen($GLOBALS['word_fm']) <= 0) {
+                return '';
+            // ターゲット設定（空のときはフィルタリング結果に含めない）
+            } elseif (!$target = $this->getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)) {
+                return '';
+            // マッチング
+            } elseif (!$this->filterMatch($target, $i)) {
+                return '';
+            }
+        }
+        // }}}
+
+        $tores = "";
+        $rpop = "";
+        $isNgName = false;
+        $isNgMail = false;
+        $isNgId = false;
+        $isNgMsg = false;
+        $isFreq = false;
+        $isChain = false;
+        $automona_class = "";
+
+        if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain']) && 
+            preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|', $date_id, $matches))
+        {
+            $id = $matches[1];
         } else {
-            $resAnchor = '';
-        }
-        $resID = $i . 'of' . $this->thread->key;
-        $resBodyID = 'rb' . $resID;
-
-        $name = $this->pDatLines[$i]['name'];
-        $mail = $this->pDatLines[$i]['mail'];
-        $date_id = $this->transDateId($i);
-        $msg = $this->pDatLines[$i]['msg'];
-
-        // {{{ transRes - フィルタリング・あぼーん・NG・AAチェック
-
-        // フィルタリング
-        if (!empty($_conf['filtering']) && !$this->filterMatch($i)) {
-            return '';
+            $id = null;
         }
 
-        // あぼーんチェック
-        $aborned_res = "<dt{$resAnchor} class=\"aborned\"><span>&nbsp;</span></dt>\n"; // 名前
+        $res_id = sprintf('r%dof%s_%s', $i, $this->thread->key, preg_replace('/\\W/', '_', $this->thread->bbs));
+
+        // {{{ あぼーんチェック
+
+        $aborned_res .= "<dt id=\"r{$i}\" class=\"aborned\"><span>&nbsp;</span></dt>\n"; // 名前
         $aborned_res .= "<!-- <dd class=\"aborned\">&nbsp;</dd> -->\n"; // 内容
-        if (($aborn_hit_field = $this->checker->abornCheck($i)) !== FALSE) {
-            $ngaborns_hits["aborn_{$aborn_hit_field}"]++;
+        $ng_msg_info = array();
+
+        // 頻出IDあぼーん
+        if ($this->ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
+            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->one_id) {
+                // >>1 はそのまま表示
+            } elseif ($this->ngaborn_frequent == 1) {
+                $ngaborns_hits['aborn_freq']++;
+                $this->aborn_nums[] = $i;
+                return $aborned_res;
+            } elseif (!$_GET['nong']) {
+                $ngaborns_hits['ng_freq']++;
+                $ngaborns_body_hits++;
+                $this->ng_nums[] = $i;
+                $isFreq = true;
+                $ng_msg_info[] = sprintf('頻出ID：%s(%d)', $id, $this->thread->idcount[$id]);
+            }
+        }
+
+        // 連鎖あぼーん
+        if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
+            $chain_nums = array_unique(array_map('intval', split('[-,]+', trim(implode(',', $matches[1]), '-,'))));
+            if (array_intersect($chain_nums, $this->aborn_nums)) {
+                if ($_conf['ngaborn_chain'] == 1) {
+                    $ngaborns_hits['aborn_chain']++;
+                    $this->aborn_nums[] = $i;
+                    return $aborned_res;
+                } else {
+                    $a_chain_num = array_shift($chain_nums);
+                    $ngaborns_hits['ng_chain']++;
+                    $this->ng_nums[] = $i;
+                    $ngaborns_body_hits++;
+                    $isChain = true;
+                    $ng_msg_info[] = sprintf('連鎖NG：&gt;&gt;%d(あぼーん)', $a_chain_num);
+                }
+            } elseif (array_intersect($chain_nums, $this->ng_nums)) {
+                $a_chain_num = array_shift($chain_nums);
+                $ngaborns_hits['ng_chain']++;
+                $ngaborns_body_hits++;
+                $this->ng_nums[] = $i;
+                $isChain = true;
+                $ng_msg_info[] = sprintf('連鎖NG：&gt;&gt;%d', $a_chain_num);
+            }
+        }
+
+        // あぼーんネーム
+        if ($this->ngAbornCheck('aborn_name', strip_tags($name)) !== false) {
+            $ngaborns_hits['aborn_name']++;
+            $this->aborn_nums[] = $i;
             return $aborned_res;
         }
 
-        // NGチェック
-        $ng_fields = $this->checker->ngCheck($i);
-        foreach ($ng_fields as $ng_hit_field => $ng_hit_value) {
-            $ngaborns_hits["ng_{$ng_hit_field}"]++;
+        // あぼーんメール
+        if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
+            $ngaborns_hits['aborn_mal']++;
+            $this->aborn_nums[] = $i;
+            return $aborned_res;
         }
 
-        // AAチェック
-        if ($this->am_aaryaku && $this->activemona->detectAA($msg)) {
-            if ($this->am_aaryaku == 2) {
-                return $aborned_res;
-            } else {
-                $ngaborns_hits['ng_aa']++;
-                $ng_fields['aa'] = TRUE;
-            }
+        // あぼーんID
+        if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
+            $ngaborns_hits['aborn_id']++;
+            $this->aborn_nums[] = $i;
+            return $aborned_res;
+        }
+
+        // あぼーんメッセージ
+        if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
+            $ngaborns_hits['aborn_msg']++;
+            $this->aborn_nums[] = $i;
+            return $aborned_res;
+        }
+
+        // NGネームチェック
+        if ($this->ngAbornCheck('ng_name', $name) !== false) {
+            $ngaborns_hits['ng_name']++;
+            $ngaborns_head_hits++;
+            $this->ng_nums[] = $i;
+            $isNgName = true;
+        }
+
+        // NGメールチェック
+        if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
+            $ngaborns_hits['ng_mail']++;
+            $ngaborns_head_hits++;
+            $this->ng_nums[] = $i;
+            $isNgMail = true;
+        }
+
+        // NGIDチェック
+        if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
+            $ngaborns_hits['ng_id']++;
+            $ngaborns_head_hits++;
+            $this->ng_nums[] = $i;
+            $isNgId = true;
+        }
+
+        // NGメッセージチェック
+        $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
+        if ($a_ng_msg !== false) {
+            $ngaborns_hits['ng_msg']++;
+            $ngaborns_body_hits++;
+            $this->ng_nums[] = $i;
+            $isNgMsg = true;
+            $ng_msg_info[] = sprintf('NGワード：%s', htmlspecialchars($a_ng_msg, ENT_QUOTES));
+        }
+
+        // AA 判定
+        if ($this->am_autodetect && $this->activeMona->detectAA($msg)) {
+            $automona_class = ' class="ActiveMona"';
         }
 
         // }}}
@@ -208,173 +291,108 @@ class ShowThreadPc extends ShowThread {
         //=============================================================
         // レスをポップアップ表示
         //=============================================================
-        if ($_conf['quote_res_view'] && !$_exconf['etc']['async_respop']) {
+        if ($_conf['quote_res_view']) {
             $this->quote_check_depth = 0;
             $quote_res_nums = $this->checkQuoteResNums($i, $name, $msg);
 
             foreach ($quote_res_nums as $rnv) {
-                if (!isset($this->quote_res_nums_done[$rnv])) {
-                    $ds = $this->qRes($rnv);
-                    $onPopUp_at = " onmouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onmouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
-                    $rpop .=  "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . rtrim($ds) . "</i></dd>\n";
+                if (!$this->quote_res_nums_done[$rnv]) {
+                    $ds = $this->qRes($this->thread->datlines[$rnv-1], $rnv);
+                    $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
+                    $rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></dd>\n";
                     $this->quote_res_nums_done[$rnv] = true;
                 }
             }
         }
 
-        // transRes - まとめて出力
         //=============================================================
         // まとめて出力
         //=============================================================
 
         $name = $this->transName($name); // 名前HTML変換
-        $msg = "<div id=\"{$resBodyID}\">" . $this->transMsg($msg, $i) . "</div>";
+        $msg = $this->transMsg($msg, $i); // メッセージHTML変換
 
-        // {{{ transRes - ActiveMona
-        // アクティブモナー
-        if ($this->am_enabled && $_exconf['aMona']['*']) {
-            $mona = $this->activemona->transAM($msg, $resBodyID, $this->thread->bbs);
-        } else {
-            $mona = '';
+
+        // BEプロファイルリンク変換
+        $date_id = $this->replaceBeId($date_id, $i);
+
+        // HTMLポップアップ
+        if ($_conf['iframe_popup']) {
+            $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
         }
-        // }}}
-
-        // {{{ transRes - NGワード変換
-
-        // NGブロック用IDを設定
-        // AA略
-        if (isset($ng_fields['aa'])) {
-            $ng_msg_type = $this->am_aaryaku_msg;
-            $ng_msg_id = 'aang' . $ngaborns_hits['ng_aa'];
-
-        // 行数が多すぎかつ実況モードでない（実況モードは別に設定項目がある）
-        } elseif (isset($ng_fields['lines']) && !$this->lv_enabled) {
-            $ng_msg_type = $ng_fields['lines'] . 'lines';
-            $ng_msg_id = 'ngl' . $ngaborns_hits['ng_lines'];
-
-        // メッセージにNGワードを含む
-        } elseif (isset($ng_fields['msg'])) {
-            $ng_msg_type = 'NGワード：' . $ng_fields['msg'];
-            $ng_msg_id = 'ngmsg' . $ngaborns_hits['ng_msg'];
-
-        // あぼーんレスを参照
-        } elseif (isset($ng_fields['aborn'])) {
-            $ng_msg_type = '連鎖NG(あぼーん)：&gt;&gt;' . $ng_fields['aborn'];
-            $ng_msg_id = 'nga' . $ngaborns_hits['ng_aborn'];
-
-        // NGレスを参照
-        } elseif (isset($ng_fields['chain'])) {
-            $ng_msg_type = '連鎖NG：&gt;&gt;' . $ng_fields['chain'];
-            $ng_msg_id = 'ngc' . $ngaborns_hits['ng_chain'];
-
-        // 名前にNGワードを含む
-        } elseif (isset($ng_fields['name'])) {
-            $ng_msg_id = 'ngn' . $ngaborns_hits['ng_name'];
-
-        // メールにNGワードを含む
-        } elseif (isset($ng_fields['mail'])) {
-            $ng_msg_id = 'ngm' . $ngaborns_hits['ng_mail'];
-
-        // IDにNGワードを含む
-        } elseif (isset($ng_fields['id'])) {
-            $ng_msg_id = 'ngid' . $ngaborns_hits['ng_id'];
-        }
-
-        $ng_format = "<s class=\"ngword\" onmouseover=\"document.getElementById('%s').style.display = 'block';\">%s</s>";
 
         // NGメッセージ変換
-        if (isset($ng_msg_type)) {
-            $show_ngmsg = sprintf($ng_format, $ng_msg_id, $ng_msg_type);
-        } else {
-            $show_ngmsg = '';
-        }
-        if (isset($ng_msg_id)) {
-            $msg = "{$show_ngmsg}<div id=\"{$ng_msg_id}\" style=\"display:none;\">{$msg}</div>";
+        if ($ng_msg_info) {
+            $ng_type = implode(', ', $ng_msg_info);
+            $msg = <<<EOMSG
+<s class="ngword" onMouseover="document.getElementById('ngm{$ngaborns_body_hits}').style.display = 'block';">$ng_type</s>
+<div id="ngm{$ngaborns_body_hits}" style="display:none;">$msg</div>
+EOMSG;
         }
 
         // NGネーム変換
-        if (isset($ng_fields['name'])) {
-            $name = sprintf($ng_format, $ng_msg_id, $name);
-        }
+        if ($isNgName) {
+            $name = <<<EONAME
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$name</s>
+EONAME;
+            $msg = <<<EOMSG
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+EOMSG;
 
         // NGメール変換
-        if (isset($ng_fields['mail'])) {
-            $mail = sprintf($ng_format, $ng_msg_id, $mail);
-        }
+        } elseif ($isNgMail) {
+            $mail = <<<EOMAIL
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
+EOMAIL;
+            $msg = <<<EOMSG
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+EOMSG;
 
         // NGID変換
-        if (isset($ng_fields['id'])) {
-            $date_id = sprintf($ng_format, $ng_msg_id, $date_id);
+        } elseif ($isNgId) {
+            $date_id = <<<EOID
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$date_id</s>
+EOID;
+            $msg = <<<EOMSG
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+EOMSG;
+
         }
 
-        // }}}
-
         /*
-        // 「ここから新着」画像を挿入 ========================
-        if ($i == $this->thread->readnum + 1) {
-            $tores .= "\n<div><img src=\"img/image.png\" alt=\"新着レス\" border=\"0\" vspace=\"4\"></div>\n";
+        //「ここから新着」画像を挿入
+        if ($i == $this->thread->readnum +1) {
+            $tores .= <<<EOP
+                <div><img src="img/image.png" alt="新着レス" border="0" vspace="4"></div>
+EOP;
         }
         */
 
-        // {{{ transRes - SPM
-        // スマートポップアップメニュー
-        if ($_exconf['spm']['*'] == 2) {
-            $spmEventHandler = " onclick=\"showSPM({$this->spmObjName},{$i},'{$resBodyID}',event);return false\"";
-        } elseif ($_exconf['spm']['*']) {
-            $spmEventHandler = " onmouseover=\"showSPM({$this->spmObjName},{$i},'{$resBodyID}',event)\" onmouseout=\"hideResPopUp('{$this->spmObjName}_spm')\"";
+        // SPM
+        if ($_conf['expack.spm.enabled']) {
+            $spmeh = " onmouseover=\"showSPM({$this->spmObjName},{$i},'{$res_id}',event)\"";
+            $spmeh .= " onmouseout=\"hideResPopUp('{$this->spmObjName}_spm')\"";
         } else {
-            $spmEventHandler = '';
+            $spmeh = '';
         }
-        // }}}
 
-        // {{{ transRes - Bookmark
-        // しおりを挿入
-        if ($_exconf['bookmark']['*'] && $i > 0 && $i == $this->thread->readhere) {
-            $msg .= "<table id=\"readhere\"><tr><td>{$_exconf['bkmk']['marker']}</td></tr></table>";
-        }
-        // }}}
-
-        // {{{ transRes - LiveView
-        // 実況モード
-        if ($this->lv_enabled) {
-            // メッセージを分割
-            $live_regex = '/^'
-                . '(?P<ngword><s[^>]*?>.+?<\\/s>)?'
-                . '(?P<fullbody>'
-                    . '(?P<ngbegin><div id="(?P<ngid>ng[\\w\\-]+?)"[^>]*?>)?'
-                    . '(?P<msgbegin><div id="(?P<msgid>rb[\\w\\-]+?)"[^>]*?>)?'
-                    . '(?P<msgbody>.+?)'
-                    . '(?(4)(?P<msgend><\\/div>))'
-                    . '(?(2)(?P<ngend><\\/div>))'
-                . ')'
-                . '(?P<bkmk><table id="readhere">.+<\\/table>)?'
-                . '$/';
-            if (preg_match($live_regex, $msg, $live_match)) {
-                // Live2ch風レンダリング
-                include (P2EX_LIBRARY_DIR . '/liveview.inc.php');
-                // しおりを入れ直す
-                if ($live_match['bkmk']) {
-                    $jikkyo_tores .= "<dd class=\"jikkyo\">{$live_match['bkmk']}</dd>\n";
-                }
-                return $jikkyo_tores;
-            } else {
-                // パターンにマッチしなかったときはエラーを表示
-                $tores .= '<dd><b>実況モード error: メッセージの分割に失敗</b></dd>';
-            }
-        }
-        // }}}
-
-        $tores .= "<dt{$resAnchor}>";
         if ($this->thread->onthefly) {
             $GLOBALS['newres_to_show_flag'] = true;
-            $tores .= "<span class=\"ontheflyresorder\">{$i}</span> ："; //番号（オンザフライ時）
+            //番号（オンザフライ時）
+            $tores .= "<dt id=\"r{$i}\"><span class=\"ontheflyresorder spmSW\"{$spmeh}>{$i}</span> ：";
         } elseif ($i > $this->thread->readnum) {
             $GLOBALS['newres_to_show_flag'] = true;
-            $tores .= "<a href=\"javascript:void(0);\" class=\"newres\"{$spmEventHandler}>{$i}</a> ："; //番号（新着レス時）
+            // 番号（新着レス時）
+            $tores .= "<dt id=\"r{$i}\"><font color=\"{$STYLE['read_newres_color']}\" class=\"spmSW\"{$spmeh}>{$i}</font> ：";
+        } elseif ($_conf['expack.spm.enabled']) {
+            // 番号（SPM）
+            $tores .= "<dt id=\"r{$i}\"><span class=\"spmSW\"{$spmeh}>{$i}</span> ：";
         } else {
-            $tores .= "<a href=\"javascript:void(0);\" class=\"resnum\"{$spmEventHandler}>{$i}</a> ："; //番号
+            // 番号
+            $tores .= "<dt id=\"r{$i}\">{$i} ：";
         }
-        $tores .= "<span class=\"name\"><b>{$name}</b></span>："; //名前
+        // 名前
+        $tores .= "<span class=\"name\"><b>{$name}</b></span>：";
 
         // メール
         if ($mail) {
@@ -387,18 +405,26 @@ class ShowThreadPc extends ShowThread {
             }
         }
 
-        $tores .= $date_id; // 日付とID
-        $tores .= $mona; // AAボタン
-        $tores .= "</dt>\n";
-        $tores .= $rpop; // レスポップアップ用引用
-        $tores .= "<dd style=\"margin-bottom:2em\">{$msg}</dd>\n"; // 内容
-
-        // まとめてフィルタ色分け
-        if ($word_fm && $res_filter['match'] == 'on') {
-            $tores = StrCtl::filterMarking($word_fm, $tores);
+        // IDフィルタ
+        if ($_conf['flex_idpopup'] == 1 && $id && $this->thread->idcount[$id] > 1) {
+            $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
         }
 
-        // }}}
+        $tores .= $date_id; // 日付とID
+        if ($this->am_side_of_id) {
+            $tores .= ' ' . $this->activeMona->getMona($res_id);
+        }
+        $tores .= "</dt>";
+        $tores .= "<dd id=\"{$res_id}\"{$automona_class}>{$msg}<br><br></dd>\n"; // 内容
+        $tores .= $rpop; // レスポップアップ用引用
+        /*if ($_conf['expack.am.enabled'] == 2) {
+            $tores .= "<script type=\"text/javascript\">detectAA(\"$res_id\");</script>\n";
+        }*/
+
+        // まとめてフィルタ色分け
+        if ($GLOBALS['word_fm'] && $res_filter['match'] != 'off') {
+            $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
+        }
 
         return $tores;
     }
@@ -409,35 +435,29 @@ class ShowThreadPc extends ShowThread {
      */
     function quoteOne()
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (!$_conf['quote_res_view']) {
             return false;
         }
 
-        if ($_exconf['etc']['async_respop']) {
-            $rpop = '';
-        } else {
-            $dummy_msg = '';
-            $this->quote_check_depth = 0;
-            $quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
-            $rpop = '';
-            foreach ($quote_res_nums as $rnv) {
-                if (!isset($this->quote_res_nums_done[$rnv])) {
-                    $ds = '';
-                    if ($this->thread->ttitle_hd) {
-                        $ds = "<b>{$this->thread->ttitle_hd}</b><br><br>";
-                    }
-                    $ds .= $this->qRes($rnv);
-                    $onPopUp_at = " onmouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onmouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
-                    $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></div>\n";
-                    $this->quote_res_nums_done[$rnv]=true;
+        $dummy_msg = "";
+        $this->quote_check_depth = 0;
+        $quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
+        foreach ($quote_res_nums as $rnv) {
+            if (!$this->quote_res_nums_done[$rnv]) {
+                if ($this->thread->ttitle_hd) {
+                    $ds = "<b>{$this->thread->ttitle_hd}</b><br><br>";
                 }
+                $ds .= $this->qRes( $this->thread->datlines[$rnv-1], $rnv );
+                $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
+                $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></div>\n";
+                $this->quote_res_nums_done[$rnv] = true;
             }
         }
         $res1['q'] = $rpop;
 
-        $m1 = '&gt;&gt;1';
+        $m1 = "&gt;&gt;1";
         $res1['body'] = $this->transMsg($m1, 1);
         return $res1;
     }
@@ -445,58 +465,63 @@ class ShowThreadPc extends ShowThread {
     /**
      * レス引用HTML
      */
-    function qRes($i)
+    function qRes($ares, $i)
     {
-        global $_conf, $_exconf, $word_fm;
+        global $_conf;
 
-        if (!Isset($this->pDatLines[$i])) {
-            return false;
+        $resar = $this->thread->explodeDatLine($ares);
+        $name = $resar[0];
+        $name = $this->transName($name);
+        $msg = $resar[3];
+        $msg = $this->transMsg($msg, $i); // メッセージ変換
+        $mail = $resar[1];
+        $date_id = $resar[2];
+
+        // BEプロファイルリンク変換
+        $date_id = $this->replaceBeId($date_id, $i);
+
+        // HTMLポップアップ
+        if ($_conf['iframe_popup']) {
+            $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
+        }
+        //
+
+        // IDフィルタ
+        if ($_conf['flex_idpopup'] == 1) {
+            if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $date_id, $matches)) {
+                $id = $matches[1];
+                if ($this->thread->idcount[$id] > 1) {
+                    $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
+                }
+            }
         }
 
-        $name = $this->transName($this->pDatLines[$i]['name']);
-        $mail = $this->pDatLines[$i]['mail'];
-        $date_id = $this->transDateId($i);
-        $msg = $this->pDatLines[$i]['msg'];
-
-        $qresid = "qr{$i}of{$this->thread->key}";
-        $msg = "<div id=\"{$qresid}\">" . $this->transMsg($msg, $i) . "</div>";
-
-        // {{{ qRes - ActiveMona
-        // アクティブモナー
-        if ($this->am_enabled) {
-            if ($_exconf['aMona']['*']) {
-                $mona = $this->activemona->transAM($msg, $qresid, $this->thread->bbs);
-            }
+        // AA 判定
+        if ($this->am_autodetect && $this->activeMona->detectAA($msg)) {
+            $automona_class = ' class="ActiveMona"';
         } else {
-            $mona = '';
+            $automona_class = '';
         }
-        // }}}
 
-        // {{{ qRes - SPM
-        // スマートポップアップメニュー
-        if ($_exconf['spm']['*']) {
-            if ($_exconf['spm']['*'] == 2) {
-                $spmEventHandler = " onclick=\"showSPM({$this->spmObjName},{$i},'{$qresid}',event);return false;\"";
-            } else {
-                $spmEventHandler = " onmouseover=\"showSPM({$this->spmObjName},{$i},'{$qresid}',event)\" onmouseout=\"hideResPopUp('{$this->spmObjName}_spm')\"";
-            }
-            $i = "<a href=\"javascript:void(0);\" class=\"resnum\"{$spmEventHandler}>{$i}</a>";
+        // SPM
+        $qres_id = sprintf('qr%dof%s_%s', $i, $this->thread->key, preg_replace('/\\W/', '_', $this->thread->bbs));
+        if ($_conf['expack.spm.enabled']) {
+            $spmeh = " onmouseover=\"showSPM({$this->spmObjName},{$i},'{$qres_id}',event)\"";
+            $spmeh .= " onmouseout=\"hideResPopUp('{$this->spmObjName}_spm')\"";
+        } else {
+            $spmeh = '';
         }
-        // }}}
 
         // $toresにまとめて出力
-        $tores = "{$i} ："; //番号
-        $tores .= "<b>{$name}</b> ："; //名前
-        if ($mail) { $tores .= $mail." ："; } //メール
-        $tores .= $date_id; //日付とID
-        $tores .= $mona; //AAボタン
-        $tores .= "<br>";
-        $tores .= $msg."<br>\n"; //内容
-
-        // まとめてフィルタ色分け（乱暴かな？）
-        if ($word_fm && $res_filter['match'] == 'on') {
-            $tores = StrCtl::filterMarking($word_fm, $tores);
+        $tores = "<span class=\"spmSW\"{$spmeh}>{$i}</span> ："; // 番号
+        $tores .= "<b>$name</b> ："; // 名前
+        if($mail){ $tores .= $mail." ："; } // メール
+        $tores .= $date_id; // 日付とID
+        if ($this->am_side_of_id) {
+            $tores .= ' ' . $this->activeMona->getMona($qres_id);
         }
+        $tores .= "<br>";
+        $tores .= "<div id=\"{$qres_id}\"{$automona_class}>{$msg}</div>\n"; // 内容
 
         return $tores;
     }
@@ -506,28 +531,42 @@ class ShowThreadPc extends ShowThread {
      */
     function transName($name)
     {
-        global $_conf, $_exconf;
-        $nameID = '';
+        global $_conf;
+
+        $nameID = "";
 
         // ID付なら分解する
-        if (preg_match("/(.*)(◆.*)/", $name, $matches)) {
+        if (preg_match('/(.*)(◆.*)/', $name, $matches)) {
             $name = $matches[1];
             $nameID = $matches[2];
         }
 
-        // 数字を引用レスリンク化
-        // </b>～<b> は、ホストやトリップなのでマッチさせない
-        // $pettern = '/(?!<\/b>[^>]*)([1-9][0-9]{0,3})+(?![^<]*<b>)/';
-        $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-        $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+        // 数字をリンク化
+        if ($_conf['quote_res_view']) {
+            /*
+            $onPopUp_at = " onMouseover=\"showResPopUp('q\\1of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q\\1of{$this->thread->key}')\"";
+            $name && $name = preg_replace("/([1-9][0-9]*)/","<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=\\1\"{$_conf['bbs_win_target_at']}{$onPopUp_at}>\\1</a>", $name, 1);
+            */
+            // 数字を引用レスポップアップリンク化
+            // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
+            $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
+            $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+        }
 
-        if ($nameID) { $name = $name . $nameID; }
+        if (!empty($nameID)) { $name = $name . $nameID; }
 
-        $name = $name.' '; // 文字化け回避
+        $name = $name." "; // 文字化け回避
+
+        /*
+        $b = unpack('C*', $name);
+        $t = array_pop($b);
+        if ((0x80 <= $t && $t <= 0x9F) || (0xE0 <= $t && $t <= 0xEF)) {
+            $name = $name." ";
+        }
+        */
 
         return $name;
     }
-
 
     /**
      * datのレスメッセージをHTML表示用メッセージに変換する
@@ -535,32 +574,29 @@ class ShowThreadPc extends ShowThread {
      */
     function transMsg($msg, $mynum)
     {
-        global $_conf, $_exconf;
-        global $res_filter, $word_fm;
+        global $_conf;
         global $pre_thumb_ignore_limit;
 
         // 2ch旧形式のdat
         if ($this->thread->dat_type == "2ch_old") {
-            $msg = str_replace("＠｀", ",", $msg);
-            $msg = preg_replace("/&amp([^;])/", "&\$1", $msg);
+            $msg = str_replace('＠｀', ',', $msg);
+            $msg = preg_replace('/&amp([^;])/', '&$1', $msg);
         }
 
-        // Safariから投稿されたリンク中チルダの文字化け補正（厳密には文字化けとはちょっと違う）
-        $msg = preg_replace('{(h?t?tp://[\\w.\\-]+/)～([\\w.\\-%]+/?)}', '$1~$2', $msg);
+        // Safariから投稿されたリンク中チルダの文字化け補正
+        //$msg = preg_replace('{(h?t?tp://[\w\.\-]+/)～([\w\.\-%]+/?)}', '$1~$2', $msg);
 
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
         // 新着レスの画像は表示制限を無視する設定なら
-        if ($mynum > $this->thread->readnum && $_exconf['imgCache']['newres_ignore_limit']) {
+        if ($mynum > $this->thread->readnum && $_conf['expack.ic2.newres_ignore_limit']) {
             $pre_thumb_ignore_limit = TRUE;
         }
 
         // 引用やURLなどをリンク
         $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
-
-        $pre_thumb_ignore_limit = FALSE;
 
         return $msg;
     }
@@ -572,20 +608,17 @@ class ShowThreadPc extends ShowThread {
      */
     function link_callback($s)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
-        // {{{ preg_replace_callback()では名前付きでキャプチャできないのでマッピング
-
+        // preg_replace_callback()では名前付きでキャプチャできない？
         if (!isset($s['link'])) {
             $s['link']  = $s[1];
-            $s['quote'] = $s[4];
-            $s['url']   = $s[7];
-            $s['id']    = $s[10];
+            $s['quote'] = $s[5];
+            $s['url']   = $s[8];
+            $s['id']    = $s[11];
         }
 
-        // }}
-        // {{{ マッチしたサブパターンに応じて分岐
-
+        // マッチしたサブパターンに応じて分岐
         // リンク
         if ($s['link']) {
             if (preg_match('{ href=(["\'])?(.+?)(?(1)\\1)(?=[ >])}i', $s[2], $m)) {
@@ -597,27 +630,24 @@ class ShowThreadPc extends ShowThread {
 
         // 引用
         } elseif ($s['quote']) {
-            if (strstr($s[6], '-')) {
-                return $this->quote_res_range_callback(array($s['quote'], $s[5], $s[6]));
+            if (strstr($s[7], '-')) {
+                return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
             }
             return preg_replace_callback('/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/', array($this, 'quote_res_callback'), $s['quote']);
 
         // http or ftp のURL
         } elseif ($s['url']) {
-            $url = preg_replace('/^t?(tps?)$/', 'ht$1', $s[8]) . '://' . $s[9];
+            $url = preg_replace('/^t?(tps?)$/', 'ht$1', $s[9]) . '://' . $s[10];
             $str = $s['url'];
 
         // ID
-        } elseif ($s['id'] && $_exconf['flex']['idpopup']) {
-            return $this->idfilter_callback(array($s['id'], $s[11]));
+        } elseif ($s['id'] && $_conf['flex_idpopup']) {
+            return $this->idfilter_callback(array($s['id'], $s[12]));
 
         // その他（予備）
         } else {
             return strip_tags($s[0]);
         }
-
-        // }}}
-        // {{{ URLの前処理
 
         // ime.nuを外す
         $url = preg_replace('|^([a-z]+://)ime\\.nu/|', '$1', $url);
@@ -628,9 +658,7 @@ class ShowThreadPc extends ShowThread {
             return $str;
         }
 
-        // }}} 
-        // {{{ URLを変換
-
+        // URLを処理
         foreach ($this->url_handlers as $handler) {
             //if (is_array($handler)) {
                 if (isset($handler['this'])) {
@@ -666,8 +694,6 @@ class ShowThreadPc extends ShowThread {
             }*/
         }
 
-        // }}}
-
         return $str;
     }
 
@@ -676,19 +702,18 @@ class ShowThreadPc extends ShowThread {
      */
     function quote_res_callback($s)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         list($full, $qsign, $appointed_num) = $s;
         $qnum = intval($appointed_num);
-        if ($qnum < 1 || $qnum > $this->pDatCount) {
-            return $full;
+        if ($qnum < 1 || $qnum > sizeof($this->thread->datlines)) {
+            return $s[0];
         }
 
-        $read_url = $this->read_url_base . '&amp;offline=1&amp;ls=' . $appointed_num;
+        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
         $attributes = $_conf['bbs_win_target_at'];
-        $loadpopup_js = ($_exconf['etc']['async_respop']) ? "loadResPopUp({$this->asyncObjName},{$qnum});" : '';
         if ($_conf['quote_res_view']) {
-            $attributes .= " onmouseover=\"{$loadpopup_js}showResPopUp('q{$qnum}of{$this->thread->key}',event)\"";
+            $attributes .= " onmouseover=\"showResPopUp('q{$qnum}of{$this->thread->key}',event)\"";
             $attributes .= " onmouseout=\"hideResPopUp('q{$qnum}of{$this->thread->key}')\"";
         }
         return "<a href=\"{$read_url}\"{$attributes}>{$qsign}{$appointed_num}</a>";
@@ -699,46 +724,38 @@ class ShowThreadPc extends ShowThread {
      */
     function quote_res_range_callback($s)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         list($full, $qsign, $appointed_num) = $s;
         if ($appointed_num == '-') {
-            return $full;
+            return $s[0];
         }
 
-        $read_url = $this->read_url_base . '&amp;offline=1&amp;ls=' . $appointed_num . 'n';
+        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}n";
 
-        // from-toを展開して引用レスポップアップ化
-        if ($_conf['quote_res_view'] && $_exconf['etc']['async_respop'] &&
-            preg_match('/^([1-9]\d*)-([1-9]\d*)$/', $appointed_num, $m) &&
-            $m[1] < $m[2] && $m[2] < $this->pDatLines &&
-            $m[2] - $m[1] < $_exconf['etc']['async_rangepop']
-        ) {
-            $popId = "rp{$m[1]}to{$m[2]}of{$this->thread->key}";
-            $attributes = $_conf['bbs_win_target_at'];
-            $attributes .= ' onmouseover="';
-            $attributes .= "makeRangeResPopUp({$this->asyncObjName},{$m[1]},{$m[2]});";
-            $attributes .= "showResPopUp('{$popId}',event);";
-            $attributes .= '"';
-            $attributes .= " onmouseout=\"hideResPopUp('{$popId}');\"";
-            return "<a href=\"{$read_url}\"{$attributes}>{$qsign}{$appointed_num}</a>";
-        }
-
-        // HTMLポップアップ
         if ($_conf['iframe_popup']) {
-            $pop_url = $read_url . '&amp;renzokupop=true';
-            return $this->iframe_popup(array($read_url, $pop_url), $full, $_conf['bbs_win_target_at']);
+            $pop_url = $read_url . "&amp;renzokupop=true";
+            return $this->iframe_popup(array($read_url, $pop_url), $full, $_conf['bbs_win_target_at'], 1);
         }
 
         // 普通にリンク
         return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$qsign}{$appointed_num}</a>";
+
+        // 1つ目を引用レスポップアップ
+        /*
+        $qnums = explode('-', $appointed_num);
+        $qlink = $this->quote_res_callback(array($qsign.$qnum[0], $qsign, $qnum[0])) . '-';
+        if (isset($qnums[1])) {
+            $qlink .= $qnums[1];
+        }
+        return $qlink;
+        */
     }
 
     /**
      * ■HTMLポップアップ変換（コールバック用インターフェース）
      */
-    function iframe_popup_callback($s)
-    {
+    function iframe_popup_callback($s) {
         return $this->iframe_popup($s[1], $s[3], $s[2]);
     }
 
@@ -747,7 +764,7 @@ class ShowThreadPc extends ShowThread {
      */
     function iframe_popup($url, $str, $attr = '', $mode = NULL)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         // リンク用URLとポップアップ用URL
         if (is_array($url)) {
@@ -772,7 +789,7 @@ class ShowThreadPc extends ShowThread {
             $_attr = $attr;
             $attr = '';
             foreach ($_attr as $key => $value) {
-                $attr .= ' ' . $key . '="' . htmlspecialchars($value) . '"';
+                $attr .= ' ' . $key . '="' . htmlspecialchars($value, ENT_QUOTES) . '"';
             }
         } elseif ($attr !== '' && substr($attr, 0, 1) != ' ') {
             $attr = ' ' . $attr;
@@ -793,14 +810,14 @@ class ShowThreadPc extends ShowThread {
             global $skin, $STYLE;
             $custom_pop_img = "skin/{$skin}/pop.png";
             if (file_exists($custom_pop_img)) {
-                $pop_img = htmlspecialchars($custom_pop_img);
+                $pop_img = htmlspecialchars($custom_pop_img, ENT_QUOTES);
                 $x = $STYLE['iframe_popup_mark_width'];
                 $y = $STYLE['iframe_popup_mark_height'];
             } else {
                 $pop_img = 'img/pop.png';
                 $y = $x = 12;
             }
-            $pop_str = "<img src=\"{$pop_img}\" width=\"{$x}\" height=\"{$y}\" hspace=\"2\" vspace=\"0\" border=\"0\" align=\"top\">";
+            $pop_str = "<img src=\"{$pop_img}\" width=\"{$x}\" height=\"{$y}\" hspace=\"2\" vspace=\"0\" border=\"0\" align=\"top\" alt=\"\">";
         }
 
         // リンク作成
@@ -825,23 +842,36 @@ class ShowThreadPc extends ShowThread {
      */
     function idfilter_callback($s)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
-        $idstr = $s[0]; // ID:xxxxxxxxxx
-        $id = $s[1];    // xxxxxxxxxx
-
+        list($idstr, $id) = $s;
+        // IDは8桁または10桁(+携帯/PC識別子)と仮定して
+        /*
+        if (strlen($id) % 2 == 1) {
+            $id = substr($id, 0, -1);
+        }
+        */
+        $num_ht = '';
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $num_ht = '('.$this->thread->idcount[$id].')';
+            $num = (string) $this->thread->idcount[$id];
+            if ($_conf['iframe_popup'] == 3) {
+                $num_ht = ' <img src="img/ida.png" width="2" height="12" alt="">';
+                $num_ht .= preg_replace('/\\d/', '<img src="img/id\\0.png" height="12" alt="">', $num);
+                $num_ht .= '<img src="img/idz.png" width="2" height="12" alt=""> ';
+            } else {
+                $num_ht = '('.$num.')';
+            }
         } else {
-            return $id;
+            return $idstr;
         }
 
-        $filter_url = $this->read_url_base . '&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=' . rawurlencode($id);
+        $word = rawurlencode($id);
+        $filter_url = "{$_conf['read_php']}?bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;host={$this->thread->host}&amp;ls=all&amp;field=id&amp;word={$word}&amp;method=just&amp;match=on&amp;idpopup=1&amp;offline=1";
 
         if ($_conf['iframe_popup']) {
-            return $this->iframe_popup($filter_url, $idstr . $num_ht, $_conf['bbs_win_target_at']);
+            return $this->iframe_popup($filter_url, $idstr, $_conf['bbs_win_target_at']) . $num_ht;
         }
-        return "<a href=\"{$filter_url}\"{$_conf['bbs_win_target_at']}>{$idstr}{$num_ht}</a>";
+        return "<a href=\"{$filter_url}\"{$_conf['bbs_win_target_at']}>{$idstr}</a>{$num_ht}";
     }
 
     // }}}
@@ -861,62 +891,61 @@ class ShowThreadPc extends ShowThread {
 
         $quote_res_nums = array();
 
-        $name = preg_replace('/(◆.*)/', '', $name, 1);
+        $name = preg_replace("/(◆.*)/", "", $name, 1);
 
         // 名前
-        if (preg_match('/[1-9]\d*/', $name, $matches)) {
-            $a_quote_res_num = (int)$matches[0];
+        if (preg_match("/[0-9]+/", $name, $matches)) {
+            $a_quote_res_num=$matches[0];
 
-            if ($a_quote_res_num && isset($this->pDatLines[$a_quote_res_num])) {
+            if ($a_quote_res_num) {
                 $quote_res_nums[] = $a_quote_res_num;
 
-                // 自分自身の番号と同一でなければ、
-                if ($a_quote_res_num != $res_num) {
-                    // チェックしていない番号を再帰チェック
-                    if (!isset($this->quote_res_nums_checked[$a_quote_res_num])) {
+                if ($a_quote_res_num != $res_num) { // 自分自身の番号と同一でなければ、
+                    if (!$this->quote_res_nums_checked[$a_quote_res_num]) { // チェックしていない番号を再帰チェック
                         $this->quote_res_nums_checked[$a_quote_res_num] = true;
 
-                        $quote_name = $this->pDatLines[$a_quote_res_num]['name'];
-                        $quote_msg = $this->pDatLines[$a_quote_res_num]['msg'];
-                        $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg) );
-                    }
-                }
-            }
-            // $name = preg_replace("/([0-9]+)/", "", $name, 1);
+                        $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_num-1]);
+                        $quote_name = $datalinear[0];
+                        $quote_msg = $this->thread->datlines[$a_quote_res_num-1];
+                        $quote_res_nums = array_merge( $quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg) );
+                     }
+                 }
+             }
+            // $name=preg_replace("/([0-9]+)/", "", $name, 1);
         }
 
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
-        // echo $msg;
+        //echo $msg;
         if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
 
             foreach ($out[1] as $numberq) {
-                // echo $numberq;
+                //echo $numberq;
                 if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
 
                     foreach ($matches[0] as $a_quote_res_num) {
 
-                        // echo $a_quote_res_num;
-                        $a_quote_res_num = (int)$a_quote_res_num;
+                        //echo $a_quote_res_num;
 
-                        if (!$a_quote_res_num) { break; }
+                        if (!$a_quote_res_num) {break;}
                         $quote_res_nums[] = $a_quote_res_num;
 
                         // 自分自身の番号と同一でなければ、
-                        if ($a_quote_res_num != $res_num && isset($this->pDatLines[$a_quote_res_num])) {
-                        // チェックしていない番号を再帰チェック
-                            if (!isset($this->quote_res_nums_checked[$a_quote_res_num])) {
+                        if ($a_quote_res_num != $res_num) {
+                            // チェックしていない番号を再帰チェック
+                            if (!$this->quote_res_nums_checked[$a_quote_res_num]) {
                                 $this->quote_res_nums_checked[$a_quote_res_num] = true;
 
-                                $quote_name = $this->pDatLines[$a_quote_res_num]['name'];
-                                $quote_msg = $this->pDatLines[$a_quote_res_num]['msg'];
-                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg) );
-                            }
-                        }
+                                $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_num-1]);
+                                $quote_name = $datalinear[0];
+                                $quote_msg = $this->thread->datlines[$a_quote_res_num-1];
+                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
+                             }
+                         }
 
-                    }
+                     }
 
                 }
 
@@ -924,66 +953,7 @@ class ShowThreadPc extends ShowThread {
 
         }
 
-        return array_unique($quote_res_nums);
-    }
-
-    /**
-     * 日付・IDを再構築し、BEプロファイルがあればリンクする
-     */
-    function transDateId($resnum)
-    {
-        global $_conf, $_exconf;
-
-        if (!isset($this->pDatLines[$resnum])) {
-            return '';
-        }
-        $p = &$this->pDatLines[$resnum]['p_dateid'];
-
-        // 日付
-        if ($_exconf['etc']['datetime_rewrite']) {
-            if (isset($p['timestamp'])) {
-                $epoch = $p['timestamp'];
-            } else {
-                $epoch = $p['timestamp'] = $this->datetimeToEpoch($p['date'], $p['time']);
-            }
-            if ($epoch != -1) {
-                $date_id = date($_exconf['etc']['datetime_format'], $epoch);
-                if (strstr($_exconf['etc']['datetime_format'], '%w%')) {
-                    $date_id = preg_replace('/%([0-6])%/e', '$_exconf["etc"]["datetime_weekday"][$1]', $date_id);
-                }
-            } else {
-                $date_id = $p['date'].' '.$p['time'];
-            }
-        } else {
-            $date_id = $p['date'].' '.$p['time'];
-        }
-
-        // ID
-        if (isset($p['id'])) {
-            if ($_exconf['flex']['idpopup'] == 1 && $this->thread->idcount[$p['id']] > 1) {
-                $date_id .= ' '. $this->idfilter_callback(array('ID:'.$p['id'], $p['id']));
-            } else {
-                $date_id .= ' ID:' . $p['id'];
-            }
-            if (isset($p['idopt'])) {
-                $date_id .= $p['idopt'];
-            }
-        }
-
-        // BE
-        if (isset($p['be'])) {
-            $be_prof_ref = rawurlencode($this->thread->getMotoThread());
-            $be_prof_url = 'http://be.2ch.net/test/p.php?i=' . $p['beid'] . '&u=d:' . $be_prof_ref;
-            $be_prof_lv  = sprintf('?%\'#' . intval($p['belv']) . 's', '');
-            if ($_conf['iframe_popup']) {
-                $be_prof_link = $this->iframe_popup($be_prof_url, $be_prof_lv, $_conf['ext_win_target_at']);
-            } else {
-                $be_prof_link = "<a href=\"{$be_prof_url}\"{$_conf['ext_win_target_at']}>{$be_prof_lv}</a>";
-            }
-            $date_id .= ' ' . $be_prof_link;
-        }
-
-        return $date_id;
+        return $quote_res_nums;
     }
 
     /**
@@ -991,11 +961,11 @@ class ShowThreadPc extends ShowThread {
      */
     function imageHtmpPopup($img_url, $img_tag, $link_str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
-        if ($_exconf['fitImage']['*']) {
+        if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.fitimage']) {
             $fimg_url = str_replace('&amp;', '&', $img_url);
-            $popup_url = "fitimage.php?url=" . rawurlencode($fimg_url);
+            $popup_url = "ic2_fitimage.php?url=" . rawurlencode($fimg_url);
         } else {
             $popup_url = $img_url;
         }
@@ -1015,11 +985,11 @@ class ShowThreadPc extends ShowThread {
     }
 
     /**
-     * 非同期読み込みで利用するJavaScriptオブジェクトを出力する
+     * 非同期読み込みで利用するJavaScriptオブジェクトを生成する
      */
-    function printASyncObjJs()
+    function getASyncObjJs()
     {
-        global $_conf, $_exconf;
+        global $_conf;
         static $done = array();
 
         if (isset($done[$this->asyncObjName])) {
@@ -1027,7 +997,7 @@ class ShowThreadPc extends ShowThread {
         }
         $done[$this->asyncObjName] = TRUE;
 
-        echo <<<EOJS
+        $code = <<<EOJS
 <script type="text/javascript">
 var {$this->asyncObjName} = {
     host:"{$this->thread->host}", bbs:"{$this->thread->bbs}", key:"{$this->thread->key}",
@@ -1035,52 +1005,79 @@ var {$this->asyncObjName} = {
 };
 </script>\n
 EOJS;
+        return $code;
     }
 
     /**
-     * スマートポップアップメニューを生成するJavaScriptコードを出力する
+     * スマートポップアップメニューを生成するJavaScriptコードを生成する
      */
-    function printSPMObjJs()
+    function getSPMObjJs()
     {
-        global $_conf, $_exconf;
-        global $STYLE;
-        static $done = array();
+        global $_conf, $STYLE;
+        static $menu_done = array();
+        static $taget_done = false;
 
-        if (isset($done[$this->spmObjName])) {
+        if (isset($menu_done[$this->spmObjName])) {
             return;
         }
-        $done[$this->spmObjName] = true;
+        $menu_done[$this->spmObjName] = true;
 
         $ttitle_en = base64_encode($this->thread->ttitle);
         $ttitle_urlen = rawurlencode($ttitle_en);
-        $isClickOnOff = ($_exconf['spm']['*'] == 2) ? 'true' : 'false';
 
-        if ($_exconf['spm']['flex_target'] == '' || $_exconf['spm']['flex_target'] == 'read') {
-            $_exconf['spm']['flex_target'] = '_self';
+        if ($_conf['expack.spm.filter_target'] == '' || $_conf['expack.spm.filter_target'] == 'read') {
+            $_conf['expack.spm.filter_target'] = '_self';
         }
 
         $motothre_url = $this->thread->getMotoThread();
         $motothre_url = substr($motothre_url, 0, strlen($this->thread->ls) * -1);
-        $motothre_url = str_replace('"', '\\"', $motothre_url);
-        $ttitle = str_replace('"', '\\"', $this->thread->ttitle);
 
-        echo <<<EOJS
-<script type="text/javascript">
+        $_spmOptions = array(
+            'null',
+            ((!$_conf['disable_res'] && $_conf['expack.spm.kokores']) ? (($_conf['expack.spm.kokores_orig']) ? '2' : '1') : '0'),
+            (($_conf['expack.spm.ngaborn']) ? (($_conf['expack.spm.ngaborn_confirm']) ? '2' : '1') : '0'),
+            (($_conf['expack.spm.filter']) ? '1' : '0'),
+            (($this->am_on_spm) ? '1' : '0'),
+            (($_conf['expack.aas.enabled']) ? '1' : '0'),
+        );
+        $spmOptions = implode(',', $_spmOptions);
+
+        // エスケープ
+        $_spm_title = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->ttitle);
+        $_spm_url = preg_replace('/[\\\\"]/', '\\\\$0', $motothre_url);
+        $_spm_host = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->host);
+        $_spm_bbs = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->bbs);
+        $_spm_key = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->key);
+        $_spm_ls = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->ls);
+
+        $code = "<script type=\"text/javascript\">\n";
+        if (!$target_done) {
+            $target_done = true;
+            $code .= "var spmFlexTarget = \"{$_conf['expack.spm.filter_target']}\";\n";
+            if ($_conf['expack.aas.enabled']) {
+                $code .= sprintf("var aas_popup_width = %d;\n", $_conf['expack.aas.image_width_pc'] + 10);
+                $code .= sprintf("var aas_popup_height = %d;\n", $_conf['expack.aas.image_height_pc'] + 10);
+            }
+        }
+        $code .= <<<EOJS
 // 主なスレッド情報と各種設定をプロパティに持つオブジェクト
 var {$this->spmObjName} = {
-    objName:"{$this->spmObjName}", rc:"{$this->thread->rescount}",
-    title:"{$ttitle}",
+    objName:"{$this->spmObjName}",
+    rc:"{$this->thread->rescount}",
+    title:"{$_spm_title}",
     ttitle_en:"{$ttitle_urlen}",
-    url:"{$motothre_url}",
-    host:"{$this->thread->host}", bbs:"{$this->thread->bbs}", key:"{$this->thread->key}", ls:"{$this->thread->ls}",
-    spmHeader:"{$_exconf['spm']['header']}",
-    spmOption:[{$_exconf['spm']['confirm']},{$_exconf['spm']['kokores']},{$_exconf['bookmark']['*']},{$_exconf['spm']['aborn']},{$_exconf['spm']['ng']},{$_exconf['spm']['with_aMona']},{$_exconf['spm']['with_flex']},{$_exconf['spm']['fortune']}]
+    url:"{$_spm_url}",
+    host:"{$_spm_host}",
+    bbs:"{$_spm_bbs}",
+    key:"{$_spm_key}",
+    ls:"{$_spm_ls}",
+    spmOption:[{$spmOptions}]
 };
 //スマートポップアップメニュー生成
-var spmFlexTarget = "{$_exconf['spm']['flex_target']}";
-makeSPM({$this->spmObjName},{$isClickOnOff});
-</script>\n
+makeSPM({$this->spmObjName});\n
 EOJS;
+        $code .= "</script>\n";
+        return $code;
     }
 
     // }}}
@@ -1094,7 +1091,7 @@ EOJS;
      */
     function plugin_linkURL($url, $purl, $str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (isset($purl['scheme'])) {
             // ime
@@ -1106,9 +1103,11 @@ EOJS;
 
             // HTMLポップアップ
             if ($_conf['iframe_popup'] && preg_match('/https?/', $purl['scheme'])) {
-                // p2pm 指定の場合のみ、特別にm指定を追加する
+                // p2pm/expm 指定の場合のみ、特別に手動転送指定を追加する
                 if ($_conf['through_ime'] == 'p2pm') {
                     $pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $link_url);
+                } elseif ($_conf['through_ime'] == 'expm') {
+                    $pop_url = preg_replace('/(&amp;d=-?\d+)?$/', '&amp;d=-1', $link_url);
                 } else {
                     $pop_url = $link_url;
                 }
@@ -1124,19 +1123,29 @@ EOJS;
                 if ($_conf['through_ime']) {
                     $brocra_checker_url = P2Util::throughIme($brocra_checker_url);
                 }
+                $check_mark = 'チェック';
+                $check_mark_prefix = '[';
+                $check_mark_suffix = ']';
                 // ブラクラチェッカ・HTMLポップアップ
                 if ($_conf['iframe_popup']) {
-                    // p2pm 指定の場合のみ、特別にm指定を追加する
+                    // p2pm/expm 指定の場合のみ、特別に手動転送指定を追加する
                     if ($_conf['through_ime'] == 'p2pm') {
                         $brocra_pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $brocra_checker_url);
+                    } elseif ($_conf['through_ime'] == 'expm') {
+                        $brocra_pop_url = $brocra_checker_url . '&amp;d=-1';
                     } else {
                         $brocra_pop_url = $brocra_checker_url;
                     }
-                    $brocra_checker_link = $this->iframe_popup(array($brocra_checker_url, $brocra_pop_url), 'チェック', $_conf['ext_win_target_at']);
+                    if ($_conf['iframe_popup'] == 3) {
+                        $check_mark = '<img src="img/check.png" width="33" height="12" alt="">';
+                        $check_mark_prefix = '';
+                        $check_mark_suffix = '';
+                    }
+                    $brocra_checker_link = $this->iframe_popup(array($brocra_checker_url, $brocra_pop_url), $check_mark, $_conf['ext_win_target_at']);
                 } else {
-                    $brocra_checker_link = "<a href=\"{$brocra_checker_url}\"{$_conf['ext_win_target_at']}>チェック</a>";
+                    $brocra_checker_link = "<a href=\"{$brocra_checker_url}\"{$_conf['ext_win_target_at']}>{$check_mark}</a>";
                 }
-                $link .= ' [' . $brocra_checker_link . ']';
+                $link .= $check_mark_prefix . $brocra_checker_link . $check_mark_suffix;
             }
 
             return $link;
@@ -1145,11 +1154,11 @@ EOJS;
     }
 
     /**
-     * 2ch bbspink  板リンク
+     * 2ch bbspink    板リンク
      */
     function plugin_link2chSubject($url, $purl, $str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/([^/]+)/$}', $url, $m)) {
             $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
@@ -1159,16 +1168,16 @@ EOJS;
     }
 
     /**
-     * 2ch bbspink  スレッドリンク
+     * 2ch bbspink    スレッドリンク
      */
     function plugin_link2ch($url, $purl, $str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
             if ($_conf['iframe_popup']) {
-                if (preg_match('/^[0-9n\\-]+$/', $m[4])) {
+                if (preg_match('/^[0-9\\-n]+$/', $m[4])) {
                     $pop_url = $url;
                 } else {
                     $pop_url = $read_url . '&amp;one=true';
@@ -1185,63 +1194,9 @@ EOJS;
      */
     function plugin_link2chKako($url, $purl, $str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
-            if ($_conf['iframe_popup']) {
-                $pop_url = $read_url . '&amp;one=true';
-                return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
-            }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    /**
-     * mmobbs  板リンク
-     */
-    function plugin_linkmmobbsSubject($url, $purl, $str)
-    {
-        global $_conf, $_exconf;
-
-        if (preg_match('{^http://(\\w+\\.(?:mmobbs\\.com))/([^/]+)/$}', $url, $m)) {
-            $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
-            return "<a href=\"{$url}\" target=\"subject\">{$str}</a> [<a href=\"{$subject_url}\" target=\"subject\">板をp2で開く</a>]";
-        }
-        return FALSE;
-    }
-
-    /**
-     * mmobbs  スレッドリンク
-     */
-    function plugin_linkmmobbs($url, $purl, $str)
-    {
-        global $_conf, $_exconf;
-
-        if (preg_match('{^http://(\\w+\\.(?:mmobbs\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
-            if ($_conf['iframe_popup']) {
-                if (preg_match('/^[0-9n\\-]+$/', $m[4])) {
-                    $pop_url = $url;
-                } else {
-                    $pop_url = $read_url . '&amp;one=true';
-                }
-                return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
-            }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    /**
-     * mmobbs 過去ログhtml
-     */
-    function plugin_linkmmobbsKako($url, $purl, $str)
-    {
-        global $_conf, $_exconf;
-
-        if (preg_match('{^http://(\\w+(?:\\.mmobbs\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
             if ($_conf['iframe_popup']) {
                 $pop_url = $read_url . '&amp;one=true';
@@ -1257,11 +1212,11 @@ EOJS;
      */
     function plugin_linkMachi($url, $purl, $str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (preg_match('{^http://((\\w+\\.machibbs\\.com|\\w+\\.machi\\.to|jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)(/\\w+)?)/bbs/read\\.(?:pl|cgi)\\?BBS=(\\w+)(?:&amp;|&)KEY=([0-9]+)(?:(?:&amp;|&)START=([0-9]+))?(?:(?:&amp;|&)END=([0-9]+))?(?=&|$)}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[4]}&amp;key={$m[5]}";
-            if ($m[6] || $m[7]) {
+            if ($m[5] || $m[6]) {
                 $read_url .= "&amp;ls={$m[6]}-{$m[7]}";
             }
             if ($_conf['iframe_popup']) {
@@ -1278,7 +1233,7 @@ EOJS;
      */
     function plugin_linkJBBS($url, $purl, $str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
 
         if (preg_match('{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&amp;bbs={$m[3]}&amp;key={$m[4]}&amp;ls={$m[5]}";
@@ -1296,7 +1251,7 @@ EOJS;
      */
     function plugin_viewImage($url, $purl, $str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
         global $pre_thumb_unlimited, $pre_thumb_limit;
 
         // 表示制限
@@ -1317,7 +1272,16 @@ EOJS;
             // ブラクラチェッカ （プレビューとは相容れないのでコメントアウト）
             /*if ($_conf['brocra_checker_use']) {
                 $link_url_en = rawurlencode($url);
-                $view_img .= " [<a href=\"{$_conf['brocra_checker_url']}?{$_conf['brocra_checker_query']}={$link_url_en}\"{$_conf['ext_win_target_at']}>チェック</a>]";
+                if ($_conf['iframe_popup'] == 3) {
+                    $check_mark = '<img src="img/check.png" width="33" height="12" alt="">';
+                    $check_mark_prefix = '';
+                    $check_mark_suffix = '';
+                } else {
+                    $check_mark = 'チェック';
+                    $check_mark_prefix = '[';
+                    $check_mark_suffix = ']';
+                }
+                $view_img .= $check_mark_prefix . "<a href=\"{$_conf['brocra_checker_url']}?{$_conf['brocra_checker_query']}={$link_url_en}\"{$_conf['ext_win_target_at']}>{$check_mark}</a>" . $check_mark_suffix;
             }*/
 
             return $view_img;
@@ -1330,7 +1294,7 @@ EOJS;
      */
     function plugin_imageCache2($url, $purl, $str)
     {
-        global $_conf, $_exconf;
+        global $_conf;
         global $pre_thumb_unlimited, $pre_thumb_ignore_limit, $pre_thumb_limit;
         static $serial = 0;
 
@@ -1435,9 +1399,14 @@ EOJS;
             }
 
             // ソースへのリンクをime付きで表示
-            if ($_exconf['imgCache']['*'] && $_exconf['imgCache']['through_ime']) {
+            if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.through_ime']) {
                 $ime_url = P2Util::throughIme($url);
-                $view_img .= " <a class=\"img_through_ime\" href=\"{$ime_url}\"{$_conf['ext_win_target_at']}>[ime]</a>";
+                if ($_conf['iframe_popup'] == 3) {
+                    $ime_mark = '<img src="img/ime.png" width="22" height="12" alt="">';
+                } else {
+                    $ime_mark = '[ime]';
+                }
+                $view_img .= " <a class=\"img_through_ime\" href=\"{$ime_url}\"{$_conf['ext_win_target_at']}>{$ime_mark}</a>";
             }
 
             return $view_img;

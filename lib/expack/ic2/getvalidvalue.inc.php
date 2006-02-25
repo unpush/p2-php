@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 /**
@@ -12,9 +12,7 @@ function getValidValue($key, $default, $filter = '')
 {
     global $qf, $qfe;
     $value = $qf->getSubmitValue($key);
-    if (is_null($value)) {
-        return $default;
-    } elseif ($qf->getElementError($key)) {
+    if (is_null($value) || $qf->getElementError($key)) {
         if ($qfe[$key]->getType() == 'select') {
             $qfe[$key]->setSelected($default);
         } else {

@@ -1,7 +1,7 @@
 <?php
 // p2 - ƒfƒUƒCƒ“—p Ý’èƒtƒ@ƒCƒ‹
 
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 /*
@@ -113,7 +113,7 @@ $STYLE['sb_tool_acolor_v'] = "Snow"; // ("#d6e7ff") subject ƒc[ƒ‹ƒo[“à –K–âÏ‚
 $STYLE['sb_tool_acolor_h'] = "Bisque"; // ("#fff") subject ƒc[ƒ‹ƒo[“à ƒ}ƒEƒXƒI[ƒo[Žž‚ÌƒŠƒ“ƒNF
 $STYLE['sb_tool_sepa_color'] = "Black"; // ("#000") subject ƒc[ƒ‹ƒo[“à ƒZƒpƒŒ[ƒ^•¶ŽšF
 
-$STYLE['newres_color'] = "Tomato"; // ("#ff3300")  V‹KƒŒƒX”Ô‚ÌF
+$STYLE['sb_now_sort_color'] = "Sienna";	// ("#1144aa") subject Œ»Ý‚Ìƒ\[ƒgF
 
 $STYLE['sb_thre_title_new_color'] = "Red";	// ("red") subject V‹KƒXƒŒƒ^ƒCƒgƒ‹‚ÌF
 

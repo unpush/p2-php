@@ -1,7 +1,7 @@
 <?php
 // p2 - デザイン用 設定ファイル
 
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 /*
@@ -20,10 +20,10 @@ $STYLE['a_underline_none'] = "2"; // ("2") リンクに下線を（つける:0, つけない:1,
 if(strstr($_SERVER['HTTP_USER_AGENT'], "Mac")){
 	/* Mac用フォントファミリー*/
 	if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ブラウザが Macで Safari等の WebKitを使っているものなら */
-		$STYLE['fontfamily'] = array("Helvetica Neue", "Hiragino Kaku Gothic Pro"); // ("Hiragino Kaku Gothic Pro") 基本のフォント for Safari
+		$STYLE['fontfamily'] = array("Helvetica Neue", "Helvetica", "Hiragino Kaku Gothic Pro"); // ("Hiragino Kaku Gothic Pro") 基本のフォント for Safari
 		$STYLE['fontfamily_bold'] = array("Arial Black", "Hiragino Kaku Gothic Std"); // ("") 基本ボールド用フォント for Safari（普通の太字より太くしたい場合は"Hiragino Kaku Gothic Std"）
 	} else {
-		$STYLE['fontfamily'] = array("Helvetica Neue", "ヒラギノ角ゴ Pro W3"); // ("ヒラギノ角ゴ Pro W3") 基本のフォント
+		$STYLE['fontfamily'] = array("Helvetica Neue", "Helvetica", "ヒラギノ角ゴ Pro W3"); // ("ヒラギノ角ゴ Pro W3") 基本のフォント
 		$STYLE['fontfamily_bold'] = array("Arial Black", "ヒラギノ角ゴ Std W8"); // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）
 	}
 	/* Mac用フォントサイズ */
@@ -113,9 +113,9 @@ $STYLE['sb_tool_acolor_v'] = "#d6e7ff"; // ("#d6e7ff") subject ツールバー内 訪問
 $STYLE['sb_tool_acolor_h'] = "#fff"; // ("#fff") subject ツールバー内 マウスオーバー時のリンク色
 $STYLE['sb_tool_sepa_color'] = "#000"; // ("#000") subject ツールバー内 セパレータ文字色
 
-$STYLE['newres_color'] = "#f30"; // ("#ff3300")  新規レス番の色
+$STYLE['sb_now_sort_color'] = "#14a";	// ("red") subject 現在のソート色
 
-$STYLE['sb_thre_title_new_color'] = "red";	// ("red") subject 新規スレタイトルの色
+$STYLE['sb_thre_title_new_color'] = "Red";	// ("red") subject 新規スレタイトルの色
 
 $STYLE['sb_tool_newres_color'] = "#f30"; // ("#ff3300") subject ツールバー内 新規レス数の色
 $STYLE['sb_newres_color'] = "#f30"; // ("#ff3300") subject 新着レス数の色

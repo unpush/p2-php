@@ -1,8 +1,6 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 
-require_once 'conf/conf.php';  //基本設定
+include_once './conf/conf.inc.php';  // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 require_once (P2_LIBRARY_DIR . '/wap.class.php');
 
@@ -23,8 +21,9 @@ function login2ch()
     }
 
     $auth2ch_url = 'https://2chv.tora3.net/futen.cgi';
-    $postf    = 'ID='.$login2chID.'&PW='.$login2chPW;
-    $x_2ch_ua = 'X-2ch-UA: '.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'];
+    $postf = "ID=".$login2chID."&PW=".$login2chPW;
+    $x_2ch_ua_fmt = 'X-2ch-UA: %s/%s; expack-%s';
+    $x_2ch_ua = sprintf($x_2ch_ua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack']);
     $dolib2ch = 'DOLIB/1.00';
     $tempfile = $_conf['pref_dir']."/p2temp.php";
 
@@ -38,7 +37,7 @@ function login2ch()
     // まずはfsockopenでSSL接続する
     // ただしPHPコンパイル時にOpenSSLサポートが有効になっていないと利用できず、
     // DSO版（openssl.{so,dll}等）ではエラーが出る。
-    // @link http://jp.php.net/manual/ja/function.fsockopen.php
+    // @see http://jp.php.net/manual/ja/function.fsockopen.php
     if ($_conf['precede_openssl']) {
         if (!extension_loaded('openssl')) {
             $curl_msg .= "「PHPのopenssl」は使えないようです";
@@ -48,7 +47,7 @@ function login2ch()
     }
 
     if (empty($r)) {
-
+    
         // コマンドCURL優先
         if (empty($_conf['precede_phpcurl'])) {
             if (!$r = getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)) {
@@ -74,9 +73,10 @@ function login2ch()
                 }
             }
         }
-
+    
     }
-
+    
+    
     // 接続失敗ならば
     if (empty($r)) {
         if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
@@ -84,17 +84,17 @@ function login2ch()
         
         $_info_msg_ht .= "<p>p2 info: 2ちゃんねるへの●IDログインを行うには、systemでcurlコマンドが使用可能であるか、PHPの<a href=\"http://www.php.net/manual/ja/ref.curl.php\">CURL関数</a>が有効である必要があります。</p>";
 
-        $_info_msg_ht .= "<p>p2 error: 2chログイン処理に失敗しました。{$curl_msg}</p>";
+        $_info_msg_ht .= "<p>p2 error: 2ch●ログインのSESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>";
         return false;
     }
-
-
-
+    
+    
+    
     // tempファイルはすぐに捨てる
     if (file_exists($tempfile)) { unlink($tempfile); }
-
+    
     $r = rtrim($r);
-
+    
     // 分解
     if (preg_match('/SESSION-ID=(.+?):(.+)/', $r, $matches)) {
         $uaMona = $matches[1];
@@ -104,7 +104,7 @@ function login2ch()
         $_info_msg_ht .= "<p>p2 error: ログイン接続に失敗しました。</p>";
         return false;
     }
-
+    
     // 認証照合失敗なら
     if ($uaMona == 'ERROR') {
         if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
@@ -114,7 +114,7 @@ function login2ch()
     }
 
     //echo $r;//
-
+    
     // {{{ SIDの記録保持
     $cont = <<<EOP
 <?php
@@ -123,12 +123,12 @@ function login2ch()
 ?>
 EOP;
     FileCtl::make_datafile($_conf['sid2ch_php'], $_conf['pass_perm']); // $_conf['sid2ch_php'] がなければ生成
-    if (FileCtl::file_write_contents($_conf['sid2ch_php'], $cont) === FALSE) {
-        $_info_msg_ht .= "<p>p2 error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>";
+    if (FileCtl::file_write_contents($_conf['sid2ch_php'], $cont) === false) {
+        $_info_msg_ht .= "<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>";
         return false;
     }
     // }}}
-
+    
     return $SID2ch;
 }
 
@@ -141,30 +141,30 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
     global $_conf;
 
     $curlrtn = 1;
-
+    
     // proxyの設定
     if ($_conf['proxy_use']) {
         $with_proxy = " -x ".$_conf['proxy_host'].":".$_conf['proxy_port'];
     } else {
         $with_proxy = '';
     }
-
+    
     // 「systemコマンドでcurl」（証明書検証あり）を実行
     $curlcmd = "curl -H \"{$x_2ch_ua}\" -A {$dolib2ch} -d ID={$login2chID} -d PW={$login2chPW} -o {$tempfile}{$with_proxy} {$auth2ch_url}";
     system($curlcmd, $curlrtn);
-
+    
     // 「systemコマンドのcurl」（証明書検証あり）で無理だったなら、（証明書検証なし）で再チャレンジ
     if ($curlrtn != 0) {
         $curlcmd = "curl -H \"{$x_2ch_ua}\" -A {$dolib2ch} -d ID={$login2chID} -d PW={$login2chPW} -o {$tempfile}{$with_proxy} -k {$auth2ch_url}";
         system($curlcmd, $curlrtn);
     }
-
+    
     if ($curlrtn == 0) {
-        if ($r = file_get_contents($tempfile)) {
+        if ($r = @file_get_contents($tempfile)) {
             return $r;
         }
     }
-
+    
     return false;
 }
 
@@ -174,7 +174,7 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
 function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)
 {
     global $_conf;
-
+    
     // PHPのCURLが使えるなら、それでチャレンジ
     if (extension_loaded('curl')) {
         // 「PHPのcurl」（証明書検証あり）で実行
@@ -184,12 +184,12 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
         if (!file_exists($tempfile) || !filesize($tempfile)) {
             execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, false);
         }
-        if ($r = file_get_contents($tempfile)) {
+        if ($r = @file_get_contents($tempfile)) {
             return $r;
         }
-
+    
     }
-
+    
     return false;
 }
 
@@ -199,7 +199,7 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
 function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, $withk = false)
 {
     global $_conf;
-
+    
     $ch = curl_init();
     $fp = fopen($tempfile, 'wb');
     @flock($fp, LOCK_EX);
@@ -222,7 +222,7 @@ function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $
     curl_close($ch);
     @flock($fp, LOCK_UN);
     fclose($fp);
-
+    
     return;
 }
 
@@ -231,33 +231,27 @@ function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $
  */
 function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua, $dolib2ch)
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
-    if ($_conf['proxy_use']) {
-        // PEAR::HTTP_Requestのソースに書いてあっただけで、本当かどうかは知らない。
-        $_info_msg_ht .= "<p>p2 notice: PHPのソケット通信ではSSL Proxyはサポートされていません。</p>";
-        return false;
-    }
-
-    $wap_ua = &new UserAgent;
+    $wap_ua =& new UserAgent;
     $wap_ua->setAgent($dolib2ch);
     $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-
-    $wap_req = &new Request;
+    $wap_req =& new Request;
     $wap_req->setMethod('POST');
     $wap_req->post['ID'] = $login2chID;
     $wap_req->post['PW'] = $login2chPW;
     $wap_req->setHeaders($x_2ch_ua . "\r\n");
     $wap_req->setUrl($auth2ch_url);
-    /*if ($_conf['proxy_use']) {
+    if ($_conf['proxy_use']) {
         $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
-    }*/
+    }
 
-    // futen.cgiの仕様か（たぶんこっち）、
-    // それともテスト環境のPHPがおかしいのか（ソケット通信でこれはまず無いと思う）、
+    // futen.cgiの仕様か、それともテスト環境のPHPがおかしいのか、
     // とにかく●ログインではPOSTする文字列をURLエンコードしていると失敗するので
-    // 第三引数をfalseにして生のまま送信させる。
-    $wap_res = &$wap_ua->request($wap_req, false, false);
+    // 第二引数をfalseにして生のまま送信させる。
+    $wap_res = $wap_ua->request($wap_req, false, false);
+
+    //$GLOBALS['_info_msg_ht'] .= Var_Dump::display(array($wap_ua, $wap_req, $wap_res), TRUE);
 
     if ($wap_res->is_error()) {
         return false;

@@ -1,17 +1,12 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     データファイルにWebから直接アクセスされても中をみられないようにphp形式のファイルでデータを取り扱うクラス
     インスタンスを作らずにクラスメソッドで利用する。ファイルの保存形式は、以下のような感じ。
-
+    
     ＜？php ／*
     データ
     *／ ？＞
 */
-
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-
 class DataPhp{
 
     function getPre()
@@ -31,13 +26,10 @@ class DataPhp{
      */
     function getDataPhpCont($data_php)
     {
-        if (!file_exists($data_php)) {
-            return false;
-
-        }elseif (!$cont = @file_get_contents($data_php)) {
+        if (!$cont = @file_get_contents($data_php)) {
             // 読み込みエラーならfalse、空っぽなら""を返す
             return $cont;
-
+            
         } else {
             $pre_quote = preg_quote(DataPhp::getPre());
             $hip_quote = preg_quote(DataPhp::getHip());
@@ -54,7 +46,7 @@ class DataPhp{
             return $cont;
         }
     }
-
+    
     /**
      * ■データphp形式のファイルをラインで読み込む
      *
@@ -72,10 +64,10 @@ class DataPhp{
         } else {
             // 行データに変換
             $lines = array();
-
+            
             $lines = explode("\n", $cont);
             $count = count($lines);
-
+            
             $i = 1;
             foreach ($lines as $l) {
                 if ($i != $count) {
@@ -90,7 +82,7 @@ class DataPhp{
                 }
                 $i++;
             }
-
+            
             /*
             if ($lines) {
                 // 末尾の空行は特別に削除する
@@ -100,7 +92,7 @@ class DataPhp{
                 }
             }
             */
-
+            
             return $newlines;
         }
     }
@@ -111,35 +103,38 @@ class DataPhp{
      * 文字列のエスケープも行う
      * @param srting $cont 記録するデータ文字列。
      */
-    function writeDataPhp($cont, $data_php, $perm = 0606)
+    function writeDataPhp($data_php, &$cont, $perm = 0606)
     {
         // &<>/ を &xxx; にエスケープして
         $new_cont = DataPhp::escapeDataPhp($cont);
-
+        
         // 先頭文と末文を追加
-        $new_cont = DataPhp::getPre().$new_cont.DataPhp::getHip();
+        $new_cont = DataPhp::getPre() . $new_cont . DataPhp::getHip();
 
         // ファイルがなければ生成
         FileCtl::make_datafile($data_php, $perm);
         // 書き込む
         $fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
         @flock($fp, LOCK_EX);
+        $last = ignore_user_abort(1);
+        ftruncate($fp, 0);
         fwrite($fp, $new_cont);
+        ignore_user_abort($last);
         @flock($fp, LOCK_UN);
         fclose($fp);
-
+        
         return true;
     }
-
+    
     /**
      * データphp形式のファイルで、末尾にデータを追加する
      */
-    function putDataPhp($cont, $data_php, $perm = 0606, $ncheck = false)
+    function putDataPhp($data_php, &$cont, $perm = 0606, $ncheck = false)
     {
         if ($cont === "") {
             return true;
         }
-
+        
         $pre_quote = preg_quote(DataPhp::getPre());
         $hip_quote = preg_quote(DataPhp::getHip());
 
@@ -152,35 +147,38 @@ class DataPhp{
                 trigger_error('putDataPhp() file is broken.', E_USER_WARNING);
                 return false;
             }
-
+            
             $old_cut = preg_replace('{'.$hip_quote.'.*$}s', '', $old_cont);
-
+            
             // 指定に応じて、古い内容の末尾が改行でなければ、改行を追加する
             if ($ncheck) {
                 if (substr($old_cut, -1) != "\n") {
                     $old_cut .= "\n";
                 }
             }
-
+            
             $new_cont = $old_cut . $cont_esc .DataPhp::getHip();
-
+            
         // データ内容がまだなければ、新規データphp
         } else {
             $new_cont = DataPhp::getPre().$cont_esc.DataPhp::getHip();
         }
-
+        
         // ファイルがなければ生成
         FileCtl::make_datafile($data_php, $perm);
         // 書き込む
         $fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
         @flock($fp, LOCK_EX);
+        $last = ignore_user_abort(1);
+        ftruncate($fp, 0);
         fwrite($fp, $new_cont);
+        ignore_user_abort($last);
         @flock($fp, LOCK_UN);
         fclose($fp);
-
+        
         return true;
     }
-
+    
     /**
      * ■データphp形式のデータをエスケープする
      */
@@ -203,7 +201,7 @@ class DataPhp{
         $str = str_replace('&lt;', '<', $str);
         $str = str_replace('&gt;', '>', $str);
         $str = str_replace('&frasl;', '/', $str);
-        $str = str_replace('&amp;', '&', $str);
+        $str = str_replace('&amp;', '&', $str);    
         return $str;
     }
 

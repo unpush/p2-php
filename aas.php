@@ -1,0 +1,521 @@
+<?php
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
+/* mi: charset=Shift_JIS */
+/**
+ * Ascii Art Scope for rep2
+ *
+ * レスを画像に変換するスクリプト。
+ * Ascii Art Scopeにインスパイアされて制作。
+ * @link: http://example.ddo.jp/aas/
+ *
+ * 主に携帯からAAを閲覧したいときに利用。
+ * 一部表示できない文字があるのは仕方ない。
+ * モナーフォント2.90で動作確認、行間をチューニングしている。
+ * （ただし、モナーフォントではいわゆる機種依存文字のおおくが表示できない）
+ * 
+ * Dependencies:
+ * - PHP Version: 4.2.0 or higher (rep2-expack requires 4.4.1 or higher)
+ * - PHP Extension: gd (with FreeType 2)
+ * - PHP Extension: mbstring
+ * - PHP Extension: pcre
+ *
+ * TODO:
+ * - ページ遷移と画像の部分拡大リンク付きHTML生成
+ * - フォントサイズ決め打ちで描画して、あとから縮小する..かも?
+ *
+ * NOTICE:
+ *  PHP (or PHP GDモジュール) をコンパイルするときの configure のオプションに
+ *  --enable-gd-native-ttf が指定されてないと、全角文字が文字化けします。
+ *  このとき、Unicode対応フォントなら変数 $_conf['expack.aas.output_charset'] を 'UTF-8' にすると
+ *  正しく表示できるようです。（モナーフォント2.22以降はUnicode対応）
+ *
+ * フォントによっては存在しない文字があるため、記号などを表示できないことがあります。
+ * 下記URLのレスでチェックしてみてください。
+ * http://qb5.2ch.net/test/read.cgi/operate/1116860602/398
+ */
+
+// {{{ p2基本設定読み込み&認証
+
+require_once 'conf/conf.inc.php';
+
+$_login->authorize();
+
+if (!$_conf['expack.aas.enabled']) {
+    exit('<html><body><p>AASは無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+}
+
+// }}}
+// {{{ 設定
+
+// このファイルの文字コード
+define('AAS_SCRIPT_CHARSET', 'SJIS-win');
+
+// HTML→プレーンテキスト変換処理の文字コード
+define('AAS_INTERNAL_CHARSET', 'UTF-8');
+
+// 行間補正値1
+define('AAS_Y_ADJUST_P1', 7);
+
+// 行間補正値2
+define('AAS_Y_ADJUST_P2', 2);
+
+// 文字変換表1
+$decode_convert_map = array(
+     32,   126, 0, 65535,
+    160, 65535, 0, 65535
+);
+
+// 文字変換表2
+$encode_convert_map = array(
+     32,   126, 0, 65535,
+    160, 65535, 0, 65535
+);
+/*$encode_convert_map = array(
+    // Latin-1 characters
+     160,  255, 0, 65535,
+    // Special characters: exclude 34, 38, 39, 60, 62
+    //34,   34, 0, 65535,   38,   39, 0, 65535,   60,   60, 0, 65535,   62,   62, 0, 65535,
+     338,  339, 0, 65535,  352,  353, 0, 65535,  376,  376, 0, 65535,  710,  710, 0, 65535,
+     732,  732, 0, 65535, 8194, 8195, 0, 65535, 8201, 8201, 0, 65535, 8204, 8207, 0, 65535,
+    8211, 8212, 0, 65535, 8216, 8218, 0, 65535, 8218, 8218, 0, 65535, 8220, 8222, 0, 65535,
+    8224, 8225, 0, 65535, 8240, 8240, 0, 65535, 8249, 8250, 0, 65535, 8364, 8364, 0, 65535,
+    // Symbols
+     402,  402, 0, 65535,  913,  929, 0, 65535,  931,  937, 0, 65535,  945,  969, 0, 65535,
+     977,  978, 0, 65535,  982,  982, 0, 65535, 8226, 8226, 0, 65535, 8230, 8230, 0, 65535,
+    8242, 8243, 0, 65535, 8254, 8254, 0, 65535, 8260, 8260, 0, 65535, 8465, 8465, 0, 65535,
+    8472, 8472, 0, 65535, 8476, 8476, 0, 65535, 8482, 8482, 0, 65535, 8501, 8501, 0, 65535,
+    8592, 8596, 0, 65535, 8629, 8629, 0, 65535, 8656, 8660, 0, 65535, 8704, 8704, 0, 65535,
+    8706, 8707, 0, 65535, 8709, 8709, 0, 65535, 8711, 8713, 0, 65535, 8715, 8715, 0, 65535,
+    8719, 8719, 0, 65535, 8721, 8722, 0, 65535, 8727, 8727, 0, 65535, 8730, 8730, 0, 65535,
+    8733, 8734, 0, 65535, 8736, 8736, 0, 65535, 8743, 8747, 0, 65535, 8756, 8756, 0, 65535,
+    8764, 8764, 0, 65535, 8773, 8773, 0, 65535, 8776, 8776, 0, 65535, 8800, 8801, 0, 65535,
+    8804, 8805, 0, 65535, 8834, 8836, 0, 65535, 8838, 8839, 0, 65535, 8853, 8853, 0, 65535,
+    8855, 8855, 0, 65535, 8869, 8869, 0, 65535, 8901, 8901, 0, 65535, 8968, 8971, 0, 65535,
+    9001, 9002, 0, 65535, 9674, 9674, 0, 65535, 9824, 9824, 0, 65535, 9827, 9827, 0, 65535,
+    9829, 9830, 0, 65535,
+    // Unicode private area (0xE000-0xF8FF)
+    57344, 63743, 0, 65535
+);*/
+
+// 文字変換表3
+$entity_map_ascii = array(
+    'apos' => '39', 'quot' => '34', 'amp' => '38', 'lt' => '60', 'gt' => '62'
+);
+
+// 文字変換表4
+$entity_map = array(
+    'nbsp'     =>  '160',   'iexcl'    =>  '161',   'cent'     =>  '162',   'pound'    =>  '163',
+    'curren'   =>  '164',   'yen'      =>  '165',   'brvbar'   =>  '166',   'sect'     =>  '167',
+    'uml'      =>  '168',   'copy'     =>  '169',   'ordf'     =>  '170',   'laquo'    =>  '171',
+    'not'      =>  '172',   'shy'      =>  '173',   'reg'      =>  '174',   'macr'     =>  '175',
+    'deg'      =>  '176',   'plusmn'   =>  '177',   'sup2'     =>  '178',   'sup3'     =>  '179',
+    'acute'    =>  '180',   'micro'    =>  '181',   'para'     =>  '182',   'middot'   =>  '183',
+    'cedil'    =>  '184',   'sup1'     =>  '185',   'ordm'     =>  '186',   'raquo'    =>  '187',
+    'frac14'   =>  '188',   'frac12'   =>  '189',   'frac34'   =>  '190',   'iquest'   =>  '191',
+    'Agrave'   =>  '192',   'Aacute'   =>  '193',   'Acirc'    =>  '194',   'Atilde'   =>  '195',
+    'Auml'     =>  '196',   'Aring'    =>  '197',   'AElig'    =>  '198',   'Ccedil'   =>  '199',
+    'Egrave'   =>  '200',   'Eacute'   =>  '201',   'Ecirc'    =>  '202',   'Euml'     =>  '203',
+    'Igrave'   =>  '204',   'Iacute'   =>  '205',   'Icirc'    =>  '206',   'Iuml'     =>  '207',
+    'ETH'      =>  '208',   'Ntilde'   =>  '209',   'Ograve'   =>  '210',   'Oacute'   =>  '211',
+    'Ocirc'    =>  '212',   'Otilde'   =>  '213',   'Ouml'     =>  '214',   'times'    =>  '215',
+    'Oslash'   =>  '216',   'Ugrave'   =>  '217',   'Uacute'   =>  '218',   'Ucirc'    =>  '219',
+    'Uuml'     =>  '220',   'Yacute'   =>  '221',   'THORN'    =>  '222',   'szlig'    =>  '223',
+    'agrave'   =>  '224',   'aacute'   =>  '225',   'acirc'    =>  '226',   'atilde'   =>  '227',
+    'auml'     =>  '228',   'aring'    =>  '229',   'aelig'    =>  '230',   'ccedil'   =>  '231',
+    'egrave'   =>  '232',   'eacute'   =>  '233',   'ecirc'    =>  '234',   'euml'     =>  '235',
+    'igrave'   =>  '236',   'iacute'   =>  '237',   'icirc'    =>  '238',   'iuml'     =>  '239',
+    'eth'      =>  '240',   'ntilde'   =>  '241',   'ograve'   =>  '242',   'oacute'   =>  '243',
+    'ocirc'    =>  '244',   'otilde'   =>  '245',   'ouml'     =>  '246',   'divide'   =>  '247',
+    'oslash'   =>  '248',   'ugrave'   =>  '249',   'uacute'   =>  '250',   'ucirc'    =>  '251',
+    'uuml'     =>  '252',   'yacute'   =>  '253',   'thorn'    =>  '254',   'yuml'     =>  '255',
+    'OElig'    =>  '338',   'oelig'    =>  '339',   'Scaron'   =>  '352',   'scaron'   =>  '353',
+    'Yuml'     =>  '376',   'circ'     =>  '710',   'tilde'    =>  '732',   'fnof'     =>  '402',
+    'Alpha'    =>  '913',   'Beta'     =>  '914',   'Gamma'    =>  '915',   'Delta'    =>  '916',
+    'Epsilon'  =>  '917',   'Zeta'     =>  '918',   'Eta'      =>  '919',   'Theta'    =>  '920',
+    'Iota'     =>  '921',   'Kappa'    =>  '922',   'Lambda'   =>  '923',   'Mu'       =>  '924',
+    'Nu'       =>  '925',   'Xi'       =>  '926',   'Omicron'  =>  '927',   'Pi'       =>  '928',
+    'Rho'      =>  '929',   'Sigma'    =>  '931',   'Tau'      =>  '932',   'Upsilon'  =>  '933',
+    'Phi'      =>  '934',   'Chi'      =>  '935',   'Psi'      =>  '936',   'Omega'    =>  '937',
+    'alpha'    =>  '945',   'beta'     =>  '946',   'gamma'    =>  '947',   'delta'    =>  '948',
+    'epsilon'  =>  '949',   'zeta'     =>  '950',   'eta'      =>  '951',   'theta'    =>  '952',
+    'iota'     =>  '953',   'kappa'    =>  '954',   'lambda'   =>  '955',   'mu'       =>  '956',
+    'nu'       =>  '957',   'xi'       =>  '958',   'omicron'  =>  '959',   'pi'       =>  '960',
+    'rho'      =>  '961',   'sigmaf'   =>  '962',   'sigma'    =>  '963',   'tau'      =>  '964',
+    'upsilon'  =>  '965',   'phi'      =>  '966',   'chi'      =>  '967',   'psi'      =>  '968',
+    'omega'    =>  '969',   'thetasym' =>  '977',   'upsih'    =>  '978',   'piv'      =>  '982',
+    'ensp'     => '8194',   'emsp'     => '8195',   'thinsp'   => '8201',   'zwnj'     => '8204',
+    'zwj'      => '8205',   'lrm'      => '8206',   'rlm'      => '8207',   'ndash'    => '8211',
+    'mdash'    => '8212',   'lsquo'    => '8216',   'rsquo'    => '8217',   'sbquo'    => '8218',
+    'ldquo'    => '8220',   'rdquo'    => '8221',   'bdquo'    => '8222',   'dagger'   => '8224',
+    'Dagger'   => '8225',   'bull'     => '8226',   'hellip'   => '8230',   'permil'   => '8240',
+    'prime'    => '8242',   'Prime'    => '8243',   'lsaquo'   => '8249',   'rsaquo'   => '8250',
+    'oline'    => '8254',   'frasl'    => '8260',   'euro'     => '8364',   'image'    => '8465',
+    'weierp'   => '8472',   'real'     => '8476',   'trade'    => '8482',   'alefsym'  => '8501',
+    'larr'     => '8592',   'uarr'     => '8593',   'rarr'     => '8594',   'darr'     => '8595',
+    'harr'     => '8596',   'crarr'    => '8629',   'lArr'     => '8656',   'uArr'     => '8657',
+    'rArr'     => '8658',   'dArr'     => '8659',   'hArr'     => '8660',   'forall'   => '8704',
+    'part'     => '8706',   'exist'    => '8707',   'empty'    => '8709',   'nabla'    => '8711',
+    'isin'     => '8712',   'notin'    => '8713',   'ni'       => '8715',   'prod'     => '8719',
+    'sum'      => '8721',   'minus'    => '8722',   'lowast'   => '8727',   'radic'    => '8730',
+    'prop'     => '8733',   'infin'    => '8734',   'ang'      => '8736',   'and'      => '8743',
+    'or'       => '8744',   'cap'      => '8745',   'cup'      => '8746',   'int'      => '8747',
+    'there4'   => '8756',   'sim'      => '8764',   'cong'     => '8773',   'asymp'    => '8776',
+    'ne'       => '8800',   'equiv'    => '8801',   'le'       => '8804',   'ge'       => '8805',
+    'sub'      => '8834',   'sup'      => '8835',   'nsub'     => '8836',   'sube'     => '8838',
+    'supe'     => '8839',   'oplus'    => '8853',   'otimes'   => '8855',   'perp'     => '8869',
+    'sdot'     => '8901',   'lceil'    => '8968',   'rceil'    => '8969',   'lfloor'   => '8970',
+    'rfloor'   => '8971',   'lang'     => '9001',   'rang'     => '9002',   'loz'      => '9674',
+    'spades'   => '9824',   'clubs'    => '9827',   'hearts'   => '9829',   'diams'    => '9830'
+);
+
+// }}}
+// {{{ 前処理
+
+// 環境チェック
+$errors = array();
+
+if (!extension_loaded('gd')) {
+    $errors[] = 'PHPのGD機能拡張が無効です。';
+} elseif (!function_exists('imagettfbbox') || !function_exists('imagettftext')) {
+    $errors[] = 'GDでTrueTypeフォントが扱えません。';
+}
+if (!function_exists('mb_decode_numericentity')) {
+    $errors[] = 'mb_decode_numericentity() 関数が使えません。';
+}
+if (!file_exists($_conf['expack.aas.font_path'])) {
+    $errors[] = 'フォントがありません。';
+}
+
+// 引数チェック
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!isset($_POST['MESSAGE'])) {
+        $errors[] = 'レスの特定に必要な値が足りません。';
+    } else {
+        $text = $_POST['MESSAGE'];
+        $text = preg_replace('/\r\n?/', "\n", $text);
+        $text = preg_replace('/&(?!(#x?)?\\w+;)/', '&amp;', $text);
+    }
+    $rotate = !empty($_POST['aas_rotate']);
+} else {
+    $params = array('host' => 'string', 'bbs' => 'string', 'key' => 'int', 'resnum' => 'int');
+    foreach ($params as $name => $type) {
+        if (isset($_GET[$name])) {
+            $$name = $_GET[$name];
+            settype($$name, $type);
+        } else {
+            $errors[] = 'レスの特定に必要な値が足りません。';
+            break;
+        }
+    }
+    $rotate = !empty($_GET['rotate']);
+}
+
+// レス読み込み
+if (empty($errors) && $_SERVER['REQUEST_METHOD'] != 'POST') {
+    require_once P2_LIBRARY_DIR . '/threadread.class.php';
+    $aThread = &new ThreadRead;
+    $aThread->setThreadPathInfo($host, $bbs, $key);
+    if (!$aThread->readDat()) {
+        $errors[] = 'datが読み込めませんでした。';
+    } else {
+        $offset = $resnum - 1;
+        if (!isset($aThread->datlines[$offset])) {
+            $errors[] = 'このスレッドの >>' . $resnum . ' は存在していないか、取得していません。';
+        } else {
+            $parts = $aThread->explodeDatLine($aThread->datlines[$offset]);
+            $text = $parts[3];
+            $text = strip_tags($text, '<br>');
+            $text = preg_replace('/\s*<br>\s*/', "\n", $text);
+            $text = trim($text);
+        }
+    }
+}
+
+// エラーメッセージを表示して終了
+if (count($errors) > 0) {
+    P2Util::header_nocache();
+    P2Util::header_content_type();
+    echo '<html>';
+    echo '<head><title>AAS Error</title></head>';
+    echo '<body>';
+    echo '<p><b>AAS Error</b></p>';
+    echo '<ul><li>';
+    echo implode('</li><li>', array_map('htmlspecialchars', $errors));
+    echo '</li></ul>';
+    echo '</body>';
+    echo '</html>';
+    exit;
+}
+
+// }}}
+// {{{ メイン処理
+
+// 文字コード変換
+$text = mb_convert_encoding($text, AAS_INTERNAL_CHARSET, 'SJIS-win');
+
+// 制御文字以外をすべて数値文字参照に変換
+$regex = '/&(\\w+|#x([[:xdigit:]]{1,4}))(;|\\b)/';
+$text = preg_replace_callback($regex, 'toNumericEntity', $text);
+$text = mb_encode_numericentity($text, $encode_convert_map, AAS_INTERNAL_CHARSET);
+/*
+// 実体参照・数値参照を変換
+$regex = '/&(amp|gt|lt|quot|nbsp|#\\d{1,5}|#x[[:xdigit:]]{1,4})(;|\\b)/';
+$text = preg_replace_callback($regex, 'decodeHTMLEntity', $text);
+
+// 全角スペースが文字化けするので止むを得ず半角スペースx2に変換
+$u3000 = mb_convert_encoding('　', AAS_INTERNAL_CHARSET, AAS_SCRIPT_CHARSET);
+$text = str_replace($u3000, '  ', $text);
+
+// テキスト描画用文字コードに変換
+$text = mb_convert_encoding($text, $_conf['expack.aas.output_charset'], AAS_INTERNAL_CHARSET);
+*/
+// エラーハンドラを設定
+/*if (version_compare(phpversion(), '5.0.0', '>')) {
+    set_error_handler('ttfErrorHandler', E_WARNING);
+} else {
+    set_error_handler('ttfErrorHandler');
+}*/
+
+// 元のテキストの文字数が多いとエラーになるので
+// テキストボックスの大きさ判定用の文字列を作成
+// 横方向（プロポーショナルフォントを使うときは
+// 文字幅(≒バイト数)が最大の行 ＝ レンダリング結果の幅が最大の行
+// とは限らないので、各行についてレンダリング結果の幅を計算する）
+$lines = preg_split('/\n/', $text);
+$hint = '';
+$lc = count($lines);
+$c = 0;
+foreach ($lines as $line) {
+    if (strlen($line) > 0) {
+        $b = imagettfbbox(12, 0, $_conf['expack.aas.font_path'], $line);
+        if (!$c) {
+            $c = $b[2];
+            $hint = $line;
+        } else {
+            $a = $b[2];
+            if ($a > $c) {
+                $c = $a;
+                $hint = $line;
+            }
+        }
+    }
+}
+
+// 画像サイズを決定
+if (!empty($_GET['inline'])) {
+    $default_width  = $_conf['expack.aas.image_width_il'];
+    $default_height = $_conf['expack.aas.image_height_il'];
+} elseif (empty($_conf['ktai'])) {
+    $default_width  = $_conf['expack.aas.image_width_pc'];
+    $default_height = $_conf['expack.aas.image_height_pc'];
+} else {
+    $default_width  = $_conf['expack.aas.image_width'];
+    $default_height = $_conf['expack.aas.image_height'];
+}
+if ($rotate) {
+    list($default_width, $default_height) = array($default_height, $default_width);
+}
+
+// 画像サイズに合わせてフォントサイズを調節
+$size = $_conf['expack.aas.max_fontsize'];
+$max_width = $default_width - 2;
+$max_height = $default_height - 2;
+while (!isTextInPicture($size, $_conf['expack.aas.font_path'], $hint, $lc, $max_width, $max_height)
+    && $size > $_conf['expack.aas.min_fontsize']
+) {
+    $size--;
+}
+
+// イメージ作成
+if ($_conf['expack.aas.trim']) {
+    list($width, $height) = getTextBoxSize($size, $_conf['expack.aas.font_path'], $hint, $lc);
+    $width = min($default_width, $width + 5);
+    $height = min($default_height, $height + 5);
+} else {
+    $width = $default_width;
+    $height = $default_height;
+}
+
+$image = imagecreate($width, $height);
+$white = imagecolorallocate($image, 255, 255, 255);
+$black = imagecolorallocate($image, 0, 0, 0);
+imagefill($image, 0, 0, $white);
+
+// テキスト描画
+$x_adjust = 1;
+$y_adjust = $size + floor($size / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2;
+$x_pos = $x_adjust;
+$y_pos = $y_adjust;
+// まとめて描画しようとすると長い文字列でエラーが出るので
+//imagettftext($image, $size, 0, $x_pos, $y_pos, $black, $_conf['expack.aas.font_path'], $text);
+// 一行ずつ描画する
+foreach ($lines as $line) {
+    imagettftext($image, $size, 0, $x_pos, $y_pos, $black, $_conf['expack.aas.font_path'], $line);
+    $y_pos += $y_adjust;
+}
+
+// 回転
+if ($rotate) {
+    $new_image = imagerotate($image, 270, $white);
+    // Bug #24155 (gdImageRotate270 rotation problem).
+    //$new_image = imagerotate(imagerotate($image, 180, $white), 90, $white);
+    imagedestroy($image);
+    unset($image);
+    $image = &$new_image;
+}
+
+// エラーハンドラを戻す
+//restore_error_handler();
+
+// 画像を出力
+if (!headers_sent()) {
+    switch ($_conf['expack.aas.image_type']) {
+        case 1:
+            header('Content-Type: image/jpeg');
+            imagejpeg($image, '', $_conf['expack.aas.jpeg_quality']);
+            break;
+        case 2:
+            header('Content-Type: image/gif');
+            imagegif($image);
+            break;
+        default:
+            header('Content-Type: image/png');
+            imagepng($image);
+    }
+    imagedestroy($image);
+}
+
+exit;
+
+// }}}
+// {{{ 関数
+
+/**
+ * 実体参照・と16進数の数値参照を10真数の数値参照に変換する
+ *
+ * ASCII の文字はそのまま返す
+ */
+function toNumericEntity($e)
+{
+    global $_conf, $entity_map, $entity_map_ascii;
+    if ($e[2]) {
+        $code = hexdec($e[2]);
+        if ($code < 32) {
+            return '&' . $e[1] . ';';
+        }
+        if ($code == 160) {
+            return ' ';
+        }
+        if ($e[2] < 127) {
+            return chr($code);
+        }
+        if ($code > 127 && $code < 65636) {
+            return '&#' . $code . ';';
+        }
+        return $_conf['expack.aas.unknown_char'];
+    }
+    $name = $e[1];
+    if ($name == 'nbsp') {
+        return ' ';
+    }
+    if (isset($entity_map_ascii[$name])) {
+        return chr($entity_map_ascii[$name]);
+    }
+    if (isset($entity_map[$name])) {
+        return '&#' . $entity_map_ascii[$name] . ';';
+    }
+    return $_conf['expack.aas.unknown_char'];
+}
+
+/**
+ * 実体参照・数値参照をデコードする
+ *
+ * 二重にデコードされないよう、preg_replace_callbackで一括処理
+ */
+function decodeHTMLEntity($e)
+{
+    global $_conf;
+    $specialchars = array(
+        'amp'   => '&',
+        'gt'    => '>',
+        'lt'    => '<',
+        'quot'  => '"',
+        'nbsp'  => ' ' // non-break space (0xA0) は普通の半角スペースとして扱う
+    );
+    $entity = $e[0];
+    $code   = $e[1];
+
+    // 一部の実体参照をデコード
+    if (isset($specialchars[$code])) {
+        return $specialchars[$code];
+    }
+
+    // 数値参照をデコード
+    if (substr($code, 0, 1) == '#') {
+        if (substr($code, 1, 1) == 'x') {
+            $code = hexdec(substr($code, 2));
+        } else {
+            $code = (int) substr($code, 1);
+        }
+        // non-break space (0xA0) は普通の半角スペースとして扱う
+        if ($code == 160) {
+            return ' ';
+        }
+        // 制御文字でなく、UCS-2の範囲にある文字なら変換
+        if ($code > 31 && $code != 127 && $code < 65536) {
+            $entity = sprintf('&#%d;', $code);
+            $cnvmap = array(32, 65535, 0, 65535); // (0x20, 0xFFFF, 0, 0xFFFF)
+            return mb_decode_numericentity($entity, $cnvmap, AAS_INTERNAL_CHARSET);
+        }
+    }
+
+    return $_conf['expack.aas.unknown_char'];
+}
+
+/**
+ * テキストボックスの大きさを計算する
+ */
+function getTextBoxSize($size, $font, $hint, $lines)
+{
+    $x_adjust = 5;
+    $y_adjust = ($size + floor($size / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2) * ($lines - 1);
+    $box = imagettfbbox($size, 0, $font, $hint);
+    $box_width = max($box[0], $box[2], $box[4], $box[6]) - min($box[0], $box[2], $box[4], $box[6]) + $x_adjust;
+    $box_height = max($box[1], $box[3], $box[5], $box[7]) - min($box[1], $box[3], $box[5], $box[7]) + $y_adjust;
+    return array($box_width, $box_height);
+}
+
+/**
+ * テキストが画像に収まり切るかチェックする
+ */
+function isTextInPicture($size, $font, $hint, $lines, $max_width, $max_height)
+{
+    list($box_width, $box_height) = getTextBoxSize($size, $font, $hint, $lines);
+    if ($box_width > $max_width || $box_height > $max_height) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * imagettftext(), imagettfbbox() の入力文字列が大きすぎたときのエラー処理
+ */
+function ttfErrorHandler($errno, $errstr, $errfile, $errline)
+{
+    P2Util::header_nocache();
+    P2Util::header_content_type();
+    echo '<html>';
+    echo '<head><title>AAS Error</title></head>';
+    echo '<body>';
+    echo '<p><b>AAS Error</b></p>';
+    echo '<p>文字数が多すぎるようです。<br>';
+    printf('(%sバイト)<br>', number_format(strlen($GLOBALS['text'])));
+    echo '現在のバージョンでは表示できません。</p>';
+    echo '</body>';
+    echo '</html>';
+    exit;
+}
+
+// }}}
+
+?>

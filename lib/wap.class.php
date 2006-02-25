@@ -1,11 +1,6 @@
 <?php
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 // WWW Access on PHP
 // http://member.nifty.ne.jp/hippo2000/perltips/LWP.html を参考にしつつ似たような簡易のものを
-
-require_once (P2_LIBRARY_DIR . '/p2socket.class.php');
 
 // 2005/04/20 aki このクラスは役割終了にして、PEAR利用に移行したい（HTTP_Clientなど）
 
@@ -16,15 +11,14 @@ require_once (P2_LIBRARY_DIR . '/p2socket.class.php');
  *	setTimeout()
  *	request() : リクエストをサーバに送信して、レスポンスを返す。
  */
-class UserAgent
-{
+class UserAgent{
 
 	var $agent;  // User-Agent。アプリケーションの名前。
 	var $timeout;
 	var $maxRedirect;
 	var $redirectCount;
 	var $redirectCache;
-
+	
 	/**
 	 * setAgent
 	 */
@@ -33,7 +27,7 @@ class UserAgent
 		$this->agent = $agent_name;
 		return;
 	}
-
+	
 	/**
 	 * setTimeout
 	 */
@@ -42,25 +36,25 @@ class UserAgent
 		$this->timeout = $timeout;
 		return;
 	}
-
+	
 	/**
 	 * request
 	 *
 	 * http://www.spencernetwork.org/memo/tips-3.php を参考にさせて頂きました。
-	 *
-	 * @param only_header bool 中身は取得せずにヘッダのみ取得する
+     *
+     * @param only_header bool 中身は取得せずにヘッダのみ取得する
 	 */
-	function &request($req, $only_header = false, $postdata_urlencode = true)
+	function request($req, $only_header = false, $postdata_urlencode = true)
 	{
-		$res = &new Response;
-
-		$purl = parse_url($req->url); //URL分解
-		if (isset($purl['query'])) { //クエリー
-			$purl['query'] = '?'.$purl['query'];
+		$res =& new Response();
+		
+		$purl = parse_url($req->url); // URL分解
+		if (isset($purl['query'])) { // クエリー
+			$purl['query'] = "?".$purl['query'];
 		} else {
 			$purl['query'] = '';
 		}
-		$default_port = ($purl['scheme'] == 'https') ? 443 : 80; //デフォルトのポート
+		$default_port = ($purl['scheme'] == 'https') ? 443 : 80; // デフォルトのポート
 
 		// プロキシ
 		if ($req->proxy) {
@@ -85,11 +79,11 @@ class UserAgent
 		}
 		$request .= "Connection: Close\r\n";
 		//$request .= "Accept-Encoding: gzip\r\n";
-
+		
 		if ($req->modified) {
 			$request .= "If-Modified-Since: {$req->modified}\r\n";
 		}
-
+		
 		// Basic認証用のヘッダ
 		if (isset($purl['user']) && isset($purl['pass'])) {
 			$request .= "Authorization: Basic ".base64_encode($purl['user'].":".$purl['pass'])."\r\n";
@@ -99,7 +93,7 @@ class UserAgent
 		if ($req->headers) {
 			$request .= $req->headers;
 		}
-
+		
 		// POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付
 		if (strtoupper($req->method) == 'POST') {
 			// 通常はURLエンコードする
@@ -124,27 +118,24 @@ class UserAgent
 		} else {
 			$request .= "\r\n";
 		}
-
+	
 		// WEBサーバへ接続
-		$sock = &P2Socket::open($send_host, $send_port, $this->timeout);
-		if ($sock->isError()) {
-			$fp = false;
-			list($errno, $errstr) = $sock->getError();
-			$GLOBALS['_info_msg_ht'] .= $sock->getWarning();
+		if ($this->timeout) {
+			$fp = fsockopen($send_host, $send_port, $errno, $errstr, $this->timeout);
 		} else {
-			$fp = &$sock->getResource();
+			$fp = fsockopen($send_host, $send_port, $errno, $errstr);
 		}
-
+		
 		if ($fp) {
 			fputs($fp, $request);
 			$body = '';
 			$start_here = false;
-			while (!feof($fp)){
-
+			while (!feof($fp)) {
+			
 				if ($start_here) {
-					if ($only_header) {
-						break;
-					}
+                    if ($only_header) {
+                        break;
+                    }
 					$body .= fread($fp, 4096);
 				} else {
 					$l = fgets($fp,128000);
@@ -160,12 +151,12 @@ class UserAgent
 						$start_here = true;
 					}
 				}
-
+				
 			}
-
+			
 			fclose($fp);
 			$res->content = $body;
-
+			
 			// リダイレクト(301 Moved, 302 Found)を追跡
 			// RFC2616 - Section 10.3
 			/*if ($GLOBALS['trace_http_redirect']) {
@@ -178,7 +169,7 @@ class UserAgent
 					while ($res->is_redirect() && isset($res->headers['Location']) && $this->redirectCount < $this->maxRedirect) {
 						$this->redirectCache[] = $res;
 						$req->setUrl($res->headers['Location']);
-						$res = &$this->request($req);
+						$res = $this->request($req);
 						$this->redirectCount++;
 					}
 				}
@@ -187,7 +178,7 @@ class UserAgent
 			}*/
 
 			return $res;
-
+			
 		} else {
 			$res->code = $errno; // ex) 602
 			$res->message = $errstr; // ex) "Connection Failed"
@@ -197,11 +188,11 @@ class UserAgent
 
 }
 
+
 /**
  * Request クラス
  */
-class Request
-{
+class Request{
 
 	var $method; // GET, POST, HEADのいずれか(デフォルトはGET、PUTはなし) 
 	var $url; // http://から始まるURL( http://user:pass@host:port/path?query )
@@ -209,7 +200,7 @@ class Request
 	var $content; // 任意のデータの固まり。
 	var $post;    // POSTの時に送信するデータを格納した配列("変数名"=>"値")
 	var $proxy; // ('host'=>"", 'port'=>"")
-
+	
 	var $modified;
 
 	/**
@@ -225,7 +216,7 @@ class Request
 		$this->proxy = array();
 		$this->modified = false;
 	}
-
+    
 	/**
 	 * setProxy
 	 */
@@ -235,7 +226,7 @@ class Request
 		$this->proxy['port'] = $port;
 		return;
 	}
-
+    
 	/**
 	 * setMethod
 	 */
@@ -244,7 +235,7 @@ class Request
 		$this->method = $method;
 		return;
 	}
-
+    
 	/**
 	 * setUrl
 	 */
@@ -253,7 +244,7 @@ class Request
 		$this->url = $url;
 		return;
 	}
-
+    
 	/**
 	 * setModified
 	 */
@@ -262,7 +253,7 @@ class Request
 		$this->modified = $modified;
 		return;
 	}
-
+    
 	/**
 	 * setHeaders
 	 */
@@ -290,14 +281,13 @@ class Request
 /**
  * Response クラス
  */
-class Response
-{
+class Response{
 
 	var $code; // リクエストの結果を示す数値
 	var $message;  // codeに対応する人間が読める短い文字列。
 	var $headers;	// 配列
 	var $content; // 内容。任意のデータの固まり。
-
+	
 	/**
 	 * コンストラクタ
 	 */
@@ -306,6 +296,7 @@ class Response
 		$code = false;
 		$message = '';
 		$content = false;
+		$headers = array();
 	}
 
 	/**
@@ -343,32 +334,32 @@ class Response
 			return false;
 		}
 	}
-
+	
 /*
-000 Unknown Error
-200 OK
-201 CREATED
-202 Accepted
-203 Partial Information
-204 No Response
-206 Partial Content
-301 Moved
-302 Found
-303 Method
-304 Not Modified
-400 Bad Request
-401 Unauthorized
-402 Payment Required
-403 Forbidden
-404 Not Found
-500 Internal Error
-501 Not Implemented
-502 Bad Response
-503 Too Busy
-600 Bad Request in Client
-601 Not Implemented in Client
-602 Connection Failed
-603 Timed Out
+    000, 'Unknown Error',
+    200, 'OK',
+    201, 'CREATED',
+    202, 'Accepted',
+    203, 'Partial Information',
+    204, 'No Response',
+	206, 'Partial Content',
+    301, 'Moved',
+    302, 'Found',
+    303, 'Method',
+    304, 'Not Modified',
+    400, 'Bad Request',
+    401, 'Unauthorized',
+    402, 'Payment Required',
+    403, 'Forbidden',
+    404, 'Not Found',
+    500, 'Internal Error',
+    501, 'Not Implemented',
+    502, 'Bad Response',
+    503, 'Too Busy',
+    600, 'Bad Request in Client',
+    601, 'Not Implemented in Client',
+    602, 'Connection Failed',
+    603, 'Timed Out',
 */
 
 }

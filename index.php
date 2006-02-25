@@ -1,24 +1,23 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
+// rep2 -  インデックスページ
 
-// p2 -  インデックスページ
+include_once './conf/conf.inc.php';  // 基本設定ファイル読込
+require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-require_once 'conf/conf.php';   //基本設定ファイル読込
+$_login->authorize(); //ユーザ認証
 
-authorize(); // ユーザ認証
+//=============================================================
+// 前処理
+//=============================================================
+// アクセス拒否用の.htaccessをデータディレクトリに作成する
+makeDenyHtaccess($_conf['pref_dir']);
+makeDenyHtaccess($_conf['dat_dir']);
+makeDenyHtaccess($_conf['idx_dir']);
+makeImageCacheDenyHtaccess($_conf['expack.ic2.General.cachedir']);
 
-// アクセスログを記録
-if ($_conf['login_log_rec']) {
-    if (isset($_conf['login_log_rec_num'])) {
-        P2Util::recAccessLog($_conf['login_log_file'], $_conf['login_log_rec_num']);
-    } else {
-        P2Util::recAccessLog($_conf['login_log_file']);
-    }
-}
+//=============================================================
 
-$s = $_SERVER['HTTPS'] ? 's' : '';
-$me_url = "http{$s}://".$_SERVER['HTTP_HOST'].$_SERVER['SCRIPT_NAME'];
+$me_url = $me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
 
 if ($_conf['ktai']) {
@@ -31,20 +30,17 @@ if ($_conf['ktai']) {
         header('Location: '.$me_dir_url.'/read.php?'.$_SERVER['QUERY_STRING']);
         exit;
     }
-    include (P2_LIBRARY_DIR . '/index_print_k.inc.php');
+    include_once (P2_LIBRARY_DIR . '/index_print_k.inc.php');
     index_print_k();
-
+    
 } else {
     //=========================================
     // PC用 変数
     //=========================================
-    $htm['menu_page']  = 'menu.php';
-    $htm['title_page'] = 'title.php';
-
+    $title_page = "title.php";
+    
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
-        list($host, $bbs, $key, $ls) = P2Util::detectThread();
-        $htm['read_page']  = $_conf['read_php'] . '?' . $_SERVER['QUERY_STRING'];
-        $htm['title_page'] = $_conf['subject_php'] . '?host=' . $host . '&bbs=' . $bbs;
+        $htm['read_page'] = "read.php?".$_SERVER['QUERY_STRING'];
     } else {
         if (!empty($_conf['first_page'])) {
             $htm['read_page'] = $_conf['first_page'];
@@ -52,115 +48,84 @@ if ($_conf['ktai']) {
             $htm['read_page'] = 'first_cont.php';
         }
     }
-
-    $sidebar = !empty($_GET['sidebar']);
-
-    $ptitle = 'p2';
-
-    $frame_name['read']     = 'read';
-    $frame_name['subject']  = 'subject';
-
+    
+    $sidebar = $_GET['sidebar'];
+    
+    $ptitle = "rep2";
     //======================================================
     // PC用 HTMLプリント
     //======================================================
-    function get_frameset_open(&$tablevel, $frameborder, $border, $type, $typed)
-    {
-      $str  = str_repeat("\t", $tablevel);
-      $str .= <<<EOS
-<frameset {$type}="{$typed}" frameborder="{$frameborder}" border="{$border}">\n
-EOS;
-      $tablevel++;
-      return $str;
-    }
-    function get_frameset_close(&$tablevel)
-    {
-      $tablevel--;
-      $str  = str_repeat("\t", $tablevel);
-      $str .= "</frameset>\n";
-      return $str;
-    }
-    function get_frame(&$tablevel, $src, $name, $scrolling)
-    {
-      $str  = str_repeat("\t", $tablevel);
-      $str .= <<<EOS
-	<frame src="{$src}" name="{$name}" scrolling="{$scrolling}">\n
-EOS;
-      return $str;
-    }
-    function get_frame_menu(&$tablevel)
-    {
-      global $_conf, $htm, $frame_name;
-      return get_frame($tablevel, $htm['menu_page'], "menu", "auto");
-    }
-    function get_frame_subject(&$tablevel)
-    {
-      global $_conf, $htm, $frame_name;
-      return get_frame($tablevel, $htm['title_page'], $frame_name['subject'], "auto");
-    }
-    function get_frame_read(&$tablevel)
-    {
-      global $_conf, $htm, $frame_name;
-      return get_frame($tablevel, $htm['read_page'], $frame_name['read'], "auto");
-    }
-    $tablevel=0;
-    switch($_conf['frame_type']){
-     default: // 0,1,4,5
-      $frameset = "";
-      if(!$sidebar){
-        $frameset .= get_frameset_open($tablevel, 1, 1, "cols", $_conf['frame_cols']);
-        if(!$_conf['frame_type'] % 2){
-          $frameset .= get_frame_menu($tablevel);
-        }
-      }
-      $frameset .= get_frameset_open($tablevel, 1, 2, "rows", $_conf['frame_rows']);
-      $frameset .= get_frame_subject($tablevel);
-      $frameset .= get_frame_read($tablevel);
-      $frameset .= get_frameset_close($tablevel);
-      if(!$sidebar){
-        if($_conf['frame_type'] % 2){
-          $frameset .= get_frame_menu($tablevel);
-        }
-        $frameset .= get_frameset_close($tablevel);
-      }
-      break;
-     case 2: case 3:
-      $frameset = get_frameset_open($tablevel, 1, 2, "rows", $_conf['frame_rows']);
-      if(!$sidebar && $_conf['frame_type'] == 2){
-        $frameset .= get_frameset_open($tablevel, 1, 1, "cols", $_conf['frame_cols']);
-        $frameset .= get_frame_menu($tablevel);
-      }
-      $frameset .= get_frame_subject($tablevel);
-      if(!$sidebar && $_conf['frame_type'] == 2){
-        $frameset .= get_frameset_close($tablevel);
-      }
-      if(!$sidebar && $_conf['frame_type'] == 3){
-        $frameset .= get_frameset_open($tablevel, 1, 1, "cols", $_conf['frame_cols']);
-        $frameset .= get_frame_menu($tablevel);
-      }
-      $frameset .= get_frame_read($tablevel);
-      if(!$sidebar && $_conf['frame_type'] == 3){
-        $frameset .= get_frameset_close($tablevel);
-      }
-      $frameset .= get_frameset_close($tablevel);
-      break;
-    }
-
     P2Util::header_nocache();
     P2Util::header_content_type();
-    echo <<<EOF
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
- "http://www.w3.org/TR/html4/frameset.dtd">
+    if ($_conf['doctype']) { echo $_conf['doctype']; }
+    echo <<<EOHEADER
 <html lang="ja">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>
     <link href="favicon.ico" type="image/x-icon" rel="shortcut icon">
 </head>
-{$frameset}
-</html>
-EOF;
+EOHEADER;
 
+    if (!$sidebar) {
+        echo <<<EOMENUFRAME
+<frameset cols="156,*" frameborder="1" border="1">
+    <frame src="menu.php" name="menu" scrolling="auto">
+EOMENUFRAME;
+    }
+    
+    echo <<<EOMAINFRAME
+    <frameset rows="40%,60%" frameborder="1" border="2">
+        <frame src="{$title_page}" name="subject" scrolling="auto">
+        <frame src="{$htm['read_page']}" name="read" scrolling="auto">
+    </frameset>
+EOMAINFRAME;
+
+    if (!$sidebar) {
+        echo '</frameset>'."\n";
+    }
+    
+    echo '</html>';
+
+}
+
+//============================================================================
+// 関数
+//============================================================================
+/**
+ * ディレクトリに（アクセス拒否のための） .htaccess がなければ、自動で生成する
+ */
+function makeDenyHtaccess($dir)
+{
+    $hta = $dir . '/.htaccess';
+    if (!file_exists($hta)) {
+        $data = 'Order allow,deny'."\n".'Deny from all'."\n";
+        FileCtl::file_write_contents($hta, $data);
+    }
+}
+/**
+ * ディレクトリに（画像以外アクセス拒否のための） .htaccess がなければ、自動で生成する
+ */
+function makeImageCacheDenyHtaccess($dir)
+{
+    $hta = $dir . '/.htaccess';
+    $allow_pattern = '\.(gif|jpe?g|png)$';
+    /*if (is_dir($dir) && !file_exists($hta)) {
+        $data = <<<HTACCESS
+Order allow,deny
+<FilesMatch "{$allow_pattern}">
+    Allow from all
+</FilesMatch>
+Deny from all\n
+HTACCESS;
+        FileCtl::file_write_contents($hta, $data);
+    }*/
+    // 書き込み権限の無い（≒ユーザが自分で作成した）.htaccess は消去しない
+    if (is_dir($dir) && file_exists($hta) && is_writable($hta)) {
+        unlink($hta);
+    }
 }
 
 ?>

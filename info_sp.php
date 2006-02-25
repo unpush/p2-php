@@ -1,12 +1,12 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-// p2 - しおり＆スマートあぼーん
+// p2 - SPMあぼーん
 
-require_once 'conf/conf.php'; //基本設定読込
+include_once './conf/conf.inc.php';  // 基本設定
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //=====================================================
 // 変数の設定
@@ -26,6 +26,9 @@ if (isset($_GET['aborn_str_en'])) {
 } elseif (isset($_GET['aborn_str'])) {
     $aborn_str = $_GET['aborn_str'];
 }
+if (isset($_GET['aborn_id'])) {
+    $aborn_id = $_GET['aborn_id'];
+}
 
 $itaj = P2Util::getItaName($host, $bbs);
 if (!$itaj) { $itaj = $bbs; }
@@ -41,12 +44,10 @@ $target_sb_at = ' target="sbject"';
 // データファイルの読み書き
 //=====================================================
 if (preg_match('/^(aborn|ng)_/', $mode)) {
-    $path = $datdir . '/p2_' . $mode . '.txt';
-} elseif ($mode == 'readhere') {
-    $path = P2Util::datdirOfHost($host) . '/' . $bbs . '/p2_read_here.txt';
+    $path = $_conf['pref_dir'] . '/p2_' . $mode . '.txt';
 }
 
-if ($popup == 1 || $_exconf['spm']['confirm'] == 0) {
+if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
     $_GET['popup'] = 2;
     require_once (P2_LIBRARY_DIR . '/thread.class.php');
     require_once (P2_LIBRARY_DIR . '/threadread.class.php');
@@ -56,13 +57,12 @@ if ($popup == 1 || $_exconf['spm']['confirm'] == 0) {
     $resar = $aThread->explodeDatLine($aThread->datlines[$resnum-1]);
     $resar = array_map('trim', $resar);
     $resar = array_map('strip_tags', $resar);
-    $aborn_id = substr(strstr($resar[2], "ID:"), 3);
     if (preg_match('/ID: ?([^ ]+?)(?= |$)/', $resar[2], $idar)) {
         $aborn_id = $idar[1];
     } else {
         $aborn_id = '';
     }
-    if ($_exconf['spm']['confirm'] == 0 && !isset($aborn_str)) {
+    if ($_conf['expack.spm.ngaborn_confirm'] == 0 && !isset($aborn_str)) {
         if ($mode == 'aborn_res') {
             $aborn_str = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
         } elseif (strstr($mode, '_name')) {
@@ -94,37 +94,6 @@ if ($popup == 2) {
         fputs($fp, "\n");
         flock($fp, LOCK_UN);
         fclose($fp);
-
-    // しおり登録
-    } elseif ($mode == 'readhere') {
-        $key_exists = false;
-        if (file_exists($path)) {
-            $data = file($path);
-            $data = array_map('trim', $data);
-            foreach ($data as $idx => $value) {
-                if (preg_match("/^{$key}:/", $value)) {
-                    $data[$idx] = $key . ':' . $resnum;
-                    $key_exists = true;
-                    break;
-                }
-            }
-        } else {
-            $data = array();
-        }
-        if (!$key_exists) {
-            $data[] = $key . ':' . $resnum;
-        }
-        $fp = fopen($path, 'wb+');
-        flock($fp, LOCK_EX);
-        fputs($fp, implode("\n", $data));
-        fputs($fp, "\n");
-        flock($fp, LOCK_UN);
-        fclose($fp);
-    } elseif ($mode == 'resethere') {
-        $path = P2Util::datdirOfHost($host) . '/' . $bbs . '/p2_read_here.txt';
-        if (file_exists($path)) {
-            unlink($path);
-        }
     }
 }
 
@@ -136,7 +105,7 @@ if (strstr($mode, '_msg')) {
         // $selected_stringはJavaScriptのencodeURIComponent()関数でURLエンコードされており、
         // encodeURIComponent()はECMA-262 3rd Editionの仕様により文字列をUTF-8で扱うため。
         $aborn_str = mb_convert_encoding($aborn_str, 'SJIS-win', 'UTF-8');
-        $aborn_str = htmlspecialchars($aborn_str);
+        $aborn_str = htmlspecialchars($aborn_str, ENT_QUOTES);
     } elseif (!isset($aborn_str)) {
         $aborn_str = '';
     }
@@ -146,23 +115,7 @@ if (strstr($mode, '_msg')) {
 // メッセージ設定
 //=====================================================
 switch ($mode) {
-    case 'readhere':
-        $title_st = 'p2 - ' . $itaj . '：しおり';
-        if ($popup == 2) {
-            $msg = $resnum . ' レス目にしおりを設定しました。';
-        } else {
-            $msg = $resnum . ' レス目にしおりを設定してよろしいですか？';
-        }
-        break;
-    case 'resethere':
-        $title_st = 'p2 - ' . $itaj . '：しおりをリセット';
-        if ($popup == 2) {
-            $msg = $itaj . 'のしおりをリセットしました。';
-        } else {
-            $msg = $itaj . 'しおりをリセットしました。';
-        }
-        break;
-    case 'aborn_res':
+    /*case 'aborn_res':
         $title_st = 'p2 - このレスをあぼーん';
         if ($popup == 2) {
             $msg = '<b>' . $aborn_str . '</b> をあぼーんしました。';
@@ -172,7 +125,7 @@ switch ($mode) {
             $aborn_str_en = base64_encode($aborn_str);
         }
         $edit_value = 'あぼーんレス編集';
-        break;
+        break;*/
     case 'aborn_name':
         $title_st = 'p2 - あぼーんワード登録：名前';
         if ($popup == 2) {
@@ -278,7 +231,43 @@ EOHEADER;
 $body_onload = '';
 if ($popup == 2) {
     echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js\"></script>\n";
-    $body_onload = " onload=\"startTimer(document.getElementById('timerbutton'))\"";
+    if (preg_match('/^aborn_/', $mode)) {
+        if ($mode != 'aborn_res' && isset($aborn_id) && strlen($aborn_id) >= 8) {
+            $aborn_target = 'ID:' . addslashes($aborn_id);
+            $aborn_once = 'false';
+        } elseif (isset($resnum)) {
+            $aborn_target = '>' . intval($resnum) . '</';
+            $aborn_once = 'true';
+        }
+        echo <<<EOJS
+    <script type="text/javascript">
+    <!--
+    function infoSpLiveAborn()
+    {
+        var tgt = "{$aborn_target}";
+        var once = {$aborn_once};
+        /*try {*/
+            var heads = opener.document.getElementsByTagName('dt');
+            for (var i = heads.length - 1; i >= 0 ; i--) {
+                if (heads[i].innerHTML.indexOf(tgt) != -1) {
+                    heads[i].parentNode.removeChild(heads[i].nextSibling);
+                    heads[i].parentNode.removeChild(heads[i]);
+                    if (once) break;
+                }
+            }
+        /*} catch (e) {
+            window.alert(e.toString());
+            return false;
+        }*/
+        return true;
+    }
+    // -->
+    </script>\n
+EOJS;
+        $body_onload = " onload=\"infoSpLiveAborn();startTimer(document.getElementById('timerbutton'));\"";
+    } else {
+        $body_onload = " onload=\"startTimer(document.getElementById('timerbutton'));\"";
+    }
 }
 
 echo <<<EOP
@@ -297,10 +286,15 @@ if ($popup == 1 && $msg != "") {
         if ($idx == 'selected_string') {
             continue;
         }
-        echo "\t<input type=\"hidden\" name=\"{$idx}\" value=\"{$value}\">\n";
+        $value_ht = htmlspecialchars($value, ENT_QUOTES);
+        echo "\t<input type=\"hidden\" name=\"{$idx}\" value=\"{$value_ht}\">\n";
     }
     if (isset($aborn_str_en)) {
         echo "\t<input type=\"hidden\" name=\"aborn_str_en\" value=\"{$aborn_str_en}\">\n";
+    }
+    if (isset($aborn_id)) {
+        $aborn_id_ht = htmlspecialchars($aborn_id, ENT_QUOTES);
+        echo "\t<input type=\"hidden\" name=\"aborn_id\" value=\"{$aborn_id_ht}\">\n";
     }
     echo "\t<input type=\"submit\" value=\"　Ｏ　Ｋ　\">\n";
     echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
@@ -323,8 +317,9 @@ if ($mode == 'readhere') {
 } elseif (isset($edit_value)) {
     $rows = 36; //18
     $cols = 92; //90
+    $edit_php = ($mode == 'aborn_res') ? 'editfile.php' : 'edit_aborn_word.php';
     echo <<<EOFORM
-<form action="editfile.php" method="post" target="editfile">
+<form action="{$edit_php}" method="get" target="editfile">
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="encode" value="Shift_JIS">
     <input type="hidden" name="rows" value="{$rows}">

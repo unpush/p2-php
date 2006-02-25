@@ -1,6 +1,3 @@
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0: */
-/* mi: charset=Shift_JIS */
-
 /* p2 - メニューカテゴリの開閉のためのJavaScript */
 
 var gHideClassName = 'itas_hide';
@@ -14,9 +11,9 @@ if (document.getElementById) {
 }
 
 function showHide(id) {
-
+	
 	var obj = document.getElementById(id);
-
+		
 	if (!obj) {
 		return false;
 	}

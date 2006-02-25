@@ -1,26 +1,28 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 /* ImageCache2 - ダウンローダ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.php';
+require_once 'conf/conf.inc.php';
 
-authorize();
+$_login->authorize();
 
-if ($_exconf['imgCache']['*'] == 0) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_user_ex.phpの設定を変えてください。</p></body></html>');
+if (!$_conf['expack.ic2.enabled']) {
+    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
 
 // }}}
 // {{{ 初期化
 
-// conf.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
-// これぞバッドノウハウ
+// conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
+// バグの温床となる可能性も否定できない・・・
 if (get_magic_quotes_gpc()) {
-    array_walk_recursive($_REQUEST, 'addslashes_cb');
+    $_GET = array_map('addslashes_r', $_GET);
+    $_POST = array_map('addslashes_r', $_POST);
+    $_REQUEST = array_map('addslashes_r', $_REQUEST);
 }
 
 // ライブラリ読み込み
@@ -73,12 +75,14 @@ $_preview_size = array(
 );
 
 // 属性
-$_attr_input  = array('size' => 50);
-$_attr_s_chk  = array('onclick' => 'setSerialAvailable(this.checked)');
+$_attr_uri    = array('size' => 50, 'onchange' => 'checkSerial(this.value)');
+$_attr_s_chk  = array('onclick' => 'setSerialAvailable(this.checked)', 'id' => 's_chk');
 $_attr_s_from = array('size' => 4, 'id' => 's_from');
 $_attr_s_to   = array('size' => 4, 'id' => 's_to');
 $_attr_s_pad  = array('size' => 1, 'id' => 's_pad');
-$_attr_reset  = array('onclick' => "location.href='{$_SERVER['PHP_SELF']}?popup={$isPopUp}'");
+$_attr_memo   = array('size' => 50);
+$_attr_submit = array();
+$_attr_reset  = array();
 $_attr_close  = array('onclick' => 'window.close()');
 
 
@@ -90,7 +94,7 @@ $_attr_close  = array('onclick' => 'window.close()');
 $_attribures = array('accept-charset' => 'UTF-8,Shift_JIS');
 $_target = $isPopUp ? '_self' : 'read';
 
-$qf = &new HTML_QuickForm('get', 'get', $_SERVER['PHP_SELF'], $_target, $_attribures);
+$qf = &new HTML_QuickForm('get', 'get', $_SERVER['SCRIPT_NAME'], $_target, $_attribures);
 $qf->setDefaults($qf_defaults);
 $qf->setConstants($qf_constants);
 
@@ -102,14 +106,14 @@ $qfe['detect_hint'] = &$qf->addElement('hidden', 'detect_hint');
 $qfe['popup'] = &$qf->addElement('hidden', 'popup');
 
 // URLと連番設定
-$qfe['uri']     = &$qf->addElement('text', 'uri', 'URL', $_attr_input);
+$qfe['uri']     = &$qf->addElement('text', 'uri', 'URL', $_attr_uri);
 $qfe['serial']  = &$qf->addElement('checkbox', 'serial', '連番', NULL, $_attr_s_chk);
 $qfe['from']    = &$qf->addElement('text', 'from', 'From', $_attr_s_from);
 $qfe['to']      = &$qf->addElement('text', 'to', 'To', $_attr_s_to);
 $qfe['padding'] = &$qf->addElement('text', 'padding', '0で詰める桁数', $_attr_s_pad);
 
 // メモ
-$qfe['memo'] = &$qf->addElement('text', 'memo', 'メモ', $_attr_input);
+$qfe['memo'] = &$qf->addElement('text', 'memo', 'メモ', $_attr_memo);
 
 // プレビューの大きさ
 $preview_size = array();
@@ -123,12 +127,13 @@ if (!isset($_GET['preview_size'])) {
 
 // 決定・リセット・閉じる
 $qfe['download'] = &$qf->addElement('submit', 'download');
-$qfe['reset']    = &$qf->addElement('button', 'reset', NULL, $_attr_reset);
+$qfe['reset']    = &$qf->addElement('reset', 'reset');
 $qfe['close']    = &$qf->addElement('button', 'close', NULL, $_attr_close);
 
 // Flexy
 $_flexy_options = array(
     'locale' => 'ja',
+    'charset' => 'cp932',
     'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
     'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
@@ -136,6 +141,7 @@ $_flexy_options = array(
 
 $flexy = &new HTML_Template_Flexy($_flexy_options);
 
+$flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('skin', $skin_en);
 $flexy->setData('isPopUp', $isPopUp);
 
@@ -280,7 +286,7 @@ if ($execDL) {
 
     foreach ($URLs as $url) {
         $icdb = &new IC2DB_Images;
-        $img_title = htmlspecialchars($url);
+        $img_title = htmlspecialchars($url, ENT_QUOTES);
         $url_en = rawurlencode($url);
         $src_url = 'ic2.php?r=1&uri=' . $url_en;
         $thumb_url = 'ic2.php?r=1&t=' . $thumb_type . '&uri=' . $url_en;

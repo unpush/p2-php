@@ -17,7 +17,7 @@
 // |          Chuck Hagenbuch <chuck@horde.org>                           |
 // +----------------------------------------------------------------------+
 //
-// $Id$
+// $Id: $
 
 require_once 'DB.php';
 require_once 'Cache/Container.php';
@@ -39,23 +39,24 @@ require_once 'Cache/Container.php';
 * For _MySQL_ you need this DB table:
 *
 * CREATE TABLE cache (
-*   id          CHAR(32) NOT NULL DEFAULT '',
-*   cachegroup  VARCHAR(127) NOT NULL DEFAULT '',
-*   cachedata   TEXT NOT NULL DEFAULT '', # base64->TEXT, slash->BLOB
-*   userdata    VARCHAR(255) NOT NULL DEFAUL '',
+*   id          CHAR(32) NOT null DEFAULT '',
+*   cachegroup  VARCHAR(127) NOT null DEFAULT '',
+*   cachedata   BLOB NOT null DEFAULT '', # base64->TEXT, slash->BLOB
+*   userdata    VARCHAR(255) NOT null DEFAULT '',
 *   expires     INT NOT NULL DEFAULT 0,
 *
-*   changed     INTNOT NULL DEFAULT 0,
+*   changed     INT NOT NULL DEFAULT 0,
 *
 *   INDEX (expires),
 *   PRIMARY KEY (id, cachegroup)
 * )
 *
 * @author   Sebastian Bergmann <sb@sebastian-bergmann.de>
-* @version  $Id$
+* @version  $Id: $
 * @package  Cache
 */
-class Cache_Container_db extends Cache_Container {
+class Cache_Container_db extends Cache_Container
+{
 
     /**
     * Name of the DB table to store caching data
@@ -84,7 +85,7 @@ class Cache_Container_db extends Cache_Container {
             return new Cache_Error('No dsn specified!', __FILE__, __LINE__);
         }
 
-        $this->setOptions($options, array_merge($this->allowed_options, array('dsn', 'cache_table')));
+        $this->setOptions($options,  array_merge($this->allowed_options, array('dsn', 'cache_table')));
 
         if (isset($options['db']) && is_a($options['db'], 'DB_common')) {
             $this->db = &$options['db'];
@@ -93,12 +94,10 @@ class Cache_Container_db extends Cache_Container {
         } else {
             $this->db = DB::connect($this->dsn, true);
         }
-
-        if (DB::isError($this->db)) {
+        if (PEAR::isError($this->db)) {
             return new Cache_Error('DB::connect failed: ' . DB::errorMessage($this->db), __FILE__, __LINE__);
-        } else {
-            $this->db->setFetchMode(DB_FETCHMODE_ASSOC);
         }
+        $this->db->setFetchMode(DB_FETCHMODE_ASSOC);
     }
 
     function fetch($id, $group)
@@ -107,32 +106,32 @@ class Cache_Container_db extends Cache_Container {
                          $this->cache_table,
                          addslashes($id),
                          addslashes($group)
-                       );
+                         );
 
         $res = $this->db->query($query);
 
-        if (DB::isError($res))
+        if (PEAR::isError($res)) {
             return new Cache_Error('DB::query failed: ' . DB::errorMessage($res), __FILE__, __LINE__);
-
+        }
         $row = $res->fetchRow();
-        if (is_array($row))
+        if (is_array($row)) {
             $data = array($row['expires'], $this->decode($row['cachedata']), $row['userdata']);
-        else
-            $data = array(NULL, NULL, NULL);
-
+        } else {
+            $data = array(null, null, null);
+        }
         // last used required by the garbage collection
         $query = sprintf("UPDATE %s SET changed = %d WHERE id = '%s' AND cachegroup = '%s'",
                          $this->cache_table,
                          time(),
                          addslashes($id),
                          addslashes($group)
-                       );
+                        );
 
         $res = $this->db->query($query);
 
-        if (DB::isError($res))
+        if (PEAR::isError($res)) {
             return new Cache_Error('DB::query failed: ' . DB::errorMessage($res), __FILE__, __LINE__);
-
+        }
         return $data;
     }
 
@@ -155,11 +154,11 @@ class Cache_Container_db extends Cache_Container {
                              $this->getExpiresAbsolute($expires) ,
                              addslashes($id),
                              addslashes($group)
-                           );
+                            );
 
         $res = $this->db->query($query);
 
-        if (DB::isError($res)) {
+        if (PEAR::isError($res)) {
             return new Cache_Error('DB::query failed: ' . DB::errorMessage($res) , __FILE__, __LINE__);
         }
     }
@@ -172,12 +171,13 @@ class Cache_Container_db extends Cache_Container {
                          $this->cache_table,
                          addslashes($id),
                          addslashes($group)
-                       );
+                        );
 
         $res = $this->db->query($query);
 
-        if (DB::isError($res))
+        if (PEAR::isError($res)) {
             return new Cache_Error('DB::query failed: ' . DB::errorMessage($res), __FILE__, __LINE__);
+        }
     }
 
     function flush($group = '')
@@ -192,7 +192,7 @@ class Cache_Container_db extends Cache_Container {
 
         $res = $this->db->query($query);
 
-        if (DB::isError($res))
+        if (PEAR::isError($res))
             return new Cache_Error('DB::query failed: ' . DB::errorMessage($res), __FILE__, __LINE__);
     }
 
@@ -202,20 +202,19 @@ class Cache_Container_db extends Cache_Container {
                          $this->cache_table,
                          addslashes($id),
                          addslashes($group)
-                       );
+                        );
 
         $res = $this->db->query($query);
 
-        if (DB::isError($res))
+        if (PEAR::isError($res)) {
             return new Cache_Error('DB::query failed: ' . DB::errorMessage($res), __FILE__, __LINE__);
-
+        }
         $row = $res->fetchRow();
 
         if (is_array($row)) {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     function garbageCollection($maxlifetime)
@@ -234,19 +233,18 @@ class Cache_Container_db extends Cache_Container {
                          $this->cache_table
                        );
         $cachesize = $this->db->GetOne($query);
-        if (DB::isError($cachesize)) {
+        if (PEAR::isError($cachesize)) {
             return new Cache_Error('DB::query failed: ' . DB::errorMessage($cachesize), __FILE__, __LINE__);
         }
 
         //if cache is to big.
-        if ($cachesize > $this->highwater)
-        {
+        if ($cachesize > $this->highwater) {
             //find the lowwater mark.
             $query = sprintf('select length(cachedata) as size, changed from %s order by changed DESC',
                                      $this->cache_table
                        );
             $res = $this->db->query($query);
-            if (DB::isError($res)) {
+            if (PEAR::isError($res)) {
                 return new Cache_Error('DB::query failed: ' . DB::errorMessage($res), __FILE__, __LINE__);
             }
 
@@ -264,7 +262,7 @@ class Cache_Container_db extends Cache_Container {
             $res = $this->db->query($query);
         }
 
-        if (DB::isError($res)) {
+        if (PEAR::isError($res)) {
             return new Cache_Error('DB::query failed: ' . DB::errorMessage($res), __FILE__, __LINE__);
         }
     }

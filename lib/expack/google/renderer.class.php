@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 require_once 'Pager/Pager.php';
@@ -135,8 +135,8 @@ class Google_Renderer
 
         $type_col  = $val['type'];
         $title_col = sprintf($title, $val['url'], $id, $id, $val['target'], $val['title']);
-        $range_col = $val['ls'];
-        $ita_col   = $val['ita'];
+        $range_col = ($val['ls']  !== '') ? $val['ls']  : '&nbsp;';
+        $ita_col   = ($val['ita'] !== '') ? $val['ita'] : '&nbsp;';
 
         printf($this->body, $rc, $type_col, $rc, $title_col, $rc, $range_col, $rc, $ita_col);
     }
@@ -208,10 +208,11 @@ class Google_Renderer
      * @return object
      * @access public
      */
-    function & makePager($perPage, $totalItems)
+    function &makePager($perPage, $totalItems)
     {
         if ($totalItems == 0 || $totalItems <= $perPage) {
-            return FALSE;
+            $retval = FALSE;
+            return $retval;
         }
 
         $pagerOptions = array(
@@ -224,12 +225,7 @@ class Google_Renderer
             'spacesAfterSeparator'  => 1,
         );
 
-        // importQuery = FALSE にして extraVars を使うと urldecode() されるので
-        // 予め $_GET をURLエンコードしておく
-        $_get = $_GET;
-        array_walk_recursive($_GET, array($this, '_rawurlencode_cb'));
         $pager = &Pager::factory($pagerOptions);
-        $_GET = $_get;
 
         return $pager;
     }

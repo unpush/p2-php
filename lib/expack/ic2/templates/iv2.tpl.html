@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="Shift_JIS"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
@@ -18,8 +17,16 @@
 	{js:h}
 </head>
 <body onload="setWinTitle()">
-<div id="popUpContainer" flexy:if="popup"><flexy:include src="_iv2_popup.tpl.html" /></div>
+
 <div id="header"><flexy:include src="_iv2_ctrl.tpl.html"/></div>
+
+{if:removedFiles}
+<p>以下のファイルを削除しました。</p>
+<p flexy:if="toBlackList">削除した画像はブラックリストに登録されます。</p>
+<ul>
+<li flexy:foreach="removedFiles,removedPath">{removedPath}</li>
+</ul>
+{end:}
 
 <div id="content">
 {if:nomatch}
@@ -58,6 +65,8 @@
 
 <div id="footer">
 </div>
+
+<div id="popUpContainer" flexy:if="popup"><flexy:include src="_iv2_popup.tpl.html" /></div>
 
 </body>
 </html>

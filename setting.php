@@ -1,43 +1,38 @@
 <?php
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
-	p2 -  設定管理ページ
+	rep2 -  設定管理ページ
 */
 
-require_once 'conf/conf.php'; 	// 基本設定
+include_once './conf/conf.inc.php';  // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 // 書き出し用変数 ========================================
 $ptitle = 'ログイン管理';
 
 if ($_conf['ktai']) {
-	$status_st = 'ｽﾃｰﾀｽ';
-	$autho_user_st = '認証ﾕｰｻﾞ';
-	$client_host_st = '端末ﾎｽﾄ';
-	$client_ip_st = '端末IPｱﾄﾞﾚｽ';
-	$browser_ua_st = 'ﾌﾞﾗｳｻﾞUA';
-	$p2error_st = 'p2 ｴﾗｰ';
+	$status_st = "ｽﾃｰﾀｽ";
+	$autho_user_st = "認証ﾕｰｻﾞ";
+	$client_host_st = "端末ﾎｽﾄ";
+	$client_ip_st = "端末IPｱﾄﾞﾚｽ";
+	$browser_ua_st = "ﾌﾞﾗｳｻﾞUA";
+	$p2error_st = "rep2 ｴﾗｰ";
 } else {
-	$status_st = 'ステータス';
-	$autho_user_st = '認証ユーザ';
-	$client_host_st = '端末ホスト';
-	$client_ip_st = '端末IPアドレス';
-	$browser_ua_st = 'ブラウザUA';
-	$p2error_st = 'p2 エラー';
+	$status_st = "ステータス";
+	$autho_user_st = "認証ユーザ";
+	$client_host_st = "端末ホスト";
+	$client_ip_st = "端末IPアドレス";
+	$browser_ua_st = "ブラウザUA";
+	$p2error_st = "rep2 エラー";
 }
 
-$autho_user_ht = '';
-if ($login['use']) {
-	$autho_user_ht = "{$autho_user_st}: {$login['user']}<br>";
-}
+$autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
 
 
-$body_onload = '';
+$body_onload = "";
 if (!$_conf['ktai']) {
-	$body_onload = ' onload="setWinTitle();"';
+	$body_onload = " onLoad=\"setWinTitle();\"";
 }
 
 // HOSTを取得
@@ -57,77 +52,71 @@ $hd = array_map('htmlspecialchars', $hc);
 //=========================================================
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+if ($_conf['doctype']) {
+	echo $_conf['doctype'];
+}
 echo <<<EOP
-<html lang="ja">
+<html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+	{$_conf['meta_charset_ht']}
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 	<meta http-equiv="Content-Style-Type" content="text/css">
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
-	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 	<title>{$ptitle}</title>
 EOP;
 if (!$_conf['ktai']) {
+	@include("./style/style_css.inc");
+	@include("./style/setting_css.inc");
 	echo <<<EOP
-	<link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-	<link rel="stylesheet" href="css.php?css=setting&amp;skin={$skin_en}" type="text/css">
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<script type="text/javascript" src="js/basic.js"></script>\n
 EOP;
 }
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
 echo <<<EOP
 </head>
-<body{$k_color_settings}{$body_onload}>
+<body{$body_at}>
 EOP;
 
+// 携帯用表示
 if (!$_conf['ktai']) {
 	echo <<<EOP
 <p id="pan_menu">ログイン管理</p>
 EOP;
 }
 
+// インフォメッセージ表示
 echo $_info_msg_ht;
-$_info_msg_ht = '';
+$_info_msg_ht = "";
 
-echo '<ul id="setting_menu">';
-
-if ($login['use']) {
-	echo <<<EOP
-	<li><a href="login.php"{$access_login_at}>p2ログイン管理</a></li>
-EOP;
-}
+echo "<ul id=\"setting_menu\">";
 
 echo <<<EOP
-	<li><a href="login2ch.php"{$access_login2ch_at}>2chログイン管理</a></li>
+	<li><a href="login.php{$_conf['k_at_q']}"{$access_login_at}>rep2ログイン管理</a></li>
 EOP;
 
-echo '</ul>';
+echo <<<EOP
+	<li><a href="login2ch.php{$_conf['k_at_q']}"{$access_login2ch_at}>2chログイン管理</a></li>
+EOP;
+
+echo '</ul>'."\n";
 
 if ($_conf['ktai']) {
-	echo '<hr>';
+	echo "<hr>";
 }
 
+echo "<p id=\"client_status\">";
 echo <<<EOP
-<p id="client_status">
 {$autho_user_ht}
 {$client_host_st}: {$hd['remoto_host']}<br>
 {$client_ip_st}: {$_SERVER['REMOTE_ADDR']}<br>
-{$browser_ua_st}: {$hd['ua']}
-</p>
+{$browser_ua_st}: {$hd['ua']}<br>
 EOP;
+echo "</p>\n";
 
-if (!$mobile->isNonMobile()) {
-	$m_disp = $mobile->makeDisplay();
-	echo '<p>';
-	echo '機種: ' . $mobile->getModel() . '<br>';
-	echo '画面ｻｲｽﾞ: ' . $m_disp->getWidth() . 'x' . $m_disp->getHeight() . '<br>';
-	echo '色数: ' . $m_disp->getDepth() . '<br>';
-	echo '</p>';
-}
 
-// フッタプリント ===================
+// フッタプリント===================
 if ($_conf['ktai']) {
-	echo '<hr>',$_conf['k_to_index_ht'];
+	echo '<hr>'.$_conf['k_to_index_ht']."\n";
 }
 
 echo '</body></html>';

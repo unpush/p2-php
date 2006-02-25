@@ -1,79 +1,723 @@
-2005-05-08 aki
+2006-02-18 aki
+	* rep2 version 1.7.15
+	
+	- [修正] お気に板で正常に表示されないことがあったのを修正（感謝→p2スレpart31の>>562さん）
+	  
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/showbrdmenupc.class.php
+		
+2006-02-18 aki
+	* rep2 version 1.7.14
+	
+	- [更新] willcomのIPアドレス帯を更新した（感謝→p2スレpart31の>>551-552さん）
+	  
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		
+2006-02-18 aki
+	* rep2 version 1.7.13
+	
+	- [改良] ホストの移転を自動追尾するようになった。rskさんのグレートなパッチを適用。感謝。
+	- [変更] VodafoneでDIRECTKEYは使わず、accesskeyを使うようにした
+	
+	- 新規追加されたファイル
+		lib/BbsMap.class.php
+		
+	- 変更のあったファイル
+		editfavita.php
+		editpref.php
+		info.php
+		title.php
+		conf/conf.inc.php
+		lib/SubjectTxt.class.php
+		lib/p2util.class.php
+		lib/sb_print.inc.php
+		lib/threadread.class.php
+		
+	- 削除されたファイル
+		lib/syncfavita.inc.php
+		lib/syncindex.inc.php
+		
+2006-02-17 aki
+	* rep2 version 1.7.12
+	
+	- [修正] ログイン画面でDoCoMoの端末認証用のURLが表示されないことがあったバグを修正
+	  
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/login_first.inc.php
+		login.php
+		title.php
+		
+2006-02-16 aki
+	* rep2 version 1.7.11
+	
+	- [修正] 書き込み履歴を解除できないバグを修正した。
+	- [変更] 403でHTML文を出力した時に、出力したHTML文を表示しない携帯があるそうなので、一部、403で出力しないようにした。
+	- [変更] 新着まとめ読みの続きがあるかどうかが分からない場合は、「更新/続き」と併記するようにした。
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		post.php
+		read_new.php
+		read_new_k.php
+		lib/dele.inc.php
+		lib/p2util.class.php
+		
+2006-02-16 aki
+	* rep2 version 1.7.10
+	
+	- [修正] Windowsサーバで利用している場合、rename() でファイルを上書きできないそうなので、これに対応修正した。
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/dele.inc.php
+		lib/p2util.class.php
+		lib/read_new.inc.php
+		lib/read_res_hist.inc.php
+		lib/setpalace.inc.php
+		lib/threadread.class.php
+		post.php
+		read.php
+
+2006-02-15 aki
+	* rep2 version 1.7.9
+	
+	- 新しく PEAR の File を利用するようになりました。
+
+	- PEAR の File_Util を利用して確実に絶対パスを取得できるようにした。
+	  （conf/conf.inc.php） patchありがとう! > rskさん
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		
+2006-02-15 aki
+	* rep2 version 1.7.8
+	
+	今回から新しく PEAR の HTTP/Request.php と Pager を利用しています。
+
+	- [改良] 書き込んだレスをページを分割して表示するようにした（PEARのPager）
+	- [改良] port番号のついているURLに設置しても動くように改良修正した。
+	- [改良] 検索時に全角/半角の区別を完全に吸収するようにした
+	- [更新] willcomのIP帯域を更新（lib/hostcheck.class.php）
+	- [修正] 携帯の情報画面のコピペフォームで、au端末で選択すると、
+	  URLが消えてしまうことがあったのを修正（p2スレ27の>>444）
+	- [修正] sb_header_k.inc.php で $word がサニタイズされていなかったのを修正
+	- [修正] 携帯から●書き込みができないことがあったバグを修正
+	  （lib/post_options_loader.inc.php）
+	- [修正] input checkboxのvalue値が抜けていたのを修正
+	  （ブラウザによっては "on" となるが、ブラウザによっては、値がなくなってしまう）
+	- [仕様変更] SubjectTxt.class.php で PEAR の HTTP/Request.php を採用した
+
+	- 新規追加されたファイル
+		conf/.htaccess
+
+	- 変更のあったファイル
+		edit_conf_user.php
+		editfavita.php
+		editfile.php
+		editpref.php
+		index.php
+		info.php
+		login.php
+		menu_k.php
+		post.php
+		post_form.php
+		read.php
+		read_filter_k.php
+		read_new.php
+		read_new_k.php
+		title.php
+		viewtxt.php
+		conf/conf.inc.php
+		conf/conf_user_def.inc.php
+		doc/ChangeLog.txt
+		doc/README.txt
+		js/post_form.js
+		lib/SubjectTxt.class.php
+		lib/brdmenu.class.php
+		lib/dele.inc.php
+		lib/filectl.class.php
+		lib/hostcheck.class.php
+		lib/index_print_k.inc.php
+		lib/login.class.php
+		lib/login2ch.inc.php
+		lib/login_first.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/post_form.inc.php
+		lib/post_options_loader.inc.php
+		lib/read_footer.inc.php
+		lib/read_header.inc.php
+		lib/read_header_k.inc.php
+		lib/read_res_hist.inc.php
+		lib/res_hist.class.php
+		lib/sb_header.inc.php
+		lib/sb_header_k.inc.php
+		lib/sb_print.inc.php
+		lib/sb_print_k.inc.php
+		lib/session.class.php
+		lib/setfavita.inc.php
+		lib/setpalace.inc.php
+		lib/showbrdmenuk.class.php
+		lib/showbrdmenupc.class.php
+		lib/showthread.class.php
+		lib/showthreadpc.class.php
+		lib/strctl.class.php
+		lib/thread.class.php
+		lib/threadlist.class.php
+		lib/threadread.class.php
+
+2005-07-11 aki
+	* rep2 version 1.7.7
+	
+	- [仕様変更] PEARのPHP_Compatが必要になった
+	- [バグ修正] Fatal error: Call to undefined function: scandir()
+	  というエラー表示が出て、不要ファイルの自動破棄ができないことがあったの修正
+	- [改良] 携帯でスレ情報にコピペフォームをつけた
+	- [仕様変更] VodafoneのIP帯域を追加した
+	- [仕様変更] 携帯の元スレリンクを微調整
+
+	- 変更のあったファイル
+		info.php
+		login.php
+		title.php
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		lib/index_print_k.inc.php
+		lib/login.class.php
+		lib/thread.class.php
+
+2005-07-01 aki
+	* rep2 version 1.7.6
+	
+	- [バグ修正] $_conf['disable_res'] が二つあったのを修正（conf_admin.inc.php）
+	
+	- 変更のあったファイル
+		post.php
+		conf/conf.inc.php
+		conf/conf_admin.inc.php
+
+2005-06-29 aki
+	* rep2 version 1.7.5
+	
+	- [修正] PHPのセッションで、HTTPヘッダによるキャッシュコントロールをしないように調整した。
+	  DoCoMoでページを戻ると、更新されてしまうのが直った。
+
+	- [バグ修正] b=kで携帯モードにしているとき、書き込んだ後にCookie確認があると、
+	  モード指定が解除されてしまっていたのを修正した
+
+	- [修正] 携帯でbbspinkの元板へのリンクを修正した
+
+	- [仕様変更] cookieの保存場所をp2で管理するように変更した（拡張パック取り込み。感謝）
+	  （PHPデフォルトにも設定可能）
+
+	- [新規設定追加] $_conf['data_dir'] を追加（conf_admin.inc.php）
+	- [新規設定追加] $_conf['session_save'] を追加 （conf_admin.inc.php）
+	- [内部仕様変更] $_conf['admin_dir'] を追加（conf.inc.php）
+	- [内部仕様変更] $_conf['cache_dir'] の値を変更（conf.inc.php）
+
+	- [内部仕様変更] p2_bbq_burned.txt, p2_bbq_passed.txtの保存場所を、
+	  $_conf['pref_dir'] から $_conf['admin_dir'] に変更。
+
+	- 他こまごま
+	
+	- 変更のあったファイル
+		httpcmd.php
+		info.php
+		post.php
+		read_new.php
+		read_new_k.php
+		subject.php
+		subject_new.php
+		conf/conf.inc.php
+		conf/conf_admin.inc.php
+		lib/filectl.class.php
+		lib/hostcheck.class.php
+		lib/index_print_k.inc.php
+		lib/p2util.class.php
+		lib/res_hist.class.php
+		lib/sb_header.inc.php
+		lib/sb_header_k.inc.php
+		lib/session.class.php
+
+2005-06-24 aki
+	* rep2 version 1.7.4
+	
+	[バグ修正] 携帯用表示で、正しく表示されないことがあったのを修正
+	
+	- 変更のあったファイル
+		login.php
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		lib/login_first.inc.php
+		lib/sb_print_k.inc.php
+		lib/showthreadk.class.php
+
+2005-06-24 aki
+	* rep2 version 1.7.3
+	
+	- [新機能] (p)を画像で表示できるようになった。ユーザ設定で。（拡張パックより。感謝）
+	- [改良] 携帯のIPチェックで、jigを通すようにした。
+
+	* edit_conf_user.php
+	* conf/conf.inc.php
+	* conf/conf_admin.inc.php
+	* conf/conf_user_def.inc.php
+	* img/pop.png is new
+	* lib/hostcheck.class.php
+	* lib/showthreadpc.class.php
+
+2005-06-23 aki
+	* rep2 version 1.7.2
+	
+	[修正] ●ログインできるようにした
+	[バグ修正] precede_phpcurl の設定表示が、逆になっていたのを修正
+	
+	- 変更のあったファイル
+		login2ch.php
+		conf/conf.inc.php
+		conf/conf_admin.inc.php
+		conf/conf_user_def.inc.php
+		lib/filectl.class.php
+		lib/login2ch.inc.php
+		lib/p2util.class.php
+	
+2005-06-22 aki
+	* rep2 version 1.7.1
+	
+	- [バグ修正] DoCoMoからアクセスするとエラーが出ていたのを修正
+	  指摘感謝 → p2スレ26 >>693
+
+	- [修正更新] IP帯域の設定をアップデートした（拡張パックより。感謝）
+	- [仕様変更] Air H"はUA⇔IPチェックの対象から外してみた
+	- [仕様変更] 携帯のスレ一覧でのソート変更のUIを変更（拡張パックより。感謝）
+
+	- 変更のあったファイル
+		edit_conf_user.php
+		editpref.php
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		lib/login.class.php
+		lib/sb_footer_k.inc.php
+
+2005-06-22 aki
+	* rep2 version 1.7.0
+	
+	名前が、rep2（リピート）になった。
+	rep2は、p2の延長線上にあり、p2よりもセキュアになってます。
+
+	- 設定について
+	
+	  データ保存ディレクトリとセキュリティ機能の設定は、conf/conf_admin.inc.php で。
+	  （デフォルトでは、指定されたホスト以外はアクセスできなくなっています）
+	  ホストチェックの詳細設定は、conf/conf_hostcheck.php で。
+	  デザイン設定は、conf/conf_style.inc.php で。
+	  その他のユーザの設定は、ログイン後の「設定管理」＞「ユーザ設定編集」で。
+
+	  ※conf/conf_user.inc.php は廃止されました。
+	  ※conf.inc.php, conf_style.inc.php はWeb上から編集できなくなりました。
+	  （conf_style.inc.phpの方はそのうち対応予定）
+
+	- ログインユーザについて
+	
+	  最初のログイン時のみ、新規ユーザ登録となります。
+	  今回、改めて新規登録が必要になりますが、
+	  ユーザデータは以前のものがそのまま引き継がれます。
+
+	  パスワードを忘れたりして、認証ユーザ情報を初期化したい場合は、
+	  データ保存ディレクトリの p2_auth_user.php を手動で削除してください。
+
+	- [新機能] ログイン管理にセッションを導入（Basic認証は廃止）
+	- [新機能] ホストチェック、BBQ導入（拡張パックより）
+	- [改良] edit_conf_user.php の導入
+	- [改良] 書き込みの可否を設定できるようになった　conf_admin.inc.php
+	- [改良] ログイン失敗ログを残すようになった
+	- [改良] passwordのハッシュ化をsha1に変更
+	- [内部仕様変更] cookieの仕様を変更
+
+	- [対応修正] したらばで書き込み後の移動が変になっていたのに対応修正
+	- [バグ修正] お気にスレや殿堂スレで、同じkeyの別スレを登録できなかったのを修正
+	  指摘感謝 → p2スレ26 >>474
+	- [バグ修正] beのリファラで、test/read.cgi/が抜けていたのを修正
+
+	- [仕様変更] be.2ch.netのsubject.txtは保存時に文字コード変換するようにした
+	  移行直後は古いキャッシュが残って、be.2ch.netのスレ一覧が文字化け表示する場合があります。
+
+	- ホストチェック、BBQなど、拡張パックさんのコードを取り込ませてもらってます。感謝。
+
+	* cookie.php
+	* edit_conf_user.php is new
+	* editfavita.php
+	* editfile.php
+	* editpref.php
+	* first_cont.php
+	* httpcmd.php
+	* index.php
+	* info.php
+	* login.php
+	* login2ch.php
+	* menu_k.php
+	* post.php
+	* post_form.php
+	* read.php
+	* read_filter_k.php
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.php
+	* setting.php
+	* subject.php
+	* title.php
+	* viewtxt.php
+	* conf/conf.inc.php
+	* conf/conf_admin.inc.php is new
+	* conf/conf_hostcheck.php is new
+	* conf/conf_user.inc.php is removed
+	* conf/conf_user_def.inc.php is new
+	* conf/conf_user_style.inc.php
+	* doc/README.txt
+	* img/rep2.gif is new
+	* img/rep2_loginbg.gif is new
+	* lib/SubjectTxt.class.php
+	* lib/dataphp.class.php
+	* lib/hostcheck.class.php is new
+	* lib/index_print_k.inc.php
+	* lib/login.class.php is new
+	* lib/login.inc.php is removed
+	* lib/login2ch.inc.php
+	* lib/login_first.inc.php
+	* lib/menu.inc.php
+	* lib/p2util.class.php
+	* lib/read_footer.inc.php
+	* lib/read_footer_k.inc.php
+	* lib/read_header.inc.php
+	* lib/read_header_k.inc.php
+	* lib/res_hist.class.php
+	* lib/sb_footer.inc.php
+	* lib/sb_print.inc.php
+	* lib/session.class.php is new
+	* lib/setfav.inc.php
+	* lib/setpalace.inc.php
+	* lib/showbrdmenuk.class.php
+	* lib/showthread.class.php
+	* lib/showthreadpc.class.php
+	* style/edit_conf_user_css.inc is new
+	* style/login_first_css.inc
+
+2005-06-07 aki
+	* p2 version 1.6.7
+	
+	- [改良] PEAR の Net_UserAgent_Mobile がインストールされていない時は、その旨をエラー表示するようにした
+	
+	* conf/conf.inc.php
+	
+2005-06-07 aki
+	* p2 version 1.6.6
+	
+	- [改良] 板検索を、ディレクトリ名(例:operate)でもマッチするようにした
+	- [改良] Beポイントを送る時のリファラをレス番号まで含めるようにした
+
+	- [内部整理] subject.txtの取り扱いをクラス化して整理した
+
+	- 新規ファイル
+		lib/SubjectTxt.class.php
+
+	* menu_k.php
+	* post.php
+	* read_new.php
+	* read_new_k.php
+	* subject.php
+	* subject_new.php
+	* conf/conf.inc.php
+	* doc/README.txt
+	* lib/SubjectTxt.class.php is new
+	* lib/brdmenu.class.php
+	* lib/menu.inc.php
+	* lib/p2util.class.php
+	* lib/sb_header_k.inc.php
+	* lib/sb_print.inc.php
+	* lib/showthread.class.php
+	* lib/showthreadk.class.php
+	* lib/showthreadpc.class.php
+	* lib/thread.class.php
+	* lib/threadlist.class.php
+
+2005-06-04 aki
+	* p2 version 1.6.5
+	
+	- [バグ修正] 携帯で本文中のIDが正常に表示されなかったのを修正
+	- [仕様変更] 携帯のIDリンクの表示を控えめにした。
+	  （「ID:XXXXXX(N)」のN部分をリンクにした）
+	- [仕様変更] 板メニューの検索を、正規表現から、and検索に変更した
+	- 他細かく
+
+	- 変更のあったファイル
+		menu_k.php
+		conf/conf.inc.php
+		lib/brdctl.class.php
+		lib/brdmenu.class.php
+		lib/menu.inc.php
+		lib/sb_header_k.inc.php
+		lib/showbrdmenuk.class.php
+		lib/showbrdmenupc.class.php
+		lib/showthreadk.class.php
+		lib/strctl.class.php
+
+2005-06-03 aki
+	* p2 version 1.6.4
+	
+	- [バグ修正] スレ一覧の検索条件で「すべて」が機能していなかったのを修正した
+	
+	- 変更のあったファイル
+		subject.php
+		conf/conf.inc.php
+	
+2005-06-03 aki
+	* p2 version 1.6.3
+	
+	- [新機能] 携帯のスレ内容表示で検索（フィルタリング）できるようになった。
+	  （拡張パックより。感謝）
+	- [仕様変更] 携帯の次X件の表示数を再度調整して戻した（実質+1件の表示になる）
+
+	- 新規追加されたファイル
+		read_filter_k.php
+		lib/read_filter_k.inc.php
+		
+	* read.php
+	* read_filter_k.php is new
+	* conf/conf.inc.php
+	* lib/read_filter_k.inc.php is new
+	* lib/read_footer_k.inc.php
+	* lib/read_header_k.inc.php
+	* lib/showthread.class.php
+	* lib/showthreadk.class.php
+	* lib/showthreadpc.class.php
+	* lib/threadread.class.php
+
+2005-05-30 aki
+	* p2 version 1.6.2
+
+	- [バグ修正] loginfirst.inc.php でエラーが出るのを修正した THX! p2スレ23 >>519
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/login_first.inc.php
+
+2005-05-29 aki
+	* p2 version 1.6.1
+	
+	- [バグ修正] dat保存ディレクトリと初期設定保存ディレクトリを別々に設定していると
+	  エラーが出ていたのを修正
+	- [バグ修正] loginfirst.inc.php でエラーが出るのを修正できたかもしれない
+
+	- 変更のあったファイル
+		login.php
+		conf/conf.inc.php
+		lib/login_first.inc.php
+
+2005-05-29 aki
+	* p2 version 1.6.0
+	
+	- [新機能] スレ一覧で、取得済みDATの本文を検索できるようになった
+	
+	- [新機能] スレッド移動のgoボタンを付けた。（拡張パックより。THX!）
+	- [改良] Net_UserAgent_Mobileを導入した。最近のvodafoneに対応できたかもしれない。
+	  （拡張パックより。THX!）
+	- [改良] 携帯の書き込みフォームの大きさを少し調整した
+
+	- [改良] データディレクトリに .htaccess がなければ、
+	  アクセス拒否用の .htaccess を自動生成するようにした。（Modified: index.php）
+	  .htaccess の中身は、
+	      Order allow,deny
+	      Deny from all
+	  となっている。ただし、.htaccess は サーバの設定次第で、機能しない場合もあるので、
+	  過信しないこと。
+	  また、libディレクトリには、この .htaccess が最初から置かれています。
+
+	- [仕様変更] Pear の Net_UserAgent_Mobile が必要になった。
+
+		Net_UserAgent_Mobile が、サーバにインストールされていない場合は、
+		pearコマンドを使って、自分でサーバにインストールするか、
+		p2のディレクトリに includes ディレクトリを作成し、
+		その中にネットからダウンロードしてきたファイルを入れてやるとOKです。
+
+		pear install でサーバにインストールする場合、Net_UserAgent_Mobile は現在betaなので、
+		betaでもインストールできるように、
+		pear install -f Net_UserAgent_Mobile
+		と -f オプションをつけて、コマンドを打つとよいかも。
+
+		includesディレクトリで利用する場合は、
+		拡張パックさんの p2pear がそのまま使えます。
+		http://moonshine.s32.xrea.com/
+
+	- [仕様変更] $datdir を $_conf['dat_dir'] と $_conf['idx_dir'] に分けた
+	- [仕様変更] サブジェクト検索のデフォルトを「正規表現」から「いずれか」に変更した
+
+	- [内部仕様変更] 書き込みログの形式を変更。（以前の形式に戻した）
+	  自動で変換します。変換前の古いファイルは、.bakで残しています。
+
+	- [内部仕様変更] DataPhp::writeDataPhp() と DataPhp::putDataPhp() の
+	  引数を取る順番が変わったので注意
+
+	- [内部仕様変更] 拡張パックにあわせて、lib ディレクトリを追加し、
+	  ソースツリー構造が変更された。
+	
+	- 他いろいろ
+	- 今回は、ほとんど全てのPHPファイルが変更された
+
+2005-05-27 aki
+	* p2 version 1.5.29
+	
+	- [修正] v1.5.28のアーカイブで threadread.class.php のアクセス権がおかしかったのを修正
+
+2005-05-27 aki
+	* p2 version 1.5.28
+	
+	- [バグ修正] 携帯で最新X件数表示が、一つ前のレスまでしか表示されていなかったのを修正
+
+	- 変更のあったファイル
+		threadread.class.php
+		conf/conf.inc.php
+
+2005-05-27 aki
+	* p2 version 1.5.27
+
+	- [改良] スレ一覧からのログ削除もAjaxで行えるようにした
+	- [仕様変更] >>a-b のリンクは(p)表示をしないようにした
+	- 拡張パックさんのコードをちょこちょこ入れてます。THX!
+	
+	- 変更のあったファイル
+		sb_header.inc.php
+		sb_print.inc.php
+		showthreadpc.class.php
+		conf/conf.inc.php
+		js/delelog.js
+
+2005-05-26 aki
+	* p2 version 1.5.26
+
+	- [バグ修正] 複数のスレッドあぼーんが同時に解除された時に、
+	  データが大きくなってしまうバグを修正
+	  （v1.5.24, v1.5.25 を利用している方は必ずアップデートしてください）
+
+	- [バグ修正] 履歴削除で最後の一つが消せなかったのを修正
+
+	- [改良] スレ一覧からのお気に★追加/削除処理をajaxで行えるようにした
+
+	- 新規ファイル
+		js/setfavjs.js
+		js/delelog.js
+
+	* dele.inc.php
+	* editpref.php
+	* httpcmd.php
+	* post_form.inc.php
+	* post_form.php
+	* post_options_loader.inc.php
+	* read_footer.inc.php
+	* read_header.inc.php
+	* read_new.php
+	* read_new_k.php
+	* sb_header.inc.php
+	* sb_print.inc.php
+	* settaborn_off.inc.php
+	* threadread.class.php
+	* conf/conf.inc.php
+	* conf/conf_user.inc.php
+	* js/basic.js
+	* js/delelog.js is new
+	* js/setfavjs.js is new
+
+2005-05-21 aki
+	* p2 version 1.5.25
+
+	- [バグ修正] DATが過去ログ倉庫にあるときなどの表示が正常にされなかったのを修正
+
+2005-05-19 aki
+	* p2 version 1.5.24
+	
+	- [バグ修正] 携帯で板検索結果が表示されなかったバグを修正
+ 
+	- [改良] DAT読み込み時に、iframeを削除するようにした。THX! → rskさん
+
+	- [改良]  2chの携帯の元スレへのリンクに、デフォルトのメール指定が入るようにした
+	  例) http://c.2ch.net/test/-!mail=sage/phs/1109405598/ 
+
+	- [内部変更] ignore_user_abort()を全体にかけず、ピンポイントで設定するようにした
+
+	- 他いろいろ
+
+	- 新規ファイル
+		getsetposlines.inc.php
+
+	* cookie.php
+	* dataphp.class.php
+	* dele.inc.php
+	* editfavita.php
+	* filectl.class.php
+	* getsetposlines.inc.php is new
+	* httpcmd.php
+	* info.php
+	* login.inc.php
+	* login.php
+	* login_first.inc.php
+	* menu.inc.php
+	* menu_k.php
+	* p2util.class.php
+	* post.php
+	* read.php
+	* read_machibbs.inc.php
+	* read_new.inc.php
+	* read_new.php
+	* read_new_k.php
+	* read_res_hist.inc.php
+	* read_res_hist.php
+	* read_shitaraba.inc.php
+	* sb_footer.inc.php
+	* setfav.inc.php
+	* setfavita.inc.php
+	* setpalace.inc.php
+	* settaborn.inc.php
+	* settaborn_off.inc.php
+	* showbrdmenuk.class.php
+	* showthread.class.php
+	* showthreadk.class.php
+	* subject.php
+	* subject_new.php
+	* syncfavita.inc.php
+	* syncindex.inc.php
+	* thread.class.php
+	* threadlist.class.php
+	* threadread.class.php
+	* conf/conf.inc.php
+	* doc/ChangeLog.txt
+
+2005-05-09 aki
 	* p2 version 1.5.23
 
 	- [バグ修正] 携帯表示時の「略」がたまにリンク表示されていなかったのを修正
 	- [バグ修正] スレ一覧で板名の表示が日本語で登録できないことがあったのを修正
 	- [改良] 設定で編集できないファイルのボタンを、disable表示にした。（拡張パックより THX!→rskさん）
-	
 	- 他こまかく
-	
-	- 変更のあったファイル
-		editpref.php
-		p2util.class.php
-		post.php
-		post_options_loader.inc.php
-		showthreadk.class.php
-		subject.php
-		conf/conf.inc.php
-		style/editpref_css.inc
-		style/style_css.inc
 
 2005-05-07 aki
 	* p2 version 1.5.22
 	
 	- [バグ修正] 書き込み終了後に、間違ったエラー表示がされていたのを修正
-	
-	- 変更のあったファイル
-		post.php
-		conf/conf.inc.php
 
 2005-05-07 aki
 	* p2 version 1.5.21
 	
 	- 環境によっては、新着まとめ読みのキャッシュができなかったのを修正したつもり
-	
 	- 内部変更いろいろ。スレッド表示部分において、rskさんのコードを大きくマージしました。THX!
-	
-	- 変更のあったファイル
-		brdmenu.class.php
-		dataphp.class.php
-		filectl.class.php
-		info.php
-		login2ch.inc.php
-		login_first.inc.php
-		ngabornctl.class.php
-		p2util.class.php
-		post.php
-		read.php
-		read_header.inc.php
-		read_header_k.inc.php
-		read_new.inc.php
-		read_new.php
-		read_new_k.php
-		read_shitaraba.inc.php
-		showthread.class.php
-		showthreadk.class.php
-		showthreadpc.class.php
-		subject.php
-		thread.class.php
-		threadread.class.php
-		conf/conf.inc.php
 
 2005-05-07 aki
 	* p2 version 1.5.20
 	
 	- [バグ修正] しらたば、まちBBSでidxが存在して、datが存在しない時に、datの取得が変になっていたのを修正
 	  modified: read_shitaraba.inc.php, read_machibbs.inc.php
-	
-	- 変更のあったファイル
-		post.php
-		post_options_loader.inc.php
-		read_machibbs.inc.php
-		read_shitaraba.inc.php
-		subject.php
-		thread.class.php
-		threadread.class.php
-		conf/conf.inc.php
 
 2005-04-30 aki
 	* p2 version 1.5.19
@@ -87,18 +731,6 @@
 	- [バグ修正] スレ立て失敗した時に、キャッシュは残るのにタイトルだけ出ないのを修正 
 
 	- 他こまかく。ほんの少し、スレ一覧表示の動作の高速化など。
-
-	- 変更のあったファイル
-		post_form.inc.php
-		post_form.php
-		post_options_loader.inc.php
-		read.php
-		read_footer.inc.php
-		showthread.class.php
-		showthreadk.class.php
-		showthreadpc.class.php
-		thread.class.php
-		conf/conf.inc.php
 
 2005-04-29 aki
 	* p2 version 1.5.18
@@ -140,21 +772,6 @@
 	- [改良修正] ページの読み込みが完了していない状態でHTMLポップアップができなかったのを修正
 	
 	今回の変更は全てrskさんのパッチより。THX!
-	
-	- 変更されたファイル
-		editfile.php
-		p2util.class.php
-		post.php
-		read_header.inc.php
-		read_new.php
-		read_shitaraba.inc.php chang
-		strctl.class.php
-		thread.class.php
-		threadlist.class.php
-		threadread.class.php
-		viewtxt.php
-		conf/conf.inc.php
-		js/htmlpopup.js
 
 2005-04-25 aki
 	* p2 version 1.5.16
@@ -199,13 +816,6 @@
 	  $_conf['precede_openssl']
 	  ※ただしPHPがバージョン4.3.0以降でconfigureのオプションに--with-opensslを付けてコンパイルされていないといけないので、
 	  DSOでopensslを読み込んでいる場合にこの機能を使うとエラーが出るので注意。
-	  
-	  - 変更されたファイル
-		login2ch.inc.php
-		subject.php
-		wap.class.php
-		conf/conf.inc.php
-		conf/conf_user.inc.php
 
 2005-04-21 aki
 	* p2 version 1.5.14
@@ -230,47 +840,6 @@
 	  （ちょっぴりはやくなって、メモリの負担が軽減したかもしれない）
 	- [改良] 明示的にソート方法が変更された場合のみ、ソート方法が変更記録されるように調整した。 
 	
-	* brdctl.class.php
-	* brdmenu.class.php
-	* cookie.php
-	* dataphp.class.php
-	* editfavita.php
-	* editfile.php
-	* editpref.php
-	* index.php
-	* info.php
-	* login.php
-	* login2ch.php
-	* login_first.inc
-	* menu.inc.php
-	* menu_k.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_machibbs.inc.php
-	* read_new.inc.php
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.inc.php
-	* read_res_hist.php
-	* res_hist.class.php
-	* sb_footer_k.inc.php
-	* sb_print.inc.php
-	* sb_print_k.inc.php
-	* setting.php
-	* showbrdmenuk.class.php
-	* showbrdmenupc.class.php
-	* showthreadk.class.php
-	* showthreadpc.class.php
-	* subject.php
-	* subject_new.php
-	* thread.class.php
-	* threadlist.class.php
-	* title.php
-	* viewtxt.php
-	* wap.class.php
-	* conf/conf.inc.php
-	
 2005-04-17 aki
 	* p2 version 1.5.12
 	
@@ -279,32 +848,9 @@
 	- [Bug Fix] スレ一覧のsmpodeで、フィルタリング時に強調表示されていなかったのを修正
 	- 他、細かな修正など
 
-	* brdctl.class.php
-	* brdmenu.class.php
-	* editpref.php
-	* index_print_k.inc.php
-	* info.php
-	* menu.inc.php
-	* menu_k.php
-	* p2util.class.php
-	* read.php
-	* read_new.inc.php
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.php
-	* subject.php
-	* subject_new.php
-	* threadread.class.php
-	* wap.class.php
-	* conf/conf.inc.php
-
 2005-04-16 aki
 	* p2 version 1.5.11
-	
 	- [Bug Fix] スレッド情報画面のタイトルが表示されていなかったのを修正
-	
-	* conf/conf.inc.php
-	* info.php
 	
 2005-04-16 aki
 	* p2 version 1.5.10
@@ -417,18 +963,15 @@
 
 2005-03-21 aki
 	* p2 version 1.5.7
-	
 	- [Bug Fix] 独立したレス書き込みフォームで、記憶された名前やメールが読み込まれていなかったのを修正
 	- 他こまごま
 
 2005-03-13 aki
 	* p2 version 1.5.6
-	
 	- [Bug Fix] ファイル名ミスのため、携帯用ページが表示できなかったバグを修正
 
 2005-03-13 aki
 	* p2 version 1.5.5
-	
 	- [Bug Fix] ファイル名ミスのため、板メニューなどが表示できなかったバグを修正
 
 2005-03-13 aki

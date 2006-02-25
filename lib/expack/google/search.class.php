@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 // {{{ class GoogleSearch
@@ -23,7 +23,7 @@ class GoogleSearch
      */
     function &factory($wsdl, $key)
     {
-        if (substr(phpversion(), 0, 1) == '5') {
+        if (extension_loaded('soap')) {
             require_once dirname(__FILE__) . '/search_php5.class.php';
             $google = &new GoogleSearch_PHP5();
         } else {
@@ -70,6 +70,17 @@ class GoogleSearch_Common
     var $key;
 
     /**
+     * SOAPのメソッドを呼ぶときのオプション
+     *
+     * @var array
+     * @access protected
+     *
+     * @link http://jp.php.net/manual/ja/function.soap-soapclient-call.php
+     * @see PEAR's SOAP/Client.php SOAP_Client::call()
+     */
+    var $options;
+
+    /**
      * 実際にGoogle検索するクラスのインスタンス
      *
      * @var object
@@ -105,6 +116,7 @@ class GoogleSearch_Common
     {
         $this->wsdl = $wsdl;
         $this->key  = $key;
+        $this->options = array('namespace' => 'urn:GoogleSearch', 'trace' => 0);
     }
 
     // }}}
@@ -121,6 +133,7 @@ class GoogleSearch_Common
      */
     function prepareParams($q, $maxResults = 10, $start = 0)
     {
+        //$q = mb_encode_numericentity($q, array(0x80, 0xFFFF, 0, 0xFFFF), 'UTF-8');
         // 検索パラメータ
         // <!-- note, ie and oe are ignored by server; all traffic is UTF-8. -->
         // <message name="doGoogleSearch">

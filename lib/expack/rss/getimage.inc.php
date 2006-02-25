@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /*
     p2機能拡張パック - RSS画像キャッシュ
@@ -13,7 +13,6 @@ require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
  */
 function rss_get_image($src_url, $memo='')
 {
-    global $_exconf;
     static $cache = array();
 
     $key = md5(serialize(func_get_args()));
@@ -57,16 +56,19 @@ function rss_get_image_ic2($src_url, $memo='')
 
     // 画像表示方法
     //   r=0:HTML;r=1:リダイレクト;r=2:PHPで表示
-    //   通常はr=1でLocationヘッダによるリダイレクトに対応していない携帯端末ではr=2にする
-    //   携帯用サムネイルはインライン表示しないのでr=0
+    //   インライン表示用サムネイルはオリジナルがキャッシュされているとURLが短くなるのでr=2
+    //   携帯用サムネイル（全画面表示が目的）はインライン表示しないのでr=0
     // サムネイルの大きさ
     //   t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
     $img_url = 'ic2.php?r=1&amp;uri=' . $url_en;
     $img_size = '';
-    $thumb_url = 'ic2.php?r=1&amp;t=1&amp;uri=' . $url_en;
+    $thumb_url = 'ic2.php?r=2&amp;t=1&amp;uri=' . $url_en;
+    $thumb_url2 = 'ic2.php?r=2&amp;t=1&amp;id=';
     $thumb_size = '';
     $thumb_k_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en;
+    $thumb_k_url2 = 'ic2.php?r=0&amp;t=1&amp;id=';
     $thumb_k_size = '';
+    $src_exists = FALSE;
 
     // DBに画像情報が登録されていたとき
     if ($icdb->get($src_url)) {
@@ -87,6 +89,7 @@ function rss_get_image_ic2($src_url, $memo='')
         if (file_exists($_img_url)) {
             $img_url = $_img_url;
             $img_size = "width=\"{$icdb->width}\" height=\"{$icdb->height}\"";
+            $src_exists = TRUE;
         }
 
         // サムネイルが作成されていているときは画像を直接読み込む
@@ -104,12 +107,16 @@ function rss_get_image_ic2($src_url, $memo='')
                 $update->whereAddQuoted('uri', '=', $src_url);
                 $update->update();
             }
+        } elseif ($src_exists) {
+            $thumb_url = $thumb_url2 . $icdb->id;
         }
 
         // 携帯用サムネイルが作成されていているときは画像を直接読み込む
         $_thumb_k_url = $thumbnailer_k->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
         if (file_exists($_thumb_k_url)) {
             $thumb_k_url = $_thumb_k_url;
+        } elseif ($src_exists) {
+            $thumb_k_url = $thumb_k_url2 . $icdb->id;
         }
 
         // サムネイルの画像サイズ

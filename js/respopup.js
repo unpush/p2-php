@@ -1,6 +1,3 @@
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0: */
-/* mi: charset=Shift_JIS */
-
 /* p2 - 引用レス番をポップアップするためのJavaScript */
 
 /*
@@ -49,9 +46,7 @@ function showResPopUp(divID,ev){
 	}
 	if(aResPopUp.timerID){clearTimeout(aResPopUp.timerID);} //非表示タイマーを解除
 
-	var mode = divID.charAt(0);
-
-	aResPopUp.showResPopUp(ev ,mode);
+	aResPopUp.showResPopUp(ev);
 }
 
 //==============================================================
@@ -150,12 +145,11 @@ function ResPopUp(divID){
 	//==================================================
 	// showResPopUp -- レスポップアップを表示する関数
 	//==================================================
-	function ResPopUp_showResPopUp(ev, mode){
+	function ResPopUp_showResPopUp(ev){
 		var x_adjust=10; //x軸位置調整
 		var y_adjust=-68; //y軸位置調整
-		if(mode == "p" || mode == "a" || mode == "n"){ //スマートポップアップメニューのとき
-			//x_adjust = 0;
-			y_adjust = -10;
+		if (divID.indexOf('spm_') == 0) {
+			y_adjust=-10;
 		}
 		if(this.popOBJ.style.visibility != "visible"){
 			this.popOBJ.style.zIndex = this.zNum;

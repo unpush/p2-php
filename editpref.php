@@ -1,14 +1,12 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
-    p2 -  設定編集
+    p2 -  設定管理
 */
 
-require_once 'conf/conf.php';  //基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+include_once './conf/conf.inc.php'; // 基本設定
+include_once P2_LIBRARY_DIR . '/filectl.class.php';
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 // {{{ ホストの同期用設定
 
@@ -16,43 +14,31 @@ if (!isset($rh_idx))     { $rh_idx     = $_conf['pref_dir'] . '/p2_res_hist.idx'
 if (!isset($palace_idx)) { $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx'; }
 
 $synctitle = array(
-    $_conf['favita_path']  => 'お気に板',
-    $_conf['favlist_file'] => 'お気にスレ',
-    $_conf['rct_file']     => '最近読んだスレ',
-    $rh_idx     => '書き込み履歴',
-    $palace_idx => 'スレの殿堂',
+    basename($_conf['favita_path'])  => 'お気に板',
+    basename($_conf['favlist_file']) => 'お気にスレ',
+    basename($_conf['rct_file'])     => '最近読んだスレ',
+    basename($rh_idx)                => '書き込み履歴',
+    basename($palace_idx)            => 'スレの殿堂'
 );
 
 // }}}
 // {{{ 設定変更処理
 
-// スキン変更があれば、設定ファイルを書き換えてリロード
-if (isset($_POST['skin'])) {
-    updateSkinSetting();
-
-// お気に入りセット変更があれば、設定ファイルを書き換える
-} elseif (isset($_POST['favsetlist'])) {
-    updateFavSetList();
-
 // ホストの同期
-} elseif (isset($_POST['sync'])) {
-    $syncfile = $_POST['sync'];
+if (isset($_POST['sync'])) {
+    include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+    $syncfile = $_conf['pref_dir'].'/'.$_POST['sync'];
+    $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {
-        include_once (P2_LIBRARY_DIR . '/syncfavita.inc.php');
+        BbsMap::syncBrd($syncfile);
     } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
-        include_once (P2_LIBRARY_DIR . '/syncindex.inc.php');
-    }
-    if ($sync_ok) {
-        $_info_msg_ht .= "<p>{$synctitle[$syncfile]}を同期しました。</p>";
-    } else {
-        $_info_msg_ht .= "<p>{$synctitle[$syncfile]}は変更されませんでした。</p>";
+        BbsMap::syncIdx($syncfile);
     }
     unset($syncfile);
-}
 
-$parent_reload = '';
-if (isset($_GET['reload_skin'])) {
-    $parent_reload = 'onload="parent.menu.location.href=\'./menu.php\'; parent.read.location.href=\'./first_cont.php\';"';
+// お気に入りセット変更があれば、設定ファイルを書き換える
+} elseif ($_conf['expack.misc.multi_favs'] && isset($_POST['favsetlist'])) {
+    updateFavSetList();
 }
 
 // }}}
@@ -60,20 +46,20 @@ if (isset($_GET['reload_skin'])) {
 
 $ptitle = '設定管理';
 
-if ($_conf['ktai']) {
-    $status_st = 'ｽﾃｰﾀｽ';
-    $autho_user_st = '認証ﾕｰｻﾞ';
+if (!empty($_conf['ktai'])) {
+    $status_st      = 'ｽﾃｰﾀｽ';
+    $autho_user_st  = '認証ﾕｰｻﾞ';
     $client_host_st = '端末ﾎｽﾄ';
-    $client_ip_st = '端末IPｱﾄﾞﾚｽ';
-    $browser_ua_st = 'ﾌﾞﾗｳｻﾞUA';
-    $p2error_st = 'p2 ｴﾗｰ';
+    $client_ip_st   = '端末IPｱﾄﾞﾚｽ';
+    $browser_ua_st  = 'ﾌﾞﾗｳｻﾞUA';
+    $p2error_st     = 'rep2 ｴﾗｰ';
 } else {
-    $status_st = 'ステータス';
-    $autho_user_st = '認証ユーザ';
+    $status_st      = 'ステータス';
+    $autho_user_st  = '認証ユーザ';
     $client_host_st = '端末ホスト';
-    $client_ip_st = '端末IPアドレス';
-    $browser_ua_st = 'ブラウザUA';
-    $p2error_st = 'p2 エラー';
+    $client_ip_st   = '端末IPアドレス';
+    $browser_ua_st  = 'ブラウザUA';
+    $p2error_st     = 'rep2 エラー';
 }
 
 $autho_user_ht = '';
@@ -81,37 +67,34 @@ $autho_user_ht = '';
 // }}}
 
 //=========================================================
-// {{{ HTMLプリント
+// HTMLプリント
 //=========================================================
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+if ($_conf['doctype']) {
+    echo $_conf['doctype'];
+}
 echo <<<EOP
 <html lang="ja">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    {$_conf['meta_charset_ht']}
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$ptitle}</title>
-
+    <title>{$ptitle}</title>\n
 EOP;
-if (!$_conf['ktai']) {
-    echo <<<EOP
-    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
-    <link rel="stylesheet" type="text/css" href="css.php?css=editpref&amp;skin={$skin_en}">
-    <link rel="stylesheet" type="text/css" href="css.php?css=editpref&amp;skin={$skin_en}">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-
-EOP;
+if (empty($_conf['ktai'])) {
+    @include("./style/style_css.inc");
+    @include("./style/editpref_css.inc");
 }
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
 echo <<<EOP
 </head>
-<body {$parent_reload}{$k_color_settings}>\n
+<body{$body_at}>\n
 EOP;
 
-if (!$_conf['ktai']) {
-    //echo "<p id=\"pan_menu\"><a href=\"setting.php\">設定</a> &gt; {$ptitle}</p>\n";
+if (empty($_conf['ktai'])) {
+//<p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
     echo "<p id=\"pan_menu\">{$ptitle}</p>\n";
 }
 
@@ -130,97 +113,121 @@ $ng_mail_txt    = $_conf['pref_dir'] . '/p2_ng_mail.txt';
 $ng_msg_txt     = $_conf['pref_dir'] . '/p2_ng_msg.txt';
 $ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
 
-// {{{ PC用表示
-if (!$_conf['ktai']) {
+echo '<div>';
+echo <<<EOP
+<a href="edit_conf_user.php{$_conf['k_at_q']}">ユーザ設定編集</a>
+EOP;
+if (empty($_conf['ktai']) && $_conf['expack.skin.enabled']) {
+    $skin_options = array('conf_user_style' => '標準');
+    $skin_dir = opendir('./skin');
+    if ($skin_dir) {
+        while (($skin_file = readdir($skin_dir)) !== FALSE) {
+            if (is_file("./skin/{$skin_file}") && preg_match('/^(\w+)\.php$/', $skin_file, $skin_matches)) {
+                $_name = $skin_matches[1];
+                $skin_options[$_name] = $_name;
+            }
+        }
+    }
+    $skin_options_ht = '';
+    foreach ($skin_options as $_name => $_title) {
+        if ($_name == $skin_name) {
+            $_format = '<option value="%s" selected>%s</option>';
+        } else {
+            $_format = '<option value="%s">%s</option>';
+        }
+        $skin_options_ht .= sprintf($_format, htmlspecialchars($_name, ENT_QUOTES), htmlspecialchars($_title, ENT_QUOTES));
+    }
+    echo <<<EOP
+ ｜ <a href="edit_user_font.php">フォント設定編集</a>
+ ｜ スキン:<form class="inline-form" method="get" action="{$_SERVER['PHP_SELF']}">
+<select name="skin">{$skin_options_ht}</select><input type="submit" value="変更">
+</form>
+EOP;
+}
+echo '</div>';
 
+// PC用表示
+if (empty($_conf['ktai'])) {
+    
     echo "<table id=\"editpref\">\n";
-
+    
     // {{{ PC - NGワード編集
     echo "<tr><td>\n\n";
-
+    
     echo <<<EOP
 <fieldset>
-<legend><a href="http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>\n
+<legend><a href="http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
 EOP;
-    printEditFileForm($ng_name_txt, '名前');
-    printEditFileForm($ng_mail_txt, 'メール');
-    printEditFileForm($ng_msg_txt, 'メッセージ');
-    printEditFileForm($ng_id_txt, ' I D ');
+    printEditFileForm($ng_name_txt, "名前");
+    printEditFileForm($ng_mail_txt, "メール");
+    printEditFileForm($ng_msg_txt, "メッセージ");
+    printEditFileForm($ng_id_txt, " I D ");
     echo <<<EOP
 </fieldset>\n\n
 EOP;
 
     echo "</td>";
+
     // }}}
     // {{{ PC - あぼーんワード編集
+
     echo "<td>\n\n";
 
     echo <<<EOP
 <fieldset>
 <legend>あぼーんワード編集</legend>\n
 EOP;
-    printEditFileForm($aborn_name_txt, '名前');
-    printEditFileForm($aborn_mail_txt, 'メール');
-    printEditFileForm($aborn_msg_txt, 'メッセージ');
-    printEditFileForm($aborn_id_txt, ' I D ');
-    echo <<<EOP
-</fieldset>\n\n
-EOP;
-
-    echo "</td></tr>";
-    // }}}
-    // {{{ PC - スキン の設定
-    echo "<tr><td>\n\n";
-
-    echo <<<EOP
-<fieldset>
-<legend>スキン</legend>\n
-EOP;
-    printSkinSelectForm($_conf['skin_file'], '変更');
-//  printEditFileForm('conf/conf_skin.php', 'スキン設定');
-    printEditFileForm($skin, 'このスキンを編集');
-    echo <<<EOP
-</fieldset>\n\n
-EOP;
-
-    echo "</td>";
-    // }}}
-    // {{{ PC - その他 の設定
-    echo "<td>\n\n";
-
-    echo <<<EOP
-<fieldset>
-<legend>その他</legend>\n
-EOP;
-    printEditFileForm('conf/conf.php', '基本設定');
-    printEditFileForm('conf/conf_user.php', 'ユーザ設定');
-    printEditFileForm('conf/conf_user_ex.php', '拡張パック設定');
-    echo "<br>\n";
-    printEditFileForm('conf/conf_user_style.php', 'デザイン設定');
-    printEditFileForm('conf/conf_constant.php', '定型文');
-    printEditFileForm($aborn_res_txt, 'あぼーんレス');
+    printEditFileForm($aborn_name_txt, "名前");
+    printEditFileForm($aborn_mail_txt, "メール");
+    printEditFileForm($aborn_msg_txt, "メッセージ");
+    printEditFileForm($aborn_id_txt, " I D ");
     echo <<<EOP
 </fieldset>\n
 EOP;
 
-    echo "</td></tr>\n\n";
+    echo "</td></tr>";
+
     // }}}
-    // {{{ PC - ホストの同期 HTMLのセット
+    // {{{ PC - その他 の設定
+
+    //echo "<td>\n\n";
+    /*
+    php は editfile しない
+    
+    echo <<<EOP
+<fieldset>
+<legend>その他</legend>
+EOP;
+    printEditFileForm("conf/conf_user.inc.php", 'ユーザ設定');
+    printEditFileForm("conf/conf_user_style.inc.php", 'デザイン設定');
+    printEditFileForm("conf/conf.inc.php", '基本設定');
+    echo <<<EOP
+</fieldset>\n
+EOP;
+    */
+
+    // }}}
+
+    //echo '&nbsp;';
+
+    //echo "</td></tr>\n\n";
     $htm['sync'] = "<tr><td colspan=\"2\">\n\n";
+
+    // {{{ PC - ホストの同期 HTMLのセット
 
     $htm['sync'] .= <<<EOP
 <fieldset>
-<legend>ホストの同期（2chの板移転に対応します）</legend>\n
+<legend>ホストの同期 （2chの板移転に対応します）</legend>
 EOP;
     $exist_sync_flag = false;
     foreach ($synctitle as $syncpath => $syncname) {
-        if (is_writable($syncpath)) {
+        if (is_writable($_conf['pref_dir'].'/'.$syncpath)) {
             $exist_sync_flag = true;
             $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
         }
     }
     $htm['sync'] .= <<<EOP
-</fieldset>\n\n
+</fieldset>\n
 EOP;
 
     $htm['sync'] .= "</td></tr>\n\n";
@@ -228,11 +235,14 @@ EOP;
     if ($exist_sync_flag) {
         echo $htm['sync'];
     } else {
-        // echo "<p>ﾎｽﾄの同期は必要ありません</p>";
+        echo "&nbsp;";
+        // echo "<p>ホストの同期は必要ありません</p>";
     }
+
     // }}}
     // {{{ PC - セット切り替え・名称変更
-    if ($_exconf['etc']['multi_favs']) {
+
+    if ($_conf['expack.misc.multi_favs']) {
         echo "<tr><td colspan=\"2\">\n\n";
 
         echo <<<EOP
@@ -263,19 +273,54 @@ EOP;
 
         echo "</td></tr>\n\n";
     }
+
     // }}}
-
+    
     echo "</table>\n";
+}
 
-// }}}
-// {{{ 携帯用表示
-} else {
+// 携帯用表示
+if ($_conf['ktai']) {
+    echo <<<EOP
+<p>ｱﾎﾞﾝ/NGﾜｰﾄﾞ編集</p>
+<form method="GET" action="edit_aborn_word.php">
+{$_conf['k_input_ht']}
+<select name="path">
+<option value="{$aborn_name_txt}">ｱﾎﾞﾝ:名前</option>
+<option value="{$aborn_mail_txt}">ｱﾎﾞﾝ:ﾒｰﾙ</option>
+<option value="{$aborn_msg_txt}">ｱﾎﾞﾝ:ﾒｯｾｰｼﾞ</option>
+<option value="{$aborn_id_txt}">ｱﾎﾞﾝ:ID</option>
+<option value="{$ng_name_txt}">NG:名前</option>
+<option value="{$ng_mail_txt}">NG:ﾒｰﾙ</option>
+<option value="{$ng_msg_txt}">NG:ﾒｯｾｰｼﾞ</option>
+<option value="{$ng_id_txt}">NG:ID</option>
+</select>
+<input type="submit" value="編集">
+</form>
+EOP;
+    $htm['sync'] .= "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
+    $exist_sync_flag = false;
+    foreach ($synctitle as $syncpath => $syncname) {
+        if (is_writable($_conf['pref_dir'].'/'.$syncpath)) {
+            $exist_sync_flag = true;
+            $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
+        }
+    }
+    
+    if ($exist_sync_flag) {
+        echo $htm['sync'];
+    } else {
+        // echo "<p>ﾎｽﾄの同期は必要ありません</p>";
+    }
+
     // {{{ 携帯 - セット切り替え
-    if ($_exconf['etc']['multi_favs']) {
+
+    if ($_conf['expack.misc.multi_favs']) {
         echo <<<EOP
 <hr>
 <p>お気にｽﾚ･お気に板･RSSのｾｯﾄを選択</p>
 <form action="editpref.php" method="post" accept-charset="{$_conf['accept_charset']}" target="_self">
+{$_conf['k_input_ht']}
 EOP;
         echo getFavSetListFormHtK('m_favlist_set', 'お気にｽﾚ'), '<br>';
         echo getFavSetListFormHtK('m_favita_set', 'お気に板'), '<br>';
@@ -285,26 +330,26 @@ EOP;
 </form>
 EOP;
     }
+
+    // }}}
+
 }
-// }}}
 
 // {{{ 新着まとめ読みのキャッシュ表示
+
 $max = $_conf['matome_cache_max'];
 for ($i = 0; $i <= $max; $i++) {
     $dnum = ($i) ? '.'.$i : '';
-    $ai = '&amp;cnum='.$i;
-    $file = $_conf['matome_cache_path'].$dnum.$_conf['matome_cache_ext'];
+    $ai = '&amp;cnum=' . $i;
+    $file = $_conf['matome_cache_path'] . $dnum . $_conf['matome_cache_ext'];
     //echo '<!-- '.$file.' -->';
     if (file_exists($file)) {
-        $date = date('Y/m/d G:i:s', filemtime($file));
+        $filemtime = filemtime($file);
+        $date = date('Y/m/d G:i:s', $filemtime);
         $b = filesize($file)/1024;
         $kb = round($b, 0);
-        $url = 'read_new.php?cview=1'.$ai;
-        if ($i == 0) {
-            $links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
-        } else {
-            $links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
-        }
+        $url = 'read_new.php?cview=1' . $ai . '&amp;filemtime=' . $filemtime;
+        $links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
     }
 }
 if (!empty($links)) {
@@ -313,32 +358,27 @@ if (!empty($links)) {
     }
     echo $htm['matome'] = '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>';
 }
+
 // }}}
 
 // 携帯用フッタ
 if ($_conf['ktai']) {
-    echo "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
-    foreach ($synctitle as $syncpath => $syncname) {
-        if (is_writable($syncpath)) {
-            echo getSyncFavoritesFormHt($syncpath, $syncname);
-        }
-    }
-    echo '<hr>';
-    echo $_conf['k_to_index_ht'];
+    echo "<hr>\n";
+    echo $_conf['k_to_index_ht']."\n";
 }
 
 echo '</body></html>';
 
-// }}}
-// =====================================================
-// {{{ 関数
-// =====================================================
-
+//=====================================================
+// 関数
+//=====================================================
 /**
  * 設定ファイル編集ウインドウを開くフォームをプリントする
  */
 function printEditFileForm($path_value, $submit_value)
 {
+    global $_conf;
+    
     if ((file_exists($path_value) && is_writable($path_value)) ||
         (!file_exists($path_value) && is_writable(dirname($path_value)))
     ) {
@@ -348,11 +388,21 @@ function printEditFileForm($path_value, $submit_value)
         $onsubmit = ' onsubmit="return false;"';
         $disabled = ' disabled';
     }
-    $rows = 36; //18
-    $cols = 92; //90
-
+    
+    $rows = 36; // 18
+    $cols = 92; // 90
+    
+    if (preg_match('/^p2_(aborn|ng)_(name|mail|id|msg)\.txt$/', basename($path_value))) {
+        $edit_php = 'edit_aborn_word.php';
+        $target = '_self';
+    } else {
+        $edit_php = 'editfile.php';
+        $target = 'editfile';
+    }
+    
     $ht = <<<EOFORM
-<form action="editfile.php" method="POST" target="editfile" class="inline-form"{$onsubmit}>
+<form action="{$edit_php}" method="GET" target="{$target}" class="inline-form"{$onsubmit}>
+    {$_conf['k_input_ht']}
     <input type="hidden" name="path" value="{$path_value}">
     <input type="hidden" name="encode" value="Shift_JIS">
     <input type="hidden" name="rows" value="{$rows}">
@@ -368,65 +418,15 @@ EOFORM;
 }
 
 /**
- * スキンの選択用フォームをプリントする
- */
-function printSkinSelectForm($path_value, $submit_value)
-{
-    global $skin;
-
-    if ((file_exists($path_value) && is_writable($path_value)) ||
-        (!file_exists($path_value) && is_writable(dirname($path_value)))
-    ) {
-        $onsubmit = '';
-        $disabled = '';
-    } else {
-        $onsubmit = ' onsubmit="return false;"';
-        $disabled = ' disabled';
-    }
-
-    $skindir = dir('./skin');
-    $skins = array();
-    $spskin = array();
-    @include 'conf/conf_skin.php';
-
-    while (($ent = $skindir->read()) !== FALSE) {
-        if (preg_match('/^(\w+)\.php$/', $ent, $name) && !isset($spskin[$name[1]])) {
-            $skins[$name[1]] = $name[1];
-        }
-    }
-    $skins = array_merge($skins, $spskin);
-    asort($skins);
-
-    echo <<<EOFORM
-<form action="editpref.php" method="POST" target="_self" class="inline-form"{$onsubmit}>
-    <input type="hidden" name="path" value="{$path_value}"{$disabled}>
-    <select name="skin"{$disabled}>\n
-EOFORM;
-    if (file_exists('conf/conf_user_style.php')) {
-        $selected = ($skin == 'conf/conf_user_style.php') ? ' selected' : '';
-        echo "\t\t<option value=\"conf_style\"{$selected}>標準</option>\n";
-    }
-    foreach ($skins as $file => $name) {
-        $path = 'skin/' . $file . '.php';
-        if (file_exists($path)) {
-            $selected = ($skin == $path) ? ' selected' : '';
-            echo "\t\t<option value=\"{$file}\"{$selected}>{$name}</option>\n";
-        }
-    }
-    echo <<<EOFORM
-    </select>
-    <input type="submit" value="{$submit_value}"{$disabled}>
-</form>\n
-EOFORM;
-}
-
-/**
  * ホストの同期用フォームのHTMLを取得する
  */
 function getSyncFavoritesFormHt($path_value, $submit_value)
 {
+    global $_conf;
+    
     $ht = <<<EOFORM
 <form action="editpref.php" method="POST" target="_self" class="inline-form">
+    {$_conf['k_input_ht']}
     <input type="hidden" name="sync" value="{$path_value}">
     <input type="submit" value="{$submit_value}">
 </form>\n
@@ -449,14 +449,14 @@ function getFavSetListFormHt($set_name, $set_title)
         $titles = array();
     }
 
-    $radio_checked = array_fill(0, $_conf['favset_num'] + 1, '');
+    $radio_checked = array_fill(0, $_conf['expack.misc.favset_num'] + 1, '');
     $i = (isset($_SESSION[$set_name])) ? (int)$_SESSION[$set_name] : 0;
     $radio_checked[$i] = ' checked';
     $ht = <<<EOFORM
 <fieldset>
     <legend>{$set_title}</legend>\n
 EOFORM;
-    for ($j = 0; $j <= $_conf['favset_num']; $j++) {
+    for ($j = 0; $j <= $_conf['expack.misc.favset_num']; $j++) {
         if (!isset($titles[$j]) || strlen($titles[$j]) == 0) {
             $titles[$j] = ($j == 0) ? $set_title : $set_title . $j;
         }
@@ -484,11 +484,11 @@ function getFavSetListFormHtK($set_name, $set_title)
         $titles = array();
     }
 
-    $selected = array_fill(0, $_conf['favset_num'] + 1, '');
+    $selected = array_fill(0, $_conf['expack.misc.favset_num'] + 1, '');
     $i = (isset($_SESSION[$set_name])) ? (int)$_SESSION[$set_name] : 0;
     $selected[$i] = ' selected';
     $ht = "<select name=\"{$set_name}\">";
-    for ($j = 0; $j <= $_conf['favset_num']; $j++) {
+    for ($j = 0; $j <= $_conf['expack.misc.favset_num']; $j++) {
         if ($j == 0) {
             if (!isset($titles[$j]) || strlen($titles[$j]) == 0) {
                 $titles[$j] = $set_title;
@@ -499,13 +499,15 @@ function getFavSetListFormHtK($set_name, $set_title)
                 $titles[$j] = $set_title . $j;
             }
         }
+        if (!empty($_conf['k_save_packet'])) {
+            $titles[$j] = mb_convert_kana($titles[$j], 'rnsk');
+        }
         $ht .= "<option value=\"{$j}\"{$selected[$j]}>{$titles[$j]}</option>";
     }
     $ht .= "</select>\n";
 
     return $ht;
 }
-
 
 /**
  * お気に入りセットリストを更新する
@@ -514,10 +516,10 @@ function updateFavSetList()
 {
     global $_conf, $_info_msg_ht;
 
-    if (file_exists($_conf['favset_file'])) {
+    if (file_exists($_conf['expack.misc.favset_file'])) {
         $setlist_titles = FavSetManager::getFavSetTitles();
     } else {
-        FileCtl::make_datafile($_conf['favset_file']);
+        FileCtl::make_datafile($_conf['expack.misc.favset_file']);
     }
     if (empty($setlist_titles)) {
         $setlist_titles = array();
@@ -527,60 +529,26 @@ function updateFavSetList()
     foreach ($setlist_names as $setlist_name) {
         if (isset($_POST["{$setlist_name}_titles"]) && is_array($_POST["{$setlist_name}_titles"])) {
             $setlist_titles[$setlist_name] = array();
-            for ($i = 0; $i <= $_conf['favset_num']; $i++) {
+            for ($i = 0; $i <= $_conf['expack.misc.favset_num']; $i++) {
                 if (!isset($_POST["{$setlist_name}_titles"][$i])) {
                     $setlist_titles[$setlist_name][$i] = '';
                     continue;
                 }
                 $newname = trim($_POST["{$setlist_name}_titles"][$i]);
                 $newname = preg_replace('/\r\n\t/', ' ', $newname);
-                $newname = htmlspecialchars($newname);
+                $newname = htmlspecialchars($newname, ENT_QUOTES);
                 $setlist_titles[$setlist_name][$i] = $newname;
             }
         }
     }
 
     $newdata = serialize($setlist_titles);
-    if (FileCtl::file_write_contents($_conf['favset_file'], $newdata) === FALSE) {
-        $_info_msg_ht .= "<p>p2 error: {$_conf['favset_file']} にお気に入りセット設定を書き込めませんでした。";
+    if (FileCtl::file_write_contents($_conf['expack.misc.favset_file'], $newdata) === FALSE) {
+        $_info_msg_ht .= "<p>p2 error: {$_conf['expack.misc.favset_file']} にお気に入りセット設定を書き込めませんでした。";
         return FALSE;
     }
 
     return TRUE;
 }
-
-/**
- * スキン設定を更新し、ページをリロードする
- */
-function updateSkinSetting()
-{
-    global $_conf, $_info_msg_ht;
-
-    if (!preg_match('/^\w+$/', $_POST['skin'])) {
-        $_info_msg_ht .= "<p>p2 error: 不正なスキン ({$_POST['skin']}) が指定されました。</p>";
-        return FALSE;
-    }
-
-    if ($_POST['skin'] == 'conf_style') {
-        $newskin = 'conf/conf_user_style.php';
-    } else {
-        $newskin = 'skin/' . $_POST['skin'] . '.php';
-    }
-
-    if (file_exists($newskin)) {
-        if (FileCtl::file_write_contents($_conf['skin_file'], $_POST['skin']) !== FALSE) {
-            header("Location: {$_SERVER['PHP_SELF']}?reload_skin=1");
-            exit;
-        } else {
-            $_info_msg_ht .= "<p>p2 error: {$_conf['skin_file']} にスキン設定を書き込めませんでした。</p>";
-        }
-    } else {
-        $_info_msg_ht .= "<p>p2 error: 不正なスキン ({$_POST['skin']}) が指定されました。</p>";
-    }
-
-    return FALSE;
-}
-
-// }}}
 
 ?>

@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 class Google_Converter
@@ -89,7 +89,8 @@ class Google_Converter
      */
     function toOutputValue2chBBS($url, $m)
     {
-        $subdomain = array_shift(explode('.', $m[1]));
+        $d = explode('.', $m[1]);
+        $subdomain = $d[0];
         if (in_array($subdomain, array('www', 'info', 'find', 'p2'))) {
             return $this->toOutputValueOthers($url, $m);
         }

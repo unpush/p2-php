@@ -1,16 +1,16 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 // p2 - スタイルシートを外部スタイルシートとして出力する
 
 // 初期設定読み込み & ユーザ認証
-require_once 'conf/conf.php';
-authorize();
+require_once 'conf/conf.inc.php';
+$_login->authorize();
 
 // 妥当なファイルか検証
 if (isset($_GET['css']) && preg_match('/^\w+$/', $_GET['css'])) {
-    $css = P2_STYLE_DIR . '/' . $_GET['css'] . '_css.php';
+    $css = P2_STYLE_DIR . '/' . $_GET['css'] . '_css.inc';
 }
 if (!isset($css) || !file_exists($css)) {
     exit;
@@ -20,8 +20,13 @@ if (!isset($css) || !file_exists($css)) {
 header('Content-Type: text/css; charset=Shift_JIS');
 
 // スタイルシート読込
-$stylesheet = '';
+ob_start();
 include_once $css;
+$stylesheet = ob_get_contents();
+ob_end_clean();
+
+$stylesheet = preg_replace('@</?style.*?>@i', '', $stylesheet);
+$stylesheet = str_replace(array('<!--', '-->'), '', $stylesheet);
 
 // 表示
 echo "@charset \"Shift_JIS\";\n\n";

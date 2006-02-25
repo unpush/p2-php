@@ -1,4 +1,4 @@
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0: */
+/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
 /* mi: charset=Shift_JIS */
 
 /* p2 - メニューを操作するためのJavaScript */
@@ -81,17 +81,79 @@ function openFavList(subject_php, set_num, tgt)
 }
 
 /**
- * Google検索する
+ * スキンを切り替える
  */
-function doGoogleSearch(word, tgt)
+function changeSkin(skinName)
 {
-	if (!word) {
+	var uri = 'menu_async.php?m_skin_set=' + skinName;
+	var req = getXmlHttp();
+	var res;
+
+	if (!req) {
+		alert('XMLHttp not available.');
 		return;
 	}
-	var url = 'gsearch.php?q=' + encodeURIComponent(word);
-	if (tgt) {
-		tgt.location.href = url;
-	} else {
-		window.open(url, '', '');
+
+	req.open('get', uri, false);
+	req.send(null);
+
+	try {
+		if (req.readyState == 4) {
+			if (req.status == 200) {
+				res = req.responseText.replace(/^<\?xml .+?\?>\n?/, '');
+				if (!res) {
+					window.alert('changeSkin: Unknown Error - empty response');
+				} else if (res != skinName) {
+					window.alert(res);
+				} else {
+					var css1 = 'css.php?css=style&skin=' + skinName;
+					var css2 = 'css.php?css=menu&skin=' + skinName;
+					document.getElementById('basicStyle').href = css1;
+					document.getElementById('menuStyle').href = css2;
+					if (window.top.subject) {
+						changeWindowStyle(window.top.subject, skinName);
+					}
+					if (window.top.read) {
+						changeWindowStyle(window.top.read, skinName);
+					}
+				}
+			} else {
+				window.alert('HTTP Error: ' + req.status + ' ' + req.statusText);
+			}
+		}
+	} catch (e) {
+		window.alert('changeSkin: Unknown Error - ' + e.toString());
+	}
+}
+
+/**
+ * ウインドウ/フレームのスタイルシートを変更する
+ */
+function changeWindowStyle(winObj, skinName)
+{
+	if (!document.getElementsByTagName) {
+		return;
+	}
+	var links = winObj.document.getElementsByTagName('link');
+	var l = links.length;
+	if (l == 0) {
+		return;
+	}
+	var currentStyle;
+	var newStyle;
+	var i;
+	for (i = 0; i < l; i++) {
+		if (links[i].rel == 'stylesheet') {
+			currentStyle = links[i].href.toString();
+			if (currentStyle.indexOf('css.php?') == -1) {
+				continue;
+			}
+			if (currentStyle.indexOf('&skin=') == -1) {
+				newStyle = currentStyle + '&skin=' + skinName;
+			} else {
+				newStyle = currentStyle.replace(/(&skin=).+/, '$1') + skinName;
+			}
+			links[i].href = newStyle;
+		}
 	}
 }

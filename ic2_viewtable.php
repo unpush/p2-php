@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /*
     ImageCache2 - エラーログ・ブラックリスト閲覧
@@ -7,12 +7,12 @@
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.php';
+require_once 'conf/conf.inc.php';
 
-authorize();
+$_login->authorize();
 
-if ($_exconf['imgCache']['*'] == 0) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_user_ex.phpの設定を変えてください。</p></body></html>');
+if (!$_conf['expack.ic2.enabled']) {
+    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
 
 // }}}
@@ -79,6 +79,7 @@ if (isset($_POST['clean'])) {
 
 $_flexy_options = array(
     'locale' => 'ja',
+    'charset' => 'cp932',
     'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
     'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
@@ -86,11 +87,11 @@ $_flexy_options = array(
 
 $flexy = &new HTML_Template_Flexy($_flexy_options);
 
-$flexy->setData('php_self', $_SERVER['PHP_SELF']);
+$flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('skin', $skin_en);
 $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
-$flexy->setData('reload_js', $_SERVER['PHP_SELF'] . '?nt=' . time() . '&table=' . $mode);
+$flexy->setData('reload_js', $_SERVER['SCRIPT_NAME'] . '?nt=' . time() . '&table=' . $mode);
 $flexy->setData('info_msg', $_info_msg_ht);
 
 if ($table->find()) {

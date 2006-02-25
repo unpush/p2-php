@@ -1,11 +1,9 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     p2 -  スレッド表示 -  フッタ部分 -  for read.php
 */
 
-require_once (P2_LIBRARY_DIR . '/p2util.class.php'); // p2用のユーティリティクラス
+require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
 
 //=====================================================================
 // ■フッタ
@@ -17,49 +15,67 @@ if ($_conf['bottom_res_form']) {
     $key = $aThread->key;
     $host = $aThread->host;
     $rescount = $aThread->rescount;
-
+    $ttitle_en = base64_encode($aThread->ttitle);
+    
     $submit_value = '書き込む';
 
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    include (P2_LIBRARY_DIR . '/post_options_loader.inc.php');
+    include_once (P2_LIBRARY_DIR . '/post_options_loader.inc.php');
 
-    $htm['resform_ttitle'] = "<p><b class=\"thre_title\">{$aThread->ttitle_hd}</b></p>";
-
-    include (P2_LIBRARY_DIR . '/post_form.inc.php');
+    $htm['resform_ttitle'] = <<<EOP
+<p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
+EOP;
+    
+    include_once (P2_LIBRARY_DIR . '/post_form.inc.php');
 
     // フォーム
     $res_form_ht = <<<EOP
-{$htm['dpreview']}
 <div id="kakiko">
 {$htm['post_form']}
-</div>
-{$htm['dpreview2']}
+</div>\n
 EOP;
 
-    $onmouse_showform_ht = " onmouseover=\"document.getElementById('kakiko').style.display = 'block';{$js['dp_startup']}\"";
+    $onmouse_showform_ht = <<<EOP
+ onMouseover="document.getElementById('kakiko').style.display = 'block';"
+EOP;
+
 }
 
 // ============================================================
+$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
-if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
+if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
-        $htm['dores'] = "| <a href=\"post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}\" target='_self' onclick=\"return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}&amp;popup=1',{$STYLE['post_pop_size']},'auto',1)\"{$onmouse_showform_ht}>{$dores_st}</a>";
+        if (!empty($_conf['disable_res'])) {
+            $htm['dores'] = <<<EOP
+<a href="{$motothre_url}" target="_blank">{$dores_st}</a>
+EOP;
+        } else {
+            $htm['dores'] = <<<EOP
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},0,0)"{$onmouse_showform_ht}>{$dores_st}</a>
+EOP;
+        }
+        
         $res_form_ht_pb = $res_form_ht;
-    } else {
-        $htm['dores'] = '';
-        $res_form_ht_pb = '';
     }
+    
     if ($res1['body']) {
         $q_ichi = $res1['body']." | ";
     }
-
+    
     // レスのすばやさ
     $htm['spd'] = '';
-    if ($spd_st = $aThread->getTimePerRes() and $spd_st != "-") {
+    if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
         $htm['spd'] = '<span class="spd" title="すばやさ＝時間/レス">'."" . $spd_st."".'</span>';
+    }
+
+    // datサイズ
+    $htm['dsize'] = '';
+    if ($dsize_ht = @filesize($aThread->keydat)) {
+        $htm['dsize'] = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
     }
 
     // レス番指定移動
@@ -78,10 +94,10 @@ GOTO;
     //if (!$read_navi_next_isInvisible) {
     $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
     //}
-
+    
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
     */
-
+    
     if (!empty($GLOBALS['last_hit_resnum'])) {
         $read_navi_next_anchor = "";
         if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
@@ -95,29 +111,6 @@ GOTO;
     }
     // }}}
     
-    if($_exconf['status']['processtime'] || $_exconf['status']['datsize']){
-	$status_ht="<div align=\"right\">\n\t";
-	if($_exconf['status']['datsize']){
-	    // 現在読んでいるスレの.dat容量
-	    require_once(P2EX_LIBRARY_DIR . '/status/datsize.inc.php');
-	    $status_ht .= "dat: ".getthread_dir($host, $bbs, $key)."KB";
-	    if($_exconf['status']['datdirsize']){
-		// dataディレクトリの総容量
-		require_once(P2EX_LIBRARY_DIR . '/status/datdirsize.inc.php');
-		$status_ht .= " / ".getdirfile($datdir)."MB";
-	    }
-	}
-	if($_exconf['status']['processtime']){
-	    // プロセスタイム(完了までに要した時間)
-	    if($_exconf['status']['datsize']){
-		$status_ht .=" | ";
-	    }
-	    require_once(P2EX_LIBRARY_DIR . '/status/process_time.inc.php');
-	    $status_ht .= "CPU : " . getprocess_time( $CPU_start ) . " sec";
-	}
-	$status_ht.="\n</div>\n";
-    }
-
     // ■プリント
     echo <<<EOP
 <hr>
@@ -125,14 +118,14 @@ GOTO;
     <tr>
         <td align="left">
             {$q_ichi}
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>
-            {$read_navi_previous}
-            {$read_navi_next}
+            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a> 
+            {$read_navi_previous} 
+            {$read_navi_next} 
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
-            <a href="{$tree_view_url}">{$tree_st}</a>
+            {$htm['goto']}
             | {$read_footer_navi_new}
-            | {$htm['goto']}
-            {$htm['dores']}
+            | {$htm['dores']}
+            {$htm['dsize']}
             {$htm['spd']}
         </td>
         <td align="right">
@@ -144,17 +137,31 @@ GOTO;
         </td>
     </tr>
 </table>
-{$status_ht}{$res_form_ht_pb}
+{$res_form_ht_pb}
 EOP;
+
     if ($diedat_msg) {
-        echo '<hr>';
+        echo "<hr>";
         echo $diedat_msg;
-        echo '<p>';
+        echo "<p>";
         echo  $motothre_ht;
-        echo '</p>';
+        echo "</p>";
     }
 }
 
-echo '</body></html>';
+if (!empty($_GET['showres'])) {
+    echo <<<EOP
+    <script type="text/javascript">
+    <!--
+    document.getElementById('kakiko').style.display = 'block';
+    //-->
+    </script>\n
+EOP;
+}
+
+// ====
+echo '</body>
+</html>
+';
 
 ?>

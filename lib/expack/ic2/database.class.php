@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 require_once 'DB.php';
@@ -23,6 +23,8 @@ class IC2DB_Skel extends DB_DataObject
 
     function __construct()
     {
+        static $set_to_utf8 = false;
+
         // 設定の読み込み
         $ini = ic2_loadconfig();
         $this->_ini = $ini;
@@ -31,10 +33,10 @@ class IC2DB_Skel extends DB_DataObject
         }
 
         // 拡張モジュールの読み込み
-        list($dbextension, ) = explode(':', $ini['General']['dsn']);
+        list($dbextension, ) = explode(':', $ini['General']['dsn'], 2);
         if (!extension_loaded($dbextension)) {
             $extdir = ini_get('extension_dir');
-            if (strstr(PHP_OS, 'WIN')) {
+            if (substr(PHP_OS, 0, 3) == 'WIN') {
                 $dbmodulename = 'php_' . $dbextension . '.dll';
             } else {
                 $dbmodulename = $dbextension . '.so';
@@ -52,6 +54,31 @@ class IC2DB_Skel extends DB_DataObject
         $this->_db = &$this->getDatabaseConnection();
         if (DB::isError($this->_db)) {
             die($this->_db->getMessage());
+        }
+
+        // クライアントの文字セットに UTF-8 を指定
+        if (!$set_to_utf8) {
+            switch (strtolower($dbextension)) {
+            case 'mysql':
+            case 'mysqli':
+                $version = &$this->_db->getRow("SHOW VARIABLES LIKE 'version'", array(), DB_FETCHMODE_ORDERED);
+                if (!DB::isError($version) && version_compare($version[1], '4.1.0') != -1) {
+                    $charset = &$this->_db->getRow("SHOW VARIABLES LIKE 'character_set_database'", array(), DB_FETCHMODE_ORDERED);
+                    if (!DB::isError($charset) && $charset[1] == 'latin1') {
+                        $errmsg = "<p><b>Warning:</b> データベースの文字セットが latin1 に設定されています。</p>";
+                        $errmsg .= "<p>mysqld の default-character-set が binary, ujis, utf8 等でないと日本語の文字が壊れるので ";
+                        $errmsg .= "<a href=\"http://www.mysql.gr.jp/frame/modules/bwiki/?FAQ#content_1_40\">日本MySQLユーザ会のFAQ</a>";
+                        $errmsg .= " を参考に my.cnf の設定を変えてください。</p>";
+                        die($errmsg);
+                    }
+                }
+                $this->_db->query("SET NAMES utf8");
+                break;
+            case 'pgsql':
+                $this->_db->query("SET CLIENT_ENCODING TO 'UTF8'");
+                break;
+            }
+            $set_to_utf8 = true;
         }
     }
 
@@ -86,10 +113,11 @@ class IC2DB_Skel extends DB_DataObject
                     continue;
                 }
             }
+            $k = $this->_db->quoteIdentifier($k);
             if (!$d || strtoupper($d) == 'DESC') {
-                $order[] = $this->_db->quoteIdentifier($k) . ' DESC';
+                $order[] = $k . ' DESC';
             } else {
-                $order[] = $this->_db->quoteIdentifier($k) . ' ASC';
+                $order[] = $k . ' ASC';
             }
         }
         if (!count($order)) {

@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /**
  * 2chからGoogle APIを使って検索し、p2で読むためのリンクに変換する
@@ -21,30 +21,50 @@
  * ・PEAR::Var_Dump (1.x)
  */
 
+// {{{ p2基本設定読み込み&認証
+
+require_once 'conf/conf.inc.php';
+
+$_login->authorize();
+
+// }}}
+
+if ($_conf['expack.google.enabled'] == 0) {
+    exit('<html><body><p>Google検索は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+}
+
+if ($_conf['view_forced_by_query']) {
+    if (empty($_conf['ktai'])) {
+        output_add_rewrite_var('b', 'pc');
+    } else {
+        output_add_rewrite_var('b', 'k');
+    }
+}
+
 // {{{ Init
 
 // ライブラリ読み込み
-require_once 'conf/conf.php';
 require_once P2EX_LIBRARY_DIR . '/google/search.class.php';
 require_once P2EX_LIBRARY_DIR . '/google/converter.class.php';
 require_once P2EX_LIBRARY_DIR . '/google/renderer.class.php';
 
-// ユーザ認証
-authorize();
-
 // Google Search WSDLファイルのパス
-$wsdl = $_exconf['soap']['google_wsdl'];
+$wsdl = $_conf['expack.google.wsdl'];
 
 // Google Web APIs のライセンスキー
-$key = $_exconf['soap']['google_key'];
+$key = $_conf['expack.google.key'];
 
 // 1ページ当たりの表示件数 (Max:10)
 $perPage = 10;
 
 // 検索文字列
+if (isset($_GET['word'])) {
+    $_GET['q'] = $_GET['word'];
+    unset($_GET['word']);
+}
 if (isset($_GET['q'])) {
     $q = mb_convert_encoding($_GET['q'], 'UTF-8', 'SJIS-win');
-    $word = htmlspecialchars($_GET['q']);
+    $word = htmlspecialchars($_GET['q'], ENT_QUOTES);
 } else {
     $word = $q = '';
 }
@@ -116,6 +136,13 @@ if (!empty($q)) {
 
 $renderer = &new Google_Renderer;
 
+$search_element_type = 'text';
+$search_element_extra_attributes = '';
+if ($_conf['input_type_search']) {
+    $search_element_type = 'search';
+    $search_element_extra_attributes = ' autosave="rep2.expack.search.google" results="10" placeholder="Google"';
+}
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
@@ -134,9 +161,9 @@ $renderer = &new Google_Renderer;
 </head>
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 <table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td align="left">
-    <span class="itatitle"><a class="aitatitle" href="<?php echo $_SERVER['PHP_SELF']; ?>"><b>2ch検索 by Google</b></a></span>
-    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>" style="display:inline;">
-        <input type="text" name="q" value="<?php echo $word; ?>">
+    <span class="itatitle"><a class="aitatitle" href="<?php echo $_SERVER['SCRIPT_NAME']; ?>"><b>2ch検索 by Google</b></a></span>
+    <form action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>" style="display:inline;">
+        <input type="<?php echo $search_element_type; ?>" name="q" value="<?php echo $word; ?>"<?php echo $search_element_extra_attributes; ?>>
         <input type="submit" value="検索">
     </form>
 </td></tr></table>

@@ -1,45 +1,42 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     ファイルをブラウザで編集する
 */
 
-require_once 'conf/conf.php';    // 基本設定読込
+include_once './conf/conf.inc.php'; // 基本設定
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
-authorize(); // ユーザ認証
+$_login->authorize(); // ユーザ認証
+
+// 引数エラー
+if (!isset($_REQUEST['path'])) {
+    die('Error: path が指定されていません');
+}
 
 // 変数 ==================================
-isset($_POST['path']) and $path = $_POST['path'];
-isset($_POST['modori_url']) and $modori_url = $_POST['modori_url'];
-isset($_POST['encode']) and $encode = $_POST['encode'];
+isset($_REQUEST['path'])       and $path = $_REQUEST['path'];
+isset($_REQUEST['modori_url']) and $modori_url = $_REQUEST['modori_url'];
+isset($_REQUEST['encode'])     and $encode = $_REQUEST['encode'];
 
-$rows = isset($_POST['rows']) ? $_POST['rows'] : 36;
-$cols = isset($_POST['cols']) ? $_POST['cols'] : 128;
+$rows = (isset($_REQUEST['rows'])) ? $_REQUEST['rows'] : 36;  // デフォルト値
+$cols = (isset($_REQUEST['cols'])) ? $_REQUEST['cols'] : 128; // デフォルト値
 
 isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 
 //=========================================================
 // 前処理
 //=========================================================
-// 書き込めるファイル・ディレクトリを限定する
+// 書き込めるファイルを限定する
 $writable_files = array(
-    // originals
-    'conf.php', 'conf_user.php', 'conf_user_style.php',
-    'p2_aborn_name.txt', 'p2_aborn_mail.txt', 'p2_aborn_msg.txt', 'p2_aborn_id.txt',
-    'p2_ng_name.txt', 'p2_ng_mail.txt', 'p2_ng_msg.txt', 'p2_ng_id.txt',
-    // expack
-    'conf_user_ex.php', 'conf_constant.php', 'conf_skin.php',
-    'p2_aborn_res.txt',
-);
-$writable_files[] = basename($skin);
-$writable_dirs = array('conf', 'skin', $_conf['pref_dir']);
-$writable_dirs = array_map('realpath', $writable_dirs);
+                        //"conf.inc.php", "conf_user.inc.php", "conf_user_style.inc.php",
+                        //"p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
+                        //"p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
+                        "p2_aborn_res.txt",
+                        //"conf_user_ex.php", "conf_constant.inc",
+                        //"conf_user_ex.inc.php", "conf_user_constant.inc.php"
+                    );
 
-if (!(is_array($writable_files) && $writable_files && in_array(basename($path), $writable_files)) || 
-    !(is_array($writable_dirs) && $writable_dirs && in_array(dirname(realpath($path)), $writable_dirs))
-) {
+if ($writable_files and (!in_array(basename($path), $writable_files))) {
     $i = 0;
     foreach ($writable_files as $afile) {
         if ($i != 0) {
@@ -52,7 +49,7 @@ if (!(is_array($writable_files) && $writable_files && in_array(basename($path), 
 }
 
 //=========================================================
-// メイン
+// メイン 
 //=========================================================
 if (isset($filecont)) {
     if (setFile($path, $filecont, $encode)) {
@@ -76,10 +73,10 @@ function setFile($path, $cont, $encode)
         die('Error: path が指定されていません');
     }
 
-    if ($encode == 'EUC-JP') {
+    if ($encode == "EUC-JP") {
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
     }
-    //書き込む
+    // 書き込む
     $fp = @fopen($path, 'wb') or die("Error: cannot write. ( $path )");
     @flock($fp, LOCK_EX);
     fputs($fp, $cont);
@@ -94,40 +91,46 @@ function setFile($path, $cont, $encode)
 function editFile($path, $encode)
 {
     global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
-
+    
     if ($path == '') {
         die('Error: path が指定されていません');
     }
-
+    
     $filename = basename($path);
-    $ptitle = 'Edit: '.$filename;
-
+    $ptitle = "Edit: ".$filename;
+    
     //ファイル内容読み込み
     FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
-    $cont = file_get_contents($path);
-
-    if ($encode == 'EUC-JP') {
+    $cont = @file_get_contents($path);
+    
+    if ($encode == "EUC-JP") {
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
     }
-
-    $cont_area = htmlspecialchars($cont);
-
-    $modori_url_ht = ($modori_url) ? "<p><a href=\"{$modori_url}\">Back</a></p>\n" : '';
-
-    //プリント
-    echo <<<EOF
+    
+    $cont_area = htmlspecialchars($cont, ENT_QUOTES);
+    
+    if ($modori_url) {
+        $modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";
+    }
+    
+    // プリント
+    echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    {$_conf['meta_charset_ht']}
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle}</title>
 </head>
-<body onload="top.document.title=self.document.title;">
-{$modori_url_ht}
-Edit: {$path}
+<body onLoad="top.document.title=self.document.title;">
+EOHEADER;
+
+    echo $modori_url_ht;
+
+    echo "Edit: ".$path;
+    echo <<<EOFORM
 <form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="{$_conf['accept_charset']}">
     <input type="hidden" name="detect_hint" value="◎◇">
     <input type="hidden" name="path" value="{$path}">
@@ -135,12 +138,12 @@ Edit: {$path}
     <input type="hidden" name="encode" value="{$encode}">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
-    <input type="submit" name="submit" value="Save">{$_info_msg_ht}<br>
-    <textarea style="font-size:9pt;" id="filecont" name="filecont" rows="{$rows}" cols="{$cols}" wrap="off">{$cont_area}</textarea>
+    <input type="submit" name="submit" value="Save"> $_info_msg_ht<br>
+    <textarea style="font-size:9pt;" id="filecont" name="filecont" rows="{$rows}" cols="{$cols}" wrap="off">{$cont_area}</textarea>    
 </form>
-</body>
-</html>
-EOF;
+EOFORM;
+
+    echo '</body></html>';
 
     return true;
 }

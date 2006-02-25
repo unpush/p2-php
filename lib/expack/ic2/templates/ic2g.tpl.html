@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="Shift_JIS"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
@@ -12,29 +11,35 @@
 	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
 	<link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={skin}" />
 	<style type="text/css">
-	div#serial_howto {
-		display: none;
-		color: {STYLE[respop_color]:h};
-		font-size: {STYLE[respop_fontsize]:h};
-		line-height: 120%;
-		margin: 8px;
-		padding: 8px;
-		background: {STYLE[respop_bgcolor]:h} {STYLE[respop_background]:h};
-		border: {STYLE[respop_b_width]:h} {STYLE[respop_b_color]:h} {STYLE[respop_b_style]:h};
-	}
-	div#serial_howto p, div#serial_howto ul, div#serial_howto ol {
-		margin: 8px;
-		padding 0px;
-	}
-	div#serial_howto li {
-		margin-bottom: 5px;
-	}
-	samp {
-		font-family: Courier, "Courier New", monospace;
-	}
-	span.underline {
-		text-decoration: underline;
-	}
+		h3.thread_title a {
+			color: {STYLE[read_thread_title_color]:h};
+		}
+		form {
+			margin: 5px 0;
+		}
+		div#serial_howto {
+			display: none;
+			color: {STYLE[respop_color]:h};
+			font-size: {STYLE[respop_fontsize]:h};
+			line-height: 120%;
+			margin: 8px;
+			padding: 8px;
+			background: {STYLE[respop_bgcolor]:h} {STYLE[respop_background]:h};
+			border: {STYLE[respop_b_width]:h} {STYLE[respop_b_color]:h} {STYLE[respop_b_style]:h};
+		}
+		div#serial_howto p, div#serial_howto ul, div#serial_howto ol {
+			margin: 8px;
+			padding 0px;
+		}
+		div#serial_howto li {
+			margin-bottom: 5px;
+		}
+		samp {
+			font-family: Courier, "Courier New", monospace;
+		}
+		span.underline {
+			text-decoration: underline;
+		}
 	</style>
 	<script type="text/javascript" src="js/basic.js"></script>
 	<script type="text/javascript" src="js/showhide.js"></script>
@@ -43,13 +48,13 @@
 </head>
 <body onload="setWinTitle()">
 
-<h3 class="thread_title">ImageCache2 - ダウンローダ</h3>
+<h3 class="thread_title"><a href="{php_self}?popup={isPopUp}">ImageCache2 - ダウンローダ</a></h3>
 {info_msg:h}
+<hr />
 
 {if:showForm}
 {get.outputHeader():h}
 {get.hidden:h}
-<hr />
 
 <div>
 	<label>{get.uri.label:h}:{get.uri.html:h}</label><br />
@@ -70,7 +75,7 @@
 <div id="serial_howto" style="display:none;">
 	<p>&quot;連番&quot; にチェックが入っていて、URLにプレースホルダ(%s)またはパターン([from-to])があると、連番で画像をダウンロードします。<br />
 	連番ダウンロード用の文字列はURLに一つだけ含めることができ、複数あるとエラーとなります。<br />
-	また、連番にチェックが入っていないのに連番ダウンロード用の文字列がURLに含まれるときもとエラーとなります。</p>
+	また、連番にチェックが入っていないのに連番ダウンロード用の文字列がURLに含まれるときもエラーとなります。</p>
 	<ul>
 		<li>
 			<strong>プレースホルダを使う</strong>
@@ -112,8 +117,6 @@
 {end:}
 
 {if:images}
-<hr />
-
 <ul>
 <li flexy:foreach="images,img">
 	{img.title:h}<br />

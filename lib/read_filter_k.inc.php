@@ -33,12 +33,12 @@ function resetReadNaviFooterK()
     global $filter_range, $filter_hits, $page;
 
     if ($page > 1) {
-        $read_navi_previous_url = $_conf['read_php'] . $_conf['filter_q'] . ($page - 1);
+        $read_navi_previous_url = $_conf['read_php'] . $_conf['filter_q'] . ($page - 1) . $_conf['k_at_a'];
         $read_navi_previous_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['prev']}\" href=\"{$read_navi_previous_url}\">{$_conf['k_accesskey']['prev']}.{$prev_st}</a>";
     }
 
     if ($filter_range['to'] < $filter_hits) {
-        $read_navi_next_url = $_conf['read_php'] . $_conf['filter_q'] . ($page + 1);
+        $read_navi_next_url = $_conf['read_php'] . $_conf['filter_q'] . ($page + 1) . $_conf['k_at_a'];
         $read_navi_next_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\" href=\"{$read_navi_next_url}\">{$_conf['k_accesskey']['next']}.{$next_st}</a>";
     }
 

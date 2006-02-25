@@ -1,319 +1,312 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /**
  * スレッドタイトル検索 [tGrep] クライアント
  *
- * http://moonshine.s32.xrea.com/test/tgrep.cgi を利用
- *
- * tGrepはクライアントのUser-Agentがp2-tgrep-clientのときは
- * p2用にレイアウトされたHTMLを出力するので、それを加工する*
- *
- * 携帯には未対応
+ * http://page2.xrea.jp/tgrep/tgrep2-test.cgi を利用
  */
 
+// {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.php';
-require_once 'Cache/Lite.php';
-require_once 'HTTP/Client.php';
+require_once 'conf/conf.inc.php';
 
-ini_set('arg_separator.output', '&'); // ≒ ini_restore('arg_separator.output');
+$_login->authorize();
 
-authorize();
+// }}}
 
-// {{{ HTML取得&キャッシュ
-
-$cache_group = $_conf['ktai'] ? 'tgrep_output_k' : 'tgrep_output';
-$cache_options = array(
-    'cacheDir' => $_conf['pref_dir'] . '/p2_cache/',
-    'lifeTime' => 3600,
-    'fileNameProtection' => FALSE,
-    'automaticSerialization' => FALSE
-);
-$cache = &new Cache_Lite($cache_options);
-if (!is_dir($cache_options['cacheDir'])) {
-    FileCtl::mkdir_for($cache_options['cacheDir']);
+if ($_conf['view_forced_by_query']) {
+    if (empty($_conf['ktai'])) {
+        output_add_rewrite_var('b', 'pc');
+    } else {
+        output_add_rewrite_var('b', 'k');
+    }
 }
 
-$client = &new HTTP_Client;
-$tgrepc_ua = $_conf['ktai'] ? 'p2-tgrep-client-mobile' : 'p2-tgrep-client';
-$client->setDefaultHeader('User-Agent', $tgrepc_ua);
+// {{{ 準備
 
-if (isset($_GET['key'])) {
-    if (!isset($_GET['page'])) {
-        $_GET['page'] = 1;
+$query_params = array();
+if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
+    include_once 'Cache/Lite.php';
+    include_once 'HTTP/Client.php';
+    $query_params['q'] = $_GET['Q'];
+    $query_params['n'] = $limit = ($_conf['ktai']) ? '25' : '100';
+    //$query_keys = array('s', 'b', 'c', 'o', 'n', 'p');
+    $query_keys = array('c', 'p');
+    foreach ($query_keys as $_k) {
+        $_K = strtoupper($_k);
+        if (isset($_GET[$_K])) {
+            $_v = $_GET[$_K];
+            if (is_string($_v) && strlen($_v) > 0 && $_v != '0') {
+                $query_params[$_k] = $_v;
+            } else {
+                unset($_GET[$_K]);
+            }
+        }
     }
-    $query = http_build_query($_GET);
-    $cache_id = md5($query);
-    $tgrep_uri = $_conf['tgrep_url'] . '?' . $query;
+    mb_convert_variables('UTF-8', 'SJIS-win', $query_params);
+    ini_set('arg_separator.output', '&'); // ≒ ini_restore('arg_separator.output');
+    $query = http_build_query($query_params);
+    ini_set('arg_separator.output', '&amp;');
+    $cache_options = array(
+        'cacheDir' => $_conf['pref_dir'] . '/p2_cache/',
+        'lifeTime' => 3600,
+        'fileNameProtection' => false,
+        'automaticSerialization' => true,
+    );
+    if (!is_dir($cache_options['cacheDir'])) {
+        FileCtl::mkdir_for($cache_options['cacheDir'] . 'dummyFileName');
+    }
+    $cache = &new Cache_Lite($cache_options);
+    $cache_id_result = md5($query);
+    $cache_id_profile = md5($query_params['q']);
+    $cache_group_result = 'tgrep2result';
+    $cache_group_profile = 'tgrep2profile';
 } else {
-    $tgrep_uri = $_conf['tgrep_url'];
-}
-
-if ($tgrep_uri == $_conf['tgrep_url'] || !($tgrep_html = $cache->get($cache_id, $cache_group))) {
-    if (substr($cache_id, 0, 1) == '0') {
-        P2Util::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group);
-    }
-    $tgrep_code = $client->get($tgrep_uri);
-    if ($tgrep_code != 200) {
-        die("HTTP Error - {$tgrep_code}");
-    }
-    $tgrep_res = &$client->currentResponse();
-    if (!strstr($tgrep_res['headers']['Content-Type'], 'text/html')) {
-        header('Content-Type: ' . $tgrep_res['headers']['Content-Type']);
-        die($tgrep_res['body']);
-    }
-    $tgrep_html = mb_convert_encoding($tgrep_res['body'], 'SJIS', 'EUC-JP');
-    if ($tgrep_uri != $_conf['tgrep_url']) {
-        $cache->save($tgrep_html, $cache_id, $cache_group);
-    }
+    $query = null;
 }
 
 // }}}
-// {{{ 変数設定
+// {{{ 検索&キャッシュ
 
-// CSS
-$stylesheet = <<<STYLESHEET
-<link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-<link rel="stylesheet" href="css.php?css=subject&amp;skin={$skin_en}" type="text/css">
-<style type="text/css">
-table#searchResult {
-    margin-bottom: 1px;
-}
-table#searchResult td {
-    white-space: nowrap;
-}
-tr#foundThreads td {
-    white-space: nowrap;
-}
-td#bbsFilter {
-    padding: 1px;
-    background: {$STYLE['sb_th_bgcolor']} {$STYLE['sb_th_background']};
-}
-tr#pager td {
-    padding: 2px;
-    background:{$STYLE['sb_th_bgcolor']} {$STYLE['sb_th_background']};
-}
-</style>
-STYLESHEET;
+if ($query) {
+    // キャッシュを取得
+    $search_result = $cache->get($cache_id_result, $cache_group_result);
+    $search_profile = $cache->get($cache_id_profile, $cache_group_profile);
 
-// CSS-携帯用
-$ktai_body_style = '';
-if ($_exconf['ubiq']['c_bgcolor']) {
-    $ktai_body_style .= " background: {$_exconf['ubiq']['c_bgcolor']};";
+    // キャッシュされていないか、結果セットと統計の更新タイムスタンプが異なるとき、tGrep サーバに問い合わせる
+    if (!$search_result || !$search_profile || $search_profile['modified'] != $search_result['modified']) {
+        if (!$search_profile || ($search_result && $search_profile['modified'] != $search_result['modified'])) {
+            $query .= '&i=1';
+        }
+        $search_result = tgrep_search($query);
+        if (!isset($search_result['profile']) && $search_profile && $search_profile['modified'] != $search_result['modified']) {
+            if (substr($query, -4) != '&i=1') {
+                $query .= '&i=1';
+            }
+            $search_result = tgrep_search($query);
+        }
+        if (isset($search_result['profile'])) {
+            $search_profile = array('modified' => $search_result['modified'], 'profile' => $search_result['profile']);
+            unset($search_result['profile']);
+            mb_convert_variables('SJIS-win', 'UTF-8', $search_profile);
+            $cache->save($search_profile, $cache_id_profile, $cache_group_profile);
+        }
+        $regex = mb_convert_encoding($search_profile['profile']['regex'], 'UTF-8', 'SJIS-win');
+        if (!empty($search_result['threads'])) {
+            foreach (array_keys($search_result['threads']) as $order) {
+                $_title = preg_replace($regex, '<b class="filtering">$0</b>', $search_result['threads'][$order]->title);
+                $search_result['threads'][$order]->title = preg_replace('|&(?=[^;]*</?b>)|u', '&amp;', $_title);
+            }
+        }
+        mb_convert_variables('SJIS-win', 'UTF-8', $search_result);
+        $cache->save($search_result, $cache_id_result, $cache_group_result);
+    }
+
+    // 検索結果キャッシュのガーベッジコレクション
+    if (mt_rand(0, 99) == 0) {
+        P2Util::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_result);
+        P2Util::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_profile);
+    }
+
+    $errors = (isset($search_result['errors'])) ? $search_result['errors'] : null;
+    $threads = $search_result['threads'];
+    $profile = $search_profile['profile'];
+    $modified = strtotime($search_profile['modified']);
+    if ($errors) {
+        $cache->remove($cache_id_result, $cache_group_result);
+        $cache->remove($cache_id_profile, $cache_group_profile);
+    } else {
+        // 検索履歴を更新
+        if ($_conf['expack.tgrep.recent_num'] > 0) {
+            FileCtl::make_datafile($_conf['expack.tgrep.recent_file'], $_conf['expack.tgrep.file_perm']);
+            $tgrep_recent_list = array_filter(array_map('trim', (array) @file($_conf['expack.tgrep.recent_file'])), 'strlen');
+            array_unshift($tgrep_recent_list, preg_replace('/[\r\n\t]/', ' ', trim($_GET['Q'])));
+            $tgrep_recent_list = array_unique($tgrep_recent_list);
+            while (count($tgrep_recent_list) > $_conf['expack.tgrep.recent_num']) {
+                array_pop($tgrep_recent_list);
+            }
+            $tgrep_recent_data = implode("\n", $tgrep_recent_list) . "\n";
+            if (FileCtl::file_write_contents($_conf['expack.tgrep.recent_file'], $tgrep_recent_data) === false) {
+                die("Error: cannot write file.");
+            }
+        }
+    }
+} else {
+    $errors = null;
+    $threads = null;
+    $profile = null;
+    $modified = '';
 }
-if ($_exconf['ubiq']['c_text']) {
-    $ktai_body_style .= " color: {$_exconf['ubiq']['c_text']};";
+
+// }}}
+// {{{ 表示用変数を設定
+
+// 基本変数
+$htm = array();
+$htm['tgrep_url'] = htmlspecialchars($_conf['expack.tgrep_url'], ENT_QUOTES);
+$htm['php_self'] = 'tgrepc.php'; //htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES);
+$htm['query'] = (isset($_GET['Q'])) ? htmlspecialchars($_GET['Q'], ENT_QUOTES) : '';
+$htm['query_en'] = (isset($_GET['Q'])) ? urlencode($_GET['Q']) : '';
+$htm['category'] = (isset($_GET['C'])) ? intval($_GET['C']) : 0;
+$htm['skin_q'] = 'skin=' . $skin_en;
+if ($profile) {
+    $htm['allhits'] = number_format($profile['hits']);
+    if ($htm['category'] && isset($profile['categories'][$htm['category']])) {
+        $subhits = $profile['categories'][$htm['category']]->hits;
+        $htm['hits'] = number_format($subhits);
+    } else {
+        $subhits = $profile['hits'];
+        $htm['hits'] = $htm['allhits'];
+    }
+} else {
+    $subhits = $htm['hits'] = $htm['allhits'] = '';
 }
-if ($ktai_body_style) {
-    $ktai_body_style = 'body {' . $ktai_body_style . ' }';
+
+// サーチボックスの属性
+if ($_conf['input_type_search']) {
+    $htm['search_attr'] = ' type="search" autosave="rep2.expack.search.thread" results="';
+    $htm['search_attr'] .= $_conf['expack.tgrep.recent_num'] . '" placeholder="tGrep"';
+} else {
+    $htm['search_attr'] = ' type="text"';
 }
-$ktai_link_style = '';
-if ($_exconf['ubiq']['c_link']) {
-    $ktai_link_style .= " a:link { color: {$_exconf['ubiq']['c_link']}; }";
+if (!$_conf['ktai']) {
+    $htm['search_attr'] .= ' size="36"';
 }
-if ($_exconf['ubiq']['c_vlink']) {
-    $ktai_link_style .= " a:visited { color: {$_exconf['ubiq']['c_vlink']}; }";
-}
-$ktai_filter_style = '';
-if ($_exconf['ubiq']['c_match']) {
-    $ktai_filter_style .= " color: {$_exconf['ubiq']['c_match']};";
-}
-if (!$_exconf['ubiq']['b_match']) {
-    $ktai_filter_style .= ' font-weight: normal;';
-}
-if ($ktai_filter_style) {
-    $ktai_filter_style = 'b.filtering {' . $ktai_filter_style . ' }';
-}
-$ktai_style = <<<KTAI_STYLE
+$htm['search_attr'] .= ' maxlength="50" value="' . $htm['query'] . '"';
+
+// スタイルシート
+if (!$_conf['ktai']) {
+    $htm['message_background'] = "background-color:#ffffcc;";
+    if (isset($STYLE['respop_bgcolor']) || isset($STYLE['respop_background'])) {
+        $htm['message_background'] = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
+    }
+    $htm['message_border'] = "border:1px black solid;";
+    if (isset($STYLE['respop_b_style']) || isset($STYLE['respop_b_width']) || isset($STYLE['respop_b_color'])) {
+        $htm['message_border'] = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {$STYLE['respop_b_color']};";
+    }
+    $htm['message_color'] = '';
+    if (isset($STYLE['respop_color'])) {
+        $htm['message_color'] = "color:{$STYLE['respop_color']};";
+    }
+} else {
+    $k_body_style = '';
+    if ($_conf['mobile.background_color']) {
+        $k_body_style .= " background: {$_conf['mobile.background_color']};";
+    }
+    if ($_conf['mobile.text_color']) {
+        $k_body_style .= " color: {$_conf['mobile.text_color']};";
+    }
+    if ($k_body_style) {
+        $k_body_style = 'body {' . $k_body_style . ' }';
+    }
+    $k_link_style = '';
+    if ($_conf['mobile.link_color']) {
+        $k_link_style .= " a:link { color: {$_conf['mobile.link_color']}; }";
+    }
+    if ($_conf['mobile.vlink_color']) {
+        $k_link_style .= " a:visited { color: {$_conf['mobile.vlink_color']}; }";
+    }
+    $k_filter_style = '';
+    if ($_conf['mobile.match_color']) {
+        $k_filter_style .= " color: {$_conf['mobile.match_color']};";
+    }
+    /*if (!$_conf['mobile.match_bold']) {
+        $k_filter_style .= ' font-weight: normal;';
+    }*/
+    if ($k_filter_style) {
+        $k_filter_style = 'b.filtering {' . $k_filter_style . ' }';
+    }
+    $htm['mobile_css'] = <<<MOBILE_STYLE
 <style type="text/css">
 <!--
-{$ktai_body_style}
-{$ktai_link_style}
-{$ktai_filter_style}
-p#pager { text-align: center; }
+{$k_body_style}
+{$k_link_style}
+{$k_filter_style}
 -->
 </style>
-KTAI_STYLE;
-
-// JavaScript
-$javascript = <<<JAVASCRIPT
-<script type="text/javascript">
-<![CDATA[
-function setWinTitle(){
-    if (top != self) {top.document.title=self.document.title;}
+MOBILE_STYLE;
 }
-]]>
-</script>
-JAVASCRIPT;
 
-// 初期ページを表示するボタン
-$reset_button = <<<RESET_BUTTON
-<input type="button" value="リセット" onclick="self.location.href='{$_SERVER['PHP_SELF']}';" />
-RESET_BUTTON;
-
-// 文字コードの検索・置換文字列
-$encoding_euc = array(
-    'encoding="EUC-JP"' => 'encoding="Shift_JIS"',
-    'content="text/html; charset=EUC-JP"' => 'content="text/html; charset=Shift_JIS"',
-);
-
-// プレースホルダを用いた検索・置換文字列
-$placeholders = array(
-    '<!--%STYLESHEET%-->' => $stylesheet,
-    '<!--%KTAI_STYLE%-->' => $ktai_style,
-    '<!--%JAVASCRIPT%-->' => $javascript,
-    '<!--%RESETBTN%-->' => $reset_button,
-    '<!--%TO_INDEX%-->' => $_conf['k_to_index_ht'],
-    ' accept-charset="%ACCEPT_CHARSET%"' => $_conf['accept_charset_at'],
-    ' target="%EXT_WIN_TARGET%"' => $_conf['ext_win_target_at'],
-);
-
-// 自分(PHP_SELF)の検索・置換パターン
-$php_self_pattern = '/ (action|href)="%PHP_SELF%/e';
-$php_self_replace = 'sprintf(" %s=\\"%s", "$1", $_SERVER["PHP_SELF"])';
-
-// 検索結果の行フォーマット
-$thread_info_regex = <<<THREAD_INFO_REGEX
-{(\t<td class="t[a-z]?2?">)(</td>
-\t<td class="t[a-z]?2?">)([\\d]+)(</td>
-\t<td class="t[a-z]?2?">)<!--(.+?)::(.+?)::(.+?)-->(.+?)(</td>
-\t<td class="t[a-z]?2?">)(.+?)(</td>)}
-THREAD_INFO_REGEX;
-$thread_info_regex_k = <<<THREAD_INFO_REGEX
-{<p>(\\d+)\\.<!--(.+?)::(.+?)::(.+?)-->(.+?)<!--(.+?)-->\\((.+?)\\)</p>}
-THREAD_INFO_REGEX;
-
-// 各掲示板ごとのスレッドURLフォーマット
-$url_format = array();
-$url_format['2ch'] = array(
-    'pc' => 'http://%s/test/read.cgi/%s/%s/l50',
-    'k'  => 'http://c.2ch.net/test/-/%2$s/%3$s/',
-);
-$url_format['machibbs'] = array(
-    'pc' => 'http://%s/bbs/read.pl?BBS=%s&KEY=%s&LAST=50',
-    'k'  => 'http://%s/bbs/read.pl?BBS=%s&KEY=%s&IMODE=1',
-);
-$url_format['bbspink'] = array(
-    'pc' => 'http://%s/test/read.cgi/%s/%s/l50',
-    'k'  => 'http://%s/test/r.i/%s/%s/',
-);
-
-// }}}
-// {{{ HTMLを加工
-
-$tgrep_html = str_replace(array_keys($encoding_euc), array_values($encoding_euc), $tgrep_html);
-$tgrep_html = str_replace(array_keys($placeholders), array_values($placeholders), $tgrep_html);
-$tgrep_html = preg_replace($php_self_pattern, $php_self_replace, $tgrep_html);
-if ($_conf['ktai']) {
-    $tgrep_html = preg_replace_callback($thread_info_regex_k, 'tgrep_rewrite_thread_info_k', $tgrep_html);
+// ページャ
+if ($subhits && $subhits > $limit) {
+    include_once 'Pager/Pager.php';
+    $pager_options = array();
+    $pager_options = array(
+        'mode'          => 'Sliding',
+        'totalItems'    => $subhits,
+        'perPage'       => $limit,
+        'urlVar'        => 'P',
+        'extraVars'     => array('hint' => '◎◇'),
+        'importQuery'   => false,
+        'curPageSpanPre'    => '<b>',
+        'curPageSpanPost'   => '</b>',
+    );
+    $pager_extra_vars = $query_params;
+    mb_convert_variables('SJIS-win', 'UTF-8', $pager_extra_vars);
+    if (get_magic_quotes_gpc()) {
+        $pager_extra_vars = array_map('addslashes', $pager_extra_vars);
+    }
+    foreach ($pager_extra_vars as $_k => $_v) {
+        $pager_options['extraVars'][strtoupper($_k)] = $_v;
+    }
+    if (!$_conf['ktai']) {
+        $pager_options['delta'] = 5;
+        $pager_options['separator'] = '|';
+        $pager_options['spacesBeforeSeparator'] = 1;
+        $pager_options['spacesAfterSeparator']  = 1;
+    } else {
+        $pager_options['extraVars']['M'] = $modified;
+        $pager_options['delta'] = 2;
+        $pager_options['separator'] = ' ';
+        $pager_options['spacesBeforeSeparator'] = 0;
+        $pager_options['spacesAfterSeparator']  = 0;
+        $pager_options['altFirst']  = '最初';
+        $pager_options['altPrev']   = '前頁';
+        $pager_options['altNext']   = '次頁';
+        $pager_options['altLast']   = '最後';
+        $pager_options['altPage']   = 'p';
+    }
+    $pager = Pager::factory($pager_options);
+    $links = $pager->getLinks();
+    $htm['pager'] = implode(' ', array($links['first'], $links['back'], $links['pages'], $links['next'], $links['last']));
 } else {
-    $tgrep_html = preg_replace_callback($thread_info_regex, 'tgrep_rewrite_thread_info', $tgrep_html);
+    $htm['pager'] = '';
 }
 
 // }}}
+// {{{ 表示
 
 P2Util::header_content_type();
-echo $tgrep_html;
-
-// {{{ tgrep_rewrite_thread_info()
-
-/**
- * tGrepがp2用に出力したHTMLのうち、スレッド情報部分を書き換えるコールバック関数
- *
- * @todo    既得・お気に入りなどの情報も表示できるようにする
- */
-function tgrep_rewrite_thread_info($m)
-{
-    global $_conf, $_exconf, $url_format;
-    static $format = NULL;
-
-    $td1 = $m[1];
-
-    $td2 = $m[2];
-
-//    if (file_exists(P2Util::datdirOfhost($m[5]) . '/' . $m[6] . '/' . $m[7] . '.dat')) {
-//        $status = '[' . $m[3] . ']';
-//    } else {
-        $status = $m[3];
-//    }
-
-    $td3 = $m[4];
-
-    $read_params = array('host' => $m[5], 'bbs' => $m[6], 'key' => $m[7]);
-    $read_url = $_conf['read_php'] . '?' . http_build_query($read_params);
-    $read_url = htmlspecialchars($read_url);
-
-    if (P2Util::isHostMachiBbs($m[5])) {
-        $moto_url = sprintf($url_format['machibbs']['pc'], $m[5], $m[6], $m[7]);
-    } elseif (P2Util::isHostMachiBbs($m[5])) {
-        $moto_url = sprintf($url_format['bbspink']['pc'], $m[5], $m[6], $m[7]);
-    } else {
-        $moto_url = sprintf($url_format['2ch']['pc'], $m[5], $m[6], $m[7]);
-    }
-    $moto_url = P2Util::throughIme($moto_url);
-
-    $ttitle = str_replace('<b>', '<b class="filtering">', $m[8]);
-
-    $td4 = $m[9];
-
-    $subject_params = array('host' => $m[5], 'bbs' => $m[6], 'itaj_en' => base64_encode($m[10]));
-    $subject_url = $_conf['subject_php'] . '?' . http_build_query($subject_params);
-    $subject_url = htmlspecialchars($subject_url);
-
-    $itaj = $m[10];
-
-    $td5 = $m[11];
-
-    if (is_null($format)) {
-        $format = '%s<a href="%s&amp;one=true" target="read">&gt;&gt;1</a>';
-        $format .= '%s%s';
-        $format .= '%s<a class="thre_title" href="%s"%s>・</a> <a class="thre_title" href="%s" target="read">%s</a>';
-        $format .= '%s<a href="%s" target="_self">%s</a>';
-        $format .= '%s';
-    }
-
-    return sprintf($format,
-        $td1, $read_url,
-        $td2, $status,
-        $td3, $moto_url, $_conf['ext_win_target_at'], $read_url, $ttitle,
-        $td4, $subject_url, $itaj,
-        $td5);
+if (empty($_GET['M'])) {
+    P2Util::header_nocache();
+}
+if (!$_conf['ktai']) {
+    include P2EX_LIBRARY_DIR . '/tgrep/view.inc.php';
+} else {
+    include P2EX_LIBRARY_DIR . '/tgrep/view_k.inc.php';
 }
 
 // }}}
-// {{{ tgrep_rewrite_thread_info_k()
+// {{{ 関数
 
-/**
- * tGrepがp2用に出力したHTMLのうち、スレッド情報部分を書き換えるコールバック関数（携帯用）
- */
-function tgrep_rewrite_thread_info_k($m)
+function tgrep_search($query)
 {
-    global $_conf, $_exconf, $url_format;
-    static $format = NULL;
-
-    $num = $m[1];
-
-    $read_params = array('host' => $m[2], 'bbs' => $m[3], 'key' => $m[4]);
-    $read_url = $_conf['read_php'] . '?' . http_build_query($read_params);
-    $read_url = htmlspecialchars($read_url);
-
-    $ttitle = str_replace('<b>', '<b class="filtering">', $m[5]);
-    if ($_exconf['ubiq']['save_packet']) {
-        $ttitle = str_replace(array('＆', '＜', '＞'), array('&amp;', '&lt;', '&gt;'), $ttitle);
-        $ttitle = mb_convert_kana($ttitle, 'ask');
+    global $_conf;
+    $client = &new HTTP_Client;
+    $client->setDefaultHeader('User-Agent', 'p2-tgrep-client');
+    $code = $client->get($_conf['expack.tgrep_url'] . '?' . $query);
+    if (PEAR::isError($code)) {
+        die($code->getMessage());
+    } elseif ($code != 200) {
+        die("HTTP Error - {$code}");
     }
-
-
-    $date = $m[6];
-
-    $itaj = $m[7];
-
-    if (is_null($format)) {
-        $format = '<p>%d.<a href="%s">%s</a><br /><small>%s (%s)</small></p>';
+    $response = &$client->currentResponse();
+    $result = unserialize($response['body']);
+    if (!$result) {
+        die('Error: 検索結果の展開に失敗しました。');
     }
-
-    return sprintf($format, $num, $read_url, $ttitle, $date, $itaj);
+    return $result;
 }
 
 // }}}

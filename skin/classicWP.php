@@ -1,7 +1,7 @@
 <?php
 // p2 - デザイン用 設定ファイル
 
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 /*

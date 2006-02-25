@@ -1,23 +1,22 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 /* ImageCache2 - サムネイルの再構築 */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.php';
+require_once 'conf/conf.inc.php';
 
-authorize();
+$_login->authorize();
 
-if ($_exconf['imgCache']['*'] == 0) {
-	exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_user_ex.phpの設定を変えてください。</p></body></html>');
+if (!$_conf['expack.ic2.enabled']) {
+    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
 
 // }}}
 
-$debug = FALSE;
-if ($debug) {
+if ($GLOBALS['debug']) {
     require_once 'Var_Dump.php';
     Var_Dump::display($_GET);
     exit;
@@ -30,6 +29,7 @@ require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
 require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
 
 $uri   = $_GET['u'];
+$type  = $_GET['v'];
 $thumb = isset($_GET['t']) ? intval($_GET['t']) : 0;
 $options = array();
 $options['quality'] = isset($_GET['q']) ? intval($_GET['q']) : NULL;
@@ -38,9 +38,21 @@ $options['trim']    = !empty($_GET['p']);
 
 $search = &new IC2DB_Images;
 
-if ($search->get($uri)) {
-    // GDで処理する際、画像サイズが極端に大きいとmemory_limitにひっかかるので
-    // ImageMagickで中間イメージを作成してからGDで臨時イメージを作成する
+switch ($type) {
+    case 'id':
+        $search->whereAddQuoted('id', '=', $uri);
+        break;
+    case 'file':
+        preg_match('/^([1-9][0-9]*)_([0-9a-f]{32})(?:\.(jpg|png|gif))?$/', $uri, $fdata);
+        $search->whereAddQuoted('size', '=', $fdata[0]);
+        $search->whereAddQuoted('md5', '=', $fdata[1]);
+        break;
+    default:
+        $search->whereAddQuoted('uri', '=', $uri);
+}
+
+if ($search->find(TRUE)) {
+    // 縦横のサイズが大きい画像はまず中間イメージを作成する
     if ($search->width > 1280 || $search->height > 1280) {
         $thumbX = &new Thumbnailer(3);
         $resultX = &$thumbX->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);

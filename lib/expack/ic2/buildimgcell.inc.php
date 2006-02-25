@@ -1,10 +1,10 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 function buildImgCell(&$img)
 {
-    global $icdb, $thumb;
+    global $_conf, $ini, $icdb, $thumb;
 
     // 長すぎるURIは折り返す
     if (strlen($img['uri']) > 45) {
@@ -28,7 +28,7 @@ function buildImgCell(&$img)
         // ソースとサムネイルのパスを取得
         $add['src'] = $thumb->srcPath($icdb->size, $icdb->md5, $icdb->mime);
         $add['thumb'] = $thumb->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
-    
+
         // サムネイルの縦横の大きさを計算
         @preg_match('/(\d+)x(\d+)/', $thumb->calc($icdb->width, $icdb->height), $m);
         $add['t_width'] = $m[1];

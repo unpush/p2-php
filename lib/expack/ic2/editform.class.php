@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 require_once 'HTML/Template/Flexy/Element.php';
@@ -9,10 +9,12 @@ class EditForm
 
     function header($hiddens, $mode)
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mf_head = new HTML_Template_Flexy_Element('form', array(
             'name' => 'edit',
             'id' => 'edit',
-            'action' => $_SERVER['PHP_SELF'],
+            'action' => $_SERVER['SCRIPT_NAME'],
             'method' => 'post',
             'accept-charset' => $GLOBALS['_conf']['accept_charset'],
         ));
@@ -26,8 +28,8 @@ class EditForm
                 'name' => $key,
                 'id' => 'edit_' . $key,
                 'value' => $value,
-                'flexy:xhtml' => true,
-                '/' => true,
+                'flexy:xhtml' => $is_xhtml,
+                '/' => $is_xhtml,
             ));
         }
         return $mf_head->toHtmlnoClose();
@@ -36,13 +38,15 @@ class EditForm
 
     function submit($id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mf_submit = new HTML_Template_Flexy_Element('input', array(
             'type' => 'submit',
             'name' => 'edit_submit',
             'id' => 'edit_submit' . $id,
             'value' => '変更',
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         ));
         return $mf_submit->toHtml();
     }
@@ -50,13 +54,15 @@ class EditForm
 
     function remove($id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mf_remove = new HTML_Template_Flexy_Element('input', array(
             'type' => 'submit',
             'name' => 'edit_remove',
             'id' => 'edit_remove' . $id,
             'value' => '削除',
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         ));
         return $mf_remove->toHtml();
     }
@@ -64,13 +70,15 @@ class EditForm
 
     function toblack($id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mf_toblack = new HTML_Template_Flexy_Element('input', array(
             'type' => 'checkbox',
             'name' => 'edit_toblack',
             'id' => 'edit_toblack' . $id,
             'value' => '1',
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         ));
         return $mf_toblack->toHtml();
     }
@@ -78,13 +86,15 @@ class EditForm
 
     function reset($id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mf_reset = new HTML_Template_Flexy_Element('input', array(
             'type' => 'reset',
             'name' => 'edit_reset',
             'id' => 'edit_reset' . $id,
             'value' => '取消',
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         ));
         return $mf_reset->toHtml();
     }
@@ -92,13 +102,15 @@ class EditForm
 
     function checkAllOn($id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mf_allon = new HTML_Template_Flexy_Element('input', array(
             'type' => 'button',
             'id' => 'edit_checkAllOn' . $id,
             'value' => '選択',
             'onclick' => "iv2_checkAll('on')",
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         ));
         return $mf_allon->toHtml();
     }
@@ -106,13 +118,15 @@ class EditForm
 
     function checkAllOff($id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mf_alloff = new HTML_Template_Flexy_Element('input', array(
             'type' => 'button',
             'id' => 'edit_checkAllOff' . $id,
             'value' => '解除',
             'onclick' => "iv2_checkAll('off')",
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         ));
         return $mf_alloff->toHtml();
     }
@@ -120,13 +134,15 @@ class EditForm
 
     function checkAllReverse($id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mf_allreverse = new HTML_Template_Flexy_Element('input', array(
             'type' => 'button',
             'id' => 'edit_checkAllReverse' . $id,
             'value' => '反転',
             'onclick' => "iv2_checkAll('reverse')",
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         ));
         return $mf_allreverse->toHtml();
     }
@@ -134,13 +150,15 @@ class EditForm
 
     function selectRank($range, $id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mfa_select = array(
             'name' => 'setrank',
             'id' => 'edit_rank' . $id,
-            'flexy:xhtml' => true,
+            'flexy:xhtml' => $is_xhtml,
         );
         $mfa_option = array(
-            'flexy:xhtml' => true,
+            'flexy:xhtml' => $is_xhtml,
         );
         $mf_select = &new HTML_Template_Flexy_Element('select', $mfa_select);
         $i = 0;
@@ -162,15 +180,20 @@ class EditForm
 
     function textMemo($id = '')
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $mfa_text = array(
             'type' => 'text',
             'name' => 'addmemo',
             'id' => 'edit_memo' . $id,
             'size' => '24',
             'value' => '',
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         );
+        if ($_conf['ktai']) {
+            unset($mfa_text['id'], $mfa_text['size']);
+        }
         $mf_text = &new HTML_Template_Flexy_Element('input', $mfa_text);
         return $mf_text->toHtml();
     }
@@ -178,14 +201,16 @@ class EditForm
 
     function imgManager(&$img, &$status)
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         global $ini;
 
         $mng = array();
 
         // フォーム要素の属性
         $mfa_input = array(
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         );
         $mfa_checkbox = array_merge($mfa_input, array(
             'type' => 'checkbox',
@@ -231,7 +256,7 @@ class EditForm
             'cols' => $ini['Manager']['cols'],
             'rows' => $ini['Manager']['rows'],
             'onchange' => "updateDB('img{$img['id']}')",
-            'flexy:xhtml' => true,
+            'flexy:xhtml' => $is_xhtml,
         );
 
         // DBを更新するチェックボックス
@@ -290,6 +315,8 @@ class EditForm
 
     function imgChecker(&$img)
     {
+        global $_conf;
+        $is_xhtml = empty($_conf['ktai']);
         $chk = array();
 
         $mfa_checkbox = array(
@@ -297,9 +324,12 @@ class EditForm
             'name' => 'change[]',
             'id' => "img{$img['id']}_change",
             'value' => $img['id'],
-            'flexy:xhtml' => true,
-            '/' => true,
+            'flexy:xhtml' => $is_xhtml,
+            '/' => $is_xhtml,
         );
+        if ($_conf['ktai']) {
+            unset($mfa_checkbox['id']);
+        }
         $mf_change = &new HTML_Template_Flexy_Element('input', $mfa_checkbox);
         $chk['f_change'] = $mf_change->toHtml();
 

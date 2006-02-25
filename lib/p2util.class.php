@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 
 require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
@@ -8,54 +6,48 @@ require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 /**
 * p2 - p2用のユーティリティクラス
 * インスタンスを作らずにクラスメソッドで利用する
-*
+* 
 * @create  2004/07/15
 */
 class P2Util{
-
+    
     /**
-     * ■ ファイルをダウンロードして保存する
+     * ■ ファイルをダウンロード保存する
      */
     function &fileDownload($url, $localfile, $disp_error = 1)
     {
         global $_conf, $_info_msg_ht;
-        global $expack_ua;
 
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
-
+    
         if (file_exists($localfile)) {
-            $modified = gmdate('D, d M Y H:i:s', filemtime($localfile)).' GMT';
+            $modified = gmdate("D, d M Y H:i:s", filemtime($localfile))." GMT";
         } else {
             $modified = false;
         }
-
+    
         // DL
         include_once (P2_LIBRARY_DIR . '/wap.class.php');
-        $wap_ua = &new UserAgent;
-        if ($expack_ua != "") {
-            $wap_ua->setAgent($expack_ua);
-        } else {
-            $wap_ua->setAgent($_SERVER['HTTP_USER_AGENT']);
-        }
+        $wap_ua =& new UserAgent();
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req = &new Request;
+        $wap_req =& new Request();
         $wap_req->setUrl($url);
         $wap_req->setModified($modified);
         if ($_conf['proxy_use']) {
             $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
         }
-        $wap_res = &$wap_ua->request($wap_req);
-
+        $wap_res = $wap_ua->request($wap_req);
+        
         if ($wap_res->is_error() && $disp_error) {
             $url_t = P2Util::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
         }
-
+        
         // 更新されていたら
-        if ($wap_res->is_success() && $wap_res->code != '304') {
-            if (FileCtl::file_write_contents($localfile, $wap_res->content) === FALSE) {
-                die("Error: {$localfile} を更新できませんでした");
+        if ($wap_res->is_success() && $wap_res->code != "304") {
+            if (FileCtl::file_write_contents($localfile, $wap_res->content) === false) {
+                die("Error: cannot write file.");
             }
             chmod($localfile, $perm);
         }
@@ -63,15 +55,15 @@ class P2Util{
         return $wap_res;
     }
 
- 	/**
+    /**
      * ■パーミッションの注意を喚起する
      */
     function checkDirWritable($aDir)
     {
         global $_info_msg_ht, $_conf;
-
+    
         // マルチユーザモード時は、情報メッセージを抑制している。
-
+        
         if (!is_dir($aDir)) {
             /*
             $_info_msg_ht .= '<p class="infomsg">';
@@ -90,7 +82,7 @@ class P2Util{
                     //$_info_msg_ht .= "ディレクトリを作成し、パーミッションを設定して下さい。";
             }
             //$_info_msg_ht .= '</p>';
-
+            
         } elseif (!is_writable($aDir)) {
             $_info_msg_ht .= '<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>';
             //$_info_msg_ht .= $aDir.'<br>';
@@ -108,14 +100,14 @@ class P2Util{
         $parsed = parse_url($url); // URL分解
 
         $save_uri = $parsed['host'] ? $parsed['host'] : '';
-        $save_uri .= $parsed['port'] ? ':'.$parsed['port'] : '';
-        $save_uri .= $parsed['path'] ? $parsed['path'] : '';
+        $save_uri .= $parsed['port'] ? ':'.$parsed['port'] : ''; 
+        $save_uri .= $parsed['path'] ? $parsed['path'] : ''; 
         $save_uri .= $parsed['query'] ? '?'.$parsed['query'] : '';
-
-        $cachefile = $_conf['cache_dir'] . "/".$save_uri;
+        
+        $cachefile = $_conf['cache_dir'] . "/" . $save_uri;
 
         FileCtl::mkdir_for($cachefile);
-
+        
         return $cachefile;
     }
 
@@ -125,17 +117,18 @@ class P2Util{
     function getItaName($host, $bbs)
     {
         global $_conf, $ita_names;
-
+        
         $id = $host . '/' . $bbs;
-
+        
         if (isset($ita_names[$id])) {
             return $ita_names[$id];
         }
-
-        $datdir_host = P2Util::datdirOfHost($host);
-        $p2_setting_txt = $datdir_host."/".$bbs."/p2_setting.txt";
-
+        
+        $idx_host_dir = P2Util::idxDirOfHost($host);
+        $p2_setting_txt = $idx_host_dir."/".$bbs."/p2_setting.txt";
+        
         if (file_exists($p2_setting_txt)) {
+            
             $p2_setting_cont = @file_get_contents($p2_setting_txt);
             if ($p2_setting_cont) {
                 $p2_setting = unserialize($p2_setting_cont);
@@ -145,88 +138,78 @@ class P2Util{
                 }
             }
         }
-
+        
         // 板名Longの取得
-        // itaj未セットで看板ポップアップで取得したSETTING.TXTがあればセット
         if (!isset($p2_setting['itaj'])) {
-            $setting_txt = $datdir_host."/".$bbs."/SETTING.TXT";
-            if (file_exists($setting_txt)) {
-                $setting = file($setting_txt);
-                if ($setting && ($found = preg_grep('/^BBS_TITLE=(.+)/', $setting))) {
-                    $bbs_title = explode('=', array_shift($found), 2);
-                    $ita_names[$id] = $p2_setting['itaj'] = rtrim($bbs_title[1]);
-
-                    FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
-                    $p2_setting_cont = serialize($p2_setting);
-                    if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === FALSE) {
-                        die("Error: {$p2_setting_txt} を更新できませんでした");
-                    }
-                    return $ita_names[$id];
+            require_once (P2_LIBRARY_DIR . '/BbsMap.class.php');
+            $itaj = BbsMap::getBbsName($host, $bbs);
+            if ($itaj != $bbs) {
+                $ita_names[$id] = $p2_setting['itaj'] = $itaj;
+                
+                FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
+                $p2_setting_cont = serialize($p2_setting);
+                if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
+                    die("Error: {$p2_setting_txt} を更新できませんでした");
                 }
+                return $ita_names[$id];
             }
         }
-        /*
-        // itaj未セットで2ch pink ならSETTING.TXTを読んでセット
-        if (!isset($p2_setting['itaj'])) {
-            if (P2Util::isHost2chs($host)) {
-                $tempfile = $_conf['pref_dir']."/SETTING.TXT.temp";
-                P2Util::fileDownload("http://{$host}/{$bbs}/SETTING.TXT", $tempfile);
-                // $setting = getHttpContents("http://{$host}/{$bbs}/SETTING.TXT", "", "GET", "", array(""), $httpua="p2");
-                $setting = file($tempfile);
-                if (file_exists($tempfile)) { unlink($tempfile); }
-                if ($setting) {
-                    foreach ($setting as $sl) {
-                        $sl = trim($sl);
-                        if (preg_match("/^BBS_TITLE=(.+)/", $sl, $matches)) {
-                            $ita_names[$id] = $p2_setting['itaj'] = $matches[1];
-                        }
-                    }
-                    if ($p2_setting['itaj']) {
-                        FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
-                        if ($p2_setting) {$p2_setting_cont = serialize($p2_setting);}
-                        if ($p2_setting_cont) {
-                            if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === FALSE) {
-                                die("Error: {$p2_setting_txt} を更新できませんでした");
-                            }
-                        }
-                        return $ita_names[$id];
-                    }
-                }
-            }
-        }
-        */
-
+        
         return null;
     }
 
     /**
-     * ■ hostからdatの保存ディレクトリを返す
+     * hostからdatの保存ディレクトリを返す
      */
-    function datdirOfHost($host)
+    function datDirOfHost($host)
     {
-        global $datdir;
-        static $datdirs = array();
-        if (!isset($datdirs[$host])) {
-            // 2channel or bbspink
-            if (P2Util::isHost2chs($host)) {
-                $datdirs[$host] = $datdir.'/2channel';
-            // machibbs.com
-            } elseif (P2Util::isHostMachiBbs($host)) {
-                $datdirs[$host] = $datdir.'/machibbs.com';
-            // JBBSしたらば
-            } elseif (P2Util::isHostJbbsShitaraba($host)) {
-                if ($host2 = strstr($host, '/')) {
-                    $datdirs[$host] = $datdir.'/jbbs.livedoor.jp'.$host2;
-                } else {
-                    $datdirs[$host] = $datdir.'/jbbs.livedoor.jp';
-                }
-            } else {
-                $datdirs[$host] = $datdir.'/'.$host;
-            }
-        }
-        return $datdirs[$host];
-    }
+        global $_conf;
 
+        // 2channel or bbspink
+        if (P2Util::isHost2chs($host)) {
+            $dat_host_dir = $_conf['dat_dir']."/2channel";
+        // machibbs.com
+        } elseif (P2Util::isHostMachiBbs($host)) {
+            $dat_host_dir = $_conf['dat_dir']."/machibbs.com";
+        } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
+            $dat_host_dir = $_conf['dat_dir']."/".rawurlencode($host);
+            $old_dat_host_dir = $_conf['dat_dir']."/".$host;
+            if (is_dir($old_dat_host_dir)) {
+                rename($old_dat_host_dir, $dat_host_dir);
+                clearstatcache();
+            }
+        } else {
+            $dat_host_dir = $_conf['dat_dir']."/".$host;
+        }
+        return $dat_host_dir;
+    }
+    
+    /**
+     * ■ hostからidxの保存ディレクトリを返す
+     */
+    function idxDirOfHost($host)
+    {
+        global $_conf;
+        
+        // 2channel or bbspink
+        if (P2Util::isHost2chs($host)) { 
+            $idx_host_dir = $_conf['idx_dir']."/2channel";
+        // machibbs.com
+        } elseif (P2Util::isHostMachiBbs($host)){ 
+            $idx_host_dir = $_conf['idx_dir']."/machibbs.com";
+        } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
+            $idx_host_dir = $_conf['idx_dir']."/".rawurlencode($host);
+            $old_idx_host_dir = $_conf['idx_dir']."/".$host;
+            if (is_dir($old_idx_host_dir)) {
+                rename($old_idx_host_dir, $idx_host_dir);
+                clearstatcache();
+            }
+        } else {
+            $idx_host_dir = $_conf['idx_dir']."/".$host;
+        }
+        return $idx_host_dir;
+    }
+    
     /**
      * ■ failed_post_file のパスを得る関数
      */
@@ -237,9 +220,8 @@ class P2Util{
         } else {
             $filename = 'failed.data.php';
         }
-        return $failed_post_file = P2Util::datdirOfHost($host).'/'.$bbs.'/'.$filename;
+        return $failed_post_file = P2Util::idxDirOfHost($host).'/'.$bbs.'/'.$filename;
     }
-
 
     /**
      * ■リストのナビ範囲を返す
@@ -256,12 +238,12 @@ class P2Util{
             $disp_navi['mae_from'] = 1;
             $disp_navi['tugi_from'] = 1;
             return $disp_navi;
-        }
+        }    
 
         $disp_navi['from'] = $disp_from;
-
+        
         $disp_range = $disp_range-1;
-
+        
         // fromが越えた
         if ($disp_navi['from'] > $disp_all_num) {
             $disp_navi['from'] = $disp_all_num - $disp_range;
@@ -269,7 +251,7 @@ class P2Util{
                 $disp_navi['from'] = 1;
             }
             $disp_navi['end'] = $disp_all_num;
-
+        
         // from 越えない
         } else {
             // end 越えた
@@ -283,11 +265,11 @@ class P2Util{
                 $disp_navi['end'] = $disp_from + $disp_range;
             }
         }
-
+        
         $disp_navi['mae_from'] = $disp_from -1 -$disp_range;
         if ($disp_navi['mae_from'] < 1) {
             $disp_navi['mae_from'] = 1;
-        }
+        }    
         $disp_navi['tugi_from'] = $disp_navi['end'] +1;
 
 
@@ -298,165 +280,34 @@ class P2Util{
         }
         $disp_navi['range_st'] = "{$range_on_st}/{$disp_all_num} ";
 
-
         return $disp_navi;
-
     }
-
 
     /**
      * ■ key.idx に data を記録する
+     *
+     * @param   array   $data   要素の順番に意味あり。
      */
     function recKeyIdx($keyidx, $data)
     {
         global $_conf;
-
-        $data = rtrim($data) . "\n";
-
+        
+        // 基本は配列で受け取る
+        if (is_array($data)) {
+            $cont = implode('<>', $data);
+        // 旧互換用にstringも受付
+        } else {
+            $cont = rtrim($data);
+        }
+        
+        $cont = $cont . "\n";
+        
         FileCtl::make_datafile($keyidx, $_conf['key_perm']);
-        if (FileCtl::file_write_contents($keyidx, $data) === FALSE) {
-            die("Error: {$subjectfile} を更新できませんでした");
+        if (FileCtl::file_write_contents($keyidx, $cont) === false) {
+            die("Error: cannot write file. recKeyIdx()");
         }
 
         return true;
-    }
-
-    /**
-     * ■ 履歴を記録する
-     */
-    function recRecent($data)
-    {
-        global $_conf;
-
-        // $_conf['rct_file']ファイルがなければ生成
-        require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-        FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']);
-
-        $lines = @file($_conf['rct_file']); //読み込み
-
-        // 最初に重複要素を削除
-        $data = rtrim($data);
-        $neolines = array();
-        if ($lines) {
-            $data_ar = explode('<>', $data);
-            foreach ($lines as $line) {
-                $line = rtrim($line);
-                $lar = explode('<>', $line);
-                if ($lar[1] == $data_ar[1]) { continue; } // keyで重複回避
-                if (!$lar[1]) { continue; } // keyのないものは不正データ
-                $neolines[] = $line;
-            }
-        }
-
-        // 新規データ追加
-        $neolines ? array_unshift($neolines, $data) : $neolines = array($data);
-
-        while (count($neolines) > $_conf['rct_rec_num']) {
-            array_pop($neolines);
-        }
-
-        // 書き込む
-        $fp = @fopen($_conf['rct_file'], 'wb') or die("Error: {$_conf['rct_file']} を更新できませんでした");
-        if ($neolines) {
-            @flock($fp, LOCK_EX);
-            foreach ($neolines as $l) {
-                fputs($fp, $l."\n");
-            }
-            @flock($fp, LOCK_UN);
-        }
-        fclose($fp);
-    }
-
-    /**
-     * ■ subject.txtをダウンロードする
-     */
-    function &subjectDownload($in_url, $subjectfile)
-    {
-        global $_conf, $datdir, $_info_msg_ht;
-
-        $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
-
-        if (file_exists($subjectfile)) {
-            if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
-                return;	// 更新しない場合は、その場で抜けてしまう
-            } elseif ((!empty($_POST['newthread']) ) && P2Util::isSubjectFresh($subjectfile)) {
-                return;	// 新規スレ立て時でなく、更新が新しい場合も抜ける
-            }
-            $modified = gmdate('D, d M Y H:i:s', filemtime($subjectfile))." GMT";
-        } else {
-            $modified = false;
-        }
-
-        if (extension_loaded('zlib') and strstr($in_url, ".2ch.net")) {
-            $headers = 'Accept-Encoding: gzip'."\r\n";
-        } else {
-            $headers = '';
-        }
-
-        // したらばのlivedoor移転に対応。読込先をlivedoorとする。
-        $url = P2Util::adjustHostJbbs($in_url);
-
-        // ■DL
-        include_once (P2_LIBRARY_DIR . '/wap.class.php');
-        $wap_ua = &new UserAgent;
-        $wap_ua->setAgent('Monazilla/1.00 ('.$_conf['p2name_ua'].'/'.$_conf['p2version_ua'].')');
-        $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req = &new Request;
-        $wap_req->setUrl($url);
-        $wap_req->setModified($modified);
-        $wap_req->setHeaders($headers);
-        if ($_conf['proxy_use']) {
-            $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
-        }
-        $wap_res = &$wap_ua->request($wap_req);
-
-        if ($wap_res->is_error()) {
-            $url_t = P2Util::throughIme($wap_req->url);
-            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
-        } else {
-            $body = $wap_res->content;
-        }
-
-        // ■ DL成功して かつ 更新されていたら
-        if ($wap_res->is_success() && $wap_res->code != '304') {
-
-            // したらばならEUCをSJISに変換
-            if (strstr($subjectfile, $datdir."/jbbs.shitaraba.com") || strstr($subjectfile, $datdir."/jbbs.livedoor.com") || strstr($subjectfile, $datdir."/jbbs.livedoor.jp")) {
-                $body = mb_convert_encoding($body, 'SJIS', 'EUC-JP');
-            }
-
-            // ファイルに保存する
-            if (FileCtl::file_write_contents($subjectfile, $body) === FALSE) {
-                die("Error: {$subjectfile} を更新できませんでした");
-            }
-            chmod($subjectfile, $perm);
-
-        } else {
-            // touchすることで更新インターバルが効くので、しばらく再チェックされなくなる
-            // （変更がないのに修正時間を更新するのは、少し気が進まないが、ここでは特に問題ないだろう）
-            touch($subjectfile);
-        }
-
-        return $wap_res;
-    }
-
-    /**
-     * ■ subject.txt が新鮮なら true を返す
-     */
-    function isSubjectFresh($subjectfile)
-    {
-        global $_conf;
-
-        // キャッシュがある場合
-        if (file_exists($subjectfile)) {
-            // キャッシュの更新が指定時間以内なら
-            // clearstatcache();
-            if (@filemtime($subjectfile) > time() - $_conf['sb_dl_interval']) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -466,48 +317,76 @@ class P2Util{
     {
         global $_conf;
 
-        $cachefile = $_conf['cookie_dir']."/{$host}/".$_conf['cookie_file_name'];
+        if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
+            $cookie_host_dir = $_conf['cookie_dir']."/".rawurlencode($host);
+            $old_cookie_host_dir = $_conf['cookie_dir']."/".$host;
+            if (is_dir($old_cookie_host_dir)) {
+                rename($old_cookie_host_dir, $cookie_host_dir);
+                clearstatcache();
+            }
+        } else {
+            $cookie_host_dir = $_conf['cookie_dir']."/".$host;
+        }
+        $cachefile = $cookie_host_dir."/".$_conf['cookie_file_name'];
 
         FileCtl::mkdir_for($cachefile);
-
+        
         return $cachefile;
     }
 
     /**
      * ■中継ゲートを通すためのURL変換
      */
-    function throughIme($url, $htmlize = FALSE)
+    function throughIme($url)
     {
         global $_conf;
+        static $manual_exts = null;
+
+        if (is_null($manual_exts)) {
+            if ($_conf['ime_manual_ext']) {
+                $manual_exts = explode(',', trim($_conf['ime_manual_ext']));
+            } else {
+                $manual_exts = array();
+            }
+        }
+
+        $url_en = rawurlencode(str_replace('&amp;', '&', $url));
+
+        $gate = $_conf['through_ime'];
+        if ($manual_exts &&
+            false !== ($ppos = strrpos($url, '.')) &&
+            in_array(substr($url, $ppos + 1), $manual_exts) &&
+            ($gate == 'p2' || $gate == 'ex')
+        ) {
+            $gate .= 'm';
+        }
 
         // p2imeは、enc, m, url の引数順序が固定されているので注意
-
-        if (!$url) {
-            return '';
+        switch ($gate) {
+        case '2ch':
+            $url_r = preg_replace('|^(\w+)://(.+)$|', '$1://ime.nu/$2', $url);
+            break;
+        case 'p2':
+        case 'p2pm':
+                $url_r = $_conf['p2ime_url'].'?enc=1&amp;url='.$url_en;
+                break;
+        case 'p2m':
+            $url_r = $_conf['p2ime_url'].'?enc=1&amp;m=1&amp;url='.$url_en;
+            break;
+        case 'ex':
+        case 'expm':
+            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=1';
+            break;
+        case 'exq':
+            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=0';
+            break;
+        case 'exm':
+            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=-1';
+            break;
+        default:
+            $url_r = $url;
         }
-
-        switch ($_conf['through_ime']) {
-            case '2ch':
-                $url_r = preg_replace('|^(https?)://(.+)$|', '$1://ime.nu/$2', $url);
-                break;
-            case 'p2':
-            case 'p2pm':
-                $url_r = $_conf['p2ime_url'] . '?enc=1&url=' . rawurlencode(str_replace('&amp;', '&', $url));
-                break;
-            case 'p2m':
-                $url_r = $_conf['p2ime_url'] . '?enc=1&m=1&url=' . rawurlencode(str_replace('&amp;', '&', $url));
-                break;
-            case 'ex':
-                $url_r = 'http://moonshine.s32.xrea.com/moonshime.php?url=' . rawurlencode(str_replace('&amp;', '&', $url));
-                break;
-            default:
-                $url_r = $url;
-        }
-
-        if ($htmlize) {
-            $url_r = htmlspecialchars($url_r);
-        }
-
+        
         return $url_r;
     }
 
@@ -516,31 +395,47 @@ class P2Util{
      */
     function isHost2chs($host)
     {
-        return (boolean)preg_match('/\.(2ch\.net|bbspink\.com)/', $host);
+        if (preg_match("/\.(2ch\.net|bbspink\.com)/", $host)) {
+            return true;
+        } else {
+            return false;
+        }
     }
-
+    
     /**
      * ■ host が be.2ch.net なら true を返す
      */
     function isHostBe2chNet($host)
     {
-        return (boolean)preg_match('/^be\.2ch\.net/', $host);
+        if (preg_match("/^be\.2ch\.net/", $host)) {
+            return true;
+        } else {
+            return false;
+        }
     }
-
+    
     /**
      * ■ host が bbspink なら true を返す
      */
     function isHostBbsPink($host)
     {
-        return (boolean)preg_match('/\.bbspink\.com/', $host);
+        if (preg_match("/\.bbspink\.com/", $host)) {
+            return true;
+        } else {
+            return false;
+        }
     }
-
+    
     /**
      * ■ host が machibbs なら true を返す
      */
     function isHostMachiBbs($host)
     {
-        return (boolean)preg_match('/\.(machibbs\.com|machi\.to)/', $host);
+        if (preg_match("/\.(machibbs\.com|machi\.to)/", $host)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -548,173 +443,129 @@ class P2Util{
      */
     function isHostMachiBbsNet($host)
     {
-        return (boolean)preg_match('/\.machibbs\.net/', $host);
+        if (preg_match("/\.(machibbs\.net)/", $host)) {
+            return true;
+        } else {
+            return false;
+        }
     }
-
+    
     /**
      * ■ host が JBBS@したらば なら true を返す
      */
-    function isHostJbbsShitaraba($host)
+    function isHostJbbsShitaraba($in_host)
     {
-        return (boolean)preg_match('/jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp/', $host);
+        if (preg_match("/jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp/", $in_host)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * ■JBBS@したらばのホスト名変更に対応して変更する
      *
-     * @param	string	$in_str	ホスト名でもURLでもなんでも良い
+     * @param    string    $in_str    ホスト名でもURLでもなんでも良い
      */
     function adjustHostJbbs($in_str)
     {
-        return preg_replace('/jbbs\.shitaraba\.com|jbbs\.livedoor\.com/', 'jbbs.livedoor.jp', $in_str, 1);
-    }
-
-    /**
-     * ■ dat を残さない host なら true を返す
-     */
-    function isHostNoCacheData($host)
-    {
-        return (boolean)preg_match('/^epg\.2ch\.net/', $host);
-    }
-
-    /**
-     * ■ スレッドを指定する
-     */
-    function detectThread()
-    {
-        global $_conf;
-
-        // スレURLの直接指定
-        if (($nama_url = $_GET['nama_url']) || ($nama_url = $_GET['url'])) {
-
-            // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            if (preg_match("{http://([^/]+\.(2ch\.net|bbspink\.com|mmobbs\.com))/test/read\.cgi/([^/]+)/([0-9]+)(/)?([^/]+)?}", $nama_url, $matches)) {
-                $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[6];
-
-            // 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
-            } elseif (preg_match("{(http://([^/]+\.(2ch\.net|bbspink\.com))(/[^/]+)?/([^/]+)/kako/\d+(/\d+)?/(\d+)).html}", $nama_url, $matches) ){
-                $host = $matches[2];
-                $bbs = $matches[5];
-                $key = $matches[7];
-                $kakolog_uri = $matches[1];
-                $_GET['kakolog'] = urlencode($kakolog_uri);
-
-            // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
-            } elseif (preg_match("{http://([^/]+\.machibbs\.com|[^/]+\.machi\.to)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}", $nama_url, $matches) ){
-                $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[6] ."-". $matches[8];
-            } elseif (preg_match("{http://(jbbs\.(?:shitaraba\.com|livedoor\.(?:com|jp))/[^/]+?)/bbs/read\.(?:pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(?:&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}", $nama_url, $matches) ){
-                $host = $matches[1];
-                $bbs = $matches[2];
-                $key = $matches[3];
-                $ls = $matches[4] ."-". $matches[5];
-
-            // したらばJBBS http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100
-            } elseif (preg_match("{http://(jbbs\.(?:shitaraba\.com|livedoor\.(?:com|jp)))/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^\"]*}", $nama_url, $matches) ){
-                $host = $matches[1] ."/". $matches[2];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[5];
-            }
-
+        if (preg_match('/jbbs\.shitaraba\.com|jbbs\.livedoor\.com/', $in_str)) {
+            $str = preg_replace('/jbbs\.shitaraba\.com|jbbs\.livedoor\.com/', 'jbbs.livedoor.jp', $in_str, 1);
         } else {
-            isset($_REQUEST['host']) && $host = $_REQUEST['host']; // "pc.2ch.net"
-            isset($_REQUEST['bbs'])  && $bbs  = $_REQUEST['bbs'];  // "php"
-            isset($_REQUEST['key'])  && $key  = $_REQUEST['key'];  // "1022999539"
-            isset($_REQUEST['ls'])   && $ls   = $_REQUEST['ls'];   // "all"
-
-            // ホスト検索
-            $hostMapCache = $_conf['pref_dir'] . '/p2_host_bbs_map.txt';
-            if ((!$host || $host == '2channel' || $host == 'machibbs.com') && $bbs && file_exists($hostMapCache)) {
-                $regexp = '/^';
-                if ($host == 'machibbs.com') {
-                    $regexp .= '[a-z]+\.(?:machibbs\.com|machi\.to)';
-                } else {
-                    $regexp .= '[a-z]+[0-9]*\.(?:2ch\.net|bbspink\.com)';
-                }
-                $regexp .= '<>'.preg_quote($bbs, '/').'<>/';
-                $host = '';
-                $filter = create_function('$line', 'return (boolean)preg_match(\''.$regexp.'\', $line);');
-                $hostMap = file($hostMapCache);
-                if ($found = array_filter($hostMap, $filter)) {
-                    list($host,) = explode('<>', array_shift($found));
-                }
-            }
+            $str = $in_str;
         }
-
-        if (!($host && $bbs && $key)) {
-            $htm['nama_url'] = htmlspecialchars($nama_url);
-            $msg = "p2 - {$_conf['read_php']}: スレッドの指定が変です。<br>"
-                . "<a href=\"{$htm['nama_url']}\">" .$htm['nama_url']."</a>";
-            die($msg);
-        }
-
-        return array($host, $bbs, $key, $ls);
+        return $str;
     }
 
     /**
-     * ■ http header no cache を出力
-     */
+    * ■ http header no cache を出力
+    */
     function header_nocache()
     {
-        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');	// 日付が過去
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');	// 常に修正されている
-        header('Cache-Control: no-store, no-cache, must-revalidate');	// HTTP/1.1
-        header('Cache-Control: post-check=0, pre-check=0', false);
-        header('Pragma: no-cache'); // HTTP/1.0
+        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // 日付が過去
+        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); // 常に修正されている
+        header("Cache-Control: no-store, no-cache, must-revalidate"); // HTTP/1.1
+        header("Cache-Control: post-check=0, pre-check=0", false);
+        header("Pragma: no-cache"); // HTTP/1.0
     }
 
     /**
-     * ■ http header Content-Type 出力
-     */
+    * ■ http header Content-Type 出力
+    */
     function header_content_type()
     {
-        header('Content-Type: text/html; charset=Shift_JIS');
+        header("Content-Type: text/html; charset=Shift_JIS");
     }
 
     /**
-     * ■ http header Content-Length 出力
-     * 使い方：
-     * ob_start(array('P2Util', 'header_content_length'));
+     * ■データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
+     *
+     * 最初は、dat形式（<>）だったのが、データPHP形式（TAB）になり、そしてまた v1.6.0 でdat形式（<>）に戻った
      */
-    function header_content_length($buf)
-    {
-        header('Content-Length: ' . strlen($buf));
-        return $buf;
-    }
-
-    /**
-     * ■旧形式の書き込み履歴を新形式に変換する
-     */
-    function transResHistLog()
+    function transResHistLogPhpToDat()
     {
         global $_conf;
-
-        $rh_dat_php = $_conf['pref_dir'].'/p2_res_hist.dat.php';
-        $rh_dat = $_conf['pref_dir'].'/p2_res_hist.dat';
 
         // 書き込み履歴を記録しない設定の場合は何もしない
         if ($_conf['res_write_rec'] == 0) {
             return true;
         }
 
-        // p2_res_hist.dat.php（新） がなくて、p2_res_hist.dat（旧） が読み込み可能であったら
-        if ((!file_exists($rh_dat_php)) and is_readable($rh_dat)) {
+        // p2_res_hist.dat.php が読み込み可能であったら
+        if (is_readable($_conf['p2_res_hist_dat_php'])) {
             // 読み込んで
-            if ($cont = @file_get_contents($rh_dat)) {
+            if ($cont = DataPhp::getDataPhpCont($_conf['p2_res_hist_dat_php'])) {
+                // タブ区切りから<>区切りに変更する
+                $cont = str_replace("\t", "<>", $cont);
+
+                // p2_res_hist.dat があれば、名前を変えてバックアップ。（もう要らない）
+                if (file_exists($_conf['p2_res_hist_dat'])) {
+                    $bak_file = $_conf['p2_res_hist_dat'] . '.bak';
+                    if (strstr(PHP_OS, 'WIN') and file_exists($bak_file)) {
+                        unlink($bak_file);
+                    }
+                    rename($_conf['p2_res_hist_dat'], $bak_file);
+                }
+                
+                // 保存
+                FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']);
+                FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont);
+                
+                // p2_res_hist.dat.php を名前を変えてバックアップ。（もう要らない）
+                $bak_file = $_conf['p2_res_hist_dat_php'] . '.bak';
+                if (strstr(PHP_OS, 'WIN') and file_exists($bak_file)) {
+                    unlink($bak_file);
+                }
+                rename($_conf['p2_res_hist_dat_php'], $bak_file);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * ■dat形式（<>）の書き込み履歴をデータPHP形式（TAB）に変換する
+     */
+    function transResHistLogDatToPhp()
+    {
+        global $_conf;
+
+        // 書き込み履歴を記録しない設定の場合は何もしない
+        if ($_conf['res_write_rec'] == 0) {
+            return true;
+        }
+
+        // p2_res_hist.dat.php がなくて、p2_res_hist.dat が読み込み可能であったら
+        if ((!file_exists($_conf['p2_res_hist_dat_php'])) and is_readable($_conf['p2_res_hist_dat'])) {
+            // 読み込んで
+            if ($cont = @file_get_contents($_conf['p2_res_hist_dat'])) {
                 // <>区切りからタブ区切りに変更する
                 // まずタブを全て外して
                 $cont = str_replace("\t", "", $cont);
                 // <>をタブに変換して
                 $cont = str_replace("<>", "\t", $cont);
-
+                
                 // データPHP形式で保存
-                DataPhp::writeDataPhp($cont, $rh_dat_php, $_conf['res_write_perm']);
+                DataPhp::writeDataPhp($_conf['p2_res_hist_dat_php'], $cont, $_conf['res_write_perm']);
             }
         }
         return true;
@@ -734,27 +585,33 @@ class P2Util{
         }
         $line = rtrim($lines[1]);
         $lar = explode("\t", $line);
-
+        
         $alog['user'] = $lar[6];
         $alog['date'] = $lar[0];
         $alog['ip'] = $lar[1];
         $alog['host'] = $lar[2];
         $alog['ua'] = $lar[3];
         $alog['referer'] = $lar[4];
-
+        
         return $alog;
     }
-
-
+    
+    
     /**
      * ■アクセス情報をログに記録する
      */
-    function recAccessLog($logfile, $maxline = 100)
+    function recAccessLog($logfile, $maxline = 100, $format = 'dataphp')
     {
-        global $_conf, $login;
-
+        global $_conf, $_login;
+        
         // ログファイルの中身を取得する
-        if ($lines = DataPhp::fileDataPhp($logfile)) {
+        if ($format == 'dataphp') {
+            $lines = DataPhp::fileDataPhp($logfile);
+        } else {
+            $lines = @file($logfile);
+        }
+        
+        if ($lines) {
             // 制限行調整
             while (sizeof($lines) > $maxline -1) {
                 array_pop($lines);
@@ -763,28 +620,23 @@ class P2Util{
             $lines = array();
         }
         $lines = array_map('rtrim', $lines);
-
+        
         // 変数設定
         $date = date('Y/m/d (D) G:i:s');
-
+    
         // HOSTを取得
         if (!$remoto_host = $_SERVER['REMOTE_HOST']) {
             $remoto_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
         }
         if ($remoto_host == $_SERVER['REMOTE_ADDR']) {
-            $remoto_host = '';
+            $remoto_host = "";
         }
 
-        if (isset($login['user'])) {
-            $user = $login['user'];
-        } else {
-            $user = '';
-        }
-
+        $user = (isset($_login->user_u)) ? $_login->user_u : "";
+        
         // 新しいログ行を設定
         $newdata = $date."<>".$_SERVER['REMOTE_ADDR']."<>".$remoto_host."<>".$_SERVER['HTTP_USER_AGENT']."<>".$_SERVER['HTTP_REFERER']."<>".""."<>".$user;
-        //$newdata = htmlspecialchars($newdata);
-
+        //$newdata = htmlspecialchars($newdata, ENT_QUOTES);
 
         // まずタブを全て外して
         $newdata = str_replace("\t", "", $newdata);
@@ -793,12 +645,18 @@ class P2Util{
 
         // 新しいデータを一番上に追加
         @array_unshift($lines, $newdata);
-
+        
         $cont = implode("\n", $lines) . "\n";
 
+        FileCtl::make_datafile($logfile, $_conf['p2_perm']);
+        
         // 書き込み処理
-        DataPhp::writeDataPhp($cont, $logfile, $_conf['res_write_perm']);
-
+        if ($format == 'dataphp') {
+            DataPhp::writeDataPhp($logfile, $cont, $_conf['p2_perm']);
+        } else {
+            FileCtl::file_write_contents($logfile, $cont);
+        }
+        
         return true;
     }
 
@@ -816,24 +674,25 @@ class P2Util{
     function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')
     {
         global $_conf;
-
+        
         include_once (P2_LIBRARY_DIR . '/md5_crypt.inc.php');
-
-        $crypted_login2chPW = md5_encrypt($login2chPW, $_conf['md5_crypt_key']);
-    $idpw2ch_cont = <<<EOP
+        
+        $md5_crypt_key = P2Util::getAngoKey();
+        $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
+        $idpw2ch_cont = <<<EOP
 <?php
 \$rec_login2chID = '{$login2chID}';
 \$rec_login2chPW = '{$crypted_login2chPW}';
 \$rec_autoLogin2ch = '{$autoLogin2ch}';
 ?>
 EOP;
-        FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);	// ファイルがなければ生成
+        FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);    // ファイルがなければ生成
         $fp = @fopen($_conf['idpw2ch_php'], 'wb') or die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
         @flock($fp, LOCK_EX);
         fputs($fp, $idpw2ch_cont);
         @flock($fp, LOCK_UN);
         fclose($fp);
-
+        
         return true;
     }
 
@@ -843,102 +702,75 @@ EOP;
     function readIdPw2ch()
     {
         global $_conf;
-
+        
         include_once (P2_LIBRARY_DIR . '/md5_crypt.inc.php');
-
+        
         if (!file_exists($_conf['idpw2ch_php'])) {
             return false;
         }
-
+        
         $rec_login2chID = NULL;
         $login2chPW = NULL;
         $rec_autoLogin2ch = NULL;
-
+        
         include $_conf['idpw2ch_php'];
 
         // パスを複合化
-        if (!empty($rec_login2chPW)) {
-            $login2chPW = md5_decrypt($rec_login2chPW, $_conf['md5_crypt_key']);
+        if (!is_null($rec_login2chPW)) {
+            $md5_crypt_key = P2Util::getAngoKey();
+            $login2chPW = md5_decrypt($rec_login2chPW, $md5_crypt_key, 32);
         }
-
+        
         return array($rec_login2chID, $login2chPW, $rec_autoLogin2ch);
     }
-
+    
+    /**
+     * getAngoKey
+     */
+    function getAngoKey()
+    {
+        global $_login;
+        
+        return $_login->user . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+    }
+    
     /**
      * getCsrfId
      */
     function getCsrfId()
     {
-        global $login;
-
-        return md5($login['user'] . $login['pass'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE']);
+        global $_login;
+        
+        return md5($_login->user . $_login->pass_x . $_SERVER['HTTP_USER_AGENT']);
     }
-
+    
     /**
-     * checkCsrfId
+     * 403 Fobbidenを出力する
      */
-    function checkCsrfId($str)
+    function print403($msg = '')
     {
-        $csrfid = P2Util::getCsrfId();
-
-        if ($str != $csrfid) {
-            die('p2 error: 不正なポストです');
+        header('HTTP/1.0 403 Forbidden');
+        echo <<<ERR
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    <title>403 Forbidden</title>
+</head>
+<body>
+    <h1>403 Forbidden</h1>
+    <p>{$msg}</p>
+</body>
+</html>
+ERR;
+        // IEデフォルトのメッセージを表示させないようにスペースを出力
+        if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+            for ($i = 0 ; $i < 512; $i++) {
+                echo ' ';
+            }
         }
+        exit;
     }
-
-    // {{{ getmicrotime()
-
-    /**
-     * マイクロ秒までのタイムスタンプを返す
-     *
-     * @access  public
-     * @return  real
-     */
-    function getmicrotime()
-    {
-        list($usec, $sec) = explode(' ', microtime());
-        return ((float)$sec + (float)$usec);
-    }
-
-    // }}}
-    // {{{ p2diskused()
-
-    /**
-     * duコマンドを使ってディスク使用量を取得する
-     */
-    function p2diskused($root = NULL, $symlink = FALSE)
-    {
-        $root = (is_string($root) && is_dir($root)) ? realpath($root) :dirname(__FILE__);
-        $root = escapeshellarg($root);
-        $opt = ($symlink) ? '-L' : '';
-        $result = exec("du -c -h $opt $root | tail -n 1");
-        $used = preg_replace('/^ *([\d.]+[KMGTPE]?).+$/', '$1', $result);
-        return $used;
-    }
-
-    // }}}
-    // {{{ p2dumpinfo()
-
-    /**
-     * スクリプト開始時からの経過時間（とディスク使用量）を表示する
-     */
-    function p2dumpinfo()
-    {
-        global $p2_start_time, $_dump_diskused, $_dump_changeroot;
-        if (!$p2_start_time) {
-            $p2_start_time = P2Util::getmicrotime();
-        }
-        switch ($_dump_diskused) {
-            case 2: $p2_disk_used = ' | ' . P2Util::p2diskused($_dump_changeroot, TRUE) . ' used.'; break;
-            case 1: $p2_disk_used = ' | ' . P2Util::p2diskused($_dump_changeroot) . ' used.'; break;
-            default: $p2_disk_used = '';
-        }
-        $p2_end_time = P2Util::getmicrotime();
-        $p2_process_time = number_format($p2_end_time - $p2_start_time, 3);
-        echo "<div style=\"text-align:right\">{$p2_process_time}sec{$p2_disk_used}</div>";
-    }
-
-    // }}}
+    
     // {{{ scandir_r()
 
     /**
@@ -1110,7 +942,7 @@ EOP;
                     } elseif ($key == '背景色' || substr($key, -6) == '_COLOR') { //カラーサンプル
                         $table .= "<span class=\"colorset\" style=\"color:{$value};\">■</span>（{$value}）";
                     } else {
-                        $table .= htmlspecialchars($value);
+                        $table .= htmlspecialchars($value, ENT_QUOTES);
                     }
                 }
                 $table .= '</td></tr>' . "\n";
@@ -1133,7 +965,7 @@ EOP;
     function re_htmlspecialchars($str)
     {
         // e修飾子を付けたとき、"は自動でエスケープされるようだ
-        return preg_replace('/["<>]|&(?!#?\w+;)/e', 'htmlspecialchars("$0")', $str);
+        return preg_replace('/["<>]|&(?!#?\w+;)/e', 'htmlspecialchars("$0", ENT_QUOTES)', $str);
     }
 
     // }}}
@@ -1146,15 +978,72 @@ EOP;
     {
         $salt = substr($key . 'H.', 1, 2);
         $salt = preg_replace('/[^\.-z]/', '.', $salt);
-        $salt = str_replace(
-            array(':',';','<','=','>','?','@','[','\\',']','^','_','`'),
-            array('A','B','C','D','E','F','G','a','b','c','d','e','f'),
-            $salt);
+        $salt = strtr($salt, ':;<=>?@[\\]^_`', 'ABCDEFGabcdef');
 
         return substr(crypt($key, $salt), -$length);
     }
 
     // }}}
+
+    /**
+     * Webページを取得する
+     *
+     * 200 OK
+     * 206 Partial Content
+     * 304 Not Modified → 失敗扱い
+     *
+     * @return mixed 成功したらページ内容を返す。失敗したらfalseを返す。
+     */
+    function getWebPage($url, &$error_msg, $timeout = 15)
+    {
+        include_once "HTTP/Request.php";
+    
+        $params = array("timeout" => $timeout);
+
+        $req =& new HTTP_Request($url, $params);
+        //$req->addHeader("X-PHP-Version", phpversion());
+
+        $response = $req->sendRequest();
+
+        if (PEAR::isError($response)) {
+            $error_msg = $response->getMessage();
+        } else {
+            $code = $req->getResponseCode();
+            if ($code == 200 || $code == 206) { // || $code == 304) {
+                return $req->getResponseBody();
+            } else {
+                //var_dump($req->getResponseHeader());
+                $error_msg = $code;
+            }
+        }
+    
+        return false;
+    }
+    
+    /**
+     * 現在のURLを取得する（GETクエリーはなし）
+     *
+     * @return string
+     * @see http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
+     */
+    function getMyUrl()
+    {
+        $s = empty($_SERVER['HTTPS']) ? '' : 's';
+        $port = ($_SERVER['SERVER_PORT'] == '80') ? '' : ':' . $_SERVER['SERVER_PORT'];
+        $url = "http{$s}://" . $_SERVER['HTTP_HOST'] . $port . $_SERVER['SCRIPT_NAME'];
+    
+        return $url;
+    }
+    
+    /**
+     * シンプルにHTMLを表示する
+     *
+     * @return void
+     */
+    function printSimpleHtml($body)
+    {
+        echo "<html><body>{$body}</body></html>";
+    }
 }
 
 ?>

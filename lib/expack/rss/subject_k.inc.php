@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 // {{{ ヘッダ
@@ -10,7 +10,7 @@ echo <<<EOH
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$title}</title>
 </head>
-<body{$k_color_settings}>
+<body{$_conf['k_colors']}>
 {$_info_msg_ht}
 <p><b>{$title}</b></p>
 <hr>\n
@@ -49,12 +49,19 @@ echo "<ol>\n";
 foreach ($items as $item) {
     $item = array_map('trim', $item);
     $item_title = P2Util::re_htmlspecialchars($item['title']);
+    $link_orig = P2Util::throughIme($item['link']);
+    // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
+    $view_jig = '';
+    /*
+    $link_jig = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . urlencode($item['link']);
+    $view_jig = ' <a href="' . P2Util::throughIme($link_jig) . '">jW</a>';
+    */
     if ((isset($item['content:encoded']) && $item['content:encoded'] !== '') ||
         (isset($item['description']) && $item['description'] !== '')
     ) {
         echo "<li><a href=\"read_rss.php?xml={$xml_en}&amp;title_en={$title_en}&amp;num={$i}{$atom_q}{$mtime_q}\">{$item_title}</a></li>\n";
     } else {
-        echo "<li>{$item_title}</li>\n";
+        echo "<li>{$item_title} <a href=\"{$link_orig}\">直</a>{$view_jig}</li>\n";
     }
     $i++;
 }
@@ -70,7 +77,7 @@ echo <<<EOF
 {$_conf['k_to_index_ht']}
 </p>
 <hr>
-<form id="urlform" method="post" action="{$_SERVER['PHP_SELF']}" target="_self">
+<form id="urlform" method="post" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
 RSS/Atomを直接指定<br>
 <input type="hidden" name ="k" value="1">
 <input type="text" name="xml" value="{$xml_ht}"><br>

@@ -1,18 +1,14 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 // p2 - 携帯版レスコピー
 
-require_once 'conf/conf.php'; //基本設定読込
+require_once 'conf/conf.inc.php';
 require_once (P2_LIBRARY_DIR . '/thread.class.php');
 require_once (P2_LIBRARY_DIR . '/threadread.class.php');
 
-authorize(); // ユーザ認証
-
-if (!defined('P2_NO_SAVE_PACKET')) {
-    define('P2_NO_SAVE_PACKET', 1);
-}
+$_login->authorize(); // ユーザ認証
 
 $name_txt = '';
 $mail_txt = '';
@@ -33,10 +29,10 @@ $host = $_GET['host'];
 $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
 $resid = $_GET['copy'];
-$quote = isset($_GET['quote']) ? TRUE : FALSE;
+$quote = !empty($_GET['inyou']);
 
 if (isset($_SERVER['HTTP_REFERER'])) {
-    $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER']) . '" title="戻る">' . 戻る . '</a>';
+    $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="戻る">' . 戻る . '</a>';
 }
 
 //=================================================
@@ -50,9 +46,9 @@ if (file_exists($aThread->keydat)) {
     $one = $aThread->explodeDatLine($aThread->datlines[0]);
     $ttitle = trim($one[4]);
     $ttitle_en = rawurlencode(base64_encode($ttitle));
-    $ttitle_ht = htmlspecialchars($ttitle);
-    $url_txt = $aThread->getMotoThread('pc');
-    $url_k_txt = $aThread->getMotoThread('ktai');
+    $ttitle_ht = htmlspecialchars($ttitle, ENT_QUOTES);
+    $url_txt = $aThread->getMotoThread(true);
+    $url_k_txt = $aThread->getMotoThread();
     if ($quote) {
         $url_txt .= $resid;
         $url_k_txt .= $resid;
@@ -95,6 +91,8 @@ if (file_exists($aThread->keydat)) {
 //=====================================================
 // コピー用フォームを表示
 //=====================================================
+$action_ht = htmlspecialchars($_SERVER['PHP_SELF'].'?host='.$_GET['host'].'&bbs='.$_GET['bbs'].'&key='.$_GET['key'].'&copy='.$_GET['copy'], ENT_QUOTES);
+
 P2Util::header_nocache();
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
@@ -105,7 +103,7 @@ echo <<<EOF
 </head>
 <body{$k_color_settings}>
 {$_info_msg_ht}
-<form id="{$form_id}">
+<form id="{$form_id}" action="{$action_ht}" method="post">
 ｽﾚ:<br>
 <input type="text" name="ttitle_txt" value="{$ttitle_ht}"><br>
 <input type="text" name="url_txt" value="{$url_txt}"><br>

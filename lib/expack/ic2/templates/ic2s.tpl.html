@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+	<title>ImageCache2 - アップローダ</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={skin}" />
+	<style type="text/css">
+		h3.thread_title a {
+			color: {STYLE[read_thread_title_color]:h};
+		}
+		form {
+			margin: 5px 0;
+		}
+		fieldset#upload_files {
+			float: left;
+			border: {STYLE[respop_b_style]:h} {STYLE[respop_b_width]:h} {STYLE[respop_b_color]:h};
+			margin-bottom: 5px;
+		}
+		div#upload_extrainfo {
+			clear: both;
+		}
+	</style>
+	<script type="text/javascript" src="js/basic.js"></script>
+	<script type="text/javascript" src="js/ic2s.js" flexy:if="showForm"></script>
+	<script type="text/javascript" flexy:if="showForm">
+		var cntl;
+		function initPage()
+		{
+			cntl = new fileUploadFormController('select_image', 'send_file', 'upimg', 'path', 'ファイル');
+			setWinTitle();
+		}
+	</script>
+	<script type="text/javascript" flexy:if="!showForm">
+		function initPage()
+		{
+			setWinTitle();
+		}
+	</script>
+</head>
+<body onload="initPage()">
+
+<h3 class="thread_title"><a href="{php_self}?popup={isPopUp}">ImageCache2 - アップローダ</a></h3>
+{info_msg:h}
+<hr />
+
+<div flexy:if="showForm">
+
+<form id="fileupload" name="fileupload" method="post" enctype="multipart/form-data" onsubmit="return cntl.preSubmit()">
+	<input type="hidden" name="detect_hint" value="◎◇" />
+	<input type="hidden" name="MAX_FILE_SIZE" value="10000000" />
+	<input type="hidden" name="fix_hfs" value="0" />
+	<input type="hidden" name="popup" value="0" />
+	<fieldset id="upload_files">
+		<legend>
+			画像を選択
+			<input type="button" value="+" onclick="cntl.addFile()" />
+			<input type="button" value="-" onclick="cntl.removeFile()" />
+		</legend>
+		<div id="select_image"></div>
+	</fieldset>
+	<div id="upload_extrainfo">
+		メモ: <input type="text" size="50" name="memo" /><br />
+		ランク:
+			<input type="radio" name="rank" id="f_rank0" value="0" checked="checked" /><label for="f_rank0">0</label>
+			<input type="radio" name="rank" id="f_rank1" value="1" /><label for="f_rank1">1</label>
+			<input type="radio" name="rank" id="f_rank2" value="2" /><label for="f_rank2">2</label>
+			<input type="radio" name="rank" id="f_rank3" value="3" /><label for="f_rank3">3</label>
+			<input type="radio" name="rank" id="f_rank4" value="4" /><label for="f_rank4">4</label>
+			<input type="radio" name="rank" id="f_rank5" value="5" /><label for="f_rank5">5</label>
+	</div>
+	<hr />
+	<div id="upload_buttons">
+		<input type="submit" value="アップロード" id="send_file" />
+		<input type="reset" value="リセット" onclick="cntl.resetFile()" />
+		<input type="button" value="閉じる" onclick="window.close()" flexy:if="isPopUp" />
+	</div>
+</form>
+
+<p id="notice_maxsize">※ アップロード可能な画像サイズの上限は、1枚あたり {maxfilesize}B、全体で {maxpostsize}B です。</p>
+
+</div>
+<div flexy:if="upfiles">
+
+<hr flexy:if="showForm" />
+
+<ul>
+	<li flexy:foreach="upfiles,item">
+		<a href="{item[img_src]}" target="_blank">
+			<img src="{item[thumb]}" width="{item[thumb_x]:h}" height="{item[thumb_y]:h}" alt="" align="middle" />
+		</a>
+		<em>{item[name]:h}</em> - {item[message]:h}
+	</li>
+</ul>
+
+</div>
+
+</body>
+</html>

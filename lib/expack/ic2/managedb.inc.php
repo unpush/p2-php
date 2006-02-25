@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
@@ -7,11 +7,22 @@ require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
 require_once (P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php');
 require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
 
+// TODO: 引数の検証とトランザクションの開始/終了を一つにまとめる
+
 /**
  * 画像情報を更新
  */
 function manageDB_update($updated)
 {
+    if (empty($updated)) {
+        return;
+    }
+    if (!is_array($updated)) {
+        global $_info_msg_ht;
+        $_info_msg_ht .= '<p>WARNING! manageDB_update(): 不正な引数</p>';
+        return;
+    }
+
     // トランザクションの開始
     $ta = &new IC2DB_Images;
     if ($ta->_db->phptype == 'pgsql') {
@@ -19,6 +30,7 @@ function manageDB_update($updated)
     } elseif ($ta->_db->phptype == 'sqlite') {
         $ta->_db->query('BEGIN;');
     }
+
     // 画像データを更新
     foreach ($updated as $id => $data) {
         $icdb = &new IC2DB_Images;
@@ -42,6 +54,7 @@ function manageDB_update($updated)
             }
         }
     }
+
     // トランザクションのコミット
     if ($ta->_db->phptype == 'pgsql') {
         $ta->query('COMMIT');
@@ -56,6 +69,23 @@ function manageDB_update($updated)
 function manageDB_remove($target, $to_blacklist = FALSE)
 {
     $removed_files = array();
+    if (empty($target)) {
+        return $removed_files;
+    }
+    if (!is_array($target)) {
+        if (is_integer($target) || ctype_digit($target)) {
+            $id = (int) $target;
+            if ($id > 0) {
+                $target = array($id);
+            } else {
+                return $removed_files;
+            }
+        } else {
+            global $_info_msg_ht;
+            $_info_msg_ht .= '<p>WARNING! manageDB_remove(): 不正な引数</p>';
+            return $removed_files;
+        }
+    }
 
     // トランザクションの開始
     $ta = &new IC2DB_Images;
@@ -144,6 +174,24 @@ function manageDB_remove($target, $to_blacklist = FALSE)
  */
 function manageDB_setRank($target, $rank)
 {
+    if (empty($target)) {
+        return;
+    }
+    if (!is_array($target)) {
+        if (is_integer($updated) || ctype_digit($updated)) {
+            $id = (int)$updated;
+            if ($id > 0) {
+                $updated = array($id);
+            } else {
+                return;
+            }
+        } else {
+            global $_info_msg_ht;
+            $_info_msg_ht .= '<p>WARNING! manageDB_setRank(): 不正な引数</p>';
+            return $removed_files;
+        }
+    }
+
     $icdb = &new IC2DB_Images;
     $icdb->rank = $rank;
     foreach ($target as $id) {
@@ -157,6 +205,24 @@ function manageDB_setRank($target, $rank)
  */
 function manageDB_addMemo($target, $memo)
 {
+    if (empty($target)) {
+        return;
+    }
+    if (!is_array($target)) {
+        if (is_integer($updated) || ctype_digit($updated)) {
+            $id = (int)$updated;
+            if ($id > 0) {
+                $updated = array($id);
+            } else {
+                return;
+            }
+        } else {
+            global $_info_msg_ht;
+            $_info_msg_ht .= '<p>WARNING! manageDB_addMemo(): 不正な引数</p>';
+            return $removed_files;
+        }
+    }
+
     // トランザクションの開始
     $ta = &new IC2DB_Images;
     if ($ta->_db->phptype == 'pgsql') {
@@ -164,6 +230,7 @@ function manageDB_addMemo($target, $memo)
     } elseif ($ta->_db->phptype == 'sqlite') {
         $ta->_db->query('BEGIN;');
     }
+
     // メモに指定文字列が含まれていなければ更新
     foreach ($target as $id) {
         $find = &new IC2DB_Images;
@@ -181,6 +248,7 @@ function manageDB_addMemo($target, $memo)
         }
         unset($find);
     }
+
     // トランザクションのコミット
     if ($ta->_db->phptype == 'pgsql') {
         $ta->query('COMMIT');

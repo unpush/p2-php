@@ -1,11 +1,8 @@
 <?php
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
-	p2 -  殿堂入り関係の処理
+    p2 -  殿堂入り関係の処理
 */
 
-require_once (P2_LIBRARY_DIR . '/p2util.class.php');
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 /**
@@ -15,124 +12,86 @@ require_once (P2_LIBRARY_DIR . '/filectl.class.php');
  */
 function setPal($host, $bbs, $key, $setpal)
 {
-	global $_conf;
+    global $_conf;
 
-	//==================================================================
-	// key.idx を読み込む
-	//==================================================================
-	// idxfileのパスを求めて
-	$datdir_host = P2Util::datdirOfHost($host);
-	$idxfile = $datdir_host.'/'.$bbs.'/'.$key.'.idx';
+     // key.idx のパスを求めて
+    $idx_host_dir = P2Util::idxDirOfHost($host);
+    $idxfile = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 
-	// 既にidxデータがあるなら読み込む
-	if (is_readable($idxfile) && ($lines = @file($idxfile))) {
-		$l = rtrim($lines[0]);
-		$data = explode('<>', $l);
-		$c = count($data);
-		if ($c < 10) {
-			while ($c < 10) {
-				$data[] = '';
-				$c++;
-			};
-		} elseif ($c > 10) {
-			$data = array_slice($data, 0, 10);
-		}
-		unset($c);
-	} else {
-		$data = array_fill(0, 10, '');
-	}
+    // 既に key.idx データがあるなら読み込む
+    if ($lines = @file($idxfile)) {
+        $l = rtrim($lines[0]);
+        $data = explode('<>', $l);
+    }
 
-	//==================================================================
-	// p2_palace.idxに書き込む
-	//==================================================================
-	$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
+    //==================================================================
+    // p2_palace.idxに書き込む
+    //==================================================================
+    $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
 
-	//================================================
-	// 読み込み
-	//================================================
+    // palace_idx ファイルがなければ生成
+    FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
 
-	// p2_palace ファイルがなければ生成
-	FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
+    // palace_idx 読み込み
+    $pallines = @file($palace_idx);
 
-	//palace_idx読み込み;
-	$pallines = @file($palace_idx);
-
-	//================================================
-	// 処理
-	//================================================
-	// 最初に重複要素を削除しておく
-	if (!empty($pallines)) {
-		$i = -1;
-		$neolines = array();
-		foreach ($pallines as $l) {
-			$i++;
-			$l = rtrim($l);
-			$lar = explode('<>', $l);
-			// 重複回避
-			if ($lar[1] == $key) {
-				$before_line_num = $i;	// 移動前の行番号をセット
-				continue;
-			// keyのないものは不正データなのでスキップ
-			} elseif (!$lar[1]) {
-				continue;
-			} else {
-				$neolines[] = $l;
-			}
-		}
-	}
-
-	// 新規データ設定
-	if ($setpal) {
-		$newdata = $data;
-		$newdata[1] = $key;
-		$newdata[10] = $host;
-		$newdata[11] = $bbs;
-		$newline = implode('<>', $newdata) . "\n";
-	}
-
-	if ($setpal == 1 or $setpal == 'top') {
-		$after_line_num = 0;	// 移動後の行番号
-
-	} elseif ($setpal == 'up') {
-		$after_line_num = $before_line_num-1;
-		if ($after_line_num < 0) { $after_line_num = 0; }
-
-	} elseif ($setpal == 'down') {
-		$after_line_num = $before_line_num+1;
-		if ($after_line_num >= sizeof($neolines)) { $after_line_num = 'bottom'; }
-
-	} elseif ($setpal == 'bottom') {
-		$after_line_num = 'bottom';
-
-	} else {
-		$after_line_num = null;
-	}
-
-	//================================================
-	//書き込む
-	//================================================
-	$fp = @fopen($palace_idx, 'wb') or die("Error: {$palace_idx} を更新できませんでした");
-	@flock($fp, LOCK_EX);
-	if ($neolines) {
-		$i = 0;
-		foreach ($neolines as $l) {
-			if ($i === $after_line_num) {
-				fputs($fp, $newline);
-			}
-			fputs($fp, $l."\n");
-			$i++;
-		}
-		if ($after_line_num === 'bottom') {
-			fputs($fp, $newline);
-		}
-		//「$after_line_num == 'bottom'」だと誤動作する。
-	} else {
-		fputs($fp, $newline);
-	}
-	@flock($fp, LOCK_UN);
-	fclose($fp);
-
-	return true;
+    $neolines = array();
+    $before_line_num = 0;
+    
+     // {{{ 最初に重複要素を削除しておく
+     
+    if (!empty($pallines)) {
+        $i = -1;
+        foreach ($pallines as $l) {
+            $i++;
+            $l = rtrim($l);
+            $lar = explode('<>', $l);
+            // 重複回避
+            if ($lar[1] == $key && $lar[11] == $bbs) {
+                $before_line_num = $i;    // 移動前の行番号をセット
+                continue;
+            // keyのないものは不正データなのでスキップ
+            } elseif (!$lar[1]) {
+                continue;
+            } else {
+                $neolines[] = $l;
+            }
+        }
+    }
+    
+    // }}}
+    
+    // 新規データ設定
+    if ($setpal) {
+        $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
+        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
+        $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setpal);
+    } else {
+        $rec_lines = $neolines;
+    }
+    
+    $cont = '';
+    if (!empty($rec_lines)) {
+        foreach ($rec_lines as $l) {
+            $cont .= $l . "\n";
+        }
+    }
+    
+    // {{{ 書き込む
+    
+    $temp_file = $palace_idx . '.tmp';
+    $write_file = strstr(PHP_OS, 'WIN') ? $palace_idx : $temp_file;
+    if (FileCtl::file_write_contents($write_file, $cont) === false) {
+        die('Error: cannot write file. ' . __FUNCTION__ . '()');
+    }
+    if (!strstr(PHP_OS, 'WIN')) {
+        if (!rename($write_file, $palace_idx)) {
+            die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+        }
+    }
+        
+    // }}}
+    
+    return true;
 }
-
 ?>

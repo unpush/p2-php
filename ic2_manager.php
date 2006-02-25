@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /*
     ImageCache2 - メンテナンス
@@ -7,12 +7,12 @@
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.php';
+require_once 'conf/conf.inc.php';
 
-authorize();
+$_login->authorize();
 
-if ($_exconf['imgCache']['*'] == 0) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_user_ex.phpの設定を変えてください。</p></body></html>');
+if (!$_conf['expack.ic2.enabled']) {
+    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
 
 // }}}
@@ -36,6 +36,7 @@ if (DB::isError($db)) {
 // テンプレートエンジン初期化
 $_flexy_options = array(
     'locale' => 'ja',
+    'charset' => 'cp932',
     'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
     'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
@@ -161,7 +162,7 @@ if (isset($_POST['action'])) {
             break;
 
         default:
-            $_info_msg_ht .= '<p>不正なクエリ: ' . htmlspecialchars($_POST['action']) . '</p>';
+            $_info_msg_ht .= '<p>不正なクエリ: ' . htmlspecialchars($_POST['action'], ENT_QUOTES) . '</p>';
 
     }
     if (isset($removed_files)) {
@@ -173,7 +174,7 @@ if (isset($_POST['action'])) {
 // {{{ 出力
 
 $flexy->setData('skin', $skin_en);
-$flexy->setData('php_self', $_SERVER['PHP_SELF']);
+$flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('info_msg', $_info_msg_ht);
 if ($db->dsn['phptype'] == 'sqlite') {
     $flexy->setData('isSQLite', TRUE);

@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 // p2 - 書き込み履歴 のための関数群
 
 require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
@@ -14,61 +11,77 @@ require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
  */
 function deleMsg($checked_hists)
 {
-	global $_conf, $p2_res_hist_dat_php;
+    global $_conf;
 
-	// 読み込んで
-	if (!$reslines = DataPhp::fileDataPhp($p2_res_hist_dat_php)) {
-		die("p2 Error: {$p2_res_hist_dat_php} を開けませんでした");
-	}
-
-	$reslines = array_map('rtrim', $reslines);
-
-	// ファイルの下に記録されているものが新しいので逆順にする
-	$reslines = array_reverse($reslines);
-
-	// チェックして整えて
-	if ($reslines) {
-		$n = 1;
-		foreach ($reslines as $ares) {
-			$rar = explode("\t", $ares);
-
-			// 番号と日付が一致するかをチェックする
-			if (checkMsgID($checked_hists, $n, $rar[2])) {
-				$rmnums[] = $n; // 削除する番号を登録
-			}
-
-			$n++;
-		}
-		$neolines = rmLine($rmnums, $reslines);
-	}
-
-	if (is_array($neolines)) {
-		// 行順を戻す
-		$neolines = array_reverse($neolines);
-
-		$cont = "";
-		if ($neolines) {
-			$cont = implode("\n", $neolines) . "\n";
-		}
-		// 書き込み処理
-		DataPhp::writeDataPhp($cont, $p2_res_hist_dat_php);
-	}
+    // 読み込んで
+    if (!$reslines = file($_conf['p2_res_hist_dat'])) {
+        die("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
+    }
+    $reslines = array_map('rtrim', $reslines);
+    
+    // ファイルの下に記録されているものが新しいので逆順にする
+    $reslines = array_reverse($reslines);
+    
+    $neolines = array();
+    
+    // チェックして整えて
+    if ($reslines) {
+        $n = 1;
+        foreach ($reslines as $ares) {
+            $rar = explode("<>", $ares);
+            
+            // 番号と日付が一致するかをチェックする
+            if (checkMsgID($checked_hists, $n, $rar[2])) {
+                $rmnums[] = $n; // 削除する番号を登録
+            }
+            
+            $n++;
+        }
+        $neolines = rmLine($rmnums, $reslines);
+    }
+    
+    if (is_array($neolines)) {
+        // 行順を戻す
+        $neolines = array_reverse($neolines);
+        
+        $cont = "";
+        if ($neolines) {
+            $cont = implode("\n", $neolines) . "\n";
+        }
+        
+        // {{{ 書き込み処理
+        
+        $temp_file = $_conf['p2_res_hist_dat'] . '.tmp';
+        $write_file = strstr(PHP_OS, 'WIN') ? $_conf['p2_res_hist_dat'] : $temp_file;
+        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+            die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
+        }
+        if (!strstr(PHP_OS, 'WIN')) {
+            if (!rename($write_file, $_conf['p2_res_hist_dat'])) {
+                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+            }
+        }
+        
+        // }}}
+    }
 }
 
 /**
  * 番号と日付が一致するかをチェックする
+ *
+ * @return boolean
  */
 function checkMsgID($checked_hists, $order, $date)
 {
-	if ($checked_hists) {
-		foreach ($checked_hists as $v) {
-			$vary = explode(",,,,", $v);	// ",,,," は外部から来る変数で、特殊なデリミタ
-			if (($vary[0] == $order) and ($vary[1] == $date)) {
-				return true;
-			}
-		}
-	}
-	return false;
+    if ($checked_hists) {
+        foreach ($checked_hists as $v) {
+            $vary = explode(",,,,", $v);    // ",,,," は外部から来る変数で、特殊なデリミタ
+            if (($vary[0] == $order) and ($vary[1] == $date)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /**
@@ -76,17 +89,17 @@ function checkMsgID($checked_hists, $order, $date)
  */
 function rmLine($order_list, $lines)
 {
-	if ($lines) {
-		$neolines = array();
-		$i = 0;
-		foreach ($lines as $l) {
-			$i++;
-			if (checkOrder($order_list, $i)) { continue; } // 削除扱い
-			$neolines[] = $l;
-		}
-		return $neolines;
-	}
-	return false;
+    if ($lines) {
+        $neolines = array();
+        $i = 0;
+        foreach ($lines as $l) {
+            $i++;
+            if (checkOrder($order_list, $i)) { continue; } // 削除扱い
+            $neolines[] = $l;
+        }
+        return $neolines;
+    }
+    return false;
 }
 
 /**
@@ -94,14 +107,14 @@ function rmLine($order_list, $lines)
  */
 function checkOrder($order_list, $order)
 {
-	if ($order_list) {
-		foreach ($order_list as $n) {
-			if ($n == $order) {
-				return true;
-			}
-		}
-	}
-	return false;
+    if ($order_list) {
+        foreach ($order_list as $n) {
+            if ($n == $order) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 ?>

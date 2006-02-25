@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     p2 -  スレッド表示 -  フッタ部分 -  携帯用 for read.php
 */
@@ -19,75 +17,84 @@ if ($_conf['filtering'] && $aThread->rescount) {
 }
 $hd['read_range'] = $read_range_on.'/'.$aThread->rescount;
 
-// プリント ============================================================
+// レス番指定移動 etc.
+$htm['goto'] = kspform($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']);
+
+// プリント============================================================
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
-        $dores_ht = "<a href=\"post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['res']}\">{$_conf['k_accesskey']['res']}.{$dores_st}</a>";
+        if (!empty($_conf['disable_res'])) {
+            $dores_ht = <<<EOP
+      | <a href="{$motothre_url}" target="_blank" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+EOP;
+        } else {
+            $dores_ht = <<<EOP
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+EOP;
+        }
     }
     if ($res1['body']) {
-        $q_ichi = $res1['body'].' | ';
+        $q_ichi = $res1['body']." | ";
     }
     echo <<<EOP
 <p>
-<a id="footer" name="footer">{$hd['read_range']}</a><br>
-{$read_navi_previous_btm}
-{$read_navi_next_btm}
-{$read_navi_latest_btm}
-{$read_footer_navi_new_btm}
-{$dores_ht}
-{$read_navi_bkmk_btm}
-{$read_navi_filter_btm}<br>
+    <a id="footer" name="footer">{$hd['read_range']}</a><br>
+    {$read_navi_previous_btm} 
+    {$read_navi_next_btm} 
+    {$read_navi_latest_btm}
+    {$read_footer_navi_new_btm} 
+    {$dores_ht}
+    {$read_navi_filter_btm}<br>
 </p>
 <p>
-{$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a>
+    {$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a>
 </p>
+{$htm['goto']}\n
 EOP;
-
     if ($diedat_msg) {
-        echo '<hr>';
+        echo "<hr>";
         echo $diedat_msg;
-        echo '<p>';
-        echo $motothre_ht;
-        echo '</p>';
+        echo "<p>";
+        echo  $motothre_ht;
+        echo "</p>";
     }
-
-    echo '<hr>', $_conf['k_to_index_ht'], '&nbsp;';
-
-    $cp_default = $_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to'];
-
-    echo kspform($cp_default);
-
-} else {
-    echo '<hr>', $_conf['k_to_index_ht'];
 }
+echo '<hr>'.$_conf['k_to_index_ht'];
 
 echo '</body></html>';
 
+// レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成
 function kspform($default = '')
 {
-    global $_conf, $_exconf;
+    global $_conf;
 
-    $numonly_at = 'maxlength="4" istyle="4" format="*N" mode="numeric"';
+    //$numonly_at = 'maxlength="4" istyle="4" format="*N" mode="numeric"';
+    $numonly_at = 'maxlength="4" istyle="4" format="4N" mode="numeric"';
 
-    $form = "<form method=\"get\" action=\"{$_SERVER['PHP_SELF']}\">" ;
+    $form = "<form method=\"get\" action=\"{$_conf['read_php']}\">";
+    $form .= $_conf['k_input_ht'];
 
-    $allowed_keys = array('host', 'bbs', 'key');
-    foreach ($allowed_keys as $k) {
-        if (isset($_REQUEST[$k])) {
-            $v = htmlspecialchars($_REQUEST[$k]);
+    $required_params = array('host', 'bbs', 'key');
+    foreach ($required_params as $k) {
+        if (!empty($_REQUEST[$k])) {
+            $v = htmlspecialchars($_REQUEST[$k], ENT_QUOTES);
             $form .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
+        } else {
+            return '';
         }
     }
     $form .= '<input type="hidden" name="offline" value="1">';
 
     $form .= '<select name="ktool_name">';
     $form .= '<option value="goto">GO</option>';
-    if ($_exconf['bookmark']['*']) {
-        $form .= '<option value="bkmk">栞</option>';
-    }
     $form .= '<option value="copy">ｺﾋﾟｰ</option>';
-    $form .= '<option value="copy_quote">引用</option>';
+    $form .= '<option value="copy_quote">&gt;ｺﾋﾟｰ</option>';
+    $form .= '<option value="res_quote">&gt;ﾚｽ</option>';
+    if ($_conf['expack.aas.enabled']) {
+        $form .= '<option value="aas">AAS</option>';
+        $form .= '<option value="aas_rotate">AAS*</option>';
+    }
     $form .= '</select>';
 
     $form .= "<input type=\"text\" size=\"3\" name=\"ktool_value\" value=\"{$default}\" {$numonly_at}>";

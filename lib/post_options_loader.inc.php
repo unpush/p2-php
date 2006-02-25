@@ -1,26 +1,76 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 // p2 - レス書き込みフォームの機能読み込み
 
 $fake_time = -10; // time を10分前に偽装
 $time = time() - 9*60*60;
 $time = $time + $fake_time * 60;
 
+$csrfid = P2Util::getCsrfId();
+
+$htm['disable_js'] = <<<EOP
+<script type="text/javascript">
+<!--
+// Thanks naoya <http://d.hatena.ne.jp/naoya/20050804/1123152230>
+
+function isNetFront() {
+  var ua = navigator.userAgent;
+  if (ua.indexOf("NetFront") != -1 || ua.indexOf("AVEFront/") != -1 || ua.indexOf("AVE-Front/") != -1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function disableSubmit(form) {
+
+  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
+  if (isNetFront()) {
+    return;
+  }
+  
+  var elements = form.elements;
+  for (var i = 0; i < elements.length; i++) {
+    if (elements[i].type == 'submit') {
+      elements[i].disabled = true;
+    }
+  }
+}
+
+function setHiddenValue(button) {
+  
+  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
+  if (isNetFront()) {
+    return;
+  }
+  
+  if (button.name) {
+    var q = document.createElement('input');
+    q.type = 'hidden';
+    q.name = button.name;
+    q.value = button.value;
+    button.form.appendChild(q);
+  }
+}
+
+//-->
+</script>\n
+EOP;
+
 // {{{ key.idxから名前とメールを読込み
+
 if ($lines = @file($key_idx)) {
     $line = explode('<>', rtrim($lines[0]));
     $hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
     $hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
 }
+
 // }}}
 
 // 前回のPOST失敗があれば呼び出し
 $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
 if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
     $last_posted = unserialize($cont_srd);
-
+    
     // まとめてサニタイズ
     $last_posted = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $last_posted);
     //$addslashesS = create_function('$str', 'return str_replace("\'", "\\\'", $str);');
@@ -41,73 +91,62 @@ $hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
 $hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
 
 
-// 表示指定
-if (!$_conf['ktai']) {
+// 参考 クラシック COLS='60' ROWS='8'
+$mobile = &Net_UserAgent_Mobile::singleton();
+// PC
+if (empty($_conf['ktai'])) {
     $name_size_at = ' size="19"';
     $mail_size_at = ' size="19"';
-    $msg_cols_at = ' cols="'.$STYLE['post_msg_cols'].'"';
+    $msg_cols_at = ' cols="' . $STYLE['post_msg_cols'] . '"';
+    $wrap = 'off';
+// willcom
+} elseif($mobile->isAirHPhone()) {
+    $msg_cols_at = ' cols="' . $STYLE['post_msg_cols'] . '"';
+    $wrap = 'soft';
+// 携帯
 } else {
-    $STYLE['post_msg_rows'] = 3;
+    $STYLE['post_msg_rows'] = 5;
+    $msg_cols_at = '';
+    $wrap = 'soft';
 }
 
 // Be.2ch
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-    $htm['be2ch'] = '<input type="submit" name="submit_beres" value="BEで書き込む">';
+    $htm['be2ch'] = '<input type="submit" name="submit_beres" value="BEで書き込む" onClick="setHiddenValue(this);">';
 }
 
 // PC用 sage checkbox
 if (!$_conf['ktai']) {
-    $on_check_sage = ' onchange="checkSage();"';
-    $htm['sage_cb'] = <<<EOP
-<input id="sage" type="checkbox" onclick="mailSage();"><label for="sage">sage</label><br>
+    $on_check_sage = 'onChange="checkSage();"';
+    $sage_cb_ht = <<<EOP
+<input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label><br>
 EOP;
 }
 
 // {{{ 2ch●書き込み
+
 $htm['maru_post'] = '';
 if (P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php'])) {
     $htm['maru_post'] = <<<EOP
-<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox"><label for="maru">●</label></span>
+<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox" value="1"><label for="maru">●</label></span>
 EOP;
-}
-// }}}
-// {{{ 新着まとめ読みからのポスト
-
-$htm['from_read_new'] = !empty($_GET['from_read_new']) ? '<input type="hidden" name="from_read_new" value="1">' : '';
-
-// }}}
-
-$csrfid = P2Util::getCsrfId();
-
-// {{{ 本文が空のときやsageてないときに送信しようとすると注意する
-
-$js = array();
-$js['onsubmit'] = '';
-
-if (!$_conf['ktai']) {
-    if ($_exconf['editor']['check_message'] || $_exconf['editor']['check_sage']) {
-        $_check_message = $_exconf['editor']['check_message'];
-        $_check_sage = $_exconf['editor']['check_sage'];
-        $js['onsubmit'] = " onsubmit=\"return validateAll({$_check_message},{$_check_sage})\"";
-    }
 }
 
 // }}}
 // {{{ソースコード補正用チェックボックス
 
-$htm['src_fix'] = '';
-
+$src_fix_ht = '';
 if (!$_conf['ktai']) {
-    if ($_exconf['editor']['srcfix'] == 1 ||
-        ($_exconf['editor']['srcfix'] == 2 && preg_match('/pc\d\.2ch\.net/', $host))
+    if ($_conf['editor_srcfix'] == 1 ||
+        ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d\.2ch\.net/', $host))
     ) {
-        $htm['src_fix'] = '<label><input type="checkbox" name="fix_source" value="1">ソースコード補正</label>';
+        $htm['src_fix'] = '<input type="checkbox" id="fix_source" name="fix_source" value="1"><label for="fix_source">ソースコード補正</label>';
     }
 }
 
 // }}}
 // {{{ 定型文・アクティブモナー
-
+/*
 $htm['options'] = '';
 $htm['options_k'] = '';
 
@@ -120,14 +159,13 @@ if (!$_conf['ktai']) {
         @include (P2EX_LIBRARY_DIR . '/post_options_k.inc.php');
     }
 }
-
+*/
 // }}}
 // {{{ 書き込みプレビュー
-
+/*
 $htm['dpreview_onoff'] = '';
 $htm['dpreview']  = '';
 $htm['dpreview2'] = '';
-$js['dp_startup'] = '';
 $js['dp_setname'] = '';
 $js['dp_setmail'] = '';
 $js['dp_setmailsage'] = '';
@@ -138,7 +176,7 @@ $dp_msg_at  = '';
 
 if (!$_conf['ktai']) {
     if ($_exconf['editor']['dpreview']) {
-        $dpreview_pos = ($_exconf['editor']['dpreview'] & 2) ? 'dpreview2' : 'dpreview';
+        $dpreview_pos = ($_exconf['editor']['dpreview'] == 2) ? 'dpreview2' : 'dpreview';
         $htm[$dpreview_pos] = <<<EOP
 <fieldset id="dpreview" style="display:none;">
 <legend>Preview:</legend>
@@ -151,11 +189,7 @@ if (!$_conf['ktai']) {
     <div id="dp_msg" class="prvw_msg"></div>
 </fieldset>
 EOP;
-        if ($_exconf['editor']['dpreview'] & 4) {
-            $js['dp_startup'] = " DPInit();document.getElementById('dpreview').style.display = 'block'";
-        } else {
-            $htm['dpreview_onoff'] = "<input type=\"button\" value=\"プレビュー\" onclick=\"DPInit();showHide('dpreview');\">";
-        }
+        $htm['dpreview_onoff'] = "<input type=\"button\" value=\"プレビュー\" onclick=\"DPInit();showHide('dpreview');\">";
         $js['dp_setname'] = 'DPSetName(this.value);';
         $js['dp_setmail'] = 'DPSetMail(this.value);';
         $js['dp_setmailsage'] = "DPSetMail(document.getElementById('mail').value);";
@@ -171,12 +205,12 @@ EOP;
         $dp_msg_at  = " onkeyup=\"{$js['dp_setmsg']}\" onchange=\"{$js['dp_setmsg']}\"";
     }
 }
-
+*/
 // }}}
-// {{{ これにレス
+// {{{ ここにレス
 
 $htm['orig_msg'] = '';
-if ((basename($_SERVER['PHP_SELF']) == 'post_form.php' || !empty($_GET['inyou'])) && !empty($_GET['resnum'])) {
+if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou'])) && !empty($_GET['resnum'])) {
     $q_resnum = $_GET['resnum'];
     $hd['MESSAGE'] = "&gt;&gt;" . $q_resnum . "\r\n";
     if (!empty($_GET['inyou'])) {
@@ -210,6 +244,19 @@ EOM;
     }
 }
 
+// }}}
+// {{{ 本文が空のときやsageてないときに送信しようとすると注意する
+/*
+$onsubmit_ht = '';
+
+if (!$_conf['ktai']) {
+    if ($_conf['expack.editor.check_message'] || $_conf['expack.editor.check_sage']) {
+        $_check_message = (int) $_conf['expack.editor.check_message'];
+        $_check_sage = (int) $_conf['expack.editor.check_sage'];
+        $onsubmit_ht = " onsubmit=\"return validateAll({$_check_message},{$_check_sage})\"";
+    }
+}
+*/
 // }}}
 
 ?>

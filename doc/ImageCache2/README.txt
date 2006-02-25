@@ -1,5 +1,4 @@
 ImageCache2
-http://moonshine.s32.xrea.com/ic2.html
 
 
 画像の取得とサムネイル作成・一覧表示などができるp2機能拡張パックの一機能です。
@@ -27,9 +26,6 @@ INSTALL.txt
 README.txt
 ・このファイル
 
-UPDATING.txt
-・バージョンアップの際に必要な手続きが書いてある
-
 TODO.txt
 ・今後の予定など
 
@@ -37,10 +33,6 @@ ic2_install.phps
 ・DBのテーブルとキャッシュ用ディレクトリを初期化するためのPHPスクリプト
 ・使いかたはINSTALL.txtに書いてある
 
-ic2_imgmover.phps
-・ImageCache2(2004/07/02版)からそれ以降のバージョンに移行するためのPHPスクリプト
-・使いかたはUPDATING.txtに書いてある
-
-ic2_ic_logconv.phps
-・p2機能拡張パックのイメージキャッシュからImageCache2に移行するためのPHPスクリプト
-・使いかたはUPDATING.txtに書いてある
+ic2_repairdb.phps
+・MySQLでメモの文字化けを修正するためのPHPスクリプト
+・使いかたは冒頭のコメントに書いてある

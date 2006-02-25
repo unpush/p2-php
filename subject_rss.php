@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /*
     p2 - 簡易RSSリーダ（記事一覧）
@@ -8,10 +8,21 @@
     mbstring.script_encoding = SJIS-win との整合性を考えるとSJISのままが無難かな？
 */
 
-require_once 'conf/conf.php';
+// {{{ p2基本設定読み込み&認証
 
-authorize(); // ユーザ認証
+require_once 'conf/conf.inc.php';
 
+$_login->authorize();
+
+// }}}
+
+if ($_conf['view_forced_by_query']) {
+    if (empty($_conf['ktai'])) {
+        output_add_rewrite_var('b', 'pc');
+    } else {
+        output_add_rewrite_var('b', 'k');
+    }
+}
 
 //============================================================
 // 変数の初期化
@@ -79,6 +90,13 @@ $reloaded_time = date('m/d G:i:s');
 
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 if ($_conf['ktai']) {
+    if (!$_conf['expack.rss.check_interval']) {
+        // キャッシュさせない
+        P2Util::header_nocache();
+    } else {
+        // 更新チェック間隔の1/3だけキャッシュさせる（端末orゲートウェイの実装依存）
+        header(sprintf('Cache-Control: max-age=%d', $_conf['expack.rss.check_interval'] * 60 / 3));
+    }
     include_once (P2EX_LIBRARY_DIR . '/rss/subject_k.inc.php');
 } else {
     include_once (P2EX_LIBRARY_DIR . '/rss/subject.inc.php');

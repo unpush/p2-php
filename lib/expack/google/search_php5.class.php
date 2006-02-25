@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 require_once 'PEAR.php';
@@ -15,7 +15,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
      * @return void
      * @access public
      */
-    function __construct()
+    public function __construct()
     {
     }
 
@@ -30,7 +30,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
      * @return boolean
      * @access public
      */
-    function init($wsdl, $key)
+    public function init($wsdl, $key)
     {
         if (!file_exists($wsdl)) {
             return PEAR::raiseError('GoogleSearch.wsdl not found.');
@@ -42,7 +42,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
         $this->setConf($wsdl, $key);
 
         try {
-            $this->soapClient = &new SoapClient($wsdl);
+            $this->soapClient = &new SoapClient($wsdl, $this->options);
         } catch (SoapFault $e) {
             $errfmt = 'SOAP Fault: (faultcode: %s; faultstring: %s;)';
             $errmsg = sprintf($errfmt, $e->faultcode, $e->faulstring);
@@ -64,7 +64,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
      * @return object ŒŸõŒ‹‰Ê
      * @access public
      */
-    function &doSearch($q, $maxResults = 10, $start = 0)
+    public function doSearch($q, $maxResults = 10, $start = 0)
     {
         $params = $this->prepareParams($q, $maxResults, $start);
         try {

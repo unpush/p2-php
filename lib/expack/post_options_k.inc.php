@@ -1,5 +1,5 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
 // ’èŒ^•¶‚Ì‰Šú‰»‚Æ“Ç‚Ýž‚Ý
@@ -7,10 +7,10 @@ $CONSTANT = array();
 $CONSTAREA = '';
 @include 'conf/conf_constant.php';
 
-if (basename($_SERVER['PHP_SELF']) == 'post_form.php') {
-    $CONST_TARGET = $_SERVER['PHP_SELF'];
+if (basename($_SERVER['SCRIPT_NAME']) == 'post_form.php') {
+    $CONST_TARGET = $_SERVER['SCRIPT_NAME'];
 } else {
-    $CONST_TARGET = dirname($_SERVER['PHP_SELF']) . '/post_form.php';
+    $CONST_TARGET = dirname($_SERVER['SCRIPT_NAME']) . '/post_form.php';
 }
 
 // ƒtƒH[ƒ€‚Ì¶¬

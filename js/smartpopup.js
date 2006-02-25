@@ -1,7 +1,7 @@
-/* p2 - スマートポップアップメニューJavaScriptファイル */
-
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0: */
+/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
 /* mi: charset=Shift_JIS */
+
+/* p2 - スマートポップアップメニューJavaScriptファイル */
 
 var spmResNum     = new Number(); // ポップアップで参照するレス番号
 var spmBlockID    = new String(); // フォント変更で参照するID
@@ -9,25 +9,14 @@ var spmSelected   = new String(); // 選択文字列を一時的に保存
 var spmFlexTarget = new String(); // フィルタリング結果を開くウインドウ
 
 // makeSPM -- スマートポップアップメニューを生成する
-function makeSPM(aThread, isClickOnOff)
+function makeSPM(aThread)
 {
 	var thread_id = aThread.objName;
 	var a_tag  = "<a href=\"javascript:void(spmOpenSubWin(" + thread_id + ",";
-	var numbox = "";
-	if (document.getElementById || document.all) {
-		numbox = "<span id=\"" + thread_id + "_numbox\"></span>";
-	}
 
 	// ポップアップメニューを生成
 
 	document.writeln("<div id=\"" + thread_id + "_spm\" class=\"spm\"" + makeOnPopUp(thread_id+"_spm", false) + ">");
-	// ヘッダ
-	if (aThread.spmHeader != "") {
-		if (isClickOnOff) {
-			document.writeln("<a href=\"javascript:void(0);\" onclick=\"closeSPM(" + thread_id + ");\" class=\"closebox\">×</a>");
-		}
-		document.write("<p>" + aThread.spmHeader.replace("resnum", numbox) + "</p>");
-	}
 	// コピペ用フォーム
 	document.writeln("<a href=\"javascript:void(spmInvite(" + thread_id + "));\">このレスをコピペ</a>");
 	// これにレス
@@ -38,56 +27,36 @@ function makeSPM(aThread, isClickOnOff)
 		document.writeln(a_tag + "'post_form.php','inyou=2'));\">これにレス</a>");
 		document.writeln(a_tag + "'post_form.php','inyou=3'));\">引用してレス</a>");
 	}
-	// しおり
-	if (aThread.spmOption[2] == 1) {
-		document.writeln(a_tag + "'info_sp.php','mode=readhere'));\">ここまで読んだ</a>");
-	}
-	// あぼーんワード
-	if (aThread.spmOption[3] == 1) {
-		document.writeln(a_tag + "'info_sp.php','mode=aborn_res'));\">あぼーんする</a>");
+	// あぼーんワード・NGワード
+	if (aThread.spmOption[2] == 1 || aThread.spmOption[2] == 2) {
+		//document.writeln(a_tag + "'info_sp.php','mode=aborn_res'));\">あぼーんする</a>");
 		document.writeln("<a href=\"javascript:void(0);\"" + makeOnPopUp(thread_id+"_ab", true) + ">あぼーんワード</a>");
-	}
-	// NGワード
-	if (aThread.spmOption[4] == 1) {
 		document.writeln("<a href=\"javascript:void(0);\"" + makeOnPopUp(thread_id+"_ng", true) + ">NGワード</a>");
 	}
-	// アクティブモナー
-	if (aThread.spmOption[5] == 1) {
-		document.writeln("<a href=\"javascript:void(0);\"" + makeOnPopUp(thread_id+"_ds", true) + ">フォント設定</a>");
-	} else if (aThread.spmOption[5] == 2) {
-		makeDynamicStyleSPM(thread_id+"_ds", false);
-	}
 	// フィルタリング
-	if (aThread.spmOption[6] == 1) {
+	if (aThread.spmOption[3] == 1) {
 		document.writeln("<a href=\"javascript:void(0);\"" + makeOnPopUp(thread_id+"_fl", true) + ">フィルタリング</a>");
 	}
-	// 点取り占い
-	if (aThread.spmOption[7] == 1) {
-		document.writeln(a_tag + "'tentori.php',''));\">おみくじを引く</a>");
+	// アクティブモナー
+	if (aThread.spmOption[4] == 1) {
+		document.writeln("<a href=\"javascript:void(activeMona(spmBlockID));\">AAフォント表示</a>");
 	}
-	// クローズメニュー
-	if (aThread.spmHeader == "" && isClickOnOff) {
-		document.writeln("<a href=\"javascript:void(0);\" onclick=\"closeSPM(" + thread_id + ");\" class=\"closemenu\">閉じる</a>");
+	// AAS
+	if (aThread.spmOption[5] == 1) {
+		document.writeln(a_tag + "'aas.php',''));\">AAS表示</a>");
 	}
 	// ブロックを閉じる
 	document.writeln("</div>");
 
 	// /サブメニューを生成
 
-	// あぼーんワード・サブメニュー
-	if (aThread.spmOption[3] == 1) {
-		makeAbornSPM(thread_id+"_ab", a_tag);
-	}
-	// NGワード・サブメニュー
-	if (aThread.spmOption[4] == 1) {
-		makeAbornSPM(thread_id+"_ng", a_tag);
-	}
-	// フォント設定・サブメニュー
-	if (aThread.spmOption[5] == 1) {
-		makeDynamicStyleSPM(thread_id+"_ds", true);
+	// あぼーんワード・NGワード・サブメニュー
+	if (aThread.spmOption[2] == 1 || aThread.spmOption[2] == 2) {
+		makeAbornSPM(thread_id+"_ab", a_tag, "aborn");
+		makeAbornSPM(thread_id+"_ng", a_tag, "ng");
 	}
 	// フィルタリング・サブメニュー
-	if (aThread.spmOption[6] == 1) {
+	if (aThread.spmOption[3] == 1) {
 		makeFilterSPM(thread_id+"_fl", thread_id);
 	}
 
@@ -112,41 +81,14 @@ function makeOnPopUp(popup_id, isSubMenu)
 
 
 // makeAbornSPM -- あぼーん/NGサブメニューを生成する
-function makeAbornSPM(menu_id, a_tag)
+function makeAbornSPM(menu_id, a_tag, submenu_mode)
 {
-	var mode = "aborn";
-	if (menu_id.substr(menu_id.lastIndexOf("_"), 3) == "_ng") {
-		mode = "ng";
-	}
 	document.writeln("<div id=\"" + menu_id + "\" class=\"spm\"" + makeOnPopUp(menu_id, true) + ">");
-	document.writeln(a_tag + "'info_sp.php','mode=" + mode + "_name'));\">名前</a>");
-	document.writeln(a_tag + "'info_sp.php','mode=" + mode + "_mail'));\">メール</a>");
-	document.writeln(a_tag + "'info_sp.php','mode=" + mode + "_msg'));\">本文</a>");
-	document.writeln(a_tag + "'info_sp.php','mode=" + mode + "_id'));\">ID</a>");
+	document.writeln(a_tag + "'info_sp.php','mode=" + submenu_mode + "_name'));\">名前</a>");
+	document.writeln(a_tag + "'info_sp.php','mode=" + submenu_mode + "_mail'));\">メール</a>");
+	document.writeln(a_tag + "'info_sp.php','mode=" + submenu_mode + "_msg'));\">本文</a>");
+	document.writeln(a_tag + "'info_sp.php','mode=" + submenu_mode + "_id'));\">ID</a>");
 	document.writeln("</div>");
-}
-
-
-// makeDynamicStyleSPM -- フォント設定サブメニューを生成する
-function makeDynamicStyleSPM(menu_id, isSubMenu)
-{
-	var spmActiveMona  = "<div class=\"spmMona\">　（";
-		spmActiveMona += "<a href=\"javascript:void(spmDynamicStyle('12px'));\">´</a>";
-		spmActiveMona += "<a href=\"javascript:void(spmDynamicStyle('14px'));\">∀</a>";
-		spmActiveMona += "<a href=\"javascript:void(spmDynamicStyle('16px'));\">｀</a>";
-		spmActiveMona += "）</div>";
-	if (isSubMenu) {
-		document.writeln("<div id=\"" + menu_id + "\" class=\"spm\"" + makeOnPopUp(menu_id, true) + ">");
-		document.writeln(spmActiveMona);
-		document.writeln("<a href=\"javascript:void(spmDynamicStyle('normal'));\">標準フォント</a>");
-		document.writeln("<a href=\"javascript:void(spmDynamicStyle('monospace'));\">等幅フォント</a>");
-		document.writeln("<a href=\"javascript:void(spmDynamicStyle('larger'));\">大きく</a>");
-		document.writeln("<a href=\"javascript:void(spmDynamicStyle('smaller'));\">小さく</a>");
-		document.writeln("<a href=\"javascript:void(spmDynamicStyle('rewind'));\">元に戻す</a>");
-		document.writeln("</div>");
-	} else {
-		document.writeln(spmActiveMona);
-	}
 }
 
 
@@ -171,6 +113,9 @@ function makeFilterSPM(menu_id, thread_id)
 function showSPM(aThread, resnum, resid, evt)
 {
 	var evt = (evt) ? evt : ((window.event) ? event : null);
+	if (spmResNum != resnum || spmBlockID != resid) {
+		closeSPM(aThread);
+	}
 	spmResNum  = resnum;
 	spmBlockID = resid;
 	if (window.getSelection) {
@@ -178,11 +123,6 @@ function showSPM(aThread, resnum, resid, evt)
 	} else if (document.selection) {
 		spmSelected = document.selection.createRange().text;
 	}
-	var numbox;
-	if (numbox = document.getElementById(aThread.objName + "_numbox")) {
-		numbox.innerHTML = resnum;
-	}
-	closeSPM(aThread);
 	showResPopUp(aThread.objName + "_spm" ,evt);
 	return false;
 }
@@ -215,8 +155,8 @@ function spmOpenSubWin(aThread, inUrl, option)
 		inWidth  = 480;
 		inHeight = 240;
 		boolS = 0;
-		if (aThread.spmOption[0] == 0) {
-			popup = 2; // しおり,あぼーん/NGワード登録の確認をしないとき
+		if (aThread.spmOption[2] == 1) {
+			popup = 2; // あぼーん/NGワード登録の確認をしないとき
 		}
 		if (option.indexOf("_msg") != -1 && spmSelected != '') {
 			option += "&selected_string=" + encodeURIComponent(spmSelected);
@@ -225,7 +165,7 @@ function spmOpenSubWin(aThread, inUrl, option)
 		if (aThread.spmOption[1] == 2) {
 			// inHeight = 450;
 		}
-		if (read_new > 0) {
+		if (location.href.indexOf("/read_new.php?") != -1) {
 			if (option == "") {
 				option = "from_read_new=1";
 			} else {
@@ -236,6 +176,9 @@ function spmOpenSubWin(aThread, inUrl, option)
 		inWidth  = 450;
 		inHeight = 150;
 		popup = 2;
+	} else if (inUrl == "aas.php") {
+		inWidth  = (aas_popup_width) ? aas_popup_width : 250;
+		inHeight = (aas_popup_height) ? aas_popup_height : 330;
 	}
 	inUrl += "?host=" + aThread.host + "&bbs=" + aThread.bbs + "&key=" + aThread.key;
 	inUrl += "&rc=" + aThread.rc + "&ttitle_en=" + aThread.ttitle_en;
@@ -254,7 +197,7 @@ function spmOpenFilter(aThread, field, match)
 	var inUrl = "read_filter.php?bbs=" + aThread.bbs + "&key=" + aThread.key + "&host=" + aThread.host;
 	inUrl += "&rc=" + aThread.rc + "&ttitle_en=" + aThread.ttitle_en + "&resnum=" + spmResNum;
 	inUrl += "&ls=all&field=" + field + "&method=just&match=" + match + "&offline=1";
-	
+
 	switch (spmFlexTarget) {
 		case "_self":
 			location.href = inUrl;
@@ -275,79 +218,10 @@ function spmOpenFilter(aThread, field, match)
 				window.open(inUrl, spmFlexTarget, "")
 			}
 	}
-	
+
 	return true;
 }
 
-// spmDynamicStyle -- 対象オブジェクトを設定し、書式を変える
-function spmDynamicStyle(mode)
-{
-	var dsTarget     = document.getElementById(spmBlockID);
-	var dsFontSize   = dsTarget.style.fontSize;
-	var isAutoMona   = false;
-	if (dsTarget.className == "AutoMona") {
-		isAutoMona   = true;
-	}
-	var isPopUp      = false;
-	if (spmBlockID.charAt(0) == "q") {
-		isPopUp      = true;
-	}
-	// 再設定
-	if (dsFontSize.length   < 1) {
-		if (isAutoMona) {
-			dsFontSize = "14px";
-		} else if (isPopUp) {
-			dsFontSize = am_respop_fontSize;
-		} else {
-			dsFontSize = am_read_fontSize;
-		}
-	}
-	// 分岐
-	switch (mode) {
-		// アクティブモナー
-		case "16px":
-		case "14px":
-		case "12px":
-			activeMona(spmBlockID, mode);
-			return true;
-		// 元のフォントサイズに戻す
-		case "rewind":
-			if (isQuoteBlock) {
-				dsTarget.style.fontSize = am_respop_fontSize;
-			} else {
-				dsTarget.style.fontSize = am_read_fontSize;
-			}
-			// 引き続き標準フォントにする
-		// 標準フォントにする
-		case "normal":
-			if (spmBlockID.charAt(0) == "q") {
-				dsTarget.className = "NoMonaQ";
-			} else {
-				dsTarget.className = "NoMona";
-			}
-			return true;
-		// 等幅フォントにする
-		case "monospace":
-			dsTarget.className = "spmMonoSpace";
-			return true;
-		// フォントサイズを変える
-		case "larger":
-		case "smaller":
-			var newFontSize  = new Number;
-			var curFontSize  = new Number(dsFontSize.match(/^\d+/));
-			var FontSizeUnit = new String(dsFontSize.match(/\D+$/));
-			if (mode == "larger") {
-				newFontSize = curFontSize * 1.25;
-			} else {
-				newFontSize = curFontSize * 0.8;
-			}
-			dsTarget.style.fontSize   = newFontSize.toString() + FontSizeUnit;
-			return true;
-		// ...
-		default:
-			return false;
-	}
-}
 
 // spmInvite -- コピペ用にスレ情報をポップアップする (for SPM)
 function spmInvite(aThread)

@@ -1,4 +1,4 @@
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=0: */
+/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
 /* mi: charset=Shift_JIS */
 
 // コピペ用にスレ情報をポップアップする
