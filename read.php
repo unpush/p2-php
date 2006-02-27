@@ -133,7 +133,7 @@ if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 // idxƒtƒ@ƒCƒ‹‚ª‚ ‚ê‚Î“Ç‚İ‚Ş
 if (is_readable($aThread->keyidx)) {
     $lines = @file($aThread->keyidx);
-    $data = explode('<>', rtrim($lines[0]));
+    $idx_data = explode('<>', rtrim($lines[0]));
 }
 $aThread->getThreadInfoFromIdx();
 
@@ -319,13 +319,13 @@ EOP;
 //===========================================================
 if ($aThread->rescount) {
 
-    $aThread->readnum = min($aThread->rescount, max(0, $data[5], $aThread->resrange['to'])); 
+    $aThread->readnum = min($aThread->rescount, max(0, $idx_data[5], $aThread->resrange['to'])); 
     
     $newline = $aThread->readnum + 1; // $newline‚Í”p~—\’è‚¾‚ªA‹ŒŒİŠ·—p‚É”O‚Ì‚½‚ß
 
-    $sar = array($aThread->ttitle, $aThread->key, $data[2], $aThread->rescount, '',
-                $aThread->readnum, $data[6], $data[7], $data[8], $newline,
-                $data[10], $data[11], $aThread->datochiok);
+    $sar = array($aThread->ttitle, $aThread->key, $idx_data[2], $aThread->rescount, '',
+                $aThread->readnum, $idx_data[6], $idx_data[7], $idx_data[8], $newline,
+                $idx_data[10], $idx_data[11], $aThread->datochiok);
     P2Util::recKeyIdx($aThread->keyidx, $sar); // key.idx‚É‹L˜^
 }
 
@@ -333,7 +333,7 @@ if ($aThread->rescount) {
 // —š—ğ‚ğ‹L˜^
 //===========================================================
 if ($aThread->rescount) {
-    $newdata = "{$aThread->ttitle}<>{$aThread->key}<>$data[2]<><><>{$aThread->readnum}<>$data[6]<>$data[7]<>$data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
+    $newdata = "{$aThread->ttitle}<>{$aThread->key}<>$idx_data[2]<><><>{$aThread->readnum}<>$idx_data[6]<>$idx_data[7]<>$idx_data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
     recRecent($newdata);
 }
 

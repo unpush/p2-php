@@ -165,5 +165,42 @@ if (!$_conf['ktai']) {
 
 // }}}
 */
+// {{{ これにレス
 
+$htm['orig_msg'] = '';
+if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou'])) && !empty($_GET['resnum'])) {
+    $q_resnum = $_GET['resnum'];
+    $hd['MESSAGE'] = "&gt;&gt;" . $q_resnum . "\r\n";
+    if (!empty($_GET['inyou'])) {
+        require_once (P2_LIBRARY_DIR . '/thread.class.php');
+        require_once (P2_LIBRARY_DIR . '/threadread.class.php');
+        $aThread = &new ThreadRead;
+        $aThread->setThreadPathInfo($host, $bbs, $key);
+        $aThread->readDat($aThread->keydat);
+        $q_resar = $aThread->explodeDatLine($aThread->datlines[$q_resnum-1]);
+        $q_resar = array_map('trim', $q_resar);
+        $q_resar[3] = strip_tags($q_resar[3], '<br>');
+        if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
+            $hd['MESSAGE'] .= "&gt;";
+            $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;", $q_resar[3]);
+            $hd['MESSAGE'] .= "\r\n";
+        }
+        if ($_GET['inyou'] == 2 || $_GET['inyou'] == 3) {
+            $htm['orig_msg'] = <<<EOM
+<fieldset id="original_msg">
+<legend>Original Message:</legend>
+    <div>
+        <span class="prvw_resnum">{$q_resnum}</span>
+        ：<b class="prvw_name">{$q_resar[0]}</b>
+        ：<span class="prvw_mail">{$q_resar[1]}</span>
+        ：<span class="prvw_dateid">{$q_resar[2]}</span>
+    </div>
+    <div class="prvw_msg">{$q_resar[3]}</div>
+</fieldset>
+EOM;
+        }
+    }
+}
+
+// }}}
 ?>

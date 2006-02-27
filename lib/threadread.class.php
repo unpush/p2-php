@@ -240,7 +240,9 @@ class ThreadRead extends Thread{
                     
                     if ($code == "200" || $code == "206") { // Partial Content
                         ;
+                        
                     } elseif ($code == "302") { // Found
+                    
                         // ホストの移転を追跡
                         include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
                         $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
@@ -254,16 +256,19 @@ class ThreadRead extends Thread{
                             $this->downloadDat2chNotFound();
                             return false;
                         }
+                        
                     } elseif ($code == "304") { // Not Modified
                         fclose($fp);
                         $this->isonline = true;
                         return "304 Not Modified";
+                        
                     } elseif ($code == "416") { // Requested Range Not Satisfiable                
                         //echo "あぼーん検出";
                         fclose($fp);
                         unset($this->onbytes);
                         unset($this->modified);
                         return $this->downloadDat2ch(0); // あぼーん検出。全部取り直し。
+                        
                     } else {
                         fclose($fp);
                         $this->downloadDat2chNotFound();
@@ -730,8 +735,9 @@ class ThreadRead extends Thread{
         global $_conf, $_info_msg_ht;
         
         // ホスト移転検出で変更したホストを元に戻す
-        if ($this->old_host) {
+        if (!empty($this->old_host)) {
             $this->host = $this->old_host;
+            $this->old_host = null;
         }
         
         $read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/";
@@ -822,7 +828,7 @@ class ThreadRead extends Thread{
         // 原因が分からない場合でも、とりあえず過去ログ取り込みのリンクを維持している。と思う。あまり覚えていない 2005/2/27 aki
         } elseif ($_GET['kakolog']) {
             $dat_response_status = "";
-            $kako_html_url = urldecode($_GET['kakolog']).".html";
+            $kako_html_url = urldecode($_GET['kakolog']) . ".html";
             $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
             $dat_response_msg = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
         

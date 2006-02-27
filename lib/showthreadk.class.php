@@ -2,9 +2,9 @@
 /*
     p2 - 携帯用でスレッドを表示する クラス
 */
-
-
 class ShowThreadK extends ShowThread{
+    
+    var $BBS_NONAME_NAME = '';
     
     /**
      * コンストラクタ
@@ -26,6 +26,13 @@ class ShowThreadK extends ShowThread{
             $this->url_handlers[] = array('this' => 'plugin_viewImage');
         }
         $this->url_handlers[] = array('this' => 'plugin_linkURL');
+        
+        if (empty($_conf['k_bbs_noname_name'])) {
+            require_once P2_LIBRARY_DIR . '/SettingTxt.php';
+            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
+            $st->setSettingArray();
+            !empty($st->setting_array['BBS_NONAME_NAME']) and $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+        }
     }
     
     /**
@@ -86,7 +93,12 @@ class ShowThreadK extends ShowThread{
         $date_id = $resar[2];
         $msg = $resar[3];
 
+        if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
+            $name = '';
+        }
+        
         // {{{ フィルタリング
+        
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
                 return '';
@@ -98,6 +110,7 @@ class ShowThreadK extends ShowThread{
                 return '';
             }
         }
+        
         // }}}
         
         
@@ -223,10 +236,10 @@ EOP;
         } else {
             $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$i}]";
         }
-        $tores .= $name.":"; // 名前
+        $tores .= $name . ":"; // 名前
         // メール
         if ($mail) {
-            $tores .= $mail.": ";
+            $tores .= $mail . ": ";
         }
         
         // {{ IDフィルタ
@@ -240,7 +253,7 @@ EOP;
         }
         // }}}
         
-        $tores .= $date_id."<br>\n"; // 日付とID
+        $tores .= $date_id . "<br>\n"; // 日付とID
         $tores .= $rpop; // レスポップアップ用引用
         $tores .= "{$msg}</div><hr>\n"; // 内容
         
@@ -310,7 +323,7 @@ EOP;
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
         // 大きさ制限
-        if (!$_GET['k_continue'] && strlen($msg) > $_conf['ktai_res_size']) {
+        if (empty($_GET['k_continue']) && strlen($msg) > $_conf['ktai_res_size']) {
             // <br>以外のタグを除去し、長さを切り詰める
             $msg = strip_tags($msg, '<br>');
             $msg = mb_strcut($msg, 0, $_conf['ktai_ryaku_size']);
@@ -544,6 +557,7 @@ EOP;
             $idflag = $s[2];
         }
         */
+        
         $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
         
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
@@ -664,7 +678,7 @@ EOP;
     function plugin_viewImage($url, $purl, $str)
     {
         global $_conf;
-
+        
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
             $picto_url = 'http://pic.to/'.$purl['host'].$purl['path'];
             $picto_tag = '<a href="'.$picto_url.'">(ﾋﾟ)</a> ';

@@ -123,8 +123,7 @@ function printLoginFirst(&$_login)
     
     //if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
     if ($_conf['use_session'] && $mobile->isDoCoMo()) {
-        $docomo_utn_ht = '<p><a href="' . $myname //. '?user=' . $_login->user_u 
-            . '" utn>DoCoMo固有端末認証</a></p>';
+        $docomo_utn_ht = '<p><a href="' . $myname . '?user=' . htmlspecialchars($_login->user_u, ENT_QUOTES) . '" utn>DoCoMo固有端末認証</a></p>';
     }
 
     // DoCoMoならpasswordにしない

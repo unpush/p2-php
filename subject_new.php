@@ -14,7 +14,7 @@ require_once (P2_LIBRARY_DIR . '/thread.class.php');
 require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 
 $shinchaku_num = 0;
-if ($aThreadList) {
+if (!empty($aThreadList)) {
     unset($aThreadList);
 }
 

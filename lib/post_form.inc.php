@@ -13,6 +13,7 @@ if (!empty($_conf['ktai'])) {
 $htm['post_form'] = <<<EOP
 {$htm['disable_js']}
 {$htm['resform_ttitle']}
+{$htm['orig_msg']}
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}" onsubmit="disableSubmit(this)">
     <input type="hidden" name="detect_hint" value="ž">
     {$htm['subject']}

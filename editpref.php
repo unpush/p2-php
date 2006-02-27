@@ -168,7 +168,6 @@ EOP;
 <fieldset>
 <legend>その他</legend>
 EOP;
-    printEditFileForm("conf/conf_user.inc.php", 'ユーザ設定');
     printEditFileForm("conf/conf_user_style.inc.php", 'デザイン設定');
     printEditFileForm("conf/conf.inc.php", '基本設定');
     echo <<<EOP
