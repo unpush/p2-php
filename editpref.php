@@ -152,12 +152,12 @@ echo '</div>';
 
 // PC用表示
 if (empty($_conf['ktai'])) {
-    
+
     echo "<table id=\"editpref\">\n";
-    
+
     // {{{ PC - NGワード編集
     echo "<tr><td>\n\n";
-    
+
     echo <<<EOP
 <fieldset>
 <legend><a href="http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
@@ -197,12 +197,11 @@ EOP;
     //echo "<td>\n\n";
     /*
     php は editfile しない
-    
+
     echo <<<EOP
 <fieldset>
 <legend>その他</legend>
 EOP;
-    printEditFileForm("conf/conf_user.inc.php", 'ユーザ設定');
     printEditFileForm("conf/conf_user_style.inc.php", 'デザイン設定');
     printEditFileForm("conf/conf.inc.php", '基本設定');
     echo <<<EOP
@@ -279,7 +278,7 @@ EOP;
     }
 
     // }}}
-    
+
     echo "</table>\n";
 }
 
@@ -310,7 +309,7 @@ EOP;
             $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
         }
     }
-    
+
     if ($exist_sync_flag) {
         echo $htm['sync'];
     } else {
@@ -382,7 +381,7 @@ echo '</body></html>';
 function printEditFileForm($path_value, $submit_value)
 {
     global $_conf;
-    
+
     if ((file_exists($path_value) && is_writable($path_value)) ||
         (!file_exists($path_value) && is_writable(dirname($path_value)))
     ) {
@@ -392,10 +391,10 @@ function printEditFileForm($path_value, $submit_value)
         $onsubmit = ' onsubmit="return false;"';
         $disabled = ' disabled';
     }
-    
+
     $rows = 36; // 18
     $cols = 92; // 90
-    
+
     if (preg_match('/^p2_(aborn|ng)_(name|mail|id|msg)\.txt$/', basename($path_value))) {
         $edit_php = 'edit_aborn_word.php';
         $target = '_self';
@@ -403,7 +402,7 @@ function printEditFileForm($path_value, $submit_value)
         $edit_php = 'editfile.php';
         $target = 'editfile';
     }
-    
+
     $ht = <<<EOFORM
 <form action="{$edit_php}" method="GET" target="{$target}" class="inline-form"{$onsubmit}>
     {$_conf['k_input_ht']}
@@ -427,7 +426,7 @@ EOFORM;
 function getSyncFavoritesFormHt($path_value, $submit_value)
 {
     global $_conf;
-    
+
     $ht = <<<EOFORM
 <form action="editpref.php" method="POST" target="_self" class="inline-form">
     {$_conf['k_input_ht']}

@@ -4,7 +4,7 @@
 
 // p2 - “o˜^‚µ‚½RSS‚ğƒƒjƒ…[‚É•\¦
 
-require_once (P2EX_LIBRARY_DIR . '/rss/common.inc.php');
+require_once P2EX_LIBRARY_DIR . '/rss/common.inc.php';
 
 if ($_conf['ktai']) {
     print_rss_list_k();

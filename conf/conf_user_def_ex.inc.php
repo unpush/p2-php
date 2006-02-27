@@ -1,7 +1,7 @@
 <?php
 /*
     rep2expack - ユーザ設定 デフォルト
-    
+
     このファイルはデフォルト値の設定なので、特に変更する必要はありません
 */
 
@@ -61,7 +61,7 @@ $conf_user_def['expack.spm.kokores'] = 1; // (1)
 $conf_user_rad['expack.spm.kokores'] = array('1' => '表示', '0' => '非表示');
 
 // ここにレスで開くフォームに元レスの内容を表示する（off:0, on:1）
-$conf_user_def['expack.spm.kokores_orig'] = 1;	// (1)
+$conf_user_def['expack.spm.kokores_orig'] = 1; // (1)
 $conf_user_rad['expack.spm.kokores_orig'] = array('1' => 'する', '0' => 'しない');
 
 // あぼーんワード・NGワード登録（off:0, on:1）
@@ -69,7 +69,7 @@ $conf_user_def['expack.spm.ngaborn'] = 1; // (1)
 $conf_user_rad['expack.spm.ngaborn'] = array('1' => '表示', '0' => '非表示');
 
 // あぼーんワード・NGワード登録時に確認する（off:0, on:1）
-$conf_user_def['expack.spm.ngaborn_confirm'] = 1;	// (1)
+$conf_user_def['expack.spm.ngaborn_confirm'] = 1; // (1)
 $conf_user_rad['expack.spm.ngaborn_confirm'] = array('1' => 'する', '0' => 'しない');
 
 // フィルタリング（off:0, on:1）

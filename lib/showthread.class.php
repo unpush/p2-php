@@ -5,29 +5,29 @@
 class ShowThread{
 
     var $thread; // スレッドオブジェクト
-    
+
     var $str_to_link_regex; // リンクすべき文字列の正規表現
-    
+
     var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列
-    
+
     var $ngaborn_frequent; // 頻出IDをあぼーんする
-    
+
     var $aborn_nums; // あぼーんレス番号を格納する配列
     var $ng_nums; // NGレス番号を格納する配列
-    
+
     var $activeMona; // アクティブモナー・オブジェクト
     var $am_enabled = false; // アクティブモナーが有効か否か
-    
+
     /**
      * コンストラクタ
      */
     function ShowThread(&$aThread)
     {
         global $_conf;
-        
+
         // スレッドオブジェクトを登録
         $this->thread = &$aThread;
-        
+
         $this->str_to_link_regex = '{'
             . '(?P<link>(<[Aa] .+?>)(.*?)(</[Aa]>))' // リンク（PCREの特性上、必ずこのパターンを最初に試行する）
             . '|'
@@ -53,9 +53,9 @@ class ShowThread{
             .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
             . ')'
             . '}';
-        
+
         $this->url_handlers = array();
-        
+
         $this->ngaborn_frequent = 0;
         if ($_conf['ngaborn_frequent']) {
             if ($_conf['ngaborn_frequent_dayres'] == 0) {
@@ -64,11 +64,11 @@ class ShowThread{
                 $this->ngaborn_frequent = $_conf['ngaborn_frequent'];
             }
         }
-        
+
         $this->aborn_nums = array();
         $this->ng_nums = array();
     }
-    
+
     /**
      * DatをHTML変換して表示する
      */
@@ -76,7 +76,7 @@ class ShowThread{
     {
         return '';
     }
-    
+
     /**
      * DatをHTML変換したものを取得する
      */
@@ -86,7 +86,7 @@ class ShowThread{
         $this->datToHtml();
         $html = ob_get_contents();
         ob_end_clean();
-        
+
         return $html;
     }
 
@@ -96,20 +96,20 @@ class ShowThread{
     function replaceBeId($date_id, $i)
     {
         global $_conf;
-        
+
         $beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/test/read.cgi/{$this->thread->bbs}/{$this->thread->key}/{$i}\"{$_conf['ext_win_target_at']}>Lv.\$2</a>";
-        
+
         //<BE:23457986:1>
         $be_match = '|<BE:(\d+):(\d+)>|i';
         if (preg_match($be_match, $date_id)) {
             $date_id = preg_replace($be_match, $beid_replace, $date_id);
-        
+
         } else {
-        
+
             $beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/test/read.cgi/{$this->thread->bbs}/{$this->thread->key}/{$i}\"{$_conf['ext_win_target_at']}>?\$2</a>";
             $date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
         }
-        
+
         return $date_id;
     }
 
@@ -120,17 +120,17 @@ class ShowThread{
     function ngAbornCheck($code, $resfield, $ic = FALSE)
     {
         global $ngaborns;
-        
+
         $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
-        
+
         $method = $ic ? 'stristr' : 'strstr';
-        
+
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
             foreach ($ngaborns[$code]['data'] as $k => $v) {
                 if (strlen($v['word']) == 0) {
                     continue;
                 }
-                
+
                 /*
                 if ($method($resfield, $v['word'])) {
                     $this->ngAbornUpdate($code, $k);
@@ -140,7 +140,7 @@ class ShowThread{
                     continue;
                 }
                 */
-                
+
                 // <関数:オプション>パターン 形式の行は正規表現として扱う
                 // バイナリセーフでない（日本語でエラーが出ることがある）のでereg()系は使わない
                 if (preg_match('/^<(mb_ereg|preg_match|regex)(:[imsxeADSUXu]+)?>(.+)$/', $v['word'], $re)) {
@@ -200,9 +200,9 @@ class ShowThread{
     function abornResCheck($host, $bbs, $key, $resnum)
     {
         global $ngaborns;
-        
+
         $target = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
-        
+
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns['aborn_res']['data'])) {
             foreach ($ngaborns['aborn_res']['data'] as $k => $v) {
                 if ($ngaborns['aborn_res']['data'][$k]['word'] == $target) {
@@ -213,7 +213,7 @@ class ShowThread{
         }
         return false;
     }
-    
+
     /**
      * NG/あぼ～ん日時と回数を更新
      */
@@ -249,7 +249,7 @@ class ShowThread{
     {
         ;
     }
-    
+
     /**
      * レスフィルタリングのターゲットを得る
      */
@@ -275,7 +275,7 @@ class ShowThread{
         }
 
         $target = @strip_tags($target, '<>');
-        
+
         return $target;
     }
 
@@ -286,9 +286,9 @@ class ShowThread{
     {
         global $_conf;
         global $filter_hits, $filter_range;
-        
+
         $failed = ($GLOBALS['res_filter']['match'] == 'off') ? TRUE : FALSE;
-        
+
         if ($GLOBALS['res_filter']['method'] == 'and') {
             $words_fm_hit = 0;
             foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
@@ -310,13 +310,13 @@ class ShowThread{
         }
 
         $GLOBALS['filter_hits']++;
-        
+
         if ($_conf['filtering'] && !empty($filter_range) &&
             ($filter_hits < $filter_range['start'] || $filter_hits > $filter_range['to'])
         ) {
             return false;
         }
-        
+
         $GLOBALS['last_hit_resnum'] = $resnum;
 
         if (empty($_conf['ktai'])) {
@@ -328,7 +328,7 @@ filterCount({$GLOBALS['filter_hits']});
 </script>\n
 EOP;
         }
-        
+
         return true;
     }
 }

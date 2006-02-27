@@ -4,7 +4,7 @@
 
 // p2 -  RSSƒŠƒXƒg‚Ìˆ—
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 // {{{ •Ï”
 
@@ -53,10 +53,10 @@ if ($lines) {
     unset($neolines);
     foreach ($lines as $l) {
         $i++;
-        
+
         $l = rtrim($l);
         $lar = explode("\t", $l);
-        
+
         if ($lar[1] == $xml) { // d•¡‰ñ”ğ
             $before_line_num = $i;
             continue;

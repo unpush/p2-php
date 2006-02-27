@@ -13,7 +13,7 @@
  * <del>モナーフォント2.90で動作確認、行間をチューニングしている。
  * （ただし、モナーフォントではいわゆる機種依存文字の多くが表示できない）</del>
  * <ins>IPA モナーフォント 1.0.3 で動作確認、行間をチューニングしている。</ins>
- * 
+ *
  * Dependencies:
  * - PHP Version: 4.2.0 or newer (rep2-expack requires 4.4.1 or newer)
  * - PHP Extension: gd (with FreeType 2)
@@ -334,7 +334,7 @@ if ($inline && $_conf['expack.aas.inline_fontsize']) {
     $ratio = max($max_width / $width, $max_height / $height);
     if ($ratio > 1.0) {
         $size = max(floor($_conf['expack.aas.max_fontsize'] / $ratio), $_conf['expack.aas.min_fontsize']);
-        while ($size > $_conf['expack.aas.min_fontsize'] && 
+        while ($size > $_conf['expack.aas.min_fontsize'] &&
             !aas_isTextInPicture($size, $font, $hint, $lc, $max_width, $max_height))
         {
             $size--;

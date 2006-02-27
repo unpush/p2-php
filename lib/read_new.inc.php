@@ -3,7 +3,7 @@
     p2 - for read_new.php, read_new_k.php
 */
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 //===============================================
 // 関数
@@ -16,15 +16,15 @@ require_once (P2_LIBRARY_DIR . '/filectl.class.php');
 function saveMatomeCache()
 {
     global $_conf;
-    
+
     if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
         return false;
     }
-    
+
     if (!empty($GLOBALS['matome_naipo'])) {
         return true;
     }
-    
+
     // ローテーション
     $max = $_conf['matome_cache_max'];
     $i = $max;
@@ -45,7 +45,7 @@ function saveMatomeCache()
         }
         $i--;
     }
-    
+
     // 新規記録
     $file = $_conf['matome_cache_path'].$_conf['matome_cache_ext'];
     //echo "<!-- {$file} -->";
@@ -54,7 +54,7 @@ function saveMatomeCache()
     if (FileCtl::file_write_contents($file, $GLOBALS['read_new_html']) === false) {
         die('Error: cannot write file.');
     }
-    
+
     return true;
 }
 
@@ -64,19 +64,19 @@ function saveMatomeCache()
 function saveMatomeCacheFromTmpFile()
 {
     global $_conf;
-    
+
     if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
         return false;
     }
-    
+
     if (!empty($GLOBALS['matome_naipo'])) {
         return true;
     }
-    
+
     if (!is_resource($GLOBALS['read_new_tmp_fh'])) {
         return false;
     }
-    
+
     // ローテーション
     $max = $_conf['matome_cache_max'];
     $i = $max;
@@ -94,7 +94,7 @@ function saveMatomeCacheFromTmpFile()
         }
         $i--;
     }
-    
+
     // 新規記録
     $file = $_conf['matome_cache_path'].$_conf['matome_cache_ext'];
     //echo "<!-- {$file} -->";
@@ -121,12 +121,12 @@ function saveMatomeCacheFromTmpFile()
 function getMatomeCache($num = '')
 {
     global $_conf;
-    
+
     $dnum = ($num) ? '.'.$num : '';
     $file = $_conf['matome_cache_path'].$dnum.$_conf['matome_cache_ext'];
-    
+
     $cont = @file_get_contents($file);
-    
+
     if (strlen($cont) > 0) {
         return $cont;
     } else {

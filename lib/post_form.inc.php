@@ -27,11 +27,11 @@ $htm['post_form'] = <<<EOP
     {$htm['dpreview_onoff']}
     <input type="submit" name="submit" value="{$submit_value}" onClick="setHiddenValue(this);">
     {$htm['be2ch']}
-    
+
     <input type="hidden" name="bbs" value="{$bbs}">
     <input type="hidden" name="key" value="{$key}">
     <input type="hidden" name="time" value="{$time}">
-    
+
     <input type="hidden" name="host" value="{$host}">
     <input type="hidden" name="popup" value="{$popup}">
     <input type="hidden" name="rescount" value="{$rescount}">

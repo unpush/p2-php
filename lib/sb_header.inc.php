@@ -32,7 +32,7 @@ EOP;
 }
 
 //===============================================================
-// HTML表示用変数 for ツールバー(sb_toolbar.inc.php) 
+// HTML表示用変数 for ツールバー(sb_toolbar.inc.php)
 //===============================================================
 
 $norefresh_q = "&amp;norefresh=true";
@@ -107,7 +107,7 @@ if(!$aThreadList->spmode || $aThreadList->spmode=="news"){
     elseif($p2_setting['viewnum']=="500"){$vncheck_500=" selected";}
     elseif($p2_setting['viewnum']=="all"){$vncheck_all=" selected";}
     else{$p2_setting['viewnum']="150"; $vncheck_150=" selected";} //基本設定
-    
+
     $sb_disp_num_ht =<<<EOP
         <select name="viewnum">
             <option value="100"{$vncheck_100}>100件</option>
@@ -127,7 +127,7 @@ if ($_conf['enable_exfilter'] == 2) {
 
     $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
     $selected_method[($sb_filter['method'])] = ' selected';
-    
+
     $sb_form_method_ht = <<<EOP
             <select id="method" name="method">
                 <option value="or"{$selected_method['or']}>いずれか</option>
@@ -279,7 +279,7 @@ echo <<<EOP
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onLoad="setWinTitle();">
 EOP;
 
-include (P2_LIBRARY_DIR . '/sb_toolbar.inc.php');
+include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";

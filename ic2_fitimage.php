@@ -7,8 +7,8 @@
 // {{{ p2Šî–{Ý’è“Ç‚Ýž‚Ý&”FØ
 
 require_once 'conf/conf.inc.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
 
 $_login->authorize();
 

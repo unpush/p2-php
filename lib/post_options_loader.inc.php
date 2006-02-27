@@ -29,7 +29,7 @@ function disableSubmit(form) {
   if (isNetFront()) {
     return;
   }
-  
+
   var elements = form.elements;
   for (var i = 0; i < elements.length; i++) {
     if (elements[i].type == 'submit') {
@@ -39,12 +39,12 @@ function disableSubmit(form) {
 }
 
 function setHiddenValue(button) {
-  
+
   // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
   if (isNetFront()) {
     return;
   }
-  
+
   if (button.name) {
     var q = document.createElement('input');
     q.type = 'hidden';
@@ -72,7 +72,7 @@ if ($lines = @file($key_idx)) {
 $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
 if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
     $last_posted = unserialize($cont_srd);
-    
+
     // まとめてサニタイズ
     $last_posted = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $last_posted);
     //$addslashesS = create_function('$str', 'return str_replace("\'", "\\\'", $str);');
@@ -261,7 +261,7 @@ $onsubmit_at = '';
 
 if (!$_conf['ktai']) {
     if ($_conf['expack.editor.check_message'] || $_conf['expack.editor.check_sage']) {
-        $onsubmit_at = sprintf(' onsubmit="return validateAll(%s,%s)"', 
+        $onsubmit_at = sprintf(' onsubmit="return validateAll(%s,%s)"',
             (($_conf['expack.editor.check_message']) ? 'true' : 'false'),
             (($_conf['expack.editor.check_sage'])    ? 'true' : 'false'));
     }

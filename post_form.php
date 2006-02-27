@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -35,10 +35,10 @@ $idx_host_dir = P2Util::idxDirOfHost($host);
 $key_idx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 
 // フォームのオプション読み込み
-include_once (P2_LIBRARY_DIR . '/post_options_loader.inc.php');
+include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
 
 // 表示指定
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     $class_ttitle = ' class="thre_title"';
     $target_read = ' target="read"';
     $sub_size_at = ' size="40"';
@@ -47,7 +47,7 @@ if (!$_conf['ktai']) {
 // {{{ スレ立てなら
 if ($_GET['newthread']) {
     $ptitle = "{$itaj} - 新規スレッド作成";
-    
+
     // machibbs、JBBS@したらば なら
     if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
         $submit_value = "新規書き込み";
@@ -55,7 +55,7 @@ if ($_GET['newthread']) {
     } else {
         $submit_value = "新規スレッド作成";
     }
-    
+
     $htm['subject'] = <<<EOP
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
 EOP;
@@ -68,7 +68,7 @@ EOP;
 // {{{ 書き込みなら
 } else {
     $ptitle = "{$itaj} - レス書き込み";
-    
+
     $submit_value = "書き込む";
 
     $htm['resform_ttitle'] = <<<EOP
@@ -84,7 +84,7 @@ $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name
 //==========================================================
 // ■HTMLプリント
 //==========================================================
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     $body_on_load = <<<EOP
  onLoad="setFocus('MESSAGE'); checkSage();"
 EOP;
@@ -122,7 +122,7 @@ echo $_info_msg_ht;
 $_info_msg_ht = '';
 
 // $htm['post_form'] を取得
-include_once (P2_LIBRARY_DIR . '/post_form.inc.php');
+include_once P2_LIBRARY_DIR . '/post_form.inc.php';
 
 echo $htm['orig_msg'];
 echo $htm['dpreview'];

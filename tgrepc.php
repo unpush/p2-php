@@ -170,13 +170,13 @@ if ($_conf['input_type_search']) {
 } else {
     $htm['search_attr'] = ' type="text"';
 }
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     $htm['search_attr'] .= ' size="36"';
 }
 $htm['search_attr'] .= ' maxlength="50" value="' . $htm['query'] . '"';
 
 // スタイルシート
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     $htm['message_background'] = "background-color:#ffffcc;";
     if (isset($STYLE['respop_bgcolor']) || isset($STYLE['respop_background'])) {
         $htm['message_background'] = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
@@ -250,7 +250,7 @@ if ($subhits && $subhits > $limit) {
     foreach ($pager_extra_vars as $_k => $_v) {
         $pager_options['extraVars'][strtoupper($_k)] = $_v;
     }
-    if (!$_conf['ktai']) {
+    if (empty($_conf['ktai'])) {
         $pager_options['delta'] = 5;
         $pager_options['separator'] = '|';
         $pager_options['spacesBeforeSeparator'] = 1;
@@ -281,7 +281,7 @@ P2Util::header_content_type();
 if (empty($_GET['M'])) {
     P2Util::header_nocache();
 }
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     include P2EX_LIBRARY_DIR . '/tgrep/view.inc.php';
 } else {
     include P2EX_LIBRARY_DIR . '/tgrep/view_k.inc.php';

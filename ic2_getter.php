@@ -29,10 +29,10 @@ if (get_magic_quotes_gpc()) {
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
 
 // ポップアップウインドウ？
 $isPopUp = empty($_GET['popup']) ? 0 : 1;

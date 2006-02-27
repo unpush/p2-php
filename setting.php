@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -31,7 +31,7 @@ $autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
 
 
 $body_onload = "";
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     $body_onload = " onLoad=\"setWinTitle();\"";
 }
 
@@ -80,7 +80,7 @@ echo <<<EOP
 EOP;
 
 // 携帯用表示
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     echo <<<EOP
 <p id="pan_menu">ログイン管理</p>
 EOP;

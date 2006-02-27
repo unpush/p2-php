@@ -159,7 +159,7 @@ if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['
 
     // ログイン後、24時間以上経過していたら自動再ログイン
     if (file_exists($_conf['idpw2ch_php']) and @filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
-        include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+        include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
         login2ch();
     }
 
@@ -579,7 +579,7 @@ function showPostMsg($isDone, $result_msg, $reload)
     global $_info_msg_ht;
 
     // プリント用変数 ===============
-    if (!$_conf['ktai']) {
+    if (empty($_conf['ktai'])) {
         $class_ttitle = ' class="thre_title"';
     }
     $ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
@@ -622,7 +622,7 @@ EOHEADER;
         echo "    <title>{$ptitle}</title>";
     }
 
-    if (!$_conf['ktai']) {
+    if (empty($_conf['ktai'])) {
         echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">\n
@@ -667,7 +667,7 @@ function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+    require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
     $aSubjectTxt =& new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {

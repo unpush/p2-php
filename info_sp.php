@@ -49,8 +49,8 @@ if (preg_match('/^(aborn|ng)_/', $mode)) {
 
 if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
     $_GET['popup'] = 2;
-    require_once (P2_LIBRARY_DIR . '/thread.class.php');
-    require_once (P2_LIBRARY_DIR . '/threadread.class.php');
+    require_once P2_LIBRARY_DIR . '/thread.class.php';
+    require_once P2_LIBRARY_DIR . '/threadread.class.php';
     $aThread = &new ThreadRead;
     $aThread->setThreadPathInfo($host, $bbs, $key);
     $aThread->readDat($aThread->keydat);
@@ -99,7 +99,7 @@ if ($popup == 2) {
 
 if (strstr($mode, '_msg')) {
     if (isset($_GET['selected_string'])) {
-        include_once (P2_LIBRARY_DIR . '/strctl.class.php');
+        include_once P2_LIBRARY_DIR . '/strctl.class.php';
         $aborn_str = trim($_GET['selected_string']);
         $aborn_str = preg_replace('/\r\n|\r|\n/u', ' <br> ', $aborn_str);
         // $selected_stringはJavaScriptのencodeURIComponent()関数でURLエンコードされており、

@@ -4,14 +4,14 @@
 
 // p2機能拡張パック - RSSパーサ
 
-require_once (P2EX_LIBRARY_DIR . '/rss/common.inc.php');
+require_once P2EX_LIBRARY_DIR . '/rss/common.inc.php';
 require_once 'XML/RSS.php';
 
 if ($GLOBALS['_conf']['expack.rss.with_imgcache'] &&
     ((!$GLOBALS['_conf']['ktai'] && $GLOBALS['_conf']['expack.ic2.enabled'] % 2 == 1) ||
     ($GLOBALS['_conf']['ktai'] && $GLOBALS['_conf']['expack.ic2.enabled'] >= 2))
 ) {
-    require_once (P2EX_LIBRARY_DIR . '/rss/getimage.inc.php');
+    require_once P2EX_LIBRARY_DIR . '/rss/getimage.inc.php';
     define('P2_RSS_IMAGECACHE_AVAILABLE', 1);
 } else {
     define('P2_RSS_IMAGECACHE_AVAILABLE', 0);
@@ -35,7 +35,7 @@ function &p2GetRSS($remotefile, $atom=0)
 
     // 保存用ディレクトリがなければつくる
     if (!is_dir(dirname($localpath))) {
-        require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+        require_once P2_LIBRARY_DIR . '/filectl.class.php';
         FileCtl::mkdir_for($localpath);
     }
 
@@ -153,7 +153,7 @@ function atom_to_rss($input, $stylesheet, $output)
 
     // 保存用ディレクトリがなければつくる
     if (!is_dir(dirname($output))) {
-        require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+        require_once P2_LIBRARY_DIR . '/filectl.class.php';
         FileCtl::mkdir_for($output);
     }
 

@@ -1,7 +1,7 @@
 <?php
 // p2 -  お気に板の処理
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * お気に板をセットする
@@ -98,7 +98,7 @@ function setFavIta()
 
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
-        include_once (P2_LIBRARY_DIR . '/getsetposlines.inc.php');
+        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
 
     // 解除

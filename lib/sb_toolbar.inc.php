@@ -11,7 +11,7 @@
 $new_matome_i++;
 
 // ‘qŒÉ‚Å‚È‚¯‚ê‚Î
-if ($aThreadList->spmode != "soko") { 
+if ($aThreadList->spmode != "soko") {
     if ($shinchaku_attayo) {
         $shinchaku_num_ht = " (<span id=\"smynum{$new_matome_i}\" class=\"matome_num\">{$shinchaku_num}</span>)";
     } else {

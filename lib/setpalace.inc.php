@@ -3,7 +3,7 @@
     p2 -  殿堂入り関係の処理
 */
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * スレを殿堂入りにセットする
@@ -37,9 +37,9 @@ function setPal($host, $bbs, $key, $setpal)
 
     $neolines = array();
     $before_line_num = 0;
-    
+
      // {{{ 最初に重複要素を削除しておく
-     
+
     if (!empty($pallines)) {
         $i = -1;
         foreach ($pallines as $l) {
@@ -58,9 +58,9 @@ function setPal($host, $bbs, $key, $setpal)
             }
         }
     }
-    
+
     // }}}
-    
+
     // 新規データ設定
     if ($setpal) {
         $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
@@ -69,16 +69,16 @@ function setPal($host, $bbs, $key, $setpal)
     } else {
         $rec_lines = $neolines;
     }
-    
+
     $cont = '';
     if (!empty($rec_lines)) {
         foreach ($rec_lines as $l) {
             $cont .= $l . "\n";
         }
     }
-    
+
     // {{{ 書き込む
-    
+
     $temp_file = $palace_idx . '.tmp';
     $write_file = strstr(PHP_OS, 'WIN') ? $palace_idx : $temp_file;
     if (FileCtl::file_write_contents($write_file, $cont) === false) {
@@ -89,9 +89,9 @@ function setPal($host, $bbs, $key, $setpal)
             die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
         }
     }
-        
+
     // }}}
-    
+
     return true;
 }
 ?>

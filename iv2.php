@@ -646,7 +646,7 @@ if ($all == 0) {
             'hint' => '', 'mode' => $mode,
             'page' => $page, 'cols' => $cols, 'rows' => $rows,
             'order' => $order, 'sort' => $sort,
-            'field' => $field, 'key' => $key, 
+            'field' => $field, 'key' => $key,
             'compare' => $compare, 'threshold' => $threshold
         );
         $pager_q = $mf_hiddens;

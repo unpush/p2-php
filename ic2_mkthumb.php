@@ -24,9 +24,9 @@ if ($GLOBALS['debug']) {
 
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
 
 $uri   = $_GET['u'];
 $type  = $_GET['v'];

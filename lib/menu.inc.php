@@ -2,12 +2,12 @@
 /*
     p2 -  板メニュー
     フレーム分割画面、左側部分 PC用
-    
+
     menu.php, menu_side.php より読み込まれる
 */
 
-require_once (P2_LIBRARY_DIR . '/brdctl.class.php');
-require_once (P2_LIBRARY_DIR . '/showbrdmenupc.class.php');
+require_once P2_LIBRARY_DIR . '/brdctl.class.php';
+require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -33,9 +33,9 @@ if (isset($word) && strlen($word) > 0) {
     if (preg_match('/^\.+$/', $word)) {
         $word = '';
     }
-    
+
     // and検索
-    include_once (P2_LIBRARY_DIR . '/strctl.class.php');
+    include_once P2_LIBRARY_DIR . '/strctl.class.php';
     $word_fm = StrCtl::wordForMatch($word, 'and');
     if (P2_MBREGEX_AVAILABLE == 1) {
         $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
@@ -54,7 +54,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
+    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -114,19 +114,19 @@ echo <<<EOP
        if (rv)
           document.location.href = "http://home.netscape.com/ja/download/download_n6.html";
     }
-    
+
     function chUnColor(idnum){
         unid='un'+idnum;
         document.getElementById(unid).style.color="{$STYLE['menu_color']}";
     }
-    
+
     function chMenuColor(idnum){
         newthreid='newthre'+idnum;
         if(document.getElementById(newthreid)){document.getElementById(newthreid).style.color="{$STYLE['menu_color']}";}
         unid='un'+idnum;
         document.getElementById(unid).style.color="{$STYLE['menu_color']}";
     }
-    
+
     // -->
     </script>
 </head>
@@ -239,21 +239,21 @@ flush();
 // ■tGrep一発検索をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.quicksearch']) {
-    include_once (P2EX_LIBRARY_DIR . '/tgrep/menu_quick.inc.php');
+    include_once P2EX_LIBRARY_DIR . '/tgrep/menu_quick.inc.php';
 }
 
 //==============================================================
 // ■tGrep検索履歴をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.recent_num'] > 0) {
-    include_once (P2EX_LIBRARY_DIR . '/tgrep/menu_recent.inc.php');
+    include_once P2EX_LIBRARY_DIR . '/tgrep/menu_recent.inc.php';
 }
 
 //==============================================================
 // ■RSSをプリントする
 //==============================================================
 if ($_conf['expack.rss.enabled']) {
-    include_once (P2EX_LIBRARY_DIR . '/rss/menu.inc.php');
+    include_once P2EX_LIBRARY_DIR . '/rss/menu.inc.php';
 }
 
 flush();
@@ -356,7 +356,7 @@ if (isset($word) && strlen($word) > 0) {
         }
     } else {
         $msg_ht .=  "\"{$hd['word']}\"を含む板 {$GLOBALS['ita_mikke']['num']}hit!\n";
-        
+
         // 検索結果が一つなら、自動で板一覧を開く
         if ($GLOBALS['ita_mikke']['num'] == 1) {
         $msg_ht .= '（自動オープンするよ）';
@@ -370,7 +370,7 @@ EOP;
         }
     }
     $msg_ht .= '</p>';
-    
+
     $_info_msg_ht .= $msg_ht;
 }
 

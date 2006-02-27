@@ -46,7 +46,7 @@ $xml_ht = P2Util::re_htmlspecialchars($xml);
 //============================================================
 
 if ($xml) {
-    require_once (P2EX_LIBRARY_DIR . '/rss/parser.inc.php');
+    require_once P2EX_LIBRARY_DIR . '/rss/parser.inc.php';
     $rss = &p2GetRSS($xml, $atom);
     if (is_a($rss, 'XML_Parser')) {
         clearstatcache();
@@ -97,9 +97,9 @@ if ($_conf['ktai']) {
         // 更新チェック間隔の1/3だけキャッシュさせる（端末orゲートウェイの実装依存）
         header(sprintf('Cache-Control: max-age=%d', $_conf['expack.rss.check_interval'] * 60 / 3));
     }
-    include_once (P2EX_LIBRARY_DIR . '/rss/subject_k.inc.php');
+    include_once P2EX_LIBRARY_DIR . '/rss/subject_k.inc.php';
 } else {
-    include_once (P2EX_LIBRARY_DIR . '/rss/subject.inc.php');
+    include_once P2EX_LIBRARY_DIR . '/rss/subject.inc.php';
 }
 
 //============================================================

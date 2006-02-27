@@ -49,9 +49,9 @@ if ($id == 0 || $rank > 5 || $rank < -1) {
 require_once 'PEAR.php';
 require_once 'DB.php';
 require_once 'DB/DataObject.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
 
 // }}}
 // {{{ execute

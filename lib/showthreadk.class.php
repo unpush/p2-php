@@ -3,17 +3,19 @@
     p2 - 携帯用でスレッドを表示する クラス
 */
 
-require_once (P2EX_LIBRARY_DIR . '/expack_loader.class.php');
+require_once P2EX_LIBRARY_DIR . '/expack_loader.class.php';
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
 ExpackLoader::loadImageCache();
 
 class ShowThreadK extends ShowThread{
-    
+
+    var $BBS_NONAME_NAME = '';
+
     var $am_autong = false; // 自動AA略をするか否か
-    
+
     var $aas_rotate = '右に90°回転'; // AAS 回転リンク文字列
-    
+
     /**
      * コンストラクタ
      */
@@ -36,6 +38,13 @@ class ShowThreadK extends ShowThread{
             $this->url_handlers[] = array('this' => 'plugin_viewImage');
         }
         $this->url_handlers[] = array('this' => 'plugin_linkURL');
+
+        if (empty($_conf['k_bbs_noname_name'])) {
+            require_once P2_LIBRARY_DIR . '/SettingTxt.php';
+            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
+            $st->setSettingArray();
+            !empty($st->setting_array['BBS_NONAME_NAME']) and $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+        }
 
         // サムネイル表示制限数を設定
         if (!isset($GLOBALS['pre_thumb_unlimited']) || !isset($GLOBALS['expack.ic2.pre_thumb_limit_k'])) {
@@ -64,7 +73,7 @@ class ShowThreadK extends ShowThread{
             ExpackLoader::initAAS($this);
         }
     }
-    
+
     /**
      * DatをHTMLに変換表示する
      */
@@ -88,13 +97,13 @@ class ShowThreadK extends ShowThread{
                 continue;
             }
             if (!$this->thread->datlines[$i-1]) {
-                $this->thread->readnum = $i-1; 
+                $this->thread->readnum = $i-1;
                 break;
             }
             echo $this->transRes($this->thread->datlines[$i-1], $i);
             flush();
         }
-        
+
         //$s2e = array($start, $i-1);
         //return $s2e;
         return true;
@@ -112,14 +121,19 @@ class ShowThreadK extends ShowThread{
         global $ngaborns_hits;
         static $ngaborns_head_hits = 0;
         static $ngaborns_body_hits = 0;
-        
+
         $resar = $this->thread->explodeDatLine($ares);
         $name = $resar[0];
         $mail = $resar[1];
         $date_id = $resar[2];
         $msg = $resar[3];
 
+        if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
+            $name = '';
+        }
+
         // {{{ フィルタリング
+
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
                 return '';
@@ -131,8 +145,9 @@ class ShowThreadK extends ShowThread{
                 return '';
             }
         }
+
         // }}}
-        
+
         $tores = "";
         $rpop = "";
         $isNgName = false;
@@ -142,16 +157,17 @@ class ShowThreadK extends ShowThread{
         $isFreq = false;
         $isChain = false;
         $isAA = false;
-        
-        if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain']) && 
+
+        if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain']) &&
             preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|', $date_id, $matches))
         {
             $id = $matches[1];
         } else {
             $id = null;
         }
-        
+
         // {{{ あぼーんチェック
+
         $aborned_res .= "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; // 名前
         $aborned_res .= ""; // 内容
         $ng_msg_info = array();
@@ -212,14 +228,14 @@ class ShowThreadK extends ShowThread{
             $this->aborn_nums[] = $i;
             return $aborned_res;
         }
-        
+
         // あぼーんID
         if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
             $ngaborns_hits['aborn_id']++;
             $this->aborn_nums[] = $i;
             return $aborned_res;
         }
-        
+
         // あぼーんメッセージ
         if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
             $ngaborns_hits['aborn_msg']++;
@@ -244,7 +260,7 @@ class ShowThreadK extends ShowThread{
                 $this->ng_nums[] = $i;
                 $isNgMail = true;
             }
-        
+
             // NGIDチェック
             if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
                 $ngaborns_hits['ng_id']++;
@@ -252,7 +268,7 @@ class ShowThreadK extends ShowThread{
                 $this->ng_nums[] = $i;
                 $isNgId = true;
             }
-    
+
             // NGメッセージチェック
             $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
             if ($a_ng_msg !== false) {
@@ -262,7 +278,7 @@ class ShowThreadK extends ShowThread{
                 $isNgMsg = true;
                 $ng_msg_info[] = sprintf('NGﾜｰﾄﾞ:%s', htmlspecialchars($a_ng_msg, ENT_QUOTES));
             }
-            
+
             // AAチェック
             if ($this->am_autong && $this->activeMona->detectAA($msg)) {
                 $this->ng_nums[] = $i;
@@ -271,18 +287,19 @@ class ShowThreadK extends ShowThread{
                 $ng_msg_info[] = '&lt;AA略&gt;';
             }
         }
+
         // }}}
-        
+
         //=============================================================
         // まとめて出力
         //=============================================================
-        
+
         $name = $this->transName($name); // 名前HTML変換
         $msg = $this->transMsg($msg, $i); // メッセージHTML変換
 
         // BEプロファイルリンク変換
         $date_id = $this->replaceBeId($date_id, $i);
-        
+
         // NGメッセージ変換
         if ($ng_msg_info) {
             $ng_type = implode(', ', $ng_msg_info);
@@ -301,7 +318,7 @@ EOMSG;
                 $msg .= " <a href=\"{$aas_url}&amp;rotate=1\">{$this->aas_rotate}</a>";
             }
         }
-        
+
         // NGネーム変換
         if ($isNgName) {
             $name = <<<EONAME
@@ -310,7 +327,7 @@ EONAME;
             $msg = <<<EOMSG
 <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
 EOMSG;
-        
+
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
@@ -329,7 +346,7 @@ EOID;
 <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
 EOMSG;
         }
-    
+
         /*
         //「ここから新着」画像を挿入
         if ($i == $this->thread->readnum +1) {
@@ -351,21 +368,21 @@ EOP;
         } else {
             $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$i}]";
         }
-        $tores .= $name.":"; // 名前
+        $tores .= $name . ":"; // 名前
         // メール
         if ($mail) {
-            $tores .= $mail.": ";
+            $tores .= $mail . ": ";
         }
-        
+
         // IDフィルタ
         if ($_conf['flex_idpopup'] == 1 && $id && $this->thread->idcount[$id] > 1) {
             $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
         }
-        
-        $tores .= $date_id."<br>\n"; // 日付とID
+
+        $tores .= $date_id . "<br>\n"; // 日付とID
         $tores .= $rpop; // レスポップアップ用引用
         $tores .= "{$msg}</div><hr>\n"; // 内容
-        
+
         // まとめてフィルタ色分け
         if ($GLOBALS['word_fm'] && $GLOBALS['res_filter']['match'] != 'off') {
             if (is_string($_conf['k_filter_marker'])) {
@@ -374,22 +391,22 @@ EOP;
                 $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
             }
         }
-        
+
         // 全角英数スペースカナを半角に
         if (!empty($_conf['k_save_packet'])) {
             $tores = mb_convert_kana($tores, 'rnsk'); // SJIS-win だと ask で ＜ を < に変換してしまうようだ
         }
-        
+
         return $tores;
     }
-    
+
     /**
      * 名前をHTML用に変換する
      */
     function transName($name)
     {
         global $_conf;
-        
+
         $nameID = "";
 
         // ID付なら分解する
@@ -402,18 +419,18 @@ EOP;
         // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
         $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
         $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
-        
+
         if ($nameID) {$name = $name . $nameID;}
-        
+
         $name = $name." "; // 文字化け回避
 
         $name = str_replace("</b>", "", $name);
         $name = str_replace("<b>", "", $name);
-    
+
         return $name;
     }
 
-    
+
     /**
      * ■ datのレスメッセージをHTML表示用メッセージに変換する
      * string transMsg(string str)
@@ -423,9 +440,9 @@ EOP;
         global $_conf;
         global $res_filter, $word_fm;
         global $pre_thumb_ignore_limit;
-        
+
         $ryaku = false;
-        
+
         // 2ch旧形式のdat
         if ($this->thread->dat_type == "2ch_old") {
             $msg = str_replace('＠｀', ',', $msg);
@@ -437,7 +454,7 @@ EOP;
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
         // 大きさ制限
-        if (!$_GET['k_continue'] && strlen($msg) > $_conf['ktai_res_size']) {
+        if (empty($_GET['k_continue']) && strlen($msg) > $_conf['ktai_res_size']) {
             // <br>以外のタグを除去し、長さを切り詰める
             $msg = strip_tags($msg, '<br>');
             $msg = mb_strcut($msg, 0, $_conf['ktai_ryaku_size']);
@@ -544,7 +561,7 @@ EOP;
                         if (FALSE !== ($link = call_user_func(array($this, $function[1], $url, $purl, $str))) {
                             return $link;
                         }
-                    } else 
+                    } else
                         if (FALSE !== ($link = call_user_func(array($function[0], $function[1]), $url, $purl, $str))) {
                             return $link;
                         }
@@ -566,9 +583,9 @@ EOP;
     function ktai_exturl_callback($s)
     {
         global $_conf;
-        
+
         $in_url = $s[1];
-        
+
         // 通勤ブラウザ
         $tsukin_link = '';
         if ($_conf['k_use_tsukin']) {
@@ -578,7 +595,7 @@ EOP;
             }
             $tsukin_link = '<a href="'.$tsukin_url.'">通</a>';
         }
-        
+
         // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
         $jig_link = '';
         /*
@@ -588,22 +605,22 @@ EOP;
         }
         $jig_link = '<a href="'.$jig_url.'">j</a>';
         */
-        
+
         $sepa = '';
         if ($tsukin_link && $jig_link) {
             $sepa = '|';
         }
-        
+
         $ext_pre = '';
         if ($tsukin_link || $jig_link) {
             $ext_pre = '('.$tsukin_link.$sepa.$jig_link.')';
         }
-        
+
         if ($_conf['through_ime']) {
             $in_url = P2Util::throughIme($in_url);
         }
         $r = $ext_pre.'<a href="' . $in_url . '">' . $s[2] . '</a>';
-        
+
         return $r;
     }
 
@@ -676,8 +693,9 @@ EOP;
             $idflag = $s[2];
         }
         */
+
         $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
-        
+
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
             $num_ht = '(' . "<a href=\"{$filter_url}\">" . $this->thread->idcount[$id] . '</a>)';
         } else {

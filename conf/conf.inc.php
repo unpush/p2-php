@@ -5,8 +5,8 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.21';
-$_conf['p2expack'] = '060226.0650';
+$_conf['p2version'] = '1.7.22';     // rep2のバージョン
+$_conf['p2expack'] = '060227.2134'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 
@@ -32,7 +32,7 @@ $_conf['read_new_php']          = 'read_new.php';
 $_conf['read_new_k_php']        = 'read_new_k.php';
 $_conf['cookie_file_name']      = 'p2_cookie.txt';
 
-$_info_msg_ht = '';
+$_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
 
 // }}}
 // {{{ デバッグ
@@ -62,7 +62,7 @@ if (ini_get('register_globals')) {
         magic_quotes_gpc や mbstring.encoding_translation も Off にされることをおすすめします。</p></body></html>');
 }
 if (!extension_loaded('mbstring')) {
-    die('<html><body><h3>p2 error: mbstring拡張モジュールがロードされていません。</h3></body></html>');
+    die('<html><body><h3>p2 error: PHPのインストールが不十分です。mbstring拡張モジュールがロードされていません。</h3></body></html>');
 }
 if (true && (version_compare(phpversion(), '4.4.1', '<') || (substr(zend_version(), 0, 1) == '2' && version_compare(phpversion(), '5.1.1', '<')))) {
     $_recommended_phpversion = ((substr(zend_version(), 0, 1) == '1') ? '4.4.1' : '5.1.1');
@@ -172,19 +172,20 @@ foreach ($_pear_required as $_pear_file => $_pear_pkg) {
         die($msg);
     }
 }
-require_once (P2_LIBRARY_DIR . '/p2util.class.php');
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
-require_once (P2_LIBRARY_DIR . '/session.class.php');
-require_once (P2_LIBRARY_DIR . '/login.class.php');
+require_once P2_LIBRARY_DIR . '/p2util.class.php';
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIBRARY_DIR . '/session.class.php';
+require_once P2_LIBRARY_DIR . '/login.class.php';
 
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
 
 if (version_compare(phpversion(), '5.0.0', '<')) {
-    PHP_Compat::loadFunction('clone');
-    PHP_Compat::loadFunction('scandir');
-    PHP_Compat::loadFunction('http_build_query');
     PHP_Compat::loadFunction('array_walk_recursive');
+    PHP_Compat::loadFunction('clone');
+    PHP_Compat::loadFunction('file_put_contents');
+    PHP_Compat::loadFunction('http_build_query');
+    PHP_Compat::loadFunction('scandir');
 }
 
 // }}}
@@ -253,7 +254,7 @@ if ($mobile->isNonMobile()) {
 
 // 携帯
 } else {
-    require_once (P2_LIBRARY_DIR . '/hostcheck.class.php');
+    require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
     
     $_conf['ktai'] = TRUE;
     $_conf['accept_charset'] = 'Shift_JIS';
@@ -369,19 +370,25 @@ include_once './conf/conf_user_def.inc.php';
 $_conf = array_merge($_conf, $conf_user_def);
 
 // ユーザ設定があれば読み込む
-$_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.inc.php';
+$_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.srd.cgi';
+
+// 旧形式ファイルをコピー
+$conf_user_file_old = $_conf['pref_dir'] . '/conf_user.inc.php';
+if (!file_exists($_conf['conf_user_file']) && file_exists($conf_user_file_old)) {
+    $old_cont = DataPhp::getDataPhpCont($conf_user_file_old);
+    FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
+    file_put_contents($_conf['conf_user_file'], $old_cont);
+}
+
 $conf_user = array();
-if ($cont = DataPhp::getDataPhpCont($_conf['conf_user_file'])) {
-    $conf_user = unserialize($cont);
-    $_conf = array_merge($_conf, $conf_user);
+if (file_exists($_conf['conf_user_file'])) {
+    if ($cont = file_get_contents($_conf['conf_user_file'])) {
+        $conf_user = unserialize($cont);
+        $_conf = array_merge($_conf, $conf_user);
+    }
 }
 
 // }}}
-/*
-if (file_exists("./conf/conf_user.inc.php")) {
-    include_once "./conf/conf_user.inc.php"; // ユーザ設定 読込
-}
-*/
 // {{{ デフォルト設定
 
 if (!is_dir($_conf['pref_dir']))    { $_conf['pref_dir'] = "./data"; }
@@ -430,7 +437,7 @@ if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
         $skin_name = rtrim(file_get_contents($_conf['expack.skin.setting_path']));
         $skin = 'skin/' . $skin_name . '.php';
     } else {
-        require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+        require_once P2_LIBRARY_DIR . '/filectl.class.php';
         FileCtl::make_datafile($_conf['expack.skin.setting_path'], $_conf['expack.skin.setting_perm']);
     }
     if (isset($_REQUEST['skin']) && preg_match('/^\w+$/', $_REQUEST['skin']) && $skin_name != $_REQUEST['skin']) {
@@ -561,7 +568,7 @@ if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
 // {{{ ホストチェック
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once (P2_LIBRARY_DIR . '/hostcheck.class.php');
+    require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == FALSE) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == TRUE)
     ) {
@@ -617,7 +624,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
     if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
     
         if (!is_dir($_conf['session_dir'])) {
-            require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+            require_once P2_LIBRARY_DIR . '/filectl.class.php';
             FileCtl::mkdir_for($_conf['session_dir'] . '/dummy_filename');
         } elseif (!is_writable($_conf['session_dir'])) {
             die("Error: セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
@@ -642,12 +649,12 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 
 // お気にセットを切り替える
 if ($_conf['expack.misc.multi_favs']) {
-    require_once (P2_LIBRARY_DIR . '/favsetmng.class.php');
+    require_once P2_LIBRARY_DIR . '/favsetmng.class.php';
     FavSetManager::switchFavSet();
 }
 
 // ■ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
-@require_once (P2_LIBRARY_DIR . '/login.class.php');
+@require_once P2_LIBRARY_DIR . '/login.class.php';
 $_login =& new Login();
 
 

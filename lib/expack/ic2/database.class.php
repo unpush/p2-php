@@ -4,7 +4,7 @@
 
 require_once 'DB.php';
 require_once 'DB/DataObject.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
 
 class IC2DB_Skel extends DB_DataObject
 {

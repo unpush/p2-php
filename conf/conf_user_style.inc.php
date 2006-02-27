@@ -20,28 +20,28 @@ $STYLE['fontfamily'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W3"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W3") Šî–{‚Ìƒ
 
 if (strstr($_SERVER['HTTP_USER_AGENT'], "Mac")) {
 
-	if(! $browser == "Safari"){ /* ƒuƒ‰ƒEƒU‚ª Mac‚Å Safari ˆÈŠO ‚È‚ç */
-		$STYLE['fontfamily_bold'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W6"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W6") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒgi•’Ê‚É‘¾š‚É‚µ‚½‚¢ê‡‚Íw’è‚µ‚È‚¢("")j
-	}
+    if(! $browser == "Safari"){ /* ƒuƒ‰ƒEƒU‚ª Mac‚Å Safari ˆÈŠO ‚È‚ç */
+        $STYLE['fontfamily_bold'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W6"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W6") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒgi•’Ê‚É‘¾š‚É‚µ‚½‚¢ê‡‚Íw’è‚µ‚È‚¢("")j
+    }
 
-	/* Mac—pƒtƒHƒ“ƒgƒTƒCƒY */
-	$STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['menu_fontsize'] = "11px"; // ("11px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['sb_fontsize'] = "11px"; // ("11px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['read_fontsize'] = "12px"; // ("12px") ƒXƒŒƒbƒh“à—e•\¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['respop_fontsize'] = "11px"; // ("11px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['infowin_fontsize'] = "11px"; // ("11px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³iCamino‚ğœ‚­j
+    /* Mac—pƒtƒHƒ“ƒgƒTƒCƒY */
+    $STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['menu_fontsize'] = "11px"; // ("11px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['sb_fontsize'] = "11px"; // ("11px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['read_fontsize'] = "12px"; // ("12px") ƒXƒŒƒbƒh“à—e•\¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['respop_fontsize'] = "11px"; // ("11px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['infowin_fontsize'] = "11px"; // ("11px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³iCamino‚ğœ‚­j
 }else{
 
-	/* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒTƒCƒY */
-	$STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['menu_fontsize'] = "12px"; // ("12px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['sb_fontsize'] = "12px"; // ("12px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['read_fontsize'] = "13px"; // ("13px") ƒXƒŒƒbƒh“à—e•\¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['respop_fontsize'] = "12px"; // ("12px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['infowin_fontsize'] = "12px"; // ("12px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    /* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒTƒCƒY */
+    $STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['menu_fontsize'] = "12px"; // ("12px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['sb_fontsize'] = "12px"; // ("12px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['read_fontsize'] = "13px"; // ("13px") ƒXƒŒƒbƒh“à—e•\¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['respop_fontsize'] = "12px"; // ("12px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['infowin_fontsize'] = "12px"; // ("12px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
 }
 
 //======================================================================
@@ -70,8 +70,8 @@ $STYLE['menu_ita_color'] = ""; // ("") menu ”Â ƒŠƒ“ƒNF
 $STYLE['menu_ita_color_v'] = ""; // ("") menu ”Â –K–âÏ‚İƒŠƒ“ƒNF
 $STYLE['menu_ita_color_h'] = "#09c"; // ("#09c") menu ”Â ƒ}ƒEƒXƒI[ƒo[‚ÌƒŠƒ“ƒNF
 
-$STYLE['menu_newthre_color'] = "hotpink";	// ("hotpink") menu V‹KƒXƒŒƒbƒh”‚ÌF
-$STYLE['menu_newres_color'] = "#ff3300";	// ("#ff3300") menu V’…ƒŒƒX”‚ÌF
+$STYLE['menu_newthre_color'] = "hotpink";    // ("hotpink") menu V‹KƒXƒŒƒbƒh”‚ÌF
+$STYLE['menu_newres_color'] = "#ff3300";    // ("#ff3300") menu V’…ƒŒƒX”‚ÌF
 
 // ƒXƒŒˆê——(subject)====================
 $STYLE['sb_bgcolor'] = "#fff"; // ("#fff") subject ”wŒiF
@@ -103,9 +103,9 @@ $STYLE['sb_tool_acolor_v'] = "#d6e7ff"; // ("#d6e7ff") subject ƒc[ƒ‹ƒo[“à –K–â
 $STYLE['sb_tool_acolor_h'] = "#fff"; // ("#fff") subject ƒc[ƒ‹ƒo[“à ƒ}ƒEƒXƒI[ƒo[‚ÌƒŠƒ“ƒNF
 $STYLE['sb_tool_sepa_color'] = "#000"; // ("#000") subject ƒc[ƒ‹ƒo[“à ƒZƒpƒŒ[ƒ^•¶šF
 
-$STYLE['sb_now_sort_color'] = "#1144aa";	// ("#1144aa") subject Œ»İ‚Ìƒ\[ƒgF
+$STYLE['sb_now_sort_color'] = "#1144aa";    // ("#1144aa") subject Œ»İ‚Ìƒ\[ƒgF
 
-$STYLE['sb_thre_title_new_color'] = "red";	// ("red") subject V‹KƒXƒŒƒ^ƒCƒgƒ‹‚ÌF
+$STYLE['sb_thre_title_new_color'] = "red";    // ("red") subject V‹KƒXƒŒƒ^ƒCƒgƒ‹‚ÌF
 
 $STYLE['sb_tool_newres_color'] = "#ff3300"; // ("#ff3300") subject ƒc[ƒ‹ƒo[“à V‹KƒŒƒX”‚ÌF
 $STYLE['sb_newres_color'] = "#ff3300"; // ("#ff3300") subject V’…ƒŒƒX”‚ÌF

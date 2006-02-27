@@ -4,9 +4,9 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/thread.class.php');
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-require_once (P2_LIBRARY_DIR . '/dele.inc.php'); // 削除処理用の関数郡
+require_once P2_LIBRARY_DIR . '/thread.class.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIBRARY_DIR . '/dele.inc.php'; // 削除処理用の関数郡
 
 $_login->authorize(); // ユーザ認証
 
@@ -33,7 +33,6 @@ if (empty($host) || empty($bbs) || empty($key)) {
 
 if (!empty($_GET['dele']) && $key && $host && $bbs) {
     $r = deleteLogs($host, $bbs, array($key));
-    //echo $r;
     if (empty($r)) {
         $title_msg = "× ログ削除失敗";
         $info_msg = "× ログ削除失敗";
@@ -67,21 +66,21 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // {{{ お気に入りスレッド
 
 } elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
-    include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
+    include_once P2_LIBRARY_DIR . '/setfav.inc.php';
     setFav($host, $bbs, $key, $_GET['setfav']);
 
 // }}}
 // {{{ 殿堂入り
 
 } elseif (isset($_GET['setpal']) && $key && $host && $bbs) {
-    include_once (P2_LIBRARY_DIR . '/setpalace.inc.php');
+    include_once P2_LIBRARY_DIR . '/setpalace.inc.php';
     setPal($host, $bbs, $key, $_GET['setpal']);
 
 // }}}
 // {{{ スレッドあぼーん
 
 } elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-    include_once (P2_LIBRARY_DIR . '/settaborn.inc.php');
+    include_once P2_LIBRARY_DIR . '/settaborn.inc.php';
     settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
@@ -115,7 +114,7 @@ if (!$ttitle_en) {
         //$ttitle_urlen = rawurlencode($ttitle_en);
     }
 }
-if ($ttitle_en) { $ttitle_en_ht = "&amp;ttitle_en={$ttitle_en}"; }
+if ($ttitle_en) { $ttitle_en_ht = '&amp;ttitle_en=' . rawurlencode($ttitle_en); }
 
 if (!is_null($aThread->ttitle_hc)) {
     $hc['ttitle_name'] = $aThread->ttitle_hc;
@@ -254,6 +253,7 @@ if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html>
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
@@ -292,7 +292,7 @@ echo "</p>\n";
 // 携帯なら冒頭で表示
 if (!empty($_conf['ktai'])) {
     if (!empty($info_msg)) {
-        echo "<p>".$info_msg."</p>\n";
+        echo "<p>" . $info_msg . "</p>\n";
     }
 }
 
@@ -308,7 +308,7 @@ if (empty($_conf['ktai'])) {
     print_info_line("ホスト", $aThread->host);
 }
 print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$hd['itaj']}</a>");
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     print_info_line("key", $aThread->key);
 }
 if ($existLog) {
@@ -324,7 +324,7 @@ if ($aThread->gotnum) {
     print_info_line("既得レス数", "-");
 }
 
-// PC
+// PC用表示
 if (empty($_conf['ktai'])) {
     if (file_exists($aThread->keydat)) {
         if ($aThread->length) {
@@ -380,7 +380,7 @@ EOP;
 // }}}
 
 if (!empty($_conf['ktai'])) {
-    echo '<hr>'.$_conf['k_to_index_ht'];
+    echo '<hr>' . $_conf['k_to_index_ht'];
 }
 
 echo '</body></html>';
@@ -397,7 +397,7 @@ exit();
 function print_info_line($s, $c_ht)
 {
     global $_conf;
-    
+
     // 携帯
     if (!empty($_conf['ktai'])) {
         echo "{$s}: {$c_ht}<br>";
@@ -413,10 +413,10 @@ function print_info_line($s, $c_ht)
 function getCopypaFormHtml($url, $ttitle_name_hd)
 {
     $url_hd = htmlspecialchars($url, ENT_QUOTES);
-    
+
     $me_url = $me_url = P2Util::getMyUrl();
     // $_SERVER['REQUEST_URI']
-    
+
     $htm = <<<EOP
 <form action="{$me_url}">
  <textarea name="copy">{$ttitle_name_hd}&#10;{$url_hd}</textarea>

@@ -3,7 +3,7 @@
     p2 -  スレッド表示 -  フッタ部分 -  for read.php
 */
 
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 //=====================================================================
 // ■フッタ
@@ -16,19 +16,19 @@ if ($_conf['bottom_res_form']) {
     $host = $aThread->host;
     $rescount = $aThread->rescount;
     $ttitle_en = base64_encode($aThread->ttitle);
-    
+
     $submit_value = '書き込む';
 
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    include_once (P2_LIBRARY_DIR . '/post_options_loader.inc.php');
+    include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
-    
-    include_once (P2_LIBRARY_DIR . '/post_form.inc.php');
+
+    include_once P2_LIBRARY_DIR . '/post_form.inc.php';
 
     // フォーム
     $res_form_ht = <<<EOP
@@ -60,14 +60,14 @@ EOP;
 <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},0,0)"{$onmouse_showform_ht}>{$dores_st}</a>
 EOP;
         }
-        
+
         $res_form_ht_pb = $res_form_ht;
     }
-    
+
     if ($res1['body']) {
         $q_ichi = $res1['body']." | ";
     }
-    
+
     // レスのすばやさ
     $htm['spd'] = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
@@ -96,10 +96,10 @@ GOTO;
     //if (!$read_navi_next_isInvisible) {
     $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
     //}
-    
+
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
     */
-    
+
     if (!empty($GLOBALS['last_hit_resnum'])) {
         $read_navi_next_anchor = "";
         if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
@@ -112,7 +112,7 @@ GOTO;
         $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
     }
     // }}}
-    
+
     // ■プリント
     echo <<<EOP
 <hr>
@@ -120,9 +120,9 @@ GOTO;
     <tr>
         <td align="left">
             {$q_ichi}
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a> 
-            {$read_navi_previous} 
-            {$read_navi_next} 
+            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>
+            {$read_navi_previous}
+            {$read_navi_next}
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
             {$htm['goto']}
             | {$read_footer_navi_new}

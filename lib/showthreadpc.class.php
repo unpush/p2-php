@@ -3,7 +3,7 @@
     p2 - スレッドを表示する クラス PC用
 */
 
-require_once (P2EX_LIBRARY_DIR . '/expack_loader.class.php');
+require_once P2EX_LIBRARY_DIR . '/expack_loader.class.php';
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
 ExpackLoader::loadImageCache();
@@ -160,7 +160,7 @@ class ShowThreadPc extends ShowThread{
         $isChain = false;
         $automona_class = "";
 
-        if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain']) && 
+        if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain']) &&
             preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|', $date_id, $matches))
         {
             $id = $matches[1];
@@ -681,7 +681,7 @@ EOP;
                         if (FALSE !== ($link = call_user_func(array($this, $function[1], $url, $purl, $str))) {
                             return $link;
                         }
-                    } else 
+                    } else
                         if (FALSE !== ($link = call_user_func(array($function[0], $function[1]), $url, $purl, $str))) {
                             return $link;
                         }

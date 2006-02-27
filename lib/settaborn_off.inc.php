@@ -3,7 +3,7 @@
     p2 - スレッドあぼーん複数一括解除処理
 */
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * ■スレッドあぼーんを複数一括解除する
@@ -17,18 +17,18 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     // p2_threads_aborn.idx のパス取得
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
-    
+
     // p2_threads_aborn.idx がなければ
     if (!file_exists($taborn_idx)) { die("あぼーんリストが見つかりませんでした。"); }
-    
+
     // p2_threads_aborn.idx 読み込み
     $taborn_lines = @file($taborn_idx);
-    
+
     // 指定keyを削除
     foreach ($taborn_off_keys as $val) {
-        
+
         $neolines = array();
-        
+
         if ($taborn_lines) {
             foreach ($taborn_lines as $line) {
                 $line = rtrim($line);
@@ -42,10 +42,10 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
                 $neolines[] = $line;
             }
         }
-        
+
         $taborn_lines = $neolines;
     }
-    
+
     // 書き込む
     if (file_exists($taborn_idx)) {
         copy($taborn_idx, $taborn_idx.'.bak'); // 念のためバックアップ

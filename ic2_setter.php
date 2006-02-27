@@ -18,10 +18,10 @@ if (!$_conf['expack.ic2.enabled']) {
 // {{{ ÉâÉCÉuÉâÉäì«Ç›çûÇ›
 
 require_once 'HTML/Template/Flexy.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
 
 // }}}
 // {{{ config

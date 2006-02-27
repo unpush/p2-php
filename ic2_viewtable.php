@@ -22,9 +22,9 @@ if (!$_conf['expack.ic2.enabled']) {
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
 require_once 'HTML/Template/Flexy.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
 
 // }}}
 // {{{ 設定と消去
@@ -43,13 +43,13 @@ if (!isset($_REQUEST['table'])) {
 $mode = $_REQUEST['table'];
 switch ($mode) {
     case 'errlog':
-        require_once (P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php');
+        require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
         $table = &new IC2DB_Errors;
         $table->orderBy('occured ASC');
         $title = 'エラーログ';
         break;
     case 'blacklist':
-        require_once (P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php');
+        require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
         $table = &new IC2DB_BlackList;
         $table->orderBy('uri ASC');
         $title = 'ブラックリスト';

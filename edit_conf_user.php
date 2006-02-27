@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php';  // Šî–{İ’è
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
@@ -23,13 +23,13 @@ if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
 if (!empty($_POST['submit_save'])) {
 
     // ’l‚Ì“K³ƒ`ƒFƒbƒNA‹¸³
-    
+
     // ƒgƒŠƒ€
     $_POST['conf_edit'] = array_map('trim', $_POST['conf_edit']);
-    
+
     // ‘I‘ğˆ‚É‚È‚¢‚à‚Ì ¨ ƒfƒtƒHƒ‹ƒg‹¸³
     notSelToDef();
-    
+
     // empty ¨ ƒfƒtƒHƒ‹ƒg‹¸³
     emptyToDef();
 
@@ -52,24 +52,24 @@ if (!empty($_POST['submit_save'])) {
         }
     }
 
-    // ƒVƒŠƒAƒ‰ƒCƒY‚µ‚ÄAƒf[ƒ^PHPŒ`®‚Å•Û‘¶
-    $cont = serialize($conf_save);
-    if (DataPhp::writeDataPhp($_conf['conf_user_file'], $cont, $_conf['conf_user_perm'])) {
+    // ƒVƒŠƒAƒ‰ƒCƒY‚µ‚Ä•Û‘¶
+    FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
+    if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
+        $_info_msg_ht .= "<p>~İ’è‚ğXV•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½</p>";
+    } else {
         $_info_msg_ht .= "<p>›İ’è‚ğXV•Û‘¶‚µ‚Ü‚µ‚½</p>";
         // •ÏX‚ª‚ ‚ê‚ÎA“à•”ƒf[ƒ^‚àXV‚µ‚Ä‚¨‚­
         $_conf = array_merge($_conf, $conf_user_def);
         if (is_array($conf_save)) {
             $_conf = array_merge($_conf, $conf_save);
         }
-    } else {
-        $_info_msg_ht .= "<p>~İ’è‚ğXV•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½</p>";
     }
 
 // }}}
 // {{{ ¡ƒfƒtƒHƒ‹ƒg‚É–ß‚·ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚Ä‚¢‚½‚ç
 
 } elseif (!empty($_POST['submit_default'])) {
-    if (@unlink($_conf['conf_user_file'])) {
+    if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
         $_info_msg_ht .= "<p>›İ’è‚ğƒfƒtƒHƒ‹ƒg‚É–ß‚µ‚Ü‚µ‚½</p>";
         // •ÏX‚ª‚ ‚ê‚ÎA“à•”ƒf[ƒ^‚àXV‚µ‚Ä‚¨‚­
         $_conf = array_merge($_conf, $conf_user_def);
@@ -188,7 +188,7 @@ echo getEditConfHtml('be_2ch_mail', 'be.2ch.net‚Ì“o˜^ƒ[ƒ‹ƒAƒhƒŒƒX');
 echo getGroupSepaHtml('PATH');
 
 //echo getEditConfHtml('first_page', '‰E‰º•”•ª‚ÉÅ‰‚É•\¦‚³‚ê‚éƒy[ƒWBƒIƒ“ƒ‰ƒCƒ“URL‚à‰ÂB');
-echo getEditConfHtml('brdfile_online', 
+echo getEditConfHtml('brdfile_online',
     '”ÂƒŠƒXƒg‚Ìw’èiƒIƒ“ƒ‰ƒCƒ“URLj<br>
     ”ÂƒŠƒXƒg‚ğƒIƒ“ƒ‰ƒCƒ“URL‚©‚ç©“®‚Å“Ç‚İ‚ŞB
     w’èæ‚Í menu.html Œ`®A2channel.brd Œ`®‚Ì‚Ç‚¿‚ç‚Å‚à‚æ‚¢B
@@ -247,6 +247,8 @@ echo getEditConfHtml('ktai_ryaku_size', 'Œg‘Ñ‰{——AƒŒƒX‚ğÈ—ª‚µ‚½‚Æ‚«‚Ì•\¦ƒTƒ
 echo getEditConfHtml('before_respointer_k', 'Œg‘Ñ‰{——Aƒ|ƒCƒ“ƒ^‚Ì‰½ƒR‘O‚ÌƒŒƒX‚©‚ç•\¦‚·‚é‚©');
 echo getEditConfHtml('k_use_tsukin', 'Œg‘Ñ‰{——AŠO•”ƒŠƒ“ƒN‚É’Ê‹Îƒuƒ‰ƒEƒU(’Ê)‚ğ—˜—p(‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('k_use_picto', 'Œg‘Ñ‰{——A‰æ‘œƒŠƒ“ƒN‚Épic.to(Ëß)‚ğ—˜—p(‚·‚é, ‚µ‚È‚¢)');
+
+echo getEditConfHtml('k_bbs_noname_name', 'Œg‘Ñ‰{——AƒfƒtƒHƒ‹ƒg‚Ì–¼–³‚µ–¼‚ğ•\¦i‚·‚é, ‚µ‚È‚¢j');
 
 // }}}
 // {{{ NG/‚ ‚Ú[‚ñ
@@ -455,9 +457,9 @@ exit;
 function emptyToDef()
 {
     global $conf_user_def, $conf_user_rules;
-    
+
     $rule = 'NotEmpty';
-    
+
     if (is_array($conf_user_rules)) {
         foreach ($conf_user_rules as $n => $va) {
             if (in_array($rule, $va)) {
@@ -480,9 +482,9 @@ function emptyToDef()
 function notIntExceptMinusToDef()
 {
     global $conf_user_def, $conf_user_rules;
-    
+
     $rule = 'IntExceptMinus';
-    
+
     if (is_array($conf_user_rules)) {
         foreach ($conf_user_rules as $n => $va) {
             if (in_array($rule, $va)) {
@@ -516,9 +518,9 @@ function notIntExceptMinusToDef()
 /*function notFloatExceptMinusToDef()
 {
     global $conf_user_def, $conf_user_rules;
-    
+
     $rule = 'FloatExceptMinus';
-    
+
     if (is_array($conf_user_rules)) {
         foreach ($conf_user_rules as $n => $va) {
             if (in_array($rule, $va)) {
@@ -550,10 +552,10 @@ function notIntExceptMinusToDef()
 function notSelToDef()
 {
     global $conf_user_def, $conf_user_sel, $conf_user_rad;
-    
+
     $conf_user_list = array_merge($conf_user_sel, $conf_user_rad);
     $names = array_keys($conf_user_list);
-    
+
     if (is_array($names)) {
         foreach ($names as $n) {
             if (isset($_POST['conf_edit'][$n])) {
@@ -572,7 +574,7 @@ function notSelToDef()
 function getGroupSepaHtml($title)
 {
     global $_conf;
-    
+
     // PC—p
     if (empty($_conf['ktai'])) {
         $ht = <<<EOP
@@ -600,13 +602,13 @@ function getEditConfHtml($name, $description_ht)
     }
 
     $name_view = htmlspecialchars($_conf[$name], ENT_QUOTES);
-    
+
     if (empty($_conf['ktai'])) {
         $input_size_at = ' size="38"';
     } else {
         $input_size_at = '';
     }
-    
+
     // select ‘I‘ğŒ`®‚È‚ç
     if ($conf_user_sel[$name]) {
         $form_ht = getEditConfSelHtml($name);
@@ -628,7 +630,7 @@ EOP;
             $def_views[$name] = $conf_user_def[$name];
         }
     }
-    
+
     // PC—p
     if (empty($_conf['ktai'])) {
         $r = <<<EOP
@@ -647,7 +649,7 @@ EOP;
 <br>\n
 EOP;
     }
-    
+
     return $r;
 }
 
@@ -672,7 +674,7 @@ function getEditConfSelHtml($name)
         $value_ht = htmlspecialchars($value, ENT_QUOTES);
         $options_ht .= "\t<option value=\"{$key_ht}\"{$selected}>{$value_ht}</option>\n";
     } // foreach
-    
+
     $form_ht = <<<EOP
         <select name="conf_edit[{$name}]">
         {$options_ht}
@@ -704,7 +706,7 @@ function getEditConfRadHtml($name)
         $value_ht = htmlspecialchars($value, ENT_QUOTES);
         $form_ht .= "<label><input type=\"radio\" name=\"conf_edit[{$name}]\" value=\"{$key_ht}\"{$checked}>{$value_ht}</label>\n";
     } // foreach
-    
+
     return $form_ht;
 }
 

@@ -5,11 +5,11 @@
 */
 
 include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/threadlist.class.php');
-require_once (P2_LIBRARY_DIR . '/thread.class.php');
-require_once (P2_LIBRARY_DIR . '/threadread.class.php');
-require_once (P2_LIBRARY_DIR . '/ngabornctl.class.php');
-require_once (P2_LIBRARY_DIR . '/read_new.inc.php');
+require_once P2_LIBRARY_DIR . '/threadlist.class.php';
+require_once P2_LIBRARY_DIR . '/thread.class.php';
+require_once P2_LIBRARY_DIR . '/threadread.class.php';
+require_once P2_LIBRARY_DIR . '/ngabornctl.class.php';
+require_once P2_LIBRARY_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -88,7 +88,7 @@ if ($spmode) {
     // スレッドあぼーんリスト読込
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $taborn_file = $idx_host_dir.'/'.$bbs.'/p2_threads_aborn.idx';
-    
+
     if ($tabornlines = @file($taborn_file)) {
         $ta_num = sizeOf($tabornlines);
         foreach ($tabornlines as $l) {
@@ -108,31 +108,31 @@ $ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
 // &amp;sb_view={$sb_view}
 if ($aThreadList->spmode) {
     $sb_ht = <<<EOP
-        <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$ptitle_hd}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-        <a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
+<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
 EOP;
 } else {
     $sb_ht = <<<EOP
-        <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hd}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-        <a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
+<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
 EOP;
 }
 
 // ========================================================
-// include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
+// include_once P2_LIBRARY_DIR . '/read_header.inc.php';
 
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html>
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$ptitle_ht}</title>\n
+{$_conf['meta_charset_ht']}
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<title>{$ptitle_ht}</title>\n
 EOHEADER;
 
 echo <<<EOP
@@ -159,7 +159,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
     $l = $lines[$x];
     $aThread =& new ThreadRead();
-    
+
     $aThread->torder = $x + 1;
 
     // データ読み込み
@@ -189,18 +189,18 @@ for ($x = 0; $x < $linesize; $x++) {
         $aThread->host = $aThreadList->host;
         $aThread->bbs = $aThreadList->bbs;
     }
-    
+
     // hostもbbsも不明ならスキップ
     if (!($aThread->host && $aThread->bbs)) {
         unset($aThread);
         continue;
     }
-    
+
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
     $aThread->getThreadInfoFromIdx(); // 既得スレッドデータをidxから取得
 
     // 新着のみ(for subject) =========================================
-    if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) { 
+    if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) {
         if ($aThread->unum < 1) {
             unset($aThread);
             continue;
@@ -208,23 +208,23 @@ for ($x = 0; $x < $linesize; $x++) {
     }
 
     // スレッドあぼーんチェック =====================================
-    if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) { 
+    if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) {
         unset($ta_keys[$aThread->key]);
         continue; //あぼーんスレはスキップ
     }
 
     // spmode(殿堂入りを除く)なら ====================================
-    if ($aThreadList->spmode && $sb_view != "edit") { 
-        
+    if ($aThreadList->spmode && $sb_view != "edit") {
+
         // subject.txtが未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
-        
-            require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+
+            require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
         }
-        
+
         // スレ情報取得 =============================
         if ($subject_txts["$aThread->host/$aThread->bbs"]) {
             foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
@@ -234,7 +234,7 @@ for ($x = 0; $x < $linesize; $x++) {
                 }
             }
         }
-        
+
         // 新着のみ(for spmode) ===============================
         if ($sb_view == "shinchaku" and !$_GET['word']) {
             if ($aThread->unum < 1) {
@@ -243,33 +243,33 @@ for ($x = 0; $x < $linesize; $x++) {
             }
         }
     }
-    
+
     if ($aThread->isonline) { $online_num++; } // 生存数set
-    
+
     echo $_info_msg_ht;
     $_info_msg_ht = "";
-    
+
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
     } else {
         $read_new_html .= ob_get_flush();
     }
     ob_start();
-    
+
     if (($aThread->readnum < 1) || $aThread->unum) {
         readNew($aThread);
     } elseif ($aThread->diedat) {
         echo $aThread->getdat_error_msg_ht;
         echo "<hr>\n";
     }
-    
+
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
     } else {
         $read_new_html .= ob_get_flush();
     }
     ob_start();
-    
+
     // リストに追加 ========================================
     // $aThreadList->addThread($aThread);
     $aThreadList->num++;
@@ -286,14 +286,14 @@ function readNew(&$aThread)
     global $_info_msg_ht, $spmode;
 
     $newthre_num++;
-    
+
     //==========================================================
     // idxの読み込み
     //==========================================================
-    
+
     //hostを分解してidxファイルのパスを求める
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
-    
+
     //FileCtl::mkdir_for($aThread->keyidx);     //板ディレクトリが無ければ作る //この操作はおそらく不要
 
     $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
@@ -305,18 +305,18 @@ function readNew(&$aThread)
         $data = explode('<>', rtrim($lines[0]));
     }
     $aThread->getThreadInfoFromIdx();
-    
+
     //==================================================================
     // DATのダウンロード
     //==================================================================
     if (!($word and file_exists($aThread->keydat))) {
         $aThread->downloadDat();
     }
-    
+
     // DATを読み込み
     $aThread->readDat();
     $aThread->setTitleFromLocal(); // ローカルからタイトルを取得して設定
-    
+
     //===========================================================
     // 表示レス番の範囲を設定
     //===========================================================
@@ -334,22 +334,22 @@ function readNew(&$aThread)
             $aThread->ls = "$from_num-";
         //}
     }
-    
+
     $aThread->lsToPoint();
-    
+
     //==================================================================
     // ヘッダ 表示
     //==================================================================
     $motothre_url = $aThread->getMotoThread();
-    
+
     $ttitle_en = base64_encode($aThread->ttitle);
     $ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
     $bbs_q = "&amp;bbs=".$aThread->bbs;
     $key_q = "&amp;key=".$aThread->key;
     $popup_q = "&amp;popup=1";
-    
-    // include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
-    
+
+    // include_once P2_LIBRARY_DIR . '/read_header.inc.php';
+
     $prev_thre_num = $newthre_num - 1;
     $next_thre_num = $newthre_num + 1;
     if ($prev_thre_num != 0) {
@@ -357,16 +357,16 @@ function readNew(&$aThread)
     }
     //$next_thre_ht = "<a href=\"#ntt{$next_thre_num}\">▼</a> ";
     $next_thre_ht = "<a href=\"#ntt_bt{$newthre_num}\">▼</a> ";
-    
+
     $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
-    
+
     if ($spmode) {
         $read_header_itaj_ht = " ({$itaj_hd})";
     }
-    
+
     echo $_info_msg_ht;
     $_info_msg_ht = "";
-    
+
     $read_header_ht = <<<EOP
         <hr>
         <p id="ntt{$newthre_num}" name="ntt{$newthre_num}"><font color="{$STYLE['mobile_read_ttitle_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</p>
@@ -380,24 +380,24 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
         //$aThread->datToHtml(); // dat を html に変換表示
-        include_once (P2_LIBRARY_DIR . '/showthread.class.php');
-        include_once (P2_LIBRARY_DIR . '/showthreadk.class.php');
+        include_once P2_LIBRARY_DIR . '/showthread.class.php';
+        include_once P2_LIBRARY_DIR . '/showthreadk.class.php';
         $aShowThread =& new ShowThreadK($aThread);
-        
+
         $read_cont_ht .= $aShowThread->getDatToHtml();
-        
+
         unset($aShowThread);
     }
-    
+
     //==================================================================
     // フッタ 表示
     //==================================================================
     //include($read_footer_inc);
-    
+
     //----------------------------------------------
     // $read_footer_navi_new  続きを読む 新着レスの表示
     $newtime = date("gis");  // リンクをクリックしても再読込しない仕様に対抗するダミークエリー
-    
+
     $info_st = "情";
     $delete_st = "削";
     $prev_st = "前";
@@ -412,14 +412,14 @@ EOP;
     $read_range_ht = "{$read_range_on}/{$aThread->rescount}<br>";
 
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\">新着ﾚｽの表示</a>";
-    
+
     if (!empty($_conf['disable_res'])) {
         $dores_ht = <<<EOP
-          <a href="{$motothre_url}" target="_blank">ﾚｽ</a>
+<a href="{$motothre_url}" target="_blank">ﾚｽ</a>
 EOP;
     } else {
         $dores_ht = <<<EOP
-        <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
 EOP;
     }
 
@@ -430,18 +430,18 @@ EOP;
 EOP;
     }
     $toolbar_right_ht .= <<<EOTOOLBAR
-            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a> 
-            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a> 
-            <a href="{$motothre_url}">元ｽﾚ</a>\n
+<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
+<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a>
+<a href="{$motothre_url}">元ｽﾚ</a>\n
 EOTOOLBAR;
 
     $read_footer_ht = <<<EOP
-        <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
-            $read_range_ht 
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rc={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht} 
-            <a href="#ntt{$newthre_num}">▲</a>
-        </div>
-        <hr>\n
+<div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
+$read_range_ht
+<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rc={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}
+<a href="#ntt{$newthre_num}">▲</a>
+</div>
+<hr>\n
 EOP;
 
     // 透明あぼーんや表示数制限で新しいレス表示がない場合はスキップ
@@ -455,11 +455,11 @@ EOP;
     // key.idxの値設定
     //==================================================================
     if ($aThread->rescount) {
-    
+
         $aThread->readnum = min($aThread->rescount, max(0, $data[5], $aThread->resrange['to']));
-        
+
         $newline = $aThread->readnum + 1; // $newlineは廃止予定だが、旧互換用に念のため
-        
+
         $sar = array($aThread->ttitle, $aThread->key, $data[2], $aThread->rescount, $aThread->modified,
                     $aThread->readnum, $data[6], $data[7], $data[8], $newline,
                     $data[10], $data[11], $aThread->datochiok);
@@ -487,15 +487,15 @@ if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !emp
         $str = '新まとめを更新';
     }
     echo <<<EOP
-    <div>
-        {$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.{$str}</a>
-    </div>\n
+<div>
+{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.{$str}</a>
+</div>\n
 EOP;
 } else {
     echo <<<EOP
-    <div>
-        {$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめの続き</a>
-    </div>\n
+<div>
+{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめの続き</a>
+</div>\n
 EOP;
 }
 

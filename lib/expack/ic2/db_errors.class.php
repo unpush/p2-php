@@ -2,8 +2,8 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
 
 class IC2DB_Errors extends IC2DB_Skel
 {

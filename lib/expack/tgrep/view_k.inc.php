@@ -21,11 +21,11 @@
 <?php if (!$query) { ?>
 <?php
 if ($_conf['expack.tgrep.quicksearch']) {
-    include_once (P2EX_LIBRARY_DIR . '/tgrep/menu_quick.inc.php');
+    include_once P2EX_LIBRARY_DIR . '/tgrep/menu_quick.inc.php';
     echo "<hr>\n";
 }
 if ($_conf['expack.tgrep.recent_num'] > 0) {
-    include_once (P2EX_LIBRARY_DIR . '/tgrep/menu_recent.inc.php');
+    include_once P2EX_LIBRARY_DIR . '/tgrep/menu_recent.inc.php';
     echo "<hr>\n";
 }
 ?>

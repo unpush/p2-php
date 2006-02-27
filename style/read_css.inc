@@ -2,22 +2,17 @@
 // p2 ースタイル設定
 // for read.php
 
-$respop_background = "background-color:#ffffcc;";
-if (isset($STYLE['respop_bgcolor']) || isset($STYLE['respop_background'])) {
-    $respop_background = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
-}
+if (!isset($STYLE['respop_bgcolor']))    { $STYLE['respop_bgcolor'] = '#ffffcc'; }
+if (!isset($STYLE['respop_background'])) { $STYLE['respop_background'] = ''; }
+$respop_background = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
 
-$respop_border = "border:1px black solid;";
-if (isset($STYLE['respop_b_style']) || isset($STYLE['respop_b_width']) || isset($STYLE['respop_b_color'])) {
-    $respop_border = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {$STYLE['respop_b_color']};";
-} else {
-    $STYLE['respop_b_style'] = 'solid';
-    $STYLE['respop_b_width'] = '1px';
-    $STYLE['respop_b_color'] = 'black';
-}
+if (!isset($STYLE['respop_b_style'])) { $STYLE['respop_b_style'] = 'solid'; }
+if (!isset($STYLE['respop_b_width'])) { $STYLE['respop_b_width'] = '1px';   }
+if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = 'black'; }
+$respop_border = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {$STYLE['respop_b_color']};";
 
 $respop_color = '';
-if (isset($STYLE['respop_color'])) {
+if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
     $respop_color = "color:{$STYLE['respop_color']};";
 }
 

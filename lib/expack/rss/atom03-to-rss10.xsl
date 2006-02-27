@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" 
+<xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:atom="http://purl.org/atom/ns#"
 	xmlns:xhtml="http://www.w3.org/1999/xhtml"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-	xmlns:dc="http://purl.org/dc/elements/1.1/" 
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
 	xmlns:content="http://purl.org/rss/1.0/modules/content/"
 	xmlns="http://purl.org/rss/1.0/">
 
@@ -31,7 +31,7 @@ This XSL is based on http://cavedoni.com/2004/02/atom03rss1.xsl
 			<dc:creator><xsl:value-of select="atom:author/atom:name"/></dc:creator>
 		</xsl:if>
 	</channel>
-	
+
 	<xsl:call-template name="items"/>
 	</rdf:RDF>
 </xsl:template>

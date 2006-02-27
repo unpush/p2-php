@@ -177,6 +177,10 @@ $conf_user_rad['k_use_tsukin'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['k_use_picto'] = 1; // (1)
 $conf_user_rad['k_use_picto'] = array('1' => 'する', '0' => 'しない');
 
+// 携帯閲覧時、デフォルトの名無し名を表示（する:1, しない:0）
+$conf_user_def['k_bbs_noname_name'] = 0; // (0)
+$conf_user_sel['k_bbs_noname_name'] = array('1' => 'する', '0' => 'しない');
+
 // }}}
 // {{{ ■NG/あぼーん
 

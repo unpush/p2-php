@@ -5,12 +5,12 @@
 class ShowBrdMenuPc{
 
     var $cate_id; // カテゴリーID
-    
+
     function ShowBrdMenuPc()
     {
         $this->cate_id = 1;
     }
-    
+
     /**
      * 板メニューをプリントする
      */
@@ -39,18 +39,18 @@ class ShowBrdMenuPc{
                 $this->cate_id++;
             }
         }
-        
+
     }
-    
+
     /**
      * お気に板をプリントする
      */
     function print_favIta()
     {
         global $_conf, $matome_i, $STYLE;
-        
+
         $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['PHP_SELF']);
-        
+
         echo <<<EOP
     <div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_favita');" target="_self">お気に板</a></b> [<a href="editfavita.php" target="subject">編集</a>]
 EOP;
@@ -62,9 +62,9 @@ EOP;
         echo <<<EOP
         <div class="itas" id="c_favita">
 EOP;
-        
+
         $lines= @file($_conf['favita_path']); // favita読み込み
-        
+
         if($lines){
             foreach ($lines as $l) {
                 $l = rtrim($l);
@@ -73,11 +73,11 @@ EOP;
                     $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
                     $itaj_en = rawurlencode(base64_encode($itaj));
                     $itaj_js = addslashes($itaj_view);
-                    
+
                     $p_htm['star'] = <<<EOP
 <a href="{$menu_php_ht}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す" onclick="return window.confirm('「{$itaj_js}」をお気に板から外してよろしいですか？');">★</a>
 EOP;
-                    //  onClick="return confirmSetFavIta('{$itaj_ht}');"                    
+                    //  onClick="return confirmSetFavIta('{$itaj_ht}');"
                     // 新着数を表示する場合
                     if ($_conf['enable_menu_new'] && $_GET['new']) {
                         $matome_i++;
@@ -107,18 +107,18 @@ EOP;
                 {$p_htm['star']}
                 <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}">{$itaj_view}</a><br>
 EOP;
-                
+
                     }
 
                 }
-                
+
                 flush();
-                
+
             } // foreach
-            
+
             echo "    </div>\n";
             echo "</div>\n";
-            
+
         // 空っぽなら
         } else {
             echo '　（空っぽ）';
@@ -128,6 +128,6 @@ EOP;
 </div>
 EOP;
     }
-    
+
 }
 ?>

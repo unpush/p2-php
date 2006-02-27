@@ -3,7 +3,7 @@
     p2 - まちBBS用の関数
 */
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * まちBBSの read.pl を読んで datに保存する
@@ -26,7 +26,7 @@ function machiDownload()
         $aThread->gotnum = 0;
     }
     // }}}
-    
+
     if ($aThread->gotnum == 0) {
         $file_append = false;
         $START = 1;
@@ -39,17 +39,17 @@ function machiDownload()
     $machiurl = "http://{$aThread->host}/bbs/read.pl?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
 
     $tempfile = $aThread->keydat.'.html.temp';
-    
+
     FileCtl::mkdir_for($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
-    
+
     if ($machiurl_res->is_error()) {
         $aThread->diedat = true;
         return false;
     }
-    
+
     $mlines = @file($tempfile);
-    
+
     // 一時ファイルを削除する
     unlink($tempfile);
 
@@ -59,7 +59,7 @@ function machiDownload()
         $aThread->diedat = true;
         return false;
     }
-    
+
     // {{{ DATを書き込む
     if ($mdatlines =& machiHtmltoDatLines($mlines)) {
 
@@ -78,9 +78,9 @@ function machiDownload()
         }
     }
     // }}}
-    
+
     $aThread->isonline = true;
-    
+
     return true;
 }
 
@@ -97,7 +97,7 @@ function &machiHtmltoDatLines(&$mlines)
         return $retval;
     }
     $mdatlines = "";
-    
+
     foreach ($mlines as $ml) {
         $ml = rtrim($ml);
         if (!$tuduku) {
@@ -129,7 +129,7 @@ function &machiHtmltoDatLines(&$mlines)
             $tuduku = true;
             continue;
         }
-        
+
         if ($ip) {
             $date = "$date [$ip]";
         }
@@ -148,7 +148,7 @@ function &machiHtmltoDatLines(&$mlines)
         }
         unset($tuduku);
     }
-    
+
     return $mdatlines;
 }
 

@@ -202,7 +202,7 @@ function submitApply()
 if (empty($_conf['ktai'])) {
     $onclick = " onClick=''if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['PHP_SELF'];
-    
+
 // Œg‘Ñ—p
 } else {
     $onclick = '';

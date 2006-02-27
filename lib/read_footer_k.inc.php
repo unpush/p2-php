@@ -20,7 +20,9 @@ $hd['read_range'] = $read_range_on.'/'.$aThread->rescount;
 // レス番指定移動 etc.
 $htm['goto'] = kspform($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']);
 
-// プリント============================================================
+//=====================================================================
+// プリント
+//=====================================================================
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
@@ -39,13 +41,13 @@ EOP;
     }
     echo <<<EOP
 <p>
-    <a id="footer" name="footer">{$hd['read_range']}</a><br>
-    {$read_navi_previous_btm} 
-    {$read_navi_next_btm} 
-    {$read_navi_latest_btm}
-    {$read_footer_navi_new_btm} 
-    {$dores_ht}
-    {$read_navi_filter_btm}<br>
+<a id="footer" name="footer">{$hd['read_range']}</a><br>
+{$read_navi_previous_btm}
+{$read_navi_next_btm}
+{$read_navi_latest_btm}
+{$read_footer_navi_new_btm}
+{$dores_ht}
+{$read_navi_filter_btm}
 </p>
 <p>
     {$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a>

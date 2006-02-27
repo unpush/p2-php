@@ -3,9 +3,9 @@
 // フレーム分割画面、右下部分
 
 include_once './conf/conf.inc.php'; // 基本設定読込
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
-require_once (P2_LIBRARY_DIR . '/res_hist.class.php');
-require_once (P2_LIBRARY_DIR . '/read_res_hist.inc.php');
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIBRARY_DIR . '/res_hist.class.php';
+require_once P2_LIBRARY_DIR . '/read_res_hist.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -52,7 +52,7 @@ if ($datlines) {
     foreach ($datlines as $aline) {
 
         $aResArticle =& new ResArticle();
-        
+
         $resar = explode("<>", $aline);
         $aResArticle->name = $resar[0];
         $aResArticle->mail = $resar[1];
@@ -67,16 +67,16 @@ if ($datlines) {
         }
         $aResArticle->key = trim($resar[7]);
         $aResArticle->order = $n;
-        
+
         $aResHist->addRes($aResArticle);
-        
+
         $n++;
     }
 }
 
 // HTMLプリント用変数
-$htm['checkall'] = '全てのチェックボックスを 
-<input type="button" onclick="hist_checkAll(true)" value="選択"> 
+$htm['checkall'] = '全てのチェックボックスを
+<input type="button" onclick="hist_checkAll(true)" value="選択">
 <input type="button" onclick="hist_checkAll(false)" value="解除">';
 
 $htm['toolbar'] = <<<EOP
@@ -196,7 +196,7 @@ if ($_conf['ktai']) {
 EOP;
 }
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     echo '</form>'."\n";
 }
 

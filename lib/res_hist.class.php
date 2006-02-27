@@ -23,9 +23,9 @@ class ResArticle{
 class ResHist{
     var $articles; // クラス ResArticle のオブジェクトを格納する配列
     var $num; // 格納された BrdMenuCate オブジェクトの数
-    
+
     var $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
-    
+
     /**
      * コンストラクタ
      */
@@ -34,7 +34,7 @@ class ResHist{
         $this->articles = array();
         $this->num = 0;
     }
-    
+
     /**
      * レスを追加する
      *
@@ -44,8 +44,8 @@ class ResHist{
     {
         $this->articles[] =& $aResArticle;
         $this->num++;
-    }    
-    
+    }
+
     /**
      * レス記事を表示する PC用
      *
@@ -54,9 +54,9 @@ class ResHist{
     function showArticles()
     {
         global $_conf, $STYLE;
-        
+
         $sid_q = (defined('SID')) ? '&amp;' . strip_tags(SID) : '';
-        
+
         // Pager 準備
         require_once 'Pager/Pager.php';
         $perPage = 100;
@@ -81,14 +81,14 @@ class ResHist{
         if ($pager->links) {
             echo "<div>{$pager->links}</div>";
         }
-        
+
         echo '<dl>';
-        
+
         foreach ($data as $a_res) {
             $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
             $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
             $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
-            
+
             $href_ht = "";
             if ($a_res->key) {
                 $href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$_conf['k_at_a']}#footer";
@@ -118,14 +118,14 @@ EOP;
             echo $res_ht;
             flush();
         }
-        
+
         echo '</dl>';
-        
+
         if ($pager->links) {
             echo "<div>{$pager->links}</div>";
         }
     }
-    
+
     /**
      * 携帯用ナビを表示する
      * 表示範囲もセットされる
@@ -137,7 +137,7 @@ EOP;
         // 表示数制限
         $list_disp_all_num = $this->num;
         $list_disp_range = $_conf['k_rnum_range'];
-        
+
         if ($_GET['from']) {
             $list_disp_from = $_GET['from'];
             if ($_GET['end']) {
@@ -156,7 +156,7 @@ EOP;
             */
         }
         $disp_navi = P2Util::getListNaviRange($list_disp_from, $list_disp_range, $list_disp_all_num);
-        
+
         $this->resrange['start'] = $disp_navi['from'];
         $this->resrange['to'] = $disp_navi['end'];
         $this->resrange['nofirst'] = false;
@@ -183,7 +183,7 @@ EOP;
 EOP;
             }
         }
-        
+
         if (!$disp_navi['all_once']) {
             $list_navi_ht = <<<EOP
         {$disp_navi['range_st']}{$mae_ht} {$tugi_ht}
@@ -191,36 +191,36 @@ EOP;
         }
 
         echo $list_navi_ht;
-    
+
     }
-    
+
     /**
      * レス記事を表示するメソッド 携帯用
      */
     function showArticlesK()
     {
         global $_conf;
-        
+
         foreach ($this->articles as $a_res) {
             $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
             $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
             $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
-            
+
             if ($a_res->order < $this->resrange['start'] or $a_res->order > $this->resrange['to']) {
                 continue;
             }
-        
+
             $href_ht = "";
             if ($a_res->key) {
                 $href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$_conf['k_at_a']}#footer";
             }
-        
+
         // 大きさ制限
         if (!$_GET['k_continue']) {
             $msg = $a_res->msg;
             if (strlen($msg) > $_conf['ktai_res_size']) {
                 $msg = substr($msg, 0, $_conf['ktai_ryaku_size']);
-                
+
                 // 末尾に<br>があれば取り除く
                 if (substr($msg, -1)==">") {
                     $msg = substr($msg, 0, strlen($msg)-1);
@@ -234,7 +234,7 @@ EOP;
                 if (substr($msg, -1)=="<") {
                     $msg = substr($msg, 0, strlen($msg)-1);
                 }
-                
+
                 $msg = $msg."  ";
                 $a_res->msg = $msg."<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
             }
@@ -255,11 +255,11 @@ EOP;
             }
             $res_ht .= '<br>';
             $res_ht .= "{$a_res->msg}<hr>\n"; // 内容
-            
+
             echo $res_ht;
-    
+
         }
-        
+
         return true;
     }
 }

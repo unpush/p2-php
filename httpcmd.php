@@ -38,9 +38,9 @@ if (isset($_GET['cmd'])) {
 
 // {{{ ログ削除
 
-if ($cmd == 'delelog') { 
+if ($cmd == 'delelog') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
-        include_once (P2_LIBRARY_DIR . '/dele.inc.php');
+        include_once P2_LIBRARY_DIR . '/dele.inc.php';
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
         if (empty($r)) {
             $r_msg = "0"; // 失敗
@@ -50,13 +50,13 @@ if ($cmd == 'delelog') {
             $r_msg = "2"; // なし
         }
     }
-    
+
 // }}}
 // {{{ お気にスレ
 
 } elseif ($cmd == 'setfav') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
-        include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
+        include_once P2_LIBRARY_DIR . '/setfav.inc.php';
         $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav']);
         if (empty($r)) {
             $r_msg = "0"; // 失敗
@@ -64,13 +64,13 @@ if ($cmd == 'delelog') {
             $r_msg = "1"; // 完了
         }
     }
-    
+
 // }}}
 // {{{ スレッドあぼーん
 
 } elseif ($cmd == 'taborn') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['taborn'])) {
-        include_once (P2_LIBRARY_DIR . '/settaborn.inc.php');
+        include_once P2_LIBRARY_DIR . '/settaborn.inc.php';
         $r = settaborn($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['taborn']);
         if (empty($r)) {
             $r_msg = "0"; // 失敗

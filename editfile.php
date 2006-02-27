@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -28,7 +28,7 @@ isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 //=========================================================
 // 書き込めるファイルを限定する
 $writable_files = array(
-                        //"conf.inc.php", "conf_user.inc.php", "conf_user_style.inc.php",
+                        //"conf.inc.php", "conf_user_style.inc.php",
                         //"p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
                         //"p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
                         "p2_aborn_res.txt",
@@ -49,7 +49,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
 }
 
 //=========================================================
-// メイン 
+// メイン
 //=========================================================
 if (isset($filecont)) {
     if (setFile($path, $filecont, $encode)) {
@@ -91,28 +91,28 @@ function setFile($path, $cont, $encode)
 function editFile($path, $encode)
 {
     global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
-    
+
     if ($path == '') {
         die('Error: path が指定されていません');
     }
-    
+
     $filename = basename($path);
     $ptitle = "Edit: ".$filename;
-    
+
     //ファイル内容読み込み
     FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
     $cont = @file_get_contents($path);
-    
+
     if ($encode == "EUC-JP") {
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
     }
-    
+
     $cont_area = htmlspecialchars($cont, ENT_QUOTES);
-    
+
     if ($modori_url) {
         $modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";
     }
-    
+
     // プリント
     echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -139,7 +139,7 @@ EOHEADER;
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
     <input type="submit" name="submit" value="Save"> $_info_msg_ht<br>
-    <textarea style="font-size:9pt;" id="filecont" name="filecont" rows="{$rows}" cols="{$cols}" wrap="off">{$cont_area}</textarea>    
+    <textarea style="font-size:9pt;" id="filecont" name="filecont" rows="{$rows}" cols="{$cols}" wrap="off">{$cont_area}</textarea>
 </form>
 EOFORM;
 

@@ -24,6 +24,9 @@ echo <<<EOSTYLE
 	.sortList {
 		cursor:move; width:200px; padding:4px 16px 0 0;
 	}
+	ul#italist {
+		list-style-type:none;
+	}
 
 -->
 </style>

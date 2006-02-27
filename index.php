@@ -2,7 +2,7 @@
 // rep2 -  インデックスページ
 
 include_once './conf/conf.inc.php';  // 基本設定ファイル読込
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -30,15 +30,15 @@ if ($_conf['ktai']) {
         header('Location: '.$me_dir_url.'/read.php?'.$_SERVER['QUERY_STRING']);
         exit;
     }
-    include_once (P2_LIBRARY_DIR . '/index_print_k.inc.php');
+    include_once P2_LIBRARY_DIR . '/index_print_k.inc.php';
     index_print_k();
-    
+
 } else {
     //=========================================
     // PC用 変数
     //=========================================
     $title_page = "title.php";
-    
+
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
         $htm['read_page'] = "read.php?".$_SERVER['QUERY_STRING'];
     } else {
@@ -48,9 +48,9 @@ if ($_conf['ktai']) {
             $htm['read_page'] = 'first_cont.php';
         }
     }
-    
+
     $sidebar = $_GET['sidebar'];
-    
+
     $ptitle = "rep2";
     //======================================================
     // PC用 HTMLプリント
@@ -75,7 +75,7 @@ EOHEADER;
     <frame src="menu.php" name="menu" scrolling="auto">
 EOMENUFRAME;
     }
-    
+
     echo <<<EOMAINFRAME
     <frameset rows="40%,60%" frameborder="1" border="2">
         <frame src="{$title_page}" name="subject" scrolling="auto">
@@ -86,7 +86,7 @@ EOMAINFRAME;
     if (!$sidebar) {
         echo '</frameset>'."\n";
     }
-    
+
     echo '</html>';
 
 }

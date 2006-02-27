@@ -11,13 +11,13 @@ function index_print_k()
     global $_conf, $_login, $_info_msg_ht;
 
     $newtime = date('gis');
-    
+
     $body = "";
     $ptitle = "rep2ﾓﾊﾞｲﾙ";
-    
+
     // 認証ユーザ情報
     $htm['auth_user'] = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - ".date("Y/m/d (D) G:i:s")."</p>\n";
-    
+
     // 前回のログイン情報
     if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
         if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
@@ -32,12 +32,12 @@ REFERER: {$log_hd['referer']}
 EOP;
         }
     }
-    
+
     // 古いセッションIDがキャッシュされていることを考慮して、ユーザ情報を付加しておく
     // （リファラを考慮して、つけないほうがいい場合もあるので注意）
     $user_at_a = '&amp;user='.$_login->user_u;
     $user_at_q = '?user='.$_login->user_u;
-    
+
     $rss_k_ht = '';
     $iv2_k_ht = '';
     if ($_conf['expack.rss.enabled']) {
@@ -58,9 +58,9 @@ EOP;
     echo <<<EOP
 <html>
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$ptitle}</title>
+{$_conf['meta_charset_ht']}
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<title>{$ptitle}</title>
 </head>
 <body{$_conf['k_colors']}>
 <h1>{$ptitle}</h1>

@@ -5,8 +5,8 @@
     p2機能拡張パック - RSS画像キャッシュ
 */
 
-require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
 
 /**
  * イメージキャッシュのURLと画像サイズを返す

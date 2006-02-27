@@ -4,8 +4,8 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/brdctl.class.php');
-require_once (P2_LIBRARY_DIR . '/showbrdmenuk.class.php');
+require_once P2_LIBRARY_DIR . '/brdctl.class.php';
+require_once P2_LIBRARY_DIR . '/showbrdmenuk.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -29,9 +29,9 @@ if (isset($word) && strlen($word) > 0) {
     if (preg_match('/^\.+$/', $word)) {
         $word = '';
     }
-    
+
     // and検索
-    include_once (P2_LIBRARY_DIR . '/strctl.class.php');
+    include_once P2_LIBRARY_DIR . '/strctl.class.php';
     $word_fm = StrCtl::wordForMatch($word, 'and');
     if (P2_MBREGEX_AVAILABLE == 1) {
         $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
@@ -49,7 +49,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
+    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -102,7 +102,7 @@ if($_GET['view']=="favita"){
     if ($mobile->isNonMobile()) {
         output_add_rewrite_var('b', 'k');
     }
-    @include_once (P2EX_LIBRARY_DIR . '/rss/menu.inc.php');
+    @include_once P2EX_LIBRARY_DIR . '/rss/menu.inc.php';
 
 
 // それ以外ならbrd読み込み
@@ -148,7 +148,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
                 $aShowBrdMenuK->printItaSearch($a_brd_menu->categories);
             }
         }
-        
+
     }
     if (!$GLOBALS['ita_mikke']['num']) {
         $_info_msg_ht .=  "<p>\"{$hd['word']}\"を含む板は見つかりませんでした。</p>\n";

@@ -21,11 +21,11 @@ if (!$_conf['expack.ic2.enabled']) {
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
 require_once 'HTTP/Client.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/database.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/db_images.class.php');
-require_once (P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
 
 
 // }}}
@@ -208,7 +208,7 @@ if ($result) {
 }
 
 // 画像がブラックリストにあるか確認
-require_once (P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
 $blacklist = &new IC2DB_BlackList;
 if ($blacklist->get($uri)) {
     switch ($blacklist->type) {
@@ -230,7 +230,7 @@ if ($blacklist->get($uri)) {
 
 // 画像がエラーログにあるか確認
 if (!$force && $ini['Getter']['checkerror']) {
-    require_once (P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php');
+    require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
     $errlog = &new IC2DB_Errors;
     if ($errlog->get($uri)) {
         ic2_error($errlog->errcode, '', FALSE);
@@ -715,7 +715,7 @@ function ic2_display($path)
 
             // 表示
             $flexy->setData('title', 'キャッシュ完了');
-            if (!$_conf['ktai']) {
+            if (empty($_conf['ktai'])) {
                 $flexy->setData('pc', TRUE);
                 $flexy->setData('skin', $GLOBALS['skin_name']);
                 //$flexy->setData('stylesheets', array('css'));
@@ -824,7 +824,7 @@ function ic2_error($code, $optmsg = '', $write_log = TRUE)
     }
 
     if ($write_log) {
-        require_once (P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php');
+        require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
         $logger = &new IC2DB_Errors;
         $logger->uri     = isset($uri) ? $uri : (isset($id) ? $id : $file);
         $logger->errcode = $code;

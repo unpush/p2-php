@@ -22,7 +22,7 @@ if (!$_conf['expack.ic2.enabled']) {
 require_once 'PEAR.php';
 require_once 'DB.php';
 require_once 'HTML/Template/Flexy.php';
-require_once (P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php');
+require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
 
 // Ý’è“Ç‚Ýž‚Ý
 $ini = ic2_loadconfig();
@@ -52,7 +52,7 @@ if (isset($_POST['action'])) {
 
         case 'dropZero':
         case 'dropAborn':
-            require_once (P2EX_LIBRARY_DIR . '/ic2/managedb.inc.php');
+            require_once P2EX_LIBRARY_DIR . '/ic2/managedb.inc.php';
 
             if ($_POST['action'] == 'dropZero') {
                 $where = $db->quoteIdentifier('rank') . ' = 0';

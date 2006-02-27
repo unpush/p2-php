@@ -27,7 +27,7 @@ function getSetPosLines($lines, $data, $before_line_num, $set)
 
     } elseif ($set == 'bottom') {
         $after_line_num = 'bottom';
-    
+
     } else {
         return $lines;
     }
@@ -52,7 +52,7 @@ function getSetPosLines($lines, $data, $before_line_num, $set)
     } else {
         $reclines[] = $data;
     }
-    
+
     return $reclines;
 }
 ?>

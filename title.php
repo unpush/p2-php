@@ -2,7 +2,7 @@
 // p2 -  タイトルページ
 
 include_once './conf/conf.inc.php';   // 基本設定ファイル読込
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -43,7 +43,7 @@ if (!in_array($_conf['pref_dir'], $checked_dirs)) {
 if ($array = P2Util::readIdPw2ch()) {
     list($login2chID, $login2chPW, $autoLogin2ch) = $array;
     if ($autoLogin2ch) {
-        include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+        include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
         login2ch();
     }
 }
@@ -171,27 +171,27 @@ function checkUpdatan()
     global $_conf, $p2web_url_r, $expack_url_r, $expack_dl_url_r, $expack_hist_url_r;
 
     $no_p2status_dl_flag  = false;
-    
+
     $ver_txt_url = $_conf['expack.web_url'] . 'expack-status2.txt';
     $cachefile = P2Util::cacheFileForDL($ver_txt_url);
     FileCtl::mkdir_for($cachefile);
-    
+
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら
         if (@filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
             $no_p2status_dl_flag = true;
         }
     }
-    
+
     if (empty($no_p2status_dl_flag)) {
         P2Util::fileDownload($ver_txt_url, $cachefile);
     }
-    
+
     $ver_txt = file($cachefile);
     $update_ver = rtrim($ver_txt[0]);
     $kita = 'ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!';
     //$kita = 'ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!';
-    
+
     $newversion_found_html = '';
     if ($update_ver && version_compare($update_ver, $_conf['p2expack'], '>')) {
         $newversion_found_html = <<<EOP

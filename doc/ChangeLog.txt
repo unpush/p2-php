@@ -1,7 +1,40 @@
+2006-02-27 aki
+	* rep2 version 1.7.22
+	
+	[修正] DoCoMoで固有端末認証ができていなかったのを修正した
+	[修正] mozillaで情報画面のタイトルが文字化けして、色が変になることがあったらしいのを修正した
+	[改良] 携帯閲覧時は、デフォルトの名無し名を表示しないようにした（設定可）
+	[内部変更] データファイル conf_user.inc.php を conf_user.srd.cgi に変更した
+	
+	- 新規追加ファイル
+		lib/SettingTxt.php
+		
+	- 変更のあったファイル
+		edit_conf_user.php
+		editfile.php
+		editpref.php
+		info.php
+		read.php
+		subject_new.php
+		conf/conf.inc.php
+		conf/conf_admin.inc.php
+		conf/conf_user_def.inc.php
+		lib/SubjectTxt.class.php
+		lib/dataphp.class.php
+		lib/login.class.php
+		lib/login_first.inc.php
+		lib/post_form.inc.php
+		lib/post_options_loader.inc.php
+		lib/read_footer_k.inc.php
+		lib/read_header.inc.php
+		lib/showthreadk.class.php
+		lib/strctl.class.php
+		lib/threadread.class.php
+
 2006-02-23 aki
 	* rep2 version 1.7.21
 	
-	[改良] レスポップアップ表示の遅延に対応した
+	[改良] レスポップアップに表示遅延が働くようにした
 	
 	- 変更のあったファイル
 		conf/conf.inc.php
