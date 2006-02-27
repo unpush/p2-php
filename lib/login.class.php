@@ -41,7 +41,6 @@ class Login{
     {
         $this->user_u = $user;
         $this->user = $user;
-        return true;
     }
 
     /**

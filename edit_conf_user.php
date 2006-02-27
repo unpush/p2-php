@@ -49,22 +49,22 @@ if (!empty($_POST['submit_save'])) {
         }
     }
 
-    // ƒVƒŠƒAƒ‰ƒCƒY‚µ‚ÄAƒf[ƒ^PHPŒ`®‚Å•Û‘¶
-    $cont = serialize($conf_save);
-    if (DataPhp::writeDataPhp($_conf['conf_user_file'], $cont, $_conf['conf_user_perm'])) {
+    // ƒVƒŠƒAƒ‰ƒCƒY‚µ‚Ä•Û‘¶
+    FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
+    if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
+        $_info_msg_ht .= "<p>~İ’è‚ğXV•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½</p>";
+    } else {
         $_info_msg_ht .= "<p>›İ’è‚ğXV•Û‘¶‚µ‚Ü‚µ‚½</p>";
         // •ÏX‚ª‚ ‚ê‚ÎA“à•”ƒf[ƒ^‚àXV‚µ‚Ä‚¨‚­
         $_conf = array_merge($_conf, $conf_user_def);
         $_conf = array_merge($_conf, $conf_save);
-    } else {
-        $_info_msg_ht .= "<p>~İ’è‚ğXV•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½</p>";
     }
 
 // }}}
 // {{{ ¡ƒfƒtƒHƒ‹ƒg‚É–ß‚·ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚Ä‚¢‚½‚ç
 
 } elseif (!empty($_POST['submit_default'])) {
-    if (@unlink($_conf['conf_user_file'])) {
+    if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
         $_info_msg_ht .= "<p>›İ’è‚ğƒfƒtƒHƒ‹ƒg‚É–ß‚µ‚Ü‚µ‚½</p>";
         // •ÏX‚ª‚ ‚ê‚ÎA“à•”ƒf[ƒ^‚àXV‚µ‚Ä‚¨‚­
         $_conf = array_merge($_conf, $conf_user_def);
@@ -225,6 +225,8 @@ echo getEditConfHtml('ktai_ryaku_size', 'Œg‘Ñ‰{——AƒŒƒX‚ğÈ—ª‚µ‚½‚Æ‚«‚Ì•\¦ƒTƒ
 echo getEditConfHtml('before_respointer_k', 'Œg‘Ñ‰{——Aƒ|ƒCƒ“ƒ^‚Ì‰½ƒR‘O‚ÌƒŒƒX‚©‚ç•\¦‚·‚é‚©');
 echo getEditConfHtml('k_use_tsukin', 'Œg‘Ñ‰{——AŠO•”ƒŠƒ“ƒN‚É’Ê‹Îƒuƒ‰ƒEƒU(’Ê)‚ğ—˜—p(‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('k_use_picto', 'Œg‘Ñ‰{——A‰æ‘œƒŠƒ“ƒN‚Épic.to(Ëß)‚ğ—˜—p(‚·‚é, ‚µ‚È‚¢)');
+
+echo getEditConfHtml('k_bbs_noname_name', 'Œg‘Ñ‰{——AƒfƒtƒHƒ‹ƒg‚Ì–¼–³‚µ–¼‚ğ•\¦i‚·‚é, ‚µ‚È‚¢j');
 
 echo getGroupSepaHtml('ETC');
 

@@ -48,7 +48,7 @@ class StrCtl{
      *
      * @param string $pattern マッチ文字列。SJISで入ってくる。
      * @param string $target  検索対象文字列。SJISで入ってくる。
-     * @param string $zenhan  全角/半角の区別を完全になくす
+     * @param string $zenhan  全角/半角の区別を完全になくす（これをオンにすると、メモリの使用量が倍くらいになる。速度負担はそれほどでもない）
      */
     function filterMatch($pattern, $target, $zenhan = true)
     {

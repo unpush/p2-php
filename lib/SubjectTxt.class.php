@@ -16,10 +16,10 @@ class SubjectTxt{
     
     var $host;
     var $bbs;
-    var $subject_file;
     var $subject_url;
+    var $subject_file;
     var $subject_lines;
-    var $storage; // file, eashm(eAccelerator shm)
+    var $storage; // file, eashm(eAccelerator shm) // 2006/02/27 aki eashm は非推奨
     
     /**
      * コンストラクタ
@@ -73,7 +73,7 @@ class SubjectTxt{
      *
      * @return string subject.txt の中身
      */
-    function &downloadSubject()
+    function downloadSubject()
     {
         global $_conf, $_info_msg_ht;
 
@@ -118,7 +118,7 @@ class SubjectTxt{
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
                     $aNewSubjectTxt = &new SubjectTxt($new_host, $this->bbs);
-                    $body = &$aNewSubjectTxt->downloadSubject();
+                    $body = $aNewSubjectTxt->downloadSubject();
                     return $body;
                 }
             }
@@ -185,7 +185,7 @@ class SubjectTxt{
         if (file_exists($this->subject_file)) {
             // キャッシュの更新が指定時間以内なら
             // clearstatcache();
-            if (@filemtime($this->subject_file) > time() - $_conf['sb_dl_interval']) {
+            if (filemtime($this->subject_file) > time() - $_conf['sb_dl_interval']) {
                 return true;
             }
         }
@@ -211,9 +211,9 @@ class SubjectTxt{
         
         } elseif ($this->storage == 'file') {
             if (extension_loaded('zlib') and strstr($this->host, '.2ch.net')) {
-                $this->subject_lines = @gzfile($this->subject_file);    // これはそのうち外す 2005/6/5
+                $this->subject_lines = gzfile($this->subject_file);    // これはそのうち外す 2005/6/5
             } else {
-                $this->subject_lines = @file($this->subject_file);
+                $this->subject_lines = file($this->subject_file);
             }
         }
         
@@ -221,13 +221,6 @@ class SubjectTxt{
         if (P2Util::isHostJbbsShitaraba($this->host)) {
             $this->subject_lines = array_unique($this->subject_lines);
         }
-        
-        /*
-        // be.2ch.net ならEUC→SJIS変換
-        if (P2Util::isHostBe2chNet($this->host)) {
-            $this->subject_lines = array_map(create_function('$str', 'return mb_convert_encoding($str, "SJIS-win", "eucJP-win");'), $this->subject_lines);
-        }
-        */
         
         if ($this->subject_lines) {
             return true;

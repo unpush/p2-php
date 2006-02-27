@@ -33,7 +33,6 @@ if (empty($host) || empty($bbs) || empty($key)) {
 
 if (!empty($_GET['dele']) && $key && $host && $bbs) {
     $r = deleteLogs($host, $bbs, array($key));
-    //echo $r;
     if (empty($r)) {
         $title_msg = "~ ƒƒOíœŽ¸”s";
         $info_msg = "~ ƒƒOíœŽ¸”s";
@@ -115,7 +114,7 @@ if (!$ttitle_en) {
         //$ttitle_urlen = rawurlencode($ttitle_en);
     }
 }
-if ($ttitle_en) { $ttitle_en_ht = "&amp;ttitle_en={$ttitle_en}"; }
+if ($ttitle_en) { $ttitle_en_ht = '&amp;ttitle_en=' . rawurlencode($ttitle_en); }
 
 if (!is_null($aThread->ttitle_hc)) {
     $hc['ttitle_name'] = $aThread->ttitle_hc;
@@ -254,6 +253,7 @@ if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOHEADER
 <html>
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
@@ -290,7 +290,7 @@ echo "</p>\n";
 // Œg‘Ñ‚È‚ç–`“ª‚Å•\Ž¦
 if (!empty($_conf['ktai'])) {
     if (!empty($info_msg)) {
-        echo "<p>".$info_msg."</p>\n";
+        echo "<p>" . $info_msg . "</p>\n";
     }
 }
 
@@ -306,7 +306,7 @@ if (empty($_conf['ktai'])) {
     print_info_line("ƒzƒXƒg", $aThread->host);
 }
 print_info_line("”Â", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$hd['itaj']}</a>");
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     print_info_line("key", $aThread->key);
 }
 if ($existLog) {
@@ -322,7 +322,7 @@ if ($aThread->gotnum) {
     print_info_line("Šù“¾ƒŒƒX”", "-");
 }
 
-// PC
+// PC—p•\Ž¦
 if (empty($_conf['ktai'])) {
     if (file_exists($aThread->keydat)) {
         if ($aThread->length) {
@@ -378,7 +378,7 @@ EOP;
 // }}}
 
 if (!empty($_conf['ktai'])) {
-    echo '<hr>'.$_conf['k_to_index_ht'];
+    echo '<hr>' . $_conf['k_to_index_ht'];
 }
 
 echo '</body></html>';

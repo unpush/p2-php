@@ -22,7 +22,7 @@ $aborn_st = "‚ ‚Ú‚ñ";
 $motothre_url = $aThread->getMotoThread();
 $ttitle_en = base64_encode($aThread->ttitle);
 $ttitle_urlen = rawurlencode($ttitle_en);
-$ttitle_en_q = "&amp;ttitle_en=".$ttitle_urlen;
+$ttitle_en_q = "&amp;ttitle_en=" . $ttitle_urlen;
 $bbs_q = "&amp;bbs=".$aThread->bbs;
 $key_q = "&amp;key=".$aThread->key;
 $popup_q = "&amp;popup=1";

@@ -28,7 +28,7 @@ isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 //=========================================================
 // èëÇ´çûÇﬂÇÈÉtÉ@ÉCÉãÇå¿íËÇ∑ÇÈ
 $writable_files = array(
-                        //"conf.inc.php", "conf_user.inc.php", "conf_user_style.inc.php",
+                        //"conf.inc.php", "conf_user_style.inc.php",
                         "p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
                         "p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt", "p2_aborn_res.txt",
                         //"conf_user_ex.php", "conf_constant.inc",
