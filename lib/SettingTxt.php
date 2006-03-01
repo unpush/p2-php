@@ -8,10 +8,10 @@ class SettingTxt{
     
     var $host;
     var $bbs;
-    var $url;
-    var $setting_txt;   // SETTING.TXT
-    var $setting_cache; // p2_kb_setting.srd
-    var $setting_array = array();
+    var $url;           // SETTING.TXT のURL
+    var $setting_txt;   // SETTING.TXT ローカル保存ファイルパス
+    var $setting_cache; // p2_kb_setting.srd $this->setting_array を serialize() したデータファイル
+    var $setting_array = array(); // SETTING.TXTをパースした連想配列
     var $cache_interval;
     
     /**
@@ -80,10 +80,11 @@ class SettingTxt{
         // DL
         include_once "HTTP/Request.php";
         
-        $params = array("timeout" => $_conf['fsockopen_time_limit']);
+        $params = array();
+        $params['timeout'] = $_conf['fsockopen_time_limit'];
         if ($_conf['proxy_use']) {
-            $params = array("proxy_host" => $_conf['proxy_host']);
-            $params = array("proxy_port" => $_conf['proxy_port']);
+            $params['proxy_host'] = $_conf['proxy_host'];
+            $params['proxy_port'] = $_conf['proxy_port'];
         }
         $req =& new HTTP_Request($this->url, $params);
         $modified && $req->addHeader("If-Modified-Since", $modified);
