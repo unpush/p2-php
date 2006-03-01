@@ -1,6 +1,12 @@
 // textareaの高さをライブ調節する
 function adjustTextareaRows(obj, org, plus) {
-	var aLen = countLines(obj.value, obj.cols);
+	var brlen = null;
+	if (obj.wrap) {
+		if (obj.wrap == 'virtual' || obj.wrap == 'soft') {
+			brlen = obj.cols;
+		}
+	}
+	var aLen = countLines(obj.value, brlen);
 	var aRows = aLen + plus;
 	var move = 0;
 	var scroll = 14;
@@ -29,15 +35,21 @@ function adjustTextareaRows(obj, org, plus) {
 	}
 }
 
-// \n を改行として行数を数える
-function countLines(str, len) {
+/**
+ * \n を改行として行数を数える
+ *
+ * @param integer brlen 改行する文字数。無指定なら文字数で改行しない
+ */
+function countLines(str, brlen) {
 	var lines = str.split("\n");
 	var count = lines.length;
 	var aLen = 0;
 	for (var i = 0; i < lines.length; i++) {
 		aLen = jstrlen(lines[i]);
-		if (aLen > len) {
-			count = count + Math.ceil(aLen / len);
+		if (brlen) {
+			if (aLen > brlen) {
+				count = count + Math.ceil(aLen / brlen);
+			}
 		}
 	}
 	return count;

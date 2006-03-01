@@ -1,3 +1,33 @@
+2006-03-01 aki
+	* rep2 version 1.7.24
+
+	[改良] カキコフォーム伸びーる＆縮ーむを少し改良した
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		js/post_form.js
+		
+2006-03-01 aki
+	* rep2 version 1.7.23
+
+	[修正] subject.txt, SETTING.TXTの取得でプロキシが効いていなかったをの修正した。
+	[修正] プロキシの設定をユーザ設定編集から変更できるようにした。
+	[修正] c.2chへの元スレリンクで、レス指定のl数字は(l200など)は、nと指定するようにした。
+	[新機能] カキコフォーム伸びーる＆縮ーむを実装した。
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		edit_conf_user.php
+		js/post_form.js
+		lib/BbsMap.class.php
+		lib/p2util.class.php
+		lib/post_form.inc.php
+		lib/read_footer.inc.php
+		lib/SettingTxt.php
+		lib/SubjectTxt.class.php
+		lib/thread.class.php
+		read_new.php
+		
 2006-02-27 aki
 	* rep2 version 1.7.22
 	
@@ -10,16 +40,13 @@
 		lib/SettingTxt.php
 		
 	- 変更のあったファイル
-		edit_conf_user.php
-		editfile.php
-		editpref.php
-		info.php
-		read.php
-		subject_new.php
 		conf/conf.inc.php
 		conf/conf_admin.inc.php
 		conf/conf_user_def.inc.php
-		lib/SubjectTxt.class.php
+		editfile.php
+		editpref.php
+		edit_conf_user.php
+		info.php
 		lib/dataphp.class.php
 		lib/login.class.php
 		lib/login_first.inc.php
@@ -29,7 +56,10 @@
 		lib/read_header.inc.php
 		lib/showthreadk.class.php
 		lib/strctl.class.php
+		lib/SubjectTxt.class.php
 		lib/threadread.class.php
+		read.php
+		subject_new.php
 
 2006-02-23 aki
 	* rep2 version 1.7.21
