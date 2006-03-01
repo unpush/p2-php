@@ -96,10 +96,11 @@ class SubjectTxt{
         // ¡DL
         include_once "HTTP/Request.php";
 
-        $params = array("timeout" => $_conf['fsockopen_time_limit']);
+        $params = array();
+        $params['timeout'] = $_conf['fsockopen_time_limit'];
         if ($_conf['proxy_use']) {
-            $params = array("proxy_host" => $_conf['proxy_host']);
-            $params = array("proxy_port" => $_conf['proxy_port']);
+            $params['proxy_host'] = $_conf['proxy_host'];
+            $params['proxy_port'] = $_conf['proxy_port'];
         }
         $req =& new HTTP_Request($this->subject_url, $params);
         $modified && $req->addHeader("If-Modified-Since", $modified);

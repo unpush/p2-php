@@ -5,8 +5,8 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.22';     // rep2のバージョン
-$_conf['p2expack'] = '060227.2134'; // ASAPのバージョン
+$_conf['p2version'] = '1.7.24';     // rep2のバージョン
+$_conf['p2expack'] = '060301.1934'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 

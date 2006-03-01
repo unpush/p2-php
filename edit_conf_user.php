@@ -261,6 +261,9 @@ echo getEditConfHtml('ngaborn_frequent_num', '頻出IDあぼーんのしきい値（出現回数
 echo getEditConfHtml('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない（総レス数/スレ立てからの日数、0なら無効）');
 echo getEditConfHtml('ngaborn_chain', '連鎖NGあぼーん(する, しない, あぼーんレスへのレスもNGにする) <br>処理を軽くするため、表示範囲のレスにしか連鎖しない');
 echo getEditConfHtml('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）');
+echo getEditConfHtml('proxy_use', 'プロキシを利用 (する, しない)'); 
+echo getEditConfHtml('proxy_host', 'プロキシホスト ex)"127.0.0.1", "www.p2proxy.com"'); 
+echo getEditConfHtml('proxy_port', 'プロキシポート ex)"8080"'); 
 
 // }}}
 // {{{ ETC

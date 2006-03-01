@@ -1000,6 +1000,11 @@ ERR;
 
         $params = array("timeout" => $timeout);
 
+        if (!empty($_conf['proxy_use'])) {
+            $params['proxy_host'] = $_conf['proxy_host'];
+            $params['proxy_port'] = $_conf['proxy_port'];
+        }
+
         $req =& new HTTP_Request($url, $params);
         //$req->addHeader("X-PHP-Version", phpversion());
 

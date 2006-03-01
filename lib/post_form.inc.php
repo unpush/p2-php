@@ -5,8 +5,15 @@
 
 if (!empty($_conf['ktai'])) {
     $htm['k_br'] = '<br>';
+    $htm['on_js'] = '';
 } else {
     $htm['k_br'] = '';
+    if ($dp_msg_at) {
+        //$dp_msg_at  = " onkeyup=\"{$js['dp_setmsg']}\" onchange=\"{$js['dp_setmsg']}\"";
+        $htm['kaiko_on_js'] = ' onFocus="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);" onKeyup="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);' . $js['dp_setmsg'] . '" onChange="' . $js['dp_setmsg'] . '"';
+    } else {
+        $htm['kaiko_on_js'] = ' onFocus="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);" onKeyup="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);"';
+    }
 }
 
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
@@ -21,7 +28,7 @@ $htm['post_form'] = <<<EOP
     {$htm['sage_cb']}
     {$htm['options']}
     <br>
-    <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$dp_msg_at}>{$hd['MESSAGE']}</textarea>
+    <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kaiko_on_js']}>{$hd['MESSAGE']}</textarea>
     <br>
     {$htm['src_fix']}
     {$htm['dpreview_onoff']}

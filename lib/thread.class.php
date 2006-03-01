@@ -2,12 +2,10 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-// p2 - スレッド クラス
-
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
- * ■スレッドクラス
+ * p2 - スレッドクラス
  */
 class Thread{
 
@@ -128,7 +126,7 @@ class Thread{
     }
 
     /**
-     * ■ Set Path info
+     * Set Path info
      */
     function setThreadPathInfo($host, $bbs, $key)
     {
@@ -150,7 +148,7 @@ class Thread{
     }
 
     /**
-     * ■スレッドが既得済みならtrueを返す
+     * スレッドが既得済みならtrueを返す
      */
     function isKitoku()
     {
@@ -162,7 +160,7 @@ class Thread{
     }
 
     /**
-     * ■既得スレッドデータをkey.idxから取得する
+     * 既得スレッドデータをkey.idxから取得する
      */
     function getThreadInfoFromIdx()
     {
@@ -225,7 +223,7 @@ class Thread{
     }
 
     /**
-     * ■ローカルDATのファイルサイズを取得する
+     * ローカルDATのファイルサイズを取得する
      */
     function getDatBytesFromLocalDat()
     {
@@ -234,7 +232,7 @@ class Thread{
     }
 
     /**
-     * ■ subject.txt の一行からスレ情報を取得する
+     * subject.txt の一行からスレ情報を取得する
      */
     function getThreadInfoFromSubjectTxtLine($l)
     {
@@ -263,7 +261,7 @@ class Thread{
     }
 
     /**
-     * ■スレタイトル取得メソッド
+     * スレタイトル取得メソッド
      */
     function setTitleFromLocal()
     {
@@ -302,7 +300,7 @@ class Thread{
     }
 
     /**
-     * ■元スレURLを返す
+     * 元スレURLを返す
      */
     function getMotoThread($original = false)
     {
@@ -319,21 +317,27 @@ class Thread{
                     $motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
                 } else {
                     $mail = urlencode($_conf['my_mail']);
-                    $motothre_url = "http://c.2ch.net/test/--3!mail={$mail}/{$this->bbs}/{$this->key}/{$this->ls}";
+                    // c.2chはl指定に非対応なので、代わりにn
+                    $ls = (substr($this->ls, 0, 1) == 'l') ? 'n' : $this->ls;
+                    $motothre_url = "http://c.2ch.net/test/--3!mail={$mail}/{$this->bbs}/{$this->key}/{$ls}";
                 }
             }
+
         // まちBBS
         } elseif (P2Util::isHostMachiBbs($this->host)) {
             $motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";
             if ($_conf['ktai'] && !$original) { $motothre_url .= '&IMODE=TRUE'; }
+
         // まちびねっと
         } elseif (P2Util::isHostMachiBbsNet($this->host)) {
             $motothre_url = "http://{$this->host}/test/read.cgi?bbs={$this->bbs}&key={$this->key}";
             if ($_conf['ktai'] && !$original) { $motothre_url .= '&imode=true'; }
+
         // JBBSしたらば
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
             $bbs_cgi = ($_conf['ktai'] && !$original) ? 'i.cgi' : 'bbs.cgi';
             $motothre_url = "http://jbbs.livedoor.jp/bbs/{$bbs_cgi}/{$this->bbs}/{$this->key}/{$this->ls}";
+
         // その他
         } else {
             $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
@@ -343,7 +347,7 @@ class Thread{
     }
 
     /**
-     * ■勢い（レス/日）をセットする
+     * 勢い（レス/日）をセットする
      */
     function setDayRes($nowtime = false)
     {
@@ -368,7 +372,7 @@ class Thread{
     }
 
     /**
-     * ■レス間隔（時間/レス）を取得する
+     * レス間隔（時間/レス）を取得する
      */
     function getTimePerRes()
     {

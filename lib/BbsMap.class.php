@@ -302,11 +302,15 @@ class BbsMap
         // {{{ メニューをダウンロード
 
         $params = array();
+        $params['timeout'] = $_conf['fsockopen_time_limit'];
+        //$params['readTimeout'] = array($_conf['fsockopen_time_limit'], 0);
         if (isset($mtime)) {
             $params['requestHeaders'] = array('If-Modified-Since' => gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
         }
-        $params['timeout'] = $_conf['fsockopen_time_limit'];
-        //$params['readTimeout'] = array($_conf['fsockopen_time_limit'], 0);
+        if ($_conf['proxy_use']) {
+            $params['proxy_host'] = $_conf['proxy_host'];
+            $params['proxy_port'] = $_conf['proxy_port'];
+        }
         $req = &new HTTP_Request($bbsmenu_url, $params);
         $req->setMethod('GET');
         $err = $req->sendRequest(true);
