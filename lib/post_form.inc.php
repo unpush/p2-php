@@ -5,8 +5,10 @@
 
 if (!empty($_conf['ktai'])) {
     $htm['k_br'] = '<br>';
+    $htm['on_js'] = '';
 } else {
     $htm['k_br'] = '';
+    $htm['kaiko_on_js'] = ' onFocus="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);" onKeyup="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);"';
 }
 
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
@@ -20,7 +22,7 @@ $htm['post_form'] = <<<EOP
     {$htm['maru_post']} 名前： <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}>{$htm['k_br']} 
      E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}>
     {$sage_cb_ht}
-    <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}">{$hd['MESSAGE']}</textarea>{$htm['k_br']}
+    <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kaiko_on_js']}>{$hd['MESSAGE']}</textarea>{$htm['k_br']}
     <input type="submit" name="submit" value="{$submit_value}" onClick="setHiddenValue(this);">
     {$htm['be2ch']}
     <br>

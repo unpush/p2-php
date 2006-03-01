@@ -245,6 +245,9 @@ echo getEditConfHtml('enable_menu_new', '”Âƒƒjƒ…[‚ÉV’…”‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚
 echo getEditConfHtml('menu_refresh_time', '”Âƒƒjƒ…[•”•ª‚Ì©“®XVŠÔŠu (•ªw’èB0‚È‚ç©“®XV‚µ‚È‚¢B)');
 echo getEditConfHtml('k_save_packet', 'Œg‘Ñ‰{——AƒpƒPƒbƒg—Ê‚ğŒ¸‚ç‚·‚½‚ßA‘SŠp‰p”EƒJƒiEƒXƒy[ƒX‚ğ”¼Šp‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('ngaborn_daylimit', '‚±‚ÌŠúŠÔANG‚ ‚Ú[‚ñ‚ÉHIT‚µ‚È‚¯‚ê‚ÎA“o˜^ƒ[ƒh‚ğ©“®“I‚ÉŠO‚·i“ú”j');
+echo getEditConfHtml('proxy_use', 'ƒvƒƒLƒV‚ğ—˜—p (‚·‚é, ‚µ‚È‚¢)'); 
+echo getEditConfHtml('proxy_host', 'ƒvƒƒLƒVƒzƒXƒg ex)"127.0.0.1", "www.p2proxy.com"'); 
+echo getEditConfHtml('proxy_port', 'ƒvƒƒLƒVƒ|[ƒg ex)"8080"'); 
 echo getEditConfHtml('precede_openssl', 'œƒƒOƒCƒ“‚ğA‚Ü‚¸‚Íopenssl‚Å‚İ‚éB¦PHP 4.3.0ˆÈ~‚ÅAOpenSSL‚ªÃ“I‚ÉƒŠƒ“ƒN‚³‚ê‚Ä‚¢‚é•K—v‚ª‚ ‚éB');
 echo getEditConfHtml('precede_phpcurl', 'curl‚ğg‚¤AƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å‚ÆPHPŠÖ””Å‚Ç‚¿‚ç‚ğ—Dæ‚·‚é‚© (ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å:0, PHPŠÖ””Å:1)');
 
