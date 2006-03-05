@@ -331,9 +331,9 @@ if ($inline && $_conf['expack.aas.inline_fontsize']) {
     list($width, $height) = aas_getTextBoxSize($size, $font, $hint, $lc);
     $max_width = $default_width - 2;
     $max_height = $default_height - 2;
-    $ratio = max($max_width / $width, $max_height / $height);
+    $ratio = max($width / $max_width, $height / $max_height);
     if ($ratio > 1.0) {
-        $size = max(floor($_conf['expack.aas.max_fontsize'] / $ratio), $_conf['expack.aas.min_fontsize']);
+        $size = max(intval($_conf['expack.aas.max_fontsize'] / $ratio), $_conf['expack.aas.min_fontsize']);
         while ($size > $_conf['expack.aas.min_fontsize'] &&
             !aas_isTextInPicture($size, $font, $hint, $lc, $max_width, $max_height))
         {
@@ -353,9 +353,21 @@ if ($_conf['expack.aas.trim']) {
 }
 
 $image = imagecreate($width, $height);
-$white = imagecolorallocate($image, 255, 255, 255);
-$black = imagecolorallocate($image, 0, 0, 0);
-imagefill($image, 0, 0, $white);
+if (isset($_conf['expack.aas.fgcolor']) &&
+    false !== ($c = aas_parseColor($_conf['expack.aas.fgcolor'])))
+{
+    $fgcolor = imagecolorallocate($image, $c[0], $c[1], $c[2]);
+} else {
+    $fgcolor = imagecolorallocate($image, 0, 0, 0);
+}
+if (isset($_conf['expack.aas.bgcolor']) &&
+    false !== ($c = aas_parseColor($_conf['expack.aas.bgcolor'])))
+{
+    $bgcolor = imagecolorallocate($image, $c[0], $c[1], $c[2]);
+} else {
+    $bgcolor = imagecolorallocate($image, 255, 255, 255);
+}
+imagefill($image, 0, 0, $bgcolor);
 
 // テキスト描画
 $x_adjust = 1;
@@ -363,22 +375,22 @@ $y_adjust = $size + floor($size / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2;
 $x_pos = $x_adjust;
 $y_pos = $y_adjust;
 // まとめて描画しようとすると長い文字列でエラーが出るので
-//imagettftext($image, $size, 0, $x_pos, $y_pos, $black, $font, $text);
+//imagettftext($image, $size, 0, $x_pos, $y_pos, $fgcolor, $font, $text);
 // 一行ずつ描画する
 foreach ($lines as $line) {
-    imagettftext($image, $size, 0, $x_pos, $y_pos, $black, $font, $line);
+    imagettftext($image, $size, 0, $x_pos, $y_pos, $fgcolor, $font, $line);
     // 太字は1ピクセル右に重ねて描画
     if ($bold) {
-        imagettftext($image, $size, 0, $x_pos + 1, $y_pos, $black, $font, $line);
+        imagettftext($image, $size, 0, $x_pos + 1, $y_pos, $fgcolor, $font, $line);
     }
     $y_pos += $y_adjust;
 }
 
 // 回転
 if ($rotate) {
-    $new_image = imagerotate($image, 270, $white);
+    $new_image = imagerotate($image, 270, $bgcolor);
     // Bug #24155 (gdImageRotate270 rotation problem).
-    //$new_image = imagerotate(imagerotate($image, 180, $white), 90, $white);
+    //$new_image = imagerotate(imagerotate($image, 180, $bgcolor), 90, $bgcolor);
     imagedestroy($image);
     unset($image);
     $image = &$new_image;
@@ -515,6 +527,25 @@ function aas_isTextInPicture($size, $font, $hint, $lines, $max_width, $max_heigh
         return false;
     }
     return true;
+}
+
+/**
+ * 3桁または6桁の16進数表記の色指定を array(int, int, int) に変換して返す
+ */
+function aas_parseColor($hex)
+{
+    if (!preg_match('/^([[:xdigit:]]{3}|[[:xdigit:]]{6})$/', $hex)) {
+        return false;
+    }
+    if (strlen($hex) == 3) {
+        $r = hexdec($hex{0});
+        $g = hexdec($hex{1});
+        $b = hexdec($hex{2});
+        return array($r * 16 + $r, $g * 16 + $g, $b * 16 + $b);
+    }
+    preg_match('/(..)(..)(..)/', $hex, $colors);
+    array_shift($colors);
+    return array_map('hexdec', $colors);
 }
 
 /**

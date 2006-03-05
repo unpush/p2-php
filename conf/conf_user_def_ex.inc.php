@@ -200,13 +200,19 @@ $conf_user_rules['expack.aas.image_width_il'] = array('NotEmpty', 'IntExceptMinu
 $conf_user_def['expack.aas.image_height_il'] = 64; // (64)
 $conf_user_rules['expack.aas.image_height_il'] = array('NotEmpty', 'IntExceptMinus');
 
-// 画像の余白をトリミングする（0:しない; 1:する;）
+// 画像の余白をトリミングする (0:しない; 1:する)
 $conf_user_def['expack.aas.trim'] = 1; // (1)
 $conf_user_rad['expack.aas.trim'] = array('1' => 'する', '0' => 'しない');
 
-// 太字にする（0:しない; 1:する;）
+// 太字にする (0:しない; 1:する)
 $conf_user_def['expack.aas.bold'] = 0; // (0)
 $conf_user_rad['expack.aas.bold'] = array('1' => 'する', '0' => 'しない');
+
+// 文字色 (6桁または3桁の16進数)
+$conf_user_def['expack.aas.fgcolor'] = '000000'; // ('000000')
+
+// 背景色 (6桁または3桁の16進数)
+$conf_user_def['expack.aas.bgcolor'] = 'ffffff'; // ('ffffff')
 
 // 最大の文字サイズ (ポイント)
 $conf_user_def['expack.aas.max_fontsize'] = 36; // (36)

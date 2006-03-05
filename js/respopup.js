@@ -98,7 +98,10 @@ function doShowResPopUp(divID) {
 function hideResPopUp(divID) {
 	if (divID.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
 
-	if (gShowTimerIds[divID].timerID) { clearTimeout(gShowTimerIds[divID].timerID); } // 表示タイマーを解除
+	// 表示タイマーを解除
+	if (gShowTimerIds[divID] && gShowTimerIds[divID].timerID) {
+		clearTimeout(gShowTimerIds[divID].timerID);
+	}
 
 	var aResPopUp = gResPopCtl.getResPopUp(divID);
 	if (aResPopUp) {

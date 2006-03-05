@@ -462,7 +462,7 @@ EOP;
 EOP;
     } else {
         $dores_ht = <<<EOP
-        <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$popup_q}&amp;from_read_new=1{$sid_q}',{$STYLE['post_pop_size']},0,0)">ƒŒƒX</a>
+        <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$popup_q}&amp;from_read_new=1{$sid_q}',{$STYLE['post_pop_size']},1,0)">ƒŒƒX</a>
 EOP;
     }
 

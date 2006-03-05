@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7.24';     // rep2のバージョン
-$_conf['p2expack'] = '060301.1934'; // ASAPのバージョン
+$_conf['p2expack'] = '060305.2308'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 

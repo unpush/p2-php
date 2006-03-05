@@ -903,16 +903,50 @@ $flexy->setData('js', $qf->getValidationScript());
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
 if ($lightbox) {
-    $lightbox_js_css = '<script type="text/javascript" src="lightbox/lightbox.js"></script>';
-    $lightbox_js_css .= '<script type="text/javascript">';
-    $lightbox_js_css .= "loadingImage='lightbox/loading.gif';";
-    $lightbox_js_css .= "closeButton='lightbox/close.gif';";
-    $lightbox_js_css .= '</script>';
-    $lightbox_js_css .= '<link rel="stylesheet" type="text/css" href="lightbox/lightbox.css">';
-    $flexy->setData('lightbox', $lightbox_js_css);
-} else {
-    $flexy->setData('lightbox', '');
+    $additional_script_and_style = <<<EOP
+<script type="text/javascript" src="lightbox/lightbox.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+loadingImage='lightbox/loading.gif';
+closeButton='lightbox/close.gif';
+
+addLoadEvent(setWinTitle);
+
+function overloadLightbox()
+{
+    if (!document.getElementsByTagName){ return; }
+    var anchors = document.getElementsByTagName('a');
+    // loop through all anchor tags
+    for (var i=0; i<anchors.length; i++){
+        var anchor = anchors[i];
+        if (anchor.getAttribute('href') && (anchor.getAttribute('rel') == 'lightbox')){
+            anchor.onclick = function(evt) {
+                evt = (evt) ? evt : ((window.event) ? window.event : null);
+                if (evt && evt.shiftKey) {
+                    return true;
+                }
+                showLightbox(this);
+                return false;
+            }
+        }
+    }
 }
+
+addLoadEvent(overloadLightbox);
+//]]>
+</script>
+<link rel="stylesheet" type="text/css" href="lightbox/lightbox.css">
+EOP;
+} elseif (empty($_conf['ktai'])) {
+    $additional_script_and_style = <<<EOP
+<script type="text/javascript">
+    window.onload = setWinTitle;
+</script>
+EOP;
+} else {
+    $additional_script_and_style = '';
+}
+$flexy->setData('lightbox', $additional_script_and_style);
 
 // ページを表示
 P2Util::header_nocache();

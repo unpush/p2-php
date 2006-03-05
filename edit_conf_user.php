@@ -419,6 +419,8 @@ echo getEditConfHtml('expack.aas.image_width_il', 'ƒCƒ“ƒ‰ƒCƒ“‰æ‘œ‚Ì‰¡• (ƒsƒNƒZƒ
 echo getEditConfHtml('expack.aas.image_height_il', 'ƒCƒ“ƒ‰ƒCƒ“‰æ‘œ‚Ì‚‚³ (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('expack.aas.trim', '‰æ‘œ‚Ì—]”’‚ğƒgƒŠƒ~ƒ“ƒO (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('expack.aas.bold', '‘¾š (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('expack.aas.fgcolor', '•¶šF (6Œ…‚Ü‚½‚Í3Œ…‚Ì16i”)');
+echo getEditConfHtml('expack.aas.bgcolor', '”wŒiF (6Œ…‚Ü‚½‚Í3Œ…‚Ì16i”)');
 echo getEditConfHtml('expack.aas.max_fontsize', 'Å‘å‚Ì•¶šƒTƒCƒY (ƒ|ƒCƒ“ƒg)');
 echo getEditConfHtml('expack.aas.min_fontsize', 'Å¬‚Ì•¶šƒTƒCƒY (ƒ|ƒCƒ“ƒg)');
 echo getEditConfHtml('expack.aas.inline_fontsize', 'ƒCƒ“ƒ‰ƒCƒ“•\¦‚Ì•¶šƒTƒCƒY (ƒ|ƒCƒ“ƒg)');
