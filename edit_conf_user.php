@@ -214,6 +214,7 @@ echo getEditConfHtml('pre_thumb_limit', '画像URLの先読みサムネイルを一度に表示す
 ////echo getEditConfHtml('pre_thumb_width', '画像サムネイルの横の大きさを指定 (ピクセル)');
 echo getEditConfHtml('iframe_popup', 'HTMLポップアップ (する, しない, pでする, 画像でする)');
 //echo getEditConfHtml('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)');
+echo getEditConfHtml('flex_idpopup', 'ID:xxxxxxxx をIDフィルタリングのリンクに変換 (する, しない)');
 echo getEditConfHtml('ext_win_target', '外部サイト等へジャンプする時に開くウィンドウのターゲット名 (同窓:"", 新窓:"_blank")');
 echo getEditConfHtml('bbs_win_target', 'p2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名 (同窓:"", 新窓:"_blank")');
 echo getEditConfHtml('bottom_res_form', 'スレッド下部に書き込みフォームを表示 (する, しない)');

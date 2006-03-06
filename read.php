@@ -19,6 +19,37 @@ $_login->authorize(); // ユーザ認証
 $newtime = date('gis');  // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 // $_today = date('y/m/d');
 
+//================================================================
+// 特殊リクエスト
+//================================================================
+if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
+    $ktv = (int)$_GET['ktool_value'];
+    switch ($_GET['ktool_name']) {
+        case 'goto':
+            $_REQUEST['ls'] = $_GET['ls'] = $ktv . '-' . ($ktv + $_conf['k_rnum_range']);
+            break;
+        case 'res_quote':
+            $_GET['resnum'] = $ktv;
+            $_GET['inyou'] = 1;
+            include 'post_form.php';
+            exit;
+        case 'copy_quote':
+            $_GET['inyou'] = 1;
+        case 'copy':
+            $_GET['copy'] = $ktv;
+            include 'read_copy_k.php';
+            exit;
+        /* 2006/03/06 aki ノーマルp2では未対応
+        case 'aas_rotate':
+            $_GET['rotate'] = 1;
+        case 'aas':
+            $_GET['resnum'] = $ktv;
+            include 'aas.php';
+            exit;
+        */
+    }
+}
+
 //=================================================
 // スレの指定
 //=================================================
@@ -205,7 +236,9 @@ if ($aThread->isKitoku()) {
     
 // 未取得なら
 } else {
-    if (!$aThread->ls) { $aThread->ls = $_conf['get_new_res_l']; }
+    if (!$aThread->ls) {
+        $aThread->ls = $_conf['get_new_res_l'];
+    }
 }
 
 // フィルタリングの時は、all固定とする
