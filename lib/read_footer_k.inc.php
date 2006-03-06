@@ -15,19 +15,10 @@ if ($_conf['filtering'] && $aThread->rescount) {
 } else {
     $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
 }
-$hd['read_range'] = $read_range_on.'/'.$aThread->rescount;
+$hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
 
-// レス番指定移動
-$htm['goto'] = <<<GOTO
-<form method="get" action="{$_conf['read_php']}" class="inline-form">
-    <input type="hidden" name="host" value="{$aThread->host}">
-    <input type="hidden" name="bbs" value="{$aThread->bbs}">
-    <input type="hidden" name="key" value="{$aThread->key}">
-    <input type="text" size="5" name="ls" value="{$aThread->ls}">
-    {$_conf['k_input_ht']}
-    <input type="submit" value="go">
-</form>
-GOTO;
+// レス番指定移動 etc.
+$htm['goto'] = kspform($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
 
 //=====================================================================
 // プリント
@@ -41,7 +32,7 @@ if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
 EOP;
         } else {
             $dores_ht = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
 EOP;
         }
     }
@@ -64,15 +55,68 @@ EOP;
 <p>{$htm['goto']}</p>\n
 EOP;
     if ($diedat_msg) {
-        echo "<hr>";
+        echo '<hr>';
         echo $diedat_msg;
-        echo "<p>";
+        echo '<p>';
         echo  $motothre_ht;
-        echo "</p>";
+        echo '</p>' . "\n";
     }
 }
-echo '<hr>'.$_conf['k_to_index_ht'];
+echo "<hr>" . $_conf['k_to_index_ht'] . "\n";
 
 echo '</body></html>';
+
+
+//=====================================================================
+// 関数
+//=====================================================================
+
+/**
+ * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成する
+ */
+function kspform($default = '', &$aThread)
+{
+    global $_conf;
+
+    //$numonly_at = 'maxlength="4" istyle="4" format="*N" mode="numeric"';
+    $numonly_at = 'maxlength="4" istyle="4" format="4N" mode="numeric"';
+
+    $form = "<form method=\"get\" action=\"{$_conf['read_php']}\">";
+    $form .= $_conf['k_input_ht'];
+
+    $required_params = array('host', 'bbs', 'key');
+    foreach ($required_params as $k) {
+        if (!empty($_REQUEST[$k])) {
+            $v = htmlspecialchars($_REQUEST[$k], ENT_QUOTES);
+            $form .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
+        } else {
+            return '';
+        }
+    }
+    $form .= '<input type="hidden" name="offline" value="1">';
+    $form .= '<input type="hidden" name="rescount" value="' . $aThread->rescount . '">';
+    $form .= '<input type="hidden" name="ttitle_en" value="' . base64_encode($aThread->ttitle) . '">';
+
+    $form .= '<select name="ktool_name">';
+    $form .= '<option value="goto">GO</option>';
+    $form .= '<option value="copy">写</option>';
+    $form .= '<option value="copy_quote">&gt;写</option>';
+    $form .= '<option value="res_quote">&gt;ﾚｽ</option>';
+    /*
+    2006/03/06 aki ノーマルp2では未対応
+    if ($_conf['expack.aas.enabled']) {
+        $form .= '<option value="aas">AAS</option>';
+        $form .= '<option value="aas_rotate">AAS*</option>';
+    }
+    */
+    $form .= '</select>';
+
+    $form .= "<input type=\"text\" size=\"3\" name=\"ktool_value\" value=\"{$default}\" {$numonly_at}>";
+    $form .= '<input type="submit" value="OK" title="OK">';
+
+    $form .= '</form>';
+
+    return $form;
+}
 
 ?>

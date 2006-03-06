@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.24'; // rep2のバージョン
+$_conf['p2version'] = '1.7.25'; // rep2のバージョン
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -58,7 +58,12 @@ if (!extension_loaded('mbstring')) {
 // }}}
 // {{{ 環境設定
 
-@putenv('TZ=JST-9'); // タイムゾーンをセット
+// タイムゾーンをセット
+if (function_exists('date_default_timezone_set')) { 
+    date_default_timezone_set('Asia/Tokyo'); 
+} else { 
+    @putenv('TZ=JST-9'); 
+}
 
 @set_time_limit(60); // (60) スクリプト実行制限時間(秒)
 
