@@ -397,7 +397,7 @@ if ($_conf['ktai']) {
         }
     }
 } else {
-    $lightbox = ($ini['Viewer']['lightbox'] && ($mode == 0 || $mode == 3));
+    $lightbox = ($mode == 0 || $mode == 3) ? $ini['Viewer']['lightbox'] : false;
 }
 
 // }}}
@@ -902,7 +902,7 @@ $flexy->setData('mode', $mode);
 $flexy->setData('js', $qf->getValidationScript());
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
-if ($lightbox == 'plus') {
+if ($lightbox === 'plus') {
 /*
 --- lightbox_plus.orig
 +++ lightbox_plus.js
