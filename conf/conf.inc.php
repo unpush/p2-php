@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7.24';     // rep2のバージョン
-$_conf['p2expack'] = '060306.1759'; // ASAPのバージョン
+$_conf['p2expack'] = '060220.0248'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 
@@ -67,11 +67,11 @@ if (ini_get('register_globals')) {
         <p>予期しない動作を避けるために php.ini で register_globals を Off にしてください。<br>
         magic_quotes_gpc や mbstring.encoding_translation も Off にされることをおすすめします。</p></body></html>');
 }
-if (true && version_compare($_recommended_version, '4.4.2', '<')) {
+if (true && version_compare($_php_version, $_recommended_version, '<')) {
     $_info_msg_ht .= '<p><b>古いバージョンのPHPで動作しています。</b> <i>(PHP ' . $_php_version . ')</i><br>';
     $_info_msg_ht .= 'PHP ' . $_recommended_version . ' 以降にアップデートすることをおすすめします。<br>';
     $_info_msg_ht .= '<small>（このメッセージを表示しないようにするには ' . htmlspecialchars(__FILE__, ENT_QUOTES) . ' の ';
-    $_info_msg_ht .= (__LINE__ - 5) . ' 行目の &quot;true&quot; を &quot;false&quot; に書き換てください）</small></p>';
+    $_info_msg_ht .= (__LINE__ - 4) . ' 行目の &quot;true&quot; を &quot;false&quot; に書き換てください）</small></p>';
 }
 if (version_compare($_php_version, '5.1.0', '>=')) {
     define('P2_PHP50', true);
