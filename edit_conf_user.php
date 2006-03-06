@@ -261,9 +261,6 @@ echo getEditConfHtml('ngaborn_frequent_num', '•poID‚ ‚Ú[‚ñ‚Ì‚µ‚«‚¢’lioŒ»‰ñ”
 echo getEditConfHtml('ngaborn_frequent_dayres', '¨‚¢‚Ì‘¬‚¢ƒXƒŒ‚Å‚Í•poID‚ ‚Ú[‚ñ‚µ‚È‚¢i‘ƒŒƒX”/ƒXƒŒ—§‚Ä‚©‚ç‚Ì“ú”A0‚È‚ç–³Œøj');
 echo getEditConfHtml('ngaborn_chain', '˜A½NG‚ ‚Ú[‚ñ(‚·‚é, ‚µ‚È‚¢, ‚ ‚Ú[‚ñƒŒƒX‚Ö‚ÌƒŒƒX‚àNG‚É‚·‚é) <br>ˆ—‚ğŒy‚­‚·‚é‚½‚ßA•\¦”ÍˆÍ‚ÌƒŒƒX‚É‚µ‚©˜A½‚µ‚È‚¢');
 echo getEditConfHtml('ngaborn_daylimit', '‚±‚ÌŠúŠÔANG‚ ‚Ú[‚ñ‚ÉHIT‚µ‚È‚¯‚ê‚ÎA“o˜^ƒ[ƒh‚ğ©“®“I‚ÉŠO‚·i“ú”j');
-echo getEditConfHtml('proxy_use', 'ƒvƒƒLƒV‚ğ—˜—p (‚·‚é, ‚µ‚È‚¢)'); 
-echo getEditConfHtml('proxy_host', 'ƒvƒƒLƒVƒzƒXƒg ex)"127.0.0.1", "www.p2proxy.com"'); 
-echo getEditConfHtml('proxy_port', 'ƒvƒƒLƒVƒ|[ƒg ex)"8080"'); 
 
 // }}}
 // {{{ ETC
@@ -291,6 +288,9 @@ echo getEditConfHtml('menu_hide_brds', '”ÂƒJƒeƒSƒŠˆê——‚ğ•Â‚¶‚½ó‘Ô‚É‚·‚é(‚·‚é, ‚
 echo getEditConfHtml('enable_exfilter', 'ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÅAND/ORŒŸõ‚ğ‰Â”\‚É‚·‚é (off, ƒŒƒX‚Ì‚İ, ƒTƒuƒWƒFƒNƒg‚à)');
 echo getEditConfHtml('flex_idpopup', 'ID:xxxxxxxx‚ğIDƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÌƒŠƒ“ƒN‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('k_save_packet', 'Œg‘Ñ‰{——AƒpƒPƒbƒg—Ê‚ğŒ¸‚ç‚·‚½‚ßA‘SŠp‰p”EƒJƒiEƒXƒy[ƒX‚ğ”¼Šp‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('proxy_use', 'ƒvƒƒLƒV‚ğ—˜—p (‚·‚é, ‚µ‚È‚¢)'); 
+echo getEditConfHtml('proxy_host', 'ƒvƒƒLƒVƒzƒXƒg ex)"127.0.0.1", "www.p2proxy.com"'); 
+echo getEditConfHtml('proxy_port', 'ƒvƒƒLƒVƒ|[ƒg ex)"8080"'); 
 echo getEditConfHtml('precede_openssl', 'œƒƒOƒCƒ“‚ğA‚Ü‚¸‚Íopenssl‚Å‚İ‚éB¦PHP 4.3.0ˆÈ~‚ÅAOpenSSL‚ªÃ“I‚ÉƒŠƒ“ƒN‚³‚ê‚Ä‚¢‚é•K—v‚ª‚ ‚éB');
 echo getEditConfHtml('precede_phpcurl', 'curl‚ğg‚¤AƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å‚ÆPHPŠÖ””Å‚Ç‚¿‚ç‚ğ—Dæ‚·‚é‚© (ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å, PHPŠÖ””Å)');
 

@@ -42,14 +42,15 @@ EOP;
 EOP;
 }
 
-// ナビ ===============================
+// {{{ ナビ
+
 if ($disp_navi['from'] > 1) {
     $mae_ht = <<<EOP
 <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
 }
 
-if ($disp_navi['tugi_from'] < $sb_disp_all_num) {
+if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
     $tugi_ht = <<<EOP
 <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
@@ -68,6 +69,7 @@ if (!$disp_navi['all_once']) {
 EOP;
 }
 
+// }}}
 // {{{ dat倉庫
 // スペシャルモードでなければ、またはあぼーんリストなら
 if (!$aThreadList->spmode or $aThreadList->spmode == "taborn") {

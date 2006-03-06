@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7.24';     // rep2のバージョン
-$_conf['p2expack'] = '060305.2308'; // ASAPのバージョン
+$_conf['p2expack'] = '060306.1759'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 
@@ -50,8 +50,14 @@ if (!empty($debug)) {
 // }}}
 // {{{ 動作環境を確認
 
-if (version_compare(phpversion(), '4.3.3', '<')) {
-    die('<html><body><h3>p2 error: PHPバージョン4.3.3未満では使えません。</h3></body></html>');
+$_php_version = phpversion();
+$_required_version = '4.3.3';
+$_recommended_version = (substr(zend_version(), 0, 1) == '1') ? '4.4.2' : '5.1.2';
+if (version_compare($_php_version, $_required_version, '<')) {
+    die('<html><body><h3>p2 error: PHP ' . $_required_version . ' 未満では使えません。</h3></body></html>');
+}
+if (!extension_loaded('mbstring')) {
+    die('<html><body><h3>p2 error: PHPのインストールが不十分です。mbstring拡張モジュールがロードされていません。</h3></body></html>');
 }
 if (ini_get('safe_mode')) {
     die('<html><body><h3>p2 error: セーフモードで動作するPHPでは使えません。</h3></body></html>');
@@ -61,15 +67,21 @@ if (ini_get('register_globals')) {
         <p>予期しない動作を避けるために php.ini で register_globals を Off にしてください。<br>
         magic_quotes_gpc や mbstring.encoding_translation も Off にされることをおすすめします。</p></body></html>');
 }
-if (!extension_loaded('mbstring')) {
-    die('<html><body><h3>p2 error: PHPのインストールが不十分です。mbstring拡張モジュールがロードされていません。</h3></body></html>');
-}
-if (true && (version_compare(phpversion(), '4.4.1', '<') || (substr(zend_version(), 0, 1) == '2' && version_compare(phpversion(), '5.1.1', '<')))) {
-    $_recommended_phpversion = ((substr(zend_version(), 0, 1) == '1') ? '4.4.1' : '5.1.1');
-    $_info_msg_ht .= '<p><b>古いバージョンのPHPで動作しています。</b> <i>(PHP ' . phpversion() . ')</i><br>';
-    $_info_msg_ht .= 'PHP ' . $_recommended_phpversion . ' 以降にアップデートすることをおすすめします。<br>';
+if (true && version_compare($_recommended_version, '4.4.2', '<')) {
+    $_info_msg_ht .= '<p><b>古いバージョンのPHPで動作しています。</b> <i>(PHP ' . $_php_version . ')</i><br>';
+    $_info_msg_ht .= 'PHP ' . $_recommended_version . ' 以降にアップデートすることをおすすめします。<br>';
     $_info_msg_ht .= '<small>（このメッセージを表示しないようにするには ' . htmlspecialchars(__FILE__, ENT_QUOTES) . ' の ';
     $_info_msg_ht .= (__LINE__ - 5) . ' 行目の &quot;true&quot; を &quot;false&quot; に書き換てください）</small></p>';
+}
+if (version_compare($_php_version, '5.1.0', '>=')) {
+    define('P2_PHP50', true);
+    define('P2_PHP51', true);
+} elseif (version_compare($_php_version, '5.0.0', '>=')) {
+    define('P2_PHP50', true);
+    define('P2_PHP51', false);
+} else {
+    define('P2_PHP50', false);
+    define('P2_PHP51', false);
 }
 
 // }}}
@@ -180,7 +192,7 @@ require_once P2_LIBRARY_DIR . '/login.class.php';
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
 
-if (version_compare(phpversion(), '5.0.0', '<')) {
+if (!P2_PHP50) {
     PHP_Compat::loadFunction('array_walk_recursive');
     PHP_Compat::loadFunction('clone');
     PHP_Compat::loadFunction('file_put_contents');
