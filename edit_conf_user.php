@@ -18,7 +18,7 @@ if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
 // 前処理
 //=====================================================================
 
-// {{{ ■保存ボタンが押されていたら、設定を保存
+// {{{ ■保存タブが押されていたら、設定を保存
 
 if (!empty($_POST['submit_save'])) {
 
@@ -66,7 +66,7 @@ if (!empty($_POST['submit_save'])) {
     }
 
 // }}}
-// {{{ ■デフォルトに戻すボタンが押されていたら
+// {{{ ■デフォルトに戻すタブが押されていたら
 
 } elseif (!empty($_POST['submit_default'])) {
     if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
@@ -108,12 +108,8 @@ EOP;
 if (empty($_conf['ktai'])) {
     echo <<<EOP
     <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript">
-    <!--
-    window.onload = setWinTitle();
-    // -->
-    </script>
     <script type="text/javascript" src="js/tabber/tabber.js"></script>
+    <script type="text/javascript" src="js/edit_conf_user.js"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="style/tabber/tabber.css" type="text/css">
     <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
@@ -148,7 +144,7 @@ if (!empty($_info_msg_ht)) {
 }
 
 echo <<<EOP
-<form method="POST" action="{$_SERVER['PHP_SELF']}" target="_self" accept-charset="{$_conf['accept_charset']}">
+<form id="edit_conf_user_form" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self" accept-charset="{$_conf['accept_charset']}">
     {$_conf['k_input_ht']}
     <input type="hidden" name="detect_hint" value="◎◇">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
@@ -157,6 +153,8 @@ EOP;
 // PC用表示
 if (empty($_conf['ktai'])) {
     echo <<<EOP
+<div class="tabber">
+<div class="tabbertab" title="rep2基本設定">
 <h3>rep2基本設定</h3>
 <div class="tabber">\n
 EOP;
@@ -165,6 +163,7 @@ EOP;
     echo $htm['form_submit'];
 }
 
+// {{{ rep2基本設定
 // {{{ be.2ch.net アカウント
 
 echo getGroupSepaHtml('be.2ch.net アカウント');
@@ -298,7 +297,7 @@ echo getGroupEndHtml();
 // }}}
 // {{{ Mobile Color
 
-echo getGroupSepaHtml('Mobile Color');
+echo getGroupSepaHtml('Mobile');
 
 echo getEditConfHtml('mobile.background_color', '背景');
 echo getEditConfHtml('mobile.text_color', '基本文字色');
@@ -314,18 +313,21 @@ echo getEditConfHtml('mobile.match_color', 'フィルタリングでマッチしたキーワード
 echo getGroupEndHtml();
 
 // }}}
+// }}}
 
 // PC用表示
 if (empty($_conf['ktai'])) {
     echo <<<EOP
-</div>
+</div><!-- end of tab -->
+</div><!-- end of child tabset "rep2基本設定" -->
 
+<div class="tabbertab" title="拡張パック設定">
 <h3>拡張パック設定</h3>
 <div class="tabber">\n
 EOP;
 }
 
-// {{{ expack
+// {{{ 拡張パック設定
 // {{{ expack - tGrep
 
 echo getGroupSepaHtml('tGrep');
@@ -440,7 +442,11 @@ echo getGroupEndHtml();
 
 // PC用表示
 if (empty($_conf['ktai'])) {
-    echo "</div>\n";
+    echo <<<EOP
+</div><!-- end of tab -->
+</div><!-- end of child tabset "拡張パック設定" -->
+</div><!-- end of parent tabset -->\n
+EOP;
 // 携帯用表示
 } else {
     echo $htm['form_submit'];
@@ -637,7 +643,7 @@ function getGroupEndHtml()
         </td>
     </tr>
 </table>
-</div>\n\n
+</div><!-- end of tab -->\n
 EOP;
     // 携帯用
     } else {

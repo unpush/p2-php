@@ -18,13 +18,13 @@ echo <<<EOSTYLE
 	a:visited.te{ color:#999; }
 	a:hover.te{color:{$STYLE['menu_ita_color_h']};}
 
-	td.italist {
+	td.italist, td.feedlist {
 		border:1px solid #dddddd;
 	}
 	.sortList {
 		cursor:move; width:200px; padding:4px 16px 0 0;
 	}
-	ul#italist {
+	ul#italist, ul#feedlist {
 		list-style-type:none;
 	}
 

@@ -118,7 +118,7 @@ if (is_array($lines)) {
         if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)$/", rtrim($l), $matches)) {
             $id = "li{$i}";
             $okini_itas[$id]['itaj']       = $itaj = rtrim($matches[3]);
-            $okini_itas[$id]['itaj_en']    = $itaj_en = base64_encode($itaj);
+            $okini_itas[$id]['itaj_en']    = $itaj_en = rawurlencode(base64_encode($itaj));
             $okini_itas[$id]['host']       = $host = $matches[1];
             $okini_itas[$id]['bbs']        = $bbs = $matches[2];
             $okini_itas[$id]['itaj_view']  = htmlspecialchars($itaj);
@@ -200,7 +200,7 @@ function submitApply()
 
 // PC—p
 if (empty($_conf['ktai'])) {
-    $onclick = " onClick=''if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
+    $onclick = " onClick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['PHP_SELF'];
 
 // Œg‘Ñ—p

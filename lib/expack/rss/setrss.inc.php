@@ -10,6 +10,18 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 // リクエスト読み込み
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!empty($_POST['submit_setrss'])) {
+        FileCtl::make_datafile($_conf['expack.rss.setting_path'], $_conf['expack.rss.setting_perm']);
+        $fp = @fopen($_conf['expack.rss.setting_path'], 'wb');
+        if (!$fp) {
+            die("Error: {$_conf['expack.rss.setting_path']} を更新できませんでした");
+        }
+        if (isset($_POST['list'])) {
+            fputs($fp, $_POST['list']);
+        }
+        fclose($fp);
+        return;
+    }
     $setrss  = trim($_POST['setrss']);
     $xml     = trim($_POST['xml']);
     $site    = trim($_POST['site']);
@@ -110,7 +122,10 @@ if ($setrss) {
 // }}}
 // {{{ 書き込む
 
-$fp = @fopen($_conf['expack.rss.setting_path'], 'wb') or die("Error: {$_conf['expack.rss.setting_path']} を更新できませんでした");
+$fp = @fopen($_conf['expack.rss.setting_path'], 'wb');
+if (!$fp) {
+    die("Error: {$_conf['expack.rss.setting_path']} を更新できませんでした");
+}
 if ($neolines) {
     $i = 0;
     foreach ($neolines as $l) {

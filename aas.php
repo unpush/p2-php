@@ -534,8 +534,11 @@ function aas_isTextInPicture($size, $font, $hint, $lines, $max_width, $max_heigh
  */
 function aas_parseColor($hex)
 {
-    if (!preg_match('/^([[:xdigit:]]{3}|[[:xdigit:]]{6})$/', $hex)) {
+    if (!preg_match('/^#?([[:xdigit:]]{3}|[[:xdigit:]]{6})$/', $hex)) {
         return false;
+    }
+    if ($hex{0} == '#') {
+        $hex = substr($hex, 1);
     }
     if (strlen($hex) == 3) {
         $r = hexdec($hex{0});

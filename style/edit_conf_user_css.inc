@@ -32,10 +32,6 @@ ul.tabbernav {
 	font-size: {$STYLE['fontsize']};
 }
 
-.tabberlive .tabbertab h4 {
-	display: none;
-}
-
 -->
 </style>
 EOSTYLE;
