@@ -84,7 +84,7 @@ $_conf['expack.ic2.cache.lowwater'] = 1536000;
 // ページタイトル
 $_conf['expack.ic2.viewer.title'] = "ImageCache2::Viewer";
 
-// 一覧 or サムネイルだけモードで Lightbox JS を使う
+// 一覧 or サムネイルだけモードで Lightbox JS を使う (off:0;on:1)
 // 利用するには rep2 フォルダ直下に lightbox フォルダを作成し、そのフォルダに
 // p2pear の optional/data/lightbox-js フォルダにあるファイル全部、もしくは
 // http://huddletogether.com/projects/lightbox/ からダウンロードした各ファイルを

@@ -6,7 +6,7 @@
 include_once './conf/conf.inc.php'; // 基本設定
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
-$_login->authorize(); //ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //==================================================
 // ■変数
@@ -21,7 +21,7 @@ if (empty($_GET['host'])) {
 $bbs = isset($_GET['bbs']) ? $_GET['bbs'] : '';
 $key = isset($_GET['key']) ? $_GET['key'] : '';
 
-$rescount = isset($_GET['rc']) ? intval($_GET['rc']) : 1;
+$rescount = isset($_GET['rescount']) ? intval($_GET['rescount']) : 1;
 $popup = isset($_GET['popup']) ? intval($_GET['popup']) : 0;
 
 $itaj = P2Util::getItaName($host, $bbs);

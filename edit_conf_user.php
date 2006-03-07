@@ -236,6 +236,7 @@ echo getEditConfHtml('pre_thumb_limit', '‰æ‘œURL‚Ìæ“Ç‚İƒTƒ€ƒlƒCƒ‹‚ğˆê“x‚É•\¦‚·
 //echo getEditConfHtml('pre_thumb_width', '‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ì‰¡‚Ì‘å‚«‚³‚ğw’è (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('iframe_popup', 'HTMLƒ|ƒbƒvƒAƒbƒv (‚·‚é, ‚µ‚È‚¢, p‚Å‚·‚é, ‰æ‘œ‚Å‚·‚é)');
 //echo getEditConfHtml('iframe_popup_delay', 'HTMLƒ|ƒbƒvƒAƒbƒv‚Ì•\¦’x‰„ŠÔ (•b)');
+echo getEditConfHtml('flex_idpopup', 'ID:xxxxxxxx‚ğIDƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÌƒŠƒ“ƒN‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('ext_win_target', 'ŠO•”ƒTƒCƒg“™‚ÖƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼ (“¯‘‹:&quot;&quot;, V‘‹:&quot;_blank&quot;)');
 echo getEditConfHtml('bbs_win_target', 'p2‘Î‰BBSƒTƒCƒg“à‚ÅƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼ (“¯‘‹:&quot;&quot;, V‘‹:&quot;_blank&quot;)');
 echo getEditConfHtml('bottom_res_form', 'ƒXƒŒƒbƒh‰º•”‚É‘‚«‚İƒtƒH[ƒ€‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
@@ -286,7 +287,6 @@ echo getEditConfHtml('menu_hide_brds', '”ÂƒJƒeƒSƒŠˆê——‚ğ•Â‚¶‚½ó‘Ô‚É‚·‚é(‚·‚é, ‚
 //echo getEditConfHtml('brocra_checker_url', 'ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJURL');
 //echo getEditConfHtml('brocra_checker_query', 'ƒuƒ‰ƒNƒ‰ƒ`ƒFƒbƒJ‚ÌƒNƒGƒŠ[');
 echo getEditConfHtml('enable_exfilter', 'ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÅAND/ORŒŸõ‚ğ‰Â”\‚É‚·‚é (off, ƒŒƒX‚Ì‚İ, ƒTƒuƒWƒFƒNƒg‚à)');
-echo getEditConfHtml('flex_idpopup', 'ID:xxxxxxxx‚ğIDƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÌƒŠƒ“ƒN‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('k_save_packet', 'Œg‘Ñ‰{——AƒpƒPƒbƒg—Ê‚ğŒ¸‚ç‚·‚½‚ßA‘SŠp‰p”EƒJƒiEƒXƒy[ƒX‚ğ”¼Šp‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('proxy_use', 'ƒvƒƒLƒV‚ğ—˜—p (‚·‚é, ‚µ‚È‚¢)'); 
 echo getEditConfHtml('proxy_host', 'ƒvƒƒLƒVƒzƒXƒg ex)"127.0.0.1", "www.p2proxy.com"'); 

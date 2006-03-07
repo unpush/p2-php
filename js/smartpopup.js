@@ -181,7 +181,7 @@ function spmOpenSubWin(aThread, inUrl, option)
 		inHeight = (aas_popup_height) ? aas_popup_height : 330;
 	}
 	inUrl += "?host=" + aThread.host + "&bbs=" + aThread.bbs + "&key=" + aThread.key;
-	inUrl += "&rc=" + aThread.rc + "&ttitle_en=" + aThread.ttitle_en;
+	inUrl += "&rescount=" + aThread.rc + "&ttitle_en=" + aThread.ttitle_en;
 	inUrl += "&resnum=" + spmResNum + "&popup=" + popup;
 	if (option != "") {
 		inUrl += "&" + option;
@@ -195,7 +195,7 @@ function spmOpenSubWin(aThread, inUrl, option)
 function spmOpenFilter(aThread, field, match)
 {
 	var inUrl = "read_filter.php?bbs=" + aThread.bbs + "&key=" + aThread.key + "&host=" + aThread.host;
-	inUrl += "&rc=" + aThread.rc + "&ttitle_en=" + aThread.ttitle_en + "&resnum=" + spmResNum;
+	inUrl += "&rescount=" + aThread.rc + "&ttitle_en=" + aThread.ttitle_en + "&resnum=" + spmResNum;
 	inUrl += "&ls=all&field=" + field + "&method=just&match=" + match + "&offline=1";
 
 	switch (spmFlexTarget) {

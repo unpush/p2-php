@@ -139,6 +139,10 @@ $conf_user_sel['iframe_popup'] = array('1' => 'する', '0' => 'しない', '2' => 'p
 $conf_user_def['iframe_popup_delay'] = 0.2; // (0.2)
 //$conf_user_rules['iframe_popup_delay'] = array('FloatExceptMinus');
 
+// ID:xxxxxxxxをIDフィルタリングのリンクに変換（する:1, しない:0）
+$conf_user_def['flex_idpopup'] = 1; // (1)
+$conf_user_rad['flex_idpopup'] = array('1' => 'する', '0' => 'しない');
+
 // 外部サイト等へジャンプする時に開くウィンドウのターゲット名（同窓:"", 新窓:"_blank"）
 $conf_user_def['ext_win_target'] = "_blank"; // ("_blank")
 
@@ -278,10 +282,6 @@ $conf_user_def['brocra_checker_query'] = "url";
 // フィルタリングでAND/OR検索を可能にする（off:0, レスのみ:1, サブジェクトも:2）
 $conf_user_def['enable_exfilter'] = 2; // (2)
 $conf_user_sel['enable_exfilter'] = array('1' => 'レスのみする', '0' => 'しない', '2' => 'レス、サブジェクトともする');
-
-// ID:xxxxxxxxをIDフィルタリングのリンクに変換（する:1, しない:0）
-$conf_user_def['flex_idpopup'] = 1; // (1)
-$conf_user_rad['flex_idpopup'] = array('1' => 'する', '0' => 'しない');
 
 // 携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する:1, しない:0)
 $conf_user_def['k_save_packet'] = 1; // (1) 

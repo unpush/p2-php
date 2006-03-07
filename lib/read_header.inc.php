@@ -24,8 +24,8 @@ $motothre_url = $aThread->getMotoThread();
 $ttitle_en = base64_encode($aThread->ttitle);
 $ttitle_urlen = rawurlencode($ttitle_en);
 $ttitle_en_q = "&amp;ttitle_en=" . $ttitle_urlen;
-$bbs_q = "&amp;bbs=".$aThread->bbs;
-$key_q = "&amp;key=".$aThread->key;
+$bbs_q = "&amp;bbs=" . $aThread->bbs;
+$key_q = "&amp;key=" . $aThread->key;
 $popup_q = "&amp;popup=1";
 $offline_q = "&amp;offline=1";
 
@@ -35,7 +35,7 @@ $offline_q = "&amp;offline=1";
 
 // レスナビ設定
 $rnum_range = 100;
-$latest_show_res_num = 50; //最新XX
+$latest_show_res_num = 50; // 最新XX
 
 $read_navi_range = "";
 
@@ -123,11 +123,12 @@ $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 $favmark = (!empty($aThread->fav)) ? '★' : '+';
 $favdo = (!empty($aThread->fav)) ? 0 : 1;
 $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-$favdo_q = '&amp;setfav='.$favdo;
+$favdo_q = '&amp;setfav=' . $favdo;
 $similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);
+$itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
 $toolbar_right_ht = <<<EOTOOLBAR
-            <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$aThread->itaj}</a>
+            <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
             <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a>
             <span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span>
             <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span>
@@ -341,7 +342,7 @@ EOP;
 }
 
 
-//if(!$_GET['renzokupop'] ){
+//if (!$_GET['renzokupop']) {
     echo "<h3 class=\"thread_title\">{$aThread->ttitle_hd}</h3>\n";
 //}
 

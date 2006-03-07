@@ -244,7 +244,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
 
     // ■スレッドあぼーんチェック =====================================
-    if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) {
+    if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) {
             unset($ta_keys[$aThread->key]);
             continue; // あぼーんスレはスキップ
     }
@@ -272,7 +272,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
 
         // 新着のみ(for spmode) ===============================
-        if ($sb_view == "shinchaku" and !$_GET['word']) {
+        if ($sb_view == 'shinchaku' and empty($_GET['word'])) {
             if ($aThread->unum < 1) {
                 unset($aThread);
                 continue;
@@ -283,7 +283,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     if ($aThread->isonline) { $online_num++; } // 生存数set
 
     echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    $_info_msg_ht = '';
 
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
@@ -419,7 +419,7 @@ EOP;
     $aThread->resrange['nofirst'] = true;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
-        // $aThread->datToHtml(); //dat を html に変換表示
+        // $aThread->datToHtml(); // dat を html に変換表示
         include_once P2_LIBRARY_DIR . '/showthread.class.php';
         include_once P2_LIBRARY_DIR . '/showthreadpc.class.php';
         $aShowThread =& new ShowThreadPc($aThread);
@@ -462,7 +462,7 @@ EOP;
 EOP;
     } else {
         $dores_ht = <<<EOP
-        <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$popup_q}&amp;from_read_new=1{$sid_q}',{$STYLE['post_pop_size']},1,0)">レス</a>
+        <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$popup_q}&amp;from_read_new=1{$sid_q}',{$STYLE['post_pop_size']},1,0)">レス</a>
 EOP;
     }
 
@@ -504,7 +504,7 @@ EOTOOLBAR;
         <table width="100%" style="padding:0px 10px 0px 0px;">
             <tr>
                 <td align="left">
-                    {$res1['body']} | <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rc={$aThread->rescount}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> | {$dores_ht} {$dsize_ht} {$spd_ht}
+                    {$res1['body']} | <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> | {$dores_ht} {$dsize_ht} {$spd_ht}
                 </td>
                 <td align="right">
                     {$toolbar_right_ht}
@@ -527,7 +527,7 @@ EOP;
     }
 
     //==================================================================
-    // ■key.idxの値設定
+    // ■key.idx の値設定
     //==================================================================
     if ($aThread->rescount) {
 

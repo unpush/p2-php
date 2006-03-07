@@ -134,7 +134,7 @@ function sb_print_k(&$aThreadList)
         $torder_ht = $aThread->torder;
 
         // title =================================================
-        $rescount_q = "&amp;rc=".$aThread->rescount;
+        $rescount_q = "&amp;rescount=" . $aThread->rescount;
 
         // dat‘qŒÉ or “a“°‚È‚ç
         if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") {

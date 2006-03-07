@@ -5,8 +5,8 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.24';     // rep2のバージョン
-$_conf['p2expack'] = '060306.1933'; // ASAPのバージョン
+$_conf['p2version'] = '1.7.25';     // rep2のバージョン
+$_conf['p2expack'] = '060307.1034'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 
@@ -39,13 +39,6 @@ $_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
 
 $debug = 0;
 isset($_GET['debug']) and $debug = $_GET['debug'];
-if (!empty($debug)) {
-    include_once 'Benchmark/Profiler.php';
-    $profiler =& new Benchmark_Profiler(true);
-    
-    // printMemoryUsage();
-    register_shutdown_function('printMemoryUsage');
-}
 
 // }}}
 // {{{ 動作環境を確認
@@ -170,17 +163,23 @@ if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
 // ライブラリを読み込む
 $_pear_required = array(
     'File/Util.php'             => 'File',
+    'HTTP/Request.php'          => 'HTTP_Request',
     'Net/UserAgent/Mobile.php'  => 'Net_UserAgent_Mobile',
-    'PHP/Compat.php'            => 'PHP/Compat.php',
-    'HTTP/Request.php'          => 'HTTP_Request'
+    'PHP/Compat.php'            => 'PHP_Compat',
 );
+if (!empty($debug)) {
+    $_pear_required['Benchmark/Profiler.php'] = 'Benchmark';
+}
 foreach ($_pear_required as $_pear_file => $_pear_pkg) {
     if (!include_once($_pear_file)) {
-        $url = 'http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
-        $url_t = $_conf['p2ime_url'] . "?enc=1&amp;url=" . rawurlencode($url);
-        $msg = '<html><body><h3>p2 error: PEAR の ' . $_pear_pkg . ' がインストールされていません</h3>
-            <p><a href="' . $url_t . '" target="_blank">p2Wiki: PEARのインストール</a></p>
-            </body></html>';
+        $url1 = 'http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
+        $url2 = 'http://page2.xrea.jp/p2pear/index.php';
+        $url1_t = P2Util::throughIme($url1);
+        $url2_t = P2Util::throughIme($url2);
+        $msg = '<html><body><h3>p2 error: PEAR の ' . $_pear_pkg . ' がインストールされていません</h3><ul>
+            <li><a href="' . $url1_t . '" target="_blank">p2Wiki: PEARのインストール</a></li>
+            <li><a href="' . $url2_t . '" target="_blank">p2pear (PEAR詰め合わせ)</a></li>
+            </ul></body></html>';
         die($msg);
     }
 }
@@ -188,6 +187,15 @@ require_once P2_LIBRARY_DIR . '/p2util.class.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/session.class.php';
 require_once P2_LIBRARY_DIR . '/login.class.php';
+
+// }}}
+// {{{ デバッグ
+
+if (!empty($debug)) {
+    $profiler =& new Benchmark_Profiler(true);
+    // printMemoryUsage();
+    register_shutdown_function('printMemoryUsage');
+}
 
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む

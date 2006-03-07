@@ -233,7 +233,7 @@ EOP;
         // title =================================================
         $chUnColor_ht = "";
 
-        $rescount_q = "&amp;rc=".$aThread->rescount;
+        $rescount_q = "&amp;rescount=" . $aThread->rescount;
 
         // dat‘qŒÉ or “a“°‚È‚ç
         if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") {

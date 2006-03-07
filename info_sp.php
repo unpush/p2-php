@@ -14,7 +14,7 @@ $_login->authorize(); // ƒ†[ƒU”FØ
 $host = $_GET['host'];
 $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
-$rc   = $_GET['rc'];
+$rc   = $_GET['rescount'];
 $ttitle_en = $_GET['ttitle_en'];
 $resnum = $_GET['resnum'];
 $popup  = $_GET['popup'];

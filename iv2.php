@@ -903,6 +903,10 @@ $flexy->setData('js', $qf->getValidationScript());
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
 if ($lightbox === 'plus') {
+    /**
+     * Lightbox Plus () を使うときのためのヒント
+     * @link    http://serennz.cool.ne.jp/sb/sp/lightbox/index_ja.html
+     */
 /*
 --- lightbox_plus.orig
 +++ lightbox_plus.js
@@ -946,6 +950,10 @@ if ($lightbox === 'plus') {
 <link rel="stylesheet" type="text/css" href="lightbox_plus/lightbox.css">
 EOP;
 } elseif ($lightbox) {
+    /**
+     * シフトキーを押しながサムネイルをクリックしたときは
+     * 無効になるように Lightbox をオーバーロード
+     */
     $additional_script_and_style = <<<EOP
 <script type="text/javascript" src="lightbox/lightbox.js"></script>
 <script type="text/javascript">
@@ -960,7 +968,7 @@ function overloadLightbox()
     if (!document.getElementsByTagName){ return; }
     var anchors = document.getElementsByTagName('a');
     // loop through all anchor tags
-    for (var i=0; i<anchors.length; i++){
+    for (var i = 0; i < anchors.length; i++){
         var anchor = anchors[i];
         if (anchor.getAttribute('href') && (anchor.getAttribute('rel') == 'lightbox')){
             anchor.onclick = function(evt) {

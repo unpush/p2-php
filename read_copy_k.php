@@ -58,7 +58,7 @@ if (file_exists($aThread->keydat)) {
     }
     // 投稿フォームへのリンク
     $post_url = "post_form.php?host={$host}&amp;bbs={$bbs}&amp;key={$key}";
-    $post_url .= "&amp;rc={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;k=1";
+    $post_url .= "&amp;rescount={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;k=1";
     $post_link = "<a href=\"{$post_url}\">ﾚｽ</a>";
     // 元スレへのリンク
     $moto_link = '<a href="' . P2Util::throughIme($url_k_txt) . '">元ｽﾚ</a>';

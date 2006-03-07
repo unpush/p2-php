@@ -76,7 +76,7 @@ ob_start();
 
 $aThreadList =& new ThreadList();
 
-// 板とモードのセット===================================
+// 板とモードのセット ===================================
 if ($spmode) {
     if ($spmode == "taborn" or $spmode == "soko") {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
@@ -210,7 +210,7 @@ for ($x = 0; $x < $linesize; $x++) {
     // スレッドあぼーんチェック =====================================
     if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) {
         unset($ta_keys[$aThread->key]);
-        continue; //あぼーんスレはスキップ
+        continue; // あぼーんスレはスキップ
     }
 
     // spmode(殿堂入りを除く)なら ====================================
@@ -278,8 +278,9 @@ for ($x = 0; $x < $linesize; $x++) {
 
 //$aThread =& new ThreadRead();
 
-//==================================================================
-
+//======================================================================
+// スレッドの新着部分を読み込んで表示する
+//======================================================================
 function readNew(&$aThread)
 {
     global $_conf, $newthre_num, $STYLE;
@@ -294,7 +295,7 @@ function readNew(&$aThread)
     //hostを分解してidxファイルのパスを求める
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
 
-    //FileCtl::mkdir_for($aThread->keyidx);     //板ディレクトリが無ければ作る //この操作はおそらく不要
+    //FileCtl::mkdir_for($aThread->keyidx); // 板ディレクトリが無ければ作る //この操作はおそらく不要
 
     $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
     if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
@@ -419,7 +420,7 @@ EOP;
 EOP;
     } else {
         $dores_ht = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
 EOP;
     }
 
@@ -438,7 +439,7 @@ EOTOOLBAR;
     $read_footer_ht = <<<EOP
 <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
 $read_range_ht
-<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rc={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}
+<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}
 <a href="#ntt{$newthre_num}">▲</a>
 </div>
 <hr>\n

@@ -15,7 +15,7 @@ if ($_conf['filtering'] && $aThread->rescount) {
 } else {
     $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
 }
-$hd['read_range'] = $read_range_on.'/'.$aThread->rescount;
+$hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
 
 // レス番指定移動 etc.
 $htm['goto'] = kspform($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']);
@@ -32,7 +32,7 @@ if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
 EOP;
         } else {
             $dores_ht = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rc={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
 EOP;
         }
     }
@@ -55,18 +55,25 @@ EOP;
 {$htm['goto']}\n
 EOP;
     if ($diedat_msg) {
-        echo "<hr>";
+        echo '<hr>';
         echo $diedat_msg;
-        echo "<p>";
+        echo '<p>';
         echo  $motothre_ht;
-        echo "</p>";
+        echo '</p>' . "\n";
     }
 }
-echo '<hr>'.$_conf['k_to_index_ht'];
+echo '<hr>'.$_conf['k_to_index_ht'] . "\n";
 
 echo '</body></html>';
 
-// レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成
+
+//=====================================================================
+// 関数
+//=====================================================================
+
+/**
+ * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成
+ */
 function kspform($default = '')
 {
     global $_conf;

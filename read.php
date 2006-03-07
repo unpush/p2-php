@@ -234,7 +234,9 @@ if ($aThread->isKitoku()) {
 
 // 未取得なら
 } else {
-    if (!$aThread->ls) { $aThread->ls = $_conf['get_new_res_l']; }
+    if (!$aThread->ls) {
+        $aThread->ls = $_conf['get_new_res_l'];
+    }
 }
 
 // フィルタリングの時は、all固定とする
