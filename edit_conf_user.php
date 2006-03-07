@@ -115,8 +115,8 @@ if (empty($_conf['ktai'])) {
     </script>
     <script type="text/javascript" src="js/tabber/tabber.js"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="style/tabber/tabber.css" type="text/css">
+    <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
 EOP;
 }
@@ -339,7 +339,7 @@ echo getGroupEndHtml();
 // }}}
 // {{{ expack - スマートポップアップメニュー
 
-echo getGroupSepaHtml('SPM', (bool)$_conf['expack.spm.enabled']);
+echo getGroupSepaHtml('SPM', 'expack.spm.enabled');
 
 echo getEditConfHtml('expack.spm.kokores', 'ここにレス');
 echo getEditConfHtml('expack.spm.kokores_orig', 'ここにレスで開くフォームに元レスの内容を表示する');
@@ -353,7 +353,7 @@ echo getGroupEndHtml();
 // }}}
 // {{{ expack - アクティブモナー
 
-echo getGroupSepaHtml('ActiveMona', (bool)$_conf['expack.am.enabled']);
+echo getGroupSepaHtml('ActiveMona', 'expack.am.enabled');
 
 if (isset($_conf['expack.am.fontfamily.orig'])) {
     $_conf['expack.am.fontfamily'] = $_conf['expack.am.fontfamily.orig'];
@@ -381,7 +381,7 @@ echo getGroupEndHtml();
 // }}}
 // {{{ expack - RSSリーダ
 
-echo getGroupSepaHtml('RSS', (bool)$_conf['expack.rss.enabled']);
+echo getGroupSepaHtml('RSS', 'expack.rss.enabled');
 
 echo getEditConfHtml('expack.rss.check_interval', 'RSSが更新されたかどうか確認する間隔（分指定）');
 echo getEditConfHtml('expack.rss.target_frame', 'RSSの外部リンクを開くフレームまたはウインドウ');
@@ -392,7 +392,7 @@ echo getGroupEndHtml();
 // }}}
 // {{{ expack - ImageCache2
 
-echo getGroupSepaHtml('ImageCache2', (bool)$_conf['expack.ic2.enabled']);
+echo getGroupSepaHtml('ImageCache2', 'expack.ic2.enabled');
 
 echo getEditConfHtml('expack.ic2.through_ime', 'キャッシュに失敗したときの確認用にime経由でソースへのリンクを作成 (する, しない)');
 echo getEditConfHtml('expack.ic2.fitimage', 'ポップアップ画像の大きさをウインドウの大きさに合わせる (する, しない, 幅が大きいときだけする, 高さが大きいときだけする, 手動でする)');
@@ -405,7 +405,7 @@ echo getGroupEndHtml();
 // }}}
 // {{{ expack - Google検索
 
-echo getGroupSepaHtml('Google検索', (bool)$_conf['expack.google.enabled']);
+echo getGroupSepaHtml('Google検索', 'expack.google.enabled');
 
 echo getEditConfHtml('expack.google.key', 'Google Web APIs の登録キー');
 
@@ -414,7 +414,7 @@ echo getGroupEndHtml();
 // }}}
 // {{{ expack - AAS
 
-echo getGroupSepaHtml('AAS', (bool)$_conf['expack.aas.enabled']);
+echo getGroupSepaHtml('AAS', 'expack.aas.enabled');
 
 echo getEditConfHtml('expack.aas.inline', '携帯で自動 AA 判定と連動し、インライン表示 (する, しない)');
 echo getEditConfHtml('expack.aas.image_type', '画像形式 (PNG, JPEG, GIF)');
@@ -588,17 +588,30 @@ function notSelToDef()
 /**
  * グループ分け用のHTMLを得る（関数内でPC、携帯用表示を振り分け）
  */
-function getGroupSepaHtml($title, $enabled = true)
+function getGroupSepaHtml($title, $conf_key = null)
 {
     global $_conf;
 
     // PC用
     if (empty($_conf['ktai'])) {
-        $ht = "<div class=\"tabbertab\" title=\"{$title}\">\n";
-        if (empty($enabled)) {
-            $ht .= "<p><i>現在、この機能は無効になっています。conf/conf_admin.inc.php または conf/conf_admin_ex.inc.php の設定を確認してください。</i></p>\n";
+        $ht = <<<EOP
+<div class="tabbertab" title="{$title}">
+<h4>{$title}</h4>\n
+EOP;
+        if (!empty($conf_key) && empty($_conf[$conf_key])) {
+            $ht .= <<<EOP
+<p><i>現在、この機能は無効になっています。<br>
+有効にするには conf/conf_admin_ex.inc.php で \$_conf[{$conf_key}] を on にしてください。</i></p>\n
+EOP;
         }
-        $ht .= "<table class=\"edit_conf_user\" cellspacing=\"0\">\n";
+        $ht .= <<<EOP
+<table class="edit_conf_user" cellspacing="0">
+    <tr>
+        <th>変数名</th>
+        <th>値</th>
+        <th>説明</th>
+    </tr>\n
+EOP;
     // 携帯用
     } else {
         $ht = "<hr><h4>{$title}</h4>"."\n";
@@ -616,12 +629,13 @@ function getGroupEndHtml()
     // PC用
     if (empty($_conf['ktai'])) {
         $ht = <<<EOP
-<tr class="group">
-    <td colspan="3" align="center">
-        <input type="submit" name="submit_save" value="変更を保存する">
-        <input type="submit" name="submit_default" value="デフォルトに戻す" onClick="if (!window.confirm('ユーザ設定をデフォルトに戻してもよろしいですか？（やり直しはできません）')) {return false;}"><br>
-    </td>
-</tr>
+    <tr class="group">
+        <td colspan="3" align="center">
+            <input type="submit" name="submit_save" value="変更を保存する">
+            <input type="reset" value="変更を取り消す" onclick="if (!window.confirm('変更を取り消してもよろしいですか？（他のタブの変更もリセットされます）')) {return false;}">
+            <input type="submit" name="submit_default" value="デフォルトに戻す" onclick="if (!window.confirm('ユーザ設定をデフォルトに戻してもよろしいですか？（やり直しはできません）')) {return false;}">
+        </td>
+    </tr>
 </table>
 </div>\n\n
 EOP;
@@ -677,11 +691,11 @@ EOP;
     // PC用
     if (empty($_conf['ktai'])) {
         $r = <<<EOP
-<tr title="デフォルト値: {$def_views[$name]}">
-    <td>{$name}</td>
-    <td>{$form_ht}</td>
-    <td>{$description_ht}</td>
-</tr>\n
+    <tr title="デフォルト値: {$def_views[$name]}">
+        <td>{$name}</td>
+        <td>{$form_ht}</td>
+        <td>{$description_ht}</td>
+    </tr>\n
 EOP;
     // 携帯用
     } else {

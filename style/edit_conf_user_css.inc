@@ -15,7 +15,8 @@ table.edit_conf_user, table.edit_font, fieldset{
 	border: solid 1px #ccc;
 }
 
-table.edit_conf_user td, table.edit_font td, table.edit_font th{
+table.edit_conf_user th, table.edit_conf_user td, table.edit_font th, table.edit_font td {
+	font-size: {$STYLE['infowin_fontsize']};
 	padding: 4px;
 	margin: 4px;
 	border: solid 0px;
@@ -25,6 +26,14 @@ table.edit_conf_user td, table.edit_font td, table.edit_font th{
 
 tr.group{
 	background-color: #efefef;
+}
+
+ul.tabbernav {
+	font-size: {$STYLE['fontsize']};
+}
+
+.tabberlive .tabbertab h4 {
+	display: none;
 }
 
 -->
