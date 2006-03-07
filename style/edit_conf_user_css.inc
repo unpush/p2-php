@@ -10,12 +10,12 @@ p#pan_menu{
 	border-bottom: solid 1px #ccc;
 }
 
-table#edit_conf_user, table.edit_font, fieldset{
+table.edit_conf_user, table.edit_font, fieldset{
 	background-color: #fff;
 	border: solid 1px #ccc;
 }
 
-table#edit_conf_user td, table.edit_font td, table.edit_font th{
+table.edit_conf_user td, table.edit_font td, table.edit_font th{
 	padding: 4px;
 	margin: 4px;
 	border: solid 0px;

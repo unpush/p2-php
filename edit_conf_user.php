@@ -108,13 +108,20 @@ EOP;
 if (empty($_conf['ktai'])) {
     echo <<<EOP
     <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript">
+    <!--
+    window.onload = setWinTitle();
+    // -->
+    </script>
+    <script type="text/javascript" src="js/tabber/tabber.js"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="style/tabber/tabber.css" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : '';
 echo <<<EOP
 </head>
 <body{$body_at}>\n
@@ -127,20 +134,10 @@ if (empty($_conf['ktai'])) {
 EOP;
 }
 
-// PC用表示
-if (empty($_conf['ktai'])) {
-    $htm['form_submit'] = <<<EOP
-        <tr class="group">
-            <td colspan="3" align="center">
-                <input type="submit" name="submit_save" value="変更を保存する">
-                <input type="submit" name="submit_default" value="デフォルトに戻す" onClick="if (!window.confirm('ユーザ設定をデフォルトに戻してもよろしいですか？（やり直しはできません）')) {return false;}"><br>
-            </td>
-        </tr>\n
-EOP;
 // 携帯用表示
-} else {
+if (!empty($_conf['ktai'])) {
     $htm['form_submit'] = <<<EOP
-        <input type="submit" name="submit_save" value="変更を保存する">\n
+<input type="submit" name="submit_save" value="変更を保存する">\n
 EOP;
 }
 
@@ -157,22 +154,15 @@ echo <<<EOP
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
 
-// PC用表示（table）
-if (empty($_conf['ktai'])) {
-    echo '<table id="edit_conf_user" cellspacing="0">'."\n";
-}
-
-echo $htm['form_submit'];
-
-// PC用表示（table）
+// PC用表示
 if (empty($_conf['ktai'])) {
     echo <<<EOP
-        <tr>
-            <td>変数名</td>
-            <td>値</td>
-            <td>説明</td>
-        </tr>\n
+<h3>rep2基本設定</h3>
+<div class="tabber">\n
 EOP;
+// 携帯用表示
+} else {
+    echo $htm['form_submit'];
 }
 
 // {{{ be.2ch.net アカウント
@@ -181,6 +171,8 @@ echo getGroupSepaHtml('be.2ch.net アカウント');
 
 echo getEditConfHtml('be_2ch_code', '<a href="http://be.2ch.net/" target="_blank">be.2ch.net</a>の認証コード(パスワードではない)');
 echo getEditConfHtml('be_2ch_mail', 'be.2ch.netの登録メールアドレス');
+
+echo getGroupEndHtml();
 
 // }}}
 // {{{ PATH
@@ -198,6 +190,7 @@ echo getEditConfHtml('brdfile_online',
     2ch + 外部BBS <a href="http://azlucky.s25.xrea.com/2chboard/bbsmenu.html" target="_blank">http://azlucky.s25.xrea.com/2chboard/bbsmenu.html</a><br>
     ');
 
+echo getGroupEndHtml();
 
 // }}}
 // {{{ subject
@@ -220,6 +213,8 @@ echo getEditConfHtml('viewall_kitoku', '既得スレは表示件数に関わらず表示 (する, 
 echo getEditConfHtml('sb_ttitle_max_len', 'スレッド一覧で表示するスレッドタイトルの長さの上限 (0で無制限)');
 echo getEditConfHtml('sb_ttitle_trim_len', 'スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める');
 echo getEditConfHtml('sb_ttitle_trim_pos', 'スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)');
+
+echo getGroupEndHtml();
 
 // }}}
 // {{{ read
@@ -251,6 +246,8 @@ echo getEditConfHtml('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用(す
 
 echo getEditConfHtml('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示（する, しない）');
 
+echo getGroupEndHtml();
+
 // }}}
 // {{{ NG/あぼーん
 
@@ -262,6 +259,8 @@ echo getEditConfHtml('ngaborn_frequent_num', '頻出IDあぼーんのしきい値（出現回数
 echo getEditConfHtml('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない（総レス数/スレ立てからの日数、0なら無効）');
 echo getEditConfHtml('ngaborn_chain', '連鎖NGあぼーん(する, しない, あぼーんレスへのレスもNGにする) <br>処理を軽くするため、表示範囲のレスにしか連鎖しない');
 echo getEditConfHtml('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）');
+
+echo getGroupEndHtml();
 
 // }}}
 // {{{ ETC
@@ -294,10 +293,13 @@ echo getEditConfHtml('proxy_port', 'プロキシポート ex)"8080"');
 echo getEditConfHtml('precede_openssl', '●ログインを、まずはopensslで試みる。※PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある。');
 echo getEditConfHtml('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか (コマンドライン版, PHP関数版)');
 
+echo getGroupEndHtml();
+
 // }}}
 // {{{ Mobile Color
 
 echo getGroupSepaHtml('Mobile Color');
+
 echo getEditConfHtml('mobile.background_color', '背景');
 echo getEditConfHtml('mobile.text_color', '基本文字色');
 echo getEditConfHtml('mobile.link_color', 'リンク');
@@ -309,43 +311,50 @@ echo getEditConfHtml('mobile.ngword_color', 'NGワード');
 echo getEditConfHtml('mobile.onthefly_color', 'オンザフライレス番号');
 echo getEditConfHtml('mobile.match_color', 'フィルタリングでマッチしたキーワード');
 
+echo getGroupEndHtml();
+
 // }}}
+
+// PC用表示
+if (empty($_conf['ktai'])) {
+    echo <<<EOP
+</div>
+
+<h3>拡張パック設定</h3>
+<div class="tabber">\n
+EOP;
+}
+
 // {{{ expack
 // {{{ expack - tGrep
 
-echo getGroupSepaHtml('expack - tGrep');
+echo getGroupSepaHtml('tGrep');
+
 echo getEditConfHtml('expack.tgrep.quicksearch', '一発検索（表示, 非表示）');
 echo getEditConfHtml('expack.tgrep.recent_num', '検索履歴を記録する数（記録しない:0）');
 echo getEditConfHtml('expack.tgrep.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用（記録しない:0）');
 
+echo getGroupEndHtml();
+
 // }}}
 // {{{ expack - スマートポップアップメニュー
 
-if ($_conf['expack.spm.enabled']) {
-    echo getGroupSepaHtml('expack - スマートポップアップメニュー');
-} else {
-    echo getGroupSepaHtml('<s>expack - スマートポップアップメニュー</s> (無効: see conf_admin_ex.inc.php)');
-}
-if ($_conf['disable_res']) {
-    echo getEditConfHtml('expack.spm.kokores', '<s>ここにレス</s> (書き込み無効)');
-    echo getEditConfHtml('expack.spm.kokores_orig', '<s>ここにレスで開くフォームに元レスの内容を表示する</s>');
-} else {
-    echo getEditConfHtml('expack.spm.kokores', 'ここにレス');
-    echo getEditConfHtml('expack.spm.kokores_orig', 'ここにレスで開くフォームに元レスの内容を表示する');
-}
+echo getGroupSepaHtml('SPM', (bool)$_conf['expack.spm.enabled']);
+
+echo getEditConfHtml('expack.spm.kokores', 'ここにレス');
+echo getEditConfHtml('expack.spm.kokores_orig', 'ここにレスで開くフォームに元レスの内容を表示する');
 echo getEditConfHtml('expack.spm.ngaborn', 'あぼーんワード・NGワード登録');
 echo getEditConfHtml('expack.spm.ngaborn_confirm', 'あぼーんワード・NGワード登録時に確認する');
 echo getEditConfHtml('expack.spm.filter', 'フィルタリング');
 echo getEditConfHtml('expack.spm.filter_target', 'フィルタリング結果を開くフレームまたはウインドウ');
 
+echo getGroupEndHtml();
+
 // }}}
 // {{{ expack - アクティブモナー
 
-if ($_conf['expack.am.enabled']) {
-    echo getGroupSepaHtml('expack - アクティブモナー');
-} else {
-    echo getGroupSepaHtml('<s>expack - アクティブモナー</s> (無効: see conf_admin_ex.inc.php)');
-}
+echo getGroupSepaHtml('ActiveMona', (bool)$_conf['expack.am.enabled']);
+
 if (isset($_conf['expack.am.fontfamily.orig'])) {
     $_conf['expack.am.fontfamily'] = $_conf['expack.am.fontfamily.orig'];
 }
@@ -355,59 +364,58 @@ echo getEditConfHtml('expack.am.display', 'スイッチを表示する位置');
 echo getEditConfHtml('expack.am.autodetect', '自動で判定し、AA用表示をする（PC）');
 echo getEditConfHtml('expack.am.autong_k', '自動で判定し、NGワードにする。AAS が有効なら AAS のリンクも作成（携帯）');
 
+echo getGroupEndHtml();
+
 // }}}
 // {{{ expack - 入力支援
 
-echo getGroupSepaHtml('expack - 入力支援');
+echo getGroupSepaHtml('入力支援');
+
 echo getEditConfHtml('expack.editor.constant', '定型文');
 echo getEditConfHtml('expack.editor.dpreview', 'リアルタイム・プレビュー');
 echo getEditConfHtml('expack.editor.check_message', '本文が空でないかチェック');
 echo getEditConfHtml('expack.editor.check_sage', 'sageチェック');
 
+echo getGroupEndHtml();
+
 // }}}
 // {{{ expack - RSSリーダ
 
-if ($_conf['expack.rss.enabled']) {
-    echo getGroupSepaHtml('expack - RSSリーダ');
-} else {
-    echo getGroupSepaHtml('<s>expack - RSSリーダ</s> (無効: see conf_admin_ex.inc.php)');
-}
+echo getGroupSepaHtml('RSS', (bool)$_conf['expack.rss.enabled']);
+
 echo getEditConfHtml('expack.rss.check_interval', 'RSSが更新されたかどうか確認する間隔（分指定）');
 echo getEditConfHtml('expack.rss.target_frame', 'RSSの外部リンクを開くフレームまたはウインドウ');
 echo getEditConfHtml('expack.rss.desc_target_frame', '概要を開くフレームまたはウインドウ');
 
+echo getGroupEndHtml();
+
 // }}}
 // {{{ expack - ImageCache2
 
-if ($_conf['expack.ic2.enabled']) {
-    echo getGroupSepaHtml('expack - ImageCache2');
-} else {
-    echo getGroupSepaHtml('<s>expack - ImageCache2</s> (無効: see conf_admin_ex.inc.php)');
-}
+echo getGroupSepaHtml('ImageCache2', (bool)$_conf['expack.ic2.enabled']);
+
 echo getEditConfHtml('expack.ic2.through_ime', 'キャッシュに失敗したときの確認用にime経由でソースへのリンクを作成 (する, しない)');
 echo getEditConfHtml('expack.ic2.fitimage', 'ポップアップ画像の大きさをウインドウの大きさに合わせる (する, しない, 幅が大きいときだけする, 高さが大きいときだけする, 手動でする)');
 echo getEditConfHtml('expack.ic2.pre_thumb_limit_k', '携帯でインライン・サムネイルが有効のときの表示する制限数 (0で無制限)');
 echo getEditConfHtml('expack.ic2.newres_ignore_limit', '新着レスの画像は pre_thumb_limit を無視して全て表示 (する, しない)');
 echo getEditConfHtml('expack.ic2.newres_ignore_limit_k', '携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示 (する, しない)');
 
+echo getGroupEndHtml();
+
 // }}}
 // {{{ expack - Google検索
 
-if ($_conf['expack.google.enabled']) {
-    echo getGroupSepaHtml('expack - Google検索');
-} else {
-    echo getGroupSepaHtml('<s>expack - Google検索</s> (無効: see conf_admin_ex.inc.php)');
-}
+echo getGroupSepaHtml('Google検索', (bool)$_conf['expack.google.enabled']);
+
 echo getEditConfHtml('expack.google.key', 'Google Web APIs の登録キー');
+
+echo getGroupEndHtml();
 
 // }}}
 // {{{ expack - AAS
 
-if ($_conf['expack.aas.enabled']) {
-    echo getGroupSepaHtml('expack - AAS');
-} else {
-    echo getGroupSepaHtml('<s>expack - AAS</s> (無効: see conf_admin_ex.inc.php)');
-}
+echo getGroupSepaHtml('AAS', (bool)$_conf['expack.aas.enabled']);
+
 echo getEditConfHtml('expack.aas.inline', '携帯で自動 AA 判定と連動し、インライン表示 (する, しない)');
 echo getEditConfHtml('expack.aas.image_type', '画像形式 (PNG, JPEG, GIF)');
 echo getEditConfHtml('expack.aas.jpeg_quality', 'JPEGの品質 (0-100)');
@@ -425,13 +433,17 @@ echo getEditConfHtml('expack.aas.max_fontsize', '最大の文字サイズ (ポイント)');
 echo getEditConfHtml('expack.aas.min_fontsize', '最小の文字サイズ (ポイント)');
 echo getEditConfHtml('expack.aas.inline_fontsize', 'インライン表示の文字サイズ (ポイント)');
 
+echo getGroupEndHtml();
+
 // }}}
 // }}}
 
-echo $htm['form_submit'];
-
+// PC用表示
 if (empty($_conf['ktai'])) {
-    echo '</table>'."\n";
+    echo "</div>\n";
+// 携帯用表示
+} else {
+    echo $htm['form_submit'];
 }
 
 echo '</form>'."\n";
@@ -576,20 +588,46 @@ function notSelToDef()
 /**
  * グループ分け用のHTMLを得る（関数内でPC、携帯用表示を振り分け）
  */
-function getGroupSepaHtml($title)
+function getGroupSepaHtml($title, $enabled = true)
+{
+    global $_conf;
+
+    // PC用
+    if (empty($_conf['ktai'])) {
+        $ht = "<div class=\"tabbertab\" title=\"{$title}\">\n";
+        if (empty($enabled)) {
+            $ht .= "<p><i>現在、この機能は無効になっています。conf/conf_admin.inc.php または conf/conf_admin_ex.inc.php の設定を確認してください。</i></p>\n";
+        }
+        $ht .= "<table class=\"edit_conf_user\" cellspacing=\"0\">\n";
+    // 携帯用
+    } else {
+        $ht = "<hr><h4>{$title}</h4>"."\n";
+    }
+    return $ht;
+}
+
+/**
+ * グループ終端のHTMLを得る（携帯では空）
+ */
+function getGroupEndHtml()
 {
     global $_conf;
 
     // PC用
     if (empty($_conf['ktai'])) {
         $ht = <<<EOP
-        <tr class="group">
-            <td colspan="4"><h4 style="display:inline;">{$title}</h4></td>
-        </tr>\n
+<tr class="group">
+    <td colspan="3" align="center">
+        <input type="submit" name="submit_save" value="変更を保存する">
+        <input type="submit" name="submit_default" value="デフォルトに戻す" onClick="if (!window.confirm('ユーザ設定をデフォルトに戻してもよろしいですか？（やり直しはできません）')) {return false;}"><br>
+    </td>
+</tr>
+</table>
+</div>\n\n
 EOP;
     // 携帯用
     } else {
-        $ht = "<hr><h4>{$title}</h4>"."\n";
+        $ht = '';
     }
     return $ht;
 }
