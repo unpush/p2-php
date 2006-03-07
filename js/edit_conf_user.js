@@ -17,6 +17,25 @@ window.onload = function() {
 		oldonload();
 	}
 
+	// タブ用要素生成関数
+	var getTab = function() {
+		var aTab = document.createElement('span');
+		aTab.style.marginLeft = '5px';
+		aTab.style.paddingBottom = '1px';
+		aTab.style.verticalAlign = 'bottom';
+		return aTab;
+	}
+
+	// ボタン要素生成関数
+	var getBtn = function(btn_type, btn_name, btn_value) {
+		var aBtn = document.createElement('input');
+		aBtn.type = btn_type;
+		aBtn.name = btn_name;
+		aBtn.value = btn_value;
+		aBtn.style.fontSize = '80%';
+		return aBtn;
+	}
+
 	// １つ目の 'tabbernav' に送信・リセット用のタブを追加する
 	var tabs = document.getElementsByTagName('ul');
 	for (var i = 0; i < tabs.length; i++) {
@@ -26,47 +45,33 @@ window.onload = function() {
 		var targetForm = document.getElementById('edit_conf_user_form');
 
 		// 「変更を保存する」タブ
-		var saveTab = document.createElement('a');
-		saveTab.appendChild(document.createTextNode('[変更を保存する]'));
-		saveTab.href = 'javascript:void(null);';
-		saveTab.style.fontSize = '80%';
-		saveTab.onclick = function() {
-			if (window.confirm('設定を変更してもよろしいですか？')) {
-				var saveElem = document.createElement('input');
-				saveElem.type = 'hidden';
-				saveElem.name = 'submit_save';
-				saveElem.value = 'true';
-				targetForm.appendChild(saveElem);
-				targetForm.submit();
-			}
-		}
+		var saveTab = getTab();
+		var saveBtn = getBtn('submit', 'submit_save', '変更を保存する');
+		/*saveBtn.onclick = function() {
+			var msg = '変更を保存してもよろしいですか？';
+			return window.confirm(msg);
+		}*/
+		saveTab.appendChild(saveBtn);
 
 		// 「変更を取り消す」タブ
-		var resetTab = document.createElement('a');
-		resetTab.appendChild(document.createTextNode('[変更を取り消す]'));
-		resetTab.href = 'javascript:void(null);';
-		resetTab.style.fontSize = '80%';
-		resetTab.onclick = function() {
-			if (window.confirm('変更を取り消してもよろしいですか？（全てのタブの変更がリセットされます）')) {
-				targetForm.reset();
-			}
+		var resetTab = getTab();
+		var resetBtn = getBtn('reset', 'reset_change', '変更を取り消す');
+		resetBtn.onclick = function() {
+			var msg = '変更を取り消してもよろしいですか？' + '\n';
+				msg += '（全てのタブの変更がリセットされます）';
+			return window.confirm(msg);
 		}
+		resetTab.appendChild(resetBtn);
 
 		// 「デフォルトに戻す」タブ
-		var defaultTab = document.createElement('a');
-		defaultTab.appendChild(document.createTextNode('[デフォルトに戻す]'));
-		defaultTab.href = 'javascript:void(null);';
-		defaultTab.style.fontSize = '80%';
-		defaultTab.onclick = function() {
-			if (window.confirm('ユーザ設定をデフォルトに戻してもよろしいですか？（やり直しはできません）')) {
-				var defaultElem = document.createElement('input');
-				defaultElem.type = 'hidden';
-				defaultElem.name = 'submit_default';
-				defaultElem.value = 'true';
-				targetForm.appendChild(defaultElem);
-				targetForm.submit();
-			}
+		var defaultTab = getTab();
+		var defaultBtn = getBtn('submit', 'submit_default', 'デフォルトに戻す');
+		defaultBtn.onclick = function() {
+			var msg = 'ユーザ設定をデフォルトに戻してもよろしいですか？' + '\n';
+				msg += '（やり直しはできません）';
+			return window.confirm(msg);
 		}
+		defaultTab.appendChild(defaultBtn);
 
 		// タブを追加
 		tabs[i].appendChild(document.createElement('li')).appendChild(saveTab);

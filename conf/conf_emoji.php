@@ -32,6 +32,8 @@ function getEmoji()
     $emoji[0] = '0.';
 
     if ($mobile->isDoCoMo()) {
+        $emoji['lt2'] = '&lt;&lt;';
+        $emoji['rt2'] = '&gt;&gt;';
         $emoji[1] = pack('C*', 0xF9, 0x87);
         $emoji[2] = pack('C*', 0xF9, 0x88);
         $emoji[3] = pack('C*', 0xF9, 0x89);

@@ -151,7 +151,7 @@ if (!$_conf['ktai']) {
 
 $htm['options'] = '';
 $htm['options_k'] = '';
-
+/*
 $_aapreview_activemona = (!$_conf['ktai'] && $_conf['expack.am.enabled'] && $_conf['expack.editor.with_activemona']);
 $_aapreveiw_aas = ($_conf['expack.aas.enabled'] && $_conf['expack.editor.with_aas']);
 
@@ -162,7 +162,7 @@ if ($_conf['expack.editor.constant'] || $_aapreview_activemona || $_aapreveiw_aa
         @include P2EX_LIBRARY_DIR . '/post_options_k.inc.php';
     }
 }
-
+*/
 // }}}
 // {{{ ‘‚«‚İƒvƒŒƒrƒ…[
 

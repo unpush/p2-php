@@ -104,8 +104,8 @@ $conf_user_rad['expack.am.autong_k'] = array('1' => 'する', '0' => 'しない');
 // {{{ 入力支援
 
 // 定型文
-$conf_user_def['expack.editor.constant'] = 0; // (0)
-$conf_user_rad['expack.editor.constant'] = array('1' => '使う', '0' => '使わない');
+//$conf_user_def['expack.editor.constant'] = 0; // (0)
+//$conf_user_rad['expack.editor.constant'] = array('1' => '使う', '0' => '使わない');
 
 // リアルタイム・プレビュー
 $conf_user_def['expack.editor.dpreview'] = 0; // (0)

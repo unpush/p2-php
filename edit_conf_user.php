@@ -168,8 +168,8 @@ EOP;
 
 echo getGroupSepaHtml('be.2ch.net アカウント');
 
-echo getEditConfHtml('be_2ch_code', '<a href="http://be.2ch.net/" target="_blank">be.2ch.net</a>の認証コード(パスワードではない)');
-echo getEditConfHtml('be_2ch_mail', 'be.2ch.netの登録メールアドレス');
+echo getEditConfHtml('be_2ch_code', '<a href="http://be.2ch.net/" target="_blank">be.2ch.net</a>の認証コード(パスワードではない)', true);
+echo getEditConfHtml('be_2ch_mail', 'be.2ch.netの登録メールアドレス', true);
 
 echo getGroupEndHtml();
 
@@ -187,7 +187,7 @@ echo getEditConfHtml('brdfile_online',
 
     2ch基本 <a href="http://menu.2ch.net/bbsmenu.html" target="_blank">http://menu.2ch.net/bbsmenu.html</a><br>
     2ch + 外部BBS <a href="http://azlucky.s25.xrea.com/2chboard/bbsmenu.html" target="_blank">http://azlucky.s25.xrea.com/2chboard/bbsmenu.html</a><br>
-    ');
+    ', true);
 
 echo getGroupEndHtml();
 
@@ -409,7 +409,7 @@ echo getGroupEndHtml();
 
 echo getGroupSepaHtml('Google検索', 'expack.google.enabled');
 
-echo getEditConfHtml('expack.google.key', 'Google Web APIs の登録キー');
+echo getEditConfHtml('expack.google.key', 'Google Web APIs の登録キー', true);
 
 echo getGroupEndHtml();
 
@@ -638,8 +638,8 @@ function getGroupEndHtml()
     <tr class="group">
         <td colspan="3" align="center">
             <input type="submit" name="submit_save" value="変更を保存する">
-            <input type="reset" value="変更を取り消す" onclick="if (!window.confirm('変更を取り消してもよろしいですか？（他のタブの変更もリセットされます）')) {return false;}">
-            <input type="submit" name="submit_default" value="デフォルトに戻す" onclick="if (!window.confirm('ユーザ設定をデフォルトに戻してもよろしいですか？（やり直しはできません）')) {return false;}">
+            <input type="reset"  name="reset_change" value="変更を取り消す" onclick="return window.confirm('変更を取り消してもよろしいですか？\\n（全てのタブの変更がリセットされます）');">
+            <input type="submit" name="submit_default" value="デフォルトに戻す" onclick="return window.confirm('ユーザ設定をデフォルトに戻してもよろしいですか？\\n（やり直しはできません）');">
         </td>
     </tr>
 </table>
@@ -655,7 +655,7 @@ EOP;
 /**
  * 編集フォームinput用HTMLを得る（関数内でPC、携帯用表示を振り分け）
  */
-function getEditConfHtml($name, $description_ht)
+function getEditConfHtml($name, $description_ht, $is_long_txt = false)
 {
     global $_conf, $conf_user_def, $conf_user_sel, $conf_user_rad;
 
@@ -667,7 +667,7 @@ function getEditConfHtml($name, $description_ht)
     $name_view = htmlspecialchars($_conf[$name], ENT_QUOTES);
 
     if (empty($_conf['ktai'])) {
-        $input_size_at = ' size="38"';
+        $input_size_at = sprintf(' size="%d"', $is_long_txt ? 40 : 20);
     } else {
         $input_size_at = '';
     }

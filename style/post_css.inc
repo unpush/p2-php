@@ -55,6 +55,14 @@ echo <<<EOP
 		margin-left:2em;
 	}
 
+	#dp_msg {
+		width:97%;
+		margin-left:3%;
+		white-space:pre;
+		overflow:auto; /* W3C */
+		overflow-x:auto; /* IE */
+	}
+
 -->
 </style>
 

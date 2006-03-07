@@ -17,25 +17,38 @@ function DPInit()
 }
 
 
+// 内容のテキストを置換する
+function DPReplaceInnerText(elem, cont)
+{
+	if (typeof elem == 'string') {
+		elem = document.getElementById(elem);
+	}
+	if (!elem.firstChild) {
+		elem.appendChild(document.createTextNode(cont));
+	} else {
+		elem.replaceChild(document.createTextNode(cont), elem.firstChild);
+	}
+}
+
+
 // 名前欄を更新する
 function DPSetName(_value)
 {
 	if (!dpreview_ok) { return; }
 	var dpname = '';
-	var dptrip = '';
 	if (_value.length == 0) {
 		dpname = '名無しさん＠お腹いっぱい';
 	} else {
 		tp = _value.indexOf('#');
 		if (tp != -1) {
 			dpname = _value.substr(0, tp);
-			dptrip = DBGetTrip(_value.substr(tp + 1, 8));
+			DBSetTrip(_value.substr(tp + 1, 8));
 		} else {
 			dpname = _value;
+			DPReplaceInnerText('dp_trip', '');
 		}
 	}
-	document.getElementById('dp_name').innerHTML = htmlspecialchars(dpname);
-	document.getElementById('dp_trip').innerHTML = htmlspecialchars(dptrip);
+	DPReplaceInnerText('dp_name', dpname);
 	DPSetDate();
 }
 
@@ -44,7 +57,7 @@ function DPSetName(_value)
 function DPSetMail(_value)
 {
 	if (!dpreview_ok) { return; }
-	document.getElementById('dp_mail').innerHTML = htmlspecialchars(_value);
+	DPReplaceInnerText('dp_mail', _value);
 	DPSetDate();
 }
 
@@ -53,7 +66,7 @@ function DPSetMail(_value)
 function DPSetMsg(_value)
 {
 	if (!dpreview_ok) { return; }
-	document.getElementById('dp_msg').innerHTML = nl2br(htmlspecialchars(_value));
+	DPReplaceInnerText('dp_msg', _value);
 	DPSetDate();
 }
 
@@ -75,7 +88,26 @@ function DPSetDate()
 		+ ' ' + ((hour < 10) ? '0' + hour : hour)
 		+ ':' + ((min < 10) ? '0' + min : min)
 		+ ':' + ((sec < 10) ? '0' + sec : sec)
-	document.getElementById('dp_date').innerHTML = htmlspecialchars(timestamp);
+	DPReplaceInnerText('dp_date', timestamp);
+}
+
+
+// XMLHttpRequestを用いてトリップを設定する
+function DBSetTrip(tk)
+{
+	var objHTTP = getXmlHttp();
+	if (!objHTTP) {
+		DPReplaceInnerText('dp_trip', '◆XMLHTTP Disabled.');
+		return;
+	}
+	objHTTP.onreadystatechange = function() {
+		if (objHTTP.readyState == 4) {
+			DPReplaceInnerText('dp_trip', '◆' + objHTTP.responseText);
+		}
+	}
+	var uri = 'tripper.php?tk=' + encodeURIComponent(tk);
+	objHTTP.open('GET', uri, true);
+	objHTTP.send(null);
 }
 
 

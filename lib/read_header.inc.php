@@ -155,7 +155,6 @@ echo <<<EOP
     <script type="text/javascript" src="js/respopup.js"></script>
     <script type="text/javascript" src="js/htmlpopup.js"></script>
     <script type="text/javascript" src="js/invite.js"></script>
-    <script type="text/javascript" src="js/strutil.js"></script>
     <script type="text/javascript" src="js/setfavjs.js"></script>
     <script type="text/javascript" src="js/delelog.js"></script>\n
 EOP;
