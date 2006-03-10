@@ -5,6 +5,7 @@
 
 include_once './conf/conf.inc.php';  // 基本設定
 include_once P2_LIBRARY_DIR . '/filectl.class.php';
+include_once P2_LIBRARY_DIR . '/strctl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -118,12 +119,12 @@ if (is_array($lines)) {
         if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)$/", rtrim($l), $matches)) {
             $id = "li{$i}";
             $okini_itas[$id]['itaj']       = $itaj = rtrim($matches[3]);
-            $okini_itas[$id]['itaj_en']    = $itaj_en = rawurlencode(base64_encode($itaj));
+            $okini_itas[$id]['itaj_en']    = $itaj_en = base64_encode($itaj);
             $okini_itas[$id]['host']       = $host = $matches[1];
             $okini_itas[$id]['bbs']        = $bbs = $matches[2];
             $okini_itas[$id]['itaj_view']  = htmlspecialchars($itaj);
             $okini_itas[$id]['itaj_ht']    = "&amp;itaj_en=" . $itaj_en;
-            $okini_itas[$id]['value']      = $host . "@" . $bbs . "@" . $itaj_en;
+            $okini_itas[$id]['value']      = StrCtl::toJavaScript("{$host}@{$bbs}@{$itaj_en}");
 
             $i++;
         }
@@ -148,7 +149,7 @@ if (empty($_conf['ktai']) and !empty($lines)) {
         }
         <?php
         foreach ($okini_itas as $k => $v) {
-            echo "gVarObj['{$k}'] = '{$v['host']}@{$v['bbs']}@{$v['itaj_en']}';";
+            echo "gVarObj['{$k}'] = '{$v['value']}';";
         }
         ?>
 
@@ -217,7 +218,7 @@ echo $add_favita_form_ht;
 echo '<hr>';
 
 // PC（NetFrontを除外）
-if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
+if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
 
     if ($lines) {
         $script_enable_html .= <<<EOP
@@ -272,7 +273,7 @@ EOP;
 //================================================================
 if ($lines) {
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
+    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '<noscript>';
     }
     echo 'お気に板の並び替え';
@@ -300,7 +301,7 @@ EOP;
 
     echo "</table>";
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
+    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '</noscript>';
     }
 }

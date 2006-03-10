@@ -3,6 +3,7 @@
     p2 - スレッドを表示する クラス PC用
 */
 
+require_once P2_LIBRARY_DIR . '/strctl.class.php';
 require_once P2EX_LIBRARY_DIR . '/expack_loader.class.php';
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
@@ -1043,12 +1044,12 @@ EOJS;
         $spmOptions = implode(',', $_spmOptions);
 
         // エスケープ
-        $_spm_title = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->ttitle);
-        $_spm_url = preg_replace('/[\\\\"]/', '\\\\$0', $motothre_url);
-        $_spm_host = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->host);
-        $_spm_bbs = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->bbs);
-        $_spm_key = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->key);
-        $_spm_ls = preg_replace('/[\\\\"]/', '\\\\$0', $this->thread->ls);
+        $_spm_title = StrCtl::toJavaScript($this->thread->ttitle_hc);
+        $_spm_url = addslashes($motothre_url);
+        $_spm_host = addslashes($this->thread->host);
+        $_spm_bbs = addslashes($this->thread->bbs);
+        $_spm_key = addslashes($this->thread->key);
+        $_spm_ls = addslashes($this->thread->ls);
 
         $code = "<script type=\"text/javascript\">\n";
         if (!$target_done) {

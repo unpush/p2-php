@@ -55,7 +55,7 @@ if (!empty($spmode)) {
     $sb_keys_txt =    $idx_bbs_dir_s . 'p2_sb_keys.txt';
 
     // 更新しない場合は、2つ前のと１つ前のを比べて、新規スレを調べる
-    if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
+    if (!empty($_REQUEST['norefresh']) || (empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
         if ($prepre_sb_cont = @file_get_contents($sb_keys_b_txt)) {
             $prepre_sb_keys = unserialize($prepre_sb_cont);
         }
@@ -373,7 +373,7 @@ for ($x = 0; $x < $linesize; $x++) {
     // {{{ 新しいかどうか(for subject)
 
     if (!$aThreadList->spmode) {
-        if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
+        if (!empty($_REQUEST['norefresh']) || (empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
             if (!$prepre_sb_keys[$aThread->key]) {
                 $aThread->new = true;
             }

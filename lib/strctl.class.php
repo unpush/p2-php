@@ -224,6 +224,21 @@ class StrCtl{
 
         return $kigou;
     }
+
+    /**
+     * Shift_JIS‚Ì•¶Žš—ñ‚ðJavaScript‚ÌUnicode•\‹L(\uhhhh)‚É•ÏŠ·
+     */
+    function toJavaScript($in_str)
+    {
+        $uni = mb_convert_encoding($in_str, 'UCS-2', 'SJIS-win');
+        $len = strlen($uni);
+        $pos = 0;
+        $out_str = '';
+        while ($pos < $len) {
+            $out_str .= sprintf('\\u%02X%02X', ord(substr($uni, $pos++, 1)), ord(substr($uni, $pos++, 1)));
+        }
+        return $out_str;
+    }
 }
 
 ?>

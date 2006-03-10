@@ -124,7 +124,7 @@ $favmark = (!empty($aThread->fav)) ? '★' : '+';
 $favdo = (!empty($aThread->fav)) ? 0 : 1;
 $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
 $favdo_q = '&amp;setfav=' . $favdo;
-$similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);
+$similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc) . '&amp;refresh=1';
 $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
 $toolbar_right_ht = <<<EOTOOLBAR

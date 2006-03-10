@@ -335,8 +335,9 @@ class Thread{
 
         // JBBS‚µ‚½‚ç‚Î
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
-            $bbs_cgi = ($_conf['ktai'] && !$original) ? 'i.cgi' : 'bbs.cgi';
-            $motothre_url = "http://jbbs.livedoor.jp/bbs/{$bbs_cgi}/{$this->bbs}/{$this->key}/{$this->ls}";
+            list($host, $category) = explode('/', P2Util::adjustHostJbbs($this->host), 2);
+            $bbs_cgi = (empty($_conf['ktai']) || $original) ? 'i.cgi' : 'read.cgi';
+            $motothre_url = "http://{$host}/bbs/{$bbs_cgi}/{$category}/{$this->bbs}/{$this->key}/{$this->ls}";
 
         // ‚»‚Ì‘¼
         } else {

@@ -5,7 +5,8 @@
 // p2 - RSS編集
 
 include_once './conf/conf.inc.php';   // 基本設定ファイル読込
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+include_once P2_LIBRARY_DIR . '/filectl.class.php';
+include_once P2_LIBRARY_DIR . '/strctl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -127,13 +128,13 @@ if (is_array($lines)) {
         if (count($p) > 1) {
             $id = "li{$i}";
             $myrss[$id]['site']       = $site = rtrim($p[0]);
-            $myrss[$id]['site_en']    = $site_en = rawurlencode(base64_encode($site));
+            $myrss[$id]['site_en']    = $site_en = base64_encode($site);
             $myrss[$id]['site_view']  = htmlspecialchars($site);
             $myrss[$id]['site_ht']    = "&amp;site_en=" . $site_en;
             $myrss[$id]['xml']        = $xml = $p[1];
             $myrss[$id]['xml_en']     = rawurlencode($xml);
             $myrss[$id]['atom']       = $atom = ((isset($p[2]) && $p[2] == 1) ? '1' : '0');
-            $myrss[$id]['value']      = addslashes("{$site}\t{$xml}\t{$atom}");
+            $myrss[$id]['value']      = StrCtl::toJavaScript("{$site}\t{$xml}\t{$atom}");
 
             $i++;
         }
@@ -224,7 +225,7 @@ echo $add_rss_form_ht;
 echo "<hr>\n";
 
 // PC（NetFrontを除外）
-if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
+if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
 
     if ($lines) {
         $script_enable_html .= <<<EOP
@@ -279,7 +280,7 @@ EOP;
 //================================================================
 if ($lines) {
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
+    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '<noscript>';
     }
     echo 'RSSの並び替え';
@@ -319,7 +320,7 @@ EOP;
     }
     echo "</table>\n";
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && !P2Util::isNetFront()) {
+    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '</noscript>';
     }
 }

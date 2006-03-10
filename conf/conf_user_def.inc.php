@@ -257,6 +257,10 @@ $conf_user_def['ime_manual_ext'] = "exe,zip"; // ("exe,zip")
 $conf_user_def['join_favrank'] = 0; // (0)
 $conf_user_rad['join_favrank'] = array('1' => 'する', '0' => 'しない');
 
+// ドラッグ＆ドロップでお気に板を並べ替える（する:1, しない:0）
+$conf_user_def['favita_order_dnd'] = 1; // (1)
+$conf_user_rad['favita_order_dnd'] = array('1' => 'する', '0' => 'しない');
+
 // 板メニューに新着数を表示（する:1, しない:0, お気に板のみ:2）
 $conf_user_def['enable_menu_new'] = 1; // (1)
 $conf_user_rad['enable_menu_new'] = array('1' => 'する', '0' => 'しない', '2' => 'お気に板のみ');

@@ -82,7 +82,7 @@ class SubjectTxt{
             FileCtl::mkdir_for($this->subject_file); // 板ディレクトリが無ければ作る
 
             if (file_exists($this->subject_file)) {
-                if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
+                if (!empty($_REQUEST['norefresh']) || (empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
                     return;    // 更新しない場合は、その場で抜けてしまう
                 } elseif (empty($_POST['newthread']) and $this->isSubjectTxtFresh()) {
                     return;    // 新規スレ立て時でなく、更新が新しい場合も抜ける

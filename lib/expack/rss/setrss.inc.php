@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             fputs($fp, $_POST['list']);
         }
         fclose($fp);
+        $_info_msg_ht .= "<script type=\"text/javascript\">if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
         return;
     }
     $setrss  = trim($_POST['setrss']);

@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7.25';     // rep2のバージョン
-$_conf['p2expack'] = '060308.0711'; // ASAPのバージョン
+$_conf['p2expack'] = '060311.0600'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 
@@ -470,7 +470,7 @@ if (!file_exists($skin)) {
     $skin_name = 'conf_user_style';
     $skin = 'conf/conf_user_style.inc.php';
 }
-$skin_en = rawurlencode($skin_name);
+$skin_en = urlencode($skin_name);
 include_once $skin;
 
 // }}}
@@ -492,6 +492,7 @@ if (!isset($STYLE['mobile_read_newres_color']))     { $STYLE['mobile_read_newres
 if (!isset($STYLE['mobile_read_ngword_color']))     { $STYLE['mobile_read_ngword_color']     = "#bbbbbb"; }
 if (!isset($STYLE['mobile_read_onthefly_color']))   { $STYLE['mobile_read_onthefly_color']   = "#00aa00"; }
 
+$skin_etag = $_conf['p2expack'];
 fontconfig_apply_custom();
 
 foreach ($STYLE as $K => $V) {
@@ -825,8 +826,7 @@ function fontconfig_detect_agent($ua = null)
  */
 function fontconfig_apply_custom()
 {
-    global $STYLE, $_conf, $skin_en, $font_hash;
-    $font_hash = '';
+    global $STYLE, $_conf, $skin_en, $skin_etag;
     if ($_conf['expack.skin.enabled']) {
         $_conf['expack.am.fontfamily.orig'] = (isset($_conf['expack.am.fontfamily']))
             ? $_conf['expack.am.fontfamily'] : '';
@@ -839,9 +839,11 @@ function fontconfig_apply_custom()
             $current_fontconfig = array('enabled' => false, 'custom' => array());
         }
         if ($current_fontconfig['enabled'] && is_array($current_fontconfig['custom'][$type])) {
-            $font_hash = md5($fontconfig_data);
-            $skin_en = preg_replace('/&amp;hash=[0-9a-f]{32}\b/', '', $skin_en);
-            $skin_en .= '&amp;hash=' . $font_hash;
+            $skin_etag = '';
+            $sha1 = sha1($fontconfig_data . $_conf['p2expack']);
+            for ($i = 0; $i < 40; $i +=5) {
+                $skin_etag .= base_convert(substr($sha1, $i, 5), 16, 32);
+            }
             foreach ($current_fontconfig['custom'][$type] as $key => $value) {
                 if (strstr($key, 'fontfamily') && $value == '-') {
                     if ($key == 'fontfamily_aa') {
@@ -861,6 +863,8 @@ function fontconfig_apply_custom()
             }
         }
     }
+    $skin_en = preg_replace('/&amp;etag=[^&]*/', '', $skin_en);
+    $skin_en .= '&amp;etag=' . urlencode($skin_etag);
 }
 
 /**
@@ -868,10 +872,10 @@ function fontconfig_apply_custom()
  */
 function print_style_tags()
 {
-    global $skin_name, $font_hash;
+    global $skin_name, $skin_etag;
     $style_a = '';
     if ($skin_name) { $style_a .= '&skin=' . urlencode($skin_name); }
-    if ($font_hash) { $style_a .= '&hash=' . urlencode($font_hash); }
+    if ($skin_etag) { $style_a .= '&etag=' . urlencode($skin_etag); }
     if ($styles = func_get_args()) {
         echo "\t<style type=\"text/css\">\n";
         echo "\t<!-->\n";

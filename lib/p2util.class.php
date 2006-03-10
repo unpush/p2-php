@@ -451,11 +451,13 @@ class P2Util{
     }
 
     /**
-     * ■ host が JBBS@したらば なら true を返す
+     * ■ host が livedoor レンタル掲示板 : したらば なら true を返す
      */
     function isHostJbbsShitaraba($in_host)
     {
-        if (preg_match("/jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp/", $in_host)) {
+        if ($in_host == 'rentalbbs.livedoor.com') {
+            return true;
+        } elseif (preg_match('/jbbs\.(shitaraba\.com|livedoor\.(com|jp))/', $in_host)) {
             return true;
         } else {
             return false;
@@ -463,18 +465,14 @@ class P2Util{
     }
 
     /**
-     * ■JBBS@したらばのホスト名変更に対応して変更する
+     * ■livedoor レンタル掲示板 : したらばのホスト名変更に対応して変更する
      *
      * @param    string    $in_str    ホスト名でもURLでもなんでも良い
      */
     function adjustHostJbbs($in_str)
     {
-        if (preg_match('/jbbs\.shitaraba\.com|jbbs\.livedoor\.com/', $in_str)) {
-            $str = preg_replace('/jbbs\.shitaraba\.com|jbbs\.livedoor\.com/', 'jbbs.livedoor.jp', $in_str, 1);
-        } else {
-            $str = $in_str;
-        }
-        return $str;
+        return preg_replace('/jbbs\.(shitaraba\.com|livedoor\.com)/', 'jbbs.livedoor.jp', $in_str, 1);
+        //return preg_replace('/jbbs\.(shitaraba\.com|livedoor\.(com|jp))/', 'rentalbbs.livedoor.com', $in_str, 1);
     }
 
     /**
