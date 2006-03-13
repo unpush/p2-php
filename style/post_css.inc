@@ -22,47 +22,6 @@ echo <<<EOP
 		color:{$STYLE['respop_color']};
 	}
 
-	#dpreview {
-		display:none;
-		margin:0.5em;
-		padding:0.5em;
-		line-height:130%;
-		font-size:{$STYLE['read_fontsize']};
-		color:{$STYLE['read_color']};
-	}
-
-	#original_msg legend, #dpreview legend {
-		padding:0px;
-		line-height:100%;
-		font-size:{$STYLE['fontsize']};
-		color:{$STYLE['textcolor']};
-	}
-
-	.prvw_resnum {
-		color:{$STYLE['read_newres_color']};
-		text-decoration:none;
-	}
-
-	.prvw_name {
-		color:{$STYLE['read_name_color']};
-	}
-
-	.prvw_mail {
-		color:{$STYLE['read_mail_color']};
-	}
-
-	.prvw_msg {
-		margin-left:2em;
-	}
-
-	#dp_msg {
-		width:97%;
-		margin-left:3%;
-		white-space:pre;
-		overflow:auto; /* W3C */
-		overflow-x:auto; /* IE */
-	}
-
 -->
 </style>
 

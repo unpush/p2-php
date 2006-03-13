@@ -111,6 +111,10 @@ $conf_user_rad['expack.am.autong_k'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['expack.editor.dpreview'] = 0; // (0)
 $conf_user_sel['expack.editor.dpreview'] = array('1' => '投稿フォームの上に表示', '2' => '投稿フォームの下に表示', '0' => '非表示');
 
+// リアルタイム・プレビューでAA補正用のチェックボックスを表示する
+$conf_user_def['expack.editor.dpreview_chkaa'] = 0; // (0)
+$conf_user_rad['expack.editor.dpreview_chkaa'] = array('1' => 'する', '0' => 'しない');
+
 // 本文が空でないかチェック
 $conf_user_def['expack.editor.check_message'] = 0; // (0)
 $conf_user_rad['expack.editor.check_message'] = array('1' => 'する', '0' => 'しない');

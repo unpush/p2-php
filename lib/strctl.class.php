@@ -214,7 +214,7 @@ class StrCtl{
         //$kigou['han'] = array('`',  '\(', '\)', '\?', '#',  '%',  '@',  '&gt;', '\!', '\*', '\+', '&amp;');
 
         if ($no_escape) {
-            $kigou['han'] = array_map(create_function('$str', 'return ltrim($str, "\\\");'), $kigou['han']);
+            $kigou['han'] = array_map(create_function('$str', 'return ltrim($str, "\\\\");'), $kigou['han']);
             /*
             foreach ($kigou['han'] as $k => $v) {
                 $kigou['han'][$k] = ltrim($v, '\\');
@@ -226,18 +226,35 @@ class StrCtl{
     }
 
     /**
-     * Shift_JISの文字列をJavaScriptのUnicode表記(\uhhhh)に変換
+     * Shift_JISの文字列をJavaScriptのUnicode表記(\uhhhh)に変換する
+     *
+     * ASCIIのprintableな文字からHTMLの特殊文字とバックスラッシュを
+     * 除いた範囲の文字はそのままにしておく
      */
-    function toJavaScript($in_str)
+    function toJavaScript($str, $charset = 'SJIS-win')
     {
-        $uni = mb_convert_encoding($in_str, 'UCS-2', 'SJIS-win');
-        $len = strlen($uni);
+        //            "   &   '   <   >   \  DEL
+        $xcs = array(34, 38, 39, 60, 62, 92, 127);
+        $ucs = array_values(unpack('C*', mb_convert_encoding($str, 'UCS-2', $charset)));
+        $len = count($ucs);
         $pos = 0;
-        $out_str = '';
+        $js = '';
+
         while ($pos < $len) {
-            $out_str .= sprintf('\\u%02X%02X', ord(substr($uni, $pos++, 1)), ord(substr($uni, $pos++, 1)));
+            $ub = $ucs[$pos++];
+            $lb = $ucs[$pos++];
+            if ($ub == 0 && $lb < 128) {
+                if ($lb < 32 || in_array($lb, $xcs)) {
+                    $js .= sprintf('\\x%02X', $lb);
+                } else {
+                    $js .= sprintf('%c', $lb);
+                }
+            } else {
+                $js .= sprintf('\\u%02X%02X', $ub, $lb);
+            }
         }
-        return $out_str;
+
+        return $js;
     }
 }
 

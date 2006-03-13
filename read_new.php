@@ -149,6 +149,7 @@ if ($_conf['expack.am.enabled']) {
     echo "\t<script type=\"text/javascript\" src=\"js/async.js\"></script>\n";
 }*/
 if ($_conf['expack.spm.enabled']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/invite.js\"></script>\n";
     echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js\"></script>\n";
 }
 

@@ -600,8 +600,8 @@ if ($all == 0) {
         $pg_base = htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
         $pg_pos = $page . '/' . $last_page;
         $pg_delim = ' | ';
-        $pg_fmt_akey = '<a href=%s?page=%d" %s="%d">%s%s</a>';
-        $pg_fmt_link = '<a href=%s?page=%d">%s</a>';
+        $pg_fmt_akey = '<a href="%s?page=%d" %s="%d">%s%s</a>';
+        $pg_fmt_link = '<a href="%s?page=%d">%s</a>';
         $pg_fmt_none = '%s %s';
         $_ak = $_conf['accesskey'];
         $pager1 = '';

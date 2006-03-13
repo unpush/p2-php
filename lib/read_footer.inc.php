@@ -32,11 +32,11 @@ EOP;
 
     // ÉtÉHÅ[ÉÄ
     $res_form_ht = <<<EOP
-{$htm['dpreview']}
 <div id="kakiko">
+{$htm['dpreview']}
 {$htm['post_form']}
-</div>
-{$htm['dpreview2']}\n
+{$htm['dpreview2']}
+</div>\n
 EOP;
 
     $onmouse_showform_ht = <<<EOP

@@ -106,8 +106,12 @@ if (empty($_conf['ktai'])) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">
+EOP;
+    if ($_conf['expack.editor.dpreview']) {
+        echo "<link rel=\"stylesheet\" href=\"css.php?css=prvw&amp;skin={$skin_en}\" type=\"text/css\">\n";
+    }
+    echo <<<EOP
     <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/showhide.js"></script>
     <script type="text/javascript" src="js/post_form.js"></script>\n
 EOP;
 }

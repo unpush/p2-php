@@ -479,10 +479,11 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.editor.constant', '定型文'),
-        array('expack.editor.dpreview', 'リアルタイム・プレビュー'),
-        array('expack.editor.check_message', '本文が空でないかチェック'),
-        array('expack.editor.check_sage', 'sageチェック'),
+        //array('expack.editor.constant', '定型文 (使う, 使わない)'),
+        array('expack.editor.dpreview', 'リアルタイム・プレビュー (投稿フォームの上に表示, 投稿フォームの下に表示, 非表示)'),
+        array('expack.editor.dpreview_chkaa', 'リアルタイム・プレビューでAA補正用のチェックボックスを表示する (する, しない)'),
+        array('expack.editor.check_message', '本文が空でないかチェック (する, しない)'),
+        array('expack.editor.check_sage', 'sageチェック (する, しない)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

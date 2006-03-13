@@ -1,6 +1,9 @@
 <?php
 // p2 - レス書き込みフォームの機能読み込み
 
+require_once P2_LIBRARY_DIR . '/SettingTxt.php';
+require_once P2_LIBRARY_DIR . '/strctl.class.php';
+
 $js = array();
 
 $fake_time = -10; // time を10分前に偽装
@@ -121,7 +124,7 @@ if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']
 if (!$_conf['ktai']) {
     $on_check_sage = 'onChange="checkSage();"';
     $htm['sage_cb'] = <<<EOP
-<input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label>
+<input id="sage" type="checkbox" onClick="mailSage()"><label for="sage">sage</label>
 EOP;
 }
 
@@ -139,10 +142,10 @@ EOP;
 
 $htm['src_fix'] = '';
 if (!$_conf['ktai']) {
-    if ($_conf['editor_srcfix'] == 1 ||
-        ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d\.2ch\.net/', $host))
-    ) {
-        $htm['src_fix'] = '<input type="checkbox" id="fix_source" name="fix_source" value="1"><label for="fix_source">ソースコード補正</label>';
+    if ($_conf['editor_srcfix'] == 1 || ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d\.2ch\.net/', $host))) {
+        $htm['src_fix'] = <<<EOP
+<input type="checkbox" id="fix_source" name="fix_source" value="1"><label for="fix_source">src</label>
+EOP;
     }
 }
 
@@ -167,52 +170,57 @@ if ($_conf['expack.editor.constant'] || $_aapreview_activemona || $_aapreveiw_aa
 // {{{ 書き込みプレビュー
 
 $htm['dpreview_onoff'] = '';
+$htm['dpreview_amona'] = '';
 $htm['dpreview']  = '';
 $htm['dpreview2'] = '';
-$js['dp_setname'] = '';
-$js['dp_setmail'] = '';
-$js['dp_setmailsage'] = '';
-$js['dp_setmsg'] = '';
-$dp_name_at = '';
-$dp_mail_at = '';
-$dp_msg_at  = '';
-
-if (!$_conf['ktai']) {
-    if ($_conf['expack.editor.dpreview']) {
-        $_dpreview_pos = ($_conf['expack.editor.dpreview'] == 2) ? 'dpreview2' : 'dpreview';
-        $_dpreview_ok = strval(intval($_conf['expack.editor.dpreview']));
-        $htm[$_dpreview_pos] = <<<EOP
+if (!$_conf['ktai'] && $_conf['expack.editor.dpreview']) {
+    $_dpreview_noname = 'null';
+    if (P2Util::isHost2chs($host)) {
+        $_dpreview_st = &new SettingTxt($host, $bbs);
+        $_dpreview_st->setSettingArray();
+        if (!empty($_dpreview_st->setting_array['BBS_NONAME_NAME'])) {
+            $_dpreview_noname = $_dpreview_st->setting_array['BBS_NONAME_NAME'];
+            $_dpreview_noname = '"' . StrCtl::toJavaScript($_dpreview_noname) . '"';
+        }
+    }
+    $_dpreview_hide = 'false';
+    if ($_conf['expack.editor.dpreview'] == 2) {
+        if (P2Util::isBrowserSafariGroup() && basename($_SERVER['SCRIPT_NAME']) != 'post_form.php') {
+            $_dpreview_hide = 'true';
+        }
+        $_dpreview_pos = 'dpreview2';
+    } else {
+        $_dpreview_pos = 'dpreview';
+    }
+    $htm[$_dpreview_pos] = <<<EOP
 <script type="text/javascript" src="js/dpreview.js"></script>
 <script type="text/javascript">
 <!--
-var dpreview_ok = {$_dpreview_ok};
+var dpreview_use = true;
+var dpreview_on = false;
+var dpreview_hide = {$_dpreview_hide};
+var noname_name = {$_dpreview_noname};
 // -->
 </script>
 <fieldset id="dpreview" style="display:none;">
-<legend>Preview:</legend>
-    <div>
-        <span class="prvw_resnum">?</span>
-        ：<span class="prvw_name"><b id="dp_name"></b><span id="dp_trip"></span></span>
-        ：<span id="dp_mail" class="prvw_mail"></span>
-        ：<span class="prvw_dateid"><span id="dp_date"></span> ID:<span id="dp_id">???</span></span>
-    </div>
-    <div id="dp_msg" class="prvw_msg"></div>
+<legend>preview</legend>
+<div>
+    <span class="prvw_resnum">?</span>
+    ：<span class="prvw_name"><b id="dp_name"></b><span id="dp_trip"></span></span>
+    ：<span id="dp_mail" class="prvw_mail"></span>
+    ：<span class="prvw_dateid"><span id="dp_date"></span> ID:<span id="dp_id">???</span></span>
+</div>
+<div id="dp_msg" class="prvw_msg"></div>
+<div id="dp_empty" class="prvw_msg">(empty)</div>
 </fieldset>
 EOP;
-        $htm['dpreview_onoff'] = "<input type=\"button\" value=\"プレビュー\" onclick=\"DPInit();showHide('dpreview');\">";
-        $js['dp_setname'] = 'DPSetName(this.value);';
-        $js['dp_setmail'] = 'DPSetMail(this.value);';
-        $js['dp_setmailsage'] = "DPSetMail(document.getElementById('mail').value);";
-        $js['dp_setmsg']  = 'DPSetMsg(this.value);';
-
-        $htm['sage_cb'] = <<<EOP
-<input id="sage" type="checkbox" onclick="mailSage();{$js['dp_setmail']}"><label for="sage">sage</label>
+    $htm['dpreview_onoff'] = <<<EOP
+<input type="checkbox" id="dp_onoff" onclick="DPShowHide(this.checked)"><label for="dp_onoff">preview</label>
 EOP;
-
-        $on_check_sage = '';
-        $dp_name_at = " onkeyup=\"{$js['dp_setname']}\" onchange=\"{$js['dp_setname']}\"";
-        $dp_mail_at = " onkeyup=\"{$js['dp_setmail']}\" onchange=\"checkSage();{$js['dp_setmail']}\"";
-        $dp_msg_at  = " onkeyup=\"{$js['dp_setmsg']}\" onchange=\"{$js['dp_setmsg']}\"";
+    if ($_conf['expack.editor.dpreview_chkaa']) {
+        $htm['dpreview_amona'] = <<<EOP
+<input type="checkbox" id="dp_mona" onclick="DPChangeStyle()" disabled><label for="dp_mona">mona</label>
+EOP;
     }
 }
 
@@ -233,8 +241,8 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         $q_resar = array_map('trim', $q_resar);
         $q_resar[3] = strip_tags($q_resar[3], '<br>');
         if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
-            $hd['MESSAGE'] .= "&gt;";
-            $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;", $q_resar[3]);
+            $hd['MESSAGE'] .= "&gt;  ";
+            $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
             $hd['MESSAGE'] .= "\r\n";
         }
         if ($_GET['inyou'] == 2 || $_GET['inyou'] == 3) {

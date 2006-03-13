@@ -81,3 +81,15 @@ function getResponseTextHttp(objHTTP, url, nc)
 	
 	return '';
 }
+
+// prototype.js 1.4.0 : string.js : escapeHTML ‚ğƒƒ“ƒ‰ƒCƒi[‚Å
+/*  Prototype JavaScript framework, version 1.4.0
+ *  (c) 2005 Sam Stephenson <sam@conio.net>
+ *
+ *  Prototype is freely distributable under the terms of an MIT-style license.
+ *  For details, see the Prototype web site: http://prototype.conio.net/
+ */
+function escapeHTML(cont)
+{
+	return document.createElement('div').appendChild(document.createTextNode(cont)).parentNode.innerHTML;
+}

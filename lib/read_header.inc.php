@@ -172,6 +172,9 @@ if ($_conf['expack.spm.enabled']) {
 $onLoad_script = "";
 
 if ($_conf['bottom_res_form']) {
+    if ($_conf['expack.editor.dpreview']) {
+        echo "<link rel=\"stylesheet\" href=\"css.php?css=prvw&amp;skin={$skin_en}\" type=\"text/css\">\n";
+    }
     echo '<script type="text/javascript" src="js/post_form.js"></script>'."\n";
     $onLoad_script .= "checkSage();";
 }

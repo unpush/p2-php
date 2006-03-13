@@ -173,6 +173,7 @@ $MYSTYLE['read']['div#kakiko']['border-top'] = "1px #CACACA solid";
 $MYSTYLE['read']['div#kakiko']['margin'] = "5px -10px -5px -10px";
 $MYSTYLE['read']['div#kakiko']['padding'] = "5px 10px";
 $MYSTYLE['read']['div#kakiko']['background'] = "#E3E3E3";
+$MYSTYLE['read']['#dpreview']['background'] = "#FFFFFF";
 
 $MYSTYLE['subject']['table.toolbar']['height'] = "30px";
 $MYSTYLE['subject']['table.toolbar']['background-position'] = "top";
