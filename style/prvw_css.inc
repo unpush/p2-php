@@ -68,7 +68,7 @@ echo <<<EOSTYLE
 	font-size: {$_conf['expack.am.fontsize']};
 }
 
-#dp_msg {
+#orig_msg, #dp_msg {
 	margin-left: 25px;
 }
 

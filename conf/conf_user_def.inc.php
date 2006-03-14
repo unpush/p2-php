@@ -84,17 +84,29 @@ $conf_user_rules['k_sb_disp_range'] = array('NotEmpty', 'IntExceptMinus');
 $conf_user_def['viewall_kitoku'] = 1; // (1)
 $conf_user_rad['viewall_kitoku'] = array('1' => 'する', '0' => 'しない');
 
-// スレッド一覧で表示するスレッドタイトルの長さの上限 (0で無制限)
+// PC閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)
 $conf_user_def['sb_ttitle_max_len'] = 0; // (0)
 $conf_user_rules['sb_ttitle_max_len'] = array('IntExceptMinus');
 
-// スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める
-$conf_user_def['sb_ttitle_trim_len'] = 45; // (45)
+// PC閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める
+$conf_user_def['sb_ttitle_trim_len'] = 75; // (75)
 $conf_user_rules['sb_ttitle_trim_len'] = array('NotEmpty', 'IntExceptMinus');
 
-// スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)
+// PC閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)
 $conf_user_def['sb_ttitle_trim_pos'] = 1; // (1)
 $conf_user_rad['sb_ttitle_trim_pos'] = array('-1' => '先頭', '0' => '中央', '1' => '末尾');
+
+// 携帯閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)
+$conf_user_def['sb_ttitle_max_len_k'] = 0; // (0)
+$conf_user_rules['sb_ttitle_max_len_k'] = array('IntExceptMinus');
+
+// 携帯閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める
+$conf_user_def['sb_ttitle_trim_len_k'] = 45; // (45)
+$conf_user_rules['sb_ttitle_trim_len_k'] = array('NotEmpty', 'IntExceptMinus');
+
+// 携帯閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)
+$conf_user_def['sb_ttitle_trim_pos_k'] = 1; // (1)
+$conf_user_rad['sb_ttitle_trim_pos_k'] = array('-1' => '先頭', '0' => '中央', '1' => '末尾');
 
 // }}}
 // {{{ ■read

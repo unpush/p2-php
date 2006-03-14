@@ -13,10 +13,14 @@ if (!empty($_conf['ktai'])) {
 } else {
     $htm['k_br'] = '';
     if ($_conf['expack.editor.dpreview']) {
-        $htm['kaiko_on_js'] = ' onFocus="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);" onKeyup="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);DPSetMsg(this.value);"';
+        $htm['kaiko_on_js_fmt'] = ' onfocus="%1$s" onkeyup="if(%2$s){%1$s}DPSetMsg()"';
     } else {
-        $htm['kaiko_on_js'] = ' onFocus="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);" onKeyup="adjustTextareaRows(this, ' . $STYLE['post_msg_rows'] . ', 2);"';
+        $htm['kaiko_on_js_fmt'] = ' onfocus="%1$s" onkeyup="if(%2$s){%1$s}"';
     }
+    $htm['kaiko_on_js_func'] = sprintf("adjustTextareaRows(this,%d,2)", $STYLE['post_msg_rows']);
+    $htm['kaiko_on_js_cond'] = '!event||((event.keyCode&&(event.keyCode==8||event.keyCode==13))||event.ctrlKey||event.metaKey||event.altKey)';
+    $htm['kaiko_on_js'] = sprintf($htm['kaiko_on_js_fmt'], $htm['kaiko_on_js_func'], $htm['kaiko_on_js_cond']);
+    //$htm['kaiko_on_js'] .= ' ondblclick="this.rows=this.value.split(/\r\n|\r|\n/).length+1"';
     $htm['table_begin'] = '<table border="0" cellpadding="0" cellspaing="0"><tr><td align="left" colspan="2">';
     $htm['table_break1'] = '</td></tr><tr><td align="left">';
     $htm['table_break2'] = '</td><td align="right">';
@@ -40,8 +44,9 @@ $htm['post_form'] = <<<EOP
 {$htm['dpreview_onoff']}
 {$htm['dpreview_amona']}
 {$htm['src_fix']}
+{$htm['block_submit']}
 {$htm['table_break2']}
-<input type="submit" name="submit" value="{$submit_value}" onClick="setHiddenValue(this);">
+<input id="kakiko_submit" type="submit" name="submit" value="{$submit_value}" onclick="setHiddenValue(this);">
 {$htm['be2ch']}
 {$htm['table_end']}
 

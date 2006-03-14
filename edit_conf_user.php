@@ -262,9 +262,12 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('k_sb_disp_range', '携帯閲覧時、一度に表示するスレの数'),
         array('viewall_kitoku', '既得スレは表示件数に関わらず表示 (する, しない)'),
 
-        array('sb_ttitle_max_len', 'スレッド一覧で表示するスレッドタイトルの長さの上限 (0で無制限)'),
-        array('sb_ttitle_trim_len', 'スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos', 'スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)'),
+        array('sb_ttitle_max_len', 'PC閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
+        array('sb_ttitle_trim_len', 'PC閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
+        array('sb_ttitle_trim_pos', 'PC閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)'),
+        array('sb_ttitle_max_len_k', '携帯閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
+        array('sb_ttitle_trim_len_k', '携帯閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
+        array('sb_ttitle_trim_pos_k', '携帯閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

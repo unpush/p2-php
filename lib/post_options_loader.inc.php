@@ -138,7 +138,17 @@ EOP;
 }
 
 // }}}
-// {{{ソースコード補正用チェックボックス
+// {{{ 書き込みブロック用チェックボックス
+
+$htm['block_submit'] = '';
+if (!$_conf['ktai']) {
+    $htm['block_submit'] = <<<EOP
+<input type="checkbox" id="block_submit" onclick="document.getElementById('kakiko_submit').disabled=this.checked"><label for="block_submit">block</label>
+EOP;
+}
+
+// }}}
+// {{{ ソースコード補正用チェックボックス
 
 $htm['src_fix'] = '';
 if (!$_conf['ktai']) {
@@ -193,6 +203,7 @@ if (!$_conf['ktai'] && $_conf['expack.editor.dpreview']) {
         $_dpreview_pos = 'dpreview';
     }
     $htm[$_dpreview_pos] = <<<EOP
+<script type="text/javascript" src="js/strutil.js"></script>
 <script type="text/javascript" src="js/dpreview.js"></script>
 <script type="text/javascript">
 <!--
@@ -211,7 +222,7 @@ var noname_name = {$_dpreview_noname};
     ：<span class="prvw_dateid"><span id="dp_date"></span> ID:<span id="dp_id">???</span></span>
 </div>
 <div id="dp_msg" class="prvw_msg"></div>
-<div id="dp_empty" class="prvw_msg">(empty)</div>
+<!-- <div id="dp_empty" class="prvw_msg">(empty)</div> -->
 </fieldset>
 EOP;
     $htm['dpreview_onoff'] = <<<EOP
@@ -219,7 +230,7 @@ EOP;
 EOP;
     if ($_conf['expack.editor.dpreview_chkaa']) {
         $htm['dpreview_amona'] = <<<EOP
-<input type="checkbox" id="dp_mona" onclick="DPChangeStyle()" disabled><label for="dp_mona">mona</label>
+<input type="checkbox" id="dp_mona" disabled><label for="dp_mona">mona</label>
 EOP;
     }
 }
@@ -255,7 +266,7 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         ：<span class="prvw_mail">{$q_resar[1]}</span>
         ：<span class="prvw_dateid">{$q_resar[2]}</span>
     </div>
-    <div class="prvw_msg">{$q_resar[3]}</div>
+    <div id="orig_msg" class="prvw_msg">{$q_resar[3]}</div>
 </fieldset>
 EOM;
         }
@@ -268,11 +279,9 @@ EOM;
 $onsubmit_at = '';
 
 if (!$_conf['ktai']) {
-    if ($_conf['expack.editor.check_message'] || $_conf['expack.editor.check_sage']) {
-        $onsubmit_at = sprintf(' onsubmit="return validateAll(%s,%s)"',
-            (($_conf['expack.editor.check_message']) ? 'true' : 'false'),
-            (($_conf['expack.editor.check_sage'])    ? 'true' : 'false'));
-    }
+    $onsubmit_at = sprintf(' onsubmit="return validateAll(%s,%s)"',
+        (($_conf['expack.editor.check_message']) ? 'true' : 'false'),
+        (($_conf['expack.editor.check_sage'])    ? 'true' : 'false'));
 }
 
 // }}}

@@ -75,25 +75,31 @@ class Thread{
         $this->ttitle_hd = htmlspecialchars($this->ttitle_hc, ENT_QUOTES);
 
         // ˆê——•\Ž¦—p‚É’·‚³‚ðØ‚è‹l‚ß‚Ä‚©‚ç htmlspecialchars() ‚µ‚½‚à‚Ì
-        if ($_conf['sb_ttitle_max_len'] > 0 &&
-            ($ttitle_len = strlen($this->ttitle_hc)) &&
-            $ttitle_len > $_conf['sb_ttitle_max_len'] &&
-            $ttitle_len > $_conf['sb_ttitle_trim_len']
-        ) {
-            switch ($_conf['sb_ttitle_trim_pos']) {
+        if (!empty($_conf['ktai'])) {
+            $tt_max_len = $_conf['sb_ttitle_max_len_k'];
+            $tt_trim_len = $_conf['sb_ttitle_trim_len_k'];
+            $tt_trip_pos = $_conf['sb_ttitle_trim_pos_k'];
+        } else {
+            $tt_max_len = $_conf['sb_ttitle_max_len'];
+            $tt_trim_len = $_conf['sb_ttitle_trim_len'];
+            $tt_trip_pos = $_conf['sb_ttitle_trim_pos'];
+        }
+        $ttitle_len = strlen($this->ttitle_hc);
+        if ($tt_max_len > 0 && $ttitle_len > $tt_max_len && $ttitle_len > $tt_trim_len) {
+            switch ($tt_trip_pos) {
             case -1:
-                $a_ttitle = ' ...';
-                $a_ttitle .= mb_strcut($this->ttitle_hc, $ttitle_len - $_conf['sb_ttitle_trim_len']);
+                $a_ttitle = '... ';
+                $a_ttitle .= mb_strcut($this->ttitle_hc, $ttitle_len - $tt_trim_len);
                 break;
             case 0:
-                $trim_len = floor($_conf['sb_ttitle_trim_len'] / 2);
+                $trim_len = floor($tt_trim_len / 2);
                 $a_ttitle = mb_strcut($this->ttitle_hc, 0, $trim_len);
                 $a_ttitle .= ' ... ';
                 $a_ttitle .= mb_strcut($this->ttitle_hc, $ttitle_len - $trim_len);
                 break;
             case 1:
             default:
-                $a_ttitle = mb_strcut($this->ttitle_hc, 0, $_conf['sb_ttitle_trim_len']);
+                $a_ttitle = mb_strcut($this->ttitle_hc, 0, $tt_trim_len);
                 $a_ttitle .= ' ...';
             }
             $this->ttitle_ht = htmlspecialchars($a_ttitle, ENT_QUOTES);

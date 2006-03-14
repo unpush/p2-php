@@ -14,7 +14,6 @@ if (navigator.userAgent.indexOf('AppleWebKit') != -1) {
 	dp_is_opera = true;
 } else if (navigator.userAgent.indexOf('MSIE') != -1) {
 	dp_is_explorer = true;
-	document.write('<script type="text/javascript" src="js/strutil.js"></script>');
 }
 
 var dp_box, dp_msg, dp_empty, dp_mona, f_name, f_mail, f_sage, f_msg, f_src;
@@ -32,7 +31,7 @@ function DPInit()
 	} else {
 		dp_box = document.getElementById('dpreview');
 		dp_msg = document.getElementById('dp_msg');
-		dp_empty = document.getElementById('dp_empty');
+		//dp_empty = document.getElementById('dp_empty');
 		if (document.getElementById('dp_mona')) {
 			dp_mona = document.getElementById('dp_mona');
 		}
@@ -43,57 +42,32 @@ function DPInit()
 		if (document.getElementById('fix_source')) {
 			f_src = document.getElementById('fix_source');
 		}
+		f_msg.toHTML = function() {
+			return this.value.decodeEntity().htmlspecialchars().nl2br();
+		}
+		f_msg.toHTML2 = function() {
+			return this.value.htmlspecialchars2().nl2br2();
+		}
+		f_msg.toHTMLsrc = function() {
+			return this.value.htmlspecialchars().nl2br().replace(/[\r\n]/g, '').replace(/ /g, '&nbsp;');
+		}
 	}
 	// 名前欄の更新イベントハンドラを設定
-	if (typeof f_name.onkeyup == 'function') {
-		var f_name_onkeyup = f_name.onkeyup;
-		f_name.onkeyup = function() { f_name_onkeyup(); DPSetName(); }
-	} else {
-		f_name.onkeyup = DPSetName;
-	}
-	/*if (typeof f_name.onchange == 'function') {
-		var f_name_onchange = f_name.onchange;
-		f_name.onchange = function() { f_name_onchange(); DPSetName(); }
-	} else {
-		f_name.onchange = DPSetName;
-	}*/
+	f_name.onkeyup = DPSetName;
+	f_name.onchange = DPSetName;
 	// メール欄の更新イベントハンドラを設定
-	if (typeof f_mail.onkeyup == 'function') {
-		var f_mail_onkeyup = f_mail.onkeyup;
-		f_mail.onkeyup = function() { f_mail_onkeyup(); DPSetMail(); }
-	} else {
-		f_mail.onkeyup = DPSetMail;
-	}
-	/*if (typeof f_mail.onchange == 'function') {
-		var f_mail_onchange = f_mail.onchange;
-		f_mail.onchange = function() { f_mail_onchange(); DPSetMail(); }
-	} else {
-		f_mail.onchange = DPSetMail;
-	}*/
+	f_mail.onkeyup = DPSetMail;
+	f_mail.onchange = DPSetMail;
 	// sageチェックボックスの更新イベントハンドラを設定
-	if (typeof f_sage.onclick == 'function') {
-		var f_sage_onclick = f_sage.onclick;
-		f_sage.onclick = function() { f_sage_onclick(); DPSetMail(); }
-	} else {
-		f_sage.onclick = DPSetMail;
-	}
+	f_sage.onclick = DPSetMail;
 	// メッセージ欄の更新イベントハンドラを設定
-	/*if (typeof f_msg.onkeyup == 'function') {
-		var f_msg_onkeyup = f_msg.onkeyup;
-		f_msg.onkeyup = function() { f_msg_onkeyup(); DPSetMsg(); }
-	} else {
-		f_msg.onkeyup = DPSetMsg;
-	}*/
-	if (typeof f_msg.onchange == 'function') {
-		var f_msg_onchange = f_msg.onchange;
-		f_msg.onchange = function() { f_msg_onchange(); DPSetMsg(); }
-	} else {
-		f_msg.onchange = DPSetMsg;
-	}
+	//f_msg.onkeyup = DPSetMsg;
+	f_msg.onchange = DPSetMsg;
 	// ソースコード補正チェックボックスの更新イベントハンドラを設定
-	if (f_src) {
-		f_src.onclick = DPChangeStyle;
-	}
+	if (f_src) { f_src.onclick = DPChangeStyle; }
+	// アスキーアート補正チェックボックスの更新イベントハンドラを設定
+	if (dp_mona) { dp_mona.onclick = DPChangeStyle; }
+	// 準備完了
 	dp_prepared = true;
 }
 
@@ -187,16 +161,17 @@ function DPSetMsg()
 	if (!dpreview_on) {
 		return;
 	}
-	if (f_msg.value.length == 0) {
-		dp_empty.style.display = 'block';
-	} else {
-		dp_empty.style.display = 'none';
-		if (dp_is_explorer) {
-			dp_msg.innerHTML = nl2br(htmlspecialchars(f_msg.value));
+//	if (f_msg.value.length == 0) {
+//		dp_empty.style.display = 'block';
+//		dp_msg.innerHTML = '';
+//	} else {
+//		dp_empty.style.display = 'none';
+		if (f_src && f_src.checked) {
+			dp_msg.innerHTML = f_msg.toHTMLsrc();
 		} else {
-			dp_msg.innerHTML = escapeHTML(f_msg.value).replace(/\r\n|\r|\n/g, '<br>');
+			dp_msg.innerHTML = f_msg.toHTML2();
 		}
-	}
+//	}
 	DPSetDate();
 }
 
@@ -277,4 +252,5 @@ function DPChangeStyle()
 		new_class += '_mona';
 	}
 	dp_msg.className = new_class;
+	DPSetMsg();
 }

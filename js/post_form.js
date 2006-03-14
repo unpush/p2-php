@@ -11,6 +11,14 @@ function adjustTextareaRows(obj, org, plus) {
 	var move = 0;
 	var scroll = 14;
 	if (org) {
+		if (Math.max(aRows, obj.rows) > org) {
+			move = Math.abs((aRows - obj.rows) * scroll);
+			if (move) {
+				obj.rows = Math.max(org, aRows);
+				window.scrollBy(0, move);
+			}
+		}
+		/*
 		if (aRows > org + plus) {
 			if (obj.rows < aRows) {
 				move = (aRows - obj.rows) * scroll;
@@ -26,8 +34,8 @@ function adjustTextareaRows(obj, org, plus) {
 					window.scrollBy(0, move);
 				}
 			}
-			
 		}
+		*/
 	} else if (obj.rows < aRows) {
 		move = (aRows - obj.rows) * scroll;
 		obj.rows = aRows;
@@ -149,6 +157,10 @@ function inputConstant(obj) {
 
 // 書き込み内容を検証する
 function validateAll(doValidateMsg, doValidateSage) {
+	if (document.getElementById('block_submit') && document.getElementById('block_submit').checked) {
+		alert('書き込みブロック中');
+		return false;
+	}
 	if (doValidateMsg && !validateMsg()) {
 		return false;
 	}
