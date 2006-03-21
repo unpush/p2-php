@@ -140,7 +140,7 @@ $search_element_type = 'text';
 $search_element_extra_attributes = '';
 if ($_conf['input_type_search']) {
     $search_element_type = 'search';
-    $search_element_extra_attributes = ' autosave="rep2.expack.search.google" results="10" placeholder="Google"';
+    $search_element_extra_attributes = " autosave=\"rep2.expack.search.google\" results=\"{$_conf['expack.google.recent2_num']}\" placeholder=\"Google\"";
 }
 
 ?>
@@ -156,8 +156,8 @@ if ($_conf['input_type_search']) {
     <link rel="stylesheet" href="css.php?css=read&amp;skin=<?php echo $skin_en; ?>" type="text/css">
     <link rel="stylesheet" href="css.php?css=subject&amp;skin=<?php echo $skin_en; ?>" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/gpopup.js"></script>
+    <script type="text/javascript" src="js/basic.js?<?php echo $_conf['p2expack']; ?>"></script>
+    <script type="text/javascript" src="js/gpopup.js?<?php echo $_conf['p2expack']; ?>"></script>
 </head>
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 <table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td align="left">

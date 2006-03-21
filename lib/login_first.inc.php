@@ -254,8 +254,10 @@ EOP;
     <title>{$ptitle}</title>
 EOP;
     if (empty($_conf['ktai'])) {
+        echo "<style type=\"text/css\" media=\"all\">\n<!--\n";
         @include 'style/style_css.inc';
         @include 'style/login_first_css.inc';
+        echo "\n-->\n</style>\n";
     }
     echo "</head><body>\n";
     echo "<h3>{$ptitle}</h3>\n";

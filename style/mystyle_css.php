@@ -40,10 +40,10 @@ $MYSTYLE['*'] および !important つきの値はJavaScriptでの変更が効かないので注意！
 $MYSTYLE = parse_mystyle($MYSTYLE);
 $MYSTYLE_DONE = array();
 if (!isset($MYSTYLE['*'])) {
-	$MYSTYLE_DONE['*'] = TRUE;
+    $MYSTYLE_DONE['*'] = TRUE;
 }
 if (!isset($MYSTYLE['all'])) {
-	$MYSTYLE_DONE['all'] = TRUE;
+    $MYSTYLE_DONE['all'] = TRUE;
 }
 
 // }}}
@@ -51,14 +51,14 @@ if (!isset($MYSTYLE['all'])) {
 
 function parse_mystyle($MYSTYLE)
 {
-	foreach ($MYSTYLE as $key => $value) {
-		if (is_string($value) && strstr($key, '<>')) {
-			list($category, $element, $property) = explode('<>', $key);
-			$MYSTYLE[$category][$element][$property] = $value;
-			unset($MYSTYLE[$key]);
-		}
-	}
-	return $MYSTYLE;
+    foreach ($MYSTYLE as $key => $value) {
+        if (is_string($value) && strstr($key, '<>')) {
+            list($category, $element, $property) = explode('<>', $key);
+            $MYSTYLE[$category][$element][$property] = $value;
+            unset($MYSTYLE[$key]);
+        }
+    }
+    return $MYSTYLE;
 }
 
 // }}}
@@ -66,67 +66,62 @@ function parse_mystyle($MYSTYLE)
 
 function disp_mystyle($category)
 {
-	$stylesheet = get_mystyle($category);
-	if (ltrim($stylesheet) != '') {
-		echo "<style type=\"text/css\" media=\"all\">\n";
-		echo $stylesheet;
-		echo "</style>\n";
-	}
-};
+    echo get_mystyle($category);
+}
 
 // }}}
 // {{{ get_mystyle() - $MYSTYLEをCSSの書式に変換
 
 function get_mystyle($category)
 {
-	global $MYSTYLE, $MYSTYLE_DONE;
-	$stylesheet = "\n";
-	$suffix = '';
-	
-	if (is_array($category)) {
-		// {{{ $category が配列のとき
-		foreach ($category as $acat) {
-			$stylesheet .= get_mystyle($acat, $important);
-		}
-		// }}}
-	} elseif (is_string($category)) {
-		// {{{ $category が文字列のとき
-		
-		// 検証
-		if ($category == 'style') {
-			$stylesheet .= get_mystyle('base');
-		}
-		if ($MYSTYLE_DONE[$category]) {
-			return '';
-		}
-		$MYSTYLE_DONE[$category] = TRUE;
-		
-		// 特別な$MYSTYLEの処理
-		if ($category == '*') {
-			$suffix = ' !important';
-		} else {
-			if ($category != 'all') {
-				$stylesheet .= get_mystyle('all');
-			}
-			$stylesheet .= get_mystyle('*');
-			$suffix = '';
-		}
-		
-		// スタイルシートに変換
-		if (isset($MYSTYLE[$category]) && is_array($MYSTYLE[$category])) {
-			foreach ($MYSTYLE[$category] as $element => $properties) {
-				$element = mystyle_spelement($category, $element);
-				$stylesheet .= $element . " {\n";
-				foreach ($properties as $property => $value) {
-					$stylesheet .= "\t" . $property . ": " . $value . $suffix . ";\n";
-				}
-				$stylesheet .= "}\n";
-			}
-		}
-		// }}}
-	}
-	
-	return $stylesheet;
+    global $MYSTYLE, $MYSTYLE_DONE;
+    $stylesheet = "\n";
+    $suffix = '';
+    
+    if (is_array($category)) {
+        // {{{ $category が配列のとき
+        foreach ($category as $acat) {
+            $stylesheet .= get_mystyle($acat, $important);
+        }
+        // }}}
+    } elseif (is_string($category)) {
+        // {{{ $category が文字列のとき
+        
+        // 検証
+        if ($category == 'style') {
+            $stylesheet .= get_mystyle('base');
+        }
+        if ($MYSTYLE_DONE[$category]) {
+            return '';
+        }
+        $MYSTYLE_DONE[$category] = TRUE;
+        
+        // 特別な$MYSTYLEの処理
+        if ($category == '*') {
+            $suffix = ' !important';
+        } else {
+            if ($category != 'all') {
+                $stylesheet .= get_mystyle('all');
+            }
+            $stylesheet .= get_mystyle('*');
+            $suffix = '';
+        }
+        
+        // スタイルシートに変換
+        if (isset($MYSTYLE[$category]) && is_array($MYSTYLE[$category])) {
+            foreach ($MYSTYLE[$category] as $element => $properties) {
+                $element = mystyle_spelement($category, $element);
+                $stylesheet .= $element . " {\n";
+                foreach ($properties as $property => $value) {
+                    $stylesheet .= "\t" . $property . ": " . $value . $suffix . ";\n";
+                }
+                $stylesheet .= "}\n";
+            }
+        }
+        // }}}
+    }
+    
+    return $stylesheet;
 }
 
 // }}}
@@ -134,12 +129,12 @@ function get_mystyle($category)
 
 function mystyle_spelement($category, $element)
 {
-	if ($category == 'subject' && $element == 'sb_td') {
-		$element = 'td.t, td.te, td.tu, td.tn, td.tc, td.to, td.tl, td.ti, td.ts';
-	} elseif ($category == 'subject' && $element == 'sb_td1') {
-		$element = 'td.t2, td.te2, td.tu2, td.tn2, td.tc2, td.to2, td.tl2, td.ti2, td.ts2';
-	}
-	return $element;
+    if ($category == 'subject' && $element == 'sb_td') {
+        $element = 'td.t, td.te, td.tu, td.tn, td.tc, td.to, td.tl, td.ti, td.ts';
+    } elseif ($category == 'subject' && $element == 'sb_td1') {
+        $element = 'td.t2, td.te2, td.tu2, td.tn2, td.tc2, td.to2, td.tl2, td.ti2, td.ts2';
+    }
+    return $element;
 }
 
 // }}}

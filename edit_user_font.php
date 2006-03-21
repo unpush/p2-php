@@ -158,6 +158,7 @@ if ($updated_fontconfig['enabled']) {
 }
 $controllerObject->STYLE = $STYLE;
 $controllerObject->skin = $skin_en;
+$controllerObject->rep2expack = $_conf['p2expack'];
 
 // o—Í
 $flexy->outputObject($controllerObject, $elements);

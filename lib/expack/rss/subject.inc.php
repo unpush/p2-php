@@ -74,7 +74,7 @@ echo <<<EOH
     <link rel="stylesheet" href="css.php?css=subject&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 {$popup_header}
-    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript">
     <!--
     function setWinTitle(){

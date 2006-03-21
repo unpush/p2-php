@@ -83,6 +83,7 @@ function getResponseTextHttp(objHTTP, url, nc)
 }
 
 // prototype.js 1.4.0 : string.js : escapeHTML をワンライナーで
+// IE6 標準モード対策で改行コードを CR+LF に統一
 /*  Prototype JavaScript framework, version 1.4.0
  *  (c) 2005 Sam Stephenson <sam@conio.net>
  *

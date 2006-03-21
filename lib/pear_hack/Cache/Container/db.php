@@ -102,10 +102,10 @@ class Cache_Container_db extends Cache_Container
 
     function fetch($id, $group)
     {
-        $query = sprintf("SELECT cachedata, userdata, expires FROM %s WHERE id = '%s' AND cachegroup = '%s'",
+        $query = sprintf("SELECT cachedata, userdata, expires FROM %s WHERE id = %s AND cachegroup = %s",
                          $this->cache_table,
-                         addslashes($id),
-                         addslashes($group)
+                         $this->db->quoteSmart($id),
+                         $this->db->quoteSmart($group)
                          );
 
         $res = $this->db->query($query);
@@ -120,11 +120,11 @@ class Cache_Container_db extends Cache_Container
             $data = array(null, null, null);
         }
         // last used required by the garbage collection
-        $query = sprintf("UPDATE %s SET changed = %d WHERE id = '%s' AND cachegroup = '%s'",
+        $query = sprintf("UPDATE %s SET changed = %d WHERE id = %s AND cachegroup = %s",
                          $this->cache_table,
                          time(),
-                         addslashes($id),
-                         addslashes($group)
+                         $this->db->quoteSmart($id),
+                         $this->db->quoteSmart($group)
                         );
 
         $res = $this->db->query($query);
@@ -143,17 +143,17 @@ class Cache_Container_db extends Cache_Container
         $this->flushPreload($id, $group);
 
         if ($this->idExists($id, $group)) {
-            $query_format = "UPDATE %s SET userdata = '%s', cachedata = '%s', expires = %d WHERE id = '%s' AND cachegroup = '%s'";
+            $query_format = "UPDATE %s SET userdata = %s, cachedata = %s, expires = %d WHERE id = %s AND cachegroup = %s";
         } else {
-            $query_format = "INSERT INTO %s (userdata, cachedata, expires, id, cachegroup) VALUES ('%s', '%s', %d, '%s', '%s')";
+            $query_format = "INSERT INTO %s (userdata, cachedata, expires, id, cachegroup) VALUES (%s, %s, %d, %s, %s)";
         }
             $query = sprintf($query_format,
                              $this->cache_table,
-                             addslashes($userdata),
-                             addslashes($this->encode($data)),
-                             $this->getExpiresAbsolute($expires) ,
-                             addslashes($id),
-                             addslashes($group)
+                             $this->db->quoteSmart($userdata),
+                             $this->db->quoteSmart($this->encode($data)),
+                             $this->getExpiresAbsolute($expires),
+                             $this->db->quoteSmart($id),
+                             $this->db->quoteSmart($group)
                             );
 
         $res = $this->db->query($query);
@@ -167,10 +167,10 @@ class Cache_Container_db extends Cache_Container
     {
         $this->flushPreload($id, $group);
 
-        $query = sprintf("DELETE FROM %s WHERE id = '%s' and cachegroup = '%s'",
+        $query = sprintf("DELETE FROM %s WHERE id = %s and cachegroup = %s",
                          $this->cache_table,
-                         addslashes($id),
-                         addslashes($group)
+                         $this->db->quoteSmart($id),
+                         $this->db->quoteSmart($group)
                         );
 
         $res = $this->db->query($query);
@@ -185,7 +185,7 @@ class Cache_Container_db extends Cache_Container
         $this->flushPreload();
 
          if ($group) {
-            $query = sprintf("DELETE FROM %s WHERE cachegroup = '%s'", $this->cache_table, addslashes($group));
+            $query = sprintf("DELETE FROM %s WHERE cachegroup = %s", $this->cache_table, $this->db->quoteSmart($group));
         } else {
             $query = sprintf("DELETE FROM %s", $this->cache_table);
         }
@@ -198,10 +198,10 @@ class Cache_Container_db extends Cache_Container
 
     function idExists($id, $group)
     {
-        $query = sprintf("SELECT id FROM %s WHERE ID = '%s' AND cachegroup = '%s'",
+        $query = sprintf("SELECT id FROM %s WHERE id = %s AND cachegroup = %s",
                          $this->cache_table,
-                         addslashes($id),
-                         addslashes($group)
+                         $this->db->quoteSmart($id),
+                         $this->db->quoteSmart($group)
                         );
 
         $res = $this->db->query($query);

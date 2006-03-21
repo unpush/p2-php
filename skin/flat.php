@@ -160,6 +160,8 @@ $STYLE['respop_b_style'] = "solid"; // ("solid") レスポップアップのボーダー形式
 
 $STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの大きさ（横,縦）
 
+$STYLE['conf_btn_bgcolor'] = '#efefef';
+
 // スタイルの上書き ====================
 $MYSTYLE['read']['body']['margin'] = "0";
 $MYSTYLE['read']['body']['padding'] = "5px 10px";

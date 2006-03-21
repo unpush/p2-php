@@ -205,7 +205,7 @@ var StrUtil = new function()
 
 	this.decodeEntity = function(str)
 	{
-		var re = /&([A-Za-z]+[0-9]?|#([0-9]+|x([0-9A-Fa-f]+)));/g;
+		var re = /&([A-Za-z]+[0-9]?|#([0-9]+|x([0-9A-Fa-f]+)))(?:;|\b)/g;
 		var out = '', pos = 0;
 		var chr = '', ucd = 0;
 		while (a = re.exec(str)) {

@@ -63,8 +63,8 @@ echo <<<EOF
     <title>fitImage - {$alt}</title>
     <link rel="stylesheet" href="css.php?css=fitimage&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/fitimage.js"></script>
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/fitimage.js?{$_conf['p2expack']}"></script>
 </head>
 <body onload="focus()">
 <div id="pct">

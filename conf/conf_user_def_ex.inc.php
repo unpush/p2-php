@@ -165,6 +165,14 @@ $conf_user_rad['expack.ic2.newres_ignore_limit_k'] = array('1' => 'Yes', '0' => 
 // Google Web APIs の登録キー
 $conf_user_def['expack.google.key'] = ""; // ("")
 
+// 検索履歴を記録する数（off:0）
+//$conf_user_def['expack.google.recent_num'] = 10; // (10)
+//$conf_user_rules['expack.google.recent_num'] = array('IntExceptMinus');
+
+// サーチボックスに検索履歴を記録する数、Safari専用（off:0）
+$conf_user_def['expack.google.recent2_num'] = 10; // (10)
+$conf_user_rules['expack.google.recent2_num'] = array('IntExceptMinus');
+
 // }}}
 // {{{ AAS
 

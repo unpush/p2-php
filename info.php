@@ -269,7 +269,7 @@ EOP;
 
 if ($_GET['popup'] == 2) {
     echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/closetimer.js"></script>
+    <script type="text/javascript" src="js/closetimer.js?{$_conf['p2expack']}"></script>
 EOSCRIPT;
     $body_onload = <<<EOP
  onLoad="startTimer(document.getElementById('timerbutton'))"

@@ -313,6 +313,7 @@ $_flexy_options = array(
 $flexy = &new HTML_Template_Flexy($_flexy_options);
 
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
+$flexy->setData('rep2expack', $_conf['p2expack']);
 if ($_conf['ktai']) {
     $k_color = array();
     $k_color['c_bgcolor'] = isset($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '';
@@ -323,7 +324,7 @@ if ($_conf['ktai']) {
     $flexy->setData('top_url', dirname($_SERVER['SCRIPT_NAME']) . '/index.php');
     $flexy->setData('accesskey', $_conf['accesskey']);
 } else {
-    $flexy->setData('skin', $skin_en);
+    $flexy->setData('skin', str_replace('&amp;', '&', $skin_en));
 }
 
 
@@ -946,8 +947,8 @@ if ($lightbox === 'plus') {
  });
 */
     $additional_script_and_style = <<<EOP
-<script type="text/javascript" src="lightbox_plus/lightbox_plus.js"></script>
-<link rel="stylesheet" type="text/css" href="lightbox_plus/lightbox.css">
+<script type="text/javascript" src="lightbox_plus/lightbox_plus.js?{$_conf['p2expack']}"></script>
+<link rel="stylesheet" type="text/css" href="lightbox_plus/lightbox.css?{$_conf['p2expack']}">
 EOP;
 } elseif ($lightbox) {
     /**
@@ -955,7 +956,7 @@ EOP;
      * 無効になるように Lightbox をオーバーロード
      */
     $additional_script_and_style = <<<EOP
-<script type="text/javascript" src="lightbox/lightbox.js"></script>
+<script type="text/javascript" src="lightbox/lightbox.js?{$_conf['p2expack']}"></script>
 <script type="text/javascript">
 //<![CDATA[
 loadingImage='lightbox/loading.gif';
@@ -986,7 +987,7 @@ function overloadLightbox()
 addLoadEvent(overloadLightbox);
 //]]>
 </script>
-<link rel="stylesheet" type="text/css" href="lightbox/lightbox.css">
+<link rel="stylesheet" type="text/css" href="lightbox/lightbox.css?{$_conf['p2expack']}">
 EOP;
 } elseif (empty($_conf['ktai'])) {
     $additional_script_and_style = <<<EOP

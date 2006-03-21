@@ -25,9 +25,6 @@ include_once $css;
 $stylesheet = ob_get_contents();
 ob_end_clean();
 
-$stylesheet = preg_replace('@</?style.*?>@i', '', $stylesheet);
-$stylesheet = str_replace(array('<!--', '-->'), '', $stylesheet);
-
 // •\Ž¦
 echo "@charset \"Shift_JIS\";\n\n";
 echo $stylesheet;

@@ -135,22 +135,22 @@ echo <<<EOHEADER
     <title>{$ptitle_ht}</title>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/respopup.js"></script>
-    <script type="text/javascript" src="js/htmlpopup.js"></script>
-    <script type="text/javascript" src="js/setfavjs.js"></script>
-    <script type="text/javascript" src="js/delelog.js"></script>\n
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>\n
 EOHEADER;
 
 if ($_conf['expack.am.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js?{$_conf['p2expack']}\"></script>\n";
 }
 /*if ($_conf['expack.misc.async_respop']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/async.js\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/async.js?{$_conf['p2expack']}\"></script>\n";
 }*/
 if ($_conf['expack.spm.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/invite.js\"></script>\n";
-    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/invite.js?{$_conf['p2expack']}\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2expack']}\"></script>\n";
 }
 
 echo <<<EOHEADER

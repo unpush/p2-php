@@ -142,11 +142,11 @@ EOP;
 
 if (empty($_conf['ktai'])) {
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/tabber/tabber.js"></script>
-    <script type="text/javascript" src="js/edit_conf_user.js"></script>
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/tabber/tabber.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/edit_conf_user.js?{$_conf['p2expack']}"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="style/tabber/tabber.css" type="text/css">
+    <link rel="stylesheet" href="style/tabber/tabber.css?{$_conf['p2expack']}" type="text/css">
     <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
 EOP;
@@ -538,6 +538,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 } else {
     $conflist = array(
         array('expack.google.key', 'Google Web APIs の登録キー', P2_EDIT_CONF_USER_LONGTEXT),
+        //array('expack.google.recent_num', '検索履歴を記録する数（記録しない:0）'),
+        array('expack.google.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用（記録しない:0）'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

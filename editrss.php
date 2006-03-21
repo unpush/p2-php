@@ -69,17 +69,17 @@ echo <<<EOP
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>p2 - RSS‚Ì•À‚Ñ‘Ö‚¦</title>
-    <script type="text/javascript" src="js/yui/YAHOO.js" ></script>
-    <script type="text/javascript" src="js/yui/log.js" ></script>
-    <script type="text/javascript" src="js/yui/event.js" ></script>
-    <script type="text/javascript" src="js/yui/dom.js"></script>
-    <script type="text/javascript" src="js/yui/dragdrop.js" ></script>
-        <script type="text/javascript" src="js/yui/ygDDOnTop.js" ></script>
-        <script type="text/javascript" src="js/yui/ygDDSwap.js" ></script>
-        <script type="text/javascript" src="js/yui/ygDDMy.js" ></script>
-        <script type="text/javascript" src="js/yui/ygDDMy2.js" ></script>
-        <script type="text/javascript" src="js/yui/ygDDList.js" ></script>
-        <script type="text/javascript" src="js/yui/ygDDPlayer.js" ></script>
+    <script type="text/javascript" src="js/yui/YAHOO.js?{$_conf['p2expack']}" ></script>
+    <script type="text/javascript" src="js/yui/log.js?{$_conf['p2expack']}" ></script>
+    <script type="text/javascript" src="js/yui/event.js?{$_conf['p2expack']}" ></script>
+    <script type="text/javascript" src="js/yui/dom.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/yui/dragdrop.js?{$_conf['p2expack']}" ></script>
+        <script type="text/javascript" src="js/yui/ygDDOnTop.js?{$_conf['p2expack']}" ></script>
+        <script type="text/javascript" src="js/yui/ygDDSwap.js?{$_conf['p2expack']}" ></script>
+        <script type="text/javascript" src="js/yui/ygDDMy.js?{$_conf['p2expack']}" ></script>
+        <script type="text/javascript" src="js/yui/ygDDMy2.js?{$_conf['p2expack']}" ></script>
+        <script type="text/javascript" src="js/yui/ygDDList.js?{$_conf['p2expack']}" ></script>
+        <script type="text/javascript" src="js/yui/ygDDPlayer.js?{$_conf['p2expack']}" ></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=editfavita&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">

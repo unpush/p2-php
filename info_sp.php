@@ -230,7 +230,7 @@ EOHEADER;
 
 $body_onload = '';
 if ($popup == 2) {
-    echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js?{$_conf['p2expack']}\"></script>\n";
     if (preg_match('/^aborn_/', $mode)) {
         if ($mode != 'aborn_res' && isset($aborn_id) && strlen($aborn_id) >= 8) {
             $aborn_target = 'ID:' . addslashes($aborn_id);

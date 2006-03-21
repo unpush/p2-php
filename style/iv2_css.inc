@@ -1,13 +1,12 @@
 <?php
 // p2 - スタイル設定
 // for ImageCache2:iv2.php
+// vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
+// mi: charset=Shift_JIS
 
 $boldstyle = ($STYLE['fontfamily_bold']) ? "font-family: \"{$STYLE['fontfamily_bold']}\";" : 'font-weight: bold;';
 
 echo <<<EOSTYLE
-
-<style type="text/css" media="all">
-<!--
 
 /* 全般 */
 
@@ -42,7 +41,6 @@ div#footer {
 	text-align: center;
 }
 
-
 /* ツールバー */
 
 div#toolbar {
@@ -71,7 +69,6 @@ td#toolbarStandard {
 }
 
 td#toolbarExtra {
-	visibility: hidden;
 }
 
 td#toolbarSwitch {
@@ -86,7 +83,6 @@ a#toolbarSwitchB {
 	/*color: #000;*/
 	display: none;
 }
-
 
 /* 画像リスト */
 
@@ -130,19 +126,15 @@ div#popUpContainer div.respopup td.tdleft {
 	text-align: right;
 }
 
--->
-
-</style>
-
 EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-    include_once (P2_STYLE_DIR . '/mystyle_css.php');
-    $_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-    if (isset($MYSTYLE[$_mystylename])) {
-        disp_mystyle($_mystylename);
-    }
+	include_once (P2_STYLE_DIR . '/mystyle_css.php');
+	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+	if (isset($MYSTYLE[$_mystylename])) {
+		disp_mystyle($_mystylename);
+	}
 }
 
 ?>

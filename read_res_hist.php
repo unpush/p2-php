@@ -106,8 +106,8 @@ if (empty($_conf['ktai'])) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/respopup.js"></script>
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript">
     <!--
     function hist_checkAll(mode) {
