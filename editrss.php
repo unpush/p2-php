@@ -28,7 +28,7 @@ if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_se
 $add_rss_form_ht = <<<EOFORM
 <hr>
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="detect_hint" value="">
+    <input type="hidden" name="detect_hint" value="@">
     <input type="hidden" id="setrss" name="setrss" value="1">
     <table border="0" cellspacing="1" cellpadding="0">
         <tr>

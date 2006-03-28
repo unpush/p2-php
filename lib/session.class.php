@@ -273,7 +273,9 @@ class Session{
         }
 
         session_destroy();
-        file_exists($session_file) and unlink($session_file);
+        if (file_exists($session_file)) {
+            unlink($session_file);
+        }
 
         return;
     }

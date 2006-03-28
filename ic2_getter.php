@@ -61,7 +61,7 @@ $qf_defaults = array(
 
 // フォームの固定値
 $qf_constants = array(
-    'detect_hint' => '◎◇',
+    'detect_hint' => '◎◇　◇◎',
     'download'    => 'ダウンロード',
     'reset'       => 'リセット',
     'close'       => '閉じる',
@@ -173,7 +173,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     if (isset($params['memo']) && strlen(trim($params['memo'])) > 0) {
         $new_memo = IC2DB_Images::uniform($params['memo'], 'SJIS-win');
         $_memo_en = rawurlencode($new_memo);
-        $_hint_en = rawurlencode(mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win'));
+        $_hint_en = rawurlencode(mb_convert_encoding('◎◇　◇◎', 'UTF-8', 'SJIS-win'));
         // レンダリング時にhtmlspecialchars()されるので、ここでは&を&amp;にしない
         $append_memo = '&detect_hint=' . $_hint_en . '&memo=' . $_memo_en;
     } else {

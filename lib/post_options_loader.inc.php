@@ -117,7 +117,7 @@ if (empty($_conf['ktai'])) {
 
 // Be.2ch
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-    $htm['be2ch'] = '<input type="submit" name="submit_beres" value="BE‚Å‘‚«ž‚Þ" onClick="setHiddenValue(this);">';
+    $htm['be2ch'] = '<input type="submit" id="submit_beres" name="submit_beres" value="BE‚Å‘‚«ž‚Þ" onClick="setHiddenValue(this);">';
 }
 
 // PC—p sage checkbox
@@ -143,7 +143,7 @@ EOP;
 $htm['block_submit'] = '';
 if (!$_conf['ktai']) {
     $htm['block_submit'] = <<<EOP
-<input type="checkbox" id="block_submit" onclick="document.getElementById('kakiko_submit').disabled=this.checked"><label for="block_submit">block</label>
+<input type="checkbox" id="block_submit" onclick="switchBlockSubmit(this.checked)"><label for="block_submit">block</label>
 EOP;
 }
 

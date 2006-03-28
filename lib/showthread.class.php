@@ -46,8 +46,9 @@ class ShowThread{
             .   ')' // 引用ここまで
             . '|'
             .   '(?P<url>'
-            .       '(ftp|h?t?tps?)://([0-9A-Za-z][\\w/\\#~:;.,?+=&%@!\\-]+?)' // URL
-            .       '(?=[^\\w/\\#~:;.,?+=&%@!\\-]|$)' // 無効な文字か行末の先読み
+//          .       '(ftp|h?t?tps?)://([0-9A-Za-z][\\w/\\#~:;.,?+=&%@!\\-]+?)' // URL
+//          .       '(?=[^\\w/\\#~:;.,?+=&%@!\\-]|$)' // 無効な文字か行末の先読み
+            .       '(ftp|h?t?tps?)://([0-9A-Za-z][\\w!#%&+,\\-./:;=?@\\[\\]^~]+)' // URL
             .   ')'
             . '|'
             .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
@@ -197,13 +198,14 @@ class ShowThread{
     /**
      * 特定レスの透明あぼーんチェック
      */
-    function abornResCheck($host, $bbs, $key, $resnum)
+    function abornResCheck($resnum)
     {
         global $ngaborns;
 
-        $target = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
+        $t = &$this->thread;
+        $target = $t->host . '/' . $t->bbs . '/' . $t->key . '/' . $resnum;
 
-        if (isset($ngaborns[$code]['data']) && is_array($ngaborns['aborn_res']['data'])) {
+        if (isset($ngaborns['aborn_res']['data']) && is_array($ngaborns['aborn_res']['data'])) {
             foreach ($ngaborns['aborn_res']['data'] as $k => $v) {
                 if ($ngaborns['aborn_res']['data'][$k]['word'] == $target) {
                     $this->ngAbornUpdate('aborn_res', $k);

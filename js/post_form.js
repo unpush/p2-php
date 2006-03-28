@@ -81,6 +81,7 @@ function jstrlen(str) {
 
 // (対象がdisableでなければ) フォーカスを合わせる
 function setFocus(ID){
+	var obj;
 	if (obj = document.getElementById(ID)) {
 		if (obj.disabled != true) {
 			obj.focus();
@@ -90,6 +91,7 @@ function setFocus(ID){
 
 // sageチェックに合わせて、メール欄の内容を書き換える
 function mailSage(){
+	var mailran, cbsage;
 	if (cbsage = document.getElementById('sage')) {
 		if (mailran = document.getElementById('mail')) {
 			if (cbsage.checked == true) {
@@ -105,6 +107,7 @@ function mailSage(){
 
 // メール欄の内容に応じて、sageチェックをON OFFする
 function checkSage(){
+	var mailran, cbsage;
 	if (mailran = document.getElementById('mail')) {
 		if (cbsage = document.getElementById('sage')) {
 			if (mailran.value == "sage") {
@@ -134,16 +137,15 @@ function loadLastPosted(from, mail, message){
 }
 */
 
-// メール欄の内容に応じて、sageチェックをON OFFする
-function checkSage() {
-	if (mailran = document.getElementById('mail')) {
-		if (cbsage = document.getElementById('sage')) {
-			if (mailran.value == "sage") {
-				cbsage.checked = true;
-			} else {
-				cbsage.checked = false;
-			}
-		}
+// 書き込みボタンの有効・無効を切り替える
+function switchBlockSubmit(onoff) {
+	var kakiko_submit = document.getElementById('kakiko_submit');
+	if (kakiko_submit) {
+		kakiko_submit.disabled = onoff;
+	}
+	var submit_beres = document.getElementById('submit_beres');
+	if (submit_beres) {
+		submit_beres.disabled = onoff;
 	}
 }
 
@@ -157,7 +159,8 @@ function inputConstant(obj) {
 
 // 書き込み内容を検証する
 function validateAll(doValidateMsg, doValidateSage) {
-	if (document.getElementById('block_submit') && document.getElementById('block_submit').checked) {
+	var block_submit = document.getElementById('block_submit');
+	if (block_submit && block_submit.checked) {
 		alert('書き込みブロック中');
 		return false;
 	}

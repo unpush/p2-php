@@ -86,7 +86,7 @@ $_constants = array(
     'jump'    => 'Go',
     'search'  => '検索',
     'cngmode' => '変更',
-    'hint'    => '◎◇',
+    'hint'    => '◎◇　◇◎',
 );
 
 // 閾値比較方法
@@ -644,7 +644,7 @@ if ($all == 0) {
     // ページ遷移用フォーム（PC）を生成
     } else {
         $mf_hiddens = array(
-            'hint' => '◎◇', 'mode' => $mode,
+            'hint' => '◎◇　◇◎', 'mode' => $mode,
             'page' => $page, 'cols' => $cols, 'rows' => $rows,
             'order' => $order, 'sort' => $sort,
             'field' => $field, 'key' => $key,

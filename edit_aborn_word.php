@@ -196,7 +196,7 @@ echo <<<EOP
 <div>’ji: ‘å•¶Žš¬•¶Žš‚ð–³Ž‹, r: ³‹K•\Œ»</div>
 <form method="POST" action="{$_SERVER['PHP_SELF']}" target="_self" accept-charset="{$_conf['accept_charset']}">
     {$_conf['k_input_ht']}
-    <input type="hidden" name="detect_hint" value="ž">
+    <input type="hidden" name="detect_hint" value="ž@ž">
     <input type="hidden" name="path" value="{$path_ht}">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;

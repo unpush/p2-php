@@ -237,7 +237,7 @@ if ($subhits && $subhits > $limit) {
         'totalItems'    => $subhits,
         'perPage'       => $limit,
         'urlVar'        => 'P',
-        'extraVars'     => array('hint' => 'ž'),
+        'extraVars'     => array('hint' => 'ž@ž'),
         'importQuery'   => false,
         'curPageSpanPre'    => '<b>',
         'curPageSpanPost'   => '</b>',

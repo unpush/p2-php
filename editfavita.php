@@ -30,7 +30,7 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 // お気に板追加フォーム
 $add_favita_form_ht = <<<EOFORM
 <form method="POST" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="detect_hint" value="◎◇">
+    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     <p>
         {$_conf['k_input_ht']}
         板URL: <input type="text" id="url" name="url" value="http://" size="48">

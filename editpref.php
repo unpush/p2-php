@@ -165,7 +165,7 @@ EOP;
     printEditFileForm($ng_name_txt, "名前");
     printEditFileForm($ng_mail_txt, "メール");
     printEditFileForm($ng_msg_txt, "メッセージ");
-    printEditFileForm($ng_id_txt, " I D ");
+    printEditFileForm($ng_id_txt, "ＩＤ");
     echo <<<EOP
 </fieldset>\n\n
 EOP;
@@ -181,10 +181,11 @@ EOP;
 <fieldset>
 <legend>あぼーんワード編集</legend>\n
 EOP;
+    printEditFileForm($aborn_res_txt, "レス");
     printEditFileForm($aborn_name_txt, "名前");
     printEditFileForm($aborn_mail_txt, "メール");
     printEditFileForm($aborn_msg_txt, "メッセージ");
-    printEditFileForm($aborn_id_txt, " I D ");
+    printEditFileForm($aborn_id_txt, "ＩＤ");
     echo <<<EOP
 </fieldset>\n
 EOP;
@@ -250,7 +251,7 @@ EOP;
 
         echo <<<EOP
 <form action="editpref.php" method="post" accept-charset="{$_conf['accept_charset']}" target="_self" style="margin:0">
-    <input type="hidden" name="detect_hint" value="◎◇">
+    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     <input type="hidden" name="favsetlist" value="1">
     <fieldset>
         <legend>セット切り替え・名称変更（セット名を空にするとデフォルトの名前に戻ります）</legend>
@@ -299,6 +300,11 @@ if ($_conf['ktai']) {
 <option value="{$ng_id_txt}">NG:ID</option>
 </select>
 <input type="submit" value="編集">
+</form>
+<form method="GET" action="editfile.php">
+{$_conf['k_input_ht']}
+<input type="hidden" name="path" value="{$aborn_res_txt}">
+<input type="submit" value="ｱﾎﾞﾝﾚｽ編集">
 </form>
 EOP;
     $htm['sync'] .= "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";

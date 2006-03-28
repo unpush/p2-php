@@ -119,7 +119,7 @@ class ExpackLoader
 
         if ($aShowThread->thumbnailer->ini['General']['automemo']) {
             $aShowThread->img_memo = IC2DB_Images::uniform($aShowThread->thread->ttitle, 'SJIS-win');
-            $hint = mb_convert_encoding('ž', 'UTF-8', 'SJIS-win');
+            $hint = mb_convert_encoding('ž@ž', 'UTF-8', 'SJIS-win');
             $aShowThread->img_memo_query = '&amp;hint=' . rawurlencode($hint);
             $aShowThread->img_memo_query .= '&amp;memo=' . rawurlencode($aShowThread->img_memo);
         } else {

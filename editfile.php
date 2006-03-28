@@ -14,12 +14,12 @@ if (!isset($_REQUEST['path'])) {
 }
 
 // 変数 ==================================
-isset($_REQUEST['path'])       and $path = $_REQUEST['path'];
-isset($_REQUEST['modori_url']) and $modori_url = $_REQUEST['modori_url'];
-isset($_REQUEST['encode'])     and $encode = $_REQUEST['encode'];
+$path       = isset($_REQUEST['path'])       ? $_REQUEST['path']       : null;
+$modori_url = isset($_REQUEST['modori_url']) ? $_REQUEST['modori_url'] : null;
+$encode     = isset($_REQUEST['encode'])     ? $_REQUEST['encode']     : null;
 
-$rows = (isset($_REQUEST['rows'])) ? $_REQUEST['rows'] : 36;  // デフォルト値
-$cols = (isset($_REQUEST['cols'])) ? $_REQUEST['cols'] : 128; // デフォルト値
+$rows = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : (!empty($_conf['ktai']) ? 5 : 36);
+$cols = isset($_REQUEST['cols']) ? intval($_REQUEST['cols']) : (!empty($_conf['ktai']) ? 0 : 128);
 
 isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 
@@ -113,6 +113,9 @@ function editFile($path, $encode)
         $modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";
     }
 
+    $rows_at = ($rows > 0) ? sprintf(' rows="%d"', $rows) : '';
+    $cols_at = ($cols > 0) ? sprintf(' cols="%d"', $cols) : '';
+
     // プリント
     echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -132,14 +135,14 @@ EOHEADER;
     echo "Edit: ".$path;
     echo <<<EOFORM
 <form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="◎◇">
+    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="modori_url" value="{$modori_url}">
     <input type="hidden" name="encode" value="{$encode}">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
     <input type="submit" name="submit" value="Save"> $_info_msg_ht<br>
-    <textarea style="font-size:9pt;" id="filecont" name="filecont" rows="{$rows}" cols="{$cols}" wrap="off">{$cont_area}</textarea>
+    <textarea style="font-size:9pt;" id="filecont" name="filecont" wrap="off"{$rows_at}{$cols_at}>{$cont_area}</textarea>
 </form>
 EOFORM;
 

@@ -220,6 +220,13 @@ class ShowThreadPc extends ShowThread{
             }
         }
 
+        // あぼーんレス
+        if ($this->abornResCheck($i) !== false) {
+            $ngaborns_hits['aborn_res']++;
+            $this->aborn_nums[] = $i;
+            return $aborned_res;
+        }
+
         // あぼーんネーム
         if ($this->ngAbornCheck('aborn_name', strip_tags($name)) !== false) {
             $ngaborns_hits['aborn_name']++;
@@ -1016,7 +1023,7 @@ EOJS;
     {
         global $_conf, $STYLE;
         static $menu_done = array();
-        static $taget_done = false;
+        static $target_done = false;
 
         if (isset($menu_done[$this->spmObjName])) {
             return;
@@ -1054,7 +1061,7 @@ EOJS;
         $code = "<script type=\"text/javascript\">\n";
         if (!$target_done) {
             $target_done = true;
-            $code .= "var spmFlexTarget = \"{$_conf['expack.spm.filter_target']}\";\n";
+            $code .= sprintf("spmFlexTarget = '%s';\n", StrCtl::toJavaScript($_conf['expack.spm.filter_target']));
             if ($_conf['expack.aas.enabled']) {
                 $code .= sprintf("var aas_popup_width = %d;\n", $_conf['expack.aas.image_width_pc'] + 10);
                 $code .= sprintf("var aas_popup_height = %d;\n", $_conf['expack.aas.image_height_pc'] + 10);

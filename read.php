@@ -45,6 +45,20 @@ if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value']))
             $_GET['resnum'] = $ktv;
             include 'aas.php';
             exit;
+        case 'aborn_res':
+        case 'aborn_name':
+        case 'aborn_mail':
+        case 'aborn_id':
+        case 'aborn_msg':
+        case 'ng_name':
+        case 'ng_mail':
+        case 'ng_id':
+        case 'ng_msg':
+            $_GET['resnum'] = $ktv;
+            $_GET['popup'] = 1;
+            $_GET['mode'] = $_GET['ktool_name'];
+            include 'info_sp.php';
+            exit;
     }
 }
 

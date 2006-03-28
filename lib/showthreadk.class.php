@@ -43,7 +43,9 @@ class ShowThreadK extends ShowThread{
             require_once P2_LIBRARY_DIR . '/SettingTxt.php';
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             $st->setSettingArray();
-            !empty($st->setting_array['BBS_NONAME_NAME']) and $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
+                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+            }
         }
 
         // サムネイル表示制限数を設定
@@ -213,6 +215,13 @@ class ShowThreadK extends ShowThread{
                 $isChain = true;
                 $ng_msg_info[] = sprintf('連鎖NG:&gt;&gt;%d', $a_chain_num);
             }
+        }
+
+        // あぼーんレス
+        if ($this->abornResCheck($i) !== false) {
+            $ngaborns_hits['aborn_res']++;
+            $this->aborn_nums[] = $i;
+            return $aborned_res;
         }
 
         // あぼーんネーム

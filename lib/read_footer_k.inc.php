@@ -18,7 +18,7 @@ if ($_conf['filtering'] && $aThread->rescount) {
 $hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
 
 // レス番指定移動 etc.
-$htm['goto'] = kspform($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']);
+$htm['goto'] = kspform($aThread, ($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']));
 
 //=====================================================================
 // プリント
@@ -74,7 +74,7 @@ echo '</body></html>';
 /**
  * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成
  */
-function kspform($default = '')
+function kspform(&$aThread, $default = '')
 {
     global $_conf;
 
@@ -84,16 +84,11 @@ function kspform($default = '')
     $form = "<form method=\"get\" action=\"{$_conf['read_php']}\">";
     $form .= $_conf['k_input_ht'];
 
-    $required_params = array('host', 'bbs', 'key');
-    foreach ($required_params as $k) {
-        if (!empty($_REQUEST[$k])) {
-            $v = htmlspecialchars($_REQUEST[$k], ENT_QUOTES);
-            $form .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
-        } else {
-            return '';
-        }
-    }
-    $form .= '<input type="hidden" name="offline" value="1">';
+    $hidden = '<input type="hidden" name="%s" value="%s">';
+    $form .= sprintf($hidden, 'host', htmlspecialchars($aThread->host, ENT_QUOTES));
+    $form .= sprintf($hidden, 'bbs', htmlspecialchars($aThread->bbs, ENT_QUOTES));
+    $form .= sprintf($hidden, 'key', htmlspecialchars($aThread->key, ENT_QUOTES));
+    $form .= sprintf($hidden, 'offline', '1');
 
     $form .= '<select name="ktool_name">';
     $form .= '<option value="goto">GO</option>';
@@ -104,6 +99,15 @@ function kspform($default = '')
         $form .= '<option value="aas">AAS</option>';
         $form .= '<option value="aas_rotate">AAS*</option>';
     }
+    $form .= '<option value="aborn_res">ｱﾎﾞﾝ:ﾚｽ</option>';
+    $form .= '<option value="aborn_name">ｱﾎﾞﾝ:名前</option>';
+    $form .= '<option value="aborn_mail">ｱﾎﾞﾝ:ﾒｰﾙ</option>';
+    $form .= '<option value="aborn_id">ｱﾎﾞﾝ:ID</option>';
+    $form .= '<option value="aborn_msg">ｱﾎﾞﾝ:ﾒｯｾｰｼﾞ</option>';
+    $form .= '<option value="ng_name">NG:名前</option>';
+    $form .= '<option value="ng_mail">NG:ﾒｰﾙ</option>';
+    $form .= '<option value="ng_id">NG:ID</option>';
+    $form .= '<option value="ng_msg">NG:ﾒｯｾｰｼﾞ</option>';
     $form .= '</select>';
 
     $form .= "<input type=\"text\" size=\"3\" name=\"ktool_value\" value=\"{$default}\" {$numonly_at}>";

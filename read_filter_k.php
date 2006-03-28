@@ -54,7 +54,7 @@ echo <<<EOF
 <p>{$ttitle_back}</p>
 <hr>
 <form id="header" method="get" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}">
-<input type="hidden" name="detect_hint" value="ž">
+<input type="hidden" name="detect_hint" value="ž@ž">
 <input type="hidden" name="host" value="{$host}">
 <input type="hidden" name="bbs" value="{$bbs}">
 <input type="hidden" name="key" value="{$key}">

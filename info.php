@@ -13,10 +13,10 @@ $_login->authorize(); // ユーザ認証
 //================================================================
 // ■変数設定
 //================================================================
-isset($_GET['host']) and $host = $_GET['host']; // "pc.2ch.net"
-isset($_GET['bbs']) and $bbs = $_GET['bbs']; // "php"
-isset($_GET['key']) and $key = $_GET['key']; // "1022999539"
-isset($_GET['ttitle_en']) and $ttitle_en = $_GET['ttitle_en'];
+$host = isset($_GET['host']) ? $_GET['host'] : null; // "pc.2ch.net"
+$bbs = isset($_GET['bbs']) ? $_GET['bbs'] : null; // "php"
+$key = isset($_GET['key']) ? $_GET['key'] : null; // "1022999539"
+$ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : null;
 
 // popup 0(false), 1(true), 2(true, クローズタイマー付)
 if (!empty($_GET['popup'])) { $popup_ht = "&amp;popup=1"; }

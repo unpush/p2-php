@@ -275,7 +275,7 @@ EOP;
 
     echo <<<EOP
 <form id="header" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
-    <input type="hidden" name="detect_hint" value="ž">
+    <input type="hidden" name="detect_hint" value="ž@ž">
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
     <input type="hidden" name="host" value="{$aThread->host}">

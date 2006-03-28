@@ -181,7 +181,7 @@ if (!empty($_info_msg_ht)) {
 echo <<<EOP
 <form id="edit_conf_user_form" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self" accept-charset="{$_conf['accept_charset']}">
     {$_conf['k_input_ht']}
-    <input type="hidden" name="detect_hint" value="ž">
+    <input type="hidden" name="detect_hint" value="ž@ž">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
 

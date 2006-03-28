@@ -317,7 +317,7 @@ class BbsMap
 
         // エラーのとき、代わりのメニューを使ってみる
         if (PEAR::isError($err) && $use_alt) {
-            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars($err->getMessage()), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars($err->getMessage(), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
             $_info_msg_ht .= sprintf("<p>代わりに %s をダウンロードします。</p>", htmlspecialchars($altmenu_url, ENT_QUOTES));
             $bbsmenu_url = $altmenu_url;
             unset ($req, $err);
@@ -328,7 +328,7 @@ class BbsMap
 
         // エラーを検証
         if (PEAR::isError($err)) {
-            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars($err->getMessage()), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars($err->getMessage(), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {
@@ -343,7 +343,7 @@ class BbsMap
             $map = unserialize($map_cahce);
             return $map;
         } elseif ($code != 200) {
-            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars(strval($code)), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars(strval($code), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {

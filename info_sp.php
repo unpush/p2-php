@@ -11,14 +11,14 @@ $_login->authorize(); // ユーザ認証
 //=====================================================
 // 変数の設定
 //=====================================================
-$host = $_GET['host'];
-$bbs  = $_GET['bbs'];
-$key  = $_GET['key'];
-$rc   = $_GET['rescount'];
-$ttitle_en = $_GET['ttitle_en'];
-$resnum = $_GET['resnum'];
-$popup  = $_GET['popup'];
-$mode   = $_GET['mode'];
+$host = isset($_GET['host']) ? $_GET['host'] : null;
+$bbs  = isset($_GET['bbs']) ? $_GET['bbs'] : null;
+$key  = isset($_GET['key']) ? $_GET['key'] : null;
+$rc   = isset($_GET['rescount']) ? $_GET['rescount'] : null;
+$ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : null;
+$resnum = isset($_GET['resnum']) ? $_GET['resnum'] : null;
+$popup  = isset($_GET['popup']) ? $_GET['popup'] : null;
+$mode   = isset($_GET['mode']) ? $_GET['mode'] : null;
 
 if (isset($_GET['aborn_str_en'])) {
     $aborn_str_en = $_GET['aborn_str_en'];
@@ -31,13 +31,21 @@ if (isset($_GET['aborn_id'])) {
 }
 
 $itaj = P2Util::getItaName($host, $bbs);
-if (!$itaj) { $itaj = $bbs; }
+if (!$itaj) {
+    $itaj = $bbs;
+}
 
-$ttitle_name = base64_decode($ttitle_en);
+$ttitle_name = is_string($ttitle_en) ? base64_decode($ttitle_en) : '';
 
-$target_read_at = ' target="read"';
-$target_sb_at = ' target="sbject"';
-
+if (empty($_conf['ktai'])) {
+    $target_edit_at = ' target="editfile"';
+    $target_read_at = ' target="read"';
+    $target_sb_at = ' target="sbject"';
+} else {
+    $target_edit_at = '';
+    $target_read_at = '';
+    $target_sb_at = '';
+}
 
 
 //=====================================================
@@ -74,6 +82,10 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
         } elseif (strstr($mode, '_msg')) {
             $popup = 1;
         }
+    }
+    if (!is_string($ttitle_en)) {
+        $onear = $aThread->explodeDatLine($aThread->datlines[0]);
+        $_GET['ttitle_en'] = $ttitle_en = base64_encode($ttitle_name = $onear[4]);
     }
 }
 
@@ -115,7 +127,7 @@ if (strstr($mode, '_msg')) {
 // メッセージ設定
 //=====================================================
 switch ($mode) {
-    /*case 'aborn_res':
+    case 'aborn_res':
         $title_st = 'p2 - このレスをあぼーん';
         if ($popup == 2) {
             $msg = '<b>' . $aborn_str . '</b> をあぼーんしました。';
@@ -125,7 +137,7 @@ switch ($mode) {
             $aborn_str_en = base64_encode($aborn_str);
         }
         $edit_value = 'あぼーんレス編集';
-        break;*/
+        break;
     case 'aborn_name':
         $title_st = 'p2 - あぼーんワード登録：名前';
         if ($popup == 2) {
@@ -222,24 +234,28 @@ echo <<<EOHEADER
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$title_st}</title>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+    <title>{$title_st}</title>\n
 EOHEADER;
 
 $body_onload = '';
-if ($popup == 2) {
-    echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js?{$_conf['p2expack']}\"></script>\n";
-    if (preg_match('/^aborn_/', $mode)) {
-        if ($mode != 'aborn_res' && isset($aborn_id) && strlen($aborn_id) >= 8) {
-            $aborn_target = 'ID:' . addslashes($aborn_id);
-            $aborn_once = 'false';
-        } elseif (isset($resnum)) {
-            $aborn_target = '>' . intval($resnum) . '</';
-            $aborn_once = 'true';
-        }
-        echo <<<EOJS
+
+if (empty($_conf['ktai'])) {
+    echo <<<EOSTYLE
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+EOSTYLE;
+    if ($popup == 2) {
+        echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js?{$_conf['p2expack']}\"></script>\n";
+        if (preg_match('/^aborn_/', $mode)) {
+            if ($mode != 'aborn_res' && isset($aborn_id) && strlen($aborn_id) >= 8) {
+                $aborn_target = 'ID:' . addslashes($aborn_id);
+                $aborn_once = 'false';
+            } elseif (isset($resnum)) {
+                $aborn_target = '>' . intval($resnum) . '</';
+                $aborn_once = 'true';
+            }
+            echo <<<EOJS
     <script type="text/javascript">
     <!--
     function infoSpLiveAborn()
@@ -264,22 +280,23 @@ if ($popup == 2) {
     // -->
     </script>\n
 EOJS;
-        $body_onload = " onload=\"infoSpLiveAborn();startTimer(document.getElementById('timerbutton'));\"";
-    } else {
-        $body_onload = " onload=\"startTimer(document.getElementById('timerbutton'));\"";
+            $body_onload = " onload=\"infoSpLiveAborn();startTimer(document.getElementById('timerbutton'));\"";
+        } else {
+            $body_onload = " onload=\"startTimer(document.getElementById('timerbutton'));\"";
+        }
     }
 }
 
 echo <<<EOP
 </head>
 <body{$body_onload}>
-<p><b><a class="thre_title" href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}"{$target_read_at}>{$ttitle_name}</a></b></p>
+<p><b><a class="thre_title" href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}"{$target_read_at}>{$ttitle_name}</a></b></p>
 <hr>
 <div align="center">
 EOP;
 
 echo "<form action=\"info_sp.php\" method=\"get\" accept-charset=\"{$_conf['accept_charset']}\">\n";
-echo "\t<input type=\"hidden\" name=\"detect_hint\" value=\"◎◇\">\n";
+echo "\t<input type=\"hidden\" name=\"detect_hint\" value=\"◎◇　◇◎\">\n";
 echo "<p>{$msg}</p>\n";
 if ($popup == 1 && $msg != "") {
     foreach ($_GET as $idx => $value) {
@@ -297,8 +314,11 @@ if ($popup == 1 && $msg != "") {
         echo "\t<input type=\"hidden\" name=\"aborn_id\" value=\"{$aborn_id_ht}\">\n";
     }
     echo "\t<input type=\"submit\" value=\"　Ｏ　Ｋ　\">\n";
-    echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
-} elseif ($popup == 2) {
+    if (empty($_conf['ktai'])) {
+        echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
+    }
+    echo "</form>\n";
+} elseif (empty($_conf['ktai']) && $popup == 2) {
     echo <<<EOB
     <input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))">\n
 EOB;
@@ -306,7 +326,7 @@ EOB;
 echo "</form>\n";
 
 //データファイルの編集ボタン
-if ($mode == 'readhere') {
+/*if ($mode == 'readhere') {
     $_GET['mode'] = 'resethere';
     echo "<form action=\"info_sp.php\" method=\"get\">\n";
     foreach ($_GET as $idx => $value) {
@@ -314,19 +334,21 @@ if ($mode == 'readhere') {
     }
     echo "\t<input type=\"submit\" value=\"この板のしおりをリセット\">\n";
     echo "</form>\n";
-} elseif (isset($edit_value)) {
-    $rows = 36; //18
-    $cols = 92; //90
+} else*/
+if (isset($edit_value)) {
+    $rows = !empty($_conf['ktai']) ? 5 : 36;
+    $cols = !empty($_conf['ktai']) ? 0 : 128;
     $edit_php = ($mode == 'aborn_res') ? 'editfile.php' : 'edit_aborn_word.php';
     echo <<<EOFORM
-<form action="{$edit_php}" method="get" target="editfile">
+<form action="{$edit_php}" method="get"{$target_edit_at}>
+    {$_conf['k_input_ht']}
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="encode" value="Shift_JIS">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
     <input type="submit" value="{$edit_value}">\n
 EOFORM;
-    if ($popup == 1 && $msg == "") {
+    if (empty($_conf['ktai']) && $popup == 1 && $msg == "") {
         echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
     }
     echo "</form>\n";

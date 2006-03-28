@@ -4,6 +4,17 @@ require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
+* htmlspecialchars($value, ENT_QUOTES) のショートカット
+*
+* @create  2006/03/27
+*/
+function p2escape($str)
+{
+    return htmlspecialchars($str, ENT_QUOTES);
+}
+
+
+/**
 * p2 - p2用のユーティリティクラス
 * インスタンスを作らずにクラスメソッドで利用する
 *

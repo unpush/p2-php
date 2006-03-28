@@ -177,6 +177,7 @@ $MYSTYLE['read']['div#kakiko']['padding'] = "5px 10px";
 $MYSTYLE['read']['div#kakiko']['background'] = "#E3E3E3";
 
 $MYSTYLE['prvw']['#dpreview']['background'] = "#FFFFFF";
+$MYSTYLE['post']['#original_msg']['background'] = "#FFFFFF";
 $MYSTYLE['post']['body']['background'] = "#E3E3E3";
 
 $MYSTYLE['subject']['table.toolbar']['height'] = "30px";

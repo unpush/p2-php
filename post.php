@@ -523,7 +523,7 @@ function postIt($URL)
         $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i';
         $form_replace = <<<EOFORM
 <form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="ž">
+    <input type="hidden" name="detect_hint" value="ž@ž">
     <input type="hidden" name="host" value="{$host}">
     <input type="hidden" name="popup" value="{$popup}">
     <input type="hidden" name="rescount" value="{$rescount}">

@@ -76,7 +76,7 @@ EOP;
 // }}}
 // フォーム ==================================================
 $sb_form_hidden_ht = <<<EOP
-<input type="hidden" name="detect_hint" value="◎◇">
+<input type="hidden" name="detect_hint" value="◎◇　◇◎">
 <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
 <input type="hidden" name="host" value="{$aThreadList->host}">
 <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
