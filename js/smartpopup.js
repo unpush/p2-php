@@ -24,24 +24,28 @@ SPM.init = function(aThread)
 	var spm = document.createElement('div');
 	spm.id = threadId + '_spm';
 	spm.className = 'spm';
+	spm.appendItem = function()
+	{
+		this.appendChild(SPM.createMenuItem.apply(this, arguments));
+	}
 	SPM.setOnPopUp(spm, spm.id, false);
 
 	// コピペ用フォーム
-	spm.appendChild(SPM.createMenuItem('レスコピー', (function(){SPM.invite(aThread)})));
+	spm.appendItem('レスコピー', (function(){SPM.invite(aThread)}));
 
 	// これにレス
 	if (opt[1] == 1 || opt[1] == 2) {
-		spm.appendChild(SPM.createMenuItem('これにレス', [aThread, 'post_form.php', 'inyou=' + (2 & opt[1]).toString()]));
-		spm.appendChild(SPM.createMenuItem('引用してレス', [aThread, 'post_form.php', 'inyou=' + ((2 & opt[1]) + 1).toString()]));
+		spm.appendItem('これにレス', [aThread, 'post_form.php', 'inyou=' + (2 & opt[1]).toString()]);
+		spm.appendItem('引用してレス', [aThread, 'post_form.php', 'inyou=' + ((2 & opt[1]) + 1).toString()]);
 	}
 
 	// あぼーんワード・NGワード
 	if (opt[2] == 1 || opt[2] == 2) {
 		var abnId = threadId + '_ab';
 		var ngId = threadId + '_ng';
-		spm.appendChild(SPM.createMenuItem('あぼーんする', [aThread, 'info_sp.php', 'mode=aborn_res']));
-		spm.appendChild(SPM.createMenuItem('あぼーんワード', null, abnId));
-		spm.appendChild(SPM.createMenuItem('NGワード', null, ngId));
+		spm.appendItem('あぼーんする', [aThread, 'info_sp.php', 'mode=aborn_res']);
+		spm.appendItem('あぼーんワード', null, abnId);
+		spm.appendItem('NGワード', null, ngId);
 		// サブメニュー生成
 		var spmAborn = SPM.createNgAbornSubMenu(abnId, aThread, 'aborn');
 		var spmNg = SPM.createNgAbornSubMenu(ngId, aThread, 'ng');
@@ -52,7 +56,7 @@ SPM.init = function(aThread)
 	// フィルタリング
 	if (opt[3] == 1) {
 		var filterId = threadId + '_fl';
-		spm.appendChild(SPM.createMenuItem('フィルタリング', null, filterId));
+		spm.appendItem('フィルタリング', null, filterId);
 		// サブメニュー生成
 		var spmFilter = SPM.createFilterSubMenu(filterId, aThread);
 	} else {
@@ -61,28 +65,37 @@ SPM.init = function(aThread)
 
 	// アクティブモナー
 	if (opt[4] == 1) {
-		spm.appendChild(SPM.createMenuItem('AA用フォント', (function(){activeMona(SPM.getBlockID())})));
+		spm.appendItem('AA用フォント', (function(){activeMona(SPM.getBlockID())}));
 	}
 
 	// AAS
 	if (opt[5] == 1) {
-		spm.appendChild(SPM.createMenuItem('AAS', [aThread, 'aas.php']));
+		spm.appendItem('AAS', [aThread, 'aas.php']);
 	}
 
-	// ポップアップメニューをコンテンツに追加
-	document.body.appendChild(spm);
+	// ポップアップ・コンテナを取得 or 作成
+	var container = document.getElementById('popUpContainer');
+	if (!container) {
+		container = document.createElement('div');
+		container.id = 'popUpContainer';
+		container.style.position = 'absolute';
+		document.body.insertBefore(container, document.body.firstChild);
+	}
 
-	// あぼーんワード・サブメニューをコンテンツに追加
+	// ポップアップメニューをコンテナに追加
+	container.appendChild(spm);
+
+	// あぼーんワード・サブメニューをコンテナに追加
 	if (spmAborn) {
-		document.body.appendChild(spmAborn);
+		container.appendChild(spmAborn);
 	}
-	// NGワード・サブメニューをコンテンツに追加
+	// NGワード・サブメニューをコンテナに追加
 	if (spmNg) {
-		document.body.appendChild(spmNg);
+		container.appendChild(spmNg);
 	}
-	// フィルタリング・サブメニューをコンテンツに追加
+	// フィルタリング・サブメニューをコンテナに追加
 	if (spmFilter) {
-		document.body.appendChild(spmFilter);
+		container.appendChild(spmFilter);
 	}
 
 	return false;
@@ -104,7 +117,7 @@ SPM.show = function(aThread, resnum, resid, evt)
 	} else if (document.selection) {
 		spmSelected = document.selection.createRange().text;
 	}
-	showResPopUp(aThread.objName + "_spm" ,evt);
+	showResPopUp(aThread.objName + '_spm' ,evt);
 	return false;
 }
 
@@ -113,7 +126,7 @@ SPM.show = function(aThread, resnum, resid, evt)
  */
 SPM.hide = function(aThread)
 {
-	document.getElementById(aThread.objName + "_spm").style.visibility = "hidden";
+	document.getElementById(aThread.objName + '_spm').style.visibility = 'hidden';
 	return false;
 }
 
@@ -202,12 +215,16 @@ SPM.createNgAbornSubMenu = function(menuId, aThread, mode)
 	var amenu = document.createElement('div');
 	amenu.id = menuId;
 	amenu.className = 'spm';
+	amenu.appendItem = function()
+	{
+		this.appendChild(SPM.createMenuItem.apply(this, arguments));
+	}
 	SPM.setOnPopUp(amenu, amenu.id, true);
 
-	amenu.appendChild(SPM.createMenuItem('名前', [aThread, 'info_sp.php', 'mode=' + mode + '_name']));
-	amenu.appendChild(SPM.createMenuItem('メール', [aThread, 'info_sp.php', 'mode=' + mode + '_mail']));
-	amenu.appendChild(SPM.createMenuItem('本文', [aThread, 'info_sp.php', 'mode=' + mode + '_msg']));
-	amenu.appendChild(SPM.createMenuItem('ID', [aThread, 'info_sp.php', 'mode=' + mode + '_id']));
+	amenu.appendItem('名前', [aThread, 'info_sp.php', 'mode=' + mode + '_name']);
+	amenu.appendItem('メール', [aThread, 'info_sp.php', 'mode=' + mode + '_mail']);
+	amenu.appendItem('本文', [aThread, 'info_sp.php', 'mode=' + mode + '_msg']);
+	amenu.appendItem('ID', [aThread, 'info_sp.php', 'mode=' + mode + '_id']);
 
 	return amenu;
 }
@@ -228,16 +245,20 @@ SPM.createFilterSubMenu = function(menuId, aThread)
 	var fmenu = document.createElement('div');
 	fmenu.id = menuId;
 	fmenu.className = 'spm';
+	fmenu.appendItem = function()
+	{
+		this.appendChild(SPM.createMenuItem.apply(this, arguments));
+	}
 	SPM.setOnPopUp(fmenu, fmenu.id, true);
 
-	fmenu.appendChild(SPM.createMenuItem('同じ名前', this.getOnClick('name', 'on')));
-	fmenu.appendChild(SPM.createMenuItem('同じメール', this.getOnClick('mail', 'on')));
-	fmenu.appendChild(SPM.createMenuItem('同じ日付', this.getOnClick('date', 'on')));
-	fmenu.appendChild(SPM.createMenuItem('同じID', this.getOnClick('id', 'on')));
-	fmenu.appendChild(SPM.createMenuItem('異なる名前', this.getOnClick('name', 'off')));
-	fmenu.appendChild(SPM.createMenuItem('異なるメール', this.getOnClick('mail', 'off')));
-	fmenu.appendChild(SPM.createMenuItem('異なる日付', this.getOnClick('date', 'off')));
-	fmenu.appendChild(SPM.createMenuItem('異なるID', this.getOnClick('id', 'off')));
+	fmenu.appendItem('同じ名前', this.getOnClick('name', 'on'));
+	fmenu.appendItem('同じメール', this.getOnClick('mail', 'on'));
+	fmenu.appendItem('同じ日付', this.getOnClick('date', 'on'));
+	fmenu.appendItem('同じID', this.getOnClick('id', 'on'));
+	fmenu.appendItem('異なる名前', this.getOnClick('name', 'off'));
+	fmenu.appendItem('異なるメール', this.getOnClick('mail', 'off'));
+	fmenu.appendItem('異なる日付', this.getOnClick('date', 'off'));
+	fmenu.appendItem('異なるID', this.getOnClick('id', 'off'));
 
 	return fmenu;
 }
@@ -258,40 +279,40 @@ SPM.openSubWin = function(aThread, inUrl, option)
 	var boolS = 1; // スクロールバーを表示（off:0, on:1）
 	var boolR = 0; // 自動リサイズ（off:0, on:1）
 	var popup = 1; // ポップアップウインドウか否か（no:0, yes:1, yes&タイマーで閉じる:2）
-	if (inUrl == "info_sp.php") {
+	if (inUrl == 'info_sp.php') {
 		inWidth  = 480;
 		inHeight = 240;
 		boolS = 0;
 		if (aThread.spmOption[2] == 1) {
 			popup = 2; // あぼーん/NGワード登録の確認をしないとき
 		}
-		if (option.indexOf("_msg") != -1 && spmSelected != '') {
-			option += "&selected_string=" + encodeURIComponent(spmSelected);
+		if (option.indexOf('_msg') != -1 && spmSelected != '') {
+			option += '&selected_string=' + encodeURIComponent(spmSelected);
 		}
-	} else if (inUrl == "post_form.php") {
+	} else if (inUrl == 'post_form.php') {
 		if (aThread.spmOption[1] == 2) {
 			// inHeight = 450;
 		}
-		if (location.href.indexOf("/read_new.php?") != -1) {
-			if (option == "") {
-				option = "from_read_new=1";
+		if (location.href.indexOf('/read_new.php?') != -1) {
+			if (option == '') {
+				option = 'from_read_new=1';
 			} else {
-				option += "&from_read_new=1";
+				option += '&from_read_new=1';
 			}
 		}
-	} else if (inUrl == "tentori.php") {
+	} else if (inUrl == 'tentori.php') {
 		inWidth  = 450;
 		inHeight = 150;
 		popup = 2;
-	} else if (inUrl == "aas.php") {
+	} else if (inUrl == 'aas.php') {
 		inWidth  = (aas_popup_width) ? aas_popup_width : 250;
 		inHeight = (aas_popup_height) ? aas_popup_height : 330;
 	}
-	inUrl += "?host=" + aThread.host + "&bbs=" + aThread.bbs + "&key=" + aThread.key;
-	inUrl += "&rescount=" + aThread.rc + "&ttitle_en=" + aThread.ttitle_en;
-	inUrl += "&resnum=" + spmResNum + "&popup=" + popup;
-	if (option != "") {
-		inUrl += "&" + option;
+	inUrl += '?host=' + aThread.host + '&bbs=' + aThread.bbs + '&key=' + aThread.key.toString();
+	inUrl += '&rescount=' + aThread.rc.toString() + '&ttitle_en=' + aThread.ttitle_en;
+	inUrl += '&resnum=' + spmResNum.toString() + '&popup=' + popup.toString();
+	if (option != '') {
+		inUrl += '&' + option;
 	}
 	OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR);
 	return true;
@@ -302,28 +323,28 @@ SPM.openSubWin = function(aThread, inUrl, option)
  */
 SPM.openFilter = function(aThread, field, match)
 {
-	var inUrl = "read_filter.php?bbs=" + aThread.bbs + "&key=" + aThread.key + "&host=" + aThread.host;
-	inUrl += "&rescount=" + aThread.rc + "&ttitle_en=" + aThread.ttitle_en + "&resnum=" + spmResNum;
-	inUrl += "&ls=all&field=" + field + "&method=just&match=" + match + "&offline=1";
+	var inUrl = 'read_filter.php?bbs=' + aThread.bbs + '&key=' + aThread.key + '&host=' + aThread.host;
+	inUrl += '&rescount=' + aThread.rc + '&ttitle_en=' + aThread.ttitle_en + '&resnum=' + spmResNum;
+	inUrl += '&ls=all&field=' + field + '&method=just&match=' + match + '&offline=1';
 
 	switch (spmFlexTarget) {
-		case "_self":
+		case '_self':
 			location.href = inUrl;
 			break;
-		case "_parent":
+		case '_parent':
 			parent.location.href = inUrl;
 			break;
-		case "_top":
+		case '_top':
 			top.location.href = inUrl;
 			break;
-		case "_blank":
-			window.open(inUrl, "", "");
+		case '_blank':
+			window.open(inUrl, '', '');
 			break;
 		default:
 			if (parent.spmFlexTarget.location.href) {
 				parent.spmFlexTarget.location.href = inUrl;
 			} else {
-				window.open(inUrl, spmFlexTarget, "")
+				window.open(inUrl, spmFlexTarget, '')
 			}
 	}
 

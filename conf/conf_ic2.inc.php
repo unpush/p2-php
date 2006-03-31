@@ -39,17 +39,22 @@ $_conf['expack.ic2.general.error_log_num'] = 100;
 // 画像のURLが貼られたスレッドのタイトルを自動で記録する (off:0;on:1)
 $_conf['expack.ic2.general.automemo'] = 1;
 
-// 画像を処理するプログラム (GD | ImageMagick | ImageMagick6)
-// GDはPHPのイメージ関数を利用、ImageMagick(6)は外部プログラムを利用
-// おすすめはImageMagick6
-$_conf['expack.ic2.general.driver'] = "GD";
+// 画像を処理するプログラム (gd | imlib2 | imagick | ImageMagick | ImageMagick6)
+// gd, imlib2, imagick は PHP の拡張モジュールを利用、ImageMagick(6) は外部コマンドを利用
+// それぞれ長所と短所がある
+// - gd はそこそこ速いがメモリを大量に消費する
+// - imagick および imlib2 は速く、消費メモリも少ないが、
+//   モジュールが長い間メンテナンスされておらず、品質に不安がある
+// - ImageMagick(6) は gd に比べて消費メモリは少ないが起動コストが大きい
+//   ImageMagick と ImageMagick6 の違いはメタデータを除去するために使うオプションのみ
+$_conf['expack.ic2.general.driver'] = "gd";
 
 // ImageMagickのパス（convertがある“ディレクトリ”のパス）
 // httpdの環境変数でパスが通っているなら空のままでよい
 // パスを明示的に指定する場合は、スペースがあるとサムネイルが作成できないので注意
 $_conf['expack.ic2.general.magick'] = "";
 
-// 透過画像をサムネイル化する際の背景色 (GDのみ有効、16進6桁で指定)
+// 透過画像をサムネイル化する際の背景色 (ImageMagick(6)では無効、16進6桁で指定)
 $_conf['expack.ic2.general.bgcolor'] = "#FFFFFF";
 
 // 携帯でもサムネイルをインライン表示する (off:0;on:1)

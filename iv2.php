@@ -398,7 +398,8 @@ if ($_conf['ktai']) {
         }
     }
 } else {
-    $lightbox = ($mode == 0 || $mode == 3) ? $ini['Viewer']['lightbox'] : false;
+    //$lightbox = ($mode == 0 || $mode == 3) ? $ini['Viewer']['lightbox'] : false;
+    $lightbox = $ini['Viewer']['lightbox'];
 }
 
 // }}}

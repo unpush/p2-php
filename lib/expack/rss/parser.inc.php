@@ -343,10 +343,16 @@ function rss_desc_tag_cleaner($tag)
                     if ($element != 'a' || preg_match('/^javascript:/i', $value)) {
                         break; // a要素以外はhref属性禁止
                     }
+                    if (preg_match('|^[^/:]*/|', $value)) {
+                        $value = rss_url_rel_to_abs($value);
+                    }
                     return '<a href="'.P2Util::throughIme($value).'"'.$_conf['ext_win_target_at'].'>';
                 case 'src':
                     if ($element != 'img' || preg_match('/^javascript:/i', $value)) {
                         break; // img要素以外はsrc属性禁止
+                    }
+                    if (preg_match('|^[^/:]*/|', $value)) {
+                        $value = rss_url_rel_to_abs($value);
                     }
                     if (P2_RSS_IMAGECACHE_AVAILABLE) {
                         $image = rss_get_image($value, $GLOBALS['channel']['title']);
@@ -403,6 +409,81 @@ function rss_desc_tag_cleaner($tag)
     $tag .= '>';
 
     return $tag;
+}
+
+/**
+ * 相対 URL を絶対 URL にして返す関数
+ *
+ * グローバル変数を参照するより引数として RSS の URL を与えられる方が望ましいが
+ * 変更が必要な箇所が多かったので手抜き
+ */
+function rss_url_rel_to_abs($url)
+{
+    // URL をパース
+    $p = @parse_url($GLOBALS['channel']['link']);
+    if (!$p || !isset($p['scheme']) || $p['scheme'] != 'http' || !isset($p['host'])) {
+        return $url;
+    }
+
+    // ルート URL を作成
+    $top = $p['scheme'] . '://';
+    if (isset($p['user'])) {
+        $top .= $p['user'];
+        if (isset($p['pass'])) {
+            $top .= '@' . $p['pass'];
+        }
+        $top .= ':';
+    }
+    $top .= $p['host'];
+    if (isset($p['port'])) {
+        $top .= ':' . $p['port'];
+    }
+
+    // 絶対パスならルート URL と結合して返す
+    if (substr($url, 0, 1) == '/') {
+        return $top . $url;
+    }
+
+    // ルート URL にスラッシュを付加
+    $top .= '/';
+
+    // チャンネルのパスを分解
+    if (isset($p['path'])) {
+        $paths1 = explode('/', trim($p['path'], '/'));
+    } else {
+        $paths1 = array();
+    }
+
+    // 相対 URL を分解
+    if ($query = strstr($url, '?')) {
+        $paths2 = explode('/', substr($url, 0, strlen($query) * -1));
+    } else {
+        $paths2 = explode('/', $url);
+        $query = '';
+    }
+
+    // 分解した相対 URL のパスを絶対パスに加える
+    while (($s = array_shift($paths2)) !== null) {
+        $r = $s;
+        switch ($s) {
+            case '':
+            case '.':
+                // pass
+                break;
+            case '..':
+                array_pop($paths1);
+                break;
+            default:
+                array_push($paths1, $s);
+        }
+    }
+    // 相対パスがスラッシュで終わっていたときの処理
+    if ($r === '') {
+        array_push($paths1, '');
+    }
+
+    //絶対 URL を返す
+    return $top . implode('/', $paths1) . $query;
 }
 
 ?>

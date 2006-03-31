@@ -27,17 +27,17 @@ class ThumbNailer
     var $resize;     // @var bolean,  画像をリサイズするか否か
     var $rotate;     // @var integer, 画像を回転する角度（回転しないとき0）
     var $trim;       // @var bolean , 画像をトリミングするか否か
-    var $coord;      // @var array ,  画像をトリミングする範囲（トリミングしないときFALSE）
+    var $coord;      // @var array ,  画像をトリミングする範囲（トリミングしないときfalse）
     var $found;      // @var array,   IC2DB_Imagesでクエリを送信した結果
-    var $dynamic;    // @var boolean, 動的生成するか否か（TRUEのとき結果をファイルに保存しない）
-    var $cushion;    // @var string , 動的生成に利用する中間イメージのパス（ソースから直接生成するときFALSE）
+    var $dynamic;    // @var boolean, 動的生成するか否か（trueのとき結果をファイルに保存しない）
+    var $cushion;    // @var string , 動的生成に利用する中間イメージのパス（ソースから直接生成するときfalse）
     var $buf;        // @var string,  動的生成した画像データ
     // @var array $default_options,    動的生成時のオプション
     var $default_options = array(
-        'quality' => NULL,
+        'quality' => null,
         'rotate'  => 0,
-        'trim'    => FALSE,
-        'cushion' => FALSE,
+        'trim'    => false,
+        'cushion' => false,
     );
     // @var array $mimemap, MIMEタイプと拡張子の対応表
     var $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
@@ -50,16 +50,16 @@ class ThumbNailer
      *
      * @access public
      */
-    function ThumbNailer($mode = 1, $dynamic_options = NULL)
+    function ThumbNailer($mode = 1, $dynamic_options = null)
     {
         if (is_array($dynamic_options) && count($dynamic_options) > 0) {
             $options = array_merge($this->default_options, $dynamic_options);
-            $this->dynamic = TRUE;
+            $this->dynamic = true;
             $this->cushion = $options['cushion'];
         } else {
             $options = $this->default_options;
-            $this->dynamic = FALSE;
-            $this->cushion = FALSE;
+            $this->dynamic = false;
+            $this->cushion = false;
         }
 
         // 設定
@@ -83,12 +83,12 @@ class ThumbNailer
         // イメージドライバ判定
         $driver = strtolower($this->ini['General']['driver']);
         $this->driver = $driver;
-        $this->magick6 = FALSE;
+        $this->magick6 = false;
         switch ($driver) {
-            case 'imagemagick6': // システムのImageMagick6
+            case 'imagemagick6': // ImageMagick6 の convert コマンド
                 $this->driver = 'imagemagick';
-                $this->magick6 = TRUE;
-            case 'imagemagick': // システムのImageMagick
+                $this->magick6 = true;
+            case 'imagemagick': // ImageMagick の convert コマンド
                 $searchpath = $this->ini['General']['magick'];
                 if (!findexec('convert', $searchpath)) {
                     $this->error('ImageMagickが使えません。');
@@ -99,12 +99,21 @@ class ThumbNailer
                     $this->magick = 'convert';
                 }
                 break;
-            case 'gd': // PHPのGD拡張機能
+            case 'gd': // PHP の GD 拡張機能
                 if (!function_exists('imagerotate') && $options['rotate'] != 0) {
                     $this->error('imagerotate関数が使えません。');
                 }
                 break;
-            //case 'imagick': // PECL ImageMagick
+            case 'imagick': // PHP の ImageMagick 拡張機能
+                if (!extension_loaded('imagick')) {
+                    $this->error('imagickエクステンションが使えません。');
+                }
+                break;
+            case 'imlib2': // PHP の Imlib2 拡張機能
+                if (!extension_loaded('imlib2')) {
+                    $this->error('imlib2エクステンションが使えません。');
+                }
+                break;
             default:
                 $this->error('無効なイメージドライバです。');
         }
@@ -158,9 +167,9 @@ class ThumbNailer
             $g = max(0, min(intval($c[2]), 255));
             $b = max(0, min(intval($c[3]), 255));
         } else {
-            $r = NULL;
-            $g = NULL;
-            $b = NULL;
+            $r = null;
+            $g = null;
+            $b = null;
         }
         $this->_bgcolor($r, $g, $b);
     }
@@ -174,7 +183,7 @@ class ThumbNailer
      * @access public
      * @return string サムネイルのパス (not dynamic) | boolean (dynamic success) | object PEAR_Error (on error)
      */
-    function &convert($size, $md5, $mime, $width, $height, $force = FALSE)
+    function &convert($size, $md5, $mime, $width, $height, $force = false)
     {
         // 画像
         if (!empty($this->cushion) && file_exists($this->cushion)) {
@@ -183,11 +192,11 @@ class ThumbNailer
             $width  = $csize[0];
             $height = $csize[1];
         } else {
-            $src = $this->srcPath($size, $md5, $mime, TRUE);
+            $src = $this->srcPath($size, $md5, $mime, true);
         }
         $thumbURL = $this->thumbPath($size, $md5, $mime);
-        $thumb = $this->thumbPath($size, $md5, $mime, TRUE);
-        if ($src == FALSE) {
+        $thumb = $this->thumbPath($size, $md5, $mime, true);
+        if ($src == false) {
             $error = &PEAR::raiseError("無効なMIMEタイプ。({$mime})");
             return $error;
         } elseif (!file_exists($src)) {
@@ -206,7 +215,7 @@ class ThumbNailer
         // サイズが既定値以下で回転なし、画像形式が同じならばそのままコピー
         // --- 携帯で表示できないことがあるので封印、ちゃんとサムネイルをつくる
         $_size = $this->calc($width, $height);
-        /*if ($this->resize == FALSE && $this->rotate == 0 && $this->type == $this->mimemap[$mime]) {
+        /*if ($this->resize == false && $this->rotate == 0 && $this->type == $this->mimemap[$mime]) {
             if (@copy($src, $thumb)) {
                 return $thumbURL;
             } else {
@@ -218,15 +227,21 @@ class ThumbNailer
         // イメージドライバにサムネイル作成処理をさせる
         switch ($this->driver) {
             case 'imagemagick':
-                $_srcsize = $width . 'x' . $height;
-                $_thumbsize = $_size;
+                $_srcsize = sprintf('%dx%d', $width, $height);
+                if ($this->rotate % 180 == 90) {
+                    $_thumbsize = vsprintf('%2$dx%1$d!', explode('x', $_size));
+                } else {
+                    $_thumbsize = $_size . '!';
+                }
                 if ($this->dynamic) {
-                    $result = &$this->_magickBuffer($src, $_srcsize, $_thumbsize);
+                    $result = &$this->_magickCapture($src, $_srcsize, $_thumbsize);
                 } else {
                     $result = &$this->_magickSave($src, $thumb, $_srcsize, $_thumbsize);
                 }
                 break;
             case 'gd':
+            case 'imagick':
+            case 'imlib2':
                 $size = array();
                 list($size['tw'], $size['th']) = explode('x', $_size);
                 if (is_array($this->coord)) {
@@ -241,9 +256,9 @@ class ThumbNailer
                     $size['sh'] = $height;
                 }
                 if ($this->dynamic) {
-                    $result = &$this->_gdBuffer($src, $size);
+                    $result = &$this->{'_'.$this->driver.'Capture'}($src, $size);
                 } else {
-                    $result = &$this->_gdSave($src, $thumb, $size);
+                    $result = &$this->{'_'.$this->driver.'Save'}($src, $thumb, $size);
                 }
                 break;
             default:
@@ -257,30 +272,30 @@ class ThumbNailer
     }
 
     // }}}
-    // {{{ GD image manipulation methods
+    // {{{ image manipulation methods using gd php extension
 
     /**
-     * GDで変換、イメージリソースを返す
+     * gd エクステンションで変換、イメージリソースを返す
      *
      * @access private
      * @return resource gd
      */
-    function &_gdResample($source, $size)
+    function &_gdConvert($source, $size)
     {
         extract($size);
         // ソースのイメージストリームを取得
         $ext = strrchr($source, '.');
         switch ($ext) {
-            case '.jpg': $src = @imagecreatefromjpeg($source); break;
-            case '.png': $src = @imagecreatefrompng($source); break;
-            case '.gif': $src = @imagecreatefromgif($source); break;
+            case '.jpg': $src = imagecreatefromjpeg($source); break;
+            case '.png': $src = imagecreatefrompng($source); break;
+            case '.gif': $src = imagecreatefromgif($source); break;
         }
         if (!is_resource($src)) {
             $error = &PEAR::raiseError("画像の読み込みに失敗しました。({$source})");
             return $error;
         }
         // サムネイルのイメージストリームを作成
-        $dst = @imagecreatetruecolor($tw, $th);
+        $dst = imagecreatetruecolor($tw, $th);
         if (!is_null($this->bgcolor)) {
             $bg = imagecolorallocate($dst, $this->bgcolor[0], $this->bgcolor[1], $this->bgcolor[2]);
             imagefill($dst, 0, 0, $bg);
@@ -291,54 +306,57 @@ class ThumbNailer
         } else {
             imagecopy($dst, $src, 0, 0, $sx, $sy, $sw, $sh);
         }
-        if ($this->rotate > 0) {
-            $rotate = abs($this->rotate - 360);
-            $dst = imagerotate($dst, $rotate, 0);
-        }
         imagedestroy($src);
+        // 回転
+        if ($this->rotate) {
+            $degrees = ($this->rotate == 90) ? -90 : (($this->rotate == 270) ? 90: $this->rotate);
+            $tmp = imagerotate($dst, $degrees, $bg);
+            imagedestroy($dst);
+            return $tmp;
+        }
         return $dst;
     }
 
     /**
-     * GDで変換、ファイルに出力
+     * gd エクステンションで変換、ファイルに出力
      *
      * @access private
      * @return boolean | object PEAR_Error
      */
     function &_gdSave($source, $thumbnail, $size)
     {
-        $dst = &$this->_gdResample($source, $size);
+        $dst = &$this->_gdConvert($source, $size);
         // サムネイルを保存
         if ($this->type == '.png') {
-            $result = @imagepng($dst, $thumbnail);
+            $result = imagepng($dst, $thumbnail);
         } else {
-            $result = @imagejpeg($dst, $thumbnail, $this->quality);
+            $result = imagejpeg($dst, $thumbnail, $this->quality);
         }
         imagedestroy($dst);
         if (!$result) {
             $errmsg = "サムネイルの作成に失敗しました。({$thumbnail})";
             $retval = &PEAR::raiseError($errmsg);
         } else {
-            $retval = TRUE;
+            $retval = true;
         }
         return $retval;
     }
 
     /**
-     * GDで変換、バッファに保存
+     * gd エクステンションで変換、バッファに保存
      *
      * @access private
      * @return boolean | object PEAR_Error
      */
-    function &_gdBuffer($source, $size)
+    function &_gdCapture($source, $size)
     {
-        $dst = &$this->_gdResample($source, $size);
+        $dst = &$this->_gdConvert($source, $size);
         // サムネイルを作成
         ob_start();
         if ($this->type == '.png') {
-            $result = @imagepng($dst);
+            $result = imagepng($dst);
         } else {
-            $result = @imagejpeg($dst, '', $this->quality);
+            $result = imagejpeg($dst, '', $this->quality);
         }
         $this->buf = ob_get_clean();
         imagedestroy($dst);
@@ -346,43 +364,315 @@ class ThumbNailer
             $errmsg = "サムネイルの作成に失敗しました。({$thumbnail})";
             $retval = &PEAR::raiseError($errmsg);
         } else {
-            $retval = TRUE;
+            $retval = true;
         }
         return $retval;
     }
 
     /**
-     * GDで変換、直接表示
+     * gd エクステンションで変換、直接出力
      *
      * @access private
      * @return boolean | object PEAR_Error
      */
-    function &_gdDirect($source, $thumbnail, $size)
+    function &_gdOutput($source, $thumbnail, $size)
     {
-        $dst = &$this->_gdResample($source, $size);
+        $dst = &$this->_gdConvert($source, $size);
         // サムネイルを出力
         $name = 'filename="' . basename($thumbnail) . '"';
         if ($this->type == '.png') {
             header('Content-Type: image/png; ' . $name);
             header('Content-Disposition: inline; ' . $name);
-            $result = @imagepng($dst);
+            $result = imagepng($dst);
         } else {
             header('Content-Type: image/jpeg; ' . $name);
             header('Content-Disposition: inline; ' . $name);
-            $result = @imagejpeg($dst, '', $this->quality);
+            $result = imagejpeg($dst, '', $this->quality);
         }
         imagedestroy($dst);
         if (!$result) {
             $errmsg = "サムネイルの作成に失敗しました。({$thumbnail})";
             $retval = &PEAR::raiseError($errmsg);
         } else {
-            $retval = TRUE;
+            $retval = true;
         }
         return $retval;
     }
 
     // }}}
-    // {{{ ImageMagick image manipulation methods
+    // {{{ image manipulation methods using imlib2 php extension
+
+    /**
+     * imlib2 エクステンションで変換、イメージリソースを返す
+     *
+     * @access private
+     * @return resource Unknown (imlib2?)
+     */
+    function &_imlib2Convert($source, $size)
+    {
+        extract($size);
+        $err = 0;
+        // ソースのイメージストリームを取得
+        $src = imlib2_load_image($source, $err);
+        if ($err) {
+            $error = &PEAR::raiseError("画像の読み込みに失敗しました。({$source}:{$err})");
+            return $error;
+        }
+        // サムネイルのイメージストリームを作成
+        $dst = imlib2_create_image($tw, $th);
+        if (!is_null($this->bgcolor)) {
+            list($r, $g, $b) = $this->bgcolor;
+            imlib2_image_fill_rectangle($dst, 0, 0, $tw, $th, $r, $g, $b, 255);
+        }
+        // ソースをサムネイルにコピー
+        /* imlib_blend_image_onto_image(int dstimg, int srcimg, int malpha, int srcx, int srcy, int srcw, int srch,
+            int dstx, int dsty, int dstw, int dsth, char dither, char blend, char alias) */
+        imlib2_blend_image_onto_image($dst, $src, 255, $sx, $sy, $sw, $sh, 0, 0, $tw, $th, false, true, $this->resize);
+        imlib2_free_image($src);
+        // 回転
+        if ($this->rotate) {
+            imlib2_image_orientate($dst, $this->rotate / 90);
+        }
+        return $dst;
+    }
+
+    /**
+     * imlib2 エクステンションで変換、ファイルに出力
+     *
+     * @access private
+     * @return boolean | object PEAR_Error
+     */
+    function &_imlib2Save($source, $thumbnail, $size)
+    {
+        $dst = &$this->_imlib2Convert($source, $size);
+        $err = 0;
+        // サムネイルを保存
+        if ($this->type == '.png') {
+            imlib2_image_set_format($dst, 'png');
+            $result = imlib2_save_image($dst, $thumbnail, $err);
+        } else {
+            imlib2_image_set_format($dst, 'jpeg');
+            $result = imlib2_save_image($dst, $thumbnail, $err, $this->quality);
+        }
+        imlib2_free_image($dst);
+        if (!$result) {
+            $errmsg = "サムネイルの作成に失敗しました。({$thumbnail}:{$err})";
+            $retval = &PEAR::raiseError($errmsg);
+        } else {
+            $retval = true;
+        }
+        return $retval;
+    }
+
+    /**
+     * imlib2 エクステンションで変換、バッファに保存
+     *
+     * imlib2_dump_image() の出力をキャプチャしようとするとうまくいかないので
+     * いったん一時ファイルに書き出したデータを読み込む
+     *
+     * @access private
+     * @return boolean | object PEAR_Error
+     */
+    function &_imlib2Capture($source, $size)
+    {
+        $dst = &$this->_imlib2Convert($source, $size);
+        $err = 0;
+        // サムネイルを作成
+        $tempfile = $this->_tempnam();
+        if ($this->type == '.png') {
+            imlib2_image_set_format($dst, 'png');
+            $result = imlib2_save_image($dst, $tempfile, $err);
+        } else {
+            imlib2_image_set_format($dst, 'jpeg');
+            $result = imlib2_save_image($dst, $tempfile, $err, $this->quality);
+        }
+        imlib2_free_image($dst);
+        if (!$result) {
+            $errmsg = "サムネイルの作成に失敗しました。({$thumbnail}:{$err})";
+            $retval = &PEAR::raiseError($errmsg);
+        } else {
+            $this->buf = file_get_contents($tempfile);
+            $retval = true;
+        }
+        return $retval;
+    }
+
+    /**
+     * imlib2 エクステンションで変換、直接出力
+     *
+     * @access private
+     * @return boolean | object PEAR_Error
+     */
+    function &_imlib2Output($source, $thumbnail, $size)
+    {
+        $dst = &$this->_imlib2Convert($source, $size);
+        $err = 0;
+        // サムネイルを出力
+        $name = 'filename="' . basename($thumbnail) . '"';
+        if ($this->type == '.png') {
+            header('Content-Type: image/png; ' . $name);
+            header('Content-Disposition: inline; ' . $name);
+            imlib2_image_set_format($dst, 'png');
+            $result = imlib2_dump_image($dst, $err);
+        } else {
+            header('Content-Type: image/jpeg; ' . $name);
+            header('Content-Disposition: inline; ' . $name);
+            imlib2_image_set_format($dst, 'jpeg');
+            $result = imlib2_dump_image($dst, $err, $this->quality);
+        }
+        imlib2_free_image($dst);
+        if (!$result) {
+            $errmsg = "サムネイルの作成に失敗しました。({$thumbnail}:{$err})";
+            $retval = &PEAR::raiseError($errmsg);
+        } else {
+            $retval = true;
+        }
+        return $retval;
+    }
+
+    // }}}
+    // {{{ image manipulation methods using imagick extension
+
+    /**
+     * imagick エクステンションで変換、イメージリソースを返す
+     *
+     * @access private
+     * @return resource imagick handle
+     */
+    function &_imagickConvert($source, $size)
+    {
+        extract($size);
+        // ソースのイメージストリームを取得
+        $src = imagick_readimage($source);
+        if (!is_resource($src) || imagick_iserror($src)) {
+            if (is_resource($src)) {
+                $reason = imagick_failedreason($src);
+                $detail = imagick_faileddescription($src);
+                imagick_destroyhandle($src);
+            }
+            $error = &PEAR::raiseError("画像の読み込みに失敗しました。({$source}:{$reason}:{$detail})");
+            return $error;
+        }
+        // サムネイルのイメージストリームを作成
+        $bg = (!is_null($this->bgcolor)) ? $this->bgcolor : 'rgb(0,0,0)';
+        $dst = imagick_getcanvas($bg, $tw, $th);
+        // ソースをリサイズし、サムネイルにコピー
+        if ($sx != 0 || $sy != 0) {
+            imagick_crop($src, $sx, $sy, $sw, $sh);
+        }
+        if ($this->resize) {
+            imagick_scale($src, $tw, $th, '!');
+        }
+        imagick_composite($dst, IMAGICK_COMPOSITE_OP_ATOP, $src, 0, 0);
+        imagick_destroyhandle($src);
+        // 回転
+        if ($this->rotate) {
+            imagick_rotate($dst, $this->rotate);
+        }
+        return $dst;
+    }
+
+    /**
+     * imagick エクステンションで変換、ファイルに出力
+     *
+     * @access private
+     * @return boolean | object PEAR_Error
+     */
+    function &_imagickSave($source, $thumbnail, $size)
+    {
+        $dst = &$this->_imagickConvert($source, $size);
+        // サムネイルを保存
+        if ($this->quality > 0) {
+            imagick_setcompressionquality($dst, $this->quality);
+        }
+        $prefix = (($this->type == '.png') ? 'png' : 'jpeg') . ':';
+        $result = imagick_writeimage($dst, $prefix.$thumbnail);
+        if (!$result) {
+            $reason = imagick_failedreason($dst);
+            $detail = imagick_faileddescription($dst);
+            $errmsg = "サムネイルの作成に失敗しました。({$thumbnail}:{$reason}:{$detail})";
+            $retval = &PEAR::raiseError($errmsg);
+        } else {
+            $retval = true;
+        }
+        imagick_destroyhandle($dst);
+        return $retval;
+    }
+
+    /**
+     * imagick エクステンションで変換、バッファに保存
+     *
+     * imagick_image2blob() ではうまくいかないので
+     * いったん一時ファイルに書き出したデータを読み込む
+     *
+     * @access private
+     * @return boolean | object PEAR_Error
+     */
+    function &_imagickCapture($source, $size)
+    {
+        $dst = &$this->_imagickConvert($source, $size);
+        // サムネイルを作成
+        if ($this->quality > 0) {
+            imagick_setcompressionquality($dst, $this->quality);
+        }
+        $prefix = (($this->type == '.png') ? 'png' : 'jpeg') . ':';
+        $tempfile = $this->_tempnam();
+        $result = imagick_writeimage($dst, $prefix.$tempfile);
+        if (!$result) {
+            $reason = imagick_failedreason($dst);
+            $detail = imagick_faileddescription($dst);
+            $errmsg = "サムネイルの作成に失敗しました。({$thumbnail}:{$reason}:{$detail})";
+            $retval = &PEAR::raiseError($errmsg);
+        } else {
+            $this->buf = file_get_contents($tempfile);
+            $retval = true;
+        }
+        imagick_destroyhandle($dst);
+        return $retval;
+    }
+
+    /**
+     * imagick エクステンションで変換、直接出力
+     *
+     * imagick_image2blob() ではうまくいかないので
+     * いったん一時ファイルに書き出し、readfile() する
+     *
+     * @access private
+     * @return boolean | object PEAR_Error
+     */
+    function &_imagickOutput($source, $thumbnail, $size)
+    {
+        $dst = &$this->_imagickConvert($source, $size);
+        // サムネイルを出力
+        if ($this->quality) {
+            imagick_setcompressionquality($dst, $this->quality);
+        }
+        $prefix = (($this->type == '.png') ? 'png' : 'jpeg') . ':';
+        $tempfile = $this->_tempnam();
+        $result = imagick_writeimage($dst, $prefix.$tempfile);
+        if (!$result) {
+            $reason = imagick_failedreason($dst);
+            $detail = imagick_faileddescription($dst);
+            $errmsg = "サムネイルの作成に失敗しました。({$thumbnail}:{$reason}:{$detail})";
+            $retval = &PEAR::raiseError($errmsg);
+        } else {
+            $name = 'filename="' . basename($thumbnail) . '"';
+            if ($this->type == '.png') {
+                header('Content-Type: image/png; ' . $name);
+                header('Content-Disposition: inline; ' . $name);
+            } else {
+                header('Content-Type: image/jpeg; ' . $name);
+                header('Content-Disposition: inline; ' . $name);
+            }
+            readfile($tempfile);
+            $retval = true;
+        }
+        imagick_destroyhandle($dst);
+        return $retval;
+    }
+
+    // }}}
+    // {{{ image manipulation methods using ImageMagick's convert command
 
     /**
      * ImageMagickのコマンド生成
@@ -393,31 +683,61 @@ class ThumbNailer
     function _magickCommand($source, $thumbnail, $srcsize, $thumbsize)
     {
         $command = $this->magick;
-        $command .= ' -size ' . $srcsize;
+
+        // 元のサイズを指定
+        $command .= sprintf(' -size %s', escapeshellarg($srcsize));
+
+        // 複数フレームからなる画像かもしれないとき
+        if (preg_match('/\.gif$/', $source)) {
+            $command .= ' +adjoin';
+            $source .= '[0]';
+        }
+
+        // クロップしてパイプ
+        if (is_array($this->coord)) {
+            $x = $this->coord['x'];
+            $y = $this->coord['y'];
+            $command .= sprintf(" -crop '%dx%d+%d+%d'", $x[1], $y[1], $x[0], $y[0]);
+            $command .= sprintf(' %s', escapeshellarg($source));
+            $command .= ' - | ' . $this->magick;
+            $command .= sprintf(" -size '%dx%d'", $x[1], $y[1]);
+            $source = '-';
+        }
+
+        // 透過部分の背景色を任意の色にするのはめんどくさそうなので保留
+        /*if (!is_null($this->bgcolor)) {
+            $command .= sprintf(' -background %s', escapeshellarg($this->bgcolor));
+        }*/
+        // 回転
+        if ($this->rotate) {
+            $command .= sprintf(' -rotate %d', $this->rotate);
+        }
+
+        // サムネイルのサイズを指定・メタデータは除去
         if ($this->magick6) {
             if ($this->resize) {
-                $command .= ' -thumbnail ' . $thumbsize;
+                $command .= sprintf(' -thumbnail %s', escapeshellarg($thumbsize));
             } else {
                 $command .= ' -strip';
             }
         } else {
             if ($this->resize) {
-                $command .= ' -resize ' . $thumbsize;
+                $command .= sprintf(' -scale %s', escapeshellarg($thumbsize));
             }
             $command .= " +profile '*'";
         }
-        if (preg_match('/\.gif$/', $source)) {
-            $command .= ' +adjoin';
-            $source .= '[0]';
+        // サムネイルの画像形式
+        $command .= sprintf(' -format %s', (($this->type == '.png') ? 'PNG' : 'JPEG'));
+        // サムネイルの品質
+        if ($this->quality) {
+            $command .= sprintf(' -quality %d', $this->quality);
         }
-        if ($this->rotate > 0)  { $command .= ' -rotate ' . $this->rotate; }
-        if ($this->quality > 0) { $command .= ' -quality ' . $this->quality; }
-        if (!is_null($this->bgcolor)) {
-            /* GIF画像の透過部分の背景色を任意の色にするのはめんどくさそうなので保留 */
-            //$command .= ' -background ' . $this->bgcolor;
-        }
-        $command .= ' ' . escapeshellarg($source);
-        $command .= ' ' . ((!$thumbnail || $thumbnail == '-') ? '-' : escapeshellarg($thumbnail));
+
+        // 元の画像のパスを指定
+        $command .= sprintf(' %s', ((!$source || $source == '-') ? '-' : escapeshellarg($source)));
+        // サムネイルの出力先を指定
+        $command .= sprintf(' %s', ((!$thumbnail || $thumbnail == '-') ? '-' : escapeshellarg($thumbnail)));
+
         return $command;
     }
 
@@ -439,7 +759,7 @@ class ThumbNailer
             }
             $retval = &PEAR::raiseError($errmsg);
         } else {
-            $retval = TRUE;
+            $retval = true;
         }
         return $retval;
     }
@@ -450,7 +770,7 @@ class ThumbNailer
      * @access private
      * @return boolean | object PEAR_Error
      */
-    function &_magickBuffer($source, $srcsize, $thumbsize)
+    function &_magickCapture($source, $srcsize, $thumbsize)
     {
         $command = $this->_magickCommand($source, '-', $srcsize, $thumbsize);
         ob_start();
@@ -460,18 +780,18 @@ class ThumbNailer
             $errmsg = "convert failed. ( $command . )\n";
             $retval = &PEAR::raiseError($errmsg);
         } else {
-            $retval = TRUE;
+            $retval = true;
         }
         return $retval;
     }
 
     /**
-     * ImageMagickで変換、直接表示
+     * ImageMagickで変換、直接出力
      *
      * @access private
      * @return boolean | object PEAR_Error
      */
-    function &_magickDirect($source, $thumbnail, $srcsize, $thumbsize)
+    function &_magickOutput($source, $thumbnail, $srcsize, $thumbsize)
     {
         $command = $this->_magickCommand($source, '-', $srcsize, $thumbsize);
         $name = 'filename="' . basename($thumbnail) . '"';
@@ -487,7 +807,7 @@ class ThumbNailer
             $errmsg = "convert failed. ( $command . )\n";
             $retval = &PEAR::raiseError($errmsg);
         } else {
-            $retval = TRUE;
+            $retval = true;
         }
         return $retval;
     }
@@ -505,8 +825,8 @@ class ThumbNailer
         // デフォルト値・フラグを設定
         $t_width  = $width;
         $t_height = $height;
-        $this->resize = FALSE;
-        $this->coord   = FALSE;
+        $this->resize = false;
+        $this->coord   = false;
         // ソースがサムネイルの最大サイズより小さいとき、ソースの大きさをそのまま返す
         if ($width <= $this->max_width && $height <= $this->max_height) {
             // リサイズ・トリミングともに無効
@@ -552,14 +872,14 @@ class ThumbNailer
                 $c_length = $max_main;
             } else {
                 // サムネイルサイズいっぱいに収まるように縮小＆トリミング
-                $this->resize = TRUE;
+                $this->resize = true;
                 $t_sub = $max_sub;
                 $c_length = ceil($sub * ($t_main / $t_sub));
             }
             $this->coord[$c_main] = array(floor(($main - $c_length) / 2), $c_length);
         } else {
             // アスペクト比を維持したまま縮小し、トリミングはしない
-            $this->resize = TRUE;
+            $this->resize = true;
             $t_sub = round($max_main * ($sub / $main));
         }
         // サムネイルサイズを返す
@@ -571,11 +891,11 @@ class ThumbNailer
      *
      * @access public
      */
-    function srcPath($size, $md5, $mime, $FSFullPath = FALSE)
+    function srcPath($size, $md5, $mime, $FSFullPath = false)
     {
         $directory = $this->getSubDir($this->sourcedir, $size, $md5, $mime, $FSFullPath);
         if (!$directory) {
-            return FALSE;
+            return false;
         }
 
         $basename = $size . '_' . $md5 . $this->mimemap[$mime];
@@ -588,15 +908,15 @@ class ThumbNailer
      *
      * @access public
      */
-    function thumbPath($size, $md5, $mime, $FSFullPath = FALSE)
+    function thumbPath($size, $md5, $mime, $FSFullPath = false)
     {
         $directory = $this->getSubDir($this->thumbdir, $size, $md5, $mime, $FSFullPath);
         if (!$directory) {
-            return FALSE;
+            return false;
         }
 
         $basename = $size . '_' . $md5;
-        if ($this->rotate > 0) {
+        if ($this->rotate) {
             $basename .= '_' . str_pad($this->rotate, 3, 0, STR_PAD_LEFT);
         }
         if ($this->trim) {
@@ -612,10 +932,10 @@ class ThumbNailer
      *
      * @access public
      */
-    function getSubDir($basedir, $size, $md5, $mime, $FSFullPath = FALSE)
+    function getSubDir($basedir, $size, $md5, $mime, $FSFullPath = false)
     {
         if (!is_dir($basedir)) {
-            return FALSE;
+            return false;
         }
 
         $dirID = $this->dirID($size, $md5, $mime);
@@ -634,7 +954,7 @@ class ThumbNailer
      *
      * @access public
      */
-    function dirID($size = NULL, $md5 = NULL, $mime = NULL)
+    function dirID($size = null, $md5 = null, $mime = null)
     {
         if ($size && $md5 && $mime) {
             $icdb = &new IC2DB_Images;
@@ -642,7 +962,7 @@ class ThumbNailer
             $icdb->whereAddQuoted('md5',  '=', $md5);
             $icdb->whereAddQUoted('mime', '=', $mime);
             $icdb->orderByArray(array('id' => 'ASC'));
-            if ($icdb->find(TRUE)) {
+            if ($icdb->find(true)) {
                 $this->found = $icdb->toArray();
                 return str_pad(ceil($icdb->id / 1000), 5, 0, STR_PAD_LEFT);
             }
@@ -667,19 +987,34 @@ class ThumbNailer
     function _bgcolor($r, $g, $b)
     {
         if (is_null($r) || is_null($g) || is_null($b)) {
-            $this->bgcolor = NULL;
+            $this->bgcolor = null;
             return;
         }
         switch ($this->driver) {
             case 'gd':
+            case 'imlib2':
                 $this->bgcolor = array($r, $g, $b);
                 break;
+            case 'imagick':
             case 'imagemagick':
-                $this->bgcolor = escapeshellarg("rgb($r,$g,$b)");
+                $this->bgcolor = sprintf('rgb(%d,%d,%d)', $r, $g, $b);
                 break;
             default:
-                $this->bgcolor = "$r,$g,$b";
+                $this->bgcolor = sprintf('%d,%d,%d', $r, $g, $b);
         }
+    }
+
+    /**
+     * 一時ファイルのパスを返す
+     * 作成した一時ファイルは終了時に自動で削除される
+     *
+     * @access private
+     */
+    function _tempnam()
+    {
+        $tmp = tempnam(realpath($this->cachedir), sprintf('dump_%s_', date('ymdhis')));
+        register_shutdown_function(create_function('', '@unlink("'.addslashes($tmp).'");'));
+        return $tmp;
     }
 
     // }}}
