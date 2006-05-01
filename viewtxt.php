@@ -33,7 +33,7 @@ if ($readable_files && $file and (!in_array($file, $readable_files))) {
 		$files_st .= "「".$afile."」";
 		$i++;
 	}
-	die("Error: ".basename($_SERVER['PHP_SELF'])." 先生の読めるファイルは、".$files_st."だけ！");
+	die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の読めるファイルは、".$files_st."だけ！");
 }
 
 //=========================================================

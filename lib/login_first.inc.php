@@ -31,7 +31,7 @@ function printLoginFirst(&$_login)
     //=========================================================
     $ptitle = 'rep2';
     
-    $myname = basename($_SERVER['PHP_SELF']);
+    $myname = basename($_SERVER['SCRIPT_NAME']);
 
     $auth_sub_input_ht = "";
     $body_ht = "";

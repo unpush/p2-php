@@ -30,7 +30,7 @@ function disableSubmit(form) {
   if (isNetFront()) {
     return;
   }
-  
+
   var elements = form.elements;
   for (var i = 0; i < elements.length; i++) {
     if (elements[i].type == 'submit') {
@@ -40,12 +40,12 @@ function disableSubmit(form) {
 }
 
 function setHiddenValue(button) {
-  
+
   // 2006/02/15 NetFront‚Æ‚Í‘Š«‚ªˆ«‚­ŒÅ‚Ü‚é‚ç‚µ‚¢‚Ì‚Å”²‚¯‚é
   if (isNetFront()) {
     return;
   }
-  
+
   if (button.name) {
     var q = document.createElement('input');
     q.type = 'hidden';
@@ -116,7 +116,7 @@ if (empty($_conf['ktai'])) {
 
 // Be.2ch
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-    $htm['be2ch'] = '<input type="submit" name="submit_beres" value="BE‚Å‘‚«ž‚Þ" onClick="setHiddenValue(this);">';
+    $htm['be2ch'] = '<input id="submit_beres" type="submit" name="submit_beres" value="BE‚Å‘‚«ž‚Þ" onClick="setHiddenValue(this);">';
 }
 
 // PC—p sage checkbox
@@ -181,8 +181,8 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         $q_resar = array_map('trim', $q_resar);
         $q_resar[3] = strip_tags($q_resar[3], '<br>');
         if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
-            $hd['MESSAGE'] .= "&gt;";
-            $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;", $q_resar[3]);
+            $hd['MESSAGE'] .= "&gt;  ";
+            $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
             $hd['MESSAGE'] .= "\r\n";
         }
         if ($_GET['inyou'] == 2 || $_GET['inyou'] == 3) {

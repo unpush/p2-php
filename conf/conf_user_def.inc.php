@@ -170,6 +170,9 @@ $conf_user_sel['k_use_picto'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['k_bbs_noname_name'] = 0; // (0)
 $conf_user_sel['k_bbs_noname_name'] = array('1' => 'する', '0' => 'しない');
 
+// 携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数
+$conf_user_def['k_copy_divide_len'] = 0; // (0)
+
 // }}}
 // {{{ ■ETC
 

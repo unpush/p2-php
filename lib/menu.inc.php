@@ -145,7 +145,7 @@ EOP;
 
 if ($_conf['enable_menu_new']) {
     echo <<<EOP
-$reloaded_time [<a href="{$_SERVER['PHP_SELF']}?new=1" target="_self">更新</a>]
+$reloaded_time [<a href="{$_SERVER['SCRIPT_NAME']}?new=1" target="_self">更新</a>]
 EOP;
 }
 
@@ -251,7 +251,7 @@ $_info_msg_ht = "";
 
 // 板検索フォームを表示
 echo <<<EOFORM
-<form method="GET" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+<form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
     <input type="hidden" name="detect_hint" value="◎◇">
     <p>
         <input type="text" id="word" name="word" value="{$hd['word']}" size="14">

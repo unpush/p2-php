@@ -434,7 +434,9 @@ EOP;
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
-
+        
+        $msg = str_replace(array('"', "'"), array('&quot;', '&#039;'), $msg);
+        
         // 引用やURLなどをリンク
         $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
 
@@ -560,7 +562,9 @@ EOP;
     }
 
     /**
-     * ■引用変換（範囲）
+     * 引用変換（範囲）
+     *
+     * @return string
      */
     function quote_res_range_callback($s)
     {
@@ -678,7 +682,9 @@ EOP;
     }
 
     /**
-     * ■IDフィルタリングポップアップ変換
+     * IDフィルタリングポップアップ変換
+     *
+     * @return string
      */
     function idfilter_callback($s)
     {

@@ -247,6 +247,10 @@ EOP;
             $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
         }
         
+        if ($aThread->similarity) {
+            $aThread->ttitle_ht .= sprintf(' <var>(%0.1f)</var>', $aThread->similarity * 100);
+        }
+        
         // å≥ÉXÉå
         $moto_thre_ht = "";
         if ($_conf['sb_show_motothre']) {

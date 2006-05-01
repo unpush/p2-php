@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.25'; // rep2のバージョン
+$_conf['p2version'] = '1.7.26'; // rep2のバージョン
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -464,7 +464,7 @@ if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
 // }}}
 
 // css.php は特別にセッションから外す。
-//if (basename($_SERVER['PHP_SELF']) != 'css.php') {
+//if (basename($_SERVER['SCRIPT_NAME']) != 'css.php') {
     if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) { 
     
         // {{{ セッションデータ保存ディレクトリを設定
@@ -550,6 +550,33 @@ function printMemoryUsage()
     $kb = number_format($kb, 2, '.', '');
     
     echo 'Memory Usage: ' . $kb . 'KB';
+}
+
+/**
+ * すごく適当な分かち書き用正規表現
+ */
+$GLOBALS['WAKATI_REGEX'] = mb_convert_encoding(
+    '/(' . implode('|', array(
+        //'[一-龠]+[ぁ-ん]*',
+        //'[一-龠]+',
+        '[一二三四五六七八九十]+',
+        '[丁-龠]+',
+        '[ぁ-ん][ぁ-んー～゛゜]*',
+        '[ァ-ヶ][ァ-ヶー～゛゜]*',
+        //'[a-z][a-z_\\-]*',
+        //'[0-9][0-9.]*',
+        '[0-9a-z][0-9a-z_\\-]*',
+    )) . ')/u', 'UTF-8', 'SJIS-win');
+
+/**
+ * すごく適当な正規化＆分かち書き関数
+ */
+function wakati($str)
+{
+    return array_filter(array_map('trim', preg_split($GLOBALS['WAKATI_REGEX'],
+        mb_strtolower(mb_convert_kana(mb_convert_encoding(
+            $str, 'UTF-8', 'SJIS-win'), 'KVas', 'UTF-8'), 'UTF-8'),
+        -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY)), 'strlen');
 }
 
 ?>

@@ -38,6 +38,8 @@ function deleMsg($checked_hists)
             $n++;
         }
         $neolines = rmLine($rmnums, $reslines);
+        
+        $_info_msg_ht .= "<p>p2 info: " . count($rmnums) . "Œ‚ÌƒŒƒX‹L–‚ğíœ‚µ‚Ü‚µ‚½</p>";
     }
     
     if (is_array($neolines)) {
