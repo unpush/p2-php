@@ -29,7 +29,7 @@ class ShowBrdMenuPc{
                         echo "    <div class=\"itas_hide\" id=\"c{$this->cate_id}\">\n";
                     }
                     foreach ($cate->menuitas as $mita) {
-                        echo "        <a href=\"{$_SERVER['PHP_SELF']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1\" target=\"_self\" class=\"fav\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}\">{$mita->itaj_ht}</a><br>\n";
+                        echo "        <a href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1\" target=\"_self\" class=\"fav\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}\">{$mita->itaj_ht}</a><br>\n";
                     }
                     echo "    </div>\n";
                     echo "</div>\n";
@@ -62,7 +62,7 @@ EOP;
                     $itaj_en = rawurlencode(base64_encode($itaj));
                     
                     $p_htm['star'] = <<<EOP
-<a href="{$_SERVER['PHP_SELF']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す">★</a>
+<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す">★</a>
 EOP;
                     //  onClick="return confirmSetFavIta('{$itaj_ht}');"                    
                     // 新着数を表示する場合

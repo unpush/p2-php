@@ -146,7 +146,7 @@ if (!empty($_info_msg_ht)) {
 }
 
 echo <<<EOP
-<form method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
+<form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
 
@@ -228,6 +228,7 @@ echo getEditConfHtml('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を
 echo getEditConfHtml('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用(する, しない)');
 
 echo getEditConfHtml('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示（する, しない）');
+echo getEditConfHtml('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数');
 
 echo getGroupSepaHtml('ETC');
 

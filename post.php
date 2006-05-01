@@ -193,13 +193,13 @@ if ($cookie_cont) {
 //=============================================
 // スレ立て成功なら、subjectからkeyを取得
 //=============================================
-if ($_POST['newthread'] && $posted) {
+if (!empty($_POST['newthread']) && $posted) {
     sleep(1);
     $key = getKeyInSubject();
 }
 
 //=============================================
-// ■ key.idx 保存
+// key.idx 保存
 //=============================================
 // <> を外す。。
 $tag_rec['FROM'] = str_replace('<>', '', $FROM);
@@ -212,7 +212,7 @@ $tag_rec_n['mail'] = ($tag_rec['mail'] == '') ? 'P2NULL' : $tag_rec['mail'];
 if ($host && $bbs && $key) {
     $idx_host_dir = P2Util::idxDirOfHost($host);
     
-    $keyidx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
+    $keyidx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
     
     // 読み込み
     if ($keylines = @file($keyidx)) {
@@ -297,8 +297,17 @@ if ($_conf['res_write_rec']) {
 
     FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']); // なければ生成
     
+    $resnum = '';
+    if (!empty($_POST['newthread'])) {
+        $resnum = 1;
+    } else {
+        if ($rescount) {
+            $resnum = $rescount + 1;
+        }
+    }
+    
     // 新規データ
-    $newdata = $tag_rec['FROM'].'<>'.$tag_rec['mail']."<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key";
+    $newdata = $tag_rec['FROM'].'<>'.$tag_rec['mail']."<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key<>$resnum";
 
     // まずタブを全て外して（2chの書き込みではタブは削除される 2004/12/13）
     $newdata = str_replace("\t", '', $newdata);
@@ -636,10 +645,10 @@ EOP;
     echo "</head>\n";
     echo "<body>\n";
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+    echo $_info_msg_ht;
+    $_info_msg_ht = "";
 
-echo <<<EOP
+    echo <<<EOP
 <p>{$ttitle_ht}</p>
 <p>{$result_msg}</p>
 {$kakunin_ht}

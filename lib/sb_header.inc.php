@@ -14,7 +14,7 @@ $reloaded_time = date("m/d G:i:s"); //更新時刻
 if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
     $offline_num = $aThreadList->num - $online_num;
     $taborn_check_ht = <<<EOP
-    <form class="check" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">\n
+    <form class="check" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">\n
 EOP;
     if ($offline_num > 0) {
         if ($aThreadList->spmode == "taborn") {
@@ -121,7 +121,7 @@ EOP;
 // フィルタ検索 ==================================================
 if ($_conf['enable_exfilter'] == 2) {
 
-    $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '');
+    $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
     $selected_method[($sb_filter['method'])] = ' selected';
     
     $sb_form_method_ht = <<<EOP
@@ -130,11 +130,12 @@ if ($_conf['enable_exfilter'] == 2) {
                 <option value="and"{$selected_method['and']}>すべて</option>
                 <option value="just"{$selected_method['just']}>そのまま</option>
                 <option value="regex"{$selected_method['regex']}>正規表現</option>
+                <option value="similar"{$selected_method['similar']}>自然文</option>
             </select>
 EOP;
 }
 
-$hd['word'] = htmlspecialchars($word, ENT_QUOTES);
+$hd['word'] = (isset($GLOBALS['wakati_word'])) ? htmlspecialchars($GLOBALS['wakati_word'], ENT_QUOTES) : htmlspecialchars($word, ENT_QUOTES);
 $checked_ht['find_cont'] = (!empty($_REQUEST['find_cont'])) ? 'checked' : '';
 
 $input_find_cont_ht = <<<EOP

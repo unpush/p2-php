@@ -102,7 +102,7 @@ function sb_print_k(&$aThreadList)
 		
 		// 新規スレ
 		if ($aThread->new) { 
-			$unum_ht = "[<font color=\"#ff0000\">新</font>]";
+			$unum_ht = "<font color=\"#ff0000\">新</font>";
 		}
 				
 		// 総レス数 =============================================
@@ -158,8 +158,11 @@ function sb_print_k(&$aThreadList)
 			$aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
 		}
 		
-		$aThread->ttitle_ht = $aThread->ttitle_ht." (".$rescount_ht.")";
-		
+		$aThread->ttitle_ht = $aThread->ttitle_ht . " (" . $rescount_ht . ")";
+        if ($aThread->similarity) {
+            $aThread->ttitle_ht .= sprintf(' %0.1f%%', $aThread->similarity * 100);
+        }
+        
 		// 新規スレ
 		if ($aThread->new) { 
 			$classtitle_q = " class=\"thre_title_new\"";

@@ -44,7 +44,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
         $files_st .= "「".$afile."」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['PHP_SELF'])." 先生の書き込めるファイルは、".$files_st."だけ！");
+    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の書き込めるファイルは、".$files_st."だけ！");
 }
 
 //=========================================================
@@ -130,7 +130,7 @@ EOHEADER;
 
     echo "Edit: ".$path;
     echo <<<EOFORM
-<form action="{$_SERVER['PHP_SELF']}" method="post" accept-charset="{$_conf['accept_charset']}">
+<form action="{$_SERVER['SCRIPT_NAME']}" method="post" accept-charset="{$_conf['accept_charset']}">
     <input type="hidden" name="detect_hint" value="◎◇">
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="modori_url" value="{$modori_url}">

@@ -146,7 +146,39 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
         $sb_filter['method'] = $_POST['method'];
     }
 
-    if (preg_match('/^\.+$/', $word)) {
+    if ($sb_filter['method'] == 'similar') {
+        $GLOBALS['wakati_word'] = $word;
+        $GLOBALS['wakati_words'] = wakati($word);
+        if (!$GLOBALS['wakati_words']) {
+            unset($GLOBALS['wakati_word'], $GLOBALS['wakati_words']);
+        } else {
+            include_once P2_LIBRARY_DIR . '/strctl.class.php';
+            $GLOBALS['KANJI_REGEX'] = mb_convert_encoding('/[一-龠]/u', 'UTF-8', 'SJIS-win');
+            $wakati_filter = create_function('$s', 'return (preg_match($GLOBALS["KANJI_REGEX"], $s) || (preg_match($GLOBALS["WAKATI_REGEX"], $s) && mb_strlen($s, "UTF-8") > 1));');
+            $wakati_words2 = array_filter($GLOBALS['wakati_words'], $wakati_filter);
+            if (!$wakati_words2) {
+                $GLOBALS['wakati_hl_regex'] = $GLOBALS['wakati_word'];
+            } else {
+                rsort($wakati_words2, SORT_STRING);
+                $GLOBALS['wakati_hl_regex'] = implode(' ', $wakati_words2);
+                $GLOBALS['wakati_hl_regex'] = mb_convert_encoding($GLOBALS['wakati_hl_regex'], 'SJIS-win', 'UTF-8');
+            }
+            $GLOBALS['wakati_hl_regex'] = StrCtl::wordForMatch($GLOBALS['wakati_hl_regex'], 'or');
+            $GLOBALS['wakati_hl_regex'] = str_replace(' ', '|', $GLOBALS['wakati_hl_regex']);
+            $GLOBALS['wakati_length'] = mb_strlen($GLOBALS['wakati_word'], 'SJIS-win');
+            $GLOBALS['wakati_score'] = getSbScore($GLOBALS['wakati_words'], $GLOBALS['wakati_length']);
+            if (!isset($_conf['expack.min_similarity'])) {
+                $_conf['expack.min_similarity'] = 0.05;
+            } elseif ($_conf['expack.min_similarity'] > 1) {
+                $_conf['expack.min_similarity'] /= 100;
+            }
+            if (count($GLOBALS['wakati_words']) == 1) {
+                $_conf['expack.min_similarity'] /= 100;
+            }
+            $_conf['expack.min_similarity'] = (float) $_conf['expack.min_similarity'];
+        }
+        $word = '';
+    } elseif (preg_match('/^\.+$/', $word)) {
         $word = '';
     }
     if (strlen($word) > 0)  {
@@ -378,6 +410,20 @@ for ($x = 0; $x < $linesize; $x++) {
             } else {
                 $aThread->ttitle_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aThread->ttitle_hd);
             }
+        }
+    } elseif (!$aThreadList->spmode && !empty($GLOBALS['wakati_words'])) {
+        // 類似スレ検索
+        if (!setSbSimilarity($aThread) || $aThread->similarity < $_conf['expack.min_similarity']) {
+            unset($aThread);
+            $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('word_filter_for_sb');
+            continue;
+        }
+        if ($_conf['ktai']) {
+            if (is_string($_conf['k_filter_marker'])) {
+                $aThread->ttitle_ht = StrCtl::filterMarking($GLOBALS['wakati_hl_regex'], $aThread->ttitle_ht, $_conf['k_filter_marker']);
+            }
+        } else {
+            $aThread->ttitle_ht = StrCtl::filterMarking($GLOBALS['wakati_hl_regex'], $aThread->ttitle_ht);
         }
     }
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('word_filter_for_sb');
@@ -691,7 +737,7 @@ function autoTAbornOff(&$aThreadList, &$ta_keys)
     
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('abornoff');
     
-    if (!$aThreadList->spmode and !$GLOBALS['word'] and $aThreadList->threads and $ta_keys) {
+    if (!$aThreadList->spmode and !$GLOBALS['word'] and !$GLOBALS['wakati_word'] and $aThreadList->threads and $ta_keys) {
         include_once (P2_LIBRARY_DIR . '/settaborn_off.inc.php');
         // echo sizeof($ta_keys)."*<br>";
         $ta_vkeys = array_keys($ta_keys);
@@ -711,7 +757,7 @@ function autoTAbornOff(&$aThreadList, &$ta_keys)
 }
 
 /**
- * ソートする
+ * スレ一覧（$aThreadList->threads）をソートする
  */
 function sortThreads(&$aThreadList)
 {
@@ -720,7 +766,10 @@ function sortThreads(&$aThreadList)
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sort');
     
     if ($aThreadList->threads) {
-        if ($GLOBALS['now_sort'] == "midoku") {
+        if (!empty($GLOBALS['wakati_words'])) {
+            $GLOBALS['now_sort'] = 'title';
+            usort($aThreadList->threads, "cmp_similarity");
+        } elseif ($GLOBALS['now_sort'] == "midoku") {
             if ($aThreadList->spmode == "soko") {
                 usort($aThreadList->threads, "cmp_key");
             } else {
@@ -872,6 +921,56 @@ function matchSbFilter(&$aThread)
     return true;
 }
 
+/**
+ * スレッドタイトルのスコアを計算して返す
+ */
+function getSbScore($words, $length)
+{
+    static $bracket_regex = null;
+    if (!$bracket_regex) {
+        $bracket_regex = mb_convert_encoding('/[\\[\\]{}()（）「」【】]/u', 'UTF-8', 'SJIS-win');
+    }
+    $score = 0.0;
+    if ($length) {
+        foreach ($words as $word) {
+            $chars = mb_strlen($word, 'UTF-8');
+            if ($chars == 1 && preg_match($bracket_regex, $word)) {
+                $score += 0.1 / $length;
+            } elseif ($word == 'part') {
+                $score += 1.0 / $length;
+            } else {
+                $revision = strlen($word) / mb_strwidth($word, 'UTF-8');
+                //$score += pow($chars * $revision, 2) / $length;
+                $score += $chars * $chars * $revision / $length;
+                //$score += $chars * $chars / $length;
+            }
+        }
+        if ($length > $GLOBALS['wakati_length']) {
+            $score *= $GLOBALS['wakati_length'] / $length;
+        } else {
+            $score *= $length / $GLOBALS['wakati_length'];
+        }
+    }
+    return $score;
+}
+
+/**
+ * スレッドタイトルの類似性を計算して返す
+ */
+function setSbSimilarity(&$aThread)
+{
+    $common_words = array_intersect(wakati($aThread->ttitle_hc), $GLOBALS['wakati_words']);
+    if (!$common_words) {
+        $aThread->similarity = 0.0;
+        return false;
+    }
+    $score = getSbScore($common_words, mb_strlen($aThread->ttitle_hc, 'SJIS-win'));
+    $aThread->similarity = $score / $GLOBALS['wakati_score'];
+    // debug (title 属性)
+    //$aThread->ttitle_hd = mb_convert_encoding(htmlspecialchars(implode(' ', $common_words)), 'SJIS-win', 'UTF-8');
+    return true;
+}
+
 //============================================================
 // ソート関数
 //============================================================
@@ -920,11 +1019,15 @@ function cmp_title($a, $b)
  * 板 ソート
  */
 function cmp_ita($a, $b)
-{ 
-    if ($a->itaj == $b->itaj) {
-        return ($a->torder > $b->torder) ? 1 : -1;
+{
+    if ($a->host != $b->host) {
+        return strcmp($a->host, $b->host);
     } else {
-        return strcmp($a->itaj,$b->itaj);
+        if ($a->itaj != $b->itaj) {
+            return strcmp($a->itaj, $b->itaj);
+        } else {
+            return ($a->torder > $b->torder) ? 1 : -1;
+        }
     }
 }
 
@@ -983,5 +1086,17 @@ function cmp_no($a, $b)
 { 
     return ($a->torder > $b->torder) ? 1 : -1;
 } 
+
+/**
+ * 類似性ソート
+ */
+function cmp_similarity($a, $b)
+{
+    if ($a->similarity == $b->similarity) {
+        return ($a->key < $b->key) ? 1 : -1;
+    } else {
+        return ($a->similarity < $b->similarity) ? 1 : -1;
+    }
+}
 
 ?>

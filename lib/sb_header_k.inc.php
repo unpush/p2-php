@@ -34,7 +34,7 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
         $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
     // Œg‘Ñ
     } else {
-        if (!empty($GLOBALS['word'])) {
+        if (!empty($GLOBALS['word']) || !empty($GLOBALS['wakati_words'])) {
             $ptitle_url = $p2_subject_url;
         } else {
             if (P2Util::isHostBbsPink($aThreadList->host)) {

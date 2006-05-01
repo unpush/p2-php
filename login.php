@@ -76,12 +76,12 @@ $mobile = &Net_UserAgent_Mobile::singleton();
 if (!is_null($_SERVER['HTTP_X_UP_SUBNO'])) {
     if (file_exists($_conf['auth_ez_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
-EZ端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_ez=1{$_conf['k_at_a']}">解除</a>]<br>
+EZ端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
     } else {
         if ($_login->pass_x) {
             $p_htm['auth_ctl'] = <<<EOP
-[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_ez=1&amp;regist_ez=1{$_conf['k_at_a']}">EZ端末IDで認証を登録</a>]<br>
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1&amp;regist_ez=1{$_conf['k_at_a']}">EZ端末IDで認証を登録</a>]<br>
 EOP;
         }
     }
@@ -90,12 +90,12 @@ EOP;
 } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
     if (file_exists($_conf['auth_jp_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
-J端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_jp=1{$_conf['k_at_a']}">解除</a>]<br>
+J端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
     } else {
         if ($_login->pass_x) {
             $p_htm['auth_ctl'] = <<<EOP
-[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_jp=1&amp;regist_jp=1{$_conf['k_at_a']}">J端末IDで認証を登録</a>]<br>
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1&amp;regist_jp=1{$_conf['k_at_a']}">J端末IDで認証を登録</a>]<br>
 EOP;
         }
     }
@@ -104,12 +104,12 @@ EOP;
 } elseif ($mobile->isDoCoMo()) {
     if (file_exists($_conf['auth_docomo_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
-DoCoMo端末ID認証登録済[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_docomo=1{$_conf['k_at_a']}">解除</a>]<br>
+DoCoMo端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
     } else {
         if ($_login->pass_x) {
             $p_htm['auth_ctl'] = <<<EOP
-[<a href="{$_SERVER['PHP_SELF']}?ctl_regist_docomo=1&amp;regist_docomo=1{$_conf['k_at_a']}" utn>DoCoMo端末IDで認証を登録</a>]<br>
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1&amp;regist_docomo=1{$_conf['k_at_a']}" utn>DoCoMo端末IDで認証を登録</a>]<br>
 EOP;
         }
     }
@@ -154,7 +154,7 @@ if (!empty($_REQUEST['check_regist_cookie'])) {
 // 認証ユーザ登録フォーム
 //====================================================
 $login_form_ht = <<<EOP
-<form id="login_change" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
+<form id="login_change" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
     {$p_str['password']}の変更<br>
     {$_conf['k_input_ht']}
     新しい{$p_str['password']}: <input type="password" name="form_login_pass">

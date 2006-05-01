@@ -113,7 +113,7 @@ EOP;
                             }
                             // î¬ñºÉvÉäÉìÉg
                             if ($i >= $disp_navi['from'] and $i <= $disp_navi['end']) {
-                                echo "<a href=\"{$_SERVER['PHP_SELF']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1&amp;view=favita{$_conf['k_at_a']}\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$_conf['k_at_a']}\"{$akey_at}>{$access_num_st}{$mita->itaj_ht}</a><br>\n";
+                                echo "<a href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1&amp;view=favita{$_conf['k_at_a']}\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$_conf['k_at_a']}\"{$akey_at}>{$access_num_st}{$mita->itaj_ht}</a><br>\n";
                             }
                         }
                     
@@ -216,7 +216,7 @@ EOP;
                     echo <<<EOP
     <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$_conf['k_at_a']}"{$access_at}>{$key_num_st}{$itaj_view}</a><br>
 EOP;
-                    //  [<a href="{$_SERVER['PHP_SELF']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;view=favita{$_conf['k_at_a']}">çÌ</a>]
+                    //  [<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;view=favita{$_conf['k_at_a']}">çÌ</a>]
                     $show_flag = true;
                 }
             }

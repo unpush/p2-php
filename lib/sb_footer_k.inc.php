@@ -6,13 +6,15 @@
 //フッタプリント
 //=================================================
 $mae_ht = "";
-
+$tugi_ht = "";
 $bbs_q = "&amp;bbs=".$aThreadList->bbs;
 
-if ($word) {
-	$word_at = "&amp;word=$word";
+if (!empty($GLOBALS['wakati_words'])) {
+    $word_at = "&amp;method=similar&amp;word=" . rawurlencode($GLOBALS['wakati_word']);
+} elseif ($word) {
+    $word_at = "&amp;word=$word";
 } else {
-	$word_at = "";
+    $word_at = "";
 }
 
 if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
@@ -42,15 +44,20 @@ EOP;
 
 // {{{ ナビ
 
+$sb_view_at = "";
+if (!empty($_REQUEST['sb_view'])) {
+    $sb_view_at = "&amp;sb_view=" . htmlspecialchars($_REQUEST['sb_view']);
+}
+
 if ($disp_navi['from'] > 1) {
 	$mae_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
 }
 
 if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
 	$tugi_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
 }
 
@@ -122,6 +129,11 @@ if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->s
     $htm['change_sort'] .= "<input type=\"hidden\" name=\"host\" value=\"{$aThreadList->host}\">";
     $htm['change_sort'] .= "<input type=\"hidden\" name=\"bbs\" value=\"{$aThreadList->bbs}\">";
 }
+
+if (!empty($_REQUEST['sb_view'])) {
+    $htm['change_sort'] .= "<input type=\"hidden\" name=\"sb_view\" value=\"" . htmlspecialchars($_REQUEST['sb_view']) . "\">";
+}
+
 $htm['change_sort'] .= 'ｿｰﾄ:<select name="sort">';
 foreach ($sorts as $k => $v) {
     if ($GLOBALS['now_sort'] == $k) {
