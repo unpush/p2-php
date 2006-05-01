@@ -11,8 +11,44 @@
 	      「書き込んだレスの記録」のスレタイトルをクリックすると、
 	       だいたい自分が書き込んだ位置辺りから表示するようになった。
 	[改良] 携帯からも書き込みログを削除できるようにした。
-
-
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		conf/conf_user_def.inc.php
+		editfavita.php
+		editfile.php
+		edit_conf_user.php
+		js/post_form.js
+		lib/login.class.php
+		lib/login_first.inc.php
+		lib/menu.inc.php
+		lib/post_options_loader.inc.php
+		lib/read_header.inc.php
+		lib/read_header_k.inc.php
+		lib/read_res_hist.inc.php
+		lib/res_hist.class.php
+		lib/sb_footer.inc.php
+		lib/sb_footer_k.inc.php
+		lib/sb_header.inc.php
+		lib/sb_header_k.inc.php
+		lib/sb_print.inc.php
+		lib/sb_print_k.inc.php
+		lib/showbrdmenuk.class.php
+		lib/showbrdmenupc.class.php
+		lib/showthread.class.php
+		lib/showthreadpc.class.php
+		lib/thread.class.php
+		login.php
+		login2ch.php
+		menu_k.php
+		post.php
+		read_copy_k.php
+		read_filter_k.php
+		read_new.php
+		read_res_hist.php
+		subject.php
+		viewtxt.php
+		
 2006-03-07 aki
 	* rep2 version 1.7.25
 	
