@@ -6,6 +6,23 @@
 	[改良] 検索の時（IDフィルタ時を含む。つまり、クエリー word がある時） は、既読ポイントを更新しないようにした
 	[改良] 携帯でスレ表示時の「3.新XX」にキャッシュ回避用のダミークエリーをつけた
 	[改良] 「*」もURL判定文字列として加えた
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		info.php
+		lib/index_print_k.inc.php
+		lib/login.class.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/read_footer.inc.php
+		lib/read_footer_k.inc.php
+		lib/read_header_k.inc.php
+		lib/res_hist.class.php
+		lib/session.class.php
+		lib/showthread.class.php
+		lib/showthreadpc.class.php
+		read.php
+		subject.php
 
 2006-05-02 aki
 	* rep2 version 1.7.26
