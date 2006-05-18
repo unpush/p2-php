@@ -102,7 +102,7 @@ class Session{
      * セッションの妥当性をチェックして、エラーがあればメッセージを得る。アクセス時間の更新もここで。
      * 
      * @access public
-     * @return mixed エラーがあれば、（unSession()して）エラーメッセージを返す。なければfalseを返す。
+     * @return false|string エラーがあれば、（unSession()して）エラーメッセージを返す。なければfalseを返す。
      */
     function checkSessionError()
     {

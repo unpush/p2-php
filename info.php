@@ -176,9 +176,9 @@ $paldo = $isPalace ? 0 : 1;
 $pal_a_ht = "info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setpal={$paldo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}";
 
 if ($isPalace) {
-    $pal_ht = "<a href=\"{$pal_a_ht}\">★</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DATしたスレ用のお気に入り\">★</a>";
 } else {
-    $pal_ht = "<a href=\"{$pal_a_ht}\">+</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DATしたスレ用のお気に入り\">+</a>";
 }
 
 // }}}
