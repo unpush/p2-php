@@ -23,7 +23,8 @@ class GoogleSearch
      */
     function &factory($wsdl, $key)
     {
-        if (extension_loaded('soap')) {
+        global $_conf;
+        if (extension_loaded('soap') && empty($_conf['expack.google.force_pear'])) {
             require_once dirname(__FILE__) . '/search_php5.class.php';
             $google = &new GoogleSearch_PHP5();
         } else {

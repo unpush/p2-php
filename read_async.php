@@ -107,15 +107,8 @@ $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES).' / '.$aThread->ttitle
 
 // {{{ HTTPヘッダとXML宣言
 
-if (P2Util::isBrowserSafariGroup()) {
-    header('Content-Type: application/xml; charset=UTF-8');
-    $xmldec = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";
-} else {
-    header('Content-Type: text/html; charset=Shift_JIS');
-    // 半角で「？＞」が入ってる文字列をコメントにするとパースエラー
-    //$xmldec = '<' . '?xml version="1.0" encoding="Shift_JIS" ?' . '>' . "\n";
-    $xmldec = '';
-}
+P2Util::header_nocache();
+header('Content-Type: text/html; charset=Shift_JIS');
 
 // }}}
 // {{{ 本体生成
@@ -154,9 +147,8 @@ if ($aThread->rescount) {
 // {{{ 本体出力
 
 if (P2Util::isBrowserSafariGroup()) {
-    $node = mb_convert_encoding($node, 'UTF-8', 'SJIS-win');
+    $node = P2Util::encodeResponseTextForSafari($node);
 }
-echo $xmldec;
 echo $node;
 
 // }}}

@@ -36,7 +36,7 @@ $buildnewthread_ht = '';
 $import_dat_ht = '';
 if (!$aThreadList->spmode) {
     $buildnewthread_ht = <<<EOP
-    <a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},0,0)">新規スレッド作成</a>
+    <a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)">新規スレッド作成</a>
 EOP;
     $import_dat_ht = <<<EOP
  | <a href="import.php?host={$aThreadList->host}{$bbs_q}" onclick="return OpenSubWin('import.php?host={$aThreadList->host}{$bbs_q}', 600, 380, 0, 0);" target="_self">datのインポート</a>

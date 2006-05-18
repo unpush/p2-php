@@ -143,7 +143,7 @@ if (empty($_conf['ktai']) && $_conf['expack.skin.enabled']) {
     }
     echo <<<EOP
  ｜ <a href="edit_user_font.php">フォント設定編集</a>
- ｜ スキン:<form class="inline-form" method="get" action="{$_SERVER['PHP_SELF']}">
+ ｜ スキン:<form class="inline-form" method="get" action="{$_SERVER['SCRIPT_NAME']}">
 <select name="skin">{$skin_options_ht}</select><input type="submit" value="変更">
 </form>
 EOP;

@@ -145,7 +145,7 @@ if ($query) {
 // äÓñ{ïœêî
 $htm = array();
 $htm['tgrep_url'] = htmlspecialchars($_conf['expack.tgrep_url'], ENT_QUOTES);
-$htm['php_self'] = 'tgrepc.php'; //htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES);
+$htm['php_self'] = 'tgrepc.php'; //htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
 $htm['query'] = (isset($_GET['Q'])) ? htmlspecialchars($_GET['Q'], ENT_QUOTES) : '';
 $htm['query_en'] = (isset($_GET['Q'])) ? urlencode($_GET['Q']) : '';
 $htm['category'] = (isset($_GET['C'])) ? intval($_GET['C']) : 0;

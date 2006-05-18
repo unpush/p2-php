@@ -55,8 +55,9 @@ function countLines(str, brlen) {
 	for (var i = 0; i < lines.length; i++) {
 		aLen = jstrlen(lines[i]);
 		if (brlen) {
-			if (aLen > brlen) {
-				count = count + Math.ceil(aLen / brlen);
+			var adjust =  1.15; // 単語単位の折り返しに対応していないのでアバウト調整
+			if ((aLen * adjust) > brlen) {
+				count = count + Math.floor((aLen * adjust) / brlen);
 			}
 		}
 	}

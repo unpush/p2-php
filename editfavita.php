@@ -29,7 +29,7 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 
 // お気に板追加フォーム
 $add_favita_form_ht = <<<EOFORM
-<form method="POST" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+<form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
     <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     <p>
         {$_conf['k_input_ht']}
@@ -43,7 +43,7 @@ EOFORM;
 
 // お気に板同期フォーム
 $sync_favita_form_ht = <<<EOFORM
-<form method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
+<form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
     <p>
         {$_conf['k_input_ht']}
         <input type="hidden" id="syncfavita" name="syncfavita" value="1">
@@ -202,7 +202,7 @@ function submitApply()
 // PC用
 if (empty($_conf['ktai'])) {
     $onclick = " onClick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
-    $m_php = $_SERVER['PHP_SELF'];
+    $m_php = $_SERVER['SCRIPT_NAME'];
 
 // 携帯用
 } else {
@@ -224,7 +224,7 @@ if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()
         $script_enable_html .= <<<EOP
 お気に板の並び替え（ドラッグアンドドロップ）
 <div class="itas">
-<form id="form" name="form" method="post" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+<form id="form" name="form" method="post" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
 
 <table border="0">
 <tr>
@@ -289,11 +289,11 @@ if ($lines) {
             echo <<<EOP
             <tr>
             <td><a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}">{$itaj_view}</a></td>
-            <td>[ <a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=top{$_conf['k_at_a']}" title="一番上に移動">▲</a></td>
-            <td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=up{$_conf['k_at_a']}" title="一つ上に移動">↑</a></td>
-            <td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=down{$_conf['k_at_a']}" title="一つ下に移動">↓</a></td>
-            <td><a class="te" href="{$_SERVER['PHP_SELF']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=bottom{$_conf['k_at_a']}" title="一番下に移動">▼</a> ]</td>
-            <td>[<a href="{$_SERVER['PHP_SELF']}?host={$host}&amp;bbs={$bbs}&amp;setfavita=0{$_conf['k_at_a']}">削除</a>]</td>
+            <td>[ <a class="te" href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=top{$_conf['k_at_a']}" title="一番上に移動">▲</a></td>
+            <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=up{$_conf['k_at_a']}" title="一つ上に移動">↑</a></td>
+            <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=down{$_conf['k_at_a']}" title="一つ下に移動">↓</a></td>
+            <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=bottom{$_conf['k_at_a']}" title="一番下に移動">▼</a> ]</td>
+            <td>[<a href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}&amp;setfavita=0{$_conf['k_at_a']}">削除</a>]</td>
             </tr>
 EOP;
         }

@@ -93,18 +93,15 @@ P2Util::header_nocache();
 if ($_conf['ktai']) {
     include 'tgrepc.php';
 } else {
+    header('Content-Type: text/html; charset=Shift_JIS');
     define('TGREP_SMARTLIST_PRINT_ONLY_LINKS', 1);
     ob_start();
     include $include_file;
     $buf = ob_get_clean();
     if (P2Util::isBrowserSafariGroup()) {
-        header('Content-Type: application/xml; charset=UTF-8');
-        echo '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";
-        echo mb_convert_encoding($buf, 'UTF-8', 'SJIS-win');
-    } else {
-        header('Content-Type: text/html; charset=Shift_JIS');
-        echo $buf;
+        $buf = P2Util::encodeResponseTextForSafari($buf);
     }
+    echo $buf;
 }
 
 // }}}

@@ -279,9 +279,11 @@ EOM;
 $onsubmit_at = '';
 
 if (!$_conf['ktai']) {
-    $onsubmit_at = sprintf(' onsubmit="return validateAll(%s,%s)"',
-        (($_conf['expack.editor.check_message']) ? 'true' : 'false'),
-        (($_conf['expack.editor.check_sage'])    ? 'true' : 'false'));
+    if (!preg_match('{NetFront|AVE-?Front/}', $_SERVER['HTTP_USER_AGENT'])) {
+        $onsubmit_at = sprintf(' onsubmit="if (validateAll(%s,%s)) { switchBlockSubmit(true); return true; } else { return false }"',
+            (($_conf['expack.editor.check_message']) ? 'true' : 'false'),
+            (($_conf['expack.editor.check_sage'])    ? 'true' : 'false'));
+    }
 }
 
 // }}}

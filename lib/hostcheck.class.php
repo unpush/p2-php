@@ -32,6 +32,22 @@ EOF;
 
 
     /**
+     * ip2long() の PHP4 と PHP5 での差異を吸収する
+     *
+     * @param   string  $ip
+     * @return  int|bool
+     */
+    function ip2long($ip)
+    {
+        $long = ip2long($ip);
+        if ($long === -1 && $ip !== '255.255.255.255') {
+            return false;
+        }
+        return $long;
+    }
+
+
+    /**
      * ローカルキャッシュつきgethostbyaddr()
      */
     function cachedGetHostByAddr($remote_addr)
@@ -260,8 +276,7 @@ EOF;
         }
 
         // IPアドレスを検証
-        $addr = ip2long($addr);
-        if (!is_int($addr)) {
+        if (($addr = HostCheck::ip2long($addr)) === false) {
             return false;
         }
 
@@ -275,12 +290,13 @@ EOF;
                 $target = $cond[0];
                 $mask = isset($cond[1]) ? (is_numeric($cond[1]) ? intval($cond[1]) : $cond[1]) : '255.255.255.255';
             }
-            $target = ip2long($target);
+            if (($target = HostCheck::ip2long($target)) === false) {
+                continue;
+            }
             if (is_int($mask)) {
                 $mask = HostCheck::length2subnet($mask);
             }
-            $mask = ip2long($mask);
-            if (!is_int($target) || !is_int($mask)) {
+            if (($mask = HostCheck::ip2long($mask)) === false) {
                 continue;
             }
             if (($addr & $mask) == ($target & $mask)) {

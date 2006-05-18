@@ -231,7 +231,7 @@ if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()
         $script_enable_html .= <<<EOP
 RSSの並び替え（ドラッグアンドドロップ）
 <div class="itas">
-<form id="form" name="form" method="post" action="{$_SERVER['PHP_SELF']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+<form id="form" name="form" method="post" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
 
 <table border="0">
 <tr>

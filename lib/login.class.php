@@ -83,12 +83,13 @@ class Login{
                 $login_user = $_SERVER['PHP_AUTH_USER'];
 
             } else {
-                header('WWW-Authenticate: Basic realm="zone1"');
+                header('WWW-Authenticate: Basic realm="zone"');
                 header('HTTP/1.0 401 Unauthorized');
                 echo 'Login Failed. ユーザ認証に失敗しました。';
                 exit;
             }
         */
+
         }
 
         return $login_user;
@@ -360,7 +361,7 @@ class Login{
 
             } else {
 
-                header('WWW-Authenticate: Basic realm="zone2"');
+                header('WWW-Authenticate: Basic realm="zone"');
                 header('HTTP/1.0 401 Unauthorized');
                 echo 'Login Failed. ユーザ認証に失敗しました。';
 
@@ -368,7 +369,6 @@ class Login{
                 $this->logLoginFailed();
 
                 exit;
-
             }
         }
         */
@@ -561,6 +561,8 @@ EOP;
 
     /**
      * CIDをcookieにセットする
+     *
+     * @return boolean
      */
     function setCookieCid($user_u, $pass_x)
     {
@@ -576,7 +578,9 @@ EOP;
     }
 
     /**
-     * IDとPASSと時間をくるめて暗号化したCookie情報（CID）を生成する
+     * IDとPASSと時間をくるめて暗号化したCookie情報（CID）を生成取得する
+     *
+     * @return mixed
      */
     function makeCid($user_u, $pass_x)
     {
@@ -586,7 +590,7 @@ EOP;
 
         include_once P2_LIBRARY_DIR . '/md5_crypt.inc.php';
 
-        $key = $this->getAngokeyCid();
+        $key = $this->getMd5CryptKey();
 
         $idtime = $user_u. ':'. time(). ':';
         $pw_enc = md5($idtime . $pass_x);
@@ -598,16 +602,18 @@ EOP;
 
     /**
      * Cookie（CID）からユーザ情報を得る
+     *
+     * @return mixed 成功すれば配列、失敗なら false を返す
      */
-    function getCidInfo($in_cid)
+    function getCidInfo($cid)
     {
         global $_conf;
 
         include_once P2_LIBRARY_DIR . '/md5_crypt.inc.php';
 
-        $key = $this->getAngokeyCid();
+        $key = $this->getMd5CryptKey();
 
-        $dec = md5_decrypt($in_cid, $key, 32);
+        $dec = md5_decrypt($cid, $key, 32);
         list($user, $time, $pw_enc) = split(':', $dec, 3);
 
         // 有効期限 日数
@@ -620,10 +626,12 @@ EOP;
 
     /**
      * Cookie情報（CID）からuserを得る
+     *
+     * @return mixed
      */
-    function getUserFromCid($in_cid)
+    function getUserFromCid($cid)
     {
-        if (!$ar = $this->getCidInfo($in_cid)) {
+        if (!$ar = $this->getCidInfo($cid)) {
             return false;
         }
 
@@ -632,16 +640,18 @@ EOP;
 
     /**
      * Cookie情報（CID）とuser, passを照合する
+     *
+     * @return boolean
      */
-    function checkUserPwWithCid($in_cid)
+    function checkUserPwWithCid($cid)
     {
         global $_conf;
 
-        if (is_null($this->user_u) || is_null($this->pass_x) || is_null($in_cid)) {
+        if (is_null($this->user_u) || is_null($this->pass_x) || is_null($cid)) {
             return false;
         }
 
-        if (!$ar = $this->getCidInfo($in_cid)) {
+        if (!$ar = $this->getCidInfo($cid)) {
             return false;
         }
 
@@ -657,12 +667,16 @@ EOP;
     }
 
     /**
-     * CID生成の際の暗号キーを得る
+     * md5_encrypt, md5_decrypt のためにクリプトキーを得る
+     *
+     * @return string
      */
-    function getAngokeyCid()
+    function getMd5CryptKey()
     {
-        return $_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE'];
+        //return $_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE'];
+        return $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
     }
+
 }
 
 ?>

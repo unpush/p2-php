@@ -738,7 +738,7 @@ function autoTAbornOff(&$aThreadList, &$ta_keys)
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('abornoff');
 
-    if (!$aThreadList->spmode and !$GLOBALS['word'] and $aThreadList->threads and $ta_keys) {
+    if (!$aThreadList->spmode and !$GLOBALS['word'] and !$GLOBALS['wakati_word'] and $aThreadList->threads and $ta_keys) {
         include_once P2_LIBRARY_DIR . '/settaborn_off.inc.php';
         // echo sizeof($ta_keys)."*<br>";
         $ta_vkeys = array_keys($ta_keys);
@@ -758,7 +758,7 @@ function autoTAbornOff(&$aThreadList, &$ta_keys)
 }
 
 /**
- * ソートする
+ * スレ一覧（$aThreadList->threads）をソートする
  */
 function sortThreads(&$aThreadList)
 {
@@ -1021,10 +1021,14 @@ function cmp_title($a, $b)
  */
 function cmp_ita($a, $b)
 {
-    if ($a->itaj == $b->itaj) {
-        return ($a->torder > $b->torder) ? 1 : -1;
+    if ($a->host != $b->host) {
+        return strcmp($a->host, $b->host);
     } else {
-        return strcmp($a->itaj,$b->itaj);
+        if ($a->itaj != $b->itaj) {
+            return strcmp($a->itaj, $b->itaj);
+        } else {
+            return ($a->torder > $b->torder) ? 1 : -1;
+        }
     }
 }
 

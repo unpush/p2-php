@@ -26,7 +26,7 @@ function tGrepExecRequest(uri, menuId)
 
 	if (req.readyState == 4) {
 		if (req.status == 200) {
-			receiver.innerHTML = req.responseText.replace(/^<\?xml .+?\?>\n?/, '');
+			receiver.innerHTML = req.responseText;
 		} else {
 			receiver.innerHTML = '<em>HTTP Error:<br />' + req.status + ' ' + req.statusText + '</em>';
 		}

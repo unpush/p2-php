@@ -18,15 +18,8 @@ $menu_php_self = '';
 
 // {{{ HTTPヘッダとXML宣言
 
-if (P2Util::isBrowserSafariGroup()) {
-    header('Content-Type: application/xml; charset=UTF-8');
-    $xmldec = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";
-} else {
-    header('Content-Type: text/html; charset=Shift_JIS');
-    // 半角で「？＞」が入ってる文字列をコメントにするとパースエラー
-    $xmldec = '<' . '?xml version="1.0" encoding="Shift_JIS" ?' . '>' . "\n";
-    $xmldec = '';
-}
+P2Util::header_nocache();
+header('Content-Type: text/html; charset=Shift_JIS');
 
 // }}}
 // {{{ 本体生成
@@ -61,9 +54,8 @@ if (isset($_GET['m_favita_set'])) {
 // {{{ 本体出力
 
 if (P2Util::isBrowserSafariGroup()) {
-    $menuItem = mb_convert_encoding($menuItem, 'UTF-8', 'SJIS-win');
+    $menuItem = P2Util::encodeResponseTextForSafari($menuItem);
 }
-echo $xmldec;
 echo $menuItem;
 exit;
 

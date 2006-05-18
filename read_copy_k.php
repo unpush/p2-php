@@ -88,40 +88,55 @@ if (file_exists($aThread->keydat)) {
     $_info_msg_ht .= '<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>';
 }
 
+$msg_len = mb_strlen($msg_txt);
+$len = $GLOBALS['_conf']['k_copy_divide_len'] ? $GLOBALS['_conf']['k_copy_divide_len'] : 10000;
+$msg_txts = array();
+for ($i = 0; $i < $msg_len; $i += $len) {
+    $msg_txts[] = mb_substr($msg_txt, $i, $len);
+}
+
 //=====================================================
 // コピー用フォームを表示
 //=====================================================
-$action_ht = htmlspecialchars($_SERVER['PHP_SELF'].'?host='.$_GET['host'].'&bbs='.$_GET['bbs'].'&key='.$_GET['key'].'&copy='.$_GET['copy'], ENT_QUOTES);
+$action_ht = htmlspecialchars($_SERVER['SCRIPT_NAME'] . '?host=' . $_GET['host'] . '&bbs=' . $_GET['bbs'] . '&key=' . $_GET['key'] . '&copy=' . $_GET['copy'], ENT_QUOTES);
+
+// willcom はtextareaのサイズが小さいと使いにくいらしい
+/*
+JavaScriptにしてしまった方がいいかも？
+javascript:(function(){for (var j=0;j<document.forms.length;j++){for (var i=0;i<document.forms[j].elements.length;i++) {k=document.forms[j].elements[i];if(k.type=="textarea"){k.rows=10;k.cols=34;}}}})(); 
+*/
+$kyopon_size = '';
+$mobile = &Net_UserAgent_Mobile::singleton();
+if ($mobile->isAirHPhone()) {
+    $kyopon_size = ' rows="10" cols="34"';
+}
 
 P2Util::header_nocache();
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
-echo <<<EOF
+?>
 <html>
 <head>
-<title>{$ttitle_ht}/{$resid}</title>
+<title><?php echo $ttitle_ht; ?>/<?php echo $resid; ?></title>
 </head>
-<body{$k_color_settings}>
-{$_info_msg_ht}
-<form id="{$form_id}" action="{$action_ht}" method="post">
+<body<?php echo $k_color_settings; ?>>
+<?php echo $_info_msg_ht; ?>
+<form id="<?php echo $form_id; ?>" action="<?php echo $action_ht; ?>" method="post">
 ｽﾚ:<br>
-<input type="text" name="ttitle_txt" value="{$ttitle_ht}"><br>
-<input type="text" name="url_txt" value="{$url_txt}"><br>
-{$url_k_ht}
-{$resid}:<br>
-<input type="text" name="name_txt" value="{$name_txt}"><br>
-<input type="text" name="mail_txt" value="{$mail_txt}"><br>
-<input type="text" name="date_txt" value="{$date_txt}"><br>
-{$id_ht}
-<textarea name="msg_txt">{$msg_txt}</textarea><br>
+<input type="text" name="ttitle_txt" value="<?php echo $ttitle_ht; ?>"><br>
+<input type="text" name="url_txt" value="<?php echo $url_txt; ?>"><br>
+<?php echo $url_k_ht; ?>
+<?php echo $resid; ?>:<br>
+<input type="text" name="name_txt" value="<?php echo $name_txt; ?>"><br>
+<input type="text" name="mail_txt" value="<?php echo $mail_txt; ?>"><br>
+<input type="text" name="date_txt" value="<?php echo $date_txt; ?>"><br>
+<?php echo $id_ht; ?>
+<?php foreach ($msg_txts as $msg_txt) { ?>
+<textarea<?php echo $kyopon_size; ?>><?php echo $msg_txt; ?></textarea><br>
+<?php } ?>
 ﾌﾘｰ:<br>
 <textarea name="free" rows="2"></textarea>
 </form>
-{$back_link}
-{$post_link}
-{$moto_link}
+<?php echo $back_link; ?> <?php echo $post_link; ?> <?php echo $moto_link; ?>
 </body>
 </html>
-EOF;
-
-?>

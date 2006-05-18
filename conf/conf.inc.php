@@ -5,8 +5,8 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.25';     // rep2のバージョン
-$_conf['p2expack'] = '060401.0001'; // ASAPのバージョン
+$_conf['p2version'] = '1.7.26';     // rep2のバージョン
+$_conf['p2expack'] = '060518.2348'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 //======================================================================
@@ -46,18 +46,20 @@ $_php_version = phpversion();
 $_required_version = '4.3.3';
 $_recommended_version = (substr(zend_version(), 0, 1) == '1') ? '4.4.2' : '5.1.2';
 if (version_compare($_php_version, $_required_version, '<')) {
-    die('<html><body><h3>p2 error: PHP ' . $_required_version . ' 未満では使えません。</h3></body></html>');
+    p2die('PHP ' . $_required_version . ' 未満では使えません。');
 }
 if (!extension_loaded('mbstring')) {
-    die('<html><body><h3>p2 error: PHPのインストールが不十分です。mbstring拡張モジュールがロードされていません。</h3></body></html>');
+    p2die('PHPのインストールが不十分です。mbstring拡張モジュールがロードされていません。');
 }
 if (ini_get('safe_mode')) {
-    die('<html><body><h3>p2 error: セーフモードで動作するPHPでは使えません。</h3></body></html>');
+    p2die('セーフモードで動作するPHPでは使えません。');
 }
 if (ini_get('register_globals')) {
-    die('<html><body><h3>p2 error: register_globals が On です。</h3>
-        <p>予期しない動作を避けるために php.ini で register_globals を Off にしてください。<br>
-        magic_quotes_gpc や mbstring.encoding_translation も Off にされることをおすすめします。</p></body></html>');
+    $msg = <<<EOP
+予期しない動作を避けるために php.ini で register_globals を Off にしてください。
+magic_quotes_gpc や mbstring.encoding_translation も Off にされることをおすすめします。
+EOP;
+    p2die('register_globals が On です。', $msg);
 }
 if (true && version_compare($_php_version, $_recommended_version, '<')) {
     $_info_msg_ht .= '<p><b>古いバージョンのPHPで動作しています。</b> <i>(PHP ' . $_php_version . ')</i><br>';
@@ -175,11 +177,13 @@ foreach ($_pear_required as $_pear_file => $_pear_pkg) {
         $url2 = 'http://page2.xrea.jp/p2pear/index.php';
         $url1_t = P2Util::throughIme($url1);
         $url2_t = P2Util::throughIme($url2);
-        $msg = '<html><body><h3>p2 error: PEAR の ' . $_pear_pkg . ' がインストールされていません</h3><ul>
-            <li><a href="' . $url1_t . '" target="_blank">p2Wiki: PEARのインストール</a></li>
-            <li><a href="' . $url2_t . '" target="_blank">p2pear (PEAR詰め合わせ)</a></li>
-            </ul></body></html>';
-        die($msg);
+        $msg = <<<EOP
+<ul>
+    <li><a href="{$url1_t}" target="_blank">p2Wiki: PEARのインストール</a></li>
+    <li><a href="{$url2_t}" target="_blank">p2pear (PEAR詰め合わせ)</a></li>
+</ul>
+EOP;
+        p2die('PEAR の ' . $_pear_pkg . ' がインストールされていません。', $msg, true);
     }
 }
 require_once P2_LIBRARY_DIR . '/p2util.class.php';
@@ -238,7 +242,7 @@ if (!empty($_POST)) {
 
 // ■管理者用設定を読み込み
 if (!include_once './conf/conf_admin.inc.php') {
-    die('p2 error: 管理者用設定ファイルを読み込めませんでした。');
+    p2die('管理者用設定ファイルを読み込めませんでした。');
 }
 
 // 管理用保存ディレクトリ (パーミッションは707)
@@ -282,19 +286,19 @@ if ($mobile->isNonMobile()) {
     // DoCoMo i-Mode
     if ($mobile->isDoCoMo()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
-            die("UAがDoCoMoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+            p2die("UAがDoCoMoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
         }
         $_conf['disable_cookie'] = TRUE;
     // EZweb (au or Tu-Ka)
     } elseif ($mobile->isEZweb()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
-            die("UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+            p2die("UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
         }
         $_conf['disable_cookie'] = FALSE;
     // Vodafone Live!
     } elseif ($mobile->isVodafone()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrVodafone()) {
-            die("UAがVodafoneですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+            p2die("UAがVodafoneですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
         }
         //$_conf['accesskey'] = 'DIRECTKEY';
         // W型端末と3GC型端末はCookieが使える
@@ -308,7 +312,7 @@ if ($mobile->isNonMobile()) {
         /*
         // AirH"では端末ID認証を行わないので、コメントアウト
         if ($_conf['login_check_ip'] && !HostCheck::isAddrAirh()) {
-            die("UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+            p2die("UAがAirH\"ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
         }
         */
         $_conf['disable_cookie'] = FALSE;
@@ -581,7 +585,7 @@ $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
 // 新規ログインとメンバーログインの同時指定はありえないので、エラー出す
 if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
-    die('p2 Error: 無効なURLです。');
+    p2die('無効なURLです。');
 }
 
 // }}}
@@ -647,7 +651,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
             require_once P2_LIBRARY_DIR . '/filectl.class.php';
             FileCtl::mkdir_for($_conf['session_dir'] . '/dummy_filename');
         } elseif (!is_writable($_conf['session_dir'])) {
-            die("Error: セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
+            p2die("セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
         }
 
         session_save_path($_conf['session_dir']);
@@ -694,7 +698,7 @@ function stripslashes_r($var, $r = 0)
             foreach ($var as $key => $value) {
                 $var[$key] = stripslashes_r($value, $r);
             }
-        } /* else { die("too deep multi dimentional array given."); } */
+        } /* else { p2die("too deep multi dimentional array given."); } */
     } elseif (is_string($var)) {
         $var = stripslashes($var);
     }
@@ -713,7 +717,7 @@ function addslashes_r($var, $r = 0)
             foreach ($var as $key => $value) {
                 $var[$key] = addslashes_r($value, $r);
             }
-        } /* else { die("too deep multi dimentional array given."); } */
+        } /* else { p2die("too deep multi dimentional array given."); } */
     } elseif (is_string($var)) {
         $var = addslashes($var);
     }
@@ -734,7 +738,7 @@ function nullfilter_r($var, $r = 0)
             foreach ($var as $key => $value) {
                 $var[$key] = nullfilter_r($value, $r);
             }
-        } /* else { die("too deep multi dimentional array given."); } */
+        } /* else { p2die("too deep multi dimentional array given."); } */
     } elseif (is_string($var)) {
         $var = str_replace("\x00", '', $var);
     }
@@ -954,8 +958,9 @@ $GLOBALS['WAKATI_REGEX'] = mb_convert_encoding(
         '[丁-龠]+',
         '[ぁ-ん][ぁ-んー～゛゜]*',
         '[ァ-ヶ][ァ-ヶー～゛゜]*',
-        '[a-z][a-z_\\-]*',
-        '[0-9][0-9.]*',
+        //'[a-z][a-z_\\-]*',
+        //'[0-9][0-9.]*',
+        '[0-9a-z][0-9a-z_\\-]*',
     )) . ')/u', 'UTF-8', 'SJIS-win');
 
 /**
@@ -967,6 +972,23 @@ function wakati($str)
         mb_strtolower(mb_convert_kana(mb_convert_encoding(
             $str, 'UTF-8', 'SJIS-win'), 'KVas', 'UTF-8'), 'UTF-8'),
         -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY)), 'strlen');
+}
+
+/**
+ * メッセージを表示して終了
+ */
+function p2die($err, $msg = null, $raw = false)
+{
+    echo '<html><head><title>p2 error</title></head><body>';
+    echo '<h3>p2 error: ', htmlspecialchars($err, ENT_QUOTES), '</h3>';
+    if ($msg !== null) {
+        if ($raw) {
+            echo '<p>', nl2br(htmlspecialchars($msg, ENT_QUOTES)), '</p>';
+        } else {
+            echo $msg;
+        }
+    }
+    echo '</body></html>';
 }
 
 ?>

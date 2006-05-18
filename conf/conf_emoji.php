@@ -64,22 +64,22 @@ function getEmoji()
         $emoji[9] = '<img localsrc="188">';
         $emoji[0] = '<img localsrc="325">';
     } elseif ($mobile->isVodafone()) {
-        $_esc1 = pack('C*', 0x1B, 0x24);
-        $_esc2 = pack('C*', 0x0F);
-        $emoji['lt1'] = $_esc1 . '$F[' . $_esc2;
-        $emoji['lt2'] = $_esc1 . '$F]' . $_esc2;
-        $emoji['rt1'] = $_esc1 . '$FZ' . $_esc2;
-        $emoji['rt2'] = $_esc1 . '$F\\' . $_esc2;
-        $emoji[1] = $_esc1 . '$F<' . $_esc2;
-        $emoji[2] = $_esc1 . '$F=' . $_esc2;
-        $emoji[3] = $_esc1 . '$F>' . $_esc2;
-        $emoji[4] = $_esc1 . '$F?' . $_esc2;
-        $emoji[5] = $_esc1 . '$F@' . $_esc2;
-        $emoji[6] = $_esc1 . '$FA' . $_esc2;
-        $emoji[7] = $_esc1 . '$FB' . $_esc2;
-        $emoji[8] = $_esc1 . '$FC' . $_esc2;
-        $emoji[9] = $_esc1 . '$FD' . $_esc2;
-        $emoji[0] = $_esc1 . '$FE' . $_esc2;
+        $_esc = chr(0x1B) . '$';
+        $_si = chr(0x0F);
+        $emoji['lt1'] = $_esc . 'F[' . $_si;
+        $emoji['lt2'] = $_esc . 'F]' . $_si;
+        $emoji['rt1'] = $_esc . 'FZ' . $_si;
+        $emoji['rt2'] = $_esc . 'F\\' . $_si;
+        $emoji[1] = $_esc . 'F<' . $_si;
+        $emoji[2] = $_esc . 'F=' . $_si;
+        $emoji[3] = $_esc . 'F>' . $_si;
+        $emoji[4] = $_esc . 'F?' . $_si;
+        $emoji[5] = $_esc . 'F@' . $_si;
+        $emoji[6] = $_esc . 'FA' . $_si;
+        $emoji[7] = $_esc . 'FB' . $_si;
+        $emoji[8] = $_esc . 'FC' . $_si;
+        $emoji[9] = $_esc . 'FD' . $_si;
+        $emoji[0] = $_esc . 'FE' . $_si;
     }
 
     return $emoji;

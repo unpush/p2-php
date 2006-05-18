@@ -18,7 +18,7 @@ class ShowBrdMenuPc{
     {
         global $_conf, $_info_msg_ht;
 
-        $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['PHP_SELF']);
+        $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['SCRIPT_NAME']);
 
         if ($categories) {
             foreach ($categories as $cate) {
@@ -49,7 +49,7 @@ class ShowBrdMenuPc{
     {
         global $_conf, $matome_i, $STYLE;
 
-        $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['PHP_SELF']);
+        $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['SCRIPT_NAME']);
 
         echo <<<EOP
     <div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_favita');" target="_self">Ç®ãCÇ…î¬</a></b> [<a href="editfavita.php" target="subject">ï“èW</a>]

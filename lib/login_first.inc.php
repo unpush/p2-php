@@ -32,7 +32,7 @@ function printLoginFirst(&$_login)
     //=========================================================
     $ptitle = 'rep2';
 
-    $myname = basename($_SERVER['PHP_SELF']);
+    $myname = basename($_SERVER['SCRIPT_NAME']);
 
     $auth_sub_input_ht = "";
     $body_ht = "";
@@ -118,13 +118,17 @@ function printLoginFirst(&$_login)
 
     if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_login->user_u)) {
         $hd['form_login_id'] = htmlspecialchars($_login->user_u, ENT_QUOTES);
-    } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_POST['form_login_id'])) {
+    } elseif (!empty($_POST['form_login_id']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_POST['form_login_id'])) {
         $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
+    } else {
+        $hd['form_login_id'] = '';
     }
 
 
-    if (preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
+    if (!empty($_POST['form_login_pass']) && preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
         $hd['form_login_pass'] = htmlspecialchars($_POST['form_login_pass'], ENT_QUOTES);
+    } else {
+        $hd['form_login_pass'] = '';
     }
 
     // DoCoMoの固有端末認証（セッション利用時のみ有効）

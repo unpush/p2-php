@@ -60,7 +60,7 @@ function replaceMenuItem(itemId, qKey, qValue)
 
 	if (req.readyState == 4) {
 		if (req.status == 200) {
-			receiver.innerHTML = req.responseText.replace(/^<\?xml .+?\?>\n?/, '');
+			receiver.innerHTML = req.responseText;
 		} else {
 			receiver.innerHTML = '<em>HTTP Error:<br />' + req.status + ' ' + req.statusText + '</em>';
 		}
@@ -100,7 +100,7 @@ function changeSkin(skinName)
 	try {
 		if (req.readyState == 4) {
 			if (req.status == 200) {
-				res = req.responseText.replace(/^<\?xml .+?\?>\n?/, '');
+				res = req.responseText;
 				if (!res) {
 					window.alert('changeSkin: Unknown Error - empty response');
 				} else if (res != skinName) {

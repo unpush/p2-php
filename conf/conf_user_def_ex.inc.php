@@ -173,6 +173,10 @@ $conf_user_def['expack.google.key'] = ""; // ("")
 $conf_user_def['expack.google.recent2_num'] = 10; // (10)
 $conf_user_rules['expack.google.recent2_num'] = array('IntExceptMinus');
 
+// SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う（0:no; 1:yes;）
+$conf_user_def['expack.google.force_pear'] = 0; // (0)
+$conf_user_rad['expack.google.force_pear'] = array('1' => 'PEAR', '0' => 'SOAPエクステンション');
+
 // }}}
 // {{{ AAS
 

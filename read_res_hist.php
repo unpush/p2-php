@@ -21,8 +21,14 @@ $ptitle = '書き込んだレスの記録';
 // 特殊な前置処理
 //================================================================
 // 削除
-if ($_POST['submit'] == $deletemsg_st) {
-    deleMsg($_POST['checked_hists']);
+if ($_POST['submit'] == $deletemsg_st or isset($_GET['checked_hists'])) {
+    $checked_hists = array();
+    if (isset($_POST['checked_hists'])) {
+        $checked_hists = $_POST['checked_hists'];
+    } elseif (isset($_GET['checked_hists'])) {
+        $checked_hists = $_GET['checked_hists'];
+    }
+    $checked_hists and deleMsg($checked_hists);
 }
 
 // データPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、dat形式（p2_res_hist.dat, <>区切り）に変換する
@@ -47,32 +53,7 @@ $datlines = array_reverse($datlines);
 
 $aResHist =& new ResHist();
 
-$n = 1;
-if ($datlines) {
-    foreach ($datlines as $aline) {
-
-        $aResArticle =& new ResArticle();
-
-        $resar = explode("<>", $aline);
-        $aResArticle->name = $resar[0];
-        $aResArticle->mail = $resar[1];
-        $aResArticle->daytime = $resar[2];
-        $aResArticle->msg = $resar[3];
-        $aResArticle->ttitle = $resar[4];
-        $aResArticle->host = $resar[5];
-        $aResArticle->bbs = $resar[6];
-        $aResArticle->itaj = P2Util::getItaName($aResArticle->host, $aResArticle->bbs);
-        if (!$aResArticle->itaj) {
-            $aResArticle->itaj = $aResArticle->bbs;
-        }
-        $aResArticle->key = trim($resar[7]);
-        $aResArticle->order = $n;
-
-        $aResHist->addRes($aResArticle);
-
-        $n++;
-    }
-}
+$aResHist->readLines($datlines);
 
 // HTMLプリント用変数
 $htm['checkall'] = '全てのチェックボックスを
@@ -87,6 +68,7 @@ EOP;
 //==================================================================
 // ヘッダ 表示
 //==================================================================
+//P2Util::header_nocache();
 P2Util::header_content_type();
 if (isset($_conf['doctype'])) {
     echo $_conf['doctype'];

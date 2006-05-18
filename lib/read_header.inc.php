@@ -6,19 +6,19 @@
 // 変数
 $diedat_msg = "";
 
-$info_st = "情報";
-$delete_st = "削除";
-$all_st = "全部";
-$prev_st = "前";
-$next_st = "次";
-$shinchaku_st = "新着レスの表示";
-$midoku_st = "未読レスの表示";
-$tuduki_st = "続きを読む";
-$moto_thre_st = "元スレ";
-$siml_thre_st = "似スレ"; // "類似スレ"
-$latest_st = "最新";
-$dores_st = "レス";
-$aborn_st = "あぼん";
+$info_st        = "情報";
+$delete_st      = "削除";
+$all_st         = "全部";
+$prev_st        = "前";
+$next_st        = "次";
+$shinchaku_st   = "新着レスの表示";
+$midoku_st      = "未読レスの表示";
+$tuduki_st      = "続きを読む";
+$moto_thre_st   = "元スレ";
+$siml_thre_st   = "似スレ"; // "類似スレ"
+$latest_st      = "最新";
+$dores_st       = "レス";
+$aborn_st       = "あぼん";
 
 $motothre_url = $aThread->getMotoThread();
 $ttitle_en = base64_encode($aThread->ttitle);

@@ -9,43 +9,43 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
  */
 class Thread{
 
-    var $ttitle; // スレタイトル // idxline[0] // < は &lt; だったりする
-    var $key; // スレッドID // idxline[1]
-    var $length; // local Dat Bytes(int) // idxline[2]
-    var $gotnum; //（個人にとっての）既得レス数 // idxline[3]
-    var $rescount; // スレッドの総レス数（未取得分も含む）
-    var $modified; // datのLast-Modified // idxline[4]
-    var $readnum; // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
-    var $fav; //お気に入り(bool的に) // idxline[6] favlist.idxも参照
-    // name // ここでは利用せず idxline[7]（他所で利用）
-    // mail // ここでは利用せず idxline[8]（他所で利用）
+    var $ttitle;    // スレタイトル // idxline[0] // < は &lt; だったりする
+    var $key;       // スレッドID // idxline[1]
+    var $length;    // local Dat Bytes(int) // idxline[2]
+    var $gotnum;    //（個人にとっての）既得レス数 // idxline[3]
+    var $rescount;  // スレッドの総レス数（未取得分も含む）
+    var $modified;  // datのLast-Modified // idxline[4]
+    var $readnum;   // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
+    var $fav;       //お気に入り(bool的に) // idxline[6] favlist.idxも参照
+    // name         // ここでは利用せず idxline[7]（他所で利用）
+    // mail         // ここでは利用せず idxline[8]（他所で利用）
     // var $newline; // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
 
     // ※hostとはいうものの、2ch外の場合は、host以下のディレクトリまで含まれていたりする。
-    var $host; // ex)pc.2ch.net // idxline[10]
-    var $bbs; // ex)mac // idxline[11]
-    var $itaj; // 板名 ex)新・mac
+    var $host;      // ex)pc.2ch.net // idxline[10]
+    var $bbs;       // ex)mac // idxline[11]
+    var $itaj;      // 板名 ex)新・mac
 
     var $datochiok; // DAT落ち取得権限があればTRUE(1) // idxline[12]
 
-    var $torder; // スレッド新しい順番号
-    var $unum; // 未読（新着レス）数
+    var $torder;    // スレッド新しい順番号
+    var $unum;      // 未読（新着レス）数
 
-    var $keyidx; // idxファイルパス
-    var $keydat; // ローカルdatファイルパス
+    var $keyidx;    // idxファイルパス
+    var $keydat;    // ローカルdatファイルパス
 
-    var $isonline; // 板サーバにあればtrue。subject.txtやdat取得時に確認してセットされる。
-    var $new; // 新規スレならtrue
+    var $isonline;  // 板サーバにあればtrue。subject.txtやdat取得時に確認してセットされる。
+    var $new;       // 新規スレならtrue
 
     var $ttitle_hc; // < が &lt; であったりするので、デコードしたスレタイトル
     var $ttitle_hd; // HTML表示用に、エンコードされたスレタイトル
     var $ttitle_ht; // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
 
-    var $dayres; // 一日当たりのレス数。勢い。
+    var $dayres;    // 一日当たりのレス数。勢い。
 
-    var $dat_type; // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
+    var $dat_type;  // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
 
-    var $ls = ''; // 表示レス番号の指定
+    var $ls = '';   // 表示レス番号の指定
 
     var $similarity; // タイトルの類似性
 

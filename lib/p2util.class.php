@@ -1072,6 +1072,18 @@ ERR;
             return false;
         }
     }
+
+    /**
+     * XMLHttpRequestのレスポンスをSafari用にエンコードする
+     *
+     * @return string
+     */
+    function encodeResponseTextForSafari($response, $encoding = 'SJIS-win')
+    {
+        $response = mb_convert_encoding($response, 'UTF-8', $encoding);
+        $response = mb_encode_numericentity($response, array(0x80, 0xFFFF, 0, 0xFFFF), 'UTF-8');
+        return $response;
+    }
 }
 
 ?>

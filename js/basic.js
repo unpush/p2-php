@@ -73,7 +73,7 @@ function getResponseTextHttp(objHTTP, url, nc)
 	
 	if (objHTTP.readyState == 4) {
 		if (objHTTP.status == 200) {
-			return objHTTP.responseText.replace(/^<\?xml .+?\?>\n?/, '');
+			return objHTTP.responseText;
 		} else {
 			// rt = '<em>HTTP Error:<br />' + req.status + ' ' + req.statusText + '</em>';
 		}

@@ -45,7 +45,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
             $this->soapClient = &new SoapClient($wsdl, $this->options);
         } catch (SoapFault $e) {
             $errfmt = 'SOAP Fault: (faultcode: %s; faultstring: %s;)';
-            $errmsg = sprintf($errfmt, $e->faultcode, $e->faulstring);
+            $errmsg = sprintf($errfmt, $e->faultcode, $e->faultstring);
             return PEAR::raiseError($errmsg);
         }
 
@@ -71,7 +71,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
             $result = call_user_func_array(array($this->soapClient, 'doGoogleSearch'), $params);
         } catch (SoapFault $e) {
             $errfmt = 'SOAP Fault: (faultcode: %s; faultstring: %s;)';
-            $errmsg = sprintf($errfmt, $e->faultcode, $e->faulstring);
+            $errmsg = sprintf($errfmt, $e->faultcode, $e->faultstring);
             return PEAR::raiseError($errmsg);
         }
         return $result;

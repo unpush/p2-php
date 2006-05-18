@@ -137,10 +137,10 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body{$_conf['k_colors']}>\n
+<body{$_conf['k_colors']}>
+<p>{$sb_ht}ÇÃêVÇ‹Ç∆Çﬂ
+<a id="above" name="above" {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#bottom">{$_conf['k_accesskey']['bottom']}.Å•</a></p>\n
 EOP;
-
-echo "<p>{$sb_ht}ÇÃêVÇ‹Ç∆Çﬂ</p>\n";
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";
@@ -490,12 +490,14 @@ if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !emp
     echo <<<EOP
 <div>
 {$sb_ht_btm}ÇÃ<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.{$str}</a>
+<a id="bottom" name="bottom" {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#above">{$_conf['k_accesskey']['above']}.Å£</a>
 </div>\n
 EOP;
 } else {
     echo <<<EOP
 <div>
 {$sb_ht_btm}ÇÃ<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.êVÇ‹Ç∆ÇﬂÇÃë±Ç´</a>
+<a id="bottom" name="bottom" {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#above">{$_conf['k_accesskey']['above']}.Å£</a>
 </div>\n
 EOP;
 }

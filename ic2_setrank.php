@@ -18,29 +18,19 @@ if (!$_conf['expack.ic2.enabled']) {
 // {{{ HTTPヘッダとXML宣言
 
 P2Util::header_nocache();
-if (P2Util::isBrowserSafariGroup()) {
-    header('Content-Type: application/xml; charset=UTF-8');
-    $xmldec = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";
-} else {
-    header('Content-Type: text/html; charset=Shift_JIS');
-    // 半角で「？＞」が入ってる文字列をコメントにするとパースエラー
-    //$xmldec = '<' . '?xml version="1.0" encoding="Shift_JIS" ?' . '>' . "\n";
-    $xmldec = '';
-}
+header('Content-Type: text/html; charset=Shift_JIS');
 
 // }}}
 // {{{ 初期化
 
 // パラメータを検証
 if (!isset($_GET['id']) || !isset($_GET['rank'])) {
-    echo $xmldec;
     echo '-1';
     exit;
 }
 $id = (int) $_GET['id'];
 $rank = (int) $_GET['rank'];
 if ($id == 0 || $rank > 5 || $rank < -1) {
-    echo $xmldec;
     echo '0';
     exit;
 }
@@ -64,7 +54,6 @@ if ($finder->find(1)) {
     $setter->whereAddQuoted('size', '=', $finder->size);
     $setter->whereAddQuoted('md5',  '=', $finder->md5);
     $setter->whereAddQuoted('mime', '=', $finder->mime);
-    echo $xmldec;
     if ($setter->update()) {
         echo '1';
     } else {

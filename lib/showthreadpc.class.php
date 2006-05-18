@@ -74,7 +74,7 @@ class ShowThreadPc extends ShowThread{
     }
 
     /**
-     * ■DatをHTMLに変換表示する
+     * DatをHTMLに変換表示する
      */
     function datToHtml()
     {
@@ -120,7 +120,7 @@ class ShowThreadPc extends ShowThread{
 
 
     /**
-     * ■ DatレスをHTMLレスに変換する
+     *  DatレスをHTMLレスに変換する
      *
      * 引数 - datの1ライン, レス番号
      */
@@ -598,6 +598,8 @@ EOP;
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
+        $msg = str_replace(array('"', "'"), array('&quot;', '&#039;'), $msg);
+
         // 新着レスの画像は表示制限を無視する設定なら
         if ($mynum > $this->thread->readnum && $_conf['expack.ic2.newres_ignore_limit']) {
             $pre_thumb_ignore_limit = TRUE;
@@ -612,7 +614,7 @@ EOP;
     // {{{ コールバックメソッド
 
     /**
-     * ■リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
+     * リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
      */
     function link_callback($s)
     {
@@ -706,7 +708,9 @@ EOP;
     }
 
     /**
-     * ■引用変換（単独）
+     * 引用変換（単独）
+     *
+     * @return string
      */
     function quote_res_callback($s)
     {
@@ -728,7 +732,9 @@ EOP;
     }
 
     /**
-     * ■引用変換（範囲）
+     * 引用変換（範囲）
+     *
+     * @return string
      */
     function quote_res_range_callback($s)
     {
@@ -761,14 +767,18 @@ EOP;
     }
 
     /**
-     * ■HTMLポップアップ変換（コールバック用インターフェース）
+     * HTMLポップアップ変換（コールバック用インターフェース）
+     *
+     * @return string
      */
     function iframe_popup_callback($s) {
         return $this->iframe_popup($s[1], $s[3], $s[2]);
     }
 
     /**
-     * ■HTMLポップアップ変換
+     * HTMLポップアップ変換
+     *
+     * @return string
      */
     function iframe_popup($url, $str, $attr = '', $mode = NULL)
     {
@@ -846,7 +856,9 @@ EOP;
     }
 
     /**
-     * ■IDフィルタリングポップアップ変換
+     * IDフィルタリングポップアップ変換
+     *
+     * @return string
      */
     function idfilter_callback($s)
     {
@@ -1070,16 +1082,16 @@ EOJS;
         $code .= <<<EOJS
 // 主なスレッド情報と各種設定をプロパティに持つオブジェクト
 var {$this->spmObjName} = {
-    objName:"{$this->spmObjName}",
-    rc:"{$this->thread->rescount}",
-    title:"{$_spm_title}",
-    ttitle_en:"{$ttitle_urlen}",
-    url:"{$_spm_url}",
-    host:"{$_spm_host}",
-    bbs:"{$_spm_bbs}",
-    key:"{$_spm_key}",
-    ls:"{$_spm_ls}",
-    spmOption:[{$spmOptions}]
+    'objName':'{$this->spmObjName}',
+    'rc':'{$this->thread->rescount}',
+    'title':'{$_spm_title}',
+    'ttitle_en':'{$ttitle_urlen}',
+    'url':'{$_spm_url}',
+    'host':'{$_spm_host}',
+    'bbs':'{$_spm_bbs}',
+    'key':'{$_spm_key}',
+    'ls':'{$_spm_ls}',
+    'spmOption':[{$spmOptions}]
 };
 //スマートポップアップメニュー生成
 makeSPM({$this->spmObjName});\n

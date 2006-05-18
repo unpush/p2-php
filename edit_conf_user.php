@@ -179,7 +179,7 @@ if (!empty($_info_msg_ht)) {
 }
 
 echo <<<EOP
-<form id="edit_conf_user_form" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self" accept-charset="{$_conf['accept_charset']}">
+<form id="edit_conf_user_form" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
     {$_conf['k_input_ht']}
     <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
@@ -306,6 +306,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用(する, しない)'),
 
         array('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示（する, しない）'),
+        array('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -540,6 +541,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.google.key', 'Google Web APIs の登録キー', P2_EDIT_CONF_USER_LONGTEXT),
         //array('expack.google.recent_num', '検索履歴を記録する数（記録しない:0）'),
         array('expack.google.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用（記録しない:0）'),
+        array('expack.google.force_pear', 'SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う（YES, NO）'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -603,7 +605,7 @@ echo '</form>'."\n";
 if (!empty($_conf['ktai'])) {
     echo <<<EOP
 <hr>
-<form method="GET" action="{$_SERVER['PHP_SELF']}">
+<form method="GET" action="{$_SERVER['SCRIPT_NAME']}">
 {$_conf['k_input_ht']}
 <select name="edit_conf_user_group_en">
 EOP;

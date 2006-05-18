@@ -14,7 +14,7 @@ $reloaded_time = date("m/d G:i:s"); //XVŽž
 if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
     $offline_num = $aThreadList->num - $online_num;
     $taborn_check_ht = <<<EOP
-    <form class="check" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">\n
+    <form class="check" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">\n
 EOP;
     if ($offline_num > 0) {
         if ($aThreadList->spmode == "taborn") {

@@ -44,15 +44,20 @@ EOP;
 
 // {{{ ナビ
 
+$sb_view_at = "";
+if (!empty($_REQUEST['sb_view'])) {
+    $sb_view_at = "&amp;sb_view=" . htmlspecialchars($_REQUEST['sb_view']);
+}
+
 if ($disp_navi['from'] > 1) {
     $mae_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
 }
 
 if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
     $tugi_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
 }
 
@@ -139,6 +144,11 @@ foreach ($sorts as $k => $v) {
     }
     $htm['change_sort'] .= "<option value=\"{$k}\"{$selected}>{$v}</option>";
 }
+
+if (!empty($_REQUEST['sb_view'])) {
+    $htm['change_sort'] .= "<input type=\"hidden\" name=\"sb_view\" value=\"" . htmlspecialchars($_REQUEST['sb_view']) . "\">";
+}
+
 $htm['change_sort'] .= '</select>';
 $htm['change_sort'] .= '<input type="submit" value="変更"></form>';
 

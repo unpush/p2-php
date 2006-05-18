@@ -30,9 +30,9 @@ $res_filter_cont = @file_get_contents($cachefile);
 
 if ($res_filter_cont) { $res_filter = unserialize($res_filter_cont); }
 
-$field = array('hole'=>'', 'msg'=>'', 'name'=>'', 'mail'=>'', 'date'=>'', 'id'=>'', 'beid'=>'', 'belv'=>'');
-$match = array('on'=>'', 'off'=>'');
-$method = array('and'=>'', 'or'=>'', 'just'=>'', 'regex'=>'', 'similar' => '');
+$field = array('hole' => '', 'msg' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'beid' => '', 'belv' => '');
+$match = array('on' => '', 'off' => '');
+$method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
 
 $field[$res_filter['field']]   = ' selected';
 $match[$res_filter['match']]   = ' selected';

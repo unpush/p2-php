@@ -132,7 +132,7 @@ $_info_msg_ht = "";
 if (file_exists($_conf['sid2ch_php'])) {
     $idsub_str = "çƒ{$login_st}Ç∑ÇÈ";
     $form_now_log = <<<EOFORM
-    <form id="form_logout" method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
+    <form id="form_logout" method="GET" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
         åªç›ÅA2ÇøÇ·ÇÒÇÀÇÈÇ…{$login_st}íÜÇ≈Ç∑
         {$_conf['k_input_ht']}
         <input type="hidden" name="login2ch" value="out">
@@ -144,7 +144,7 @@ EOFORM;
     $idsub_str = "êVãK{$login_st}Ç∑ÇÈ";
     if (file_exists($_conf['idpw2ch_php'])) {
         $form_now_log = <<<EOFORM
-    <form id="form_logout" method="GET" action="{$_SERVER['PHP_SELF']}" target="_self">
+    <form id="form_logout" method="GET" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
         åªç›ÅA{$login_st}ÇµÇƒÇ¢Ç‹ÇπÇÒ
         {$_conf['k_input_ht']}
         <input type="hidden" name="login2ch" value="in">
@@ -178,7 +178,7 @@ if ($_conf['ktai']) {
 }
 
 echo <<<EOFORM
-<form id="login_with_id" method="POST" action="{$_SERVER['PHP_SELF']}" target="_self">
+<form id="login_with_id" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
     {$_conf['k_input_ht']}
     ID: <input type="text" name="login2chID" value="{$login2chID}"{$id_input_size_at}><br>
     {$password_st}: <input type="password" name="login2chPW" id="login2chPW"{$pass_input_size_at}><br>

@@ -20,7 +20,7 @@ function Invite(title, url, host, bbs, key, resnum)
 		req.open('get', uri, false);
 		req.send(null);
 		if (req.readyState == 4 && req.status == 200) {
-			msg = '\n\n' + req.responseText.replace(/^<\?xml .+?\?>\n?/, '');
+			msg = '\n\n' + req.responseText;
 		}
 	}
 

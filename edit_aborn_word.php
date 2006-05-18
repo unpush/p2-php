@@ -32,7 +32,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
         $files_st .= "「".$afile."」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['PHP_SELF'])." 先生の書き込めるファイルは、".$files_st."だけ！");
+    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の書き込めるファイルは、".$files_st."だけ！");
 }
 
 //=====================================================================
@@ -123,7 +123,7 @@ if (file_exists($path)) {
 // プリント設定
 //=====================================================================
 $ptitle_top = sprintf('あぼーん/NGワード編集 &gt; <a href="%s?path=%s">%s</a>',
-    $_SERVER['PHP_SELF'], rawurlencode($path), basename($path));
+    $_SERVER['SCRIPT_NAME'], rawurlencode($path), basename($path));
 $ptitle = strip_tags($ptitle_top);
 
 $csrfid = P2Util::getCsrfId();
@@ -194,7 +194,7 @@ if (!empty($_info_msg_ht)) {
 
 echo <<<EOP
 <div>注）i: 大文字小文字を無視, r: 正規表現</div>
-<form method="POST" action="{$_SERVER['PHP_SELF']}" target="_self" accept-charset="{$_conf['accept_charset']}">
+<form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
     {$_conf['k_input_ht']}
     <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     <input type="hidden" name="path" value="{$path_ht}">
@@ -204,7 +204,7 @@ EOP;
 // PC用表示（table）
 if (empty($_conf['ktai'])) {
     echo <<<EOP
-    <table id="edit_conf_user" cellspacing="0">
+    <table class="edit_conf_user" cellspacing="0">
         <tr>
             <td align="center">あぼーんワード</td>
             <td align="center">i / r</td>

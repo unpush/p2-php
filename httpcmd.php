@@ -10,15 +10,7 @@ $_login->authorize(); // ユーザ認証
 
 // {{{ HTTPヘッダとXML宣言
 P2Util::header_nocache();
-if (P2Util::isBrowserSafariGroup()) {
-    header('Content-Type: application/xml; charset=UTF-8');
-    $xmldec = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";
-} else {
-    header('Content-Type: text/html; charset=Shift_JIS');
-    // 半角で「？＞」が入ってる文字列をコメントにするとパースエラー
-    //$xmldec = '<' . '?xml version="1.0" encoding="Shift_JIS" ?' . '>' . "\n";
-    $xmldec = '';
-}
+header('Content-Type: text/html; charset=Shift_JIS');
 
 // }}}
 
@@ -83,9 +75,8 @@ if ($cmd == 'delelog') {
 // {{{ 結果出力
 
 if (P2Util::isBrowserSafariGroup()) {
-    $r_msg = mb_convert_encoding($r_msg, 'UTF-8', 'SJIS-win');
+    $r_msg = P2Util::encodeResponseTextForSafari($r_msg);
 }
-echo $xmldec;
 echo $r_msg;
 
 // }}}

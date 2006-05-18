@@ -144,7 +144,7 @@ EOP;
 
 if ($_conf['enable_menu_new']) {
     echo <<<EOP
-$reloaded_time [<a href="{$_SERVER['PHP_SELF']}?new=1" target="_self">更新</a>]
+$reloaded_time [<a href="{$_SERVER['SCRIPT_NAME']}?new=1" target="_self">更新</a>]
 EOP;
 }
 

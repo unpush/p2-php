@@ -14,7 +14,8 @@ class ResArticle{
     var $bbs;
     var $itaj;
     var $key;
-    var $order; //記事番号
+    var $resnum;
+    var $order; // 記事番号
 }
 
 /**
@@ -33,6 +34,47 @@ class ResHist{
     {
         $this->articles = array();
         $this->num = 0;
+    }
+
+    /**
+     * 書き込みログの lines をパースして読み込む
+     *
+     * @param  array    $lines
+     * @return boolean  実効成否
+     */
+    function readLines($lines)
+    {
+        $n = 1;
+        if (!is_array($lines)) {
+            trigger_error(__FUNCTION__ . '(), ' . 'illegal argument', E_USER_WARNING);
+            return false;
+        }
+
+        foreach ($lines as $aline) {
+
+            $aResArticle =& new ResArticle();
+
+            $resar = explode("<>", rtrim($aline));
+            $aResArticle->name      = $resar[0];
+            $aResArticle->mail      = $resar[1];
+            $aResArticle->daytime   = $resar[2];
+            $aResArticle->msg       = $resar[3];
+            $aResArticle->ttitle    = $resar[4];
+            $aResArticle->host      = $resar[5];
+            $aResArticle->bbs       = $resar[6];
+            if (!($aResArticle->itaj = P2Util::getItaName($aResArticle->host, $aResArticle->bbs))) {
+                $aResArticle->itaj  = $aResArticle->bbs;
+            }
+            $aResArticle->key       = $resar[7];
+            $aResArticle->resnum    = $resar[8];
+
+            $aResArticle->order = $n;
+
+            $this->addRes($aResArticle);
+
+            $n++;
+        }
+        return true;
     }
 
     /**
@@ -91,7 +133,16 @@ class ResHist{
 
             $href_ht = "";
             if ($a_res->key) {
-                $href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$_conf['k_at_a']}#footer";
+                if (empty($a_res->resnum) || $a_res->resnum == 1) {
+                    $ls_q = '';
+                    $footer_q = '#footer';
+                } else {
+                    $lf = max(1, $a_res->resnum - 0);
+                    $ls_q = "&amp;ls={$lf}-";
+                    $footer_q = "#r{$lf}";
+                }
+                $time = time();
+                $href_ht = $_conf['read_php'] . "?host=" . $a_res->host . "&amp;bbs=" . $a_res->bbs . "&amp;key=" . $a_res->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}{$footer_q}";
             }
             $info_view_ht = <<<EOP
         <a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$_conf['k_at_a']}" target="_self" onClick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)">情報</a>
@@ -196,6 +247,8 @@ EOP;
 
     /**
      * レス記事を表示するメソッド 携帯用
+     *
+     * @return void
      */
     function showArticlesK()
     {
@@ -212,33 +265,42 @@ EOP;
 
             $href_ht = "";
             if ($a_res->key) {
-                $href_ht = $_conf['read_php']."?host=".$a_res->host."&amp;bbs=".$a_res->bbs."&amp;key=".$a_res->key."{$_conf['k_at_a']}#footer";
+                if (empty($a_res->resnum) || $a_res->resnum == 1) {
+                    $ls_q = '';
+                    $footer_q = '#footer';
+                } else {
+                    $lf = max(1, $a_res->resnum - 0);
+                    $ls_q = "&amp;ls={$lf}-";
+                    $footer_q = "#r{$lf}";
+                }
+                $time = time();
+                $href_ht = $_conf['read_php'] . "?host=" . $a_res->host . "&amp;bbs=" . $a_res->bbs . "&amp;key=" . $a_res->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}={$footer_q}";
             }
 
-        // 大きさ制限
-        if (!$_GET['k_continue']) {
-            $msg = $a_res->msg;
-            if (strlen($msg) > $_conf['ktai_res_size']) {
-                $msg = substr($msg, 0, $_conf['ktai_ryaku_size']);
+            // 大きさ制限
+            if (!$_GET['k_continue']) {
+                $msg = $a_res->msg;
+                if (strlen($msg) > $_conf['ktai_res_size']) {
+                    $msg = substr($msg, 0, $_conf['ktai_ryaku_size']);
 
-                // 末尾に<br>があれば取り除く
-                if (substr($msg, -1)==">") {
-                    $msg = substr($msg, 0, strlen($msg)-1);
-                }
-                if (substr($msg, -1)=="r") {
-                    $msg = substr($msg, 0, strlen($msg)-1);
-                }
-                if (substr($msg, -1)=="b") {
-                    $msg = substr($msg, 0, strlen($msg)-1);
-                }
-                if (substr($msg, -1)=="<") {
-                    $msg = substr($msg, 0, strlen($msg)-1);
-                }
+                    // 末尾に<br>があれば取り除く
+                    if (substr($msg, -1) == ">") {
+                        $msg = substr($msg, 0, strlen($msg)-1);
+                    }
+                    if (substr($msg, -1) == "r") {
+                        $msg = substr($msg, 0, strlen($msg)-1);
+                    }
+                    if (substr($msg, -1) == "b") {
+                        $msg = substr($msg, 0, strlen($msg)-1);
+                    }
+                    if (substr($msg, -1) == "<") {
+                        $msg = substr($msg, 0, strlen($msg)-1);
+                    }
 
-                $msg = $msg."  ";
-                $a_res->msg = $msg."<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
+                    $msg = $msg."  ";
+                    $a_res->msg = $msg."<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
+                }
             }
-        }
 
             $res_ht = "[$a_res->order]"; // 番号
             $res_ht .= htmlspecialchars($a_res->name, ENT_QUOTES) . ':'; // 名前
@@ -253,14 +315,18 @@ EOP;
             } elseif ($hd['ttitle']) {
                 $res_ht .= "{$hd['ttitle']}\n";
             }
+
+            // 削除
+            //$res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$hd['daytime']}\"> ";
+            $from_q = isset($_GET['from']) ? '&amp;from=' . $_GET['from'] : '';
+            $dele_ht = "[<a href=\"read_res_hist.php?checked_hists[]={$a_res->order},,,," . htmlspecialchars(urlencode($a_res->daytime), ENT_QUOTES) . "{$from_q}{$_conf['k_at_a']}\">削除</a>]";
+            $res_ht .= $dele_ht;
+
             $res_ht .= '<br>';
             $res_ht .= "{$a_res->msg}<hr>\n"; // 内容
 
             echo $res_ht;
-
         }
-
-        return true;
     }
 }
 
