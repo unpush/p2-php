@@ -67,7 +67,9 @@ class ResHist{
             }
             $aResArticle->key   = $resar[7];
             $aResArticle->resnum = $resar[8];
-    
+            
+            $aResArticle->order = $n;
+            
             $this->addRes($aResArticle);
     
             $n++;
