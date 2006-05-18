@@ -600,7 +600,7 @@ EOP;
     /**
      * Cookie（CID）からユーザ情報を得る
      *
-     * @return mixed 成功すれば配列、失敗なら false を返す
+     * @return array|false 成功すれば配列、失敗なら false を返す
      */
     function getCidInfo($cid)
     {

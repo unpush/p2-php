@@ -352,8 +352,12 @@ EOP;
 //===========================================================
 if ($aThread->rescount) {
 
-    $aThread->readnum = min($aThread->rescount, max(0, $idx_data[5], $aThread->resrange['to'])); 
-    
+    // ŒŸõ‚Ì‚ÍAŠù“Ç”‚ğXV‚µ‚È‚¢
+    if (isset($GLOBALS['word']) and strlen($GLOBALS['word']) > 0) {
+        $aThread->readnum = $idx_data[5];
+    } else {
+        $aThread->readnum = min($aThread->rescount, max(0, $idx_data[5], $aThread->resrange['to'])); 
+    }
     $newline = $aThread->readnum + 1; // $newline‚Í”p~—\’è‚¾‚ªA‹ŒŒİŠ·—p‚É”O‚Ì‚½‚ß
 
     $sar = array($aThread->ttitle, $aThread->key, $idx_data[2], $aThread->rescount, '',

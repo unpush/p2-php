@@ -73,6 +73,8 @@ echo '</body></html>';
 
 /**
  * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成する
+ *
+ * @return string
  */
 function kspform($default = '', &$aThread)
 {
