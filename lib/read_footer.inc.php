@@ -162,8 +162,6 @@ EOP;
 }
 
 // ====
-echo '</body>
-</html>
-';
+echo '</body></html>';
 
 ?>

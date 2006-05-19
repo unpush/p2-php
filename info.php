@@ -142,9 +142,9 @@ if ($favlines = @file($_conf['favlist_file'])) {
 */
 
 if ($aThread->fav) {
-    $favmark = "<span class=\"fav\">★</span>";
+    $favmark = "<span class=\"fav\" title=\"DATしたスレ用のお気に入り\">★</span>";
 } else {
-    $favmark = "<span class=\"fav\">+</span>";
+    $favmark = "<span class=\"fav\" title=\"DATしたスレ用のお気に入り\">+</span>";
 }
 
 $favdo = $aThread->fav ? 0 : 1;

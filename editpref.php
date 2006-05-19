@@ -347,10 +347,17 @@ EOP;
 // {{{ 新着まとめ読みのキャッシュ表示
 
 $max = $_conf['matome_cache_max'];
+
+if (!empty($_conf['ktai'])) {
+    $ext = '.k' . $_conf['matome_cache_ext'];
+} else {
+    $ext = $_conf['matome_cache_ext'];
+}
+
 for ($i = 0; $i <= $max; $i++) {
     $dnum = ($i) ? '.'.$i : '';
     $ai = '&amp;cnum=' . $i;
-    $file = $_conf['matome_cache_path'] . $dnum . $_conf['matome_cache_ext'];
+    $file = $_conf['matome_cache_path'] . $dnum . $ext;
     //echo '<!-- '.$file.' -->';
     if (file_exists($file)) {
         $filemtime = filemtime($file);

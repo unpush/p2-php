@@ -19,49 +19,6 @@ $_login->authorize(); // ユーザ認証
 $newtime = date('gis');  // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 // $_today = date('y/m/d');
 
-//================================================================
-// 特殊リクエスト
-//================================================================
-if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
-    $ktv = (int)$_GET['ktool_value'];
-    switch ($_GET['ktool_name']) {
-        case 'goto':
-            $_REQUEST['ls'] = $_GET['ls'] = $ktv . '-' . ($ktv + $_conf['k_rnum_range']);
-            break;
-        case 'res_quote':
-            $_GET['resnum'] = $ktv;
-            $_GET['inyou'] = 1;
-            include 'post_form.php';
-            exit;
-        case 'copy_quote':
-            $_GET['inyou'] = 1;
-        case 'copy':
-            $_GET['copy'] = $ktv;
-            include 'read_copy_k.php';
-            exit;
-        case 'aas_rotate':
-            $_GET['rotate'] = 1;
-        case 'aas':
-            $_GET['resnum'] = $ktv;
-            include 'aas.php';
-            exit;
-        case 'aborn_res':
-        case 'aborn_name':
-        case 'aborn_mail':
-        case 'aborn_id':
-        case 'aborn_msg':
-        case 'ng_name':
-        case 'ng_mail':
-        case 'ng_id':
-        case 'ng_msg':
-            $_GET['resnum'] = $ktv;
-            $_GET['popup'] = 1;
-            $_GET['mode'] = $_GET['ktool_name'];
-            include 'info_sp.php';
-            exit;
-    }
-}
-
 //=================================================
 // スレの指定
 //=================================================
@@ -373,8 +330,12 @@ flush();
 //===========================================================
 if ($aThread->rescount) {
 
-    $aThread->readnum = min($aThread->rescount, max(0, $idx_data[5], $aThread->resrange['to']));
-
+    // 検索の時は、既読数を更新しない
+    if (isset($GLOBALS['word']) and strlen($GLOBALS['word']) > 0) {
+        $aThread->readnum = $idx_data[5];
+    } else {
+        $aThread->readnum = min($aThread->rescount, max(0, $idx_data[5], $aThread->resrange['to']));
+    }
     $newline = $aThread->readnum + 1; // $newlineは廃止予定だが、旧互換用に念のため
 
     $sar = array($aThread->ttitle, $aThread->key, $idx_data[2], $aThread->rescount, '',

@@ -78,11 +78,13 @@ $aThread->getThreadInfoFromIdx();
 //=================================================
 // •\¦—p•Ï”‚ğİ’è
 //=================================================
+$ptitle_ht = $aThread->ttitle_hd;
 $thread_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}";
 $params = array();
 if (!empty($_GET['from_read_new'])) {
     $params['from_read_new'] = '1';
 }
+$default = (!empty($_GET['spm_default'])) ? intval($_GET['spm_default']) : '';
 
 //=================================================
 // •\¦
@@ -94,7 +96,7 @@ echo <<<EOHEADER
 <html>
 <head>
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-<title>{$aThread->ttitle_hd} ‚ğ‘€ì</title>
+<title>{$ptitle_ht}</title>
 </head>\n
 EOHEADER;
 
@@ -103,9 +105,9 @@ echo "<body{$_conf['k_colors']}>";
 echo $_info_msg_ht;
 $_info_msg_ht = '';
 
-echo "<p>½Ú¯ÄŞ<a href=\"{$thread_url}\">{$aThread->ttitle_hd}</a>‚ğ‘€ì</p>";
+echo "<p><a href=\"{$thread_url}\">{$ptitle_ht}</a></p>";
 echo '<hr>';
-echo kspform($aThread, $aThread->gotnum, $params);
+echo kspform($aThread, $default, $params);
 echo '<hr>';
 echo '<p>';
 if (!empty($_GET['from_read_new'])) {

@@ -25,14 +25,20 @@ function saveMatomeCache()
         return true;
     }
 
+    if (!empty($_conf['ktai'])) {
+        $ext = '.k' . $_conf['matome_cache_ext'];
+    } else {
+        $ext = $_conf['matome_cache_ext'];
+    }
+
     // ローテーション
     $max = $_conf['matome_cache_max'];
     $i = $max;
     while ($i >= 0) {
         $di = ($i == 0) ? '' : '.'.$i;
-        $tfile = $_conf['matome_cache_path'].$di.$_conf['matome_cache_ext'];
+        $tfile = $_conf['matome_cache_path'] . $di . $ext;
         $next = $i + 1;
-        $nfile = $_conf['matome_cache_path'].'.'.$next.$_conf['matome_cache_ext'];
+        $nfile = $_conf['matome_cache_path'] . '.' . $next . $ext;
         if (file_exists($tfile)) {
             if ($i == $max) {
                 unlink($tfile);
@@ -47,7 +53,7 @@ function saveMatomeCache()
     }
 
     // 新規記録
-    $file = $_conf['matome_cache_path'].$_conf['matome_cache_ext'];
+    $file = $_conf['matome_cache_path'] . $ext;
     //echo "<!-- {$file} -->";
 
     FileCtl::make_datafile($file, $_conf['p2_perm']);
@@ -77,14 +83,20 @@ function saveMatomeCacheFromTmpFile()
         return false;
     }
 
+    if (!empty($_conf['ktai'])) {
+        $ext = '.k' . $_conf['matome_cache_ext'];
+    } else {
+        $ext = $_conf['matome_cache_ext'];
+    }
+
     // ローテーション
     $max = $_conf['matome_cache_max'];
     $i = $max;
     while ($i >= 0) {
         $di = ($i == 0) ? '' : '.'.$i;
-        $tfile = $_conf['matome_cache_path'].$di.$_conf['matome_cache_ext'];
+        $tfile = $_conf['matome_cache_path'] . $di . $ext;
         $next = $i + 1;
-        $nfile = $_conf['matome_cache_path'].'.'.$next.$_conf['matome_cache_ext'];
+        $nfile = $_conf['matome_cache_path'] . '.' . $next . $ext;
         if (file_exists($tfile)) {
             if ($i == $max) {
                 unlink($tfile);
@@ -96,7 +108,7 @@ function saveMatomeCacheFromTmpFile()
     }
 
     // 新規記録
-    $file = $_conf['matome_cache_path'].$_conf['matome_cache_ext'];
+    $file = $_conf['matome_cache_path'] . $ext;
     //echo "<!-- {$file} -->";
 
     FileCtl::make_datafile($file, $_conf['p2_perm']);
@@ -122,8 +134,14 @@ function getMatomeCache($num = '')
 {
     global $_conf;
 
+    if (!empty($_conf['ktai'])) {
+        $ext = '.k' . $_conf['matome_cache_ext'];
+    } else {
+        $ext = $_conf['matome_cache_ext'];
+    }
+
     $dnum = ($num) ? '.'.$num : '';
-    $file = $_conf['matome_cache_path'].$dnum.$_conf['matome_cache_ext'];
+    $file = $_conf['matome_cache_path'] . $dnum . $ext;
 
     $cont = @file_get_contents($file);
 

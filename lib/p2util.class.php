@@ -1001,7 +1001,7 @@ ERR;
      * 206 Partial Content
      * 304 Not Modified → 失敗扱い
      *
-     * @return mixed 成功したらページ内容を返す。失敗したらfalseを返す。
+     * @return array|false 成功したらページ内容を返す。失敗したらfalseを返す。
      */
     function getWebPage($url, &$error_msg, $timeout = 15)
     {

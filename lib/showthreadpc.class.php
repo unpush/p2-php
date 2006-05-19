@@ -89,8 +89,8 @@ class ShowThreadPc extends ShowThread{
         $nofirst = $this->thread->resrange['nofirst'];
 
         $status_title = htmlspecialchars($this->thread->itaj, ENT_QUOTES) . " / " . $this->thread->ttitle_hd;
-        $status_title = str_replace("'", "\'", $status_title);
-        $status_title = str_replace('"', "\'\'", $status_title);
+        //$status_title = str_replace("'", "\'", $status_title);
+        //$status_title = str_replace('"', "\'\'", $status_title);
         echo "<dl onMouseover=\"window.top.status='{$status_title}';\">";
 
         // まず 1 を表示
@@ -598,7 +598,11 @@ EOP;
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
+        // 2chではなされていないエスケープ（ノートンの誤反応対策を含む）
         $msg = str_replace(array('"', "'"), array('&quot;', '&#039;'), $msg);
+
+        // 2006/05/06 ノートンの誤反応対策 body onload=window()
+        $msg = str_replace('onload=window()', '<i>onload=window</i>()', $msg);
 
         // 新着レスの画像は表示制限を無視する設定なら
         if ($mynum > $this->thread->readnum && $_conf['expack.ic2.newres_ignore_limit']) {

@@ -37,6 +37,8 @@ if (!$itaj) {
 
 $ttitle_name = is_string($ttitle_en) ? base64_decode($ttitle_en) : '';
 
+$thread_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}";
+
 if (empty($_conf['ktai'])) {
     $target_edit_at = ' target="editfile"';
     $target_read_at = ' target="read"';
@@ -290,7 +292,7 @@ EOJS;
 echo <<<EOP
 </head>
 <body{$body_onload}>
-<p><b><a class="thre_title" href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}"{$target_read_at}>{$ttitle_name}</a></b></p>
+<p><b><a class="thre_title" href="{$thread_url}"{$target_read_at}>{$ttitle_name}</a></b></p>
 <hr>
 <div align="center">
 EOP;
@@ -357,6 +359,15 @@ EOFORM;
 echo "</div>\n";
 
 echo "<hr>\n";
+
+if (!empty($_conf['ktai'])) {
+    echo '<p>';
+    if (!empty($_GET['from_read_new'])) {
+        echo "<a href=\"{$_conf['read_new_k_php']}?cview=1\">�܂Ƃߓǂ݂ɖ߂�</a><br>";
+    }
+    echo "<a href=\"{$thread_url}\">�ڂɖ߂�<a/>";
+    echo '</p>';
+}
 
 echo '</body></html>';
 

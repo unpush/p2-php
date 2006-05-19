@@ -16,7 +16,7 @@ function index_print_k()
     $ptitle = "rep2ﾓﾊﾞｲﾙ";
 
     // 認証ユーザ情報
-    $htm['auth_user'] = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - ".date("Y/m/d (D) G:i:s")."</p>\n";
+    $htm['auth_user'] = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - " . date("Y/m/d (D) G:i:s") . "</p>\n";
 
     // 前回のログイン情報
     if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {

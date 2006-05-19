@@ -136,9 +136,9 @@ if ($p2_setting['viewnum'] == 'all' or $sb_view == 'shinchaku' or $sb_view == 'e
 // åüçıéwíËÇ™Ç†ÇÍÇŒ
 if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
     if (isset($_GET['word'])) {
-        $word = $_GET['word'];
+        $GLOBALS['word'] = $_GET['word'];
     } elseif (isset($_POST['word'])) {
-        $word = $_POST['word'];
+        $GLOBALS['word'] = $_POST['word'];
     }
     if (isset($_GET['method'])) {
         $sb_filter['method'] = $_GET['method'];
@@ -147,8 +147,8 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
     }
 
     if ($sb_filter['method'] == 'similar') {
-        $GLOBALS['wakati_word'] = $word;
-        $GLOBALS['wakati_words'] = wakati($word);
+        $GLOBALS['wakati_word'] = $GLOBALS['word'];
+        $GLOBALS['wakati_words'] = wakati($GLOBALS['word']);
         if (!$GLOBALS['wakati_words']) {
             unset($GLOBALS['wakati_word'], $GLOBALS['wakati_words']);
         } else {

@@ -410,7 +410,7 @@ EOP;
     } else {
         $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
     }
-    $read_range_ht = "{$read_range_on}/{$aThread->rescount}<br>";
+    $read_range_ht = "{$read_range_on}/{$aThread->rescount}";
 
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\">新着ﾚｽの表示</a>";
 
@@ -423,6 +423,10 @@ EOP;
 <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
 EOP;
     }
+
+    $spm_ht = <<<EOP
+<a href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
+EOP;
 
     // ツールバー部分HTML =======
     if ($spmode) {
@@ -438,7 +442,8 @@ EOTOOLBAR;
 
     $read_footer_ht = <<<EOP
 <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
-$read_range_ht
+{$read_range_ht}
+{$spm_ht}<br>
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}
 <a href="#ntt{$newthre_num}">▲</a>
 </div>
