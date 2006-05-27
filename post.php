@@ -164,6 +164,9 @@ if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['
 
 // }}}
 
+// 2006/05/27 新仕様？
+$post['hana'] = 'mogera';
+
 if (!empty($_POST['newthread'])) {
     $ptitle = "p2 - 新規スレッド作成";
 } else {
