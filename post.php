@@ -177,7 +177,7 @@ if (!empty($_POST['newthread'])) {
 //=============================================
 // ポスト実行 
 //=============================================
-$posted = postIt($URL);
+$posted = postIt($host, $bbs, $key, $post);
 
 //=============================================
 // cookie 保存
@@ -324,22 +324,24 @@ if ($_conf['res_write_rec']) {
     }
 }
 
-//===========================================================
+//=======================================================================
 // 関数
-//===========================================================
+//=======================================================================
 
 /**
- * レス書き込み関数
+ * レスを書き込む
+ *
+ * @return boolean 書き込み成功なら true、失敗なら false
  */
-function postIt($URL)
+function postIt($host, $bbs, $key, $post)
 {
-    global $_conf, $post_result, $post_error2ch, $p2cookies, $host, $bbs, $key, $popup, $rescount, $ttitle_en, $STYLE;
-    global $bbs_cgi, $post, $post_cache;
+    global $_conf, $post_result, $post_error2ch, $p2cookies, $popup, $rescount, $ttitle_en, $STYLE;
+    global $bbs_cgi, $post_cache;
     
     $method = "POST";
-    $url = "http://" . $host.  $bbs_cgi;
+    $bbs_cgi_url = "http://" . $host.  $bbs_cgi;
     
-    $URL = parse_url($url); // URL分解
+    $URL = parse_url($bbs_cgi_url); // URL分解
     if (isset($URL['query'])) { // クエリー
         $URL['query'] = "?".$URL['query'];
     } else {
@@ -350,11 +352,11 @@ function postIt($URL)
     if ($_conf['proxy_use']) {
         $send_host = $_conf['proxy_host'];
         $send_port = $_conf['proxy_port'];
-        $send_path = $url;
+        $send_path = $bbs_cgi_url;
     } else {
         $send_host = $URL['host'];
         $send_port = $URL['port'];
-        $send_path = $URL['path'].$URL['query'];
+        $send_path = $URL['path'] . $URL['query'];
     }
 
     if (!$send_port) { $send_port = 80; }    // デフォルトを80
@@ -393,7 +395,9 @@ function postIt($URL)
     $request .= "Connection: Close\r\n";
     
     // {{{ POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付
+    
     if (strtoupper($method) == "POST") {
+        $post_enc = array();
         while (list($name, $value) = each($post)) {
         
             // したらば or be.2ch.netなら、EUCに変換
@@ -401,13 +405,14 @@ function postIt($URL)
                 $value = mb_convert_encoding($value, 'eucJP-win', 'SJIS-win');
             }
             
-            $POST[] = $name."=".urlencode($value);
+            $post_enc[] = $name . "=" . urlencode($value);
         }
-        $postdata = implode("&", $POST);
+        $postdata = implode("&", $post_enc);
         $request .= "Content-Type: application/x-www-form-urlencoded\r\n";
         $request .= "Content-Length: ".strlen($postdata)."\r\n";
         $request .= "\r\n";
         $request .= $postdata;
+        
     } else {
         $request .= "\r\n";
     }
@@ -571,6 +576,8 @@ EOSCRIPT;
 
 /**
  * 書き込み処理結果表示する
+ *
+ * @return void
  */
 function showPostMsg($isDone, $result_msg, $reload)
 {
@@ -659,6 +666,8 @@ EOP;
 
 /**
  * subjectからkeyを取得する
+ *
+ * @return string|false
  */
 function getKeyInSubject()
 {
@@ -679,6 +688,8 @@ function getKeyInSubject()
 
 /**
  * 整形を維持しながら、タブをスペースに置き換える
+ *
+ * @return string
  */
 function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 {
