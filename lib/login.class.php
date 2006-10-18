@@ -5,7 +5,7 @@ require_once P2_LIBRARY_DIR . '/session.class.php';
 /**
  * p2 - ログイン認証を扱うクラス
  * 
- * @create  2005/6/14
+ * @created  2005/6/14
  */
 class Login{
 
@@ -14,7 +14,7 @@ class Login{
     var $pass_x; // 暗号化されたパスワード
 
     /**
-     * コンストラクタ
+     * @constructor
      */
     function Login()
     {
@@ -35,6 +35,8 @@ class Login{
 
     /**
      * ユーザ名をセットする
+     *
+     * @access  public
      */ 
     function setUser($user)
     {
@@ -44,6 +46,9 @@ class Login{
 
     /**
      * ログインユーザ名の指定を得る
+     *
+     * @access  protected
+     * @return  string
      */
     function setdownLoginUser()
     {
@@ -96,6 +101,9 @@ class Login{
 
     /**
      * REQUESTからログインユーザ名の指定を得る
+     *
+     * @access  private
+     * @return  string
      */
     function setdownLoginUserWithRequest()
     {
@@ -104,21 +112,22 @@ class Login{
     
     /**
      * 認証を行う
+     *
+     * @access  public
+     * @return  void
      */
     function authorize()
     {
         global $_conf, $_p2session;
         
-        // {{{ 認証チェック
-        
+        // 認証チェック
         if (!$this->authCheck()) {
             // ログイン失敗
-            include_once (P2_LIBRARY_DIR . '/login_first.inc.php');
+            include_once P2_LIBRARY_DIR . '/login_first.inc.php';
             printLoginFirst($this);
             exit;
         }
-        
-        // }}}
+
         
         // ■ログインOKなら
         
@@ -165,23 +174,22 @@ class Login{
         }
         
         // }}}
-        // {{{ 要求があれば、補助認証を登録
         
+        // 要求があれば、補助認証を登録
         $this->registCookie();
         $this->registKtaiId();
         
-        // }}}
-        
         // 認証後はセッションを閉じる
         session_write_close();
-        
-        return true;
     }
 
     /**
      * 認証ユーザ設定のファイルを調べて、無効なデータなら捨ててしまう
+     *
+     * @access  public
+     * @return  void
      */
-    function checkAuthUserFile()
+    function cleanInvalidAuthUserFile()
     {
         global $_conf;
         
@@ -191,15 +199,13 @@ class Login{
                 unlink($_conf['auth_user_file']);
             }
         }
-        
-        return true;
     }
 
     /**
      * 認証のチェックを行う
      *
-     * @access protected
-     * @return bool
+     * @access  private
+     * @return  boolean
      */
     function authCheck()
     {
@@ -207,7 +213,7 @@ class Login{
         global $_login_failed_flag;
         global $_p2session;
 
-        $this->checkAuthUserFile();
+        $this->cleanInvalidAuthUserFile();
         
         // 認証ユーザ設定（ファイル）を読み込みできたら
         if (file_exists($_conf['auth_user_file'])) {
@@ -374,6 +380,8 @@ class Login{
     
     /**
      * ログインログを記録する
+     *
+     * @access  private
      */
     function logLoginSuccess()
     {
@@ -389,6 +397,8 @@ class Login{
 
     /**
      * ログイン失敗ログを記録する
+     *
+     * @access  private
      */
     function logLoginFailed()
     {
@@ -405,7 +415,7 @@ class Login{
     /**
      * 携帯用端末IDの認証登録をセットする
      *
-     * @access protected
+     * @access  public
      */
     function registKtaiId()
     {
@@ -463,7 +473,8 @@ class Login{
     /**
      * 端末IDを認証ファイル登録する
      *
-     * @access protected
+     * @access  private
+     * @return  boolean
      */
     function registAuth($key, $sub_id, $auth_file)
     {
@@ -475,7 +486,7 @@ class Login{
 ?>
 EOP;
         FileCtl::make_datafile($auth_file, $_conf['pass_perm']);
-        $fp = @fopen($auth_file, 'wb');
+        $fp = fopen($auth_file, 'wb');
         if (!$fp) {
             $_info_msg_ht .= "<p>Error: データを保存できませんでした。認証登録失敗。</p>";
             return false;
@@ -484,24 +495,28 @@ EOP;
         fwrite($fp, $cont);
         @flock($fp, LOCK_UN);
         fclose($fp);
+        
         return true;
     }
 
     /**
      * 端末IDの認証ファイル登録を外す
      *
-     * @access protected
+     * @access  private
+     * @return  void
      */
     function registAuthOff($auth_file)
     {
         if (file_exists($auth_file)) {
             unlink($auth_file);
         }
-        return;
     }
 
     /**
      * 新規ユーザを作成する
+     *
+     * @access  public
+     * @return  boolean
      */
     function makeUser($user_u, $pass)
     {
@@ -514,9 +529,10 @@ EOP;
 \$rec_login_pass_x = '{$crypted_login_pass}';
 ?>
 EOP;
-        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']); // ファイルがなければ生成
-        if (FileCtl::file_write_contents($_conf['auth_user_file'], $auth_user_cont) === false) {
+        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']);
+        if (file_put_contents($_conf['auth_user_file'], $auth_user_cont, LOCK_EX) === false) {
             die("p2 error: {$_conf['auth_user_file']} を保存できませんでした。認証{$p_str['user']}登録失敗。");
+            return false;
         }
 
         return true;
@@ -525,7 +541,7 @@ EOP;
     /**
      * cookie認証を登録/解除する
      *
-     * @access protected
+     * @access  public
      */
     function registCookie()
     {
@@ -542,6 +558,9 @@ EOP;
 
     /**
      * Cookie認証をクリアする
+     *
+     * @access  public
+     * @return  void
      */
      function clearCookieAuth()
      {
@@ -558,7 +577,8 @@ EOP;
     /**
      * CIDをcookieにセットする
      *
-     * @return boolean
+     * @access  protected
+     * @return  boolean
      */
     function setCookieCid($user_u, $pass_x)
     {
@@ -576,7 +596,8 @@ EOP;
     /**
      * IDとPASSと時間をくるめて暗号化したCookie情報（CID）を生成取得する
      *
-     * @return mixed
+     * @access  private
+     * @return  string|false
      */
     function makeCid($user_u, $pass_x)
     {
@@ -599,7 +620,8 @@ EOP;
     /**
      * Cookie（CID）からユーザ情報を得る
      *
-     * @return array|false 成功すれば配列、失敗なら false を返す
+     * @access  private
+     * @return  array|false  成功すれば配列、失敗なら false を返す
      */
     function getCidInfo($cid)
     {
@@ -623,7 +645,8 @@ EOP;
     /**
      * Cookie情報（CID）からuserを得る
      *
-     * @return mixed
+     * @access  private
+     * @return  string|false
      */
     function getUserFromCid($cid)
     {
@@ -637,7 +660,8 @@ EOP;
     /**
      * Cookie情報（CID）とuser, passを照合する
      *
-     * @return boolean
+     * @access  public
+     * @return  boolean
      */
     function checkUserPwWithCid($cid)
     {
@@ -665,7 +689,8 @@ EOP;
     /**
      * md5_encrypt, md5_decrypt のためにクリプトキーを得る
      *
-     * @return string
+     * @access  private
+     * @return  string
      */
     function getMd5CryptKey()
     {

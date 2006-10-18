@@ -1,3 +1,15 @@
+2006-10-19 aki
+	* rep2 version 1.8.1
+	
+	[バグ修正] ユーザ設定編集で保存できなったバグを修正した。（1.8.0-）
+	[新機能] YouTubeのリンクをプレビューできるようになった。（ユーザ設定 link_youtube）
+	
+	- 意味のある変更があったファイル
+		conf/conf.inc.php
+		conf/conf_user_def.inc.php
+		edit_conf_user.php
+		showthreadpc.class.php
+	
 2006-10-18 aki
 	* rep2 version 1.8.0
 	
@@ -12,6 +24,7 @@
 	 	ユーザ編集設定 k_clip_unique_id
 	[新機能] 携帯でのスレッド閲覧時、ID末尾の"O"に下線を追加できるようにした（拡張パックより）
 	 	ユーザ編集設定 mobile.id_underline
+	[新機能] 複数のレス番を持つスレのURLに対応した。
 	[改良] その他、携帯の表示をいろいろ見やすく改良した。
 	[改良] ファイルデータの保存処理を改良調整した。
 	[改良] カキコフォームのびーるのJavaScript処理が重くならないように調整した。
@@ -24,7 +37,6 @@
 	
 	- 変更のあったファイルはほぼ全て
 	- 新規追加ファイル lib/StrSjis.php
-	
 	
 2006-05-27 aki
 	* rep2 version 1.7.29

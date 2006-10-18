@@ -7,13 +7,14 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
  * p2 - p2用のユーティリティクラス
  * インスタンスを作らずにスタティックメソッドで利用する
  * 
- * @create  2004/07/15
+ * @created  2004/07/15
  */
 class P2Util{
     
     /**
      * ファイルをダウンロード保存する
      *
+     * @access  public
      * @return  object|false
      */
     function &fileDownload($url, $localfile, $disp_error = true, $use_tmp_file = false)
@@ -80,6 +81,7 @@ class P2Util{
      * ディレクトリに書き込み権限がなければ注意を表示セットする
      *
      * @access  public
+     * @access  public
      */
     function checkDirWritable($aDir)
     {
@@ -116,6 +118,7 @@ class P2Util{
     /**
      * ダウンロードURLからキャッシュファイルパスを返す
      *
+     * @access  public
      * @return  string
      */
     function cacheFileForDL($url)
@@ -139,6 +142,7 @@ class P2Util{
     /**
      * hostとbbsから板名を取得する
      *
+     * @access  public
      * @return  string|null
      */
     function getItaName($host, $bbs)
@@ -189,6 +193,7 @@ class P2Util{
     /**
      * hostからdatの保存ディレクトリを返す
      *
+     * @access  public
      * @return  string
      */
     function datDirOfHost($host)
@@ -210,6 +215,7 @@ class P2Util{
     /**
      * hostからidxの保存ディレクトリを返す
      *
+     * @access  public
      * @return  string
      */
     function idxDirOfHost($host)
@@ -232,6 +238,7 @@ class P2Util{
     /**
      * failed_post_file のパスを取得する
      *
+     * @access  public
      * @return  string
      */
     function getFailedPostFilePath($host, $bbs, $key = false)
@@ -249,6 +256,7 @@ class P2Util{
     /**
      * リストのナビ範囲を取得する
      *
+     * @access  public
      * @return  array
      */
     function getListNaviRange($disp_from, $disp_range, $disp_all_num)
@@ -311,6 +319,7 @@ class P2Util{
     /**
      * key.idx に data を記録する
      *
+     * @access  public
      * @param   array   $data   要素の順番に意味あり。
      */
     function recKeyIdx($keyidx, $data)
@@ -340,6 +349,7 @@ class P2Util{
     /**
      * ホストからクッキーファイルパスを返す
      *
+     * @access  public
      * @return  string
      */
     function cachePathForCookie($host)
@@ -356,6 +366,7 @@ class P2Util{
     /**
      * 中継ゲートを通すためのURL変換を行う
      *
+     * @access  public
      * @return  string
      */
     function throughIme($url)
@@ -380,6 +391,7 @@ class P2Util{
     /**
      * host が 2ch or bbspink なら true を返す
      *
+     * @access  public
      * @return  boolean
      */
     function isHost2chs($host)
@@ -396,6 +408,7 @@ class P2Util{
      * 2006/07/27 これはもう古いメソッド。
      * 2chの板移転に応じて、bbsも含めて判定しなくてはならなくなったので、isBbsBe2chNet()を利用する。
      *
+     * @access  public
      * @return  boolean
      */
     function isHostBe2chNet($host)
@@ -411,6 +424,7 @@ class P2Util{
      * bbs（板） が be.2ch なら true を返す
      *
      * @since   2006/07/27
+     * @access  public
      * @return  boolean
      */
     function isBbsBe2chNet($host, $bbs)
@@ -428,6 +442,7 @@ class P2Util{
     /**
      * host が bbspink なら true を返す
      *
+     * @access  public
      * @return  boolean
      */
     function isHostBbsPink($host)
@@ -442,6 +457,7 @@ class P2Util{
     /**
      * host が machibbs なら true を返す
      *
+     * @access  public
      * @return  boolean
      */
     function isHostMachiBbs($host)
@@ -456,6 +472,7 @@ class P2Util{
     /**
      * host が machibbs.net まちビねっと なら true を返す
      *
+     * @access  public
      * @return  booean
      */
     function isHostMachiBbsNet($host)
@@ -470,6 +487,7 @@ class P2Util{
     /**
      * host が JBBS@したらば なら true を返す
      *
+     * @access  public
      * @return  booean
      */
     function isHostJbbsShitaraba($in_host)
@@ -484,6 +502,7 @@ class P2Util{
     /**
      * JBBS@したらばのホスト名変更に対応して変換する
      *
+     * @access  public
      * @param   string    $in_str    ホスト名でもURLでもなんでも良い
      * @return  string
      */
@@ -500,6 +519,7 @@ class P2Util{
     /**
      * http header no cache を出力する
      *
+     * @access  public
      * @return  void
      */
     function header_nocache()
@@ -514,6 +534,7 @@ class P2Util{
     /**
      * http header Content-Type 出力する
      *
+     * @access  public
      * @return  void
      */
     function header_content_type()
@@ -571,6 +592,7 @@ class P2Util{
     /**
      * dat形式（<>）の書き込み履歴をデータPHP形式（TAB）に変換する
      *
+     * @access  public
      * @return  boolean
      */
     function transResHistLogDatToPhp()
@@ -604,11 +626,11 @@ class P2Util{
     /**
      * 前回のアクセス情報を取得する
      *
+     * @access  public
      * @return  array
      */
     function getLastAccessLog($logfile)
     {
-        // 読み込んで
         if (!$lines = DataPhp::fileDataPhp($logfile)) {
             return false;
         }
@@ -632,6 +654,7 @@ class P2Util{
     /**
      * アクセス情報をログに記録する
      *
+     * @access  public
      * @return  boolean
      */
     function recAccessLog($logfile, $maxline = 100, $format = 'dataphp')
@@ -705,6 +728,7 @@ class P2Util{
     /**
      * ブラウザがSafari系ならtrueを返す
      *
+     * @access  public
      * @return  boolean
      */
     function isBrowserSafariGroup()
@@ -773,6 +797,7 @@ EOP;
     /**
      * getAngoKey
      *
+     * @access  public
      * @return  string
      */
     function getAngoKey()
@@ -785,6 +810,7 @@ EOP;
     /**
      * getCsrfId
      *
+     * @access  public
      * @return  string
      */
     function getCsrfId()
@@ -796,8 +822,11 @@ EOP;
     
     /**
      * 403 Fobbidenを出力する
+     *
+     * @access  public
+     * @return  void
      */
-    function print403($msg = '')
+    function print403($msg = '', $die = true)
     {
         header('HTTP/1.0 403 Forbidden');
         echo <<<ERR
@@ -818,7 +847,8 @@ ERR;
                 echo ' ';
             }
         }
-        exit;
+        
+        $die and die('');
     }
 
     // {{{ session_gc()
@@ -860,6 +890,7 @@ ERR;
      * 206 Partial Content
      * 304 Not Modified → 失敗扱い
      *
+     * @access  public
      * @return  string|false  成功したらページ内容を返す。失敗したらfalseを返す。
      */
     function getWebPage($url, &$error_msg, $timeout = 15)
@@ -896,6 +927,7 @@ ERR;
     /**
      * 現在のURLを取得する（GETクエリーはなし）
      *
+     * @access  public
      * @return  string
      * @see  http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
      */
@@ -911,6 +943,7 @@ ERR;
     /**
      * シンプルにHTMLを表示する
      *
+     * @access  public
      * @return  void
      */
     function printSimpleHtml($body)
@@ -921,6 +954,7 @@ ERR;
     /**
      * isNetFront?
      *
+     * @access  public
      * @return  boolean
      */
     function isNetFront()
@@ -954,6 +988,35 @@ ERR;
         
         return '<a href="' . $url . "\"{$attr_html}>" . $html . '</a>';
     }
+
+    /**
+     * pushInfoMsgHtml
+     * [予告] 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通すつもり
+     *
+     * @access  public
+     * @return  void
+     */
+    function pushInfoMsgHtml($html)
+    {
+        global $_info_msg_ht;
+        
+        $_info_msg_ht .= $html;
+    }
+
+    /**
+     * printInfoMsgHtml
+     * [予告] 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通すつもり
+     *
+     * @access  public
+     * @return  void
+     */
+    function printInfoMsgHtml()
+    {
+        global $_info_msg_ht;
+        
+        echo $_info_msg_ht;
+    }
+
 }
 
 ?>

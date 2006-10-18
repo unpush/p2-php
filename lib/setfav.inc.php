@@ -156,7 +156,7 @@ function postFavRank($post)
     
     $URL = parse_url($_conf['favrank_url']);
     if (isset($URL['query'])) {
-        $URL['query'] = "?".$URL['query'];
+        $URL['query'] = "?" . $URL['query'];
     } else {
         $URL['query'] = "";
     }
@@ -172,28 +172,28 @@ function postFavRank($post)
         $send_path = $URL['path'].$URL['query'];
     }
     
-    if (!$send_port) {$send_port = 80;} // デフォルトを80
+    if (!$send_port) {$send_port = 80;}
     
-    $request = $method." ".$send_path." HTTP/1.0\r\n";
-    $request .= "Host: ".$URL['host']."\r\n";
-    $request .= "User-Agent: ".$httpua."\r\n";
+    $request = "$method $send_path HTTP/1.0" . "\r\n";
+    $request .= "Host: " . $URL['host'] . "\r\n";
+    $request .= "User-Agent: " . $httpua . "\r\n";
     $request .= "Connection: Close\r\n";
 
-    /* POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付 */
+    // POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付
     if (strtoupper($method) == "POST") {
         while (list($name, $value) = each($post)) {
-            $POST[] = $name."=".urlencode($value);
+            $POST[] = $name . "=" . urlencode($value);
         }
         $postdata = implode("&", $POST);
         $request .= "Content-Type: application/x-www-form-urlencoded\r\n";
-        $request .= "Content-Length: ".strlen($postdata)."\r\n";
+        $request .= "Content-Length: " . strlen($postdata) . "\r\n";
         $request .= "\r\n";
         $request .= $postdata;
     } else {
         $request .= "\r\n";
     }
 
-    /* WEBサーバへ接続 */
+    // WEBサーバへ接続
     $fp = fsockopen($send_host, $send_port, $errno, $errstr, 3);
     if (!$fp) {
         //echo "サーバ接続エラー: $errstr ($errno)<br>\n";
@@ -202,19 +202,7 @@ function postFavRank($post)
     }
 
     fputs($fp, $request);
-    /*
-    while (!feof($fp)){
-        if($start_here){
-            echo $body = fread($fp,512000);
-        }else{
-            $l = fgets($fp,128000);
-            if($l=="\r\n"){
-                $start_here=true;
-            }
-        }
-    }
-    */
-    fclose ($fp);
+    fclose($fp);
     
     return true;
     //return $body;

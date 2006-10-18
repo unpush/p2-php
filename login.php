@@ -55,7 +55,7 @@ if (isset($_POST['form_login_pass'])) {
 \$rec_login_pass_x = '{$crypted_login_pass}';
 ?>
 EOP;
-        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']); // ファイルがなければ生成
+        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']);
         $fp = @fopen($_conf['auth_user_file'], "wb") or die("rep2 Error: {$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
         @flock($fp, LOCK_EX);
         fputs($fp, $auth_user_cont);
@@ -188,8 +188,8 @@ echo <<<EOP
     <title>{$p_str['ptitle']}</title>
 EOP;
 if (empty($_conf['ktai'])) {
-    @include("./style/style_css.inc");
-    @include("./style/login_css.inc");
+    @include "./style/style_css.inc";
+    @include "./style/login_css.inc";
     echo <<<EOP
     <script type="text/javascript" src="js/basic.js"></script>\n
 EOP;

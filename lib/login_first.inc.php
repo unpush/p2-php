@@ -27,7 +27,7 @@ function printLoginFirst(&$_login)
     // }}}
     
     // ‘Oˆ—
-    $_login->checkAuthUserFile();
+    $_login->cleanInvalidAuthUserFile();
     clearstatcache();
     
     //=========================================================

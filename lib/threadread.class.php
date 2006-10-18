@@ -525,10 +525,11 @@ class ThreadRead extends Thread{
         // gzip圧縮なら
         if ($isGzip) {
             // gzip tempファイルに保存
-            $gztempfile = $this->keydat.".gz";
+            $gztempfile = $this->keydat . ".gz";
             FileCtl::mkdir_for($gztempfile);
-            if (FileCtl::file_write_contents($gztempfile, $body) === false) {
+            if (file_put_contents($gztempfile, $body, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chMaru()");
+                return false;
             }
             
             // PHPで解凍読み込み
@@ -573,7 +574,7 @@ class ThreadRead extends Thread{
         
         if (!$done_gunzip) {
             FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-            if (FileCtl::file_write_contents($this->keydat, $body) === false) {
+            if (file_put_contents($this->keydat, $body, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chMaru()");
                 return false;
             }
@@ -597,7 +598,7 @@ class ThreadRead extends Thread{
                 }
             }
             FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-            if (FileCtl::file_write_contents($this->keydat, $cont) === false) {
+            if (file_put_contents($this->keydat, $cont, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chMaru()");
                 return false;
             }
@@ -753,8 +754,9 @@ class ThreadRead extends Thread{
         if ($isGzip) {
             $gztempfile = $this->keydat . ".gz";
             FileCtl::mkdir_for($gztempfile);
-            if (FileCtl::file_write_contents($gztempfile, $body) === false) {
+            if (file_put_contents($gztempfile, $body, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chKako()");
+                return false;
             }
             if (extension_loaded('zlib')) {
                 $body = FileCtl::get_gzfile_contents($gztempfile);
@@ -794,8 +796,9 @@ class ThreadRead extends Thread{
 
         if (!$done_gunzip) {
             FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-            if (FileCtl::file_write_contents($this->keydat, $body) === false) {
+            if (file_put_contents($this->keydat, $body, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chKako()");
+                return false;
             }
         }
         
@@ -848,7 +851,7 @@ class ThreadRead extends Thread{
         $read_response_html = "";
         include_once P2_LIBRARY_DIR . '/wap.class.php';
         $wap_ua =& new UserAgent();
-        $wap_ua->setAgent($_conf['p2name']."/".$_conf['p2version']); // ここは、"Monazilla/" をつけるとNG
+        $wap_ua->setAgent($_conf['p2name'] . "/" . $_conf['p2version']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req =& new Request();
         $wap_req->setUrl($read_url);
@@ -994,7 +997,7 @@ class ThreadRead extends Thread{
             $url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
             
             $purl = parse_url($url);
-            if (isset($purl['query'])) { // クエリー
+            if (isset($purl['query'])) {
                 $purl['query'] = "?" . $purl['query'];
             } else {
                 $purl['query'] = "";

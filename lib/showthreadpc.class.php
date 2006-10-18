@@ -29,6 +29,7 @@ class ShowThreadPc extends ShowThread{
         if ($_conf['preview_thumbnail']) {
             $this->url_handlers[] = array('this' => 'plugin_viewImage');
         }
+        $_conf['link_youtube'] and $this->url_handlers[] = array('this' => 'plugin_linkYouTube');
         $this->url_handlers[] = array('this' => 'plugin_linkURL');
     }
 
@@ -881,6 +882,7 @@ EOP;
      * URLリンク
      *
      * @access  private
+     * @param   array   $purl  urlをparse_url()したもの
      * @return  string|false
      */
     function plugin_linkURL($url, $purl, $str)
@@ -1043,6 +1045,28 @@ EOP;
         return FALSE;
     }
 
+    /**
+     * YouTubeリンク変換プラグイン
+     * [wish] YouTube APIを利用して、画像サムネイルのみにしたい
+     *
+     * @access  private
+     * @return  string|false
+     */
+    function plugin_linkYouTube($url, $purl, $str)
+    {
+        global $_conf;
+
+        // http://www.youtube.com/watch?v=Mn8tiFnAUAI
+        if (preg_match('{^http://www\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
+            $url = P2Util::throughIme($url);
+            return <<<EOP
+<a href="$url"{$_conf['ext_win_target_at']}>$str</a><br>
+<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{$m[1]}"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{$m[1]}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>\n
+EOP;
+        }
+        return FALSE;
+    }
+    
     /**
      * 画像ポップアップ変換
      *

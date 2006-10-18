@@ -79,6 +79,8 @@ $ptitle = 'ユーザ設定編集';
 
 $csrfid = P2Util::getCsrfId();
 
+$me = P2Util::getMyUrl();
+
 //=====================================================================
 // プリント
 //=====================================================================
@@ -116,7 +118,7 @@ EOP;
 // PC用表示
 if (empty($_conf['ktai'])) {
     echo <<<EOP
-<p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle}</p>\n
+<p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle} （<a href="{$me}">リロード</a>）</p>\n
 EOP;
 }
 
@@ -209,6 +211,7 @@ echo getEditConfHtml('preview_thumbnail', '画像URLの先読みサムネイルを表示（する
 echo getEditConfHtml('pre_thumb_limit', '画像URLの先読みサムネイルを一度に表示する制限数');
 //echo getEditConfHtml('preview_thumbnail', '画像サムネイルの縦の大きさを指定 (ピクセル)');
 ////echo getEditConfHtml('pre_thumb_width', '画像サムネイルの横の大きさを指定 (ピクセル)');
+echo getEditConfHtml('link_youtube', 'YouTubeのリンクをプレビュー表示（する, しない)');
 echo getEditConfHtml('iframe_popup', 'HTMLポップアップ (する, しない, pでする, 画像でする)');
 //echo getEditConfHtml('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)');
 echo getEditConfHtml('flex_idpopup', 'ID:xxxxxxxx をIDフィルタリングのリンクに変換 (する, しない)');
@@ -284,7 +287,7 @@ exit;
 
 
 //=====================================================================
-// 関数 use only in this file
+// 関数 （このファイル内のみの利用）
 //=====================================================================
 /**
  * ルール設定（$conf_user_rules）に基づいて、フィルタ処理（デフォルトセット）を行う
@@ -306,6 +309,8 @@ function applyRules()
         }
     }
 }
+
+// emptyToDef() などのフィルタはEditConfFiterクラスなどにまとめる予定
 
 /**
  * CSS値のためのフィルタリングを行う
@@ -348,6 +353,27 @@ function notIntExceptMinusToDef($val, $def)
     }
     return $val;
 }
+
+/**
+ * 選択肢にない値はデフォルトセットする
+ */
+function notSelToDef()
+{
+    global $conf_user_def, $conf_user_sel;
+    
+    $names = array_keys($conf_user_sel);
+    
+    if (is_array($names)) {
+        foreach ($names as $n) {
+            if (isset($_POST['conf_edit'][$n])) {
+                if (!array_key_exists($_POST['conf_edit'][$n], $conf_user_sel[$n])) {
+                    $_POST['conf_edit'][$n] = $conf_user_def[$n];
+                }
+            }
+        } // foreach
+    }
+}
+
 /**
  * グループ分け用のHTMLを得る（関数内でPC、携帯用表示を振り分け）
  *
