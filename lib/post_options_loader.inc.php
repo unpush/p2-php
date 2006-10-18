@@ -59,15 +59,21 @@ function setHiddenValue(button) {
 </script>\n
 EOP;
 
-// {{{ key.idxから名前とメールを読込み
 
-if ($lines = @file($key_idx)) {
+// key.idxから名前とメールを読込み
+if (file_exists($key_idx) and $lines = file($key_idx)) {
     $line = explode('<>', rtrim($lines[0]));
     $hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
     $hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
 }
 
-// }}}
+// 空白はユーザ設定値に変換
+$hd['FROM'] = ($hd['FROM'] == '') ? htmlspecialchars($_conf['my_FROM'], ENT_QUOTES) : $hd['FROM'];
+$hd['mail'] = ($hd['mail'] == '') ? htmlspecialchars($_conf['my_mail'], ENT_QUOTES) : $hd['mail'];
+
+// P2NULLは空白に変換
+$hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
+$hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
 
 // 前回のPOST失敗があれば呼び出し
 $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
@@ -84,14 +90,6 @@ if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
     $hd['MESSAGE'] = $last_posted['MESSAGE'];
     $hd['subject'] = $last_posted['subject'];
 }
-
-// 空白はユーザ設定値に変換
-$hd['FROM'] = ($hd['FROM'] == '') ? htmlspecialchars($_conf['my_FROM'], ENT_QUOTES) : $hd['FROM'];
-$hd['mail'] = ($hd['mail'] == '') ? htmlspecialchars($_conf['my_mail'], ENT_QUOTES) : $hd['mail'];
-
-// P2NULLは空白に変換
-$hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
-$hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
 
 
 // 表示指定
@@ -114,9 +112,24 @@ if (empty($_conf['ktai'])) {
     $wrap = 'soft';
 }
 
-// Be.2ch
+
+!isset($htm['res_disabled']) and $htm['res_disabled'] = '';
+
+// Be書き込み
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
     $htm['be2ch'] = '<input id="submit_beres" type="submit" name="submit_beres" value="BEで書き込む" onClick="setHiddenValue(this);">';
+}
+
+// be板では書き込みを無効にする
+$htm['title_need_be'] = '';
+if (P2Util::isBbsBe2chNet($host, $bbs)) {
+    // やっぱり無効にしない。書き込み失敗時に、2ch側でBeログインへの誘導があるので。
+    //$htm['res_disabled'] = ' disabled';
+    if ($_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
+        $htm['title_need_be'] = ' title="Be板につき、自動Be書き込みします"';
+    } else {
+        $htm['title_need_be'] = ' title="書き込むにはBeログインが必要です"';
+    }
 }
 
 // PC用 sage checkbox
@@ -181,6 +194,7 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         $q_resar = array_map('trim', $q_resar);
         $q_resar[3] = strip_tags($q_resar[3], '<br>');
         if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
+            // 引用レス番号ができてしまわないように、二つの半角スペースを入れている
             $hd['MESSAGE'] .= "&gt;  ";
             $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
             $hd['MESSAGE'] .= "\r\n";

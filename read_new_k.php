@@ -4,12 +4,12 @@
     フレーム分割画面、右下部分
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/threadlist.class.php');
-require_once (P2_LIBRARY_DIR . '/thread.class.php');
-require_once (P2_LIBRARY_DIR . '/threadread.class.php');
-require_once (P2_LIBRARY_DIR . '/ngabornctl.class.php');
-require_once (P2_LIBRARY_DIR . '/read_new.inc.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/threadlist.class.php';
+require_once P2_LIBRARY_DIR . '/thread.class.php';
+require_once P2_LIBRARY_DIR . '/threadread.class.php';
+require_once P2_LIBRARY_DIR . '/ngabornctl.class.php';
+require_once P2_LIBRARY_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -117,10 +117,10 @@ if (!empty($STYLE['read_k_color'])) {
 }
 
 // ========================================================
-// include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
+// include_once P2_LIBRARY_DIR . '/read_header.inc.php';
 
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
@@ -288,7 +288,7 @@ function readNew(&$aThread)
 
     // idxファイルがあれば読み込む
     if (is_readable($aThread->keyidx)) {
-        $lines = @file($aThread->keyidx);
+        $lines = file($aThread->keyidx);
         $data = explode('<>', rtrim($lines[0]));
     }
     $aThread->getThreadInfoFromIdx();
@@ -469,7 +469,7 @@ if (!$aThreadList->num) {
 
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     if (!empty($GLOBALS['limit_to_eq_to'])) {
-        $str = '新着まとめの更新/続き';
+        $str = '新着まとめの更新or続き';
     } else {
         $str = '新まとめを更新';
     }
@@ -492,7 +492,7 @@ echo '</body></html>';
 
 $read_new_html .= ob_get_flush();
 
-// ■NGあぼーんを記録
+// NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
 
 ?>

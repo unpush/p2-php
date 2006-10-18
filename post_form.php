@@ -3,13 +3,13 @@
     p2 - レス書き込みフォーム
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ユーザ認証
 
 //==================================================
-// ■変数
+// 変数
 //==================================================
 if (empty($_GET['host'])) {
     // 引数エラー
@@ -35,7 +35,7 @@ $idx_host_dir = P2Util::idxDirOfHost($host);
 $key_idx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 
 // フォームのオプション読み込み
-include_once (P2_LIBRARY_DIR . '/post_options_loader.inc.php');
+include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
 
 // 表示指定
 if (!$_conf['ktai']) {
@@ -45,6 +45,7 @@ if (!$_conf['ktai']) {
 }
 
 // {{{ スレ立てなら
+
 if ($_GET['newthread']) {
     $ptitle = "{$itaj} - 新規スレッド作成";
     
@@ -57,15 +58,16 @@ if ($_GET['newthread']) {
     }
     
     $htm['subject'] = <<<EOP
-<b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
+<b><span{$class_ttitle}>タイトル</span></b>：<input type="text" id="subject" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
 EOP;
     if ($_conf['ktai']) {
-        $htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>".$htm['subject'];
+        $htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>" . $htm['subject'];
     }
-    $newthread_hidden_ht = "<input type=\"hidden\" name=\"newthread\" value=\"1\">";
-// }}}
+    $newthread_hidden_ht = '<input type="hidden" name="newthread" value="1">';
 
+// }}}
 // {{{ 書き込みなら
+
 } else {
     $ptitle = "{$itaj} - レス書き込み";
     
@@ -76,13 +78,14 @@ EOP;
 EOP;
     $newthread_hidden_ht = '';
 }
+
 // }}}
 
 $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name="from_read_new" value="1">' : '';
 
 
 //==========================================================
-// ■HTMLプリント
+// HTMLプリント
 //==========================================================
 if (!$_conf['ktai']) {
     $body_on_load = <<<EOP
@@ -91,7 +94,7 @@ EOP;
 }
 
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
 <head>
@@ -106,7 +109,7 @@ if (!$_conf['ktai']) {
     @include("style/post_css.inc"); // スタイルシート
 echo <<<EOSCRIPT
     <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/post_form.js"></script>\n
+    <script type="text/javascript" src="js/post_form.js?v=200610147"></script>\n
 EOSCRIPT;
 }
 echo <<<EOP
@@ -118,7 +121,7 @@ echo $_info_msg_ht;
 $_info_msg_ht = '';
 
 // $htm['post_form'] を取得
-include_once (P2_LIBRARY_DIR . '/post_form.inc.php');
+include_once P2_LIBRARY_DIR . '/post_form.inc.php';
 
 echo $htm['post_form'];
 

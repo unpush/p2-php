@@ -1,11 +1,7 @@
 <?php
-/*
-    rep2 -  携帯用インデックスプリント関数
-*/
-
 /**
-* 携帯用インデックスプリント
-*/
+ * rep2 - 携帯用インデックスをHTMLプリントする関数
+ */
 function index_print_k()
 {
     global $_conf, $_login, $_info_msg_ht;
@@ -43,9 +39,7 @@ EOP;
     //=========================================================
     P2Util::header_nocache();
     P2Util::header_content_type();
-    if (isset($_conf['doctype'])) {
-        echo $_conf['doctype'];
-    }
+    echo $_conf['doctype'];
     echo <<<EOP
 <html>
 <head>

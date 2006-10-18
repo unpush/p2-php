@@ -16,32 +16,36 @@ $STYLE['a_underline_none'] = "2"; // ("2") リンクに下線を（つける:0, つけない:1,
 
 // フォント ======================================================
 
-$STYLE['fontfamily'] = "ヒラギノ角ゴ Pro W3"; // ("ヒラギノ角ゴ Pro W3") 基本のフォント
-
 if (strstr($_SERVER['HTTP_USER_AGENT'], "Mac")) {
 
-	if(! $browser == "Safari"){ /* ブラウザが Macで Safari 以外 なら */
+	// Safari等の WebKitを使っているものなら
+	if (strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")) {
+		$STYLE['fontfamily'] = "Hiragino Kaku Gothic Pro"; // ("Hiragino Kaku Gothic Pro") 基本のフォント
+		$STYLE['fontfamily_bold'] = ""; // ("") 基本ボールド用フォント
+	} else {
+		$STYLE['fontfamily'] = "ヒラギノ角ゴ Pro W3"; // ("ヒラギノ角ゴ Pro W3") 基本のフォント
 		$STYLE['fontfamily_bold'] = "ヒラギノ角ゴ Pro W6"; // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）
 	}
 
-	/* Mac用フォントサイズ */
-	$STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
-	$STYLE['menu_fontsize'] = "11px"; // ("11px") 板メニューのフォントの大きさ
-	$STYLE['sb_fontsize'] = "11px"; // ("11px") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] = "12px"; // ("12px") スレッド内容表示のフォントの大きさ
-	$STYLE['respop_fontsize'] = "11px"; // ("11px") 引用レスポップアップ表示のフォントの大きさ
-	$STYLE['infowin_fontsize'] = "11px"; // ("11px") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select のフォントの大きさ（Caminoを除く）
-}else{
+	// Mac用フォントサイズ
+	$STYLE['fontsize']			= "12px";		// ("") 基本フォントの大きさ
+	$STYLE['menu_fontsize'] 	= "11px"; 	// ("10pt") 板メニューのフォントの大きさ
+	$STYLE['sb_fontsize'] 		= "11px"; 	// ("10pt") スレ一覧のフォントの大きさ
+	$STYLE['read_fontsize'] 	= "12px"; 		// ("") スレッド内容表示のフォントの大きさ
+	$STYLE['respop_fontsize'] 	= "11px"; 	// ("10pt") 引用レスポップアップ表示のフォントの大きさ
+	$STYLE['infowin_fontsize'] 	= "11px"; 	// ("10pt") 情報ウィンドウのフォントの大きさ
+	$STYLE['form_fontsize'] 	= "11px"; 		// ("10pt") input, option, select のフォントの大きさ（Caminoを除く）
 
-	/* Mac以外のフォントサイズ */
-	$STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
-	$STYLE['menu_fontsize'] = "12px"; // ("12px") 板メニューのフォントの大きさ
-	$STYLE['sb_fontsize'] = "12px"; // ("12px") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] = "13px"; // ("13px") スレッド内容表示のフォントの大きさ
-	$STYLE['respop_fontsize'] = "12px"; // ("12px") 引用レスポップアップ表示のフォントの大きさ
-	$STYLE['infowin_fontsize'] = "12px"; // ("12px") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select のフォントの大きさ
+} else {
+
+	// Mac以外のフォントサイズ
+	$STYLE['fontsize']			= "12px"; 		// ("") 基本フォントの大きさ
+	$STYLE['menu_fontsize'] 	= "12px"; 	// ("10pt") 板メニューのフォントの大きさ
+	$STYLE['sb_fontsize'] 		= "12px"; 	// ("10pt") スレ一覧のフォントの大きさ
+	$STYLE['read_fontsize'] 	= "13px"; 		// ("") スレッド内容表示のフォントの大きさ
+	$STYLE['respop_fontsize'] 	= "12px"; 	// ("10pt") 引用レスポップアップ表示のフォントの大きさ
+	$STYLE['infowin_fontsize'] 	= "12px"; 	// ("10pt") 情報ウィンドウのフォントの大きさ
+	$STYLE['form_fontsize'] 	= "12px";		// ("10pt") input, option, select のフォントの大きさ
 }
 
 //======================================================================

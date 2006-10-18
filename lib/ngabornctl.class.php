@@ -65,7 +65,7 @@ class NgAbornCtl{
     /**
      * NGあぼーんHIT記録を更新時間でソートする
      *
-     * @private
+     * @access  private
      */
     function cmpLastTime($a, $b)
     {
@@ -98,14 +98,14 @@ class NgAbornCtl{
     /**
      * readNgAbornFromFile
      *
-     * @private
+     * @access  private
      */
     function readNgAbornFromFile($filename)
     {
         global $_conf;
     
         $lines = array();
-        $array['file'] = $_conf['pref_dir'].'/'.$filename;
+        $array['file'] = $_conf['pref_dir'] . '/' . $filename;
         if ($lines = @file($array['file'])) {
             $lines = array_map('trim', $lines);
         

@@ -62,7 +62,6 @@ editFile($path, $encode);
 //=========================================================
 // 関数
 //=========================================================
-
 /**
  * ファイルに内容をセットする関数
  */
@@ -100,7 +99,7 @@ function editFile($path, $encode)
     
     //ファイル内容読み込み
     FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
-    $cont = @file_get_contents($path);
+    $cont = file_get_contents($path);
     
     if ($encode == "EUC-JP") {
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');

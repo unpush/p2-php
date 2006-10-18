@@ -1,15 +1,15 @@
 <?php
-/*
-    p2 - StrCtl -- 文字列操作クラス
-    
-    クラスメソッドで利用する
-*/
+/**
+ * p2 - 文字列操作クラス
+ * スタティックメソッドで利用する
+ */
 class StrCtl{
 
     /**
      * フォームから送られてきたワードをマッチ関数に適合させる
      *
-     * @return string $word_fm 適合パターン。SJISで返す。
+     * @access  public
+     * @return  string  $word_fm  適合パターン。SJISで返す。
      */
     function wordForMatch($word, $method = 'regex')
     {
@@ -44,11 +44,14 @@ class StrCtl{
     }
 
     /**
-     * マルチバイト対応で正規表現マッチする
+     * マルチバイト対応で正規表現マッチ判定する
      *
-     * @param string $pattern マッチ文字列。SJISで入ってくる。
-     * @param string $target  検索対象文字列。SJISで入ってくる。
-     * @param string $zenhan  全角/半角の区別を完全になくす（これをオンにすると、メモリの使用量が倍くらいになる。速度負担はそれほどでもない）
+     * @access  public
+     * @param   string  $pattern  マッチ文字列。SJISで入ってくる。
+     * @param   string  $target   検索対象文字列。SJISで入ってくる。
+     * @param   string  $zenhan   全角/半角の区別を完全になくす
+     *                           （これをオンにすると、メモリの使用量が倍くらいになる。速度負担はそれほどでもない）
+     * @return  boolean           マッチしたらtrueを返す
      */
     function filterMatch($pattern, $target, $zenhan = true)
     {
@@ -85,8 +88,10 @@ class StrCtl{
     /**
      * マルチバイト対応でマーキングする
      *
-     * @param string $pattern マッチ文字列。SJISで入ってくる。
-     * @param string $target 置換対象文字列。SJISで入ってくる。
+     * @access  public
+     * @param   string  $pattern  マッチ文字列。SJISで入ってくる。
+     * @param   string  $target   置換対象文字列。SJISで入ってくる。
+     * @return  string
      */
     function filterMarking($pattern, &$target, $marker = '<b class="filtering">\\1</b>')
     {
@@ -114,6 +119,9 @@ class StrCtl{
     
     /**
      * 全角/半角を（ある程度）区別なくパッチするための正規表現パターンを得る
+     *
+     * @access  private
+     * @return  string
      */
     function getPatternZenHan($pattern)
     {
@@ -133,6 +141,9 @@ class StrCtl{
     
     /**
      * （パターン）文字列を半角にする
+     *
+     * @access  private
+     * @return  string
      */
     function getPatternToHan($pattern, $no_escape = false)
     {
@@ -169,6 +180,9 @@ class StrCtl{
     
     /**
      * （パターン）文字列を全角にする
+     *
+     * @access  private
+     * @return  string
      */
     function getPatternToZen($pattern, $no_escape = false)
     {
@@ -201,6 +215,9 @@ class StrCtl{
     
     /**
      * 全角/半角の記号パターンを得る
+     *
+     * @access  private
+     * @return  string
      */
     function getKigouPattern($no_escape = false)
     {

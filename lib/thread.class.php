@@ -47,7 +47,7 @@ class Thread{
     var $similarity; // タイトルの類似性
     
     /**
-     * コンストラクタ
+     * @constructor
      */
     function Thread()
     {
@@ -55,6 +55,9 @@ class Thread{
 
     /**
      * ttitleをセットする（ついでにttitle_hc, ttitle_hd, ttitle_htも）
+     *
+     * @access  public
+     * @return  void
      */
     function setTtitle($ttitle)
     {
@@ -73,6 +76,9 @@ class Thread{
     
     /**
      * fav, recent用の拡張idxリストからラインデータを取得する
+     *
+     * @access  public
+     * @return  void
      */
     function getThreadInfoFromExtIdxLine($l)
     {
@@ -96,6 +102,9 @@ class Thread{
 
     /**
      * Set Path info
+     *
+     * @access  public
+     * @return  void
      */
     function setThreadPathInfo($host, $bbs, $key)
     {
@@ -112,12 +121,13 @@ class Thread{
         $this->keyidx = $idx_host_dir . '/' . $this->bbs . '/' . $this->key . '.idx';
         
         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setThreadPathInfo()');
-        
-        return true;
     }
 
     /**
      * スレッドが既得済みならtrueを返す
+     *
+     * @access  public
+     * @return  boolean
      */
     function isKitoku()
     {
@@ -129,7 +139,9 @@ class Thread{
     }
 
     /**
-     * 既得スレッドデータをkey.idxから取得する
+     * 既得スレッドデータをkey.idxから取得セットする
+     *
+     * @access  public
      */
     function getThreadInfoFromIdx()
     {
@@ -153,7 +165,7 @@ class Thread{
         
         // 旧互換措置（$lar[9] newlineの廃止）
         } elseif ($lar[9]) {
-            $this->readnum = $lar[9] -1;
+            $this->readnum = $lar[9] - 1;
         }
         
         if ($lar[3]) {
@@ -192,7 +204,10 @@ class Thread{
     }
     
     /**
-     * ローカルDATのファイルサイズを取得する
+     * ローカルDATのファイルサイズを取得セットする
+     *
+     * @access  public
+     * @return  integer
      */
     function getDatBytesFromLocalDat()
     {
@@ -201,7 +216,11 @@ class Thread{
     }
     
     /**
-     * subject.txt の一行からスレ情報を取得する
+     * subject.txt の一行からスレ情報を取得してセットする
+     * 2006/09/18 setThreadInfoFromSubjectTxtLine() という名前にしておけばよかった。いずれ変更するかも。
+     *
+     * @access  public
+     * @return  boolean
      */
     function getThreadInfoFromSubjectTxtLine($l)
     {
@@ -230,7 +249,10 @@ class Thread{
     }
 
     /**
-     * スレタイトル取得メソッド
+     * スレタイトルを取得セットする
+     *
+     * @access  public
+     * @return  string
      */
     function setTitleFromLocal()
     {
@@ -264,12 +286,15 @@ class Thread{
             }
             
         }
-        
+
         return $this->ttitle;
     }
 
     /**
      * 元スレURLを返す
+     *
+     * @access  public
+     * @return  string
      */
     function getMotoThread($original = false)
     {
@@ -319,6 +344,9 @@ class Thread{
     
     /**
      * 勢い（レス/日）をセットする
+     *
+     * @access  public
+     * @return  boolean
      */
     function setDayRes($nowtime = false)
     {
@@ -344,6 +372,9 @@ class Thread{
 
     /**
      * レス間隔（時間/レス）を取得する
+     *
+     * @access  public
+     * @return  string
      */
     function getTimePerRes()
     {
@@ -389,4 +420,5 @@ class Thread{
     }
 
 }
+
 ?>

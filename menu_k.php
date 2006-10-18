@@ -3,9 +3,9 @@
     p2 -  板メニュー 携帯用
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/brdctl.class.php');
-require_once (P2_LIBRARY_DIR . '/showbrdmenuk.class.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/brdctl.class.php';
+require_once P2_LIBRARY_DIR . '/showbrdmenuk.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -31,7 +31,7 @@ if (isset($word) && strlen($word) > 0) {
     }
     
     // and検索
-    include_once (P2_LIBRARY_DIR . '/strctl.class.php');
+    include_once P2_LIBRARY_DIR . '/strctl.class.php';
     $word_fm = StrCtl::wordForMatch($word, 'and');
     if (P2_MBREGEX_AVAILABLE == 1) {
         $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
@@ -49,7 +49,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
+    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -72,7 +72,7 @@ if ($_GET['view'] == "favita") {
 }
 
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
@@ -80,24 +80,22 @@ echo <<<EOP
     <title>{$ptitle}</title>
 EOP;
 
-echo <<<EOP
-</head>
-<body>
-EOP;
+echo "</head><body>\n";
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 //==============================================================
 // お気に板をプリントする
 //==============================================================
-if($_GET['view']=="favita"){
-    $aShowBrdMenuK->print_favIta();
+if ($_GET['view'] == "favita") {
+    $aShowBrdMenuK->printFavItaHtml();
 
 // それ以外ならbrd読み込み
-}else{
+} else {
     $brd_menus =  BrdCtl::read_brds();
 }
+
 //===========================================================
 // 板検索
 //===========================================================
@@ -180,10 +178,8 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
-//==============================================================
-// フッタを表示
-//==============================================================
 
+// フッタを表示
 echo '<hr>';
 echo $list_navi_ht;
 echo $modori_url_ht;

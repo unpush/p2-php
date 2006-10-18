@@ -1,6 +1,5 @@
 <?php
-
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * p2 - ボードメニュークラス for menu.php
@@ -13,6 +12,9 @@ class BrdMenu{
     var $cate_match;    // カテゴリーマッチ形式
     var $ita_match;     // 板マッチ形式
     
+    /**
+     * @constructor
+     */
     function BrdMenu()
     {
         $this->num = 0;
@@ -20,6 +22,9 @@ class BrdMenu{
     
     /**
      * カテゴリーを追加する
+     *
+     * @access  public
+     * @return  void
      */
     function addBrdMenuCate(&$aBrdMenuCate)
     {
@@ -28,8 +33,11 @@ class BrdMenu{
     }
     
     /**
-    * パターンマッチの形式を登録する
-    */
+     * パターンマッチの形式を登録する
+     *
+     * @access  public
+     * @return  void
+     */
     function setBrdMatch($brdName)
     {
         // html形式
@@ -46,8 +54,11 @@ class BrdMenu{
     }
 
     /**
-    * データを読み込んで、カテゴリと板を登録する
-    */
+     * データを読み込んで、カテゴリと板を登録する
+     *
+     * @access  public
+     * @return  void
+     */
     function setBrdList($data)
     {
         global $_conf;
@@ -112,7 +123,11 @@ class BrdMenu{
                         $GLOBALS['ita_mikke']['itaj_en'] = $aBrdMenuIta->itaj_en;
 
                         // マーキング
-                        $aBrdMenuIta->itaj_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aBrdMenuIta->itaj);
+                        if ($_conf['ktai'] && is_string($_conf['k_filter_marker'])) {
+                            $aBrdMenuIta->itaj_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aBrdMenuIta->itaj, $_conf['k_filter_marker']);
+                        } else {
+                            $aBrdMenuIta->itaj_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aBrdMenuIta->itaj);
+                        }
                         
                         // マッチマーキングなければ（bbsでマッチしたとき）、全部マーキング
                         if ($aBrdMenuIta->itaj_ht == $aBrdMenuIta->itaj) {
@@ -137,23 +152,24 @@ class BrdMenu{
     }
 
     /**
-    * brdファイルを生成する
-    *
-    * @return    string    brdファイルのパス
-    */
+     * brdファイルを生成する
+     *
+     * @access  public
+     * @return  string    brdファイルのパス
+     */
     function makeBrdFile($cachefile)
     {
         global $_conf, $_info_msg_ht, $word;
     
-        $p2brdfile = $cachefile.".p2.brd";
+        $p2brdfile = $cachefile . ".p2.brd";
         FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
-        $data = @file($cachefile);
+        $data = file($cachefile);
         $this->setBrdMatch($cachefile); // パターンマッチ形式を登録
         $this->setBrdList($data);       // カテゴリーと板をセット
         if ($this->categories) {
             foreach ($this->categories as $cate) {
                 if ($cate->num > 0) {
-                    $cont .= $cate->name."\t0\n";
+                    $cont .= $cate->name . "\t0\n";
                     foreach ($cate->menuitas as $mita) {
                         $cont .= "\t{$mita->host}\t{$mita->bbs}\t{$mita->itaj}\n";
                     }
@@ -162,7 +178,7 @@ class BrdMenu{
         }
 
         if ($cont) {
-            if (FileCtl::file_write_contents($p2brdfile, $cont) === false) {
+            if (FileCtl::filePutRename($p2brdfile, $cont) === false) {
                 die("p2 error: {$p2brdfile} を更新できませんでした");
             }
             return $p2brdfile;
@@ -177,8 +193,8 @@ class BrdMenu{
 }
 
 /**
-* ボードメニューカテゴリークラス
-*/
+ * ボードメニューカテゴリークラス
+ */
 class BrdMenuCate{
 
     var $name;          // カテゴリーの名前
@@ -188,8 +204,8 @@ class BrdMenuCate{
     var $ita_match_num; // 検索にヒットした板の数
     
     /**
-    * コンストラクタ
-    */
+     * @constructor
+     */
     function BrdMenuCate($name)
     {
         $this->num = 0;
@@ -201,6 +217,9 @@ class BrdMenuCate{
     
     /**
      * 板を追加する
+     *
+     * @access  public
+     * @return  void
      */
     function addBrdMenuIta(&$aBrdMenuIta)
     {
@@ -211,15 +230,20 @@ class BrdMenuCate{
 }
 
 /**
-* ボードメニュー板クラス
-*/
+ * ボードメニュー板クラス
+ */
 class BrdMenuIta{
+
     var $host;
     var $bbs;
     var $itaj;    // 板名
     var $itaj_en;    // 板名をエンコードしたもの
     var $itaj_ht;    // HTMLで出力する板名（フィルタリングしたもの）
     
+    /**
+     * @access  public
+     * @return  void
+     */
     function setItaj($itaj)
     {
         $this->itaj = $itaj;

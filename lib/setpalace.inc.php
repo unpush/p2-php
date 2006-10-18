@@ -1,14 +1,13 @@
 <?php
-/*
-    p2 -  殿堂入り関係の処理
-*/
-
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
- * スレを殿堂入りにセットする
+ * スレを殿堂入りにセットする関数
  *
  * $set は、0(解除), 1(追加), top, up, down, bottom
+ *
+ * @access  public
+ * @return  boolean  実行成否
  */
 function setPal($host, $bbs, $key, $setpal)
 {
@@ -19,22 +18,21 @@ function setPal($host, $bbs, $key, $setpal)
     $idxfile = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 
     // 既に key.idx データがあるなら読み込む
-    if ($lines = @file($idxfile)) {
+    if (file_exists($idxfile) and $lines = file($idxfile)) {
         $l = rtrim($lines[0]);
         $data = explode('<>', $l);
     }
 
-    //==================================================================
     // p2_palace.idxに書き込む
-    //==================================================================
-    $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
+    $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx';
 
-    // palace_idx ファイルがなければ生成
     FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
 
-    // palace_idx 読み込み
-    $pallines = @file($palace_idx);
-
+    $pallines = file($palace_idx);
+    if ($pallines === false) {
+        return false;
+    }
+    
     $neolines = array();
     $before_line_num = 0;
     
@@ -77,21 +75,14 @@ function setPal($host, $bbs, $key, $setpal)
         }
     }
     
-    // {{{ 書き込む
-    
-    $temp_file = $palace_idx . '.tmp';
-    $write_file = strstr(PHP_OS, 'WIN') ? $palace_idx : $temp_file;
-    if (FileCtl::file_write_contents($write_file, $cont) === false) {
-        die('Error: cannot write file. ' . __FUNCTION__ . '()');
+    // 書き込む
+    if (FileCtl::filePutRename($palace_idx, $cont) === false) {
+        $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
+        trigger_error($errmsg, E_USER_WARNING);
+        return false;
     }
-    if (!strstr(PHP_OS, 'WIN')) {
-        if (!rename($write_file, $palace_idx)) {
-            die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
-        }
-    }
-        
-    // }}}
     
     return true;
 }
+
 ?>

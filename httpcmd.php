@@ -4,7 +4,7 @@
     返り値は、テキストで返す
 */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル
+include_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -42,12 +42,12 @@ if ($cmd == 'delelog') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
         include_once (P2_LIBRARY_DIR . '/dele.inc.php');
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
-        if (empty($r)) {
-            $r_msg = "0"; // 失敗
-        } elseif ($r == 1) {
+        if ($r == 1) {
             $r_msg = "1"; // 完了
         } elseif ($r == 2) {
             $r_msg = "2"; // なし
+        } else {
+            $r_msg = "0"; // 失敗
         }
     }
     
@@ -64,6 +64,16 @@ if ($cmd == 'delelog') {
             $r_msg = "1"; // 完了
         }
     }
+
+// }}}
+// {{{ 書き込みフォームのオートセーブ（※これは使っていない。通信負荷を避けて、クッキーにまかせた）
+
+} elseif ($cmd == 'auto_save_post_form') {
+    // 未実装のテスト
+    ob_start();
+    var_dump($_POST);
+    $r_msg = ob_get_clean();
+
 }
 // }}}
 // {{{ 結果出力

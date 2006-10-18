@@ -2,7 +2,7 @@
 // WWW Access on PHP
 // http://member.nifty.ne.jp/hippo2000/perltips/LWP.html を参考にしつつ似たような簡易のものを
 
-// 2005/04/20 aki このクラスは役割終了にして、PEAR利用に移行したい（HTTP_Clientなど）
+// 2005/04/20 aki このクラスは役割終了にして、PEAR利用に移行したい（HTTP_Requestなど）
 
 /**
  * UserAgent クラス
@@ -25,7 +25,6 @@ class UserAgent{
 	function setAgent($agent_name)
 	{
 		$this->agent = $agent_name;
-		return;
 	}
 	
 	/**
@@ -34,7 +33,6 @@ class UserAgent{
 	function setTimeout($timeout)
 	{
 		$this->timeout = $timeout;
-		return;
 	}
 	
 	/**
@@ -125,65 +123,65 @@ class UserAgent{
 		} else {
 			$fp = fsockopen($send_host, $send_port, $errno, $errstr);
 		}
-		
-		if ($fp) {
-			fputs($fp, $request);
-			$body = '';
-			$start_here = false;
-			while (!feof($fp)) {
-			
-				if ($start_here) {
-                    if ($only_header) {
-                        break;
-                    }
-					$body .= fread($fp, 4096);
-				} else {
-					$l = fgets($fp,128000);
-					//echo $l."<br>"; //
-					// ex) HTTP/1.1 304 Not Modified
-					if (preg_match('/^(.+?): (.+)\r\n/', $l, $matches)) {
-						$res->headers[$matches[1]] = $matches[2];
-					} elseif (preg_match("/HTTP\/1\.\d (\d+) (.+)\r\n/", $l, $matches)) {
-						$res->code = $matches[1];
-						$res->message = $matches[2];
-						$res->headers['HTTP'] = rtrim($l);
-					} elseif ($l == "\r\n") {
-						$start_here = true;
-					}
-				}
-				
-			}
-			
-			fclose($fp);
-			$res->content = $body;
-			
-			// リダイレクト(301 Moved, 302 Found)を追跡
-			// RFC2616 - Section 10.3
-			/*if ($GLOBALS['trace_http_redirect']) {
-				if ($res->code == '301' || ($res->code == '302' && $req->is_safe_method())) {
-					if (empty($this->redirectCache)) {
-						$this->maxRedirect   = 5;
-						$this->redirectCount = 0;
-						$this->redirectCache = array();
-					}
-					while ($res->is_redirect() && isset($res->headers['Location']) && $this->redirectCount < $this->maxRedirect) {
-						$this->redirectCache[] = $res;
-						$req->setUrl($res->headers['Location']);
-						$res = $this->request($req);
-						$this->redirectCount++;
-					}
-				}
-			} elseif ($res->is_redirect() && isset($res->headers['Location'])) {
-				$res->message .= " (Location: <a href=\"{$res->headers['Location']}\">{$res->headers['Location']}</a>)";
-			}*/
-
-			return $res;
-			
-		} else {
+        
+		if (!$fp) {
 			$res->code = $errno; // ex) 602
 			$res->message = $errstr; // ex) "Connection Failed"
 			return $res;
-		}
+        }
+        
+		fputs($fp, $request);
+		
+        // header response
+		while (!feof($fp)) {
+			$l = fgets($fp,128000);
+
+			// ex) HTTP/1.1 304 Not Modified
+			if (preg_match('/^(.+?): (.+)\r\n/', $l, $matches)) {
+				$res->headers[$matches[1]] = $matches[2];
+                
+			} elseif (preg_match("/HTTP\/1\.\d (\d+) (.+)\r\n/", $l, $matches)) {
+				$res->code = $matches[1];
+				$res->message = $matches[2];
+				$res->headers['HTTP'] = rtrim($l);
+                
+			} elseif ($l == "\r\n") {
+				break;
+			}
+        }
+        
+        // body response
+        if (!$only_header) {
+            $body = '';
+            while (!feof($fp)) {
+    			$body .= fread($fp, 4096);
+    		}
+    		$res->content = $body;
+        }
+        
+		fclose($fp);
+        
+		// リダイレクト(301 Moved, 302 Found)を追跡
+		// RFC2616 - Section 10.3
+		/*if ($GLOBALS['trace_http_redirect']) {
+			if ($res->code == '301' || ($res->code == '302' && $req->is_safe_method())) {
+				if (empty($this->redirectCache)) {
+					$this->maxRedirect   = 5;
+					$this->redirectCount = 0;
+					$this->redirectCache = array();
+				}
+				while ($res->is_redirect() && isset($res->headers['Location']) && $this->redirectCount < $this->maxRedirect) {
+					$this->redirectCache[] = $res;
+					$req->setUrl($res->headers['Location']);
+					$res = $this->request($req);
+					$this->redirectCount++;
+				}
+			}
+		} elseif ($res->is_redirect() && isset($res->headers['Location'])) {
+			$res->message .= " (Location: <a href=\"{$res->headers['Location']}\">{$res->headers['Location']}</a>)";
+		}*/
+
+		return $res;
 	}
 
 }
@@ -224,7 +222,6 @@ class Request{
 	{
 		$this->proxy['host'] = $host;
 		$this->proxy['port'] = $port;
-		return;
 	}
     
 	/**
@@ -233,7 +230,6 @@ class Request{
 	function setMethod($method)
 	{
 		$this->method = $method;
-		return;
 	}
     
 	/**
@@ -242,7 +238,6 @@ class Request{
 	function setUrl($url)
 	{
 		$this->url = $url;
-		return;
 	}
     
 	/**
@@ -251,7 +246,6 @@ class Request{
 	function setModified($modified)
 	{
 		$this->modified = $modified;
-		return;
 	}
     
 	/**
@@ -260,7 +254,6 @@ class Request{
 	function setHeaders($headers)
 	{
 		$this->headers = $headers;
-		return;
 	}
 
 	/**
@@ -342,7 +335,7 @@ class Response{
     202, 'Accepted',
     203, 'Partial Information',
     204, 'No Response',
-	206, 'Partial Content',
+    206, 'Partial Content',
     301, 'Moved',
     302, 'Found',
     303, 'Method',

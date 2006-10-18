@@ -55,7 +55,7 @@ EOFORM;
 //================================================================
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>

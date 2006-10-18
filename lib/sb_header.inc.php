@@ -173,7 +173,7 @@ EOP;
 // HTMLƒvƒŠƒ“ƒg
 //===================================================================
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -278,7 +278,7 @@ echo <<<EOP
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onLoad="setWinTitle();">
 EOP;
 
-include (P2_LIBRARY_DIR . '/sb_toolbar.inc.php');
+include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";

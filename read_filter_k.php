@@ -4,7 +4,7 @@
 
 // p2 - 携帯版レスフィルタリング
 
-require_once './conf/conf.inc.php'; // 基本設定
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -22,13 +22,13 @@ $ttitle_back = (isset($_SERVER['HTTP_REFERER']))
 /**
  * 前回フィルタ値読み込み
  */
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 
-$res_filter_cont = @file_get_contents($cachefile);
-
-if ($res_filter_cont) { $res_filter = unserialize($res_filter_cont); }
+if (file_exists($cachefile) and $res_filter_cont = file_get_contents($cachefile)) {
+    $res_filter = unserialize($res_filter_cont);
+}
 
 $field = array('hole'=>'', 'msg'=>'', 'name'=>'', 'mail'=>'', 'date'=>'', 'id'=>'', 'beid'=>'', 'belv'=>'');
 $match = array('on'=>'', 'off'=>'');
@@ -43,7 +43,7 @@ $method[$res_filter['method']] = ' selected';
  */
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOF
 <html>
 <head>
@@ -88,6 +88,8 @@ echo <<<EOF
 </div>
 {$_conf['k_input_ht']}
 </form>
+
+<hr>{$_conf['k_to_index_ht']}
 </body>
 </html>
 EOF;

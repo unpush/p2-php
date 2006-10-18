@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.7.29'; // rep2のバージョン
+$_conf['p2version'] = '1.8.0'; // rep2のバージョン
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -13,13 +13,14 @@ $_conf['p2name'] = 'REP2';    // rep2の名前。
 //======================================================================
 // 基本設定処理
 //======================================================================
-error_reporting(E_ALL ^ E_NOTICE); // エラー出力設定
+// エラー出力設定（今はNOTICEを出さないコードを心掛けているけれど、昔書いた部分でたくさん出ると思う）
+error_reporting(E_ALL ^ E_NOTICE);
 
 // {{{ 基本変数
 
 $_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
 $_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.php';
-$_conf['favrank_url']           = 'http://akid.s17.xrea.com:8080/favrank/favrank.php';
+$_conf['favrank_url']           = 'http://akid.s17.xrea.com/favrank/favrank.php';
 $_conf['menu_php']              = 'menu.php';
 $_conf['subject_php']           = 'subject.php';
 $_conf['read_php']              = 'read.php';
@@ -32,9 +33,8 @@ $_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
 // }}}
 // {{{ デバッグ
 
-$debug = 0;
-isset($_GET['debug']) and $debug = $_GET['debug'];
-if (!empty($debug)) {
+$debug = isset($_GET['debug'])? $_GET['debug'] : 0;
+if ($debug) {
     include_once 'Benchmark/Profiler.php';
     $profiler =& new Benchmark_Profiler(true);
     
@@ -81,7 +81,7 @@ ini_set('arg_separator.output', '&amp;');
 define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
 
 // Windows なら
-if (strstr(PHP_OS, 'WIN')) {
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ';');
     defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '\\');
 } else {
@@ -127,15 +127,15 @@ define('P2_PEAR_HACK_DIR', './lib/pear_hack');
 
 // 検索パスをセット
 if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
-    $_include_path = '.';
+    $include_path = '.';
     if (is_dir(P2_PEAR_HACK_DIR)) {
-        $_include_path .= PATH_SEPARATOR . realpath(P2_PEAR_HACK_DIR);
+        $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_HACK_DIR);
     }
     if (is_dir(P2_PEAR_DIR)) {
-        $_include_path .= PATH_SEPARATOR . realpath(P2_PEAR_DIR);
+        $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_DIR);
     }
-    $_include_path .= PATH_SEPARATOR . ini_get('include_path');
-    ini_set('include_path', $_include_path);
+    $include_path .= PATH_SEPARATOR . ini_get('include_path');
+    ini_set('include_path', $include_path);
 }
 
 // ライブラリを読み込む
@@ -147,7 +147,7 @@ $pear_required = array(
 );
 foreach ($pear_required as $pear_file => $pear_pkg) {
     if (!include_once($pear_file)) {
-        $url = 'http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
+        $url = 'http://akid.s17.xrea.com/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
         $url_t = $_conf['p2ime_url'] . "?enc=1&amp;url=" . rawurlencode($url);
         $msg = '<html><body><h3>p2 error: PEAR の ' . $pear_pkg . ' がインストールされていません</h3>
             <p><a href="' . $url_t . '" target="_blank">p2Wiki: PEARのインストール</a></p>
@@ -156,10 +156,10 @@ foreach ($pear_required as $pear_file => $pear_pkg) {
     }
 }
 
-require_once (P2_LIBRARY_DIR . '/p2util.class.php');
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
-require_once (P2_LIBRARY_DIR . '/session.class.php');
-require_once (P2_LIBRARY_DIR . '/login.class.php');
+require_once P2_LIBRARY_DIR . '/p2util.class.php';
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIBRARY_DIR . '/session.class.php';
+require_once P2_LIBRARY_DIR . '/login.class.php';
 
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // }}}
 
-// ■管理者用設定を読み込み
+// 管理者用設定を読み込み
 if (!include_once './conf/conf_admin.inc.php') {
     die('p2 error: 管理者用設定ファイルを読み込めませんでした。');
 }
@@ -207,6 +207,9 @@ $_conf['admin_dir'] = $_conf['data_dir'] . '/admin';
 
 // cache 保存ディレクトリ (パーミッションは707)
 $_conf['cache_dir'] = $_conf['data_dir'] . '/cache'; // 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
+
+// テンポラリディレクトリ (パーミッションは707)
+$_conf['tmp_dir'] = $_conf['data_dir'] . '/tmp';
 
 $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
@@ -232,7 +235,7 @@ if ($mobile->isNonMobile()) {
 
 // 携帯
 } else {
-    require_once (P2_LIBRARY_DIR . '/hostcheck.class.php');
+    require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
     
     $_conf['ktai'] = TRUE;
     $_conf['accept_charset'] = 'Shift_JIS';
@@ -285,7 +288,8 @@ if ($mobile->isNonMobile()) {
 // 体感速度を落とさない良い方法ないかな？
 
 // 強制PCビュー指定
-if ($_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
+$_conf['k_at_q'] = '';
+if (isset($_GET['b']) and $_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['b'] = 'pc';
     $_conf['ktai'] = false;
     //output_add_rewrite_var('b', 'pc');
@@ -295,7 +299,7 @@ if ($_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
 
 // 強制携帯ビュー指定（b=k。k=1は過去互換用）
-} elseif (!empty($_GET['k']) || !empty($_POST['k']) || $_GET['b'] == 'k' || $_POST['b'] == 'k') {
+} elseif (!empty($_GET['k']) || !empty($_POST['k']) or isset($_GET['b']) && ($_GET['b'] == 'k' || $_POST['b'] == 'k')) {
     $_conf['b'] = 'k';
     $_conf['ktai'] = true;
     //output_add_rewrite_var('b', 'k');
@@ -330,7 +334,7 @@ EODOC;
 
 //======================================================================
 
-// {{{ ■ユーザ設定 読込
+// {{{ ユーザ設定 読込
 
 // デフォルト設定（conf_user_def.inc.php）を読み込む
 include_once './conf/conf_user_def.inc.php';
@@ -402,6 +406,12 @@ if ($_conf['get_new_res']) {
 
 // }}}
 
+if ($_conf['mobile.match_color']) {
+    $_conf['k_filter_marker'] = "<font color=\"" . htmlspecialchars($_conf['mobile.match_color']) . "\">\\1</font>";
+} else {
+    $_conf['k_filter_marker'] = null;
+}
+
 //======================================================================
 // 変数設定
 //======================================================================
@@ -438,7 +448,7 @@ if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
 // {{{ ホストチェック
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once (P2_LIBRARY_DIR . '/hostcheck.class.php');
+    require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == FALSE) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == TRUE)
     ) {
@@ -447,21 +457,18 @@ if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
 }
 
 // }}}
-// {{{ ■セッション
+// {{{ セッション
 
 // 名前は、セッションクッキーを破棄するときのために、セッション利用の有無に関わらず設定する
 session_name('PS');
 
-// {{{ セッションデータ保存ディレクトリを規定
-
+// セッションデータ保存ディレクトリを規定
 if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
-
     // $_conf['data_dir'] を絶対パスに変換する
     define('P2_DATA_DIR_REAL_PATH', File_Util::realPath($_conf['data_dir']));
     $_conf['session_dir'] = P2_DATA_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'session';
 }
 
-// }}}
 
 // css.php は特別にセッションから外す。
 //if (basename($_SERVER['SCRIPT_NAME']) != 'css.php') {
@@ -496,8 +503,8 @@ if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
 
 // }}}
 
-// ■ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
-@require_once (P2_LIBRARY_DIR . '/login.class.php');
+// ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
+require_once P2_LIBRARY_DIR . '/login.class.php';
 $_login =& new Login();
 
 
@@ -508,6 +515,8 @@ $_login =& new Login();
  * 再帰的にstripslashesをかける
  * GET/POST/COOKIE変数用なのでオブジェクトのプロパティには対応しない
  * (ExUtil)
+ *
+ * @return  array|string
  */
 function stripslashes_r($var, $r = 0)
 {
@@ -526,6 +535,8 @@ function stripslashes_r($var, $r = 0)
  * mbstringで変換テーブルにない(?)外字を変換すると
  * NULL(0x00)になってしまうことがあるので消去する
  * (ExUtil)
+ *
+ * @return  array|string
  */
 function nullfilter_r($var, $r = 0)
 {
@@ -570,6 +581,8 @@ $GLOBALS['WAKATI_REGEX'] = mb_convert_encoding(
 
 /**
  * すごく適当な正規化＆分かち書き関数
+ *
+ * @return  array
  */
 function wakati($str)
 {

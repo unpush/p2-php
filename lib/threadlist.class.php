@@ -14,14 +14,19 @@ class ThreadList{
     var $ptitle;    // ページタイトル
     
     /**
-     * コンストラクタ
+     * @constructor
      */
     function ThreadList()
     {
         $this->num = 0;
     }
     
-    //==============================================
+    /**
+     * setSpMode
+     *
+     * @access  public
+     * @return  void
+     */
     function setSpMode($name)
     {
         global $_conf;
@@ -51,35 +56,37 @@ class ThreadList{
     }
     
     /**
-     * ■ 総合的に板情報（host, bbs, 板名）をセットする
+     * 総合的に板情報（host, bbs, 板名）をセットする
+     *
+     * @access  public
+     * @return  void
      */
     function setIta($host, $bbs, $itaj = "")
     {
         $this->host = $host;
         $this->bbs = $bbs;
         $this->setItaj($itaj);
-        
-        return true;
     }
     
     /**
-     * ■板名をセットする
+     * 板名をセットする
+     *
+     * @access  private
+     * @return  void
      */
     function setItaj($itaj)
     {
-        if ($itaj) {
-            $this->itaj = $itaj;
-        } else {
-            $this->itaj = $this->bbs;
-        }
+        $this->itaj = $itaj ? $itaj : $this->bbs;
+        
         $this->itaj_hd = htmlspecialchars($this->itaj, ENT_QUOTES);
         $this->ptitle = $this->itaj;
-        
-        return true;
     }
     
     /**
-     * ■ readList メソッド
+     * readList
+     *
+     * @access  public
+     * @return  array
      */
     function readList()
     {
@@ -87,28 +94,29 @@ class ThreadList{
         
         $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
         
+        // spmodeの場合
         if ($this->spmode) {
         
             // ローカルの履歴ファイル 読み込み
             if ($this->spmode == "recent") {
                 if ($lines = @file($_conf['rct_file'])) {
-                    //$_info_msg_ht = "<p>履歴は空っぽです</p>";
-                    //return false;
+                    // $_info_msg_ht = "<p>履歴は空っぽです</p>";
+                    // return false;
                 }
             
             // ローカルの書き込み履歴ファイル 読み込み
             } elseif ($this->spmode == "res_hist") {
-                $rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
+                $rh_idx = $_conf['pref_dir'] . "/p2_res_hist.idx";
                 if ($lines = @file($rh_idx)) {
-                    //$_info_msg_ht = "<p>書き込み履歴は空っぽです</p>";
-                    //return false;
+                    // $_info_msg_ht = "<p>書き込み履歴は空っぽです</p>";
+                    // return false;
                 }
             
-            //ローカルのお気にファイル 読み込み
+            // ローカルのお気にファイル 読み込み
             } elseif ($this->spmode == "fav") {
                 if ($lines = @file($_conf['favlist_file'])) {
-                    //$_info_msg_ht = "<p>お気にスレは空っぽです</p>";
-                    //return false;
+                    // $_info_msg_ht = "<p>お気にスレは空っぽです</p>";
+                    // return false;
                 }
             
             // ニュース系サブジェクト読み込み
@@ -147,7 +155,8 @@ class ThreadList{
                 $dat_host_dir = P2Util::datDirOfHost($this->host);
                 $lines = @file($dat_host_dir."/".$this->bbs."/p2_threads_aborn.idx");
             
-            // ■spmodeがdat倉庫の場合 ======================
+            // {{{ spmodeがdat倉庫の場合
+            
             } elseif ($this->spmode == "soko") {
 
                 $dat_host_dir = P2Util::datDirOfHost($this->host);
@@ -162,14 +171,13 @@ class ThreadList{
                 $lines = array();
                 
                 $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat'); //
-                // ■datログディレクトリを走査して孤立datにidx付加 =================
+                // datログディレクトリを走査して孤立datにidx付加
                 if ($cdir = dir($dat_bbs_dir)) { // or die ("ログディレクトリがないよ！");
-                    // ディレクトリ走査
                     while ($entry = $cdir->read()) {
                         if (preg_match($dat_pattern, $entry, $matches)) {
-                            $theidx = $idx_bbs_dir."/".$matches[1].".idx";
+                            $theidx = $idx_bbs_dir . "/" . $matches[1] . ".idx";
                             if (!file_exists($theidx)) {
-                                if ($datlines = @file($dat_bbs_dir."/".$entry)) {
+                                if ($datlines = file($dat_bbs_dir . "/" . $entry)) {
                                     $firstdatline = rtrim($datlines[0]);
                                     if (strstr($firstdatline, "<>")) {
                                         $datline_sepa = "<>";
@@ -192,24 +200,25 @@ class ThreadList{
                     }
                     $cdir->close();
                 }            
-                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat');//
+                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat'); //
                 
-                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx');//
+                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx'); //
                 // {{{ idxログディレクトリを走査してidx情報を抽出してリスト化
                 if ($cdir = dir($idx_bbs_dir)) { // or die ("ログディレクトリがないよ！");
-                    // ディレクトリ走査
                     while ($entry = $cdir->read()) {
                         if (preg_match($idx_pattern, $entry)) {
-                            $idl = @file($idx_bbs_dir."/".$entry);
+                            $idl = file($idx_bbs_dir . "/" . $entry);
                             array_push($lines, $idl[0]);
                         }
                     }
                     $cdir->close();
                 }
                 // }}}
-                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx');//
+                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx'); //
             
-            // ■スレの殿堂の場合  // p2_palace.idx 読み込み
+            // }}}
+            
+            // スレの殿堂の場合  // p2_palace.idx 読み込み
             } elseif ($this->spmode == "palace") {
                 $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
                 if ($lines = @file($palace_idx)) {
@@ -218,9 +227,9 @@ class ThreadList{
                 }
             }
         
-        // ■オンライン上の subject.txt を読み込む（spmodeでない場合）
+        // オンライン上の subject.txt を読み込む（spmodeでない場合）
         } else {
-            require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+            require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
             $lines =& $aSubjectTxt->subject_lines;
             
@@ -232,7 +241,10 @@ class ThreadList{
     }
     
     /**
-     * ■ addThread メソッド
+     * addThread
+     *
+     * @access  public
+     * @return  integer
      */
     function addThread(&$aThread)
     {

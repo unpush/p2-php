@@ -5,7 +5,7 @@
  * 内部文字エンコーディング: Shift_JIS
  */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 

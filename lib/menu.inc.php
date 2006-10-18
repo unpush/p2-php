@@ -6,10 +6,10 @@
     menu.php, menu_side.php より読み込まれる
 */
 
-require_once (P2_LIBRARY_DIR . '/brdctl.class.php');
-require_once (P2_LIBRARY_DIR . '/showbrdmenupc.class.php');
+require_once P2_LIBRARY_DIR . '/brdctl.class.php';
+require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
 
-$_login->authorize(); //ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //==============================================================
 // 変数設定
@@ -17,7 +17,7 @@ $_login->authorize(); //ユーザ認証
 $me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
 // menu_side.php の URL。（ローカルパス指定はできないようだ）
-$menu_side_url = $me_dir_url.'/menu_side.php';
+$menu_side_url = $me_dir_url . '/menu_side.php';
 
 $brd_menus = array();
 
@@ -27,7 +27,8 @@ if (isset($_GET['word'])) {
     $word = $_POST['word'];
 }
 
-// ■板検索 ====================================
+// {{{ 板検索
+
 if (isset($word) && strlen($word) > 0) {
 
     if (preg_match('/^\.+$/', $word)) {
@@ -35,7 +36,7 @@ if (isset($word) && strlen($word) > 0) {
     }
     
     // and検索
-    include_once (P2_LIBRARY_DIR . '/strctl.class.php');
+    include_once P2_LIBRARY_DIR . '/strctl.class.php';
     $word_fm = StrCtl::wordForMatch($word, 'and');
     if (P2_MBREGEX_AVAILABLE == 1) {
         $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
@@ -46,30 +47,31 @@ if (isset($word) && strlen($word) > 0) {
     }
 }
 
+// }}}
 
 //============================================================
-// 特殊な前置処理
+// 特殊な前処理
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
+    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
 //================================================================
-// ■メイン
+// メイン
 //================================================================
 $aShowBrdMenuPc =& new ShowBrdMenuPc();
 
 //============================================================
-// ■ヘッダ
+// ヘッダ
 //============================================================
 $reloaded_time = date('n/j G:i:s'); // 更新時刻
 $ptitle = 'p2 - menu';
 
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -92,8 +94,8 @@ echo <<<EOP
     <base target="subject">
 EOP;
 
-@include("./style/style_css.inc");
-@include("./style/menu_css.inc");
+@include "./style/style_css.inc";
+@include "./style/menu_css.inc";
 
 echo <<<EOSCRIPT
     <script type="text/javascript" src="js/showhide.js"></script>
@@ -150,12 +152,12 @@ EOP;
 }
 
 //==============================================================
-// ■お気に板をプリントする
+// お気に板をプリントする
 //==============================================================
-$aShowBrdMenuPc->print_favIta();
+$aShowBrdMenuPc->printFavItaHtml();
 
 //==============================================================
-// ■特別
+// 特別
 //==============================================================
 $norefresh_q = '&amp;norefresh=true';
 
@@ -164,7 +166,7 @@ echo <<<EOP
     <div class="itas" id="c_spacial">
 EOP;
 
-// ■新着数を表示する場合
+// 新着数を表示する場合
 if ($_conf['enable_menu_new'] == 1 and $_GET['new']) {
 
     initMenuNewSp("fav");    // 新着数を初期化
@@ -195,7 +197,7 @@ EOP;
 }
 
 echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}" title="DATしたスレ用のお気に入り">スレの殿堂</a><br>
+    　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}" title="DAT落ちしたスレ用のお気に入り">スレの殿堂</a><br>
     　<a href="setting.php">ログイン管理</a><br>
     　<a href="editpref.php">設定管理</a><br>
     　<a href="http://find.2ch.net/" target="_blank" title="2ch公式検索">find.2ch.net</a>
@@ -204,13 +206,13 @@ echo <<<EOP
 EOP;
 
 //==============================================================
-// ■カテゴリと板を表示
+// カテゴリと板を表示
 //==============================================================
 // brd読み込み
 $brd_menus = BrdCtl::read_brds();
 
 //===========================================================
-// ■プリント
+// プリント
 //===========================================================
 
 // {{{ 検索ワードがあれば
@@ -271,7 +273,7 @@ if ($brd_menus) {
 // フッタを表示
 //==============================================================
 
-// ■for Mozilla Sidebar
+// for Mozilla Sidebar
 if (empty($sidebar)) {
     echo <<<EOP
 <script type="text/JavaScript">
@@ -288,7 +290,7 @@ echo '</body></html>';
 
 
 //==============================================================
-// 関数
+// 関数 use only in this file
 //==============================================================
 /**
  * spmode用のmenuの新着数を初期化する
@@ -300,7 +302,7 @@ function initMenuNewSp($spmode_in)
     $host = "";
     $bbs = "";
     $spmode = $spmode_in;
-    include("./subject_new.php");    // $shinchaku_num, $_newthre_num をセット
+    include "./subject_new.php";    // $shinchaku_num, $_newthre_num をセット
     if ($shinchaku_num > 0) {
         $class_newres_num = ' class="newres_num"';
     } else {

@@ -3,8 +3,8 @@
  * rep2 ログイン
  */
 
-include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -35,7 +35,7 @@ if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
 //$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
 $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=k';
 
-$p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_blank">'.$url.'</a><br>';
+$p_htm['ktai_url'] = '携帯' . $p_str['login'] . '用URL <a href="' . $url . '" target="_blank">' . $url . '</a><br>';
 
 //====================================================
 // ユーザ登録処理
@@ -177,9 +177,7 @@ if (empty($_conf['ktai'])) {
 
 P2Util::header_nocache();
 P2Util::header_content_type();
-if (!empty($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -208,10 +206,8 @@ EOP;
 }
 
 // 情報表示
-if (!is_null($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
-}
+echo $_info_msg_ht;
+$_info_msg_ht = "";
     
 echo '<p id="login_status">';
 echo <<<EOP

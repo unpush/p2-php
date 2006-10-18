@@ -70,7 +70,7 @@ EOP;
 }
 
 // }}}
-// フォーム ==================================================
+// フォーム
 $sb_form_hidden_ht = <<<EOP
     <input type="hidden" name="detect_hint" value="◎◇">
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
@@ -79,7 +79,7 @@ $sb_form_hidden_ht = <<<EOP
     {$_conf['k_input_ht']}
 EOP;
 
-// フィルタ検索 ==================================================
+// フィルタ検索
 $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
 if (!$aThreadList->spmode) {
     $filter_form_ht = <<<EOP
@@ -92,20 +92,21 @@ EOP;
 }
 
 // 検索結果
-if ($GLOBALS['sb_mikke_num']) {
+if (!empty($GLOBALS['sb_mikke_num'])) {
     $hit_ht = "<div>\"{$word}\" {$GLOBALS['sb_mikke_num']}hit!</div>";
 }
 
 
 //=================================================
-//ヘッダプリント
+// ヘッダHTMLをプリント
 //=================================================
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle_hd}</title>
 </head>
@@ -115,9 +116,10 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
-include (P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php');
+include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
 
 echo $filter_form_ht;
 echo $hit_ht;
 echo "<hr>";
+
 ?>

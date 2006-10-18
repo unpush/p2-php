@@ -3,20 +3,20 @@
     p2 - スレッド情報ウィンドウ
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/thread.class.php');
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-require_once (P2_LIBRARY_DIR . '/dele.inc.php'); // 削除処理用の関数郡
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/thread.class.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIBRARY_DIR . '/dele.inc.php'; // 削除処理用の関数郡
 
 $_login->authorize(); // ユーザ認証
 
 //================================================================
-// ■変数設定
+// 変数設定
 //================================================================
-isset($_GET['host']) and $host = $_GET['host']; // "pc.2ch.net"
-isset($_GET['bbs']) and $bbs = $_GET['bbs']; // "php"
-isset($_GET['key']) and $key = $_GET['key']; // "1022999539"
-isset($_GET['ttitle_en']) and $ttitle_en = $_GET['ttitle_en'];
+isset($_GET['host'])    and $host = $_GET['host'];  // "pc.2ch.net"
+isset($_GET['bbs'])     and $bbs  = $_GET['bbs'];   // "php"
+isset($_GET['key'])     and $key  = $_GET['key'];   // "1022999539"
+isset($_GET['ttitle_en'])   and $ttitle_en = $_GET['ttitle_en'];
 
 // popup 0(false), 1(true), 2(true, クローズタイマー付)
 if (!empty($_GET['popup'])) { $popup_ht = "&amp;popup=1"; }
@@ -27,21 +27,21 @@ if (empty($host) || empty($bbs) || empty($key)) {
 }
 
 //================================================================
-// ■特殊な前処理
+// 特殊な前処理
 //================================================================
 // {{{ 削除
 
 if (!empty($_GET['dele']) && $key && $host && $bbs) {
     $r = deleteLogs($host, $bbs, array($key));
     if (empty($r)) {
-        $title_msg = "× ログ削除失敗";
-        $info_msg = "× ログ削除失敗";
+        $title_msg  = "× ログ削除失敗";
+        $info_msg   = "× ログ削除失敗";
     } elseif ($r == 1) {
-        $title_msg = "○ ログ削除完了";
-        $info_msg = "○ ログ削除完了";
+        $title_msg  = "○ ログ削除完了";
+        $info_msg   = "○ ログ削除完了";
     } elseif ($r == 2) {
-        $title_msg = "- ログはありませんでした";
-        $info_msg = "- ログはありませんでした";
+        $title_msg  = "- ログはありませんでした";
+        $info_msg   = "- ログはありませんでした";
     }
 }
 
@@ -51,15 +51,15 @@ if (!empty($_GET['dele']) && $key && $host && $bbs) {
 if (!empty($_GET['offrec']) && $key && $host && $bbs) {
     $r1 = offRecent($host, $bbs, $key);
     $r2 = offResHist($host, $bbs, $key);
-    if ((empty($r1)) or (empty($r2))) {
-        $title_msg = "× 履歴解除失敗";
-        $info_msg = "× 履歴解除失敗";
+    if (($r1 === false) or ($r2 === false)) {
+        $title_msg  = "× 履歴解除失敗";
+        $info_msg   = "× 履歴解除失敗";
     } elseif ($r1 == 1 || $r2 == 1) {
-        $title_msg = "○ 履歴解除完了";
-        $info_msg = "○ 履歴解除完了";
-    } elseif ($r1 == 2 && $r2 == 2) {
-        $title_msg = "- 履歴にはありませんでした";
-        $info_msg = "- 履歴にはありませんでした";
+        $title_msg  = "○ 履歴解除完了";
+        $info_msg   = "○ 履歴解除完了";
+    } elseif ($r1 === 0 && $r2 === 0) {
+        $title_msg  = "- 履歴にはありませんでした";
+        $info_msg   = "- 履歴にはありませんでした";
     }
 
 // }}}
@@ -86,7 +86,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 
 // }}}
 //=================================================================
-// ■メイン
+// メイン
 //=================================================================
 
 $aThread =& new Thread();
@@ -176,9 +176,9 @@ $paldo = $isPalace ? 0 : 1;
 $pal_a_ht = "info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setpal={$paldo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}";
 
 if ($isPalace) {
-    $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DATしたスレ用のお気に入り\">★</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DAT落ちしたスレ用のお気に入り\">★</a>";
 } else {
-    $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DATしたスレ用のお気に入り\">+</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DAT落ちしたスレ用のお気に入り\">+</a>";
 }
 
 // }}}
@@ -223,7 +223,7 @@ if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) {
 }
 
 //=================================================================
-// ■HTMLプリント
+// HTMLプリント
 //=================================================================
 if (!empty($_conf['ktai'])) {
     $target_read_at = ' target="read"';
@@ -249,7 +249,7 @@ $hd = array_map('htmlspecialchars', $hc);
 
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
@@ -305,12 +305,13 @@ print_info_line("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$mototh
 if (empty($_conf['ktai'])) {
     print_info_line("ホスト", $aThread->host);
 }
-print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$hd['itaj']}</a>");
+print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at} {$_conf['accesskey']}=\"{$_conf['k_accesskey']['up']}\">{$hd['itaj']}</a>");
+// PC用表示
 if (empty($_conf['ktai'])) {
     print_info_line("key", $aThread->key);
 }
 if ($existLog) {
-    print_info_line("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\">削除する</a>]{$offrec_ht}");
+    print_info_line("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['dele']}\">削除する</a>]{$offrec_ht}");
 } else {
     print_info_line("ログ", "未取得{$offrec_ht}");
 }
@@ -387,10 +388,12 @@ echo '</body></html>';
 exit();
 
 //=======================================================
-// ■関数
+// 関数
 //=======================================================
 /**
  * スレ情報HTMLを表示する
+ *
+ * @return void
  */
 function print_info_line($s, $c_ht)
 {
@@ -407,6 +410,8 @@ function print_info_line($s, $c_ht)
 
 /**
  * スレタイとURLのコピペ用のフォームを取得する
+ *
+ * @return string
  */
 function getCopypaFormHtml($url, $ttitle_name_hd)
 {

@@ -1,12 +1,13 @@
 <?php
-/*
-    p2 - まちBBS用の関数
-*/
+// p2 - まちBBSの関数
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * まちBBSの read.pl を読んで datに保存する
+ *
+ * @access  public
+ * @return  boolean
  */
 function machiDownload()
 {
@@ -15,8 +16,9 @@ function machiDownload()
     $GLOBALS['machi_latest_num'] = '';
 
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
+    
     if (file_exists($aThread->keydat)) {
-        $dls = @file($aThread->keydat);
+        $dls = file($aThread->keydat);
         if (sizeof($dls) != $aThread->gotnum) {
             // echo 'bad size!<br>';
             unlink($aThread->keydat);
@@ -25,6 +27,7 @@ function machiDownload()
     } else {
         $aThread->gotnum = 0;
     }
+    
     // }}}
     
     if ($aThread->gotnum == 0) {
@@ -38,7 +41,7 @@ function machiDownload()
     // まちBBS
     $machiurl = "http://{$aThread->host}/bbs/read.pl?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
 
-    $tempfile = $aThread->keydat.'.html.temp';
+    $tempfile = $aThread->keydat . '.html.temp';
     
     FileCtl::mkdir_for($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
@@ -48,7 +51,7 @@ function machiDownload()
         return false;
     }
     
-    $mlines = @file($tempfile);
+    $mlines = file($tempfile);
     
     // 一時ファイルを削除する
     unlink($tempfile);
@@ -63,7 +66,7 @@ function machiDownload()
     // {{{ DATを書き込む
     if ($mdatlines =& machiHtmltoDatLines($mlines)) {
 
-        $file_append = ($file_append) ? FILE_APPEND : 0;
+        $rsc = $file_append ? (FILE_APPEND | LOCK_EX) : LOCK_EX;
 
         $cont = '';
         for ($i = $START; $i <= $GLOBALS['machi_latest_num']; $i++) {
@@ -73,7 +76,8 @@ function machiDownload()
                 $cont .= "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n";
             }
         }
-        if (FileCtl::file_write_contents($aThread->keydat, $cont, $file_append) === false) {
+        if (file_put_contents($aThread->keydat, $cont, $rsc) === false) {
+            trigger_error("file_put_contents(" . $aThread->keydat . ")", E_USER_WARNING);
             die('Error: cannot write file.');
         }
     }
@@ -89,12 +93,14 @@ function machiDownload()
  * まちBBSのread.plで読み込んだHTMLをdatに変換する
  *
  * @see machiDownload()
+ * @return  array|false
  */
 function &machiHtmltoDatLines(&$mlines)
 {
     if (!$mlines) {
         return false;
     }
+    
     $mdatlines = "";
     
     foreach ($mlines as $ml) {

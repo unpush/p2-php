@@ -4,6 +4,8 @@
 
 /**
  * sb_print - スレッド一覧を表示する (<tr>～</tr>)
+ *
+ * @return  void
  */
 function sb_print_k(&$aThreadList)
 {
@@ -27,7 +29,7 @@ function sb_print_k(&$aThreadList)
 	if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs=="bizplus" || $aThreadList->spmode=="news") {
 		// 倉庫は除く
 		if ($aThreadList->spmode != "soko") {
-			$only_one_bool = true;
+			$onlyone_bool = true;
 		}
 	}
 
@@ -68,8 +70,8 @@ function sb_print_k(&$aThreadList)
 		$midoku_ari = "";
 		$anum_ht = ""; //#r1
 		
-		$bbs_q = "&amp;bbs=".$aThread->bbs;
-		$key_q = "&amp;key=".$aThread->key;
+		$bbs_q = "&amp;bbs=" . $aThread->bbs;
+		$key_q = "&amp;key=" . $aThread->key;
 
 		if ($aThreadList->spmode!="taborn") {
 			if (!$aThread->torder) {$aThread->torder=$i;}
@@ -97,7 +99,7 @@ function sb_print_k(&$aThreadList)
 				$unum_ht = "-"; 
 			}	
 
-			$unum_ht = "[".$unum_ht."]";
+			$unum_ht = "[" . $unum_ht . "]";
 		}
 		
 		// 新規スレ
@@ -105,7 +107,7 @@ function sb_print_k(&$aThreadList)
 			$unum_ht = "<font color=\"#ff0000\">新</font>";
 		}
 				
-		// 総レス数 =============================================
+		// 総レス数
 		$rescount_ht = "{$aThread->rescount}";
 
 		// 板名 ============================================
@@ -172,12 +174,21 @@ function sb_print_k(&$aThreadList)
 
 		$thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 	
-		// オンリー>>1 =============================================
-		if ($only_one_bool) {
-			$one_ht = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true{$_conf['k_at_a']}\">&gt;&gt;1</a>";
+		// オンリー>>1
+        $only_one_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true&amp;k_continue=1{$_conf['k_at_a']}";
+		if ($onlyone_bool) {
+			$one_ht = "<a href=\"{$only_one_url}\">&gt;&gt;1</a>";
 		}
 		
-		//アクセスキー=====
+        if (P2Util::isHost2chs($aThreadList->host) and !$aThread->isKitoku()) {
+            if ($GLOBALS['_conf']['k_sb_show_first'] == 1) {
+                $thre_url = $onlyone_url;
+            } elseif ($GLOBALS['_conf']['k_sb_show_first'] == 2) {
+                $thre_url .= '&amp;ls=1-';
+            }
+        }
+		
+		// アクセスキー
 		/*
 		$access_ht = "";
 		if ($aThread->torder >= 1 and $aThread->torder <= 9) {
@@ -189,7 +200,7 @@ function sb_print_k(&$aThreadList)
 		// スレッド一覧 table ボディ HTMLプリント <tr></tr> 
 		//====================================================================================
 
-		//ボディ
+		// ボディ
 		echo <<<EOP
 <div>
 	$unum_ht{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>{$htm['ita']}

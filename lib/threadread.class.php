@@ -1,29 +1,30 @@
 <?php
-// p2 - スレッド リード クラス
-
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
- * スレッドリードクラス
+ * p2 - スレッドリードクラス
  */
 class ThreadRead extends Thread{
 
-    var $datlines; // datから読み込んだラインを格納する配列
+    var $datlines;  // datから読み込んだラインを格納する配列
     
-    var $resrange; // array('start' => i, 'to' => i, 'nofirst' => bool)
+    var $resrange;  // array('start' => i, 'to' => i, 'nofirst' => bool)
+    var $resrange_multi = array();
+    var $resrange_readnum;
+    var $resrange_multi_exists_next;
     
-    var $onbytes; // サーバから取得したdatサイズ
-    var $diedat; // サーバからdat取得しようとしてできなかった時にtrueがセットされる
-    var $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
+    var $onbytes;   // サーバから取得したdatサイズ
+    var $diedat;    // サーバからdat取得しようとしてできなかった時にtrueがセットされる
+    var $onthefly;  // ローカルにdat保存しないオンザフライ読み込みならtrue
 
-    var $idcount; // 配列。key は ID記号, value は ID出現回数
+    var $idcount;   // 配列。key は ID記号, value は ID出現回数
     
     var $getdat_error_msg_ht; // dat取得に失敗した時に表示されるメッセージ（HTML）
     
     var $old_host;  // ホスト移転検出時、移転前のホストを保持する
 
     /**
-     * コンストラクタ
+     * @constructor
      */
     function ThreadRead()
     {
@@ -32,19 +33,23 @@ class ThreadRead extends Thread{
 
     /**
      * DATをダウンロードする
+     *
+     * @access  public
+     * @return  boolean
      */
     function downloadDat()
     {
         global $_conf;
-        global $uaMona, $SID2ch;    // include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+        global $uaMona, $SID2ch;    // include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
         
         // まちBBS
         if (P2Util::isHostMachiBbs($this->host)) {
-            include_once (P2_LIBRARY_DIR . '/read_machibbs.inc.php');
+            include_once P2_LIBRARY_DIR . '/read_machibbs.inc.php';
             machiDownload();
+            
         // JBBS@したらば
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
-            include_once (P2_LIBRARY_DIR . '/read_shitaraba.inc.php');
+            include_once P2_LIBRARY_DIR . '/read_shitaraba.inc.php';
             shitarabaDownload();
         
         // 2ch系
@@ -54,8 +59,8 @@ class ThreadRead extends Thread{
             // 2ch bbspink●読み
             if (P2Util::isHost2chs($this->host) && !empty($_GET['maru'])) {
                 // ログインしてなければ or ログイン後、24時間以上経過していたら自動再ログイン
-                if ((!file_exists($_conf['sid2ch_php']) or $_REQUEST['relogin2ch']) or (@filemtime($_conf['sid2ch_php']) < time() - 60*60*24)) {
-                    include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+                if ((!file_exists($_conf['sid2ch_php']) or $_REQUEST['relogin2ch']) or (filemtime($_conf['sid2ch_php']) < time() - 60*60*24)) {
+                    include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
                     if (!login2ch()) {
                         $this->getdat_error_msg_ht .= $this->get2chDatError();
                         $this->diedat = true;
@@ -82,13 +87,93 @@ class ThreadRead extends Thread{
             }
 
         }
+        
+        return true;
+    }
     
+    /**
+     * HTTPヘッダレスポンスを読み込む
+     *
+     * @access  private
+     * @parama  resource  $fp  fsockopen で開いたファイルポインタ
+     * @return  array|false
+     */
+    function freadHttpHeader($fp)
+    {
+        $h = array();
+        
+        while (!feof($fp)) {
+            $l = fgets($fp, 8192);
+            
+			// ex) HTTP/1.1 304 Not Modified
+            if (preg_match("|HTTP/1\.\d (\d+) (.+)\r\n|", $l, $matches)) {
+				$h['code']      = $matches[1];
+				$h['message']   = $matches[2];
+				$h['HTTP']      = rtrim($l);
+            }
+            
+			if (preg_match('/^(.+?): (.+)\r\n/', $l, $matches)) {
+				$h['headers'][$matches[1]] = $matches[2];
+                
+			} elseif ($l == "\r\n") {
+                if (!isset($h['code'])) {
+                    return false;
+                }
+				return $h;
+			}
+        }
+        
+        return false;
+    }
+    
+    /**
+     * HTTPヘッダレスポンスの取得エラーを $_info_msg_ht にセットする
+     *
+     * @access  private
+     * @return  void
+     */
+    function setInfoMsgHtFreadHttpHeaderError($url)
+    {
+        global $_info_msg_ht, $_conf;
+        
+        $url_t = P2Util::throughIme($url);
+        $_info_msg_ht .= "<p>p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a>
+                        からヘッダレスポンスを取得できませんでした。</p>";
+    }
+    
+    /**
+     * HTTPヘッダレスポンスからファイルサイズを取得する
+     *
+     * @access  private
+     * @param   array    $headers
+     * @param   boolean  $zero_read
+     * @return  integer|false
+     */
+    function getOnbytesFromHeader($headers, $zero_read = true)
+    {
+        if ($zero_read) {
+            if (isset($headers['Content-Length'])) {
+                if (preg_match("/^([0-9]+)/", $l, $headers['Content-Length'])) {
+                    return $onbytes = $matches[1];
+                }
+            }
+            
+        } else {
+            if (isset($headers['Content-Range'])) {
+                if (preg_match("/^bytes ([^\/]+)\/([0-9]+)/", $l, $headers['Content-Range'])) {
+                    return $onbytes = $matches[2];
+                }
+            }
+        }
+        
+        return false;
     }
     
     /**
      * 標準方法で 2ch互換 DAT を差分ダウンロードする
      *
-     * @return mix 取得できたか、更新がなかった場合はtrueを返す
+     * @access  private
+     * @return  true|string|false  取得できたか、更新がなかった場合はtrue（または"304 Not Modified"）を返す
      */
     function downloadDat2ch($from_bytes)
     {
@@ -111,14 +196,14 @@ class ThreadRead extends Thread{
         $method = "GET";
         $uaMona = "Monazilla/1.00";
         
-        $p2ua = $uaMona.' ('.$_conf['p2name'].'/'.$_conf['p2version'].')';
+        $p2ua = $uaMona . ' (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')';
         
         $url = 'http://' . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
         //$url="http://news2.2ch.net/test/read.cgi?bbs=newsplus&key=1038486598";
 
-        $purl = parse_url($url); // URL分解
-        if (isset($purl['query'])) { // クエリー
-            $purl['query'] = "?".$purl['query'];
+        $purl = parse_url($url);
+        if (isset($purl['query'])) {
+            $purl['query'] = "?" . $purl['query'];
         } else {
             $purl['query'] = "";
         }
@@ -134,10 +219,8 @@ class ThreadRead extends Thread{
             $send_path = $purl['path'].$purl['query'];
         }
         
-        if (!$send_port) {
-            $send_port = 80; // デフォルトを80
-        }
-            
+        !$send_port and $send_port = 80; // デフォルトを80
+        
         $request = $method." ".$send_path." HTTP/1.0\r\n";
         $request .= "Host: ".$purl['host']."\r\n";
         $request .= "Accept: */*\r\n";
@@ -151,12 +234,12 @@ class ThreadRead extends Thread{
         $request .= "Referer: http://{$purl['host']}/{$this->bbs}/\r\n";
 
         if ($this->modified) {
-            $request .= "If-Modified-Since: ".$this->modified."\r\n";
+            $request .= "If-Modified-Since: " . $this->modified . "\r\n";
         }
         
         // Basic認証用のヘッダ
         if (isset($purl['user']) && isset($purl['pass'])) {
-            $request .= "Authorization: Basic ".base64_encode($purl['user'].":".$purl['pass'])."\r\n";
+            $request .= "Authorization: Basic " . base64_encode($purl['user'] . ":" . $purl['pass']) . "\r\n";
         }
 
         $request .= "Connection: Close\r\n";
@@ -167,137 +250,130 @@ class ThreadRead extends Thread{
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>
+                            p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
             $this->diedat = true;
             return false;
         }
-        $wr = "";
+        
+        // HTTPリクエスト送信
         fputs($fp, $request);
-
-        while (!feof($fp)) {
-
-            if ($start_here) {
-
-                if ($code == "200" || $code == "206") {
-                    
-                    while (!feof($fp)) {
-                        $wr .= fread($fp, 4096);
-                    }
-                    
-                    // 末尾の改行であぼーんチェック
-                    if (!$zero_read) {
-                        if (substr($wr, 0, 1) != "\n") {
-                            //echo "あぼーん検出";
-                            fclose($fp);
-                            unset($this->onbytes);
-                            unset($this->modified);
-                            return $this->downloadDat2ch(0); // あぼーん検出。全部取り直し。
-                        }
-                        $wr = substr($wr, 1);
-                    }
-                    FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-
-                    $file_append = ($zero_read) ? 0 : FILE_APPEND;
-                    
-                    if (FileCtl::file_write_contents($this->keydat, $wr, $file_append) === false) {
-                        die('Error: cannot write file.');
-                    }
-                    
-                    $debug && $GLOBALS['profiler']->enterSection("dat_size_check");
-                    // 取得後サイズチェック
-                    if ($zero_read == false && $this->onbytes) {
-                        $this->getDatBytesFromLocalDat(); // $aThread->length をset
-                        if ($this->onbytes != $this->length) {
-                            fclose($fp);
-                            unset($this->onbytes);
-                            unset($this->modified);
-                            $_info_msg_ht .= "p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>";
-                            $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
-                            return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
-                        
-                        // サイズが同じならそのまま
-                        } elseif ($this->onbytes == $this->length) {
-                            fclose($fp);
-                            $this->isonline = true;
-                            $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
-                            return true;
-                        }
-                    }
-                    $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
-                
-                // スレッドがないと判断
-                } else {
-                    fclose($fp);
-                    $this->downloadDat2chNotFound();
-                    return false;
-                }
+        
+        // HTTPヘッダレスポンスを取得する
+        $h = $this->freadHttpHeader($fp);
+        if ($h === false) {
+            fclose($fp);
+            $this->setInfoMsgHtFreadHttpHeaderError($url);
+            $this->diedat = true;
+            return false;
+        }
+        
+        // {{{ HTTPコードをチェック
+        
+        $code = $h['code'];
+        
+        // Partial Content
+        if ($code == "200" || $code == "206") {
+            // OK。何もしない
+        
+        // Found
+        } elseif ($code == "302") {
+        
+            // ホストの移転を追跡
+            include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+            $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
+            if ($new_host != $this->host) {
+                fclose($fp);
+                $this->old_host = $this->host;
+                $this->host = $new_host;
+                return $this->downloadDat2ch($from_bytes);
                 
             } else {
-                $l = fgets($fp, 32800);
-                // ex) HTTP/1.1 304 Not Modified
-                if (preg_match("/^HTTP\/1\.\d (\d+) (.+)\r\n/", $l, $matches)) {
-                    $code = $matches[1];
-                    
-                    if ($code == "200" || $code == "206") { // Partial Content
-                        ;
-                        
-                    } elseif ($code == "302") { // Found
-                    
-                        // ホストの移転を追跡
-                        include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
-                        $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
-                        if ($new_host != $this->host) {
-                            fclose($fp);
-                            $this->old_host = $this->host;
-                            $this->host = $new_host;
-                            return $this->downloadDat2ch($from_bytes);
-                        } else {
-                            fclose($fp);
-                            $this->downloadDat2chNotFound();
-                            return false;
-                        }
-                        
-                    } elseif ($code == "304") { // Not Modified
-                        fclose($fp);
-                        $this->isonline = true;
-                        return "304 Not Modified";
-                        
-                    } elseif ($code == "416") { // Requested Range Not Satisfiable                
-                        //echo "あぼーん検出";
-                        fclose($fp);
-                        unset($this->onbytes);
-                        unset($this->modified);
-                        return $this->downloadDat2ch(0); // あぼーん検出。全部取り直し。
-                        
-                    } else {
-                        fclose($fp);
-                        $this->downloadDat2chNotFound();
-                        return false;
-                    }
-                }
-                
-                if ($zero_read) {
-                    if (preg_match("/^Content-Length: ([0-9]+)/", $l, $matches)) {
-                        $this->onbytes = $matches[1];
-                    }
-                } else {
-
-                    if (preg_match("/^Content-Range: bytes ([^\/]+)\/([0-9]+)/", $l, $matches)) {
-                        $this->onbytes = $matches[2];
-                    }
-                    
-                }
-                    
-                if (preg_match("/^Last-Modified: (.+)\r\n/", $l, $matches)) {
-                    //echo $matches[1]."<br>"; //debug
-                    $this->modified = $matches[1];
-            
-                } elseif ($l == "\r\n") {
-                    $start_here = true;
-                }
-            }    
+                fclose($fp);
+                $this->downloadDat2chNotFound();
+                return false;
+            }
+        
+        // Not Modified
+        } elseif ($code == "304") {
+            fclose($fp);
+            $this->isonline = true;
+            return "304 Not Modified";
+        
+        // Requested Range Not Satisfiable
+        } elseif ($code == "416") {
+            //echo "あぼーん検出";
+            fclose($fp);
+            unset($this->onbytes);
+            unset($this->modified);
+            return $this->downloadDat2ch(0); // あぼーんを検出したので全部取り直し。
+        
+        // 予期しないHTTPコード。スレッドがないと判断
+        } else {
+            fclose($fp);
+            $this->downloadDat2chNotFound();
+            return false;
+        }
+        
+        // }}}
+        
+        $r = $this->getOnbytesFromHeader($h['headers']);
+        if ($r !== false) {
+            $this->onbytes = $r;
+        }
+        
+        if (isset($h['headers']['Last-Modified'])) {
+            $this->modified = $h['headers']['Last-Modified'];
+        }
+        
+        // bodyを読む
+        $body = '';
+        while (!feof($fp)) {
+            $body .= fread($fp, 4096);
         }
         fclose($fp);
+        
+        // 末尾の改行であぼーんチェック
+        if (!$zero_read) {
+            if (substr($body, 0, 1) != "\n") {
+                //echo "あぼーん検出";
+                unset($this->onbytes);
+                unset($this->modified);
+                return $this->downloadDat2ch(0); // あぼーんを検出したので全部取り直し。
+            }
+            $body = substr($body, 1);
+        }
+        
+        FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
+
+        $rsc = $zero_read ? LOCK_EX : FILE_APPEND | LOCK_EX;
+        
+        if (file_put_contents($this->keydat, $body, $rsc) === false) {
+            trigger_error("file_put_contents(" . $this->keydat . ")", E_USER_WARNING);
+            die('Error: cannot write file. downloadDat2ch()');
+            return false;
+        }
+        
+        $debug && $GLOBALS['profiler']->enterSection("dat_size_check");
+        // 取得後サイズチェック
+        if ($zero_read == false && $this->onbytes) {
+            $this->getDatBytesFromLocalDat(); // $aThread->length をset
+            if ($this->onbytes != $this->length) {
+                unset($this->onbytes);
+                unset($this->modified);
+                $_info_msg_ht .= "p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>";
+                $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
+                return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
+            
+            // サイズが同じならそのまま
+            } elseif ($this->onbytes == $this->length) {
+                $this->isonline = true;
+                $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
+                return true;
+            }
+        }
+        $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
+        
         $this->isonline = true;
         return true;
     }
@@ -305,7 +381,8 @@ class ThreadRead extends Thread{
     /**
      * 2ch DATをダウンロードできなかったときに呼び出される
      *
-     * @access protected
+     * @access  private
+     * @return  void
      */
     function downloadDat2chNotFound()
     {
@@ -314,11 +391,13 @@ class ThreadRead extends Thread{
             $this->getdat_error_msg_ht .= $this->get2chDatError();
         }
         $this->diedat = true;
-        return false;
     }
     
     /**
      * 2ch●用 DATをダウンロードする
+     *
+     * @access  private
+     * @return  true|string|false  取得できたか、更新がなかった場合はtrue（または"304 Not Modified"）を返す
      */
     function downloadDat2chMaru()
     {
@@ -352,15 +431,13 @@ class ThreadRead extends Thread{
         } else {
             $send_host = $purl['host'];
             $send_port = $purl['port'];
-            $send_path = $purl['path'].$purl['query'];
+            $send_path = $purl['path'] . $purl['query'];
         }
         
-        if (!$send_port) {
-            $send_port = 80; // デフォルトを80
-        }
+        !$send_port and $send_port = 80; // デフォルトを80
 
         $request = $method." ".$send_path." HTTP/1.0\r\n";
-        $request .= "Host: ".$purl['host']."\r\n";
+        $request .= "Host: " . $purl['host'] . "\r\n";
         $request .= "Accept-Encoding: gzip, deflate\r\n";
         //$request .= "Accept-Language: ja, en\r\n";
         $request .= "User-Agent: ".$p2ua."\r\n";
@@ -378,150 +455,154 @@ class ThreadRead extends Thread{
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>
+                p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
             $this->diedat = true;
             return false;
         }
         
+        // HTTPリクエスト送信
         fputs($fp, $request);
+
+        // HTTPヘッダレスポンスを取得する
+        $h = $this->freadHttpHeader($fp);
+        if ($h === false) {
+            fclose($fp);
+            $this->setInfoMsgHtFreadHttpHeaderError($url);
+            $this->diedat = true;
+            return false;
+        }
+        
+        // {{{ HTTPコードをチェック
+        
+        $code = $h['code'];
+        
+        // Partial Content
+        if ($code == "200") {
+            // OK。何もしない
+        
+        // Found
+        } elseif ($code == "304") {
+            fclose($fp);
+            //$this->isonline = true;
+            return "304 Not Modified";
+            
+        // 予期しないHTTPコード。なかったと判断する
+        } else {
+            fclose($fp);
+            return $this->downloadDat2chMaruNotFound();
+        }
+        
+        // }}}
+        
+        if (isset($h['headers']['Content-Encoding'])) {
+            if (preg_match("/^(x-)?gzip/", $h['headers']['Content-Encoding'], $matches)) {
+                $isGzip = true;
+            }
+        }
+        if (isset($h['headers']['Last-Modified'])) {
+            $lastmodified = $h['headers']['Last-Modified'];
+        }
+        if (isset($h['headers']['Content-Length'])) {
+            if (preg_match("/^([0-9]+)/", $h['headers']['Content-Length'], $matches)) {
+                $onbytes = $h['headers']['Content-Length'];
+            }
+        }
+        // Transfer-Encoding: chunked
+        if (isset($h['headers']['Transfer-Encoding'])) {
+            if ($h['headers']['Transfer-Encoding'] == "chunked") {
+                $chunked = true;
+            }
+        }
+
+        // bodyを読む
         $body = '';
         while (!feof($fp)) {
-
-            if ($start_here) {
-
-                if ($code == "200") {
-
-                    while (!feof($fp)) {
-                        $body .= fread($fp, 4096);
-                    }
-
-                    // gzip圧縮なら
-                    if ($isGzip) {
-                        // gzip tempファイルに保存
-                        $gztempfile = $this->keydat.".gz";
-                        FileCtl::mkdir_for($gztempfile);
-                        if (FileCtl::file_write_contents($gztempfile, $body) === false) {
-                            die("Error: cannot write file. downloadDat2chMaru()");
-                        }
-                        
-                        // PHPで解凍読み込み
-                        if (extension_loaded('zlib')) {
-                            $body = FileCtl::get_gzfile_contents($gztempfile);
-                        // コマンドラインで解凍
-                        } else {
-                            // 既に存在するなら一時バックアップ退避
-                            if (file_exists($this->keydat)) {
-                                if (file_exists($this->keydat . ".bak")) {
-                                    unlink($this->keydat . ".bak");
-                                }
-                                rename($this->keydat, $this->keydat . ".bak");
-                            }
-                            $rcode = 1;
-                            // 解凍する
-                            system("gzip -d $gztempfile", $rcode);
-                            // 解凍失敗ならバックアップを戻す
-                            if ($rcode != 0) {
-                                if (file_exists($this->keydat.".bak")) {
-                                    if (file_exists($this->keydat)) {
-                                        unlink($this->keydat);
-                                    }
-                                    rename($this->keydat.".bak", $this->keydat);
-                                }
-                                $this->getdat_error_msg_ht .= "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>";
-                                // gztempファイルを捨てる
-                                if (file_exists($gztempfile)) {
-                                    unlink($gztempfile);
-                                }
-                                $this->diedat = true;
-                                return false;
-                            // 解凍成功なら
-                            } else {
-                                if (file_exists($this->keydat.".bak")) {
-                                    unlink($this->keydat.".bak");
-                                }
-                                $done_gunzip = true;
-                            }
-
-                        }
-                        // gzip tempファイルを捨てる
-                        if (file_exists($gztempfile)) {
-                            unlink($gztempfile);
-                        }
-                    }
-                    
-                    if (!$done_gunzip) {
-                        FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                        if (FileCtl::file_write_contents($this->keydat, $body) === false) {
-                            die("Error: cannot write file. downloadDat2chMaru()");
-                        }
-                    }
-                    
-                    // クリーニング =====
-                    $marudatlines = @file($this->keydat);
-                    if ($marudatlines) {
-                        $firstline = array_shift($marudatlines);
-                        // チャンクとか
-                        if (!strstr($firstline, "+OK")) {
-                            $secondline = array_shift($marudatlines);
-                        }
-                        $cont = '';
-                        foreach ($marudatlines as $aline) {
-                            // チャンクエンコーディングが欲しいところ(HTTP 1.0でしのぐ)
-                            if ($chunked) {
-                                $cont .= $aline;
-                            } else {
-                                $cont .= $aline;
-                            }
-                        }
-                        FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                        if (FileCtl::file_write_contents($this->keydat, $cont) === false) {
-                            die("Error: cannot write file. downloadDat2chMaru()");
-                        }
-                    }
-                    
-                // dat.gzはなかったと判断
-                } else {
-                    fclose($fp);
-                    return $this->downloadDat2chMaruNotFound();
-                }
-            
-            // ヘッダの処理
-            } else {
-                $l = fgets($fp,128000);
-                //echo $l."<br>";// for debug
-                // ex) HTTP/1.1 304 Not Modified
-                if (preg_match("/^HTTP\/1\.\d (\d+) (.+)\r\n/", $l, $matches)) {
-                    $code = $matches[1];
-                    
-                    if ($code == "200") {
-                        ;
-                    } elseif ($code == "304") {
-                        fclose($fp);
-                        //$this->isonline = true;
-                        return "304 Not Modified";
-                    } else {
-                        fclose($fp);
-                        return $this->downloadDat2chMaruNotFound();
-                    }
-                
-                } elseif (preg_match("/^Content-Encoding: (x-)?gzip/", $l, $matches)) {
-                    $isGzip = true;
-                } elseif (preg_match("/^Last-Modified: (.+)\r\n/", $l, $matches)) {
-                    $lastmodified = $matches[1];
-                } elseif (preg_match("/^Content-Length: ([0-9]+)/", $l, $matches)) {
-                    $onbytes = $matches[1];
-                } elseif (preg_match("/^Transfer-Encoding: (.+)\r\n/", $l, $matches)) { // Transfer-Encoding: chunked
-                    $t_enco = $matches[1];
-                    if ($t_enco == "chunked") {
-                        $chunked = true;
-                    }
-                } elseif ($l == "\r\n") {
-                    $start_here = true;
-                }
-            }
-            
+            $body .= fread($fp, 4096);
         }
         fclose($fp);
+        
+        // gzip圧縮なら
+        if ($isGzip) {
+            // gzip tempファイルに保存
+            $gztempfile = $this->keydat.".gz";
+            FileCtl::mkdir_for($gztempfile);
+            if (FileCtl::file_write_contents($gztempfile, $body) === false) {
+                die("Error: cannot write file. downloadDat2chMaru()");
+            }
+            
+            // PHPで解凍読み込み
+            if (extension_loaded('zlib')) {
+                $body = FileCtl::get_gzfile_contents($gztempfile);
+            // コマンドラインで解凍
+            } else {
+                // 既に存在するなら一時バックアップ退避
+                if (file_exists($this->keydat)) {
+                    if (file_exists($this->keydat . ".bak")) {
+                        unlink($this->keydat . ".bak");
+                    }
+                    rename($this->keydat, $this->keydat . ".bak");
+                }
+                $rcode = 1;
+                // 解凍する
+                system("gzip -d $gztempfile", $rcode);
+                // 解凍失敗ならバックアップを戻す
+                if ($rcode != 0) {
+                    if (file_exists($this->keydat.".bak")) {
+                        file_exists($this->keydat) and unlink($this->keydat);
+                        rename($this->keydat.".bak", $this->keydat);
+                    }
+                    $this->getdat_error_msg_ht .= "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>";
+                    // gztempファイルを捨てる
+                    file_exists($gztempfile) and unlink($gztempfile);
+                    
+                    $this->diedat = true;
+                    return false;
+                    
+                // 解凍成功なら
+                } else {
+                    file_exists($this->keydat . ".bak") and unlink($this->keydat . ".bak");
+                    
+                    $done_gunzip = true;
+                }
+
+            }
+            // gzip tempファイルを捨てる
+            file_exists($gztempfile) and unlink($gztempfile);
+        }
+        
+        if (!$done_gunzip) {
+            FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
+            if (FileCtl::file_write_contents($this->keydat, $body) === false) {
+                die("Error: cannot write file. downloadDat2chMaru()");
+                return false;
+            }
+        }
+        
+        // クリーニング
+        $marudatlines = @file($this->keydat);
+        if ($marudatlines) {
+            $firstline = array_shift($marudatlines);
+            // チャンクとか
+            if (!strstr($firstline, "+OK")) {
+                $secondline = array_shift($marudatlines);
+            }
+            $cont = '';
+            foreach ($marudatlines as $aline) {
+                // チャンクエンコーディングが欲しいところ(HTTP 1.0でしのぐ)
+                if ($chunked) {
+                    $cont .= $aline;
+                } else {
+                    $cont .= $aline;
+                }
+            }
+            FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
+            if (FileCtl::file_write_contents($this->keydat, $cont) === false) {
+                die("Error: cannot write file. downloadDat2chMaru()");
+                return false;
+            }
+        }
+
         //$this->isonline = true;
         //$this->datochiok = 1;
         return true;
@@ -529,6 +610,9 @@ class ThreadRead extends Thread{
     
     /**
      * ●IDでの取得ができなかったときに呼び出される
+     *
+     * @access  private
+     * @return  boolean
      */
     function downloadDat2chMaruNotFound()
     {
@@ -538,6 +622,7 @@ class ThreadRead extends Thread{
         if (empty($_REQUEST['relogin2ch'])) {
             $_REQUEST['relogin2ch'] = true;
             return $this->downloadDat();
+            
         } else {
             $remarutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true&amp;relogin2ch=true\">再取得を試みる</a>";
             $this->getdat_error_msg_ht .= "<p>p2 info - ●IDでのスレッド取得に失敗しました。[{$remarutori_ht}]</p>";
@@ -548,12 +633,14 @@ class ThreadRead extends Thread{
     
     /**
      * 2chの過去ログ倉庫からdat.gzをダウンロード＆解凍する
+     *
+     * @return  true|string|false  取得できたか、更新がなかった場合はtrue（または"304 Not Modified"）を返す
      */
     function downloadDat2chKako($uri, $ext)
     {
         global $_conf, $_info_msg_ht;
 
-        $url = $uri.$ext;
+        $url = $uri . $ext;
     
         $method = "GET";
         if (!$httpua) {
@@ -563,7 +650,7 @@ class ThreadRead extends Thread{
         $purl = parse_url($url); // URL分解
         // クエリー
         if (isset($purl['query'])) {
-            $purl['query'] = "?".$purl['query'];
+            $purl['query'] = "?" . $purl['query'];
         } else {
             $purl['query'] = "";
         }
@@ -576,7 +663,7 @@ class ThreadRead extends Thread{
         } else {
             $send_host = $purl['host'];
             $send_port = $purl['port'];
-            $send_path = $purl['path'].$purl['query'];
+            $send_path = $purl['path'] . $purl['query'];
         }
         // デフォルトを80
         if (!$send_port) {
@@ -599,112 +686,128 @@ class ThreadRead extends Thread{
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            echo "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>$url</a> に接続できませんでした。</p>";
+            echo "<p>サーバ接続エラー: $errstr ($errno)<br>
+                p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>$url</a> に接続できませんでした。</p>";
             $this->diedat = true;
             return false;
         }
-
-        fputs($fp, $request);
-        $body = "";
-        while (!feof($fp)) {
         
-            if ($start_here) {
-            
-                if ($code == "200") {
-                    
-                    while (!feof($fp)) {
-                        $body .= fread($fp, 4096);
-                    }
-                    
-                    if ($isGzip) {
-                        $gztempfile = $this->keydat.".gz";
-                        FileCtl::mkdir_for($gztempfile);
-                        if (FileCtl::file_write_contents($gztempfile, $body) === false) {
-                            die("Error: cannot write file. downloadDat2chKako()");
-                        }
-                        if (extension_loaded('zlib')) {
-                            $body = FileCtl::get_gzfile_contents($gztempfile);
-                        } else {
-                            // 既に存在するなら一時バックアップ退避
-                            if (file_exists($this->keydat)) {
-                                if (file_exists($this->keydat.".bak")) { unlink($this->keydat.".bak"); }
-                                rename($this->keydat, $this->keydat.".bak");
-                            }
-                            $rcode = 1;
-                            system("gzip -d $gztempfile", $rcode); // 解凍
-                            if ($rcode != 0) {
-                                if (file_exists($this->keydat.".bak")) {
-                                    if (file_exists($this->keydat)) {
-                                        unlink($this->keydat);
-                                    }
-                                    // 失敗ならバックアップ戻す
-                                    rename($this->keydat.".bak", $this->keydat);
-                                }
-                                $this->getdat_error_msg_ht = "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>";
-                                // gztempファイルを捨てる
-                                if (file_exists($gztempfile)) { unlink($gztempfile); }
-                                $this->diedat = true;
-                                return false;
-                            } else {
-                                if (file_exists($this->keydat.".bak")) { unlink($this->keydat.".bak"); }
-                                $done_gunzip = true;
-                            }
+        // HTTPリクエスト送信
+        fputs($fp, $request);
+        
+        // HTTPヘッダレスポンスを取得する
+        $h = $this->freadHttpHeader($fp);
+        if ($h === false) {
+            fclose($fp);
+            $this->setInfoMsgHtFreadHttpHeaderError($url);
+            $this->diedat = true;
+            return false;
+        }
+        
+        
+        // {{{ HTTPコードをチェック
+        
+        $code = $h['code'];
+        
+        // Partial Content
+        if ($code == "200") {
+            // OK。何もしない
+        
+        // Not Modified
+        } elseif ($code == "304") {
+            fclose($fp);
+            //$this->isonline = true;
+            return "304 Not Modified";
+        
+        // 予期しないHTTPコード。なかったと判断
+        } else {
+            fclose($fp);
+            $this->downloadDat2chKakoNotFound($uri, $ext);
+            return false;
+        }
+        
+        // }}}
 
-                        }
-                        if (file_exists($gztempfile)) { unlink($gztempfile); } // tempファイルを捨てる
-                    }
-
-                    if (!$done_gunzip) {
-                        FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-                        if (FileCtl::file_write_contents($this->keydat, $body) === false) {
-                            die("Error: cannot write file. downloadDat2chKako()");
-                        }
-                    }
-                
-                // なかったと判断
-                } else {
-                    fclose($fp);
-                    return $this->downloadDat2chKakoNotFound($uri, $ext);
-                
-                }
-
-            } else {
-                $l = fgets($fp,128000);
-                if (preg_match("/^HTTP\/1\.\d (\d+) (.+)\r\n/", $l, $matches)) { // ex) HTTP/1.1 304 Not Modified
-                    $code = $matches[1];
-                    
-                    if ($code == "200") {
-                        ;
-                    } elseif ($code == "304") {
-                        fclose($fp);
-                        //$this->isonline = true;
-                        return "304 Not Modified";
-                    } else {
-                        fclose($fp);
-                        return $this->downloadDat2chKakoNotFound($uri, $ext);
-                    }
-
-                } elseif (preg_match("/^Content-Encoding: (x-)?gzip/", $l, $matches)) {
-                    $isGzip = true;
-                } elseif (preg_match("/^Last-Modified: (.+)\r\n/", $l, $matches)) {
-                    $lastmodified = $matches[1];
-                } elseif (preg_match("/^Content-Length: ([0-9]+)/", $l, $matches)) {
-                    $onbytes = $matches[1];
-                } elseif ($l == "\r\n") {
-                    $start_here = true;
-                }
+        if (isset($h['headers']['Last-Modified'])) {
+            $lastmodified = $h['headers']['Last-Modified'];
+        }
+        
+        if (isset($h['headers']['Content-Length'])) {
+            if (preg_match("/^([0-9]+)/", $h['headers']['Content-Length'], $matches)) {
+                $onbytes = $h['headers']['Content-Length'];
             }
-            
+        }
+        if (isset($h['headers']['Content-Encoding'])) {
+            if (preg_match("/^(x-)?gzip/", $h['headers']['Content-Encoding'], $matches)) {
+                $isGzip = true;
+            }
+        }
+
+        // bodyを読む
+        $body = '';
+        while (!feof($fp)) {
+            $body .= fread($fp, 8192);
         }
         fclose($fp);
+        
+        if ($isGzip) {
+            $gztempfile = $this->keydat . ".gz";
+            FileCtl::mkdir_for($gztempfile);
+            if (FileCtl::file_write_contents($gztempfile, $body) === false) {
+                die("Error: cannot write file. downloadDat2chKako()");
+            }
+            if (extension_loaded('zlib')) {
+                $body = FileCtl::get_gzfile_contents($gztempfile);
+            } else {
+                // 既に存在するなら一時バックアップ退避
+                if (file_exists($this->keydat)) {
+                    file_exists($this->keydat . ".bak") and unlink($this->keydat . ".bak");
+                    rename($this->keydat, $this->keydat . ".bak");
+                }
+                $rcode = 1;
+                system("gzip -d $gztempfile", $rcode); // 解凍
+                if ($rcode != 0) {
+                    if (file_exists($this->keydat . ".bak")) {
+                        if (file_exists($this->keydat)) {
+                            unlink($this->keydat);
+                        }
+                        // 失敗ならバックアップ戻す
+                        rename($this->keydat . ".bak", $this->keydat);
+                    }
+                    $this->getdat_error_msg_ht = "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>";
+                    // gztempファイルを捨てる
+                    file_exists($gztempfile) and unlink($gztempfile);
+                    $this->diedat = true;
+                    return false;
+                    
+                } else {
+                    if (file_exists($this->keydat . ".bak")) {
+                        unlink($this->keydat . ".bak");
+                    }
+                    $done_gunzip = true;
+                }
+
+            }
+            // tempファイルを捨てる
+            file_exists($gztempfile) and unlink($gztempfile);
+        }
+
+        if (!$done_gunzip) {
+            FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
+            if (FileCtl::file_write_contents($this->keydat, $body) === false) {
+                die("Error: cannot write file. downloadDat2chKako()");
+            }
+        }
+        
         //$this->isonline = true;
-        return true;
+        return false;
     }
     
     /**
      * 過去ログを取得できなかったときに呼び出される
      *
-     * @private
+     * @access  private
+     * @return  void
      */
     function downloadDat2chKakoNotFound($uri, $ext)
     {
@@ -720,15 +823,13 @@ class ThreadRead extends Thread{
         $this->getdat_error_msg_ht = "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みに失敗しました。</p>";
         $this->getdat_error_msg_ht .= $kakolog_ht;
         $this->diedat = true;
-        return false;
-
     }
     
     /**
      * 2chのdatを取得できなかった原因を返す
      *
-     * @private
-     * @return  string エラーメッセージ（原因がわからない場合は空で返す）
+     * @access  private
+     * @return  string  エラーメッセージ（原因がわからない場合は空で返す）
      */
     function get2chDatError()
     {
@@ -745,7 +846,7 @@ class ThreadRead extends Thread{
         // {{{ read.cgi からHTMLを取得
         
         $read_response_html = "";
-        include_once (P2_LIBRARY_DIR . '/wap.class.php');
+        include_once P2_LIBRARY_DIR . '/wap.class.php';
         $wap_ua =& new UserAgent();
         $wap_ua->setAgent($_conf['p2name']."/".$_conf['p2version']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
@@ -759,15 +860,15 @@ class ThreadRead extends Thread{
         if ($wap_res->is_error()) {
             $url_t = P2Util::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
+            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a>
+                     に接続できませんでした。</div>";
         } else {
             $read_response_html = $wap_res->content;
         }
         unset($wap_ua, $wap_req, $wap_res);
         
         // }}}
-
-        // ■取得したHTML（$read_response_html）を解析して、原因を見つける
+        // {{{ 取得したHTML（$read_response_html）を解析して、原因を見つける
         
         $dat_response_status = "";
         $dat_response_msg = "";
@@ -830,28 +931,41 @@ class ThreadRead extends Thread{
             $dat_response_status = "";
             $kako_html_url = urldecode($_GET['kakolog']) . ".html";
             $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
-            $dat_response_msg = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
+            $dat_response_msg = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a>
+                 [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
         
         }
+        
+        // }}}
         
         return $dat_response_msg;
     }
     
     /**
-     * >>1のみをプレビューする
+     * >>1のみをプレビュー表示するためのHTMLを取得する（オンザフライに対応）
+     *
+     * @access  public
+     * @return  string|false
      */
     function previewOne()
     {
         global $_conf, $ptitle_ht, $_info_msg_ht;
 
-        if (!($this->host && $this->bbs && $this->key)) { return false; }
+        if (!($this->host && $this->bbs && $this->key)) {
+            return false;
+        }
+        
+        $first_line = '';
         
         // ローカルdatから取得
         if (is_readable($this->keydat)) {
             $fd = fopen($this->keydat, "rb");
             $first_line = fgets($fd, 32800);
-            fclose ($fd);
-            
+            fclose($fd);
+        }
+        
+        if ($first_line) {
+        
             // be.2ch.net ならEUC→SJIS変換
             if (P2Util::isHostBe2chNet($this->host)) {
                 $first_line = mb_convert_encoding($first_line, 'SJIS-win', 'eucJP-win');
@@ -866,6 +980,11 @@ class ThreadRead extends Thread{
             }
             $d = explode($datline_sepa, $first_datline);
             $this->setTtitle($d[4]);
+            
+            // 便宜上
+            if (!$this->readnum) {
+                $this->readnum = 1;
+            }
         }
         
         // ローカルdatなければオンラインから
@@ -874,9 +993,9 @@ class ThreadRead extends Thread{
             $method = "GET";
             $url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
             
-            $purl = parse_url($url); // URL分解
+            $purl = parse_url($url);
             if (isset($purl['query'])) { // クエリー
-                $purl['query'] = "?".$purl['query'];
+                $purl['query'] = "?" . $purl['query'];
             } else {
                 $purl['query'] = "";
             }
@@ -889,14 +1008,15 @@ class ThreadRead extends Thread{
             } else {
                 $send_host = $purl['host'];
                 $send_port = $purl['port'];
-                $send_path = $purl['path'].$purl['query'];
+                $send_path = $purl['path'] . $purl['query'];
             }
             
-            if (!$send_port) {$send_port = 80;} // デフォルトを80
+            // デフォルトを80
+            !$send_port and $send_port = 80;
     
             $request = $method." ".$send_path." HTTP/1.0\r\n";
             $request .= "Host: ".$purl['host']."\r\n";
-            $request .= "User-Agent: Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")"."\r\n";
+            $request .= "User-Agent: Monazilla/1.00 (" . $_conf['p2name'] . "/" . $_conf['p2version'] . ")" . "\r\n";
             // $request .= "Range: bytes={$from_bytes}-\r\n";
     
             // Basic認証用のヘッダ
@@ -911,47 +1031,51 @@ class ThreadRead extends Thread{
             $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
             if (!$fp) {
                 $url_t = P2Util::throughIme($url);
-                $_info_msg_ht .= "<p>サーバ接続エラー: $errstr ($errno)<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+                $_info_msg_ht .= "<p>サーバ接続エラー: $errstr ($errno)<br>
+                    p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
                 $this->diedat = true;
                 return false;
             }
             
+            // HTTPリクエスト送信
             fputs($fp, $request);
-        
-            while (!feof($fp)) {
-
-                if ($start_here) {
-                
-                    if ($code == "200") {
-                        $first_line = fgets($fp, 32800);
-                        break;
-                    } else {
-                        fclose($fp);
-                        return $this->previewOneNotFound();
-                    }
-                } else {
-                    $l = fgets($fp,32800);
-                    //echo $l."<br>";// for debug
-                    if (preg_match("/^HTTP\/1\.\d (\d+) (.+)\r\n/", $l, $matches)) { // ex) HTTP/1.1 304 Not Modified
-                        $code = $matches[1];
-                        
-                        if ($code == "200") {
-                            ;
-                        } else {
-                            fclose($fp);
-                            return $this->previewOneNotFound();
-                        }
-
-                    } elseif (preg_match("/^Content-Length: ([0-9]+)/", $l, $matches)) {
-                        $onbytes = $matches[1];
-                    } elseif ($l == "\r\n") {
-                        $start_here = true;
-                    }
-                }
-                
-            }
-            fclose($fp);
             
+            // HTTPヘッダレスポンスを取得する
+            $h = $this->freadHttpHeader($fp);
+            if ($h === false) {
+                fclose($fp);
+                $this->setInfoMsgHtFreadHttpHeaderError($url);
+                $this->diedat = true;
+                return false;
+            }
+            
+            // {{{ HTTPコードをチェック
+            
+            $code = $h['code'];
+            
+            // Partial Content
+            if ($code == "200") {
+                // OK。何もしない
+            
+            // 予期しないHTTPコード。なかったと判断する
+            } else {
+                fclose($fp);
+                $this->previewOneNotFound();
+                return false;
+            }
+            
+            // }}}
+
+            if (isset($h['headers']['Content-Length'])) {
+                if (preg_match("/^([0-9]+)/", $h['headers']['Content-Length'], $matches)) {
+                    $onbytes = $h['headers']['Content-Length'];
+                }
+            }
+
+            // bodyを一行目だけ読む
+            $first_line = fgets($fp, 32800);
+            fclose($fp);
+
             // be.2ch.net ならEUC→SJIS変換
             if (P2Util::isHostBe2chNet($this->host)) {
                 $first_line = mb_convert_encoding($first_line, 'SJIS-win', 'eucJP-win');
@@ -969,29 +1093,50 @@ class ThreadRead extends Thread{
             $this->setTtitle($d[4]);
             
             $this->onthefly = true;
-            
-        } else {
-            // 便宜上
-            if (!$this->readnum) {
-                $this->readnum = 1;
+        }
+        
+        // 厳密にはオンザフライではないが、個人にとっては（既読記録がされないという意味で）オンザフライ
+        if (!$this->isKitoku) {
+            $this->onthefly = true;
+        }
+        
+        if (!empty($this->onthefly)) {
+            // PC
+            if (empty($GLOBALS['_conf']['ktai'])) {
+                $body .= "<div><span class=\"onthefly\">プレビュー</span></div>";
+            // 携帯
+            } else {
+                $body .= "<div><font size=\"-1\" color=\"#00aa00\">ﾌﾟﾚﾋﾞｭｰ</font></div>";
             }
         }
-
-        $this->onthefly && $body .= "<div><span class=\"onthefly\">on the fly</span></div>";
-        $body .= "<dl>";
         
-        include_once (P2_LIBRARY_DIR . '/showthread.class.php');
-        include_once (P2_LIBRARY_DIR . '/showthreadpc.class.php');
-        $aShowThread =& new ShowThreadPc($this);
+        empty($GLOBALS['_conf']['ktai']) and $body .= "<dl>";
+        
+        include_once P2_LIBRARY_DIR . '/showthread.class.php';
+        
+        // PC
+        if (empty($GLOBALS['_conf']['ktai'])) {
+            include_once P2_LIBRARY_DIR . '/showthreadpc.class.php';
+            $aShowThread =& new ShowThreadPc($this);
+        // 携帯
+        } else {
+            include_once P2_LIBRARY_DIR . '/showthreadk.class.php';
+            $aShowThread =& new ShowThreadK($this);
+        }
+        
         $body .= $aShowThread->transRes($first_line, 1); // 1を表示
         unset($aShowThread);
         
-        $body .= "</dl>\n";
+        empty($GLOBALS['_conf']['ktai']) and $body .= "</dl>\n";
+        
         return $body;
     }
     
     /**
      * >>1をプレビューでスレッドデータが見つからなかったときに呼び出される
+     *
+     * @return  private
+     * @return  void
      */
     function previewOneNotFound()
     {
@@ -1000,66 +1145,162 @@ class ThreadRead extends Thread{
             $this->getdat_error_msg_ht = $this->get2chDatError();
         }
         $this->diedat = true;
+    }
+
+    /**
+     * getStartToFromLs
+     *
+     * @access  private
+     * @return  array
+     */
+    function getStartToFromLs($ls, &$nofirst)
+    {
+        // 範囲指定で分割
+        $lr = explode('-', $ls);
+        
+        // 範囲指定があれば
+        if (sizeof($lr) > 1) {
+            if (!$start = intval($lr[0])) {
+                $start = 1;
+            }
+            if (!$to = intval($lr[1])) {
+                $to = $this->rescount;
+            }
+        
+        // 範囲指定がなければ
+        } else {
+        
+            // レス番指定
+            if (intval($ls) > 0) {
+                $start = intval($ls);
+                $to = intval($ls);
+                $nofirst = true;
+            
+            // 指定がない or 不正な場合は、allと同じ表示にする
+            } else {
+                $start = 1;
+                $to = $this->rescount;
+            }
+        }
+        
+        // 反転
+        if ($start > $to) {
+            $start_t = $start;
+            $start = $to;
+            $to = $start_t;
+        }
+        
+        return array($start, $to);
+    }
+    
+    /**
+     * inResrangeMulti
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function inResrangeMulti($num)
+    {
+        foreach ($this->resrange_multi as $ls) {
+            if ($ls['start'] <= $num and $num <= $ls['to']) {
+                return true;
+            }
+        }
         return false;
     }
     
     /**
-     * $lsを分解してstartとtoとnofirstを求める
+     * countResrangeMulti
+     *
+     * @access  private
+     * @return  integer
+     */
+    function countResrangeMulti($nofirst = false)
+    {
+        $c = array();
+        foreach ($this->resrange_multi as $ls) {
+            for ($i = $ls['start']; $i <= $ls['to']; $i++) {
+                $c[$i] = true;
+            }
+        }
+        return count($c);
+    }
+    
+    /**
+     * $lsを分解してstartとtoとnofirstを求めてセットする
+     *
+     * @access  public
+     * @return  void
      */
     function lsToPoint()
     {
         global $_conf;
 
         $to = false;
+        $nofirst = false;
+        
+        /*
+        if (!empty($_GET['onlyone'])) {
+            $this->ls = '1';
+        }
+        */
+        
+        $this->ls = str_replace(' ', '+', $this->ls);
+        if ($this->ls != 'all') {
+            $this->ls = preg_replace('/[^0-9,\-\+ln]/', '', $this->ls);
+        }
+        
+        $ls = $this->ls;
         
         // nを含んでいる場合は、>>1を表示しない（$nofirst）
-        if (strstr($this->ls, 'n')) {
+        if (strstr($ls, 'n')) {
             $nofirst = true;
-            $this->ls = preg_replace("/n/", "", $this->ls);
+            $ls = preg_replace("/n/", "", $ls);
         }
-
-        // 範囲指定で分割
-        $n = explode('-', $this->ls);
-        // 範囲指定がなければ
-        if (sizeof($n) == 1) {
-            // l指定があれば
-            if (substr($n[0], 0, 1) == "l") {
-                $ln = intval(substr($n[0], 1));
-                if ($_conf['ktai']) {
-                    if ($ln > $_conf['k_rnum_range']) {
-                        $ln = $_conf['k_rnum_range'];
+        
+        // l指定があれば（最近N件の指定）
+        if (substr($ls, 0, 1) == "l") {
+            $ln = intval(substr($ls, 1));
+            if ($_conf['ktai']) {
+                if ($ln > $_conf['k_rnum_range']) {
+                    $ln = $_conf['k_rnum_range'];
+                }
+            }
+            $start = $this->rescount - $ln + 1;
+            if ($start < 1) {
+                $start = 1;
+            }
+            $to = $this->rescount;
+            
+        // all指定なら
+        } elseif ($ls == "all") {
+            $start = 1;
+            $to = $this->rescount;
+            
+        } else {
+        
+            $lss = preg_split('/[,+ ]/', $ls, -1, PREG_SPLIT_NO_EMPTY);
+            
+            // マルチ指定なら
+            if (sizeof($lss) > 1) {
+                $nofirst = true;
+                
+                foreach ($lss as $v) {
+                    list($start_t, $to_t) = $this->getStartToFromLs($v, $dummy_nofirst);
+                    
+                    $this->resrange_multi[] = array('start' => $start_t, 'to' => $to_t);
+                    
+                    if (empty($start) || $start > $start_t) {
+                        $start = $start_t;
+                    }
+                    if (empty($to) || $to < $to_t) {
+                        $to = $to_t;
                     }
                 }
-                $start = $this->rescount - $ln + 1;
-                if ($start < 1) {
-                    $start = 1;
-                }
-                $to = $this->rescount;
-            // all指定なら
-            } elseif ($this->ls == "all") {
-                $start = 1;
-                $to = $this->rescount;
             
+            // 普通指定なら
             } else {
-                // レス番指定
-                if (intval($this->ls) > 0) {
-                    $this->ls = intval($this->ls);
-                    $start = $this->ls;
-                    $to = $this->ls;
-                    $nofirst = true;
-                // 指定がない or 不正な場合は、allと同じ表示にする
-                } else {
-                    $start = 1;
-                    $to = $this->rescount;
-                }
-            }
-        // 範囲指定があれば
-        } else {
-            if (!$start = intval($n[0])) {
-                $start = 1;
-            }
-            if (!$to = intval($n[1])) {
-                $to = $this->rescount;
+                list($start, $to) = $this->getStartToFromLs($ls, $nofirst);
             }
         }
         
@@ -1088,7 +1329,7 @@ class ThreadRead extends Thread{
             */
             
             // リミットがスレの表示範囲より小さい場合は、スレの表示範囲をリミットに合わせる
-            $limit_to = $start + $GLOBALS['rnum_all_range'] -1;
+            $limit_to = $start + $GLOBALS['rnum_all_range'] - 1;
             
             if ($limit_to < $to) {
                 $to = $limit_to;
@@ -1104,40 +1345,57 @@ class ThreadRead extends Thread{
             //print_r("$start, $to, {$GLOBALS['rnum_all_range']}");
             
         } else {
-            // 携帯用
+            // 携帯用の表示数制限
             if ($_conf['ktai']) {
-                // 表示数制限
                 /*
                 if ($start + $_conf['k_rnum_range'] -1 <= $to) {
                     $to = $start + $_conf['k_rnum_range'] -1;
                 }
                 */
-                // 次X件では、前一つを含み、実質+1となるので、1つおまけする
-                if ($start + $_conf['k_rnum_range'] <= $to) {
-                    $to = $start + $_conf['k_rnum_range'];
+                
+                // マルチ時の携帯表示数制限は別処理
+                if (!$this->resrange_multi) {
+                    // 次X件では、前一つを含み、実質+1となるので、1つおまけする
+                    if ($start + $_conf['k_rnum_range'] <= $to) {
+                        $to = $start + $_conf['k_rnum_range'];
+                    }
                 }
-                if ($_conf['filtering']) {
+                
+                // フィルタリング時は、全レス適用となる（$filter_range で別途処理される）
+                if (isset($GLOBALS['word'])) {
                     $start = 1;
                     $to = $this->rescount;
                     $nofirst = false;
                 }
             }
         }
-
-        $this->resrange = array('start'=>$start,'to'=>$to,'nofirst'=>$nofirst);
-        return $this->resrange;
+        
+        if ($this->resrange_multi) {
+            $page = isset($_REQUEST['page']) ? max(1, intval($_REQUEST['page'])) : 1;
+            $reach = $page * $GLOBALS['_conf']['k_rnum_range'];
+            if ($reach < $this->countResrangeMulti()) {
+                $this->resrange_multi_exists_next = true;
+            }
+        } else {
+            $this->resrange_readnum = $to;
+        }
+        
+        $this->resrange = array('start' => $start, 'to' => $to, 'nofirst' => $nofirst);
     }
     
     /**
      * Datを読み込む
      * $this->datlines を set する
+     *
+     * @access  public
+     * @return  boolean  実行成否
      */
     function readDat()
     {
         global $_conf;
         
         if (file_exists($this->keydat)) {
-            if ($this->datlines = @file($this->keydat)) {
+            if ($this->datlines = file($this->keydat)) {
             
                 // be.2ch.net ならEUC→SJIS変換
                 // 念のためSJISとUTF-8も文字コード判定の候補に入れておく
@@ -1165,10 +1423,13 @@ class ThreadRead extends Thread{
 
     /**
      * 一つのスレ内でのID出現数をセットする
+     *
+     * @access  private
+     * @return  void
      */
     function setIdCount($lines)
     {
-        if ($lines) {
+        if (is_array($lines)) {
             foreach ($lines as $line) {
                 $lar = explode('<>', $line);
                 if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,10})|', $lar[2], $matches)) {
@@ -1177,12 +1438,13 @@ class ThreadRead extends Thread{
                 }
             }
         }
-        return;
     }
     
-
     /**
      * datlineをexplodeする
+     *
+     * @access  public
+     * @return  array
      */
     function explodeDatLine($aline)
     {

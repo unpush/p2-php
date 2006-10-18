@@ -3,8 +3,8 @@
 	rep2 -  設定管理ページ
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -12,19 +12,19 @@ $_login->authorize(); // ユーザ認証
 $ptitle = 'ログイン管理';
 
 if ($_conf['ktai']) {
-	$status_st = "ｽﾃｰﾀｽ";
-	$autho_user_st = "認証ﾕｰｻﾞ";
+	$status_st      = "ｽﾃｰﾀｽ";
+	$autho_user_st  = "認証ﾕｰｻﾞ";
 	$client_host_st = "端末ﾎｽﾄ";
-	$client_ip_st = "端末IPｱﾄﾞﾚｽ";
-	$browser_ua_st = "ﾌﾞﾗｳｻﾞUA";
-	$p2error_st = "rep2 ｴﾗｰ";
+	$client_ip_st   = "端末IPｱﾄﾞﾚｽ";
+	$browser_ua_st  = "ﾌﾞﾗｳｻﾞUA";
+	$p2error_st     = "rep2 ｴﾗｰ";
 } else {
-	$status_st = "ステータス";
-	$autho_user_st = "認証ユーザ";
+	$status_st      = "ステータス";
+	$autho_user_st  = "認証ユーザ";
 	$client_host_st = "端末ホスト";
-	$client_ip_st = "端末IPアドレス";
-	$browser_ua_st = "ブラウザUA";
-	$p2error_st = "rep2 エラー";
+	$client_ip_st   = "端末IPアドレス";
+	$browser_ua_st  = "ブラウザUA";
+	$p2error_st     = "rep2 エラー";
 }
 
 $autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
@@ -48,13 +48,11 @@ $hc['ua'] = $_SERVER['HTTP_USER_AGENT'];
 $hd = array_map('htmlspecialchars', $hc);
 
 //=========================================================
-// ■ HTMLプリント
+// HTMLプリント
 //=========================================================
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) {
-	echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
@@ -113,7 +111,7 @@ EOP;
 echo "</p>\n";
 
 
-// フッタプリント===================
+// フッタプリント
 if ($_conf['ktai']) {
 	echo '<hr>'.$_conf['k_to_index_ht']."\n";
 }

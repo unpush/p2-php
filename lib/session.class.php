@@ -1,5 +1,4 @@
 <?php
-
 require_once 'Net/UserAgent/Mobile.php';
 
 $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッションを強制破棄させたい時にUPしたりする）
@@ -58,7 +57,8 @@ class Session{
     /**
      * よりセキュアなセッション管理を開始する
      *
-     * @access private
+     * @access  private
+     * @return  void
      */
     function autoBegin()
     {
@@ -82,7 +82,8 @@ class Session{
     /**
      * セッション始めに変数をセットする
      *
-     * @access private
+     * @access  private
+     * @return  void
      */
     function initSess()
     {
@@ -94,15 +95,13 @@ class Session{
         $_SESSION[$this->sess_array]['ua']         = $_SERVER['HTTP_USER_AGENT'];
         // $_SESSION[$this->sess_array]['referer'] = $_SERVER['HTTP_REFERER'];
         $_SESSION[$this->sess_array]['version']    = $GLOBALS['_SESS_VERSION'];
-        
-        return true;
     }
     
     /**
      * セッションの妥当性をチェックして、エラーがあればメッセージを得る。アクセス時間の更新もここで。
      * 
-     * @access public
-     * @return false|string エラーがあれば、（unSession()して）エラーメッセージを返す。なければfalseを返す。
+     * @access  public
+     * @return  false|string エラーがあれば、（unSession()して）エラーメッセージを返す。なければfalseを返す。
      */
     function checkSessionError()
     {
@@ -160,7 +159,8 @@ class Session{
     /**
      * セッションのアクセス時間をチェックする
      *
-     * @access private
+     * @access  private
+     * @return  boolean
      */
     function checkAcTime($minutes = 30)
     {
@@ -175,7 +175,8 @@ class Session{
     /**
      * セッションのバージョンをチェックする
      *
-     * @access private
+     * @access  private
+     * @return  boolean
      */
     function checkVersion()
     {
@@ -189,8 +190,8 @@ class Session{
     /**
      * IPアドレス妥当性チェックする
      *
-     * @access private
-     * @return bool
+     * @access  private
+     * @return  boolean
      */
     function checkIP()
     {
@@ -210,7 +211,8 @@ class Session{
     /**
      * UAでセッションの妥当性をチェックする
      *
-     * @access private
+     * @access  private
+     * @return  boolean
      */
     function checkUA()
     {
@@ -240,11 +242,13 @@ class Session{
     /**
      * $_SESSIONでセッションを破棄する
      *
+     * スタティックメソッド Session::unSession() でも呼び出せる
+     *
      * セッションがない、もしくは正しくない場合などに
      * http://jp.php.net/manual/ja/function.session-destroy.php
      *
-     * @access public
-     * クラスメソッド Session::unSession() でも呼び出せる
+     * @access  public
+     * @return  void
      */
     function unSession()
     {
@@ -274,8 +278,6 @@ class Session{
         
         session_destroy();
         file_exists($session_file) and unlink($session_file);
-        
-        return;
     }
 
 }

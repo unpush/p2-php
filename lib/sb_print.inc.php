@@ -1,9 +1,11 @@
 <?php
-// p2 スレッドサブジェクト表示関数
+// p2 - スレッドサブジェクト表示関数
 // for subject.php
 
 /**
- * sb_print - スレッド一覧を表示する (<tr>～</tr>)
+ * スレッド一覧をHTML表示する (<tr>～</tr>)
+ *
+ * @return  void
  */
 function sb_print(&$aThreadList)
 {
@@ -23,7 +25,7 @@ function sb_print(&$aThreadList)
     if (($_conf['sb_show_one'] == 1) or ($_conf['sb_show_one'] == 2 and ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus")) {
         // spmodeは除く
         if (empty($aThreadList->spmode)) {
-            $only_one_bool = true;
+            $onlyone_bool = true;
         }
     }
     
@@ -87,7 +89,7 @@ EOP;
         echo "<td class=\"tn\" nowrap><a{$class_sort_res} href=\"{$_conf['subject_php']}?sort=res{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">レス</a></td>";
     }
     // >>1
-    if ($only_one_bool) { echo "<td class=\"t\">&nbsp;</td>"; }
+    if ($onlyone_bool) { echo "<td class=\"t\">&nbsp;</td>"; }
     // チェックボックス
     if ($checkbox_bool) {
         echo "<td class=\"tc\"><input id=\"allbox\" name=\"allbox\" type=\"checkbox\" onClick=\"checkAll();\" title=\"すべての項目を選択、または選択解除\"></td>";
@@ -126,7 +128,7 @@ EOP;
     if ($aThreadList->spmode) {
         $spmode_q = "&amp;spmode={$aThreadList->spmode}";
     }
-    $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+    $sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
     
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
@@ -153,15 +155,15 @@ EOP;
             $class_ts = " class=\"ts\"";    // すばやさ
             $class_ti = " class=\"ti\"";    // 勢い
         } else {
-            $class_t = " class=\"t2\"";
-            $class_te = " class=\"te2\"";
-            $class_tu = " class=\"tu2\"";
-            $class_tn = " class=\"tn2\"";
-            $class_tc = " class=\"tc2\"";
-            $class_to = " class=\"to2\"";
-            $class_tl = " class=\"tl2\"";
-            $class_ts = " class=\"ts2\"";
-            $class_ti = " class=\"ti2\"";
+            $class_t  = ' class="t2"';
+            $class_te = ' class="te2"';
+            $class_tu = ' class="tu2"';
+            $class_tn = ' class="tn2"';
+            $class_tc = ' class="tc2"';
+            $class_to = ' class="to2"';
+            $class_tl = ' class="tl2"';
+            $class_ts = ' class="ts2"';
+            $class_ti = ' class="ti2"';
         }
     
         //新着レス数 =============================================
@@ -284,8 +286,8 @@ EOP;
         $change_color = " onClick=\"chTtColor('{$i}');{$chUnColor_ht}\"";
         
         // オンリー>>1 =============================================
-        if ($only_one_bool) {
-            $one_ht = "<td{$class_t}><a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true\">&gt;&gt;1</a></td>";
+        if ($onlyone_bool) {
+            $one_ht = "<td{$class_t}><a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true\">&gt;&gt;1</a></td>";
         }
         
         // チェックボックス =============================================
@@ -367,7 +369,6 @@ EOP;
     }
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
-    return true;
 }
 
 ?>

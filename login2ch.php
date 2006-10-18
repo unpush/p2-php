@@ -3,8 +3,8 @@
  *    p2 - 2ch●ログイン管理
  */
 
-include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -77,7 +77,7 @@ if (!$_conf['ktai']) {
 
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>

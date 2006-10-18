@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -67,9 +67,7 @@ $autho_user_ht = '';
 //=========================================================
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -97,7 +95,7 @@ if (empty($_conf['ktai'])) {
 echo $_info_msg_ht;
 $_info_msg_ht = '';
 
-// 設定プリント =====================
+// 設定プリント
 $aborn_res_txt  = $_conf['pref_dir'] . '/p2_aborn_res.txt';
 $aborn_name_txt = $_conf['pref_dir'] . '/p2_aborn_name.txt';
 $aborn_mail_txt = $_conf['pref_dir'] . '/p2_aborn_mail.txt';
@@ -126,7 +124,7 @@ if (empty($_conf['ktai'])) {
     
     echo <<<EOP
 <fieldset>
-<legend><a href="http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
+<legend><a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
 EOP;
     printEditFileForm($ng_name_txt, "名前");
     printEditFileForm($ng_mail_txt, "メール");
@@ -260,16 +258,20 @@ if (!empty($links)) {
 // 携帯用フッタ
 if ($_conf['ktai']) {
     echo "<hr>\n";
-    echo $_conf['k_to_index_ht']."\n";
+    echo $_conf['k_to_index_ht'] . "\n";
 }
 
 echo '</body></html>';
 
-//=====================================================
+exit;
+
+//==============================================================================
 // 関数
-//=====================================================
+//==============================================================================
 /**
- * 設定ファイル編集ウインドウを開くフォームをプリントする
+ * 設定ファイル編集ウインドウを開くフォームHTMLをプリントする
+ *
+ * @return void
  */
 function printEditFileForm($path_value, $submit_value)
 {
@@ -307,6 +309,8 @@ EOFORM;
 
 /**
  * ホストの同期用フォームのHTMLを取得する
+ *
+ * @return string
  */
 function getSyncFavoritesFormHt($path_value, $submit_value)
 {

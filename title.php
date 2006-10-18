@@ -1,8 +1,8 @@
 <?php
 // p2 -  タイトルページ
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -110,9 +110,7 @@ EOP;
 $ptitle = "rep2 - title";
 
 P2Util::header_content_type();
-if (!empty($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -124,7 +122,7 @@ echo <<<EOP
     <base target="read">
 EOP;
 
-@include("./style/style_css.inc");
+@include "./style/style_css.inc";
 
 echo <<<EOP
 </head>
@@ -132,10 +130,8 @@ echo <<<EOP
 EOP;
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
-}
+echo $_info_msg_ht;
+$_info_msg_ht = '';
 
 echo <<<EOP
 <br>
@@ -157,12 +153,12 @@ echo <<<EOP
 EOP;
 
 //==================================================
-// ■関数
+// 関数 use only in this file
 //==================================================
 /**
  * オンライン上のrep2最新版をチェックする
  *
- * @return string HTML
+ * @return  string  HTML
  */
 function checkUpdatan()
 {
@@ -176,7 +172,7 @@ function checkUpdatan()
     
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら
-        if (@filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
+        if (filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
             $no_p2status_dl_flag = true;
         }
     }

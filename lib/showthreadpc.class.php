@@ -1,14 +1,15 @@
 <?php
-/*
-    p2 - スレッドを表示する クラス PC用
-*/
-
+/**
+ * p2 - スレッドを表示する クラス PC用
+ */
 class ShowThreadPc extends ShowThread{
 
     var $quote_res_nums_checked; // ポップアップ表示されるチェック済みレス番号を登録した配列
     var $quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
     var $quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
 
+    var $_quote_link_max = 15;
+    
     /**
      * コンストラクタ
      */
@@ -32,7 +33,10 @@ class ShowThreadPc extends ShowThread{
     }
 
     /**
-     * ■DatをHTMLに変換表示する
+     * DatをHTMLに変換して表示する
+     *
+     * @access  public
+     * @return  boolean
      */
     function datToHtml()
     {
@@ -51,21 +55,27 @@ class ShowThreadPc extends ShowThread{
         //$status_title = str_replace('"', "\'\'", $status_title);
         echo "<dl onMouseover=\"window.top.status='{$status_title}';\">";
 
-        // まず 1 を表示
+        // 1を表示（範囲外のケースもあるのでここで）
         if (!$nofirst) {
             echo $this->transRes($this->thread->datlines[0], 1);
         }
 
         for ($i = $start; $i <= $to; $i++) {
-
+            
+            // 表示範囲外ならスキップ
+            if ($this->thread->resrange_multi and !$this->thread->inResrangeMulti($i)) {
+                continue;
+            }
+            
+            // 1が前段処理で既表示ならスキップ
             if (!$nofirst and $i == 1) {
                 continue;
             }
-            if (!$this->thread->datlines[$i-1]) {
-                $this->thread->readnum = $i-1;
+            if (!$this->thread->datlines[$i - 1]) {
+                // $this->thread->readnum = $i - 1; 2006/09/23 ここでセットするのは違う気がした
                 break;
             }
-            echo $this->transRes($this->thread->datlines[$i-1], $i);
+            echo $this->transRes($this->thread->datlines[$i - 1], $i);
             flush();
         }
 
@@ -76,11 +86,13 @@ class ShowThreadPc extends ShowThread{
         return true;
     }
 
-
     /**
-     * ■ DatレスをHTMLレスに変換する
+     * DatレスをHTMLレスに変換する
      *
-     * 引数 - datの1ライン, レス番号
+     * @access  public
+     * @param   string   $ares  datの1ライン
+     * @param   integer  $i     レス番号
+     * @return  string
      */
     function transRes($ares, $i)
     {
@@ -99,6 +111,7 @@ class ShowThreadPc extends ShowThread{
         $msg = $resar[3];
 
         // {{{ フィルタリング
+        
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
                 return '';
@@ -110,6 +123,7 @@ class ShowThreadPc extends ShowThread{
                 return '';
             }
         }
+        
         // }}}
 
         //=============================================================
@@ -188,7 +202,7 @@ class ShowThreadPc extends ShowThread{
         // まとめて出力
         //=============================================================
 
-        $name = $this->transName($name); // 名前HTML変換
+        $name = $this->transName($name, $i); // 名前HTML変換
         $msg = $this->transMsg($msg, $i); // メッセージHTML変換
 
 
@@ -298,7 +312,10 @@ EOP;
 
 
     /**
-     * >>1 を表示する (引用ポップアップ用)
+     * >>1 ポップアップ表示用の (引用ポップアップ用) HTMLデータ（配列）を返す
+     *
+     * @access  public
+     * @return  array
      */
     function quoteOne()
     {
@@ -326,19 +343,23 @@ EOP;
 
         $m1 = "&gt;&gt;1";
         $res1['body'] = $this->transMsg($m1, 1);
+        
         return $res1;
     }
 
     /**
-     * レス引用HTML
+     * レス引用HTMLを生成取得する
+     *
+     * @access  private
+     * @return  string
      */
-    function qRes($ares, $i)
+    function qRes($resline, $i)
     {
         global $_conf;
 
-        $resar = $this->thread->explodeDatLine($ares);
+        $resar = $this->thread->explodeDatLine($resline);
         $name = $resar[0];
-        $name = $this->transName($name);
+        $name = $this->transName($name, $i);
         $msg = $resar[3];
         $msg = $this->transMsg($msg, $i); // メッセージ変換
         $mail = $resar[1];
@@ -375,16 +396,21 @@ EOP;
     }
 
     /**
-     * 名前をHTML用に変換する
+     * 名前をHTML用に変換して返す
+     *
+     * @access  private
+     * @return  string
      */
-    function transName($name)
+    function transName($name, $resnum)
     {
         global $_conf;
 
         $nameID = "";
-
+        
+        // ID付なら名前は "aki </b>◆...p2/2... <b>" といった感じでくる。（通常は普通に名前のみ）
+        
         // ID付なら分解する
-        if (preg_match('/(.*)(◆.*)/', $name, $matches)) {
+        if (preg_match('~(.*)( </b>◆.*)~', $name, $matches)) {
             $name = $matches[1];
             $nameID = $matches[2];
         }
@@ -398,29 +424,26 @@ EOP;
             // 数字を引用レスポップアップリンク化
             // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
             $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
+            $this->_quote_parent_resnum = $resnum;
             $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
         }
 
         if (!empty($nameID)) { $name = $name . $nameID; }
 
-        $name = $name." "; // 文字化け回避
-
-        /*
-        $b = unpack('C*', $name);
-        $t = array_pop($b);
-        if ((0x80 <= $t && $t <= 0x9F) || (0xE0 <= $t && $t <= 0xEF)) {
-            $name = $name." ";
-        }
-        */
+        $name = $name . " "; // 簡易的に文字化け回避
 
         return $name;
     }
 
     /**
-     * datのレスメッセージをHTML表示用メッセージに変換する
-     * string transMsg(string str)
+     * datのレスメッセージをHTML表示用メッセージに変換して返す
+     *
+     * @access  private
+     * @param   string   $msg
+     * @param   integer  $resnum  レス番号
+     * @return  string
      */
-    function transMsg($msg, $mynum)
+    function transMsg($msg, $resnum)
     {
         // 2ch旧形式のdat
         if ($this->thread->dat_type == "2ch_old") {
@@ -443,15 +466,20 @@ EOP;
         $msg = str_replace('onload=window()', '<i>onload=window</i>()', $msg);
         
         // 引用やURLなどをリンク
+        $this->_quote_parent_resnum = $resnum;
         $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
-
+        $this->_quote_link_counts[$this->_quote_parent_resnum] = 0; // 結局リセットする場合は配列にする必要はないけども
+        
         return $msg;
     }
 
     // {{{ コールバックメソッド
 
     /**
-     * ■リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
+     * リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
+     *
+     * @access  private
+     * @return  string
      */
     function link_callback($s)
     {
@@ -496,6 +524,8 @@ EOP;
             return strip_tags($s[0]);
         }
 
+        // 以下、urlケースの処理
+        
         // ime.nuを外す
         $url = preg_replace('|^([a-z]+://)ime\\.nu/|', '$1', $url);
 
@@ -545,13 +575,25 @@ EOP;
     }
 
     /**
-     * ■引用変換（単独）
+     * 引用変換（単独）
+     *
+     * @access  private
+     * @return  string
      */
     function quote_res_callback($s)
     {
         global $_conf;
-
+        
         list($full, $qsign, $appointed_num) = $s;
+        
+        // アンカーボム対策
+        if ($qsign != '&gt;&gt;') {
+            $this->_quote_link_counts[$this->_quote_parent_resnum]++;
+            if ($this->_quote_link_counts[$this->_quote_parent_resnum] > $this->_quote_link_max) {
+                return $s[0];
+            }
+        }
+        
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum > sizeof($this->thread->datlines)) {
             return $s[0];
@@ -569,13 +611,23 @@ EOP;
     /**
      * 引用変換（範囲）
      *
-     * @return string
+     * @access  private
+     * @return  string
      */
     function quote_res_range_callback($s)
     {
         global $_conf;
 
         list($full, $qsign, $appointed_num) = $s;
+        
+        // アンカーボム対策
+        if ($qsign != '&gt;&gt;') {
+            $this->_quote_link_counts[$this->_quote_parent_resnum]++;
+            if ($this->_quote_link_counts[$this->_quote_parent_resnum] > $this->_quote_link_max) {
+                return $s[0];
+            }
+        }
+        
         if ($appointed_num == '-') {
             return $s[0];
         }
@@ -602,14 +654,20 @@ EOP;
     }
 
     /**
-     * ■HTMLポップアップ変換（コールバック用インターフェース）
+     * HTMLポップアップ変換（コールバック用インターフェース）
+     *
+     * @access  private
+     * @retrun  string
      */
     function iframe_popup_callback($s) {
         return $this->iframe_popup($s[1], $s[3], $s[2]);
     }
 
     /**
-     * ■HTMLポップアップ変換
+     * HTMLポップアップ変換
+     *
+     * @access  private
+     * @return  string
      */
     function iframe_popup($url, $str, $attr = '', $mode = NULL)
     {
@@ -689,7 +747,8 @@ EOP;
     /**
      * IDフィルタリングポップアップ変換
      *
-     * @return string
+     * @access  private
+     * @return  string
      */
     function idfilter_callback($s)
     {
@@ -722,30 +781,38 @@ EOP;
     // {{{ ユーティリティメソッド
 
     /**
-     * HTMLメッセージ中の引用レスの番号を再帰チェックする
+     * HTMLメッセージ中の引用レス番号を再帰チェックし、見つかった番号の配列を返す
+     *
+     * @param   integer  $res_num  チェック対象レスの番号
+     * @param   string   $name     チェック対象レスの名前
+     * @param   string   $msg      チェック対象レスのメッセージ
+     * @return  array    見つかった引用レス番号の配列
      */
     function checkQuoteResNums($res_num, $name, $msg)
     {
+        $quote_res_nums = array();
+        
         // 再帰リミッタ
-        if ($this->quote_check_depth > 30) {
+        $recursive_limit = 20;
+        if ($this->quote_check_depth > $recursive_limit) {
             return array();
         } else {
             $this->quote_check_depth++;
         }
-
-        $quote_res_nums = array();
-
+        
+        // {{{ 名前をチェックする
+        
         $name = preg_replace("/(◆.*)/", "", $name, 1);
-
-        // 名前
         if (preg_match("/[0-9]+/", $name, $matches)) {
-            $a_quote_res_num=$matches[0];
+            $a_quote_res_num = $matches[0];
 
             if ($a_quote_res_num) {
                 $quote_res_nums[] = $a_quote_res_num;
 
-                if ($a_quote_res_num != $res_num) { // 自分自身の番号と同一でなければ、
-                    if (!$this->quote_res_nums_checked[$a_quote_res_num]) { // チェックしていない番号を再帰チェック
+                // 自分自身の番号と同一でなければ
+                if ($a_quote_res_num != $res_num) {
+                    // チェックしていない番号を再帰チェック
+                    if (!$this->quote_res_nums_checked[$a_quote_res_num]) {
                         $this->quote_res_nums_checked[$a_quote_res_num] = true;
 
                         $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_num-1]);
@@ -755,25 +822,25 @@ EOP;
                      }
                  }
              }
-            // $name=preg_replace("/([0-9]+)/", "", $name, 1);
+            // $name = preg_replace("/([0-9]+)/", "", $name, 1);
         }
 
+        // }}}
+        // {{{ メッセージをチェックする
+        
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
-        //echo $msg;
         if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
 
             foreach ($out[1] as $numberq) {
-                //echo $numberq;
+                
                 if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
 
                     foreach ($matches[0] as $a_quote_res_num) {
 
-                        //echo $a_quote_res_num;
-
-                        if (!$a_quote_res_num) {break;}
+                        if (!$a_quote_res_num) { break; }
                         $quote_res_nums[] = $a_quote_res_num;
 
                         // 自分自身の番号と同一でなければ、
@@ -789,14 +856,18 @@ EOP;
                              }
                          }
 
-                     }
+                     } // foreach
 
-                }
+                } // if
 
-            }
+            } // foreach
 
         }
-
+        
+        // }}}
+        
+        $quote_res_nums = array_unique($quote_res_nums);
+        
         return $quote_res_nums;
     }
 
@@ -808,6 +879,9 @@ EOP;
 
     /**
      * URLリンク
+     *
+     * @access  private
+     * @return  string|false
      */
     function plugin_linkURL($url, $purl, $str)
     {
@@ -863,6 +937,9 @@ EOP;
 
     /**
      * 2ch bbspink    板リンク
+     *
+     * @access  private
+     * @return  string|false
      */
     function plugin_link2chSubject($url, $purl, $str)
     {
@@ -877,6 +954,9 @@ EOP;
 
     /**
      * 2ch bbspink    スレッドリンク
+     *
+     * @access  private
+     * @return  string|false
      */
     function plugin_link2ch($url, $purl, $str)
     {
@@ -888,7 +968,7 @@ EOP;
                 if (preg_match('/^[0-9\\-n]+$/', $m[4])) {
                     $pop_url = $url;
                 } else {
-                    $pop_url = $read_url . '&amp;one=true';
+                    $pop_url = $read_url . '&amp;onlyone=true';
                 }
                 return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
@@ -899,6 +979,9 @@ EOP;
 
     /**
      * 2ch過去ログhtml
+     *
+     * @access  private
+     * @return  string|false
      */
     function plugin_link2chKako($url, $purl, $str)
     {
@@ -907,7 +990,7 @@ EOP;
         if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
             if ($_conf['iframe_popup']) {
-                $pop_url = $read_url . '&amp;one=true';
+                $pop_url = $read_url . '&amp;onlyone=true';
                 return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
@@ -917,6 +1000,9 @@ EOP;
 
     /**
      * まちBBS / JBBS＠したらば  内リンク
+     *
+     * @access  private
+     * @return  string|false
      */
     function plugin_linkMachi($url, $purl, $str)
     {
@@ -938,6 +1024,9 @@ EOP;
 
     /**
      * JBBS＠したらば  内リンク
+     *
+     * @access  private
+     * @return  string|false
      */
     function plugin_linkJBBS($url, $purl, $str)
     {
@@ -956,6 +1045,9 @@ EOP;
 
     /**
      * 画像ポップアップ変換
+     *
+     * @access  private
+     * @return  string|false
      */
     function plugin_viewImage($url, $purl, $str)
     {
@@ -1001,4 +1093,5 @@ EOP;
     // }}}
 
 }
+
 ?>

@@ -14,35 +14,47 @@
     スレッド表示時のお気にスレ表示 → スレッド.idx を参照
 */
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
- * お気にスレをセットする
+ * お気にスレをセットする関数
  *
  * $set は、0(解除), 1(追加), top, up, down, bottom
+ *
+ * @access  public
+ * @return  boolean  実行成否
  */
 function setFav($host, $bbs, $key, $setfav)
 {
     global $_conf;
 
-    //==================================================================
-    // key.idx
-    //==================================================================
     // idxfileのパスを求めて
     $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
+    $idxfile = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
 
     // 板ディレクトリが無ければ作る
     // FileCtl::mkdir_for($idxfile);
 
     // 既にidxデータがあるなら読み込む
-    if ($lines = @file($idxfile)) {
+    if (file_exists($idxfile) and $lines = file($idxfile)) {
         $l = rtrim($lines[0]);
         $data = explode('<>', $l);
     }
 
+    /*
+    // readnum
+    if (!isset($data[4])) {
+        $data[4] = 0;
+    }
+    if (!isset($data[9])) {
+        $data[9] = $data[4] + 1; // $newlineは廃止予定だが、旧互換用に念のため
+    }
+    */
+    
     // {{{ スレッド.idx 記録
+    
     if ($setfav == '0' or $setfav == '1') {
+    
         // お気にスレから外した結果、idxの意味がなくなれば削除する
         if ($setfav == '0' and (!$data[3] && !$data[4] && $data[9] <= 1)) {
             @unlink($idxfile);
@@ -53,16 +65,8 @@ function setFav($host, $bbs, $key, $setfav)
             P2Util::recKeyIdx($idxfile, $sar);
         }
     }
-    // }}}
     
-    //==================================================================
-    // favlist.idx
-    //==================================================================
-    // favlistファイルがなければ生成
-    FileCtl::make_datafile($_conf['favlist_file'], $_conf['favlist_perm']);
-
-    // favlist読み込み
-    $favlines = @file($_conf['favlist_file']);
+    // }}}
 
     //================================================
     // 処理
@@ -70,6 +74,13 @@ function setFav($host, $bbs, $key, $setfav)
     $neolines = array();
     $before_line_num = 0;
 
+    FileCtl::make_datafile($_conf['favlist_file'], $_conf['favlist_perm']);
+
+    $favlines = file($_conf['favlist_file']);
+    if ($favlines === false) {
+        return false;
+    }
+    
     // 最初に重複要素を削除しておく
     if (!empty($favlines)) {
         $i = -1;
@@ -102,47 +113,49 @@ function setFav($host, $bbs, $key, $setfav)
     $cont = '';
     if (!empty($rec_lines)) {
         foreach ($rec_lines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
     }
     
     // 書き込む
-    if (FileCtl::file_write_contents($_conf['favlist_file'], $cont) === false) {
+    if (file_put_contents($_conf['favlist_file'], $cont, LOCK_EX) === false) {
+        trigger_error("file_put_contents(" . $_conf['favlist_file'] . ")", E_USER_WARNING);
         die('Error: cannot write file.');
+        return false;
     }
 
-
-    //================================================
     // お気にスレ共有
-    //================================================
     if ($_conf['join_favrank']) {
+        $act = '';
         if ($setfav == "0") {
             $act = "out";
         } elseif ($setfav == "1") {
             $act = "add";
-        } else {
-            return;
         }
-        $itaj = P2Util::getItaName($host, $bbs);
-        $post = array("host" => $host, "bbs" => $bbs, "key" => $key, "ttitle" => $data[0], "ita" => $itaj, "act" => $act);
-        postFavRank($post);
+        if ($act) {
+            $itaj = P2Util::getItaName($host, $bbs);
+            $post = array("host" => $host, "bbs" => $bbs, "key" => $key, "ttitle" => $data[0], "ita" => $itaj, "act" => $act);
+            postFavRank($post);
+        }
     }
 
     return true;
 }
 
 /**
- * お気にスレ共有でポストする
+ * お気にスレ共有でポストする関数
+ *
+ * @return  boolean  実行成否
  */
 function postFavRank($post)
 {
     global $_conf;
 
     $method = "POST";
-    $httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
+    $httpua = "Monazilla/1.00 (" . $_conf['p2name'] . "/" . $_conf['p2version'] . ")";
     
-    $URL = parse_url($_conf['favrank_url']); // URL分解
-    if (isset($URL['query'])) { // クエリー
+    $URL = parse_url($_conf['favrank_url']);
+    if (isset($URL['query'])) {
         $URL['query'] = "?".$URL['query'];
     } else {
         $URL['query'] = "";
@@ -186,24 +199,25 @@ function postFavRank($post)
         //echo "サーバ接続エラー: $errstr ($errno)<br>\n";
         //echo "p2 info: {$_conf['favrank_url']} に接続できませんでした。<br>";
         return false;
-    } else {
-        fputs($fp, $request);
-        /*
-        while (!feof($fp)){
-            if($start_here){
-                echo $body = fread($fp,512000);
-            }else{
-                $l = fgets($fp,128000);
-                if($l=="\r\n"){
-                    $start_here=true;
-                }
+    }
+
+    fputs($fp, $request);
+    /*
+    while (!feof($fp)){
+        if($start_here){
+            echo $body = fread($fp,512000);
+        }else{
+            $l = fgets($fp,128000);
+            if($l=="\r\n"){
+                $start_here=true;
             }
         }
-        */
-        fclose ($fp);
-        return true;
-        //return $body;
     }
+    */
+    fclose ($fp);
+    
+    return true;
+    //return $body;
 }
 
 ?>

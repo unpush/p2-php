@@ -1,10 +1,10 @@
 <?php
 /*
-    p2 - ユーザ設定編集インタフェース
+    p2 - ユーザ設定編集UI
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -18,7 +18,7 @@ if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
 // 前処理
 //=====================================================================
 
-// {{{ ■保存ボタンが押されていたら、設定を保存
+// {{{ 保存ボタンが押されていたら、設定を保存
 
 if (!empty($_POST['submit_save'])) {
 
@@ -30,11 +30,8 @@ if (!empty($_POST['submit_save'])) {
     // 選択肢にないもの → デフォルト矯正
     notSelToDef();
     
-    // empty → デフォルト矯正
-    emptyToDef();
-
-    // 正の整数 or 0 でないもの → デフォルト矯正
-    notIntExceptMinusToDef();
+    // ルールを適用する
+    applyRules();
 
     /**
      * デフォルト値 $conf_user_def と変更値 $_POST['conf_edit'] の両方が存在していて、
@@ -53,6 +50,8 @@ if (!empty($_POST['submit_save'])) {
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
     if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
         $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
+        trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
+        
     } else {
         $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
         // 変更があれば、内部データも更新しておく
@@ -61,14 +60,13 @@ if (!empty($_POST['submit_save'])) {
     }
 
 // }}}
-// {{{ ■デフォルトに戻すボタンが押されていたら
+// {{{ デフォルトに戻すボタンが押されていたら
 
 } elseif (!empty($_POST['submit_default'])) {
     if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
         $_info_msg_ht .= "<p>○設定をデフォルトに戻しました</p>";
         // 変更があれば、内部データも更新しておく
         $_conf = array_merge($_conf, $conf_user_def);
-        $_conf = array_merge($_conf, $conf_save);
     }
 }
 
@@ -87,7 +85,7 @@ $csrfid = P2Util::getCsrfId();
 // ヘッダHTMLをプリント
 P2Util::header_nocache();
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -140,10 +138,8 @@ EOP;
 }
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
-}
+echo $_info_msg_ht;
+$_info_msg_ht = "";
 
 echo <<<EOP
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
@@ -192,7 +188,8 @@ echo getGroupSepaHtml('subject');
 echo getEditConfHtml('refresh_time', 'スレッド一覧の自動更新間隔 (分指定。0なら自動更新しない)');
 
 echo getEditConfHtml('sb_show_motothre', 'スレッド一覧で未取得スレに対して元スレへのリンク（・）を表示 (する, しない)');
-echo getEditConfHtml('sb_show_one', 'スレッド一覧（板表示）で>>1を表示 (する, しない, ニュース系のみ)');
+echo getEditConfHtml('sb_show_one', 'PC閲覧時、スレッド一覧（板表示）で>>1を表示 (する, しない, ニュース系のみ)');
+echo getEditConfHtml('k_sb_show_first', '携帯のスレッド一覧（板表示）から初めてのスレを開く時の表示方法 (ﾌﾟﾚﾋﾞｭｰ>>1, 1からN件表示, 最新N件表示)');
 echo getEditConfHtml('sb_show_spd', 'スレッド一覧ですばやさ（レス間隔）を表示 (する:1, しない:0)');
 echo getEditConfHtml('sb_show_ikioi', 'スレッド一覧で勢い（1日あたりのレス数）を表示 (する:1, しない:0)');
 echo getEditConfHtml('sb_show_fav', 'スレッド一覧でお気にスレマーク★を表示 (する:1, しない:0)');
@@ -223,11 +220,16 @@ echo getEditConfHtml('quote_res_view', '引用レスを表示 (する, しない)');
 echo getEditConfHtml('k_rnum_range', '携帯閲覧時、一度に表示するレスの数');
 echo getEditConfHtml('ktai_res_size', '携帯閲覧時、一つのレスの最大表示サイズ');
 echo getEditConfHtml('ktai_ryaku_size', '携帯閲覧時、レスを省略したときの表示サイズ');
+echo getEditConfHtml('k_aa_ryaku_size', '携帯閲覧時、AAらしきレスを省略するサイズ（0なら無効）');
 echo getEditConfHtml('before_respointer_k', '携帯閲覧時、ポインタの何コ前のレスから表示するか');
 echo getEditConfHtml('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用(する, しない)');
 echo getEditConfHtml('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用(する, しない)');
 
 echo getEditConfHtml('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示（する, しない）');
+echo getEditConfHtml('k_clip_unique_id', '携帯閲覧時、重複しないIDは末尾のみの省略表示（する, しない）');
+echo getEditConfHtml('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示（する, しない）');
+echo getEditConfHtml('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示（する, しない）');
+echo getEditConfHtml('mobile.id_underline', '携帯閲覧時、ID末尾の"O"（オー）に下線を追加（する, しない）');
 echo getEditConfHtml('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数');
 
 echo getGroupSepaHtml('ETC');
@@ -242,9 +244,10 @@ echo getEditConfHtml('rct_rec_num', '最近読んだスレの記録数');
 echo getEditConfHtml('res_hist_rec_num', '書き込み履歴の記録数');
 echo getEditConfHtml('res_write_rec', '書き込み内容ログを記録(する, しない)');
 echo getEditConfHtml('through_ime', '外部URLジャンプする際に通すゲート (直接:"", p2 ime(自動転送):"p2", p2 ime(手動転送):"p2m", p2 ime(pのみ手動転送):"p2pm")');
-echo getEditConfHtml('join_favrank', '<a href="http://akid.s17.xrea.com:8080/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加(する, しない)');
+echo getEditConfHtml('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加(する, しない)');
 echo getEditConfHtml('enable_menu_new', '板メニューに新着数を表示 (する:1, しない:0, お気に板のみ:2)');
 echo getEditConfHtml('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)');
+echo getEditConfHtml('mobile.match_color', '携帯閲覧時、フィルタリングでマッチしたキーワードの色');
 echo getEditConfHtml('k_save_packet', '携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する, しない)');
 echo getEditConfHtml('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）');
 echo getEditConfHtml('proxy_use', 'プロキシを利用 (する, しない)'); 
@@ -253,112 +256,102 @@ echo getEditConfHtml('proxy_port', 'プロキシポート ex)"8080"');
 echo getEditConfHtml('precede_openssl', '●ログインを、まずはopensslで試みる。※PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある。');
 echo getEditConfHtml('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか (コマンドライン版:0, PHP関数版:1)');
 
+
+if (empty($_conf['ktai'])) {
+	echo getEditConfHtml('frame_menu_width', 'フレーム左 板メニュー の表示幅');
+	echo getEditConfHtml('frame_subject_width', 'フレーム右上 スレ一覧 の表示幅');
+	echo getEditConfHtml('frame_read_width', 'フレーム右下 スレ本文 の表示幅');
+}
+
+
 echo $htm['form_submit'];
 
 if (empty($_conf['ktai'])) {
-    echo '</table>'."\n";
+    echo '</table>' . "\n";
 }
 
-echo '</form>'."\n";
+echo '</form>' . "\n";
 
 
 // 携帯なら
 if ($_conf['ktai']) {
-    echo '<hr>'.$_conf['k_to_index_ht'];
+    echo '<hr>' . $_conf['k_to_index_ht'];
 }
 
 echo '</body></html>';
 
-// ■ここまで
 exit;
 
-//=====================================================================
-// 関数
-//=====================================================================
 
+//=====================================================================
+// 関数 use only in this file
+//=====================================================================
 /**
- * ルール設定（$conf_user_rules）に基づいて、
- * 指定のnameにおいて、POST指定がemptyの時は、デフォルトセットする
+ * ルール設定（$conf_user_rules）に基づいて、フィルタ処理（デフォルトセット）を行う
+ *
+ * @return  void
  */
-function emptyToDef()
+function applyRules()
 {
-    global $conf_user_def, $conf_user_rules;
-    
-    $rule = 'NotEmpty';
+    global $conf_user_rules, $conf_user_def;
     
     if (is_array($conf_user_rules)) {
-        foreach ($conf_user_rules as $n => $va) {
-            if (in_array($rule, $va)) {
-                if (isset($_POST['conf_edit'][$n])) {
-                    if (empty($_POST['conf_edit'][$n])) {
-                        $_POST['conf_edit'][$n] = $conf_user_def[$n];
-                    }
+        foreach ($conf_user_rules as $k => $v) {
+            if (isset($_POST['conf_edit'][$k])) {
+                $def = isset($conf_user_def[$k]) ? $conf_user_def[$k] : null;
+                foreach ($v as $func) {
+                    $_POST['conf_edit'][$k] = call_user_func($func, $_POST['conf_edit'][$k], $def);
                 }
             }
-        } // foreach
+        }
     }
-    return true;
 }
 
 /**
- * ルール設定（$conf_user_rules）に基づいて、
- * POST指定を正の整数化できる時は正の整数化（0を含む）し、
+ * CSS値のためのフィルタリングを行う
+ */
+function filterCssValue($str, $def = '')
+{
+    return preg_replace('/[^0-9a-zA-Z-%]/', '', $str);
+}
+
+/**
+ * emptyの時は、デフォルトセットする
+ */
+function emptyToDef($val, $def)
+{
+    if (empty($val)) {
+        $val = $def;
+    }
+    return $val;
+}
+
+/**
+ * 正の整数化できる時は正の整数化（0を含む）し、
  * できない時は、デフォルトセットする
  */
-function notIntExceptMinusToDef()
+function notIntExceptMinusToDef($val, $def)
 {
-    global $conf_user_def, $conf_user_rules;
-    
-    $rule = 'IntExceptMinus';
-    
-    if (is_array($conf_user_rules)) {
-        foreach ($conf_user_rules as $n => $va) {
-            if (in_array($rule, $va)) {
-                if (isset($_POST['conf_edit'][$n])) {
-                    // 全角→半角 矯正
-                    $_POST['conf_edit'][$n] = mb_convert_kana($_POST['conf_edit'][$n], 'a');
-                    // 整数化できるなら
-                    if (is_numeric($_POST['conf_edit'][$n])) {
-                        // 整数化する
-                        $_POST['conf_edit'][$n] = intval($_POST['conf_edit'][$n]);
-                        // 負の数はデフォルトに
-                        if ($_POST['conf_edit'][$n] < 0) {
-                            $_POST['conf_edit'][$n] = intval($conf_user_def[$n]);
-                        }
-                    // 整数化できないものは、デフォルトに
-                    } else {
-                        $_POST['conf_edit'][$n] = intval($conf_user_def[$n]);
-                    }
-                }
-            }
-        } // foreach
+    // 全角→半角 矯正
+    $val = mb_convert_kana($val, 'a');
+    // 整数化できるなら
+    if (is_numeric($val)) {
+        // 整数化する
+        $val = intval($val);
+        // 負の数はデフォルトに
+        if ($val < 0) {
+            $val = intval($def);
+        }
+    // 整数化できないものは、デフォルトに
+    } else {
+        $val = intval($def);
     }
-    return true;
+    return $val;
 }
-
-/**
- * 選択肢にない値はデフォルトセットする
- */
-function notSelToDef()
-{
-    global $conf_user_def, $conf_user_sel;
-    
-    $names = array_keys($conf_user_sel);
-    
-    if (is_array($names)) {
-        foreach ($names as $n) {
-            if (isset($_POST['conf_edit'][$n])) {
-                if (!array_key_exists($_POST['conf_edit'][$n], $conf_user_sel[$n])) {
-                    $_POST['conf_edit'][$n] = $conf_user_def[$n];
-                }
-            }
-        } // foreach
-    }
-    return true;
-}
-
 /**
  * グループ分け用のHTMLを得る（関数内でPC、携帯用表示を振り分け）
+ *
+ * @return  string
  */
 function getGroupSepaHtml($title)
 {
@@ -380,6 +373,8 @@ EOP;
 
 /**
  * 編集フォームinput用HTMLを得る（関数内でPC、携帯用表示を振り分け）
+ *
+ * @return  string
  */
 function getEditConfHtml($name, $description_ht)
 {
@@ -439,6 +434,8 @@ EOP;
 
 /**
  * 編集フォームselect用HTMLを得る
+ *
+ * @return  string
  */
 function getEditConfSelHtml($name)
 {

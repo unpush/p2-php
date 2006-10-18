@@ -2,10 +2,10 @@
 // p2 - 書き込み履歴 レス内容表示
 // フレーム分割画面、右下部分
 
-include_once './conf/conf.inc.php'; // 基本設定読込
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
-require_once (P2_LIBRARY_DIR . '/res_hist.class.php');
-require_once (P2_LIBRARY_DIR . '/read_res_hist.inc.php');
+include_once './conf/conf.inc.php';
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIBRARY_DIR . '/res_hist.class.php';
+require_once P2_LIBRARY_DIR . '/read_res_hist.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -31,7 +31,8 @@ if ($_POST['submit'] == $deletemsg_st or isset($_GET['checked_hists'])) {
     $checked_hists and deleMsg($checked_hists);
 }
 
-// データPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、dat形式（p2_res_hist.dat, <>区切り）に変換する
+// 古いバージョンの形式であるデータPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、
+// dat形式（p2_res_hist.dat, <>区切り）に変換する
 P2Util::transResHistLogPhpToDat();
 
 //======================================================================
@@ -42,7 +43,7 @@ P2Util::transResHistLogPhpToDat();
 // 特殊DAT読み
 //==================================================================
 // 読み込んで
-if (!$datlines = @file($_conf['p2_res_hist_dat'])) {
+if (!file_exists($_conf['p2_res_hist_dat']) or !$datlines = file($_conf['p2_res_hist_dat'])) {
     die("p2 - 書き込み履歴内容は空っぽのようです");
 }
 
@@ -70,9 +71,7 @@ EOP;
 //==================================================================
 //P2Util::header_nocache();
 P2Util::header_content_type();
-if (isset($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>

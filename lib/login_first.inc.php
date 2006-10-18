@@ -1,14 +1,17 @@
 <?php
-
 /**
- *  p2 最初のログイン画面を表示する
+ *  p2 - 最初のログイン画面をHTML表示する関数
+ *
+ * @access  public
+ * @return  void
  */
 function printLoginFirst(&$_login)
 {
     global $_info_msg_ht, $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
     
-    // {{{ データ保存ディレクトリのパーミッションの注意を喚起する
+    // {{{ データ保存ディレクトリに書き込み権限がなければ注意を表示セットする
+    
     P2Util::checkDirWritable($_conf['dat_dir']);
     $checked_dirs[] = $_conf['dat_dir']; // チェック済みのディレクトリを格納する配列に
     
@@ -20,6 +23,7 @@ function printLoginFirst(&$_login)
         P2Util::checkDirWritable($_conf['pref_dir']);
         $checked_dirs[] = $_conf['pref_dir'];
     }
+    
     // }}}
     
     // 前処理
@@ -224,9 +228,7 @@ EOP;
     //=========================================================
     P2Util::header_nocache();
     P2Util::header_content_type();
-    if ($_conf['doctype']) {
-        echo $doctype;
-    }
+    echo $_conf['doctype'];
     echo <<<EOP
 <html lang="ja">
 <head>
@@ -237,17 +239,15 @@ EOP;
     <title>{$ptitle}</title>
 EOP;
     if (!$_conf['ktai']) {
-        @include("./style/style_css.inc");
-        @include("./style/login_first_css.inc");
+        @include "./style/style_css.inc";
+        @include "./style/login_first_css.inc";
     }
     echo "</head><body>\n";
     echo "<h3>{$ptitle}</h3>\n";
 
     // 情報表示
-    if (!empty($_info_msg_ht)) {
-        echo $_info_msg_ht;
-        $_info_msg_ht = '';
-    }
+    echo $_info_msg_ht;
+    $_info_msg_ht = '';
     
     echo $body_ht;
 
@@ -256,7 +256,5 @@ EOP;
     }
 
     echo '</body></html>';
-    
-    return true;
 }
 ?>

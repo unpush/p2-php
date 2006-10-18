@@ -38,7 +38,8 @@ class SettingTxt{
     /**
      * SETTING.TXT をダウンロード＆セットする
      *
-     * @return boolean セットできれば true、できなければ false
+     * @access  private
+     * @return  boolean  セットできれば true
      */
     function dlAndSetData()
     {
@@ -54,13 +55,14 @@ class SettingTxt{
     /**
      * SETTING.TXT をダウンロードして、パースして、キャッシュする
      *
-     * @return boolean 実行成否
+     * @access  private?
+     * @return  boolean  実行成否
      */
     function downloadSettingTxt()
     {
         global $_conf, $_info_msg_ht;
 
-        $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
+        $perm = !empty($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
 
         FileCtl::mkdir_for($this->setting_txt); // 板ディレクトリが無ければ作る
     
@@ -134,7 +136,7 @@ class SettingTxt{
                 $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
             }
             
-            if (FileCtl::file_write_contents($this->setting_txt, $body) === false) {
+            if (FileCtl::filePutRename($this->setting_txt, $body) === false) {
                 die("Error: cannot write file");
             }
             chmod($this->setting_txt, $perm);
@@ -156,11 +158,11 @@ class SettingTxt{
     /**
      * キャッシュが新鮮なら true を返す
      *
-     * @return boolean 新鮮なら true。そうでなければ false。
+     * @acccess  private
+     * @return   boolean
      */
     function isCacheFresh()
     {
-        // キャッシュがある場合
         if (file_exists($this->setting_cache)) {
             // キャッシュの更新が指定時間以内なら
             // clearstatcache();
@@ -177,7 +179,8 @@ class SettingTxt{
      *
      * 成功すれば、$this->setting_array がセットされる
      *
-     * @return boolean 実行成否
+     * @acccess  private
+     * @return   boolean  実行成否
      */
     function cacheParsedSettingTxt()
     {
@@ -200,7 +203,7 @@ class SettingTxt{
         $this->setting_array['p2version'] = $_conf['p2version'];
         
         // パースキャッシュファイルを保存する
-        if (file_put_contents($this->setting_cache, serialize($this->setting_array), LOCK_EX) === false) {
+        if (FileCtl::filePutRename($this->setting_cache, serialize($this->setting_array)) === false) {
             return false;
         }
         
@@ -212,7 +215,8 @@ class SettingTxt{
      *
      * 成功すれば、$this->setting_array がセットされる
      *
-     * @return boolean 実行成否
+     * @access  private
+     * @return  boolean  実行成否
      */
     function setSettingArray()
     {
@@ -239,5 +243,4 @@ class SettingTxt{
     }
 
 }
-
 ?>

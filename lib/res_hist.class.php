@@ -39,8 +39,9 @@ class ResHist{
     /**
      * 書き込みログの lines をパースして読み込む
      *
-     * @param  array    $lines
-     * @return boolean  実効成否
+     * @access  public
+     * @param   array    $lines
+     * @return  boolean  実効成否
      */
     function readLines($lines)
     {
@@ -80,18 +81,20 @@ class ResHist{
     /**
      * レスを追加する
      *
-     * @return void
+     * @access  private
+     * @return  void
      */
     function addRes(&$aResArticle)
     {
         $this->articles[] =& $aResArticle;
         $this->num++;
-    }    
+    }
     
     /**
      * レス記事を表示する PC用
      *
-     * @return void
+     * @access  public
+     * @return  void
      */
     function showArticles()
     {
@@ -178,8 +181,11 @@ EOP;
     }
     
     /**
-     * 携帯用ナビを表示する
+     * 携帯用ナビをHTML表示する
      * 表示範囲もセットされる
+     *
+     * @access  public
+     * @return  void
      */
     function showNaviK($position)
     {
@@ -246,9 +252,10 @@ EOP;
     }
     
     /**
-     * レス記事を表示するメソッド 携帯用
+     * レス記事をHTML表示するメソッド 携帯用
      *
-     * @return void
+     * @access  public
+     * @return  void
      */
     function showArticlesK()
     {
@@ -297,7 +304,7 @@ EOP;
                         $msg = substr($msg, 0, strlen($msg)-1);
                     }
                 
-                    $msg = $msg."  ";
+                    $msg = $msg . "  ";
                     $a_res->msg = $msg."<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
                 }
             }
@@ -325,10 +332,8 @@ EOP;
             $res_ht .= '<br>';
             $res_ht .= "{$a_res->msg}<hr>\n"; // 内容
             
-
             echo $res_ht;
         }
     }
 }
-
 ?>
