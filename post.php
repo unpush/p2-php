@@ -354,6 +354,7 @@ function postIt($host, $bbs, $key, $post)
     $request .= "Host: " . $URL['host'] . "\r\n";
     
     $add_user_info = "; p2-client-ip: {$_SERVER['REMOTE_ADDR']}";
+    $add_user_info = '';
     
     $request .= "User-Agent: Monazilla/1.00 (" . $_conf['p2name'] . "/" . $_conf['p2version'] . "{$add_user_info})" . "\r\n";
     $request .= 'Referer: http://' . $URL['host'] . '/' . "\r\n";

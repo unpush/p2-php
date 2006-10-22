@@ -150,6 +150,7 @@ $_info_msg_ht = "";
 echo <<<EOP
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
+    {$_conf['k_input_ht']}
 EOP;
 
 // PC用表示（table）

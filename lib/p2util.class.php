@@ -976,6 +976,37 @@ ERR;
     }
     
     /**
+     * ファイルを指定して、シリアライズされた配列データをマージ更新する（既存のデータに上書きマージする）
+     *
+     * @param   array    $data
+     * @param   string   $file
+     * @return  boolean
+     */
+    function updateArraySrdFile($data, $file)
+    {
+        // 既存のデータをマージ取得
+        if (file_exists($file)) {
+            if ($cont = file_get_contents($file)) {
+                $array = unserialize($cont);
+                if (is_array($array)) {
+                    $data = array_merge($array, $data);
+                }
+            }
+        }
+        
+        // マージ更新なので上書きデータが空っぽの時は何もしない
+        if (empty($data) || !is_array($data)) {
+            return false;
+        }
+
+        if (file_put_contents($file, serialize($data), LOCK_EX) === false) {
+            trigger_error("file_put_contents(" . $file . ")", E_USER_WARNING);
+            return false;
+        }
+        return true;
+    }
+    
+    /**
      * HTMLタグ <a href="$url">$html</a> を生成する
      *
      * @access  public

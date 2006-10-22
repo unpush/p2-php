@@ -1,4 +1,13 @@
 2006-10-19 aki
+	* rep2 version 1.8.3
+	
+	[バグ修正] 書き込みができないバグを修正した
+	[バグ修正] ユーザ設定編集を保存すると、b=kを抜けてしまっていたのを修正した
+	
+	- 変更のあったファイル
+		
+
+2006-10-19 aki
 	* rep2 version 1.8.2
 	
 	[バグ修正] 携帯でスレ一覧のリンク先がおかしかったのを修正
@@ -7,10 +16,29 @@
 	[対応] 写の時もBEポイントの表示に対応しました。 
 	
 	- 変更のあったファイル
+		edit_conf_user.php
+		index.php
+		info.php
+		post.php
+		read.php
+		read_copy_k.php
+		read_new.php
+		subject.php
+		title.php
 		conf/conf.inc.php
 		conf/conf_user_def.inc.php
-		edit_conf_user.php
-		showthreadpc.class.php
+		lib/brdmenu.class.php
+		lib/dataphp.class.php
+		lib/filectl.class.php
+		lib/login2ch.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/post_form.inc.php
+		lib/post_options_loader.inc.php
+		lib/read_header.inc.php
+		lib/sb_header.inc.php
+		lib/sb_print_k.inc.php
+		lib/showthread.class.php
 
 2006-10-19 aki
 	* rep2 version 1.8.1
