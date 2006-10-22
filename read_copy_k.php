@@ -41,6 +41,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 $aThread = &new ThreadRead;
 $aThread->setThreadPathInfo($host, $bbs, $key);
 $aThread->ls = $resid;
+
 if (file_exists($aThread->keydat)) {
     // スレッド情報
     $aThread->readDat($aThread->keydat);
@@ -63,10 +64,12 @@ if (file_exists($aThread->keydat)) {
     $post_link = "<a href=\"{$post_url}\">ﾚｽ</a>";
     // 元スレへのリンク
     $moto_link = '<a href="' . P2Util::throughIme($url_k_txt) . '">元ｽﾚ</a>';
+    
     // 指定番号のレスをパース
     $p = $resid - 1;
     if (isset($aThread->datlines[$p])) {
         $resar = $aThread->explodeDatLine($aThread->datlines[$p]);
+        // $resar[2]: 2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)" 
         $name_txt = trim(strip_tags($resar[0]));
         $mail_txt = trim(strip_tags($resar[1]));
         if (strstr($resar[2], 'ID:')) {
@@ -76,8 +79,12 @@ if (file_exists($aThread->keydat)) {
         } else {
             $date_txt = $resar[2];
         }
+        $be_txt = '';
+        if (preg_match('|BE: ?(\d+)-(#*.+)|i', $resar[2], $m)) {
+            $be_txt = "?{$m[2]}";
+        }
         $msg_txt = trim(strip_tags($resar[3], '<br>'));
-        if ($quote and $_GET['ktool_name'] != 'copy') {
+        if ($quote) {
             $msg_txt = "&gt;&gt;{$resid}\r\n&gt; " . preg_replace('/ *<br[^>]*> */i', "\n&gt; ", $msg_txt);
         } else {
             $msg_txt = preg_replace('/ *<br[^>]*> */i', "\n", $msg_txt);
@@ -89,11 +96,13 @@ if (file_exists($aThread->keydat)) {
     $_info_msg_ht .= '<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>';
 }
 
+// 写
 if ($_GET['ktool_name'] == 'copy') {
     $mail_ht = (strlen($mail_txt) > 0) ? "$mail_txt :" : '';
-    $id_ht_t = (strlen($id_txt) > 0) ? " $id_txt" : '';
-
-    $msg_txt = "$resid :$name_txt :{$mail_ht}$date_txt{$id_ht_tmp}\n{$msg_txt}";
+    $id_ht_tmp = (strlen($id_txt) > 0) ? " $id_txt" : '';
+    $be_ht_tmp = (strlen($be_txt) > 0) ? " $be_txt" : '';
+    
+    $msg_txt = "$resid :$name_txt :{$mail_ht}$date_txt{$id_ht_tmp}{$be_ht_tmp}\n{$msg_txt}";
     
     // auのバグ？対応
     $mobile = &Net_UserAgent_Mobile::singleton();

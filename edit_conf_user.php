@@ -43,6 +43,10 @@ if (!empty($_POST['submit_save'])) {
             if ($conf_user_def[$k] != $_POST['conf_edit'][$k]) {
                 $conf_save[$k] = $_POST['conf_edit'][$k];
             }
+            
+        // 特別（edit_conf_user.php 以外でも設定されうるものは残す）
+        } elseif (in_array($k, array('maru_kakiko'))) {
+            $conf_save[$k] = $_conf[$k];
         }
     }
 
@@ -287,7 +291,7 @@ exit;
 
 
 //=====================================================================
-// 関数 （このファイル内のみの利用）
+// 関数 （このファイル内でのみ利用）
 //=====================================================================
 /**
  * ルール設定（$conf_user_rules）に基づいて、フィルタ処理（デフォルトセット）を行う
@@ -370,7 +374,7 @@ function notSelToDef()
                     $_POST['conf_edit'][$n] = $conf_user_def[$n];
                 }
             }
-        } // foreach
+        }
     }
 }
 
@@ -480,7 +484,7 @@ function getEditConfSelHtml($name)
         $key_ht = htmlspecialchars($key, ENT_QUOTES);
         $value_ht = htmlspecialchars($value, ENT_QUOTES);
         $options_ht .= "\t<option value=\"{$key_ht}\"{$selected}>{$value_ht}</option>\n";
-    } // foreach
+    }
     
     $form_ht = <<<EOP
         <select name="conf_edit[{$name}]">

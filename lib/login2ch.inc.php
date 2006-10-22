@@ -124,8 +124,6 @@ EOP;
     FileCtl::make_datafile($_conf['sid2ch_php'], $_conf['pass_perm']); // $_conf['sid2ch_php'] がなければ生成
     if (file_put_contents($_conf['sid2ch_php'], $cont, LOCK_EX) === false) {
         $_info_msg_ht .= "<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>";
-        
-        trigger_error("file_put_contents(" . $_conf['sid2ch_php'] . ")", E_USER_WARNING);
         return false;
     }
     // }}}

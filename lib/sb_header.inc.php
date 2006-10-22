@@ -249,6 +249,17 @@ echo <<<EOJS
             toid_obj.style.color="{$STYLE['thre_title_color_v']}";
         }
     }
+    
+    /* フレームの自動リサイズは使い勝手イマイチだった
+    gResizedFrame = false;
+    function resizeFrame(){
+        var rr = window.parent.fsright;
+        if (rr) {
+            rr.rows ='*,30%';
+            gResizedFrame = true
+        }
+    }
+    */
     // -->
     </script>
 EOJS;

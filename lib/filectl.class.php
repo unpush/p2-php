@@ -9,16 +9,21 @@
 class FileCtl{
     
     /**
-     * 書き込み用のファイルがなければ生成してパーミッションを調整する
+     * ファイルがなければ生成し、書き込み権限がなければパーミッションを調整する
+     * （既にファイルがあり、書き込み権限もある場合は、何もしない。※modifiedの更新もしない）
      *
      * @param   boolean  $die  true なら、エラーでただちに終了する
-     * @return  boolean  実効成否
+     * @return  boolean  問題がなければtrue
      */
     function make_datafile($file, $perm = 0606, $die = true)
     {
         $me = __CLASS__ . "::" . __FUNCTION__ . "()";
         
         // 引数チェック
+        if (strlen($file) == 0) {
+            trigger_error("$me, file is null", E_USER_WARNING);
+            return false;
+        }
         if (empty($perm)) {
             trigger_error("$me, empty perm. ( $file )", E_USER_WARNING);
             $die and die("Error: $me, empty perm");
@@ -47,7 +52,8 @@ class FileCtl{
                 }
                 unlink($file);
                 if (file_put_contents($file, $cont, LOCK_EX) === false) {
-                    trigger_error("$me -> file_put_contents($file)", E_USER_WARNING);
+                    // 備忘メモ: $file が nullの時、file_put_contents() はfalseを返すがwaringは出さないので注意
+                    // ここでは $file は約束されているが…
                     $die and die("Error: $me -> file_put_contents() failed.");
                     return false;
                 }
@@ -205,7 +211,7 @@ class FileCtl{
         fclose($fh);
         
         if ($bytes != $length) {
-            $errormsg = sprintf('file_put_contents() Only %d of %d bytes written, possibly out of free disk space.',
+            $errormsg = sprintf('file_write_contents() Only %d of %d bytes written, possibly out of free disk space.',
                             $bytes,
                             $length);
             trigger_error($errormsg, E_USER_WARNING);
@@ -243,8 +249,13 @@ class FileCtl{
      * @param   string   $tmp_dir  一時保存ディレクトリ。（一時ファイル名まで固定すると処理が不完全になりそう）
      * @return  boolean  実行成否 （成功時に書き込みバイト数を返す意味ってほとんどない気がする）
      */
-    function filePutRename($dest_file, $cont, $tmp_dir = null)
+    function filePutRename($file, $cont, $tmp_dir = null)
     {
+        if (strlen($file) == 0) {
+            trigger_error(__CLASS__ . '::' . __FUNCTION__ . '(), file is null', E_USER_WARNING);
+            return false;
+        }
+        
         $win = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? true : false;
         
         // 一時ファイルパスを決める
@@ -256,7 +267,6 @@ class FileCtl{
                 trigger_error(__FUNCTION__ . "() -> is_dir($tmp_dir) failed.", E_USER_WARNING);
                 return false;
             }
-            $tmp_file = tempnam($tmp_dir, $prefix);
         
         } else {
             if (isset($GLOBALS['_conf']['tmp_dir'])) {
@@ -273,18 +283,18 @@ class FileCtl{
                     $tmp_dir = null;
                 }
             }
-            $tmp_file = tempnam($tmp_dir, $prefix);
         }
         
-        $write_file = $win ? $dest_file : $tmp_file;
+        $tmp_file = tempnam($tmp_dir, $prefix);
+        
+        $write_file = $win ? $file : $tmp_file;
         
         $r = file_put_contents($write_file, $cont, LOCK_EX);
         if ($r === false) {
-            //trigger_error(__FUNCTION__ . "() -> file_put_contents($write_file)", E_USER_WARNING);
             return false;
         }
         if (!$win) {
-            if (!rename($write_file, $dest_file)) {
+            if (!rename($write_file, $file)) {
                 return false;
             }
         }

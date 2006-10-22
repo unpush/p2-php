@@ -72,6 +72,11 @@ class ShowThread{
 
     /**
      * BEプロファイルリンク変換
+     *
+     * @access  protected
+     * @param   string     $data_id  2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)
+     * @param   integer    $i        レス番号
+     * @return  string
      */
     function replaceBeId($date_id, $i)
     {
@@ -84,8 +89,8 @@ class ShowThread{
         if (preg_match($be_match, $date_id)) {
             $date_id = preg_replace($be_match, $beid_replace, $date_id);
         
+        // 2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)
         } else {
-        
             $beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/test/read.cgi/{$this->thread->bbs}/{$this->thread->key}/{$i}\"{$_conf['ext_win_target_at']}>?\$2</a>";
             $date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
         }

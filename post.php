@@ -150,11 +150,11 @@ if (!empty($_POST['newthread'])) {
 
 // {{{ 2chで●ログイン中ならsid追加
 
-if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
+if (!empty($_POST['maru_kakiko']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
     
     // ログイン後、24時間以上経過していたら自動再ログイン
     if (file_exists($_conf['idpw2ch_php']) and @filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
-        include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+        include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
         login2ch();
     }
     
@@ -182,9 +182,11 @@ $posted = postIt($host, $bbs, $key, $post);
 
 // cookie 保存
 FileCtl::make_datafile($cookie_file, $_conf['p2_perm']);
-if ($p2cookies) {$cookie_cont = serialize($p2cookies);}
+if ($p2cookies) {
+    $cookie_cont = serialize($p2cookies);
+}
 if ($cookie_cont) {
-    if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
+    if (file_put_contents($cookie_file, $cookie_cont, LOCK_EX) === false) {
         die("Error: cannot write file.");
     }
 }
@@ -309,8 +311,10 @@ if ($_conf['res_write_rec']) {
     }
 }
 
+exit;
+
 //=======================================================================
-// 関数 （このファイル内のみの利用）
+// 関数 （このファイル内でのみ利用）
 //=======================================================================
 /**
  * レスを書き込む or 新規スレッドを立てる
@@ -403,6 +407,9 @@ function postIt($host, $bbs, $key, $post)
         $request .= "\r\n";
     }
     // }}}
+
+    $maru_kakiko = isset($_POST['maru_kakiko']) ? $_POST['maru_kakiko'] : '';
+    setConfUser('maru_kakiko', $_POST['maru_kakiko']);
     
     // 書き込みを一時的に保存
     $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
@@ -505,7 +512,7 @@ function postIt($host, $bbs, $key, $post)
     } elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
         $htm['more_hidden_post'] = '';
-        $more_hidden_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru', 'csrfid', 'k', 'b');
+        $more_hidden_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru_kakiko', 'csrfid', 'k', 'b');
         foreach ($more_hidden_keys as $hk) {
             if (isset($_POST[$hk])) {
                 $value_hd = htmlspecialchars($_POST[$hk], ENT_QUOTES);

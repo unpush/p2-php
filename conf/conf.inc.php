@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.1'; // rep2のバージョン
+$_conf['p2version'] = '1.8.2'; // rep2のバージョン
 
 $_conf['p2name'] = 'REP2';    // rep2の名前。
 
@@ -288,8 +288,21 @@ if ($mobile->isNonMobile()) {
 // 体感速度を落とさない良い方法ないかな？
 
 // 強制PCビュー指定
+$b = null;
+if (isset($_GET['b'])) {
+    $b = $_GET['b'];
+} elseif (isset($_POST['b'])) {
+    $b = $_POST['b'];
+}
+$k = null;
+if (isset($_GET['k'])) {
+    $k = $_GET['k'];
+} elseif (isset($_POST['k'])) {
+    $k = $_POST['k'];
+}
+
 $_conf['k_at_q'] = '';
-if (isset($_GET['b']) and $_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
+if ($b == 'pc') {
     $_conf['b'] = 'pc';
     $_conf['ktai'] = false;
     //output_add_rewrite_var('b', 'pc');
@@ -299,7 +312,7 @@ if (isset($_GET['b']) and $_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
 
 // 強制携帯ビュー指定（b=k。k=1は過去互換用）
-} elseif (!empty($_GET['k']) || !empty($_POST['k']) or isset($_GET['b']) && ($_GET['b'] == 'k' || $_POST['b'] == 'k')) {
+} elseif ($b == 'k' || $k) {
     $_conf['b'] = 'k';
     $_conf['ktai'] = true;
     //output_add_rewrite_var('b', 'k');
@@ -308,6 +321,7 @@ if (isset($_GET['b']) and $_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['k_at_q'] = '?b=k';
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="k">';
 }
+
 // }}}
 
 $_conf['k_to_index_ht'] = <<<EOP
@@ -511,6 +525,31 @@ $_login =& new Login();
 //=====================================================================
 // 関数
 //=====================================================================
+/**
+ * conf_user にデータをセット記録する
+ * maru_kakiko
+ *
+ * @return  true|null|false
+ */
+function setConfUser($k, $v)
+{
+    global $_conf;
+    
+    // validate
+    if ($k == 'k_use_aas') {
+        if ($v != 0 && $v != 1) {
+            return null;
+        }
+    }
+    
+    if (false === P2Util::updateArraySrdFile(array($k => $v), $_conf['conf_user_file'])) {
+        return false;
+    }
+    $_conf[$k] = $v;
+    
+    return true;
+}
+
 /**
  * 再帰的にstripslashesをかける
  * GET/POST/COOKIE変数用なのでオブジェクトのプロパティには対応しない

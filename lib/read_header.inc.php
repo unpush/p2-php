@@ -189,12 +189,24 @@ echo <<<EOHEADER
     <script type="text/javascript">
     <!--
     gIsPageLoaded = false;
-    
     function pageLoaded()
     {
         gIsPageLoaded = true;
         {$onLoad_script}
     }
+    
+    /*
+    // フレームのリサイズは使い勝手イマイチ
+    gReadResizedFrame = false;
+    function resizeFrame(){
+        var rr = window.parent.fsright;
+        if (rr) {
+            rr.rows ='20%,*';
+            gReadResizedFrame = true;
+            gSbResizedFrame = false;
+        }
+    }
+    */
     //-->
     </script>\n
 EOHEADER;

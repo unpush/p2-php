@@ -11,7 +11,7 @@ function sb_print_k(&$aThreadList)
 {
 	global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
 	global $sb_view;
-		
+    
 	//=================================================
 	
 	if (!$aThreadList->threads) {
@@ -66,6 +66,7 @@ function sb_print_k(&$aThreadList)
 
 	$i = 0;
 	foreach ($aThreadList->threads as $aThread) {
+    
 		$i++;
 		$midoku_ari = "";
 		$anum_ht = ""; //#r1
@@ -175,9 +176,9 @@ function sb_print_k(&$aThreadList)
 		$thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 	
 		// ƒIƒ“ƒŠ[>>1
-        $only_one_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true&amp;k_continue=1{$_conf['k_at_a']}";
+        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true&amp;k_continue=1{$_conf['k_at_a']}";
 		if ($onlyone_bool) {
-			$one_ht = "<a href=\"{$only_one_url}\">&gt;&gt;1</a>";
+			$one_ht = "<a href=\"{$onlyone_url}\">&gt;&gt;1</a>";
 		}
 		
         if (P2Util::isHost2chs($aThreadList->host) and !$aThread->isKitoku()) {

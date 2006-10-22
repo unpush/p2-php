@@ -404,7 +404,7 @@ exit;
 
 
 //===============================================================================
-// 関数 （このファイル内のみの利用）
+// 関数 （このファイル内でのみ利用）
 //===============================================================================
 /**
  * スレッドを指定する
@@ -484,8 +484,9 @@ function recRecent($data)
 {
     global $_conf;
     
-    // $_conf['rct_file'] ファイルがなければ生成
-    FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']);
+    if (false === FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm'])) {
+        return false;
+    }
     
     $lines = file($_conf['rct_file']);
     $neolines = array();

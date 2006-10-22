@@ -131,7 +131,7 @@ class BrdMenu{
                         
                         // マッチマーキングなければ（bbsでマッチしたとき）、全部マーキング
                         if ($aBrdMenuIta->itaj_ht == $aBrdMenuIta->itaj) {
-                            $aBrdMenuIta->itaj_ht = '<b class="filtering">'.$aBrdMenuIta->itaj_ht.'</b>';
+                            $aBrdMenuIta->itaj_ht = '<b class="filtering">' . $aBrdMenuIta->itaj_ht . '</b>';
                         }
                         
                     // 検索が見つからなくて、さらに携帯の時
@@ -143,7 +143,7 @@ class BrdMenu{
                 }
                 
                 // }}}
-                
+
                 if ($this->num) {
                     $this->categories[$this->num-1]->addBrdMenuIta($aBrdMenuIta);
                 }
@@ -155,14 +155,18 @@ class BrdMenu{
      * brdファイルを生成する
      *
      * @access  public
-     * @return  string    brdファイルのパス
+     * @return  string|false  成功したら生成したbrdファイルのパスを返す
      */
     function makeBrdFile($cachefile)
     {
         global $_conf, $_info_msg_ht, $word;
     
         $p2brdfile = $cachefile . ".p2.brd";
-        FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
+        
+        if (false === FileCtl::make_datafile($p2brdfile, $_conf['p2_perm'])) {
+            return false;
+        }
+        
         $data = file($cachefile);
         $this->setBrdMatch($cachefile); // パターンマッチ形式を登録
         $this->setBrdList($data);       // カテゴリーと板をセット
@@ -177,17 +181,18 @@ class BrdMenu{
             }
         }
 
-        if ($cont) {
-            if (FileCtl::filePutRename($p2brdfile, $cont) === false) {
-                die("p2 error: {$p2brdfile} を更新できませんでした");
-            }
-            return $p2brdfile;
-        } else {
-            if (!$word) {
+        if (!$cont) {
+            if (strlen($GLOBALS['word']) > 0) {
                 $_info_msg_ht .=  "<p>p2 エラー: {$cachefile} から板メニューを生成することはできませんでした。</p>\n";
             }
             return false;
         }
+        if (FileCtl::filePutRename($p2brdfile, $cont) === false) {
+            die("p2 error: {$p2brdfile} を更新できませんでした");
+            return false;
+        }
+        
+        return $p2brdfile;
     }
     
 }

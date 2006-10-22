@@ -825,40 +825,42 @@ function sortThreads(&$aThreadList)
 
 /**
  * p2_setting 記録する
+ *
+ * @return  boolean
  */
 function saveSbSetting($p2_setting_txt, $p2_setting, $pre_setting)
 {
     global $_conf;
-    
-    $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('save_p2_setting');
+
     if ($pre_setting['viewnum'] != $p2_setting['viewnum'] or $pre_setting['sort'] != $GLOBALS['now_sort'] or $pre_setting['itaj'] != $p2_setting['itaj']) {
         if (!empty($_POST['sort'])) {
             $p2_setting['sort'] = $_POST['sort'];
         } elseif (!empty($_GET['sort'])) {
             $p2_setting['sort'] = $_GET['sort'];
         }
-        FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
+        if (false === FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm'])) {
+            return false;
+        }
         if ($p2_setting) {
-            if ($p2_setting_cont = serialize($p2_setting)) {
-                if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
-                    die("Error: cannot write file.");
-                }
+            $p2_setting_cont = serialize($p2_setting);
+            if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
+                die("Error: cannot write file.");
             }
         }
     }
-    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('save_p2_setting');
     
     return true;
 }
 
 /**
  * $subject_keys をシリアライズして保存する
+ *
+ * @return  boolean
  */
 function saveSubjectKeys(&$subject_keys, $sb_keys_txt, $sb_keys_b_txt)
 {
     global $_conf;
     
-    $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('saveSubjectKeys()');
     //if (file_exists($sb_keys_b_txt)) { unlink($sb_keys_b_txt); }
     if (!empty($subject_keys)) {
         if (file_exists($sb_keys_txt)) {
@@ -868,12 +870,12 @@ function saveSubjectKeys(&$subject_keys, $sb_keys_txt, $sb_keys_b_txt)
             FileCtl::make_datafile($sb_keys_txt, $_conf['p2_perm']);
         }
         if ($sb_keys_cont = serialize($subject_keys)) {
-            if (FileCtl::file_write_contents($sb_keys_txt, $sb_keys_cont) === false) {
+            if (file_put_contents($sb_keys_txt, $sb_keys_cont, LOCK_EX) === false) {
                 die("Error: cannot write file.");
+                return false;
             }
         }
     }
-    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('saveSubjectKeys()');
     
     return true;
 }

@@ -23,6 +23,11 @@ class P2Util{
         
         $me = __CLASS__ . '::' . __FUNCTION__ . '()';
         
+        if (strlen($localfile) == 0) {
+            trigger_error("$me, localfile is null", E_USER_WARNING);
+            return false;
+        }
+        
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
     
         if (file_exists($localfile)) {
@@ -66,7 +71,6 @@ class P2Util{
                 }
             } else {
                 if (file_put_contents($localfile, $wap_res->content, LOCK_EX) === false) {
-                    trigger_error("$me, file_put_contents() return false. " . $localfile, E_USER_WARNING);
                     die("Error:  $me, cannot write file.");
                     return false;
                 }
@@ -738,12 +742,14 @@ class P2Util{
 
     /**
      * 2ch●ログインのIDとPASSと自動ログイン設定を保存する
+     *
+     * @return  boolean
      */
     function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')
     {
         global $_conf;
         
-        include_once (P2_LIBRARY_DIR . '/md5_crypt.inc.php');
+        include_once P2_LIBRARY_DIR . '/md5_crypt.inc.php';
         
         $md5_crypt_key = P2Util::getAngoKey();
         $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
@@ -754,8 +760,11 @@ class P2Util{
 \$rec_autoLogin2ch = '{$autoLogin2ch}';
 ?>
 EOP;
-        FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);    // ファイルがなければ生成
-        $fp = @fopen($_conf['idpw2ch_php'], 'wb') or die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
+        FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);
+        if (!$fp = fopen($_conf['idpw2ch_php'], 'wb')) {
+            die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
+            return false;
+        }
         @flock($fp, LOCK_EX);
         fputs($fp, $idpw2ch_cont);
         @flock($fp, LOCK_UN);

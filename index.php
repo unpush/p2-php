@@ -4,7 +4,7 @@
 include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
-$_login->authorize(); //ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //=============================================================
 // 前処理
@@ -35,8 +35,8 @@ if ($_conf['ktai']) {
     //=========================================
     // PC用 変数
     //=========================================
-    $title_page = "title.php";
-    
+    $title_page = 'title.php';
+
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
         $read_page = "read.php?" . $_SERVER['QUERY_STRING'];
     } else {
@@ -74,9 +74,9 @@ EOHEADER;
     }
     
 	?>
-    <frameset rows="<?php echo htmlspecialchars($_conf['frame_subject_width']); ?>,<?php echo htmlspecialchars($_conf['frame_read_width']); ?>" frameborder="1" border="2">
-        <frame src="<?php echo htmlspecialchars($title_page); ?>" name="subject" scrolling="auto">
-        <frame src="<?php echo htmlspecialchars($read_page); ?>" name="read" scrolling="auto">
+    <frameset id="fsright" name="fsright" rows="<?php echo htmlspecialchars($_conf['frame_subject_width']); ?>,<?php echo htmlspecialchars($_conf['frame_read_width']); ?>" frameborder="1" border="2">
+        <frame id="subject" name="subject" src="<?php echo htmlspecialchars($title_page); ?>" scrolling="auto">
+        <frame id="read" name="read" src="<?php echo htmlspecialchars($read_page); ?>" scrolling="auto">
     </frameset>
 	<?php
 

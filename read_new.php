@@ -174,7 +174,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     
     $aThread->torder = $x + 1;
 
-    // ■データ読み込み
+    // データ読み込み
     // spmodeなら
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {

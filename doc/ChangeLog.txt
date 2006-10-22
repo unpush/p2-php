@@ -1,10 +1,43 @@
 2006-10-19 aki
+	* rep2 version 1.8.2
+	
+	[バグ修正] 携帯でスレ一覧のリンク先がおかしかったのを修正
+	[バグ修正] 書き込み後にb=kの携帯表示がPC表示になっていたのを修正
+	[新機能] ●書き込みの状態を記憶するようにした。
+	[対応] 写の時もBEポイントの表示に対応しました。 
+	
+	- 変更のあったファイル
+		edit_conf_user.php
+		index.php
+		info.php
+		post.php
+		read.php
+		read_copy_k.php
+		read_new.php
+		subject.php
+		title.php
+		conf/conf.inc.php
+		conf/conf_user_def.inc.php
+		lib/brdmenu.class.php
+		lib/dataphp.class.php
+		lib/filectl.class.php
+		lib/login2ch.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/post_form.inc.php
+		lib/post_options_loader.inc.php
+		lib/read_header.inc.php
+		lib/sb_header.inc.php
+		lib/sb_print_k.inc.php
+		lib/showthread.class.php
+
+2006-10-19 aki
 	* rep2 version 1.8.1
 	
 	[バグ修正] ユーザ設定編集で保存できなったバグを修正した。（1.8.0-）
 	[新機能] YouTubeのリンクをプレビューできるようになった。（ユーザ設定 link_youtube）
 	
-	- 意味のある変更があったファイル
+	- （意味のある）変更があったファイル
 		conf/conf.inc.php
 		conf/conf_user_def.inc.php
 		edit_conf_user.php

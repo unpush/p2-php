@@ -23,7 +23,7 @@ $htm['post_form'] = <<<EOP
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}" onsubmit="disableSubmit(this)">
     <input type="hidden" name="detect_hint" value="◎◇">
     {$htm['subject']}
-    {$htm['maru_post']} 名前： <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}>{$htm['k_br']} 
+    {$htm['maru_kakiko']} 名前： <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}>{$htm['k_br']} 
      E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}>
     {$sage_cb_ht}{$htm['k_br']}
     <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kakiko_on_js']}>{$hd['MESSAGE']}</textarea>{$htm['k_br']}

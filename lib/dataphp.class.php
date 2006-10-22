@@ -100,10 +100,11 @@ class DataPhp{
     }
 
     /**
-     * データphp形式のファイルにデータを記録する
-     *
+     * データphp形式のファイルにデータを記録する（モードはwb）
      * 文字列のエスケープも行う
-     * @param srting $cont 記録するデータ文字列。
+     *
+     * @param   srting   $cont  記録するデータ文字列
+     * @return  boolean
      */
     function writeDataPhp($data_php, &$cont, $perm = 0606)
     {
@@ -112,9 +113,10 @@ class DataPhp{
         
         // 先頭文と末文を追加
         $new_cont = DataPhp::getPre() . $new_cont . DataPhp::getHip();
-
-        // ファイルがなければ生成
-        FileCtl::make_datafile($data_php, $perm);
+        
+        if (false === FileCtl::make_datafile($data_php, $perm)) {
+            return false;
+        }
         
         // 書き込む
         if (!$fp = fopen($data_php, 'wb')) {

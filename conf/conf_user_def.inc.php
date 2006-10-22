@@ -302,4 +302,9 @@ $conf_user_def['precede_phpcurl'] = 0;  // (0)
 $conf_user_sel['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP関数版');
 
 // }}}
+
+// 内部用設定
+// ●書き込みの記憶状態
+$conf_user_def['maru_kakiko'] = 1; // (1)
+
 ?>
