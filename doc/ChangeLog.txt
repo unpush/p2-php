@@ -1,4 +1,13 @@
-2006-10-19 aki
+2006-10-24 aki
+	* rep2 version 1.8.4
+	
+	[バグ修正] お気に板の編集で、板名が「1」になってしまっていたバグを修正した
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/setfavita.inc.php
+
+2006-10-23 aki
 	* rep2 version 1.8.3
 	
 	[バグ修正] 書き込みができないバグを修正した
@@ -10,7 +19,7 @@
 		conf/conf.inc.php
 		lib/p2util.class.php
 
-2006-10-19 aki
+2006-10-23 aki
 	* rep2 version 1.8.2
 	
 	[バグ修正] 携帯でスレ一覧のリンク先がおかしかったのを修正

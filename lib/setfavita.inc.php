@@ -40,7 +40,7 @@ function setFavIta()
         return false;
     }
 
-    $itaj = $_POST['itaj'] ? isset($_POST['itaj']) : '';
+    $itaj = isset($_POST['itaj']) ? $_POST['itaj'] : '';
     
     if (!$itaj && isset($_GET['itaj_en'])) {
         $itaj = base64_decode($_GET['itaj_en']);

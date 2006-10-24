@@ -246,7 +246,7 @@ class FileCtl{
      * 書き込み中の不完全なファイル内容が読み取られることのないように、一時ファイルに書き込んでからリネームする
      * ※ただし、Windowsの場合は、上書きrenameが不完全となるので直接書き込むこととする
      *
-     * @param   string   $tmp_dir  一時保存ディレクトリ。（一時ファイル名まで固定すると処理が不完全になりそう）
+     * @param   string   $tmp_dir  一時保存ディレクトリ
      * @return  boolean  実行成否 （成功時に書き込みバイト数を返す意味ってほとんどない気がする）
      */
     function filePutRename($file, $cont, $tmp_dir = null)
