@@ -5,7 +5,10 @@
 	[バグ修正] ユーザ設定編集を保存すると、b=kを抜けてしまっていたのを修正した
 	
 	- 変更のあったファイル
-		
+		edit_conf_user.php
+		post.php
+		conf/conf.inc.php
+		lib/p2util.class.php
 
 2006-10-19 aki
 	* rep2 version 1.8.2
