@@ -153,14 +153,14 @@ class ThreadRead extends Thread{
     {
         if ($zero_read) {
             if (isset($headers['Content-Length'])) {
-                if (preg_match("/^([0-9]+)/", $l, $headers['Content-Length'])) {
+                if (preg_match("/^([0-9]+)/", $headers['Content-Length'], $matches)) {
                     return $onbytes = $matches[1];
                 }
             }
             
         } else {
             if (isset($headers['Content-Range'])) {
-                if (preg_match("/^bytes ([^\/]+)\/([0-9]+)/", $l, $headers['Content-Range'])) {
+                if (preg_match("/^bytes ([^\/]+)\/([0-9]+)/", $headers['Content-Range'], $matches)) {
                     return $onbytes = $matches[2];
                 }
             }
@@ -219,7 +219,7 @@ class ThreadRead extends Thread{
             $send_path = $purl['path'].$purl['query'];
         }
         
-        !$send_port and $send_port = 80; // デフォルトを80
+        !$send_port and $send_port = 80;
         
         $request = $method." ".$send_path." HTTP/1.0\r\n";
         $request .= "Host: ".$purl['host']."\r\n";
@@ -272,7 +272,7 @@ class ThreadRead extends Thread{
         
         $code = $h['code'];
         
-        // Partial Content
+        // 206 Partial Content
         if ($code == "200" || $code == "206") {
             // OK。何もしない
         
@@ -317,7 +317,7 @@ class ThreadRead extends Thread{
         
         // }}}
         
-        $r = $this->getOnbytesFromHeader($h['headers']);
+        $r = $this->getOnbytesFromHeader($h['headers'], $zero_read);
         if ($r !== false) {
             $this->onbytes = $r;
         }
@@ -354,8 +354,9 @@ class ThreadRead extends Thread{
             return false;
         }
         
+        // {{{ 取得後サイズチェック
+        
         $debug && $GLOBALS['profiler']->enterSection("dat_size_check");
-        // 取得後サイズチェック
         if ($zero_read == false && $this->onbytes) {
             $this->getDatBytesFromLocalDat(); // $aThread->length をset
             if ($this->onbytes != $this->length) {
@@ -364,18 +365,25 @@ class ThreadRead extends Thread{
                 $_info_msg_ht .= "p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>";
                 $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
                 return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
-            
-            // サイズが同じならそのまま
-            } elseif ($this->onbytes == $this->length) {
-                $this->isonline = true;
-                $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
-                return true;
             }
         }
         $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
         
+        // }}}
+        
         $this->isonline = true;
         return true;
+        
+        /*
+        あぼーん検出漏れについて
+        
+        0. p2が読み込む 
+        1. レスがあぼーんされる 
+        2. (あぼーんされたレス-あぼーんテキスト)と全く同サイズのレスが書き込まれる 
+        3. p2が読み込む 
+
+        1-2-3-4が、完全に連続した時にあぼーん検出漏れはありうる。 
+        */
     }
     
     /**

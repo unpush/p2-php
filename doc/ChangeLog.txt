@@ -8,6 +8,15 @@
 	[調整] wikipediaは、フレームをクリアしてしまうので、pしないようにした
 	
 	- 変更のあったファイル
+		editfavita.php
+		read_new.php
+		conf/conf.inc.php
+		js/htmlpopup.js
+		lib/filectl.class.php
+		lib/read_header.inc.php
+		lib/setfavita.inc.php
+		lib/showthreadpc.class.php
+		lib/threadread.class.php
 
 2006-10-24 aki
 	* rep2 version 1.8.4

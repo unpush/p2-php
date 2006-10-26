@@ -898,7 +898,8 @@ EOP;
             }
 
             // HTMLポップアップ
-            if ($_conf['iframe_popup'] && preg_match('/https?/', $purl['scheme'])) {
+            // wikipedia.org は、フレームを解除してしまうので、対象外とする
+            if ($_conf['iframe_popup'] && preg_match('/https?/', $purl['scheme']) && !preg_match('~wikipedia\.org~', $url)) {
                 // p2pm 指定の場合のみ、特別にm指定を追加する
                 if ($_conf['through_ime'] == 'p2pm') {
                     $pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $link_url);

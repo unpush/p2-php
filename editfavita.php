@@ -13,7 +13,7 @@ $_login->authorize(); // ユーザ認証
 //================================================================
 
 // お気に板の追加・削除、並び替え
-if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['submit_setfavita'])) {
+if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['submit_listfavita'])) {
     include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
     setFavIta();
 }
@@ -237,7 +237,7 @@ EOP;
 <input type="hidden" name="list">
 
 <input type="submit" value="元に戻す">
-<input type="submit" name="submit_setfavita" value="変更を適用する" onClick="submitApply();">
+<input type="submit" name="submit_listfavita" value="変更を適用する" onClick="submitApply();">
 
 </div>
 </form>

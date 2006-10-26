@@ -148,7 +148,7 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">
+<body onLoad="pageLoaded();" onclick="hideHtmlPopUp();">
 <div id="popUpContainer"></div>\n
 EOP;
 

@@ -35,8 +35,16 @@ function setFavIta()
     
     $list = isset($_POST['list']) ? $_POST['list'] : '';
     
-    if ((!$host || !$bbs) and (empty($_POST['submit_setfavita']) || $list)) {
-        $_info_msg_ht .= "<p>p2 info: 板の指定が変です</p>";
+    // リストで並び替え
+    if (!empty($_POST['submit_listfavita'])) {
+        if (!$list) {
+            P2Util::pushInfoMsgHtml("<p>p2 info: リストの指定が変です</p>");
+            return false;
+        }
+    
+    // 新規追加 or 一つずつ並び替え
+    } elseif (!$host || !$bbs) {
+        P2Util::pushInfoMsgHtml("<p>p2 info: 板の指定が変です</p>");
         return false;
     }
 
@@ -92,7 +100,7 @@ function setFavIta()
     // 記録データ設定
     
     // リスト丸ごとポストして指定
-    if (!empty($_POST['submit_setfavita']) && $list) {
+    if (!empty($_POST['submit_listfavita']) && $list) {
         $rec_lines = array();
         foreach (explode(',', $list) as $aList) {
             list($host, $bbs, $itaj_en) = explode('@', $aList);

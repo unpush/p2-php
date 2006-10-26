@@ -66,10 +66,24 @@ class FileCtl{
     /**
      * 指定ディレクトリがなければ（再帰的に）生成して、パーミッションの調整も行う
      *
-     * @param   boolean  $die  true なら、エラーでただちに終了する
+     * @access  public
+     * @param   integer  $perm  パーミッション ex) 0707
+     * @param   boolean  $die   true なら、エラーが生じた時点で、ただちにdieする
      * @return  boolean  実行成否。※既にディレクトリが存在している時もtrueを返す。
      */
-    function mkdirR($dir, $perm = null, $die = true, $rtimes = 0)
+    function mkdirR($dir, $perm = null, $die = true)
+    {
+        return FileCtl::_mkdirR($dir, $perm, $die, 0);
+    }
+    
+    /**
+     * mkdirR() の実処理を行う
+     *
+     * @access  private
+     * @parama  integer  $rtimes  再帰呼び出しされている現在回数
+     * @return  boolean
+     */
+    function _mkdirR($dir, $perm = null, $die = true, $rtimes = 0)
     {
         global $_conf;
         
@@ -87,7 +101,7 @@ class FileCtl{
         }
         
         if (empty($perm)) {
-            $perm = empty($_conf['data_dir_perm'])? 0707 : $_conf['data_dir_perm'];
+            $perm = empty($_conf['data_dir_perm']) ? 0707 : $_conf['data_dir_perm'];
         }
         
         $dir_limit = 50; // 親階層を上る制限回数
@@ -99,8 +113,8 @@ class FileCtl{
             return false;
         }
         
-        // 親から先に
-        if (!FileCtl::mkdirR(dirname($dir), $perm, $die, ++$rtimes)) {
+        // 親から先に再帰実行
+        if (!FileCtl::_mkdirR(dirname($dir), $perm, $die, ++$rtimes)) {
             $die and die('Error');
             return false;
         }
