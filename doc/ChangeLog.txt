@@ -1,4 +1,13 @@
 2006-10-26 aki
+	* rep2 version 1.8.7
+	
+	[更新] auのIPアドレス帯域を更新した
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+
+2006-10-26 aki
 	* rep2 version 1.8.6
 	
 	[更新] auのIPアドレス帯域を追加更新した
