@@ -951,6 +951,7 @@ ERR;
     
     /**
      * シンプルにHTMLを表示する
+     * （単にテキストだけを送るとauなどは、表示してくれない）
      *
      * @access  public
      * @return  void

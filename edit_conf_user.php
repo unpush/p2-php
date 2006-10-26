@@ -10,7 +10,8 @@ $_login->authorize(); // ユーザ認証
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-        die('p2 error: 不正なポストです');
+        P2Util::printSimpleHtml("p2 error: 不正なポストです");
+        die('');
     }
 }
 

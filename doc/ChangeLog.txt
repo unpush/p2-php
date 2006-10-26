@@ -1,4 +1,16 @@
 2006-10-26 aki
+	* rep2 version 1.8.6
+	
+	[更新] auのIPアドレス帯域を追加更新した
+	[修正] auでエラー時のメッセージが一部表示されなかったのを、表示されるようにした。
+	
+	- 変更のあったファイル
+		edit_conf_user.php
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		lib/p2util.class.php
+
+2006-10-26 aki
 	* rep2 version 1.8.5
 	
 	[バグ修正] お気に板の並び替えができなくなっていたのを修正した。

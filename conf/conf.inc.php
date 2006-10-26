@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.5'; // rep2のバージョン
+$_conf['p2version'] = '1.8.6'; // rep2のバージョン
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 
@@ -199,7 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // 管理者用設定を読み込み
 if (!include_once './conf/conf_admin.inc.php') {
-    die('p2 error: 管理者用設定ファイルを読み込めませんでした。');
+    P2Util::printSimpleHtml("p2 error: 管理者用設定ファイルを読み込めませんでした。");
+    die('');
 }
 
 // 管理用保存ディレクトリ (パーミッションは707)
@@ -244,36 +245,44 @@ if ($mobile->isNonMobile()) {
     // DoCoMo i-Mode
     if ($mobile->isDoCoMo()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
-            die('UAがDoCoMoですが、IPアドレス帯域がマッチしません。');
+            P2Util::printSimpleHtml("p2 error: UAがDoCoMoですが、IPアドレス帯域がマッチしません。");
+            die('');
         }
         $_conf['disable_cookie'] = TRUE;
+        
     // EZweb (au or Tu-Ka)
     } elseif ($mobile->isEZweb()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
-            die('UAがEZwebですが、IPアドレス帯域がマッチしません。');
+            P2Util::printSimpleHtml("p2 error: UAがEZwebですが、IPアドレス帯域がマッチしません。");
+            die('');
         }
         $_conf['disable_cookie'] = FALSE;
+        
     // Vodafone Live!
     } elseif ($mobile->isVodafone()) {
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrVodafone()) {
-            die('UAがVodafoneですが、IPアドレス帯域がマッチしません。');
-        }
         //$_conf['accesskey'] = 'DIRECTKEY';
         // W型端末と3GC型端末はCookieが使える
         if ($mobile->isTypeW() || $mobile->isType3GC()) {
             $_conf['disable_cookie'] = FALSE;
         } else {
             $_conf['disable_cookie'] = TRUE;
+            if ($_conf['login_check_ip'] && !HostCheck::isAddrVodafone()) {
+                P2Util::printSimpleHtml("p2 error: UAがVodafoneですが、IPアドレス帯域がマッチしません。");
+                die('');
+            }
         }
+
     // AirH" Phone
     } elseif ($mobile->isAirHPhone()) {
         /*
         // AirH"では端末ID認証を行わないので、コメントアウト
         if ($_conf['login_check_ip'] && !HostCheck::isAddrAirh()) {
-            die('UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。');
+            P2Util::printSimpleHtml("p2 error: UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。");
+            die('');
         }
         */
         $_conf['disable_cookie'] = FALSE;
+        
     // その他
     } else {
         $_conf['disable_cookie'] = TRUE;
@@ -456,7 +465,8 @@ $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
 // 新規ログインとメンバーログインの同時指定はありえないので、エラー出す
 if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
-    die('p2 Error: 無効なURLです。');
+    P2Util::printSimpleHtml("p2 Error: 無効なURLです。");
+    die('');
 }
 
 // }}}
