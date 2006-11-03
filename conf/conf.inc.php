@@ -5,9 +5,9 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.7'; // rep2のバージョン
+$_conf['p2version'] = '1.8.8'; // rep2のバージョン
 
-$_conf['p2name'] = 'rep2';    // rep2の名前。
+$_conf['p2name'] = 'r e p 2';    // rep2の名前。
 
 
 //======================================================================
@@ -245,7 +245,7 @@ if ($mobile->isNonMobile()) {
     // DoCoMo i-Mode
     if ($mobile->isDoCoMo()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
-            P2Util::printSimpleHtml("p2 error: UAがDoCoMoですが、IPアドレス帯域がマッチしません。");
+            P2Util::printSimpleHtml("p2 error: UAがDoCoMoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
             die('');
         }
         $_conf['disable_cookie'] = TRUE;
@@ -253,7 +253,7 @@ if ($mobile->isNonMobile()) {
     // EZweb (au or Tu-Ka)
     } elseif ($mobile->isEZweb()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
-            P2Util::printSimpleHtml("p2 error: UAがEZwebですが、IPアドレス帯域がマッチしません。");
+            P2Util::printSimpleHtml("p2 error: UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
             die('');
         }
         $_conf['disable_cookie'] = FALSE;
@@ -267,7 +267,7 @@ if ($mobile->isNonMobile()) {
         } else {
             $_conf['disable_cookie'] = TRUE;
             if ($_conf['login_check_ip'] && !HostCheck::isAddrVodafone()) {
-                P2Util::printSimpleHtml("p2 error: UAがVodafoneですが、IPアドレス帯域がマッチしません。");
+                P2Util::printSimpleHtml("p2 error: UAがVodafoneですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
                 die('');
             }
         }
@@ -277,7 +277,7 @@ if ($mobile->isNonMobile()) {
         /*
         // AirH"では端末ID認証を行わないので、コメントアウト
         if ($_conf['login_check_ip'] && !HostCheck::isAddrAirh()) {
-            P2Util::printSimpleHtml("p2 error: UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。");
+            P2Util::printSimpleHtml("p2 error: UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
             die('');
         }
         */

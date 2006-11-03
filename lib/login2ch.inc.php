@@ -97,7 +97,7 @@ function login2ch()
     // 分解
     if (preg_match('/SESSION-ID=(.+?):(.+)/', $r, $matches)) {
         $uaMona = $matches[1];
-        $SID2ch = $matches[1].':'.$matches[2];
+        $SID2ch = $matches[1] . ':' . $matches[2];
     } else {
         if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
         $_info_msg_ht .= "<p>p2 error: ログイン接続に失敗しました。</p>";
@@ -106,8 +106,8 @@ function login2ch()
     
     // 認証照合失敗なら
     if ($uaMona == 'ERROR') {
-        if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
-        if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
+        file_exists($_conf['idpw2ch_php']) and unlink($_conf['idpw2ch_php']);
+        file_exists($_conf['sid2ch_php']) and unlink($_conf['sid2ch_php']);
         $_info_msg_ht .= "<p>p2 error: 2ch●ログインのSESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>";
         return false;
     }
@@ -235,6 +235,7 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
     $wap_ua =& new UserAgent;
     $wap_ua->setAgent($dolib2ch);
     $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
+
     $wap_req =& new Request;
     $wap_req->setMethod('POST');
     $wap_req->post['ID'] = $login2chID;

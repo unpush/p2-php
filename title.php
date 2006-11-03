@@ -99,6 +99,7 @@ EOP;
     </tr>
     <tr>
         <td align="right">REFERER: </td><td>{$alog['referer']}</td>
+    </tr>
 </table>
 EOP;
 */

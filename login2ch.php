@@ -55,13 +55,13 @@ if (isset($_GET['login2ch'])) {
 // ヘッダ
 //================================================================
 if ($_conf['ktai']) {
-    $login_st = "ﾛｸﾞｲﾝ";
-    $logout_st = "ﾛｸﾞｱｳﾄ";
-    $password_st = "ﾊﾟｽﾜｰﾄﾞ";
+    $login_st       = "ﾛｸﾞｲﾝ";
+    $logout_st      = "ﾛｸﾞｱｳﾄ";
+    $password_st    = "ﾊﾟｽﾜｰﾄﾞ";
 } else {
-    $login_st = "ログイン";
-    $logout_st = "ログアウト";
-    $password_st = "パスワード";
+    $login_st       = "ログイン";
+    $logout_st      = "ログアウト";
+    $password_st    = "パスワード";
 }
 
 if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
