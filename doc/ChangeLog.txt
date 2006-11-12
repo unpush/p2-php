@@ -12,29 +12,6 @@
 	[改良] 携帯TOPメニューの書き込みログにもショートカットキー(#)をつけた。 
 	[改良] 携帯TOPページに板検索と直接スレ指定のフォームを追加した。
 
-	- 変更のあったファイル
-		first_cont.php
-		info.php
-		menu_k.php
-		read.php
-		read_res_hist.php
-		subject.php
-		conf/conf.inc.php
-		lib/BbsMap.class.php
-		lib/StrSjis.php
-		lib/brdctl.class.php
-		lib/index_print_k.inc.php
-		lib/menu.inc.php
-		lib/p2util.class.php
-		lib/read_res_hist.inc.php
-		lib/res_hist.class.php
-		lib/sb_print.inc.php
-		lib/showthread.class.php
-		lib/showthreadk.class.php
-		lib/showthreadpc.class.php
-		lib/strctl.class.php
-		lib/thread.class.php
-
 2006-11-04 aki
 	* rep2 version 1.8.8
 	
