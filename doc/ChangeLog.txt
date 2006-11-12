@@ -1,3 +1,40 @@
+2006-11-12 aki
+	* rep2 version 1.8.9
+
+	[新機能] アンカーボムの荒らし対策を拡張し、リンク変換全般において対策を行うようにした。
+	
+	[修正] 携帯で、壊れた名前文字の後の表示が、全て灰色になってしまうことがあったバグを修正した。
+	
+	[修正] いつの頃からか、マルチバイトの正規表現が無効な環境だと、
+	  スレ内容表示で、フィルタ表示が正常にできないバグがあったかもしれないのが直っただろう。
+	  
+	[改良] 書き込みログの表示処理を最適化した。
+	[改良] 携帯TOPメニューの書き込みログにもショートカットキー(#)をつけた。 
+	[改良] 携帯TOPページに板検索と直接スレ指定のフォームを追加した。
+
+	- 変更のあったファイル
+		first_cont.php
+		info.php
+		menu_k.php
+		read.php
+		read_res_hist.php
+		subject.php
+		conf/conf.inc.php
+		lib/BbsMap.class.php
+		lib/StrSjis.php
+		lib/brdctl.class.php
+		lib/index_print_k.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/read_res_hist.inc.php
+		lib/res_hist.class.php
+		lib/sb_print.inc.php
+		lib/showthread.class.php
+		lib/showthreadk.class.php
+		lib/showthreadpc.class.php
+		lib/strctl.class.php
+		lib/thread.class.php
+
 2006-11-04 aki
 	* rep2 version 1.8.8
 	

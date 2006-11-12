@@ -82,17 +82,17 @@ if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
         $GLOBALS['word_fm'] = StrCtl::wordForMatch($word, $res_filter['method']);
         if ($res_filter['method'] != 'just') {
             if (P2_MBREGEX_AVAILABLE == 1) {
-                $GLOBALS['words_fm'] = @mb_split('\s+', $GLOBALS['word_fm']);
-                $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $GLOBALS['word_fm']);
+                $GLOBALS['words_fm'] = mb_split('\s+', $GLOBALS['word_fm']);
+                $GLOBALS['word_fm'] = mb_ereg_replace('\s+', '|', $GLOBALS['word_fm']);
             } else {
-                $GLOBALS['words_fm'] = @preg_split('/\s+/u', $GLOBALS['word_fm']);
-                $GLOBALS['word_fm'] = @preg_replace('/\s+/u', '|', $GLOBALS['word_fm']);
+                $GLOBALS['words_fm'] = preg_split('/\s+/', $GLOBALS['word_fm']);
+                $GLOBALS['word_fm'] = preg_replace('/\s+/', '|', $GLOBALS['word_fm']);
             }
         }
     }
     
     if ($_conf['ktai']) {
-        $filter_page = (isset($_REQUEST['filter_page'])) ? max(1, intval($_REQUEST['filter_page'])) : 1;
+        $filter_page = isset($_REQUEST['filter_page']) ? max(1, intval($_REQUEST['filter_page'])) : 1;
         $filter_range = array();
         $filter_range['start'] = ($filter_page - 1) * $_conf['k_rnum_range'] + 1;
         $filter_range['to'] = $filter_range['start'] + $_conf['k_rnum_range'] - 1;
@@ -416,17 +416,29 @@ function detectThread()
     global $_conf;
     
     // スレURLの直接指定
-    if (($nama_url = $_GET['nama_url']) || ($nama_url = $_GET['url'])) { 
-    
+    if (($url = $_GET['nama_url']) || ($url = $_GET['url'])) { 
+            
+            $url = trim($url);
+            
             // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            if (preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches)) {
+            if (preg_match('{http://([^/]+\.(2ch\.net|bbspink\.com))/test/read\.cgi/([^/]+)/([0-9]+)/?([^/]+)?}', $url, $matches)) {
                 $host = $matches[1];
                 $bbs = $matches[3];
                 $key = $matches[4];
-                $ls = $matches[6];
-                
+                $ls = $matches[5];
+            
+            // c-docomo c-au c-other http://c-au.2ch.net/test/--3!mail=sage/operate/1159594301/519-n
+            } elseif (preg_match('{http://((c-docomo|c-au|c-other)\.2ch\.net)/test/([^/]+)/([^/]+)/([0-9]+)/?([^/]+)?}', $url, $m)) {
+                require_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+                if ($mapped_host = BbsMap::get2chHostByBbs($m[4])) {
+                    $host = $mapped_host;
+                    $bbs = $m[4];
+                    $key = $m[5];
+                    $ls = $m[6];
+                }
+            
             // 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
-            } elseif ( preg_match("/(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html/", $nama_url, $matches) ){ //2ch pink 過去ログhtml
+            } elseif ( preg_match("/(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html/", $url, $matches) ){ //2ch pink 過去ログhtml
                 $host = $matches[2];
                 $bbs = $matches[5];
                 $key = $matches[7];
@@ -434,19 +446,19 @@ function detectThread()
                 $_GET['kakolog'] = urlencode($kakolog_uri);
                 
             // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
-            } elseif ( preg_match("/http:\/\/([^\/]+\.machibbs\.com|[^\/]+\.machi\.to)\/bbs\/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*/", $nama_url, $matches) ){
+            } elseif ( preg_match("/http:\/\/([^\/]+\.machibbs\.com|[^\/]+\.machi\.to)\/bbs\/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*/", $url, $matches) ){
                 $host = $matches[1];
                 $bbs = $matches[3];
                 $key = $matches[4];
                 $ls = $matches[6] ."-". $matches[8];
-            } elseif (preg_match("{http://((jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}", $nama_url, $matches)) {
+            } elseif (preg_match("{http://((jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}", $url, $matches)) {
                 $host = $matches[1];
                 $bbs = $matches[5];
                 $key = $matches[6];
                 $ls = $matches[8] ."-". $matches[10];
                 
             // したらばJBBS http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100 
-            } elseif ( preg_match("{http://(jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^\"]*}", $nama_url, $matches) ){
+            } elseif ( preg_match("{http://(jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^\"]*}", $url, $matches) ){
                 $host = $matches[1] ."/". $matches[2];
                 $bbs = $matches[3];
                 $key = $matches[4];
@@ -465,9 +477,9 @@ function detectThread()
     }
     
     if (!($host && $bbs && $key)) {
-        $htm['nama_url'] = htmlspecialchars($nama_url, ENT_QUOTES);
+        $htm['url'] = htmlspecialchars($url, ENT_QUOTES);
         $msg = "p2 - {$_conf['read_php']}: スレッドの指定が変です。<br>"
-            . "<a href=\"{$htm['nama_url']}\">" . $htm['nama_url'] . "</a>";
+            . "<a href=\"{$htm['url']}\">" . $htm['url'] . "</a>";
         die($msg);
         return false;
     }

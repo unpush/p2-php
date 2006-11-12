@@ -7,12 +7,10 @@ class ShowThread{
     var $thread; // スレッドオブジェクトの参照
     
     var $str_to_link_regex; // リンクすべき文字列の正規表現
+    var $str_to_link_limit = 30; // 一つのレスにおけるリンク変換の制限回数（荒らし対策）
     
     var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列
-    
-    var $_quote_link_counts = array();
-    var $_quote_parent_resnum;
-    
+
     /**
      * コンストラクタ
      */

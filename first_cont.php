@@ -11,8 +11,8 @@ $explanation = '見たいスレッドのURLを入力して下さい。例：http://pc.2ch.net/test/
 // $defurl = getLastReadTreadUrl();
 
 $onClick_ht = <<<EOP
-var url_v=document.forms["urlform"].elements["url_text"].value;
-if(url_v=="" || url_v=="{$ini_url_text}"){
+var url_v = document.forms["urlform"].elements["url_text"].value;
+if (url_v=="" || url_v=="{$ini_url_text}") {
 	alert("{$explanation}");
 	return false;
 }

@@ -18,7 +18,7 @@ class StrSjis{
     
     /*
     // SJIS文字化け文字が直前の第1バイト文字で打ち消されるかどうかの目視用テストコード
-    // →打ち消されるが、末尾のみのチェックでは不足。先頭から順に2バイトの組を調べる必要がある…。
+    // →打ち消されるが、末尾のみのチェックでは不足。先頭から順に2バイトの組を調べる必要がある。
     for ($i = 0; $i <= 255; $i++) {
         if (StrSjis::isSjis1stByte($i)) {
             for ($j = 0; $j <= 255; $j++) {
@@ -44,23 +44,25 @@ class StrSjis{
 
         $un = unpack('C*', $str);
     
-        $on_sjisfirst = false;
-        $on_crasher = false;
+        $after_sjis1st = false;
+        $after_crasher = false;
         foreach ($un as $v) {
-            if ($on_sjisfirst) {
-                $on_sjisfirst = false;
-                $on_crasher = false;
+            if ($after_sjis1st) {
+                $after_sjis1st = false;
+                $after_crasher = false;
             } else {
                 if (StrSjis::isSjis1stByte($v)) {
-                    $on_sjisfirst = true;
-                    $on_crasher = true;
+                    $after_sjis1st = true;
+                    $after_crasher = true;
                 } elseif (StrSjis::isSjisCrasherCode($v)) {
-                    $on_crasher = true;
+                    $after_crasher = true;
+                } else {
+                    $after_crasher = false;
                 }
             }
         }
     
-        if ($on_crasher) {
+        if ($after_crasher) {
             $str = substr($str, 0, -1);
         }
         return $str;

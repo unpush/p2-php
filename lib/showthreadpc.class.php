@@ -8,8 +8,6 @@ class ShowThreadPc extends ShowThread{
     var $quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
     var $quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
 
-    var $_quote_link_max = 15;
-    
     /**
      * コンストラクタ
      */
@@ -425,7 +423,6 @@ EOP;
             // 数字を引用レスポップアップリンク化
             // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
             $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-            $this->_quote_parent_resnum = $resnum;
             $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
         }
 
@@ -467,9 +464,7 @@ EOP;
         $msg = str_replace('onload=window()', '<i>onload=window</i>()', $msg);
         
         // 引用やURLなどをリンク
-        $this->_quote_parent_resnum = $resnum;
-        $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
-        $this->_quote_link_counts[$this->_quote_parent_resnum] = 0; // 結局リセットする場合は配列にする必要はないけども
+        $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg, $this->str_to_link_limit);
         
         return $msg;
     }
@@ -587,14 +582,6 @@ EOP;
         
         list($full, $qsign, $appointed_num) = $s;
         
-        // アンカーボム対策
-        if ($qsign != '&gt;&gt;') {
-            $this->_quote_link_counts[$this->_quote_parent_resnum]++;
-            if ($this->_quote_link_counts[$this->_quote_parent_resnum] > $this->_quote_link_max) {
-                return $s[0];
-            }
-        }
-        
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum > sizeof($this->thread->datlines)) {
             return $s[0];
@@ -620,14 +607,6 @@ EOP;
         global $_conf;
 
         list($full, $qsign, $appointed_num) = $s;
-        
-        // アンカーボム対策
-        if ($qsign != '&gt;&gt;') {
-            $this->_quote_link_counts[$this->_quote_parent_resnum]++;
-            if ($this->_quote_link_counts[$this->_quote_parent_resnum] > $this->_quote_link_max) {
-                return $s[0];
-            }
-        }
         
         if ($appointed_num == '-') {
             return $s[0];

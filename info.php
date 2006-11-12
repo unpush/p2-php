@@ -28,7 +28,7 @@ if (empty($host) || empty($bbs) || empty($key)) {
 }
 
 //================================================================
-// 特殊な前処理
+// 特別な前処理
 //================================================================
 // {{{ 削除
 
@@ -302,15 +302,18 @@ if (empty($_conf['ktai'])) {
     printInfoTrHtml("ホスト", $aThread->host);
 }
 printInfoTrHtml("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at} {$_conf['accesskey']}=\"{$_conf['k_accesskey']['up']}\">{$hd['itaj']}</a>");
+
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     printInfoTrHtml("key", $aThread->key);
 }
+
 if ($existLog) {
     printInfoTrHtml("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['dele']}\">削除する</a>]{$offrec_ht}");
 } else {
     printInfoTrHtml("ログ", "未取得{$offrec_ht}");
 }
+
 if ($aThread->gotnum) {
     printInfoTrHtml("既得レス数", $aThread->gotnum);
 } elseif (!$aThread->gotnum and $existLog) {
@@ -320,7 +323,7 @@ if ($aThread->gotnum) {
 }
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     if (file_exists($aThread->keydat)) {
         if ($aThread->length) {
             printInfoTrHtml("datサイズ", $aThread->length.' バイト');
@@ -341,11 +344,11 @@ printInfoTrHtml("殿堂入り", $pal_ht);
 printInfoTrHtml("表示", $taborn_ht);
 
 // PC
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo "</table>\n";
 }
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     if (!empty($info_msg)) {
         echo "<span class=\"infomsg\">".$info_msg."</span>\n";
     } else {
@@ -354,7 +357,7 @@ if (empty($_conf['ktai'])) {
 }
 
 // 携帯コピペ用フォーム
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     echo getCopypaFormHtml($motothre_org_url, $hd['ttitle_name']);
 }
 
@@ -374,7 +377,7 @@ EOP;
 
 // }}}
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     echo '<hr>' . $_conf['k_to_index_ht'];
 }
 
@@ -397,7 +400,7 @@ function printInfoTrHtml($s, $c_ht)
     global $_conf;
     
     // 携帯
-    if (!empty($_conf['ktai'])) {
+    if ($_conf['ktai']) {
         echo "{$s}: {$c_ht}<br>";
     // PC
     } else {
@@ -406,7 +409,7 @@ function printInfoTrHtml($s, $c_ht)
 }
 
 /**
- * スレタイとURLのコピペ用のフォームを取得する
+ * スレタイとURLのコピペ用のフォームHTMLを取得する
  *
  * @return  string
  */
@@ -419,7 +422,7 @@ function getCopypaFormHtml($url, $ttitle_name_hd)
     
     $htm = <<<EOP
 <form action="{$me_url}">
- <textarea name="copy">{$ttitle_name_hd}&#10;{$url_hd}</textarea>
+ <textarea name="copy" rows="5" cols="50">{$ttitle_name_hd}&#10;{$url_hd}</textarea>
 </form>
 EOP;
 // <input type="text" name="url" value="{$url_hd}">

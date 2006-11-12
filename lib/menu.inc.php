@@ -21,33 +21,7 @@ $menu_side_url = $me_dir_url . '/menu_side.php';
 
 $brd_menus = array();
 
-if (isset($_GET['word'])) {
-    $word = $_GET['word'];
-} elseif (isset($_POST['word'])) {
-    $word = $_POST['word'];
-}
-
-// {{{ 板検索
-
-if (isset($word) && strlen($word) > 0) {
-
-    if (preg_match('/^\.+$/', $word)) {
-        $word = '';
-    }
-    
-    // and検索
-    include_once P2_LIBRARY_DIR . '/strctl.class.php';
-    $word_fm = StrCtl::wordForMatch($word, 'and');
-    if (P2_MBREGEX_AVAILABLE == 1) {
-        $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
-        $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
-    } else {
-        $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
-        $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
-    }
-}
-
-// }}}
+BrdCtl::parseWord(); // set $GLOBALS['word']
 
 //============================================================
 // 特殊な前処理
@@ -136,8 +110,7 @@ echo <<<EOP
 <body>
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 if (!empty($sidebar)) {
     echo <<<EOP
@@ -217,11 +190,11 @@ $brd_menus = BrdCtl::read_brds();
 
 // {{{ 検索ワードがあれば
 
-if (isset($word) && strlen($word) > 0) {
+if (strlen($GLOBALS['word']) > 0) {
 
     $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
     
-    $msg_ht .=  '<p>';
+    $msg_ht =  '<p>';
     if (empty($GLOBALS['ita_mikke']['num'])) {
         if (empty($GLOBALS['threti_match_ita_num'])) {
             $msg_ht .=  "\"{$hd['word']}\"を含む板は見つかりませんでした。\n";
@@ -243,13 +216,12 @@ EOP;
     }
     $msg_ht .= '</p>';
     
-    $_info_msg_ht .= $msg_ht;
+    P2Util::pushInfoMsgHtml($msg_ht);
 }
 
 // }}}
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoMsgHtml();
 
 // 板検索フォームを表示
 echo <<<EOFORM

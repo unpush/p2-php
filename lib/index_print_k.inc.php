@@ -34,6 +34,9 @@ EOP;
     $user_at_a = '&amp;user='.$_login->user_u;
     $user_at_q = '?user='.$_login->user_u;
     
+    require_once 'brdctl.class.php';
+    $search_form_htm = BrdCtl::getMenuKSearchFormHtml('menu_k.php');
+
     //=========================================================
     // 携帯用 HTML プリント
     //=========================================================
@@ -57,13 +60,25 @@ EOP;
 <a {$_conf['accesskey']}="4" href="menu_k.php?view=cate{$_conf['k_at_a']}{$user_at_a}">4.板ﾘｽﾄ</a><br>
 <a {$_conf['accesskey']}="5" href="subject.php?spmode=recent&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">5.最近読んだｽﾚの新着</a><br>
 <a {$_conf['accesskey']}="6" href="subject.php?spmode=recent{$_conf['k_at_a']}{$user_at_a}">6.最近読んだｽﾚの全て</a><br>
-<a {$_conf['accesskey']}="7" href="subject.php?spmode=res_hist{$_conf['k_at_a']}{$user_at_a}">7.書込履歴</a> <a href="read_res_hist.php?nt={$newtime}{$_conf['k_at_a']}">ﾛｸﾞ</a><br>
+<a {$_conf['accesskey']}="7" href="subject.php?spmode=res_hist{$_conf['k_at_a']}{$user_at_a}">7.書込履歴</a> <a {$_conf['accesskey']}="#" href="read_res_hist.php?nt={$newtime}{$_conf['k_at_a']}">#.ﾛｸﾞ</a><br>
 <a {$_conf['accesskey']}="8" href="subject.php?spmode=palace&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">8.ｽﾚの殿堂</a><br>
 <a {$_conf['accesskey']}="9" href="setting.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">9.ﾛｸﾞｲﾝ管理</a><br>
 <a {$_conf['accesskey']}="0" href="editpref.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">0.設定管理</a><br>
 
 <hr>
+{$search_form_htm}
+<hr>
+
+<form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
+		ｽﾚURLを直接指定
+		<input id="url_text" type="text" value="" name="url">
+		<input type="submit" name="btnG" value="表示">
+</form>
+
+<hr>
 {$htm['auth_user']}
+
+<hr>
 {$htm['last_login']}
 </body>
 </html>

@@ -6,8 +6,6 @@ require_once 'StrSjis.php';
  */
 class ShowThreadK extends ShowThread{
 
-    var $_quote_link_max = 15;
-    
     var $BBS_NONAME_NAME = '';
     
     /**
@@ -420,7 +418,6 @@ EOP;
         // 数字を引用レスポップアップリンク化
         // </b>～<b> は、ホスト（やトリップ）なのでマッチしないようにしたい
         $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-        $this->_quote_parent_resnum = $resnum;
         $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
         
         // ふしあなさんとか？
@@ -488,7 +485,7 @@ EOP;
             $msg = preg_replace('/ *<[^>]*$/i', '', $msg);
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
-            $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quote_res_callback'), $msg, $this->_quote_link_max);
+            $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quote_res_callback'), $msg, $this->str_to_link_limit);
 
             $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$resnum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\">{$ryaku_st}</a>";
             return $msg;
@@ -497,9 +494,7 @@ EOP;
         // }}}
         
         // 引用やURLなどをリンク
-        $this->_quote_parent_resnum = $resnum;
-        $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
-        $this->_quote_link_counts[$this->_quote_parent_resnum] = 0;
+        $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg, $this->str_to_link_limit);
         
         return $msg;
     }
@@ -724,14 +719,6 @@ EOP;
         
         list($full, $qsign, $appointed_num) = $s;
         
-        // アンカーボム対策
-        if ($qsign != '&gt;&gt;') {
-            $this->_quote_link_counts[$this->_quote_parent_resnum]++;
-            if ($this->_quote_link_counts[$this->_quote_parent_resnum] > $this->_quote_link_max) {
-                return $s[0];
-            }
-        }
-        
         if ($appointed_num == '-') {
             return $s[0];
         }
@@ -755,14 +742,6 @@ EOP;
         global $_conf;
         
         list($full, $qsign, $appointed_num) = $s;
-        
-        // アンカーボム対策
-        if ($qsign != '&gt;&gt;') {
-            $this->_quote_link_counts[$this->_quote_parent_resnum]++;
-            if ($this->_quote_link_counts[$this->_quote_parent_resnum] > $this->_quote_link_max) {
-                return $s[0];
-            }
-        }
         
         if ($appointed_num == '-') {
             return $s[0];

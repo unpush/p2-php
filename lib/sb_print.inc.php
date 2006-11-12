@@ -343,7 +343,12 @@ EOP;
         }
         
         // Birthday
-        $birthday = date("y/m/d", $aThread->key); // (y/m/d H:i)
+        //if (preg_match('/^\d{9,10}$/', $aThread->key) {
+        if (631119600 < $aThread->key && $aThread->key < time() + 1000) { // 1990”N-
+            $birthday = date("y/m/d", $aThread->key); // (y/m/d H:i)
+        } else {
+            $birthday = '-';
+        }
         $birth_ht = "<td{$class_t}>{$birthday}</td>";
 
         //====================================================================================

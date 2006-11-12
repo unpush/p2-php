@@ -28,10 +28,8 @@ class BbsMap
      */
     function getCurrentHost($host, $bbs, $autosync = true)
     {
-        global $_info_msg_ht;
         static $synced = false;
 
-        // マッピング読み込み
         $map = BbsMap::_getMapping();
         if (!$map) {
             return $host;
@@ -45,7 +43,8 @@ class BbsMap
                 // 移転を検出したらお気に板、お気にスレ、最近読んだスレを自動で同期
                 $msg_fmt = '<p>rep2 info: ホストの移転を検出しました。(%s/%s → %s/%s)<br>';
                 $msg_fmt .= 'お気に板、お気にスレ、最近読んだスレを自動で同期します。</p>';
-                $_info_msg_ht .= sprintf($msg_fmt, $host, $bbs, $new_host, $bbs);
+                $msg = sprintf($msg_fmt, $host, $bbs, $new_host, $bbs);
+                P2Util::pushInfoMsgHtml($msg);
                 BbsMap::syncFav();
                 $synced = true;
             }
@@ -56,6 +55,30 @@ class BbsMap
     }
 
     // }}}
+
+    /**
+     * 2chの板名からホスト名を取得する
+     *
+     * @param   string  $bbs    板名
+     * @access  public
+     * @static
+     * @return  string|false
+     */
+    function get2chHostByBbs($bbs)
+    {
+        if (!$map = BbsMap::_getMapping()) {
+            return false;
+        }
+        if (isset($map['2channel'])) {
+            foreach ($map['2channel'] as $mapped_bbs => $v) {
+                if ($mapped_bbs == $bbs) {
+                    return $v['host'];
+                }
+            }
+        }
+        return false;
+    }
+    
     // {{{ getBbsName()
 
     /**
@@ -69,7 +92,6 @@ class BbsMap
      */
     function getBbsName($host, $bbs)
     {
-        // マッピング読み込み
         $map = BbsMap::_getMapping();
         if (!$map) {
             return $bbs;
@@ -267,7 +289,7 @@ class BbsMap
      */
     function _getMapping()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         static $map = null;
 
         // {{{ 設定
@@ -315,7 +337,8 @@ class BbsMap
 
         // エラーを検証
         if (PEAR::isError($err)) {
-            $_info_msg_ht .= sprintf($errfmt, htmlspecialchars($err->getMessage()), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            $errmsg = sprintf($errfmt, htmlspecialchars($err->getMessage()), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            P2Util::pushInfoMsgHtml($errmsg);
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {
@@ -330,7 +353,8 @@ class BbsMap
             $map = unserialize($map_cahce);
             return $map;
         } elseif ($code != 200) {
-            $_info_msg_ht .= sprintf($errfmt, htmlspecialchars(strval($code)), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            $errmsg = sprintf($errfmt, htmlspecialchars(strval($code)), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            P2Util::pushInfoMsgHtml($errmsg);
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {
@@ -352,22 +376,25 @@ class BbsMap
             $bbs  = $match[2];
             $itaj = $match[3];
             $type = BbsMap::_detectHostType($host);
-            if (!isset($map[$type])) {
-                $map[$type] = array();
-            }
+            
+            !isset($map[$type]) and $map[$type] = array();
             $map[$type][$bbs] = array('host' => $host, 'itaj' => $itaj);
         }
 
         // }}}
-        // {{{ キャッシュする
-
+        
+        // キャッシュする
         $map_cache = serialize($map);
         if (FileCtl::filePutRename($map_cache_path, $map_cache) === false) {
-            $errmsg = sprintf('Error: cannot write file. (%s)', htmlspecialchars($map_cache_path, ENT_QUOTES));
-            die($errmsg);
+            $errmsg = sprintf('p2 error: cannot write file. (%s)', htmlspecialchars($map_cache_path, ENT_QUOTES));
+            P2Util::pushInfoMsgHtml($errmsg);
+            
+            if (file_exists($map_cache_path)) {
+                return unserialize(file_get_contents($map_cache_path));
+            } else {
+                return false;
+            }
         }
-
-        // }}}
 
         return $map;
     }

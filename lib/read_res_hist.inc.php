@@ -11,9 +11,9 @@ function deleMsg($checked_hists)
 {
     global $_conf, $_info_msg_ht;
 
-    // “Ç‚İ‚ñ‚Å
     if (!$reslines = file($_conf['p2_res_hist_dat'])) {
-        die("p2 Error: {$_conf['p2_res_hist_dat']} ‚ğŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½");
+        P2Util::printSimpleHtml("p2 Error: {$_conf['p2_res_hist_dat']} ‚ğŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½");
+        die('');
         return false;
     }
     $reslines = array_map('rtrim', $reslines);

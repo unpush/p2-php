@@ -15,7 +15,7 @@ class P2Util{
      * ファイルをダウンロード保存する
      *
      * @access  public
-     * @return  object|false
+     * @return  object Response|false
      */
     function &fileDownload($url, $localfile, $disp_error = true, $use_tmp_file = false)
     {
@@ -85,7 +85,7 @@ class P2Util{
      * ディレクトリに書き込み権限がなければ注意を表示セットする
      *
      * @access  public
-     * @access  public
+     * @return  void
      */
     function checkDirWritable($aDir)
     {
@@ -123,15 +123,17 @@ class P2Util{
      * ダウンロードURLからキャッシュファイルパスを返す
      *
      * @access  public
-     * @return  string
+     * @return  string|false
      */
     function cacheFileForDL($url)
     {
         global $_conf;
 
-        $parsed = parse_url($url); // URL分解
+        if (!$parsed = parse_url($url)) {
+            return false;
+        }
 
-        $save_uri = $parsed['host'] ? $parsed['host'] : '';
+        $save_uri = $parsed['host'];
         $save_uri .= $parsed['port'] ? ':'.$parsed['port'] : ''; 
         $save_uri .= $parsed['path'] ? $parsed['path'] : ''; 
         $save_uri .= $parsed['query'] ? '?'.$parsed['query'] : '';
@@ -284,9 +286,7 @@ class P2Util{
         // fromが越えた
         if ($disp_navi['from'] > $disp_all_num) {
             $disp_navi['from'] = $disp_all_num - $disp_range;
-            if ($disp_navi['from'] < 1) {
-                $disp_navi['from'] = 1;
-            }
+            $disp_navi['from'] = max(1, $disp_navi['from']);
             $disp_navi['end'] = $disp_all_num;
         
         // from 越えない
@@ -304,9 +304,7 @@ class P2Util{
         }
         
         $disp_navi['mae_from'] = $disp_from -1 -$disp_range;
-        if ($disp_navi['mae_from'] < 1) {
-            $disp_navi['mae_from'] = 1;
-        }    
+        $disp_navi['mae_from'] = max(1, $disp_navi['mae_from']);
         $disp_navi['tugi_from'] = $disp_navi['end'] +1;
 
 
@@ -550,6 +548,8 @@ class P2Util{
      * データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
      *
      * 最初は、dat形式（<>）だったのが、データPHP形式（TAB）になり、そしてまた v1.6.0 でdat形式（<>）に戻った
+     *
+     * @access  public
      */
     function transResHistLogPhpToDat()
     {
@@ -610,7 +610,6 @@ class P2Util{
 
         // p2_res_hist.dat.php がなくて、p2_res_hist.dat が読み込み可能であったら
         if ((!file_exists($_conf['p2_res_hist_dat_php'])) and is_readable($_conf['p2_res_hist_dat'])) {
-            // 読み込んで
             if ($cont = file_get_contents($_conf['p2_res_hist_dat'])) {
                 // <>区切りからタブ区切りに変更する
                 // まずタブを全て外して
@@ -743,6 +742,7 @@ class P2Util{
     /**
      * 2ch●ログインのIDとPASSと自動ログイン設定を保存する
      *
+     * @access  public
      * @return  boolean
      */
     function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')
@@ -776,6 +776,7 @@ EOP;
     /**
      * 2ch●ログインの保存済みIDとPASSと自動ログイン設定を読み込む
      *
+     * @access  public
      * @return  array|false
      */
     function readIdPw2ch()
@@ -830,7 +831,7 @@ EOP;
     }
     
     /**
-     * 403 Fobbidenを出力する
+     * 403 FobbidenをHTML出力する
      *
      * @access  public
      * @return  void
@@ -899,6 +900,7 @@ ERR;
      * 206 Partial Content
      * 304 Not Modified → 失敗扱い
      *
+     * @static
      * @access  public
      * @return  string|false  成功したらページ内容を返す。失敗したらfalseを返す。
      */
@@ -936,6 +938,7 @@ ERR;
     /**
      * 現在のURLを取得する（GETクエリーはなし）
      *
+     * @static
      * @access  public
      * @return  string
      * @see  http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
@@ -953,6 +956,7 @@ ERR;
      * シンプルにHTMLを表示する
      * （単にテキストだけを送るとauなどは、表示してくれない）
      *
+     * @static
      * @access  public
      * @return  void
      */
@@ -964,6 +968,7 @@ ERR;
     /**
      * isNetFront?
      *
+     * @static
      * @access  public
      * @return  boolean
      */
@@ -979,6 +984,7 @@ ERR;
     /**
      * ファイルを指定して、シリアライズされた配列データをマージ更新する（既存のデータに上書きマージする）
      *
+     * @static
      * @param   array    $data
      * @param   string   $file
      * @return  boolean
@@ -1010,6 +1016,7 @@ ERR;
     /**
      * HTMLタグ <a href="$url">$html</a> を生成する
      *
+     * @static
      * @access  public
      * @param   string  $url   手動で htmlspecialchars() すること。
      *                         http_build_query() を利用する時を考慮して、自動で htmlspecialchars() はかけていない。
@@ -1032,8 +1039,9 @@ ERR;
 
     /**
      * pushInfoMsgHtml
-     * [予告] 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通すつもり
+     * 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通す方向で
      *
+     * @static
      * @access  public
      * @return  void
      */
@@ -1046,8 +1054,8 @@ ERR;
 
     /**
      * printInfoMsgHtml
-     * [予告] 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通すつもり
      *
+     * @static
      * @access  public
      * @return  void
      */
@@ -1056,8 +1064,25 @@ ERR;
         global $_info_msg_ht;
         
         echo $_info_msg_ht;
+        $_info_msg_ht = '';
     }
 
+    /**
+     * getInfoMsgHtml
+     *
+     * @static
+     * @access  public
+     * @return  string
+     */
+    function getInfoMsgHtml()
+    {
+        global $_info_msg_ht;
+        
+        $info_msg_ht = $_info_msg_ht;
+        $_info_msg_ht = '';
+        
+        return $info_msg_ht;
+    }
 }
 
 ?>

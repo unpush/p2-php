@@ -31,13 +31,10 @@ class BrdCtl{
      */
     function readBrdLocal()
     {
-        global $_info_msg_ht;
-    
         $brd_menus = array();
         $brd_dir = './board';
         
         if (is_dir($brd_dir) and $cdir = dir($brd_dir)) {
-            // ディレクトリ走査
             while ($entry = $cdir->read()) {
                 if (preg_match('/^\./', $entry)) {
                     continue;
@@ -50,7 +47,7 @@ class BrdCtl{
                     $brd_menus[] =& $aBrdMenu;
                     
                 } else {
-                    $_info_msg_ht .= "<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n";
+                    P2Util::pushInfoMsgHtml("<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n");
                 }
             }
             $cdir->close();
@@ -143,6 +140,79 @@ class BrdCtl{
         }
         
         return $brd_menus;
+    }
+    
+    /**
+     * 板検索（スレタイ検索）のwordクエリーがあればパースする
+     * $GLOBALS['word'], $GLOBALS['words_fm'], $GLOBALS['word_fm'] をセットする
+     *
+     * @access  static
+     * @return  void
+     */
+    function parseWord()
+    {
+        $GLOBALS['word'] = null;
+        $GLOBALS['words_fm'] = null;
+        $GLOBALS['word_fm'] = null;
+        
+        if (isset($_GET['word'])) {
+            $word = $_GET['word'];
+        } elseif (isset($_POST['word'])) {
+            $word = $_POST['word'];
+        }
+
+        if (!isset($word) || strlen($word) == 0) {
+            return;
+        }
+        
+        /*
+        // 特別に除外する条件
+        // 何でもマッチしてしまう正規表現
+        if (preg_match('/^\.+$/', $word)) {
+            return;
+        }
+        */
+        
+        include_once P2_LIBRARY_DIR . '/strctl.class.php';
+        // and検索でよろしく（正規表現ではない）
+        $word_fm = StrCtl::wordForMatch($word, 'and');
+        if (P2_MBREGEX_AVAILABLE == 1) {
+            $GLOBALS['words_fm'] = mb_split('\s+', $word_fm);
+            $GLOBALS['word_fm'] = mb_ereg_replace('\s+', '|', $word_fm);
+        } else {
+            $GLOBALS['words_fm'] = preg_split('/\s+/', $word_fm);
+            $GLOBALS['word_fm'] = preg_replace('/\s+/', '|', $word_fm);
+        }
+    
+        $GLOBALS['word'] = $word;
+    }
+
+    /**
+     * 携帯用 板検索（スレタイ検索）のフォームHTMLを取得する
+     *
+     * @access  static
+     * @return  void
+     */
+    function getMenuKSearchFormHtml($action = null)
+    {
+        global $_conf;
+        
+        is_null($action) and $action = $_SERVER['SCRIPT_NAME'];
+        
+        $threti_ht = ''; // スレタイ検索は未対応
+    
+        $word_hs = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+    
+        return <<<EOFORM
+<form method="GET" action="{$action}" accept-charset="{$_conf['accept_charset']}">
+    <input type="hidden" name="detect_hint" value="◎◇">
+    {$_conf['k_input_ht']}
+    <input type="hidden" name="nr" value="1">
+    <input type="text" id="word" name="word" value="{$word_hs}" size="12">
+    {$threti_ht}
+    <input type="submit" name="submit" value="板検索">
+</form>\n
+EOFORM;
     }
 
 }

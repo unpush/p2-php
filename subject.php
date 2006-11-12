@@ -190,11 +190,11 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
         $GLOBALS['word_fm'] = StrCtl::wordForMatch($word, $sb_filter['method']);
         if ($sb_filter['method'] != 'just') {
             if (P2_MBREGEX_AVAILABLE == 1) {
-                $GLOBALS['words_fm'] = @mb_split('\s+', $GLOBALS['word_fm']);
-                $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $GLOBALS['word_fm']);
+                $GLOBALS['words_fm'] = mb_split('\s+', $GLOBALS['word_fm']);
+                $GLOBALS['word_fm'] = mb_ereg_replace('\s+', '|', $GLOBALS['word_fm']);
             } else {
-                $GLOBALS['words_fm'] = @preg_split('/\s+/', $GLOBALS['word_fm']);
-                $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $GLOBALS['word_fm']);
+                $GLOBALS['words_fm'] = preg_split('/\s+/', $GLOBALS['word_fm']);
+                $GLOBALS['word_fm'] = preg_replace('/\s+/', '|', $GLOBALS['word_fm']);
             }
         }
     }

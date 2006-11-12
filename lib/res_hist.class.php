@@ -22,8 +22,8 @@ class ResArticle{
  * 書き込みログのクラス
  */
 class ResHist{
+
     var $articles; // クラス ResArticle のオブジェクトを格納する配列
-    var $num; // 格納された BrdMenuCate オブジェクトの数
     
     var $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
     
@@ -33,11 +33,11 @@ class ResHist{
     function ResHist()
     {
         $this->articles = array();
-        $this->num = 0;
     }
     
     /**
      * 書き込みログの lines をパースして読み込む
+     * （全行処理しているのはちょっと無駄あり）
      *
      * @access  public
      * @param   array    $lines
@@ -45,32 +45,14 @@ class ResHist{
      */
     function readLines($lines)
     {
-        $n = 1;
         if (!is_array($lines)) {
             trigger_error(__FUNCTION__ . '(), ' . 'illegal argument', E_USER_WARNING);
             return false;
         }
         
+        $n = 1;
         foreach ($lines as $aline) {
-
-            $aResArticle =& new ResArticle();
-    
-            $resar = explode("<>", rtrim($aline));
-            $aResArticle->name  = $resar[0];
-            $aResArticle->mail  = $resar[1];
-            $aResArticle->daytime = $resar[2];
-            $aResArticle->msg   = $resar[3];
-            $aResArticle->ttitle = $resar[4];
-            $aResArticle->host  = $resar[5];
-            $aResArticle->bbs   = $resar[6];
-            if (!$aResArticle->itaj  = P2Util::getItaName($aResArticle->host, $aResArticle->bbs)) {
-                $aResArticle->itaj = $aResArticle->bbs;
-            }
-            $aResArticle->key   = $resar[7];
-            $aResArticle->resnum = $resar[8];
-            
-            $aResArticle->order = $n;
-            
+            $aResArticle = $this->lineToRes($aline, $n);
             $this->addRes($aResArticle);
     
             $n++;
@@ -79,15 +61,44 @@ class ResHist{
     }
     
     /**
+     * 書き込みログの line 一行をパースして、ResArticleオブジェクトを返す
+     *
+     * @access  public
+     * @param   array    $aline
+     * @return  object ResArticle
+     */
+    function lineToRes($aline, $order)
+    {
+        $aResArticle = new ResArticle();
+
+        $resar = explode('<>', rtrim($aline));
+        $aResArticle->name  = $resar[0];
+        $aResArticle->mail  = $resar[1];
+        $aResArticle->daytime = $resar[2];
+        $aResArticle->msg   = $resar[3];
+        $aResArticle->ttitle = $resar[4];
+        $aResArticle->host  = $resar[5];
+        $aResArticle->bbs   = $resar[6];
+        if (!$aResArticle->itaj  = P2Util::getItaName($aResArticle->host, $aResArticle->bbs)) {
+            $aResArticle->itaj = $aResArticle->bbs;
+        }
+        $aResArticle->key   = $resar[7];
+        $aResArticle->resnum = $resar[8];
+        
+        $aResArticle->order = $order;
+        
+        return $aResArticle;
+    }
+    
+    /**
      * レスを追加する
      *
      * @access  private
      * @return  void
      */
-    function addRes(&$aResArticle)
+    function addRes($aResArticle)
     {
-        $this->articles[] =& $aResArticle;
-        $this->num++;
+        $this->articles[] = $aResArticle;
     }
     
     /**
@@ -96,20 +107,20 @@ class ResHist{
      * @access  public
      * @return  void
      */
-    function showArticles()
+    function showArticles($datlines)
     {
         global $_conf, $STYLE;
         
-        $sid_q = (defined('SID')) ? '&amp;' . strip_tags(SID) : '';
+        $sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
         
         // Pager 準備
         require_once 'Pager/Pager.php';
         $perPage = 100;
         $params = array(
             'mode'       => 'Jumping',
-            'itemData'   => $this->articles,
+            'itemData'   => $datlines,
             'perPage'    => $perPage,
-            'delta'      => 10,
+            'delta'      => 25,
             'clearIfVoid' => true,
             'prevImg' => "前の{$perPage}件",
             'nextImg' => "次の{$perPage}件",
@@ -129,7 +140,13 @@ class ResHist{
         
         echo '<dl>';
         
-        foreach ($data as $a_res) {
+        $pageID = max(1, intval($_REQUEST['pageID']));
+        $n = ($pageID - 1) * $perPage;
+        foreach ($data as $aline) {
+            $n++;
+
+            $a_res = $this->lineToRes($aline, $n);
+            
             $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
             $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
             $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
@@ -187,17 +204,17 @@ EOP;
      * @access  public
      * @return  void
      */
-    function showNaviK($position)
+    function showNaviK($position, $num)
     {
         global $_conf;
 
         // 表示数制限
-        $list_disp_all_num = $this->num;
+        $list_disp_all_num = $num;
         $list_disp_range = $_conf['k_rnum_range'];
         
-        if ($_GET['from']) {
+        if (!empty($_GET['from'])) {
             $list_disp_from = $_GET['from'];
-            if ($_GET['end']) {
+            if (!empty($_GET['end'])) {
                 $list_disp_range = $_GET['end'] - $list_disp_from + 1;
                 if ($list_disp_range < 1) {
                     $list_disp_range = 1;
@@ -205,13 +222,8 @@ EOP;
             }
         } else {
             $list_disp_from = 1;
-            /*
-            $list_disp_from = $this->num - $list_disp_range + 1;
-            if ($list_disp_from < 1) {
-                $list_disp_from = 1;
-            }
-            */
         }
+        
         $disp_navi = P2Util::getListNaviRange($list_disp_from, $list_disp_range, $list_disp_all_num);
         
         $this->resrange['start'] = $disp_navi['from'];
@@ -257,19 +269,24 @@ EOP;
      * @access  public
      * @return  void
      */
-    function showArticlesK()
+    function showArticlesK($datlines)
     {
         global $_conf;
         
-        foreach ($this->articles as $a_res) {
+        $n = 0;
+        foreach ($datlines as $aline) {
+            $n++;
+            
+            if ($n < $this->resrange['start'] or $n > $this->resrange['to']) {
+                continue;
+            }
+            
+            $a_res = $this->lineToRes($aline, $n);
+            
             $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
             $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
             $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
             
-            if ($a_res->order < $this->resrange['start'] or $a_res->order > $this->resrange['to']) {
-                continue;
-            }
-        
             $href_ht = "";
             if ($a_res->key) {
                 if (empty($a_res->resnum) || $a_res->resnum == 1) {

@@ -74,7 +74,7 @@ class StrCtl{
             // UTF-8‚É•ÏŠ·‚µ‚Ä‚©‚çˆ—‚·‚é
             $pattern_utf8 = '/' . mb_convert_encoding($pattern, 'UTF-8', 'SJIS-win') . '/iu';
             $target_utf8 = mb_convert_encoding($target, 'UTF-8', 'SJIS-win');
-            $result = @preg_match($pattern_utf8, $target_utf8);    // None:0, Error:FALSE
+            $result = preg_match($pattern_utf8, $target_utf8);    // None:0, Error:FALSE
             //$result = mb_convert_encoding($result, 'SJIS-win', 'UTF-8');
         }
         
@@ -102,12 +102,12 @@ class StrCtl{
         $pattern = '(' . $pattern . ')(?![^<]*>)';
 
         if (P2_MBREGEX_AVAILABLE == 1) {
-            $result = @mb_eregi_replace($pattern, $marker, $target);    // Error:FALSE
+            $result = mb_eregi_replace($pattern, $marker, $target);    // Error:FALSE
         } else {
             // UTF-8‚É•ÏŠ·‚µ‚Ä‚©‚çˆ—‚·‚é
             $pattern_utf8 = '/' . mb_convert_encoding($pattern, 'UTF-8', 'SJIS-win') . '/iu';
             $target_utf8 = mb_convert_encoding($target, 'UTF-8', 'SJIS-win');
-            $result = @preg_replace($pattern_utf8, $marker, $target_utf8);
+            $result = preg_replace($pattern_utf8, $marker, $target_utf8);
             $result = mb_convert_encoding($result, 'SJIS-win', 'UTF-8');
         }
 
