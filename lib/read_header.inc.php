@@ -120,17 +120,45 @@ $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 // ツールバー部分HTML =======
 
 // お気にマーク設定
-$favmark = (!empty($aThread->fav)) ? '★' : '+';
-$favdo = (!empty($aThread->fav)) ? 0 : 1;
-$favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-$favdo_q = '&amp;setfav=' . $favdo;
 $similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc) . '&amp;refresh=1';
 $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
+
+if ($_conf['expack.misc.multi_favs']) {
+    $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
+    $toolbar_setfav_ht = 'お気に[';
+    $favdo = (!empty($aThread->favs[0])) ? 0 : 1;
+    $favdo_q = '&amp;setfav=' . $favdo;
+    $favmark = $favdo ? '+' : '★';
+    $favtitle = ((!isset($favlist_titles[0]) || $favlist_titles[0] == '') ? 'お気にスレ' : $favlist_titles[0]) . ($favdo ? 'に追加' : 'から外す');
+    $setnum_q = '&amp;setnum=0';
+    $toolbar_setfav_ht .= <<<EOP
+<span class="favdo set0"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '0');" title="{$favtitle}">{$favmark}</a></span>
+EOP;
+    for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+        $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
+        $favdo_q = '&amp;setfav=' . $favdo;
+        $favmark = $favdo ? $i : '★';
+        $favtitle = ((!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') ? 'お気にスレ' . $i : $favlist_titles[$i]) . ($favdo ? 'に追加' : 'から外す');
+        $setnum_q = '&amp;setnum=' . $i;
+        $toolbar_setfav_ht .= <<<EOP
+|<span class="favdo set{$i}"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '{$i}');" title="{$favtitle}">{$favmark}</a></span>
+EOP;
+    }
+    $toolbar_setfav_ht .= ']';
+} else {
+    $favdo = (!empty($aThread->fav)) ? 0 : 1;
+    $favdo_q = '&amp;setfav=' . $favdo;
+    $favmark = $favdo ? '+' : '★';
+    $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
+    $toolbar_setfav_ht = <<<EOP
+<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '0');" title="{$favtitle}">お気に{$favmark}</a></span>
+EOP;
+}
 
 $toolbar_right_ht = <<<EOTOOLBAR
             <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
             <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a>
-            <span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span>
+            {$toolbar_setfav_ht}
             <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span>
 <!--            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
             <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">{$moto_thre_st}</a>
@@ -138,8 +166,7 @@ $toolbar_right_ht = <<<EOTOOLBAR
 EOTOOLBAR;
 
 //=====================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -275,7 +302,7 @@ EOP;
 
     echo <<<EOP
 <form id="header" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
     <input type="hidden" name="host" value="{$aThread->host}">
@@ -347,6 +374,3 @@ EOP;
 //if (!$_GET['renzokupop']) {
     echo "<h3 class=\"thread_title\">{$aThread->ttitle_hd}</h3>\n";
 //}
-
-
-?>

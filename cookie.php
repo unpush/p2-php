@@ -5,7 +5,7 @@
  * 内部文字エンコーディング: Shift_JIS
  */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -21,8 +21,6 @@ EOP;
 
 $next_url = str_replace('&amp;', '&', $next_url);
 
-$sid_q = (defined('SID')) ? '&'.strip_tags(SID) : '';
+$sid_q = defined('SID') ? '&'.strip_tags(SID) : '';
 header('Location: '.$next_url.$sid_q);
 exit;
-
-?>

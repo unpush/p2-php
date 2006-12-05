@@ -209,5 +209,3 @@ function implode_fonts($fonts)
 {
     return '"' . implode('","', $fonts) . '"';
 }
-
-?>

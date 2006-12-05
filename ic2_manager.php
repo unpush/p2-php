@@ -96,8 +96,8 @@ if (isset($_POST['action'])) {
         case 'clearThumb':
             $thumb_dir2 = $ini['General']['cachedir'] . '/' . $ini['Thumb2']['name'];
             $thumb_dir3 = $ini['General']['cachedir'] . '/' . $ini['Thumb3']['name'];
-            $result_files2 = P2Util::garbageCollection($thumb_dir2, -1, '', '', TRUE);
-            $result_files3 = P2Util::garbageCollection($thumb_dir3, -1, '', '', TRUE);
+            $result_files2 = FileCtl::garbageCollection($thumb_dir2, -1, '', '', TRUE);
+            $result_files3 = FileCtl::garbageCollection($thumb_dir3, -1, '', '', TRUE);
             $removed_files = array_merge($result_files2['successed'], $result_files3['successed']);
             $failed_files = array_merge($result_files2['failed'], $result_files3['failed']);
             if (!empty($failed_files)) {
@@ -115,7 +115,7 @@ if (isset($_POST['action'])) {
             } else {
                 $_info_msg_ht .= "<p>テーブル {$ini['Cache']['table']} を空にしました。</p>";
             }
-            $result_files = P2Util::garbageCollection($flexy->options['compileDir'], -1, '', '', TRUE);
+            $result_files = FileCtl::garbageCollection($flexy->options['compileDir'], -1, '', '', TRUE);
             $removed_files = $result_files['successed'];
             if (!empty($result_files['failed'])) {
                 $_info_msg_ht .= '<p>以下のファイルが削除できませんでした。</p>';
@@ -180,11 +180,8 @@ if ($db->dsn['phptype'] == 'sqlite') {
     $flexy->setData('isSQLite', TRUE);
 }
 
-P2Util::header_content_type();
 P2Util::header_nocache();
 $flexy->compile('ic2mng.tpl.html');
 $flexy->output();
 
 // }}}
-
-?>

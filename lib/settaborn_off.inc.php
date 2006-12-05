@@ -70,5 +70,3 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     */
 
 }
-
-?>

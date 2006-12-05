@@ -4,7 +4,7 @@
 
 // p2 - RSS編集
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 include_once P2_LIBRARY_DIR . '/filectl.class.php';
 include_once P2_LIBRARY_DIR . '/strctl.class.php';
 
@@ -28,7 +28,7 @@ if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_se
 $add_rss_form_ht = <<<EOFORM
 <hr>
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
     <input type="hidden" id="setrss" name="setrss" value="1">
     <table border="0" cellspacing="1" cellpadding="0">
         <tr>
@@ -59,8 +59,8 @@ if ($_conf['expack.misc.multi_favs']) {
 //================================================================
 // ヘッダ
 //================================================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+P2Util::header_nocache();
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -207,7 +207,7 @@ function submitApply()
 
 
 // PC用
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $onclick = " onclick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['SCRIPT_NAME'];
 
@@ -330,5 +330,3 @@ EOP;
 //================================================================
 
 echo '</body></html>';
-
-?>

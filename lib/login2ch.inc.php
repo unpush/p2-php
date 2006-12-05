@@ -1,11 +1,11 @@
 <?php
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 require_once P2_LIBRARY_DIR . '/wap.class.php';
 
 /**
- * ■2ch IDにログインする
+ * 2ch IDにログインする
  */
 function login2ch()
 {
@@ -123,8 +123,10 @@ function login2ch()
 ?>
 EOP;
     FileCtl::make_datafile($_conf['sid2ch_php'], $_conf['pass_perm']); // $_conf['sid2ch_php'] がなければ生成
-    if (FileCtl::file_write_contents($_conf['sid2ch_php'], $cont) === false) {
+    if (file_put_contents($_conf['sid2ch_php'], $cont, LOCK_EX) === false) {
         $_info_msg_ht .= "<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>";
+
+        trigger_error("file_put_contents(" . $_conf['sid2ch_php'] . ")", E_USER_WARNING);
         return false;
     }
     // }}}
@@ -134,7 +136,7 @@ EOP;
 
 
 /**
- * ■systemコマンドでcurlを実行して、2chログインのSIDを得る
+ * systemコマンドでcurlを実行して、2chログインのSIDを得る
  */
 function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)
 {
@@ -169,7 +171,7 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
 }
 
 /**
- * ■PHPのcurlで2chログインのSIDを得る
+ * PHPのcurlで2chログインのSIDを得る
  */
 function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)
 {
@@ -194,7 +196,7 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
 }
 
 /**
- * ■PHPのcurlを実行する
+ * PHPのcurlを実行する
  */
 function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, $withk = false)
 {
@@ -227,7 +229,7 @@ function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $
 }
 
 /**
- * ■fsockopenでSSL接続して2chログインのSIDを得る（証明書検証なし）
+ * fsockopenでSSL接続して2chログインのSIDを得る（証明書検証なし）
  */
 function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua, $dolib2ch)
 {
@@ -259,5 +261,3 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
 
     return $wap_res->content;
 }
-
-?>

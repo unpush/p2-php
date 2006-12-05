@@ -3,7 +3,7 @@
     ファイルをブラウザで編集する
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -59,11 +59,11 @@ if (isset($filecont)) {
 
 editFile($path, $encode);
 
+exit;
 
 //=========================================================
 // 関数
 //=========================================================
-
 /**
  * ファイルに内容をセットする関数
  */
@@ -101,7 +101,7 @@ function editFile($path, $encode)
 
     //ファイル内容読み込み
     FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
-    $cont = @file_get_contents($path);
+    $cont = file_get_contents($path);
 
     if ($encode == "EUC-JP") {
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
@@ -117,8 +117,8 @@ function editFile($path, $encode)
     $cols_at = ($cols > 0) ? sprintf(' cols="%d"', $cols) : '';
 
     // プリント
+    echo $_conf['doctype'];
     echo <<<EOHEADER
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
 <head>
     {$_conf['meta_charset_ht']}
@@ -135,7 +135,7 @@ EOHEADER;
     echo "Edit: ".$path;
     echo <<<EOFORM
 <form action="{$_SERVER['SCRIPT_NAME']}" method="post" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="modori_url" value="{$modori_url}">
     <input type="hidden" name="encode" value="{$encode}">
@@ -150,5 +150,3 @@ EOFORM;
 
     return true;
 }
-
-?>

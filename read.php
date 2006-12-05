@@ -4,7 +4,7 @@
     フレーム分割画面、右下部分
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/threadread.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
@@ -103,7 +103,7 @@ if (!isset($GLOBALS['word'])) {
 $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
 //==================================================================
-// ■メイン
+// メイン
 //==================================================================
 
 if (!isset($aThread)) {
@@ -157,7 +157,7 @@ if (empty($_GET['offline'])) {
     $aThread->downloadDat();
 }
 
-// ■DATを読み込み
+// DATを読み込み
 $aThread->readDat();
 
 // オフライン指定でもログがなければ、改めて強制読み込み
@@ -218,7 +218,7 @@ if (isset($word)) {
 $aThread->lsToPoint();
 
 //===============================================================
-// ■プリント
+// プリント
 //===============================================================
 $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES)." / ".$aThread->ttitle_hd;
 
@@ -230,7 +230,7 @@ if ($_conf['ktai']) {
         $GLOBALS['filter_hits'] = NULL;
     }
 
-    // ■ヘッダプリント
+    // ヘッダプリント
     include_once P2_LIBRARY_DIR . '/read_header_k.inc.php';
 
     if ($aThread->rescount) {
@@ -239,7 +239,7 @@ if ($_conf['ktai']) {
         $aShowThread->datToHtml();
     }
 
-    // ■フッタプリント
+    // フッタプリント
     if ($filter_hits !== NULL) {
         resetReadNaviFooterK();
     }
@@ -247,7 +247,7 @@ if ($_conf['ktai']) {
 
 } else {
 
-    // ■ヘッダ 表示
+    // ヘッダ 表示
     include_once P2_LIBRARY_DIR . '/read_header.inc.php';
     flush();
 
@@ -319,7 +319,7 @@ EOP;
         }
     }
 
-    // ■フッタ 表示
+    // フッタ 表示
     include_once P2_LIBRARY_DIR . '/read_footer.inc.php';
 
 }
@@ -352,16 +352,16 @@ if ($aThread->rescount) {
     recRecent($newdata);
 }
 
-// ■NGあぼーんを記録
+// NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
 
-// ■以上 ---------------------------------------------------------------
+// 以上 ---------------------------------------------------------------
 exit;
 
 
 
 //===============================================================================
-// ■関数
+// 関数
 //===============================================================================
 
 /**
@@ -488,6 +488,3 @@ function recRecent($data)
 
     return true;
 }
-
-
-?>

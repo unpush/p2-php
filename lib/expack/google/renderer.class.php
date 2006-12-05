@@ -2,7 +2,7 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-require_once 'Pager/Pager.php';
+require_once 'Pager.php';
 
 class Google_Renderer
 {
@@ -246,5 +246,3 @@ class Google_Renderer
 
     // }}}
 }
-
-?>

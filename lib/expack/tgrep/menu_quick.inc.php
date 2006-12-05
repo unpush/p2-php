@@ -86,5 +86,3 @@ function tgrep_print_quick_list_k()
         echo '<p><a href="tgrepctl.php?file=quick&amp;clear=all">ˆê”­ŒŸõ‚ğ¸Ø±</a></p>' . "\n";
     }
 }
-
-?>

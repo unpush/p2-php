@@ -156,4 +156,3 @@ $STYLE['respop_b_color'] = "OrangeRed"; // ("black") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ìƒ{[ƒ_[
 $STYLE['respop_b_style'] = "dotted"; // ("solid") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ìƒ{[ƒ_[Œ`Ž®
 
 $STYLE['info_pop_size'] = "600,380"; // ("600,380") î•ñƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³i‰¡,cj
-?>

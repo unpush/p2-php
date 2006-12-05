@@ -159,5 +159,3 @@ function &shitarabaDatTo2chDatLines(&$mlines)
 
     return $mdatlines;
 }
-
-?>

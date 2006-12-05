@@ -111,4 +111,3 @@ $_conf['conf_user_perm'] =  0606;   // ユーザ設定ファイル
 include_once 'conf/conf_admin_ex.inc.php';
 
 // }}}
-?>

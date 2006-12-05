@@ -143,7 +143,7 @@ EOP;
             $list_disp_all_num = $GLOBALS['ita_mikke']['num']; //
             $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
 
-            $detect_hint_q = 'detect_hint='.urlencode('ž@ž');
+            $detect_hint_q = '_hint='.urlencode($_conf['detect_hint']);
             $word_q = '&amp;word='.rawurlencode($_REQUEST['word']);
 
             if ($disp_navi['from'] > 1) {
@@ -229,4 +229,3 @@ EOP;
 
 
 }
-?>

@@ -198,5 +198,3 @@ $MYSTYLE['subject']['tr#pager a:hover']['color'] = "#E3E3E3";
 
 $MYSTYLE['iv2']['div#toolbar']['background'] = "#000000 url('./skin/flat/header2_l.png') top repeat-x";
 $MYSTYLE['iv2']['div#toolbar td']['color'] = "#FFFFFF";
-
-?>

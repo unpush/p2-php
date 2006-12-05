@@ -3,7 +3,7 @@
     p2 - 特殊機能実行スクリプト（携帯）
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/spm_k.inc.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
@@ -18,7 +18,8 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
     switch ($_GET['ktool_name']) {
         case 'goto':
             $_REQUEST['ls'] = $_GET['ls'] = $ktv . '-' . ($ktv + $_conf['k_rnum_range']);
-            break;
+            include 'read.php';
+            exit;
         case 'res_quote':
             $_GET['resnum'] = $ktv;
             $_GET['inyou'] = 1;
@@ -90,8 +91,7 @@ $default = (!empty($_GET['spm_default'])) ? intval($_GET['spm_default']) : '';
 // 表示
 //=================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
@@ -117,5 +117,3 @@ echo "<a href=\"{$thread_url}\">ｽﾚに戻る<a/>";
 echo '</p>';
 echo '</body></html>';
 exit;
-
-?>

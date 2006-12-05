@@ -4,7 +4,7 @@
     フレーム分割画面、右下部分
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/threadlist.class.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/threadread.class.php';
@@ -19,6 +19,7 @@ if (!empty($_GET['cview'])) {
     if ($cont = getMatomeCache($cnum)) {
         echo $cont;
     } else {
+        header('Content-Type: text/plain; charset=Shift_JIS');
         echo 'p2 error: 新着まとめ読みのキャッシュがないよ';
     }
     exit;
@@ -125,8 +126,7 @@ EOP;
 // ========================================================
 // include_once P2_LIBRARY_DIR . '/read_header.inc.php';
 
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
@@ -517,7 +517,5 @@ if (P2_READ_NEW_SAVE_MEMORY) {
     $read_new_html .= ob_get_flush();
 }
 
-// ■NGあぼーんを記録
+// NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
-
-?>

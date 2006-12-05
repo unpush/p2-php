@@ -2,7 +2,7 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /*
-    p2 - 簡易RSSリーダ（記事一覧）
+    expack - 簡易RSSリーダ（記事一覧）
 
     RSS系ファイルはUTF-8で書いて、携帯に出力するときだけSJISにしたいけど
     mbstring.script_encoding = SJIS-win との整合性を考えるとSJISのままが無難かな？
@@ -16,12 +16,10 @@ $_login->authorize();
 
 // }}}
 
-if ($_conf['view_forced_by_query']) {
-    if (empty($_conf['ktai'])) {
-        output_add_rewrite_var('b', 'pc');
-    } else {
-        output_add_rewrite_var('b', 'k');
-    }
+if ($b == 'pc') {
+    output_add_rewrite_var('b', 'pc');
+} elseif ($b == 'k' || $k) {
+    output_add_rewrite_var('b', 'k');
 }
 
 //============================================================
@@ -62,7 +60,7 @@ if ($xml) {
         if (preg_match('/^<\\?xml version="1.0" encoding="((?i:iso)-8859-(?:[1-9]|1[0-5]))" ?\\?>/', $xmldec, $matches)) {
             $encoding = $matches[1];
         } else {
-            $encoding = 'ASCII,JIS,UTF-8,eucJP-win,SJIS-win';
+            $encoding = 'UTF-8,eucJP-win,SJIS-win,JIS';
         }
         mb_convert_variables('SJIS-win', $encoding, $channel, $items);
     } else {
@@ -88,7 +86,6 @@ $reloaded_time = date('m/d G:i:s');
 // HTMLプリント
 //============================================================
 
-if ($_conf['doctype']) { echo $_conf['doctype']; }
 if ($_conf['ktai']) {
     if (!$_conf['expack.rss.check_interval']) {
         // キャッシュさせない
@@ -97,13 +94,12 @@ if ($_conf['ktai']) {
         // 更新チェック間隔の1/3だけキャッシュさせる（端末orゲートウェイの実装依存）
         header(sprintf('Cache-Control: max-age=%d', $_conf['expack.rss.check_interval'] * 60 / 3));
     }
-    include_once P2EX_LIBRARY_DIR . '/rss/subject_k.inc.php';
-} else {
-    include_once P2EX_LIBRARY_DIR . '/rss/subject.inc.php';
 }
+echo $_conf['doctype'];
+include P2EX_LIBRARY_DIR . '/rss/' . ($_conf['ktai'] ? 'subject_k' : 'subject') . '.inc.php';
 
 //============================================================
-// 2ch bbspink 内リンク
+// 2ch,bbspink内リンクをp2で読むためのコールバック関数
 //============================================================
 function rss_link2ch_callback($s)
 {
@@ -111,5 +107,3 @@ function rss_link2ch_callback($s)
     $read_url = "{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[6]}";
     return $read_url;
 }
-
-?>

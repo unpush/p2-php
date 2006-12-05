@@ -34,5 +34,3 @@ EOS;
     }
     $htm['options'] .= "\t</select>\n";
 }
-
-?>

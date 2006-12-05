@@ -94,4 +94,3 @@ function setPal($host, $bbs, $key, $setpal)
 
     return true;
 }
-?>

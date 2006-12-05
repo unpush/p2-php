@@ -42,5 +42,3 @@ function intoRange($int)
     }
     return max($min, min($max, intval($int)));
 }
-
-?>

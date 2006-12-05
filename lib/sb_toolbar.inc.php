@@ -64,5 +64,3 @@ echo <<<EOP
         </tr>
     </table>\n
 EOP;
-
-?>

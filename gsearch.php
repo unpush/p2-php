@@ -33,12 +33,10 @@ if ($_conf['expack.google.enabled'] == 0) {
     exit('<html><body><p>GoogleŒŸõ‚Í–³Œø‚Å‚·B<br>conf/conf_admin_ex.inc.php ‚Ìİ’è‚ğ•Ï‚¦‚Ä‚­‚¾‚³‚¢B</p></body></html>');
 }
 
-if ($_conf['view_forced_by_query']) {
-    if (empty($_conf['ktai'])) {
-        output_add_rewrite_var('b', 'pc');
-    } else {
-        output_add_rewrite_var('b', 'k');
-    }
+if ($b == 'pc') {
+    output_add_rewrite_var('b', 'pc');
+} elseif ($b == 'k' || $k) {
+    output_add_rewrite_var('b', 'k');
 }
 
 // {{{ Init

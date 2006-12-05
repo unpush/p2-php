@@ -19,10 +19,10 @@ class BbsMap
     /**
      * 最新のホストを取得する
      *
-     * @param   string  $host   ホスト名
-     * @param   string  $bbs    板名
+     * @param   string  $host       ホスト名
+     * @param   string  $bbs        板名
      * @param   bool    $autosync   移転を検出したときに自動で同期するか否か
-     * @return  string  板に対応する最新のホスト
+     * @return  string  板に対応する最新のホスト。見つからなければ入力したホストをそのまま返す
      * @access  public
      * @static
      */
@@ -375,7 +375,7 @@ class BbsMap
         // {{{ キャッシュする
 
         $map_cache = serialize($map);
-        if (FileCtl::file_write_contents($map_cache_path, $map_cache) === false) {
+        if (FileCtl::filePutRename($map_cache_path, $map_cache) === false) {
             $errmsg = sprintf('Error: cannot write file. (%s)', htmlspecialchars($map_cache_path, ENT_QUOTES));
             die($errmsg);
         }
@@ -431,7 +431,7 @@ class BbsMap
         } else {
             $cont = '';
         }
-        if (FileCtl::file_write_contents($path, $cont) === false) {
+        if (FileCtl::filePutRename($path, $cont) === false) {
             $errmsg = sprintf('Error: cannot write file. (%s)', htmlspecialchars($path, ENT_QUOTES));
             die($errmsg);
         }
@@ -468,4 +468,3 @@ class BbsMap
 }
 
 // }}}
-?>

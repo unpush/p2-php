@@ -5,21 +5,30 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
 /**
  * p2 - ボードメニュークラス for menu.php
  */
-class BrdMenu{
-
+class BrdMenu
+{
     var $categories;    // クラス BrdMenuCate のオブジェクトを格納する配列
     var $num;           // 格納された BrdMenuCate オブジェクトの数
     var $format;        // html形式か、brd形式か("html", "brd")
     var $cate_match;    // カテゴリーマッチ形式
     var $ita_match;     // 板マッチ形式
+    var $matches;       // マッチした BrdMenuIta オブジェクトを格納する配列
 
+    /**
+     * @constructor
+     */
     function BrdMenu()
     {
+        $this->categories = array();
         $this->num = 0;
+        $this->matches =array();
     }
 
     /**
      * カテゴリーを追加する
+     *
+     * @access  public
+     * @return  void
      */
     function addBrdMenuCate(&$aBrdMenuCate)
     {
@@ -28,8 +37,11 @@ class BrdMenu{
     }
 
     /**
-    * パターンマッチの形式を登録する
-    */
+     * パターンマッチの形式を登録する
+     *
+     * @access  public
+     * @return  void
+     */
     function setBrdMatch($brdName)
     {
         // html形式
@@ -46,8 +58,11 @@ class BrdMenu{
     }
 
     /**
-    * データを読み込んで、カテゴリと板を登録する
-    */
+     * データを読み込んで、カテゴリと板を登録する
+     *
+     * @access  public
+     * @return  void
+     */
     function setBrdList($data)
     {
         global $_conf;
@@ -123,6 +138,8 @@ class BrdMenu{
                             $aBrdMenuIta->itaj_ht = '<b class="filtering">'.$aBrdMenuIta->itaj_ht.'</b>';
                         }
 
+                        $this->matches[] = &$aBrdMenuIta;
+
                     // 検索が見つからなくて、さらに携帯の時
                     } else {
                         if ($_conf['ktai']) {
@@ -141,23 +158,24 @@ class BrdMenu{
     }
 
     /**
-    * brdファイルを生成する
-    *
-    * @return    string    brdファイルのパス
-    */
+     * brdファイルを生成する
+     *
+     * @access  public
+     * @return  string    brdファイルのパス
+     */
     function makeBrdFile($cachefile)
     {
         global $_conf, $_info_msg_ht, $word;
 
-        $p2brdfile = $cachefile.".p2.brd";
+        $p2brdfile = $cachefile . ".p2.brd";
         FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
-        $data = @file($cachefile);
+        $data = file($cachefile);
         $this->setBrdMatch($cachefile); // パターンマッチ形式を登録
         $this->setBrdList($data);       // カテゴリーと板をセット
         if ($this->categories) {
             foreach ($this->categories as $cate) {
                 if ($cate->num > 0) {
-                    $cont .= $cate->name."\t0\n";
+                    $cont .= $cate->name . "\t0\n";
                     foreach ($cate->menuitas as $mita) {
                         $cont .= "\t{$mita->host}\t{$mita->bbs}\t{$mita->itaj}\n";
                     }
@@ -166,7 +184,7 @@ class BrdMenu{
         }
 
         if ($cont) {
-            if (FileCtl::file_write_contents($p2brdfile, $cont) === false) {
+            if (FileCtl::filePutRename($p2brdfile, $cont) === false) {
                 die("p2 error: {$p2brdfile} を更新できませんでした");
             }
             return $p2brdfile;
@@ -181,10 +199,10 @@ class BrdMenu{
 }
 
 /**
-* ボードメニューカテゴリークラス
-*/
-class BrdMenuCate{
-
+ * ボードメニューカテゴリークラス
+ */
+class BrdMenuCate
+{
     var $name;          // カテゴリーの名前
     var $menuitas;      // クラスBrdMenuItaのオブジェクトを格納する配列
     var $num;           // 格納されたBrdMenuItaオブジェクトの数
@@ -192,8 +210,8 @@ class BrdMenuCate{
     var $ita_match_num; // 検索にヒットした板の数
 
     /**
-    * コンストラクタ
-    */
+     * @constructor
+     */
     function BrdMenuCate($name)
     {
         $this->num = 0;
@@ -205,6 +223,9 @@ class BrdMenuCate{
 
     /**
      * 板を追加する
+     *
+     * @access  public
+     * @return  void
      */
     function addBrdMenuIta(&$aBrdMenuIta)
     {
@@ -215,15 +236,20 @@ class BrdMenuCate{
 }
 
 /**
-* ボードメニュー板クラス
-*/
-class BrdMenuIta{
+ * ボードメニュー板クラス
+ */
+class BrdMenuIta
+{
     var $host;
     var $bbs;
     var $itaj;    // 板名
     var $itaj_en;    // 板名をエンコードしたもの
     var $itaj_ht;    // HTMLで出力する板名（フィルタリングしたもの）
 
+    /**
+     * @access  public
+     * @return  void
+     */
     function setItaj($itaj)
     {
         $this->itaj = $itaj;
@@ -231,5 +257,3 @@ class BrdMenuIta{
         $this->itaj_ht = htmlspecialchars($this->itaj, ENT_QUOTES);
     }
 }
-
-?>

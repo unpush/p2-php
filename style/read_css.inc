@@ -44,7 +44,9 @@ a:hover{color:{$STYLE['read_acolor_h']};}
 i{font-style:normal;} /* 引用レス*/
 dd.respopup{margin:8px 8px;} /* レスポップアップ*/
 
-.thread_title{margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};}
+.thread_title{
+	margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};
+}
 .thre_title{color:{$STYLE['read_thread_title_color']};}
 .name{color:{$STYLE['read_name_color']};} /* 投稿者の名前 */
 .mail{color:{$STYLE['read_mail_color']};} /* 投稿者のmail */

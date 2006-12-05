@@ -51,20 +51,21 @@ $_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => FALSE, '
 
 // フォームのデフォルト値
 $qf_defaults = array(
-    'uri'  => 'http://',
-    'memo'    => '',
-    'from'    => 'from',
-    'to'      => 'to',
+    'uri'   => 'http://',
+    'ref'   => '',
+    'memo'  => '',
+    'from'  => 'from',
+    'to'    => 'to',
     'padding' => '',
     'popup'   => $isPopUp,
 );
 
 // フォームの固定値
 $qf_constants = array(
-    'detect_hint' => '◎◇　◇◎',
-    'download'    => 'ダウンロード',
-    'reset'       => 'リセット',
-    'close'       => '閉じる',
+    '_hint'     => $_conf['detect_hint'],
+    'download'  => 'ダウンロード',
+    'reset'     => 'リセット',
+    'close'     => '閉じる',
 );
 
 // プレビューの大きさ
@@ -80,6 +81,7 @@ $_attr_s_chk  = array('onclick' => 'setSerialAvailable(this.checked)', 'id' => '
 $_attr_s_from = array('size' => 4, 'id' => 's_from');
 $_attr_s_to   = array('size' => 4, 'id' => 's_to');
 $_attr_s_pad  = array('size' => 1, 'id' => 's_pad');
+$_attr_ref    = array('size' => 50);
 $_attr_memo   = array('size' => 50);
 $_attr_submit = array();
 $_attr_reset  = array();
@@ -112,8 +114,9 @@ $qfe['from']    = &$qf->addElement('text', 'from', 'From', $_attr_s_from);
 $qfe['to']      = &$qf->addElement('text', 'to', 'To', $_attr_s_to);
 $qfe['padding'] = &$qf->addElement('text', 'padding', '0で詰める桁数', $_attr_s_pad);
 
-// メモ
-$qfe['memo'] = &$qf->addElement('text', 'memo', 'メモ', $_attr_memo);
+// リファラとメモ
+$qfe['ref']  = &$qf->addElement('text', 'ref', 'リファラ', $_attr_ref);
+$qfe['memo'] = &$qf->addElement('text', 'memo', '　　メモ', $_attr_memo);
 
 // プレビューの大きさ
 $preview_size = array();
@@ -169,17 +172,21 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
         $thumb_type = 1;
     }
 
-    // メモ
+    // リファラとメモ
+    $extra_params = '';
+    if (isset($params['ref']) && strlen(trim($params['ref'])) > 0) {
+        $extra_params .= '&ref=' . rawurlencode($params['ref']);
+    }
     if (isset($params['memo']) && strlen(trim($params['memo'])) > 0) {
         $new_memo = IC2DB_Images::uniform($params['memo'], 'SJIS-win');
         $_memo_en = rawurlencode($new_memo);
-        $_hint_en = rawurlencode(mb_convert_encoding('◎◇　◇◎', 'UTF-8', 'SJIS-win'));
+        $_hint_en = rawurlencode($_conf['detect_hint_utf8']);
         // レンダリング時にhtmlspecialchars()されるので、ここでは&を&amp;にしない
-        $append_memo = '&detect_hint=' . $_hint_en . '&memo=' . $_memo_en;
+        $extra_params .= '&detect_hint=' . $_hint_en . '&memo=' . $_memo_en;
     } else {
         $new_memo = NULL;
-        $append_memo = '';
     }
+
 
     // 連番
     $serial_pattern = '/\\[(\\d+)-(\\d+)\\]/';
@@ -329,8 +336,8 @@ if ($execDL) {
 
         // キャッシュされていないとき
         } else {
-            $src_url .= $append_memo;
-            $thumb_url .= $append_memo;
+            $src_url .= $extra_params;
+            $thumb_url .= $extra_params;
         }
 
         $img = &new StdClass;
@@ -372,11 +379,8 @@ $flexy->setData('get', $qfObj);
 
 // ページを表示
 P2Util::header_nocache();
-P2Util::header_content_type();
 $flexy->compile('ic2g.tpl.html');
 $flexy->output();
 
 
 // }}}
-
-?>

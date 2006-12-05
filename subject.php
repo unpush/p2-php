@@ -6,7 +6,7 @@
     subject_new.php と兄弟なので、一緒に面倒をみること
 */
 
-include_once './conf/conf.inc.php';  // 設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/threadlist.class.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
@@ -16,7 +16,7 @@ $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 $_login->authorize(); // ユーザ認証
 
 //============================================================
-// ■変数設定
+// 変数設定
 //============================================================
 $newtime = date('gis');
 $nowtime = time();
@@ -200,7 +200,7 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
 // }}}
 
 //============================================================
-// ■特殊な前処理
+// 特殊な前処理
 //============================================================
 // {{{ 削除
 
@@ -239,12 +239,12 @@ if (!empty($_GET['dele']) or ($_POST['submit'] == $deletelog_st)) {
 }
 
 //============================================================
-// ■メイン
+// メイン
 //============================================================
 
 $aThreadList =& new ThreadList();
 
-// ■板とモードのセット ===================================
+// 板とモードのセット ===================================
 if ($spmode) {
     if ($spmode == 'taborn' or $spmode == 'soko') {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
@@ -271,7 +271,7 @@ if ($spmode) {
 
 }
 
-// ■ソースリスト読込
+// ソースリスト読込
 $lines = $aThreadList->readList();
 
 // {{{ お気にスレリスト 読込
@@ -287,7 +287,7 @@ if (is_array($favlines)) {
 $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('HEAD');
 
 //============================================================
-// ■それぞれの行解析
+// それぞれの行解析
 //============================================================
 $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('FORLOOP');
 
@@ -303,7 +303,7 @@ for ($x = 0; $x < $linesize; $x++) {
         $aThread->torder = $x + 1;
     }
 
-    // ■データ読み込み
+    // データ読み込み
     // spmode
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
@@ -458,10 +458,10 @@ for ($x = 0; $x < $linesize; $x++) {
 
     // }}}
 
-    // ■ spmode(殿堂入り、newsを除く)なら ====================================
+    //  spmode(殿堂入り、newsを除く)なら ====================================
     if ($aThreadList->spmode && $aThreadList->spmode != "news" && $sb_view != "edit") {
 
-        // ■ subject.txt が未DLなら落としてデータを配列に格納
+        //  subject.txt が未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
 
             require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
@@ -491,7 +491,7 @@ for ($x = 0; $x < $linesize; $x++) {
         }
 
         $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('subthre_check');
-        // ■スレ情報取得 =============================
+        // スレ情報取得 =============================
         if ($aThreadList->spmode == "soko" or $aThreadList->spmode == "taborn") {
 
             if ($subject_txts[$aThread->host."/".$aThread->bbs][$aThread->key]) {
@@ -621,7 +621,7 @@ for ($x = 0; $x < $linesize; $x++) {
     // 生存数set
     if ($aThread->isonline) { $online_num++; }
 
-    // ■リストに追加
+    // リストに追加
     $aThreadList->addThread($aThread);
 
     unset($aThread);
@@ -633,16 +633,16 @@ $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('FORLOOP');
 
 $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('FOOT');
 
-// ■既にdat落ちしているスレは自動的にあぼーんを解除する
+// 既にdat落ちしているスレは自動的にあぼーんを解除する
 autoTAbornOff($aThreadList, $ta_keys);
 
-// ■ソート
+// ソート
 sortThreads($aThreadList);
 
 //===============================================================
 // プリント
 //===============================================================
-// ■携帯
+// 携帯
 if ($_conf['ktai']) {
 
     // {{{ 倉庫にtorder付与
@@ -691,7 +691,7 @@ if ($_conf['ktai']) {
     // フッタプリント
     include_once P2_LIBRARY_DIR . '/sb_footer_k.inc.php';
 
-// ■PC
+// PC
 } else {
     // ヘッダHTMLを表示
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sb_header');
@@ -1099,5 +1099,3 @@ function cmp_similarity($a, $b)
         return ($a->similarity < $b->similarity) ? 1 : -1;
     }
 }
-
-?>

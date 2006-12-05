@@ -89,5 +89,3 @@ RSS/Atom‚ð’¼ÚŽw’è<br>
 EOF;
 
 // }}}
-
-?>

@@ -4,10 +4,8 @@
 
 /* トリップ・メーカー */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル
+include_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
 echo P2Util::mkTrip($_GET['tk']);
-
-?>

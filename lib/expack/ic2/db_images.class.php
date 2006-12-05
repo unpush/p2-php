@@ -123,5 +123,3 @@ class IC2DB_Images extends IC2DB_Skel
     // }}}
 
 }
-
-?>

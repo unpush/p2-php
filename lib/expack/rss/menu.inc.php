@@ -119,5 +119,3 @@ function print_rss_list_k()
     }
 
 }
-
-?>

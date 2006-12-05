@@ -68,5 +68,3 @@ if (isset($aThread->datlines[$resnum - 1])) {
  * read.php‚Éˆ—‚ð“n‚·
  */
 include ($_conf['read_php']);
-
-?>

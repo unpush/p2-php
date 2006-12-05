@@ -3,7 +3,7 @@
  * rep2 ログイン
  */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -171,15 +171,12 @@ if ($_conf['ktai']) {
 // HTMLプリント
 //=========================================================
 $p_htm['body_onload'] = '';
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $p_htm['body_onload'] = ' onLoad="setWinTitle();"';
 }
 
 P2Util::header_nocache();
-P2Util::header_content_type();
-if (!empty($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -190,7 +187,7 @@ echo <<<EOP
     <title>{$p_str['ptitle']}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=login&amp;skin={$skin_en}" type="text/css">
@@ -204,7 +201,7 @@ echo <<<EOP
 <body{$body_at}>
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 <p id="pan_menu"><a href="setting.php">ログイン管理</a> &gt; {$p_str['ptitle']}</p>
 EOP;
@@ -234,5 +231,3 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
-
-?>

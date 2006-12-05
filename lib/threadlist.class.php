@@ -114,13 +114,29 @@ class ThreadList{
             // ニュース系サブジェクト読み込み
             } elseif ($this->spmode == "news") {
 
-                unset($news);
-                $news[] = array(host=>"news2.2ch.net", bbs=>"newsplus"); // ニュース速報+
-                $news[] = array(host=>"news2.2ch.net", bbs=>"liveplus"); // ニュース実況
-                $news[] = array(host=>"book.2ch.net", bbs=>"bizplus"); // ビジネスニュース速報+
-                $news[] = array(host=>"live2.2ch.net", bbs=>"news"); // ニュース速報
-                $news[] = array(host=>"news3.2ch.net", bbs=>"news2"); // ニュース議論
-
+                $news = array(
+                    array('host' => 'news18.2ch.net', 'bbs' => 'bizplus'), // ビジネスnews+
+                    array('host' => 'news19.2ch.net', 'bbs' => 'newsplus'), // ニュース速報+
+                    array('host' => 'live14.2ch.net', 'bbs' => 'wildplus'), // ニュース二軍+
+                    array('host' => 'news19.2ch.net', 'bbs' => 'moeplus'), // 萌えニュース+
+                    array('host' => 'news18.2ch.net', 'bbs' => 'mnewsplus'), // 芸スポ速報+
+                    array('host' => 'news18.2ch.net', 'bbs' => 'femnewsplus'), // femalenews+
+                    array('host' => 'news18.2ch.net', 'bbs' => 'dqnplus'), // 痛いニュース+
+                    array('host' => 'news18.2ch.net', 'bbs' => 'scienceplus'), // 科学ニュース+
+                    array('host' => 'live14.2ch.net', 'bbs' => 'liveplus'), // ニュース実況+
+                    array('host' => 'news20.2ch.net', 'bbs' => 'news'), // ニュース速報
+                    array('host' => 'news18.2ch.net', 'bbs' => 'trafficinfo'), // 交通情報
+                    array('host' => 'music4.2ch.net', 'bbs' => 'musicnews'), // 芸能音楽速報
+                    array('host' => 'anime.2ch.net', 'bbs' => 'comicnews'), // アニメ漫画速報
+                    array('host' => 'news19.2ch.net', 'bbs' => 'gamenews'), // ゲーム速報
+                    array('host' => 'pc8.2ch.net', 'bbs' => 'pcnews'), // PCニュース
+                    array('host' => 'news18.2ch.net', 'bbs' => 'news7'), // 私のニュース
+                    array('host' => 'bubble4.2ch.net', 'bbs' => 'archives'), // 懐かしニュース
+                    array('host' => 'news18.2ch.net', 'bbs' => 'news2'), // ニュース議論
+                    array('host' => 'tmp6.2ch.net', 'bbs' => 'asia'), // ニュース極東
+                    array('host' => 'tmp6.2ch.net', 'bbs' => 'bakanews'), // バカニュース
+                    array('host' => 'news18.2ch.net', 'bbs' => 'editorial'), // 社説
+                );
                 foreach ($news as $n) {
 
                     require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
@@ -147,7 +163,7 @@ class ThreadList{
                 $dat_host_dir = P2Util::datDirOfHost($this->host);
                 $lines = @file($dat_host_dir."/".$this->bbs."/p2_threads_aborn.idx");
 
-            // ■spmodeがdat倉庫の場合 ======================
+            // spmodeがdat倉庫の場合 ======================
             } elseif ($this->spmode == "soko") {
 
                 $dat_host_dir = P2Util::datDirOfHost($this->host);
@@ -162,7 +178,7 @@ class ThreadList{
                 $lines = array();
 
                 $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat'); //
-                // ■datログディレクトリを走査して孤立datにidx付加 =================
+                // datログディレクトリを走査して孤立datにidx付加 =================
                 if ($cdir = dir($dat_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     // ディレクトリ走査
                     while ($entry = $cdir->read()) {
@@ -209,7 +225,7 @@ class ThreadList{
                 // }}}
                 $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx');//
 
-            // ■スレの殿堂の場合  // p2_palace.idx 読み込み
+            // スレの殿堂の場合  // p2_palace.idx 読み込み
             } elseif ($this->spmode == "palace") {
                 $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
                 if ($lines = @file($palace_idx)) {
@@ -218,7 +234,7 @@ class ThreadList{
                 }
             }
 
-        // ■オンライン上の subject.txt を読み込む（spmodeでない場合）
+        // オンライン上の subject.txt を読み込む（spmodeでない場合）
         } else {
             require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
@@ -247,5 +263,3 @@ class ThreadList{
     }
 
 }
-
-?>

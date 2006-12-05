@@ -85,7 +85,7 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
         $_info_msg_ht .= $err_fmt['none'];
     } else {
         // サムネイル作成クラスのインスタンスを作成
-        $thumbnailer = &new ThumbNailer(1);
+        $thumbnailer = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
 
         // DBに記録する共通データを設定
         $f_host = 'localhost';
@@ -173,7 +173,6 @@ $view->maxpostsize = ini_get('post_max_size');
 
 // ページを表示
 P2Util::header_nocache();
-P2Util::header_content_type();
 $flexy->outputObject($view, $elements);
 
 // }}}
@@ -361,4 +360,3 @@ function ic2_register_uploaded_file($file)
 }
 
 // }}}
-?>

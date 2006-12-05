@@ -48,7 +48,8 @@ class SubjectTxt{
     /**
      * subject.txtをダウンロード＆セットする
      *
-     * @return boolean セットできれば true、できなければ false
+     * @access  private
+     * @return  boolean  セットできれば true
      */
     function dlAndSetSubject()
     {
@@ -70,7 +71,8 @@ class SubjectTxt{
     /**
      * subject.txtをダウンロードする
      *
-     * @return string subject.txt の中身
+     * @access  private?
+     * @return  string|false  subject.txt の中身
      */
     function downloadSubject()
     {
@@ -93,7 +95,7 @@ class SubjectTxt{
             }
         }
 
-        // ■DL
+        // DL
         include_once "HTTP/Request.php";
 
         $params = array();
@@ -137,7 +139,7 @@ class SubjectTxt{
             $body = $req->getResponseBody();
         }
 
-        // ■ DL成功して かつ 更新されていたら
+        // DL成功して かつ 更新されていたら
         if ($body && $code != "304") {
 
             // したらば or be.2ch.net ならEUCをSJISに変換
@@ -155,8 +157,14 @@ class SubjectTxt{
 
             // ファイルに保存する場合
             } else {
-                if (FileCtl::file_write_contents($this->subject_file, $body) === false) {
-                    die("Error: cannot write file");
+                if (FileCtl::filePutRename($this->subject_file, $body) === false) {
+                    // 保存に失敗はしたが、既存のが読み込めるならそれを返しておく
+                    if (is_readable) {
+                        return file_get_contents($this->subject_file);
+                    } else {
+                        die("Error: cannot write file");
+                        return false;
+                    }
                 }
                 chmod($this->subject_file, $perm);
             }
@@ -175,7 +183,8 @@ class SubjectTxt{
     /**
      * subject.txt が新鮮なら true を返す
      *
-     * @return boolean 新鮮なら true。そうでなければ false。
+     * @access  private
+     * @return  boolean  新鮮なら true。そうでなければ false。
      */
     function isSubjectTxtFresh()
     {
@@ -198,8 +207,9 @@ class SubjectTxt{
      *
      * 成功すれば、$this->subject_lines がセットされる
      *
-     * @param string $cont これは eashm 用に渡している。
-     * @return boolean 実行成否
+     * @access  private
+     * @param   string   $cont    これは eashm 用に渡している。
+     * @return  boolean  実行成否
      */
     function setSubjectLines($cont = '')
     {
@@ -230,5 +240,3 @@ class SubjectTxt{
     }
 
 }
-
-?>

@@ -40,8 +40,7 @@ function rss_get_image_ic2($src_url, $memo='')
     if ($thumbnailer->ini['General']['automemo'] && $memo !== '') {
         $img_memo = IC2DB_Images::uniform($memo, 'SJIS-win');
         if ($memo !== '') {
-            $hint = mb_convert_encoding('ž@ž', 'UTF-8', 'SJIS-win');
-            $img_memo_query = '&amp;hint=' . rawurlencode($hint);
+            $img_memo_query = '&amp;hint=' . rawurlencode($_conf['detect_hint_utf8']);
             $img_memo_query .= '&amp;memo=' . rawurlencode($img_memo);
         } else {
             $img_memo = NULL;
@@ -143,5 +142,3 @@ function rss_get_image_ic2($src_url, $memo='')
 
     return $result;
 }
-
-?>

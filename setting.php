@@ -3,7 +3,7 @@
     rep2 -  設定管理ページ
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -31,7 +31,7 @@ $autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
 
 
 $body_onload = "";
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $body_onload = " onLoad=\"setWinTitle();\"";
 }
 
@@ -48,13 +48,10 @@ $hc['ua'] = $_SERVER['HTTP_USER_AGENT'];
 $hd = array_map('htmlspecialchars', $hc);
 
 //=========================================================
-// ■ HTMLプリント
+// HTMLプリント
 //=========================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
@@ -65,7 +62,7 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=setting&amp;skin={$skin_en}" type="text/css">
@@ -80,7 +77,7 @@ echo <<<EOP
 EOP;
 
 // 携帯用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 <p id="pan_menu">ログイン管理</p>
 EOP;
@@ -122,5 +119,3 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
-
-?>

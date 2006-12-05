@@ -54,13 +54,13 @@ switch ($type) {
 if ($search->find(TRUE)) {
     // 縦横のサイズが大きい画像はまず中間イメージを作成する
     if ($search->width > 1280 || $search->height > 1280) {
-        $thumbX = &new Thumbnailer(3);
+        $thumbX = &new ThumbNailer(IC2_THUMB_SIZE_INTERMD);
         $resultX = &$thumbX->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);
         if (PEAR::isError($result)) {
             error($resultX->getMessage());
             exit;
         }
-        $options['cushion'] = $resultX;
+        $options['intermd'] = $resultX;
     }
     $thumb = &new ThumbNailer($thumb, $options);
     $result = &$thumb->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);
@@ -91,5 +91,3 @@ function error($msg)
 </html>
 EOF;
 }
-
-?>

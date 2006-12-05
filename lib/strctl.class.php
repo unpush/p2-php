@@ -257,5 +257,3 @@ class StrCtl{
         return $js;
     }
 }
-
-?>

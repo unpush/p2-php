@@ -30,7 +30,7 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
         $ptitle_url = $ptitle_url . 'index2.html';
 
     // PC
-    } elseif (empty($_conf['ktai'])) {
+    } elseif (!$_conf['ktai']) {
         $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
     // 携帯
     } else {
@@ -76,7 +76,7 @@ EOP;
 // }}}
 // フォーム ==================================================
 $sb_form_hidden_ht = <<<EOP
-<input type="hidden" name="detect_hint" value="◎◇　◇◎">
+<input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
 <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
 <input type="hidden" name="host" value="{$aThreadList->host}">
 <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
@@ -105,8 +105,7 @@ if ($GLOBALS['sb_mikke_num']) {
 //ヘッダプリント
 //=================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
@@ -124,4 +123,3 @@ include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
 echo $filter_form_ht;
 echo $hit_ht;
 echo "<hr>";
-?>

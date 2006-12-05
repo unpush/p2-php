@@ -146,5 +146,3 @@ if ($neolines) {
 fclose($fp);
 
 // }}}
-
-?>

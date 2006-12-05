@@ -4,11 +4,12 @@
     返り値は、テキストで返す
 */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル
+include_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
 // {{{ HTTPヘッダとXML宣言
+
 P2Util::header_nocache();
 header('Content-Type: text/html; charset=Shift_JIS');
 
@@ -34,12 +35,12 @@ if ($cmd == 'delelog') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
         include_once P2_LIBRARY_DIR . '/dele.inc.php';
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
-        if (empty($r)) {
-            $r_msg = "0"; // 失敗
-        } elseif ($r == 1) {
+        if ($r == 1) {
             $r_msg = "1"; // 完了
         } elseif ($r == 2) {
             $r_msg = "2"; // なし
+        } else {
+            $r_msg = "0"; // 失敗
         }
     }
 
@@ -49,7 +50,11 @@ if ($cmd == 'delelog') {
 } elseif ($cmd == 'setfav') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
         include_once P2_LIBRARY_DIR . '/setfav.inc.php';
-        $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav']);
+        if (isset($_REQUEST['setnum'])) {
+            $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav'], $_REQUEST['setnum']);
+        } else {
+            $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav']);
+        }
         if (empty($r)) {
             $r_msg = "0"; // 失敗
         } elseif ($r == 1) {
@@ -70,6 +75,16 @@ if ($cmd == 'delelog') {
             $r_msg = "1"; // 完了
         }
     }
+
+// }}}
+// {{{ 書き込みフォームのオートセーブ（※これは使っていない。通信負荷を避けて、クッキーにまかせた）
+
+} elseif ($cmd == 'auto_save_post_form') {
+    // 未実装のテスト
+    ob_start();
+    var_dump($_POST);
+    $r_msg = ob_get_clean();
+
 }
 // }}}
 // {{{ 結果出力
@@ -80,5 +95,3 @@ if (P2Util::isBrowserSafariGroup()) {
 echo $r_msg;
 
 // }}}
-
-?>

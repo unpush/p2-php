@@ -1,7 +1,7 @@
 <?php
 // p2 -  タイトルページ
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -102,6 +102,7 @@ EOP;
     </tr>
     <tr>
         <td align="right">REFERER: </td><td>{$alog['referer']}</td>
+    </tr>
 </table>
 EOP;
 */
@@ -112,10 +113,7 @@ EOP;
 //=========================================================
 $ptitle = "rep2 - title";
 
-P2Util::header_content_type();
-if (!empty($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -131,10 +129,8 @@ echo <<<EOP
 EOP;
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
-}
+echo $_info_msg_ht;
+$_info_msg_ht = '';
 
 echo <<<EOP
 <br>
@@ -159,12 +155,12 @@ echo <<<EOP
 EOP;
 
 //==================================================
-// ■関数
+// 関数 （このファイル内でのみ利用）
 //==================================================
 /**
  * オンライン上のrep2-expack最新版をチェックする
  *
- * @return string HTML
+ * @return  string  HTML
  */
 function checkUpdatan()
 {
@@ -178,7 +174,7 @@ function checkUpdatan()
 
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら
-        if (@filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
+        if (filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
             $no_p2status_dl_flag = true;
         }
     }
@@ -205,5 +201,3 @@ EOP;
     }
     return $newversion_found_html;
 }
-
-?>

@@ -3,7 +3,7 @@
     p2 -  お気に入り編集
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 include_once P2_LIBRARY_DIR . '/filectl.class.php';
 include_once P2_LIBRARY_DIR . '/strctl.class.php';
 
@@ -30,7 +30,7 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 // お気に板追加フォーム
 $add_favita_form_ht = <<<EOFORM
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
     <p>
         {$_conf['k_input_ht']}
         板URL: <input type="text" id="url" name="url" value="http://" size="48">
@@ -63,8 +63,7 @@ if ($_conf['expack.misc.multi_favs']) {
 // ヘッダ
 //================================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -75,7 +74,7 @@ echo <<<EOP
     <title>p2 - お気に板の並び替え</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <script type="text/javascript" src="js/yui/YAHOO.js?{$_conf['p2expack']}" ></script>
     <script type="text/javascript" src="js/yui/log.js?{$_conf['p2expack']}" ></script>
@@ -200,7 +199,7 @@ function submitApply()
 
 
 // PC用
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $onclick = " onClick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['SCRIPT_NAME'];
 
@@ -307,7 +306,7 @@ EOP;
 }
 
 // PC
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo '<hr>';
     echo $sync_favita_form_ht;
 }
@@ -320,5 +319,3 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
-
-?>

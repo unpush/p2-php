@@ -16,12 +16,11 @@ $_login->authorize();
 if (!$_conf['expack.ic2.enabled']) {
     exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
-if ($_conf['view_forced_by_query']) {
-    if (empty($_conf['ktai'])) {
-        output_add_rewrite_var('b', 'pc');
-    } else {
-        output_add_rewrite_var('b', 'k');
-    }
+
+if ($b == 'pc') {
+    output_add_rewrite_var('b', 'pc');
+} elseif ($b == 'k' || $k) {
+    output_add_rewrite_var('b', 'k');
 }
 
 // }}}
@@ -86,7 +85,7 @@ $_constants = array(
     'jump'    => 'Go',
     'search'  => '検索',
     'cngmode' => '変更',
-    'hint'    => '◎◇　◇◎',
+    '_hint'   => $_conf['detect_hint'],
 );
 
 // 閾値比較方法
@@ -109,14 +108,16 @@ $_threshold = array(
 
 // ソート基準
 $_order = array(
-    'time' => 'キャッシュした日時',
+    'time' => '取得日時',
     'uri'  => 'URL',
     'date_uri' => '日付+URL',
+    'date_uri2' => '日付+URL(2)',
     'name' => 'ファイル名',
     'size' => 'ファイルサイズ',
-    'width' => '画像の横幅',
-    'height' => '画像の高さ',
-    'pixels' => '総ピクセル数',
+    'width' => '横幅',
+    'height' => '高さ',
+    'pixels' => 'ピクセル数',
+    'id' => 'ID',
 );
 
 // ソート方向
@@ -160,7 +161,7 @@ $icdb = &new IC2DB_Images;
 $db = &$icdb->getDatabaseConnection();
 
 // サムネイル作成クラス
-$thumb = &new ThumbNailer(1);
+$thumb = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
     require_once 'Cache.php';
@@ -369,7 +370,6 @@ if ($_conf['ktai']) {
         $flexy->setData('page', $page);
         $flexy->setData('move', $qfObj);
         P2Util::header_nocache();
-        P2Util::header_content_type();
         $flexy->compile('iv2if.tpl.html');
         $flexy->output();
         exit;
@@ -645,7 +645,7 @@ if ($all == 0) {
     // ページ遷移用フォーム（PC）を生成
     } else {
         $mf_hiddens = array(
-            'hint' => '◎◇　◇◎', 'mode' => $mode,
+            '_hint' => $_conf['detect_hint'], 'mode' => $mode,
             'page' => $page, 'cols' => $cols, 'rows' => $rows,
             'order' => $order, 'sort' => $sort,
             'field' => $field, 'key' => $key,
@@ -714,14 +714,19 @@ if ($all == 0) {
     $from = ($page - 1) * $ipp;
     if ($order == 'pixels') {
         $orderBy = '(width * height) ' . $sort;
-    } elseif ($order == 'date_uri') {
+    } elseif ($order == 'date_uri' || $order == 'date_uri2') {
         if ($isSQLite) {
             $time2date = 'unix2date("time")';
         } else {
             // 32400 = 9*60*60 (時差補正)
             $time2date = sprintf('floor((%s + 32400) / 86400)', $db->quoteIdentifier('time'));
         }
-        $orderBy .= sprintf('%s %s, %s %s', $time2date, $sort, $db->quoteIdentifier('uri'), $sort);
+        $orderBy .= sprintf('%s %s, %s ', $time2date, $sort, $db->quoteIdentifier('uri'));
+        if ($order == 'date_uri') {
+             $orderBy .= $sort;
+        } else {
+            $orderBy .= ($sort == 'ASC') ? 'DESC' : 'ASC';
+        }
     } else {
         $orderBy = $db->quoteIdentifier($order) . ' ' . $sort;
     }
@@ -832,7 +837,12 @@ if ($all == 0) {
 
         // Lightbox JS用パラメータを設定
         if ($lightbox) {
-            $item['lightbox_attr'] = ' rel="lightbox" title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
+            if ($lightbox == 'plus') {
+                $item['lightbox_attr'] = ' rel="lightbox[iv2]" class="ineffectable"';
+            } else {
+                $item['lightbox_attr'] = ' rel="lightbox"';
+            }
+            $item['lightbox_attr'] .= ' title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
         } else {
             $item['lightbox_attr'] = '';
         }
@@ -906,20 +916,35 @@ $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
 if ($lightbox === 'plus') {
     /**
-     * Lightbox Plus () を使うときのためのヒント
-     * @link    http://serennz.cool.ne.jp/sb/sp/lightbox/index_ja.html
+     * Lightbox Plus を使うときのためのヒント
+     * ver.20061027 で動作確認
+     * @link    http://serennz.sakura.ne.jp/toybox/lightbox/?ja
      */
 /*
---- lightbox_plus.orig
+conf/conf_ic2.inc.php
+$_conf['expack.ic2.viewer.lightbox'] = "plus";
+*/
+/*
+--- lightbox.css.orig
++++ lightbox.css
+@@ -5,6 +5,7 @@
+ 	border-right: 1px solid #666;
+ }
+ #overlay {
++	text-align: left;
+ 	background-image: url(overlay.png);
+ }
+ #lightboxCaption {
+--- lightbox_plus.js.orig
 +++ lightbox_plus.js
-@@ -152,7 +152,14 @@
+@@ -167,7 +167,14 @@
  	_genOpener : function(num)
  	{
  		var self = this;
 -		return function() { self._show(num); return false; }
 +		return function(evt) {
-+			evt = (evt) ? evt : ((window.event) ? window.event : null);
-+			if (evt && evt.shiftKey) {
++			evt = Event.getEvent(evt);
++			if (evt.shiftKey) {
 +				return true;
 +			}
 +			self._show(num);
@@ -928,26 +953,32 @@ if ($lightbox === 'plus') {
  	},
  	_createWrapOn : function(obj,imagePath)
  	{
-@@ -415,12 +422,12 @@
- // === main ===
- addEvent(window,"load",function() {
+@@ -731,15 +738,15 @@
+ };
+ Event.register(window,"load",function() {
  	var lightbox = new LightBox({
 -		loadingimg:'loading.gif',
 -		expandimg:'expand.gif',
 -		shrinkimg:'shrink.gif',
+-		previmg:'prev.gif',
+-		nextimg:'next.gif',
 -		effectimg:'zzoop.gif',
 +		loadingimg:'lightbox_plus/loading.gif',
 +		expandimg:'lightbox_plus/expand.gif',
 +		shrinkimg:'lightbox_plus/shrink.gif',
++		previmg:'lightbox_plus/prev.gif',
++		nextimg:'lightbox_plus/next.gif',
 +		effectimg:'lightbox_plus/zzoop.gif',
  		effectpos:{x:-40,y:-20},
  		effectclass:'effectable',
--		closeimg:'close.gif'
-+		closeimg:'lightbox_plus/close.gif'
+-		closeimg:'close.gif',
++		closeimg:'lightbox_plus/close.gif',
+ 		resizable:true
  	});
  });
 */
     $additional_script_and_style = <<<EOP
+<script type="text/javascript" src="lightbox_plus/spica.js?{$_conf['p2expack']}"></script>
 <script type="text/javascript" src="lightbox_plus/lightbox_plus.js?{$_conf['p2expack']}"></script>
 <link rel="stylesheet" type="text/css" href="lightbox_plus/lightbox.css?{$_conf['p2expack']}">
 EOP;
@@ -990,7 +1021,7 @@ addLoadEvent(overloadLightbox);
 </script>
 <link rel="stylesheet" type="text/css" href="lightbox/lightbox.css?{$_conf['p2expack']}">
 EOP;
-} elseif (empty($_conf['ktai'])) {
+} elseif (!$_conf['ktai']) {
     $additional_script_and_style = <<<EOP
 <script type="text/javascript">
     window.onload = setWinTitle;
@@ -1003,7 +1034,6 @@ $flexy->setData('lightbox', $additional_script_and_style);
 
 // ページを表示
 P2Util::header_nocache();
-P2Util::header_content_type();
 $flexy->compile($list_template);
 if ($list_template == 'iv2i.tpl.html') {
     $mobile = &Net_UserAgent_Mobile::singleton();
@@ -1022,5 +1052,3 @@ if ($list_template == 'iv2i.tpl.html') {
 }
 
 // }}}
-
-?>

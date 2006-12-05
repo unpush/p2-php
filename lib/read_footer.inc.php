@@ -113,7 +113,7 @@ GOTO;
     }
     // }}}
 
-    // ■プリント
+    // プリント
     echo <<<EOP
 <hr>
 <table id="footer" width="100%" style="padding:0px 10px 0px 0px;">
@@ -163,5 +163,3 @@ EOP;
 
 // ====
 echo '</body></html>';
-
-?>

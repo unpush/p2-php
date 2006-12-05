@@ -8,7 +8,7 @@ function setTAbornJs(tquery, tabdo, info_pop_width, info_pop_height, page, obj)
 	if ((page == 'read') && !gIsPageLoaded) {
 		return false;
 	}
-	
+
 	var objHTTP = getXmlHttp();
 	if (!objHTTP) {
 		// alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
@@ -85,9 +85,9 @@ function setTAbornJs(tquery, tabdo, info_pop_width, info_pop_height, page, obj)
 function showTAborn(i, tabdo, info_pop_width, info_pop_height, page, obj)
 {
 	var th, th2, to, tx, closure, cBox, nObj;
-	
+
 	tx = '1em';
-	
+
 	if (th = document.getElementById('sb_th_no')) {
 		th2 = document.createElement(th.tagName);
 		th2.className = th.className;
@@ -99,14 +99,14 @@ function showTAborn(i, tabdo, info_pop_width, info_pop_height, page, obj)
 			th.parentNode.appendChild(th2);
 		}
 	}
-	
+
 	while (to = document.getElementById('to' + i.toString())) {
 		closure = function() {
 			var td, td2, tparam, tquery, cObj, pObj;
-			
+
 			tparam = '&taborn=' + tabdo;
 			tquery = to.href.substring(to.href.indexOf('?') + 1, to.href.length) + tparam;
-			
+
 			cObj = document.createElement('a');
 			cObj.href = to.href + tparam;
 			if (to.target) {
@@ -118,16 +118,16 @@ function showTAborn(i, tabdo, info_pop_width, info_pop_height, page, obj)
 			cObj.onclick = function() {
 				return setTAbornJs(tquery, tabdo, info_pop_width, info_pop_height, page, cObj);
 			}
-			
+
 			if (tabdo == '1') {
 				cObj.appendChild(document.createTextNode('－'));
 			} else {
 				cObj.appendChild(document.createTextNode('×'));
 			}
-			
+
 			pObj = document.createElement('span');
 			pObj.appendChild(cObj);
-			
+
 			td = to.parentNode;
 			while (td.tagName.toUpperCase() != 'TD') {
 				td = td.parentNode;
@@ -145,17 +145,17 @@ function showTAborn(i, tabdo, info_pop_width, info_pop_height, page, obj)
 		closure();
 		i++;
 	}
-	
+
 	cBox = document.createElement('input');
 	cBox.id = 'tabcb_removenow';
 	cBox.type = 'checkbox';
 	cBox.checked = true;
 	cBox.defaultChecked = true;
-	
+
 	nObj = document.createElement('label');
 	nObj.appendChild(cBox);
 	nObj.appendChild(document.createTextNode('あぼーんしたスレッドを一覧から消去'));
 	obj.parentNode.replaceChild(nObj, obj);
-	
+
 	return false;
 }

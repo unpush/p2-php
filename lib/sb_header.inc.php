@@ -88,7 +88,7 @@ if ($aThreadList->spmode) { // スペシャルモード時
 
 // フォームhidden ==================================================
 $sb_form_hidden_ht = <<<EOP
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
     <input type="hidden" name="host" value="{$aThreadList->host}">
     <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
@@ -176,8 +176,7 @@ EOP;
 //===================================================================
 // HTMLプリント
 //===================================================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -289,5 +288,3 @@ echo <<<EOP
     $check_form_ht
     <table cellspacing="0" width="100%">\n
 EOP;
-
-?>

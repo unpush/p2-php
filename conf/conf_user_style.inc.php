@@ -134,4 +134,3 @@ $STYLE['post_msg_cols'] = 70; // (70) レス書き込みフォーム、メッセージフィールド
 $STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの大きさ（横,縦）
 
 $STYLE['conf_btn_bgcolor'] = '#efefef';
-?>

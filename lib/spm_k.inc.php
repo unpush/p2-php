@@ -133,5 +133,3 @@ function kspDetectThread()
         die($msg);
     }
 }
-
-?>

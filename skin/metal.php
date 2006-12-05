@@ -159,5 +159,3 @@ $STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの
 
 // スレタイの影（たぶんSafariとかOperaぐらいしか対応してない・・・KonquerorでもOK？）
 $MYSTYLE['read']['.thread_title']['text-shadow'] = "3px 3px 2px #000";
-
-?>

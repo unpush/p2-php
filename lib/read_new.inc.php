@@ -25,7 +25,7 @@ function saveMatomeCache()
         return true;
     }
 
-    if (!empty($_conf['ktai'])) {
+    if ($_conf['ktai']) {
         $ext = '.k' . $_conf['matome_cache_ext'];
     } else {
         $ext = $_conf['matome_cache_ext'];
@@ -83,7 +83,7 @@ function saveMatomeCacheFromTmpFile()
         return false;
     }
 
-    if (!empty($_conf['ktai'])) {
+    if ($_conf['ktai']) {
         $ext = '.k' . $_conf['matome_cache_ext'];
     } else {
         $ext = $_conf['matome_cache_ext'];
@@ -134,7 +134,7 @@ function getMatomeCache($num = '')
 {
     global $_conf;
 
-    if (!empty($_conf['ktai'])) {
+    if ($_conf['ktai']) {
         $ext = '.k' . $_conf['matome_cache_ext'];
     } else {
         $ext = $_conf['matome_cache_ext'];
@@ -151,5 +151,3 @@ function getMatomeCache($num = '')
         return false;
     }
 }
-
-?>

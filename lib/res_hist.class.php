@@ -100,7 +100,7 @@ class ResHist{
         $sid_q = (defined('SID')) ? '&amp;' . strip_tags(SID) : '';
 
         // Pager €”õ
-        require_once 'Pager/Pager.php';
+        require_once 'Pager.php';
         $perPage = 100;
         $params = array(
             'mode'       => 'Jumping',
@@ -329,5 +329,3 @@ EOP;
         }
     }
 }
-
-?>

@@ -12,7 +12,7 @@
 
 <!-- Search Form -->
 <form action="<?php echo $htm['php_self']; ?>" method="get">
-<input type="hidden" name="hint" value="ž@ž">
+<input type="hidden" name="_hint" value="<?php echo $_conf['detect_hint']; ?>">
 <input name="Q" <?php echo $htm['search_attr']; ?>>
 <input type="submit" value="ŒŸõ">
 </form>
@@ -112,4 +112,3 @@ foreach ($threads as $o => $t) {
 </p>
 </body>
 </html>
-

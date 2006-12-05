@@ -99,9 +99,17 @@ table.list th, table.list td {
 	white-space: nowrap;
 }
 
-span.cr {
+div.imginfo {
+	margin: 2px;
+}
+
+span.rating {
+	color: {$STYLE['respop_b_color']};
 	cursor: pointer;
-	filter: Alpha(Opacity=50); -khtml-opacity: 0.5; -moz-opacity: 0.5; opacity: 0.5;
+}
+
+img.button {
+	cursor: pointer;
 }
 
 /* 画像情報ポップアップ */

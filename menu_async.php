@@ -6,7 +6,7 @@
     現状ではお気に板とRSSのセット切り替えのみ対応
 */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/brdctl.class.php';
 require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
 
@@ -91,5 +91,3 @@ function changeSkin($skin)
 }
 
 // }}}
-
-?>

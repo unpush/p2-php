@@ -3,7 +3,7 @@
     p2 - レス書き込み
 */
 
-include_once './conf/conf.inc.php'; // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
@@ -31,7 +31,7 @@ if ($_conf['expack.aas.enabled'] && !empty($_POST['PREVIEW_AAS'])) {
 }
 
 //================================================================
-// ■変数
+// 変数
 //================================================================
 $newtime = date('gis');
 
@@ -169,6 +169,9 @@ if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['
 
 // }}}
 
+// 2006/05/27 新仕様？
+$post['hana'] = 'mogera';
+
 if (!empty($_POST['newthread'])) {
     $ptitle = "p2 - 新規スレッド作成";
 } else {
@@ -182,7 +185,7 @@ if (!empty($_POST['newthread'])) {
 //=============================================
 // ポスト実行
 //=============================================
-$posted = postIt($URL);
+$posted = postIt($host, $bbs, $key, $post);
 
 //=============================================
 // cookie 保存
@@ -335,17 +338,19 @@ if ($_conf['res_write_rec']) {
 //===========================================================
 
 /**
- * レス書き込み関数
+ * レスを書き込む
+ *
+ * @return boolean 書き込み成功なら true、失敗なら false
  */
-function postIt($URL)
+function postIt($host, $bbs, $key, $post)
 {
-    global $_conf, $post_result, $post_error2ch, $p2cookies, $host, $bbs, $key, $popup, $rescount, $ttitle_en, $STYLE;
-    global $bbs_cgi, $post, $post_cache;
+    global $_conf, $post_result, $post_error2ch, $p2cookies, $popup, $rescount, $ttitle_en, $STYLE;
+    global $bbs_cgi, $post_cache;
 
     $method = "POST";
-    $url = "http://" . $host.  $bbs_cgi;
+    $bbs_cgi_url = "http://" . $host.  $bbs_cgi;
 
-    $URL = parse_url($url); // URL分解
+    $URL = parse_url($bbs_cgi_url); // URL分解
     if (isset($URL['query'])) { // クエリー
         $URL['query'] = "?".$URL['query'];
     } else {
@@ -356,11 +361,11 @@ function postIt($URL)
     if ($_conf['proxy_use']) {
         $send_host = $_conf['proxy_host'];
         $send_port = $_conf['proxy_port'];
-        $send_path = $url;
+        $send_path = $bbs_cgi_url;
     } else {
         $send_host = $URL['host'];
         $send_port = $URL['port'];
-        $send_path = $URL['path'].$URL['query'];
+        $send_path = $URL['path'] . $URL['query'];
     }
 
     if (!$send_port) { $send_port = 80; }    // デフォルトを80
@@ -401,7 +406,9 @@ function postIt($URL)
     $request .= "Connection: Close\r\n";
 
     // {{{ POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付
+
     if (strtoupper($method) == "POST") {
+        $post_enc = array();
         while (list($name, $value) = each($post)) {
 
             // したらば or be.2ch.netなら、EUCに変換
@@ -409,13 +416,14 @@ function postIt($URL)
                 $value = mb_convert_encoding($value, 'eucJP-win', 'SJIS-win');
             }
 
-            $POST[] = $name."=".urlencode($value);
+            $post_enc[] = $name."=".urlencode($value);
         }
-        $postdata = implode("&", $POST);
+        $postdata = implode("&", $post_enc);
         $request .= "Content-Type: application/x-www-form-urlencoded\r\n";
         $request .= "Content-Length: ".strlen($postdata)."\r\n";
         $request .= "\r\n";
         $request .= $postdata;
+
     } else {
         $request .= "\r\n";
     }
@@ -517,7 +525,7 @@ function postIt($URL)
         //$response_ht = htmlspecialchars($response, ENT_QUOTES);
         //echo "<pre>{$response_ht}</pre>";
 
-    // ■cookie確認（post再チャレンジ）
+    // cookie確認（post再チャレンジ）
     } elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
         $htm['more_hidden_post'] = '';
@@ -532,7 +540,7 @@ function postIt($URL)
         $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i';
         $form_replace = <<<EOFORM
 <form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
     <input type="hidden" name="host" value="{$host}">
     <input type="hidden" name="popup" value="{$popup}">
     <input type="hidden" name="rescount" value="{$rescount}">
@@ -545,9 +553,8 @@ EOFORM;
         $h_b = explode("</head>", $response);
 
         // HTMLプリント
-        P2Util::header_content_type();
         echo $h_b[0];
-        if (empty($_conf['ktai'])) {
+        if (!$_conf['ktai']) {
             echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">\n
@@ -581,6 +588,8 @@ EOSCRIPT;
 
 /**
  * 書き込み処理結果表示する
+ *
+ * @return void
  */
 function showPostMsg($isDone, $result_msg, $reload)
 {
@@ -588,7 +597,7 @@ function showPostMsg($isDone, $result_msg, $reload)
     global $_info_msg_ht;
 
     // プリント用変数 ===============
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         $class_ttitle = ' class="thre_title"';
     }
     $ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
@@ -613,8 +622,7 @@ EOP;
     }
 
     // プリント ==============
-    P2Util::header_content_type();
-    if ($_conf['doctype']) { echo $_conf['doctype']; }
+    echo $_conf['doctype'];
     echo <<<EOHEADER
 <html lang="ja">
 <head>
@@ -631,7 +639,7 @@ EOHEADER;
         echo "    <title>{$ptitle}</title>";
     }
 
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">\n
@@ -671,6 +679,8 @@ EOP;
 
 /**
  *  subjectからkeyを取得する
+ *
+ * @return string|false
  */
 function getKeyInSubject()
 {
@@ -691,6 +701,8 @@ function getKeyInSubject()
 
 /**
  * 整形を維持しながら、タブをスペースに置き換える
+ *
+ * @return string
  */
 function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 {
@@ -723,5 +735,3 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 
     return $out_str;
 }
-
-?>

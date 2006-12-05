@@ -67,5 +67,3 @@ function ic2_read_exif($path)
         return NULL;
     }
 }
-
-?>

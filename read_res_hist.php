@@ -2,7 +2,7 @@
 // p2 - 書き込み履歴 レス内容表示
 // フレーム分割画面、右下部分
 
-include_once './conf/conf.inc.php'; // 基本設定読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/res_hist.class.php';
 require_once P2_LIBRARY_DIR . '/read_res_hist.inc.php';
@@ -69,10 +69,7 @@ EOP;
 // ヘッダ 表示
 //==================================================================
 //P2Util::header_nocache();
-P2Util::header_content_type();
-if (isset($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -84,7 +81,7 @@ echo <<<EOP
 EOP;
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
@@ -178,10 +175,8 @@ if ($_conf['ktai']) {
 EOP;
 }
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo '</form>'."\n";
 }
 
 echo '</body></html>';
-
-?>

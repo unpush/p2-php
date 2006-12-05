@@ -2,8 +2,8 @@
 /*
     p2 - NGあぼーんを操作するクラス
 */
-class NgAbornCtl{
-
+class NgAbornCtl
+{
     /**
      * あぼーん&NGワード設定を保存する
      */
@@ -35,7 +35,7 @@ class NgAbornCtl{
                             $a_ngaborn['lasttime'] = date('Y/m/d G:i');
                         }
 
-                        $cont .= $a_ngaborn['word']."\t".$a_ngaborn['lasttime']."\t".$a_ngaborn['hits']."\n";
+                        $cont .= $a_ngaborn['cond'] . "\t" . $a_ngaborn['lasttime'] . "\t" . $a_ngaborn['hits'] . "\n";
                     } // foreach
 
                     /*
@@ -65,7 +65,7 @@ class NgAbornCtl{
     /**
      * NGあぼーんHIT記録を更新時間でソートする
      *
-     * @private
+     * @access  private
      */
     function cmpLastTime($a, $b)
     {
@@ -98,7 +98,7 @@ class NgAbornCtl{
     /**
      * readNgAbornFromFile
      *
-     * @private
+     * @access  private
      */
     function readNgAbornFromFile($filename)
     {
@@ -107,16 +107,65 @@ class NgAbornCtl{
         $lines = array();
         $array['file'] = $_conf['pref_dir'].'/'.$filename;
         if ($lines = @file($array['file'])) {
-            $lines = array_map('trim', $lines);
-
-            if ($lines) {
-                foreach ($lines as $l) {
-                    $lar = explode("\t", $l);
-                    $ar['word'] = $lar[0]; // 対象文字列
-                    $ar['lasttime'] = $lar[1]; // 最後にHITした時間
-                    $ar['hits'] = intval($lar[2]); // HIT回数
-                    $array['data'][] = $ar;
+            foreach ($lines as $l) {
+                $lar = explode("\t", trim($l));
+                if (strlen($lar[0]) == 0) {
+                    continue;
                 }
+                $ar = array(
+                    'cond' => $lar[0], // 検索条件
+                    'word' => $lar[0], // 対象文字列
+                    'lasttime' => null, // 最後にHITした時間
+                    'hits' => 0, // HIT回数
+                );
+                isset($lar[1]) && $ar['lasttime'] = $lar[1];
+                isset($lar[2]) && $ar['hits'] = (int) $lar[2];
+                if ($filename == 'p2_aborn_res.txt') {
+                    continue;
+                }
+
+                // 板縛り
+                if (preg_match('!<bbs>(.+?)</bbs>!', $ar['word'], $matches)) {
+                    $ar['bbs'] = explode(',', $matches[1]);
+                }
+                $ar['word'] = preg_replace('!<bbs>(.*)</bbs>!', '', $ar['word']);
+
+                // タイトル縛り
+                if (preg_match('!<title>(.+?)</title>!', $ar['word'], $matches)) {
+                    $ar['title'] = $matches[1];
+                }
+                $ar['word'] = preg_replace('!<title>(.*)</title>!', '', $ar['word']);
+
+                // 正規表現
+                if (preg_match('/^<(mb_ereg|preg_match|regex)(:[imsxeADSUXu]+)?>(.+)$/', $ar['word'], $matches)) {
+                    // マッチング関数とパターンを設定
+                    if ($matches[1] == 'regex') {
+                        if (P2_MBREGEX_AVAILABLE) {
+                            $ar['regex'] = 'mb_ereg';
+                            $ar['word'] = $matches[3];
+                        } else {
+                            $ar['regex'] = 'preg_match';
+                            $ar['word'] = '/' . str_replace('/', '\\/', $matches[3]) . '/';
+                        }
+                    } else {
+                        $ar['regex'] = $matches[1];
+                        $ar['word'] = $matches[3];
+                    }
+                    // 大文字小文字を無視
+                    if ($matches[2] && strstr($matches[2], 'i')) {
+                        if ($ar['regex'] == 'mb_ereg') {
+                            $ar['regex'] = 'mb_eregi';
+                        } else {
+                            $ar['word'] .= 'i';
+                        }
+                    }
+                // 大文字小文字を無視
+                } elseif (preg_match('/^<i>(.+)$/', $ar['word'], $matches)) {
+                    $ar['word'] = $matches[1];
+                    $ar['ignorecase'] = true;
+                }
+
+                $array['data'][] = $ar;
             }
 
         }
@@ -125,4 +174,3 @@ class NgAbornCtl{
     }
 
 }
-?>

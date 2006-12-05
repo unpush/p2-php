@@ -106,5 +106,3 @@ if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
 //================
 echo '</body>
 </html>';
-
-?>

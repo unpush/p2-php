@@ -194,5 +194,3 @@ class GoogleSearch_Common
 }
 
 // }}}
-
-?>

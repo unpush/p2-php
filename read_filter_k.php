@@ -4,7 +4,7 @@
 
 // p2 - 携帯版レスフィルタリング
 
-require_once './conf/conf.inc.php'; // 基本設定
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -42,8 +42,7 @@ $method[$res_filter['method']] = ' selected';
  * 検索フォームを表示
  */
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOF
 <html>
 <head>
@@ -54,7 +53,7 @@ echo <<<EOF
 <p>{$ttitle_back}</p>
 <hr>
 <form id="header" method="get" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}">
-<input type="hidden" name="detect_hint" value="◎◇　◇◎">
+<input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
 <input type="hidden" name="host" value="{$host}">
 <input type="hidden" name="bbs" value="{$bbs}">
 <input type="hidden" name="key" value="{$key}">
@@ -91,5 +90,3 @@ echo <<<EOF
 </body>
 </html>
 EOF;
-
-?>
