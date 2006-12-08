@@ -23,13 +23,13 @@ if (!empty($aThreadList)) {
 // 変数設定
 //============================================================
 
-if (isset($_GET['from'])) { $sb_disp_from = $_GET['from']; }
+if (isset($_GET['from']))  { $sb_disp_from = $_GET['from']; }
 if (isset($_POST['from'])) { $sb_disp_from = $_POST['from']; }
 if (!isset($sb_disp_from)) { $sb_disp_from = 1; }
 
-//  p2_setting 設定 ======================================
+// p2_setting 設定 ======================================
 if ($spmode) {
-    $p2_setting_txt = $_conf['pref_dir']."/p2_setting_".$spmode.".txt";
+    $p2_setting_txt = $_conf['pref_dir'] . '/p2_setting_' . $spmode . '.txt';
 } else {
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $idx_bbs_dir_s = $idx_host_dir . '/' . $bbs . '/';
@@ -116,7 +116,7 @@ if ($spmode) {
     // if(!$p2_setting['itaj']){$p2_setting['itaj'] = P2Util::getItaName($host, $bbs);}
     $aThreadList->setIta($host, $bbs, $p2_setting['itaj']);
 
-    // {{{ ■スレッドあぼーんリスト読込
+    // {{{ スレッドあぼーんリスト読込
 
     $idx_host_dir = P2Util::idxDirOfHost($aThreadList->host);
     $taborn_file = $idx_host_dir.'/'.$aThreadList->bbs.'/p2_threads_aborn.idx';
@@ -137,11 +137,13 @@ if ($spmode) {
 $lines = $aThreadList->readList();
 
 // お気にスレリスト 読込
-$favlines = @file($_conf['favlist_file']);
-if (is_array($favlines)) {
-    foreach ($favlines as $l) {
-        $data = explode('<>', rtrim($l));
-        $fav_keys[ $data[1] ] = true;
+if (file_exists($_conf['favlist_file'])) {
+    $favlines = file($_conf['favlist_file']);
+    if (is_array($favlines)) {
+        foreach ($favlines as $l) {
+            $data = explode('<>', rtrim($l));
+            $fav_keys[ $data[1] ] = true;
+        }
     }
 }
 
@@ -240,7 +242,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
 
     // }}}
-    // {{{ ■ワードフィルタ(for subject)
+    // {{{ ワードフィルタ(for subject)
 
     $debug && $profiler->enterSection('word_filter_for_sb');
     if (!$aThreadList->spmode || $aThreadList->spmode == "news" and $word_fm) {
@@ -264,7 +266,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     $debug && $profiler->leaveSection('word_filter_for_sb');
 
     // }}}
-    // {{{ ■スレッドあぼーんチェック
+    // {{{ スレッドあぼーんチェック
 
     if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) {
             unset($ta_keys[$aThread->key]);
@@ -275,7 +277,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     $aThread->getThreadInfoFromIdx(); // 既得スレッドデータをidxから取得
 
     // }}}
-    // {{{ ■ favlistチェック =====================================
+    // {{{ favlistチェック =====================================
 
     $debug && $profiler->enterSection('favlist_check');
     // if ($x <= $threads_num) {
@@ -441,7 +443,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     // 生存数set
     if ($aThread->isonline) { $online_num++; }
 
-    // リストに追加 ==============================================
+    // リストに追加
     $aThreadList->addThread($aThread);
 
     */

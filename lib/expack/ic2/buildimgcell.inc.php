@@ -54,7 +54,7 @@ function buildImgCell(&$img)
 
 function ic2_read_exif($path)
 {
-    $exif = @exif_read_data($path, '', TRUE, FALSE);
+    $exif = @exif_read_data($path, '', true, false);
     if ($exif) {
         // バイナリで、しかもデータサイズが大きい要素を削除
         if (isset($exif['MakerNote'])) {
@@ -65,7 +65,7 @@ function ic2_read_exif($path)
         }
         return $exif;
     } else {
-        return NULL;
+        return null;
     }
 }
 

@@ -28,8 +28,8 @@ function rss_get_image($src_url, $memo='')
 function rss_get_image_ic2($src_url, $memo='')
 {
     $icdb = &new IC2DB_images;
-    static $thumbnailer = NULL;
-    static $thumbnailer_k = NULL;
+    static $thumbnailer = null;
+    static $thumbnailer_k = null;
     if (is_null($thumbnailer)) {
         $thumbnailer = &new ThumbNailer(1);
         $thumbnailer_k = &new ThumbNailer(2);
@@ -41,11 +41,11 @@ function rss_get_image_ic2($src_url, $memo='')
             $img_memo_query = '&amp;hint=' . rawurlencode($_conf['detect_hint_utf8']);
             $img_memo_query .= '&amp;memo=' . rawurlencode($img_memo);
         } else {
-            $img_memo = NULL;
+            $img_memo = null;
             $img_memo_query = '';
         }
     } else {
-        $img_memo = NULL;
+        $img_memo = null;
         $img_memo_query = '';
     }
 
@@ -65,7 +65,7 @@ function rss_get_image_ic2($src_url, $memo='')
     $thumb_k_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en;
     $thumb_k_url2 = 'ic2.php?r=0&amp;t=1&amp;id=';
     $thumb_k_size = '';
-    $src_exists = FALSE;
+    $src_exists = false;
 
     // DB‚É‰æ‘œî•ñ‚ª“o˜^‚³‚ê‚Ä‚¢‚½‚Æ‚«
     if ($icdb->get($src_url)) {
@@ -86,7 +86,7 @@ function rss_get_image_ic2($src_url, $memo='')
         if (file_exists($_img_url)) {
             $img_url = $_img_url;
             $img_size = "width=\"{$icdb->width}\" height=\"{$icdb->height}\"";
-            $src_exists = TRUE;
+            $src_exists = true;
         }
 
         // ƒTƒ€ƒlƒCƒ‹‚ªì¬‚³‚ê‚Ä‚¢‚Ä‚¢‚é‚Æ‚«‚Í‰æ‘œ‚ğ’¼Ú“Ç‚İ‚Ş

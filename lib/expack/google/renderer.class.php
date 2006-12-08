@@ -193,7 +193,7 @@ class Google_Renderer
      */
     function printPager($perPage, $totalItems)
     {
-        if (FALSE !== ($pager = &$this->makePager($perPage, $totalItems))) {
+        if (false !== ($pager = &$this->makePager($perPage, $totalItems))) {
             echo '<table id="sbtoolbar2" class="toolbar" cellspacing="0"><tr><td align="center">';
             echo $pager->links;
             echo '</td></tr></table>';
@@ -212,7 +212,7 @@ class Google_Renderer
     function &makePager($perPage, $totalItems)
     {
         if ($totalItems == 0 || $totalItems <= $perPage) {
-            $retval = FALSE;
+            $retval = false;
             return $retval;
         }
 

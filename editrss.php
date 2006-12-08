@@ -48,7 +48,7 @@ EOFORM;
 
 // RSSØ‘ÖƒtƒH[ƒ€
 if ($_conf['expack.rss.set_num'] > 0) {
-    $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS', NULL, NULL, !$_conf['ktai']);
+    $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS', null, null, !$_conf['ktai']);
 } else {
     $switch_rss_form_ht = '';
 }

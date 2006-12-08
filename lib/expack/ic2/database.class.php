@@ -122,7 +122,7 @@ class IC2DB_Skel extends DB_DataObject
             }
         }
         if (!count($order)) {
-            return FALSE;
+            return false;
         }
         return $this->orderBy(implode(', ', $order));
     }

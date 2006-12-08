@@ -1352,7 +1352,7 @@ class ThreadRead extends Thread
 
             // スレの表示範囲丁度でリミットを消化した場合
             } elseif ($limit_to == $to) {
-                $GLOBALS['limit_to_eq_to'] = TRUE;
+                $GLOBALS['limit_to_eq_to'] = true;
             }
 
             // 次のリミットは、今回のスレの表示範囲分を減らした数

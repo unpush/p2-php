@@ -28,7 +28,7 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
         case 'copy_quote':
             $_GET['inyou'] = 1;
         case 'copy':
-            $_GET['copy'] = $ktv;
+            $GLOBALS['_read_copy_resnum'] = $ktv;
             include 'read_copy_k.php';
             exit;
         case 'aas_rotate':

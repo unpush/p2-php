@@ -133,9 +133,9 @@ $flexy = &new HTML_Template_Flexy($_flexy_options);
 $flexy->compile('ic2s.tpl.html');
 
 if (!$isPopUp && (!empty($upfiles) || $_info_msg_ht != '')) {
-    $showForm = FALSE;
+    $showForm = false;
 } else {
-    $showForm = TRUE;
+    $showForm = true;
 }
 
 // ƒtƒH[ƒ€‚ğC³
@@ -293,9 +293,9 @@ function ic2_register_uploaded_file($file)
     $search1->whereAddQuoted('uri',  '=', $utf8_path);
 
     // ‘S‚­“¯‚¶‰æ‘œ‚ª“o˜^‚³‚ê‚Ä‚¢‚½‚Æ‚«
-    if ($search1->find(TRUE)) {
+    if ($search1->find(true)) {
         $update = clone($search1);
-        $changed = FALSE;
+        $changed = false;
         if (strlen($f_memo) > 0 && !strstr($search1->memo, $f_memo)){
             if (!is_null($search1->memo) && strlen($search1->memo) > 0) {
                 $update->memo = $f_memo . ' ' . $search1->memo;
@@ -303,11 +303,11 @@ function ic2_register_uploaded_file($file)
                 $update->memo = $f_memo;
             }
             $file['memo'] = mb_convert_encoding($update->memo, 'SJIS-win', 'UTF-8');
-            $changed = TRUE;
+            $changed = true;
         }
         if ($search1->rank != $f_rank) {
             $update->rank = $f_rank;
-            $changed = TRUE;
+            $changed = true;
         }
         if ($changed) {
             $update->update();
@@ -335,7 +335,7 @@ function ic2_register_uploaded_file($file)
         }
 
         // “o˜^Ï‚İ‚Ì‰æ‘œ‚ÅAURL‚ªˆÙ‚È‚é‚Æ‚«
-        if ($search2->find(TRUE) && file_exists($file['img_src'])) {
+        if ($search2->find(true) && file_exists($file['img_src'])) {
             $record->insert();
             $file['message'] = '“¯‚¶‰æ‘œ‚ªˆÙ‚È‚éURL‚Å“o˜^‚³‚ê‚Ä‚¢‚Ü‚µ‚½B';
 

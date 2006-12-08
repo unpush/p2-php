@@ -50,7 +50,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
             return PEAR::raiseError($errmsg);
         }
 
-        return TRUE;
+        return true;
     }
 
     // }}}

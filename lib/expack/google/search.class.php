@@ -144,9 +144,9 @@ class GoogleSearch_Common
             'q'     => $q,          // <part name="q"          type="xsd:string"/>
             'start' => $start,      // <part name="start"      type="xsd:int"/>
             'maxResults' => $maxResults, // <part name="maxResults" type="xsd:int"/>
-            'filter'    => FALSE,   // <part name="filter"     type="xsd:boolean"/>
+            'filter'    => false,   // <part name="filter"     type="xsd:boolean"/>
             'restrict' => '',       // <part name="restrict"   type="xsd:string"/>
-            'safeSearch' => FALSE,  // <part name="safeSearch" type="xsd:boolean"/>
+            'safeSearch' => false,  // <part name="safeSearch" type="xsd:boolean"/>
             'lr' => '',             // <part name="lr"         type="xsd:string"/>
             'ie' => 'utf-8',        // <part name="ie"         type="xsd:string"/>
             'oe' => 'utf-8'         // <part name="oe"         type="xsd:string"/>

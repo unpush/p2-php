@@ -15,7 +15,7 @@ $_login->authorize(); // ユーザ認証
 
 // まとめよみのキャッシュ読み
 if (!empty($_GET['cview'])) {
-    $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
+    $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : null;
     if ($cont = getMatomeCache($cnum)) {
         echo $cont;
     } else {
@@ -37,18 +37,18 @@ if (!defined('P2_READ_NEW_SAVE_MEMORY')) {
 //==================================================================
 $GLOBALS['rnum_all_range'] = $_conf['k_rnum_range'];
 
-$sb_view = "shinchaku";
-$newtime = date("gis");
+$sb_view = 'shinchaku';
+$newtime = date('gis');
 
 //=================================================
 // 板の指定
 //=================================================
-if (isset($_GET['host'])) { $host = $_GET['host']; }
-if (isset($_POST['host'])) { $host = $_POST['host']; }
-if (isset($_GET['bbs'])) { $bbs = $_GET['bbs']; }
-if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
-if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
-if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
+if (isset($_GET['host']))   { $host     = $_GET['host']; }
+if (isset($_POST['host']))  { $host     = $_POST['host']; }
+if (isset($_GET['bbs']))    { $bbs      = $_GET['bbs']; }
+if (isset($_POST['bbs']))   { $bbs      = $_POST['bbs']; }
+if (isset($_GET['spmode'])) { $spmode   = $_GET['spmode']; }
+if (isset($_POST['spmode'])){ $spmode   = $_POST['spmode']; }
 
 if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
     die('p2 error: 必要な引数が指定されていません');
@@ -77,7 +77,7 @@ ob_start();
 
 $aThreadList =& new ThreadList();
 
-// 板とモードのセット ===================================
+// 板とモードのセット
 if ($spmode) {
     if ($spmode == "taborn" or $spmode == "soko") {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
@@ -102,7 +102,7 @@ if ($spmode) {
 // ソースリスト読込
 $lines = $aThreadList->readList();
 
-// ページヘッダ表示 ===================================
+// ページヘッダ表示
 $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 $ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
 
@@ -163,27 +163,57 @@ for ($x = 0; $x < $linesize; $x++) {
     $aThread->torder = $x + 1;
 
     // データ読み込み
+    // spmode
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
-        case "recent":    // 履歴
+        case 'recent':  // 履歴
             $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "res_hist":    // 書き込み履歴
+        case 'res_hist':    // 書き込み履歴
             $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "fav":    // お気に
+        case 'fav':     // お気に
             $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "taborn":    // スレッドあぼーん
-            $aThread->getThreadInfoFromExtIdxLine($l);
+        /*case 'taborn':  // スレッドあぼーん
+            $la = explode('<>', $l);
+            $aThread->key = $la[1];
             $aThread->host = $aThreadList->host;
             $aThread->bbs = $aThreadList->bbs;
-            break;
-        case "palace":    // 殿堂入り
+            break;*/
+        /*case 'soko':    // dat倉庫
+            $la = explode('<>', $l);
+            $aThread->key = $la[1];
+            $aThread->host = $aThreadList->host;
+            $aThread->bbs = $aThreadList->bbs;
+            break;*/
+        case 'palace':  // スレの殿堂
             $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
+            break;
+        case 'cate':    // 板メニューのカテゴリ
+        //case 'cate_local':
+        //case 'cate_online':
+            $aThread->isonline = true;
+        case 'favita':  // お気に板のまとめ
+            $aThread->key = $l['key'];
+            $aThread->setTtitle($l['ttitle']);
+            $aThread->rescount = $l['rescount'];
+            $aThread->host = $l['host'];
+            $aThread->bbs = $l['bbs'];
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
         }
-    // subject (not spmode)
+
+    // subject (not spmode つまり普通の板)
     } else {
         $aThread->getThreadInfoFromSubjectTxtLine($l);
         $aThread->host = $aThreadList->host;
@@ -199,7 +229,7 @@ for ($x = 0; $x < $linesize; $x++) {
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
     $aThread->getThreadInfoFromIdx(); // 既得スレッドデータをidxから取得
 
-    // 新着のみ(for subject) =========================================
+    // 新着のみ(for subject)
     if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) {
         if ($aThread->unum < 1) {
             unset($aThread);
@@ -207,13 +237,13 @@ for ($x = 0; $x < $linesize; $x++) {
         }
     }
 
-    // スレッドあぼーんチェック =====================================
+    // スレッドあぼーんチェック
     if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) {
         unset($ta_keys[$aThread->key]);
         continue; // あぼーんスレはスキップ
     }
 
-    // spmode(殿堂入りを除く)なら ====================================
+    // spmode(殿堂入りを除く)なら
     if ($aThreadList->spmode && $sb_view != "edit") {
 
         // subject.txtが未DLなら落としてデータを配列に格納
@@ -225,7 +255,7 @@ for ($x = 0; $x < $linesize; $x++) {
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
         }
 
-        // スレ情報取得 =============================
+        // スレ情報取得
         if ($subject_txts["$aThread->host/$aThread->bbs"]) {
             foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
                 if (@preg_match("/^{$aThread->key}/", $l)) {
@@ -235,7 +265,7 @@ for ($x = 0; $x < $linesize; $x++) {
             }
         }
 
-        // 新着のみ(for spmode) ===============================
+        // 新着のみ(for spmode)
         if ($sb_view == "shinchaku" and !$_GET['word']) {
             if ($aThread->unum < 1) {
                 unset($aThread);
@@ -270,7 +300,7 @@ for ($x = 0; $x < $linesize; $x++) {
     }
     ob_start();
 
-    // リストに追加 ========================================
+    // リストに追加
     // $aThreadList->addThread($aThread);
     $aThreadList->num++;
     unset($aThread);
@@ -301,8 +331,8 @@ function readNew(&$aThread)
     if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 
     // idxファイルがあれば読み込む
-    if (is_readable($aThread->keyidx)) {
-        $lines = @file($aThread->keyidx);
+    if (file_exists($aThread->keyidx)) {
+        $lines = file($aThread->keyidx);
         $data = explode('<>', rtrim($lines[0]));
     }
     $aThread->getThreadInfoFromIdx();
@@ -397,12 +427,12 @@ EOP;
 
     //----------------------------------------------
     // $read_footer_navi_new  続きを読む 新着レスの表示
-    $newtime = date("gis");  // リンクをクリックしても再読込しない仕様に対抗するダミークエリー
+    $newtime = date('gis');  // リンクをクリックしても再読込しない仕様に対抗するダミークエリー
 
-    $info_st = "情";
-    $delete_st = "削";
-    $prev_st = "前";
-    $next_st = "次";
+    $info_st    = '情';
+    $delete_st  = '削';
+    $prev_st    = '前';
+    $next_st    = '次';
 
     // 表示範囲
     if ($aThread->resrange['start'] == $aThread->resrange['to']) {
@@ -428,7 +458,7 @@ EOP;
 <a href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
 EOP;
 
-    // ツールバー部分HTML =======
+    // ツールバー部分HTML
     if ($spmode) {
         $toolbar_itaj_ht = <<<EOP
 (<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}">{$itaj_hd}</a>)
@@ -481,14 +511,14 @@ EOP;
 $newthre_num++;
 
 if (!$aThreadList->num) {
-    $GLOBALS['matome_naipo'] = TRUE;
+    $GLOBALS['matome_naipo'] = true;
     echo "新着ﾚｽはないぽ";
     echo "<hr>";
 }
 
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     if (!empty($GLOBALS['limit_to_eq_to'])) {
-        $str = '新着まとめの更新/続き';
+        $str = '新着まとめの更新or続き';
     } else {
         $str = '新まとめを更新';
     }

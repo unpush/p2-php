@@ -7,26 +7,26 @@ require_once P2_LIBRARY_DIR . '/threadread.class.php';
 
 $_login->authorize(); // ユーザ認証
 
-$name_txt = '';
-$mail_txt = '';
-$date_txt = '';
-$id_txt = '';
-$msg_txt = '';
-$url_k_ht = '';
-$id_ht = '';
-$back_link = '';
-$post_link = '';
-$moto_link = '';
-$form_id = P2_REQUEST_ID;
+$name_txt   = '';
+$mail_txt   = '';
+$date_txt   = '';
+$id_txt     = '';
+$msg_txt    = '';
+$url_k_ht   = '';
+$id_ht      = '';
+$back_link  = '';
+$post_link   = '';
+$moto_link  = '';
+$form_id    = P2_REQUEST_ID;
 
 //=====================================================
 // スレッド情報
 //=====================================================
-$host = $_GET['host'];
-$bbs  = $_GET['bbs'];
-$key  = $_GET['key'];
-$resid = $_GET['copy'];
-$quote = !empty($_GET['inyou']);
+$host   = $_GET['host'];
+$bbs    = $_GET['bbs'];
+$key    = $_GET['key'];
+$resid  = $GLOBALS['_read_copy_resnum'];
+$quote  = !empty($_GET['inyou']);
 
 if (isset($_SERVER['HTTP_REFERER'])) {
     $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="戻る">' . 戻る . '</a>';
@@ -37,6 +37,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 //=================================================
 $aThread = &new ThreadRead;
 $aThread->setThreadPathInfo($host, $bbs, $key);
+$aThread->ls = $resid;
 if (file_exists($aThread->keydat)) {
     // スレッド情報
     $aThread->readDat($aThread->keydat);
@@ -46,7 +47,7 @@ if (file_exists($aThread->keydat)) {
     $ttitle_ht = htmlspecialchars($ttitle, ENT_QUOTES);
     $url_txt = $aThread->getMotoThread(true);
     $url_k_txt = $aThread->getMotoThread();
-    if ($quote) {
+    if ($quote and $_GET['ktool_name'] != 'copy') {
         $url_txt .= $resid;
         $url_k_txt .= $resid;
     }
@@ -85,6 +86,19 @@ if (file_exists($aThread->keydat)) {
     $_info_msg_ht .= '<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>';
 }
 
+if ($_GET['ktool_name'] == 'copy') {
+    $mail_ht = (strlen($mail_txt) > 0) ? "$mail_txt :" : '';
+    $id_ht_t = (strlen($id_txt) > 0) ? " $id_txt" : '';
+
+    $msg_txt = "$resid :$name_txt :{$mail_ht}$date_txt{$id_ht_tmp}\n{$msg_txt}";
+
+    // auのバグ？対応
+    $mobile = &Net_UserAgent_Mobile::singleton();
+    if ($mobile->isEZweb()) {
+        $msg_txt = preg_replace("/\n&/", "\n\n&", $msg_txt, 1);
+    }
+}
+
 $msg_len = mb_strlen($msg_txt);
 $len = $GLOBALS['_conf']['k_copy_divide_len'] ? $GLOBALS['_conf']['k_copy_divide_len'] : 10000;
 $msg_txts = array();
@@ -95,7 +109,7 @@ for ($i = 0; $i < $msg_len; $i += $len) {
 //=====================================================
 // コピー用フォームを表示
 //=====================================================
-$action_ht = htmlspecialchars($_SERVER['SCRIPT_NAME'] . '?host=' . $_GET['host'] . '&bbs=' . $_GET['bbs'] . '&key=' . $_GET['key'] . '&copy=' . $_GET['copy'], ENT_QUOTES);
+$action_ht = htmlspecialchars($_SERVER['SCRIPT_NAME'] . '?host=' . $_GET['host'] . '&bbs=' . $_GET['bbs'] . '&key=' . $_GET['key'] . '&copy=' . $GLOBALS['_read_copy_resnum'], ENT_QUOTES);
 
 // willcom はtextareaのサイズが小さいと使いにくいらしい
 /*
@@ -123,10 +137,14 @@ echo $_conf['doctype'];
 <input type="text" name="url_txt" value="<?php echo $url_txt; ?>"><br>
 <?php echo $url_k_ht; ?>
 <?php echo $resid; ?>:<br>
+
+<?php if ($_GET['ktool_name'] != 'copy') { ?>
 <input type="text" name="name_txt" value="<?php echo $name_txt; ?>"><br>
 <input type="text" name="mail_txt" value="<?php echo $mail_txt; ?>"><br>
 <input type="text" name="date_txt" value="<?php echo $date_txt; ?>"><br>
 <?php echo $id_ht; ?>
+<?php } ?>
+
 <?php foreach ($msg_txts as $msg_txt) { ?>
 <textarea<?php echo $kyopon_size; ?>><?php echo $msg_txt; ?></textarea><br>
 <?php } ?>
@@ -134,6 +152,8 @@ echo $_conf['doctype'];
 <textarea name="free" rows="2"></textarea>
 </form>
 <?php echo $back_link; ?> <?php echo $post_link; ?> <?php echo $moto_link; ?>
+
+<hr><?php echo $_conf['k_to_index_ht']; ?>
 </body>
 </html>
 <?php

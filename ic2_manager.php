@@ -61,9 +61,9 @@ if (isset($_POST['action'])) {
                         case 'aweek':   $expires = 86400 * 7; break;
                         case 'amonth':  $expires = 86400 * 31; break;
                         case 'ayear':   $expires = 86400 * 365; break;
-                        default: $expires = NULL;
+                        default: $expires = null;
                     }
-                    if ($expires !== NULL) {
+                    if ($expires !== null) {
                         $operator = ($_POST['dropZeroSelectType'] == 'within') ? '>' : '<';
                         $where .= sprintf(' AND %s %s %d',
                             $db->quoteIdentifier('time'),
@@ -74,14 +74,14 @@ if (isset($_POST['action'])) {
                 $to_blacklist = !empty($_POST['dropZeroToBlackList']);
             } else {
                 $where = $db->quoteIdentifier('rank') . ' < 0';
-                $to_blacklist = TRUE;
+                $to_blacklist = true;
             }
 
             $sql = sprintf('SELECT %s FROM %s WHERE %s;',
                 $db->quoteIdentifier('id'),
                 $db->quoteIdentifier($ini['General']['table']),
                 $where);
-            $result = $db->getAll($sql, NULL, DB_FETCHMODE_ORDERED | DB_FETCHMODE_FLIPPED);
+            $result = $db->getAll($sql, null, DB_FETCHMODE_ORDERED | DB_FETCHMODE_FLIPPED);
             if (DB::isError($result)) {
                 $_info_msg_ht .= $result->getMessage();
                 break;
@@ -94,8 +94,8 @@ if (isset($_POST['action'])) {
         case 'clearThumb':
             $thumb_dir2 = $ini['General']['cachedir'] . '/' . $ini['Thumb2']['name'];
             $thumb_dir3 = $ini['General']['cachedir'] . '/' . $ini['Thumb3']['name'];
-            $result_files2 = FileCtl::garbageCollection($thumb_dir2, -1, '', '', TRUE);
-            $result_files3 = FileCtl::garbageCollection($thumb_dir3, -1, '', '', TRUE);
+            $result_files2 = FileCtl::garbageCollection($thumb_dir2, -1, '', '', true);
+            $result_files3 = FileCtl::garbageCollection($thumb_dir3, -1, '', '', true);
             $removed_files = array_merge($result_files2['successed'], $result_files3['successed']);
             $failed_files = array_merge($result_files2['failed'], $result_files3['failed']);
             if (!empty($failed_files)) {
@@ -113,7 +113,7 @@ if (isset($_POST['action'])) {
             } else {
                 $_info_msg_ht .= "<p>テーブル {$ini['Cache']['table']} を空にしました。</p>";
             }
-            $result_files = FileCtl::garbageCollection($flexy->options['compileDir'], -1, '', '', TRUE);
+            $result_files = FileCtl::garbageCollection($flexy->options['compileDir'], -1, '', '', true);
             $removed_files = $result_files['successed'];
             if (!empty($result_files['failed'])) {
                 $_info_msg_ht .= '<p>以下のファイルが削除できませんでした。</p>';
@@ -175,7 +175,7 @@ $flexy->setData('skin', $skin_en);
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('info_msg', $_info_msg_ht);
 if ($db->dsn['phptype'] == 'sqlite') {
-    $flexy->setData('isSQLite', TRUE);
+    $flexy->setData('isSQLite', true);
 }
 
 P2Util::header_nocache();

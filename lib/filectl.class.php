@@ -343,7 +343,7 @@ class FileCtl
      * @param   boolean  $recurive   再帰的にガーベッジコレクションするか否か（デフォルトではFALSE）
      * @return  array|false    削除に成功したファイルと失敗したファイルを別々に記録した二次元の配列
      */
-    function garbageCollection($targetDir, $lifeTime, $prefix = '', $suffix = '', $recursive = FALSE)
+    function garbageCollection($targetDir, $lifeTime, $prefix = '', $suffix = '', $recursive = false)
     {
         $result = array('successed' => array(), 'failed' => array(), 'skipped' => array());
         $expire = time() - $lifeTime;

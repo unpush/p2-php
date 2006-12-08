@@ -46,7 +46,7 @@ class GoogleSearch_PHP4 extends GoogleSearch_Common
             $soapClient = &new SOAP_Client('http://api.google.com/search/beta2');
         } else {
             /* SOAP_ClientクラスにWSDLを指定する */
-            //$soapClient = &new SOAP_Client($wsdl, TRUE);
+            //$soapClient = &new SOAP_Client($wsdl, true);
 
             /* SOAP_WSDLクラスにSOAP_Clientを継承したクラスを生成させる */
             $wsdl = &new SOAP_WSDL($wsdl);
@@ -61,7 +61,7 @@ class GoogleSearch_PHP4 extends GoogleSearch_Common
 
         $this->soapClient = $soapClient;
 
-        return TRUE;
+        return true;
     }
 
     // }}}

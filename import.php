@@ -1,20 +1,18 @@
 <?php
-/*
-    p2 - datをインポートする
+/**
+ * rep2expack - datをインポートする
+ *
+ * @todo Zipアーカイブのインポート対応
+ * @todo HTMLのインポート対応
+ */
 
-    TODO: HTMLのインポート対応
-        ただし、ローカルファイルのアップロード（拡張子で判定）の実装のみに留め、
-        にくちゃんねる等のURLを直接指定してダウンロードする機能はつけない。
-        （先方に迷惑がかかる可能性が非常に高いので）
-*/
-
-require_once 'conf/conf.inc.php'; // 基本設定
+require_once 'conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/p2util.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
-// 変数 =============
+// 変数
 $link_ht = '';
 $max_size = 1000000;
 
@@ -26,17 +24,17 @@ $default_key = !empty($_REQUEST['key']) ? htmlspecialchars($_REQUEST['key'], ENT
 // アップロードされたファイルの処理
 //================================================================
 if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && isset($_FILES['dat_file'])) {
-    $is_error = FALSE;
+    $is_error = false;
 
     // アップロード成功のとき
     if ($_FILES['dat_file']['error'] == UPLOAD_ERR_OK) {
         // 値の検証
         if ($_POST['MAX_FILE_SIZE'] != $max_size) {
-            $is_error = TRUE;
+            $is_error = f;
             $_info_msg_ht .= '<p>Warning: フォームの MAX_FILE_SIZE の値が改ざんされています。</p>';
         }
         if (!preg_match('/^[1-9][0-9]+\.dat$/', $_FILES['dat_file']['name'])) {
-            $is_error = TRUE;
+            $is_error = true;
             $_info_msg_ht .= '<p>Error: アップロードされたdatのファイル名が変です。</p>';
         }
         $host = $_POST['host'];
@@ -46,11 +44,11 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
         /*} elseif (preg_match('/^[1-9][0-9]+$/', $_POST['key'])) {
             $key = $_POST['key'];
             if ($key != preg_replace('/\.(dat|html?)$/', '', $_FILES['dat_file']['name'])) {
-                $is_error = TRUE;
+                $is_error = true;
                 $_info_msg_ht .= '<p>Error: アップロードされたdatのファイル名とスレッドキーがマッチしません。</p>';
             }
         } else {
-            $is_error = TRUE;
+            $is_error = true;
             $_info_msg_ht .= '<p>Error: スレッドキーの指定が変です。</p>';
         }*/
         $dat_name = $key . '.dat';
@@ -58,7 +56,7 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
 
     // アップロード失敗のとき
     } else {
-        $is_error = TRUE;
+        $is_error = true;
         // エラーメッセージは http://jp.php.net/manual/ja/features.file-upload.errors.php からコピペ
         switch ($_FILES['dat_file']['error']) {
             case UPLOAD_ERR_INI_SIZE:
@@ -99,8 +97,10 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
 }
 
 //================================================================
-// ヘッダ
+// HTML表示
 //================================================================
+
+// ヘッダ
 P2Util::header_nocache();
 echo $_conf['doctype'];
 echo <<<EOP
@@ -120,9 +120,7 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = '';
 
-//================================================================
-// メイン部分HTML表示
-//================================================================
+// ボディ
 echo <<<EOP
 <p>datのインポート</p>
 <form method="post" enctype="multipart/form-data" action="{$_SERVER['SCRIPT_NAME']}">
@@ -156,9 +154,7 @@ if ($link_ht) {
 EOP;
 }
 
-//================================================================
-// フッタHTML表示
-//================================================================
+// フッタ
 echo '</body></html>';
 
 /*

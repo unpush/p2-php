@@ -107,7 +107,7 @@ EOP;
 
 if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
     echo "\t<div style=\"margin:8px 8px;\">\n";
-    echo FavSetManager::makeFavSetSwitchForm('m_favlist_set', 'お気にスレ', NULL, NULL, FALSE, array('spmode' => 'fav', 'norefresh' => 1));
+    echo FavSetManager::makeFavSetSwitchForm('m_favlist_set', 'お気にスレ', null, null, false, array('spmode' => 'fav', 'norefresh' => 1));
     echo "\t</div>\n";
 }
 

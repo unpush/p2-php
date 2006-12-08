@@ -45,7 +45,7 @@ if ((empty($host) || !isset($bbs)) && !isset($spmode)) {
 // {{{ p2_setting, sb_keys 設定
 
 if (!empty($spmode)) {
-    $p2_setting_txt = $_conf['pref_dir'].'/p2_setting_'.$spmode.'.txt';
+    $p2_setting_txt = $_conf['pref_dir'] . '/p2_setting_' . $spmode . '.txt';
 } else {
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $idx_bbs_dir_s = $idx_host_dir . '/' . $bbs . '/';
@@ -184,14 +184,14 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
         if (!$sb_filter['method']) { $sb_filter['method'] = "or"; } // $sb_filter は global @see sb_print.icn.php
 
         include_once P2_LIBRARY_DIR . '/strctl.class.php';
-        $word_fm = StrCtl::wordForMatch($word, $sb_filter['method']);
+        $GLOBALS['words_fm'] = StrCtl::wordForMatch($word, $sb_filter['method']);
         if ($sb_filter['method'] != 'just') {
             if (P2_MBREGEX_AVAILABLE == 1) {
-                $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
-                $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
+                $GLOBALS['words_fm'] = @mb_split('\s+', $GLOBALS['words_fm']);
+                $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $GLOBALS['words_fm']);
             } else {
-                $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
-                $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
+                $GLOBALS['words_fm'] = @preg_split('/\s+/', $GLOBALS['words_fm']);
+                $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $GLOBALS['words_fm']);
             }
         }
     }
@@ -244,7 +244,7 @@ if (!empty($_GET['dele']) or ($_POST['submit'] == $deletelog_st)) {
 
 $aThreadList =& new ThreadList();
 
-// 板とモードのセット ===================================
+// 板とモードのセット
 if ($spmode) {
     if ($spmode == 'taborn' or $spmode == 'soko') {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
@@ -274,7 +274,7 @@ if ($spmode) {
 // ソースリスト読込
 $lines = $aThreadList->readList();
 
-// {{{ お気にスレリスト 読込
+// お気にスレリスト 読込
 $favlines = @file($_conf['favlist_file']);
 if (is_array($favlines)) {
     foreach ($favlines as $l) {
@@ -282,7 +282,6 @@ if (is_array($favlines)) {
         $fav_keys[ $data[1] ] = $data[11];
     }
 }
-// }}}
 
 $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('HEAD');
 
@@ -390,7 +389,7 @@ for ($x = 0; $x < $linesize; $x++) {
     }
 
     // }}}
-    // {{{ ■ワードフィルタ(for subject)
+    // {{{ ワードフィルタ(for subject)
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('word_filter_for_sb');
     if (!$aThreadList->spmode || $aThreadList->spmode == "news" and (strlen($GLOBALS['word_fm']) > 0)) {
@@ -434,7 +433,7 @@ for ($x = 0; $x < $linesize; $x++) {
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('word_filter_for_sb');
 
     // }}}
-    // {{{ ■スレッドあぼーんチェック
+    // {{{ スレッドあぼーんチェック
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('taborn_check_continue');
     if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) {
@@ -449,7 +448,7 @@ for ($x = 0; $x < $linesize; $x++) {
     $aThread->getThreadInfoFromIdx();
 
     // }}}
-    // {{{ ■ favlistチェック
+    // {{{  favlistチェック
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('favlist_check');
     // if ($x <= $threads_num) {
@@ -542,7 +541,7 @@ for ($x = 0; $x < $linesize; $x++) {
         }
 
 
-        // {{{ ■新着のみ(for spmode)
+        // {{{ 新着のみ(for spmode)
 
         if ($sb_view == 'shinchaku' and !isset($_REQUEST['word'])) {
             if ($aThread->unum < 1) {
@@ -552,7 +551,7 @@ for ($x = 0; $x < $linesize; $x++) {
         }
 
         // }}}
-        // {{{ ■ワードフィルタ(for spmode)
+        // {{{ ワードフィルタ(for spmode)
 
         if (strlen($GLOBALS['word_fm']) > 0) {
 
@@ -565,7 +564,11 @@ for ($x = 0; $x < $linesize; $x++) {
             } else {
                 $GLOBALS['sb_mikke_num']++;
                 if ($_conf['ktai']) {
-                    $aThread->ttitle_ht = $aThread->ttitle_hd;
+                    if (is_string($_conf['k_filter_marker'])) {
+                        $aThread->ttitle_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aThread->ttitle_hd, $_conf['k_filter_marker']);
+                    } else {
+                        $aThread->ttitle_ht = $aThread->ttitle_hd;
+                    }
                 } else {
                     $aThread->ttitle_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aThread->ttitle_hd);
                 }
@@ -928,10 +931,13 @@ function matchSbFilter(&$aThread)
 
 /**
  * スレッドタイトルのスコアを計算して返す
+ *
+ * @return  float
  */
 function getSbScore($words, $length)
 {
     static $bracket_regex = null;
+
     if (!$bracket_regex) {
         $bracket_regex = mb_convert_encoding('/[\\[\\]{}()（）「」【】]/u', 'UTF-8', 'SJIS-win');
     }
@@ -1016,7 +1022,7 @@ function cmp_title($a, $b)
     if ($a->ttitle == $b->ttitle) {
         return ($a->torder > $b->torder) ? 1 : -1;
     } else {
-        return strcmp($a->ttitle,$b->ttitle);
+        return strcmp($a->ttitle, $b->ttitle);
     }
 }
 

@@ -178,7 +178,7 @@ foreach ($items as $item) {
         $link_orig = preg_replace_callback('/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/', 'rss_link2ch_callback', $item['link']);
         $preview_one = "<a href=\"{$link_orig}&amp;one=true\">&gt;&gt;1</a> ";
     } else {
-        $link_orig = P2Util::throughIme($item['link'], TRUE);
+        $link_orig = P2Util::throughIme($item['link'], true);
     }
     // ˆê—ñ•\Ž¦
     $item_title = $item['title'];

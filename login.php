@@ -87,7 +87,7 @@ EOP;
     }
 
 // J”FØ
-} elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+} elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== null) {
     if (file_exists($_conf['auth_jp_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
 J’[––ID”FØ“o˜^Ï[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1{$_conf['k_at_a']}">‰ğœ</a>]<br>

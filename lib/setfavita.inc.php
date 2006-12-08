@@ -21,8 +21,8 @@ function setFavIta()
         $setfavita = $_POST['setfavita'];
     }
 
-    $host = isset($_GET['host']) ? $_GET['host'] : NULL;
-    $bbs  = isset($_GET['bbs'])  ? $_GET['bbs']  : NULL;
+    $host = isset($_GET['host']) ? $_GET['host'] : null;
+    $bbs  = isset($_GET['bbs'])  ? $_GET['bbs']  : null;
 
     if (!empty($_POST['url'])) {
         if (preg_match("/http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?/", $_POST['url'], $matches)) {

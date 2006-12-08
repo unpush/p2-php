@@ -11,7 +11,7 @@ class MatrixManager
     var $cols;
     var $rows;
     var $cells;
-    function MatrixManager($cols, $rows, $cells = NULL)
+    function MatrixManager($cols, $rows, $cells = null)
     {
         if ($cells) {
             $this->max = $cells;

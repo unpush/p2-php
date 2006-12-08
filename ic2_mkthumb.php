@@ -48,7 +48,7 @@ switch ($type) {
         $search->whereAddQuoted('uri', '=', $uri);
 }
 
-if ($search->find(TRUE)) {
+if ($search->find(true)) {
     // 縦横のサイズが大きい画像はまず中間イメージを作成する
     if ($search->width > 1280 || $search->height > 1280) {
         $thumbX = &new ThumbNailer(IC2_THUMB_SIZE_INTERMD);

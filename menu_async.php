@@ -78,7 +78,7 @@ function changeSkin($skin)
     }
 
     if (file_exists($newskin)) {
-        if (FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin) !== FALSE) {
+        if (FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin) !== false) {
             return $skin;
         } else {
             return "p2 error: {$_conf['expack.skin.setting_path']} ‚ÉƒXƒLƒ“İ’è‚ğ‘‚«‚ß‚Ü‚¹‚ñ‚Å‚µ‚½B";

@@ -33,7 +33,7 @@ $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
 $mode = isset($_GET['q']) ? (int)$_GET['q'] : 0;
 
-$_conf['ktai'] = FALSE;
+$_conf['ktai'] = false;
 
 //==================================================================
 // ÉÅÉCÉì

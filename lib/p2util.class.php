@@ -876,9 +876,9 @@ EOP;
             return false;
         }
 
-        $rec_login2chID = NULL;
-        $login2chPW = NULL;
-        $rec_autoLogin2ch = NULL;
+        $rec_login2chID = null;
+        $login2chPW = null;
+        $rec_autoLogin2ch = null;
 
         include $_conf['idpw2ch_php'];
 

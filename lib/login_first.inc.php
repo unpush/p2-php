@@ -76,7 +76,7 @@ function printLoginFirst(&$_login)
     // {{{ J”FØ
 
     // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-    } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+    } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== null) {
         if (file_exists($_conf['auth_jp_file'])) {
             include $_conf['auth_jp_file'];
             if ($SN == $registed_jp) {

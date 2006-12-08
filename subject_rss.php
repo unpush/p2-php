@@ -48,7 +48,7 @@ if ($xml) {
     $rss = &p2GetRSS($xml, $atom);
     if (is_a($rss, 'XML_Parser')) {
         clearstatcache();
-        $rss_parse_success = TRUE;
+        $rss_parse_success = true;
         $xml_path = rss_get_save_path($xml);
         $mtime    = filemtime($xml_path);
         $channel  = $rss->getChannelInfo();
@@ -64,10 +64,10 @@ if ($xml) {
         }
         mb_convert_variables('SJIS-win', $encoding, $channel, $items);
     } else {
-        $rss_parse_success = FALSE;
+        $rss_parse_success = false;
     }
 } else {
-    $rss_parse_success = FALSE;
+    $rss_parse_success = false;
 }
 
 

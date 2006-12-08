@@ -192,7 +192,7 @@ EOP;
 //====================================================================
 // ŒŸõ‚Ì“Á•Ê‚Èˆ—
 //====================================================================
-if ($filter_hits !== NULL) {
+if ($filter_hits !== null) {
     include P2_LIBRARY_DIR . '/read_filter_k.inc.php';
     resetReadNaviHeaderK();
 }

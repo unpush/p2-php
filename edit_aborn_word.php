@@ -74,7 +74,7 @@ if (!empty($_POST['submit_save'])) {
         }
         $newdata .= $a_mode . $a_word . "\t" . $a_time . "\t" . $a_hits . "\n";
     }
-    if (FileCtl::file_write_contents($path, $newdata) !== FALSE) {
+    if (FileCtl::file_write_contents($path, $newdata) !== false) {
         $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
     } else {
         $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";

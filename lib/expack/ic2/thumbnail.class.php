@@ -201,7 +201,7 @@ class ThumbNailer
      * @access  public
      * @return  string|bool|PEAR_Error
      *          サムネイルを生成・保存に成功したとき、サムネイルのパス
-     *          テンポラリ・サムネイルの生成に成功したとき、TRUE
+     *          テンポラリ・サムネイルの生成に成功したとき、true
      *          失敗したとき PEAR_Error
      */
     function &convert($size, $md5, $mime, $width, $height, $force = false)

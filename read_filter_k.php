@@ -23,9 +23,9 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 
-$res_filter_cont = @file_get_contents($cachefile);
-
-if ($res_filter_cont) { $res_filter = unserialize($res_filter_cont); }
+if (file_exists($cachefile) and $res_filter_cont = file_get_contents($cachefile)) {
+    $res_filter = unserialize($res_filter_cont);
+}
 
 $field = array('hole' => '', 'msg' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'beid' => '', 'belv' => '');
 $match = array('on' => '', 'off' => '');
@@ -84,6 +84,7 @@ echo <<<EOF
 </div>
 {$_conf['k_input_ht']}
 </form>
+<hr>{$_conf['k_to_index_ht']}
 </body>
 </html>
 EOF;

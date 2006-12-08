@@ -122,7 +122,7 @@ class ShowThread
      *
      * @return  string|false
      */
-    function ngAbornCheck($code, $resfield, $ic = FALSE)
+    function ngAbornCheck($code, $resfield, $ic = false)
     {
         global $ngaborns;
 
@@ -131,12 +131,12 @@ class ShowThread
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
             foreach ($ngaborns[$code]['data'] as $k => $v) {
                 // 板チェック
-                if (isset($v['bbs']) && in_array($this->thread->bbs, $v['bbs']) == FALSE) {
+                if (isset($v['bbs']) && in_array($this->thread->bbs, $v['bbs']) == false) {
                     continue;
                 }
 
                 // タイトルチェック
-                if (isset($v['title']) && stristr($this->thread->ttitle_hc, $v['title']) === FALSE) {
+                if (isset($v['title']) && stristr($this->thread->ttitle_hc, $v['title']) === false) {
                     continue;
                 }
 
@@ -293,7 +293,7 @@ class ShowThread
         global $_conf;
         global $filter_hits, $filter_range;
 
-        $failed = ($GLOBALS['res_filter']['match'] == 'off') ? TRUE : FALSE;
+        $failed = ($GLOBALS['res_filter']['match'] == 'off') ? true : false;
 
         if ($GLOBALS['res_filter']['method'] == 'and') {
             $words_fm_hit = 0;

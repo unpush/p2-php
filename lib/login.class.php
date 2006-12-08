@@ -22,7 +22,7 @@ class Login
         $login_user = $this->setdownLoginUser();
 
         // ユーザ名が指定されていなければ
-        if ($login_user == NULL) {
+        if ($login_user == null) {
 
             // ログイン失敗
             include_once P2_LIBRARY_DIR . '/login_first.inc.php';
@@ -31,7 +31,7 @@ class Login
         }
 
         $this->setUser($login_user);
-        $this->pass_x = NULL;
+        $this->pass_x = null;
     }
 
     /**
@@ -53,7 +53,7 @@ class Login
      */
     function setdownLoginUser()
     {
-        $login_user = NULL;
+        $login_user = null;
 
         // ユーザ名決定の優先順位に沿って
 
@@ -277,7 +277,7 @@ class Login
         // J-PHONE認証パススルー
         // パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
         // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-        if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+        if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== null) {
             if (file_exists($_conf['auth_jp_file'])) {
                 include $_conf['auth_jp_file'];
                 if ($SN == $registed_jp) {
@@ -290,7 +290,7 @@ class Login
         // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
         if (empty($_POST['form_login_id'])) {
 
-            if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+            if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== null) {
                 if (file_exists($_conf['auth_docomo_file'])) {
                     include $_conf['auth_docomo_file'];
                     if ($SN == $registed_docomo) {
@@ -447,7 +447,7 @@ class Login
         } elseif (!empty($_REQUEST['ctl_regist_jp'])) {
 
             if ($_REQUEST['regist_jp'] == '1') {
-                if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+                if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== null) {
                     $this->registAuth('registed_jp', $SN, $_conf['auth_jp_file']);
                 } else {
                     $_info_msg_ht .= '<p class="infomsg">×Vodafone用固有IDでの認証登録はできませんでした</p>'."\n";
@@ -461,7 +461,7 @@ class Login
 
         } elseif (!empty($_REQUEST['ctl_regist_docomo'])) {
             if ($_REQUEST['regist_docomo'] == '1') {
-                if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+                if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== null) {
                     $this->registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
                 } else {
                     $_info_msg_ht .= '<p class="infomsg">×DoCoMo用固有IDでの認証登録はできませんでした</p>'."\n";

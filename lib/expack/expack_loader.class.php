@@ -119,7 +119,7 @@ class ExpackLoader
             $aShowThread->img_memo_query = '&amp;hint=' . rawurlencode($_conf['detect_hint_utf8']);
             $aShowThread->img_memo_query .= '&amp;memo=' . rawurlencode($aShowThread->img_memo);
         } else {
-            $aShowThread->img_memo = NULL;
+            $aShowThread->img_memo = null;
             $aShowThread->img_memo_query = '';
         }
     }

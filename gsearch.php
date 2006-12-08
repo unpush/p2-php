@@ -71,8 +71,8 @@ $start = ($p - 1) * $perPage;
 
 // 出力用変数
 $totalItems = 0;
-$result = NULL;
-$popups = NULL;
+$result = null;
+$popups = null;
 
 // }}}
 // {{{ Search
@@ -97,7 +97,7 @@ if (!empty($q)) {
             $result = '<b>Error: ' . $resultObj->getMessage() . '</b>';
             if (!empty($resultObj->userinfo)) {
                 require_once 'Var_Dump.php';
-                $result .= Var_Dump::display($resultObj->getUserInfo(), TRUE, 'HTML4_Table');
+                $result .= Var_Dump::display($resultObj->getUserInfo(), true, 'HTML4_Table');
             }
         // リクエスト成功
         } else {

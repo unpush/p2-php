@@ -112,7 +112,7 @@ class StrCtl
             $result = mb_convert_encoding($result, 'SJIS-win', 'UTF-8');
         }
 
-        if ($result === FALSE) {
+        if ($result === false) {
             return $target;
         }
         return $result;

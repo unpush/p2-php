@@ -32,34 +32,34 @@ $ini = ic2_loadconfig();
 
 // DB_DataObjectの設定
 $_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => FALSE, 'quote_identifiers' => TRUE);
+$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => false, 'quote_identifiers' => true);
 
 // }}}
 // {{{ prepare
 
 // パラメータを設定
-$id       = isset($_REQUEST['id'])    ? intval($_REQUEST['id']) : NULL;
-$uri      = isset($_REQUEST['uri'])   ? $_REQUEST['uri'] : (isset($_REQUEST['url']) ? $_REQUEST['url'] : NULL);
-$file     = isset($_REQUEST['file'])  ? $_REQUEST['file'] : NULL;
+$id       = isset($_REQUEST['id'])    ? intval($_REQUEST['id']) : null;
+$uri      = isset($_REQUEST['uri'])   ? $_REQUEST['uri'] : (isset($_REQUEST['url']) ? $_REQUEST['url'] : null);
+$file     = isset($_REQUEST['file'])  ? $_REQUEST['file'] : null;
 $force    = !empty($_REQUEST['f']);   // 強制更新
 $thumb    = isset($_REQUEST['t'])     ? intval($_REQUEST['t']) : 0;       // サムネイルタイプ
 $redirect = isset($_REQUEST['r'])     ? intval($_REQUEST['r']) : 1;       // 表示方法
 $rank     = isset($_REQUEST['rank'])  ? intval($_REQUEST['rank']) : 0;    // ランキング
-$memo     = (isset($_REQUEST['memo']) && strlen($_REQUEST['memo']) > 0) ? $_REQUEST['memo'] : NULL; // メモ
-$referer  = (isset($_REQUEST['ref']) && strlen($_REQUEST['ref']) > 0)   ? $_REQUEST['ref'] : NULL;  // リファラ
+$memo     = (isset($_REQUEST['memo']) && strlen($_REQUEST['memo']) > 0) ? $_REQUEST['memo'] : null; // メモ
+$referer  = (isset($_REQUEST['ref']) && strlen($_REQUEST['ref']) > 0)   ? $_REQUEST['ref'] : null;  // リファラ
 
-/*if (!isset($uri) && FALSE !== ($url = getenv('PATH_INFO'))) {
+/*if (!isset($uri) && false !== ($url = getenv('PATH_INFO'))) {
     $uri = 'http:/' . $url;
 }*/
 if (empty($id) && empty($uri) && empty($file)) {
-    ic2_error('x06', 'URLまたはファイル名がありません。', FALSE);
+    ic2_error('x06', 'URLまたはファイル名がありません。', false);
 }
 
 if (!empty($uri)) {
     $uri = preg_replace('{^(https?://)ime\\.(nu|st)/}', '$1', $uri);
     $pURL = @parse_url($uri);
     if (!$pURL || !preg_match('/^(https?)$/', $pURL['scheme']) || empty($pURL['host']) || empty($pURL['path'])) {
-        ic2_error('x06', '不正なURLです。', FALSE);
+        ic2_error('x06', '不正なURLです。', false);
     }
 
     // 強制あぼーんホストのとき
@@ -81,18 +81,18 @@ if (!empty($uri)) {
         }
     }
 
-    $doDL = TRUE;
+    $doDL = true;
 } else {
     if (isset($file) && !preg_match('/^(?P<size>[1-9][0-9]*)_(?P<md5>[0-9a-f]{32})(?:\.(?P<ext>jpg|png|gif))?$/', $file, $fdata)) {
-        ic2_error('x06', '不正なファイル名です。', FALSE);
+        ic2_error('x06', '不正なファイル名です。', false);
     }
-    $doDL = FALSE;
+    $doDL = false;
 }
 
 // 値の調整
 if ($thumb < 1 || $thumb > 3 ) { $thumb = 0; }
 if ($rank < -1) { $rank = -1; } elseif ($rank > 5) { $rank = 5; }
-if ($memo === '') { $memo = NULL; }
+if ($memo === '') { $memo = null; }
 
 $thumbnailer = &new ThumbNailer($thumb);
 
@@ -130,8 +130,8 @@ if ($doDL) {
 
 // 画像がキャッシュされているか確認
 $search = &new IC2DB_Images;
-$retry = FALSE;
-if ($memo !== NULL) {
+$retry = false;
+if ($memo !== null) {
     $memo = $search->uniform($memo, 'SJIS-win');
 }
 
@@ -144,21 +144,21 @@ if ($doDL) {
         $search->whereAddQuoted('size', '=', $fdata['size']);
         $search->whereAddQuoted('md5', '=', $fdata['md5']);
     }
-    $result = $search->find(TRUE);
+    $result = $search->find(true);
     if (!$result) {
         ic2_error('404');
     }
-    $force = FALSE;
+    $force = false;
 }
 
 if ($result) {
     // ウィルススキャンにひっかかったファイルだったら終了。
     if (!$force && $search->mime == 'clamscan/infected') {
-        ic2_error('x04', '', FALSE);
+        ic2_error('x04', '', false);
     }
     // あぼーんフラグ（rankが負）が立っていたら終了。
     if (!$force && $search->rank < 0 ) {
-        ic2_error('x01', '', FALSE);
+        ic2_error('x01', '', false);
     }
     $filepath = $thumbnailer->srcPath($search->size, $search->md5, $search->mime);
     $params = array('uri' => $search->uri, 'name' => $search->name, 'size' => $search->size,
@@ -184,11 +184,11 @@ if ($result) {
             $_mime = $search->mime;
             $time  = $search->time;
         } else {
-            ic2_finish($filepath, $thumb, $params, FALSE);
+            ic2_finish($filepath, $thumb, $params, false);
         }
     } else {
-        $retry = TRUE;
-        $force = FALSE;
+        $retry = true;
+        $force = false;
         $_size = $search->size;
         $_md5  = $search->md5;
         $_mime = $search->mime;
@@ -214,7 +214,7 @@ if ($blacklist->get($uri)) {
         default:
             $errcode = 'x06'; // ???
     }
-    ic2_error($errcode, '', FALSE);
+    ic2_error($errcode, '', false);
 }
 
 // 画像がエラーログにあるか確認
@@ -222,7 +222,7 @@ if (!$force && $ini['Getter']['checkerror']) {
     require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
     $errlog = &new IC2DB_Errors;
     if ($errlog->get($uri)) {
-        ic2_error($errlog->errcode, '', FALSE);
+        ic2_error($errlog->errcode, '', false);
     }
 }
 
@@ -268,7 +268,7 @@ if (is_null($referer)) {
             $pattern = str_replace(',', '|', $pattern);
             $pattern = '/' . $pattern . '/i';
             if (preg_match($pattern, $pURL['host'])) {
-                $send_referer = FALSE;
+                $send_referer = false;
             }
         }
     } elseif ($ini['Getter']['refhosts']) {
@@ -276,7 +276,7 @@ if (is_null($referer)) {
         $pattern = str_replace(',', '|', $pattern);
         $pattern = '/' . $pattern . '/i';
         if (preg_match($pattern, $pURL['host'])) {
-            $send_referer = TRUE;
+            $send_referer = true;
         }
     }
     if ($send_referer) {
@@ -301,7 +301,7 @@ $head = &$client_h->currentResponse();
 
 // 304 Not Modified のとき
 if ($filepath && $force && $time && $code == 304) {
-    ic2_finish($filepath, $thumb, $params, FALSE);
+    ic2_finish($filepath, $thumb, $params, false);
 }
 
 // 200以外のときは失敗とみなす
@@ -384,7 +384,7 @@ if ($ini['Getter']['virusscan']) {
                 'mime' => 'clamscan/infected',
                 'memo' => $memo
             );
-            ic2_aborn($params, TRUE);
+            ic2_aborn($params, true);
             @unlink($tmpfile);
             ic2_error('x04', 'ウィルスを発見しました。');
         }
@@ -415,7 +415,7 @@ $height = $info[1];
 
 // 強制更新を試みたものの、更新されていなかったとき（レスポンスコードは200）
 if ($filepath && $force && $time && $size == $_size && $md5 == $_md5 && $mime == $_mime) {
-    ic2_finish($filepath, $thumb, $params, FALSE);
+    ic2_finish($filepath, $thumb, $params, false);
 }
 
 $params = array('uri' => $uri, 'host' => $host, 'name' => $name, 'size' => $size, 'md5' => $md5,
@@ -476,7 +476,7 @@ ic2_finish($newfile, $thumb, $params, $force);
 // }}}
 // {{{ 関数
 
-function ic2_aborn($params, $infected = FALSE)
+function ic2_aborn($params, $infected = false)
 {
     global $ini;
     extract($params);
@@ -507,7 +507,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
     $bl_check = &new IC2DB_BlackList;
     $bl_check->whereAddQuoted('size', '=', $size);
     $bl_check->whereAddQuoted('md5',  '=', $md5);
-    if ($bl_check->find(TRUE)) {
+    if ($bl_check->find(true)) {
         $bl_add = clone($bl_check);
         $bl_add->uri = $uri;
         $bl_add->insert();
@@ -522,7 +522,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
                 $errcode = 'x06'; // Unknown
         }
         // 厳密には、その可能性が限りなく高いだけで100%ではない
-        ic2_error($errcode, 'ブラックリストにある画像と同じ内容です。', FALSE);
+        ic2_error($errcode, 'ブラックリストにある画像と同じ内容です。', false);
     }
 
     // あぼーん画像検索
@@ -533,7 +533,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
     // 同じのが異なるURLで複数登録されていて、ランクが違う可能性があるので
     // （普通に使う分には起こらない...と思う。少なくとも起こりにくいはず）
     $check->orderByArray(array('rank' => 'ASC'));
-    if ($check->find(TRUE)) {
+    if ($check->find(true)) {
         if ($check->rank < 0) {
             @unlink($tmpfile);
             ic2_aborn($params);
@@ -563,7 +563,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
     global $ini;
     extract($params);
 
-    $isError = FALSE;
+    $isError = false;
 
     $maxsize = $ini['Source']['maxsize'];
     if (preg_match('/(\d+\.?\d*)([KMG])/i', $maxsize, $m)) {
@@ -572,7 +572,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
         $maxsize = (int)$maxsize;
     }
     if (0 < $maxsize && $maxsize < $conent_length) {
-        $isError = TRUE;
+        $isError = true;
         $errmsg = "ファイルサイズが大きすぎます。(file:{$size}; max:{$maxsize};)";
     }
 
@@ -581,7 +581,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
     if ((0 < $maxwidth && $maxwidth < $width) ||
         (0 < $maxheight && $maxheight < $height)
     ) {
-        $isError = TRUE;
+        $isError = true;
         $errmsg = "画像サイズが大きすぎます。(file:{$width}x{$height}; max:{$maxwidth}x{$maxheight};)";
     }
 
@@ -591,7 +591,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
         ic2_error('x03', $errmsg);
     }
 
-    return TRUE;
+    return true;
 }
 
 function ic2_display($path)
@@ -697,12 +697,12 @@ function ic2_display($path)
             // 表示
             $flexy->setData('title', 'キャッシュ完了');
             if (!$_conf['ktai']) {
-                $flexy->setData('pc', TRUE);
+                $flexy->setData('pc', true);
                 $flexy->setData('skin', $GLOBALS['skin_name']);
                 //$flexy->setData('stylesheets', array('css'));
                 //$flexy->setData('javascripts', array('js'));
             } else {
-                $flexy->setData('pc', FALSE);
+                $flexy->setData('pc', false);
                 $k_color = array();
                 $k_color['c_bgcolor'] = isset($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '';
                 $k_color['c_text']  = isset($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '';
@@ -713,7 +713,7 @@ function ic2_display($path)
             if ($thumb == 2) {
                 if ($ini['General']['inline'] == 1) {
                     $t = 2;
-                    $link = NULL;
+                    $link = null;
                 } else {
                     $t = 1;
                     $link = $path;
@@ -722,18 +722,18 @@ function ic2_display($path)
                 $preview = $_SERVER['SCRIPT_NAME'] . '?o=1&r=' . $r . '&t=' . $t . '&' . $img_q;
                 $flexy->setData('preview', $preview);
                 $flexy->setData('link', $link);
-                $flexy->setData('info', NULL);
+                $flexy->setData('info', null);
             } else {
-                $flexy->setData('preview', NULL);
+                $flexy->setData('preview', null);
                 $flexy->setData('link', $path);
-                $flexy->setData('info', NULL);
+                $flexy->setData('info', null);
             }
             if (isset($_REQUEST['from'])) {
                 $flexy->setData('backto', $_REQUEST['from']);
             } elseif (isset($_SERVER['HTTP_REFERER'])) {
                 $flexy->setData('backto', $_SERVER['HTTP_REFERER']);
             } else {
-                $flexy->setData('backto', NULL);
+                $flexy->setData('backto', null);
             }
             $flexy->setData('edit', extension_loaded('gd'));
             $flexy->setData('form', $rdr->toObject());
@@ -743,7 +743,7 @@ function ic2_display($path)
     exit;
 }
 
-function ic2_error($code, $optmsg = '', $write_log = TRUE)
+function ic2_error($code, $optmsg = '', $write_log = true)
 {
     global $id, $uri, $file, $redirect;
 

@@ -54,7 +54,7 @@ EOFORM;
 
 // お気に板切替フォーム
 if ($_conf['favita_set_num'] > 0) {
-    $switch_favita_form_ht = FavSetManager::makeFavSetSwitchForm('m_favita_set', 'お気に板', NULL, NULL, !$_conf['ktai']);
+    $switch_favita_form_ht = FavSetManager::makeFavSetSwitchForm('m_favita_set', 'お気に板', null, null, !$_conf['ktai']);
 } else {
     $switch_favita_form_ht = '';
 }

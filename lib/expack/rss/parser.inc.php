@@ -168,7 +168,7 @@ function atom_to_rss($input, $stylesheet, $output)
         if (file_exists($output)) {
             unlink($output);
         }
-        return FALSE;
+        return false;
     }
     chmod($output, $_conf['expack.rss.setting_perm']);
 
@@ -189,7 +189,7 @@ function atom_to_rss($input, $stylesheet, $output)
         fclose($fp);
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -205,7 +205,7 @@ function atom_to_rss_by_xslt($input, $stylesheet, $output)
         $errmsg = xslt_errno($xh) . ': ' . xslt_error($xh);
         $_info_msg_ht = '<p>p2 error: XSLT - Atom‚ğRSS‚É•ÏŠ·‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B(' . $errmsg . ')</p>';
         xslt_free($xh);
-        return FALSE;
+        return false;
     }
     xslt_free($xh);
 
@@ -238,7 +238,7 @@ function atom_to_rss_by_xsl($input, $stylesheet, $output)
     $rss_content = file_get_contents($output);
     if (!$rss_content) {
         $_info_msg_ht = '<p>p2 error: XSL - Atom‚ğRSS‚É•ÏŠ·‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B</p>';
-        return FALSE;
+        return false;
     }
 
     return $rss_content;
@@ -252,10 +252,10 @@ function rss_item_exists(&$items, $element)
 {
     foreach ($items as $item) {
         if (isset($item[$element]) && strlen(trim($item[$element])) > 0) {
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 

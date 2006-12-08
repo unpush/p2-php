@@ -36,7 +36,7 @@ function manageDB_update($updated)
     foreach ($updated as $id => $data) {
         $icdb = &new IC2DB_Images;
         $icdb->whereAdd("id = $id");
-        if ($icdb->find(TRUE)) {
+        if ($icdb->find(true)) {
             // メモを更新
             if ($icdb->memo != $data['memo']) {
                 $memo = &new IC2DB_Images;
@@ -67,7 +67,7 @@ function manageDB_update($updated)
 /**
  * 画像を削除
  */
-function manageDB_remove($target, $to_blacklist = FALSE)
+function manageDB_remove($target, $to_blacklist = false)
 {
     $removed_files = array();
     if (empty($target)) {
@@ -101,7 +101,7 @@ function manageDB_remove($target, $to_blacklist = FALSE)
         $icdb = &new IC2DB_Images;
         $icdb->whereAdd("id = $id");
 
-        if ($icdb->find(TRUE)) {
+        if ($icdb->find(true)) {
             // キャッシュしているファイルを削除
             $t1 = &new ThumbNailer(1);
             $t2 = &new ThumbNailer(2);
@@ -236,7 +236,7 @@ function manageDB_addMemo($target, $memo)
     foreach ($target as $id) {
         $find = &new IC2DB_Images;
         $find->whereAdd("id = $id");
-        if ($find->find(TRUE) && !strstr($find->memo, $memo)) {
+        if ($find->find(true) && !strstr($find->memo, $memo)) {
             $update = &new IC2DB_Images;
             $update->whereAdd("id = $id");
             if (strlen($find->memo) > 0) {

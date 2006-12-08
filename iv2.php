@@ -50,7 +50,7 @@ $ini = ic2_loadconfig();
 
 // DB_DataObjectの設定
 $_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => FALSE, 'quote_identifiers' => TRUE);
+$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => false, 'quote_identifiers' => true);
 
 // Exif表示が有効か？
 $show_exif = ($ini['Viewer']['exif'] && extension_loaded('exif'));
@@ -176,7 +176,7 @@ if ($ini['Viewer']['cache']) {
     } elseif (isset($_POST['cache_clean'])) {
         $cache_clean = $_POST['cache_clean'];
     } else {
-        $cache_clean = FALSE;
+        $cache_clean = false;
     }
     switch ($cache_clean) {
         // キャッシュを全削除
@@ -186,18 +186,18 @@ if ($ini['Viewer']['cache']) {
             if (DB::isError($result)) {
                 die($result->getMessage());
             }
-            $vacuumdb = TRUE;
+            $vacuumdb = true;
             break;
         // 強制的にガーベッジコレクション
         case 'gc':
-            $cache->garbageCollection(TRUE);
-            $vacuumdb = TRUE;
+            $cache->garbageCollection(true);
+            $vacuumdb = true;
             break;
         // gc_probability(デフォルトは1)/100の確率でガーベッジコレクション
         default:
             // $cache->gc_probability = 1;
             $cache->garbageCollection();
-            $vacuumdb = FALSE;
+            $vacuumdb = false;
     }
     // SQLiteならVACUUMを実行（PostgreSQLは普通cronでvacuumdbするのでここではしない）
     if ($vacuumdb && is_a($db, 'DB_sqlite')) {
@@ -206,14 +206,14 @@ if ($ini['Viewer']['cache']) {
             die($result->getMessage());
         }
     }
-    $enable_cache = TRUE;
+    $enable_cache = true;
 } else {
-    $enable_cache = FALSE;
+    $enable_cache = false;
 }
 
 // SQLite UDF
 if (is_a($db, 'db_sqlite')) {
-    $isSQLite = TRUE;
+    $isSQLite = true;
     function iv2_sqlite_unix2date($ts)
     {
         return intval(date('Ymd', $ts));
@@ -221,7 +221,7 @@ if (is_a($db, 'db_sqlite')) {
     $sqlite = &$db->connection;
     sqlite_create_function($sqlite, 'unix2date', 'iv2_sqlite_unix2date', 1);
 } else {
-    $isSQLite = FALSE;
+    $isSQLite = false;
 }
 
 // }}}
@@ -281,8 +281,8 @@ $qfe['mode'] = &$qf->addElement('select', 'mode', 'モード', $_mode);
 $qfe['cngmode'] = &$qf->addElement('submit', 'cngmode');
 
 // フォームのルール
-$qf->addRule('cols', '1 to 20',  'numRange', array('min' => 1, 'max' => 20),  'client', TRUE);
-$qf->addRule('rows', '1 to 100', 'numRange', array('min' => 1, 'max' => 100), 'client', TRUE);
+$qf->addRule('cols', '1 to 20',  'numRange', array('min' => 1, 'max' => 20),  'client', true);
+$qf->addRule('rows', '1 to 100', 'numRange', array('min' => 1, 'max' => 100), 'client', true);
 $qf->addRule('order', 'invalid order.', 'inArrayKeys', $_order);
 $qf->addRule('sort',  'invalid sort.',  'inArrayKeys', $_sort);
 $qf->addRule('field', 'invalid field.', 'inArrayKeys', $_field);
@@ -348,7 +348,7 @@ if ($_conf['ktai']) {
 
     // フィルタリング用フォームを表示
     if (!empty($_GET['show_iv2_kfilter'])) {
-        !defined('P2_NO_SAVE_PACKET') && define('P2_NO_SAVE_PACKET', TRUE);
+        !defined('P2_NO_SAVE_PACKET') && define('P2_NO_SAVE_PACKET', true);
         $r = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
         $qfe['key']->removeAttribute('size');
         $qf->updateAttributes(array('method' => 'get'));
@@ -474,17 +474,17 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
         // 更新用のデータをまとめる
         $updated = array();
         $removed = array();
-        $to_blacklist = FALSE;
-        $no_blacklist = FALSE;
+        $to_blacklist = false;
+        $no_blacklist = false;
 
         foreach ($target as $id) {
             if (!empty($_POST['img'][$id]['remove'])) {
                 if (!empty($_POST['img'][$id]['black'])) {
-                    $to_blacklist = TRUE;
-                    $removed[$id] = TRUE;
+                    $to_blacklist = true;
+                    $removed[$id] = true;
                 } else {
-                    $no_blacklist = TRUE;
-                    $removed[$id] = FALSE;
+                    $no_blacklist = true;
+                    $removed[$id] = false;
                 }
             } else {
                 $newmemo = get_magic_quotes_gpc() ? stripslashes($_POST['img'][$id]['memo']) : $_POST['img'][$id]['memo'];
@@ -510,15 +510,15 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
             }
             if ($to_blacklist) {
                 if ($no_blacklist) {
-                    $flexy->setData('toBlackListAll', FALSE);
-                    $flexy->setData('toBlackListPartial', TRUE);
+                    $flexy->setData('toBlackListAll', false);
+                    $flexy->setData('toBlackListPartial', true);
                 } else {
-                    $flexy->setData('toBlackListAll', TRUE);
-                    $flexy->setData('toBlackListPartial', FALSE);
+                    $flexy->setData('toBlackListAll', true);
+                    $flexy->setData('toBlackListPartial', false);
                 }
             } else {
-                $flexy->setData('toBlackListAll', FALSE);
-                $flexy->setData('toBlackListPartial', FALSE);
+                $flexy->setData('toBlackListAll', false);
+                $flexy->setData('toBlackListPartial', false);
             }
         }
         break;
@@ -538,7 +538,7 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
 
 // 総レコード数を数える
 //$db->setFetchMode(DB_FETCHMODE_ORDERED);
-//$all = (int)$icdb->count('*', TRUE);
+//$all = (int)$icdb->count('*', true);
 //$db->setFetchMode(DB_FETCHMODE_ASSOC);
 $sql = sprintf('SELECT COUNT(*) FROM %s %s', $db->quoteIdentifier($ini['General']['table']), $icdb->_query['condition']);
 $all = $db->getOne($sql);
@@ -550,7 +550,7 @@ if (DB::isError($all)) {
 if ($all == 0) {
 
     // レコードなし
-    $flexy->setData('nomatch', TRUE);
+    $flexy->setData('nomatch', true);
     $flexy->setData('reset', $_SERVER['SCRIPT_NAME']);
     if ($_conf['ktai']) {
         $flexy->setData('kfilter', !empty($_SESSION['iv2i_filter']));
@@ -565,7 +565,7 @@ if ($all == 0) {
 } else {
 
     // レコードあり
-    $flexy->setData('nomatch', FALSE);
+    $flexy->setData('nomatch', false);
 
     // 表示範囲を設定
     $ipp = $_conf['ktai'] ? $inum : $cols * $rows; // images per page
@@ -641,7 +641,7 @@ if ($all == 0) {
 
         // ページ番号を更新
         $qfe['page']->setValue($page);
-        $qf->addRule('page', "1 to {$last_page}", 'numRange', array('min' => 1, 'max' => $last_page), 'client', TRUE);
+        $qf->addRule('page', "1 to {$last_page}", 'numRange', array('min' => 1, 'max' => $last_page), 'client', true);
 
         // 一時的にパラメータ区切り文字を & にして現在のページのURLを生成
         $pager_separator = ini_get('arg_separator.output');
@@ -730,18 +730,18 @@ if ($all == 0) {
     $flexy->setData('reset', array());
 
     if ($_conf['ktai']) {
-        $show_exif = FALSE;
-        $popup = FALSE;
+        $show_exif = false;
+        $popup = false;
         $r_type = ($ini['General']['redirect'] == 1) ? 1 : 2;
     } else {
         switch ($mode) {
             case 3:
-                $show_exif = FALSE;
+                $show_exif = false;
             case 2:
-                $popup = FALSE;
+                $popup = false;
                 break;
             default:
-                $popup = TRUE;
+                $popup = true;
         }
         $r_type = 1;
     }
@@ -817,7 +817,7 @@ if ($all == 0) {
         if ($show_exif && file_exists($add['src']) && $img['mime'] == 'image/jpeg') {
             $item['exif'] = $enable_cache ? $cache->call('ic2_read_exif', $add['src']) : ic2_read_exif($add['src']);
         } else {
-            $item['exif'] = NULL;
+            $item['exif'] = null;
         }
 
         // Lightbox JS用パラメータを設定
@@ -836,10 +836,10 @@ if ($all == 0) {
     }
 
     $i = count($items); // == $found
-    // テーブルの余白を埋めるためにNULLを挿入
+    // テーブルの余白を埋めるためにnullを挿入
     if (!$_conf['ktai'] && $i > $cols && ($j = $i % $cols) > 0) {
         for ($k = 0; $k < $cols - $j; $k++) {
-            $items[] = NULL;
+            $items[] = null;
             $i++;
         }
     }
@@ -1029,7 +1029,7 @@ if ($list_template == 'iv2i.tpl.html') {
     } elseif ($mobile->isVodafone()) {
         $elements['page']->setAttributes('mode="numeric"');
     }
-    $view = FALSE;
+    $view = false;
     $flexy->outputObject($view, $elements);
 } else {
     $flexy->output();

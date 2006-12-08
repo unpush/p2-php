@@ -32,7 +32,7 @@ $ini = ic2_loadconfig();
 
 // DB_DataObject‚Ìİ’è
 $_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => FALSE, 'quote_identifiers' => TRUE);
+$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => false, 'quote_identifiers' => true);
 
 if (!isset($_REQUEST['table'])) {
     die('<html><body><p>ic2 error - •s³‚ÈƒNƒGƒŠ</p></body></html>');
@@ -94,11 +94,11 @@ $flexy->setData('info_msg', $_info_msg_ht);
 if ($table->find()) {
     switch ($mode) {
         case 'errlog':
-            $flexy->setData('data_renderer_errlog', TRUE);
+            $flexy->setData('data_renderer_errlog', true);
             $flexy->setData('data', ic2dumptable_errlog($table));
             break;
         case 'blacklist':
-            $flexy->setData('data_renderer_blacklist', TRUE);
+            $flexy->setData('data_renderer_blacklist', true);
             $flexy->setData('data', ic2dumptable_blacklist($table));
             break;
     }

@@ -15,7 +15,7 @@ if (!isset($_GET['file'])) {
 //=========================================================
 // ïœêî
 //=========================================================
-$file = (isset($_GET['file'])) ? $_GET['file'] : NULL;
+$file = (isset($_GET['file'])) ? $_GET['file'] : null;
 $encode = "Shift_JIS";
 
 //=========================================================
@@ -84,12 +84,12 @@ function viewTxtFile($file, $encode)
 EOHEADER;
 
     echo $_info_msg_ht;
-    echo "<pre>";
+    echo '<pre>';
     echo $cont_area;
-    echo "</pre>";
+    echo '</pre>';
     echo '</body></html>';
 
-    return TRUE;
+    return true;
 }
 
 /*

@@ -25,7 +25,7 @@ function print_rss_list()
     // RSSØ‚è‘Ö‚¦
     if ($_conf['expack.rss.set_num'] > 0) {
         echo "<br>\n";
-        echo FavSetManager::makeFavSetSwitchElem('m_rss_set', 'RSS', TRUE, "replaceMenuItem('c_rss', 'm_rss_set', this.options[this.selectedIndex].value);");
+        echo FavSetManager::makeFavSetSwitchElem('m_rss_set', 'RSS', true, "replaceMenuItem('c_rss', 'm_rss_set', this.options[this.selectedIndex].value);");
     }
 
     echo "\t<div class=\"itas\" id=\"c_rss\">\n";

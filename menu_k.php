@@ -205,7 +205,7 @@ if (($_GET['view'] == 'favita' && $_conf['favita_set_num'] > 0) ||
         $set_name = 'm_rss_set';
         $set_title = 'RSS';
     }
-    echo FavSetManager::makeFavSetSwitchForm($set_name, $set_title, NULL, NULL, FALSE, array('view' => $_GET['view']));
+    echo FavSetManager::makeFavSetSwitchForm($set_name, $set_title, null, null, false, array('view' => $_GET['view']));
 }
 
 // フッタを表示

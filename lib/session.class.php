@@ -39,7 +39,7 @@ class Session
      *
      * ここでPHPの標準セッションがスタートする
      */
-    function Session($session_name = NULL, $session_id = NULL)
+    function Session($session_name = null, $session_id = null)
     {
         session_cache_limiter('none'); // キャッシュ制御なし
 

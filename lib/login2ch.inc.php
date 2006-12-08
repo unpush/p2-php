@@ -253,7 +253,7 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
     // ‘æ“ñˆø”‚ğfalse‚É‚µ‚Ä¶‚Ì‚Ü‚Ü‘—M‚³‚¹‚éB
     $wap_res = $wap_ua->request($wap_req, false, false);
 
-    //$GLOBALS['_info_msg_ht'] .= Var_Dump::display(array($wap_ua, $wap_req, $wap_res), TRUE);
+    //$GLOBALS['_info_msg_ht'] .= Var_Dump::display(array($wap_ua, $wap_req, $wap_res), true);
 
     if ($wap_res->is_error()) {
         return false;

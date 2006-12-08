@@ -158,9 +158,9 @@ EOP;
 EOP;
 
 if ($_conf['expack.google.enabled'] && $_conf['expack.google.key'] && file_exists($_conf['expack.google.wsdl'])) {
-    $google_search_enabled = TRUE;
+    $google_search_enabled = true;
 } else {
-    $google_search_enabled = FALSE;
+    $google_search_enabled = false;
 }
 
 if ($_conf['input_type_search']) {
@@ -269,7 +269,7 @@ EOP;
 if ($_conf['favlist_set_num'] > 0) {
     $favlist_onchange = "openFavList('{$_conf['subject_php']}', this.options[this.selectedIndex].value, window.top.subject);";
     echo "<br>\n";
-    echo FavSetManager::makeFavSetSwitchElem('m_favlist_set', 'お気にスレ', FALSE, $favlist_onchange);
+    echo FavSetManager::makeFavSetSwitchElem('m_favlist_set', 'お気にスレ', false, $favlist_onchange);
 }
 echo <<<EOP
     <div class="itas" id="c_spacial">
