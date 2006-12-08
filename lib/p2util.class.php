@@ -757,7 +757,7 @@ class P2Util
             $remoto_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
         }
         if ($remoto_host == $_SERVER['REMOTE_ADDR']) {
-            $remoto_host = "";
+            $remoto_host = '';
         }
 
         $user = (isset($_login->user_u)) ? $_login->user_u : "";
@@ -1127,3 +1127,13 @@ ERR;
     }
 
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

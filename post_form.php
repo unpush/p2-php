@@ -45,6 +45,7 @@ if (!$_conf['ktai']) {
 }
 
 // {{{ スレ立てなら
+
 if ($_GET['newthread']) {
     $ptitle = "{$itaj} - 新規スレッド作成";
 
@@ -57,15 +58,16 @@ if ($_GET['newthread']) {
     }
 
     $htm['subject'] = <<<EOP
-<b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
+<b><span{$class_ttitle}>タイトル</span></b>：<input type="text" id="subject" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
 EOP;
     if ($_conf['ktai']) {
-        $htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>".$htm['subject'];
+        $htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>" . $htm['subject'];
     }
-    $newthread_hidden_ht = "<input type=\"hidden\" name=\"newthread\" value=\"1\">";
-// }}}
+    $newthread_hidden_ht = '<input type="hidden" name="newthread" value="1">';
 
+// }}}
 // {{{ 書き込みなら
+
 } else {
     $ptitle = "{$itaj} - レス書き込み";
 
@@ -76,6 +78,7 @@ EOP;
 EOP;
     $newthread_hidden_ht = '';
 }
+
 // }}}
 
 $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name="from_read_new" value="1">' : '';
@@ -133,3 +136,14 @@ echo $htm['post_form'];
 echo $htm['dpreview2'];
 
 echo '</body></html>';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

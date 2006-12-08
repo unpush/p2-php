@@ -70,7 +70,7 @@ if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
     $ptitle = "2ch{$login_st}管理";
 }
 
-$body_onload = "";
+$body_onload = '';
 if (!$_conf['ktai']) {
     $body_onload = " onLoad=\"setWinTitle();\"";
 }
@@ -121,7 +121,7 @@ EOP;
 }
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 //================================================================
 // 2ch●ログインフォーム
@@ -204,3 +204,14 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

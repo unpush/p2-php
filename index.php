@@ -4,7 +4,7 @@
 include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
-$_login->authorize(); //ユーザ認証
+$_login->authorize(); // ユーザ認証
 
 //=============================================================
 // 前処理
@@ -37,7 +37,7 @@ if ($_conf['ktai']) {
     //=========================================
     // PC用 変数
     //=========================================
-    $title_page = "title.php";
+    $title_page = 'title.php';
 
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
         $read_page = "read.php?" . $_SERVER['QUERY_STRING'];
@@ -51,7 +51,7 @@ if ($_conf['ktai']) {
 
     $sidebar = $_GET['sidebar'];
 
-    $ptitle = "rep2";
+    $ptitle = 'rep2';
     //======================================================
     // PC用 HTMLプリント
     //======================================================
@@ -77,13 +77,13 @@ EOHEADER;
     if (!$sidebar) {
 ?>
     <frameset cols="<?php echo htmlspecialchars($_conf['frame_menu_width']); ?>,*" frameborder="1" border="2">
-        <frame src="<?php echo htmlspecialchars($_conf['menu_php']); ?>" name="menu" scrolling="auto">
+        <frame id="menu" name="menu" src="<?php echo htmlspecialchars($_conf['menu_php']); ?>" scrolling="auto">
 <?php
     }
 ?>
-    <frameset rows="<?php echo htmlspecialchars($_conf['frame_subject_width']); ?>,<?php echo htmlspecialchars($_conf['frame_read_width']); ?>" frameborder="1" border="2">
-        <frame src="<?php echo htmlspecialchars($title_page); ?>" name="subject" scrolling="auto">
-        <frame src="<?php echo htmlspecialchars($read_page); ?>" name="read" scrolling="auto">
+    <frameset id="fsright" name="fsright" rows="<?php echo htmlspecialchars($_conf['frame_subject_width']); ?>,<?php echo htmlspecialchars($_conf['frame_read_width']); ?>" frameborder="1" border="2">
+        <frame id="subject" name="subject" src="<?php echo htmlspecialchars($title_page); ?>" scrolling="auto">
+        <frame id="read" name="read" src="<?php echo htmlspecialchars($read_page); ?>" scrolling="auto">
     </frameset>
 <?php
     if (!$sidebar) {
@@ -133,3 +133,14 @@ HTACCESS;
         unlink($hta);
     }
 }
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

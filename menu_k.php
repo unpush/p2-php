@@ -87,13 +87,13 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 //==============================================================
 // お気に板をプリントする
 //==============================================================
-if($_GET['view']=="favita"){
-    $aShowBrdMenuK->print_favIta();
+if($_GET['view'] == "favita"){
+    $aShowBrdMenuK->printFavItaHtml();
 
 //RSSリスト読み込み
 } elseif ($_GET['view'] == "rss" && $_conf['expack.rss.enabled']) {
@@ -105,9 +105,10 @@ if($_GET['view']=="favita"){
 
 
 // それ以外ならbrd読み込み
-}else{
+} else {
     $brd_menus =  BrdCtl::read_brds();
 }
+
 //===========================================================
 // 板検索
 //===========================================================
@@ -187,13 +188,15 @@ EOP;
 }
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 //==============================================================
 // セット切り替えフォームを表示
 //==============================================================
 
-if ($_conf['expack.misc.multi_favs'] && ($_GET['view'] == 'favita' || $_GET['view'] == 'rss')) {
+if (($_GET['view'] == 'favita' && $_conf['favita_set_num'] > 0) ||
+    ($_GET['view'] == 'rss' && $_conf['expack.rss.set_num'] > 0))
+{
     echo '<hr>';
     if ($_GET['view'] == 'favita') {
         $set_name = 'm_favita_set';
@@ -205,12 +208,20 @@ if ($_conf['expack.misc.multi_favs'] && ($_GET['view'] == 'favita' || $_GET['vie
     echo FavSetManager::makeFavSetSwitchForm($set_name, $set_title, NULL, NULL, FALSE, array('view' => $_GET['view']));
 }
 
-//==============================================================
 // フッタを表示
-//==============================================================
-
 echo '<hr>';
 echo $list_navi_ht;
 echo $modori_url_ht;
 echo $_conf['k_to_index_ht'];
 echo '</body></html>';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

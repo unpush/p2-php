@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     ImageCache2 - エラーログ・ブラックリスト閲覧
 */
@@ -57,7 +55,6 @@ switch ($mode) {
     default:
         die('<html><body><p>ic2 error - 不正なクエリ</p></body></html>');
 }
-
 
 $db = &$table->getDatabaseConnection();
 if (isset($_POST['clean'])) {
@@ -155,3 +152,13 @@ function ic2dumptable_blacklist(&$dbdo)
 }
 
 // }}}
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

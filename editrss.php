@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 // p2 - RSS編集
 
 include_once './conf/conf.inc.php';
@@ -50,7 +47,7 @@ $add_rss_form_ht = <<<EOFORM
 EOFORM;
 
 // RSS切替フォーム
-if ($_conf['expack.misc.multi_favs']) {
+if ($_conf['expack.rss.set_num'] > 0) {
     $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS', NULL, NULL, !$_conf['ktai']);
 } else {
     $switch_rss_form_ht = '';
@@ -94,7 +91,7 @@ $_info_msg_ht = '';
 // メイン部分HTML表示
 //================================================================
 // ページタイトル
-if ($_conf['expack.misc.multi_favs']) {
+if ($_conf['expack.rss.set_num'] > 0) {
     $i = (isset($_SESSION['m_rss_set'])) ? (int)$_SESSION['m_rss_set'] : 0;
     $rss_titles = FavSetManager::getFavSetTitles('m_rss_set');
     if (!$rss_titles || !isset($rss_titles[$i]) || strlen($rss_titles[$i]) == 0) {
@@ -330,3 +327,14 @@ EOP;
 //================================================================
 
 echo '</body></html>';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

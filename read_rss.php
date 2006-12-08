@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     expack - 簡易RSSリーダ（<description>または<content:encoded>の内容を表示）
 
@@ -101,3 +99,14 @@ if ($_conf['ktai']) {
 }
 echo $_conf['doctype'];
 include P2EX_LIBRARY_DIR . '/rss/' . ($_conf['ktai'] ? 'read_k' : 'read') . '.inc.php';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

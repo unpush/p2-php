@@ -143,7 +143,7 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 //==============================================================
 // ÇªÇÍÇºÇÍÇÃçsâêÕ
@@ -247,7 +247,7 @@ for ($x = 0; $x < $linesize; $x++) {
     if ($aThread->isonline) { $online_num++; } // ê∂ë∂êîset
 
     echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    $_info_msg_ht = '';
 
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
@@ -366,7 +366,7 @@ function readNew(&$aThread)
     }
 
     echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    $_info_msg_ht = '';
 
     $read_header_ht = <<<EOP
         <hr>
@@ -519,3 +519,14 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 
 // NGÇ†Ç⁄Å[ÇÒÇãLò^
 NgAbornCtl::saveNgAborns();
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

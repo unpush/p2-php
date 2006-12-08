@@ -117,3 +117,14 @@ echo "<a href=\"{$thread_url}\">½Ú‚É–ß‚é<a/>";
 echo '</p>';
 echo '</body></html>';
 exit;
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

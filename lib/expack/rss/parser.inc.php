@@ -1,8 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// p2機能拡張パック - RSSパーサ
+/**
+ * rep2expack - RSSパーザ
+ */
 
 require_once P2EX_LIBRARY_DIR . '/rss/common.inc.php';
 require_once 'XML/RSS.php';
@@ -485,3 +484,13 @@ function rss_url_rel_to_abs($url)
     //絶対 URL を返す
     return $top . implode('/', $paths1) . $query;
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

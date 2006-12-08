@@ -111,7 +111,7 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 // Œg‘Ñ—p•\Ž¦
 if ($_conf['ktai']) {
@@ -180,3 +180,14 @@ if (!$_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

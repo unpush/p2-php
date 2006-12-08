@@ -174,7 +174,7 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 //echo $ptitle_ht."<br>";
 
@@ -324,7 +324,7 @@ function readNew(&$aThread)
     global $_info_msg_ht;
     static $favlist_titles = null;
 
-    if ($_conf['expack.misc.multi_favs'] && is_null($favlist_titles)) {
+    if ($_conf['favlist_set_num'] > 0 && is_null($favlist_titles)) {
         $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
         if (empty($favlist_titles)) {
             $favlist_titles = array();
@@ -332,7 +332,7 @@ function readNew(&$aThread)
         if (!isset($favlist_titles[0]) || $favlist_titles[0] == '') {
             $favlist_titles[0] = 'お気にスレ';
         }
-        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+        for ($i = 1; $i <= $_conf['favlist_set_num']; $i++) {
             if (!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') {
                 $favlist_titles[$i] = 'お気にスレ' . $i;
             }
@@ -413,7 +413,7 @@ function readNew(&$aThread)
     $next_thre_ht = "<a id=\"#ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">▼</a> ";
 
     echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    $_info_msg_ht = '';
 
     // ヘッダ部分HTML
     $read_header_ht = <<<EOP
@@ -489,19 +489,19 @@ EOP;
     $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
     $similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);
 
-    if ($_conf['expack.misc.multi_favs']) {
+    if ($_conf['favlist_set_num'] > 0) {
         $toolbar_setfav_ht = 'お気に[';
-        $favdo = (!empty($aThread->favs[0])) ? 0 : 1;
-        $favdo_q = '&amp;setfav=' . $favdo;
+        $favdo = empty($aThread->favs[0]);
+        $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
         $favmark = $favdo ? '+' : '★';
         $favtitle = $favlist_titles[0] . ($favdo ? 'に追加' : 'から外す');
         $setnum_q = '&amp;setnum=0';
         $toolbar_setfav_ht .= <<<EOP
 <span class="favdo set0"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this, '0');" title="{$favtitle}">{$favmark}</a></span>
 EOP;
-        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
-            $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
-            $favdo_q = '&amp;setfav=' . $favdo;
+        for ($i = 1; $i <= $_conf['favlist_set_num']; $i++) {
+            $favdo = empty($aThread->favs[$i]);
+            $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
             $favmark = $favdo ? $i : '★';
             $favtitle = $favlist_titles[$i] . ($favdo ? 'に追加' : 'から外す');
             $setnum_q = '&amp;setnum=' . $i;
@@ -511,8 +511,8 @@ EOP;
         }
         $toolbar_setfav_ht .= ']';
     } else {
-        $favdo = (!empty($aThread->fav)) ? 0 : 1;
-        $favdo_q = '&amp;setfav=' . $favdo;
+        $favdo = empty($aThread->fav);
+        $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
         $favmark = $favdo ? '+' : '★';
         $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
         $toolbar_setfav_ht = <<<EOP
@@ -531,7 +531,7 @@ EOP;
 EOTOOLBAR;
 
     // レスのすばやさ
-    $spd_ht = "";
+    $spd_ht = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != "-") {
         $spd_ht = '<span class="spd" title="すばやさ＝時間/レス">'."" . $spd_st."".'</span>';
     }
@@ -628,3 +628,14 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 
 // NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

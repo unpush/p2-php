@@ -2,22 +2,25 @@
 /**
  * スレッドを表示する クラス
  */
-class ShowThread{
-
-    var $thread; // スレッドオブジェクト
+class ShowThread
+{
+    var $thread; // スレッドオブジェクトの参照
 
     var $str_to_link_regex; // リンクすべき文字列の正規表現
 
-    var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
+    var $url_handlers;      // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
     var $user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
+
+    var $_quote_link_counts = array();
+    var $_quote_parent_resnum;
 
     var $ngaborn_frequent; // 頻出IDをあぼーんする
 
-    var $aborn_nums; // あぼーんレス番号を格納する配列
-    var $ng_nums; // NGレス番号を格納する配列
+    var $aborn_nums;    // あぼーんレス番号を格納する配列
+    var $ng_nums;       // NGレス番号を格納する配列
 
-    var $activeMona; // アクティブモナー・オブジェクト
-    var $am_enabled = false; // アクティブモナーが有効か否か
+    var $activeMona;            // アクティブモナー・オブジェクト
+    var $am_enabled = false;    // アクティブモナーが有効か否か
 
     /**
      * コンストラクタ
@@ -26,7 +29,7 @@ class ShowThread{
     {
         global $_conf;
 
-        // スレッドオブジェクトを登録
+        // スレッドオブジェクトの参照を登録
         $this->thread = &$aThread;
 
         $this->str_to_link_regex = '{'
@@ -71,10 +74,10 @@ class ShowThread{
 
     /**
      * DatをHTML変換して表示する
+     * （継承先クラスで実装）
      */
     function datToHtml()
     {
-        return '';
     }
 
     /**
@@ -116,6 +119,8 @@ class ShowThread{
 
     /**
      * NGあぼーんチェック
+     *
+     * @return  string|false
      */
     function ngAbornCheck($code, $resfield, $ic = FALSE)
     {
@@ -180,6 +185,8 @@ class ShowThread{
 
     /**
      * 特定レスの透明あぼーんチェック
+     *
+     * @return  boolean
      */
     function abornResCheck($resnum)
     {
@@ -201,6 +208,8 @@ class ShowThread{
 
     /**
      * NG/あぼ～ん日時と回数を更新
+     *
+     * @return  void
      */
     function ngAbornUpdate($code, $k)
     {
@@ -245,6 +254,8 @@ class ShowThread{
 
     /**
      * レスフィルタリングのターゲットを得る
+     *
+     * @return  string
      */
     function getFilterTarget(&$ares, &$i, &$name, &$mail, &$date_id, &$msg)
     {
@@ -274,6 +285,8 @@ class ShowThread{
 
     /**
      * レスフィルタリングのマッチ判定
+     *
+     * @return  boolean
      */
     function filterMatch(&$target, &$resnum)
     {
@@ -304,7 +317,8 @@ class ShowThread{
 
         $GLOBALS['filter_hits']++;
 
-        if ($_conf['filtering'] && !empty($filter_range) &&
+        // 表示範囲外なら偽判定とする
+        if (isset($GLOBALS['word']) && !empty($filter_range) &&
             ($filter_hits < $filter_range['start'] || $filter_hits > $filter_range['to'])
         ) {
             return false;
@@ -325,3 +339,13 @@ EOP;
         return true;
     }
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

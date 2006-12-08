@@ -10,8 +10,6 @@ function sb_print_k(&$aThreadList)
     global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
     global $sb_view;
 
-    //=================================================
-
     if (!$aThreadList->threads) {
         if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
             echo "<p>お気にｽﾚに新着なかったぽ</p>";
@@ -21,13 +19,13 @@ function sb_print_k(&$aThreadList)
         return;
     }
 
-    // 変数 ================================================
+    // 変数
 
     // >>1
     if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs=="bizplus" || $aThreadList->spmode=="news") {
         // 倉庫は除く
         if ($aThreadList->spmode != "soko") {
-            $only_one_bool = true;
+            $onlyone_bool = true;
         }
     }
 
@@ -38,7 +36,7 @@ function sb_print_k(&$aThreadList)
 
     $norefresh_q = "&amp;norefresh=1";
 
-    // ソート ==================================================
+    // ソート
 
     // スペシャルモード時
     if ($aThreadList->spmode) {
@@ -64,19 +62,20 @@ function sb_print_k(&$aThreadList)
 
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
-        $i++;
-        $midoku_ari = "";
-        $anum_ht = ""; //#r1
 
-        $bbs_q = "&amp;bbs=".$aThread->bbs;
-        $key_q = "&amp;key=".$aThread->key;
+        $i++;
+        $midoku_ari = '';
+        $anum_ht = ''; //#r1
+
+        $bbs_q = "&amp;bbs=" . $aThread->bbs;
+        $key_q = "&amp;key=" . $aThread->key;
 
         if ($aThreadList->spmode!="taborn") {
             if (!$aThread->torder) {$aThread->torder=$i;}
         }
 
-        // 新着レス数 =============================================
-        $unum_ht = "";
+        // 新着レス数
+        $unum_ht = '';
         // 既得済み
         if ($aThread->isKitoku()) {
             $unum_ht="{$aThread->unum}";
@@ -97,7 +96,7 @@ function sb_print_k(&$aThreadList)
                 $unum_ht = "-";
             }
 
-            $unum_ht = "[".$unum_ht."]";
+            $unum_ht = "[" . $unum_ht . "]";
         }
 
         // 新規スレ
@@ -105,10 +104,10 @@ function sb_print_k(&$aThreadList)
             $unum_ht = "<font color=\"{$STYLE['mobile_subject_newthre_color']}\">新</font>";
         }
 
-        // 総レス数 =============================================
+        // 総レス数
         $rescount_ht = "{$aThread->rescount}";
 
-        // 板名 ============================================
+        // 板名
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
             $ita_name_hd = htmlspecialchars($ita_name, ENT_QUOTES);
@@ -122,7 +121,7 @@ function sb_print_k(&$aThreadList)
             $htm['ita'] = "({$ita_name_hd})";
         }
 
-        // torder(info) =================================================
+        // torder(info)
         /*
         if ($aThread->fav) { //お気にスレ
             $torder_st = "<b>{$aThread->torder}</b>";
@@ -133,14 +132,14 @@ function sb_print_k(&$aThreadList)
         */
         $torder_ht = $aThread->torder;
 
-        // title =================================================
+        // title
         $rescount_q = "&amp;rescount=" . $aThread->rescount;
 
         // dat倉庫 or 殿堂なら
         if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") {
-            $rescount_q = "";
+            $rescount_q = '';
             $offline_q = "&amp;offline=true";
-            $anum_ht = "";
+            $anum_ht = '';
         }
 
         // タイトル未取得なら
@@ -165,21 +164,30 @@ function sb_print_k(&$aThreadList)
 
         // 新規スレ
         if ($aThread->new) {
-            $classtitle_q = " class=\"thre_title_new\"";
+            $classtitle_q = ' class="thre_title_new"';
         } else {
-            $classtitle_q = " class=\"thre_title\"";
+            $classtitle_q = ' class="thre_title"';
         }
 
         $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 
-        // オンリー>>1 =============================================
-        if ($only_one_bool) {
-            $one_ht = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true{$_conf['k_at_a']}\">&gt;&gt;1</a>";
+        // オンリー>>1
+        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true&amp;k_continue=1{$_conf['k_at_a']}";
+        if ($onlyone_bool) {
+            $one_ht = "<a href=\"{$onlyone_url}\">&gt;&gt;1</a>";
         }
 
-        //アクセスキー=====
+        if (P2Util::isHost2chs($aThreadList->host) and !$aThread->isKitoku()) {
+            if ($GLOBALS['_conf']['k_sb_show_first'] == 1) {
+                $thre_url = $onlyone_url;
+            } elseif ($GLOBALS['_conf']['k_sb_show_first'] == 2) {
+                $thre_url .= '&amp;ls=1-';
+            }
+        }
+
+        // アクセスキー
         /*
-        $access_ht = "";
+        $access_ht = '';
         if ($aThread->torder >= 1 and $aThread->torder <= 9) {
             $access_ht = " {$_conf['accesskey']}=\"{$aThread->torder}\"";
         }
@@ -189,7 +197,7 @@ function sb_print_k(&$aThreadList)
         // スレッド一覧 table ボディ HTMLプリント <tr></tr>
         //====================================================================================
 
-        //ボディ
+        // ボディ
         echo <<<EOP
 <div>
 {$unum_ht}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>{$htm['ita']}
@@ -198,3 +206,13 @@ EOP;
     }
 
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

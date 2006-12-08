@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /* ImageCache2 - ダウンローダ */
 
 // {{{ p2基本設定読み込み&認証
@@ -37,10 +34,8 @@ require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
 // ポップアップウインドウ？
 $isPopUp = empty($_GET['popup']) ? 0 : 1;
 
-
 // }}}
 // {{{ config
-
 
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
@@ -87,10 +82,8 @@ $_attr_submit = array();
 $_attr_reset  = array();
 $_attr_close  = array('onclick' => 'window.close()');
 
-
 // }}}
 // {{{ prepare (Form & Template)
-
 
 // 画像ダウンロード用フォームを設定
 $_attribures = array('accept-charset' => 'UTF-8,Shift_JIS');
@@ -148,7 +141,6 @@ $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('skin', $skin_en);
 $flexy->setData('isPopUp', $isPopUp);
 
-
 // }}}
 // {{{ validate
 
@@ -186,7 +178,6 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     } else {
         $new_memo = NULL;
     }
-
 
     // 連番
     $serial_pattern = '/\\[(\\d+)-(\\d+)\\]/';
@@ -270,10 +261,8 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     $qfe['padding']->updateAttributes('disabled="disabled"');
 }
 
-
 // }}}
 // {{{ generate
-
 
 if ($execDL) {
 
@@ -363,7 +352,6 @@ if ($execDL) {
 // }}}
 // {{{ output
 
-
 // フォームをテンプレート用オブジェクトに変換
 $r = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
 //$r->setLabelTemplate('_label.tpl.html');
@@ -382,5 +370,14 @@ P2Util::header_nocache();
 $flexy->compile('ic2g.tpl.html');
 $flexy->output();
 
-
 // }}}
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

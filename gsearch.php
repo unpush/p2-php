@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
  * 2ch‚©‚çGoogle API‚ðŽg‚Á‚ÄŒŸõ‚µAp2‚Å“Ç‚Þ‚½‚ß‚ÌƒŠƒ“ƒN‚É•ÏŠ·‚·‚é
  *
@@ -170,3 +168,14 @@ if ($_conf['input_type_search']) {
 <?php $renderer->printPopup($popups); ?>
 </body>
 </html>
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

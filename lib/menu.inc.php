@@ -266,7 +266,7 @@ $norefresh_q = '&amp;norefresh=true';
 echo <<<EOP
 <div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_spacial');" target="_self">特別</a></b>
 EOP;
-if ($_conf['expack.misc.multi_favs']) {
+if ($_conf['favlist_set_num'] > 0) {
     $favlist_onchange = "openFavList('{$_conf['subject_php']}', this.options[this.selectedIndex].value, window.top.subject);";
     echo "<br>\n";
     echo FavSetManager::makeFavSetSwitchElem('m_favlist_set', 'お気にスレ', FALSE, $favlist_onchange);
@@ -337,8 +337,8 @@ EOP;
 // カテゴリと板を表示
 //==============================================================
 // brd読み込み
-$brd_menus_dir = BrdCtl::read_brd_dir();
-$brd_menus_online = BrdCtl::read_brd_online();
+$brd_menus_dir = BrdCtl::readBrdLocal();
+$brd_menus_online = BrdCtl::readBrdOnline();
 $brd_menus = array_merge($brd_menus_dir, $brd_menus_online);
 
 //===========================================================
@@ -397,7 +397,7 @@ EOP;
 // }}}
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 if ($_conf['menu_hide_brds'] && !$ita_mikke['num']) {
     $brd_menus_style = ' style="display:none"';
@@ -467,8 +467,8 @@ function initMenuNewSp($spmode_in)
 {
     global $shinchaku_num, $matome_i, $host, $bbs, $spmode, $STYLE, $class_newres_num;
     $matome_i++;
-    $host = "";
-    $bbs = "";
+    $host = '';
+    $bbs = '';
     $spmode = $spmode_in;
     include "./subject_new.php";    // $shinchaku_num, $_newthre_num をセット
     if ($shinchaku_num > 0) {
@@ -477,3 +477,13 @@ function initMenuNewSp($spmode_in)
         $class_newres_num = ' class="newres_num_zero"';
     }
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

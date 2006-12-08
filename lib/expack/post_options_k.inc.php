@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - “ŠeƒtƒH[ƒ€Šg’£ (Œg‘Ñ—p)
+ */
 
 // ’èŒ^•¶‚Ì‰Šú‰»‚Æ“Ç‚Ýž‚Ý
 $CONSTANT = array();
@@ -39,3 +40,13 @@ $htm['options_k'] .= '</form>';
 if ($CONSTAREA) {
     $htm['options_k'] .= "<textarea>{$CONSTAREA}</textarea>";
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

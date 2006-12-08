@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /* ImageCache2 - 画像のダウンロード・サムネイル作成 */
 
 // {{{ p2基本設定読み込み&認証
@@ -27,11 +24,7 @@ require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
 
-
-// }}}
-// {{{ config
-
-
+// 受け付けるMIMEタイプ
 $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
 
 // 設定ファイル読み込み
@@ -41,10 +34,8 @@ $ini = ic2_loadconfig();
 $_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
 $_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => FALSE, 'quote_identifiers' => TRUE);
 
-
 // }}}
 // {{{ prepare
-
 
 // パラメータを設定
 $id       = isset($_REQUEST['id'])    ? intval($_REQUEST['id']) : NULL;
@@ -105,7 +96,6 @@ if ($memo === '') { $memo = NULL; }
 
 $thumbnailer = &new ThumbNailer($thumb);
 
-
 // }}}
 // {{{ sleep
 
@@ -137,7 +127,6 @@ if ($doDL) {
 
 // }}}
 // {{{ search
-
 
 // 画像がキャッシュされているか確認
 $search = &new IC2DB_Images;
@@ -228,7 +217,6 @@ if ($blacklist->get($uri)) {
     ic2_error($errcode, '', FALSE);
 }
 
-
 // 画像がエラーログにあるか確認
 if (!$force && $ini['Getter']['checkerror']) {
     require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
@@ -238,10 +226,8 @@ if (!$force && $ini['Getter']['checkerror']) {
     }
 }
 
-
 // }}}
 // {{{ init http-client
-
 
 // 設定を確認
 $conn_timeout = (isset($ini['Getter']['conn_timeout']) && $ini['Getter']['conn_timeout'] > 0)
@@ -302,10 +288,8 @@ if (is_string($referer)) {
     $client->setDefaultHeader('Referer', $referer);
 }
 
-
 // }}}
 // {{{ head
-
 
 // まずはHEADでチェック
 $client_h = clone($client);
@@ -349,10 +333,8 @@ if (isset($head['headers']['content-length'])) {
 
 unset($client_h, $code, $head);
 
-
 // }}}
 // {{{ get
-
 
 // ダウンロード
 $code = $client->get($uri);
@@ -373,10 +355,8 @@ if (!$fp) {
 fwrite($fp, $response['body']);
 fclose($fp);
 
-
 // }}}
 // {{{ check
-
 
 // ウィルススキャン
 if ($ini['Getter']['virusscan']) {
@@ -447,10 +427,8 @@ ic2_checkSizeOvered($tmpfile, $params);
 // 同じ画像があぼーんされているか確認
 $rank = ic2_checkAbornedFile($tmpfile, $params);
 
-
 // }}}
 // {{{ finish
-
 
 // すべてのチェックをパスしたなら、保存用の名前にリネームする
 $newfile = $thumbnailer->srcPath($size, $md5, $mime);
@@ -495,10 +473,8 @@ if ($retry && $size == $_size && $md5 == $_md5 && $mime == $_mime) {
 // 画像を表示
 ic2_finish($newfile, $thumb, $params, $force);
 
-
 // }}}
 // {{{ 関数
-
 
 function ic2_aborn($params, $infected = FALSE)
 {
@@ -879,7 +855,6 @@ function ic2_finish($filepath, $thumb, $params, $force)
     }
 }
 
-
 function ic2_removeTmpFile()
 {
     global $tmpfile, $tmpchecker;
@@ -888,5 +863,14 @@ function ic2_removeTmpFile()
     file_exists($tmpchecker) && unlink($tmpchecker);
 }
 
-
 // }}}
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -6,8 +6,8 @@ require_once P2_LIBRARY_DIR . '/brdmenu.class.php';
  * p2 - 板リストコントロールクラス for menu.php
  * スタティックメソッドで利用している
  */
-class BrdCtl{
-
+class BrdCtl
+{
     /**
      * boardを全て読み込む
      *
@@ -146,3 +146,13 @@ class BrdCtl{
     }
 
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

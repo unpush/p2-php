@@ -1,8 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// p2 - ìoò^ÇµÇΩRSSÇÉÅÉjÉÖÅ[Ç…ï\é¶
+/**
+ * rep2expack - ìoò^ÇµÇΩRSSÇÉÅÉjÉÖÅ[Ç…ï\é¶
+ */
 
 require_once P2EX_LIBRARY_DIR . '/rss/common.inc.php';
 
@@ -24,7 +23,7 @@ function print_rss_list()
     echo "[<a href=\"editrss.php\" target=\"subject\">ï“èW</a>]\n";
 
     // RSSêÿÇËë÷Ç¶
-    if ($_conf['expack.misc.multi_favs']) {
+    if ($_conf['expack.rss.set_num'] > 0) {
         echo "<br>\n";
         echo FavSetManager::makeFavSetSwitchElem('m_rss_set', 'RSS', TRUE, "replaceMenuItem('c_rss', 'm_rss_set', this.options[this.selectedIndex].value);");
     }
@@ -76,7 +75,7 @@ function print_rss_list_k()
 {
     global $_conf;
 
-    $pageTitle = ($_conf['expack.misc.multi_favs']) ? FavSetManager::getFavSetPageTitleHt('m_rss_set', 'RSS') : 'RSS';
+    $pageTitle = ($_conf['expack.rss.set_num'] > 0) ? FavSetManager::getFavSetPageTitleHt('m_rss_set', 'RSS') : 'RSS';
     echo $pageTitle;
     echo '<hr>';
 
@@ -119,3 +118,13 @@ function print_rss_list_k()
     }
 
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

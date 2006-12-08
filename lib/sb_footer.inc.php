@@ -4,10 +4,10 @@
     for subject.php
 */
 
-$bbs_q = "&amp;bbs=".$aThreadList->bbs;
-$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+$bbs_q = "&amp;bbs=" . $aThreadList->bbs;
+$sid_q = (defined('SID')) ? '&amp;' . strip_tags(SID) : '';
 
-// dat倉庫 =======================
+// dat倉庫
 // スペシャルモードでなければ、またはあぼーんリストなら
 if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){
     $dat_soko_ht =<<<EOP
@@ -15,7 +15,7 @@ if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){
 EOP;
 }
 
-// あぼーん中のスレッド =================
+// あぼーん中のスレッド
 $taborn_link_ht = '';
 if ($ta_num) {
     $taborn_link_ht = <<<EOP
@@ -23,7 +23,7 @@ if ($ta_num) {
 EOP;
 }
 
-// あぼーん =======================
+// あぼーん
 $taborn_now_ht = '';
 if (!$aThreadList->spmode) {
     $taborn_now_ht = <<<EOP
@@ -31,7 +31,7 @@ if (!$aThreadList->spmode) {
 EOP;
 }
 
-// 新規スレッド作成・datのインポート =======
+// 新規スレッド作成・datのインポート
 $buildnewthread_ht = '';
 $import_dat_ht = '';
 if (!$aThreadList->spmode) {
@@ -43,13 +43,16 @@ EOP;
 EOP;
 }
 
-// HTMLプリント==============================================
+//================================================================
+// HTMLプリント
+//================================================================
 
 echo "</table>\n";
 
-// チェックフォーム =====================================
+// チェックフォーム
 echo $check_form_ht;
-//フォームフッタ
+
+// フォームフッタ
 echo <<<EOP
         <input type="hidden" name="host" value="{$aThreadList->host}">
         <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
@@ -57,7 +60,7 @@ echo <<<EOP
     </form>\n
 EOP;
 
-// sbject ツールバー =====================================
+// subject ツールバー
 include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
 
 echo "<p>";
@@ -68,20 +71,24 @@ echo $buildnewthread_ht;
 echo $import_dat_ht;
 echo "</p>";
 
-// スペシャルモードでなければフォーム入力補完========================
+// スペシャルモードでなければフォーム入力補完
 if (!$aThreadList->spmode) {
-    if (P2Util::isHostJbbsShitaraba($aThread->host)) { // したらば
+    // したらば
+    if (P2Util::isHostJbbsShitaraba($aThread->host)) {
         $ini_url_text = "http://{$aThreadList->host}/bbs/read.cgi?BBS={$aThreadList->bbs}&KEY=";
-    } elseif (P2Util::isHostMachiBbs($aThreadList->host)) { // まちBBS
+    // まちBBS
+    } elseif (P2Util::isHostMachiBbs($aThreadList->host)) {
         $ini_url_text = "http://{$aThreadList->host}/bbs/read.pl?BBS={$aThreadList->bbs}&KEY=";
-    } elseif (P2Util::isHostMachiBbsNet($aThreadList->host)) { // まちビねっと
+    // まちビねっと
+    } elseif (P2Util::isHostMachiBbsNet($aThreadList->host)) {
         $ini_url_text = "http://{$aThreadList->host}/test/read.cgi?bbs={$aThreadList->bbs}&key=";
     } else {
         $ini_url_text = "http://{$aThreadList->host}/test/read.cgi/{$aThreadList->bbs}/";
     }
 }
 
-//if(!$aThreadList->spmode || $aThreadList->spmode=="fav" || $aThreadList->spmode=="recent" || $aThreadList->spmode=="res_hist"){
+//if (!$aThreadList->spmode || $aThreadList->spmode == "fav" || $aThreadList->spmode == "recent" || $aThreadList->spmode == "res_hist") {
+
 $onClick_ht =<<<EOP
 var url_v=document.forms["urlform"].elements["url_text"].value;
 if (url_v=="" || url_v=="{$ini_url_text}") {
@@ -89,6 +96,7 @@ if (url_v=="" || url_v=="{$ini_url_text}") {
     return false;
 }
 EOP;
+
 echo <<<EOP
     <form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
             スレURLを直接指定
@@ -96,13 +104,23 @@ echo <<<EOP
             <input type="submit" name="btnG" value="表示" onClick='{$onClick_ht}'>
     </form>\n
 EOP;
-if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
+
+if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
     echo "\t<div style=\"margin:8px 8px;\">\n";
     echo FavSetManager::makeFavSetSwitchForm('m_favlist_set', 'お気にスレ', NULL, NULL, FALSE, array('spmode' => 'fav', 'norefresh' => 1));
     echo "\t</div>\n";
 }
+
 //}
 
-//================
-echo '</body>
-</html>';
+echo '</body></html>';
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

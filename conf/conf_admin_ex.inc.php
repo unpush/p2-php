@@ -130,10 +130,11 @@ $_conf['expack.aas.output_charset'] = "eucJP-win"; // ("eucJP-win")
 // {{{ その他
 
 // お気にセット切り替え（off:0, on:1）
+// 以下の値も個別に設定する必要あり
+// - favlist_set_num (お気にスレ)
+// - favita_set_num (お気に板)
+// - expack.rss.list_num (RSS)
 $_conf['expack.misc.multi_favs'] = 0; // (0)
-
-// 利用するお気にセット数（お気にスレ・お気に板・RSSで共通）
-$_conf['expack.misc.favset_num'] = 5; // (5)
 
 // お気にセット名情報を記録するファイルのパス
 $_conf['expack.misc.favset_file'] = $_conf['pref_dir'].'/p2_favset.txt';

@@ -4,7 +4,8 @@
 /**
  * レス記事のクラス
  */
-class ResArticle{
+class ResArticle
+{
     var $name;
     var $mail;
     var $daytime;
@@ -21,7 +22,8 @@ class ResArticle{
 /**
  * 書き込みログのクラス
  */
-class ResHist{
+class ResHist
+{
     var $articles; // クラス ResArticle のオブジェクトを格納する配列
     var $num; // 格納された BrdMenuCate オブジェクトの数
 
@@ -39,8 +41,9 @@ class ResHist{
     /**
      * 書き込みログの lines をパースして読み込む
      *
-     * @param  array    $lines
-     * @return boolean  実効成否
+     * @access  public
+     * @param   array    $lines
+     * @return  boolean  実効成否
      */
     function readLines($lines)
     {
@@ -80,7 +83,8 @@ class ResHist{
     /**
      * レスを追加する
      *
-     * @return void
+     * @access  private
+     * @return  void
      */
     function addRes(&$aResArticle)
     {
@@ -91,7 +95,8 @@ class ResHist{
     /**
      * レス記事を表示する PC用
      *
-     * @return void
+     * @access  public
+     * @return  void
      */
     function showArticles()
     {
@@ -131,7 +136,7 @@ class ResHist{
             $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
             $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
 
-            $href_ht = "";
+            $href_ht = '';
             if ($a_res->key) {
                 if (empty($a_res->resnum) || $a_res->resnum == 1) {
                     $ls_q = '';
@@ -178,8 +183,11 @@ EOP;
     }
 
     /**
-     * 携帯用ナビを表示する
+     * 携帯用ナビをHTML表示する
      * 表示範囲もセットされる
+     *
+     * @access  public
+     * @return  void
      */
     function showNaviK($position)
     {
@@ -246,9 +254,10 @@ EOP;
     }
 
     /**
-     * レス記事を表示するメソッド 携帯用
+     * レス記事をHTML表示するメソッド 携帯用
      *
-     * @return void
+     * @access  public
+     * @return  void
      */
     function showArticlesK()
     {
@@ -263,7 +272,7 @@ EOP;
                 continue;
             }
 
-            $href_ht = "";
+            $href_ht = '';
             if ($a_res->key) {
                 if (empty($a_res->resnum) || $a_res->resnum == 1) {
                     $ls_q = '';
@@ -297,8 +306,8 @@ EOP;
                         $msg = substr($msg, 0, strlen($msg)-1);
                     }
 
-                    $msg = $msg."  ";
-                    $a_res->msg = $msg."<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
+                    $msg .= '  ';
+                    $a_res->msg = $msg . "<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
                 }
             }
 
@@ -329,3 +338,13 @@ EOP;
         }
     }
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

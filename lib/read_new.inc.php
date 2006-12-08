@@ -35,7 +35,7 @@ function saveMatomeCache()
     $max = $_conf['matome_cache_max'];
     $i = $max;
     while ($i >= 0) {
-        $di = ($i == 0) ? '' : '.'.$i;
+        $di = ($i == 0) ? '' : '.' . $i;
         $tfile = $_conf['matome_cache_path'] . $di . $ext;
         $next = $i + 1;
         $nfile = $_conf['matome_cache_path'] . '.' . $next . $ext;
@@ -57,8 +57,10 @@ function saveMatomeCache()
     //echo "<!-- {$file} -->";
 
     FileCtl::make_datafile($file, $_conf['p2_perm']);
-    if (FileCtl::file_write_contents($file, $GLOBALS['read_new_html']) === false) {
+    if (file_put_contents($file, $GLOBALS['read_new_html'], LOCK_EX) === false) {
+        trigger_error("file_put_contents(" . $file . ")", E_USER_WARNING);
         die('Error: cannot write file.');
+        return false;
     }
 
     return true;
@@ -128,7 +130,9 @@ function saveMatomeCacheFromTmpFile()
 }
 
 /**
- * 新着まとめ読みのキャッシュを取得
+ * 新着まとめ読みのキャッシュを取得する
+ *
+ * @return string|null|false
  */
 function getMatomeCache($num = '')
 {
@@ -143,7 +147,11 @@ function getMatomeCache($num = '')
     $dnum = ($num) ? '.'.$num : '';
     $file = $_conf['matome_cache_path'] . $dnum . $ext;
 
-    $cont = @file_get_contents($file);
+    if (file_exists($file)) {
+        $cont = file_get_contents($file);
+    } else {
+        return null;
+    }
 
     if (strlen($cont) > 0) {
         return $cont;
@@ -151,3 +159,13 @@ function getMatomeCache($num = '')
         return false;
     }
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

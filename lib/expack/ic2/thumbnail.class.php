@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - ImageCache2
+ */
 
 require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
@@ -1075,3 +1076,13 @@ EOF;
 
     // }}
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -44,7 +44,6 @@ if (isset($word) && strlen($word) > 0) {
     if (empty($res_filter['method'])) { $res_filter['method'] = "or"; }
 
     if (!($res_filter['method'] == 'regex' && preg_match('/^\.+$/', $word))) {
-        $_conf['filtering'] = true;
         include_once P2_LIBRARY_DIR . '/strctl.class.php';
         $word_fm = StrCtl::wordForMatch($word, $res_filter['method']);
         if ($res_filter['method'] != 'just') {
@@ -141,7 +140,7 @@ $aThread->getThreadInfoFromIdx();
 // preview >>1
 //==========================================================
 
-if ($_GET['one']) {
+if (!empty($_GET['onlyone'])) {
     $body = $aThread->previewOne();
     $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . " / " . $aThread->ttitle_hd;
     include_once P2_LIBRARY_DIR . '/read_header.inc.php';
@@ -488,3 +487,14 @@ function recRecent($data)
 
     return true;
 }
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

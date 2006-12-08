@@ -5,16 +5,16 @@
 //=================================================
 //フッタプリント
 //=================================================
-$mae_ht = "";
-$tugi_ht = "";
-$bbs_q = "&amp;bbs=".$aThreadList->bbs;
+$mae_ht = '';
+$tugi_ht = '';
+$bbs_q = "&amp;bbs=" . $aThreadList->bbs;
 
 if (!empty($GLOBALS['wakati_words'])) {
     $word_at = "&amp;method=similar&amp;word=" . rawurlencode($GLOBALS['wakati_word']);
 } elseif ($word) {
     $word_at = "&amp;word=$word";
 } else {
-    $word_at = "";
+    $word_at = '';
 }
 
 if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
@@ -23,7 +23,7 @@ if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
 EOP;
 }
 
-// ページタイトル部分HTML設定 ====================================
+// ページタイトル部分HTML設定
 if ($aThreadList->spmode == "taborn") {
     $ptitle_ht = <<<EOP
 <a href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（ｱﾎﾞﾝ中）
@@ -44,7 +44,7 @@ EOP;
 
 // {{{ ナビ
 
-$sb_view_at = "";
+$sb_view_at = '';
 if (!empty($_REQUEST['sb_view'])) {
     $sb_view_at = "&amp;sb_view=" . htmlspecialchars($_REQUEST['sb_view']);
 }
@@ -101,7 +101,7 @@ EOP;
 // }}}
 // {{{ お気にスレセット切替
 
-if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
+if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
     $switchfavlist_ht = '<div>' . FavSetManager::makeFavSetSwitchForm('m_favlist_set', 'お気にスレ', NULL, NULL, FALSE, array('spmode' => 'fav')) . '</div>';
 }
 
@@ -154,7 +154,7 @@ $htm['change_sort'] .= '<input type="submit" value="変更"></form>';
 
 // }}}
 
-// HTMLプリント ==============================================
+// HTMLプリント
 echo "<hr>";
 echo $k_sb_navi_ht;
 include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
@@ -170,3 +170,13 @@ echo "<hr>";
 echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></p>";
 
 echo '</body></html>';
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

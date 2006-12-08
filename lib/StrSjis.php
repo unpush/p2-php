@@ -6,8 +6,8 @@
  * @author aki
  * @since  2006/10/02
  */
-class StrSjis{
-
+class StrSjis
+{
     /**
      * 参考データ
      * SJIS 2バイトの第1バイト範囲 129～159、224～239（0x81～0x9F、0xE0～0xEF）
@@ -15,7 +15,7 @@ class StrSjis{
      * SJIS 英数字(ASCII) 33～126（0x21～0x7E） 32 空白
      * SJIS 半角カナ161～223（0xA1～0xDF）(第2バイト領域) 
      */
-    
+
     /*
     // SJIS文字化け文字が直前の第1バイト文字で打ち消されるかどうかの目視用テストコード
     // →打ち消されるが、末尾のみのチェックでは不足。先頭から順に2バイトの組を調べる必要がある。
@@ -43,7 +43,7 @@ class StrSjis{
         }
 
         $un = unpack('C*', $str);
-    
+
         $after_sjis1st = false;
         $after_crasher = false;
         foreach ($un as $v) {
@@ -61,12 +61,12 @@ class StrSjis{
                 }
             }
         }
-    
+
         if ($after_crasher) {
             $str = substr($str, 0, -1);
         }
         return $str;
-    
+
         /*
         // 末尾のみをチェックするためのコード。これでは不足。
         if (StrSjis::isSjisCrasherCode($un[$count]) && !StrSjis::isSjis1stByte($un[$count-1])) {
@@ -110,4 +110,13 @@ class StrSjis{
     }
 
 }
-?>
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

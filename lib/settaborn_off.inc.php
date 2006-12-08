@@ -1,12 +1,11 @@
 <?php
-/*
-    p2 - スレッドあぼーん複数一括解除処理
-*/
-
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
- * ■スレッドあぼーんを複数一括解除する
+ * スレッドあぼーんを複数一括解除する関数
+ *
+ * @access  public
+ * @return  boolean  実行成否
  */
 function settaborn_off($host, $bbs, $taborn_off_keys)
 {
@@ -19,10 +18,16 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
 
     // p2_threads_aborn.idx がなければ
-    if (!file_exists($taborn_idx)) { die("あぼーんリストが見つかりませんでした。"); }
+    if (!file_exists($taborn_idx)) {
+        die("あぼーんリストが見つかりませんでした。");
+        return false;
+    }
 
     // p2_threads_aborn.idx 読み込み
-    $taborn_lines = @file($taborn_idx);
+    $taborn_lines = file($taborn_idx);
+    if ($taborn_lines === false) {
+        return false;
+    }
 
     // 指定keyを削除
     foreach ($taborn_off_keys as $val) {
@@ -47,6 +52,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     }
 
     // 書き込む
+
     if (file_exists($taborn_idx)) {
         copy($taborn_idx, $taborn_idx.'.bak'); // 念のためバックアップ
     }
@@ -59,6 +65,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     }
     if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
         die('Error: cannot write file.');
+        return false;
     }
 
     /*
@@ -69,4 +76,15 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     }
     */
 
+    return true;
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,21 +1,22 @@
 <?php
-// p2 - 書き込み履歴 のための関数群
+// p2 - 書き込み履歴 のための関数群。（クラスにしたいところ）
 
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
-//======================================================================
-// 関数
-//======================================================================
 /**
  * チェックした書き込み記事を削除する
+ *
+ * @access  public
+ * @return  boolean
  */
 function deleMsg($checked_hists)
 {
-    global $_conf;
+    global $_conf, $_info_msg_ht;
 
     // 読み込んで
     if (!$reslines = file($_conf['p2_res_hist_dat'])) {
         die("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
+        return false;
     }
     $reslines = array_map('rtrim', $reslines);
 
@@ -27,6 +28,7 @@ function deleMsg($checked_hists)
     // チェックして整えて
     if ($reslines) {
         $n = 1;
+        $rmnums = array();
         foreach ($reslines as $ares) {
             $rar = explode("<>", $ares);
 
@@ -46,38 +48,31 @@ function deleMsg($checked_hists)
         // 行順を戻す
         $neolines = array_reverse($neolines);
 
-        $cont = "";
+        $cont = '';
         if ($neolines) {
             $cont = implode("\n", $neolines) . "\n";
         }
 
-        // {{{ 書き込み処理
-
-        $temp_file = $_conf['p2_res_hist_dat'] . '.tmp';
-        $write_file = strstr(PHP_OS, 'WIN') ? $_conf['p2_res_hist_dat'] : $temp_file;
-        if (FileCtl::file_write_contents($write_file, $cont) === false) {
-            die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
+        // 書き込み処理
+        if (FileCtl::filePutRename($_conf['p2_res_hist_dat'], $cont) === false) {
+            $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
+            trigger_error($errmsg, E_USER_WARNING);
+            return false;
         }
-        if (!strstr(PHP_OS, 'WIN')) {
-            if (!rename($write_file, $_conf['p2_res_hist_dat'])) {
-                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
-            }
-        }
-
-        // }}}
     }
+    return true;
 }
 
 /**
  * 番号と日付が一致するかをチェックする
  *
- * @return boolean
+ * @return  boolean  一致したらtrue
  */
 function checkMsgID($checked_hists, $order, $date)
 {
     if ($checked_hists) {
         foreach ($checked_hists as $v) {
-            $vary = explode(",,,,", $v);    // ",,,," は外部から来る変数で、特殊なデリミタ
+            $vary = explode(",,,,", $v);    // ",,,," は外部から来る変数で、特殊な変なデリミタ
             if (($vary[0] == $order) and ($vary[1] == $date)) {
                 return true;
             }
@@ -88,15 +83,19 @@ function checkMsgID($checked_hists, $order, $date)
 
 /**
  * 指定した番号（配列指定）を行リストから削除する
+ *
+ * @return  array|false  削除した結果の行リストを返す
  */
-function rmLine($order_list, $lines)
+function rmLine($rmnums, $lines)
 {
     if ($lines) {
         $neolines = array();
         $i = 0;
         foreach ($lines as $l) {
             $i++;
-            if (checkOrder($order_list, $i)) { continue; } // 削除扱い
+            if (in_array($i, $rmnums)) {
+                continue; // 削除扱い
+            }
             $neolines[] = $l;
         }
         return $neolines;
@@ -104,17 +103,12 @@ function rmLine($order_list, $lines)
     return false;
 }
 
-/**
- * 番号と配列を比較
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
  */
-function checkOrder($order_list, $order)
-{
-    if ($order_list) {
-        foreach ($order_list as $n) {
-            if ($n == $order) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

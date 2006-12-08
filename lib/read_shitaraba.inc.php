@@ -1,14 +1,13 @@
 <?php
-/*
-    p2 - したらばJBBS jbbs.livedoor.jp 用の関数
-
-    // 各種BBSに対応できるプロファイルクラスみたいなのを作りたいものだ。。 aki
-*/
+// p2 - したらばJBBS（jbbs.livedoor.jp）の関数
 
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * したらばJBBSの rawmode.cgi を読んで、datに保存する（2ch風に整形）
+ *
+ * @access  public
+ * @return  boolean
  */
 function shitarabaDownload()
 {
@@ -17,8 +16,9 @@ function shitarabaDownload()
     $GLOBALS['machi_latest_num'] = '';
 
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
+
     if (file_exists($aThread->keydat)) {
-        $dls = @file($aThread->keydat);
+        $dls = file($aThread->keydat);
         if (sizeof($dls) != $aThread->gotnum) {
             // echo 'bad size!<br>';
             unlink($aThread->keydat);
@@ -27,6 +27,7 @@ function shitarabaDownload()
     } else {
         $aThread->gotnum = 0;
     }
+
     // }}}
 
     if ($aThread->gotnum == 0) {
@@ -45,7 +46,7 @@ function shitarabaDownload()
         $machiurl = "http://{$host}/bbs/rawmode.cgi/{$category}/{$aThread->bbs}/{$aThread->key}/{$START}-";
     }
 
-    $tempfile = $aThread->keydat.'.dat.temp';
+    $tempfile = $aThread->keydat . '.dat.temp';
 
     FileCtl::mkdir_for($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
@@ -55,17 +56,16 @@ function shitarabaDownload()
         return false;
     }
 
-    // {{{ したらばならEUCをSJISに変換
+    // したらばならEUCをSJISに変換
     if (P2Util::isHostJbbsShitaraba($aThread->host)) {
-        $temp_data = @file_get_contents($tempfile);
+        $temp_data = file_get_contents($tempfile);
         $temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'eucJP-win');
-        if (FileCtl::file_write_contents($tempfile, $temp_data) === false) {
+        if (FileCtl::filePutRename($tempfile, $temp_data) === false) {
             die('Error: cannot write file.');
         }
     }
-    // }}}
 
-    $mlines = @file($tempfile);
+    $mlines = file($tempfile);
 
     // 一時ファイルを削除する
     unlink($tempfile);
@@ -83,7 +83,7 @@ function shitarabaDownload()
     // {{{ DATを書き込む
     if ($mdatlines =& shitarabaDatTo2chDatLines($mlines)) {
 
-        $file_append = ($file_append) ? FILE_APPEND : 0;
+        $rsc = $file_append ? (FILE_APPEND | LOCK_EX) : LOCK_EX;
 
         $cont = '';
         for ($i = $START; $i <= $GLOBALS['machi_latest_num']; $i++) {
@@ -93,8 +93,10 @@ function shitarabaDownload()
                 $cont .= "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n";
             }
         }
-        if (FileCtl::file_write_contents($aThread->keydat, $cont, $file_append) === false) {
+        if (file_put_contents($aThread->keydat, $cont, $rsc) === false) {
+            trigger_error("file_put_contents(" . $aThread->keydat . ")", E_USER_WARNING);
             die('Error: cannot write file.');
+            return false;
         }
     }
     // }}}
@@ -109,6 +111,7 @@ function shitarabaDownload()
  * したらばBBSの rawmode.cgi で読み込んだDATを2ch風datに変換する
  *
  * @see shitarabaDownload()
+ * @return  array|false
  */
 function &shitarabaDatTo2chDatLines(&$mlines)
 {
@@ -116,7 +119,8 @@ function &shitarabaDatTo2chDatLines(&$mlines)
         $retval = false;
         return $retval;
     }
-    $mdatlines = "";
+
+    $mdatlines = '';
 
     foreach ($mlines as $ml) {
         $ml = rtrim($ml);
@@ -159,3 +163,13 @@ function &shitarabaDatTo2chDatLines(&$mlines)
 
     return $mdatlines;
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -12,27 +12,27 @@ $_login->authorize(); // ユーザ認証
 $ptitle = 'ログイン管理';
 
 if ($_conf['ktai']) {
-    $status_st = "ｽﾃｰﾀｽ";
-    $autho_user_st = "認証ﾕｰｻﾞ";
-    $client_host_st = "端末ﾎｽﾄ";
-    $client_ip_st = "端末IPｱﾄﾞﾚｽ";
-    $browser_ua_st = "ﾌﾞﾗｳｻﾞUA";
-    $p2error_st = "rep2 ｴﾗｰ";
+    $status_st      = 'ｽﾃｰﾀｽ';
+    $autho_user_st  = '認証ﾕｰｻﾞ';
+    $client_host_st = '端末ﾎｽﾄ';
+    $client_ip_st   = '端末IPｱﾄﾞﾚｽ';
+    $browser_ua_st  = 'ﾌﾞﾗｳｻﾞUA';
+    $p2error_st     = 'rep2 ｴﾗｰ';
 } else {
-    $status_st = "ステータス";
-    $autho_user_st = "認証ユーザ";
-    $client_host_st = "端末ホスト";
-    $client_ip_st = "端末IPアドレス";
-    $browser_ua_st = "ブラウザUA";
-    $p2error_st = "rep2 エラー";
+    $status_st      = 'ステータス';
+    $autho_user_st  = '認証ユーザ';
+    $client_host_st = '端末ホスト';
+    $client_ip_st   = '端末IPアドレス';
+    $browser_ua_st  = 'ブラウザUA';
+    $p2error_st     = 'rep2 エラー';
 }
 
 $autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
 
 
-$body_onload = "";
+$body_onload = '';
 if (!$_conf['ktai']) {
-    $body_onload = " onLoad=\"setWinTitle();\"";
+    $body_onload = ' onLoad="setWinTitle();"';
 }
 
 // HOSTを取得
@@ -40,7 +40,7 @@ if (!$hc[remoto_host] = $_SERVER['REMOTE_HOST']) {
     $hc[remoto_host] = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 }
 if ($hc[remoto_host] == $_SERVER['REMOTE_ADDR']) {
-    $hc[remoto_host] = "";
+    $hc[remoto_host] = '';
 }
 
 $hc['ua'] = $_SERVER['HTTP_USER_AGENT'];
@@ -85,7 +85,7 @@ EOP;
 
 // インフォメッセージ表示
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 echo "<ul id=\"setting_menu\">";
 
@@ -119,3 +119,14 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

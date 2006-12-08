@@ -1,5 +1,4 @@
 <?php
-
 /*
 define(P2_SUBJECT_TXT_STORAGE, 'eashm');    // 要eAccelerator
 
@@ -12,8 +11,8 @@ shmにしてもパフォーマンスはほとんど変わらない（ようだ）
 /**
  * SubjectTxtクラス
  */
-class SubjectTxt{
-
+class SubjectTxt
+{
     var $host;
     var $bbs;
     var $subject_url;
@@ -179,7 +178,6 @@ class SubjectTxt{
         return $body;
     }
 
-
     /**
      * subject.txt が新鮮なら true を返す
      *
@@ -240,3 +238,13 @@ class SubjectTxt{
     }
 
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

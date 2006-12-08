@@ -173,7 +173,7 @@ EOP;
 
 // 情報メッセージ表示
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 echo <<<EOP
 <form id="edit_conf_user_form" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
@@ -357,6 +357,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('rct_rec_num', '最近読んだスレの記録数'),
         array('res_hist_rec_num', '書き込み履歴の記録数'),
         array('res_write_rec', '書き込み内容ログを記録 (する, しない)'),
+        array('favlist_set_num', '追加お気にスレセット数'),
+        array('favita_set_num', '追加お気に板セット数'),
         array('through_ime', '外部URLジャンプする際に通すゲート (直接, p2 ime(自動転送), p2 ime(手動転送), p2 ime(pのみ手動転送), r.p(自動転送1秒), r.p(自動転送0秒), r.p(手動転送), r.p(pのみ手動転送))'),
         array('ime_manual_ext', 'ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）'),
         array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加 (する, しない)'),
@@ -397,6 +399,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('mobile.newres_color', '新着レス番号'),
         array('mobile.ngword_color', 'NGワード'),
         array('mobile.onthefly_color', 'オンザフライレス番号'),
+        array('mobile.sage_color', 'メール欄がsage'),
         array('mobile.match_color', 'フィルタリングでマッチしたキーワード'),
         array('mobile.id_underline', 'ID末尾の&quot;O&quot;に下線を引く (する, しない)'),
     );
@@ -510,7 +513,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.rss.check_interval', 'RSSが更新されたかどうか確認する間隔（分指定）'),
+        array('expack.rss.set_num', '追加セット数 (Bloglines のフォルダのようなもの)'),
+        array('expack.rss.check_interval', 'RSSが更新されたかどうか確認する間隔 (分指定)'),
         array('expack.rss.target_frame', 'RSSの外部リンクを開くフレームまたはウインドウ'),
         array('expack.rss.desc_target_frame', '概要を開くフレームまたはウインドウ'),
     );
@@ -695,7 +699,7 @@ function emptyToDef($val, $def)
  * 正の整数化できる時は正の整数化（0を含む）し、
  * できない時は、デフォルトセットする
  *
- * @param   string  $str    入力された値
+ * @param   string  $val    入力された値
  * @param   int     $def    デフォルトの値
  * @return  int
  */
@@ -722,7 +726,7 @@ function notIntExceptMinusToDef($val, $def)
  * 正の実数化できる時は正の実数化（0を含む）し、
  * できない時は、デフォルトセットする
  *
- * @param   string  $str    入力された値
+ * @param   string  $val    入力された値
  * @param   float   $def    デフォルトの値
  * @return  float
  */
@@ -743,6 +747,18 @@ function notFloatExceptMinusToDef($val, $def)
         $val = floatval($def);
     }
     return $val;
+}
+
+/**
+ * 大きすぎるセット数を最大値に補正
+ *
+ * @param   string  $val    入力された値
+ * @return  int
+ */
+function tooLargeSetNumToMax($val)
+{
+    $num = (int)$val;
+    return ($num > P2_FAVSET_MAX_NUM) ? P2_FAVSET_MAX_NUM : $num;
 }
 
 /**
@@ -1008,7 +1024,7 @@ function getEditConfSelHtml($name)
             continue;
         }
         */
-        $selected = "";
+        $selected = '';
         if ($_conf[$name] == $key) {
             $selected = " selected";
         }
@@ -1040,7 +1056,7 @@ function getEditConfRadHtml($name)
             continue;
         }
         */
-        $checked = "";
+        $checked = '';
         if ($_conf[$name] == $key) {
             $checked = " checked";
         }
@@ -1072,3 +1088,14 @@ function printEditConfGroupHtml($groupname, $conflist, $flags)
     }
     echo getGroupEndHtml($flags);
 }
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

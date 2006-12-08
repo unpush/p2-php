@@ -101,7 +101,7 @@ function getResponseTextHttp(objHTTP, url, nc)
 //
 function isSafari() {
 	var ua = navigator.userAgent;
-	if (ua.indexOf("Safari") != -1 || ua.indexOf("AppleWebKit") != -1 || ua.indexOf"Konqueror") != -1) {
+	if (ua.indexOf("Safari") != -1 || ua.indexOf("AppleWebKit") != -1 || ua.indexOf("Konqueror") != -1) {
 		return true;
 	} else {
 		return false;

@@ -15,7 +15,7 @@ header('Content-Type: text/html; charset=Shift_JIS');
 
 // }}}
 
-$r_msg = "";
+$r_msg = '';
 
 // cmd‚ªw’è‚³‚ê‚Ä‚¢‚È‚¯‚ê‚ÎA‰½‚à•Ô‚³‚¸‚ÉI—¹
 if (!isset($_GET['cmd']) && !isset($_POST['cmd'])) {
@@ -95,3 +95,14 @@ if (P2Util::isBrowserSafariGroup()) {
 echo $r_msg;
 
 // }}}
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

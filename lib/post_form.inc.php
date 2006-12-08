@@ -24,7 +24,7 @@ if ($_conf['ktai']) {
     } else {
         $htm['kakiko_on_js_fmt'] = ' onfocus="%1$s" onkeyup="if(%2$s){%1$s};%3$s;"';
     }
-    $htm['kakiko_on_js'] = sprintf($htm['kakiko_on_js_fmt']
+    $htm['kakiko_on_js'] = sprintf($htm['kakiko_on_js_fmt'],
         'adjustTextareaRows(this, 2)',
         '!event||((event.keyCode&&(event.keyCode==8||event.keyCode==13))||event.ctrlKey||event.metaKey||event.altKey)',
         "autoSavePostForm('$host', '$bbs', '$key')");
@@ -93,3 +93,13 @@ if (!messageObj.value) {
 </script>\n
 EOP;
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

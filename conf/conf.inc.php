@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.8.99';     // rep2のバージョン
-$_conf['p2expack'] = '061205.1929'; // 拡張パックのバージョン
+$_conf['p2expack'] = '061208.2218'; // 拡張パックのバージョン
 $_conf['p2name'] = 'r e p 2 e x';   // rep2の名前。
 
 //======================================================================
@@ -18,6 +18,25 @@ error_reporting(E_ALL & ~E_NOTICE);
 //defined('E_STRICT') && error_reporting(error_reporting() & ~E_STRICT);
 //defined('E_DEPRECATED') && error_reporting(error_reporting() & ~E_DEPRECATED);
 
+// {{{ ライブラリ類のパス設定
+
+// 基本的な機能を提供するするライブラリ
+define('P2_LIBRARY_DIR', './lib');
+
+// おまけ的な機能を提供するするライブラリ
+define('P2EX_LIBRARY_DIR', './lib/expack');
+
+// スタイルシート
+define('P2_STYLE_DIR', './style');
+
+// PEARインストールディレクトリ、検索パスに追加される
+define('P2_PEAR_DIR', './includes');
+
+// PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
+// Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
+define('P2_PEAR_HACK_DIR', './lib/pear_hack');
+
+// }}}
 // {{{ 基本変数
 
 $_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
@@ -40,185 +59,38 @@ $_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
 // }}}
 // {{{ 環境設定
 
+// デバッグモード?
+$debug = !empty($_GET['debug']);
+
 // 動作環境を確認 (要件を満たしているならコメントアウト可)
 p2checkenv(__LINE__);
 
-// デバッグ
-$debug = !empty($_GET['debug']);
+// 動作環境を設定する
+p2setenv();
 
-// タイムゾーンをセット
-if (function_exists('date_default_timezone_set')) {
-    date_default_timezone_set('Asia/Tokyo');
-} else {
-    putenv('TZ=JST-9');
-}
-
-@set_time_limit(60); // (60) スクリプト実行制限時間(秒)
-
-// 自動フラッシュをオフにする
-ob_implicit_flush(0);
-
-// クライアントから接続を切られても処理を続行する
-// ignore_user_abort(1);
-
-// session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
-// URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
-ini_set('arg_separator.output', '&amp;');
-
-// リクエストIDを設定
-define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
-
-// Windows なら
-if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-    // Windows
-    defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ';');
-    defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '\\');
-} else {
-    defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ':');
-    defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '/');
-}
-
-// 追加できるお気にセット数の上限
-define('P2_FAVSET_MAX_SIZE', (int)log(PHP_INT_MAX - floor(PHP_INT_MAX / 2), 2));
-
-// }}}
-// {{{ P2Util::header_content_type() を不要にするおまじない
-
-ini_set('default_mimetype', 'text/html');
-ini_set('default_charset', 'Shift_JIS');
-
-// }}}
-// {{{ 文字コードの指定
-
-//mb_detect_order("SJIS-win,eucJP-win,ASCII");
-mb_internal_encoding('SJIS-win');
-mb_http_output('pass');
-mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
-//mb_substitute_character(0x3013); // 〓
-//ob_start('mb_output_handler');
-
-if (function_exists('mb_ereg_replace')) {
-    define('P2_MBREGEX_AVAILABLE', 1);
-    @mb_regex_encoding('SJIS-win');
-} else {
-    define('P2_MBREGEX_AVAILABLE', 0);
-}
-
-// 文字コード自動判定用のヒント文字列
-$_conf['detect_hint'] = '◎◇';
-$_conf['detect_hint_utf8'] = mb_convert_encoding($_conf['detect_hint'], 'UTF-8', 'SJIS-win');
-
-// }}}
-// {{{ ライブラリ類のパス設定
-
-// 基本的な機能を提供するするライブラリ
-define('P2_LIBRARY_DIR', './lib');
-
-// おまけ的な機能を提供するするライブラリ
-define('P2EX_LIBRARY_DIR', './lib/expack');
-
-// スタイルシート
-define('P2_STYLE_DIR', './style');
-
-// PEARインストールディレクトリ、検索パスに追加される
-define('P2_PEAR_DIR', './includes');
-
-// PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
-// Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
-define('P2_PEAR_HACK_DIR', './lib/pear_hack');
-
-// 検索パスをセット
-if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
-    $include_path = '.';
-    if (is_dir(P2_PEAR_HACK_DIR)) {
-        $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_HACK_DIR);
-    }
-    if (is_dir(P2_PEAR_DIR)) {
-        $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_DIR);
-    }
-    $include_path .= PATH_SEPARATOR . get_include_path();
-    set_include_path($include_path);
-}
-
-// ライブラリを読み込む
-$_pear_required = array(
-    'File/Util.php'             => 'File',
-    'HTTP/Request.php'          => 'HTTP_Request',
-    'Net/UserAgent/Mobile.php'  => 'Net_UserAgent_Mobile',
-    'PHP/Compat.php'            => 'PHP_Compat',
+// 依存するライブラリを読み込む
+$pear_list = array(
+    'PEAR'                  => 'PEAR.php',
+    'Cache_Lite'            => '',
+    'File'                  => 'File/Util.php',
+    'HTML_Template_Flexy'   => '',
+    'HTTP_Request'          => 'HTTP/Request.php',
+    'HTTP_Client'           => '',
+    'Net_UserAgent_Mobile'  => 'Net/UserAgent/Mobile.php',
+    'Pager'                 => '',
 );
 if ($debug) {
-    $_pear_required['Benchmark/Profiler.php'] = 'Benchmark';
+    $pear_list['Benchmark'] = 'Benchmark/Profiler.php';
 }
-//$_pear_required['Var_Dump.php'] = 'Var_Dump';
-foreach ($_pear_required as $_pear_file => $_pear_pkg) {
-    if (!include_once($_pear_file)) {
-        $url1 = 'http://akid.s17.xrea.com/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
-        $url2 = 'http://page2.xrea.jp/p2pear/index.php';
-        $url1_t = P2Util::throughIme($url1);
-        $url2_t = P2Util::throughIme($url2);
-        $msg = <<<EOP
-<ul>
-    <li><a href="{$url1_t}" target="_blank">p2Wiki: PEARのインストール</a></li>
-    <li><a href="{$url2_t}" target="_blank">p2pear (PEAR詰め合わせ)</a></li>
-</ul>
-EOP;
-        p2die('PEAR の ' . $_pear_pkg . ' がインストールされていません。', $msg, true);
-    }
-}
-require_once P2_LIBRARY_DIR . '/p2util.class.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/session.class.php';
-require_once P2_LIBRARY_DIR . '/login.class.php';
+//$pear_list['Var_Dump'] = 'Var_Dump.php';
+p2loaddeps($pear_list);
 
-// }}}
-// {{{ デバッグ
-
-if (!empty($debug)) {
+// プロファイラを起動
+if ($debug) {
     $profiler =& new Benchmark_Profiler(true);
     // printMemoryUsage();
     register_shutdown_function('printMemoryUsage');
 }
-
-// }}}
-// {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
-
-if (!P2_PHP50) {
-    PHP_Compat::loadFunction('array_walk_recursive');
-    PHP_Compat::loadFunction('clone');
-    PHP_Compat::loadFunction('file_put_contents');
-    PHP_Compat::loadFunction('http_build_query');
-    PHP_Compat::loadFunction('scandir');
-}
-
-// }}}
-// {{{ フォームからの入力を一括でサニタイズ
-
-/**
- * フォームからの入力を一括でクォート除去＆文字コード変換
- * フォームのaccept-encoding属性をUTF-8(Safari系) or Shift_JIS(その他)にし、
- * さらにhidden要素で美乳テーブルの文字を仕込むことで誤判定を減らす
- * 変換元候補にeucJP-winがあるのはHTTP入力の文字コードがEUCに自動変換されるサーバのため
- */
-if (!empty($_GET)) {
-    if (get_magic_quotes_gpc()) {
-        $_GET = array_map('stripslashes_r', $_GET);
-    }
-    mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_GET);
-    $_GET = array_map('nullfilter_r', $_GET);
-}
-if (!empty($_POST)) {
-    if (get_magic_quotes_gpc()) {
-        $_POST = array_map('stripslashes_r', $_POST);
-    }
-    mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_POST);
-    $_POST = array_map('nullfilter_r', $_POST);
-    $_REQUEST = array_merge($_GET, $_POST);
-} else {
-    $_REQUEST = $_GET;
-}
-
-// }}}
 
 // 管理者用設定を読み込み
 if (!include_once './conf/conf_admin.inc.php') {
@@ -239,6 +111,10 @@ $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
 
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">';
+
+// 文字コード自動判定用のヒント文字列
+$_conf['detect_hint'] = '◎◇';
+$_conf['detect_hint_utf8'] = mb_convert_encoding($_conf['detect_hint'], 'UTF-8', 'SJIS-win');
 
 // {{{ 端末判定
 
@@ -356,7 +232,7 @@ if ($b == 'pc') {
     }
     $_conf['b'] = 'k';
     //output_add_rewrite_var('b', 'k');
-    
+
     $_conf['k_at_a'] = '&amp;b=k';
     $_conf['k_at_q'] = '?b=k';
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="k">';
@@ -776,7 +652,7 @@ function printMemoryUsage()
     }
     $kb = $usage / 1024;
     $kb = number_format($kb, 2, '.', '');
-    
+
     echo 'Memory Usage: ' . $kb . 'KB';
 }
 
@@ -1042,11 +918,12 @@ function p2checkenv($lineno)
     if (version_compare($php_version, '5.0.0', '<')) {
         $required_version    = '4.3.3';
         $recommended_version = '4.4.4';
+        define('P2_PHP5', false);
     } else {
         $required_version    = '5.1.0';
         $recommended_version = '5.2.0';
+        define('P2_PHP5', true);
     }
-    $cr_lineno = strval(__LINE__ - 1);
 
     if (version_compare($php_version, $required_version, '<')) {
         p2die('PHP ' . $required_version . ' 未満では使えません。');
@@ -1071,4 +948,160 @@ EOP;
         $_info_msg_ht .= '<small>（このメッセージを表示しないようにするには ' . htmlspecialchars(__FILE__, ENT_QUOTES) . ' の ';
         $_info_msg_ht .= $lineno . ' 行目の &#96;' . __FUNCTION__ . '(__LINE__)&#39; をコメントアウトしてください）</small></p>';
     }
+}
+
+/**
+ * 動作環境を設定する
+ *
+ * @return  void
+ */
+function p2setenv()
+{
+    // タイムゾーンをセット
+    if (function_exists('date_default_timezone_set')) {
+        date_default_timezone_set('Asia/Tokyo');
+    } else {
+        putenv('TZ=JST-9');
+    }
+
+    @set_time_limit(60); // (60) スクリプト実行制限時間(秒)
+
+    // 自動フラッシュをオフにする
+    ob_implicit_flush(0);
+
+    // クライアントから接続を切られても処理を続行する
+    // ignore_user_abort(1);
+
+    // session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
+    // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
+    ini_set('arg_separator.output', '&amp;');
+
+    // P2Util::header_content_type() を不要にするおまじない
+    ini_set('default_mimetype', 'text/html');
+    ini_set('default_charset', 'Shift_JIS');
+
+    // 文字コードの指定
+    //mb_detect_order("SJIS-win,eucJP-win,ASCII");
+    mb_internal_encoding('SJIS-win');
+    mb_http_output('pass');
+    mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
+    //mb_substitute_character(0x3013); // 〓
+    //ob_start('mb_output_handler');
+
+    if (function_exists('mb_ereg_replace')) {
+        define('P2_MBREGEX_AVAILABLE', 1);
+        mb_regex_encoding('SJIS-win');
+    } else {
+        define('P2_MBREGEX_AVAILABLE', 0);
+    }
+
+    // リクエストIDを設定
+    define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
+
+    // 追加できるお気にセット数の上限
+    define('P2_FAVSET_MAX_NUM', (int)log(PHP_INT_MAX - floor(PHP_INT_MAX / 2), 2));
+
+    // PATH_SEPARATOR と DIRECTORY_SEPARATOR が定義されていないときが稀にあるので
+    if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
+        // Windows
+        defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ';');
+        defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '\\');
+        define('P2_OS_WINDOWS', true);
+    } else {
+        // その他
+        defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ':');
+        defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '/');
+        define('P2_OS_WINDOWS', false);
+    }
+
+    // 検索パスをセット
+    if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
+        $include_path = '.';
+        if (is_dir(P2_PEAR_HACK_DIR)) {
+            $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_HACK_DIR);
+        }
+        if (is_dir(P2_PEAR_DIR)) {
+            $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_DIR);
+        }
+        $include_path .= PATH_SEPARATOR . get_include_path();
+        set_include_path($include_path);
+    }
+
+    /**
+     * フォームからの入力を一括でクォート除去＆文字コード変換
+     * フォームのaccept-encoding属性をUTF-8(Safari系) or Shift_JIS(その他)にし、
+     * さらにhidden要素で美乳テーブルの文字を仕込むことで誤判定を減らす
+     * 変換元候補にeucJP-winがあるのはHTTP入力の文字コードがEUCに自動変換されるサーバのため
+     */
+    if (!empty($_GET)) {
+        if (get_magic_quotes_gpc()) {
+            $_GET = array_map('stripslashes_r', $_GET);
+        }
+        mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_GET);
+        $_GET = array_map('nullfilter_r', $_GET);
+    }
+    if (!empty($_POST)) {
+        if (get_magic_quotes_gpc()) {
+            $_POST = array_map('stripslashes_r', $_POST);
+        }
+        mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_POST);
+        $_POST = array_map('nullfilter_r', $_POST);
+        $_REQUEST = array_merge($_GET, $_POST);
+    } else {
+        $_REQUEST = $_GET;
+    }
+}
+
+/**
+ * 依存するライブラリを読み込む
+ *
+ * @return  void
+ */
+function p2loaddeps($pear_list)
+{
+    // PHP_Compat を必要とするか否かを判定
+    $required_phpversion = '5.1.0';
+    $requires_php_compat = version_compare(phpversion(), $required_phpversion, '<');
+    if ($requires_php_compat) {
+        $pear_list['PHP_Compat'] = 'PHP/Compat.php';
+    }
+
+    // PEAR のライブラリ読み込み
+    foreach ($pear_list as $pkg_name => $files) {
+        if (!is_array($files)) {
+            if (!$files) {
+                continue;
+            }
+            $files = array($files);
+        }
+        foreach ($files as $pear_file) {
+            if (!require_once($pear_file)) {
+                $navi = '<h3>PEAR 案内</h3>'
+                      . '<ul>'
+                      . '<li><a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB"'
+                      . ' target="_blank">p2Wiki: PEARのインストール</a></li>'
+                      . '<li><a href="http://page2.xrea.jp/p2pear/" target="_blank">p2pear (PEAR詰め合わせ)</a></li>'
+                      . '</ul>'
+                      . '<h3>必要なパッケージ</h3>'
+                      . '<ul>';
+                foreach (array_keys($pear_list) as $pkg) {
+                    $pkg = htmlspecialchars($pkg);
+                    $navi .= "<li><a href=\"http://pear.php.net/package/$pkg/\" target=\"_blank\">$pkg</a></li>";
+                }
+                $navi .= '</ul>';
+                p2die("PEAR::{$pkg_name} がインストールされていません。", $navi, true);
+            }
+        }
+    }
+
+    // $required_phpversion の定数・関数読み込み
+    if ($requires_php_compat) {
+        PHP_Compat::loadVersion($required_phpversion);
+    }
+
+    // rep2 のライブラリ読み込み
+    require_once P2_LIBRARY_DIR . '/p2util.class.php';
+    require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+    require_once P2_LIBRARY_DIR . '/session.class.php';
+    require_once P2_LIBRARY_DIR . '/login.class.php';
 }

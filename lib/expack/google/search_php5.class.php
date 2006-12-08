@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - search 2ch using Google Web APIs
+ */
 
 require_once 'PEAR.php';
 require_once dirname(__FILE__) . '/search.class.php';
@@ -79,3 +80,13 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
 
     // }}}
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

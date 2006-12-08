@@ -39,8 +39,8 @@ function printLoginFirst(&$_login)
 
     $myname = basename($_SERVER['SCRIPT_NAME']);
 
-    $auth_sub_input_ht = "";
-    $body_ht = "";
+    $auth_sub_input_ht = '';
+    $body_ht = '';
 
     $p_str = array(
         'user'      => 'ƒ†[ƒU',
@@ -280,3 +280,13 @@ EOP;
 
     echo '</body></html>';
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

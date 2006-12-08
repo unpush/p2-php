@@ -50,7 +50,7 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 }
 
 // ページタイトル部分HTML設定 ====================================
-if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
+if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
     $ptitle_hd = FavSetManager::getFavSetPageTitleHt('m_favlist_set', $aThreadList->ptitle);
 } else {
     $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
@@ -281,10 +281,20 @@ EOP;
 include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 echo <<<EOP
     $taborn_check_ht
     $check_form_ht
     <table cellspacing="0" width="100%">\n
 EOP;
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

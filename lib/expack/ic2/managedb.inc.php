@@ -1,13 +1,14 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - ImageCache2
+ *
+ * @todo    引数の検証とトランザクションの開始/終了を一つにまとめる
+ */
 
 require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
-
-// TODO: 引数の検証とトランザクションの開始/終了を一つにまとめる
 
 /**
  * 画像情報を更新
@@ -256,3 +257,13 @@ function manageDB_addMemo($target, $memo)
         $ta->_db->query('COMMIT;');
     }
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

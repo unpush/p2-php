@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /* ImageCache2 - 画像キャッシュ一覧 */
 
 // {{{ p2基本設定読み込み&認証
@@ -26,7 +23,6 @@ if ($b == 'pc') {
 // }}}
 // {{{ 初期化
 
-
 // ライブラリ読み込み
 require_once 'PEAR.php';
 require_once 'DB.php';
@@ -46,10 +42,8 @@ require_once P2EX_LIBRARY_DIR . '/ic2/getvalidvalue.inc.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/buildimgcell.inc.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/matrix.class.php';
 
-
 // }}}
 // {{{ config
-
 
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
@@ -151,10 +145,8 @@ if ($_conf['ktai']) {
     }
 }
 
-
 // }}}
 // {{{ prepare (DB & Cache)
-
 
 // DB_DataObjectを継承したDAO
 $icdb = &new IC2DB_Images;
@@ -219,7 +211,6 @@ if ($ini['Viewer']['cache']) {
     $enable_cache = FALSE;
 }
 
-
 // SQLite UDF
 if (is_a($db, 'db_sqlite')) {
     $isSQLite = TRUE;
@@ -233,10 +224,8 @@ if (is_a($db, 'db_sqlite')) {
     $isSQLite = FALSE;
 }
 
-
 // }}}
 // {{{ prepare (Form & Template)
-
 
 // conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
 // バグの温床となる可能性も否定できない・・・
@@ -328,10 +317,8 @@ if ($_conf['ktai']) {
     $flexy->setData('skin', str_replace('&amp;', '&', $skin_en));
 }
 
-
 // }}}
 // {{{ validate
-
 
 // 検証
 $qf->validate();
@@ -546,10 +533,8 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
     $flexy->setData('toBlackList', $to_blacklist);
 }
 
-
 // }}}
 // {{{ build
-
 
 // 総レコード数を数える
 //$db->setFetchMode(DB_FETCHMODE_ORDERED);
@@ -870,7 +855,6 @@ $flexy->setData('removedFiles', $removed_files);
 // }}}
 // {{{ output
 
-
 // モード別の最終処理
 if ($_conf['ktai']) {
     $title = str_replace('ImageCache2', 'IC2', $ini['Viewer']['title']);
@@ -1052,3 +1036,13 @@ if ($list_template == 'iv2i.tpl.html') {
 }
 
 // }}}
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

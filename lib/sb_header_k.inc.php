@@ -49,7 +49,7 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
 // }}}
 // {{{ ページタイトル部分HTML設定
 
-if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
+if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
     $ptitle_hd = FavSetManager::getFavSetPageTitleHt('m_favlist_set', $aThreadList->ptitle);
 } else {
     $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
@@ -74,7 +74,8 @@ EOP;
 }
 
 // }}}
-// フォーム ==================================================
+
+// フォーム
 $sb_form_hidden_ht = <<<EOP
 <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
 <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
@@ -83,7 +84,7 @@ $sb_form_hidden_ht = <<<EOP
 {$_conf['k_input_ht']}
 EOP;
 
-// フィルタ検索 ==================================================
+// フィルタ検索
 $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
 if (!$aThreadList->spmode) {
     $filter_form_ht = <<<EOP
@@ -96,19 +97,20 @@ EOP;
 }
 
 // 検索結果
-if ($GLOBALS['sb_mikke_num']) {
+if (!empty($GLOBALS['sb_mikke_num'])) {
     $hit_ht = "<div>\"{$word}\" {$GLOBALS['sb_mikke_num']}hit!</div>";
 }
 
 
 //=================================================
-//ヘッダプリント
+// ヘッダHTMLをプリント
 //=================================================
 P2Util::header_nocache();
 echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
+{$_conf['meta_charset_ht']}
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$ptitle_hd}</title>
 </head>
@@ -116,10 +118,20 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
 
 echo $filter_form_ht;
 echo $hit_ht;
-echo "<hr>";
+echo '<hr>';
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,23 +1,49 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// お気にセット系ユーティリティクラス
+/**
+ * rep2expack - お気にセット系ユーティリティクラス
+ */
 
 // {{{ class FavSetManager
 
 class FavSetManager
 {
+    // {{{ getSetDefinition()
 
-    // {{{ switchFavSet()
+    /**
+     * セット定義を取得する
+     *
+     * @return  array
+     * @access  public
+     * @static
+     */
+    function getSetDefinition()
+    {
+        return array(
+            // お気にスレセット
+            'm_favlist_set' => array('favlist_set_num', 'favlist_file', 'p2_favlist%d.idx'),
+            // お気に板セット
+            'm_favita_set' => array('favita_set_num', 'favita_path', 'p2_favita%d.brd'),
+            // RSSセット
+            'm_rss_set' => array('expack.rss.set_num', 'expack.rss.setting_path', 'p2_rss%d.txt'),
+        );
+    }
+
+    // }}}
+    // {{{ loadAllFavSet()
 
     /**
      * すべてのお気にスレを読み込む
+     *
+     * @param   bool $force 通常は1回だけしか実行されないようになっているが、
+     *                      true のときは強制的に更新される
+     * @return  void
+     * @access  public
+     * @static
      */
-    function loadAllFavSet($force = FALSE)
+    function loadAllFavSet($force = false)
     {
         global $_conf, $__conf;
-        static $done = NULL;
+        static $done = null;
 
         if (!$force && !is_null($done)) {
             return;
@@ -26,7 +52,7 @@ class FavSetManager
         $_conf['favlists'] = array();
         $favlist_files = array();
         $favlist_files[0] = $__conf['favlist_file'];
-        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+        for ($i = 1; $i <= $_conf['favlist_set_num']; $i++) {
             $favlist_files[$i] = $_conf['pref_dir'] . sprintf('/p2_favlist%d.idx', $i);
         }
 
@@ -45,40 +71,38 @@ class FavSetManager
             }
         }
 
-        $done = TRUE;
+        $done = true;
     }
 
     /**
      * お気にスレ、お気に板、RSSのカレントセットを切り替える
+     *
+     * @param   bool $force 通常は1回だけしか実行されないようになっているが、
+     *                      true のときは強制的に更新される
+     * @return  void
+     * @access  public
+     * @static
      */
-    function switchFavSet($force = FALSE)
+    function switchFavSet($force = false)
     {
         global $_conf;
-        static $done = NULL;
+        static $done = null;
 
         if (!$force && !is_null($done)) {
             return;
         }
 
-        $sets = array(
-            // お気にスレセット
-            'm_favlist_set' => array('favlist_file', 'p2_favlist%d.idx'),
-            // お気に板セット
-            'm_favita_set' => array('favita_path', 'p2_favita%d.brd'),
-            // RSSセット
-            'm_rss_set' => array('expack.rss.setting_path', 'p2_rss%d.txt'),
-        );
-
+        $sets = FavSetManager::getSetDefinition();
         $ar = array();
 
         foreach ($sets as $key => $value) {
-            if (isset($_REQUEST[$key]) && 0 <= $_REQUEST[$key] && $_REQUEST[$key] <= $_conf['expack.misc.favset_num']) {
+            list($num_conf_key, $path_conf_key, $name_format) = $value;
+            if (isset($_REQUEST[$key]) && 0 <= $_REQUEST[$key] && $_REQUEST[$key] <= $_conf[$num_conf_key]) {
                 $_SESSION[$key] = (int)$_REQUEST[$key];
             }
             $ar[] = $key . '=' . ((isset($_SESSION[$key])) ? $_SESSION[$key] : 0);
             if (!empty($_SESSION[$key])) {
-                list($cnf, $fmt) = $value;
-                $_conf[$cnf] = $_conf['pref_dir'] . '/' . sprintf($fmt, $_SESSION[$key]);
+                $_conf[$path_conf_key] = $_conf['pref_dir'] . '/' . sprintf($name_format, $_SESSION[$key]);
             }
         }
 
@@ -89,7 +113,7 @@ class FavSetManager
         $k_to_index_q = htmlspecialchars($k_to_index_q, ENT_QUOTES);
         $_conf['k_to_index_ht'] = "<a {$_conf['accesskey']}=\"0\" href=\"index.php?{$k_to_index_q}\">0.TOP</a>";
 
-        $done = TRUE;
+        $done = true;
     }
 
     // }}}
@@ -97,18 +121,24 @@ class FavSetManager
 
     /**
      * お気にスレ、お気に板、RSSのセットリスト（タイトル一覧）を読み込む
+     *
+     * @param   string $set_name    セット名 ()
+     * @return  array   セット名が指定されているときはそのセットのタイトル一覧、
+     *                  指定されていなければ全てのセットのタイトル一覧
+     * @access  public
+     * @static
      */
-    function getFavSetTitles($set_name = NULL)
+    function getFavSetTitles($set_name = null)
     {
         global $_conf;
 
         if (!file_exists($_conf['expack.misc.favset_file'])) {
-            return FALSE;
+            return false;
         }
 
         $favset_titles = @unserialize(file_get_contents($_conf['expack.misc.favset_file']));
 
-        if ($set_name === NULL) {
+        if ($set_name === null) {
             return $favset_titles;
         }
 
@@ -116,7 +146,7 @@ class FavSetManager
             return $favset_titles[$set_name];
         }
 
-        return FALSE;
+        return false;
     }
 
     // }}}
@@ -156,7 +186,7 @@ class FavSetManager
      * お気にスレ、お気に板、RSSのセットリストを切り替えるフォームを生成する
      */
     function makeFavSetSwitchForm($set_name, $set_title,
-                                  $script = NULL, $target = NULL, $inline = FALSE,
+                                  $script = null, $target = null, $inline = false,
                                   $hidden_values = array()
                                   )
     {
@@ -180,7 +210,7 @@ class FavSetManager
                 $form_ht .= "<input type=\"hidden\" name=\"{$key}\" value=\"{$value}\">";
             }
         }
-        $form_ht .= FavSetManager::makeFavSetSwitchElem($set_name, $set_title, TRUE);
+        $form_ht .= FavSetManager::makeFavSetSwitchElem($set_name, $set_title, true);
         $submit_value = ($_conf['ktai']) ? 'ｾｯﾄ切替' : 'セット切替';
         $form_ht .= "<input type=\"submit\" value=\"{$submit_value}\"></form>\n";
 
@@ -193,11 +223,19 @@ class FavSetManager
     /**
      * お気にスレ、お気に板、RSSのセットリストを切り替えるselect要素を生成する
      */
-    function makeFavSetSwitchElem($set_name, $set_title, $set_selected = FALSE, $onchange = NULL)
+    function makeFavSetSwitchElem($set_name, $set_title, $set_selected = false, $onchange = null)
     {
         global $_conf;
 
         // 変数初期化
+        $sets = FavSetManager::getSetDefinition();
+        if (!isset($sets[$set_name])) {
+            return '';
+        }
+        $num_conf_key = $sets[$set_name][0];
+        if ($_conf[$num_conf_key] == 0) {
+            return '';
+        }
         $i = (isset($_SESSION[$set_name])) ? (int)$_SESSION[$set_name] : 0;
         if ($onchange) {
             $onchange_ht = " onchange=\"{$onchange}\"";
@@ -215,7 +253,7 @@ class FavSetManager
         if (!$set_selected) {
             $select_ht .= "<option value=\"{$i}\" selected>[{$set_title}]</option>";
         }
-        for ($j = 0; $j <= $_conf['expack.misc.favset_num']; $j++) {
+        for ($j = 0; $j <= $_conf[$num_conf_key]; $j++) {
             if (!isset($titles[$j]) || strlen($titles[$j]) == 0) {
                 $titles[$j] = ($j == 0) ? $set_title : $set_title . $j;
             }
@@ -236,3 +274,13 @@ class FavSetManager
 }
 
 // }}}
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

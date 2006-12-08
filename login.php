@@ -35,7 +35,7 @@ if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
 //$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
 $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=k';
 
-$p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_blank">'.$url.'</a><br>';
+$p_htm['ktai_url'] = '携帯' . $p_str['login'] . '用URL <a href="' . $url . '" target="_blank">' . $url . '</a><br>';
 
 //====================================================
 // ユーザ登録処理
@@ -55,7 +55,7 @@ if (isset($_POST['form_login_pass'])) {
 \$rec_login_pass_x = '{$crypted_login_pass}';
 ?>
 EOP;
-        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']); // ファイルがなければ生成
+        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']);
         $fp = @fopen($_conf['auth_user_file'], "wb") or die("rep2 Error: {$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
         @flock($fp, LOCK_EX);
         fputs($fp, $auth_user_cont);
@@ -208,10 +208,8 @@ EOP;
 }
 
 // 情報表示
-if (!is_null($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
-}
+echo $_info_msg_ht;
+$_info_msg_ht = '';
 
 echo '<p id="login_status">';
 echo <<<EOP
@@ -231,3 +229,14 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

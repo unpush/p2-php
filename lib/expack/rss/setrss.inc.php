@@ -1,8 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// p2 -  RSSリストの処理
+/**
+ * rep2expack - RSSリストの処理
+ */
 
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
@@ -146,3 +145,13 @@ if ($neolines) {
 fclose($fp);
 
 // }}}
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

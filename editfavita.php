@@ -14,7 +14,7 @@ $_login->authorize(); // ユーザ認証
 //================================================================
 
 // お気に板の追加・削除、並び替え
-if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['submit_setfavita'])) {
+if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['submit_listfavita'])) {
     include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
     setFavIta();
 }
@@ -53,7 +53,7 @@ $sync_favita_form_ht = <<<EOFORM
 EOFORM;
 
 // お気に板切替フォーム
-if ($_conf['expack.misc.multi_favs']) {
+if ($_conf['favita_set_num'] > 0) {
     $switch_favita_form_ht = FavSetManager::makeFavSetSwitchForm('m_favita_set', 'お気に板', NULL, NULL, !$_conf['ktai']);
 } else {
     $switch_favita_form_ht = '';
@@ -248,7 +248,7 @@ EOP;
 <input type="hidden" name="list">
 
 <input type="submit" value="元に戻す">
-<input type="submit" name="submit_setfavita" value="変更を適用する" onClick="submitApply();">
+<input type="submit" name="submit_listfavita" value="変更を適用する" onClick="submitApply();">
 
 </div>
 </form>
@@ -319,3 +319,14 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

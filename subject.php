@@ -295,7 +295,10 @@ $linesize = sizeof($lines);
 
 for ($x = 0; $x < $linesize; $x++) {
 
-    $l = rtrim($lines[$x]);
+    $l = $lines[$x];
+    if (is_string($l)) {
+        $l = rtrim($l);
+    }
 
     $aThread =& new Thread();
 
@@ -307,55 +310,56 @@ for ($x = 0; $x < $linesize; $x++) {
     // spmode
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
-        case "recent":  // 履歴
+        case 'recent':  // 履歴
             $aThread->getThreadInfoFromExtIdxLine($l);
             $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "res_hist":    // 書き込み履歴
+        case 'res_hist':    // 書き込み履歴
             $aThread->getThreadInfoFromExtIdxLine($l);
             $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj= $aThread->bbs;}
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "fav":     // お気に
+        case 'fav':     // お気に
             $aThread->getThreadInfoFromExtIdxLine($l);
             $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "taborn":  // スレッドあぼーん
+        case 'taborn':  // スレッドあぼーん
             $la = explode('<>', $l);
             $aThread->key = $la[1];
             $aThread->host = $aThreadList->host;
             $aThread->bbs = $aThreadList->bbs;
             break;
-        case "soko":    // dat倉庫
+        case 'soko':    // dat倉庫
             $la = explode('<>', $l);
             $aThread->key = $la[1];
             $aThread->host = $aThreadList->host;
             $aThread->bbs = $aThreadList->bbs;
             break;
-        case "palace":  // スレの殿堂
+        case 'palace':  // スレの殿堂
             $aThread->getThreadInfoFromExtIdxLine($l);
             $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "news":    // ニュースの勢い
+        case 'cate':    // 板メニューのカテゴリ
+        //case 'cate_local':
+        //case 'cate_online':
             $aThread->isonline = true;
+        case 'favita':  // お気に板のまとめ
             $aThread->key = $l['key'];
             $aThread->setTtitle($l['ttitle']);
             $aThread->rescount = $l['rescount'];
             $aThread->host = $l['host'];
             $aThread->bbs = $l['bbs'];
-
             $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
         }
 
     // subject (not spmode つまり普通の板)
     } else {
         $aThread->getThreadInfoFromSubjectTxtLine($l);
-
         $aThread->host = $aThreadList->host;
         $aThread->bbs = $aThreadList->bbs;
     }
@@ -1099,3 +1103,14 @@ function cmp_similarity($a, $b)
         return ($a->similarity < $b->similarity) ? 1 : -1;
     }
 }
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -11,8 +11,8 @@ $explanation = '見たいスレッドのURLを入力して下さい。例：http://pc.2ch.net/test/
 // $defurl = getLastReadTreadUrl();
 
 $onClick_ht = <<<EOP
-var url_v=document.forms["urlform"].elements["url_text"].value;
-if(url_v=="" || url_v=="{$ini_url_text}"){
+var url_v = document.forms["urlform"].elements["url_text"].value;
+if (url_v=="" || url_v=="{$ini_url_text}") {
     alert("{$explanation}");
     return false;
 }
@@ -50,3 +50,14 @@ echo <<<EOP
 </body>
 </html>
 EOP;
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

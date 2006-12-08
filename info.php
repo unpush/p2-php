@@ -32,7 +32,7 @@ if (empty($host) || empty($bbs) || empty($key)) {
 }
 
 //================================================================
-// 特殊な前処理
+// 特別な前処理
 //================================================================
 // {{{ 削除
 
@@ -77,7 +77,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
     } else {
         setFav($host, $bbs, $key, $_GET['setfav']);
     }
-    if ($_conf['expack.misc.multi_favs']) {
+    if ($_conf['favlist_set_num'] > 0) {
         FavSetManager::loadAllFavSet(true);
     }
 
@@ -154,19 +154,19 @@ if ($favlines = @file($_conf['favlist_file'])) {
 }
 */
 
-if ($_conf['expack.misc.multi_favs']) {
+if ($_conf['favlist_set_num'] > 0) {
     $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
-    $favdo = (!empty($aThread->favs[0])) ? 0 : 1;
-    $favdo_q = '&amp;setfav=' . $favdo;
+    $favdo = empty($aThread->favs[0]);
+    $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
     $favmark = $favdo ? '+' : '★';
     $favtitle = ((!isset($favlist_titles[0]) || $favlist_titles[0] == '') ? 'お気にスレ' : $favlist_titles[0]) . ($favdo ? 'に追加' : 'から外す');
     $setnum_q = '&amp;setnum=0';
     $fav_ht = <<<EOP
 <a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
 EOP;
-    for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
-        $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
-        $favdo_q = '&amp;setfav=' . $favdo;
+    for ($i = 1; $i <= $_conf['favlist_set_num']; $i++) {
+        $favdo = empty($aThread->favs[$i]);
+        $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
         $favmark = $favdo ? $i : '★';
         $favtitle = ((!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') ? 'お気にスレ' . $i : $favlist_titles[$i]) . ($favdo ? 'に追加' : 'から外す');
         $setnum_q = '&amp;setnum=' . $i;
@@ -175,8 +175,8 @@ EOP;
 EOP;
     }
 } else {
-    $favdo = (!empty($aThread->fav)) ? 0 : 1;
-    $favdo_q = '&amp;setfav=' . $favdo;
+    $favdo = empty($aThread->fav);
+    $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
     $favmark = $favdo ? '+' : '★';
     $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $fav_ht = <<<EOP
@@ -202,9 +202,8 @@ if ($pallines = @file($palace_idx)) {
     }
 }
 
-$paldo = $isPalace ? 0 : 1;
-
-$pal_a_ht = "info.php?{$common_q}&amp;setpal={$paldo}{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}";
+$paldo_q = '&amp;setpal=' . ($isPalace ? '0' : '1');
+$pal_a_ht = "info.php?{$common_q}{$paldo_q}{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}";
 
 if ($isPalace) {
     $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DAT落ちしたスレ用のお気に入り\">★</a>";
@@ -313,7 +312,7 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 echo "<p>\n";
 echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?{$common_q}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
@@ -338,14 +337,18 @@ if (!$_conf['ktai']) {
     printInfoTrHtml("ホスト", $aThread->host);
 }
 printInfoTrHtml("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$hd['itaj']}</a>");
+
+// PC用表示
 if (!$_conf['ktai']) {
     printInfoTrHtml("key", $aThread->key);
 }
+
 if ($existLog) {
     printInfoTrHtml("ログ", "あり [<a href=\"info.php?{$common_q}&amp;dele=true{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}\">削除する</a>]{$offrec_ht}");
 } else {
     printInfoTrHtml("ログ", "未取得{$offrec_ht}");
 }
+
 if ($aThread->gotnum) {
     printInfoTrHtml("既得レス数", $aThread->gotnum);
 } elseif (!$aThread->gotnum and $existLog) {
@@ -419,7 +422,7 @@ echo '</body></html>';
 exit();
 
 //=======================================================
-// 関数
+// 関数 （このファイル内でのみ利用）
 //=======================================================
 /**
  * スレ情報HTMLを表示する
@@ -440,7 +443,7 @@ function printInfoTrHtml($s, $c_ht)
 }
 
 /**
- * スレタイとURLのコピペ用のフォームを取得する
+ * スレタイとURLのコピペ用のフォームHTMLを取得する
  *
  * @return  string
  */
@@ -453,7 +456,7 @@ function getCopypaFormHtml($url, $ttitle_name_hd)
 
     $htm = <<<EOP
 <form action="{$me_url}">
- <textarea name="copy">{$ttitle_name_hd}&#10;{$url_hd}</textarea>
+ <textarea name="copy" rows="5" cols="50">{$ttitle_name_hd}&#10;{$url_hd}</textarea>
 </form>
 EOP;
 // <input type="text" name="url" value="{$url_hd}">
@@ -461,3 +464,14 @@ EOP;
 
     return $htm;
 }
+
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

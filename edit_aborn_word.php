@@ -13,26 +13,29 @@ $path_ht = htmlspecialchars($path, ENT_QUOTES);
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-        die('p2 error: ïsê≥Ç»É|ÉXÉgÇ≈Ç∑');
+        P2Util::printSimpleHtml('p2 error: ïsê≥Ç»É|ÉXÉgÇ≈Ç∑');
+        die('');
     }
 }
 
 $writable_files = array(
-    "p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
-    "p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
-    //"p2_aborn_res.txt",
+    'p2_aborn_name.txt', 'p2_aborn_mail.txt', 'p2_aborn_msg.txt', 'p2_aborn_id.txt',
+    'p2_ng_name.txt', 'p2_ng_mail.txt', 'p2_ng_msg.txt', 'p2_ng_id.txt',
+    //'p2_aborn_res.txt',
 );
 
 if ($writable_files and (!in_array(basename($path), $writable_files))) {
     $i = 0;
     foreach ($writable_files as $afile) {
         if ($i != 0) {
-            $files_st .= "Ç∆";
+            $files_st .='Ç∆';
         }
-        $files_st .= "Åu".$afile."Åv";
+        $files_st .= "Åu{$afile}Åv";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." êÊê∂ÇÃèëÇ´çûÇﬂÇÈÉtÉ@ÉCÉãÇÕÅA".$files_st."ÇæÇØÅI");
+    P2Util::printSimpleHtml('p2 error: ' . basename($_SERVER['SCRIPT_NAME'])
+        . " êÊê∂ÇÃèëÇ´çûÇﬂÇÈÉtÉ@ÉCÉãÇÕÅA{$files_st}ÇæÇØÅI");
+    die('');
 }
 
 //=====================================================================
@@ -45,10 +48,10 @@ if (!empty($_POST['submit_save'])) {
 
     $newdata = '';
     foreach ($_POST['nga'] as $na_info) {
-        $a_word = strtr(trim($na_info['word'], "ÄtÄrÄn"), "ÄtÄrÄn", "   ");
-        $a_bbs = strtr(trim($na_info['bbs'], "ÄtÄrÄn"), "ÄtÄrÄn", "   ");
-        $a_tt = strtr(trim($na_info['tt'], "ÄtÄrÄn"), "ÄtÄrÄn", "   ");
-        $a_time = strtr(trim($na_info['ht']), "ÄtÄrÄn", "   ");
+        $a_word = strtr(trim($na_info['word'], "\t\r\n"), "\t\r\n", "   ");
+        $a_bbs = strtr(trim($na_info['bbs'], "\t\r\n"), "\t\r\n", "   ");
+        $a_tt = strtr(trim($na_info['tt'], "\t\r\n"), "\t\r\n", "   ");
+        $a_time = strtr(trim($na_info['ht']), "\t\r\n", "   ");
         if ($a_time === '') {
             $a_time = '--';
         }
@@ -69,7 +72,7 @@ if (!empty($_POST['submit_save'])) {
         if (strlen($a_tt) > 0) {
             $a_mode .= '<title>' . $a_tt . '</title>';
         }
-        $newdata .= $a_mode . $a_word . "Ät" . $a_time . "Ät" . $a_hits . "Än";
+        $newdata .= $a_mode . $a_word . "\t" . $a_time . "\t" . $a_hits . "\n";
     }
     if (FileCtl::file_write_contents($path, $newdata) !== FALSE) {
         $_info_msg_ht .= "<p>Åõê›íËÇçXêVï€ë∂ÇµÇ‹ÇµÇΩ</p>";
@@ -96,7 +99,7 @@ if (file_exists($path)) {
     $lines = file($path);
     $i = 0;
     foreach ($lines as $line) {
-        $lar = explode("Ät", rtrim($line, "ÄrÄn"));
+        $lar = explode("\t", rtrim($line, "\r\n"));
         if (count($lar) < 3 || strlen($lar[0]) == 0) {
             continue;
         }
@@ -164,7 +167,7 @@ echo <<<EOP
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <title>{$ptitle}</title>Än
+    <title>{$ptitle}</title>\n
 EOP;
 
 if (!$_conf['ktai']) {
@@ -172,20 +175,20 @@ if (!$_conf['ktai']) {
     <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">Än
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
 EOP;
 }
 
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
 echo <<<EOP
 </head>
-<body{$body_at}>Än
+<body{$body_at}>\n
 EOP;
 
 // PCópï\é¶
 if (!$_conf['ktai']) {
     echo <<<EOP
-<p id="pan_menu"><a href="editpref.php">ê›íËä«óù</a> &gt; {$ptitle_top}</p>Än
+<p id="pan_menu"><a href="editpref.php">ê›íËä«óù</a> &gt; {$ptitle_top}</p>\n
 EOP;
 } else {
     echo basename($path) . "<br>";
@@ -199,19 +202,19 @@ if (!$_conf['ktai']) {
                 <input type="submit" name="submit_save" value="ïœçXÇï€ë∂Ç∑ÇÈ">
                 <input type="submit" name="submit_default" value="ÉäÉXÉgÇãÛÇ…Ç∑ÇÈ" onClick="if (!window.confirm('ÉäÉXÉgÇãÛÇ…ÇµÇƒÇ‡ÇÊÇÎÇµÇ¢Ç≈Ç∑Ç©ÅHÅiÇ‚ÇËíºÇµÇÕÇ≈Ç´Ç‹ÇπÇÒÅj')) {return false;}"><br>
             </td>
-        </tr>Än
+        </tr>\n
 EOP;
 // ågë—ópï\é¶
 } else {
     $htm['form_submit'] = <<<EOP
-<input type="submit" name="submit_save" value="ïœçXÇï€ë∂Ç∑ÇÈ"><br>Än
+<input type="submit" name="submit_save" value="ïœçXÇï€ë∂Ç∑ÇÈ"><br>\n
 EOP;
 }
 
 // èÓïÒÉÅÉbÉZÅ[ÉWï\é¶
 if (!empty($_info_msg_ht)) {
     echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    $_info_msg_ht = '';
 }
 
 $usage = <<<EOP
@@ -232,7 +235,7 @@ echo <<<EOP
     {$_conf['k_input_ht']}
     <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
     <input type="hidden" name="path" value="{$path_ht}">
-    <input type="hidden" name="csrfid" value="{$csrfid}">Än
+    <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
 
 // PCópï\é¶ÅitableÅj
@@ -249,32 +252,32 @@ if (!$_conf['ktai']) {
         </tr>
         <tr class="group">
             <td colspan="6">êVãKìoò^</td>
-        </tr>Än
+        </tr>\n
 EOP;
     $row_format = <<<EOP
         <tr>
-            <td><input type="text" size="35" name="nga[%1Ä$d][word]" value="%2Ä$s"></td>
-            <td><input type="checkbox" name="nga[%1Ä$d][ic]" value="1"%3Ä$s></td>
-            <td><input type="checkbox" name="nga[%1Ä$d][re]" value="1"%4Ä$s></td>
-            <td><input type="text" size="10" name="nga[%1Ä$d][bbs]" value="%7Ä$s"></td>
-            <td><input type="text" size="15" name="nga[%1Ä$d][tt]" value="%8Ä$s"></td>
+            <td><input type="text" size="35" name="nga[%1\$d][word]" value="%2\$s"></td>
+            <td><input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s></td>
+            <td><input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s></td>
+            <td><input type="text" size="10" name="nga[%1\$d][bbs]" value="%7\$s"></td>
+            <td><input type="text" size="15" name="nga[%1\$d][tt]" value="%8\$s"></td>
             <td align="right">
-                <input type="hidden" name="nga[%1Ä$d][ht]" value="%5Ä$s">%5Ä$s
-                <input type="hidden" name="nga[%1Ä$d][hn]" value="%6Ä$d">(%6Ä$d)
+                <input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">%5\$s
+                <input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)
             </td>
-        </tr>Än
+        </tr>\n
 EOP;
 // ågë—ópï\é¶
 } else {
-    echo "êVãKìoò^<br>Än";
+    echo "êVãKìoò^<br>\n";
     $row_format = <<<EOP
-<input type="text" name="nga[%1Ä$d][word]" value="%2Ä$s"><br>
-î¬:<input type="text" size="5" name="nga[%1Ä$d][bbs]" value="%7Ä$s">
-Ω⁄¿≤:<input type="text" size="5" name="nga[%1Ä$d][tt]" value="%8Ä$s"><br>
-<input type="checkbox" name="nga[%1Ä$d][ic]" value="1"%3Ä$s>i
-<input type="checkbox" name="nga[%1Ä$d][re]" value="1"%4Ä$s>re
-<input type="hidden" name="nga[%1Ä$d][ht]" value="%5Ä$s">
-<input type="hidden" name="nga[%1Ä$d][hn]" value="%6Ä$d">(%6Ä$d)<br>Än
+<input type="text" name="nga[%1\$d][word]" value="%2\$s"><br>
+î¬:<input type="text" size="5" name="nga[%1\$d][bbs]" value="%7\$s">
+Ω⁄¿≤:<input type="text" size="5" name="nga[%1\$d][tt]" value="%8\$s"><br>
+<input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s>i
+<input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>re
+<input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">
+<input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)<br>\n
 EOP;
 }
 
@@ -300,10 +303,10 @@ if (!empty($formdata)) {
 
 // PCÇ»ÇÁ
 if (!$_conf['ktai']) {
-    echo '</table>'."Än";
+    echo '</table>'."\n";
 }
 
-echo '</form>'."Än";
+echo '</form>'."\n";
 
 
 // ågë—Ç»ÇÁ
@@ -317,5 +320,13 @@ EOP;
 
 echo '</body></html>';
 
-// Ç±Ç±Ç‹Ç≈
-exit;
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

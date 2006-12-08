@@ -1,17 +1,36 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// 検索クエリ
-$GLOBALS['filter_q'] = '?host=' . $aThread->host . $bbs_q . $key_q . $offline_q;
-$GLOBALS['filter_q'] .= '&amp;word=' . rawurlencode($_GET['word']);
-foreach ($res_filter as $key => $value) {
-    $GLOBALS['filter_q'] .= "&amp;{$key}={$value}";
-}
-$GLOBALS['filter_q'] .= '&amp;ls=all&amp;page=';
+/**
+ * p2 - 携帯でレスフィルタリングしたときのページ遷移用パラメータを設定する
+ */
 
 /**
- * ヘッダ変数を書き換える
+ * ページ遷移用の基本URL(エスケープ済み)を生成する
+ *
+ * @param   object Thread $aThread  スレッドオブジェクト
+ * @param   array $res_filter       フィルタリングのパラメータ
+ * @return  string  ページ遷移用の基本URL
+ */
+function setFilterQuery($aThread, $res_filter)
+{
+    global $filter_q;
+    $filter_q = '?host=' . $aThread->host . $bbs_q . $key_q . $offline_q;
+    $filter_q .= '&amp;word=' . rawurlencode($_GET['word']);
+    foreach ($res_filter as $key => $value) {
+        $filter_q .= '&amp;' . rawurlencode($key) . '= ' . rawurlencode($value);
+    }
+    $filter_q .= '&amp;ls=all&amp;page=';
+    return $filter_q;
+}
+
+// 自動設定
+if (isset($aThread) && isset($res_filter)) {
+    $GLOBALS['filter_q'] = setFilterQuery($aThread, $res_filter);
+}
+
+/**
+ * ヘッダに表示するナビゲーション用の変数を書き換える
+ *
+ * @return  void
  */
 function resetReadNaviHeaderK()
 {
@@ -22,7 +41,9 @@ function resetReadNaviHeaderK()
 }
 
 /**
- * フッタ変数を書き換える
+ * フッタに表示するナビゲーション用の変数を書き換える
+ *
+ * @return  void
  */
 function resetReadNaviFooterK()
 {
@@ -45,3 +66,13 @@ function resetReadNaviFooterK()
     $read_footer_navi_new_btm = str_replace(" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\"", '', $read_footer_navi_new_btm);
     $read_footer_navi_new_btm = str_replace(">{$_conf['k_accesskey']['next']}.", '>', $read_footer_navi_new_btm);
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

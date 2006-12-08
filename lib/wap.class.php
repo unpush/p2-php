@@ -11,8 +11,8 @@
  *  setTimeout()
  *  request() : リクエストをサーバに送信して、レスポンスを返す。
  */
-class UserAgent{
-
+class UserAgent
+{
     var $agent;  // User-Agent。アプリケーションの名前。
     var $timeout;
     var $maxRedirect;
@@ -356,3 +356,13 @@ class Response{
 */
 
 }
+
+/*
+ * Local variables:
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * mode: php
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
