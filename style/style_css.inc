@@ -1,17 +1,15 @@
 <?php
 // p2 ースタイル設定
 // 全般
-// vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
-// mi: charset=Shift_JIS
 
 $a_underline_none_css = '';
 if ($STYLE['a_underline_none'] == 1) {
-	$a_underline_none_css = "a{text-decoration:none;}";
+    $a_underline_none_css = "a{text-decoration:none;}";
 }
 
 // ブラウザが Camino なら
 if (strstr($_SERVER['HTTP_USER_AGENT'], "Camino") || strstr($_SERVER['HTTP_USER_AGENT'], "Chimera")) {
-	echo <<<EOSTYLE
+    echo <<<EOSTYLE
 
 input,option,select,textarea{
 	font-size:10px;
@@ -87,10 +85,19 @@ EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-	include_once (P2_STYLE_DIR . '/mystyle_css.php');
-	if (isset($MYSTYLE['style']) || isset($MYSTYLE['base'])) {
-		disp_mystyle('style');
-	}
+    include_once (P2_STYLE_DIR . '/mystyle_css.php');
+    if (isset($MYSTYLE['style']) || isset($MYSTYLE['base'])) {
+        disp_mystyle('style');
+    }
 }
 
-?>
+/*
+ * Local variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
