@@ -11,11 +11,11 @@ require_once P2_LIBRARY_DIR . '/dataphp.class.php';
  */
 function deleMsg($checked_hists)
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
-    // 読み込んで
     if (!$reslines = file($_conf['p2_res_hist_dat'])) {
-        die("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
+        P2Util::printSimpleHtml("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
+        die('');
         return false;
     }
     $reslines = array_map('rtrim', $reslines);
@@ -41,7 +41,7 @@ function deleMsg($checked_hists)
         }
         $neolines = rmLine($rmnums, $reslines);
 
-        $_info_msg_ht .= "<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>";
+        P2Util::pushInfoMsgHtml("<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>");
     }
 
     if (is_array($neolines)) {
@@ -104,7 +104,7 @@ function rmLine($rmnums, $lines)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

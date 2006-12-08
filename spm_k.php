@@ -102,8 +102,7 @@ EOHEADER;
 
 echo "<body{$_conf['k_colors']}>";
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 echo "<p><a href=\"{$thread_url}\">{$ptitle_ht}</a></p>";
 echo '<hr>';
@@ -119,7 +118,7 @@ echo '</body></html>';
 exit;
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

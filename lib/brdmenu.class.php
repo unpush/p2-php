@@ -45,15 +45,15 @@ class BrdMenu
     function setBrdMatch($brdName)
     {
         // html形式
-        if (preg_match("/(html?|cgi)$/", $brdName)) {
-            $this->format = "html";
-            $this->cate_match = "/<B>(.+)<\/B><BR>.*$/i";
-            $this->ita_match = "/^<A HREF=\"?(http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?)\"?( target=\"?_blank\"?)?>(.+)<\/A>(<br>)?$/i";
+        if (preg_match('/(html?|cgi)$/', $brdName)) {
+            $this->format = 'html';
+            $this->cate_match = '/<B>(.+)<\/B><BR>.*$/i';
+            $this->ita_match = '/^<A HREF="?(http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?)"?( target="?_blank"?)?>(.+)<\/A>(<br>)?$/i';
         // brd形式
         } else {
-            $this->format = "brd";
-            $this->cate_match = "/^(.+)\t([0-9])$/";
-            $this->ita_match = "/^\t?(.+)\t(.+)\t(.+)$/";
+            $this->format = 'brd';
+            $this->cate_match = '/^(.+)\t([0-9])$/';
+            $this->ita_match = '/^\t?(.+)\t(.+)\t(.+)$/';
         }
     }
 
@@ -135,7 +135,7 @@ class BrdMenu
 
                         // マッチマーキングなければ（bbsでマッチしたとき）、全部マーキング
                         if ($aBrdMenuIta->itaj_ht == $aBrdMenuIta->itaj) {
-                            $aBrdMenuIta->itaj_ht = '<b class="filtering">'.$aBrdMenuIta->itaj_ht.'</b>';
+                            $aBrdMenuIta->itaj_ht = '<b class="filtering">' . $aBrdMenuIta->itaj_ht . '</b>';
                         }
 
                         $this->matches[] = &$aBrdMenuIta;
@@ -161,14 +161,18 @@ class BrdMenu
      * brdファイルを生成する
      *
      * @access  public
-     * @return  string    brdファイルのパス
+     * @return  string|false  成功したら生成したbrdファイルのパスを返す
      */
     function makeBrdFile($cachefile)
     {
-        global $_conf, $_info_msg_ht, $word;
+        global $_conf;
 
         $p2brdfile = $cachefile . ".p2.brd";
-        FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
+
+        if (false === FileCtl::make_datafile($p2brdfile, $_conf['p2_perm'])) {
+            return false;
+        }
+
         $data = file($cachefile);
         $this->setBrdMatch($cachefile); // パターンマッチ形式を登録
         $this->setBrdList($data);       // カテゴリーと板をセット
@@ -183,17 +187,18 @@ class BrdMenu
             }
         }
 
-        if ($cont) {
-            if (FileCtl::filePutRename($p2brdfile, $cont) === false) {
-                die("p2 error: {$p2brdfile} を更新できませんでした");
-            }
-            return $p2brdfile;
-        } else {
-            if (!$word) {
-                $_info_msg_ht .=  "<p>p2 エラー: {$cachefile} から板メニューを生成することはできませんでした。</p>\n";
+        if (!$cont) {
+            if (strlen($GLOBALS['word']) > 0) {
+                P2Util::pushInfoMsgHtml("<p>p2 エラー: {$cachefile} から板メニューを生成することはできませんでした。</p>\n");
             }
             return false;
         }
+        if (FileCtl::filePutRename($p2brdfile, $cont) === false) {
+            die("p2 error: {$p2brdfile} を更新できませんでした");
+            return false;
+        }
+
+        return $p2brdfile;
     }
 
 }
@@ -259,7 +264,7 @@ class BrdMenuIta
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

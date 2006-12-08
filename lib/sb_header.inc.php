@@ -88,7 +88,7 @@ if ($aThreadList->spmode) { // スペシャルモード時
 
 // フォームhidden ==================================================
 $sb_form_hidden_ht = <<<EOP
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
     <input type="hidden" name="host" value="{$aThreadList->host}">
     <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
@@ -249,6 +249,17 @@ echo <<<EOP
             toid_obj.style.color="{$STYLE['thre_title_color_v']}";
         }
     }
+
+    /* フレームの自動リサイズは使い勝手イマイチだった
+    gResizedFrame = false;
+    function resizeFrame(){
+        var rr = window.parent.fsright;
+        if (rr) {
+            rr.rows ='*,30%';
+            gResizedFrame = true
+        }
+    }
+    */
     // -->
     </script>\n
 EOP;
@@ -280,8 +291,7 @@ EOP;
 
 include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 echo <<<EOP
     $taborn_check_ht
@@ -290,7 +300,7 @@ echo <<<EOP
 EOP;
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

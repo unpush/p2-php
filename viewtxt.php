@@ -51,8 +51,6 @@ if (preg_match("/\.txt$/i", $file)) {
  */
 function viewTxtFile($file, $encode)
 {
-    global $_info_msg_ht;
-
     if ($file == '') {
         die('Error: file ‚ªŽw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ');
     }
@@ -83,7 +81,7 @@ function viewTxtFile($file, $encode)
 <body onLoad="top.document.title=self.document.title;">\n
 EOHEADER;
 
-    echo $_info_msg_ht;
+    echo P2Util::printInfoMsgHtml();
     echo '<pre>';
     echo $cont_area;
     echo '</pre>';
@@ -93,7 +91,7 @@ EOHEADER;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

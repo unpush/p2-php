@@ -30,7 +30,7 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 // お気に板追加フォーム
 $add_favita_form_ht = <<<EOFORM
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+    {$_conf['detect_hint_input_ht']}
     <p>
         {$_conf['k_input_ht']}
         板URL: <input type="text" id="url" name="url" value="http://" size="48">
@@ -54,7 +54,8 @@ EOFORM;
 
 // お気に板切替フォーム
 if ($_conf['favita_set_num'] > 0) {
-    $switch_favita_form_ht = FavSetManager::makeFavSetSwitchForm('m_favita_set', 'お気に板', null, null, !$_conf['ktai']);
+    $switch_favita_form_ht = FavSetManager::makeFavSetSwitchForm('m_favita_set', 'お気に板',
+        null, null, !$_conf['ktai']);
 } else {
     $switch_favita_form_ht = '';
 }
@@ -95,8 +96,7 @@ EOP;
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
 echo "</head><body{$body_at}>\n";
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 //================================================================
 // メイン部分HTML表示
@@ -321,7 +321,7 @@ if ($_conf['ktai']) {
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -1,14 +1,11 @@
 <?php
 // p2 - ƒfƒUƒCƒ“—p Ý’èƒtƒ@ƒCƒ‹
 
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /*
-	ƒRƒƒ“ƒg–`“ª‚Ì() “à‚ÍƒfƒtƒHƒ‹ƒg’l
-	Ý’è‚Í style/*_css.inc ‚Æ˜A“®
+    ƒRƒƒ“ƒg–`“ª‚Ì() “à‚ÍƒfƒtƒHƒ‹ƒg’l
+    Ý’è‚Í style/*_css.inc ‚Æ˜A“®
 */
- 
+
 //======================================================================
 // ƒfƒUƒCƒ“ƒJƒXƒ^ƒ}ƒCƒY
 //======================================================================
@@ -18,36 +15,36 @@ $STYLE['a_underline_none'] = "1"; // ("2") ƒŠƒ“ƒN‚É‰ºü‚ði‚Â‚¯‚é:0, ‚Â‚¯‚È‚¢:1,
 // ƒtƒHƒ“ƒg ======================================================
 
 if(strstr($_SERVER['HTTP_USER_AGENT'], "Mac")){
-	/* Mac—pƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
-	if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ƒuƒ‰ƒEƒU‚ª Mac‚Å Safari“™‚Ì WebKit‚ðŽg‚Á‚Ä‚¢‚é‚à‚Ì‚È‚ç */
-		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro"); // ("Hiragino Kaku Gothic Pro") Šî–{‚ÌƒtƒHƒ“ƒg for Safari
-		$STYLE['fontfamily_bold'] = ""; // ("") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒg for Safarii•’Ê‚Ì‘¾Žš‚æ‚è‘¾‚­‚µ‚½‚¢ê‡‚Í"Hiragino Kaku Gothic Std"j
-		if (!strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit/4")){
-			$STYLE['fontfamily_bold'] = "HiraKakuPro-W6";
-		}
-	} else {
-		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "ƒqƒ‰ƒMƒmŠÛƒS Pro W4"); // ("ƒqƒ‰ƒMƒmŠpƒS Pro W3") Šî–{‚ÌƒtƒHƒ“ƒg
-		$STYLE['fontfamily_bold'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W6"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W6") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒgi•’Ê‚É‘¾Žš‚É‚µ‚½‚¢ê‡‚ÍŽw’è‚µ‚È‚¢("")j
-	}
-	/* Mac—pƒtƒHƒ“ƒgƒTƒCƒY */
-	$STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['menu_fontsize'] = "11px"; // ("11px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['sb_fontsize'] = "11px"; // ("11px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['read_fontsize'] = "12px"; // ("12px") ƒXƒŒƒbƒh“à—e•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['respop_fontsize'] = "11px"; // ("11px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['infowin_fontsize'] = "11px"; // ("11px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³iCamino‚ðœ‚­j
+    /* Mac—pƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
+    if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ƒuƒ‰ƒEƒU‚ª Mac‚Å Safari“™‚Ì WebKit‚ðŽg‚Á‚Ä‚¢‚é‚à‚Ì‚È‚ç */
+        $STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro"); // ("Hiragino Kaku Gothic Pro") Šî–{‚ÌƒtƒHƒ“ƒg for Safari
+        $STYLE['fontfamily_bold'] = ""; // ("") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒg for Safarii•’Ê‚Ì‘¾Žš‚æ‚è‘¾‚­‚µ‚½‚¢ê‡‚Í"Hiragino Kaku Gothic Std"j
+        if (!strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit/4")){
+            $STYLE['fontfamily_bold'] = "HiraKakuPro-W6";
+        }
+    } else {
+        $STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "ƒqƒ‰ƒMƒmŠÛƒS Pro W4"); // ("ƒqƒ‰ƒMƒmŠpƒS Pro W3") Šî–{‚ÌƒtƒHƒ“ƒg
+        $STYLE['fontfamily_bold'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W6"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W6") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒgi•’Ê‚É‘¾Žš‚É‚µ‚½‚¢ê‡‚ÍŽw’è‚µ‚È‚¢("")j
+    }
+    /* Mac—pƒtƒHƒ“ƒgƒTƒCƒY */
+    $STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['menu_fontsize'] = "11px"; // ("11px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['sb_fontsize'] = "11px"; // ("11px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['read_fontsize'] = "12px"; // ("12px") ƒXƒŒƒbƒh“à—e•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['respop_fontsize'] = "11px"; // ("11px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['infowin_fontsize'] = "11px"; // ("11px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³iCamino‚ðœ‚­j
 }else{
-	/* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
-	$STYLE['fontfamily'] = "‚l‚r ‚oƒSƒVƒbƒN"; // ("‚l‚r ‚oƒSƒVƒbƒN") Šî–{‚ÌƒtƒHƒ“ƒg
-	/* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒTƒCƒY */
-	$STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['menu_fontsize'] = "12px"; // ("12px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['sb_fontsize'] = "12px"; // ("12px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['read_fontsize'] = "13px"; // ("13px") ƒXƒŒƒbƒh“à—e•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['respop_fontsize'] = "11px"; // ("12px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['infowin_fontsize'] = "12px"; // ("12px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    /* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
+    $STYLE['fontfamily'] = "‚l‚r ‚oƒSƒVƒbƒN"; // ("‚l‚r ‚oƒSƒVƒbƒN") Šî–{‚ÌƒtƒHƒ“ƒg
+    /* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒTƒCƒY */
+    $STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['menu_fontsize'] = "12px"; // ("12px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['sb_fontsize'] = "12px"; // ("12px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['read_fontsize'] = "13px"; // ("13px") ƒXƒŒƒbƒh“à—e•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['respop_fontsize'] = "11px"; // ("12px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['infowin_fontsize'] = "12px"; // ("12px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
 }
 
 //======================================================================
@@ -78,8 +75,8 @@ $STYLE['menu_ita_color'] = "#000000"; // ("") ƒƒjƒ…[ ”Â ƒŠƒ“ƒNF
 $STYLE['menu_ita_color_v'] = "#686A6E"; // ("") ƒƒjƒ…[ ”Â –K–âÏ‚ÝƒŠƒ“ƒNF
 $STYLE['menu_ita_color_h'] = "#195EFF"; // ("#09c") ƒƒjƒ…[ ”Â ƒ}ƒEƒXƒI[ƒo[Žž‚ÌƒŠƒ“ƒNF
 
-$STYLE['menu_newthre_color'] = "#98AAC4";	// ("hotpink") menu V‹KƒXƒŒƒbƒh”‚ÌF
-$STYLE['menu_newres_color'] = "#98AAC4";	// ("#ff3300") menu V’…ƒŒƒX”‚ÌF
+$STYLE['menu_newthre_color'] = "#98AAC4";   // ("hotpink") menu V‹KƒXƒŒƒbƒh”‚ÌF
+$STYLE['menu_newres_color'] = "#98AAC4";    // ("#ff3300") menu V’…ƒŒƒX”‚ÌF
 
 // ƒXƒŒˆê——(subject) ====================
 $STYLE['sb_bgcolor'] = "#E3E3E3"; // ("#fff") subject ”wŒiF
@@ -118,7 +115,7 @@ $STYLE['sb_tool_sepa_color'] = "#000000"; // ("#000") subject ƒc[ƒ‹ƒo[“à ƒZƒpƒ
 
 $STYLE['sb_now_sort_color'] = "#FAFA23"; // ("#ff3300")  V‹KƒŒƒX”Ô‚ÌF
 
-$STYLE['sb_thre_title_new_color'] = "#FF4500";	// ("red") subject V‹KƒXƒŒƒ^ƒCƒgƒ‹‚ÌF
+$STYLE['sb_thre_title_new_color'] = "#FF4500";  // ("red") subject V‹KƒXƒŒƒ^ƒCƒgƒ‹‚ÌF
 
 $STYLE['sb_tool_newres_color'] = "#FF4500"; // ("#ff3300") subject ƒc[ƒ‹ƒo[“à V‹KƒŒƒX”‚ÌF
 $STYLE['sb_newres_color'] = "#FF4500"; // ("#ff3300") subject V’…ƒŒƒX”‚ÌF
@@ -197,3 +194,14 @@ $MYSTYLE['subject']['tr#pager a:hover']['color'] = "#E3E3E3";
 
 $MYSTYLE['iv2']['div#toolbar']['background'] = "#E6E6E6 url('./skin/flat/header_l.png') top repeat-x";
 $MYSTYLE['iv2']['div#toolbar td']['color'] = "#000000";
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

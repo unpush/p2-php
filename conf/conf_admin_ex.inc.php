@@ -141,3 +141,14 @@ $_conf['expack.misc.favset_file'] = $_conf['pref_dir'].'/p2_favset.txt';
 
 // }}}
 // ----------------------------------------------------------------------
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

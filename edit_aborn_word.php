@@ -75,9 +75,9 @@ if (!empty($_POST['submit_save'])) {
         $newdata .= $a_mode . $a_word . "\t" . $a_time . "\t" . $a_hits . "\n";
     }
     if (FileCtl::file_write_contents($path, $newdata) !== false) {
-        $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
+        P2Util::pushInfoMsgHtml("<p>○設定を更新保存しました</p>");
     } else {
-        $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
+        P2Util::pushInfoMsgHtml("<p>×設定を更新保存できませんでした</p>");
     }
 
 // }}}
@@ -85,9 +85,9 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (@unlink($path)) {
-        $_info_msg_ht .= "<p>○リストを空にしました</p>";
+        P2Util::pushInfoMsgHtml("<p>○リストを空にしました</p>");
     } else {
-        $_info_msg_ht .= "<p>×リストを空にできませんでした</p>";
+        P2Util::pushInfoMsgHtml("<p>×リストを空にできませんでした</p>");
     }
 }
 
@@ -212,10 +212,7 @@ EOP;
 }
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
-}
+P2Util::printInfoMsgHtml();
 
 $usage = <<<EOP
 <ul>
@@ -232,10 +229,10 @@ if ($_conf['ktai']) {
 echo <<<EOP
 {$usage}
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['k_input_ht']}
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="path" value="{$path_ht}">
-    <input type="hidden" name="csrfid" value="{$csrfid}">\n
+    <input type="hidden" name="csrfid" value="{$csrfid}">
+    {$_conf['k_input_ht']}\n
 EOP;
 
 // PC用表示（table）
@@ -321,7 +318,7 @@ EOP;
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

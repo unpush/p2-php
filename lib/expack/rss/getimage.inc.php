@@ -142,7 +142,7 @@ function rss_get_image_ic2($src_url, $memo='')
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

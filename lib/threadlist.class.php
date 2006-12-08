@@ -90,7 +90,7 @@ class ThreadList
      */
     function readList()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $lines = array();
 
@@ -117,7 +117,7 @@ class ThreadList
                     $lines = file($_conf['rct_file']);
                 }
                 /*if (!$lines) {
-                    $_info_msg_ht = '<p>履歴は空っぽです</p>';
+                    P2Util::pushInfoMsgHtml('<p>履歴は空っぽです</p>');
                     return false;
                 }*/
                 break;
@@ -131,7 +131,7 @@ class ThreadList
                     $lines = file($rh_idx);
                 }
                 /*if (!$lines) {
-                    $_info_msg_ht = '<p>書き込み履歴は空っぽです</p>';
+                    P2Util::pushInfoMsgHtml('<p>書き込み履歴は空っぽです</p>');
                     return false;
                 }*/
                 break;
@@ -144,7 +144,7 @@ class ThreadList
                     $lines = file($_conf['favlist_file']);
                 }
                 /*if (!$lines) {
-                    $_info_msg_ht = '<p>お気にスレは空っぽです</p>';
+                    P2Util::pushInfoMsgHtml('<p>お気にスレは空っぽです</p>');
                     return false;
                 }*/
                 break;
@@ -158,7 +158,7 @@ class ThreadList
                     $lines = file($palace_idx);
                 }
                 /*if (!$lines) {
-                    $_info_msg_ht = '<p>殿堂はがらんどうです</p>';
+                    P2Util::pushInfoMsgHtml('<p>殿堂はがらんどうです</p>');
                     return false;
                 }*/
                 break;
@@ -172,7 +172,7 @@ class ThreadList
                     $lines = file($taborn_idx);
                 }
                 /*if (!$lines) {
-                    $_info_msg_ht = '<p>スレッドあぼーんリストは空っぽです</p>';
+                    P2Util::pushInfoMsgHtml('<p>スレッドあぼーんリストは空っぽです</p>');
                     return false;
                 }*/
                 break;
@@ -364,7 +364,7 @@ class ThreadList
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

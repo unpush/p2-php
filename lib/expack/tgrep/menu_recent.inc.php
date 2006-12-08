@@ -77,7 +77,7 @@ function tgrep_print_recent_list_k()
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

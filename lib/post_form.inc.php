@@ -45,9 +45,9 @@ $htm['post_form'] = <<<EOP
 {$htm['disable_js']}
 {$htm['resform_ttitle']}
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}"{$onsubmit_at}>
-<input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+{$_conf['detect_hint_input_ht']}
 {$htm['subject']}
-{$htm['maru_post']} 名前： <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}{$htm['name_tabidx']}>{$htm['k_br']}
+{$htm['maru_kakiko']} 名前： <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}{$htm['name_tabidx']}>{$htm['k_br']}
  E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}{$htm['mail_tabidx']}>{$htm['k_br']}
 {$htm['sage_cb']}{$htm['k_br']}
 {$htm['options']}
@@ -95,7 +95,7 @@ EOP;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

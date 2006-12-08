@@ -70,7 +70,7 @@ function ic2_read_exif($path)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

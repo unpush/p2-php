@@ -8,7 +8,7 @@ include_once './conf/conf.inc.php';
 include_once P2_LIBRARY_DIR . '/menu.inc.php';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

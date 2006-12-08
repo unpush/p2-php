@@ -68,7 +68,7 @@ if (isset($aThread->datlines[$resnum - 1])) {
 include ($_conf['read_php']);
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -1,14 +1,11 @@
 <?php
 // p2 - デザイン用 設定ファイル
 
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /*
-	コメント冒頭の() 内はデフォルト値
-	設定は style/*_css.inc と連動
+    コメント冒頭の() 内はデフォルト値
+    設定は style/*_css.inc と連動
 */
- 
+
 //======================================================================
 // デザインカスタマイズ
 //======================================================================
@@ -18,33 +15,33 @@ $STYLE['a_underline_none'] = "2"; // ("2") リンクに下線を（つける:0, つけない:1,
 // フォント ======================================================
 
 if(strstr($_SERVER['HTTP_USER_AGENT'], "Mac")){
-	/* Mac用フォントファミリー*/
-	if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ブラウザが Macで Safari等の WebKitを使っているものなら */
-		$STYLE['fontfamily'] = array("Lucida Grande", "Hiragino Kaku Gothic Pro"); // ("Hiragino Kaku Gothic Pro") 基本のフォント for Safari
-		$STYLE['fontfamily_bold'] = ""; // ("") 基本ボールド用フォント for Safari（普通の太字より太くしたい場合は"Hiragino Kaku Gothic Std"）
-	} else {
-		$STYLE['fontfamily'] = array("Lucida Grande", "ヒラギノ角ゴ Pro W3"); // ("ヒラギノ角ゴ Pro W3") 基本のフォント
-		$STYLE['fontfamily_bold'] = "ヒラギノ角ゴ Pro W6"; // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）
-	}
-	/* Mac用フォントサイズ */
-	$STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
-	$STYLE['menu_fontsize'] = "11px"; // ("11px") 板メニューのフォントの大きさ
-	$STYLE['sb_fontsize'] = "11px"; // ("11px") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] = "12px"; // ("12px") スレッド内容表示のフォントの大きさ
-	$STYLE['respop_fontsize'] = "11px"; // ("11px") 引用レスポップアップ表示のフォントの大きさ
-	$STYLE['infowin_fontsize'] = "11px"; // ("11px") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select のフォントの大きさ（Caminoを除く）
+    /* Mac用フォントファミリー*/
+    if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ブラウザが Macで Safari等の WebKitを使っているものなら */
+        $STYLE['fontfamily'] = array("Lucida Grande", "Hiragino Kaku Gothic Pro"); // ("Hiragino Kaku Gothic Pro") 基本のフォント for Safari
+        $STYLE['fontfamily_bold'] = ""; // ("") 基本ボールド用フォント for Safari（普通の太字より太くしたい場合は"Hiragino Kaku Gothic Std"）
+    } else {
+        $STYLE['fontfamily'] = array("Lucida Grande", "ヒラギノ角ゴ Pro W3"); // ("ヒラギノ角ゴ Pro W3") 基本のフォント
+        $STYLE['fontfamily_bold'] = "ヒラギノ角ゴ Pro W6"; // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）
+    }
+    /* Mac用フォントサイズ */
+    $STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
+    $STYLE['menu_fontsize'] = "11px"; // ("11px") 板メニューのフォントの大きさ
+    $STYLE['sb_fontsize'] = "11px"; // ("11px") スレ一覧のフォントの大きさ
+    $STYLE['read_fontsize'] = "12px"; // ("12px") スレッド内容表示のフォントの大きさ
+    $STYLE['respop_fontsize'] = "11px"; // ("11px") 引用レスポップアップ表示のフォントの大きさ
+    $STYLE['infowin_fontsize'] = "11px"; // ("11px") 情報ウィンドウのフォントの大きさ
+    $STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select のフォントの大きさ（Caminoを除く）
 }else{
-	/* Mac以外のフォントファミリー*/
-	$STYLE['fontfamily'] = "ＭＳ Ｐゴシック"; // ("ＭＳ Ｐゴシック") 基本のフォント
-	/* Mac以外のフォントサイズ */
-	$STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
-	$STYLE['menu_fontsize'] = "12px"; // ("12px") 板メニューのフォントの大きさ
-	$STYLE['sb_fontsize'] = "12px"; // ("12px") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] = "13px"; // ("13px") スレッド内容表示のフォントの大きさ
-	$STYLE['respop_fontsize'] = "11px"; // ("12px") 引用レスポップアップ表示のフォントの大きさ
-	$STYLE['infowin_fontsize'] = "12px"; // ("12px") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select のフォントの大きさ
+    /* Mac以外のフォントファミリー*/
+    $STYLE['fontfamily'] = "ＭＳ Ｐゴシック"; // ("ＭＳ Ｐゴシック") 基本のフォント
+    /* Mac以外のフォントサイズ */
+    $STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
+    $STYLE['menu_fontsize'] = "12px"; // ("12px") 板メニューのフォントの大きさ
+    $STYLE['sb_fontsize'] = "12px"; // ("12px") スレ一覧のフォントの大きさ
+    $STYLE['read_fontsize'] = "13px"; // ("13px") スレッド内容表示のフォントの大きさ
+    $STYLE['respop_fontsize'] = "11px"; // ("12px") 引用レスポップアップ表示のフォントの大きさ
+    $STYLE['infowin_fontsize'] = "12px"; // ("12px") 情報ウィンドウのフォントの大きさ
+    $STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select のフォントの大きさ
 }
 
 //======================================================================
@@ -75,8 +72,8 @@ $STYLE['menu_ita_color'] = "#ffa147"; // ("") メニュー 板 リンク色
 $STYLE['menu_ita_color_v'] = "#ffa147"; // ("") メニュー 板 訪問済みリンク色
 $STYLE['menu_ita_color_h'] = "#ffa147"; // ("#09c") メニュー 板 マウスオーバー時のリンク色
 
-$STYLE['menu_newthre_color'] = "#258abc";	// ("hotpink") menu 新規スレッド数の色
-$STYLE['menu_newres_color'] = "#fffabc";;	// ("#ff3300") menu 新着レス数の色
+$STYLE['menu_newthre_color'] = "#258abc";   // ("hotpink") menu 新規スレッド数の色
+$STYLE['menu_newres_color'] = "#fffabc";;   // ("#ff3300") menu 新着レス数の色
 
 // スレ一覧(subject) ====================
 $STYLE['sb_bgcolor'] = "#121518"; // ("#fff") subject 背景色
@@ -113,9 +110,9 @@ $STYLE['sb_tool_acolor_v'] = "#258abc"; // ("#d6e7ff") subject ツールバー内 訪問
 $STYLE['sb_tool_acolor_h'] = "#fea369";; // ("#fff") subject ツールバー内 マウスオーバー時のリンク色
 $STYLE['sb_tool_sepa_color'] = "#ffa147"; // ("#000") subject ツールバー内 セパレータ文字色
 
-$STYLE['sb_now_sort_color'] = "#258aff";	// ("#1144aa") subject 現在のソート色
+$STYLE['sb_now_sort_color'] = "#258aff";    // ("#1144aa") subject 現在のソート色
 
-$STYLE['sb_thre_title_new_color'] = "#fffabc";;	// ("red") subject 新規スレタイトルの色
+$STYLE['sb_thre_title_new_color'] = "#fffabc";; // ("red") subject 新規スレタイトルの色
 
 $STYLE['sb_tool_newres_color'] = "#fffabc";; // ("#ff3300") subject ツールバー内 新規レス数の色
 $STYLE['sb_newres_color'] = "#fffabc";; // ("#ff3300") subject 新着レス数の色
@@ -164,13 +161,13 @@ $MYSTYLE['subject']['sb_td']['border-bottom'] = "1px dotted #ffa147";
 $MYSTYLE['subject']['sb_td1']['border-bottom'] = "1px dotted #ffa147";
 
 //フィルタリング結果
-$MYSTYLE['base']['.filtering']['background-color'] = "transparent"; 
-$MYSTYLE['base']['.filtering']['font-family'] = $STYLE['fontfamily']; 
-$MYSTYLE['base']['.filtering']['font-weight'] = 'normal'; 
-$MYSTYLE['base']['.filtering']['border-top'] = "1px #258aff solid"; 
-$MYSTYLE['base']['.filtering']['border-right'] = "2px #258aff dashed"; 
-$MYSTYLE['base']['.filtering']['border-bottom'] = "1px #258aff solid"; 
-$MYSTYLE['base']['.filtering']['border-left'] = "2px #258aff dashed"; 
+$MYSTYLE['base']['.filtering']['background-color'] = "transparent";
+$MYSTYLE['base']['.filtering']['font-family'] = $STYLE['fontfamily'];
+$MYSTYLE['base']['.filtering']['font-weight'] = 'normal';
+$MYSTYLE['base']['.filtering']['border-top'] = "1px #258aff solid";
+$MYSTYLE['base']['.filtering']['border-right'] = "2px #258aff dashed";
+$MYSTYLE['base']['.filtering']['border-bottom'] = "1px #258aff solid";
+$MYSTYLE['base']['.filtering']['border-left'] = "2px #258aff dashed";
 
 //htmlポップアップ
 $MYSTYLE['read']['#iframespace']['border'] = "2px #ddb258 solid";
@@ -183,3 +180,14 @@ $MYSTYLE['subject']['#closebox'] = $MYSTYLE['read']['#closebox'];
 //情報ウインドウ
 $MYSTYLE['info']['td.tdleft']['color'] = "#ffa147";
 $MYSTYLE['kanban']['td.tdleft']['color'] = "#963000";
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

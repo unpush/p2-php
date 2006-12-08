@@ -89,7 +89,7 @@ $flexy->setData('skin', $skin_en);
 $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
 $flexy->setData('reload_js', $_SERVER['SCRIPT_NAME'] . '?nt=' . time() . '&table=' . $mode);
-$flexy->setData('info_msg', $_info_msg_ht);
+$flexy->setData('info_msg', P2Util::getInfoMsgHtml());
 
 if ($table->find()) {
     switch ($mode) {
@@ -154,7 +154,7 @@ function ic2dumptable_blacklist(&$dbdo)
 // }}}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -8,7 +8,7 @@
  */
 function printLoginFirst(&$_login)
 {
-    global $_info_msg_ht, $STYLE, $_conf;
+    global $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
     global $skin_en;
 
@@ -192,7 +192,7 @@ EOP;
         // {{{ 入力エラーをチェック、判定
 
         if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
-            $_info_msg_ht .= "<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>";
+            P2Util::pushInfoMsgHtml("<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>");
             $show_login_form_flag = true;
 
         // }}}
@@ -229,14 +229,14 @@ EOP;
     } else {
 
         if (isset($_POST['form_login_id']) || isset($_POST['form_login_pass'])) {
-            $_info_msg_ht .= '<p class="infomsg">';
+            P2Util::pushInfoMsgHtml('<p class="infomsg">');
             if (!$_POST['form_login_id']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['user']}」が入力されていません。"."<br>";
+                P2Util::pushInfoMsgHtml("rep2 error: 「{$p_str['user']}」が入力されていません。"."<br>");
             }
             if (!$_POST['form_login_pass']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['password']}」が入力されていません。";
+                P2Util::pushInfoMsgHtml("rep2 error: 「{$p_str['password']}」が入力されていません。");
             }
-            $_info_msg_ht .= '</p>';
+            P2Util::pushInfoMsgHtml('</p>');
         }
 
         $show_login_form_flag = true;
@@ -269,8 +269,7 @@ EOP;
     echo "<h3>{$ptitle}</h3>\n";
 
     // 情報表示
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoMsgHtml();
 
     echo $body_ht;
 
@@ -282,7 +281,7 @@ EOP;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

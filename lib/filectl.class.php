@@ -9,16 +9,21 @@
 class FileCtl
 {
     /**
-     * 書き込み用のファイルがなければ生成してパーミッションを調整する
+     * ファイルがなければ生成し、書き込み権限がなければパーミッションを調整する
+     * （既にファイルがあり、書き込み権限もある場合は、何もしない。※modifiedの更新もしない）
      *
      * @param   boolean  $die  true なら、エラーでただちに終了する
-     * @return  boolean  実効成否
+     * @return  boolean  問題がなければtrue
      */
     function make_datafile($file, $perm = 0606, $die = true)
     {
         $me = __CLASS__ . "::" . __FUNCTION__ . "()";
 
         // 引数チェック
+        if (strlen($file) == 0) {
+            trigger_error("$me, file is null", E_USER_WARNING);
+            return false;
+        }
         if (empty($perm)) {
             trigger_error("$me, empty perm. ( $file )", E_USER_WARNING);
             $die and die("Error: $me, empty perm");
@@ -47,7 +52,8 @@ class FileCtl
                 }
                 unlink($file);
                 if (file_put_contents($file, $cont, LOCK_EX) === false) {
-                    trigger_error("$me -> file_put_contents($file)", E_USER_WARNING);
+                    // 備忘メモ: $file が nullの時、file_put_contents() はfalseを返すがwaringは出さないので注意
+                    // ここでは $file は約束されているが…
                     $die and die("Error: $me -> file_put_contents() failed.");
                     return false;
                 }
@@ -60,10 +66,24 @@ class FileCtl
     /**
      * 指定ディレクトリがなければ（再帰的に）生成して、パーミッションの調整も行う
      *
-     * @param   boolean  $die  true なら、エラーでただちに終了する
+     * @access  public
+     * @param   integer  $perm  パーミッション ex) 0707
+     * @param   boolean  $die   true なら、エラーが生じた時点で、ただちにdieする
      * @return  boolean  実行成否。※既にディレクトリが存在している時もtrueを返す。
      */
-    function mkdirR($dir, $perm = null, $die = true, $rtimes = 0)
+    function mkdirR($dir, $perm = null, $die = true)
+    {
+        return FileCtl::_mkdirR($dir, $perm, $die, 0);
+    }
+
+    /**
+     * mkdirR() の実処理を行う
+     *
+     * @access  private
+     * @parama  integer  $rtimes  再帰呼び出しされている現在回数
+     * @return  boolean
+     */
+    function _mkdirR($dir, $perm = null, $die = true, $rtimes = 0)
     {
         global $_conf;
 
@@ -81,7 +101,7 @@ class FileCtl
         }
 
         if (empty($perm)) {
-            $perm = empty($_conf['data_dir_perm'])? 0707 : $_conf['data_dir_perm'];
+            $perm = empty($_conf['data_dir_perm']) ? 0707 : $_conf['data_dir_perm'];
         }
 
         $dir_limit = 50; // 親階層を上る制限回数
@@ -93,8 +113,8 @@ class FileCtl
             return false;
         }
 
-        // 親から先に
-        if (!FileCtl::mkdirR(dirname($dir), $perm, $die, ++$rtimes)) {
+        // 親から先に再帰実行
+        if (!FileCtl::_mkdirR(dirname($dir), $perm, $die, ++$rtimes)) {
             $die and die('Error');
             return false;
         }
@@ -205,7 +225,7 @@ class FileCtl
         fclose($fh);
 
         if ($bytes != $length) {
-            $errormsg = sprintf('file_put_contents() Only %d of %d bytes written, possibly out of free disk space.',
+            $errormsg = sprintf('file_write_contents() Only %d of %d bytes written, possibly out of free disk space.',
                             $bytes,
                             $length);
             trigger_error($errormsg, E_USER_WARNING);
@@ -224,7 +244,7 @@ class FileCtl
      */
     function rename($src_file, $dest_file)
     {
-        $win = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? true : false;
+        $win = (strncasecmp(PHP_OS, 'WIN', 3) == 0) ? true : false;
 
         if ($win) {
             if (file_exists($dest_file) and is_writable($dest_file) and unlink($dest_file)) {
@@ -240,12 +260,17 @@ class FileCtl
      * 書き込み中の不完全なファイル内容が読み取られることのないように、一時ファイルに書き込んでからリネームする
      * ※ただし、Windowsの場合は、上書きrenameが不完全となるので直接書き込むこととする
      *
-     * @param   string   $tmp_dir  一時保存ディレクトリ。（一時ファイル名まで固定すると処理が不完全になりそう）
+     * @param   string   $tmp_dir  一時保存ディレクトリ
      * @return  boolean  実行成否 （成功時に書き込みバイト数を返す意味ってほとんどない気がする）
      */
-    function filePutRename($dest_file, $cont, $tmp_dir = null)
+    function filePutRename($file, $cont, $tmp_dir = null)
     {
-        $win = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? true : false;
+        if (strlen($file) == 0) {
+            trigger_error(__CLASS__ . '::' . __FUNCTION__ . '(), file is null', E_USER_WARNING);
+            return false;
+        }
+
+        $win = (strncasecmp(PHP_OS, 'WIN', 3) == 0) ? true : false;
 
         // 一時ファイルパスを決める
         $prefix = 'rename_';
@@ -256,7 +281,6 @@ class FileCtl
                 trigger_error(__FUNCTION__ . "() -> is_dir($tmp_dir) failed.", E_USER_WARNING);
                 return false;
             }
-            $tmp_file = tempnam($tmp_dir, $prefix);
 
         } else {
             if (isset($GLOBALS['_conf']['tmp_dir'])) {
@@ -273,18 +297,18 @@ class FileCtl
                     $tmp_dir = null;
                 }
             }
-            $tmp_file = tempnam($tmp_dir, $prefix);
         }
 
-        $write_file = $win ? $dest_file : $tmp_file;
+        $tmp_file = tempnam($tmp_dir, $prefix);
+
+        $write_file = $win ? $file : $tmp_file;
 
         $r = file_put_contents($write_file, $cont, LOCK_EX);
         if ($r === false) {
-            //trigger_error(__FUNCTION__ . "() -> file_put_contents($write_file)", E_USER_WARNING);
             return false;
         }
         if (!$win) {
-            if (!rename($write_file, $dest_file)) {
+            if (!rename($write_file, $file)) {
                 return false;
             }
         }
@@ -392,7 +416,7 @@ class FileCtl
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

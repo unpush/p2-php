@@ -26,7 +26,7 @@ header('Location: '.$next_url.$sid_q);
 exit;
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

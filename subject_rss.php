@@ -26,7 +26,6 @@ if ($b == 'pc') {
 // •Ï”‚Ì‰Šú‰»
 //============================================================
 
-$_info_msg_ht = '';
 $channel = array();
 $items = array();
 
@@ -109,7 +108,7 @@ function rss_link2ch_callback($s)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

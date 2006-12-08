@@ -102,7 +102,8 @@ EOP;
 // {{{ お気にスレセット切替
 
 if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
-    $switchfavlist_ht = '<div>' . FavSetManager::makeFavSetSwitchForm('m_favlist_set', 'お気にスレ', null, null, false, array('spmode' => 'fav')) . '</div>';
+    $switchfavlist_ht = '<div>' . FavSetManager::makeFavSetSwitchForm('m_favlist_set', 'お気にスレ',
+        null, null, false, array('spmode' => 'fav')) . '</div>';
 }
 
 // }}}
@@ -172,7 +173,7 @@ echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.T
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

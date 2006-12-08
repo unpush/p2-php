@@ -1,7 +1,7 @@
 <?php
 /*
     rep2 - ユーザ設定 デフォルト
-    
+
     このファイルはデフォルト値の設定なので、特に変更する必要はありません
 */
 
@@ -17,7 +17,7 @@ $conf_user_def['be_2ch_mail'] = ""; // ("")
 // {{{ ■PATH
 
 // 右下部分に最初に表示されるページ。オンラインURLも可。
-$conf_user_def['first_page'] = "first_cont.php"; // ("first_cont.php") 
+$conf_user_def['first_page'] = "first_cont.php"; // ("first_cont.php")
 
 /*
     板リストはオンラインとローカルの両方から読み込める
@@ -65,7 +65,7 @@ $conf_user_rad['sb_show_fav'] = array('1' => 'する', '0' => 'しない');
 // 板表示のスレッド一覧でのデフォルトのソート指定
 $conf_user_def['sb_sort_ita'] = 'ikioi'; // ('ikioi')
 $conf_user_sel['sb_sort_ita'] = array(
-    'midoku' => '新着', 'res' => 'レス', 'no' => 'No.', 'title' => 'タイトル', // 'spd' => 'すばやさ', 
+    'midoku' => '新着', 'res' => 'レス', 'no' => 'No.', 'title' => 'タイトル', // 'spd' => 'すばやさ',
     'ikioi' => '勢い', 'bd' => 'Birthday'); // , 'fav' => 'お気にスレ'
 
 // 新着ソートでの「既得なし」の「新着数ゼロ」に対するソート優先順位 (上位:0.1, 混在:0, 下位:-0.1)
@@ -267,14 +267,14 @@ $conf_user_rules['favita_set_num'] = array('notIntExceptMinusToDef', 'tooLargeSe
 // 外部URLジャンプする際に通すゲート。
 // （直接:"", p2 ime(自動転送):"p2", p2 ime(手動転送):"p2m", p2 ime(pのみ手動転送):"p2pm",
 //   r.p(自動転送1秒):"ex", r.p(自動転送0秒):"exq", r.p(手動転送):"exm", r.p(pのみ手動転送):"expm"）
-$conf_user_def['through_ime'] = "expm"; // ("expm") 
+$conf_user_def['through_ime'] = "expm"; // ("expm")
 $conf_user_sel['through_ime'] = array(
     '' => '直接', 'p2' => 'p2 ime(自動転送)', 'p2m' => 'p2 ime(手動転送)', 'p2pm' => 'p2 ime(pのみ手動転送)',
     'ex' => 'r.p(自動転送1秒)', 'exq' => 'r.p(自動転送0秒)', 'exm' => 'r.p(手動転送)', 'expm' => 'r.p(pのみ手動転送)'
 );
 
 // ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）
-$conf_user_def['ime_manual_ext'] = "exe,zip"; // ("exe,zip") 
+$conf_user_def['ime_manual_ext'] = "exe,zip"; // ("exe,zip")
 
 // お気にスレ共有に参加（する:1, しない:0）
 $conf_user_def['join_favrank'] = 0; // (0)
@@ -311,7 +311,7 @@ $conf_user_def['enable_exfilter'] = 2; // (2)
 $conf_user_sel['enable_exfilter'] = array('1' => 'レスのみする', '0' => 'しない', '2' => 'レス、サブジェクトともする');
 
 // 携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する:1, しない:0)
-$conf_user_def['k_save_packet'] = 1; // (1) 
+$conf_user_def['k_save_packet'] = 1; // (1)
 $conf_user_rad['k_save_packet'] = array('1' => 'する', '0' => 'しない');
 
 // プロキシを利用(する:1, しない:0)
@@ -331,7 +331,7 @@ $conf_user_def['frame_menu_width'] = "156"; // ("156")
 $conf_user_def['frame_subject_width'] = "40%"; // ("40%")
 
 // フレーム read の表示幅
-$conf_user_def['frame_read_width'] = "60%"; // ("40%") 
+$conf_user_def['frame_read_width'] = "60%"; // ("40%")
 
 
 // ●ログインを、まずはopensslで試みる。※PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある
@@ -350,3 +350,14 @@ $conf_user_def['maru_kakiko'] = 1; // (1)
 
 // 拡張パック
 include_once 'conf/conf_user_def_ex.inc.php';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

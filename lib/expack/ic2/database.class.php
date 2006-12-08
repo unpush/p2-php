@@ -131,7 +131,7 @@ class IC2DB_Skel extends DB_DataObject
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

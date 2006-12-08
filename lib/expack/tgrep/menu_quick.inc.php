@@ -86,7 +86,7 @@ function tgrep_print_quick_list_k()
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

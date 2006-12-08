@@ -130,7 +130,7 @@ EOP;
      */
     function printItaSearch($categories)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         global $list_navi_ht;
 
         if (!$categories) {
@@ -235,7 +235,7 @@ EOP;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

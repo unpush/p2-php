@@ -24,7 +24,6 @@ if ($b == 'pc') {
 // •Ï”‚Ì‰Šú‰»
 //============================================================
 
-$_info_msg_ht = '';
 $channel = array();
 $items = array();
 
@@ -101,7 +100,7 @@ echo $_conf['doctype'];
 include P2EX_LIBRARY_DIR . '/rss/' . ($_conf['ktai'] ? 'read_k' : 'read') . '.inc.php';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

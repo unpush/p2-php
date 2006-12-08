@@ -141,10 +141,11 @@ EOP;
 
 // {{{ 2ch●書き込み
 
-$htm['maru_post'] = '';
+$htm['maru_kakiko'] = '';
 if (P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php'])) {
-    $htm['maru_post'] = <<<EOP
-<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox" value="1"><label for="maru">●</label></span>
+    $maru_kakiko_checked = empty($_conf['maru_kakiko']) ? '' : ' checked';
+    $htm['maru_kakiko'] = <<<EOP
+<span title="2ch●IDの使用"><input id="maru_kakiko" name="maru_kakiko" type="checkbox" value="1"{$maru_kakiko_checked}><label for="maru_kakiko">●</label></span>
 EOP;
 }
 
@@ -301,7 +302,7 @@ if (!$_conf['ktai']) {
 // }}}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

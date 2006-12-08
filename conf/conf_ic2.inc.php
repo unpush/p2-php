@@ -1,7 +1,4 @@
 <?php
-// vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
-// mi: charset=Shift_JIS
-
 /**
  * ImageCache2 Ý’èƒtƒ@ƒCƒ‹
  */
@@ -265,3 +262,14 @@ $_conf['expack.ic2.thumb3.height'] = 480;
 $_conf['expack.ic2.thumb3.quality'] = 80;
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

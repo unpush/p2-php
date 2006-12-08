@@ -75,7 +75,7 @@ class SubjectTxt
      */
     function downloadSubject()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
@@ -131,8 +131,8 @@ class SubjectTxt
 
         if (isset($error_msg) && strlen($error_msg) > 0) {
             $url_t = P2Util::throughIme($this->subject_url);
-            $_info_msg_ht .= "<div>Error: {$error_msg}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> Ç…ê⁄ë±Ç≈Ç´Ç‹ÇπÇÒÇ≈ÇµÇΩÅB</div>";
+            P2Util::pushInfoMsgHtml("<div>Error: {$error_msg}<br>");
+            P2Util::pushInfoMsgHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> Ç…ê⁄ë±Ç≈Ç´Ç‹ÇπÇÒÇ≈ÇµÇΩÅB</div>");
             $body = '';
         } else {
             $body = $req->getResponseBody();
@@ -240,7 +240,7 @@ class SubjectTxt
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -11,7 +11,7 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
  */
 function setFavIta()
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     // {{{ パラメータの設定
 
@@ -29,7 +29,7 @@ function setFavIta()
             $host = preg_replace('{/test/read\.cgi$}', '', $matches[1]);
             $bbs = $matches[2];
         } else {
-            $_info_msg_ht .= "<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>";
+            P2Util::pushInfoMsgHtml("<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>");
         }
     }
 
@@ -105,8 +105,9 @@ function setFavIta()
             list($host, $bbs, $itaj_en) = explode('@', $aList);
             $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
         }
-        $_info_msg_ht .= "<script language=\"javascript\">
-            if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
+        P2Util::pushInfoMsgHtml('<script language="javascript">');
+        P2Util::pushInfoMsgHtml("if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }");
+        P2Util::pushInfoMsgHtml('</script>');
 
     // 一つのデータを指定して操作
     } elseif ($setfavita and $host && $bbs && $itaj) {
@@ -137,7 +138,7 @@ function setFavIta()
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

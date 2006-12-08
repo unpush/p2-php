@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.8.99';     // rep2のバージョン
-$_conf['p2expack'] = '061209.0013'; // 拡張パックのバージョン
+$_conf['p2expack'] = '061209.0501'; // 拡張パックのバージョン
 $_conf['p2name'] = 'r e p 2 e x';   // rep2の名前。
 
 //======================================================================
@@ -114,7 +114,9 @@ $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html;
 
 // 文字コード自動判定用のヒント文字列
 $_conf['detect_hint'] = '◎◇';
-$_conf['detect_hint_utf8'] = mb_convert_encoding($_conf['detect_hint'], 'UTF-8', 'SJIS-win');
+$_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
+$_conf['detect_hint_input_xht'] = '<input type="hidden" name="_hint" value="◎◇" />';
+$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win');
 
 // {{{ 端末判定
 
@@ -214,6 +216,7 @@ if (isset($_GET['k'])) {
 $_conf['k_at_a'] = '';
 $_conf['k_at_q'] = '';
 $_conf['k_input_ht'] = '';
+$_conf['k_input_xht'] = '';
 if ($b == 'pc') {
     if ($_conf['ktai']) {
         $_conf['ktai'] = false;
@@ -224,6 +227,7 @@ if ($b == 'pc') {
     $_conf['k_at_a'] = '&amp;b=pc';
     $_conf['k_at_q'] = '?b=pc';
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
+    $_conf['k_input_xht'] = '<input type="hidden" name="b" value="pc" />';
 
 // 強制携帯ビュー指定（b=k。k=1は過去互換用）
 } elseif ($b == 'k' || $k) {
@@ -236,6 +240,7 @@ if ($b == 'pc') {
     $_conf['k_at_a'] = '&amp;b=k';
     $_conf['k_at_q'] = '?b=k';
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="k">';
+    $_conf['k_input_xht'] = '<input type="hidden" name="b" value="k" />';
 }
 
 // }}}
@@ -499,7 +504,7 @@ if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
     $_conf['use_session'] = 1;
 }
 
-if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) { 
+if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) {
 
     // {{{ セッションデータ保存ディレクトリをチェック
 
@@ -1105,3 +1110,14 @@ function p2loaddeps($pear_list)
     require_once P2_LIBRARY_DIR . '/session.class.php';
     require_once P2_LIBRARY_DIR . '/login.class.php';
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

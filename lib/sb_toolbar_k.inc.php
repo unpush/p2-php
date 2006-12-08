@@ -31,7 +31,7 @@ echo "<p>{$ptitle_ht} {$shinchaku_matome_ht}</p>\n";
 $upper_toolbar_done = true;
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

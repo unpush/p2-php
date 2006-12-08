@@ -228,8 +228,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 // スレが板サーバになければ
 if ($aThread->diedat) {
@@ -288,7 +287,7 @@ if ($word) {
 echo "<hr>";
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

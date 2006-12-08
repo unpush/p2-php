@@ -106,8 +106,7 @@ if (!$_conf['ktai']) {
 }
 
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 // 設定プリント
 $aborn_res_txt  = $_conf['pref_dir'] . '/p2_aborn_res.txt';
@@ -254,7 +253,7 @@ EOP;
 
         echo <<<EOP
 <form action="editpref.php" method="post" accept-charset="{$_conf['accept_charset']}" target="_self" style="margin:0">
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="favsetlist" value="1">
     <fieldset>
         <legend>セット切り替え・名称変更（セット名を空にするとデフォルトの名前に戻ります）</legend>
@@ -283,6 +282,7 @@ EOP;
             <input type="submit" value="変更">
         </div>
     </fieldset>
+    {$_conf['k_input_ht']}
 </form>\n\n
 EOP;
 
@@ -585,7 +585,7 @@ function getFavSetListFormHtK($set_name, $set_title)
  */
 function updateFavSetList()
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     if (file_exists($_conf['expack.misc.favset_file'])) {
         $setlist_titles = FavSetManager::getFavSetTitles();
@@ -616,7 +616,7 @@ function updateFavSetList()
 
     $newdata = serialize($setlist_titles);
     if (FileCtl::file_write_contents($_conf['expack.misc.favset_file'], $newdata) === false) {
-        $_info_msg_ht .= "<p>p2 error: {$_conf['expack.misc.favset_file']} にお気に入りセット設定を書き込めませんでした。";
+        P2Util::pushInfoMsgHtml("<p>p2 error: {$_conf['expack.misc.favset_file']} にお気に入りセット設定を書き込めませんでした。");
         return false;
     }
 
@@ -624,7 +624,7 @@ function updateFavSetList()
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -82,7 +82,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -14,10 +14,9 @@ echo <<<EOH
 <title>{$title}</title>
 </head>
 <body{$_conf['k_colors']}>
-{$_info_msg_ht}
-<h1>{$ch_title}</h1>
-<hr>
 EOH;
+P2Util::printInfoMsgHtml();
+echo "<h1>{$ch_title}</h1><hr>";
 
 // RSSÇ™ÉpÅ[ÉXÇ≈Ç´Ç»Ç©Ç¡ÇΩÇ∆Ç´
 if (!$rss_parse_success) {
@@ -119,7 +118,7 @@ EOP;
 // }}}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

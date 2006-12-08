@@ -453,7 +453,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 // $shinchaku_num
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

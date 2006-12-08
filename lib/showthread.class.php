@@ -1,4 +1,4 @@
-<?php
+var $str_to_link_limit = 30; // 一つのレスにおけるリンク変換の制限回数（荒らし対策）<?php
 /**
  * スレッドを表示する クラス
  */
@@ -7,12 +7,10 @@ class ShowThread
     var $thread; // スレッドオブジェクトの参照
 
     var $str_to_link_regex; // リンクすべき文字列の正規表現
+    var $str_to_link_limit = 30; // 一つのレスにおけるリンク変換の制限回数（荒らし対策）
 
     var $url_handlers;      // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
     var $user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
-
-    var $_quote_link_counts = array();
-    var $_quote_parent_resnum;
 
     var $ngaborn_frequent; // 頻出IDをあぼーんする
 
@@ -95,6 +93,11 @@ class ShowThread
 
     /**
      * BEプロファイルリンク変換
+     *
+     * @access  protected
+     * @param   string     $data_id  2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)
+     * @param   integer    $i        レス番号
+     * @return  string
      */
     function replaceBeId($date_id, $i)
     {
@@ -107,8 +110,8 @@ class ShowThread
         if (preg_match($be_match, $date_id)) {
             $date_id = preg_replace($be_match, $beid_replace, $date_id);
 
+        // 2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)
         } else {
-
             $beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/test/read.cgi/{$this->thread->bbs}/{$this->thread->key}/{$i}\"{$_conf['ext_win_target_at']}>?\$2</a>";
             $date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
         }
@@ -341,7 +344,7 @@ EOP;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

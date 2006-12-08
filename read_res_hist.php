@@ -44,17 +44,17 @@ P2Util::transResHistLogPhpToDat();
 //==================================================================
 // 読み込んで
 if (!file_exists($_conf['p2_res_hist_dat']) or !$datlines = file($_conf['p2_res_hist_dat'])) {
-    die("p2 - 書き込み履歴内容は空っぽのようです");
+    P2Util::printSimpleHtml('p2 - 書き込み履歴内容は空っぽのようです');
+    die('');
 }
 
 $datlines = array_map('rtrim', $datlines);
+$datlines_num = count($datlines);
 
 // ファイルの下に記録されているものが新しい
 $datlines = array_reverse($datlines);
 
 $aResHist =& new ResHist();
-
-$aResHist->readLines($datlines);
 
 // HTMLプリント用変数
 $htm['checkall'] = '全てのチェックボックスを
@@ -111,8 +111,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 // 携帯用表示
 if ($_conf['ktai']) {
@@ -147,9 +146,9 @@ EOP;
 // レス記事 表示
 //==================================================================
 if ($_conf['ktai']) {
-    $aResHist->showArticlesK();
+    $aResHist->showArticlesK($datlines);
 } else {
-    $aResHist->showArticles();
+    $aResHist->showArticles($datlines);
 }
 
 //==================================================================
@@ -158,7 +157,7 @@ if ($_conf['ktai']) {
 // 携帯用表示
 if ($_conf['ktai']) {
     echo '<div id="footer" name="footer">';
-    $aResHist->showNaviK("footer");
+    $aResHist->showNaviK('footer', $datlines_num);
     echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$_conf['k_at_a']}>2.▲</a><br>";
     echo "</div>";
     echo "<p>{$_conf['k_to_index_ht']}</p>";
@@ -183,7 +182,7 @@ if (!$_conf['ktai']) {
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

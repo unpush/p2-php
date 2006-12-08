@@ -84,8 +84,7 @@ EOP;
 }
 
 // インフォメッセージ表示
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 echo "<ul id=\"setting_menu\">";
 
@@ -121,7 +120,7 @@ if ($_conf['ktai']) {
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

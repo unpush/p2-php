@@ -391,7 +391,8 @@ class Thread
         if (!$nowtime) {
             $nowtime = time();
         }
-        if ($pastsc = $nowtime - $this->key) {
+        //if (preg_match('/^\d{9,10}$/', $this->key) {
+        if (631119600 < $this->key && $this->key < time() + 1000 and $pastsc = $nowtime - $this->key) { // 1990”N-
             $this->dayres = $this->rescount / $pastsc * 60 * 60 * 24;
             $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setDayRes()');
             return true;
@@ -499,7 +500,7 @@ class Thread
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

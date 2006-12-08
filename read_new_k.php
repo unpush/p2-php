@@ -142,8 +142,7 @@ echo <<<EOP
 <a id="above" name="above" {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#bottom">{$_conf['k_accesskey']['bottom']}.Å•</a></p>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 //==============================================================
 // ÇªÇÍÇºÇÍÇÃçsâêÕ
@@ -276,8 +275,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
     if ($aThread->isonline) { $online_num++; } // ê∂ë∂êîset
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoMsgHtml();
 
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
@@ -314,7 +312,7 @@ for ($x = 0; $x < $linesize; $x++) {
 function readNew(&$aThread)
 {
     global $_conf, $newthre_num, $STYLE;
-    global $_info_msg_ht, $spmode;
+    global $spmode;
 
     $newthre_num++;
 
@@ -395,8 +393,7 @@ function readNew(&$aThread)
         $read_header_itaj_ht = " ({$itaj_hd})";
     }
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoMsgHtml();
 
     $read_header_ht = <<<EOP
         <hr>
@@ -551,7 +548,7 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 NgAbornCtl::saveNgAborns();
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

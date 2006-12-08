@@ -84,10 +84,10 @@ echo <<<EOH
     // -->
     </script>
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="setWinTitle();">
-{$_info_msg_ht}
-
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="setWinTitle();">\n
 EOH;
+
+P2Util::printInfoMsgHtml();
 
 // RSS‚ªƒp[ƒX‚Å‚«‚È‚©‚Á‚½‚Æ‚«
 if (!$rss_parse_success) {
@@ -216,7 +216,7 @@ EOF;
 // }}}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

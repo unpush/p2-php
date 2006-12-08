@@ -4,10 +4,10 @@
 
     コメント冒頭の() 内はデフォルト値
     設定は style/*_css.inc と連動
-    
+
     このファイルの設定は、お好みに応じて変更してください
 */
- 
+
 //======================================================================
 // デザインカスタマイズ
 //======================================================================
@@ -134,3 +134,14 @@ $STYLE['post_msg_cols'] = 70; // (70) レス書き込みフォーム、メッセージフィールド
 $STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの大きさ（横,縦）
 
 $STYLE['conf_btn_bgcolor'] = '#efefef';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

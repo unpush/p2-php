@@ -21,35 +21,7 @@ $menu_side_url = $me_dir_url . '/menu_side.php';
 
 $brd_menus = array();
 
-if (isset($_GET['word'])) {
-    $word = $_GET['word'];
-} elseif (isset($_POST['word'])) {
-    $word = $_POST['word'];
-}
-
-// {{{ 板検索
-
-if (isset($word) && strlen($word) > 0) {
-
-    if (preg_match('/^\.+$/', $word)) {
-        $word = '';
-    }
-
-    // and検索
-    include_once P2_LIBRARY_DIR . '/strctl.class.php';
-    $word_fm = StrCtl::wordForMatch($word, 'and');
-    if (P2_MBREGEX_AVAILABLE == 1) {
-        $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
-        $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
-    } else {
-        $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
-        $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
-    }
-
-    $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
-}
-
-// }}}
+BrdCtl::parseWord(); // set $GLOBALS['word']
 
 //============================================================
 // 特殊な前処理
@@ -134,8 +106,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 if (!empty($sidebar)) {
     echo <<<EOP
@@ -169,7 +140,7 @@ if ($_conf['input_type_search']) {
     // 板検索
 echo <<<EOP
     <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self" class="inline-form">
-        <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+        {$_conf['detect_hint_input_ht']}
         <input type="search" name="word" value="{$hd['word']}" size="16" autosave="rep2.expack.search.menu" results="10" placeholder="板検索">
         {$_conf['k_input_ht']}
     </form><br />\n
@@ -177,7 +148,7 @@ EOP;
     // スレタイ検索
     echo <<<EOP
     <form method="GET" action="tgrepc.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form">
-        <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+        {$_conf['detect_hint_input_ht']}
         <input type="search" name="Q" value="" size="16" autosave="rep2.expack.search.thread" results="{$_conf['expack.tgrep.recent2_num']}" placeholder="スレタイ検索">
         {$_conf['k_input_ht']}
     </form><br>\n
@@ -186,7 +157,7 @@ EOP;
     if ($google_search_enabled) {
         echo <<<EOP
     <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form">
-        <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+        {$_conf['detect_hint_input_ht']}
         <input type="search" name="q" value="" size="16" autosave="rep2.expack.search.google" results="{$_conf['expack.google.recent2_num']}" placeholder="Google検索">
         {$_conf['k_input_ht']}
     </form><br>\n
@@ -200,14 +171,14 @@ EOP;
     // 板検索
     echo <<<EOP
     <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self" class="inline-form" style="white-space:nowrap">
-        <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+        {$_conf['detect_hint_input_ht']}
         <input type="text" name="word" value="{$hd['word']}" size="12"><input type="submit" name="submit" value="板">
     </form><br>\n
 EOP;
     // スレタイ検索
     echo <<<EOP
     <form method="GET" action="tgrepc.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form" style="white-space:nowrap">
-        <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+        {$_conf['detect_hint_input_ht']}
         <input type="text" name="Q" value="" size="12"><input type="submit" value="ｽﾚ">
     </form><br>\n
 EOP;
@@ -215,7 +186,7 @@ EOP;
     if ($google_search_enabled) {
         echo <<<EOP
     <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form" style="white-space:nowrap">
-        <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+        {$_conf['detect_hint_input_ht']}
         <input type="text" name="q" value="" size="12"><input type="submit" value="G">
     </form><br>\n
 EOP;
@@ -347,9 +318,9 @@ $brd_menus = array_merge($brd_menus_dir, $brd_menus_online);
 
 // {{{ 検索ワードがあれば
 
-if (isset($word) && strlen($word) > 0) {
+if (strlen($GLOBALS['word']) > 0) {
 
-    $msg_ht .= '<p>';
+    $msg_ht = '<p>';
     if (empty($GLOBALS['ita_mikke']['num'])) {
         if (empty($GLOBALS['threti_match_ita_num'])) {
             $msg_ht .=  "\"{$hd['word']}\"を含む板は見つかりませんでした。\n";
@@ -389,15 +360,14 @@ EOP;
     }
     $msg_ht .= '</p>';
 
-    $_info_msg_ht .= $msg_ht;
+    P2Util::pushInfoMsgHtml($msg_ht);
 } else {
     $match_cates = null;
 }
 
 // }}}
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 if ($_conf['menu_hide_brds'] && !$ita_mikke['num']) {
     $brd_menus_style = ' style="display:none"';
@@ -458,7 +428,7 @@ echo '</body></html>';
 
 
 //==============================================================
-// 関数 （このファイル内のみの利用）
+// 関数 （このファイル内でのみ利用）
 //==============================================================
 /**
  * spmode用のmenuの新着数を初期化する
@@ -479,7 +449,7 @@ function initMenuNewSp($spmode_in)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -133,6 +133,8 @@ if ($p2_setting['viewnum'] == 'all' or $sb_view == 'shinchaku' or $sb_view == 'e
 // }}}
 // {{{ ワードフィルタ設定
 
+$GLOBALS['word'] = null;
+
 // 検索指定があれば
 if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
     if (isset($_GET['word'])) {
@@ -174,25 +176,24 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
             }
             $_conf['expack.min_similarity'] = (float) $_conf['expack.min_similarity'];
         }
-        $word = '';
-    } elseif (preg_match('/^\.+$/', $word)) {
-        $word = '';
+        $GLOBALS['word'] = null;
+    } elseif (preg_match('/^\.+$/', $GLOBALS['word'])) {
+        $GLOBALS['word'] = null;
     }
-    if (strlen($word) > 0)  {
+    if (strlen($GLOBALS['word']) > 0)  {
 
         // デフォルトオプション
         if (!$sb_filter['method']) { $sb_filter['method'] = "or"; } // $sb_filter は global @see sb_print.icn.php
 
         include_once P2_LIBRARY_DIR . '/strctl.class.php';
-        $GLOBALS['words_fm'] = StrCtl::wordForMatch($word, $sb_filter['method']);
+        $GLOBALS['word_fm'] = StrCtl::wordForMatch($GLOBALS['word'], $sb_filter['method']);
         if ($sb_filter['method'] != 'just') {
             if (P2_MBREGEX_AVAILABLE == 1) {
-                $GLOBALS['words_fm'] = @mb_split('\s+', $GLOBALS['words_fm']);
-                $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $GLOBALS['words_fm']);
+                $GLOBALS['words_fm'] = mb_split('\s+', $GLOBALS['word_fm']);
             } else {
-                $GLOBALS['words_fm'] = @preg_split('/\s+/', $GLOBALS['words_fm']);
-                $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $GLOBALS['words_fm']);
+                $GLOBALS['words_fm'] = preg_split('/\s+/', $GLOBALS['word_fm']);
             }
+            $GLOBALS['word_fm'] = implode('|', $GLOBALS['words_fm']);
         }
     }
 }
@@ -741,8 +742,6 @@ exit;
  */
 function autoTAbornOff(&$aThreadList, &$ta_keys)
 {
-    global $_info_msg_ht;
-
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('abornoff');
 
     if (!$aThreadList->spmode and !$GLOBALS['word'] and !$GLOBALS['wakati_word'] and $aThreadList->threads and $ta_keys) {
@@ -756,7 +755,7 @@ function autoTAbornOff(&$aThreadList, &$ta_keys)
                 $ks .= "key:$k ";
             }
         }
-        $ks && $_info_msg_ht .= "<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>";
+        $ks && P2Util::pushInfoMsgHtml("<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>");
     }
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('abornoff');
@@ -826,40 +825,42 @@ function sortThreads(&$aThreadList)
 
 /**
  * p2_setting 記録する
+ *
+ * @return  boolean
  */
 function saveSbSetting($p2_setting_txt, $p2_setting, $pre_setting)
 {
     global $_conf;
 
-    $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('save_p2_setting');
     if ($pre_setting['viewnum'] != $p2_setting['viewnum'] or $pre_setting['sort'] != $GLOBALS['now_sort'] or $pre_setting['itaj'] != $p2_setting['itaj']) {
         if (!empty($_POST['sort'])) {
             $p2_setting['sort'] = $_POST['sort'];
         } elseif (!empty($_GET['sort'])) {
             $p2_setting['sort'] = $_GET['sort'];
         }
-        FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
+        if (false === FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm'])) {
+            return false;
+        }
         if ($p2_setting) {
-            if ($p2_setting_cont = serialize($p2_setting)) {
-                if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
-                    die("Error: cannot write file.");
-                }
+            $p2_setting_cont = serialize($p2_setting);
+            if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
+                die("Error: cannot write file.");
             }
         }
     }
-    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('save_p2_setting');
 
     return true;
 }
 
 /**
  * $subject_keys をシリアライズして保存する
+ *
+ * @return  boolean
  */
 function saveSubjectKeys(&$subject_keys, $sb_keys_txt, $sb_keys_b_txt)
 {
     global $_conf;
 
-    $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('saveSubjectKeys()');
     //if (file_exists($sb_keys_b_txt)) { unlink($sb_keys_b_txt); }
     if (!empty($subject_keys)) {
         if (file_exists($sb_keys_txt)) {
@@ -869,18 +870,20 @@ function saveSubjectKeys(&$subject_keys, $sb_keys_txt, $sb_keys_b_txt)
             FileCtl::make_datafile($sb_keys_txt, $_conf['p2_perm']);
         }
         if ($sb_keys_cont = serialize($subject_keys)) {
-            if (FileCtl::file_write_contents($sb_keys_txt, $sb_keys_cont) === false) {
+            if (file_put_contents($sb_keys_txt, $sb_keys_cont, LOCK_EX) === false) {
                 die("Error: cannot write file.");
+                return false;
             }
         }
     }
-    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('saveSubjectKeys()');
 
     return true;
 }
 
 /**
  * スレタイ（と本文）でマッチしたらtrueを返す
+ *
+ * @return  boolean
  */
 function matchSbFilter(&$aThread)
 {
@@ -1111,7 +1114,7 @@ function cmp_similarity($a, $b)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

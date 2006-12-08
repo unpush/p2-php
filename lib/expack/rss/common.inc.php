@@ -10,7 +10,7 @@ require_once 'PEAR.php';
  */
 function rss_get_save_path($remotefile)
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
     static $done = array();
 
     $remotefile = preg_replace('|^feed://|', 'http://', $remotefile);
@@ -54,7 +54,7 @@ function rss_get_save_path($remotefile)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

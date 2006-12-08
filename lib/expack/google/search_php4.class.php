@@ -87,7 +87,7 @@ class GoogleSearch_PHP4 extends GoogleSearch_Common
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

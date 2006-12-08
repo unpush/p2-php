@@ -19,8 +19,7 @@ function manageDB_update($updated)
         return;
     }
     if (!is_array($updated)) {
-        global $_info_msg_ht;
-        $_info_msg_ht .= '<p>WARNING! manageDB_update(): 不正な引数</p>';
+        P2Util::pushInfoMsgHtml('<p>WARNING! manageDB_update(): 不正な引数</p>');
         return;
     }
 
@@ -82,8 +81,7 @@ function manageDB_remove($target, $to_blacklist = false)
                 return $removed_files;
             }
         } else {
-            global $_info_msg_ht;
-            $_info_msg_ht .= '<p>WARNING! manageDB_remove(): 不正な引数</p>';
+            P2Util::pushInfoMsgHtml('<p>WARNING! manageDB_remove(): 不正な引数</p>');
             return $removed_files;
         }
     }
@@ -187,8 +185,7 @@ function manageDB_setRank($target, $rank)
                 return;
             }
         } else {
-            global $_info_msg_ht;
-            $_info_msg_ht .= '<p>WARNING! manageDB_setRank(): 不正な引数</p>';
+            P2Util::pushInfoMsgHtml('<p>WARNING! manageDB_setRank(): 不正な引数</p>');
             return $removed_files;
         }
     }
@@ -218,8 +215,7 @@ function manageDB_addMemo($target, $memo)
                 return;
             }
         } else {
-            global $_info_msg_ht;
-            $_info_msg_ht .= '<p>WARNING! manageDB_addMemo(): 不正な引数</p>';
+            P2Util::pushInfoMsgHtml('<p>WARNING! manageDB_addMemo(): 不正な引数</p>');
             return $removed_files;
         }
     }
@@ -259,7 +255,7 @@ function manageDB_addMemo($target, $memo)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

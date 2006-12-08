@@ -22,10 +22,9 @@ $_login->authorize(); // ユーザ認証
 $newtime = date('gis'); // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 //$_today = date('y/m/d');
 
-$_info_msg_ht = '';
-
 if (empty($_GET['host']) || empty($_GET['bbs']) || empty($_GET['key']) || empty($_GET['ls'])) {
-    die("p2 - read_async.php: レスの指定が変です。");
+    P2Util::printSimpleHtml('p2 - read_async.php: レスの指定が変です。');
+    die('');
 }
 
 $host = $_GET['host'];
@@ -190,7 +189,7 @@ P2Util::recRecent($newdata);
 NgAbornCtl::saveNgAborns();
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

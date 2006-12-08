@@ -44,7 +44,7 @@ if (isset($_POST['form_login_pass'])) {
 
     // 入力チェック
     if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
-        $_info_msg_ht .= "<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>";
+        P2Util::pushInfoMsgHtml("<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>");
 
     // パスワード変更登録処理を行う
     } else {
@@ -62,7 +62,7 @@ EOP;
         @flock($fp, LOCK_UN);
         fclose($fp);
 
-        $_info_msg_ht .= '<p>○認証パスワードを変更登録しました</p>';
+        P2Util::pushInfoMsgHtml('<p>○認証パスワードを変更登録しました</p>');
     }
 
 }
@@ -136,16 +136,16 @@ if (!empty($_REQUEST['check_regist_cookie'])) {
 
     if ($_login->checkUserPwWithCid($_COOKIE['cid'])) {
         if ($_REQUEST['regist_cookie'] == '1') {
-            $_info_msg_ht .= '<p>○cookie認証登録完了</p>';
+            P2Util::pushInfoMsgHtml('<p>○cookie認証登録完了</p>');
         } else {
-            $_info_msg_ht .= '<p>×cookie認証解除失敗</p>';
+            P2Util::pushInfoMsgHtml('<p>×cookie認証解除失敗</p>');
         }
 
     } else {
         if ($_REQUEST['regist_cookie'] == '1') {
-            $_info_msg_ht .= '<p>×cookie認証登録失敗</p>';
+            P2Util::pushInfoMsgHtml('<p>×cookie認証登録失敗</p>');
         } else  {
-            $_info_msg_ht .= '<p>○cookie認証解除完了</p>';
+            P2Util::pushInfoMsgHtml('<p>○cookie認証解除完了</p>');
         }
     }
 }
@@ -208,8 +208,7 @@ EOP;
 }
 
 // 情報表示
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 echo '<p id="login_status">';
 echo <<<EOP
@@ -231,7 +230,7 @@ if ($_conf['ktai']) {
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

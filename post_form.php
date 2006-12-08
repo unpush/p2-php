@@ -124,8 +124,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 // $htm['post_form'] ‚ðŽæ“¾
 include_once P2_LIBRARY_DIR . '/post_form.inc.php';
@@ -138,7 +137,7 @@ echo $htm['dpreview2'];
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

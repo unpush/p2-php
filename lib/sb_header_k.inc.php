@@ -77,7 +77,7 @@ EOP;
 
 // ÉtÉHÅ[ÉÄ
 $sb_form_hidden_ht = <<<EOP
-<input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+{$_conf['detect_hint_input_ht']}
 <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
 <input type="hidden" name="host" value="{$aThreadList->host}">
 <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
@@ -117,8 +117,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
 
@@ -127,7 +126,7 @@ echo $hit_ht;
 echo '<hr>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

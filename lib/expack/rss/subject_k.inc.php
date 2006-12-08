@@ -12,10 +12,11 @@ echo <<<EOH
 <title>{$title}</title>
 </head>
 <body{$_conf['k_colors']}>
-{$_info_msg_ht}
-<p><b>{$title}</b></p>
-<hr>\n
 EOH;
+
+P2Util::printInfoMsgHtml();
+
+echo "<p><b>{$title}</b></p><hr>";
 
 // RSSÇ™ÉpÅ[ÉXÇ≈Ç´Ç»Ç©Ç¡ÇΩÇ∆Ç´
 if (!$rss_parse_success) {
@@ -92,7 +93,7 @@ EOF;
 // }}}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -29,8 +29,9 @@ echo <<<EOH
     </script>
 </head>
 <body onload="setWinTitle()">
-{$_info_msg_ht}
 EOH;
+
+P2Util::printInfoMsgHtml();
 
 // RSS‚ªƒp[ƒX‚Å‚«‚È‚©‚Á‚½‚Æ‚«
 if (!$rss_parse_success) {
@@ -138,7 +139,7 @@ EOP;
 // }}}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -155,7 +155,7 @@ if (!empty($_POST['newthread'])) {
 
 // {{{ 2chで●ログイン中ならsid追加
 
-if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
+if (!empty($_POST['maru_kakiko']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
 
     // ログイン後、24時間以上経過していたら自動再ログイン
     if (file_exists($_conf['idpw2ch_php']) and @filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
@@ -187,9 +187,11 @@ $posted = postIt($host, $bbs, $key, $post);
 
 // cookie 保存
 FileCtl::make_datafile($cookie_file, $_conf['p2_perm']);
-if ($p2cookies) {$cookie_cont = serialize($p2cookies);}
+if ($p2cookies) {
+    $cookie_cont = serialize($p2cookies);
+}
 if ($cookie_cont) {
-    if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
+    if (file_put_contents($cookie_file, $cookie_cont, LOCK_EX) === false) {
         die("Error: cannot write file.");
     }
 }
@@ -311,12 +313,14 @@ if ($_conf['res_write_rec']) {
     if (file_put_contents($_conf['p2_res_hist_dat'], $cont, FILE_APPEND | LOCK_EX) === false) {
         trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
-        //$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
+        //P2Util::pushInfoMsgHtml("<p>p2 error: 書き込みログの保存に失敗しました</p>");
     }
 }
 
+exit;
+
 //===========================================================
-// 関数 （このファイル内のみの利用）
+// 関数 （このファイル内でのみ利用）
 //===========================================================
 
 /**
@@ -412,6 +416,9 @@ function postIt($host, $bbs, $key, $post)
         $request .= "\r\n";
     }
     // }}}
+
+    $maru_kakiko = isset($_POST['maru_kakiko']) ? $_POST['maru_kakiko'] : '';
+    setConfUser('maru_kakiko', $_POST['maru_kakiko']);
 
     // 書き込みを一時的に保存
     $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
@@ -514,7 +521,7 @@ function postIt($host, $bbs, $key, $post)
     } elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
         $htm['more_hidden_post'] = '';
-        $more_hidden_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru', 'csrfid', 'k', 'b');
+        $more_hidden_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru_kakiko', 'csrfid');
         foreach ($more_hidden_keys as $hk) {
             if (isset($_POST[$hk])) {
                 $value_hd = htmlspecialchars($_POST[$hk], ENT_QUOTES);
@@ -525,13 +532,14 @@ function postIt($host, $bbs, $key, $post)
         $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i';
         $form_replace = <<<EOFORM
 <form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="host" value="{$host}">
     <input type="hidden" name="popup" value="{$popup}">
     <input type="hidden" name="rescount" value="{$rescount}">
     <input type="hidden" name="ttitle_en" value="{$ttitle_en}">
     <input type="hidden" name="sub" value="\$1">
     {$htm['more_hidden_post']}
+    {$_conf['k_input_ht']}
 EOFORM;
         $response = preg_replace($form_pattern, $form_replace, $response);
 
@@ -582,7 +590,6 @@ EOSCRIPT;
 function showPostMsg($is_done, $result_msg, $reload)
 {
     global $_conf, $location_ht, $popup, $STYLE, $ttitle;
-    global $_info_msg_ht;
 
     // プリント用変数
     if (!$_conf['ktai']) {
@@ -652,8 +659,7 @@ EOP;
 
     echo "</head><body{$_conf['k_colors']}>\n";
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoMsgHtml();
 
     echo <<<EOP
 <p>{$ttitle_ht}</p>
@@ -724,7 +730,7 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

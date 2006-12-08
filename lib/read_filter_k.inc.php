@@ -18,7 +18,7 @@ function setFilterQuery($aThread, $res_filter)
     foreach ($res_filter as $key => $value) {
         $filter_q .= '&amp;' . rawurlencode($key) . '= ' . rawurlencode($value);
     }
-    $filter_q .= '&amp;ls=all&amp;page=';
+    $filter_q .= '&amp;ls=all&amp;filter_page=';
     return $filter_q;
 }
 
@@ -68,7 +68,7 @@ function resetReadNaviFooterK()
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

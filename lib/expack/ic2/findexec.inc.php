@@ -40,7 +40,7 @@ function findexec($command, $search_path = '', $escape = true)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

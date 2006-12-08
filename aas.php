@@ -569,7 +569,7 @@ function aas_ttfErrorHandler($errno, $errstr, $errfile, $errline)
 // }}}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

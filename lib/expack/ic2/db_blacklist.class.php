@@ -54,7 +54,7 @@ class IC2DB_BlackList extends IC2DB_Skel
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

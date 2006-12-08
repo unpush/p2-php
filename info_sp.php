@@ -294,7 +294,7 @@ echo <<<EOP
 EOP;
 
 echo "<form action=\"info_sp.php\" method=\"get\" accept-charset=\"{$_conf['accept_charset']}\">\n";
-echo "\t<input type=\"hidden\" name=\"_hint\" value=\"{$_conf['detect_hint']}\">\n";
+echo "\t{$_conf['detect_hint_input_ht']}\n";
 echo "<p>{$msg}</p>\n";
 if ($popup == 1 && $msg != "") {
     foreach ($_GET as $idx => $value) {
@@ -321,6 +321,7 @@ if ($popup == 1 && $msg != "") {
     <input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))">\n
 EOB;
 }
+echo "\t{$_conf['k_input_ht']}\n";
 echo "</form>\n";
 
 //データファイルの編集ボタン
@@ -368,7 +369,7 @@ if ($_conf['ktai']) {
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

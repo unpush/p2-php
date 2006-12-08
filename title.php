@@ -11,7 +11,7 @@ $_login->authorize(); // ユーザ認証
 //=========================================================
 
 if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
-    $_info_msg_ht .= '<p>'.$GLOBALS['pref_dir_realpath_failed_msg'].'</p>';
+    P2Util::pushInfoMsgHtml('<p>'.$GLOBALS['pref_dir_realpath_failed_msg'].'</p>');
 }
 
 $p2web_url_r = P2Util::throughIme($_conf['p2web_url']);
@@ -129,8 +129,7 @@ echo <<<EOP
 EOP;
 
 // 情報メッセージ表示
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 echo <<<EOP
 <br>
@@ -203,7 +202,7 @@ EOP;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

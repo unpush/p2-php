@@ -4,20 +4,9 @@ require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
-* htmlspecialchars($value, ENT_QUOTES) のショートカット
-*
-* @created  2006/03/27
-*/
-function p2escape($str)
-{
-    return htmlspecialchars($str, ENT_QUOTES);
-}
-
-
-/**
  * p2 - p2用のユーティリティクラス
  * インスタンスを作らずにスタティックメソッドで利用する
- * 
+ *
  * @created  2004/07/15
  */
 class P2Util
@@ -26,13 +15,18 @@ class P2Util
      * ファイルをダウンロード保存する
      *
      * @access  public
-     * @return  object|false
+     * @return  object Response|false
      */
     function &fileDownload($url, $localfile, $disp_error = true, $use_tmp_file = false)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $me = __CLASS__ . '::' . __FUNCTION__ . '()';
+
+        if (strlen($localfile) == 0) {
+            trigger_error("$me, localfile is null", E_USER_WARNING);
+            return false;
+        }
 
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
@@ -56,8 +50,8 @@ class P2Util
 
         if ($wap_res->is_error() && $disp_error) {
             $url_t = P2Util::throughIme($wap_req->url);
-            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
+            P2Util::pushInfoMsgHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>");
+            P2Util::pushInfoMsgHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>");
         }
 
         // 更新されていたら
@@ -76,7 +70,6 @@ class P2Util
                 }
             } else {
                 if (file_put_contents($localfile, $wap_res->content, LOCK_EX) === false) {
-                    trigger_error("$me, file_put_contents() return false. " . $localfile, E_USER_WARNING);
                     die("Error:  $me, cannot write file.");
                     return false;
                 }
@@ -91,36 +84,37 @@ class P2Util
      * ディレクトリに書き込み権限がなければ注意を表示セットする
      *
      * @access  public
+     * @return  void
      */
     function checkDirWritable($aDir)
     {
-        global $_info_msg_ht, $_conf;
+        global $_conf;
 
         // マルチユーザモード時は、情報メッセージを抑制している。
 
         if (!is_dir($aDir)) {
             /*
-            $_info_msg_ht .= '<p class="infomsg">';
-            $_info_msg_ht .= '注意: データ保存用ディレクトリがありません。<br>';
-            $_info_msg_ht .= $aDir."<br>";
+            P2Util::pushInfoMsgHtml('<p class="infomsg">');
+            P2Util::pushInfoMsgHtml('注意: データ保存用ディレクトリがありません。<br>');
+            P2Util::pushInfoMsgHtml($aDir."<br>");
             */
             if (is_dir(dirname(realpath($aDir))) && is_writable(dirname(realpath($aDir)))) {
-                //$_info_msg_ht .= "ディレクトリの自動作成を試みます...<br>";
+                //P2Util::pushInfoMsgHtml("ディレクトリの自動作成を試みます...<br>");
                 if (mkdir($aDir, $_conf['data_dir_perm'])) {
-                    //$_info_msg_ht .= "ディレクトリの自動作成が成功しました。";
+                    //P2Util::pushInfoMsgHtml("ディレクトリの自動作成が成功しました。");
                     chmod($aDir, $_conf['data_dir_perm']);
                 } else {
-                    //$_info_msg_ht .= "ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。";
+                    //P2Util::pushInfoMsgHtml("ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。");
                 }
             } else {
-                    //$_info_msg_ht .= "ディレクトリを作成し、パーミッションを設定して下さい。";
+                    //P2Util::pushInfoMsgHtml("ディレクトリを作成し、パーミッションを設定して下さい。");
             }
-            //$_info_msg_ht .= '</p>';
+            //P2Util::pushInfoMsgHtml('</p>');
 
         } elseif (!is_writable($aDir)) {
-            $_info_msg_ht .= '<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>';
-            //$_info_msg_ht .= $aDir.'<br>';
-            $_info_msg_ht .= 'ディレクトリのパーミッションを見直して下さい。</p>';
+            P2Util::pushInfoMsgHtml('<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>');
+            //P2Util::pushInfoMsgHtml($aDir.'<br>');
+            P2Util::pushInfoMsgHtml('ディレクトリのパーミッションを見直して下さい。</p>');
         }
     }
 
@@ -128,15 +122,17 @@ class P2Util
      * ダウンロードURLからキャッシュファイルパスを返す
      *
      * @access  public
-     * @return  string
+     * @return  string|false
      */
     function cacheFileForDL($url)
     {
         global $_conf;
 
-        $parsed = parse_url($url); // URL分解
+        if (!$parsed = parse_url($url)) {
+            return false;
+        }
 
-        $save_uri = $parsed['host'] ? $parsed['host'] : '';
+        $save_uri = $parsed['host'];
         $save_uri .= $parsed['port'] ? ':'.$parsed['port'] : '';
         $save_uri .= $parsed['path'] ? $parsed['path'] : '';
         $save_uri .= $parsed['query'] ? '?'.$parsed['query'] : '';
@@ -301,9 +297,7 @@ class P2Util
         // fromが越えた
         if ($disp_navi['from'] > $disp_all_num) {
             $disp_navi['from'] = $disp_all_num - $disp_range;
-            if ($disp_navi['from'] < 1) {
-                $disp_navi['from'] = 1;
-            }
+            $disp_navi['from'] = max(1, $disp_navi['from']);
             $disp_navi['end'] = $disp_all_num;
 
         // from 越えない
@@ -320,10 +314,8 @@ class P2Util
             }
         }
 
-        $disp_navi['mae_from'] = $disp_from -1 -$disp_range;
-        if ($disp_navi['mae_from'] < 1) {
-            $disp_navi['mae_from'] = 1;
-        }
+        $disp_navi['mae_from'] = $disp_from - 1 - $disp_range;
+        $disp_navi['mae_from'] = max(1, $disp_navi['mae_from']);
         $disp_navi['tugi_from'] = $disp_navi['end'] +1;
 
 
@@ -603,7 +595,7 @@ class P2Util
      */
     function header_content_type($mimetype = null)
     {
-        if ($content_type) {
+        if ($mimetype) {
             header('Content-Type: ' . $mimetype);
         } else {
             header('Content-Type: text/html; charset=Shift_JIS');
@@ -614,6 +606,8 @@ class P2Util
      * データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
      *
      * 最初は、dat形式（<>）だったのが、データPHP形式（TAB）になり、そしてまた v1.6.0 でdat形式（<>）に戻った
+     *
+     * @access  public
      */
     function transResHistLogPhpToDat()
     {
@@ -626,7 +620,6 @@ class P2Util
 
         // p2_res_hist.dat.php が読み込み可能であったら
         if (is_readable($_conf['p2_res_hist_dat_php'])) {
-            // 読み込んで
             if ($cont = DataPhp::getDataPhpCont($_conf['p2_res_hist_dat_php'])) {
                 // タブ区切りから<>区切りに変更する
                 $cont = str_replace("\t", "<>", $cont);
@@ -794,46 +787,9 @@ class P2Util
     }
 
     /**
-     * ブラウザがSafari系ならtrueを返す
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function isBrowserSafariGroup()
-    {
-        return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $_SERVER['HTTP_USER_AGENT']);
-    }
-
-
-    /**
-     * ブラウザがNetFront系ならtrueを返す
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function isNetFront()
-    {
-        if (preg_match('/(NetFront|AVEFront\/|AVE-Front\/)/', $_SERVER['HTTP_USER_AGENT'])) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * URLがウィキペディア日本語版の記事ならtrueを返す
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function isUrlWikipediaJa($url)
-    {
-        return (substr($url, 0, 29) == 'http://ja.wikipedia.org/wiki/');
-    }
-
-    /**
      * 2ch●ログインのIDとPASSと自動ログイン設定を保存する
      *
+     * @access  public
      * @return  boolean
      */
     function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')
@@ -851,8 +807,11 @@ class P2Util
 \$rec_autoLogin2ch = '{$autoLogin2ch}';
 ?>
 EOP;
-        FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);    // ファイルがなければ生成
-        $fp = @fopen($_conf['idpw2ch_php'], 'wb') or die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
+        FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);
+        if (!$fp = fopen($_conf['idpw2ch_php'], 'wb')) {
+            die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
+            return false;
+        }
         @flock($fp, LOCK_EX);
         fputs($fp, $idpw2ch_cont);
         @flock($fp, LOCK_UN);
@@ -864,6 +823,7 @@ EOP;
     /**
      * 2ch●ログインの保存済みIDとPASSと自動ログイン設定を読み込む
      *
+     * @access  public
      * @return  array
      */
     function readIdPw2ch()
@@ -918,7 +878,7 @@ EOP;
     }
 
     /**
-     * 403 Fobbidenを出力する
+     * 403 FobbidenをHTML出力する
      *
      * @access  public
      * @return  void
@@ -951,6 +911,7 @@ ERR;
      * 206 Partial Content
      * 304 Not Modified → 失敗扱い
      *
+     * @static
      * @access  public
      * @return  string|false  成功したらページ内容を返す。失敗したらfalseを返す。
      */
@@ -988,6 +949,7 @@ ERR;
     /**
      * 現在のURLを取得する（GETクエリーはなし）
      *
+     * @static
      * @access  public
      * @return  string
      * @see  http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
@@ -1005,7 +967,9 @@ ERR;
 
     /**
      * シンプルにHTMLを表示する
+     * （単にテキストだけを送るとauなどは、表示してくれない）
      *
+     * @static
      * @access  public
      * @return  void
      */
@@ -1015,8 +979,81 @@ ERR;
     }
 
     /**
+     * ブラウザがSafari系ならtrueを返す
+     *
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isBrowserSafariGroup()
+    {
+        return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $_SERVER['HTTP_USER_AGENT']);
+    }
+
+    /**
+     * ブラウザがNetFront系ならtrueを返す
+     *
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isNetFront()
+    {
+        if (preg_match('/(NetFront|AVEFront\/|AVE-Front\/)/', $_SERVER['HTTP_USER_AGENT'])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * URLがウィキペディア日本語版の記事ならtrueを返す
+     *
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isUrlWikipediaJa($url)
+    {
+        return (substr($url, 0, 29) == 'http://ja.wikipedia.org/wiki/');
+    }
+
+    /**
+     * ファイルを指定して、シリアライズされた配列データをマージ更新する（既存のデータに上書きマージする）
+     *
+     * @static
+     * @param   array    $data
+     * @param   string   $file
+     * @return  boolean
+     */
+    function updateArraySrdFile($data, $file)
+    {
+        // 既存のデータをマージ取得
+        if (file_exists($file)) {
+            if ($cont = file_get_contents($file)) {
+                $array = unserialize($cont);
+                if (is_array($array)) {
+                    $data = array_merge($array, $data);
+                }
+            }
+        }
+
+        // マージ更新なので上書きデータが空っぽの時は何もしない
+        if (empty($data) || !is_array($data)) {
+            return false;
+        }
+
+        if (file_put_contents($file, serialize($data), LOCK_EX) === false) {
+            trigger_error("file_put_contents(" . $file . ")", E_USER_WARNING);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * HTMLタグ <a href="$url">$html</a> を生成する
      *
+     * @static
      * @access  public
      * @param   string  $url   手動で htmlspecialchars() すること。
      *                         http_build_query() を利用する時を考慮して、自動で htmlspecialchars() はかけていない。
@@ -1033,36 +1070,55 @@ ERR;
             }
         }
         $html = (strlen($html) == 0) ? $url : $html;
-        
+
         return '<a href="' . $url . "\"{$attr_html}>" . $html . '</a>';
     }
 
     /**
      * pushInfoMsgHtml
-     * [予告] 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通すつもり
+     * 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通す方向で
      *
+     * @static
      * @access  public
      * @return  void
      */
     function pushInfoMsgHtml($html)
     {
         global $_info_msg_ht;
-        
+
         $_info_msg_ht .= $html;
     }
 
     /**
      * printInfoMsgHtml
-     * [予告] 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通すつもり
      *
+     * @static
      * @access  public
      * @return  void
      */
     function printInfoMsgHtml()
     {
         global $_info_msg_ht;
-        
+
         echo $_info_msg_ht;
+        $_info_msg_ht = '';
+    }
+
+    /**
+     * getInfoMsgHtml
+     *
+     * @static
+     * @access  public
+     * @return  string
+     */
+    function getInfoMsgHtml()
+    {
+        global $_info_msg_ht;
+
+        $info_msg_ht = $_info_msg_ht;
+        $_info_msg_ht = '';
+
+        return $info_msg_ht;
     }
 
     /**
@@ -1129,7 +1185,7 @@ ERR;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

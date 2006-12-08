@@ -10,7 +10,8 @@ $_login->authorize(); // ユーザ認証
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-        die('p2 error: 不正なポストです');
+        P2Util::printSimpleHtml("p2 error: 不正なポストです");
+        die('');
     }
 }
 
@@ -59,16 +60,20 @@ if (!empty($_POST['submit_save'])) {
             if ($v != $_conf[$k]) {
                 $conf_save[$k] = $_conf[$k];
             }
+
+        // 特別（edit_conf_user.php 以外でも設定されうるものは残す）
+        } elseif (in_array($k, array('maru_kakiko'))) {
+            $conf_save[$k] = $_conf[$k];
         }
     }
 
     // シリアライズして保存
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
     if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
-        $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
+        P2Util::pushInfoMsgHtml("<p>×設定を更新保存できませんでした</p>");
         trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
     } else {
-        $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
+        P2Util::pushInfoMsgHtml("<p>○設定を更新保存しました</p>");
         // 変更があれば、内部データも更新しておく
         $_conf = array_merge($_conf, $conf_user_def);
         if (is_array($conf_save)) {
@@ -81,7 +86,7 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
-        $_info_msg_ht .= "<p>○設定をデフォルトに戻しました</p>";
+        P2Util::pushInfoMsgHtml("<p>○設定をデフォルトに戻しました</p>");
         // 変更があれば、内部データも更新しておく
         $_conf = array_merge($_conf, $conf_user_def);
         if (is_array($conf_save)) {
@@ -172,14 +177,13 @@ EOP;
 }
 
 // 情報メッセージ表示
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 echo <<<EOP
 <form id="edit_conf_user_form" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['k_input_ht']}
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
-    <input type="hidden" name="csrfid" value="{$csrfid}">\n
+    {$_conf['detect_hint_input_ht']}
+    <input type="hidden" name="csrfid" value="{$csrfid}">
+    {$_conf['k_input_ht']}\n
 EOP;
 
 // PC用表示
@@ -642,7 +646,7 @@ echo '</body></html>';
 exit;
 
 //=====================================================================
-// 関数（このファイル内のみの利用）
+// 関数（このファイル内でのみ利用）
 //=====================================================================
 
 /**
@@ -1031,7 +1035,7 @@ function getEditConfSelHtml($name)
         $key_ht = htmlspecialchars($key, ENT_QUOTES);
         $value_ht = htmlspecialchars($value, ENT_QUOTES);
         $form_ht .= "\t<option value=\"{$key_ht}\"{$selected}>{$value_ht}</option>\n";
-    } // foreach
+    }
 
     $form_ht .= "</select>\n";
 
@@ -1063,7 +1067,7 @@ function getEditConfRadHtml($name)
         $key_ht = htmlspecialchars($key, ENT_QUOTES);
         $value_ht = htmlspecialchars($value, ENT_QUOTES);
         $form_ht .= "<label><input type=\"radio\" name=\"conf_edit[{$name}]\" value=\"{$key_ht}\"{$checked}>{$value_ht}</label>\n";
-    } // foreach
+    }
 
     return $form_ht;
 }
@@ -1090,7 +1094,7 @@ function printEditConfGroupHtml($groupname, $conflist, $flags)
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

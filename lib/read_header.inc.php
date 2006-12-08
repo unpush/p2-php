@@ -235,18 +235,30 @@ echo <<<EOHEADER
         gIsPageLoaded = true;
         {$onLoad_script}
     }
+
+    /*
+    // フレームのリサイズは使い勝手イマイチ
+    gReadResizedFrame = false;
+    function resizeFrame(){
+        var rr = window.parent.fsright;
+        if (rr) {
+            rr.rows ='20%,*';
+            gReadResizedFrame = true;
+            gSbResizedFrame = false;
+        }
+    }
+    */
     //-->
     </script>\n
 EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">
+<body onLoad="pageLoaded();" onclick="hideHtmlPopUp();">
 <div id="popUpContainer"></div>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 // スレが板サーバになければ ============================
 if ($aThread->diedat) {
@@ -317,7 +329,7 @@ EOP;
 
     echo <<<EOP
 <form id="header" class="toolbar" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
     <input type="hidden" name="host" value="{$aThread->host}">
@@ -390,7 +402,7 @@ EOP;
 //}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

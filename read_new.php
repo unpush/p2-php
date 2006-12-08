@@ -169,12 +169,11 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">
+<body onLoad="pageLoaded();" onclick="hideHtmlPopUp();">
 <div id="popUpContainer"></div>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 //echo $ptitle_ht."<br>";
 
@@ -316,8 +315,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 
     if ($aThread->isonline) { $online_num++; } // ê∂ë∂êîset
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoMsgHtml();
 
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
@@ -354,7 +352,6 @@ for ($x = 0; $x < $linesize ; $x++) {
 function readNew(&$aThread)
 {
     global $_conf, $newthre_num, $STYLE;
-    global $_info_msg_ht;
     static $favlist_titles = null;
 
     if ($_conf['favlist_set_num'] > 0 && is_null($favlist_titles)) {
@@ -445,8 +442,7 @@ function readNew(&$aThread)
     }
     $next_thre_ht = "<a id=\"#ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">Å•</a> ";
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoMsgHtml();
 
     // ÉwÉbÉ_ïîï™HTML
     $read_header_ht = <<<EOP
@@ -664,7 +660,7 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 NgAbornCtl::saveNgAborns();
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

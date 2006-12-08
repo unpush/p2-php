@@ -8,7 +8,7 @@ $_login->authorize(); // ƒ†[ƒU”FØ
 echo P2Util::mkTrip($_GET['tk']);
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

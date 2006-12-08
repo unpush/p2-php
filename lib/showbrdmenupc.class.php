@@ -22,7 +22,7 @@ class ShowBrdMenuPc
      */
     function printBrdMenu(&$categories)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         if (!$categories) {
             return;
@@ -142,7 +142,7 @@ EOP;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

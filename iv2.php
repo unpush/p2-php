@@ -1038,7 +1038,7 @@ if ($list_template == 'iv2i.tpl.html') {
 // }}}
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

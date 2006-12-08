@@ -1,7 +1,7 @@
 <?php
 /*
     rep2 - 管理者用設定ファイル
-    
+
     このファイルの設定は、必要に応じて変更してください
 */
 
@@ -111,3 +111,14 @@ $_conf['conf_user_perm'] =  0606;   // ユーザ設定ファイル
 include_once 'conf/conf_admin_ex.inc.php';
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

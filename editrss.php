@@ -7,9 +7,6 @@ include_once P2_LIBRARY_DIR . '/strctl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
-// 変数 =============
-$_info_msg_ht = '';
-
 //================================================================
 //特殊な前置処理
 //================================================================
@@ -24,8 +21,8 @@ if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_se
 // RSS追加フォーム
 $add_rss_form_ht = <<<EOFORM
 <hr>
-<form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+<form method="post" action="editrss.php" accept-charset="{$_conf['accept_charset']}" target="_self">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" id="setrss" name="setrss" value="1">
     <table border="0" cellspacing="1" cellpadding="0">
         <tr>
@@ -43,12 +40,14 @@ $add_rss_form_ht = <<<EOFORM
             </td>
         </tr>
     </table>
+    {$_conf['k_input_ht']}
 </form>\n
 EOFORM;
 
 // RSS切替フォーム
 if ($_conf['expack.rss.set_num'] > 0) {
-    $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS', null, null, !$_conf['ktai']);
+    $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS',
+        null, null, !$_conf['ktai']);
 } else {
     $switch_rss_form_ht = '';
 }
@@ -84,8 +83,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoMsgHtml();
 
 //================================================================
 // メイン部分HTML表示
@@ -329,7 +327,7 @@ EOP;
 echo '</body></html>';
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

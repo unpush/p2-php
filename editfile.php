@@ -53,7 +53,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
 //=========================================================
 if (isset($filecont)) {
     if (setFile($path, $filecont, $encode)) {
-        $_info_msg_ht .= "saved, OK.";
+        P2Util::pushInfoMsgHtml("saved, OK.");
     }
 }
 
@@ -90,7 +90,7 @@ function setFile($path, $cont, $encode)
  */
 function editFile($path, $encode)
 {
-    global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
+    global $_conf, $modori_url, $rows, $cols;
 
     if ($path == '') {
         die('Error: path ‚ªŽw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ');
@@ -130,19 +130,22 @@ function editFile($path, $encode)
 <body onLoad="top.document.title=self.document.title;">
 EOHEADER;
 
+    P2Util::printInfoMsgHtml();
+
     echo $modori_url_ht;
 
     echo "Edit: ".$path;
     echo <<<EOFORM
 <form action="{$_SERVER['SCRIPT_NAME']}" method="post" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="_hint" value="{$_conf['detect_hint']}">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="modori_url" value="{$modori_url}">
     <input type="hidden" name="encode" value="{$encode}">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
-    <input type="submit" name="submit" value="Save"> $_info_msg_ht<br>
+    <input type="submit" name="submit" value="Save"><br>
     <textarea style="font-size:9pt;" id="filecont" name="filecont" wrap="off"{$rows_at}{$cols_at}>{$cont_area}</textarea>
+    {$_conf['k_input_ht']}
 </form>
 EOFORM;
 
@@ -152,7 +155,7 @@ EOFORM;
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4
