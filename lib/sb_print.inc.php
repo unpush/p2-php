@@ -65,7 +65,10 @@ EOP;
     $sortq_ita = '';
     // spmode時
     if ($aThreadList->spmode) {
-        $sortq_spmode = "&amp;spmode={$aThreadList->spmode}";
+        $sortq_spmode = '&amp;spmode=' . $aThreadList->spmode;
+        if ($aThreadList->spmode == 'cate' && isset($_GET['cate_name'])) {
+            $sortq_spmode .= '&amp;cate_name=' . rawurlencode($_GET['cate_name']);
+        }
     }
     // spmodeでない、または、spmodeがあぼーん or dat倉庫なら
     if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko") {
@@ -124,10 +127,7 @@ EOP;
     //テーブルボディ
     //=====================================================
 
-    //spmodeがあればクエリー追加
-    if ($aThreadList->spmode) {
-        $spmode_q = "&amp;spmode={$aThreadList->spmode}";
-    }
+    $spmode_q = $sortq_spmode;
     $sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
 
     $i = 0;

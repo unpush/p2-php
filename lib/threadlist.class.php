@@ -31,27 +31,39 @@ class ThreadList
     {
         global $_conf;
 
-        if ($name == 'recent') {
+        $valid_modename = true;
+
+        switch ($name) {
+            case 'recent':
+                $this->ptitle = $_conf['ktai'] ? '最近読んだｽﾚ' : '最近読んだスレ';
+                break;
+            case 'res_hist':
+                $this->ptitle = '書き込み履歴';
+                break;
+            case 'fav':
+                $this->ptitle = $_conf['ktai'] ? 'お気にｽﾚ' : 'お気にスレ';
+                break;
+            case 'taborn':
+                $this->ptitle = $this->itaj . ($_conf['ktai'] ? ' (ｱﾎﾞﾝ中)' : ' (あぼーん中)');
+                break;
+            case 'soko':
+                $this->ptitle = $this->itaj . ' (dat倉庫)';
+                break;
+            case 'palace':
+                $this->ptitle = $_conf['ktai'] ? 'ｽﾚの殿堂' : 'スレの殿堂';
+                break;
+            case 'cate':
+                $this->ptitle = ($_conf['ktai'] ? 'ｶﾃｺﾞﾘ' : 'カテゴリ') . ': ' . $this->itaj;
+                break;
+            case 'favita':
+                $this->ptitle = 'お気に板';
+                break;
+            default:
+                $valid_modename = false;
+        }
+
+        if ($valid_modename) {
             $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? '最近読んだｽﾚ' : '最近読んだスレ';
-        } elseif ($name == 'res_hist') {
-            $this->spmode = $name;
-            $this->ptitle = '書き込み履歴';
-        } elseif ($name == 'fav') {
-            $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? 'お気にｽﾚ' : 'お気にスレ';
-        } elseif ($name == 'taborn') {
-            $this->spmode = $name;
-            $this->ptitle = $this->itaj . ($_conf['ktai'] ? ' (ｱﾎﾞﾝ中)' : ' (あぼーん中)');
-        } elseif ($name == 'soko') {
-            $this->spmode = $name;
-            $this->ptitle = $this->itaj . ' (dat倉庫)';
-        } elseif ($name == 'palace') {
-            $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? 'ｽﾚの殿堂' : 'スレの殿堂';
-        } elseif ($name == 'news') {
-            $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? 'ﾆｭｰｽﾁｪｯｸ' : 'ニュースチェック';
         }
     }
 
@@ -98,18 +110,6 @@ class ThreadList
 
         switch ($this->spmode) {
 
-            // {{{ オンライン上の subject.txt を読み込む（spmodeでない場合）
-
-            case null:
-            case false:
-            case 0:
-            case '':
-                require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
-                $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
-                $lines =& $aSubjectTxt->subject_lines;
-                break;
-
-            // }}}
             // {{{ ローカルの履歴ファイル 読み込み
 
             case 'recent':
@@ -246,26 +246,27 @@ class ThreadList
                 if (!file_exists($_conf['favita_path'])) {
                     break;
                 }
-                $favitas = file($_conf['favita_path']);
-                if (empty($favitas)) {
+                $favitas = file_get_contents($_conf['favita_path']);
+                if (!preg_match_all('/^\t?(.+)\t(.+)\t(.+)$/m', $favitas, $fmatches, PREG_SET_ORDER)) {
                     break;
                 }
-                break;
 
                 // お気に板の各板メニュー読み込み
                 require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
-                foreach ($favitas as $favita) {
-                    if (!preg_match('/^\t?(.+)\t(.+)\t(.+)$/', rtrim($favita), $fm)) {
-                        continue;
-                    }
+                $num_boards = 0;
+                $num_threads = 0;
+                foreach ($fmatches as $fm) {
                     $aSubjectTxt = &new SubjectTxt($fm[1], $fm[2]);
                     if (!is_array($aSubjectTxt->subject_lines)) {
                         continue;
                     }
-                    foreach ($aSubjectTxt->subject_lines as $l) {
-                        if (!preg_match('/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/', $l, $lm)) {
-                            continue;
-                        }
+                    if (!preg_match_all('/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/m',
+                        implode("\n", $aSubjectTxt->subject_lines), $lmatches, PREG_SET_ORDER))
+                    {
+                        continue;
+                    }
+                    $lmatches = array_slice($lmatches, 0, $_conf['expack.misc.mergedlist_max_threads_per_board']);
+                    foreach ($lmatches as $lm) {
                         $lines[] = array(
                             'key'       => $lm[1],
                             'ttitle'    => trim($lm[4]),
@@ -273,6 +274,12 @@ class ThreadList
                             'host'      => $fm[1],
                             'bbs'       => $fm[2],
                         );
+                        if (++$num_threads >= $_conf['expack.misc.mergedlist_max_threads']) {
+                            break 2;
+                        }
+                    }
+                    if (++$num_boards >= $_conf['expack.misc.mergedlist_max_boards']) {
+                        break;
                     }
                 }
                 break;
@@ -281,20 +288,13 @@ class ThreadList
             // {{{ 特定カテゴリのサブジェクト一覧読み込み
 
             case 'cate':
-            //case 'cate_local':
-            //case 'cate_online':
                 if (!isset($_GET['cate_name'])) {
                     break;
                 }
 
                 // 板メニュー読み込み
-                //if ($this->spmode == 'cate_local') {
-                //    $brd_menus = BrdCtl::readBrdLocal();
-                //} elseif ($this->spmode == 'cate_online') {
-                //    $brd_menus = BrdCtl::readBrdOnline();
-                //} else {
-                    $brd_menus = BrdCtl::read_brds();
-                //}
+                require_once P2_LIBRARY_DIR . '/brdctl.class.php';
+                $brd_menus = BrdCtl::read_brds();
                 if (!$brd_menus) {
                     break;
                 }
@@ -315,23 +315,45 @@ class ThreadList
 
                 // カテゴリ内の各板メニュー読み込み
                 require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+                $num_boards = 0;
+                $num_threads = 0;
                 foreach ($menuitas as $mita) {
                     $aSubjectTxt = &new SubjectTxt($mita->host, $mita->bbs);
                     if (!is_array($aSubjectTxt->subject_lines)) {
                         continue;
                     }
-                    foreach ($aSubjectTxt->subject_lines as $l) {
-                        if (!preg_match('/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/', $l, $matches)) {
-                            continue;
-                        }
+                    if (!preg_match_all('/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/m',
+                        implode("\n", $aSubjectTxt->subject_lines), $matches, PREG_SET_ORDER))
+                    {
+                        continue;
+                    }
+                    $matches = array_slice($matches, 0, $_conf['expack.misc.mergedlist_max_threads_per_board']);
+                    foreach ($matches as $m) {
                         $lines[] = array(
-                            'key'       => $matches[1],
-                            'ttitle'    => trim($matches[4]),
-                            'rescount'  => $matches[6],
+                            'key'       => $m[1],
+                            'ttitle'    => trim($m[4]),
+                            'rescount'  => $m[6],
                             'host'      => $mita->host,
                             'bbs'       => $mita->bbs,
                         );
+                        if (++$num_threads >= $_conf['expack.misc.mergedlist_max_threads']) {
+                            break 2;
+                        }
                     }
+                    if (++$num_boards >= $_conf['expack.misc.mergedlist_max_boards']) {
+                        break;
+                    }
+                }
+                break;
+
+            // }}}
+            // {{{ オンライン上の subject.txt を読み込む（spmodeでない場合）
+
+            default:
+                if (!$this->spmode) {
+                    require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+                    $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
+                    $lines =& $aSubjectTxt->subject_lines;
                 }
                 break;
 

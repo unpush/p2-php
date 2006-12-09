@@ -10,6 +10,15 @@
 // {{{ 新着まとめ読み
 $new_matome_i++;
 
+//spmodeがあればクエリー追加
+$spmode_q = '';
+if ($aThreadList->spmode) {
+    $spmode_q = '&amp;spmode=' . $aThreadList->spmode;
+    if ($aThreadList->spmode == 'cate' && isset($_GET['cate_name'])) {
+        $spmode_q .= '&amp;cate_name=' . rawurlencode($_GET['cate_name']);
+    }
+}
+
 // 倉庫でなければ
 if ($aThreadList->spmode != "soko") {
     if ($shinchaku_attayo) {
@@ -18,7 +27,7 @@ if ($aThreadList->spmode != "soko") {
         $shinchaku_num_ht = '';
     }
     $shinchaku_matome_ht =<<<EOP
-<a id="smy{$new_matome_i}" class="matome" href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}{$norefresh_q}&amp;nt={$newtime}" onClick="chNewAllColor();">新着まとめ読み{$shinchaku_num_ht}</a>
+<a id="smy{$new_matome_i}" class="matome" href="{$_conf['read_new_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$spmode_q}{$norefresh_q}&amp;nt={$newtime}" onClick="chNewAllColor();">新着まとめ読み{$shinchaku_num_ht}</a>
 EOP;
 }
 // }}}

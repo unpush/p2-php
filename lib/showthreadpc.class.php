@@ -38,7 +38,7 @@ class ShowThreadPc extends ShowThread
             'plugin_link2chKako',
             'plugin_link2chSubject',
         );
-        $_conf['link_youtube'] and $this->url_handlers[] = array('this' => 'plugin_linkYouTube');
+        $_conf['link_youtube'] and $this->url_handlers[] = 'plugin_linkYouTube';
         if (P2_IMAGECACHE_AVAILABLE == 2) {
             $this->url_handlers[] = 'plugin_imageCache2';
         } elseif ($_conf['preview_thumbnail']) {

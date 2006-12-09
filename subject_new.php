@@ -203,8 +203,6 @@ for ($x = 0; $x < $linesize ; $x++) {
             $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
         case 'cate':    // 板メニューのカテゴリ
-        //case 'cate_local':
-        //case 'cate_online':
             $aThread->isonline = true;
         case 'favita':  // お気に板のまとめ
             $aThread->key = $l['key'];

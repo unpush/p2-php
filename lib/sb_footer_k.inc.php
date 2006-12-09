@@ -7,7 +7,14 @@
 //=================================================
 $mae_ht = '';
 $tugi_ht = '';
-$bbs_q = "&amp;bbs=" . $aThreadList->bbs;
+$bbs_q = '&amp;bbs=' . $aThreadList->bbs;
+$spmode_q = '';
+if ($aThreadList->spmode) {
+    $spmode_q = '&amp;spmode=' . $aThreadList->spmode;
+    if ($aThreadList->spmode == 'cate' && isset($_GET['cate_name'])) {
+        $spmode_q .= '&amp;cate_name=' . rawurlencode($_GET['cate_name']);
+    }
+}
 
 if (!empty($GLOBALS['wakati_words'])) {
     $word_at = "&amp;method=similar&amp;word=" . rawurlencode($GLOBALS['wakati_word']);
@@ -51,13 +58,13 @@ if (!empty($_REQUEST['sb_view'])) {
 
 if ($disp_navi['from'] > 1) {
     $mae_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.‘O</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$spmode_q}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.‘O</a>
 EOP;
 }
 
 if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
     $tugi_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.ŽŸ</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$spmode_q}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.ŽŸ</a>
 EOP;
 }
 

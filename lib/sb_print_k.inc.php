@@ -34,21 +34,26 @@ function sb_print_k(&$aThreadList)
         $ita_name_bool = true;
     }
 
-    $norefresh_q = "&amp;norefresh=1";
+    $norefresh_q = '&amp;norefresh=1';
 
     // ソート
 
     // スペシャルモード時
     if ($aThreadList->spmode) {
-        $sortq_spmode = "&amp;spmode={$aThreadList->spmode}";
+        $sortq_spmode = '&amp;spmode=' . $aThreadList->spmode;
+        // カテゴリのマージ表示なら
+        if ($aThreadList->spmode == 'cate' && isset($_GET['cate_name'])) {
+            $sortq_spmode .= '&amp;cate_name=' . rawurlencode($_GET['cate_name']);
+        }
         // あぼーんなら
-        if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
-            $sortq_host = "&amp;host={$aThreadList->host}";
-            $sortq_ita = "&amp;bbs={$aThreadList->bbs}";
+        if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
+            $sortq_host = '&amp;host=' . $aThreadList->host;
+            $sortq_ita = '&amp;bbs=' . $aThreadList->bbs;
         }
     } else {
-        $sortq_host = "&amp;host={$aThreadList->host}";
-        $sortq_ita = "&amp;bbs={$aThreadList->bbs}";
+        $sortq_spmode = '';
+        $sortq_host = '&amp;host=' . $aThreadList->host;
+        $sortq_ita = '&amp;bbs=' . $aThreadList->bbs;
     }
 
     $midoku_sort_ht = "<a href=\"{$_conf['subject_php']}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}{$_conf['k_at_a']}\">新着</a>";
@@ -57,8 +62,7 @@ function sb_print_k(&$aThreadList)
     // ボディ
     //=====================================================
 
-    // spmodeがあればクエリー追加
-    if ($aThreadList->spmode) {$spmode_q = "&amp;spmode={$aThreadList->spmode}";}
+    $spmode_q = $sortq_spmode;
 
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {

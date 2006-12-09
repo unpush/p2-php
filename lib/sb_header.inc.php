@@ -35,7 +35,16 @@ EOP;
 // HTML表示用変数 for ツールバー(sb_toolbar.inc.php)
 //===============================================================
 
-$norefresh_q = "&amp;norefresh=true";
+$norefresh_q = '&amp;norefresh=true';
+$spmode_q = '';
+$spmode_q_a = '';
+if ($aThreadList->spmode) {
+    $spmode_q = 'spmode=' . $aThreadList->spmode;
+    if ($aThreadList->spmode == 'cate' && isset($_GET['cate_name'])) {
+        $spmode_q .= '&amp;cate_name=' . rawurlencode($_GET['cate_name']);
+    }
+    $spmode_q_a = '&amp;' . $spmode_q;
+}
 
 // ページタイトル部分URL設定 ====================================
 if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
@@ -78,9 +87,9 @@ EOP;
 if ($aThreadList->spmode) { // スペシャルモード時
     if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){    // お気にスレ or 殿堂なら
         if($sb_view=="edit"){
-            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
+            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?{$spmode_q}{$norefresh_q}\" target=\"_self\">並替</a>";
         }else{
-            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
+            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?{$spmode_q}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
 
         }
     }
@@ -92,8 +101,11 @@ $sb_form_hidden_ht = <<<EOP
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
     <input type="hidden" name="host" value="{$aThreadList->host}">
     <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-    {$_conf['k_input_ht']}
+    {$_conf['k_input_ht']}\n
 EOP;
+if ($aThreadList->spmode == 'cate' && isset($_GET['cate_name'])) {
+    $sb_form_hidden_ht .= "<input type=\"hidden\" name=\"cate_name\" value=\"{$_GET['cate_name']}\">\n";
+}
 
 //表示件数 ==================================================
 if(!$aThreadList->spmode || $aThreadList->spmode=="news"){
@@ -188,7 +200,7 @@ EOP;
 
 if ($_conf['refresh_time']) {
     $refresh_time_s = $_conf['refresh_time'] * 60;
-    $refresh_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}";
+    $refresh_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$spmode_q_a}";
     echo <<<EOP
     <meta http-equiv="refresh" content="{$refresh_time_s};URL={$refresh_url}">
 EOP;

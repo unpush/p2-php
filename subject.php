@@ -249,6 +249,8 @@ $aThreadList =& new ThreadList();
 if ($spmode) {
     if ($spmode == 'taborn' or $spmode == 'soko') {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
+    } elseif ($spmode == 'cate' && isset($_GET['cate_name'])) {
+        $aThreadList->setIta('-', '-', $_GET['cate_name']);
     }
     $aThreadList->setSpMode($spmode);
 } else {
@@ -343,8 +345,6 @@ for ($x = 0; $x < $linesize; $x++) {
             $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
         case 'cate':    // 板メニューのカテゴリ
-        //case 'cate_local':
-        //case 'cate_online':
             $aThread->isonline = true;
         case 'favita':  // お気に板のまとめ
             $aThread->key = $l['key'];
