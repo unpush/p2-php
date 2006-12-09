@@ -228,7 +228,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>\n
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 // スレが板サーバになければ
 if ($aThread->diedat) {

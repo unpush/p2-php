@@ -29,7 +29,7 @@ function setFavIta()
             $host = preg_replace('{/test/read\.cgi$}', '', $matches[1]);
             $bbs = $matches[2];
         } else {
-            P2Util::pushInfoMsgHtml("<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>");
+            P2Util::pushInfoHtml("<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>");
         }
     }
 
@@ -38,13 +38,13 @@ function setFavIta()
     // リストで並び替え
     if (!empty($_POST['submit_listfavita'])) {
         if (!$list) {
-            P2Util::pushInfoMsgHtml("<p>p2 info: リストの指定が変です</p>");
+            P2Util::pushInfoHtml("<p>p2 info: リストの指定が変です</p>");
             return false;
         }
 
     // 新規追加 or 一つずつ並び替え
     } elseif (!$host || !$bbs) {
-        P2Util::pushInfoMsgHtml("<p>p2 info: 板の指定が変です</p>");
+        P2Util::pushInfoHtml("<p>p2 info: 板の指定が変です</p>");
         return false;
     }
 
@@ -105,9 +105,9 @@ function setFavIta()
             list($host, $bbs, $itaj_en) = explode('@', $aList);
             $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
         }
-        P2Util::pushInfoMsgHtml('<script language="javascript">');
-        P2Util::pushInfoMsgHtml("if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }");
-        P2Util::pushInfoMsgHtml('</script>');
+        P2Util::pushInfoHtml('<script language="javascript">');
+        P2Util::pushInfoHtml("if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }");
+        P2Util::pushInfoHtml('</script>');
 
     // 一つのデータを指定して操作
     } elseif ($setfavita and $host && $bbs && $itaj) {

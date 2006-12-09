@@ -173,7 +173,7 @@ echo <<<EOP
 <div id="popUpContainer"></div>\n
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 //echo $ptitle_ht."<br>";
 
@@ -313,7 +313,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 
     if ($aThread->isonline) { $online_num++; } // ê∂ë∂êîset
 
-    P2Util::printInfoMsgHtml();
+    P2Util::printInfoHtml();
 
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
@@ -440,7 +440,7 @@ function readNew(&$aThread)
     }
     $next_thre_ht = "<a id=\"#ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">Å•</a> ";
 
-    P2Util::printInfoMsgHtml();
+    P2Util::printInfoHtml();
 
     // ÉwÉbÉ_ïîï™HTML
     $read_header_ht = <<<EOP

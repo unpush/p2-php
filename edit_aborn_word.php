@@ -75,9 +75,9 @@ if (!empty($_POST['submit_save'])) {
         $newdata .= $a_mode . $a_word . "\t" . $a_time . "\t" . $a_hits . "\n";
     }
     if (FileCtl::file_write_contents($path, $newdata) !== false) {
-        P2Util::pushInfoMsgHtml("<p>○設定を更新保存しました</p>");
+        P2Util::pushInfoHtml("<p>○設定を更新保存しました</p>");
     } else {
-        P2Util::pushInfoMsgHtml("<p>×設定を更新保存できませんでした</p>");
+        P2Util::pushInfoHtml("<p>×設定を更新保存できませんでした</p>");
     }
 
 // }}}
@@ -85,9 +85,9 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (@unlink($path)) {
-        P2Util::pushInfoMsgHtml("<p>○リストを空にしました</p>");
+        P2Util::pushInfoHtml("<p>○リストを空にしました</p>");
     } else {
-        P2Util::pushInfoMsgHtml("<p>×リストを空にできませんでした</p>");
+        P2Util::pushInfoHtml("<p>×リストを空にできませんでした</p>");
     }
 }
 
@@ -212,7 +212,7 @@ EOP;
 }
 
 // 情報メッセージ表示
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 $usage = <<<EOP
 <ul>

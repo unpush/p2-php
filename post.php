@@ -313,7 +313,7 @@ if ($_conf['res_write_rec']) {
     if (file_put_contents($_conf['p2_res_hist_dat'], $cont, FILE_APPEND | LOCK_EX) === false) {
         trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
-        //P2Util::pushInfoMsgHtml("<p>p2 error: 書き込みログの保存に失敗しました</p>");
+        //P2Util::pushInfoHtml("<p>p2 error: 書き込みログの保存に失敗しました</p>");
     }
 }
 
@@ -659,7 +659,7 @@ EOP;
 
     echo "</head><body{$_conf['k_colors']}>\n";
 
-    P2Util::printInfoMsgHtml();
+    P2Util::printInfoHtml();
 
     echo <<<EOP
 <p>{$ttitle_ht}</p>

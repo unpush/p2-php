@@ -50,8 +50,8 @@ class P2Util
 
         if ($wap_res->is_error() && $disp_error) {
             $url_t = P2Util::throughIme($wap_req->url);
-            P2Util::pushInfoMsgHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>");
-            P2Util::pushInfoMsgHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>");
+            P2Util::pushInfoHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>");
+            P2Util::pushInfoHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>");
         }
 
         // 更新されていたら
@@ -94,27 +94,27 @@ class P2Util
 
         if (!is_dir($aDir)) {
             /*
-            P2Util::pushInfoMsgHtml('<p class="infomsg">');
-            P2Util::pushInfoMsgHtml('注意: データ保存用ディレクトリがありません。<br>');
-            P2Util::pushInfoMsgHtml($aDir."<br>");
+            P2Util::pushInfoHtml('<p class="infomsg">');
+            P2Util::pushInfoHtml('注意: データ保存用ディレクトリがありません。<br>');
+            P2Util::pushInfoHtml($aDir."<br>");
             */
             if (is_dir(dirname(realpath($aDir))) && is_writable(dirname(realpath($aDir)))) {
-                //P2Util::pushInfoMsgHtml("ディレクトリの自動作成を試みます...<br>");
+                //P2Util::pushInfoHtml("ディレクトリの自動作成を試みます...<br>");
                 if (mkdir($aDir, $_conf['data_dir_perm'])) {
-                    //P2Util::pushInfoMsgHtml("ディレクトリの自動作成が成功しました。");
+                    //P2Util::pushInfoHtml("ディレクトリの自動作成が成功しました。");
                     chmod($aDir, $_conf['data_dir_perm']);
                 } else {
-                    //P2Util::pushInfoMsgHtml("ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。");
+                    //P2Util::pushInfoHtml("ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。");
                 }
             } else {
-                    //P2Util::pushInfoMsgHtml("ディレクトリを作成し、パーミッションを設定して下さい。");
+                    //P2Util::pushInfoHtml("ディレクトリを作成し、パーミッションを設定して下さい。");
             }
-            //P2Util::pushInfoMsgHtml('</p>');
+            //P2Util::pushInfoHtml('</p>');
 
         } elseif (!is_writable($aDir)) {
-            P2Util::pushInfoMsgHtml('<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>');
-            //P2Util::pushInfoMsgHtml($aDir.'<br>');
-            P2Util::pushInfoMsgHtml('ディレクトリのパーミッションを見直して下さい。</p>');
+            P2Util::pushInfoHtml('<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>');
+            //P2Util::pushInfoHtml($aDir.'<br>');
+            P2Util::pushInfoHtml('ディレクトリのパーミッションを見直して下さい。</p>');
         }
     }
 
@@ -1082,7 +1082,7 @@ ERR;
      * @access  public
      * @return  void
      */
-    function pushInfoMsgHtml($html)
+    function pushInfoHtml($html)
     {
         global $_info_msg_ht;
 
@@ -1096,7 +1096,7 @@ ERR;
      * @access  public
      * @return  void
      */
-    function printInfoMsgHtml()
+    function printInfoHtml()
     {
         global $_info_msg_ht;
 
@@ -1111,7 +1111,7 @@ ERR;
      * @access  public
      * @return  string
      */
-    function getInfoMsgHtml()
+    function getInfoHtml()
     {
         global $_info_msg_ht;
 

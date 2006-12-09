@@ -303,7 +303,7 @@ EOP;
 
 include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 echo <<<EOP
     $taborn_check_ht

@@ -81,7 +81,7 @@ function viewTxtFile($file, $encode)
 <body onLoad="top.document.title=self.document.title;">\n
 EOHEADER;
 
-    echo P2Util::printInfoMsgHtml();
+    echo P2Util::printInfoHtml();
     echo '<pre>';
     echo $cont_area;
     echo '</pre>';

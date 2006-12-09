@@ -140,8 +140,8 @@ class ThreadRead extends Thread
         global $_conf;
 
         $url_t = P2Util::throughIme($url);
-        P2Util::pushInfoMsgHtml("<p>p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a>");
-        P2Util::pushInfoMsgHtml("からヘッダレスポンスを取得できませんでした。</p>");
+        P2Util::pushInfoHtml("<p>p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a>");
+        P2Util::pushInfoHtml("からヘッダレスポンスを取得できませんでした。</p>");
     }
 
     /**
@@ -254,8 +254,8 @@ class ThreadRead extends Thread
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            P2Util::pushInfoMsgHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>");
-            P2Util::pushInfoMsgHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
+            P2Util::pushInfoHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>");
+            P2Util::pushInfoHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
             $this->diedat = true;
             return false;
         }
@@ -366,7 +366,7 @@ class ThreadRead extends Thread
             if ($this->onbytes != $this->length) {
                 unset($this->onbytes);
                 unset($this->modified);
-                P2Util::pushInfoMsgHtml("p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>");
+                P2Util::pushInfoHtml("p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>");
                 $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
                 return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
             }
@@ -467,8 +467,8 @@ class ThreadRead extends Thread
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            P2Util::pushInfoMsgHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>");
-            P2Util::pushInfoMsgHtml("p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
+            P2Util::pushInfoHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>");
+            P2Util::pushInfoHtml("p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
             $this->diedat = true;
             return false;
         }
@@ -873,8 +873,8 @@ class ThreadRead extends Thread
 
         if ($wap_res->is_error()) {
             $url_t = P2Util::throughIme($wap_req->url);
-            P2Util::pushInfoMsgHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>");
-            P2Util::pushInfoMsgHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a>に接続できませんでした。</div>");
+            P2Util::pushInfoHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>");
+            P2Util::pushInfoHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a>に接続できませんでした。</div>");
         } else {
             $read_response_html = $wap_res->content;
         }
@@ -1046,8 +1046,8 @@ class ThreadRead extends Thread
             $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
             if (!$fp) {
                 $url_t = P2Util::throughIme($url);
-                P2Util::pushInfoMsgHtml("<p>サーバ接続エラー: $errstr ($errno)<br>");
-                P2Util::pushInfoMsgHtml("p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
+                P2Util::pushInfoHtml("<p>サーバ接続エラー: $errstr ($errno)<br>");
+                P2Util::pushInfoHtml("p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
                 $this->diedat = true;
                 return false;
             }

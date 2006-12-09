@@ -40,7 +40,7 @@ class BbsMap
                 // 移転を検出したらお気に板、お気にスレ、最近読んだスレを自動で同期
                 $msg_fmt = '<p>rep2 info: ホストの移転を検出しました。(%s/%s → %s/%s)<br>';
                 $msg_fmt .= 'お気に板、お気にスレ、最近読んだスレを自動で同期します。</p>';
-                P2Util::pushInfoMsgHtml(sprintf($msg_fmt, $host, $bbs, $new_host, $bbs));
+                P2Util::pushInfoHtml(sprintf($msg_fmt, $host, $bbs, $new_host, $bbs));
                 BbsMap::syncFav();
                 $synced = true;
             }
@@ -175,10 +175,10 @@ class BbsMap
 
         if ($updated) {
             BbsMap::_writeData($brd_path, $neolines);
-            P2Util::pushInfoMsgHtml(sprintf('<p>rep2 info: %s を同期しました。</p>',
+            P2Util::pushInfoHtml(sprintf('<p>rep2 info: %s を同期しました。</p>',
                 htmlspecialchars($brd_path, ENT_QUOTES)));
         } else {
-            P2Util::pushInfoMsgHtml(sprintf('<p>rep2 info: %s は変更されませんでした。</p>',
+            P2Util::pushInfoHtml(sprintf('<p>rep2 info: %s は変更されませんでした。</p>',
                 htmlspecialchars($brd_path, ENT_QUOTES)));
         }
         $done[$brd_path] = true;
@@ -247,10 +247,10 @@ class BbsMap
 
         if ($updated) {
             BbsMap::_writeData($idx_path, $neolines);
-            P2Util::pushInfoMsgHtml(sprintf('<p>rep2 info: %s を同期しました。</p>',
+            P2Util::pushInfoHtml(sprintf('<p>rep2 info: %s を同期しました。</p>',
                 htmlspecialchars($idx_path, ENT_QUOTES)));
         } else {
-            P2Util::pushInfoMsgHtml(sprintf('<p>rep2 info: %s は変更されませんでした。</p>',
+            P2Util::pushInfoHtml(sprintf('<p>rep2 info: %s は変更されませんでした。</p>',
                 htmlspecialchars($idx_path, ENT_QUOTES)));
         }
         $done[$idx_path] = true;
@@ -339,10 +339,10 @@ class BbsMap
 
         // エラーのとき、代わりのメニューを使ってみる
         if (PEAR::isError($err) && $use_alt) {
-            P2Util::pushInfoMsgHtml(sprintf($err_fmt,
+            P2Util::pushInfoHtml(sprintf($err_fmt,
                 htmlspecialchars($err->getMessage(), ENT_QUOTES),
                 htmlspecialchars($bbsmenu_url, ENT_QUOTES)));
-            P2Util::pushInfoMsgHtml(sprintf("<p>代わりに %s をダウンロードします。</p>",
+            P2Util::pushInfoHtml(sprintf("<p>代わりに %s をダウンロードします。</p>",
                 htmlspecialchars($altmenu_url, ENT_QUOTES)));
             $bbsmenu_url = $altmenu_url;
             unset ($req, $err);
@@ -353,7 +353,7 @@ class BbsMap
 
         // エラーを検証
         if (PEAR::isError($err)) {
-            P2Util::pushInfoMsgHtml(sprintf($err_fmt,
+            P2Util::pushInfoHtml(sprintf($err_fmt,
                 htmlspecialchars($err->getMessage(), ENT_QUOTES),
                 htmlspecialchars($bbsmenu_url, ENT_QUOTES)));
             if (file_exists($map_cache_path)) {
@@ -370,7 +370,7 @@ class BbsMap
             $map = unserialize($map_cahce);
             return $map;
         } elseif ($code != 200) {
-            P2Util::pushInfoMsgHtml(sprintf($err_fmt,
+            P2Util::pushInfoHtml(sprintf($err_fmt,
                 htmlspecialchars(strval($code), ENT_QUOTES),
                 htmlspecialchars($bbsmenu_url, ENT_QUOTES)));
             if (file_exists($map_cache_path)) {
@@ -404,7 +404,7 @@ class BbsMap
         // キャッシュする
         $map_cache = serialize($map);
         if (FileCtl::filePutRename($map_cache_path, $map_cache) === false) {
-            P2Util::pushInfoMsgHtml(sprintf('p2 error: cannot write file. (%s)',
+            P2Util::pushInfoHtml(sprintf('p2 error: cannot write file. (%s)',
                 htmlspecialchars($map_cache_path, ENT_QUOTES)));
 
             if (file_exists($map_cache_path)) {

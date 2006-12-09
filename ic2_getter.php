@@ -152,7 +152,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     // URLを検証
     $purl = @parse_url($params['uri']);
     if (!$purl || !preg_match('/^(https?)$/', $purl['scheme']) || empty($purl['host']) || empty($purl['path'])) {
-        P2Util::pushInfoMsgHtml('<p>エラー: 不正なURL</p>');
+        P2Util::pushInfoHtml('<p>エラー: 不正なURL</p>');
         $execDL = false;
         $isError = true;
     }
@@ -186,14 +186,14 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
         // プレースホルダとユーザ指定パラメータ
         if (strstr($params['uri'], '%s') && !preg_match($serial_pattern, $params['uri'], $from_to)) {
             if (strstr(preg_replace('/%s/', ' ', $params['uri'], 1), '%s')) {
-                P2Util::pushInfoMsgHtml('<p>エラー: URLに含められるプレースホルダは一つだけです。</p>');
+                P2Util::pushInfoHtml('<p>エラー: URLに含められるプレースホルダは一つだけです。</p>');
                 $execDL = false;
                 $isError = true;
             } elseif (preg_match('/\\D/', $params['from']) || strlen($params['from']) == 0 ||
                       preg_match('/\\D/', $params['to'])   || strlen($params['to'])   == 0 ||
                       preg_match('/\\D/', $params['padding'])
             ) {
-                P2Util::pushInfoMsgHtml('<p>エラー: 連番パラメータに誤りがあります。</p>');
+                P2Util::pushInfoHtml('<p>エラー: 連番パラメータに誤りがあります。</p>');
                 $execDL = false;
                 $isError = true;
             } else {
@@ -211,7 +211,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
         } elseif (preg_match($serial_pattern, $params['uri'], $from_to) && !strstr($params['uri'], '%s')) {
             $params['uri'] = preg_replace($serial_pattern, '%s', $params['uri'], 1);
             if (preg_match($serial_pattern, $params['uri'])) {
-                P2Util::pushInfoMsgHtml('<p>エラー: URLに含められる連番パターンは一つだけです。</p>');
+                P2Util::pushInfoHtml('<p>エラー: URLに含められる連番パターンは一つだけです。</p>');
                 $execDL = false;
                 $isError = true;
             } else {
@@ -229,14 +229,14 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
 
         // どちらも無いか、両方がある
         } else {
-            P2Util::pushInfoMsgHtml('<p>エラー: URLに連番のプレースホルダ(<samp>%s</samp>)またはパターン(<samp>[from-to]</samp>)が含まれていないか、両方が含まれています。</p>');
+            P2Util::pushInfoHtml('<p>エラー: URLに連番のプレースホルダ(<samp>%s</samp>)またはパターン(<samp>[from-to]</samp>)が含まれていないか、両方が含まれています。</p>');
             $execDL = false;
             $isError = true;
         }
 
         // 範囲を検証
         if (isset($serial) && $serial['from'] >= $serial['to']) {
-            P2Util::pushInfoMsgHtml('<p>エラー: 連番の終りの番号は始まりの番号より大きくないといけません。</p>');
+            P2Util::pushInfoHtml('<p>エラー: 連番の終りの番号は始まりの番号より大きくないといけません。</p>');
             $execDL = false;
             $isError = true;
             $serial = null;
@@ -245,7 +245,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     // 連番なし
     } else {
         if (strstr($params['uri'], '%s') || preg_match($serial_pattern, $params['uri'], $from_to)) {
-            P2Util::pushInfoMsgHtml('<p>エラー: 連番にチェックが入っていませんが、URLに連番ダウンロード用の文字列が含まれています。</p>');
+            P2Util::pushInfoHtml('<p>エラー: 連番にチェックが入っていませんが、URLに連番ダウンロード用の文字列が含まれています。</p>');
             $execDL = false;
             $isError = true;
         }
@@ -360,7 +360,7 @@ $qf->accept($r);
 $qfObj = &$r->toObject();
 
 // 変数をAssign
-$flexy->setData('info_msg', P2Util::getInfoMsgHtml());
+$flexy->setData('info_msg', P2Util::getInfoHtml());
 $flexy->setData('STYLE', $STYLE);
 $flexy->setData('js', $qf->getValidationScript());
 $flexy->setData('get', $qfObj);

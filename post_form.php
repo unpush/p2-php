@@ -124,7 +124,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 // $htm['post_form'] ‚ðŽæ“¾
 include_once P2_LIBRARY_DIR . '/post_form.inc.php';

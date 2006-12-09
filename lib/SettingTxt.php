@@ -119,8 +119,8 @@ class SettingTxt
         // DLエラー
         if (isset($error_msg) && strlen($error_msg) > 0) {
             $url_t = P2Util::throughIme($this->url);
-            P2Util::pushInfoMsgHtml("<div>Error: {$error_msg}<br>");
-            P2Util::pushInfoMsgHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->url}</a> に接続できませんでした。</div>");
+            P2Util::pushInfoHtml("<div>Error: {$error_msg}<br>");
+            P2Util::pushInfoHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->url}</a> に接続できませんでした。</div>");
             touch($this->setting_txt); // DL失敗した場合も touch
             return false;
 

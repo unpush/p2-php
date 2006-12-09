@@ -41,7 +41,7 @@ function deleMsg($checked_hists)
         }
         $neolines = rmLine($rmnums, $reslines);
 
-        P2Util::pushInfoMsgHtml("<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>");
+        P2Util::pushInfoHtml("<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>");
     }
 
     if (is_array($neolines)) {

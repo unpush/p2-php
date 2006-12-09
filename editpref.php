@@ -108,7 +108,7 @@ if (!$_conf['ktai']) {
 }
 
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 // 設定プリント
 $aborn_res_txt  = $_conf['pref_dir'] . '/p2_aborn_res.txt';
@@ -618,7 +618,7 @@ function updateFavSetList()
 
     $newdata = serialize($setlist_titles);
     if (FileCtl::file_write_contents($_conf['expack.favset.namefile'], $newdata) === false) {
-        P2Util::pushInfoMsgHtml("<p>p2 error: {$_conf['expack.favset.namefile']} にお気に入りセット設定を書き込めませんでした。");
+        P2Util::pushInfoHtml("<p>p2 error: {$_conf['expack.favset.namefile']} にお気に入りセット設定を書き込めませんでした。");
         return false;
     }
 

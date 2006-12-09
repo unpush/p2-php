@@ -189,7 +189,7 @@ class BrdMenu
 
         if (!$cont) {
             if (strlen($GLOBALS['word']) > 0) {
-                P2Util::pushInfoMsgHtml("<p>p2 エラー: {$cachefile} から板メニューを生成することはできませんでした。</p>\n");
+                P2Util::pushInfoHtml("<p>p2 エラー: {$cachefile} から板メニューを生成することはできませんでした。</p>\n");
             }
             return false;
         }

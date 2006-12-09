@@ -755,7 +755,7 @@ function autoTAbornOff(&$aThreadList, &$ta_keys)
                 $ks .= "key:$k ";
             }
         }
-        $ks && P2Util::pushInfoMsgHtml("<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>");
+        $ks && P2Util::pushInfoHtml("<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>");
     }
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('abornoff');

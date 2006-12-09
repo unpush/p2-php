@@ -311,7 +311,7 @@ echo <<<EOP
 <body{$body_at}>
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 echo "<p>\n";
 echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?{$common_q}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";

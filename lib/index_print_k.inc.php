@@ -62,7 +62,7 @@ EOP;
 <h1>{$ptitle}</h1>
 EOP;
 
-    P2Util::printInfoMsgHtml();
+    P2Util::printInfoHtml();
 
     echo <<<EOP
 <a {$_conf['accesskey']}="1" href="subject.php?spmode=fav&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">1.‚¨‹C‚É½Ú‚ÌV’…</a><br>

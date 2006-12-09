@@ -120,7 +120,7 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 //================================================================
 // 2ch●ログインフォーム

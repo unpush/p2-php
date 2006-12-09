@@ -61,7 +61,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 // お気に板をプリントする
 if($_GET['view'] == 'favita'){
@@ -114,7 +114,7 @@ if (strlen($_REQUEST['word']) > 0) {
     }
 
     if (!$GLOBALS['ita_mikke']['num']) {
-        P2Util::pushInfoMsgHtml("<p>\"{$hd['word']}\"を含む板は見つかりませんでした。</p>");
+        P2Util::pushInfoHtml("<p>\"{$hd['word']}\"を含む板は見つかりませんでした。</p>");
     }
     $modori_url_ht = <<<EOP
 <div><a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">板ﾘｽﾄ</a></div>
@@ -150,7 +150,7 @@ if (isset($_GET['cateid'])) {
 EOP;
 }
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 //==============================================================
 // セット切り替えフォームを表示

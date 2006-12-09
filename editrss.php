@@ -83,7 +83,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 //================================================================
 // ƒƒCƒ“•”•ªHTML•\¦

@@ -15,7 +15,7 @@ echo <<<EOH
 </head>
 <body{$_conf['k_colors']}>
 EOH;
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 echo "<h1>{$ch_title}</h1><hr>";
 
 // RSS‚ªƒp[ƒX‚Å‚«‚È‚©‚Á‚½‚Æ‚«

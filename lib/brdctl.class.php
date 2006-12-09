@@ -47,7 +47,7 @@ class BrdCtl
                     $brd_menus[] =& $aBrdMenu;
 
                 } else {
-                    P2Util::pushInfoMsgHtml("<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n");
+                    P2Util::pushInfoHtml("<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n");
                 }
             }
             $cdir->close();
@@ -131,11 +131,11 @@ class BrdCtl
                 if ($aBrdMenu->num) {
                     $brd_menus[] =& $aBrdMenu;
                 } else {
-                    P2Util::pushInfoMsgHtml("<p>p2 エラー: {$cache_brd} から板メニューを生成することはできませんでした。</p>\n");
+                    P2Util::pushInfoHtml("<p>p2 エラー: {$cache_brd} から板メニューを生成することはできませんでした。</p>\n");
                 }
                 unset($data, $aBrdMenu);
             } else {
-                P2Util::pushInfoMsgHtml("<p>p2 エラー: {$cachefile} は読み込めませんでした。</p>\n");
+                P2Util::pushInfoHtml("<p>p2 エラー: {$cachefile} は読み込めませんでした。</p>\n");
             }
         }
 

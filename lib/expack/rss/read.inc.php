@@ -31,7 +31,7 @@ echo <<<EOH
 <body onload="setWinTitle()">
 EOH;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 // RSS‚ªƒp[ƒX‚Å‚«‚È‚©‚Á‚½‚Æ‚«
 if (!$rss_parse_success) {

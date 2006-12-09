@@ -111,7 +111,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 // Œg‘Ñ—p•\Ž¦
 if ($_conf['ktai']) {

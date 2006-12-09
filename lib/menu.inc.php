@@ -106,7 +106,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 if (!empty($sidebar)) {
     echo <<<EOP
@@ -360,14 +360,14 @@ EOP;
     }
     $msg_ht .= '</p>';
 
-    P2Util::pushInfoMsgHtml($msg_ht);
+    P2Util::pushInfoHtml($msg_ht);
 } else {
     $match_cates = null;
 }
 
 // }}}
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 if ($_conf['menu_hide_brds'] && !$ita_mikke['num']) {
     $brd_menus_style = ' style="display:none"';

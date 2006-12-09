@@ -142,7 +142,7 @@ echo <<<EOP
 <a id="above" name="above" {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#bottom">{$_conf['k_accesskey']['bottom']}.Å•</a></p>\n
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 //==============================================================
 // ÇªÇÍÇºÇÍÇÃçsâêÕ
@@ -273,7 +273,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
     if ($aThread->isonline) { $online_num++; } // ê∂ë∂êîset
 
-    P2Util::printInfoMsgHtml();
+    P2Util::printInfoHtml();
 
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
@@ -391,7 +391,7 @@ function readNew(&$aThread)
         $read_header_itaj_ht = " ({$itaj_hd})";
     }
 
-    P2Util::printInfoMsgHtml();
+    P2Util::printInfoHtml();
 
     $read_header_ht = <<<EOP
         <hr>

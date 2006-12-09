@@ -269,7 +269,7 @@ $qfe['compare']   = &$qf->addElement('select', 'compare', '比較方法', $_compare)
 $qfe['threshold'] = &$qf->addElement('select', 'threshold', 'しきい値', $_threshold);
 
 // 文字コード判定のヒントにする隠しinput要素
-$qfe['hint'] = &$qf->addElement('hidden', 'hint');
+$qfe['_hint'] = &$qf->addElement('hidden', '_hint');
 
 // 検索を実行するsubmit要素
 $qfe['search'] = &$qf->addElement('submit', 'search');
@@ -303,7 +303,9 @@ $_flexy_options = array(
 $flexy = &new HTML_Template_Flexy($_flexy_options);
 
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
+$flexy->setData('base_dir', dirname($_SERVER['SCRIPT_NAME']));
 $flexy->setData('rep2expack', $_conf['p2expack']);
+$flexy->setData('_hint', $_conf['detect_hint']);
 if ($_conf['ktai']) {
     $k_color = array();
     $k_color['c_bgcolor'] = isset($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '';
@@ -820,13 +822,9 @@ if ($all == 0) {
             $item['exif'] = null;
         }
 
-        // Lightbox JS用パラメータを設定
+        // Lightbox Plus 用パラメータを設定
         if ($lightbox) {
-            if ($lightbox == 'plus') {
-                $item['lightbox_attr'] = ' rel="lightbox[iv2]" class="ineffectable"';
-            } else {
-                $item['lightbox_attr'] = ' rel="lightbox"';
-            }
+            $item['lightbox_attr'] = ' rel="lightbox[iv2]" class="ineffectable"';
             $item['lightbox_attr'] .= ' title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
         } else {
             $item['lightbox_attr'] = '';
@@ -898,123 +896,7 @@ $flexy->setData('mode', $mode);
 $flexy->setData('js', $qf->getValidationScript());
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
-if ($lightbox === 'plus') {
-    /**
-     * Lightbox Plus を使うときのためのヒント
-     * ver.20061027 で動作確認
-     * @link    http://serennz.sakura.ne.jp/toybox/lightbox/?ja
-     */
-/*
-conf/conf_ic2.inc.php
-$_conf['expack.ic2.viewer.lightbox'] = "plus";
-*/
-/*
---- lightbox.css.orig
-+++ lightbox.css
-@@ -5,6 +5,7 @@
- 	border-right: 1px solid #666;
- }
- #overlay {
-+	text-align: left;
- 	background-image: url(overlay.png);
- }
- #lightboxCaption {
---- lightbox_plus.js.orig
-+++ lightbox_plus.js
-@@ -167,7 +167,14 @@
- 	_genOpener : function(num)
- 	{
- 		var self = this;
--		return function() { self._show(num); return false; }
-+		return function(evt) {
-+			evt = Event.getEvent(evt);
-+			if (evt.shiftKey) {
-+				return true;
-+			}
-+			self._show(num);
-+			return false;
-+		}
- 	},
- 	_createWrapOn : function(obj,imagePath)
- 	{
-@@ -731,15 +738,15 @@
- };
- Event.register(window,"load",function() {
- 	var lightbox = new LightBox({
--		loadingimg:'loading.gif',
--		expandimg:'expand.gif',
--		shrinkimg:'shrink.gif',
--		previmg:'prev.gif',
--		nextimg:'next.gif',
--		effectimg:'zzoop.gif',
-+		loadingimg:'lightbox_plus/loading.gif',
-+		expandimg:'lightbox_plus/expand.gif',
-+		shrinkimg:'lightbox_plus/shrink.gif',
-+		previmg:'lightbox_plus/prev.gif',
-+		nextimg:'lightbox_plus/next.gif',
-+		effectimg:'lightbox_plus/zzoop.gif',
- 		effectpos:{x:-40,y:-20},
- 		effectclass:'effectable',
--		closeimg:'close.gif',
-+		closeimg:'lightbox_plus/close.gif',
- 		resizable:true
- 	});
- });
-*/
-    $additional_script_and_style = <<<EOP
-<script type="text/javascript" src="lightbox_plus/spica.js?{$_conf['p2expack']}"></script>
-<script type="text/javascript" src="lightbox_plus/lightbox_plus.js?{$_conf['p2expack']}"></script>
-<link rel="stylesheet" type="text/css" href="lightbox_plus/lightbox.css?{$_conf['p2expack']}">
-EOP;
-} elseif ($lightbox) {
-    /**
-     * シフトキーを押しながサムネイルをクリックしたときは
-     * 無効になるように Lightbox をオーバーロード
-     */
-    $additional_script_and_style = <<<EOP
-<script type="text/javascript" src="lightbox/lightbox.js?{$_conf['p2expack']}"></script>
-<script type="text/javascript">
-//<![CDATA[
-loadingImage='lightbox/loading.gif';
-closeButton='lightbox/close.gif';
-
-addLoadEvent(setWinTitle);
-
-function overloadLightbox()
-{
-    if (!document.getElementsByTagName){ return; }
-    var anchors = document.getElementsByTagName('a');
-    // loop through all anchor tags
-    for (var i = 0; i < anchors.length; i++){
-        var anchor = anchors[i];
-        if (anchor.getAttribute('href') && (anchor.getAttribute('rel') == 'lightbox')){
-            anchor.onclick = function(evt) {
-                evt = (evt) ? evt : ((window.event) ? window.event : null);
-                if (evt && evt.shiftKey) {
-                    return true;
-                }
-                showLightbox(this);
-                return false;
-            }
-        }
-    }
-}
-
-addLoadEvent(overloadLightbox);
-//]]>
-</script>
-<link rel="stylesheet" type="text/css" href="lightbox/lightbox.css?{$_conf['p2expack']}">
-EOP;
-} elseif (!$_conf['ktai']) {
-    $additional_script_and_style = <<<EOP
-<script type="text/javascript">
-    window.onload = setWinTitle;
-</script>
-EOP;
-} else {
-    $additional_script_and_style = '';
-}
-$flexy->setData('lightbox', $additional_script_and_style);
+$flexy->setData('lightbox', $lightbox);
 
 // ページを表示
 P2Util::header_nocache();

@@ -117,7 +117,7 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
 

@@ -84,7 +84,7 @@ EOP;
 }
 
 // インフォメッセージ表示
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 echo "<ul id=\"setting_menu\">";
 

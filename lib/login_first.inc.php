@@ -192,7 +192,7 @@ EOP;
         // {{{ 入力エラーをチェック、判定
 
         if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
-            P2Util::pushInfoMsgHtml("<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>");
+            P2Util::pushInfoHtml("<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>");
             $show_login_form_flag = true;
 
         // }}}
@@ -229,14 +229,14 @@ EOP;
     } else {
 
         if (isset($_POST['form_login_id']) || isset($_POST['form_login_pass'])) {
-            P2Util::pushInfoMsgHtml('<p class="infomsg">');
+            P2Util::pushInfoHtml('<p class="infomsg">');
             if (!$_POST['form_login_id']) {
-                P2Util::pushInfoMsgHtml("rep2 error: 「{$p_str['user']}」が入力されていません。"."<br>");
+                P2Util::pushInfoHtml("rep2 error: 「{$p_str['user']}」が入力されていません。"."<br>");
             }
             if (!$_POST['form_login_pass']) {
-                P2Util::pushInfoMsgHtml("rep2 error: 「{$p_str['password']}」が入力されていません。");
+                P2Util::pushInfoHtml("rep2 error: 「{$p_str['password']}」が入力されていません。");
             }
-            P2Util::pushInfoMsgHtml('</p>');
+            P2Util::pushInfoHtml('</p>');
         }
 
         $show_login_form_flag = true;
@@ -269,7 +269,7 @@ EOP;
     echo "<h3>{$ptitle}</h3>\n";
 
     // 情報表示
-    P2Util::printInfoMsgHtml();
+    P2Util::printInfoHtml();
 
     echo $body_ht;
 

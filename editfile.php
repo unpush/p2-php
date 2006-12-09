@@ -53,7 +53,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
 //=========================================================
 if (isset($filecont)) {
     if (setFile($path, $filecont, $encode)) {
-        P2Util::pushInfoMsgHtml("saved, OK.");
+        P2Util::pushInfoHtml("saved, OK.");
     }
 }
 
@@ -130,7 +130,7 @@ function editFile($path, $encode)
 <body onLoad="top.document.title=self.document.title;">
 EOHEADER;
 
-    P2Util::printInfoMsgHtml();
+    P2Util::printInfoHtml();
 
     echo $modori_url_ht;
 

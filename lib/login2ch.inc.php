@@ -16,7 +16,7 @@ function login2ch()
         list($login2chID, $login2chPW, $autoLogin2ch) = $array;
 
     } else {
-        P2Util::pushInfoMsgHtml("<p>p2 error: ログインのためのIDとパスワードを登録して下さい。[<a href=\"login2ch.php\" target=\"subject\">2chログイン管理</a>]</p>");
+        P2Util::pushInfoHtml("<p>p2 error: ログインのためのIDとパスワードを登録して下さい。[<a href=\"login2ch.php\" target=\"subject\">2chログイン管理</a>]</p>");
         return false;
     }
 
@@ -82,9 +82,9 @@ function login2ch()
         if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
         if (file_exists($_conf['sid2ch_php']))  { unlink($_conf['sid2ch_php']); }
 
-        P2Util::pushInfoMsgHtml("<p>p2 info: 2ちゃんねるへの●IDログインを行うには、systemでcurlコマンドが使用可能であるか、PHPの<a href=\"http://www.php.net/manual/ja/ref.curl.php\">CURL関数</a>が有効である必要があります。</p>");
+        P2Util::pushInfoHtml("<p>p2 info: 2ちゃんねるへの●IDログインを行うには、systemでcurlコマンドが使用可能であるか、PHPの<a href=\"http://www.php.net/manual/ja/ref.curl.php\">CURL関数</a>が有効である必要があります。</p>");
 
-        P2Util::pushInfoMsgHtml("<p>p2 error: 2ch●ログインのSESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>");
+        P2Util::pushInfoHtml("<p>p2 error: 2ch●ログインのSESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>");
         return false;
     }
 
@@ -101,7 +101,7 @@ function login2ch()
         $SID2ch = $matches[1] . ':' . $matches[2];
     } else {
         if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
-        P2Util::pushInfoMsgHtml("<p>p2 error: ログイン接続に失敗しました。</p>");
+        P2Util::pushInfoHtml("<p>p2 error: ログイン接続に失敗しました。</p>");
         return false;
     }
 
@@ -109,7 +109,7 @@ function login2ch()
     if ($uaMona == 'ERROR') {
         file_exists($_conf['idpw2ch_php']) and unlink($_conf['idpw2ch_php']);
         file_exists($_conf['sid2ch_php']) and unlink($_conf['sid2ch_php']);
-        P2Util::pushInfoMsgHtml("<p>p2 error: SESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>");
+        P2Util::pushInfoHtml("<p>p2 error: SESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>");
         return false;
     }
 
@@ -124,7 +124,7 @@ function login2ch()
 EOP;
     FileCtl::make_datafile($_conf['sid2ch_php'], $_conf['pass_perm']); // $_conf['sid2ch_php'] がなければ生成
     if (file_put_contents($_conf['sid2ch_php'], $cont, LOCK_EX) === false) {
-        P2Util::pushInfoMsgHtml("<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>");
+        P2Util::pushInfoHtml("<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>");
         return false;
     }
     // }}}

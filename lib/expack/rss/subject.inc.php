@@ -87,7 +87,7 @@ echo <<<EOH
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="setWinTitle();">\n
 EOH;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 // RSS‚ªƒp[ƒX‚Å‚«‚È‚©‚Á‚½‚Æ‚«
 if (!$rss_parse_success) {

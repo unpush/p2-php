@@ -96,7 +96,7 @@ EOP;
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
 echo "</head><body{$body_at}>\n";
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 //================================================================
 // ƒƒCƒ“•”•ªHTML•\¦

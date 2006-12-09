@@ -83,7 +83,7 @@ if (isset($_POST['action'])) {
                 $where);
             $result = $db->getAll($sql, null, DB_FETCHMODE_ORDERED | DB_FETCHMODE_FLIPPED);
             if (DB::isError($result)) {
-                P2Util::pushInfoMsgHtml($result->getMessage());
+                P2Util::pushInfoHtml($result->getMessage());
                 break;
             }
             $target = $result[0];
@@ -99,45 +99,45 @@ if (isset($_POST['action'])) {
             $removed_files = array_merge($result_files2['successed'], $result_files3['successed']);
             $failed_files = array_merge($result_files2['failed'], $result_files3['failed']);
             if (!empty($failed_files)) {
-                P2Util::pushInfoMsgHtml('<p>以下のファイルが削除できませんでした。</p>');
-                P2Util::pushInfoMsgHtml('<ul><li>');
-                P2Util::pushInfoMsgHtml(implode('</li><li>', array_map('htmlspecialchars', $failed_files)));
-                P2Util::pushInfoMsgHtml('</li></ul>');
+                P2Util::pushInfoHtml('<p>以下のファイルが削除できませんでした。</p>');
+                P2Util::pushInfoHtml('<ul><li>');
+                P2Util::pushInfoHtml(implode('</li><li>', array_map('htmlspecialchars', $failed_files)));
+                P2Util::pushInfoHtml('</li></ul>');
             }
             break;
 
         case 'clearCache':
             $result = $db->query('DELETE FROM ' . $db->quoteIdentifier($ini['Cache']['table']));
             if (DB::isError($result)) {
-                P2Util::pushInfoMsgHtml($result->getMessage());
+                P2Util::pushInfoHtml($result->getMessage());
             } else {
-                P2Util::pushInfoMsgHtml("<p>テーブル {$ini['Cache']['table']} を空にしました。</p>");
+                P2Util::pushInfoHtml("<p>テーブル {$ini['Cache']['table']} を空にしました。</p>");
             }
             $result_files = FileCtl::garbageCollection($flexy->options['compileDir'], -1, '', '', true);
             $removed_files = $result_files['successed'];
             if (!empty($result_files['failed'])) {
-                P2Util::pushInfoMsgHtml('<p>以下のファイルが削除できませんでした。</p>');
-                P2Util::pushInfoMsgHtml('<ul><li>');
-                P2Util::pushInfoMsgHtml(implode('</li><li>', array_map('htmlspecialchars', $result_files['failed'])));
-                P2Util::pushInfoMsgHtml('</li></ul>');
+                P2Util::pushInfoHtml('<p>以下のファイルが削除できませんでした。</p>');
+                P2Util::pushInfoHtml('<ul><li>');
+                P2Util::pushInfoHtml(implode('</li><li>', array_map('htmlspecialchars', $result_files['failed'])));
+                P2Util::pushInfoHtml('</li></ul>');
             }
             break;
 
         case 'clearErrorLog':
             $result = $db->query('DELETE FROM ' . $db->quoteIdentifier($ini['General']['error_table']));
             if (DB::isError($result)) {
-                P2Util::pushInfoMsgHtml($result->getMessage());
+                P2Util::pushInfoHtml($result->getMessage());
             } else {
-                P2Util::pushInfoMsgHtml('<p>エラーログを消去しました。</p>');
+                P2Util::pushInfoHtml('<p>エラーログを消去しました。</p>');
             }
             break;
 
         case 'clearBlackList':
             $result = $db->query('DELETE FROM ' . $db->quoteIdentifier($ini['General']['blacklist_table']));
             if (DB::isError($result)) {
-                P2Util::pushInfoMsgHtml($result->getMessage());
+                P2Util::pushInfoHtml($result->getMessage());
             } else {
-                P2Util::pushInfoMsgHtml('<p>ブラックリストを消去しました。</p>');
+                P2Util::pushInfoHtml('<p>ブラックリストを消去しました。</p>');
             }
             break;
 
@@ -147,11 +147,11 @@ if (isset($_POST['action'])) {
                 $size_b = filesize($db_file);
                 $result = $db->query('VACUUM');
                 if (DB::isError($result)) {
-                    P2Util::pushInfoMsgHtml($result->getMessage());
+                    P2Util::pushInfoHtml($result->getMessage());
                 } else {
                     clearstatcache();
                     $size_a = filesize($db_file);
-                    P2Util::pushInfoMsgHtml(sprintf('<p>VACUUM実行、ファイルサイズ: %s → %s (-%s)',
+                    P2Util::pushInfoHtml(sprintf('<p>VACUUM実行、ファイルサイズ: %s → %s (-%s)',
                         number_format($size_b),
                         number_format($size_a),
                         number_format($size_b - $size_a)));
@@ -160,7 +160,7 @@ if (isset($_POST['action'])) {
             break;
 
         default:
-            P2Util::pushInfoMsgHtml('<p>不正なクエリ: ' . htmlspecialchars($_POST['action'], ENT_QUOTES) . '</p>');
+            P2Util::pushInfoHtml('<p>不正なクエリ: ' . htmlspecialchars($_POST['action'], ENT_QUOTES) . '</p>');
 
     }
     if (isset($removed_files)) {
@@ -173,7 +173,7 @@ if (isset($_POST['action'])) {
 
 $flexy->setData('skin', $skin_en);
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
-$flexy->setData('info_msg', P2Util::getInfoMsgHtml());
+$flexy->setData('info_msg', P2Util::getInfoHtml());
 if ($db->dsn['phptype'] == 'sqlite') {
     $flexy->setData('isSQLite', true);
 }

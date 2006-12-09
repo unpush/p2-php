@@ -223,7 +223,7 @@ class Login
 
             // ユーザ名が違ったら、認証失敗で抜ける
             if ($this->user_u != $rec_login_user_u) {
-                P2Util::pushInfoMsgHtml('<p class="infomsg">p2 error: ログインエラー</p>');
+                P2Util::pushInfoHtml('<p class="infomsg">p2 error: ログインエラー</p>');
 
                 // ログイン失敗ログを記録する
                 if (!empty($_conf['login_log_rec'])) {
@@ -245,7 +245,7 @@ class Login
 
             // 新規登録でなければエラー表示
             if (empty($_POST['submit_new'])) {
-                P2Util::pushInfoMsgHtml('<p class="infomsg">p2 error: ログインエラー</p>');
+                P2Util::pushInfoHtml('<p class="infomsg">p2 error: ログインエラー</p>');
             }
 
             return false;
@@ -343,7 +343,7 @@ class Login
 
             // フォームログイン失敗なら
             } else {
-                P2Util::pushInfoMsgHtml('<p class="infomsg">p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>');
+                P2Util::pushInfoHtml('<p class="infomsg">p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>');
                 $_login_failed_flag = true;
 
                 // ログイン失敗ログを記録する
@@ -435,7 +435,7 @@ class Login
                 if ($_SERVER['HTTP_X_UP_SUBNO']) {
                     $this->registAuth('registed_ez', $_SERVER['HTTP_X_UP_SUBNO'], $_conf['auth_ez_file']);
                 } else {
-                    P2Util::pushInfoMsgHtml('<p class="infomsg">×EZweb用サブスクライバIDでの認証登録はできませんでした</p>'."\n");
+                    P2Util::pushInfoHtml('<p class="infomsg">×EZweb用サブスクライバIDでの認証登録はできませんでした</p>'."\n");
                 }
             } else {
                 $this->registAuthOff($_conf['auth_ez_file']);
@@ -450,7 +450,7 @@ class Login
                 if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== null) {
                     $this->registAuth('registed_jp', $SN, $_conf['auth_jp_file']);
                 } else {
-                    P2Util::pushInfoMsgHtml('<p class="infomsg">×Vodafone用固有IDでの認証登録はできませんでした</p>'."\n");
+                    P2Util::pushInfoHtml('<p class="infomsg">×Vodafone用固有IDでの認証登録はできませんでした</p>'."\n");
                 }
             } else {
                 $this->registAuthOff($_conf['auth_jp_file']);
@@ -464,7 +464,7 @@ class Login
                 if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== null) {
                     $this->registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
                 } else {
-                    P2Util::pushInfoMsgHtml('<p class="infomsg">×DoCoMo用固有IDでの認証登録はできませんでした</p>'."\n");
+                    P2Util::pushInfoHtml('<p class="infomsg">×DoCoMo用固有IDでの認証登録はできませんでした</p>'."\n");
                 }
             } else {
                 $this->registAuthOff($_conf['auth_docomo_file']);
@@ -491,7 +491,7 @@ EOP;
         FileCtl::make_datafile($auth_file, $_conf['pass_perm']);
         $fp = fopen($auth_file, 'wb');
         if (!$fp) {
-            P2Util::pushInfoMsgHtml("<p>Error: データを保存できませんでした。認証登録失敗。</p>");
+            P2Util::pushInfoHtml("<p>Error: データを保存できませんでした。認証登録失敗。</p>");
             return false;
         }
         @flock($fp, LOCK_EX);

@@ -31,11 +31,11 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
         // 値の検証
         if ($_POST['MAX_FILE_SIZE'] != $max_size) {
             $is_error = false;
-            P2Util::pushInfoMsgHtml('<p>Warning: フォームの MAX_FILE_SIZE の値が改ざんされています。</p>');
+            P2Util::pushInfoHtml('<p>Warning: フォームの MAX_FILE_SIZE の値が改ざんされています。</p>');
         }
         if (!preg_match('/^[1-9][0-9]+\.dat$/', $_FILES['dat_file']['name'])) {
             $is_error = true;
-            P2Util::pushInfoMsgHtml('<p>Error: アップロードされたdatのファイル名が変です。</p>');
+            P2Util::pushInfoHtml('<p>Error: アップロードされたdatのファイル名が変です。</p>');
         }
         $host = $_POST['host'];
         $bbs  = $_POST['bbs'];
@@ -45,11 +45,11 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
             $key = $_POST['key'];
             if ($key != preg_replace('/\.(dat|html?)$/', '', $_FILES['dat_file']['name'])) {
                 $is_error = true;
-                P2Util::pushInfoMsgHtml('<p>Error: アップロードされたdatのファイル名とスレッドキーがマッチしません。</p>');
+                P2Util::pushInfoHtml('<p>Error: アップロードされたdatのファイル名とスレッドキーがマッチしません。</p>');
             }
         } else {
             $is_error = true;
-            P2Util::pushInfoMsgHtml('<p>Error: スレッドキーの指定が変です。</p>');
+            P2Util::pushInfoHtml('<p>Error: スレッドキーの指定が変です。</p>');
         }*/
         $dat_name = $key . '.dat';
         $dat_path = P2Util::datDirOfHost($host) . '/' . $bbs . '/' . $dat_name;
@@ -60,19 +60,19 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
         // エラーメッセージは http://jp.php.net/manual/ja/features.file-upload.errors.php からコピペ
         switch ($_FILES['dat_file']['error']) {
             case UPLOAD_ERR_INI_SIZE:
-                P2Util::pushInfoMsgHtml('<p>Error: アップロードされたファイルは、php.ini の upload_max_filesize ディレクティブの値を超えています。</p>');
+                P2Util::pushInfoHtml('<p>Error: アップロードされたファイルは、php.ini の upload_max_filesize ディレクティブの値を超えています。</p>');
                 break;
             case UPLOAD_ERR_FORM_SIZE:
-                P2Util::pushInfoMsgHtml('<p>Error: アップロードされたファイルは、HTMLフォームで指定された MAX_FILE_SIZE を超えています。</p>');
+                P2Util::pushInfoHtml('<p>Error: アップロードされたファイルは、HTMLフォームで指定された MAX_FILE_SIZE を超えています。</p>');
                 break;
             case UPLOAD_ERR_PARTIAL:
-                P2Util::pushInfoMsgHtml('<p>Error: アップロードされたファイルは一部のみしかアップロードされていません。</p>');
+                P2Util::pushInfoHtml('<p>Error: アップロードされたファイルは一部のみしかアップロードされていません。</p>');
                 break;
             case UPLOAD_ERR_NO_FILE:
-                P2Util::pushInfoMsgHtml('<p>Error: ファイルはアップロードされませんでした。</p>');
+                P2Util::pushInfoHtml('<p>Error: ファイルはアップロードされませんでした。</p>');
                 break;
             default:
-                P2Util::pushInfoMsgHtml('<p>Error: 原因不明のエラー。</p>');
+                P2Util::pushInfoHtml('<p>Error: 原因不明のエラー。</p>');
                 break;
         }
     }
@@ -93,7 +93,7 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
     }
 
 } elseif (!empty($_POST['host']) || !empty($_POST['bbs']) || !empty($_POST['key']) || isset($_FILES['dat_file'])) {
-    P2Util::pushInfoMsgHtml('<p>Error: 板URLが指定されていないか、datが選択されていません。</p>');
+    P2Util::pushInfoHtml('<p>Error: 板URLが指定されていないか、datが選択されていません。</p>');
 }
 
 //================================================================
@@ -117,7 +117,7 @@ echo <<<EOP
 <body>\n
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 // ボディ
 echo <<<EOP

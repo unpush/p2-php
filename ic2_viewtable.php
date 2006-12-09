@@ -89,7 +89,7 @@ $flexy->setData('skin', $skin_en);
 $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
 $flexy->setData('reload_js', $_SERVER['SCRIPT_NAME'] . '?nt=' . time() . '&table=' . $mode);
-$flexy->setData('info_msg', P2Util::getInfoMsgHtml());
+$flexy->setData('info_msg', P2Util::getInfoHtml());
 
 if ($table->find()) {
     switch ($mode) {

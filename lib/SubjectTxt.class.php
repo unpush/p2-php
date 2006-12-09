@@ -131,8 +131,8 @@ class SubjectTxt
 
         if (isset($error_msg) && strlen($error_msg) > 0) {
             $url_t = P2Util::throughIme($this->subject_url);
-            P2Util::pushInfoMsgHtml("<div>Error: {$error_msg}<br>");
-            P2Util::pushInfoMsgHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> ‚ÉÚ‘±‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B</div>");
+            P2Util::pushInfoHtml("<div>Error: {$error_msg}<br>");
+            P2Util::pushInfoHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> ‚ÉÚ‘±‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B</div>");
             $body = '';
         } else {
             $body = $req->getResponseBody();

@@ -70,10 +70,10 @@ if (!empty($_POST['submit_save'])) {
     // シリアライズして保存
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
     if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
-        P2Util::pushInfoMsgHtml("<p>×設定を更新保存できませんでした</p>");
+        P2Util::pushInfoHtml("<p>×設定を更新保存できませんでした</p>");
         trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
     } else {
-        P2Util::pushInfoMsgHtml("<p>○設定を更新保存しました</p>");
+        P2Util::pushInfoHtml("<p>○設定を更新保存しました</p>");
         // 変更があれば、内部データも更新しておく
         $_conf = array_merge($_conf, $conf_user_def);
         if (is_array($conf_save)) {
@@ -86,7 +86,7 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
-        P2Util::pushInfoMsgHtml("<p>○設定をデフォルトに戻しました</p>");
+        P2Util::pushInfoHtml("<p>○設定をデフォルトに戻しました</p>");
         // 変更があれば、内部データも更新しておく
         $_conf = array_merge($_conf, $conf_user_def);
         if (is_array($conf_save)) {
@@ -177,7 +177,7 @@ EOP;
 }
 
 // 情報メッセージ表示
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 echo <<<EOP
 <form id="edit_conf_user_form" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">

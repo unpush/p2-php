@@ -79,7 +79,7 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
     if (!empty($errors[UPLOAD_ERR_NO_TMP_DIR])) {
         die('<html><body><p>ファイルアップロード用のテンポラリフォルダがありません。</p></body></html>');
     } elseif (count($_FILES['upimg']['error']) == $errors[UPLOAD_ERR_NO_FILE]) {
-        P2Util::pushInfoMsgHtml($err_fmt['none']);
+        P2Util::pushInfoHtml($err_fmt['none']);
     } else {
         // サムネイル作成クラスのインスタンスを作成
         $thumbnailer = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
@@ -112,7 +112,7 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
             if (is_array($file)) {
                 $upfiles[] = $file;
             } else {
-                P2Util::pushInfoMsgHtml($file);
+                P2Util::pushInfoHtml($file);
             }
         }
     }
@@ -132,7 +132,7 @@ $_flexy_options = array(
 $flexy = &new HTML_Template_Flexy($_flexy_options);
 $flexy->compile('ic2s.tpl.html');
 
-if (!$isPopUp && (!empty($upfiles) || P2Util::getInfoMsgHtml() != '')) {
+if (!$isPopUp && (!empty($upfiles) || P2Util::getInfoHtml() != '')) {
     $showForm = false;
 } else {
     $showForm = true;
@@ -163,7 +163,7 @@ $view->STYLE    = $STYLE;
 $view->skin     = $skin_en;
 $view->isPopUp  = $isPopUp;
 $view->showForm = $showForm;
-$view->info_msg = P2Util::getInfoMsgHtml();
+$view->info_msg = P2Util::getInfoHtml();
 $view->upfiles  = $upfiles;
 $view->maxfilesize = $maxsize_si;
 $view->maxpostsize = ini_get('post_max_size');

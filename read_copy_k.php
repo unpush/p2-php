@@ -87,10 +87,10 @@ if (file_exists($aThread->keydat)) {
             $msg_txt = preg_replace('/ *<br[^>]*> */i', "\n", $msg_txt);
         }
     } else {
-        P2Util::pushInfoMsgHtml('<p>p2 error: ﾚｽ番号の指定が変です｡</p>');
+        P2Util::pushInfoHtml('<p>p2 error: ﾚｽ番号の指定が変です｡</p>');
     }
 } else {
-    P2Util::pushInfoMsgHtml('<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>');
+    P2Util::pushInfoHtml('<p>p2 error: ｽﾚｯﾄﾞの指定が変です。</p>');
 }
 
 // 写
@@ -139,7 +139,7 @@ echo $_conf['doctype'];
 <title><?php echo $ttitle_ht; ?>/<?php echo $resid; ?></title>
 </head>
 <body<?php echo $k_color_settings; ?>>
-<?php P2Util::printInfoMsgHtml(); ?>
+<?php P2Util::printInfoHtml(); ?>
 <form id="<?php echo $form_id; ?>" action="<?php echo $action_ht; ?>" method="post">
 ｽﾚ:<br>
 <input type="text" name="ttitle_txt" value="<?php echo $ttitle_ht; ?>"><br>

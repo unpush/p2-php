@@ -117,7 +117,7 @@ class ThreadList
                     $lines = file($_conf['rct_file']);
                 }
                 /*if (!$lines) {
-                    P2Util::pushInfoMsgHtml('<p>履歴は空っぽです</p>');
+                    P2Util::pushInfoHtml('<p>履歴は空っぽです</p>');
                     return false;
                 }*/
                 break;
@@ -131,7 +131,7 @@ class ThreadList
                     $lines = file($rh_idx);
                 }
                 /*if (!$lines) {
-                    P2Util::pushInfoMsgHtml('<p>書き込み履歴は空っぽです</p>');
+                    P2Util::pushInfoHtml('<p>書き込み履歴は空っぽです</p>');
                     return false;
                 }*/
                 break;
@@ -144,7 +144,7 @@ class ThreadList
                     $lines = file($_conf['favlist_file']);
                 }
                 /*if (!$lines) {
-                    P2Util::pushInfoMsgHtml('<p>お気にスレは空っぽです</p>');
+                    P2Util::pushInfoHtml('<p>お気にスレは空っぽです</p>');
                     return false;
                 }*/
                 break;
@@ -158,7 +158,7 @@ class ThreadList
                     $lines = file($palace_idx);
                 }
                 /*if (!$lines) {
-                    P2Util::pushInfoMsgHtml('<p>殿堂はがらんどうです</p>');
+                    P2Util::pushInfoHtml('<p>殿堂はがらんどうです</p>');
                     return false;
                 }*/
                 break;
@@ -172,7 +172,7 @@ class ThreadList
                     $lines = file($taborn_idx);
                 }
                 /*if (!$lines) {
-                    P2Util::pushInfoMsgHtml('<p>スレッドあぼーんリストは空っぽです</p>');
+                    P2Util::pushInfoHtml('<p>スレッドあぼーんリストは空っぽです</p>');
                     return false;
                 }*/
                 break;
