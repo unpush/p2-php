@@ -53,7 +53,7 @@ $sync_favita_form_ht = <<<EOFORM
 EOFORM;
 
 // お気に板切替フォーム
-if ($_conf['favita_set_num'] > 0) {
+if ($_conf['expack.favset.enabled'] && $_conf['favita_set_num'] > 0) {
     $switch_favita_form_ht = FavSetManager::makeFavSetSwitchForm('m_favita_set', 'お気に板',
         null, null, !$_conf['ktai']);
 } else {

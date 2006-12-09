@@ -24,7 +24,9 @@ $synctitle = array(
 // }}}
 // {{{ 設定変更処理
 
-if ($_conf['favlist_set_num'] > 0 || $_conf['favita_set_num'] > 0 || $_conf['expack.rss.set_num'] > 0) {
+if ($_conf['expack.favset.enabled'] &&
+    ($_conf['favlist_set_num'] > 0 || $_conf['favita_set_num'] > 0 || $_conf['expack.rss.set_num'] > 0))
+{
     $multi_favs = true;
 } else {
     $multi_favs = false;
@@ -587,10 +589,10 @@ function updateFavSetList()
 {
     global $_conf;
 
-    if (file_exists($_conf['expack.misc.favset_file'])) {
+    if (file_exists($_conf['expack.favset.namefile'])) {
         $setlist_titles = FavSetManager::getFavSetTitles();
     } else {
-        FileCtl::make_datafile($_conf['expack.misc.favset_file']);
+        FileCtl::make_datafile($_conf['expack.favset.namefile']);
     }
     if (empty($setlist_titles)) {
         $setlist_titles = array();
@@ -615,8 +617,8 @@ function updateFavSetList()
     }
 
     $newdata = serialize($setlist_titles);
-    if (FileCtl::file_write_contents($_conf['expack.misc.favset_file'], $newdata) === false) {
-        P2Util::pushInfoMsgHtml("<p>p2 error: {$_conf['expack.misc.favset_file']} にお気に入りセット設定を書き込めませんでした。");
+    if (FileCtl::file_write_contents($_conf['expack.favset.namefile'], $newdata) === false) {
+        P2Util::pushInfoMsgHtml("<p>p2 error: {$_conf['expack.favset.namefile']} にお気に入りセット設定を書き込めませんでした。");
         return false;
     }
 

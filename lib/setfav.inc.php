@@ -55,7 +55,7 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
     */
 
     // ƒZƒbƒg”Ô†‚ğŒŸØ
-    if (!is_null($setnum) && $_conf['favlist_set_num'] > 0) {
+    if (!is_null($setnum) && $_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
         $setnum = (int)$setnum;
         if ($setnum < 0 || $_conf['favlist_set_num'] < $setnum) {
             return false;

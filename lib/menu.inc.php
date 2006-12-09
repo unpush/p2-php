@@ -237,7 +237,7 @@ $norefresh_q = '&amp;norefresh=true';
 echo <<<EOP
 <div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_spacial');" target="_self">“Á•Ê</a></b>
 EOP;
-if ($_conf['favlist_set_num'] > 0) {
+if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
     $favlist_onchange = "openFavList('{$_conf['subject_php']}', this.options[this.selectedIndex].value, window.top.subject);";
     echo "<br>\n";
     echo FavSetManager::makeFavSetSwitchElem('m_favlist_set', '‚¨‹C‚ÉƒXƒŒ', false, $favlist_onchange);

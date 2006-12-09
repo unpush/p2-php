@@ -68,7 +68,7 @@ class ShowBrdMenuPc
 <div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_favita');" target="_self">お気に板</a></b> [<a href="editfavita.php" target="subject">編集</a>]
 EOP;
         // お気に板切り替え
-        if ($_conf['favita_set_num'] > 0) {
+        if ($_conf['expack.favset.enabled'] && $_conf['favita_set_num'] > 0) {
             echo "<br>\n";
             echo FavSetManager::makeFavSetSwitchElem('m_favita_set', 'お気に板', true, "replaceMenuItem('c_favita', 'm_favita_set', this.options[this.selectedIndex].value);");
         }

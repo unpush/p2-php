@@ -132,11 +132,11 @@ class FavSetManager
     {
         global $_conf;
 
-        if (!file_exists($_conf['expack.misc.favset_file'])) {
+        if (!file_exists($_conf['expack.favset.namefile'])) {
             return false;
         }
 
-        $favset_titles = @unserialize(file_get_contents($_conf['expack.misc.favset_file']));
+        $favset_titles = @unserialize(file_get_contents($_conf['expack.favset.namefile']));
 
         if ($set_name === null) {
             return $favset_titles;

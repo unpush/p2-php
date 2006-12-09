@@ -75,7 +75,8 @@ function print_rss_list_k()
 {
     global $_conf;
 
-    $pageTitle = ($_conf['expack.rss.set_num'] > 0) ? FavSetManager::getFavSetPageTitleHt('m_rss_set', 'RSS') : 'RSS';
+    $pageTitle = ($_conf['expack.favset.enabled'] && $_conf['expack.rss.set_num'] > 0)
+        ? FavSetManager::getFavSetPageTitleHt('m_rss_set', 'RSS') : 'RSS';
     echo $pageTitle;
     echo '<hr>';
 

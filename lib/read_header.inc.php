@@ -138,7 +138,7 @@ $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 $similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc) . '&amp;refresh=1';
 $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
-if ($_conf['favlist_set_num'] > 0) {
+if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
     $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
     $toolbar_setfav_ht = '‚¨‹C‚É[';
     $favdo = empty($aThread->favs[0]);

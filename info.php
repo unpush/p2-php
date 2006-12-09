@@ -77,7 +77,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
     } else {
         setFav($host, $bbs, $key, $_GET['setfav']);
     }
-    if ($_conf['favlist_set_num'] > 0) {
+    if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
         FavSetManager::loadAllFavSet(true);
     }
 
@@ -154,7 +154,7 @@ if ($favlines = @file($_conf['favlist_file'])) {
 }
 */
 
-if ($_conf['favlist_set_num'] > 0) {
+if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
     $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
     $favdo = empty($aThread->favs[0]);
     $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');

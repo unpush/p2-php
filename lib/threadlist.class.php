@@ -265,7 +265,7 @@ class ThreadList
                     {
                         continue;
                     }
-                    $lmatches = array_slice($lmatches, 0, $_conf['expack.misc.mergedlist_max_threads_per_board']);
+                    $lmatches = array_slice($lmatches, 0, $_conf['expack.mergedlist.max_threads_per_board']);
                     foreach ($lmatches as $lm) {
                         $lines[] = array(
                             'key'       => $lm[1],
@@ -274,11 +274,11 @@ class ThreadList
                             'host'      => $fm[1],
                             'bbs'       => $fm[2],
                         );
-                        if (++$num_threads >= $_conf['expack.misc.mergedlist_max_threads']) {
+                        if (++$num_threads >= $_conf['expack.mergedlist.max_threads']) {
                             break 2;
                         }
                     }
-                    if (++$num_boards >= $_conf['expack.misc.mergedlist_max_boards']) {
+                    if (++$num_boards >= $_conf['expack.mergedlist.max_boards']) {
                         break;
                     }
                 }
@@ -327,7 +327,7 @@ class ThreadList
                     {
                         continue;
                     }
-                    $matches = array_slice($matches, 0, $_conf['expack.misc.mergedlist_max_threads_per_board']);
+                    $matches = array_slice($matches, 0, $_conf['expack.mergedlist.max_threads_per_board']);
                     foreach ($matches as $m) {
                         $lines[] = array(
                             'key'       => $m[1],
@@ -336,11 +336,11 @@ class ThreadList
                             'host'      => $mita->host,
                             'bbs'       => $mita->bbs,
                         );
-                        if (++$num_threads >= $_conf['expack.misc.mergedlist_max_threads']) {
+                        if (++$num_threads >= $_conf['expack.mergedlist.max_threads']) {
                             break 2;
                         }
                     }
-                    if (++$num_boards >= $_conf['expack.misc.mergedlist_max_boards']) {
+                    if (++$num_boards >= $_conf['expack.mergedlist.max_boards']) {
                         break;
                     }
                 }
@@ -350,12 +350,12 @@ class ThreadList
             // {{{ オンライン上の subject.txt を読み込む（spmodeでない場合）
 
             default:
+                // 念のため、ここでもspmodeのチェックをしておく
                 if (!$this->spmode) {
                     require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
                     $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
                     $lines =& $aSubjectTxt->subject_lines;
                 }
-                break;
 
             // }}}
         }

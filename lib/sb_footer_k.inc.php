@@ -108,7 +108,7 @@ EOP;
 // }}}
 // {{{ お気にスレセット切替
 
-if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
+if ($aThreadList->spmode == 'fav' && $_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
     $switchfavlist_ht = '<div>' . FavSetManager::makeFavSetSwitchForm('m_favlist_set', 'お気にスレ',
         null, null, false, array('spmode' => 'fav')) . '</div>';
 }

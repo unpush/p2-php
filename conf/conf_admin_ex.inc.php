@@ -133,26 +133,26 @@ $_conf['expack.aas.output_charset'] = "eucJP-win"; // ("eucJP-win")
 // 以下の値も個別に設定する必要あり
 // - favlist_set_num (お気にスレ)
 // - favita_set_num (お気に板)
-// - expack.rss.list_num (RSS)
-$_conf['expack.misc.multi_favs'] = 0; // (0)
+// - expack.rss.set_num (RSS)
+$_conf['expack.favset.enabled'] = 0; // (0)
 
 // お気にセット名情報を記録するファイルのパス
-$_conf['expack.misc.favset_file'] = $_conf['pref_dir'] . '/p2_favset.txt';
+$_conf['expack.favset.namefile'] = $_conf['pref_dir'] . '/p2_favset.txt';
 
 // 板カテゴリorお気に板のスレ一覧をマージして表示するとき、
 // 読み込む板数の最大値
 // ソート順に関係なく、メニューに先に出現するものからカウントされる
-$_conf['expack.misc.mergedlist_max_boards'] = 10;
+$_conf['expack.mergedlist.max_boards'] = 10;
 
 // 板カテゴリorお気に板のスレ一覧をマージして表示するとき、
 // 読み込むスレッド数の最大値
 // ソート順に関係なく、subject.txt に先に出現するものからカウントされる
-$_conf['expack.misc.mergedlist_max_threads'] = 2000;
+$_conf['expack.mergedlist.max_threads'] = 2000;
 
 // 板カテゴリorお気に板のスレ一覧をマージして表示するとき、
 // ひとつの板から読み込むスレッド数の最大値
 // ソート順に関係なく、subject.txt に先に出現するものからカウントされる
-$_conf['expack.misc.mergedlist_max_threads_per_board'] = 200;
+$_conf['expack.mergedlist.max_threads_per_board'] = 200;
 
 // }}}
 // ----------------------------------------------------------------------

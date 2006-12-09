@@ -156,8 +156,9 @@ P2Util::printInfoMsgHtml();
 // セット切り替えフォームを表示
 //==============================================================
 
-if (($_GET['view'] == 'favita' && $_conf['favita_set_num'] > 0) ||
-    ($_GET['view'] == 'rss' && $_conf['expack.rss.set_num'] > 0))
+if ($_conf['expack.favset.enabled'] && 
+    (($_GET['view'] == 'favita' && $_conf['favita_set_num'] > 0) ||
+     ($_GET['view'] == 'rss' && $_conf['expack.rss.set_num'] > 0)))
 {
     echo '<hr>';
     if ($_GET['view'] == 'favita') {

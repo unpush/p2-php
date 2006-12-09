@@ -105,7 +105,7 @@ echo <<<EOP
     </form>\n
 EOP;
 
-if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
+if ($aThreadList->spmode == 'fav' && $_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
     echo "\t<div style=\"margin:8px 8px;\">\n";
     echo FavSetManager::makeFavSetSwitchForm('m_favlist_set', '‚¨‹C‚ÉƒXƒŒ',
         null, null, false, array('spmode' => 'fav', 'norefresh' => 1));

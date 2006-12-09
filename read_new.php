@@ -352,7 +352,7 @@ function readNew(&$aThread)
     global $_conf, $newthre_num, $STYLE;
     static $favlist_titles = null;
 
-    if ($_conf['favlist_set_num'] > 0 && is_null($favlist_titles)) {
+    if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0 && is_null($favlist_titles)) {
         $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
         if (empty($favlist_titles)) {
             $favlist_titles = array();
@@ -517,7 +517,7 @@ EOP;
     $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
     $similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);
 
-    if ($_conf['favlist_set_num'] > 0) {
+    if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
         $toolbar_setfav_ht = '‚¨‹C‚É[';
         $favdo = empty($aThread->favs[0]);
         $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');

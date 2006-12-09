@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.8.9';      // rep2のバージョン
-$_conf['p2expack'] = '061209.1114'; // 拡張パックのバージョン
+$_conf['p2expack'] = '061209.1143'; // 拡張パックのバージョン
 $_conf['p2name'] = 'WowFlutter';    // rep2の名前
 
 //======================================================================
@@ -500,7 +500,7 @@ if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
     $_conf['session_dir'] = P2_DATA_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'session';
 }
 
-if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
+if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.favset.enabled']) {
     $_conf['use_session'] = 1;
 }
 
@@ -534,7 +534,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 // }}}
 
 // 複数のお気にセットを使うとき
-if ($_conf['expack.misc.multi_favs']) {
+if ($_conf['expack.favset.enabled']) {
     require_once P2_LIBRARY_DIR . '/favsetmng.class.php';
     // 切り替え表示用に全てのお気に板を読み込んでおく
     FavSetManager::loadAllFavSet();

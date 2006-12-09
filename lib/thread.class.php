@@ -476,7 +476,7 @@ class Thread
         }
 
         // array -> subset
-        if ($_conf['favlist_set_num'] > 0) {
+        if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
             $this->favs = array_slice($this->allfavs, 0, $_conf['favlist_set_num'] + 1);
         } else {
             $this->fav = $this->allfavs[0];

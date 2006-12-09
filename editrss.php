@@ -45,7 +45,7 @@ $add_rss_form_ht = <<<EOFORM
 EOFORM;
 
 // RSS切替フォーム
-if ($_conf['expack.rss.set_num'] > 0) {
+if ($_conf['expack.favset.enabled'] && $_conf['expack.rss.set_num'] > 0) {
     $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS',
         null, null, !$_conf['ktai']);
 } else {
@@ -89,7 +89,7 @@ P2Util::printInfoMsgHtml();
 // メイン部分HTML表示
 //================================================================
 // ページタイトル
-if ($_conf['expack.rss.set_num'] > 0) {
+if ($_conf['expack.favset.enabled'] && $_conf['expack.rss.set_num'] > 0) {
     $i = (isset($_SESSION['m_rss_set'])) ? (int)$_SESSION['m_rss_set'] : 0;
     $rss_titles = FavSetManager::getFavSetTitles('m_rss_set');
     if (!$rss_titles || !isset($rss_titles[$i]) || strlen($rss_titles[$i]) == 0) {

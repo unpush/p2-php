@@ -59,7 +59,7 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 }
 
 // ページタイトル部分HTML設定 ====================================
-if ($aThreadList->spmode == 'fav' && $_conf['favlist_set_num'] > 0) {
+if ($aThreadList->spmode == 'fav' && $_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
     $ptitle_hd = FavSetManager::getFavSetPageTitleHt('m_favlist_set', $aThreadList->ptitle);
 } else {
     $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
