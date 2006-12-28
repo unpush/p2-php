@@ -62,7 +62,7 @@ define('HTML_TEMPLATE_FLEXY_ERROR_DIE',8);  // FATAL DEATH
 *
 *
 *
-* @version    $Id$
+* @version    $Id: Flexy.php 425 2006-02-27 12:45:49Z rsk $
 */
 class HTML_Template_Flexy
 {
