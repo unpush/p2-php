@@ -10,61 +10,14 @@ $time = $time + $fake_time * 60;
 
 $csrfid = P2Util::getCsrfId();
 
-$htm['disable_js'] = <<<EOP
-<script type="text/javascript">
-<!--
-// Thanks naoya <http://d.hatena.ne.jp/naoya/20050804/1123152230>
-
-function isNetFront() {
-  var ua = navigator.userAgent;
-  if (ua.indexOf("NetFront") != -1 || ua.indexOf("AVEFront/") != -1 || ua.indexOf("AVE-Front/") != -1) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function disableSubmit(form) {
-
-  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
-  if (isNetFront()) {
-    return;
-  }
-
-  var elements = form.elements;
-  for (var i = 0; i < elements.length; i++) {
-    if (elements[i].type == 'submit') {
-      elements[i].disabled = true;
-    }
-  }
-}
-
-function setHiddenValue(button) {
-
-  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
-  if (isNetFront()) {
-    return;
-  }
-
-  if (button.name) {
-    var q = document.createElement('input');
-    q.type = 'hidden';
-    q.name = button.name;
-    q.value = button.value;
-    button.form.appendChild(q);
-  }
-}
-
-//-->
-</script>\n
-EOP;
-
-
 // key.idxから名前とメールを読込み
 if (file_exists($key_idx) and $lines = file($key_idx)) {
     $line = explode('<>', rtrim($lines[0]));
     $hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
     $hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
+} else {
+    $hd['FROM'] = null;
+    $hd['mail'] = null;
 }
 
 // 空白はユーザ設定値に変換
@@ -87,8 +40,12 @@ if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
 
     $hd['FROM'] = $last_posted['FROM'];
     $hd['mail'] = $last_posted['mail'];
-    $hd['MESSAGE'] = $last_posted['MESSAGE'];
+    $MESSAGE_hs = $last_posted['MESSAGE'];
     $hd['subject'] = $last_posted['subject'];
+
+} else {
+    $MESSAGE_hs = '';
+    $hd['subject'] = '';
 }
 
 
@@ -118,6 +75,8 @@ if (empty($_conf['ktai'])) {
 // Be書き込み
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
     $htm['be2ch'] = '<input id="submit_beres" type="submit" name="submit_beres" value="BEで書き込む" onClick="setHiddenValue(this);">';
+} else {
+    $htm['be2ch'] = '';
 }
 
 // be板では書き込みを無効にする
@@ -153,7 +112,7 @@ EOP;
 // }}}
 // {{{ソースコード補正用チェックボックス
 
-$src_fix_ht = '';
+$htm['src_fix'] = '';
 if (!$_conf['ktai']) {
     if ($_conf['editor_srcfix'] == 1 ||
         ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d\.2ch\.net/', $host))
@@ -181,41 +140,45 @@ if (!$_conf['ktai']) {
 */
 // {{{ これにレス
 
+// inyou:1 引用
+// inyou:2 プレビュー
+// inyou:3 引用＋プレビュー
+
 $htm['orig_msg'] = '';
 if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou'])) && !empty($_GET['resnum'])) {
     $q_resnum = $_GET['resnum'];
-    $hd['MESSAGE'] = "&gt;&gt;" . $q_resnum . "\r\n";
+    if (!($_GET['inyou'] == 2 && strlen($MESSAGE_hs))) {
+        $MESSAGE_hs = "&gt;&gt;" . $q_resnum . "\r\n";
+    }
     if (!empty($_GET['inyou'])) {
-        require_once (P2_LIBRARY_DIR . '/thread.class.php');
-        require_once (P2_LIBRARY_DIR . '/threadread.class.php');
+        require_once P2_LIB_DIR . '/thread.class.php';
+        require_once P2_LIB_DIR . '/threadread.class.php';
         $aThread = &new ThreadRead;
         $aThread->setThreadPathInfo($host, $bbs, $key);
         $aThread->readDat($aThread->keydat);
-        $q_resar = $aThread->explodeDatLine($aThread->datlines[$q_resnum-1]);
+        $q_resar = $aThread->explodeDatLine($aThread->datlines[$q_resnum - 1]);
         $q_resar = array_map('trim', $q_resar);
         $q_resar[3] = strip_tags($q_resar[3], '<br>');
         if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
             // 引用レス番号ができてしまわないように、二つの半角スペースを入れている
-            $hd['MESSAGE'] .= "&gt;  ";
-            $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
-            $hd['MESSAGE'] .= "\r\n";
+            $MESSAGE_hs .= "&gt;  ";
+            $MESSAGE_hs .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
+            $MESSAGE_hs .= "\r\n";
         }
         if ($_GET['inyou'] == 2 || $_GET['inyou'] == 3) {
             $htm['orig_msg'] = <<<EOM
-<fieldset id="original_msg">
-<legend>Original Message:</legend>
+<blockquote id="original_msg">
     <div>
         <span class="prvw_resnum">{$q_resnum}</span>
         ：<b class="prvw_name">{$q_resar[0]}</b>
         ：<span class="prvw_mail">{$q_resar[1]}</span>
         ：<span class="prvw_dateid">{$q_resar[2]}</span>
-    </div>
+    <br>
     <div class="prvw_msg">{$q_resar[3]}</div>
-</fieldset>
+</blockquote>
 EOM;
         }
     }
 }
 
 // }}}
-?>

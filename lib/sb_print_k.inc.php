@@ -26,22 +26,31 @@ function sb_print_k(&$aThreadList)
 	// 変数 ================================================
 	
 	// >>1
-	if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs=="bizplus" || $aThreadList->spmode=="news") {
+    $onlyone_bool = false;
+    /*
+	if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus" || $aThreadList->spmode == "news") {
 		// 倉庫は除く
 		if ($aThreadList->spmode != "soko") {
 			$onlyone_bool = true;
 		}
 	}
-
+    */
+    
 	// 板名
 	if ($aThreadList->spmode and $aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko") {
 		$ita_name_bool = true;
-	}
+	} else {
+        $ita_name_bool = false;
+    }
 
 	$norefresh_q = "&amp;norefresh=1";
 
 	// ソート ==================================================
-
+    
+    $sortq_host = '';
+    $sortq_ita = '';
+    $sortq_spmode = '';
+    
 	// スペシャルモード時
 	if ($aThreadList->spmode) { 
 		$sortq_spmode = "&amp;spmode={$aThreadList->spmode}";
@@ -111,18 +120,20 @@ function sb_print_k(&$aThreadList)
 		// 総レス数
 		$rescount_ht = "{$aThread->rescount}";
 
-		// 板名 ============================================
+		// 板名
+        $ita_name_ht = '';
 		if ($ita_name_bool) {
 			$ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
-			$ita_name_hd = htmlspecialchars($ita_name, ENT_QUOTES);
-			
+            
 			// 全角英数カナスペースを半角に
-			if (!empty($_conf['k_save_packet'])) {
-				$ita_name_hd = mb_convert_kana($ita_name_hd, 'rnsk');
+			if ($_conf['k_save_packet']) {
+				$ita_name = mb_convert_kana($ita_name, 'rnsk');
 			}
 			
-			// $htm['ita'] = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hd}</a>)";
-			$htm['ita'] = "({$ita_name_hd})";
+            $ita_name_hs = htmlspecialchars($ita_name, ENT_QUOTES);
+			
+			// $ita_name_ht = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hs}</a>)";
+			$ita_name_ht = "({$ita_name_hs})";
 		}
 		
 		// torder(info) =================================================
@@ -144,7 +155,9 @@ function sb_print_k(&$aThreadList)
 			$rescount_q = "";
 			$offline_q = "&amp;offline=true";
 			$anum_ht = "";
-		}
+		} else {
+            $offline_q = '';
+        }
 		
 		// タイトル未取得なら
 		if (!$aThread->ttitle_ht) {
@@ -157,7 +170,7 @@ function sb_print_k(&$aThreadList)
 		}	
 
 		// 全角英数カナスペースを半角に
-		if (!empty($_conf['k_save_packet'])) {
+		if ($_conf['k_save_packet']) {
 			$aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
 		}
 		
@@ -204,11 +217,10 @@ function sb_print_k(&$aThreadList)
 		// ボディ
 		echo <<<EOP
 <div>
-	$unum_ht{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>{$htm['ita']}
+	$unum_ht{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>{$ita_name_ht}
 </div>
 EOP;
 	}
 
 }
 
-?>

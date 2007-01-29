@@ -1,6 +1,6 @@
 <?php
 /*
-    p2 -  スレッド表示 -  ヘッダ部分 -  for read.php
+    p2 - スレッドHTML表示 - ヘッダ部分 - for read.php
 */
 
 // 変数
@@ -20,14 +20,14 @@ $latest_st      = "最新";
 $dores_st       = "レス";
 $aborn_st       = "あぼん";
 
-$motothre_url = $aThread->getMotoThread();
-$ttitle_en = base64_encode($aThread->ttitle);
-$ttitle_urlen = rawurlencode($ttitle_en);
-$ttitle_en_q = "&amp;ttitle_en=" . $ttitle_urlen;
-$bbs_q = "&amp;bbs=" . $aThread->bbs;
-$key_q = "&amp;key=" . $aThread->key;
-$popup_q = "&amp;popup=1";
-$offline_q = "&amp;offline=1";
+$motothre_url   = $aThread->getMotoThread();
+$ttitle_en      = base64_encode($aThread->ttitle);
+$ttitle_urlen   = rawurlencode($ttitle_en);
+$ttitle_en_q    = "&amp;ttitle_en=" . $ttitle_urlen;
+$bbs_q          = "&amp;bbs=" . $aThread->bbs;
+$key_q          = "&amp;key=" . $aThread->key;
+$popup_q        = "&amp;popup=1";
+$offline_q      = "&amp;offline=1";
 
 //=================================================================
 // ヘッダ
@@ -37,47 +37,37 @@ $offline_q = "&amp;offline=1";
 $rnum_range = 100;
 $latest_show_res_num = 50; // 最新XX
 
-$read_navi_range = "";
-
-//----------------------------------------------
-// $read_navi_range -- 1- 101- 201-
-for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
-    $offline_range_q = "";
-    $ito = $i + $rnum_range - 1;
-    if ($ito <= $aThread->gotnum) {
-        $offline_range_q = $offline_q;
-    }
-    $read_navi_range = $read_navi_range . "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$i}-{$ito}{$offline_range_q}\">{$i}-</a>\n";
-
-}
-
 //----------------------------------------------
 // $read_navi_previous -- 前100
 $before_rnum = $aThread->resrange['start'] - $rnum_range;
 if ($before_rnum < 1) { $before_rnum = 1; }
-if ($aThread->resrange['start'] == 1 and !empty($_GET['onlyone'])) {
-    $read_navi_previous_isInvisible = true;
+if ($aThread->resrange['start'] == 1 or !empty($_GET['onlyone'])) {
+    $read_navi_prev_isInvisible = true;
+} else {
+    $read_navi_prev_isInvisible = false;
 }
 
-$read_navi_previous_anchor = '';
+$read_navi_previous = '';
+$read_navi_prev_anchor = '';
 //if ($before_rnum != 1) {
-//    $read_navi_previous_anchor = "#r{$before_rnum}";
+//    $read_navi_prev_anchor = "#r{$before_rnum}";
 //}
 
-if (!$read_navi_previous_isInvisible) {
-    $q = http_build_query(array(
+if (!$read_navi_prev_isInvisible) {
+    $qs = array(
             'host'      => $aThread->host,
             'bbs'       => $aThread->bbs,
             'key'       => $aThread->key,
             'ls'        => "{$before_rnum}-{$aThread->resrange['start']}",
             'offline'   => '1',
             'b'         => $_conf['b']
-            ));
-    $url = $_conf['read_php'] . '?' . $q . $read_navi_previous_anchor;
-    $read_navi_previous_header_url = $_conf['read_php'] . '?' . $q . "#r{$aThread->resrange['start']}";
+        );
+    $q = http_build_query($qs);
+    $url = $_conf['read_php'] . '?' . $q . $read_navi_prev_anchor;
+    $read_navi_prev_header_url = $_conf['read_php'] . '?' . $q . "#r{$aThread->resrange['start']}";
     $html = "{$prev_st}{$rnum_range}";
     $read_navi_previous = P2Util::tagA($url, $html);
-    $read_navi_previous_header = P2Util::tagA($read_navi_previous_header_url, $html);
+    $read_navi_prev_header = P2Util::tagA($read_navi_prev_header_url, $html);
 }
 
 //----------------------------------------------
@@ -91,7 +81,10 @@ if ($aThread->resrange['to'] > $aThread->rescount) {
 }
 if ($aThread->resrange['to'] == $aThread->rescount) {
     $read_navi_next_anchor = "#r{$aThread->rescount}";
+} else {
+    $read_navi_next_anchor = '';
 }
+
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
 $offline_range_q = "";
@@ -107,14 +100,14 @@ $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{
 // $read_footer_navi_new  続きを読む 新着レスの表示
 
 if ($aThread->resrange['to'] == $aThread->rescount) {
-    $read_footer_navi_new = "<a style=\"white-space: nowrap;\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}#r{$aThread->rescount}\" accesskey=\"r\">{$shinchaku_st}</a>";
+    $read_footer_navi_new = "<a style=\"white-space: nowrap;\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}#r{$aThread->rescount}\" accesskey=\"r\" title=\"アクセスキー:r\">{$shinchaku_st}</a>";
 } else {
-    $read_footer_navi_new = "<a style=\"white-space: nowrap;\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+    $read_footer_navi_new = "<a style=\"white-space: nowrap;\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\" title=\"アクセスキー[r]\">{$tuduki_st}</a>";
 }
 
 
 // レス番指定移動
-$htm['goto'] = <<<GOTO
+$goto_ht = <<<GOTO
 <form method="get" action="{$_conf['read_php']}" class="inline-form">
     <input type="hidden" name="host" value="{$aThread->host}">
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
@@ -128,30 +121,36 @@ GOTO;
 //====================================================================
 // HTMLプリント
 //====================================================================
-$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+$sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
 
-// ツールバー部分HTML =======
+// ツールバー部分HTML
 
 // お気にマーク設定
-$favmark = (!empty($aThread->fav)) ? '★' : '+';
-$favdo = (!empty($aThread->fav)) ? 0 : 1;
-$favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-$favdo_q = '&amp;setfav=' . $favdo;
-$similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
-$itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
+$favmark    = !empty($aThread->fav) ? '★' : '+';
+$favdo      = !empty($aThread->fav) ? 0 : 1;
+$favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
+$favtitle   .= '（アクセスキー[f]）';
+$favdo_q    = '&amp;setfav=' . $favdo;
+$similar_q  = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
+$itaj_hd    = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
 $toolbar_right_ht = <<<EOTOOLBAR
             <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
+            
             <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}" target="subject" title="同じ板からタイトルが似ているスレッドを検索する">{$siml_thre_st}</a>
-            <a style="white-space: nowrap;" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a> 
-            <span class="favdo" style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span> 
-            <span style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span> 
-<!--            <a style="white-space: nowrap;" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
-            <a style="white-space: nowrap;" href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">{$moto_thre_st}</a>
+            
+            <a style="white-space: nowrap;" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return !openSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" accesskey="i" title="スレッド情報を表示（アクセスキー[i]）">{$info_st}</a> 
+            
+            <span class="favdo" style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" accesskey="f" title="{$favtitle}">お気に{$favmark}</a></span> 
+            
+            <span style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" accesskey="d" title="ログを削除する（アクセスキー[d]）">{$delete_st}</a></span> 
+            
+<!--        <a style="white-space: nowrap;" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return !openSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
+
+            <a style="white-space: nowrap;" href="{$motothre_url}" accesskey="o" title="板サーバ上のオリジナルスレを表示（アクセスキー[o]）">{$moto_thre_st}</a>
 EOTOOLBAR;
 
 //=====================================
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
@@ -163,64 +162,83 @@ echo <<<EOHEADER
     <title>{$ptitle_ht}</title>\n
 EOHEADER;
 
-@include("style/style_css.inc"); // スタイルシート
-@include("style/read_css.inc"); // スタイルシート
+include_once './style/style_css.inc';
+include_once './style/read_css.inc';
 
 echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/respopup.js"></script>
-    <script type="text/javascript" src="js/htmlpopup.js"></script>
-    <script type="text/javascript" src="js/setfavjs.js"></script>
-    <script type="text/javascript" src="js/delelog.js"></script>\n
+    <script type="text/javascript" src="js/basic.js?v=20061209"></script>
+    <script type="text/javascript" src="js/respopup.js?v=20061206"></script>
+    <script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
+    <script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
+    <script type="text/javascript" src="js/delelog.js?v=20061206"></script>
+    
+	<script type="text/javascript" src="./js/yui-ext/yui.js"></script>
+	<script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
+	<link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css">\n
 EOP;
 
-$onLoad_script = "";
+$onload_script = "";
 
 if ($_conf['bottom_res_form']) {
-    echo '<script type="text/javascript" src="js/post_form.js?v=200610147"></script>'."\n";
-    $onLoad_script .= "checkSage();";
+    echo '<script type="text/javascript" src="js/post_form.js?v=20061209"></script>' . "\n";
+    $onload_script .= "checkSage();";
 }
 
 if (empty($_GET['onlyone'])) {
-    $onLoad_script .= "setWinTitle();";
+    $onload_script .= "setWinTitle();";
 }
+
+$fade = empty($_GET['fade']) ? 'false' : 'true';
 
 echo <<<EOHEADER
     <script type="text/javascript">
     <!--
+    gFade = {$fade};
+    gShowKossoriHeadbarTimerID = null;
     gIsPageLoaded = false;
-    function pageLoaded()
-    {
+    addLoadEvent(function() {
         gIsPageLoaded = true;
-        {$onLoad_script}
-    }
-    
-    /*
-    // フレームのリサイズは使い勝手イマイチ
-    gReadResizedFrame = false;
-    function resizeFrame(){
-        var rr = window.parent.fsright;
-        if (rr) {
-            rr.rows ='20%,*';
-            gReadResizedFrame = true;
-            gSbResizedFrame = false;
-        }
-    }
-    */
+        {$onload_script}
+    });
     //-->
     </script>\n
 EOHEADER;
 
+/*
+    // JS フレームのリサイズは使い勝手イマイチ
+    gResizedFrame = false;
+    function resizeFrame(){
+        var rr = window.parent.fsright;
+        if (!gResizedFrame && rr) {
+            rr.rows ='20%,*';
+            gResizedFrame = true;
+            window.parent.subject.gResizedFrame = false;
+        }
+    }
+*/
+
+// ヘッドバー
+if ($_conf['enable_headbar']) {
+    echo '<script type="text/javascript" src="js/readheadbar.js?v=20070124"></script>' . "\n";
+    $body_onmousemove_at = ' onmousemove="showHeadBar(event);"';
+    $body_onmouseout_at = ' onmouseout="clearKossoriHeadbarTimerId();"';
+} else {
+    $body_onmousemove_at = '';
+    $body_onmouseout_at = '';
+}
+
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();" onclick="hideHtmlPopUp();">
+<body id="read" onclick="hideHtmlPopUp(event);"{$body_onmousemove_at}{$body_onmouseout_at}>
 <div id="popUpContainer"></div>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
-// スレが板サーバになければ ============================
+echo '<div id="header">';
+
+// {{{ スレが板サーバになければ
+
 if ($aThread->diedat) { 
 
     if ($aThread->getdat_error_msg_ht) {
@@ -239,12 +257,10 @@ if ($aThread->diedat) {
     }
     
     echo $diedat_msg;
-    echo "<p>";
-    echo  $motothre_ht;
-    echo "</p>";
-    echo "<hr>";
+    echo "<p>{$motothre_ht}</p>";
+    echo "<hr>\n";
     
-    // 既得レスがなければツールバー表示
+    // 既得レスがなければツールバー右側だけHTML表示
     if (!$aThread->rescount) {
         echo <<<EOP
 <table width="100%" style="padding:0px 0px 10px 0px;">
@@ -256,25 +272,59 @@ if ($aThread->diedat) {
             {$toolbar_right_ht}
         </td>
     </tr>
-</table>
+</table>\n
 EOP;
     }
 }
 
+// }}}
 
-if ($aThread->rescount and empty($_GET['renzokupop'])) {
-// レスフィルタ ===============================
-    $selected_field = array('hole' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'msg' => '');
-    $selected_field[($res_filter['field'])] = ' selected';
+echo '<div id="kossoriHeadbar">' . getHeadBarHtml($aThread) . '</div>';
 
-    $selected_match = array('on' => '', 'off' => '');
-    $selected_match[($res_filter['match'])] = ' selected';
+echo $headbar_htm = getHeadBarHtml($aThread);
+
+echo '</div>'; // id header
+
+//if (empty($_GET['renzokupop'])) {
+    echo "<h3 class=\"thread_title\">{$aThread->ttitle_hd}</h3>\n";
+//}
+
+flush();
+
+
+//=======================================================================================
+// 関数（このファイル内でのみ利用）
+//=======================================================================================
+/**
+ * headbar HTMLを取得する
+ *
+ * @return  void
+ */
+function getHeadBarHtml($aThread)
+{
+    global $_conf;
+    global $res_filter, $read_navi_prev_header; // read only
+    // read_footer.inc.php でも参照している
+    global $all_st, $latest_st, $motothre_url, $p2frame_ht, $toolbar_right_ht, $goto_ht;
+    global $rnum_range, $latest_show_res_num; // confにした方がよさそう
     
-    // 拡張条件
-    if ($_conf['enable_exfilter']) {
-        $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '');
-        $selected_method[($res_filter['method'])] = ' selected';
-        $select_method_ht = <<<EOP
+    $headbar_htm = '';
+    
+    // {{{ レスフィルタ form HTML
+
+    if ($aThread->rescount and empty($_GET['renzokupop'])) {
+
+        $selected_field = array('hole' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'msg' => '');
+        $selected_field[($res_filter['field'])] = ' selected';
+
+        $selected_match = array('on' => '', 'off' => '');
+        $selected_match[($res_filter['match'])] = ' selected';
+    
+        // 拡張条件
+        if ($_conf['enable_exfilter']) {
+            $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '');
+            $selected_method[($res_filter['method'])] = ' selected';
+            $select_method_ht = <<<EOP
     の
     <select id="method" name="method">
         <option value="or"{$selected_method['or']}>いずれか</option>
@@ -283,12 +333,12 @@ if ($aThread->rescount and empty($_GET['renzokupop'])) {
         <option value="regex"{$selected_method['regex']}>正規表現</option>
     </select>
 EOP;
-    }
+        }
     
-    $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+        $word_hs = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
     
-    echo <<<EOP
-<form id="header" class="toolbar" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
+        $headbar_htm .= <<<EOP
+<form class="toolbar" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
     <input type="hidden" name="detect_hint" value="◎◇">
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
@@ -303,7 +353,7 @@ EOP;
         <option value="id"{$selected_field['id']}>IDが</option>
         <option value="msg"{$selected_field['msg']}>メッセージが</option>
     </select>
-    <input id="word" name="word" value="{$hd['word']}" size="24">{$select_method_ht}
+    <input id="word" name="word" value="{$word_hs}" size="24">{$select_method_ht}
     を
     <select id="match" name="match">
         <option value="on"{$selected_match['on']}>含む</option>
@@ -313,54 +363,98 @@ EOP;
     <input type="submit" name="submit_filter" value="フィルタ表示">
 </form>\n
 EOP;
-}
+    }
 
-// {{{ p2フレーム 3ペインで開く
-$htm['p2frame'] = <<<EOP
-<a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く</a> | 
+    // }}}
+    // {{{ スレッドナビゲーションHTML
+
+    // p2フレーム 3ペインで開く
+    $p2frame_ht = <<<EOP
+<a href="index.php?url={$motothre_url}&amp;offline=1" title="p2フレーム 3ペインで開く">3ペインで開く</a> | 
 EOP;
-$htm['p2frame'] = <<<EOP
+    $p2frame_ht = <<<EOP
 <script type="text/javascript">
 <!--
 if (top == self) {
-    document.writeln('{$htm['p2frame']}');
+    document.writeln('{$p2frame_ht}');
 }
 //-->
 </script>\n
 EOP;
-// }}}
 
-if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and !$_GET['renzokupop']) {
+    if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and empty($_GET['renzokupop'])) {
 
-    if (!empty($_GET['onlyone'])) {
-        $id_header = ' id="header"';
-    }
-    echo <<<EOP
-<table{$id_header} class="toolbar" width="100%" style="padding:0px 0px 10px 0px;">
+        // 1- 101- 201-
+        $read_navi_range_ht = getReadNaviRangeHtml($aThread, $rnum_range);
+
+        $bbs_q = "&amp;bbs=" . $aThread->bbs;
+        $key_q = "&amp;key=" . $aThread->key;
+
+        $headbar_htm .= <<<EOP
+<table class="toolbar" width="100%" style="padding:0px 0px 0px 0px;">
     <tr>
         <td align="left">
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>
-            {$read_navi_range}
-            {$read_navi_previous_header}
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a> {$htm['goto']}
+            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all" accesskey="a" title="アクセスキー[a]">{$all_st}</a>
+            {$read_navi_range_ht}
+            {$read_navi_prev_header}
+            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
+            {$goto_ht}
         </td>
         <td align="right">
-            {$htm['p2frame']}
+            {$p2frame_ht}
             {$toolbar_right_ht}
         </td>
         <td align="right">
-            <a href="#footer">▼</a>
+            <a href="#footer" title="ページ下部へ移動">▼</a>
         </td>
     </tr>
 </table>\n
 EOP;
 
+    }
+
+    // }}}
+    
+    return $headbar_htm;
 }
 
+/**
+ * 1- 101- 201- のリンクHTMLを取得する
+ * getHeadBarHtml() から呼ばれる
+ *
+ * @return  string  HTML
+ */
+function getReadNaviRangeHtml($aThread, $rnum_range)
+{
+    global $_conf;
+    
+    static $cache_;
+    
+    if (isset($cache_["$aThread->host/$aThread->bbs/$aThread->key"])) {
+        return $cache_["$aThread->host/$aThread->bbs/$aThread->key"];
+    }
+    
+    $read_navi_range_ht = '';
 
-//if (!$_GET['renzokupop']) {
-    echo "<h3 class=\"thread_title\">{$aThread->ttitle_hd}</h3>\n";
-//}
-
-
-?>
+    for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
+        
+        $ito = $i + $rnum_range - 1;
+        
+        $qs = array(
+                'host'      => $aThread->host,
+                'bbs'       => $aThread->bbs,
+                'key'       => $aThread->key,
+                'ls'        => "{$i}-{$ito}",
+                'b'         => $_conf['b']
+            );
+        if ($ito <= $aThread->gotnum) {
+            $qs['offline'] = '1';
+        }
+        $q = http_build_query($qs);
+        
+        $url = $_conf['read_php'] . '?' . $q;
+        $read_navi_range_ht .= P2Util::tagA($url, "{$i}-") . "\n";
+    }
+    
+    return $cache_["$aThread->host/$aThread->bbs/$aThread->key"] = $read_navi_range_ht;
+}

@@ -1,8 +1,9 @@
 <?php
 /**
- * SettingTxtクラス
+ * p2 - 2ch の SETTING.TXT を扱うクラス
+ * http://news19.2ch.net/newsplus/SETTING.TXT
  *
- * @since 2006/02/27
+ * @created  2006/02/27
  */
 class SettingTxt{
     
@@ -15,7 +16,7 @@ class SettingTxt{
     var $cache_interval;
     
     /**
-     * コンストラクタ
+     * @constructor
      */
     function SettingTxt($host, $bbs)
     {
@@ -55,7 +56,7 @@ class SettingTxt{
     /**
      * SETTING.TXT をダウンロードして、パースして、キャッシュする
      *
-     * @access  private?
+     * @access  public
      * @return  boolean  実行成否
      */
     function downloadSettingTxt()
@@ -64,7 +65,7 @@ class SettingTxt{
 
         $perm = !empty($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
 
-        FileCtl::mkdir_for($this->setting_txt); // 板ディレクトリが無ければ作る
+        FileCtl::mkdirFor($this->setting_txt); // 板ディレクトリが無ければ作る
     
         if (file_exists($this->setting_cache) && file_exists($this->setting_txt)) {
             // 更新しない場合は、その場で抜けてしまう
@@ -80,7 +81,7 @@ class SettingTxt{
         }
 
         // DL
-        include_once "HTTP/Request.php";
+        require_once "HTTP/Request.php";
         
         $params = array();
         $params['timeout'] = $_conf['fsockopen_time_limit'];
@@ -101,7 +102,7 @@ class SettingTxt{
             
             if ($code == 302) {
                 // ホストの移転を追跡
-                include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+                require_once P2_LIB_DIR . '/BbsMap.class.php';
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
                     $aNewSettingTxt = &new SettingTxt($new_host, $this->bbs);
@@ -243,4 +244,4 @@ class SettingTxt{
     }
 
 }
-?>
+

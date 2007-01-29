@@ -16,7 +16,7 @@ function deleLog(tquery, info_pop_width, info_pop_height, page, obj)
 		// alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
 		// XMLHTTP（と obj.parentNode.innerHTML） に未対応なら小窓で
 		infourl = 'info.php?' + tquery + '&popup=2&dele=true';
-		return OpenSubWin(infourl,info_pop_width,info_pop_height,0,0);
+		return !openSubWin(infourl,info_pop_width,info_pop_height,0,0);
 	}
 
 	var url = 'httpcmd.php?' + tquery + '&cmd=delelog'; // スクリプトと、コマンド指定

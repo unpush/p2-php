@@ -18,7 +18,7 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
     
 // 書き込み履歴
 } elseif ($aThreadList->spmode == 'res_hist') {
-    $ptitle_url = "./read_res_hist.php{$_conf['k_at_q']}#footer";
+    $ptitle_url = "./read_res_hist.php{$_conf['k_at_q']}";
     
 // 通常 板
 } elseif (!$aThreadList->spmode) {
@@ -49,7 +49,7 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
 // }}}
 // {{{ ページタイトル部分HTML設定
 
-$ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
+$ptitle_hs = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 
 if ($aThreadList->spmode == "taborn") {
     $ptitle_ht = <<<EOP
@@ -59,13 +59,13 @@ EOP;
     $ptitle_ht = <<<EOP
     <a href="{$ptitle_url}"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）
 EOP;
-} elseif ($ptitle_url) {
+} elseif (!empty($ptitle_url)) {
     $ptitle_ht = <<<EOP
-    <a href="{$ptitle_url}"><b>{$ptitle_hd}</b></a>
+    <a href="{$ptitle_url}"><b>{$ptitle_hs}</b></a>
 EOP;
 } else {
     $ptitle_ht = <<<EOP
-    <b>{$ptitle_hd}</b>
+    <b>{$ptitle_hs}</b>
 EOP;
 }
 
@@ -80,20 +80,24 @@ $sb_form_hidden_ht = <<<EOP
 EOP;
 
 // フィルタ検索
-$hd['word'] = htmlspecialchars($word, ENT_QUOTES);
+$word_hs = htmlspecialchars($word, ENT_QUOTES);
 if (!$aThreadList->spmode) {
     $filter_form_ht = <<<EOP
 <form method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}">
     {$sb_form_hidden_ht}
-    <input type="text" id="word" name="word" value="{$hd['word']}" size="12">
+    <input type="text" id="word" name="word" value="{$word_hs}" size="12">
     <input type="submit" name="submit_kensaku" value="検索">
 </form>\n
 EOP;
+} else {
+    $filter_form_ht = '';
 }
 
 // 検索結果
 if (!empty($GLOBALS['sb_mikke_num'])) {
     $hit_ht = "<div>\"{$word}\" {$GLOBALS['sb_mikke_num']}hit!</div>";
+} else {
+    $hit_ht = '';
 }
 
 
@@ -101,25 +105,22 @@ if (!empty($GLOBALS['sb_mikke_num'])) {
 // ヘッダHTMLをプリント
 //=================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
     {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$ptitle_hd}</title>
+    <title>{$ptitle_hs}</title>
 </head>
 <body>
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
-include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
+include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 
 echo $filter_form_ht;
 echo $hit_ht;
 echo "<hr>";
 
-?>

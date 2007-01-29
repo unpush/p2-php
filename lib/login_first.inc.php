@@ -30,6 +30,10 @@ function printLoginFirst(&$_login)
     $_login->cleanInvalidAuthUserFile();
     clearstatcache();
     
+    // 外部からの変数
+    $post['form_login_id']   = isset($_POST['form_login_id'])   ? $_POST['form_login_id']   : null;
+    $post['form_login_pass'] = isset($_POST['form_login_pass']) ? $_POST['form_login_pass'] : null;
+    
     //=========================================================
     // 書き出し用変数
     //=========================================================
@@ -39,6 +43,7 @@ function printLoginFirst(&$_login)
 
     $auth_sub_input_ht = "";
     $body_ht = "";
+    $show_login_form_flag = false;
     
     $p_str = array(
         'user'      => 'ユーザ',
@@ -52,54 +57,46 @@ function printLoginFirst(&$_login)
         }
     }
 
-    //==============================================
-    // 補助認証 
-    //==============================================
+    // {{{ 補助認証
+    
     $mobile = &Net_UserAgent_Mobile::singleton();
     
-    // {{{ EZ認証
-    
+    // EZ認証
     if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
         if (file_exists($_conf['auth_ez_file'])) {
         } else {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_ez" value="1">'."\n".
+            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_ez" value="1">' . "\n" .
                 '<input type="checkbox" name="regist_ez" value="1" checked>EZ端末IDで認証を登録<br>';
         }
 
-    // }}}
-    // {{{ J認証
-    
+    // J認証
     // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
     } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
         if (file_exists($_conf['auth_jp_file'])) {
         } else {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_jp" value="1">'."\n".
+            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_jp" value="1">' . "\n" .
                 '<input type="checkbox" name="regist_jp" value="1" checked>J端末IDで認証を登録<br>';
         }
 
-    // }}}
-    // {{{ DoCoMo認証
-    
+    // DoCoMo認証
     } elseif ($mobile->isDoCoMo()) {
         if (file_exists($_conf['auth_docomo_file'])) {
         } else {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_docomo" value="1">'."\n".
+            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_docomo" value="1">' . "\n" .
                 '<input type="checkbox" name="regist_docomo" value="1" checked>DoCoMo端末IDで認証を登録<br>';
         }
 
-    // }}}
-    // {{{ Cookie認証
-    
+    // Cookie認証
     } else {
 
         $regist_cookie_checked = ' checked';
         if (isset($_POST['submit_new']) || isset($_POST['submit_member'])) {
-            if ($_POST['regist_cookie'] != '1') {
+            if (!isset($_POST['regist_cookie']) or $_POST['regist_cookie'] != '1') {
                 $regist_cookie_checked = '';
             }
         }
-        $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_cookie" value="1">'."\n".
-            '<input type="checkbox" id="regist_cookie" name="regist_cookie" value="1"'.$regist_cookie_checked.'><label for="regist_cookie">cookieに保存する（推奨）</label><br>';
+        $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_cookie" value="1">' . "\n" .
+            '<input type="checkbox" id="regist_cookie" name="regist_cookie" value="1"' . $regist_cookie_checked . '><label for="regist_cookie">cookieに保存する（推奨）</label><br>';
     }
     
     // }}}
@@ -111,15 +108,18 @@ function printLoginFirst(&$_login)
         $add_mail = '';
     }
 
+    $form_login_id_hs = '';
     if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_login->user_u)) {
-        $hd['form_login_id'] = htmlspecialchars($_login->user_u, ENT_QUOTES);
-    } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_POST['form_login_id'])) {
-        $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
+        $form_login_id_hs = hs($_login->user_u);
+    } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $post['form_login_id'])) {
+        $form_login_id_hs = hs($post['form_login_id']);
     }
     
     
-    if (preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
-        $hd['form_login_pass'] = htmlspecialchars($_POST['form_login_pass'], ENT_QUOTES);
+    if (preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_pass'])) {
+        $form_login_pass_hs = hs($post['form_login_pass']);
+    } else {
+        $form_login_pass_hs = '';
     }
 
     // DoCoMoの固有端末認証（セッション利用時のみ有効）
@@ -127,11 +127,12 @@ function printLoginFirst(&$_login)
     
     //if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
     if ($_conf['use_session'] && $mobile->isDoCoMo()) {
-        $docomo_utn_ht = '<p><a href="' . $myname . '?user=' . htmlspecialchars($_login->user_u, ENT_QUOTES) . '" utn>DoCoMo固有端末認証</a></p>';
+        $docomo_utn_ht = '<p><a href="' . $myname . '?user=' . hs($_login->user_u) . '" utn>DoCoMo固有端末認証</a></p>';
     }
 
-    // DoCoMoならpasswordにしない
-    if ($mobile->isDoCoMo()) {
+    // DoCoMoならリトライ時にパスワード入力を password → text とする
+    // （DoCoMoはpassword入力が完全マスクされるUIで、入力エラーがわかりにく過ぎる）
+    if (isset($post['form_login_pass']) and $mobile->isDoCoMo()) {
         $type = "text";
     } else {
         $type = "password";
@@ -139,7 +140,7 @@ function printLoginFirst(&$_login)
 
     // {{{ ログイン用フォームを生成
     
-    $hd['REQUEST_URI'] = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES);
+    $REQUEST_URI_hs = hs($_SERVER['REQUEST_URI']);
     
     if (file_exists($_conf['auth_user_file'])) {
         $submit_ht = '<input type="submit" name="submit_member" value="ユーザログイン">';
@@ -149,10 +150,10 @@ function printLoginFirst(&$_login)
     
     $login_form_ht = <<<EOP
 {$docomo_utn_ht}
-<form id="login" method="POST" action="{$hd['REQUEST_URI']}" target="_self" utn>
+<form id="login" method="POST" action="{$REQUEST_URI_hs}" target="_self" utn>
     {$_conf['k_input_ht']}
-    {$p_str['user']}: <input type="text" name="form_login_id" value="{$hd['form_login_id']}" istyle="3" size="32"><br>
-    {$p_str['password']}: <input type="{$type}" name="form_login_pass" value="{$hd['form_login_pass']}" istyle="3"><br>
+    {$p_str['user']}: <input type="text" name="form_login_id" value="{$form_login_id_hs}" istyle="3" size="32"><br>
+    {$p_str['password']}: <input type="{$type}" name="form_login_pass" value="{$form_login_pass_hs}" istyle="3"><br>
     {$auth_sub_input_ht}
     <br>
     {$submit_ht}
@@ -165,11 +166,11 @@ EOP;
     // 新規ユーザ登録処理 
     //=================================================================
     
-    if (!file_exists($_conf['auth_user_file']) && !$_login_failed_flag and !empty($_POST['submit_new']) && !empty($_POST['form_login_id']) && !empty($_POST['form_login_pass'])) {
+    if (!file_exists($_conf['auth_user_file']) && !$_login_failed_flag and !empty($_POST['submit_new']) && $post['form_login_id'] && $post['form_login_pass']) {
 
         // {{{ 入力エラーをチェック、判定
         
-        if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
+        if (!preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_pass'])) {
             $_info_msg_ht .= "<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>";
             $show_login_form_flag = true;
         
@@ -178,15 +179,15 @@ EOP;
         
         } else {
             
-            $_login->makeUser($_POST['form_login_id'], $_POST['form_login_pass']);
+            $_login->makeUser($post['form_login_id'], $post['form_login_pass']);
             
             // 新規登録成功
-            $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
-            $body_ht .= "<p class=\"infomsg\">○ 認証{$p_str['user']}「{$hd['form_login_id']}」を登録しました</p>";
-            $body_ht .= "<p><a href=\"{$myname}?form_login_id={$hd['form_login_id']}{$_conf['k_at_a']}\">rep2 start</a></p>";
+            $form_login_id_hs = hs($post['form_login_id']);
+            $body_ht .= "<p class=\"infomsg\">○ 認証{$p_str['user']}「{$form_login_id_hs}」を登録しました</p>";
+            $body_ht .= "<p><a href=\"{$myname}?form_login_id={$form_login_id_hs}{$_conf['k_at_a']}\">rep2 start</a></p>";
         
-            $_login->setUser($_POST['form_login_id']);
-            $_login->pass_x = sha1($_POST['form_login_pass']);
+            $_login->setUser($post['form_login_id']);
+            $_login->pass_x = sha1($post['form_login_pass']);
             
             // セッションが利用されているなら、セッションを更新
             if (isset($_p2session)) {
@@ -206,12 +207,12 @@ EOP;
     
     } else {
     
-        if (isset($_POST['form_login_id']) || isset($_POST['form_login_pass'])) {
+        if (isset($post['form_login_id']) || isset($post['form_login_pass'])) {
             $_info_msg_ht .= '<p class="infomsg">';
-            if (!$_POST['form_login_id']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['user']}」が入力されていません。"."<br>";
+            if (!$post['form_login_id']) {
+                $_info_msg_ht .= "rep2 error: 「{$p_str['user']}」が入力されていません。" . "<br>";
             }
-            if (!$_POST['form_login_pass']) {
+            if (!$post['form_login_pass']) {
                 $_info_msg_ht .= "rep2 error: 「{$p_str['password']}」が入力されていません。";
             }
             $_info_msg_ht .= '</p>';
@@ -224,10 +225,9 @@ EOP;
     // }}}
     
     //=========================================================
-    // HTMLプリント
+    // HTML表示出力
     //=========================================================
     P2Util::header_nocache();
-    P2Util::header_content_type();
     echo $_conf['doctype'];
     echo <<<EOP
 <html lang="ja">
@@ -239,22 +239,19 @@ EOP;
     <title>{$ptitle}</title>
 EOP;
     if (!$_conf['ktai']) {
-        @include "./style/style_css.inc";
-        @include "./style/login_first_css.inc";
+        include_once "./style/style_css.inc";
+        include_once "./style/login_first_css.inc";
     }
     echo "</head><body>\n";
     echo "<h3>{$ptitle}</h3>\n";
 
-    // 情報表示
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoHtml();
     
     echo $body_ht;
 
-    if (!empty($show_login_form_flag)) {
+    if ($show_login_form_flag) {
         echo $login_form_ht;
     }
 
     echo '</body></html>';
 }
-?>

@@ -1,4 +1,7 @@
 <?php
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* mi: charset=Shift_JIS */
+
 /*
     2006/02/24 aki DataPhp形式はもう使わない方向。拡張子 .cgi を代替とする
     
@@ -9,13 +12,25 @@
     データ
     *／ ？＞
 */
-class DataPhp{
-
+class DataPhp
+{
+    /**
+     * getPre
+     *
+     * @access  private
+     * @return  string
+     */
     function getPre()
     {
         return "<?php /*\n";
     }
 
+    /**
+     * getHip
+     *
+     * @access  private
+     * @return  string
+     */
     function getHip()
     {
         return "\n*/ ?>";
@@ -23,8 +38,10 @@ class DataPhp{
 
     /**
      * データphp形式のファイルを読み込む
-     *
      * 文字列のアンエスケープも行う
+     *
+     * @access  public
+     * @return  string|false
      */
     function getDataPhpCont($data_php)
     {
@@ -51,8 +68,11 @@ class DataPhp{
     
     /**
      * データphp形式のファイルをラインで読み込む
-     *
      * 文字列のアンエスケープも行う
+     *
+     * @static
+     * @access  public
+     * @return  array|false
      */
     function fileDataPhp($data_php)
     {
@@ -103,6 +123,8 @@ class DataPhp{
      * データphp形式のファイルにデータを記録する（モードはwb）
      * 文字列のエスケープも行う
      *
+     * @static
+     * @access  public
      * @param   srting   $cont  記録するデータ文字列
      * @return  boolean
      */
@@ -137,6 +159,9 @@ class DataPhp{
     
     /**
      * データphp形式のファイルで、末尾にデータを追加する
+     *
+     * @static
+     * @return  boolean
      */
     function putDataPhp($data_php, &$cont, $perm = 0606, $ncheck = false)
     {
@@ -166,17 +191,19 @@ class DataPhp{
                 }
             }
             
-            $new_cont = $old_cut . $cont_esc .DataPhp::getHip();
+            $new_cont = $old_cut . $cont_esc . DataPhp::getHip();
             
         // データ内容がまだなければ、新規データphp
         } else {
-            $new_cont = DataPhp::getPre().$cont_esc.DataPhp::getHip();
+            $new_cont = DataPhp::getPre() . $cont_esc . DataPhp::getHip();
         }
         
-        // ファイルがなければ生成
         FileCtl::make_datafile($data_php, $perm);
-        // 書き込む
-        $fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
+        
+        if (!$fp = fopen($data_php, 'wb')) {
+            die("Error: ファイルを更新できませんでした");
+            return false;
+        }
         @flock($fp, LOCK_EX);
         $last = ignore_user_abort(1);
         ftruncate($fp, 0);
@@ -190,6 +217,10 @@ class DataPhp{
     
     /**
      * データphp形式のデータをエスケープする
+     *
+     * @static
+     * @access  private
+     * @return  string
      */
     function escapeDataPhp($str)
     {
@@ -203,6 +234,10 @@ class DataPhp{
 
     /**
      * データphp形式のデータをアンエスケープする
+     *
+     * @static
+     * @access  private
+     * @return  string
      */
     function unescapeDataPhp($str)
     {
@@ -210,10 +245,8 @@ class DataPhp{
         $str = str_replace('&lt;', '<', $str);
         $str = str_replace('&gt;', '>', $str);
         $str = str_replace('&frasl;', '/', $str);
-        $str = str_replace('&amp;', '&', $str);    
+        $str = str_replace('&amp;', '&', $str);
         return $str;
     }
 
 }
-
-?>

@@ -3,8 +3,8 @@
     p2 -  設定管理
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -24,17 +24,16 @@ $synctitle = array(
 // }}}
 // {{{ 設定変更処理
 
-// ホストの同期
+// ホストを同期する
 if (isset($_POST['sync'])) {
-    include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
-    $syncfile = $_conf['pref_dir'].'/'.$_POST['sync'];
+    require_once P2_LIB_DIR . '/BbsMap.class.php';
+    $syncfile = $_conf['pref_dir'] . '/' . $_POST['sync'];
     $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {
         BbsMap::syncBrd($syncfile);
     } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
         BbsMap::syncIdx($syncfile);
     }
-    unset($syncfile);
 }
 
 // }}}
@@ -42,7 +41,7 @@ if (isset($_POST['sync'])) {
 
 $ptitle = '設定管理';
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $status_st      = 'ｽﾃｰﾀｽ';
     $autho_user_st  = '認証ﾕｰｻﾞ';
     $client_host_st = '端末ﾎｽﾄ';
@@ -63,10 +62,9 @@ $autho_user_ht = '';
 // }}}
 
 //=========================================================
-// HTMLプリント
+// HTMLを表示する
 //=========================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
@@ -77,25 +75,24 @@ echo <<<EOP
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>\n
 EOP;
-if (empty($_conf['ktai'])) {
-    @include("./style/style_css.inc");
-    @include("./style/editpref_css.inc");
+
+if (!$_conf['ktai']) {
+    include_once './style/style_css.inc';
+    include_once './style/editpref_css.inc';
 }
 echo <<<EOP
 </head>
 <body>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
 //<p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
     echo "<p id=\"pan_menu\">{$ptitle}</p>\n";
 }
 
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
-// 設定プリント
 $aborn_res_txt  = $_conf['pref_dir'] . '/p2_aborn_res.txt';
 $aborn_name_txt = $_conf['pref_dir'] . '/p2_aborn_name.txt';
 $aborn_mail_txt = $_conf['pref_dir'] . '/p2_aborn_mail.txt';
@@ -111,10 +108,11 @@ echo <<<EOP
 EOP;
 
 // 携帯用表示
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     echo '<hr>';
 }
 
+// PC
 if (empty($_conf['ktai'])) {
     
     echo "<table id=\"editpref\">\n";
@@ -158,7 +156,6 @@ EOP;
     // }}}
     // {{{ PC - その他 の設定
     
-    echo "<td>\n\n";
     /*
     php は editfile しない
     
@@ -175,87 +172,65 @@ EOP;
     
     // }}}
     
-    echo '&nbsp;';
+    echo "</table>\n";
+}
 
-    echo "</td></tr>\n\n";
-    $htm['sync'] = "<tr><td colspan=\"2\">\n\n";
 
-    // {{{ PC - ホストの同期 HTMLのセット
-    
-    $htm['sync'] .= <<<EOP
+// 新着まとめ読みのキャッシュリンクHTMLを表示する
+printMatomeCacheLinksHtml();
+
+
+// PC - ホストの同期 HTMLを表示 
+
+if (!$_conf['ktai']) {
+
+    $sync_htm = <<<EOP
+<table><tr><td>
 <fieldset>
-<legend>ホストの同期 （2chの板移転に対応します）</legend>
+<legend>ホストの同期</legend>
+2chの板移転に対応します。通常は自動で行われるので、この操作は特に必要ありません<br>
 EOP;
+
     $exist_sync_flag = false;
     foreach ($synctitle as $syncpath => $syncname) {
-        if (is_writable($_conf['pref_dir'].'/'.$syncpath)) {
+        if (is_writable($_conf['pref_dir'] . '/' . $syncpath)) {
             $exist_sync_flag = true;
-            $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
+            $sync_htm .= getSyncFavoritesFormHt($syncpath, $syncname);
         }
     }
-    $htm['sync'] .= <<<EOP
-</fieldset>\n
+
+    $sync_htm .= <<<EOP
+</fieldset>
+</td></tr></table>\n
 EOP;
 
-    $htm['sync'] .= "</td></tr>\n\n";
-
     if ($exist_sync_flag) {
-        echo $htm['sync'];
+        echo $sync_htm;
     } else {
         echo "&nbsp;";
         // echo "<p>ホストの同期は必要ありません</p>";
     }
-    
-    // }}}
-    
-    echo "</table>\n";
-}
 
 // 携帯用表示
-if ($_conf['ktai']) {
-    $htm['sync'] .= "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
+} else {
+    $sync_htm = "<p>ﾎｽﾄの同期<br>（2chの板移転に対応します。通常は自動で行われるので、この操作は特に必要ありません）</p>\n";
     $exist_sync_flag = false;
     foreach ($synctitle as $syncpath => $syncname) {
-        if (is_writable($_conf['pref_dir'].'/'.$syncpath)) {
+        if (is_writable($_conf['pref_dir'] . '/' . $syncpath)) {
             $exist_sync_flag = true;
-            $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
+            $sync_htm .= getSyncFavoritesFormHt($syncpath, $syncname);
         }
     }
     
     if ($exist_sync_flag) {
-        echo $htm['sync'];
+        echo $sync_htm;
     } else {
         // echo "<p>ﾎｽﾄの同期は必要ありません</p>";
     }
 }
 
-// {{{ 新着まとめ読みのキャッシュ表示
 
-$max = $_conf['matome_cache_max'];
-for ($i = 0; $i <= $max; $i++) {
-    $dnum = ($i) ? '.'.$i : '';
-    $ai = '&amp;cnum=' . $i;
-    $file = $_conf['matome_cache_path'] . $dnum . $_conf['matome_cache_ext'];
-    //echo '<!-- '.$file.' -->';
-    if (file_exists($file)) {
-        $filemtime = filemtime($file);
-        $date = date('Y/m/d G:i:s', $filemtime);
-        $b = filesize($file)/1024;
-        $kb = round($b, 0);
-        $url = 'read_new.php?cview=1' . $ai . '&amp;filemtime=' . $filemtime;
-        $links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
-    }
-}
-if (!empty($links)) {
-    if ($_conf['ktai']) {
-        echo '<hr>'."\n";
-    }
-    echo $htm['matome'] = '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>';
-}
-
-// }}}
-
-// 携帯用フッタ
+// 携帯用フッタHTML
 if ($_conf['ktai']) {
     echo "<hr>\n";
     echo $_conf['k_to_index_ht'] . "\n";
@@ -263,15 +238,17 @@ if ($_conf['ktai']) {
 
 echo '</body></html>';
 
+
 exit;
+
 
 //==============================================================================
 // 関数
 //==============================================================================
 /**
- * 設定ファイル編集ウインドウを開くフォームHTMLをプリントする
+ * 設定ファイル編集ウインドウを開くフォームHTMLを表示する
  *
- * @return void
+ * @return  void
  */
 function printEditFileForm($path_value, $submit_value)
 {
@@ -310,7 +287,7 @@ EOFORM;
 /**
  * ホストの同期用フォームのHTMLを取得する
  *
- * @return string
+ * @return  string
  */
 function getSyncFavoritesFormHt($path_value, $submit_value)
 {
@@ -321,7 +298,8 @@ function getSyncFavoritesFormHt($path_value, $submit_value)
     {$_conf['k_input_ht']}
     <input type="hidden" name="sync" value="{$path_value}">
     <input type="submit" value="{$submit_value}">
-</form>\n
+</form>
+
 EOFORM;
 
     if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
@@ -330,4 +308,37 @@ EOFORM;
     return $ht;
 }
 
-?>
+/**
+ * 新着まとめ読みのキャッシュリンクHTMLを表示する
+ *
+ * @return  void
+ */
+function printMatomeCacheLinksHtml()
+{
+    global $_conf;
+    
+    $max = $_conf['matome_cache_max'];
+    $links = array();
+    for ($i = 0; $i <= $max; $i++) {
+        $dnum = $i ? '.' . $i : '';
+        $ai = '&amp;cnum=' . $i;
+        $file = $_conf['matome_cache_path'] . $dnum . $_conf['matome_cache_ext'];
+        //echo '<!-- ' . $file . ' -->';
+        if (file_exists($file)) {
+            $filemtime = filemtime($file);
+            $date = date('Y/m/d G:i:s', $filemtime);
+            $b = filesize($file) / 1024;
+            $kb = round($b, 0);
+            $url = 'read_new.php?cview=1' . $ai . '&amp;filemtime=' . $filemtime;
+            $links[] = '<a href="' . $url . '" target="read">' . $date . '</a> ' . $kb . 'KB';
+        }
+    }
+    if ($links) {
+        echo '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>';
+        
+        if ($_conf['ktai']) {
+            echo '<hr>' . "\n";
+        }
+    }
+}
+

@@ -3,8 +3,8 @@
  * rep2 ログイン
  */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -56,7 +56,10 @@ if (isset($_POST['form_login_pass'])) {
 ?>
 EOP;
         FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']);
-        $fp = @fopen($_conf['auth_user_file'], "wb") or die("rep2 Error: {$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
+        $fp = fopen($_conf['auth_user_file'], "wb");
+        if (!$fp) {
+            die("rep2 Error: {$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
+        }
         @flock($fp, LOCK_EX);
         fputs($fp, $auth_user_cont);
         @flock($fp, LOCK_UN);
@@ -70,10 +73,12 @@ EOP;
 //====================================================
 // 補助認証
 //====================================================
+$p_htm['auth_ctl'] = '';
+
 $mobile = &Net_UserAgent_Mobile::singleton();
 
 // EZ認証
-if (!is_null($_SERVER['HTTP_X_UP_SUBNO'])) {
+if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
     if (file_exists($_conf['auth_ez_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
 EZ端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1{$_conf['k_at_a']}">解除</a>]<br>
@@ -171,12 +176,11 @@ if ($_conf['ktai']) {
 // HTMLプリント
 //=========================================================
 $p_htm['body_onload'] = '';
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $p_htm['body_onload'] = ' onLoad="setWinTitle();"';
 }
 
 P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
@@ -187,11 +191,11 @@ echo <<<EOP
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$p_str['ptitle']}</title>
 EOP;
-if (empty($_conf['ktai'])) {
-    @include "./style/style_css.inc";
-    @include "./style/login_css.inc";
+if (!$_conf['ktai']) {
+    include_once "./style/style_css.inc";
+    include_once "./style/login_css.inc";
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>\n
+    <script type="text/javascript" src="js/basic.js?v=20061206"></script>\n
 EOP;
 }
 echo <<<EOP
@@ -199,15 +203,13 @@ echo <<<EOP
 <body{$p_htm['body_onload']}>
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 <p id="pan_menu"><a href="setting.php">ログイン管理</a> &gt; {$p_str['ptitle']}</p>
 EOP;
 }
 
-// 情報表示
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
     
 echo '<p id="login_status">';
 echo <<<EOP
@@ -228,4 +230,3 @@ if ($_conf['ktai']) {
 
 echo '</body></html>';
 
-?>

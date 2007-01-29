@@ -150,6 +150,10 @@ $conf_user_sel['bottom_res_form'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['quote_res_view'] = 1; // (1)
 $conf_user_sel['quote_res_view'] = array('1' => 'する', '0' => 'しない');
 
+// PC ヘッドバーを表示（する:1, しない:0）
+$conf_user_def['enable_headbar'] = 1; // (1)
+$conf_user_sel['enable_headbar'] = array('1' => 'する', '0' => 'しない');
+
 // 携帯閲覧時、一度に表示するレスの数
 $conf_user_def['k_rnum_range'] = 15; // (15)
 $conf_user_rules['k_rnum_range'] = array('emptyToDef', 'notIntExceptMinusToDef');
@@ -162,7 +166,7 @@ $conf_user_rules['ktai_res_size'] = array('emptyToDef', 'notIntExceptMinusToDef'
 $conf_user_def['ktai_ryaku_size'] = 120; // (120)
 $conf_user_rules['ktai_ryaku_size'] = array('notIntExceptMinusToDef');
 
-// 携帯閲覧時、AAらしきレスを省略するサイズ（0なら無効）
+// 携帯閲覧時、AAらしきレスを省略するサイズ（0なら省略しない）
 $conf_user_def['k_aa_ryaku_size'] = 30; // (30)
 $conf_user_rules['k_aa_ryaku_size'] = array('notIntExceptMinusToDef');
 
@@ -284,7 +288,7 @@ $conf_user_def['proxy_port'] = ""; // ("")
 
 
 // フレーム左 板メニュー の表示幅
-$conf_user_def['frame_menu_width'] = "158"; // ("158")
+$conf_user_def['frame_menu_width'] = "162"; // ("162")
 
 // フレーム右上 スレ一覧 の表示幅
 $conf_user_def['frame_subject_width'] = "40%"; // ("40%")
@@ -307,4 +311,3 @@ $conf_user_sel['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP
 // ●書き込みの記憶状態
 $conf_user_def['maru_kakiko'] = 1; // (1)
 
-?>

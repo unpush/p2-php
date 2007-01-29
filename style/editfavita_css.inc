@@ -22,7 +22,7 @@ echo <<<EOSTYLE
 		border:1px solid #dddddd;
 	}
 	.sortList {
-		cursor:move; width:200px; padding:4px 16px 0 0;
+		cursor:move; width:500px; padding:4px 16px 0 0;
 	}
 
 -->

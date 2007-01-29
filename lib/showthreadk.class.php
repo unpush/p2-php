@@ -1,15 +1,16 @@
 <?php
+require_once P2_LIB_DIR . '/showthread.class.php';
 require_once 'StrSjis.php';
 
 /**
  * p2 - 携帯用にスレッドを表示するクラス
  */
-class ShowThreadK extends ShowThread{
-
+class ShowThreadK extends ShowThread
+{
     var $BBS_NONAME_NAME = '';
     
     /**
-     * コンストラクタ
+     * @constructor
      */
     function ShowThreadK(&$aThread)
     {
@@ -30,7 +31,7 @@ class ShowThreadK extends ShowThread{
         $this->url_handlers[] = array('this' => 'plugin_linkURL');
         
         if (empty($_conf['k_bbs_noname_name'])) {
-            require_once P2_LIBRARY_DIR . '/SettingTxt.php';
+            require_once P2_LIB_DIR . '/SettingTxt.php';
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             !empty($st->setting_array['BBS_NONAME_NAME']) and $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
         }
@@ -175,11 +176,11 @@ class ShowThreadK extends ShowThread{
         
         // {{{ フィルタリング
         
-        if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
+        if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
                 return '';
             // ターゲット設定
-            } elseif (!$target = $this->getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)) {
+            } elseif (!$target = $this->getFilterTarget($i, $name, $mail, $date_id, $msg)) {
                 return '';
             // マッチング
             } elseif (!$this->filterMatch($target, $i)) {
@@ -190,7 +191,7 @@ class ShowThreadK extends ShowThread{
         // }}}
         // {{{ あぼーんチェック
         
-        $aborned_res .= "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; // 名前
+        $aborned_res = "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; // 名前
         $aborned_res .= ""; // 内容
 
         // あぼーんネーム
@@ -231,12 +232,16 @@ class ShowThreadK extends ShowThread{
             if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
                 $ngaborns_hits['ng_mail']++;
                 $isNgMail = true;
+            } else {
+                $isNgMail = false;
             }
         
             // NGIDチェック
             if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
                 $ngaborns_hits['ng_id']++;
                 $isNgId = true;
+            } else {
+                $isNgId = false;
             }
     
             // NGメッセージチェック
@@ -569,8 +574,8 @@ EOP;
         if (!isset($s['link'])) {
             $s['link']  = $s[1];
             $s['quote'] = $s[5];
-            $s['url']   = $s[8];
-            $s['id']    = $s[11];
+            $s['url']   = isset($s[8]) ? $s[8] : null;
+            $s['id']    = isset($s[11]) ? $s[11] : null;
         }
 
         // マッチしたサブパターンに応じて分岐
@@ -860,7 +865,8 @@ EOP;
         global $_conf;
 
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
+            $ls = isset($m[4]) ? $m[4] : null;
+            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$ls}";
             return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
         }
         return FALSE;

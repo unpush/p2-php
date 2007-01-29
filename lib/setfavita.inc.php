@@ -1,5 +1,5 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * お気に板をセットする関数
@@ -7,7 +7,7 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
  * $set は、0(解除), 1(追加), top, up, down, bottom
  *
  * @access  public
- * @return  boolean  実行成否
+ * @return  boolean
  */
 function setFavIta()
 {
@@ -38,13 +38,13 @@ function setFavIta()
     // リストで並び替え
     if (!empty($_POST['submit_listfavita'])) {
         if (!$list) {
-            P2Util::pushInfoMsgHtml("<p>p2 info: リストの指定が変です</p>");
+            P2Util::pushInfoHtml("<p>p2 info: リストの指定が変です</p>");
             return false;
         }
     
     // 新規追加 or 一つずつ並び替え
     } elseif (!$host || !$bbs) {
-        P2Util::pushInfoMsgHtml("<p>p2 info: 板の指定が変です</p>");
+        P2Util::pushInfoHtml("<p>p2 info: 板の指定が変です</p>");
         return false;
     }
 
@@ -67,7 +67,7 @@ function setFavIta()
     if ($lines === false) {
         return false;
     }
-
+    
     $neolines = array();
     $before_line_num = 0;
     
@@ -103,8 +103,9 @@ function setFavIta()
     if (!empty($_POST['submit_listfavita']) && $list) {
         $rec_lines = array();
         foreach (explode(',', $list) as $aList) {
-            list($host, $bbs, $itaj_en) = explode('@', $aList);
-            $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
+            list($host, $bbs, $itaj_en) = array_map('rawurldecode', explode('@', $aList, 3));
+            $itaj = base64_decode($itaj_en);
+            $rec_lines[] = "\t{$host}\t{$bbs}\t" . $itaj;
         }
         $_info_msg_ht .= "<script language=\"javascript\">
             if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
@@ -112,7 +113,7 @@ function setFavIta()
     // 一つのデータを指定して操作
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
-        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
+        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
     
     // 解除
@@ -137,4 +138,3 @@ function setFavIta()
     return true;
 }
 
-?>

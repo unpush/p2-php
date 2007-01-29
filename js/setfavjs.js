@@ -15,7 +15,7 @@ function setFavJs(tquery, favdo, info_pop_width, info_pop_height, page, obj)
 		// alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
 		// XMLHTTP（とinnerHTML） に未対応なら小窓で
 		infourl = 'info.php?' + tquery + '&setfav=' + favdo + '&popup=2';
-		return OpenSubWin(infourl,info_pop_width,info_pop_height,0,0);
+		return !openSubWin(infourl,info_pop_width,info_pop_height,0,0);
 	}
 
 	url = 'httpcmd.php?' + tquery + '&setfav=' + favdo + '&cmd=setfav'; // スクリプトと、コマンド指定

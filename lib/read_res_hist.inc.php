@@ -13,7 +13,7 @@ function deleMsg($checked_hists)
 
     if (!$reslines = file($_conf['p2_res_hist_dat'])) {
         P2Util::printSimpleHtml("p2 Error: {$_conf['p2_res_hist_dat']} ‚ðŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½");
-        die('');
+        die;
         return false;
     }
     $reslines = array_map('rtrim', $reslines);

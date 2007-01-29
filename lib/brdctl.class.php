@@ -1,20 +1,24 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/brdmenu.class.php';
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* mi: charset=Shift_JIS */
+
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/brdmenu.class.php';
 
 /**
  * p2 - 板リストコントロールクラス for menu.php
  * スタティックメソッドで利用している
  */
-class BrdCtl{
-    
+class BrdCtl
+{
     /**
      * boardを全て読み込む
      *
+     * @static
      * @access  public
      * @return  array
      */
-    function read_brds()
+    function readBrdMenus()
     {
         $brd_menus_dir = BrdCtl::readBrdLocal();
         $brd_menus_online = BrdCtl::readBrdOnline();
@@ -26,6 +30,7 @@ class BrdCtl{
     /**
      * ローカルのboardディレクトリを走査して読み込む
      *
+     * @static
      * @access  private
      * @return  array
      */
@@ -47,7 +52,7 @@ class BrdCtl{
                     $brd_menus[] =& $aBrdMenu;
                     
                 } else {
-                    P2Util::pushInfoMsgHtml("<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n");
+                    P2Util::pushInfoHtml("<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n");
                 }
             }
             $cdir->close();
@@ -59,6 +64,7 @@ class BrdCtl{
     /**
      * オンライン板リストを読み込む
      *
+     * @static
      * @access  private
      * @return  array
      */
@@ -69,11 +75,13 @@ class BrdCtl{
         if (empty($_conf['brdfile_online'])) {
             return array();
         }
-
-        $brd_menus = array();
         
+        $brd_menus = array();
+
         $cachefile = P2Util::cacheFileForDL($_conf['brdfile_online']);
         $noDL = false;
+        $isNewDL = null;
+        $read_html_flag = null;
         
         // キャッシュがある場合
         if (file_exists($cachefile . '.p2.brd')) {
@@ -125,9 +133,9 @@ class BrdCtl{
         
         if (!$read_html_flag) {
             if ($data = file($cache_brd)) {
-                $aBrdMenu =& new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
+                $aBrdMenu =& new BrdMenu();         // クラス BrdMenu のオブジェクトを生成
                 $aBrdMenu->setBrdMatch($cache_brd); // パターンマッチ形式を登録
-                $aBrdMenu->setBrdList($data); // カテゴリーと板をセット
+                $aBrdMenu->setBrdList($data);       // カテゴリーと板をセット
                 if ($aBrdMenu->num) {
                     $brd_menus[] =& $aBrdMenu;
                 } else {
@@ -146,7 +154,8 @@ class BrdCtl{
      * 板検索（スレタイ検索）のwordクエリーがあればパースする
      * $GLOBALS['word'], $GLOBALS['words_fm'], $GLOBALS['word_fm'] をセットする
      *
-     * @access  static
+     * @static
+     * @access  public
      * @return  void
      */
     function parseWord()
@@ -173,7 +182,7 @@ class BrdCtl{
         }
         */
         
-        include_once P2_LIBRARY_DIR . '/strctl.class.php';
+        require_once P2_LIB_DIR . '/strctl.class.php';
         // and検索でよろしく（正規表現ではない）
         $word_fm = StrCtl::wordForMatch($word, 'and');
         if (P2_MBREGEX_AVAILABLE == 1) {
@@ -186,11 +195,12 @@ class BrdCtl{
     
         $GLOBALS['word'] = $word;
     }
-
+    
     /**
      * 携帯用 板検索（スレタイ検索）のフォームHTMLを取得する
      *
-     * @access  static
+     * @static
+     * @access  public
      * @return  void
      */
     function getMenuKSearchFormHtml($action = null)
@@ -201,7 +211,7 @@ class BrdCtl{
         
         $threti_ht = ''; // スレタイ検索は未対応
     
-        $word_hs = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+        $word_hs = isset($GLOBALS['word']) ? htmlspecialchars($GLOBALS['word'], ENT_QUOTES) : null;
     
         return <<<EOFORM
 <form method="GET" action="{$action}" accept-charset="{$_conf['accept_charset']}">
@@ -214,6 +224,4 @@ class BrdCtl{
 </form>\n
 EOFORM;
     }
-
 }
-?>

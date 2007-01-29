@@ -2,33 +2,36 @@
 // WWW Access on PHP
 // http://member.nifty.ne.jp/hippo2000/perltips/LWP.html を参考にしつつ似たような簡易のものを
 
-// 2005/04/20 aki このクラスは役割終了にして、PEAR利用に移行したい（HTTP_Requestなど）
+// 2006/11/28 aki PEAR（HTTP_Requestなど）が使える時は、このクラスよりもPEARを優先利用したい
 
 /**
- * UserAgent クラス
- *
- *	setAgent() : ua をセットする。
- *	setTimeout()
- *	request() : リクエストをサーバに送信して、レスポンスを返す。
+ * WapUserAgent クラス
  */
-class UserAgent{
-
-	var $agent;  // User-Agent。アプリケーションの名前。
-	var $timeout;
+class WapUserAgent
+{
+	var $agent = null;          // string   User-Agent
+	var $timeout = null;        // integer  fsockopen() 時のタイムアウト秒
+    var $atFsockopen = false;   // boolean  fsockopen() に@演算子を付けて、エラーを抑制するならtrue
 	var $maxRedirect;
 	var $redirectCount;
 	var $redirectCache;
 	
 	/**
-	 * setAgent
+	 * setter agent
+     *
+     * @access  public
+     * @return  void
 	 */
-	function setAgent($agent_name)
+	function setAgent($agent)
 	{
-		$this->agent = $agent_name;
+		$this->agent = $agent;
 	}
 	
 	/**
-	 * setTimeout
+	 * setter timeout
+     *
+     * @access  public
+     * @return  void
 	 */
 	function setTimeout($timeout)
 	{
@@ -36,23 +39,54 @@ class UserAgent{
 	}
 	
 	/**
-	 * request
-	 *
-	 * http://www.spencernetwork.org/memo/tips-3.php を参考にさせて頂きました。
+	 * setter atFsockopen
      *
-     * @param only_header bool 中身は取得せずにヘッダのみ取得する
+     * @access  public
+     * @return  void
 	 */
-	function request($req, $only_header = false, $postdata_urlencode = true)
+	function setAtFsockopen($atFsockopen)
 	{
-		$res =& new Response();
-		
-		$purl = parse_url($req->url); // URL分解
-		if (isset($purl['query'])) { // クエリー
-			$purl['query'] = "?".$purl['query'];
+		$this->atFsockopen = $atFsockopen;
+	}
+	
+    /**
+	 * HTTPリクエストをサーバに送信して、ヘッダレスポンス（WapResponseオブジェクト）を取得する
+     *
+     * @access  public
+     * @return  void
+	 */
+	function header($req)
+	{
+		return $this->request($req, array('onlyHeader' => true));
+	}
+    
+	/**
+	 * HTTPリクエストをサーバに送信して、レスポンス（WapResponseオブジェクト）を取得する
+	 *
+	 * @thanks http://www.spencernetwork.org/memo/tips-3.php
+     *
+     * @access  public
+     * @param   array  $options
+     * @return  WapResponse
+	 */
+	function request($req, $options = array())
+	{
+        if (!empty($options['onlyHeader'])) {
+            $req->setOnlyHeader($options['onlyHeader']);
+        }
+        
+		if (!$purl = parse_url($req->url)) {
+            $res = new WapResponse;
+            //$res->code = 
+            $res->message = "parse_url() failed";
+            return $res;
+        }
+		if (isset($purl['query'])) {
+			$purl['query'] = "?" . $purl['query'];
 		} else {
 			$purl['query'] = '';
 		}
-		$default_port = ($purl['scheme'] == 'https') ? 443 : 80; // デフォルトのポート
+		$default_port = ($purl['scheme'] == 'https') ? 443 : 80;
 
 		// プロキシ
 		if ($req->proxy) {
@@ -62,7 +96,7 @@ class UserAgent{
 		} else {
 			$send_host = $purl['host'];
 			$send_port = isset($purl['port']) ? $purl['port'] : $default_port;
-			$send_path = $purl['path'].$purl['query'];
+			$send_path = $purl['path'] . $purl['query'];
 		}
 
 		// SSL
@@ -70,10 +104,10 @@ class UserAgent{
 			$send_host = 'ssl://' . $send_host;
 		}
 
-		$request = $req->method." ".$send_path." HTTP/1.0\r\n";
-		$request .= "Host: ".$purl['host']."\r\n";
+		$request = $req->method . " " . $send_path . " HTTP/1.0\r\n";
+		$request .= "Host: " . $purl['host'] . "\r\n";
 		if ($this->agent) {
-			$request .= "User-Agent: ".$this->agent."\r\n";
+			$request .= "User-Agent: " . $this->agent . "\r\n";
 		}
 		$request .= "Connection: Close\r\n";
 		//$request .= "Accept-Encoding: gzip\r\n";
@@ -84,7 +118,7 @@ class UserAgent{
 		
 		// Basic認証用のヘッダ
 		if (isset($purl['user']) && isset($purl['pass'])) {
-			$request .= "Authorization: Basic ".base64_encode($purl['user'].":".$purl['pass'])."\r\n";
+			$request .= "Authorization: Basic " . base64_encode($purl['user'] . ":" . $purl['pass']) . "\r\n";
 		}
 
 		// 追加ヘッダ
@@ -95,34 +129,44 @@ class UserAgent{
 		// POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付
 		if (strtoupper($req->method) == 'POST') {
 			// 通常はURLエンコードする
-			if ($postdata_urlencode) {
+			if (empty($req->noUrlencodePost)) {
 				while (list($name, $value) = each($req->post)) {
-					$POST[] = $name.'='.urlencode($value);
+					$POST[] = $name . '=' . urlencode($value);
 				}
 				$postdata_content_type = 'application/x-www-form-urlencoded';
 
 			// ●ログインのときなどはURLエンコードしない
 			} else {
 				while (list($name, $value) = each($req->post)) {
-					$POST[] = $name.'='.$value;
+					$POST[] = $name . '=' . $value;
 				}
 				$postdata_content_type = 'text/plain';
 			}
 			$postdata = implode('&', $POST);
-			$request .= 'Content-Type: '.$postdata_content_type."\r\n";
-			$request .= 'Content-Length: '.strlen($postdata)."\r\n";
+			$request .= 'Content-Type: ' . $postdata_content_type . "\r\n";
+			$request .= 'Content-Length: ' . strlen($postdata) . "\r\n";
 			$request .= "\r\n";
 			$request .= $postdata;
 		} else {
 			$request .= "\r\n";
 		}
-	
+	    
+		$res =& new WapResponse;
+        
 		// WEBサーバへ接続
 		if ($this->timeout) {
-			$fp = fsockopen($send_host, $send_port, $errno, $errstr, $this->timeout);
-		} else {
-			$fp = fsockopen($send_host, $send_port, $errno, $errstr);
-		}
+            if ($this->atFsockopen) {
+			    $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $this->timeout);
+		    } else {
+                $fp = fsockopen($send_host, $send_port, $errno, $errstr, $this->timeout);
+            }
+        } else {
+            if ($this->atFsockopen) {
+			    $fp = @fsockopen($send_host, $send_port, $errno, $errstr);
+		    } else {
+                $fp = fsockopen($send_host, $send_port, $errno, $errstr);
+            }
+        }
         
 		if (!$fp) {
 			$res->code = $errno; // ex) 602
@@ -134,7 +178,7 @@ class UserAgent{
 		
         // header response
 		while (!feof($fp)) {
-			$l = fgets($fp,128000);
+			$l = fgets($fp, 8192);
 
 			// ex) HTTP/1.1 304 Not Modified
 			if (preg_match('/^(.+?): (.+)\r\n/', $l, $matches)) {
@@ -151,12 +195,12 @@ class UserAgent{
         }
         
         // body response
-        if (!$only_header) {
+        if (!$req->onlyHeader) {
             $body = '';
             while (!feof($fp)) {
-    			$body .= fread($fp, 4096);
+    			$body .= fread($fp, 8192);
     		}
-    		$res->content = $body;
+    		$res->setContent($body);
         }
         
 		fclose($fp);
@@ -188,35 +232,31 @@ class UserAgent{
 
 
 /**
- * Request クラス
+ * WapRequest クラス
  */
-class Request{
-
-	var $method; // GET, POST, HEADのいずれか(デフォルトはGET、PUTはなし) 
-	var $url; // http://から始まるURL( http://user:pass@host:port/path?query )
-	var $headers; // 任意の追加ヘッダ。文字列。
-	var $content; // 任意のデータの固まり。
-	var $post;    // POSTの時に送信するデータを格納した配列("変数名"=>"値")
-	var $proxy; // ('host'=>"", 'port'=>"")
-	
-	var $modified;
-
+class WapRequest
+{
+	var $method = 'GET';    // GET, POST, HEADのいずれか(デフォルトはGET、PUTはなし) 
+	var $url = '';          // http://から始まるURL( http://user:pass@host:port/path?query )
+	var $headers = '';      // 任意の追加ヘッダ。文字列。
+	var $post = array();    // POSTの時に送信するデータを格納した配列("変数名"=>"値")
+	var $proxy = array();   // ('host'=>"", 'port'=>"")
+	var $modified = null;   // string  If-Modified-Since
+    var $onlyHeader = false; // boolean ヘッダだけを取得するならtrue
+    var $noUrlencodePost = false; // POSTデータをurlencodeしないならtrue。通常はurlencodeするのでtrue。
+    
 	/**
-	 * コンストラクタ
+	 * @constructor
 	 */
-	function Request()
+	function WapRequest()
 	{
-		$this->method = 'GET';
-		$this->url = '';
-		$this->headers = '';
-		$this->content = false;
-		$this->post = array();
-		$this->proxy = array();
-		$this->modified = false;
 	}
     
 	/**
-	 * setProxy
+	 * setter proxy
+     *
+     * @access  public
+     * @return  void
 	 */
 	function setProxy($host, $port)
 	{
@@ -225,7 +265,10 @@ class Request{
 	}
     
 	/**
-	 * setMethod
+	 * setter method
+     *
+     * @access  public
+     * @return  void
 	 */
 	function setMethod($method)
 	{
@@ -233,7 +276,10 @@ class Request{
 	}
     
 	/**
-	 * setUrl
+	 * setter url
+     *
+     * @access  public
+     * @return  void
 	 */
 	function setUrl($url)
 	{
@@ -241,15 +287,43 @@ class Request{
 	}
     
 	/**
-	 * setModified
+	 * setter modified
+     *
+     * @access  public
+     * @return  void
 	 */
 	function setModified($modified)
 	{
 		$this->modified = $modified;
 	}
+	
+    /**
+	 * setter onlyHeader
+     *
+     * @access  public
+     * @return  void
+	 */
+	function setOnlyHeader($onlyHeader)
+	{
+		$this->onlyHeader = $onlyHeader;
+	}
+    
+    /**
+	 * setter noUrlencodePost
+     *
+     * @access  public
+     * @return  void
+	 */
+	function setNoUrlencodePost($noUrlencodePost)
+	{
+		$this->noUrlencodePost = $noUrlencodePost;
+	}
     
 	/**
-	 * setHeaders
+	 * setter headers
+     *
+     * @access  public
+     * @return  void
 	 */
 	function setHeaders($headers)
 	{
@@ -257,7 +331,8 @@ class Request{
 	}
 
 	/**
-	 * is_safe_method
+     * @access  public
+     * @return  boolean
 	 */
 	function is_safe_method()
 	{
@@ -272,28 +347,36 @@ class Request{
 }
 
 /**
- * Response クラス
+ * WapResponse クラス
  */
-class Response{
+class WapResponse
+{
+	var $code    = null;    // リクエストの結果を示す数値
+	var $message = '';      // codeに対応する人間が読める短い文字列。
+	var $headers = array();	// 配列
+	var $content = null;    // 内容。任意のデータの固まり。
 
-	var $code; // リクエストの結果を示す数値
-	var $message;  // codeに対応する人間が読める短い文字列。
-	var $headers;	// 配列
-	var $content; // 内容。任意のデータの固まり。
-	
 	/**
-	 * コンストラクタ
+	 * @constructor
 	 */
-	function Response()
+	function WapResponse()
 	{
-		$code = false;
-		$message = '';
-		$content = false;
-		$headers = array();
 	}
-
+    
 	/**
-	 * is_success
+	 * setter content
+     *
+     * @access  public
+     * @return  void
+	 */
+	function setContent($content)
+	{
+		$this->content = $content;
+	}
+    
+	/**
+     * @access  public
+     * @return  boolean
 	 */
 	function is_success()
 	{
@@ -305,19 +388,21 @@ class Response{
 	}
 
 	/**
-	 * is_error
+     * @access  public
+     * @return  boolean
 	 */
 	function is_error()
 	{
-		if ($this->code == 200 || $this->code == 206 || $this->code == 304) {
-			return false;
-		} else {
+		if (!$this->code or !$this->is_success()) {
 			return true;
+		} else {
+			return false;
 		}
 	}
 
 	/**
-	 * is_redirect
+     * @access  public
+     * @return  boolean
 	 */
 	function is_redirect()
 	{
@@ -357,4 +442,3 @@ class Response{
 
 }
 
-?>

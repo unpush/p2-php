@@ -3,8 +3,8 @@
     ファイルをブラウザで編集する
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -109,6 +109,8 @@ function editFile($path, $encode)
     
     if ($modori_url) {
         $modori_url_ht = "<p><a href=\"{$modori_url}\">Back</a></p>\n";
+    } else {
+        $modori_url_ht = '';
     }
     
     // プリント

@@ -1,5 +1,5 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * スレッドあぼーんをオンオフする関数
@@ -15,7 +15,6 @@ function settaborn($host, $bbs, $key, $set)
 
     // {{{ key.idx 読み込む
     
-    // idxfileのパスを求めて
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $idxfile = "{$idx_host_dir}/{$bbs}/{$key}.idx";
     
@@ -38,6 +37,10 @@ function settaborn($host, $bbs, $key, $set)
     $taborn_lines = file($taborn_idx);
     
     $neolines = array();
+    
+    $aborn_attayo = false;
+    $title_msg_pre = '';
+    $info_msg_pre = '';
     
     if ($taborn_lines) {
         foreach ($taborn_lines as $line) {
@@ -68,7 +71,7 @@ function settaborn($host, $bbs, $key, $set)
     $cont = '';
     if (!empty($neolines)) {
         foreach ($neolines as $l) {
-            $cont .= $l."\n";
+            $cont .= $l . "\n";
         }
     }
     if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
@@ -82,4 +85,3 @@ function settaborn($host, $bbs, $key, $set)
     return true;
 }
 
-?>

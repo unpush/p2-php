@@ -14,7 +14,7 @@
     スレッド表示時のお気にスレ表示 → スレッド.idx を参照
 */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * お気にスレをセットする関数
@@ -22,7 +22,7 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
  * $set は、0(解除), 1(追加), top, up, down, bottom
  *
  * @access  public
- * @return  boolean  実行成否
+ * @return  boolean
  */
 function setFav($host, $bbs, $key, $setfav)
 {
@@ -33,7 +33,7 @@ function setFav($host, $bbs, $key, $setfav)
     $idxfile = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
 
     // 板ディレクトリが無ければ作る
-    // FileCtl::mkdir_for($idxfile);
+    // FileCtl::mkdirFor($idxfile);
 
     // 既にidxデータがあるなら読み込む
     if (file_exists($idxfile) and $lines = file($idxfile)) {
@@ -104,7 +104,7 @@ function setFav($host, $bbs, $key, $setfav)
     // 記録データ設定
     if ($setfav) {
         $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>1<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once (P2_LIBRARY_DIR . '/getsetposlines.inc.php');
+        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfav);
     } else {
         $rec_lines = $neolines;
@@ -145,7 +145,7 @@ function setFav($host, $bbs, $key, $setfav)
 /**
  * お気にスレ共有でポストする関数
  *
- * @return  boolean  実行成否
+ * @return  boolean
  */
 function postFavRank($post)
 {
@@ -208,4 +208,3 @@ function postFavRank($post)
     //return $body;
 }
 
-?>

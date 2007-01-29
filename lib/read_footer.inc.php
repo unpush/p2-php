@@ -3,13 +3,13 @@
     p2 -  スレッド表示 -  フッタ部分 -  for read.php
 */
 
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
 
 //=====================================================================
 // フッタ
 //=====================================================================
 
-if ($_conf['bottom_res_form']) {
+if ($_conf['bottom_res_form'] and empty($diedat_msg)) {
 
     $bbs        = $aThread->bbs;
     $key        = $aThread->key;
@@ -22,13 +22,13 @@ if ($_conf['bottom_res_form']) {
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
+    require_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
     
-    include_once P2_LIBRARY_DIR . '/post_form.inc.php';
+    require_once P2_LIB_DIR . '/post_form.inc.php';
 
     // フォーム
     $res_form_ht = <<<EOP
@@ -41,21 +41,27 @@ EOP;
  onMouseover="document.getElementById('kakiko').style.display = 'block';"
 EOP;
 
+} else {
+    $res_form_ht ='';
 }
+
 
 // ============================================================
 $sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
+
+$htm['dores'] = '';
+$res_form_ht_pb = '';
 
 if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
             $htm['dores'] = <<<EOP
-<a href="{$motothre_url}" target="_blank">{$dores_st}</a>
+<a href="{$motothre_url}" target="_blank" accesskey="p" title="アクセスキー[p]">{$dores_st}</a>
 EOP;
         } else {
             $htm['dores'] = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return !openSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht} accesskey="p" title="アクセスキー[p]">{$dores_st}</a>
 EOP;
         }
         $htm['dores'] = '<span style="white-space: nowrap;">' . $htm['dores'] . '</span>';
@@ -78,7 +84,7 @@ EOP;
     $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
     //}
     
-    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\" title=\"アクセスキー[r]\" style=\"white-space: nowrap;\">{$tuduki_st}</a>";
     */
     
     if (!empty($GLOBALS['last_hit_resnum'])) {
@@ -90,7 +96,7 @@ EOP;
         $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
 
         // 「続きを読む」
-        $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+        $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\" title=\"アクセスキー[r]\" style=\"white-space: nowrap;\">{$tuduki_st}</a>";
     }
     // }}}
     
@@ -101,21 +107,21 @@ EOP;
     <tr>
         <td align="left">
             {$q_ichi}
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a> 
+            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all" title="アクセスキー[a]">{$all_st}</a> 
             {$read_navi_previous} 
             {$read_navi_next} 
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
-            {$htm['goto']}
+            {$goto_ht}
             | {$read_footer_navi_new}
             | {$htm['dores']}
             {$htm['spd']}
         </td>
         <td align="right">
-            {$htm['p2frame']}
+            {$p2frame_ht}
             {$toolbar_right_ht}
         </td>
         <td align="right">
-            <a href="#header">▲</a>
+            <a href="#header" title="ページ上部へ移動">▲</a>
         </td>
     </tr>
 </table>
@@ -138,5 +144,3 @@ EOP;
 }
 
 echo '</body></html>';
-
-?>

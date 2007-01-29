@@ -3,15 +3,15 @@
     p2 - ƒ†[ƒUİ’è•ÒWUI
 */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
         P2Util::printSimpleHtml("p2 error: •s³‚Èƒ|ƒXƒg‚Å‚·");
-        die('');
+        die;
     }
 }
 
@@ -91,7 +91,6 @@ $me = P2Util::getMyUrl();
 //=====================================================================
 // ƒwƒbƒ_HTML‚ğƒvƒŠƒ“ƒg
 P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
@@ -103,16 +102,16 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/basic.js?v=20061206"></script>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
 EOP;
 }
 
-if (empty($_conf['ktai'])) {
-    @include("./style/style_css.inc");
-    @include("./style/edit_conf_user_css.inc");
+if (!$_conf['ktai']) {
+    include_once './style/style_css.inc';
+    include_once './style/edit_conf_user_css.inc';
 }
 
 echo <<<EOP
@@ -144,9 +143,7 @@ EOP;
 EOP;
 }
 
-// î•ñƒƒbƒZ[ƒW•\¦
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 echo <<<EOP
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
@@ -226,10 +223,14 @@ echo getEditConfHtml('bbs_win_target', 'p2‘Î‰BBSƒTƒCƒg“à‚ÅƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒ
 echo getEditConfHtml('bottom_res_form', 'ƒXƒŒƒbƒh‰º•”‚É‘‚«‚İƒtƒH[ƒ€‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('quote_res_view', 'ˆø—pƒŒƒX‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
 
+if (!$_conf['ktai']) {
+    echo getEditConfHtml('enable_headbar', 'PC ƒwƒbƒhƒo[‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
+}
+
 echo getEditConfHtml('k_rnum_range', 'Œg‘Ñ‰{——Aˆê“x‚É•\¦‚·‚éƒŒƒX‚Ì”');
 echo getEditConfHtml('ktai_res_size', 'Œg‘Ñ‰{——Aˆê‚Â‚ÌƒŒƒX‚ÌÅ‘å•\¦ƒTƒCƒY');
 echo getEditConfHtml('ktai_ryaku_size', 'Œg‘Ñ‰{——AƒŒƒX‚ğÈ—ª‚µ‚½‚Æ‚«‚Ì•\¦ƒTƒCƒY');
-echo getEditConfHtml('k_aa_ryaku_size', 'Œg‘Ñ‰{——AAA‚ç‚µ‚«ƒŒƒX‚ğÈ—ª‚·‚éƒTƒCƒYi0‚È‚ç–³Œøj');
+echo getEditConfHtml('k_aa_ryaku_size', 'Œg‘Ñ‰{——AAA‚ç‚µ‚«ƒŒƒX‚ğÈ—ª‚·‚éƒTƒCƒYi0‚È‚çÈ—ª‚µ‚È‚¢j');
 echo getEditConfHtml('before_respointer_k', 'Œg‘Ñ‰{——Aƒ|ƒCƒ“ƒ^‚Ì‰½ƒR‘O‚ÌƒŒƒX‚©‚ç•\¦‚·‚é‚©');
 echo getEditConfHtml('k_use_tsukin', 'Œg‘Ñ‰{——AŠO•”ƒŠƒ“ƒN‚É’Ê‹Îƒuƒ‰ƒEƒU(’Ê)‚ğ—˜—p(‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('k_use_picto', 'Œg‘Ñ‰{——A‰æ‘œƒŠƒ“ƒN‚Épic.to(Ëß)‚ğ—˜—p(‚·‚é, ‚µ‚È‚¢)');
@@ -266,7 +267,7 @@ echo getEditConfHtml('precede_openssl', 'œƒƒOƒCƒ“‚ğA‚Ü‚¸‚Íopenssl‚Å‚İ‚éB¦
 echo getEditConfHtml('precede_phpcurl', 'curl‚ğg‚¤AƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å‚ÆPHPŠÖ””Å‚Ç‚¿‚ç‚ğ—Dæ‚·‚é‚© (ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“”Å:0, PHPŠÖ””Å:1)');
 
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
 	echo getEditConfHtml('frame_menu_width', 'ƒtƒŒ[ƒ€¶ ”Âƒƒjƒ…[ ‚Ì•\¦•');
 	echo getEditConfHtml('frame_subject_width', 'ƒtƒŒ[ƒ€‰Eã ƒXƒŒˆê—— ‚Ì•\¦•');
 	echo getEditConfHtml('frame_read_width', 'ƒtƒŒ[ƒ€‰E‰º ƒXƒŒ–{•¶ ‚Ì•\¦•');
@@ -275,7 +276,7 @@ if (empty($_conf['ktai'])) {
 
 echo $htm['form_submit'];
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo '</table>' . "\n";
 }
 
@@ -426,7 +427,7 @@ function getEditConfHtml($name, $description_ht)
     }
     
     // select ‘I‘ğŒ`®‚È‚ç
-    if ($conf_user_sel[$name]) {
+    if (isset($conf_user_sel[$name])) {
         $form_ht = getEditConfSelHtml($name);
         $key = $conf_user_def[$name];
         $def_views[$name] = htmlspecialchars($conf_user_sel[$name][$key], ENT_QUOTES);
@@ -473,6 +474,7 @@ function getEditConfSelHtml($name)
 {
     global $_conf, $conf_user_def, $conf_user_sel;
 
+    $options_ht = '';
     foreach ($conf_user_sel[$name] as $key => $value) {
         /*
         if ($value == "") {
@@ -496,4 +498,3 @@ EOP;
     return $form_ht;
 }
 
-?>

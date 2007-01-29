@@ -3,9 +3,9 @@
     p2 -  板メニュー 携帯用
 */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/brdctl.class.php';
-require_once P2_LIBRARY_DIR . '/showbrdmenuk.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/brdctl.class.php';
+require_once P2_LIB_DIR . '/showbrdmenuk.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -19,11 +19,11 @@ $GLOBALS['menu_show_ita_num'] = 0;
 BrdCtl::parseWord(); // set $GLOBALS['word']
 
 //============================================================
-// 特殊な前置処理
+// 特殊な前処理
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -33,11 +33,14 @@ if (isset($_GET['setfavita'])) {
 $aShowBrdMenuK =& new ShowBrdMenuK();
 
 //============================================================
-// ヘッダ
+// ヘッダHTMLを表示
 //============================================================
-if ($_GET['view'] == "favita") {
+
+$get['view'] = isset($_GET['view']) ? $_GET['view'] : null;
+
+if ($get['view'] == "favita") {
     $ptitle = "お気に板";
-} elseif ($_GET['view'] == "cate"){
+} elseif ($get['view'] == "cate"){
     $ptitle = "板ﾘｽﾄ";
 } elseif (isset($_GET['cateid'])) {
     $ptitle = "板ﾘｽﾄ";
@@ -45,9 +48,8 @@ if ($_GET['view'] == "favita") {
     $ptitle = "ﾕﾋﾞｷﾀｽp2";
 }
 
-P2Util::header_content_type();
+echo $_conf['doctype'];
 echo <<<EOP
-{$_conf['doctype']}
 <html>
 <head>
     {$_conf['meta_charset_ht']}
@@ -57,27 +59,23 @@ EOP;
 
 echo "</head><body>\n";
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
-// お気に板をプリントする
-if ($_GET['view'] == 'favita') {
+// お気に板をHTML表示する
+if ($get['view'] == 'favita') {
     $aShowBrdMenuK->printFavItaHtml();
 
 // それ以外ならbrd読み込み
 } else {
-    $brd_menus = BrdCtl::read_brds();
+    $brd_menus = BrdCtl::readBrdMenus();
 }
 
-// {{{ 板検索フォームをHTML表示
-
-if ($_GET['view'] != 'favita' && $_GET['view'] != 'rss' && empty($_GET['cateid'])) {
+// 板検索フォームをHTML表示
+if ($get['view'] != 'favita' && $get['view'] != 'rss' && empty($_GET['cateid'])) {
     
     echo BrdCtl::getMenuKSearchFormHtml();
-
     echo '<br>';
 }
-
-// }}}
 
 //===========================================================
 // 検索結果をHTML表示
@@ -86,10 +84,10 @@ if ($_GET['view'] != 'favita' && $_GET['view'] != 'rss' && empty($_GET['cateid']
 
 if (strlen($GLOBALS['word']) > 0) {
 
-    $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
+    $word_hs = htmlspecialchars($word, ENT_QUOTES);
 
     if ($GLOBALS['ita_mikke']['num']) {
-        $hit_ht = "<br>\"{$hd['word']}\" {$GLOBALS['ita_mikke']['num']}hit!";
+        $hit_ht = "<br>\"{$word_hs}\" {$GLOBALS['ita_mikke']['num']}hit!";
     }
     echo "板ﾘｽﾄ検索結果{$hit_ht}<hr>";
 
@@ -101,7 +99,7 @@ if (strlen($GLOBALS['word']) > 0) {
     }
 
     if (!$GLOBALS['ita_mikke']['num']) {
-        P2Util::pushInfoMsgHtml("<p>\"{$hd['word']}\"を含む板は見つかりませんでした。</p>");
+        P2Util::pushInfoHtml("<p>\"{$word_hs}\"を含む板は見つかりませんでした。</p>");
     }
     $modori_url_ht = <<<EOP
 <div><a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">板ﾘｽﾄ</a></div>
@@ -109,23 +107,19 @@ EOP;
 }
 
 // }}}
-// {{{ カテゴリをHTML表示
 
-if ($_GET['view'] == 'cate' or isset($_REQUEST['word']) && strlen($GLOBALS['word']) == 0) {
+// カテゴリをHTML表示
+if ($get['view'] == 'cate' or isset($_REQUEST['word']) && strlen($GLOBALS['word']) == 0) {
     echo "板ﾘｽﾄ<hr>";
     if ($brd_menus) {
         foreach ($brd_menus as $a_brd_menu) {
             $aShowBrdMenuK->printCate($a_brd_menu->categories);
         }
     }
-
 }
 
-// }}}
 
-//==============================================================
 // カテゴリの板をHTML表示
-//==============================================================
 if (isset($_GET['cateid'])) {
     if ($brd_menus) {
         foreach ($brd_menus as $a_brd_menu) {
@@ -137,9 +131,11 @@ if (isset($_GET['cateid'])) {
 EOP;
 }
 
-    
-P2Util::printInfoMsgHtml();
 
+P2Util::printInfoHtml();
+
+!isset($GLOBALS['list_navi_ht']) and $GLOBALS['list_navi_ht'] = null;
+!isset($modori_url_ht) and $modori_url_ht = null;
 
 // フッタをHTML表示
 echo '<hr>';
@@ -148,4 +144,3 @@ echo $modori_url_ht;
 echo $_conf['k_to_index_ht'];
 echo '</body></html>';
 
-?>

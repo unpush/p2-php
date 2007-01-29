@@ -2,17 +2,20 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-// アクセス元ホストをチェックする関数群クラス
-
 require_once 'conf/conf_hostcheck.php';
 
+/**
+ * アクセス元ホストをチェックするクラス
+ * スタティックメソッドで利用する
+ */
 class HostCheck
 {
-
     /**
-     * アクセス禁止のメッセージを表示して終了する
+     * アクセス禁止のメッセージを表示して、PHPの実行を終了する
      *
      * @return  void
+     * @access  public
+     * @static
      */
     function forbidden()
     {
@@ -23,9 +26,9 @@ class HostCheck
     <title>403 Forbidden</title>
 </head>
 <body>
-<h1>アク禁。</h1>
-<p>{$_SERVER['REMOTE_ADDR']}からp2へのアクセスは許可されていません。<br>
-もしあなたがこのp2のオーナーなら、conf_hostcheck.phpの設定を見直してください。</p>
+<h1>p2 info: アクセス禁止</h1>
+<p>IP {$_SERVER['REMOTE_ADDR']} からのアクセスは許可されていません。<br>
+もしあなたがこのp2の設置者であれば、conf_hostcheck.phpの設定を見直してください。</p>
 </body>
 </html>
 EOF;
@@ -38,6 +41,8 @@ EOF;
      *
      * @param   string  $ip
      * @return  int|bool
+     * @access  private
+     * @static
      */
     function ip2long($ip)
     {
@@ -51,6 +56,10 @@ EOF;
 
     /**
      * ローカルキャッシュつきgethostbyaddr()
+     *
+     * @return  string
+     * @access  private
+     * @static
      */
     function cachedGetHostByAddr($remote_addr)
     {
@@ -65,6 +74,10 @@ EOF;
 
     /**
      * ローカルキャッシュつきgethostbyname()
+     *
+     * @return  string
+     * @access  private
+     * @static
      */
     function cachedGetHostByName($remote_host)
     {
@@ -79,6 +92,10 @@ EOF;
 
     /**
      * cachedGetHostByAddr/cachedGetHostByName のキャッシュエンジン
+     *
+     * @return  string
+     * @access  private
+     * @static
      */
     function _cachedGetHost($remote, $function, $cache_file)
     {
@@ -132,6 +149,10 @@ EOF;
     /**
      * アクセスが許可されたIPアドレス帯域なら true を返す
      * (false = アク禁)
+     *
+     * @return  boolean
+     * @access  public
+     * @static
      */
     function getHostAuth()
     {
@@ -170,6 +191,10 @@ EOF;
     /**
      * BBQに焼かれているIPアドレスなら true を返す
      * (true = アク禁)
+     *
+     * @return  boolean
+     * @access  public
+     * @static
      */
     function getHostBurned()
     {
@@ -188,7 +213,11 @@ EOF;
 
 
     /**
-     * マスク長をサブネットマスクに変換
+     * マスク長をサブネットマスクに変換する
+     *
+     * @return  string
+     * @access  private
+     * @static
      */
     function length2subnet($length)
     {
@@ -208,7 +237,11 @@ EOF;
 
 
     /**
-     * ローカルホスト?
+     * IPは ローカルホスト?
+     *
+     * @return  boolean
+     * @access  private
+     * @static
      */
     function isAddrLocal()
     {
@@ -219,7 +252,10 @@ EOF;
     /**
      * ホストがBBQに焼かれているか?
      *
-     * @link http://bbq.uso800.net/
+     * @link  http://bbq.uso800.net/code.html
+     * @return  boolean  焼かれていたらtrueを返す
+     * @access  private
+     * @static
      */
     function isAddrBurned($addr = null)
     {
@@ -268,6 +304,10 @@ EOF;
      * 1. IPアドレス(+スラッシュで区切ってマスク長もしくはサブネットマスク)の文字列
      * 2. (1)の配列
      * 3. IPアドレスをキーとし、マスク長もしくはサブネットマスクを値にとる連想配列
+     *
+     * @return  boolean
+     * @access  private
+     * @static
      */
     function isAddrInBand($addr, $band = null, $regex = null)
     {
@@ -322,9 +362,12 @@ EOF;
     }
 
     /**
-     * プライベートアドレス?
+     * IPは プライベートアドレス?
      *
      * @see RFC1918
+     * @return  boolean
+     * @access  private
+     * @static
      */
     function isAddrPrivate($addr = '', $class = '')
     {
@@ -333,22 +376,25 @@ EOF;
         }
         $class = ($class) ? strtoupper($class) : 'ABC';
         $private = array();
-        if (strstr($class, 'A')) {
+        if (strpos($class, 'A') !== false) {
             $private[] = '10.0.0.0/8';
         }
-        if (strstr($class, 'B')) {
+        if (strpos($class, 'B') !== false) {
             $private[] = '172.16.0.0/12';
         }
-        if (strstr($class, 'C')) {
+        if (strpos($class, 'C') !== false) {
             $private[] = '192.168.0.0/16';
         }
         return HostCheck::isAddrInBand($addr, $private);
     }
 
     /**
-     * DoCoMo?
+     * IPは DoCoMo?
      *
-     * @link http://www.nttdocomo.co.jp/p_s/imode/ip/
+     * @link  http://www.nttdocomo.co.jp/service/imode/make/content/ip/about/
+     * @return  boolean
+     * @access  public
+     * @static
      */
     function isAddrDocomo($addr = null)
     {
@@ -356,19 +402,27 @@ EOF;
             $addr = $_SERVER['REMOTE_ADDR'];
         }
         $iHost = '/^proxy[0-9a-f]\d\d\.docomo\.ne\.jp$/';
+        
+        // @update 2006/12/04
         $iBand = array(
             '210.153.84.0/24',
             '210.136.161.0/24',
-
+            '210.153.86.0/24',
+            
+            '210.153.87.0/24', // フルブラウザ
+            
             '210.143.108.0/24', // jig 2005/6/23
         );
         return HostCheck::isAddrInBand($addr, $iBand, $iHost);
     }
 
     /**
-     * au?
+     * IPは au?
      *
      * @link http://www.au.kddi.com/ezfactory/tec/spec/ezsava_ip.html
+     * @return  boolean
+     * @access  public
+     * @static
      */
     function isAddrAu($addr = null)
     {
@@ -376,11 +430,9 @@ EOF;
             $addr = $_SERVER['REMOTE_ADDR'];
         }
         $ezHost = '/^wb\d\dproxy\d\d\.ezweb\.ne\.jp$/';
+        
+        // @update 2006/12/04
         $ezBand = array(
-            '61.117.0.0/24',
-            '61.117.1.0/24',
-            '61.117.2.0/26',
-            '61.202.3.0/24',
             '210.169.40.0/24',
             '210.196.3.192/26',
             '210.196.5.192/26',
@@ -394,6 +446,10 @@ EOF;
             '211.5.2.128/25',
             '211.5.7.0/24',
             '218.222.1.0/24',
+            '61.117.0.0/24',
+            '61.117.1.0/24',
+            '61.117.2.0/26',
+            '61.202.3.0/24',
             '219.108.158.0/26',
             '219.125.148.0/24',
             '222.5.63.0/24',
@@ -401,35 +457,52 @@ EOF;
             '222.5.62.128/25',
             '222.7.57.0/24',
             '59.135.38.128/25',
+            '219.108.157.0/25',
             
             '210.143.108.0/24', // jig 2005/6/23
         );
         return HostCheck::isAddrInBand($addr, $ezBand, $ezHost);
     }
 
-
     /**
-     * Vodafone?
-     *
-     * @link http://developers.vodafone.jp/dp/tech_svc/web/ip.php
-     * @link http://qb5.2ch.net/test/read.cgi/operate/1116860379/100-125
+     * @deprecated  06-11-30
      */
     function isAddrVodafone($addr = null)
+    {
+        return HostCheck::isAddrSoftBank($addr);
+    }
+    
+    /**
+     * IPは SoftBank?
+     *
+     * @link http://developers.softbankmobile.co.jp/dp/tech_svc/web/ip.php
+     * @link http://qb5.2ch.net/test/read.cgi/operate/1116860379/100-125
+     * @return  boolean
+     * @access  public
+     * @static
+     */
+    function isAddrSoftBank($addr = null)
     {
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $vHost = '/\.(skyweb\.jp-[a-z]|vodafone)\.ne\.jp$/'; // よく分かってないので大雑把
+        // よく分かってないので大雑把
+        $yHost = '/\.(jp-[a-z]|[a-z]\.vodafone|pcsitebrowser)\.ne\.jp$/';
+        
+        // @update 2006/12/04
+        // 2006/12/20（予定）までの更新データ
         $vBand = array(
+            '202.179.204.0/24',
+            '202.253.96.248/29',
             '210.146.7.192/26',
             '210.146.60.192/26',
             '210.151.9.128/26',
+            '210.169.130.112/29',
+            '210.169.130.120/29',
             '210.169.176.0/24',
-            '210.169.193.192/26',
             '210.175.1.128/25',
             '210.228.189.0/24',
             '211.8.159.128/25',
-            '211.127.183.0/24',
 
             '210.146.60.128/25', // 非公式ながら追加
 
@@ -438,23 +511,13 @@ EOF;
         return HostCheck::isAddrInBand($addr, $vBand, $vHost);
     }
 
-
     /**
-     * WILLCOM? (old name)
-     *
-     * @deprecated  06-02-17
-     * @see isAddrWillcom()
-     */
-    function isAddrAirh($addr = null)
-    {
-        return HostCheck::isAddrWillcom($addr);
-    }
-
-
-    /**
-     * WILLCOM?
+     * IPは WILLCOM?
      *
      * @link http://www.willcom-inc.com/ja/service/contents_service/club_air_edge/for_phone/ip/index.html
+     * @return  boolean
+     * @access  public
+     * @static
      */
     function isAddrWillcom($addr = null)
     {
@@ -462,6 +525,8 @@ EOF;
             $addr = $_SERVER['REMOTE_ADDR'];
         }
         $wHost = '/^[Pp]\d{12}\.ppp\.prin\.ne\.jp$/';
+        
+        // @update 2006/12/04
         $wBand = array(
             '61.198.142.0/24',
             '61.198.161.0/24',
@@ -470,37 +535,37 @@ EOF;
             '61.198.253.0/24',
             '61.198.254.0/24',
             '61.198.255.0/24',
-            '61.204.0.0/24',
             '61.204.3.0/25',
             '61.204.4.0/24',
             '61.204.6.0/25',
-            '125.28.0.0/24',
-            '125.28.1.0/24',
-            '125.28.2.0/24',
-            '125.28.3.0/24',
             '125.28.4.0/24',
             '125.28.5.0/24',
             '125.28.6.0/24',
             '125.28.7.0/24',
             '125.28.8.0/24',
-            '210.168.246.0/24',
-            '210.168.247.0/24',
-            '211.18.232.0/24',
-            '211.18.233.0/24',
             '211.18.235.0/24',
-            '211.18.236.0/24',
-            '211.18.237.0/24',
             '211.18.238.0/24',
             '211.18.239.0/24',
+            '125.28.11.0/24',
+            '125.28.12.0/24',
+            '125.28.2.0/24',
+            '211.18.232.0/24',
+            '211.18.236.0/24',
+            '125.28.0.0/24',
+            '61.204.0.0/24',
+            '210.168.247.0/24',
+            '61.204.2.0/24',
+            '61.198.129.0/24',
+            '61.198.141.0/24',
+            
+            '219.108.14.0/24',
             '219.108.0.0/24',
             '219.108.1.0/24',
-            '219.108.14.0/24',
             '219.108.2.0/24',
             '219.108.3.0/24',
             '219.108.4.0/24',
             '219.108.5.0/24',
             '219.108.6.0/24',
-            '219.108.7.0/24',
             '221.119.0.0/24',
             '221.119.1.0/24',
             '221.119.2.0/24',
@@ -511,15 +576,29 @@ EOF;
             '221.119.7.0/24',
             '221.119.8.0/24',
             '221.119.9.0/24',
-            
-            // 2006/8/17 追加分
-            '61.204.2.0/24',
+            '125.28.13.0/24',
+            '125.28.14.0/24',
+            '125.28.3.0/24',
+            '211.18.233.0/24',
+            '211.18.237.0/24',
+            '125.28.1.0/24',
+            '210.168.246.0/24',
+            '219.108.7.0/24',
             '61.204.5.0/24',
-            '61.198.129.0/24',
-            '61.198.130.0/24',
             '61.198.140.0/24',
-            '61.198.141.0/24',
             '125.28.15.0/24',
+            
+            '61.198.165.0/24',
+            '61.198.168.0/24',
+            '61.198.170.0/24',
+            '125.28.16.0/24',
+            '211.18.234.0/24',
+            
+            '61.198.166.0/24',
+            '61.198.169.0/24',
+            '61.198.248.0/24',
+            '125.28.17.0/24',
+            '219.108.8.0/24',
             
             '210.143.108.0/24', // jig 2005/6/23
         );
@@ -527,5 +606,3 @@ EOF;
     }
 
 }
-
-?>

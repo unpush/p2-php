@@ -3,16 +3,16 @@
  *    p2 - 2ch●ログイン管理
  */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
 //================================================================
 // 変数
 //================================================================
-if (isset($_POST['login2chID']))   { $login2chID = $_POST['login2chID']; }
-if (isset($_POST['login2chPW']))   { $login2chPW = $_POST['login2chPW']; }
+if (isset($_POST['login2chID']))   { $login2chID   = $_POST['login2chID']; }
+if (isset($_POST['login2chPW']))   { $login2chPW   = $_POST['login2chPW']; }
 if (isset($_POST['autoLogin2ch'])) { $autoLogin2ch = $_POST['autoLogin2ch']; }
 
 //===============================================================
@@ -28,7 +28,7 @@ if (isset($_POST['login2chID']) && isset($_POST['login2chPW'])) {
 
     P2Util::saveIdPw2ch($_POST['login2chID'], $_POST['login2chPW'], $autoLogin2ch);
 
-    include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+    require_once P2_LIB_DIR . '/login2ch.inc.php';
     login2ch();
 }
 
@@ -42,7 +42,7 @@ if ($array = P2Util::readIdPw2ch()) {
 //==============================================================
 if (isset($_GET['login2ch'])) {
     if ($_GET['login2ch'] == "in") {
-        include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+        require_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     } elseif ($_GET['login2ch'] == "out") {
         if (file_exists($_conf['sid2ch_php'])) {
@@ -76,7 +76,6 @@ if (!$_conf['ktai']) {
 }
 
 P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
@@ -89,10 +88,10 @@ echo <<<EOP
 EOP;
 
 if (!$_conf['ktai']) {
-    @include("./style/style_css.inc");
-    @include("./style/login2ch_css.inc");
+    include_once './style/style_css.inc';
+    include_once './style/login2ch_css.inc';
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/basic.js?v=20061206"></script>
 EOP;
 }
 
@@ -119,8 +118,7 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 //================================================================
 // 2ch●ログインフォーム
@@ -155,7 +153,9 @@ EOFORM;
 }
 
 if ($autoLogin2ch) {
-    $autoLogin2ch_checked = " checked=\"true\"";
+    $autoLogin2ch_checked = ' checked="true"';
+} else {
+    $autoLogin2ch_checked = '';
 }
 
 $tora3_url = "http://2ch.tora3.net/";
@@ -164,9 +164,12 @@ $tora3_url_r = P2Util::throughIme($tora3_url);
 if (!$_conf['ktai']) {
     $id_input_size_at = " size=\"30\"";
     $pass_input_size_at = " size=\"24\"";
+} else {
+    $id_input_size_at = '';
+    $pass_input_size_at = '';
 }
 
-// プリント =================================
+// HTMLプリント
 echo "<div id=\"login_status\">";
 echo $form_now_log;
 echo "</div>";
@@ -204,4 +207,3 @@ if ($_conf['ktai']) {
 
 echo '</body></html>';
 
-?>

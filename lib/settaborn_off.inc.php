@@ -1,5 +1,5 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * スレッドあぼーんを複数一括解除する関数
@@ -79,4 +79,3 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     return true;
 }
 
-?>

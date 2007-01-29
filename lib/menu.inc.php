@@ -6,31 +6,31 @@
     menu.php, menu_side.php より読み込まれる
 */
 
-require_once P2_LIBRARY_DIR . '/brdctl.class.php';
-require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
+require_once P2_LIB_DIR . '/brdctl.class.php';
+require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
 
 $_login->authorize(); // ユーザ認証
 
-//==============================================================
-// 変数設定
-//==============================================================
+
+// {{{ 変数設定
+
 $me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
-// menu_side.php の URL。（ローカルパス指定はできないようだ）
+// menu_side.php の URL。（相対パス指定はできないようだ）
 $menu_side_url = $me_dir_url . '/menu_side.php';
-
-$brd_menus = array();
 
 BrdCtl::parseWord(); // set $GLOBALS['word']
 
-//============================================================
-// 特殊な前処理
-//============================================================
+// }}}
+// {{{ 特殊な前処理
+
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
+
+// }}}
 
 //================================================================
 // メイン
@@ -38,13 +38,12 @@ if (isset($_GET['setfavita'])) {
 $aShowBrdMenuPc =& new ShowBrdMenuPc();
 
 //============================================================
-// ヘッダ
+// ヘッダHTML表示
 //============================================================
 $reloaded_time = date('n/j G:i:s'); // 更新時刻
 $ptitle = 'p2 - menu';
 
 P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
@@ -68,49 +67,18 @@ echo <<<EOP
     <base target="subject">
 EOP;
 
-@include "./style/style_css.inc";
-@include "./style/menu_css.inc";
+include_once "./style/style_css.inc";
+include_once "./style/menu_css.inc";
 
-echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/showhide.js"></script>
-    <script language="JavaScript">
-    <!--
-    function addSidebar(title, url) {
-       if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
-          window.sidebar.addPanel(title, url, '');
-       } else {
-          goNetscape();
-       }                                                                         
-    }
-    function goNetscape()
-    {
-    //  var rv = window.confirm ("This page is enhanced for use with Netscape 7.  " + "Would you like to upgrade now?");
-       var rv = window.confirm ("このページは Netscape 7 用に拡張されています.  " + "今すぐアップデートしますか?");
-       if (rv)
-          document.location.href = "http://home.netscape.com/ja/download/download_n6.html";
-    }
-    
-    function chUnColor(idnum){
-        unid='un'+idnum;
-        document.getElementById(unid).style.color="{$STYLE['menu_color']}";
-    }
-    
-    function chMenuColor(idnum){
-        newthreid='newthre'+idnum;
-        if(document.getElementById(newthreid)){document.getElementById(newthreid).style.color="{$STYLE['menu_color']}";}
-        unid='un'+idnum;
-        document.getElementById(unid).style.color="{$STYLE['menu_color']}";
-    }
-    
-    // -->
-    </script>\n
-EOSCRIPT;
+echo '<script type="text/javascript" src="js/showhide.js"></script>' . "\n";
+printHeaderJs();
+
 echo <<<EOP
 </head>
 <body>
 EOP;
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
 if (!empty($sidebar)) {
     echo <<<EOP
@@ -120,17 +88,16 @@ EOP;
 
 if ($_conf['enable_menu_new']) {
     echo <<<EOP
-$reloaded_time [<a href="{$_SERVER['SCRIPT_NAME']}?new=1" target="_self">更新</a>]
+$reloaded_time <span style="white-space:nowrap;">[<a href="{$_SERVER['SCRIPT_NAME']}?new=1" target="_self">更新</a>]</span>
 EOP;
 }
 
-//==============================================================
-// お気に板をプリントする
-//==============================================================
+
+// お気に板をHTML表示する
 $aShowBrdMenuPc->printFavItaHtml();
 
 //==============================================================
-// 特別
+// 特別をHTML表示
 //==============================================================
 $norefresh_q = '&amp;norefresh=true';
 
@@ -140,7 +107,7 @@ echo <<<EOP
 EOP;
 
 // 新着数を表示する場合
-if ($_conf['enable_menu_new'] == 1 and $_GET['new']) {
+if ($_conf['enable_menu_new'] == 1 and !empty($_GET['new'])) {
 
     initMenuNewSp("fav");    // 新着数を初期化
     echo <<<EOP
@@ -173,34 +140,31 @@ echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}" title="DAT落ちしたスレ用のお気に入り">スレの殿堂</a><br>
     　<a href="setting.php">ログイン管理</a><br>
     　<a href="editpref.php">設定管理</a><br>
-    　<a href="http://find.2ch.net/" target="_blank" title="2ch公式検索">find.2ch.net</a>
+    　<a href="http://find.2ch.net/" target="_blank" title="find.2ch.net">2ch検索</a>
     </div>
 </div>\n
 EOP;
 
 //==============================================================
-// カテゴリと板を表示
+// カテゴリと板をHTML表示
 //==============================================================
-// brd読み込み
-$brd_menus = BrdCtl::read_brds();
+$brd_menus = BrdCtl::readBrdMenus();
 
-//===========================================================
-// プリント
-//===========================================================
+$word_hs = '';
 
 // {{{ 検索ワードがあれば
 
 if (strlen($GLOBALS['word']) > 0) {
 
-    $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
+    $word_hs = htmlspecialchars($word, ENT_QUOTES);
     
     $msg_ht =  '<p>';
     if (empty($GLOBALS['ita_mikke']['num'])) {
         if (empty($GLOBALS['threti_match_ita_num'])) {
-            $msg_ht .=  "\"{$hd['word']}\"を含む板は見つかりませんでした。\n";
+            $msg_ht .=  "\"{$word_hs}\"を含む板は見つかりませんでした。\n";
         }
     } else {
-        $msg_ht .=  "\"{$hd['word']}\"を含む板 {$GLOBALS['ita_mikke']['num']}hit!\n";
+        $msg_ht .=  "\"{$word_hs}\"を含む板 {$GLOBALS['ita_mikke']['num']}hit!\n";
         
         // 検索結果が一つなら、自動で板一覧を開く
         if ($GLOBALS['ita_mikke']['num'] == 1) {
@@ -216,34 +180,33 @@ EOP;
     }
     $msg_ht .= '</p>';
     
-    P2Util::pushInfoMsgHtml($msg_ht);
+    P2Util::pushInfoHtml($msg_ht);
 }
 
 // }}}
 
-P2Util::printInfoMsgHtml();
+P2Util::printInfoHtml();
 
-// 板検索フォームを表示
+// 板検索フォームをHTML表示
 echo <<<EOFORM
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
     <input type="hidden" name="detect_hint" value="◎◇">
     <p>
-        <input type="text" id="word" name="word" value="{$hd['word']}" size="14">
+        <input type="text" id="word" name="word" value="{$word_hs}" size="14">
         <input type="submit" name="submit" value="板検索">
     </p>
 </form>\n
 EOFORM;
 
-// 板カテゴリメニューを表示
+// 板カテゴリメニューをHTML表示
 if ($brd_menus) {
     foreach ($brd_menus as $a_brd_menu) {
         $aShowBrdMenuPc->printBrdMenu($a_brd_menu->categories);
     }
 }
 
-//==============================================================
-// フッタを表示
-//==============================================================
+
+// {{{ フッタHTMLを表示
 
 // for Mozilla Sidebar
 if (empty($sidebar)) {
@@ -260,16 +223,22 @@ EOP;
 
 echo '</body></html>';
 
+// }}}
+
 
 //==============================================================
 // 関数 （このファイル内でのみ利用）
 //==============================================================
 /**
  * spmode用のmenuの新着数を初期化する
+ *
+ * @return  void
  */
 function initMenuNewSp($spmode_in)
 {
     global $shinchaku_num, $matome_i, $host, $bbs, $spmode, $STYLE, $class_newres_num;
+    global $_conf;
+    
     $matome_i++;
     $host = "";
     $bbs = "";
@@ -282,4 +251,57 @@ function initMenuNewSp($spmode_in)
     }
 }
 
-?>
+/**
+ * ヘッダ内のJavaScriptをHTMLプリントする
+ *
+ * @return  void
+ */
+function printHeaderJs()
+{
+    global $STYLE;
+    
+    echo <<<EOSCRIPT
+    <script language="JavaScript">
+    <!--
+    function addSidebar(title, url)
+    {
+       if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
+          window.sidebar.addPanel(title, url, '');
+       } else {
+          goNetscape();
+       }
+    }
+    
+    function goNetscape()
+    {
+        // var rv = window.confirm ("This page is enhanced for use with Netscape 7.  " + "Would you like to upgrade now?");
+        var rv = window.confirm ("このページは Netscape 7 用に拡張されています.  " + "今すぐアップデートしますか?");
+        if (rv) {
+           document.location.href = "http://home.netscape.com/ja/download/download_n6.html";
+        }
+    }
+    
+    function chUnColor(idnum)
+    {
+        var unid = 'un'+idnum;
+        document.getElementById(unid).style.color="{$STYLE['menu_color']}";
+    }
+    
+    function chMenuColor(idnum)
+    {
+        var newthreid = 'newthre'+idnum;
+        if (document.getElementById(newthreid)) {
+            document.getElementById(newthreid).style.color = "{$STYLE['menu_color']}";
+        }
+        unid = 'un'+idnum;
+        document.getElementById(unid).style.color = "{$STYLE['menu_color']}";
+    }
+    
+    function confirmSetFavIta(itaj)
+    {
+        return window.confirm('「' + itaj + '」をお気に板から外しますか？');
+    }
+    // -->
+    </script>\n
+EOSCRIPT;
+}

@@ -2,6 +2,8 @@
 // p2 ースタイル設定
 // for menu
 
+$STYLE['menu_background'] = isset($STYLE['menu_background']) ? $STYLE['menu_background'] : '';
+
 echo <<<EOP
 
 <style type="text/css" media="all">
@@ -46,4 +48,3 @@ echo <<<EOP
 </style>
 
 EOP;
-?>

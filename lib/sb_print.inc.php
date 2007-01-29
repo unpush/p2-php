@@ -22,6 +22,7 @@ function sb_print(&$aThreadList)
     // 変数 ================================================
     
     // >>1 表示
+    $onlyone_bool = false;
     if (($_conf['sb_show_one'] == 1) or ($_conf['sb_show_one'] == 2 and ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus")) {
         // spmodeは除く
         if (empty($aThreadList->spmode)) {
@@ -32,27 +33,31 @@ function sb_print(&$aThreadList)
     // チェックボックス
     if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
         $checkbox_bool = true;
+    } else {
+        $checkbox_bool = false;
     }
     
     // 板名
     if ($aThreadList->spmode and $aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko") {
         $ita_name_bool = true;
+    } else {
+        $ita_name_bool = false;
     }
 
     $norefresh_q = "&amp;norefresh=true";
 
     // ソート ==================================================
     
-    // 現在のソート形式をclass指定でCSSカラーリング ======================
-    $class_sort_midoku = "";    // 新着
-    $class_sort_res = "";       // レス
-    $class_sort_no = "";        // No.
-    $class_sort_title = "";     // タイトル
-    $class_sort_ita = "";       // 板
-    $class_sort_spd = "";       // すばやさ
-    $class_sort_ikioi = "";     // 勢い
-    $class_sort_bd = "";        // Birthday
-    $class_sort_fav = "";       // お気に入り
+    // 現在のソート形式をclass指定でCSSカラーリング
+    $class_sort_midoku  = "";   // 新着
+    $class_sort_res     = "";   // レス
+    $class_sort_no      = "";   // No.
+    $class_sort_title   = "";   // タイトル
+    $class_sort_ita     = "";   // 板
+    $class_sort_spd     = "";   // すばやさ
+    $class_sort_ikioi   = "";   // 勢い
+    $class_sort_bd      = "";   // Birthday
+    $class_sort_fav     = "";   // お気に入り
     if ($GLOBALS['now_sort']) {
         $nowsort_code = <<<EOP
 \$class_sort_{$GLOBALS['now_sort']}=' class="now_sort"';
@@ -73,10 +78,10 @@ EOP;
         $sortq_ita = "&amp;bbs={$aThreadList->bbs}";
     }
     
-    $midoku_sort_ht = "<td class=\"tu\" nowrap><a{$class_sort_midoku} href=\"{$_conf['subject_php']}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">新着</a></td>";
+    $midoku_sort_ht = "<td class=\"tu\" nowrap><a{$class_sort_midoku} href=\"{$_conf['subject_php']}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\" style=\"white-space:nowrap;\"><nobr>新着</nobr></a></td>";
 
     //=====================================================
-    // テーブルヘッダ
+    // テーブルヘッダHTML表示
     //=====================================================
     echo "<tr class=\"tableheader\">\n";
     
@@ -109,7 +114,7 @@ EOP;
     }
     // 勢い
     if ($_conf['sb_show_ikioi']) {
-        echo "<td class=\"ti\"><a{$class_sort_ikioi} href=\"{$_conf['subject_php']}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">勢い</a></td>";
+        echo "<td class=\"ti\"><a{$class_sort_ikioi} href=\"{$_conf['subject_php']}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\" title=\"一日あたりのレス数\">勢い</a></td>";
     }
     // Birthday
     echo "<td class=\"t\"><a{$class_sort_bd} href=\"{$_conf['subject_php']}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">Birthday</a></td>";
@@ -127,7 +132,10 @@ EOP;
     //spmodeがあればクエリー追加
     if ($aThreadList->spmode) {
         $spmode_q = "&amp;spmode={$aThreadList->spmode}";
+    } else {
+        $spmode_q = '';
     }
+    
     $sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
     
     $i = 0;
@@ -136,8 +144,10 @@ EOP;
         $midoku_ari = "";
         $anum_ht = ""; // #r1
         
-        $bbs_q = "&amp;bbs=".$aThread->bbs;
-        $key_q = "&amp;key=".$aThread->key;
+        $offline_q = '';
+        
+        $bbs_q = "&amp;bbs=" . $aThread->bbs;
+        $key_q = "&amp;key=" . $aThread->key;
 
         if ($aThreadList->spmode != "taborn") {
             if (!$aThread->torder) { $aThread->torder = $i; }
@@ -195,26 +205,28 @@ EOP;
 
         }
         
-        $unum_ht = "<td{$class_tu}>".$unum_ht_c."</td>";
+        $unum_ht = "<td{$class_tu}>" . $unum_ht_c . "</td>";
         
-        // 総レス数 =============================================
+        // 総レス数
         $rescount_ht = "<td{$class_tn}>{$aThread->rescount}</td>";
 
-        // 板名 ============================================
+        // 板名
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
-            $htm['ita_td'] = "<td{$class_t} nowrap><a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}\" target=\"_self\">" . htmlspecialchars($ita_name, ENT_QUOTES) . "</a></td>";
+            $ita_td_ht = "<td{$class_t} nowrap><a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}\" target=\"_self\">" . htmlspecialchars($ita_name, ENT_QUOTES) . "</a></td>";
+        } else {
+            $ita_td_ht = '';
         }
         
         
-        // お気に入り ========================================
+        // お気に入り
         if ($_conf['sb_show_fav']) {
             if ($aThreadList->spmode != "taborn") {
             
-                $favmark = (!empty($aThread->fav)) ? '★' : '+';
-                $favdo = (!empty($aThread->fav)) ? 0 : 1;
-                $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-                $favdo_q = '&amp;setfav='.$favdo;
+                $favmark    = !empty($aThread->fav) ? '★' : '+';
+                $favdo      = !empty($aThread->fav) ? 0 : 1;
+                $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
+                $favdo_q    = '&amp;setfav='.$favdo;
 
                 // $ttitle_en_q も付けた方がいいが、節約のため省略する
                 $fav_ht = <<<EOP
@@ -230,7 +242,7 @@ EOP;
         } else {
             $torder_st = $aThread->torder;
         }
-        $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?host={$aThread->host}{$bbs_q}{$key_q}\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)\">{$torder_st}</a>";
+        $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?host={$aThread->host}{$bbs_q}{$key_q}\" target=\"_self\" onClick=\"return !openSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)\">{$torder_st}</a>";
         
         // title =================================================
         $chUnColor_ht = "";
@@ -285,21 +297,25 @@ EOP;
         }
         $change_color = " onClick=\"chTtColor('{$i}');{$chUnColor_ht}\"";
         
-        // オンリー>>1 =============================================
+        // オンリー>>1
         if ($onlyone_bool) {
             $one_ht = "<td{$class_t}><a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true\">&gt;&gt;1</a></td>";
+        } else {
+            $one_ht = '';
         }
         
-        // チェックボックス =============================================
+        // チェックボックス
         if ($checkbox_bool) {
             $checked_ht = "";
             if ($aThreadList->spmode == "taborn") {
                 if (!$aThread->isonline) { $checked_ht=" checked"; } // or ($aThread->rescount >= 1000)
             }
             $checkbox_ht = "<td{$class_tc}><input name=\"checkedkeys[]\" type=\"checkbox\" value=\"{$aThread->key}\"$checked_ht></td>";
+        } else {
+            $checkbox_ht = '';
         }
         
-        // 並替 =============================================
+        // 並替
         if ($sb_view == "edit") {
             $unum_ht = "";
             $rescount_ht = "";
@@ -319,6 +335,8 @@ EOP;
             <a class="te" href="{$narabikae_a}&amp;{$setkey}=bottom" target="_self">▼</a>
         </td>
 EOP;
+        } else {
+            $edit_ht = '';
         }
         
         // すばやさ（＝ 時間/レス ＝ レス間隔）
@@ -351,11 +369,9 @@ EOP;
         }
         $birth_ht = "<td{$class_t}>{$birthday}</td>";
 
-        //====================================================================================
-        // スレッド一覧 table ボディ HTMLプリント <tr></tr> 
-        //====================================================================================
 
-        // ボディ
+        // スレッド一覧 table ボディ HTMLプリント <tr></tr> 
+
         echo "<tr>\n
                     $edit_ht
                     $unum_ht
@@ -364,7 +380,7 @@ EOP;
                     $checkbox_ht
                     <td{$class_to}>{$torder_ht}</td>
                     <td{$class_tl} nowrap>$moto_thre_ht<a id=\"tt{$i}\" href=\"{$thre_url}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a></td>
-                    {$htm['ita_td']}
+                    $ita_td_ht
                     $spd_ht
                     $ikioi_ht
                     $birth_ht
@@ -376,4 +392,3 @@ EOP;
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
 }
 
-?>

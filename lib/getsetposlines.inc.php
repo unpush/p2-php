@@ -2,10 +2,10 @@
 /**
  * p2 - ポジションを考慮しながら、ラインデータを追加して、結果を取得する
  *
- * @param array     $lines            あらかめじめ重複要素を削除したライン配列
- * @param string    $data             新規ラインデータ
- * @param integer   $before_line_num  移動前の行番号（先頭は0）
- * @param mixed     $set              0(解除), 1(追加), top, up, down, bottom
+ * @param  array     $lines            あらかめじめ重複要素を削除したライン配列
+ * @param  string    $data             新規ラインデータ
+ * @param  integer   $before_line_num  移動前の行番号（先頭は0）
+ * @param  mixed     $set              0(解除), 1(追加), top, up, down, bottom
  * @return array
  */
 function getSetPosLines($lines, $data, $before_line_num, $set)
@@ -32,9 +32,8 @@ function getSetPosLines($lines, $data, $before_line_num, $set)
         return $lines;
     }
 
-    //================================================
+
     // セットする
-    //================================================
     $reclines = array();
     if (!empty($lines)) {
         $i = 0;
@@ -55,4 +54,3 @@ function getSetPosLines($lines, $data, $before_line_num, $set)
     
     return $reclines;
 }
-?>

@@ -3,7 +3,7 @@
     p2 - for read_new.php, read_new_k.php
 */
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 //===============================================
 // ŠÖ”
@@ -69,7 +69,7 @@ function getMatomeCache($num = '')
 {
     global $_conf;
     
-    $dnum = ($num) ? '.' . $num : '';
+    $dnum = $num ? '.' . $num : '';
     $file = $_conf['matome_cache_path'] . $dnum . $_conf['matome_cache_ext'];
     
     if (file_exists($file)) {
@@ -85,4 +85,3 @@ function getMatomeCache($num = '')
     }
 }
 
-?>

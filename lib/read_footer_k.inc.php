@@ -23,7 +23,7 @@ if (!empty($_GET['onlyone'])) {
 }
 
 // レス番指定移動 etc.
-$htm['goto'] = kspform(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
+$goto_ht = kspform(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
 
 //=====================================================================
 // プリント
@@ -41,9 +41,7 @@ EOP;
 EOP;
         }
     }
-    if ($res1['body']) {
-        $q_ichi = $res1['body'] . " | ";
-    }
+
     echo <<<EOP
 <p>
     <a id="footer" name="footer">{$hd['read_range']}</a><br>
@@ -57,7 +55,7 @@ EOP;
 <p>
     {$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a>
 </p>
-<p>{$htm['goto']}</p>\n
+<p>{$goto_ht}</p>\n
 EOP;
     if ($diedat_msg) {
         echo '<hr>';
@@ -125,4 +123,3 @@ function kspform($default = '', &$aThread)
     return $form;
 }
 
-?>

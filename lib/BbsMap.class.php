@@ -2,8 +2,8 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-require_once P2_LIBRARY_DIR . '/p2util.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/p2util.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 // {{{ class BbsMap
 
@@ -41,10 +41,10 @@ class BbsMap
             $new_host = $map[$type][$bbs]['host'];
             if ($host != $new_host && $autosync && !$synced) {
                 // 移転を検出したらお気に板、お気にスレ、最近読んだスレを自動で同期
-                $msg_fmt = '<p>rep2 info: ホストの移転を検出しました。(%s/%s → %s/%s)<br>';
+                $msg_fmt = '<p>p2 info: ホストの移転を検出しました。(%s/%s → %s/%s)<br>';
                 $msg_fmt .= 'お気に板、お気にスレ、最近読んだスレを自動で同期します。</p>';
                 $msg = sprintf($msg_fmt, $host, $bbs, $new_host, $bbs);
-                P2Util::pushInfoMsgHtml($msg);
+                P2Util::pushInfoHtml($msg);
                 BbsMap::syncFav();
                 $synced = true;
             }
@@ -177,11 +177,13 @@ class BbsMap
         // }}}
         // {{{ 書込
 
+        $name = basename($brd_path);
+        $name_hs = htmlspecialchars($name, ENT_QUOTES);
         if ($updated) {
             BbsMap::_writeData($brd_path, $neolines);
-            $_info_msg_ht .= sprintf('<p>rep2 info: %s を同期しました。</p>', htmlspecialchars($brd_path, ENT_QUOTES));
+            !$_conf['ktai'] and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s を同期しました。</p>', $name_hs));
         } else {
-            $_info_msg_ht .= sprintf('<p>rep2 info: %s は変更されませんでした。</p>', htmlspecialchars($brd_path, ENT_QUOTES));
+            !$_conf['ktai'] and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s は変更されませんでした。</p>', $name_hs));
         }
         $done[$brd_path] = true;
 
@@ -247,11 +249,13 @@ class BbsMap
         // }}}
         // {{{ 書込
 
+        $name = basename($idx_path);
+        $name_hs = htmlspecialchars($name, ENT_QUOTES);
         if ($updated) {
             BbsMap::_writeData($idx_path, $neolines);
-            $_info_msg_ht .= sprintf('<p>rep2 info: %s を同期しました。</p>', htmlspecialchars($idx_path, ENT_QUOTES));
+            !$_conf['ktai'] and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s を同期しました。</p>', $name_hs));
         } else {
-            $_info_msg_ht .= sprintf('<p>rep2 info: %s は変更されませんでした。</p>', htmlspecialchars($idx_path, ENT_QUOTES));
+            !$_conf['ktai'] and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s は変更されませんでした。</p>', $name_hs));
         }
         $done[$idx_path] = true;
 
@@ -313,7 +317,7 @@ class BbsMap
                 return $map;
             }
         } else {
-            FileCtl::mkdir_for($map_cache_path);
+            FileCtl::mkdirFor($map_cache_path);
         }
         touch($map_cache_path);
         clearstatcache();
@@ -338,7 +342,7 @@ class BbsMap
         // エラーを検証
         if (PEAR::isError($err)) {
             $errmsg = sprintf($errfmt, htmlspecialchars($err->getMessage()), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
-            P2Util::pushInfoMsgHtml($errmsg);
+            P2Util::pushInfoHtml($errmsg);
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {
@@ -354,7 +358,7 @@ class BbsMap
             return $map;
         } elseif ($code != 200) {
             $errmsg = sprintf($errfmt, htmlspecialchars(strval($code)), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
-            P2Util::pushInfoMsgHtml($errmsg);
+            P2Util::pushInfoHtml($errmsg);
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {
@@ -387,7 +391,7 @@ class BbsMap
         $map_cache = serialize($map);
         if (FileCtl::filePutRename($map_cache_path, $map_cache) === false) {
             $errmsg = sprintf('p2 error: cannot write file. (%s)', htmlspecialchars($map_cache_path, ENT_QUOTES));
-            P2Util::pushInfoMsgHtml($errmsg);
+            P2Util::pushInfoHtml($errmsg);
             
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
@@ -482,4 +486,3 @@ class BbsMap
 }
 
 // }}}
-?>

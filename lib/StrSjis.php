@@ -6,8 +6,8 @@
  * @author aki
  * @since  2006/10/02
  */
-class StrSjis{
-
+class StrSjis
+{
     /**
      * 参考データ
      * SJIS 2バイトの第1バイト範囲 129～159、224～239（0x81～0x9F、0xE0～0xEF）
@@ -110,4 +110,3 @@ class StrSjis{
     }
 
 }
-?>

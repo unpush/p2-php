@@ -29,12 +29,12 @@ $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッショ
  *
  * でもOK。
  */
-class Session{
-
+class Session
+{
     var $sess_array = '_sess_array';
 
     /**
-     * コンストラクタ
+     * @constructor
      *
      * ここでPHPの標準セッションがスタートする
      */
@@ -162,7 +162,7 @@ class Session{
      * @access  private
      * @return  boolean
      */
-    function checkAcTime($minutes = 30)
+    function checkAcTime($minutes = 60)
     {
         // 最終アクセス時間から、一定時間以上が経過していればExpire
         if ($_SESSION[$this->sess_array]['actime'] + $minutes * 60 < time()) {
@@ -282,4 +282,3 @@ class Session{
 
 }
 
-?>

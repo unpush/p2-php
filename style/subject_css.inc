@@ -2,15 +2,15 @@
 // p2 ースタイル設定
 // for subject.php スレッドリスト表示部分
 
-if($STYLE['a_underline_none'] == 2){
-	$thre_title_underline_css =<<<EOP
+if ($STYLE['a_underline_none'] == 2) {
+	$thre_title_underline_css = <<<EOP
 	a.thre_title{text-decoration:none;}
 	a.thre_title_new{text-decoration:none;}
 	a.thre_title_fav{text-decoration:none;}
 EOP;
 }
 
-print <<<EOP
+echo <<<EOP
 
 <style type="text/css" media="all">
 <!--

@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.9'; // rep2のバージョン
+$_conf['p2version'] = '1.8.10'; // rep2のバージョン
 
 $_conf['p2name'] = 'r e p 2';    // rep2の名前。
 
@@ -19,21 +19,24 @@ error_reporting(E_ALL ^ E_NOTICE);
 // {{{ 基本変数
 
 $_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
-$_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.php';
+$_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.phtml';
 $_conf['favrank_url']           = 'http://akid.s17.xrea.com/favrank/favrank.php';
 $_conf['menu_php']              = 'menu.php';
 $_conf['subject_php']           = 'subject.php';
 $_conf['read_php']              = 'read.php';
 $_conf['read_new_php']          = 'read_new.php';
 $_conf['read_new_k_php']        = 'read_new_k.php';
+$_conf['post_php']              = 'post.php';
 $_conf['cookie_file_name']      = 'p2_cookie.txt';
 
-$_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
+// ユーザ通知用 情報メッセージHTMLを保持する変数
+// 2006/11/24 今後は $_info_msg_ht を直接取り扱わずに P2Util::pushInfoHtml() を通す方針でいきたい
+$_info_msg_ht = '';
 
 // }}}
 // {{{ デバッグ
 
-$debug = isset($_GET['debug'])? $_GET['debug'] : 0;
+$debug = isset($_GET['debug']) ? $_GET['debug'] : 0;
 if ($debug) {
     include_once 'Benchmark/Profiler.php';
     $profiler =& new Benchmark_Profiler(true);
@@ -97,6 +100,10 @@ mb_internal_encoding('SJIS-win');
 mb_http_output('pass');
 mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
 //mb_substitute_character(0x3013); // 〓
+
+ini_set('default_mimetype', 'text/html');
+ini_set('default_charset', 'Shift_JIS');
+
 // ob_start('mb_output_handler');
 
 if (function_exists('mb_ereg_replace')) {
@@ -110,7 +117,8 @@ if (function_exists('mb_ereg_replace')) {
 // {{{ ライブラリ類のパス設定
 
 // 基本的な機能を提供するするライブラリ
-define('P2_LIBRARY_DIR', './lib');
+define('P2_LIB_DIR', './lib');
+define('P2_LIBRARY_DIR', P2_LIB_DIR); // 2006/11/24 後方互換用、廃止予定
 
 // おまけ的な機能を提供するするライブラリ
 define('P2EX_LIBRARY_DIR', './lib/expack');
@@ -142,24 +150,24 @@ if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
 $pear_required = array(
     'File/Util.php'             => 'File',
     'Net/UserAgent/Mobile.php'  => 'Net_UserAgent_Mobile',
-    'PHP/Compat.php'            => 'PHP/Compat.php',
+    'PHP/Compat.php'            => 'PHP_Compat',
     'HTTP/Request.php'          => 'HTTP_Request'
 );
 foreach ($pear_required as $pear_file => $pear_pkg) {
     if (!include_once($pear_file)) {
         $url = 'http://akid.s17.xrea.com/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
         $url_t = $_conf['p2ime_url'] . "?enc=1&amp;url=" . rawurlencode($url);
-        $msg = '<html><body><h3>p2 error: PEAR の ' . $pear_pkg . ' がインストールされていません</h3>
+        $msg = '<html><body><h3>p2 error: PEAR の「' . $pear_pkg . '」がインストールされていません</h3>
             <p><a href="' . $url_t . '" target="_blank">p2Wiki: PEARのインストール</a></p>
             </body></html>';
         die($msg);
     }
 }
 
-require_once P2_LIBRARY_DIR . '/p2util.class.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/session.class.php';
-require_once P2_LIBRARY_DIR . '/login.class.php';
+require_once P2_LIB_DIR . '/p2util.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/session.class.php';
+require_once P2_LIB_DIR . '/login.class.php';
 
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
@@ -183,16 +191,17 @@ if (version_compare(phpversion(), '5.0.0', '<')) {
  */
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (get_magic_quotes_gpc()) {
-        $_POST = array_map('stripslashes_r', $_POST);
+        $_POST = array_map('stripslashesR', $_POST);
     }
     mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_POST);
-    $_POST = array_map('nullfilter_r', $_POST);
-} elseif (!empty($_GET)) {
+    $_POST = array_map('nullfilterR', $_POST);
+}
+if (!empty($_GET)) {
     if (get_magic_quotes_gpc()) {
-        $_GET = array_map('stripslashes_r', $_GET);
+        $_GET = array_map('stripslashesR', $_GET);
     }
     mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_GET);
-    $_GET = array_map('nullfilter_r', $_GET);
+    $_GET = array_map('nullfilterR', $_GET);
 }
 
 // }}}
@@ -200,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // 管理者用設定を読み込み
 if (!include_once './conf/conf_admin.inc.php') {
     P2Util::printSimpleHtml("p2 error: 管理者用設定ファイルを読み込めませんでした。");
-    die('');
+    die;
 }
 
 // 管理用保存ディレクトリ (パーミッションは707)
@@ -221,22 +230,24 @@ $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html;
 
 $_conf['login_check_ip']  = 1; // ログイン時にIPアドレスを検証する
 
+// 基本（PC）
+$_conf['ktai'] = FALSE;
+$_conf['disable_cookie'] = FALSE;
+
+if (P2Util::isBrowserSafariGroup()) {
+    $_conf['accept_charset'] = 'UTF-8';
+} else {
+    $_conf['accept_charset'] = 'Shift_JIS';
+}
+
 $mobile = &Net_UserAgent_Mobile::singleton();
-
-// PC
-if ($mobile->isNonMobile()) {
-    $_conf['ktai'] = FALSE;
-    $_conf['disable_cookie'] = FALSE;
-
-    if (P2Util::isBrowserSafariGroup()) {
-        $_conf['accept_charset'] = 'UTF-8';
-    } else {
-        $_conf['accept_charset'] = 'Shift_JIS';
-    }
+if (PEAR::isError($mobile)) {
+    trigger_error($mobile->toString(), E_USER_WARNING);
 
 // 携帯
-} else {
-    require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
+} elseif ($mobile and !$mobile->isNonMobile()) {
+
+    require_once P2_LIB_DIR . '/hostcheck.class.php';
     
     $_conf['ktai'] = TRUE;
     $_conf['accept_charset'] = 'Shift_JIS';
@@ -246,7 +257,7 @@ if ($mobile->isNonMobile()) {
     if ($mobile->isDoCoMo()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
             P2Util::printSimpleHtml("p2 error: UAがDoCoMoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-            die('');
+            die;
         }
         $_conf['disable_cookie'] = TRUE;
         
@@ -254,7 +265,7 @@ if ($mobile->isNonMobile()) {
     } elseif ($mobile->isEZweb()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
             P2Util::printSimpleHtml("p2 error: UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-            die('');
+            die;
         }
         $_conf['disable_cookie'] = FALSE;
         
@@ -266,9 +277,9 @@ if ($mobile->isNonMobile()) {
             $_conf['disable_cookie'] = FALSE;
         } else {
             $_conf['disable_cookie'] = TRUE;
-            if ($_conf['login_check_ip'] && !HostCheck::isAddrVodafone()) {
-                P2Util::printSimpleHtml("p2 error: UAがVodafoneですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-                die('');
+            if ($_conf['login_check_ip'] && !HostCheck::isAddrSoftBank()) {
+                P2Util::printSimpleHtml("p2 error: UAがSoftBankですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                die;
             }
         }
 
@@ -276,9 +287,9 @@ if ($mobile->isNonMobile()) {
     } elseif ($mobile->isAirHPhone()) {
         /*
         // AirH"では端末ID認証を行わないので、コメントアウト
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrAirh()) {
+        if ($_conf['login_check_ip'] && !HostCheck::isAddrWillcom()) {
             P2Util::printSimpleHtml("p2 error: UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-            die('');
+            die;
         }
         */
         $_conf['disable_cookie'] = FALSE;
@@ -296,40 +307,42 @@ if ($mobile->isNonMobile()) {
 // output_add_rewrite_var() は便利だが、出力がバッファされて体感速度が落ちるのが難点。。
 // 体感速度を落とさない良い方法ないかな？
 
-// 強制PCビュー指定
-$b = null;
+$_conf['b'] = null;
 if (isset($_GET['b'])) {
-    $b = $_GET['b'];
+    $_conf['b'] = $_GET['b'];
 } elseif (isset($_POST['b'])) {
-    $b = $_POST['b'];
+    $_conf['b'] = $_POST['b'];
 }
-$k = null;
-if (isset($_GET['k'])) {
-    $k = $_GET['k'];
-} elseif (isset($_POST['k'])) {
-    $k = $_POST['k'];
+
+// 旧互換用
+if (!empty($_GET['k']) || !empty($_POST['k'])) {
+    $_conf['b'] = 'k';
 }
 
 $_conf['k_at_q'] = '';
 $_conf['k_input_ht'] = '';
-if ($b == 'pc') {
-    $_conf['b'] = 'pc';
+
+// 強制PCビュー指定（b=pc）
+if ($_conf['b'] == 'pc') {
     $_conf['ktai'] = false;
-    //output_add_rewrite_var('b', 'pc');
 
-    $_conf['k_at_a'] = '&amp;b=pc';
-    $_conf['k_at_q'] = '?b=pc';
-    $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
-
-// 強制携帯ビュー指定（b=k。k=1は過去互換用）
-} elseif ($b == 'k' || $k) {
-    $_conf['b'] = 'k';
+// 強制携帯ビュー指定（b=k）
+} elseif ($_conf['b'] == 'k') {
     $_conf['ktai'] = true;
-    //output_add_rewrite_var('b', 'k');
-    
-    $_conf['k_at_a'] = '&amp;b=k';
-    $_conf['k_at_q'] = '?b=k';
-    $_conf['k_input_ht'] = '<input type="hidden" name="b" value="k">';
+}
+
+if ($_conf['b']) {
+    //output_add_rewrite_var('b', htmlspecialchars($_conf['b'], ENT_QUOTES));
+
+    $b_hs = htmlspecialchars($_conf['b'], ENT_QUOTES);
+    $_conf['k_at_a'] = '&amp;b=' . $b_hs;
+    $_conf['k_at_q'] = '?b=' . $b_hs;
+    $_conf['k_input_ht'] = '<input type="hidden" name="b" value="' . $b_hs . '">';
+
+} else {
+    $_conf['k_at_a'] = '';
+    $_conf['k_at_q'] = '';
+    $_conf['k_input_ht'] = '';
 }
 
 // }}}
@@ -341,7 +354,7 @@ EOP;
 // {{{ DOCTYPE HTML 宣言
 
 $ie_strict = false;
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     if ($ie_strict) {
         $_conf['doctype'] = <<<EODOC
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -361,7 +374,7 @@ EODOC;
 // {{{ ユーザ設定 読込
 
 // デフォルト設定（conf_user_def.inc.php）を読み込む
-include_once './conf/conf_user_def.inc.php';
+require_once './conf/conf_user_def.inc.php';
 $_conf = array_merge($_conf, $conf_user_def);
 
 // ユーザ設定があれば読み込む
@@ -415,7 +428,9 @@ if (!isset($STYLE['info_pop_size'])) { $STYLE['info_pop_size'] = "600,380"; }
 // }}}
 // {{{ ユーザ設定の調整処理
 
+$_conf['ext_win_target_at'] = '';
 $_conf['ext_win_target'] && $_conf['ext_win_target_at'] = " target=\"{$_conf['ext_win_target']}\"";
+$_conf['bbs_win_target_at'] = '';
 $_conf['bbs_win_target'] && $_conf['bbs_win_target_at'] = " target=\"{$_conf['bbs_win_target']}\"";
 
 if ($_conf['get_new_res']) {
@@ -441,7 +456,9 @@ if ($_conf['mobile.match_color']) {
 //======================================================================
 $_conf['rct_file'] =            $_conf['pref_dir'] . '/p2_recent.idx';
 $_conf['p2_res_hist_dat'] =     $_conf['pref_dir'] . '/p2_res_hist.dat'; // 書き込みログファイル（dat）
-$_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // 書き込みログファイル（データPHP）
+$_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // 書き込みログファイル（データPHP）旧
+// 書き込みログファイル（dat） セキュリティ通報用
+$_conf['p2_res_hist_dat_secu'] = $_conf['pref_dir'] . '/p2_res_hist.secu.cgi';
 $_conf['cookie_dir'] =          $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
 $_conf['favlist_file'] =        $_conf['pref_dir'] . "/p2_favlist.idx";
 $_conf['favita_path'] =         $_conf['pref_dir'] . "/p2_favita.brd";
@@ -466,14 +483,14 @@ $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 // 新規ログインとメンバーログインの同時指定はありえないので、エラー出す
 if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
     P2Util::printSimpleHtml("p2 Error: 無効なURLです。");
-    die('');
+    die;
 }
 
 // }}}
 // {{{ ホストチェック
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
+    require_once P2_LIB_DIR . '/hostcheck.class.php';
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == FALSE) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == TRUE)
     ) {
@@ -497,15 +514,15 @@ if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
 
 // css.php は特別にセッションから外す。
 //if (basename($_SERVER['SCRIPT_NAME']) != 'css.php') {
-    if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) { 
+    if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && empty($_COOKIE['cid']))) { 
     
         // {{{ セッションデータ保存ディレクトリを設定
         
         if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
         
             if (!is_dir($_conf['session_dir'])) {
-                require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-                FileCtl::mkdir_for($_conf['session_dir'] . '/dummy_filename');
+                require_once P2_LIB_DIR . '/filectl.class.php';
+                FileCtl::mkdirFor($_conf['session_dir'] . '/dummy_filename');
             } elseif (!is_writable($_conf['session_dir'])) {
                 die("Error: セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
             }
@@ -529,13 +546,126 @@ if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
 // }}}
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
-require_once P2_LIBRARY_DIR . '/login.class.php';
+require_once P2_LIB_DIR . '/login.class.php';
 $_login =& new Login();
 
 
 //=====================================================================
-// 関数
+// 関数（このファイル内でのみ利用）
 //=====================================================================
+
+/**
+ * 再帰的にstripslashesをかける
+ * GET/POST/COOKIE変数用なのでオブジェクトのプロパティには対応しない
+ * (ExUtil)
+ *
+ * @return  array|string
+ */
+function stripslashesR($var, $r = 0)
+{
+    $rlimit = 10;
+    if (is_array($var) && $r < $rlimit) {
+        foreach ($var as $key => $value) {
+            $var[$key] = stripslashesR($value, ++$r);
+        }
+    } elseif (is_string($var)) {
+        $var = stripslashes($var);
+    }
+    return $var;
+}
+
+/**
+ * 再帰的にヌル文字を削除する
+ * mbstringで変換テーブルにない(?)外字を変換すると
+ * NULL(0x00)になってしまうことがあるので消去する
+ * (ExUtil)
+ *
+ * @return  array|string
+ */
+function nullfilterR($var, $r = 0)
+{
+    $rlimit = 10;
+    if (is_array($var) && $r < $rlimit) {
+        foreach ($var as $key => $value) {
+            $var[$key] = nullfilterR($value, ++$r);
+        }
+    } elseif (is_string($var)) {
+        $var = str_replace(chr(0), '', $var);
+    }
+    return $var;
+}
+
+/**
+ * メモリの使用量を表示する
+ *
+ * @return void
+ */
+function printMemoryUsage()
+{
+    $kb = memory_get_usage() / 1024;
+    $kb = number_format($kb, 2, '.', '');
+    
+    echo 'Memory Usage: ' . $kb . 'KB';
+}
+
+//=====================================================================
+// グローバル関数
+//=====================================================================
+/**
+ * htmlspecialchars の別名みたいなもの
+ *
+ * @param   string  $alt  値が空のときの代替文字列
+ * @return  string
+ */
+function hs($str, $alt = '', $quoteStyle = ENT_QUOTES)
+{
+    return (isset($str) && strlen($str) > 0) ? htmlspecialchars($str, $quoteStyle) : $alt;
+}
+
+/**
+ * notice の抑制もしてくれる hs()
+ * 参照で値を受け取るのはイマイチだが、そうしなければnoticeの抑制ができない
+ *
+ * @param   &string  $str  文字列変数の参照
+ * @return  string
+ */
+function hsi(&$str, $alt = '', $quoteStyle = ENT_QUOTES)
+{
+    return (isset($str) && strlen($str) > 0) ? htmlspecialchars($str, $quoteStyle) : $alt;
+}
+
+/**
+ * echo hs()
+ *
+ * @return  void
+ */
+function eh($str, $alt = '', $quoteStyle = ENT_QUOTES)
+{
+    echo hs($str, $alt, $quoteStyle);
+}
+
+/**
+ * echo hs() （noticeを抑制する）
+ *
+ * @param   &string  $str  文字列変数の参照
+ * @return  void
+ */
+function ehi(&$str, $alt = '', $quoteStyle = ENT_QUOTES)
+{
+    echo hs($str, $alt, $quoteStyle);
+}
+
+/**
+ * 存在しない変数の notice を出さずに、変数の値を取得する
+ *
+ * @return  mixed
+ */
+function geti(&$var, $alt = null)
+{
+    return isset($var) ? $var : $alt;
+}
+
+
 /**
  * conf_user にデータをセット記録する
  * maru_kakiko
@@ -560,86 +690,3 @@ function setConfUser($k, $v)
     
     return true;
 }
-
-/**
- * 再帰的にstripslashesをかける
- * GET/POST/COOKIE変数用なのでオブジェクトのプロパティには対応しない
- * (ExUtil)
- *
- * @return  array|string
- */
-function stripslashes_r($var, $r = 0)
-{
-    if (is_array($var) && $r < 3) {
-        foreach ($var as $key => $value) {
-            $var[$key] = stripslashes_r($value, ++$r);
-        }
-    } elseif (is_string($var)) {
-        $var = stripslashes($var);
-    }
-    return $var;
-}
-
-/**
- * 再帰的にヌル文字を削除する
- * mbstringで変換テーブルにない(?)外字を変換すると
- * NULL(0x00)になってしまうことがあるので消去する
- * (ExUtil)
- *
- * @return  array|string
- */
-function nullfilter_r($var, $r = 0)
-{
-    if (is_array($var) && $r < 3) {
-        foreach ($var as $key => $value) {
-            $var[$key] = nullfilter_r($value, ++$r);
-        }
-    } elseif (is_string($var)) {
-        $var = str_replace(chr(0), '', $var);
-    }
-    return $var;
-}
-
-/**
- * メモリの使用量を表示する
- *
- * @return void
- */
-function printMemoryUsage()
-{
-    $kb = memory_get_usage() / 1024;
-    $kb = number_format($kb, 2, '.', '');
-    
-    echo 'Memory Usage: ' . $kb . 'KB';
-}
-
-/**
- * すごく適当な分かち書き用正規表現
- */
-$GLOBALS['WAKATI_REGEX'] = mb_convert_encoding(
-    '/(' . implode('|', array(
-        //'[一-龠]+[ぁ-ん]*',
-        //'[一-龠]+',
-        '[一二三四五六七八九十]+',
-        '[丁-龠]+',
-        '[ぁ-ん][ぁ-んー～゛゜]*',
-        '[ァ-ヶ][ァ-ヶー～゛゜]*',
-        //'[a-z][a-z_\\-]*',
-        //'[0-9][0-9.]*',
-        '[0-9a-z][0-9a-z_\\-]*',
-    )) . ')/u', 'UTF-8', 'SJIS-win');
-
-/**
- * すごく適当な正規化＆分かち書き関数
- *
- * @return  array
- */
-function wakati($str)
-{
-    return array_filter(array_map('trim', preg_split($GLOBALS['WAKATI_REGEX'],
-        mb_strtolower(mb_convert_kana(mb_convert_encoding(
-            $str, 'UTF-8', 'SJIS-win'), 'KVas', 'UTF-8'), 'UTF-8'),
-        -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY)), 'strlen');
-}
-
-?>

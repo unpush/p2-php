@@ -1,11 +1,11 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * p2 - スレッドクラス
  */
-class Thread{
-
+class Thread
+{
     var $ttitle;    // スレタイトル // idxline[0] // < は &lt; だったりする
     var $key;       // スレッドID // idxline[1]
     var $length;    // local Dat Bytes(int) // idxline[2]
@@ -35,7 +35,7 @@ class Thread{
     var $new;       // 新規スレならtrue
     
     var $ttitle_hc; // < が &lt; であったりするので、デコードしたスレタイトル
-    var $ttitle_hd; // HTML表示用に、エンコードされたスレタイトル
+    var $ttitle_hd; // HTML表示用に、エンコードされたスレタイトル。$title_hs に改名したい、あるいは、この変数はなくしたい。
     var $ttitle_ht; // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
     
     var $dayres;    // 一日当たりのレス数。勢い。
@@ -186,7 +186,7 @@ class Thread{
             $this->fav = $lar[6];
         }
         
-        if ($lar[12]) {
+        if (isset($lar[12])) {
             $this->datochiok = $lar[12];
         }
         
@@ -256,35 +256,36 @@ class Thread{
      */
     function setTitleFromLocal()
     {
-        if (!isset($this->ttitle)) {
+        if (isset($this->ttitle)) {
+            return $this->ttitle;
+        }
         
-            if ($this->datlines) {
-                $firstdatline = rtrim($this->datlines[0]);
-                $d = $this->explodeDatLine($firstdatline);
-                $this->setTtitle($d[4]);
-            
-            // ローカルdatの1行目から取得
-            } elseif (is_readable($this->keydat)) {
-                $fd = fopen($this->keydat, "rb");
-                $l = fgets($fd, 32800);
-                fclose($fd);
-                $firstdatline = rtrim($l);
-                if (strstr($firstdatline, "<>")) {
-                    $datline_sepa = "<>";
-                } else {
-                    $datline_sepa = ",";
-                    $this->dat_type = "2ch_old";
-                }
-                $d = explode($datline_sepa, $firstdatline);
-                $this->setTtitle($d[4]);
-                
-                // be.2ch.net ならEUC→SJIS変換
-                if (P2Util::isHostBe2chNet($this->host)) {
-                    $ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'eucJP-win');
-                    $this->setTtitle($ttitle);
-                }
+        $this->ttitle = null;
+        
+        if ($this->datlines) {
+            $firstdatline = rtrim($this->datlines[0]);
+            $d = $this->explodeDatLine($firstdatline);
+            $this->setTtitle($d[4]);
+        
+        // ローカルdatの1行目から取得
+        } elseif (is_readable($this->keydat) and $fp = fopen($this->keydat, "rb")) {
+            $l = fgets($fp, 32800);
+            fclose($fp);
+            $firstdatline = rtrim($l);
+            if (strstr($firstdatline, "<>")) {
+                $datline_sepa = "<>";
+            } else {
+                $datline_sepa = ",";
+                $this->dat_type = "2ch_old";
             }
+            $d = explode($datline_sepa, $firstdatline);
+            $this->setTtitle($d[4]);
             
+            // be.2ch.net ならEUC→SJIS変換
+            if (P2Util::isHostBe2chNet($this->host)) {
+                $ttitle = mb_convert_encoding($this->ttitle, 'SJIS-win', 'eucJP-win');
+                $this->setTtitle($ttitle);
+            }
         }
 
         return $this->ttitle;
@@ -422,4 +423,3 @@ class Thread{
 
 }
 
-?>

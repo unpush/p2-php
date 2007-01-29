@@ -1,3 +1,41 @@
+2007-1-29 aki
+	* rep2 version 1.8.10
+	
+	[新機能] HTMLポップアップがリサイズ可能になった。
+	[新機能] スレッド表示にヘッドバーが付いた。（ユーザ設定 enable_headbar）
+
+	[改良] レスポップアップを複数開いた時の、重なり順の挙動を改良した。
+	[改良] レスポップアップがほわっと消えるようになった。
+	[改良] お気に板の並び替えで、JavaScript D&D版と非JavaScript版を選択できようにした。
+	[改良] subject.php で、refreshクエリーの指定により、subjext.txtのキャッシュを適用しないようにできるようにした。
+	[改良] post.phpの指定を変数にした。
+	
+	[対応更新] 携帯のIPアドレス帯域を更新した。
+	
+	[修正] read.phpのパスで、$_conf['read_php']が利用されていなかった箇所があったのを修正した。
+	[修正] キャッシュファイルのパスにエンコードを加えた。
+	[修正] PHPのnoticeの発生箇所があったのをずいぶん減らした。
+
+	[仕様変更] DAT倉庫を表示する時の、スレッド情報の取り扱い数を1000件までに制限した。 
+	[仕様変更] 書き込み時の追加ヘッダ p2-Client-IP を X-P2-Client-IP に変更した。
+	[仕様変更] 書き込み時の追加ヘッダ X-P2-Client-Host を加えた。
+	
+	[内部変更] 定数 P2_LIBRARY_DIR を P2_LIB_DIR に変更した。
+	
+	[修正] JavaScript(D&D)によるお気に板の並び替えで、
+	  アドレスに@が含まれている時、正常に処理されていなかったバグを修正した。
+	[修正] Winサーバでの利用時、data/tmp に一時ファイルのゴミが残るおそれがあったのを修正した。
+	[修正] 携帯でレスフィルタした時に、省略前の名前にはマッチしないようにした。
+
+	[感謝] JSライブラリのyui-extを導入しました。http://www.yui-ext.com/
+
+	- 新しく追加されたファイル
+		style/title_css.inc
+		js/yui-extディレクトリ以下
+		js/readheadbar.js
+	
+	- 変更のあったファイルは多数、ほとんど全てのファイル。
+
 2006-11-12 aki
 	* rep2 version 1.8.9
 
@@ -11,6 +49,29 @@
 	[改良] 書き込みログの表示処理を最適化した。
 	[改良] 携帯TOPメニューの書き込みログにもショートカットキー(#)をつけた。 
 	[改良] 携帯TOPページに板検索と直接スレ指定のフォームを追加した。
+
+	- 変更のあったファイル
+		first_cont.php
+		info.php
+		menu_k.php
+		read.php
+		read_res_hist.php
+		subject.php
+		conf/conf.inc.php
+		lib/BbsMap.class.php
+		lib/StrSjis.php
+		lib/brdctl.class.php
+		lib/index_print_k.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/read_res_hist.inc.php
+		lib/res_hist.class.php
+		lib/sb_print.inc.php
+		lib/showthread.class.php
+		lib/showthreadk.class.php
+		lib/showthreadpc.class.php
+		lib/strctl.class.php
+		lib/thread.class.php
 
 2006-11-04 aki
 	* rep2 version 1.8.8

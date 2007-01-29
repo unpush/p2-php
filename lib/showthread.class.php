@@ -2,8 +2,8 @@
 /**
  * スレッドを表示する クラス
  */
-class ShowThread{
-
+class ShowThread
+{
     var $thread; // スレッドオブジェクトの参照
     
     var $str_to_link_regex; // リンクすべき文字列の正規表現
@@ -12,7 +12,7 @@ class ShowThread{
     var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列
 
     /**
-     * コンストラクタ
+     * @constructor
      */
     function ShowThread(&$aThread)
     {
@@ -50,6 +50,9 @@ class ShowThread{
     /**
      * DatをHTML変換して表示する
      * （継承先クラスで実装）
+     *
+     * @access  public
+     * @return  boolean
      */
     function datToHtml()
     {
@@ -57,13 +60,15 @@ class ShowThread{
     
     /**
      * DatをHTML変換したものを取得する
+     *
+     * @access  public
+     * @return  string
      */
     function getDatToHtml()
     {
         ob_start();
         $this->datToHtml();
-        $html = ob_get_contents();
-        ob_end_clean();
+        $html = ob_get_clean();
         
         return $html;
     }
@@ -82,7 +87,7 @@ class ShowThread{
         
         $beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/test/read.cgi/{$this->thread->bbs}/{$this->thread->key}/{$i}\"{$_conf['ext_win_target_at']}>Lv.\$2</a>";
         
-        //<BE:23457986:1>
+        // <BE:23457986:1>
         $be_match = '|<BE:(\d+):(\d+)>|i';
         if (preg_match($be_match, $date_id)) {
             $date_id = preg_replace($be_match, $beid_replace, $date_id);
@@ -100,6 +105,7 @@ class ShowThread{
     /**
      * NGあぼーんチェック
      *
+     * @access  protected
      * @return  string|false
      */
     function ngAbornCheck($code, $resfield, $ic = FALSE)
@@ -174,6 +180,7 @@ class ShowThread{
     /**
      * 特定レスの透明あぼーんチェック
      *
+     * @access  protected
      * @return  boolean
      */
     function abornResCheck($host, $bbs, $key, $resnum)
@@ -182,7 +189,7 @@ class ShowThread{
         
         $target = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
         
-        if (isset($ngaborns[$code]['data']) && is_array($ngaborns['aborn_res']['data'])) {
+        if (isset($ngaborns['aborn_res']['data']) && is_array($ngaborns['aborn_res']['data'])) {
             foreach ($ngaborns['aborn_res']['data'] as $k => $v) {
                 if ($ngaborns['aborn_res']['data'][$k]['word'] == $target) {
                     $this->ngAbornUpdate('aborn_res', $k);
@@ -196,6 +203,7 @@ class ShowThread{
     /**
      * NG/あぼ～ん日時と回数を更新
      *
+     * @access  protected
      * @return  void
      */
     function ngAbornUpdate($code, $k)
@@ -220,7 +228,6 @@ class ShowThread{
      */
     function addURLHandler($name, $handler)
     {
-        ;
     }
 
     /**
@@ -228,21 +235,26 @@ class ShowThread{
      */
     function removeURLHandler($name)
     {
-        ;
     }
     
     /**
-     * レスフィルタリングのターゲットを得る
+     * レスフィルタリングのターゲット文字列を得る
+     *
+     * @access  protected
+     * @return  string
      */
-    function getFilterTarget(&$ares, &$i, &$name, &$mail, &$date_id, &$msg)
+    function getFilterTarget($i, $name, $mail, $date_id, $msg)
     {
         switch ($GLOBALS['res_filter']['field']) {
             case 'name':
-                $target = $name; break;
+                $target = $name;
+                break;
             case 'mail':
-                $target = $mail; break;
+                $target = $mail;
+                break;
             case 'date':
-                $target = preg_replace('| ?ID:[0-9A-Za-z/.+?]+.*$|', '', $date_id); break;
+                $target = preg_replace('| ?ID:[0-9A-Za-z/.+?]+.*$|', '', $date_id);
+                break;
             case 'id':
                 if ($target = preg_replace('|^.*ID:([0-9A-Za-z/.+?]+).*$|', '$1', $date_id)) {
                     break;
@@ -250,12 +262,16 @@ class ShowThread{
                     return '';
                 }
             case 'msg':
-                $target = $msg; break;
+                $target = $msg;
+                break;
             default: // 'hole'
-                $target = strval($i) . '<>' . $ares;
+                // 省略前の文字列が入るので $ares はダメになった
+                // $target = strval($i) . '<>' . $ares;
+                $target = strval($i) . '<>' . $name . '<>' . $mail . '<>' . $date_id . '<>' . $msg;
         }
 
-        $target = @strip_tags($target, '<>');
+        // '<>' だけ許可
+        $target = strip_tags($target, '<>');
         
         return $target;
     }
@@ -263,9 +279,10 @@ class ShowThread{
     /**
      * レスフィルタリングのマッチ判定
      *
-     * @return  boolean
+     * @access  protected
+     * @return  boolean     マッチしたらtrueを返す
      */
-    function filterMatch(&$target, &$resnum)
+    function filterMatch($target, $resnum)
     {
         global $_conf;
         global $filter_hits, $filter_range;
@@ -291,7 +308,7 @@ class ShowThread{
                 return false;
             }
         }
-
+        
         $GLOBALS['filter_hits']++;
         
         // 表示範囲外なら偽判定とする
@@ -303,7 +320,7 @@ class ShowThread{
         
         $GLOBALS['last_hit_resnum'] = $resnum;
 
-        if (empty($_conf['ktai'])) {
+        if (!$_conf['ktai']) {
             echo <<<EOP
 <script type="text/javascript">
 <!--
@@ -316,5 +333,3 @@ EOP;
         return true;
     }
 }
-
-?>

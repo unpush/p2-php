@@ -1,13 +1,16 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* mi: charset=Shift_JIS */
+
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * p2 - ボードメニュークラス for menu.php
  */
-class BrdMenu{
-
+class BrdMenu
+{
     var $categories;    // クラス BrdMenuCate のオブジェクトを格納する配列
-    var $num;           // 格納された BrdMenuCate オブジェクトの数
+    var $num = 0;       // 格納された BrdMenuCate オブジェクトの数
     var $format;        // html形式か、brd形式か("html", "brd")
     var $cate_match;    // カテゴリーマッチ形式
     var $ita_match;     // 板マッチ形式
@@ -17,7 +20,6 @@ class BrdMenu{
      */
     function BrdMenu()
     {
-        $this->num = 0;
     }
     
     /**
@@ -26,9 +28,9 @@ class BrdMenu{
      * @access  public
      * @return  void
      */
-    function addBrdMenuCate(&$aBrdMenuCate)
+    function addBrdMenuCate($aBrdMenuCate)
     {
-        $this->categories[] =& $aBrdMenuCate;
+        $this->categories[] = $aBrdMenuCate;
         $this->num++;
     }
     
@@ -63,7 +65,9 @@ class BrdMenu{
     {
         global $_conf;
         
-        if (empty($data)) { return false; }
+        if (empty($data)) {
+            return false;
+        }
 
         // 除外URLリスト
         $not_bbs_list = array("http://members.tripod.co.jp/Backy/del_2ch/");
@@ -75,7 +79,7 @@ class BrdMenu{
             if (preg_match($this->cate_match, $v, $matches)) {
                 $aBrdMenuCate =& new BrdMenuCate($matches[1]);
                 if ($this->format == 'brd') {
-                    $aBrdMenuCate->is_open = $matches[2];
+                    $aBrdMenuCate->is_open = (bool) $matches[2];
                 }
                 $this->addBrdMenuCate($aBrdMenuCate);
                 
@@ -167,6 +171,7 @@ class BrdMenu{
             return false;
         }
         
+        $cont = '';
         $data = file($cachefile);
         $this->setBrdMatch($cachefile); // パターンマッチ形式を登録
         $this->setBrdList($data);       // カテゴリーと板をセット
@@ -194,29 +199,24 @@ class BrdMenu{
         
         return $p2brdfile;
     }
-    
 }
 
 /**
  * ボードメニューカテゴリークラス
  */
-class BrdMenuCate{
-
-    var $name;          // カテゴリーの名前
-    var $menuitas;      // クラスBrdMenuItaのオブジェクトを格納する配列
-    var $num;           // 格納されたBrdMenuItaオブジェクトの数
-    var $is_open;       // 開閉状態(bool)
-    var $ita_match_num; // 検索にヒットした板の数
+class BrdMenuCate
+{
+    var $name;                      // カテゴリーの名前
+    var $menuitas       = array();  // クラスBrdMenuItaのオブジェクトを格納する配列
+    var $num            = 0;        // 格納されたBrdMenuItaオブジェクトの数
+    var $is_open        = false;    // 開閉状態(bool)
+    var $ita_match_num  = 0;        // 検索にヒットした板の数
     
     /**
      * @constructor
      */
     function BrdMenuCate($name)
     {
-        $this->num = 0;
-        $this->menuitas = array();
-        $this->ita_match_num = 0;
-        
         $this->name = $name;
     }
     
@@ -231,14 +231,13 @@ class BrdMenuCate{
         $this->menuitas[] =& $aBrdMenuIta;
         $this->num++;
     }
-    
 }
 
 /**
  * ボードメニュー板クラス
  */
-class BrdMenuIta{
-
+class BrdMenuIta
+{
     var $host;
     var $bbs;
     var $itaj;    // 板名
@@ -256,5 +255,3 @@ class BrdMenuIta{
         $this->itaj_ht = htmlspecialchars($this->itaj, ENT_QUOTES);
     }
 }
-
-?>

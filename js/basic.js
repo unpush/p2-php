@@ -1,10 +1,8 @@
 /* p2 - 基本JavaScriptファイル */
 
-////
 // サブウィンドウをポップアップする
-// @return  false
-//
-function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR)
+// @return  true
+function openSubWin(inUrl, inWidth, inHeight, boolS, boolR)
 {
 	var proparty3rd = "width=" + inWidth + ",height=" + inHeight + ",scrollbars=" + boolS + ",resizable=1";
 	SubWin = window.open(inUrl,"",proparty3rd);
@@ -12,13 +10,11 @@ function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR)
 		SubWin.resizeTo(inWidth,inHeight);
 	}
 	SubWin.focus();
-	return false;
+	return true;
 }
 
-////
 // フレーム内のHTMLドキュメントのタイトルを、Window(top)タイトルにセットする
 // @return  true|null|false
-//
 function setWinTitle()
 {
 	if (top == self) {
@@ -32,9 +28,7 @@ function setWinTitle()
 	return true;
 }
 
-////
 // DOMオブジェクトを取得する
-//
 function p2GetElementById(id)
 {
 	if (document.getElementById) {
@@ -48,10 +42,8 @@ function p2GetElementById(id)
 	}
 }
 
-////
 // XMLHttpRequest オブジェクトを取得する
 // @return  object
-//
 function getXmlHttp()
 {
 	var objHTTP = null ;
@@ -67,14 +59,11 @@ function getXmlHttp()
 	if (!objHTTP && typeof XMLHttpRequest != "undefined") {
 		objHTTP = new XMLHttpRequest(); // 他
 	}
-	return objHTTP
+	return objHTTP;
 }
 
-////
 // objHTTP とurlを渡して、結果テキストを取得する
-//
-// @param nc string これをキーとしたキャッシュ回避のためのダミークエリーが追加される
-//
+// @param nc string|null 指定するとこれをキーとしたキャッシュ回避のためのダミークエリーが追加される
 function getResponseTextHttp(objHTTP, url, nc)
 {
 	if (nc) {
@@ -91,19 +80,38 @@ function getResponseTextHttp(objHTTP, url, nc)
 			// rt = '<em>HTTP Error:<br />' + req.status + ' ' + req.statusText + '</em>';
 		}
 	}
-	
 	return '';
 }
 
-////
 // isSafari?
 // @return  boolean
-//
 function isSafari() {
 	var ua = navigator.userAgent;
 	if (ua.indexOf("Safari") != -1 || ua.indexOf("AppleWebKit") != -1 || ua.indexOf("Konqueror") != -1) {
 		return true;
 	} else {
 		return false;
+	}
+}
+
+/**
+ * @return  object
+ */
+function getDocumentBodyIE()
+{
+	return (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
+}
+
+// @return  void
+function addLoadEvent(func) {
+	var oldonload = window.onload;
+	
+	if (typeof window.onload != 'function') {
+		window.onload = func;
+	} else {
+		window.onload = function() {
+			oldonload();
+			func();
+		}
 	}
 }

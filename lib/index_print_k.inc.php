@@ -19,12 +19,14 @@ function index_print_k()
         if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
             $log_hd = array_map('htmlspecialchars', $log);
             $htm['last_login'] = <<<EOP
+<font color="#888888">
 前回のﾛｸﾞｲﾝ情報 - {$log_hd['date']}<br>
 ﾕｰｻﾞ:   {$log_hd['user']}<br>
 IP:     {$log_hd['ip']}<br>
 HOST:   {$log_hd['host']}<br>
 UA:     {$log_hd['ua']}<br>
 REFERER: {$log_hd['referer']}
+</font>
 EOP;
         }
     }
@@ -41,7 +43,6 @@ EOP;
     // 携帯用 HTML プリント
     //=========================================================
     P2Util::header_nocache();
-    P2Util::header_content_type();
     echo $_conf['doctype'];
     echo <<<EOP
 <html>
@@ -70,7 +71,7 @@ EOP;
 <hr>
 
 <form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
-		ｽﾚURLを直接指定
+		2chのｽﾚURLを直接指定
 		<input id="url_text" type="text" value="" name="url">
 		<input type="submit" name="btnG" value="表示">
 </form>
@@ -85,4 +86,3 @@ EOP;
 EOP;
 
 }
-?>

@@ -68,4 +68,3 @@ $plain_text2 = md5_decrypt($enc_text, $password);
 echo "decrypted text is: [${plain_text2}]<br />\n";
 */
 
-?>

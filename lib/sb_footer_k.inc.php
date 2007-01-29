@@ -1,13 +1,10 @@
 <?php
-// p2 -  サブジェクト - 携帯フッタ表示
+// p2 - サブジェクト - フッタHTMLを表示する 携帯
 // for subject.php
 
-//=================================================
-//フッタプリント
-//=================================================
-$mae_ht = "";
-$tugi_ht = "";
-$bbs_q = "&amp;bbs=".$aThreadList->bbs;
+$mae_ht     = "";
+$tugi_ht    = "";
+$bbs_q      = "&amp;bbs=" . $aThreadList->bbs;
 
 if (!empty($GLOBALS['wakati_words'])) {
     $word_at = "&amp;method=similar&amp;word=" . rawurlencode($GLOBALS['wakati_word']);
@@ -21,9 +18,12 @@ if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
 	$allfav_ht = <<<EOP
 	<p><a href="subject.php?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></p>
 EOP;
+} else {
+    $allfav_ht = '';
 }
 
-// ページタイトル部分HTML設定 ====================================
+// {{{ ページタイトル部分HTML設定
+
 if ($aThreadList->spmode == "taborn") {
 	$ptitle_ht = <<<EOP
 	<a href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（ｱﾎﾞﾝ中）
@@ -32,17 +32,18 @@ EOP;
 	$ptitle_ht = <<<EOP
 	<a  href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（dat倉庫）
 EOP;
-} elseif ($ptitle_url) {
+} elseif (!empty($ptitle_url)) {
 	$ptitle_ht = <<<EOP
-	<a  href="{$ptitle_url}"><b>{$ptitle_hd}</b></a>
+	<a  href="{$ptitle_url}"><b>{$ptitle_hs}</b></a>
 EOP;
 } else {
 	$ptitle_ht = <<<EOP
-	<b>{$ptitle_hd}</b>
+	<b>{$ptitle_hs}</b>
 EOP;
 }
 
-// {{{ ナビ
+// }}}
+// {{{ ナビ HTML設定
 
 $sb_view_at = "";
 if (!empty($_REQUEST['sb_view'])) {
@@ -72,33 +73,40 @@ if (!$disp_navi['all_once']) {
 	$k_sb_navi_ht = <<<EOP
 <p>{$sb_range_st}{$mae_ht} {$tugi_ht}</p>
 EOP;
+} else {
+    $k_sb_navi_ht = '';
 }
 
 // }}}
-// {{{ dat倉庫
+
+// dat倉庫
 // スペシャルモードでなければ、またはあぼーんリストなら
 if (!$aThreadList->spmode or $aThreadList->spmode == "taborn") {
 	$dat_soko_ht = <<<EOP
 	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$_conf['k_at_a']}">dat倉庫</a> 
 EOP;
+} else {
+    $dat_soko_ht = '';
 }
-// }}}
 
-// {{{ あぼーん中のスレッド
-if ($ta_num) {
+// あぼーん中のスレッド
+if (!empty($ta_num)) {
 	$taborn_link_ht = <<<EOP
 	<a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$_conf['k_at_a']}">ｱﾎﾞﾝ中({$ta_num})</a> 
 EOP;
+} else {
+    $taborn_link_ht = '';
 }
-// }}}
 
-// {{{ 新規スレッド作成
-if (!$aThreadList->spmode) {
+// 新規スレッド作成
+if (!$aThreadList->spmode and !P2Util::isHostKossoriEnq($aThreadList->host)) {
 	$buildnewthread_ht = <<<EOP
 	<a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=1{$_conf['k_at_a']}">ｽﾚ立て</a>
 EOP;
+} else {
+    $buildnewthread_ht = '';
 }
-// }}}
+
 
 // {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
 
@@ -148,10 +156,11 @@ $htm['change_sort'] .= '<input type="submit" value="変更"></form>';
 
 // }}}
 
-// HTMLプリント ==============================================
+// {{{ HTMLプリント
+
 echo "<hr>";
 echo $k_sb_navi_ht;
-include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
+include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 echo $allfav_ht;
 echo "<p>";
 echo $dat_soko_ht;
@@ -164,4 +173,4 @@ echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.T
 
 echo '</body></html>';
 
-?>
+// }}}

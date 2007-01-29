@@ -4,7 +4,7 @@
     返り値は、テキストで返す
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -27,7 +27,7 @@ $r_msg = "";
 
 // cmdが指定されていなければ、何も返さずに終了
 if (!isset($_GET['cmd']) && !isset($_POST['cmd'])) {
-    die('');
+    die;
 }
 
 // コマンド取得
@@ -41,7 +41,7 @@ if (isset($_GET['cmd'])) {
 
 if ($cmd == 'delelog') { 
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
-        include_once (P2_LIBRARY_DIR . '/dele.inc.php');
+        require_once P2_LIB_DIR . '/dele.inc.php';
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
         if ($r == 1) {
             $r_msg = "1"; // 完了
@@ -57,7 +57,7 @@ if ($cmd == 'delelog') {
 
 } elseif ($cmd == 'setfav') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
-        include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
+        require_once P2_LIB_DIR . '/setfav.inc.php';
         $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav']);
         if (empty($r)) {
             $r_msg = "0"; // 失敗
@@ -77,14 +77,11 @@ if ($cmd == 'delelog') {
 
 }
 // }}}
-// {{{ 結果出力
 
+// 結果出力
 if (P2Util::isBrowserSafariGroup()) {
 	$r_msg = mb_convert_encoding($r_msg, 'UTF-8', 'SJIS-win');
 }
 echo $xmldec;
 echo $r_msg;
 
-// }}}
-
-?>

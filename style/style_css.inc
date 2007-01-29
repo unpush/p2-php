@@ -3,7 +3,9 @@
 // ‘S”Ê
 
 if ($STYLE['a_underline_none'] == 1) {
-	$a_underline_none_css = "a{text-decoration:none;}";
+	$a_underline_none_css = 'a{ text-decoration:none; }';
+} else {
+    $a_underline_none_css = '';
 }
 
 echo <<<EOP
@@ -27,11 +29,16 @@ EOP;
 EOP;
 }
 
-if($STYLE['fontfamily_bold']){
+if (isset($STYLE['fontfamily_bold'])) {
 	echo <<<EOP
-	b{font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";}
+	b{
+        font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";
+    }
 EOP;
 }
+
+$STYLE['background'] = isset($STYLE['background']) ? $STYLE['background'] : '';
+$STYLE['fontfamily'] = isset($STYLE['fontfamily']) ? $STYLE['fontfamily'] : '';
 
 echo <<<EOP
 

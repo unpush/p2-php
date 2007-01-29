@@ -10,165 +10,246 @@ document.writeln('</style>');
 document.close;
 */
 
-delayShowSec = 0.1 * 1000;	// レスポップアップを表示する遅延時間。
-delaySec = 0.3 * 1000;	// レスポップアップを非表示にする遅延時間。
-zNum = 0;
+//=============================
+// 設定
+//=============================
+cDelayShowSec = 0.1 * 1000;	// レスポップアップを表示する遅延時間。
+cDelayHideSec = 0.2 * 1000;	// レスポップアップを非表示にする遅延時間
+cSpmDelayHideSec = 0.1 * 1000;	// レスポップアップを非表示にする遅延時間（spm）
 
-//==============================================================
+//=============================
+// 内部変数
+//=============================
 // gPOPS -- ResPopUp オブジェクトを格納する配列。
 // 配列 gPOPS の要素数が、現在生きている ResPopUp オブジェクトの数となる。
-//==============================================================
 gPOPS = new Array(); 
 
-gResPopCtl = new ResPopCtl();
-
 gShowTimerIds = new Object();
+gHideTimerIds = new Object();
 
-/**
- * レスポップアップを表示タイマーする
- *
- * 引用レス番に onMouseover で呼び出される
- */
-function showResPopUp(divID, ev) {
-	if (divID.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
+gOnPopSpaceId = null;
 
-	var aResPopUp = gResPopCtl.getResPopUp(divID);
-	if (aResPopUp) {
-		if (aResPopUp.hideTimerID) { clearTimeout(aResPopUp.hideTimerID); } // 非表示タイマーを解除
-	} else {
-		// doShowResPopUp(divID, ev);
+zNum = 0;
 
-		if (document.all) { // IE用
-			var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
-			x = body.scrollLeft + event.clientX; // 現在のマウス位置のX座標
-			y = body.scrollTop + event.clientY; // 現在のマウス位置のY座標
-		} else if (document.getElementById) { // DOM対応用（Mozilla）
-			x = ev.pageX; // 現在のマウス位置のX座標
-			y = ev.pageY; // 現在のマウス位置のY座標
-		} else {
-			return;
-		}
-		
-		aShowTimer = new Object();
-		aShowTimer.timerID = setTimeout("doShowResPopUp('" + divID + "')", delayShowSec); // 一定時間したら表示する
-		
-		aShowTimer.x = x;
-		aShowTimer.y = y;
-		
-		gShowTimerIds[divID] = aShowTimer;
-		//alert(gShowTimerIds[divID].timerID);
-	}
-	
-}
+//=============================
+// スタティックメソッド定義
+//=============================
 
-/**
- * レスポップアップを表示する
- */
-function doShowResPopUp(divID) {
+// ResPopUp オブジェクトを取り扱う
+var ResPopUpManager = {
 
-	x = gShowTimerIds[divID].x;
-	y = gShowTimerIds[divID].y;
-	
-	var aResPopUp = gResPopCtl.getResPopUp(divID);
-	if (aResPopUp) {
-		if (aResPopUp.hideTimerID) { clearTimeout(aResPopUp.hideTimerID); } // 非表示タイマーを解除
-		
-		/*
-		// 再表示時の zIndex 処理 ------------------------
-		// しかしなぜか期待通りの動作をしてくれない。
-		// IEとMozillaで挙動も違う。よって非アクティブ。
-		aResPopUp.zNum = zNum;
-		aResPopUp.popOBJ.style.zIndex = aResPopUp.zNum;
-		//----------------------------------------
-		*/
-		
-	} else {
-		zNum++;
-		aResPopUp = gResPopCtl.addResPopUp(divID); // 新しいポップアップを追加
-	}
-	
-	aResPopUp.showResPopUp(x, y);
-}
-
-/**
- * レスポップアップを非表示タイマーする
- *
- * 引用レス番から onMouseout で呼び出される
- */
-function hideResPopUp(divID) {
-	if (divID.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
-	
-	if (gShowTimerIds[divID].timerID) { clearTimeout(gShowTimerIds[divID].timerID); } // 表示タイマーを解除
-	
-	var aResPopUp = gResPopCtl.getResPopUp(divID);
-	if (aResPopUp) {
-		aResPopUp.hideResPopUp();
-	}
-}
-
-/**
- * レスポップアップを非表示にする
- */
-function doHideResPopUp(divID) {
-	var aResPopUp = gResPopCtl.getResPopUp(divID);
-	if (aResPopUp) {
-		aResPopUp.doHideResPopUp();
-	}
-}
-
-
-/**
- * オブジェクトデータをコントロールするクラス
- */
-function ResPopCtl() {
-
-	/**
-	 * 配列 gPOPS に新規 ResPopUp オブジェクト を追加する
-	 */
-	ResPopCtl.prototype.addResPopUp = function (divID) {
-		var aResPopUp = new ResPopUp(divID);
+	// 配列 gPOPS に新規 ResPopUp オブジェクト を追加する
+	// @return  ResPopUp
+	addResPopUp: function (popId) {
+		var aResPopUp = new ResPopUp(popId);
 		// gPOPS.push(aResPopUp); Array.push はIE5.5未満未対応なので代替処理
 		return gPOPS[gPOPS.length] = aResPopUp;
-	}
-	
-	/**
-	 * 配列 gPOPS から 指定の ResPopUp オブジェクト を削除する
-	 */
-	ResPopCtl.prototype.rmResPopUp = function (divID) {
-		for (i = 0; i < gPOPS.length; i++) {
-	    	if (gPOPS[i].divID == divID) {
+	},
 
+	// 配列 gPOPS から 指定の ResPopUp オブジェクト を削除する
+	// @return  boolean
+	rmResPopUp: function (popId) {
+		for (i = 0; i < gPOPS.length; i++) {
+	    	if (gPOPS[i].popId == popId) {
 				gPOPS = arraySplice(gPOPS, i);
-			
 				return true;
 			}
 		}
 		return false;
-	}
+	},
 
-	/**
-	 * 配列 gPOPS で指定 divID の ResPopUp オブジェクトを返す
-	 */
-	ResPopCtl.prototype.getResPopUp = function (divID) {
+	// 配列 gPOPS で指定 popId の ResPopUp オブジェクトを返す
+	// @return  ResPopUp|false
+	getResPopUp: function (popId) {
 		for (i = 0; i < gPOPS.length; i++) {
-	    	if (gPOPS[i].divID == divID) {
+	    	if (gPOPS[i].popId == popId) {
 				return gPOPS[i];
 			}
 		}
 		return false;
 	}
-	
-	return this;
 }
 
+//=============================
+// クラス定義
+//=============================
+
+// クラス レスポップアップ（名前を ResPopup にしたい気持ち[Uu]）
+function ResPopUp(popId)
+{
+    this.popId = popId;
+	this.zNum = zNum;
+	this.hideTimerID = 0;
+	
+	// IE用
+	if (document.all) {
+		this.popOBJ = document.all[this.popId];
+	// DOM対応用（Mozilla）
+	} else if (document.getElementById) {
+		this.popOBJ = document.getElementById(this.popId);
+	}
+}
+
+ResPopUp.prototype = {
+	
+	// レスポップアップの位置をセットする
+	// @return  void
+	setPosResPopUp: function (x, y)
+	{
+		var x_adjust = 10;	// x軸位置調整
+		var y_adjust = -68;	// y軸位置調整
+	
+		if (this.isModeSpm()) {
+			x_adjust = -1;
+			y_adjust = -10;
+		}
+	
+		if (document.all) { // IE用
+			var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
+			//x = body.scrollLeft + event.clientX; // 現在のマウス位置のX座標
+			//y = body.scrollTop + event.clientY; // 現在のマウス位置のY座標
+			this.popOBJ.style.pixelLeft  = x + x_adjust; //ポップアップ位置
+			this.popOBJ.style.pixelTop  = y + y_adjust;
+		
+			if (this.popOBJ.offsetTop + this.popOBJ.offsetHeight > body.scrollTop + body.clientHeight) {
+				this.popOBJ.style.pixelTop = body.scrollTop + body.clientHeight - this.popOBJ.offsetHeight -20;
+			}
+			if (this.popOBJ.offsetTop < body.scrollTop) {
+				this.popOBJ.style.pixelTop = body.scrollTop -2;
+			}
+		
+		} else if (document.getElementById) { // DOM対応用（Mozilla）
+			//x = ev.pageX; // 現在のマウス位置のX座標
+			//y = ev.pageY; // 現在のマウス位置のY座標
+			this.popOBJ.style.left = x + x_adjust + "px"; //ポップアップ位置
+			this.popOBJ.style.top = y + y_adjust + "px";
+			//alert(window.pageYOffset);
+			//alert(this.popOBJ.offsetTop);
+		
+			if ((this.popOBJ.offsetTop + this.popOBJ.offsetHeight) > (window.pageYOffset + window.innerHeight)) {
+				this.popOBJ.style.top = window.pageYOffset + window.innerHeight - this.popOBJ.offsetHeight -20 + "px";
+			}
+			if (this.popOBJ.offsetTop < window.pageYOffset) {
+				this.popOBJ.style.top = window.pageYOffset -2 + "px";
+			}
+		}
+	},
+
+	// レスポップアップを表示する
+	// @return  void
+	showResPopUp: function (x, y)
+	{
+		if (this.popOBJ.style.visibility == "visible") {
+			return;
+		}
+	
+		this.popOBJ.style.zIndex = this.zNum;
+		this.setPosResPopUp(x, y);
+	
+		// スマートポップアップメニューのとき
+		var mode = this.popId.charAt(0);
+		if (mode == "p" || mode == "a" || mode == "n") {
+			this.opacity = 0.88;
+		} else {
+			this.opacity = 1;
+		}
+	
+		this.popOBJ.style.visibility = "visible"; // レスポップアップ表示
+		this.popOBJ.ondblclick = function () {
+			this.style.visibility = "hidden";
+			ResPopUpManager.rmResPopUp(this.id);
+		}
+		this.popOBJ.onmouseout = function () {
+			hideResPopUp(this.id)
+		}
+	
+		var el = YAHOO.ext.Element.get(this.popOBJ);
+		el.setOpacity(this.opacity ? this.opacity : 1);
+	},
+
+	// レスポップアップを非表示タイマーする
+	// @return  void
+	hideResPopUp: function ()
+	{
+		var delaySec = cDelayHideSec;
+		
+		if (this.isModeSpm()) {
+			delaySec = cSpmDelayHideSec;
+		}
+		
+		// 一定時間表示したら消す
+		this.hideTimerID = setTimeout("doHideResPopUp('" + this.popId + "')", delaySec);
+	},
+
+	// レスポップアップを非表示にする 順番待ち
+	// @return  void
+	doHideResPopUp: function ()
+	{
+		if (!this.isModeSpm()) {
+			for (i = 0; i < gPOPS.length; i++) {
+				// 自分より表示順位の高いのがあれば、消すのを遅延する
+				if (this.zNum < gPOPS[i].zNum) {
+					//clearTimeout(this.hideTimerID); // タイマーを解除
+					// 一定時間表示したら消す
+					this.hideTimerID = setTimeout("hideResPopUp('" + this.popId + "')", cDelayHideSec);
+					return;
+				}
+			}
+		}
+		this.nowHideResPopUp();
+	},
+
+	// レスポップアップを非表示にする 即
+	// @return  void
+	nowHideResPopUp: function ()
+	{
+		var popEI = YAHOO.ext.Element.get(this.popOBJ);
+		var me = this;
+		gHideTimerIds[me.popId] = true;
+		popEI.setOpacity(0, true, 0.15, function(){
+			if (!gHideTimerIds[me.popId]) {
+				//this.setOpacity(1, true, 0.15);
+				this.setOpacity(me.opacity ? me.opacity : 1);
+				return;
+			} else {
+				delete gHideTimerIds[me.popId];
+				me.popOBJ.style.visibility = "hidden"; // レスポップアップ非表示
+				// clearTimeout(this.hideTimerID); // タイマーを解除
+				ResPopUpManager.rmResPopUp(me.popId);
+			}
+		});
+	},
+	
+	// スマートポップアップメニューなら true
+	// @return  boolean
+	isModeSpm: function ()
+	{
+		// popId
+		// q{resnum}of{datkey}
+		// aThread_{$this->bbs}_{$this->key}
+		// p,nは不明
+		
+		var mode = this.popId.charAt(0);
+		if (mode == "p" || mode == "a" || mode == "n") {
+			return true;
+		}
+		return false;
+	}
+}
+
+//=============================
+// 関数定義
+//=============================
 /**
  * arraySplice
  *
  * anArray.splice(i, 1); Array.splice はIE5.5未満未対応なので代替処理
  * @return array
  */
-function arraySplice(anArray, i) {
+function arraySplice(anArray, i)
+{
 	var newArray = new Array();
+	
 	for (j = 0; j < anArray.length; j++) {
 		if (j != i) {
 			newArray[newArray.length] = anArray[j];
@@ -178,87 +259,122 @@ function arraySplice(anArray, i) {
 }
 
 /**
- * レスポップアップクラス
+ * レスポップアップを表示タイマーする
+ *
+ * 引用レス番に onMouseover で呼び出される
+ * [memo] 第一引数をeventオブジェクトにした方がよいだろうか。
+ *
+ * @param  boolean  onPopSpace  ポップアップスペースへのonmouseoverでの呼び出しなら。重複呼び出し回避のため。
  */
-function ResPopUp(divID) {
-	
-    this.divID = divID;
-	this.zNum = zNum;
-	this.hideTimerID = 0;
+function showResPopUp(popId, ev, onPopSpace)
+{
+	if (popId.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
 	
 	if (document.all) { // IE用
-		this.popOBJ = document.all[this.divID];
+		var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
+		var x = body.scrollLeft + event.clientX; // 現在のマウス位置のX座標
+		var y = body.scrollTop + event.clientY; // 現在のマウス位置のY座標
 	} else if (document.getElementById) { // DOM対応用（Mozilla）
-		this.popOBJ = document.getElementById(this.divID);
+		var x = ev.pageX; // 現在のマウス位置のX座標
+		var y = ev.pageY; // 現在のマウス位置のY座標
+	} else {
+		return;
 	}
 	
-	/**
-	 * レスポップアップを表示する
-	 */
-	ResPopUp.prototype.showResPopUp = function (x, y) {
-		var x_adjust = 10;	// x軸位置調整
-		var y_adjust = -68;	// y軸位置調整
-		if (this.popOBJ.style.visibility != "visible") {
-			this.popOBJ.style.zIndex = this.zNum;
-			if (document.all) { // IE用
-				var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
-				//x = body.scrollLeft + event.clientX; // 現在のマウス位置のX座標
-				//y = body.scrollTop + event.clientY; // 現在のマウス位置のY座標
-				this.popOBJ.style.pixelLeft  = x + x_adjust; //ポップアップ位置
-				this.popOBJ.style.pixelTop  = y + y_adjust;
-				
-				if( (this.popOBJ.offsetTop + this.popOBJ.offsetHeight) > (body.scrollTop + body.clientHeight) ){
-					this.popOBJ.style.pixelTop = body.scrollTop + body.clientHeight - this.popOBJ.offsetHeight -20;
-				}
-				if (this.popOBJ.offsetTop < body.scrollTop) {
-					this.popOBJ.style.pixelTop = body.scrollTop -2;
-				}
-				
-			} else if (document.getElementById) { // DOM対応用（Mozilla）
-				//x = ev.pageX; // 現在のマウス位置のX座標
-				//y = ev.pageY; // 現在のマウス位置のY座標
-				this.popOBJ.style.left = x + x_adjust + "px"; //ポップアップ位置
-				this.popOBJ.style.top = y + y_adjust + "px";
-				//alert(window.pageYOffset);
-				//alert(this.popOBJ.offsetTop);
-				
-				if ((this.popOBJ.offsetTop + this.popOBJ.offsetHeight) > (window.pageYOffset + window.innerHeight)) {
-					this.popOBJ.style.top = window.pageYOffset + window.innerHeight - this.popOBJ.offsetHeight -20 + "px";
-				}
-				if (this.popOBJ.offsetTop < window.pageYOffset) {
-					this.popOBJ.style.top = window.pageYOffset -2 + "px";
-				}
-				
-			}
-			this.popOBJ.style.visibility = "visible"; // レスポップアップ表示
-		}
-    }
-	
-	/**
-	 * レスポップアップを非表示タイマーする
-	 */
-	ResPopUp.prototype.hideResPopUp = function () {
-		this.hideTimerID = setTimeout("doHideResPopUp('" + this.divID + "')", delaySec); // 一定時間表示したら消す
-	}
+	var aResPopUp = ResPopUpManager.getResPopUp(popId);
+	if (aResPopUp) {
+		delete gHideTimerIds[popId];
+		if (aResPopUp.hideTimerID) { clearTimeout(aResPopUp.hideTimerID); } // 非表示タイマーを解除
 
-	/**
-	 * レスポップアップを非表示にする
-	 */
-	ResPopUp.prototype.doHideResPopUp = function () {
-
-		for (i=0; i < gPOPS.length; i++) {
-		
-			if (this.zNum < gPOPS[i].zNum) {
-				//clearTimeout(this.hideTimerID); // タイマーを解除
-				this.hideTimerID = setTimeout("hideResPopUp('" + this.divID + "')", delaySec); // 一定時間表示したら消す
+		if (onPopSpace) {
+			if (gOnPopSpaceId == popId) {
 				return;
+			} else {
+				gOnPopSpaceId = popId;
 			}
 		}
 		
-		this.popOBJ.style.visibility = "hidden"; // レスポップアップ非表示
-		// clearTimeout(this.hideTimerID); // タイマーを解除
-		gResPopCtl.rmResPopUp(this.divID);
+		// 再表示時の zIndex 処理
+		if (aResPopUp.zNum < zNum) {
+			aResPopUp.zNum = ++zNum;
+			aResPopUp.popOBJ.style.zIndex = aResPopUp.zNum;
+		}
+		
+		if (!onPopSpace) {
+			// Safariでは高速でマウスオーバー、マウスアウトが発生してマウスについてきてしまう（嫌な仕様だ）
+			if (!isSafari()) {
+				aResPopUp.setPosResPopUp(x,y);
+			}
+		}
+		
+		return;
 	}
 	
-	return this;
+	// doShowResPopUp(popId, ev);
+	
+	aShowTimer = new Object();
+	aShowTimer.x = x;
+	aShowTimer.y = y;
+	
+	// 一定時間したら表示する
+	aShowTimer.timerID = setTimeout("doShowResPopUp('" + popId + "')", cDelayShowSec);
+	
+	gShowTimerIds[popId] = aShowTimer;
+	//alert(gShowTimerIds[popId].timerID);
+}
+
+/**
+ * レスポップアップを表示する
+ */
+function doShowResPopUp(popId)
+{
+	var x = gShowTimerIds[popId].x;
+	var y = gShowTimerIds[popId].y;
+	
+	var aResPopUp = ResPopUpManager.getResPopUp(popId);
+	if (aResPopUp) {
+		if (aResPopUp.hideTimerID) { clearTimeout(aResPopUp.hideTimerID); } // 非表示タイマーを解除
+		/*
+		// 再表示時の zIndex 処理
+		if (aResPopUp.zNum < zNum) {
+			aResPopUp.zNum = ++zNum;
+			aResPopUp.popOBJ.style.zIndex = aResPopUp.zNum;
+		}
+		*/
+		return;
+	}
+	
+	zNum++;
+	aResPopUp = ResPopUpManager.addResPopUp(popId); // 新しいポップアップを追加
+
+
+	aResPopUp.showResPopUp(x, y);
+}
+
+/**
+ * レスポップアップを非表示タイマーする
+ *
+ * 引用レス番から onMouseout で呼び出される
+ */
+function hideResPopUp(popId)
+{
+	if (popId.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
+	
+	if (gShowTimerIds[popId].timerID) { clearTimeout(gShowTimerIds[popId].timerID); } // 表示タイマーを解除
+	
+	var aResPopUp = ResPopUpManager.getResPopUp(popId);
+	if (aResPopUp) {
+		aResPopUp.hideResPopUp();
+	}
+}
+
+/**
+ * レスポップアップを非表示にする
+ */
+function doHideResPopUp(popId)
+{
+	var aResPopUp = ResPopUpManager.getResPopUp(popId);
+	if (aResPopUp) {
+		aResPopUp.doHideResPopUp();
+	}
 }

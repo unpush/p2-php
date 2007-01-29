@@ -3,7 +3,7 @@
 	p2 - txt を 表示
 */
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -46,8 +46,13 @@ if (preg_match("/\.txt$/i", $file)) {
 	die("error: cannot view \"$file\"");
 }
 
+//=============================================================
+// 関数（このファイル内でのみ利用）
+//=============================================================
 /**
  * ファイル内容を読み込んで表示する関数
+ *
+ * @return  void
  */
 function viewTxtFile($file, $encode)
 {
@@ -60,8 +65,7 @@ function viewTxtFile($file, $encode)
 	$filename = basename($file);
 	$ptitle = $filename;
 	
-	//ファイル内容読み込み
-	$cont = @file_get_contents($file);
+	$cont = file_get_contents($file);
 	
 	if ($encode == "EUC-JP") {
 		$cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
@@ -69,13 +73,12 @@ function viewTxtFile($file, $encode)
 	
 	$cont_area = htmlspecialchars($cont, ENT_QUOTES);
 
-	// プリント
+	// HTMLプリント
 	echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
 <head>
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
@@ -83,13 +86,11 @@ function viewTxtFile($file, $encode)
 <body onLoad="top.document.title=self.document.title;">\n
 EOHEADER;
 
-	echo $_info_msg_ht;
+	P2Util::printInfoHtml();
+    
 	echo "<pre>";
 	echo $cont_area;
 	echo "</pre>";
 	echo '</body></html>';
-
-	return TRUE;
 }
 
-?>

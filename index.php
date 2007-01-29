@@ -1,8 +1,8 @@
 <?php
 // rep2 -  インデックスページ
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -25,10 +25,10 @@ if ($_conf['ktai']) {
     //=========================================================
     // url指定があれば、そのままスレッド読みへ飛ばす
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
-        header('Location: ' . $me_dir_url . '/read.php?' . $_SERVER['QUERY_STRING']);
+        header('Location: ' . $me_dir_url . '/' . $_conf['read_php'] . '?' . $_SERVER['QUERY_STRING']);
         exit;
     }
-    include_once P2_LIBRARY_DIR . '/index_print_k.inc.php';
+    require_once P2_LIB_DIR . '/index_print_k.inc.php';
     index_print_k();
     
 } else {
@@ -38,7 +38,7 @@ if ($_conf['ktai']) {
     $title_page = 'title.php';
 
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
-        $read_page = "read.php?" . $_SERVER['QUERY_STRING'];
+        $read_page = $_conf['read_php'] . "?" . $_SERVER['QUERY_STRING'];
     } else {
         if (!empty($_conf['first_page'])) {
             $read_page = $_conf['first_page'];
@@ -47,23 +47,25 @@ if ($_conf['ktai']) {
         }
     }
     
-    $sidebar = $_GET['sidebar'];
+    $sidebar = isset($_GET['sidebar']) ? $_GET['sidebar'] : null;
     
     $ptitle = "rep2";
     //======================================================
     // PC用 HTMLプリント
     //======================================================
     P2Util::header_nocache();
-    P2Util::header_content_type();
-    echo $_conf['doctype'];
     echo <<<EOHEADER
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+        "http://www.w3.org/TR/html4/frameset.dtd">
 <html lang="ja">
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>
-</head>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>\n
 EOHEADER;
 
     if (!$sidebar) {
@@ -89,7 +91,7 @@ EOHEADER;
 }
 
 //============================================================================
-// 関数
+// 関数（このファイル内でのみ利用）
 //============================================================================
 /**
  * ディレクトリに（アクセス拒否のための） .htaccess がなければ、自動で生成する
@@ -105,5 +107,3 @@ function makeDenyHtaccess($dir)
         FileCtl::file_write_contents($hta, $data);
     }
 }
-
-?>

@@ -6,11 +6,14 @@
  * ファイルを操作するクラス
  * インスタンスを作らずにスタティックメソッドで利用する
  */
-class FileCtl{
-    
+class FileCtl
+{
     /**
      * ファイルがなければ生成し、書き込み権限がなければパーミッションを調整する
      * （既にファイルがあり、書き込み権限もある場合は、何もしない。※modifiedの更新もしない）
+     *
+     * @static
+     * @access  public
      *
      * @param   boolean  $die  true なら、エラーでただちに終了する
      * @return  boolean  問題がなければtrue
@@ -32,8 +35,8 @@ class FileCtl{
         
         // ファイルがなければ
         if (!file_exists($file)) {
-            if (!FileCtl::mkdir_for($file)) {
-                $die and die("Error: $me -> FileCtl::mkdir_for() failed.");
+            if (!FileCtl::mkdirFor($file)) {
+                $die and die("Error: $me -> FileCtl::mkdirFor() failed.");
                 return false;
             }
             if (!touch($file)) {
@@ -80,7 +83,7 @@ class FileCtl{
      * mkdirR() の実処理を行う
      *
      * @access  private
-     * @parama  integer  $rtimes  再帰呼び出しされている現在回数
+     * @param   integer  $rtimes  再帰呼び出しされている現在回数
      * @return  boolean
      */
     function _mkdirR($dir, $perm = null, $die = true, $rtimes = 0)
@@ -132,17 +135,23 @@ class FileCtl{
     /**
      * 指定したパスの親ディレクトリがなければ（再帰的に）生成して、パーミッションの調整も行う
      *
+     * @static
+     * @access  public
      * @return  boolean
      */
-    function mkdir_for($apath)
+    function mkdirFor($apath)
     {
         return FileCtl::mkdirR(dirname($apath));
     }
     
     /**
      * gzファイルの中身を取得する
+     *
+     * @static
+     * @access  public
+     * @return  string|false
      */
-    function get_gzfile_contents($filepath)
+    function getGzFileContents($filepath)
     {
         if (is_readable($filepath)) {
             ob_start();
@@ -276,7 +285,7 @@ class FileCtl{
         $prefix = 'rename_';
         
         // 一時ディレクトリの明示指定がある場合
-        if ($tmp_dir) { // strlen($tmp_dir) > 0 とすべきところだが、むしろ0はなしということにしてみる
+        if ($tmp_dir) { // strlen($tmp_dir) > 0 とすべきところだが、むしろ"0"はなしということにしてみる
             if (!is_dir($tmp_dir)) {
                 trigger_error(__FUNCTION__ . "() -> is_dir($tmp_dir) failed.", E_USER_WARNING);
                 return false;
@@ -293,15 +302,13 @@ class FileCtl{
                 if (function_exists('php_get_tmpdir')) {
                     $tmp_dir = php_get_tmpdir();
                 } else {
-                    // これで動作はするが、null指定でも大丈夫かな。
+                    // これで動作はするが、null指定でも大丈夫かな。2007/01/22 WinではNG?未確認
                     $tmp_dir = null;
                 }
             }
         }
-        
-        $tmp_file = tempnam($tmp_dir, $prefix);
-        
-        $write_file = $win ? $file : $tmp_file;
+
+        $write_file = $win ? $file : tempnam($tmp_dir, $prefix);
         
         $r = file_put_contents($write_file, $cont, LOCK_EX);
         if ($r === false) {
@@ -414,4 +421,3 @@ class FileCtl{
 
     // }}}
 }
-?>

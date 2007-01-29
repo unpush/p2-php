@@ -8,29 +8,43 @@
 /* 主なHTML表示用変数は sb_header.inc.php にて設定 */
 
 // {{{ 新着まとめ読み
-$new_matome_i++;
+
+if (isset($new_matome_i)) {
+    $new_matome_i++;
+} else {
+    $new_matome_i = 0;
+}
+
+$shinchaku_matome_ht = '';
 
 // 倉庫でなければ
 if ($aThreadList->spmode != "soko") { 
-    if ($shinchaku_attayo) {
+    if (!empty($shinchaku_attayo)) {
         $shinchaku_num_ht = " (<span id=\"smynum{$new_matome_i}\" class=\"matome_num\">{$shinchaku_num}</span>)";
-    } else {
-        $shinchaku_num_ht = "";
     }
-    $shinchaku_matome_ht =<<<EOP
+    $shinchaku_matome_ht = <<<EOP
 <a id="smy{$new_matome_i}" class="matome" href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}{$norefresh_q}&amp;nt={$newtime}" onClick="chNewAllColor();">新着まとめ読み{$shinchaku_num_ht}</a>
 EOP;
 }
+
 // }}}
 
-$sb_tool_i++;
+if (isset($sb_tool_i)) {
+    $sb_tool_i++;
+} else {
+    $sb_tool_i = 0;
+}
+
+$sb_tool_anchor = '';
+
 if ($sb_tool_i == 1) {
     $sb_tool_anchor = <<<EOP
-<a class="toolanchor" href="#sbtoolbar2" target="_self">▼</a>
+<a class="toolanchor" href="#sbtoolbar2" target="_self" title="ページ下部へ移動">▼</a>
 EOP;
+
 } elseif ($sb_tool_i == 2) {
     $sb_tool_anchor = <<<EOP
-<a class="toolanchor" href="#sbtoolbar1" target="_self">▲</a>
+<a class="toolanchor" href="#sbtoolbar1" target="_self" title="ページ上部へ移動">▲</a>
 EOP;
 }
 
@@ -65,4 +79,3 @@ echo <<<EOP
     </table>\n
 EOP;
 
-?>

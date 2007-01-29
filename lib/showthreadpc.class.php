@@ -2,14 +2,13 @@
 /**
  * p2 - スレッドを表示する クラス PC用
  */
-class ShowThreadPc extends ShowThread{
-
+class ShowThreadPc extends ShowThread
+{
     var $quote_res_nums_checked; // ポップアップ表示されるチェック済みレス番号を登録した配列
     var $quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
-    var $quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
 
     /**
-     * コンストラクタ
+     * @constructor
      */
     function ShowThreadPc(&$aThread)
     {
@@ -98,24 +97,24 @@ class ShowThreadPc extends ShowThread{
         global $_conf, $STYLE, $mae_msg, $res_filter;
         global $ngaborns_hits;
 
-        $tores = "";
-        $rpop = "";
-        $isNgName = false;
-        $isNgMsg = false;
+        $tores      = "";
+        $rpop       = "";
+        $isNgName   = false;
+        $isNgMsg    = false;
 
-        $resar = $this->thread->explodeDatLine($ares);
-        $name = $resar[0];
-        $mail = $resar[1];
-        $date_id = $resar[2];
-        $msg = $resar[3];
+        $resar      = $this->thread->explodeDatLine($ares);
+        $name       = $resar[0];
+        $mail       = $resar[1];
+        $date_id    = $resar[2];
+        $msg        = $resar[3];
 
-        // {{{ フィルタリング
+        // {{{ フィルタリングカット
         
-        if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
+        if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
                 return '';
             // ターゲット設定
-            } elseif (!$target = $this->getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)) {
+            } elseif (!$target = $this->getFilterTarget($i, $name, $mail, $date_id, $msg)) {
                 return '';
             // マッチング
             } elseif (!$this->filterMatch($target, $i)) {
@@ -128,75 +127,113 @@ class ShowThreadPc extends ShowThread{
         //=============================================================
         // あぼーんチェック
         //=============================================================
-        $aborned_res .= "<dt id=\"r{$i}\" class=\"aborned\"><span>&nbsp;</span></dt>\n"; // 名前
+        $aborned_res = "<dt id=\"r{$i}\" class=\"aborned\"><span>&nbsp;</span></dt>\n"; // 名前
         $aborned_res .= "<!-- <dd class=\"aborned\">&nbsp;</dd> -->\n"; // 内容
 
         // あぼーんネーム
         if ($this->ngAbornCheck('aborn_name', strip_tags($name)) !== false) {
-            $ngaborns_hits['aborn_name']++;
+            if (isset($ngaborns_hits['aborn_name'])) {
+                $ngaborns_hits['aborn_name']++;
+            } else {
+                $ngaborns_hits['aborn_name'] = 1;
+            }
             return $aborned_res;
         }
 
         // あぼーんメール
         if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
-            $ngaborns_hits['aborn_mal']++;
+            if (isset($ngaborns_hits['aborn_mail'])) {
+                $ngaborns_hits['aborn_mail']++;
+            } else {
+                $ngaborns_hits['aborn_mail'] = 1;
+            }
             return $aborned_res;
         }
 
         // あぼーんID
         if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
-            $ngaborns_hits['aborn_id']++;
+            if (isset($ngaborns_hits['aborn_id'])) {
+                $ngaborns_hits['aborn_id']++;
+            } else {
+                $ngaborns_hits['aborn_id'] = 1;
+            }
             return $aborned_res;
         }
 
         // あぼーんメッセージ
         if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
-            $ngaborns_hits['aborn_msg']++;
+            if (isset($ngaborns_hits['aborn_msg'])) {
+                $ngaborns_hits['aborn_msg']++;
+            } else {
+                $ngaborns_hits['aborn_msg'] = 1;
+            }
             return $aborned_res;
         }
 
         // NGネームチェック
         if ($this->ngAbornCheck('ng_name', $name) !== false) {
-            $ngaborns_hits['ng_name']++;
+            if (isset($ngaborns_hits['ng_name'])) {
+                $ngaborns_hits['ng_name']++;
+            } else {
+                $ngaborns_hits['ng_name'] = 1;
+            }
             $isNgName = true;
+        } else {
+            $isNgName = false;
         }
 
         // NGメールチェック
         if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
-            $ngaborns_hits['ng_mail']++;
+            if (isset($ngaborns_hits['ng_mail'])) {
+                $ngaborns_hits['ng_mail']++;
+            } else {
+                $ngaborns_hits['ng_mail'] = 1;
+            }
             $isNgMail = true;
+        } else {
+            $isNgMail = false;
         }
 
         // NGIDチェック
         if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
-            $ngaborns_hits['ng_id']++;
+            if (isset($ngaborns_hits['ng_id'])) {
+                $ngaborns_hits['ng_id']++;
+            } else {
+                $ngaborns_hits['ng_id'] = 1;
+            }
             $isNgId = true;
+        } else {
+            $isNgId = false;
         }
 
         // NGメッセージチェック
         $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
         if ($a_ng_msg !== false) {
-            $ngaborns_hits['ng_msg']++;
+            if (isset($ngaborns_hits['ng_msg'])) {
+                $ngaborns_hits['ng_msg']++;
+            } else {
+                $ngaborns_hits['ng_msg'] = 1;
+            }
             $isNgMsg = true;
         }
 
-        //=============================================================
-        // レスをポップアップ表示
-        //=============================================================
+        // {{{ レスをポップアップ表示
+        
         if ($_conf['quote_res_view']) {
-            $this->quote_check_depth = 0;
             $quote_res_nums = $this->checkQuoteResNums($i, $name, $msg);
 
             foreach ($quote_res_nums as $rnv) {
-                if (!$this->quote_res_nums_done[$rnv]) {
+                if (empty($this->quote_res_nums_done[$rnv]) and $rnv < count($this->thread->datlines)) {
                     $ds = $this->qRes($this->thread->datlines[$rnv-1], $rnv);
-                    $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
+                    $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event,true)\"";
                     $rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></dd>\n";
                     $this->quote_res_nums_done[$rnv] = true;
                 }
             }
         }
-
+        
+        // }}}
+        
         //=============================================================
         // まとめて出力
         //=============================================================
@@ -212,7 +249,6 @@ class ShowThreadPc extends ShowThread{
         if ($_conf['iframe_popup']) {
             $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
         }
-        // }}}
 
         // NGメッセージ変換
         if ($isNgMsg) {
@@ -323,17 +359,18 @@ EOP;
         if (!$_conf['quote_res_view']) {
             return false;
         }
-
+        
+        $ds = '';
+        $rpop = '';
         $dummy_msg = "";
-        $this->quote_check_depth = 0;
         $quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
         foreach ($quote_res_nums as $rnv) {
-            if (!$this->quote_res_nums_done[$rnv]) {
+            if (empty($this->quote_res_nums_done[$rnv])) {
                 if ($this->thread->ttitle_hd) {
                     $ds = "<b>{$this->thread->ttitle_hd}</b><br><br>";
                 }
                 $ds .= $this->qRes( $this->thread->datlines[$rnv-1], $rnv );
-                $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
+                $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event,true)\"";
                 $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></div>\n";
                 $this->quote_res_nums_done[$rnv] = true;
             }
@@ -371,7 +408,6 @@ EOP;
         if ($_conf['iframe_popup']) {
             $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
         }
-        //
 
         // IDフィルタ
         if ($_conf['flex_idpopup'] == 1) {
@@ -483,10 +519,10 @@ EOP;
 
         // preg_replace_callback()では名前付きでキャプチャできない？
         if (!isset($s['link'])) {
-            $s['link']  = $s[1];
-            $s['quote'] = $s[5];
-            $s['url']   = $s[8];
-            $s['id']    = $s[11];
+            $s['link']  = isset($s[1]) ? $s[1] : null;
+            $s['quote'] = isset($s[5]) ? $s[5] : null;
+            $s['url']   = isset($s[8]) ? $s[8] : null;
+            $s['id']    = isset($s[11]) ? $s[11] : null;
         }
 
         // マッチしたサブパターンに応じて分岐
@@ -706,7 +742,14 @@ EOP;
             }
             $pop_str = "<img src=\"{$pop_img}\" width=\"{$x}\" height=\"{$y}\" hspace=\"2\" vspace=\"0\" border=\"0\" align=\"top\">";
         }
-
+        
+        // (p)IDポップアップで同じURLの連続呼び出しなら(p)にしない
+        if (!empty($_GET['idpopup']) and isset($_SERVER['QUERY_STRING'])) {
+            if (htmlspecialchars(basename(P2Util::getMyUrl()) . '?' . $_SERVER['QUERY_STRING']) == $link_url) {
+                $mode = 0;
+            }
+        }
+        
         // リンク作成
         switch ($mode) {
             // マーク無し
@@ -763,94 +806,86 @@ EOP;
     /**
      * HTMLメッセージ中の引用レス番号を再帰チェックし、見つかった番号の配列を返す
      *
-     * @param   integer  $res_num  チェック対象レスの番号
-     * @param   string   $name     チェック対象レスの名前
-     * @param   string   $msg      チェック対象レスのメッセージ
+     * @access  private
+     * @param   integer     $res_num       チェック対象レスの番号
+     * @param   string|null $name          チェック対象レスの名前（未フォーマットのもの）
+     * @param   string|null $msg           チェック対象レスのメッセージ（未フォーマットのもの）
+     * @param   integer     $callLimit     再帰での呼び出し数制限
+     * @param   integer     $nowDepth      現在の再帰の深さ（マニュアル指定はしない）
      * @return  array    見つかった引用レス番号の配列
      */
-    function checkQuoteResNums($res_num, $name, $msg)
+    function checkQuoteResNums($res_num, $name, $msg, $callLimit = 20, $nowDepth = 0)
     {
+        static $callTimes_ = 0;
+        
+        if (!$nowDepth) {
+            $callTimes_ = 0;
+        } else {
+            $callTimes_++;
+        }
+        
+        // 再帰での呼び出し数制限
+        if ($callTimes_ >= $callLimit) {
+            return array();
+        }
+        
+        if ($res_num > count($this->thread->datlines)) {
+            return array();
+        }
+        
         $quote_res_nums = array();
         
-        // 再帰リミッタ
-        $recursive_limit = 20;
-        if ($this->quote_check_depth > $recursive_limit) {
-            return array();
-        } else {
-            $this->quote_check_depth++;
+        // name, msg が null指定なら datlines, res_num から取得する
+        if (is_null($name) || is_null($msg)) {
+            $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$res_num - 1]);
+            if (is_null($name)) {
+                $name = $datalinear[0];
+            }
+            if (is_null($msg)) {
+                $msg = $datalinear[3];
+            }
         }
         
         // {{{ 名前をチェックする
         
-        $name = preg_replace("/(◆.*)/", "", $name, 1);
-        if (preg_match("/[0-9]+/", $name, $matches)) {
-            $a_quote_res_num = $matches[0];
+        if ($a_quote_res_num = $this->thread->getQuoteResNumName($name)) {
+            $quote_res_nums[] = $a_quote_res_num;
 
-            if ($a_quote_res_num) {
-                $quote_res_nums[] = $a_quote_res_num;
-
-                // 自分自身の番号と同一でなければ
-                if ($a_quote_res_num != $res_num) {
-                    // チェックしていない番号を再帰チェック
-                    if (!$this->quote_res_nums_checked[$a_quote_res_num]) {
-                        $this->quote_res_nums_checked[$a_quote_res_num] = true;
-
-                        $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_num-1]);
-                        $quote_name = $datalinear[0];
-                        $quote_msg = $this->thread->datlines[$a_quote_res_num-1];
-                        $quote_res_nums = array_merge( $quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg) );
-                     }
+            // 自分自身の番号と同一でなければ
+            if ($a_quote_res_num != $res_num) {
+                // チェックしていない番号を再帰チェック
+                if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
+                    $this->quote_res_nums_checked[$a_quote_res_num] = true;
+                    $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1));
                  }
-             }
-            // $name = preg_replace("/([0-9]+)/", "", $name, 1);
+            }
         }
-
+        
         // }}}
         // {{{ メッセージをチェックする
         
-        // >>1のリンクをいったん外す
-        // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
-        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
+        $quote_res_nums_msg = $this->thread->getQuoteResNumsMsg($msg);
 
-        if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
+        foreach ($quote_res_nums_msg as $a_quote_res_num) {
 
-            foreach ($out[1] as $numberq) {
-                
-                if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
+            $quote_res_nums[] = $a_quote_res_num;
 
-                    foreach ($matches[0] as $a_quote_res_num) {
-
-                        if (!$a_quote_res_num) { break; }
-                        $quote_res_nums[] = $a_quote_res_num;
-
-                        // 自分自身の番号と同一でなければ、
-                        if ($a_quote_res_num != $res_num) {
-                            // チェックしていない番号を再帰チェック
-                            if (!$this->quote_res_nums_checked[$a_quote_res_num]) {
-                                $this->quote_res_nums_checked[$a_quote_res_num] = true;
-
-                                $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_num-1]);
-                                $quote_name = $datalinear[0];
-                                $quote_msg = $this->thread->datlines[$a_quote_res_num-1];
-                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
-                             }
-                         }
-
-                     } // foreach
-
-                } // if
-
-            } // foreach
+            // 自分自身の番号と同一でなければ、
+            if ($a_quote_res_num != $res_num) {
+                // チェックしていない番号を再帰チェック
+                if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
+                    $this->quote_res_nums_checked[$a_quote_res_num] = true;
+                    $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1));
+                 }
+             }
 
         }
-        
+
         // }}}
         
-        $quote_res_nums = array_unique($quote_res_nums);
-        
-        return $quote_res_nums;
+        return array_unique($quote_res_nums);
     }
-
+    
     // }}}
     // {{{ link_callback()から呼び出されるURL書き換えメソッド
 
@@ -945,9 +980,10 @@ EOP;
         global $_conf;
 
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
+            $ls = isset($m[4]) ? $m[4] : '';
+            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$ls}";
             if ($_conf['iframe_popup']) {
-                if (preg_match('/^[0-9\\-n]+$/', $m[4])) {
+                if (preg_match('/^[0-9\\-n]+$/', $ls)) {
                     $pop_url = $url;
                 } else {
                     $pop_url = $read_url . '&amp;onlyone=true';
@@ -991,9 +1027,11 @@ EOP;
         global $_conf;
 
         if (preg_match('{^http://((\\w+\\.machibbs\\.com|\\w+\\.machi\\.to|jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)(/\\w+)?)/bbs/read\\.(?:pl|cgi)\\?BBS=(\\w+)(?:&amp;|&)KEY=([0-9]+)(?:(?:&amp;|&)START=([0-9]+))?(?:(?:&amp;|&)END=([0-9]+))?(?=&|$)}', $url, $m)) {
+            $start = isset($m[6]) ? $m[6] : null;
+            $end   = isset($m[7]) ? $m[7] : null;
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[4]}&amp;key={$m[5]}";
-            if ($m[5] || $m[6]) {
-                $read_url .= "&amp;ls={$m[6]}-{$m[7]}";
+            if ($start || $end) {
+                $read_url .= "&amp;ls={$start}-{$end}";
             }
             if ($_conf['iframe_popup']) {
                 $pop_url = $url;
@@ -1098,4 +1136,4 @@ EOP;
 
 }
 
-?>
+

@@ -1,8 +1,7 @@
 /* p2 - 書き込みフォーム用JavaScript */
 
-////
-// hukkatuPostForm
-//
+// クッキーから書きかけのフォーム内容を復活する
+// @return  void
 function hukkatuPostForm(host, bbs, key) {
 	var chost = getCookie('post_host');
 	var cbbs = getCookie('post_bbs');
@@ -17,9 +16,7 @@ function hukkatuPostForm(host, bbs, key) {
 	}
 }
 
-////
-// getCookie
-//
+// @return  string
 function getCookie(cn) {
    get_data = document.cookie;
    cv = new Array();
@@ -36,9 +33,7 @@ function getCookie(cn) {
 	}
 }
 
-////
-// setCookie
-//
+// @return  void
 function setCookie(cn, val, sec) {
 	
 	// クッキーの有効時間
@@ -57,9 +52,7 @@ function setCookie(cn, val, sec) {
 	document.cookie = cn + "=" + val +"; expires=" + ex;
 }
 
-////
-// getDataPostForm
-//
+// @return  object
 function getDataPostForm(host, bbs, key)
 {
 	var from = document.getElementById('FROM').value;
@@ -70,10 +63,8 @@ function getDataPostForm(host, bbs, key)
 	return data;
 }
 
-////
 // 書き込みフォームの内容を自動保存する
 // @return  true|null
-//
 g_coming_auto_save_post_form = false;	// 連続動作抑制のための動作中フラグ
 g_timer_auto_save_post_form = null;
 
@@ -98,21 +89,16 @@ function autoSavePostForm(host, bbs, key)
 	return true;
 }
 
-////
 // autoSavePostForm の連続動作を抑制しながら実行を行う
 //
 // @return  void
-//
 function comingAutoSavePostForm(host, bbs, key)
 {
 	g_coming_auto_save_post_form = false;
 	autoSavePostFormCookie(host, bbs, key);
 }
 
-////
-// autoSavePostFormCookie
 // @return  true|null
-//
 function autoSavePostFormCookie(host, bbs, key)
 {
 	var data = getDataPostForm(host, bbs, key);
@@ -128,10 +114,8 @@ function autoSavePostFormCookie(host, bbs, key)
 }
 
 /* ajaxはやめてcookieを利用することにした
-////
-// autoSavePostFormAjax
+
 // @return  boolean|null
-//
 function autoSavePostFormAjax(host, bbs, key)
 {
 	var data = getDataPostForm(host, bbs, key);
@@ -168,11 +152,8 @@ function autoSavePostFormAjax(host, bbs, key)
 	return true;
 }
 
-////
-// checkResultAutoSavePostForm
-//
+
 // @return  void
-//
 function checkResultAutoSavePostForm(objHTTP)
 {
 	var res = objHTTP.responseText.replace(/^<\?xml .+?\?>\n?/, '');
@@ -180,11 +161,7 @@ function checkResultAutoSavePostForm(objHTTP)
 }
 */
 
-////
-// blinkStatusPostForm
-//
 // @return  void
-//
 function blinkStatusPostForm(str)
 {
 	var timer_micro = 0.3*1000;
@@ -192,22 +169,15 @@ function blinkStatusPostForm(str)
 	var timer_id = setTimeout("setStatusPostForm('')", timer_micro);
 }
 
-////
-// setStatusPostForm
-//
 // @return  void
-//
 function setStatusPostForm(str)
 {
 	var status = document.getElementById('status_post_form');
 	status.innerHTML = str;
 }
 
-////
 // textareaの高さをライブ調節する
-//
 // @return  void
-//
 g_coming_adjust_textarea_rows = new Array();	// 連続動作抑制のための動作中フラグ
 g_adjust_textarea_objs = new Array();
 g_adjust_textarea_orgs = new Array();
@@ -237,11 +207,8 @@ function adjustTextareaRows(obj, plus)
 	g_adjust_textarea_timers[obj.id] = setTimeout("comingAdjustTextareaRows('" + obj.id + "', " + plus + ")", timer_micro);
 }
 
-////
 // doAdjustTextareaRows を実行する
-//
 // @return  void
-//
 function comingAdjustTextareaRows(id, plus)
 {
 	g_coming_adjust_textarea_rows[id] = false;
@@ -251,14 +218,11 @@ function comingAdjustTextareaRows(id, plus)
 	//blinkStatusPostForm('adjust');
 }
 
-////
 // textareaの高さをライブ調節する。実処理部分。
-//
 // @return  void
-//
 function doAdjustTextareaRows(obj, plus)
 {
-	var do_scroll = true;
+	var do_scroll = false; // 変な動きをしやすい？
 
 	var brlen = null;
 	if (obj.wrap) {
@@ -293,11 +257,8 @@ function doAdjustTextareaRows(obj, plus)
 	}
 }
 
-////
 // \n を改行として行数を数える
-//
 // @param integer brlen 改行する文字数。無指定なら文字数で改行しない
-//
 function countLines(str, brlen)
 {
 	var lines = str.split("\n");
@@ -315,9 +276,8 @@ function countLines(str, brlen)
 	return count;
 }
 
-////
 // 文字列をバイト数で数える
-//
+// @return  integer
 function jstrlen(str) {
 	var len = 0;
 	str = escape(str);
@@ -333,9 +293,7 @@ function jstrlen(str) {
 	return len;
 }
 
-////
 // (対象がdisableでなければ) フォーカスを合わせる
-//
 function setFocus(ID) {
 	var obj = document.getElementById(ID);
 	if (obj) {
@@ -345,9 +303,7 @@ function setFocus(ID) {
 	}
 }
 
-////
 // sageチェックに合わせて、メール欄の内容を書き換える
-//
 function mailSage() {
 	var cbsage = document.getElementById('sage');
 	if (cbsage) {
@@ -364,9 +320,7 @@ function mailSage() {
 	}
 }
 
-////
 // メール欄の内容に応じて、sageチェックをON OFFする
-//
 function checkSage(){
 	var mailran = document.getElementById('mail');
 	if (mailran) {
@@ -384,9 +338,7 @@ function checkSage(){
 /*
 // 自動で読み込むことにしたので、使わない
 
-////
 // 前回の書き込み内容を復帰する
-//
 function loadLastPosted(from, mail, message) {
 	var fromObj = document.getElementById('FROM');
 	if (fromObj) {
@@ -404,9 +356,7 @@ function loadLastPosted(from, mail, message) {
 }
 */
 
-////
-// inputConstant
-//
+// @return  void
 function inputConstant(obj) {
 	var msg = p2GetElementById('MESSAGE')
 	if (msg) {
@@ -416,4 +366,48 @@ function inputConstant(obj) {
 		msg.value = cur+add;
 		msg.focus();
 	}
+}
+
+// return  boolean
+function isNetFront() {
+  var ua = navigator.userAgent;
+  if (ua.indexOf("NetFront") != -1 || ua.indexOf("AVEFront/") != -1 || ua.indexOf("AVE-Front/") != -1) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// @thanks  naoya <http://d.hatena.ne.jp/naoya/20050804/1123152230>
+// @return  void
+function disableSubmit(form)
+{
+  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
+  if (isNetFront()) {
+    return;
+  }
+
+  var elements = form.elements;
+  for (var i = 0; i < elements.length; i++) {
+    if (elements[i].type == 'submit') {
+      elements[i].disabled = true;
+    }
+  }
+}
+
+// @return  void
+function setHiddenValue(button)
+{
+  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
+  if (isNetFront()) {
+    return;
+  }
+
+  if (button.name) {
+    var q = document.createElement('input');
+    q.type = 'hidden';
+    q.name = button.name;
+    q.value = button.value;
+    button.form.appendChild(q);
+  }
 }

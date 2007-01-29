@@ -4,7 +4,8 @@
 /**
  * レス記事のクラス
  */
-class ResArticle{
+class ResArticle
+{
     var $name;
     var $mail;
     var $daytime;
@@ -21,43 +22,18 @@ class ResArticle{
 /**
  * 書き込みログのクラス
  */
-class ResHist{
-
-    var $articles; // クラス ResArticle のオブジェクトを格納する配列
+class ResHist
+{
+    // クラス ResArticle のオブジェクトを格納する配列
+    var $articles = array();
     
-    var $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
+    var $resrange; // array('start' => i, 'to' => i, 'nofirst' => bool)
     
     /**
-     * コンストラクタ
+     * @constructor
      */
     function ResHist()
     {
-        $this->articles = array();
-    }
-    
-    /**
-     * 書き込みログの lines をパースして読み込む
-     * （全行処理しているのはちょっと無駄あり）
-     *
-     * @access  public
-     * @param   array    $lines
-     * @return  boolean  実効成否
-     */
-    function readLines($lines)
-    {
-        if (!is_array($lines)) {
-            trigger_error(__FUNCTION__ . '(), ' . 'illegal argument', E_USER_WARNING);
-            return false;
-        }
-        
-        $n = 1;
-        foreach ($lines as $aline) {
-            $aResArticle = $this->lineToRes($aline, $n);
-            $this->addRes($aResArticle);
-    
-            $n++;
-        }
-        return true;
     }
     
     /**
@@ -79,11 +55,11 @@ class ResHist{
         $aResArticle->ttitle = $resar[4];
         $aResArticle->host  = $resar[5];
         $aResArticle->bbs   = $resar[6];
-        if (!$aResArticle->itaj  = P2Util::getItaName($aResArticle->host, $aResArticle->bbs)) {
+        if (!$aResArticle->itaj = P2Util::getItaName($aResArticle->host, $aResArticle->bbs)) {
             $aResArticle->itaj = $aResArticle->bbs;
         }
         $aResArticle->key   = $resar[7];
-        $aResArticle->resnum = $resar[8];
+        $aResArticle->resnum = isset($resar[8]) ? $resar[8] : null;
         
         $aResArticle->order = $order;
         
@@ -91,30 +67,23 @@ class ResHist{
     }
     
     /**
-     * レスを追加する
-     *
-     * @access  private
-     * @return  void
-     */
-    function addRes($aResArticle)
-    {
-        $this->articles[] = $aResArticle;
-    }
-    
-    /**
-     * レス記事を表示する PC用
+     * レス記事HTMLを表示する PC用
      *
      * @access  public
+     * @param   array
      * @return  void
      */
-    function showArticles($datlines)
+    function printArticlesHtml($datlines)
     {
         global $_conf, $STYLE;
         
         $sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
         
         // Pager 準備
-        require_once 'Pager/Pager.php';
+        if (!require_once 'Pager/Pager.php') {
+            P2Util::printSimpleHtml('p2 error: PEARの Pager/Pager.php がインストールされていません');
+            die;
+        }
         $perPage = 100;
         $params = array(
             'mode'       => 'Jumping',
@@ -130,7 +99,7 @@ class ResHist{
             'spacesAfterSeparator' => 0,
         );
 
-        $pager = & Pager::factory($params);
+        $pager = &Pager::factory($params);
         $links = $pager->getLinks();
         $data  = $pager->getPageData();
 
@@ -140,51 +109,67 @@ class ResHist{
         
         echo '<dl>';
         
-        $pageID = max(1, intval($_REQUEST['pageID']));
+        if (isset($_REQUEST['pageID'])) {
+            $pageID = max(1, intval($_REQUEST['pageID']));
+        } else {
+            $pageID = 1;
+        }
+        
         $n = ($pageID - 1) * $perPage;
         foreach ($data as $aline) {
             $n++;
 
-            $a_res = $this->lineToRes($aline, $n);
+            $aRes = $this->lineToRes($aline, $n);
             
-            $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
-            $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
-            $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
+            $daytime_hs = htmlspecialchars($aRes->daytime, ENT_QUOTES);
+            $ttitle_hs = htmlspecialchars(html_entity_decode($aRes->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
             
             $href_ht = "";
-            if ($a_res->key) {
-                if (empty($a_res->resnum) || $a_res->resnum == 1) {
+            if ($aRes->key) {
+                if (empty($aRes->resnum) || $aRes->resnum == 1) {
                     $ls_q = '';
                     $footer_q = '#footer';
                 } else {
-                    $lf = max(1, $a_res->resnum - 0);
+                    $lf = max(1, $aRes->resnum - 0);
                     $ls_q = "&amp;ls={$lf}-";
                     $footer_q = "#r{$lf}";
                 }
                 $time = time();
-                $href_ht = $_conf['read_php'] . "?host=" . $a_res->host . "&amp;bbs=" . $a_res->bbs . "&amp;key=" . $a_res->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}{$footer_q}";
+                $href_ht = $_conf['read_php'] . "?host=" . $aRes->host . "&amp;bbs=" . $aRes->bbs . "&amp;key=" . $aRes->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}{$footer_q}";
             }
             $info_view_ht = <<<EOP
-        <a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$_conf['k_at_a']}" target="_self" onClick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)">情報</a>
+        <a href="info.php?host={$aRes->host}&amp;bbs={$aRes->bbs}&amp;key={$aRes->key}{$_conf['k_at_a']}" target="_self" onClick="return !openSubWin('info.php?host={$aRes->host}&amp;bbs={$aRes->bbs}&amp;key={$aRes->key}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)">情報</a>
 EOP;
 
-            $res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$hd['daytime']}\"> ";
-            $res_ht .= "{$a_res->order} ："; // 番号
-            $res_ht .= '<span class="name"><b>' . htmlspecialchars($a_res->name, ENT_QUOTES) . '</b></span> ：'; // 名前
+            $res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$aRes->order},,,,{$daytime_hs}\"> ";
+            
+            // 番号
+            $res_ht .= "{$aRes->order} ：";
+            
+            // 名前
+            $res_ht .= '<span class="name"><b>' . htmlspecialchars($aRes->name, ENT_QUOTES) . '</b></span> ：';
+            
             // メール
-            if ($a_res->mail) {
-                $res_ht .= htmlspecialchars($a_res->mail, ENT_QUOTES) . ' ：';
+            if ($aRes->mail) {
+                $res_ht .= htmlspecialchars($aRes->mail, ENT_QUOTES) . ' ：';
             }
-            $res_ht .= "{$hd['daytime']}</dt>\n"; // 日付とID
+            
+            // 日付とID
+            $res_ht .= "{$daytime_hs}</dt>\n";
+            
             // 板名
-            $res_ht .= "<dd><a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\" target=\"subject\">{$hd['itaj']}</a> / ";
+            $res_ht .= "<dd><a href=\"{$_conf['subject_php']}?host={$aRes->host}&amp;bbs={$aRes->bbs}{$_conf['k_at_a']}\" target=\"subject\">" . hs($aRes->itaj) . "</a> / ";
+            
             if ($href_ht) {
-                $res_ht .= "<a href=\"{$href_ht}\"><b>{$hd['ttitle']}</b></a> - {$info_view_ht}\n";
-            } elseif ($hd['ttitle']) {
-                $res_ht .= "<b>{$hd['ttitle']}</b>\n";
+                $res_ht .= "<a href=\"{$href_ht}\"><b>{$ttitle_hs}</b></a> - {$info_view_ht}\n";
+            } else {
+                $res_ht .= "<b>{$ttitle_hs}</b>\n";
             }
+            
             $res_ht .= "<br><br>";
-            $res_ht .= "{$a_res->msg}<br><br></dd>\n"; // 内容
+            
+            // 内容
+            $res_ht .= "{$aRes->msg}<br><br></dd>\n";
 
             echo $res_ht;
             flush();
@@ -199,26 +184,28 @@ EOP;
     
     /**
      * 携帯用ナビをHTML表示する
-     * 表示範囲もセットされる
+     * 表示範囲($this->resrange)もセットされる
      *
      * @access  public
+     * @param   string  $position  表示箇所識別名 'footer', 'header'
+     * @param   integer $totalNum  アイテム総数
      * @return  void
      */
-    function showNaviK($position, $num)
+    function showNaviK($position, $totalNum)
     {
         global $_conf;
 
         // 表示数制限
-        $list_disp_all_num = $num;
+        $list_disp_all_num = $totalNum;
         $list_disp_range = $_conf['k_rnum_range'];
         
-        if (!empty($_GET['from'])) {
-            $list_disp_from = $_GET['from'];
-            if (!empty($_GET['end'])) {
-                $list_disp_range = $_GET['end'] - $list_disp_from + 1;
-                if ($list_disp_range < 1) {
-                    $list_disp_range = 1;
-                }
+        $from = isset($_GET['from']) ? $_GET['from'] : null;
+        $end  = isset($_GET['end'])  ? $_GET['end']  : null;
+        
+        if (!empty($from)) {
+            $list_disp_from = $from;
+            if (!empty($end)) {
+                $list_disp_range = max(1, $end - $list_disp_from + 1);
             }
         } else {
             $list_disp_from = 1;
@@ -230,6 +217,7 @@ EOP;
         $this->resrange['to'] = $disp_navi['end'];
         $this->resrange['nofirst'] = false;
 
+        $mae_ht = '';
         if ($disp_navi['from'] > 1) {
             if ($position == "footer") {
                 $mae_ht = <<<EOP
@@ -260,16 +248,16 @@ EOP;
         }
 
         echo $list_navi_ht;
-    
     }
     
     /**
-     * レス記事をHTML表示するメソッド 携帯用
+     * レス記事をHTML表示する 携帯用
      *
      * @access  public
+     * @param   array
      * @return  void
      */
-    function showArticlesK($datlines)
+    function printArticlesHtmlK($datlines)
     {
         global $_conf;
         
@@ -281,76 +269,90 @@ EOP;
                 continue;
             }
             
-            $a_res = $this->lineToRes($aline, $n);
+            $aRes = $this->lineToRes($aline, $n);
             
-            $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
-            $hd['ttitle'] = htmlspecialchars(html_entity_decode($a_res->ttitle, ENT_COMPAT, 'Shift_JIS'), ENT_QUOTES);
-            $hd['itaj'] = htmlspecialchars($a_res->itaj, ENT_QUOTES);
+            $daytime_hs = htmlspecialchars($aRes->daytime, ENT_QUOTES);
+            
+            $ttitle = html_entity_decode($aRes->ttitle, ENT_COMPAT, 'Shift_JIS');
+            $ttitle_hs = hs($ttitle);
             
             $href_ht = "";
-            if ($a_res->key) {
-                if (empty($a_res->resnum) || $a_res->resnum == 1) {
+            if ($aRes->key) {
+                if (empty($aRes->resnum) || $aRes->resnum == 1) {
                     $ls_q = '';
                     $footer_q = '#footer';
                 } else {
-                    $lf = max(1, $a_res->resnum - 0);
+                    $lf = max(1, $aRes->resnum - 0);
                     $ls_q = "&amp;ls={$lf}-";
                     $footer_q = "#r{$lf}";
                 }
                 $time = time();
-                $href_ht = $_conf['read_php'] . "?host=" . $a_res->host . "&amp;bbs=" . $a_res->bbs . "&amp;key=" . $a_res->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}={$footer_q}";
+                $href_ht = $_conf['read_php'] . "?host=" . $aRes->host . "&amp;bbs=" . $aRes->bbs . "&amp;key=" . $aRes->key . $ls_q . "{$_conf['k_at_a']}&amp;nt={$time}={$footer_q}";
             }
-        
+            
+            $msg_ht = $aRes->msg;
+            
             // 大きさ制限
-            if (!$_GET['k_continue']) {
-                $msg = $a_res->msg;
-                if (strlen($msg) > $_conf['ktai_res_size']) {
-                    $msg = substr($msg, 0, $_conf['ktai_ryaku_size']);
+            if (empty($_GET['k_continue'])) {
+                if (strlen($msg_ht) > $_conf['ktai_res_size']) {
+                    $msg_ht = substr($msg_ht, 0, $_conf['ktai_ryaku_size']);
                 
                     // 末尾に<br>があれば取り除く
-                    if (substr($msg, -1) == ">") {
-                        $msg = substr($msg, 0, strlen($msg)-1);
+                    if (substr($msg_ht, -1) == ">") {
+                        $msg_ht = substr($msg_ht, 0, strlen($msg_ht)-1);
                     }
-                    if (substr($msg, -1) == "r") {
-                        $msg = substr($msg, 0, strlen($msg)-1);
+                    if (substr($msg_ht, -1) == "r") {
+                        $msg_ht = substr($msg_ht, 0, strlen($msg_ht)-1);
                     }
-                    if (substr($msg, -1) == "b") {
-                        $msg = substr($msg, 0, strlen($msg)-1);
+                    if (substr($msg_ht, -1) == "b") {
+                        $msg_ht = substr($msg_ht, 0, strlen($msg_ht)-1);
                     }
-                    if (substr($msg, -1) == "<") {
-                        $msg = substr($msg, 0, strlen($msg)-1);
+                    if (substr($msg_ht, -1) == "<") {
+                        $msg_ht = substr($msg_ht, 0, strlen($msg_ht)-1);
                     }
-                
-                    $msg = $msg . "  ";
-                    $a_res->msg = $msg."<a href=\"read_res_hist?from={$a_res->order}&amp;end={$a_res->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
+                    
+                    $msg_ht = $msg_ht . " <a href=\"read_res_hist?from={$aRes->order}&amp;end={$aRes->order}&amp;k_continue=1{$_conf['k_at_a']}\">略</a>";
                 }
             }
 
-            $res_ht = "[$a_res->order]"; // 番号
-            $res_ht .= htmlspecialchars($a_res->name, ENT_QUOTES) . ':'; // 名前
+            $res_ht = "[$aRes->order]"; // 番号
+            $res_ht .= htmlspecialchars($aRes->name, ENT_QUOTES) . ':'; // 名前
+            
             // メール
-            if ($a_res->mail) {
-                $res_ht .= htmlspecialchars($a_res->mail, ENT_QUOTES) . ':';
+            if ($aRes->mail) {
+                $res_ht .= htmlspecialchars($aRes->mail, ENT_QUOTES) . ':';
             }
-            $res_ht .= "{$hd['daytime']}<br>\n"; // 日付とID
-            $res_ht .= "<a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\">{$hd['itaj']}</a> / ";
+            
+            // 日付とID
+            $res_ht .= "{$daytime_hs}<br>\n";
+            
+            // 板名
+            $itaj_han_hs = hs($aRes->itaj);
+            $res_ht .= "<a href=\"{$_conf['subject_php']}?host={$aRes->host}&amp;bbs={$aRes->bbs}{$_conf['k_at_a']}\">{$itaj_han_hs}</a> / ";
+            
             if ($href_ht) {
-                $res_ht .= "<a href=\"{$href_ht}\">{$hd['ttitle']}</a>\n";
-            } elseif ($hd['ttitle']) {
-                $res_ht .= "{$hd['ttitle']}\n";
+                $res_ht .= "<a href=\"{$href_ht}\">{$ttitle_hs}</a>\n";
+            } else {
+                $res_ht .= "{$ttitle_hs}\n";
             }
             
             // 削除
-            //$res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$hd['daytime']}\"> ";
+            // $res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$aRes->order},,,,{$daytime_hs}\"> ";
             $from_q = isset($_GET['from']) ? '&amp;from=' . $_GET['from'] : '';
-            $dele_ht = "[<a href=\"read_res_hist.php?checked_hists[]={$a_res->order},,,," . htmlspecialchars(urlencode($a_res->daytime), ENT_QUOTES) . "{$from_q}{$_conf['k_at_a']}\">削除</a>]";
+            $dele_ht = "[<a href=\"read_res_hist.php?checked_hists[]={$aRes->order},,,," . htmlspecialchars(urlencode($aRes->daytime), ENT_QUOTES) . "{$from_q}{$_conf['k_at_a']}\">削除</a>]";
             $res_ht .= $dele_ht;
             
             $res_ht .= '<br>';
-            $res_ht .= "{$a_res->msg}<hr>\n"; // 内容
+            
+            // 内容
+            $res_ht .= "{$msg_ht}<hr>\n";
+            
+            if ($_conf['k_save_packet']) {
+                $res_ht = mb_convert_kana($res_ht, 'rnsk');
+            }
             
             echo $res_ht;
         }
     }
 }
-?>
+

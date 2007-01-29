@@ -11,8 +11,8 @@ shmにしてもパフォーマンスはほとんど変わらない（ようだ）
 /**
  * SubjectTxtクラス
  */
-class SubjectTxt{
-    
+class SubjectTxt
+{
     var $host;
     var $bbs;
     var $subject_url;
@@ -21,7 +21,7 @@ class SubjectTxt{
     var $storage; // file, eashm(eAccelerator shm) // 2006/02/27 aki eashm は非推奨
     
     /**
-     * コンストラクタ
+     * @constructor
      */
     function SubjectTxt($host, $bbs)
     {
@@ -71,32 +71,43 @@ class SubjectTxt{
     /**
      * subject.txtをダウンロードする
      *
-     * @access  private?
+     * @access  public
      * @return  string|false  subject.txt の中身
      */
     function downloadSubject()
     {
         global $_conf, $_info_msg_ht;
 
-        $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
+        $perm = isset($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
 
         if ($this->storage == 'file') {
-            FileCtl::mkdir_for($this->subject_file); // 板ディレクトリが無ければ作る
+            FileCtl::mkdirFor($this->subject_file); // 板ディレクトリが無ければ作る
         
             if (file_exists($this->subject_file)) {
-                if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
-                    return;    // 更新しない場合は、その場で抜けてしまう
-                } elseif (empty($_POST['newthread']) and $this->isSubjectTxtFresh()) {
-                    return;    // 新規スレ立て時でなく、更新が新しい場合も抜ける
+            
+                // 条件によって、キャッシュを適用する
+                // subject.php でrefresh指定がある時は、キャッシュを適用しない
+                if (!(basename($_SERVER['SCRIPT_NAME']) == 'subject.php' && !empty($_REQUEST['refresh']))) {
+                    
+                    // キャッシュ適用指定時は、その場で抜ける
+                    if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
+                        return;
+                        
+                    // 新規スレ立て時以外で、キャッシュが新鮮な場合も抜ける
+                    } elseif (empty($_POST['newthread']) and $this->isSubjectTxtFresh()) {
+                        return;
+                    }
                 }
-                $modified = gmdate("D, d M Y H:i:s", filemtime($this->subject_file))." GMT";
+                
+                $modified = gmdate("D, d M Y H:i:s", filemtime($this->subject_file)) . " GMT";
+            
             } else {
                 $modified = false;
             }
         }
 
         // DL
-        include_once "HTTP/Request.php";
+        require_once "HTTP/Request.php";
         
         $params = array();
         $params['timeout'] = $_conf['fsockopen_time_limit'];
@@ -116,7 +127,7 @@ class SubjectTxt{
             $code = $req->getResponseCode();
             if ($code == 302) {
                 // ホストの移転を追跡
-                include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+                require_once P2_LIB_DIR . '/BbsMap.class.php';
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
                     $aNewSubjectTxt = &new SubjectTxt($new_host, $this->bbs);
@@ -239,4 +250,3 @@ class SubjectTxt{
 
 }
 
-?>

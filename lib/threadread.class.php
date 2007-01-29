@@ -1,11 +1,11 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
- * p2 - スレッドリードクラス
+ * p2 - ThreadRead クラス
  */
-class ThreadRead extends Thread{
-
+class ThreadRead extends Thread
+{
     var $datlines;  // datから読み込んだラインを格納する配列
     
     var $resrange;  // array('start' => i, 'to' => i, 'nofirst' => bool)
@@ -18,8 +18,9 @@ class ThreadRead extends Thread{
     var $onthefly;  // ローカルにdat保存しないオンザフライ読み込みならtrue
 
     var $idcount;   // 配列。key は ID記号, value は ID出現回数
+    var $rrescount; // arary key は 参照先レス番号, value は参照元のレス
     
-    var $getdat_error_msg_ht; // dat取得に失敗した時に表示されるメッセージ（HTML）
+    var $getdat_error_msg_ht = ''; // dat取得に失敗した時に表示されるメッセージ（HTML）
     
     var $old_host;  // ホスト移転検出時、移転前のホストを保持する
 
@@ -28,11 +29,10 @@ class ThreadRead extends Thread{
      */
     function ThreadRead()
     {
-        $this->getdat_error_msg_ht = "";
     }
 
     /**
-     * DATをダウンロードする
+     * DATをダウンロード保存する
      *
      * @access  public
      * @return  boolean
@@ -40,16 +40,16 @@ class ThreadRead extends Thread{
     function downloadDat()
     {
         global $_conf;
-        global $uaMona, $SID2ch;    // include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
+        global $uaMona, $SID2ch;    // require_once P2_LIB_DIR . '/login2ch.inc.php';
         
         // まちBBS
         if (P2Util::isHostMachiBbs($this->host)) {
-            include_once P2_LIBRARY_DIR . '/read_machibbs.inc.php';
+            require_once P2_LIB_DIR . '/read_machibbs.inc.php';
             machiDownload();
             
         // JBBS@したらば
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
-            include_once P2_LIBRARY_DIR . '/read_shitaraba.inc.php';
+            require_once P2_LIB_DIR . '/read_shitaraba.inc.php';
             shitarabaDownload();
         
         // 2ch系
@@ -59,8 +59,8 @@ class ThreadRead extends Thread{
             // 2ch bbspink●読み
             if (P2Util::isHost2chs($this->host) && !empty($_GET['maru'])) {
                 // ログインしてなければ or ログイン後、24時間以上経過していたら自動再ログイン
-                if ((!file_exists($_conf['sid2ch_php']) or $_REQUEST['relogin2ch']) or (filemtime($_conf['sid2ch_php']) < time() - 60*60*24)) {
-                    include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
+                if ((!file_exists($_conf['sid2ch_php']) or !empty($_REQUEST['relogin2ch'])) or (filemtime($_conf['sid2ch_php']) < time() - 60*60*24)) {
+                    require_once P2_LIB_DIR . '/login2ch.inc.php';
                     if (!login2ch()) {
                         $this->getdat_error_msg_ht .= $this->get2chDatError();
                         $this->diedat = true;
@@ -72,7 +72,7 @@ class ThreadRead extends Thread{
                 $this->downloadDat2chMaru();
 
             // 2chの過去ログ倉庫読み
-            } elseif ($_GET['kakolog'] && $_GET['kakoget']) {
+            } elseif (!empty($_GET['kakolog']) && !empty($_GET['kakoget'])) {
                 if ($_GET['kakoget'] == 1) {
                     $ext = '.dat.gz';
                 } elseif ($_GET['kakoget'] == 2) {
@@ -202,6 +202,7 @@ class ThreadRead extends Thread{
         //$url="http://news2.2ch.net/test/read.cgi?bbs=newsplus&key=1038486598";
 
         $purl = parse_url($url);
+        
         if (isset($purl['query'])) {
             $purl['query'] = "?" . $purl['query'];
         } else {
@@ -215,19 +216,19 @@ class ThreadRead extends Thread{
             $send_path = $url;
         } else {
             $send_host = $purl['host'];
-            $send_port = $purl['port'];
-            $send_path = $purl['path'].$purl['query'];
+            $send_port = isset($purl['port']) ? $purl['port'] : null;
+            $send_path = $purl['path'] . $purl['query'];
         }
         
         !$send_port and $send_port = 80;
         
-        $request = $method." ".$send_path." HTTP/1.0\r\n";
-        $request .= "Host: ".$purl['host']."\r\n";
+        $request = $method . " " . $send_path . " HTTP/1.0\r\n";
+        $request .= "Host: " . $purl['host'] . "\r\n";
         $request .= "Accept: */*\r\n";
         //$request .= "Accept-Charset: Shift_JIS\r\n";
         //$request .= "Accept-Encoding: gzip, deflate\r\n";
         $request .= "Accept-Language: ja, en\r\n";
-        $request .= "User-Agent: ".$p2ua."\r\n";
+        $request .= "User-Agent: " . $p2ua . "\r\n";
         if (!$zero_read) {
             $request .= "Range: bytes={$from_bytes}-\r\n";
         }
@@ -247,7 +248,7 @@ class ThreadRead extends Thread{
         $request .= "\r\n";
         
         // WEBサーバへ接続
-        $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
+        $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
             $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>
@@ -280,7 +281,7 @@ class ThreadRead extends Thread{
         } elseif ($code == "302") {
         
             // ホストの移転を追跡
-            include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+            require_once P2_LIB_DIR . '/BbsMap.class.php';
             $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
             if ($new_host != $this->host) {
                 fclose($fp);
@@ -360,9 +361,10 @@ class ThreadRead extends Thread{
         if ($zero_read == false && $this->onbytes) {
             $this->getDatBytesFromLocalDat(); // $aThread->length をset
             if ($this->onbytes != $this->length) {
+                $onbytes = $this->onbytes;
                 unset($this->onbytes);
                 unset($this->modified);
-                $_info_msg_ht .= "p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>";
+                $_info_msg_ht .= "p2 info: $onbytes/$this->length ファイルサイズが変なので、datを再取得しました<br>";
                 $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
                 return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
             }
@@ -414,19 +416,18 @@ class ThreadRead extends Thread{
         if (!($this->host && $this->bbs && $this->key && $this->keydat)) {
             return false;
         }
-        
-        unset($datgz_attayo, $start_here, $isGzip, $done_gunzip, $marudatlines, $code);
-        
+
         $method = 'GET';
-        $p2ua = $uaMona." (".$_conf['p2name']."/".$_conf['p2version'].")"; // $uaMona → @see login2ch.inc.php
+        $p2ua = $uaMona . ' (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')'; // $uaMona → @see login2ch.inc.php
         
         //  GET /test/offlaw.cgi?bbs=板名&key=スレッド番号&sid=セッションID HTTP/1.1
         $SID2ch = urlencode($SID2ch);
         $url = 'http://' . $this->host . "/test/offlaw.cgi/{$this->bbs}/{$this->key}/?raw=0.0&sid={$SID2ch}";
 
-        $purl = parse_url($url); // URL分解
-        if (isset($purl['query'])) { // クエリー
-            $purl['query'] = '?'.$purl['query'];
+        $purl = parse_url($url);
+        
+        if (isset($purl['query'])) {
+            $purl['query'] = '?' . $purl['query'];
         } else {
             $purl['query'] = '';
         }
@@ -438,7 +439,7 @@ class ThreadRead extends Thread{
             $send_path = $url;
         } else {
             $send_host = $purl['host'];
-            $send_port = $purl['port'];
+            $send_port = isset($purl['port']) ? $purl['port'] : null;
             $send_path = $purl['path'] . $purl['query'];
         }
         
@@ -503,6 +504,7 @@ class ThreadRead extends Thread{
         
         // }}}
         
+        $isGzip = false;
         if (isset($h['headers']['Content-Encoding'])) {
             if (preg_match("/^(x-)?gzip/", $h['headers']['Content-Encoding'], $matches)) {
                 $isGzip = true;
@@ -517,6 +519,7 @@ class ThreadRead extends Thread{
             }
         }
         // Transfer-Encoding: chunked
+        $chunked = false;
         if (isset($h['headers']['Transfer-Encoding'])) {
             if ($h['headers']['Transfer-Encoding'] == "chunked") {
                 $chunked = true;
@@ -530,11 +533,13 @@ class ThreadRead extends Thread{
         }
         fclose($fp);
         
+        $done_gunzip = false;
+        
         // gzip圧縮なら
         if ($isGzip) {
             // gzip tempファイルに保存
             $gztempfile = $this->keydat . ".gz";
-            FileCtl::mkdir_for($gztempfile);
+            FileCtl::mkdirFor($gztempfile);
             if (file_put_contents($gztempfile, $body, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chMaru()");
                 return false;
@@ -542,7 +547,7 @@ class ThreadRead extends Thread{
             
             // PHPで解凍読み込み
             if (extension_loaded('zlib')) {
-                $body = FileCtl::get_gzfile_contents($gztempfile);
+                $body = FileCtl::getGzFileContents($gztempfile);
             // コマンドラインで解凍
             } else {
                 // 既に存在するなら一時バックアップ退避
@@ -656,7 +661,8 @@ class ThreadRead extends Thread{
             $httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
         }
         
-        $purl = parse_url($url); // URL分解
+        $purl = parse_url($url);
+        
         // クエリー
         if (isset($purl['query'])) {
             $purl['query'] = "?" . $purl['query'];
@@ -674,6 +680,7 @@ class ThreadRead extends Thread{
             $send_port = $purl['port'];
             $send_path = $purl['path'] . $purl['query'];
         }
+        
         // デフォルトを80
         if (!$send_port) {
             $send_port = 80;
@@ -759,15 +766,17 @@ class ThreadRead extends Thread{
         }
         fclose($fp);
         
+        $done_gunzip = false;
+        
         if ($isGzip) {
             $gztempfile = $this->keydat . ".gz";
-            FileCtl::mkdir_for($gztempfile);
+            FileCtl::mkdirFor($gztempfile);
             if (file_put_contents($gztempfile, $body, LOCK_EX) === false) {
                 die("Error: cannot write file. downloadDat2chKako()");
                 return false;
             }
             if (extension_loaded('zlib')) {
-                $body = FileCtl::get_gzfile_contents($gztempfile);
+                $body = FileCtl::getGzFileContents($gztempfile);
             } else {
                 // 既に存在するなら一時バックアップ退避
                 if (file_exists($this->keydat)) {
@@ -857,18 +866,18 @@ class ThreadRead extends Thread{
         // {{{ read.cgi からHTMLを取得
         
         $read_response_html = "";
-        include_once P2_LIBRARY_DIR . '/wap.class.php';
-        $wap_ua =& new UserAgent();
+        require_once P2_LIB_DIR . '/wap.class.php';
+        $wap_ua =& new WapUserAgent;
         $wap_ua->setAgent($_conf['p2name'] . "/" . $_conf['p2version']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req =& new Request();
+        $wap_req =& new WapRequest;
         $wap_req->setUrl($read_url);
         if ($_conf['proxy_use']) {
             $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
         }
         $wap_res = $wap_ua->request($wap_req);
         
-        if ($wap_res->is_error()) {
+        if (!$wap_res or !$wap_res->is_success()) {
             $url_t = P2Util::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a>
@@ -900,6 +909,7 @@ class ThreadRead extends Thread{
         //
         if (preg_match($kakosoko_match, $read_response_html, $matches)) {
             $dat_response_status = "このスレッドは過去ログ倉庫に格納されています。";
+            $marutori_ht = '';
             //if (file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])) {
                 $marutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>";
             //} else {
@@ -925,7 +935,7 @@ class ThreadRead extends Thread{
                 $dat_response_msg = "<p>2ch info - 隊長! スレッドはhtml化されるのを待っているようです。 [{$marutori_ht}]</p>";
                 
             } else {
-                if ($_GET['kakolog']) {
+                if (!empty($_GET['kakolog'])) {
                     $dat_response_status = "そんな板orスレッドないです。";
                     $kako_html_url = urldecode($_GET['kakolog']).".html";
                     $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
@@ -938,7 +948,7 @@ class ThreadRead extends Thread{
             }
             
         // 原因が分からない場合でも、とりあえず過去ログ取り込みのリンクを維持している。と思う。あまり覚えていない 2005/2/27 aki
-        } elseif ($_GET['kakolog']) {
+        } elseif (!empty($_GET['kakolog'])) {
             $dat_response_status = "";
             $kako_html_url = urldecode($_GET['kakolog']) . ".html";
             $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
@@ -1005,12 +1015,13 @@ class ThreadRead extends Thread{
             $url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
             
             $purl = parse_url($url);
+            
             if (isset($purl['query'])) {
                 $purl['query'] = "?" . $purl['query'];
             } else {
                 $purl['query'] = "";
             }
-        
+            
             // プロキシ
             if ($_conf['proxy_use']) {
                 $send_host = $_conf['proxy_host'];
@@ -1025,14 +1036,14 @@ class ThreadRead extends Thread{
             // デフォルトを80
             !$send_port and $send_port = 80;
     
-            $request = $method." ".$send_path." HTTP/1.0\r\n";
-            $request .= "Host: ".$purl['host']."\r\n";
+            $request = $method . " " . $send_path . " HTTP/1.0\r\n";
+            $request .= "Host: " . $purl['host']."\r\n";
             $request .= "User-Agent: Monazilla/1.00 (" . $_conf['p2name'] . "/" . $_conf['p2version'] . ")" . "\r\n";
             // $request .= "Range: bytes={$from_bytes}-\r\n";
     
             // Basic認証用のヘッダ
             if (isset($purl['user']) && isset($purl['pass'])) {
-                $request .= "Authorization: Basic ".base64_encode($purl['user'].":".$purl['pass'])."\r\n";
+                $request .= "Authorization: Basic " . base64_encode($purl['user'] . ":" . $purl['pass']) . "\r\n";
             }
             
             $request .= "Connection: Close\r\n";
@@ -1123,15 +1134,15 @@ class ThreadRead extends Thread{
         
         empty($GLOBALS['_conf']['ktai']) and $body .= "<dl>";
         
-        include_once P2_LIBRARY_DIR . '/showthread.class.php';
+        require_once P2_LIB_DIR . '/showthread.class.php';
         
         // PC
         if (empty($GLOBALS['_conf']['ktai'])) {
-            include_once P2_LIBRARY_DIR . '/showthreadpc.class.php';
+            require_once P2_LIB_DIR . '/showthreadpc.class.php';
             $aShowThread =& new ShowThreadPc($this);
         // 携帯
         } else {
-            include_once P2_LIBRARY_DIR . '/showthreadk.class.php';
+            require_once P2_LIB_DIR . '/showthreadk.class.php';
             $aShowThread =& new ShowThreadK($this);
         }
         
@@ -1159,8 +1170,6 @@ class ThreadRead extends Thread{
     }
 
     /**
-     * getStartToFromLs
-     *
      * @access  private
      * @return  array
      */
@@ -1205,8 +1214,6 @@ class ThreadRead extends Thread{
     }
     
     /**
-     * inResrangeMulti
-     *
      * @access  public
      * @return  boolean
      */
@@ -1221,8 +1228,6 @@ class ThreadRead extends Thread{
     }
     
     /**
-     * countResrangeMulti
-     *
      * @access  private
      * @return  integer
      */
@@ -1405,24 +1410,25 @@ class ThreadRead extends Thread{
     {
         global $_conf;
         
-        if (file_exists($this->keydat)) {
-            if ($this->datlines = file($this->keydat)) {
-            
-                // be.2ch.net ならEUC→SJIS変換
-                // 念のためSJISとUTF-8も文字コード判定の候補に入れておく
-                // ・・・が、文字化けしたタイトルのスレッドで誤判定があったので、指定しておく
-                if (P2Util::isHostBe2chNet($this->host)) {
-                    //mb_convert_variables('SJIS-win', 'eucJP-win,SJIS-win,UTF-8', $this->datlines);
-                    mb_convert_variables('SJIS-win', 'eucJP-win', $this->datlines);
-                }
-                
-                if (!strstr($this->datlines[0], "<>")) {
-                    $this->dat_type = "2ch_old";
-                }
-            }
-        } else {
+        if (!file_exists($this->keydat)) {
             return false;
         }
+        
+        if ($this->datlines = file($this->keydat)) {
+        
+            // be.2ch.net ならEUC→SJIS変換
+            // 念のためSJISとUTF-8も文字コード判定の候補に入れておく
+            // ・・・が、文字化けしたタイトルのスレッドで誤判定があったので、指定しておく
+            if (P2Util::isHostBe2chNet($this->host)) {
+                //mb_convert_variables('SJIS-win', 'eucJP-win,SJIS-win,UTF-8', $this->datlines);
+                mb_convert_variables('SJIS-win', 'eucJP-win', $this->datlines);
+            }
+            
+            if (!strstr($this->datlines[0], "<>")) {
+                $this->dat_type = "2ch_old";
+            }
+        }
+        
         $this->rescount = sizeof($this->datlines);
         
         if ($_conf['flex_idpopup']) {
@@ -1436,6 +1442,7 @@ class ThreadRead extends Thread{
      * 一つのスレ内でのID出現数をセットする
      *
      * @access  private
+     * @param   array    $lines
      * @return  void
      */
     function setIdCount($lines)
@@ -1445,16 +1452,93 @@ class ThreadRead extends Thread{
                 $lar = explode('<>', $line);
                 if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,10})|', $lar[2], $matches)) {
                     $id = $matches[1];
-                    $this->idcount[$id]++;
+                    if (isset($this->idcount[$id])) {
+                        $this->idcount[$id]++;
+                    } else {
+                        $this->idcount[$id] = 1;
+                    }
+                }
+                
+                /*
+                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('set_rrescount');
+                
+                // 逆参照のための引用レス番号取得（処理速度が2,3割増になる…）
+                if ($n = $this->getQuoteResNumName($lar[0])) {
+                    if (isset($this->rrescount[$k])) {
+                        $this->rrescount[$k][] = $n;
+                    } else {
+                        $this->rrescount[$k] = array($n);
+                    }
+                }
+                
+                if ($nums = $this->getQuoteResNumsMsg($lar[3])) {
+                    if (isset($this->rrescount[$k])) {
+                        $this->rrescount[$k] = $nums;
+                    } else {
+                        $this->rrescount[$k] = $nums;
+                    }
+                }
+                
+                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('set_rrescount');
+                */
+            }
+        }
+    }
+    
+    /**
+     * 名前にある引用レス番号を取得する
+     *
+     * @access  private
+     * @param   string  $name（未フォーマット）
+     * @return  integer|false
+     */
+    function getQuoteResNumName($name)
+    {
+        // トリップを除去
+        $name = preg_replace("/(◆.*)/", "", $name, 1);
+        
+        if (preg_match("/[0-9]+/", $name, $m)) {
+            return (int) $m[0];
+        }
+        return false;
+    }
+    
+    /**
+     * メッセージにある引用レス番号を取得する
+     *
+     * @access  private
+     * @param   string  $msg（未フォーマット）
+     * @return  array|false
+     */
+    function getQuoteResNumsMsg($msg)
+    {
+        $quote_res_nums = array();
+        
+        // >>1のリンクを除去
+        // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
+        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
+
+        if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
+
+            foreach ($out[1] as $numberq) {
+                
+                if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
+                    
+                    // $matches[0] はパターン全体にマッチした文字列の配列
+                    foreach ($matches[0] as $a_quote_res_num) {
+                        $quote_res_nums[] = $a_quote_res_num;
+                     }
                 }
             }
         }
+        return array_unique($quote_res_nums);
     }
     
     /**
      * datlineをexplodeする
      *
      * @access  public
+     * @param   string  $aline
      * @return  array
      */
     function explodeDatLine($aline)
@@ -1472,7 +1556,4 @@ class ThreadRead extends Thread{
         
         return $parts;
     }
-
 }
-
-?>

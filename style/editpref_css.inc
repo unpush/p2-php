@@ -31,4 +31,3 @@ echo <<<EOSTYLE
 </style>
 
 EOSTYLE;
-?>

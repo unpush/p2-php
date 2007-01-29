@@ -3,8 +3,8 @@
 	rep2 -  設定管理ページ
 */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -35,13 +35,7 @@ if (!$_conf['ktai']) {
 	$body_onload = " onLoad=\"setWinTitle();\"";
 }
 
-// HOSTを取得
-if (!$hc[remoto_host] = $_SERVER['REMOTE_HOST']) {
-	$hc[remoto_host] = gethostbyaddr($_SERVER['REMOTE_ADDR']);
-}
-if ($hc[remoto_host] == $_SERVER['REMOTE_ADDR']) {
-	$hc[remoto_host] = "";
-}
+$hc['remoto_host'] = P2Util::getRemoteHost();
 
 $hc['ua'] = $_SERVER['HTTP_USER_AGENT'];
 
@@ -51,7 +45,6 @@ $hd = array_map('htmlspecialchars', $hc);
 // HTMLプリント
 //=========================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html>
@@ -62,13 +55,15 @@ echo <<<EOP
 	<meta http-equiv="Content-Script-Type" content="text/javascript">
 	<title>{$ptitle}</title>
 EOP;
+
 if (!$_conf['ktai']) {
-	@include("./style/style_css.inc");
-	@include("./style/setting_css.inc");
+	include_once './style/style_css.inc';
+	include_once './style/setting_css.inc';
 	echo <<<EOP
-	<script type="text/javascript" src="js/basic.js"></script>\n
+	<script type="text/javascript" src="js/basic.js?v=20061206"></script>\n
 EOP;
 }
+
 echo <<<EOP
 </head>
 <body{$body_onload}>
@@ -81,27 +76,25 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-// インフォメッセージ表示
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 echo "<ul id=\"setting_menu\">";
 
 echo <<<EOP
-	<li><a href="login.php{$_conf['k_at_q']}"{$access_login_at}>rep2ログイン管理</a></li>
+	<li><a href="login.php{$_conf['k_at_q']}">rep2ログイン管理</a></li>
 EOP;
 
 echo <<<EOP
-	<li><a href="login2ch.php{$_conf['k_at_q']}"{$access_login2ch_at}>2chログイン管理</a></li>
+	<li><a href="login2ch.php{$_conf['k_at_q']}">2chログイン管理</a>（いわゆる●）</li>
 EOP;
 
-echo '</ul>'."\n";
+echo '</ul>' . "\n";
 
 if ($_conf['ktai']) {
 	echo "<hr>";
 }
 
-echo "<p id=\"client_status\">";
+echo '<p id="client_status">';
 echo <<<EOP
 {$autho_user_ht}
 {$client_host_st}: {$hd['remoto_host']}<br>
@@ -111,11 +104,10 @@ EOP;
 echo "</p>\n";
 
 
-// フッタプリント
+// フッタHTML表示
 if ($_conf['ktai']) {
-	echo '<hr>'.$_conf['k_to_index_ht']."\n";
+	echo '<hr>' . $_conf['k_to_index_ht'] . "\n";
 }
 
 echo '</body></html>';
 
-?>

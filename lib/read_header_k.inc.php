@@ -19,15 +19,15 @@ $find_st        = '索';
 
 $motothre_url   = $aThread->getMotoThread();
 $ttitle_en      = rawurlencode(base64_encode($aThread->ttitle));
-$ttitle_en_q    = "&amp;ttitle_en=".$ttitle_en;
-$bbs_q          = "&amp;bbs=".$aThread->bbs;
-$key_q          = "&amp;key=".$aThread->key;
+$ttitle_en_q    = "&amp;ttitle_en=" . $ttitle_en;
+$bbs_q          = "&amp;bbs=" . $aThread->bbs;
+$key_q          = "&amp;key=" . $aThread->key;
 $offline_q      = "&amp;offline=1";
 
-$hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+$word_hs        = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
 
 //=================================================================
-// ヘッダ
+// ヘッダHTML
 //=================================================================
 
 // お気にマーク設定
@@ -79,13 +79,17 @@ if ($before_rnum < 1) {
     $before_rnum = 1;
 }
 if ($aThread->resrange['start'] == 1 or !empty($_GET['onlyone'])) {
-    $read_navi_previous_isInvisible = true;
+    $read_navi_prev_isInvisible = true;
+} else {
+    $read_navi_prev_isInvisible = false;
 }
+
+$read_navi_prev_anchor = '';
 //if ($before_rnum != 1) {
-//    $read_navi_previous_anchor = "#r{$before_rnum}";
+//    $read_navi_prev_anchor = "#r{$before_rnum}";
 //}
 
-if (!$read_navi_previous_isInvisible) {
+if (!$read_navi_prev_isInvisible) {
     $q = http_build_query(array(
             'host'      => $aThread->host,
             'bbs'       => $aThread->bbs,
@@ -113,6 +117,7 @@ if (!$read_navi_previous_isInvisible) {
 
 //----------------------------------------------
 // $read_navi_next -- 次
+$read_navi_next_isInvisible = false;
 if ($aThread->resrange['to'] >= $aThread->rescount and empty($_GET['onlyone'])) {
     $aThread->resrange['to'] = $aThread->rescount;
     //$read_navi_next_anchor = "#r{$aThread->rescount}";
@@ -124,7 +129,10 @@ if ($aThread->resrange['to'] >= $aThread->rescount and empty($_GET['onlyone'])) 
 }
 if ($aThread->resrange['to'] == $aThread->rescount) {
     $read_navi_next_anchor = "#r{$aThread->rescount}";
+} else {
+    $read_navi_next_anchor = '';
 }
+
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
 if (!$read_navi_next_isInvisible) {
@@ -145,7 +153,7 @@ if (!$read_navi_next_isInvisible) {
     if ($aThread->resrange_multi and !empty($aThread->resrange_multi_exists_next)) {
         $html = $html . '*';
         $url .= '&amp;ls=' . $aThread->ls; // http_build_query() を通して urlencode を掛けたくないので
-        $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
+        $page = isset($_REQUEST['page']) ? max(1, intval($_REQUEST['page'])) : 1;
         $next_page = $page + 1;
         $url .= '&amp;page=' . $next_page;
     } else {
@@ -160,12 +168,15 @@ if (!$read_navi_next_isInvisible) {
 // $read_footer_navi_new  続きを読む 新着レスの表示
 
 if ($aThread->resrange['to'] == $aThread->rescount) {
+
     // 新着
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-n&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\">{$_conf['k_accesskey']['next']}.{$shinchaku_st}</a>";
+    
     $read_footer_navi_new_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-n&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\">{$_conf['k_accesskey']['next']}.{$shinchaku_st}</a>";
 }
 
 if (!$read_navi_next_isInvisible) {
+
     // 最新
     $read_navi_latest = <<<EOP
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}{$_conf['k_at_a']}">{$_conf['k_accesskey']['latest']}.{$latest_st}{$latest_show_res_num}</a> 
@@ -189,7 +200,7 @@ EOP;
 // 検索時の特別な処理
 //====================================================================
 if ($filter_hits !== NULL) {
-    include P2_LIBRARY_DIR . '/read_filter_k.inc.php';
+    include P2_LIB_DIR . '/read_filter_k.inc.php';
     resetReadNaviHeaderK();
 }
 
@@ -201,6 +212,7 @@ if ($filter_hits !== NULL) {
 
 $similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
 $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
+
 $toolbar_right_ht = <<<EOTOOLBAR
     <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.{$itaj_hd}</a>
     <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}{$_conf['k_at_a']}">{$siml_thre_st}</a>
@@ -221,11 +233,11 @@ if (!empty($STYLE['read_k_color'])) {
 
 //=====================================
 //!empty($_GET['nocache']) and P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle_ht}</title>\n
 EOHEADER;
@@ -235,8 +247,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 // スレが板サーバになければ
 if ($aThread->diedat) { 
@@ -258,13 +269,13 @@ if ($aThread->diedat) {
 }
 
 
-if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and (!$_GET['renzokupop'])) {
+if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and empty($_GET['renzokupop'])) {
 
     echo <<<EOP
 <p>
 {$htm['read_navi_range']}
 {$read_navi_previous}
-{$read_navi_next}
+<!-- {$read_navi_next} -->
 {$read_navi_latest}
 <a {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#footer">{$_conf['k_accesskey']['bottom']}.▼</a>
 </p>\n
@@ -288,10 +299,9 @@ $filter_fields = array(
 if ($word) {
     echo "検索結果: ";
     echo "{$filter_fields[$res_filter['field']]}";
-    echo "&quot;{$hd['word']}&quot;を";
+    echo "&quot;{$word_hs}&quot;を";
     echo ($res_filter['match'] == 'on') ? '含む' : '含まない';
 }
 
 echo "<hr>";
 
-?>

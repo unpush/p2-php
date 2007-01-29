@@ -4,18 +4,18 @@
     フレーム分割画面、右下部分
 */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/threadlist.class.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';
-require_once P2_LIBRARY_DIR . '/threadread.class.php';
-require_once P2_LIBRARY_DIR . '/ngabornctl.class.php';
-require_once P2_LIBRARY_DIR . '/read_new.inc.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/threadlist.class.php';
+require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/threadread.class.php';
+require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
 // まとめよみのキャッシュ読み
 if (!empty($_GET['cview'])) {
-    $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
+    $cnum = isset($_GET['cnum']) ? intval($_GET['cnum']) : NULL;
     if ($cont = getMatomeCache($cnum)) {
         echo $cont;
     } else {
@@ -32,23 +32,20 @@ $GLOBALS['rnum_all_range'] = $_conf['k_rnum_range'];
 $sb_view = "shinchaku";
 $newtime = date("gis");
 
-//=================================================
-// 板の指定
-//=================================================
-if (isset($_GET['host'])) { $host = $_GET['host']; }
-if (isset($_POST['host'])) { $host = $_POST['host']; }
-if (isset($_GET['bbs'])) { $bbs = $_GET['bbs']; }
-if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
-if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
-if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
+isset($_GET['host'])    and $host   = $_GET['host'];
+isset($_POST['host'])   and $host   = $_POST['host'];
+isset($_GET['bbs'])     and $bbs    = $_GET['bbs'];
+isset($_POST['bbs'])    and $bbs    = $_POST['bbs'];
+isset($_GET['spmode'])  and $spmode = $_GET['spmode'];
+isset($_POST['spmode']) and $spmode = $_POST['spmode'];
 
-if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
-    die('p2 error: 必要な引数が指定されていません');
+if ((empty($host) || !isset($bbs)) && !isset($spmode)) {
+    P2Util::printSimpleHtml('p2 error: 必要な引数が指定されていません');
+    die;
 }
 
-//=================================================
+
 // あぼーん&NGワード設定読み込み
-//=================================================
 $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
 //====================================================================
@@ -57,7 +54,7 @@ $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
 register_shutdown_function('saveMatomeCache');
 
-$read_new_html = '';
+$GLOBALS['read_new_html'] = '';
 ob_start();
 
 $aThreadList =& new ThreadList();
@@ -88,23 +85,23 @@ if ($spmode) {
 $lines = $aThreadList->readList();
 
 // ページヘッダ表示 ===================================
-$ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
-$ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
+$ptitle_hs = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
+$ptitle_ht = "{$ptitle_hs} の 新着まとめ読み";
 
 // &amp;sb_view={$sb_view}
 if ($aThreadList->spmode) {
     $sb_ht = <<<EOP
-        <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$ptitle_hd}</a>
+        <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$ptitle_hs}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-        <a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
+        <a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hs}</a>
 EOP;
 } else {
     $sb_ht = <<<EOP
-        <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hd}</a>
+        <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hs}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-        <a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
+        <a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hs}</a>
 EOP;
 }
 
@@ -117,9 +114,8 @@ if (!empty($STYLE['read_k_color'])) {
 }
 
 // ========================================================
-// include_once P2_LIBRARY_DIR . '/read_header.inc.php';
+// require_once P2_LIB_DIR . '/read_header.inc.php';
 
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
@@ -136,8 +132,7 @@ EOP;
 
 echo "<p>{$sb_ht}の新まとめ</p>\n";
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 //==============================================================
 // それぞれの行解析
@@ -213,7 +208,7 @@ for ($x = 0; $x < $linesize; $x++) {
         // subject.txtが未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
         
-            require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
@@ -240,10 +235,9 @@ for ($x = 0; $x < $linesize; $x++) {
     
     if ($aThread->isonline) { $online_num++; } // 生存数set
     
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    P2Util::printInfoHtml();
     
-    $read_new_html .= ob_get_flush();
+    $GLOBALS['read_new_html'] .= ob_get_flush();
     ob_start();
         
     if (($aThread->readnum < 1) || $aThread->unum) {
@@ -253,10 +247,10 @@ for ($x = 0; $x < $linesize; $x++) {
         echo "<hr>\n";
     }
     
-    $read_new_html .= ob_get_flush();
+    $GLOBALS['read_new_html'] .= ob_get_flush();
     ob_start();
     
-    // リストに追加 ========================================
+    // リストに追加
     // $aThreadList->addThread($aThread);
     $aThreadList->num++;
     unset($aThread);
@@ -264,15 +258,15 @@ for ($x = 0; $x < $linesize; $x++) {
 
 //$aThread =& new ThreadRead();
 
-//======================================================================
-// スレッドの新着部分を読み込んで表示する
-//======================================================================
+/**
+ * スレッドの新着部分を読み込んで表示する
+ */
 function readNew(&$aThread)
 {
-    global $_conf, $newthre_num, $STYLE;
+    global $_conf, $_newthre_num, $STYLE;
     global $_info_msg_ht, $spmode;
 
-    $newthre_num++;
+    $_newthre_num++;
     
     //==========================================================
     // idxの読み込み
@@ -281,7 +275,7 @@ function readNew(&$aThread)
     //hostを分解してidxファイルのパスを求める
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
     
-    //FileCtl::mkdir_for($aThread->keyidx); //板ディレクトリが無ければ作る //この操作はおそらく不要
+    //FileCtl::mkdirFor($aThread->keyidx); //板ディレクトリが無ければ作る //この操作はおそらく不要
 
     $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
     if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
@@ -293,9 +287,8 @@ function readNew(&$aThread)
     }
     $aThread->getThreadInfoFromIdx();
     
-    //==================================================================
+
     // DATのダウンロード
-    //==================================================================
     if (!($word and file_exists($aThread->keydat))) {
         $aThread->downloadDat();
     }
@@ -335,15 +328,15 @@ function readNew(&$aThread)
     $key_q = "&amp;key=".$aThread->key;
     $popup_q = "&amp;popup=1";
     
-    // include_once (P2_LIBRARY_DIR . '/read_header.inc.php');
+    // require_once P2_LIB_DIR . '/read_header.inc.php';
     
-    $prev_thre_num = $newthre_num - 1;
-    $next_thre_num = $newthre_num + 1;
+    $prev_thre_num = $_newthre_num - 1;
+    $next_thre_num = $_newthre_num + 1;
     if ($prev_thre_num != 0) {
         $prev_thre_ht = "<a href=\"#ntt{$prev_thre_num}\">▲</a>";
     }
     //$next_thre_ht = "<a href=\"#ntt{$next_thre_num}\">▼</a> ";
-    $next_thre_ht = "<a href=\"#ntt_bt{$newthre_num}\">▼</a> ";
+    $next_thre_ht = "<a href=\"#ntt_bt{$_newthre_num}\">▼</a> ";
     
     $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
     
@@ -351,12 +344,11 @@ function readNew(&$aThread)
         $read_header_itaj_ht = " ({$itaj_hd})";
     }
     
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    P2Util::printInfoHtml();
     
     $read_header_ht = <<<EOP
         <hr>
-        <p id="ntt{$newthre_num}" name="ntt{$newthre_num}"><font color="{$STYLE['read_k_thread_title_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</p>
+        <p id="ntt{$_newthre_num}" name="ntt{$_newthre_num}"><font color="{$STYLE['read_k_thread_title_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</p>
         <hr>\n
 EOP;
 
@@ -367,8 +359,8 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
         //$aThread->datToHtml(); // dat を html に変換表示
-        include_once (P2_LIBRARY_DIR . '/showthread.class.php');
-        include_once (P2_LIBRARY_DIR . '/showthreadk.class.php');
+        require_once P2_LIB_DIR . '/showthread.class.php';
+        require_once P2_LIB_DIR . '/showthreadk.class.php';
         $aShowThread =& new ShowThreadK($aThread);
         
         $read_cont_ht .= $aShowThread->getDatToHtml();
@@ -379,7 +371,7 @@ EOP;
     //==================================================================
     // フッタ 表示
     //==================================================================
-    //include($read_footer_inc);
+    //include $read_footer_inc;
     
     //----------------------------------------------
     // $read_footer_navi_new  続きを読む 新着レスの表示
@@ -423,10 +415,10 @@ EOP;
 EOTOOLBAR;
 
     $read_footer_ht = <<<EOP
-        <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
+        <div id="ntt_bt{$_newthre_num}" name="ntt_bt{$_newthre_num}">
             $read_range_ht 
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht} 
-            <a href="#ntt{$newthre_num}">▲</a>
+            <a href="#ntt{$_newthre_num}">▲</a>
         </div>
         <hr>\n
 EOP;
@@ -459,7 +451,7 @@ EOP;
 //==================================================================
 // ページフッタ表示
 //==================================================================
-$newthre_num++;
+$_newthre_num++;
 
 if (!$aThreadList->num) {
     $GLOBALS['matome_naipo'] = TRUE;
@@ -490,9 +482,9 @@ echo '<hr>'.$_conf['k_to_index_ht']."\n";
 
 echo '</body></html>';
 
-$read_new_html .= ob_get_flush();
+$GLOBALS['read_new_html'] .= ob_get_flush();
+
+// 後処理
 
 // NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
-
-?>

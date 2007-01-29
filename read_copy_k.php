@@ -5,8 +5,8 @@
 // p2 - 携帯版レスコピー
 
 require_once 'conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';
-require_once P2_LIBRARY_DIR . '/threadread.class.php';
+require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/threadread.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -135,7 +135,6 @@ if ($mobile->isAirHPhone()) {
 }
 
 P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 ?>
 <html>
@@ -143,7 +142,7 @@ echo $_conf['doctype'];
 <title><?php echo $ttitle_ht . '/' . $resid; ?></title>
 </head>
 <body<?php echo $k_color_settings; ?>>
-<?php echo $_info_msg_ht; ?>
+<?php P2Util::printInfoHtml(); ?>
 <form id="<?php echo $form_id; ?>" action="<?php echo $action_ht; ?>" method="post">
 ｽﾚ:<br>
 <input type="text" name="ttitle_txt" value="<?php echo $ttitle_ht; ?>"><br>

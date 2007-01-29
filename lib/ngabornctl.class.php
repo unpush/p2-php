@@ -1,71 +1,74 @@
 <?php
 /*
     p2 - NGあぼーんを操作するクラス
+    スタティックメソッドで利用する
 */
-class NgAbornCtl{
-
+class NgAbornCtl
+{
     /**
      * あぼーん&NGワード設定を保存する
+     *
+     * @static
+     * @access  public
+     * @return  boolean
      */
     function saveNgAborns()
     {
         global $ngaborns, $ngaborns_hits;
         global $_conf;
-
-        // HITした時のみ更新する
-        if ($GLOBALS['ngaborns_hits']) {
-            foreach ($ngaborns_hits as $code => $v) {
         
-                if ($ngaborns[$code]['data']) {
-                
-                    // 更新時間でソートする
-                    usort($ngaborns[$code]['data'], array('NgAbornCtl', 'cmpLastTime'));
-                
-                    $cont = "";
-                    foreach ($ngaborns[$code]['data'] as $a_ngaborn) {
-                    
-                        // 必要ならここで古いデータはスキップ（削除）する
-                        if (!empty($a_ngaborn['lasttime']) && $_conf['ngaborn_daylimit']) {
-                            if (strtotime($a_ngaborn['lasttime']) < time() - 60 * 60 * 24 * $_conf['ngaborn_daylimit']) {
-                                continue;
-                            }
-                        }
-                        
-                        if (empty($a_ngaborn['lasttime'])) {
-                            $a_ngaborn['lasttime'] = date('Y/m/d G:i');
-                        }
-                        
-                        $cont .= $a_ngaborn['word']."\t".$a_ngaborn['lasttime']."\t".$a_ngaborn['hits']."\n";
-                    } // foreach
-                
-                    /*
-                    echo "<pre>";
-                    echo $cont;
-                    echo "</pre>";
-                    */
-                
-                    // 書き込む
-                
-                    $fp = @fopen($ngaborns[$code]['file'], 'wb'); // or die("Error: cannot write. ( $ngaborns[$code]['file'] )");
-                    if ($fp) {
-                        @flock($fp, LOCK_EX);
-                        fputs($fp, $cont);
-                        @flock($fp, LOCK_UN);
-                        fclose($fp);
-                    }
-                
-
-                } // if
-            
-            } // foreach
+        // HITがなければ更新もなし
+        if (!$GLOBALS['ngaborns_hits']) {
+            return true;
         }
+        
+        foreach ($ngaborns_hits as $code => $v) {
+        
+            if (!$ngaborns[$code]['data']) {
+                continue;
+            }
+            
+            // 更新時間でソートする
+            usort($ngaborns[$code]['data'], array('NgAbornCtl', 'cmpLastTime'));
+        
+            $cont = "";
+            foreach ($ngaborns[$code]['data'] as $a_ngaborn) {
+            
+                // 必要ならここで古いデータはスキップ（削除）する
+                if (!empty($a_ngaborn['lasttime']) && $_conf['ngaborn_daylimit']) {
+                    if (strtotime($a_ngaborn['lasttime']) < time() - 60 * 60 * 24 * $_conf['ngaborn_daylimit']) {
+                        continue;
+                    }
+                }
+                
+                if (empty($a_ngaborn['lasttime'])) {
+                    $a_ngaborn['lasttime'] = date('Y/m/d G:i');
+                }
+                
+                $cont .= $a_ngaborn['word']."\t".$a_ngaborn['lasttime']."\t".$a_ngaborn['hits']."\n";
+            }
+            
+            // 書き込む
+            $fp = fopen($ngaborns[$code]['file'], 'wb'); // or die("Error: cannot write. ( $ngaborns[$code]['file'] )");
+            if (!$fp) {
+                return false;
+            }
+            @flock($fp, LOCK_EX);
+            fputs($fp, $cont);
+            @flock($fp, LOCK_UN);
+            fclose($fp);
+        
+        } // foreach
+        
         return true;
     }
 
     /**
      * NGあぼーんHIT記録を更新時間でソートする
      *
+     * @static
      * @access  private
+     * @return  integer
      */
     function cmpLastTime($a, $b)
     {
@@ -77,6 +80,10 @@ class NgAbornCtl{
 
     /**
      * あぼーん&NGワード設定を読み込む
+     *
+     * @static
+     * @access  public
+     * @return  array
      */
     function loadNgAborns()
     {
@@ -98,7 +105,9 @@ class NgAbornCtl{
     /**
      * readNgAbornFromFile
      *
+     * @static
      * @access  private
+     * @return  array
      */
     function readNgAbornFromFile($filename)
     {
@@ -113,16 +122,14 @@ class NgAbornCtl{
                 foreach ($lines as $l) {
                     $lar = explode("\t", $l);
                     $ar['word'] = $lar[0]; // 対象文字列
-                    $ar['lasttime'] = $lar[1]; // 最後にHITした時間
-                    $ar['hits'] = intval($lar[2]); // HIT回数
+                    $ar['lasttime'] = isset($lar[1]) ? $lar[1] : null; // 最後にHITした時間
+                    $ar['hits'] = isset($lar[2]) ? intval($lar[2]) : null; // HIT回数
                     $array['data'][] = $ar;
                 }
             }
 
         }
         return $array;
-
     }
 
 }
-?>

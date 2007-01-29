@@ -1,14 +1,14 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/session.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/session.class.php';
 
 /**
  * p2 - ログイン認証を扱うクラス
  * 
  * @created  2005/6/14
  */
-class Login{
-
+class Login
+{
     var $user;   // ユーザ名（内部的なもの）
     var $user_u; // ユーザ名（ユーザと直接触れる部分）
     var $pass_x; // 暗号化されたパスワード
@@ -21,10 +21,10 @@ class Login{
         $login_user = $this->setdownLoginUser();
     
         // ユーザ名が指定されていなければ
-        if ($login_user == NULL) {
+        if (strlen($login_user) == 0) {
 
-            // ログイン失敗
-            include_once (P2_LIBRARY_DIR . '/login_first.inc.php');
+            // ログインに失敗したら、ログイン画面を表示して終了する
+            require_once P2_LIB_DIR . '/login_first.inc.php';
             printLoginFirst($this);
             exit;
         }
@@ -36,6 +36,7 @@ class Login{
     /**
      * ユーザ名をセットする
      *
+     * @return  void
      * @access  public
      */ 
     function setUser($user)
@@ -48,11 +49,11 @@ class Login{
      * ログインユーザ名の指定を得る
      *
      * @access  protected
-     * @return  string
+     * @return  string|false
      */
     function setdownLoginUser()
     {
-        $login_user = NULL;
+        $login_user = false;
 
         // ユーザ名決定の優先順位に沿って
 
@@ -62,26 +63,26 @@ class Login{
         } else {
             $add_mail = '';
         }
-        if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_REQUEST['form_login_id'])) {
+        if (isset($_REQUEST['form_login_id']) and preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_REQUEST['form_login_id'])) {
             $login_user = $this->setdownLoginUserWithRequest();
 
         // GET引数での指定
-        } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_REQUEST['user'])) {
+        } elseif (isset($_REQUEST['user']) and preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_REQUEST['user'])) {
             $login_user = $_REQUEST['user'];
 
         // Cookieで指定
-        } elseif (($user = $this->getUserFromCid($_COOKIE['cid'])) !== false) {
+        } elseif (isset($_COOKIE['cid']) and ($user = $this->getUserFromCid($_COOKIE['cid'])) !== false) {
             if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $user)) {
                 $login_user = $user;
             }
 
         // Sessionで指定
-        } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SESSION['login_user'])) {
+        } elseif (isset($_SESSION['login_user']) and preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SESSION['login_user'])) {
             $login_user = $_SESSION['login_user'];
         
         /*
         // Basic認証で指定
-        } elseif (!empty($_REQUEST['basic'])) {
+        } elseif (isset($_REQUEST['basic']) and !empty($_REQUEST['basic'])) {
         
             if (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SERVER['PHP_AUTH_USER']))) {
                 $login_user = $_SERVER['PHP_AUTH_USER'];
@@ -123,13 +124,13 @@ class Login{
         // 認証チェック
         if (!$this->authCheck()) {
             // ログイン失敗
-            include_once P2_LIBRARY_DIR . '/login_first.inc.php';
+            require_once P2_LIB_DIR . '/login_first.inc.php';
             printLoginFirst($this);
             exit;
         }
 
         
-        // ■ログインOKなら
+        // ログインOKなら
         
         // {{{ ログアウトの指定があれば
         
@@ -263,41 +264,46 @@ class Login{
         }
 
         $mobile = &Net_UserAgent_Mobile::singleton();
+        if (PEAR::isError($mobile)) {
+            trigger_error($mobile->toString(), E_USER_WARNING);
         
-        // ■EZweb認証スルーパス サブスクライバID
-        if ($mobile->isEZweb() && isset($_SERVER['HTTP_X_UP_SUBNO']) && file_exists($_conf['auth_ez_file'])) {
-            include $_conf['auth_ez_file'];
-            if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
-                return true;
-            }
-        }
+        } elseif ($mobile and !$mobile->isNonMobile()) {
         
-        // ■J-PHONE認証スルーパス
-        // パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
-        // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-        if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-            if (file_exists($_conf['auth_jp_file'])) {
-                include $_conf['auth_jp_file'];
-                if ($SN == $registed_jp) {
+            // ■EZweb認証スルーパス サブスクライバID
+            if ($mobile->isEZweb() && isset($_SERVER['HTTP_X_UP_SUBNO']) && file_exists($_conf['auth_ez_file'])) {
+                include $_conf['auth_ez_file'];
+                if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
                     return true;
                 }
             }
-        }
         
-        // ■DoCoMo UTN認証
-        // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
-        if (empty($_POST['form_login_id'])) {
-
-            if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-                if (file_exists($_conf['auth_docomo_file'])) {
-                    include $_conf['auth_docomo_file'];
-                    if ($SN == $registed_docomo) {
+            // ■J-PHONE認証スルーパス
+            // パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
+            // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
+            if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+                if (file_exists($_conf['auth_jp_file'])) {
+                    include $_conf['auth_jp_file'];
+                    if ($SN == $registed_jp) {
                         return true;
                     }
                 }
             }
-        }
+        
+            // ■DoCoMo UTN認証
+            // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
+            if (empty($_POST['form_login_id'])) {
 
+                if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+                    if (file_exists($_conf['auth_docomo_file'])) {
+                        include $_conf['auth_docomo_file'];
+                        if ($SN == $registed_docomo) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        
         // ■すでにセッションが登録されていたら、セッションで認証
         if (isset($_SESSION['login_user']) && isset($_SESSION['login_pass_x'])) {
         
@@ -382,6 +388,7 @@ class Login{
      * ログインログを記録する
      *
      * @access  private
+     * @return  boolean|null  実行成否|何もしない場合
      */
     function logLoginSuccess()
     {
@@ -389,16 +396,17 @@ class Login{
 
         if (!empty($_conf['login_log_rec'])) {
             $recnum = isset($_conf['login_log_rec_num']) ? intval($_conf['login_log_rec_num']) : 100;
-            P2Util::recAccessLog($_conf['login_log_file'], $recnum);
+            return P2Util::recAccessLog($_conf['login_log_file'], $recnum);
         }
         
-        return true;
+        return null;
     }
 
     /**
      * ログイン失敗ログを記録する
      *
      * @access  private
+     * @return  boolean|null  実行成否|何もしない場合
      */
     function logLoginFailed()
     {
@@ -406,10 +414,10 @@ class Login{
         
         if (!empty($_conf['login_log_rec'])) {
             $recnum = isset($_conf['login_log_rec_num']) ? intval($_conf['login_log_rec_num']) : 100;
-            P2Util::recAccessLog($_conf['login_failed_log_file'], $recnum, 'txt');
+            return P2Util::recAccessLog($_conf['login_failed_log_file'], $recnum, 'txt');
         }
         
-        return true;
+        return null;
     }
 
     /**
@@ -486,15 +494,11 @@ class Login{
 ?>
 EOP;
         FileCtl::make_datafile($auth_file, $_conf['pass_perm']);
-        $fp = fopen($auth_file, 'wb');
-        if (!$fp) {
-            $_info_msg_ht .= "<p>Error: データを保存できませんでした。認証登録失敗。</p>";
+
+        if (false === file_put_contents($auth_file, $cont, LOCK_EX)) {
+            P2Util::pushInfoHtml("<p>Error: データを保存できませんでした。認証登録失敗。</p>");
             return false;
         }
-        @flock($fp, LOCK_EX);
-        fwrite($fp, $cont);
-        @flock($fp, LOCK_UN);
-        fclose($fp);
         
         return true;
     }
@@ -503,13 +507,14 @@ EOP;
      * 端末IDの認証ファイル登録を外す
      *
      * @access  private
-     * @return  void
+     * @return  boolean
      */
     function registAuthOff($auth_file)
     {
         if (file_exists($auth_file)) {
-            unlink($auth_file);
+            return unlink($auth_file);
         }
+        return true;
     }
 
     /**
@@ -530,11 +535,12 @@ EOP;
 ?>
 EOP;
         FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']);
-        if (file_put_contents($_conf['auth_user_file'], $auth_user_cont, LOCK_EX) === false) {
-            die("p2 error: {$_conf['auth_user_file']} を保存できませんでした。認証{$p_str['user']}登録失敗。");
+        if (false === file_put_contents($_conf['auth_user_file'], $auth_user_cont, LOCK_EX)) {
+            P2Util::printSimpleHtml("p2 error: {$_conf['auth_user_file']} を保存できませんでした。認証{$p_str['user']}登録失敗。");
+            die;
             return false;
         }
-
+        
         return true;
     }
 
@@ -542,36 +548,40 @@ EOP;
      * cookie認証を登録/解除する
      *
      * @access  public
+     * @return  boolean
      */
     function registCookie()
     {
+        $r = true;
+        
         if (!empty($_REQUEST['ctl_regist_cookie'])) {
             if ($_REQUEST['regist_cookie'] == '1') {
-                $this->setCookieCid($this->user_u, $this->pass_x);
+                $r = $this->setCookieCid($this->user_u, $this->pass_x);
             } else {
                 // クッキーをクリア
-                $this->clearCookieAuth();
+                $r = $this->clearCookieAuth();
             }
         }
-        return true;
+        return $r;
     }
 
     /**
      * Cookie認証をクリアする
      *
      * @access  public
-     * @return  void
+     * @return  boolean
      */
      function clearCookieAuth()
      {
-        setcookie('cid', '', time() - 3600);
+        $r = setcookie('cid', '', time() - 3600);
+        
         setcookie('p2_user', '', time() - 3600);    //  廃止要素 2005/6/13
         setcookie('p2_pass', '', time() - 3600);    //  廃止要素 2005/6/13
         setcookie('p2_pass_x', '', time() - 3600);  //  廃止要素 2005/6/13
         
         $_COOKIE = array();
         
-        return true;
+        return $r;
      }
 
     /**
@@ -586,11 +596,9 @@ EOP;
         
         if ($cid = $this->makeCid($user_u, $pass_x)) {
             $time = time() + 60*60*24 * $_conf['cid_expire_day'];
-            setcookie('cid', $cid, $time);
-            return true;
-        } else {
-            return false;
+            return setcookie('cid', $cid, $time);
         }
+        return false;
     }
     
     /**
@@ -605,11 +613,11 @@ EOP;
             return false;
         }
         
-        include_once (P2_LIBRARY_DIR . '/md5_crypt.inc.php');
+        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
         
         $key = $this->getMd5CryptKey();
         
-        $idtime = $user_u. ':'. time(). ':';
+        $idtime = $user_u . ':' . time(). ':';
         $pw_enc = md5($idtime . $pass_x);
         $str = $idtime . $pw_enc;
         $cid = md5_encrypt($str, $key, 32);
@@ -627,7 +635,7 @@ EOP;
     {
         global $_conf;
         
-        include_once (P2_LIBRARY_DIR . '/md5_crypt.inc.php');
+        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
         
         $key = $this->getMd5CryptKey();
         
@@ -699,4 +707,3 @@ EOP;
     }
 
 }
-?>

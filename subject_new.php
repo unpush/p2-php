@@ -8,10 +8,10 @@
     subject.php と兄弟なので一緒に面倒をみる
 */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/threadlist.class.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/threadlist.class.php';
+require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $shinchaku_num = 0;
 if (!empty($aThreadList)) {
@@ -29,7 +29,7 @@ if (!isset($sb_disp_from)) { $sb_disp_from = 1; }
 
 // p2_setting 設定 ======================================
 if ($spmode) {
-    $p2_setting_txt = $_conf['pref_dir']."/p2_setting_".$spmode.".txt";
+    $p2_setting_txt = $_conf['pref_dir'] . "/p2_setting_" . $spmode . ".txt";
 } else {
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $idx_bbs_dir_s = $idx_host_dir . '/' . $bbs . '/';
@@ -52,19 +52,17 @@ if ($spmode) {
 
 // p2_setting 読み込み
 $p2_setting_cont = @file_get_contents($p2_setting_txt);
-if ($p2_setting_cont) {$p2_setting = unserialize($p2_setting_cont);}
+if ($p2_setting_cont) {
+    $p2_setting = unserialize($p2_setting_cont);
+}
 
-$viewnum_pre = $p2_setting['viewnum'];
-$sort_pre = $p2_setting['sort'];
-$itaj_pre = $p2_setting['itaj'];
-
-if (isset($_GET['sb_view'])) { $sb_view = $_GET['sb_view']; }
+if (isset($_GET['sb_view']))  { $sb_view = $_GET['sb_view']; }
 if (isset($_POST['sb_view'])) { $sb_view = $_POST['sb_view']; }
-if (!$sb_view) {$sb_view = "normal";}
+if (empty($sb_view)) {$sb_view = "normal";}
 
 if (isset($_GET['viewnum'])) { $p2_setting['viewnum'] = $_GET['viewnum']; }
 if (isset($_POST['viewnum'])) { $p2_setting['viewnum'] = $_POST['viewnum']; }
-if (!$p2_setting['viewnum']) { $p2_setting['viewnum'] = $_conf['display_threads_num']; } // デフォルト値
+if (!isset($p2_setting['viewnum'])) { $p2_setting['viewnum'] = $_conf['display_threads_num']; } // デフォルト値
 
 
 if (isset($_GET['itaj_en'])) { $p2_setting['itaj'] = base64_decode($_GET['itaj_en']); }
@@ -85,7 +83,7 @@ if (!$spmode || $spmode=="news") {
 if ($p2_setting['viewnum'] == "all") {$threads_num = $threads_num_max;}
 elseif ($sb_view == "shinchaku") {$threads_num = $threads_num_max;}
 elseif ($sb_view == "edit") {$threads_num = $threads_num_max;}
-elseif ($_GET['word']) {$threads_num = $threads_num_max;}
+elseif (isset($_GET['word'])) {$threads_num = $threads_num_max;}
 elseif ($_conf['ktai']) {$threads_num = $threads_num_max;}
 
 // submit ==========================================
@@ -113,19 +111,21 @@ if ($spmode) {
     }
     $aThreadList->setSpMode($spmode);
 } else {
-    // if(!$p2_setting['itaj']){$p2_setting['itaj'] = P2Util::getItaName($host, $bbs);}
-    $aThreadList->setIta($host, $bbs, $p2_setting['itaj']);
+    // if (!$p2_setting['itaj']) { $p2_setting['itaj'] = P2Util::getItaName($host, $bbs); }
+    $itaj = isset($p2_setting['itaj']) ? $p2_setting['itaj'] : null;
+    $aThreadList->setIta($host, $bbs, $itaj);
     
     // {{{ スレッドあぼーんリスト読込
     
     $idx_host_dir = P2Util::idxDirOfHost($aThreadList->host);
     $taborn_file = $idx_host_dir.'/'.$aThreadList->bbs.'/p2_threads_aborn.idx';
 
+    $ta_num = 0;
     if ($tabornlines = @file($taborn_file)) {
         $ta_num = sizeof($tabornlines);
         foreach ($tabornlines as $l) {
             $data = explode('<>', rtrim($l));
-            $ta_keys[ $data[1] ] = true;
+            $ta_keys[$data[1]] = true;
         }
     }
     
@@ -227,37 +227,21 @@ for ($x = 0; $x < $linesize ; $x++) {
     
     if (!$aThreadList->spmode) {
         if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
-            if (!$prepre_sb_keys[$aThread->key]) { $aThread->new = true; }
+            if (empty($prepre_sb_keys[$aThread->key])) {
+                $aThread->new = true;
+            }
         } else {
-            if (!$pre_sb_keys[$aThread->key]) { $aThread->new = true; }
+            if (empty($pre_sb_keys[$aThread->key])) {
+                $aThread->new = true;
+            }
             $subject_keys[$aThread->key] = true;
         }
     }
     
     // }}}
-    // {{{ ■ワードフィルタ(for subject)
+    // {{{ スレッドあぼーんチェック
     
-    $debug && $profiler->enterSection('word_filter_for_sb');
-    if (!$aThreadList->spmode || $aThreadList->spmode == "news" and $word_fm) {
-        $target = $aThread->ttitle;
-        if (!StrCtl::filterMatch($word_fm, $target)) {
-            unset($aThread);
-            continue;
-        } else {
-            $GLOBALS['sb_mikke_num']++;
-            if ($_conf['ktai']) {
-                $aThread->ttitle_ht = $aThread->ttitle;
-            } else {
-                $aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
-            }
-        }
-    }
-    $debug && $profiler->leaveSection('word_filter_for_sb');
-    
-    // }}}
-    // {{{ ■スレッドあぼーんチェック
-    
-    if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) { 
+    if ($aThreadList->spmode != 'taborn' and !empty($ta_keys[$aThread->key])) { 
             unset($ta_keys[$aThread->key]);
             continue; //あぼーんスレはスキップ
     }
@@ -266,29 +250,30 @@ for ($x = 0; $x < $linesize ; $x++) {
     $aThread->getThreadInfoFromIdx(); // 既得スレッドデータをidxから取得
 
     // }}}
-    // {{{ ■ favlistチェック =====================================
+    // {{{ favlistチェック
 
-    $debug && $profiler->enterSection('favlist_check');
+    !empty($debug) && $profiler->enterSection('favlist_check');
     // if ($x <= $threads_num) {
-        if ($aThreadList->spmode != 'taborn' and $fav_keys[$aThread->key]) {
+        if ($aThreadList->spmode != 'taborn' and !empty($fav_keys[$aThread->key])) {
             $aThread->fav = 1;
             unset($fav_keys[$aThread->key]);
         }
     // }
-    $debug && $profiler->leaveSection('favlist_check');
+    !empty($debug) && $profiler->leaveSection('favlist_check');
     
     // }}}
     
     // ■ spmode(殿堂入り、newsを除く)なら ====================================
     if ($aThreadList->spmode && $aThreadList->spmode!="news" && $sb_view!="edit") { 
         
-        // ■ subject.txtが未DLなら落としてデータを配列に格納
-        if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
+        // {{{ subject.txtが未DLなら落としてデータを配列に格納する
+        
+        if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
 
-            require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
             
-            $debug && $profiler->enterSection('subthre_read'); //
+            !empty($debug) && $profiler->enterSection('subthre_read'); //
             if ($aThreadList->spmode == "soko" or $aThreadList->spmode == "taborn") {
 
                 if (is_array($aSubjectTxt->subject_lines)) {
@@ -308,10 +293,12 @@ for ($x = 0; $x < $linesize ; $x++) {
                 $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
                 
             }
-            $debug && $profiler->leaveSection('subthre_read');//
+            !empty($debug) && $profiler->leaveSection('subthre_read');//
         }
-
-        $debug && $profiler->enterSection('subthre_check');//
+        
+        // }}}
+        
+        !empty($debug) && $profiler->enterSection('subthre_check');//
         // ■スレ情報取得 =============================
         if ($aThreadList->spmode == "soko" or $aThreadList->spmode == "taborn") {
         
@@ -319,7 +306,7 @@ for ($x = 0; $x < $linesize ; $x++) {
             
                 // 倉庫はオンラインを含まない
                 if ($aThreadList->spmode == "soko") {
-                    $debug && $profiler->leaveSection('subthre_check'); //
+                    !empty($debug) && $profiler->leaveSection('subthre_check'); //
                     unset($aThread);
                     continue;
                 } elseif ($aThreadList->spmode == "taborn") {
@@ -354,38 +341,20 @@ for ($x = 0; $x < $linesize ; $x++) {
             }
         
         }
-        $debug && $profiler->leaveSection('subthre_check'); //
+        !empty($debug) && $profiler->leaveSection('subthre_check'); //
         
         if ($aThreadList->spmode == 'taborn') {
             if (!$aThread->torder) { $aThread->torder = '-'; }
         }
 
         
-        // ■新着のみ(for spmode) ===============================
+        // 新着のみ(for spmode)
         if ($sb_view == 'shinchaku' and !$_GET['word']) { 
             if ($aThread->unum < 1) {
                 unset($aThread);
                 continue;
             }
         }
-        
-        /*
-        // ■ワードフィルタ(for spmode) ==================================
-        if ($word_fm) {
-            $target = $aThread->ttitle;
-            if (!StrCtl::filterMatch($word_fm, $target)) {
-                unset($aThread);
-                continue;
-            } else {
-                $GLOBALS['sb_mikke_num']++;
-                if ($_conf['ktai']) {
-                    $aThread->ttitle_ht = $aThread->ttitle;
-                } else {
-                    $aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
-                }
-            }
-        }
-        */
     }
     
     // subjectからrescountが取れなかった場合は、gotnumを利用する。
@@ -441,4 +410,3 @@ for ($x = 0; $x < $linesize ; $x++) {
 
 // $shinchaku_num
 
-?>

@@ -2,10 +2,10 @@
 /**
  * p2 - ThreadList クラス
  */
-class ThreadList{
-
+class ThreadList
+{
     var $threads;   // クラスThreadのオブジェクトを格納する配列
-    var $num;       // 格納されたThreadオブジェクトの数
+    var $num = 0;   // 格納されたThreadオブジェクトの数
     var $host;      // ex)pc.2ch.net
     var $bbs;       // ex)mac
     var $itaj;      // 板名 ex)新・mac板
@@ -18,39 +18,42 @@ class ThreadList{
      */
     function ThreadList()
     {
-        $this->num = 0;
     }
     
     /**
-     * setSpMode
-     *
      * @access  public
      * @return  void
      */
-    function setSpMode($name)
+    function setSpMode($spmode)
     {
         global $_conf;
         
-        if ($name == "recent") {
-            $this->spmode = $name;
+        if ($spmode == "recent") {
+            $this->spmode = $spmode;
             $this->ptitle = $_conf['ktai'] ? "最近読んだｽﾚ" : "最近読んだスレ";
-        } elseif ($name == "res_hist") {
-            $this->spmode = $name;
+            
+        } elseif ($spmode == "res_hist") {
+            $this->spmode = $spmode;
             $this->ptitle = "書き込み履歴";
-        } elseif ($name == "fav") {
-            $this->spmode = $name;
+            
+        } elseif ($spmode == "fav") {
+            $this->spmode = $spmode;
             $this->ptitle = $_conf['ktai'] ? "お気にｽﾚ" : "お気にスレ";
-        } elseif ($name == "taborn") {
-            $this->spmode = $name;
+            
+        } elseif ($spmode == "taborn") {
+            $this->spmode = $spmode;
             $this->ptitle = $_conf['ktai'] ? "$this->itaj (ｱﾎﾞﾝ中)" : "$this->itaj (あぼーん中)";
-        } elseif ($name == "soko") {
-            $this->spmode = $name;
+            
+        } elseif ($spmode == "soko") {
+            $this->spmode = $spmode;
             $this->ptitle = "$this->itaj (dat倉庫)";
-        } elseif ($name == "palace") {
-            $this->spmode = $name;
+            
+        } elseif ($spmode == "palace") {
+            $this->spmode = $spmode;
             $this->ptitle = $_conf['ktai'] ? "ｽﾚの殿堂" : "スレの殿堂";
-        } elseif ($name == "news") {
-            $this->spmode = $name;
+            
+        } elseif ($spmode == "news") {
+            $this->spmode = $spmode;
             $this->ptitle = $_conf['ktai'] ? "ﾆｭｰｽﾁｪｯｸ" : "ニュースチェック";
         }
     }
@@ -94,30 +97,23 @@ class ThreadList{
         
         $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
         
+        $lines = array();
+        
         // spmodeの場合
         if ($this->spmode) {
         
             // ローカルの履歴ファイル 読み込み
             if ($this->spmode == "recent") {
-                if ($lines = @file($_conf['rct_file'])) {
-                    // $_info_msg_ht = "<p>履歴は空っぽです</p>";
-                    // return false;
-                }
+                file_exists($_conf['rct_file']) and $lines = file($_conf['rct_file']);
             
             // ローカルの書き込み履歴ファイル 読み込み
             } elseif ($this->spmode == "res_hist") {
                 $rh_idx = $_conf['pref_dir'] . "/p2_res_hist.idx";
-                if ($lines = @file($rh_idx)) {
-                    // $_info_msg_ht = "<p>書き込み履歴は空っぽです</p>";
-                    // return false;
-                }
+                file_exists($rh_idx) and $lines = file($rh_idx);
             
             // ローカルのお気にファイル 読み込み
             } elseif ($this->spmode == "fav") {
-                if ($lines = @file($_conf['favlist_file'])) {
-                    // $_info_msg_ht = "<p>お気にスレは空っぽです</p>";
-                    // return false;
-                }
+                file_exists($_conf['favlist_file']) and $lines = file($_conf['favlist_file']);
             
             // ニュース系サブジェクト読み込み
             } elseif ($this->spmode == "news") {
@@ -125,13 +121,13 @@ class ThreadList{
                 unset($news);
                 $news[] = array(host=>"news2.2ch.net", bbs=>"newsplus"); // ニュース速報+
                 $news[] = array(host=>"news2.2ch.net", bbs=>"liveplus"); // ニュース実況
-                $news[] = array(host=>"book.2ch.net", bbs=>"bizplus"); // ビジネスニュース速報+
-                $news[] = array(host=>"live2.2ch.net", bbs=>"news"); // ニュース速報
-                $news[] = array(host=>"news3.2ch.net", bbs=>"news2"); // ニュース議論
+                $news[] = array(host=>"book.2ch.net", bbs=>"bizplus");   // ビジネスニュース速報+
+                $news[] = array(host=>"live2.2ch.net", bbs=>"news");     // ニュース速報
+                $news[] = array(host=>"news3.2ch.net", bbs=>"news2");    // ニュース議論
                 
                 foreach ($news as $n) {
                     
-                    require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+                    require_once P2_LIB_DIR . '/SubjectTxt.class.php';
                     $aSubjectTxt =& new SubjectTxt($n['host'], $n['bbs']);
                     
                     if (is_array($aSubjectTxt->subject_lines)) {
@@ -152,10 +148,13 @@ class ThreadList{
         
             // p2_threads_aborn.idx 読み込み
             } elseif ($this->spmode == "taborn") {
-                $dat_host_dir = P2Util::datDirOfHost($this->host);
-                $lines = @file($dat_host_dir."/".$this->bbs."/p2_threads_aborn.idx");
+                $idx_host_dir = P2Util::idxDirOfHost($this->host);
+                $file = $idx_host_dir . "/" . $this->bbs . "/p2_threads_aborn.idx";
+                if (file_exists($file)) {
+                    $lines = file($file);
+                }
             
-            // {{{ spmodeがdat倉庫の場合
+            // {{{ spmodeがdat倉庫の場合 @todo ページング用に数を制限できるしたい
             
             } elseif ($this->spmode == "soko") {
 
@@ -168,10 +167,10 @@ class ThreadList{
                 $dat_pattern = '/([0-9]+)\.dat$/';
                 $idx_pattern = '/([0-9]+)\.idx$/';
                 
-                $lines = array();
+                // {{{ datログディレクトリを走査して孤立datにidx付加する
                 
-                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat'); //
-                // datログディレクトリを走査して孤立datにidx付加
+                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat');
+                
                 if ($cdir = dir($dat_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     while ($entry = $cdir->read()) {
                         if (preg_match($dat_pattern, $entry, $matches)) {
@@ -199,39 +198,51 @@ class ThreadList{
                         }
                     }
                     $cdir->close();
-                }            
-                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat'); //
+                }
                 
-                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx'); //
+                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat');
+                
+                // }}}
                 // {{{ idxログディレクトリを走査してidx情報を抽出してリスト化
+                
+                // オンラインも倉庫もまとめて抽出している。オンラインを外すのは subject.php で行っている。
+                
+                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx');
+                
                 if ($cdir = dir($idx_bbs_dir)) { // or die ("ログディレクトリがないよ！");
+                    $limit = 1000; // ひとまず簡易制限
+                    $i = 0;
                     while ($entry = $cdir->read()) {
                         if (preg_match($idx_pattern, $entry)) {
                             $idl = file($idx_bbs_dir . "/" . $entry);
                             array_push($lines, $idl[0]);
+                            $i++;
+                            if ($i >= $limit) {
+                                P2Util::pushInfoHtml("<p>p2 info: idxログ数が、表示処理可能数である{$limit}件をオーバーしています。</p>");
+                                break;
+                            }
                         }
                     }
                     $cdir->close();
                 }
+                
+                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx');
+
                 // }}}
-                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx'); //
             
             // }}}
             
             // スレの殿堂の場合  // p2_palace.idx 読み込み
             } elseif ($this->spmode == "palace") {
                 $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
-                if ($lines = @file($palace_idx)) {
-                    // $_info_msg_ht = "<p>殿堂はがらんどうです</p>";
-                    // return false;
-                }
+                file_exists($palace_idx) and $lines = file($palace_idx);
             }
         
         // オンライン上の subject.txt を読み込む（spmodeでない場合）
         } else {
-            require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
-            $lines =& $aSubjectTxt->subject_lines;
+            $lines = $aSubjectTxt->subject_lines;
             
         }
         
@@ -241,23 +252,16 @@ class ThreadList{
     }
     
     /**
-     * addThread
-     *
      * @access  public
      * @return  integer
      */
-    function addThread(&$aThread)
+    function addThread($aThread)
     {
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('addThread()');
-        
-        $this->threads[] =& $aThread;
+        $this->threads[] = $aThread;
         $this->num++;
-        
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('addThread()');
         
         return $this->num;
     }
 
 }
 
-?>

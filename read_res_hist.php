@@ -2,10 +2,10 @@
 // p2 - 書き込み履歴 レス内容表示
 // フレーム分割画面、右下部分
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/res_hist.class.php';
-require_once P2_LIBRARY_DIR . '/read_res_hist.inc.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/res_hist.class.php';
+require_once P2_LIB_DIR . '/read_res_hist.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -18,10 +18,10 @@ $deletemsg_st = '削除';
 $ptitle = '書き込んだレスの記録';
 
 //================================================================
-// 特殊な前置処理
+// 特殊な前処理
 //================================================================
 // 削除
-if ($_POST['submit'] == $deletemsg_st or isset($_GET['checked_hists'])) {
+if ((isset($_POST['submit']) and $_POST['submit'] == $deletemsg_st) or isset($_GET['checked_hists'])) {
     $checked_hists = array();
     if (isset($_POST['checked_hists'])) {
         $checked_hists = $_POST['checked_hists'];
@@ -39,13 +39,10 @@ P2Util::transResHistLogPhpToDat();
 // メイン
 //======================================================================
 
-//==================================================================
 // 特殊DAT読み
-//==================================================================
-// 読み込んで
 if (!file_exists($_conf['p2_res_hist_dat']) or !$datlines = file($_conf['p2_res_hist_dat'])) {
     P2Util::printSimpleHtml('p2 - 書き込み履歴内容は空っぽのようです');
-    die('');
+    exit;
 }
 
 $datlines = array_map('rtrim', $datlines);
@@ -67,10 +64,9 @@ $htm['toolbar'] = <<<EOP
 EOP;
 
 //==================================================================
-// ヘッダ 表示
+// ヘッダHTML表示
 //==================================================================
 //P2Util::header_nocache();
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
@@ -84,11 +80,11 @@ EOP;
 
 // PC用表示
 if (!$_conf['ktai']) {
-    @include("style/style_css.inc"); // スタイルシート
-    @include("style/read_css.inc"); // スタイルシート
+    include_once './style/style_css.inc';
+    include_once './style/read_css.inc';
 
     echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/basic.js?v=20061209"></script>
     <script type="text/javascript" src="js/respopup.js"></script>
     
     <script type="text/javascript"> 
@@ -101,18 +97,20 @@ if (!$_conf['ktai']) {
         for (var i = 0; i < cbnum; i++) { 
             checkboxes[i].checked = mode; 
         } 
-    } 
+    }
+    addLoadEvent(function() {
+        gIsPageLoaded = true;
+    });
     </script> 
 EOSCRIPT;
 }
 
 echo <<<EOP
 </head>
-<body onLoad="gIsPageLoaded = true;">\n
+<body>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 // 携帯用表示
 if ($_conf['ktai']) {
@@ -126,7 +124,7 @@ if ($_conf['ktai']) {
 // PC用表示
 } else {
     echo <<<EOP
-<form method="POST" action="./read_res_hist.php" target="_self" onSubmit="if(gIsPageLoaded){return true;}else{alert('まだページを読み込み中なんです。もうちょっと待って。');return false;}">
+<form method="POST" action="./read_res_hist.php" target="_self" onSubmit="if (gIsPageLoaded) {return true;} else {alert('まだページを読み込み中です。もうちょっと待ってね。'); return false;}">
 EOP;
 
     echo <<<EOP
@@ -144,16 +142,16 @@ EOP;
 
 
 //==================================================================
-// レス記事 表示
+// レス記事 HTML表示
 //==================================================================
 if ($_conf['ktai']) {
-    $aResHist->showArticlesK($datlines);
+    $aResHist->printArticlesHtmlK($datlines);
 } else {
-    $aResHist->showArticles($datlines);
+    $aResHist->printArticlesHtml($datlines);
 }
 
 //==================================================================
-// フッタ 表示
+// フッタHTML表示
 //==================================================================
 // 携帯用表示
 if ($_conf['ktai']) {
@@ -182,4 +180,3 @@ if (!$_conf['ktai']) {
 
 echo '</body></html>';
 
-?>

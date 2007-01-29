@@ -2,8 +2,8 @@
 /**
  * p2 - ボードメニューを表示する クラス
  */
-class ShowBrdMenuPc{
-
+class ShowBrdMenuPc
+{
     var $cate_id; // カテゴリーID（連番数字）
     
     /**
@@ -77,15 +77,15 @@ EOP;
             $l = rtrim($l);
             if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
                 $itaj = rtrim($matches[3]);
-                $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
+                $itaj_hs = htmlspecialchars($itaj, ENT_QUOTES);
                 $itaj_en = rawurlencode(base64_encode($itaj));
                 
                 $p_htm['star'] = <<<EOP
-<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す">★</a>
+<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_hs}」をお気に板から外す" onClick="return confirmSetFavIta('{$itaj_hs}');">★</a>
 EOP;
                 //  onClick="return confirmSetFavIta('{$itaj_ht}');"                    
                 // 新着数を表示する場合
-                if ($_conf['enable_menu_new'] && $_GET['new']) {
+                if ($_conf['enable_menu_new'] && !empty($_GET['new'])) {
                     $matome_i++;
                     $host = $matches[1];
                     $bbs = $matches[2];
@@ -93,7 +93,7 @@ EOP;
                     $shinchaku_num = 0;
                     $_newthre_num = 0;
                     $newthre_ht = "";
-                    include("./subject_new.php");    // $shinchaku_num, $_newthre_num をセット
+                    include './subject_new.php';    // $shinchaku_num, $_newthre_num をセット
                     if ($shinchaku_num > 0) {
                         $class_newres_num = " class=\"newres_num\"";
                     } else {
@@ -104,14 +104,14 @@ EOP;
                     }
                     echo <<<EOP
             {$p_htm['star']}
-            <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}" onClick="chMenuColor({$matome_i});">{$itaj_view}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$matches[1]}&amp;bbs={$matches[2]}" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+            <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}" onClick="chMenuColor({$matome_i});">{$itaj_hs}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$matches[1]}&amp;bbs={$matches[2]}" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
 
                 // 新着数を表示しない場合
                 } else {
                     echo <<<EOP
             {$p_htm['star']}
-            <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}">{$itaj_view}</a><br>
+            <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}">{$itaj_hs}</a><br>
 EOP;
                 }
 
@@ -124,7 +124,4 @@ EOP;
         echo "    </div>\n";
         echo "</div>\n";
     }
-
 }
-
-?>

@@ -8,9 +8,12 @@
 // 変数
 //===================================================================
 $newtime = date("gis");
-$reloaded_time = date("m/d G:i:s"); //更新時刻
+$reloaded_time = date("m/d G:i:s"); // 更新時刻
 
-// スレあぼーんチェック、倉庫 =============================================
+// {{{ スレあぼーんチェック、倉庫
+
+$taborn_check_ht = '';
+
 if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
     $offline_num = $aThreadList->num - $online_num;
     $taborn_check_ht = <<<EOP
@@ -31,26 +34,36 @@ EOP;
     }
 }
 
+// }}}
+
 //===============================================================
 // HTML表示用変数 for ツールバー(sb_toolbar.inc.php) 
 //===============================================================
 
 $norefresh_q = "&amp;norefresh=true";
 
-// ページタイトル部分URL設定 ====================================
+// {{{ ページタイトル部分URL設定
+
+$ptitle_url = '';
 if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
     $ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}";
 } elseif ($aThreadList->spmode == "res_hist") {
     $ptitle_url = "./read_res_hist.php#footer";
 } elseif (!$aThreadList->spmode) {
     $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/";
-    if (preg_match("/www\.onpuch\.jp/", $aThreadList->host)) {$ptitle_url = $ptitle_url."index2.html";}
-    if (preg_match("/livesoccer\.net/", $aThreadList->host)) {$ptitle_url = $ptitle_url."index2.html";}
+    if (preg_match("/www\.onpuch\.jp/", $aThreadList->host)) {
+        $ptitle_url = $ptitle_url . "index2.html";
+    }
+    if (preg_match("/livesoccer\.net/", $aThreadList->host)) {
+        $ptitle_url = $ptitle_url . "index2.html";
+    }
     // match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
 }
 
+// }}}
+
 // ページタイトル部分HTML設定 ====================================
-$ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
+$ptitle_hs = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 
 if ($aThreadList->spmode == "taborn") {
     $ptitle_ht = <<<EOP
@@ -62,27 +75,31 @@ EOP;
 EOP;
 } elseif ($ptitle_url) {
     $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}"><b>{$ptitle_hd}</b></a></span>
+    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}"><b>{$ptitle_hs}</b></a></span>
 EOP;
 } else {
     $ptitle_ht = <<<EOP
-    <span class="itatitle"><b>{$ptitle_hd}</b></span>
+    <span class="itatitle"><b>{$ptitle_hs}</b></span>
 EOP;
 }
 
 // ビュー部分設定 ==============================================
-if ($aThreadList->spmode) { // スペシャルモード時
-    if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){    // お気にスレ or 殿堂なら
-        if($sb_view=="edit"){
-            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
-        }else{
-            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
 
+$edit_ht = '';
+
+// スペシャルモード時
+if ($aThreadList->spmode) {
+    // お気にスレ or 殿堂なら
+    if ($aThreadList->spmode == "fav" or $aThreadList->spmode == "palace") {
+        if ($sb_view == "edit") {
+            $edit_ht = "<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
+        } else {
+            $edit_ht = "<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
         }
     }
 }
 
-// フォームhidden ==================================================
+// フォーム hidden HTMLをセット
 $sb_form_hidden_ht = <<<EOP
     <input type="hidden" name="detect_hint" value="◎◇">
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
@@ -91,34 +108,37 @@ $sb_form_hidden_ht = <<<EOP
     {$_conf['k_input_ht']}
 EOP;
 
-//表示件数 ==================================================
-if(!$aThreadList->spmode || $aThreadList->spmode=="news"){
+// {{{ 表示件数 フォームHTMLをセット
 
-    if($p2_setting['viewnum']=="100"){$vncheck_100=" selected";}
-    elseif($p2_setting['viewnum']=="150"){$vncheck_150=" selected";}
-    elseif($p2_setting['viewnum']=="200"){$vncheck_200=" selected";}
-    elseif($p2_setting['viewnum']=="250"){$vncheck_250=" selected";}
-    elseif($p2_setting['viewnum']=="300"){$vncheck_300=" selected";}
-    elseif($p2_setting['viewnum']=="400"){$vncheck_400=" selected";}
-    elseif($p2_setting['viewnum']=="500"){$vncheck_500=" selected";}
-    elseif($p2_setting['viewnum']=="all"){$vncheck_all=" selected";}
-    else{$p2_setting['viewnum']="150"; $vncheck_150=" selected";} //基本設定
+if (!$aThreadList->spmode || $aThreadList->spmode == "news") {
     
-    $sb_disp_num_ht =<<<EOP
-        <select name="viewnum">
-            <option value="100"{$vncheck_100}>100件</option>
-            <option value="150"{$vncheck_150}>150件</option>
-            <option value="200"{$vncheck_200}>200件</option>
-            <option value="250"{$vncheck_250}>250件</option>
-            <option value="300"{$vncheck_300}>300件</option>
-            <option value="400"{$vncheck_400}>400件</option>
-            <option value="500"{$vncheck_500}>500件</option>
-            <option value="all"{$vncheck_all}>全て</option>
+    $keys = array(100, 150, 200, 250, 300, 400, 500, 'all');
+    foreach ($keys as $v) {
+        $vn_selecteds[$v] = null;
+    }
+    
+    $viewnum = isset($p2_setting['viewnum']) ? $p2_setting['viewnum'] : 150;
+    $vn_selecteds[$viewnum] = 'selected';
+    
+    $sb_disp_num_ht = <<<EOP
+        <select name="viewnum" title="スレッド表示件数">
+            <option value="100"{$vn_selecteds[100]}>100件</option>
+            <option value="150"{$vn_selecteds[150]}>150件</option>
+            <option value="200"{$vn_selecteds[200]}>200件</option>
+            <option value="250"{$vn_selecteds[250]}>250件</option>
+            <option value="300"{$vn_selecteds[300]}>300件</option>
+            <option value="400"{$vn_selecteds[400]}>400件</option>
+            <option value="500"{$vn_selecteds[500]}>500件</option>
+            <option value="all"{$vn_selecteds['all']}>全て</option>
         </select>
 EOP;
+} else {
+    $sb_disp_num_ht = '';
 }
 
-// フィルタ検索 ==================================================
+// }}}
+// {{{ フィルタ検索 フォームHTMLをセット
+
 if ($_conf['enable_exfilter'] == 2) {
 
     $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
@@ -135,25 +155,29 @@ if ($_conf['enable_exfilter'] == 2) {
 EOP;
 }
 
-$hd['word'] = (isset($GLOBALS['wakati_word'])) ? htmlspecialchars($GLOBALS['wakati_word'], ENT_QUOTES) : htmlspecialchars($word, ENT_QUOTES);
-$checked_ht['find_cont'] = (!empty($_REQUEST['find_cont'])) ? 'checked' : '';
+$word_hs = hsi($GLOBALS['wakati_word'], hsi($GLOBALS['word']));
+
+$checked_ht['find_cont'] = !empty($_REQUEST['find_cont']) ? 'checked' : '';
 
 $input_find_cont_ht = <<<EOP
-<input type="checkbox" name="find_cont" value="1"{$checked_ht['find_cont']} title="スレ本文を検索対象に含める（DAT取得済みスレッドのみ）">本文
+<span title="スレ本文を検索対象に含める（DAT取得済みスレッドのみ）"><input type="checkbox" name="find_cont" value="1"{$checked_ht['find_cont']}>本文</span>
 EOP;
 
 $filter_form_ht = <<<EOP
         <form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
             {$sb_form_hidden_ht}
-            <input type="text" id="word" name="word" value="{$hd['word']}" size="16">{$sb_form_method_ht}
+            <input type="text" id="word" name="word" value="{$word_hs}" size="16">{$sb_form_method_ht}
             {$input_find_cont_ht}
             <input type="submit" name="submit_kensaku" value="検索">
         </form>
 EOP;
 
+// }}}
+// {{{ チェック実行 フォームHTMLをセット
 
+$abornoff_ht = '';
+$check_form_ht = '';
 
-// チェックフォーム =====================================
 if ($aThreadList->spmode == "taborn") {
     $abornoff_ht = <<<EOP
     <input type="submit" name="submit" value="{$abornoff_st}">
@@ -164,19 +188,21 @@ if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThr
     <p>
         チェックした項目の
         <input type="submit" name="submit" value="{$deletelog_st}">
-        $abornoff_ht
+        {$abornoff_ht}
     </p>
 EOP;
 }
 
+// }}}
+
 //===================================================================
 // HTMLプリント
 //===================================================================
-P2Util::header_content_type();
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">\n
@@ -191,21 +217,23 @@ EOP;
 }
 
 echo <<<EOP
-    <title>{$ptitle_hd}</title>
+    <title>{$ptitle_hs}</title>
     <base target="read">
 EOP;
 
-@include("./style/style_css.inc"); //基本スタイルシート読込
-@include("./style/subject_css.inc"); //subject用スタイルシート読込
+include_once './style/style_css.inc';
+include_once './style/subject_css.inc';
+
+$shinchaku_attayo_st = empty($shinchaku_attayo) ? 'false' : 'true';
 
 echo <<<EOJS
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/setfavjs.js"></script>
-    <script type="text/javascript" src="js/delelog.js"></script>
+    <script type="text/javascript" src="js/basic.js?v=20061206"></script>
+    <script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
+    <script type="text/javascript" src="js/delelog.js?v=20061206"></script>
     <script language="JavaScript">
     <!--
     function setWinTitle(){
-        var shinchaku_ari = "$shinchaku_attayo";
+        var shinchaku_ari = "$shinchaku_attayo_st";
         if(shinchaku_ari){
             window.top.document.title="★{$aThreadList->ptitle}";
         }else{
@@ -249,20 +277,22 @@ echo <<<EOJS
             toid_obj.style.color="{$STYLE['thre_title_color_v']}";
         }
     }
-    
-    /* フレームの自動リサイズは使い勝手イマイチだった
-    gResizedFrame = false;
-    function resizeFrame(){
-        var rr = window.parent.fsright;
-        if (rr) {
-            rr.rows ='*,30%';
-            gResizedFrame = true
-        }
-    }
-    */
     // -->
     </script>
 EOJS;
+
+/*
+    // JavaScript フレームの自動リサイズは使い勝手イマイチだった（ので使っていない）
+    gResizedFrame = false;
+    function resizeFrame(){
+        var rr = window.parent.fsright;
+        if (!gResizedFrame && rr) {
+            rr.rows ='*,30%';
+            gResizedFrame = true;
+            window.parent.read.gResizedFrame = false;
+        }
+    }
+*/
 
 if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
     echo <<<EOJS
@@ -289,10 +319,9 @@ echo <<<EOP
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onLoad="setWinTitle();">
 EOP;
 
-include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
+include P2_LIB_DIR . '/sb_toolbar.inc.php';
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 echo <<<EOP
     $taborn_check_ht
@@ -300,4 +329,3 @@ echo <<<EOP
     <table cellspacing="0" width="100%">\n
 EOP;
 
-?>

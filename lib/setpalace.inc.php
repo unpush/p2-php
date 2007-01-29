@@ -1,5 +1,5 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * スレを殿堂入りにセットする関数
@@ -7,7 +7,7 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
  * $set は、0(解除), 1(追加), top, up, down, bottom
  *
  * @access  public
- * @return  boolean  実行成否
+ * @return  boolean
  */
 function setPal($host, $bbs, $key, $setpal)
 {
@@ -62,7 +62,7 @@ function setPal($host, $bbs, $key, $setpal)
     // 新規データ設定
     if ($setpal) {
         $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
+        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setpal);
     } else {
         $rec_lines = $neolines;
@@ -85,4 +85,3 @@ function setPal($host, $bbs, $key, $setpal)
     return true;
 }
 
-?>

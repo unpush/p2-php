@@ -28,24 +28,24 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], "Mac")) {
 	}
 
 	// Mac用フォントサイズ
-	$STYLE['fontsize']			= "12px";		// ("") 基本フォントの大きさ
+	$STYLE['fontsize']			= "12px";	// ("") 基本フォントの大きさ
 	$STYLE['menu_fontsize'] 	= "11px"; 	// ("10pt") 板メニューのフォントの大きさ
 	$STYLE['sb_fontsize'] 		= "11px"; 	// ("10pt") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] 	= "12px"; 		// ("") スレッド内容表示のフォントの大きさ
+	$STYLE['read_fontsize'] 	= "12px"; 	// ("") スレッド内容表示のフォントの大きさ
 	$STYLE['respop_fontsize'] 	= "11px"; 	// ("10pt") 引用レスポップアップ表示のフォントの大きさ
 	$STYLE['infowin_fontsize'] 	= "11px"; 	// ("10pt") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] 	= "11px"; 		// ("10pt") input, option, select のフォントの大きさ（Caminoを除く）
+	$STYLE['form_fontsize'] 	= "11px"; 	// ("10pt") input, option, select のフォントの大きさ（Caminoを除く）
 
 } else {
 
 	// Mac以外のフォントサイズ
-	$STYLE['fontsize']			= "12px"; 		// ("") 基本フォントの大きさ
+	$STYLE['fontsize']			= "12px"; 	// ("") 基本フォントの大きさ
 	$STYLE['menu_fontsize'] 	= "12px"; 	// ("10pt") 板メニューのフォントの大きさ
 	$STYLE['sb_fontsize'] 		= "12px"; 	// ("10pt") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] 	= "13px"; 		// ("") スレッド内容表示のフォントの大きさ
+	$STYLE['read_fontsize'] 	= "13px"; 	// ("") スレッド内容表示のフォントの大きさ
 	$STYLE['respop_fontsize'] 	= "12px"; 	// ("10pt") 引用レスポップアップ表示のフォントの大きさ
 	$STYLE['infowin_fontsize'] 	= "12px"; 	// ("10pt") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] 	= "12px";		// ("10pt") input, option, select のフォントの大きさ
+	$STYLE['form_fontsize'] 	= "12px";	// ("10pt") input, option, select のフォントの大きさ
 }
 
 //======================================================================
@@ -135,10 +135,10 @@ $STYLE['read_k_thread_title_color'] = "#1144aa"; // ("#1144aa") スレッドタイトル
 $STYLE['read_k_bgcolor'] = ""; // ("#efefef") スレッド表示の背景色
 $STYLE['read_k_color'] = ""; // ("#000000") スレッド表示のテキスト色
 
-// レス書き込みフォーム================
-$STYLE['post_pop_size'] = "610,350"; // ("610,350") レス書き込みポップアップウィンドウの大きさ（横,縦）
+// レス書き込みフォーム
+$STYLE['post_pop_size'] = "620,360"; // ("620,360") レス書き込みポップアップウィンドウの大きさ（横,縦）
 $STYLE['post_msg_rows'] = 10; // (10) レス書き込みフォーム、メッセージフィールドの行数
 $STYLE['post_msg_cols'] = 70; // (70) レス書き込みフォーム、メッセージフィールドの桁数
 
-$STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの大きさ（横,縦）
+$STYLE['info_pop_size'] = "600,430"; // ("600,400") 情報ポップアップウィンドウの大きさ（横,縦）
 ?>
