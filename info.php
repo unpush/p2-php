@@ -370,13 +370,14 @@ if (!$_conf['ktai']) {
     echo getCopypaFormHtml($motothre_org_url, $hd['ttitle_name']);
 //}
 
-
+/*
 // 関連キーワード
 if (!$_conf['ktai'] and P2Util::isHost2chs($aThread->host)) {
     echo <<<EOP
 <iframe src="http://p2.2ch.io/getf.cgi?{$motothre_url}" border="0" frameborder="0" height="30" width="520"></iframe>
 EOP;
 }
+*/
 
 // {{{ 閉じるボタン
 

@@ -1,4 +1,18 @@
 2007-1-30 aki
+	* rep2 version 1.8.12
+	
+	[追加修正] 同梱し忘れていた img/kossori.gif を追加した。
+	[変更] 携帯 TOPメニューで「最近読んだスレ」を一番上にした。
+	
+	- 新しく追加されたファイル
+		img/kossori.gif
+		
+	- 変更のあったファイル
+		conf/conf.inc.php
+		info.php
+		lib/index_print_k.inc.php
+
+2007-1-30 aki
 	* rep2 version 1.8.11
 	
 	[追加] 標準でPEARを添付した（includesディレクトリ)

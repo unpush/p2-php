@@ -1,6 +1,6 @@
 <?php
 /**
- * rep2 - 携帯用インデックスをHTMLプリントする関数
+ * p2 - 携帯用インデックスをHTMLプリントする関数
  */
 function index_print_k()
 {
@@ -11,8 +11,15 @@ function index_print_k()
     $body = "";
     $ptitle = "rep2ﾓﾊﾞｲﾙ";
     
-    // 認証ユーザ情報
+    // ログインユーザ情報
     $htm['auth_user'] = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - " . date("Y/m/d (D) G:i:s") . "</p>\n";
+    
+    // p2ログイン用URL
+    $login_url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
+    $login_url_pc = $login_url . '?b=pc';
+    $login_url_pc_hs = hs($login_url_pc);
+    $login_url_k = $login_url . '?b=k&user=' . $_login->user_u;
+    $login_url_k_hs = hs($login_url_k);
     
     // 前回のログイン情報
     if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
@@ -33,10 +40,10 @@ EOP;
     
     // 古いセッションIDがキャッシュされていることを考慮して、ユーザ情報を付加しておく
     // （リファラを考慮して、つけないほうがいい場合もあるので注意）
-    $user_at_a = '&amp;user='.$_login->user_u;
-    $user_at_q = '?user='.$_login->user_u;
+    $user_at_a = '&amp;user=' . $_login->user_u;
+    $user_at_q = '?user=' . $_login->user_u;
     
-    require_once 'brdctl.class.php';
+    require_once P2_LIB_DIR . '/brdctl.class.php';
     $search_form_htm = BrdCtl::getMenuKSearchFormHtml('menu_k.php');
 
     //=========================================================
@@ -55,12 +62,12 @@ EOP;
 <h1>{$ptitle}</h1>
 {$_info_msg_ht}
 
-<a {$_conf['accesskey']}="1" href="subject.php?spmode=fav&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">1.お気にｽﾚの新着</a><br>
-<a {$_conf['accesskey']}="2" href="subject.php?spmode=fav{$_conf['k_at_a']}{$user_at_a}">2.お気にｽﾚの全て</a><br>
-<a {$_conf['accesskey']}="3" href="menu_k.php?view=favita{$_conf['k_at_a']}{$user_at_a}">3.お気に板</a><br>
-<a {$_conf['accesskey']}="4" href="menu_k.php?view=cate{$_conf['k_at_a']}{$user_at_a}">4.板ﾘｽﾄ</a><br>
-<a {$_conf['accesskey']}="5" href="subject.php?spmode=recent&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">5.最近読んだｽﾚの新着</a><br>
-<a {$_conf['accesskey']}="6" href="subject.php?spmode=recent{$_conf['k_at_a']}{$user_at_a}">6.最近読んだｽﾚの全て</a><br>
+<a {$_conf['accesskey']}="1" href="subject.php?spmode=recent&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">1.最近読んだｽﾚの新着</a><br>
+<a {$_conf['accesskey']}="2" href="subject.php?spmode=recent{$_conf['k_at_a']}{$user_at_a}">2.最近読んだｽﾚの全て</a><br>
+<a {$_conf['accesskey']}="3" href="subject.php?spmode=fav&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">3.お気にｽﾚの新着</a><br>
+<a {$_conf['accesskey']}="4" href="subject.php?spmode=fav{$_conf['k_at_a']}{$user_at_a}">4.お気にｽﾚの全て</a><br>
+<a {$_conf['accesskey']}="5" href="menu_k.php?view=favita{$_conf['k_at_a']}{$user_at_a}">5.お気に板</a><br>
+<a {$_conf['accesskey']}="6" href="menu_k.php?view=cate{$_conf['k_at_a']}{$user_at_a}">6.板ﾘｽﾄ</a><br>
 <a {$_conf['accesskey']}="7" href="subject.php?spmode=res_hist{$_conf['k_at_a']}{$user_at_a}">7.書込履歴</a> <a {$_conf['accesskey']}="#" href="read_res_hist.php?nt={$newtime}{$_conf['k_at_a']}">#.ﾛｸﾞ</a><br>
 <a {$_conf['accesskey']}="8" href="subject.php?spmode=palace&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">8.ｽﾚの殿堂</a><br>
 <a {$_conf['accesskey']}="9" href="setting.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">9.ﾛｸﾞｲﾝ管理</a><br>
@@ -79,6 +86,13 @@ EOP;
 <hr>
 {$htm['auth_user']}
 
+<p>
+p2ﾛｸﾞｲﾝ用URL（携帯）<br>
+<a href="{$login_url_k_hs}">{$login_url_k_hs}</a><br>
+p2ﾛｸﾞｲﾝ用URL（PC）<br>
+<a href="{$login_url_pc_hs}">{$login_url_pc_hs}</a>
+</p>
+
 <hr>
 {$htm['last_login']}
 </body>
@@ -86,3 +100,14 @@ EOP;
 EOP;
 
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
