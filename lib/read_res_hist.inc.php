@@ -101,4 +101,3 @@ function rmLine($rmnums, $lines)
     return false;
 }
 
-?>

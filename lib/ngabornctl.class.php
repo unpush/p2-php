@@ -18,13 +18,13 @@ class NgAbornCtl
         global $_conf;
         
         // HITÇ™Ç»ÇØÇÍÇŒçXêVÇ‡Ç»Çµ
-        if (!$GLOBALS['ngaborns_hits']) {
+        if (empty($GLOBALS['ngaborns_hits'])) {
             return true;
         }
         
         foreach ($ngaborns_hits as $code => $v) {
         
-            if (!$ngaborns[$code]['data']) {
+            if (empty($ngaborns[$code]['data'])) {
                 continue;
             }
             
@@ -45,18 +45,13 @@ class NgAbornCtl
                     $a_ngaborn['lasttime'] = date('Y/m/d G:i');
                 }
                 
-                $cont .= $a_ngaborn['word']."\t".$a_ngaborn['lasttime']."\t".$a_ngaborn['hits']."\n";
+                $cont .= $a_ngaborn['word'] . "\t" . $a_ngaborn['lasttime'] . "\t" .$a_ngaborn['hits'] . "\n";
             }
             
             // èëÇ´çûÇﬁ
-            $fp = fopen($ngaborns[$code]['file'], 'wb'); // or die("Error: cannot write. ( $ngaborns[$code]['file'] )");
-            if (!$fp) {
+            if (false === file_put_contents($ngaborns[$code]['file'], $cont, LOCK_EX)) {
                 return false;
             }
-            @flock($fp, LOCK_EX);
-            fputs($fp, $cont);
-            @flock($fp, LOCK_UN);
-            fclose($fp);
         
         } // foreach
         
@@ -88,16 +83,16 @@ class NgAbornCtl
     function loadNgAborns()
     {
         $ngaborns = array();
-    
-        $ngaborns['aborn_res'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_res.txt'); // Ç±ÇÍÇæÇØè≠Çµê´äiÇ™àŸÇ»ÇÈ
+
+        $ngaborns['aborn_res']  = NgAbornCtl::readNgAbornFromFile('p2_aborn_res.txt'); // Ç±ÇÍÇæÇØè≠Çµê´äiÇ™àŸÇ»ÇÈ
         $ngaborns['aborn_name'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_name.txt');
         $ngaborns['aborn_mail'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_mail.txt');
-        $ngaborns['aborn_msg'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_msg.txt');
-        $ngaborns['aborn_id'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_id.txt');
-        $ngaborns['ng_name'] = NgAbornCtl::readNgAbornFromFile('p2_ng_name.txt');
-        $ngaborns['ng_mail'] = NgAbornCtl::readNgAbornFromFile('p2_ng_mail.txt');
-        $ngaborns['ng_msg'] = NgAbornCtl::readNgAbornFromFile('p2_ng_msg.txt');
-        $ngaborns['ng_id'] = NgAbornCtl::readNgAbornFromFile('p2_ng_id.txt');
+        $ngaborns['aborn_msg']  = NgAbornCtl::readNgAbornFromFile('p2_aborn_msg.txt');
+        $ngaborns['aborn_id']   = NgAbornCtl::readNgAbornFromFile('p2_aborn_id.txt');
+        $ngaborns['ng_name']    = NgAbornCtl::readNgAbornFromFile('p2_ng_name.txt');
+        $ngaborns['ng_mail']    = NgAbornCtl::readNgAbornFromFile('p2_ng_mail.txt');
+        $ngaborns['ng_msg']     = NgAbornCtl::readNgAbornFromFile('p2_ng_msg.txt');
+        $ngaborns['ng_id']      = NgAbornCtl::readNgAbornFromFile('p2_ng_id.txt');
 
         return $ngaborns;
     }
@@ -112,24 +107,33 @@ class NgAbornCtl
     function readNgAbornFromFile($filename)
     {
         global $_conf;
-    
+
         $lines = array();
         $array['file'] = $_conf['pref_dir'] . '/' . $filename;
-        if ($lines = @file($array['file'])) {
-            $lines = array_map('trim', $lines);
-        
-            if ($lines) {
-                foreach ($lines as $l) {
-                    $lar = explode("\t", $l);
-                    $ar['word'] = $lar[0]; // ëŒè€ï∂éöóÒ
-                    $ar['lasttime'] = isset($lar[1]) ? $lar[1] : null; // ç≈å„Ç…HITÇµÇΩéûä‘
-                    $ar['hits'] = isset($lar[2]) ? intval($lar[2]) : null; // HITâÒêî
-                    $array['data'][] = $ar;
+        if (file_exists($array['file']) and $lines = file($array['file'])) {
+            foreach ($lines as $l) {
+                $lar = explode("\t", trim($l));
+                if (strlen($lar[0]) == 0) {
+                    continue;
                 }
+                $ar['word']     = $lar[0]; // ëŒè€ï∂éöóÒ
+                $ar['lasttime'] = isset($lar[1]) ? $lar[1] : null; // ç≈å„Ç…HITÇµÇΩéûä‘
+                $ar['hits']     = isset($lar[2]) ? intval($lar[2]) : null; // HITâÒêî
+                $array['data'][] = $ar;
             }
-
         }
         return $array;
     }
 
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

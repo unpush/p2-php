@@ -218,7 +218,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     $aThread->getThreadInfoFromIdx();
         
     // 新着のみ(for subject)
-    if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) { 
+    if (!$aThreadList->spmode and $sb_view == "shinchaku" and !isset($GLOBALS['word'])) { 
         if ($aThread->unum < 1) {
             unset($aThread);
             continue;
@@ -226,9 +226,9 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
 
     // スレッドあぼーんチェック
-    if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) { 
-            unset($ta_keys[$aThread->key]);
-            continue; // あぼーんスレはスキップ
+    if ($aThreadList->spmode != 'taborn' and !empty($ta_keys[$aThread->key])) { 
+        unset($ta_keys[$aThread->key]);
+        continue; // あぼーんスレはスキップ
     }
 
     // spmode(殿堂入りを除く)なら ====================================
@@ -254,7 +254,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
         
         // 新着のみ(for spmode)
-        if ($sb_view == "shinchaku" and empty($_GET['word'])) { 
+        if ($sb_view == "shinchaku" and !isset($GLOBALS['word'])) { 
             if ($aThread->unum < 1) {
                 unset($aThread);
                 continue;
@@ -318,7 +318,7 @@ function readNew(&$aThread)
     
 
     // DATのダウンロード
-    if (!($word and file_exists($aThread->keydat))) {
+    if (!(isset($GLOBALS['word']) && file_exists($aThread->keydat))) {
         $aThread->downloadDat();
     }
     

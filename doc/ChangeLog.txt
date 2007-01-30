@@ -7,6 +7,15 @@
 	- 新しく追加されたファイル
 		includes ディレクトリ以下
 	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/ngabornctl.class.php
+		lib/read_res_hist.inc.php
+		lib/sb_toolbar.inc.php
+		read.php
+		read_new.php
+		subject_new.php
+
 2007-1-29 aki
 	* rep2 version 1.8.10
 	

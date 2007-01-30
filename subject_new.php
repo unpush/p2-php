@@ -367,7 +367,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     
     if ($aThread->unum > 0) { // 新着あり
         $shinchaku_attayo = true;
-        $shinchaku_num = $shinchaku_num + $aThread->unum; // 新着数set
+        $shinchaku_num += $aThread->unum; // 新着数set
     } elseif ($aThread->fav) { // お気にスレ
         ;
     } elseif ($aThread->new) { // 新規スレ

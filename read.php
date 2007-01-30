@@ -312,7 +312,7 @@ if ($_conf['ktai']) {
     // ローカルDatを変換してHTML表示
     //===========================================================
     // レスがあり、検索指定があれば
-    if (isset($word) && $aThread->rescount) {
+    if (isset($GLOBALS['word']) && $aThread->rescount) {
     
         $all = $aThread->rescount;
         

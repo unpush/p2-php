@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.10'; // rep2のバージョン
+$_conf['p2version'] = '1.8.11'; // rep2のバージョン
 
 $_conf['p2name'] = 'r e p 2';    // rep2の名前。
 
@@ -13,7 +13,7 @@ $_conf['p2name'] = 'r e p 2';    // rep2の名前。
 //======================================================================
 // 基本設定処理
 //======================================================================
-// エラー出力設定（今はNOTICEを出さないコードを心掛けているけれど、昔書いた部分でたくさん出ると思う）
+// エラー出力設定（NOTICE削減中。まだ残っていると思う）
 error_reporting(E_ALL ^ E_NOTICE);
 
 // {{{ 基本変数
@@ -139,10 +139,10 @@ if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
     if (is_dir(P2_PEAR_HACK_DIR)) {
         $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_HACK_DIR);
     }
+    $include_path .= PATH_SEPARATOR . ini_get('include_path');
     if (is_dir(P2_PEAR_DIR)) {
         $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_DIR);
     }
-    $include_path .= PATH_SEPARATOR . ini_get('include_path');
     ini_set('include_path', $include_path);
 }
 
@@ -665,6 +665,27 @@ function geti(&$var, $alt = null)
     return isset($var) ? $var : $alt;
 }
 
+/**
+ * p2 error メッセージを表示して終了
+ *
+ * @param   string  $err    エラー概要
+ * @param   string  $msg    詳細な説明
+ * @param   boolean $raw    詳細な説明をエスケープするか否か
+ * @return  void
+ */
+function p2die($err, $msg = null, $raw = false)
+{
+    echo '<html><head><title>p2 error</title></head><body>';
+    echo '<h3>p2 error: ', htmlspecialchars($err, ENT_QUOTES), '</h3>';
+    if ($msg !== null) {
+        if ($raw) {
+            echo '<p>', nl2br(htmlspecialchars($msg, ENT_QUOTES)), '</p>';
+        } else {
+            echo $msg;
+        }
+    }
+    echo '</body></html>';
+}
 
 /**
  * conf_user にデータをセット記録する
