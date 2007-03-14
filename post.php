@@ -145,8 +145,10 @@ if (!empty($_POST['maru_kakiko']) and P2Util::isHost2chs($host) && file_exists($
         login2ch();
     }
     
-    include $_conf['sid2ch_php']; // $uaMona, $SID2ch
-    $post['sid'] = $SID2ch;
+    if (file_exists($_conf['sid2ch_php'])) {
+        include $_conf['sid2ch_php']; // $uaMona, $SID2ch
+        $post['sid'] = $SID2ch;
+    }
 }
 
 // }}}
@@ -532,8 +534,8 @@ function postIt($host, $bbs, $key, $post)
     $request .= 'Referer: http://' . $purl['host'] . '/' . "\r\n";
     
     // クライアントのIPを送信するp2独自のヘッダ
-    $request .= "X-P2-Client-IP: " . $_SERVER['REMOTE_ADDR'] . "/\r\n";
-    $request .= "X-P2-Client-Host: " . $remote_host . "/\r\n";
+    $request .= "X-P2-Client-IP: " . $_SERVER['REMOTE_ADDR'] . "\r\n";
+    $request .= "X-P2-Client-Host: " . $remote_host . "\r\n";
     
     // クッキー
     $cookies_to_send = "";
@@ -595,8 +597,8 @@ function postIt($host, $bbs, $key, $post)
     
     // }}}
 
-    $maru_kakiko = isset($_POST['maru_kakiko']) ? $_POST['maru_kakiko'] : '';
-    setConfUser('maru_kakiko', $_POST['maru_kakiko']);
+    $maru_kakiko = empty($_POST['maru_kakiko']) ? 0 : 1;
+    setConfUser('maru_kakiko', $maru_kakiko);
 
     // 書き込みを一時的に保存
     $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);

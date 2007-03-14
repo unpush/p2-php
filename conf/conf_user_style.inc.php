@@ -140,5 +140,12 @@ $STYLE['post_pop_size'] = "620,360"; // ("620,360") レス書き込みポップアップウィ
 $STYLE['post_msg_rows'] = 10; // (10) レス書き込みフォーム、メッセージフィールドの行数
 $STYLE['post_msg_cols'] = 70; // (70) レス書き込みフォーム、メッセージフィールドの桁数
 
+// レスポップアップ
+$STYLE['respop_color'] = "#000"; // ("#000") レスポップアップのテキスト色
+$STYLE['respop_bgcolor'] = "#ffffcc"; // ("#ffffcc") レスポップアップの背景色
+$STYLE['respop_background'] = ""; // ("") レスポップアップの背景画像
+$STYLE['respop_b_width'] = "1px"; // ("1px") レスポップアップのボーダー幅
+$STYLE['respop_b_color'] = "black"; // ("black") レスポップアップのボーダー色
+$STYLE['respop_b_style'] = "solid"; // ("solid") レスポップアップのボーダー形式
+
 $STYLE['info_pop_size'] = "600,430"; // ("600,400") 情報ポップアップウィンドウの大きさ（横,縦）
-?>

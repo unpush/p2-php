@@ -13,9 +13,10 @@ require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
-// まとめよみのキャッシュ読み
+// {{{ 新着まとめよみのキャッシュ読み
+
 if (!empty($_GET['cview'])) {
-    $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
+    $cnum = isset($_GET['cnum']) ? intval($_GET['cnum']) : NULL;
     if ($cont = getMatomeCache($cnum)) {
         echo $cont;
     } else {
@@ -23,6 +24,8 @@ if (!empty($_GET['cview'])) {
     }
     exit;
 }
+
+// }}}
 
 //==================================================================
 // 変数
@@ -35,6 +38,8 @@ $sb_view = "shinchaku";
 $newtime = date("gis");
 
 $sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
+
+$_newthre_num = 0;
 
 //=================================================
 // 板の指定
@@ -52,9 +57,6 @@ if ((empty($host) || !isset($bbs)) && !isset($spmode)) {
 }
 
 
-// あぼーん&NGワード設定読み込み
-$GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
-
 //====================================================================
 // メイン
 //====================================================================
@@ -68,7 +70,7 @@ $aThreadList =& new ThreadList();
 
 // 板とモードのセット===================================
 $ta_keys = array();
-if ($spmode) {
+if (!empty($spmode)) {
     if ($spmode == 'taborn' or $spmode == 'soko') {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
     }
@@ -140,7 +142,9 @@ EOHEADER;
 echo <<<EOHEADER
     <script type="text/javascript">
     <!--
+    gIsReadNew = true;
     gFade = false;
+    gExistWord = false;
     gIsPageLoaded = false;
     addLoadEvent(function() {
         gIsPageLoaded = true;
@@ -149,6 +153,10 @@ echo <<<EOHEADER
     -->
     </script>\n
 EOHEADER;
+
+if ($_conf['enable_spm']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?v=20070308\"></script>\n";
+}
 
 echo <<<EOP
 </head>
@@ -163,6 +171,8 @@ P2Util::printInfoHtml();
 //==============================================================
 // それぞれの行解析
 //==============================================================
+
+$online_num = 0;
 
 $linesize = sizeof($lines);
 
@@ -287,13 +297,13 @@ for ($x = 0; $x < $linesize ; $x++) {
 
 // $aThread =& new ThreadRead();
 
+
 /**
  * スレッドの新着部分を読み込んで表示する
  */
 function readNew(&$aThread)
 {
-    global $_conf, $_newthre_num, $STYLE;
-    global $_info_msg_ht;
+    global $_conf, $_newthre_num, $STYLE, $sid_q;
 
     $_newthre_num++;
     
@@ -363,6 +373,7 @@ function readNew(&$aThread)
     
     $prev_thre_num = $_newthre_num - 1;
     $next_thre_num = $_newthre_num + 1;
+    $prev_thre_ht = '';
     if ($prev_thre_num != 0) {
         $prev_thre_ht = "<a href=\"#ntt{$prev_thre_num}\">▲</a>";
     }
@@ -384,6 +395,11 @@ function readNew(&$aThread)
         </tr>
     </table>\n
 EOP;
+    
+    // スマートポップアップメニュー
+    if ($_conf['enable_spm']) {
+        $aThread->showSmartPopUpMenuJs();
+    }
     
     //==================================================================
     // ローカルDatを読み込んでHTML表示
@@ -438,19 +454,19 @@ EOP;
     $favdo      = !empty($aThread->fav) ? 0 : 1;
     $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $favdo_q    = '&amp;setfav='.$favdo;
-    $itaj_hd    = htmlspecialchars($aThread->itaj, ENT_QUOTES);
+    $itaj_hs    = htmlspecialchars($aThread->itaj, ENT_QUOTES);
     $similar_q  = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);
     
     $toolbar_right_ht = <<<EOTOOLBAR
-            <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
+            <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hs}</a>
 
-            <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}" target="subject" title="同じ板からタイトルが似ているスレッドを検索する">似スレ</a>
+            <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}&amp;refresh=1" target="subject" title="同じ板からタイトルが似ているスレッドを検索する">似スレ</a>
 
             <a style="white-space: nowrap;" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}" target="info" onClick="return !openSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},1,0)" title="スレッド情報を表示">{$info_st}</a>
 
             <span class="favdo" style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this);" title="{$favtitle}">お気に{$favmark}</a></span>
 
-            <span style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read_new', this);" title="ログを削除する">{$delete_st}</a></span>
+            <span style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read_new', this);" title="ログを削除する。自動で「お気にスレ」「殿堂」からも外れます。">{$delete_st}</a></span>
 
 <!--            <a style="white-space: nowrap;" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return !openSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">あぼん</a> -->
 

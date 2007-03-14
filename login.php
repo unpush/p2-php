@@ -44,7 +44,7 @@ if (isset($_POST['form_login_pass'])) {
 
     // 入力チェック
     if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
-        $_info_msg_ht .= "<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>";
+        P2Util::pushInfoHtml("<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>");
 
     // パスワード変更登録処理を行う
     } else {
@@ -56,16 +56,12 @@ if (isset($_POST['form_login_pass'])) {
 ?>
 EOP;
         FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']);
-        $fp = fopen($_conf['auth_user_file'], "wb");
-        if (!$fp) {
+        
+        if (false === file_put_contents($_conf['auth_user_file'], $auth_user_cont, LOCK_EX)) {
             die("rep2 Error: {$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
         }
-        @flock($fp, LOCK_EX);
-        fputs($fp, $auth_user_cont);
-        @flock($fp, LOCK_UN);
-        fclose($fp);
         
-        $_info_msg_ht .= '<p>○認証パスワードを変更登録しました</p>';
+        P2Util::pushInfoHtml('<p>○認証パスワードを変更登録しました</p>');
     }
     
 }
@@ -141,16 +137,16 @@ if (!empty($_REQUEST['check_regist_cookie'])) {
 
     if ($_login->checkUserPwWithCid($_COOKIE['cid'])) {
         if ($_REQUEST['regist_cookie'] == '1') {
-            $_info_msg_ht .= '<p>○cookie認証登録完了</p>';
+            P2Util::pushInfoHtml('<p>○cookie認証登録完了</p>');
         } else {
-            $_info_msg_ht .= '<p>×cookie認証解除失敗</p>';
+            P2Util::pushInfoHtml('<p>×cookie認証解除失敗</p>');
         }
         
     } else {
         if ($_REQUEST['regist_cookie'] == '1') {
-            $_info_msg_ht .= '<p>×cookie認証登録失敗</p>';
+            P2Util::pushInfoHtml('<p>×cookie認証登録失敗</p>');
         } else  {
-            $_info_msg_ht .= '<p>○cookie認証解除完了</p>';
+            P2Util::pushInfoHtml('<p>○cookie認証解除完了</p>');
         }
     }
 }
@@ -230,3 +226,14 @@ if ($_conf['ktai']) {
 
 echo '</body></html>';
 
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -61,7 +61,7 @@ class SettingTxt{
      */
     function downloadSettingTxt()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $perm = !empty($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
 
@@ -120,8 +120,8 @@ class SettingTxt{
         // DLエラー
         if (isset($error_msg) && strlen($error_msg) > 0) {
             $url_t = P2Util::throughIme($this->url);
-            $_info_msg_ht .= "<div>Error: {$error_msg}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->url}</a> に接続できませんでした。</div>";
+            P2Util::pushInfoHtml("<div>Error: {$error_msg}<br>"
+                                . "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->url}</a> に接続できませんでした。</div>");
             touch($this->setting_txt); // DL失敗した場合も touch
             return false;
             
@@ -245,3 +245,14 @@ class SettingTxt{
 
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

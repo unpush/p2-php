@@ -47,14 +47,14 @@ if ($_conf['ktai']) {
     $client_host_st = '端末ﾎｽﾄ';
     $client_ip_st   = '端末IPｱﾄﾞﾚｽ';
     $browser_ua_st  = 'ﾌﾞﾗｳｻﾞUA';
-    $p2error_st     = 'rep2 ｴﾗｰ';
+    $p2error_st     = 'p2 ｴﾗｰ';
 } else {
     $status_st      = 'ステータス';
     $autho_user_st  = '認証ユーザ';
     $client_host_st = '端末ホスト';
     $client_ip_st   = '端末IPアドレス';
     $browser_ua_st  = 'ブラウザUA';
-    $p2error_st     = 'rep2 エラー';
+    $p2error_st     = 'p2 エラー';
 }
 
 $autho_user_ht = '';
@@ -113,16 +113,18 @@ if ($_conf['ktai']) {
 }
 
 // PC
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     
     echo "<table id=\"editpref\">\n";
     
     // {{{ PC - NGワード編集
+    
     echo "<tr><td>\n\n";
     
     echo <<<EOP
 <fieldset>
-<legend><a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
+<!-- <a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a> -->
+<legend>NGワード編集</legend>
 EOP;
     printEditFileForm($ng_name_txt, "名前");
     printEditFileForm($ng_mail_txt, "メール");
@@ -175,6 +177,36 @@ EOP;
     echo "</table>\n";
 }
 
+// 携帯用表示 NG/ｱﾎﾞﾝﾜｰﾄﾞ
+if ($_conf['ktai']) {
+    $ng_name_txt_bn = basename($ng_name_txt);
+    $ng_mail_txt_bn = basename($ng_mail_txt);
+    $ng_msg_txt_bn = basename($ng_msg_txt);
+    $ng_id_txt_bn = basename($ng_id_txt);
+    $aborn_name_txt_bn = basename($aborn_name_txt);
+    $aborn_mail_txt_bn = basename($aborn_mail_txt);
+    $aborn_msg_txt_bn = basename($aborn_msg_txt);
+    $aborn_id_txt_bn = basename($aborn_id_txt);
+    echo <<<EOP
+<p>NG/ｱﾎﾞﾝﾜｰﾄﾞ編集</p>
+<form method="GET" action="edit_aborn_word.php">
+{$_conf['k_input_ht']}
+<select name="path">
+<option value="{$ng_name_txt_bn}">NG:名前</option>
+<option value="{$ng_mail_txt_bn}">NG:ﾒｰﾙ</option>
+<option value="{$ng_msg_txt_bn}">NG:ﾒｯｾｰｼﾞ</option>
+<option value="{$ng_id_txt_bn}">NG:ID</option>
+<option value="{$aborn_name_txt_bn}">ｱﾎﾞﾝ:名前</option>
+<option value="{$aborn_mail_txt_bn}">ｱﾎﾞﾝ:ﾒｰﾙ</option>
+<option value="{$aborn_msg_txt_bn}">ｱﾎﾞﾝ:ﾒｯｾｰｼﾞ</option>
+<option value="{$aborn_id_txt_bn}">ｱﾎﾞﾝ:ID</option>
+</select>
+<input type="submit" value="編集">
+</form>
+<hr>
+EOP;
+
+}
 
 // 新着まとめ読みのキャッシュリンクHTMLを表示する
 printMatomeCacheLinksHtml();
@@ -266,16 +298,26 @@ function printEditFileForm($path_value, $submit_value)
     
     $rows = 36; // 18
     $cols = 92; // 90
+
+    if (preg_match('/^p2_(aborn|ng)_(name|mail|id|msg)\.txt$/', basename($path_value))) {
+        $edit_php = 'edit_aborn_word.php';
+        $target = '_self';
+        $path_value = basename($path_value);
+    } else {
+        $edit_php = 'editfile.php';
+        $target = 'editfile';
+    }
     
     $ht = <<<EOFORM
-<form action="editfile.php" method="POST" target="editfile" class="inline-form"{$onsubmit}>
+<form action="{$edit_php}" method="POST" target="{$target}" class="inline-form"{$onsubmit}>
     {$_conf['k_input_ht']}
     <input type="hidden" name="path" value="{$path_value}">
     <input type="hidden" name="encode" value="Shift_JIS">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
     <input type="submit" value="{$submit_value}"{$disabled}>
-</form>\n
+</form>
+
 EOFORM;
 
     if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
@@ -334,7 +376,7 @@ function printMatomeCacheLinksHtml()
         }
     }
     if ($links) {
-        echo '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>';
+        echo '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>' . "\n";
         
         if ($_conf['ktai']) {
             echo '<hr>' . "\n";

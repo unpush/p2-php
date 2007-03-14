@@ -18,8 +18,8 @@ isset($_POST['path'])       and $path = $_POST['path'];
 isset($_POST['modori_url']) and $modori_url = $_POST['modori_url'];
 isset($_POST['encode'])     and $encode = $_POST['encode'];
 
-$rows = (isset($_POST['rows'])) ? $_POST['rows'] : 36;  // デフォルト値
-$cols = (isset($_POST['cols'])) ? $_POST['cols'] : 128; // デフォルト値
+$rows = isset($_POST['rows']) ? $_POST['rows'] : 36;
+$cols = isset($_POST['cols']) ? $_POST['cols'] : 128;
 
 isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 
@@ -28,12 +28,9 @@ isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 //=========================================================
 // 書き込めるファイルを限定する
 $writable_files = array(
-                        //"conf.inc.php", "conf_user_style.inc.php",
-                        "p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
-                        "p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt", "p2_aborn_res.txt",
-                        //"conf_user_ex.php", "conf_constant.inc",
-                        //"conf_user_ex.inc.php", "conf_user_constant.inc.php"
-                    );
+    "p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
+    "p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt", "p2_aborn_res.txt",
+);
 
 if ($writable_files and (!in_array(basename($path), $writable_files))) {
     $i = 0;
@@ -41,10 +38,10 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
         if ($i != 0) {
             $files_st .= "と";
         }
-        $files_st .= "「".$afile."」";
+        $files_st .= "「" . $afile . "」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の書き込めるファイルは、".$files_st."だけ！");
+    die("Error: " . basename($_SERVER['SCRIPT_NAME']) . " 先生の書き込めるファイルは、" . $files_st . "だけ！");
 }
 
 //=========================================================
@@ -52,18 +49,20 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
 //=========================================================
 if (isset($filecont)) {
     if (setFile($path, $filecont, $encode)) {
-        $_info_msg_ht .= "saved, OK.";
+        P2Util::pushInfoHtml("saved, OK.");
     }
 }
 
-editFile($path, $encode);
+printEditFileHtml($path, $encode);
 
 
 //=========================================================
-// 関数
+// 関数（このファイル内でのみ利用）
 //=========================================================
 /**
  * ファイルに内容をセットする関数
+ *
+ * @return  boolean
  */
 function setFile($path, $cont, $encode)
 {
@@ -75,29 +74,31 @@ function setFile($path, $cont, $encode)
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
     }
     // 書き込む
-    $fp = @fopen($path, 'wb') or die("Error: cannot write. ( $path )");
-    @flock($fp, LOCK_EX);
-    fputs($fp, $cont);
-    @flock($fp, LOCK_UN);
-    fclose($fp);
+    if (false === file_put_contents($path, $cont, LOCK_EX)) {
+        die("Error: cannot write. ( $path )");
+        return false;
+    }
     return true;
 }
 
 /**
- * ファイル内容を読み込んで編集する関数
+ * ファイル内容を読み込んで編集のためのHTMLを表示する
+ *
+ * @return  void
  */
-function editFile($path, $encode)
+function printEditFileHtml($path, $encode)
 {
-    global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
+    global $_conf, $modori_url, $rows, $cols;
+    
+    $info_msg_ht = P2Util::getInfoHtml();
     
     if ($path == '') {
         die('Error: path が指定されていません');
     }
     
     $filename = basename($path);
-    $ptitle = "Edit: ".$filename;
+    $ptitle = "Edit: " . $filename;
     
-    //ファイル内容読み込み
     FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
     $cont = file_get_contents($path);
     
@@ -113,7 +114,7 @@ function editFile($path, $encode)
         $modori_url_ht = '';
     }
     
-    // プリント
+    // HTML出力
     echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
@@ -138,14 +139,11 @@ EOHEADER;
     <input type="hidden" name="encode" value="{$encode}">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
-    <input type="submit" name="submit" value="Save"> $_info_msg_ht<br>
+    <input type="submit" name="submit" value="Save"> $info_msg_ht<br>
     <textarea style="font-size:9pt;" id="filecont" name="filecont" rows="{$rows}" cols="{$cols}" wrap="off">{$cont_area}</textarea>    
 </form>
 EOFORM;
 
     echo '</body></html>';
-
-    return true;
 }
 
-?>

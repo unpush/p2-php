@@ -100,7 +100,7 @@ ResPopUp.prototype = {
 		var y_adjust = -68;	// y軸位置調整
 	
 		if (this.isModeSpm()) {
-			x_adjust = -1;
+			x_adjust = 0;
 			y_adjust = -10;
 		}
 	
@@ -155,10 +155,12 @@ ResPopUp.prototype = {
 		}
 	
 		this.popOBJ.style.visibility = "visible"; // レスポップアップ表示
+		/*
 		this.popOBJ.ondblclick = function () {
 			this.style.visibility = "hidden";
 			ResPopUpManager.rmResPopUp(this.id);
 		}
+		*/
 		this.popOBJ.onmouseout = function () {
 			hideResPopUp(this.id)
 		}

@@ -23,8 +23,7 @@ isset($_GET['ttitle_en'])   and $ttitle_en = $_GET['ttitle_en'];
 
 // 以下どれか一つがなくてもダメ出し
 if (empty($host) || !isset($bbs) || !isset($key)) {
-    P2Util::printSimpleHtml('p2 error: 引数が正しくありません。');
-    die;
+    p2die('引数が正しくありません。');
 }
 
 $title_msg = '';
@@ -143,16 +142,21 @@ if ($favlines = @file($_conf['favlist_file'])) {
 }
 */
 
-if ($aThread->fav) {
-    $favmark = "<span class=\"fav\">★</span>";
-} else {
-    $favmark = "<span class=\"fav\">+</span>";
+$favmark_accesskey = '9';
+
+$favmark = $aThread->fav ? "★" : "+";
+
+$favmark_pre_ht = '';
+if ($_conf['ktai']) {
+    $favmark_pre_ht = "{$favmark_accesskey}.";
 }
+
+$favmark_ht = "<span class=\"fav\">$favmark</span>";
 
 $favdo = $aThread->fav ? 0 : 1;
 
 $fav_ht = <<<EOP
-<a href="info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setfav={$favdo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}">{$favmark}</a>
+<a href="info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setfav={$favdo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}" accesskey="{$favmark_accesskey}">{$favmark_pre_ht}{$favmark_ht}</a>
 EOP;
 
 // }}}
@@ -250,7 +254,7 @@ if ($title_msg) {
     $hc['title'] = "info - {$hc['ttitle_name']}";
 }
 
-$hd = array_map('htmlspecialchars', $hc);
+$hs = array_map('htmlspecialchars', $hc);
 
 
 P2Util::header_nocache();
@@ -262,7 +266,7 @@ echo <<<EOHEADER
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <title>{$hd['title']}</title>\n
+    <title>{$hs['title']}</title>\n
 EOHEADER;
 
 if (!$_conf['ktai']) {
@@ -290,7 +294,7 @@ EOP;
 P2Util::printInfoHtml();
 
 echo "<p>\n";
-echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
+echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}{$_conf['k_at_a']}\"{$target_read_at}>{$hs['ttitle_name']}</a></b>\n";
 echo "</p>\n";
 
 // 携帯なら冒頭で情報メッセージ表示
@@ -304,14 +308,22 @@ if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($a
     $offrec_ht = " / [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;offrec=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
 }
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo "<table cellspacing=\"0\">\n";
 }
 printInfoTrHtml("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$motothre_url}</a>");
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     printInfoTrHtml("ホスト", $aThread->host);
 }
-printInfoTrHtml("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at} {$_conf['accesskey']}=\"{$_conf['k_accesskey']['up']}\">{$hd['itaj']}</a>");
+
+$dele_pre_ht = '';
+$up_pre_ht = '';
+if ($_conf['ktai']) {
+    $dele_pre_ht = $_conf['k_accesskey']['dele'] . '.';
+    $up_pre_ht   = $_conf['k_accesskey']['up']   . '.';
+}
+
+printInfoTrHtml("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at} {$_conf['accesskey']}=\"{$_conf['k_accesskey']['up']}\">{$up_pre_ht}{$hs['itaj']}</a>");
 
 // PC用表示
 if (!$_conf['ktai']) {
@@ -319,7 +331,7 @@ if (!$_conf['ktai']) {
 }
 
 if ($existLog) {
-    printInfoTrHtml("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['dele']}\">削除する</a>]{$offrec_ht}");
+    printInfoTrHtml("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['dele']}\">{$dele_pre_ht}削除する</a>]{$offrec_ht}");
 } else {
     printInfoTrHtml("ログ", "未取得{$offrec_ht}");
 }
@@ -336,7 +348,11 @@ if ($aThread->gotnum) {
 if (!$_conf['ktai']) {
     if (file_exists($aThread->keydat)) {
         if ($aThread->length) {
-            printInfoTrHtml("dat容量", ceil($aThread->length / 1024) . ' KB');
+        
+            $dat_url = "dat.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}";
+            $dl_dat_ht = ' [<a href="' . $dat_url . '">生DAT</a>]';
+            
+            printInfoTrHtml("dat容量", ceil($aThread->length / 1024) . ' KB' . $dl_dat_ht);
         }
         printInfoTrHtml("dat", $aThread->keydat);
     } else {
@@ -367,7 +383,7 @@ if (!$_conf['ktai']) {
 
 // コピペ用フォーム
 //if ($_conf['ktai']) {
-    echo getCopypaFormHtml($motothre_org_url, $hd['ttitle_name']);
+    echo getCopypaFormHtml($motothre_org_url, $hs['ttitle_name']);
 //}
 
 /*

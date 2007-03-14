@@ -54,11 +54,11 @@ if (!empty($_POST['submit_save'])) {
     // ƒVƒŠƒAƒ‰ƒCƒY‚µ‚Ä•Û‘¶
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
     if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
-        $_info_msg_ht .= "<p>~İ’è‚ğXV•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½</p>";
+        P2Util::pushInfoHtml("<p>~İ’è‚ğXV•Û‘¶‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½</p>");
         trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
         
     } else {
-        $_info_msg_ht .= "<p>›İ’è‚ğXV•Û‘¶‚µ‚Ü‚µ‚½</p>";
+        P2Util::pushInfoHtml("<p>›İ’è‚ğXV•Û‘¶‚µ‚Ü‚µ‚½</p>");
         // •ÏX‚ª‚ ‚ê‚ÎA“à•”ƒf[ƒ^‚àXV‚µ‚Ä‚¨‚­
         $_conf = array_merge($_conf, $conf_user_def);
         $_conf = array_merge($_conf, $conf_save);
@@ -69,7 +69,7 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
-        $_info_msg_ht .= "<p>›İ’è‚ğƒfƒtƒHƒ‹ƒg‚É–ß‚µ‚Ü‚µ‚½</p>";
+        P2Util::pushInfoHtml("<p>›İ’è‚ğƒfƒtƒHƒ‹ƒg‚É–ß‚µ‚Ü‚µ‚½</p>");
         // •ÏX‚ª‚ ‚ê‚ÎA“à•”ƒf[ƒ^‚àXV‚µ‚Ä‚¨‚­
         $_conf = array_merge($_conf, $conf_user_def);
     }
@@ -171,7 +171,7 @@ EOP;
 
 echo getGroupSepaHtml('be.2ch.net ƒAƒJƒEƒ“ƒg');
 
-echo getEditConfHtml('be_2ch_code', '<a href="http://be.2ch.net/" target="_blank">be.2ch.net</a>‚Ì”FØƒR[ƒh(ƒpƒXƒ[ƒh‚Å‚Í‚È‚¢)');
+echo getEditConfHtml('be_2ch_code', '<a href="http://be.2ch.net/" target="_blank">be.2ch.net</a>‚Ì”FØƒR[ƒh(ƒpƒXƒ[ƒh‚Å‚Í‚ ‚è‚Ü‚¹‚ñ)');
 echo getEditConfHtml('be_2ch_mail', 'be.2ch.net‚Ì“o˜^ƒ[ƒ‹ƒAƒhƒŒƒX');
 
 echo getGroupSepaHtml('PATH');
@@ -195,9 +195,9 @@ echo getEditConfHtml('refresh_time', 'ƒXƒŒƒbƒhˆê——‚Ì©“®XVŠÔŠu (•ªw’èB0‚È‚ç
 echo getEditConfHtml('sb_show_motothre', 'ƒXƒŒƒbƒhˆê——‚Å–¢æ“¾ƒXƒŒ‚É‘Î‚µ‚ÄŒ³ƒXƒŒ‚Ö‚ÌƒŠƒ“ƒNiEj‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('sb_show_one', 'PC‰{——AƒXƒŒƒbƒhˆê——i”Â•\¦j‚Å>>1‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢, ƒjƒ…[ƒXŒn‚Ì‚İ)');
 echo getEditConfHtml('k_sb_show_first', 'Œg‘Ñ‚ÌƒXƒŒƒbƒhˆê——i”Â•\¦j‚©‚ç‰‚ß‚Ä‚ÌƒXƒŒ‚ğŠJ‚­‚Ì•\¦•û–@ (ÌßÚËŞ­°>>1, 1‚©‚çNŒ•\¦, ÅVNŒ•\¦)');
-echo getEditConfHtml('sb_show_spd', 'ƒXƒŒƒbƒhˆê——‚Å‚·‚Î‚â‚³iƒŒƒXŠÔŠuj‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚¢:0)');
-echo getEditConfHtml('sb_show_ikioi', 'ƒXƒŒƒbƒhˆê——‚Å¨‚¢i1“ú‚ ‚½‚è‚ÌƒŒƒX”j‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚¢:0)');
-echo getEditConfHtml('sb_show_fav', 'ƒXƒŒƒbƒhˆê——‚Å‚¨‹C‚ÉƒXƒŒƒ}[ƒNš‚ğ•\¦ (‚·‚é:1, ‚µ‚È‚¢:0)');
+echo getEditConfHtml('sb_show_spd', 'ƒXƒŒƒbƒhˆê——‚Å‚·‚Î‚â‚³iƒŒƒXŠÔŠuj‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('sb_show_ikioi', 'ƒXƒŒƒbƒhˆê——‚Å¨‚¢i1“ú‚ ‚½‚è‚ÌƒŒƒX”j‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('sb_show_fav', 'ƒXƒŒƒbƒhˆê——‚Å‚¨‹C‚ÉƒXƒŒƒ}[ƒNš‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('sb_sort_ita', '”Â•\¦‚ÌƒXƒŒƒbƒhˆê——‚Å‚ÌƒfƒtƒHƒ‹ƒg‚Ìƒ\[ƒgw’è');
 echo getEditConfHtml('sort_zero_adjust', 'V’…ƒ\[ƒg‚Å‚ÌuŠù“¾‚È‚µv‚ÌuV’…”ƒ[ƒv‚É‘Î‚·‚éƒ\[ƒg—Dæ‡ˆÊ (ãˆÊ, ¬İ, ‰ºˆÊ)');
 echo getEditConfHtml('cmp_dayres_midoku', '¨‚¢ƒ\[ƒg‚ÉV’…ƒŒƒX‚Ì‚ ‚éƒXƒŒ‚ğ—Dæ (‚·‚é, ‚µ‚È‚¢)');
@@ -215,16 +215,19 @@ echo getEditConfHtml('pre_thumb_limit', '‰æ‘œURL‚Ìæ“Ç‚İƒTƒ€ƒlƒCƒ‹‚ğˆê“x‚É•\¦‚·
 //echo getEditConfHtml('preview_thumbnail', '‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ìc‚Ì‘å‚«‚³‚ğw’è (ƒsƒNƒZƒ‹)');
 ////echo getEditConfHtml('pre_thumb_width', '‰æ‘œƒTƒ€ƒlƒCƒ‹‚Ì‰¡‚Ì‘å‚«‚³‚ğw’è (ƒsƒNƒZƒ‹)');
 echo getEditConfHtml('link_youtube', 'YouTube‚ÌƒŠƒ“ƒN‚ğƒvƒŒƒrƒ…[•\¦i‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('link_niconico', 'ƒjƒRƒjƒR“®‰æ‚ÌƒŠƒ“ƒN‚ğƒvƒŒƒrƒ…[•\¦i‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('iframe_popup', 'HTMLƒ|ƒbƒvƒAƒbƒv (‚·‚é, ‚µ‚È‚¢, p‚Å‚·‚é, ‰æ‘œ‚Å‚·‚é)');
 //echo getEditConfHtml('iframe_popup_delay', 'HTMLƒ|ƒbƒvƒAƒbƒv‚Ì•\¦’x‰„ŠÔ (•b)');
-echo getEditConfHtml('flex_idpopup', 'ID:xxxxxxxx ‚ğIDƒtƒBƒ‹ƒ^ƒŠƒ“ƒO‚ÌƒŠƒ“ƒN‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('flex_idpopup', 'ƒXƒŒ“à‚Å“¯‚¶ ID:xxxxxxxx ‚ª‚ ‚ê‚ÎAIDƒtƒBƒ‹ƒ^—p‚ÌƒŠƒ“ƒN‚É•ÏŠ· (‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('ext_win_target', 'ŠO•”ƒTƒCƒg“™‚ÖƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼ (“¯‘‹:"", V‘‹:"_blank")');
 echo getEditConfHtml('bbs_win_target', 'p2‘Î‰BBSƒTƒCƒg“à‚ÅƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼ (“¯‘‹:"", V‘‹:"_blank")');
-echo getEditConfHtml('bottom_res_form', 'ƒXƒŒƒbƒh‰º•”‚É‘‚«‚İƒtƒH[ƒ€‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
+echo getEditConfHtml('bottom_res_form', 'ƒXƒŒƒbƒh‰º•”‚É‘‚«‚İƒtƒH[ƒ€‚ğ•\¦ (ƒ}ƒEƒXƒI[ƒo[‚Å‚·‚é, í‚É‚·‚é, ‚µ‚È‚¢)');
 echo getEditConfHtml('quote_res_view', 'ˆø—pƒŒƒX‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
 
 if (!$_conf['ktai']) {
     echo getEditConfHtml('enable_headbar', 'PC ƒwƒbƒhƒo[‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
+    echo getEditConfHtml('enable_spm', 'ƒŒƒX”Ô†‚©‚çƒXƒ}[ƒgƒ|ƒbƒvƒAƒbƒvƒƒjƒ…[(SPM)‚ğ•\¦ (‚·‚é, ‚µ‚È‚¢)');
+    //echo getEditConfHtml('spm_kokores', 'ƒXƒ}[ƒgƒ|ƒbƒvƒAƒbƒvƒƒjƒ…[‚Åu‚±‚ê‚ÉƒŒƒXv‚ğ•\¦');
 }
 
 echo getEditConfHtml('k_rnum_range', 'Œg‘Ñ‰{——Aˆê“x‚É•\¦‚·‚éƒŒƒX‚Ì”');

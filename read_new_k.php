@@ -18,10 +18,10 @@ if (!empty($_GET['cview'])) {
     $cnum = isset($_GET['cnum']) ? intval($_GET['cnum']) : NULL;
     if ($cont = getMatomeCache($cnum)) {
         echo $cont;
+        exit;
     } else {
-        echo 'p2 error: 新着まとめ読みのキャッシュがないよ';
+        p2die('新着まとめ読みのキャッシュがないよ');
     }
-    exit;
 }
 
 //==================================================================
@@ -40,13 +40,9 @@ isset($_GET['spmode'])  and $spmode = $_GET['spmode'];
 isset($_POST['spmode']) and $spmode = $_POST['spmode'];
 
 if ((empty($host) || !isset($bbs)) && !isset($spmode)) {
-    P2Util::printSimpleHtml('p2 error: 必要な引数が指定されていません');
-    die;
+    p2die('必要な引数が指定されていません');
 }
 
-
-// あぼーん&NGワード設定読み込み
-$GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
 //====================================================================
 // メイン
@@ -59,7 +55,7 @@ ob_start();
 
 $aThreadList =& new ThreadList();
 
-// 板とモードのセット ===================================
+// 板とモードのセット
 if ($spmode) {
     if ($spmode == "taborn" or $spmode == "soko") {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
@@ -264,7 +260,7 @@ for ($x = 0; $x < $linesize; $x++) {
 function readNew(&$aThread)
 {
     global $_conf, $_newthre_num, $STYLE;
-    global $_info_msg_ht, $spmode;
+    global $spmode;
 
     $_newthre_num++;
     
@@ -338,10 +334,10 @@ function readNew(&$aThread)
     //$next_thre_ht = "<a href=\"#ntt{$next_thre_num}\">▼</a> ";
     $next_thre_ht = "<a href=\"#ntt_bt{$_newthre_num}\">▼</a> ";
     
-    $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
+    $itaj_hs = htmlspecialchars($aThread->itaj, ENT_QUOTES);
     
     if ($spmode) {
-        $read_header_itaj_ht = " ({$itaj_hd})";
+        $read_header_itaj_ht = " ({$itaj_hs})";
     }
     
     P2Util::printInfoHtml();
@@ -405,7 +401,7 @@ EOP;
     // ツールバー部分HTML =======
     if ($spmode) {
         $toolbar_itaj_ht = <<<EOP
-(<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}">{$itaj_hd}</a>)
+(<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}">{$itaj_hs}</a>)
 EOP;
     }
     $toolbar_right_ht .= <<<EOTOOLBAR
@@ -478,7 +474,7 @@ EOP;
 EOP;
 }
 
-echo '<hr>'.$_conf['k_to_index_ht']."\n";
+echo '<hr>' . $_conf['k_to_index_ht'] . "\n";
 
 echo '</body></html>';
 

@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.12'; // rep2のバージョン
+$_conf['p2version'] = '1.8.13'; // rep2のバージョン
 
 $_conf['p2name'] = 'r e p 2';    // rep2の名前。
 
@@ -28,10 +28,6 @@ $_conf['read_new_php']          = 'read_new.php';
 $_conf['read_new_k_php']        = 'read_new_k.php';
 $_conf['post_php']              = 'post.php';
 $_conf['cookie_file_name']      = 'p2_cookie.txt';
-
-// ユーザ通知用 情報メッセージHTMLを保持する変数
-// 2006/11/24 今後は $_info_msg_ht を直接取り扱わずに P2Util::pushInfoHtml() を通す方針でいきたい
-$_info_msg_ht = '';
 
 // }}}
 // {{{ デバッグ
@@ -168,6 +164,7 @@ require_once P2_LIB_DIR . '/p2util.class.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/session.class.php';
 require_once P2_LIB_DIR . '/login.class.php';
+require_once P2_LIB_DIR . '/UA.php';
 
 // }}}
 // {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
@@ -231,16 +228,16 @@ $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html;
 $_conf['login_check_ip']  = 1; // ログイン時にIPアドレスを検証する
 
 // 基本（PC）
-$_conf['ktai'] = FALSE;
-$_conf['disable_cookie'] = FALSE;
+$_conf['ktai'] = false;
+$_conf['disable_cookie'] = false;
 
-if (P2Util::isBrowserSafariGroup()) {
+if (UA::isSafariGroup()) {
     $_conf['accept_charset'] = 'UTF-8';
 } else {
     $_conf['accept_charset'] = 'Shift_JIS';
 }
 
-$mobile = &Net_UserAgent_Mobile::singleton();
+$mobile =& Net_UserAgent_Mobile::singleton();
 if (PEAR::isError($mobile)) {
     trigger_error($mobile->toString(), E_USER_WARNING);
 
@@ -249,7 +246,7 @@ if (PEAR::isError($mobile)) {
 
     require_once P2_LIB_DIR . '/hostcheck.class.php';
     
-    $_conf['ktai'] = TRUE;
+    $_conf['ktai'] = true;
     $_conf['accept_charset'] = 'Shift_JIS';
 
     // ベンダ判定
@@ -259,7 +256,7 @@ if (PEAR::isError($mobile)) {
             P2Util::printSimpleHtml("p2 error: UAがDoCoMoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
             die;
         }
-        $_conf['disable_cookie'] = TRUE;
+        $_conf['disable_cookie'] = true;
         
     // EZweb (au or Tu-Ka)
     } elseif ($mobile->isEZweb()) {
@@ -298,6 +295,10 @@ if (PEAR::isError($mobile)) {
     } else {
         $_conf['disable_cookie'] = TRUE;
     }
+
+// 携帯表示対象モバイル
+} elseif (UA::isMobile()) {
+    $_conf['ktai'] = true;
 }
 
 // }}}
@@ -307,37 +308,34 @@ if (PEAR::isError($mobile)) {
 // output_add_rewrite_var() は便利だが、出力がバッファされて体感速度が落ちるのが難点。。
 // 体感速度を落とさない良い方法ないかな？
 
-$_conf['b'] = null;
-if (isset($_GET['b'])) {
-    $_conf['b'] = $_GET['b'];
-} elseif (isset($_POST['b'])) {
-    $_conf['b'] = $_POST['b'];
-}
+$b = UA::getQueryKey();
 
 // 旧互換用
 if (!empty($_GET['k']) || !empty($_POST['k'])) {
-    $_conf['b'] = 'k';
+    $_REQUEST[$b] = $_GET[$b] = 'k';
 }
+
+$_conf[$b] = UA::getQueryValue();
 
 $_conf['k_at_q'] = '';
 $_conf['k_input_ht'] = '';
 
 // 強制PCビュー指定（b=pc）
-if ($_conf['b'] == 'pc') {
+if (UA::isPCByQuery()) {
     $_conf['ktai'] = false;
 
 // 強制携帯ビュー指定（b=k）
-} elseif ($_conf['b'] == 'k') {
+} elseif (UA::isMobileByQuery()) {
     $_conf['ktai'] = true;
 }
 
-if ($_conf['b']) {
-    //output_add_rewrite_var('b', htmlspecialchars($_conf['b'], ENT_QUOTES));
+if ($_conf[$b]) {
+    //output_add_rewrite_var($b, htmlspecialchars($_conf[$b], ENT_QUOTES));
 
     $b_hs = htmlspecialchars($_conf['b'], ENT_QUOTES);
-    $_conf['k_at_a'] = '&amp;b=' . $b_hs;
-    $_conf['k_at_q'] = '?b=' . $b_hs;
-    $_conf['k_input_ht'] = '<input type="hidden" name="b" value="' . $b_hs . '">';
+    $_conf['k_at_a'] = "&amp;{$b}={$b_hs}";
+    $_conf['k_at_q'] = "?{$b}={$b_hs}";
+    $_conf['k_input_ht'] = '<input type="hidden" name="' . $b . '" value="' . $b_hs . '">';
 
 } else {
     $_conf['k_at_a'] = '';
@@ -537,9 +535,6 @@ if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
         // }}}
 
         $_p2session =& new Session();
-        if ($_conf['disable_cookie'] && !ini_get('session.use_trans_sid')) {
-            output_add_rewrite_var(session_name(), session_id());
-        }
     }
 //}
 
@@ -666,6 +661,20 @@ function geti(&$var, $alt = null)
 }
 
 /**
+ * 改行を付けて文字列を出力する（cliとwebで出力が変わる）
+ *
+ * @return  void
+ */
+function echoln($str = '')
+{
+    if (php_sapi_name() == 'cli') {
+        echo $str . "\n";
+    } else {
+        echo $str . "<br>";
+    }
+}
+
+/**
  * p2 error メッセージを表示して終了
  *
  * @param   string  $err    エラー概要
@@ -685,6 +694,8 @@ function p2die($err, $msg = null, $raw = false)
         }
     }
     echo '</body></html>';
+    
+    exit;
 }
 
 /**

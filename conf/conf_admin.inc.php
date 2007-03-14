@@ -57,6 +57,7 @@ $_conf['use_session'] = 2;          // (2) セッションを利用（する:1, しない:0, c
 $_conf['session_save'] = 'p2';      // ('p2') sessionデータの保存管理 (PHPデフォルト:'', p2でファイル管理:'p2')
 
 $_conf['fsockopen_time_limit'] = 7; // (7) ネットワーク接続タイムアウト時間 (秒)
+$_conf['dlSubjectTotalLimitTime'] = 15; // (15) subject.txtのダウンロードに費やす合計制限時間（秒）
 
 $_conf['updatan_haahaa'] = 1;       // (1) p2の最新バージョンを自動チェック(する:1, しない:0)
 
@@ -74,6 +75,8 @@ $_conf['login_log_rec_num'] = 200;  // (200) ログインログの記録数
 $_conf['last_login_log_show'] = 1;  // (1) 前回ログイン情報を表示（する:1, しない:0）
 
 $_conf['cid_expire_day'] = 30;      // (30) Cookie IDの有効期限日数
+
+$_conf['ngaborn_data_limit'] = 0;  // (0) NGあぼーんに登録できる数（0なら制限なし）
 
 // {{{ 携帯アクセスキー
 

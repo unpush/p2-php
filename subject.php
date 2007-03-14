@@ -399,7 +399,7 @@ for ($x = 0; $x < $linesize; $x++) {
     
     if (!$aThreadList->spmode) {
         if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
-            if (!empty($prepre_sb_keys[$aThread->key])) {
+            if (empty($prepre_sb_keys[$aThread->key])) {
                 $aThread->new = true;
             }
         } else {
@@ -771,7 +771,7 @@ exit;
  */
 function autoTAbornOff(&$aThreadList, &$ta_keys)
 {
-    global $_info_msg_ht, $ta_num;
+    global $ta_num;
     
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('abornoff');
     
@@ -787,7 +787,7 @@ function autoTAbornOff(&$aThreadList, &$ta_keys)
                 $ks .= "key:$k ";
             }
         }
-        $ks && $_info_msg_ht .= "<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>";
+        $ks && P2Util::pushInfoHtml("<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>");
     }
     
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('abornoff');
@@ -903,8 +903,8 @@ function saveSubjectKeys(&$subject_keys, $sb_keys_txt, $sb_keys_b_txt)
             FileCtl::make_datafile($sb_keys_txt, $_conf['p2_perm']);
         }
         if ($sb_keys_cont = serialize($subject_keys)) {
-            if (file_put_contents($sb_keys_txt, $sb_keys_cont, LOCK_EX) === false) {
-                die("Error: cannot write file.");
+            if (false === file_put_contents($sb_keys_txt, $sb_keys_cont, LOCK_EX)) {
+                p2die("cannot write file.");
                 return false;
             }
         }
@@ -1227,3 +1227,13 @@ function cmp_similarity($a, $b)
     }
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

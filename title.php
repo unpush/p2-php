@@ -11,7 +11,7 @@ $_login->authorize(); // ユーザ認証
 //=========================================================
 
 if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
-    $_info_msg_ht .= '<p>' . $GLOBALS['pref_dir_realpath_failed_msg'] . '</p>';
+    P2Util::pushInfoHtml('<p>' . $GLOBALS['pref_dir_realpath_failed_msg'] . '</p>');
 }
 
 $p2web_url_r = P2Util::throughIme($_conf['p2web_url']);
@@ -59,7 +59,7 @@ if ($_conf['updatan_haahaa']) {
 $htm['auth_user'] = "<p>ログインユーザ: {$_login->user_u} - " . date("Y/m/d (D) G:i") . '</p>' . "\n";
 
 // （携帯）ログイン用URL
-//$user_u_q = !empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
+//$user_u_q = $_conf['ktai'] ? '' : '?user=' . $_login->user_u;
 //$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
 $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=k';
 
@@ -186,3 +186,13 @@ EOP;
     return $newversion_found_html;
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

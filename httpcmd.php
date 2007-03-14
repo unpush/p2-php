@@ -11,7 +11,7 @@ $_login->authorize(); // ユーザ認証
 // {{{ HTTPヘッダとXML宣言
 
 P2Util::header_nocache();
-if (P2Util::isBrowserSafariGroup()) {
+if (UA::isSafariGroup()) {
 	header('Content-Type: application/xml; charset=UTF-8');
 	$xmldec = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";
 } else {
@@ -79,7 +79,7 @@ if ($cmd == 'delelog') {
 // }}}
 
 // 結果出力
-if (P2Util::isBrowserSafariGroup()) {
+if (UA::isSafariGroup()) {
 	$r_msg = mb_convert_encoding($r_msg, 'UTF-8', 'SJIS-win');
 }
 echo $xmldec;

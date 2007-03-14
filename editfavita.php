@@ -6,6 +6,8 @@
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
+require_once P2_LIB_DIR . '/UA.php';
+
 $_login->authorize(); // ユーザ認証
 
 
@@ -25,7 +27,7 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 // }}}
 
 // 並び替えにJavaScript使うかい？
-if ($_conf['ktai'] or P2Util::isNetFront() or !empty($_POST['sortNoJs']) || !empty($_GET['sortNoJs']) or isset($_GET['setfavita'])) {
+if ($_conf['ktai'] or UA::isNetFront() or !empty($_POST['sortNoJs']) || !empty($_GET['sortNoJs']) or isset($_GET['setfavita'])) {
     $sortNoJs = true;
 } else {
     $sortNoJs = false;
@@ -243,7 +245,7 @@ if ($lines) {
     }
     
     // PC（NetFront以外）なら
-    if (!$_conf['ktai'] && !P2Util::isNetFront()) {
+    if (!$_conf['ktai'] && !UA::isNetFront()) {
         $linkDD = '（<a href="' . $_SERVER['SCRIPT_NAME'] . '">JavaScript版はこちら</a>）';
     } else {
         $linkDD = '';

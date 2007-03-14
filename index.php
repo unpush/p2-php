@@ -6,23 +6,20 @@ require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
-//=============================================================
 // 前処理
-//=============================================================
 // アクセス拒否用の.htaccessをデータディレクトリに作成する
 makeDenyHtaccess($_conf['pref_dir']);
 makeDenyHtaccess($_conf['dat_dir']);
 makeDenyHtaccess($_conf['idx_dir']);
 
-//=============================================================
+// 変数設定
 $me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
 
 if ($_conf['ktai']) {
 
-    //=========================================================
-    // 携帯用 インデックス
-    //=========================================================
+    // {{{ 携帯用 インデックス
+
     // url指定があれば、そのままスレッド読みへ飛ばす
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
         header('Location: ' . $me_dir_url . '/' . $_conf['read_php'] . '?' . $_SERVER['QUERY_STRING']);
@@ -31,10 +28,12 @@ if ($_conf['ktai']) {
     require_once P2_LIB_DIR . '/index_print_k.inc.php';
     index_print_k();
     
+    // }}}
+    
 } else {
-    //=========================================
-    // PC用 変数
-    //=========================================
+
+    // {{{ PC用 変数
+
     $title_page = 'title.php';
 
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
@@ -50,9 +49,10 @@ if ($_conf['ktai']) {
     $sidebar = isset($_GET['sidebar']) ? $_GET['sidebar'] : null;
     
     $ptitle = "rep2";
-    //======================================================
-    // PC用 HTMLプリント
-    //======================================================
+    
+    // }}}
+    // {{{ PC用 HTMLプリント
+
     P2Util::header_nocache();
     echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
@@ -88,6 +88,7 @@ EOHEADER;
     
     echo '</html>';
 
+    // }}}
 }
 
 //============================================================================
