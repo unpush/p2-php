@@ -22,7 +22,7 @@ class ShowBrdMenuPc
      */
     function printBrdMenu(&$categories)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         if (!$categories) {
             return;

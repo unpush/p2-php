@@ -9,7 +9,7 @@ class ThreadList
     var $host;      // ex)pc.2ch.net
     var $bbs;       // ex)mac
     var $itaj;      // 板名 ex)新・mac板
-    var $itaj_hd;   // HTML表示用に、板名を htmlspecialchars() したもの
+    var $itaj_hs;   // HTML表示用に、板名を htmlspecialchars() したもの
     var $spmode;    // 普通板以外のスペシャルモード
     var $ptitle;    // ページタイトル
     
@@ -81,7 +81,7 @@ class ThreadList
     {
         $this->itaj = $itaj ? $itaj : $this->bbs;
         
-        $this->itaj_hd = htmlspecialchars($this->itaj, ENT_QUOTES);
+        $this->itaj_hs = htmlspecialchars($this->itaj, ENT_QUOTES);
         $this->ptitle = $this->itaj;
     }
     
@@ -93,7 +93,7 @@ class ThreadList
      */
     function readList()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         
         $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
         

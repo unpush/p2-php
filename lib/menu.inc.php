@@ -236,8 +236,7 @@ echo '</body></html>';
  */
 function initMenuNewSp($spmode_in)
 {
-    global $shinchaku_num, $matome_i, $host, $bbs, $spmode, $STYLE, $class_newres_num;
-    global $_conf;
+    global $shinchaku_num, $matome_i, $host, $bbs, $spmode, $STYLE, $class_newres_num, $_conf;
     
     $matome_i++;
     $host = "";

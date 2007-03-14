@@ -4,14 +4,13 @@
  */
 class ShowBrdMenuK
 {
-    var $cate_id; // カテゴリーID
+    var $cate_id = 1; // カテゴリーID
     
     /**
-     * コンストラクタ
+     * @constructor
      */
     function ShowBrdMenuK()
     {
-        $this->cate_id = 1;
     }
 
     /**
@@ -151,7 +150,7 @@ EOP;
      */
     function printItaSearch($categories)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         global $list_navi_ht;
     
         if (!$categories) {
@@ -229,8 +228,7 @@ EOP;
         
         $show_flag = false;
         
-        $lines = @file($_conf['favita_path']); // favita読み込み
-        if ($lines) {
+        if (file_exists($_conf['favita_path']) and $lines = file($_conf['favita_path'])) {
             echo 'お気に板 [<a href="editfavita.php?k=1">編集</a>]<hr>';
             $i = 0;
             foreach ($lines as $l) {

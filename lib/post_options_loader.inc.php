@@ -93,7 +93,7 @@ if (P2Util::isBbsBe2chNet($host, $bbs)) {
 
 // PC—p sage checkbox
 if (!$_conf['ktai']) {
-    $on_check_sage = 'onChange="checkSage();"';
+    $on_check_sage = ' onChange="checkSage();"';
     $sage_cb_ht = <<<EOP
 <input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label><br>
 EOP;

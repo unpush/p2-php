@@ -67,11 +67,11 @@ $ptitle_hs = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 
 if ($aThreadList->spmode == "taborn") {
     $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（あぼーん中）</span>
+    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hs}</b></a>（あぼーん中）</span>
 EOP;
 } elseif ($aThreadList->spmode == "soko") {
     $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）</span>
+    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hs}</b></a>（dat倉庫）</span>
 EOP;
 } elseif ($ptitle_url) {
     $ptitle_ht = <<<EOP

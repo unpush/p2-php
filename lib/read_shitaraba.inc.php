@@ -117,7 +117,8 @@ function shitarabaDownload()
 function &shitarabaDatTo2chDatLines(&$mlines)
 {
     if (!$mlines) {
-        return false;
+        $r = false;
+        return $r;
     }
     
     $mdatlines = "";

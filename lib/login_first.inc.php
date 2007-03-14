@@ -208,14 +208,15 @@ EOP;
     } else {
     
         if (isset($post['form_login_id']) || isset($post['form_login_pass'])) {
-            $_info_msg_ht .= '<p class="infomsg">';
+            $msg_ht .= '<p class="infomsg">';
             if (!$post['form_login_id']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['user']}」が入力されていません。" . "<br>";
+                $msg_ht .= "p2 error: 「{$p_str['user']}」が入力されていません。" . "<br>";
             }
             if (!$post['form_login_pass']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['password']}」が入力されていません。";
+                $msg_ht .= "p2 error: 「{$p_str['password']}」が入力されていません。";
             }
-            $_info_msg_ht .= '</p>';
+            $msg_ht .= '</p>';
+            P2Util::pushInfoHtml($msg_ht);
         }
 
         $show_login_form_flag = true;

@@ -17,17 +17,18 @@ class ShowThreadPc extends ShowThread
         global $_conf;
 
         $this->url_handlers = array(
-            array('this' => 'plugin_link2ch'),
-            array('this' => 'plugin_linkMachi'),
-            array('this' => 'plugin_linkJBBS'),
-            array('this' => 'plugin_link2chKako'),
-            array('this' => 'plugin_link2chSubject'),
+            'plugin_link2ch',
+            'plugin_linkMachi',
+            'plugin_linkJBBS',
+            'plugin_link2chKako',
+            'plugin_link2chSubject',
         );
         if ($_conf['preview_thumbnail']) {
-            $this->url_handlers[] = array('this' => 'plugin_viewImage');
+            $this->url_handlers[] = 'plugin_viewImage';
         }
-        $_conf['link_youtube'] and $this->url_handlers[] = array('this' => 'plugin_linkYouTube');
-        $this->url_handlers[] = array('this' => 'plugin_linkURL');
+        $_conf['link_youtube']  and $this->url_handlers[] = 'plugin_linkYouTube';
+        $_conf['link_niconico'] and $this->url_handlers[] = 'plugin_linkNicoNico';
+        $this->url_handlers[] = 'plugin_linkURL';
     }
 
     /**
@@ -94,14 +95,13 @@ class ShowThreadPc extends ShowThread
      */
     function transRes($ares, $i)
     {
-        global $_conf, $STYLE, $mae_msg, $res_filter;
-        global $ngaborns_hits;
+        global $_conf, $STYLE, $mae_msg;
 
+        global $ngaborns_head_hits, $ngaborns_body_hits;
+        
         $tores      = "";
         $rpop       = "";
-        $isNgName   = false;
-        $isNgMsg    = false;
-
+        
         $resar      = $this->thread->explodeDatLine($ares);
         $name       = $resar[0];
         $mail       = $resar[1];
@@ -123,100 +123,37 @@ class ShowThreadPc extends ShowThread
         }
         
         // }}}
-
-        //=============================================================
-        // あぼーんチェック
-        //=============================================================
+        // {{{ あぼーんチェック（名前、メール、ID、メッセージ）
+        
         $aborned_res = "<dt id=\"r{$i}\" class=\"aborned\"><span>&nbsp;</span></dt>\n"; // 名前
         $aborned_res .= "<!-- <dd class=\"aborned\">&nbsp;</dd> -->\n"; // 内容
 
-        // あぼーんネーム
-        if ($this->ngAbornCheck('aborn_name', strip_tags($name)) !== false) {
-            if (isset($ngaborns_hits['aborn_name'])) {
-                $ngaborns_hits['aborn_name']++;
-            } else {
-                $ngaborns_hits['aborn_name'] = 1;
-            }
+        if (false !== $this->checkAborns($name, $mail, $date_id, $msg)) {
             return $aborned_res;
         }
-
-        // あぼーんメール
-        if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
-            if (isset($ngaborns_hits['aborn_mail'])) {
-                $ngaborns_hits['aborn_mail']++;
-            } else {
-                $ngaborns_hits['aborn_mail'] = 1;
-            }
-            return $aborned_res;
-        }
-
-        // あぼーんID
-        if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
-            if (isset($ngaborns_hits['aborn_id'])) {
-                $ngaborns_hits['aborn_id']++;
-            } else {
-                $ngaborns_hits['aborn_id'] = 1;
-            }
-            return $aborned_res;
-        }
-
-        // あぼーんメッセージ
-        if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
-            if (isset($ngaborns_hits['aborn_msg'])) {
-                $ngaborns_hits['aborn_msg']++;
-            } else {
-                $ngaborns_hits['aborn_msg'] = 1;
-            }
-            return $aborned_res;
-        }
-
-        // NGネームチェック
-        if ($this->ngAbornCheck('ng_name', $name) !== false) {
-            if (isset($ngaborns_hits['ng_name'])) {
-                $ngaborns_hits['ng_name']++;
-            } else {
-                $ngaborns_hits['ng_name'] = 1;
-            }
+        
+        // }}}
+        // {{{ NGチェック（名前、メール、ID、メッセージ）
+        
+        $isNgName = false;
+        $isNgMail = false;
+        $isNgId   = false;
+        $isNgMsg  = false;
+        
+        if (false !== $this->ngAbornCheck('ng_name', strip_tags($name))) {
             $isNgName = true;
-        } else {
-            $isNgName = false;
         }
-
-        // NGメールチェック
-        if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
-            if (isset($ngaborns_hits['ng_mail'])) {
-                $ngaborns_hits['ng_mail']++;
-            } else {
-                $ngaborns_hits['ng_mail'] = 1;
-            }
+        if (false !== $this->ngAbornCheck('ng_mail', $mail)) {
             $isNgMail = true;
-        } else {
-            $isNgMail = false;
         }
-
-        // NGIDチェック
-        if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
-            if (isset($ngaborns_hits['ng_id'])) {
-                $ngaborns_hits['ng_id']++;
-            } else {
-                $ngaborns_hits['ng_id'] = 1;
-            }
+        if (false !== $this->ngAbornCheck('ng_id', $date_id)) {
             $isNgId = true;
-        } else {
-            $isNgId = false;
         }
-
-        // NGメッセージチェック
-        $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
-        if ($a_ng_msg !== false) {
-            if (isset($ngaborns_hits['ng_msg'])) {
-                $ngaborns_hits['ng_msg']++;
-            } else {
-                $ngaborns_hits['ng_msg'] = 1;
-            }
+        if (false !== ($a_ng_msg = $this->ngAbornCheck('ng_msg', $msg))) {
             $isNgMsg = true;
         }
 
+        // }}}
         // {{{ レスをポップアップ表示
         
         if ($_conf['quote_res_view']) {
@@ -250,41 +187,47 @@ class ShowThreadPc extends ShowThread
             $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
         }
 
+
+        $a_ng_msg_hs = htmlspecialchars($a_ng_msg, ENT_QUOTES);
+        
         // NGメッセージ変換
         if ($isNgMsg) {
             $msg = <<<EOMSG
-<s class="ngword" onMouseover="document.getElementById('ngm{$ngaborns_hits['ng_msg']}').style.display = 'block';">NGワード：{$a_ng_msg}</s>
-<div id="ngm{$ngaborns_hits['ng_msg']}" style="display:none;">$msg</div>
+<s class="ngword" onMouseover="document.getElementById('ngm{$ngaborns_body_hits}').style.display = 'block';">NG：{$a_ng_msg_hs}</s>
+<div id="ngm{$ngaborns_body_hits}" style="display:none;">$msg</div>
 EOMSG;
         }
 
         // NGネーム変換
         if ($isNgName) {
             $name = <<<EONAME
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_hits['ng_name']}').style.display = 'block';">$name</s>
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$name</s>
 EONAME;
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_hits['ng_name']}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
 EOMSG;
 
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_hits['ng_mail']}').style.display = 'block';">$mail</s>
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
 EOMAIL;
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_hits['ng_mail']}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
 EOMSG;
 
         // NGID変換
         } elseif ($isNgId) {
+            $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onMouseover=\"document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';\">\\0</s>", $date_id);
+            
+            /*
             $date_id = <<<EOID
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_hits['ng_id']}').style.display = 'block';">$date_id</s>
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$date_id</s>
 EOID;
+            */
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_hits['ng_id']}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
 EOMSG;
-
         }
 
         /*
@@ -295,18 +238,37 @@ EOMSG;
 EOP;
         }
         */
-
+        
+        // スマートポップアップメニュー
+        if ($_conf['enable_spm']) {
+            $onPopUp_at = " onmouseover=\"showSPM({$this->thread->spmObjName},{$i},'{$id}',event,this)\" onmouseout=\"hideResPopUp('{$this->thread->spmObjName}_spm')\"";
+        } else {
+            $onPopUp_at = "";
+        }
+        
         if ($this->thread->onthefly) {
             $GLOBALS['newres_to_show_flag'] = true;
-            //番号（オンザフライ時）
+            // 番号（オンザフライ時）
             $tores .= "<dt id=\"r{$i}\"><span class=\"ontheflyresorder\">{$i}</span> ：";
+            
         } elseif ($i > $this->thread->readnum) {
             $GLOBALS['newres_to_show_flag'] = true;
             // 番号（新着レス時）
-            $tores .= "<dt id=\"r{$i}\"><font color=\"{$STYLE['read_newres_color']}\">{$i}</font> ：";
+            if ($onPopUp_at) {
+                //  style=\"cursor:pointer;\"
+                $tores .= "<dt id=\"r{$i}\"><a class=\"resnum\"{$onPopUp_at}><font color=\"{$STYLE['read_newres_color']}\" class=\"newres\">{$i}</font></a> ：";
+            } else {
+                $tores .= "<dt id=\"r{$i}\"><font color=\"{$STYLE['read_newres_color']}\" class=\"newres\">{$i}</font> ：";
+            }
+            
         } else {
             // 番号
-            $tores .= "<dt id=\"r{$i}\">{$i} ：";
+            if ($onPopUp_at) {
+                //  style=\"cursor:pointer;\"
+                $tores .= "<dt id=\"r{$i}\"><a href=\"#\" class=\"resnum\"{$onPopUp_at}>{$i}</a> ：";
+            } else {
+                $tores .= "<dt id=\"r{$i}\">{$i} ：";
+            }
         }
         // 名前
         $tores .= "<span class=\"name\"><b>{$name}</b></span>：";
@@ -338,7 +300,7 @@ EOP;
         $tores .= "<dd>{$msg}<br><br></dd>\n"; // 内容
 
         // まとめてフィルタ色分け
-        if ($GLOBALS['word_fm'] && $res_filter['match'] != 'off') {
+        if (!empty($GLOBALS['word_fm']) && $GLOBALS['res_filter']['match'] != 'off') {
             $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
         }
 
@@ -369,7 +331,8 @@ EOP;
                 if ($this->thread->ttitle_hd) {
                     $ds = "<b>{$this->thread->ttitle_hd}</b><br><br>";
                 }
-                $ds .= $this->qRes( $this->thread->datlines[$rnv-1], $rnv );
+                $resline = isset($this->thread->datlines[$rnv - 1]) ? $this->thread->datlines[$rnv - 1] : '';
+                $ds .= $this->qRes($resline, $rnv);
                 $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event,true)\"";
                 $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></div>\n";
                 $this->quote_res_nums_done[$rnv] = true;
@@ -387,45 +350,124 @@ EOP;
      * レス引用HTMLを生成取得する
      *
      * @access  private
+     * @param   string   $resline
      * @return  string
      */
     function qRes($resline, $i)
     {
         global $_conf;
 
-        $resar = $this->thread->explodeDatLine($resline);
-        $name = $resar[0];
-        $name = $this->transName($name, $i);
-        $msg = $resar[3];
-        $msg = $this->transMsg($msg, $i); // メッセージ変換
-        $mail = $resar[1];
-        $date_id = $resar[2];
+        $resar      = $this->thread->explodeDatLine($resline);
+        $name       = isset($resar[0]) ? $resar[0] : '';
+        $mail       = isset($resar[1]) ? $resar[1] : '';
+        $date_id    = isset($resar[2]) ? $resar[2] : '';
+        $msg        = isset($resar[3]) ? $resar[3] : '';
+        
+        // あぼーんチェック
+        if (false !== $this->checkAborns($name, $mail, $date_id, $msg)) {
+            $name = $date_id = $msg = 'あぼーん';
+            $mail = '';
+        
+        } else {
+        
+            $isNgName = false;
+            $isNgMail = false;
+            $isNgId   = false;
+            $isNgMsg  = false;
+        
+            if (false !== $this->ngAbornCheck('ng_name', strip_tags($name))) {
+                $isNgName = true;
+            }
+            if (false !== $this->ngAbornCheck('ng_mail', $mail)) {
+                $isNgMail = true;
+            }
+            if (false !== $this->ngAbornCheck('ng_id', $date_id)) {
+                $isNgId = true;
+            }
+            if (false !== ($a_ng_msg = $this->ngAbornCheck('ng_msg', $msg))) {
+                $isNgMsg = true;
+            }
+            
+            $name = $this->transName($name, $i);
+            $msg = $this->transMsg($msg, $i); // メッセージ変換
+        
+            // BEプロファイルリンク変換
+            $date_id = $this->replaceBeId($date_id, $i);
 
-        // BEプロファイルリンク変換
-        $date_id = $this->replaceBeId($date_id, $i);
+            // HTMLポップアップ
+            if ($_conf['iframe_popup']) {
+                $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
+            }
 
-        // HTMLポップアップ
-        if ($_conf['iframe_popup']) {
-            $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
-        }
 
-        // IDフィルタ
-        if ($_conf['flex_idpopup'] == 1) {
-            if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $date_id, $matches)) {
-                $id = $matches[1];
-                if ($this->thread->idcount[$id] > 1) {
-                    $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
+            $a_ng_msg_hs = htmlspecialchars($a_ng_msg, ENT_QUOTES);
+            
+            // NGメッセージ変換
+            if ($isNgMsg) {
+                $msg = <<<EOMSG
+<s class="ngword" onMouseover="document.getElementById('ngm{$ngaborns_body_hits}').style.display = 'block';">NG：{$a_ng_msg_hs}</s>
+<div id="ngm{$ngaborns_body_hits}" style="display:none;">$msg</div>
+EOMSG;
+            }
+
+            // NGネーム変換
+            if ($isNgName) {
+                $name = <<<EONAME
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$name</s>
+EONAME;
+                $msg = <<<EOMSG
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+EOMSG;
+
+            // NGメール変換
+            } elseif ($isNgMail) {
+                $mail = <<<EOMAIL
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
+EOMAIL;
+                $msg = <<<EOMSG
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+EOMSG;
+
+            // NGID変換
+            } elseif ($isNgId) {
+                $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onMouseover=\"document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';\">\\0</s>", $date_id);
+            
+                /*
+                $date_id = <<<EOID
+<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$date_id</s>
+EOID;
+                */
+            
+                $msg = <<<EOMSG
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+EOMSG;
+            }
+            
+            // スマートポップアップメニュー
+            if ($_conf['enable_spm']) {
+                $onPopUp_at = " onmouseover=\"showSPM({$this->thread->spmObjName},{$i},'{$id}',event,this)\" onmouseout=\"hideResPopUp('{$this->thread->spmObjName}_spm')\"";
+                $i = "<a href=\"javascript:void(0);\" class=\"resnum\"{$onPopUp_at}>{$i}</a>";
+            }
+            
+            // IDフィルタ
+            if ($_conf['flex_idpopup'] == 1) {
+                if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $date_id, $matches)) {
+                    $id = $matches[1];
+                    if ($this->thread->idcount[$id] > 1) {
+                        $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
+                    }
                 }
             }
+        
         }
-
+        
         // $toresにまとめて出力
         $tores = "$i ："; // 番号
         $tores .= "<b>$name</b> ："; // 名前
-        if($mail){ $tores .= $mail." ："; } // メール
+        if ($mail) { $tores .= $mail . " ："; } // メール
         $tores .= $date_id; // 日付とID
         $tores .= "<br>";
-        $tores .= $msg."<br>\n"; // 内容
+        $tores .= $msg . "<br>\n"; // 内容
 
         return $tores;
     }
@@ -462,7 +504,7 @@ EOP;
             $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
         }
 
-        if (!empty($nameID)) { $name = $name . $nameID; }
+        if ($nameID) { $name = $name . $nameID; }
 
         $name = $name . " "; // 簡易的に文字化け回避
 
@@ -568,39 +610,15 @@ EOP;
         }
 
         // URLを処理
+        foreach ($this->user_url_handlers as $handler) {
+            if (false !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
+                return $link;
+            }
+        }
         foreach ($this->url_handlers as $handler) {
-            //if (is_array($handler)) {
-                if (isset($handler['this'])) {
-                    if (FALSE !== ($link = call_user_func(array($this, $handler['this']), $url, $purl, $str))) {
-                        return $link;
-                    }
-                } elseif (isset($handler['class']) && isset($handler['method'])) {
-                    if (FALSE !== ($link = call_user_func(array($handler['class'], $handler['method']), $url, $purl, $str))) {
-                        return $link;
-                    }
-                } elseif (isset($handler['function'])) {
-                    if (FALSE !== ($link = call_user_func($handler['function'], $url, $purl, $str))) {
-                        return $link;
-                    }
-                }
-            /*} elseif (is_string($handler)) {
-                $function = explode('::', $handler);
-                if (isset($function[1])) {
-                    if ($function[0] == 'this') {
-                        if (FALSE !== ($link = call_user_func(array($this, $function[1], $url, $purl, $str))) {
-                            return $link;
-                        }
-                    } else 
-                        if (FALSE !== ($link = call_user_func(array($function[0], $function[1]), $url, $purl, $str))) {
-                            return $link;
-                        }
-                    }
-                } else {
-                    if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str))) {
-                        return $link;
-                    }
-                }
-            }*/
+            if (false !== ($link = call_user_func(array($this, $handler), $url, $purl, $str))) {
+                return $link;
+            }
         }
 
         return $str;
@@ -675,7 +693,8 @@ EOP;
      * @access  private
      * @retrun  string
      */
-    function iframe_popup_callback($s) {
+    function iframe_popup_callback($s)
+    {
         return $this->iframe_popup($s[1], $s[3], $s[2]);
     }
 
@@ -786,7 +805,7 @@ EOP;
         */
         $num_ht = '';
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $num_ht = '('.$this->thread->idcount[$id].')';
+            $num_ht = '(' . $this->thread->idcount[$id] . ')';
         } else {
             return $idstr;
         }
@@ -1086,6 +1105,31 @@ EOP;
     }
     
     /**
+     * ニコニコ動画変換プラグイン
+     *
+     * @access  private
+     * @return  string|false
+     */
+    function plugin_linkNicoNico($url, $purl, $str)
+    {
+        global $_conf;
+
+        // http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
+        // http://www.nicovideo.jp/watch/utvWwAM30N0No
+/*
+<div style="width:318px; border:solid 1px #CCCCCC;"><iframe src="http://www.nicovideo.jp/thumb?v=utvWwAM30N0No" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
+*/
+        if (preg_match('{^http://www\\.nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9a-zA-Z_-]+)}', $url, $m)) {
+            $url = P2Util::throughIme($url);
+            $id = $m[1];
+            return <<<EOP
+<div style="width:318px; border:solid 1px #CCCCCC;"><iframe src="http://www.nicovideo.jp/thumb?v={$id}" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
+EOP;
+        }
+        return FALSE;
+    }
+    
+    /**
      * 画像ポップアップ変換
      *
      * @access  private
@@ -1100,7 +1144,7 @@ EOP;
             $GLOBALS['pre_thumb_limit'] = $_conf['pre_thumb_limit'];
         }
         if (!$_conf['preview_thumbnail'] || empty($GLOBALS['pre_thumb_limit'])) {
-            return FALSE;
+            return false;
         }
 
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
@@ -1129,11 +1173,20 @@ EOP;
 
             return $view_img;
         }
-        return FALSE;
+        return false;
     }
 
     // }}}
 
 }
 
-
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

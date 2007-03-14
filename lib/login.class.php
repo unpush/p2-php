@@ -168,7 +168,7 @@ class Login
         // {{{ セッションが利用されているなら、セッション変数の更新
         
         if (isset($_p2session)) {
-
+            
             // ユーザ名とパスXを更新
             $_SESSION['login_user']   = $this->user_u;
             $_SESSION['login_pass_x'] = $this->pass_x;
@@ -210,7 +210,7 @@ class Login
      */
     function authCheck()
     {
-        global $_info_msg_ht, $_conf;
+        global $_conf;
         global $_login_failed_flag;
         global $_p2session;
 
@@ -222,7 +222,7 @@ class Login
 
             // ユーザ名が違ったら、認証失敗で抜ける
             if ($this->user_u != $rec_login_user_u) {
-                $_info_msg_ht .= '<p class="infomsg">p2 error: ログインエラー</p>';
+                P2Util::pushInfoHtml('<p class="infomsg">p2 error: ログインエラー</p>');
                 
                 // ログイン失敗ログを記録する
                 if (!empty($_conf['login_log_rec'])) {
@@ -244,16 +244,17 @@ class Login
 
             // 新規登録でなければエラー表示
             if (empty($_POST['submit_new'])) {
-                $_info_msg_ht .= '<p class="infomsg">p2 error: ログインエラー</p>';
+                P2Util::pushInfoHtml('<p class="infomsg">p2 error: ログインエラー</p>');
             }
-            
             return false;
         }
 
-        // ■クッキー認証スルーパス
+        // {{{ クッキー認証スルーパス
+        
         if (isset($_COOKIE['cid'])) {
         
             if ($this->checkUserPwWithCid($_COOKIE['cid'])) {
+                isset($_p2session) and $_p2session->initSess();
                 return true;
                 
             // Cookie認証が通らなければ
@@ -262,7 +263,9 @@ class Login
                 $this->clearCookieAuth();
             }
         }
-
+        
+        // }}}
+        
         $mobile = &Net_UserAgent_Mobile::singleton();
         if (PEAR::isError($mobile)) {
             trigger_error($mobile->toString(), E_USER_WARNING);
@@ -273,17 +276,27 @@ class Login
             if ($mobile->isEZweb() && isset($_SERVER['HTTP_X_UP_SUBNO']) && file_exists($_conf['auth_ez_file'])) {
                 include $_conf['auth_ez_file'];
                 if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
+                    if (isset($_p2session)) {
+                        $_p2session->regenerateId();
+                        $_p2session->updateSecure();
+                    }
                     return true;
                 }
             }
         
-            // ■J-PHONE認証スルーパス
+            // ■SoftBank(J-PHONE)認証スルーパス
             // パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
             // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-            if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+            if ($mobile->isVodafone() && ($sn = $mobile->getSerialNumber()) !== NULL) {
                 if (file_exists($_conf['auth_jp_file'])) {
                     include $_conf['auth_jp_file'];
-                    if ($SN == $registed_jp) {
+                    if ($sn == $registed_jp) {
+                        if (isset($_p2session)) {
+                            // ここで session_regenerate_id(true) すると接続が途切れた時にログイン画面に戻されるらしい。
+                            // 端末認証されているなら、セッションチェックまで行かないはずなのに不思議。
+                            //$_p2session->regenerateId();
+                            $_p2session->updateSecure();
+                        }
                         return true;
                     }
                 }
@@ -293,10 +306,15 @@ class Login
             // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
             if (empty($_POST['form_login_id'])) {
 
-                if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+                if ($mobile->isDoCoMo() && ($sn = $mobile->getSerialNumber()) !== NULL) {
                     if (file_exists($_conf['auth_docomo_file'])) {
                         include $_conf['auth_docomo_file'];
-                        if ($SN == $registed_docomo) {
+                        if ($sn == $registed_docomo) {
+                            if (isset($_p2session)) {
+                                // DoCoMoで書き込んだ後に戻ったりすると再認証になって不便
+                                //$_p2session->regenerateId();
+                                $_p2session->updateSecure();
+                            }
                             return true;
                         }
                     }
@@ -304,22 +322,20 @@ class Login
             }
         }
         
-        // ■すでにセッションが登録されていたら、セッションで認証
+        // {{{ すでにセッションが登録されていたら、セッションで認証
+        
         if (isset($_SESSION['login_user']) && isset($_SESSION['login_pass_x'])) {
         
-            // {{{ セッションが利用されているなら、セッションの妥当性チェック
-        
+            // セッションが利用されているなら、セッションの妥当性チェック
             if (isset($_p2session)) {
-                if ($msg = $_p2session->checkSessionError()) {
-                    $GLOBALS['_info_msg_ht'] .= '<p>p2 error: ' . htmlspecialchars($msg) . '</p>';
+                if ($msg = $_p2session->getSessionErrorMsg()) {
+                    P2Util::pushInfoHtml('<p>p2 error: ' . htmlspecialchars($msg) . '</p>');
                     //$_p2session->unSession();
                     // ログイン失敗
                     return false;
                 }
             }
-    
-            // }}}
-    
+
             if ($this->user_u == $_SESSION['login_user']) {
                 if ($_SESSION['login_pass_x'] != $this->pass_x) {
                     $_p2session->unSession();
@@ -330,6 +346,8 @@ class Login
                 }
             }
         }
+        
+        // }}}
         
         // ■フォームからログインした時
         if (!empty($_POST['submit_member'])) {
@@ -342,16 +360,20 @@ class Login
 
                 // ログインログを記録する
                 $this->logLoginSuccess();
-
+                if (isset($_p2session)) {
+                    $_p2session->regenerateId();
+                    $_p2session->updateSecure();
+                }
                 return true;
             
             // フォームログイン失敗なら
             } else {
-                $_info_msg_ht .= '<p class="infomsg">p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>';
+                P2Util::pushInfoHtml('<p class="infomsg">p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>');
                 $_login_failed_flag = true;
                 
                 // ログイン失敗ログを記録する
                 $this->logLoginFailed();
+                return false;
             }
         }
     
@@ -366,6 +388,10 @@ class Login
                 // ログインログを記録する
                 $this->logLoginSuccess();
                 
+                if (isset($_p2session)) {
+                    $_p2session->regenerateId();
+                    $_p2session->updateSecure();
+                }
                 return true;
                 
             } else {
@@ -427,7 +453,7 @@ class Login
      */
     function registKtaiId()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         
         $mobile = &Net_UserAgent_Mobile::singleton();
         
@@ -439,7 +465,7 @@ class Login
                 if ($_SERVER['HTTP_X_UP_SUBNO']) {
                     $this->registAuth('registed_ez', $_SERVER['HTTP_X_UP_SUBNO'], $_conf['auth_ez_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×EZweb用サブスクライバIDでの認証登録はできませんでした</p>'."\n";
+                    P2Util::pushInfoHtml('<p class="infomsg">×EZweb用サブスクライバIDでの認証登録はできませんでした</p>');
                 }
             } else {
                 $this->registAuthOff($_conf['auth_ez_file']);
@@ -451,10 +477,10 @@ class Login
         } elseif (!empty($_REQUEST['ctl_regist_jp'])) {
         
             if ($_REQUEST['regist_jp'] == '1') {
-                if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-                    $this->registAuth('registed_jp', $SN, $_conf['auth_jp_file']);
+                if ($mobile->isVodafone() && ($sn = $mobile->getSerialNumber()) !== NULL) {
+                    $this->registAuth('registed_jp', $sn, $_conf['auth_jp_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×Vodafone用固有IDでの認証登録はできませんでした</p>'."\n";
+                    P2Util::pushInfoHtml('<p class="infomsg">×Vodafone用固有IDでの認証登録はできませんでした</p>');
                 }
             } else {
                 $this->registAuthOff($_conf['auth_jp_file']);
@@ -465,10 +491,10 @@ class Login
         
         } elseif (!empty($_REQUEST['ctl_regist_docomo'])) {
             if ($_REQUEST['regist_docomo'] == '1') {
-                if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-                    $this->registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
+                if ($mobile->isDoCoMo() && ($sn = $mobile->getSerialNumber()) !== NULL) {
+                    $this->registAuth('registed_docomo', $sn, $_conf['auth_docomo_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×DoCoMo用固有IDでの認証登録はできませんでした</p>'."\n";
+                    P2Util::pushInfoHtml('<p class="infomsg">×DoCoMo用固有IDでの認証登録はできませんでした</p>');
                 }
             } else {
                 $this->registAuthOff($_conf['auth_docomo_file']);
@@ -486,7 +512,7 @@ class Login
      */
     function registAuth($key, $sub_id, $auth_file)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
     
         $cont = <<<EOP
 <?php

@@ -18,6 +18,8 @@ function settaborn($host, $bbs, $key, $set)
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $idxfile = "{$idx_host_dir}/{$bbs}/{$key}.idx";
     
+    $data[0] = null;
+    
     // ÉfÅ[É^Ç™Ç†ÇÈÇ»ÇÁì«Ç›çûÇﬁ
     if (file_exists($idxfile)) {
         $lines = file($idxfile);
@@ -74,8 +76,8 @@ function settaborn($host, $bbs, $key, $set)
             $cont .= $l . "\n";
         }
     }
-    if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
-        die('Error: cannot write file.');
+    if (false === file_put_contents($taborn_idx, $cont, LOCK_EX)) {
+        p2die('cannot write file.');
         return false;
     }
     

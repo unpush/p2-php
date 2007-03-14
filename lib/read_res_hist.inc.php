@@ -9,11 +9,10 @@
  */
 function deleMsg($checked_hists)
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     if (!$reslines = file($_conf['p2_res_hist_dat'])) {
-        P2Util::printSimpleHtml("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
-        die;
+        p2die("{$_conf['p2_res_hist_dat']} を開けませんでした");
         return false;
     }
     $reslines = array_map('rtrim', $reslines);
@@ -39,7 +38,7 @@ function deleMsg($checked_hists)
         }
         $neolines = rmLine($rmnums, $reslines);
         
-        $_info_msg_ht .= "<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>";
+        P2Util::pushInfoHtml("<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>");
     }
     
     if (is_array($neolines)) {

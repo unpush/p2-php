@@ -15,7 +15,7 @@ function setPal($host, $bbs, $key, $setpal)
 
     // key.idx のパスを求めて
     $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
+    $idxfile = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
 
     // 既に key.idx データがあるなら読み込む
     if (file_exists($idxfile) and $lines = file($idxfile)) {
@@ -76,7 +76,7 @@ function setPal($host, $bbs, $key, $setpal)
     }
     
     // 書き込む
-    if (FileCtl::filePutRename($palace_idx, $cont) === false) {
+    if (false === FileCtl::filePutRename($palace_idx, $cont)) {
         $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
         trigger_error($errmsg, E_USER_WARNING);
         return false;

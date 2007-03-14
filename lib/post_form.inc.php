@@ -15,10 +15,10 @@ if ($_conf['ktai']) {
         . " autoSavePostForm('$host', '$bbs', '$key');\"";
 }
 
-$htm['subject'] = isset($htm['subject']) ? $htm['subject'] : '';
-$popup = isset($popup) ? $popup : '';
-$newthread_hidden_ht = isset($newthread_hidden_ht) ? $newthread_hidden_ht : '';
-$readnew_hidden_ht = isset($readnew_hidden_ht) ? $readnew_hidden_ht : '';
+$htm['subject']         = isset($htm['subject'])        ? $htm['subject'] : '';
+$popup                  = isset($popup)                 ? $popup : '';
+$newthread_hidden_ht    = isset($newthread_hidden_ht)   ? $newthread_hidden_ht : '';
+$readnew_hidden_ht      = isset($readnew_hidden_ht)     ? $readnew_hidden_ht : '';
 
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
 $htm['post_form'] = <<<EOP

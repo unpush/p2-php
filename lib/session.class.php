@@ -1,22 +1,21 @@
 <?php
 require_once 'Net/UserAgent/Mobile.php';
 
-$GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッションを強制破棄させたい時にUPしたりする）
+$GLOBALS['_SecureSession_version_id'] = 1; // セッションのバージョン（全ての稼動途中セッションを強制破棄させたい時にUPしたりする）
 
 /**
- * Session Class
- *
  * IR, UA, アクセス時間のチェックを伴う、よりセキュアなセッション管理クラス
  * ほとんど自動で働くのであまり気にせず、通常通り $_SESSION の値を取り扱えばよい。
- * ただし、$_SESSION[$this->sess_array]（$_SESSION['_sess_array']） は予約語となっている。
+ * ただし、$_SESSION[$this->sess_array]（$_SESSION['_secure_session']） は予約語となっている。
  *
  * ■用例
- * $_session =& new Session(); // ※この時点でPHP標準セッションがスタートする
- * if ($msg = $_session->checkSessionError()) { // よりセキュアなセッションチェック
- *     die('Error: ' . $msg);
+ * $_session =& new Session(); // ※コンストラクタの時点でPHP標準セッションがスタートする
+ * // よりセキュアなセッションチェック
+ * if ($error_msg = $_session->getSessionErrorMsg()) {
+ *     die('Error: ' . $error_msg);
  * }
  *
- * $_SESSIONへのアクセスを終えた後は、session_write_close()しておくとよいだろう。
+ * $_SESSIONへのアクセスを終えた後は、session_write_close() しておくとよいだろう。
  *
  * ※重要※
  * php.ini で session.auto_start = 0 (PHPのデフォルトのまま) になっていること。
@@ -28,15 +27,18 @@ $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッショ
  * </IfModule>
  *
  * でもOK。
+ *
+ * 折を見て、クラス名を SecureSession に改名予定
  */
 class Session
 {
-    var $sess_array = '_sess_array';
-
+    var $sess_array = '_secure_session';
+    var $_expire_minutes = 120;
+    
     /**
      * @constructor
      *
-     * ここでPHPの標準セッションがスタートする
+     * コンストラクタの時点で、PHPの標準セッションがスタートする
      */
     function Session($session_name = NULL, $session_id = NULL)
     {
@@ -44,33 +46,81 @@ class Session
         
         if ($session_name) { session_name($session_name); }
         if ($session_id)   { session_id($session_id); }
+        
         session_start();
-
+        
+        $this->outputAddSID();
+        
         /*
         Expires: Thu, 19 Nov 1981 08:52:00 GMT
         Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
         Pragma: no-cache
         */
-        
     }
-
+    
+    /**
+     * セッションの有効時間を設定する（分）
+     *
+     * @access public
+     * @see    checkAcTime()
+     */
+    function setExpireMinutes($minutes)
+    {
+        $this->_expire_minutes = $minutes;
+    }
+    
+    /**
+     * @access public
+     * @return boolean
+     */
+    function regenerateId()
+    {
+        //$oldID = session_id();
+        if (!session_regenerate_id(true)) {
+            return false;
+        }
+        //$sessionFile = session_save_path() . "/sess_$oldID";
+        //file_exists($sessionFile) && unlink($sessionFile);
+        
+        return $this->outputAddSID();
+    }
+    
+    /**
+     * @access public
+     * @return boolean
+     */
+    function outputAddSID()
+    {
+        global $_conf;
+        
+        $session_name = session_name();
+        if (!ini_get('session.use_trans_sid') and !isset($_COOKIE[$session_name]) || !empty($_conf['disable_cookie'])) {
+            return output_add_rewrite_var($session_name, session_id());
+        }
+        return true;
+    }
+    
     /**
      * よりセキュアなセッション管理を開始する
      *
-     * @access  private
-     * @return  void
+     * @access  public
+     * @return  boolean
      */
-    function autoBegin()
+    function startSecure()
     {
-        // まだ強化セッションが始まっていなかったら
-        if (!isset($_SESSION[$this->sess_array]['actime'])) {
+        // セキュアセッション変数がまだ登録されていなければ、初期化する
+        if (!$this->isSecureActive()) {
         
-            // セッション変数($this->sess_array)を初期セット
-            $this->initSess();
-        
-            // セッション変数の登録に失敗したら、エラー
-            if (!isset($_SESSION[$this->sess_array]['actime'])) {
-                trigger_error('Session::autoBegin() セッション変数を登録できませんでした。', E_USER_WARNING);
+            // セッション固定攻撃（session fixation）対策
+            // http://tdiary.ishinao.net/20060825.html#p02
+            // ログイン成功後すぐに regenerateId() するのがよい。
+            $this->regenerateId();
+            
+            $this->updateSecure();
+            
+            // セッション変数の登録に失敗していたら、エラー
+            if (!$this->isSecureActive()) {
+                trigger_error(__CLASS__ . '->' . __FUNCTION__ . '() セッション変数を登録できませんでした。', E_USER_WARNING);
                 die('Error: Session');
                 return false;
             }
@@ -80,37 +130,48 @@ class Session
     }
     
     /**
-     * セッション始めに変数をセットする
+     * セキュアセッション変数を初期化/更新する
      *
-     * @access  private
+     * @access  public
      * @return  void
      */
-    function initSess()
+    function updateSecure()
     {
-        // 初期化
         $_SESSION[$this->sess_array] = array();
-    
+        
         $_SESSION[$this->sess_array]['actime']     = time();
         $_SESSION[$this->sess_array]['ip']         = $_SERVER['REMOTE_ADDR'];
         $_SESSION[$this->sess_array]['ua']         = $_SERVER['HTTP_USER_AGENT'];
         // $_SESSION[$this->sess_array]['referer'] = $_SERVER['HTTP_REFERER'];
-        $_SESSION[$this->sess_array]['version']    = $GLOBALS['_SESS_VERSION'];
+        $_SESSION[$this->sess_array]['version']    = $GLOBALS['_SecureSession_version_id'];
     }
     
     /**
-     * セッションの妥当性をチェックして、エラーがあればメッセージを得る。アクセス時間の更新もここで。
+     * セキュアセッションが稼動状態であればtrueを返す
+     *
+     * @access  private
+     * @return  boolean
+     */
+    function isSecureActive()
+    {
+        return isset($_SESSION[$this->sess_array]['actime']);
+    }
+    
+    /**
+     * セキュアセッションの妥当性をチェックして、エラーがあればメッセージを得る。
+     * セキュアセッション変数の更新もここで行われる。
      * 
      * @access  public
-     * @return  false|string エラーがあれば、（unSession()して）エラーメッセージを返す。なければfalseを返す。
+     * @return  null|string エラーがあれば、（unSession()して）エラーメッセージを返す。なければ null を返す。
      */
-    function checkSessionError()
+    function getSessionErrorMsg()
     {
-        // 強化セッション
-        $this->autoBegin();
+        // セキュアセッション開始
+        $this->startSecure();
         
         $error_msg = '';
         
-        if (!isset($_SESSION[$this->sess_array]['actime'])) {
+        if (!$this->isSecureActive()) {
             $error_msg = 'セッションが機能していません。';
 
         } else {
@@ -139,21 +200,19 @@ class Session
             return $error_msg;
         }
         
-        // 問題なければ、アクセス時間を更新する
-        $_SESSION[$this->sess_array]['actime'] = time();
+        // 問題なければ、セキュアセッション変数を更新する
+        $this->updateSecure();
         
         // クエリーにSIDを付加する場合は、毎回 session_regenerate_id() する、、と少し不便
         // 過去アクセス5つ分以前を無効にするとかもできそうだが、
         /*
-        $sname = session_name();
-        if (!$_COOKIE[$sname]) {
-            $oldID = session_id();
-            session_regenerate_id();
-            unlink(session_save_path() . "/sess_$oldID");
+        $session_name = session_name();
+        if (!isset($_COOKIE[$session_name])) {
+            $this->regenerateId();
         }
         */
         
-        return false;
+        return null;
     }
     
     /**
@@ -162,10 +221,10 @@ class Session
      * @access  private
      * @return  boolean
      */
-    function checkAcTime($minutes = 60)
+    function checkAcTime()
     {
         // 最終アクセス時間から、一定時間以上が経過していればExpire
-        if ($_SESSION[$this->sess_array]['actime'] + $minutes * 60 < time()) {
+        if ($_SESSION[$this->sess_array]['actime'] + $this->_expire_minutes * 60 < time()) {
             return false;
         } else {
             return true;
@@ -180,7 +239,7 @@ class Session
      */
     function checkVersion()
     {
-        if ($_SESSION[$this->sess_array]['version'] == $GLOBALS['_SESS_VERSION']) {
+        if ($_SESSION[$this->sess_array]['version'] == $GLOBALS['_SecureSession_version_id']) {
             return true;
         } else {
             return false;
@@ -216,6 +275,13 @@ class Session
      */
     function checkUA()
     {
+        // ibisBrowser 219.117.203.9
+        // Mozilla/4.0 (compatible; ibisBrowser; ip210.153.84.0; ser0123456789ABCDE) 
+        // http://qb5.2ch.net/test/read.cgi/operate/1141521195/748
+        if ($_SERVER['REMOTE_ADDR'] == '219.117.203.9') {
+            return true;
+        }
+        
         // {{{ DoCoMoはUTN時にUA後部が変わるので機種名で検証する
         
         $mobile = &Net_UserAgent_Mobile::singleton();
@@ -242,11 +308,10 @@ class Session
     /**
      * $_SESSIONでセッションを破棄する
      *
-     * スタティックメソッド Session::unSession() でも呼び出せる
-     *
      * セッションがない、もしくは正しくない場合などに
      * http://jp.php.net/manual/ja/function.session-destroy.php
      *
+     * @static
      * @access  public
      * @return  void
      */
@@ -262,10 +327,10 @@ class Session
         $_SESSION = array();
         
         // セッションを切断するにはセッションクッキーも削除する。
-        // Note: セッション情報だけでなくセッションを破壊する。
-        if (isset($_COOKIE[session_name()])) {
-           unset($_COOKIE[session_name()]);
-           setcookie(session_name(), '', time() - 42000);
+        $session_name = session_name();
+        if (isset($_COOKIE[$session_name])) {
+           unset($_COOKIE[$session_name]);
+           setcookie($session_name, '', time() - 42000);
         }
         
         // 最終的に、セッションを破壊する
@@ -281,4 +346,3 @@ class Session
     }
 
 }
-

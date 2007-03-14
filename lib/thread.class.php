@@ -232,7 +232,7 @@ class Thread
             $this->setTtitle(rtrim($matches[4]));
 
             $this->rescount = $matches[6];
-            if ($this->readnum) {
+            if ($this->gotnum) {
                 $this->unum = $this->rescount - $this->readnum;
                 // machi bbs はsageでsubjectの更新が行われないそうなので調整しておく
                 if ($this->unum < 0) {
@@ -262,7 +262,7 @@ class Thread
         
         $this->ttitle = null;
         
-        if ($this->datlines) {
+        if (!empty($this->datlines)) {
             $firstdatline = rtrim($this->datlines[0]);
             $d = $this->explodeDatLine($firstdatline);
             $this->setTtitle($d[4]);
@@ -421,5 +421,91 @@ class Thread
         return $spd_st;
     }
 
+    /**
+     * スマートポップアップメニューのためのJavaScriptコードを生成表示する
+     *
+     * @access  public
+     * @return  void
+     */
+    function showSmartPopUpMenuJs()
+    {
+        global $_conf, $STYLE;
+
+        $this->spmObjName = "aThread_{$this->bbs}_{$this->key}";
+        $ttitle_en = base64_encode($this->ttitle);
+        $ttitle_urlen = rawurlencode($ttitle_en);
+        $nbxdom = $this->spmObjName . "_numbox.style";
+        $nbxar = array("fs"=>"", "fc"=>"", "bc"=>"", "bi"=>"");
+        if ($STYLE['respop_fontsize']) {
+            $nbxdom_fs = "{$nbxdom}.fontSize = \"{$STYLE['respop_fontsize']}\";";
+        }
+        if ($STYLE['respop_color']) {
+            $nbxdom_c = "{$nbxdom}.color = \"{$STYLE['respop_color']}\";";
+        }
+        if ($STYLE['respop_bgcolor']) {
+            $nbxdom_bc = "{$nbxdom}.backgroundColor = \"{$STYLE['respop_bgcolor']}\";";
+        }
+        if ($STYLE['respop_background']) {
+            $nbxdom_bi = "{$nbxdom}.backgroundImage = \"" . str_replace("\"", "'", $STYLE['respop_background']) . "\";";
+        } else {
+            $nbxdom_bi = '';
+        }
+
+        if ($_conf['flex_spm_target'] == "" || $_conf['flex_spm_target'] == "read") {
+            $flex_spm_target = "_self";
+        } else {
+            $flex_spm_target = $_conf['flex_spm_target'];
+        }
+
+        echo <<<EOJS
+<script type="text/javascript">
+<!--
+    // 主なスレッド情報＋αをオブジェクトに格納
+    var {$this->spmObjName} = new Object();
+    {$this->spmObjName}.objName = "{$this->spmObjName}";
+    {$this->spmObjName}.host = "{$this->host}";
+    {$this->spmObjName}.bbs  = "{$this->bbs}";
+    {$this->spmObjName}.key  = "{$this->key}";
+    {$this->spmObjName}.rc   = "{$this->rescount}";
+    {$this->spmObjName}.ttitle_en = "{$ttitle_urlen}";
+    {$this->spmObjName}.spmHeader = "resnum";
+    {$this->spmObjName}.spmOption = {
+        'spm_confirm':0,
+        'spm_kokores':{$_conf['spm_kokores']},
+        'enable_bookmark':0,
+        'spm_aborn':0,
+        'spm_ng':0,
+        'enable_am_on_spm':0,
+        'enable_fl_on_spm':0
+    };
+    
+    // スマートポップアップメニュー生成
+    spmTarget = '{$flex_spm_target}';
+    makeSPM({$this->spmObjName});
+    // ポップアップメニューヘッダのレス番（input type="text"）をインラインテキストのように見せる。
+    // ブラウザによってはDOMで変更できないプロパティがあるので完全ではない。（特にSafari）
+    if (({$this->spmObjName}.spmHeader.indexOf("resnum") != -1) && (document.getElementById || document.all)) {
+        var {$this->spmObjName}_numbox = p2GetElementById('{$this->spmObjName}_numbox');
+        {$nbxdom_fs}
+        {$nbxdom_c}
+        {$nbxdom_bc}
+        {$nbxdom_bi}
+    }
+//-->
+</script>\n
+EOJS;
+    }
+
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
 

@@ -127,18 +127,17 @@ class ThreadRead extends Thread
     }
     
     /**
-     * HTTPヘッダレスポンスの取得エラーを $_info_msg_ht にセットする
+     * HTTPヘッダレスポンスの取得エラーを P2Util::pushInfoHtml() する
      *
      * @access  private
      * @return  void
      */
     function setInfoMsgHtFreadHttpHeaderError($url)
     {
-        global $_info_msg_ht, $_conf;
+        global $_conf;
         
         $url_t = P2Util::throughIme($url);
-        $_info_msg_ht .= "<p>p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a>
-                        からヘッダレスポンスを取得できませんでした。</p>";
+        P2Util::pushInfoHtml("<p>p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> からヘッダレスポンスを取得できませんでした。</p>");
     }
     
     /**
@@ -177,7 +176,7 @@ class ThreadRead extends Thread
      */
     function downloadDat2ch($from_bytes)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         global $debug;
     
         if (!($this->host && $this->bbs && $this->key)) {
@@ -251,8 +250,8 @@ class ThreadRead extends Thread
         $fp = @fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>
-                            p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+            P2Util::pushInfoHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>
+                            p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
             $this->diedat = true;
             return false;
         }
@@ -364,7 +363,7 @@ class ThreadRead extends Thread
                 $onbytes = $this->onbytes;
                 unset($this->onbytes);
                 unset($this->modified);
-                $_info_msg_ht .= "p2 info: $onbytes/$this->length ファイルサイズが変なので、datを再取得しました<br>";
+                P2Util::pushInfoHtml("p2 info: $onbytes/$this->length ファイルサイズが変なので、datを再取得しました<br>");
                 $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
                 return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
             }
@@ -411,7 +410,7 @@ class ThreadRead extends Thread
      */
     function downloadDat2chMaru()
     {
-        global $_conf, $uaMona, $SID2ch, $_info_msg_ht;
+        global $_conf, $uaMona, $SID2ch;
         
         if (!($this->host && $this->bbs && $this->key && $this->keydat)) {
             return false;
@@ -464,8 +463,8 @@ class ThreadRead extends Thread
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>
-                p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+            P2Util::pushInfoHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>
+                p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
             $this->diedat = true;
             return false;
         }
@@ -652,7 +651,7 @@ class ThreadRead extends Thread
      */
     function downloadDat2chKako($uri, $ext)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         $url = $uri . $ext;
     
@@ -702,8 +701,8 @@ class ThreadRead extends Thread
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            echo "<p>サーバ接続エラー: $errstr ($errno)<br>
-                p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>$url</a> に接続できませんでした。</p>";
+            P2Util::pushInfoHtml("<p>サーバ接続エラー: $errstr ($errno)<br>
+                p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>$url</a> に接続できませんでした。</p>");
             $this->diedat = true;
             return false;
         }
@@ -853,7 +852,7 @@ class ThreadRead extends Thread
      */
     function get2chDatError()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         
         // ホスト移転検出で変更したホストを元に戻す
         if (!empty($this->old_host)) {
@@ -879,9 +878,8 @@ class ThreadRead extends Thread
         
         if (!$wap_res or !$wap_res->is_success()) {
             $url_t = P2Util::throughIme($wap_req->url);
-            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a>
-                     に接続できませんでした。</div>";
+            P2Util::pushInfoHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>"
+                                . "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>");
         } else {
             $read_response_html = $wap_res->content;
         }
@@ -970,7 +968,7 @@ class ThreadRead extends Thread
      */
     function previewOne()
     {
-        global $_conf, $ptitle_ht, $_info_msg_ht;
+        global $_conf, $ptitle_ht;
 
         if (!($this->host && $this->bbs && $this->key)) {
             return false;
@@ -1053,8 +1051,8 @@ class ThreadRead extends Thread
             $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
             if (!$fp) {
                 $url_t = P2Util::throughIme($url);
-                $_info_msg_ht .= "<p>サーバ接続エラー: $errstr ($errno)<br>
-                    p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+                P2Util::pushInfoHtml("<p>サーバ接続エラー: $errstr ($errno)<br>
+                    p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
                 $this->diedat = true;
                 return false;
             }
@@ -1544,6 +1542,9 @@ class ThreadRead extends Thread
     function explodeDatLine($aline)
     {
         $aline = rtrim($aline);
+        if (!$aline) {
+            return array();
+        }
 
         if ($this->dat_type == "2ch_old") {
             $parts = explode(',', $aline);

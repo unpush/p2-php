@@ -19,7 +19,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     
     // p2_threads_aborn.idx がなければ
     if (!file_exists($taborn_idx)) {
-        die("あぼーんリストが見つかりませんでした。");
+        p2die("あぼーんリストが見つかりませんでした。");
         return false;
     }
     
@@ -54,7 +54,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     // 書き込む
     
     if (file_exists($taborn_idx)) {
-        copy($taborn_idx, $taborn_idx.'.bak'); // 念のためバックアップ
+        copy($taborn_idx, $taborn_idx . '.bak'); // 念のためバックアップ
     }
 
     $cont = '';
@@ -63,8 +63,8 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
             $cont .= $l."\n";
         }
     }
-    if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
-        die('Error: cannot write file.');
+    if (false === file_put_contents($taborn_idx, $cont, LOCK_EX)) {
+        p2die('Error: cannot write file.');
         return false;
     }
 

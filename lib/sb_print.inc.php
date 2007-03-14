@@ -178,9 +178,10 @@ EOP;
     
         //新着レス数 =============================================
         $unum_ht_c = "&nbsp;";
+        
         // 既得済み
         if ($aThread->isKitoku()) {
-
+            
             // $ttitle_en_q は節減省略
             $onclick_at = " onClick=\"return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this);\"";
             $title_at = " title=\"クリックするとログ削除\"";
@@ -226,7 +227,7 @@ EOP;
                 $favmark    = !empty($aThread->fav) ? '★' : '+';
                 $favdo      = !empty($aThread->fav) ? 0 : 1;
                 $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-                $favdo_q    = '&amp;setfav='.$favdo;
+                $favdo_q    = '&amp;setfav=' . $favdo;
 
                 // $ttitle_en_q も付けた方がいいが、節約のため省略する
                 $fav_ht = <<<EOP

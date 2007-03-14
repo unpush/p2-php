@@ -4,14 +4,14 @@ require_once P2_LIB_DIR . '/filectl.class.php';
 /**
  * お気に板をセットする関数
  *
- * $set は、0(解除), 1(追加), top, up, down, bottom
+ * $setfavita は、0(解除), 1(追加), top, up, down, bottom
  *
  * @access  public
  * @return  boolean
  */
 function setFavIta()
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     // {{{ パラメータの設定
     
@@ -29,7 +29,7 @@ function setFavIta()
             $host = preg_replace('{/test/read\.cgi$}', '', $matches[1]);
             $bbs = $matches[2];
         } else {
-            $_info_msg_ht .= "<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>";
+            P2Util::pushInfoHtml("<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>");
         }
     }
     
@@ -74,6 +74,7 @@ function setFavIta()
     // 最初に重複要素を消去しておく
     if ($lines) {
         $i = -1;
+        $avoided = false;
         foreach ($lines as $l) {
             $i++;
             $l = rtrim($l);
@@ -86,7 +87,8 @@ function setFavIta()
         
             $lar = explode("\t", $l);
         
-            if ($lar[1] == $host and $lar[2] == $bbs) { // 重複回避
+            if (!$avoided and $lar[1] == $host && $lar[2] == $bbs) { // 重複回避
+                $avoided = true;
                 $before_line_num = $i;
                 continue;
             } elseif (!$lar[1] || !$lar[2]) { // 不正データ（host, bbsなし）もアウト
@@ -107,8 +109,7 @@ function setFavIta()
             $itaj = base64_decode($itaj_en);
             $rec_lines[] = "\t{$host}\t{$bbs}\t" . $itaj;
         }
-        $_info_msg_ht .= "<script language=\"javascript\">
-            if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
+        P2Util::pushInfoHtml("<script language=\"javascript\">if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>");
     
     // 一つのデータを指定して操作
     } elseif ($setfavita and $host && $bbs && $itaj) {

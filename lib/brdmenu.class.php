@@ -163,7 +163,7 @@ class BrdMenu
      */
     function makeBrdFile($cachefile)
     {
-        global $_conf, $_info_msg_ht, $word;
+        global $_conf;
     
         $p2brdfile = $cachefile . ".p2.brd";
         
@@ -188,7 +188,7 @@ class BrdMenu
 
         if (!$cont) {
             if (strlen($GLOBALS['word']) > 0) {
-                $_info_msg_ht .=  "<p>p2 エラー: {$cachefile} から板メニューを生成することはできませんでした。</p>\n";
+                P2Util::pushInfoHtml("<p>p2 error: {$cachefile} から板メニューを生成することはできませんでした。</p>\n");
             }
             return false;
         }

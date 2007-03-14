@@ -4,7 +4,7 @@
  */
 function index_print_k()
 {
-    global $_conf, $_login, $_info_msg_ht;
+    global $_conf, $_login;
 
     $newtime = date('gis');
     
@@ -60,12 +60,13 @@ EOP;
 </head>
 <body>
 <h1>{$ptitle}</h1>
-{$_info_msg_ht}
-
+EOP;
+    P2Util::printInfoHtml();
+    echo <<<EOP
 <a {$_conf['accesskey']}="1" href="subject.php?spmode=recent&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">1.最近読んだｽﾚの新着</a><br>
-<a {$_conf['accesskey']}="2" href="subject.php?spmode=recent{$_conf['k_at_a']}{$user_at_a}">2.最近読んだｽﾚの全て</a><br>
+<a {$_conf['accesskey']}="2" href="subject.php?spmode=recent&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">2.最近読んだｽﾚの全て</a><br>
 <a {$_conf['accesskey']}="3" href="subject.php?spmode=fav&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">3.お気にｽﾚの新着</a><br>
-<a {$_conf['accesskey']}="4" href="subject.php?spmode=fav{$_conf['k_at_a']}{$user_at_a}">4.お気にｽﾚの全て</a><br>
+<a {$_conf['accesskey']}="4" href="subject.php?spmode=fav&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">4.お気にｽﾚの全て</a><br>
 <a {$_conf['accesskey']}="5" href="menu_k.php?view=favita{$_conf['k_at_a']}{$user_at_a}">5.お気に板</a><br>
 <a {$_conf['accesskey']}="6" href="menu_k.php?view=cate{$_conf['k_at_a']}{$user_at_a}">6.板ﾘｽﾄ</a><br>
 <a {$_conf['accesskey']}="7" href="subject.php?spmode=res_hist{$_conf['k_at_a']}{$user_at_a}">7.書込履歴</a> <a {$_conf['accesskey']}="#" href="read_res_hist.php?nt={$newtime}{$_conf['k_at_a']}">#.ﾛｸﾞ</a><br>
@@ -78,9 +79,9 @@ EOP;
 <hr>
 
 <form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
-		2chのｽﾚURLを直接指定
-		<input id="url_text" type="text" value="" name="url">
-		<input type="submit" name="btnG" value="表示">
+	2chのｽﾚURLを直接指定
+	<input id="url_text" type="text" value="" name="url">
+	<input type="submit" name="btnG" value="表示">
 </form>
 
 <hr>

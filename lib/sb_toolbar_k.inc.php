@@ -3,12 +3,11 @@
 // for subject.php
 
 $matome_accesskey_at = "";
-$matome_accesskey_navi = "";
+$matome_accesskey_navi = "{$_conf['k_accesskey']['matome']}.";
 
 // êVíÖÇ‹Ç∆Çﬂì«Ç›
 if (!empty($upper_toolbar_done)) {
 	$matome_accesskey_at = " {$_conf['accesskey']}=\"{$_conf['k_accesskey']['matome']}\"";
-	$matome_accesskey_navi = "{$_conf['k_accesskey']['matome']}.";
 }
 
 // ëqå…Ç≈Ç»ÇØÇÍÇŒ

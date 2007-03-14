@@ -70,7 +70,7 @@ class BrdCtl
      */
     function readBrdOnline()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
         if (empty($_conf['brdfile_online'])) {
             return array();
@@ -139,11 +139,11 @@ class BrdCtl
                 if ($aBrdMenu->num) {
                     $brd_menus[] =& $aBrdMenu;
                 } else {
-                    $_info_msg_ht .=  "<p>p2 エラー: {$cache_brd} から板メニューを生成することはできませんでした。</p>\n";
+                    P2Util::pushInfoHtml("<p>p2 error: {$cache_brd} から板メニューを生成することはできませんでした。</p>\n");
                 }
                 unset($data, $aBrdMenu);
             } else {
-                $_info_msg_ht .=  "<p>p2 エラー: {$cachefile} は読み込めませんでした。</p>\n";
+                P2Util::pushInfoHtml("<p>p2 error: {$cachefile} は読み込めませんでした。</p>\n");
             }
         }
         

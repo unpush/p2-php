@@ -9,7 +9,11 @@ class ShowThread
     var $str_to_link_regex; // リンクすべき文字列の正規表現
     var $str_to_link_limit = 30; // 一つのレスにおけるリンク変換の制限回数（荒らし対策）
     
-    var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列
+    // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
+    var $url_handlers       = array();
+
+    // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
+    var $user_url_handlers  = array();
 
     /**
      * @constructor
@@ -43,8 +47,10 @@ class ShowThread
             .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
             . ')'
             . '}';
-        
-        $this->url_handlers = array();
+
+        if (empty($GLOBALS['_P2_NGABORN_LOADED'])) {
+            NgAbornCtl::loadNgAborns();
+        }
     }
     
     /**
@@ -100,141 +106,66 @@ class ShowThread
         
         return $date_id;
     }
-
-
+    
     /**
-     * NGあぼーんチェック
+     * レスのあぼーんをまとめてチェックする（名前、メール、日付、メッセージ）
      *
      * @access  protected
-     * @return  string|false
+     * @return  string|false  マッチしたらマッチ文字列。マッチしなければfalse
      */
-    function ngAbornCheck($code, $resfield, $ic = FALSE)
+    function checkAborns($name, $mail, $data_id, $msg)
     {
-        global $ngaborns;
-        
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
-        
-        $method = $ic ? 'stristr' : 'strstr';
-        
-        if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
-            foreach ($ngaborns[$code]['data'] as $k => $v) {
-                if (strlen($v['word']) == 0) {
-                    continue;
-                }
-                
-                /*
-                if ($method($resfield, $v['word'])) {
-                    $this->ngAbornUpdate($code, $k);
-                    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                    return $v['word'];
-                } else {
-                    continue;
-                }
-                */
-                
-                // <関数:オプション>パターン 形式の行は正規表現として扱う
-                // バイナリセーフでない（日本語でエラーが出ることがある）のでereg()系は使わない
-                if (preg_match('/^<(mb_ereg|preg_match|regex)(:[imsxeADSUXu]+)?>(.+)$/', $v['word'], $re)) {
-                    // "regex"のときは自動設定
-                    if ($re[1] == 'regex') {
-                        if (P2_MBREGEX_AVAILABLE) {
-                            $re_method = 'mb_ereg';
-                            $re_pattern = $re[3];
-                        } else {
-                            $re_method = 'preg_match';
-                            $re_pattern = '/' . str_replace('/', '\\/', $re[3]) . '/';
-                        }
-                    } else {
-                        $re_method = $re[1];
-                        $re_pattern = $re[3];
-                    }
-                    // 大文字小文字を無視
-                    if ($re[2] && strstr($re[2], 'i')) {
-                        if ($re_method == 'preg_match') {
-                            $re_pattern .= 'i';
-                        } else {
-                            $re_method .= 'i';
-                        }
-                    }
-                    // マッチ
-                    if ($re_method($re_pattern, $resfield)) {
-                        $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                        return $v['word'];
-                    //if ($re_method($re_pattern, $resfield, $matches)) {
-                        //return htmlspecialchars($matches[0], ENT_QUOTES);
-                    }
-
-                // 単純に文字列が含まれるかどうかをチェック
-                } elseif ($method($resfield, $v['word'])) {
-                    $this->ngAbornUpdate($code, $k);
-                    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                    return $v['word'];
-                }
-            }
-        }
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-        return false;
+        return NgAbornCtl::checkAborns($name, $mail, $data_id, $msg, $this->thread->bbs, $this->thread->ttitle_hc);
     }
-
+    
+    /**
+     * NGあぼーんをチェックする
+     *
+     * @access  protected
+     * @return  string|false  マッチしたらマッチ文字列。マッチしなければfalse
+     */
+    function ngAbornCheck($ngcode, $subject)
+    {
+        return NgAbornCtl::ngAbornCheck($ngcode, $subject, $this->thread->bbs, $this->thread->ttitle_hc);
+    }
+    
     /**
      * 特定レスの透明あぼーんチェック
      *
      * @access  protected
      * @return  boolean
      */
-    function abornResCheck($host, $bbs, $key, $resnum)
+    function abornResCheck($resnum)
     {
-        global $ngaborns;
-        
-        $target = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
-        
-        if (isset($ngaborns['aborn_res']['data']) && is_array($ngaborns['aborn_res']['data'])) {
-            foreach ($ngaborns['aborn_res']['data'] as $k => $v) {
-                if ($ngaborns['aborn_res']['data'][$k]['word'] == $target) {
-                    $this->ngAbornUpdate('aborn_res', $k);
-                    return true;
-                }
-            }
-        }
-        return false;
+        $t = $this->thread;
+
+        return NgAbornCtl::abornResCheck($t->host, $t->bbs, $t->key, $resnum);
     }
-    
+
     /**
-     * NG/あぼ～ん日時と回数を更新
+     * ユーザ定義URLハンドラ（メッセージ中のURLを書き換える関数）を追加する
      *
-     * @access  protected
+     * ハンドラは最初に追加されたものから順番に試行される
+     * URLはハンドラの返り値（文字列）で置換される
+     * FALSEを帰した場合は次のハンドラに処理が委ねられる
+     *
+     * ユーザ定義URLハンドラの引数は
+     *  1. string $url  URL
+     *  2. array  $purl URLをparse_url()したもの
+     *  3. string $str  パターンにマッチした文字列、URLと同じことが多い
+     *  4. object &$aShowThread 呼び出し元のオブジェクト
+     * である
+     * 常にFALSEを返し、内部で処理するだけの関数を登録してもよい
+     *
+     * @param   string|array $function  関数名か、array(string $classname, string $methodname)
+     *                                  もしくは array(object $instance, string $methodname)
      * @return  void
+     * @access  public
+     * @todo    ユーザ定義URLハンドラのオートロード機能を実装
      */
-    function ngAbornUpdate($code, $k)
+    function addURLHandler($function)
     {
-        global $ngaborns;
-
-        if (isset($ngaborns[$code]['data'][$k])) {
-            $v =& $ngaborns[$code]['data'][$k];
-            $v['lasttime'] = date('Y/m/d G:i'); // HIT時間を更新
-            if (empty($v['hits'])) {
-                $v['hits'] = 1; // 初HIT
-            } else {
-                $v['hits']++; // HIT回数を更新
-            }
-        }
-    }
-
-    /**
-     * url_handlersに関数・メソッドを追加する
-     *
-     * url_handlersは最後にaddURLHandler()されたものから実行される
-     */
-    function addURLHandler($name, $handler)
-    {
-    }
-
-    /**
-     * url_handlersから関数・メソッドを削除する
-     */
-    function removeURLHandler($name)
-    {
+        $this->user_url_handlers[] = $function;
     }
     
     /**

@@ -1,11 +1,12 @@
 <?php
 /*
-define(P2_SUBJECT_TXT_STORAGE, 'eashm');    // 要eAccelerator
+$GLOBALS['_SubjectTxt_STORAGE'] = 'apc';      // 要APC
+$GLOBALS['_SubjectTxt_STORAGE'] = 'eashm';    // 要eAccelerator
 
-[仕様] shmだと長期キャッシュしない
-[仕様] shmだとmodifiedをつけない
+[仕様] eashm, apc だと長期キャッシュしない
+[仕様] eashm, apc だとmodifiedをつけない
 
-shmにしてもパフォーマンスはほとんど変わらない（ようだ）
+eashm, apc にしてもパフォーマンスはほとんど変わらない（ようだ）
 */
 
 /**
@@ -18,7 +19,7 @@ class SubjectTxt
     var $subject_url;
     var $subject_file;
     var $subject_lines;
-    var $storage; // file, eashm(eAccelerator shm) // 2006/02/27 aki eashm は非推奨
+    var $storage; // file, eashm(eAccelerator shm), apc // 2006/02/27 aki eashm, apc は非推奨
     
     /**
      * @constructor
@@ -27,9 +28,13 @@ class SubjectTxt
     {
         $this->host = $host;
         $this->bbs =  $bbs;
-        if (defined('P2_SUBJECT_TXT_STORAGE') && P2_SUBJECT_TXT_STORAGE == 'eashm') {
-            $this->storage = P2_SUBJECT_TXT_STORAGE;
-        } else {
+        
+        if (isset($GLOBALS['_SubjectTxt_STORAGE'])) {
+            if (in_array($GLOBALS['_SubjectTxt_STORAGE'], array('eashm', 'apc'))) {
+                $this->storage = $GLOBALS['_SubjectTxt_STORAGE'];
+            }
+        }
+        if (!isset($this->storage)) {
             $this->storage = 'file';
         }
         
@@ -52,60 +57,67 @@ class SubjectTxt
      */
     function dlAndSetSubject()
     {
+        $lines = array();
         if ($this->storage == 'eashm') {
-            $cont = eaccelerator_get("$this->host/$this->bbs");
-        } else {
-            $cont = '';
-        }
-        if (!$cont || !empty($_POST['newthread'])) {
-            $cont = $this->downloadSubject();
+            $lines = eaccelerator_get("$this->host/$this->bbs");
+        } elseif ($this->storage == 'apc') {
+            $lines = apc_fetch("$this->host/$this->bbs");
         }
         
-        if ($this->setSubjectLines($cont)) {
-            return true;
-        } else {
-            return false;
+        if (!$lines || !empty($_POST['newthread'])) {
+            $lines = $this->downloadSubject();
         }
+        
+        return $this->loadSubjectLines($lines) ? true : false;
     }
 
     /**
      * subject.txtをダウンロードする
      *
      * @access  public
-     * @return  string|false  subject.txt の中身
+     * @return  array|null|false  subject.txtの配列データ(eashm, apc用)、またはnullを返す。失敗した場合はfalseを返す。
      */
     function downloadSubject()
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
 
+        static $spendDlTime_ = 0; // DL所要合計時間
+        
         $perm = isset($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
 
+        $modified = false;
+        
         if ($this->storage == 'file') {
             FileCtl::mkdirFor($this->subject_file); // 板ディレクトリが無ければ作る
-        
+
             if (file_exists($this->subject_file)) {
             
+                // ファイルキャッシュがあれば、DL制限時間をかける
+                if ($_conf['dlSubjectTotalLimitTime'] and $spendDlTime_ > $_conf['dlSubjectTotalLimitTime']) {
+                    return null;
+                }
+                
                 // 条件によって、キャッシュを適用する
                 // subject.php でrefresh指定がある時は、キャッシュを適用しない
                 if (!(basename($_SERVER['SCRIPT_NAME']) == 'subject.php' && !empty($_REQUEST['refresh']))) {
                     
                     // キャッシュ適用指定時は、その場で抜ける
                     if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
-                        return;
+                        return null;
                         
                     // 新規スレ立て時以外で、キャッシュが新鮮な場合も抜ける
                     } elseif (empty($_POST['newthread']) and $this->isSubjectTxtFresh()) {
-                        return;
+                        return null;
                     }
                 }
                 
                 $modified = gmdate("D, d M Y H:i:s", filemtime($this->subject_file)) . " GMT";
             
-            } else {
-                $modified = false;
             }
         }
 
+        $dlStartTime = $this->microtimeFloat();
+        
         // DL
         require_once "HTTP/Request.php";
         
@@ -120,7 +132,7 @@ class SubjectTxt
         $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
     
         $response = $req->sendRequest();
-
+        
         if (PEAR::isError($response)) {
             $error_msg = $response->getMessage();
         } else {
@@ -130,9 +142,8 @@ class SubjectTxt
                 require_once P2_LIB_DIR . '/BbsMap.class.php';
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
-                    $aNewSubjectTxt = &new SubjectTxt($new_host, $this->bbs);
-                    $body = $aNewSubjectTxt->downloadSubject();
-                    return $body;
+                    $aNewSubjectTxt = new SubjectTxt($new_host, $this->bbs);
+                    return $aNewSubjectTxt->downloadSubject();
                 }
             }
             if (!($code == 200 || $code == 206 || $code == 304)) {
@@ -143,12 +154,16 @@ class SubjectTxt
     
         if (isset($error_msg) && strlen($error_msg) > 0) {
             $url_t = P2Util::throughIme($this->subject_url);
-            $_info_msg_ht .= "<div>Error: {$error_msg}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> に接続できませんでした。</div>";
+            P2Util::pushInfoHtml("<div>Error: {$error_msg}<br>"
+                                . "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> に接続できませんでした。</div>");
             $body = '';
         } else {
             $body = $req->getResponseBody();
         }
+
+        $dlEndTime = $this->microtimeFloat();
+        $dlTime = $dlEndTime - $dlStartTime;
+        $spendDlTime_ += $dlTime;
 
         // DL成功して かつ 更新されていたら
         if ($body && $code != "304") {
@@ -158,20 +173,27 @@ class SubjectTxt
                 $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
             }
             
-            // eashmに保存する場合
-            if ($this->storage == 'eashm') {
-                $eacc_key = "$this->host/$this->bbs";
-                eaccelerator_lock($eacc_key); 
-                //echo $body;
-                eaccelerator_put($eacc_key, $body, $_conf['sb_dl_interval']);
-                eaccelerator_unlock($eacc_key); 
+            // eashm or apcに保存する場合
+            if ($this->storage == 'eashm' || $this->storage == 'apc') {
+                $cache_key = "$this->host/$this->bbs";
+                $cont = rtrim($body);
+                $lines = explode("\n", $cont);
+                if ($this->storage == 'eashm') {
+                    eaccelerator_lock($cache_key); 
+                    eaccelerator_put($cache_key, $lines, $_conf['sb_dl_interval']);
+                    eaccelerator_unlock($cache_key);
+                } else {
+                    apc_store($cache_key, $lines, $_conf['sb_dl_interval']);
+                }
+                return $lines;
+            
             
             // ファイルに保存する場合
             } else {
-                if (FileCtl::filePutRename($this->subject_file, $body) === false) {
-                    // 保存に失敗はしたが、既存のが読み込めるならそれを返しておく
-                    if (is_readable) {
-                        return file_get_contents($this->subject_file);
+                if (false === FileCtl::filePutRename($this->subject_file, $body)) {
+                    // 保存に失敗はしても、既存のキャッシュが読み込めるならよしとしておく
+                    if (is_readable($this->subject_file)) {
+                        return null;
                     } else {
                         die("Error: cannot write file");
                         return false;
@@ -179,6 +201,7 @@ class SubjectTxt
                 }
                 chmod($this->subject_file, $perm);
             }
+            
         } else {
             // touchすることで更新インターバルが効くので、しばらく再チェックされなくなる
             // （変更がないのに修正時間を更新するのは、少し気が進まないが、ここでは特に問題ないだろう）
@@ -187,7 +210,7 @@ class SubjectTxt
             }
         }
         
-        return $body;
+        return null;
     }
     
     
@@ -213,27 +236,27 @@ class SubjectTxt
     }
 
     /**
-     * subject.txt を読み込む
+     * subject.txt を読み込み、セットし、調整する
      * 成功すれば、$this->subject_lines がセットされる
      *
      * @access  private
-     * @param   string   $cont    これは eashm 用に渡している。
+     * @param   string   $lines    eashm, apc用
      * @return  boolean  実行成否
      */
-    function setSubjectLines($cont = '')
+    function loadSubjectLines($lines = null)
     {
-        if ($this->storage == 'eashm') {
-            if (!$cont) {
-                $cont = eaccelerator_get("$this->host/$this->bbs");
-            }
-            $this->subject_lines = explode("\n", $cont);
-        
-        } elseif ($this->storage == 'file') {
-            if (extension_loaded('zlib') and strstr($this->host, '.2ch.net')) {
-                $this->subject_lines = gzfile($this->subject_file);    // これはそのうち外す 2005/6/5
-            } else {
+        if (!$lines) {
+            if ($this->storage == 'eashm') {
+                $this->subject_lines = eaccelerator_get("$this->host/$this->bbs");
+            } elseif ($this->storage == 'apc') {
+                $this->subject_lines = apc_fetch("$this->host/$this->bbs");
+            } elseif ($this->storage == 'file') {
                 $this->subject_lines = file($this->subject_file);
+            } else {
+                return false;
             }
+        } else {
+            $this->subject_lines = $lines;
         }
         
         // JBBS@したらばなら重複スレタイを削除する
@@ -241,11 +264,19 @@ class SubjectTxt
             $this->subject_lines = array_unique($this->subject_lines);
         }
         
-        if ($this->subject_lines) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->subject_lines ? true : false;
+    }
+
+    /**
+     * PHP 5のmicrotime動作を模擬する簡単なメソッド
+     *
+     * @access  private
+     * @return  float
+     */
+    function microtimeFloat()
+    {
+       list($usec, $sec) = explode(" ", microtime());
+       return ((float)$usec + (float)$sec);
     }
 
 }

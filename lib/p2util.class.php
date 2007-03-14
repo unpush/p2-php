@@ -21,7 +21,7 @@ class P2Util
      */
     function fileDownload($url, $localfile, $disp_error = true, $use_tmp_file = false)
     {
-        global $_conf, $_info_msg_ht;
+        global $_conf;
         
         $me = __CLASS__ . '::' . __FUNCTION__ . '()';
         
@@ -54,8 +54,8 @@ class P2Util
         
         if (!$wap_res or !$wap_res->is_success() && $disp_error) {
             $url_t = P2Util::throughIme($wap_req->url);
-            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
+            P2Util::pushInfoHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>"
+                                . "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>");
         }
         
         // 更新されていたら
@@ -93,34 +93,38 @@ class P2Util
      */
     function checkDirWritable($aDir)
     {
-        global $_info_msg_ht, $_conf;
-    
+        global $_conf;
+        
+        $msg_ht = '';
+        
         // マルチユーザモード時は、情報メッセージを抑制している。
         
         if (!is_dir($aDir)) {
             /*
-            $_info_msg_ht .= '<p class="infomsg">';
-            $_info_msg_ht .= '注意: データ保存用ディレクトリがありません。<br>';
-            $_info_msg_ht .= $aDir."<br>";
+            $msg_ht .= '<p class="infomsg">';
+            $msg_ht .= '注意: データ保存用ディレクトリがありません。<br>';
+            $msg_ht .= $aDir."<br>";
             */
             if (is_dir(dirname(realpath($aDir))) && is_writable(dirname(realpath($aDir)))) {
-                //$_info_msg_ht .= "ディレクトリの自動作成を試みます...<br>";
+                //$msg_ht .= "ディレクトリの自動作成を試みます...<br>";
                 if (mkdir($aDir, $_conf['data_dir_perm'])) {
-                    //$_info_msg_ht .= "ディレクトリの自動作成が成功しました。";
+                    //$msg_ht .= "ディレクトリの自動作成が成功しました。";
                     chmod($aDir, $_conf['data_dir_perm']);
                 } else {
-                    //$_info_msg_ht .= "ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。";
+                    //$msg_ht .= "ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。";
                 }
             } else {
-                    //$_info_msg_ht .= "ディレクトリを作成し、パーミッションを設定して下さい。";
+                    //$msg_ht .= "ディレクトリを作成し、パーミッションを設定して下さい。";
             }
-            //$_info_msg_ht .= '</p>';
+            //$msg_ht .= '</p>';
             
         } elseif (!is_writable($aDir)) {
-            $_info_msg_ht .= '<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>';
-            //$_info_msg_ht .= $aDir.'<br>';
-            $_info_msg_ht .= 'ディレクトリのパーミッションを見直して下さい。</p>';
+            $msg_ht .= '<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>';
+            //$msg_ht .= $aDir.'<br>';
+            $msg_ht .= 'ディレクトリのパーミッションを見直して下さい。</p>';
         }
+        
+        $msg_ht and P2Util::pushInfoHtml($msg_ht);
     }
 
     /**
@@ -220,7 +224,12 @@ class P2Util
         } elseif (P2Util::isHostMachiBbs($host)) {
             $dat_host_dir = $_conf['dat_dir'] . "/machibbs.com";
         } else {
-            $dat_host_dir = $_conf['dat_dir'] . "/" . $host;
+            $host_path = $host;
+            // 本当はrawurlencodeしたいが、旧互換性を残すため控えている
+            //$host_path = str_replace('%2F', '/', rawurlencode($host_path));
+            $host_path = preg_replace('|\.+/|', '', $host_path);
+            $host_path = preg_replace('|:+//|', '', $host_path); // mkdir()が://をカレントディレクトリであるとみなす？
+            $dat_host_dir = $_conf['dat_dir'] . "/" . $host_path;
         }
         return $dat_host_dir;
     }
@@ -234,7 +243,7 @@ class P2Util
     function idxDirOfHost($host)
     {
         global $_conf;
-        
+
         // 2channel or bbspink
         if (P2Util::isHost2chs($host)) { 
             $idx_host_dir = $_conf['idx_dir'] . "/2channel";
@@ -242,8 +251,11 @@ class P2Util
         } elseif (P2Util::isHostMachiBbs($host)){ 
             $idx_host_dir = $_conf['idx_dir'] . "/machibbs.com";
         } else {
-            $idx_host_dir = $_conf['idx_dir'] . "/" . $host;
-
+            $host_path = $host;
+            //$host_path = str_replace('%2F', '/', rawurlencode($host_path));
+            $host_path = preg_replace('|\.+/|', '', $host_path);
+            $host_path = preg_replace('|:+//|', '', $host_path);
+            $idx_host_dir = $_conf['idx_dir'] . "/" . $host_path;
         }
         return $idx_host_dir;
     }
@@ -733,17 +745,6 @@ class P2Util
     }
 
     /**
-     * ブラウザがSafari系ならtrueを返す
-     *
-     * @access  public
-     * @return  boolean
-     */
-    function isBrowserSafariGroup()
-    {
-        return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $_SERVER['HTTP_USER_AGENT']);
-    }
-
-    /**
      * 2ch●ログインのIDとPASSと自動ログイン設定を保存する
      *
      * @access  public
@@ -1041,33 +1042,6 @@ ERR;
     function printSimpleHtml($body)
     {
         echo "<html><body>{$body}</body></html>";
-    }
-    
-    /**
-     * シンプルにHTMLを表示して exit する
-     *
-     * @static
-     * @access  public
-     * @return  void
-     */
-    function exitSimpleHtml($body)
-    {
-        P2Util::printSimpleHtml($body);
-        exit;
-    }
-    
-    /**
-     * @static
-     * @access  public
-     * @return  boolean
-     */
-    function isNetFront()
-    {
-        if (preg_match('/(NetFront|AVEFront\/|AVE-Front\/)/', $_SERVER['HTTP_USER_AGENT'])) {
-            return true;
-        } else {
-            return false;
-        }
     }
     
     /**

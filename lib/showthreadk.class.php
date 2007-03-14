@@ -143,11 +143,9 @@ class ShowThreadK extends ShowThread
         global $STYLE, $mae_msg, $res_filter, $word_fm;
         global $ngaborns_hits;
         global $_conf;
-
+        
         $tores      = "";
         $rpop       = "";
-        $isNgName   = false;
-        $isNgMsg    = false;
         
         $resar      = $this->thread->explodeDatLine($ares);
         $name       = $resar[0];
@@ -189,68 +187,42 @@ class ShowThreadK extends ShowThread
         }
         
         // }}}
-        // {{{ あぼーんチェック
+        // {{{ あぼーんチェック（名前、メール、ID、メッセージ）
         
+        /*
         $aborned_res = "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; // 名前
         $aborned_res .= ""; // 内容
-
-        // あぼーんネーム
-        if ($this->ngAbornCheck('aborn_name', $name) !== false) {
-            $ngaborns_hits['aborn_name']++;
-            return $aborned_res;
-        }
-
-        // あぼーんメール
-        if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
-            $ngaborns_hits['aborn_mail']++;
-            return $aborned_res;
-        }
+        */
+        $aborned_res = "<span id=\"r{$i}\" name=\"r{$i}\"></span>\n";
         
-        // あぼーんID
-        if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
-            $ngaborns_hits['aborn_id']++;
-            return $aborned_res;
-        }
-        
-        // あぼーんメッセージ
-        if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
-            $ngaborns_hits['aborn_msg']++;
+        if (false !== $this->checkAborns($name, $mail, $date_id, $msg)) {
             return $aborned_res;
         }
         
         // }}}
-        // {{{ NGチェック
+        // {{{ NGチェック（名前、メール、ID、メッセージ）
+        
+        $isNgName = false;
+        $isNgMail = false;
+        $isNgId   = false;
+        $isNgMsg  = false;
         
         if (empty($_GET['nong'])) {
-            // NGネームチェック
-            if ($this->ngAbornCheck('ng_name', $name) !== false) {
-                $ngaborns_hits['ng_name']++;
+            if (false !== $this->ngAbornCheck('ng_name', strip_tags($name))) {
                 $isNgName = true;
             }
-
-            // NGメールチェック
-            if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
-                $ngaborns_hits['ng_mail']++;
+            if (false !== $this->ngAbornCheck('ng_mail', $mail)) {
                 $isNgMail = true;
-            } else {
-                $isNgMail = false;
             }
-        
-            // NGIDチェック
-            if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
-                $ngaborns_hits['ng_id']++;
+            if (false !== $this->ngAbornCheck('ng_id', $date_id)) {
                 $isNgId = true;
-            } else {
-                $isNgId = false;
             }
-    
-            // NGメッセージチェック
-            $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
-            if ($a_ng_msg !== false) {
-                $ngaborns_hits['ng_msg']++;
+            if (false !== ($a_ng_msg = $this->ngAbornCheck('ng_msg', $msg))) {
                 $isNgMsg = true;
             }
         }
+        
+        // }}}
         
         //=============================================================
         // まとめて出力
@@ -264,10 +236,17 @@ class ShowThreadK extends ShowThread
         // BEプロファイルリンク変換
         $date_id = $this->replaceBeId($date_id, $i);
         
+        $a_ng_msg_hs = htmlspecialchars($a_ng_msg, ENT_QUOTES);
+        
+        // NG変換
+        $kakunin_msg_ht = <<<EOP
+<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
+EOP;
+
         // NGメッセージ変換
         if ($isNgMsg) {
             $msg = <<<EOMSG
-<s><font color="{$STYLE['read_ngword']}">NGﾜｰﾄﾞ:{$a_ng_msg}</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
+<s><font color="{$STYLE['read_ngword']}">NG:{$a_ng_msg_hs}</font></s> $kakunin_msg_ht
 EOMSG;
         }
         
@@ -276,27 +255,24 @@ EOMSG;
             $name = <<<EONAME
 <s><font color="{$STYLE['read_ngword']}">$name</font></s>
 EONAME;
-            $msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
-EOMSG;
+            $msg = $kakunin_msg_ht;
         
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_hits['ng_mail']}').style.display = 'block';">$mail</s>
+<s><font color="{$STYLE['read_ngword']}">$mail</font></s>
 EOMAIL;
-            $msg = <<<EOMSG
-<div id="ngn{$ngaborns_hits['ng_mail']}" style="display:none;">$msg</div>
-EOMSG;
+            $msg = $kakunin_msg_ht;
 
         // NGID変換
         } elseif ($isNgId) {
+            $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s><font color=\"{$STYLE['read_ngword']}\">\\0</font></s>", $date_id);
+            /*
             $date_id = <<<EOID
 <s><font color="{$STYLE['read_ngword']}">$date_id</font></s>
 EOID;
-            $msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
-EOMSG;
+            */
+            $msg = $kakunin_msg_ht;
         }
     
         /*
