@@ -37,9 +37,8 @@ if ($array = P2Util::readIdPw2ch()) {
     list($login2chID, $login2chPW, $autoLogin2ch) = $array;
 }
 
-//==============================================================
-// 2chログイン処理
-//==============================================================
+// {{{ 2chログイン処理
+
 if (isset($_GET['login2ch'])) {
     if ($_GET['login2ch'] == "in") {
         require_once P2_LIB_DIR . '/login2ch.inc.php';
@@ -50,6 +49,10 @@ if (isset($_GET['login2ch'])) {
         }
     }
 }
+
+// }}}
+
+$hr = P2Util::getHrHtmlK();
 
 //================================================================
 // ヘッダ
@@ -70,9 +73,10 @@ if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
     $ptitle = "2ch{$login_st}管理";
 }
 
-$body_onload = "";
+$body_at = P2Util::getBodyAttrK();
+
 if (!$_conf['ktai']) {
-    $body_onload = " onLoad=\"setWinTitle();\"";
+    $body_at .= " onLoad=\"setWinTitle();\"";
 }
 
 P2Util::header_nocache();
@@ -109,7 +113,7 @@ echo <<<EOP
     // -->
     </script>
 </head>
-<body{$body_onload}>
+<body{$body_at}>
 EOP;
 
 if (!$_conf['ktai']) {
@@ -175,7 +179,7 @@ echo $form_now_log;
 echo "</div>";
 
 if ($_conf['ktai']) {
-    echo "<hr>";
+    echo $hr;
 }
 
 echo <<<EOFORM
@@ -189,7 +193,7 @@ echo <<<EOFORM
 EOFORM;
 
 if ($_conf['ktai']) {
-    echo "<hr>";
+    echo $hr;
 }
 
 //================================================================
@@ -201,7 +205,7 @@ echo <<<EOP
 EOP;
 
 if ($_conf['ktai']) {
-    echo "<hr>";
+    echo $hr;
     echo $_conf['k_to_index_ht'];
 }
 

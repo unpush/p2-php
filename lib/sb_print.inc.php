@@ -270,7 +270,7 @@ EOP;
         $moto_thre_ht = "";
         if ($_conf['sb_show_motothre']) {
             if (!$aThread->isKitoku()) {
-                $moto_thre_ht = '<a class="thre_title" href="'.$aThread->getMotoThread().'">・</a> ';
+                $moto_thre_ht = '<a class="thre_title" href="' . $aThread->getMotoThread() . '">・</a> ';
             }
         }
         
@@ -283,7 +283,7 @@ EOP;
         
         // スレリンク
         if (!empty($_REQUEST['find_cont']) && strlen($GLOBALS['word_fm']) > 0) {
-            $word_q = "&amp;word=".urlencode($GLOBALS['word'])."&amp;method=".urlencode($GLOBALS['sb_filter']['method']);
+            $word_q = "&amp;word=" . urlencode($GLOBALS['word']) . "&amp;method=" . urlencode($GLOBALS['sb_filter']['method']);
             $rescount_q = "";
             $offline_q = "&amp;offline=true";
             $anum_ht = '';
@@ -393,3 +393,13 @@ EOP;
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

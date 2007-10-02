@@ -71,7 +71,7 @@ include_once "./style/style_css.inc";
 include_once "./style/menu_css.inc";
 
 echo '<script type="text/javascript" src="js/showhide.js"></script>' . "\n";
-printHeaderJs();
+_printHeaderJs();
 
 echo <<<EOP
 </head>
@@ -102,26 +102,26 @@ $aShowBrdMenuPc->printFavItaHtml();
 $norefresh_q = '&amp;norefresh=true';
 
 echo <<<EOP
-<div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_spacial');" target="_self">特別</a></b><br>
+<div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_spacial', 'itas_hide');" target="_self">特別</a></b><br>
     <div class="itas" id="c_spacial">
 EOP;
 
 // 新着数を表示する場合
 if ($_conf['enable_menu_new'] == 1 and !empty($_GET['new'])) {
 
-    initMenuNewSp("fav");    // 新着数を初期化
+    _initMenuNewSp("recent");    // 新着数を初期化
+    echo <<<EOP
+    　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="h">最近読んだスレ</a> (<a href="{$_conf['read_new_php']}?spmode=recent" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+EOP;
+    flush();
+    
+    _initMenuNewSp("fav");    // 新着数を初期化
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="f">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
-    initMenuNewSp("recent");    // 新着数を初期化
-    echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="h">最近読んだスレ</a> (<a href="{$_conf['read_new_php']}?spmode=recent" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
-EOP;
-    flush();
-
-    initMenuNewSp("res_hist");    // 新着数を初期化
+    _initMenuNewSp("res_hist");    // 新着数を初期化
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}" onClick="chMenuColor({$matome_i});">書込履歴</a> <a href="read_res_hist.php" target="read">ログ</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
@@ -130,8 +130,8 @@ EOP;
 // 新着数を表示しない場合
 } else {
     echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" accesskey="f">お気にスレ</a><br>
     　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" accesskey="h">最近読んだスレ</a><br>
+    　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" accesskey="f">お気にスレ</a><br>
     　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}">書込履歴</a> (<a href="./read_res_hist.php" target="read">ログ</a>)<br>
 EOP;
 }
@@ -234,7 +234,7 @@ echo '</body></html>';
  *
  * @return  void
  */
-function initMenuNewSp($spmode_in)
+function _initMenuNewSp($spmode_in)
 {
     global $shinchaku_num, $matome_i, $host, $bbs, $spmode, $STYLE, $class_newres_num, $_conf;
     
@@ -255,7 +255,7 @@ function initMenuNewSp($spmode_in)
  *
  * @return  void
  */
-function printHeaderJs()
+function _printHeaderJs()
 {
     global $STYLE;
     
@@ -300,6 +300,18 @@ function printHeaderJs()
     {
         return window.confirm('「' + itaj + '」をお気に板から外しますか？');
     }
+    
+    
+    // @see  showhide.js
+    // あらかじめ隠しておくのはJavaScript有効時のみ
+    if (document.getElementById) {
+    	document.writeln('<style type="text/css" media="all">');
+    	document.writeln('<!--');
+    	document.writeln('.itas_hide{ display:none; }');
+    	document.writeln('-->');
+    	document.writeln('</style>');
+    }
+
     // -->
     </script>\n
 EOSCRIPT;

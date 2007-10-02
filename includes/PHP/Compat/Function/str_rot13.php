@@ -16,7 +16,7 @@
 // |          Aidan Lister <aidan@php.net>                                |
 // +----------------------------------------------------------------------+
 //
-// $Id: str_rot13.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: str_rot13.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 /**
@@ -27,7 +27,7 @@
  * @link        http://php.net/function.str_rot13
  * @author      Alan Morey <alan@caint.com>
  * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.1 $
+ * @version     $Revision: 1.2 $
  * @since       PHP 4.0.0
  */
 if (!function_exists('str_rot13')) {

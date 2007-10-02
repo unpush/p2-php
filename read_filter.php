@@ -26,7 +26,7 @@ $GLOBALS['popup_filter'] = 1;
 
 
 // 対象レスの対象フィールドから、検索ワードを取得する
-$_GET['word'] = getReadFilterWord($host, $bbs, $key, $resnum, $field);
+$_GET['word'] = _getReadFilterWord($host, $bbs, $key, $resnum, $field);
 
 // read.phpに処理を渡す
 include $_conf['read_php'];
@@ -41,7 +41,7 @@ include $_conf['read_php'];
  *
  * @return  string  検索ワード
  */
-function getReadFilterWord($host, $bbs, $key, $resnum, $field)
+function _getReadFilterWord($host, $bbs, $key, $resnum, $field)
 {
     $word = null;
     

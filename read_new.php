@@ -8,7 +8,7 @@ require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/threadlist.class.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
-require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once P2_LIB_DIR . '/NgAbornCtl.php';
 require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
@@ -132,7 +132,8 @@ echo <<<EOHEADER
     <script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
     <script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
     <script type="text/javascript" src="js/delelog.js?v=20061206"></script>
-
+    <script type="text/javascript" src="js/showhide.js"></script>
+    
     <script type="text/javascript" src="./js/yui-ext/yui.js"></script>
     <script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
     <link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css" />
@@ -247,7 +248,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         // subject.txt が未DLなら落としてデータを配列に格納
         if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
 
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
@@ -408,8 +409,7 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
         // $aThread->datToHtml(); // dat を html に変換表示
-        require_once P2_LIB_DIR . '/showthread.class.php';
-        require_once P2_LIB_DIR . '/showthreadpc.class.php';
+        require_once P2_LIB_DIR . '/ShowThreadPc.php';
         $aShowThread =& new ShowThreadPc($aThread);
 
         $res1 = $aShowThread->quoteOne();
@@ -455,7 +455,7 @@ EOP;
     $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $favdo_q    = '&amp;setfav='.$favdo;
     $itaj_hs    = htmlspecialchars($aThread->itaj, ENT_QUOTES);
-    $similar_q  = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);
+    $similar_q  = '&amp;detect_hint=' . rawurlencode('◎◇') . '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);
     
     $toolbar_right_ht = <<<EOTOOLBAR
             <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hs}</a>
@@ -529,7 +529,7 @@ $_newthre_num++;
 
 if (!$aThreadList->num) {
     $GLOBALS['matome_naipo'] = TRUE;
-    echo "新着レスはないぽ（´・ω・｀）";
+    echo "新着レスはないぽ（´・ω・）";
     echo "<hr>";
 }
 

@@ -192,7 +192,7 @@ class BrdMenu
             }
             return false;
         }
-        if (FileCtl::filePutRename($p2brdfile, $cont) === false) {
+        if (false === FileCtl::filePutRename($p2brdfile, $cont)) {
             die("p2 error: {$p2brdfile} ‚ðXV‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½");
             return false;
         }
@@ -255,3 +255,14 @@ class BrdMenuIta
         $this->itaj_ht = htmlspecialchars($this->itaj, ENT_QUOTES);
     }
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

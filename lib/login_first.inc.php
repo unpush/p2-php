@@ -102,16 +102,11 @@ function printLoginFirst(&$_login)
     // }}}
     
     // ログインフォームからの指定
-    if (!empty($GLOBALS['brazil'])) {
-        $add_mail = '.,@-';
-    } else {
-        $add_mail = '';
-    }
 
     $form_login_id_hs = '';
-    if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_login->user_u)) {
+    if ($_login->validLoginId($_login->user_u)) {
         $form_login_id_hs = hs($_login->user_u);
-    } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $post['form_login_id'])) {
+    } elseif ($_login->validLoginId($post['form_login_id'])) {
         $form_login_id_hs = hs($post['form_login_id']);
     }
     
@@ -211,6 +206,8 @@ EOP;
             $msg_ht .= '<p class="infomsg">';
             if (!$post['form_login_id']) {
                 $msg_ht .= "p2 error: 「{$p_str['user']}」が入力されていません。" . "<br>";
+            } elseif (!$_login->validLoginId($post['form_login_id'])) {
+                $msg_ht .= "p2 error: 「{$p_str['user']}」文字列が不正です。" . "<br>";
             }
             if (!$post['form_login_pass']) {
                 $msg_ht .= "p2 error: 「{$p_str['password']}」が入力されていません。";

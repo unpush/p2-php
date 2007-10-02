@@ -15,7 +15,7 @@
 // | Authors: Aidan Lister <aidan@php.net>                                |
 // +----------------------------------------------------------------------+
 //
-// $Id: php_strip_whitespace.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: php_strip_whitespace.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 /**
@@ -25,7 +25,7 @@
  * @package     PHP_Compat
  * @link        http://php.net/function.php_strip_whitespace
  * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.1 $
+ * @version     $Revision: 1.2 $
  * @since       PHP 5
  * @require     PHP 4.0.0 (user_error) + Tokenizer extension
  */

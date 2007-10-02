@@ -62,10 +62,10 @@ $_conf['dlSubjectTotalLimitTime'] = 15; // (15) subject.txt‚Ìƒ_ƒEƒ“ƒ[ƒh‚É”ï‚â‚
 $_conf['updatan_haahaa'] = 1;       // (1) p2‚ÌÅVƒo[ƒWƒ‡ƒ“‚ğ©“®ƒ`ƒFƒbƒN(‚·‚é:1, ‚µ‚È‚¢:0)
 
 $_conf['display_threads_num'] = 150; // (150) ƒXƒŒƒbƒhƒTƒuƒWƒFƒNƒgˆê——‚ÌƒfƒtƒHƒ‹ƒg•\¦” (100, 150, 200, 250, 300, 400, 500, "all")
-$_conf['rec_res_log_secu_num'] = 1000; // (1000) ’Ê•ñ—p‚É‹L˜^‚·‚é‘‚«‚İƒƒO‚Ì”iÅ‘å‹L˜^ƒŒƒX”B0‚È‚ç‹L˜^‚µ‚È‚¢j
+$_conf['rec_res_log_secu_num'] = 0; // (0) ŠÇ——p‚É‹L˜^‚·‚é‘‚«‚İƒƒO‚Ì”iÅ‘å‹L˜^ƒŒƒX”B0‚È‚ç‹L˜^‚µ‚È‚¢j
 //$_conf['posted_rec_num'] = 1000;    // (1000) ‘‚«‚ñ‚¾ƒŒƒX‚ÌÅ‘å‹L˜^” // ‚±‚Ìİ’è‚ÍŒ»İ‚Í‹@”\‚µ‚Ä‚¢‚È‚¢
 $_conf['menu_dl_interval'] = 1;     // (1) ”Â menu ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (hour)
-$_conf['sb_dl_interval'] = 300;     // (300) subject.txt ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b)
+$_conf['sb_dl_interval'] = 180;     // (180) subject.txt ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b)
 
 // $_conf['dat_dl_interval'] = 20;  // (20) dat ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b) // ‚±‚Ìİ’è‚ÍŒ»İ‚Í‹@”\‚µ‚Ä‚¢‚È‚¢
 $_conf['p2status_dl_interval'] = 360; // (360) p2statusiƒAƒbƒvƒf[ƒgƒ`ƒFƒbƒNj‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•ª)

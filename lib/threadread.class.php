@@ -290,6 +290,44 @@ class ThreadRead extends Thread
                 
             } else {
                 fclose($fp);
+                
+                // 2007/06/11 302の時に、UAをMonazillaにしないでDATアクセスを試みると203が帰ってきて、
+                // body中に'過去ログ ★'とあれば、●落ち中とみなすことにする。
+                // 仕様の確証が取れていないので、このような判断でよいのかはっきりしない。
+                // 203 Non-Authoritative Information
+                // 過去ログ ★
+                /*
+名無し募集中。。。<><>2007/06/10(日) 13:29:51.68 0<> http://mlb.yahoo.co.jp/headlines/?a=2279 <br> くわわ＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞井川 <>★くわわメジャー昇格おめ 売上議論14001★
+1001, 131428 (総レス数, サイズ)<><>1181480550000000 (最終更新)<><div style="color:navy;font-size:smaller;">|<br />| 中略<br />|</div><>
+１００１<><>Over 1000 Thread<> このスレッドは１０００を超えました。 <br> もう書けないので、新しいスレッドを立ててくださいです。。。  <>
+過去ログ ★<><>[過去ログ]<><div style="color:red;text-align:center;">■ このスレッドは過去ログ倉庫に格納されています</div><hr /><br />IE等普通のブラウザで見る場合 http://tubo.80.kg/tubo_and_maru.html<br />専用のブラウザで見る場合 http://www.monazilla.org/<br /><br />２ちゃんねる Viewer を使うと、すぐに読めます。 http://2ch.tora3.net/<br /><div style="color:navy;">この Viewer(通称●) の売上で、２ちゃんねるは設備を増強しています。<br />●が売れたら、新しいサーバを投入できるという事です。</div><br />よくわからない場合はソフトウェア板へGo http://pc11.2ch.net/software/<br /><br />モリタポ ( http://find.2ch.net/faq/faq2.php#c1 ) を持っていれば、50モリタポで表示できます。<br />　　　　こちらから → http://find.2ch.net/index.php?STR=dat:http://ex23.2ch.net/test/read.cgi/morningcoffee/1181449791/<br /><br /><hr /><>
+                */
+                $params = array();
+                $params['timeout'] = $_conf['fsockopen_time_limit'];
+                if ($_conf['proxy_use']) {
+                    $params['proxy_host'] = $_conf['proxy_host'];
+                    $params['proxy_port'] = $_conf['proxy_port'];
+                }
+                $req = &new HTTP_Request($url, $params);
+                $req->setMethod('GET');
+                $err = $req->sendRequest(true);
+                
+                if (PEAR::isError($err)) {
+                    //var_dump('error');
+                    
+                } else {
+                    // レスポンスコードを検証
+                    if ('203' == $req->getResponseCode()) {
+                        $body2 = $req->getResponseBody();
+                        $reason = null;
+                        if (preg_match('/過去ログ ★/', $body2)) {
+                            $reason = 'datochi';
+                        }
+                        $this->downloadDat2chNotFound($reason);
+                        return false;
+                    }
+                }
+                
                 $this->downloadDat2chNotFound();
                 return false;
             }
@@ -348,7 +386,7 @@ class ThreadRead extends Thread
 
         $rsc = $zero_read ? LOCK_EX : FILE_APPEND | LOCK_EX;
         
-        if (file_put_contents($this->keydat, $body, $rsc) === false) {
+        if (false === file_put_contents($this->keydat, $body, $rsc)) {
             trigger_error("file_put_contents(" . $this->keydat . ")", E_USER_WARNING);
             die('Error: cannot write file. downloadDat2ch()');
             return false;
@@ -391,13 +429,14 @@ class ThreadRead extends Thread
      * 2ch DATをダウンロードできなかったときに呼び出される
      *
      * @access  private
+     * @param   string|null  $reason
      * @return  void
      */
-    function downloadDat2chNotFound()
+    function downloadDat2chNotFound($reason = null)
     {
         // 2ch, bbspink ならread.cgiで確認
         if (P2Util::isHost2chs($this->host)) {
-            $this->getdat_error_msg_ht .= $this->get2chDatError();
+            $this->getdat_error_msg_ht .= $this->get2chDatError($reason);
         }
         $this->diedat = true;
     }
@@ -657,7 +696,7 @@ class ThreadRead extends Thread
     
         $method = "GET";
         if (!$httpua) {
-            $httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
+            $httpua = "Monazilla/1.00 (" . $_conf['p2name'] . "/" .$_conf['p2version'] . ")";
         }
         
         $purl = parse_url($url);
@@ -685,9 +724,9 @@ class ThreadRead extends Thread
             $send_port = 80;
         }
     
-        $request = $method." ".$send_path." HTTP/1.0\r\n";
-        $request .= "Host: ".$purl['host']."\r\n";
-        $request .= "User-Agent: ".$httpua."\r\n";
+        $request = $method . " " . $send_path ." HTTP/1.0\r\n";
+        $request .= "Host: " . $purl['host'] . "\r\n";
+        $request .= "User-Agent: " . $httpua . "\r\n";
         $request .= "Connection: Close\r\n";
         //$request .= "Accept-Encoding: gzip\r\n";
         /*
@@ -812,7 +851,7 @@ class ThreadRead extends Thread
 
         if (!$done_gunzip) {
             FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
-            if (file_put_contents($this->keydat, $body, LOCK_EX) === false) {
+            if (false === file_put_contents($this->keydat, $body, LOCK_EX)) {
                 die("Error: cannot write file. downloadDat2chKako()");
                 return false;
             }
@@ -837,7 +876,8 @@ class ThreadRead extends Thread
             return $this->downloadDat2chKako($uri, ".dat");
         }
         if ($_GET['kakolog']) {
-            $kakolog_ht = "<p><a href=\"{$_GET['kakolog']}.html\"{$_conf['bbs_win_target_at']}>{$_GET['kakolog']}.html</a></p>";
+            $kakolog_hs = hs($_GET['kakolog']);
+            $kakolog_ht = "<p><a href=\"{$kakolog_hs}.html\"{$_conf['bbs_win_target_at']}>{$kakolog_hs}.html</a></p>";
         }
         $this->getdat_error_msg_ht = "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みに失敗しました。</p>";
         $this->getdat_error_msg_ht .= $kakolog_ht;
@@ -848,9 +888,10 @@ class ThreadRead extends Thread
      * 2chのdatを取得できなかった原因を返す
      *
      * @access  private
+     * @param   string|null  $reason
      * @return  string  エラーメッセージ（原因がわからない場合は空で返す）
      */
-    function get2chDatError()
+    function get2chDatError($reason = null)
     {
         global $_conf;
         
@@ -865,25 +906,31 @@ class ThreadRead extends Thread
         // {{{ read.cgi からHTMLを取得
         
         $read_response_html = "";
-        require_once P2_LIB_DIR . '/wap.class.php';
-        $wap_ua =& new WapUserAgent;
-        $wap_ua->setAgent($_conf['p2name'] . "/" . $_conf['p2version']); // ここは、"Monazilla/" をつけるとNG
-        $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req =& new WapRequest;
-        $wap_req->setUrl($read_url);
-        if ($_conf['proxy_use']) {
-            $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
-        }
-        $wap_res = $wap_ua->request($wap_req);
         
-        if (!$wap_res or !$wap_res->is_success()) {
-            $url_t = P2Util::throughIme($wap_req->url);
-            P2Util::pushInfoHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>"
-                                . "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>");
-        } else {
-            $read_response_html = $wap_res->content;
+        if (!$reason) {
+            require_once P2_LIB_DIR . '/wap.class.php';
+            $wap_ua =& new WapUserAgent;
+            $wap_ua->setAgent($_conf['p2name'] . "/" . $_conf['p2version']); // ここは、"Monazilla/" をつけるとNG
+            $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
+            $wap_req =& new WapRequest;
+            $wap_req->setUrl($read_url);
+            if ($_conf['proxy_use']) {
+                $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
+            }
+            $wap_res = $wap_ua->request($wap_req);
+        
+            if (!$wap_res or !$wap_res->is_success()) {
+                $url_t = P2Util::throughIme($wap_req->url);
+                P2Util::pushInfoHtml(
+                    "<div>Error: {$wap_res->code} {$wap_res->message}<br>"
+                  . "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a>
+                    に接続できませんでした。</div>"
+                );
+            } else {
+                $read_response_html = $wap_res->content;
+            }
+            unset($wap_ua, $wap_req, $wap_res);
         }
-        unset($wap_ua, $wap_req, $wap_res);
         
         // }}}
         // {{{ 取得したHTML（$read_response_html）を解析して、原因を見つける
@@ -905,7 +952,7 @@ class ThreadRead extends Thread
         //
         // <title>がこのスレッドは過去ログ倉庫に
         //
-        if (preg_match($kakosoko_match, $read_response_html, $matches)) {
+        if ($reason == 'datochi' or preg_match($kakosoko_match, $read_response_html, $matches)) {
             $dat_response_status = "このスレッドは過去ログ倉庫に格納されています。";
             $marutori_ht = '';
             //if (file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])) {
@@ -936,7 +983,8 @@ class ThreadRead extends Thread
                 if (!empty($_GET['kakolog'])) {
                     $dat_response_status = "そんな板orスレッドないです。";
                     $kako_html_url = urldecode($_GET['kakolog']).".html";
-                    $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
+                    $kakolog_hs = hs($_GET['kakolog']);
+                    $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$kakolog_hs}&amp;kakoget=1";
                     $dat_response_msg = "<p>2ch info - そんな板orスレッドないです。</p>";
                     $dat_response_msg .= "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a> [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
                 } else {                
@@ -949,7 +997,8 @@ class ThreadRead extends Thread
         } elseif (!empty($_GET['kakolog'])) {
             $dat_response_status = "";
             $kako_html_url = urldecode($_GET['kakolog']) . ".html";
-            $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$_GET['kakolog']}&amp;kakoget=1";
+            $kakolog_hs = hs($_GET['kakolog']);
+            $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$kakolog_hs}&amp;kakoget=1";
             $dat_response_msg = "<p><a href=\"{$kako_html_url}\"{$_conf['bbs_win_target_at']}>{$kako_html_url}</a>
                  [<a href=\"{$read_kako_url}\">p2にログを取り込んで読む</a>]</p>";
         
@@ -1132,15 +1181,13 @@ class ThreadRead extends Thread
         
         empty($GLOBALS['_conf']['ktai']) and $body .= "<dl>";
         
-        require_once P2_LIB_DIR . '/showthread.class.php';
-        
         // PC
         if (empty($GLOBALS['_conf']['ktai'])) {
-            require_once P2_LIB_DIR . '/showthreadpc.class.php';
+            require_once P2_LIB_DIR . '/ShowThreadPc.php';
             $aShowThread =& new ShowThreadPc($this);
         // 携帯
         } else {
-            require_once P2_LIB_DIR . '/showthreadk.class.php';
+            require_once P2_LIB_DIR . '/ShowThreadK.php';
             $aShowThread =& new ShowThreadK($this);
         }
         

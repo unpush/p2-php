@@ -15,7 +15,7 @@
  * @author     Tomas V.V.Cox <cox@idecnet.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: System.php,v 1.1 2007/01/30 06:09:58 akid Exp $
+ * @version    CVS: $Id: System.php,v 1.2 2007/10/02 11:30:08 akid Exp $
  * @link       http://pear.php.net/package/PEAR
  * @since      File available since Release 0.1
  */
@@ -57,7 +57,7 @@ $GLOBALS['_System_temp_files'] = array();
 * @author     Tomas V.V. Cox <cox@idecnet.com>
 * @copyright  1997-2006 The PHP Group
 * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
-* @version    Release: 1.5.0RC3
+* @version    Release: 1.6.1
 * @link       http://pear.php.net/package/PEAR
 * @since      Class available since Release 0.1
 */
@@ -418,15 +418,18 @@ class System
     * Note: php.ini-recommended removes the "E" from the variables_order setting,
     * making unavaible the $_ENV array, that s why we do tests with _ENV
     *
-    * @return string The temporal directory on the system
+    * @return string The temporary directory on the system
     */
     function tmpdir()
     {
         if (OS_WINDOWS) {
+            if ($var = isset($_ENV['TMP']) ? $_ENV['TMP'] : getenv('TMP')) {
+                return $var;
+            }
             if ($var = isset($_ENV['TEMP']) ? $_ENV['TEMP'] : getenv('TEMP')) {
                 return $var;
             }
-            if ($var = isset($_ENV['TMP']) ? $_ENV['TMP'] : getenv('TMP')) {
+            if ($var = isset($_ENV['USERPROFILE']) ? $_ENV['USERPROFILE'] : getenv('USERPROFILE')) {
                 return $var;
             }
             if ($var = isset($_ENV['windir']) ? $_ENV['windir'] : getenv('windir')) {

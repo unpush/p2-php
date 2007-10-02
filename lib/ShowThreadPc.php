@@ -1,4 +1,6 @@
 <?php
+require_once P2_LIB_DIR . '/ShowThread.php';
+
 /**
  * p2 - スレッドを表示する クラス PC用
  */
@@ -186,47 +188,48 @@ class ShowThreadPc extends ShowThread
         if ($_conf['iframe_popup']) {
             $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
         }
-
+        
+        $atTitle = ' title="クリックで表示/非表示"';
 
         $a_ng_msg_hs = htmlspecialchars($a_ng_msg, ENT_QUOTES);
         
         // NGメッセージ変換
         if ($isNgMsg) {
             $msg = <<<EOMSG
-<s class="ngword" onMouseover="document.getElementById('ngm{$ngaborns_body_hits}').style.display = 'block';">NG：{$a_ng_msg_hs}</s>
-<div id="ngm{$ngaborns_body_hits}" style="display:none;">$msg</div>
+<s class="ngword" onClick="showHide('ngm{$ngaborns_body_hits}', 'ngword_cont');"{$atTitle}>NG：{$a_ng_msg_hs}</s>
+<div id="ngm{$ngaborns_body_hits}" class="ngword_cont">$msg</div>
 EOMSG;
         }
 
         // NGネーム変換
         if ($isNgName) {
             $name = <<<EONAME
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$name</s>
+<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$name</s>
 EONAME;
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
 
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
+<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$mail</s>
 EOMAIL;
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
 
         // NGID変換
         } elseif ($isNgId) {
-            $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onMouseover=\"document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';\">\\0</s>", $date_id);
+            $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onClick=\"showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');\"{$atTitle}>NG：\\0</s>", $date_id);
             
             /*
             $date_id = <<<EOID
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$date_id</s>
+<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');">$date_id</s>
 EOID;
             */
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
         }
 
@@ -399,47 +402,48 @@ EOP;
                 $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
             }
 
-
+            $atTitle = ' title="クリックで表示/非表示"';
+            
             $a_ng_msg_hs = htmlspecialchars($a_ng_msg, ENT_QUOTES);
             
             // NGメッセージ変換
             if ($isNgMsg) {
                 $msg = <<<EOMSG
-<s class="ngword" onMouseover="document.getElementById('ngm{$ngaborns_body_hits}').style.display = 'block';">NG：{$a_ng_msg_hs}</s>
-<div id="ngm{$ngaborns_body_hits}" style="display:none;">$msg</div>
+<s class="ngword" onClick="showHide('ngm{$ngaborns_body_hits}', 'ngword_cont');"{$atTitle}>NG：{$a_ng_msg_hs}</s>
+<div id="ngm{$ngaborns_body_hits}" class="ngword_cont">$msg</div>
 EOMSG;
             }
 
             // NGネーム変換
             if ($isNgName) {
                 $name = <<<EONAME
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$name</s>
+<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$name</s>
 EONAME;
                 $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
 
             // NGメール変換
             } elseif ($isNgMail) {
                 $mail = <<<EOMAIL
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
+<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$mail</s>
 EOMAIL;
                 $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
 
             // NGID変換
             } elseif ($isNgId) {
-                $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onMouseover=\"document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';\">\\0</s>", $date_id);
+                $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onClick=\"showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');\"{$atTitle}>NG：\\0</s>", $date_id);
             
                 /*
                 $date_id = <<<EOID
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$date_id</s>
+<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');">$date_id</s>
 EOID;
                 */
             
                 $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
             }
             
@@ -1094,11 +1098,13 @@ EOMSG;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://www\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
             $url = P2Util::throughIme($url);
+            $subd = $m[1];
+            $id = $m[2];
             return <<<EOP
 <a href="$url"{$_conf['ext_win_target_at']}>$str</a><br>
-<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{$m[1]}"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{$m[1]}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>\n
+<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{$id}"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{$id}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>\n
 EOP;
         }
         return FALSE;

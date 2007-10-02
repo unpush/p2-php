@@ -15,7 +15,7 @@
 // | Authors: Arpad Ray <arpad@php.net>                                   |
 // +----------------------------------------------------------------------+
 //
-// $Id: inet_pton.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: inet_pton.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 /**
@@ -25,7 +25,7 @@
  * @package     PHP_Compat
  * @link        http://php.net/inet_pton
  * @author      Arpad Ray <arpad@php.net>
- * @version     $Revision: 1.1 $
+ * @version     $Revision: 1.2 $
  * @since       PHP 5.1.0
  * @require     PHP 4.2.0 (array_fill)
  */

@@ -16,7 +16,7 @@
  * @author     Greg Beaver <cellog@php.net>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: Builder.php,v 1.1 2007/01/30 06:10:01 akid Exp $
+ * @version    CVS: $Id: Builder.php,v 1.2 2007/10/02 11:30:10 akid Exp $
  * @link       http://pear.php.net/package/PEAR
  * @since      File available since Release 0.1
  * 
@@ -38,7 +38,7 @@ require_once 'PEAR/PackageFile.php';
  * @author     Greg Beaver <cellog@php.net>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.5.0RC3
+ * @version    Release: 1.6.1
  * @link       http://pear.php.net/package/PEAR
  * @since      Class available since PHP 4.0.2
  * @see        http://pear.php.net/manual/en/core.ppm.pear-builder.php
@@ -302,7 +302,7 @@ class PEAR_Builder extends PEAR_Common
         $configure_options = $pkg->getConfigureOptions();
         if ($configure_options) {
             foreach ($configure_options as $o) {
-                $default = array_key_exists($o['default']) ? $o['default'] : null;
+                $default = array_key_exists('default', $o) ? $o['default'] : null;
                 list($r) = $this->ui->userDialog('build',
                                                  array($o['prompt']),
                                                  array('text'),
@@ -351,7 +351,7 @@ class PEAR_Builder extends PEAR_Common
         if (!file_exists($build_dir) || !is_dir($build_dir) || !chdir($build_dir)) {
             return $this->raiseError("could not chdir to $build_dir");
         }
-        putenv('PHP_PEAR_VERSION=1.5.0RC3');
+        putenv('PHP_PEAR_VERSION=1.6.1');
         foreach ($to_run as $cmd) {
             $err = $this->_runCommand($cmd, $callback);
             if (PEAR::isError($err)) {

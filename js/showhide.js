@@ -1,22 +1,9 @@
-/* p2 - メニューカテゴリの開閉のためのJavaScript */
 
-var gHideClassName = 'itas_hide'; // 最初から隠しておく時のクラス名
-
-if (document.getElementById) {
-	document.writeln('<style type="text/css" media="all">');
-	document.writeln('<!--');
-	document.writeln('.' + gHideClassName + '{ display:none; }');
-	document.writeln('-->');
-	document.writeln('</style>');
-}
-
-////
-// showHide
-//
-function showHide(id) {
-	
+// 対象idのHTML要素を表示or非表示する
+// @param  string  hiddenClassName  元々隠されている場合の対象クラス名
+function showHide(id, hiddenClassName)
+{
 	var obj = document.getElementById(id);
-		
 	if (!obj) {
 		return false;
 	}
@@ -26,7 +13,7 @@ function showHide(id) {
 	} else if(obj.style.display == 'none') {
 		obj.style.display = "block";
 	} else {
-		if (obj.className != gHideClassName) {
+		if (hiddenClassName && obj.className != hiddenClassName) {
 			obj.style.display = "none";
 		} else {
 			obj.style.display = "block";

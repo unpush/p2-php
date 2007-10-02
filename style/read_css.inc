@@ -107,7 +107,8 @@ a.resnum:link, a.resnum:visited, a.resnum:hover, a.resnum:active{
 	color:#0a0;
 }
 
-.ngword{color:{$STYLE['read_ngword']};}
+.ngword{ color:{$STYLE['read_ngword']}; cursor: hand; }
+.ngword_cont{ display:none; }
 
 .aborned{ font-size:1px; }
 .aborned span{ display:none; }

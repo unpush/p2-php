@@ -15,7 +15,7 @@
 // | Authors: Aidan Lister <aidan@php.net>                                |
 // +----------------------------------------------------------------------+
 //
-// $Id: mhash.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: mhash.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 if (!defined('MHASH_CRC32')) {
@@ -90,7 +90,7 @@ if (!defined('MHASH_ADLER32')) {
  * @package     PHP_Compat
  * @link        http://php.net/function.mhash
  * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.1 $
+ * @version     $Revision: 1.2 $
  * @since       PHP 4.1.0
  * @require     PHP 4.0.0 (user_error)
  */

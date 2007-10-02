@@ -18,7 +18,7 @@
 // +----------------------------------------------------------------------+
 //
 // THIS FILE IS DEPRECATED IN FAVOR OF DEPENDENCY2.PHP, AND IS NOT USED IN THE INSTALLER
-// $Id: Dependency.php,v 1.1 2007/01/30 06:10:01 akid Exp $
+// $Id: Dependency.php,v 1.2 2007/10/02 11:30:10 akid Exp $
 
 require_once "PEAR.php";
 require_once "OS/Guess.php";

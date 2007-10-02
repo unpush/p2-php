@@ -5,8 +5,8 @@
  *
  * @created  2006/02/27
  */
-class SettingTxt{
-    
+class SettingTxt
+{
     var $host;
     var $bbs;
     var $url;           // SETTING.TXT ‚ÌURL
@@ -137,7 +137,7 @@ class SettingTxt{
                 $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
             }
             
-            if (FileCtl::filePutRename($this->setting_txt, $body) === false) {
+            if (false === FileCtl::filePutRename($this->setting_txt, $body)) {
                 die("Error: cannot write file");
             }
             chmod($this->setting_txt, $perm);

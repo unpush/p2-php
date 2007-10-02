@@ -37,6 +37,8 @@ $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=k';
 
 $p_htm['ktai_url'] = 'ågë—' . $p_str['login'] . 'ópURL <a href="' . $url . '" target="_blank">' . $url . '</a><br>';
 
+$hr = P2Util::getHrHtmlK();
+
 //====================================================
 // ÉÜÅ[ÉUìoò^èàóù
 //====================================================
@@ -165,7 +167,7 @@ $login_form_ht = <<<EOP
 EOP;
 
 if ($_conf['ktai']) {
-    $login_form_ht = '<hr>'.$login_form_ht;
+    $login_form_ht = $hr . $login_form_ht;
 }
 
 //=========================================================
@@ -175,6 +177,9 @@ $p_htm['body_onload'] = '';
 if (!$_conf['ktai']) {
     $p_htm['body_onload'] = ' onLoad="setWinTitle();"';
 }
+
+$body_at = P2Util::getBodyAttrK();
+
 
 P2Util::header_nocache();
 echo $_conf['doctype'];
@@ -196,7 +201,7 @@ EOP;
 }
 echo <<<EOP
 </head>
-<body{$p_htm['body_onload']}>
+<body{$p_htm['body_onload']}{$body_at}>
 EOP;
 
 if (!$_conf['ktai']) {
@@ -213,14 +218,14 @@ echo <<<EOP
 {$p_htm['auth_ctl']}
 {$p_htm['auth_cookie']}
 <br>
-[<a href="./index.php?logout=1" target="_parent">{$p_str['logout']}Ç∑ÇÈ</a>]
+[<a href="./index.php?logout=1" target="_parent">rep2Ç©ÇÁ{$p_str['logout']}Ç∑ÇÈ</a>]
 EOP;
 echo '</p>';
 
 echo $login_form_ht;
 
 if ($_conf['ktai']) {
-    echo "<hr>\n";
+    echo "$hr\n";
     echo $_conf['k_to_index_ht'];
 }
 

@@ -10,6 +10,8 @@ require_once P2_LIB_DIR . '/threadread.class.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
+$hr = P2Util::getHrHtmlK();
+
 $name_txt   = '';
 $mail_txt   = '';
 $date_txt   = '';
@@ -79,6 +81,9 @@ if (file_exists($aThread->keydat)) {
         } else {
             $date_txt = $resar[2];
         }
+        // ‚±‚±‚Å $date_txt ‚É <a href="http://2ch.se/">ŠÒ</a> ‚ª“ü‚Á‚Ä‚¢‚é‚±‚Æ‚ª‚ ‚Á‚½‚Ì‚ÅŽæ‚èœ‚­
+        $date_txt = strip_tags($date_txt);
+        
         $be_txt = '';
         if (preg_match('|BE: ?(\d+)-(#*.+)|i', $resar[2], $m)) {
             $be_txt = "?{$m[2]}";
@@ -134,6 +139,9 @@ if ($mobile->isAirHPhone()) {
     $kyopon_size = ' rows="10" cols="34"';
 }
 
+$body_at = P2Util::getBodyAttrK();
+
+
 P2Util::header_nocache();
 echo $_conf['doctype'];
 ?>
@@ -141,7 +149,7 @@ echo $_conf['doctype'];
 <head>
 <title><?php echo $ttitle_ht . '/' . $resid; ?></title>
 </head>
-<body<?php echo $k_color_settings; ?>>
+<body<?php echo $body_at; ?>>
 <?php P2Util::printInfoHtml(); ?>
 <form id="<?php echo $form_id; ?>" action="<?php echo $action_ht; ?>" method="post">
 ½Ú:<br>
@@ -165,6 +173,6 @@ echo $_conf['doctype'];
 </form>
 <?php echo $back_link; ?> <?php echo $post_link; ?> <?php echo $moto_link; ?>
 
-<hr><?php echo $_conf['k_to_index_ht']; ?>
+<?php echo $hr . $_conf['k_to_index_ht']; ?>
 </body>
 </html>

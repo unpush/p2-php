@@ -9,8 +9,8 @@ require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/ngabornctl.class.php';
-require_once P2_LIB_DIR . '/showthread.class.php';
+require_once P2_LIB_DIR . '/NgAbornCtl.php';
+require_once P2_LIB_DIR . '/ShowThread.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -52,7 +52,7 @@ if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value']))
 // }}}
 
 // スレの指定
-list($host, $bbs, $key, $ls) = detectThread();
+list($host, $bbs, $key, $ls) = _detectThread();
 
 // {{{ レスフィルタ
 
@@ -124,7 +124,7 @@ if (!isset($GLOBALS['word'])) {
             $res_filter_cont = serialize($res_filter);
         }
         if ($res_filter_cont && empty($GLOBALS['popup_filter'])) {
-            if (FileCtl::file_write_contents($cachefile, $res_filter_cont) === false) {
+            if (false === file_put_contents($cachefile, $res_filter_cont, LOCK_EX)) {
                 die("Error: cannot write file.");
             }
         }
@@ -289,7 +289,7 @@ if ($_conf['ktai']) {
     require_once P2_LIB_DIR . '/read_header_k.inc.php';
     
     if ($aThread->rescount) {
-        require_once P2_LIB_DIR . '/showthreadk.class.php';
+        require_once P2_LIB_DIR . '/ShowThreadK.php';
         $aShowThread =& new ShowThreadK($aThread);
         $aShowThread->datToHtml();
     }
@@ -337,7 +337,7 @@ EOP;
     
     if ($aThread->rescount) {
 
-        require_once P2_LIB_DIR . '/showthreadpc.class.php';
+        require_once P2_LIB_DIR . '/ShowThreadPc.php';
         $aShowThread =& new ShowThreadPc($aThread);
         
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
@@ -395,7 +395,7 @@ if ($aThread->rescount) {
 // 履歴を記録
 if ($aThread->rescount) {
     $newdata = "{$aThread->ttitle}<>{$aThread->key}<>$idx_data[2]<><><>{$aThread->readnum}<>$idx_data[6]<>$idx_data[7]<>$idx_data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
-    recRecent($newdata);
+    _recRecent($newdata);
 }
 
 // NGあぼーんを記録
@@ -414,7 +414,7 @@ exit;
  *
  * @return  array|false
  */
-function detectThread()
+function _detectThread()
 {
     global $_conf;
     
@@ -494,13 +494,20 @@ function detectThread()
 }
 
 /**
- * 履歴を記録する
+ * 最近読んだスレに記録する
  *
  * @return  boolean
  */
-function recRecent($data)
+function _recRecent($data_line)
 {
     global $_conf;
+    
+    $data_ar = explode('<>', $data_line);
+    
+    // 速報headlineは最近読んだスレに記録しない
+    if ($data_ar[10] == 'headline.2ch.net') {
+        return true;
+    }
     
     if (false === FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm'])) {
         return false;
@@ -514,7 +521,6 @@ function recRecent($data)
         foreach ($lines as $line) {
             $line = rtrim($line);
             $lar = explode('<>', $line);
-            $data_ar = explode('<>', $data);
             if ($lar[1] == $data_ar[1]) { continue; } // keyで重複回避
             if (!$lar[1]) { continue; } // keyのないものは不正データ
             $neolines[] = $line;
@@ -522,7 +528,7 @@ function recRecent($data)
     }
     
     // 新規データ追加
-    array_unshift($neolines, $data);
+    array_unshift($neolines, $data_line);
 
     while (sizeof($neolines) > $_conf['rct_rec_num']) {
         array_pop($neolines);

@@ -19,7 +19,7 @@
  * @author     Greg Beaver <cellog@php.net>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: Exception.php,v 1.1 2007/01/30 06:10:01 akid Exp $
+ * @version    CVS: $Id: Exception.php,v 1.2 2007/10/02 11:30:10 akid Exp $
  * @link       http://pear.php.net/package/PEAR
  * @since      File available since Release 1.3.3
  */
@@ -95,7 +95,7 @@
  * @author     Greg Beaver <cellog@php.net>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.5.0RC3
+ * @version    Release: 1.6.1
  * @link       http://pear.php.net/package/PEAR
  * @since      Class available since Release 1.3.3
  *
@@ -260,7 +260,9 @@ class PEAR_Exception extends Exception
                               'line' => $this->cause->getLine());
         } elseif (class_exists('PEAR_Error') && $this->cause instanceof PEAR_Error) {
             $causes[] = array('class' => get_class($this->cause),
-                              'message' => $this->cause->getMessage());
+                              'message' => $this->cause->getMessage(),
+                              'file' => 'unknown',
+                              'line' => 'unknown');
         } elseif (is_array($this->cause)) {
             foreach ($this->cause as $cause) {
                 if ($cause instanceof PEAR_Exception) {
@@ -272,7 +274,9 @@ class PEAR_Exception extends Exception
                                    'line' => $cause->getLine());
                 } elseif (class_exists('PEAR_Error') && $cause instanceof PEAR_Error) {
                     $causes[] = array('class' => get_class($cause),
-                                      'message' => $cause->getMessage());
+                                      'message' => $cause->getMessage(),
+                                      'file' => 'unknown',
+                                      'line' => 'unknown');
                 } elseif (is_array($cause) && isset($cause['message'])) {
                     // PEAR_ErrorStack warning
                     $causes[] = array(

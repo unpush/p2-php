@@ -15,8 +15,6 @@
 class DataPhp
 {
     /**
-     * getPre
-     *
      * @access  private
      * @return  string
      */
@@ -26,8 +24,6 @@ class DataPhp
     }
 
     /**
-     * getHip
-     *
      * @access  private
      * @return  string
      */

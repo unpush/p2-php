@@ -3,6 +3,8 @@
     p2 - ユーザ設定 デフォルト
     
     このファイルはデフォルト値の設定なので、特に変更する必要はありません
+
+    $conf_user_def は結局global変数として利用してしまっている
 */
 
 // {{{ ■be.2ch.netアカウント
@@ -172,9 +174,9 @@ $conf_user_sel['spm_kokores'] = array('2' => 'する', '0' => 'しない');
 $conf_user_def['k_rnum_range'] = 15; // (15)
 $conf_user_rules['k_rnum_range'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
-// 携帯閲覧時、一つのレスの最大表示サイズ
+// 携帯閲覧時、一つのレスの最大表示サイズ（0なら省略しない）
 $conf_user_def['ktai_res_size'] = 600; // (600)
-$conf_user_rules['ktai_res_size'] = array('emptyToDef', 'notIntExceptMinusToDef');
+$conf_user_rules['ktai_res_size'] = array('notIntExceptMinusToDef');
 
 // 携帯閲覧時、レスを省略したときの表示サイズ
 $conf_user_def['ktai_ryaku_size'] = 120; // (120)
@@ -219,6 +221,26 @@ $conf_user_sel['mobile.id_underline'] = array('1' => 'する', '0' => 'しない');
 // 携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数
 $conf_user_def['k_copy_divide_len'] = 0; // (0)
 
+// 携帯閲覧時、スレッドタイトル色
+$conf_user_def['read_k_thread_title_color'] = "#1144aa"; // ("#1144aa")
+$conf_user_rules['read_k_thread_title_color'] = array('filterHtmlColor');
+
+// 携帯閲覧時、基本背景色
+$conf_user_def['k_bgcolor'] = ""; // ("")
+$conf_user_rules['k_bgcolor'] = array('filterHtmlColor');
+
+// 携帯閲覧時、基本テキスト色
+$conf_user_def['k_color'] = "";   // ("")
+$conf_user_rules['k_color'] = array('filterHtmlColor');
+
+// 携帯閲覧時、基本リンク色。link。
+$conf_user_def['k_acolor'] = "";   // ("")
+$conf_user_rules['k_acolor'] = array('filterHtmlColor');
+
+// 携帯閲覧時、基本訪問済みリンク色。vlink。
+$conf_user_def['k_acolor_v'] = "";   // ("")
+$conf_user_rules['k_acolor_v'] = array('filterHtmlColor');
+
 // }}}
 // {{{ ■ETC
 
@@ -236,7 +258,7 @@ $conf_user_sel['editor_srcfix'] = array('1' => 'する', '0' => 'しない', '2' => '
 $conf_user_def['get_new_res'] = 200; // (200)
 
 // 最近読んだスレの記録数
-$conf_user_def['rct_rec_num'] = 60; // (60)
+$conf_user_def['rct_rec_num'] = 70; // (70)
 $conf_user_rules['rct_rec_num'] = array('notIntExceptMinusToDef');
 
 // 書き込み履歴の記録数
@@ -324,3 +346,19 @@ $conf_user_sel['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP
 // ●書き込みの記憶状態
 $conf_user_def['maru_kakiko'] = 1; // (1)
 
+// 携帯TOPメニューの順番
+$conf_user_def['index_menu_k'] = array(
+    'recent_shinchaku', // 0.最近読んだｽﾚの新着
+    'recent',           // 1.最近読んだｽﾚの全て
+    'fav_shinchaku',    // 2.お気にｽﾚの新着
+    'fav',              // 3.お気にｽﾚの全て
+    'favita',           // 4.お気に板
+    'cate',             // 5.板ﾘｽﾄ
+    'res_hist',         // 6.書込履歴 #.ﾛｸﾞ
+    'palace',           // 7.ｽﾚの殿堂
+    'setting',          // 8.ﾛｸﾞｲﾝ管理
+    'editpref'          // 9.設定管理
+);
+
+// 携帯TOPメニューのアクセスキーを1からの連番とする
+$conf_user_def['index_menu_k_from1'] = 0; // (0)

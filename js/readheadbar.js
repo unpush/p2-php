@@ -8,7 +8,8 @@ gDontHideResbar = null;
 gkakikoWidth = 598;
 
 gFadeoutResBarTimerId = null
-	
+
+// @access  public
 // @return  void
 function showHeadBar(ev) {
 	var pageXY = getPageXY(ev);
@@ -50,15 +51,21 @@ function showKossoriHeadbarTimer() {
 }
 
 // @return  void
-function showKossoriHeadbarDo() {
+function showKossoriHeadbarDo()
+{
 	// レスポップアップ表示中は、表示しない
 	if (gPOPS.length) {
 		return;
 	}
+	
 	var kossoriElm = document.getElementById("kossoriHeadbar");
 	if (!kossoriElm) {
-		return;
+		var header = document.getElementById("header");
+		kossoriElm = header.cloneNode(true)
+		kossoriElm.id = 'kossoriHeadbar';
+		header.appendChild(kossoriElm);
 	}
+	
 	if (document.all) {
 		var body = getDocumentBodyIE();
 		kossoriElm.style.pixelTop  = body.scrollTop;

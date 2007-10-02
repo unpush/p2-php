@@ -139,9 +139,10 @@ function showHtmlPopUpDo()
 			
 			widthRatio = 0.6;
 			if (iframe_width < window.innerWidth * widthRatio) {
-				addIframeWidth = (window.innerHeight * widthRatio) - iframe_width;
+				addIframeWidth = (window.innerWidth * widthRatio) - iframe_width;
 				iframe_width += addIframeWidth;
-				gNodePopup.style.left = iframeX - addIframeWidth + 'px';
+				var iframe_left = iframeX - addIframeWidth;
+				gNodePopup.style.left = iframe_left + 'px';
 			}
 		}
 

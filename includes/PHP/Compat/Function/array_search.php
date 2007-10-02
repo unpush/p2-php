@@ -15,7 +15,7 @@
 // | Authors: Aidan Lister <aidan@php.net>                                |
 // +----------------------------------------------------------------------+
 //
-// $Id: array_search.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: array_search.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 /**
@@ -26,7 +26,7 @@
  * @link        http://php.net/function.array_search
  * @author      Aidan Lister <aidan@php.net>
  * @author      Thiemo Mättig (http://maettig.com/)
- * @version     $Revision: 1.1 $
+ * @version     $Revision: 1.2 $
  * @since       PHP 4.0.5
  * @require     PHP 4.0.0 (user_error)
  */

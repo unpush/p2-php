@@ -8,9 +8,9 @@ $_login->authorize(); // ユーザ認証
 
 // 前処理
 // アクセス拒否用の.htaccessをデータディレクトリに作成する
-makeDenyHtaccess($_conf['pref_dir']);
-makeDenyHtaccess($_conf['dat_dir']);
-makeDenyHtaccess($_conf['idx_dir']);
+_makeDenyHtaccess($_conf['pref_dir']);
+_makeDenyHtaccess($_conf['dat_dir']);
+_makeDenyHtaccess($_conf['idx_dir']);
 
 // 変数設定
 $me_url = P2Util::getMyUrl();
@@ -39,11 +39,7 @@ if ($_conf['ktai']) {
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
         $read_page = $_conf['read_php'] . "?" . $_SERVER['QUERY_STRING'];
     } else {
-        if (!empty($_conf['first_page'])) {
-            $read_page = $_conf['first_page'];
-        } else {
-            $read_page = 'first_cont.php';
-        }
+        $read_page = empty($_conf['first_page']) ? 'first_cont.php' : $_conf['first_page'];
     }
     
     $sidebar = isset($_GET['sidebar']) ? $_GET['sidebar'] : null;
@@ -99,12 +95,12 @@ EOHEADER;
  *
  * @return  void
  */
-function makeDenyHtaccess($dir)
+function _makeDenyHtaccess($dir)
 {
     $hta = $dir . '/.htaccess';
     if (!file_exists($hta)) {
         $data = 'Order allow,deny' . "\n"
               . 'Deny from all' . "\n";
-        FileCtl::file_write_contents($hta, $data);
+        file_put_contents($hta, $data, LOCK_EX);
     }
 }

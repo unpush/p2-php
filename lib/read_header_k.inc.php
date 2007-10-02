@@ -90,14 +90,16 @@ $read_navi_prev_anchor = '';
 //}
 
 if (!$read_navi_prev_isInvisible) {
-    $q = http_build_query(array(
+    $q = http_build_query(
+        array(
             'host'      => $aThread->host,
             'bbs'       => $aThread->bbs,
             'key'       => $aThread->key,
             //'ls'        => "{$before_rnum}-{$aThread->resrange['start']}n",
             'offline'   => '1',
             'b'         => $_conf['b']
-            ));
+        )
+    );
     
     $html = "{$_conf['k_accesskey']['prev']}.{$prev_st}";
     $url = $_conf['read_php'] . '?' . $q;
@@ -136,7 +138,8 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
 if (!$read_navi_next_isInvisible) {
-    $q = http_build_query(array(
+    $q = http_build_query(
+        array(
             'host'      => $aThread->host,
             'bbs'       => $aThread->bbs,
             'key'       => $aThread->key,
@@ -144,7 +147,8 @@ if (!$read_navi_next_isInvisible) {
             'offline'   => '1',
             'nt'        => $newtime,
             'b'         => $_conf['b']
-            ));
+        )
+    );
     
     $html = "{$_conf['k_accesskey']['next']}.{$next_st}";
     $url = $_conf['read_php'] . '?' . $q;
@@ -188,29 +192,26 @@ EOP;
 }
 
 // {{{ 検索
+
 $read_navi_filter = <<<EOP
 <a href="read_filter_k.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$find_st}</a>
 EOP;
 $read_navi_filter_btm = <<<EOP
 <a {$_conf['accesskey']}="{$_conf['k_accesskey']['filter']}" href="read_filter_k.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$_conf['k_accesskey']['filter']}.{$find_st}</a>
 EOP;
-// }}}
 
-//====================================================================
-// 検索時の特別な処理
-//====================================================================
+// }}}
+// {{{ 検索時の特別な処理
+
 if ($filter_hits !== NULL) {
     include P2_LIB_DIR . '/read_filter_k.inc.php';
     resetReadNaviHeaderK();
 }
 
-//====================================================================
-// HTMLプリント
-//====================================================================
-
+// }}}
 // {{{ ツールバー部分HTML
 
-$similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
+$similar_q = '&amp;detect_hint=' . rawurlencode('◎◇') . '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
 $itaj_hs = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
 $toolbar_right_ht = <<<EOTOOLBAR
@@ -227,15 +228,14 @@ EOTOOLBAR;
 
 // }}}
 
-$body_at = '';
-if (!empty($STYLE['read_k_bgcolor'])) {
-    $body_at .= " bgcolor=\"{$STYLE['read_k_bgcolor']}\"";
-}
-if (!empty($STYLE['read_k_color'])) {
-    $body_at .= " text=\"{$STYLE['read_k_color']}\"";
-}
+$hr = P2Util::getHrHtmlK();
 
-//=====================================
+$body_at = P2Util::getBodyAttrK();
+
+//====================================================================
+// HTML出力
+//====================================================================
+
 //!empty($_GET['nocache']) and P2Util::header_nocache();
 echo $_conf['doctype'];
 echo <<<EOHEADER
@@ -264,7 +264,7 @@ if ($aThread->diedat) {
 
     $motothre_ht = "<a href=\"{$motothre_url}\">{$motothre_url}</a>";
 
-    echo "$diedat_msg<p>$motothre_ht</p><hr>";
+    echo "$diedat_msg<p>$motothre_ht</p>$hr";
     
     // 既得レスがなければツールバー表示
     if (!$aThread->rescount) {
@@ -287,18 +287,18 @@ EOP;
 
 }
 
-echo "<hr>";
+echo $hr;
 echo "<h3><font color=\"{$STYLE['read_k_thread_title_color']}\">{$aThread->ttitle_hd}</font></h3>\n";
 
 $filter_fields = array(
-        'hole'  => '',
-        'msg'   => 'ﾒｯｾｰｼﾞが',
-        'name'  => '名前が',
-        'mail'  => 'ﾒｰﾙが',
-        'date'  => '日付が',
-        'id'    => 'IDが',
-        'belv'  => 'ﾎﾟｲﾝﾄが'
-    );
+    'hole'  => '',
+    'msg'   => 'ﾒｯｾｰｼﾞが',
+    'name'  => '名前が',
+    'mail'  => 'ﾒｰﾙが',
+    'date'  => '日付が',
+    'id'    => 'IDが',
+    'belv'  => 'ﾎﾟｲﾝﾄが'
+);
 
 if ($word) {
     echo "検索結果: ";
@@ -307,5 +307,4 @@ if ($word) {
     echo ($res_filter['match'] == 'on') ? '含む' : '含まない';
 }
 
-echo "<hr>";
-
+echo $hr;

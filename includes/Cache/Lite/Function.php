@@ -11,7 +11,7 @@
 * Technical choices are described in the 'docs/technical' file
 *
 * @package Cache_Lite
-* @version $Id: Function.php,v 1.1 2007/01/30 06:09:59 akid Exp $
+* @version $Id: Function.php,v 1.2 2007/10/02 11:30:09 akid Exp $
 * @author Sebastian BERGMANN <sb@sebastian-bergmann.de>
 * @author Fabien MARTY <fab@php.net>
 */

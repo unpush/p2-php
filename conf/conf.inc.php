@@ -5,7 +5,7 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.13'; // rep2のバージョン
+$_conf['p2version'] = '1.8.14'; // rep2のバージョン
 
 $_conf['p2name'] = 'r e p 2';    // rep2の名前。
 
@@ -44,14 +44,15 @@ if ($debug) {
 // }}}
 // {{{ 動作環境を確認
 
+$format = '<html><body><h3>%s</h3></body></html>';
 if (version_compare(phpversion(), '4.3.0', 'lt')) {
-    die('<html><body><h3>p2 error: PHPバージョン4.3.0未満では使えません。</h3></body></html>');
+    die(sprintf($format, 'p2 error: PHPのバージョンが4.3.0未満では使えません。'));
 }
 if (ini_get('safe_mode')) {
-    die('<html><body><h3>p2 error: セーフモードで動作するPHPでは使えません。</h3></body></html>');
+    die(sprintf($format, 'p2 error: セーフモードで動作するPHPでは使えません。'));
 }
 if (!extension_loaded('mbstring')) {
-    die('<html><body><h3>p2 error: PHPのインストールが不十分です。PHPのmbstring拡張モジュールがロードされていません。</h3></body></html>');
+    die(sprintf($format, 'p2 error: PHPのインストールが不十分です。PHPのmbstring拡張モジュールがロードされていません。'));
 }
 
 // }}}
@@ -115,6 +116,8 @@ if (function_exists('mb_ereg_replace')) {
 // 基本的な機能を提供するするライブラリ
 define('P2_LIB_DIR', './lib');
 define('P2_LIBRARY_DIR', P2_LIB_DIR); // 2006/11/24 後方互換用、廃止予定
+
+require_once P2_LIB_DIR . '/global.funcs.php';
 
 // おまけ的な機能を提供するするライブラリ
 define('P2EX_LIBRARY_DIR', './lib/expack');
@@ -402,26 +405,26 @@ if (file_exists("./conf/conf_user_style.inc.php")) {
 
 // {{{ デフォルト設定
 
-if (!is_dir($_conf['pref_dir']))    { $_conf['pref_dir'] = "./data"; }
-if (!is_dir($_conf['dat_dir']))     { $_conf['dat_dir'] = "./data"; }
-if (!is_dir($_conf['idx_dir']))     { $_conf['idx_dir'] = "./data"; }
-if (!isset($_conf['rct_rec_num']))  { $_conf['rct_rec_num'] = 20; }
+if (!is_dir($_conf['pref_dir']))        { $_conf['pref_dir'] = "./data"; }
+if (!is_dir($_conf['dat_dir']))         { $_conf['dat_dir'] = "./data"; }
+if (!is_dir($_conf['idx_dir']))         { $_conf['idx_dir'] = "./data"; }
+if (!isset($_conf['rct_rec_num']))      { $_conf['rct_rec_num'] = 20; }
 if (!isset($_conf['res_hist_rec_num'])) { $_conf['res_hist_rec_num'] = 20; }
-if (!isset($_conf['posted_rec_num'])) { $_conf['posted_rec_num'] = 1000; }
+if (!isset($_conf['posted_rec_num']))   { $_conf['posted_rec_num'] = 1000; }
 if (!isset($_conf['before_respointer'])) { $_conf['before_respointer'] = 20; }
 if (!isset($_conf['sort_zero_adjust'])) { $_conf['sort_zero_adjust'] = 0.1; }
 if (!isset($_conf['display_threads_num'])) { $_conf['display_threads_num'] = 150; }
 if (!isset($_conf['cmp_dayres_midoku'])) { $_conf['cmp_dayres_midoku'] = 1; }
-if (!isset($_conf['k_sb_disp_range'])) { $_conf['k_sb_disp_range'] = 30; }
-if (!isset($_conf['k_rnum_range'])) { $_conf['k_rnum_range'] = 10; }
+if (!isset($_conf['k_sb_disp_range']))  { $_conf['k_sb_disp_range'] = 30; }
+if (!isset($_conf['k_rnum_range']))     { $_conf['k_rnum_range'] = 10; }
 if (!isset($_conf['pre_thumb_height'])) { $_conf['pre_thumb_height'] = "32"; }
-if (!isset($_conf['quote_res_view'])) { $_conf['quote_res_view'] = 1; }
-if (!isset($_conf['res_write_rec'])) { $_conf['res_write_rec'] = 1; }
+if (!isset($_conf['quote_res_view']))   { $_conf['quote_res_view'] = 1; }
+if (!isset($_conf['res_write_rec']))    { $_conf['res_write_rec'] = 1; }
 
-if (!isset($STYLE['post_pop_size'])) { $STYLE['post_pop_size'] = "610,350"; }
-if (!isset($STYLE['post_msg_rows'])) { $STYLE['post_msg_rows'] = 10; }
-if (!isset($STYLE['post_msg_cols'])) { $STYLE['post_msg_cols'] = 70; }
-if (!isset($STYLE['info_pop_size'])) { $STYLE['info_pop_size'] = "600,380"; }
+if (!isset($STYLE['post_pop_size']))    { $STYLE['post_pop_size'] = "610,350"; }
+if (!isset($STYLE['post_msg_rows']))    { $STYLE['post_msg_rows'] = 10; }
+if (!isset($STYLE['post_msg_cols']))    { $STYLE['post_msg_cols'] = 70; }
+if (!isset($STYLE['info_pop_size']))    { $STYLE['info_pop_size'] = "600,380"; }
 
 // }}}
 // {{{ ユーザ設定の調整処理
@@ -444,7 +447,7 @@ if ($_conf['get_new_res']) {
 // }}}
 
 if ($_conf['mobile.match_color']) {
-    $_conf['k_filter_marker'] = "<font color=\"" . htmlspecialchars($_conf['mobile.match_color']) . "\">\\1</font>";
+    $_conf['k_filter_marker'] = "<font color=\"" . htmlspecialchars($_conf['mobile.match_color']) . "\">\\0</font>";
 } else {
     $_conf['k_filter_marker'] = null;
 }
@@ -545,6 +548,50 @@ require_once P2_LIB_DIR . '/login.class.php';
 $_login =& new Login();
 
 
+$_conf['menuKIni'] = array(
+    'recent_shinchaku'  => array(
+        'subject.php?spmode=recent&sb_view=shinchaku',
+        '最近読んだｽﾚの新着'
+    ),
+    'recent'            => array(
+        'subject.php?spmode=recent&norefresh=1',
+        '最近読んだｽﾚの全て'
+    ),
+    'fav_shinchaku'     => array(
+        'subject.php?spmode=fav&sb_view=shinchaku',
+        'お気にｽﾚの新着'
+    ),
+    'fav'               => array(
+        'subject.php?spmode=fav&norefresh=1',
+        'お気にｽﾚの全て'
+    ),
+    'favita'            => array(
+        'menu_k.php?view=favita',
+        'お気に板'
+    ),
+    'cate'              => array(
+        'menu_k.php?view=cate',
+        '板ﾘｽﾄ'
+    ),
+    'res_hist'          => array(
+        'subject.php?spmode=res_hist',
+        '書込履歴'
+    ),
+    'palace'            => array(
+        'subject.php?spmode=palace&norefresh=1',
+        'ｽﾚの殿堂'
+    ),
+    'setting'           => array(
+        'setting.php?dummy=1',
+        'ﾛｸﾞｲﾝ管理'
+    ),
+    'editpref'          => array(
+        'editpref.php?dummy=1',
+        '設定管理'
+    )
+);
+
+
 //=====================================================================
 // 関数（このファイル内でのみ利用）
 //=====================================================================
@@ -601,124 +648,4 @@ function printMemoryUsage()
     $kb = number_format($kb, 2, '.', '');
     
     echo 'Memory Usage: ' . $kb . 'KB';
-}
-
-//=====================================================================
-// グローバル関数
-//=====================================================================
-/**
- * htmlspecialchars の別名みたいなもの
- *
- * @param   string  $alt  値が空のときの代替文字列
- * @return  string
- */
-function hs($str, $alt = '', $quoteStyle = ENT_QUOTES)
-{
-    return (isset($str) && strlen($str) > 0) ? htmlspecialchars($str, $quoteStyle) : $alt;
-}
-
-/**
- * notice の抑制もしてくれる hs()
- * 参照で値を受け取るのはイマイチだが、そうしなければnoticeの抑制ができない
- *
- * @param   &string  $str  文字列変数の参照
- * @return  string
- */
-function hsi(&$str, $alt = '', $quoteStyle = ENT_QUOTES)
-{
-    return (isset($str) && strlen($str) > 0) ? htmlspecialchars($str, $quoteStyle) : $alt;
-}
-
-/**
- * echo hs()
- *
- * @return  void
- */
-function eh($str, $alt = '', $quoteStyle = ENT_QUOTES)
-{
-    echo hs($str, $alt, $quoteStyle);
-}
-
-/**
- * echo hs() （noticeを抑制する）
- *
- * @param   &string  $str  文字列変数の参照
- * @return  void
- */
-function ehi(&$str, $alt = '', $quoteStyle = ENT_QUOTES)
-{
-    echo hs($str, $alt, $quoteStyle);
-}
-
-/**
- * 存在しない変数の notice を出さずに、変数の値を取得する
- *
- * @return  mixed
- */
-function geti(&$var, $alt = null)
-{
-    return isset($var) ? $var : $alt;
-}
-
-/**
- * 改行を付けて文字列を出力する（cliとwebで出力が変わる）
- *
- * @return  void
- */
-function echoln($str = '')
-{
-    if (php_sapi_name() == 'cli') {
-        echo $str . "\n";
-    } else {
-        echo $str . "<br>";
-    }
-}
-
-/**
- * p2 error メッセージを表示して終了
- *
- * @param   string  $err    エラー概要
- * @param   string  $msg    詳細な説明
- * @param   boolean $raw    詳細な説明をエスケープするか否か
- * @return  void
- */
-function p2die($err, $msg = null, $raw = false)
-{
-    echo '<html><head><title>p2 error</title></head><body>';
-    echo '<h3>p2 error: ', htmlspecialchars($err, ENT_QUOTES), '</h3>';
-    if ($msg !== null) {
-        if ($raw) {
-            echo '<p>', nl2br(htmlspecialchars($msg, ENT_QUOTES)), '</p>';
-        } else {
-            echo $msg;
-        }
-    }
-    echo '</body></html>';
-    
-    exit;
-}
-
-/**
- * conf_user にデータをセット記録する
- * maru_kakiko
- *
- * @return  true|null|false
- */
-function setConfUser($k, $v)
-{
-    global $_conf;
-    
-    // validate
-    if ($k == 'k_use_aas') {
-        if ($v != 0 && $v != 1) {
-            return null;
-        }
-    }
-    
-    if (false === P2Util::updateArraySrdFile(array($k => $v), $_conf['conf_user_file'])) {
-        return false;
-    }
-    $_conf[$k] = $v;
-    
-    return true;
 }

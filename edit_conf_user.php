@@ -45,15 +45,16 @@ if (!empty($_POST['submit_save'])) {
                 $conf_save[$k] = $_POST['conf_edit'][$k];
             }
             
-        // 特別（edit_conf_user.php 以外でも設定されうるものは残す）
-        } elseif (in_array($k, array('maru_kakiko'))) {
+        // 特別な項目（edit_conf_user.php 以外でも設定されうるものは破棄せずにそのまま残す）
+        // キーに命名規則（prefix）をつけた方がいいかも → キー名変更の必要があるので却下
+        } elseif (in_array($k, array('maru_kakiko', 'index_menu_k', 'index_menu_k_from1'))) {
             $conf_save[$k] = $_conf[$k];
         }
     }
 
     // シリアライズして保存
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
-    if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
+    if (false === file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX)) {
         P2Util::pushInfoHtml("<p>×設定を更新保存できませんでした</p>");
         trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
         
@@ -86,6 +87,8 @@ $csrfid = P2Util::getCsrfId();
 
 $me = P2Util::getMyUrl();
 
+$body_at = P2Util::getBodyAttrK();
+
 //=====================================================================
 // プリント
 //=====================================================================
@@ -116,7 +119,7 @@ if (!$_conf['ktai']) {
 
 echo <<<EOP
 </head>
-<body onLoad="top.document.title=self.document.title;">\n
+<body onLoad="top.document.title=self.document.title;"{$body_at}>\n
 EOP;
 
 // PC用表示
@@ -231,7 +234,7 @@ if (!$_conf['ktai']) {
 }
 
 echo getEditConfHtml('k_rnum_range', '携帯閲覧時、一度に表示するレスの数');
-echo getEditConfHtml('ktai_res_size', '携帯閲覧時、一つのレスの最大表示サイズ');
+echo getEditConfHtml('ktai_res_size', '携帯閲覧時、一つのレスの最大表示サイズ（0なら省略しない）');
 echo getEditConfHtml('ktai_ryaku_size', '携帯閲覧時、レスを省略したときの表示サイズ');
 echo getEditConfHtml('k_aa_ryaku_size', '携帯閲覧時、AAらしきレスを省略するサイズ（0なら省略しない）');
 echo getEditConfHtml('before_respointer_k', '携帯閲覧時、ポインタの何コ前のレスから表示するか');
@@ -244,6 +247,12 @@ echo getEditConfHtml('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示（する
 echo getEditConfHtml('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示（する, しない）');
 echo getEditConfHtml('mobile.id_underline', '携帯閲覧時、ID末尾の"O"（オー）に下線を追加（する, しない）');
 echo getEditConfHtml('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数');
+
+echo getEditConfHtml('read_k_thread_title_color', '携帯閲覧時、スレッドタイトル色（HTMLカラー 例:"#1144aa"）');
+echo getEditConfHtml('k_bgcolor', '携帯閲覧時、基本背景色（HTMLカラー）');
+echo getEditConfHtml('k_color', '携帯閲覧時、基本テキスト色（HTMLカラー）');
+echo getEditConfHtml('k_acolor', '携帯閲覧時、基本リンク色（HTMLカラー）');
+echo getEditConfHtml('k_acolor_v', '携帯閲覧時、基本訪問済みリンク色（HTMLカラー）');
 
 echo getGroupSepaHtml('ETC');
 
@@ -288,7 +297,8 @@ echo '</form>' . "\n";
 
 // 携帯なら
 if ($_conf['ktai']) {
-    echo '<hr>' . $_conf['k_to_index_ht'];
+    $hr = P2Util::getHrHtmlK();
+    echo $hr . $_conf['k_to_index_ht'];
 }
 
 echo '</body></html>';
@@ -324,6 +334,8 @@ function applyRules()
 
 /**
  * CSS値のためのフィルタリングを行う
+ *
+ * @return  string
  */
 function filterCssValue($str, $def = '')
 {
@@ -331,7 +343,19 @@ function filterCssValue($str, $def = '')
 }
 
 /**
+ * HTMLカラーのためのフィルタリングを行う
+ *
+ * @return  string
+ */
+function filterHtmlColor($str, $def = '')
+{
+    return preg_replace('/[^0-9a-zA-Z#]/', '', $str);
+}
+
+/**
  * emptyの時は、デフォルトセットする
+ *
+ * @return  string
  */
 function emptyToDef($val, $def)
 {
@@ -344,6 +368,8 @@ function emptyToDef($val, $def)
 /**
  * 正の整数化できる時は正の整数化（0を含む）し、
  * できない時は、デフォルトセットする
+ *
+ * @return  integer
  */
 function notIntExceptMinusToDef($val, $def)
 {
@@ -384,6 +410,7 @@ function notSelToDef()
     }
 }
 
+
 /**
  * グループ分け用のHTMLを得る（関数内でPC、携帯用表示を振り分け）
  *
@@ -402,7 +429,8 @@ function getGroupSepaHtml($title)
 EOP;
     // 携帯用
     } else {
-        $ht = "<hr><h4>{$title}</h4>"."\n";
+        $hr = P2Util::getHrHtmlK();
+        $ht = "$hr<h4>{$title}</h4>" . "\n";
     }
     return $ht;
 }

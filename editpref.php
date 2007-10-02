@@ -36,6 +36,11 @@ if (isset($_POST['sync'])) {
     }
 }
 
+$parent_reload = '';
+if (isset($_GET['reload_skin'])) {
+    $parent_reload = " onload=\"parent.menu.location.href='./{$_conf['menu_php']}'; parent.read.location.href='./first_cont.php';\"";
+}
+
 // }}}
 // {{{ 書き出し用変数
 
@@ -58,6 +63,9 @@ if ($_conf['ktai']) {
 }
 
 $autho_user_ht = '';
+
+$body_at = P2Util::getBodyAttrK();
+$hr = P2Util::getHrHtmlK();
 
 // }}}
 
@@ -82,7 +90,7 @@ if (!$_conf['ktai']) {
 }
 echo <<<EOP
 </head>
-<body>\n
+<body{$body_at}{$parent_reload}>\n
 EOP;
 
 if (!$_conf['ktai']) {
@@ -109,7 +117,7 @@ EOP;
 
 // 携帯用表示
 if ($_conf['ktai']) {
-    echo '<hr>';
+    echo $hr;
 }
 
 // PC
@@ -126,10 +134,14 @@ if (!$_conf['ktai']) {
 <!-- <a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a> -->
 <legend>NGワード編集</legend>
 EOP;
-    printEditFileForm($ng_name_txt, "名前");
-    printEditFileForm($ng_mail_txt, "メール");
-    printEditFileForm($ng_msg_txt, "メッセージ");
-    printEditFileForm($ng_id_txt, " I D ");
+    $sepa = ' | ';
+    _printEditFileHtml($ng_name_txt, "名前");
+    echo $sepa;
+    _printEditFileHtml($ng_mail_txt, "メール");
+    echo $sepa;
+    _printEditFileHtml($ng_msg_txt, "メッセージ");
+    echo $sepa;
+    _printEditFileHtml($ng_id_txt, "&nbsp;ID&nbsp;");
     echo <<<EOP
 </fieldset>\n\n
 EOP;
@@ -145,10 +157,13 @@ EOP;
 <fieldset>
 <legend>あぼーんワード編集</legend>\n
 EOP;
-    printEditFileForm($aborn_name_txt, "名前");
-    printEditFileForm($aborn_mail_txt, "メール");
-    printEditFileForm($aborn_msg_txt, "メッセージ");
-    printEditFileForm($aborn_id_txt, " I D ");
+    _printEditFileHtml($aborn_name_txt, "名前");
+    echo $sepa;
+    _printEditFileHtml($aborn_mail_txt, "メール");
+    echo $sepa;
+    _printEditFileHtml($aborn_msg_txt, "メッセージ");
+    echo $sepa;
+    _printEditFileHtml($aborn_id_txt, "&nbsp;ID&nbsp;");
     echo <<<EOP
 </fieldset>\n
 EOP;
@@ -165,8 +180,8 @@ EOP;
 <fieldset>
 <legend>その他</legend>
 EOP;
-    printEditFileForm("conf/conf_user_style.inc.php", 'デザイン設定');
-    printEditFileForm("conf/conf.inc.php", '基本設定');
+    _printEditFileHtml("conf/conf_user_style.inc.php", 'デザイン設定');
+    _printEditFileHtml("conf/conf.inc.php", '基本設定');
     echo <<<EOP
 </fieldset>\n
 EOP;
@@ -179,31 +194,31 @@ EOP;
 
 // 携帯用表示 NG/ｱﾎﾞﾝﾜｰﾄﾞ
 if ($_conf['ktai']) {
-    $ng_name_txt_bn = basename($ng_name_txt);
-    $ng_mail_txt_bn = basename($ng_mail_txt);
-    $ng_msg_txt_bn = basename($ng_msg_txt);
-    $ng_id_txt_bn = basename($ng_id_txt);
-    $aborn_name_txt_bn = basename($aborn_name_txt);
-    $aborn_mail_txt_bn = basename($aborn_mail_txt);
-    $aborn_msg_txt_bn = basename($aborn_msg_txt);
-    $aborn_id_txt_bn = basename($aborn_id_txt);
+    $ng_name_txt_bn     = basename($ng_name_txt);
+    $ng_mail_txt_bn     = basename($ng_mail_txt);
+    $ng_msg_txt_bn      = basename($ng_msg_txt);
+    $ng_id_txt_bn       = basename($ng_id_txt);
+    $aborn_name_txt_bn  = basename($aborn_name_txt);
+    $aborn_mail_txt_bn  = basename($aborn_mail_txt);
+    $aborn_msg_txt_bn   = basename($aborn_msg_txt);
+    $aborn_id_txt_bn    = basename($aborn_id_txt);
     echo <<<EOP
 <p>NG/ｱﾎﾞﾝﾜｰﾄﾞ編集</p>
 <form method="GET" action="edit_aborn_word.php">
 {$_conf['k_input_ht']}
 <select name="path">
-<option value="{$ng_name_txt_bn}">NG:名前</option>
-<option value="{$ng_mail_txt_bn}">NG:ﾒｰﾙ</option>
-<option value="{$ng_msg_txt_bn}">NG:ﾒｯｾｰｼﾞ</option>
-<option value="{$ng_id_txt_bn}">NG:ID</option>
-<option value="{$aborn_name_txt_bn}">ｱﾎﾞﾝ:名前</option>
-<option value="{$aborn_mail_txt_bn}">ｱﾎﾞﾝ:ﾒｰﾙ</option>
-<option value="{$aborn_msg_txt_bn}">ｱﾎﾞﾝ:ﾒｯｾｰｼﾞ</option>
-<option value="{$aborn_id_txt_bn}">ｱﾎﾞﾝ:ID</option>
+	<option value="{$ng_name_txt_bn}">NG:名前</option>
+	<option value="{$ng_mail_txt_bn}">NG:ﾒｰﾙ</option>
+	<option value="{$ng_msg_txt_bn}">NG:ﾒｯｾｰｼﾞ</option>
+	<option value="{$ng_id_txt_bn}">NG:ID</option>
+	<option value="{$aborn_name_txt_bn}">ｱﾎﾞﾝ:名前</option>
+	<option value="{$aborn_mail_txt_bn}">ｱﾎﾞﾝ:ﾒｰﾙ</option>
+	<option value="{$aborn_msg_txt_bn}">ｱﾎﾞﾝ:ﾒｯｾｰｼﾞ</option>
+	<option value="{$aborn_id_txt_bn}">ｱﾎﾞﾝ:ID</option>
 </select>
 <input type="submit" value="編集">
 </form>
-<hr>
+$hr
 EOP;
 
 }
@@ -227,7 +242,7 @@ EOP;
     foreach ($synctitle as $syncpath => $syncname) {
         if (is_writable($_conf['pref_dir'] . '/' . $syncpath)) {
             $exist_sync_flag = true;
-            $sync_htm .= getSyncFavoritesFormHt($syncpath, $syncname);
+            $sync_htm .= _getSyncFavoritesFormHtml($syncpath, $syncname);
         }
     }
 
@@ -250,7 +265,7 @@ EOP;
     foreach ($synctitle as $syncpath => $syncname) {
         if (is_writable($_conf['pref_dir'] . '/' . $syncpath)) {
             $exist_sync_flag = true;
-            $sync_htm .= getSyncFavoritesFormHt($syncpath, $syncname);
+            $sync_htm .= _getSyncFavoritesFormHtml($syncpath, $syncname);
         }
     }
     
@@ -264,7 +279,7 @@ EOP;
 
 // 携帯用フッタHTML
 if ($_conf['ktai']) {
-    echo "<hr>\n";
+    echo "$hr\n";
     echo $_conf['k_to_index_ht'] . "\n";
 }
 
@@ -275,22 +290,23 @@ exit;
 
 
 //==============================================================================
-// 関数
+// 関数（このファイル内のみで利用）
 //==============================================================================
 /**
- * 設定ファイル編集ウインドウを開くフォームHTMLを表示する
+ * 設定ファイル編集ウインドウを開くHTMLを表示する
  *
  * @return  void
  */
-function printEditFileForm($path_value, $submit_value)
+function _printEditFileHtml($path_value, $submit_value)
 {
     global $_conf;
     
-    if ((file_exists($path_value) && is_writable($path_value)) ||
-        (!file_exists($path_value) && is_writable(dirname($path_value)))
-    ) {
+    // アクティブ
+    if ((file_exists($path_value) && is_writable($path_value)) || (!file_exists($path_value) && is_writable(dirname($path_value)))) {
         $onsubmit = '';
         $disabled = '';
+    
+    // 非アクティブ
     } else {
         $onsubmit = ' onsubmit="return false;"';
         $disabled = ' disabled';
@@ -299,31 +315,41 @@ function printEditFileForm($path_value, $submit_value)
     $rows = 36; // 18
     $cols = 92; // 90
 
+    // edit_aborn_word.php
     if (preg_match('/^p2_(aborn|ng)_(name|mail|id|msg)\.txt$/', basename($path_value))) {
         $edit_php = 'edit_aborn_word.php';
         $target = '_self';
         $path_value = basename($path_value);
+        
+        $q_ar = array(
+            'path'      => $path_value
+        );
+        isset($_conf['b']) and $q_ar['b'] = $_conf['b'];
+        $url = $edit_php . '?' . http_build_query($q_ar);
+        $html = P2Util::tagA($url, $submit_value) . "\n";
+    
+    // editfile.php
     } else {
         $edit_php = 'editfile.php';
         $target = 'editfile';
+        
+        $html = <<<EOFORM
+<form action="{$edit_php}" method="POST" target="{$target}" class="inline-form"{$onsubmit}>
+	{$_conf['k_input_ht']}
+	<input type="hidden" name="path" value="{$path_value}">
+	<input type="hidden" name="encode" value="Shift_JIS">
+	<input type="hidden" name="rows" value="{$rows}">
+	<input type="hidden" name="cols" value="{$cols}">
+	<input type="submit" value="{$submit_value}"{$disabled}>
+</form>\n
+EOFORM;
+        // IE用にform内のタグ間の空白を除去　する
+        if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+            $html = '&nbsp;' . preg_replace('{>\s+<}', '><', $html);
+        }
     }
     
-    $ht = <<<EOFORM
-<form action="{$edit_php}" method="POST" target="{$target}" class="inline-form"{$onsubmit}>
-    {$_conf['k_input_ht']}
-    <input type="hidden" name="path" value="{$path_value}">
-    <input type="hidden" name="encode" value="Shift_JIS">
-    <input type="hidden" name="rows" value="{$rows}">
-    <input type="hidden" name="cols" value="{$cols}">
-    <input type="submit" value="{$submit_value}"{$disabled}>
-</form>
-
-EOFORM;
-
-    if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
-        $ht = '&nbsp;' . preg_replace('/>\s+</', '><', $ht);
-    }
-    echo $ht;
+    echo $html;
 }
 
 /**
@@ -331,7 +357,7 @@ EOFORM;
  *
  * @return  string
  */
-function getSyncFavoritesFormHt($path_value, $submit_value)
+function _getSyncFavoritesFormHtml($path_value, $submit_value)
 {
     global $_conf;
     
@@ -379,8 +405,19 @@ function printMatomeCacheLinksHtml()
         echo '<p>新着まとめ読みの前回キャッシュを表示<br>' . implode('<br>', $links) . '</p>' . "\n";
         
         if ($_conf['ktai']) {
-            echo '<hr>' . "\n";
+            $hr = P2Util::getHrHtmlK();
+            echo $hr . "\n";
         }
     }
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

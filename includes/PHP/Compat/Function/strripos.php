@@ -16,7 +16,7 @@
 // |          Stephan Schmidt <schst@php.net>                             |
 // +----------------------------------------------------------------------+
 //
-// $Id: strripos.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: strripos.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 /**
@@ -26,7 +26,7 @@
  * @package     PHP_Compat
  * @link        http://php.net/function.strripos
  * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.1 $
+ * @version     $Revision: 1.2 $
  * @since       PHP 5
  * @require     PHP 4.0.0 (user_error)
  */

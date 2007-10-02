@@ -33,10 +33,14 @@ function settaborn($host, $bbs, $key, $set)
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
     
-    FileCtl::make_datafile($taborn_idx, $_conf['p2_perm']);
+    if (false === FileCtl::make_datafile($taborn_idx, $_conf['p2_perm'])) {
+        return false;
+    }
     
     // p2_threads_aborn.idx ì«Ç›çûÇ›
-    $taborn_lines = file($taborn_idx);
+    if (false === $taborn_lines = file($taborn_idx)) {
+        return false;
+    }
     
     $neolines = array();
     

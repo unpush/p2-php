@@ -8,7 +8,7 @@ require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/threadlist.class.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
-require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once P2_LIB_DIR . '/NgAbornCtl.php';
 require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
@@ -43,6 +43,7 @@ if ((empty($host) || !isset($bbs)) && !isset($spmode)) {
     p2die('必要な引数が指定されていません');
 }
 
+$hr = P2Util::getHrHtmlK();
 
 //====================================================================
 // メイン
@@ -101,13 +102,7 @@ EOP;
 EOP;
 }
 
-$body_at = '';
-if (!empty($STYLE['read_k_bgcolor'])) {
-    $body_at .= " bgcolor=\"{$STYLE['read_k_bgcolor']}\"";
-}
-if (!empty($STYLE['read_k_color'])) {
-    $body_at .= " text=\"{$STYLE['read_k_color']}\"";
-}
+$body_at = P2Util::getBodyAttrK();
 
 // ========================================================
 // require_once P2_LIB_DIR . '/read_header.inc.php';
@@ -184,16 +179,16 @@ for ($x = 0; $x < $linesize; $x++) {
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
     $aThread->getThreadInfoFromIdx(); // 既得スレッドデータをidxから取得
 
-    // 新着のみ(for subject) =========================================
-    if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) { 
+    // 新着のみ(for subject)
+    if (!$aThreadList->spmode and $sb_view == "shinchaku" and !isset($GLOBALS['word'])) { 
         if ($aThread->unum < 1) {
             unset($aThread);
             continue;
         }
     }
 
-    // スレッドあぼーんチェック =====================================
-    if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) { 
+    // スレッドあぼーんチェック
+    if ($aThreadList->spmode != "taborn" and !empty($ta_keys[$aThread->key])) { 
         unset($ta_keys[$aThread->key]);
         continue; // あぼーんスレはスキップ
     }
@@ -204,7 +199,7 @@ for ($x = 0; $x < $linesize; $x++) {
         // subject.txtが未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
         
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
@@ -220,8 +215,8 @@ for ($x = 0; $x < $linesize; $x++) {
             }
         }
         
-        // 新着のみ(for spmode) ===============================
-        if ($sb_view == "shinchaku" and !$_GET['word']) {
+        // 新着のみ(for spmode)
+        if ($sb_view == "shinchaku" and !isset($GLOBALS['word'])) {
             if ($aThread->unum < 1) {
                 unset($aThread);
                 continue;
@@ -240,7 +235,7 @@ for ($x = 0; $x < $linesize; $x++) {
         readNew($aThread);
     } elseif ($aThread->diedat) {
         echo $aThread->getdat_error_msg_ht;
-        echo "<hr>\n";
+        echo "{$hr}\n";
     }
     
     $GLOBALS['read_new_html'] .= ob_get_flush();
@@ -263,6 +258,8 @@ function readNew(&$aThread)
     global $spmode;
 
     $_newthre_num++;
+    
+    $hr = P2Util::getHrHtmlK();
     
     //==========================================================
     // idxの読み込み
@@ -343,9 +340,9 @@ function readNew(&$aThread)
     P2Util::printInfoHtml();
     
     $read_header_ht = <<<EOP
-        <hr>
+        $hr
         <p id="ntt{$_newthre_num}" name="ntt{$_newthre_num}"><font color="{$STYLE['read_k_thread_title_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</p>
-        <hr>\n
+        $hr\n
 EOP;
 
     //==================================================================
@@ -355,8 +352,7 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
         //$aThread->datToHtml(); // dat を html に変換表示
-        require_once P2_LIB_DIR . '/showthread.class.php';
-        require_once P2_LIB_DIR . '/showthreadk.class.php';
+        require_once P2_LIB_DIR . '/ShowThreadK.php';
         $aShowThread =& new ShowThreadK($aThread);
         
         $read_cont_ht .= $aShowThread->getDatToHtml();
@@ -416,7 +412,7 @@ EOTOOLBAR;
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht} 
             <a href="#ntt{$_newthre_num}">▲</a>
         </div>
-        <hr>\n
+        $hr\n
 EOP;
 
     // 透明あぼーんや表示数制限で新しいレス表示がない場合はスキップ
@@ -452,7 +448,7 @@ $_newthre_num++;
 if (!$aThreadList->num) {
     $GLOBALS['matome_naipo'] = TRUE;
     echo "新着ﾚｽはないぽ";
-    echo "<hr>";
+    echo $hr;
 }
 
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
@@ -474,7 +470,7 @@ EOP;
 EOP;
 }
 
-echo '<hr>' . $_conf['k_to_index_ht'] . "\n";
+echo $hr . $_conf['k_to_index_ht'] . "\n";
 
 echo '</body></html>';
 

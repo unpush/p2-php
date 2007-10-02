@@ -36,55 +36,64 @@ class Login
     /**
      * ユーザ名をセットする
      *
-     * @return  void
      * @access  public
+     * @return  void
      */ 
     function setUser($user)
     {
         $this->user_u = $user;
         $this->user = $user;
     }
-
+    
+    /**
+     * @return  boolean
+     */
+    function validLoginId($login_id)
+    {
+        $add_mail = empty($GLOBALS['brazil']) ? '' : '.,@+-';
+        
+        if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $login_id)) {
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * ログインユーザ名の指定を得る
      *
-     * @access  protected
-     * @return  string|false
+     * @static
+     * @access  public
+     * @return  string|null
      */
     function setdownLoginUser()
     {
-        $login_user = false;
+        $login_user = null;
 
         // ユーザ名決定の優先順位に沿って
 
         // ログインフォームからの指定
-        if (!empty($GLOBALS['brazil'])) {
-            $add_mail = '.,@-';
-        } else {
-            $add_mail = '';
-        }
-        if (isset($_REQUEST['form_login_id']) and preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_REQUEST['form_login_id'])) {
+        if (isset($_REQUEST['form_login_id']) and $this->validLoginId($_REQUEST['form_login_id'])) {
             $login_user = $this->setdownLoginUserWithRequest();
 
         // GET引数での指定
-        } elseif (isset($_REQUEST['user']) and preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_REQUEST['user'])) {
+        } elseif (isset($_REQUEST['user']) and $this->validLoginId($_REQUEST['user'])) {
             $login_user = $_REQUEST['user'];
 
         // Cookieで指定
-        } elseif (isset($_COOKIE['cid']) and ($user = $this->getUserFromCid($_COOKIE['cid'])) !== false) {
-            if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $user)) {
+        } elseif (isset($_COOKIE['cid']) and ($user = Login::getUserFromCid($_COOKIE['cid'])) !== false) {
+            if ($this->validLoginId($user)) {
                 $login_user = $user;
             }
 
         // Sessionで指定
-        } elseif (isset($_SESSION['login_user']) and preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SESSION['login_user'])) {
+        } elseif (isset($_SESSION['login_user']) and $this->validLoginId($_SESSION['login_user'])) {
             $login_user = $_SESSION['login_user'];
         
         /*
         // Basic認証で指定
         } elseif (isset($_REQUEST['basic']) and !empty($_REQUEST['basic'])) {
         
-            if (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SERVER['PHP_AUTH_USER']))) {
+            if (isset($_SERVER['PHP_AUTH_USER']) && ($this->validLoginId($_SERVER['PHP_AUTH_USER']))) {
                 $login_user = $_SERVER['PHP_AUTH_USER'];
         
             } else {
@@ -103,12 +112,13 @@ class Login
     /**
      * REQUESTからログインユーザ名の指定を得る
      *
+     * @static
      * @access  private
-     * @return  string
+     * @return  string|null
      */
     function setdownLoginUserWithRequest()
     {
-        return $_REQUEST['form_login_id'];
+        return isset($_REQUEST['form_login_id']) ? $_REQUEST['form_login_id'] : null;
     }
     
     /**
@@ -277,7 +287,7 @@ class Login
                 include $_conf['auth_ez_file'];
                 if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
                     if (isset($_p2session)) {
-                        $_p2session->regenerateId();
+                        //$_p2session->regenerateId();
                         $_p2session->updateSecure();
                     }
                     return true;
@@ -641,12 +651,10 @@ EOP;
         
         require_once P2_LIB_DIR . '/md5_crypt.inc.php';
         
-        $key = $this->getMd5CryptKey();
-        
         $idtime = $user_u . ':' . time(). ':';
         $pw_enc = md5($idtime . $pass_x);
         $str = $idtime . $pw_enc;
-        $cid = md5_encrypt($str, $key, 32);
+        $cid = md5_encrypt($str, $this->getMd5CryptPass());
         
         return $cid;
     }
@@ -654,6 +662,7 @@ EOP;
     /**
      * Cookie（CID）からユーザ情報を得る
      *
+     * @static
      * @access  private
      * @return  array|false  成功すれば配列、失敗なら false を返す
      */
@@ -663,28 +672,26 @@ EOP;
         
         require_once P2_LIB_DIR . '/md5_crypt.inc.php';
         
-        $key = $this->getMd5CryptKey();
-        
-        $dec = md5_decrypt($cid, $key, 32);
+        $dec = md5_decrypt($cid, Login::getMd5CryptPass());
         list($user, $time, $pw_enc) = split(':', $dec, 3);
 
         // 有効期限 日数
         if (time() > $time + (86400 * $_conf['cid_expire_day'])) {
             return false; // 期限切れ
-        } else {
-            return array($user, $time, $pw_enc);
         }
+        return array($user, $time, $pw_enc);
     }
     
     /**
      * Cookie情報（CID）からuserを得る
      *
-     * @access  private
+     * @static
+     * @access  public
      * @return  string|false
      */
     function getUserFromCid($cid)
     {
-        if (!$ar = $this->getCidInfo($cid)) {
+        if (!$ar = Login::getCidInfo($cid)) {
             return false;
         }
         
@@ -721,15 +728,27 @@ EOP;
     }
     
     /**
-     * md5_encrypt, md5_decrypt のためにクリプトキーを得る
+     * md5_encrypt, md5_decrypt のための password(salt) を得る
      *
+     * @static
      * @access  private
      * @return  string
      */
-    function getMd5CryptKey()
+    function getMd5CryptPass()
     {
-        //return $_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE'];
-        return $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        //return md5($_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE']);
+        return md5($_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE']);
     }
 
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -23,7 +23,7 @@
  * @author     Greg Beaver <cellog@php.net>
  * @copyright  2004-2006 Greg Beaver
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: ErrorStack.php,v 1.1 2007/01/30 06:10:01 akid Exp $
+ * @version    CVS: $Id: ErrorStack.php,v 1.2 2007/10/02 11:30:10 akid Exp $
  * @link       http://pear.php.net/package/PEAR_ErrorStack
  */
 
@@ -132,12 +132,12 @@ define('PEAR_ERRORSTACK_ERR_OBJTOSTRING', 2);
  * $local_stack = new PEAR_ErrorStack('MyPackage');
  * </code>
  * @author     Greg Beaver <cellog@php.net>
- * @version    1.5.0RC3
+ * @version    1.6.1
  * @package    PEAR_ErrorStack
  * @category   Debugging
  * @copyright  2004-2006 Greg Beaver
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: ErrorStack.php,v 1.1 2007/01/30 06:10:01 akid Exp $
+ * @version    CVS: $Id: ErrorStack.php,v 1.2 2007/10/02 11:30:10 akid Exp $
  * @link       http://pear.php.net/package/PEAR_ErrorStack
  */
 class PEAR_ErrorStack {
@@ -857,7 +857,7 @@ class PEAR_ErrorStack {
                          'line' => $filebacktrace['line']);
             // rearrange for eval'd code or create function errors
             if (strpos($filebacktrace['file'], '(') && 
-            	  preg_match(';^(.*?)\((\d+)\) : (.*?)$;', $filebacktrace['file'],
+            	  preg_match(';^(.*?)\((\d+)\) : (.*?)\\z;', $filebacktrace['file'],
                   $matches)) {
                 $ret['file'] = $matches[1];
                 $ret['line'] = $matches[2] + 0;

@@ -9,13 +9,13 @@ require_once P2_LIB_DIR . '/filectl.class.php';
  * @access  public
  * @return  boolean
  */
-function setPal($host, $bbs, $key, $setpal)
+function setPal($host, $bbs, $key, $set)
 {
     global $_conf;
 
     // key.idx のパスを求めて
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
+    $idx_host_dir   = P2Util::idxDirOfHost($host);
+    $idxfile        = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
 
     // 既に key.idx データがあるなら読み込む
     if (file_exists($idxfile) and $lines = file($idxfile)) {
@@ -26,10 +26,11 @@ function setPal($host, $bbs, $key, $setpal)
     // p2_palace.idxに書き込む
     $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx';
 
-    FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
+    if (false === FileCtl::make_datafile($palace_idx, $_conf['palace_perm'])) {
+        return false;
+    }
 
-    $pallines = file($palace_idx);
-    if ($pallines === false) {
+    if (false === $pallines = file($palace_idx)) {
         return false;
     }
     
@@ -60,10 +61,10 @@ function setPal($host, $bbs, $key, $setpal)
     // }}}
     
     // 新規データ設定
-    if ($setpal) {
+    if ($set) {
         $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
         require_once P2_LIB_DIR . '/getsetposlines.inc.php';
-        $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setpal);
+        $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $set);
     } else {
         $rec_lines = $neolines;
     }

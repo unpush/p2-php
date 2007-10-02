@@ -24,8 +24,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     }
     
     // p2_threads_aborn.idx ì«Ç›çûÇ›
-    $taborn_lines = file($taborn_idx);
-    if ($taborn_lines === false) {
+    if (false === $taborn_lines = file($taborn_idx)) {
         return false;
     }
     

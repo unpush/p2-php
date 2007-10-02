@@ -131,9 +131,12 @@ $STYLE['read_mail_sage_color'] = ""; // ("") sageの時の投稿者のmailの色 ex)"#00b
 $STYLE['read_ngword'] = "#bbbbbb"; // ("#bbbbbb") NGワードの色
 
 // 携帯用
-$STYLE['read_k_thread_title_color'] = "#1144aa"; // ("#1144aa") スレッドタイトル色
-$STYLE['read_k_bgcolor'] = ""; // ("#efefef") スレッド表示の背景色
-$STYLE['read_k_color'] = ""; // ("#000000") スレッド表示のテキスト色
+// ("#1144aa") スレッドタイトル色
+$STYLE['read_k_thread_title_color'] = isset($_conf['read_k_thread_title_color']) ? $_conf['read_k_thread_title_color'] : "#1144aa";
+$STYLE['k_bgcolor'] = isset($_conf['k_bgcolor']) ? $_conf['k_bgcolor'] : ''; // 携帯、基本背景色
+$STYLE['k_color'] = isset($_conf['k_color']) ? $_conf['k_color'] : "";   // 携帯、基本テキスト色
+$STYLE['k_acolor'] = isset($_conf['k_acolor']) ? $_conf['k_acolor'] : "";   // 携帯、基本リンク色
+$STYLE['k_acolor_v'] = isset($_conf['k_acolor_v']) ? $_conf['k_acolor_v'] : "";   // 携帯、基本訪問済みリンク色
 
 // レス書き込みフォーム
 $STYLE['post_pop_size'] = "620,360"; // ("620,360") レス書き込みポップアップウィンドウの大きさ（横,縦）

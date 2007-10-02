@@ -74,10 +74,11 @@ function setFav($host, $bbs, $key, $setfav)
     $neolines = array();
     $before_line_num = 0;
 
-    FileCtl::make_datafile($_conf['favlist_file'], $_conf['favlist_perm']);
+    if (false === FileCtl::make_datafile($_conf['favlist_file'], $_conf['favlist_perm'])) {
+        return false;
+    }
 
-    $favlines = file($_conf['favlist_file']);
-    if ($favlines === false) {
+    if (false === $favlines = file($_conf['favlist_file'])) {
         return false;
     }
     

@@ -261,6 +261,8 @@ EOP;
     {
         global $_conf;
         
+        $hr = P2Util::getHrHtmlK();
+        
         $n = 0;
         foreach ($datlines as $aline) {
             $n++;
@@ -294,7 +296,8 @@ EOP;
             
             // ‘å‚«‚³§ŒÀ
             if (empty($_GET['k_continue'])) {
-                if (strlen($msg_ht) > $_conf['ktai_res_size']) {
+            
+                if ($_conf['ktai_res_size'] && strlen($msg_ht) > $_conf['ktai_res_size']) {
                     $msg_ht = substr($msg_ht, 0, $_conf['ktai_ryaku_size']);
                 
                     // ––”ö‚É<br>‚ª‚ ‚ê‚Îæ‚èœ‚­
@@ -345,7 +348,7 @@ EOP;
             $res_ht .= '<br>';
             
             // “à—e
-            $res_ht .= "{$msg_ht}<hr>\n";
+            $res_ht .= "{$msg_ht}$hr\n";
             
             if ($_conf['k_save_packet']) {
                 $res_ht = mb_convert_kana($res_ht, 'rnsk');

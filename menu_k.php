@@ -18,6 +18,8 @@ $GLOBALS['menu_show_ita_num'] = 0;
 
 BrdCtl::parseWord(); // set $GLOBALS['word']
 
+$hr = P2Util::getHrHtmlK();
+
 //============================================================
 // 特殊な前処理
 //============================================================
@@ -35,6 +37,8 @@ $aShowBrdMenuK =& new ShowBrdMenuK;
 //============================================================
 // ヘッダHTMLを表示
 //============================================================
+
+$body_at = P2Util::getBodyAttrK();
 
 $get['view'] = isset($_GET['view']) ? $_GET['view'] : null;
 
@@ -57,7 +61,7 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-echo "</head><body>\n";
+echo "</head><body{$body_at}>\n";
 
 P2Util::printInfoHtml();
 
@@ -89,7 +93,7 @@ if (strlen($GLOBALS['word']) > 0) {
     if ($GLOBALS['ita_mikke']['num']) {
         $hit_ht = "<br>\"{$word_hs}\" {$GLOBALS['ita_mikke']['num']}hit!";
     }
-    echo "板ﾘｽﾄ検索結果{$hit_ht}<hr>";
+    echo "板ﾘｽﾄ検索結果{$hit_ht}$hr";
 
     // 板名を検索して表示する
     if ($brd_menus) {
@@ -110,7 +114,7 @@ EOP;
 
 // カテゴリをHTML表示
 if ($get['view'] == 'cate' or isset($_REQUEST['word']) && strlen($GLOBALS['word']) == 0) {
-    echo "板ﾘｽﾄ<hr>";
+    echo "板ﾘｽﾄ{$hr}";
     if ($brd_menus) {
         foreach ($brd_menus as $a_brd_menu) {
             $aShowBrdMenuK->printCate($a_brd_menu->categories);
@@ -138,7 +142,7 @@ P2Util::printInfoHtml();
 !isset($modori_url_ht) and $modori_url_ht = null;
 
 // フッタをHTML表示
-echo '<hr>';
+echo $hr;
 echo $list_navi_ht;
 echo $modori_url_ht;
 echo $_conf['k_to_index_ht'];

@@ -34,7 +34,7 @@
  * @author     Amir Mohammad Saied <amir@php.net>
  * @copyright  1997-2006 Pierre-Alain Joye,Tomas V.V.Cox,Amir Mohammad Saied
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    CVS: $Id: Validate.php,v 1.1 2007/01/30 06:09:58 akid Exp $
+ * @version    CVS: $Id: Validate.php,v 1.2 2007/10/02 11:30:08 akid Exp $
  * @link       http://pear.php.net/package/Validate
  */
 

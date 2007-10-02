@@ -1,10 +1,9 @@
 <?php
 /*
-	このファイルの関数は、PHPマニュアルページよりの拝借です。感謝。
+	このファイルの関数は、PHPマニュアルページより拝借したものに、akiが少しだけ手を加えたものです。
 	http://jp.php.net/manual/ja/function.md5.php
 	
-	
-	Alexander Valyalkin
+	オリジナル感謝 → Alexander Valyalkin
 	01-Jul-2004 05:41 
 	Below is MD5-based block cypher (MDC-like), which works in 128bit CFB mode.
 	It is very useful to encrypt secret data before transfer it over the network.
@@ -21,8 +20,25 @@ function get_rnd_iv($iv_len)
    return $iv;
 }
 
+/**
+ * $password（salt）の長さが $iv_len を超えていたら md5() した後、カットして収める
+ *
+ * @author  aki
+ * @since   2007/07/02
+ * @return  string
+ */
+function adjustPassword($password, $iv_len)
+{
+    if (strlen($password) > $iv_len) {
+        $password = substr(md5($password), 0, $iv_len);
+    }
+    return $password;
+}
+
 function md5_encrypt($plain_text, $password, $iv_len = 16)
 {
+   $password = adjustPassword($password, $iv_len); // added by aki
+   
    $plain_text .= "\x13";
    $n = strlen($plain_text);
    if ($n % 16) $plain_text .= str_repeat("\0", 16 - ($n % 16));
@@ -40,6 +56,8 @@ function md5_encrypt($plain_text, $password, $iv_len = 16)
 
 function md5_decrypt($enc_text, $password, $iv_len = 16)
 {
+   $password = adjustPassword($password, $iv_len); // added by aki
+   
    $enc_text = base64_decode($enc_text);
    $n = strlen($enc_text);
    $i = $iv_len;

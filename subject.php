@@ -426,7 +426,7 @@ for ($x = 0; $x < $linesize; $x++) {
     
         // マッチした時
         } else {
-            $GLOBALS['sb_mikke_num']++;
+            $GLOBALS['sb_mikke_num'] = isset($GLOBALS['sb_mikke_num']) ? $GLOBALS['sb_mikke_num'] + 1 : 1;
             if ($_conf['ktai']) {
                 if (is_string($_conf['k_filter_marker'])) {
                     $aThread->ttitle_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aThread->ttitle_hd, $_conf['k_filter_marker']);
@@ -490,7 +490,7 @@ for ($x = 0; $x < $linesize; $x++) {
         
         if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
 
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
             
             $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('subthre_read');
@@ -592,7 +592,7 @@ for ($x = 0; $x < $linesize; $x++) {
         
             // マッチした時
             } else {
-                $GLOBALS['sb_mikke_num']++;
+                $GLOBALS['sb_mikke_num'] = isset($GLOBALS['sb_mikke_num']) ? $GLOBALS['sb_mikke_num'] + 1 : 1;
                 if ($_conf['ktai']) {
                     if (is_string($_conf['k_filter_marker'])) {
                         $aThread->ttitle_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aThread->ttitle_hd, $_conf['k_filter_marker']);
@@ -671,13 +671,15 @@ $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('FORLOOP');
 $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('FOOT');
 
 // 既にdat落ちしているスレは自動的にあぼーんを解除する
-autoTAbornOff($aThreadList, $ta_keys);
+if ($resultStr = _autoTAbornOff($aThreadList, $ta_keys)) {
+    P2Util::pushInfoHtml("<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - {$resultStr}</div>");
+}
 
 // ソート
 sortThreads($aThreadList);
 
 //===============================================================
-// プリント
+// HTMLプリント
 //===============================================================
 // 携帯
 if ($_conf['ktai']) {
@@ -768,29 +770,37 @@ exit;
 /**
  * 既にdat落ちしているスレは自動的にあぼーんを解除する
  * $ta_keys はあぼーんリストに入っていたけれど、あぼーんされずに残ったスレたち
+ *
+ * @return  string  あぼーん解除したなら、その内容メッセージ。何も解除していなければ空文字 ''
  */
-function autoTAbornOff(&$aThreadList, &$ta_keys)
+function _autoTAbornOff(&$aThreadList, &$ta_keys)
 {
     global $ta_num;
+    
+    $result = '';
+    
+    // 変に少ない場合は、自動解除しない
+    if ($aThreadList->num <= 1) {
+        return $result;
+    }
     
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('abornoff');
     
     if (!$aThreadList->spmode and !$GLOBALS['word'] and !$GLOBALS['wakati_word'] and $aThreadList->threads and $ta_keys) {
         require_once P2_LIB_DIR . '/settaborn_off.inc.php';
-        // echo sizeof($ta_keys)."*<br>";
         $ta_vkeys = array_keys($ta_keys);
         settaborn_off($aThreadList->host, $aThreadList->bbs, $ta_vkeys);
-        $ks = '';
         foreach ($ta_vkeys as $k) {
             $ta_num--;
             if ($k) {
-                $ks .= "key:$k ";
+                $result .= "key:$k ";
             }
         }
-        $ks && P2Util::pushInfoHtml("<div class=\"info\">　p2 info: DAT落ちしたスレッドあぼーんを自動解除しました - $ks</div>");
     }
     
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('abornoff');
+    
+    return $result;
 }
 
 /**
@@ -876,7 +886,7 @@ function saveSbSetting($p2_setting_txt, $p2_setting, $pre_setting)
         }
         if ($p2_setting) {
             $p2_setting_cont = serialize($p2_setting);
-            if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
+            if (false === file_put_contents($p2_setting_txt, $p2_setting_cont, LOCK_EX)) {
                 die("Error: cannot write file.");
             }
         }
@@ -1029,6 +1039,12 @@ function setSbSimilarity(&$aThread)
  */
 function getWakatiRegex()
 {
+    static $cache_;
+    
+    if (isset($cache_)) {
+        return $cache_;
+    }
+    
     $patterns = array(
         //'[一-龠]+[ぁ-ん]*',
         //'[一-龠]+',
@@ -1041,7 +1057,9 @@ function getWakatiRegex()
         '[0-9a-z][0-9a-z_\\-]*',
     );
     
-    return mb_convert_encoding('/(' . implode('|', $patterns) . ')/u', 'UTF-8', 'SJIS-win');
+    $cache_ = mb_convert_encoding('/(' . implode('|', $patterns) . ')/u', 'UTF-8', 'SJIS-win');
+    
+    return $cache_;
 }
 
 /**

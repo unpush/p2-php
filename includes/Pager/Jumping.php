@@ -33,7 +33,7 @@
  * @author     Richard Heyes <richard@phpguru.org>,
  * @copyright  2003-2006 Lorenzo Alberton, Richard Heyes
  * @license    http://www.debian.org/misc/bsd.license  BSD License (3 Clause)
- * @version    CVS: $Id: Jumping.php,v 1.1 2007/01/30 06:10:07 akid Exp $
+ * @version    CVS: $Id: Jumping.php,v 1.2 2007/10/02 11:30:13 akid Exp $
  * @link       http://pear.php.net/package/Pager
  */
 

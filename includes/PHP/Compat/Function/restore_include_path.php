@@ -15,7 +15,7 @@
 // | Authors: Stephan Schmidt <schst@php.net>                             |
 // +----------------------------------------------------------------------+
 //
-// $Id: restore_include_path.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: restore_include_path.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 /**
@@ -25,7 +25,7 @@
  * @package     PHP_Compat
  * @link        http://php.net/function.restore_include_path
  * @author      Stephan Schmidt <schst@php.net>
- * @version     $Revision: 1.1 $
+ * @version     $Revision: 1.2 $
  * @since       PHP 4.3.0
  */
 if (!function_exists('restore_include_path')) {

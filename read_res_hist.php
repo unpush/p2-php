@@ -63,6 +63,9 @@ $htm['toolbar'] = <<<EOP
             　{$htm['checkall']}
 EOP;
 
+$hr = P2Util::getHrHtmlK();
+$body_at = P2Util::getBodyAttrK();
+
 //==================================================================
 // ヘッダHTML表示
 //==================================================================
@@ -107,7 +110,7 @@ EOSCRIPT;
 
 echo <<<EOP
 </head>
-<body>\n
+<body{$body_at}>\n
 EOP;
 
 P2Util::printInfoHtml();
@@ -119,7 +122,7 @@ if ($_conf['ktai']) {
     $aResHist->showNaviK('header', $datlines_num);
     echo " <a {$_conf['accesskey']}=\"8\" href=\"#footer\"{$_conf['k_at_a']}>8.▼</a><br>";
     echo "</div>";
-    echo "<hr>";
+    echo $hr;
 
 // PC用表示
 } else {

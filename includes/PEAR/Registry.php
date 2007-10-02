@@ -17,7 +17,7 @@
  * @author     Greg Beaver <cellog@php.net>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: Registry.php,v 1.1 2007/01/30 06:10:01 akid Exp $
+ * @version    CVS: $Id: Registry.php,v 1.2 2007/10/02 11:30:10 akid Exp $
  * @link       http://pear.php.net/package/PEAR
  * @since      File available since Release 0.1
  */
@@ -43,7 +43,7 @@ define('PEAR_REGISTRY_ERROR_CHANNEL_FILE', -6);
  * @author     Greg Beaver <cellog@php.net>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.5.0RC3
+ * @version    Release: 1.6.1
  * @link       http://pear.php.net/package/PEAR
  * @since      Class available since Release 1.4.0a1
  */
@@ -157,6 +157,7 @@ class PEAR_Registry extends PEAR
         if (!file_exists($this->install_dir)) {
             $dir = $this->install_dir;
             while ($dir && $dir != '.') {
+                $olddir = $dir;
                 $dir = dirname($dir); // cd ..
                 if ($dir != '.' && file_exists($dir)) {
                     if (is_writeable($dir)) {
@@ -164,6 +165,9 @@ class PEAR_Registry extends PEAR
                     } else {
                         return false;
                     }
+                }
+                if ($dir == $olddir) { // this can happen in safe mode
+                    return @is_writable($dir);
                 }
             }
             return false;
@@ -254,7 +258,7 @@ class PEAR_Registry extends PEAR
               $handle = opendir($this->statedir)) {
             $dest = $this->statedir . $ds;
             while (false !== ($file = readdir($handle))) {
-                if (preg_match('/^.*[A-Z].*\.reg$/', $file)) {
+                if (preg_match('/^.*[A-Z].*\.reg\\z/', $file)) {
                     rename($dest . $file, $dest . strtolower($file));
                 }
             }
@@ -693,12 +697,12 @@ class PEAR_Registry extends PEAR
                     }
                     $file = preg_replace(',^/+,', '', $file);
                     if ($channel != 'pear.php.net') {
+                        if (!isset($files[$attrs['role']])) {
+                            $files[$attrs['role']] = array();
+                        }
                         $files[$attrs['role']][$file] = array(strtolower($channel),
                             strtolower($package));
                     } else {
-                        if (!is_array($files)) {
-                            $file = array();
-                        }
                         if (!isset($files[$attrs['role']])) {
                             $files[$attrs['role']] = array();
                         }
@@ -1113,6 +1117,8 @@ class PEAR_Registry extends PEAR
         if (!in_array('__uri', $channellist)) {
             $channellist[] = '__uri';
         }
+        
+        natsort($channellist);
         return $channellist;
     }
 
@@ -1209,6 +1215,10 @@ class PEAR_Registry extends PEAR
      */
     function _addPackage2($info)
     {
+        if (!is_a($info, 'PEAR_PackageFile_v1') && !is_a($info, 'PEAR_PackageFile_v2')) {
+            return false;
+        }
+
         if (!$info->validate()) {
             if (class_exists('PEAR_Common')) {
                 $ui = PEAR_Frontend::singleton();

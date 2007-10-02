@@ -19,7 +19,7 @@
 *
 * @package Cache_Lite
 * @category Caching
-* @version $Id: Lite.php,v 1.1 2007/01/30 06:09:59 akid Exp $
+* @version $Id: Lite.php,v 1.2 2007/10/02 11:30:09 akid Exp $
 * @author Fabien MARTY <fab@php.net>
 */
 

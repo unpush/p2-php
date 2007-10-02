@@ -16,7 +16,7 @@
 // |          Mocha (http://us4.php.net/pg_escape_bytea)                  |
 // +----------------------------------------------------------------------+
 //
-// $Id: pg_affected_rows.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: pg_affected_rows.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 /**

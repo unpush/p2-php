@@ -1,6 +1,6 @@
 <?php
-require_once P2_LIB_DIR . '/showthread.class.php';
-require_once 'StrSjis.php';
+require_once P2_LIB_DIR . '/ShowThread.php';
+require_once P2_LIB_DIR . '/StrSjis.php';
 
 /**
  * p2 - 携帯用にスレッドを表示するクラス
@@ -30,7 +30,7 @@ class ShowThreadK extends ShowThread
         }
         $this->url_handlers[] = array('this' => 'plugin_linkURL');
         
-        if (empty($_conf['k_bbs_noname_name'])) {
+        if (empty($_conf['k_bbs_noname_name']) and P2Util::isHost2chs($this->thread->host)) {
             require_once P2_LIB_DIR . '/SettingTxt.php';
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             !empty($st->setting_array['BBS_NONAME_NAME']) and $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
@@ -143,6 +143,8 @@ class ShowThreadK extends ShowThread
         global $STYLE, $mae_msg, $res_filter, $word_fm;
         global $ngaborns_hits;
         global $_conf;
+        
+        $hr = P2Util::getHrHtmlK();
         
         $tores      = "";
         $rpop       = "";
@@ -357,7 +359,7 @@ EOP;
         
         $tores .="<br>\n"; // 日付とID
         $tores .= $rpop; // レスポップアップ用引用
-        $tores .= "{$msg}</div><hr>\n"; // 内容
+        $tores .= "{$msg}</div>$hr\n"; // 内容
         
         // まとめてフィルタ色分け
         if ($GLOBALS['word_fm'] && $GLOBALS['res_filter']['match'] != 'off') {
@@ -448,11 +450,11 @@ EOP;
         
         // AAの強制省略。
         $aa_ryaku_flag = false;
-        if ($_conf['k_aa_ryaku_size'] and strlen($msg) > $_conf['k_aa_ryaku_size'] and $has_aa == 2) {
+        if ($_conf['k_aa_ryaku_size'] && strlen($msg) > $_conf['k_aa_ryaku_size'] and $has_aa == 2) {
             $aa_ryaku_flag = true;
         }
         
-        if (empty($_GET['k_continue']) && strlen($msg) > $_conf['ktai_res_size'] or $aa_ryaku_flag) {
+        if (empty($_GET['k_continue']) and $_conf['ktai_res_size'] && strlen($msg) > $_conf['ktai_res_size'] || $aa_ryaku_flag) {
             // <br>以外のタグを除去し、長さを切り詰める
             $msg = strip_tags($msg, '<br>');
             if ($aa_ryaku_flag) {

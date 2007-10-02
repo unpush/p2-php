@@ -65,7 +65,7 @@ echo <<<EOP
 	hr{height:1px; color:#ccc;}
 	
 	div.container{
-		width:85%;
+		width:95%;
 		margin:8px auto;
 		padding:0px 16px;
 		text-align:left;

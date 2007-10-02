@@ -270,7 +270,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         
         if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
 
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
             
             !empty($debug) && $profiler->enterSection('subthre_read'); //

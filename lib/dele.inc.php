@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /*
     p2 - スレッドデータ、DATを削除するための関数郡
 */
@@ -174,8 +171,7 @@ function offRecent($host, $bbs, $key)
         return 2;
     }
     
-    $lines = file($_conf['rct_file']);
-    if ($lines === false) {
+    if (false === $lines = file($_conf['rct_file'])) {
         return false;
     }
     
@@ -205,7 +201,7 @@ function offRecent($host, $bbs, $key)
             $cont .= $l . "\n";
         }
         
-        if (FileCtl::filePutRename($_conf['rct_file'], $cont) === false) {
+        if (false === FileCtl::filePutRename($_conf['rct_file'], $cont)) {
             $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
             trigger_error($errmsg, E_USER_WARNING);
             return false;
@@ -269,7 +265,7 @@ function offResHist($host, $bbs, $key)
             $cont .= $l . "\n";
         }
         
-        if (FileCtl::filePutRename($rh_idx, $cont) === false) {
+        if (false === FileCtl::filePutRename($rh_idx, $cont)) {
             $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
             trigger_error($errmsg, E_USER_WARNING);
             return false;
@@ -285,3 +281,13 @@ function offResHist($host, $bbs, $key)
     }
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -32,9 +32,6 @@ $ttitle_en  = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
 $ttitle     = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
 $ttitle_hs  = htmlspecialchars($ttitle, ENT_QUOTES);
 
-$idx_host_dir = P2Util::idxDirOfHost($host);
-$key_idx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
-
 // フォームのオプション読み込み
 require_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
@@ -59,7 +56,7 @@ if (!empty($_GET['newthread'])) {
     }
     
     $htm['subject'] = <<<EOP
-<b><span{$class_ttitle}>タイトル</span></b>：<input type="text" id="subject" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
+<b><span{$class_ttitle}>タイトル</span></b>：<input type="text" id="subject" name="subject"{$sub_size_at} value="{$hs['subject']}"><br>
 EOP;
     if ($_conf['ktai']) {
         $htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>" . $htm['subject'];
@@ -88,6 +85,8 @@ $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name
 //==========================================================
 // HTML 表示出力
 //==========================================================
+$body_at = P2Util::getBodyAttrK();
+
 if (!$_conf['ktai']) {
     $body_on_load = <<<EOP
  onLoad="setFocus('MESSAGE'); checkSage();"
@@ -114,7 +113,7 @@ EOSCRIPT;
 }
 echo <<<EOP
 </head>
-<body{$body_on_load}>\n
+<body{$body_at}{$body_on_load}>\n
 EOP;
 
 P2Util::printInfoHtml();
@@ -125,4 +124,3 @@ require_once P2_LIB_DIR . '/post_form.inc.php';
 echo $htm['post_form'];
 
 echo '</body></html>';
-

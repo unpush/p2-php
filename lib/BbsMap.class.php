@@ -56,9 +56,9 @@ class BbsMap
     /**
      * 2chの板名からホスト名を取得する
      *
-     * @param   string  $bbs    板名
-     * @access  public
      * @static
+     * @access  public
+     * @param   string  $bbs    板名
      * @return  string|false
      */
     function get2chHostByBbs($bbs)
@@ -111,12 +111,13 @@ class BbsMap
     /**
      * お気に板などのbrdファイルを同期する
      *
-     * @param   string  $brd_path   brdファイルのパス
-     * @return  void
-     * @access  public
      * @static
+     * @access  public
+     * @param   string  $brd_path   brdファイルのパス
+     * @param   boolean $noMsg      結果メッセージのpushを抑制するならtrue
+     * @return  void
      */
-    function syncBrd($brd_path)
+    function syncBrd($brd_path, $noMsg = false)
     {
         global $_conf;
         static $done = array();
@@ -178,9 +179,9 @@ class BbsMap
         $name_hs = htmlspecialchars($name, ENT_QUOTES);
         if ($updated) {
             BbsMap::_writeData($brd_path, $neolines);
-            !$_conf['ktai'] and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s を同期しました。</p>', $name_hs));
+            !$noMsg and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s を同期しました。</p>', $name_hs));
         } else {
-            !$_conf['ktai'] and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s は変更されませんでした。</p>', $name_hs));
+            !$noMsg and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s は変更されませんでした。</p>', $name_hs));
         }
         $done[$brd_path] = true;
 
@@ -193,12 +194,13 @@ class BbsMap
     /**
      * お気にスレなどのidxファイルを同期する
      *
-     * @param   string  $idx_path   idxファイルのパス
-     * @return  void
-     * @access  public
      * @static
+     * @access  public
+     * @param   string  $idx_path   idxファイルのパス
+     * @param   boolean $noMsg      結果メッセージのpushを抑制するならtrue
+     * @return  void
      */
-    function syncIdx($idx_path)
+    function syncIdx($idx_path, $noMsg = false)
     {
         global $_conf;
         static $done = array();
@@ -250,9 +252,9 @@ class BbsMap
         $name_hs = htmlspecialchars($name, ENT_QUOTES);
         if ($updated) {
             BbsMap::_writeData($idx_path, $neolines);
-            !$_conf['ktai'] and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s を同期しました。</p>', $name_hs));
+            !$noMsg and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s を同期しました。</p>', $name_hs));
         } else {
-            !$_conf['ktai'] and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s は変更されませんでした。</p>', $name_hs));
+            !$noMsg and P2Util::pushInfoHtml(sprintf('<p>p2 info: %s は変更されませんでした。</p>', $name_hs));
         }
         $done[$idx_path] = true;
 
@@ -272,9 +274,12 @@ class BbsMap
     function syncFav()
     {
         global $_conf;
-        BbsMap::syncBrd($_conf['favita_path']);
-        BbsMap::syncIdx($_conf['favlist_file']);
-        BbsMap::syncIdx($_conf['rct_file']);
+        
+        $noMsg = $_conf['ktai'] ? true : false;
+        
+        BbsMap::syncBrd($_conf['favita_path'], $noMsg);
+        BbsMap::syncIdx($_conf['favlist_file'], $noMsg);
+        BbsMap::syncIdx($_conf['rct_file'], $noMsg);
     }
 
     // }}}
@@ -386,7 +391,7 @@ class BbsMap
         
         // キャッシュする
         $map_cache = serialize($map);
-        if (FileCtl::filePutRename($map_cache_path, $map_cache) === false) {
+        if (false === FileCtl::filePutRename($map_cache_path, $map_cache)) {
             $errmsg = sprintf('p2 error: cannot write file. (%s)', htmlspecialchars($map_cache_path, ENT_QUOTES));
             P2Util::pushInfoHtml($errmsg);
             
@@ -446,7 +451,7 @@ class BbsMap
         } else {
             $cont = '';
         }
-        if (FileCtl::filePutRename($path, $cont) === false) {
+        if (false === FileCtl::filePutRename($path, $cont)) {
             $errmsg = sprintf('Error: cannot write file. (%s)', htmlspecialchars($path, ENT_QUOTES));
             die($errmsg);
         }

@@ -163,7 +163,7 @@ $ptitle = strip_tags($ptitle_top);
 $csrfid = P2Util::getCsrfId();
 
 //=====================================================================
-// HTMLプリント
+// HTML出力
 //=====================================================================
 // ヘッダHTMLをプリント
 P2Util::header_nocache();
@@ -188,7 +188,11 @@ EOP;
     include_once './style/edit_conf_user_css.inc';
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
+$body_at = P2Util::getBodyAttrK();
+if (!$_conf['ktai']) {
+    $body_at .= ' onload="top.document.title=self.document.title;"';
+}
+
 echo <<<EOP
 </head>
 <body{$body_at}>\n
@@ -220,7 +224,7 @@ EOP;
 EOP;
 }
 
-// 情報メッセージ表示
+// 情報メッセージHTMLを表示する
 P2Util::printInfoHtml();
 
 $attent_ht = '';
@@ -230,15 +234,14 @@ if ($_conf['ngaborn_data_limit']) {
 
 $usage = <<<EOP
 <ul style="font-size:10pt;">
-{$attent_ht}
-<li>「NGワード」は見えなくしたということを打ち消し線でわかるようにしています。</li>
-マウスオーバーすれば、その場で表示確認できます。
-<li>「あぼーんワード」は完全に見えなくします。いわゆる透明あぼーん状態。</li>
-<li>ワード: NG/あぼーんワード (空にすると登録解除)</li>
-<li>i: 大文字小文字を無視</li>
-<li>re: 正規表現</li>
-<li>板: newsplus,software 等 (完全一致, カンマ区切り)</li>
-<li>スレタイ: スレッドタイトル (部分一致, 常に大文字小文字を無視)</li>
+	{$attent_ht}
+	<li>「NGワード」は見えなくしたということを打ち消し線でわかるようにしています。クリックすると、その場で表示確認できます。</li>
+	<li>「あぼーんワード」は完全に見えなくします。いわゆる透明あぼーん状態。</li>
+	<li>ワード: NG/あぼーんワード (空にすると登録解除)</li>
+	<li>i: 大文字小文字を無視</li>
+	<li>re: 正規表現</li>
+	<li>板: newsplus,software 等 (完全一致, カンマ区切り)</li>
+	<li>スレタイ: スレッドタイトル (部分一致, 常に大文字小文字を無視)</li>
 </ul>
 EOP;
 if ($_conf['ktai']) {
@@ -247,10 +250,10 @@ if ($_conf['ktai']) {
 echo <<<EOP
 {$usage}
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="◎◇">
-    <input type="hidden" name="path" value="{$path_ht}">
-    <input type="hidden" name="csrfid" value="{$csrfid}">
-    {$_conf['k_input_ht']}\n
+	<input type="hidden" name="detect_hint" value="◎◇">
+	<input type="hidden" name="path" value="{$path_ht}">
+	<input type="hidden" name="csrfid" value="{$csrfid}">
+	{$_conf['k_input_ht']}\n
 EOP;
 
 // PC用表示（table）
@@ -327,8 +330,9 @@ echo '</form>'."\n";
 
 // 携帯なら
 if ($_conf['ktai']) {
+    $hr = P2Util::getHrHtmlK();
     echo <<<EOP
-<hr>
+$hr
 <a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="editpref.php{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.設定編集</a>
 {$_conf['k_to_index_ht']}
 EOP;

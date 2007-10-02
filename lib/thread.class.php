@@ -66,8 +66,12 @@ class Thread
         //$this->ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');
         
         // html_entity_decode() は結構重いので代替、、こっちだと半分くらいの処理時間
-        $a_ttiile = str_replace('&lt;', '<', $this->ttitle);
-        $this->ttitle_hc = str_replace('&gt;', '>', $a_ttiile);
+        $a_ttitile = $this->ttitle;
+        $a_ttitile = str_replace('&lt;', '<', $a_ttitile);
+        $a_ttitile = str_replace('&gt;', '>', $a_ttitile);
+        $a_ttitile = str_replace('&amp;', '&', $a_ttitile);
+        $a_ttitile = str_replace('&quot;', '"', $a_ttitile);
+        $this->ttitle_hc = $a_ttitile;
         
         // HTML表示用に htmlspecialchars() したもの
         $this->ttitle_hd = htmlspecialchars($this->ttitle_hc, ENT_QUOTES);
@@ -295,16 +299,12 @@ class Thread
      * 元スレURLを返す
      *
      * @access  public
+     * @param   boolean  $original  携帯でも2chのスレURLを返す
      * @return  string
      */
     function getMotoThread($original = false)
     {
         global $_conf;
-
-        // 強制指定
-        if ($mode == '2ch') {
-            return $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
-        }
 
         // まちBBS
         if (P2Util::isHostMachiBbs($this->host)) {
@@ -316,7 +316,7 @@ class Thread
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
             $host_bbs_cgi = preg_replace('{(jbbs\.shitaraba\.com|jbbs\.livedoor\.com|jbbs\.livedoor\.jp)}', '$1/bbs/read.cgi', $this->host);
             $motothre_url = "http://{$host_bbs_cgi}/{$this->bbs}/{$this->key}/{$this->ls}";
-            //$motothre_url = "http://{$this->host}/bbs/read.cgi?BBS={$this->bbs}&KEY={$this->key}";
+            // $motothre_url = "http://{$this->host}/bbs/read.cgi?BBS={$this->bbs}&KEY={$this->key}";
             
         // 2ch系
         } elseif (P2Util::isHost2chs($this->host)) {
@@ -325,13 +325,39 @@ class Thread
                 $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
             // 携帯
             } else {
+                // BBS PINK
                 if (P2Util::isHostBbsPink($this->host)) {
                     $motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
+                    
+                // 2ch（c.2ch）
                 } else {
-                    $mail = urlencode($_conf['my_mail']);
+                    // http://qb5.2ch.net/test/read.cgi/operate/1188907861/38-
+                    //$aas = $_conf['k_use_aas'] ? '3' : '';
+                    $aas = '3';
+                    $resv = P2Util::getDefaultResValues($this->host, $this->bbs, $this->key);
+                    $FROM = $resv['FROM'];
+                    $mail = $resv['mail'];
+                    
+                    $mail_opt = (strlen($mail) == 0) ? '' : "&mail=" . urlencode($mail);
+                    
+                    //$FROM = str_replace(array('?', '/'), array('？', '／'), $FROM);
+                    $FROM_opt = (strlen($FROM) == 0) ? '' : "&FROM=" . urlencode($FROM);
+                    
+                    // '?', '/' が含まれているとc.2chで通らないようだ。
+                    $mobile =& Net_UserAgent_Mobile::singleton();
+                    $c2chHost = 'c.2ch.net';
+                    if ($mobile->isDoCoMo()) {
+                        $c2chHost = 'c-docomo.2ch.net';
+                    } elseif ($mobile->isEZweb()) {
+                        $c2chHost = 'c-au.2ch.net';
+                    } else {
+                        $c2chHost = 'c-others.2ch.net';
+                    }
+                    
                     // c.2chはl指定に非対応なので、代わりにn
                     $ls = (substr($this->ls, 0, 1) == 'l') ? 'n' : $this->ls;
-                    $motothre_url = "http://c.2ch.net/test/--3!mail={$mail}/{$this->bbs}/{$this->key}/{$ls}";
+                    
+                    $motothre_url = "http://{$c2chHost}/test/-3{$aas}!{$mail_opt}{$FROM_opt}/{$this->bbs}/{$this->key}/{$ls}";
                 }
             }
             

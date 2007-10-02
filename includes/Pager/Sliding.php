@@ -32,7 +32,7 @@
  * @author     Lorenzo Alberton <l dot alberton at quipo dot it>
  * @copyright  2003-2006 Lorenzo Alberton
  * @license    http://www.debian.org/misc/bsd.license  BSD License (3 Clause)
- * @version    CVS: $Id: Sliding.php,v 1.1 2007/01/30 06:10:07 akid Exp $
+ * @version    CVS: $Id: Sliding.php,v 1.2 2007/10/02 11:30:13 akid Exp $
  * @link       http://pear.php.net/package/Pager
  */
 

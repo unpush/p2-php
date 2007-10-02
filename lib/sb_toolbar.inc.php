@@ -46,7 +46,7 @@ EOP;
 
 } elseif ($sb_tool_i == 2) {
     $sb_tool_anchor = <<<EOP
-<a class="toolanchor" href="#header" target="_self" title="ページ上部へ移動">▲</a>
+<a class="toolanchor" href="#sbtoolbar1" target="_self" title="ページ上部へ移動">▲</a>
 EOP;
 }
 

@@ -13,17 +13,17 @@
  * @category   Networking
  * @package    Net_UserAgent_Mobile
  * @author     KUBO Atsuhiro <iteman@users.sourceforge.net>
- * @copyright  2003-2006 KUBO Atsuhiro <iteman@users.sourceforge.net>
+ * @copyright  2003-2007 KUBO Atsuhiro <iteman@users.sourceforge.net>
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: EZweb.php,v 1.1 2007/01/30 06:10:00 akid Exp $
+ * @version    CVS: $Id: EZweb.php,v 1.2 2007/10/02 11:30:10 akid Exp $
  * @link       http://www.au.kddi.com/ezfactory/tec/spec/4_4.html
  * @link       http://www.au.kddi.com/ezfactory/tec/spec/new_win/ezkishu.html
  * @see        Net_UserAgent_Mobile_Common
  * @since      File available since Release 0.1.0
  */
 
-require_once(dirname(__FILE__) . '/Common.php');
-require_once(dirname(__FILE__) . '/Display.php');
+require_once 'Net/UserAgent/Mobile/Common.php';
+require_once 'Net/UserAgent/Mobile/Display.php';
 
 // {{{ Net_UserAgent_Mobile_EZweb
 
@@ -36,7 +36,7 @@ require_once(dirname(__FILE__) . '/Display.php');
  *
  * SYNOPSIS:
  * <code>
- * require_once('Net/UserAgent/Mobile.php');
+ * require_once 'Net/UserAgent/Mobile.php';
  *
  * $_SERVER['HTTP_USER_AGENT'] = 'UP.Browser/3.01-HI02 UP.Link/3.2.1.2';
  * $agent = &Net_UserAgent_Mobile::factory();
@@ -58,9 +58,9 @@ require_once(dirname(__FILE__) . '/Display.php');
  * @category   Networking
  * @package    Net_UserAgent_Mobile
  * @author     KUBO Atsuhiro <iteman@users.sourceforge.net>
- * @copyright  2003-2006 KUBO Atsuhiro <iteman@users.sourceforge.net>
+ * @copyright  2003-2007 KUBO Atsuhiro <iteman@users.sourceforge.net>
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: @package_version@
+ * @version    Release: 0.30.0
  * @link       http://www.au.kddi.com/ezfactory/tec/spec/4_4.html
  * @link       http://www.au.kddi.com/ezfactory/tec/spec/new_win/ezkishu.html
  * @see        Net_UserAgent_Mobile_Common

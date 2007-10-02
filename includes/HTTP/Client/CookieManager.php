@@ -1,55 +1,102 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4: */
-// +----------------------------------------------------------------------+
-// | PHP version 4                                                        |
-// +----------------------------------------------------------------------+
-// | Copyright (c) 1997-2003 The PHP Group                                |
-// +----------------------------------------------------------------------+
-// | This source file is subject to version 3.0 of the PHP license,       |
-// | that is bundled with this package in the file LICENSE, and is        |
-// | available through the world-wide-web at                              |
-// | http://www.php.net/license/3_0.txt.                                  |
-// | If you did not receive a copy of the PHP license and are unable to   |
-// | obtain it through the world-wide-web, please send a note to          |
-// | license@php.net so we can mail you a copy immediately.               |
-// +----------------------------------------------------------------------+
-// | Author: Alexey Borzov <avb@php.net>                                  |
-// +----------------------------------------------------------------------+
-//
-// $Id: CookieManager.php,v 1.1 2007/01/30 06:10:00 akid Exp $
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
- * This class is used to store cookies and pass them between HTTP requests.
+ * Class used to store cookies and pass them between HTTP requests.
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE:
  * 
- * @package HTTP_Client
- * @author  Alexey Borzov <avb@php.net>
- * @version $Revision: 1.1 $
+ * Copyright (c) 2003-2007, Alexey Borzov <avb@php.net>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *    * The name of the author may not be used to endorse or promote products 
+ *      derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @category   HTTP
+ * @package    HTTP_Client
+ * @author     Alexey Borzov <avb@php.net>
+ * @license    http://opensource.org/licenses/bsd-license.php New BSD License
+ * @version    CVS: $Id: CookieManager.php,v 1.2 2007/10/02 11:30:09 akid Exp $
+ * @link       http://pear.php.net/package/HTTP_Client
+ */
+
+/**
+ * Class used to store cookies and pass them between HTTP requests.
+ * 
+ * @category    HTTP
+ * @package     HTTP_Client
+ * @author      Alexey Borzov <avb@php.net>
+ * @version     Release: 1.1.1
  */
 class HTTP_Client_CookieManager
 {
    /**
     * An array containing cookie values
-    * @var array
+    * @var      array
+    * @access   private
     */
     var $_cookies = array();
 
+   /**
+    * Whether session cookies should be serialized on object serialization
+    * @var      boolean
+    * @access   private
+    */
+    var $_serializeSessionCookies = false;
+   
 
    /**
     * Constructor
     * 
-    * @access public
+    * @param    boolean     Whether session cookies should be serialized
+    * @access   public
+    * @see      serializeSessionCookies()
     */
-    function HTTP_Client_CookieManager()
+    function HTTP_Client_CookieManager($serializeSession = false)
     {
-        // abstract
+        $this->serializeSessionCookies($serializeSession);
+    }
+
+   /**
+    * Sets whether session cookies should be serialized when serializing object
+    *
+    * @param    boolean
+    * @access   public
+    */
+    function serializeSessionCookies($serialize)
+    {
+        $this->_serializeSessionCookies = (bool)$serialize;
     }
 
 
    /**
     * Adds cookies to the request
     * 
-    * @access public
-    * @param object An HTTP_Request object
+    * @access   public
+    * @param    HTTP_Request    Request object
     */
     function passCookies(&$request)
     {
@@ -94,8 +141,8 @@ class HTTP_Client_CookieManager
    /**
     * Updates cookie list from HTTP server response
     *
-    * @access public
-    * @param object An HTTP_Request object with sendRequest() already done
+    * @access   public
+    * @param    HTTP_Request    Request object already containing the response
     */
     function updateCookies(&$request)
     {
@@ -180,16 +227,20 @@ class HTTP_Client_CookieManager
 
 
    /**
-    * Magic serialization function, removes session cookies 
+    * Magic serialization function
+    *
+    * Removes session cookies if $_serializeSessionCookies is false (default)
     */
     function __sleep()
     {
-        foreach ($this->_cookies as $hash => $cookie) {
-            if (empty($cookie['expires'])) {
-                unset($this->_cookies[$hash]);
+        if (!$this->_serializeSessionCookies) {
+            foreach ($this->_cookies as $hash => $cookie) {
+                if (empty($cookie['expires'])) {
+                    unset($this->_cookies[$hash]);
+                }
             }
         }
-        return array('_cookies');
+        return array('_cookies', '_serializeSessionCookies');
     }
 
 
@@ -199,7 +250,7 @@ class HTTP_Client_CookieManager
     function __wakeup()
     {
         foreach ($this->_cookies as $hash => $cookie) {
-            if (strtotime($cookie['expires']) < time()) {
+            if (!empty($cookie['expires']) && strtotime($cookie['expires']) < time()) {
                 unset($this->_cookies[$hash]);
             }
         }

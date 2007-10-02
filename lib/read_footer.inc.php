@@ -19,8 +19,6 @@ if ($_conf['bottom_res_form'] and empty($diedat_msg)) {
     
     $submit_value = '書き込む';
 
-    $key_idx = $aThread->keyidx;
-
     // フォームのオプション読み込み
     require_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
@@ -100,7 +98,7 @@ EOP;
     }
     // }}}
     
-    // プリント
+    // フッタHTML出力
     echo <<<EOP
 <hr>
 <table id="footer" class="toolbar" width="100%" style="padding:0px 10px 0px 0px;">

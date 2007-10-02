@@ -14,7 +14,7 @@ $host = $_GET['host'];
 $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
 $ttitle = base64_decode($_GET['ttitle_en']);
-$ttitle_back = (isset($_SERVER['HTTP_REFERER']))
+$ttitle_back = isset($_SERVER['HTTP_REFERER'])
     ? '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="戻る">' . $ttitle . '</a>'
     : $ttitle;
 
@@ -39,6 +39,9 @@ $method[$res_filter['method']] = ' selected';
 
 // }}}
 
+$hr = P2Util::getHrHtmlK();
+$body_at = P2Util::getBodyAttrK();
+
 /**
  * 検索フォームページ HTML表示
  * s1, s2と二つ検索 submit name があるけど一緒ぽい。s1, s2 は見ずに wordで判定している
@@ -52,9 +55,9 @@ echo <<<EOF
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>p2 - ｽﾚ内検索</title>
 </head>
-<body{$k_color_settings}>
+<body{$body_at}>
 <p>{$ttitle_back}</p>
-<hr>
+$hr
 
 <form id="header" method="get" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}">
 <input type="hidden" name="detect_hint" value="◎◇">
@@ -67,7 +70,7 @@ echo <<<EOF
 <input id="word" name="word"><br>
 <input type="submit" name="s1" value="検索">
 </div>
-<hr>
+$hr
 
 <div>
 検索ｵﾌﾟｼｮﾝ：<br>
@@ -94,7 +97,7 @@ echo <<<EOF
 {$_conf['k_input_ht']}
 </form>
 
-<hr>
+$hr
 {$_conf['k_to_index_ht']}
 </body>
 </html>

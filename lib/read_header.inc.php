@@ -147,7 +147,7 @@ $favdo      = !empty($aThread->fav) ? 0 : 1;
 $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
 $favtitle   .= '（アクセスキー[f]）';
 $favdo_q    = '&amp;setfav=' . $favdo;
-$similar_q  = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
+$similar_q  = '&amp;detect_hint=' . rawurlencode('◎◇') . '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
 $itaj_hs    = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
 $toolbar_right_ht = <<<EOTOOLBAR
@@ -187,6 +187,7 @@ echo <<<EOP
     <script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
     <script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
     <script type="text/javascript" src="js/delelog.js?v=20061206"></script>
+    <script type="text/javascript" src="js/showhide.js"></script>
     
 	<script type="text/javascript" src="./js/yui-ext/yui.js"></script>
 	<script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
@@ -241,7 +242,7 @@ if ($_conf['enable_spm']) {
 
 // ヘッドバー
 if ($_conf['enable_headbar']) {
-    echo '<script type="text/javascript" src="js/readheadbar.js?v=20070124"></script>' . "\n";
+    echo '<script type="text/javascript" src="js/readheadbar.js?v=20070331"></script>' . "\n";
     $body_onmousemove_at = ' onmousemove="showHeadBar(event);"';
     $body_onmouseout_at = ' onmouseout="clearKossoriHeadbarTimerId();"';
 } else {
@@ -306,9 +307,9 @@ EOP;
 
 // }}}
 
-echo '<div id="kossoriHeadbar">' . getHeadBarHtml($aThread) . '</div>';
+//echo '<div id="kossoriHeadbar">' . _getHeadBarHtml($aThread) . '</div>';
 
-echo $headbar_htm = getHeadBarHtml($aThread);
+echo $headbar_htm = _getHeadBarHtml($aThread);
 
 echo '</div>'; // id header
 
@@ -325,9 +326,9 @@ flush();
 /**
  * headbar HTMLを取得する
  *
- * @return  void
+ * @return  string  HTML
  */
-function getHeadBarHtml($aThread)
+function _getHeadBarHtml($aThread)
 {
     global $_conf;
     global $res_filter, $read_navi_prev_header; // read only
@@ -353,7 +354,7 @@ function getHeadBarHtml($aThread)
             $selected_method[($res_filter['method'])] = ' selected';
             $select_method_ht = <<<EOP
     の
-    <select id="method" name="method">
+    <select class="method" name="method">
         <option value="or"{$selected_method['or']}>いずれか</option>
         <option value="and"{$selected_method['and']}>すべて</option>
         <option value="just"{$selected_method['just']}>そのまま</option>
@@ -412,7 +413,7 @@ EOP;
     if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and empty($_GET['renzokupop'])) {
 
         // 1- 101- 201-
-        $read_navi_range_ht = getReadNaviRangeHtml($aThread, $rnum_range);
+        $read_navi_range_ht = _getReadNaviRangeHtml($aThread, $rnum_range);
 
         $bbs_q = "&amp;bbs=" . $aThread->bbs;
         $key_q = "&amp;key=" . $aThread->key;
@@ -447,11 +448,11 @@ EOP;
 
 /**
  * 1- 101- 201- のリンクHTMLを取得する
- * getHeadBarHtml() から呼ばれる
+ * _getHeadBarHtml() から呼ばれる
  *
  * @return  string  HTML
  */
-function getReadNaviRangeHtml($aThread, $rnum_range)
+function _getReadNaviRangeHtml($aThread, $rnum_range)
 {
     global $_conf;
     
@@ -468,12 +469,12 @@ function getReadNaviRangeHtml($aThread, $rnum_range)
         $ito = $i + $rnum_range - 1;
         
         $qs = array(
-                'host'      => $aThread->host,
-                'bbs'       => $aThread->bbs,
-                'key'       => $aThread->key,
-                'ls'        => "{$i}-{$ito}",
-                'b'         => $_conf['b']
-            );
+            'host'      => $aThread->host,
+            'bbs'       => $aThread->bbs,
+            'key'       => $aThread->key,
+            'ls'        => "{$i}-{$ito}",
+            'b'         => $_conf['b']
+        );
         if ($ito <= $aThread->gotnum) {
             $qs['offline'] = '1';
         }

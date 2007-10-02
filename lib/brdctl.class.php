@@ -1,13 +1,12 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/brdmenu.class.php';
 
 /**
  * p2 - 板リストコントロールクラス for menu.php
  * スタティックメソッドで利用している
+ *
+ * 2007/03/20 BrdUtil に改名して、ファイル名を BrdUtil.php としたい予定
  */
 class BrdCtl
 {
@@ -225,3 +224,14 @@ class BrdCtl
 EOFORM;
     }
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

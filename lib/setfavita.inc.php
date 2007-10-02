@@ -61,10 +61,11 @@ function setFavIta()
     // ˆ—
     //================================================
 
-    FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
+    if (false === FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm'])) {
+        return false;
+    }
     
-    $lines = file($_conf['favita_path']);
-    if ($lines === false) {
+    if (false === $lines = file($_conf['favita_path'])) {
         return false;
     }
     
@@ -130,7 +131,7 @@ function setFavIta()
     }
 
     // ‘‚«‚Ş
-    if (file_put_contents($_conf['favita_path'], $cont, LOCK_EX) === false) {
+    if (false === file_put_contents($_conf['favita_path'], $cont, LOCK_EX)) {
         trigger_error("file_put_contents(" . $_conf['favita_path'] . ")", E_USER_WARNING);
         die('Error: cannot write file.');
         return false;
@@ -138,4 +139,3 @@ function setFavIta()
     
     return true;
 }
-

@@ -67,7 +67,7 @@ $htm['ktai_url'] = '<p>携帯ログイン用URL <a href="' . $url . '" target="_blank">
 
 // 前回のログイン情報
 if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
-    if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
+    if (false !== $log = P2Util::getLastAccessLog($_conf['login_log_file'])) {
         $htm['log'] = array_map('htmlspecialchars', $log);
         $htm['last_login'] = <<<EOP
 <div id="last_login">

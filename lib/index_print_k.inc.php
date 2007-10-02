@@ -1,25 +1,27 @@
 <?php
 /**
  * p2 - 携帯用インデックスをHTMLプリントする関数
+ *
+ * @return  void
  */
 function index_print_k()
 {
     global $_conf, $_login;
 
-    $newtime = date('gis');
+    $menuKLinkHtmls = getMenuKLinkHtmls($_conf['menuKIni']);
     
-    $body = "";
-    $ptitle = "rep2ﾓﾊﾞｲﾙ";
+    $body = '';
+    $ptitle = 'ﾕﾋﾞｷﾀｽrep2';
     
     // ログインユーザ情報
-    $htm['auth_user'] = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - " . date("Y/m/d (D) G:i:s") . "</p>\n";
+    $htm['auth_user']   = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - " . date("Y/m/d (D) G:i:s") . '</p>' . "\n";
     
     // p2ログイン用URL
-    $login_url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
-    $login_url_pc = $login_url . '?b=pc';
-    $login_url_pc_hs = hs($login_url_pc);
-    $login_url_k = $login_url . '?b=k&user=' . $_login->user_u;
-    $login_url_k_hs = hs($login_url_k);
+    $login_url          = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
+    $login_url_pc       = $login_url . '?b=pc';
+    $login_url_pc_hs    = hs($login_url_pc);
+    $login_url_k        = $login_url . '?b=k&user=' . $_login->user_u;
+    $login_url_k_hs     = hs($login_url_k);
     
     // 前回のログイン情報
     if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
@@ -45,9 +47,12 @@ EOP;
     
     require_once P2_LIB_DIR . '/brdctl.class.php';
     $search_form_htm = BrdCtl::getMenuKSearchFormHtml('menu_k.php');
-
+    
+    $body_at    = P2Util::getBodyAttrK();
+    $hr         = P2Util::getHrHtmlK();
+    
     //=========================================================
-    // 携帯用 HTML プリント
+    // 携帯用 HTML出力
     //=========================================================
     P2Util::header_nocache();
     echo $_conf['doctype'];
@@ -58,25 +63,20 @@ EOP;
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle}</title>
 </head>
-<body>
+<body{$body_at}>
 <h1>{$ptitle}</h1>
 EOP;
     P2Util::printInfoHtml();
+    
+    foreach ($menuKLinkHtmls as $v) {
+        echo $v . "<br>\n";
+    }
     echo <<<EOP
-<a {$_conf['accesskey']}="1" href="subject.php?spmode=recent&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">1.最近読んだｽﾚの新着</a><br>
-<a {$_conf['accesskey']}="2" href="subject.php?spmode=recent&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">2.最近読んだｽﾚの全て</a><br>
-<a {$_conf['accesskey']}="3" href="subject.php?spmode=fav&amp;sb_view=shinchaku{$_conf['k_at_a']}{$user_at_a}">3.お気にｽﾚの新着</a><br>
-<a {$_conf['accesskey']}="4" href="subject.php?spmode=fav&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">4.お気にｽﾚの全て</a><br>
-<a {$_conf['accesskey']}="5" href="menu_k.php?view=favita{$_conf['k_at_a']}{$user_at_a}">5.お気に板</a><br>
-<a {$_conf['accesskey']}="6" href="menu_k.php?view=cate{$_conf['k_at_a']}{$user_at_a}">6.板ﾘｽﾄ</a><br>
-<a {$_conf['accesskey']}="7" href="subject.php?spmode=res_hist{$_conf['k_at_a']}{$user_at_a}">7.書込履歴</a> <a {$_conf['accesskey']}="#" href="read_res_hist.php?nt={$newtime}{$_conf['k_at_a']}">#.ﾛｸﾞ</a><br>
-<a {$_conf['accesskey']}="8" href="subject.php?spmode=palace&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">8.ｽﾚの殿堂</a><br>
-<a {$_conf['accesskey']}="9" href="setting.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">9.ﾛｸﾞｲﾝ管理</a><br>
-<a {$_conf['accesskey']}="0" href="editpref.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">0.設定管理</a><br>
-
-<hr>
+<br>
+<a href="edit_indexmenuk.php{$user_at_q}{$_conf['k_at_a']}">ﾒﾆｭｰ並替</a>
+{$hr}
 {$search_form_htm}
-<hr>
+{$hr}
 
 <form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
 	2chのｽﾚURLを直接指定
@@ -84,7 +84,7 @@ EOP;
 	<input type="submit" name="btnG" value="表示">
 </form>
 
-<hr>
+{$hr}
 {$htm['auth_user']}
 
 <p>
@@ -94,12 +94,106 @@ p2ﾛｸﾞｲﾝ用URL（PC）<br>
 <a href="{$login_url_pc_hs}">{$login_url_pc_hs}</a>
 </p>
 
-<hr>
+{$hr}
 {$htm['last_login']}
 </body>
 </html>
 EOP;
 
+}
+
+
+/**
+ * メニュー項目のリンクHTML配列を取得する
+ *
+ * @access  public
+ * @param   array   $menuKIni  メニュー項目 標準設定
+ * @return  array
+ */
+function getMenuKLinkHtmls($menuKIni, $noLink = false)
+{
+    global $_conf;
+    
+    $menuLinkHtmls = array();
+    // ユーザ設定順序でメニューHTMLを取得
+    foreach ($_conf['index_menu_k'] as $code) {
+        if (isset($menuKIni[$code])) {
+            if ($html = _getMenuKLinkHtml($code, $menuKIni, $noLink)) {
+                $menuLinkHtmls[$code] = $html;
+                unset($menuKIni[$code]);
+            }
+        }
+    }
+    if ($menuKIni) {
+        foreach ($menuKIni as $code => $menu) {
+            if ($html = _getMenuKLinkHtml($code, $menuKIni, $noLink)) {
+                $menuLinkHtmls[$code] = $html;
+                unset($menuKIni[$code]);
+            }
+        }
+    }
+    return $menuLinkHtmls;
+}
+
+/**
+ * メニュー項目のリンクHTMLを取得する
+ *
+ * @param   array   $menuKIni  メニュー項目 標準設定
+ * @return  string  HTML
+ */
+function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
+{
+    global $_conf, $_login;
+    
+    static $accesskey_;
+    
+    // 無効なコード指定なら
+    if (!isset($menuKIni[$code][0]) || !isset($menuKIni[$code][1])) {
+        return false;
+    }
+    
+    if (!isset($accesskey_)) {
+        $accesskey_ = 0;
+    } else {
+        $accesskey_++;
+    }
+    $accesskey = $accesskey_;
+    
+    if ($_conf['index_menu_k_from1']) {
+        $accesskey = $accesskey + 1;
+        if ($accesskey == 10) {
+            $accesskey = 0;
+        }
+    }
+    if ($accesskey > 9) {
+        $accesskey = null;
+    }
+    
+    $href = $menuKIni[$code][0] . '&user=' . $_login->user_u . '&' . UA::getQueryKey() . '=' . UA::getQueryValue();
+    $name = $menuKIni[$code][1];
+    if (!is_null($accesskey)) {
+        $name = $accesskey . '.' . $name;
+    }
+
+    if ($noLink) {
+        $linkHtml = hs($name);
+    } else {
+        $accesskeyAt = is_null($accesskey) ? '' : " {$_conf['accesskey']}=\"{$accesskey}\"";
+        $linkHtml = "<a $accesskeyAt href=\"" . hs($href) . '">' . hs($name) . "</a>";
+    }
+    
+    // 特別 - #.ログ
+    if ($code == 'res_hist') {
+        $newtime = date('gis');
+        $name = '#.ﾛｸﾞ';
+        if ($noLink) {
+            $linkHtml .= ' ' . hs($name);
+        } else {
+            $linkHtml .= " <a {$_conf['accesskey']}=\"#\" href=\"read_res_hist.php?nt={$newtime}{$_conf['k_at_a']}\">" . hs($name) . "</a>";
+        }
+    }
+    
+    return $linkHtml;
 }
 
 /*

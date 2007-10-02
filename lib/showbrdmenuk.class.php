@@ -82,6 +82,8 @@ EOP;
             return;
         }
         
+        $hr = P2Util::getHrHtmlK();
+        
         $list_navi_ht = '';
         
         // 表示数制限
@@ -94,7 +96,7 @@ EOP;
         foreach ($categories as $cate) {
             if ($cate->num and $this->cate_id == $_GET['cateid']) {
                 
-                echo "{$cate->name}<hr>\n";
+                echo "{$cate->name}$hr\n";
 
                 $list_disp_all_num = $cate->num;
                 $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
@@ -226,10 +228,12 @@ EOP;
     {
         global $_conf;
         
+        $hr = P2Util::getHrHtmlK();
+        
         $show_flag = false;
         
         if (file_exists($_conf['favita_path']) and $lines = file($_conf['favita_path'])) {
-            echo 'お気に板 [<a href="editfavita.php?k=1">編集</a>]<hr>';
+            echo 'お気に板 [<a href="editfavita.php?k=1">編集</a>]' . $hr;
             $i = 0;
             foreach ($lines as $l) {
                 $i++;

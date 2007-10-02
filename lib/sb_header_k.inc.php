@@ -100,6 +100,9 @@ if (!empty($GLOBALS['sb_mikke_num'])) {
     $hit_ht = '';
 }
 
+$body_at = P2Util::getBodyAttrK();
+
+$hr = P2Util::getHrHtmlK();
 
 //=================================================
 // ヘッダHTMLをプリント
@@ -113,7 +116,7 @@ echo <<<EOP
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle_hs}</title>
 </head>
-<body>
+<body{$body_at}>
 EOP;
 
 P2Util::printInfoHtml();
@@ -122,5 +125,5 @@ include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 
 echo $filter_form_ht;
 echo $hit_ht;
-echo "<hr>";
+echo $hr;
 

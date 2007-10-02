@@ -23,7 +23,7 @@ if (empty($_POST['host'])) {
     die;
 }
 if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-    P2Util::printSimpleHtml('p2 error: 不正なポストです');
+    P2Util::printSimpleHtml('p2 error: 不正なポストです（CSRF対策）');
     die;
 }
 
@@ -170,7 +170,7 @@ if (!empty($_POST['newthread'])) {
 $posted = postIt($host, $bbs, $key, $post);
 
 // スレ立て成功なら、subjectからkeyを取得
-if (!empty($_POST['newthread']) && $posted) {
+if (!empty($_POST['newthread']) && $posted === true) {
     sleep(1);
     $key = getKeyInSubject();
 }
@@ -204,7 +204,7 @@ if ($host && $bbs && $key) {
 
 // }}}
 
-if (!$posted) {
+if ($posted !== true) {
     exit;
 }
 
@@ -243,7 +243,7 @@ if ($host && $bbs && $key) {
             $cont .= $l . "\n";
         }
         
-        if (FileCtl::filePutRename($rh_idx, $cont) === false) {
+        if (false === FileCtl::filePutRename($rh_idx, $cont)) {
             $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
             trigger_error($errmsg, E_USER_WARNING);
             //return false;
@@ -344,7 +344,9 @@ function recResLogSecu($from, $mail, $message, $ttitle, $host, $bbs, $key, $resc
         return null;
     }
     
-    FileCtl::make_datafile($_conf['p2_res_hist_dat_secu'], $_conf['res_write_perm']);
+    if (false === FileCtl::make_datafile($_conf['p2_res_hist_dat_secu'], $_conf['res_write_perm'])) {
+        return false;
+    }
     
     $resnum = '';
     if (!empty($_POST['newthread'])) {
@@ -598,7 +600,7 @@ function postIt($host, $bbs, $key, $post)
     // }}}
 
     $maru_kakiko = empty($_POST['maru_kakiko']) ? 0 : 1;
-    setConfUser('maru_kakiko', $maru_kakiko);
+    P2Util::setConfUser('maru_kakiko', $maru_kakiko);
 
     // 書き込みを一時的に保存
     $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
@@ -702,7 +704,7 @@ function postIt($host, $bbs, $key, $post)
         //$response_ht = htmlspecialchars($response, ENT_QUOTES);
         //echo "<pre>{$response_ht}</pre>";
     
-    // ■cookie確認（post再チャレンジ）
+    // ■cookie確認表示（post再チャレンジしてね）
     } elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
         $htm['more_hidden_post'] = '';
@@ -775,7 +777,8 @@ function showPostMsg($is_done, $result_msg, $reload)
 {
     global $_conf, $location_ht, $popup, $STYLE, $ttitle, $ptitle;
     
-    // プリント用変数
+    $body_at = P2Util::getBodyAttrK();
+    
     if (!$_conf['ktai']) {
         $class_ttitle = ' class="thre_title"';
     }
@@ -785,10 +788,12 @@ function showPostMsg($is_done, $result_msg, $reload)
     $location_noenc = preg_replace("/&amp;/", "&", $location_ht);
     $popup_ht = '';
     if ($popup) {
+        $reload_js = $reload_opener ? 'opener.location.href="' . $location_noenc . '"' : '';
         $popup_ht = <<<EOJS
 <script language="JavaScript">
 <!--
-    opener.location.href="{$location_noenc}";
+    resizeTo({$STYLE['post_pop_size']});
+    {$reload_js}
     var delay= 3*1000;
     setTimeout("window.close()", delay);
 // -->
@@ -796,9 +801,7 @@ function showPostMsg($is_done, $result_msg, $reload)
 EOJS;
 
     } else {
-        $meta_refresh_ht = <<<EOP
-        <meta http-equiv="refresh" content="1;URL={$location_noenc}">
-EOP;
+        $meta_refresh_ht = '<meta http-equiv="refresh" content="1;URL=' . $location_noenc . '">';
     }
 
     // HTMLプリント
@@ -821,31 +824,20 @@ EOHEADER;
 
     $kakunin_ht = '';
     
-    // PC
+    // PC向け
     if (!$_conf['ktai']) {
         include_once './style/style_css.inc';
         include_once './style/post_css.inc';
-        if ($popup) {
-            echo <<<EOSCRIPT
-            <script language="JavaScript">
-            <!--
-                resizeTo({$STYLE['post_pop_size']});
-            // -->
-            </script>
-EOSCRIPT;
-        }
-        if ($reload) {
-            echo $popup_ht;
-        }
+        echo $popup_ht;
         
-    // 携帯
+    // 携帯向け
     } else {
         $kakunin_ht = <<<EOP
 <p><a href="{$location_ht}">確認</a></p>
 EOP;
     }
     
-    echo "</head><body>\n";
+    echo "</head><body{$body_at}>\n";
 
     P2Util::printInfoHtml();
 
@@ -867,7 +859,7 @@ function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+    require_once P2_LIB_DIR . '/SubjectTxt.php';
     $aSubjectTxt =& new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {
@@ -916,4 +908,3 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 
     return $out_str;
 }
-

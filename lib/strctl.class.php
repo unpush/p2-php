@@ -8,6 +8,7 @@ class StrCtl
     /**
      * フォームから送られてきたワードをマッチ関数に適合させる
      *
+     * @static
      * @access  public
      * @return  string  $word_fm  適合パターン。SJISで返す。
      */
@@ -46,6 +47,7 @@ class StrCtl
     /**
      * マルチバイト対応で正規表現マッチ判定する
      *
+     * @static
      * @access  public
      * @param   string  $pattern  マッチ文字列。SJISで入ってくる。
      * @param   string  $target   検索対象文字列。SJISで入ってくる。
@@ -66,7 +68,7 @@ class StrCtl
         }
         
         // HTML要素にマッチさせないための否定先読みパターンを付加
-        $pattern = '(' . $pattern . ')(?![^<]*>)';
+        $pattern = $pattern . '(?![^<]*>)';
 
         if (P2_MBREGEX_AVAILABLE == 1) {
             $result = @mb_eregi($pattern, $target);    // None|Error:FALSE
@@ -88,18 +90,19 @@ class StrCtl
     /**
      * マルチバイト対応でマーキングする
      *
+     * @static
      * @access  public
      * @param   string  $pattern  マッチ文字列。SJISで入ってくる。
      * @param   string  $target   置換対象文字列。SJISで入ってくる。
      * @return  string
      */
-    function filterMarking($pattern, &$target, $marker = '<b class="filtering">\\1</b>')
+    function filterMarking($pattern, &$target, $marker = '<b class="filtering">\\0</b>')
     {
         // 全角/半角を（ある程度）区別なくマッチ
         $pattern = StrCtl::getPatternZenHan($pattern);
 
         // HTML要素にマッチさせないための否定先読みパターンを付加
-        $pattern = '(' . $pattern . ')(?![^<]*>)';
+        $pattern = $pattern . '(?![^<]*>)';
 
         if (P2_MBREGEX_AVAILABLE == 1) {
             $result = mb_eregi_replace($pattern, $marker, $target);    // Error:FALSE
@@ -120,6 +123,7 @@ class StrCtl
     /**
      * 全角/半角を（ある程度）区別なくパッチするための正規表現パターンを得る
      *
+     * @static
      * @access  private
      * @return  string
      */
@@ -128,12 +132,12 @@ class StrCtl
         $pattern_han = StrCtl::getPatternToHan($pattern);
         
         if ($pattern != $pattern_han) {
-            $pattern = $pattern.'|'.$pattern_han;
+            $pattern = '(?:' . $pattern . '|' . $pattern_han . ')';
         }
         $pattern_zen = StrCtl::getPatternToZen($pattern);
         
         if ($pattern != $pattern_zen) {
-            $pattern = $pattern.'|'.$pattern_zen;
+            $pattern = '(?:' . $pattern . '|' . $pattern_zen . ')';
         }
         
         return $pattern;
@@ -142,6 +146,7 @@ class StrCtl
     /**
      * （パターン）文字列を半角にする
      *
+     * @static
      * @access  private
      * @return  string
      */
@@ -181,6 +186,7 @@ class StrCtl
     /**
      * （パターン）文字列を全角にする
      *
+     * @static
      * @access  private
      * @return  string
      */
@@ -216,6 +222,7 @@ class StrCtl
     /**
      * 全角/半角の記号パターンを得る
      *
+     * @static
      * @access  private
      * @return  string
      */

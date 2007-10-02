@@ -100,14 +100,14 @@ ResPopUp.prototype = {
 		var y_adjust = -68;	// y軸位置調整
 	
 		if (this.isModeSpm()) {
-			x_adjust = 0;
+			x_adjust = 3;
 			y_adjust = -10;
 		}
 	
 		if (document.all) { // IE用
 			var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
 			//x = body.scrollLeft + event.clientX; // 現在のマウス位置のX座標
-			//y = body.scrollTop + event.clientY; // 現在のマウス位置のY座標
+			//y = body.scrollTop + event.clientY;  // 現在のマウス位置のY座標
 			this.popOBJ.style.pixelLeft  = x + x_adjust; //ポップアップ位置
 			this.popOBJ.style.pixelTop  = y + y_adjust;
 		
@@ -272,11 +272,13 @@ function showResPopUp(popId, ev, onPopSpace)
 {
 	if (popId.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
 	
-	if (document.all) { // IE用
+	// IE用
+	if (document.all) {
 		var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
 		var x = body.scrollLeft + event.clientX; // 現在のマウス位置のX座標
-		var y = body.scrollTop + event.clientY; // 現在のマウス位置のY座標
-	} else if (document.getElementById) { // DOM対応用（Mozilla）
+		var y = body.scrollTop + event.clientY;  // 現在のマウス位置のY座標
+	// DOM対応用（Mozilla）
+	} else if (document.getElementById) {
 		var x = ev.pageX; // 現在のマウス位置のX座標
 		var y = ev.pageY; // 現在のマウス位置のY座標
 	} else {

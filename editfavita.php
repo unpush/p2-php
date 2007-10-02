@@ -33,6 +33,9 @@ if ($_conf['ktai'] or UA::isNetFront() or !empty($_POST['sortNoJs']) || !empty($
     $sortNoJs = false;
 }
 
+$body_at    = P2Util::getBodyAttrK();
+$hr         = P2Util::getHrHtmlK();
+
 //================================================================
 // ヘッダHTML表示
 //================================================================
@@ -60,10 +63,12 @@ echo <<<EOP
 		<script type="text/javascript" src="js/yui/ygDDPlayer.js" ></script>
 EOP;
 
-include_once './style/style_css.inc';
-include_once './style/editfavita_css.inc';
+if (!$_conf['ktai']) {
+    include_once './style/style_css.inc';
+    include_once './style/editfavita_css.inc';
+}
 
-echo '</head><body>' . "\n";
+echo "</head><body{$body_at}>" . "\n";
 
 P2Util::printInfoHtml();
 
@@ -74,7 +79,7 @@ P2Util::printInfoHtml();
 // お気に板情報を取得
 FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 $lines = file($_conf['favita_path']);
-$okini_itas = getOkiniItasFromLines($lines);
+$okini_itas = _getOkiniItasFromLines($lines);
 
 
 if (!$sortNoJs and !empty($lines)) {
@@ -155,7 +160,7 @@ if (!$_conf['ktai']) {
 
 echo <<<EOP
 <div>お気に板の編集 [<a href="{$menu_href}"{$onclick}>板メニューを更新</a>]</div>
-<hr>
+$hr
 EOP;
 
 
@@ -180,7 +185,7 @@ EOFORM;
 
 // }}}
 
-echo '<hr>';
+echo $hr;
 
 // JavaScriptソート用
 if (!$sortNoJs) {
@@ -251,7 +256,7 @@ if ($lines) {
         $linkDD = '';
     }
     
-    echo"<strong>お気に板の並び替え</strong> {$linkDD}";
+    echo "<strong>お気に板の並び替え</strong> {$linkDD}";
     echo '<table>';
     foreach ($lines as $l) {
         if (preg_match('/^\t?(.+?)\t(.+?)\t(.+?)$/', rtrim($l), $matches)) {
@@ -286,7 +291,7 @@ EOP;
 /*
 // PC用 お気に板同期フォーム HTML表示
 if (!$_conf['ktai']) {
-    echo '<hr>';
+    echo $hr;
 
     echo <<<EOFORM
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
@@ -303,11 +308,10 @@ EOFORM;
 // フッタHTMLを表示する
 
 if ($_conf['ktai']) {
-    echo '<hr>' . $_conf['k_to_index_ht'];
+    echo $hr . $_conf['k_to_index_ht'];
 }
 
-echo '</body></html>';
-
+?></body></html><?php
 
 exit;
 
@@ -321,7 +325,7 @@ exit;
  * @param   array  $lines
  * @return  array  assoc
  */
-function getOkiniItasFromLines($lines)
+function _getOkiniItasFromLines($lines)
 {
     $okini_itas = array();
     $i = 0;
@@ -342,3 +346,14 @@ function getOkiniItasFromLines($lines)
     }
     return $okini_itas;
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

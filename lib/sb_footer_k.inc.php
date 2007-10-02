@@ -7,7 +7,7 @@ $tugi_ht    = "";
 $bbs_q      = "&amp;bbs=" . $aThreadList->bbs;
 
 if (!empty($GLOBALS['wakati_words'])) {
-    $word_at = "&amp;method=similar&amp;word=" . rawurlencode($GLOBALS['wakati_word']);
+    $word_at = '&amp;detect_hint=' . rawurlencode('ÅùÅû') . "&amp;method=similar&amp;word=" . rawurlencode($GLOBALS['wakati_word']);
 } elseif ($word) {
     $word_at = "&amp;word=$word";
 } else {
@@ -156,9 +156,11 @@ $htm['change_sort'] .= '<input type="submit" value="ïœçX"></form>';
 
 // }}}
 
+$hr = P2Util::getHrHtmlK();
+
 // {{{ HTMLÉvÉäÉìÉg
 
-echo "<hr>";
+echo $hr;
 echo $k_sb_navi_ht;
 include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 echo $allfav_ht;
@@ -168,7 +170,7 @@ echo $taborn_link_ht;
 echo $buildnewthread_ht;
 echo "</p>";
 echo '<p>'. $htm['change_sort'] . '</p>';
-echo "<hr>";
+echo $hr;
 echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></p>";
 
 echo '</body></html>';

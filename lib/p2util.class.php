@@ -1,18 +1,99 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * p2 - p2用のユーティリティクラス
- * インスタンスを作らずにスタティックメソッドで利用する
+ * インスタンスを作らずにstaticメソッドで利用する
  * 
  * @created  2004/07/15
  */
 class P2Util
 {
+    /**
+     * @static
+     * @access  public
+     * @return  array
+     */
+    function getDefaultResValues($host, $bbs, $key)
+    {
+        static $cache_;
+        global $_conf;
+        
+        // メモリキャッシュ（するほどでもないけど）
+        $ckey = md5(serialize(array($host, $bbs, $key)));
+        if (isset($cache_[$ckey])) {
+            return $cache_[$ckey];
+        }
+        
+        $idx_host_dir = P2Util::idxDirOfHost($host);
+        $key_idx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
+
+        // key.idxから名前とメールを読込み
+        $FROM = null;
+        $mail = null;
+        if (file_exists($key_idx) and $lines = file($key_idx)) {
+            $line = explode('<>', rtrim($lines[0]));
+            $FROM = $line[7];
+            $mail = $line[8];
+        }
+
+        // 空白はユーザ設定値に変換
+        $FROM = ($FROM == '') ? $_conf['my_FROM'] : $FROM;
+        $mail = ($mail == '') ? $_conf['my_mail'] : $mail;
+
+        // 'P2NULL' は空白に変換
+        $FROM = ($FROM == 'P2NULL') ? '' : $FROM;
+        $mail = ($mail == 'P2NULL') ? '' : $mail;
+
+        $MESSAGE = null;
+        $subject = null;
+
+        // 前回のPOST失敗があれば呼び出し
+        $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
+        if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
+            $last_posted = unserialize($cont_srd);
+
+            $FROM    = $last_posted['FROM'];
+            $mail    = $last_posted['mail'];
+            $MESSAGE = $last_posted['MESSAGE'];
+            $subject = $last_posted['subject'];
+        }
+        
+        $cache_[$ckey] = array(
+            'FROM'    => $FROM,
+            'mail'    => $mail,
+            'MESSAGE' => $MESSAGE,
+            'subject' => $subject
+        );
+        return $cache_[$ckey];
+    }
+
+    /**
+     * conf_user にデータをセット記録する
+     * k_use_aas, maru_kakiko
+     *
+     * @return  true|null|false
+     */
+    function setConfUser($k, $v)
+    {
+        global $_conf;
+    
+        // validate
+        if ($k == 'k_use_aas') {
+            if ($v != 0 && $v != 1) {
+                return null;
+            }
+        }
+    
+        if (false === P2Util::updateArraySrdFile(array($k => $v), $_conf['conf_user_file'])) {
+            return false;
+        }
+        $_conf[$k] = $v;
+    
+        return true;
+    }
+
     /**
      * ファイルをダウンロード保存する
      *
@@ -197,7 +278,7 @@ class P2Util
                 
                 FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
                 $p2_setting_cont = serialize($p2_setting);
-                if (FileCtl::filePutRename($p2_setting_txt, $p2_setting_cont) === false) {
+                if (false === FileCtl::filePutRename($p2_setting_txt, $p2_setting_cont)) {
                     die("Error: {$p2_setting_txt} を更新できませんでした");
                 }
                 return $ita_names[$id];
@@ -360,7 +441,7 @@ class P2Util
         
         FileCtl::make_datafile($keyidx, $_conf['key_perm']);
         
-        if (file_put_contents($keyidx, $cont, LOCK_EX) === false) {
+        if (false === file_put_contents($keyidx, $cont, LOCK_EX)) {
             trigger_error("file_put_contents(" . $keyidx . ")", E_USER_WARNING);
             die("Error: cannot write file. recKeyIdx()");
             return false;
@@ -599,7 +680,7 @@ class P2Util
                 
                 // 保存
                 FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']);
-                if (file_put_contents($_conf['p2_res_hist_dat'], $cont, LOCK_EX) === false) {
+                if (false === file_put_contents($_conf['p2_res_hist_dat'], $cont, LOCK_EX)) {
                     trigger_error("file_put_contents(" . $_conf['p2_res_hist_dat'] . ")", E_USER_WARNING);
                 }
                 
@@ -649,7 +730,7 @@ class P2Util
     }
 
     /**
-     * 前回のアクセス情報を取得する
+     * 前回のアクセス（ログイン）情報を取得する
      *
      * @access  public
      * @return  array
@@ -677,7 +758,7 @@ class P2Util
     
     
     /**
-     * アクセス情報をログに記録する
+     * アクセス（ログイン）情報をログに記録する
      *
      * @access  public
      * @return  boolean
@@ -756,8 +837,7 @@ class P2Util
         
         require_once P2_LIB_DIR . '/md5_crypt.inc.php';
         
-        $md5_crypt_key = P2Util::getAngoKey();
-        $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
+        $crypted_login2chPW = md5_encrypt($login2chPW, P2Util::getMd5CryptPass());
         $idpw2ch_cont = <<<EOP
 <?php
 \$rec_login2chID = '{$login2chID}';
@@ -766,14 +846,10 @@ class P2Util
 ?>
 EOP;
         FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);
-        if (!$fp = fopen($_conf['idpw2ch_php'], 'wb')) {
+        if (false === file_put_contents($_conf['idpw2ch_php'], $idpw2ch_cont, LOCK_EX)) {
             die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
             return false;
         }
-        @flock($fp, LOCK_EX);
-        fputs($fp, $idpw2ch_cont);
-        @flock($fp, LOCK_UN);
-        fclose($fp);
         
         return true;
     }
@@ -802,22 +878,22 @@ EOP;
 
         // パスを複合化
         if (!is_null($rec_login2chPW)) {
-            $md5_crypt_key = P2Util::getAngoKey();
-            $login2chPW = md5_decrypt($rec_login2chPW, $md5_crypt_key, 32);
+            $login2chPW = md5_decrypt($rec_login2chPW, P2Util::getMd5CryptPass());
         }
         
         return array($rec_login2chID, $login2chPW, $rec_autoLogin2ch);
     }
     
     /**
-     * @access  public
+     * @static
+     * @access  private
      * @return  string
      */
-    function getAngoKey()
+    function getMd5CryptPass()
     {
         global $_login;
         
-        return $_login->user . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        return md5($_login->user . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE']);
     }
     
     /**
@@ -1238,5 +1314,65 @@ ERR;
         
         return ($gethostbyaddr_ == $_SERVER['REMOTE_ADDR']) ? $empty : $gethostbyaddr_;
     }
+    
+    /**
+     * @static
+     * @access  public
+     * @return  string
+     */
+    function getBodyAttrK()
+    {
+        global $_conf, $STYLE;
+        
+        if (!$_conf['ktai']) {
+            return '';
+        }
+        
+        $body_at = '';
+        if (!empty($STYLE['k_bgcolor'])) {
+            $body_at .= " bgcolor=\"{$STYLE['k_bgcolor']}\"";
+        }
+        if (!empty($STYLE['k_color'])) {
+            $body_at .= " text=\"{$STYLE['k_color']}\"";
+        }
+        if (!empty($STYLE['k_acolor'])) {
+            $body_at .= " link=\"{$STYLE['k_acolor']}\"";
+        }
+        if (!empty($STYLE['k_acolor_v'])) {
+            $body_at .= " vlink=\"{$STYLE['k_acolor_v']}\"";
+        }
+        return $body_at;
+    }
+    
+    /**
+     * @static
+     * @access  public
+     * @return  string
+     */
+    function getHrHtmlK()
+    {
+        global $_conf, $STYLE;
+        
+        $hr = '<hr>';
+        
+        if (!$_conf['ktai']) {
+            return $hr;
+        }
+        
+        if (!empty($STYLE['k_color'])) {
+            $hr = '<hr color="' . $STYLE['k_color'] . '">';
+        }
+        return $hr;
+    }
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

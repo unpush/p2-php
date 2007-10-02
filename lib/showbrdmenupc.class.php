@@ -31,7 +31,7 @@ class ShowBrdMenuPc
         foreach ($categories as $cate) {
             if ($cate->num > 0) {
                 echo "<div class=\"menu_cate\">\n";
-                echo "    <b><a class=\"menu_cate\" href=\"javascript:void(0);\" onClick=\"showHide('c{$this->cate_id}');\" target=\"_self\">{$cate->name}</a></b>\n";
+                echo "    <b><a class=\"menu_cate\" href=\"javascript:void(0);\" onClick=\"showHide('c{$this->cate_id}', 'itas_hide');\" target=\"_self\">{$cate->name}</a></b>\n";
                 if ($cate->is_open or $cate->ita_match_num) {
                     echo "    <div class=\"itas\" id=\"c{$this->cate_id}\">\n";
                 } else {
@@ -70,7 +70,7 @@ EOP;
         }
     
         echo <<<EOP
-<div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_favita');" target="_self">お気に板</a></b> [<a href="editfavita.php" target="subject">編集</a>]<br>
+<div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_favita', 'itas_hide');" target="_self">お気に板</a></b> [<a href="editfavita.php" target="subject">編集</a>]<br>
     <div class="itas" id="c_favita">
 EOP;
         foreach ($lines as $l) {
@@ -83,7 +83,7 @@ EOP;
                 $p_htm['star'] = <<<EOP
 <a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_hs}」をお気に板から外す" onClick="return confirmSetFavIta('{$itaj_hs}');">★</a>
 EOP;
-                //  onClick="return confirmSetFavIta('{$itaj_ht}');"                    
+                //  onClick="return confirmSetFavIta('{$itaj_ht}');"
                 // 新着数を表示する場合
                 if ($_conf['enable_menu_new'] && !empty($_GET['new'])) {
                     $matome_i++;

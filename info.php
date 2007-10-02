@@ -16,7 +16,12 @@ $_login->authorize(); // ユーザ認証
 isset($_GET['host'])    and $host = $_GET['host'];  // "pc.2ch.net"
 isset($_GET['bbs'])     and $bbs  = $_GET['bbs'];   // "php"
 isset($_GET['key'])     and $key  = $_GET['key'];   // "1022999539"
-isset($_GET['ttitle_en'])   and $ttitle_en = $_GET['ttitle_en'];
+
+if (isset($_GET['ttitle_en'])) {
+    $ttitle_en = $_GET['ttitle_en'];
+} else {
+    $ttitle_en = null;
+}
 
 // popup 0(false), 1(true), 2(true, クローズタイマー付)
 !empty($_GET['popup']) and $popup_ht = "&amp;popup=1";
@@ -25,6 +30,10 @@ isset($_GET['ttitle_en'])   and $ttitle_en = $_GET['ttitle_en'];
 if (empty($host) || !isset($bbs) || !isset($key)) {
     p2die('引数が正しくありません。');
 }
+
+$taborn_accesskey       = '7'; // スレッドあぼーん
+$favmark_accesskey      = '9'; // お気に入り
+$offrecent_accesskey    = '#'; // 履歴解除
 
 $title_msg = '';
 
@@ -50,7 +59,7 @@ if (!empty($_GET['dele'])) {
 // }}}
 // {{{ 履歴削除
 
-if (!empty($_GET['offrec'])) {
+if (!empty($_GET['offrecent'])) {
     $r1 = offRecent($host, $bbs, $key);
     $r2 = offResHist($host, $bbs, $key);
     if (($r1 === false) or ($r2 === false)) {
@@ -123,7 +132,6 @@ if (!is_null($aThread->ttitle_hc)) {
     $hc['ttitle_name'] = "スレッドタイトル未取得";
 }
 
-
 // {{{ favlist チェック
 
 /*
@@ -141,8 +149,6 @@ if ($favlines = @file($_conf['favlist_file'])) {
     }
 }
 */
-
-$favmark_accesskey = '9';
 
 $favmark = $aThread->fav ? "★" : "+";
 
@@ -204,6 +210,11 @@ if ($tabornlist = @file($taborn_file)) {
     }
 }
 
+$taborn_pre_ht      = '';
+if ($_conf['ktai']) {
+    $taborn_pre_ht = "$taborn_accesskey.";
+}
+
 $taborndo_title_at = '';
 if (!empty($isTaborn)) {
     $tastr1 = "あぼーん中";
@@ -213,13 +224,13 @@ if (!empty($isTaborn)) {
     $tastr1 = "通常";
     $tastr2 = "あぼーんする";
     $taborndo = 1;
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         $taborndo_title_at = ' title="スレッド一覧で非表示にします"';
     }
 }
 
 $taborn_ht = <<<EOP
-{$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}"{$taborndo_title_at}>{$tastr2}</a>]
+{$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}"{$taborndo_title_at} accesskey="{$taborn_accesskey}">{$taborn_pre_ht}{$tastr2}</a>]
 EOP;
 
 // }}}
@@ -246,7 +257,6 @@ if (P2Util::isHost2chs($aThread->host)) {
 } else {
     $motothre_org_url = $motothre_url;
 }
-
 
 if ($title_msg) {
     $hc['title'] = $title_msg;
@@ -286,9 +296,11 @@ EOP;
     $body_onload = '';
 }
 
+$body_at = P2Util::getBodyAttrK();
+
 echo <<<EOP
 </head>
-<body{$body_onload}>
+<body{$body_at}{$body_onload}>
 EOP;
 
 P2Util::printInfoHtml();
@@ -304,44 +316,49 @@ if ($_conf['ktai']) {
     }
 }
 
+$dele_pre_ht = '';
+$up_pre_ht = '';
+$offrecent_pre_ht = '';
+if ($_conf['ktai']) {
+    $dele_pre_ht = $_conf['k_accesskey']['dele'] . '.';
+    $up_pre_ht   = $_conf['k_accesskey']['up']   . '.';
+    $offrecent_pre_ht = "$offrecent_accesskey.";
+}
+
 if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($aThread->host, $aThread->bbs, $aThread->key)) {
-    $offrec_ht = " / [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;offrec=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
+    $offrecent_ht = " / [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;offrecent=1{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\" accesskey=\"{$offrecent_accesskey}\">{$offrecent_pre_ht}履歴から外す</a>]";
+} else {
+    $offrecent_ht = '';
 }
 
 if (!$_conf['ktai']) {
     echo "<table cellspacing=\"0\">\n";
 }
-printInfoTrHtml("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$motothre_url}</a>");
+_printInfoTrHtml("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$motothre_url}</a>");
 if (!$_conf['ktai']) {
-    printInfoTrHtml("ホスト", $aThread->host);
+    _printInfoTrHtml("ホスト", $aThread->host);
 }
 
-$dele_pre_ht = '';
-$up_pre_ht = '';
-if ($_conf['ktai']) {
-    $dele_pre_ht = $_conf['k_accesskey']['dele'] . '.';
-    $up_pre_ht   = $_conf['k_accesskey']['up']   . '.';
-}
-
-printInfoTrHtml("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at} {$_conf['accesskey']}=\"{$_conf['k_accesskey']['up']}\">{$up_pre_ht}{$hs['itaj']}</a>");
+_printInfoTrHtml("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at} {$_conf['accesskey']}=\"{$_conf['k_accesskey']['up']}\">{$up_pre_ht}{$hs['itaj']}</a>");
 
 // PC用表示
 if (!$_conf['ktai']) {
-    printInfoTrHtml("key", $aThread->key);
+    _printInfoTrHtml("key", $aThread->key);
 }
 
 if ($existLog) {
-    printInfoTrHtml("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['dele']}\">{$dele_pre_ht}削除する</a>]{$offrec_ht}");
+    _printInfoTrHtml("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['dele']}\">{$dele_pre_ht}削除する</a>]{$offrecent_ht}");
 } else {
-    printInfoTrHtml("ログ", "未取得{$offrec_ht}");
+    _printInfoTrHtml("ログ", "未取得{$offrecent_ht}");
 }
 
 if ($aThread->gotnum) {
-    printInfoTrHtml("既得レス数", $aThread->gotnum);
+    
+    _printInfoTrHtml("既得レス数", $aThread->gotnum);
 } elseif (!$aThread->gotnum and $existLog) {
-    printInfoTrHtml("既得レス数", "0");
+    _printInfoTrHtml("既得レス数", "0");
 } else {
-    printInfoTrHtml("既得レス数", "-");
+    _printInfoTrHtml("既得レス数", "-");
 }
 
 // PC用表示
@@ -352,27 +369,29 @@ if (!$_conf['ktai']) {
             $dat_url = "dat.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}";
             $dl_dat_ht = ' [<a href="' . $dat_url . '">生DAT</a>]';
             
-            printInfoTrHtml("dat容量", ceil($aThread->length / 1024) . ' KB' . $dl_dat_ht);
+            _printInfoTrHtml("dat容量", ceil($aThread->length / 1024) . ' KB' . $dl_dat_ht);
         }
-        printInfoTrHtml("dat", $aThread->keydat);
+        _printInfoTrHtml("dat", $aThread->keydat);
     } else {
-        printInfoTrHtml("dat", "-");
+        _printInfoTrHtml("dat", "-");
     }
     if (file_exists($aThread->keyidx)) {
-        printInfoTrHtml("idx", $aThread->keyidx);
+        _printInfoTrHtml("idx", $aThread->keyidx);
     } else {
-        printInfoTrHtml("idx", "-");
+        _printInfoTrHtml("idx", "-");
     }
+    
 }
 
-printInfoTrHtml("お気にスレ", $fav_ht);
-printInfoTrHtml("殿堂入り", $pal_ht);
-printInfoTrHtml("表示", $taborn_ht);
+_printInfoTrHtml("お気にスレ", $fav_ht);
+_printInfoTrHtml("殿堂入り", $pal_ht);
+_printInfoTrHtml("表示", $taborn_ht);
 
 // PC
 if (!$_conf['ktai']) {
     echo "</table>\n";
 }
+
 
 // PC用情報メッセージ表示
 if (!$_conf['ktai']) {
@@ -383,7 +402,7 @@ if (!$_conf['ktai']) {
 
 // コピペ用フォーム
 //if ($_conf['ktai']) {
-    echo getCopypaFormHtml($motothre_org_url, $hs['ttitle_name']);
+    echo _getCopypaFormHtml($motothre_org_url, $hs['ttitle_name']);
 //}
 
 /*
@@ -412,7 +431,8 @@ EOP;
 // }}}
 
 if ($_conf['ktai']) {
-    echo '<hr>' . $_conf['k_to_index_ht'];
+    $hr = P2Util::getHrHtmlK();
+    echo $hr . $_conf['k_to_index_ht'];
 }
 
 echo '</body></html>';
@@ -429,7 +449,7 @@ exit;
  *
  * @return  void
  */
-function printInfoTrHtml($s, $c_ht)
+function _printInfoTrHtml($s, $c_ht)
 {
     global $_conf;
     
@@ -447,7 +467,7 @@ function printInfoTrHtml($s, $c_ht)
  *
  * @return  string
  */
-function getCopypaFormHtml($url, $ttitle_name_hd)
+function _getCopypaFormHtml($url, $ttitle_name_hd)
 {
     global $_conf;
     
@@ -468,7 +488,7 @@ EOP;
     $htm = <<<EOP
 <div title="コピペ用フォーム">
 <form action="{$me_url}" style="display:inline">
- <textarea name="copy" cols="56">{$ttitle_name_hd}&#10;{$url_hs}</textarea>
+ <textarea name="copy" cols="56" onMouseover="select();">{$ttitle_name_hd}&#10;{$url_hs}</textarea>
 </form>
 </div>
 EOP;
@@ -479,4 +499,3 @@ EOP;
 
     return $htm;
 }
-

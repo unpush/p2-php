@@ -3,6 +3,7 @@
 /* mi: charset=Shift_JIS */
 
 // p2 - レス書き込みフォームの機能読み込み
+// read_footer.inc.php と post_form.php から呼ばれている
 
 $fake_time = -10; // time を10分前に偽装
 $time = time() - 9*60*60;
@@ -10,43 +11,9 @@ $time = $time + $fake_time * 60;
 
 $csrfid = P2Util::getCsrfId();
 
-// key.idxから名前とメールを読込み
-if (file_exists($key_idx) and $lines = file($key_idx)) {
-    $line = explode('<>', rtrim($lines[0]));
-    $hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
-    $hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
-} else {
-    $hd['FROM'] = null;
-    $hd['mail'] = null;
-}
 
-// 空白はユーザ設定値に変換
-$hd['FROM'] = ($hd['FROM'] == '') ? htmlspecialchars($_conf['my_FROM'], ENT_QUOTES) : $hd['FROM'];
-$hd['mail'] = ($hd['mail'] == '') ? htmlspecialchars($_conf['my_mail'], ENT_QUOTES) : $hd['mail'];
-
-// P2NULLは空白に変換
-$hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
-$hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
-
-// 前回のPOST失敗があれば呼び出し
-$failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
-if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
-    $last_posted = unserialize($cont_srd);
-    
-    // まとめてサニタイズ
-    $last_posted = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $last_posted);
-    //$addslashesS = create_function('$str', 'return str_replace("\'", "\\\'", $str);');
-    //$last_posted = array_map($addslashesS, $last_posted);
-
-    $hd['FROM'] = $last_posted['FROM'];
-    $hd['mail'] = $last_posted['mail'];
-    $MESSAGE_hs = $last_posted['MESSAGE'];
-    $hd['subject'] = $last_posted['subject'];
-
-} else {
-    $MESSAGE_hs = '';
-    $hd['subject'] = '';
-}
+$resv = P2Util::getDefaultResValues($host, $bbs, $key);
+$hs = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $resv);
 
 
 // 表示指定
@@ -147,8 +114,8 @@ if (!$_conf['ktai']) {
 $htm['orig_msg'] = '';
 if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou'])) && !empty($_GET['resnum'])) {
     $q_resnum = $_GET['resnum'];
-    if (!($_GET['inyou'] == 2 && strlen($MESSAGE_hs))) {
-        $MESSAGE_hs = "&gt;&gt;" . $q_resnum . "\r\n";
+    if (!($_GET['inyou'] == 2 && strlen($hs['MESSAGE']))) {
+        $hs['MESSAGE'] = "&gt;&gt;" . $q_resnum . "\r\n";
     }
     if (!empty($_GET['inyou'])) {
         require_once P2_LIB_DIR . '/thread.class.php';
@@ -161,9 +128,9 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         $q_resar[3] = strip_tags($q_resar[3], '<br>');
         if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
             // 引用レス番号ができてしまわないように、二つの半角スペースを入れている
-            $MESSAGE_hs .= "&gt;  ";
-            $MESSAGE_hs .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
-            $MESSAGE_hs .= "\r\n";
+            $hs['MESSAGE'] .= "&gt;  ";
+            $hs['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
+            $hs['MESSAGE'] .= "\r\n";
         }
         if ($_GET['inyou'] == 2 || $_GET['inyou'] == 3) {
             $htm['orig_msg'] = <<<EOM

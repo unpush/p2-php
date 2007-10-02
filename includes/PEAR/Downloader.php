@@ -18,7 +18,7 @@
  * @author     Martin Jansen <mj@php.net>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id: Downloader.php,v 1.1 2007/01/30 06:10:01 akid Exp $
+ * @version    CVS: $Id: Downloader.php,v 1.2 2007/10/02 11:30:10 akid Exp $
  * @link       http://pear.php.net/package/PEAR
  * @since      File available since Release 1.3.0
  */
@@ -45,7 +45,7 @@ define('PEAR_INSTALLER_ERROR_NO_PREF_STATE', 2);
  * @author     Martin Jansen <mj@php.net>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.5.0RC3
+ * @version    Release: 1.6.1
  * @link       http://pear.php.net/package/PEAR
  * @since      Class available since Release 1.3.0
  */
@@ -316,7 +316,9 @@ class PEAR_Downloader extends PEAR_Common
                             PEAR::staticPopErrorHandling();
                             break;
                         }
-                        $a = $this->downloadHttp('http://' . $params[$i]->getChannel() .
+                        $mirror = $this->config->get('preferred_mirror', null,
+                                                     $params[$i]->getChannel());
+                        $a = $this->downloadHttp('http://' . $mirror .
                             '/channel.xml', $this->ui, $dir, null, $curchannel->lastModified());
 
                         PEAR::staticPopErrorHandling();
@@ -361,6 +363,9 @@ class PEAR_Downloader extends PEAR_Common
             while ($reverify) {
                 $reverify = false;
                 foreach ($params as $i => $param) {
+                    //PHP Bug 40768 / PEAR Bug #10944
+                    //Nested foreaches fail in PHP 5.2.1
+                    key($params);
                     $ret = $params[$i]->detectDependencies($params);
                     if (PEAR::isError($ret)) {
                         $reverify = true;
@@ -382,6 +387,18 @@ class PEAR_Downloader extends PEAR_Common
             return $a;
         }
         while (PEAR_Downloader_Package::mergeDependencies($params));
+        PEAR_Downloader_Package::removeDuplicates($params, true);
+        $errorparams = array();
+        if (PEAR_Downloader_Package::detectStupidDuplicates($params, $errorparams)) {
+            if (count($errorparams)) {
+                foreach ($errorparams as $param) {
+                    $name = $this->_registry->parsedPackageNameToString($param->getParsedPackage());
+                    $this->pushError('Duplicate package ' . $name . ' found', PEAR_INSTALLER_FAILED);
+                }
+                $a = array();
+                return $a;
+            }
+        }
         PEAR_Downloader_Package::removeInstalled($params);
         if (!count($params)) {
             $this->pushError('No valid packages found', PEAR_INSTALLER_FAILED);
@@ -401,6 +418,7 @@ class PEAR_Downloader extends PEAR_Common
         if (isset($this->_options['pretend'])) {
             return $params;
         }
+        $somefailed = false;
         foreach ($params as $i => $package) {
             PEAR::staticPushErrorHandling(PEAR_ERROR_RETURN);
             $pf = &$params[$i]->download();
@@ -413,12 +431,24 @@ class PEAR_Downloader extends PEAR_Common
                             true) .
                         '"');
                 }
+                $somefailed = true;
                 continue;
             }
             $newparams[] = &$params[$i];
             $ret[] = array('file' => $pf->getArchiveFile(),
                                    'info' => &$pf,
                                    'pkg' => $pf->getPackage());
+        }
+        if ($somefailed) {
+            // remove params that did not download successfully
+            PEAR::pushErrorHandling(PEAR_ERROR_RETURN);
+            $err = $this->analyzeDependencies($newparams, true);
+            PEAR::popErrorHandling();
+            if (!count($newparams)) {
+                $this->pushError('Download failed', PEAR_INSTALLER_FAILED);
+                $a = array();
+                return $a;
+            }
         }
         $this->_downloadedPackages = $ret;
         return $newparams;
@@ -427,7 +457,7 @@ class PEAR_Downloader extends PEAR_Common
     /**
      * @param array all packages to be installed
      */
-    function analyzeDependencies(&$params)
+    function analyzeDependencies(&$params, $force = false)
     {
         $hasfailed = $failed = false;
         if (isset($this->_options['downloadonly'])) {
@@ -463,7 +493,7 @@ class PEAR_Downloader extends PEAR_Common
                     }
                     continue;
                 }
-                if (!$reset && $param->alreadyValidated()) {
+                if (!$reset && $param->alreadyValidated() && !$force) {
                     continue;
                 }
                 if (count($deps)) {
@@ -659,7 +689,8 @@ class PEAR_Downloader extends PEAR_Common
             $this->log(3, '+ tmp dir created at ' . $downloaddir);
         }
         if (!is_writable($downloaddir)) {
-            if (PEAR::isError(System::mkdir(array('-p', $downloaddir)))) {
+            if (PEAR::isError(System::mkdir(array('-p', $downloaddir))) ||
+                  !is_writable($downloaddir)) {
                 return PEAR::raiseError('download directory "' . $downloaddir .
                     '" is not writeable.  Change download_dir config variable to ' .
                     'a writeable dir');
@@ -670,6 +701,13 @@ class PEAR_Downloader extends PEAR_Common
 
     function setDownloadDir($dir)
     {
+        if (!@is_writable($dir)) {
+            if (PEAR::isError(System::mkdir(array('-p', $dir)))) {
+                return PEAR::raiseError('download directory "' . $dir .
+                    '" is not writeable.  Change download_dir config variable to ' .
+                    'a writeable dir');
+            }
+        }
         $this->_downloadDir = $dir;
     }
 
@@ -747,9 +785,16 @@ class PEAR_Downloader extends PEAR_Common
         }
         $version = $this->_registry->packageInfo($parr['package'], 'version',
             $parr['channel']);
+        $base2 = false;
         if ($chan->supportsREST($this->config->get('preferred_mirror')) &&
-              $base = $chan->getBaseURL('REST1.0', $this->config->get('preferred_mirror'))) {
-            $rest = &$this->config->getREST('1.0', $this->_options);
+              (($base2 = $chan->getBaseURL('REST1.3', $this->config->get('preferred_mirror'))) ||
+              ($base = $chan->getBaseURL('REST1.0', $this->config->get('preferred_mirror'))))) {
+            if ($base2) {
+                $rest = &$this->config->getREST('1.3', $this->_options);
+                $base = $base2;
+            } else {
+                $rest = &$this->config->getREST('1.0', $this->_options);
+            }
             if (!isset($parr['version']) && !isset($parr['state']) && $version
                   && !isset($this->_options['downloadonly'])) {
                 $url = $rest->getDownloadURL($base, $parr, $state, $version);
@@ -798,6 +843,9 @@ class PEAR_Downloader extends PEAR_Common
             }
             $pf->setRawPackage($url['package']);
             $pf->setDeps($url['info']);
+            if ($url['compatible']) {
+                $pf->setCompatible($url['compatible']);
+            }
             $pf->setRawState($url['stability']);
             $url['info'] = &$pf;
             if (!extension_loaded("zlib") || isset($this->_options['nocompress'])) {
@@ -969,6 +1017,9 @@ class PEAR_Downloader extends PEAR_Common
             }
             $pf->setRawPackage($url['package']);
             $pf->setDeps($url['info']);
+            if ($url['compatible']) {
+                $pf->setCompatible($url['compatible']);
+            }
             $pf->setRawState($url['stability']);
             $url['info'] = &$pf;
             if (!extension_loaded("zlib") || isset($this->_options['nocompress'])) {
@@ -1318,6 +1369,8 @@ class PEAR_Downloader extends PEAR_Common
             $keepgoing = false;
             foreach ($deplinks as $dep => $parents) {
                 foreach ($parents as $parent => $unused) {
+                    // reset the parent cycle detector
+                    $this->_testCycle(null, null, null);
                     if ($this->_testCycle($dep, $deplinks, $parent)) {
                         $keepgoing = true;
                         unset($deplinks[$dep][$parent]);
@@ -1333,10 +1386,24 @@ class PEAR_Downloader extends PEAR_Common
 
     function _testCycle($test, $deplinks, $dep)
     {
+        static $visited = array();
+        if ($test === null) {
+            $visited = array();
+            return;
+        }
+        // this happens when a parent has a dep cycle on another dependency
+        // but the child is not part of the cycle
+        if (isset($visited[$dep])) {
+            return false;
+        }
+        $visited[$dep] = 1;
         if ($test == $dep) {
             return true;
         }
         if (isset($deplinks[$dep])) {
+            if (in_array($test, array_keys($deplinks[$dep]), true)) {
+                return true;
+            }
             foreach ($deplinks[$dep] as $parent => $unused) {
                 if ($this->_testCycle($test, $deplinks, $parent)) {
                     return true;
@@ -1563,7 +1630,7 @@ class PEAR_Downloader extends PEAR_Common
         } else {
             $ifmodifiedsince = ($lastmodified ? "If-Modified-Since: $lastmodified\r\n" : '');
         }
-        $request .= $ifmodifiedsince . "User-Agent: PEAR/1.5.0RC3/PHP/" .
+        $request .= $ifmodifiedsince . "User-Agent: PEAR/1.6.1/PHP/" .
             PHP_VERSION . "\r\n";
         if (isset($this)) { // only pass in authentication for non-static calls
             $username = $config->get('username');
@@ -1586,7 +1653,7 @@ class PEAR_Downloader extends PEAR_Common
         $headers = array();
         $reply = 0;
         while (trim($line = fgets($fp, 1024))) {
-            if (preg_match('/^([^:]+):\s+(.*)\s*$/', $line, $matches)) {
+            if (preg_match('/^([^:]+):\s+(.*)\s*\\z/', $line, $matches)) {
                 $headers[strtolower($matches[1])] = trim($matches[2]);
             } elseif (preg_match('|^HTTP/1.[01] ([0-9]{3}) |', $line, $matches)) {
                 $reply = (int) $matches[1];
@@ -1612,7 +1679,7 @@ class PEAR_Downloader extends PEAR_Common
             }
         }
         if (isset($headers['content-disposition']) &&
-            preg_match('/\sfilename=\"([^;]*\S)\"\s*(;|$)/', $headers['content-disposition'], $matches)) {
+            preg_match('/\sfilename=\"([^;]*\S)\"\s*(;|\\z)/', $headers['content-disposition'], $matches)) {
             $save_as = basename($matches[1]);
         } else {
             $save_as = basename($url);

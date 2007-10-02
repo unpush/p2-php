@@ -1,22 +1,47 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4: */
-// +----------------------------------------------------------------------+
-// | PHP version 4                                                        |
-// +----------------------------------------------------------------------+
-// | Copyright (c) 1997-2003 The PHP Group                                |
-// +----------------------------------------------------------------------+
-// | This source file is subject to version 3.0 of the PHP license,       |
-// | that is bundled with this package in the file LICENSE, and is        |
-// | available through the world-wide-web at                              |
-// | http://www.php.net/license/3_0.txt.                                  |
-// | If you did not receive a copy of the PHP license and are unable to   |
-// | obtain it through the world-wide-web, please send a note to          |
-// | license@php.net so we can mail you a copy immediately.               |
-// +----------------------------------------------------------------------+
-// | Author: Alexey Borzov <avb@php.net>                                  |
-// +----------------------------------------------------------------------+
-//
-// $Id: Client.php,v 1.1 2007/01/30 06:09:59 akid Exp $
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
+/**
+ * A simple HTTP client class.
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE:
+ * 
+ * Copyright (c) 2003-2007, Alexey Borzov <avb@php.net>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the 
+ *      documentation and/or other materials provided with the distribution.
+ *    * The name of the author may not be used to endorse or promote products 
+ *      derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @category    HTTP
+ * @package     HTTP_Client
+ * @author      Alexey Borzov <avb@php.net>
+ * @license     http://opensource.org/licenses/bsd-license.php New BSD License
+ * @version     CVS: $Id: Client.php,v 1.2 2007/10/02 11:30:09 akid Exp $
+ * @link        http://pear.php.net/package/HTTP_Client
+ */
 
 /*
  * Do this define in your script if you wish HTTP_Client to follow browser 
@@ -26,7 +51,13 @@
  */
 // define('HTTP_CLIENT_QUIRK_MODE', true);
 
+/**
+ * Class for performing HTTP requests
+ */
 require_once 'HTTP/Request.php';
+/**
+ * Class used to store cookies and pass them between HTTP requests.
+ */
 require_once 'HTTP/Client/CookieManager.php';
 
 /**
@@ -34,16 +65,20 @@ require_once 'HTTP/Client/CookieManager.php';
  * 
  * The class wraps around HTTP_Request providing a higher-level
  * API for performing multiple HTTP requests
- * 
- * @package HTTP_Client
- * @author Alexey Borzov <avb@php.net>
- * @version $Revision: 1.1 $
+ *
+ * @category    HTTP
+ * @package     HTTP_Client
+ * @author      Alexey Borzov <avb@php.net>
+ * @version     Release: 1.1.1
  */
 class HTTP_Client
 {
+   /**#@+
+    * @access private
+    */
    /**
-    * An HTTP_Client_CookieManager instance
-    * @var object
+    * Cookie manager object
+    * @var HTTP_Client_CookieManager
     */
     var $_cookieManager;
 
@@ -94,14 +129,15 @@ class HTTP_Client
     * @var boolean
     */
     var $_isHistoryEnabled = true;
+   /**#@-*/
 
    /**
     * Constructor
     * 
     * @access   public
-    * @param    array   Parameters to pass to HTTP_Request's constructor
-    * @param    array   Default headers to send on every request
-    * @param    object  HTTP_Client_CookieManager   Cookie manager object to use
+    * @param    array                       Parameters to pass to HTTP_Request's constructor
+    * @param    array                       Default headers to send on every request
+    * @param    HTTP_Client_CookieManager   Cookie manager object to use
     */
     function HTTP_Client($defaultRequestParams = null, $defaultHeaders = null, $cookieManager = null)
     {
@@ -153,7 +189,7 @@ class HTTP_Client
     * @param    string   Method, constants are defined in HTTP_Request
     * @param    array    Extra headers to send
     * @access   private
-    * @return   object   HTTP_Request object with all defaults applied
+    * @return   HTTP_Request    Request object with all defaults applied
     */
     function &_createRequest($url, $method = HTTP_REQUEST_METHOD_GET, $headers = array())
     {
@@ -286,9 +322,9 @@ class HTTP_Client
    /**
     * Performs a request, processes redirects
     *
-    * @param    object  HTTP_Request object
+    * @param    HTTP_Request    Request object
     * @access   private
-    * @return   integer HTTP response code
+    * @return   integer         HTTP response code
     * @throws   PEAR_Error
     */
     function _performRequest(&$request)
@@ -375,7 +411,7 @@ class HTTP_Client
    /**
     * Saves the server's response to responses list
     *
-    * @param    object  HTTP_Request object, with request already sent
+    * @param    HTTP_Request    Request object already containing the response
     * @access   private
     */
     function _pushResponse(&$request)
@@ -407,11 +443,17 @@ class HTTP_Client
    /**
     * Adds a Listener to the list of listeners that are notified of
     * the object's events
-    * 
-    * @param    object   HTTP_Request_Listener instance to attach
-    * @param    boolean  Whether the listener should be attached to the 
-    *                    created HTTP_Request objects
-    * @return   boolean  whether the listener was successfully attached
+    *
+    * Events sent by HTTP_Client objects:
+    * - 'request': sent on HTTP request that is not a redirect
+    * - 'httpSuccess': sent when we receive a successfull 2xx response
+    * - 'httpRedirect': sent when we receive a redirection response
+    * - 'httpError': sent on 4xx, 5xx response
+    *
+    * @param    HTTP_Request_Listener   Listener to attach
+    * @param    boolean                 Whether the listener should be attached 
+    *                                   to the created HTTP_Request objects
+    * @return   boolean                 whether the listener was successfully attached
     * @access   public
     */
     function attach(&$listener, $propagate = false)
@@ -428,8 +470,8 @@ class HTTP_Client
    /**
     * Removes a Listener from the list of listeners 
     * 
-    * @param    object   HTTP_Request_Listener instance to detach
-    * @return   boolean  whether the listener was successfully detached
+    * @param    HTTP_Request_Listener   Listener to detach
+    * @return   boolean                 Whether the listener was successfully detached
     * @access   public
     */
     function detach(&$listener)
@@ -446,12 +488,6 @@ class HTTP_Client
    /**
     * Notifies all registered listeners of an event.
     * 
-    * Currently available events are:
-    * 'request': sent on HTTP request that is not a redirect
-    * 'httpSuccess': sent when we receive a successfull 2xx response
-    * 'httpRedirect': sent when we receive a redirection response
-    * 'httpError': sent on 4xx, 5xx response
-    * 
     * @param    string  Event name
     * @param    mixed   Additional data
     * @access   private
@@ -467,9 +503,9 @@ class HTTP_Client
    /**
     * Calculates the absolute URL of a redirect
     *  
-    * @param    object  Net_Url object containing the request URL
-    * @param    string  Value of the 'Location' response header
-    * @return   string|null  Absolute URL we are being redirected to, null in case of non-HTTP URL 
+    * @param    Net_Url     Object containing the request URL
+    * @param    string      Value of the 'Location' response header
+    * @return   string|null Absolute URL we are being redirected to, null in case of non-HTTP URL 
     * @access   private
     */
     function _redirectUrl($url, $location)
@@ -501,7 +537,7 @@ class HTTP_Client
    /**
     * Returns the cookie manager object (e.g. for storing it somewhere)
     *
-    * @return object HTTP_Client_CookieManager
+    * @return HTTP_Client_CookieManager
     * @access public
     */
     function getCookieManager()
@@ -511,10 +547,10 @@ class HTTP_Client
 
 
    /**
-    * Tries to extract a redirect URL from <meta http-equiv=Refresh> tag (request #5734)
+    * Tries to extract a redirect URL from <<meta http-equiv=Refresh>> tag (request #5734)
     *
-    * @param    object HTTP_Request     A request object containing the response
-    * @return   string|null             Absolute URI we are being redirected to, null if no redirect / invalid redirect
+    * @param    HTTP_Request    A request object already containing the response
+    * @return   string|null     Absolute URI we are being redirected to, null if no redirect / invalid redirect
     * @access   private
     */
     function _getMetaRedirect(&$request)

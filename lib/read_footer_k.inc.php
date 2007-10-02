@@ -17,16 +17,18 @@ if (isset($GLOBALS['word']) && $aThread->rescount) {
 } else {
     $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
 }
-$hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
+$read_range_hs = $read_range_on . '/' . $aThread->rescount;
 if (!empty($_GET['onlyone'])) {
-    $hd['read_range'] = 'ﾌﾟﾚﾋﾞｭｰ>>1';
+    $read_range_hs = 'ﾌﾟﾚﾋﾞｭｰ>>1';
 }
 
 // レス番指定移動 etc.
-$goto_ht = kspform(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
+$goto_ht = _kspform(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
+
+$hr = P2Util::getHrHtmlK();
 
 //=====================================================================
-// プリント
+// HTML出力
 //=====================================================================
 if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
@@ -44,7 +46,7 @@ EOP;
 
     echo <<<EOP
 <p>
-    <a id="footer" name="footer">{$hd['read_range']}</a><br>
+    <a id="footer" name="footer">{$read_range_hs}</a><br>
     {$read_navi_previous_btm} 
     {$read_navi_next_btm} 
     {$read_navi_latest_btm}
@@ -58,27 +60,27 @@ EOP;
 <p>{$goto_ht}</p>\n
 EOP;
     if ($diedat_msg) {
-        echo '<hr>';
+        echo $hr;
         echo $diedat_msg;
         echo '<p>';
-        echo  $motothre_ht;
+        echo $motothre_ht;
         echo '</p>' . "\n";
     }
 }
-echo "<hr>" . $_conf['k_to_index_ht'] . "\n";
+echo $hr . $_conf['k_to_index_ht'] . "\n";
 
 echo '</body></html>';
 
 
 //=====================================================================
-// 関数
+// 関数（このファイル内でのみ利用）
 //=====================================================================
 /**
  * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成する
  *
  * @return string
  */
-function kspform($default = '', &$aThread)
+function _kspform($default = '', &$aThread)
 {
     global $_conf;
 
@@ -122,4 +124,3 @@ function kspform($default = '', &$aThread)
 
     return $form;
 }
-

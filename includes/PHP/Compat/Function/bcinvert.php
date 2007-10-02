@@ -15,7 +15,7 @@
 // | Authors: Aidan Lister <aidan@php.net>                                |
 // +----------------------------------------------------------------------+
 //
-// $Id: bcinvert.php,v 1.1 2007/01/30 06:10:06 akid Exp $
+// $Id: bcinvert.php,v 1.2 2007/10/02 11:30:12 akid Exp $
 
 
 /**
@@ -25,7 +25,7 @@
  * @package     PHP_Compat
  * @link        http://php.net/function.bcinvert
  * @author      Sara Golemon <pollita@php.net>
- * @version     $Revision: 1.1 $
+ * @version     $Revision: 1.2 $
  * @since       PHP 5.2.0
  * @require     PHP 4.0.4 (call_user_func_array)
  */

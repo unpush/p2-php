@@ -248,13 +248,27 @@ EOF;
         return ($_SERVER['REMOTE_ADDR'] == '127.0.0.1');
     }
 
+    /**
+     * IPがBBQチェック対象外かどうか
+     *
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isAddrBurnedNoCheck($addr = null)
+    {
+        if (HostCheck::isAddrDocomo($addr) || HostCheck::isAddrAu($addr) || HostCheck::isAddrSoftBank($addr) || HostCheck::isAddrJig($addr) || HostCheck::isAddrIbis($addr)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * ホストがBBQに焼かれているか?
      *
      * @link  http://bbq.uso800.net/code.html
      * @return  boolean  焼かれていたらtrueを返す
-     * @access  private
+     * @access  public
      * @static
      */
     function isAddrBurned($addr = null)
@@ -288,7 +302,7 @@ EOF;
         if ($result_addr == '127.0.0.2') {
             return true; // BBQに焼かれている
         }
-        return false; // BBQに焼かれていない
+        return false; // BBQに焼かれていない or チェック失敗
     }
 
 
@@ -299,6 +313,9 @@ EOF;
      * 1. $_SERVER['REMOTE_ADDR']が第一引数の帯域にあるかチェックする
      * 2. 第一引数が第二引数の帯域にあるかチェックする
      * 3. (2)に加えて第三引数とリモートホストを正規表現マッチングする
+     *
+     * （2007/08/05 aki 引数の数で処理内容を変えるのではなく、
+     * 　単に、$addr と $band の順番を入れ替えた方がわかりやすいような気がしたがどんなもんだろう(>rskさん)）
      *
      * 帯域指定は以下のいずれかの方式を利用できる (2,3の混在も可)
      * 1. IPアドレス(+スラッシュで区切ってマスク長もしくはサブネットマスク)の文字列
@@ -318,7 +335,7 @@ EOF;
         }
 
         // IPアドレスを検証
-        if (($addr = HostCheck::ip2long($addr)) === false) {
+        if (($addrlong = HostCheck::ip2long($addr)) === false) {
             return false;
         }
 
@@ -341,7 +358,7 @@ EOF;
             if (($mask = HostCheck::ip2long($mask)) === false) {
                 continue;
             }
-            if (($addr & $mask) == ($target & $mask)) {
+            if (($addrlong & $mask) == ($target & $mask)) {
                 return true;
             }
         }
@@ -351,7 +368,7 @@ EOF;
             if ($addr == $_SERVER['REMOTE_ADDR'] && isset($_SERVER['REMOTE_HOST'])) {
                 $remote_host = $_SERVER['REMOTE_HOST'];
             } else {
-                $remote_host = HostCheck::cachedGetHostByAddr(long2ip($addr));
+                $remote_host = HostCheck::cachedGetHostByAddr($addr);
             }
             if (@preg_match($regex, $remote_host)) {
                 return true;
@@ -401,6 +418,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
+
         $iHost = '/^proxy[0-9a-f]\d\d\.docomo\.ne\.jp$/';
         
         // @update 2006/12/04
@@ -410,8 +428,6 @@ EOF;
             '210.153.86.0/24',
             
             '210.153.87.0/24', // フルブラウザ
-            
-            '210.143.108.0/24', // jig 2005/6/23
         );
         return HostCheck::isAddrInBand($addr, $iBand, $iHost);
     }
@@ -429,6 +445,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
+
         $ezHost = '/^wb\d\dproxy\d\d\.ezweb\.ne\.jp$/';
         
         // @update 2006/12/04
@@ -459,8 +476,6 @@ EOF;
             '59.135.38.128/25',
             '219.108.157.0/25',
             '219.125.151.128/25',
-            
-            '210.143.108.0/24', // jig 2005/6/23
         );
         return HostCheck::isAddrInBand($addr, $ezBand, $ezHost);
     }
@@ -487,6 +502,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
+
         // よく分かってないので大雑把
         $yHost = '/\.(jp-[a-z]|[a-z]\.vodafone|pcsitebrowser)\.ne\.jp$/';
         
@@ -506,8 +522,6 @@ EOF;
             '211.8.159.128/25',
 
             '210.146.60.128/25', // 非公式ながら追加
-
-            '210.143.108.0/24', // jig 2005/6/23
         );
         return HostCheck::isAddrInBand($addr, $vBand, $vHost);
     }
@@ -527,7 +541,7 @@ EOF;
         }
         $wHost = '/^[Pp]\d{12}\.ppp\.prin\.ne\.jp$/';
         
-        // @update 2006/12/04
+        // @update 2007/08/15
         $wBand = array(
             '61.198.142.0/24',
             '61.198.161.0/24',
@@ -601,9 +615,115 @@ EOF;
             '125.28.17.0/24',
             '219.108.8.0/24',
             
-            '210.143.108.0/24', // jig 2005/6/23
+            '61.198.138.100/32',
+            '61.198.138.101/32',
+            '61.198.138.102/32',
+            
+            '61.198.139.160/28',
+            '61.198.139.128/27',
+            '61.198.138.103/32',
+            '61.198.139.0/29',
         );
         return HostCheck::isAddrInBand($addr, $wBand, $wHost);
     }
-
+    
+    /**
+     * IPは jig web?
+     *
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isAddrJigWeb($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+        // bw5022.jig.jp
+        $reghost = '/^bw\d+\.jig\.jp$/';
+        
+        $bands = array(
+            '202.181.98.241',   // 2007/08/06
+            //'210.143.108.0/24', // 2005/6/23
+        );
+        return HostCheck::isAddrInBand($addr, $bands, $reghost);
+    }
+    
+    /**
+     * IPは jigアプリ?
+     *
+     * @link    http://br.jig.jp/pc/ip_br.html
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isAddrJig($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+        
+        // br***.jig.jp
+        $reghost = '/^br\d+\.jig\.jp$/';
+        
+        // @update 2007/4/25
+        $bands = array(
+            '202.181.98.242/31',
+            '202.181.98.244/30',
+            '202.181.98.248/31',
+            '202.181.98.250/32',
+            '210.188.205.100/30',
+            '210.188.205.104/31',
+            '210.188.205.106/32',
+            '210.188.205.108/30',
+            '210.188.205.112/30',
+            '210.188.205.166/31',
+            '210.188.205.168/31',
+            '210.188.205.170/32',
+            '210.188.205.79/32',
+            '210.188.205.81/32',
+            '210.188.205.82/31',
+            '210.188.205.84/30',
+            '210.188.205.88/29',
+            '210.188.205.97/32',
+            '210.188.205.98/31',
+            '210.188.220.169/32',
+            '210.188.220.170/31',
+            '210.188.220.172/30',
+            '219.94.144.23/32',
+            '219.94.144.24/32',
+            '219.94.144.5/32',
+            '219.94.144.6/31',
+            '219.94.147.35/32',
+            '219.94.147.36/30',
+            '59.106.12.141/32',
+            '59.106.12.142/31',
+            '59.106.12.144/31',
+            '59.106.12.150/32',
+            '59.106.14.175/32',
+            '59.106.23.169/32',
+            '59.106.23.170/31',
+            '59.106.23.172/31',
+            '59.106.23.174/32',
+        );
+        return HostCheck::isAddrInBand($addr, $bands, $reghost);
+    }
+    
+    /**
+     * IPは ibis?
+     *
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isAddrIbis($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+        $bands = array(
+            '219.117.203.9'
+        );
+        return HostCheck::isAddrInBand($addr, $bands);
+    }
 }

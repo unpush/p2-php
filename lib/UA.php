@@ -11,7 +11,7 @@ $GLOBALS['_UA__PC_query'] = 'pc';
 $GLOBALS['_UA__mobile_query'] = 'k';
 
 /**
- * スタティックメソッドで利用する
+ * staticメソッドで利用する
  *
  * @author  aki
  * @created 2007/03/13
@@ -19,24 +19,77 @@ $GLOBALS['_UA__mobile_query'] = 'k';
 class UA
 {
     /**
-     * UAが携帯表示対象モバイルであればtrueを返す
-     * [todo] 携帯も含むようにする予定
+     * UAがPC（非モバイル）ならtrueを返す
      *
      * @static
      * @access  public
      * @return  boolean
      */
-    function isMobile()
+    function isPC($ua = null)
     {
-        if (UA::isPSP()) {
-            return true;
+        return !UA::isK();
+    }
+    
+    /**
+     * isMobile() のエイリアス
+     */
+    function isK($ua = null)
+    {
+        return UA::isMobile($ua);
+    }
+    
+    /**
+     * UAが携帯表示対象ならtrueを返す
+     *
+     * @static
+     * @access  public
+     * @params  string  $ua  UAを指定するなら
+     * @return  boolean
+     */
+    function isMobile($ua = null)
+    {
+        static $cache_;
+
+        if (is_null($ua) and isset($cache_)) {
+            return $cache_;
         }
+    
+        $isMobile = false;
+        
+        // UA無指定なら、クエリー指定
+        if (is_null($ua)) {
+            if (UA::isPCByQuery()) {
+                $cache_ = false;
+                return false;
+            }
+            $isMobile = UA::isMobileByQuery();
+        }
+        
+        if (!$isMobile) {
+            if ($nuam = &UA::getNet_UserAgent_Mobile($ua)) {
+                if (!$nuam->isNonMobile()) {
+                    $isMobile = true;
+                }
+            }
+        }
+        
         /*
-        if (UA::isNintendoDS()) {
-            return true;
+        // NetFront系（含むPSP）もモバイルに
+        if (!$isMobile) {
+            $isMobile = UA::isNetFront($ua);
+        }
+        
+        // Nintendo DSもモバイルに
+        if (!$isMobile) {
+            $isMobile = UA::isNintendoDS($ua);
         }
         */
-        return false;
+        
+        if (is_null($ua)) {
+            $cache_ = $isMobile;
+        }
+        
+        return $isMobile;
     }
     
     /**
@@ -270,3 +323,14 @@ class UA
         return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $ua);
     }
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

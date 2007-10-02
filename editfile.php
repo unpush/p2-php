@@ -99,7 +99,9 @@ function printEditFileHtml($path, $encode)
     $filename = basename($path);
     $ptitle = "Edit: " . $filename;
     
-    FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
+    if (false === FileCtl::make_datafile($path)) {
+         die("Error: cannot make file. ( $path )");
+    }
     $cont = file_get_contents($path);
     
     if ($encode == "EUC-JP") {
