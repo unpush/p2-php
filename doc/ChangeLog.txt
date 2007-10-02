@@ -1,3 +1,51 @@
+2007-10-02 aki
+	* rep2 version 1.8.14
+	
+	[新機能]  携帯TOPメニューを並び替え設定可能とした。
+	[新機能]  携帯のHTML基本色を設定で指定できるようにした。
+		背景色（k_bgcolor）、テキスト色（k_color）、リンク色（k_acolor）、訪問済みリンク色（k_acolor_v）
+		携帯 区切り線(<hr>)の色は、基本テキスト色の設定と同じにした。
+	[新機能]  携帯 元スレがc.2chである時、FROM設定を渡すようにした。
+
+	[対応更新]  willcomのIPアドレス帯域を更新した
+	[対応修正]  YouTubeの jp.youtube.com ドメインに対応した
+	[対応修正]  2chサーバでread.cgiにアクセスできない時、DAT落ちスレが取得できないサーバがあったのを、取得できるように対応した。
+
+	[バグ修正] ブラウザがIE以外の時、HTMLポップアップ(p)の表示位置がおかしいことがあった不具合を修正
+	[バグ修正] 「似スレ」で文字化けが発生することがあったのを修正した。
+	[バグ修正]  スレタイで「&」が「&amp;」、「"」が「&quot;」と表示されることがあった不具合を修正した。
+	[バグ修正]  スレッド一覧画面でのヘッダへのアンカー（▲）が正しくなかったのを修正した。
+		#header > #sbtoolbar1
+
+	[改良]  新着まとめ読みから開いた書き込みのポップアップウィンドウを自動で閉じるようにした。
+	（自動リロードはこれまでと同様に行わない）
+	[改良]  NGワードの表示をマウスオーバーからクリックに変更した。
+	[改良]  NG/あぼーんワード編集のリンクをフォームボタンから、テキストリンクに変更した。
+		（※リンクを新窓で開いたりできるように）
+	[改良] スレ一覧の数が1件以下の場合は、スレッドあぼーんの自動解除を行わないようにした。
+
+	[仕様変更]  速報headline(headline.2ch.net)は最近読んだスレに記録しないようにした。
+	[仕様変更]  PC 左メニューの「お気にスレ」と「最近読んだスレ」の位置が入れ替わった。
+	[仕様変更] PSPを携帯表示としないようにした。
+
+	[内部改良] ヘッドバーのHTMLをJavaScriptで動的にコピー生成するように改良した。
+	
+	付属のPEARを更新した。
+	
+	- 新規追加されたファイル
+		lib/global.funcs.php is new
+	
+	- ファイル名が変更されたファイル
+		lib/SubjectTxt.class.php   > lib/SubjectTxt.php
+		lib/ngabornctl.class.php   > lib/NgAbornCtl.php
+		lib/showthread.class.php   > lib/ShowThread.php
+		lib/showthreadk.class.php  > lib/ShowThreadK.php
+		lib/showthreadpc.class.php > lib/ShowThreadPc.php
+	
+	- 変更のあったファイル
+		たくさん
+
+
 2007-3-14 aki
 	* rep2 version 1.8.13
 	
