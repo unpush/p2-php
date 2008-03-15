@@ -122,73 +122,57 @@ class ShowThread{
 
         $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
 
-        $method = $ic ? 'stristr' : 'strstr';
-
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
             foreach ($ngaborns[$code]['data'] as $k => $v) {
-                if (strlen($v['word']) == 0) {
+                // 板チェック
+                if (isset($v['bbs']) && in_array($this->thread->bbs, $v['bbs']) == FALSE) {
                     continue;
                 }
 
-                /*
-                if ($method($resfield, $v['word'])) {
-                    $this->ngAbornUpdate($code, $k);
-                    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                    return $v['word'];
-                } else {
+                // タイトルチェック
+                if (isset($v['title']) && stristr($this->thread->ttitle_hc, $v['title']) === FALSE) {
                     continue;
                 }
-                */
 
-                // <関数:オプション>パターン 形式の行は正規表現として扱う
-                // バイナリセーフでない（日本語でエラーが出ることがある）のでereg()系は使わない
-                if (preg_match('/^<(mb_ereg|preg_match|regex)(:[imsxeADSUXu]+)?>(.+)$/', $v['word'], $re)) {
-                    // "regex"のときは自動設定
-                    if ($re[1] == 'regex') {
-                        if (P2_MBREGEX_AVAILABLE) {
-                            $re_method = 'mb_ereg';
-                            $re_pattern = $re[3];
-                        } else {
-                            $re_method = 'preg_match';
-                            $re_pattern = '/' . str_replace('/', '\\/', $re[3]) . '/';
-                        }
-                    } else {
-                        $re_method = $re[1];
-                        $re_pattern = $re[3];
-                    }
-                    // 大文字小文字を無視
-                    if ($re[2] && strstr($re[2], 'i')) {
-                        if ($re_method == 'preg_match') {
-                            $re_pattern .= 'i';
-                        } else {
-                            $re_method .= 'i';
-                        }
-                    }
-                    // マッチ
-                    if ($re_method($re_pattern, $resfield)) {
+                // ワードチェック
+                // 正規表現
+                if (!empty($v['regex'])) {
+                    $re_method = $v['regex'];
+                    /*if ($re_method($v['word'], $resfield, $matches)) {
                         $this->ngAbornUpdate($code, $k);
                         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                        return $v['word'];
-                    //if ($re_method($re_pattern, $resfield, $matches)) {
-                        //return htmlspecialchars($matches[0], ENT_QUOTES);
-                    }
-
-                // 大文字小文字を無視
-                } elseif (preg_match('/^<i>(.+)$/', $v['word'], $re)) {
-                    if (strstr($resfield, $re[1])) {
+                        return htmlspecialchars($matches[0], ENT_QUOTES);
+                    }*/
+                     if ($re_method($v['word'], $resfield)) {
                         $this->ngAbornUpdate($code, $k);
                         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                        return $v['word'];
+                        return $v['cond'];
                     }
-
+               // 大文字小文字を無視(1)
+                } elseif (!empty($v['ignorecase'])) {
+                    if (stristr($resfield, $v['word'])) {
+                        $this->ngAbornUpdate($code, $k);
+                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        return $v['cond'];
+                    }
+                // 大文字小文字を無視(2)
+                } elseif ($ic) {
+                    if (stristr($resfield, $v['word'])) {
+                        $this->ngAbornUpdate($code, $k);
+                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        return $v['cond'];
+                    }
                 // 単純に文字列が含まれるかどうかをチェック
-                } elseif ($method($resfield, $v['word'])) {
-                    $this->ngAbornUpdate($code, $k);
-                    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                    return $v['word'];
+                } else {
+                    if (strstr($resfield, $v['word'])) {
+                        $this->ngAbornUpdate($code, $k);
+                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        return $v['cond'];
+                    }
                 }
             }
         }
+
         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
         return false;
     }

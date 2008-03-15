@@ -12,10 +12,13 @@ class BrdMenu{
     var $format;        // html形式か、brd形式か("html", "brd")
     var $cate_match;    // カテゴリーマッチ形式
     var $ita_match;     // 板マッチ形式
+    var $matches;       // マッチした BrdMenuIta オブジェクトを格納する配列
 
     function BrdMenu()
     {
+        $this->categories = array();
         $this->num = 0;
+        $this->matches =array();
     }
 
     /**
@@ -122,6 +125,8 @@ class BrdMenu{
                         if ($aBrdMenuIta->itaj_ht == $aBrdMenuIta->itaj) {
                             $aBrdMenuIta->itaj_ht = '<b class="filtering">'.$aBrdMenuIta->itaj_ht.'</b>';
                         }
+
+                        $this->matches[] = &$aBrdMenuIta;
 
                     // 検索が見つからなくて、さらに携帯の時
                     } else {

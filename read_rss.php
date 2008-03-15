@@ -2,7 +2,7 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 /*
-    p2 - 簡易RSSリーダ（<description>または<content:encoded>の内容を表示）
+    expack - 簡易RSSリーダ（<description>または<content:encoded>の内容を表示）
 
     RSS系ファイルはUTF-8で書いて、携帯に出力するときだけSJISにしたいけど
     mbstring.script_encoding = SJIS-win との整合性を考えるとSJISのままが無難かな？
@@ -65,7 +65,7 @@ if ($xml) {
         if (preg_match('/^<\\?xml version="1.0" encoding="((?i:iso)-8859-(?:[1-9]|1[0-5]))" ?\\?>/', $xmldec, $matches)) {
             $encoding = $matches[1];
         } else {
-            $encoding = 'ASCII,JIS,UTF-8,eucJP-win,SJIS-win';
+            $encoding = 'UTF-8,eucJP-win,SJIS-win,JIS';
         }
         mb_convert_variables('SJIS-win', $encoding, $channel, $items);
     } else {
@@ -93,7 +93,6 @@ if (isset($num)) {
 //============================================================
 
 P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
 if ($_conf['ktai']) {
     if (!$_conf['expack.rss.check_interval']) {
         // キャッシュさせない
@@ -102,9 +101,10 @@ if ($_conf['ktai']) {
         // 更新チェック間隔の1/3だけキャッシュさせる（端末orゲートウェイの実装依存）
         header(sprintf('Cache-Control: max-age=%d', $_conf['expack.rss.check_interval'] * 60 / 3));
     }
-    include_once P2EX_LIBRARY_DIR . '/rss/read_k.inc.php';
-} else {
-    include_once P2EX_LIBRARY_DIR . '/rss/read.inc.php';
 }
+if ($_conf['doctype']) {
+    echo $_conf['doctype'];
+}
+include P2EX_LIBRARY_DIR . '/rss/' . ($_conf['ktai'] ? 'read_k' : 'read') . '.inc.php';
 
 ?>

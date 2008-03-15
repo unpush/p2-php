@@ -46,6 +46,8 @@ if (!empty($_POST['submit_save'])) {
     $newdata = '';
     foreach ($_POST['nga'] as $na_info) {
         $a_word = strtr(trim($na_info['word'], "\t\r\n"), "\t\r\n", "   ");
+        $a_bbs = strtr(trim($na_info['bbs'], "\t\r\n"), "\t\r\n", "   ");
+        $a_tt = strtr(trim($na_info['tt'], "\t\r\n"), "\t\r\n", "   ");
         $a_time = strtr(trim($na_info['ht']), "\t\r\n", "   ");
         if ($a_time === '') {
             $a_time = '--';
@@ -60,6 +62,12 @@ if (!empty($_POST['submit_save'])) {
             $a_mode = '<i>';
         } else {
             $a_mode = '';
+        }
+        if (strlen($a_bbs) > 0) {
+            $a_mode .= '<bbs>' . $a_bbs . '</bbs>';
+        }
+        if (strlen($a_tt) > 0) {
+            $a_mode .= '<title>' . $a_tt . '</title>';
         }
         $newdata .= $a_mode . $a_word . "\t" . $a_time . "\t" . $a_hits . "\n";
     }
@@ -89,31 +97,46 @@ if (file_exists($path)) {
     $i = 0;
     foreach ($lines as $line) {
         $lar = explode("\t", rtrim($line, "\r\n"));
-        $formdata[$i] = array('word' => '', 're' => '', 'ic' => '', 'ht' => '', 'hn' => 0);
-        isset($lar[1]) && $formdata[$i]['ht'] = $lar[1];
-        isset($lar[2]) && $formdata[$i]['hn'] = $lar[2];
-        if (preg_match('/^<(mb_ereg|preg_match|regex)(:[imsxeADSUXu]+)?>(.+)$/', $lar[0], $m)) {
-            if ($m[3] === '') {
-                continue;
-            }
-            $formdata[$i]['word'] = $m[3];
-            $formdata[$i]['re'] = ' checked';
-            if ($m[2] && strstr($m[2], 'i')) {
-                $formdata[$i]['ic'] = ' checked';
-            }
-        } elseif (preg_match('/^<i>(.+)$/', $lar[0], $m)) {
-            if ($m[1] === '') {
-                continue;
-            }
-            $formdata[$i]['word'] = $m[1];
-            $formdata[$i]['ic'] = ' checked';
-        } else {
-            if ($lar[0] === '') {
-                continue;
-            }
-            $formdata[$i]['word'] = $lar[0];
+        if (count($lar) < 3 || strlen($lar[0]) == 0) {
+            continue;
         }
-        $i++;
+        $ar = array(
+            'cond' => $lar[0], // 検索条件
+            'word' => $lar[0], // 対象文字列
+            'ht' => $lar[1], // 最後にHITした時間
+            'hn' => $lar[2], // HIT回数
+            're' => '', // 正規表現
+            'ic' => '', // 大文字小文字を無視
+            'bbs' => '', // 板
+            'tt' => '', // タイトル
+        );
+        // 板縛り
+        if (preg_match('!<bbs>(.+?)</bbs>!', $ar['word'], $matches)) {
+            $ar['bbs'] = $matches[1];
+        }
+        $ar['word'] = preg_replace('!<bbs>(.*)</bbs>!', '', $ar['word']);
+        // タイトル縛り
+        if (preg_match('!<title>(.+?)</title>!', $ar['word'], $matches)) {
+            $ar['tt'] = $matches[1];
+        }
+        $ar['word'] = preg_replace('!<title>(.*)</title>!', '', $ar['word']);
+        // 正規表現
+        if (preg_match('/^<(mb_ereg|preg_match|regex)(:[imsxeADSUXu]+)?>(.*)$/', $ar['word'], $m)) {
+            $ar['word'] = $m[3];
+            $ar['re'] = ' checked';
+            // 大文字小文字を無視
+            if ($m[2] && strstr($m[2], 'i')) {
+                $ar['ic'] = ' checked';
+            }
+        // 大文字小文字を無視
+        } elseif (preg_match('/^<i>(.*)$/', $ar['word'], $m)) {
+            $ar['word'] = $m[1];
+            $ar['ic'] = ' checked';
+        }
+        if (strlen($ar['word']) == 0) {
+            continue;
+        }
+        $formdata[$i++] = $ar;
     }
 }
 
@@ -173,7 +196,7 @@ EOP;
 if (empty($_conf['ktai'])) {
     $htm['form_submit'] = <<<EOP
         <tr class="group">
-            <td colspan="3" align="center">
+            <td colspan="6" align="center">
                 <input type="submit" name="submit_save" value="変更を保存する">
                 <input type="submit" name="submit_default" value="リストを空にする" onClick="if (!window.confirm('リストを空にしてもよろしいですか？（やり直しはできません）')) {return false;}"><br>
             </td>
@@ -192,8 +215,19 @@ if (!empty($_info_msg_ht)) {
     $_info_msg_ht = "";
 }
 
+$usage = <<<EOP
+<ul>
+<li>i: 大文字小文字を無視</li>
+<li>re: 正規表現</li>
+<li>板: newsplus, software 等 (完全一致, カンマ区切り)</li>
+<li>スレタイ: スレッドタイトル (部分一致, 常に大文字小文字を無視)</li>
+</ul>
+EOP;
+if (!empty($_conf['ktai'])) {
+    $usage = mb_convert_kana($usage, 'k');
+}
 echo <<<EOP
-<div>注）i: 大文字小文字を無視, r: 正規表現</div>
+{$usage}
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
     {$_conf['k_input_ht']}
     <input type="hidden" name="detect_hint" value="◎◇　◇◎">
@@ -207,20 +241,23 @@ if (empty($_conf['ktai'])) {
     <table class="edit_conf_user" cellspacing="0">
         <tr>
             <td align="center">あぼーんワード</td>
-            <td align="center">i / r</td>
+            <td align="center">i</td>
+            <td align="center">re</td>
+            <td align="center">板</td>
+            <td align="center">スレタイ</td>
             <td align="center">最終ヒット日時と回数</td>
         </tr>
         <tr class="group">
-            <td colspan="3">新規登録</td>
+            <td colspan="6">新規登録</td>
         </tr>\n
 EOP;
     $row_format = <<<EOP
         <tr>
             <td><input type="text" size="35" name="nga[%1\$d][word]" value="%2\$s"></td>
-            <td>
-                <label><input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s>i</label>
-                <label><input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>r</label>
-            </td>
+            <td><input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s></td>
+            <td><input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s></td>
+            <td><input type="text" size="10" name="nga[%1\$d][bbs]" value="%7\$s"></td>
+            <td><input type="text" size="15" name="nga[%1\$d][tt]" value="%8\$s"></td>
             <td align="right">
                 <input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">%5\$s
                 <input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)
@@ -231,15 +268,17 @@ EOP;
 } else {
     echo "新規登録<br>\n";
     $row_format = <<<EOP
-<input type="text" name="nga[%1\$d][word]" value="%2\$s">
+<input type="text" name="nga[%1\$d][word]" value="%2\$s"><br>
+板:<input type="text" size="5" name="nga[%1\$d][bbs]" value="%7\$s">
+ｽﾚﾀｲ:<input type="text" size="5" name="nga[%1\$d][tt]" value="%8\$s"><br>
 <input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s>i
-<input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>r
+<input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>re
 <input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">
 <input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)<br>\n
 EOP;
 }
 
-printf($row_format, -1, '', '', '', '--', 0);
+printf($row_format, -1, '', '', '', '--', 0, '', '');
 
 echo $htm['form_submit'];
 
@@ -251,7 +290,9 @@ if (!empty($formdata)) {
             $v['ic'],
             $v['re'],
             htmlspecialchars($v['ht'], ENT_QUOTES),
-            $v['hn']
+            $v['hn'],
+            htmlspecialchars($v['bbs'], ENT_QUOTES),
+            htmlspecialchars($v['tt'], ENT_QUOTES)
         );
     }
     echo $htm['form_submit'];

@@ -349,13 +349,31 @@ $brd_menus = array_merge($brd_menus_dir, $brd_menus_online);
 
 if (isset($word) && strlen($word) > 0) {
 
-    $msg_ht .=  '<p>';
+    $msg_ht .= '<p>';
     if (empty($GLOBALS['ita_mikke']['num'])) {
         if (empty($GLOBALS['threti_match_ita_num'])) {
             $msg_ht .=  "\"{$hd['word']}\"‚ğŠÜ‚Ş”Â‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B\n";
         }
     } else {
-        $msg_ht .=  "\"{$hd['word']}\"‚ğŠÜ‚Ş”Â {$GLOBALS['ita_mikke']['num']}hit!\n";
+        $match_cates = array();
+        $match_cates[0] = &new BrdMenuCate("&quot;{$hd['word']}&quot;‚ğŠÜ‚Ş”Â {$GLOBALS['ita_mikke']['num']}hit!\n");
+        $match_cates[0]->is_open = true;
+        foreach ($brd_menus as $a_brd_menu) {
+            if (!empty($a_brd_menu->matches)) {
+                if (version_compare(phpversion(), '5.0.0', 'ge')) {
+                    foreach ($a_brd_menu->matches as $match_ita) {
+                        $match_cates[0]->addBrdMenuIta(clone($match_ita));
+                    }
+                } else {
+                    foreach ($a_brd_menu->matches as $match_ita) {
+                        $match_cates[0]->addBrdMenuIta($match_ita);
+                    }
+                }
+            }
+        }
+        ob_start();
+        $aShowBrdMenuPc->printBrdMenu($match_cates);
+        $msg_ht .= ob_get_clean();
 
         // ŒŸõŒ‹‰Ê‚ªˆê‚Â‚È‚çA©“®‚Å”Âˆê——‚ğŠJ‚­
         if ($GLOBALS['ita_mikke']['num'] == 1) {
@@ -372,6 +390,8 @@ EOP;
     $msg_ht .= '</p>';
 
     $_info_msg_ht .= $msg_ht;
+} else {
+    $match_cates = null;
 }
 
 // }}}
