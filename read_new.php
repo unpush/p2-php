@@ -326,7 +326,7 @@ function readNew(&$aThread)
     global $_info_msg_ht;
     static $favlist_titles = null;
 
-    if (is_null($favlist_titles)) {
+    if ($_conf['expack.misc.multi_favs'] && is_null($favlist_titles)) {
         $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
         if (empty($favlist_titles)) {
             $favlist_titles = array();

@@ -246,7 +246,7 @@ if (!empty($isTaborn)) {
 }
 
 $taborn_ht = <<<EOP
-{$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}"{$taborndo_title_at}>{$tastr2}</a>]
+{$tastr1} [<a href="info.php?{$common_q}&amp;taborn={$taborndo}{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}"{$taborndo_title_at}>{$tastr2}</a>]
 EOP;
 
 // }}}
