@@ -117,6 +117,15 @@ ini_set('arg_separator.output', '&amp;');
 // リクエストIDを設定 (コストが大きい割に使っていないので廃止)
 //define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
 
+// セッションIDの 付加機能が有効となった場合に、セッションIDを含めるために書き換 えられるHTMLタグにimg=srcを追加
+$temp_rewriter_tags = explode(',', ini_get('url_rewriter.tags'));
+if (is_array($temp_rewriter_tags)) {
+    if (!array_search('img=src', $temp_rewriter_tags)) {
+        $temp_rewriter_tags[] = 'img=src';
+        ini_set('url_rewriter.tags', implode(',', $temp_rewriter_tags));
+    }
+}
+
 // Windows なら
 if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
     // Windows
