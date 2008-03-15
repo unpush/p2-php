@@ -356,8 +356,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('favita_order_dnd', 'ドラッグ＆ドロップでお気に板を並べ替える(する, しない)'),
         array('enable_menu_new', '板メニューに新着数を表示 (する, しない, お気に板のみ)'),
         array('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)'),
-        array('menu_hide_brds', '板カテゴリ一覧を閉じた状態にする(する, しない)'),
-//        array('brocra_checker_use', 'ブラクラチェッカ(つける, つけない)'),
+        array('menu_hide_brds', '板カテゴリ一覧を閉じた状態にする (する, しない)'),
+//        array('brocra_checker_use', 'ブラクラチェッカ (つける, つけない)'),
 //        array('brocra_checker_url', 'ブラクラチェッカURL'),
 //        array('brocra_checker_query', 'ブラクラチェッカのクエリー'),
         array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする (off, レスのみ, サブジェクトも)'),
@@ -391,6 +391,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('mobile.ngword_color', 'NGワード'),
         array('mobile.onthefly_color', 'オンザフライレス番号'),
         array('mobile.match_color', 'フィルタリングでマッチしたキーワード'),
+        array('mobile.id_underline', 'ID末尾の&quot;O&quot;に下線を引く (する, しない)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

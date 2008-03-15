@@ -37,6 +37,10 @@ $conf_user_def['mobile.onthefly_color'] = "#00aa00"; // ("#00aa00")
 // フィルタリングでマッチしたキーワード
 $conf_user_def['mobile.match_color'] = ""; // ("")
 
+// ID末尾の"O"に下線を引く
+$conf_user_def['mobile.id_underline'] = 0; // (0)
+$conf_user_rad['mobile.id_underline'] = array('1' => 'する', '0' => 'しない');
+
 // }}}
 // {{{ tGrep
 

@@ -18,7 +18,8 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
     switch ($_GET['ktool_name']) {
         case 'goto':
             $_REQUEST['ls'] = $_GET['ls'] = $ktv . '-' . ($ktv + $_conf['k_rnum_range']);
-            break;
+            include 'read.php';
+            exit;
         case 'res_quote':
             $_GET['resnum'] = $ktv;
             $_GET['inyou'] = 1;

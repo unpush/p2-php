@@ -385,7 +385,10 @@ EOP;
 
         // IDフィルタ
         if ($_conf['flex_idpopup'] == 1 && $id && $this->thread->idcount[$id] > 1) {
-            $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
+            $date_id = preg_replace_callback('!ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$)!', array($this, 'idfilter_callback'), $date_id);
+        }
+        if ($_conf['mobile.id_underline']) {
+            $date_id = preg_replace('!(ID: ?)([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?O(?=[^0-9A-Za-z/.+]|$)!', '$1$2<u>O</u>', $date_id);
         }
 
         $tores .= $date_id . "<br>\n"; // 日付とID
@@ -684,7 +687,11 @@ EOP;
     }
 
     /**
-     * ■IDフィルタリングリンク変換
+     * IDフィルタリングリンク変換
+     *
+     * @param   array   $s  正規表現にマッチした要素の配列
+     * @return  string
+     * @access  public
      */
     function idfilter_callback($s)
     {
