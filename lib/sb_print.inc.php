@@ -128,6 +128,17 @@ EOP;
     }
     $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
+    // td欄 cssクラス
+    $class_t = ' class="t"';    // 基本
+    $class_te = ' class="te"';  // 並び替え
+    $class_tu = ' class="tu"';  // 新着レス数
+    $class_tn = ' class="tn"';  // レス数
+    $class_tc = ' class="tc"';  // チェックボックス
+    $class_to = ' class="to"';  // オーダー番号
+    $class_tl = ' class="tl"';  // タイトル
+    $class_ts = ' class="ts"';  // すばやさ
+    $class_ti = ' class="ti"';  // 勢い
+
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
         $i++;
@@ -141,27 +152,11 @@ EOP;
             if (!$aThread->torder) { $aThread->torder = $i; }
         }
 
-        // td欄 cssクラス
-        if (($i % 2) == 0) {
-            $class_t = " class=\"t\"";      // 基本
-            $class_te = " class=\"te\"";    // 並び替え
-            $class_tu = " class=\"tu\"";    // 新着レス数
-            $class_tn = " class=\"tn\"";    // レス数
-            $class_tc = " class=\"tc\"";    // チェックボックス
-            $class_to = " class=\"to\"";    // オーダー番号
-            $class_tl = " class=\"tl\"";    // タイトル
-            $class_ts = " class=\"ts\"";    // すばやさ
-            $class_ti = " class=\"ti\"";    // 勢い
+        // tr欄 cssクラス
+        if ($i % 2) {
+            $class_r = ' class="r1"';   // 奇数行
         } else {
-            $class_t = " class=\"t2\"";
-            $class_te = " class=\"te2\"";
-            $class_tu = " class=\"tu2\"";
-            $class_tn = " class=\"tn2\"";
-            $class_tc = " class=\"tc2\"";
-            $class_to = " class=\"to2\"";
-            $class_tl = " class=\"tl2\"";
-            $class_ts = " class=\"ts2\"";
-            $class_ti = " class=\"ti2\"";
+            $class_r = ' class="r2"';   // 偶数行
         }
 
         //新着レス数 =============================================
@@ -349,20 +344,10 @@ EOP;
         //====================================================================================
 
         // ボディ
-        echo "<tr>\n
-                    $edit_ht
-                    $unum_ht
-                    $rescount_ht
-                    $one_ht
-                    $checkbox_ht
-                    <td{$class_to}>{$torder_ht}</td>
-                    <td{$class_tl} nowrap>$moto_thre_ht<a id=\"tt{$i}\" href=\"{$thre_url}\" title=\"{$aThread->ttitle_hd}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a></td>
-                    {$htm['ita_td']}
-                    $spd_ht
-                    $ikioi_ht
-                    $birth_ht
-                    $fav_ht
-                \n</tr>\n";
+        echo "<tr{$class_r}>{$edit_ht}{$unum_ht}{$rescount_ht}{$one_ht}{$checkbox_ht}
+<td{$class_to}>{$torder_ht}</td>
+<td{$class_tl} nowrap>$moto_thre_ht<a id=\"tt{$i}\" href=\"{$thre_url}\" title=\"{$aThread->ttitle_hd}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a></td>
+{$htm['ita_td']}{$spd_ht}{$ikioi_ht}{$birth_ht}{$fav_ht}</tr>\n";
 
     }
 

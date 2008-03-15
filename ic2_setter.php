@@ -160,10 +160,11 @@ if ($showForm) {
 }
 
 // テンプレート変数
-$view = new StdClass;
+$view = &new stdClass;
 $view->php_self = $_SERVER['SCRIPT_NAME'];
 $view->STYLE    = $STYLE;
 $view->skin     = $skin_en;
+$view->_hint    = $_conf['detect_hint'];
 $view->isPopUp  = $isPopUp;
 $view->showForm = $showForm;
 $view->info_msg = $_info_msg_ht;

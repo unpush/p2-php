@@ -118,7 +118,7 @@ function ic2dumptable_errlog(&$dbdo)
 {
     $data = array();
     while ($dbdo->fetch()) {
-        $obj = &new StdClass;
+        $obj = &new stdClass;
         $obj->uri = $dbdo->uri;
         $obj->date = date('Y-m-d (D) H:i:s', $dbdo->occured);
         $obj->code = $dbdo->errcode;
@@ -132,7 +132,7 @@ function ic2dumptable_blacklist(&$dbdo)
 {
     $data = array();
     while ($dbdo->fetch()) {
-        $obj = &new StdClass;
+        $obj = &new stdClass;
         $obj->uri = $dbdo->uri;
         switch ($dbdo->type) {
             case '0':

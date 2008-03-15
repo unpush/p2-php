@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7,29+';    // rep2のバージョン
-$_conf['p2expack'] = '070716.9999'; // 拡張パックのバージョン
+$_conf['p2expack'] = '070720.9999'; // 拡張パックのバージョン
 $_conf['p2name'] = 'WowFlutter';    // rep2の名前。
 
 //======================================================================
@@ -41,7 +41,7 @@ $_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
 // {{{ 環境設定
 
 // 動作環境を確認 (要件を満たしているならコメントアウト可)
-p2checkenv();
+p2checkenv(__LINE__);
 
 // デバッグ
 $debug = !empty($_GET['debug']);
@@ -227,6 +227,12 @@ $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
 
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">';
+
+// 文字コード自動判定用のヒント文字列
+$_conf['detect_hint'] = '◎◇';
+$_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
+$_conf['detect_hint_input_xht'] = '<input type="hidden" name="_hint" value="◎◇" />';
+$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win');
 
 // {{{ 端末判定
 
@@ -979,15 +985,13 @@ function p2die($err, $msg = null, $raw = false)
  *
  * @return  void
  */
-function p2checkenv()
+function p2checkenv($check_recommended)
 {
     global $_info_msg_ht;
     
     $php_version = phpversion();
     $required_version = '4.3.3';
-    $recommended_version = '5.1.6';
-    $check_recommended = true;
-    $cr_lineno = strval(__LINE__ - 1);
+    $recommended_version = '5.2.3';
 
     if (version_compare($php_version, $required_version, '<')) {
         p2die('PHP ' . $required_version . ' 未満では使えません。');
@@ -1010,7 +1014,7 @@ EOP;
         $_info_msg_ht .= '<p><b>推奨バージョンより古いPHPで動作しています。</b> <i>(PHP ' . $php_version . ')</i><br>';
         $_info_msg_ht .= 'PHP ' . $recommended_version . ' 以降にアップデートすることをおすすめします。<br>';
         $_info_msg_ht .= '<small>（このメッセージを表示しないようにするには ' . htmlspecialchars(__FILE__, ENT_QUOTES);
-        $_info_msg_ht .= ' の ' . $cr_lineno . ' 行目の &quot;$check_recommended = true;&quot; を';
-        $_info_msg_ht .= ' &quot;$check_recommended = false&quot; に書き換えてください）</small></p>';
+        $_info_msg_ht .= ' の ' . $check_recommended . ' 行目の &quot;p2checkenv(__LINE__);&quot; を';
+        $_info_msg_ht .= ' &quot;p2checkenv(false);&quot; に書き換えてください）</small></p>';
     }
 }

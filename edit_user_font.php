@@ -33,7 +33,7 @@ $fontconfig_params = array('fontfamily', 'fontfamily_bold', 'fontfamily_aa', 'fo
 
 $fontconfig_sizes = array('' => '', '6px' => '6', '8px' => '8', '9px' => '9', '10px' => '10', '11px' => '11', '12px' => '12', '13px' => '13', '14px' => '14', '16px' => '16', '18px' => '18', '21px' => '21', '24px' => '24');
 
-$controllerObject = new StdClass;
+$controllerObject = &new stdClass;
 $controllerObject->fontconfig_types = $fontconfig_types;
 $controllerObject->fontconfig_params = $fontconfig_params;
 $controllerObject->skindata = fontconfig_load_skin_setting();

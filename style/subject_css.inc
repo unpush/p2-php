@@ -128,41 +128,38 @@ a:link.te{color:#999;} /* 並び替え */
 a:visited.te{color:#999;}
 a:hover.te{color:{$STYLE['sb_tacolor_h']};}
 
+/* r スレッドリスト 行 */
+tr.r1{background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']};}
+tr.r2{background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']};}
+
+tr.r1 td, tr.r2 td {white-space:nowrap;}
+
 /* t スレッドリスト テーブル欄 基本 */
-td.t{padding:2px 4px; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.t2{padding:2px 4px; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.t{padding:2px 4px;}
 
 /* te スレッドリスト 並び替え欄 */
-td.te{width:70px; padding:2px 4px 2px 6px; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.te2{width:70px; padding:2px 4px 2px 6px; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.te{width:70px; padding:2px 4px 2px 6px;}
 
 /* tu スレッドリスト 新着レス数欄 */
-td.tu{width:26px; text-align:right; padding:2px 4px 2px 6px; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.tu2{width:26px; text-align:right; padding:2px 4px 2px 6px; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.tu{width:26px; text-align:right; padding:2px 4px 2px 6px;}
 
 /* tn スレッドリストのレス数欄*/
-td.tn{width:36px; padding:2px 4px; text-align:left; color:{$STYLE['sb_ttcolor']}; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.tn2{width:36px; padding:2px 4px; text-align:left; color:{$STYLE['sb_ttcolor']}; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.tn{width:36px; padding:2px 4px; text-align:left; color:{$STYLE['sb_ttcolor']};}
 
 /* tc スレッドリスト チェックボックス欄*/
-td.tc{width:20px; padding:0px 2px; text-align:right; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.tc2{width:20px; padding:0px 2px; text-align:right; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.tc{width:20px; padding:0px 2px; text-align:right;}
 
 /* to スレッドリスト オーダー番号欄*/
-td.to{width:26px; padding:2px 4px; text-align:right; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.to2{width:26px; padding:2px 4px; text-align:right; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.to{width:26px; padding:2px 4px; text-align:right;}
 
 /* tl スレッドリスト タイトル名欄 */
-td.tl{padding:2px 4px; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.tl2{padding:2px 4px; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.tl{padding:2px 4px;}
 
 /* ti スレッドリスト すばやさ欄 */
-td.ts{padding:2px 4px; text-align:right; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.ts2{padding:2px 4px; text-align:right; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.ts{padding:2px 4px; text-align:right;}
 
 /* ti スレッドリスト 勢い欄 */
-td.ti{padding:2px 4px; text-align:right; background:{$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']}; white-space:nowrap;}
-td.ti2{padding:2px 4px; text-align:right; background:{$STYLE['sb_tbgcolor1']} {$STYLE['sb_tbackground1']}; white-space:nowrap;}
+td.ti{padding:2px 4px; text-align:right;}
 
 EOSTYLE;
 

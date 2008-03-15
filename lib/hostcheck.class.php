@@ -1,16 +1,18 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// アクセス元ホストをチェックする関数群
+// アクセス元ホストをチェックする関数群クラス
 
 require_once 'conf/conf_hostcheck.php';
 
+// {{{ class HostCheck
+
 class HostCheck
 {
+    // {{{ forbidden()
 
     /**
      * アクセス禁止のメッセージを表示して終了する
+     *
+     * @return  void
      */
     function forbidden()
     {
@@ -30,6 +32,8 @@ EOF;
         exit;
     }
 
+    // }}}
+    // {{{ ip2long()
 
     /**
      * ip2long() の PHP4 と PHP5 での差異を吸収する
@@ -46,6 +50,8 @@ EOF;
         return $long;
     }
 
+    // }}}
+    // {{{ cachedGetHostByAddr()
 
     /**
      * ローカルキャッシュつきgethostbyaddr()
@@ -55,11 +61,13 @@ EOF;
         global $_conf;
 
         $function = 'gethostbyaddr';
-        $cache_file = $_conf['pref_dir'] . '/p2_cache/hostcheck_gethostbyaddr.cache';
+        $cache_file = $_conf['cache_dir'] . '/hostcheck_gethostbyaddr.cache';
 
         return HostCheck::_cachedGetHost($remote_addr, $function, $cache_file);
     }
 
+    // }}}
+    // {{{ cachedGetHostByName()
 
     /**
      * ローカルキャッシュつきgethostbyname()
@@ -69,11 +77,13 @@ EOF;
         global $_conf;
 
         $function = 'gethostbyname';
-        $cache_file = $_conf['pref_dir'] . '/p2_cache/hostcheck_gethostbyname.cache';
+        $cache_file = $_conf['cache_dir'] . '/hostcheck_gethostbyname.cache';
 
         return HostCheck::_cachedGetHost($remote_host, $function, $cache_file);
     }
 
+    // }}}
+    // {{{ _cachedGetHost()
 
     /**
      * cachedGetHostByAddr/cachedGetHostByName のキャッシュエンジン
@@ -121,49 +131,66 @@ EOF;
         foreach ($list as $query => $item) {
             $content .= $query . "\t" . $item[0] . "\t" . $item[1] . "\n";
         }
-        FileCtl::file_write_contents($cache_file, $content);
+        FileCtl::filePutRename($cache_file, $content);
 
         return $result;
     }
 
+    // }}}
+    // {{{ getHostAuth()
 
     /**
      * アクセスが許可されたIPアドレス帯域なら true を返す
      * (false = アク禁)
      */
-    function getHostAuth()
+    function getHostAuth($addr = null)
     {
         global $_conf, $_HOSTCHKCONF;
 
         switch ($_conf['secure']['auth_host']) {
-        case 1:
-            $flag = 1;
-            $ret  = true;
-            $custom = $_HOSTCHKCONF['custom_allowed_host'];
-            break;
-        case 2:
-            $flag = 0;
-            $ret  = false;
-            $custom = $_HOSTCHKCONF['custom_denied_host'];
-            break;
-        default:
-            return true;
+            case 1:
+                $flag = 1;
+                $ret  = true;
+                $custom = $_HOSTCHKCONF['custom_allowed_host'];
+                $custom_v6 = $_HOSTCHKCONF['custom_allowed_host_v6'];
+                break;
+            case 2:
+                $flag = 0;
+                $ret  = false;
+                $custom = $_HOSTCHKCONF['custom_denied_host'];
+                $custom_v6 = $_HOSTCHKCONF['custom_denied_host_v6'];
+                break;
+            default:
+                return true;
         }
 
-        if (
-            ( $flag == $_HOSTCHKCONF['host_type']['localhost'] && HostCheck::isAddrLocal() ) ||
-            ( $flag == $_HOSTCHKCONF['host_type']['private'] && HostCheck::isAddrPrivate() ) ||
-            ( $flag == $_HOSTCHKCONF['host_type']['DoCoMo'] && HostCheck::isAddrDocomo() ) ||
-            ( $flag == $_HOSTCHKCONF['host_type']['au'] && HostCheck::isAddrAu() ) ||
-            ( $flag == $_HOSTCHKCONF['host_type']['Vodafone'] && HostCheck::isAddrSoftBank() ) ||
-            ( $flag == $_HOSTCHKCONF['host_type']['AirH'] && HostCheck::isAddrWillcom() ) ||
-            ( $flag == $_HOSTCHKCONF['host_type']['custom'] && !empty($custom) && HostCheck::isAddrInBand($custom) )
-        ) {
-            return $ret;
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+
+        if (HostCheck::isAddrIPv6($addr) !== false) {
+            if (($flag == $_HOSTCHKCONF['host_type']['localhost'] && HostCheck::isAddrLocal($addr)) ||
+                ($flag == $_HOSTCHKCONF['host_type']['custom_v6'] && !empty($custom_v6) && HostCheck::isAddrInBand6($addr, $custom_v6)))
+            {
+                return $ret;
+            }
+        } else {
+            if (($flag == $_HOSTCHKCONF['host_type']['localhost'] && HostCheck::isAddrLocal($addr)) ||
+                ($flag == $_HOSTCHKCONF['host_type']['private'] && HostCheck::isAddrPrivate($addr)) ||
+                ($flag == $_HOSTCHKCONF['host_type']['DoCoMo'] && HostCheck::isAddrDocomo($addr)) ||
+                ($flag == $_HOSTCHKCONF['host_type']['au'] && HostCheck::isAddrAu($addr)) ||
+                ($flag == $_HOSTCHKCONF['host_type']['SoftBank'] && HostCheck::isAddrSoftBank($addr)) ||
+                ($flag == $_HOSTCHKCONF['host_type']['Willcom'] && HostCheck::isAddrWillcom($addr)) ||
+                ($flag == $_HOSTCHKCONF['host_type']['custom'] && !empty($custom) && HostCheck::isAddrInBand($addr, $custom)))
+            {
+                return $ret;
+            }
         }
         return !$ret;
     }
 
+    // }}}
+    // {{{ getHostBurned()
 
     /**
      * BBQに焼かれているIPアドレスなら true を返す
@@ -184,6 +211,8 @@ EOF;
         return false;
     }
 
+    // }}}
+    // {{{ length2subnet()
 
     /**
      * マスク長をサブネットマスクに変換
@@ -204,15 +233,26 @@ EOF;
         return implode('.', $subnet);
     }
 
+    // }}}
+    // {{{ isAddrLocal()
 
     /**
      * ローカルホスト?
      */
-    function isAddrLocal()
+    function isAddrLocal($addr = null)
     {
-        return ($_SERVER['REMOTE_ADDR'] == '127.0.0.1');
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+        if ($addr == '127.0.0.1' || $addr == '::1') {
+            return true;
+        } else {
+            return false;
+        }
     }
 
+    // }}}
+    // {{{ isAddrBurned()
 
     /**
      * ホストがBBQに焼かれているか?
@@ -253,9 +293,11 @@ EOF;
         return false; // BBQに焼かれていない
     }
 
+    // }}}
+    // {{{ isAddrInBand()
 
     /**
-     * 任意のIPアドレス帯域内からのアクセスか?
+     * 任意のIPアドレス(IPv4)帯域内からのアクセスか?
      *
      * 引数の数により処理内容が変わる
      * 1. $_SERVER['REMOTE_ADDR']が第一引数の帯域にあるかチェックする
@@ -319,6 +361,63 @@ EOF;
         return false;
     }
 
+    // }}}
+    // {{{ isAddrInBand6()
+
+    /**
+     * 任意のIPアドレス(IPv6/グローバルユニキャストアドレス)からのアクセスか?
+     *
+     * 製作者(rsk)がIPv6をよくわかっていないため、
+     * とりあえず先頭の64ビットが等しければ真を返す仕様となっている。
+     *
+     * 帯域指定は各要素がIPv6アドレス(XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX)形式
+     * の文字列またはその配列で指定する
+     */
+    function isAddrInBand6($addr, $band = null)
+    {
+        if (is_null($band)) {
+            $band = $addr;
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+
+        $addr = HostCheck::isAddrIPv6($addr);
+        if (!$addr) {
+            return false;
+        }
+
+        $prefix = substr($addr, 20);
+        $band = (array)$band;
+        foreach ($band as $elem) {
+            $elem = HostCheck::isAddrIPv6($elem);
+            if (!$elem) {
+                continue;
+            }
+            if (substr($elem, 20) == $prefix) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // }}}
+    // {{{ isAddrIPv6()
+
+    /**
+     * IPv6形式のアドレスなら正規化して返し、そうでなければfalseを返す
+     */
+    function isAddrIPv6($addr)
+    {
+        $addr = preg_replace('/::/', ':0:', strtolower($addr), 1);
+        if (preg_match('/^[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}$/', $addr)) {
+            return implode(':', array_map(create_function('$v', 'return str_pad($v, 4, "0", STR_PAD_LEFT);'), explode(':', $addr)));
+        }
+        return false;
+    }
+
+    // }}}
+    // {{{ isAddrPrivate()
+
     /**
      * プライベートアドレス?
      *
@@ -343,10 +442,13 @@ EOF;
         return HostCheck::isAddrInBand($addr, $private);
     }
 
+    // }}}
+    // {{{ isAddrDocomo()
+
     /**
      * DoCoMo?
      *
-     * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/about/
+     * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html
      */
     function isAddrDocomo($addr = null)
     {
@@ -364,6 +466,9 @@ EOF;
         );
         return HostCheck::isAddrInBand($addr, $iBand, $iHost);
     }
+
+    // }}}
+    // {{{ isAddrAu()
 
     /**
      * au?
@@ -399,14 +504,19 @@ EOF;
             '222.5.63.0/24',
             '222.7.56.0/24',
             '222.5.62.128/25',
-            '222.7.57.0/25',
+            '222.7.57.0/24',
             '59.135.38.128/25',
+            '219.108.157.0/25',
+            '219.125.151.128/25',
+            '219.125.145.0/25',
 
             '210.143.108.0/24', // jig 2005/6/23
         );
         return HostCheck::isAddrInBand($addr, $ezBand, $ezHost);
     }
 
+    // }}}
+    // {{{ isAddrVodafone()
 
     /**
      * SoftBank? (old name)
@@ -419,6 +529,8 @@ EOF;
         return HostCheck::isAddrSoftBank($addr);
     }
 
+    // }}}
+    // {{{ isAddrSoftBank()
 
     /**
      * SoftBank?
@@ -450,6 +562,8 @@ EOF;
         return HostCheck::isAddrInBand($addr, $yBand, $yHost);
     }
 
+    // }}}
+    // {{{ isAddrAirh()
 
     /**
      * WILLCOM? (old name)
@@ -462,6 +576,8 @@ EOF;
         return HostCheck::isAddrWillcom($addr);
     }
 
+    // }}}
+    // {{{ isAddrWillcom()
 
     /**
      * WILLCOM?
@@ -477,6 +593,11 @@ EOF;
         $wBand = array(
             '61.198.129.0/24',
             '61.198.130.0/24',
+            '61.198.138.100/32',
+            '61.198.138.103/32',
+            '61.198.139.0/29',
+            '61.198.139.128/27',
+            '61.198.139.160/28',
             '61.198.140.0/24',
             '61.198.141.0/24',
             '61.198.142.0/24',
@@ -542,4 +663,18 @@ EOF;
         return HostCheck::isAddrInBand($addr, $wBand, $wHost);
     }
 
+// }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -250,8 +250,7 @@ echo <<<EOP
             toid_obj.style.color="{$STYLE['thre_title_color_v']}";
         }
     }
-    var \$j = jQuery.noConflict();
-    \$j.readyList.push(setWinTitle);
+    \$(setWinTitle);
     // -->
     </script>\n
 EOP;
@@ -278,29 +277,35 @@ EOJS;
     echo <<<EOJS
     <script type="text/javascript">
     <!--
-    \$j.readyList.push(function(){
-        \$j('a.info').each(function(){
-            var self = \$j(this);
-            var off = self.clone();
+    \$(function(){
+        var offrec_callback = function (row, html, status) {
+            if (status == 'error') {
+                alert('Async error!');
+            } else if (html.indexOf('óöóâèúé∏îs') != -1) {
+                alert('óöóâèúé∏îs!');
+            } else {
+                row.fadeOut(1000, row.remove);
+            }
+        };
+        var col_proto = \$('<td style="padding:2px 0px 2px 4px"></td>');
+        var off_proto = \$('<a>Å~</a>');
+        \$('tr.tableheader').prepend('<td style="width:1em;padding:0"></td>');
+        \$('a.info').each(function(){
+            var self = \$(this);
+            var row = \$(self.parents('tr').get(0));
+            var col = col_proto.clone();
+            var off = off_proto.clone();
             var url = self.attr('href') + '&offrec=true';
-            off.empty();
-            off.html('Å~');
             off.attr('href', url);
             off.removeAttr('onclick');
             off.click(function(){
-                \$j.get(url, null, function(html, status){
-                    if (status == 'error') {
-                        alert('Async error!');
-                    } else if (html.indexOf('óöóâèúé∏îs') != -1) {
-                        alert('óöóâèúé∏îs!');
-                    } else {
-                        \$j(off.parents('tr').get(0)).remove();
-                    }
+                \$.get(url, null, function(html, status){
+                    offrec_callback(row, html, status);
                 });
                 return false;
             });
-            self.after(off);
-            off.prepend('&nbsp;');
+            col.append(off);
+            row.prepend(col);
         })
     });
     // -->

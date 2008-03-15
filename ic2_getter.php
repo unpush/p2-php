@@ -340,7 +340,7 @@ if ($execDL) {
             $thumb_url .= $extra_params;
         }
 
-        $img = &new StdClass;
+        $img = &new stdClass;
         $img->title     = $img_title;
         $img->src_url   = $src_url;
         $img->thumb_url = $thumb_url;
