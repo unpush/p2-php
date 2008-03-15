@@ -17,8 +17,10 @@ $_login->authorize(); // ユーザ認証
 if (!empty($_GET['cview'])) {
     $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
     if ($cont = getMatomeCache($cnum)) {
+        P2Util::header_content_type();
         echo $cont;
     } else {
+        header('Content-Type: text/plain; charset=Shift_JIS');
         echo 'p2 error: 新着まとめ読みのキャッシュがないよ';
     }
     exit;

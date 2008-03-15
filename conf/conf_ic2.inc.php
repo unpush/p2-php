@@ -41,7 +41,14 @@ $_conf['expack.ic2.general.automemo'] = 1;
 
 // 画像を処理するプログラム (gd | imlib2 | imagick | ImageMagick | ImageMagick6)
 // gd, imlib2, imagick は PHP の拡張モジュールを利用、ImageMagick(6) は外部コマンドを利用
+// TODO:
+// - magickwand をサポートする
+//   http://www.imagemagick.org/download/php/
 $_conf['expack.ic2.general.driver'] = "gd";
+
+// JPEG to JPEG 変換に Epeg エクステンションを使う (off:0;on:1)
+// http://page2.xrea.jp/index.php#php_epeg
+$_conf['expack.ic2.general.epeg'] = 0;
 
 // ImageMagickのパス（convertがある“ディレクトリ”のパス）
 // httpdの環境変数でパスが通っているなら空のままでよい

@@ -160,7 +160,7 @@ $icdb = &new IC2DB_Images;
 $db = &$icdb->getDatabaseConnection();
 
 // サムネイル作成クラス
-$thumb = &new ThumbNailer(1);
+$thumb = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
     require_once 'Cache.php';

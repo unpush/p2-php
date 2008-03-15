@@ -7,37 +7,44 @@ require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
 
+define('IC2_THUMB_SIZE_DEFAULT', 1);
+define('IC2_THUMB_SIZE_PC',      1);
+define('IC2_THUMB_SIZE_MOBILE',  2);
+define('IC2_THUMB_SIZE_INTERMD', 3);
+
 class ThumbNailer
 {
     // {{{ properties
 
-    var $db;         // @var object,  PEAR DB_{phptype}のインスタンス
-    var $ini;        // @var array,   ImageCache2の設定
-    var $mode;       // @var integer, サムネイルの種類
-    var $cachedir;   // @var string,  ImageCache2のキャッシュ保存ディレクトリ
-    var $sourcedir;  // @var string,  ソース保存ディレクトリ
-    var $thumbdir;   // @var string,  サムネイル保存ディレクトリ
-    var $magick;     // @var string,  ImageMagickのパス
-    var $magick6;    // @var boolean, ImageMagick6以上か否か
-    var $max_width;  // @var integer, サムネイルの最大幅
-    var $max_height; // @var integer, サムネイルの最大高さ
-    var $type;       // @var string,  サムネイルの画像形式（JPEGかPNG）
-    var $quality;    // @var integer, サムネイルの品質
-    var $bgcolor;    // @var mixed,   サムネイルの背景色
-    var $resize;     // @var bolean,  画像をリサイズするか否か
-    var $rotate;     // @var integer, 画像を回転する角度（回転しないとき0）
-    var $trim;       // @var bolean , 画像をトリミングするか否か
-    var $coord;      // @var array ,  画像をトリミングする範囲（トリミングしないときfalse）
-    var $found;      // @var array,   IC2DB_Imagesでクエリを送信した結果
-    var $dynamic;    // @var boolean, 動的生成するか否か（trueのとき結果をファイルに保存しない）
-    var $cushion;    // @var string , 動的生成に利用する中間イメージのパス（ソースから直接生成するときfalse）
-    var $buf;        // @var string,  動的生成した画像データ
+    var $db;            // @var object  PEAR DB_{phptype}のインスタンス
+    var $ini;           // @var array   ImageCache2の設定
+    var $mode;          // @var int     サムネイルの種類
+    var $cachedir;      // @var string  ImageCache2のキャッシュ保存ディレクトリ
+    var $sourcedir;     // @var string  ソース保存ディレクトリ
+    var $thumbdir;      // @var string  サムネイル保存ディレクトリ
+    var $driver;        // @var string  イメージドライバの種類
+    var $epeg;          // @var bool    Epegが利用可能か否か
+    var $magick;        // @var string  ImageMagickのパス
+    var $magick6;       // @var bool    ImageMagick6以上か否か
+    var $max_width;     // @var int     サムネイルの最大幅
+    var $max_height;    // @var int     サムネイルの最大高さ
+    var $type;          // @var string  サムネイルの画像形式（JPEGかPNG）
+    var $quality;       // @var int     サムネイルの品質
+    var $bgcolor;       // @var mixed   サムネイルの背景色
+    var $resize;        // @var bolean  画像をリサイズするか否か
+    var $rotate;        // @var int     画像を回転する角度（回転しないとき0）
+    var $trim;          // @var bolean  画像をトリミングするか否か
+    var $coord;         // @var array   画像をトリミングする範囲（トリミングしないときfalse）
+    var $found;         // @var array   IC2DB_Imagesでクエリを送信した結果
+    var $dynamic;       // @var bool    動的生成するか否か（trueのとき結果をファイルに保存しない）
+    var $intermd;       // @var string  動的生成に利用する中間イメージのパス（ソースから直接生成するときfalse）
+    var $buf;           // @var string  動的生成した画像データ
     // @var array $default_options,    動的生成時のオプション
     var $default_options = array(
         'quality' => null,
         'rotate'  => 0,
         'trim'    => false,
-        'cushion' => false,
+        'intermd' => false,
     );
     // @var array $mimemap, MIMEタイプと拡張子の対応表
     var $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
@@ -50,16 +57,16 @@ class ThumbNailer
      *
      * @access public
      */
-    function ThumbNailer($mode = 1, $dynamic_options = null)
+    function ThumbNailer($mode = IC2_THUMB_SIZE_DEFAULT, $dynamic_options = null)
     {
         if (is_array($dynamic_options) && count($dynamic_options) > 0) {
             $options = array_merge($this->default_options, $dynamic_options);
             $this->dynamic = true;
-            $this->cushion = $options['cushion'];
+            $this->intermd = $options['intermd'];
         } else {
             $options = $this->default_options;
             $this->dynamic = false;
-            $this->cushion = false;
+            $this->intermd = false;
         }
 
         // 設定
@@ -74,10 +81,18 @@ class ThumbNailer
 
         // サムネイルモード判定
         switch ($mode) {
-            case 1:  $this->mode = 1; $setting = $this->ini['Thumb1']; break;
-            case 2:  $this->mode = 2; $setting = $this->ini['Thumb2']; break;
-            case 3:  $this->mode = 3; $setting = $this->ini['Thumb3']; break;
-            default: $this->mode = 1; $setting = $this->ini['Thumb1'];
+            case IC2_THUMB_SIZE_INTERMD:
+                $this->mode = IC2_THUMB_SIZE_INTERMD;
+                $setting = $this->ini['Thumb3'];
+                break;
+            case IC2_THUMB_SIZE_MOBILE:
+                $this->mode = IC2_THUMB_SIZE_MOBILE;
+                $setting = $this->ini['Thumb2'];
+                break;
+            case IC2_THUMB_SIZE_PC:
+            default:
+                $this->mode = IC2_THUMB_SIZE_PC;
+                $setting = $this->ini['Thumb1'];
         }
 
         // イメージドライバ判定
@@ -117,6 +132,8 @@ class ThumbNailer
             default:
                 $this->error('無効なイメージドライバです。');
         }
+
+        $this->epeg = ($this->ini['General']['epeg'] && extension_loaded('epeg')) ? true : false;
 
         // ディレクトリ設定
         $this->cachedir   = $this->ini['General']['cachedir'];
@@ -180,15 +197,18 @@ class ThumbNailer
     /**
      * サムネイルを作成
      *
-     * @access public
-     * @return string サムネイルのパス (not dynamic) | boolean (dynamic success) | object PEAR_Error (on error)
+     * @access  public
+     * @return  string|bool|PEAR_Error
+     *          サムネイルを生成・保存に成功したとき、サムネイルのパス
+     *          テンポラリ・サムネイルの生成に成功したとき、TRUE
+     *          失敗したとき PEAR_Error
      */
     function &convert($size, $md5, $mime, $width, $height, $force = false)
     {
         // 画像
-        if (!empty($this->cushion) && file_exists($this->cushion)) {
-            $src    = realpath($this->cushion);
-            $csize  = getimagesize($this->cushion);
+        if (!empty($this->intermd) && file_exists($this->intermd)) {
+            $src    = realpath($this->intermd);
+            $csize  = getimagesize($this->intermd);
             $width  = $csize[0];
             $height = $csize[1];
         } else {
@@ -224,6 +244,20 @@ class ThumbNailer
             }
         }*/
 
+        // Epegでサムネイルを作成
+        if ($mime == 'image/jpeg' && $this->type == '.jpg' && $this->epeg && !$this->rotate && !$this->trim) {
+            $dst = ($this->dynamic) ? '' : $thumb;
+            $result = epeg_thumbnail_create($src, $dst, $this->max_width, $this->max_height, $this->quality);
+            if ($result == false) {
+                $error = &PEAR::raiseError("サムネイルを作成できませんでした。({$src} -&gt; {$dst})");
+                return $error;
+            }
+            if ($this->dynamic) {
+                $this->buf = $result;
+            }
+            return $thumbURL;
+        }
+
         // イメージドライバにサムネイル作成処理をさせる
         switch ($this->driver) {
             case 'imagemagick':
@@ -242,6 +276,7 @@ class ThumbNailer
             case 'gd':
             case 'imagick':
             case 'imlib2':
+            //case 'magickwand':
                 $size = array();
                 list($size['tw'], $size['th']) = explode('x', $_size);
                 if (is_array($this->coord)) {

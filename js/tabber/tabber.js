@@ -1,5 +1,5 @@
 /*==================================================
-  $Id$
+  $Id: tabber.js,v 1.3 2006/03/28 16:57:42 rsk Exp $
   tabber.js by Patrick Fitzgerald pat@barelyfitz.com
   http://www.barelyfitz.com/projects/tabber/
 
