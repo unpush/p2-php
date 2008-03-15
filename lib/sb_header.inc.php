@@ -279,16 +279,25 @@ EOJS;
     <script type="text/javascript">
     <!--
     \$j.readyList.push(function(){
-        \$j("a.info").each(function(){
+        \$j('a.info').each(function(){
             var self = \$j(this);
             var off = self.clone();
-            var url = self.attr('href') + '&offrec=true&popup=2';
+            var url = self.attr('href') + '&offrec=true';
             off.empty();
             off.html('~');
             off.attr('href', url);
             off.removeAttr('onclick');
             off.click(function(){
-                return OpenSubWin(url,{$STYLE['info_pop_size']},0,0);
+                \$j.get(url, null, function(html, status){
+                    if (status == 'error') {
+                        alert('Async error!');
+                    } else if (html.indexOf('—š—ð‰ðœŽ¸”s') != -1) {
+                        alert('—š—ð‰ðœŽ¸”s!');
+                    } else {
+                        \$j(off.parents('tr').get(0)).remove();
+                    }
+                });
+                return false;
             });
             self.after(off);
             off.prepend('&nbsp;');
