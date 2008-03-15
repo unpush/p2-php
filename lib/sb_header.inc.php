@@ -203,6 +203,7 @@ echo <<<EOP
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript" src="js/settabornjs.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/jquery.pack.js"></script>
     <script type="text/javascript">
     <!--
     function setWinTitle(){
@@ -249,6 +250,8 @@ echo <<<EOP
             toid_obj.style.color="{$STYLE['thre_title_color_v']}";
         }
     }
+    var \$j = jQuery.noConflict();
+    \$j.readyList.push(setWinTitle);
     // -->
     </script>\n
 EOP;
@@ -271,11 +274,35 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
     // -->
     </script>
 EOJS;
+} elseif ($aThreadList->spmode == "recent") {
+    echo <<<EOJS
+    <script type="text/javascript">
+    <!--
+    \$j.readyList.push(function(){
+        \$j("a.info").each(function(){
+            var self = \$j(this);
+            var off = self.clone();
+            var url = self.attr('href') + '&offrec=true&popup=2';
+            off.empty();
+            off.html('~');
+            off.attr('href', url);
+            off.removeAttr('onclick');
+            off.click(function(){
+                return OpenSubWin(url,{$STYLE['info_pop_size']},0,0);
+            });
+            self.after(off);
+            off.prepend('&nbsp;');
+        })
+    });
+    // -->
+    </script>
+EOJS;
 }
+
 
 echo <<<EOP
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onLoad="setWinTitle();">
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 EOP;
 
 include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
