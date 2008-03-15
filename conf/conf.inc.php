@@ -5,8 +5,8 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.x';      // rep2のバージョン
-$_conf['p2expack'] = '070714.9999'; // 拡張パックのバージョン
+$_conf['p2version'] = '1.7.29+';    // rep2のバージョン
+$_conf['p2expack'] = '070715.9999'; // 拡張パックのバージョン
 $_conf['p2name'] = 'WowFlutter';    // rep2の名前。
 
 //======================================================================
@@ -145,7 +145,7 @@ $_pear_required = array(
 if ($debug) {
     $_pear_required['Benchmark/Profiler.php'] = 'Benchmark';
 }
-$_pear_required['Var_Dump.php'] = 'Var_Dump';
+
 foreach ($_pear_required as $_pear_file => $_pear_pkg) {
     if (!include_once($_pear_file)) {
         $url1 = 'http://akid.s17.xrea.com/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
@@ -161,6 +161,11 @@ EOP;
         p2die('PEAR の ' . $_pear_pkg . ' がインストールされていません。', $msg, true);
     }
 }
+
+if (version_compare(phpversion(), '5.1.0', '<')) {
+    PHP_Compat::loadVersion('5.1.0');
+}
+
 require_once P2_LIBRARY_DIR . '/p2util.class.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/session.class.php';
@@ -173,17 +178,6 @@ if (!empty($debug)) {
     $profiler =& new Benchmark_Profiler(true);
     // printMemoryUsage();
     register_shutdown_function('printMemoryUsage');
-}
-
-// }}}
-// {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
-
-if (!P2_PHP50) {
-    PHP_Compat::loadFunction('array_walk_recursive');
-    PHP_Compat::loadFunction('clone');
-    PHP_Compat::loadFunction('file_put_contents');
-    PHP_Compat::loadFunction('http_build_query');
-    PHP_Compat::loadFunction('scandir');
 }
 
 // }}}
