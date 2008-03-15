@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /*
     rep2 - ホスト単位でのアクセス許可/拒否の設定ファイル
 

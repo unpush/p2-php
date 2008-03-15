@@ -4,8 +4,8 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/brdctl.class.php');
-require_once (P2_LIBRARY_DIR . '/showbrdmenuk.class.php');
+require_once P2_LIBRARY_DIR . '/brdctl.class.php';
+require_once P2_LIBRARY_DIR . '/showbrdmenuk.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -29,9 +29,9 @@ if (isset($word) && strlen($word) > 0) {
     if (preg_match('/^\.+$/', $word)) {
         $word = '';
     }
-    
+
     // and検索
-    include_once (P2_LIBRARY_DIR . '/strctl.class.php');
+    include_once P2_LIBRARY_DIR . '/strctl.class.php';
     $word_fm = StrCtl::wordForMatch($word, 'and');
     if (P2_MBREGEX_AVAILABLE == 1) {
         $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
@@ -49,7 +49,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once (P2_LIBRARY_DIR . '/setfavita.inc.php');
+    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -63,6 +63,8 @@ $aShowBrdMenuK =& new ShowBrdMenuK();
 //============================================================
 if ($_GET['view'] == "favita") {
     $ptitle = "お気に板";
+} elseif ($_GET['view'] == "rss") {
+    $ptitle = "RSS";
 } elseif ($_GET['view'] == "cate"){
     $ptitle = "板ﾘｽﾄ";
 } elseif (isset($_GET['cateid'])){
@@ -82,7 +84,7 @@ EOP;
 
 echo <<<EOP
 </head>
-<body>
+<body{$_conf['k_colors']}>
 EOP;
 
 echo $_info_msg_ht;
@@ -94,6 +96,15 @@ $_info_msg_ht = "";
 if($_GET['view']=="favita"){
     $aShowBrdMenuK->print_favIta();
 
+//RSSリスト読み込み
+} elseif ($_GET['view'] == "rss" && $_conf['expack.rss.enabled']) {
+    //$mobile = &Net_UserAgent_Mobile::singleton();
+    if ($mobile->isNonMobile()) {
+        output_add_rewrite_var('b', 'k');
+    }
+    @include_once P2EX_LIBRARY_DIR . '/rss/menu.inc.php';
+
+
 // それ以外ならbrd読み込み
 }else{
     $brd_menus =  BrdCtl::read_brds();
@@ -104,7 +115,7 @@ if($_GET['view']=="favita"){
 if ($_GET['view'] != "favita" && $_GET['view'] != "rss" && !$_GET['cateid']) {
     $kensaku_form_ht = <<<EOFORM
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="◎◇">
+    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     {$_conf['k_input_ht']}
     <input type="hidden" name="nr" value="1">
     <input type="text" id="word" name="word" value="{$word}" size="12">
@@ -137,7 +148,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
                 $aShowBrdMenuK->printItaSearch($a_brd_menu->categories);
             }
         }
-        
+
     }
     if (!$GLOBALS['ita_mikke']['num']) {
         $_info_msg_ht .=  "<p>\"{$hd['word']}\"を含む板は見つかりませんでした。</p>\n";
@@ -176,9 +187,24 @@ if (isset($_GET['cateid'])) {
 EOP;
 }
 
-    
 echo $_info_msg_ht;
 $_info_msg_ht = "";
+
+//==============================================================
+// セット切り替えフォームを表示
+//==============================================================
+
+if ($_conf['expack.misc.multi_favs'] && ($_GET['view'] == 'favita' || $_GET['view'] == 'rss')) {
+    echo '<hr>';
+    if ($_GET['view'] == 'favita') {
+        $set_name = 'm_favita_set';
+        $set_title = 'お気に板';
+    } elseif ($_GET['view'] == 'rss') {
+        $set_name = 'm_rss_set';
+        $set_title = 'RSS';
+    }
+    echo FavSetManager::makeFavSetSwitchForm($set_name, $set_title, NULL, NULL, FALSE, array('view' => $_GET['view']));
+}
 
 //==============================================================
 // フッタを表示

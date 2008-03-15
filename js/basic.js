@@ -73,11 +73,24 @@ function getResponseTextHttp(objHTTP, url, nc)
 	
 	if (objHTTP.readyState == 4) {
 		if (objHTTP.status == 200) {
-			return objHTTP.responseText.replace(/^<\?xml .+?\?>\n?/, '');
+			return objHTTP.responseText;
 		} else {
 			// rt = '<em>HTTP Error:<br />' + req.status + ' ' + req.statusText + '</em>';
 		}
 	}
 	
 	return '';
+}
+
+// prototype.js 1.4.0 : string.js : escapeHTML をワンライナーで
+// IE6 標準モード対策で改行コードを CR+LF に統一
+/*  Prototype JavaScript framework, version 1.4.0
+ *  (c) 2005 Sam Stephenson <sam@conio.net>
+ *
+ *  Prototype is freely distributable under the terms of an MIT-style license.
+ *  For details, see the Prototype web site: http://prototype.conio.net/
+ */
+function escapeHTML(cont)
+{
+	return document.createElement('div').appendChild(document.createTextNode(cont)).parentNode.innerHTML;
 }

@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+	<title>ImageCache2 - データベース管理</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={skin}" />
+	<script type="text/javascript" src="js/basic.js?{rep2expack:h}"></script>
+	<script type="text/javascript" src="js/ic2m.js?{rep2expack:h}"></script>
+</head>
+<body onload="setWinTitle()">
+
+<h3 class="thread_title">ImageCache2 - データベース管理</h3>
+{info_msg:h}
+<hr />
+
+{if:removedFiles}
+<p>以下のファイルを削除しました。</p>
+<p flexy:if="toBlackList">削除した画像はブラックリストに登録されます。</p>
+<ul>
+<li flexy:foreach="removedFiles,removedPath">{removedPath}</li>
+</ul>
+
+<hr />
+{end:}
+
+<form action="{php_self}" method="post" onsubmit="return isRadioSelected()" target="_self" flexy:ignore="yes">
+
+	<div>
+		<input type="radio" name="action" id="action_dropZero" value="dropZero" onclick="dropZeroOptions(true)" />
+		<label for="action_dropZero">ランク:0 の画像を削除する</label>
+		<div style="margin-left:1em;">
+			<input type="checkbox" name="dropZeroLimit" id="dropZeroLimit" value="1" disabled="disabled" />
+			<select name="dropZeroSelectTime" id="dropZeroSelectTime" disabled="disabled">
+				<option value="24hours">24時間</option>
+				<option value="aweek">1週間</option>
+				<option value="amonth">1ヶ月</option>
+				<option value="ayear">1年</option>
+			</select>
+			<select name="dropZeroSelectType" id="dropZeroSelectType" disabled="disabled">
+				<option value="ago">以前</option>
+				<option value="within">以内</option>
+			</select>
+			<label for="dropZeroLimit">にダウンロードした画像だけを削除</label>
+		</div>
+		<div style="margin-left:1em;">
+			<input type="checkbox" name="dropZeroToBlackList" id="dropZeroToBlackList" value="1" disabled="disabled" />
+			<label for="dropZeroToBlackList">ブラックリストに登録する</label>
+		</div>
+	</div>
+
+	<div>
+		<input type="radio" name="action" id="action_dropAborn" value="dropAborn" onclick="dropZeroOptions(false)" />
+		<label for="action_dropAborn">あぼーん画像を削除し、ブラックリストに登録する</label>
+		<!-- ウィルスに感染していたファイルの情報も削除し、ブラックリストに登録する -->
+	</div>
+
+	<div>
+		<input type="radio" name="action" id="action_clearThumb" value="clearThumb" onclick="dropZeroOptions(false)" />
+		<label for="action_clearThumb">PC用以外の作成済みサムネイルを消去する</label>
+	</div>
+
+	<div>
+		<input type="radio" name="action" id="action_clearCache" value="clearCache" onclick="dropZeroOptions(false)" />
+		<label for="action_clearCache">一覧表示用のデータキャッシュを消去する</label>
+		<!-- Flexyのコンパイル済みテンプレートも消去する -->
+	</div>
+
+	<div>
+		<input type="radio" name="action" id="action_clearErrorLog" value="clearErrorLog" onclick="dropZeroOptions(false)" />
+		<label for="action_clearErrorLog">エラーログを消去する</label>
+		[<a href="ic2_viewtable.php?table=errlog#footer" target="read">エラーログを見る</a>]
+	</div>
+
+	<div>
+		<input type="radio" name="action" id="action_clearBlackList" value="clearBlackList" onclick="dropZeroOptions(false)" />
+		<label for="action_clearBlackList">ブラックリストを消去する</label>
+		[<a href="ic2_viewtable.php?table=blacklist#footer" target="read">ブラックリストを見る</a>]
+	</div>
+
+	<div flexy:if="isSQLite">
+		<input type="radio" name="action" id="action_vacuumDB" value="vacuumDB" onclick="dropZeroOptions(false)" />
+		<label for="action_vacuumDB">データベースを整理する（SQLiteのみ）</label>
+		<!-- VACUUMを実行 -->
+	</div>
+
+	<hr />
+
+	<div>
+		<input type="reset" value="取消" onclick="dropZeroOptions(false)" />
+		<input type="submit" value="実行" />
+	</div>
+
+</form>
+
+</body>
+</html>

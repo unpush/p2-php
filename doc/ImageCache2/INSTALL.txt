@@ -1,0 +1,16 @@
+1. データベースを準備する。
+   MySQL, PostgreSQLを使うならソフトウェアをインストール・起動し、ユーザとデータベースを作成する。
+   SQLiteはPHP用のSQLite拡張モジュールをインストールするだけ。
+
+2. キャッシュ用ディレクトリの作成とアクセス権の設定をする。
+   デフォルトでは"./cache"なので、p2フォルダの中に"cache"という名前のフォルダを作成し、パーミッションを777or707にする。
+
+3. conf/conf_ic2.inc.phpを適宜編集する。
+   DSNについてはPEARの説明ページ(http://jp.pear.php.net/manual/ja/package.database.db.intro-dsn.php)を参照
+
+4. doc/ImageCache2/i2_install.phps を rep2フォルダにコピーし、i2_install.phpにリネームする。
+ そしてic2_install.phpにアクセスして最後の行に「準備OK」と出ればOK。
+
+6. ic2_install.phpを削除。
+
+7. 不要なら、doc/ImageCache2をディレクトリごと削除

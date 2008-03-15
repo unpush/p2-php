@@ -3,7 +3,7 @@
     p2 -  スレッド表示 -  フッタ部分 -  for read.php
 */
 
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 //=====================================================================
 // ■フッタ
@@ -16,24 +16,26 @@ if ($_conf['bottom_res_form']) {
     $host = $aThread->host;
     $rescount = $aThread->rescount;
     $ttitle_en = base64_encode($aThread->ttitle);
-    
+
     $submit_value = '書き込む';
 
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    include_once (P2_LIBRARY_DIR . '/post_options_loader.inc.php');
+    include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
-    
-    include_once (P2_LIBRARY_DIR . '/post_form.inc.php');
+
+    include_once P2_LIBRARY_DIR . '/post_form.inc.php';
 
     // フォーム
     $res_form_ht = <<<EOP
 <div id="kakiko">
+{$htm['dpreview']}
 {$htm['post_form']}
+{$htm['dpreview2']}
 </div>\n
 EOP;
 
@@ -55,32 +57,49 @@ if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
 EOP;
         } else {
             $htm['dores'] = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
 EOP;
         }
-        
+
         $res_form_ht_pb = $res_form_ht;
     }
-    
+
     if ($res1['body']) {
         $q_ichi = $res1['body']." | ";
     }
-    
+
     // レスのすばやさ
     $htm['spd'] = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
-        $htm['spd'] = '<span class="spd" title="すばやさ＝時間/レス">' . "" . $spd_st."".'</span>';
+        $htm['spd'] = '<span class="spd" title="すばやさ＝時間/レス">' . $spd_st . '</span>';
     }
+
+    // datサイズ
+    $htm['dsize'] = '';
+    if ($dsize_ht = @filesize($aThread->keydat)) {
+        $htm['dsize'] = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
+    }
+
+    // レス番指定移動
+    $htm['goto'] = <<<GOTO
+            <form method="get" action="{$_conf['read_php']}" class="inline-form">
+                <input type="hidden" name="host" value="{$aThread->host}">
+                <input type="hidden" name="bbs" value="{$aThread->bbs}">
+                <input type="hidden" name="key" value="{$aThread->key}">
+                <input type="text" size="5" name="ls" value="{$aThread->ls}">
+                <input type="submit" value="go">
+            </form>
+GOTO;
 
     // {{{ フィルタヒットがあった場合、次Xと続きを読むを更新
     /*
     //if (!$read_navi_next_isInvisible) {
     $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
     //}
-    
+
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
     */
-    
+
     if (!empty($GLOBALS['last_hit_resnum'])) {
         $read_navi_next_anchor = "";
         if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
@@ -93,7 +112,7 @@ EOP;
         $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
     }
     // }}}
-    
+
     // ■プリント
     echo <<<EOP
 <hr>
@@ -101,13 +120,14 @@ EOP;
     <tr>
         <td align="left">
             {$q_ichi}
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a> 
-            {$read_navi_previous} 
-            {$read_navi_next} 
+            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>
+            {$read_navi_previous}
+            {$read_navi_next}
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
             {$htm['goto']}
             | {$read_footer_navi_new}
             | {$htm['dores']}
+            {$htm['dsize']}
             {$htm['spd']}
         </td>
         <td align="right">

@@ -5,7 +5,7 @@
 class ShowBrdMenuK{
 
     var $cate_id; // カテゴリーID
-    
+
     /**
      * コンストラクタ
      */
@@ -22,7 +22,7 @@ class ShowBrdMenuK{
         global $_conf, $list_navi_ht;
 
         if ($categories) {
-            
+
             // 表示数制限====================
             if ($_GET['from']) {
                 $list_disp_from = $_GET['from'];
@@ -31,7 +31,7 @@ class ShowBrdMenuK{
             }
             $list_disp_all_num = sizeof($categories);
             $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
-        
+
             if ($disp_navi['from'] > 1) {
                 $mae_ht = <<<EOP
 <a href="menu_k.php?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
@@ -42,13 +42,13 @@ EOP;
 <a href="menu_k.php?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
             }
-            
+
             if (!$disp_navi['all_once']) {
                 $list_navi_ht = <<<EOP
 {$disp_navi['range_st']}{$mae_ht} {$tugi_ht}<br>
 EOP;
             }
-                        
+
             foreach ($categories as $cate) {
                 if ($this->cate_id >= $disp_navi['from'] and $this->cate_id <= $disp_navi['end']) {
                     echo "<a href=\"menu_k.php?cateid={$this->cate_id}&amp;nr=1{$_conf['k_at_a']}\">{$cate->name}</a>($cate->num)<br>\n";//$this->cate_id
@@ -70,10 +70,10 @@ EOP;
             foreach ($categories as $cate) {
                 if ($cate->num > 0) {
                     if($this->cate_id == $_GET['cateid']){
-                    
+
                         echo "{$cate->name}<hr>\n";
 
-    
+
                         // 表示数制限 ====================
                         if ($_GET['from']) {
                             $list_disp_from = $_GET['from'];
@@ -82,7 +82,7 @@ EOP;
                         }
                         $list_disp_all_num = $cate->num;
                         $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
-                
+
                         if ($disp_navi['from'] > 1) {
                             $mae_ht = <<<EOP
 <a href="menu_k.php?cateid={$this->cate_id}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a>
@@ -93,7 +93,7 @@ EOP;
 <a href="menu_k.php?cateid={$this->cate_id}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a>
 EOP;
                         }
-                        
+
                         if (!$disp_navi['all_once']) {
                             $list_navi_ht = <<<EOP
 {$disp_navi['range_st']}{$mae_ht} {$tugi_ht}<br>
@@ -116,7 +116,7 @@ EOP;
                                 echo "<a href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1&amp;view=favita{$_conf['k_at_a']}\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$_conf['k_at_a']}\"{$akey_at}>{$access_num_st}{$mita->itaj_ht}</a><br>\n";
                             }
                         }
-                    
+
                     }
                 }
                 $this->cate_id++;
@@ -131,9 +131,9 @@ EOP;
     {
         global $_conf, $_info_msg_ht, $word;
         global $list_navi_ht;
-    
+
         if ($categories) {
-        
+
             // {{{ 表示数制限
             if ($_GET['from']) {
                 $list_disp_from = $_GET['from'];
@@ -142,10 +142,10 @@ EOP;
             }
             $list_disp_all_num = $GLOBALS['ita_mikke']['num']; //
             $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
-            
-            $detect_hint_q = 'detect_hint='.urlencode('◎◇');
+
+            $detect_hint_q = 'detect_hint='.urlencode('◎◇　◇◎');
             $word_q = '&amp;word='.rawurlencode($_REQUEST['word']);
-            
+
             if ($disp_navi['from'] > 1) {
                 $mae_ht = <<<EOP
 <a href="menu_k.php?w{$detect_hint_q}{$word_q}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a>
@@ -156,14 +156,14 @@ EOP;
 <a href="menu_k.php?{$detect_hint_q}{$word_q}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a>
 EOP;
             }
-            
+
             if (!$disp_navi['all_once']) {
                 $list_navi_ht = <<<EOP
 {$disp_navi['range_st']}{$mae_ht} {$tugi_ht}<br>
 EOP;
             }
             // }}}
-            
+
             $i = 0;
             foreach ($categories as $cate) {
                 if ($cate->num > 0) {
@@ -192,9 +192,9 @@ EOP;
     function print_favIta()
     {
         global $_conf;
-        
+
         $show_flag = false;
-        
+
         $lines = @file($_conf['favita_path']); // favita読み込み
         if ($lines) {
             echo 'お気に板 [<a href="editfavita.php?k=1">編集</a>]<hr>';
@@ -221,7 +221,7 @@ EOP;
                 }
             }
         }
-        
+
         if (empty($show_flag)) {
             echo "<p>お気に板はまだないようだ</p>";
         }

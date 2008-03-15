@@ -4,19 +4,19 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/thread.class.php');
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-require_once (P2_LIBRARY_DIR . '/dele.inc.php'); // 削除処理用の関数郡
+require_once P2_LIBRARY_DIR . '/thread.class.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIBRARY_DIR . '/dele.inc.php'; // 削除処理用の関数郡
 
 $_login->authorize(); // ユーザ認証
 
 //================================================================
 // ■変数設定
 //================================================================
-isset($_GET['host']) and $host = $_GET['host']; // "pc.2ch.net"
-isset($_GET['bbs']) and $bbs = $_GET['bbs']; // "php"
-isset($_GET['key']) and $key = $_GET['key']; // "1022999539"
-isset($_GET['ttitle_en']) and $ttitle_en = $_GET['ttitle_en'];
+$host = isset($_GET['host']) ? $_GET['host'] : null; // "pc.2ch.net"
+$bbs = isset($_GET['bbs']) ? $_GET['bbs'] : null; // "php"
+$key = isset($_GET['key']) ? $_GET['key'] : null; // "1022999539"
+$ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : null;
 
 // popup 0(false), 1(true), 2(true, クローズタイマー付)
 if (!empty($_GET['popup'])) { $popup_ht = "&amp;popup=1"; }
@@ -66,21 +66,21 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // {{{ お気に入りスレッド
 
 } elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
-    include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
+    include_once P2_LIBRARY_DIR . '/setfav.inc.php';
     setFav($host, $bbs, $key, $_GET['setfav']);
 
 // }}}
 // {{{ 殿堂入り
 
 } elseif (isset($_GET['setpal']) && $key && $host && $bbs) {
-    include_once (P2_LIBRARY_DIR . '/setpalace.inc.php');
+    include_once P2_LIBRARY_DIR . '/setpalace.inc.php';
     setPal($host, $bbs, $key, $_GET['setpal']);
 
 // }}}
 // {{{ スレッドあぼーん
 
 } elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-    include_once (P2_LIBRARY_DIR . '/settaborn.inc.php');
+    include_once P2_LIBRARY_DIR . '/settaborn.inc.php';
     settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
@@ -142,9 +142,9 @@ if ($favlines = @file($_conf['favlist_file'])) {
 */
 
 if ($aThread->fav) {
-    $favmark = "<span class=\"fav\">★</span>";
+    $favmark = "<span class=\"fav\" title=\"DATしたスレ用のお気に入り\">★</span>";
 } else {
-    $favmark = "<span class=\"fav\">+</span>";
+    $favmark = "<span class=\"fav\" title=\"DATしたスレ用のお気に入り\">+</span>";
 }
 
 $favdo = $aThread->fav ? 0 : 1;
@@ -176,9 +176,9 @@ $paldo = $isPalace ? 0 : 1;
 $pal_a_ht = "info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setpal={$paldo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}";
 
 if ($isPalace) {
-    $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DATしたスレ用のお気に入り\">★</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\">★</a>";
 } else {
-    $pal_ht = "<a href=\"{$pal_a_ht}\" title=\"DATしたスレ用のお気に入り\">+</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\">+</a>";
 }
 
 // }}}
@@ -261,23 +261,25 @@ echo <<<EOHEADER
 EOHEADER;
 
 if (empty($_conf['ktai'])) {
-    // echo "<!-- ".$key_line." -->\n";
-    @include("./style/style_css.inc"); // 基本スタイルシート読込
-    @include("./style/info_css.inc");
+    echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">\n
+EOP;
 }
 
 if ($_GET['popup'] == 2) {
     echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/closetimer.js"></script>
+    <script type="text/javascript" src="js/closetimer.js?{$_conf['p2expack']}"></script>
 EOSCRIPT;
     $body_onload = <<<EOP
  onLoad="startTimer(document.getElementById('timerbutton'))"
 EOP;
 }
 
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
 echo <<<EOP
 </head>
-<body{$body_onload}>
+<body{$body_at}>
 EOP;
 
 echo $_info_msg_ht;
@@ -395,7 +397,7 @@ exit();
 function print_info_line($s, $c_ht)
 {
     global $_conf;
-    
+
     // 携帯
     if (!empty($_conf['ktai'])) {
         echo "{$s}: {$c_ht}<br>";
@@ -411,10 +413,10 @@ function print_info_line($s, $c_ht)
 function getCopypaFormHtml($url, $ttitle_name_hd)
 {
     $url_hd = htmlspecialchars($url, ENT_QUOTES);
-    
+
     $me_url = $me_url = P2Util::getMyUrl();
     // $_SERVER['REQUEST_URI']
-    
+
     $htm = <<<EOP
 <form action="{$me_url}">
  <textarea name="copy">{$ttitle_name_hd}&#10;{$url_hd}</textarea>

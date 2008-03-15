@@ -1,15 +1,15 @@
 <?php
 /*
-	このファイルの関数は、PHPマニュアルページよりの拝借です。感謝。
-	http://jp.php.net/manual/ja/function.md5.php
-	
-	
-	Alexander Valyalkin
-	01-Jul-2004 05:41 
-	Below is MD5-based block cypher (MDC-like), which works in 128bit CFB mode.
-	It is very useful to encrypt secret data before transfer it over the network.
-	$iv_len - initialization vector's length.
-	0 <= $iv_len <= 512
+    このファイルの関数は、PHPマニュアルページよりの拝借です。感謝。
+    http://jp.php.net/manual/ja/function.md5.php
+
+
+    Alexander Valyalkin
+    01-Jul-2004 05:41
+    Below is MD5-based block cypher (MDC-like), which works in 128bit CFB mode.
+    It is very useful to encrypt secret data before transfer it over the network.
+    $iv_len - initialization vector's length.
+    0 <= $iv_len <= 512
 */
 
 function get_rnd_iv($iv_len)

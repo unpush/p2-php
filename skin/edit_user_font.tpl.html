@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="ja">
+<head>
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<meta http-equiv="Content-Script-Type" content="text/javascript">
+	<title>フォント設定編集</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin:h}">
+	<link rel="stylesheet" type="text/css" href="css.php?css=edit_conf_user&amp;skin={skin:h}">
+	<style type="text/css">
+	table.edit_font { margin: 6px 0px; }
+	fieldset { margin: 0px 6px 6px 0px; padding: 0px 6px; }
+	legend { padding: 4px; border: solid 1px #ccc; background-color: #efefef; }
+	legend, th { text-align: left; font-size: {STYLE[fontsize]:h}; }
+	tr.group td { text-align: center; }
+	td.label { white-space: nowrap; text-align: right; }
+	</style>
+	<script type="text/javascript" src="js/basic.js?{rep2expack:h}"></script>
+</head>
+<body onload="setWinTitle();">
+<p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; フォント設定編集</p>
+
+<ul>
+	<li>空の値はスキンの設定が適用されます。</li>
+	<li>フォントを &quot;-&quot; (半角ハイフンひとつ) にするとスキンの設定を無効にします。</li>
+	<li flexy:if="safari2">Safari 2.0 以降ではスタイルシートで特別に設定しなくても &lt;b&gt; タグで太字になるので、太字が正しく反映されないスキンでは太字フォントを &quot;-&quot; にしてみてください。</li>
+	<li flexy:if="macos">WebKit を使っていないブラウザはモナーフォントのような全角プロポーショナルフォントを正しくレンダリングできないことがあるので、アクティブモナーでレイアウトが崩れるときはアスキーアート用フォントを &quot;-&quot; にしてみてください。</li>
+</ul>
+
+<form method="post" action="edit_user_font.php">
+<table class="edit_font" cellspacing="0" width="100%">
+	<tr><td>
+		フォント設定は
+		<label><input type="radio" id="use_skin" name="use_skin[]" value="1" checked>スキンの設定に従う</label>
+		<label><input type="radio" id="use_user" name="use_skin[]" value="0">ユーザ設定を優先する</label>
+	</td></tr>
+	<tr class="group"><td>
+		<input type="submit" name="set" value="変更を保存する" flexy:ignore="yes">
+		<input type="reset" name="reset" value="変更を取り消す" flexy:ignore="yes">
+		<input type="submit" name="clear" value="デフォルトに戻す" flexy:ignore="yes">
+	</td></tr>
+</table>
+<div style="float:left">
+<fieldset flexy:ignore="yes">
+	<legend><b>現在のスキン (編集できません)</b></legend>
+	<table class="edit_font" cellspacing="0">
+		<tr class="group">
+			<th colspan="4">フォント</td>
+		</tr>
+		<tr>
+			<td class="label">標準フォント</td>
+			<td colspan="3"><input type="text" size="30" value="{skindata[fontfamily]}" readonly></td>
+		</tr><tr>
+			<td class="label">太字フォント</td>
+			<td colspan="3"><input type="text" size="30" value="{skindata[fontfamily_bold]}" readonly></td>
+		</tr><tr>
+			<td class="label">アスキーアート</td>
+			<td colspan="3"><input type="text" size="30" value="{skindata[fontfamily_aa]}" readonly></td>
+		</tr>
+		<tr class="group">
+			<th colspan="4">文字の大きさ</td>
+		</tr>
+		<tr>
+			<td class="label">基本</td>
+			<td><select disabled><option value="{skindata[fontsize]}">{skindata[fontsize_nu]}</option></select></td>
+			<td class="label">板メニュー</td>
+			<td><select disabled><option value="{skindata[menu_fontsize]}">{skindata[menu_fontsize_nu]}</option></select></td>
+		</tr><tr>
+			<td class="label">スレ一覧</td>
+			<td><select disabled><option value="{skindata[sb_fontsize]}">{skindata[sb_fontsize_nu]}</option></select></td>
+			<td class="label">スレッド内容</td>
+			<td><select disabled><option value="{skindata[read_fontsize]}">{skindata[read_fontsize_nu]}</option></select></td>
+		</tr><tr>
+			<td class="label">フォーム</td>
+			<td><select disabled><option value="{skindata[form_fontsize]}">{skindata[form_fontsize_nu]}</option></select></td>
+			<td class="label">レスポップアップ</td>
+			<td><select disabled><option value="{skindata[respop_fontsize]}">{skindata[respop_fontsize_nu]}</option></select></td>
+		</tr><tr>
+			<td class="label">情報ウィンドウ</td>
+			<td><select disabled><option value="{skindata[infowin_fontsize]}">{skindata[infowin_fontsize_nu]}</option></select></td>
+			<td class="label">&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+</fieldset>
+</div><div style="float:left" flexy:foreach="fontconfig_types,type,title">
+<fieldset>
+	<legend><b>{title}</b></legend>
+	<table class="edit_font" cellspacing="0">
+		<tr class="group">
+			<th colspan="4">フォント</td>
+		</tr>
+		<tr>
+			<td class="label">標準フォント</td>
+			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily[%s]" size="30"></td>
+		</tr><tr>
+			<td class="label">太字フォント</td>
+			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily_bold[%s]" size="30"></td>
+		</tr><tr>
+			<td class="label">アスキーアート</td>
+			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily_aa[%s]" size="30"></td>
+		</tr>
+		<tr class="group">
+			<th colspan="4">文字の大きさ</td>
+		</tr>
+		<tr>
+			<td class="label">基本</td>
+			<td><select flexy:nameuses="type" name="fontsize[%s]"></select></td>
+			<td class="label">板メニュー</td>
+			<td><select flexy:nameuses="type" name="menu_fontsize[%s]"></select></td>
+		</tr><tr>
+			<td class="label">スレ一覧</td>
+			<td><select flexy:nameuses="type" name="sb_fontsize[%s]"></select></td>
+			<td class="label">スレッド内容</td>
+			<td><select flexy:nameuses="type" name="read_fontsize[%s]"></select></td>
+		</tr><tr>
+			<td class="label">フォーム</td>
+			<td><select flexy:nameuses="type" name="form_fontsize[%s]"></select></td>
+			<td class="label">レスポップアップ</td>
+			<td><select flexy:nameuses="type" name="respop_fontsize[%s]"></select></td>
+		</tr><tr>
+			<td class="label">情報ウィンドウ</td>
+			<td><select flexy:nameuses="type" name="infowin_fontsize[%s]"></select></td>
+			<td class="label">&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+</fieldset>
+</div>
+<table class="edit_font" cellspacing="0" width="100%" style="clear:left">
+	<tr class="group"><td>
+		<input type="submit" name="set" value="変更を保存する" flexy:ignore="yes">
+		<input type="reset" name="reset" value="変更を取り消す" flexy:ignore="yes">
+		<input type="submit" name="clear" value="デフォルトに戻す" flexy:ignore="yes">
+	</td></tr>
+</table>
+</form>
+</body>
+</html>

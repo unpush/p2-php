@@ -15,37 +15,37 @@ class NgAbornCtl{
         // HITした時のみ更新する
         if ($GLOBALS['ngaborns_hits']) {
             foreach ($ngaborns_hits as $code => $v) {
-        
+
                 if ($ngaborns[$code]['data']) {
-                
+
                     // 更新時間でソートする
                     usort($ngaborns[$code]['data'], array('NgAbornCtl', 'cmpLastTime'));
-                
+
                     $cont = "";
                     foreach ($ngaborns[$code]['data'] as $a_ngaborn) {
-                    
+
                         // 必要ならここで古いデータはスキップ（削除）する
                         if (!empty($a_ngaborn['lasttime']) && $_conf['ngaborn_daylimit']) {
                             if (strtotime($a_ngaborn['lasttime']) < time() - 60 * 60 * 24 * $_conf['ngaborn_daylimit']) {
                                 continue;
                             }
                         }
-                        
+
                         if (empty($a_ngaborn['lasttime'])) {
                             $a_ngaborn['lasttime'] = date('Y/m/d G:i');
                         }
-                        
+
                         $cont .= $a_ngaborn['word']."\t".$a_ngaborn['lasttime']."\t".$a_ngaborn['hits']."\n";
                     } // foreach
-                
+
                     /*
                     echo "<pre>";
                     echo $cont;
                     echo "</pre>";
                     */
-                
+
                     // 書き込む
-                
+
                     $fp = @fopen($ngaborns[$code]['file'], 'wb'); // or die("Error: cannot write. ( $ngaborns[$code]['file'] )");
                     if ($fp) {
                         @flock($fp, LOCK_EX);
@@ -53,10 +53,10 @@ class NgAbornCtl{
                         @flock($fp, LOCK_UN);
                         fclose($fp);
                     }
-                
+
 
                 } // if
-            
+
             } // foreach
         }
         return true;
@@ -81,7 +81,7 @@ class NgAbornCtl{
     function loadNgAborns()
     {
         $ngaborns = array();
-    
+
         $ngaborns['aborn_res'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_res.txt'); // これだけ少し性格が異なる
         $ngaborns['aborn_name'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_name.txt');
         $ngaborns['aborn_mail'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_mail.txt');
@@ -103,12 +103,12 @@ class NgAbornCtl{
     function readNgAbornFromFile($filename)
     {
         global $_conf;
-    
+
         $lines = array();
         $array['file'] = $_conf['pref_dir'].'/'.$filename;
         if ($lines = @file($array['file'])) {
             $lines = array_map('trim', $lines);
-        
+
             if ($lines) {
                 foreach ($lines as $l) {
                     $lar = explode("\t", $l);

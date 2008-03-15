@@ -11,6 +11,14 @@ function adjustTextareaRows(obj, org, plus) {
 	var move = 0;
 	var scroll = 14;
 	if (org) {
+		if (Math.max(aRows, obj.rows) > org) {
+			move = Math.abs((aRows - obj.rows) * scroll);
+			if (move) {
+				obj.rows = Math.max(org, aRows);
+				window.scrollBy(0, move);
+			}
+		}
+		/*
 		if (aRows > org + plus) {
 			if (obj.rows < aRows) {
 				move = (aRows - obj.rows) * scroll;
@@ -26,8 +34,8 @@ function adjustTextareaRows(obj, org, plus) {
 					window.scrollBy(0, move);
 				}
 			}
-			
 		}
+		*/
 	} else if (obj.rows < aRows) {
 		move = (aRows - obj.rows) * scroll;
 		obj.rows = aRows;
@@ -74,6 +82,7 @@ function jstrlen(str) {
 
 // (対象がdisableでなければ) フォーカスを合わせる
 function setFocus(ID){
+	var obj;
 	if (obj = document.getElementById(ID)) {
 		if (obj.disabled != true) {
 			obj.focus();
@@ -83,6 +92,7 @@ function setFocus(ID){
 
 // sageチェックに合わせて、メール欄の内容を書き換える
 function mailSage(){
+	var mailran, cbsage;
 	if (cbsage = document.getElementById('sage')) {
 		if (mailran = document.getElementById('mail')) {
 			if (cbsage.checked == true) {
@@ -98,6 +108,7 @@ function mailSage(){
 
 // メール欄の内容に応じて、sageチェックをON OFFする
 function checkSage(){
+	var mailran, cbsage;
 	if (mailran = document.getElementById('mail')) {
 		if (cbsage = document.getElementById('sage')) {
 			if (mailran.value == "sage") {
@@ -126,3 +137,60 @@ function loadLastPosted(from, mail, message){
 	checkSage();
 }
 */
+
+// 書き込みボタンの有効・無効を切り替える
+function switchBlockSubmit(onoff) {
+	var kakiko_submit = document.getElementById('kakiko_submit');
+	if (kakiko_submit) {
+		kakiko_submit.disabled = onoff;
+	}
+	var submit_beres = document.getElementById('submit_beres');
+	if (submit_beres) {
+		submit_beres.disabled = onoff;
+	}
+}
+
+// 定型文を挿入する
+function inputConstant(obj) {
+	var msg = document.getElementById('MESSAGE');
+	msg.value = msg.value + obj.options[obj.selectedIndex].value;
+	msg.focus();
+	obj.options[0].selected = true;
+}
+
+// 書き込み内容を検証する
+function validateAll(doValidateMsg, doValidateSage) {
+	var block_submit = document.getElementById('block_submit');
+	if (block_submit && block_submit.checked) {
+		alert('書き込みブロック中');
+		return false;
+	}
+	if (doValidateMsg && !validateMsg()) {
+		return false;
+	}
+	if (doValidateSage && !validateSage()) {
+		return false;
+	}
+	return true;
+}
+
+// 本文が空でないか検証する
+function validateMsg() {
+	if (document.getElementById('MESSAGE').value.length == 0) {
+		alert('本文がありません。');
+		return false;
+	}
+	return true;
+}
+
+// sageているか検証する
+function validateSage() {
+	if (document.getElementById('mail').value.indexOf('sage') == -1) {
+		if (window.confirm('sageてませんよ？')) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	return true;
+}

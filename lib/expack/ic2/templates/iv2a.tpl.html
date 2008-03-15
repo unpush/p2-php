@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+	<title>{title}</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={skin}" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=iv2&amp;skin={skin}" />
+	<script type="text/javascript" src="js/basic.js?{rep2expack:h}"></script>
+	<script type="text/javascript" src="js/iv2.js?{rep2expack:h}"></script>
+	<script type="text/javascript" src="js/respopup.js?{rep2expack:h}"></script>
+	{js:h}
+	{lightbox:h}
+</head>
+<body>
+
+<div id="header"><flexy:include src="_iv2_ctrl.tpl.html"/></div>
+
+{if:removedFiles}
+<p>以下のファイルを削除しました。</p>
+<p flexy:if="toBlackList">削除した画像はブラックリストに登録されます。</p>
+<ul>
+<li flexy:foreach="removedFiles,removedPath">{removedPath}</li>
+</ul>
+{end:}
+
+<div id="content">
+{if:nomatch}
+<flexy:include src="_iv2_reset.tpl.html"/>
+{else:}
+{editFormHeader:h}
+<table class="list" border="0" cellspacing="4" cellpadding="0">
+{foreach:items,i,item}
+{if:matrix.isFirstColumn(i)}
+	<tr>
+{end:}
+		<td align="center" valign="top">
+{if:item}
+			<label>{item[f_change]:h}[<span id="rank{item[id]:h}">{item[rank_f]}</span>]</label>
+			<span class="cr" onclick="rankUp({item[id]:h})">▲</span><span class="cr" onclick="rankDown({item[id]:h})">▼</span><br />
+			<a href="{item[src]}" target="_blank" flexy:raw="{item[lightbox_attr]:h}">
+				<img src="{item[thumb]}" id="img{item[id]:h}" width="{item[t_width]:h}" height="{item[t_height]:h}" alt="{item[name]}" border="0" />
+			</a>
+{if:popup}
+			<br />
+			<a href="javascript:void(0);" class="query" onclick="showResPopUp('info{item[id]:h}', event)" onmouseout="hideResPopUp('info{item[id]:h}')">
+				<img src="img/ic_info.gif" width="30" height="15" border="0" class="button" alt="Info" />
+			</a>
+			<a href="javascript:void(0);" class="query" onclick="showResPopUp('exif{item[id]:h}', event)" onmouseout="hideResPopUp('exif{item[id]:h}')" flexy:if="item[exif]">
+				<img src="img/ic_exif.gif" width="30" height="15" border="0" class="button" alt="Exif" />
+			</a>
+{end:}
+{else:}
+			&nbsp;
+{end:}
+		</td>
+{if:matrix.isLastColumn(i)}
+	</tr>
+{end:}
+{end:}
+</table>
+
+<hr />
+
+<div id="edit">
+	全てのチェックボックスを
+	{editFormCheckAllOn:h}
+	{editFormCheckAllOff:h}
+	{editFormCheckAllReverse:h}
+	<br />
+	<label>ランク:{editFormSelect:h}</label>
+	<label>メモを追加:{editFormText:h}</label>
+	{editFormSubmit:h}&nbsp;{editFormReset:h}&nbsp;|&nbsp;{editFormRemove:h}
+	<label>{editFormBlackList:h}ブラックリストに登録</label>
+</div>
+
+</form>
+{end:}
+</div>
+
+<div id="footer">
+</div>
+
+<div id="popUpContainer" flexy:if="popup"><flexy:include src="_iv2_popup.tpl.html" /></div>
+
+</body>
+</html>

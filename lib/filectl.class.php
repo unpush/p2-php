@@ -13,7 +13,7 @@ if (!defined('FILE_APPEND')) {
  * インスタンスを作らずにクラスメソッドで利用する
  */
 class FileCtl{
-    
+
     /**
      * 書き込み用のファイルがなければ生成してパーミッションを調整する
      */
@@ -23,7 +23,7 @@ class FileCtl{
         if (empty($perm)) {
             $perm = 0606;
         }
-        
+
         if (!file_exists($file)) {
             // 親ディレクトリが無ければ作る
             FileCtl::mkdir_for($file) or die("Error: cannot make parent dirs. ( $file )");
@@ -41,16 +41,16 @@ class FileCtl{
         }
         return true;
     }
-    
+
     /**
      * 親ディレクトリがなければ生成してパーミッションを調整する
      */
     function mkdir_for($apath)
     {
         global $_conf;
-        
+
         $dir_limit = 50; // 親階層を上る制限回数
-        
+
         $perm = (!empty($_conf['data_dir_perm'])) ? $_conf['data_dir_perm'] : 0707;
 
         if (!$parentdir = dirname($apath)) {
@@ -68,7 +68,7 @@ class FileCtl{
         }
         return true;
     }
-    
+
     /**
      * gzファイルの中身を取得する
      */
@@ -84,7 +84,7 @@ class FileCtl{
             return false;
         }
     }
-    
+
     /**
      * 文字列をファイルに書き込む
      * （PHP5のfile_put_contentsの代替的役割）
@@ -99,7 +99,7 @@ class FileCtl{
         if (is_array($content)) {
             $content = implode('', $content);
         }
-        
+
         /*
         shift_jisの文字が途中から入ったりすると、stringではないと判断されることがある？
         // If we don't have a string, throw an error
@@ -108,35 +108,35 @@ class FileCtl{
             return false;
         }
         */
-        
+
         // Get the length of date to write
         $length = strlen($content);
-        
+
         // Check what mode we are using
         $file_append = ($flags & FILE_APPEND) ? true : false;
         $mode = $file_append ? 'ab' : 'ab';
-        
+
         // Check if we're using the include path
         $use_inc_path = ($flags & FILE_USE_INCLUDE_PATH) ?
                     true :
                     false;
-        
+
         // Open the file for writing
         if (($fh = @fopen($filename, $mode, $use_inc_path)) === false) {
             trigger_error('file_write_contents() '.$filename.', failed to open stream: Permission denied', E_USER_WARNING);
             return false;
         }
-        
+
         @flock($fh, LOCK_EX);
         $last = ignore_user_abort(1);
-        
+
         // Write to the file
         $bytes = 0;
-        
+
         if (!$file_append) {
             ftruncate($fh, 0);
         }
-        
+
         if (($bytes = @fwrite($fh, $content)) === false) {
             $errormsg = sprintf('file_write_contents() Failed to write %d bytes to %s',
                             $length,
@@ -145,11 +145,11 @@ class FileCtl{
             ignore_user_abort($last);
             return false;
         }
-        
+
         ignore_user_abort($last);
         @flock($fh, LOCK_UN);
         fclose($fh);
-        
+
         if ($bytes != $length) {
             $errormsg = sprintf('file_put_contents() Only %d of %d bytes written, possibly out of free disk space.',
                             $bytes,
@@ -157,7 +157,7 @@ class FileCtl{
             trigger_error($errormsg, E_USER_WARNING);
             return false;
         }
-        
+
         return $bytes;
     }
 }

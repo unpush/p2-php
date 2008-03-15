@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+	<title>ImageCache2 - ダウンローダ</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={skin}" />
+	<style type="text/css">
+		h3.thread_title a {
+			color: {STYLE[read_thread_title_color]:h};
+		}
+		form {
+			margin: 5px 0;
+		}
+		div#serial_howto {
+			display: none;
+			color: {STYLE[respop_color]:h};
+			font-size: {STYLE[respop_fontsize]:h};
+			line-height: 120%;
+			margin: 8px;
+			padding: 8px;
+			background: {STYLE[respop_bgcolor]:h} {STYLE[respop_background]:h};
+			border: {STYLE[respop_b_width]:h} {STYLE[respop_b_color]:h} {STYLE[respop_b_style]:h};
+		}
+		div#serial_howto p, div#serial_howto ul, div#serial_howto ol {
+			margin: 8px;
+			padding 0px;
+		}
+		div#serial_howto li {
+			margin-bottom: 5px;
+		}
+		samp {
+			font-family: Courier, "Courier New", monospace;
+		}
+		span.underline {
+			text-decoration: underline;
+		}
+	</style>
+	<script type="text/javascript" src="js/basic.js?{rep2expack:h}"></script>
+	<script type="text/javascript" src="js/showhide.js?{rep2expack:h}"></script>
+	<script type="text/javascript" src="js/ic2g.js?{rep2expack:h}"></script>
+	{js:h}
+</head>
+<body onload="setWinTitle()">
+
+<h3 class="thread_title"><a href="{php_self}?popup={isPopUp}">ImageCache2 - ダウンローダ</a></h3>
+{info_msg:h}
+<hr />
+
+{if:showForm}
+{get.outputHeader():h}
+{get.hidden:h}
+
+<div>
+	<label>{get.uri.label:h}:{get.uri.html:h}</label><br />
+	<label>{get.serial.html:h}{get.serial.label:h}</label>
+	{get.from.html:h}-{get.to.html:h}
+	(<label>{get.padding.label:h}:{get.padding.html:h}</label>)
+	<a href="#" onclick="return showHide('serial_howto');">連番ダウンロード方法</a><br />
+	{get.preview_size.label:h}:{get.preview_size.html:h}<br />
+	<label>{get.memo.label:h}:{get.memo.html:h}</label>
+<div>
+
+<hr />
+
+<div>{get.download.html:h}&nbsp;{get.reset.html:h}{if:isPopUp}&nbsp;{get.close.html:h}{end:}</div>
+
+</form>
+
+<div id="serial_howto" style="display:none;">
+	<p>&quot;連番&quot; にチェックが入っていて、URLにプレースホルダ(%s)またはパターン([from-to])があると、連番で画像をダウンロードします。<br />
+	連番ダウンロード用の文字列はURLに一つだけ含めることができ、複数あるとエラーとなります。<br />
+	また、連番にチェックが入っていないのに連番ダウンロード用の文字列がURLに含まれるときもエラーとなります。</p>
+	<ul>
+		<li>
+			<strong>プレースホルダを使う</strong>
+			<ol>
+				<li>URLの連番にしたいところを <samp><b>%s</b></samp> とする。<br />
+					（例: <samp>http://images.example.com/serial<span class="underline">%s</span>.jpg</samp>）</li>
+				<li>フォームの <input type="text" size="4" value="from" disabled="disabled" flexy:ignore="yes" />-<input type="text" size="4" value="to" disabled="disabled" flexy:ignore="yes" /> に始まりの番号と終わりの番号を入力する。</li>
+				<li>&quot;0で詰める桁数&quot; が空のとき、&quot;to&quot; の桁数で左側を0で詰める。<br />
+					字詰めをしたくないときは &quot;0で詰める桁数&quot; を &quot;0&quot; にする。</li>
+				<li>
+					from/to/0で詰める桁数 → 変換後の例<br />
+					<samp>1/100/(空)</samp> → <samp>001,002,..,099,100</samp><br />
+					<samp>1/100/0</samp> → <samp>1,2,..,99,100</samp><br />
+					<samp>1/100/1</samp> → <samp>1,2,..,99,100</samp><br />
+					<samp>1/100/2</samp> → <samp>01,02,..,99,100</samp><br />
+					<samp>1/100/3</samp> → <samp>001,002,..,099,100</samp><br />
+					<samp>1/100/4</samp> → <samp>0001,0002,..,0099,0100</samp>
+				</li>
+			</ol>
+		</li>
+		<li>
+			<strong>パターンを使う</strong>
+			<ol>
+				<li>URLの連番にしたいところを <samp><b>[from-to]</b></samp> とする。<br />
+					（例: <samp>http://images.example.com/serial<span class="underline">[1-100]</span>.jpg</samp>）</li>
+				<li>&quot;from&quot; と &quot;to&quot; の桁数が同じなら、その桁数で左側を0で詰める。</li>
+				<li>&quot;from&quot; と &quot;to&quot; の桁数が異なるときは字詰めは行われず、先頭の0も切り捨てられる。</li>
+				<li>
+					[from-to]</samp> → 変換後の例<br />
+					<samp>[1-100]</samp> → <samp>1,2,..,99,100</samp><br />
+					<samp>[01-100]</samp> → <samp>1,2,..,99,100</samp><br />
+					<samp>[001-100]</samp> → <samp>001,002,..,099,100</samp><br />
+					<samp>[0001-0100]</samp> → <samp>0001,0002,..,0099,0100</samp>
+				</li>
+			</ol>
+		</li>
+	</ul>
+</div>
+{end:}
+
+{if:images}
+<ul>
+<li flexy:foreach="images,img">
+	{img.title:h}<br />
+	<a href="{img.src_url}" target="_blank"><img src="{img.thumb_url}" width="{img.thumb_x}" height="{img.thumb_y}" alt="{img.memo}" /></a>
+</li>
+</ul>
+{end:}
+
+</body>
+</html>

@@ -3,6 +3,8 @@
     p2 -  スレッド表示 -  フッタ部分 -  携帯用 for read.php
 */
 
+include_once P2_LIBRARY_DIR . '/spm_k.inc.php';
+
 //=====================================================================
 // フッタ
 //=====================================================================
@@ -18,7 +20,7 @@ if ($_conf['filtering'] && $aThread->rescount) {
 $hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
 
 // レス番指定移動 etc.
-$htm['goto'] = kspform($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
+$htm['goto'] = kspform($aThread, ($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']));
 
 //=====================================================================
 // プリント
@@ -41,18 +43,18 @@ EOP;
     }
     echo <<<EOP
 <p>
-    <a id="footer" name="footer">{$hd['read_range']}</a><br>
-    {$read_navi_previous_btm} 
-    {$read_navi_next_btm} 
-    {$read_navi_latest_btm}
-    {$read_footer_navi_new_btm} 
-    {$dores_ht}
-    {$read_navi_filter_btm}<br>
+<a id="footer" name="footer">{$hd['read_range']}</a><br>
+{$read_navi_previous_btm}
+{$read_navi_next_btm}
+{$read_navi_latest_btm}
+{$read_footer_navi_new_btm}
+{$dores_ht}
+{$read_navi_filter_btm}
 </p>
 <p>
     {$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a>
 </p>
-<p>{$htm['goto']}</p>\n
+{$htm['goto']}\n
 EOP;
     if ($diedat_msg) {
         echo '<hr>';
@@ -62,63 +64,8 @@ EOP;
         echo '</p>' . "\n";
     }
 }
-echo "<hr>" . $_conf['k_to_index_ht'] . "\n";
+echo '<hr>'.$_conf['k_to_index_ht'] . "\n";
 
 echo '</body></html>';
-
-
-//=====================================================================
-// 関数
-//=====================================================================
-
-/**
- * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成する
- *
- * @return string
- */
-function kspform($default = '', &$aThread)
-{
-    global $_conf;
-
-    //$numonly_at = 'maxlength="4" istyle="4" format="*N" mode="numeric"';
-    $numonly_at = 'maxlength="4" istyle="4" format="4N" mode="numeric"';
-
-    $form = "<form method=\"get\" action=\"{$_conf['read_php']}\">";
-    $form .= $_conf['k_input_ht'];
-
-    $required_params = array('host', 'bbs', 'key');
-    foreach ($required_params as $k) {
-        if (!empty($_REQUEST[$k])) {
-            $v = htmlspecialchars($_REQUEST[$k], ENT_QUOTES);
-            $form .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
-        } else {
-            return '';
-        }
-    }
-    $form .= '<input type="hidden" name="offline" value="1">';
-    $form .= '<input type="hidden" name="rescount" value="' . $aThread->rescount . '">';
-    $form .= '<input type="hidden" name="ttitle_en" value="' . base64_encode($aThread->ttitle) . '">';
-
-    $form .= '<select name="ktool_name">';
-    $form .= '<option value="goto">GO</option>';
-    $form .= '<option value="copy">写</option>';
-    $form .= '<option value="copy_quote">&gt;写</option>';
-    $form .= '<option value="res_quote">&gt;ﾚｽ</option>';
-    /*
-    2006/03/06 aki ノーマルp2では未対応
-    if ($_conf['expack.aas.enabled']) {
-        $form .= '<option value="aas">AAS</option>';
-        $form .= '<option value="aas_rotate">AAS*</option>';
-    }
-    */
-    $form .= '</select>';
-
-    $form .= "<input type=\"text\" size=\"3\" name=\"ktool_value\" value=\"{$default}\" {$numonly_at}>";
-    $form .= '<input type="submit" value="OK" title="OK">';
-
-    $form .= '</form>';
-
-    return $form;
-}
 
 ?>

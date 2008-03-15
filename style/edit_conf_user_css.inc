@@ -1,35 +1,99 @@
 <?php
 // p2 ースタイル設定
 // for edit_conf_user.php
+// vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
+// mi: charset=Shift_JIS
+
+if (!isset($STYLE['respop_bgcolor']))    { $STYLE['respop_bgcolor'] = '#ffffcc'; }
+if (!isset($STYLE['respop_background'])) { $STYLE['respop_background'] = ''; }
+if (!isset($STYLE['respop_b_style'])) { $STYLE['respop_b_style'] = 'solid'; }
+if (!isset($STYLE['respop_b_width'])) { $STYLE['respop_b_width'] = '1px';   }
+if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = 'black'; }
+if (!isset($STYLE['conf_btn_bgcolor']))	{ $STYLE['conf_btn_bgcolor'] = $STYLE['respop_bgcolor']; }
+if (!isset($STYLE['conf_btn_background'])) { $STYLE['conf_btn_background'] = $STYLE['respop_background']; }
+if (!isset($STYLE['conf_b_style'])) { $STYLE['conf_b_style'] = $STYLE['respop_b_style']; }
+if (!isset($STYLE['conf_b_width'])) { $STYLE['conf_b_width'] = $STYLE['respop_b_width'];   }
+if (!isset($STYLE['conf_b_color'])) { $STYLE['conf_b_color'] = $STYLE['respop_b_color']; }
+
+$conf_border = "{$STYLE['conf_b_style']} {$STYLE['conf_b_width']} {$STYLE['conf_b_color']}";
 
 $ss = <<<EOSTYLE
-<style type="text/css" media="all">
-<!--
 
 p#pan_menu{
-	border-bottom: solid 1px #ccc;
+	border-bottom: {$conf_border};
 }
 
-table#edit_conf_user{
-	border: solid 1px #ccc;
+table.edit_conf_user, table.edit_font, fieldset{
+	background: {$STYLE['bgcolor']} {$STYLE['background']};
+	border-top: {$conf_border};
+	border-left: {$conf_border};
 }
 
-table#edit_conf_user td{
+table.edit_conf_user th, table.edit_conf_user td, table.edit_font th, table.edit_font td {
+	background: {$STYLE['bgcolor']} {$STYLE['background']};
+	font-size: {$STYLE['infowin_fontsize']};
 	padding: 4px;
 	margin: 4px;
-	border: solid 0px;
-	border-right: solid 1px #efefef;
-	border-bottom: solid 1px #efefef;
+	border: {$STYLE['conf_b_style']} 0px;
+	border-right: {$conf_border};
+	border-bottom: {$conf_border};
 }
 
-tr.group{
-	background-color: #efefef;
+tr.group td{
+	background: {$STYLE['conf_btn_bgcolor']} {$STYLE['conf_btn_background']};
 }
 
--->
-</style>
+ul.tabbernav {
+	border-bottom: 1px solid {$STYLE['sb_tool_border_color']};
+	font-size: {$STYLE['fontsize']};
+}
+
+ul.tabbernav li a
+{
+	border: 1px solid {$STYLE['sb_tool_border_color']};
+	border-bottom: none;
+	color: {$STYLE['sb_tool_acolor']} !important;
+	background: {$STYLE['sb_tool_bgcolor']} {$STYLE['sb_tool_background']};
+	vertical-align: bottom;
+}
+ul.tabbernav li a:hover
+{
+	color: {$STYLE['sb_tool_acolor_h']} !important;
+	background: {$STYLE['sb_tool_bgcolor']} {$STYLE['sb_tool_background']};
+	border-color: {$STYLE['respop_b_color']};
+}
+
+ul.tabbernav li.tabberactive a
+{
+	color: {$STYLE['textcolor']} !important;
+	background: {$STYLE['bgcolor']} {$STYLE['background']};
+	border-bottom: 1px solid {$STYLE['bgcolor']};
+}
+
+ul.tabbernav li.tabberactive a:hover
+{
+	color: {$STYLE['respop_color']} !important;
+	background: {$STYLE['respop_bgcolor']} {$STYLE['respop_background']};
+	border-bottom: 1px solid {$STYLE['bgcolor']};
+}
+
+.tabberlive .tabbertab {
+	padding:5px;
+	border: 1px solid {$STYLE['sb_tool_border_color']};
+	border-top:0;
+}
+
 EOSTYLE;
 
 echo $ss;
+
+// スタイルの上書き
+if (isset($MYSTYLE) && is_array($MYSTYLE)) {
+	include_once (P2_STYLE_DIR . '/mystyle_css.php');
+	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+	if (isset($MYSTYLE[$_mystylename])) {
+		disp_mystyle($_mystylename);
+	}
+}
 
 ?>

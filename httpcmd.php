@@ -10,15 +10,7 @@ $_login->authorize(); // ユーザ認証
 
 // {{{ HTTPヘッダとXML宣言
 P2Util::header_nocache();
-if (P2Util::isBrowserSafariGroup()) {
-	header('Content-Type: application/xml; charset=UTF-8');
-	$xmldec = '<' . '?xml version="1.0" encoding="UTF-8" ?' . '>' . "\n";
-} else {
-	header('Content-Type: text/html; charset=Shift_JIS');
-	// 半角で「？＞」が入ってる文字列をコメントにするとパースエラー
-	//$xmldec = '<' . '?xml version="1.0" encoding="Shift_JIS" ?' . '>' . "\n";
-	$xmldec = '';
-}
+header('Content-Type: text/html; charset=Shift_JIS');
 
 // }}}
 
@@ -38,9 +30,9 @@ if (isset($_GET['cmd'])) {
 
 // {{{ ログ削除
 
-if ($cmd == 'delelog') { 
+if ($cmd == 'delelog') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
-        include_once (P2_LIBRARY_DIR . '/dele.inc.php');
+        include_once P2_LIBRARY_DIR . '/dele.inc.php';
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
         if (empty($r)) {
             $r_msg = "0"; // 失敗
@@ -50,14 +42,28 @@ if ($cmd == 'delelog') {
             $r_msg = "2"; // なし
         }
     }
-    
+
 // }}}
 // {{{ お気にスレ
 
 } elseif ($cmd == 'setfav') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
-        include_once (P2_LIBRARY_DIR . '/setfav.inc.php');
+        include_once P2_LIBRARY_DIR . '/setfav.inc.php';
         $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav']);
+        if (empty($r)) {
+            $r_msg = "0"; // 失敗
+        } elseif ($r == 1) {
+            $r_msg = "1"; // 完了
+        }
+    }
+
+// }}}
+// {{{ スレッドあぼーん
+
+} elseif ($cmd == 'taborn') {
+    if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['taborn'])) {
+        include_once P2_LIBRARY_DIR . '/settaborn.inc.php';
+        $r = settaborn($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['taborn']);
         if (empty($r)) {
             $r_msg = "0"; // 失敗
         } elseif ($r == 1) {
@@ -69,9 +75,8 @@ if ($cmd == 'delelog') {
 // {{{ 結果出力
 
 if (P2Util::isBrowserSafariGroup()) {
-	$r_msg = mb_convert_encoding($r_msg, 'UTF-8', 'SJIS-win');
+    $r_msg = P2Util::encodeResponseTextForSafari($r_msg);
 }
-echo $xmldec;
 echo $r_msg;
 
 // }}}

@@ -5,18 +5,20 @@
 class ShowBrdMenuPc{
 
     var $cate_id; // カテゴリーID
-    
+
     function ShowBrdMenuPc()
     {
         $this->cate_id = 1;
     }
-    
+
     /**
      * 板メニューをプリントする
      */
     function printBrdMenu(&$categories)
     {
         global $_conf, $_info_msg_ht;
+
+        $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['SCRIPT_NAME']);
 
         if ($categories) {
             foreach ($categories as $cate) {
@@ -29,7 +31,7 @@ class ShowBrdMenuPc{
                         echo "    <div class=\"itas_hide\" id=\"c{$this->cate_id}\">\n";
                     }
                     foreach ($cate->menuitas as $mita) {
-                        echo "        <a href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1\" target=\"_self\" class=\"fav\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}\">{$mita->itaj_ht}</a><br>\n";
+                        echo "        <a href=\"{$menu_php_ht}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1\" target=\"_self\" class=\"fav\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}\">{$mita->itaj_ht}</a><br>\n";
                     }
                     echo "    </div>\n";
                     echo "</div>\n";
@@ -37,34 +39,45 @@ class ShowBrdMenuPc{
                 $this->cate_id++;
             }
         }
-        
+
     }
-    
+
     /**
      * お気に板をプリントする
      */
     function print_favIta()
     {
         global $_conf, $matome_i, $STYLE;
-        
-        $lines= @file($_conf['favita_path']); // favita読み込み
-        
-        if($lines){
+
+        $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['SCRIPT_NAME']);
+
         echo <<<EOP
-    <div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_favita');" target="_self">お気に板</a></b> [<a href="editfavita.php" target="subject">編集</a>]<br>
+    <div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_favita');" target="_self">お気に板</a></b> [<a href="editfavita.php" target="subject">編集</a>]
+EOP;
+        // お気に板切り替え
+        if ($_conf['expack.misc.multi_favs']) {
+            echo "<br>\n";
+            echo FavSetManager::makeFavSetSwitchElem('m_favita_set', 'お気に板', TRUE, "replaceMenuItem('c_favita', 'm_favita_set', this.options[this.selectedIndex].value);");
+        }
+        echo <<<EOP
         <div class="itas" id="c_favita">
 EOP;
+
+        $lines= @file($_conf['favita_path']); // favita読み込み
+
+        if($lines){
             foreach ($lines as $l) {
                 $l = rtrim($l);
                 if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
                     $itaj = rtrim($matches[3]);
                     $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
                     $itaj_en = rawurlencode(base64_encode($itaj));
-                    
+                    $itaj_js = addslashes($itaj_view);
+
                     $p_htm['star'] = <<<EOP
-<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す">★</a>
+<a href="{$menu_php_ht}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す" onclick="return window.confirm('「{$itaj_js}」をお気に板から外してよろしいですか？');">★</a>
 EOP;
-                    //  onClick="return confirmSetFavIta('{$itaj_ht}');"                    
+                    //  onClick="return confirmSetFavIta('{$itaj_ht}');"
                     // 新着数を表示する場合
                     if ($_conf['enable_menu_new'] && $_GET['new']) {
                         $matome_i++;
@@ -94,30 +107,27 @@ EOP;
                 {$p_htm['star']}
                 <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}">{$itaj_view}</a><br>
 EOP;
-                
+
                     }
 
                 }
-                
+
                 flush();
-                
+
             } // foreach
-            
+
             echo "    </div>\n";
             echo "</div>\n";
-            
+
         // 空っぽなら
         } else {
-            echo <<<EOP
-    <div class="menu_cate"><b>お気に板</b> [<a href="editfavita.php" target="subject">編集</a>]<br>
-        <div class="itas" id="c_favita">
-            　（空っぽ）
-        </div>
-    </div>
-EOP;
+            echo '　（空っぽ）';
         }
-        
+        echo <<<EOP
+    </div>
+</div>
+EOP;
     }
-    
+
 }
 ?>

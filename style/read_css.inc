@@ -1,100 +1,215 @@
 <?php
 // p2 ースタイル設定
 // for read.php
+// vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
+// mi: charset=Shift_JIS
 
-echo <<<EOP
-<style type="text/css" media="all">
-<!--
-EOP;
+if (!isset($STYLE['respop_bgcolor']))	{ $STYLE['respop_bgcolor'] = '#ffffcc'; }
+if (!isset($STYLE['respop_background'])) { $STYLE['respop_background'] = ''; }
+$respop_background = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
 
-if($STYLE['fontfamily_bold']){
-	echo <<<EOP
-	h3{font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";} /* スレッドタイトル*/
-EOP;
+if (!isset($STYLE['respop_b_style'])) { $STYLE['respop_b_style'] = 'solid'; }
+if (!isset($STYLE['respop_b_width'])) { $STYLE['respop_b_width'] = '1px';   }
+if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = 'black'; }
+$respop_border = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {$STYLE['respop_b_color']};";
+
+$respop_color = '';
+if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
+	$respop_color = "color:{$STYLE['respop_color']};";
 }
 
-echo <<<EOP
-	body{
-		background:{$STYLE['read_bgcolor']};
-		line-height:130%;
-		color:{$STYLE['read_color']};
-		/*font-family:"モナー";*/
-	}
-	body, td{
-		font-size:{$STYLE['read_fontsize']};
-	}
-	
-	a:link{color:{$STYLE['read_acolor']};}
-	a:visited{color:{$STYLE['read_acolor_v']};}
-	a:hover{color:{$STYLE['read_acolor_h']};}
-	
-	i{font-style:normal;} /* 引用レス*/
-	dd.respopup{margin:8px 8px;} /* レスポップアップ*/
-	
-	.thread_title{margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};}
-	.thre_title{color:{$STYLE['read_thread_title_color']};}
-	.name{color:{$STYLE['read_name_color']};} /* 投稿者の名前 */
-	.mail{color:{$STYLE['read_mail_color']};} /* 投稿者のmail */
-	.sage{color:{$STYLE['read_mail_sage_color']};} /* 投稿者のmail(sage) */
-	img.thumbnail{border:solid 1px;} /* 画像URLの先読みサムネイル*/
-	
-	/* 新着レス番号（ここではカラーが新着確認の機能を持っているので特別にfontで
-	カラー指定をしている。thread_class.inc - transRes を参照)	*/
-	/* .newres{color:{$newres_color};} ← よって現在は無効の設定 */
+if($STYLE['fontfamily_bold']){
+	echo <<<EOSTYLE
 
-	.onthefly{ /* on the fly */
-		color:#0a0;
-		border:1px #0a0 solid;
-		padding:2px;
-		font-size:11px;
-	}
-	.ontheflyresorder{
-		color:#0a0;
-	}
-	
-	.ngword{color:{$STYLE['read_ngword']};}
-	
-	.aborned{ font-size:1px; }
-	.aborned span{ display:none; }
-	
-	.respopup{ 	/* 引用レスポップアップ */
-		position:absolute;
-		visibility:hidden; /* 普段は隠しておく*/
-		background-color:#ffffcc;
-		border:1px black solid;
-		font-size:{$STYLE['respop_fontsize']};
-		padding:8px;
-		line-height:120%;
-	}
-	
-	#iframespace{ /* HTMLポップアップスペース */
-		position:absolute;
-		z-index:100;
-		/*border:solid 1px;*/
-	}
+h3{font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";} /* スレッドタイトル*/
 
-	#closebox{
-		width:14px;
-		height:14px;
-		position:absolute;
-		z-index:101;
-		border:solid 2px;
-		padding:1px;
-		line-height:100%;
-		background-color:#ceddf7;
-	}
-	
-	div#kakiko{
-		display:none;
-	}
+EOSTYLE;
+}
 
-	/* レスのすばやさ */
-	span.spd{
-		font-size:8pt;
-		color:#777;
-	}	
--->
-</style>
+echo <<<EOSTYLE
 
-EOP;
+body{
+	background:{$STYLE['read_bgcolor']} {$STYLE['read_background']};
+	line-height:130%;
+	color:{$STYLE['read_color']};
+}
+body, td{
+	font-size:{$STYLE['read_fontsize']};
+}
+
+a:link{color:{$STYLE['read_acolor']};}
+a:visited{color:{$STYLE['read_acolor_v']};}
+a:hover{color:{$STYLE['read_acolor_h']};}
+
+i{font-style:normal;} /* 引用レス*/
+dd.respopup{margin:8px 8px;} /* レスポップアップ*/
+
+.thread_title{margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};}
+.thre_title{color:{$STYLE['read_thread_title_color']};}
+.name{color:{$STYLE['read_name_color']};} /* 投稿者の名前 */
+.mail{color:{$STYLE['read_mail_color']};} /* 投稿者のmail */
+.sage{color:{$STYLE['read_mail_sage_color']};} /* 投稿者のmail(sage) */
+img.thumbnail{border:solid 1px;} /* 画像URLの先読みサムネイル*/
+
+/* 新着レス番号（ここではカラーが新着確認の機能を持っているので特別にfontで
+カラー指定をしている。thread_class.inc - transRes を参照)	*/
+/* .newres{color:{$newres_color};} ← よって現在は無効の設定 */
+
+.onthefly{ /* on the fly */
+	color:#0a0;
+	border:1px #0a0 solid;
+	padding:2px;
+	font-size:11px;
+}
+.ontheflyresorder{
+	color:#0a0;
+}
+
+.ngword{color:{$STYLE['read_ngword']};}
+
+.aborned{ font-size:1px; }
+.aborned span{ display:none; }
+
+.respopup{ 	/* 引用レスポップアップ */
+	position:absolute;
+	visibility:hidden; /* 普段は隠しておく*/
+	{$respop_background}
+	{$respop_border}
+	{$respop_color}
+	font-size:{$STYLE['respop_fontsize']};
+	padding:8px;
+	line-height:120%;
+}
+
+#iframespace{ /* HTMLポップアップスペース */
+	position:absolute;
+	z-index:100;
+	/*border:solid 1px;*/
+}
+
+#closebox{
+	width:14px;
+	height:14px;
+	position:absolute;
+	z-index:101;
+	border:solid 2px;
+	padding:1px;
+	line-height:100%;
+	background-color:#ceddf7;
+}
+
+div#kakiko{
+	display:none;
+}
+
+/* レスのすばやさ */
+span.spd{
+	font-size:8pt;
+	color:#777;
+}
+
+a.resnum:link, a.resnum:visited, a.resnum:hover, a.resnum:active{ /* レス番号 */
+	color: {$STYLE['read_color']};
+	text-decoration: none;
+}
+
+a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* 新着レス */
+	color: {$STYLE['read_newres_color']};
+	text-decoration: none;
+}
+
+/* {{{ アクティブモナー */
+
+.aMonaSW {
+	cursor: pointer;
+}
+
+.ActiveMona {
+	white-space: nowrap;
+	line-height: 100%;
+	font-family: "{$_conf['expack.am.fontfamily']}";
+	font-size: {$_conf['expack.am.fontsize']};
+}
+
+.NoMona {
+	white-space: normal;
+	line-height: 130%;
+	font-family: "{$STYLE['fontfamily']}";
+	font-size: {$STYLE['read_fontsize']};
+}
+
+.NoMonaQ {
+	white-space: normal;
+	line-height: 120%;
+	font-family: "{$STYLE['fontfamily']}";
+	font-size: {$STYLE['respop_fontsize']};
+}
+
+/* }}}*/
+/* {{{ スマートポップアップメニュー */
+
+.spmSW {
+	cursor: pointer;
+}
+
+.spm {
+	position: absolute;
+	visibility: hidden; /* 普段は隠しておく*/
+	{$respop_background}
+	{$respop_border}
+	{$respop_color}
+	font-size: {$STYLE['respop_fontsize']};
+	line-height: 150%;
+	width: 8.5em;
+	margin: 0px;
+	padding: 2px 4px;
+}
+
+.spm p {	/* スマートポップアップメニュー：ヘッダ */
+	white-space: nowrap;
+	margin: 2px;
+	padding: 0px;
+	border-bottom: {$STYLE['respop_b_width']} {$STYLE['respop_b_color']} {$STYLE['respop_b_style']};
+	vertical-align: middle;
+}
+
+.spm a {	/* スマートポップアップメニュー：リンク */
+	display: block;
+	white-space: nowrap;
+	margin: 2px -4px;
+	padding: 0px 4px;
+	vertical-align: middle;
+	text-decoration: none;
+}
+.spm a:hover {
+	background: {$STYLE['read_bgcolor']} {$STYLE['read_background']};
+}
+.spm a.closemenu {
+	text-align: right;
+}
+
+.spm a.closebox {	/* スマートポップアップメニュー：クローズボックス */
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 14px;
+	height: 14px;
+	margin: {$STYLE['respop_b_width']};
+	padding: 1px;
+	border: {$STYLE['respop_b_style']} 1px {$STYLE['respop_b_color']};
+}
+
+/* }}} */
+
+EOSTYLE;
+
+// スタイルの上書き
+if (isset($MYSTYLE) && is_array($MYSTYLE)) {
+	include_once (P2_STYLE_DIR . '/mystyle_css.php');
+	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+	if (isset($MYSTYLE[$_mystylename])) {
+		disp_mystyle($_mystylename);
+	}
+}
+
 ?>

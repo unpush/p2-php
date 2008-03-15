@@ -1,13 +1,13 @@
 <?php
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
-require_once (P2_LIBRARY_DIR . '/brdmenu.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIBRARY_DIR . '/brdmenu.class.php';
 
 /**
  * p2 - BrdCtl -- 板リストコントロールクラス for menu.php
  */
 class BrdCtl{
-    
+
     /**
      * boardを全て読み込む
      */
@@ -18,17 +18,17 @@ class BrdCtl{
         $brd_menus = array_merge($brd_menus_dir, $brd_menus_online);
         return $brd_menus;
     }
-    
+
     /**
      * boardディレクトリを走査して読み込む
      */
     function read_brd_dir()
     {
         global $_info_msg_ht;
-    
+
         $brd_menus = array();
         $brd_dir = './board';
-        
+
         if ($cdir = @dir($brd_dir)) {
             // ディレクトリ走査
             while ($entry = $cdir->read()) {
@@ -41,30 +41,30 @@ class BrdCtl{
                     $aBrdMenu->setBrdMatch($filepath);    // パターンマッチ形式を登録
                     $aBrdMenu->setBrdList($data);    // カテゴリーと板をセット
                     $brd_menus[] =& $aBrdMenu;
-                    
+
                 } else {
                     $_info_msg_ht .= "<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n";
                 }
             }
             $cdir->close();
         }
-        
+
         return $brd_menus;
     }
-    
+
     /**
     * オンライン板リストを読込む
     */
     function read_brd_online()
     {
         global $_conf, $_info_msg_ht;
-        
+
         $brd_menus = array();
-        
+
         if ($_conf['brdfile_online']) {
             $cachefile = P2Util::cacheFileForDL($_conf['brdfile_online']);
             $noDL = false;
-            
+
             // キャッシュがある場合
             if (file_exists($cachefile.'.p2.brd')) {
                 // norefreshならDLしない
@@ -75,7 +75,7 @@ class BrdCtl{
                     $noDL = true;
                 }
             }
-            
+
             // DLしない
             if ($noDL) {
                 ;
@@ -87,10 +87,10 @@ class BrdCtl{
                     $isNewDL = true;
                 }
             }
-            
+
             // html形式なら
             if (preg_match('/html?$/', $_conf['brdfile_online'])) {
-            
+
                 // 更新されていたら新規キャッシュ作成
                 if ($isNewDL) {
                     //echo "NEW!<br>"; //
@@ -100,17 +100,17 @@ class BrdCtl{
                     $read_html_flag = true;
                     unset($aBrdMenu);
                 }
-                
+
                 if (file_exists($cachefile.'.p2.brd')) {
                     $cache_brd = $cachefile.'.p2.brd';
                 } else {
                     $cache_brd = $cachefile;
                 }
-                
+
             } else {
                 $cache_brd = $cachefile;
             }
-            
+
             if (!$read_html_flag) {
                 if ($data = @file($cache_brd)) {
                     $aBrdMenu =& new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
@@ -127,7 +127,7 @@ class BrdCtl{
                 }
             }
         }
-        
+
         return $brd_menus;
     }
 

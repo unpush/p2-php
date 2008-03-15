@@ -1,7 +1,7 @@
 <?php
 // p2 - 書き込み履歴 のための関数群
 
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 //======================================================================
 // 関数
@@ -18,41 +18,41 @@ function deleMsg($checked_hists)
         die("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
     }
     $reslines = array_map('rtrim', $reslines);
-    
+
     // ファイルの下に記録されているものが新しいので逆順にする
     $reslines = array_reverse($reslines);
-    
+
     $neolines = array();
-    
+
     // チェックして整えて
     if ($reslines) {
         $n = 1;
         foreach ($reslines as $ares) {
             $rar = explode("<>", $ares);
-            
+
             // 番号と日付が一致するかをチェックする
             if (checkMsgID($checked_hists, $n, $rar[2])) {
                 $rmnums[] = $n; // 削除する番号を登録
             }
-            
+
             $n++;
         }
         $neolines = rmLine($rmnums, $reslines);
-        
+
         $_info_msg_ht .= "<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>";
     }
-    
+
     if (is_array($neolines)) {
         // 行順を戻す
         $neolines = array_reverse($neolines);
-        
+
         $cont = "";
         if ($neolines) {
             $cont = implode("\n", $neolines) . "\n";
         }
-        
+
         // {{{ 書き込み処理
-        
+
         $temp_file = $_conf['p2_res_hist_dat'] . '.tmp';
         $write_file = strstr(PHP_OS, 'WIN') ? $_conf['p2_res_hist_dat'] : $temp_file;
         if (FileCtl::file_write_contents($write_file, $cont) === false) {
@@ -63,8 +63,8 @@ function deleMsg($checked_hists)
                 die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
             }
         }
-        
-        // ]}}
+
+        // }}}
     }
 }
 

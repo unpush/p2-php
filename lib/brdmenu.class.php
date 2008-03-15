@@ -1,6 +1,6 @@
 <?php
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * p2 - ボードメニュークラス for menu.php
@@ -12,12 +12,12 @@ class BrdMenu{
     var $format;        // html形式か、brd形式か("html", "brd")
     var $cate_match;    // カテゴリーマッチ形式
     var $ita_match;     // 板マッチ形式
-    
+
     function BrdMenu()
     {
         $this->num = 0;
     }
-    
+
     /**
      * カテゴリーを追加する
      */
@@ -26,7 +26,7 @@ class BrdMenu{
         $this->categories[] =& $aBrdMenuCate;
         $this->num++;
     }
-    
+
     /**
     * パターンマッチの形式を登録する
     */
@@ -51,15 +51,15 @@ class BrdMenu{
     function setBrdList($data)
     {
         global $_conf;
-        
+
         if (empty($data)) { return false; }
 
         // 除外URLリスト
         $not_bbs_list = array("http://members.tripod.co.jp/Backy/del_2ch/");
-    
+
         foreach ($data as $v) {
             $v = rtrim($v);
-            
+
             // カテゴリを探す
             if (preg_match($this->cate_match, $v, $matches)) {
                 $aBrdMenuCate =& new BrdMenuCate($matches[1]);
@@ -67,7 +67,7 @@ class BrdMenu{
                     $aBrdMenuCate->is_open = $matches[2];
                 }
                 $this->addBrdMenuCate($aBrdMenuCate);
-                
+
             // 板を探す
             } elseif (preg_match($this->ita_match, $v, $matches)) {
                 // html形式なら除外URLを外す
@@ -89,21 +89,21 @@ class BrdMenu{
                     $itaj_match = $matches[3];
                 }
                 $aBrdMenuIta->setItaj(rtrim($itaj_match));
-                
+
                 // {{{ 板検索マッチ
 
                 // and検索
                 if ($GLOBALS['words_fm']) {
-                
+
                     $no_match = false;
-                    
+
                     foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
                         $target = $aBrdMenuIta->itaj."\t".$aBrdMenuIta->bbs;
                         if (!StrCtl::filterMatch($word_fm_ao, $target)) {
                             $no_match = true;
                         }
                     }
-                    
+
                     if (!$no_match) {
                         $this->categories[$this->num-1]->ita_match_num++;
                         $GLOBALS['ita_mikke']['num']++;
@@ -112,13 +112,17 @@ class BrdMenu{
                         $GLOBALS['ita_mikke']['itaj_en'] = $aBrdMenuIta->itaj_en;
 
                         // マーキング
-                        $aBrdMenuIta->itaj_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aBrdMenuIta->itaj);
-                        
+                        if ($_conf['ktai'] && is_string($_conf['k_filter_marker'])) {
+                            $aBrdMenuIta->itaj_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aBrdMenuIta->itaj, $_conf['k_filter_marker']);
+                        } else {
+                            $aBrdMenuIta->itaj_ht = StrCtl::filterMarking($GLOBALS['word_fm'], $aBrdMenuIta->itaj);
+                        }
+
                         // マッチマーキングなければ（bbsでマッチしたとき）、全部マーキング
                         if ($aBrdMenuIta->itaj_ht == $aBrdMenuIta->itaj) {
                             $aBrdMenuIta->itaj_ht = '<b class="filtering">'.$aBrdMenuIta->itaj_ht.'</b>';
                         }
-                        
+
                     // 検索が見つからなくて、さらに携帯の時
                     } else {
                         if ($_conf['ktai']) {
@@ -126,9 +130,9 @@ class BrdMenu{
                         }
                     }
                 }
-                
+
                 // }}}
-                
+
                 if ($this->num) {
                     $this->categories[$this->num-1]->addBrdMenuIta($aBrdMenuIta);
                 }
@@ -144,7 +148,7 @@ class BrdMenu{
     function makeBrdFile($cachefile)
     {
         global $_conf, $_info_msg_ht, $word;
-    
+
         $p2brdfile = $cachefile.".p2.brd";
         FileCtl::make_datafile($p2brdfile, $_conf['p2_perm']);
         $data = @file($cachefile);
@@ -173,7 +177,7 @@ class BrdMenu{
             return false;
         }
     }
-    
+
 }
 
 /**
@@ -186,7 +190,7 @@ class BrdMenuCate{
     var $num;           // 格納されたBrdMenuItaオブジェクトの数
     var $is_open;       // 開閉状態(bool)
     var $ita_match_num; // 検索にヒットした板の数
-    
+
     /**
     * コンストラクタ
     */
@@ -195,10 +199,10 @@ class BrdMenuCate{
         $this->num = 0;
         $this->menuitas = array();
         $this->ita_match_num = 0;
-        
+
         $this->name = $name;
     }
-    
+
     /**
      * 板を追加する
      */
@@ -207,7 +211,7 @@ class BrdMenuCate{
         $this->menuitas[] =& $aBrdMenuIta;
         $this->num++;
     }
-    
+
 }
 
 /**
@@ -219,7 +223,7 @@ class BrdMenuIta{
     var $itaj;    // 板名
     var $itaj_en;    // 板名をエンコードしたもの
     var $itaj_ht;    // HTMLで出力する板名（フィルタリングしたもの）
-    
+
     function setItaj($itaj)
     {
         $this->itaj = $itaj;

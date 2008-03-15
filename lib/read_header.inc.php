@@ -124,23 +124,23 @@ $favmark = (!empty($aThread->fav)) ? '★' : '+';
 $favdo = (!empty($aThread->fav)) ? 0 : 1;
 $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
 $favdo_q = '&amp;setfav=' . $favdo;
-$similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
+$similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc) . '&amp;refresh=1';
 $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
 $toolbar_right_ht = <<<EOTOOLBAR
             <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
-            <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}" target="subject" title="同じ板からタイトルが似ているスレッドを検索する">{$siml_thre_st}</a>
-            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a> 
-            <span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span> 
-            <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span> 
+            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a>
+            <span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span>
+            <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span>
 <!--            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
             <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">{$moto_thre_st}</a>
+            <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}" target="subject" title="タイトルが似ているスレッドを検索">{$siml_thre_st}</a>
 EOTOOLBAR;
 
 //=====================================
 P2Util::header_content_type();
 if ($_conf['doctype']) { echo $_conf['doctype']; }
-echo <<<EOHEADER
+echo <<<EOP
 <html lang="ja">
 <head>
     {$_conf['meta_charset_ht']}
@@ -148,23 +148,34 @@ echo <<<EOHEADER
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle_ht}</title>\n
-EOHEADER;
-
-@include("style/style_css.inc"); // スタイルシート
-@include("style/read_css.inc"); // スタイルシート
-
-echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/respopup.js"></script>
-    <script type="text/javascript" src="js/htmlpopup.js"></script>
-    <script type="text/javascript" src="js/setfavjs.js"></script>
-    <script type="text/javascript" src="js/delelog.js"></script>\n
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/showhide.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/invite.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>\n
 EOP;
+
+if ($_conf['expack.am.enabled']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js?{$_conf['p2expack']}\"></script>\n";
+}
+/*if ($_conf['expack.misc.async_respop']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/async.js?{$_conf['p2expack']}\"></script>\n";
+}*/
+if ($_conf['expack.spm.enabled']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2expack']}\"></script>\n";
+}
 
 $onLoad_script = "";
 
 if ($_conf['bottom_res_form']) {
-    echo '<script type="text/javascript" src="js/post_form.js"></script>'."\n";
+    if ($_conf['expack.editor.dpreview']) {
+        echo "<link rel=\"stylesheet\" href=\"css.php?css=prvw&amp;skin={$skin_en}\" type=\"text/css\">\n";
+    }
+    echo '<script type="text/javascript" src="js/post_form.js?'.$_conf['p2expack'].'"></script>'."\n";
     $onLoad_script .= "checkSage();";
 }
 
@@ -176,7 +187,7 @@ echo <<<EOHEADER
     <script type="text/javascript">
     <!--
     gIsPageLoaded = false;
-    
+
     function pageLoaded()
     {
         gIsPageLoaded = true;
@@ -196,7 +207,7 @@ echo $_info_msg_ht;
 $_info_msg_ht = "";
 
 // スレが板サーバになければ ============================
-if ($aThread->diedat) { 
+if ($aThread->diedat) {
 
     if ($aThread->getdat_error_msg_ht) {
         $diedat_msg = $aThread->getdat_error_msg_ht;
@@ -212,13 +223,13 @@ if ($aThread->diedat) {
     } else {
         $motothre_ht = "<a href=\"{$motothre_url}\"{$_conf['bbs_win_target_at']}>{$motothre_url}</a>";
     }
-    
+
     echo $diedat_msg;
     echo "<p>";
     echo  $motothre_ht;
     echo "</p>";
     echo "<hr>";
-    
+
     // 既得レスがなければツールバー表示
     if (!$aThread->rescount) {
         echo <<<EOP
@@ -244,7 +255,7 @@ if ($aThread->rescount and (!$_GET['renzokupop'])) {
 
     $selected_match = array('on' => '', 'off' => '');
     $selected_match[($res_filter['match'])] = ' selected';
-    
+
     // 拡張条件
     if ($_conf['enable_exfilter']) {
         $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '');
@@ -259,12 +270,12 @@ if ($aThread->rescount and (!$_GET['renzokupop'])) {
     </select>
 EOP;
     }
-    
+
     $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
-    
+
     echo <<<EOP
 <form id="header" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
-    <input type="hidden" name="detect_hint" value="◎◇">
+    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
     <input type="hidden" name="host" value="{$aThread->host}">
@@ -292,7 +303,7 @@ EOP;
 
 // {{{ p2フレーム 3ペインで開く
 $htm['p2frame'] = <<<EOP
-<a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く</a> | 
+<a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く</a> |
 EOP;
 $htm['p2frame'] = <<<EOP
 <script type="text/javascript">

@@ -9,9 +9,9 @@
 */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/threadlist.class.php');
-require_once (P2_LIBRARY_DIR . '/thread.class.php');
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/threadlist.class.php';
+require_once P2_LIBRARY_DIR . '/thread.class.php';
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $shinchaku_num = 0;
 if (!empty($aThreadList)) {
@@ -47,7 +47,7 @@ if ($spmode) {
             $pre_sb_keys = unserialize($pre_sb_cont);
         }
     }
-        
+
 }
 
 // ■p2_setting 読み込み
@@ -115,9 +115,9 @@ if ($spmode) {
 } else {
     // if(!$p2_setting['itaj']){$p2_setting['itaj'] = P2Util::getItaName($host, $bbs);}
     $aThreadList->setIta($host, $bbs, $p2_setting['itaj']);
-    
+
     // {{{ ■スレッドあぼーんリスト読込
-    
+
     $idx_host_dir = P2Util::idxDirOfHost($aThreadList->host);
     $taborn_file = $idx_host_dir.'/'.$aThreadList->bbs.'/p2_threads_aborn.idx';
 
@@ -128,7 +128,7 @@ if ($spmode) {
             $ta_keys[ $data[1] ] = true;
         }
     }
-    
+
     // }}}
 
 }
@@ -154,9 +154,9 @@ $linesize = sizeof($lines);
 for ($x = 0; $x < $linesize ; $x++) {
 
     $l = rtrim($lines[$x]);
-    
+
     $aThread =& new Thread();
-    
+
     if ($aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko") {
         $aThread->torder = $x + 1;
     }
@@ -219,10 +219,10 @@ for ($x = 0; $x < $linesize ; $x++) {
     if (!($aThread->host && $aThread->bbs && $aThread->key)) {
         unset($aThread);
         continue;
-    } 
-    
+    }
+
     // {{{ 新しいかどうか(for subject)
-    
+
     if (!$aThreadList->spmode) {
         if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
             if (!$prepre_sb_keys[$aThread->key]) { $aThread->new = true; }
@@ -231,10 +231,10 @@ for ($x = 0; $x < $linesize ; $x++) {
             $subject_keys[$aThread->key] = true;
         }
     }
-    
+
     // }}}
     // {{{ ■ワードフィルタ(for subject)
-    
+
     $debug && $profiler->enterSection('word_filter_for_sb');
     if (!$aThreadList->spmode || $aThreadList->spmode == "news" and $word_fm) {
         $target = $aThread->ttitle;
@@ -244,18 +244,22 @@ for ($x = 0; $x < $linesize ; $x++) {
         } else {
             $GLOBALS['sb_mikke_num']++;
             if ($_conf['ktai']) {
-                $aThread->ttitle_ht = $aThread->ttitle;
+                if (is_string($_conf['k_filter_marker'])) {
+                    $aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle, $_conf['k_filter_marker']);
+                } else {
+                    $aThread->ttitle_ht = $aThread->ttitle;
+                }
             } else {
                 $aThread->ttitle_ht = StrCtl::filterMarking($word_fm, $aThread->ttitle);
             }
         }
     }
     $debug && $profiler->leaveSection('word_filter_for_sb');
-    
+
     // }}}
     // {{{ ■スレッドあぼーんチェック
-    
-    if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) { 
+
+    if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) {
             unset($ta_keys[$aThread->key]);
             continue; //あぼーんスレはスキップ
     }
@@ -274,18 +278,18 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
     // }
     $debug && $profiler->leaveSection('favlist_check');
-    
+
     // }}}
-    
+
     // ■ spmode(殿堂入り、newsを除く)なら ====================================
-    if ($aThreadList->spmode && $aThreadList->spmode!="news" && $sb_view!="edit") { 
-        
+    if ($aThreadList->spmode && $aThreadList->spmode!="news" && $sb_view!="edit") {
+
         // ■ subject.txtが未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
 
-            require_once (P2_LIBRARY_DIR . '/SubjectTxt.class.php');
+            require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
-            
+
             $debug && $profiler->enterSection('subthre_read'); //
             if ($aThreadList->spmode == "soko" or $aThreadList->spmode == "taborn") {
 
@@ -301,10 +305,10 @@ for ($x = 0; $x < $linesize ; $x++) {
                         $it++;
                     }
                 }
-                
+
             } else {
                 $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
-                
+
             }
             $debug && $profiler->leaveSection('subthre_read');//
         }
@@ -312,9 +316,9 @@ for ($x = 0; $x < $linesize ; $x++) {
         $debug && $profiler->enterSection('subthre_check');//
         // ■スレ情報取得 =============================
         if ($aThreadList->spmode == "soko" or $aThreadList->spmode == "taborn") {
-        
+
             if ($subject_txts[$aThread->host.'/'.$aThread->bbs][$aThread->key]) {
-            
+
                 // 倉庫はオンラインを含まない
                 if ($aThreadList->spmode == "soko") {
                     $debug && $profiler->leaveSection('subthre_check'); //
@@ -336,9 +340,9 @@ for ($x = 0; $x < $linesize ; $x++) {
                 }
 
             }
-            
+
         } else {
-        
+
             if ($subject_txts[$aThread->host.'/'.$aThread->bbs]) {
                 $it = 1;
                 foreach ($subject_txts[$aThread->host.'/'.$aThread->bbs] as $l) {
@@ -350,23 +354,23 @@ for ($x = 0; $x < $linesize ; $x++) {
                     $it++;
                 }
             }
-        
+
         }
         $debug && $profiler->leaveSection('subthre_check'); //
-        
+
         if ($aThreadList->spmode == 'taborn') {
             if (!$aThread->torder) { $aThread->torder = '-'; }
         }
 
-        
+
         // ■新着のみ(for spmode) ===============================
-        if ($sb_view == 'shinchaku' and !$_GET['word']) { 
+        if ($sb_view == 'shinchaku' and !$_GET['word']) {
             if ($aThread->unum < 1) {
                 unset($aThread);
                 continue;
             }
         }
-        
+
         /*
         // ■ワードフィルタ(for spmode) ==================================
         if ($word_fm) {
@@ -385,7 +389,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
         */
     }
-    
+
     // subjectからrescountが取れなかった場合は、gotnumを利用する。
     if ((!$aThread->rescount) and $aThread->gotnum) {
         $aThread->rescount = $aThread->gotnum;
@@ -393,7 +397,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     if (!$aThread->ttitle_ht) {
         $aThread->ttitle_ht = $aThread->ttitle;
     }
-    
+
     if ($aThread->unum > 0) { // 新着あり
         $shinchaku_attayo = true;
         $shinchaku_num = $shinchaku_num + $aThread->unum; // 新着数set
@@ -411,7 +415,7 @@ for ($x = 0; $x < $linesize ; $x++) {
             }
         }
     }
-    
+
     /*
     // ■新着ソートの便宜上 unum をセット調整
     if (!isset($aThread->unum)) {
@@ -422,14 +426,14 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
     }
     */
-    
+
     // 勢いのセット
     $aThread->setDayRes($nowtime);
-    
+
     /*
     // 生存数set
     if ($aThread->isonline) { $online_num++; }
-    
+
     // ■リストに追加 ==============================================
     $aThreadList->addThread($aThread);
 

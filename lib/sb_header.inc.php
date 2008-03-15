@@ -32,7 +32,7 @@ EOP;
 }
 
 //===============================================================
-// HTML表示用変数 for ツールバー(sb_toolbar.inc.php) 
+// HTML表示用変数 for ツールバー(sb_toolbar.inc.php)
 //===============================================================
 
 $norefresh_q = "&amp;norefresh=true";
@@ -50,7 +50,11 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 }
 
 // ページタイトル部分HTML設定 ====================================
-$ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
+if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
+    $ptitle_hd = FavSetManager::getFavSetPageTitleHt('m_favlist_set', $aThreadList->ptitle);
+} else {
+    $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
+}
 
 if ($aThreadList->spmode == "taborn") {
     $ptitle_ht = <<<EOP
@@ -84,7 +88,7 @@ if ($aThreadList->spmode) { // スペシャルモード時
 
 // フォームhidden ==================================================
 $sb_form_hidden_ht = <<<EOP
-    <input type="hidden" name="detect_hint" value="◎◇">
+    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
     <input type="hidden" name="host" value="{$aThreadList->host}">
     <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
@@ -103,7 +107,7 @@ if(!$aThreadList->spmode || $aThreadList->spmode=="news"){
     elseif($p2_setting['viewnum']=="500"){$vncheck_500=" selected";}
     elseif($p2_setting['viewnum']=="all"){$vncheck_all=" selected";}
     else{$p2_setting['viewnum']="150"; $vncheck_150=" selected";} //基本設定
-    
+
     $sb_disp_num_ht =<<<EOP
         <select name="viewnum">
             <option value="100"{$vncheck_100}>100件</option>
@@ -123,7 +127,7 @@ if ($_conf['enable_exfilter'] == 2) {
 
     $selected_method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
     $selected_method[($sb_filter['method'])] = ' selected';
-    
+
     $sb_form_method_ht = <<<EOP
             <select id="method" name="method">
                 <option value="or"{$selected_method['or']}>いずれか</option>
@@ -177,6 +181,7 @@ if ($_conf['doctype']) { echo $_conf['doctype']; }
 echo <<<EOP
 <html lang="ja">
 <head>
+    {$_conf['meta_charset_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">\n
@@ -193,16 +198,13 @@ EOP;
 echo <<<EOP
     <title>{$ptitle_hd}</title>
     <base target="read">
-EOP;
-
-@include("./style/style_css.inc"); //基本スタイルシート読込
-@include("./style/subject_css.inc"); //subject用スタイルシート読込
-
-echo <<<EOJS
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/setfavjs.js"></script>
-    <script type="text/javascript" src="js/delelog.js"></script>
-    <script language="JavaScript">
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=subject&amp;skin={$skin_en}" type="text/css">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/settabornjs.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript">
     <!--
     function setWinTitle(){
         var shinchaku_ari = "$shinchaku_attayo";
@@ -212,7 +214,6 @@ echo <<<EOJS
             if (top != self) {top.document.title=self.document.title;}
         }
     }
-
     function chNewAllColor()
     {
         var smynum1 = document.getElementById('smynum1');
@@ -250,12 +251,12 @@ echo <<<EOJS
         }
     }
     // -->
-    </script>
-EOJS;
+    </script>\n
+EOP;
 
 if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
     echo <<<EOJS
-    <script language="javascript">
+    <script type="text/javascript">
     <!--
     function checkAll(){
         var trk = 0;
@@ -278,7 +279,7 @@ echo <<<EOP
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onLoad="setWinTitle();">
 EOP;
 
-include (P2_LIBRARY_DIR . '/sb_toolbar.inc.php');
+include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";

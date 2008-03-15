@@ -4,7 +4,7 @@
  */
 
 include_once './conf/conf.inc.php';  // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -28,7 +28,7 @@ if (isset($_POST['login2chID']) && isset($_POST['login2chPW'])) {
 
     P2Util::saveIdPw2ch($_POST['login2chID'], $_POST['login2chPW'], $autoLogin2ch);
 
-    include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+    include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
     login2ch();
 }
 
@@ -42,7 +42,7 @@ if ($array = P2Util::readIdPw2ch()) {
 //==============================================================
 if (isset($_GET['login2ch'])) {
     if ($_GET['login2ch'] == "in") {
-        include_once (P2_LIBRARY_DIR . '/login2ch.inc.php');
+        include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
         login2ch();
     } elseif ($_GET['login2ch'] == "out") {
         if (file_exists($_conf['sid2ch_php'])) {
@@ -71,7 +71,7 @@ if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
 }
 
 $body_onload = "";
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     $body_onload = " onLoad=\"setWinTitle();\"";
 }
 
@@ -85,21 +85,23 @@ echo <<<EOP
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <title>{$ptitle}</title>
+    <title>{$ptitle}</title>\n
 EOP;
 
-if (!$_conf['ktai']) {
-    @include("./style/style_css.inc");
-    @include("./style/login2ch_css.inc");
+if (empty($_conf['ktai'])) {
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=login2ch&amp;skin={$skin_en}" type="text/css">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>\n
 EOP;
 }
+
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
 
 echo <<<EOP
     <script type="text/javascript">
     <!--
-    function checkPass2ch(){ 
+    function checkPass2ch(){
         if (pass2ch_input = document.getElementById('login2chPW')) {
             if (pass2ch_input.value == "") {
                 alert("パスワードを入力して下さい");
@@ -110,10 +112,10 @@ echo <<<EOP
     // -->
     </script>
 </head>
-<body{$body_onload}>
+<body{$body_at}>
 EOP;
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     echo <<<EOP
 <p id="pan_menu"><a href="setting.php">ログイン管理</a> &gt; {$ptitle}</p>
 EOP;
@@ -131,7 +133,7 @@ if (file_exists($_conf['sid2ch_php'])) {
     $idsub_str = "再{$login_st}する";
     $form_now_log = <<<EOFORM
     <form id="form_logout" method="GET" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
-        現在、2ちゃんねるに{$login_st}中です 
+        現在、2ちゃんねるに{$login_st}中です
         {$_conf['k_input_ht']}
         <input type="hidden" name="login2ch" value="out">
         <input type="submit" name="submit" value="{$logout_st}する">
@@ -143,7 +145,7 @@ EOFORM;
     if (file_exists($_conf['idpw2ch_php'])) {
         $form_now_log = <<<EOFORM
     <form id="form_logout" method="GET" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
-        現在、{$login_st}していません 
+        現在、{$login_st}していません
         {$_conf['k_input_ht']}
         <input type="hidden" name="login2ch" value="in">
         <input type="submit" name="submit" value="再{$login_st}する">
@@ -161,7 +163,7 @@ if ($autoLogin2ch) {
 $tora3_url = "http://2ch.tora3.net/";
 $tora3_url_r = P2Util::throughIme($tora3_url);
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     $id_input_size_at = " size=\"30\"";
     $pass_input_size_at = " size=\"24\"";
 }

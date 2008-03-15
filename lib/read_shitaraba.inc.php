@@ -1,11 +1,11 @@
 <?php
 /*
     p2 - したらばJBBS jbbs.livedoor.jp 用の関数
-    
+
     // 各種BBSに対応できるプロファイルクラスみたいなのを作りたいものだ。。 aki
 */
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * したらばJBBSの rawmode.cgi を読んで、datに保存する（2ch風に整形）
@@ -28,7 +28,7 @@ function shitarabaDownload()
         $aThread->gotnum = 0;
     }
     // }}}
-    
+
     if ($aThread->gotnum == 0) {
         $file_append = false;
         $START = 1;
@@ -46,15 +46,15 @@ function shitarabaDownload()
     }
 
     $tempfile = $aThread->keydat.'.dat.temp';
-    
+
     FileCtl::mkdir_for($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
-    
+
     if ($machiurl_res->is_error()) {
         $aThread->diedat = true;
         return false;
     }
-    
+
     // {{{ したらばならEUCをSJISに変換
     if (P2Util::isHostJbbsShitaraba($aThread->host)) {
         $temp_data = @file_get_contents($tempfile);
@@ -64,9 +64,9 @@ function shitarabaDownload()
         }
     }
     // }}}
-    
+
     $mlines = @file($tempfile);
-    
+
     // 一時ファイルを削除する
     unlink($tempfile);
 
@@ -79,7 +79,7 @@ function shitarabaDownload()
         return false;
     }
     */
-    
+
     // {{{ DATを書き込む
     if ($mdatlines =& shitarabaDatTo2chDatLines($mlines)) {
 
@@ -98,9 +98,9 @@ function shitarabaDownload()
         }
     }
     // }}}
-    
+
     $aThread->isonline = true;
-    
+
     return true;
 }
 
@@ -113,17 +113,18 @@ function shitarabaDownload()
 function &shitarabaDatTo2chDatLines(&$mlines)
 {
     if (!$mlines) {
-        return false;
+        $retval = false;
+        return $retval;
     }
     $mdatlines = "";
-    
+
     foreach ($mlines as $ml) {
         $ml = rtrim($ml);
 
         // 1<><font color=#FF0000>管理人</font><>sage<>2005/04/06(水) 21:44:54<>Pandemonium総合スレッドです。次スレは　<a href="/bbs/read.cgi/game/10109/1112791494/950" target="_blank">&gt;&gt;950</a> が誠意を持って申請する事。<br><br>■5W1Hの法則を無視したものは全て放置でお願いします。<br>■粘着・理由亡き晒し・煽り・騙り・ＡＡは放置で。無視できない人は同類とみなされます。<br>■職人に対する粘着行為・各ジョブの叩きなど専門のスレでお願いします。<br>■売名行為の糞コテは完全放置で。レスという餌を与えないようにしましょう。<br>■以上を踏まえて悪戯の度が過ぎる場合は削除依頼スレにお願いします。<br><br>[前スレ]【春房がポップ】Pandemonium(20)Part.41【それすら小物】<br>http://jbbs.livedoor.jp/bbs/read.cgi/game/10109/1109905935/<>【内藤は】Pandemonium(20)Part.42【面の皮も鋼】<>EM04DJXI
 
         $data = explode('<>', $ml);
-        
+
         $order = $data[0];
         $name = $data[1];
         $mail = $data[2];
@@ -144,7 +145,7 @@ function &shitarabaDatTo2chDatLines(&$mlines)
 
         // リンク外し
         $body = preg_replace('{<a href="(https?://[-_.!~*\'()a-zA-Z0-9;/?:@&=+\$,%#]+)" target="_blank">(https?://[-_.!~*\'()a-zA-Z0-9;/?:@&=+\$,%#]+)</a>}i', '$1', $body);
-        
+
         if ($order == 1) {
             $datline = $name.'<>'.$mail.'<>'.$date.'<>'.$body.'<>'.$mtitle."\n";
         } else {
@@ -155,7 +156,7 @@ function &shitarabaDatTo2chDatLines(&$mlines)
             $GLOBALS['machi_latest_num'] = $order;
         }
     }
-    
+
     return $mdatlines;
 }
 

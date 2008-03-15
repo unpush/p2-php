@@ -4,7 +4,7 @@
  */
 
 include_once './conf/conf.inc.php'; // 基本設定
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -61,10 +61,10 @@ EOP;
         fputs($fp, $auth_user_cont);
         @flock($fp, LOCK_UN);
         fclose($fp);
-        
+
         $_info_msg_ht .= '<p>○認証パスワードを変更登録しました</p>';
     }
-    
+
 }
 
 //====================================================
@@ -99,7 +99,7 @@ EOP;
 EOP;
         }
     }
-    
+
 // DoCoMo認証
 } elseif ($mobile->isDoCoMo()) {
     if (file_exists($_conf['auth_docomo_file'])) {
@@ -113,7 +113,7 @@ EOP;
 EOP;
         }
     }
-    
+
 // Cookie認証
 } else {
     if ($_login->checkUserPwWithCid($_COOKIE['cid'])) {
@@ -140,7 +140,7 @@ if (!empty($_REQUEST['check_regist_cookie'])) {
         } else {
             $_info_msg_ht .= '<p>×cookie認証解除失敗</p>';
         }
-        
+
     } else {
         if ($_REQUEST['regist_cookie'] == '1') {
             $_info_msg_ht .= '<p>×cookie認証登録失敗</p>';
@@ -187,18 +187,21 @@ echo <<<EOP
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <title>{$p_str['ptitle']}</title>
+    <title>{$p_str['ptitle']}</title>\n
 EOP;
+
 if (empty($_conf['ktai'])) {
-    @include("./style/style_css.inc");
-    @include("./style/login_css.inc");
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>\n
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=login&amp;skin={$skin_en}" type="text/css">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>\n
 EOP;
 }
+
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $p_htm['body_onload'];
 echo <<<EOP
 </head>
-<body{$p_htm['body_onload']}>
+<body{$body_at}>
 EOP;
 
 if (empty($_conf['ktai'])) {
@@ -212,7 +215,7 @@ if (!is_null($_info_msg_ht)) {
     echo $_info_msg_ht;
     $_info_msg_ht = "";
 }
-    
+
 echo '<p id="login_status">';
 echo <<<EOP
 {$p_str['autho_user']}: {$_login->user_u}<br>

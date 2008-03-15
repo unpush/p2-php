@@ -11,13 +11,13 @@ function index_print_k()
     global $_conf, $_login, $_info_msg_ht;
 
     $newtime = date('gis');
-    
+
     $body = "";
     $ptitle = "rep2ﾓﾊﾞｲﾙ";
-    
+
     // 認証ユーザ情報
     $htm['auth_user'] = "<p>ﾛｸﾞｲﾝﾕｰｻﾞ: {$_login->user_u} - " . date("Y/m/d (D) G:i:s") . "</p>\n";
-    
+
     // 前回のログイン情報
     if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
         if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
@@ -32,12 +32,21 @@ REFERER: {$log_hd['referer']}
 EOP;
         }
     }
-    
+
     // 古いセッションIDがキャッシュされていることを考慮して、ユーザ情報を付加しておく
     // （リファラを考慮して、つけないほうがいい場合もあるので注意）
     $user_at_a = '&amp;user='.$_login->user_u;
     $user_at_q = '?user='.$_login->user_u;
-    
+
+    $rss_k_ht = '';
+    $iv2_k_ht = '';
+    if ($_conf['expack.rss.enabled']) {
+        $rss_k_ht = "#.<a {$_conf['accesskey']}=\"#\" href=\"menu_k.php?view=rss{$m_rss_set_a}{$_conf['k_at_a']}\">RSS</a><br>";
+    }
+    if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) {
+        $iv2_k_ht = "%.<a href=\"iv2.php{$_conf['k_at_q']}\">画像ｷｬｯｼｭ一覧</a><br>";
+    }
+
     //=========================================================
     // 携帯用 HTML プリント
     //=========================================================
@@ -49,11 +58,11 @@ EOP;
     echo <<<EOP
 <html>
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$ptitle}</title>
+{$_conf['meta_charset_ht']}
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<title>{$ptitle}</title>
 </head>
-<body>
+<body{$_conf['k_colors']}>
 <h1>{$ptitle}</h1>
 {$_info_msg_ht}
 
@@ -67,6 +76,9 @@ EOP;
 <a {$_conf['accesskey']}="8" href="subject.php?spmode=palace&amp;norefresh=1{$_conf['k_at_a']}{$user_at_a}">8.ｽﾚの殿堂</a><br>
 <a {$_conf['accesskey']}="9" href="setting.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">9.ﾛｸﾞｲﾝ管理</a><br>
 <a {$_conf['accesskey']}="0" href="editpref.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">0.設定管理</a><br>
+{$rss_k_ht}
+?.<a href="tgrepc.php{$_conf['k_at_q']}">ｽﾚﾀｲ検索</a><br>
+{$iv2_k_ht}
 
 <hr>
 {$htm['auth_user']}

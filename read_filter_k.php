@@ -22,7 +22,7 @@ $ttitle_back = (isset($_SERVER['HTTP_REFERER']))
 /**
  * 前回フィルタ値読み込み
  */
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 
@@ -30,8 +30,8 @@ $res_filter_cont = @file_get_contents($cachefile);
 
 if ($res_filter_cont) { $res_filter = unserialize($res_filter_cont); }
 
-$field = array('hole'=>'', 'msg'=>'', 'name'=>'', 'mail'=>'', 'date'=>'', 'id'=>'', 'beid'=>'', 'belv'=>'');
-$match = array('on'=>'', 'off'=>'');
+$field = array('hole' => '', 'msg' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'beid' => '', 'belv' => '');
+$match = array('on' => '', 'off' => '');
 $method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
 
 $field[$res_filter['field']]   = ' selected';
@@ -50,11 +50,11 @@ echo <<<EOF
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>p2 - ｽﾚ内検索</title>
 </head>
-<body{$k_color_settings}>
+<body{$_conf['k_colors']}>
 <p>{$ttitle_back}</p>
 <hr>
 <form id="header" method="get" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}">
-<input type="hidden" name="detect_hint" value="◎◇">
+<input type="hidden" name="detect_hint" value="◎◇　◇◎">
 <input type="hidden" name="host" value="{$host}">
 <input type="hidden" name="bbs" value="{$bbs}">
 <input type="hidden" name="key" value="{$key}">

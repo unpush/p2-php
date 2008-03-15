@@ -3,7 +3,7 @@
     p2 - お気にスレ関係の処理スクリプト
 
     お気にスレの追加削除や、順序変更で呼ばれる
-    
+
     2005/03/10 以前
     スレ個別idxでのお気に入りフラグは、現在は使用（機能）していない。
     お気にスレ情報は、favlist.idxでまとめて受け持つ。
@@ -14,7 +14,7 @@
     スレッド表示時のお気にスレ表示 → スレッド.idx を参照
 */
 
-require_once (P2_LIBRARY_DIR . '/filectl.class.php');
+require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * お気にスレをセットする
@@ -54,7 +54,7 @@ function setFav($host, $bbs, $key, $setfav)
         }
     }
     // }}}
-    
+
     //==================================================================
     // favlist.idx
     //==================================================================
@@ -89,23 +89,23 @@ function setFav($host, $bbs, $key, $setfav)
             }
         }
     }
-    
+
     // 記録データ設定
     if ($setfav) {
         $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>1<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once (P2_LIBRARY_DIR . '/getsetposlines.inc.php');
+        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfav);
     } else {
         $rec_lines = $neolines;
     }
-    
+
     $cont = '';
     if (!empty($rec_lines)) {
         foreach ($rec_lines as $l) {
             $cont .= $l."\n";
         }
     }
-    
+
     // 書き込む
     if (FileCtl::file_write_contents($_conf['favlist_file'], $cont) === false) {
         die('Error: cannot write file.');
@@ -139,8 +139,9 @@ function postFavRank($post)
     global $_conf;
 
     $method = "POST";
-    $httpua = "Monazilla/1.00 (".$_conf['p2name']."/".$_conf['p2version'].")";
-    
+    $httpua_fmt = "Monazilla/1.00 (%s/%s; expack-%s)";
+    $httpua = sprintf($httpua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack']);
+
     $URL = parse_url($_conf['favrank_url']); // URL分解
     if (isset($URL['query'])) { // クエリー
         $URL['query'] = "?".$URL['query'];
@@ -158,9 +159,9 @@ function postFavRank($post)
         $send_port = $URL['port'];
         $send_path = $URL['path'].$URL['query'];
     }
-    
+
     if (!$send_port) {$send_port = 80;} // デフォルトを80
-    
+
     $request = $method." ".$send_path." HTTP/1.0\r\n";
     $request .= "Host: ".$URL['host']."\r\n";
     $request .= "User-Agent: ".$httpua."\r\n";

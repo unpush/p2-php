@@ -272,10 +272,12 @@ class BbsMap
 
         // {{{ 設定
 
-        $bbsmenu_url = 'http://menu.2ch.net/bbsmenu.html';
-        $map_cache_path = $_conf['cache_dir'] . '/host_bbs_map.txt';
+        $bbsmenu_url = 'http://menu.2ch.net/bbsmenu.html';  // 公式メニューの URL
+        $altmenu_url = 'http://www.2ch.se/bbsmenu.html';    // 代替メニューの URL
+        $map_cache_path = $_conf['pref_dir'] . '/p2_cache/host_bbs_map.txt';
         $map_cache_lifetime = 600; // TTLは少し短めに
-        $errfmt = '<p>rep2 error: BbsMap: %s - %s をダウンロードできませんでした。</p>';
+        $err_fmt = '<p>rep2 error: BbsMap: %s - %s をダウンロードできませんでした。</p>';
+        $use_alt = false;
 
         // }}}
         // {{{ キャッシュ確認
@@ -313,9 +315,20 @@ class BbsMap
         $req->setMethod('GET');
         $err = $req->sendRequest(true);
 
+        // エラーのとき、代わりのメニューを使ってみる
+        if (PEAR::isError($err) && $use_alt) {
+            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars($err->getMessage(), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            $_info_msg_ht .= sprintf("<p>代わりに %s をダウンロードします。</p>", htmlspecialchars($altmenu_url, ENT_QUOTES));
+            $bbsmenu_url = $altmenu_url;
+            unset ($req, $err);
+            $req = &new HTTP_Request($bbsmenu_url, $params);
+            $req->setMethod('GET');
+            $err = $req->sendRequest(true);
+        }
+
         // エラーを検証
         if (PEAR::isError($err)) {
-            $_info_msg_ht .= sprintf($errfmt, htmlspecialchars($err->getMessage()), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars($err->getMessage(), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {
@@ -330,7 +343,7 @@ class BbsMap
             $map = unserialize($map_cahce);
             return $map;
         } elseif ($code != 200) {
-            $_info_msg_ht .= sprintf($errfmt, htmlspecialchars(strval($code)), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
+            $_info_msg_ht .= sprintf($err_fmt, htmlspecialchars(strval($code), ENT_QUOTES), htmlspecialchars($bbsmenu_url, ENT_QUOTES));
             if (file_exists($map_cache_path)) {
                 return unserialize(file_get_contents($map_cache_path));
             } else {

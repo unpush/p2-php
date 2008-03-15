@@ -3,9 +3,9 @@
 // フレーム分割画面、右下部分
 
 include_once './conf/conf.inc.php'; // 基本設定読込
-require_once (P2_LIBRARY_DIR . '/dataphp.class.php');
-require_once (P2_LIBRARY_DIR . '/res_hist.class.php');
-require_once (P2_LIBRARY_DIR . '/read_res_hist.inc.php');
+require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIBRARY_DIR . '/res_hist.class.php';
+require_once P2_LIBRARY_DIR . '/read_res_hist.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -56,8 +56,8 @@ $aResHist =& new ResHist();
 $aResHist->readLines($datlines);
 
 // HTMLプリント用変数
-$htm['checkall'] = '全てのチェックボックスを 
-<input type="button" onclick="hist_checkAll(true)" value="選択"> 
+$htm['checkall'] = '全てのチェックボックスを
+<input type="button" onclick="hist_checkAll(true)" value="選択">
 <input type="button" onclick="hist_checkAll(false)" value="解除">';
 
 $htm['toolbar'] = <<<EOP
@@ -84,32 +84,33 @@ echo <<<EOP
 EOP;
 
 // PC用表示
-if (!$_conf['ktai']) {
-    @include("style/style_css.inc"); // スタイルシート
-    @include("style/read_css.inc"); // スタイルシート
-
-    echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/respopup.js"></script>
-    
-    <script type="text/javascript"> 
-    function hist_checkAll(mode) { 
-        if (!document.getElementsByName) { 
-            return; 
-        } 
-        var checkboxes = document.getElementsByName('checked_hists[]'); 
-        var cbnum = checkboxes.length; 
-        for (var i = 0; i < cbnum; i++) { 
-            checkboxes[i].checked = mode; 
-        } 
-    } 
-    </script> 
-EOSCRIPT;
+if (empty($_conf['ktai'])) {
+    echo <<<EOP
+    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript">
+    <!--
+    function hist_checkAll(mode) {
+        if (!document.getElementsByName) {
+            return;
+        }
+        var checkboxes = document.getElementsByName('checked_hists[]');
+        var cbnum = checkboxes.length;
+        for (var i = 0; i < cbnum; i++) {
+            checkboxes[i].checked = mode;
+        }
+    }
+    // -->
+    </script>\n
+EOP;
 }
 
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="gIsPageLoaded = true;"';
 echo <<<EOP
 </head>
-<body onLoad="gIsPageLoaded = true;">\n
+<body{$body_at}>\n
 EOP;
 
 echo $_info_msg_ht;
@@ -177,7 +178,7 @@ if ($_conf['ktai']) {
 EOP;
 }
 
-if (!$_conf['ktai']) {
+if (empty($_conf['ktai'])) {
     echo '</form>'."\n";
 }
 

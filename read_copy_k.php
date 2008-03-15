@@ -5,8 +5,8 @@
 // p2 - 携帯版レスコピー
 
 require_once 'conf/conf.inc.php';
-require_once (P2_LIBRARY_DIR . '/thread.class.php');
-require_once (P2_LIBRARY_DIR . '/threadread.class.php');
+require_once P2_LIBRARY_DIR . '/thread.class.php';
+require_once P2_LIBRARY_DIR . '/threadread.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -58,7 +58,7 @@ if (file_exists($aThread->keydat)) {
     }
     // 投稿フォームへのリンク
     $post_url = "post_form.php?host={$host}&amp;bbs={$bbs}&amp;key={$key}";
-    $post_url .= "&amp;rescount={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;b=k";
+    $post_url .= "&amp;rescount={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;k=1";
     $post_link = "<a href=\"{$post_url}\">ﾚｽ</a>";
     // 元スレへのリンク
     $moto_link = '<a href="' . P2Util::throughIme($url_k_txt) . '">元ｽﾚ</a>';
@@ -117,7 +117,7 @@ if ($_conf['doctype']) { echo $_conf['doctype']; }
 ?>
 <html>
 <head>
-<title><?php echo $ttitle_ht . '/' . $resid; ?></title>
+<title><?php echo $ttitle_ht; ?>/<?php echo $resid; ?></title>
 </head>
 <body<?php echo $k_color_settings; ?>>
 <?php echo $_info_msg_ht; ?>
