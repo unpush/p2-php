@@ -121,10 +121,9 @@
 </thead>
 <tbody>
 <?php
-$r = true;
+$R = true;
 include_once P2_LIBRARY_DIR . '/thread.class.php';
 foreach ($threads as $o => $t) {
-    $s = ($r = !$r) ? '2' : '';
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);
     $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, urlencode(base64_encode($t->ita)), $htm['query_en']);
@@ -144,15 +143,15 @@ foreach ($threads as $o => $t) {
         $nnum = '';
     }
 ?>
-<tr>
-    <td class="ti<?php echo $s; ?>"><?php echo $nnum; ?></td>
-    <td class="ti<?php echo $s; ?>"><?php echo $rnum; ?></td>
-    <td class="ti<?php echo $s; ?>"><?php echo $o; ?></td>
-    <td class="tl<?php echo $s; ?>"><a href="<?php echo $ourl; ?>" target="read">ÅE</a> <a href="<?php echo $turl; ?>" target="read"><?php echo $t->title; ?></a></td>
-    <td class="t<?php echo $s; ?>"><a href="<?php echo $burl; ?>"><?php echo $t->ita; ?></a></td>
-    <td class="t<?php echo $s; ?>"><?php echo date('y/m/d', $t->tkey); ?></td>
-    <td class="ti<?php echo $s; ?>"><?php echo round($t->dayres, 2); ?></td>
-    <td class="ti<?php echo $s; ?>"><?php echo round($t->dratio * 100); ?>%</td>
+<tr class="<?php echo $R ? 'r1' : 'r2'; $R = !$R; ?>">
+    <td class="ti"><?php echo $nnum; ?></td>
+    <td class="ti"><?php echo $rnum; ?></td>
+    <td class="ti"><?php echo $o; ?></td>
+    <td class="tl"><a href="<?php echo $ourl; ?>" target="read">ÅE</a> <a href="<?php echo $turl; ?>" target="read"><?php echo $t->title; ?></a></td>
+    <td class="t"><a href="<?php echo $burl; ?>"><?php echo $t->ita; ?></a></td>
+    <td class="t"><?php echo date('y/m/d', $t->tkey); ?></td>
+    <td class="ti"><?php echo round($t->dayres, 2); ?></td>
+    <td class="ti"><?php echo round($t->dratio * 100); ?>%</td>
 </tr>
 <?php } ?>
 </tbody>

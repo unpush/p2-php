@@ -145,23 +145,23 @@ foreach ($items as $item) {
     $target_ht = '';
     $preview_one = '';
     // 偶数列か奇数列か
-    $r =  ($i % 2 == 0) ? '2' : '';
+    $r = ($i % 2) ? 'r1' : 'r2';
     // 概要
     if ($description_column_ht) {
         if (isset($item['content:encoded']) || isset($item['description'])) {
             $title_en = rawurlencode(base64_encode($item['title']));
-            $description_ht = "<td class=\"tu{$r}\"><a class=\"thre_title\" href=\"read_rss.php?xml={$xml_en}&amp;title_en={$title_en}&amp;num={$i}{$atom_q}{$mtime_q}\" target=\"{$_conf['expack.rss.desc_target_frame']}\">●</a></td>";
+            $description_ht = "<td class=\"tu\"><a class=\"thre_title\" href=\"read_rss.php?xml={$xml_en}&amp;title_en={$title_en}&amp;num={$i}{$atom_q}{$mtime_q}\" target=\"{$_conf['expack.rss.desc_target_frame']}\">●</a></td>";
         } else {
-            $description_ht = "<td class=\"tu{$r}\"></td>";
+            $description_ht = "<td class=\"tu\"></td>";
         }
     }
     // トピック
     if ($subject_column_ht) {
-        $subject_ht = "<td class=\"t{$r}\">" . P2Util::re_htmlspecialchars($item['dc:subject']) . "</td>";
+        $subject_ht = "<td class=\"t\">" . P2Util::re_htmlspecialchars($item['dc:subject']) . "</td>";
     }
     // 文責
     if ($creator_column_ht) {
-        $creator_ht = "<td class=\"t{$r}\">" . P2Util::re_htmlspecialchars($item['dc:creator']) . "</td>";
+        $creator_ht = "<td class=\"t\">" . P2Util::re_htmlspecialchars($item['dc:creator']) . "</td>";
     }
     // 日時
     if ($date_column_ht) {
@@ -170,7 +170,7 @@ foreach ($items as $item) {
         } elseif (!empty($item['dc:pubdate'])) {
             $date = rss_format_date($item['dc:pubdate']);
         }
-        $date_ht = "<td class=\"t{$r}\">{$date}</td>";
+        $date_ht = "<td class=\"t\">{$date}</td>";
     }
     // 2ch,bbspinkのスレッドをp2で表示
     if (preg_match('/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/', $item['link'])) {
@@ -182,9 +182,7 @@ foreach ($items as $item) {
     // 一列表示
     $item_title = $item['title'];
     echo <<<EOP
-    <tr>
-        {$description_ht}<td class="tl{$r}" nowrap>{$preview_one}<a id="tt{$i}" class="thre_title" href="{$link_orig}">{$item_title}</a></td>{$subject_ht}{$creator_ht}{$date_ht}
-    </tr>\n
+<tr class="{$r}">{$description_ht}<td class="tl" nowrap>{$preview_one}<a id="tt{$i}" class="thre_title" href="{$link_orig}">{$item_title}</a></td>{$subject_ht}{$creator_ht}{$date_ht}</tr>
 EOP;
     $i++;
 }

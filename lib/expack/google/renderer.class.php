@@ -23,10 +23,10 @@ class Google_Renderer
      * @access private
      */
     var $header = '<tr class="tableheader">
-    <td class="t%s">種類</td>
-    <td class="t%s">タイトル</td>
-    <td class="t%s">範囲</td>
-    <td class="t%s">板</td>
+    <td class="t">種類</td>
+    <td class="t">タイトル</td>
+    <td class="t">範囲</td>
+    <td class="t">板</td>
 </tr>';
 
     /**
@@ -35,11 +35,11 @@ class Google_Renderer
      * @var string
      * @access private
      */
-    var $body = '<tr>
-    <td class="t%s">%s</td>
-    <td class="t%s">%s</td>
-    <td class="tn%s">%s</td>
-    <td class="t%s">%s</td>
+    var $body = '<tr class="%s">
+    <td class="t">%s</td>
+    <td class="t">%s</td>
+    <td class="tn">%s</td>
+    <td class="t">%s</td>
 </tr>';
 
     /**
@@ -57,7 +57,7 @@ class Google_Renderer
      * @access private
      */
     var $footer = '<tr class="tableheader">
-    <td class="t%s" colspan="4" align="center">%d-%d / %d hits.</td>
+    <td class="t" colspan="4" align="center">%d-%d / %d hits.</td>
 </tr>';
 
     /**
@@ -77,8 +77,7 @@ class Google_Renderer
     function getRowClass()
     {
         static $i = 0;
-        $i++;
-        return ($i % 2 == 1) ? '' : '2';
+        return (++$i % 2) ? 'r1' : 'r2';
     }
 
     // }}}
@@ -93,7 +92,7 @@ class Google_Renderer
     function printSearchResult(&$result, $word, $perPage, $start, $totalItems)
     {
         echo $this->opener;
-        $this->printSearchResultHeader($this->getRowClass());
+        $this->printSearchResultHeader();
         if (is_array($result) && count($result) > 0) {
             foreach ($result as $id => $val) {
                 $this->printSearchResultBody($id, $val, $this->getRowClass());
@@ -101,7 +100,7 @@ class Google_Renderer
         } elseif (is_string($result) && strlen($result) > 0) {
             printf($this->error, $result);
         }
-        $this->printSearchResultFooter($perPage, $start, $totalItems, $this->getRowClass());
+        $this->printSearchResultFooter($perPage, $start, $totalItems);
         echo $this->closer;
     }
 
@@ -114,9 +113,9 @@ class Google_Renderer
      * @return void
      * @access public
      */
-    function printSearchResultHeader($rc)
+    function printSearchResultHeader()
     {
-        printf($this->header, $rc, $rc, $rc, $rc);
+        echo $this->header;
     }
 
     // }}}
@@ -138,7 +137,7 @@ class Google_Renderer
         $range_col = ($val['ls']  !== '') ? $val['ls']  : '&nbsp;';
         $ita_col   = ($val['ita'] !== '') ? $val['ita'] : '&nbsp;';
 
-        printf($this->body, $rc, $type_col, $rc, $title_col, $rc, $range_col, $rc, $ita_col);
+        printf($this->body, $rc, $type_col, $title_col, $range_col, $ita_col);
     }
 
     // }}}
@@ -150,12 +149,12 @@ class Google_Renderer
      * @return void
      * @access public
      */
-    function printSearchResultFooter($perPage, $start, $totalItems, $rc)
+    function printSearchResultFooter($perPage, $start, $totalItems)
     {
         $from = ($totalItems > 0) ? ($start + 1) : 0;
         $to   = min($start + $perPage, $totalItems);
 
-        printf($this->footer, $rc, $from, $to, $totalItems);
+        printf($this->footer, $from, $to, $totalItems);
     }
 
     // }}}
