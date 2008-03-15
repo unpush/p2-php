@@ -364,7 +364,7 @@ for ($i = 0; $i <= $max; $i++) {
         $date = date('Y/m/d G:i:s', $filemtime);
         $b = filesize($file)/1024;
         $kb = round($b, 0);
-        $url = 'read_new.php?cview=1' . $ai . '&amp;filemtime=' . $filemtime;
+        $url = 'read_new.php?cview=1' . $ai . '&amp;filemtime=' . $filemtime . $_conf['k_at_a'];
         $links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
     }
 }

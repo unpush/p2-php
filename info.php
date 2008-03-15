@@ -19,7 +19,11 @@ $key = isset($_GET['key']) ? $_GET['key'] : null; // "1022999539"
 $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : null;
 
 // popup 0(false), 1(true), 2(true, クローズタイマー付)
-if (!empty($_GET['popup'])) { $popup_ht = "&amp;popup=1"; }
+if (!empty($_GET['popup'])) {
+    $popup_q = '&amp;popup=1';
+} else {
+    $popup_q = '';
+}
 
 // 以下どれか一つがなくてもダメ出し
 if (empty($host) || empty($bbs) || empty($key)) {
@@ -67,7 +71,14 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 
 } elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
     include_once P2_LIBRARY_DIR . '/setfav.inc.php';
-    setFav($host, $bbs, $key, $_GET['setfav']);
+    if (isset($_GET['setnum'])) {
+        setFav($host, $bbs, $key, $_GET['setfav'], $_GET['setnum']);
+    } else {
+        setFav($host, $bbs, $key, $_GET['setfav']);
+    }
+    if ($_conf['expack.misc.multi_favs']) {
+        FavSetManager::loadAllFavSet(true);
+    }
 
 // }}}
 // {{{ 殿堂入り
@@ -114,7 +125,11 @@ if (!$ttitle_en) {
         //$ttitle_urlen = rawurlencode($ttitle_en);
     }
 }
-if ($ttitle_en) { $ttitle_en_ht = '&amp;ttitle_en=' . rawurlencode($ttitle_en); }
+if ($ttitle_en) {
+    $ttitle_en_q = '&amp;ttitle_en=' . rawurlencode($ttitle_en);
+} else {
+    $ttitle_en_q = '';
+}
 
 if (!is_null($aThread->ttitle_hc)) {
     $hc['ttitle_name'] = $aThread->ttitle_hc;
@@ -122,6 +137,7 @@ if (!is_null($aThread->ttitle_hc)) {
     $hc['ttitle_name'] = "スレッドタイトル未取得";
 }
 
+$common_q = "host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}";
 
 // {{{ favlist チェック
 
@@ -141,17 +157,35 @@ if ($favlines = @file($_conf['favlist_file'])) {
 }
 */
 
-if ($aThread->fav) {
-    $favmark = "<span class=\"fav\" title=\"DATしたスレ用のお気に入り\">★</span>";
-} else {
-    $favmark = "<span class=\"fav\" title=\"DATしたスレ用のお気に入り\">+</span>";
-}
-
-$favdo = $aThread->fav ? 0 : 1;
-
-$fav_ht = <<<EOP
-<a href="info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setfav={$favdo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}">{$favmark}</a>
+if ($_conf['expack.misc.multi_favs']) {
+    $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
+    $favdo = (!empty($aThread->favs[0])) ? 0 : 1;
+    $favdo_q = '&amp;setfav=' . $favdo;
+    $favmark = $favdo ? '+' : '★';
+    $favtitle = ((!isset($favlist_titles[0]) || $favlist_titles[0] == '') ? 'お気にスレ' : $favlist_titles[0]) . ($favdo ? 'に追加' : 'から外す');
+    $setnum_q = '&amp;setnum=0';
+    $fav_ht = <<<EOP
+<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
 EOP;
+    for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+        $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
+        $favdo_q = '&amp;setfav=' . $favdo;
+        $favmark = $favdo ? $i : '★';
+        $favtitle = ((!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') ? 'お気にスレ' . $i : $favlist_titles[$i]) . ($favdo ? 'に追加' : 'から外す');
+        $setnum_q = '&amp;setnum=' . $i;
+        $fav_ht .= <<<EOP
+ | <a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
+EOP;
+    }
+} else {
+    $favdo = (!empty($aThread->fav)) ? 0 : 1;
+    $favdo_q = '&amp;setfav=' . $favdo;
+    $favmark = $favdo ? '+' : '★';
+    $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
+    $fav_ht = <<<EOP
+<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
+EOP;
+}
 
 // }}}
 // {{{ palace チェック
@@ -173,7 +207,7 @@ if ($pallines = @file($palace_idx)) {
 
 $paldo = $isPalace ? 0 : 1;
 
-$pal_a_ht = "info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;setpal={$paldo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}";
+$pal_a_ht = "info.php?{$common_q}&amp;setpal={$paldo}{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}";
 
 if ($isPalace) {
     $pal_ht = "<a href=\"{$pal_a_ht}\">★</a>";
@@ -212,7 +246,7 @@ if (!empty($isTaborn)) {
 }
 
 $taborn_ht = <<<EOP
-{$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}"{$taborndo_title_at}>{$tastr2}</a>]
+{$tastr1} [<a href="info.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&amp;taborn={$taborndo}{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}"{$taborndo_title_at}>{$tastr2}</a>]
 EOP;
 
 // }}}
@@ -286,7 +320,7 @@ echo $_info_msg_ht;
 $_info_msg_ht = "";
 
 echo "<p>\n";
-echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
+echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?{$common_q}{$_conf['k_at_a']}\"{$target_read_at}>{$hd['ttitle_name']}</a></b>\n";
 echo "</p>\n";
 
 // 携帯なら冒頭で表示
@@ -297,7 +331,7 @@ if (!empty($_conf['ktai'])) {
 }
 
 if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($aThread->host, $aThread->bbs, $aThread->key)) {
-    $offrec_ht = " / [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;offrec=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
+    $offrec_ht = " / [<a href=\"info.php?{$common_q}&amp;offrec=true{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
 }
 
 if (empty($_conf['ktai'])) {
@@ -312,7 +346,7 @@ if (empty($_conf['ktai'])) {
     print_info_line("key", $aThread->key);
 }
 if ($existLog) {
-    print_info_line("ログ", "あり [<a href=\"info.php?host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->key}&amp;dele=true{$popup_ht}{$ttitle_en_ht}{$_conf['k_at_a']}\">削除する</a>]{$offrec_ht}");
+    print_info_line("ログ", "あり [<a href=\"info.php?{$common_q}&amp;dele=true{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}\">削除する</a>]{$offrec_ht}");
 } else {
     print_info_line("ログ", "未取得{$offrec_ht}");
 }

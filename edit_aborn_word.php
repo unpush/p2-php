@@ -217,9 +217,10 @@ if (!empty($_info_msg_ht)) {
 
 $usage = <<<EOP
 <ul>
+<li>ワード: NG/あぼーんワード (空にすると登録解除)</li>
 <li>i: 大文字小文字を無視</li>
 <li>re: 正規表現</li>
-<li>板: newsplus, software 等 (完全一致, カンマ区切り)</li>
+<li>板: newsplus,software 等 (完全一致, カンマ区切り)</li>
 <li>スレタイ: スレッドタイトル (部分一致, 常に大文字小文字を無視)</li>
 </ul>
 EOP;
@@ -240,7 +241,7 @@ if (empty($_conf['ktai'])) {
     echo <<<EOP
     <table class="edit_conf_user" cellspacing="0">
         <tr>
-            <td align="center">あぼーんワード</td>
+            <td align="center">ワード</td>
             <td align="center">i</td>
             <td align="center">re</td>
             <td align="center">板</td>

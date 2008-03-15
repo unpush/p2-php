@@ -17,6 +17,7 @@ class Thread{
     var $modified;  // datのLast-Modified // idxline[4]
     var $readnum;   // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
     var $fav;       //お気に入り(bool的に) // idxline[6] favlist.idxも参照
+    var $favs;      //お気に入りセット登録状態(boolの配列)
     // name         // ここでは利用せず idxline[7]（他所で利用）
     // mail         // ここでは利用せず idxline[8]（他所で利用）
     // var $newline; // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
@@ -129,6 +130,8 @@ class Thread{
             $this->fav = $la[6];
         }
         */
+
+        $this->getFavStatus();
     }
 
     /**
@@ -149,6 +152,8 @@ class Thread{
         $this->keyidx = $idx_host_dir . '/' . $this->bbs . '/' . $this->key . '.idx';
 
         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setThreadPathInfo()');
+
+        $this->getFavStatus();
 
         return true;
     }
@@ -424,5 +429,27 @@ class Thread{
         return $spd_st;
     }
 
+    /**
+     * お気に入り登録状態を取得する
+     */
+    function getFavStatus()
+    {
+        global $_conf;
+        
+        if (!$_conf['expack.misc.multi_favs']) {
+            return;
+        }
+
+        $this->favs = array();
+        foreach ($_conf['favlists'] as $num => $favlist) {
+            $this->favs[$num] = false;
+            foreach ($favlist as $fav) {
+                if ($this->key == $fav['key'] && $this->bbs == $fav['bbs']) {
+                    $this->favs[$num] = true;
+                    break;
+                }
+            }
+        }
+    }
 }
 ?>

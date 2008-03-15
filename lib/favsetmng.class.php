@@ -12,14 +12,51 @@ class FavSetManager
     // {{{ switchFavSet()
 
     /**
+     * すべてのお気にスレを読み込む
+     */
+    function loadAllFavSet($force = FALSE)
+    {
+        global $_conf, $__conf;
+        static $done = NULL;
+
+        if (!$force && !is_null($done)) {
+            return;
+        }
+
+        $_conf['favlists'] = array();
+        $favlist_files = array();
+        $favlist_files[0] = $__conf['favlist_file'];
+        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+            $favlist_files[$i] = $_conf['pref_dir'] . sprintf('/p2_favlist%d.idx', $i);
+        }
+
+        foreach ($favlist_files as $i => $favlist_file) {
+            $_conf['favlists'][$i] = array();
+            if (file_exists($favlist_file)) {
+                $favlines = file($favlist_file);
+                foreach ($favlines as $line) {
+                    $lar = explode('<>', rtrim($line));
+                    // bbsのないものは不正データなのでスキップ
+                    if (!isset($lar[11])) {
+                        continue;
+                    }
+                    $_conf['favlists'][$i][] = array('key' => $lar[1], 'bbs' => $lar[11]);
+                }
+            }
+        }
+
+        $done = TRUE;
+    }
+
+    /**
      * お気にスレ、お気に板、RSSのカレントセットを切り替える
      */
-    function switchFavSet()
+    function switchFavSet($force = FALSE)
     {
         global $_conf;
         static $done = NULL;
 
-        if ($done !== NULL) {
+        if (!$force && !is_null($done)) {
             return;
         }
 
@@ -52,6 +89,7 @@ class FavSetManager
         $k_to_index_q = htmlspecialchars($k_to_index_q, ENT_QUOTES);
         $_conf['k_to_index_ht'] = "<a {$_conf['accesskey']}=\"0\" href=\"index.php?{$k_to_index_q}\">0.TOP</a>";
 
+        $done = TRUE;
     }
 
     // }}}

@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7.29';     // rep2のバージョン
-$_conf['p2expack'] = '060818.0652'; // ASAPのバージョン
+$_conf['p2expack'] = '060902.0719'; // ASAPのバージョン
 $_conf['p2name'] = 'REP2EX-ASAP';   // rep2の名前。
 
 //======================================================================
@@ -581,6 +581,9 @@ $_conf['matome_cache_path'] = P2_PREF_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'mat
 $_conf['matome_cache_ext'] = '.htm';
 $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
+// 初期化直後の設定を保存
+$__conf = $_conf;
+
 // {{{ ありえない引数のエラー
 
 // 新規ログインとメンバーログインの同時指定はありえないので、エラー出す
@@ -671,9 +674,12 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 
 // }}}
 
-// お気にセットを切り替える
+// 複数のお気にセットを使うとき
 if ($_conf['expack.misc.multi_favs']) {
     require_once P2_LIBRARY_DIR . '/favsetmng.class.php';
+    // 切り替え表示用に全てのお気に板を読み込んでおく
+    FavSetManager::loadAllFavSet();
+    // お気にセットを切り替える
     FavSetManager::switchFavSet();
 }
 

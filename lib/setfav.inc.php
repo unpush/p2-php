@@ -21,9 +21,9 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
  *
  * $set は、0(解除), 1(追加), top, up, down, bottom
  */
-function setFav($host, $bbs, $key, $setfav)
+function setFav($host, $bbs, $key, $setfav, $setnum = null)
 {
-    global $_conf;
+    global $_conf, $__conf;
 
     //==================================================================
     // key.idx
@@ -42,7 +42,7 @@ function setFav($host, $bbs, $key, $setfav)
     }
 
     // {{{ スレッド.idx 記録
-    if ($setfav == '0' or $setfav == '1') {
+    if (($setfav == '0' || $setfav == '1') && $_conf['favlist_file'] == $__conf['favlist_file']) {
         // お気にスレから外した結果、idxの意味がなくなれば削除する
         if ($setfav == '0' and (!$data[3] && !$data[4] && $data[9] <= 1)) {
             @unlink($idxfile);
@@ -58,11 +58,22 @@ function setFav($host, $bbs, $key, $setfav)
     //==================================================================
     // favlist.idx
     //==================================================================
+
+    if (!is_null($setnum) && $_conf['expack.misc.multi_favs']) {
+        if (0 < $setnum && $setnum <= $_conf['expack.misc.favset_num']) {
+            $favlist_file = $_conf['pref_dir'] . sprintf('/p2_favlist%d.idx', $setnum);
+        } else {
+            $favlist_file = $__conf['favlist_file'];
+        }
+    } else {
+        $favlist_file = $_conf['favlist_file'];
+    }
+
     // favlistファイルがなければ生成
-    FileCtl::make_datafile($_conf['favlist_file'], $_conf['favlist_perm']);
+    FileCtl::make_datafile($favlist_file, $_conf['favlist_perm']);
 
     // favlist読み込み
-    $favlines = @file($_conf['favlist_file']);
+    $favlines = @file($favlist_file);
 
     //================================================
     // 処理
@@ -107,7 +118,7 @@ function setFav($host, $bbs, $key, $setfav)
     }
 
     // 書き込む
-    if (FileCtl::file_write_contents($_conf['favlist_file'], $cont) === false) {
+    if (FileCtl::file_write_contents($favlist_file, $cont) === false) {
         die('Error: cannot write file.');
     }
 
@@ -115,7 +126,7 @@ function setFav($host, $bbs, $key, $setfav)
     //================================================
     // お気にスレ共有
     //================================================
-    if ($_conf['join_favrank']) {
+    if ($_conf['join_favrank'] && $_conf['favlist_file'] == $__conf['favlist_file']) {
         if ($setfav == "0") {
             $act = "out";
         } elseif ($setfav == "1") {
