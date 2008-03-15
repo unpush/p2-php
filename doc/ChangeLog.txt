@@ -1,3 +1,24 @@
+2006-05-27 aki
+	* rep2 version 1.7.29
+	
+	[2ch仕様対応] 2chの仕様変更 hana mogera に対応し、書き込み時に確認から次へ進めない症状を解決した。
+	※前バージョンで対応できていなかったので、今度こそ対応した
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		post.php
+
+2006-05-27 aki
+	* rep2 version 1.7.28
+	
+	[2ch仕様対応] 2chの仕様変更 hana mogera に対応し、書き込み時に確認から次へ進めない症状を解決した。
+	[バグ修正] URLリンクのマッチで副作用が出るので、ノートンの誤反応対策エスケープを外した
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/showthreadpc.class.php
+		post.php
+
 2006-05-19 aki
 	* rep2 version 1.7.27
 

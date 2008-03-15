@@ -598,8 +598,8 @@ EOP;
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
-        // 2chではなされていないエスケープ（ノートンの誤反応対策を含む）
-        $msg = str_replace(array('"', "'"), array('&quot;', '&#039;'), $msg);
+        // 本来は2chのDAT時点でなされていないとエスケープの整合性が取れない気がする。（URLリンクのマッチで副作用が出てしまう）
+        //$msg = str_replace(array('"', "'"), array('&quot;', '&#039;'), $msg);
 
         // 2006/05/06 ノートンの誤反応対策 body onload=window()
         $msg = str_replace('onload=window()', '<i>onload=window</i>()', $msg);
