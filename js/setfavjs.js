@@ -44,7 +44,7 @@ function setFavJs(tquery, favdo, info_pop_width, info_pop_height, page, obj)
 				favtitle = '‚¨‹C‚ÉƒXƒŒ‚©‚çŠO‚·';
 			} else {
 				nextset = '1';
-				if (setnum == '0') {
+				if (setnum == '-1') {
 					favmark = '+';
 				} else {
 					favmark = setnum;
@@ -61,14 +61,18 @@ function setFavJs(tquery, favdo, info_pop_width, info_pop_height, page, obj)
 			} else {
 				favstr = '';
 			}
-			var favhtm = '<a' + objClass + ' href="info.php?' + tquery + '&amp;setfav=' + nextset + '" target="info" onClick="return setFavJs(\'' + tquery + '\', \''+nextset+'\', '+info_pop_width+', '+info_pop_height+', \'' + page + '\', this, \'' + setnum + '\');" title="' + favtitle + '">' + favstr + favmark + '</a>';
+			if (setnum != '-1') {
+				var favhtm = '<a' + objClass + ' href="info.php?' + tquery + '&amp;setfav=' + nextset + '&amp;setnum=' + setnum + '" target="info" onClick="return setFavJs(\'' + tquery + '\', \''+nextset+'\', '+info_pop_width+', '+info_pop_height+', \'' + page + '\', this, \'' + setnum + '\');" title="' + favtitle + '">' + favstr + favmark + '</a>';
+			} else {
+				var favhtm = '<a' + objClass + ' href="info.php?' + tquery + '&amp;setfav=' + nextset + '" target="info" onClick="return setFavJs(\'' + tquery + '\', \''+nextset+'\', '+info_pop_width+', '+info_pop_height+', \'' + page + '\', this);" title="' + favtitle + '">' + favstr + favmark + '</a>';
+			}
 			if (page != 'read') {
 				obj.parentNode.innerHTML = favhtm;
 			} else {
 				var span = document.getElementsByTagName('span');
-				tgtcls = 'favdo set'
+				tgtcls = 'favdo'
 				if (setnum != '-1') {
-					tgtcls += setnum;
+					tgtcls += ' set' + setnum;
 				}
 				for (var i = 0; i < span.length; i++) {
 					if (span[i].className == tgtcls) {
