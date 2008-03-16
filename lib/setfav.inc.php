@@ -14,7 +14,7 @@
     スレッド表示時のお気にスレ表示 → スレッド.idx を参照
 */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * お気にスレをセットする
@@ -104,7 +104,7 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
     // 記録データ設定
     if ($setfav) {
         $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>1<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
+        include_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfav);
     } else {
         $rec_lines = $neolines;

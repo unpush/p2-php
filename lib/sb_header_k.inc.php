@@ -118,7 +118,7 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
-include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
+include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 
 echo $filter_form_ht;
 echo $hit_ht;

@@ -157,7 +157,7 @@ $htm['change_sort'] .= '<input type="submit" value="•ÏX"></form>';
 // HTMLƒvƒŠƒ“ƒg ==============================================
 echo "<hr>";
 echo $k_sb_navi_ht;
-include P2_LIBRARY_DIR . '/sb_toolbar_k.inc.php';
+include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 echo $allfav_ht;
 echo $switchfavlist_ht;
 echo "<p>";

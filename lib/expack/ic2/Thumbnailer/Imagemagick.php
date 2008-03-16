@@ -1,17 +1,17 @@
 <?php
 /**
- * Thumbnailer_ImageMagick
+ * Thumbnailer_Imagemagick
  * PHP Versions 4 and 5
  */
 
 require_once dirname(__FILE__) . '/Common.php';
 
-// {{{ Thumbnailer_ImageMagick
+// {{{ Thumbnailer_Imagemagick
 
 /**
  * Image manipulation class which uses ImageMagick.
  */
-class Thumbnailer_ImageMagick extends Thumbnailer_Common
+class Thumbnailer_Imagemagick extends Thumbnailer_Common
 {
     // {{{ protected properties
 
@@ -159,7 +159,7 @@ class Thumbnailer_ImageMagick extends Thumbnailer_Common
         }
 
         // クロップしてパイプ
-        if ($this->_trimming) {
+        if ($this->doesTrimming()) {
             $command .= sprintf(' -format PNG -crop %dx%d+%d+%d %s - | %s -size %dx%d',
                                 $sw, $sh, $sx, $sy,
                                 $source,
@@ -168,13 +168,13 @@ class Thumbnailer_ImageMagick extends Thumbnailer_Common
             $source = '-';
         }
 
-        // 透過部分の背景色を任意の色にするのはめんどくさそうなので保留
-        //$command .= sprintf(' -background rgb(%d,%d,%d)', $this->_bgcolor[0], $this->_bgcolor[1], $this->_bgcolor[2]);
 
         // 回転
-        if ($this->_rotation) {
-            $command .= sprintf(' -rotate %d', $this->_rotation);
-            if ($this->_rotation % 180 == 90) {
+        if ($degrees = $this->getRotation()) {
+            $bgcolor = $this->getBgColor();
+            $command .= sprintf(' -rotate %d', $degrees);
+            $command .= sprintf(' -background rgb(%d,%d,%d)', $bgcolor[0], $bgcolor[1], $bgcolor[2]);
+            if ($degrees % 180 == 90) {
                 $_t = $tw;
                 $tw = $th;
                 $th = $_t;
@@ -183,25 +183,25 @@ class Thumbnailer_ImageMagick extends Thumbnailer_Common
 
         // サムネイルのサイズを指定・メタデータは除去
         if ($this->_imagemagick_version6) {
-            if ($this->_resampling) {
+            if ($this->doesResampling()) {
                 $command .= sprintf(' -thumbnail %dx%d!', $tw, $th);
             } else {
                 $command .= ' -strip';
             }
         } else {
-            if ($this->_resampling) {
+            if ($this->doesResampling()) {
                 $command .= sprintf(' -scale %dx%d!', $tw, $th);
             }
             $command .= " +profile '*'";
         }
 
         // サムネイルの画像形式と品質
-        if ($this->_png) {
+        if ($this->isPng()) {
             $command .= ' -format PNG';
         } else {
             $command .= ' -format JPEG';
-            if ($this->_quality) {
-                $command .= sprintf(' -quality %d', $this->_quality);
+            if ($this->getQuality()) {
+                $command .= sprintf(' -quality %d', $this->getQuality());
             }
         }
 

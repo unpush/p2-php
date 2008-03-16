@@ -22,7 +22,7 @@ class ExpackLoader
         if ((!$_conf['ktai'] && $_conf['expack.am.enabled']) ||
             ($_conf['ktai'] && $_conf['expack.am.enabled'] && $_conf['expack.am.autong_k'])
         ) {
-            require_once P2EX_LIBRARY_DIR . '/activemona.class.php';
+            require_once P2EX_LIB_DIR . '/activemona.class.php';
             define('P2_ACTIVEMONA_AVAILABLE', 1);
         } else {
             define('P2_ACTIVEMONA_AVAILABLE', 0);
@@ -70,11 +70,11 @@ class ExpackLoader
         if ((!$_conf['ktai'] && $_conf['expack.ic2.enabled'] % 2 == 1) ||
             ($_conf['ktai'] && $_conf['expack.ic2.enabled'] >= 2)
         ) {
-            require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-            require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
-            require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
-            require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
-            require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+            require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+            require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+            require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
+            require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
+            require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
             define('P2_IMAGECACHE_AVAILABLE', 2);
         } else {
             define('P2_IMAGECACHE_AVAILABLE', 0);

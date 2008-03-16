@@ -319,7 +319,7 @@ echo <<<EOP
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 EOP;
 
-include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
+include P2_LIB_DIR . '/sb_toolbar.inc.php';
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";

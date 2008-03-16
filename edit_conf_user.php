@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 

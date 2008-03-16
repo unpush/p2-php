@@ -100,40 +100,30 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
         extract($size);
 
         $im = new Imagick();
+        $im->readImage($source);
 
-        if ($this->_trimming) {
-            $in = new Imagick();
-            $in->readImage($source);
-            $in->setFormat('PNG');
-            $in->cropImage($sw, $sh, $sx, $sy);
-            $im->readImageBlob($in->getImageBlob());
-            unset($in);
-        } else {
-            $im->readImage($source);
+        if ($this->doesTrimming()) {
+            $im->cropImage($sw, $sh, $sx, $sy);
         }
 
-        if ($this->_rotation) {
-            $bg = sprintf('rgb(%d,%d,%d)', $this->_bgcolor[0], $this->_bgcolor[1], $this->_bgcolor[2]);
-            $im->rotateImage(new ImagickPixel($bg), $this->_rotation);
-            if ($this->_rotation % 180 == 90) {
-                $_t = $tw;
-                $tw = $th;
-                $th = $_t;
-            }
-        }
-
-        if ($this->_resampling) {
+        if ($this->doesResampling()) {
             $im->thumbnailImage($tw, $th);
         } else {
             $im->stripImage();
         }
 
-        if ($this->_png) {
+        if ($degrees = $this->getRotation()) {
+            $bgcolor = $this->getBgColor();
+            $bg = sprintf('rgb(%d,%d,%d)', $bgcolor[0], $bgcolor[1], $bgcolor[2]);
+            $im->rotateImage(new ImagickPixel($bg), $degrees);
+        }
+
+        if ($this->isPng()) {
             $im->setFormat('PNG');
         } else {
             $im->setFormat('JPEG');
-            if ($this->_quality) {
-                $im->setCompressionQuality($this->_quality);
+            if ($this->getQuality()) {
+                $im->setCompressionQuality($this->getQuality());
             }
         }
 

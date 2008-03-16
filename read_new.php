@@ -5,11 +5,11 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/threadlist.class.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';
-require_once P2_LIBRARY_DIR . '/threadread.class.php';
-require_once P2_LIBRARY_DIR . '/ngabornctl.class.php';
-require_once P2_LIBRARY_DIR . '/read_new.inc.php';
+require_once P2_LIB_DIR . '/threadlist.class.php';
+require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/threadread.class.php';
+require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -122,7 +122,7 @@ EOP;
 EOP;
 }
 
-// include_once P2_LIBRARY_DIR . '/read_header.inc.php';
+// include_once P2_LIB_DIR . '/read_header.inc.php';
 
 echo $_conf['doctype'];
 echo <<<EOHEADER
@@ -256,7 +256,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         // subject.txt が未DLなら落としてデータを配列に格納
         if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
 
-            require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
@@ -403,7 +403,7 @@ function readNew(&$aThread)
     $key_q = "&amp;key=".$aThread->key;
     $popup_q = "&amp;popup=1";
 
-    // include_once P2_LIBRARY_DIR . '/read_header.inc.php';
+    // include_once P2_LIB_DIR . '/read_header.inc.php';
 
     $prev_thre_num = $newthre_num - 1;
     $next_thre_num = $newthre_num + 1;
@@ -437,8 +437,8 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
         // $aThread->datToHtml(); // dat を html に変換表示
-        include_once P2_LIBRARY_DIR . '/showthread.class.php';
-        include_once P2_LIBRARY_DIR . '/showthreadpc.class.php';
+        include_once P2_LIB_DIR . '/showthread.class.php';
+        include_once P2_LIB_DIR . '/showthreadpc.class.php';
         $aShowThread =& new ShowThreadPc($aThread);
         // async
         /*if ($_conf['expack.misc.async_respop']) {

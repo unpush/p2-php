@@ -3,9 +3,9 @@
     p2 - スレッドデータ、DATを削除するための関数郡
 */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/setfav.inc.php';
-require_once P2_LIBRARY_DIR . '/setpalace.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/setfav.inc.php';
+require_once P2_LIB_DIR . '/setpalace.inc.php';
 
 /**
  * ■指定した配列keysのログ（idx, (dat, srd)）を削除して、

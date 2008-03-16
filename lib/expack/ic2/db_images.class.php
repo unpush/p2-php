@@ -2,10 +2,10 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
 
 define('P2_IMAGECACHE_OK',     0);
 define('P2_IMAGECACHE_ABORN',  1);

@@ -7,9 +7,9 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/threadlist.class.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/threadlist.class.php';
+require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 
@@ -152,7 +152,7 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
         if (!$GLOBALS['wakati_words']) {
             unset($GLOBALS['wakati_word'], $GLOBALS['wakati_words']);
         } else {
-            include_once P2_LIBRARY_DIR . '/strctl.class.php';
+            include_once P2_LIB_DIR . '/strctl.class.php';
             $GLOBALS['KANJI_REGEX'] = mb_convert_encoding('/[一-龠]/u', 'UTF-8', 'SJIS-win');
             $wakati_filter = create_function('$s', 'return (preg_match($GLOBALS["KANJI_REGEX"], $s) || (preg_match($GLOBALS["WAKATI_REGEX"], $s) && mb_strlen($s, "UTF-8") > 1));');
             $wakati_words2 = array_filter($GLOBALS['wakati_words'], $wakati_filter);
@@ -183,7 +183,7 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
         // デフォルトオプション
         if (!$sb_filter['method']) { $sb_filter['method'] = "or"; } // $sb_filter は global @see sb_print.icn.php
 
-        include_once P2_LIBRARY_DIR . '/strctl.class.php';
+        include_once P2_LIB_DIR . '/strctl.class.php';
         $word_fm = StrCtl::wordForMatch($word, $sb_filter['method']);
         if ($sb_filter['method'] != 'just') {
             if (P2_MBREGEX_AVAILABLE == 1) {
@@ -206,7 +206,7 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
 
 if (!empty($_GET['dele']) or ($_POST['submit'] == $deletelog_st)) {
     if ($host && $bbs) {
-        include_once P2_LIBRARY_DIR . '/dele.inc.php';
+        include_once P2_LIB_DIR . '/dele.inc.php';
         if ($_POST['checkedkeys']) {
             $dele_keys = $_POST['checkedkeys'];
         } else {
@@ -219,22 +219,22 @@ if (!empty($_GET['dele']) or ($_POST['submit'] == $deletelog_st)) {
 
 // お気に入りスレッド
 } elseif (isset($_GET['setfav']) && $_GET['key'] && $host && $bbs) {
-    include_once P2_LIBRARY_DIR . '/setfav.inc.php';
+    include_once P2_LIB_DIR . '/setfav.inc.php';
     setFav($host, $bbs, $_GET['key'], $_GET['setfav']);
 
 // 殿堂入り
 } elseif (isset($_GET['setpal']) && $_GET['key'] && $host && $bbs) {
-    include_once P2_LIBRARY_DIR . '/setpalace.inc.php';
+    include_once P2_LIB_DIR . '/setpalace.inc.php';
     setPal($host, $bbs, $_GET['key'], $_GET['setpal']);
 
 // あぼーんスレッド解除
 } elseif (($_POST['submit'] == $abornoff_st) && $host && $bbs && $_POST['checkedkeys']) {
-    include_once P2_LIBRARY_DIR . '/settaborn_off.inc.php';
+    include_once P2_LIB_DIR . '/settaborn_off.inc.php';
     settaborn_off($host, $bbs, $_POST['checkedkeys']);
 
 // スレッドあぼーん
 } elseif (isset($_GET['taborn']) && !is_null($_GET['key']) && $host && $bbs) {
-    include_once P2_LIBRARY_DIR . '/settaborn.inc.php';
+    include_once P2_LIB_DIR . '/settaborn.inc.php';
     settaborn($host, $bbs, $_GET['key'], $_GET['taborn']);
 }
 
@@ -464,7 +464,7 @@ for ($x = 0; $x < $linesize; $x++) {
         //  subject.txt が未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
 
-            require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
 
             $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('subthre_read');
@@ -682,30 +682,30 @@ if ($_conf['ktai']) {
     // }}}
 
     // ヘッダプリント
-    include_once P2_LIBRARY_DIR . '/sb_header_k.inc.php';
+    include_once P2_LIB_DIR . '/sb_header_k.inc.php';
 
     // メインプリント
-    include_once P2_LIBRARY_DIR . '/sb_print_k.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
+    include_once P2_LIB_DIR . '/sb_print_k.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
     sb_print_k($aThreadList);
 
     // フッタプリント
-    include_once P2_LIBRARY_DIR . '/sb_footer_k.inc.php';
+    include_once P2_LIB_DIR . '/sb_footer_k.inc.php';
 
 // PC
 } else {
     // ヘッダHTMLを表示
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sb_header');
-    include_once P2_LIBRARY_DIR . '/sb_header.inc.php';
+    include_once P2_LIB_DIR . '/sb_header.inc.php';
     flush();
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_header');
 
     // スレッドサブジェクトメイン部分HTML表示
-    include_once P2_LIBRARY_DIR . '/sb_print.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
+    include_once P2_LIB_DIR . '/sb_print.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
     sb_print($aThreadList);
 
     // フッタHTML表示
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sb_footer');
-    include_once P2_LIBRARY_DIR . '/sb_footer.inc.php';
+    include_once P2_LIB_DIR . '/sb_footer.inc.php';
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_footer');
 }
 
@@ -739,7 +739,7 @@ function autoTAbornOff(&$aThreadList, &$ta_keys)
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('abornoff');
 
     if (!$aThreadList->spmode and !$GLOBALS['word'] and !$GLOBALS['wakati_word'] and $aThreadList->threads and $ta_keys) {
-        include_once P2_LIBRARY_DIR . '/settaborn_off.inc.php';
+        include_once P2_LIB_DIR . '/settaborn_off.inc.php';
         // echo sizeof($ta_keys)."*<br>";
         $ta_vkeys = array_keys($ta_keys);
         settaborn_off($aThreadList->host, $aThreadList->bbs, $ta_vkeys);

@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php';
-include_once P2_LIBRARY_DIR . '/filectl.class.php';
+include_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -26,7 +26,7 @@ $synctitle = array(
 
 // ホストの同期
 if (isset($_POST['sync'])) {
-    include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+    include_once P2_LIB_DIR . '/BbsMap.class.php';
     $syncfile = $_conf['pref_dir'].'/'.$_POST['sync'];
     $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {

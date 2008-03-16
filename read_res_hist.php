@@ -3,9 +3,9 @@
 // フレーム分割画面、右下部分
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/res_hist.class.php';
-require_once P2_LIBRARY_DIR . '/read_res_hist.inc.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/res_hist.class.php';
+require_once P2_LIB_DIR . '/read_res_hist.inc.php';
 
 $_login->authorize(); // ユーザ認証
 

@@ -1,8 +1,8 @@
 <?php
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/wap.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/wap.class.php';
 
 /**
  * ¡2ch ID‚ÉƒƒOƒCƒ“‚·‚é

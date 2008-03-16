@@ -7,13 +7,13 @@
 */
 
 require_once 'conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';    //スレッドクラス読込
-require_once P2_LIBRARY_DIR . '/threadread.class.php';    //スレッドリードクラス読込
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/ngabornctl.class.php';
-require_once P2_LIBRARY_DIR . '/showthread.class.php';    //HTML表示クラス
-require_once P2_LIBRARY_DIR . '/showthreadpc.class.php';  //HTML表示クラス
-//require_once P2_LIBRARY_DIR . '/showthreadtree.class.php'; // ツリー表示クラス
+require_once P2_LIB_DIR . '/thread.class.php';    //スレッドクラス読込
+require_once P2_LIB_DIR . '/threadread.class.php';    //スレッドリードクラス読込
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once P2_LIB_DIR . '/showthread.class.php';    //HTML表示クラス
+require_once P2_LIB_DIR . '/showthreadpc.class.php';  //HTML表示クラス
+//require_once P2_LIB_DIR . '/showthreadtree.class.php'; // ツリー表示クラス
 
 $_login->authorize(); // ユーザ認証
 

@@ -5,7 +5,7 @@
     // 各種BBSに対応できるプロファイルクラスみたいなのを作りたいものだ。。 aki
 */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * したらばJBBSの rawmode.cgi を読んで、datに保存する（2ch風に整形）

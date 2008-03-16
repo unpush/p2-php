@@ -33,7 +33,7 @@ if (isset($_GET['cmd'])) {
 
 if ($cmd == 'delelog') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
-        include_once P2_LIBRARY_DIR . '/dele.inc.php';
+        include_once P2_LIB_DIR . '/dele.inc.php';
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
         if (empty($r)) {
             $r_msg = "0"; // Ž¸”s
@@ -49,7 +49,7 @@ if ($cmd == 'delelog') {
 
 } elseif ($cmd == 'setfav') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
-        include_once P2_LIBRARY_DIR . '/setfav.inc.php';
+        include_once P2_LIB_DIR . '/setfav.inc.php';
         if (isset($_REQUEST['setnum'])) {
             $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav'], $_REQUEST['setnum']);
         } else {
@@ -67,7 +67,7 @@ if ($cmd == 'delelog') {
 
 } elseif ($cmd == 'taborn') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['taborn'])) {
-        include_once P2_LIBRARY_DIR . '/settaborn.inc.php';
+        include_once P2_LIB_DIR . '/settaborn.inc.php';
         $r = settaborn($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['taborn']);
         if (empty($r)) {
             $r_msg = "0"; // Ž¸”s

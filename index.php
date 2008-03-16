@@ -2,7 +2,7 @@
 // rep2 -  インデックスページ
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -30,7 +30,7 @@ if ($_conf['ktai']) {
         header('Location: '.$me_dir_url.'/read.php?'.$_SERVER['QUERY_STRING']);
         exit;
     }
-    include_once P2_LIBRARY_DIR . '/index_print_k.inc.php';
+    include_once P2_LIB_DIR . '/index_print_k.inc.php';
     index_print_k();
 
 } else {

@@ -29,10 +29,10 @@ if (get_magic_quotes_gpc()) {
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
 
 // ポップアップウインドウ？
 $isPopUp = empty($_GET['popup']) ? 0 : 1;
@@ -44,10 +44,6 @@ $isPopUp = empty($_GET['popup']) ? 0 : 1;
 
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
-
-// DB_DataObjectの設定
-$_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => FALSE, 'quote_identifiers' => TRUE);
 
 // フォームのデフォルト値
 $qf_defaults = array(
@@ -138,7 +134,7 @@ $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'cp932',
     'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
-    'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
+    'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 

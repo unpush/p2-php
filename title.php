@@ -2,7 +2,7 @@
 // p2 -  タイトルページ
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -43,7 +43,7 @@ if (!in_array($_conf['pref_dir'], $checked_dirs)) {
 if ($array = P2Util::readIdPw2ch()) {
     list($login2chID, $login2chPW, $autoLogin2ch) = $array;
     if ($autoLogin2ch) {
-        include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
+        include_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     }
 }

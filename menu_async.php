@@ -7,8 +7,8 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/brdctl.class.php';
-require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
+require_once P2_LIB_DIR . '/brdctl.class.php';
+require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
 
 $_login->authorize(); //ÉÜÅ[ÉUîFèÿ
 
@@ -36,7 +36,7 @@ if (isset($_GET['m_favita_set'])) {
 // RSS
 } elseif (isset($_GET['m_rss_set'])) {
     ob_start();
-    @include_once P2EX_LIBRARY_DIR . '/rss/menu.inc.php';
+    @include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
     $menuItem = ob_get_clean();
     $menuItem = preg_replace('/^\s*<div class="menu_cate">.+?<div class="itas" id="c_rss">\s*/s', '', $menuItem);
     $menuItem = preg_replace('/\s*<\/div>\s*<\/div>\s*$/s', '', $menuItem);

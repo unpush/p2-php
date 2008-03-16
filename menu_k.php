@@ -4,8 +4,8 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/brdctl.class.php';
-require_once P2_LIBRARY_DIR . '/showbrdmenuk.class.php';
+require_once P2_LIB_DIR . '/brdctl.class.php';
+require_once P2_LIB_DIR . '/showbrdmenuk.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -31,7 +31,7 @@ if (isset($word) && strlen($word) > 0) {
     }
 
     // and検索
-    include_once P2_LIBRARY_DIR . '/strctl.class.php';
+    include_once P2_LIB_DIR . '/strctl.class.php';
     $word_fm = StrCtl::wordForMatch($word, 'and');
     if (P2_MBREGEX_AVAILABLE == 1) {
         $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
@@ -49,7 +49,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
+    include_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -101,7 +101,7 @@ if($_GET['view']=="favita"){
     if ($mobile->isNonMobile()) {
         output_add_rewrite_var('b', 'k');
     }
-    @include_once P2EX_LIBRARY_DIR . '/rss/menu.inc.php';
+    @include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
 
 
 // それ以外ならbrd読み込み

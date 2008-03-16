@@ -122,7 +122,7 @@
 <tbody>
 <?php
 $R = true;
-include_once P2_LIBRARY_DIR . '/thread.class.php';
+include_once P2_LIB_DIR . '/thread.class.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);

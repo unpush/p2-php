@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -35,7 +35,7 @@ $idx_host_dir = P2Util::idxDirOfHost($host);
 $key_idx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 
 // フォームのオプション読み込み
-include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
+include_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
 // 表示指定
 if (!$_conf['ktai']) {
@@ -125,7 +125,7 @@ echo $_info_msg_ht;
 $_info_msg_ht = '';
 
 // $htm['post_form'] を取得
-include_once P2_LIBRARY_DIR . '/post_form.inc.php';
+include_once P2_LIB_DIR . '/post_form.inc.php';
 
 echo $htm['orig_msg'];
 echo $htm['dpreview'];

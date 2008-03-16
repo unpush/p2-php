@@ -114,7 +114,7 @@ class SubjectTxt{
             $code = $req->getResponseCode();
             if ($code == 302) {
                 // ƒzƒXƒg‚ÌˆÚ“]‚ð’ÇÕ
-                include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+                include_once P2_LIB_DIR . '/BbsMap.class.php';
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
                     $aNewSubjectTxt = &new SubjectTxt($new_host, $this->bbs);

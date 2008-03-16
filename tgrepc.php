@@ -281,9 +281,9 @@ if (empty($_GET['M'])) {
     P2Util::header_nocache();
 }
 if (!$_conf['ktai']) {
-    include P2EX_LIBRARY_DIR . '/tgrep/view.inc.php';
+    include P2EX_LIB_DIR . '/tgrep/view.inc.php';
 } else {
-    include P2EX_LIBRARY_DIR . '/tgrep/view_k.inc.php';
+    include P2EX_LIB_DIR . '/tgrep/view_k.inc.php';
 }
 
 // }}}

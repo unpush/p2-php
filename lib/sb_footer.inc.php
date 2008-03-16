@@ -58,7 +58,7 @@ echo <<<EOP
 EOP;
 
 // sbject ツールバー =====================================
-include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
+include P2_LIB_DIR . '/sb_toolbar.inc.php';
 
 echo "<p>";
 echo $dat_soko_ht;

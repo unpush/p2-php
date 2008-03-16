@@ -49,7 +49,7 @@ $xml_ht = P2Util::re_htmlspecialchars($xml);
 //============================================================
 
 if ($xml) {
-    require_once P2EX_LIBRARY_DIR . '/rss/parser.inc.php';
+    require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
     $rss = &p2GetRSS($xml, $atom);
     if (is_a($rss, 'XML_Parser')) {
         clearstatcache();
@@ -102,4 +102,4 @@ if ($_conf['ktai']) {
     }
 }
 echo $_conf['doctype'];
-include P2EX_LIBRARY_DIR . '/rss/' . ($_conf['ktai'] ? 'read_k' : 'read') . '.inc.php';
+include P2EX_LIB_DIR . '/rss/' . ($_conf['ktai'] ? 'read_k' : 'read') . '.inc.php';

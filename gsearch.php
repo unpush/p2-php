@@ -44,9 +44,9 @@ if ($_conf['view_forced_by_query']) {
 // {{{ Init
 
 // ライブラリ読み込み
-require_once P2EX_LIBRARY_DIR . '/google/search.class.php';
-require_once P2EX_LIBRARY_DIR . '/google/converter.class.php';
-require_once P2EX_LIBRARY_DIR . '/google/renderer.class.php';
+require_once P2EX_LIB_DIR . '/google/search.class.php';
+require_once P2EX_LIB_DIR . '/google/converter.class.php';
+require_once P2EX_LIB_DIR . '/google/renderer.class.php';
 
 // Google Search WSDLファイルのパス
 $wsdl = $_conf['expack.google.wsdl'];

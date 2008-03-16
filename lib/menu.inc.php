@@ -6,8 +6,8 @@
     menu.php, menu_side.php より読み込まれる
 */
 
-require_once P2_LIBRARY_DIR . '/brdctl.class.php';
-require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
+require_once P2_LIB_DIR . '/brdctl.class.php';
+require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -35,7 +35,7 @@ if (isset($word) && strlen($word) > 0) {
     }
 
     // and検索
-    include_once P2_LIBRARY_DIR . '/strctl.class.php';
+    include_once P2_LIB_DIR . '/strctl.class.php';
     $word_fm = StrCtl::wordForMatch($word, 'and');
     if (P2_MBREGEX_AVAILABLE == 1) {
         $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
@@ -54,7 +54,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
+    include_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -238,21 +238,21 @@ flush();
 // ■tGrep一発検索をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.quicksearch']) {
-    include_once P2EX_LIBRARY_DIR . '/tgrep/menu_quick.inc.php';
+    include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
 }
 
 //==============================================================
 // ■tGrep検索履歴をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.recent_num'] > 0) {
-    include_once P2EX_LIBRARY_DIR . '/tgrep/menu_recent.inc.php';
+    include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
 }
 
 //==============================================================
 // ■RSSをプリントする
 //==============================================================
 if ($_conf['expack.rss.enabled']) {
-    include_once P2EX_LIBRARY_DIR . '/rss/menu.inc.php';
+    include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
 }
 
 flush();

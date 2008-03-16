@@ -3,7 +3,7 @@
     p2 - ‚Ü‚¿BBS—p‚ÌŠÖ”
 */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * ‚Ü‚¿BBS‚Ì read.pl ‚ğ“Ç‚ñ‚Å dat‚É•Û‘¶‚·‚é

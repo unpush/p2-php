@@ -1,7 +1,7 @@
 <?php
 
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
 * htmlspecialchars($value, ENT_QUOTES) のショートカット
@@ -38,7 +38,7 @@ class P2Util{
         }
 
         // DL
-        include_once P2_LIBRARY_DIR . '/wap.class.php';
+        include_once P2_LIB_DIR . '/wap.class.php';
         $wap_ua =& new UserAgent();
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req =& new Request();
@@ -152,7 +152,7 @@ class P2Util{
 
         // 板名Longの取得
         if (!isset($p2_setting['itaj'])) {
-            require_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+            require_once P2_LIB_DIR . '/BbsMap.class.php';
             $itaj = BbsMap::getBbsName($host, $bbs);
             if ($itaj != $bbs) {
                 $ita_names[$id] = $p2_setting['itaj'] = $itaj;
@@ -696,7 +696,7 @@ class P2Util{
     {
         global $_conf;
 
-        include_once P2_LIBRARY_DIR . '/md5_crypt.inc.php';
+        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         $md5_crypt_key = P2Util::getAngoKey();
         $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
@@ -724,7 +724,7 @@ EOP;
     {
         global $_conf;
 
-        include_once P2_LIBRARY_DIR . '/md5_crypt.inc.php';
+        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         if (!file_exists($_conf['idpw2ch_php'])) {
             return false;

@@ -22,19 +22,15 @@ if (!$_conf['expack.ic2.enabled']) {
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
 require_once 'HTML/Template/Flexy.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
 
 // }}}
 // {{{ 設定と消去
 
-// 設定読み込み
+// 設定ファイル読み込み
 $ini = ic2_loadconfig();
-
-// DB_DataObjectの設定
-$_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => FALSE, 'quote_identifiers' => TRUE);
 
 if (!isset($_REQUEST['table'])) {
     die('<html><body><p>ic2 error - 不正なクエリ</p></body></html>');
@@ -43,13 +39,13 @@ if (!isset($_REQUEST['table'])) {
 $mode = $_REQUEST['table'];
 switch ($mode) {
     case 'errlog':
-        require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
+        require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
         $table = &new IC2DB_Errors;
         $table->orderBy('occured ASC');
         $title = 'エラーログ';
         break;
     case 'blacklist':
-        require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
+        require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
         $table = &new IC2DB_BlackList;
         $table->orderBy('uri ASC');
         $title = 'ブラックリスト';
@@ -81,7 +77,7 @@ $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'cp932',
     'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
-    'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
+    'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 

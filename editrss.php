@@ -5,8 +5,8 @@
 // p2 - RSS編集
 
 include_once './conf/conf.inc.php';
-include_once P2_LIBRARY_DIR . '/filectl.class.php';
-include_once P2_LIBRARY_DIR . '/strctl.class.php';
+include_once P2_LIB_DIR . '/filectl.class.php';
+include_once P2_LIB_DIR . '/strctl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -19,7 +19,7 @@ $_info_msg_ht = '';
 
 //RSSの追加・削除、並び替え
 if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_setrss'])) {
-    include P2EX_LIBRARY_DIR . '/rss/setrss.inc.php';
+    include P2EX_LIB_DIR . '/rss/setrss.inc.php';
 }
 
 // プリント用変数 ======================================================

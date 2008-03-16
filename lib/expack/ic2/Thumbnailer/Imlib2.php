@@ -27,15 +27,15 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
      */
     function save($source, $thumbnail, $size)
     {
-        $dst = &$this->_convert($source, $size);
+        $dst = $this->_convert($source, $size);
         $err = 0;
         // サムネイルを保存
-        if ($this->_png) {
+        if ($this->isPng()) {
             imlib2_image_set_format($dst, 'png');
             $result = imlib2_save_image($dst, $thumbnail, $err);
         } else {
             imlib2_image_set_format($dst, 'jpeg');
-            $result = imlib2_save_image($dst, $thumbnail, $err, $this->_quality);
+            $result = imlib2_save_image($dst, $thumbnail, $err, $this->getQuality());
         }
         imlib2_free_image($dst);
         if (!$result) {
@@ -63,16 +63,16 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
      */
     function capture($source, $size)
     {
-        $dst = &$this->_convert($source, $size);
+        $dst = $this->_convert($source, $size);
         $err = 0;
         // サムネイルを作成
         $tempfile = $this->_tempnam();
-        if ($this->_png) {
+        if ($this->isPng()) {
             imlib2_image_set_format($dst, 'png');
             $result = imlib2_save_image($dst, $tempfile, $err);
         } else {
             imlib2_image_set_format($dst, 'jpeg');
-            $result = imlib2_save_image($dst, $tempfile, $err, $this->_quality);
+            $result = imlib2_save_image($dst, $tempfile, $err, $this->getQuality());
         }
         imlib2_free_image($dst);
         if (!$result) {
@@ -98,16 +98,16 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
      */
     function output($source, $name, $size)
     {
-        $dst = &$this->_convert($source, $size);
+        $dst = $this->_convert($source, $size);
         $err = 0;
         // サムネイルを出力
         $this->_httpHeader($name);
-        if ($this->_png) {
+        if ($this->isPng()) {
             imlib2_image_set_format($dst, 'png');
             $result = imlib2_dump_image($dst, $err);
         } else {
             imlib2_image_set_format($dst, 'jpeg');
-            $result = imlib2_dump_image($dst, $err, $this->_quality);
+            $result = imlib2_dump_image($dst, $err, $this->getQuality());
         }
         imlib2_free_image($dst);
         if (!$result) {
@@ -141,15 +141,16 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
         }
         // サムネイルのイメージストリームを作成
         $dst = imlib2_create_image($tw, $th);
-        imlib2_image_fill_rectangle($dst, 0, 0, $tw, $th, $this->_bgcolor[0], $this->_bgcolor[1], $this->_bgcolor[2], $this->_bgcolor[3]);
+        $bgcolor = $this->getBgColor();
+        imlib2_image_fill_rectangle($dst, 0, 0, $tw, $th, $bgcolor[0], $bgcolor[1], $bgcolor[2], $bgcolor[3]);
         // ソースをサムネイルにコピー
         /* imlib_blend_image_onto_image(int dstimg, int srcimg, int malpha, int srcx, int srcy, int srcw, int srch,
             int dstx, int dsty, int dstw, int dsth, char dither, char blend, char alias) */
-        imlib2_blend_image_onto_image($dst, $src, 255, $sx, $sy, $sw, $sh, 0, 0, $tw, $th, false, true, $this->_resampling);
+        imlib2_blend_image_onto_image($dst, $src, 255, $sx, $sy, $sw, $sh, 0, 0, $tw, $th, false, true, $this->doesResampling());
         imlib2_free_image($src);
         // 回転
-        if ($this->_rotation) {
-            imlib2_image_orientate($dst, $this->_rotation / 90);
+        if ($degrees = $this->getRotation()) {
+            imlib2_image_orientate($dst, $degrees / 90);
         }
         return $dst;
     }

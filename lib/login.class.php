@@ -1,7 +1,7 @@
 <?php
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/session.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/session.class.php';
 
 /**
  * p2 - ログイン認証を扱うクラス
@@ -25,7 +25,7 @@ class Login{
         if ($login_user == NULL) {
 
             // ログイン失敗
-            include_once P2_LIBRARY_DIR . '/login_first.inc.php';
+            include_once P2_LIB_DIR . '/login_first.inc.php';
             printLoginFirst($this);
             exit;
         }
@@ -114,7 +114,7 @@ class Login{
 
         if (!$this->authCheck()) {
             // ログイン失敗
-            include_once P2_LIBRARY_DIR . '/login_first.inc.php';
+            include_once P2_LIB_DIR . '/login_first.inc.php';
             printLoginFirst($this);
             exit;
         }
@@ -588,7 +588,7 @@ EOP;
             return false;
         }
 
-        include_once P2_LIBRARY_DIR . '/md5_crypt.inc.php';
+        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         $key = $this->getMd5CryptKey();
 
@@ -609,7 +609,7 @@ EOP;
     {
         global $_conf;
 
-        include_once P2_LIBRARY_DIR . '/md5_crypt.inc.php';
+        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         $key = $this->getMd5CryptKey();
 

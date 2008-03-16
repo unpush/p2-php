@@ -18,13 +18,125 @@ class Thumbnailer_Common
     // {{{ protected properties
 
     var $_bgcolor = array(0, 0, 0, 255);
-    var $_http;
-    var $_png;
+    var $_http = false;
+    var $_png = false;
     var $_quality = 70;
     var $_resampling = true;
     var $_rotation = 0;
     var $_tempDir = '/tmp';
     var $_trimming = false;
+
+    // }}}
+    // {{{ getBgColor()
+
+    /**
+     * Gets background color.
+     *
+     * @access public
+     * @return array
+     */
+    function getBgColor()
+    {
+        return $this->_bgcolor;
+    }
+
+    // }}}
+    // {{{ isHttp()
+
+    /**
+     * Gets whether to output HTTP headers.
+     *
+     * @access public
+     * @return bool
+     */
+    function isHttp()
+    {
+        return $this->_http;
+    }
+
+    // }}}
+    // {{{ isPng()
+
+    /**
+     * Gets whether to save as png or jpeg.
+     *
+     * @access public
+     * @return bool
+     */
+    function isPng()
+    {
+        return $this->_png;
+    }
+
+    // }}}
+    // {{{ getQuality()
+
+    /**
+     * Gets quality.
+     *
+     * @access public
+     * @return int
+     */
+    function getQuality()
+    {
+        return $this->_quality;
+    }
+
+    // }}}
+    // {{{ doesResampling()
+
+    /**
+     * Gets whether to reample or not.
+     *
+     * @access public
+     * @return bool
+     */
+    function doesResampling()
+    {
+        return $this->_resampling;
+    }
+
+    // }}}
+    // {{{ getRotation()
+
+    /**
+     * Gets rotation.
+     *
+     * @access public
+     * @return int
+     */
+    function getRotation()
+    {
+        return $this->_rotation;
+    }
+
+    // }}}
+    // {{{ getTempDir()
+
+    /**
+     * Gets temporaty directory.
+     *
+     * @access public
+     * @return string
+     */
+    function getTempDir()
+    {
+        return $this->_tempDir;
+    }
+
+    // }}}
+    // {{{ doesTrimming()
+
+    /**
+     * Gets whether to trim or not.
+     *
+     * @access public
+     * @return bool
+     */
+    function doesTrimming()
+    {
+        return $this->_trimming;
+    }
 
     // }}}
     // {{{ setBgColor()
@@ -114,9 +226,9 @@ class Thumbnailer_Common
      * @param int $angle
      * @return void
      */
-    function setRotation($angle)
+    function setRotation($degrees)
     {
-        $this->_rotation = $angle;
+        $this->_rotation = $degrees;
     }
 
     // }}}
@@ -249,7 +361,7 @@ class Thumbnailer_Common
      */
     function _httpHeader($name = null, $length = null)
     {
-        if ($this->_http) {
+        if ($this->isHttp()) {
             $mimetype = 'image/' . (($this->_png) ? 'png' : 'jpeg');
             if ($name) {
                 $name = 'filename="' . basename($name) . '"';

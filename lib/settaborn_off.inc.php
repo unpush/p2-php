@@ -3,7 +3,7 @@
     p2 - スレッドあぼーん複数一括解除処理
 */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * ■スレッドあぼーんを複数一括解除する

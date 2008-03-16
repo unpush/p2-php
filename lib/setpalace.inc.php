@@ -3,7 +3,7 @@
     p2 -  殿堂入り関係の処理
 */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
  * スレを殿堂入りにセットする
@@ -64,7 +64,7 @@ function setPal($host, $bbs, $key, $setpal)
     // 新規データ設定
     if ($setpal) {
         $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
+        include_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setpal);
     } else {
         $rec_lines = $neolines;

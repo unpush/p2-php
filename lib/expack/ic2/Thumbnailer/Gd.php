@@ -29,10 +29,10 @@ class Thumbnailer_Gd extends Thumbnailer_Common
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを保存
-        if ($this->_png) {
+        if ($this->isPng()) {
             $result = imagepng($dst, $thumbnail);
         } else {
-            $result = imagejpeg($dst, $thumbnail, $this->_quality);
+            $result = imagejpeg($dst, $thumbnail, $this->getQuality());
         }
         imagedestroy($dst);
         if (!$result) {
@@ -57,10 +57,10 @@ class Thumbnailer_Gd extends Thumbnailer_Common
         $dst = $this->_convert($source, $size);
         // サムネイルを作成
         ob_start();
-        if ($this->_png) {
+        if ($this->isPng()) {
             $result = imagepng($dst);
         } else {
-            $result = imagejpeg($dst, '', $this->_quality);
+            $result = imagejpeg($dst, '', $this->getQuality());
         }
         $retval = ob_get_clean();
         imagedestroy($dst);
@@ -86,10 +86,10 @@ class Thumbnailer_Gd extends Thumbnailer_Common
         $dst = $this->_convert($source, $size);
         // サムネイルを出力
         $this->_httpHeader($name);
-        if ($this->_png) {
+        if ($this->isPng()) {
             $result = imagepng($dst);
         } else {
-            $result = imagejpeg($dst, '', $this->_quality);
+            $result = imagejpeg($dst, '', $this->getQuality());
         }
         imagedestroy($dst);
         if (!$result) {
@@ -127,20 +127,19 @@ class Thumbnailer_Gd extends Thumbnailer_Common
         }
         // サムネイルのイメージストリームを作成
         $dst = imagecreatetruecolor($tw, $th);
-        if (!is_null($this->_bgcolor)) {
-            $bg = imagecolorallocate($dst, $this->_bgcolor[0], $this->_bgcolor[1], $this->_bgcolor[2]);
-            imagefill($dst, 0, 0, $bg);
-        }
+        $bgcolor = $this->getBgColor();
+        $bg = imagecolorallocate($dst, $bgcolor[0], $bgcolor[1], $bgcolor[2]);
+        imagefill($dst, 0, 0, $bg);
         // ソースをサムネイルにコピー
-        if ($this->_resampling) {
+        if ($this->doesResampling()) {
             imagecopyresampled($dst, $src, 0, 0, $sx, $sy, $tw, $th, $sw, $sh);
         } else {
             imagecopy($dst, $src, 0, 0, $sx, $sy, $sw, $sh);
         }
         imagedestroy($src);
         // 回転
-        if ($this->_rotation) {
-            $degrees = ($this->_rotation == 90) ? -90 : (($this->_rotation == 270) ? 90: $this->_rotation);
+        if ($degrees = $this->getRotation()) {
+            $degrees = ($degrees == 90) ? -90 : (($degrees == 270) ? 90: $degrees);
             $tmp = imagerotate($dst, $degrees, $bg);
             imagedestroy($dst);
             return $tmp;

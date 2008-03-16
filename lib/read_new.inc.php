@@ -3,7 +3,7 @@
     p2 - for read_new.php, read_new_k.php
 */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 //===============================================
 // ä÷êî

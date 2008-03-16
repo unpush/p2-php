@@ -1,7 +1,7 @@
 <?php
 // p2 - ‘‚«ž‚Ý—š—ð ‚Ì‚½‚ß‚ÌŠÖ”ŒQ
 
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
 
 //======================================================================
 // ŠÖ”

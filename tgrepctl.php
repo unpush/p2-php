@@ -23,11 +23,11 @@ if (isset($_GET['file'])) {
     switch ($_GET['file']) {
     case 'quick':
         $list_file = $_conf['expack.tgrep.quick_file'];
-        $include_file = P2EX_LIBRARY_DIR . '/tgrep/menu_quick.inc.php';
+        $include_file = P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
         break;
     case 'recent':
         $list_file = $_conf['expack.tgrep.recent_file'];
-        $include_file = P2EX_LIBRARY_DIR . '/tgrep/menu_recent.inc.php';
+        $include_file = P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
         break;
     default:
         if ($_conf['ktai']) {

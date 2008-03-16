@@ -9,9 +9,9 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/threadlist.class.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/threadlist.class.php';
+require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $shinchaku_num = 0;
 if (!empty($aThreadList)) {
@@ -287,7 +287,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         //  subject.txt‚ª–¢DL‚È‚ç—Ž‚Æ‚µ‚Äƒf[ƒ^‚ð”z—ñ‚ÉŠi”[
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
 
-            require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
 
             $debug && $profiler->enterSection('subthre_read'); //

@@ -29,10 +29,10 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを保存
-        if ($this->_quality > 0) {
-            imagick_setcompressionquality($dst, $this->_quality);
+        if ($this->getQuality() > 0) {
+            imagick_setcompressionquality($dst, $this->getQuality());
         }
-        $prefix = (($this->_png) ? 'png' : 'jpeg') . ':';
+        $prefix = (($this->isPng()) ? 'png' : 'jpeg') . ':';
         $result = imagick_writeimage($dst, $prefix.$thumbnail);
         if (!$result) {
             $reason = imagick_failedreason($dst);
@@ -64,10 +64,10 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを作成
-        if ($this->_quality > 0) {
-            imagick_setcompressionquality($dst, $this->_quality);
+        if ($this->getQuality() > 0) {
+            imagick_setcompressionquality($dst, $this->getQuality());
         }
-        $prefix = (($this->_png) ? 'png' : 'jpeg') . ':';
+        $prefix = (($this->isPng()) ? 'png' : 'jpeg') . ':';
         $tempfile = $this->_tempnam();
         $result = imagick_writeimage($dst, $prefix.$tempfile);
         if (!$result) {
@@ -101,10 +101,10 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを出力
-        if ($this->_quality) {
-            imagick_setcompressionquality($dst, $this->_quality);
+        if ($this->getQuality()) {
+            imagick_setcompressionquality($dst, $this->getQuality());
         }
-        $prefix = (($this->_png) ? 'png' : 'jpeg') . ':';
+        $prefix = (($this->isPng()) ? 'png' : 'jpeg') . ':';
         $tempfile = $this->_tempnam();
         $result = imagick_writeimage($dst, $prefix.$tempfile);
         if (!$result) {
@@ -146,20 +146,21 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
             return $error;
         }
         // サムネイルのイメージストリームを作成
-        $bg = sprintf('rgb(%d,%d,%d)', $this->_bgcolor[0], $this->_bgcolor[1], $this->_bgcolor[2]);
+        $bgcolor = $this->getBgColor();
+        $bg = sprintf('rgb(%d,%d,%d)', $bgcolor[0], $bgcolor[1], $bgcolor[2]);
         $dst = imagick_getcanvas($bg, $tw, $th);
         // ソースをリサイズし、サムネイルにコピー
-        if ($sx != 0 || $sy != 0) {
+        if ($this->doesTrimming()) {
             imagick_crop($src, $sx, $sy, $sw, $sh);
         }
-        if ($this->_resampling) {
+        if ($this->doesResampling()) {
             imagick_scale($src, $tw, $th, '!');
         }
         imagick_composite($dst, IMAGICK_COMPOSITE_OP_ATOP, $src, 0, 0);
         imagick_destroyhandle($src);
         // 回転
-        if ($this->_rotation) {
-            imagick_rotate($dst, $this->_rotation);
+        if ($degrees = $this->getRotation()) {
+            imagick_rotate($dst, $degrees);
         }
         return $dst;
     }

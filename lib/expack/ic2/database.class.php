@@ -4,7 +4,7 @@
 
 require_once 'DB.php';
 require_once 'DB/DataObject.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 
 class IC2DB_Skel extends DB_DataObject
 {
@@ -32,23 +32,6 @@ class IC2DB_Skel extends DB_DataObject
             die("<p><b>Error:</b> DSNが設定されていません。</p>");
         }
 
-        // 拡張モジュールの読み込み
-        list($dbextension, ) = explode(':', $ini['General']['dsn'], 2);
-        if (!extension_loaded($dbextension)) {
-            $extdir = ini_get('extension_dir');
-            if (substr(PHP_OS, 0, 3) == 'WIN') {
-                $dbmodulename = 'php_' . $dbextension . '.dll';
-            } else {
-                $dbmodulename = $dbextension . '.so';
-            }
-            $dbmodulepath = $extdir . DIRECTORY_SEPARATOR . $dbmodulename;
-            if (!file_exists($dbmodulepath)) {
-                die("<p><b>Error:</b> {$dbmodulename}が{$extdir}にありません。</p>");
-            } elseif (!@dl($dbmodulename)) {
-                die("<p><b>Error:</b> {$dbmodulename}をロードできませんでした。</p>");
-            }
-        }
-
         // データベースへ接続
         $this->_database_dsn = $ini['General']['dsn'];
         $this->_db = &$this->getDatabaseConnection();
@@ -58,26 +41,28 @@ class IC2DB_Skel extends DB_DataObject
 
         // クライアントの文字セットに UTF-8 を指定
         if (!$set_to_utf8) {
-            switch (strtolower($dbextension)) {
+            $driver = strtolower($dbextension);
+
+            switch ($driver) {
             case 'mysql':
             case 'mysqli':
-                $version = &$this->_db->getRow("SHOW VARIABLES LIKE 'version'", array(), DB_FETCHMODE_ORDERED);
-                if (!DB::isError($version) && version_compare($version[1], '4.1.0') != -1) {
-                    $charset = &$this->_db->getRow("SHOW VARIABLES LIKE 'character_set_database'", array(), DB_FETCHMODE_ORDERED);
-                    if (!DB::isError($charset) && $charset[1] == 'latin1') {
-                        $errmsg = "<p><b>Warning:</b> データベースの文字セットが latin1 に設定されています。</p>";
-                        $errmsg .= "<p>mysqld の default-character-set が binary, ujis, utf8 等でないと日本語の文字が壊れるので ";
-                        $errmsg .= "<a href=\"http://www.mysql.gr.jp/frame/modules/bwiki/?FAQ#content_1_40\">日本MySQLユーザ会のFAQ</a>";
-                        $errmsg .= " を参考に my.cnf の設定を変えてください。</p>";
-                        die($errmsg);
-                    }
+                if ($driver == 'mysql' && function_exists('mysql_set_charset')) {
+                    mysql_set_charset('utf8', $this->_db->connection);
+                } elseif ($driver == 'mysqli' && function_exists('mysqli_set_charset')) {
+                    mysqli_set_charset($this->_db->connection, 'utf8');
+                } else {
+                    $this->_db->query("SET NAMES utf8");
                 }
-                $this->_db->query("SET NAMES utf8");
                 break;
             case 'pgsql':
-                $this->_db->query("SET CLIENT_ENCODING TO 'UTF8'");
+                if (function_exists('pg_set_client_encoding')) {
+                    pg_set_client_encoding($this->_db->connection, 'UNICODE');
+                } else {
+                    $this->_db->query("SET CLIENT_ENCODING TO 'UNICODE'");
+                }
                 break;
             }
+
             $set_to_utf8 = true;
         }
     }

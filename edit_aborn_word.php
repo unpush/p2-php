@@ -4,7 +4,7 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -97,14 +97,14 @@ if (file_exists($path)) {
     $i = 0;
     foreach ($lines as $line) {
         $lar = explode("\t", rtrim($line, "\r\n"));
-        if (count($lar) < 3 || strlen($lar[0]) == 0) {
+        if (strlen($lar[0]) == 0) {
             continue;
         }
         $ar = array(
             'cond' => $lar[0], // 検索条件
             'word' => $lar[0], // 対象文字列
-            'ht' => $lar[1], // 最後にHITした時間
-            'hn' => $lar[2], // HIT回数
+            'ht' => isset($lar[1]) ? $lar[1] : '--',    // 最後にHITした時間
+            'hn' => isset($lar[2]) ? (int)$lar[2] : 0,  // HIT回数
             're' => '', // 正規表現
             'ic' => '', // 大文字小文字を無視
             'bbs' => '', // 板

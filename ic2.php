@@ -18,21 +18,17 @@ if (!$_conf['expack.ic2.enabled']) {
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
 require_once 'HTTP/Client.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
 
 // 受け付けるMIMEタイプ
 $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
 
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
-
-// DB_DataObjectの設定
-$_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => false, 'quote_identifiers' => true);
 
 // }}}
 // {{{ prepare
@@ -198,7 +194,7 @@ if ($result) {
 }
 
 // 画像がブラックリストにあるか確認
-require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
 $blacklist = &new IC2DB_BlackList;
 if ($blacklist->get($uri)) {
     switch ($blacklist->type) {
@@ -219,7 +215,7 @@ if ($blacklist->get($uri)) {
 
 // 画像がエラーログにあるか確認
 if (!$force && $ini['Getter']['checkerror']) {
-    require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
+    require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
     $errlog = &new IC2DB_Errors;
     if ($errlog->get($uri)) {
         ic2_error($errlog->errcode, '', false);
@@ -700,7 +696,7 @@ function ic2_display($path, $params)
                 'locale' => 'ja',
                 'charset' => 'cp932',
                 'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
-                'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
+                'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
                 'numberFormat' => '', // ",0,'.',','" と等価
             );
             $flexy = &new HTML_Template_Flexy($_flexy_options);
@@ -818,7 +814,7 @@ function ic2_error($code, $optmsg = '', $write_log = true)
     }
 
     if ($write_log) {
-        require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
+        require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
         $logger = &new IC2DB_Errors;
         $logger->uri     = isset($uri) ? $uri : (isset($id) ? $id : $file);
         $logger->errcode = $code;

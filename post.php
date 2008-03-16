@@ -4,8 +4,8 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -159,7 +159,7 @@ if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['
 
     // ログイン後、24時間以上経過していたら自動再ログイン
     if (file_exists($_conf['idpw2ch_php']) and @filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
-        include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
+        include_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     }
 
@@ -686,7 +686,7 @@ function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+    require_once P2_LIB_DIR . '/SubjectTxt.class.php';
     $aSubjectTxt =& new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {

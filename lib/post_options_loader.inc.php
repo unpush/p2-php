@@ -1,8 +1,8 @@
 <?php
 // p2 - レス書き込みフォームの機能読み込み
 
-require_once P2_LIBRARY_DIR . '/SettingTxt.php';
-require_once P2_LIBRARY_DIR . '/strctl.class.php';
+require_once P2_LIB_DIR . '/SettingTxt.php';
+require_once P2_LIB_DIR . '/strctl.class.php';
 
 $js = array();
 
@@ -170,9 +170,9 @@ $_aapreveiw_aas = ($_conf['expack.aas.enabled'] && $_conf['expack.editor.with_aa
 
 if ($_conf['expack.editor.constant'] || $_aapreview_activemona || $_aapreveiw_aas) {
     if (!$_conf['ktai']) {
-        @include P2EX_LIBRARY_DIR . '/post_options.inc.php';
+        @include P2EX_LIB_DIR . '/post_options.inc.php';
     } else {
-        @include P2EX_LIBRARY_DIR . '/post_options_k.inc.php';
+        @include P2EX_LIB_DIR . '/post_options_k.inc.php';
     }
 }
 */
@@ -243,8 +243,8 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
     $q_resnum = $_GET['resnum'];
     $hd['MESSAGE'] = "&gt;&gt;" . $q_resnum . "\r\n";
     if (!empty($_GET['inyou'])) {
-        require_once P2_LIBRARY_DIR . '/thread.class.php';
-        require_once P2_LIBRARY_DIR . '/threadread.class.php';
+        require_once P2_LIB_DIR . '/thread.class.php';
+        require_once P2_LIB_DIR . '/threadread.class.php';
         $aThread = &new ThreadRead;
         $aThread->setThreadPathInfo($host, $bbs, $key);
         $aThread->readDat($aThread->keydat);

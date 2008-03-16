@@ -3,7 +3,7 @@
     p2 - 携帯用でスレッドを表示する クラス
 */
 
-require_once P2EX_LIBRARY_DIR . '/expack_loader.class.php';
+require_once P2EX_LIB_DIR . '/expack_loader.class.php';
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
 ExpackLoader::loadImageCache();
@@ -40,7 +40,7 @@ class ShowThreadK extends ShowThread{
         $this->url_handlers[] = 'plugin_linkURL';
 
         if (empty($_conf['k_bbs_noname_name'])) {
-            require_once P2_LIBRARY_DIR . '/SettingTxt.php';
+            require_once P2_LIB_DIR . '/SettingTxt.php';
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             $st->setSettingArray();
             if (!empty($st->setting_array['BBS_NONAME_NAME'])) {

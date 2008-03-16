@@ -139,7 +139,7 @@ class ThreadList{
                 );
                 foreach ($news as $n) {
 
-                    require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+                    require_once P2_LIB_DIR . '/SubjectTxt.class.php';
                     $aSubjectTxt =& new SubjectTxt($n['host'], $n['bbs']);
 
                     if (is_array($aSubjectTxt->subject_lines)) {
@@ -236,7 +236,7 @@ class ThreadList{
 
         // ■オンライン上の subject.txt を読み込む（spmodeでない場合）
         } else {
-            require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
             $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
             $lines =& $aSubjectTxt->subject_lines;
 
