@@ -35,7 +35,19 @@ EOP;
 // HTML表示用変数 for ツールバー(sb_toolbar.inc.php)
 //===============================================================
 
-$norefresh_q = "&amp;norefresh=true";
+$norefresh_q = '&amp;norefresh=true';
+$spmode_q = '';
+$spmode_q_a = '';
+if ($aThreadList->spmode) {
+    $spmode_q = 'spmode=' . $aThreadList->spmode;
+    if ($aThreadList->spmode == 'cate' && isset($_GET['cate_id'])) {
+        $spmode_q .= sprintf('&amp;cate_id=%d', $_GET['cate_id']);
+        if (isset($_GET['cate_name'])) {
+            $spmode_q .= '&amp;cate_name=' . rawurlencode($_GET['cate_name']);
+        }
+    }
+    $spmode_q_a = '&amp;' . $spmode_q;
+}
 
 // ページタイトル部分URL設定 ====================================
 if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
@@ -50,7 +62,7 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
 }
 
 // ページタイトル部分HTML設定 ====================================
-if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
+if ($aThreadList->spmode == 'fav' && $_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
     $ptitle_hd = FavSetManager::getFavSetPageTitleHt('m_favlist_set', $aThreadList->ptitle);
 } else {
     $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
@@ -78,9 +90,9 @@ EOP;
 if ($aThreadList->spmode) { // スペシャルモード時
     if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){    // お気にスレ or 殿堂なら
         if($sb_view=="edit"){
-            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
+            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?{$spmode_q}{$norefresh_q}\" target=\"_self\">並替</a>";
         }else{
-            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
+            $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?{$spmode_q}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
 
         }
     }
@@ -88,12 +100,22 @@ if ($aThreadList->spmode) { // スペシャルモード時
 
 // フォームhidden ==================================================
 $sb_form_hidden_ht = <<<EOP
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
     <input type="hidden" name="host" value="{$aThreadList->host}">
     <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-    {$_conf['k_input_ht']}
+    {$_conf['k_input_ht']}\n
 EOP;
+if ($aThreadList->spmode == 'cate') {
+    if (isset($_GET['cate_id'])) {
+        $sb_form_hidden_ht .= sprintf('<input type="hidden" name="cate_id" value="%d">',
+                                intval($_GET['cate_id'])) . "\n";
+    }
+    if (isset($_GET['cate_name'])) {
+        $sb_form_hidden_ht .= sprintf('<input type="hidden" name="cate_name" value="%s">',
+                                htmlspecialchars($_GET['cate_name'], ENT_QUOTES)). "\n";
+    }
+}
 
 //表示件数 ==================================================
 if(!$aThreadList->spmode || $aThreadList->spmode=="news"){
@@ -176,8 +198,7 @@ EOP;
 //===================================================================
 // HTMLプリント
 //===================================================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -189,7 +210,7 @@ EOP;
 
 if ($_conf['refresh_time']) {
     $refresh_time_s = $_conf['refresh_time'] * 60;
-    $refresh_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}";
+    $refresh_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$spmode_q_a}";
     echo <<<EOP
     <meta http-equiv="refresh" content="{$refresh_time_s};URL={$refresh_url}">
 EOP;
@@ -250,6 +271,17 @@ echo <<<EOP
             toid_obj.style.color="{$STYLE['thre_title_color_v']}";
         }
     }
+
+    /* フレームの自動リサイズは使い勝手イマイチだった
+    gResizedFrame = false;
+    function resizeFrame(){
+        var rr = window.parent.fsright;
+        if (rr) {
+            rr.rows ='*,30%';
+            gResizedFrame = true
+        }
+    }
+    */
     // -->
     </script>\n
 EOP;
@@ -281,8 +313,7 @@ EOP;
 
 include P2_LIBRARY_DIR . '/sb_toolbar.inc.php';
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 echo <<<EOP
     $taborn_check_ht
@@ -290,4 +321,13 @@ echo <<<EOP
     <table cellspacing="0" width="100%">\n
 EOP;
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

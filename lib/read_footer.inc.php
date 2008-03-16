@@ -6,16 +6,16 @@
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 //=====================================================================
-// ■フッタ
+// フッタ
 //=====================================================================
 
 if ($_conf['bottom_res_form']) {
 
-    $bbs = $aThread->bbs;
-    $key = $aThread->key;
-    $host = $aThread->host;
-    $rescount = $aThread->rescount;
-    $ttitle_en = base64_encode($aThread->ttitle);
+    $bbs        = $aThread->bbs;
+    $key        = $aThread->key;
+    $host       = $aThread->host;
+    $rescount   = $aThread->rescount;
+    $ttitle_en  = base64_encode($aThread->ttitle);
 
     $submit_value = '書き込む';
 
@@ -46,9 +46,9 @@ EOP;
 }
 
 // ============================================================
-$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+$sid_q = defined('SID') ? '&amp;'.strip_tags(SID) : '';
 
-if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
+if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // and empty($_GET['renzokupop'])
 
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
@@ -61,17 +61,18 @@ EOP;
 EOP;
         }
 
+        $htm['dores'] = '<span style="white-space: nowrap;">' . $htm['dores'] . '</span>';
         $res_form_ht_pb = $res_form_ht;
     }
 
     if ($res1['body']) {
-        $q_ichi = $res1['body']." | ";
+        $q_ichi = $res1['body'] . " | ";
     }
 
     // レスのすばやさ
     $htm['spd'] = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
-        $htm['spd'] = '<span class="spd" title="すばやさ＝時間/レス">' . $spd_st . '</span>';
+        $htm['spd'] = '<span class="spd" style="white-space: nowrap;" title="すばやさ＝時間/レス">' . "" . $spd_st."".'</span>';
     }
 
     // datサイズ
@@ -101,7 +102,7 @@ GOTO;
     */
 
     if (!empty($GLOBALS['last_hit_resnum'])) {
-        $read_navi_next_anchor = "";
+        $read_navi_next_anchor = '';
         if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
             $read_navi_next_anchor = "#r{$aThread->rescount}";
         }
@@ -113,10 +114,10 @@ GOTO;
     }
     // }}}
 
-    // ■プリント
+    // プリント
     echo <<<EOP
 <hr>
-<table id="footer" width="100%" style="padding:0px 10px 0px 0px;">
+<table id="footer" class="toolbar" width="100%" style="padding:0px 10px 0px 0px;">
     <tr>
         <td align="left">
             {$q_ichi}
@@ -143,11 +144,7 @@ GOTO;
 EOP;
 
     if ($diedat_msg) {
-        echo "<hr>";
-        echo $diedat_msg;
-        echo "<p>";
-        echo $motothre_ht;
-        echo "</p>";
+        echo "<hr>$diedat_msg<p>$motothre_ht</p>";
     }
 }
 
@@ -161,7 +158,15 @@ if (!empty($_GET['showres'])) {
 EOP;
 }
 
-// ====
 echo '</body></html>';
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

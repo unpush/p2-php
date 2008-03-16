@@ -2,21 +2,23 @@
 /**
  * スレッドを表示する クラス
  */
-class ShowThread{
-
-    var $thread; // スレッドオブジェクト
+class ShowThread
+{
+    var $thread; // スレッドオブジェクトの参照
 
     var $str_to_link_regex; // リンクすべき文字列の正規表現
+    var $str_to_link_limit = 30; // 一つのレスにおけるリンク変換の制限回数（荒らし対策）
 
-    var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列
+    var $url_handlers;      // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
+    var $user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
 
     var $ngaborn_frequent; // 頻出IDをあぼーんする
 
-    var $aborn_nums; // あぼーんレス番号を格納する配列
-    var $ng_nums; // NGレス番号を格納する配列
+    var $aborn_nums;    // あぼーんレス番号を格納する配列
+    var $ng_nums;       // NGレス番号を格納する配列
 
-    var $activeMona; // アクティブモナー・オブジェクト
-    var $am_enabled = false; // アクティブモナーが有効か否か
+    var $activeMona;            // アクティブモナー・オブジェクト
+    var $am_enabled = false;    // アクティブモナーが有効か否か
 
     /**
      * コンストラクタ
@@ -25,7 +27,7 @@ class ShowThread{
     {
         global $_conf;
 
-        // スレッドオブジェクトを登録
+        // スレッドオブジェクトの参照を登録
         $this->thread = &$aThread;
 
         $this->str_to_link_regex = '{'
@@ -45,15 +47,15 @@ class ShowThread{
             .       '(?=\\D|$)'
             .   ')' // 引用ここまで
             . '|'
-            .   '(?P<url>'
-            .       '(ftp|h?t?tps?)://([0-9A-Za-z][\\w!#%&+*,\\-./:;=?@\\[\\]^~]+)' // URL
-            .   ')'
+            .   '(?P<url>(ftp|h?t?tps?)://([0-9A-Za-z][\\w!#%&+*,\\-./:;=?@\\[\\]^~]+))' // URL
+            .   '([^\s<>]*)' // URLの直後、タグorホワイトスペースが現れるまでの文字列
             . '|'
             .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
             . ')'
             . '}';
 
         $this->url_handlers = array();
+        $this->user_url_handlers = array();
 
         $this->ngaborn_frequent = 0;
         if ($_conf['ngaborn_frequent']) {
@@ -70,10 +72,10 @@ class ShowThread{
 
     /**
      * DatをHTML変換して表示する
+     * （継承先クラスで実装）
      */
     function datToHtml()
     {
-        return '';
     }
 
     /**
@@ -91,6 +93,11 @@ class ShowThread{
 
     /**
      * BEプロファイルリンク変換
+     *
+     * @access  protected
+     * @param   string     $data_id  2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)
+     * @param   integer    $i        レス番号
+     * @return  string
      */
     function replaceBeId($date_id, $i)
     {
@@ -103,8 +110,8 @@ class ShowThread{
         if (preg_match($be_match, $date_id)) {
             $date_id = preg_replace($be_match, $beid_replace, $date_id);
 
+        // 2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)
         } else {
-
             $beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/test/read.cgi/{$this->thread->bbs}/{$this->thread->key}/{$i}\"{$_conf['ext_win_target_at']}>?\$2</a>";
             $date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
         }
@@ -115,8 +122,10 @@ class ShowThread{
 
     /**
      * NGあぼーんチェック
+     *
+     * @return  string|false
      */
-    function ngAbornCheck($code, $resfield, $ic = FALSE)
+    function ngAbornCheck($code, $resfield, $ic = false)
     {
         global $ngaborns;
 
@@ -125,12 +134,12 @@ class ShowThread{
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
             foreach ($ngaborns[$code]['data'] as $k => $v) {
                 // 板チェック
-                if (isset($v['bbs']) && in_array($this->thread->bbs, $v['bbs']) == FALSE) {
+                if (isset($v['bbs']) && in_array($this->thread->bbs, $v['bbs']) == false) {
                     continue;
                 }
 
                 // タイトルチェック
-                if (isset($v['title']) && stristr($this->thread->ttitle_hc, $v['title']) === FALSE) {
+                if (isset($v['title']) && stristr($this->thread->ttitle_hc, $v['title']) === false) {
                     continue;
                 }
 
@@ -179,6 +188,8 @@ class ShowThread{
 
     /**
      * 特定レスの透明あぼーんチェック
+     *
+     * @return  boolean
      */
     function abornResCheck($resnum)
     {
@@ -200,6 +211,8 @@ class ShowThread{
 
     /**
      * NG/あぼ～ん日時と回数を更新
+     *
+     * @return  void
      */
     function ngAbornUpdate($code, $k)
     {
@@ -217,25 +230,35 @@ class ShowThread{
     }
 
     /**
-     * url_handlersに関数・メソッドを追加する
+     * ユーザ定義URLハンドラ（メッセージ中のURLを書き換える関数）を追加する
      *
-     * url_handlersは最後にaddURLHandler()されたものから実行される
+     * ハンドラは最初に追加されたものから順番に試行される
+     * URLはハンドラの返り値（文字列）で置換される
+     * FALSEを帰した場合は次のハンドラに処理が委ねられる
+     *
+     * ユーザ定義URLハンドラの引数は
+     *  1. string $url  URL
+     *  2. array  $purl URLをparse_url()したもの
+     *  3. string $str  パターンにマッチした文字列、URLと同じことが多い
+     *  4. object &$aShowThread 呼び出し元のオブジェクト
+     * である
+     * 常にFALSEを返し、内部で処理するだけの関数を登録してもよい
+     *
+     * @param   string|array $function  関数名か、array(string $classname, string $methodname)
+     *                                  もしくは array(object $instance, string $methodname)
+     * @return  void
+     * @access  public
+     * @todo    ユーザ定義URLハンドラのオートロード機能を実装
      */
-    function addURLHandler($name, $handler)
+    function addURLHandler($function)
     {
-        ;
-    }
-
-    /**
-     * url_handlersから関数・メソッドを削除する
-     */
-    function removeURLHandler($name)
-    {
-        ;
+        $this->user_url_handlers[] = $function;
     }
 
     /**
      * レスフィルタリングのターゲットを得る
+     *
+     * @return  string
      */
     function getFilterTarget(&$ares, &$i, &$name, &$mail, &$date_id, &$msg)
     {
@@ -265,13 +288,15 @@ class ShowThread{
 
     /**
      * レスフィルタリングのマッチ判定
+     *
+     * @return  boolean
      */
     function filterMatch(&$target, &$resnum)
     {
         global $_conf;
         global $filter_hits, $filter_range;
 
-        $failed = ($GLOBALS['res_filter']['match'] == 'off') ? TRUE : FALSE;
+        $failed = ($GLOBALS['res_filter']['match'] == 'off') ? true : false;
 
         if ($GLOBALS['res_filter']['method'] == 'and') {
             $words_fm_hit = 0;
@@ -295,7 +320,8 @@ class ShowThread{
 
         $GLOBALS['filter_hits']++;
 
-        if ($_conf['filtering'] && !empty($filter_range) &&
+        // 表示範囲外なら偽判定とする
+        if (isset($GLOBALS['word']) && !empty($filter_range) &&
             ($filter_hits < $filter_range['start'] || $filter_hits > $filter_range['to'])
         ) {
             return false;
@@ -303,7 +329,7 @@ class ShowThread{
 
         $GLOBALS['last_hit_resnum'] = $resnum;
 
-        if (empty($_conf['ktai'])) {
+        if (!$_conf['ktai']) {
             echo <<<EOP
 <script type="text/javascript">
 <!--
@@ -316,4 +342,14 @@ EOP;
         return true;
     }
 }
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

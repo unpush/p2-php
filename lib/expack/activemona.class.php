@@ -1,9 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    rep2 機能拡張パック - アクティブモナー・クラス
-*/
+/**
+ * rep2expack - アクティブモナー・クラス
+ */
 class ActiveMona
 {
     // モナーフォント表示スイッチ
@@ -75,4 +73,13 @@ class ActiveMona
 
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

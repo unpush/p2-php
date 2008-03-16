@@ -1,8 +1,6 @@
 <?php
 // p2 ースタイル設定
 // for read.php
-// vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
-// mi: charset=Shift_JIS
 
 if (!isset($STYLE['respop_bgcolor']))	{ $STYLE['respop_bgcolor'] = '#ffffcc'; }
 if (!isset($STYLE['respop_background'])) { $STYLE['respop_background'] = ''; }
@@ -15,11 +13,11 @@ $respop_border = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {
 
 $respop_color = '';
 if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
-	$respop_color = "color:{$STYLE['respop_color']};";
+    $respop_color = "color:{$STYLE['respop_color']};";
 }
 
 if($STYLE['fontfamily_bold']){
-	echo <<<EOSTYLE
+    echo <<<EOSTYLE
 
 h3{font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";} /* スレッドタイトル*/
 
@@ -44,7 +42,9 @@ a:hover{color:{$STYLE['read_acolor_h']};}
 i{font-style:normal;} /* 引用レス*/
 dd.respopup{margin:8px 8px;} /* レスポップアップ*/
 
-.thread_title{margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};}
+.thread_title{
+	margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};
+}
 .thre_title{color:{$STYLE['read_thread_title_color']};}
 .name{color:{$STYLE['read_name_color']};} /* 投稿者の名前 */
 .mail{color:{$STYLE['read_mail_color']};} /* 投稿者のmail */
@@ -205,11 +205,20 @@ EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-	include_once (P2_STYLE_DIR . '/mystyle_css.php');
-	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-	if (isset($MYSTYLE[$_mystylename])) {
-		disp_mystyle($_mystylename);
-	}
+    include_once (P2_STYLE_DIR . '/mystyle_css.php');
+    $_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+    if (isset($MYSTYLE[$_mystylename])) {
+        disp_mystyle($_mystylename);
+    }
 }
 
-?>
+/*
+ * Local variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

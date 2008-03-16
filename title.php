@@ -1,7 +1,7 @@
 <?php
 // p2 -  タイトルページ
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -11,7 +11,7 @@ $_login->authorize(); // ユーザ認証
 //=========================================================
 
 if (!empty($GLOBALS['pref_dir_realpath_failed_msg'])) {
-    $_info_msg_ht .= '<p>'.$GLOBALS['pref_dir_realpath_failed_msg'].'</p>';
+    P2Util::pushInfoHtml('<p>'.$GLOBALS['pref_dir_realpath_failed_msg'].'</p>');
 }
 
 $p2web_url_r = P2Util::throughIme($_conf['p2web_url']);
@@ -102,6 +102,7 @@ EOP;
     </tr>
     <tr>
         <td align="right">REFERER: </td><td>{$alog['referer']}</td>
+    </tr>
 </table>
 EOP;
 */
@@ -112,10 +113,7 @@ EOP;
 //=========================================================
 $ptitle = "rep2 - title";
 
-P2Util::header_content_type();
-if (!empty($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -131,10 +129,7 @@ echo <<<EOP
 EOP;
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
-}
+P2Util::printInfoHtml();
 
 echo <<<EOP
 <br>
@@ -159,12 +154,12 @@ echo <<<EOP
 EOP;
 
 //==================================================
-// ■関数
+// 関数 （このファイル内でのみ利用）
 //==================================================
 /**
  * オンライン上のrep2-expack最新版をチェックする
  *
- * @return string HTML
+ * @return  string  HTML
  */
 function checkUpdatan()
 {
@@ -178,7 +173,7 @@ function checkUpdatan()
 
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら
-        if (@filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
+        if (filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
             $no_p2status_dl_flag = true;
         }
     }
@@ -206,4 +201,13 @@ EOP;
     return $newversion_found_html;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

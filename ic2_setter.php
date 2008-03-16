@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /* ImageCache2 - アップローダ */
 
 // {{{ p2基本設定読み込み&認証
@@ -82,7 +79,7 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
     if (!empty($errors[UPLOAD_ERR_NO_TMP_DIR])) {
         die('<html><body><p>ファイルアップロード用のテンポラリフォルダがありません。</p></body></html>');
     } elseif (count($_FILES['upimg']['error']) == $errors[UPLOAD_ERR_NO_FILE]) {
-        $_info_msg_ht .= $err_fmt['none'];
+        P2Util::pushInfoHtml($err_fmt['none']);
     } else {
         // サムネイル作成クラスのインスタンスを作成
         $thumbnailer = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
@@ -115,7 +112,7 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
             if (is_array($file)) {
                 $upfiles[] = $file;
             } else {
-                $_info_msg_ht .= $file;
+                P2Util::pushInfoHtml($file);
             }
         }
     }
@@ -135,10 +132,10 @@ $_flexy_options = array(
 $flexy = &new HTML_Template_Flexy($_flexy_options);
 $flexy->compile('ic2s.tpl.html');
 
-if (!$isPopUp && (!empty($upfiles) || $_info_msg_ht != '')) {
-    $showForm = FALSE;
+if (!$isPopUp && (!empty($upfiles) || P2Util::getInfoHtml() != '')) {
+    $showForm = false;
 } else {
-    $showForm = TRUE;
+    $showForm = true;
 }
 
 // フォームを修正
@@ -166,14 +163,13 @@ $view->STYLE    = $STYLE;
 $view->skin     = $skin_en;
 $view->isPopUp  = $isPopUp;
 $view->showForm = $showForm;
-$view->info_msg = $_info_msg_ht;
+$view->info_msg = P2Util::getInfoHtml();
 $view->upfiles  = $upfiles;
 $view->maxfilesize = $maxsize_si;
 $view->maxpostsize = ini_get('post_max_size');
 
 // ページを表示
 P2Util::header_nocache();
-P2Util::header_content_type();
 $flexy->outputObject($view, $elements);
 
 // }}}
@@ -297,9 +293,9 @@ function ic2_register_uploaded_file($file)
     $search1->whereAddQuoted('uri',  '=', $utf8_path);
 
     // 全く同じ画像が登録されていたとき
-    if ($search1->find(TRUE)) {
+    if ($search1->find(true)) {
         $update = clone($search1);
-        $changed = FALSE;
+        $changed = false;
         if (strlen($f_memo) > 0 && !strstr($search1->memo, $f_memo)){
             if (!is_null($search1->memo) && strlen($search1->memo) > 0) {
                 $update->memo = $f_memo . ' ' . $search1->memo;
@@ -307,11 +303,11 @@ function ic2_register_uploaded_file($file)
                 $update->memo = $f_memo;
             }
             $file['memo'] = mb_convert_encoding($update->memo, 'SJIS-win', 'UTF-8');
-            $changed = TRUE;
+            $changed = true;
         }
         if ($search1->rank != $f_rank) {
             $update->rank = $f_rank;
-            $changed = TRUE;
+            $changed = true;
         }
         if ($changed) {
             $update->update();
@@ -339,7 +335,7 @@ function ic2_register_uploaded_file($file)
         }
 
         // 登録済みの画像で、URLが異なるとき
-        if ($search2->find(TRUE) && file_exists($file['img_src'])) {
+        if ($search2->find(true) && file_exists($file['img_src'])) {
             $record->insert();
             $file['message'] = '同じ画像が異なるURLで登録されていました。';
 
@@ -361,4 +357,14 @@ function ic2_register_uploaded_file($file)
 }
 
 // }}}
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

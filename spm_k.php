@@ -3,7 +3,7 @@
     p2 - 特殊機能実行スクリプト（携帯）
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/spm_k.inc.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
@@ -28,7 +28,7 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
         case 'copy_quote':
             $_GET['inyou'] = 1;
         case 'copy':
-            $_GET['copy'] = $ktv;
+            $GLOBALS['_read_copy_resnum'] = $ktv;
             include 'read_copy_k.php';
             exit;
         case 'aas_rotate':
@@ -91,8 +91,7 @@ $default = (!empty($_GET['spm_default'])) ? intval($_GET['spm_default']) : '';
 // 表示
 //=================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
@@ -103,8 +102,7 @@ EOHEADER;
 
 echo "<body{$_conf['k_colors']}>";
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 echo "<p><a href=\"{$thread_url}\">{$ptitle_ht}</a></p>";
 echo '<hr>';
@@ -119,4 +117,13 @@ echo '</p>';
 echo '</body></html>';
 exit;
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

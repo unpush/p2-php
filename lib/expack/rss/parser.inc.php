@@ -1,8 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// p2機能拡張パック - RSSパーサ
+/**
+ * rep2expack - RSSパーザ
+ */
 
 require_once P2EX_LIBRARY_DIR . '/rss/common.inc.php';
 require_once 'XML/RSS.php';
@@ -23,13 +22,13 @@ if ($GLOBALS['_conf']['expack.rss.with_imgcache'] &&
  */
 function &p2GetRSS($remotefile, $atom=0)
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     $refresh = (!empty($_GET['refresh']) || !empty($_POST['refresh']));
 
     $localpath = rss_get_save_path($remotefile);
     if (PEAR::isError($localpath)) {
-        $_info_msg_ht .= "<p>" . $localpath->getMessage() . "</p>\n";
+        P2Util::pushInfoHtml("<p>" . $localpath->getMessage() . "</p>\n");
         return $localpath;
     }
 
@@ -68,8 +67,6 @@ function &p2GetRSS($remotefile, $atom=0)
  */
 function &p2ParseRSS($xmlpath, $atom=0)
 {
-    global $_info_msg_ht;
-
     // $atomが真ならXSLを使ってRSS 1.0に変換
     // （変換済みファイルが存在しないか、$atom==2のときに実行される）
     // 元のXML(Atom)でencoding属性が正しく指定されていればXSLTプロセッサが自動で
@@ -85,7 +82,7 @@ function &p2ParseRSS($xmlpath, $atom=0)
                 return $retval;
             }
         } else {
-            $_info_msg_ht = '<p>p2 error: Atomフィードを読むにはPHPのXSLT機能拡張またはXSL機能拡張が必要です。</p>';
+            P2Util::pushInfoHtml('<p>p2 error: Atomフィードを読むにはPHPのXSLT機能拡張またはXSL機能拡張が必要です。</p>');
             $retval = false;
             return $retval;
         }
@@ -107,7 +104,7 @@ function &p2ParseRSS($xmlpath, $atom=0)
     $rss = &new XML_RSS($rsspath, $srcenc, $tgtenc);*/
     $rss = &new XML_RSS($rsspath);
     if (PEAR::isError($rss)) {
-        $_info_msg_ht = '<p>p2 error: RSS - ' . $rss->getMessage() . '</p>';
+        P2Util::pushInfoHtml('<p>p2 error: RSS - ' . $rss->getMessage() . '</p>');
         return $rss;
     }
     // 解析対象のタグを上書き
@@ -137,7 +134,7 @@ function &p2ParseRSS($xmlpath, $atom=0)
     // RSSをパース
     $result = $rss->parse();
     if (PEAR::isError($result)) {
-        $_info_msg_ht = '<p>p2 error: RSS - ' . $result->getMessage() . '</p>';
+        P2Util::pushInfoHtml('<p>p2 error: RSS - ' . $result->getMessage() . '</p>');
         return $result;
     }
 
@@ -149,7 +146,7 @@ function &p2ParseRSS($xmlpath, $atom=0)
  */
 function atom_to_rss($input, $stylesheet, $output)
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
     // 保存用ディレクトリがなければつくる
     if (!is_dir(dirname($output))) {
@@ -169,7 +166,7 @@ function atom_to_rss($input, $stylesheet, $output)
         if (file_exists($output)) {
             unlink($output);
         }
-        return FALSE;
+        return false;
     }
     chmod($output, $_conf['expack.rss.setting_perm']);
 
@@ -190,7 +187,7 @@ function atom_to_rss($input, $stylesheet, $output)
         fclose($fp);
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -199,14 +196,12 @@ function atom_to_rss($input, $stylesheet, $output)
  */
 function atom_to_rss_by_xslt($input, $stylesheet, $output)
 {
-    global $_info_msg_ht;
-
     $xh = xslt_create();
     if (!@xslt_process($xh, $input, $stylesheet, $output)) {
         $errmsg = xslt_errno($xh) . ': ' . xslt_error($xh);
-        $_info_msg_ht = '<p>p2 error: XSLT - AtomをRSSに変換できませんでした。(' . $errmsg . ')</p>';
+        P2Util::pushInfoHtml('<p>p2 error: XSLT - AtomをRSSに変換できませんでした。(' . $errmsg . ')</p>');
         xslt_free($xh);
-        return FALSE;
+        return false;
     }
     xslt_free($xh);
 
@@ -219,11 +214,6 @@ function atom_to_rss_by_xslt($input, $stylesheet, $output)
  */
 function atom_to_rss_by_xsl($input, $stylesheet, $output)
 {
-    global $_info_msg_ht;
-
-    // PHP4互換モードでは使えないAPIを使うので、一時的に同モードをOffにする
-    ini_set('zend.ze1_compatibility_mode', 'Off');
-
     $xmlDoc = &new DomDocument;
     $xmlDoc->load($input);
     $xslDoc = &new DomDocument;
@@ -233,13 +223,10 @@ function atom_to_rss_by_xsl($input, $stylesheet, $output)
     $rssDoc = $proc->transformToDoc($xmlDoc);
     $rssDoc->save($output);
 
-    // p2は基本的にPHP4を前提としているのでPHP4互換モードに戻す
-    ini_set('zend.ze1_compatibility_mode', 'On');
-
     $rss_content = file_get_contents($output);
     if (!$rss_content) {
-        $_info_msg_ht = '<p>p2 error: XSL - AtomをRSSに変換できませんでした。</p>';
-        return FALSE;
+        P2Util::pushInfoHtml('<p>p2 error: XSL - AtomをRSSに変換できませんでした。</p>');
+        return false;
     }
 
     return $rss_content;
@@ -253,10 +240,10 @@ function rss_item_exists(&$items, $element)
 {
     foreach ($items as $item) {
         if (isset($item[$element]) && strlen(trim($item[$element])) > 0) {
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 
@@ -486,4 +473,13 @@ function rss_url_rel_to_abs($url)
     return $top . implode('/', $paths1) . $query;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -73,6 +73,16 @@ SPM.init = function(aThread)
 		spm.appendItem('AAS', [aThread, 'aas.php']);
 	}
 
+	// PRE
+	/*spm.appendItem('PRE', (function(){
+		var msg = document.getElementById(SPM.getBlockID());
+		if (msg.style.whiteSpace == 'pre') {
+			msg.style.whiteSpace = 'normal';
+		} else {
+			msg.style.whiteSpace = 'pre';
+		}
+	}));*/
+
 	// ポップアップ・コンテナを取得 or 作成
 	var container = document.getElementById('popUpContainer');
 	if (!container) {

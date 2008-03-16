@@ -1,9 +1,11 @@
 <?php
-// p2 スレッドサブジェクト表示関数
+// p2 - スレッドサブジェクト表示関数
 // for subject.php
 
 /**
- * sb_print - スレッド一覧を表示する (<tr>～</tr>)
+ * スレッド一覧をHTML表示する (<tr>～</tr>)
+ *
+ * @return  void
  */
 function sb_print(&$aThreadList)
 {
@@ -17,13 +19,13 @@ function sb_print(&$aThreadList)
         return;
     }
 
-    // 変数 ================================================
+    // 変数
 
     // >>1 表示
     if (($_conf['sb_show_one'] == 1) or ($_conf['sb_show_one'] == 2 and ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus")) {
         // spmodeは除く
         if (empty($aThreadList->spmode)) {
-            $only_one_bool = true;
+            $onlyone_bool = true;
         }
     }
 
@@ -39,18 +41,18 @@ function sb_print(&$aThreadList)
 
     $norefresh_q = "&amp;norefresh=true";
 
-    // ソート ==================================================
+    // ソート
 
-    // 現在のソート形式をclass指定でCSSカラーリング ======================
-    $class_sort_midoku = "";    // 新着
-    $class_sort_res = "";       // レス
-    $class_sort_no = "";        // No.
-    $class_sort_title = "";     // タイトル
-    $class_sort_ita = "";       // 板
-    $class_sort_spd = "";       // すばやさ
-    $class_sort_ikioi = "";     // 勢い
-    $class_sort_bd = "";        // Birthday
-    $class_sort_fav = "";       // お気に入り
+    // 現在のソート形式をclass指定でCSSカラーリング
+    $class_sort_midoku = '';    // 新着
+    $class_sort_res = '';       // レス
+    $class_sort_no = '';        // No.
+    $class_sort_title = '';     // タイトル
+    $class_sort_ita = '';       // 板
+    $class_sort_spd = '';       // すばやさ
+    $class_sort_ikioi = '';     // 勢い
+    $class_sort_bd = '';        // Birthday
+    $class_sort_fav = '';       // お気に入り
     if ($GLOBALS['now_sort']) {
         $nowsort_code = <<<EOP
 \$class_sort_{$GLOBALS['now_sort']}=' class="now_sort"';
@@ -63,7 +65,13 @@ EOP;
     $sortq_ita = '';
     // spmode時
     if ($aThreadList->spmode) {
-        $sortq_spmode = "&amp;spmode={$aThreadList->spmode}";
+        $sortq_spmode = '&amp;spmode=' . $aThreadList->spmode;
+        if ($aThreadList->spmode == 'cate' && isset($_GET['cate_id'])) {
+            $sortq_spmode .= sprintf('&amp;cate_id=%d', $_GET['cate_id']);
+            if (isset($_GET['cate_name'])) {
+                $sortq_spmode .= '&amp;cate_name=' . rawurlencode($_GET['cate_name']);
+            }
+        }
     }
     // spmodeでない、または、spmodeがあぼーん or dat倉庫なら
     if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko") {
@@ -87,7 +95,7 @@ EOP;
         echo "<td id=\"sb_th_res\" class=\"tn\" nowrap><a{$class_sort_res} href=\"{$_conf['subject_php']}?sort=res{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">レス</a></td>";
     }
     // >>1
-    if ($only_one_bool) { echo "<td class=\"t\">&nbsp;</td>"; }
+    if ($onlyone_bool) { echo "<td class=\"t\">&nbsp;</td>"; }
     // チェックボックス
     if ($checkbox_bool) {
         echo "<td class=\"tc\"><input id=\"allbox\" name=\"allbox\" type=\"checkbox\" onClick=\"checkAll();\" title=\"すべての項目を選択、または選択解除\"></td>";
@@ -122,17 +130,14 @@ EOP;
     //テーブルボディ
     //=====================================================
 
-    //spmodeがあればクエリー追加
-    if ($aThreadList->spmode) {
-        $spmode_q = "&amp;spmode={$aThreadList->spmode}";
-    }
-    $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+    $spmode_q = $sortq_spmode;
+    $sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
 
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
         $i++;
-        $midoku_ari = "";
-        $anum_ht = ""; // #r1
+        $midoku_ari = '';
+        $anum_ht = ''; // #r1
 
         $bbs_q = "&amp;bbs=".$aThread->bbs;
         $key_q = "&amp;key=".$aThread->key;
@@ -143,28 +148,28 @@ EOP;
 
         // td欄 cssクラス
         if (($i % 2) == 0) {
-            $class_t = " class=\"t\"";      // 基本
-            $class_te = " class=\"te\"";    // 並び替え
-            $class_tu = " class=\"tu\"";    // 新着レス数
-            $class_tn = " class=\"tn\"";    // レス数
-            $class_tc = " class=\"tc\"";    // チェックボックス
-            $class_to = " class=\"to\"";    // オーダー番号
-            $class_tl = " class=\"tl\"";    // タイトル
-            $class_ts = " class=\"ts\"";    // すばやさ
-            $class_ti = " class=\"ti\"";    // 勢い
+            $class_t = ' class="t"';    // 基本
+            $class_te = ' class="te"';  // 並び替え
+            $class_tu = ' class="tu"';  // 新着レス数
+            $class_tn = ' class="tn"';  // レス数
+            $class_tc = ' class="tc"';  // チェックボックス
+            $class_to = ' class="to"';  // オーダー番号
+            $class_tl = ' class="tl"';  // タイトル
+            $class_ts = ' class="ts"';  // すばやさ
+            $class_ti = ' class="ti"';  // 勢い
         } else {
-            $class_t = " class=\"t2\"";
-            $class_te = " class=\"te2\"";
-            $class_tu = " class=\"tu2\"";
-            $class_tn = " class=\"tn2\"";
-            $class_tc = " class=\"tc2\"";
-            $class_to = " class=\"to2\"";
-            $class_tl = " class=\"tl2\"";
-            $class_ts = " class=\"ts2\"";
-            $class_ti = " class=\"ti2\"";
+            $class_t = ' class="t2"';
+            $class_te = ' class="te2"';
+            $class_tu = ' class="tu2"';
+            $class_tn = ' class="tn2"';
+            $class_tc = ' class="tc2"';
+            $class_to = ' class="to2"';
+            $class_tl = ' class="tl2"';
+            $class_ts = ' class="ts2"';
+            $class_ti = ' class="ti2"';
         }
 
-        //新着レス数 =============================================
+        //新着レス数
         $unum_ht_c = "&nbsp;";
         // 既得済み
         if ($aThread->isKitoku()) {
@@ -195,24 +200,24 @@ EOP;
 
         $unum_ht = "<td{$class_tu}>".$unum_ht_c."</td>";
 
-        // 総レス数 =============================================
+        // 総レス数
         $rescount_ht = "<td{$class_tn}>{$aThread->rescount}</td>";
 
-        // 板名 ============================================
+        // 板名
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
             $htm['ita_td'] = "<td{$class_t} nowrap><a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}\" target=\"_self\">" . htmlspecialchars($ita_name, ENT_QUOTES) . "</a></td>";
         }
 
 
-        // お気に入り ========================================
+        // お気に入り
         if ($_conf['sb_show_fav']) {
             if ($aThreadList->spmode != "taborn") {
 
-                $favmark = (!empty($aThread->fav)) ? '★' : '+';
-                $favdo = (!empty($aThread->fav)) ? 0 : 1;
+                $favdo = empty($aThread->fav);
+                $favmark = $favdo ? '★' : '+';
                 $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-                $favdo_q = '&amp;setfav='.$favdo;
+                $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
 
                 // $ttitle_en_q も付けた方がいいが、節約のため省略する
                 $fav_ht = <<<EOP
@@ -221,7 +226,7 @@ EOP;
             }
         }
 
-        // torder(info) =================================================
+        // torder(info)
         // お気にスレ
         if ($aThread->fav) {
             $torder_st = "<b>{$aThread->torder}</b>";
@@ -230,16 +235,16 @@ EOP;
         }
         $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?host={$aThread->host}{$bbs_q}{$key_q}\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)\">{$torder_st}</a>";
 
-        // title =================================================
-        $chUnColor_ht = "";
+        // title
+        $chUnColor_ht = '';
 
         $rescount_q = "&amp;rescount=" . $aThread->rescount;
 
         // dat倉庫 or 殿堂なら
         if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") {
-            $rescount_q = "";
+            $rescount_q = '';
             $offline_q = "&amp;offline=true";
-            $anum_ht = "";
+            $anum_ht = '';
         }
 
         // タイトル未取得なら
@@ -252,7 +257,7 @@ EOP;
         }
 
         // 元スレ
-        $moto_thre_ht = "";
+        $moto_thre_ht = '';
         if ($_conf['sb_show_motothre']) {
             if (!$aThread->isKitoku()) {
                 $moto_thre_ht = '<a class="thre_title" href="'.$aThread->getMotoThread().'">・</a> ';
@@ -261,15 +266,15 @@ EOP;
 
         // 新規スレ
         if ($aThread->new) {
-            $classtitle_q = " class=\"thre_title_new\"";
+            $classtitle_q = ' class="thre_title_new"';
         } else {
-            $classtitle_q = " class=\"thre_title\"";
+            $classtitle_q = ' class="thre_title"';
         }
 
         // スレリンク
         if (!empty($_REQUEST['find_cont']) && strlen($GLOBALS['word_fm']) > 0) {
             $word_q = "&amp;word=".urlencode($GLOBALS['word'])."&amp;method=".urlencode($GLOBALS['sb_filter']['method']);
-            $rescount_q = "";
+            $rescount_q = '';
             $offline_q = "&amp;offline=true";
             $anum_ht = '';
         } else {
@@ -283,24 +288,24 @@ EOP;
         }
         $change_color = " onClick=\"chTtColor('{$i}');{$chUnColor_ht}\"";
 
-        // オンリー>>1 =============================================
-        if ($only_one_bool) {
-            $one_ht = "<td{$class_t}><a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true\">&gt;&gt;1</a></td>";
+        // オンリー>>1
+        if ($onlyone_bool) {
+            $one_ht = "<td{$class_t}><a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true\">&gt;&gt;1</a></td>";
         }
 
-        // チェックボックス =============================================
+        // チェックボックス
         if ($checkbox_bool) {
-            $checked_ht = "";
+            $checked_ht = '';
             if ($aThreadList->spmode == "taborn") {
                 if (!$aThread->isonline) { $checked_ht=" checked"; } // or ($aThread->rescount >= 1000)
             }
             $checkbox_ht = "<td{$class_tc}><input name=\"checkedkeys[]\" type=\"checkbox\" value=\"{$aThread->key}\"$checked_ht></td>";
         }
 
-        // 並替 =============================================
+        // 並替
         if ($sb_view == "edit") {
-            $unum_ht = "";
-            $rescount_ht = "";
+            $unum_ht = '';
+            $rescount_ht = '';
             $sb_view_q = "&amp;sb_view=edit";
             if ($aThreadList->spmode == "fav") {
                 $setkey = "setfav";
@@ -320,7 +325,7 @@ EOP;
         }
 
         // すばやさ（＝ 時間/レス ＝ レス間隔）
-        $spd_ht = "";
+        $spd_ht = '';
         if ($_conf['sb_show_spd']) {
             if ($spd_st = $aThread->getTimePerRes()) {
                 $spd_ht = "<td{$class_ts}>{$spd_st}</td>";
@@ -328,7 +333,7 @@ EOP;
         }
 
         // 勢い
-        $ikioi_ht = "";
+        $ikioi_ht = '';
         if ($_conf['sb_show_ikioi']) {
             if ($aThread->dayres > 0) {
                 // 0.0 とならないように小数点第2位で切り上げ
@@ -341,7 +346,12 @@ EOP;
         }
 
         // Birthday
-        $birthday = date("y/m/d", $aThread->key); // (y/m/d H:i)
+        //if (preg_match('/^\d{9,10}$/', $aThread->key) {
+        if (631119600 < $aThread->key && $aThread->key < time() + 1000) { // 1990年-
+            $birthday = date("y/m/d", $aThread->key); // (y/m/d H:i)
+        } else {
+            $birthday = '-';
+        }
         $birth_ht = "<td{$class_t}>{$birthday}</td>";
 
         //====================================================================================
@@ -367,7 +377,15 @@ EOP;
     }
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
-    return true;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

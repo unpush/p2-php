@@ -1,7 +1,7 @@
 <?php
-/*
-    rep2 機能拡張パック - 携帯から SPM 相当の機能を利用するための関数
-*/
+/**
+ * rep2expack - 携帯から SPM 相当の機能を利用するための関数
+ */
 
 /**
  * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成
@@ -134,4 +134,13 @@ function kspDetectThread()
     }
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

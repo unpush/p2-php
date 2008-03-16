@@ -268,4 +268,3 @@ class Cache_Container_db extends Cache_Container
     }
 
 }
-?>

@@ -2,7 +2,7 @@
 // p2 - 書き込み履歴 レス内容表示
 // フレーム分割画面、右下部分
 
-include_once './conf/conf.inc.php'; // 基本設定読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/res_hist.class.php';
 require_once P2_LIBRARY_DIR . '/read_res_hist.inc.php';
@@ -31,7 +31,8 @@ if ($_POST['submit'] == $deletemsg_st or isset($_GET['checked_hists'])) {
     $checked_hists and deleMsg($checked_hists);
 }
 
-// データPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、dat形式（p2_res_hist.dat, <>区切り）に変換する
+// 古いバージョンの形式であるデータPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、
+// dat形式（p2_res_hist.dat, <>区切り）に変換する
 P2Util::transResHistLogPhpToDat();
 
 //======================================================================
@@ -42,18 +43,18 @@ P2Util::transResHistLogPhpToDat();
 // 特殊DAT読み
 //==================================================================
 // 読み込んで
-if (!$datlines = @file($_conf['p2_res_hist_dat'])) {
-    die("p2 - 書き込み履歴内容は空っぽのようです");
+if (!file_exists($_conf['p2_res_hist_dat']) or !$datlines = file($_conf['p2_res_hist_dat'])) {
+    P2Util::printSimpleHtml('p2 - 書き込み履歴内容は空っぽのようです');
+    die('');
 }
 
 $datlines = array_map('rtrim', $datlines);
+$datlines_num = count($datlines);
 
 // ファイルの下に記録されているものが新しい
 $datlines = array_reverse($datlines);
 
 $aResHist =& new ResHist();
-
-$aResHist->readLines($datlines);
 
 // HTMLプリント用変数
 $htm['checkall'] = '全てのチェックボックスを
@@ -69,10 +70,7 @@ EOP;
 // ヘッダ 表示
 //==================================================================
 //P2Util::header_nocache();
-P2Util::header_content_type();
-if (isset($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -84,7 +82,7 @@ echo <<<EOP
 EOP;
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
@@ -113,8 +111,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 // 携帯用表示
 if ($_conf['ktai']) {
@@ -149,9 +146,9 @@ EOP;
 // レス記事 表示
 //==================================================================
 if ($_conf['ktai']) {
-    $aResHist->showArticlesK();
+    $aResHist->showArticlesK($datlines);
 } else {
-    $aResHist->showArticles();
+    $aResHist->showArticles($datlines);
 }
 
 //==================================================================
@@ -160,7 +157,7 @@ if ($_conf['ktai']) {
 // 携帯用表示
 if ($_conf['ktai']) {
     echo '<div id="footer" name="footer">';
-    $aResHist->showNaviK("footer");
+    $aResHist->showNaviK('footer', $datlines_num);
     echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$_conf['k_at_a']}>2.▲</a><br>";
     echo "</div>";
     echo "<p>{$_conf['k_to_index_ht']}</p>";
@@ -178,10 +175,19 @@ if ($_conf['ktai']) {
 EOP;
 }
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo '</form>'."\n";
 }
 
 echo '</body></html>';
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

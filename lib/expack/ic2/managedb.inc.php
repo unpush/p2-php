@@ -1,13 +1,14 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - ImageCache2
+ *
+ * @todo    引数の検証とトランザクションの開始/終了を一つにまとめる
+ */
 
 require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
-
-// TODO: 引数の検証とトランザクションの開始/終了を一つにまとめる
 
 /**
  * 画像情報を更新
@@ -18,8 +19,7 @@ function manageDB_update($updated)
         return;
     }
     if (!is_array($updated)) {
-        global $_info_msg_ht;
-        $_info_msg_ht .= '<p>WARNING! manageDB_update(): 不正な引数</p>';
+        P2Util::pushInfoHtml('<p>WARNING! manageDB_update(): 不正な引数</p>');
         return;
     }
 
@@ -35,7 +35,7 @@ function manageDB_update($updated)
     foreach ($updated as $id => $data) {
         $icdb = &new IC2DB_Images;
         $icdb->whereAdd("id = $id");
-        if ($icdb->find(TRUE)) {
+        if ($icdb->find(true)) {
             // メモを更新
             if ($icdb->memo != $data['memo']) {
                 $memo = &new IC2DB_Images;
@@ -66,7 +66,7 @@ function manageDB_update($updated)
 /**
  * 画像を削除
  */
-function manageDB_remove($target, $to_blacklist = FALSE)
+function manageDB_remove($target, $to_blacklist = false)
 {
     $removed_files = array();
     if (empty($target)) {
@@ -81,8 +81,7 @@ function manageDB_remove($target, $to_blacklist = FALSE)
                 return $removed_files;
             }
         } else {
-            global $_info_msg_ht;
-            $_info_msg_ht .= '<p>WARNING! manageDB_remove(): 不正な引数</p>';
+            P2Util::pushInfoHtml('<p>WARNING! manageDB_remove(): 不正な引数</p>');
             return $removed_files;
         }
     }
@@ -100,7 +99,7 @@ function manageDB_remove($target, $to_blacklist = FALSE)
         $icdb = &new IC2DB_Images;
         $icdb->whereAdd("id = $id");
 
-        if ($icdb->find(TRUE)) {
+        if ($icdb->find(true)) {
             // キャッシュしているファイルを削除
             $t1 = &new ThumbNailer(1);
             $t2 = &new ThumbNailer(2);
@@ -186,8 +185,7 @@ function manageDB_setRank($target, $rank)
                 return;
             }
         } else {
-            global $_info_msg_ht;
-            $_info_msg_ht .= '<p>WARNING! manageDB_setRank(): 不正な引数</p>';
+            P2Util::pushInfoHtml('<p>WARNING! manageDB_setRank(): 不正な引数</p>');
             return $removed_files;
         }
     }
@@ -217,8 +215,7 @@ function manageDB_addMemo($target, $memo)
                 return;
             }
         } else {
-            global $_info_msg_ht;
-            $_info_msg_ht .= '<p>WARNING! manageDB_addMemo(): 不正な引数</p>';
+            P2Util::pushInfoHtml('<p>WARNING! manageDB_addMemo(): 不正な引数</p>');
             return $removed_files;
         }
     }
@@ -235,7 +232,7 @@ function manageDB_addMemo($target, $memo)
     foreach ($target as $id) {
         $find = &new IC2DB_Images;
         $find->whereAdd("id = $id");
-        if ($find->find(TRUE) && !strstr($find->memo, $memo)) {
+        if ($find->find(true) && !strstr($find->memo, $memo)) {
             $update = &new IC2DB_Images;
             $update->whereAdd("id = $id");
             if (strlen($find->memo) > 0) {
@@ -257,4 +254,13 @@ function manageDB_addMemo($target, $memo)
     }
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

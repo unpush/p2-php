@@ -130,14 +130,40 @@ $_conf['expack.aas.output_charset'] = "eucJP-win"; // ("eucJP-win")
 // {{{ その他
 
 // お気にセット切り替え（off:0, on:1）
-$_conf['expack.misc.multi_favs'] = 0; // (0)
-
-// 利用するお気にセット数（お気にスレ・お気に板・RSSで共通）
-$_conf['expack.misc.favset_num'] = 5; // (5)
+// 以下の値も個別に設定する必要あり
+// - favlist_set_num (お気にスレ)
+// - favita_set_num (お気に板)
+// - expack.rss.set_num (RSS)
+$_conf['expack.favset.enabled'] = 0; // (0)
 
 // お気にセット名情報を記録するファイルのパス
-$_conf['expack.misc.favset_file'] = $_conf['pref_dir'].'/p2_favset.txt';
+$_conf['expack.favset.namefile'] = $_conf['pref_dir'] . '/p2_favset.txt';
+
+// 板カテゴリorお気に板のスレ一覧をマージして表示するとき、
+// 読み込む板数の最大値
+// ソート順に関係なく、メニューに先に出現するものからカウントされる
+$_conf['expack.mergedlist.max_boards'] = 10;
+
+// 板カテゴリorお気に板のスレ一覧をマージして表示するとき、
+// 読み込むスレッド数の最大値
+// ソート順に関係なく、subject.txt に先に出現するものからカウントされる
+$_conf['expack.mergedlist.max_threads'] = 2000;
+
+// 板カテゴリorお気に板のスレ一覧をマージして表示するとき、
+// ひとつの板から読み込むスレッド数の最大値
+// ソート順に関係なく、subject.txt に先に出現するものからカウントされる
+$_conf['expack.mergedlist.max_threads_per_board'] = 200;
 
 // }}}
 // ----------------------------------------------------------------------
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

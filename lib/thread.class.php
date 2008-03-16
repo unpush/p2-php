@@ -1,14 +1,11 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
  * p2 - スレッドクラス
  */
-class Thread{
-
+class Thread
+{
     var $ttitle;    // スレタイトル // idxline[0] // < は &lt; だったりする
     var $key;       // スレッドID // idxline[1]
     var $length;    // local Dat Bytes(int) // idxline[2]
@@ -17,7 +14,9 @@ class Thread{
     var $modified;  // datのLast-Modified // idxline[4]
     var $readnum;   // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
     var $fav;       //お気に入り(bool的に) // idxline[6] favlist.idxも参照
-    var $favs;      //お気に入りセット登録状態(boolの配列)
+    var $favs;      //お気に入りセット登録状態1(boolの配列)
+    var $allfavs;   //お気に入りセット登録状態2(boolの配列)
+    var $notfav;    //全てのお気に入りセットに登録されていなければtrue
     // name         // ここでは利用せず idxline[7]（他所で利用）
     // mail         // ここでは利用せず idxline[8]（他所で利用）
     // var $newline; // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
@@ -51,7 +50,7 @@ class Thread{
     var $similarity; // タイトルの類似性
 
     /**
-     * コンストラクタ
+     * @constructor
      */
     function Thread()
     {
@@ -59,6 +58,9 @@ class Thread{
 
     /**
      * ttitleをセットする（ついでにttitle_hc, ttitle_hd, ttitle_htも）
+     *
+     * @access  public
+     * @return  void
      */
     function setTtitle($ttitle)
     {
@@ -76,7 +78,7 @@ class Thread{
         $this->ttitle_hd = htmlspecialchars($this->ttitle_hc, ENT_QUOTES);
 
         // 一覧表示用に長さを切り詰めてから htmlspecialchars() したもの
-        if (!empty($_conf['ktai'])) {
+        if ($_conf['ktai']) {
             $tt_max_len = $_conf['sb_ttitle_max_len_k'];
             $tt_trim_len = $_conf['sb_ttitle_trim_len_k'];
             $tt_trip_pos = $_conf['sb_ttitle_trim_pos_k'];
@@ -111,6 +113,9 @@ class Thread{
 
     /**
      * fav, recent用の拡張idxリストからラインデータを取得する
+     *
+     * @access  public
+     * @return  void
      */
     function getThreadInfoFromExtIdxLine($l)
     {
@@ -125,17 +130,14 @@ class Thread{
             }
         }
 
-        /*
-        if ($la[6]) {
-            $this->fav = $la[6];
-        }
-        */
-
-        $this->getFavStatus();
+        $this->getFavStatus($la[6]);
     }
 
     /**
      * Set Path info
+     *
+     * @access  public
+     * @return  void
      */
     function setThreadPathInfo($host, $bbs, $key)
     {
@@ -152,14 +154,13 @@ class Thread{
         $this->keyidx = $idx_host_dir . '/' . $this->bbs . '/' . $this->key . '.idx';
 
         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setThreadPathInfo()');
-
-        $this->getFavStatus();
-
-        return true;
     }
 
     /**
      * スレッドが既得済みならtrueを返す
+     *
+     * @access  public
+     * @return  boolean
      */
     function isKitoku()
     {
@@ -171,7 +172,10 @@ class Thread{
     }
 
     /**
-     * 既得スレッドデータをkey.idxから取得する
+     * 既得スレッドデータをkey.idxから取得セットする
+     *
+     * @access  public
+     * @return  string
      */
     function getThreadInfoFromIdx()
     {
@@ -195,7 +199,7 @@ class Thread{
 
         // 旧互換措置（$lar[9] newlineの廃止）
         } elseif ($lar[9]) {
-            $this->readnum = $lar[9] -1;
+            $this->readnum = $lar[9] - 1;
         }
 
         if ($lar[3]) {
@@ -212,9 +216,7 @@ class Thread{
             $this->gotnum = 0;
         }
 
-        if ($lar[6]) {
-            $this->fav = $lar[6];
-        }
+        $this->getFavStatus($lar[6]);
 
         if ($lar[12]) {
             $this->datochiok = $lar[12];
@@ -234,7 +236,10 @@ class Thread{
     }
 
     /**
-     * ローカルDATのファイルサイズを取得する
+     * ローカルDATのファイルサイズを取得セットする
+     *
+     * @access  public
+     * @return  integer
      */
     function getDatBytesFromLocalDat()
     {
@@ -243,7 +248,11 @@ class Thread{
     }
 
     /**
-     * subject.txt の一行からスレ情報を取得する
+     * subject.txt の一行からスレ情報を取得してセットする
+     * 2006/09/18 setThreadInfoFromSubjectTxtLine() という名前にしておけばよかった。いずれ変更するかも。
+     *
+     * @access  public
+     * @return  boolean
      */
     function getThreadInfoFromSubjectTxtLine($l)
     {
@@ -264,15 +273,18 @@ class Thread{
             }
 
             $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromSubjectTxtLine()');
-            return TRUE;
+            return true;
         }
 
         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromSubjectTxtLine()');
-        return FALSE;
+        return false;
     }
 
     /**
-     * スレタイトル取得メソッド
+     * スレタイトルを取得セットする
+     *
+     * @access  public
+     * @return  string
      */
     function setTitleFromLocal()
     {
@@ -312,6 +324,9 @@ class Thread{
 
     /**
      * 元スレURLを返す
+     *
+     * @access  public
+     * @return  string
      */
     function getMotoThread($original = false)
     {
@@ -360,6 +375,9 @@ class Thread{
 
     /**
      * 勢い（レス/日）をセットする
+     *
+     * @access  public
+     * @return  boolean
      */
     function setDayRes($nowtime = false)
     {
@@ -373,7 +391,8 @@ class Thread{
         if (!$nowtime) {
             $nowtime = time();
         }
-        if ($pastsc = $nowtime - $this->key) {
+        //if (preg_match('/^\d{9,10}$/', $this->key) {
+        if (631119600 < $this->key && $this->key < time() + 1000 and $pastsc = $nowtime - $this->key) { // 1990年-
             $this->dayres = $this->rescount / $pastsc * 60 * 60 * 24;
             $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setDayRes()');
             return true;
@@ -385,6 +404,9 @@ class Thread{
 
     /**
      * レス間隔（時間/レス）を取得する
+     *
+     * @access  public
+     * @return  string
      */
     function getTimePerRes()
     {
@@ -431,25 +453,59 @@ class Thread{
 
     /**
      * お気に入り登録状態を取得する
+     *
+     * @access  public
+     * @param   string  $fav    idxに記録されている数値文字列形式のお気にスレ登録状況フラグ
+     * @return  void
      */
-    function getFavStatus()
+    function getFavStatus($fav)
     {
-        global $_conf;
-        
-        if (!$_conf['expack.misc.multi_favs']) {
+        // numeric -> int
+        $fav = ((int)$fav & PHP_INT_MAX);
+
+        // int -> array
+        if (empty($fav)) {
+            $this->notfav = true;
+            $this->allfavs = array_fill(0, P2_FAVSET_MAX_NUM + 1, false);
+        } else {
+            $this->notfav = false;
+            $this->allfavs = array();
+            for ($i = 0; $i <= P2_FAVSET_MAX_NUM; $i++) {
+                $this->allfavs[$i] = (bool)($fav & 1 << $i);
+            }
+        }
+
+        // array -> subset
+        if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
+            $this->favs = array_slice($this->allfavs, 0, $_conf['favlist_set_num'] + 1);
+        } else {
+            $this->fav = $this->allfavs[0];
+            $this->favs = array($this->fav);
             return;
         }
 
-        $this->favs = array();
-        foreach ($_conf['favlists'] as $num => $favlist) {
-            $this->favs[$num] = false;
-            foreach ($favlist as $fav) {
-                if ($this->key == $fav['key'] && $this->bbs == $fav['bbs']) {
-                    $this->favs[$num] = true;
-                    break;
-                }
+        // in current favlist?
+        if (isset($_SESSION['m_favlist_set'])) {
+            $setid = (int)$_SESSION['m_favlist_set'];
+            if ($setid < 0 || $_conf['favlist_set_num'] < $setid) {
+                $this->fav = false;
+                return;
             }
+        } else {
+            $setid = 0;
         }
+        $this->fav = $this->favs[$setid];
     }
+
 }
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

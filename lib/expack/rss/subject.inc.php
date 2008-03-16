@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - RSSの見出し一覧表示
+ */
 
 // {{{ 表示用変数
 
@@ -83,10 +84,10 @@ echo <<<EOH
     // -->
     </script>
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="setWinTitle();">
-{$_info_msg_ht}
-
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="setWinTitle();">\n
 EOH;
+
+P2Util::printInfoHtml();
 
 // RSSがパースできなかったとき
 if (!$rss_parse_success) {
@@ -177,7 +178,7 @@ foreach ($items as $item) {
         $link_orig = preg_replace_callback('/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/', 'rss_link2ch_callback', $item['link']);
         $preview_one = "<a href=\"{$link_orig}&amp;one=true\">&gt;&gt;1</a> ";
     } else {
-        $link_orig = P2Util::throughIme($item['link'], TRUE);
+        $link_orig = P2Util::throughIme($item['link'], true);
     }
     // 一列表示
     $item_title = $item['title'];
@@ -214,4 +215,13 @@ EOF;
 
 // }}}
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

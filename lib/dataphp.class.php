@@ -1,16 +1,16 @@
 <?php
 /*
-    2006/02/24 aki DataPhp形式はもう使わない方向性。拡張子 .cgi を代替とする
+    2006/02/24 aki DataPhp形式はもう使わない方向。拡張子 .cgi を代替とする
 
     データファイルにWebから直接アクセスされても中をみられないようにphp形式のファイルでデータを取り扱うクラス
-    インスタンスを作らずにクラスメソッドで利用する。ファイルの保存形式は、以下のような感じ。
+    インスタンスを作らずにスタティックメソッドで利用する。ファイルの保存形式は、以下のような感じ。
 
     ＜？php ／*
     データ
     *／ ？＞
 */
-class DataPhp{
-
+class DataPhp
+{
     function getPre()
     {
         return "<?php /*\n";
@@ -22,7 +22,7 @@ class DataPhp{
     }
 
     /**
-     * ■データphp形式のファイルを読み込む
+     * データphp形式のファイルを読み込む
      *
      * 文字列のアンエスケープも行う
      */
@@ -50,7 +50,7 @@ class DataPhp{
     }
 
     /**
-     * ■データphp形式のファイルをラインで読み込む
+     * データphp形式のファイルをラインで読み込む
      *
      * 文字列のアンエスケープも行う
      */
@@ -100,10 +100,11 @@ class DataPhp{
     }
 
     /**
-     * データphp形式のファイルにデータを記録する
-     *
+     * データphp形式のファイルにデータを記録する（モードはwb）
      * 文字列のエスケープも行う
-     * @param srting $cont 記録するデータ文字列。
+     *
+     * @param   srting   $cont  記録するデータ文字列
+     * @return  boolean
      */
     function writeDataPhp($data_php, &$cont, $perm = 0606)
     {
@@ -114,9 +115,16 @@ class DataPhp{
         $new_cont = DataPhp::getPre() . $new_cont . DataPhp::getHip();
 
         // ファイルがなければ生成
-        FileCtl::make_datafile($data_php, $perm);
+        if (false === FileCtl::make_datafile($data_php, $perm)) {
+            return false;
+        }
+
         // 書き込む
-        $fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
+        if (!$fp = fopen($data_php, 'wb')) {
+             trigger_error("fopen($data_php)", E_USER_WARNING);
+             die("Error: ファイルを更新できませんでした");
+             return false;
+        }
         @flock($fp, LOCK_EX);
         $last = ignore_user_abort(1);
         ftruncate($fp, 0);
@@ -182,7 +190,7 @@ class DataPhp{
     }
 
     /**
-     * ■データphp形式のデータをエスケープする
+     * データphp形式のデータをエスケープする
      */
     function escapeDataPhp($str)
     {
@@ -195,7 +203,7 @@ class DataPhp{
     }
 
     /**
-     * ■データphp形式のデータをアンエスケープする
+     * データphp形式のデータをアンエスケープする
      */
     function unescapeDataPhp($str)
     {
@@ -209,4 +217,13 @@ class DataPhp{
 
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

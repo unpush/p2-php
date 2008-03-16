@@ -1,10 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 // p2 - SPMあぼーん
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -39,7 +36,7 @@ $ttitle_name = is_string($ttitle_en) ? base64_decode($ttitle_en) : '';
 
 $thread_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}";
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $target_edit_at = ' target="editfile"';
     $target_read_at = ' target="read"';
     $target_sb_at = ' target="sbject"';
@@ -227,8 +224,7 @@ switch ($mode) {
 // HTMLプリント
 //=====================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
 <head>
@@ -241,7 +237,7 @@ EOHEADER;
 
 $body_onload = '';
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOSTYLE
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">
@@ -298,7 +294,7 @@ echo <<<EOP
 EOP;
 
 echo "<form action=\"info_sp.php\" method=\"get\" accept-charset=\"{$_conf['accept_charset']}\">\n";
-echo "\t<input type=\"hidden\" name=\"detect_hint\" value=\"◎◇　◇◎\">\n";
+echo "\t{$_conf['detect_hint_input_ht']}\n";
 echo "<p>{$msg}</p>\n";
 if ($popup == 1 && $msg != "") {
     foreach ($_GET as $idx => $value) {
@@ -316,7 +312,7 @@ if ($popup == 1 && $msg != "") {
         echo "\t<input type=\"hidden\" name=\"aborn_id\" value=\"{$aborn_id_ht}\">\n";
     }
     echo "\t<input type=\"submit\" value=\"　Ｏ　Ｋ　\">\n";
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
     }
     echo "</form>\n";
@@ -325,6 +321,7 @@ if ($popup == 1 && $msg != "") {
     <input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))">\n
 EOB;
 }
+echo "\t{$_conf['k_input_ht']}\n";
 echo "</form>\n";
 
 //データファイルの編集ボタン
@@ -360,7 +357,7 @@ echo "</div>\n";
 
 echo "<hr>\n";
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     echo '<p>';
     if (!empty($_GET['from_read_new'])) {
         echo "<a href=\"{$_conf['read_new_k_php']}?cview=1\">まとめ読みに戻る</a><br>";
@@ -371,5 +368,13 @@ if (!empty($_conf['ktai'])) {
 
 echo '</body></html>';
 
-
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

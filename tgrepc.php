@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
  * スレッドタイトル検索 [tGrep] クライアント
  *
@@ -15,20 +13,18 @@ $_login->authorize();
 
 // }}}
 
-if ($_conf['view_forced_by_query']) {
-    if (empty($_conf['ktai'])) {
-        output_add_rewrite_var('b', 'pc');
-    } else {
-        output_add_rewrite_var('b', 'k');
-    }
+if ($b == 'pc') {
+    output_add_rewrite_var('b', 'pc');
+} elseif ($b == 'k' || $k) {
+    output_add_rewrite_var('b', 'k');
 }
 
 // {{{ 準備
 
 $query_params = array();
 if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
-    include_once 'Cache/Lite.php';
-    include_once 'HTTP/Client.php';
+    require_once 'Cache/Lite.php';
+    require_once 'HTTP/Client.php';
     $query_params['q'] = $_GET['Q'];
     $query_params['n'] = $limit = ($_conf['ktai']) ? '25' : '100';
     //$query_keys = array('s', 'b', 'c', 'o', 'n', 'p');
@@ -105,8 +101,8 @@ if ($query) {
 
     // 検索結果キャッシュのガーベッジコレクション
     if (mt_rand(0, 99) == 0) {
-        P2Util::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_result);
-        P2Util::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_profile);
+        FileCtl::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_result);
+        FileCtl::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_profile);
     }
 
     $errors = (isset($search_result['errors'])) ? $search_result['errors'] : null;
@@ -170,13 +166,13 @@ if ($_conf['input_type_search']) {
 } else {
     $htm['search_attr'] = ' type="text"';
 }
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $htm['search_attr'] .= ' size="36"';
 }
 $htm['search_attr'] .= ' maxlength="50" value="' . $htm['query'] . '"';
 
 // スタイルシート
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $htm['message_background'] = "background-color:#ffffcc;";
     if (isset($STYLE['respop_bgcolor']) || isset($STYLE['respop_background'])) {
         $htm['message_background'] = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
@@ -230,14 +226,14 @@ MOBILE_STYLE;
 
 // ページャ
 if ($subhits && $subhits > $limit) {
-    include_once 'Pager/Pager.php';
+    require_once 'Pager.php';
     $pager_options = array();
     $pager_options = array(
         'mode'          => 'Sliding',
         'totalItems'    => $subhits,
         'perPage'       => $limit,
         'urlVar'        => 'P',
-        'extraVars'     => array('hint' => '◎◇　◇◎'),
+        'extraVars'     => array('_hint' => $_conf['detect_hint']),
         'importQuery'   => false,
         'curPageSpanPre'    => '<b>',
         'curPageSpanPost'   => '</b>',
@@ -250,7 +246,7 @@ if ($subhits && $subhits > $limit) {
     foreach ($pager_extra_vars as $_k => $_v) {
         $pager_options['extraVars'][strtoupper($_k)] = $_v;
     }
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         $pager_options['delta'] = 5;
         $pager_options['separator'] = '|';
         $pager_options['spacesBeforeSeparator'] = 1;
@@ -277,11 +273,10 @@ if ($subhits && $subhits > $limit) {
 // }}}
 // {{{ 表示
 
-P2Util::header_content_type();
 if (empty($_GET['M'])) {
     P2Util::header_nocache();
 }
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     include P2EX_LIBRARY_DIR . '/tgrep/view.inc.php';
 } else {
     include P2EX_LIBRARY_DIR . '/tgrep/view_k.inc.php';
@@ -310,4 +305,14 @@ function tgrep_search($query)
 }
 
 // }}}
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

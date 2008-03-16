@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
  * 2chからGoogle APIを使って検索し、p2で読むためのリンクに変換する
  *
@@ -33,12 +31,10 @@ if ($_conf['expack.google.enabled'] == 0) {
     exit('<html><body><p>Google検索は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
 
-if ($_conf['view_forced_by_query']) {
-    if (empty($_conf['ktai'])) {
-        output_add_rewrite_var('b', 'pc');
-    } else {
-        output_add_rewrite_var('b', 'k');
-    }
+if ($b == 'pc') {
+    output_add_rewrite_var('b', 'pc');
+} elseif ($b == 'k' || $k) {
+    output_add_rewrite_var('b', 'k');
 }
 
 // {{{ Init
@@ -75,8 +71,8 @@ $start = ($p - 1) * $perPage;
 
 // 出力用変数
 $totalItems = 0;
-$result = NULL;
-$popups = NULL;
+$result = null;
+$popups = null;
 
 // }}}
 // {{{ Search
@@ -101,7 +97,7 @@ if (!empty($q)) {
             $result = '<b>Error: ' . $resultObj->getMessage() . '</b>';
             if (!empty($resultObj->userinfo)) {
                 require_once 'Var_Dump.php';
-                $result .= Var_Dump::display($resultObj->getUserInfo(), TRUE, 'HTML4_Table');
+                $result .= Var_Dump::display($resultObj->getUserInfo(), true, 'HTML4_Table');
             }
         // リクエスト成功
         } else {
@@ -143,7 +139,6 @@ if ($_conf['input_type_search']) {
     $search_element_extra_attributes = " autosave=\"rep2.expack.search.google\" results=\"{$_conf['expack.google.recent2_num']}\" placeholder=\"Google\"";
 }
 
-P2Util::header_content_type();
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
@@ -173,3 +168,14 @@ P2Util::header_content_type();
 <?php $renderer->printPopup($popups); ?>
 </body>
 </html>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

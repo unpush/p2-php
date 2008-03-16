@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     expack - フォント設定編集インタフェース
 */
@@ -161,7 +159,6 @@ $controllerObject->skin = $skin_en;
 $controllerObject->rep2expack = $_conf['p2expack'];
 
 // 出力
-P2Util::header_content_type();
 $flexy->outputObject($controllerObject, $elements);
 
 /**
@@ -211,4 +208,13 @@ function implode_fonts($fonts)
     return '"' . implode('","', $fonts) . '"';
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

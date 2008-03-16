@@ -4,7 +4,7 @@
     フレーム分割画面、右下部分
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/threadlist.class.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/threadread.class.php';
@@ -15,9 +15,8 @@ $_login->authorize(); // ユーザ認証
 
 // まとめよみのキャッシュ読み
 if (!empty($_GET['cview'])) {
-    $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : NULL;
+    $cnum = (isset($_GET['cnum'])) ? intval($_GET['cnum']) : null;
     if ($cont = getMatomeCache($cnum)) {
-        P2Util::header_content_type();
         echo $cont;
     } else {
         header('Content-Type: text/plain; charset=Shift_JIS');
@@ -34,26 +33,26 @@ if (!defined('P2_READ_NEW_SAVE_MEMORY')) {
 }
 
 //==================================================================
-// ■変数
+// 変数
 //==================================================================
 if (isset($_conf['rnum_all_range']) and $_conf['rnum_all_range'] > 0) {
     $GLOBALS['rnum_all_range'] = $_conf['rnum_all_range'];
 }
 
-$sb_view = "shinchaku";
-$newtime = date("gis");
+$sb_view = 'shinchaku';
+$newtime = date('gis');
 
-$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+$sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
 
 //=================================================
 // 板の指定
 //=================================================
-if (isset($_GET['host'])) { $host = $_GET['host']; }
-if (isset($_POST['host'])) { $host = $_POST['host']; }
-if (isset($_GET['bbs'])) { $bbs = $_GET['bbs']; }
-if (isset($_POST['bbs'])) { $bbs = $_POST['bbs']; }
-if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
-if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
+if (isset($_GET['host']))   { $host     = $_GET['host']; }
+if (isset($_POST['host']))  { $host     = $_POST['host']; }
+if (isset($_GET['bbs']))    { $bbs      = $_GET['bbs']; }
+if (isset($_POST['bbs']))   { $bbs      = $_POST['bbs']; }
+if (isset($_GET['spmode'])) { $spmode   = $_GET['spmode']; }
+if (isset($_POST['spmode'])){ $spmode   = $_POST['spmode']; }
 
 if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
     die('p2 error: 必要な引数が指定されていません');
@@ -65,7 +64,7 @@ if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
 $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
 //====================================================================
-// ■メイン
+// メイン
 //====================================================================
 
 if (P2_READ_NEW_SAVE_MEMORY) {
@@ -82,23 +81,26 @@ ob_start();
 
 $aThreadList =& new ThreadList();
 
-// ■板とモードのセット===================================
+// 板とモードのセット
 $ta_keys = array();
 if ($spmode) {
     if ($spmode == 'taborn' or $spmode == 'soko') {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
+    } elseif ($spmode == 'cate') {
+        $cate_name = isset($_GET['cate_name']) ? $_GET['cate_name'] : '???';
+        $aThreadList->setIta('-', '-', $cate_name);
     }
     $aThreadList->setSpMode($spmode);
 
 } else {
     $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
 
-    // ■スレッドあぼーんリスト読込
+    // スレッドあぼーんリスト読込
     $idx_host_dir = P2Util::idxDirOfHost($host);
-    $taborn_file = $idx_host_dir."/".$bbs."/p2_threads_aborn.idx";
+    $taborn_file = $idx_host_dir . '/' .$bbs . '/p2_threads_aborn.idx';
 
-    if ($tabornlines = @file($taborn_file)) {
-        $ta_num = sizeOf($tabornlines);
+    if (file_exists($taborn_file) and $tabornlines = file($taborn_file)) {
+        $ta_num = sizeof($tabornlines);
         foreach ($tabornlines as $l) {
             $tarray = explode('<>', rtrim($l));
             $ta_keys[ $tarray[1] ] = true;
@@ -109,7 +111,7 @@ if ($spmode) {
 // ソースリスト読込
 $lines = $aThreadList->readList();
 
-// ページヘッダ表示 ===================================
+// ページヘッダ表示
 $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 $ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
 
@@ -125,8 +127,7 @@ EOP;
 
 // include_once P2_LIBRARY_DIR . '/read_header.inc.php';
 
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
 <head>
@@ -171,17 +172,16 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">
+<body onLoad="pageLoaded();" onclick="hideHtmlPopUp();">
 <div id="popUpContainer"></div>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 //echo $ptitle_ht."<br>";
 
 //==============================================================
-// ■それぞれの行解析
+// それぞれの行解析
 //==============================================================
 
 $linesize = sizeof($lines);
@@ -193,33 +193,64 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
 
     $l = $lines[$x];
+    if (is_string($l)) {
+        $l = rtrim($l);
+    }
+
     $aThread =& new ThreadRead();
 
     $aThread->torder = $x + 1;
 
-    // ■データ読み込み
-    // spmodeなら
+    // データ読み込み
+    // spmode
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
-        case "recent": // 履歴
+        case 'recent':  // 履歴
             $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "res_hist": // 書き込み履歴
+        case 'res_hist':    // 書き込み履歴
             $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "fav": // お気に
+        case 'fav':     // お気に
             $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
-        case "taborn": // スレッドあぼーん
-            $aThread->getThreadInfoFromExtIdxLine($l);
+        /*case 'taborn':  // スレッドあぼーん
+            $la = explode('<>', $l);
+            $aThread->key = $la[1];
             $aThread->host = $aThreadList->host;
             $aThread->bbs = $aThreadList->bbs;
-            break;
-        case "palace": // スレの殿堂
+            break;*/
+        /*case 'soko':    // dat倉庫
+            $la = explode('<>', $l);
+            $aThread->key = $la[1];
+            $aThread->host = $aThreadList->host;
+            $aThread->bbs = $aThreadList->bbs;
+            break;*/
+        case 'palace':  // スレの殿堂
             $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
+            break;
+        case 'cate':    // 板メニューのカテゴリ
+            $aThread->isonline = true;
+        case 'favita':  // お気に板のまとめ
+            $aThread->key = $l['key'];
+            $aThread->setTtitle($l['ttitle']);
+            $aThread->rescount = $l['rescount'];
+            $aThread->host = $l['host'];
+            $aThread->bbs = $l['bbs'];
+            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
+            $aThread->itaj or $aThread->itaj = $aThread->bbs;
             break;
         }
-    // subject (not spmode)の場合
+
+    // subject (not spmode つまり普通の板)
     } else {
         $aThread->getThreadInfoFromSubjectTxtLine($l);
         $aThread->host = $aThreadList->host;
@@ -238,7 +269,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     // 既得スレッドデータをidxから取得
     $aThread->getThreadInfoFromIdx();
 
-    // ■新着のみ(for subject) =========================================
+    // 新着のみ(for subject)
     if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) {
         if ($aThread->unum < 1) {
             unset($aThread);
@@ -246,13 +277,13 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
     }
 
-    // ■スレッドあぼーんチェック =====================================
+    // スレッドあぼーんチェック
     if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) {
             unset($ta_keys[$aThread->key]);
             continue; // あぼーんスレはスキップ
     }
 
-    // ■ spmode(殿堂入りを除く)なら ====================================
+    //  spmode(殿堂入りを除く)なら
     if ($aThreadList->spmode && $sb_view != "edit") {
 
         // subject.txt が未DLなら落としてデータを配列に格納
@@ -264,7 +295,7 @@ for ($x = 0; $x < $linesize ; $x++) {
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
         }
 
-        // ■スレ情報取得 =============================
+        // スレ情報取得
         if ($subject_txts["$aThread->host/$aThread->bbs"]) {
             foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
                 if (@preg_match("/^{$aThread->key}/", $l)) {
@@ -274,7 +305,7 @@ for ($x = 0; $x < $linesize ; $x++) {
             }
         }
 
-        // 新着のみ(for spmode) ===============================
+        // 新着のみ(for spmode)
         if ($sb_view == 'shinchaku' and empty($_GET['word'])) {
             if ($aThread->unum < 1) {
                 unset($aThread);
@@ -285,8 +316,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 
     if ($aThread->isonline) { $online_num++; } // 生存数set
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = '';
+    P2Util::printInfoHtml();
 
     if (P2_READ_NEW_SAVE_MEMORY) {
         fwrite($read_new_tmp_fh, ob_get_flush());
@@ -309,7 +339,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
     ob_start();
 
-    // リストに追加 ========================================
+    // リストに追加
     // $aThreadList->addThread($aThread);
     $aThreadList->num++;
     unset($aThread);
@@ -317,16 +347,15 @@ for ($x = 0; $x < $linesize ; $x++) {
 
 // $aThread =& new ThreadRead();
 
-//======================================================================
-// ■ スレッドの新着部分を読み込んで表示する
-//======================================================================
+/**
+ * スレッドの新着部分を読み込んで表示する
+ */
 function readNew(&$aThread)
 {
     global $_conf, $newthre_num, $STYLE;
-    global $_info_msg_ht;
     static $favlist_titles = null;
 
-    if ($_conf['expack.misc.multi_favs'] && is_null($favlist_titles)) {
+    if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0 && is_null($favlist_titles)) {
         $favlist_titles = FavSetManager::getFavSetTitles('m_favlist_set');
         if (empty($favlist_titles)) {
             $favlist_titles = array();
@@ -334,7 +363,7 @@ function readNew(&$aThread)
         if (!isset($favlist_titles[0]) || $favlist_titles[0] == '') {
             $favlist_titles[0] = 'お気にスレ';
         }
-        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+        for ($i = 1; $i <= $_conf['favlist_set_num']; $i++) {
             if (!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') {
                 $favlist_titles[$i] = 'お気にスレ' . $i;
             }
@@ -344,7 +373,7 @@ function readNew(&$aThread)
     $newthre_num++;
 
     //==========================================================
-    // ■ idxの読み込み
+    // idxの読み込み
     //==========================================================
 
     // hostを分解してidxファイルのパスを求める
@@ -356,14 +385,14 @@ function readNew(&$aThread)
     if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 
     // idxファイルがあれば読み込む
-    if (is_readable($aThread->keyidx)) {
-        $lines = @file($aThread->keyidx);
+    if (file_exists($aThread->keyidx)) {
+        $lines = file($aThread->keyidx);
         $data = explode('<>', rtrim($lines[0]));
     }
     $aThread->getThreadInfoFromIdx();
 
     //==================================================================
-    // ■DATのダウンロード
+    // DATのダウンロード
     //==================================================================
     if (!($word and file_exists($aThread->keydat))) {
         $aThread->downloadDat();
@@ -374,7 +403,7 @@ function readNew(&$aThread)
     $aThread->setTitleFromLocal(); // ローカルからタイトルを取得して設定
 
     //===========================================================
-    // ■表示レス番の範囲を設定
+    // 表示レス番の範囲を設定
     //===========================================================
     // 取得済みなら
     if ($aThread->isKitoku()) {
@@ -394,7 +423,7 @@ function readNew(&$aThread)
     $aThread->lsToPoint();
 
     //==================================================================
-    // ■ヘッダ 表示
+    // ヘッダ 表示
     //==================================================================
     $motothre_url = $aThread->getMotoThread();
 
@@ -414,12 +443,11 @@ function readNew(&$aThread)
     }
     $next_thre_ht = "<a id=\"#ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">▼</a> ";
 
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
+    P2Util::printInfoHtml();
 
-    // ■ヘッダ部分HTML
+    // ヘッダ部分HTML
     $read_header_ht = <<<EOP
-    <table id="ntt{$newthre_num}" width="100%" style="padding:0px 10px 0px 0px;">
+    <table id="ntt{$newthre_num}" class="toolbar" width="100%" style="padding:0px 10px 0px 0px;">
         <tr>
             <td align="left">
                 <h3 class="thread_title">{$aThread->ttitle_hd}</h3>
@@ -433,7 +461,7 @@ function readNew(&$aThread)
 EOP;
 
     //==================================================================
-    // ■ローカルDatを読み込んでHTML表示
+    // ローカルDatを読み込んでHTML表示
     //==================================================================
     $aThread->resrange['nofirst'] = true;
     $GLOBALS['newres_to_show_flag'] = false;
@@ -460,9 +488,9 @@ EOP;
     }
 
     //==================================================================
-    // ■フッタ 表示
+    // フッタ 表示
     //==================================================================
-    //include($read_footer_inc);
+    //include $read_footer_inc ;
 
     //----------------------------------------------
     // $read_footer_navi_new  続きを読む 新着レスの表示
@@ -484,70 +512,71 @@ EOP;
         <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target='_self' onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$popup_q}&amp;from_read_new=1{$sid_q}',{$STYLE['post_pop_size']},1,0)">レス</a>
 EOP;
     }
+    $dores_ht = '<span style="white-space: nowrap;">' . $dores_ht . '</span>';
 
-    // ■ツールバー部分HTML =======
+    // ツールバー部分HTML
 
     // お気にマーク設定
     $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
     $similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);
 
-    if ($_conf['expack.misc.multi_favs']) {
+    if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
         $toolbar_setfav_ht = 'お気に[';
-        $favdo = (!empty($aThread->favs[0])) ? 0 : 1;
-        $favdo_q = '&amp;setfav=' . $favdo;
+        $favdo = empty($aThread->favs[0]);
+        $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
         $favmark = $favdo ? '+' : '★';
         $favtitle = $favlist_titles[0] . ($favdo ? 'に追加' : 'から外す');
         $setnum_q = '&amp;setnum=0';
         $toolbar_setfav_ht .= <<<EOP
-<span class="favdo set0"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this, '0');" title="{$favtitle}">{$favmark}</a></span>
+<span class="favdo set0" style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this, '0');" title="{$favtitle}">{$favmark}</a></span>
 EOP;
-        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
-            $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
-            $favdo_q = '&amp;setfav=' . $favdo;
+        for ($i = 1; $i <= $_conf['favlist_set_num']; $i++) {
+            $favdo = empty($aThread->favs[$i]);
+            $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
             $favmark = $favdo ? $i : '★';
             $favtitle = $favlist_titles[$i] . ($favdo ? 'に追加' : 'から外す');
             $setnum_q = '&amp;setnum=' . $i;
             $toolbar_setfav_ht .= <<<EOP
-|<span class="favdo set{$i}"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this, '{$i}');" title="{$favtitle}">{$favmark}</a></span>
+|<span class="favdo set{$i}" style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this, '{$i}');" title="{$favtitle}">{$favmark}</a></span>
 EOP;
         }
         $toolbar_setfav_ht .= ']';
     } else {
-        $favdo = (!empty($aThread->fav)) ? 0 : 1;
-        $favdo_q = '&amp;setfav=' . $favdo;
+        $favdo = empty($aThread->fav);
+        $favdo_q = '&amp;setfav=' . ($favdo ? '0' : '1');
         $favmark = $favdo ? '+' : '★';
         $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
         $toolbar_setfav_ht = <<<EOP
-<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this, '0');" title="{$favtitle}">お気に{$favmark}</a></span>
+<span class="favdo" style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this, '0');" title="{$favtitle}">お気に{$favmark}</a></span>
 EOP;
     }
 
     $toolbar_right_ht = <<<EOTOOLBAR
-            <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
-            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},1,0)" title="スレッド情報を表示">{$info_st}</a>
+            <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
+            <a style="white-space: nowrap;" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}" target="subject" title="同じ板からタイトルが似ているスレッドを検索する">似スレ</a>
+            <a style="white-space: nowrap;" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},1,0)" title="スレッド情報を表示">{$info_st}</a>
             {$toolbar_setfav_ht}
-            <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read_new', this);" title="ログを削除する">{$delete_st}</a></span>
-<!--            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">あぼん</a> -->
-            <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">元スレ</a>
-            <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}" target="subject" title="タイトルが似ているスレッドを検索">似スレ</a>
+            <span style="white-space: nowrap;"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read_new', this);" title="ログを削除する">{$delete_st}</a></span>
+<!--        <a style="white-space: nowrap;" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">あぼん</a> -->
+            <a style="white-space: nowrap;" href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">元スレ</a>
 EOTOOLBAR;
 
     // レスのすばやさ
-    $spd_ht = "";
+    $spd_ht = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != "-") {
-        $spd_ht = '<span class="spd" title="すばやさ＝時間/レス">'."" . $spd_st."".'</span>';
+        $spd_ht = '<span class="spd" style="white-space: nowrap;" title="すばやさ＝時間/レス">'."" . $spd_st."".'</span>';
     }
 
     // datサイズ
     if ($dsize_ht = @filesize($aThread->keydat)) {
-        $dsize_ht = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
+        $dsize_ht = sprintf('<span class="spd" style="white-space: nowrap;" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
     } else {
         $dsize_ht = '';
     }
 
-    // ■フッタ部分HTML
+    // フッタ部分HTML
     $read_footer_ht = <<<EOP
-        <table width="100%" style="padding:0px 10px 0px 0px;">
+        <table class="toolbar" width="100%" style="padding:0px 10px 0px 0px;">
             <tr>
                 <td align="left">
                     {$res1['body']} | <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> | {$dores_ht} {$dsize_ht} {$spd_ht}
@@ -564,7 +593,7 @@ EOP;
 
     // 透明あぼーんで表示がない場合はスキップ
     if ($GLOBALS['newres_to_show_flag']) {
-        echo '<div style="width:100%;">'."\n"; // ほぼIE ActiveXのGray()のためだけに囲ってある
+        echo '<div style="width:100%;">' . "\n"; // ほぼIE ActiveXのGray()のためだけに囲ってある
         echo $read_header_ht;
         echo $read_cont_ht;
         echo $read_footer_ht;
@@ -573,7 +602,7 @@ EOP;
     }
 
     //==================================================================
-    // ■key.idx の値設定
+    // key.idx の値設定
     //==================================================================
     if ($aThread->rescount) {
 
@@ -591,19 +620,19 @@ EOP;
 }
 
 //==================================================================
-// ■ページフッタ表示
+// ページフッタ表示
 //==================================================================
 $newthre_num++;
 
 if (!$aThreadList->num) {
-    $GLOBALS['matome_naipo'] = TRUE;
+    $GLOBALS['matome_naipo'] = true;
     echo "新着レスはないぽ";
     echo "<hr>";
 }
 
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     if (!empty($GLOBALS['limit_to_eq_to'])) {
-        $str = '新着まとめ読みの更新/続き';
+        $str = '新着まとめ読みの更新or続き';
     } else {
         $str = '新着まとめ読みを更新';
     }
@@ -628,6 +657,16 @@ if (P2_READ_NEW_SAVE_MEMORY) {
     $read_new_html .= ob_get_flush();
 }
 
-// ■NGあぼーんを記録
+// NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

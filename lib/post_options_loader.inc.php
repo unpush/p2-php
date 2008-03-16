@@ -61,15 +61,20 @@ function setHiddenValue(button) {
 </script>\n
 EOP;
 
-// {{{ key.idxから名前とメールを読込み
-
+// key.idxから名前とメールを読込み
 if ($lines = @file($key_idx)) {
     $line = explode('<>', rtrim($lines[0]));
     $hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
     $hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
 }
 
-// }}}
+// 空白はユーザ設定値に変換
+$hd['FROM'] = ($hd['FROM'] == '') ? htmlspecialchars($_conf['my_FROM'], ENT_QUOTES) : $hd['FROM'];
+$hd['mail'] = ($hd['mail'] == '') ? htmlspecialchars($_conf['my_mail'], ENT_QUOTES) : $hd['mail'];
+
+// P2NULLは空白に変換
+$hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
+$hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
 
 // 前回のPOST失敗があれば呼び出し
 $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
@@ -87,19 +92,11 @@ if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
     $hd['subject'] = $last_posted['subject'];
 }
 
-// 空白はユーザ設定値に変換
-$hd['FROM'] = ($hd['FROM'] == '') ? htmlspecialchars($_conf['my_FROM'], ENT_QUOTES) : $hd['FROM'];
-$hd['mail'] = ($hd['mail'] == '') ? htmlspecialchars($_conf['my_mail'], ENT_QUOTES) : $hd['mail'];
-
-// P2NULLは空白に変換
-$hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
-$hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
-
 
 // 参考 クラシック COLS='60' ROWS='8'
 $mobile = &Net_UserAgent_Mobile::singleton();
 // PC
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $name_size_at = ' size="19"';
     $mail_size_at = ' size="19"';
     $msg_cols_at = ' cols="' . $STYLE['post_msg_cols'] . '"';
@@ -115,9 +112,23 @@ if (empty($_conf['ktai'])) {
     $wrap = 'soft';
 }
 
-// Be.2ch
+!isset($htm['res_disabled']) and $htm['res_disabled'] = '';
+
+// Be書き込み
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
     $htm['be2ch'] = '<input type="submit" id="submit_beres" name="submit_beres" value="BEで書き込む" onClick="setHiddenValue(this);">';
+}
+
+// be板では書き込みを無効にする
+$htm['title_need_be'] = '';
+if (P2Util::isBbsBe2chNet($host, $bbs)) {
+    // やっぱり無効にしない。書き込み失敗時に、2ch側でBeログインへの誘導があるので。
+    //$htm['res_disabled'] = ' disabled';
+    if ($_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
+        $htm['title_need_be'] = ' title="Be板につき、自動Be書き込みします"';
+    } else {
+        $htm['title_need_be'] = ' title="書き込むにはBeログインが必要です"';
+    }
 }
 
 // PC用 sage checkbox
@@ -130,10 +141,11 @@ EOP;
 
 // {{{ 2ch●書き込み
 
-$htm['maru_post'] = '';
+$htm['maru_kakiko'] = '';
 if (P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php'])) {
-    $htm['maru_post'] = <<<EOP
-<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox" value="1"><label for="maru">●</label></span>
+    $maru_kakiko_checked = empty($_conf['maru_kakiko']) ? '' : ' checked';
+    $htm['maru_kakiko'] = <<<EOP
+<span title="2ch●IDの使用"><input id="maru_kakiko" name="maru_kakiko" type="checkbox" value="1"{$maru_kakiko_checked}><label for="maru_kakiko">●</label></span>
 EOP;
 }
 
@@ -252,6 +264,7 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         $q_resar = array_map('trim', $q_resar);
         $q_resar[3] = strip_tags($q_resar[3], '<br>');
         if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
+            // 引用レス番号ができてしまわないように、二つの半角スペースを入れている
             $hd['MESSAGE'] .= "&gt;  ";
             $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
             $hd['MESSAGE'] .= "\r\n";
@@ -288,4 +301,13 @@ if (!$_conf['ktai']) {
 
 // }}}
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

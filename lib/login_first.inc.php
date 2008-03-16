@@ -1,15 +1,19 @@
 <?php
 
 /**
- *  p2 最初のログイン画面を表示する
+ *  p2 - 最初のログイン画面をHTML表示する関数
+ *
+ * @access  public
+ * @return  void
  */
 function printLoginFirst(&$_login)
 {
-    global $_info_msg_ht, $STYLE, $_conf;
+    global $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
     global $skin_en;
 
-    // {{{ データ保存ディレクトリのパーミッションの注意を喚起する
+    // {{{ データ保存ディレクトリに書き込み権限がなければ注意を表示セットする
+
     P2Util::checkDirWritable($_conf['dat_dir']);
     $checked_dirs[] = $_conf['dat_dir']; // チェック済みのディレクトリを格納する配列に
 
@@ -21,10 +25,11 @@ function printLoginFirst(&$_login)
         P2Util::checkDirWritable($_conf['pref_dir']);
         $checked_dirs[] = $_conf['pref_dir'];
     }
+
     // }}}
 
     // 前処理
-    $_login->checkAuthUserFile();
+    $_login->cleanInvalidAuthUserFile();
     clearstatcache();
 
     //=========================================================
@@ -34,8 +39,8 @@ function printLoginFirst(&$_login)
 
     $myname = basename($_SERVER['SCRIPT_NAME']);
 
-    $auth_sub_input_ht = "";
-    $body_ht = "";
+    $auth_sub_input_ht = '';
+    $body_ht = '';
 
     $p_str = array(
         'user'      => 'ユーザ',
@@ -71,7 +76,7 @@ function printLoginFirst(&$_login)
     // {{{ J認証
 
     // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-    } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+    } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== null) {
         if (file_exists($_conf['auth_jp_file'])) {
             include $_conf['auth_jp_file'];
             if ($SN == $registed_jp) {
@@ -187,7 +192,7 @@ EOP;
         // {{{ 入力エラーをチェック、判定
 
         if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
-            $_info_msg_ht .= "<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>";
+            P2Util::pushInfoHtml("<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>");
             $show_login_form_flag = true;
 
         // }}}
@@ -224,14 +229,14 @@ EOP;
     } else {
 
         if (isset($_POST['form_login_id']) || isset($_POST['form_login_pass'])) {
-            $_info_msg_ht .= '<p class="infomsg">';
+            P2Util::pushInfoHtml('<p class="infomsg">');
             if (!$_POST['form_login_id']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['user']}」が入力されていません。"."<br>";
+                P2Util::pushInfoHtml("rep2 error: 「{$p_str['user']}」が入力されていません。"."<br>");
             }
             if (!$_POST['form_login_pass']) {
-                $_info_msg_ht .= "rep2 error: 「{$p_str['password']}」が入力されていません。";
+                P2Util::pushInfoHtml("rep2 error: 「{$p_str['password']}」が入力されていません。");
             }
-            $_info_msg_ht .= '</p>';
+            P2Util::pushInfoHtml('</p>');
         }
 
         $show_login_form_flag = true;
@@ -244,10 +249,7 @@ EOP;
     // HTMLプリント
     //=========================================================
     P2Util::header_nocache();
-    P2Util::header_content_type();
-    if ($_conf['doctype']) {
-        echo $doctype;
-    }
+    echo $doctype;
     echo <<<EOP
 <html lang="ja">
 <head>
@@ -257,7 +259,7 @@ EOP;
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>
 EOP;
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         echo "<style type=\"text/css\" media=\"all\">\n<!--\n";
         @include 'style/style_css.inc';
         @include 'style/login_first_css.inc';
@@ -267,10 +269,7 @@ EOP;
     echo "<h3>{$ptitle}</h3>\n";
 
     // 情報表示
-    if (!empty($_info_msg_ht)) {
-        echo $_info_msg_ht;
-        $_info_msg_ht = '';
-    }
+    P2Util::printInfoHtml();
 
     echo $body_ht;
 
@@ -279,7 +278,15 @@ EOP;
     }
 
     echo '</body></html>';
-
-    return true;
 }
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -3,7 +3,7 @@
     ファイルをブラウザで編集する
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -53,17 +53,17 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
 //=========================================================
 if (isset($filecont)) {
     if (setFile($path, $filecont, $encode)) {
-        $_info_msg_ht .= "saved, OK.";
+        P2Util::pushInfoHtml("saved, OK.");
     }
 }
 
 editFile($path, $encode);
 
+exit;
 
 //=========================================================
 // 関数
 //=========================================================
-
 /**
  * ファイルに内容をセットする関数
  */
@@ -90,7 +90,7 @@ function setFile($path, $cont, $encode)
  */
 function editFile($path, $encode)
 {
-    global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
+    global $_conf, $modori_url, $rows, $cols;
 
     if ($path == '') {
         die('Error: path が指定されていません');
@@ -101,7 +101,7 @@ function editFile($path, $encode)
 
     //ファイル内容読み込み
     FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
-    $cont = @file_get_contents($path);
+    $cont = file_get_contents($path);
 
     if ($encode == "EUC-JP") {
         $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
@@ -117,8 +117,8 @@ function editFile($path, $encode)
     $cols_at = ($cols > 0) ? sprintf(' cols="%d"', $cols) : '';
 
     // プリント
+    echo $_conf['doctype'];
     echo <<<EOHEADER
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
 <head>
     {$_conf['meta_charset_ht']}
@@ -130,19 +130,22 @@ function editFile($path, $encode)
 <body onLoad="top.document.title=self.document.title;">
 EOHEADER;
 
+    P2Util::printInfoHtml();
+
     echo $modori_url_ht;
 
     echo "Edit: ".$path;
     echo <<<EOFORM
 <form action="{$_SERVER['SCRIPT_NAME']}" method="post" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="modori_url" value="{$modori_url}">
     <input type="hidden" name="encode" value="{$encode}">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
-    <input type="submit" name="submit" value="Save"> $_info_msg_ht<br>
+    <input type="submit" name="submit" value="Save"><br>
     <textarea style="font-size:9pt;" id="filecont" name="filecont" wrap="off"{$rows_at}{$cols_at}>{$cont_area}</textarea>
+    {$_conf['k_input_ht']}
 </form>
 EOFORM;
 
@@ -151,4 +154,13 @@ EOFORM;
     return true;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

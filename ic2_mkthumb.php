@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /* ImageCache2 - サムネイルの再構築 */
 
 // {{{ p2基本設定読み込み&認証
@@ -51,7 +48,7 @@ switch ($type) {
         $search->whereAddQuoted('uri', '=', $uri);
 }
 
-if ($search->find(TRUE)) {
+if ($search->find(true)) {
     // 縦横のサイズが大きい画像はまず中間イメージを作成する
     if ($search->width > 1280 || $search->height > 1280) {
         $thumbX = &new ThumbNailer(IC2_THUMB_SIZE_INTERMD);
@@ -92,4 +89,13 @@ function error($msg)
 EOF;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

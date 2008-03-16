@@ -5,6 +5,7 @@
     このファイルの設定は、必要に応じて変更してください
 */
 
+
 $GLOBALS['_HOSTCHKCONF'] = array();
 
 // ホストごとの設定 (0:拒否; 1:許可;)
@@ -46,4 +47,13 @@ $GLOBALS['_HOSTCHKCONF']['auth_bbq_burned_expire'] = 0;
 // 一度BBQチェックを回避できたホストに対するBBQ認証パススルーの有効期限 (秒数で指定、0なら毎回確認)
 $GLOBALS['_HOSTCHKCONF']['auth_bbq_passed_expire'] = 3600;
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

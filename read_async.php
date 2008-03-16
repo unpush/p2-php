@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     expack - スレッドをツリー表示する
     ツリー表示以外のルーチンはread.phpから拝借
@@ -24,10 +22,9 @@ $_login->authorize(); // ユーザ認証
 $newtime = date('gis'); // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 //$_today = date('y/m/d');
 
-$_info_msg_ht = '';
-
 if (empty($_GET['host']) || empty($_GET['bbs']) || empty($_GET['key']) || empty($_GET['ls'])) {
-    die("p2 - read_async.php: レスの指定が変です。");
+    P2Util::printSimpleHtml('p2 - read_async.php: レスの指定が変です。');
+    die('');
 }
 
 $host = $_GET['host'];
@@ -35,10 +32,10 @@ $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
 $mode = isset($_GET['q']) ? (int)$_GET['q'] : 0;
 
-$_conf['ktai'] = FALSE;
+$_conf['ktai'] = false;
 
 //==================================================================
-// ■メイン
+// メイン
 //==================================================================
 $aThread = &new ThreadRead;
 
@@ -78,7 +75,7 @@ if (empty($_GET['offline'])) {
     $aThread->downloadDat();
 }
 
-// ■DATを読み込み
+// DATを読み込み
 $aThread->readDat();
 
 // オフライン指定でもログがなければ、改めて強制読み込み
@@ -101,7 +98,7 @@ $aThread->lsToPoint();
 
 
 //===============================================================
-// ■プリント
+// プリント
 //===============================================================
 $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES).' / '.$aThread->ttitle_hd;
 
@@ -188,7 +185,16 @@ $newdata_ar = array($aThread->ttitle, $aThread->key, $data[2], '', '', $aThread-
 $newdata = implode('<>', $newdata_ar);
 P2Util::recRecent($newdata);
 
-// ■NGあぼーんを記録
+// NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

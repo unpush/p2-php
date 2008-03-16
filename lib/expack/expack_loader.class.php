@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 // {{{ class ExpackLoader
 
 /**
@@ -119,11 +116,10 @@ class ExpackLoader
 
         if ($aShowThread->thumbnailer->ini['General']['automemo']) {
             $aShowThread->img_memo = IC2DB_Images::uniform($aShowThread->thread->ttitle, 'SJIS-win');
-            $hint = mb_convert_encoding('ž@ž', 'UTF-8', 'SJIS-win');
-            $aShowThread->img_memo_query = '&amp;hint=' . rawurlencode($hint);
+            $aShowThread->img_memo_query = '&amp;hint=' . rawurlencode($_conf['detect_hint_utf8']);
             $aShowThread->img_memo_query .= '&amp;memo=' . rawurlencode($aShowThread->img_memo);
         } else {
-            $aShowThread->img_memo = NULL;
+            $aShowThread->img_memo = null;
             $aShowThread->img_memo_query = '';
         }
     }
@@ -159,4 +155,13 @@ class ExpackLoader
 
 // }}}
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

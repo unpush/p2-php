@@ -1,12 +1,10 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     p2 - 板メニューの非同期読み込み
     現状ではお気に板とRSSのセット切り替えのみ対応
 */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/brdctl.class.php';
 require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
 
@@ -80,7 +78,7 @@ function changeSkin($skin)
     }
 
     if (file_exists($newskin)) {
-        if (FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin) !== FALSE) {
+        if (FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin) !== false) {
             return $skin;
         } else {
             return "p2 error: {$_conf['expack.skin.setting_path']} にスキン設定を書き込めませんでした。";
@@ -92,4 +90,13 @@ function changeSkin($skin)
 
 // }}}
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

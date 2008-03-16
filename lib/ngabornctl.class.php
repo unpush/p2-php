@@ -2,8 +2,8 @@
 /*
     p2 - NGあぼーんを操作するクラス
 */
-class NgAbornCtl{
-
+class NgAbornCtl
+{
     /**
      * あぼーん&NGワード設定を保存する
      */
@@ -21,7 +21,7 @@ class NgAbornCtl{
                     // 更新時間でソートする
                     usort($ngaborns[$code]['data'], array('NgAbornCtl', 'cmpLastTime'));
 
-                    $cont = "";
+                    $cont = '';
                     foreach ($ngaborns[$code]['data'] as $a_ngaborn) {
 
                         // 必要ならここで古いデータはスキップ（削除）する
@@ -65,7 +65,7 @@ class NgAbornCtl{
     /**
      * NGあぼーんHIT記録を更新時間でソートする
      *
-     * @private
+     * @access  private
      */
     function cmpLastTime($a, $b)
     {
@@ -98,7 +98,7 @@ class NgAbornCtl{
     /**
      * readNgAbornFromFile
      *
-     * @private
+     * @access  private
      */
     function readNgAbornFromFile($filename)
     {
@@ -174,4 +174,14 @@ class NgAbornCtl{
     }
 
 }
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

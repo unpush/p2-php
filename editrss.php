@@ -1,17 +1,11 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 // p2 - RSS編集
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 include_once P2_LIBRARY_DIR . '/filectl.class.php';
 include_once P2_LIBRARY_DIR . '/strctl.class.php';
 
 $_login->authorize(); // ユーザ認証
-
-// 変数 =============
-$_info_msg_ht = '';
 
 //================================================================
 //特殊な前置処理
@@ -27,8 +21,8 @@ if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_se
 // RSS追加フォーム
 $add_rss_form_ht = <<<EOFORM
 <hr>
-<form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+<form method="post" action="editrss.php" accept-charset="{$_conf['accept_charset']}" target="_self">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" id="setrss" name="setrss" value="1">
     <table border="0" cellspacing="1" cellpadding="0">
         <tr>
@@ -46,12 +40,14 @@ $add_rss_form_ht = <<<EOFORM
             </td>
         </tr>
     </table>
+    {$_conf['k_input_ht']}
 </form>\n
 EOFORM;
 
 // RSS切替フォーム
-if ($_conf['expack.misc.multi_favs']) {
-    $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS', NULL, NULL, !$_conf['ktai']);
+if ($_conf['expack.favset.enabled'] && $_conf['expack.rss.set_num'] > 0) {
+    $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS',
+        null, null, !$_conf['ktai']);
 } else {
     $switch_rss_form_ht = '';
 }
@@ -59,8 +55,8 @@ if ($_conf['expack.misc.multi_favs']) {
 //================================================================
 // ヘッダ
 //================================================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+P2Util::header_nocache();
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -87,14 +83,13 @@ echo <<<EOP
 <body>\n
 EOP;
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
 //================================================================
 // メイン部分HTML表示
 //================================================================
 // ページタイトル
-if ($_conf['expack.misc.multi_favs']) {
+if ($_conf['expack.favset.enabled'] && $_conf['expack.rss.set_num'] > 0) {
     $i = (isset($_SESSION['m_rss_set'])) ? (int)$_SESSION['m_rss_set'] : 0;
     $rss_titles = FavSetManager::getFavSetTitles('m_rss_set');
     if (!$rss_titles || !isset($rss_titles[$i]) || strlen($rss_titles[$i]) == 0) {
@@ -207,7 +202,7 @@ function submitApply()
 
 
 // PC用
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $onclick = " onclick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['SCRIPT_NAME'];
 
@@ -331,4 +326,13 @@ EOP;
 
 echo '</body></html>';
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

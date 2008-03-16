@@ -3,7 +3,7 @@
     p2 - txt を 表示
 */
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -15,7 +15,7 @@ if (!isset($_GET['file'])) {
 //=========================================================
 // 変数
 //=========================================================
-$file = (isset($_GET['file'])) ? $_GET['file'] : NULL;
+$file = (isset($_GET['file'])) ? $_GET['file'] : null;
 $encode = "Shift_JIS";
 
 //=========================================================
@@ -51,8 +51,6 @@ if (preg_match("/\.txt$/i", $file)) {
  */
 function viewTxtFile($file, $encode)
 {
-    global $_info_msg_ht;
-
     if ($file == '') {
         die('Error: file が指定されていません');
     }
@@ -83,13 +81,22 @@ function viewTxtFile($file, $encode)
 <body onLoad="top.document.title=self.document.title;">\n
 EOHEADER;
 
-    echo $_info_msg_ht;
-    echo "<pre>";
+    echo P2Util::printInfoHtml();
+    echo '<pre>';
     echo $cont_area;
-    echo "</pre>";
+    echo '</pre>';
     echo '</body></html>';
 
-    return TRUE;
+    return true;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

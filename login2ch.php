@@ -3,7 +3,7 @@
  *    p2 - 2ch●ログイン管理
  */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -55,13 +55,13 @@ if (isset($_GET['login2ch'])) {
 // ヘッダ
 //================================================================
 if ($_conf['ktai']) {
-    $login_st = "ﾛｸﾞｲﾝ";
-    $logout_st = "ﾛｸﾞｱｳﾄ";
-    $password_st = "ﾊﾟｽﾜｰﾄﾞ";
+    $login_st       = 'ﾛｸﾞｲﾝ';
+    $logout_st      = 'ﾛｸﾞｱｳﾄ';
+    $password_st    = 'ﾊﾟｽﾜｰﾄﾞ';
 } else {
-    $login_st = "ログイン";
-    $logout_st = "ログアウト";
-    $password_st = "パスワード";
+    $login_st       = 'ログイン';
+    $logout_st      = 'ログアウト';
+    $password_st    = 'パスワード';
 }
 
 if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
@@ -70,14 +70,13 @@ if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
     $ptitle = "2ch{$login_st}管理";
 }
 
-$body_onload = "";
-if (empty($_conf['ktai'])) {
+$body_onload = '';
+if (!$_conf['ktai']) {
     $body_onload = " onLoad=\"setWinTitle();\"";
 }
 
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -88,7 +87,7 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=login2ch&amp;skin={$skin_en}" type="text/css">
@@ -115,14 +114,13 @@ echo <<<EOP
 <body{$body_at}>
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 <p id="pan_menu"><a href="setting.php">ログイン管理</a> &gt; {$ptitle}</p>
 EOP;
 }
 
-echo $_info_msg_ht;
-$_info_msg_ht = "";
+P2Util::printInfoHtml();
 
 //================================================================
 // 2ch●ログインフォーム
@@ -163,7 +161,7 @@ if ($autoLogin2ch) {
 $tora3_url = "http://2ch.tora3.net/";
 $tora3_url_r = P2Util::throughIme($tora3_url);
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $id_input_size_at = " size=\"30\"";
     $pass_input_size_at = " size=\"24\"";
 }
@@ -206,4 +204,13 @@ if ($_conf['ktai']) {
 
 echo '</body></html>';
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

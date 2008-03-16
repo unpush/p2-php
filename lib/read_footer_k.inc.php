@@ -9,23 +9,28 @@ include_once P2_LIBRARY_DIR . '/spm_k.inc.php';
 // フッタ
 //=====================================================================
 // 表示範囲
-if ($_conf['filtering'] && $aThread->rescount) {
+if (isset($GLOBALS['word']) && $aThread->rescount) {
     $filter_range['end'] = min($filter_range['to'], $filter_hits);
     $read_range_on = "{$filter_range['start']}-{$filter_range['end']}/{$filter_hits}hit";
+} elseif ($aThread->resrange_multi) {
+    $read_range_on = htmlspecialchars($aThread->ls);
 } elseif ($aThread->resrange['start'] == $aThread->resrange['to']) {
     $read_range_on = $aThread->resrange['start'];
 } else {
     $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
 }
 $hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
+if (!empty($_GET['onlyone'])) {
+    $hd['read_range'] = 'ﾌﾟﾚﾋﾞｭｰ&gt;&gt;1';
+}
 
 // レス番指定移動 etc.
-$htm['goto'] = kspform($aThread, ($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']));
+$htm['goto'] = kspform($aThread, (isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to']));
 
 //=====================================================================
 // プリント
 //=====================================================================
-if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
+if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // and empty($_GET['renzokupop'])
 
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
@@ -39,7 +44,7 @@ EOP;
         }
     }
     if ($res1['body']) {
-        $q_ichi = $res1['body']." | ";
+        $q_ichi = $res1['body'] . " | ";
     }
     echo <<<EOP
 <p>
@@ -64,8 +69,17 @@ EOP;
         echo '</p>' . "\n";
     }
 }
-echo '<hr>'.$_conf['k_to_index_ht'] . "\n";
+echo '<hr>' . $_conf['k_to_index_ht'] . "\n";
 
 echo '</body></html>';
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

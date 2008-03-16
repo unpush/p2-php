@@ -34,6 +34,9 @@ $conf_user_def['mobile.ngword_color'] = "#bbbbbb"; // ("#bbbbbb")
 // オンザフライレス番号
 $conf_user_def['mobile.onthefly_color'] = "#00aa00"; // ("#00aa00")
 
+// sage
+$conf_user_def['mobile.sage_color'] = "#aaaaaa"; // ("#aaaaaa")
+
 // フィルタリングでマッチしたキーワード
 $conf_user_def['mobile.match_color'] = ""; // ("")
 
@@ -50,11 +53,11 @@ $conf_user_rad['expack.tgrep.quicksearch'] = array('1' => '表示', '0' => '非表示
 
 // 検索履歴を記録する数（off:0）
 $conf_user_def['expack.tgrep.recent_num'] = 10; // (10)
-$conf_user_rules['expack.tgrep.recent_num'] = array('IntExceptMinus');
+$conf_user_rules['expack.tgrep.recent_num'] = array('notIntExceptMinusToDef');
 
 // サーチボックスに検索履歴を記録する数、Safari専用（off:0）
 $conf_user_def['expack.tgrep.recent2_num'] = 10; // (10)
-$conf_user_rules['expack.tgrep.recent2_num'] = array('IntExceptMinus');
+$conf_user_rules['expack.tgrep.recent2_num'] = array('notIntExceptMinusToDef');
 
 // }}}
 // {{{ スマートポップアップメニュー
@@ -130,9 +133,13 @@ $conf_user_rad['expack.editor.check_sage'] = array('1' => 'する', '0' => 'しない
 // }}}
 // {{{ RSSリーダ
 
-// RSSが更新されたかどうか確認する間隔（分指定）
+// 追加セット数 (Bloglines のフォルダのようなもの)
+$conf_user_def['expack.rss.set_num'] = 0; // (0)
+$conf_user_rules['expack.rss.set_num'] = array('notIntExceptMinusToDef', 'tooLargeSetNumToMax');
+
+// RSSが更新されたかどうか確認する間隔 (分指定)
 $conf_user_def['expack.rss.check_interval'] = 30; // (30)
-$conf_user_rules['expack.rss.check_interval'] = array('IntExceptMinus');
+$conf_user_rules['expack.rss.check_interval'] = array('notIntExceptMinusToDef');
 
 // RSSの外部リンクを開くフレームまたはウインドウ
 $conf_user_def['expack.rss.target_frame'] = "read"; // ("read")
@@ -153,7 +160,7 @@ $conf_user_sel['expack.ic2.fitimage'] = array('1' => 'する', '0' => 'しない', '2
 
 // 携帯でインライン・サムネイルが有効のときの表示する制限数（0で無制限）
 $conf_user_def['expack.ic2.pre_thumb_limit_k'] = 5; // (5)
-$conf_user_rules['expack.ic2.pre_thumb_limit_k'] = array('IntExceptMinus');
+$conf_user_rules['expack.ic2.pre_thumb_limit_k'] = array('notIntExceptMinusToDef');
 
 // 新着レスの画像は pre_thumb_limit を無視して全て表示する
 $conf_user_def['expack.ic2.newres_ignore_limit'] = 0; // (0)
@@ -171,11 +178,11 @@ $conf_user_def['expack.google.key'] = ""; // ("")
 
 // 検索履歴を記録する数（off:0）
 //$conf_user_def['expack.google.recent_num'] = 10; // (10)
-//$conf_user_rules['expack.google.recent_num'] = array('IntExceptMinus');
+//$conf_user_rules['expack.google.recent_num'] = array('notIntExceptMinusToDef');
 
 // サーチボックスに検索履歴を記録する数、Safari専用（off:0）
 $conf_user_def['expack.google.recent2_num'] = 10; // (10)
-$conf_user_rules['expack.google.recent2_num'] = array('IntExceptMinus');
+$conf_user_rules['expack.google.recent2_num'] = array('notIntExceptMinusToDef');
 
 // SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う（0:no; 1:yes;）
 $conf_user_def['expack.google.force_pear'] = 0; // (0)
@@ -194,31 +201,31 @@ $conf_user_sel['expack.aas.image_type'] = array('0' => 'PNG', '1' => 'JPEG', '2'
 
 // JPEGの品質（0-100）
 $conf_user_def['expack.aas.jpeg_quality'] = 80; // (80)
-$conf_user_rules['expack.aas.jpeg_quality'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.jpeg_quality'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 携帯用の画像の横幅 (ピクセル)
 $conf_user_def['expack.aas.image_width'] = 230; // (230)
-$conf_user_rules['expack.aas.image_width'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.image_width'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 携帯用の画像の高さ (ピクセル)
 $conf_user_def['expack.aas.image_height'] = 450; // (450)
-$conf_user_rules['expack.aas.image_height'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.image_height'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // PC用の画像の横幅 (ピクセル)
 $conf_user_def['expack.aas.image_width_pc'] = 640; // (640)
-$conf_user_rules['expack.aas.image_width_pc'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.image_width_pc'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // PC用の画像の高さ (ピクセル)
 $conf_user_def['expack.aas.image_height_pc'] = 480; // (480)
-$conf_user_rules['expack.aas.image_height_pc'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.image_height_pc'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // インライン表示の横幅 (ピクセル)
 $conf_user_def['expack.aas.image_width_il'] = 64; // (64)
-$conf_user_rules['expack.aas.image_width_il'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.image_width_il'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // インライン表示の高さ (ピクセル)
 $conf_user_def['expack.aas.image_height_il'] = 64; // (64)
-$conf_user_rules['expack.aas.image_height_il'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.image_height_il'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 画像の余白をトリミングする (0:しない; 1:する)
 $conf_user_def['expack.aas.trim'] = 1; // (1)
@@ -236,16 +243,26 @@ $conf_user_def['expack.aas.bgcolor'] = 'ffffff'; // ('ffffff')
 
 // 最大の文字サイズ (ポイント)
 $conf_user_def['expack.aas.max_fontsize'] = 36; // (36)
-$conf_user_rules['expack.aas.max_fontsize'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.max_fontsize'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 最小の文字サイズ (ポイント)
 $conf_user_def['expack.aas.min_fontsize'] = 6; // (6)
-$conf_user_rules['expack.aas.min_fontsize'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['expack.aas.min_fontsize'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // インライン表示の文字サイズ (ポイント)
 // 0のときは通常のAASと同じように最適なサイズを計算する
 $conf_user_def['expack.aas.inline_fontsize'] = 6; // (6)
-$conf_user_rules['expack.aas.inline_fontsize'] = array('IntExceptMinus');
+$conf_user_rules['expack.aas.inline_fontsize'] = array('notIntExceptMinusToDef');
 
 // }}}
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

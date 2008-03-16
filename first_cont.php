@@ -2,7 +2,7 @@
 // rep2 -  スレッド表示部分の初期表示
 // フレーム3分割画面、右下部分
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 
 // {{{ スレ指定フォーム
 
@@ -11,8 +11,8 @@ $explanation = '見たいスレッドのURLを入力して下さい。例：http://pc.2ch.net/test/
 // $defurl = getLastReadTreadUrl();
 
 $onClick_ht = <<<EOP
-var url_v=document.forms["urlform"].elements["url_text"].value;
-if(url_v=="" || url_v=="{$ini_url_text}"){
+var url_v = document.forms["urlform"].elements["url_text"].value;
+if (url_v=="" || url_v=="{$ini_url_text}") {
     alert("{$explanation}");
     return false;
 }
@@ -30,8 +30,7 @@ EOP;
 //=============================================================
 // HTMLプリント
 //=============================================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -52,4 +51,13 @@ echo <<<EOP
 </html>
 EOP;
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,9 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2機能拡張パック - RSS画像キャッシュ
-*/
+/**
+ * rep2expack - RSS画像キャッシュ
+ */
 
 require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
@@ -30,8 +28,8 @@ function rss_get_image($src_url, $memo='')
 function rss_get_image_ic2($src_url, $memo='')
 {
     $icdb = &new IC2DB_images;
-    static $thumbnailer = NULL;
-    static $thumbnailer_k = NULL;
+    static $thumbnailer = null;
+    static $thumbnailer_k = null;
     if (is_null($thumbnailer)) {
         $thumbnailer = &new ThumbNailer(1);
         $thumbnailer_k = &new ThumbNailer(2);
@@ -40,15 +38,14 @@ function rss_get_image_ic2($src_url, $memo='')
     if ($thumbnailer->ini['General']['automemo'] && $memo !== '') {
         $img_memo = IC2DB_Images::uniform($memo, 'SJIS-win');
         if ($memo !== '') {
-            $hint = mb_convert_encoding('◎◇　◇◎', 'UTF-8', 'SJIS-win');
-            $img_memo_query = '&amp;hint=' . rawurlencode($hint);
+            $img_memo_query = '&amp;hint=' . rawurlencode($_conf['detect_hint_utf8']);
             $img_memo_query .= '&amp;memo=' . rawurlencode($img_memo);
         } else {
-            $img_memo = NULL;
+            $img_memo = null;
             $img_memo_query = '';
         }
     } else {
-        $img_memo = NULL;
+        $img_memo = null;
         $img_memo_query = '';
     }
 
@@ -68,7 +65,7 @@ function rss_get_image_ic2($src_url, $memo='')
     $thumb_k_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en;
     $thumb_k_url2 = 'ic2.php?r=0&amp;t=1&amp;id=';
     $thumb_k_size = '';
-    $src_exists = FALSE;
+    $src_exists = false;
 
     // DBに画像情報が登録されていたとき
     if ($icdb->get($src_url)) {
@@ -89,7 +86,7 @@ function rss_get_image_ic2($src_url, $memo='')
         if (file_exists($_img_url)) {
             $img_url = $_img_url;
             $img_size = "width=\"{$icdb->width}\" height=\"{$icdb->height}\"";
-            $src_exists = TRUE;
+            $src_exists = true;
         }
 
         // サムネイルが作成されていているときは画像を直接読み込む
@@ -144,4 +141,13 @@ function rss_get_image_ic2($src_url, $memo='')
     return $result;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

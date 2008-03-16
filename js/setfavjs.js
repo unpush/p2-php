@@ -1,4 +1,5 @@
-// ■お気にセット関数
+////
+// お気にセット関数
 // setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}',{$STYLE['info_pop_size']}, this);
 //
 function setFavJs(tquery, favdo, info_pop_width, info_pop_height, page, obj)

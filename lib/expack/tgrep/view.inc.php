@@ -48,8 +48,9 @@
     <td align="left" valign="middle"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
     <td align="left" valign="middle">
         <form id="searchForm" name="searchForm" action="<?php echo $htm['php_self']; ?>" method="get"accept-charset="{$_conf['accept_charset']}">
-        <input type="hidden" name="hint" value="ž@ž" />
+        <?php echo $_conf['detect_hint_input_xht']; ?>
         <input id="Q" name="Q" <?php echo $htm['search_attr']; ?> />
+        <?php echo $_conf['k_input_xht']; ?>
         <input type="submit" value="ŒŸõ" />
         </form>
     </td>
@@ -173,8 +174,9 @@ foreach ($threads as $o => $t) {
     <td align="left" valign="middle"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
     <td align="left" valign="middle">
         <form id="searchForm2" name="searchForm" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="{$_conf['accept_charset']}">
-        <input type="hidden" name="hint" value="ž@ž" />
+        <?php echo $_conf['detect_hint_input_xht']; ?>
         <input id="Q2" name="Q" <?php echo $htm['search_attr']; ?> />
+        <?php echo $_conf['k_input_xht']; ?>
         <input type="submit" value="ŒŸõ" />
         </form>
     </td>

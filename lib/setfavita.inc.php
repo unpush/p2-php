@@ -1,16 +1,19 @@
 <?php
-// p2 -  お気に板の処理
-
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
- * お気に板をセットする
+ * お気に板をセットする関数
  *
  * $set は、0(解除), 1(追加), top, up, down, bottom
+ *
+ * @access  public
+ * @return  boolean  実行成否
  */
 function setFavIta()
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
+
+    // {{{ パラメータの設定
 
     if (isset($_GET['setfavita'])) {
         $setfavita = $_GET['setfavita'];
@@ -18,51 +21,57 @@ function setFavIta()
         $setfavita = $_POST['setfavita'];
     }
 
-    $host = isset($_GET['host']) ? $_GET['host'] : NULL;
-    $bbs = isset($_GET['bbs']) ? $_GET['bbs'] : NULL;
+    $host = isset($_GET['host']) ? $_GET['host'] : null;
+    $bbs  = isset($_GET['bbs'])  ? $_GET['bbs']  : null;
 
-    if ($_POST['url']) {
+    if (!empty($_POST['url'])) {
         if (preg_match("/http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?/", $_POST['url'], $matches)) {
-            $host = $matches[1];
-            $host = preg_replace('{/test/read\.cgi$}', '', $host);
+            $host = preg_replace('{/test/read\.cgi$}', '', $matches[1]);
             $bbs = $matches[2];
         } else {
-            $_info_msg_ht .= "<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>";
+            P2Util::pushInfoHtml("<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>");
         }
     }
 
-    $list = $_POST['list'];
+    $list = isset($_POST['list']) ? $_POST['list'] : '';
 
-    if (!$host && !$bbs and (!(!empty($_POST['submit_setfavita']) && $list))) {
-        $_info_msg_ht .= "<p>p2 info: 板の指定が変です</p>";
+    // リストで並び替え
+    if (!empty($_POST['submit_listfavita'])) {
+        if (!$list) {
+            P2Util::pushInfoHtml("<p>p2 info: リストの指定が変です</p>");
+            return false;
+        }
+
+    // 新規追加 or 一つずつ並び替え
+    } elseif (!$host || !$bbs) {
+        P2Util::pushInfoHtml("<p>p2 info: 板の指定が変です</p>");
         return false;
     }
 
-    if (isset($_POST['itaj'])) {
-        $itaj = $_POST['itaj'];
-    }
-    if (!isset($itaj) && isset($_GET['itaj_en'])) {
+    $itaj = isset($_POST['itaj']) ? $_POST['itaj'] : '';
+
+    if (!$itaj && isset($_GET['itaj_en'])) {
         $itaj = base64_decode($_GET['itaj_en']);
     }
-    if (empty($itaj)) { $itaj = $bbs; }
+    !$itaj and $itaj = $bbs;
 
-    //================================================
-    // 読み込み
-    //================================================
-    //favita_pathファイルがなければ生成
-    FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
-
-    //favita_path読み込み;
-    $lines = @file($_conf['favita_path']);
+    // }}}
 
     //================================================
     // 処理
     //================================================
+    FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
+
+    $lines = file($_conf['favita_path']);
+    if ($lines === false) {
+        return false;
+    }
+
     $neolines = array();
     $before_line_num = 0;
 
-    // 最初に重複要素を消去
-    if (!empty($lines)) {
+    // 最初に重複要素を消去しておく
+    if ($lines) {
         $i = -1;
         foreach ($lines as $l) {
             $i++;
@@ -88,14 +97,19 @@ function setFavIta()
     }
 
     // 記録データ設定
-    if (!empty($_POST['submit_setfavita']) && $list) {
+
+    // リスト丸ごとポストして指定
+    if (!empty($_POST['submit_listfavita']) && $list) {
         $rec_lines = array();
         foreach (explode(',', $list) as $aList) {
             list($host, $bbs, $itaj_en) = explode('@', $aList);
             $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
         }
-        $_info_msg_ht .= "<script type=\"text/javascript\">if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
+        P2Util::pushInfoHtml('<script language="javascript">');
+        P2Util::pushInfoHtml("if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }");
+        P2Util::pushInfoHtml('</script>');
 
+    // 一つのデータを指定して操作
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
         include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
@@ -114,10 +128,22 @@ function setFavIta()
     }
 
     // 書き込む
-    if (FileCtl::file_write_contents($_conf['favita_path'], $cont) === false) {
+    if (file_put_contents($_conf['favita_path'], $cont, LOCK_EX) === false) {
+        trigger_error("file_put_contents(" . $_conf['favita_path'] . ")", E_USER_WARNING);
         die('Error: cannot write file.');
+        return false;
     }
 
     return true;
 }
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

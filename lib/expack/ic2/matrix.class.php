@@ -1,15 +1,17 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - ImageCache2
+ */
 
-/* ImageCache2 - 行列管理クラス */
-
+/**
+ * ImageCache2 - 行列管理クラス
+ */
 class MatrixManager
 {
     var $cols;
     var $rows;
     var $cells;
-    function MatrixManager($cols, $rows, $cells = NULL)
+    function MatrixManager($cols, $rows, $cells = null)
     {
         if ($cells) {
             $this->max = $cells;
@@ -37,4 +39,13 @@ class MatrixManager
     }
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

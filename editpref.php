@@ -3,7 +3,7 @@
     p2 -  設定管理
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 include_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -24,6 +24,14 @@ $synctitle = array(
 // }}}
 // {{{ 設定変更処理
 
+if ($_conf['expack.favset.enabled'] &&
+    ($_conf['favlist_set_num'] > 0 || $_conf['favita_set_num'] > 0 || $_conf['expack.rss.set_num'] > 0))
+{
+    $multi_favs = true;
+} else {
+    $multi_favs = false;
+}
+
 // ホストの同期
 if (isset($_POST['sync'])) {
     include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
@@ -37,7 +45,7 @@ if (isset($_POST['sync'])) {
     unset($syncfile);
 
 // お気に入りセット変更があれば、設定ファイルを書き換える
-} elseif ($_conf['expack.misc.multi_favs'] && isset($_POST['favsetlist'])) {
+} elseif ($multi_favs && isset($_POST['favsetlist'])) {
     updateFavSetList();
 }
 
@@ -46,7 +54,7 @@ if (isset($_POST['sync'])) {
 
 $ptitle = '設定管理';
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $status_st      = 'ｽﾃｰﾀｽ';
     $autho_user_st  = '認証ﾕｰｻﾞ';
     $client_host_st = '端末ﾎｽﾄ';
@@ -70,10 +78,7 @@ $autho_user_ht = '';
 // HTMLプリント
 //=========================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -84,7 +89,7 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=editpref&amp;skin={$skin_en}" type="text/css">\n
@@ -97,16 +102,15 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
 //<p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
     echo "<p id=\"pan_menu\">{$ptitle}</p>\n";
 }
 
 
-echo $_info_msg_ht;
-$_info_msg_ht = '';
+P2Util::printInfoHtml();
 
-// 設定プリント =====================
+// 設定プリント
 $aborn_res_txt  = $_conf['pref_dir'] . '/p2_aborn_res.txt';
 $aborn_name_txt = $_conf['pref_dir'] . '/p2_aborn_name.txt';
 $aborn_mail_txt = $_conf['pref_dir'] . '/p2_aborn_mail.txt';
@@ -125,7 +129,7 @@ if (empty($_conf['ktai']) && $_conf['expack.skin.enabled']) {
     $skin_options = array('conf_user_style' => '標準');
     $skin_dir = opendir('./skin');
     if ($skin_dir) {
-        while (($skin_file = readdir($skin_dir)) !== FALSE) {
+        while (($skin_file = readdir($skin_dir)) !== false) {
             if (is_file("./skin/{$skin_file}") && preg_match('/^(\w+)\.php$/', $skin_file, $skin_matches)) {
                 $_name = $skin_matches[1];
                 $skin_options[$_name] = $_name;
@@ -151,7 +155,7 @@ EOP;
 echo '</div>';
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
 
     echo "<table id=\"editpref\">\n";
 
@@ -160,7 +164,7 @@ if (empty($_conf['ktai'])) {
 
     echo <<<EOP
 <fieldset>
-<legend><a href="http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
+<legend><a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
 EOP;
     printEditFileForm($ng_name_txt, "名前");
     printEditFileForm($ng_mail_txt, "メール");
@@ -246,25 +250,33 @@ EOP;
     // }}}
     // {{{ PC - セット切り替え・名称変更
 
-    if ($_conf['expack.misc.multi_favs']) {
+    if ($multi_favs) {
         echo "<tr><td colspan=\"2\">\n\n";
 
         echo <<<EOP
 <form action="editpref.php" method="post" accept-charset="{$_conf['accept_charset']}" target="_self" style="margin:0">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="favsetlist" value="1">
     <fieldset>
         <legend>セット切り替え・名称変更（セット名を空にするとデフォルトの名前に戻ります）</legend>
         <table>
             <tr>\n
 EOP;
-        echo "<td>\n";
-        echo getFavSetListFormHt('m_favlist_set', 'お気にスレ');
-        echo "</td><td>\n";
-        echo getFavSetListFormHt('m_favita_set', 'お気に板');
-        echo "</td><td>\n";
-        echo getFavSetListFormHt('m_rss_set', 'RSS');
-        echo "</td>\n";
+        if ($_conf['favlist_set_num'] > 0) {
+            echo "<td>\n";
+            echo getFavSetListFormHt('m_favlist_set', 'お気にスレ');
+            echo "</td>\n";
+        }
+        if ($_conf['favita_set_num'] > 0) {
+            echo "<td>\n";
+            echo getFavSetListFormHt('m_favita_set', 'お気に板');
+            echo "</td>\n";
+        }
+        if ($_conf['expack.rss.set_num'] > 0) {
+            echo "<td>\n";
+            echo getFavSetListFormHt('m_rss_set', 'RSS');
+            echo "</td>\n";
+        }
         echo <<<EOP
             </tr>
         </table>
@@ -272,6 +284,7 @@ EOP;
             <input type="submit" value="変更">
         </div>
     </fieldset>
+    {$_conf['k_input_ht']}
 </form>\n\n
 EOP;
 
@@ -324,16 +337,22 @@ EOP;
 
     // {{{ 携帯 - セット切り替え
 
-    if ($_conf['expack.misc.multi_favs']) {
+    if ($multi_favs) {
         echo <<<EOP
 <hr>
 <p>お気にｽﾚ･お気に板･RSSのｾｯﾄを選択</p>
 <form action="editpref.php" method="post" accept-charset="{$_conf['accept_charset']}" target="_self">
 {$_conf['k_input_ht']}
 EOP;
-        echo getFavSetListFormHtK('m_favlist_set', 'お気にｽﾚ'), '<br>';
-        echo getFavSetListFormHtK('m_favita_set', 'お気に板'), '<br>';
-        echo getFavSetListFormHtK('m_rss_set', 'RSS'), '<br>';
+        if ($_conf['favlist_set_num'] > 0) {
+            echo getFavSetListFormHtK('m_favlist_set', 'お気にｽﾚ'), '<br>';
+        }
+        if ($_conf['favita_set_num'] > 0) {
+            echo getFavSetListFormHtK('m_favita_set', 'お気に板'), '<br>';
+        }
+        if ($_conf['expack.rss.set_num'] > 0) {
+            echo getFavSetListFormHtK('m_rss_set', 'RSS'), '<br>';
+        }
         echo <<<EOP
 <input type="submit" value="変更">
 </form>
@@ -348,7 +367,7 @@ EOP;
 
 $max = $_conf['matome_cache_max'];
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $ext = '.k' . $_conf['matome_cache_ext'];
 } else {
     $ext = $_conf['matome_cache_ext'];
@@ -380,16 +399,22 @@ if (!empty($links)) {
 // 携帯用フッタ
 if ($_conf['ktai']) {
     echo "<hr>\n";
-    echo $_conf['k_to_index_ht']."\n";
+    echo $_conf['k_to_index_ht'] . "\n";
 }
 
 echo '</body></html>';
 
-//=====================================================
+exit;
+
+//==============================================================================
 // 関数
-//=====================================================
+//==============================================================================
 /**
- * 設定ファイル編集ウインドウを開くフォームをプリントする
+ * 設定ファイル編集ウインドウを開くフォームHTMLをプリントする
+ *
+ * @param   string  $path_value     編集するファイルのパス
+ * @param   string  $submit_value   submitボタンの値
+ * @return  void
  */
 function printEditFileForm($path_value, $submit_value)
 {
@@ -435,6 +460,10 @@ EOFORM;
 
 /**
  * ホストの同期用フォームのHTMLを取得する
+ *
+ * @param   string  $path_value     同期するファイルのパス
+ * @param   string  $submit_value   submitボタンの値
+ * @return  string
  */
 function getSyncFavoritesFormHt($path_value, $submit_value)
 {
@@ -456,23 +485,36 @@ EOFORM;
 
 /**
  * お気に入りセット切り替え・セット名変更用フォームのHTMLを取得する（PC用）
+ *
+ * @param   string  $set_name   内部処理用セット名
+ * @param   string  $set_title  HTML表示用セット名
+ * @return  string
  */
 function getFavSetListFormHt($set_name, $set_title)
 {
     global $_conf;
 
+    $setdefs = FavSetManager::getSetDefinition();
+    if (!isset($setdefs[$set_name])) {
+        return '';
+    }
+    $num_conf_key = $setdefs[$set_name][0];
+    if ($_conf[$num_conf_key] == 0) {
+        return '';
+    }
+
     if (!($titles = FavSetManager::getFavSetTitles($set_name))) {
         $titles = array();
     }
 
-    $radio_checked = array_fill(0, $_conf['expack.misc.favset_num'] + 1, '');
+    $radio_checked = array_fill(0, $_conf[$num_conf_key] + 1, '');
     $i = (isset($_SESSION[$set_name])) ? (int)$_SESSION[$set_name] : 0;
     $radio_checked[$i] = ' checked';
     $ht = <<<EOFORM
 <fieldset>
     <legend>{$set_title}</legend>\n
 EOFORM;
-    for ($j = 0; $j <= $_conf['expack.misc.favset_num']; $j++) {
+    for ($j = 0; $j <= $_conf[$num_conf_key]; $j++) {
         if (!isset($titles[$j]) || strlen($titles[$j]) == 0) {
             $titles[$j] = ($j == 0) ? $set_title : $set_title . $j;
         }
@@ -491,20 +533,33 @@ EOFORM;
 
 /**
  * お気に入りセット切り替え用フォームのHTMLを取得する（携帯用）
+ *
+ * @param   string  $set_name   内部処理用セット名
+ * @param   string  $set_title  HTML表示用セット名
+ * @return  string
  */
 function getFavSetListFormHtK($set_name, $set_title)
 {
     global $_conf;
 
+    $setdefs = FavSetManager::getSetDefinition();
+    if (!isset($setdefs[$set_name])) {
+        return '';
+    }
+    $num_conf_key = $setdefs[$set_name][0];
+    if ($_conf[$num_conf_key] == 0) {
+        return '';
+    }
+
     if (!($titles = FavSetManager::getFavSetTitles($set_name))) {
         $titles = array();
     }
 
-    $selected = array_fill(0, $_conf['expack.misc.favset_num'] + 1, '');
+    $selected = array_fill(0, $_conf[$num_conf_key] + 1, '');
     $i = (isset($_SESSION[$set_name])) ? (int)$_SESSION[$set_name] : 0;
     $selected[$i] = ' selected';
     $ht = "<select name=\"{$set_name}\">";
-    for ($j = 0; $j <= $_conf['expack.misc.favset_num']; $j++) {
+    for ($j = 0; $j <= $_conf[$num_conf_key]; $j++) {
         if ($j == 0) {
             if (!isset($titles[$j]) || strlen($titles[$j]) == 0) {
                 $titles[$j] = $set_title;
@@ -527,25 +582,28 @@ function getFavSetListFormHtK($set_name, $set_title)
 
 /**
  * お気に入りセットリストを更新する
+ *
+ * @return  boolean 更新に成功したらtrue, 失敗したらfalse
  */
 function updateFavSetList()
 {
-    global $_conf, $_info_msg_ht;
+    global $_conf;
 
-    if (file_exists($_conf['expack.misc.favset_file'])) {
+    if (file_exists($_conf['expack.favset.namefile'])) {
         $setlist_titles = FavSetManager::getFavSetTitles();
     } else {
-        FileCtl::make_datafile($_conf['expack.misc.favset_file']);
+        FileCtl::make_datafile($_conf['expack.favset.namefile']);
     }
     if (empty($setlist_titles)) {
         $setlist_titles = array();
     }
 
     $setlist_names = array('m_favlist_set', 'm_favita_set', 'm_rss_set');
-    foreach ($setlist_names as $setlist_name) {
+    $setdefs = FavSetManager::getSetDefinition();
+    foreach ($setdefs as $setlist_name => $setlist_conf_key) {
         if (isset($_POST["{$setlist_name}_titles"]) && is_array($_POST["{$setlist_name}_titles"])) {
             $setlist_titles[$setlist_name] = array();
-            for ($i = 0; $i <= $_conf['expack.misc.favset_num']; $i++) {
+            for ($i = 0; $i <= $_conf[$setlist_conf_key[0]]; $i++) {
                 if (!isset($_POST["{$setlist_name}_titles"][$i])) {
                     $setlist_titles[$setlist_name][$i] = '';
                     continue;
@@ -559,12 +617,21 @@ function updateFavSetList()
     }
 
     $newdata = serialize($setlist_titles);
-    if (FileCtl::file_write_contents($_conf['expack.misc.favset_file'], $newdata) === FALSE) {
-        $_info_msg_ht .= "<p>p2 error: {$_conf['expack.misc.favset_file']} にお気に入りセット設定を書き込めませんでした。";
-        return FALSE;
+    if (FileCtl::file_write_contents($_conf['expack.favset.namefile'], $newdata) === false) {
+        P2Util::pushInfoHtml("<p>p2 error: {$_conf['expack.favset.namefile']} にお気に入りセット設定を書き込めませんでした。");
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

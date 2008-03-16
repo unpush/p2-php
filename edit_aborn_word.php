@@ -3,7 +3,7 @@
     p2 - あぼーんワード編集インタフェース
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -13,26 +13,29 @@ $path_ht = htmlspecialchars($path, ENT_QUOTES);
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-        die('p2 error: 不正なポストです');
+        P2Util::printSimpleHtml('p2 error: 不正なポストです');
+        die('');
     }
 }
 
 $writable_files = array(
-    "p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
-    "p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
-    //"p2_aborn_res.txt",
+    'p2_aborn_name.txt', 'p2_aborn_mail.txt', 'p2_aborn_msg.txt', 'p2_aborn_id.txt',
+    'p2_ng_name.txt', 'p2_ng_mail.txt', 'p2_ng_msg.txt', 'p2_ng_id.txt',
+    //'p2_aborn_res.txt',
 );
 
 if ($writable_files and (!in_array(basename($path), $writable_files))) {
     $i = 0;
     foreach ($writable_files as $afile) {
         if ($i != 0) {
-            $files_st .= "と";
+            $files_st .='と';
         }
-        $files_st .= "「".$afile."」";
+        $files_st .= "「{$afile}」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の書き込めるファイルは、".$files_st."だけ！");
+    P2Util::printSimpleHtml('p2 error: ' . basename($_SERVER['SCRIPT_NAME'])
+        . " 先生の書き込めるファイルは、{$files_st}だけ！");
+    die('');
 }
 
 //=====================================================================
@@ -71,10 +74,10 @@ if (!empty($_POST['submit_save'])) {
         }
         $newdata .= $a_mode . $a_word . "\t" . $a_time . "\t" . $a_hits . "\n";
     }
-    if (FileCtl::file_write_contents($path, $newdata) !== FALSE) {
-        $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
+    if (FileCtl::file_write_contents($path, $newdata) !== false) {
+        P2Util::pushInfoHtml("<p>○設定を更新保存しました</p>");
     } else {
-        $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
+        P2Util::pushInfoHtml("<p>×設定を更新保存できませんでした</p>");
     }
 
 // }}}
@@ -82,9 +85,9 @@ if (!empty($_POST['submit_save'])) {
 
 } elseif (!empty($_POST['submit_default'])) {
     if (@unlink($path)) {
-        $_info_msg_ht .= "<p>○リストを空にしました</p>";
+        P2Util::pushInfoHtml("<p>○リストを空にしました</p>");
     } else {
-        $_info_msg_ht .= "<p>×リストを空にできませんでした</p>";
+        P2Util::pushInfoHtml("<p>×リストを空にできませんでした</p>");
     }
 }
 
@@ -156,8 +159,7 @@ $csrfid = P2Util::getCsrfId();
 //=====================================================================
 // ヘッダHTMLをプリント
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -168,7 +170,7 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
@@ -184,7 +186,7 @@ echo <<<EOP
 EOP;
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 <p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle_top}</p>\n
 EOP;
@@ -193,7 +195,7 @@ EOP;
 }
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $htm['form_submit'] = <<<EOP
         <tr class="group">
             <td colspan="6" align="center">
@@ -210,10 +212,7 @@ EOP;
 }
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
-}
+P2Util::printInfoHtml();
 
 $usage = <<<EOP
 <ul>
@@ -224,20 +223,20 @@ $usage = <<<EOP
 <li>スレタイ: スレッドタイトル (部分一致, 常に大文字小文字を無視)</li>
 </ul>
 EOP;
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $usage = mb_convert_kana($usage, 'k');
 }
 echo <<<EOP
 {$usage}
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['k_input_ht']}
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="path" value="{$path_ht}">
-    <input type="hidden" name="csrfid" value="{$csrfid}">\n
+    <input type="hidden" name="csrfid" value="{$csrfid}">
+    {$_conf['k_input_ht']}\n
 EOP;
 
 // PC用表示（table）
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <table class="edit_conf_user" cellspacing="0">
         <tr>
@@ -300,7 +299,7 @@ if (!empty($formdata)) {
 }
 
 // PCなら
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo '</table>'."\n";
 }
 
@@ -318,7 +317,13 @@ EOP;
 
 echo '</body></html>';
 
-// ■ここまで
-exit;
-
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

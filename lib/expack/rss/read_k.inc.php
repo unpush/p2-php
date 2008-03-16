@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - RSSの内容表示 (携帯用)
+ */
 
 // {{{ ヘッダ
 
@@ -13,10 +14,9 @@ echo <<<EOH
 <title>{$title}</title>
 </head>
 <body{$_conf['k_colors']}>
-{$_info_msg_ht}
-<h1>{$ch_title}</h1>
-<hr>
 EOH;
+P2Util::printInfoHtml();
+echo "<h1>{$ch_title}</h1><hr>";
 
 // RSSがパースできなかったとき
 if (!$rss_parse_success) {
@@ -117,4 +117,13 @@ EOP;
 
 // }}}
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

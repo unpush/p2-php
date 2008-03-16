@@ -1,17 +1,36 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// 検索クエリ
-$_conf['filter_q'] = '?host=' . $aThread->host . $bbs_q . $key_q . $offline_q;
-$_conf['filter_q'] .= '&amp;word=' . rawurlencode($_GET['word']);
-foreach ($res_filter as $key => $value) {
-    $_conf['filter_q'] .= "&amp;{$key}={$value}";
-}
-$_conf['filter_q'] .= '&amp;ls=all&amp;page=';
+/**
+ * p2 - 携帯でレスフィルタリングしたときのページ遷移用パラメータを設定する
+ */
 
 /**
- * ヘッダ変数を書き換える
+ * ページ遷移用の基本URL(エスケープ済み)を生成する
+ *
+ * @param   object Thread $aThread  スレッドオブジェクト
+ * @param   array $res_filter       フィルタリングのパラメータ
+ * @return  string  ページ遷移用の基本URL
+ */
+function setFilterQuery($aThread, $res_filter)
+{
+    global $filter_q;
+    $filter_q = '?host=' . $aThread->host . $bbs_q . $key_q . $offline_q;
+    $filter_q .= '&amp;word=' . rawurlencode($_GET['word']);
+    foreach ($res_filter as $key => $value) {
+        $filter_q .= '&amp;' . rawurlencode($key) . '= ' . rawurlencode($value);
+    }
+    $filter_q .= '&amp;ls=all&amp;filter_page=';
+    return $filter_q;
+}
+
+// 自動設定
+if (isset($aThread) && isset($res_filter)) {
+    $GLOBALS['filter_q'] = setFilterQuery($aThread, $res_filter);
+}
+
+/**
+ * ヘッダに表示するナビゲーション用の変数を書き換える
+ *
+ * @return  void
  */
 function resetReadNaviHeaderK()
 {
@@ -22,7 +41,9 @@ function resetReadNaviHeaderK()
 }
 
 /**
- * フッタ変数を書き換える
+ * フッタに表示するナビゲーション用の変数を書き換える
+ *
+ * @return  void
  */
 function resetReadNaviFooterK()
 {
@@ -30,15 +51,15 @@ function resetReadNaviFooterK()
     global $prev_st, $read_navi_previous_btm;
     global $next_st, $read_navi_next_btm;
     global $read_footer_navi_new_btm;
-    global $filter_range, $filter_hits, $page;
+    global $filter_range, $filter_hits, $filter_page, $filter_q;
 
-    if ($page > 1) {
-        $read_navi_previous_url = $_conf['read_php'] . $_conf['filter_q'] . ($page - 1) . $_conf['k_at_a'];
+    if ($filter_page > 1) {
+        $read_navi_previous_url = $_conf['read_php'] . $filter_q . ($filter_page - 1) . $_conf['k_at_a'];
         $read_navi_previous_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['prev']}\" href=\"{$read_navi_previous_url}\">{$_conf['k_accesskey']['prev']}.{$prev_st}</a>";
     }
 
     if ($filter_range['to'] < $filter_hits) {
-        $read_navi_next_url = $_conf['read_php'] . $_conf['filter_q'] . ($page + 1) . $_conf['k_at_a'];
+        $read_navi_next_url = $_conf['read_php'] . $filter_q . ($filter_page + 1) . $_conf['k_at_a'];
         $read_navi_next_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\" href=\"{$read_navi_next_url}\">{$_conf['k_accesskey']['next']}.{$next_st}</a>";
     }
 
@@ -46,4 +67,13 @@ function resetReadNaviFooterK()
     $read_footer_navi_new_btm = str_replace(">{$_conf['k_accesskey']['next']}.", '>', $read_footer_navi_new_btm);
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

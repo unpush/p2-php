@@ -15,7 +15,7 @@ function startTimer(obj){
 	_start = new Date();
 	closeTimer();
 }
-		
+
 function closeTimer() {		// スクリプトの本体
 	_now = new Date();
 	if (_run == 1) {

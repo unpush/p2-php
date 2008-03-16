@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /*
     ImageCache2 - エラーログ・ブラックリスト閲覧
 */
@@ -34,7 +32,7 @@ $ini = ic2_loadconfig();
 
 // DB_DataObjectの設定
 $_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => FALSE, 'quote_identifiers' => TRUE);
+$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => false, 'quote_identifiers' => true);
 
 if (!isset($_REQUEST['table'])) {
     die('<html><body><p>ic2 error - 不正なクエリ</p></body></html>');
@@ -57,7 +55,6 @@ switch ($mode) {
     default:
         die('<html><body><p>ic2 error - 不正なクエリ</p></body></html>');
 }
-
 
 $db = &$table->getDatabaseConnection();
 if (isset($_POST['clean'])) {
@@ -92,22 +89,21 @@ $flexy->setData('skin', $skin_en);
 $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
 $flexy->setData('reload_js', $_SERVER['SCRIPT_NAME'] . '?nt=' . time() . '&table=' . $mode);
-$flexy->setData('info_msg', $_info_msg_ht);
+$flexy->setData('info_msg', P2Util::getInfoHtml());
 
 if ($table->find()) {
     switch ($mode) {
         case 'errlog':
-            $flexy->setData('data_renderer_errlog', TRUE);
+            $flexy->setData('data_renderer_errlog', true);
             $flexy->setData('data', ic2dumptable_errlog($table));
             break;
         case 'blacklist':
-            $flexy->setData('data_renderer_blacklist', TRUE);
+            $flexy->setData('data_renderer_blacklist', true);
             $flexy->setData('data', ic2dumptable_blacklist($table));
             break;
     }
 }
 
-P2Util::header_content_type();
 P2Util::header_nocache();
 $flexy->compile('ic2vt.tpl.html');
 $flexy->output();
@@ -156,4 +152,14 @@ function ic2dumptable_blacklist(&$dbdo)
 }
 
 // }}}
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

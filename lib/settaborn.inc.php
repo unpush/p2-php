@@ -1,45 +1,41 @@
 <?php
-// p2 - スレッドあぼーんの関数
-
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
- * スレッドあぼーんをオンオフする
+ * スレッドあぼーんをオンオフする関数
  *
  * $set は、0(解除), 1(追加), 2(トグル)
+ *
+ * @access  public
+ * @return  boolean  実行成否
  */
 function settaborn($host, $bbs, $key, $set)
 {
     global $_conf, $title_msg, $info_msg;
 
-    //==================================================================
-    // key.idx 読み込む
-    //==================================================================
+    // {{{ key.idx 読み込む
 
     // idxfileのパスを求めて
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $idxfile = "{$idx_host_dir}/{$bbs}/{$key}.idx";
 
     // データがあるなら読み込む
-    if (is_readable($idxfile)) {
-        $lines = @file($idxfile);
+    if (file_exists($idxfile)) {
+        $lines = file($idxfile);
         $l = rtrim($lines[0]);
         $data = explode('<>', $l);
     }
 
-    //==================================================================
-    // p2_threads_aborn.idxに書き込む
-    //==================================================================
+    // }}}
 
     // p2_threads_aborn.idx のパス取得
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
 
-    // p2_threads_aborn.idx がなければ生成
     FileCtl::make_datafile($taborn_idx, $_conf['p2_perm']);
 
-    // p2_threads_aborn.idx 読み込み;
-    $taborn_lines= @file($taborn_idx);
+    // p2_threads_aborn.idx 読み込み
+    $taborn_lines = file($taborn_idx);
 
     $neolines = array();
 
@@ -77,6 +73,7 @@ function settaborn($host, $bbs, $key, $set)
     }
     if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
         die('Error: cannot write file.');
+        return false;
     }
 
     $GLOBALS['title_msg'] = $title_msg_pre;
@@ -85,4 +82,13 @@ function settaborn($host, $bbs, $key, $set)
     return true;
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
