@@ -5,9 +5,9 @@
     このファイルは、特に理由の無い限り変更しないこと
 */
 
-$_conf['p2version'] = '1.8.9';      // rep2のバージョン
-$_conf['p2expack'] = '061210.2358'; // 拡張パックのバージョン
-$_conf['p2name'] = 'WowFlutter';    // rep2の名前
+$_conf['p2version'] = '1.8.9';       // rep2のバージョン
+$_conf['p2expack'] = '060903.0030a'; // 拡張パックのバージョン
+$_conf['p2name'] = 'REP2EX-ASAP';    // rep2の名前
 
 //======================================================================
 // 基本設定処理
@@ -44,7 +44,7 @@ $_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.php';
 $_conf['favrank_url']           = 'http://akid.s17.xrea.com/favrank/favrank.php';
 $_conf['expack.web_url']        = 'http://page2.xrea.jp/expack/';
 $_conf['expack.download_url']   = 'http://page2.xrea.jp/expack/index.php/download';
-$_conf['expack.history_url']    = 'http://page2.xrea.jp/expack/index.php/history#WowFlutter';
+$_conf['expack.history_url']    = 'http://page2.xrea.jp/expack/index.php/history#ASAP';
 $_conf['expack.tgrep_url']      = 'http://page2.xrea.jp/tgrep/search';
 $_conf['expack.ime_url']        = 'http://page2.xrea.jp/r.p';
 $_conf['menu_php']              = 'menu.php';
@@ -458,7 +458,7 @@ $_conf['login_log_file'] =      $_conf['pref_dir'] . "/p2_login.log.php";
 $_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';
 
 // saveMatomeCache() のために $_conf['pref_dir'] を絶対パスに変換する
-define('P2_PREF_DIR_REAL_PATH', File_Util::realPath($_conf['pref_dir']));
+define('P2_PREF_DIR_REAL_PATH', p2realpath($_conf['pref_dir']));
 
 $_conf['matome_cache_path'] = P2_PREF_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'matome_cache';
 $_conf['matome_cache_ext'] = '.htm';
@@ -496,11 +496,11 @@ session_name('PS');
 // セッションデータ保存ディレクトリを規定
 if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
     // $_conf['data_dir'] を絶対パスに変換する
-    define('P2_DATA_DIR_REAL_PATH', File_Util::realPath($_conf['data_dir']));
+    define('P2_DATA_DIR_REAL_PATH', p2realpath($_conf['data_dir']));
     $_conf['session_dir'] = P2_DATA_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'session';
 }
 
-if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.favset.enabled']) {
+if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
     $_conf['use_session'] = 1;
 }
 
@@ -534,7 +534,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 // }}}
 
 // 複数のお気にセットを使うとき
-if ($_conf['expack.favset.enabled']) {
+if ($_conf['expack.misc.multi_favs']) {
     require_once P2_LIBRARY_DIR . '/favsetmng.class.php';
     // 切り替え表示用に全てのお気に板を読み込んでおく
     FavSetManager::loadAllFavSet();
@@ -889,6 +889,17 @@ function wakati($str)
 }
 
 /**
+ * 与えられたパスを絶対パスにして返す
+ *
+ * @param   string  $path   パス
+ * @return  string  絶対パス
+ */
+function p2realpath($path)
+{
+    return file_exists($path) ? realpath($path) : File_Util::realPath($path);
+}
+
+/**
  * メッセージを表示して終了
  *
  * @param   string  $err    エラー概要
@@ -922,11 +933,11 @@ function p2checkenv($lineno)
     $php_version = phpversion();
     if (version_compare($php_version, '5.0.0', '<')) {
         $required_version    = '4.3.3';
-        $recommended_version = '4.4.4';
+        $recommended_version = '4.4.5';
         define('P2_PHP5', false);
     } else {
         $required_version    = '5.1.0';
-        $recommended_version = '5.2.0';
+        $recommended_version = '5.2.1';
         define('P2_PHP5', true);
     }
 
@@ -934,17 +945,17 @@ function p2checkenv($lineno)
         p2die('PHP ' . $required_version . ' 未満では使えません。');
     }
     if (!extension_loaded('mbstring')) {
-        p2die('PHPのインストールが不十分です。mbstring拡張モジュールがロードされていません。');
+        p2die('PHPのインストールが不十分です。',
+              'mbstring拡張モジュールがロードされていません。'
+              );
     }
     if (ini_get('safe_mode')) {
         p2die('セーフモードで動作するPHPでは使えません。');
     }
-    if (ini_get('register_globals')) {
-        $msg = <<<EOP
-予期しない動作を避けるために php.ini で register_globals を Off にしてください。
-magic_quotes_gpc や mbstring.encoding_translation も Off にされることをおすすめします。
-EOP;
-        p2die('register_globals が On です。', $msg);
+    if (ini_get('register_globals') || ini_get('magic_quotes_gpc') || ini_get('mbstring.encoding_translation')) {
+        p2die('PHPの設定に推奨されない値があります。',
+              'php.ini で register_globals, magic_quotes_gpc, mbstring.encoding_translation を Off にしてください。'
+              );
     }
 
     if (version_compare($php_version, $recommended_version, '<')) {
@@ -986,12 +997,14 @@ function p2setenv()
     ini_set('default_charset', 'Shift_JIS');
 
     // 文字コードの指定
-    //mb_detect_order("SJIS-win,eucJP-win,ASCII");
+    if (version_compare(phpversion(), '5.2.1', '>=')) {
+        mb_detect_order('UTF-8,CP51932,SJIS-win,ISO-2022-JP-MS,ASCII,ISO-8859-1');
+    } else {
+        mb_detect_order('UTF-8,eucJP-win,SJIS-win,ISO-2022-JP,ASCII,ISO-8859-1');
+    }
     mb_internal_encoding('SJIS-win');
     mb_http_output('pass');
     mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
-    //mb_substitute_character(0x3013); // 〓
-    //ob_start('mb_output_handler');
 
     if (function_exists('mb_ereg_replace')) {
         define('P2_MBREGEX_AVAILABLE', 1);
@@ -1036,20 +1049,17 @@ function p2setenv()
      * フォームからの入力を一括でクォート除去＆文字コード変換
      * フォームのaccept-encoding属性をUTF-8(Safari系) or Shift_JIS(その他)にし、
      * さらにhidden要素で美乳テーブルの文字を仕込むことで誤判定を減らす
-     * 変換元候補にeucJP-winがあるのはHTTP入力の文字コードがEUCに自動変換されるサーバのため
      */
     if (!empty($_GET)) {
-        if (get_magic_quotes_gpc()) {
-            $_GET = array_map('stripslashes_r', $_GET);
+        if (mb_convert_variables('SJIS-win', 'UTF-8,SJIS-win', $_GET) === false) {
+            p2die('$_GET の文字コード変換に失敗しました。');
         }
-        mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_GET);
         $_GET = array_map('nullfilter_r', $_GET);
     }
     if (!empty($_POST)) {
-        if (get_magic_quotes_gpc()) {
-            $_POST = array_map('stripslashes_r', $_POST);
+        if (mb_convert_variables('SJIS-win', 'UTF-8,SJIS-win', $_POST) === false) {
+            p2die('$_POST の文字コード変換に失敗しました。');
         }
-        mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_POST);
         $_POST = array_map('nullfilter_r', $_POST);
         $_REQUEST = array_merge($_GET, $_POST);
     } else {

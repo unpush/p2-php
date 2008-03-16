@@ -1,16 +1,16 @@
 <?php
-require_once P2_LIBRARY_DIR . '/StrSjis.php';
+/*
+    p2 - スレッドを表示する クラス PC用
+*/
+
 require_once P2_LIBRARY_DIR . '/strctl.class.php';
 require_once P2EX_LIBRARY_DIR . '/expack_loader.class.php';
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
 ExpackLoader::loadImageCache();
 
-/**
- * p2 - スレッドを表示するクラス PC用
- */
-class ShowThreadPc extends ShowThread
-{
+class ShowThreadPc extends ShowThread{
+
     var $quote_res_nums_checked; // ポップアップ表示されるチェック済みレス番号を登録した配列
     var $quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
     var $quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
@@ -38,7 +38,6 @@ class ShowThreadPc extends ShowThread
             'plugin_link2chKako',
             'plugin_link2chSubject',
         );
-        $_conf['link_youtube'] and $this->url_handlers[] = 'plugin_linkYouTube';
         if (P2_IMAGECACHE_AVAILABLE == 2) {
             $this->url_handlers[] = 'plugin_imageCache2';
         } elseif ($_conf['preview_thumbnail']) {
@@ -50,13 +49,13 @@ class ShowThreadPc extends ShowThread
         if (!isset($GLOBALS['pre_thumb_unlimited']) || !isset($GLOBALS['pre_thumb_limit'])) {
             if (isset($_conf['pre_thumb_limit']) && $_conf['pre_thumb_limit'] > 0) {
                 $GLOBALS['pre_thumb_limit'] = $_conf['pre_thumb_limit'];
-                $GLOBALS['pre_thumb_unlimited'] = false;
+                $GLOBALS['pre_thumb_unlimited'] = FALSE;
             } else {
-                $GLOBALS['pre_thumb_limit'] = null; // ヌル値だとisset()はFALSEを返す
-                $GLOBALS['pre_thumb_unlimited'] = true;
+                $GLOBALS['pre_thumb_limit'] = NULL; // ヌル値だとisset()はFALSEを返す
+                $GLOBALS['pre_thumb_unlimited'] = TRUE;
             }
         }
-        $GLOBALS['pre_thumb_ignore_limit'] = false;
+        $GLOBALS['pre_thumb_ignore_limit'] = FALSE;
 
         // アクティブモナー初期化
         if (P2_ACTIVEMONA_AVAILABLE) {
@@ -75,10 +74,7 @@ class ShowThreadPc extends ShowThread
     }
 
     /**
-     * DatをHTMLに変換して表示する
-     *
-     * @access  public
-     * @return  boolean
+     * DatをHTMLに変換表示する
      */
     function datToHtml()
     {
@@ -97,26 +93,21 @@ class ShowThreadPc extends ShowThread
         //$status_title = str_replace('"', "\'\'", $status_title);
         echo "<dl onMouseover=\"window.top.status='{$status_title}';\">";
 
-        // 1を表示（範囲外のケースもあるのでここで）
+        // まず 1 を表示
         if (!$nofirst) {
             echo $this->transRes($this->thread->datlines[0], 1);
         }
 
         for ($i = $start; $i <= $to; $i++) {
-            // 表示範囲外ならスキップ
-            if ($this->thread->resrange_multi and !$this->thread->inResrangeMulti($i)) {
-                continue;
-            }
 
-            // 1が前段処理で既表示ならスキップ
             if (!$nofirst and $i == 1) {
                 continue;
             }
-            if (!$this->thread->datlines[$i - 1]) {
-                //$this->thread->readnum = $i - 1; 2006/09/23 ここでセットするのは違う気がした
+            if (!$this->thread->datlines[$i-1]) {
+                $this->thread->readnum = $i-1;
                 break;
             }
-            echo $this->transRes($this->thread->datlines[$i - 1], $i);
+            echo $this->transRes($this->thread->datlines[$i-1], $i);
             flush();
         }
 
@@ -129,12 +120,9 @@ class ShowThreadPc extends ShowThread
 
 
     /**
-     * DatレスをHTMLレスに変換する
+     *  DatレスをHTMLレスに変換する
      *
-     * @access  public
-     * @param   string   $ares  datの1ライン
-     * @param   integer  $i     レス番号
-     * @return  string
+     * 引数 - datの1ライン, レス番号
      */
     function transRes($ares, $i)
     {
@@ -143,14 +131,13 @@ class ShowThreadPc extends ShowThread
         static $ngaborns_head_hits = 0;
         static $ngaborns_body_hits = 0;
 
-        $resar      = $this->thread->explodeDatLine($ares);
-        $name       = $resar[0];
-        $mail       = $resar[1];
-        $date_id    = $resar[2];
-        $msg        = $resar[3];
+        $resar = $this->thread->explodeDatLine($ares);
+        $name = $resar[0];
+        $mail = $resar[1];
+        $date_id = $resar[2];
+        $msg = $resar[3];
 
         // {{{ フィルタリング
-
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
                 return '';
@@ -162,18 +149,17 @@ class ShowThreadPc extends ShowThread
                 return '';
             }
         }
-
         // }}}
 
-        $tores      = '';
-        $rpop       = '';
-        $isNgName   = false;
-        $isNgMail   = false;
-        $isNgId     = false;
-        $isNgMsg    = false;
-        $isFreq     = false;
-        $isChain    = false;
-        $automona_class = '';
+        $tores = "";
+        $rpop = "";
+        $isNgName = false;
+        $isNgMail = false;
+        $isNgId = false;
+        $isNgMsg = false;
+        $isFreq = false;
+        $isChain = false;
+        $automona_class = "";
 
         if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain']) &&
             preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|', $date_id, $matches))
@@ -331,7 +317,7 @@ class ShowThreadPc extends ShowThread
         // まとめて出力
         //=============================================================
 
-        $name = $this->transName($name, $i); // 名前HTML変換
+        $name = $this->transName($name); // 名前HTML変換
         $msg = $this->transMsg($msg, $i); // メッセージHTML変換
 
 
@@ -453,10 +439,7 @@ EOP;
 
 
     /**
-     * >>1 ポップアップ表示用の (引用ポップアップ用) HTMLデータ（配列）を返す
-     *
-     * @access  public
-     * @return  array
+     * >>1 を表示する (引用ポップアップ用)
      */
     function quoteOne()
     {
@@ -466,7 +449,7 @@ EOP;
             return false;
         }
 
-        $dummy_msg = '';
+        $dummy_msg = "";
         $this->quote_check_depth = 0;
         $quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
         foreach ($quote_res_nums as $rnv) {
@@ -484,23 +467,19 @@ EOP;
 
         $m1 = "&gt;&gt;1";
         $res1['body'] = $this->transMsg($m1, 1);
-
         return $res1;
     }
 
     /**
-     * レス引用HTMLを生成取得する
-     *
-     * @access  private
-     * @return  string
+     * レス引用HTML
      */
-    function qRes($resline, $i)
+    function qRes($ares, $i)
     {
         global $_conf;
 
-        $resar = $this->thread->explodeDatLine($resline);
+        $resar = $this->thread->explodeDatLine($ares);
         $name = $resar[0];
-        $name = $this->transName($name, $i);
+        $name = $this->transName($name);
         $msg = $resar[3];
         $msg = $this->transMsg($msg, $i); // メッセージ変換
         $mail = $resar[1];
@@ -556,20 +535,16 @@ EOP;
     }
 
     /**
-     * 名前をHTML用に変換して返す
-     *
-     * @access  private
-     * @return  string
+     * 名前をHTML用に変換する
      */
-    function transName($name, $resnum)
+    function transName($name)
     {
         global $_conf;
 
-        $nameID = '';
-        // ID付なら名前は "aki </b>◆...p2/2... <b>" といった感じでくる。（通常は普通に名前のみ）
+        $nameID = "";
 
         // ID付なら分解する
-        if (preg_match('~(.*)( </b>◆.*)~', $name, $matches)) {
+        if (preg_match('/(.*)(◆.*)/', $name, $matches)) {
             $name = $matches[1];
             $nameID = $matches[2];
         }
@@ -588,20 +563,24 @@ EOP;
 
         if (!empty($nameID)) { $name = $name . $nameID; }
 
-        $name = $name . ' '; // 簡易的に文字化け回避
+        $name = $name." "; // 文字化け回避
+
+        /*
+        $b = unpack('C*', $name);
+        $t = array_pop($b);
+        if ((0x80 <= $t && $t <= 0x9F) || (0xE0 <= $t && $t <= 0xEF)) {
+            $name = $name." ";
+        }
+        */
 
         return $name;
     }
 
     /**
-     * datのレスメッセージをHTML表示用メッセージに変換して返す
-     *
-     * @access  private
-     * @param   string   $msg
-     * @param   integer  $resnum  レス番号
-     * @return  string
+     * datのレスメッセージをHTML表示用メッセージに変換する
+     * string transMsg(string str)
      */
-    function transMsg($msg, $resnum)
+    function transMsg($msg, $mynum)
     {
         global $_conf;
         global $pre_thumb_ignore_limit;
@@ -626,12 +605,12 @@ EOP;
         $msg = str_replace('onload=window()', '<i>onload=window</i>()', $msg);
 
         // 新着レスの画像は表示制限を無視する設定なら
-        if ($resnum > $this->thread->readnum && $_conf['expack.ic2.newres_ignore_limit']) {
-            $pre_thumb_ignore_limit = true;
+        if ($mynum > $this->thread->readnum && $_conf['expack.ic2.newres_ignore_limit']) {
+            $pre_thumb_ignore_limit = TRUE;
         }
 
         // 引用やURLなどをリンク
-        $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg, $this->str_to_link_limit);
+        $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
 
         return $msg;
     }
@@ -640,9 +619,6 @@ EOP;
 
     /**
      * リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
-     *
-     * @access  private
-     * @return  string
      */
     function link_callback($s)
     {
@@ -699,8 +675,6 @@ EOP;
             return strip_tags($s[0]);
         }
 
-        // 以下、urlケースの処理
-
         // ime.nuを外す
         $url = preg_replace('|^([a-z]+://)ime\\.nu/|', '$1', $url);
 
@@ -712,12 +686,12 @@ EOP;
 
         // URLを処理
         foreach ($this->user_url_handlers as $handler) {
-            if (false !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
+            if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
                 return $link . $following;
             }
         }
         foreach ($this->url_handlers as $handler) {
-            if (false !== ($link = call_user_func(array($this, $handler), $url, $purl, $str))) {
+            if (FALSE !== ($link = call_user_func(array($this, $handler), $url, $purl, $str))) {
                 return $link . $following;
             }
         }
@@ -728,15 +702,13 @@ EOP;
     /**
      * 引用変換（単独）
      *
-     * @access  private
-     * @return  string
+     * @return string
      */
     function quote_res_callback($s)
     {
         global $_conf;
 
         list($full, $qsign, $appointed_num) = $s;
-
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum > sizeof($this->thread->datlines)) {
             return $s[0];
@@ -754,15 +726,13 @@ EOP;
     /**
      * 引用変換（範囲）
      *
-     * @access  private
-     * @return  string
+     * @return string
      */
     function quote_res_range_callback($s)
     {
         global $_conf;
 
         list($full, $qsign, $appointed_num) = $s;
-
         if ($appointed_num == '-') {
             return $s[0];
         }
@@ -791,8 +761,7 @@ EOP;
     /**
      * HTMLポップアップ変換（コールバック用インターフェース）
      *
-     * @access  private
-     * @retrun  string
+     * @return string
      */
     function iframe_popup_callback($s) {
         return $this->iframe_popup($s[1], $s[3], $s[2]);
@@ -801,10 +770,9 @@ EOP;
     /**
      * HTMLポップアップ変換
      *
-     * @access  private
-     * @return  string
+     * @return string
      */
-    function iframe_popup($url, $str, $attr = '', $mode = null)
+    function iframe_popup($url, $str, $attr = '', $mode = NULL)
     {
         global $_conf;
 
@@ -823,7 +791,7 @@ EOP;
             $pop_str = $str[1];
         } else {
             $link_str = $str;
-            $pop_str = null;
+            $pop_str = NULL;
         }
 
         // リンクの属性
@@ -882,8 +850,7 @@ EOP;
     /**
      * IDフィルタリングポップアップ変換
      *
-     * @access  private
-     * @return  string
+     * @return string
      */
     function idfilter_callback($s)
     {
@@ -923,40 +890,30 @@ EOP;
     // {{{ ユーティリティメソッド
 
     /**
-     * HTMLメッセージ中の引用レス番号を再帰チェックし、見つかった番号の配列を返す
-     *
-     * @param   integer  $res_num  チェック対象レスの番号
-     * @param   string   $name     チェック対象レスの名前
-     * @param   string   $msg      チェック対象レスのメッセージ
-     * @return  array    見つかった引用レス番号の配列
+     * HTMLメッセージ中の引用レスの番号を再帰チェックする
      */
     function checkQuoteResNums($res_num, $name, $msg)
     {
-        $quote_res_nums = array();
-
         // 再帰リミッタ
-        $recursive_limit = 20;
-        if ($this->quote_check_depth > $recursive_limit) {
+        if ($this->quote_check_depth > 30) {
             return array();
         } else {
             $this->quote_check_depth++;
         }
 
-        // {{{ 名前をチェックする
+        $quote_res_nums = array();
 
-        $name = preg_replace('/(◆.*)/', '', $name, 1);
+        $name = preg_replace("/(◆.*)/", "", $name, 1);
 
         // 名前
-        if (preg_match('/[0-9]+/', $name, $matches)) {
-            $a_quote_res_num = $matches[0];
+        if (preg_match("/[0-9]+/", $name, $matches)) {
+            $a_quote_res_num=$matches[0];
 
             if ($a_quote_res_num) {
                 $quote_res_nums[] = $a_quote_res_num;
 
-                // 自分自身の番号と同一でなければ
-                if ($a_quote_res_num != $res_num) {
-                    // チェックしていない番号を再帰チェック
-                    if (!$this->quote_res_nums_checked[$a_quote_res_num]) {
+                if ($a_quote_res_num != $res_num) { // 自分自身の番号と同一でなければ、
+                    if (!$this->quote_res_nums_checked[$a_quote_res_num]) { // チェックしていない番号を再帰チェック
                         $this->quote_res_nums_checked[$a_quote_res_num] = true;
 
                         $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_num-1]);
@@ -966,29 +923,25 @@ EOP;
                      }
                  }
              }
-            // $name = preg_replace('/([0-9]+)/', '', $name, 1);
+            // $name=preg_replace("/([0-9]+)/", "", $name, 1);
         }
-
-        // }}}
-        // {{{ メッセージをチェックする
 
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
+        //echo $msg;
         if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
 
             foreach ($out[1] as $numberq) {
-
+                //echo $numberq;
                 if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
 
                     foreach ($matches[0] as $a_quote_res_num) {
 
                         //echo $a_quote_res_num;
 
-                        if (!$a_quote_res_num) {
-                            break;
-                        }
+                        if (!$a_quote_res_num) {break;}
                         $quote_res_nums[] = $a_quote_res_num;
 
                         // 自分自身の番号と同一でなければ、
@@ -1004,16 +957,13 @@ EOP;
                              }
                          }
 
-                     } // foreach
+                     }
 
-                } // if
+                }
 
-            } // foreach
+            }
 
         }
-        // }}}
-
-        $quote_res_nums = array_unique($quote_res_nums);
 
         return $quote_res_nums;
     }
@@ -1057,7 +1007,7 @@ EOP;
         if (isset($done[$this->asyncObjName])) {
             return;
         }
-        $done[$this->asyncObjName] = true;
+        $done[$this->asyncObjName] = TRUE;
 
         $code = <<<EOJS
 <script type="text/javascript">
@@ -1150,9 +1100,6 @@ EOJS;
 
     /**
      * URLリンク
-     *
-     * @access  private
-     * @return  string|false
      */
     function plugin_linkURL($url, $purl, $str)
     {
@@ -1167,8 +1114,7 @@ EOJS;
             }
 
             // HTMLポップアップ
-            // wikipedia.org は、フレームを解除してしまうので、対象外とする
-            if ($_conf['iframe_popup'] && preg_match('/https?/', $purl['scheme']) && !preg_match('~wikipedia\.org~', $url)) {
+            if ($_conf['iframe_popup'] && preg_match('/https?/', $purl['scheme'])) {
                 // p2pm/expm 指定の場合のみ、特別に手動転送指定を追加する
                 if ($_conf['through_ime'] == 'p2pm') {
                     $pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $link_url);
@@ -1216,14 +1162,11 @@ EOJS;
 
             return $link;
         }
-        return false;
+        return FALSE;
     }
 
     /**
      * 2ch bbspink    板リンク
-     *
-     * @access  private
-     * @return  string|false
      */
     function plugin_link2chSubject($url, $purl, $str)
     {
@@ -1233,14 +1176,11 @@ EOJS;
             $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
             return "<a href=\"{$url}\" target=\"subject\">{$str}</a> [<a href=\"{$subject_url}\" target=\"subject\">板をp2で開く</a>]";
         }
-        return false;
+        return FALSE;
     }
 
     /**
      * 2ch bbspink    スレッドリンク
-     *
-     * @access  private
-     * @return  string|false
      */
     function plugin_link2ch($url, $purl, $str)
     {
@@ -1252,20 +1192,17 @@ EOJS;
                 if (preg_match('/^[0-9\\-n]+$/', $m[4])) {
                     $pop_url = $url;
                 } else {
-                    $pop_url = $read_url . '&amp;onlyone=true';
+                    $pop_url = $read_url . '&amp;one=true';
                 }
                 return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
         }
-        return false;
+        return FALSE;
     }
 
     /**
      * 2ch過去ログhtml
-     *
-     * @access  private
-     * @return  string|false
      */
     function plugin_link2chKako($url, $purl, $str)
     {
@@ -1274,19 +1211,16 @@ EOJS;
         if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
             if ($_conf['iframe_popup']) {
-                $pop_url = $read_url . '&amp;onlyone=true';
+                $pop_url = $read_url . '&amp;one=true';
                 return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
         }
-        return false;
+        return FALSE;
     }
 
     /**
      * まちBBS / JBBS＠したらば  内リンク
-     *
-     * @access  private
-     * @return  string|false
      */
     function plugin_linkMachi($url, $purl, $str)
     {
@@ -1303,14 +1237,11 @@ EOJS;
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
         }
-        return false;
+        return FALSE;
     }
 
     /**
      * JBBS＠したらば  内リンク
-     *
-     * @access  private
-     * @return  string|false
      */
     function plugin_linkJBBS($url, $purl, $str)
     {
@@ -1324,36 +1255,11 @@ EOJS;
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
         }
-        return false;
-    }
-
-    /**
-     * YouTubeリンク変換プラグイン
-     * [wish] YouTube APIを利用して、画像サムネイルのみにしたい
-     *
-     * @access  private
-     * @return  string|false
-     */
-    function plugin_linkYouTube($url, $purl, $str)
-    {
-        global $_conf;
-
-        // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://www\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
-            $url = P2Util::throughIme($url);
-            return <<<EOP
-<a href="$url"{$_conf['ext_win_target_at']}>$str</a><br>
-<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{$m[1]}"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{$m[1]}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>\n
-EOP;
-        }
-        return false;
+        return FALSE;
     }
 
     /**
      * 画像ポップアップ変換
-     *
-     * @access  private
-     * @return  string|false
      */
     function plugin_viewImage($url, $purl, $str)
     {
@@ -1361,12 +1267,12 @@ EOP;
         global $pre_thumb_unlimited, $pre_thumb_limit;
 
         if (P2Util::isUrlWikipediaJa($url)) {
-            return false;
+            return FALSE;
         }
 
         // 表示制限
         if (!$pre_thumb_unlimited && empty($pre_thumb_limit)) {
-            return false;
+            return FALSE;
         }
 
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
@@ -1396,14 +1302,11 @@ EOP;
 
             return $view_img;
         }
-        return false;
+        return FALSE;
     }
 
     /**
      * ImageCache2サムネイル変換
-     *
-     * @access  private
-     * @return  string|false
      */
     function plugin_imageCache2($url, $purl, $str)
     {
@@ -1412,7 +1315,7 @@ EOP;
         static $serial = 0;
 
         if (P2Util::isUrlWikipediaJa($url)) {
-            return false;
+            return FALSE;
         }
 
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
@@ -1445,9 +1348,9 @@ EOP;
                 $_img_url = $this->thumbnailer->srcPath($icdb->size, $icdb->md5, $icdb->mime);
                 if (file_exists($_img_url)) {
                     $img_url = $_img_url;
-                    $cached = true;
+                    $cached = TRUE;
                 } else {
-                    $cached = false;
+                    $cached = FALSE;
                 }
 
                 // サムネイルが作成されていているときは画像を直接読み込む
@@ -1476,11 +1379,11 @@ EOP;
             // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
             } else {
                 // 画像がブラックリストorエラーログにあるか確認
-                if (false !== ($errcode = $icdb->ic2_isError($url))) {
+                if (FALSE !== ($errcode = $icdb->ic2_isError($url))) {
                     return "<img class=\"thumbnail\" src=\"./img/{$errcode}.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\"> <s>{$str}</s>";
                 }
 
-                $cached = false;
+                $cached = FALSE;
 
                 $img_url .= $this->img_memo_query;
                 $thumb_url .= $this->img_memo_query;
@@ -1493,13 +1396,13 @@ EOP;
                 // 表示制限を超えていたら、表示しない
                 // 表示制限を超えていなければ、表示制限カウンタを下げる
                 if ($pre_thumb_limit <= 0) {
-                    $show_thumb = false;
+                    $show_thumb = FALSE;
                 } else {
-                    $show_thumb = true;
+                    $show_thumb = TRUE;
                     $pre_thumb_limit--;
                 }
             } else {
-                $show_thumb = true;
+                $show_thumb = TRUE;
             }
 
             // 表示モード
@@ -1528,20 +1431,10 @@ EOP;
 
             return $view_img;
         }
-        return false;
+        return FALSE;
     }
 
     // }}}
 
 }
-
-/*
- * Local Variables:
- * mode: php
- * coding: cp932
- * tab-width: 4
- * c-basic-offset: 4
- * indent-tabs-mode: nil
- * End:
- */
-// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
+?>

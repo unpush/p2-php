@@ -4,34 +4,35 @@ require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 /**
- * p2 - p2用のユーティリティクラス
- * インスタンスを作らずにスタティックメソッドで利用する
- *
- * @created  2004/07/15
- */
-class P2Util
+* htmlspecialchars($value, ENT_QUOTES) のショートカット
+*
+* @create  2006/03/27
+*/
+function p2escape($str)
 {
+    return htmlspecialchars($str, ENT_QUOTES);
+}
+
+
+/**
+* p2 - p2用のユーティリティクラス
+* インスタンスを作らずにクラスメソッドで利用する
+*
+* @create  2004/07/15
+*/
+class P2Util{
+
     /**
-     * ファイルをダウンロード保存する
-     *
-     * @access  public
-     * @return  object Response|false
+     * ■ ファイルをダウンロード保存する
      */
-    function &fileDownload($url, $localfile, $disp_error = true, $use_tmp_file = false)
+    function &fileDownload($url, $localfile, $disp_error = 1)
     {
-        global $_conf;
-
-        $me = __CLASS__ . '::' . __FUNCTION__ . '()';
-
-        if (strlen($localfile) == 0) {
-            trigger_error("$me, localfile is null", E_USER_WARNING);
-            return false;
-        }
+        global $_conf, $_info_msg_ht;
 
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
         if (file_exists($localfile)) {
-            $modified = gmdate("D, d M Y H:i:s", filemtime($localfile)) . " GMT";
+            $modified = gmdate("D, d M Y H:i:s", filemtime($localfile))." GMT";
         } else {
             $modified = false;
         }
@@ -50,29 +51,14 @@ class P2Util
 
         if ($wap_res->is_error() && $disp_error) {
             $url_t = P2Util::throughIme($wap_req->url);
-            P2Util::pushInfoHtml("<div>Error: {$wap_res->code} {$wap_res->message}<br>");
-            P2Util::pushInfoHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>");
+            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
+            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
         }
 
         // 更新されていたら
         if ($wap_res->is_success() && $wap_res->code != "304") {
-            if ($use_tmp_file) {
-                if (!is_dir($_conf['tmp_dir'])) {
-                    if (!FileCtl::mkdirR($_conf['tmp_dir'])) {
-                        die("Error: $me, cannot mkdir.");
-                        return false;
-                    }
-                }
-                if (FileCtl::filePutRename($localfile, $wap_res->content) === false) {
-                    trigger_error("$me, FileCtl::filePutRename() return false. " . $localfile, E_USER_WARNING);
-                    die("Error:  $me, cannot write file.");
-                    return false;
-                }
-            } else {
-                if (file_put_contents($localfile, $wap_res->content, LOCK_EX) === false) {
-                    die("Error:  $me, cannot write file.");
-                    return false;
-                }
+            if (FileCtl::file_write_contents($localfile, $wap_res->content) === false) {
+                die("Error: cannot write file.");
             }
             chmod($localfile, $perm);
         }
@@ -81,58 +67,50 @@ class P2Util
     }
 
     /**
-     * ディレクトリに書き込み権限がなければ注意を表示セットする
-     *
-     * @access  public
-     * @return  void
+     * ■パーミッションの注意を喚起する
      */
     function checkDirWritable($aDir)
     {
-        global $_conf;
+        global $_info_msg_ht, $_conf;
 
         // マルチユーザモード時は、情報メッセージを抑制している。
 
         if (!is_dir($aDir)) {
             /*
-            P2Util::pushInfoHtml('<p class="infomsg">');
-            P2Util::pushInfoHtml('注意: データ保存用ディレクトリがありません。<br>');
-            P2Util::pushInfoHtml($aDir."<br>");
+            $_info_msg_ht .= '<p class="infomsg">';
+            $_info_msg_ht .= '注意: データ保存用ディレクトリがありません。<br>';
+            $_info_msg_ht .= $aDir."<br>";
             */
             if (is_dir(dirname(realpath($aDir))) && is_writable(dirname(realpath($aDir)))) {
-                //P2Util::pushInfoHtml("ディレクトリの自動作成を試みます...<br>");
+                //$_info_msg_ht .= "ディレクトリの自動作成を試みます...<br>";
                 if (mkdir($aDir, $_conf['data_dir_perm'])) {
-                    //P2Util::pushInfoHtml("ディレクトリの自動作成が成功しました。");
+                    //$_info_msg_ht .= "ディレクトリの自動作成が成功しました。";
                     chmod($aDir, $_conf['data_dir_perm']);
                 } else {
-                    //P2Util::pushInfoHtml("ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。");
+                    //$_info_msg_ht .= "ディレクトリを自動作成できませんでした。<br>手動でディレクトリを作成し、パーミッションを設定して下さい。";
                 }
             } else {
-                    //P2Util::pushInfoHtml("ディレクトリを作成し、パーミッションを設定して下さい。");
+                    //$_info_msg_ht .= "ディレクトリを作成し、パーミッションを設定して下さい。";
             }
-            //P2Util::pushInfoHtml('</p>');
+            //$_info_msg_ht .= '</p>';
 
         } elseif (!is_writable($aDir)) {
-            P2Util::pushInfoHtml('<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>');
-            //P2Util::pushInfoHtml($aDir.'<br>');
-            P2Util::pushInfoHtml('ディレクトリのパーミッションを見直して下さい。</p>');
+            $_info_msg_ht .= '<p class="infomsg">注意: データ保存用ディレクトリに書き込み権限がありません。<br>';
+            //$_info_msg_ht .= $aDir.'<br>';
+            $_info_msg_ht .= 'ディレクトリのパーミッションを見直して下さい。</p>';
         }
     }
 
     /**
-     * ダウンロードURLからキャッシュファイルパスを返す
-     *
-     * @access  public
-     * @return  string|false
+     * ■ダウンロードURLからキャッシュファイルパスを返す
      */
     function cacheFileForDL($url)
     {
         global $_conf;
 
-        if (!$parsed = parse_url($url)) {
-            return false;
-        }
+        $parsed = parse_url($url); // URL分解
 
-        $save_uri = $parsed['host'];
+        $save_uri = $parsed['host'] ? $parsed['host'] : '';
         $save_uri .= $parsed['port'] ? ':'.$parsed['port'] : '';
         $save_uri .= $parsed['path'] ? $parsed['path'] : '';
         $save_uri .= $parsed['query'] ? '?'.$parsed['query'] : '';
@@ -145,10 +123,7 @@ class P2Util
     }
 
     /**
-     * hostとbbsから板名を返す
-     *
-     * @access  public
-     * @return  string|null
+     * ■ hostとbbsから板名を返す
      */
     function getItaName($host, $bbs)
     {
@@ -165,7 +140,7 @@ class P2Util
 
         if (file_exists($p2_setting_txt)) {
 
-            $p2_setting_cont = file_get_contents($p2_setting_txt);
+            $p2_setting_cont = @file_get_contents($p2_setting_txt);
             if ($p2_setting_cont) {
                 $p2_setting = unserialize($p2_setting_cont);
                 if (isset($p2_setting['itaj'])) {
@@ -184,7 +159,7 @@ class P2Util
 
                 FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
                 $p2_setting_cont = serialize($p2_setting);
-                if (FileCtl::filePutRename($p2_setting_txt, $p2_setting_cont) === false) {
+                if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
                     die("Error: {$p2_setting_txt} を更新できませんでした");
                 }
                 return $ita_names[$id];
@@ -196,9 +171,6 @@ class P2Util
 
     /**
      * hostからdatの保存ディレクトリを返す
-     *
-     * @access  public
-     * @return  string
      */
     function datDirOfHost($host)
     {
@@ -206,13 +178,13 @@ class P2Util
 
         // 2channel or bbspink
         if (P2Util::isHost2chs($host)) {
-            $dat_host_dir = $_conf['dat_dir'] . "/2channel";
+            $dat_host_dir = $_conf['dat_dir']."/2channel";
         // machibbs.com
         } elseif (P2Util::isHostMachiBbs($host)) {
-            $dat_host_dir = $_conf['dat_dir'] . "/machibbs.com";
+            $dat_host_dir = $_conf['dat_dir']."/machibbs.com";
         } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
             $dat_host_dir = $_conf['dat_dir']."/".rawurlencode($host);
-            $old_dat_host_dir = $_conf['dat_dir'] . "/" . $host;
+            $old_dat_host_dir = $_conf['dat_dir']."/".$host;
             if (is_dir($old_dat_host_dir)) {
                 rename($old_dat_host_dir, $dat_host_dir);
                 clearstatcache();
@@ -224,10 +196,7 @@ class P2Util
     }
 
     /**
-     * hostからidxの保存ディレクトリを返す
-     *
-     * @access  public
-     * @return  string
+     * ■ hostからidxの保存ディレクトリを返す
      */
     function idxDirOfHost($host)
     {
@@ -235,13 +204,13 @@ class P2Util
 
         // 2channel or bbspink
         if (P2Util::isHost2chs($host)) {
-            $idx_host_dir = $_conf['idx_dir'] . "/2channel";
+            $idx_host_dir = $_conf['idx_dir']."/2channel";
         // machibbs.com
         } elseif (P2Util::isHostMachiBbs($host)){
-            $idx_host_dir = $_conf['idx_dir'] . "/machibbs.com";
+            $idx_host_dir = $_conf['idx_dir']."/machibbs.com";
         } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
             $idx_host_dir = $_conf['idx_dir']."/".rawurlencode($host);
-            $old_idx_host_dir = $_conf['idx_dir'] . "/" . $host;
+            $old_idx_host_dir = $_conf['idx_dir']."/".$host;
             if (is_dir($old_idx_host_dir)) {
                 rename($old_idx_host_dir, $idx_host_dir);
                 clearstatcache();
@@ -253,28 +222,20 @@ class P2Util
     }
 
     /**
-     * failed_post_file のパスを取得する
-     *
-     * @access  public
-     * @return  string
+     * ■ failed_post_file のパスを得る関数
      */
     function getFailedPostFilePath($host, $bbs, $key = false)
     {
-        // レス
         if ($key) {
-            $filename = $key . '.failed.data.php';
-        // スレ立て
+            $filename = $key.'.failed.data.php';
         } else {
             $filename = 'failed.data.php';
         }
-        return $failed_post_file = P2Util::idxDirOfHost($host) . '/' . $bbs . '/' . $filename;
+        return $failed_post_file = P2Util::idxDirOfHost($host).'/'.$bbs.'/'.$filename;
     }
 
     /**
-     * リストのナビ範囲を取得する
-     *
-     * @access  public
-     * @return  array
+     * ■リストのナビ範囲を返す
      */
     function getListNaviRange($disp_from, $disp_range, $disp_all_num)
     {
@@ -297,7 +258,9 @@ class P2Util
         // fromが越えた
         if ($disp_navi['from'] > $disp_all_num) {
             $disp_navi['from'] = $disp_all_num - $disp_range;
-            $disp_navi['from'] = max(1, $disp_navi['from']);
+            if ($disp_navi['from'] < 1) {
+                $disp_navi['from'] = 1;
+            }
             $disp_navi['end'] = $disp_all_num;
 
         // from 越えない
@@ -314,8 +277,10 @@ class P2Util
             }
         }
 
-        $disp_navi['mae_from'] = $disp_from - 1 - $disp_range;
-        $disp_navi['mae_from'] = max(1, $disp_navi['mae_from']);
+        $disp_navi['mae_from'] = $disp_from -1 -$disp_range;
+        if ($disp_navi['mae_from'] < 1) {
+            $disp_navi['mae_from'] = 1;
+        }
         $disp_navi['tugi_from'] = $disp_navi['end'] +1;
 
 
@@ -330,9 +295,8 @@ class P2Util
     }
 
     /**
-     * key.idx に data を記録する
+     * ■ key.idx に data を記録する
      *
-     * @access  public
      * @param   array   $data   要素の順番に意味あり。
      */
     function recKeyIdx($keyidx, $data)
@@ -350,36 +314,31 @@ class P2Util
         $cont = $cont . "\n";
 
         FileCtl::make_datafile($keyidx, $_conf['key_perm']);
-        if (file_put_contents($keyidx, $cont, LOCK_EX) === false) {
-            trigger_error("file_put_contents(" . $keyidx . ")", E_USER_WARNING);
+        if (FileCtl::file_write_contents($keyidx, $cont) === false) {
             die("Error: cannot write file. recKeyIdx()");
-            return false;
         }
 
         return true;
     }
 
     /**
-     * ホストからクッキーファイルパスを返す
-     *
-     * @access  public
-     * @return  string
+     * ■ホストからクッキーファイルパスを返す
      */
     function cachePathForCookie($host)
     {
         global $_conf;
 
         if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
-            $cookie_host_dir = $_conf['cookie_dir'] . "/" . rawurlencode($host);
-            $old_cookie_host_dir = $_conf['cookie_dir'] . "/" . $host;
+            $cookie_host_dir = $_conf['cookie_dir']."/".rawurlencode($host);
+            $old_cookie_host_dir = $_conf['cookie_dir']."/".$host;
             if (is_dir($old_cookie_host_dir)) {
                 rename($old_cookie_host_dir, $cookie_host_dir);
                 clearstatcache();
             }
         } else {
-            $cookie_host_dir = $_conf['cookie_dir'] . "/" . $host;
+            $cookie_host_dir = $_conf['cookie_dir']."/".$host;
         }
-        $cachefile = $cookie_host_dir . "/" . $_conf['cookie_file_name'];
+        $cachefile = $cookie_host_dir."/".$_conf['cookie_file_name'];
 
         FileCtl::mkdir_for($cachefile);
 
@@ -387,10 +346,7 @@ class P2Util
     }
 
     /**
-     * 中継ゲートを通すためのURL変換を行う
-     *
-     * @access  public
-     * @return  string
+     * ■中継ゲートを通すためのURL変換
      */
     function throughIme($url)
     {
@@ -446,10 +402,7 @@ class P2Util
     }
 
     /**
-     * host が 2ch or bbspink なら true を返す
-     *
-     * @access  public
-     * @return  boolean
+     * ■ host が 2ch or bbspink なら true を返す
      */
     function isHost2chs($host)
     {
@@ -461,12 +414,7 @@ class P2Util
     }
 
     /**
-     * host が be.2ch.net なら true を返す
-     * 2006/07/27 これはもう古いメソッド。
-     * 2chの板移転に応じて、bbsも含めて判定しなくてはならなくなったので、isBbsBe2chNet()を利用する。
-     *
-     * @access  public
-     * @return  boolean
+     * ■ host が be.2ch.net なら true を返す
      */
     function isHostBe2chNet($host)
     {
@@ -478,29 +426,7 @@ class P2Util
     }
 
     /**
-     * bbs（板） が be.2ch なら true を返す
-     *
-     * @since   2006/07/27
-     * @access  public
-     * @return  boolean
-     */
-    function isBbsBe2chNet($host, $bbs)
-    {
-        if (preg_match("/^be\.2ch\.net/", $host)) {
-            return true;
-        }
-        $be_bbs = array('be', 'nandemo', 'argue');
-        if (P2Util::isHost2chs($host) && in_array($bbs, $be_bbs)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * host が bbspink なら true を返す
-     *
-     * @access  public
-     * @return  boolean
+     * ■ host が bbspink なら true を返す
      */
     function isHostBbsPink($host)
     {
@@ -512,10 +438,7 @@ class P2Util
     }
 
     /**
-     * host が machibbs なら true を返す
-     *
-     * @access  public
-     * @return  boolean
+     * ■ host が machibbs なら true を返す
      */
     function isHostMachiBbs($host)
     {
@@ -527,10 +450,7 @@ class P2Util
     }
 
     /**
-     * host が machibbs.net まちビねっと なら true を返す
-     *
-     * @access  public
-     * @return  boolean
+     * ■ host が machibbs.net まちビねっと なら true を返す
      */
     function isHostMachiBbsNet($host)
     {
@@ -542,10 +462,7 @@ class P2Util
     }
 
     /**
-     * host が livedoor レンタル掲示板 : したらば なら true を返す
-     *
-     * @access  public
-     * @return  boolean
+     * ■ host が livedoor レンタル掲示板 : したらば なら true を返す
      */
     function isHostJbbsShitaraba($in_host)
     {
@@ -559,11 +476,9 @@ class P2Util
     }
 
     /**
-     * livedoor レンタル掲示板 : したらばのホスト名変更に対応して変更する
+     * ■livedoor レンタル掲示板 : したらばのホスト名変更に対応して変更する
      *
-     * @access  public
-     * @param   string    $in_str    ホスト名でもURLでもなんでも良い
-     * @return  string
+     * @param    string    $in_str    ホスト名でもURLでもなんでも良い
      */
     function adjustHostJbbs($in_str)
     {
@@ -572,11 +487,8 @@ class P2Util
     }
 
     /**
-     * http header no cache を出力する
-     *
-     * @access  public
-     * @return  void
-     */
+    * ■ http header no cache を出力
+    */
     function header_nocache()
     {
         header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // 日付が過去
@@ -587,27 +499,17 @@ class P2Util
     }
 
     /**
-     * http header Content-Type を出力する
-     *
-     * @access  public
-     * @param   string    $mimetype 任意のMIMEタイプと文字セット等の追加情報
-     * @return  void
-     */
-    function header_content_type($mimetype = null)
+    * ■ http header Content-Type 出力
+    */
+    function header_content_type()
     {
-        if ($mimetype) {
-            header('Content-Type: ' . $mimetype);
-        } else {
-            header('Content-Type: text/html; charset=Shift_JIS');
-        }
+        header("Content-Type: text/html; charset=Shift_JIS");
     }
 
     /**
-     * データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
+     * ■データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
      *
      * 最初は、dat形式（<>）だったのが、データPHP形式（TAB）になり、そしてまた v1.6.0 でdat形式（<>）に戻った
-     *
-     * @access  public
      */
     function transResHistLogPhpToDat()
     {
@@ -620,6 +522,7 @@ class P2Util
 
         // p2_res_hist.dat.php が読み込み可能であったら
         if (is_readable($_conf['p2_res_hist_dat_php'])) {
+            // 読み込んで
             if ($cont = DataPhp::getDataPhpCont($_conf['p2_res_hist_dat_php'])) {
                 // タブ区切りから<>区切りに変更する
                 $cont = str_replace("\t", "<>", $cont);
@@ -635,9 +538,7 @@ class P2Util
 
                 // 保存
                 FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']);
-                if (file_put_contents($_conf['p2_res_hist_dat'], $cont, LOCK_EX) === false) {
-                    trigger_error("file_put_contents(" . $_conf['p2_res_hist_dat'] . ")", E_USER_WARNING);
-                }
+                FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont);
 
                 // p2_res_hist.dat.php を名前を変えてバックアップ。（もう要らない）
                 $bak_file = $_conf['p2_res_hist_dat_php'] . '.bak';
@@ -651,10 +552,7 @@ class P2Util
     }
 
     /**
-     * dat形式（<>）の書き込み履歴をデータPHP形式（TAB）に変換する
-     *
-     * @access  public
-     * @return  boolean
+     * ■dat形式（<>）の書き込み履歴をデータPHP形式（TAB）に変換する
      */
     function transResHistLogDatToPhp()
     {
@@ -668,7 +566,7 @@ class P2Util
         // p2_res_hist.dat.php がなくて、p2_res_hist.dat が読み込み可能であったら
         if ((!file_exists($_conf['p2_res_hist_dat_php'])) and is_readable($_conf['p2_res_hist_dat'])) {
             // 読み込んで
-            if ($cont = file_get_contents($_conf['p2_res_hist_dat'])) {
+            if ($cont = @file_get_contents($_conf['p2_res_hist_dat'])) {
                 // <>区切りからタブ区切りに変更する
                 // まずタブを全て外して
                 $cont = str_replace("\t", "", $cont);
@@ -676,22 +574,18 @@ class P2Util
                 $cont = str_replace("<>", "\t", $cont);
 
                 // データPHP形式で保存
-                if (!DataPhp::writeDataPhp($_conf['p2_res_hist_dat_php'], $cont, $_conf['res_write_perm'])) {
-                    return false;
-                }
+                DataPhp::writeDataPhp($_conf['p2_res_hist_dat_php'], $cont, $_conf['res_write_perm']);
             }
         }
         return true;
     }
 
     /**
-     * 前回のアクセス情報を取得
-     *
-     * @access  public
-     * @return  array
+     * ■前回のアクセス情報を取得
      */
     function getLastAccessLog($logfile)
     {
+        // 読み込んで
         if (!$lines = DataPhp::fileDataPhp($logfile)) {
             return false;
         }
@@ -701,11 +595,11 @@ class P2Util
         $line = rtrim($lines[1]);
         $lar = explode("\t", $line);
 
-        $alog['user']   = $lar[6];
-        $alog['date']   = $lar[0];
-        $alog['ip']     = $lar[1];
-        $alog['host']   = $lar[2];
-        $alog['ua']     = $lar[3];
+        $alog['user'] = $lar[6];
+        $alog['date'] = $lar[0];
+        $alog['ip'] = $lar[1];
+        $alog['host'] = $lar[2];
+        $alog['ua'] = $lar[3];
         $alog['referer'] = $lar[4];
 
         return $alog;
@@ -713,23 +607,17 @@ class P2Util
 
 
     /**
-     * アクセス情報をログに記録する
-     *
-     * @access  public
-     * @return  boolean
+     * ■アクセス情報をログに記録する
      */
     function recAccessLog($logfile, $maxline = 100, $format = 'dataphp')
     {
         global $_conf, $_login;
 
         // ログファイルの中身を取得する
-        $lines = array();
-        if (file_exists($logfile)) {
-            if ($format == 'dataphp') {
-                $lines = DataPhp::fileDataPhp($logfile);
-            } else {
-                $lines = file($logfile);
-            }
+        if ($format == 'dataphp') {
+            $lines = DataPhp::fileDataPhp($logfile);
+        } else {
+            $lines = @file($logfile);
         }
 
         if ($lines) {
@@ -750,7 +638,7 @@ class P2Util
             $remoto_host = gethostbyaddr($_SERVER['REMOTE_ADDR']);
         }
         if ($remoto_host == $_SERVER['REMOTE_ADDR']) {
-            $remoto_host = '';
+            $remoto_host = "";
         }
 
         $user = (isset($_login->user_u)) ? $_login->user_u : "";
@@ -773,24 +661,32 @@ class P2Util
 
         // 書き込み処理
         if ($format == 'dataphp') {
-            if (!DataPhp::writeDataPhp($logfile, $cont, $_conf['p2_perm'])) {
-                return false;
-            }
+            DataPhp::writeDataPhp($logfile, $cont, $_conf['p2_perm']);
         } else {
-            if (file_put_contents($logfile, $cont, LOCK_EX) === false) {
-                trigger_error("file_put_contents(" . $logfile . ")", E_USER_WARNING);
-                return false;
-            }
+            FileCtl::file_write_contents($logfile, $cont);
         }
 
         return true;
     }
 
     /**
+     * ■ブラウザがSafari系ならtrueを返す
+     */
+    function isBrowserSafariGroup()
+    {
+        return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $_SERVER['HTTP_USER_AGENT']);
+    }
+
+    /**
+     * URLがウィキペディア日本語版の記事ならtrueを返す
+     */
+    function isUrlWikipediaJa($url)
+    {
+        return (substr($url, 0, 29) == 'http://ja.wikipedia.org/wiki/');
+    }
+
+    /**
      * 2ch●ログインのIDとPASSと自動ログイン設定を保存する
-     *
-     * @access  public
-     * @return  boolean
      */
     function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')
     {
@@ -807,11 +703,8 @@ class P2Util
 \$rec_autoLogin2ch = '{$autoLogin2ch}';
 ?>
 EOP;
-        FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);
-        if (!$fp = fopen($_conf['idpw2ch_php'], 'wb')) {
-            die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
-            return false;
-        }
+        FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);    // ファイルがなければ生成
+        $fp = @fopen($_conf['idpw2ch_php'], 'wb') or die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
         @flock($fp, LOCK_EX);
         fputs($fp, $idpw2ch_cont);
         @flock($fp, LOCK_UN);
@@ -822,9 +715,6 @@ EOP;
 
     /**
      * 2ch●ログインの保存済みIDとPASSと自動ログイン設定を読み込む
-     *
-     * @access  public
-     * @return  array
      */
     function readIdPw2ch()
     {
@@ -836,9 +726,9 @@ EOP;
             return false;
         }
 
-        $rec_login2chID = null;
-        $login2chPW = null;
-        $rec_autoLogin2ch = null;
+        $rec_login2chID = NULL;
+        $login2chPW = NULL;
+        $rec_autoLogin2ch = NULL;
 
         include $_conf['idpw2ch_php'];
 
@@ -853,9 +743,6 @@ EOP;
 
     /**
      * getAngoKey
-     *
-     * @access  public
-     * @return  string
      */
     function getAngoKey()
     {
@@ -866,9 +753,6 @@ EOP;
 
     /**
      * getCsrfId
-     *
-     * @access  public
-     * @return  string
      */
     function getCsrfId()
     {
@@ -878,16 +762,11 @@ EOP;
     }
 
     /**
-     * 403 FobbidenをHTML出力する
-     *
-     * @access  public
-     * @return  void
+     * 403 Fobbidenを出力する
      */
-    function print403($msg = '', $die = true)
+    function print403($msg = '')
     {
         header('HTTP/1.0 403 Forbidden');
-        // IEデフォルトのメッセージを表示させないためのパディング
-        $pad = str_repeat(' ', 512);
         echo <<<ERR
 <html>
 <head>
@@ -896,13 +775,232 @@ EOP;
 </head>
 <body>
     <h1>403 Forbidden</h1>
-    <p>{$msg}</p>{$pad}
+    <p>{$msg}</p>
 </body>
 </html>
 ERR;
-
-        $die and die('');
+        // IEデフォルトのメッセージを表示させないようにスペースを出力
+        if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+            for ($i = 0 ; $i < 512; $i++) {
+                echo ' ';
+            }
+        }
+        exit;
     }
+
+    // {{{ scandir_r()
+
+    /**
+     * 再帰的にディレクトリを走査する
+     *
+     * リストをファイルとディレクトリに分けて返す。それそれのリストは単純な配列
+     */
+    function scandir_r($dir)
+    {
+        $dir = realpath($dir);
+        $list = array('files' => array(), 'dirs' => array());
+        $files = scandir($dir);
+        foreach ($files as $filename) {
+            if ($filename == '.' || $filename == '..') {
+                continue;
+            }
+            $filename = $dir . DIRECTORY_SEPARATOR . $filename;
+            if (is_dir($filename)) {
+                $child = P2Util::scandir_r($filename);
+                if ($child) {
+                    $list['dirs'] = array_merge($list['dirs'], $child['dirs']);
+                    $list['files'] = array_merge($list['files'], $child['files']);
+                }
+                $list['dirs'][] = $filename;
+            } else {
+                $list['files'][] = $filename;
+            }
+        }
+        return $list;
+    }
+
+    // }}}
+    // {{{ garbageCollection()
+
+    /**
+     * いわゆるひとつのガベコレ
+     *
+     * $targetDirから最終更新より$lifeTime秒以上たったファイルを削除
+     *
+     * @access  public
+     * @param   string   $targetDir  ガーベッジコレクション対象ディレクトリ
+     * @param   integer  $lifeTime   ファイルの有効期限（秒）
+     * @param   string   $prefix     対象ファイル名の接頭辞（オプション）
+     * @param   string   $suffix     対象ファイル名の接尾辞（オプション）
+     * @param   boolean  $recurive   再帰的にガーベッジコレクションするか否か（デフォルトではFALSE）
+     * @return  array    削除に成功したファイルと失敗したファイルを別々に記録した二次元の配列
+     */
+    function garbageCollection($targetDir, $lifeTime, $prefix = '', $suffix = '', $recursive = FALSE)
+    {
+        $result = array('successed' => array(), 'failed' => array(), 'skipped' => array());
+        $expire = time() - $lifeTime;
+        //ファイルリスト取得
+        if ($recursive) {
+            $list = P2Util::scandir_r($targetDir);
+            $files = &$list['files'];
+        } else {
+            $list = scandir($targetDir);
+            $files = array();
+            $targetDir = realpath($targetDir) . DIRECTORY_SEPARATOR;
+            foreach ($list as $filename) {
+                if ($filename == '.' || $filename == '..') { continue; }
+                $files[] = $targetDir . $filename;
+            }
+        }
+        //検索パターン設定（$prefixと$suffixにスラッシュを含まないように）
+        if ($prefix || $suffix) {
+            $prefix = (is_array($prefix)) ? implode('|', array_map('preg_quote', $prefix)) : preg_quote($prefix);
+            $suffix = (is_array($suffix)) ? implode('|', array_map('preg_quote', $suffix)) : preg_quote($suffix);
+            $pattern = '/^' . $prefix . '.+' . $suffix . '$/';
+        } else {
+            $pattern = '';
+        }
+        //ガベコレ開始
+        foreach ($files as $filename) {
+            if ($pattern && !preg_match($pattern, basename($filename))) {
+                //$result['skipped'][] = $filename;
+                continue;
+            }
+            if (filemtime($filename) < $expire) {
+                if (@unlink($filename)) {
+                    $result['successed'][] = $filename;
+                } else {
+                    $result['failed'][] = $filename;
+                }
+            }
+        }
+        return $result;
+    }
+
+    // }}}
+    // {{{ session_gc()
+
+    /**
+     * セッションファイルのガーベッジコレクション
+     *
+     * session.save_pathのパスの深さが2より大きい場合、ガーベッジコレクションは行われないため
+     * 自分でガーベッジコレクションしないといけない。
+     *
+     * @access  public
+     * @return  void
+     *
+     * @link http://jp.php.net/manual/ja/ref.session.php#ini.session.save-path
+     */
+    function session_gc()
+    {
+        global $_conf;
+
+        if (session_module_name() != 'files') {
+            return;
+        }
+
+        $d = (int)ini_get('session.gc_divisor');
+        $p = (int)ini_get('session.gc_probability');
+        mt_srand();
+        if (mt_rand(1, $d) <= $p) {
+            $m = (int)ini_get('session.gc_maxlifetime');
+            P2Util::garbageCollection($_conf['session_dir'], $m);
+        }
+    }
+
+    // }}}
+    // {{{ Info_Dump()
+
+    /**
+     * 多次元配列を再帰的にテーブルに変換する
+     *
+     * ２ちゃんねるのsetting.txtをパースした配列用の条件分岐あり
+     * 普通にダンプするなら Var_Dump::display($value, TRUE) がお勧め
+     * (バージョン1.0.0以降、Var_Dump::display() の第二引数が真のとき
+     *  直接表示する代わりに、ダンプ結果が文字列として返る。)
+     *
+     * @access  public
+     * @param   array    $info    テーブルにしたい配列
+     * @param   integer  $indent  結果のHTMLを見やすくするためのインデント量
+     * @return  string   <table>~</table>
+     */
+    function Info_Dump($info, $indent = 0)
+    {
+        $table = '<table border="0" cellspacing="1" cellpadding="0">' . "\n";
+        $n = count($info);
+        foreach ($info as $key => $value) {
+            if (!is_object($value) && !is_resource($value)) {
+                for ($i = 0; $i < $indent; $i++) { $table .= "\t"; }
+                if ($n == 1 && $key === 0) {
+                    $table .= '<tr><td class="tdcont">';
+                /*} elseif (preg_match('/^\w+$/', $key)) {
+                    $table .= '<tr class="setting"><td class="tdleft"><b>' . $key . '</b></td><td class="tdcont">';*/
+                } else {
+                    $table .= '<tr><td class="tdleft"><b>' . $key . '</b></td><td class="tdcont">';
+                }
+                if (is_array($value)) {
+                    $table .= P2Util::Info_Dump($value, $indent+1); //配列の場合は再帰呼び出しで展開
+                } elseif ($value === true) {
+                    $table .= '<i>TRUE</i>';
+                } elseif ($value === false) {
+                    $table .= '<i>FALSE</i>';
+                } elseif (is_null($value)) {
+                    $table .= '<i>NULL</i>';
+                } elseif (is_scalar($value)) {
+                    if ($value === '') { //例外:空文字列。0を含めないように型を考慮して比較
+                        $table .= '<i>(no value)</i>';
+                    } elseif ($key == 'ログ取得済<br>スレッド数') { //ログ削除専用
+                        $table .= $value;
+                    } elseif ($key == 'ローカルルール') { //ローカルルール専用
+                        $table .= '<table border="0" cellspacing="1" cellpadding="0" class="child">';
+                        $table .= "\n\t\t<tr><td id=\"rule\">{$value}</tr></td>\n\t</table>";
+                    } elseif (preg_match('/^(https?|ftp):\/\/[\w\/\.\+\-\?=~@#%&:;]+$/i', $value)) { //リンク
+                        $table .= '<a href="' . P2Util::throughIme($value) . '" target="_blank">' . $value . '</a>';
+                    } elseif ($key == '背景色' || substr($key, -6) == '_COLOR') { //カラーサンプル
+                        $table .= "<span class=\"colorset\" style=\"color:{$value};\">■</span>（{$value}）";
+                    } else {
+                        $table .= htmlspecialchars($value, ENT_QUOTES);
+                    }
+                }
+                $table .= '</td></tr>' . "\n";
+            }
+        }
+        for ($i = 1; $i < $indent; $i++) { $table .= "\t"; }
+        $table .= '</table>';
+        $table = str_replace('<td class="tdcont"><table border="0" cellspacing="1" cellpadding="0">',
+            '<td class="tdcont"><table border="0" cellspacing="1" cellpadding="0" class="child">', $table);
+
+        return $table;
+    }
+
+    // }}}
+    // {{{ re_htmlspecialchars()
+
+    /**
+     * ["&<>]が実体参照になっているかどうか不明な文字列に対してhtmlspecialchars()をかける
+     */
+    function re_htmlspecialchars($str)
+    {
+        // e修飾子を付けたとき、"は自動でエスケープされるようだ
+        return preg_replace('/["<>]|&(?!#?\w+;)/e', 'htmlspecialchars("$0", ENT_QUOTES)', $str);
+    }
+
+    // }}}
+    // {{{ mkTrip()
+
+    /**
+     * トリップを生成する
+     */
+    function mkTrip($key, $length = 10)
+    {
+        $salt = substr($key . 'H.', 1, 2);
+        $salt = preg_replace('/[^\.-z]/', '.', $salt);
+        $salt = strtr($salt, ':;<=>?@[\\]^_`', 'ABCDEFGabcdef');
+
+        return substr(crypt($key, $salt), -$length);
+    }
+
+    // }}}
 
     /**
      * Webページを取得する
@@ -911,9 +1009,7 @@ ERR;
      * 206 Partial Content
      * 304 Not Modified → 失敗扱い
      *
-     * @static
-     * @access  public
-     * @return  string|false  成功したらページ内容を返す。失敗したらfalseを返す。
+     * @return array|false 成功したらページ内容を返す。失敗したらfalseを返す。
      */
     function getWebPage($url, &$error_msg, $timeout = 15)
     {
@@ -949,10 +1045,8 @@ ERR;
     /**
      * 現在のURLを取得する（GETクエリーはなし）
      *
-     * @static
-     * @access  public
-     * @return  string
-     * @see  http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
+     * @return string
+     * @see http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
      */
     function getMyUrl()
     {
@@ -967,11 +1061,8 @@ ERR;
 
     /**
      * シンプルにHTMLを表示する
-     * （単にテキストだけを送るとauなどは、表示してくれない）
      *
-     * @static
-     * @access  public
-     * @return  void
+     * @return void
      */
     function printSimpleHtml($body)
     {
@@ -979,23 +1070,9 @@ ERR;
     }
 
     /**
-     * ブラウザがSafari系ならtrueを返す
+     * isNetFront?
      *
-     * @static
-     * @access  public
-     * @return  boolean
-     */
-    function isBrowserSafariGroup()
-    {
-        return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $_SERVER['HTTP_USER_AGENT']);
-    }
-
-    /**
-     * ブラウザがNetFront系ならtrueを返す
-     *
-     * @static
-     * @access  public
-     * @return  boolean
+     * @return boolean
      */
     function isNetFront()
     {
@@ -1004,158 +1081,6 @@ ERR;
         } else {
             return false;
         }
-    }
-
-    /**
-     * URLがウィキペディア日本語版の記事ならtrueを返す
-     *
-     * @static
-     * @access  public
-     * @return  boolean
-     */
-    function isUrlWikipediaJa($url)
-    {
-        return (substr($url, 0, 29) == 'http://ja.wikipedia.org/wiki/');
-    }
-
-    /**
-     * ファイルを指定して、シリアライズされた配列データをマージ更新する（既存のデータに上書きマージする）
-     *
-     * @static
-     * @param   array    $data
-     * @param   string   $file
-     * @return  boolean
-     */
-    function updateArraySrdFile($data, $file)
-    {
-        // 既存のデータをマージ取得
-        if (file_exists($file)) {
-            if ($cont = file_get_contents($file)) {
-                $array = unserialize($cont);
-                if (is_array($array)) {
-                    $data = array_merge($array, $data);
-                }
-            }
-        }
-
-        // マージ更新なので上書きデータが空っぽの時は何もしない
-        if (empty($data) || !is_array($data)) {
-            return false;
-        }
-
-        if (file_put_contents($file, serialize($data), LOCK_EX) === false) {
-            trigger_error("file_put_contents(" . $file . ")", E_USER_WARNING);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * HTMLタグ <a href="$url">$html</a> を生成する
-     *
-     * @static
-     * @access  public
-     * @param   string  $url   手動で htmlspecialchars() すること。
-     *                         http_build_query() を利用する時を考慮して、自動で htmlspecialchars() はかけていない。
-     * @param   string  $html  リンク文字列やHTML。手動で htmlspecialchars() すること。
-     * @param   array   $attr  追加属性。自動で htmlspecialchars() がかけられる（keyも念のため）
-     * @return  string
-     */
-    function tagA($url, $html = '', $attr = array())
-    {
-        $attr_html = '';
-        if (is_array($attr)) {
-            foreach ($attr as $k => $v) {
-                $attr_html .= ' ' . htmlspecialchars($k) . '="' . htmlspecialchars($v) . '"';
-            }
-        }
-        $html = (strlen($html) == 0) ? $url : $html;
-
-        return '<a href="' . $url . "\"{$attr_html}>" . $html . '</a>';
-    }
-
-    /**
-     * pushInfoMsgHtml
-     * 2006/10/19 $_info_msg_ht を直接扱うのはやめてこのメソッドを通す方向で
-     *
-     * @static
-     * @access  public
-     * @return  void
-     */
-    function pushInfoHtml($html)
-    {
-        global $_info_msg_ht;
-
-        $_info_msg_ht .= $html;
-    }
-
-    /**
-     * printInfoMsgHtml
-     *
-     * @static
-     * @access  public
-     * @return  void
-     */
-    function printInfoHtml()
-    {
-        global $_info_msg_ht;
-
-        echo $_info_msg_ht;
-        $_info_msg_ht = '';
-    }
-
-    /**
-     * getInfoMsgHtml
-     *
-     * @static
-     * @access  public
-     * @return  string
-     */
-    function getInfoHtml()
-    {
-        global $_info_msg_ht;
-
-        $info_msg_ht = $_info_msg_ht;
-        $_info_msg_ht = '';
-
-        return $info_msg_ht;
-    }
-
-    /**
-     * セッションファイルのガーベッジコレクション
-     *
-     * session.save_pathのパスの深さが2より大きい場合、ガーベッジコレクションは行われないため
-     * 自分でガーベッジコレクションしないといけない。
-     *
-     * @access  public
-     * @return  void
-     *
-     * @link http://jp.php.net/manual/ja/ref.session.php#ini.session.save-path
-     */
-    function session_gc()
-    {
-        global $_conf;
-
-        if (session_module_name() != 'files') {
-            return;
-        }
-
-        $d = (int)ini_get('session.gc_divisor');
-        $p = (int)ini_get('session.gc_probability');
-        mt_srand();
-        if (mt_rand(1, $d) <= $p) {
-            $m = (int)ini_get('session.gc_maxlifetime');
-            FileCtl::garbageCollection($_conf['session_dir'], $m);
-        }
-    }
-
-    /**
-     * ["&<>]が実体参照になっているかどうか不明な文字列に対してhtmlspecialchars()をかける
-     */
-    function re_htmlspecialchars($str)
-    {
-        // e修飾子を付けたとき、"は自動でエスケープされるようだ
-        return preg_replace('/["<>]|&(?!#?\w+;)/e', 'htmlspecialchars("$0", ENT_QUOTES)', $str);
     }
 
     /**
@@ -1169,28 +1094,6 @@ ERR;
         $response = mb_encode_numericentity($response, array(0x80, 0xFFFF, 0, 0xFFFF), 'UTF-8');
         return $response;
     }
-
-    /**
-     * トリップを生成する
-     */
-    function mkTrip($key, $length = 10)
-    {
-        $salt = substr($key . 'H.', 1, 2);
-        $salt = preg_replace('/[^\.-z]/', '.', $salt);
-        $salt = strtr($salt, ':;<=>?@[\\]^_`', 'ABCDEFGabcdef');
-
-        return substr(crypt($key, $salt), -$length);
-    }
-
 }
 
-/*
- * Local Variables:
- * mode: php
- * coding: cp932
- * tab-width: 4
- * c-basic-offset: 4
- * indent-tabs-mode: nil
- * End:
- */
-// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
+?>
