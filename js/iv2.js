@@ -49,63 +49,52 @@ function iv2_checkAll(mode)
 function iv2_checked(cbox, evt)
 {
 	var evt = (evt) ? evt : ((window.event) ? window.event : null);
-	if (cbox.checked) {
-		if (last_checked_box && evt.shiftKey && last_checked_box != cbox) {
+	var chk = cbox.checked;
+
+	if (evt && evt.shiftKey) {
+		var tgt = null;
+
+		if (last_checked_box) {
+			tgt = last_checked_box;
+			chk = true;
+		} else if (last_unchecked_box) {
+			tgt = last_unchecked_box;
+			chk = false;
+		}
+
+		if (tgt) {
 			var cboxes = document.getElementsByName('change[]');
 			var i = 0, j = -1, k = -1, l = cboxes.length;
+
 			while (i < l) {
 				if (cboxes[i] == cbox) {
 					j = i;
-				} else if (cboxes[i] == last_checked_box) {
+					if (k != -1) break;
+				} else if (cboxes[i] == tgt) {
 					k = i;
+					if (j != -1) break;
 				}
 				i++;
 			}
-			if (j != -1 && k != -1) {
+
+			if (i < l) {
 				if (j > k) {
-					i = k;
-					l = j + 1;
+					while (j >= k) cboxes[j--].checked = chk;
 				} else {
-					i = j;
-					l = k + 1;
-				}
-				while (i < l) {
-					cboxes[i].checked = true;
-					i++;
+					while (j <= k) cboxes[j++].checked = chk;
 				}
 			}
 		}
+	}
+
+	if (chk) {
 		last_checked_box = cbox;
 		last_unchecked_box = null;
 	} else {
-		if (last_unchecked_box && evt.shiftKey && last_unchecked_box != cbox) {
-			var cboxes = document.getElementsByName('change[]');
-			var i = 0, j = -1, k = -1, l = cboxes.length;
-			while (i < l) {
-				if (cboxes[i] == cbox) {
-					j = i;
-				} else if (cboxes[i] == last_unchecked_box) {
-					k = i;
-				}
-				i++;
-			}
-			if (j != -1 && k != -1) {
-				if (j > k) {
-					i = k;
-					l = j + 1;
-				} else {
-					i = j;
-					l = k + 1;
-				}
-				while (i < l) {
-					cboxes[i].checked = false;
-					i++;
-				}
-			}
-		}
 		last_checked_box = null;
 		last_unchecked_box = cbox;
 	}
+
 	return true;
 }
 

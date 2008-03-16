@@ -118,9 +118,9 @@ $_sort = array(
 
 // 検索フィールド
 $_field = array(
-    'uri'  => 'URL',
-    'name' => 'ファイル名',
-    'memo' => 'メモ',
+    'uri'   => 'URL',
+    'name'  => 'ファイル名',
+    'memo'  => 'メモ',
 );
 
 // モード
@@ -403,6 +403,11 @@ if ($key !== '') {
     foreach ($keys as $k) {
         $operator = 'LIKE';
         $wildcard = '%';
+        $not = false;
+        if ($k[0] == '-' && strlen($k) > 1) {
+            $not = true;
+            $k = substr($k, 1);
+        }
         if (preg_match('/[%_]/', $k)) {
             // SQLite2はLIKE演算子の右辺でバックスラッシュによるエスケープや
             // ESCAPEでエスケープ文字を指定することができないのでGLOB演算子を使う
@@ -418,6 +423,9 @@ if ($key !== '') {
             }
         }
         $expr = $wildcard . $k . $wildcard;
+        if ($not) {
+            $operator = 'NOT ' . $operator;
+        }
         $icdb->whereAddQuoted($field, $operator, $expr);
     }
     $qfe['key']->setValue($key);
