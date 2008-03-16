@@ -284,7 +284,7 @@ EOJS;
             } else if (html.indexOf('—š—ğ‰ğœ¸”s') != -1) {
                 alert('—š—ğ‰ğœ¸”s!');
             } else {
-                row.fadeOut(1000, row.remove);
+                row.remove();
             }
         };
         var col_proto = \$('<td style="padding:2px 0px 2px 4px"></td>');

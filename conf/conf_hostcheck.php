@@ -15,18 +15,20 @@ $GLOBALS['_HOSTCHKCONF'] = array();
 $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     // p2が動作しているマシン
         'localhost' => 1,
-    // クラスA~Cのプライベートアドレス
+    // クラスA-Cのプライベートアドレス
         'private'   => 1,
-    // iモード
+    // NTT DoCoMo iモード
         'DoCoMo'    => 1,
-    // ezWEB
+    // au EZweb
         'au'        => 1,
-    // Vodafone Live!
-        'Vodafone'  => 1,
-    // Air H"
-        'AirH'      => 1,
+    // SoftBank Mobile
+        'SoftBank'  => 1,
+    // Willcom AIR-EDGE
+        'Willcom'   => 1,
     // ユーザー設定
         'custom'    => 0,
+    // ユーザー設定 (IPv6)
+        'custom_v6' => 0,
 );
 
 // アクセスを許可するIPアドレス帯域

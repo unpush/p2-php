@@ -641,6 +641,11 @@ if ($_conf['expack.misc.multi_favs']) {
 require_once P2_LIBRARY_DIR . '/login.class.php';
 $_login =& new Login();
 
+// Ç®Ç‹Ç∂Ç»Ç¢
+$a = ceil(1/2);
+$b = floor(1/3);
+$c = round(1/4, 1);
+unset($a, $b, $c);
 
 //=====================================================================
 // ä÷êî

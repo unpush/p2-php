@@ -964,7 +964,7 @@ class ThumbNailer
 
         $basename = $size . '_' . $md5;
         if ($this->rotate) {
-            $basename .= '_' . str_pad($this->rotate, 3, 0, STR_PAD_LEFT);
+            $basename .= sprintf('_%03d', $this->rotate);
         }
         if ($this->trim) {
             $basename .= '_tr';
@@ -1011,16 +1011,14 @@ class ThumbNailer
             $icdb->orderByArray(array('id' => 'ASC'));
             if ($icdb->find(true)) {
                 $this->found = $icdb->toArray();
-                return str_pad(ceil($icdb->id / 1000), 5, 0, STR_PAD_LEFT);
+                return sprintf('%05d', (int)floor(($icdb->id + 999) / 1000));
             }
         }
-        $sql = 'SELECT MAX(' . $this->db->quoteIdentifier('id') . ') + 1 FROM '
-             . $this->db->quoteIdentifier($this->ini['General']['table']) . ';';
-        $nextid = &$this->db->getOne($sql);
+        $nextid = $this->db->getOne('SELECT MAX(id) FROM '. $this->db->quoteIdentifier($this->ini['General']['table']));
         if (DB::isError($nextid) || !$nextid) {
             $nextid = 1;
         }
-        return str_pad(ceil($nextid / 1000), 5, 0, STR_PAD_LEFT);
+        return sprintf('%05d', (int)floor(($nextid + 999) / 1000));
     }
 
     // }}
