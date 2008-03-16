@@ -4,6 +4,8 @@
 	ImageCache2::Viewer
 */
 
+var last_checked_box = null, last_unchecked_box = null;
+
 function showToolbarExtra()
 {
 	var ext = document.getElementById('toolbarExtra');
@@ -42,6 +44,69 @@ function iv2_checkAll(mode)
 				break;
 		}
 	}
+}
+
+function iv2_checked(cbox, evt)
+{
+	var evt = (evt) ? evt : ((window.event) ? window.event : null);
+	if (cbox.checked) {
+		if (last_checked_box && evt.shiftKey && last_checked_box != cbox) {
+			var cboxes = document.getElementsByName('change[]');
+			var i = 0, j = -1, k = -1, l = cboxes.length;
+			while (i < l) {
+				if (cboxes[i] == cbox) {
+					j = i;
+				} else if (cboxes[i] == last_checked_box) {
+					k = i;
+				}
+				i++;
+			}
+			if (j != -1 && k != -1) {
+				if (j > k) {
+					i = k;
+					l = j + 1;
+				} else {
+					i = j;
+					l = k + 1;
+				}
+				while (i < l) {
+					cboxes[i].checked = true;
+					i++;
+				}
+			}
+		}
+		last_checked_box = cbox;
+		last_unchecked_box = null;
+	} else {
+		if (last_unchecked_box && evt.shiftKey && last_unchecked_box != cbox) {
+			var cboxes = document.getElementsByName('change[]');
+			var i = 0, j = -1, k = -1, l = cboxes.length;
+			while (i < l) {
+				if (cboxes[i] == cbox) {
+					j = i;
+				} else if (cboxes[i] == last_unchecked_box) {
+					k = i;
+				}
+				i++;
+			}
+			if (j != -1 && k != -1) {
+				if (j > k) {
+					i = k;
+					l = j + 1;
+				} else {
+					i = j;
+					l = k + 1;
+				}
+				while (i < l) {
+					cboxes[i].checked = false;
+					i++;
+				}
+			}
+		}
+		last_checked_box = null;
+		last_unchecked_box = cbox;
+	}
+	return true;
 }
 
 function pageJump(page)

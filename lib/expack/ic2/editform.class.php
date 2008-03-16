@@ -324,6 +324,7 @@ class EditForm
             'name' => 'change[]',
             'id' => "img{$img['id']}_change",
             'value' => $img['id'],
+            'onclick' => 'iv2_checked(this, event)',
             'flexy:xhtml' => $is_xhtml,
             '/' => $is_xhtml,
         );
