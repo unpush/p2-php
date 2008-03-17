@@ -678,6 +678,14 @@ class P2Util{
     }
 
     /**
+     * URLがウィキペディア日本語版の記事ならtrueを返す
+     */
+    function isUrlWikipediaJa($url)
+    {
+        return (substr($url, 0, 29) == 'http://ja.wikipedia.org/wiki/');
+    }
+
+    /**
      * 2ch●ログインのIDとPASSと自動ログイン設定を保存する
      */
     function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')

@@ -55,6 +55,7 @@ $thumb    = isset($_REQUEST['t'])     ? intval($_REQUEST['t']) : 0;       // ƒTƒ
 $redirect = isset($_REQUEST['r'])     ? intval($_REQUEST['r']) : 1;       // •\¦•û–@
 $rank     = isset($_REQUEST['rank'])  ? intval($_REQUEST['rank']) : 0;    // ƒ‰ƒ“ƒLƒ“ƒO
 $memo     = (isset($_REQUEST['memo']) && strlen($_REQUEST['memo']) > 0) ? $_REQUEST['memo'] : NULL; // ƒƒ‚
+$referer  = (isset($_REQUEST['ref']) && strlen($_REQUEST['ref']) > 0)   ? $_REQUEST['ref'] : NULL;  // ƒŠƒtƒ@ƒ‰
 
 /*if (!isset($uri) && FALSE !== ($url = getenv('PATH_INFO'))) {
     $uri = 'http:/' . $url;
@@ -273,27 +274,31 @@ if ($ini['Proxy']['enabled'] && $ini['Proxy']['host'] && $ini['Proxy']['port']) 
 }
 
 // ƒŠƒtƒ@ƒ‰İ’è
-$send_referer = (boolean)$ini['Getter']['sendreferer'];
-if ($send_referer) {
-    if ($ini['Getter']['norefhosts']) {
-        $pattern = preg_quote($ini['Getter']['norefhosts'], '/');
+if (is_null($referer)) {
+    $send_referer = (boolean)$ini['Getter']['sendreferer'];
+    if ($send_referer) {
+        if ($ini['Getter']['norefhosts']) {
+            $pattern = preg_quote($ini['Getter']['norefhosts'], '/');
+            $pattern = str_replace(',', '|', $pattern);
+            $pattern = '/' . $pattern . '/i';
+            if (preg_match($pattern, $pURL['host'])) {
+                $send_referer = FALSE;
+            }
+        }
+    } elseif ($ini['Getter']['refhosts']) {
+        $pattern = preg_quote($ini['Getter']['refhosts'], '/');
         $pattern = str_replace(',', '|', $pattern);
         $pattern = '/' . $pattern . '/i';
         if (preg_match($pattern, $pURL['host'])) {
-            $send_referer = FALSE;
+            $send_referer = TRUE;
         }
     }
-} elseif ($ini['Getter']['refhosts']) {
-    $pattern = preg_quote($ini['Getter']['refhosts'], '/');
-    $pattern = str_replace(',', '|', $pattern);
-    $pattern = '/' . $pattern . '/i';
-    if (preg_match($pattern, $pURL['host'])) {
-        $send_referer = TRUE;
+    if ($send_referer) {
+        $referer = $uri . '.html';
     }
 }
 
-if ($send_referer) {
-    $referer = $uri . '.html';
+if (is_string($referer)) {
     $client->setDefaultHeader('Referer', $referer);
 }
 

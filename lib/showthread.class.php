@@ -8,7 +8,8 @@ class ShowThread{
 
     var $str_to_link_regex; // リンクすべき文字列の正規表現
 
-    var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列
+    var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
+    var $user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
 
     var $ngaborn_frequent; // 頻出IDをあぼーんする
 
@@ -45,15 +46,15 @@ class ShowThread{
             .       '(?=\\D|$)'
             .   ')' // 引用ここまで
             . '|'
-            .   '(?P<url>'
-            .       '(ftp|h?t?tps?)://([0-9A-Za-z][\\w!#%&+*,\\-./:;=?@\\[\\]^~]+)' // URL
-            .   ')'
+            .   '(?P<url>(ftp|h?t?tps?)://([0-9A-Za-z][\\w!#%&+*,\\-./:;=?@\\[\\]^~]+))' // URL
+            .   '([^\s<>]*)' // URLの直後、タグorホワイトスペースが現れるまでの文字列
             . '|'
             .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
             . ')'
             . '}';
 
         $this->url_handlers = array();
+        $this->user_url_handlers = array();
 
         $this->ngaborn_frequent = 0;
         if ($_conf['ngaborn_frequent']) {
@@ -217,21 +218,29 @@ class ShowThread{
     }
 
     /**
-     * url_handlersに関数・メソッドを追加する
+     * ユーザ定義URLハンドラ（メッセージ中のURLを書き換える関数）を追加する
      *
-     * url_handlersは最後にaddURLHandler()されたものから実行される
+     * ハンドラは最初に追加されたものから順番に試行される
+     * URLはハンドラの返り値（文字列）で置換される
+     * FALSEを帰した場合は次のハンドラに処理が委ねられる
+     *
+     * ユーザ定義URLハンドラの引数は
+     *  1. string $url  URL
+     *  2. array  $purl URLをparse_url()したもの
+     *  3. string $str  パターンにマッチした文字列、URLと同じことが多い
+     *  4. object &$aShowThread 呼び出し元のオブジェクト
+     * である
+     * 常にFALSEを返し、内部で処理するだけの関数を登録してもよい
+     *
+     * @param   string|array $function  関数名か、array(string $classname, string $methodname)
+     *                                  もしくは array(object $instance, string $methodname)
+     * @return  void
+     * @access  public
+     * @todo    ユーザ定義URLハンドラのオートロード機能を実装
      */
-    function addURLHandler($name, $handler)
+    function addURLHandler($function)
     {
-        ;
-    }
-
-    /**
-     * url_handlersから関数・メソッドを削除する
-     */
-    function removeURLHandler($name)
-    {
-        ;
+        $this->user_url_handlers[] = $function;
     }
 
     /**

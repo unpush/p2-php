@@ -832,7 +832,12 @@ if ($all == 0) {
 
         // Lightbox JS用パラメータを設定
         if ($lightbox) {
-            $item['lightbox_attr'] = ' rel="lightbox" title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
+            if ($lightbox == 'plus') {
+                $item['lightbox_attr'] = ' rel="lightbox[iv2]" class="ineffectable"';
+            } else {
+                $item['lightbox_attr'] = ' rel="lightbox"';
+            }
+            $item['lightbox_attr'] .= ' title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
         } else {
             $item['lightbox_attr'] = '';
         }
@@ -906,20 +911,31 @@ $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
 if ($lightbox === 'plus') {
     /**
-     * Lightbox Plus () を使うときのためのヒント
-     * @link    http://serennz.cool.ne.jp/sb/sp/lightbox/index_ja.html
+     * Lightbox Plus を使うときのためのヒント
+     * ver.20061027 で動作確認
+     * @link    http://serennz.sakura.ne.jp/toybox/lightbox/?ja
      */
 /*
---- lightbox_plus.orig
+--- lightbox.css.orig
++++ lightbox.css
+@@ -5,6 +5,7 @@
+ 	border-right: 1px solid #666;
+ }
+ #overlay {
++	text-align: left;
+ 	background-image: url(overlay.png);
+ }
+ #lightboxCaption {
+--- lightbox_plus.js.orig
 +++ lightbox_plus.js
-@@ -152,7 +152,14 @@
+@@ -167,7 +167,14 @@
  	_genOpener : function(num)
  	{
  		var self = this;
 -		return function() { self._show(num); return false; }
 +		return function(evt) {
-+			evt = (evt) ? evt : ((window.event) ? window.event : null);
-+			if (evt && evt.shiftKey) {
++			evt = Event.getEvent(evt);
++			if (evt.shiftKey) {
 +				return true;
 +			}
 +			self._show(num);
@@ -928,26 +944,32 @@ if ($lightbox === 'plus') {
  	},
  	_createWrapOn : function(obj,imagePath)
  	{
-@@ -415,12 +422,12 @@
- // === main ===
- addEvent(window,"load",function() {
+@@ -731,15 +738,15 @@
+ };
+ Event.register(window,"load",function() {
  	var lightbox = new LightBox({
 -		loadingimg:'loading.gif',
 -		expandimg:'expand.gif',
 -		shrinkimg:'shrink.gif',
+-		previmg:'prev.gif',
+-		nextimg:'next.gif',
 -		effectimg:'zzoop.gif',
 +		loadingimg:'lightbox_plus/loading.gif',
 +		expandimg:'lightbox_plus/expand.gif',
 +		shrinkimg:'lightbox_plus/shrink.gif',
++		previmg:'lightbox_plus/prev.gif',
++		nextimg:'lightbox_plus/next.gif',
 +		effectimg:'lightbox_plus/zzoop.gif',
  		effectpos:{x:-40,y:-20},
  		effectclass:'effectable',
--		closeimg:'close.gif'
-+		closeimg:'lightbox_plus/close.gif'
+-		closeimg:'close.gif',
++		closeimg:'lightbox_plus/close.gif',
+ 		resizable:true
  	});
  });
 */
     $additional_script_and_style = <<<EOP
+<script type="text/javascript" src="lightbox_plus/spica.js?{$_conf['p2expack']}"></script>
 <script type="text/javascript" src="lightbox_plus/lightbox_plus.js?{$_conf['p2expack']}"></script>
 <link rel="stylesheet" type="text/css" href="lightbox_plus/lightbox.css?{$_conf['p2expack']}">
 EOP;
