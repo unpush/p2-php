@@ -128,5 +128,3 @@ class IC2DB_Skel extends DB_DataObject
 
     // }}}
 }
-
-?>

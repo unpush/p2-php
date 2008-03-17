@@ -170,5 +170,3 @@ echo "<hr>";
 echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></p>";
 
 echo '</body></html>';
-
-?>

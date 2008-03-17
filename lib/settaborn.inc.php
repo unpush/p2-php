@@ -84,5 +84,3 @@ function settaborn($host, $bbs, $key, $set)
 
     return true;
 }
-
-?>

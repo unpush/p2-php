@@ -183,5 +183,3 @@ $MYSTYLE['subject']['#closebox'] = $MYSTYLE['read']['#closebox'];
 //情報ウインドウ
 $MYSTYLE['info']['td.tdleft']['color'] = "#ffa147";
 $MYSTYLE['kanban']['td.tdleft']['color'] = "#963000";
-
-?>

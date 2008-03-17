@@ -126,7 +126,7 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
 
 $_flexy_options = array(
     'locale' => 'ja',
-    'charset' => 'cp932',
+    'charset' => 'Shift_JIS',
     'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
     'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
@@ -173,7 +173,6 @@ $view->maxpostsize = ini_get('post_max_size');
 
 // ページを表示
 P2Util::header_nocache();
-P2Util::header_content_type();
 $flexy->outputObject($view, $elements);
 
 // }}}
@@ -361,4 +360,3 @@ function ic2_register_uploaded_file($file)
 }
 
 // }}}
-?>

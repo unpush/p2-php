@@ -76,7 +76,7 @@ class Thread{
         $this->ttitle_hd = htmlspecialchars($this->ttitle_hc, ENT_QUOTES);
 
         // ˆê——•\Ž¦—p‚É’·‚³‚ðØ‚è‹l‚ß‚Ä‚©‚ç htmlspecialchars() ‚µ‚½‚à‚Ì
-        if (!empty($_conf['ktai'])) {
+        if ($_conf['ktai']) {
             $tt_max_len = $_conf['sb_ttitle_max_len_k'];
             $tt_trim_len = $_conf['sb_ttitle_trim_len_k'];
             $tt_trip_pos = $_conf['sb_ttitle_trim_pos_k'];
@@ -452,4 +452,3 @@ class Thread{
         }
     }
 }
-?>

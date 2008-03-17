@@ -501,9 +501,13 @@ class P2Util{
     /**
     * ■ http header Content-Type 出力
     */
-    function header_content_type()
+    function header_content_type($content_type = null)
     {
-        header("Content-Type: text/html; charset=Shift_JIS");
+        if ($content_type) {
+            header($content_type);
+        } else {
+            header('Content-Type: text/html; charset=Shift_JIS');
+        }
     }
 
     /**
@@ -670,7 +674,7 @@ class P2Util{
     }
 
     /**
-     * ■ブラウザがSafari系ならtrueを返す
+     * ブラウザがSafari系ならtrueを返す
      */
     function isBrowserSafariGroup()
     {
@@ -1095,5 +1099,3 @@ ERR;
         return $response;
     }
 }
-
-?>

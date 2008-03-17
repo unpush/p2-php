@@ -103,8 +103,8 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
 //================================================================
 // ヘッダ
 //================================================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+P2Util::header_nocache();
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -162,5 +162,3 @@ EOP;
 // フッタHTML表示
 //================================================================
 echo '</body></html>';
-
-?>

@@ -29,5 +29,3 @@ echo "<p>{$ptitle_ht} {$shinchaku_matome_ht}</p>\n";
 
 // Œã•Ï”==============================================
 $upper_toolbar_done = true;
-
-?>

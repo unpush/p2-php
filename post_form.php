@@ -3,13 +3,13 @@
     p2 - レス書き込みフォーム
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ユーザ認証
 
 //==================================================
-// ■変数
+// 変数
 //==================================================
 if (empty($_GET['host'])) {
     // 引数エラー
@@ -38,7 +38,7 @@ $key_idx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
 
 // 表示指定
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $class_ttitle = ' class="thre_title"';
     $target_read = ' target="read"';
     $sub_size_at = ' size="40"';
@@ -82,16 +82,15 @@ $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name
 
 
 //==========================================================
-// ■HTMLプリント
+// HTMLプリント
 //==========================================================
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $body_on_load = <<<EOP
  onLoad="setFocus('MESSAGE'); checkSage();"
 EOP;
 }
 
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
 <head>
@@ -102,7 +101,7 @@ echo <<<EOHEADER
     <title>{$ptitle}</title>\n
 EOHEADER;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">
@@ -134,5 +133,3 @@ echo $htm['post_form'];
 echo $htm['dpreview2'];
 
 echo '</body></html>';
-
-?>

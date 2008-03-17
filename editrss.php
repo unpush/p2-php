@@ -4,7 +4,7 @@
 
 // p2 - RSS編集
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 include_once P2_LIBRARY_DIR . '/filectl.class.php';
 include_once P2_LIBRARY_DIR . '/strctl.class.php';
 
@@ -59,8 +59,8 @@ if ($_conf['expack.misc.multi_favs']) {
 //================================================================
 // ヘッダ
 //================================================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+P2Util::header_nocache();
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -207,7 +207,7 @@ function submitApply()
 
 
 // PC用
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $onclick = " onclick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['SCRIPT_NAME'];
 
@@ -330,5 +330,3 @@ EOP;
 //================================================================
 
 echo '</body></html>';
-
-?>

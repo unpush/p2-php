@@ -3,7 +3,7 @@
     p2 - レス書き込み
 */
 
-include_once './conf/conf.inc.php'; // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
@@ -31,7 +31,7 @@ if ($_conf['expack.aas.enabled'] && !empty($_POST['PREVIEW_AAS'])) {
 }
 
 //================================================================
-// ■変数
+// 変数
 //================================================================
 $newtime = date('gis');
 
@@ -525,7 +525,7 @@ function postIt($host, $bbs, $key, $post)
         //$response_ht = htmlspecialchars($response, ENT_QUOTES);
         //echo "<pre>{$response_ht}</pre>";
 
-    // ■cookie確認（post再チャレンジ）
+    // cookie確認（post再チャレンジ）
     } elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
         $htm['more_hidden_post'] = '';
@@ -553,9 +553,8 @@ EOFORM;
         $h_b = explode("</head>", $response);
 
         // HTMLプリント
-        P2Util::header_content_type();
         echo $h_b[0];
-        if (empty($_conf['ktai'])) {
+        if (!$_conf['ktai']) {
             echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">\n
@@ -598,7 +597,7 @@ function showPostMsg($isDone, $result_msg, $reload)
     global $_info_msg_ht;
 
     // プリント用変数 ===============
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         $class_ttitle = ' class="thre_title"';
     }
     $ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
@@ -623,8 +622,7 @@ EOP;
     }
 
     // プリント ==============
-    P2Util::header_content_type();
-    if ($_conf['doctype']) { echo $_conf['doctype']; }
+    echo $_conf['doctype'];
     echo <<<EOHEADER
 <html lang="ja">
 <head>
@@ -641,7 +639,7 @@ EOHEADER;
         echo "    <title>{$ptitle}</title>";
     }
 
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">\n
@@ -737,5 +735,3 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 
     return $out_str;
 }
-
-?>

@@ -28,5 +28,3 @@ ob_end_clean();
 // •\Ž¦
 echo "@charset \"Shift_JIS\";\n\n";
 echo $stylesheet;
-
-?>

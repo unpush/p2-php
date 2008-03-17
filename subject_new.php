@@ -8,7 +8,7 @@
     subject.php と兄弟なので一緒に面倒をみる
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/threadlist.class.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
@@ -20,14 +20,14 @@ if (!empty($aThreadList)) {
 
 
 //============================================================
-// ■変数設定
+// 変数設定
 //============================================================
 
 if (isset($_GET['from'])) { $sb_disp_from = $_GET['from']; }
 if (isset($_POST['from'])) { $sb_disp_from = $_POST['from']; }
 if (!isset($sb_disp_from)) { $sb_disp_from = 1; }
 
-// ■ p2_setting 設定 ======================================
+//  p2_setting 設定 ======================================
 if ($spmode) {
     $p2_setting_txt = $_conf['pref_dir']."/p2_setting_".$spmode.".txt";
 } else {
@@ -50,7 +50,7 @@ if ($spmode) {
 
 }
 
-// ■p2_setting 読み込み
+// p2_setting 読み込み
 $p2_setting_cont = @file_get_contents($p2_setting_txt);
 if ($p2_setting_cont) {$p2_setting = unserialize($p2_setting_cont);}
 
@@ -69,7 +69,7 @@ if (!$p2_setting['viewnum']) { $p2_setting['viewnum'] = $_conf['display_threads_
 
 if (isset($_GET['itaj_en'])) { $p2_setting['itaj'] = base64_decode($_GET['itaj_en']); }
 
-// ■表示スレッド数 ====================================
+// 表示スレッド数 ====================================
 $threads_num_max = 2000;
 
 if (!$spmode || $spmode=="news") {
@@ -101,12 +101,12 @@ $deletelog_st = 'ログを削除';
 $nowtime = time();
 
 //============================================================
-// ■メイン
+// メイン
 //============================================================
 
 $aThreadList =& new ThreadList();
 
-// ■板とモードのセット ===================================
+// 板とモードのセット ===================================
 if ($spmode) {
     if ($spmode == "taborn" or $spmode == "soko") {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
@@ -133,10 +133,10 @@ if ($spmode) {
 
 }
 
-// ■ソースリスト読込
+// ソースリスト読込
 $lines = $aThreadList->readList();
 
-// ■お気にスレリスト 読込
+// お気にスレリスト 読込
 $favlines = @file($_conf['favlist_file']);
 if (is_array($favlines)) {
     foreach ($favlines as $l) {
@@ -146,7 +146,7 @@ if (is_array($favlines)) {
 }
 
 //============================================================
-// ■それぞれの行解析
+// それぞれの行解析
 //============================================================
 
 $linesize = sizeof($lines);
@@ -161,7 +161,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         $aThread->torder = $x + 1;
     }
 
-    // ■データ読み込み
+    // データ読み込み
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
         case "recent": // 履歴
@@ -281,10 +281,10 @@ for ($x = 0; $x < $linesize ; $x++) {
 
     // }}}
 
-    // ■ spmode(殿堂入り、newsを除く)なら ====================================
+    //  spmode(殿堂入り、newsを除く)なら ====================================
     if ($aThreadList->spmode && $aThreadList->spmode!="news" && $sb_view!="edit") {
 
-        // ■ subject.txtが未DLなら落としてデータを配列に格納
+        //  subject.txtが未DLなら落としてデータを配列に格納
         if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
 
             require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
@@ -314,7 +314,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
 
         $debug && $profiler->enterSection('subthre_check');//
-        // ■スレ情報取得 =============================
+        // スレ情報取得 =============================
         if ($aThreadList->spmode == "soko" or $aThreadList->spmode == "taborn") {
 
             if ($subject_txts[$aThread->host.'/'.$aThread->bbs][$aThread->key]) {
@@ -363,7 +363,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
 
 
-        // ■新着のみ(for spmode) ===============================
+        // 新着のみ(for spmode) ===============================
         if ($sb_view == 'shinchaku' and !$_GET['word']) {
             if ($aThread->unum < 1) {
                 unset($aThread);
@@ -372,7 +372,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
 
         /*
-        // ■ワードフィルタ(for spmode) ==================================
+        // ワードフィルタ(for spmode) ==================================
         if ($word_fm) {
             $target = $aThread->ttitle;
             if (!StrCtl::filterMatch($word_fm, $target)) {
@@ -417,7 +417,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
 
     /*
-    // ■新着ソートの便宜上 unum をセット調整
+    // 新着ソートの便宜上 unum をセット調整
     if (!isset($aThread->unum)) {
         if ($aThreadList->spmode == "recent" or $aThreadList->spmode == "res_hist" or $aThreadList->spmode == "taborn") {
             $aThread->unum = -0.1;
@@ -434,7 +434,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     // 生存数set
     if ($aThread->isonline) { $online_num++; }
 
-    // ■リストに追加 ==============================================
+    // リストに追加 ==============================================
     $aThreadList->addThread($aThread);
 
     */
@@ -442,5 +442,3 @@ for ($x = 0; $x < $linesize ; $x++) {
 }
 
 // $shinchaku_num
-
-?>

@@ -79,5 +79,3 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
 
     // }}}
 }
-
-?>

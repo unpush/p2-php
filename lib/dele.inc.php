@@ -268,5 +268,3 @@ function offResHist($host, $bbs, $key)
         return 2;
     }
 }
-
-?>

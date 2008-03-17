@@ -88,5 +88,3 @@ class IC2DB_Errors extends IC2DB_Skel
 
     // }}}
 }
-
-?>

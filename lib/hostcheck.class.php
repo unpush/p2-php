@@ -1,5 +1,8 @@
 <?php
-// アクセス元ホストをチェックする関数群クラス
+/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
+/* mi: charset=Shift_JIS */
+
+// アクセス元ホストをチェックする関数群
 
 require_once 'conf/conf_hostcheck.php';
 
@@ -8,8 +11,6 @@ class HostCheck
 
     /**
      * アクセス禁止のメッセージを表示して終了する
-     *
-     * @return  void
      */
     function forbidden()
     {
@@ -54,7 +55,7 @@ EOF;
         global $_conf;
 
         $function = 'gethostbyaddr';
-        $cache_file = $_conf['cache_dir'] . '/hostcheck_gethostbyaddr.cache';
+        $cache_file = $_conf['pref_dir'] . '/p2_cache/hostcheck_gethostbyaddr.cache';
 
         return HostCheck::_cachedGetHost($remote_addr, $function, $cache_file);
     }
@@ -68,7 +69,7 @@ EOF;
         global $_conf;
 
         $function = 'gethostbyname';
-        $cache_file = $_conf['cache_dir'] . '/hostcheck_gethostbyname.cache';
+        $cache_file = $_conf['pref_dir'] . '/p2_cache/hostcheck_gethostbyname.cache';
 
         return HostCheck::_cachedGetHost($remote_host, $function, $cache_file);
     }
@@ -120,7 +121,7 @@ EOF;
         foreach ($list as $query => $item) {
             $content .= $query . "\t" . $item[0] . "\t" . $item[1] . "\n";
         }
-        FileCtl::filePutRename($cache_file, $content);
+        FileCtl::file_write_contents($cache_file, $content);
 
         return $result;
     }
@@ -398,10 +399,8 @@ EOF;
             '222.5.63.0/24',
             '222.7.56.0/24',
             '222.5.62.128/25',
-            '222.7.57.0/24',
+            '222.7.57.0/25',
             '59.135.38.128/25',
-            '219.108.157.0/25',
-            '219.125.151.128/25',
 
             '210.143.108.0/24', // jig 2005/6/23
         );
@@ -544,14 +543,3 @@ EOF;
     }
 
 }
-
-/*
- * Local Variables:
- * mode: php
- * coding: cp932
- * tab-width: 4
- * c-basic-offset: 4
- * indent-tabs-mode: nil
- * End:
- */
-// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

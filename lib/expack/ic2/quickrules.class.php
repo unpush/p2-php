@@ -54,5 +54,3 @@ class RuleInArrayKeys extends HTML_QuickForm_Rule
         return false;
     }
 }
-
-?>

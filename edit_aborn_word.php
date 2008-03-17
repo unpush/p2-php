@@ -3,7 +3,7 @@
     p2 - あぼーんワード編集インタフェース
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -156,8 +156,7 @@ $csrfid = P2Util::getCsrfId();
 //=====================================================================
 // ヘッダHTMLをプリント
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -168,7 +167,7 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
@@ -184,7 +183,7 @@ echo <<<EOP
 EOP;
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 <p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle_top}</p>\n
 EOP;
@@ -193,7 +192,7 @@ EOP;
 }
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $htm['form_submit'] = <<<EOP
         <tr class="group">
             <td colspan="6" align="center">
@@ -224,7 +223,7 @@ $usage = <<<EOP
 <li>スレタイ: スレッドタイトル (部分一致, 常に大文字小文字を無視)</li>
 </ul>
 EOP;
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $usage = mb_convert_kana($usage, 'k');
 }
 echo <<<EOP
@@ -237,7 +236,7 @@ echo <<<EOP
 EOP;
 
 // PC用表示（table）
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <table class="edit_conf_user" cellspacing="0">
         <tr>
@@ -300,7 +299,7 @@ if (!empty($formdata)) {
 }
 
 // PCなら
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo '</table>'."\n";
 }
 
@@ -318,7 +317,5 @@ EOP;
 
 echo '</body></html>';
 
-// ■ここまで
+// ここまで
 exit;
-
-?>

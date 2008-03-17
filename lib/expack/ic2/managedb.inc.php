@@ -256,5 +256,3 @@ function manageDB_addMemo($target, $memo)
         $ta->_db->query('COMMIT;');
     }
 }
-
-?>

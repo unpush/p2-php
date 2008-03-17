@@ -63,5 +63,3 @@ if ($finder->find(1)) {
 exit;
 
 // }}}
-
-?>

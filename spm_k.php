@@ -3,7 +3,7 @@
     p2 - 特殊機能実行スクリプト（携帯）
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/spm_k.inc.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
@@ -91,8 +91,7 @@ $default = (!empty($_GET['spm_default'])) ? intval($_GET['spm_default']) : '';
 // 表示
 //=================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
@@ -118,5 +117,3 @@ echo "<a href=\"{$thread_url}\">ｽﾚに戻る<a/>";
 echo '</p>';
 echo '</body></html>';
 exit;
-
-?>

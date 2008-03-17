@@ -236,5 +236,3 @@ class FavSetManager
 }
 
 // }}}
-
-?>

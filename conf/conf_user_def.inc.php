@@ -34,7 +34,7 @@ $conf_user_def['first_page'] = "first_cont.php"; // ("first_cont.php")
 // ("http://menu.2ch.net/bbsmenu.html")                     // 2ch基本
 
 $conf_user_def['brdfile_online'] = "http://azlucky.s25.xrea.com/2chboard/bbsmenu.html";
-$conf_user_rules['brdfile_online'] = array('NotEmpty');
+$conf_user_rules['brdfile_online'] = array('emptyToDef');
 
 // }}}
 // {{{ ■subject
@@ -46,9 +46,13 @@ $conf_user_def['refresh_time'] = 0; // (0)
 $conf_user_def['sb_show_motothre'] = 1; // (1)
 $conf_user_rad['sb_show_motothre'] = array('1' => 'する', '0' => 'しない');
 
-// スレッド一覧（板表示）で>>1を表示 (する:1, しない:0, ニュース系のみ:2)
+// PC閲覧時、スレッド一覧（板表示）で ﾌﾟﾚﾋﾞｭｰ>>1 を表示 (する:1, しない:0, ニュース系のみ:2)
 $conf_user_def['sb_show_one'] = 0; // (0)
-$conf_user_rad['sb_show_one'] = array('1' => 'する', '0' => 'しない', '2' => 'ニュース系のみ');
+$conf_user_sel['sb_show_one'] = array('1' => 'する', '0' => 'しない', '2' => 'ニュース系のみ');
+
+// 携帯のスレッド一覧（板表示）から初めてのスレを開く時の表示方法 (ﾌﾟﾚﾋﾞｭｰ>>1:1, 1からN件表示:2, 最新N件表示:3)
+$conf_user_def['k_sb_show_first'] = 1; // (1)
+$conf_user_sel['k_sb_show_first'] = array('1' => 'ﾌﾟﾚﾋﾞｭｰ>>1', '2' => '1からN件表示', '3' => '最新N件表示');
 
 // スレッド一覧ですばやさ（レス間隔）を表示 (する:1, しない:0)
 $conf_user_def['sb_show_spd'] = 0; // (0)
@@ -78,7 +82,7 @@ $conf_user_rad['cmp_dayres_midoku'] = array('1' => 'する', '0' => 'しない');
 
 // 携帯閲覧時、一度に表示するスレの数
 $conf_user_def['k_sb_disp_range'] = 30; // (30)
-$conf_user_rules['k_sb_disp_range'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['k_sb_disp_range'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 既得スレは表示件数に関わらず表示 (する:1, しない:0)
 $conf_user_def['viewall_kitoku'] = 1; // (1)
@@ -86,11 +90,11 @@ $conf_user_rad['viewall_kitoku'] = array('1' => 'する', '0' => 'しない');
 
 // PC閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)
 $conf_user_def['sb_ttitle_max_len'] = 0; // (0)
-$conf_user_rules['sb_ttitle_max_len'] = array('IntExceptMinus');
+$conf_user_rules['sb_ttitle_max_len'] = array('notIntExceptMinusToDef');
 
 // PC閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める
 $conf_user_def['sb_ttitle_trim_len'] = 75; // (75)
-$conf_user_rules['sb_ttitle_trim_len'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['sb_ttitle_trim_len'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // PC閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)
 $conf_user_def['sb_ttitle_trim_pos'] = 1; // (1)
@@ -98,11 +102,11 @@ $conf_user_rad['sb_ttitle_trim_pos'] = array('-1' => '先頭', '0' => '中央', '1' 
 
 // 携帯閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)
 $conf_user_def['sb_ttitle_max_len_k'] = 0; // (0)
-$conf_user_rules['sb_ttitle_max_len_k'] = array('IntExceptMinus');
+$conf_user_rules['sb_ttitle_max_len_k'] = array('notIntExceptMinusToDef');
 
 // 携帯閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める
 $conf_user_def['sb_ttitle_trim_len_k'] = 45; // (45)
-$conf_user_rules['sb_ttitle_trim_len_k'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['sb_ttitle_trim_len_k'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 携帯閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)
 $conf_user_def['sb_ttitle_trim_pos_k'] = 1; // (1)
@@ -113,19 +117,19 @@ $conf_user_rad['sb_ttitle_trim_pos_k'] = array('-1' => '先頭', '0' => '中央', '1
 
 // スレ内容表示時、未読の何コ前のレスにポインタを合わせるか
 $conf_user_def['respointer'] = 1; // (1)
-$conf_user_rules['respointer'] = array('IntExceptMinus');
+$conf_user_rules['respointer'] = array('notIntExceptMinusToDef');
 
 // PC閲覧時、ポインタの何コ前のレスから表示するか
 $conf_user_def['before_respointer'] = 25; // (25)
-$conf_user_rules['before_respointer'] = array('IntExceptMinus');
+$conf_user_rules['before_respointer'] = array('notIntExceptMinusToDef');
 
 // 新着まとめ読みの時、ポインタの何コ前のレスから表示するか
 $conf_user_def['before_respointer_new'] = 0; // (0)
-$conf_user_rules['before_respointer_new'] = array('IntExceptMinus');
+$conf_user_rules['before_respointer_new'] = array('notIntExceptMinusToDef');
 
 // 新着まとめ読みで一度に表示するレス数
 $conf_user_def['rnum_all_range'] = 200; // (200)
-$conf_user_rules['rnum_all_range'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['rnum_all_range'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 画像URLの先読みサムネイルを表示(する:1, しない:0)
 $conf_user_def['preview_thumbnail'] = 0; // (0)
@@ -133,15 +137,19 @@ $conf_user_rad['preview_thumbnail'] = array('1' => 'する', '0' => 'しない');
 
 // 画像URLの先読みサムネイルを一度に表示する制限数（0で無制限）
 $conf_user_def['pre_thumb_limit'] = 7; // (7)
-$conf_user_rules['pre_thumb_limit'] = array('IntExceptMinus');
+$conf_user_rules['pre_thumb_limit'] = array('notIntExceptMinusToDef');
 
 // 画像サムネイルの縦の大きさを指定（ピクセル）
 $conf_user_def['pre_thumb_height'] = "32"; // ("32")
-//$conf_user_rules['pre_thumb_height'] = array('NotEmpty', 'IntExceptMinus');
+//$conf_user_rules['pre_thumb_height'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 画像サムネイルの横の大きさを指定（ピクセル）
 $conf_user_def['pre_thumb_width'] = "32"; // ("32")
-//$conf_user_rules['pre_thumb_width'] = array('NotEmpty', 'IntExceptMinus');
+//$conf_user_rules['pre_thumb_width'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// YouTubeのリンクをプレビュー表示（する:1, しない:0）
+$conf_user_def['link_youtube'] = 1; // (1)
+$conf_user_sel['link_youtube'] = array('1' => 'する', '0' => 'しない');
 
 // HTMLポップアップ（する:1, しない:0, pでする:2, 画像でする:3）
 $conf_user_def['iframe_popup'] = 2; // (2)
@@ -171,19 +179,23 @@ $conf_user_rad['quote_res_view'] = array('1' => 'する', '0' => 'しない');
 
 // 携帯閲覧時、一度に表示するレスの数
 $conf_user_def['k_rnum_range'] = 15; // (15)
-$conf_user_rules['k_rnum_range'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['k_rnum_range'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 携帯閲覧時、一つのレスの最大表示サイズ
 $conf_user_def['ktai_res_size'] = 600; // (600)
-$conf_user_rules['ktai_res_size'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['ktai_res_size'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 携帯閲覧時、レスを省略したときの表示サイズ
 $conf_user_def['ktai_ryaku_size'] = 120; // (120)
-$conf_user_rules['ktai_ryaku_size'] = array('IntExceptMinus');
+$conf_user_rules['ktai_ryaku_size'] = array('notIntExceptMinusToDef');
+
+// 携帯閲覧時、AAらしきレスを省略するサイズ（0なら無効）
+$conf_user_def['k_aa_ryaku_size'] = 30; // (30)
+$conf_user_rules['k_aa_ryaku_size'] = array('notIntExceptMinusToDef');
 
 // 携帯閲覧時、ポインタの何コ前のレスから表示するか
 $conf_user_def['before_respointer_k'] = 0; // (0)
-$conf_user_rules['before_respointer_k'] = array('IntExceptMinus');
+$conf_user_rules['before_respointer_k'] = array('notIntExceptMinusToDef');
 
 // 携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用(する:1, しない:0)
 $conf_user_def['k_use_tsukin'] = 1; // (1)
@@ -196,6 +208,22 @@ $conf_user_rad['k_use_picto'] = array('1' => 'する', '0' => 'しない');
 // 携帯閲覧時、デフォルトの名無し名を表示（する:1, しない:0）
 $conf_user_def['k_bbs_noname_name'] = 0; // (0)
 $conf_user_sel['k_bbs_noname_name'] = array('1' => 'する', '0' => 'しない');
+
+// 携帯閲覧時、重複しないIDは末尾のみの省略表示（する:1, しない:0）
+$conf_user_def['k_clip_unique_id'] = 1; // (1)
+$conf_user_sel['k_clip_unique_id'] = array('1' => 'する', '0' => 'しない');
+
+// 携帯閲覧時、日付の0を省略表示（する:1, しない:0）
+$conf_user_def['k_date_zerosuppress'] = 1; // (1)
+$conf_user_sel['k_date_zerosuppress'] = array('1' => 'する', '0' => 'しない');
+
+// 携帯閲覧時、時刻の秒を省略表示（する:1, しない:0）
+$conf_user_def['k_clip_time_sec'] = 1; // (1)
+$conf_user_sel['k_clip_time_sec'] = array('1' => 'する', '0' => 'しない');
+
+// 携帯閲覧時、ID末尾の"O"に下線を追加（する:1, しない:0）
+$conf_user_def['mobile.id_underline'] = 0; // (0)
+$conf_user_sel['mobile.id_underline'] = array('1' => 'する', '0' => 'しない');
 
 // 携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数
 $conf_user_def['k_copy_divide_len'] = 0; // (0)
@@ -213,11 +241,11 @@ $conf_user_rad['ngaborn_frequent_one'] = array('1' => 'する', '0' => 'しない');
 
 // 頻出IDあぼーんのしきい値（出現回数がこれ以上のIDをあぼーん）
 $conf_user_def['ngaborn_frequent_num'] = 30; // (30)
-$conf_user_rules['ngaborn_frequent_num'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['ngaborn_frequent_num'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // 勢いの速いスレでは頻出IDあぼーんしない（総レス数/スレ立てからの日数、0なら無効）
 $conf_user_def['ngaborn_frequent_dayres'] = 0; // (0)
-$conf_user_rules['ngaborn_frequent_dayres'] = array('IntExceptMinus');
+$conf_user_rules['ngaborn_frequent_dayres'] = array('notIntExceptMinusToDef');
 
 // 連鎖NGあぼーん(する:1, しない:0, あぼーんレスへのレスもNGにする:2)
 // 処理を軽くするため、表示範囲のレスにしか連鎖しない
@@ -226,7 +254,7 @@ $conf_user_rad['ngaborn_chain'] = array('1' => 'する', '0' => 'しない', '2' => '
 
 // この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）
 $conf_user_def['ngaborn_daylimit'] = 180; // (180)
-$conf_user_rules['ngaborn_daylimit'] = array('NotEmpty', 'IntExceptMinus');
+$conf_user_rules['ngaborn_daylimit'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // }}}
 // {{{ ■ETC
@@ -246,11 +274,11 @@ $conf_user_def['get_new_res'] = 200; // (200)
 
 // 最近読んだスレの記録数
 $conf_user_def['rct_rec_num'] = 50; // (50)
-$conf_user_rules['rct_rec_num'] = array('IntExceptMinus');
+$conf_user_rules['rct_rec_num'] = array('notIntExceptMinusToDef');
 
 // 書き込み履歴の記録数
 $conf_user_def['res_hist_rec_num'] = 20; // (20)
-$conf_user_rules['res_hist_rec_num'] = array('IntExceptMinus');
+$conf_user_rules['res_hist_rec_num'] = array('notIntExceptMinusToDef');
 
 // 書き込み内容ログを記録(する:1, しない:0)
 $conf_user_def['res_write_rec'] = 1; // (1)
@@ -282,7 +310,7 @@ $conf_user_rad['enable_menu_new'] = array('1' => 'する', '0' => 'しない', '2' =>
 
 // 板メニュー部分の自動更新間隔（分指定。0なら自動更新しない。）
 $conf_user_def['menu_refresh_time'] = 0; // (0)
-$conf_user_rules['menu_refresh_time'] = array('IntExceptMinus');
+$conf_user_rules['menu_refresh_time'] = array('notIntExceptMinusToDef');
 
 // 板カテゴリ一覧を閉じた状態にする(する:1, しない:0)
 $conf_user_def['menu_hide_brds'] = 0; // (0)
@@ -316,13 +344,13 @@ $conf_user_def['proxy_host'] = ""; // ("")
 // プロキシポート ex)"8080"
 $conf_user_def['proxy_port'] = ""; // ("")
 
-// フレーム menu の表示幅
-$conf_user_def['frame_menu_width'] = "156"; // ("156")
+// フレーム左 板メニュー の表示幅
+$conf_user_def['frame_menu_width'] = "158"; // ("158")
 
-// フレーム subject の表示幅
+// フレーム右上 スレ一覧 の表示幅
 $conf_user_def['frame_subject_width'] = "40%"; // ("40%")
 
-// フレーム read の表示幅
+// フレーム右下 スレ本文 の表示幅
 $conf_user_def['frame_read_width'] = "60%"; // ("40%") 
 
 
@@ -340,4 +368,3 @@ $conf_user_rad['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP
 include_once 'conf/conf_user_def_ex.inc.php';
 
 // }}}
-?>

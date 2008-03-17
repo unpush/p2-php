@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - ImageCache2
+ */
 
 require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php';
 require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
@@ -42,6 +43,8 @@ class ThumbNailer
     // @var array $default_options,    動的生成時のオプション
     var $default_options = array(
         'quality' => null,
+        'width'   => null,
+        'height'  => null,
         'rotate'  => 0,
         'trim'    => false,
         'intermd' => false,
@@ -147,6 +150,10 @@ class ThumbNailer
         }
         $rotate = ($rotate < 0) ? ($rotate % 360) + 360 : $rotate % 360;
         $this->rotate = ($rotate % 90 == 0) ? $rotate : 0;
+        if ($options['width'] >= 1 && $options['height'] >= 1) {
+            $setting['width']  = $options['width'];
+            $setting['height'] = $options['height'];
+        }
         if ($this->rotate % 180 == 90) {
             $this->max_width  = (int) $setting['height'];
             $this->max_height = (int) $setting['width'];
@@ -161,6 +168,9 @@ class ThumbNailer
         }
         if (0 < $this->quality && $this->quality <= 100) {
             $this->type = '.jpg';
+            if ($this->quality >= (int) $this->ini['General']['epeg_quality_limit']) {
+                $this->epeg = false;
+            }
         } else {
             $this->type = '.png';
             $this->quality = 0;
@@ -200,7 +210,7 @@ class ThumbNailer
      * @access  public
      * @return  string|bool|PEAR_Error
      *          サムネイルを生成・保存に成功したとき、サムネイルのパス
-     *          テンポラリ・サムネイルの生成に成功したとき、TRUE
+     *          テンポラリ・サムネイルの生成に成功したとき、true
      *          失敗したとき PEAR_Error
      */
     function &convert($size, $md5, $mime, $width, $height, $force = false)
@@ -245,7 +255,7 @@ class ThumbNailer
         }*/
 
         // Epegでサムネイルを作成
-        if ($mime == 'image/jpeg' && $this->type == '.jpg' && $this->epeg && !$this->rotate && !$this->trim) {
+        if ($mime == 'image/jpeg' && $this->type == '.jpg' && $this->epeg && !$this->dynamic) {
             $dst = ($this->dynamic) ? '' : $thumb;
             $result = epeg_thumbnail_create($src, $dst, $this->max_width, $this->max_height, $this->quality);
             if ($result == false) {
@@ -291,9 +301,11 @@ class ThumbNailer
                     $size['sh'] = $height;
                 }
                 if ($this->dynamic) {
-                    $result = &$this->{'_'.$this->driver.'Capture'}($src, $size);
+                    $method = '_' . $this->driver . 'Capture';
+                    $result = &$this->$method($src, $size);
                 } else {
-                    $result = &$this->{'_'.$this->driver.'Save'}($src, $thumb, $size);
+                    $method = '_' . $this->driver . 'Save';
+                    $result = &$this->$method($src, $thumb, $size);
                 }
                 break;
             default:
@@ -1076,4 +1088,13 @@ EOF;
     // }}
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

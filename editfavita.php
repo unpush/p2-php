@@ -3,7 +3,7 @@
     p2 -  お気に入り編集
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 include_once P2_LIBRARY_DIR . '/filectl.class.php';
 include_once P2_LIBRARY_DIR . '/strctl.class.php';
 
@@ -63,8 +63,7 @@ if ($_conf['expack.misc.multi_favs']) {
 // ヘッダ
 //================================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -75,7 +74,7 @@ echo <<<EOP
     <title>p2 - お気に板の並び替え</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <script type="text/javascript" src="js/yui/YAHOO.js?{$_conf['p2expack']}" ></script>
     <script type="text/javascript" src="js/yui/log.js?{$_conf['p2expack']}" ></script>
@@ -200,7 +199,7 @@ function submitApply()
 
 
 // PC用
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $onclick = " onClick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['SCRIPT_NAME'];
 
@@ -307,7 +306,7 @@ EOP;
 }
 
 // PC
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo '<hr>';
     echo $sync_favita_form_ht;
 }
@@ -320,5 +319,3 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
-
-?>

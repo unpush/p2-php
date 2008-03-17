@@ -176,8 +176,7 @@ EOP;
 //===================================================================
 // HTMLƒvƒŠƒ“ƒg
 //===================================================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -289,5 +288,3 @@ echo <<<EOP
     $check_form_ht
     <table cellspacing="0" width="100%">\n
 EOP;
-
-?>

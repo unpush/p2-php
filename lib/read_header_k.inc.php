@@ -163,8 +163,7 @@ EOTOOLBAR;
 
 //=====================================
 //!empty($_GET['nocache']) and P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
@@ -235,5 +234,3 @@ if ($word) {
 }
 
 echo "<hr>";
-
-?>

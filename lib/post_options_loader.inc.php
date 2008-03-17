@@ -99,7 +99,7 @@ $hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
 // 参考 クラシック COLS='60' ROWS='8'
 $mobile = &Net_UserAgent_Mobile::singleton();
 // PC
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     $name_size_at = ' size="19"';
     $mail_size_at = ' size="19"';
     $msg_cols_at = ' cols="' . $STYLE['post_msg_cols'] . '"';
@@ -287,5 +287,3 @@ if (!$_conf['ktai']) {
 }
 
 // }}}
-
-?>

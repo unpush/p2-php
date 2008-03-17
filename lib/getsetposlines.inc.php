@@ -55,4 +55,3 @@ function getSetPosLines($lines, $data, $before_line_num, $set)
 
     return $reclines;
 }
-?>

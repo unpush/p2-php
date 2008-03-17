@@ -180,11 +180,8 @@ if ($db->dsn['phptype'] == 'sqlite') {
     $flexy->setData('isSQLite', TRUE);
 }
 
-P2Util::header_content_type();
 P2Util::header_nocache();
 $flexy->compile('ic2mng.tpl.html');
 $flexy->output();
 
 // }}}
-
-?>

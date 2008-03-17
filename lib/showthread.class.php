@@ -312,7 +312,7 @@ class ShowThread{
 
         $GLOBALS['last_hit_resnum'] = $resnum;
 
-        if (empty($_conf['ktai'])) {
+        if (!$_conf['ktai']) {
             echo <<<EOP
 <script type="text/javascript">
 <!--
@@ -325,4 +325,3 @@ EOP;
         return true;
     }
 }
-?>

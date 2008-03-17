@@ -77,5 +77,3 @@ function tgrep_print_recent_list_k()
         echo '<p>ÅiÇ»ÇµÅj</p>' . "\n";
     }
 }
-
-?>

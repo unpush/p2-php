@@ -1,7 +1,7 @@
 /* p2 - 基本JavaScriptファイル */
 
 // サブウィンドウをポップアップする
-function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR)
+function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR, boolW)
 {
 	var proparty3rd = "width=" + inWidth + ",height=" + inHeight + ",scrollbars=" + boolS + ",resizable=1";
 	SubWin = window.open(inUrl,"",proparty3rd);
@@ -9,6 +9,9 @@ function OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR)
 		SubWin.resizeTo(inWidth,inHeight);
 	}
 	SubWin.focus();
+	if (boolW) {
+		return SubWin;
+	}
 	return false;
 }
 

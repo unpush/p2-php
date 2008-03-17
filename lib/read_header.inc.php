@@ -166,8 +166,7 @@ $toolbar_right_ht = <<<EOTOOLBAR
 EOTOOLBAR;
 
 //=====================================
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -375,6 +374,3 @@ EOP;
 //if (!$_GET['renzokupop']) {
     echo "<h3 class=\"thread_title\">{$aThread->ttitle_hd}</h3>\n";
 //}
-
-
-?>

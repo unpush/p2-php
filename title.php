@@ -1,7 +1,7 @@
 <?php
 // p2 -  タイトルページ
 
-include_once './conf/conf.inc.php';   // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -112,10 +112,7 @@ EOP;
 //=========================================================
 $ptitle = "rep2 - title";
 
-P2Util::header_content_type();
-if (!empty($_conf['doctype'])) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -159,7 +156,7 @@ echo <<<EOP
 EOP;
 
 //==================================================
-// ■関数
+// 関数
 //==================================================
 /**
  * オンライン上のrep2-expack最新版をチェックする
@@ -205,5 +202,3 @@ EOP;
     }
     return $newversion_found_html;
 }
-
-?>

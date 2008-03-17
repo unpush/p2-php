@@ -151,5 +151,3 @@ function &machiHtmltoDatLines(&$mlines)
 
     return $mdatlines;
 }
-
-?>

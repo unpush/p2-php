@@ -17,7 +17,7 @@ $_login->authorize();
 // }}}
 
 if ($_conf['view_forced_by_query']) {
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         output_add_rewrite_var('b', 'pc');
     } else {
         output_add_rewrite_var('b', 'k');
@@ -92,7 +92,6 @@ if (isset($num)) {
 // HTMLプリント
 //============================================================
 
-P2Util::header_content_type();
 if ($_conf['ktai']) {
     if (!$_conf['expack.rss.check_interval']) {
         // キャッシュさせない
@@ -102,9 +101,5 @@ if ($_conf['ktai']) {
         header(sprintf('Cache-Control: max-age=%d', $_conf['expack.rss.check_interval'] * 60 / 3));
     }
 }
-if ($_conf['doctype']) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 include P2EX_LIBRARY_DIR . '/rss/' . ($_conf['ktai'] ? 'read_k' : 'read') . '.inc.php';
-
-?>

@@ -55,8 +55,9 @@ function rankDown(itemId)
 	var rank = getRank(itemId);
 	if (rank > -1) {
 		rank--;
-		setRank(itemId, rank);
+		return setRank(itemId, rank);
 	}
+	return false;
 }
 
 function rankUp(itemId)
@@ -65,13 +66,14 @@ function rankUp(itemId)
 	var rank = getRank(itemId);
 	if (rank < 5) {
 		rank++;
-		setRank(itemId, rank);
+		return setRank(itemId, rank);
 	}
+	return false;
 }
 
 function getRank(itemId)
 {
-	return parseInt(document.getElementById('rank'+itemId).innerText, 10);
+	return parseInt(document.getElementById('rank'+itemId).innerHTML, 10);
 }
 
 function setRank(itemId, rank)
@@ -83,6 +85,8 @@ function setRank(itemId, rank)
 	var url = 'ic2_setrank.php?id=' + itemId + '&rank=' + rank.toString();
 	var res = getResponseTextHttp(objHTTP, url, 'nc');
 	if (res == '1') {
-		document.getElementById('rank'+itemId).innerText = rank.toString();
+		document.getElementById('rank'+itemId).innerHTML = rank.toString();
+		return true;
 	}
+	return false;
 }

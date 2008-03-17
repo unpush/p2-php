@@ -244,10 +244,7 @@ EOP;
     // HTMLƒvƒŠƒ“ƒg
     //=========================================================
     P2Util::header_nocache();
-    P2Util::header_content_type();
-    if ($_conf['doctype']) {
-        echo $doctype;
-    }
+    echo $doctype;
     echo <<<EOP
 <html lang="ja">
 <head>
@@ -257,7 +254,7 @@ EOP;
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>
 EOP;
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         echo "<style type=\"text/css\" media=\"all\">\n<!--\n";
         @include 'style/style_css.inc';
         @include 'style/login_first_css.inc';
@@ -282,4 +279,3 @@ EOP;
 
     return true;
 }
-?>

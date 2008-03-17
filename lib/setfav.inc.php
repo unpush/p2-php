@@ -217,5 +217,3 @@ function postFavRank($post)
         //return $body;
     }
 }
-
-?>

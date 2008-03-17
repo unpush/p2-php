@@ -34,7 +34,7 @@ if ($_conf['expack.google.enabled'] == 0) {
 }
 
 if ($_conf['view_forced_by_query']) {
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         output_add_rewrite_var('b', 'pc');
     } else {
         output_add_rewrite_var('b', 'k');
@@ -143,7 +143,6 @@ if ($_conf['input_type_search']) {
     $search_element_extra_attributes = " autosave=\"rep2.expack.search.google\" results=\"{$_conf['expack.google.recent2_num']}\" placeholder=\"Google\"";
 }
 
-P2Util::header_content_type();
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">

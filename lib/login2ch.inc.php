@@ -1,6 +1,6 @@
 <?php
 
-include_once './conf/conf.inc.php';  // Šî–{Ý’è
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 require_once P2_LIBRARY_DIR . '/wap.class.php';
 
@@ -259,5 +259,3 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
 
     return $wap_res->content;
 }
-
-?>

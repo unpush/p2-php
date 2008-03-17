@@ -3,15 +3,15 @@
     p2 - スレッド情報ウィンドウ
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/thread.class.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/dele.inc.php'; // 削除処理用の関数郡
+require_once P2_LIBRARY_DIR . '/dele.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
 //================================================================
-// ■変数設定
+// 変数設定
 //================================================================
 $host = isset($_GET['host']) ? $_GET['host'] : null; // "pc.2ch.net"
 $bbs = isset($_GET['bbs']) ? $_GET['bbs'] : null; // "php"
@@ -31,7 +31,7 @@ if (empty($host) || empty($bbs) || empty($key)) {
 }
 
 //================================================================
-// ■特殊な前処理
+// 特殊な前処理
 //================================================================
 // {{{ 削除
 
@@ -97,7 +97,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 
 // }}}
 //=================================================================
-// ■メイン
+// メイン
 //=================================================================
 
 $aThread =& new Thread();
@@ -240,7 +240,7 @@ if (!empty($isTaborn)) {
     $tastr1 = "通常";
     $tastr2 = "あぼーんする";
     $taborndo = 1;
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         $taborndo_title_at = ' title="スレッド一覧で非表示にします"';
     }
 }
@@ -257,9 +257,9 @@ if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) {
 }
 
 //=================================================================
-// ■HTMLプリント
+// HTMLプリント
 //=================================================================
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $target_read_at = ' target="read"';
     $target_sb_at = ' target="sbject"';
 }
@@ -282,8 +282,7 @@ $hd = array_map('htmlspecialchars', $hc);
 
 
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
@@ -294,7 +293,7 @@ echo <<<EOHEADER
     <title>{$hd['title']}</title>\n
 EOHEADER;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">\n
@@ -324,7 +323,7 @@ echo "<b><a class=\"thre_title\" href=\"{$_conf['read_php']}?{$common_q}{$_conf[
 echo "</p>\n";
 
 // 携帯なら冒頭で表示
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     if (!empty($info_msg)) {
         echo "<p>" . $info_msg . "</p>\n";
     }
@@ -334,15 +333,15 @@ if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($a
     $offrec_ht = " / [<a href=\"info.php?{$common_q}&amp;offrec=true{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}\" title=\"このスレを「最近読んだスレ」と「書き込み履歴」から外します\">履歴から外す</a>]";
 }
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo "<table cellspacing=\"0\">\n";
 }
 print_info_line("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$motothre_url}</a>");
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     print_info_line("ホスト", $aThread->host);
 }
 print_info_line("板", "<a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}{$_conf['k_at_a']}\"{$target_sb_at}>{$hd['itaj']}</a>");
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     print_info_line("key", $aThread->key);
 }
 if ($existLog) {
@@ -359,7 +358,7 @@ if ($aThread->gotnum) {
 }
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     if (file_exists($aThread->keydat)) {
         if ($aThread->length) {
             print_info_line("datサイズ", $aThread->length.' バイト');
@@ -380,11 +379,11 @@ print_info_line("殿堂入り", $pal_ht);
 print_info_line("表示", $taborn_ht);
 
 // PC
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo "</table>\n";
 }
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     if (!empty($info_msg)) {
         echo "<span class=\"infomsg\">".$info_msg."</span>\n";
     } else {
@@ -393,7 +392,7 @@ if (empty($_conf['ktai'])) {
 }
 
 // 携帯コピペ用フォーム
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     echo getCopypaFormHtml($motothre_org_url, $hd['ttitle_name']);
 }
 
@@ -413,7 +412,7 @@ EOP;
 
 // }}}
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     echo '<hr>' . $_conf['k_to_index_ht'];
 }
 
@@ -423,7 +422,7 @@ echo '</body></html>';
 exit();
 
 //=======================================================
-// ■関数
+// 関数
 //=======================================================
 /**
  * スレ情報HTMLを表示する
@@ -433,7 +432,7 @@ function print_info_line($s, $c_ht)
     global $_conf;
 
     // 携帯
-    if (!empty($_conf['ktai'])) {
+    if ($_conf['ktai']) {
         echo "{$s}: {$c_ht}<br>";
     // PC
     } else {
@@ -461,4 +460,3 @@ EOP;
 
     return $htm;
 }
-?>

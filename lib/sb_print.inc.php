@@ -369,5 +369,3 @@ EOP;
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
     return true;
 }
-
-?>

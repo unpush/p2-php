@@ -38,7 +38,7 @@ $mode = isset($_GET['q']) ? (int)$_GET['q'] : 0;
 $_conf['ktai'] = FALSE;
 
 //==================================================================
-// ■メイン
+// メイン
 //==================================================================
 $aThread = &new ThreadRead;
 
@@ -78,7 +78,7 @@ if (empty($_GET['offline'])) {
     $aThread->downloadDat();
 }
 
-// ■DATを読み込み
+// DATを読み込み
 $aThread->readDat();
 
 // オフライン指定でもログがなければ、改めて強制読み込み
@@ -101,7 +101,7 @@ $aThread->lsToPoint();
 
 
 //===============================================================
-// ■プリント
+// プリント
 //===============================================================
 $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES).' / '.$aThread->ttitle_hd;
 
@@ -188,7 +188,5 @@ $newdata_ar = array($aThread->ttitle, $aThread->key, $data[2], '', '', $aThread-
 $newdata = implode('<>', $newdata_ar);
 P2Util::recRecent($newdata);
 
-// ■NGあぼーんを記録
+// NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
-
-?>

@@ -4,11 +4,12 @@
     返り値は、テキストで返す
 */
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル
+include_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
 // {{{ HTTPヘッダとXML宣言
+
 P2Util::header_nocache();
 header('Content-Type: text/html; charset=Shift_JIS');
 
@@ -84,5 +85,3 @@ if (P2Util::isBrowserSafariGroup()) {
 echo $r_msg;
 
 // }}}
-
-?>

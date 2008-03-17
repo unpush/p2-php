@@ -116,6 +116,7 @@ $_conf['expack.aas.enabled'] = 0; // (0)
 
 //TrueTypeフォントのパス
 $_conf['expack.aas.font_path'] = "./ttf/mona.ttf"; // ("./ttf/mona.ttf")
+//$_conf['expack.aas.font_path'] = "./ttf/ipagp-mona.ttf";
 
 // 数値参照のデコードに失敗したときの代替文字
 $_conf['expack.aas.unknown_char'] = "?"; // ("?")
@@ -124,6 +125,9 @@ $_conf['expack.aas.unknown_char'] = "?"; // ("?")
 // "eucJP-win" では configure のオプションに --enable-gd-native-ttf が指定されていないと文字化けする
 // このとき Unicode 対応フォントを使っているなら "UTF-8" にすると正しく表示できる
 $_conf['expack.aas.output_charset'] = "eucJP-win"; // ("eucJP-win")
+if (strcasecmp(substr(PHP_OS, 0, 6), 'Darwin') == 0) {
+    $_conf['expack.aas.output_charset'] = "UTF-8";
+}
 
 // }}}
 // ----------------------------------------------------------------------
@@ -136,8 +140,7 @@ $_conf['expack.misc.multi_favs'] = 0; // (0)
 $_conf['expack.misc.favset_num'] = 5; // (5)
 
 // お気にセット名情報を記録するファイルのパス
-$_conf['expack.misc.favset_file'] = $_conf['pref_dir'].'/p2_favset.txt';
+$_conf['expack.misc.favset_file'] = $_conf['pref_dir'] . '/p2_favset.txt';
 
 // }}}
 // ----------------------------------------------------------------------
-?>

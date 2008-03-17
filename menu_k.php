@@ -3,7 +3,7 @@
     p2 -  板メニュー 携帯用
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/brdctl.class.php';
 require_once P2_LIBRARY_DIR . '/showbrdmenuk.class.php';
 
@@ -73,8 +73,7 @@ if ($_GET['view'] == "favita") {
     $ptitle = "ﾕﾋﾞｷﾀｽp2";
 }
 
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
@@ -215,5 +214,3 @@ echo $list_navi_ht;
 echo $modori_url_ht;
 echo $_conf['k_to_index_ht'];
 echo '</body></html>';
-
-?>

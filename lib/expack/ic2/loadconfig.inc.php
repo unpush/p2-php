@@ -31,5 +31,3 @@ function ic2_loadconfig()
     }
     return $ini;
 }
-
-?>

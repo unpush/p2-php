@@ -241,7 +241,6 @@ if (empty($errors) && $_SERVER['REQUEST_METHOD'] != 'POST') {
 // エラーメッセージを表示して終了
 if (count($errors) > 0) {
     P2Util::header_nocache();
-    P2Util::header_content_type();
     echo '<html>';
     echo '<head><title>AAS Error</title></head>';
     echo '<body>';
@@ -312,7 +311,7 @@ foreach ($lines as $line) {
 if ($inline) {
     $default_width  = $_conf['expack.aas.image_width_il'];
     $default_height = $_conf['expack.aas.image_height_il'];
-} elseif (empty($_conf['ktai'])) {
+} elseif (!$_conf['ktai']) {
     $default_width  = $_conf['expack.aas.image_width_pc'];
     $default_height = $_conf['expack.aas.image_height_pc'];
 } else {
@@ -557,7 +556,6 @@ function aas_parseColor($hex)
 function aas_ttfErrorHandler($errno, $errstr, $errfile, $errline)
 {
     P2Util::header_nocache();
-    P2Util::header_content_type();
     echo '<html>';
     echo '<head><title>AAS Error</title></head>';
     echo '<body>';
@@ -571,5 +569,3 @@ function aas_ttfErrorHandler($errno, $errstr, $errfile, $errline)
 }
 
 // }}}
-
-?>

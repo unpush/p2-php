@@ -35,5 +35,3 @@ function findexec($command, $search_path = '', $escape = TRUE)
     // Œ©‚Â‚©‚ç‚È‚©‚Á‚½
     return FALSE;
 }
-
-?>

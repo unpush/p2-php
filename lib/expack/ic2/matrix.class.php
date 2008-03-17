@@ -36,5 +36,3 @@ class MatrixManager
         return ($this->max - ($i + 1) < $this->cols);
     }
 }
-
-?>

@@ -120,4 +120,3 @@ function setFavIta()
 
     return true;
 }
-?>

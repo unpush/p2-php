@@ -39,5 +39,3 @@ $htm['options_k'] .= '</form>';
 if ($CONSTAREA) {
     $htm['options_k'] .= "<textarea>{$CONSTAREA}</textarea>";
 }
-
-?>

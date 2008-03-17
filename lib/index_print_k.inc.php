@@ -51,10 +51,7 @@ EOP;
     // Œg‘Ñ—p HTML ƒvƒŠƒ“ƒg
     //=========================================================
     P2Util::header_nocache();
-    P2Util::header_content_type();
-    if (isset($_conf['doctype'])) {
-        echo $_conf['doctype'];
-    }
+    echo $_conf['doctype'];
     echo <<<EOP
 <html>
 <head>
@@ -88,4 +85,3 @@ EOP;
 EOP;
 
 }
-?>

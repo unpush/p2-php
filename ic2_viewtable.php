@@ -107,7 +107,6 @@ if ($table->find()) {
     }
 }
 
-P2Util::header_content_type();
 P2Util::header_nocache();
 $flexy->compile('ic2vt.tpl.html');
 $flexy->output();
@@ -156,4 +155,3 @@ function ic2dumptable_blacklist(&$dbdo)
 }
 
 // }}}
-?>

@@ -236,5 +236,3 @@ class BrdMenuIta{
         $this->itaj_ht = htmlspecialchars($this->itaj, ENT_QUOTES);
     }
 }
-
-?>

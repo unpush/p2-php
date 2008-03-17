@@ -143,5 +143,3 @@ function rss_get_image_ic2($src_url, $memo='')
 
     return $result;
 }
-
-?>

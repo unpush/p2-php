@@ -51,8 +51,7 @@ if ($x && $y) {
 }
 
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOF
 <html lang="ja">
 <head>
@@ -78,4 +77,3 @@ echo <<<EOF
 </body>
 </html>
 EOF;
-?>

@@ -118,5 +118,3 @@ function checkOrder($order_list, $order)
     }
     return false;
 }
-
-?>

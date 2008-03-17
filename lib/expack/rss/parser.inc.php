@@ -485,5 +485,3 @@ function rss_url_rel_to_abs($url)
     //â‘Î URL ‚ð•Ô‚·
     return $top . implode('/', $paths1) . $query;
 }
-
-?>

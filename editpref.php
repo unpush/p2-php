@@ -3,7 +3,7 @@
     p2 -  設定管理
 */
 
-include_once './conf/conf.inc.php'; // 基本設定
+include_once './conf/conf.inc.php';
 include_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -46,7 +46,7 @@ if (isset($_POST['sync'])) {
 
 $ptitle = '設定管理';
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $status_st      = 'ｽﾃｰﾀｽ';
     $autho_user_st  = '認証ﾕｰｻﾞ';
     $client_host_st = '端末ﾎｽﾄ';
@@ -70,10 +70,7 @@ $autho_user_ht = '';
 // HTMLプリント
 //=========================================================
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -84,7 +81,7 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=editpref&amp;skin={$skin_en}" type="text/css">\n
@@ -97,7 +94,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
 //<p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
     echo "<p id=\"pan_menu\">{$ptitle}</p>\n";
 }
@@ -106,7 +103,7 @@ if (empty($_conf['ktai'])) {
 echo $_info_msg_ht;
 $_info_msg_ht = '';
 
-// 設定プリント =====================
+// 設定プリント
 $aborn_res_txt  = $_conf['pref_dir'] . '/p2_aborn_res.txt';
 $aborn_name_txt = $_conf['pref_dir'] . '/p2_aborn_name.txt';
 $aborn_mail_txt = $_conf['pref_dir'] . '/p2_aborn_mail.txt';
@@ -151,7 +148,7 @@ EOP;
 echo '</div>';
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
 
     echo "<table id=\"editpref\">\n";
 
@@ -160,7 +157,7 @@ if (empty($_conf['ktai'])) {
 
     echo <<<EOP
 <fieldset>
-<legend><a href="http://akid.s17.xrea.com:8080/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
+<legend><a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
 EOP;
     printEditFileForm($ng_name_txt, "名前");
     printEditFileForm($ng_mail_txt, "メール");
@@ -348,7 +345,7 @@ EOP;
 
 $max = $_conf['matome_cache_max'];
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $ext = '.k' . $_conf['matome_cache_ext'];
 } else {
     $ext = $_conf['matome_cache_ext'];
@@ -380,16 +377,22 @@ if (!empty($links)) {
 // 携帯用フッタ
 if ($_conf['ktai']) {
     echo "<hr>\n";
-    echo $_conf['k_to_index_ht']."\n";
+    echo $_conf['k_to_index_ht'] . "\n";
 }
 
 echo '</body></html>';
 
-//=====================================================
+exit;
+
+//==============================================================================
 // 関数
-//=====================================================
+//==============================================================================
 /**
- * 設定ファイル編集ウインドウを開くフォームをプリントする
+ * 設定ファイル編集ウインドウを開くフォームHTMLをプリントする
+ *
+ * @param   string  $path_value     編集するファイルのパス
+ * @param   string  $submit_value   submitボタンの値
+ * @return  void
  */
 function printEditFileForm($path_value, $submit_value)
 {
@@ -435,6 +438,10 @@ EOFORM;
 
 /**
  * ホストの同期用フォームのHTMLを取得する
+ *
+ * @param   string  $path_value     同期するファイルのパス
+ * @param   string  $submit_value   submitボタンの値
+ * @return  string
  */
 function getSyncFavoritesFormHt($path_value, $submit_value)
 {
@@ -456,6 +463,10 @@ EOFORM;
 
 /**
  * お気に入りセット切り替え・セット名変更用フォームのHTMLを取得する（PC用）
+ *
+ * @param   string  $set_name   内部処理用セット名
+ * @param   string  $set_title  HTML表示用セット名
+ * @return  string
  */
 function getFavSetListFormHt($set_name, $set_title)
 {
@@ -491,6 +502,10 @@ EOFORM;
 
 /**
  * お気に入りセット切り替え用フォームのHTMLを取得する（携帯用）
+ *
+ * @param   string  $set_name   内部処理用セット名
+ * @param   string  $set_title  HTML表示用セット名
+ * @return  string
  */
 function getFavSetListFormHtK($set_name, $set_title)
 {
@@ -527,6 +542,8 @@ function getFavSetListFormHtK($set_name, $set_title)
 
 /**
  * お気に入りセットリストを更新する
+ *
+ * @return  boolean 更新に成功したらTRUE, 失敗したらFALSE
  */
 function updateFavSetList()
 {
@@ -566,5 +583,3 @@ function updateFavSetList()
 
     return TRUE;
 }
-
-?>

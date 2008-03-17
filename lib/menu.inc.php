@@ -70,8 +70,7 @@ $reloaded_time = date('n/j G:i:s'); // çXêVéûçè
 $ptitle = 'p2 - menu';
 
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -477,5 +476,3 @@ function initMenuNewSp($spmode_in)
         $class_newres_num = ' class="newres_num_zero"';
     }
 }
-
-?>

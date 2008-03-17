@@ -161,7 +161,6 @@ $controllerObject->skin = $skin_en;
 $controllerObject->rep2expack = $_conf['p2expack'];
 
 // o—Í
-P2Util::header_content_type();
 $flexy->outputObject($controllerObject, $elements);
 
 /**
@@ -210,5 +209,3 @@ function implode_fonts($fonts)
 {
     return '"' . implode('","', $fonts) . '"';
 }
-
-?>

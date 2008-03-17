@@ -1,3 +1,138 @@
+2006-10-26 aki
+	* rep2 version 1.8.7
+	
+	[更新] auのIPアドレス帯域を更新した
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+
+2006-10-26 aki
+	* rep2 version 1.8.6
+	
+	[更新] auのIPアドレス帯域を追加更新した
+	[修正] auでエラー時のメッセージが一部表示されなかったのを、表示されるようにした。
+	
+	- 変更のあったファイル
+		edit_conf_user.php
+		conf/conf.inc.php
+		lib/hostcheck.class.php
+		lib/p2util.class.php
+
+2006-10-26 aki
+	* rep2 version 1.8.5
+	
+	[バグ修正] お気に板の並び替えができなくなっていたのを修正した。
+	[バグ修正] p2 DATサイズの適合チェックが機能しなくなっていたのを修正した（v1.8.0-）
+	[改良] HTMLポップアップの×の位置をマウスカーソルのすぐ下に来るようにした。
+	  また、そこらへんをクリックしてもHTMLポップアップが消えるようにした。
+	[調整] wikipediaは、フレームをクリアしてしまうので、pしないようにした
+	
+	- 変更のあったファイル
+		editfavita.php
+		read_new.php
+		conf/conf.inc.php
+		js/htmlpopup.js
+		lib/filectl.class.php
+		lib/read_header.inc.php
+		lib/setfavita.inc.php
+		lib/showthreadpc.class.php
+		lib/threadread.class.php
+
+2006-10-24 aki
+	* rep2 version 1.8.4
+	
+	[バグ修正] お気に板の編集で、板名が「1」になってしまっていたバグを修正した
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/setfavita.inc.php
+
+2006-10-23 aki
+	* rep2 version 1.8.3
+	
+	[バグ修正] 書き込みができないバグを修正した
+	[バグ修正] ユーザ設定編集を保存すると、b=kを抜けてしまっていたのを修正した
+	
+	- 変更のあったファイル
+		edit_conf_user.php
+		post.php
+		conf/conf.inc.php
+		lib/p2util.class.php
+
+2006-10-23 aki
+	* rep2 version 1.8.2
+	
+	[バグ修正] 携帯でスレ一覧のリンク先がおかしかったのを修正
+	[バグ修正] 書き込み後にb=kの携帯表示がPC表示になっていたのを修正
+	[新機能] ●書き込みの状態を記憶するようにした。
+	[対応] 写の時もBEポイントの表示に対応しました。 
+	
+	- 変更のあったファイル
+		edit_conf_user.php
+		index.php
+		info.php
+		post.php
+		read.php
+		read_copy_k.php
+		read_new.php
+		subject.php
+		title.php
+		conf/conf.inc.php
+		conf/conf_user_def.inc.php
+		lib/brdmenu.class.php
+		lib/dataphp.class.php
+		lib/filectl.class.php
+		lib/login2ch.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/post_form.inc.php
+		lib/post_options_loader.inc.php
+		lib/read_header.inc.php
+		lib/sb_header.inc.php
+		lib/sb_print_k.inc.php
+		lib/showthread.class.php
+
+2006-10-19 aki
+	* rep2 version 1.8.1
+	
+	[バグ修正] ユーザ設定編集で保存できなったバグを修正した。（1.8.0-）
+	[新機能] YouTubeのリンクをプレビューできるようになった。（ユーザ設定 link_youtube）
+	
+	- （意味のある）変更があったファイル
+		conf/conf.inc.php
+		conf/conf_user_def.inc.php
+		edit_conf_user.php
+		showthreadpc.class.php
+	
+2006-10-18 aki
+	* rep2 version 1.8.0
+	
+	[新機能] アンカーボム対策を施した。
+	[新機能] 書き込み途中の内容を自動でクッキー保存するようにした。
+	 うっかりページを閉じてしまっても、同じスレを開くと書きこみかけの内容が復帰できたりします。
+	[新機能] 携帯のスレッド一覧（板表示）から初めてのスレを開く時の表示方法を追加した (ﾌﾟﾚﾋﾞｭｰ>>1, 1からN件表示, 最近N件表示)
+	 	ユーザ編集設定 k_sb_show_first
+	[新機能] 携帯でのフィルタリングでマッチしたキーワードの色の追加した（拡張パックより）
+	 	ユーザ編集設定 mobile.match_color
+	[新機能] 携帯でのスレッド閲覧時、重複しないIDは末尾のみの省略表示をできるようにした。
+	 	ユーザ編集設定 k_clip_unique_id
+	[新機能] 携帯でのスレッド閲覧時、ID末尾の"O"に下線を追加できるようにした（拡張パックより）
+	 	ユーザ編集設定 mobile.id_underline
+	[新機能] 複数のレス番を持つスレのURLに対応した。
+	[改良] その他、携帯の表示をいろいろ見やすく改良した。
+	[改良] ファイルデータの保存処理を改良調整した。
+	[改良] カキコフォームのびーるのJavaScript処理が重くならないように調整した。
+	[バグ修正] メール欄のデフォルトをsageにしていると、メール欄無記入で書き込み失敗した時、
+	 名前や本文は復帰するが、メール欄はsageに戻っていたのを修正した。
+	[修正] rep2設置URLにポート番号を指定した時、正常にページ遷移できないことがあったのを修正した。
+	[2ch仕様対応] Beの板移転に対応した。
+	[更新] wilcomとauのIPアドレス帯域を更新した。
+	[その他] いろいろ細かい更新やコードの調整
+	
+	- 変更のあったファイルはほぼ全て
+	- 新規追加ファイル lib/StrSjis.php
+	
 2006-05-27 aki
 	* rep2 version 1.7.29
 	
@@ -2150,4 +2285,3 @@
 2002-10-09  aki
 
 	* p2 version 0.1 beta
-	

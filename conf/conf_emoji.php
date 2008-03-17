@@ -84,5 +84,3 @@ function getEmoji()
 
     return $emoji;
 }
-
-?>

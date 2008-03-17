@@ -5,6 +5,7 @@
     このファイルの設定は、必要に応じて変更してください
 */
 
+
 $GLOBALS['_HOSTCHKCONF'] = array();
 
 // ホストごとの設定 (0:拒否; 1:許可;)
@@ -45,5 +46,3 @@ $GLOBALS['_HOSTCHKCONF']['auth_bbq_burned_expire'] = 0;
 
 // 一度BBQチェックを回避できたホストに対するBBQ認証パススルーの有効期限 (秒数で指定、0なら毎回確認)
 $GLOBALS['_HOSTCHKCONF']['auth_bbq_passed_expire'] = 3600;
-
-?>

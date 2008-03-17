@@ -1,9 +1,9 @@
 <?php
 /*
-    p2 - ユーザ設定編集インタフェース
+    p2 - ユーザ設定編集UI
 */
 
-include_once './conf/conf.inc.php';  // 基本設定
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -26,7 +26,7 @@ define('P2_EDIT_CONF_FILE_ADMIN_EX', 2048);
 // 前処理
 //=====================================================================
 
-// {{{ ■保存タブが押されていたら、設定を保存
+// {{{ 保存ボタンが押されていたら、設定を保存
 
 if (!empty($_POST['submit_save'])) {
 
@@ -38,11 +38,8 @@ if (!empty($_POST['submit_save'])) {
     // 選択肢にないもの → デフォルト矯正
     notSelToDef();
 
-    // empty → デフォルト矯正
-    emptyToDef();
-
-    // 正の整数 or 0 でないもの → デフォルト矯正
-    notIntExceptMinusToDef();
+    // ルールを適用する
+    applyRules();
 
     // 正の実数 or 0 でないもの → デフォルト矯正
     //notFloatExceptMinusToDef();
@@ -69,6 +66,7 @@ if (!empty($_POST['submit_save'])) {
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
     if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
         $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
+        trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
     } else {
         $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
         // 変更があれば、内部データも更新しておく
@@ -79,7 +77,7 @@ if (!empty($_POST['submit_save'])) {
     }
 
 // }}}
-// {{{ ■デフォルトに戻すタブが押されていたら
+// {{{ デフォルトに戻すボタンが押されていたら
 
 } elseif (!empty($_POST['submit_default'])) {
     if (file_exists($_conf['conf_user_file']) and unlink($_conf['conf_user_file'])) {
@@ -95,7 +93,7 @@ if (!empty($_POST['submit_save'])) {
 // }}}
 // {{{ 携帯で表示するグループ
 
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     if (isset($_POST['edit_conf_user_group_en'])) {
         $selected_group = base64_decode($_POST['edit_conf_user_group_en']);
     } elseif (isset($_POST['edit_conf_user_group'])) {
@@ -123,13 +121,14 @@ $ptitle = 'ユーザ設定編集';
 
 $csrfid = P2Util::getCsrfId();
 
+$me = P2Util::getMyUrl();
+
 //=====================================================================
 // プリント
 //=====================================================================
 // ヘッダHTMLをプリント
 P2Util::header_nocache();
-P2Util::header_content_type();
-if ($_conf['doctype']) { echo $_conf['doctype']; }
+echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
@@ -140,7 +139,7 @@ echo <<<EOP
     <title>{$ptitle}</title>\n
 EOP;
 
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
     <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript" src="js/tabber/tabber.js?{$_conf['p2expack']}"></script>
@@ -159,24 +158,22 @@ echo <<<EOP
 EOP;
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
-<p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle}</p>\n
+<p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle} （<a href="{$me}">リロード</a>）</p>\n
 EOP;
 }
 
 // 携帯用表示
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     $htm['form_submit'] = <<<EOP
 <input type="submit" name="submit_save" value="変更を保存する">\n
 EOP;
 }
 
 // 情報メッセージ表示
-if (!empty($_info_msg_ht)) {
-    echo $_info_msg_ht;
-    $_info_msg_ht = "";
-}
+echo $_info_msg_ht;
+$_info_msg_ht = "";
 
 echo <<<EOP
 <form id="edit_conf_user_form" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
@@ -186,7 +183,7 @@ echo <<<EOP
 EOP;
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 <div class="tabber">
 <div class="tabbertab" title="rep2基本設定">
@@ -252,7 +249,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('refresh_time', 'スレッド一覧の自動更新間隔 (分指定。0なら自動更新しない)'),
 
         array('sb_show_motothre', 'スレッド一覧で未取得スレに対して元スレへのリンク（・）を表示 (する, しない)'),
-        array('sb_show_one', 'スレッド一覧（板表示）で>>1を表示 (する, しない, ニュース系のみ)'),
+        array('sb_show_one', 'PC閲覧時、スレッド一覧（板表示）で&gt;&gt;1を表示 (する, しない, ニュース系のみ)'),
+        array('k_sb_show_first', '携帯のスレッド一覧（板表示）から初めてのスレを開く時の表示方法 (ﾌﾟﾚﾋﾞｭｰ&gt;&gt;1, 1からN件表示, 最新N件表示)'),
         array('sb_show_spd', 'スレッド一覧ですばやさ（レス間隔）を表示 (する, しない)'),
         array('sb_show_ikioi', 'スレッド一覧で勢い（1日あたりのレス数）を表示 (する, しない)'),
         array('sb_show_fav', 'スレッド一覧でお気にスレマーク★を表示 (する, しない)'),
@@ -286,10 +284,11 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('before_respointer', 'PC閲覧時、ポインタの何コ前のレスから表示するか'),
         array('before_respointer_new', '新着まとめ読みの時、ポインタの何コ前のレスから表示するか'),
         array('rnum_all_range', '新着まとめ読みで一度に表示するレス数'),
-        array('preview_thumbnail', '画像URLの先読みサムネイルを表示（する, しない)'),
+        array('preview_thumbnail', '画像URLの先読みサムネイルを表示 (する, しない)'),
         array('pre_thumb_limit', '画像URLの先読みサムネイルを一度に表示する制限数 (0で無制限)'),
 //        array('pre_thumb_height', '画像サムネイルの縦の大きさを指定 (ピクセル)'),
 //        array('pre_thumb_width', '画像サムネイルの横の大きさを指定 (ピクセル)'),
+        array('link_youtube', 'YouTubeのリンクをプレビュー表示（する, しない)'),
         array('iframe_popup', 'HTMLポップアップ (する, しない, pでする, 画像でする)'),
 //        array('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)'),
         array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換 (する, しない)'),
@@ -301,11 +300,15 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('k_rnum_range', '携帯閲覧時、一度に表示するレスの数'),
         array('ktai_res_size', '携帯閲覧時、一つのレスの最大表示サイズ'),
         array('ktai_ryaku_size', '携帯閲覧時、レスを省略したときの表示サイズ'),
+        array('k_aa_ryaku_size', '携帯閲覧時、AAらしきレスを省略するサイズ (0なら無効)'),
         array('before_respointer_k', '携帯閲覧時、ポインタの何コ前のレスから表示するか'),
-        array('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用(する, しない)'),
-        array('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用(する, しない)'),
+        array('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用 (する, しない)'),
+        array('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用 (する, しない)'),
 
-        array('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示（する, しない）'),
+        array('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示 (する, しない)'),
+        array('k_clip_unique_id', '携帯閲覧時、重複しないIDは末尾のみの省略表示 (する, しない)'),
+        array('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示 (する, しない)'),
+        array('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示 (する, しない)'),
         array('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
@@ -321,12 +324,12 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('ngaborn_frequent', '&gt;&gt;1 以外の頻出IDをあぼーんする(する, しない, NGにする)'),
-        array('ngaborn_frequent_one', '&gt;&gt;1 も頻出IDあぼーんの対象外にする(する, しない)'),
-        array('ngaborn_frequent_num', '頻出IDあぼーんのしきい値（出現回数がこれ以上のIDをあぼーん）'),
-        array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない（総レス数/スレ立てからの日数、0なら無効）'),
-        array('ngaborn_chain', '連鎖NGあぼーん(する, しない, あぼーんレスへのレスもNGにする) <br>処理を軽くするため、表示範囲のレスにしか連鎖しない'),
-        array('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）'),
+        array('ngaborn_frequent', '&gt;&gt;1 以外の頻出IDをあぼーんする (する, しない, NGにする)'),
+        array('ngaborn_frequent_one', '&gt;&gt;1 も頻出IDあぼーんの対象外にする (する, しない)'),
+        array('ngaborn_frequent_num', '頻出IDあぼーんのしきい値 (出現回数がこれ以上のIDをあぼーん)'),
+        array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない (総レス数/スレ立てからの日数、0なら無効)'),
+        array('ngaborn_chain', '連鎖NGあぼーん (する, しない, あぼーんレスへのレスもNGにする)<br>処理を軽くするため、表示範囲のレスにしか連鎖しない'),
+        array('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す (日数)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -341,6 +344,10 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
+        array('frame_menu_width', 'フレーム左 板メニュー の表示幅'),
+        array('frame_subject_width', 'フレーム右上 スレ一覧 の表示幅'),
+        array('frame_read_width', 'フレーム右下 スレ本文 の表示幅'),
+
         array('my_FROM', 'レス書き込み時のデフォルトの名前'),
         array('my_mail', 'レス書き込み時のデフォルトのmail'),
 
@@ -349,11 +356,11 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('get_new_res', '新しいスレッドを取得した時に表示するレス数(全て表示する場合:&quot;all&quot;)'),
         array('rct_rec_num', '最近読んだスレの記録数'),
         array('res_hist_rec_num', '書き込み履歴の記録数'),
-        array('res_write_rec', '書き込み内容ログを記録(する, しない)'),
+        array('res_write_rec', '書き込み内容ログを記録 (する, しない)'),
         array('through_ime', '外部URLジャンプする際に通すゲート (直接, p2 ime(自動転送), p2 ime(手動転送), p2 ime(pのみ手動転送), r.p(自動転送1秒), r.p(自動転送0秒), r.p(手動転送), r.p(pのみ手動転送))'),
         array('ime_manual_ext', 'ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）'),
-        array('join_favrank', '<a href="http://akid.s17.xrea.com:8080/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加(する, しない)'),
-        array('favita_order_dnd', 'ドラッグ＆ドロップでお気に板を並べ替える(する, しない)'),
+        array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加 (する, しない)'),
+        array('favita_order_dnd', 'ドラッグ＆ドロップでお気に板を並べ替える (する, しない)'),
         array('enable_menu_new', '板メニューに新着数を表示 (する, しない, お気に板のみ)'),
         array('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)'),
         array('menu_hide_brds', '板カテゴリ一覧を閉じた状態にする (する, しない)'),
@@ -400,7 +407,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 // }}}
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 </div><!-- end of tab -->
 </div><!-- end of child tabset "rep2基本設定" -->
@@ -581,7 +588,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 // }}}
 
 // PC用表示
-if (empty($_conf['ktai'])) {
+if (!$_conf['ktai']) {
     echo <<<EOP
 </div><!-- end of tab -->
 </div><!-- end of child tabset "拡張パック設定" -->
@@ -599,11 +606,11 @@ EOP;
 if ($keep_old) {
     echo '<input type="hidden" name="conf_keep_old" value="true">' . "\n";
 }
-echo '</form>'."\n";
+echo '</form>' . "\n";
 
 
 // 携帯なら
-if (!empty($_conf['ktai'])) {
+if ($_conf['ktai']) {
     echo <<<EOP
 <hr>
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}">
@@ -628,107 +635,114 @@ EOP;
 
 echo '</body></html>';
 
-// ■ここまで
 exit;
 
 //=====================================================================
-// 関数
+// 関数（このファイル内のみの利用）
 //=====================================================================
 
 /**
- * ルール設定（$conf_user_rules）に基づいて、
- * 指定のnameにおいて、POST指定がemptyの時は、デフォルトセットする
+ * ルール設定（$conf_user_rules）に基づいて、フィルタ処理（デフォルトセット）を行う
+ *
+ * @return  void
  */
-function emptyToDef()
+function applyRules()
 {
-    global $conf_user_def, $conf_user_rules;
-
-    $rule = 'NotEmpty';
+    global $conf_user_rules, $conf_user_def;
 
     if (is_array($conf_user_rules)) {
-        foreach ($conf_user_rules as $n => $va) {
-            if (in_array($rule, $va)) {
-                if (isset($_POST['conf_edit'][$n])) {
-                    if (empty($_POST['conf_edit'][$n])) {
-                        $_POST['conf_edit'][$n] = $conf_user_def[$n];
-                    }
+        foreach ($conf_user_rules as $k => $v) {
+            if (isset($_POST['conf_edit'][$k])) {
+                $def = isset($conf_user_def[$k]) ? $conf_user_def[$k] : null;
+                foreach ($v as $func) {
+                    $_POST['conf_edit'][$k] = call_user_func($func, $_POST['conf_edit'][$k], $def);
                 }
             }
-        } // foreach
+        }
     }
-    return true;
+}
+
+// emptyToDef() などのフィルタはEditConfFiterクラスなどにまとめる予定
+
+/**
+ * CSS値のためのフィルタリングを行う
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function filterCssValue($str, $def = '')
+{
+    return preg_replace('/[^0-9a-zA-Z-%]/', '', $str);
 }
 
 /**
- * ルール設定（$conf_user_rules）に基づいて、
- * POST指定を正の整数化できる時は正の整数化（0を含む）し、
- * できない時は、デフォルトセットする
+ * emptyの時は、デフォルトセットする
+ *
+ * @param   string  $val    入力された値
+ * @param   mixed   $def    デフォルトの値
+ * @return  mixed
  */
-function notIntExceptMinusToDef()
+function emptyToDef($val, $def)
 {
-    global $conf_user_def, $conf_user_rules;
-
-    $rule = 'IntExceptMinus';
-
-    if (is_array($conf_user_rules)) {
-        foreach ($conf_user_rules as $n => $va) {
-            if (in_array($rule, $va)) {
-                if (isset($_POST['conf_edit'][$n])) {
-                    // 全角→半角 矯正
-                    $_POST['conf_edit'][$n] = mb_convert_kana($_POST['conf_edit'][$n], 'a');
-                    // 整数化できるなら
-                    if (is_numeric($_POST['conf_edit'][$n])) {
-                        // 整数化する
-                        $_POST['conf_edit'][$n] = intval($_POST['conf_edit'][$n]);
-                        // 負の数はデフォルトに
-                        if ($_POST['conf_edit'][$n] < 0) {
-                            $_POST['conf_edit'][$n] = intval($conf_user_def[$n]);
-                        }
-                    // 整数化できないものは、デフォルトに
-                    } else {
-                        $_POST['conf_edit'][$n] = intval($conf_user_def[$n]);
-                    }
-                }
-            }
-        } // foreach
+    if (empty($val)) {
+        $val = $def;
     }
-    return true;
+    return $val;
 }
 
 /**
- * ルール設定（$conf_user_rules）に基づいて、
- * POST指定を正の実数化できる時は正の実数化（0を含む）し、
+ * 正の整数化できる時は正の整数化（0を含む）し、
  * できない時は、デフォルトセットする
+ *
+ * @param   string  $str    入力された値
+ * @param   int     $def    デフォルトの値
+ * @return  int
  */
-function notFloatExceptMinusToDef()
+function notIntExceptMinusToDef($val, $def)
 {
-    global $conf_user_def, $conf_user_rules;
-
-    $rule = 'FloatExceptMinus';
-
-    if (is_array($conf_user_rules)) {
-        foreach ($conf_user_rules as $n => $va) {
-            if (in_array($rule, $va)) {
-                if (isset($_POST['conf_edit'][$n])) {
-                    // 全角→半角 矯正
-                    $_POST['conf_edit'][$n] = mb_convert_kana($_POST['conf_edit'][$n], 'a');
-                    // 実数化できるなら
-                    if (is_numeric($_POST['conf_edit'][$n])) {
-                        // 実数化する
-                        $_POST['conf_edit'][$n] = floatval($_POST['conf_edit'][$n]);
-                        // 負の数 or 無効な数値はデフォルトに
-                        if (!is_finite($_POST['conf_edit'][$n]) || $_POST['conf_edit'][$n] < 0) {
-                            $_POST['conf_edit'][$n] = floatval($conf_user_def[$n]);
-                        }
-                    // 実数化できないものは、デフォルトに
-                    } else {
-                        $_POST['conf_edit'][$n] = floatval($conf_user_def[$n]);
-                    }
-                }
-            }
-        } // foreach
+    // 全角→半角 矯正
+    $val = mb_convert_kana($val, 'a');
+    // 整数化できるなら
+    if (is_numeric($val)) {
+        // 整数化する
+        $val = intval($val);
+        // 負の数はデフォルトに
+        if ($val < 0) {
+            $val = intval($def);
+        }
+    // 整数化できないものは、デフォルトに
+    } else {
+        $val = intval($def);
     }
-    return true;
+    return $val;
+}
+
+/**
+ * 正の実数化できる時は正の実数化（0を含む）し、
+ * できない時は、デフォルトセットする
+ *
+ * @param   string  $str    入力された値
+ * @param   float   $def    デフォルトの値
+ * @return  float
+ */
+function notFloatExceptMinusToDef($val, $def)
+{
+    // 全角→半角 矯正
+    $val = mb_convert_kana($val, 'a');
+    // 整数化できるなら
+    if (is_numeric($val)) {
+        // 整数化する
+        $val = floatval($val);
+        // 負の数はデフォルトに
+        if ($val < 0.0) {
+            $val = floatval($def);
+        }
+    // 整数化できないものは、デフォルトに
+    } else {
+        $val = floatval($def);
+    }
+    return $val;
 }
 
 /**
@@ -748,13 +762,17 @@ function notSelToDef()
                     $_POST['conf_edit'][$n] = $conf_user_def[$n];
                 }
             }
-        } // foreach
+        }
     }
     return true;
 }
 
 /**
  * グループの表示モードを得る
+ *
+ * @param   stirng  $group_key  グループ名
+ * @param   string  $conf_key   設定項目名
+ * @return  int
  */
 function getGroupShowFlags($group_key, $conf_key = null)
 {
@@ -764,7 +782,7 @@ function getGroupShowFlags($group_key, $conf_key = null)
 
     if (empty($selected_group) || ($selected_group != 'all' && $selected_group != $group_key)) {
         $flags |= P2_EDIT_CONF_USER_HIDDEN;
-        if (!empty($_conf['ktai'])) {
+        if ($_conf['ktai']) {
             $flags |= P2_EDIT_CONF_USER_SKIPPED;
         }
     }
@@ -783,6 +801,10 @@ function getGroupShowFlags($group_key, $conf_key = null)
 
 /**
  * グループ分け用のHTMLを得る（関数内でPC、携帯用表示を振り分け）
+ *
+ * @param   stirng  $title  グループ名
+ * @param   int     $flags  表示モード
+ * @return  string
  */
 function getGroupSepaHtml($title, $flags)
 {
@@ -791,7 +813,7 @@ function getGroupSepaHtml($title, $flags)
     $admin_php = ($flags & P2_EDIT_CONF_FILE_ADMIN_EX) ? 'conf_admin_ex' : 'conf_admin';
 
     // PC用
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         $ht = <<<EOP
 <div class="tabbertab" title="{$title}">
 <h4>{$title}</h4>\n
@@ -815,7 +837,7 @@ EOP;
         if ($flags & P2_EDIT_CONF_USER_HIDDEN) {
             $ht = '';
         } else {
-            $ht = "<hr><h4>{$title}</h4>"."\n";
+            $ht = "<hr><h4>{$title}</h4>" . "\n";
             if ($flags & P2_EDIT_CONF_USER_DISABLED) {
             $ht .= <<<EOP
 <p>現在、この機能は無効になっています。<br>
@@ -829,13 +851,16 @@ EOP;
 
 /**
  * グループ終端のHTMLを得る（携帯では空）
+ *
+ * @param   int     $flags  表示モード
+ * @return  string
  */
 function getGroupEndHtml($flags)
 {
     global $_conf;
 
     // PC用
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         $ht = '';
         if (!($flags & P2_EDIT_CONF_USER_HIDDEN)) {
             $ht .= <<<EOP
@@ -861,6 +886,11 @@ EOP;
 
 /**
  * 編集フォームinput用HTMLを得る（関数内でPC、携帯用表示を振り分け）
+ *
+ * @param   stirng  $name   設定項目名
+ * @param   string  $description_ht HTML形式の説明
+ * @param   int     $flags  表示モード
+ * @return  string
  */
 function getEditConfHtml($name, $description_ht, $flags)
 {
@@ -877,7 +907,7 @@ function getEditConfHtml($name, $description_ht, $flags)
     if ($flags & (P2_EDIT_CONF_USER_HIDDEN | P2_EDIT_CONF_USER_DISABLED)) {
         $form_ht = getEditConfHidHtml($name);
         // 携帯ならそのまま返す
-        if (!empty($_conf['ktai'])) {
+        if ($_conf['ktai']) {
             return $form_ht;
         }
         if ($name_view === '') {
@@ -902,7 +932,7 @@ function getEditConfHtml($name, $description_ht, $flags)
         $def_views[$name] = htmlspecialchars($conf_user_rad[$name][$key], ENT_QUOTES);
     // input 入力式なら
     } else {
-        if (empty($_conf['ktai'])) {
+        if (!$_conf['ktai']) {
             $input_size_at = sprintf(' size="%d"', ($flags & P2_EDIT_CONF_USER_LONGTEXT) ? 40 : 20);
         } else {
             $input_size_at = '';
@@ -918,7 +948,7 @@ EOP;
     }
 
     // PC用
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         $r = <<<EOP
     <tr title="デフォルト値: {$def_views[$name]}">
         <td>{$name}</td>
@@ -941,6 +971,9 @@ EOP;
 
 /**
  * 編集フォームhidden用HTMLを得る
+ *
+ * @param   stirng  $name   設定項目名
+ * @return  string
  */
 function getEditConfHidHtml($name)
 {
@@ -959,6 +992,9 @@ function getEditConfHidHtml($name)
 
 /**
  * 編集フォームselect用HTMLを得る
+ *
+ * @param   stirng  $name   設定項目名
+ * @return  string
  */
 function getEditConfSelHtml($name)
 {
@@ -988,6 +1024,9 @@ function getEditConfSelHtml($name)
 
 /**
  * 編集フォームradio用HTMLを得る
+ *
+ * @param   stirng  $name   設定項目名
+ * @return  string
  */
 function getEditConfRadHtml($name)
 {
@@ -1015,6 +1054,11 @@ function getEditConfRadHtml($name)
 
 /**
  * 編集フォームを表示する
+ *
+ * @param   stirng  $groupname  グループ名
+ * @param   array   $conflist   設定項目名と説明の配列
+ * @param   int     $flags      表示モード
+ * @return  void
  */
 function printEditConfGroupHtml($groupname, $conflist, $flags)
 {
@@ -1028,5 +1072,3 @@ function printEditConfGroupHtml($groupname, $conflist, $flags)
     }
     echo getGroupEndHtml($flags);
 }
-
-?>

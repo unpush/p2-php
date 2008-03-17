@@ -17,7 +17,7 @@ $_login->authorize();
 // }}}
 
 if ($_conf['view_forced_by_query']) {
-    if (empty($_conf['ktai'])) {
+    if (!$_conf['ktai']) {
         output_add_rewrite_var('b', 'pc');
     } else {
         output_add_rewrite_var('b', 'k');
@@ -88,7 +88,6 @@ $reloaded_time = date('m/d G:i:s');
 // HTMLプリント
 //============================================================
 
-P2Util::header_content_type();
 if ($_conf['ktai']) {
     if (!$_conf['expack.rss.check_interval']) {
         // キャッシュさせない
@@ -98,9 +97,7 @@ if ($_conf['ktai']) {
         header(sprintf('Cache-Control: max-age=%d', $_conf['expack.rss.check_interval'] * 60 / 3));
     }
 }
-if ($_conf['doctype']) {
-    echo $_conf['doctype'];
-}
+echo $_conf['doctype'];
 include P2EX_LIBRARY_DIR . '/rss/' . ($_conf['ktai'] ? 'subject_k' : 'subject') . '.inc.php';
 
 //============================================================
@@ -112,5 +109,3 @@ function rss_link2ch_callback($s)
     $read_url = "{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[6]}";
     return $read_url;
 }
-
-?>

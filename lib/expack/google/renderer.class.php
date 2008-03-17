@@ -246,5 +246,3 @@ class Google_Renderer
 
     // }}}
 }
-
-?>

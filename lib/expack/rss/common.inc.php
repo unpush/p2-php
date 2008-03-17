@@ -53,5 +53,3 @@ function rss_get_save_path($remotefile)
 
     return ($done[$remotefile] = $localpath);
 }
-
-?>

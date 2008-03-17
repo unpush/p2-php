@@ -1214,5 +1214,3 @@ class ThreadRead extends Thread{
     }
 
 }
-
-?>

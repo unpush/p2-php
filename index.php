@@ -1,7 +1,7 @@
 <?php
 // rep2 -  インデックスページ
 
-include_once './conf/conf.inc.php';  // 基本設定ファイル読込
+include_once './conf/conf.inc.php';
 require_once P2_LIBRARY_DIR . '/filectl.class.php';
 
 $_login->authorize(); //ユーザ認証
@@ -17,7 +17,7 @@ makeImageCacheDenyHtaccess($_conf['expack.ic2.General.cachedir']);
 
 //=============================================================
 
-$me_url = $me_url = P2Util::getMyUrl();
+$me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
 
 if ($_conf['ktai']) {
@@ -56,12 +56,17 @@ if ($_conf['ktai']) {
     // PC用 HTMLプリント
     //======================================================
     P2Util::header_nocache();
-    P2Util::header_content_type();
-    if ($_conf['doctype']) { echo $_conf['doctype']; }
+     if ($_conf['doctype']) { 
+        echo str_replace(
+            array('Transitional', 'loose.dtd'),
+            array('Frameset', 'frameset.dtd'),
+            $_conf['doctype']);
+    }
     echo <<<EOHEADER
 <html lang="ja">
 <head>
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>
@@ -127,5 +132,3 @@ HTACCESS;
         unlink($hta);
     }
 }
-
-?>

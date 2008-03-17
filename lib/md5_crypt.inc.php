@@ -67,5 +67,3 @@ echo "encrypted text is: [${enc_text}]<br />\n";
 $plain_text2 = md5_decrypt($enc_text, $password);
 echo "decrypted text is: [${plain_text2}]<br />\n";
 */
-
-?>
