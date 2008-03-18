@@ -336,7 +336,7 @@ if (isset($_GET['b']) and $_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
 
 // 強制携帯ビュー指定（b=k。k=1は過去互換用）
-} elseif (!empty($_GET['k']) || !empty($_POST['k']) or isset($_GET['b']) && ($_GET['b'] == 'k' || $_POST['b'] == 'k')) {
+} elseif (!empty($_GET['k']) || !empty($_POST['k']) or ($_GET['b'] == 'k' || $_POST['b'] == 'k')) {
     if (!$_conf['ktai']) {
         $_conf['view_forced_by_query'] = true;
         $_conf['ktai'] = true;
