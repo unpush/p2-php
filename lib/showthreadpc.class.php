@@ -39,6 +39,7 @@ class ShowThreadPc extends ShowThread{
             'plugin_link2chSubject',
         );
         $_conf['link_youtube'] and $this->url_handlers[] = 'plugin_linkYouTube';
+        $_conf['link_niconico'] and $this->url_handlers[] = 'plugin_linkNicoNico';
         if (P2_IMAGECACHE_AVAILABLE == 2) {
             $this->url_handlers[] = 'plugin_imageCache2';
         } elseif ($_conf['preview_thumbnail']) {
@@ -1292,6 +1293,31 @@ EOP;
         return false;
     }
 
+    /**
+     * ニコニコ動画変換プラグイン
+     *
+     * @access  private
+     * @return  string|false
+     */
+    function plugin_linkNicoNico($url, $purl, $str)
+    {
+        global $_conf;
+
+        // http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
+        // http://www.nicovideo.jp/watch/utvWwAM30N0No
+/*
+<div style="width:318px; border:solid 1px #CCCCCC;"><iframe src="http://www.nicovideo.jp/thumb?v=utvWwAM30N0No" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
+*/
+        if (preg_match('{^http://www\\.nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9a-zA-Z_-]+)}', $url, $m)) {
+            $url = P2Util::throughIme($url);
+            $id = $m[1];
+            return <<<EOP
+<div style="width:318px; border:solid 1px #CCCCCC;"><iframe src="http://www.nicovideo.jp/thumb?v={$id}" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
+EOP;
+        }
+        return FALSE;
+    }
+    
     /**
      * 画像ポップアップ変換
      */

@@ -289,6 +289,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 //        array('pre_thumb_height', '画像サムネイルの縦の大きさを指定 (ピクセル)'),
 //        array('pre_thumb_width', '画像サムネイルの横の大きさを指定 (ピクセル)'),
         array('link_youtube', 'YouTubeのリンクをプレビュー表示（する, しない)'),
+        array('link_niconico', 'ニコニコ動画のリンクをプレビュー表示（する, しない)'),
         array('iframe_popup', 'HTMLポップアップ (する, しない, pでする, 画像でする)'),
 //        array('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)'),
         array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換 (する, しない)'),

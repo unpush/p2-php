@@ -151,6 +151,10 @@ $conf_user_def['pre_thumb_width'] = "32"; // ("32")
 $conf_user_def['link_youtube'] = 1; // (1)
 $conf_user_sel['link_youtube'] = array('1' => 'する', '0' => 'しない');
 
+// ニコニコ動画のリンクをプレビュー表示 (する, しない)
+$conf_user_def['link_niconico'] = 1; // (1)
+$conf_user_sel['link_niconico'] = array('1' => 'する', '0' => 'しない');
+
 // HTMLポップアップ（する:1, しない:0, pでする:2, 画像でする:3）
 $conf_user_def['iframe_popup'] = 2; // (2)
 $conf_user_sel['iframe_popup'] = array('1' => 'する', '0' => 'しない', '2' => 'pでする', '3' => '画像でする', '4' => 'クリックでする');
