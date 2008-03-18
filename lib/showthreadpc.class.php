@@ -1280,11 +1280,13 @@ EOJS;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://www\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
             $url = P2Util::throughIme($url);
+            $subd = $m[1];
+            $id = $m[2];
             return <<<EOP
 <a href="$url"{$_conf['ext_win_target_at']}>$str</a><br>
-<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{$m[1]}"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{$m[1]}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>\n
+<object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{$id}"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{$id}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>\n
 EOP;
         }
         return false;
