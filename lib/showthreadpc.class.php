@@ -38,6 +38,9 @@ class ShowThreadPc extends ShowThread{
             'plugin_link2chKako',
             'plugin_link2chSubject',
         );
+        // +Wiki
+        if (isset($GLOBALS['linkplugin']))      $this->url_handlers[] = 'plugin_linkPlugin';
+        if (isset($GLOBALS['replaceimageurl'])) $this->url_handlers[] = 'plugin_replaceImageURL';
         if (P2_IMAGECACHE_AVAILABLE == 2) {
             $this->url_handlers[] = 'plugin_imageCache2';
         } elseif ($_conf['preview_thumbnail']) {
@@ -137,6 +140,15 @@ class ShowThreadPc extends ShowThread{
         $date_id = $resar[2];
         $msg = $resar[3];
 
+        // +Wiki:置換ワード
+        global $replaceword;
+        if (isset($replaceword)) {
+            $name    = $replaceword->replace('name', $this->thread, $ares, $i);
+            $mail    = $replaceword->replace('mail', $this->thread, $ares, $i);
+            $date_id = $replaceword->replace('date', $this->thread, $ares, $i);
+            $msg     = $replaceword->replace('msg',  $this->thread, $ares, $i);
+        }
+
         // {{{ フィルタリング
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
@@ -228,35 +240,41 @@ class ShowThreadPc extends ShowThread{
         }
 
         // あぼーんネーム
-        if ($this->ngAbornCheck('aborn_name', strip_tags($name)) !== false) {
+        // +Wiki:置換ワード対策
+        if ($this->ngAbornCheck('aborn_name', strip_tags($resar[0])) !== false) {
             $ngaborns_hits['aborn_name']++;
             $this->aborn_nums[] = $i;
             return $aborned_res;
         }
 
         // あぼーんメール
-        if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
+        // +Wiki:置換ワード対策
+        if ($this->ngAbornCheck('aborn_mail', $resar[1]) !== false) {
             $ngaborns_hits['aborn_mal']++;
             $this->aborn_nums[] = $i;
             return $aborned_res;
         }
 
         // あぼーんID
-        if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
+        // +Wiki:置換ワード対策
+        if ($this->ngAbornCheck('aborn_id', $resar[2]) !== false) {
             $ngaborns_hits['aborn_id']++;
             $this->aborn_nums[] = $i;
             return $aborned_res;
         }
 
         // あぼーんメッセージ
-        if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
+        // +Wiki:置換ワード対策
+        if ($this->ngAbornCheck('aborn_msg', $resar[3]) !== false) {
             $ngaborns_hits['aborn_msg']++;
             $this->aborn_nums[] = $i;
             return $aborned_res;
         }
 
         // NGネームチェック
-        if ($this->ngAbornCheck('ng_name', $name) !== false) {
+        // +Wiki:strip_tagsが抜けている
+        // +Wiki:置換ワード対策
+        if ($this->ngAbornCheck('ng_name', strip_tags($resar[0])) !== false) {
             $ngaborns_hits['ng_name']++;
             $ngaborns_head_hits++;
             $this->ng_nums[] = $i;
@@ -264,7 +282,8 @@ class ShowThreadPc extends ShowThread{
         }
 
         // NGメールチェック
-        if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
+        // +Wiki:置換ワード対策
+        if ($this->ngAbornCheck('ng_mail', $resar[1]) !== false) {
             $ngaborns_hits['ng_mail']++;
             $ngaborns_head_hits++;
             $this->ng_nums[] = $i;
@@ -272,7 +291,8 @@ class ShowThreadPc extends ShowThread{
         }
 
         // NGIDチェック
-        if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
+        // +Wiki:置換ワード対策
+        if ($this->ngAbornCheck('ng_id', $resar[2]) !== false) {
             $ngaborns_hits['ng_id']++;
             $ngaborns_head_hits++;
             $this->ng_nums[] = $i;
@@ -280,7 +300,8 @@ class ShowThreadPc extends ShowThread{
         }
 
         // NGメッセージチェック
-        $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
+        // +Wiki:置換ワード対策
+        $a_ng_msg = $this->ngAbornCheck('ng_msg', $resar[3]);
         if ($a_ng_msg !== false) {
             $ngaborns_hits['ng_msg']++;
             $ngaborns_body_hits++;
@@ -290,7 +311,8 @@ class ShowThreadPc extends ShowThread{
         }
 
         // AA 判定
-        if ($this->am_autodetect && $this->activeMona->detectAA($msg)) {
+        // +Wiki:置換ワード対策
+        if ($this->am_autodetect && $this->activeMona->detectAA($resar[3])) {
             $automona_class = ' class="ActiveMona"';
         }
 
@@ -1432,6 +1454,143 @@ EOJS;
             return $view_img;
         }
         return FALSE;
+    }
+
+    /**
+     * 置換画像URL+ImageCache2
+     */
+    function plugin_replaceImageURL($url, $purl, $str)
+    {
+        global $_conf;
+        global $pre_thumb_unlimited, $pre_thumb_ignore_limit, $pre_thumb_limit;
+        static $serial = 0;
+
+        // +Wiki
+        global $replaceimageurl;
+        $replaced = $replaceimageurl->replaceImageURL($url);
+        if (!$replaced[0]) return FALSE;
+
+        foreach($replaced as $v) {
+            $url_en = rawurlencode($v['url']);
+            $ref_en = $v['referer'] ? '&amp;ref=' . rawurlencode($v['referer']) : '';
+
+            // 準備
+            $serial++;
+            $thumb_id = 'thumbs' . $serial . '_' . P2_REQUEST_ID;
+            $tmp_thumb = './img/ic_load.png';
+
+            $icdb = &new IC2DB_Images;
+
+            // r=0:リンク;r=1:リダイレクト;r=2:PHPで表示
+            // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
+            // +Wiki
+            $img_url = 'ic2.php?r=1&amp;uri=' . $url_en . $ref_en;
+            $thumb_url = 'ic2.php?r=1&amp;t=1&amp;uri=' . $url_en . $ref_en;
+
+            // DBに画像情報が登録されていたとき
+            if ($icdb->get($v['url'])) {
+
+                // ウィルスに感染していたファイルのとき
+                if ($icdb->mime == 'clamscan/infected') {
+                    $result .= "<img class=\"thumbnail\" src=\"./img/x04.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                    continue;
+                }
+                // あぼーん画像のとき
+                if ($icdb->rank < 0) {
+                    $result .= "<img class=\"thumbnail\" src=\"./img/x01.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                    continue;
+                }
+
+                // オリジナルがキャッシュされているときは画像を直接読み込む
+                $_img_url = $this->thumbnailer->srcPath($icdb->size, $icdb->md5, $icdb->mime);
+                if (file_exists($_img_url)) {
+                    $img_url = $_img_url;
+                    $cached = TRUE;
+                } else {
+                    $cached = FALSE;
+                }
+
+                // サムネイルが作成されていているときは画像を直接読み込む
+                $_thumb_url = $this->thumbnailer->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
+                if (file_exists($_thumb_url)) {
+                    $thumb_url = $_thumb_url;
+                    // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
+                    if (!is_null($this->img_memo) && !strstr($icdb->memo, $this->img_memo)){
+                        $update = &new IC2DB_Images;
+                        if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
+                            $update->memo = $this->img_memo . ' ' . $icdb->memo;
+                        } else {
+                            $update->memo = $this->img_memo;
+                        }
+                        $update->whereAddQuoted('uri', '=', $v['url']);
+                        $update->update();
+                    }
+                }
+
+                // サムネイルの画像サイズ
+                $thumb_size = $this->thumbnailer->calc($icdb->width, $icdb->height);
+                $thumb_size = preg_replace('/(\d+)x(\d+)/', 'width="$1" height="$2"', $thumb_size);
+                $tmp_thumb = './img/ic_load1.png';
+
+            // 画像がキャッシュされていないとき
+            // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
+            } else {
+                // 画像がブラックリストorエラーログにあるか確認
+                if (FALSE !== ($errcode = $icdb->ic2_isError($v['url']))) {
+                    $result .= "<img class=\"thumbnail\" src=\"./img/{$errcode}.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                    continue;
+                }
+
+                $cached = FALSE;
+
+                $img_url .= $this->img_memo_query;
+                $thumb_url .= $this->img_memo_query;
+                $thumb_size = '';
+                $tmp_thumb = './img/ic_load2.png';
+            }
+
+            // キャッシュされておらず、表示数制限が有効のとき
+            if (!$cached && !$pre_thumb_unlimited && !$pre_thumb_ignore_limit) {
+                // 表示制限を超えていたら、表示しない
+                // 表示制限を超えていなければ、表示制限カウンタを下げる
+                if ($pre_thumb_limit <= 0) {
+                    $show_thumb = FALSE;
+                } else {
+                    $show_thumb = TRUE;
+                    $pre_thumb_limit--;
+                }
+            } else {
+                $show_thumb = TRUE;
+            }
+
+            // 表示モード
+            if ($show_thumb) {
+                $img_tag = "<img class=\"thumbnail\" src=\"{$thumb_url}\" {$thumb_size} hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                if ($_conf['iframe_popup']) {
+                    $view_img = $this->imageHtmpPopup($img_url, $img_tag, '');
+                } else {
+                    $view_img = "<a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$img_tag}</a>";
+                }
+            } else {
+                $img_tag = "<img id=\"{$thumb_id}\" class=\"thumbnail\" src=\"{$tmp_thumb}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                $view_img = "<a href=\"{$img_url}\" onclick=\"return loadThumb('{$thumb_url}','{$thumb_id}')\"{$_conf['ext_win_target_at']}>{$img_tag}</a><a href=\"{$img_url}\"{$_conf['ext_win_target_at']}></a>";
+            }
+
+            $result .= $view_img;
+        }
+        // ソースへのリンクをime付きで表示
+        $ime_url = P2Util::throughIme($url);
+        $result .= "<a class=\"img_through_ime\" href=\"{$ime_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
+        return $result;
+    }
+
+    /**
+     * +Wiki:リンクプラグイン
+     */
+    function plugin_linkPlugin($url, $purl, $str)
+    {
+        global $linkplugin;
+        return $linkplugin->replaceLinkToHTML($url, $str);
     }
 
     // }}}

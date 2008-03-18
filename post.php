@@ -516,6 +516,14 @@ function postIt($host, $bbs, $key, $post)
         $reload = empty($_POST['from_read_new']);
         showPostMsg(true, '書きこみが終わりました。', $reload);
 
+        // +Wiki sambaタイマー
+        if ($_conf['wiki.samba_timer']) {
+            require_once P2_LIB_DIR . '/wiki/samba.class.php';
+            $samba = &new samba;
+            $samba->setWriteTime($host, $bbs);
+            $samba->save();
+        }
+
         // 投稿失敗記録を削除
         if (file_exists($failed_post_file)) {
             unlink($failed_post_file);

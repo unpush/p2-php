@@ -288,7 +288,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('pre_thumb_limit', '画像URLの先読みサムネイルを一度に表示する制限数 (0で無制限)'),
 //        array('pre_thumb_height', '画像サムネイルの縦の大きさを指定 (ピクセル)'),
 //        array('pre_thumb_width', '画像サムネイルの横の大きさを指定 (ピクセル)'),
-        array('link_youtube', 'YouTubeのリンクをプレビュー表示（する, しない)'),
+//        array('link_youtube', 'YouTubeのリンクをプレビュー表示（する, しない)'),
         array('iframe_popup', 'HTMLポップアップ (する, しない, pでする, 画像でする)'),
 //        array('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)'),
         array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換 (する, しない)'),
@@ -300,15 +300,15 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('k_rnum_range', '携帯閲覧時、一度に表示するレスの数'),
         array('ktai_res_size', '携帯閲覧時、一つのレスの最大表示サイズ'),
         array('ktai_ryaku_size', '携帯閲覧時、レスを省略したときの表示サイズ'),
-        array('k_aa_ryaku_size', '携帯閲覧時、AAらしきレスを省略するサイズ (0なら無効)'),
+//        array('k_aa_ryaku_size', '携帯閲覧時、AAらしきレスを省略するサイズ (0なら無効)'),
         array('before_respointer_k', '携帯閲覧時、ポインタの何コ前のレスから表示するか'),
         array('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用 (する, しない)'),
         array('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用 (する, しない)'),
 
         array('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示 (する, しない)'),
         array('k_clip_unique_id', '携帯閲覧時、重複しないIDは末尾のみの省略表示 (する, しない)'),
-        array('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示 (する, しない)'),
-        array('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示 (する, しない)'),
+//        array('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示 (する, しない)'),
+//        array('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示 (する, しない)'),
         array('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);

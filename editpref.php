@@ -113,6 +113,9 @@ $ng_name_txt    = $_conf['pref_dir'] . '/p2_ng_name.txt';
 $ng_mail_txt    = $_conf['pref_dir'] . '/p2_ng_mail.txt';
 $ng_msg_txt     = $_conf['pref_dir'] . '/p2_ng_msg.txt';
 $ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
+// +Wiki
+$aborn_be_txt   = $_conf['pref_dir'] . '/p2_aborn_be.txt';
+$ng_be_txt      = $_conf['pref_dir'] . '/p2_ng_be.txt';
 
 echo '<div>';
 echo <<<EOP
@@ -163,6 +166,8 @@ EOP;
     printEditFileForm($ng_mail_txt, "ÉÅÅ[Éã");
     printEditFileForm($ng_msg_txt, "ÉÅÉbÉZÅ[ÉW");
     printEditFileForm($ng_id_txt, "ÇhÇc");
+    // +Wiki
+    printEditFileForm($ng_be_txt, "ÇaÇd");
     echo <<<EOP
 </fieldset>\n\n
 EOP;
@@ -183,6 +188,8 @@ EOP;
     printEditFileForm($aborn_mail_txt, "ÉÅÅ[Éã");
     printEditFileForm($aborn_msg_txt, "ÉÅÉbÉZÅ[ÉW");
     printEditFileForm($aborn_id_txt, "ÇhÇc");
+    // +Wiki
+    printEditFileForm($aborn_be_txt, "ÇaÇd");
     echo <<<EOP
 </fieldset>\n
 EOP;
@@ -275,7 +282,8 @@ EOP;
         echo "</td></tr>\n\n";
     }
 
-    // }}}
+
+    include_once P2_LIB_DIR . '/wiki/editpref.inc.php';
 
     echo "</table>\n";
 }
@@ -291,10 +299,12 @@ if ($_conf['ktai']) {
 <option value="{$aborn_mail_txt}">±Œﬁ›:“∞Ÿ</option>
 <option value="{$aborn_msg_txt}">±Œﬁ›:“Øæ∞ºﬁ</option>
 <option value="{$aborn_id_txt}">±Œﬁ›:ID</option>
+<option value="{$aborn_be_txt}">±Œﬁ›:BE</option>
 <option value="{$ng_name_txt}">NG:ñºëO</option>
 <option value="{$ng_mail_txt}">NG:“∞Ÿ</option>
 <option value="{$ng_msg_txt}">NG:“Øæ∞ºﬁ</option>
 <option value="{$ng_id_txt}">NG:ID</option>
+<option value="{$ng_id_txt}">NG:BE</option>
 </select>
 <input type="submit" value="ï“èW">
 </form>
@@ -411,7 +421,8 @@ function printEditFileForm($path_value, $submit_value)
     $rows = 36; // 18
     $cols = 92; // 90
 
-    if (preg_match('/^p2_(aborn|ng)_(name|mail|id|msg)\.txt$/', basename($path_value))) {
+    // +Wiki
+    if (preg_match('/^p2_(aborn|ng)_(name|mail|id|msg|be)\.txt$/', basename($path_value))) {
         $edit_php = 'edit_aborn_word.php';
         $target = '_self';
     } else {

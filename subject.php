@@ -10,6 +10,8 @@ include_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/threadlist.class.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
+// +Wiki
+require_once P2_LIB_DIR . '/wiki/subject.inc.php';
 
 $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 
@@ -445,6 +447,11 @@ for ($x = 0; $x < $linesize; $x++) {
     $aThread->getThreadInfoFromIdx();
 
     // }}}
+
+    // {{{ ■+Wiki:NGスレッドチェック
+    if (isset($ngaborns)) if ($ngaborns->check($aThread)) continue;
+    // }}}
+
     // {{{ ■ favlistチェック
 
     $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('favlist_check');
@@ -720,6 +727,9 @@ saveSbSetting($p2_setting_txt, $p2_setting, $pre_setting);
 saveSubjectKeys($subject_keys, $sb_keys_txt, $sb_keys_b_txt);
 
 $debug && $profiler->leaveSection('FOOT');
+
+// +Wiki:NGスレッド
+if (isset($ngaborns)) $ngaborns->save();
 
 // ここまで
 exit;

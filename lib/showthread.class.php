@@ -124,6 +124,18 @@ class ShowThread{
         $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
 
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
+            // +Wiki:BEあぼーん
+            if ($code == 'aborn_be' || $code == 'ng_be') {
+                // プロフィールIDを抜き出す
+                if ($prof_id = preg_replace('/BE:(\d+)/', '$1')) {
+                    echo $prof_id;
+                    $resfield = P2UtilWiki::calcBeId($prof_id);
+                    if($resfield == 0) return false;
+                } else {
+                    return false;
+                }
+            }
+
             foreach ($ngaborns[$code]['data'] as $k => $v) {
                 // 板チェック
                 if (isset($v['bbs']) && in_array($this->thread->bbs, $v['bbs']) == FALSE) {
@@ -145,6 +157,13 @@ class ShowThread{
                         return htmlspecialchars($matches[0], ENT_QUOTES);
                     }*/
                      if ($re_method($v['word'], $resfield)) {
+                        $this->ngAbornUpdate($code, $k);
+                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        return $v['cond'];
+                    }
+                // +Wiki:BEあぼーん(完全一致)
+                } else if ($code == 'aborn_be' || $code == 'ng_be') {
+                    if ($resfield == $v['word']) {
                         $this->ngAbornUpdate($code, $k);
                         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];

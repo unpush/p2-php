@@ -1,0 +1,27 @@
+置換ワードの例
+
+名前:番号の横に逆参照レスポップアップ
+Match=^
+Replace=<a href="read.php?bbs=$bbs&key=$key&host=$host&ls=all&field=msg&word=%3E$i%5B%5E%5Cd%5D&method=regex&match=on" onmouseover="showHtmlPopUp('read.php?bbs=$bbs&key=$key&host=$host&ls=all&field=msg&word=%3E$i%5B%5E%5Cd%5D&method=regex&match=on,renzokupop=true',event,0.2)" onmouseout="offHtmlPopUp()" title="$iへのレスを表示"><img src="img/pop.png" width=12px height=12px"></a>
+
+メール:メールアドレスをクリックするとメールアドレスでフィルタリング
+Match=^(.+)$
+Replace=<a href="read_filter.php?bbs=$bbs&key=$key&host=$host&resnum=$i&ls=all&field=mail&method=just&match=on&offline=1">$1</a>
+
+日付その他:日付の0を削る(例:01/01→1/1)
+Match=0?(\d+)/0?(\d+)\(	$1/$2
+Replace=$1/$2/$3
+日付その他:時間の0を削る
+Match=(\d{2}:\d{2}):\d{2}
+Replace=$1
+日付その他:曜日と時間の間のスペースを削る(例:11/11(日) 11:11:11→11/11(日)11:11:11)
+Match=\) (\d)
+Replace=)$1
+日付その他:秒を削る(例:23:59:59.99→23:59)
+Match=(\d\d:\d\d):\d\d(?:\.\d\d)?
+Replce=$1
+
+外部スクリプト(プラグイン)で実現できるもの
+必死チェッカーをポップアップで表示(plugin/hissi/readme.txt)
+みみずんID検索をポップアップで表示(plugin/mimizun/readme.txt)
+IDストーカーをポップアップで表示(plugin/stalker/readme.txt)

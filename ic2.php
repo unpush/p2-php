@@ -288,8 +288,18 @@ if (is_string($referer)) {
 // {{{ head
 
 // まずはHEADでチェック
-$client_h = clone($client);
-$code = $client_h->head($uri);
+// +Wiki:imepita対策(from Wiki)
+if (preg_match('{^http://imepita\.jp/}', $uri)) {
+    while (($code = $client->get($uri)) == 403) {
+        sleep(5);
+        $code = $client->get($uri);
+    }
+    $code1 = $code;
+    $client_h = clone($client);
+} else {
+    $client_h = clone($client);
+    $code = $client_h->head($uri);
+}
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());
 }
@@ -333,7 +343,8 @@ unset($client_h, $code, $head);
 // {{{ get
 
 // ダウンロード
-$code = $client->get($uri);
+$code = preg_match('{^http://imepita\.jp/}', $uri) ? $code1 : $code = $client->get($uri);
+
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());
 } elseif ($code != 200) {

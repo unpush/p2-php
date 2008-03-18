@@ -91,6 +91,9 @@ class NgAbornCtl{
         $ngaborns['ng_mail'] = NgAbornCtl::readNgAbornFromFile('p2_ng_mail.txt');
         $ngaborns['ng_msg'] = NgAbornCtl::readNgAbornFromFile('p2_ng_msg.txt');
         $ngaborns['ng_id'] = NgAbornCtl::readNgAbornFromFile('p2_ng_id.txt');
+        // +Wiki
+        $ngaborns['aborn_be'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_be.txt');
+        $ngaborns['ng_be'] = NgAbornCtl::readNgAbornFromFile('p2_ng_be.txt');
 
         return $ngaborns;
     }

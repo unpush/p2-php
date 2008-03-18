@@ -15,7 +15,8 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
 {
     // {{{ protected properties
 
-    var $_imagemagick_convert = 'covnert';
+    // http://pc11.2ch.net/test/read.cgi/software/1180021565/927
+    var $_imagemagick_convert = 'convert';
     var $_imagemagick_version6 = true;
 
     // }}}

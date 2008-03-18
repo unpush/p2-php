@@ -1,0 +1,243 @@
+http://((?:(?:www\.)?(?:kiken|sekai)\.(?:nu|jp)|www\.animar-japan\.com|altair\.mydns\.jp).+)/image\.php\?\./(log/\d{14}/img/img\d+\.(?:jpe?g|png|gif|bmp))	http://$1/$2	$&		
+http://((?:[^/]+\.)?(?:haru\.gs|byonavi\.com|byokan\.net|aki\.gs)/.*vip.*)/html/(\w+)\.html	http://$1/vip$EXTRACT	$&	$EXTRACT	(/data/$2\.(?:jpe?g|png|gif|bmp))
+http://((?:[^/]+\.)?(?:haru\.gs|byonavi\.com|byokan\.net|aki\.gs)/.+(/vip/\w+))\.html	http://$1.$EXTRACT	$&	$EXTRACT	$2\.(jpe?g|png|gif|bmp)
+http://((?:[^/]+\.)?(?:haru\.gs|byonavi\.com|byokan\.net|aki\.gs)/.+)/html/(\w+)\.html	http://$1$EXTRACT	$&	$EXTRACT	(/data/$2\.(?:jpe?g|png|gif|bmp))
+http://((?:\d\.)?new\.cx)/\?(\w+)	$EXTRACT	$&	$EXTRACT	(http://$1/[^"']+$2\.(?:jpe?g|png|gif|bmp))
+http://((?:arn|asc)\.kyosui\.net/ib)/disp\.php\?img=(\w+)_(\d+\.(?:jpe?g|gif|png|bmp))	http://$1/img/$2/$2_$3	$&		
+http://((?:gazou\.tank\.jp|momiage\.sakura\.ne\.jp|namamono\.tk|8\.pro\.tok2.com/~namamono)/\w+)/ref/(\d+)\.htm	http://$1$EXTRACT	$&	$EXTRACT=$&	(/src/$2\.(?:jpe?g|png|gif))
+http://((?:gazou\.tank\.jp|momiage\.sakura\.ne\.jp|namamono\.tk|8\.pro\.tok2.com/~namamono)/\w+/)src(/\d+\.)(?:jpe?g|png|gif|bmp)	$&	http://$1ref$2htm		
+http://((?:lapislazuli|adularia)\.ath\.cx/)image(/\d+)	http://$1uploader$2_tb.gif			
+http://((?:pinknotora\.net|\dserver\.harikonotora\.net|\dserver\.sakura\.ne\.jp)/[^/]+)/pc/img\.php\?src=\.\.(/src/\d+-\d+\.(?:jpe?g|png|gif|bmp))	http://$1$2			
+http://((?:pinknotora\.net|\dserver\.harikonotora\.net|\dserver\.sakura\.ne\.jp)/[^/]+)/pc/index\.php\?res=(\d+)	http://$1$EXTRACT	$&	$EXTRACT	(/src/$2-1\.(?:jpe?g|png|gif|bmp))
+http://((img\d+)\.imageshack\.us/)my\.php\?image=(.+?\.(?:jpe?g|png|gif|bmp))	$EXTRACT	$&	$EXTRACT	src="(http://$1$2/\d+/$3)"
+http://((www\.happinetonline\.com).+Action=\w+)(?:(?!_pict)(&.+#)|_pict(&.+))$	http://$2$EXTRACT	http://$1_pict$3$4	$EXTRACT	src="(.+\.(?:jpe?g|png|gif|bmp))"
+http://((www\d?\.uploader\.jp/)dl(/[^/]+/)([^/]+\.(?:jpe?g|png|gif|bmp)))(?:\.html)?	http://$2user$3images/$4	http://$1.html		
+http://(?:img\.)?0bbs\.jp/(?:(\w+)/img|u/(\w+)/[^/]+/)(\d+_\d+)	$EXTRACT	http://0bbs.jp/$1$2/img$3	$EXTRACT	(http://img\.0bbs\.jp/u/$1$2/[^/]+/$3)
+http://(?:imgb(\d)?|c)(\.rentalcgi\.com/view)(?:(?:(?!1)(\d)|1)/\w+)?/(\w+/\d+\.(?:jpe?g|gif|png|bmp))(?:\.html)?	$EXTRACT	http://imgb$1$3$2/$4.html	$EXTRACT	(http://c$2\d/\w+/$4)
+http://(?:www\.)?77c\.org/[dp]\.php\?f=(\w+\.(?:jpe?g|png|gif))	http://77c.org/$EXTRACT	$&	$EXTRACT	href="(p\.php\?f=$1&c=\w+)
+http://(?:www\.)?hidebehind\.com/(\w+)	http://www.hidebehind.com/img/$EXTRACT	$&	$EXTRACT	($1\.(?:jpe?g|png|gif|bmp))
+http://([^/]*moech\.net/.+)/(?:redirecthtm/|ref/)(\d+)\.htm	http://$1$EXTRACT	$&	$EXTRACT	(/src/$2\.(?:jpe?g|png|gif))
+http://(\dserver\.sakura\.ne\.jp/\w+)/index\.php\?res=\d+	http://$1/$EXTRACT	$&	$EXTRACT	src=(src/\d+\.(?:jpe?g|png|gif|bmp))
+http://(\w+)a\.updoga\.com/(\w+)/?$	$EXTRACT	http://wwwa.updoga.com/img.php/$1/$2/1/ORG/	$EXTRACT	src="([^"]+1\.jpe)"
+http://(\w+\.(?:artemisweb|imgbbs)\.jp/.+/)(?!index)[^/]*(\d+)\.html?	http://$1$EXTRACT	$&	$EXTRACT	src=["']?((?:[^"']+)?$2\.(?:jpe?g|png|gif|bmp))["']?
+http://(\w+\.)?p2\.ms/(\w{5}).*	http://$1p2.ms$EXTRACT240	$&	$EXTRACT	(/skur-$2\d&s=)(?:240|30)
+http://(\w+\.2chan\.net/\w+)/red/(\d+)\.htm	http://$1$EXTRACT	$&	$EXTRACT	(/src/$2(?:\w+)?\.(?:jpe?g|png|gif|bmp))
+http://(\w+\.4chan\.org/\w+)/src\.cgi/(\d{13}\.\w+)	http://$1/src/$2			
+http://(\w+\.meiwasuisan\.com/bbs(?:pink)?/)bin/img/(\w+/)(\d+\.(?:jpe?g|png|gif|bmp))	http://$1$2img/$3			
+http://(\w+\.oekakibbs\.com/bbs/\w+)/oekakibbs\.cgi\?.*thisfile=(\d+\.(?:jpe?g|png|gif|bmp))	http://$1/data/$2			
+http://(\w+\.s\d\+\.x-beat\.com/)upfile\.php\?n=(img/.+\.(?:jpe?g|png|gif|bmp))	http://$1$2	$&		
+http://(\w+\.vip2ch\.com|files\.or\.tp)/dl(?:\.p(?:hp)?)?\?f=((?:\w+)\.(?:jpe?g|png|gif|bmp))	http://$1/$2			
+http://(\w+\.wtakumi\.com)/bbs\.cgi\?id=(\w+).+&file=(\d+\.(?:jpe?g|png|gif|bmp))	http://$1/s/$2/$3			
+http://(\w\.pic\.to/)(\w+)(?:(\?r)=(\d+))?$	http://$1$EXTRACT	http://$1$2$3$4	$EXTRACT	src='($2-$4[^']+\.(?:jpe?g|png|gif|bmp))'
+http://(18ban\.jp/photo\.php\?)(?:&.*)?(?:kid=(\d+)(?:&.*)?&wid=(\d+)|wid=(\d+)(?:&.*)?&kid=(\d+))(?:&.*)?	$EXTRACT	http://$1kid=$2$5&wid=$3$4&br=m	$EXTRACT	(http://[^"]+/photo/\d/$2$5/$2$5-\d+-\d+-$3$4(?:-pc)?\.(?:jpe?g|png|gif|bmp))
+http://(appleup\.bbsnow\.net/\w+)/html/(\w+)\.html	http://$1$EXTRACT	$&	$EXTRACT	(/data/$2\.(?:jpe?g|png|gif|bmp))
+http://(bbs\.avi\.jp/photo)/(\d+)/(\d+)(?:[&/].*)?	$EXTRACT	http://$1.php?kid=$2&wid=$3&br=m	$EXTRACT	(http://photo\d\.avi\.jp/photo/\d/$2/$2-\d+-\d+-$3(?:-pc)?\.(?:jpe?g|png|gif|bmp))
+http://(bbs\.avi\.jp/photo\.php\?).*(?:kid=(\d+).*&wid=(\d+)|wid=(\d+).*&kid=(\d+)).*	$EXTRACT	http://$1kid=$2$5&wid=$3$4&br=m	$EXTRACT	(http://photo\d\.avi\.jp/photo/\d/$2$5/$2$5-\d+-\d+-$3$4(?:-pc)?\.(?:jpe?g|png|gif|bmp))
+http://(bbs\.j-banana\.net/\w+)/gazou\.cgi\?room=(\w+)&no=(\d+)	http://$1$EXTRACT	$&	$EXTRACT	(/user/(?:images/)?$2_img/$3\.(?:jpe?g|png|gif|bmp))
+http://(bbs\d+\.aimix-z\.com)/photovw\.cgi\?room=(\w+)&image=(\d+\.(?:jpe?g|png|gif|bmp)).*	http://$1/gbbsimg/$2/$3	$&		
+http://(bbs01\.apricot-fizz\.net/\w+/)(?:(?:index\.php)?\?.*&num=)(\d+)	http://$1$EXTRACT	$&	$EXTRACT	(grpview.php/$2\.\d{10}\.(?:jpe?g|png|gif|bmp))
+http://(beach\.dip\.jp/BBS)/(\w+/\d+\.)html	http://$1$EXTRACT	$&	$EXTRACT	(/img/$2(?:jpe?g|png|gif))
+http://(cheke|sabayomi)\.jp/detail/((\w{2})(\w{2})\w+)	http://img.$1.jp/$3/$4/$2.jpg			
+http://(chiba\.tm\.land\.to/upload/src/(\w+\.(?:jpe?g|png|gif|bmp)))	http://$1/$2			
+http://(cream\.ath\.cx/ichigo)/cream/(IchigoCream\d+\.\w+)	$&	http://$1/dl.cgi?filename=$2		
+http://(cream\.ath\.cx/ichigo)/dl\.cgi\?filename=(IchigoCream\d+\.\w+)	http://$1/cream/$2	$&		
+http://(f\.hatena\.ne\.jp)/(([^/])[^/]+)/((\d{8})\d+)	http://$1$EXTRACT	$&	$EXTRACT	(/images/fotolife/$3/$2/$5/$4\.(?:jpe?g|png|gif))
+http://(fancyfree\.myphotos\.cc/[^/]+/)img/\d+\.(?:jpe?g|png|gif|bmp)	$&	http://$1		
+http://(img\d+\.imagevenue\.com/)[^/]+\.php.*[?&]image=[^&]+\.(?:jpe?g|png|gif|bmp)	http://$1$EXTRACT	$&	$EXTRACT	SRC="([^"/]+/loc\d+/[^"/]+\.(?:jpe?g|png|gif|bmp))
+http://(imgb1\.ziyu\.net)/view(/[^/]+/\d+\.(?:jpe?g|png|gif))(?:\.html)?	http://$1$EXTRACT	http://$1/view$2.html	$EXTRACT	SRC=['"](/[^/]+$2)
+http://(kjm\.kir\.jp)/(?:mailbbs\d?\.php)?\?pt?=(\d+)	http://$1$EXTRACT	http://$1/mailbbs2.php?pt=$2	$EXTRACT	(/data/\d+\.(?:jpe?g|png|gif|bmp))
+http://(moeboard\.neuromancer\.se)/info/(moeb/.+\.(?:jpe?g|png|gif|bmp))	http://$1/image/32fdab6559cdfa4f167f8c31b9199643/i/$2			
+http://(mup\.vip2ch\.com)/m?dl(?:\.p(?:hp)?)?\?(?:f|img)=(?:vipper)?(\d+)(?:[&.].+)?	http://$1$EXTRACT	$&	$EXTRACT	(/up/vipper$2\.(?:jpe?g|png|gif|bmp))
+http://(ona-mona\.s5\.x-beat\.com/file)/html/(\w+)\.html	http://$1$EXTRACT	$&	$EXTRACT	(/data/$2\.(?:jpe?g|png|gif|bmp))
+http://(pc\.gban\.jp(?:/[fm])?)/(?:index\.php)?\?p=(.+\.(?:jpe?g|png|gif|bmp))	http://$1/img/$2	$&		
+http://(siokara\.ath\.cx/sio2?)/ref/(\d+)\.htm	http://$1$EXTRACT	$&	$EXTRACT	(/sio_src/$2\.(?:jpe?g|png|gif|bmp))
+http://(siokara\.ath\.cx/sio3)/ref/(\d+)\.htm	http://$1$EXTRACT	$&	$EXTRACT	(/src/$2\.(?:jpe?g|png|gif|bmp))
+http://(siokara-3\.ath\.cx/hokan/\w+)/refer/(\w+)\.htm	http://$1$EXTRACT	$&	$EXTRACT	(/img/$2\.(?:jpe?g|png|gif|bmp))
+http://(sourceforge\.net)/project/screenshots\.php\?.+	http://$1$EXTRACT	$&	$EXTRACT	src="(/dbimage\.php\?id=\d+)"
+http://(thumb2?\.(?:(?:imgup|uploda|vipper)\.org|vipper\.net)/v?)html/(\w+\.(?:jpe?g|png|gif|bmp))\.html	http://$1file/$2			
+http://(up2\.viploader\.net/\w+/)link\.php\?updir=([^&]+)&file=(\w+\.)(jpe?g|png|gif|bmp)	http://$1$2/$3$4	http://$1refer/$3htm		
+http://(up2\.viploader\.net/\w+/)refer/(\w+)\.htm	http://$1$EXTRACT	$&	$EXTRACT	(\w+/$2\.(?:jpe?g|png|gif|bmp))
+http://(upld\.dip\.jp:8713/files/s)/link\.php\?id=(\d+)	$EXTRACT	$&	$EXTRACT	(http://$1/img/mohemohe$2\.(?:jpe?g|png|gif|bmp))
+http://(wp\.madcowdisease\.org)/gp(/.+\.(?:jpe?g|png|gif|bmp))	http://$1$2			
+http://(www\.774\.cc)/down/downcon\.cgi\?name=(up\d+\.(?:jpe?g|png|gif|bmp))@Uploda(\w+)	http://$1:8020/upload-$3/src/files/$2			
+http://(www\.774\.cc:80)0(0/upload-\w+/src)/(up\d+\.(?:jpe?g|png|gif|bmp))\.html	http://$12$2/files/$3			
+http://(www\.channel-h\.net/img(\d)?/cgi)/(?:img-box/img\d{14}\.(?:jpe?g|png|gif|bmp))	$&	http://$1/imgboard$2.cgi		
+http://(www\.csync\.net/service/file)/view\.cgi\?id=(\d+)	http://$1$EXTRACT	$&	$EXTRACT	src="\.(/data/$2\.(?:jpe?g|gif|png|bmp))"
+http://(www\.ec2up\.com)/view/_(\w+)	http://$1$EXTRACT	$&	$EXTRACT	src="(/pics/$2\.(?:jpe?g|gif|png))
+http://(www\.ec2up\.com/v)p?(\.php\?\w+)	$EXTRACT	http://$1p$2	$EXTRACT	(http://$1p$2)
+http://(www\.gz-loader\.com/[^/]+/)mailbbs\.php\?mode=graphic&log=([^.]+)\.dat&file=(.+\.(?:jpe?g|png|gif|bmp))	http://$1data/$2/org/$3			
+http://(www\.hotass\.jp/more-\w+/\d+/)pages(/[^/]+_(jpe?g|gif|png|bmp)\.)htm	http://$1images$2$3			
+http://(www\.inverse\.jp/perl2/gazou)/html/(\d+)\.htm	http://$1$EXTRACT	$&	$EXTRACT=$&	(/src/$2\.(?:jpe?g|png|gif))
+http://(www\.inverse\.jp/perl2/gazou)/src/(\d+)\.(?:jpe?g|png|gif)	$&	http://$1/html/$2.htm		
+http://(www\.sukebegazou\.com/(?:[^/]*/)?(?:img)?bbs\d)/image\.cgi\?id=(.+\.(?:jpe?g|png|gif|bmp))	http://$1/$2	$&		
+http://(www\d+\.axfc\.net/uploader/\d+/so)/(?:l/\d+/|view\.cgi\?dr=\d+&file=)?([^/]+\.(?:jpe?g|png|gif|bmp))(?:\.html)?	http://$1/s/$2	http://$1/$2.html		
+http://[^/.]+\.(?:freespace\.jp|poosan\.net)/(.+(?:jpe?g|png|gif|bmp))	http://new1314.freespace.jp/$1	http://www.sunseagull.com/freespace/download.html?download1314&$1		
+http://[^/]*18ban[^/]+/photo/\d/(\d+)/\d+-\d+-\d+-(\d+)(?:-pc)?\.(?:jpe?g|png|gif|bmp)	$&	http://18ban.jp/photo.php?kid=$1&wid=$2&br=m		
+http://\w+\.bannch\.com/\w+/BBSmsg2\?bbsid=\d+&fname=(\d{10}\.(?:jpe?g|png|gif|bmp))	$EXTRACT	$&	$EXTRACT	href="([^"]+/$1)"
+http://\w+\.updoga\.com/[^/]+(/\w+/\w+)(?:/?$|(/\d+).*$)	$EXTRACTe	http://wwwa.updoga.com/img.php$1$2/ORG/	$EXTRACT	src="([^"]+\.jp)[eg]"
+http://a\.upup\.be/(?:index(?:\.php)?)?\?(.*)(?:&l=\d)?(.*)	http://a.upup.be/?mode=imageout$EXTRACT	http://a.upup.be/?$1$2	$EXTRACT	src=/\?mode=imageout.*(&k=\w+)
+http://an\.to/(?:\w+/)?\?.+	$EXTRACT	$&	$EXTRACT	(http://[^"']+?\.(?:jpe?g|png|gif|bmp))
+http://atk\.jp/.+	$EXTRACT	$&	$EXTRACT	(http://[^"']+?\.(?:jpe?g|png|gif|bmp))
+http://bbs\.2ch2\.net/(\w+)/\?m=[^/]*/\w+/(img/.+\.(?:jpe?g|png|gif|bmp))	http://bbs.2ch2.net/$1/$2			
+http://co0\.sakura\.ne\.jp/ph/link\.php\?f=(\d{10})x(jpe?g|png|gif|bmp)	http://co0.sakura.ne.jp/ph/src/$1.$2			
+http://doup\.org/(?:files/)?(\w+)	http://doup.org/files/$1/$EXTRACT	http://doup.org/$1	$EXTRACT	src=([^\s]+(?:jpe?g|png|gif|bmp))
+http://fout\.garon\.jp/\?key=.+:(\w+)&ext=(jpe?g|png|gif|bmp)	$EXTRACT	$&	$EXTRACT	(http://g\d{3}\.garon\.jp/gdb/[^"]+$1\.$2)
+http://gban\.jp/i/(\w+(\w))	$EXTRACT	$&	$EXTRACT	(http://gban\.jp/d/$2/$1\.(?:jpe?g|png|gif|bmp))
+http://hidebbs\.net/bbs/(\w+)\?.*no=\d+	$EXTRACT	$&	$EXTRACT	(http://www7\.hidebbs\.net/\d+/$1/bbs/\d{4}/\d{2}/\d{2}/\w+\.(?:jpe?g|gif|png|bmp))
+http://i\.turboimagehost\.com/p/(\d+/[^/]+\.(?:jpe?g|png|gif|bmp))\.html	http://i2.turboimagehost.com/b1/$1			
+http://i-bbs\.sijex\.net/imageDisp\.jsp\?id=(.*)&file=([^.]+\.(?:jpe?g|png|gif|bmp))	http://image.i-bbs.sijex.net/bbs/$1/$2			
+http://i-bbs\.sijex\.net/servlet/ImageOutput\?pa=([^.]+\.(?:jpe?g|png|gif|bmp))&id=(\w+)&t=\d+	http://i-bbs.sijex.net/bbs/$2/$1	http://i-bbs.sijex.net/imageBoard.jsp?id=$2		
+http://iboard\d\.to/GAZOimage/\d{6}/\w\d+_\d+_\w+	$EXTRACT	$&	$EXTRACT	($&)
+http://image\.(i-bbs\.sijex\.net/bbs/\w+/\d{13}o\.(?:jpe?g|png|gif|bmp))	$&	http://$1		
+http://imagesocket\.com/view/(.+(?:jpe?g|png|gif|bmp))	http://content.imagesocket.com/images/$1			
+http://imepita\.jp/(?:image/)?(\d{8}/\d{6})	http://imepita.jp/image/$1	http://imepita.jp/$1
+http://imgcash\d\.imageshack\.us/Himg\d+/scaled\.php\?(?:.+&)?filename=[^&]+\.(?:jpe?g|png|gif|bmp).*	$EXTRACT	$&	$EXTRACT	($&)
+http://imgup5\.myphotos\.cc/image/\d+/[^/]+\.(?:jpe?g|png|gif|bmp)	$&			
+http://kjm\.kir\.jp/pc/.*\?p=(.+\.(?:jpe?g|png|gif|bmp))	http://kjm.kir.jp/pc/img/$1	$&		
+http://mokei\.net/up/img/img\d+\.(?:jpe?g|png|gif|bmp)	http://mokei.net$EXTRACT	$&	$EXTRACT	"(/up/gresize\.cgi\?rn=[^"]+)"
+http://nurupo\.net/(?:(?:index\.php)?\?d=|cabinet/)([^&/]+)(?:&f=|/)([^?&/]+\.(?:jpe?g|png|gif|bmp))[&?](ak=\w+)	$EXTRACT	http://nurupo.net/cabinet/$1/$2?$3	$EXTRACT	(http://nurupo\.net/cabinet/$1/$2\?$3)
+http://nurupo\.net/(?:index\.php)?\?d=([^&]+)&f=([^/&]+\.(?:jpe?g|png|gif|bmp))$	http://nurupo.net/cabinet/$1/$2	$&		
+http://p\.pita\.st/\?(?:m=)?(\w{8})	$EXTRACT	$&	$EXTRACT	<a href="(http://image\d{2}\.pita\.st/\?c=$1_\d&uk=\w+)
+http://photos\.yahoo\.co\.jp/.+&\.dnm=\w+\.(?:jpe?g|png|gif|bmp)&.+	$EXTRACT	$&	$EXTRACT	src="(http://proxy\.f\d\.ymdb\.yahoofs\.jp/.+\.(?:jpe?g|png|gif|bmp)\?[^"']{16})"
+http://pic\.to/(?:_[^_]+_/|[^./]+/)*(.+)_(jpe?g|png|gif|bmp)$	http://$1.$2	http://$1.$2		
+http://pochico\.ddo\.jp/up/download/\d+\.\w+	$EXTRACT	$&	$EXTRACT	($&)
+http://pokoweb\.com/pds/exp/[^?/]+	$EXTRACT	$&	$EXTRACT	($&)
+http://proxy\.f\d\.ymdb\.yahoofs\.jp/.+\.(?:jpe?g|png|gif|bmp)\?[^"']{16}	$EXTRACT	$&	$EXTRACT	($&)
+http://pya\.cc/pyaimg/(?:han\.php\?han|s?pimg\.php\?imgid)=(\d+)	$EXTRACT	http://pya.cc/pyaimg/spimg.php?imgid=$1	$EXTRACT	img src='(http://[^']+\.(?:jpe?g|png|gif|bmp))
+http://sourceforge\.net/dbimage\.php\?.+	$EXTRACT	$&	$EXTRACT	($&)
+http://uld\.mine\.nu/src/\w+\.(?:jpe?g|png|gif|bmp)	$&			
+http://up\.pandoravote\.net/link\.php\?id=\d+	$EXTRACT	$&	$EXTRACT	($&)
+http://vista\.rdy\.jp/index\.php\?act=dl&num=(\d+)	http://vista.x0.to/img/vi$1.jpg			
+http://vista\.undo\.jp/index\.php\?num=(\d+)	http://vista.o0o0.jp/img/vi$1.jpg			
+http://web\.(\w\.pic\.to/)zoom\.php\?p=(\w+)-(\d)-\w+\.(jpe?g|png|gif|bmp)	http://$1$EXTRACT	http://$1$2?r$3	$EXTRACT	src='($2-$3[^']+\.$4)'
+http://www\.divshare\.com/img/\d+-\w{3}	$EXTRACT	$&	$EXTRACT	(http://.+(?:jpe?g|png|gif|bmp))
+http://www\.gazoru\.com/b-\w+\.html#(\d+)	$EXTRACT	$&	$EXTRACT	<a name=$1>.+img src="?([^"\s]+\.(?:jpe?g|png|gif|bmp))
+http://www\.gazoru\.com/g-((\w)\w{31}\.(?:jpe?g|png|gif|bmp))\.html	http://www.gazoru.com/file/pic/$2/$1			
+http://www\.sunseagull\.com/freespace/download\.html\?download(\d+)&(.+)	http://new$1.freespace.jp/$2	$&		
+http://www\.uploda\.net/cgi/uploader1/index\.php\?file_id=(\d{10}\.(?:jpe?g|png|gif|bmp))	http://aploda.com/dl.php?mode=pass&file_id=$1			
+http://www\.uploda\.net/cgi/uploader2/index\.php\?file_id=(\d{10}\.(?:jpe?g|png|gif|bmp))	http://aploda.net/dl.php?mode=pass&file_id=$1			
+http://www\.uploda\.net/cgi/uploader3/index\.php\?file_id=(\d{10}\.(?:jpe?g|png|gif|bmp))	http://xelhes.com/dl.php?mode=pass&file_id=$1			
+http://www\.uploda\.net/cgi/uploader4/index\.php\?file_id=(\d{10}\.(?:jpe?g|png|gif|bmp))	http://aploda.org/dl.php?mode=pass&file_id=$1			
+http://www\.uploda\.net/i/cgi/upk1/index\.php\?file_id=(\d{10}\.(?:jpe?g|png|gif|bmp))	http://lieza.net/dl.php?mode=pass&file_id=$1			
+http://www-2ch\.net:8080/up/download/\d+\.[^?]+	$EXTRACT	$&	$EXTRACT	($&)
+http://((?:\w+\.)?ascii24\.com/.+/\d{4}/\d{2}/\d{2}/image)view/(images\d{6}\.(?:jpe?g|png|gif|bmp))\.html	http://$1s/$2	$&		
+http://((?:www\.)?jeux-france\.com/)images\d+_\d_\d+\.html	http://$1$EXTRACT	$&	$EXTRACT	src="(Webmasters/[^"]+_big\.jpg)
+http://(\w+\.nikkeibp\.co\.jp/.+/\d+/\d+)/\?SS=(?:\w+)?imgview&FD=.+	http://$1/$EXTRACT	$&	$EXTRACT	src="([^/]+\.(?:jpe?g|png|gif|bmp))"
+http://(\w+\.watch\.impress\.co\.jp)/cda/parts/image_for_link/\d+-\d+-\d+-\d+\.html	http://$1$EXTRACT	$&	$EXTRACT	(/cda/static/image/\d{4}/\d{2}/\d{2}/[^/]+\.(?:jpe?g|png|gif|bmp))
+http://(arena\.nikkeibp\.co\.jp/.+/\d+/\d+/)(\d{2}v)\.shtml	http://$1$EXTRACT	$&	$EXTRACT	src="($2\.(?:jpe?g|png|gif|bmp))"
+http://(cms\.rbbtoday\.com/review/(?:photo|images)/[^/]+)\.html	http://$1.jpg			
+http://(ga\.sbcr\.jp/(?!wall/|sound/).+/)(\d{2})(?:-640|-1024)?\.html	http://$1$EXTRACT	$&	$EXTRACT	SRC="(?:\./)?(images/$2(?:-640|-1024)?\.jpg)"
+http://(ga\.sbcr\.jp/sound/\w+)/(\d{2})\.html	http://$1/images/image$2.jpg			
+http://(ga\.sbcr\.jp/wall)/(640|1024)\.html	http://$1$EXTRACT	$&	$EXTRACT	SRC="\.(/\d+/images/$2\.jpg)"
+http://(ga\.sbcr\.jp/wall/\d+)/(\d{2})\.html	http://$1/images/gallery$2.jpg			
+http://(image\.itmedia\.co\.jp)/(?:l/im/)?(.+\.(?:jpe?g|png|gif|bmp))	http://$1/$2	$&		
+http://(it\.nikkei\.co\.jp)/.+\.aspx\?n=[^&]+.*&ps=\d+	http://$1$EXTRACT	$&	$EXTRACT	(/photo/[^"]+\.(?:jpe?g|png|gif|bmp))
+http://(journal\.mycom\.co\.jp)/photo/(.+/images/\w+\.(?:jpe?g|png|gif))	http://$1/$2			
+http://(k-tai\.impress\.co\.jp)/cda/parts/image_for_link/\d+-\d+-\d+-\d+\.html	http://$1$EXTRACT	$&	$EXTRACT	SRC="(/cda/static/image/\d{4}/\d{2}/\d{2}/[^/"]+\.(?:jpe?g|png|gif|bmp))
+http://(news\.livedoor\.com)/article/image_detail/\d+/\?img_id=\d+	$EXTRACT	$&	$EXTRACT	(http://image\.$1/newsimage/\w/\w/[^/"]+\.(?:jpe?g|gif|png|bmp))
+http://(news\.www\.infoseek\.co\.jp)/photo/(?:\w+)/full/story/\w+/	$EXTRACT	$&	$EXTRACT	(http://$1/img/photos/\w+/[^/]+\.(?:jpe?g|png|gif|bmp))
+http://(pc\.nikkeibp\.co\.jp/.+/\d+/\d+)/[^/]+_imgview(\d)\.html	http://$1/$2.$EXTRACT	$&	$EXTRACT	$2\.(jpe?g|png|gif|bmp)
+http://(release\.nikkei\.co\.jp)/attach\.cfm\?attID=(.+\.(?:jpe?g|gif|png|bmp))	http://$1/attach_file/$2	$&		
+http://(sports\.livedoor\.com)/photo/detail-\d+\.html.*	$EXTRACT	$&	$EXTRACT	(http://image.$1/photo/\w/\w/[^/"]+\.(?:jpe?g|gif|png|bmp))
+http://(www\.4gamer\.net/news/image/\d{4}\.\d{2}/)(\d{14}_\w+)\.html	http://$1$EXTRACT	$&	$EXTRACT	($2\.(?:jpe?g|png|gif|bmp))
+http://(www\.asahi\.com)/photonews/\w+\.html	http://$1$EXTRACT	$&	$EXTRACT	src="(/photonews/images/\w+\.jpg)"
+http://(www\.dengekionline\.com)/news/\d{6}/\d{2}/\w+/\w+_\d+\.html	http://$1$EXTRACT	$&	$EXTRACT	src="(/news/[^"]+\.jpg)"
+http://(www\.dengekionline\.com/data/\w+/\d{4}/(?:\d{1,2}/){1,2})\w+_\d+\.html	http://$1$EXTRACT	$&	$EXTRACT	src="(image/[^"]+\.jpg)"
+http://(www\.forest\.impress\.co\.jp/article/.+)/(\w+\d+r)\.html	http://$1/$EXTRACT	$&	$EXTRACT	($2\.(?:jpe?g|png|gif|bmp))
+http://(www\.iza\.ne\.jp)/\w+/(?:newsarticle/.+/\d+/slideshow|(?:news)?photo/.+/\d+)/.*	http://$1$EXTRACT.jpg	$&	$EXTRACT	(/images/news/\d{8}/\d+)(?:_c350)?\.jpg
+http://(www\.mainichi-msn\.co\.jp/.+/graph/.+/)\d+\.html	http://$1$EXTRACT	$&	$EXTRACT	img src="(\d+\.jpg)"
+http://(www\.rbbtoday\.com)/cgi-bin/news/pict/(\d+)/\d+/jpg/([^/]+)\.html	http://$1/news/$2/$3.jpg			
+http://(www\.sponichi\.co\.jp/.+)(/K.+\d{11})_p\.html	http://$1/images$2_l.jpg			
+http://(www\.vector\.co\.jp/games/news)/(\d{6})/(\d{2})/(\d{2})/images_(\d{2})\.html	http://$1/$2/$3/$4/images/$2$3_$4_$5.jpg			
+http://(www\.vector\.co\.jp/games/review/\d{4})/images_(\d{2})\.html	http://$1/images/$2_l.gif			
+http://(www\.vector\.co\.jp/magazine/\w+/\d{6})/(\w+[^b])b?_pic\.html	http://$1/images/$2b.gif			
+http://(www\.watch\.impress\.co\.jp/akiba/hotline/\d{8}/image/)(\w+\d)\.html	http://$1$EXTRACT	$&	$EXTRACT	src="($2\.(?:jpe?g|png|gif|bmp))"
+http://(www\.watch\.impress\.co\.jp/game/docs/\d{8}/)(?:\w*(?:\D|_))?\d{2}\.htm	http://$1$EXTRACT	$&	$EXTRACT	<img src="((?:\w*(?:\D|_))?\d{2}\.(?:jpe?g|png|gif|bmp))"
+http://(www\.yomiuri\.co\.jp)(/.+/graph/.+)/([^/]+)\.htm	http://$1$EXTRACT	$&	$EXTRACT	($2/img/$3\.(?:jpe?g|png|gif|bmp))
+http://(www\.yomiuri\.co\.jp)/zoom/(MM\d{17})M0\.htm	http://$1/img/$2L0.jpg			
+http://(www\.zakzak\.co\.jp/\w+/\d{4}_\d{2})/(\w\d{10})_\d\.html	$EXTRACT	$&	$EXTRACT	(http://$1/image/$2\w+\.(?:jpe?g|png|gif|bmp))
+http://cowscorpion\.com/Screen-Shot/([^./]+)\.html	http://cowscorpion.com/img/ss/$1_ss01.png	$&		
+http://headlines\.yahoo\.co\.jp/hl\?a=((\d+)-\d+-(\w+)-\w+)\.(view-\d{3})	http://img.news.yahoo.co.jp/images/$2/$3/$1-$4.jpg			
+http://pc\.nikkeibp\.co\.jp/.+/popup\w*\.shtml\?i=http%3A//(pc\.nikkeibp\.co\.jp/.+/\d+/\d+/\d+\.(?:jpe?g|gif|png|bmp)).*	http://$1			
+http://today\.reuters\.co\.jp/news/newsPhotoPresentation\.aspx\?.+	$EXTRACT	$&	$EXTRACT	src="(http://[^"]+\.jpg[^"]*)"
+http://www\.(itmedia\.co\.jp/.+)/\w+\.html#(\w+\.(?:jpe?g|png|gif|bmp))	http://image.$1/$2	$&		
+http://www\.(yomiuri\.co\.jp/photonews)/.+\.htm\?.*id=\d+	$EXTRACT	$&	$EXTRACT	(http://photo.$1\d?/image/\d+\.(?:jpe?g|png|gif|bmp))
+http://www\.excite\.co\.jp/News/photo_news/kyodo/photo/\?image=Kyodo/(\w+\.-\.-\.CI000)2\.jpg.*	http://image.excite.co.jp/feed/news/Kyodo/$13.jpg			
+http://(?:(?:nicopon\.jp|home\.1555\.info)/(?:video/(?:player|src)|getflv)|nicosns\.inventor\.jp/download)/(\d+)	$EXTRACT	http://www.nicovideo.jp/thumb/$1	$EXTRACT	src="(http://(?:tn-skr\.smilevideo\.jp|[^/]+\.ameba\.jp/jpg|art\d\.nicovideo\.photozou\.jp)/[^"]+)"
+http://(?:(?:nicopon\.jp|home\.1555\.info)/(?:video/(?:player|src)|getflv)|nicosns\.inventor\.jp/download)/am(\d+)	$EXTRACT_4.jpg	http://www.nicovideo.jp/thumb/am$1	$EXTRACT	(http://[^/]+\.ameba\.jp/jpg/\d{4}/?\d{2}/\d{2}/\w+)_2\.jpg
+http://(?:(?:nicopon\.jp|home\.1555\.info)/(?:video/(?:player|src)|getflv)|nicosns\.inventor\.jp/download)/fz(\d+)	$EXTRACT	http://www.nicovideo.jp/thumb/fz$1	$EXTRACT	(http://art\d\.nicovideo\.photozou\.jp/pub/\d+/\d+/photo/$1_thumbnail\.jpg)
+http://(?:(?:nicopon\.jp|home\.1555\.info)/(?:video/(?:player|src)|getflv)|nicosns\.inventor\.jp/download)/sm(\d+)	http://tn-skr.smilevideo.jp/smile?i=$1&a.jpg			
+http://(?:[^/]+\.)?youtube\.com/(?:(?:verify_age\?next_url=/)?(?:w/)?(?:watch)?(?:\?|%3F)v(?:=|%3D)|(?:.+?/)?v/|vi/|.+?[?&]video_id=)([^&#]{11}).*	http://img.youtube.com/vi/$1/0.jpg			
+http://(?:\w+\.)?youtube\.com/cthru\?.+	http://img.youtube.com/vi/$EXTRACT/0.jpg	$&	$EXTRACT	\?v=(.{11})
+http://(?:fileman|adult)\.n1e\.jp/(?:fileman|adult)api/([^/]+)/movie	http://dl4.gerugugu.com/F-DATA/D-$1/1.jpg			
+http://(?:jimaku|rakugaki|moza)\.in/(?:w/|\?v=)(.{11}).*	http://img.youtube.com/vi/$1/0.jpg			
+http://(?:stage6\.client\.jp|k-chscarlet\.hp\.infoseek\.co\.jp/stage6)/#(\d+)	http://images.stage6.com/videos/$1.jpg			
+http://(?:stage6\.divx\.com|(?:video-akamai\.)?stage6\.com)/.*(?:show_)?videos?/(\d+).*	http://images.stage6.com/videos/$1.jpg			
+http://(?:www\.)?asa\.tv/.+[?&]movie_id=\d+	http://www.asa.tv/captured/$EXTRACT_1.jpg	$&	$EXTRACT	videoName=http://asa.tv/movie/D3/([^"]+)\.flv
+http://(?:www\.)?gamevideos\.com/video/id/(\d+)	http://download.gamevideos.com/$1/thumbnail.jpg			
+http://(?:www\.)?heavy\.com/(?:video|play/channel)/\d+.*	http://www.heavy.com$EXTRACT	$&	$EXTRACT	channel_thumb" src="([^"]+)
+http://(?:www\.)?youporn\.com/watch/((\d)(\d{2})\d{2})(?:/|$)	http://screenshot4.youporn.com/screenshot/0$2/$3/screenshot/$1_large.jpg			
+http://(?:www\.)?youporn\.com/watch/((\d)\d{2})(?:/|$)	http://screenshot4.youporn.com/screenshot/0$2/screenshot/$1_large.jpg			
+http://(?:www\.)?youporn\.com/watch/((\d{2})(\d{2})\d{2})(?:/|$)	http://screenshot4.youporn.com/screenshot/$2/$3/screenshot/$1_large.jpg			
+http://(?:www\.)?youporn\.com/watch/((\d{2})\d{2})(?:/|$)	http://screenshot4.youporn.com/screenshot/$2/screenshot/$1_large.jpg			
+http://(?:www\.)?youporn\.com/watch/(\d{1,2})(?:/|$)	http://screenshot4.youporn.com/screenshot/00/screenshot/$1_large.jpg			
+http://(broadband\.biglobe\.ne\.jp)/index_program\.html\?.*prog=(?![^&]*news|entertain|okinawa|weather)([^&]+).*	http://$1$EXTRACT	http://$1/program/index_$2.html	$EXTRACT	(/img/$2/thumbnail/320_240/P_\d+\.jpg)
+http://(douga\.nifty\.com)/cs/catalog/douga_\w+/(?:[^/]+/)+?catalog_(\w{4})\w+_\d\.htm	http://$1$EXTRACT	$&	$EXTRACT	src="(/img/$2/ttl/[^"]+\.jpg)"
+http://(video\.google\.com/).*videoplay(?:\?|%3F)docid(?:=|%3D)(-?\d+)(?:(?:&|%26).+)?$	$EXTRACT	http://$1videoplay?docid=$2	$EXTRACT	<img src="(http://[^"]+)"
+http://(www\.tv-asahi\.co\.jp/ann/news/web/)(index|[^_]+_news)(?:_[wr](?:([2-9]|\d{2,})|1)|([2-9]|\d{2,}|))\.html\?now=\d+_\d+k	http://$1$EXTRACT	http://$1$2$3$4.html	$EXTRACT	src="([^"]+\.jpg)
+http://(www\.tvbreak\.jp)/channel/prg/default\.asp\?.*mode=view.*(?:&ch_userid=(\d+).*&id=(\d+)|&id=(\d+).*&ch_userid=(\d+)).*	http://$1/data/_channel_img/2/3/$2$5/vod_thumb_$3$4.jpg			
+http://(www\.youtube\.co\.jp)/video_play\.php\?id=((\d+)_\d+)	http://$1/movie/$3/$2.jpg			
+http://api\.photozou\.jp/rest/photo_info\?photo_id=(\d+)	$EXTRACT	$&	$EXTRACT	(http://art\d\.photozou\.jp/pub/\d+/\d/photo/$1\.(?:jpe?g|png|gif|bmp))
+http://divx-\d+\.vo\.llnwd\.net/stage6vid/(\d+)\.divx	http://images.stage6.com/videos/$1.jpg			
+http://meta\.cdn\.yahoo-streaming\.jp/cgi-bin/yahoo/news\.asx\?cid=((\d+)-\d+-(\w+)-\w+).+	$EXTRACT	http://headlines.yahoo.co.jp/videonews/$3/$2/$1.html	$EXTRACT	src="(http://ca\.c\.yimg\.jp/news/.+/$2/$3/$1-thumb-\d+\.jpg)"
+http://photozou\.jp/photo/(?:show(?:_blog)?|photo_only)/(\d+)/(\d+)	$EXTRACT	http://api.photozou.jp/rest/photo_info?photo_id=$2	$EXTRACT	(http://art\d\.photozou\.jp/pub/\d+/$1/photo/$2\.(?:jpe?g|png|gif|bmp))
+http://player\.streaming\.yahoo\.co\.jp/player/player\.html\?s_id=(\w)&cp_id=(?!news)(\w+)&pg_id=(\w+)&co_id=(\w+).*	$EXTRACT	http://streaming.yahoo.co.jp/c/$1/$2/$3/$4#	$EXTRACT	src="(http://ca\.c\.yimg\.jp/[^"]+(?:200_150[^"]+|small)\.jpg)"
+http://player\.streaming\.yahoo\.co\.jp/player/player\.html\?s_id=\w&cp_id=news&pg_id=(\w+)&co_id=(\w+).*	$EXTRACT	http://streaming.yahoo.co.jp/newsflash/list/$1/imp/tc/photo/$2_0001.html	$EXTRACT	src="(http://ca\.c\.yimg\.jp/[^"]+\.jpg)"
+http://streaming\.yahoo\.co\.jp/.+#$	$EXTRACT	$&	$EXTRACT	src="(http://ca\.c\.yimg\.jp/[^"]+(?:200_150[^"]+|small)\.jpg)"
+http://tn-skr\.smilevideo\.jp/smile\?i=\d+	$&&a.jpg			
+http://tv\.mofile\.com/[^/]+	$EXTRACT	$&	$EXTRACT	&p=([^&]+\.jpg)
+http://video\.ask\.jp/watch\.do\?(?:.*&)?v=(\w+-\w+-\w+-\w+-\w+)	http://video.ask.jp/image/$1/2.jpg			
+http://video\.stage6\.com/(\d+)	http://images.stage6.com/videos/$1.jpg			
+http://videocast\.yahoo\.co\.jp/.+[?&]vid=\d+.*	$EXTRACT	$&	$EXTRACT	(http://proxy\.f\d\.ymdb\.yahoofs\.jp/.+\.(?:jpe?g|png|gif|bmp)\?[^"']{16})
+http://video-veuillezpas\.stage6\.com/(\d+)\.divx	http://images.stage6.com/videos/$1.jpg			
+http://vision\.ameba\.jp/api/get/detailMovie\.do\?movie=\d+	$EXTRACT	$&	$EXTRACT	(http://[^/]+\.ameba\.jp/jpg/\d{4}/?\d{2}/\d{2}/\w+\.jpg)
+http://vision\.ameba\.jp/watch\.do.*\?movie=(\d+)	$EXTRACT	http://vision.ameba.jp/api/get/detailMovie.do?movie=$1	$EXTRACT	(http://[^/]+\.ameba\.jp/jpg/\d{4}/?\d{2}/\d{2}/\w+\.jpg)
+http://www\.dailymotion\.com/(?:[^/]+/)*(video/[^/]+)	http://www.dailymotion.com/thumbnail/320x240/$1&a.jpg			
+http://www\.deviantart\.com/(?:deviation|print|view|mobile)/\d+	$EXTRACT	$&	$EXTRACT	src="(http://(?:fc|tn)[^"]+\.(?:jpe?g|png|gif|bmp))
+http://www\.gametrailers\.com/(?:player(?:\.php.*[?&]id=|/))\d+.*	$EXTRACT	$&	$EXTRACT	src="(http://www\.gametrailers\.com/moses[^"]+\.jpg)"
+http://www\.guba\.com/watch/(\d+).*	http://img.guba.com/public/video/5/e1/$1-m.jpg			
+http://www\.liveleak\.com/view\?i=[^&]+.*	$EXTRACT	$&	$EXTRACT	videothumbnail" href="([^"]+)
+http://www\.livevideo\.com/(?:video/(?:[^/]+/)?|media/.+[?&]cid=)([^/]{32}).*	$EXTRACT	http://www.livevideo.com/media/reportContent.aspx?cid=$1	$EXTRACT	src="(http://liveu-[^"]+\.jpg)
+http://www\.metacafe\.com/w(?:atch)?/(\d+).*	http://www.metacafe.com/thumb/$1.jpg			
+http://www\.mocovideo\.jp/movie_detail(?:\.php)?\?KEY=([^&#]{11}).*	http://img.youtube.com/vi/$1/0.jpg			
+http://www\.nicovideon?\.jp/(?:(?:watch|thumb)(?:_naisho)?(?:\?v=|/)|\?p=)(\d+)	$EXTRACT	http://www.nicovideo.jp/thumb/$1	$EXTRACT	src="(http://(?:tn-skr\.smilevideo\.jp|[^/]+\.ameba\.jp/jpg|art\d\.nicovideo\.photozou\.jp)/[^"]+)"
+http://www\.nicovideon?\.jp/(?:(?:watch|thumb)(?:_naisho)?(?:\?v=|/)|\?p=)am(\d+)	$EXTRACT_4.jpg	http://www.nicovideo.jp/thumb/am$1	$EXTRACT	(http://[^/]+\.ameba\.jp/jpg/\d{4}/?\d{2}/\d{2}/\w+)_2\.jpg
+http://www\.nicovideon?\.jp/(?:(?:watch|thumb)(?:_naisho)?(?:\?v=|/)|\?p=)fz(\d+)	$EXTRACT	http://www.nicovideo.jp/thumb/fz$1	$EXTRACT	(http://art\d\.nicovideo\.photozou\.jp/pub/\d+/\d+/photo/$1_thumbnail\.jpg)
+http://www\.nicovideon?\.jp/(?:(?:watch|thumb)(?:_naisho)?(?:\?v=|/)|\?p=)sm(\d+)	http://tn-skr.smilevideo.jp/smile?i=$1&a.jpg			
+http://www\.veoh\.com/videos/(\w+).*	http://p-images.veoh.com$EXTRACTMed.jpg	$&	$EXTRACT	(/image\.out\?imageId=media-$1\w+?)(?:Med)?\.jpg
+http://(?:blogs\.yahoo\.co\.jp/\w+/GALLERY/show_image_v2\.html\?id=http://)?(img\.blogs\.yahoo\.co\.jp/[^?]+)(?:\?.*)?$	$EXTRACT	http://$1	$EXTRACT	(http://$1)
+http://([^/]+/\.)shared/image\.html\?(/photos/uncategorized/.+(?:jpe?g|gif|png|bmp))	http://$1$2			
+http://(akibainfo\.com/net)/picview3\.php\?img=(img001/\d+_\w+_\d+\.(?:jpe?g|png|gif|bmp))	http://$1/$2			
+http://(bbs\d*\.as\.wakwak\.ne\.jp)/blog/imgview\.cgi\?(?:.+&)?id=(\d+)(?:&.+)?&image=([^./&]+\.(?:jpe?g|png|gif|bmp)).*	http://$1/$2/blog/photo/$3			
+http://(bbs\d*\.as\.wakwak\.ne\.jp/.*)(?:view2?|bbs)\.cgi\?(?:.+&)?id=(\d+)(?:&.+)?&code=(?:\d+).*	http://$1$2/$EXTRACT	$&	$EXTRACT	src="[^"]*$2/(?!\d{3}-)(?:s-)?([^"]+\.(?:jpe?g|png|gif|bmp))"
+http://(bp\d\.blogger\.com/[^/]+/[^/]+/[^/]+/[^/]+/s\d+)-h(/[^/]+\.(?:jpe?g|png|gif|bmp))	http://$1$2			
+http://(www\.akibablog\.net/archives/img-mouse/\d{4}-\d{2}-\d{2}-\d{3})\.html	http://$1.jpg			
+http://[^/]+\.cururu\.jp/common/viewImage\.jsp\?img=(http://mfiles\.cururu\.net/[^.]+\.(?:jpe?g|png|gif|bmp))	$1			
+http://www\.exblog\.jp/blog_logo\.asp\?slt=(\d)&imgsrc=(\d{6}/\d{2}/\d{2}/\w\d{7}_\d+\.(?:jpe?g|png|gif|bmp))	http://pds.exblog.jp/pds/$1/$2			
+http://((?:\w+\.)?thumbnail\.image\.rakuten\.co\.jp/)s/\?(@.+\.(?:jpe?g|png|gif|bmp))	http://$1$2			
+http://(?:www\.)?amazon\.co(?:m|\.jp)/gp/product/images/\w{10}.*	$EXTRACT500_.jpg	$&	$EXTRACT	(http://[^"]+_SS)(?:5|4)00_\.jpg
+http://(www\.cs371\.com/)[^/]+/img_([^/]+)\.html	http://$1admin/upimages/$2.jpg			
+http://(www\.cs371\.com/)[^/]+/img\.php\?/(img/program/[^/]+/[^/]+\.(?:jpe?g|png|gif|bmp))	http://$1$2			
+http://(www\.db\.megahit\.co\.jp)/cgi-bin/itemview\.pl\?number=(([^&])[^&]+)	http://$1/item_img2/$3/$2.jpg			
+http://(www\.idol-club\.com/)title/(ND\w{2}-\d+)\.htm	http://$1$EXTRACT	$&	$EXTRACT	(pic/dvd/\w+/$2b\.jpg)
+http://img\d?\.store\.yahoo\.co\.jp/I/[^/.]+_\d+_\d+	$&&a.jpg			
+http://www\.av-fan\.net/detail/\w+-\d+\.html	http://www.av-fan.net$EXTRACT	$&	$EXTRACT	(/photo[^"]+\.jpg)
+http://www\.av-fan\.net/jyu/([^/]+)/\d+\.html	http://www.av-fan.net/jyoimg/$1_image.jpg			
+http://www\.dmm\.(?:co\.jp|com)/.+/cid=[^/]+.*	$EXTRACTpl.jpg	$&	$EXTRACT	src="(http://[^"]+)p\w\.jpg"
+http://(?:images\.google\.com/imgres\?|search\.nifty\.com/webapp/imagesearch\?|search\.www\.infoseek\.co\.jp/IMGInfo\?).*imgurl=(?:http(?::|%3A)(?:/|%2F){2}(.+\.(?:jpe?g|png|gif|bmp)).*)	http://$1			
+http://(\w+\.wikimedia\.org/wikipedia/[^/]+)/(\w/\w{2}/([^/]+\.svg))	http://$1/thumb/$2/1000px-$3.png			
+http://\w+\.wikipedia\.org/wiki/.+:([^/]+\.(?:jpe?g|png|gif|bmp))	$EXTRACT	$&	$EXTRACT	(http://upload\.wikimedia\.org/wikipedia/\w+/\w/\w{2}/$1)
+http://\w+\.wikipedia\.org/wiki/.+:([^/]+\.svg)	$EXTRACT	$&	$EXTRACT	(http://upload\.wikimedia\.org/wikipedia/\w+/thumb/\w/\w{2}/$1/\d+px-$1\.png)
+http://map\.yahoo\.co\.jp/pl\?(.+)	http://img.map.yahoo.co.jp/ymap/mk_map?$1&a.gif			
+http://srd\.yahoo\.co\.jp/IMG/.*/\*-(?:http(?::|%3A)(?:/|%2F){2}(.+\.(?:jpe?g|png|gif|bmp)).*)	http://$1			
+https?://(?:megalodon\.jp/\?url=http://)?((.+)(?:\.|%2E)(jpe?g|png|gif|bmp)(?:(?:\?|%3F|&).*|(?:\.|%2E)s?html?)?)$	http://$2.$3	http://$1		

@@ -29,6 +29,10 @@ if (isset($_GET['aborn_str_en'])) {
 if (isset($_GET['aborn_id'])) {
     $aborn_id = $_GET['aborn_id'];
 }
+// +Wiki
+if (isset($_GET['aborn_be'])) {
+    $aborn_be = $_GET['aborn_be'];
+}
 
 $itaj = P2Util::getItaName($host, $bbs);
 if (!$itaj) {
@@ -72,6 +76,8 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
     } else {
         $aborn_id = '';
     }
+    // +Wiki:BEあぼーん
+    $aborn_be = preg_match('/BE:(\d+)/', $resar[2], $idar) ? P2UtilWiki::calcBeId($idar[1]) : '';
     if ($_conf['expack.spm.ngaborn_confirm'] == 0 && !isset($aborn_str)) {
         if ($mode == 'aborn_res') {
             $aborn_str = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
@@ -83,6 +89,9 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
             $aborn_str = $aborn_id;
         } elseif (strstr($mode, '_msg')) {
             $popup = 1;
+        // +Wiki:BEあぼーん
+        } elseif (strstr($mode, '_be')) {
+            $aborn_str = $aborn_be;
         }
     }
     if (!is_string($ttitle_en)) {
@@ -217,6 +226,27 @@ switch ($mode) {
             $aborn_str_en = base64_encode($aborn_id);
         }
         $edit_value = 'NGワード編集：ID';
+        break;
+    // +Wiki:Beあぼーん
+    case 'aborn_be':
+        $title_st = 'p2 - あぼーんワード登録：BE';
+        if ($popup == 2) {
+            $msg = 'あぼーんワード（BE）に <b>' . $aborn_str . '</b> を登録しました。';
+        } elseif ($aborn_id != "") {
+            $msg = 'あぼーんワード（BE）に <b>' . $aborn_be . '</b> を登録してよろしいですか？';
+            $aborn_str_en = base64_encode($aborn_be);
+        }
+        $edit_value = 'あぼーんワード編集：BE';
+        break;
+    case 'ng_be':
+        $title_st = 'p2 - NGワード登録：BE';
+        if ($popup == 2) {
+            $msg = 'NGワード（BE）に <b>' . $aborn_str . '</b> を登録しました。';
+        } elseif ($aborn_id != "") {
+            $msg = 'NGワード（BE）に <b>' . $aborn_be . '</b> を登録してよろしいですか？';
+            $aborn_str_en = base64_encode($aborn_be);
+        }
+        $edit_value = 'NGワード編集：BE';
         break;
     default:
         /*放置*/

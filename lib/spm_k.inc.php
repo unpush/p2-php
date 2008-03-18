@@ -31,10 +31,12 @@ function kspform(&$aThread, $default = '', $params = null)
     $options['aborn_mail'] = 'ｱﾎﾞﾝ:ﾒｰﾙ';
     $options['aborn_id']   = 'ｱﾎﾞﾝ:ID';
     $options['aborn_msg']  = 'ｱﾎﾞﾝ:ﾒｯｾｰｼﾞ';
+    $options['aborn_be']  = 'ｱﾎﾞﾝ:BE';  // +Wiki
     $options['ng_name'] = 'NG:名前';
     $options['ng_mail'] = 'NG:ﾒｰﾙ';
     $options['ng_id']   = 'NG:ID';
     $options['ng_msg']  = 'NG:ﾒｯｾｰｼﾞ';
+    $options['ng_be']  = 'NG:BE';   // +Wiki
 
     // フォーム生成
     $form = "<form method=\"get\" action=\"spm_k.php\">";

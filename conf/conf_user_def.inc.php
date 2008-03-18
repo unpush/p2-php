@@ -368,3 +368,8 @@ $conf_user_rad['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP
 include_once 'conf/conf_user_def_ex.inc.php';
 
 // }}}
+// {{{ ■+Wiki
+
+include_once 'conf/conf_user_def_wiki.inc.php';
+
+// }}}

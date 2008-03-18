@@ -37,6 +37,13 @@ if ($_conf['ktai']) {
     $submit_tab_at  = ' tabindex="4"';
 }
 
+// +Wiki:sambaタイマー
+if ($_conf['wiki.samba_timer']) {
+    require_once P2_LIBRARY_DIR . '/wiki/samba.class.php';
+    $samba = &new samba;
+    $htm['samba'] .= $samba->createTimer($samba->getSamba($host, $bbs));
+}
+
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
 $htm['post_form'] = <<<EOP
 {$htm['disable_js']}
@@ -59,6 +66,7 @@ $htm['post_form'] = <<<EOP
 <input id="kakiko_submit" type="submit" name="submit" value="{$submit_value}"{$htm['kaiko_set_hidden_js']}{$submit_tab_at}>
 {$htm['be2ch']}
 {$htm['table_end']}
+{$htm['samba']}
 
 <input type="hidden" name="bbs" value="{$bbs}">
 <input type="hidden" name="key" value="{$key}">

@@ -13,6 +13,9 @@ require_once P2_LIB_DIR . '/showthread.class.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
+// +Wiki
+require_once P2_LIBRARY_DIR . '/wiki/read.inc.php';
+
 //================================================================
 // •Ï”
 //================================================================

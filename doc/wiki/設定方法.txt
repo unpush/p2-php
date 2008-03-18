@@ -1,0 +1,91 @@
+設定方法
+
+リンクプラグイン
+Match	正規表現でマッチ条件を記述。
+Replace	正規表現で置換内容を記述。
+Replaceに$strを使うと、$strの部分をURLが記載されている文字列に展開します。
+例:ただのリンク
+Match=^(.+)$
+Replace=<a href="$1">$str</a>
+ttp://a.b.c/
+→<a href="http://a.b.c/">ttp://a.b.c</a>
+例:ニコニコ動画
+Match=^http://www\.nicovideo\.jp/watch/([a-z0-9]+)$
+Replace=<a href="$0" target="_blank">$str</a><br><div style="width:318px; border:solid 1px #CCC;"><iframe src="http://www.nicovideo.jp/thumb?v=$1" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
+
+置換画像URL
+Match	URLに対して正規表現でマッチ条件を記述。
+Replace	正規表現でMatchに対する置換内容を記述。
+Referer	正規表現でMatchに対するリファラを記述
+Extract	$EXTRACTと記入すると、ReplaceとRefererの$EXTRACTをSourceのマッチ結果に展開。
+Source	ソースに対して正規表現でマッチ条件を記述。
+JaneStyleのImageViewURLReplace.datとほぼ同じです。
+$EXTRACTを使うとかなり遅くなるので注意。
+JaneStyleとの互換性のために、$&は$0に変換されます。
+Refererの指定がない場合、リファラはImageCache2の設定に委ねられます。
+ImageViewURLReplace.datを流用する場合、改行コードを変更した方がいいかもしれません。//で始まるコメントは無視されます。
+$COOKIEと$EXPAND=には対応してません。
+Jane総合掲示板(http://jane.s28.xrea.com/bbs/)の「ImageViewURLReplace.datを晒すスレ」に公開されているJaneStyleのまとめがそのまま使えます。
+例:イメピタ
+Match=http://imepita\.jp/(?:image/)?(\d{8}/\d{6})
+Replace=http://imepita.jp/image/$1
+Referer=http://imepita.jp/$1
+例:＠ピタ
+Match=http://p\.pita\.st/\?(?:m=)?(\w{8})
+Replace=$EXTRACT
+Referer=$0
+Extract=$EXTRACT
+Source=<a href="(http://image\d{2}\.pita\.st/\?c=$1_\d&uk=\w+)
+
+DAT取得プラグイン
+題名	その題名で表示される
+Match	スレッドURLのマッチ条件(例:http://
+Replace	http://pc11.2ch.net/test/read.cgi/software/1180021565/
+例:2ちゃんねる検索proxyからDATを取得
+題名=2ちゃんねる検索proxy
+Match=^http://(.+?\.2ch\.net)/test/read\.cgi/(.+?)/(((\d{4})\d)\d+)/$
+Replace=http://com-nika.osask.jp/test/dat.cgi/$1/$2/
+DAT保管サイトは限られているので、サンプル(doc/data/p2_plugin_dat.txt)で十分かもしれません。
+
+置換ワード
+Match:正規表現でマッチ条件を記述
+Replace:正規表現でMatchに対する置換内容を記述
+Mode:どの閲覧モードで使うか
+Replaceに以下の項目を指定すると、その内容に変換します。
+Word     Replace    例
+$host    host       pc11.2ch.net
+$bbs     bbs        software
+$key     key        1180021565
+$date_id 日時等     2007/05/25(金) 00:46:05 ID:imbjGiMh0
+$id      ID         imbjGiMh0
+$i       レス番号   1
+名前はPCと携帯で処理が違います。
+PCの場合はサーバーから送られてきたそのままデータを扱いますが、携帯はタグが取り除かれています。(例:名前</b>◆トリップ<b>→名前◆トリップ)
+例:番号の横に逆参照レスポップアップ
+対象:名前
+Match=^
+Replace=<a href="read.php?bbs=$bbs&key=$key&host=$host&ls=all&field=msg&word=%3E$i%5B%5E%5Cd%5D&method=regex&match=on" onmouseover="showHtmlPopUp('read.php?bbs=$bbs&key=$key&host=$host&ls=all&field=msg&word=%3E$i%5B%5E%5Cd%5D&method=regex&match=on,renzokupop=true',event,0.2)" onmouseout="offHtmlPopUp()" title="$iへのレスを表示"><img src="img/pop.png" width=12px height=12px"></a>
+例:メールアドレスをクリックするとメールアドレスでフィルタリング
+対象:メール
+Match=^(.+)$
+Replace=<a href="read_filter.php?bbs=$bbs&key=$key&host=$host&resnum=$i&ls=all&field=mail&method=just&match=on&offline=1">$1</a>
+例:必死チェッカーポップアッププラグイン
+対象:日付その他
+Match=(.*?(\d{4})/(\d{2})/(\d{2}).*)
+Replace=$1<a href="hissi.php?bbs=$bbs&amp;date=$2$3$4&amp;id=$id" onmouseover="showHtmlPopUp('hissi.php?bbs=$bbs&amp;date=$2$3$4&amp;id=$id',event,0.2)" onmouseout="offHtmlPopUp()" title="このIDを必死チェッカーで表示" target="_blank"><img src="hissi.php?img=1&amp;host=$host&amp;bbs=$bbs" height=12px></a>
+hissi.phpはbbs=板のディレクトリ名s, date=yyyymmdd形式の日付, id=IDで必死チェッカーへにジャンプするスクリプト。
+
+置換ワード補足
+フォームが用意されていないので、手動編集のための補足です。
+対応するファイル:
+名前        p2_replace_name.txt
+メール      p2_replace_mail.txt
+日付その他  p2_replace_date.txt
+内容        p2_replace_msg.txt
+フォーマット
+Match	Replace	Mode
+MatchとReplaceは上記の通り。
+Modeは以下の通り。
+0:PC, 携帯で有効
+1:PCで有効
+2:携帯で有効

@@ -46,6 +46,8 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
         case 'ng_mail':
         case 'ng_id':
         case 'ng_msg':
+        case 'aborn_be':    // +Wiki
+        case 'ng_be':       // +Wiki
             $_GET['resnum'] = $ktv;
             $_GET['popup'] = 1;
             $_GET['mode'] = $_GET['ktool_name'];

@@ -167,6 +167,7 @@ if (version_compare(phpversion(), '5.1.0', '<')) {
 }
 
 require_once P2_LIBRARY_DIR . '/p2util.class.php';
+require_once P2_LIBRARY_DIR . '/wiki/p2utilwiki.class.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/session.class.php';
 require_once P2_LIBRARY_DIR . '/login.class.php';
@@ -327,7 +328,9 @@ if (isset($_GET['b']) and $_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
 
 // 強制携帯ビュー指定（b=k。k=1は過去互換用）
-} elseif (!empty($_GET['k']) || !empty($_POST['k']) or isset($_GET['b']) && ($_GET['b'] == 'k' || $_POST['b'] == 'k')) {
+// +Wiki:バグ修正(POSTの時は$_POST['b']はないのに$_POST['b']でチェックしてる
+// } elseif (!empty($_GET['k']) || !empty($_POST['k']) or isset($_GET['b']) && ($_GET['b'] == 'k' || $_POST['b'] == 'k')) {
+} elseif (!empty($_GET['k']) || !empty($_POST['k']) or ($_GET['b'] == 'k' || $_POST['b'] == 'k')) {
     if (!$_conf['ktai']) {
         $_conf['view_forced_by_query'] = true;
         $_conf['ktai'] = true;

@@ -3,6 +3,8 @@
 
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/thread.class.php';
+// +Wiki
+require_once P2_LIB_DIR . '/wiki/datpluginctl.class.php';
 
 /**
  * スレッドリードクラス
@@ -793,11 +795,50 @@ class ThreadRead extends Thread{
         if (preg_match($kakosoko_match, $read_response_html, $matches)) {
             $dat_response_status = "このスレッドは過去ログ倉庫に格納されています。";
             //if (file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])) {
-                $marutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>";
+                // $marutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>";
             //} else {
             //    $marutori_ht = "<a href=\"login2ch.php\" target=\"subject\">●IDログイン</a>";
             //}
-            $dat_response_msg = "<p>2ch info - このスレッドは過去ログ倉庫に格納されています。 [{$marutori_ht}]</p>";
+
+            // +Wiki
+            if ($_GET['plugin']) {
+                $datplugin = &new DatPluginCtl;
+                $datplugin->load();
+                foreach ($datplugin->data as $v){
+                    if(preg_match('{'. $v['match'] . '}', $read_url)) {
+                        $replace = @preg_replace('{'. $v['match'] . '}', $v['replace'], $read_url);
+                        $code = P2UtilWiki::getResponseCode($replace);
+                        if($code == 200) {
+                            $code = '○' . $code;
+                        } else {
+                            $code = '×' . $code;
+                        }
+                        $plugin_ht .= "    <option value=\"{$replace}\">{$code}:{$v['title']}</option>\n";
+                    }
+                }
+                if ($plugin_ht) {
+                    $plugin_ht = '<select size=1 name="kakolog">'. $plugin_ht . '</select>';
+                } else {
+                    $plugin_ht = '<input type="text" name="kakolog" size="64">';
+                }
+                $plugin_ht .= 'から<input type="submit" name="kakoget" value="取得">';
+            } else {
+                $plugin_ht = '<input type="submit" name="plugin" value="DATを探す">';
+            }
+            $plugin_ht = <<<EOP
+<form method="get" action="{$_conf['read_php']}">
+    <input type="hidden" name="host" value="{$this->host}">
+    <input type="hidden" name="bbs" value="{$this->bbs}">
+    <input type="hidden" name="key" value="{$this->key}">
+    <input type="hidden" name="ls" value="{$this->ls}">
+    <input type="hidden" name="kakoget" value="2">
+    {$_conf['k_input_ht']}
+{$plugin_ht}
+<input type="submit" name="maru" value="●IDでp2に取り込む">
+</form>
+EOP;
+
+            $dat_response_msg = "<p>2ch info - このスレッドは過去ログ倉庫に格納されています。 {$plugin_ht}</p>";
 
         //
         // <title>がそんな板orスレッドないです。or error 3939
