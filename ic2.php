@@ -289,7 +289,22 @@ if (is_string($referer)) {
 
 // まずはHEADでチェック
 $client_h = clone($client);
-$code = $client_h->head($uri);
+//$code = $client_h->head($uri);
+if( preg_match('{^https?://imepita.jp/.+?$}i', $uri) ){
+	$code = $client->get($uri);
+	while ($code == '403' ){
+		sleep(5);
+		$code = $client->get($uri);
+	}
+	
+	$code1 = $code;
+	$client_h = clone($client);
+	
+}else
+{
+	$code = $client_h->head($uri);
+}
+
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());
 }
@@ -333,7 +348,11 @@ unset($client_h, $code, $head);
 // {{{ get
 
 // ダウンロード
-$code = $client->get($uri);
+if( preg_match('{^https?://imepita.jp/.+?$}i', $uri) ){
+	$code = $code1;
+}else{
+	$code = $client->get($uri);
+}
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());
 } elseif ($code != 200) {

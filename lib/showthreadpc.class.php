@@ -688,6 +688,11 @@ EOP;
             return $str . $following;
         }
 
+		//pita.st 複数画像対応
+		if (preg_match('{^https?://[^\.]+?.pita.st/+?}i', $url) ) {
+			return $this->pita_expansion($url);
+		}
+
         // URLを処理
         foreach ($this->user_url_handlers as $handler) {
             if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
@@ -1378,12 +1383,34 @@ EOP;
             return FALSE;
         }
 
-        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+		// wikiより pita.stとimepita.jpに対応
+		$pita =false;
+		$ref = "";
+		if (preg_match('{^https?://imepita.jp/.+?$}i', $url) && empty($purl['query'])) {
+			$tok = explode("/", $url);
+			//$url = $tok[0]."//".$tok[2]."/img/trial/".$tok[3]."/".$tok[4].".jpg";
+			$ref = "&amp;ref=" . urlencode($url);
+			$url = $tok[0]."//".$tok[2]."/image/".$tok[3]."/".$tok[4];
+			$pita = true;
+		} /*elseif (preg_match('{^https?://[^\.]+?.pita.st/+?}i', $url) ) {
+			$src = file_get_contents($url);
+			if(preg_match('{<img src="(https?://image[0-9]+?.pita.st/[^"]+?)"}i', $src, $match)){
+				$url = $match[1];
+				$pita = true;
+			}
+		}*/
+		elseif (preg_match('{^https?://[^\.]+?.pita.st/+?}i', $url) ) {
+			$pita = true;
+			$url_pita = preg_replace('{(^https?://image)[^\.]+?(.pita.st/\?[^\&]+)\&.*$}i','$1__$2',$url);
+		}
+		
+		// wikiより pita.stとimepita.jpに対応
+		if ((preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) || $pita == true) {
             // 準備
             $serial++;
             $thumb_id = 'thumbs' . $serial . '_' . P2_REQUEST_ID;
             $tmp_thumb = './img/ic_load.png';
-            $url_en = rawurlencode($url);
+            $url_en = rawurlencode($url).$ref;
 
             $icdb = &new IC2DB_Images;
 
@@ -1392,8 +1419,16 @@ EOP;
             $img_url = 'ic2.php?r=1&amp;uri=' . $url_en;
             $thumb_url = 'ic2.php?r=1&amp;t=1&amp;uri=' . $url_en;
 
+			//pita
+			if ($url_pita !="") {
+				$icdb->whereAddQuoted('uri', 'like', $url_pita.'%');
+			    $icdb_result = $icdb->find(TRUE);
+			}else{
+				$icdb_result = $icdb->get($url);
+			}
             // DBに画像情報が登録されていたとき
-            if ($icdb->get($url)) {
+            //if ($icdb->get($url)) {
+            if ($icdb_result) {
 
                 // ウィルスに感染していたファイルのとき
                 if ($icdb->mime == 'clamscan/infected') {
@@ -1495,5 +1530,28 @@ EOP;
     }
 
     // }}}
+    /*
+     * imepita複数画像対応
+     */
+	function pita_expansion($url){
+				
+		$purl = @parse_url($url);
+		if (FALSE != ($result = $this->plugin_linkURL($url,$purl,$url)))
+			$strret = $result.'<BR>';
+
+		$src = file_get_contents($url);
+
+		$match_cnt = preg_match_all('{<img src="(https?://image[0-9]+?.pita.st/[^"]+?)"}i',$src, $matches,PREG_SET_ORDER);
+		
+		if ($match_cnt == 0 ) 
+			return $strret;
+		
+		foreach( $matches as $link){
+	        $purl = @parse_url($link[1]);
+	        if (FALSE !=($result =  $this->plugin_imageCache2($link[1],$purl,$link[1])))
+	        	$strret .= $result.'<BR>';
+		}
+		return $strret;
+	}
 
 }
