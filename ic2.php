@@ -366,7 +366,7 @@ if ($ini['Getter']['virusscan']) {
         if ($searchpath) {
             $clamscan = $searchpath . DIRECTORY_SEPARATOR . $clamscan;
         }
-        $scan_command = $clamscan . ' --stdout ' . escapeshellarg(realpath($tmpfile));
+        $scan_command = $clamscan . ' --stdout ' . escapeshellarg(realpath($tmpfile)) . '; echo $?';
         $scan_result  = @exec($scan_command, $scan_stdout, $scan_result);
         if ($scan_result == 1) {
             $params = array(
