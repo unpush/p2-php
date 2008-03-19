@@ -48,6 +48,8 @@ class mimizun
                 $match = '{<input type="checkbox" name="idxname" value="(.+?)">}';
                 break;
         }
+        // キャッシュ用ディレクトリが無ければ作成
+        FileCtl::mkdir_for($path);
         // メニューのキャッシュ時間だけキャッシュ
         P2UtilWiki::cacheDownload($url, $path, $_conf['menu_dl_interval'] * 3600);
         $file = @file_get_contents($path);
