@@ -127,6 +127,10 @@ class ReplaceWordCtl
                 // ‚»‚Ì‚Ü‚Ü•Ô‚·
                 return $word;
         }
+        // ’uŠ·Ý’è‚ª–³‚¢ê‡‚Í‚»‚Ì‚Ü‚Ü•Ô‚·
+        if (!isset($this->data[$cont])) {
+            return $word;
+        }
 
         preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|',$date_id, $matches);
         $id = $matches[1];
