@@ -38,12 +38,12 @@ class mimizun
         // ‘Î‰ž”Â‚ÌŽæ“¾
         switch($type) {
             case 0:
-                $url = 'http://search.mimizun.com:82/2chlive.html';
+                $url = 'http://mimizun.com/search/2chlive.html';
                 $path = $_conf['cache_dir'] . '/search.mimizun.com/2chlive.html';
                 $match = '{<input type="checkbox" name="idxname" value="_(.+?)">}';
                 break;
             case 1:
-                $url = 'http://search.mimizun.com:82/2ch.html';
+                $url = 'http://mimizun.com/search/2ch.html';
                 $path = $_conf['cache_dir'] . '/search.mimizun.com/2ch.html';
                 $match = '{<input type="checkbox" name="idxname" value="(.+?)">}';
                 break;
