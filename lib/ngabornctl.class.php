@@ -1,11 +1,11 @@
 <?php
 /*
-    p2 - NGあぼーんを操作するクラス
+    p2 - NG・あぼーん・ハイライトを操作するクラス
 */
 class NgAbornCtl{
 
     /**
-     * あぼーん&NGワード設定を保存する
+     * NG・あぼーん・ハイライトワード設定を保存する
      */
     function saveNgAborns()
     {
@@ -63,7 +63,7 @@ class NgAbornCtl{
     }
 
     /**
-     * NGあぼーんHIT記録を更新時間でソートする
+     * NG・あぼーん・ハイライトHIT記録を更新時間でソートする
      *
      * @private
      */
@@ -76,7 +76,7 @@ class NgAbornCtl{
     }
 
     /**
-     * あぼーん&NGワード設定を読み込む
+     * NG・あぼーん・ハイライトワード設定を読み込む
      */
     function loadNgAborns()
     {
@@ -91,6 +91,11 @@ class NgAbornCtl{
         $ngaborns['ng_mail'] = NgAbornCtl::readNgAbornFromFile('p2_ng_mail.txt');
         $ngaborns['ng_msg'] = NgAbornCtl::readNgAbornFromFile('p2_ng_msg.txt');
         $ngaborns['ng_id'] = NgAbornCtl::readNgAbornFromFile('p2_ng_id.txt');
+		// +live ハイライトワード用
+		$ngaborns['highlight_name'] = NgAbornCtl::readNgAbornFromFile('p2_highlight_name.txt');
+		$ngaborns['highlight_mail'] = NgAbornCtl::readNgAbornFromFile('p2_highlight_mail.txt');
+		$ngaborns['highlight_msg'] = NgAbornCtl::readNgAbornFromFile('p2_highlight_msg.txt');
+		$ngaborns['highlight_id'] = NgAbornCtl::readNgAbornFromFile('p2_highlight_id.txt');
 
         return $ngaborns;
     }

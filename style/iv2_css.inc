@@ -4,7 +4,17 @@
 // vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
 // mi: charset=Shift_JIS
 
-$boldstyle = ($STYLE['fontfamily_bold']) ? "font-family: \"{$STYLE['fontfamily_bold']}\";" : 'font-weight: bold;';
+if ($STYLE['fontfamily_bold']) {
+	$boldstyle = "font-family: \"{$STYLE['fontfamily_bold']}\";";
+	if (!empty($STYLE['fontstyle_bold'])) {
+		$boldstyle .= "font-style: {$STYLE['fontstyle_bold']};";
+	}
+	if (!empty($STYLE['fontweight_bold'])) {
+		$boldstyle .= "font-weight: {$STYLE['fontweight_bold']};";
+	}
+} else {
+	$boldstyle = 'font-weight: bold;';
+}
 
 echo <<<EOSTYLE
 
@@ -99,9 +109,17 @@ table.list th, table.list td {
 	white-space: nowrap;
 }
 
-span.cr {
+div.imginfo {
+	margin: 2px;
+}
+
+span.rating {
+	color: {$STYLE['respop_b_color']};
 	cursor: pointer;
-	filter: Alpha(Opacity=50); -khtml-opacity: 0.5; -moz-opacity: 0.5; opacity: 0.5;
+}
+
+img.button {
+	cursor: pointer;
 }
 
 /* 画像情報ポップアップ */

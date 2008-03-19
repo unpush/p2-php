@@ -1,0 +1,55 @@
+* {
+	margin: 0px;
+	padding: 0px;
+}
+a {
+	text-decoration: underline;
+}
+img {
+	border: none;
+}
+body {
+	margin: 0px;
+	padding:0px;
+	text-align: center;
+	color: #556;
+	background-color: #fff;
+}
+address {
+	margin: 0px;
+	padding: 30px;
+	text-align: center;
+	line-height: 1.0em;
+	font-size: 11px;
+	font-family: "Times","Times New Roman",serif!important;
+}
+address,
+address a:link,
+address a:active,
+address a:visited,
+address a:hover {
+	color: #99c;
+}
+address a {
+	text-decoration: none;
+	border-bottom: 1px solid #ccd;
+}
+ul#photos {
+	width: 500px;
+	padding: 50px 0px;
+	margin: 0px auto;
+	text-align: center;
+	list-style: none;
+}
+ul#photos li {
+	display: inline;
+	width: 160px;
+	height: 160px;
+}
+ul#photos a.horizontal img,
+ul#photos a.effectable img {
+	padding: 15px 0px;
+}
+ul#photos a.vertical img {
+	padding: 0px 15px;
+}

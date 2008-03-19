@@ -21,6 +21,7 @@ $writable_files = array(
     "p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
     "p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
     //"p2_aborn_res.txt",
+	"p2_highlight_name.txt", "p2_highlight_mail.txt", "p2_highlight_msg.txt", "p2_highlight_id.txt",
 );
 
 if ($writable_files and (!in_array(basename($path), $writable_files))) {
@@ -97,9 +98,14 @@ if (file_exists($path)) {
     $i = 0;
     foreach ($lines as $line) {
         $lar = explode("\t", rtrim($line, "\r\n"));
-        if (count($lar) < 3 || strlen($lar[0]) == 0) {
+        // +Wiki:NGあぼーんバグ修正
+        if (count($lar) < 1 || strlen($lar[0]) == 0) {
             continue;
         }
+        // +Wiki:NGあぼーんバグ修正
+        if($lar[1] == "") $lar[1] = "--";
+        if($lar[2] == "") $lar[2] = 0;
+        
         $ar = array(
             'cond' => $lar[0], // 検索条件
             'word' => $lar[0], // 対象文字列
@@ -145,7 +151,7 @@ if (file_exists($path)) {
 //=====================================================================
 // プリント設定
 //=====================================================================
-$ptitle_top = sprintf('あぼーん/NGワード編集 &gt; <a href="%s?path=%s">%s</a>',
+$ptitle_top = sprintf('あぼーん/NG/ハイライトワード編集 &gt; <a href="%s?path=%s">%s</a>',
     $_SERVER['SCRIPT_NAME'], rawurlencode($path), basename($path));
 $ptitle = strip_tags($ptitle_top);
 
@@ -217,7 +223,7 @@ if (!empty($_info_msg_ht)) {
 
 $usage = <<<EOP
 <ul>
-<li>ワード: NG/あぼーんワード (空にすると登録解除)</li>
+<li>ワード: NG/あぼーん/ハイライトワード (空にすると登録解除)</li>
 <li>i: 大文字小文字を無視</li>
 <li>re: 正規表現</li>
 <li>板: newsplus,software 等 (完全一致, カンマ区切り)</li>

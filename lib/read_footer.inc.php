@@ -24,8 +24,9 @@ if ($_conf['bottom_res_form']) {
     // フォームのオプション読み込み
     include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
 
+// +live スタイル変更
     $htm['resform_ttitle'] = <<<EOP
-<p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
+<h3 class="thread_title">{$aThread->ttitle_hd}</h3>
 EOP;
 
     include_once P2_LIBRARY_DIR . '/post_form.inc.php';
@@ -56,9 +57,27 @@ if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
 <a href="{$motothre_url}" target="_blank">{$dores_st}</a>
 EOP;
         } else {
+			// +live リンク切替
+			// スレ立てからの日数による処理
+			$thr_birth = date("U", $aThread->key);
+			
+			if ($_conf['live.time_lag'] != 0) {
+				$thr_time_lag = $_conf['live.time_lag'] * 86400;
+			} else {
+				$thr_time_lag = 365 * 86400;
+			}
+			
+			if (!preg_match("({$aThread->bbs})", $_conf['live.default_reload'])
+			&& (preg_match("({$aThread->bbs}|{$aThread->host})", $_conf['live.reload']) || $_conf['live.reload'] == all)
+			&& (date("U") < $thr_birth + $thr_time_lag)) {
+				$htm['dores'] = <<<LIVE
+				<a href="live_post_form.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target='livepost'>{$dores_st}</a>
+LIVE;
+			} else {
             $htm['dores'] = <<<EOP
 <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
 EOP;
+			}
         }
 
         $res_form_ht_pb = $res_form_ht;
@@ -159,6 +178,26 @@ if (!empty($_GET['showres'])) {
     //-->
     </script>\n
 EOP;
+}
+
+// +live 表示切替スクリプト
+if (!preg_match("({$aThread->bbs})", $_conf['live.default_reload'])
+&& (preg_match("({$aThread->bbs}|{$aThread->host})", $_conf['live.reload']) || $_conf['live.reload'] == all)) {
+	if ($_GET['live'] && !$_GET['word']) {
+		echo "";
+	} else {
+		echo <<<LIVE
+		<script type="text/javascript">
+		<!--
+		function startlive() {
+			window.location.replace("./live_read.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&live=1");
+		}
+		
+		parent.livecontrol.liveoff();
+		//-->
+		</script>\n
+LIVE;
+	}
 }
 
 // ====

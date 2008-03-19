@@ -17,14 +17,12 @@ $STYLE['a_underline_none'] = "1"; // ("2") リンクに下線を（つける:0, つけない:1,
 
 // フォント ======================================================
 
-if(strstr($_SERVER['HTTP_USER_AGENT'], "Mac")){
+if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
 	/* Mac用フォントファミリー*/
-	if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ブラウザが Macで Safari等の WebKitを使っているものなら */
-		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro"); // ("Hiragino Kaku Gothic Pro") 基本のフォント for Safari
-		$STYLE['fontfamily_bold'] = ""; // ("") 基本ボールド用フォント for Safari（普通の太字より太くしたい場合は"Hiragino Kaku Gothic Std"）
-		if (!strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit/4")){
-			$STYLE['fontfamily_bold'] = "HiraKakuPro-W6";
-		}
+	if (strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false) {
+		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro");
+		$STYLE['fontfamily_bold'] = array("Myriad Pro", "Lucida Grande", "Hiragino Kaku Gothic Pro");
+		$STYLE['fontweight_bold'] = "bold";
 	} else {
 		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "ヒラギノ丸ゴ Pro W4"); // ("ヒラギノ角ゴ Pro W3") 基本のフォント
 		$STYLE['fontfamily_bold'] = "ヒラギノ角ゴ Pro W6"; // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）
@@ -141,9 +139,9 @@ $STYLE['read_mail_sage_color'] = "#32CD32"; // ("") sageの時の投稿者のmailの色 e
 $STYLE['read_ngword'] = "#E3E3E3"; // ("#bbbbbb") NGワードの色
 
 // 実況モード ================
-$SYTLE['live_b_width'] = "1px"; // ("1px") 実況モード、ボーダー幅
-$SYTLE['live_b_color'] = "#008080"; // ("#888") 実況モード、ボーダー色
-$SYTLE['live_b_style'] = "dashed"; // ("solid") 実況モード、ボーダー形式
+//$SYTLE['live_b_width'] = "1px"; // ("1px") 実況モード、ボーダー幅
+//$SYTLE['live_b_color'] = "#008080"; // ("#888") 実況モード、ボーダー色
+//$SYTLE['live_b_style'] = "dashed"; // ("solid") 実況モード、ボーダー形式
 
 // レス書き込みフォーム ================
 $STYLE['post_pop_size'] = "610,350"; // ("610,350") レス書き込みポップアップウィンドウの大きさ（横,縦）
@@ -198,4 +196,18 @@ $MYSTYLE['subject']['tr#pager a:hover']['color'] = "#E3E3E3";
 $MYSTYLE['iv2']['div#toolbar']['background'] = "#E6E6E6 url('./skin/flat/header_l.png') top repeat-x";
 $MYSTYLE['iv2']['div#toolbar td']['color'] = "#000000";
 
+//======================================================================
+// +live 実況モード
+//======================================================================
+
+// 実況表示設定================
+$STYLE['live_b_l'] = "1px #999 dotted"; // ("1px #999 dotted") +live レス間の仕切線
+$STYLE['live_b_s'] = "1px #999 dotted"; // ("1px #999 dotted") +live 番号 目欄 名前 日付 ID 表示部とレス表示部の仕切線
+$STYLE['live_b_n'] = "2px #32AF32 dotted"; // ("2px #32AF32 dotted") +live 実況表示&オートリロード時の既読～新着の仕切線
+$STYLE['live_highlight'] = "#cff"; // ("#cff") +live ハイライトワード表示時の背景色
+$STYLE['live_highlight_chain'] = "#ffc"; // ("#ffc") +live 連鎖ハイライト表示時の背景色
+$STYLE['live_highlight_word_weight'] = "bold"; // ("bold") +live 連鎖ハイライト表示時のフォントの太さ
+$STYLE['live_highlight_word_border'] = "3px #32AF32 double"; // ("3px #32AF32 double") +live 連鎖ハイライト表示時のアンダーライン
+$STYLE['live_font-size'] = "10px"; // ("10px") +live 番号 目欄 名前 日付 ID 欄のフォントサイズ
+$STYLE['live2_color'] = "#eee"; // ("#eee") +live Type-Bの 番号 目欄 名前 日付 ID 表示部の背景色
 ?>

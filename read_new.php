@@ -60,7 +60,7 @@ if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
 }
 
 //=================================================
-// あぼーん&NGワード設定読み込み
+// NG・あぼーん・ハイライトワード設定読み込み
 //=================================================
 $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
@@ -171,7 +171,7 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">
+<body onclick="hideHtmlPopUp(event);" onLoad="pageLoaded();">
 <div id="popUpContainer"></div>\n
 EOP;
 
@@ -628,6 +628,6 @@ if (P2_READ_NEW_SAVE_MEMORY) {
     $read_new_html .= ob_get_flush();
 }
 
-// ■NGあぼーんを記録
+// ■NG・あぼーん・ハイライトを記録
 NgAbornCtl::saveNgAborns();
 ?>

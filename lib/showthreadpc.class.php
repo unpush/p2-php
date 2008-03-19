@@ -11,6 +11,8 @@ ExpackLoader::loadImageCache();
 
 class ShowThreadPc extends ShowThread{
 
+	var $BBS_NONAME_NAME = ''; // +live (live.bbs_noname) 用
+
     var $quote_res_nums_checked; // ポップアップ表示されるチェック済みレス番号を登録した配列
     var $quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
     var $quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
@@ -32,18 +34,49 @@ class ShowThreadPc extends ShowThread{
         global $_conf;
 
         $this->url_handlers = array(
-            array('this' => 'plugin_link2ch'),
-            array('this' => 'plugin_linkMachi'),
-            array('this' => 'plugin_linkJBBS'),
-            array('this' => 'plugin_link2chKako'),
-            array('this' => 'plugin_link2chSubject'),
+            'plugin_link2ch',
+            'plugin_linkMachi',
+            'plugin_linkJBBS',
+            'plugin_link2chKako',
+            'plugin_link2chSubject',
         );
+
+		// +live (live.bbs_noname,live.link_movie) 用
+		$thr_birth = date("U", $this->thread->key);
+		
+		if ($_conf['live.time_lag'] != 0) {
+			$thr_time_lag = $_conf['live.time_lag'] * 86400;
+		} else {
+			$thr_time_lag = 365 * 86400;
+		}
+
+		if (!preg_match("({$this->thread->bbs})", $_conf['live.default_reload'])
+		&& (preg_match("({$this->thread->bbs}|{$this->thread->host})", $_conf['live.reload']) || $_conf['live.reload'] == all)
+		&& (date("U") < $thr_birth + $thr_time_lag)) {
+			if (empty($_conf['live.bbs_noname'])) {
+				require_once P2_LIBRARY_DIR . '/SettingTxt.php';
+				$st = new SettingTxt($this->thread->host, $this->thread->bbs);
+				$st->setSettingArray();
+				if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
+					$this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+				}
+			}
+			
+			if ($_conf['live.link_movie']) {
+				$_conf['link_youtube'] && $this->url_handlers[] = 'plugin_linkYouTube';
+				$_conf['link_niconico'] && $this->url_handlers[] = 'plugin_linkNicoNico';
+			}
+		} else {
+			$_conf['link_youtube'] && $this->url_handlers[] = 'plugin_linkYouTube';
+			$_conf['link_niconico'] && $this->url_handlers[] = 'plugin_linkNicoNico';
+		}
+
         if (P2_IMAGECACHE_AVAILABLE == 2) {
-            $this->url_handlers[] = array('this' => 'plugin_imageCache2');
+            $this->url_handlers[] = 'plugin_imageCache2';
         } elseif ($_conf['preview_thumbnail']) {
-            $this->url_handlers[] = array('this' => 'plugin_viewImage');
+            $this->url_handlers[] = 'plugin_viewImage';
         }
-        $this->url_handlers[] = array('this' => 'plugin_linkURL');
+        $this->url_handlers[] = 'plugin_linkURL';
 
         // サムネイル表示制限数を設定
         if (!isset($GLOBALS['pre_thumb_unlimited']) || !isset($GLOBALS['pre_thumb_limit'])) {
@@ -137,6 +170,11 @@ class ShowThreadPc extends ShowThread{
         $date_id = $resar[2];
         $msg = $resar[3];
 
+		// +live (live.bbs_noname) 用 
+		if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
+			$name = '';
+		}
+
         // {{{ フィルタリング
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
@@ -161,7 +199,7 @@ class ShowThreadPc extends ShowThread{
         $isChain = false;
         $automona_class = "";
 
-        if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain']) &&
+        if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain'] || $_conf['live.highlight_chain']) &&
             preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|', $date_id, $matches))
         {
             $id = $matches[1];
@@ -236,7 +274,7 @@ class ShowThreadPc extends ShowThread{
 
         // あぼーんメール
         if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
-            $ngaborns_hits['aborn_mal']++;
+            $ngaborns_hits['aborn_mail']++;
             $this->aborn_nums[] = $i;
             return $aborned_res;
         }
@@ -288,6 +326,9 @@ class ShowThreadPc extends ShowThread{
             $isNgMsg = true;
             $ng_msg_info[] = sprintf('NGワード：%s', htmlspecialchars($a_ng_msg, ENT_QUOTES));
         }
+
+		// +live ハイライトワードチェック
+		include (P2_LIBRARY_DIR . '/live/live_highlight_ctl.inc.php');
 
         // AA 判定
         if ($this->am_autodetect && $this->activeMona->detectAA($msg)) {
@@ -367,6 +408,9 @@ EOMSG;
 
         }
 
+		// +live ハイライトワード変換
+		include (P2_LIBRARY_DIR . '/live/live_highlight_word.inc.php');
+
         /*
         //「ここから新着」画像を挿入
         if ($i == $this->thread->readnum +1) {
@@ -384,47 +428,20 @@ EOP;
             $spmeh = '';
         }
 
-        if ($this->thread->onthefly) {
-            $GLOBALS['newres_to_show_flag'] = true;
-            //番号（オンザフライ時）
-            $tores .= "<dt id=\"r{$i}\"><span class=\"ontheflyresorder spmSW\"{$spmeh}>{$i}</span> ：";
-        } elseif ($i > $this->thread->readnum) {
-            $GLOBALS['newres_to_show_flag'] = true;
-            // 番号（新着レス時）
-            $tores .= "<dt id=\"r{$i}\"><font color=\"{$STYLE['read_newres_color']}\" class=\"spmSW\"{$spmeh}>{$i}</font> ：";
-        } elseif ($_conf['expack.spm.enabled']) {
-            // 番号（SPM）
-            $tores .= "<dt id=\"r{$i}\"><span class=\"spmSW\"{$spmeh}>{$i}</span> ：";
-        } else {
-            // 番号
-            $tores .= "<dt id=\"r{$i}\">{$i} ：";
-        }
-        // 名前
-        $tores .= "<span class=\"name\"><b>{$name}</b></span>：";
+		// +live スレッド内容表示切替
+		include (P2_LIBRARY_DIR . '/live/live_view_ctl.inc.php');
 
-        // メール
-        if ($mail) {
-            if (strstr($mail, "sage") && $STYLE['read_mail_sage_color']) {
-                $tores .= "<span class=\"sage\">{$mail}</span> ：";
-            } elseif ($STYLE['read_mail_color']) {
-                $tores .= "<span class=\"mail\">{$mail}</span> ：";
-            } else {
-                $tores .= $mail." ：";
-            }
-        }
+		if (!preg_match("({$this->thread->bbs})", $_conf['live.default_view'])
+		&& (preg_match("({$this->thread->bbs}|{$this->thread->host})", $_conf['live.view']) || $_conf['live.view'] == all)) {
+			if ($_conf['live.view_type'] == 1 ) {
+				include (P2_LIBRARY_DIR . '/live/live_view_a.inc.php');
+			} elseif ($_conf['live.view_type'] == 2 ) {
+				include (P2_LIBRARY_DIR . '/live/live_view_b.inc.php');
+			}
+		} else {
+			include (P2_LIBRARY_DIR . '/live/default_view.inc.php');
+		}
 
-        // IDフィルタ
-        if ($_conf['flex_idpopup'] == 1 && $id && $this->thread->idcount[$id] > 1) {
-            $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
-        }
-
-        $tores .= $date_id; // 日付とID
-        if ($this->am_side_of_id) {
-            $tores .= ' ' . $this->activeMona->getMona($res_id);
-        }
-        $tores .= "</dt>";
-        $tores .= "<dd id=\"{$res_id}\"{$automona_class}>{$msg}<br><br></dd>\n"; // 内容
-        $tores .= $rpop; // レスポップアップ用引用
         /*if ($_conf['expack.am.enabled'] == 2) {
             $tores .= "<script type=\"text/javascript\">detectAA(\"$res_id\");</script>\n";
         }*/
@@ -455,7 +472,8 @@ EOP;
         foreach ($quote_res_nums as $rnv) {
             if (!$this->quote_res_nums_done[$rnv]) {
                 if ($this->thread->ttitle_hd) {
-                    $ds = "<b>{$this->thread->ttitle_hd}</b><br><br>";
+					// +live スタイル変更
+					$ds = "<h3 class=\"thread_title\">{$this->thread->ttitle_hd}</h3><br><br>";
                 }
                 $ds .= $this->qRes( $this->thread->datlines[$rnv-1], $rnv );
                 $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
@@ -521,14 +539,22 @@ EOP;
         }
 
         // $toresにまとめて出力
-        $tores = "<span class=\"spmSW\"{$spmeh}>{$i}</span> ："; // 番号
-        $tores .= "<b>$name</b> ："; // 名前
-        if($mail){ $tores .= $mail." ："; } // メール
+		// +live スタイル変更
+		$tores = "<div style=\"font-size:10px\"><span class=\"spmSW\"{$spmeh}>{$i}</span> ："; // 番号
+		$tores .= "<b class=\"name\">$name</b> ："; // 名前
+		if ($mail) { // メール
+			if (preg_match ("(^(\s|　)*sage(\s|　)*$)", $mail)) {
+				$tores .= "<span class=\"sage\">$mail</span>"." ：";
+			} else {
+				$tores .= "<span class=\"mail\">$mail</span>"." ：";
+			}
+		}
         $tores .= $date_id; // 日付とID
         if ($this->am_side_of_id) {
             $tores .= ' ' . $this->activeMona->getMona($qres_id);
         }
-        $tores .= "<br>";
+		// +live スタイル変更
+		$tores .= "</div>";
         $tores .= "<div id=\"{$qres_id}\"{$automona_class}>{$msg}</div>\n"; // 内容
 
         return $tores;
@@ -629,8 +655,10 @@ EOP;
             $s['link']  = $s[1];
             $s['quote'] = $s[5];
             $s['url']   = $s[8];
-            $s['id']    = $s[11];
+            $s['id']    = $s[12];
         }
+
+        $following = '';
 
         // マッチしたサブパターンに応じて分岐
         // リンク
@@ -653,10 +681,20 @@ EOP;
         } elseif ($s['url']) {
             $url = preg_replace('/^t?(tps?)$/', 'ht$1', $s[9]) . '://' . $s[10];
             $str = $s['url'];
+            $following = $s[11];
+            // ウィキペディア日本語版のURLで、SJISの2バイト文字の上位バイト(0x81-0x9F,0xE0-0xEF)が続くとき
+            if (P2Util::isUrlWikipediaJa($url) && strlen($following) > 0) {
+                $leading = ord($following);
+                if ((($leading ^ 0x90) < 32 && $leading != 0x80) || ($leading ^ 0xE0) < 16) {
+                    $url .= rawurlencode(mb_convert_encoding($following, 'UTF-8', 'SJIS-win'));
+                    $str .= $following;
+                    $following = '';
+                }
+            }
 
         // ID
         } elseif ($s['id'] && $_conf['flex_idpopup']) {
-            return $this->idfilter_callback(array($s['id'], $s[12]));
+            return $this->idfilter_callback(array($s['id'], $s[13]));
 
         // その他（予備）
         } else {
@@ -669,46 +707,27 @@ EOP;
         // URLをパース
         $purl = @parse_url($url);
         if (!$purl || !isset($purl['host']) || !strstr($purl['host'], '.') || $purl['host'] == '127.0.0.1') {
-            return $str;
+            return $str . $following;
         }
+
+		//pita.st 複数画像対応
+		if ($_conf['expack.ic2.enabled'] && preg_match('{^https?://[^\.]+?.pita.st/+?}i', $url) ) {
+			return $this->pita_expansion($url);
+		}
 
         // URLを処理
+        foreach ($this->user_url_handlers as $handler) {
+            if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
+                return $link . $following;
+            }
+        }
         foreach ($this->url_handlers as $handler) {
-            //if (is_array($handler)) {
-                if (isset($handler['this'])) {
-                    if (FALSE !== ($link = call_user_func(array($this, $handler['this']), $url, $purl, $str))) {
-                        return $link;
-                    }
-                } elseif (isset($handler['class']) && isset($handler['method'])) {
-                    if (FALSE !== ($link = call_user_func(array($handler['class'], $handler['method']), $url, $purl, $str))) {
-                        return $link;
-                    }
-                } elseif (isset($handler['function'])) {
-                    if (FALSE !== ($link = call_user_func($handler['function'], $url, $purl, $str))) {
-                        return $link;
-                    }
-                }
-            /*} elseif (is_string($handler)) {
-                $function = explode('::', $handler);
-                if (isset($function[1])) {
-                    if ($function[0] == 'this') {
-                        if (FALSE !== ($link = call_user_func(array($this, $function[1], $url, $purl, $str))) {
-                            return $link;
-                        }
-                    } else
-                        if (FALSE !== ($link = call_user_func(array($function[0], $function[1]), $url, $purl, $str))) {
-                            return $link;
-                        }
-                    }
-                } else {
-                    if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str))) {
-                        return $link;
-                    }
-                }
-            }*/
+            if (FALSE !== ($link = call_user_func(array($this, $handler), $url, $purl, $str))) {
+                return $link . $following;
+            }
         }
 
-        return $str;
+        return $str . $following;
     }
 
     /**
@@ -732,7 +751,7 @@ EOP;
             $attributes .= " onmouseover=\"showResPopUp('q{$qnum}of{$this->thread->key}',event)\"";
             $attributes .= " onmouseout=\"hideResPopUp('q{$qnum}of{$this->thread->key}')\"";
         }
-        return "<a href=\"{$read_url}\"{$attributes}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}\"{$attributes} title=\"{$appointed_num}\">{$qsign}{$appointed_num}</a>";
     }
 
     /**
@@ -757,7 +776,7 @@ EOP;
         }
 
         // 普通にリンク
-        return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']} title=\"{$appointed_num}\">{$qsign}{$appointed_num}</a>";
 
         // 1つ目を引用レスポップアップ
         /*
@@ -846,16 +865,16 @@ EOP;
         switch ($mode) {
             // マーク無し
             case 1:
-                return "<a href=\"{$link_url}\"{$pop_attr}>{$link_str}</a>";
+                return "<a href=\"{$link_url}\"{$pop_attr} title=\"{$link_str}\">{$link_str}</a>";
             // (p)マーク
             case 2:
-                return "(<a href=\"{$link_url}\"{$pop_attr}>p</a>)<a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
+                return "(<a href=\"{$link_url}\"{$pop_attr} title=\"ポップアップ外をクリックで閉じる\">p</a>)<a href=\"{$link_url}\"{$attr} title=\"{$link_str}\">{$link_str}</a>";
             // [p]画像、サムネイルなど
             case 3:
-                return "<a href=\"{$link_url}\"{$pop_attr}>{$pop_str}</a><a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
+                return "<a href=\"{$link_url}\"{$pop_attr} title=\"ポップアップ外をクリックで閉じる\">{$pop_str}</a><a href=\"{$link_url}\"{$attr} title=\"{$link_str}\">{$link_str}</a>";
             // ポップアップしない
             default:
-                return "<a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
+                return "<a href=\"{$link_url}\"{$attr} title=\"{$link_str}\">{$link_str}</a>";
         }
     }
 
@@ -895,7 +914,7 @@ EOP;
         if ($_conf['iframe_popup']) {
             return $this->iframe_popup($filter_url, $idstr, $_conf['bbs_win_target_at']) . $num_ht;
         }
-        return "<a href=\"{$filter_url}\"{$_conf['bbs_win_target_at']}>{$idstr}</a>{$num_ht}";
+        return "<a href=\"{$filter_url}\"{$_conf['bbs_win_target_at']} title=\"link\">{$idstr}</a>{$num_ht}";
     }
 
     // }}}
@@ -1167,7 +1186,7 @@ EOJS;
                     }
                     $brocra_checker_link = $this->iframe_popup(array($brocra_checker_url, $brocra_pop_url), $check_mark, $_conf['ext_win_target_at']);
                 } else {
-                    $brocra_checker_link = "<a href=\"{$brocra_checker_url}\"{$_conf['ext_win_target_at']}>{$check_mark}</a>";
+                    $brocra_checker_link = "<a href=\"{$brocra_checker_url}\"{$_conf['ext_win_target_at']} title=\"check\">{$check_mark}</a>";
                 }
                 $link .= $check_mark_prefix . $brocra_checker_link . $check_mark_suffix;
             }
@@ -1186,7 +1205,7 @@ EOJS;
 
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/([^/]+)/$}', $url, $m)) {
             $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
-            return "<a href=\"{$url}\" target=\"subject\">{$str}</a> [<a href=\"{$subject_url}\" target=\"subject\">板をp2で開く</a>]";
+            return "<a href=\"{$url}\" target=\"subject\" title=\"{$str}\">{$str}</a> [<a href=\"{$subject_url}\" target=\"subject\" title=\"板をp2で開く\">板をp2で開く</a>]";
         }
         return FALSE;
     }
@@ -1208,7 +1227,7 @@ EOJS;
                 }
                 return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
+            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']} title=\"{$str}\">{$str}</a>";
         }
         return FALSE;
     }
@@ -1226,7 +1245,7 @@ EOJS;
                 $pop_url = $read_url . '&amp;one=true';
                 return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
+            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']} title=\"{$str}\">{$str}</a>";
         }
         return FALSE;
     }
@@ -1247,7 +1266,7 @@ EOJS;
                 $pop_url = $url;
                 return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
+            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']} title=\"{$str}\">{$str}</a>";
         }
         return FALSE;
     }
@@ -1265,10 +1284,67 @@ EOJS;
                 $pop_url = $url;
                 return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
+            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']} title=\"{$str}\">{$str}</a>";
         }
         return FALSE;
     }
+
+	/**
+	* YouTubeリンク変換プラグイン
+	* [wish] YouTube APIを利用して、画像サムネイルのみにしたい
+	*jp.youtube.comに対応
+	* @access private
+	* @return string|false
+	*/
+	function plugin_linkYouTube($url, $purl, $str)
+	{
+		global $_conf;
+
+		// +live YouTubeプレビュー表示のサイズ指定
+		if ($_conf['live.youtube_winsize'] == 1) {
+			$youtube_winsize = "width=\"150\" height=\"124\""; // 小サイズ
+		} elseif ($_conf['live.youtube_winsize'] == 2) {
+			$youtube_winsize = "width=\"300\" height=\"247\""; // 中サイズ
+		} elseif ($_conf['live.youtube_winsize'] == 3) {
+			$youtube_winsize = "width=\"425\" height=\"350\""; // 大サイズ
+		}
+
+		// http://youtube.com/watch?v=Mn8tiFnAUAI
+		if (preg_match('{^http://(\w+\.)*\youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
+			$url = P2Util::throughIme($url);
+			return <<<EOP
+			<a href="$url"{$_conf['ext_win_target_at']}>$str</a><br>
+			<object {$youtube_winsize}><param name="movie" value="http://www.youtube.com/v/{$m[2]}"></param>
+			<param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{$m[2]}" type="application/x-shockwave-flash" wmode="transparent" {$youtube_winsize}></embed></object>\n
+EOP;
+		}
+		return FALSE;
+	}
+	
+	/**
+	* ニコニコ動画変換プラグイン
+	*
+	* @access private
+	* @return string|false
+	*/
+	function plugin_linkNicoNico($url, $purl, $str)
+	{
+		global $_conf;
+		
+		// http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
+		// http://www.nicovideo.jp/watch/utvWwAM30N0No
+		/*
+		<div style="width:318px; border:solid 1px #CCCCCC;"><iframe src="http://www.nicovideo.jp/thumb?v=utvWwAM30N0No" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
+		*/
+		if (preg_match('{^http://www\\.nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9a-zA-Z_-]+)}', $url, $m)) {
+			$url = P2Util::throughIme($url);
+			$id = $m[1];
+			return <<<EOP
+			<div style="width:318px; border:solid 1px #CCCCCC;"><iframe src="http://www.nicovideo.jp/thumb?v={$id}" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
+EOP;
+		}
+		return FALSE;
+	}
 
     /**
      * 画像ポップアップ変換
@@ -1277,6 +1353,10 @@ EOJS;
     {
         global $_conf;
         global $pre_thumb_unlimited, $pre_thumb_limit;
+
+        if (P2Util::isUrlWikipediaJa($url)) {
+            return FALSE;
+        }
 
         // 表示制限
         if (!$pre_thumb_unlimited && empty($pre_thumb_limit)) {
@@ -1290,7 +1370,7 @@ EOJS;
             if ($_conf['iframe_popup']) {
                 $view_img = $this->imageHtmpPopup($url, $img_tag, $str);
             } else {
-                $view_img = "<a href=\"{$url}\"{$_conf['ext_win_target_at']}>{$img_tag}{$str}</a>";
+                $view_img = "<a href=\"{$url}\"{$_conf['ext_win_target_at']} title=\"{$str}\">{$img_tag}{$str}</a>";
             }
 
             // ブラクラチェッカ （プレビューとは相容れないのでコメントアウト）
@@ -1322,12 +1402,38 @@ EOJS;
         global $pre_thumb_unlimited, $pre_thumb_ignore_limit, $pre_thumb_limit;
         static $serial = 0;
 
-        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+        if (P2Util::isUrlWikipediaJa($url)) {
+            return FALSE;
+        }
+
+		// wikiより pita.stとimepita.jpに対応
+		$pita =false;
+		$ref = "";
+		if (preg_match('{^https?://imepita.jp/.+?$}i', $url) && empty($purl['query'])) {
+			$tok = explode("/", $url);
+			//$url = $tok[0]."//".$tok[2]."/img/trial/".$tok[3]."/".$tok[4].".jpg";
+			$ref = "&amp;ref=" . urlencode($url);
+			$url = $tok[0]."//".$tok[2]."/image/".$tok[3]."/".$tok[4];
+			$pita = true;
+		} /*elseif (preg_match('{^https?://[^\.]+?.pita.st/+?}i', $url) ) {
+			$src = file_get_contents($url);
+			if(preg_match('{<img src="(https?://image[0-9]+?.pita.st/[^"]+?)"}i', $src, $match)){
+				$url = $match[1];
+				$pita = true;
+			}
+		}*/
+		elseif (preg_match('{^https?://[^\.]+?.pita.st/+?}i', $url) ) {
+			$pita = true;
+			$url_pita = preg_replace('{(^https?://image)[^\.]+?(.pita.st/\?[^\&]+)\&.*$}i','$1__$2',$url);
+		}
+		
+		// wikiより pita.stとimepita.jpに対応
+		if ((preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) || $pita == true) {
             // 準備
             $serial++;
             $thumb_id = 'thumbs' . $serial . '_' . P2_REQUEST_ID;
             $tmp_thumb = './img/ic_load.png';
-            $url_en = rawurlencode($url);
+            $url_en = rawurlencode($url).$ref;
 
             $icdb = &new IC2DB_Images;
 
@@ -1336,8 +1442,16 @@ EOJS;
             $img_url = 'ic2.php?r=1&amp;uri=' . $url_en;
             $thumb_url = 'ic2.php?r=1&amp;t=1&amp;uri=' . $url_en;
 
+			//pita
+			if ($url_pita !="") {
+				$icdb->whereAddQuoted('uri', 'like', $url_pita.'%');
+			    $icdb_result = $icdb->find(TRUE);
+			}else{
+				$icdb_result = $icdb->get($url);
+			}
             // DBに画像情報が登録されていたとき
-            if ($icdb->get($url)) {
+            //if ($icdb->get($url)) {
+            if ($icdb_result) {
 
                 // ウィルスに感染していたファイルのとき
                 if ($icdb->mime == 'clamscan/infected') {
@@ -1415,11 +1529,11 @@ EOJS;
                 if ($_conf['iframe_popup']) {
                     $view_img = $this->imageHtmpPopup($img_url, $img_tag, $str);
                 } else {
-                    $view_img = "<a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$img_tag}{$str}</a>";
+                    $view_img = "<a href=\"{$img_url}\"{$_conf['ext_win_target_at']} title=\"{$str}\">{$img_tag}{$str}</a>";
                 }
             } else {
                 $img_tag = "<img id=\"{$thumb_id}\" class=\"thumbnail\" src=\"{$tmp_thumb}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
-                $view_img = "<a href=\"{$img_url}\" onclick=\"return loadThumb('{$thumb_url}','{$thumb_id}')\"{$_conf['ext_win_target_at']}>{$img_tag}</a><a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
+                $view_img = "<a href=\"{$img_url}\" onclick=\"return loadThumb('{$thumb_url}','{$thumb_id}')\"{$_conf['ext_win_target_at']} title=\"{$str}\">{$img_tag}</a><a href=\"{$img_url}\"{$_conf['ext_win_target_at']} title=\"{$str}\">{$str}</a>";
             }
 
             // ソースへのリンクをime付きで表示
@@ -1430,7 +1544,7 @@ EOJS;
                 } else {
                     $ime_mark = '[ime]';
                 }
-                $view_img .= " <a class=\"img_through_ime\" href=\"{$ime_url}\"{$_conf['ext_win_target_at']}>{$ime_mark}</a>";
+                $view_img .= " <a class=\"img_through_ime\" href=\"{$ime_url}\"{$_conf['ext_win_target_at']} title=\"ime\">{$ime_mark}</a>";
             }
 
             return $view_img;
@@ -1439,6 +1553,30 @@ EOJS;
     }
 
     // }}}
+    /*
+     * imepita複数画像対応
+     */
+	function pita_expansion($url){
+				
+		$purl = @parse_url($url);
+		if (FALSE != ($result = $this->plugin_linkURL($url,$purl,$url)))
+			$strret = $result.'<BR>';
+
+		$src = file_get_contents($url);
+
+		$match_cnt = preg_match_all('{<img src="(https?://image[0-9]+?.pita.st/[^"]+?)"}i',$src, $matches,PREG_SET_ORDER);
+		
+		if ($match_cnt == 0 ) 
+			return $strret;
+		
+		foreach( $matches as $link){
+	        $purl = @parse_url($link[1]);
+	        if (FALSE !=($result =  $this->plugin_imageCache2($link[1],$purl,$link[1])))
+	        	$strret .= $result.'<BR>';
+		}
+		return $strret;
+	}
 
 }
+
 ?>

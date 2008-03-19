@@ -39,18 +39,21 @@ SPM.init = function(aThread)
 		spm.appendItem('引用してレス', [aThread, 'post_form.php', 'inyou=' + ((2 & opt[1]) + 1).toString()]);
 	}
 
-	// あぼーんワード・NGワード
+	// あぼーんワード・NGワード・ハイライトワード
 	if (opt[2] == 1 || opt[2] == 2) {
 		var abnId = threadId + '_ab';
 		var ngId = threadId + '_ng';
+		var highlightId = threadId + '_highlight';
 		spm.appendItem('あぼーんする', [aThread, 'info_sp.php', 'mode=aborn_res']);
 		spm.appendItem('あぼーんワード', null, abnId);
 		spm.appendItem('NGワード', null, ngId);
+		spm.appendItem('ハイライトワード', null, highlightId);
 		// サブメニュー生成
 		var spmAborn = SPM.createNgAbornSubMenu(abnId, aThread, 'aborn');
 		var spmNg = SPM.createNgAbornSubMenu(ngId, aThread, 'ng');
+		var spmHighlight = SPM.createNgAbornSubMenu(highlightId, aThread, 'highlight');
 	} else {
-		var spmAborn = false, spmNg = false;
+		var spmAborn = false, spmNg = false, spmHighlight = false;
 	}
 
 	// フィルタリング
@@ -92,6 +95,10 @@ SPM.init = function(aThread)
 	// NGワード・サブメニューをコンテナに追加
 	if (spmNg) {
 		container.appendChild(spmNg);
+	}
+	// ハイライトワード・サブメニューをコンテナに追加
+	if (spmHighlight) {
+		container.appendChild(spmHighlight);
 	}
 	// フィルタリング・サブメニューをコンテナに追加
 	if (spmFilter) {
@@ -208,7 +215,7 @@ SPM.createMenuItem = function(txt)
 }
 
 /**
- * あぼーん/NGサブメニューを生成する
+ * あぼーん/NG/ハイライトサブメニューを生成する
  */
 SPM.createNgAbornSubMenu = function(menuId, aThread, mode)
 {
@@ -284,7 +291,7 @@ SPM.openSubWin = function(aThread, inUrl, option)
 		inHeight = 240;
 		boolS = 0;
 		if (aThread.spmOption[2] == 1) {
-			popup = 2; // あぼーん/NGワード登録の確認をしないとき
+			popup = 2; // あぼーん/NG/ハイライトワード登録の確認をしないとき
 		}
 		if (option.indexOf('_msg') != -1 && spmSelected != '') {
 			option += '&selected_string=' + encodeURIComponent(spmSelected);

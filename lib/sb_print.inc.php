@@ -344,6 +344,28 @@ EOP;
         $birthday = date("y/m/d", $aThread->key); // (y/m/d H:i)
         $birth_ht = "<td{$class_t}>{$birthday}</td>";
 
+		// +live スレ立てからの日数による処理
+		$thr_birth = date("U", $aThread->key);
+		
+		if ($_conf['live.time_lag'] != 0) {
+			$thr_time_lag = $_conf['live.time_lag'] * 86400;
+		} else {
+			$thr_time_lag = 365 * 86400;
+		}
+
+		// +live リンク表示切替
+		$ttitle_en = base64_encode($aThread->ttitle);
+		$ttitle_urlen = rawurlencode($ttitle_en);
+		$ttitle_en_q ="&amp;ttitle_en=".$ttitle_urlen;
+
+		if (!preg_match("({$aThread->bbs})", $_conf['live.default_reload'])
+		&& (preg_match("({$aThread->bbs}|{$aThread->host})", $_conf['live.reload']) || $_conf['live.reload'] == all)
+		&& (date("U") < $thr_birth + $thr_time_lag)) {
+			$live_link = "<a id=\"tt{$i}\" href=\"live_frame.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$rescount_q}{$offline_q}{$word_q}{$anum_ht}\" title=\"別窓で実況表示\" target=\"_blank\"><img src =\"./img/live.png\" alt=\"+live\"></a>&nbsp;<a id=\"tt{$i}\" href=\"live_frame.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$rescount_q}{$offline_q}{$word_q}{$anum_ht}\" title=\"{$aThread->ttitle_hd}\"{$classtitle_q} target=\"read\">{$aThread->ttitle_ht}</a>";
+		} else {
+			$live_link = "<a id=\"tt{$i}\" href=\"{$thre_url}\" title=\"{$aThread->ttitle_hd}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a>";
+		}
+
         //====================================================================================
         // スレッド一覧 table ボディ HTMLプリント <tr></tr>
         //====================================================================================
@@ -356,7 +378,7 @@ EOP;
                     $one_ht
                     $checkbox_ht
                     <td{$class_to}>{$torder_ht}</td>
-                    <td{$class_tl} nowrap>$moto_thre_ht<a id=\"tt{$i}\" href=\"{$thre_url}\" title=\"{$aThread->ttitle_hd}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a></td>
+                    <td{$class_tl} nowrap>$moto_thre_ht$live_link</td>
                     {$htm['ita_td']}
                     $spd_ht
                     $ikioi_ht

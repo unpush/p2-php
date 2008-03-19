@@ -147,6 +147,14 @@ $conf_user_def['pre_thumb_width'] = "32"; // ("32")
 $conf_user_def['iframe_popup'] = 2; // (2)
 $conf_user_sel['iframe_popup'] = array('1' => 'する', '0' => 'しない', '2' => 'pでする', '3' => '画像でする');
 
+// YouTubeのリンクをプレビュー表示 (する, しない)
+$conf_user_def['link_youtube'] = 1; // (1)
+$conf_user_sel['link_youtube'] = array('1' => 'する', '0' => 'しない');
+
+// ニコニコ動画のリンクをプレビュー表示 (する, しない)
+$conf_user_def['link_niconico'] = 1; // (1)
+$conf_user_sel['link_niconico'] = array('1' => 'する', '0' => 'しない');
+
 // HTMLポップアップの表示遅延時間（秒）
 $conf_user_def['iframe_popup_delay'] = 0.2; // (0.2)
 //$conf_user_rules['iframe_popup_delay'] = array('FloatExceptMinus');
@@ -224,7 +232,7 @@ $conf_user_rules['ngaborn_frequent_dayres'] = array('IntExceptMinus');
 $conf_user_def['ngaborn_chain'] = 0; // (0)
 $conf_user_rad['ngaborn_chain'] = array('1' => 'する', '0' => 'しない', '2' => 'すべてNGにする');
 
-// この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）
+// この期間、NG・あぼーん・ハイライトにHITしなければ、登録ワードを自動的に外す（日数）
 $conf_user_def['ngaborn_daylimit'] = 180; // (180)
 $conf_user_rules['ngaborn_daylimit'] = array('NotEmpty', 'IntExceptMinus');
 
@@ -338,6 +346,11 @@ $conf_user_rad['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP
 // {{{ ■拡張パック
 
 include_once 'conf/conf_user_def_ex.inc.php';
+
+// }}}
+// {{{ ■ +live
+
+include_once 'conf/conf_user_def_live.inc.php';
 
 // }}}
 ?>

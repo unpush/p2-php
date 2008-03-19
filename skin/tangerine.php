@@ -138,9 +138,9 @@ $STYLE['read_mail_sage_color'] = "RosyBrown"; // ("") sage‚ÌŽž‚Ì“ŠeŽÒ‚Ìmail‚ÌF
 $STYLE['read_ngword'] = "DimGray"; // ("#bbbbbb") NGƒ[ƒh‚ÌF
 
 // ŽÀ‹µƒ‚[ƒh ================
-$SYTLE['live_b_width'] = "1px"; // ("1px") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[•
-$SYTLE['live_b_color'] = "OrangeRed"; // ("#888") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[F
-$SYTLE['live_b_style'] = "dashed"; // ("solid") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[Œ`Ž®
+//$SYTLE['live_b_width'] = "1px"; // ("1px") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[•
+//$SYTLE['live_b_color'] = "OrangeRed"; // ("#888") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[F
+//$SYTLE['live_b_style'] = "dashed"; // ("solid") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[Œ`Ž®
 
 // ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€ ================
 $STYLE['post_pop_size'] = "610,350"; // ("610,350") ƒŒƒX‘‚«ž‚Ýƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³i‰¡,cj
@@ -156,4 +156,19 @@ $STYLE['respop_b_color'] = "OrangeRed"; // ("black") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ìƒ{[ƒ_[
 $STYLE['respop_b_style'] = "dotted"; // ("solid") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ìƒ{[ƒ_[Œ`Ž®
 
 $STYLE['info_pop_size'] = "600,380"; // ("600,380") î•ñƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³i‰¡,cj
+
+//======================================================================
+// +live ŽÀ‹µƒ‚[ƒh
+//======================================================================
+
+// ŽÀ‹µ•\Ž¦Ý’è================
+$STYLE['live_b_l'] = "1px #999 dotted"; // ("1px #999 dotted") +live ƒŒƒXŠÔ‚ÌŽdØü
+$STYLE['live_b_s'] = "1px #999 dotted"; // ("1px #999 dotted") +live ”Ô† –Ú—“ –¼‘O “ú•t ID •\Ž¦•”‚ÆƒŒƒX•\Ž¦•”‚ÌŽdØü
+$STYLE['live_b_n'] = "2px ForestGreen dotted"; // ("2px ForestGreen dotted") +live ŽÀ‹µ•\Ž¦&ƒI[ƒgƒŠƒ[ƒhŽž‚ÌŠù“Ç`V’…‚ÌŽdØü
+$STYLE['live_highlight'] = "#cff"; // ("#cff") +live ƒnƒCƒ‰ƒCƒgƒ[ƒh•\Ž¦Žž‚Ì”wŒiF
+$STYLE['live_highlight_chain'] = "#ffc"; // ("#ffc") +live ˜A½ƒnƒCƒ‰ƒCƒg•\Ž¦Žž‚Ì”wŒiF
+$STYLE['live_highlight_word_weight'] = "bold"; // ("bold") +live ˜A½ƒnƒCƒ‰ƒCƒg•\Ž¦Žž‚ÌƒtƒHƒ“ƒg‚Ì‘¾‚³
+$STYLE['live_highlight_word_border'] = "3px ForestGreen double"; // ("3px ForestGreen double") +live ˜A½ƒnƒCƒ‰ƒCƒg•\Ž¦Žž‚ÌƒAƒ“ƒ_[ƒ‰ƒCƒ“
+$STYLE['live_font-size'] = "10px"; // ("10px") +live ”Ô† –Ú—“ –¼‘O “ú•t ID —“‚ÌƒtƒHƒ“ƒgƒTƒCƒY
+$STYLE['live2_color'] = "#fff3c2"; // ("#fff3c2") +live Type-B‚Ì ”Ô† –Ú—“ –¼‘O “ú•t ID •\Ž¦•”‚Ì”wŒiF
 ?>

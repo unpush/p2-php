@@ -32,6 +32,7 @@ $writable_files = array(
                         //"p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
                         //"p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
                         "p2_aborn_res.txt",
+						//"p2_highlight_name.txt", "p2_highlight_mail.txt", "p2_highlight_msg.txt", "p2_highlight_id.txt",
                         //"conf_user_ex.php", "conf_constant.inc",
                         //"conf_user_ex.inc.php", "conf_user_constant.inc.php"
                     );

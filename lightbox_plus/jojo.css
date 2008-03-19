@@ -1,0 +1,10 @@
+/* jojo.css */
+/* == written by Takuya Otani <takuya.otani@gmail.com> === */
+/* == Copyright (C) 2004 SimpleBoxes/SerendipityNZ Ltd. == */
+
+/* [background-images] */
+div.header {
+	background-position: 50% 0%;
+	background-repeat: no-repeat;
+	background-image: url(/toybox/lightbox/resource/title_jojo.png);
+}

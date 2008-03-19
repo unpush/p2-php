@@ -24,6 +24,8 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
         'Vodafone'  => 1,
     // Air H"
         'AirH'      => 1,
+	// emobile
+		'emobile'   => 1,
     // ƒ†[ƒU[Ý’è
         'custom'    => 0,
 );

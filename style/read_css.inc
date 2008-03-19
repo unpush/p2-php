@@ -18,10 +18,16 @@ if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
 	$respop_color = "color:{$STYLE['respop_color']};";
 }
 
-if($STYLE['fontfamily_bold']){
+if ($STYLE['fontfamily_bold']) {
+	$fontstyle_bold = empty($STYLE['fontstyle_bold']) ? 'normal' : $STYLE['fontstyle_bold'];
+	$fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
 	echo <<<EOSTYLE
 
-h3{font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";} /* スレッドタイトル*/
+h3 {
+	font-family:"{$STYLE['fontfamily_bold']}";
+	font-style: {$fontstyle_bold};
+	font-weight: {$fontweight_bold};
+}
 
 EOSTYLE;
 }
@@ -44,7 +50,9 @@ a:hover{color:{$STYLE['read_acolor_h']};}
 i{font-style:normal;} /* 引用レス*/
 dd.respopup{margin:8px 8px;} /* レスポップアップ*/
 
-.thread_title{margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};}
+.thread_title{
+	margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};
+}
 .thre_title{color:{$STYLE['read_thread_title_color']};}
 .name{color:{$STYLE['read_name_color']};} /* 投稿者の名前 */
 .mail{color:{$STYLE['read_mail_color']};} /* 投稿者のmail */

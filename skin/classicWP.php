@@ -138,9 +138,9 @@ $STYLE['read_mail_sage_color'] = "#ffa147"; // ("") sageの時の投稿者のmailの色 e
 $STYLE['read_ngword'] = "#050"; // ("#bbbbbb") NGワードの色
 
 // 実況モード ================
-$SYTLE['live_b_width'] = "1px"; // ("1px") 実況モード、ボーダー幅
-$SYTLE['live_b_color'] = "#ffa147"; // ("#888") 実況モード、ボーダー色
-$SYTLE['live_b_style'] = "dotted"; // ("solid") 実況モード、ボーダー形式
+//$SYTLE['live_b_width'] = "1px"; // ("1px") 実況モード、ボーダー幅
+//$SYTLE['live_b_color'] = "#ffa147"; // ("#888") 実況モード、ボーダー色
+//$SYTLE['live_b_style'] = "dotted"; // ("solid") 実況モード、ボーダー形式
 
 // レス書き込みフォーム ================
 $STYLE['post_pop_size'] = "610,350"; // ("610,350") レス書き込みポップアップウィンドウの大きさ（横,縦）
@@ -184,4 +184,18 @@ $MYSTYLE['subject']['#closebox'] = $MYSTYLE['read']['#closebox'];
 $MYSTYLE['info']['td.tdleft']['color'] = "#ffa147";
 $MYSTYLE['kanban']['td.tdleft']['color'] = "#963000";
 
+//======================================================================
+// +live 実況モード
+//======================================================================
+
+// 実況表示設定================
+$STYLE['live_b_l'] = "1px #999 dotted"; // ("1px #999 dotted") +live レス間の仕切線
+$STYLE['live_b_s'] = "1px #999 dotted"; // ("1px #999 dotted") +live 番号 目欄 名前 日付 ID 表示部とレス表示部の仕切線
+$STYLE['live_b_n'] = "2px #258aff dotted"; // ("2px #258aff dotted") +live 実況表示&オートリロード時の既読～新着の仕切線
+$STYLE['live_highlight'] = "#666"; // ("#666") +live ハイライトワード表示時の背景色
+$STYLE['live_highlight_chain'] = "#444"; // ("#444") +live 連鎖ハイライト表示時の背景色
+$STYLE['live_highlight_word_weight'] = "bold"; // ("bold") +live 連鎖ハイライト表示時のフォントの太さ
+$STYLE['live_highlight_word_border'] = "3px #258aff double"; // ("3px #258aff double") +live 連鎖ハイライト表示時のアンダーライン
+$STYLE['live_font-size'] = "10px"; // ("10px") +live 番号 目欄 名前 日付 ID 欄のフォントサイズ
+$STYLE['live2_color'] = "#252b31"; // ("#252b31") +live Type-Bの 番号 目欄 名前 日付 ID 表示部の背景色
 ?>

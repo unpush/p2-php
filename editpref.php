@@ -116,6 +116,11 @@ $ng_name_txt    = $_conf['pref_dir'] . '/p2_ng_name.txt';
 $ng_mail_txt    = $_conf['pref_dir'] . '/p2_ng_mail.txt';
 $ng_msg_txt     = $_conf['pref_dir'] . '/p2_ng_msg.txt';
 $ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
+// +live ハイライトワード用
+$highlight_name_txt = $_conf['pref_dir'] . '/p2_highlight_name.txt';
+$highlight_mail_txt = $_conf['pref_dir'] . '/p2_highlight_mail.txt';
+$highlight_msg_txt  = $_conf['pref_dir'] . '/p2_highlight_msg.txt';
+$highlight_id_txt   = $_conf['pref_dir'] . '/p2_highlight_id.txt';
 
 echo '<div>';
 echo <<<EOP
@@ -193,6 +198,25 @@ EOP;
     echo "</td></tr>";
 
     // }}}
+	// {{{ PC - +live ハイライトワード編集
+
+	echo "<td>\n\n";
+
+	echo <<<EOP
+<fieldset>
+<legend>ハイライトワード編集</legend>\n
+EOP;
+	printEditFileForm($highlight_name_txt, "名前");
+	printEditFileForm($highlight_mail_txt, "メール");
+	printEditFileForm($highlight_msg_txt, "メッセージ");
+	printEditFileForm($highlight_id_txt, "ＩＤ");
+	echo <<<EOP
+</fieldset>\n
+EOP;
+
+	echo "</td></tr>";
+
+	// }}}
     // {{{ PC - その他 の設定
 
     //echo "<td>\n\n";
@@ -408,7 +432,7 @@ function printEditFileForm($path_value, $submit_value)
     $rows = 36; // 18
     $cols = 92; // 90
 
-    if (preg_match('/^p2_(aborn|ng)_(name|mail|id|msg)\.txt$/', basename($path_value))) {
+    if (preg_match('/^p2_(aborn|ng|highlight)_(name|mail|id|msg)\.txt$/', basename($path_value))) {
         $edit_php = 'edit_aborn_word.php';
         $target = '_self';
     } else {

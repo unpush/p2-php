@@ -832,7 +832,12 @@ if ($all == 0) {
 
         // Lightbox JS用パラメータを設定
         if ($lightbox) {
-            $item['lightbox_attr'] = ' rel="lightbox" title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
+            if ($lightbox == 'plus') {
+                $item['lightbox_attr'] = ' rel="lightbox[iv2]" class="ineffectable"';
+            } else {
+                $item['lightbox_attr'] = ' rel="lightbox"';
+            }
+            $item['lightbox_attr'] .= ' title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
         } else {
             $item['lightbox_attr'] = '';
         }
@@ -905,49 +910,8 @@ $flexy->setData('js', $qf->getValidationScript());
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
 if ($lightbox === 'plus') {
-    /**
-     * Lightbox Plus () を使うときのためのヒント
-     * @link    http://serennz.cool.ne.jp/sb/sp/lightbox/index_ja.html
-     */
-/*
---- lightbox_plus.orig
-+++ lightbox_plus.js
-@@ -152,7 +152,14 @@
- 	_genOpener : function(num)
- 	{
- 		var self = this;
--		return function() { self._show(num); return false; }
-+		return function(evt) {
-+			evt = (evt) ? evt : ((window.event) ? window.event : null);
-+			if (evt && evt.shiftKey) {
-+				return true;
-+			}
-+			self._show(num);
-+			return false;
-+		}
- 	},
- 	_createWrapOn : function(obj,imagePath)
- 	{
-@@ -415,12 +422,12 @@
- // === main ===
- addEvent(window,"load",function() {
- 	var lightbox = new LightBox({
--		loadingimg:'loading.gif',
--		expandimg:'expand.gif',
--		shrinkimg:'shrink.gif',
--		effectimg:'zzoop.gif',
-+		loadingimg:'lightbox_plus/loading.gif',
-+		expandimg:'lightbox_plus/expand.gif',
-+		shrinkimg:'lightbox_plus/shrink.gif',
-+		effectimg:'lightbox_plus/zzoop.gif',
- 		effectpos:{x:-40,y:-20},
- 		effectclass:'effectable',
--		closeimg:'close.gif'
-+		closeimg:'lightbox_plus/close.gif'
- 	});
- });
-*/
     $additional_script_and_style = <<<EOP
+<script type="text/javascript" src="lightbox_plus/spica.js?{$_conf['p2expack']}"></script>
 <script type="text/javascript" src="lightbox_plus/lightbox_plus.js?{$_conf['p2expack']}"></script>
 <link rel="stylesheet" type="text/css" href="lightbox_plus/lightbox.css?{$_conf['p2expack']}">
 EOP;

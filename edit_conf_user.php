@@ -291,6 +291,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 //        array('pre_thumb_height', '画像サムネイルの縦の大きさを指定 (ピクセル)'),
 //        array('pre_thumb_width', '画像サムネイルの横の大きさを指定 (ピクセル)'),
         array('iframe_popup', 'HTMLポップアップ (する, しない, pでする, 画像でする)'),
+		array('link_youtube', 'YouTubeのリンクをプレビュー表示（する, しない)'),
+		array('link_niconico', 'ニコニコ動画のリンクをプレビュー表示（する, しない)'),
 //        array('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)'),
         array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換 (する, しない)'),
         array('ext_win_target', '外部サイト等へジャンプする時に開くウィンドウのターゲット名 (同窓:&quot;&quot;, 新窓:&quot;_blank&quot;)'),
@@ -326,7 +328,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('ngaborn_frequent_num', '頻出IDあぼーんのしきい値（出現回数がこれ以上のIDをあぼーん）'),
         array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない（総レス数/スレ立てからの日数、0なら無効）'),
         array('ngaborn_chain', '連鎖NGあぼーん(する, しない, あぼーんレスへのレスもNGにする) <br>処理を軽くするため、表示範囲のレスにしか連鎖しない'),
-        array('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）'),
+        array('ngaborn_daylimit', 'この期間、NG・あぼーん・ハイライトにHITしなければ、登録ワードを自動的に外す（日数）'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -367,6 +369,9 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('proxy_port', 'プロキシポート ex)"8080"'), 
         array('precede_openssl', '●ログインを、まずはopensslで試みる。※PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある。'),
         array('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか (コマンドライン版, PHP関数版)'),
+		array('frame_menu_width', 'フレーム menu の表示幅 ("156")'),
+		array('frame_subject_width', 'フレーム subject の表示幅 ("40%")'),
+		array('frame_read_width', 'フレーム read の表示幅 ("60%")'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -440,8 +445,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         array('expack.spm.kokores', 'ここにレス'),
         array('expack.spm.kokores_orig', 'ここにレスで開くフォームに元レスの内容を表示する'),
-        array('expack.spm.ngaborn', 'あぼーんワード・NGワード登録'),
-        array('expack.spm.ngaborn_confirm', 'あぼーんワード・NGワード登録時に確認する'),
+        array('expack.spm.ngaborn', 'あぼーん・NG・ハイライトワード登録'),
+        array('expack.spm.ngaborn_confirm', 'あぼーん・NG・ハイライトワード登録時に確認する'),
         array('expack.spm.filter', 'フィルタリング'),
         array('expack.spm.filter_target', 'フィルタリング結果を開くフレームまたはウインドウ'),
     );
@@ -585,6 +590,72 @@ if (empty($_conf['ktai'])) {
     echo <<<EOP
 </div><!-- end of tab -->
 </div><!-- end of child tabset "拡張パック設定" -->
+
+<div class="tabbertab" title="+live設定">
+<h3>+live設定</h3>
+<div class="tabber">\n
+EOP;
+}
+
+// {{{ +live設定
+// {{{ +live - 実況用表示
+
+$groupname = '実況用表示';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+	$keep_old = true;
+} else {
+	$conflist = array(
+		array('live.view', 'スレ内容を実況用表示にする鯖・板<br> (鯖 live22x.2ch.net 又は板 livenhk 等、複数区切 | 全指定 all 無し 0)'),
+		array('live.default_view', '上記設定で鯖指定した場合、その中で除外する板<br> (板 livenhk 等、複数区切 | 無し 0)'),
+		array('live.view_type', '実況用表示の種類'),
+		array('live.post_width', '下部書込フレームの高さ (px)'),
+		array('live.before_respointer', '表示するレス数 (100以下推奨) (Auto-R/S するスレのみ)'),
+		array('live.bbs_noname', 'デフォルトの名無しの表示 (Auto-R/S するスレのみ)'),
+		array('live.mail_sage', 'sage を ▼ に (Auto-R/S するスレのみ)'),
+		array('live.id_b', 'ID末尾の O (携帯) P (公式p2) Q (フルブラウザ) を太字に'),
+		array('live.msg_a', '連続した無駄な改行の削除'),
+		array('live.msg_b', '全ての改行とスペースの削除 (Auto-R/S するスレのみ)'),
+		array('live.res_button', 'レスの方法 (Auto-R/S するスレのみ)'),
+		array('live.ref_res', '画像 (P) で被参照レスポップアップ'),
+		array('live.highlight_area', 'ハイライトするエリア'),
+		array('live.highlight_chain', '連鎖ハイライト (表示範囲のレスのみに連鎖)'),
+		array('live.write_regulation', '書込30秒規制用タイマーを使用'),
+		array('live.link_movie', '実況用表示でもYouTubeとニコニコ動画のリンクをプレビュー表示'),
+		array('live.youtube_winsize', 'YouTubeプレビュー表示のサイズ'),
+	);
+	printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ +live - リロード/スクロール
+
+$groupname = 'リロード/スクロール';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+	$keep_old = true;
+} else {
+	$conflist = array(
+		array('live.reload', 'スレ内容をオートリロード/スクロールする鯖・板<br> (鯖 live22x.2ch.net 又は板 livenhk 等、複数区切 | 全指定 all 無し 0)'),
+		array('live.default_reload', '上記設定で鯖指定した場合、その中で除外する板<br> (板 livenhk 等、複数区切 | 無し 0)'),
+		array('live.reload_time', 'オートリロードの間隔 (秒指定 最短5秒、Auto-R 無し 0)'),
+		array('live.scroll_move', 'オートスクロールの滑らかさ (最も滑らか 1 、Auto-S 無し 0)'),
+		array('live.scroll_speed', 'オートスクロールの速度<br> (最速 1 、Auto-S 無しの場合は上の滑らかさの値を 0 に)'),
+		array('live.time_lag', 'スレ立てからこの期間を経過したスレはオートリロード/スクロールしない<br> (1日 = 1 、半日 = 0.5)'),
+	);
+	printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// }}}
+
+// PC用表示
+if (empty($_conf['ktai'])) {
+	echo <<<EOP
+</div><!-- end of tab -->
+</div><!-- end of child tabset "+live" -->
 </div><!-- end of parent tabset -->\n
 EOP;
 // 携帯用表示

@@ -98,7 +98,7 @@ if (!isset($GLOBALS['word'])) {
 
 
 //=================================================
-// あぼーん&NGワード設定読み込み
+// NG・あぼーん・ハイライトワード設定読み込み
 //=================================================
 $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
@@ -175,7 +175,13 @@ $aThread->setTitleFromLocal(); // タイトルを取得して設定
 if ($_conf['ktai']) {
     $before_respointer = $_conf['before_respointer_k'];
 } else {
+	// +live レス表示数切替
+	if (!preg_match("({$aThread->bbs})", $_conf['live.default_reload'])
+	&& (preg_match("({$aThread->bbs}|{$aThread->host})", $_conf['live.reload']) || $_conf['live.reload'] == all)) {
+		$before_respointer = $_conf['live.before_respointer'];
+	} else {
     $before_respointer = $_conf['before_respointer'];
+	}
 }
 
 // 取得済みなら
@@ -206,7 +212,13 @@ if ($aThread->isKitoku()) {
 // 未取得なら
 } else {
     if (!$aThread->ls) {
+		// +live レス表示数切替
+		if (!preg_match("({$aThread->bbs})", $_conf['live.default_reload'])
+		&& (preg_match("({$aThread->bbs}|{$aThread->host})", $_conf['live.reload']) || $_conf['live.reload'] == all)) {
+			$aThread->ls = l .$_conf['live.before_respointer'];
+		} else {
         $aThread->ls = $_conf['get_new_res_l'];
+		}
     }
 }
 
@@ -247,8 +259,13 @@ if ($_conf['ktai']) {
 
 } else {
 
+	// +live ヘッダ切替
+	if ($_GET['word'] || !$_GET['live']) {
     // ■ヘッダ 表示
     include_once P2_LIBRARY_DIR . '/read_header.inc.php';
+	} else {
+		P2Util::header_content_type();
+	}
     flush();
 
     //===========================================================
@@ -319,9 +336,18 @@ EOP;
         }
     }
 
+	// +live フッタ切替
+	if ($_GET['word'] || !$_GET['live']) {
     // ■フッタ 表示
     include_once P2_LIBRARY_DIR . '/read_footer.inc.php';
-
+	} else {
+		// 本来こんなとこに有るのは変だけど仕方ない
+		echo <<<LIVE
+		<link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+		<link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
+		<script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2expack']}"></script>
+LIVE;
+	}
 }
 flush();
 
@@ -352,7 +378,7 @@ if ($aThread->rescount) {
     recRecent($newdata);
 }
 
-// ■NGあぼーんを記録
+// ■NG・あぼーん・ハイライトを記録
 NgAbornCtl::saveNgAborns();
 
 // ■以上 ---------------------------------------------------------------

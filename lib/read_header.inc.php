@@ -94,7 +94,12 @@ $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{
 // $read_footer_navi_new  続きを読む 新着レスの表示
 
 if ($aThread->resrange['to'] == $aThread->rescount) {
+	// +live リンク切替
+	if ($_GET['word'] || !$_GET['live']) {
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}#r{$aThread->rescount}\" accesskey=\"r\">{$shinchaku_st}</a>";
+	} else {
+		$read_footer_navi_new = "<a href=\"javascript:getIndex('./read.php?host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}&live=1');\" accesskey=\"r\">{$shinchaku_st}</a>";
+	}
 } else {
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
 }
@@ -151,7 +156,7 @@ EOP;
     $favmark = $favdo ? '+' : '★';
     $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $toolbar_setfav_ht = <<<EOP
-<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '0');" title="{$favtitle}">お気に{$favmark}</a></span>
+<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span>
 EOP;
 }
 
@@ -210,6 +215,15 @@ if ($_conf['bottom_res_form']) {
 if (empty($_GET['one'])) {
     $onLoad_script .= "setWinTitle();";
 }
+ 
+// +live ページ読込時スクリプト
+if ($_GET['word'] || !$_GET['live']) {
+	$onLoad_script .= "";
+} else {
+	$onLoad_script .= "startlive();";
+	$onUnLoad_script = "onUnload=\"stoplive();\"";
+}
+
 
 echo <<<EOHEADER
     <script type="text/javascript">
@@ -225,9 +239,12 @@ echo <<<EOHEADER
     </script>\n
 EOHEADER;
 
+// +live オートリロード+スクロール
+include_once (P2_LIBRARY_DIR . '/live/live_header.inc.php');
+
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">
+<body onclick="hideHtmlPopUp(event);" onLoad="pageLoaded();" {$onUnLoad_script}>
 <div id="popUpContainer"></div>\n
 EOP;
 
@@ -329,10 +346,19 @@ EOP;
 EOP;
 }
 
+// +live 実況フレーム 2ペインで開く
+if (!preg_match("({$aThread->bbs})", $_conf['live.default_reload'])
+&& (preg_match("({$aThread->bbs}|{$aThread->host})", $_conf['live.reload']) || $_conf['live.reload'] == all)) {
+$htm['p2frame'] = <<<live
+	<a href="live_frame.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$rescount_q}{$word_q}{$anum_ht}">実況フレーム 2ペインで開く</a> |
+live;
+} else {
 // {{{ p2フレーム 3ペインで開く
 $htm['p2frame'] = <<<EOP
 <a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く</a> |
 EOP;
+}
+
 $htm['p2frame'] = <<<EOP
 <script type="text/javascript">
 <!--

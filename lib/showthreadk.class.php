@@ -26,18 +26,18 @@ class ShowThreadK extends ShowThread{
         global $_conf;
 
         $this->url_handlers = array(
-            array('this' => 'plugin_link2ch'),
-            array('this' => 'plugin_linkMachi'),
-            array('this' => 'plugin_linkJBBS'),
-            array('this' => 'plugin_link2chKako'),
-            array('this' => 'plugin_link2chSubject'),
+            'plugin_link2ch',
+            'plugin_linkMachi',
+            'plugin_linkJBBS',
+            'plugin_link2chKako',
+            'plugin_link2chSubject',
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
-            $this->url_handlers[] = array('this' => 'plugin_imageCache2');
+            $this->url_handlers[] = 'plugin_imageCache2';
         } elseif ($_conf['k_use_picto']) {
-            $this->url_handlers[] = array('this' => 'plugin_viewImage');
+            $this->url_handlers[] = 'plugin_viewImage';
         }
-        $this->url_handlers[] = array('this' => 'plugin_linkURL');
+        $this->url_handlers[] = 'plugin_linkURL';
 
         if (empty($_conf['k_bbs_noname_name'])) {
             require_once P2_LIBRARY_DIR . '/SettingTxt.php';
@@ -170,7 +170,8 @@ class ShowThreadK extends ShowThread{
 
         // {{{ あぼーんチェック
 
-        $aborned_res .= "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; // 名前
+//        $aborned_res .= "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; // 名前
+        $aborned_res .= ""; // 名前
         $aborned_res .= ""; // 内容
         $ng_msg_info = array();
 
@@ -365,6 +366,20 @@ EOP;
         }
         */
 
+		// +live 日付の短縮
+		if (preg_match("([0-2][0-9]{3}/[0-1][0-9]/[0-3][0-9])", $date_id)) {
+			$date_id = preg_replace("(([0-2][0-9])([0-9]{2}/[0-1][0-9]/[0-3][0-9]\(..\)))", "$2", $date_id);
+		}
+		// +live 表示切詰め処理
+		if ($_conf['live.msg_a']
+		&& (preg_match("(<br>)", $msg))){
+			$msg = mb_ereg_replace("(^\s((\s|　)*<br>(\s|　)*)+|((\s|　)*<br>(\s|　)*)+\s$)", " ", $msg);	// 文頭、文末の全改行を消去
+			$msg = mb_ereg_replace("(((\s|　)*<br>(\s|　)*){3,})", " <br>  <br> ", $msg);					// 3連以上の改行を2連に
+			if (mb_ereg_match("(((\s|　)*.(\s|　)*<br>){2,})", $msg)) {
+				$msg = mb_ereg_replace("((\s|　)*<br>(\s|　)*)", " ", $msg);								// 3行以上の1文字置きの改行文から改行を削除
+			}
+		}
+
         // 番号（オンザフライ時）
         if ($this->thread->onthefly) {
             $GLOBALS['newres_to_show_flag'] = true;
@@ -388,7 +403,12 @@ EOP;
             $date_id = preg_replace_callback('!ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$)!', array($this, 'idfilter_callback'), $date_id);
         }
         if ($_conf['mobile.id_underline']) {
-            $date_id = preg_replace('!(ID: ?)([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?O(?=[^0-9A-Za-z/.+]|$)!', '$1$2<u>O</u>', $date_id);
+			// +live 携帯ID 公式p2ID フルブラウザID 末尾にアンダーライン
+			if (!preg_match("(ID:)", $date_id)) { // ID無し末尾表示有りの板
+				$date_id = preg_replace('(((O|P|Q)$)(?![^<]*>))', '<b class="mail">$1</b>', $date_id);
+			} else {
+				$date_id = preg_replace('((ID: ?)([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?(O|P|Q)(?=[^0-9A-Za-z/.+]|$)(?![^<]*>))', '$1$2<u>$3</u>', $date_id);
+			}
         }
 
         $tores .= $date_id . "<br>\n"; // 日付とID
@@ -498,13 +518,16 @@ EOP;
     function link_callback($s)
     {
         global $_conf;
+ 
+        $following = '';
+
 
         // preg_replace_callback()では名前付きでキャプチャできない？
         if (!isset($s['link'])) {
             $s['link']  = $s[1];
             $s['quote'] = $s[5];
             $s['url']   = $s[8];
-            $s['id']    = $s[11];
+            $s['id']    = $s[12];
         }
 
         // マッチしたサブパターンに応じて分岐
@@ -531,10 +554,20 @@ EOP;
             }
             $url = preg_replace('/^t?(tps?)$/', 'ht$1', $s[9]) . '://' . $s[10];
             $str = $s['url'];
+            $following = $s[11];
+            // ウィキペディア日本語版のURLで、SJISの2バイト文字の上位バイト(0x81-0x9F,0xE0-0xEF)が続くとき
+            if (P2Util::isUrlWikipediaJa($url) && strlen($following) > 0) {
+                $leading = ord($following);
+                if ((($leading ^ 0x90) < 32 && $leading != 0x80) || ($leading ^ 0xE0) < 16) {
+                    $url .= rawurlencode(mb_convert_encoding($following, 'UTF-8', 'SJIS-win'));
+                    $str .= $following;
+                    $following = '';
+                }
+            }
 
         // ID
         } elseif ($s['id'] && $_conf['flex_idpopup']) { // && $_conf['flex_idlink_k']
-            return $this->idfilter_callback(array($s['id'], $s[12]));
+            return $this->idfilter_callback(array($s['id'], $s[13]));
 
         // その他（予備）
         } else {
@@ -547,46 +580,22 @@ EOP;
         // URLをパース
         $purl = @parse_url($url);
         if (!$purl || !isset($purl['host']) || !strstr($purl['host'], '.') || $purl['host'] == '127.0.0.1') {
-            return $str;
+            return $str . $following;
         }
 
         // URLを処理
+        foreach ($this->user_url_handlers as $handler) {
+            if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
+                return $link . $following;
+            }
+        }
         foreach ($this->url_handlers as $handler) {
-            //if (is_array($handler)) {
-                if (isset($handler['this'])) {
-                    if (FALSE !== ($link = call_user_func(array($this, $handler['this']), $url, $purl, $str))) {
-                        return $link;
-                    }
-                } elseif (isset($handler['class']) && isset($handler['method'])) {
-                    if (FALSE !== ($link = call_user_func(array($handler['class'], $handler['method']), $url, $purl, $str))) {
-                        return $link;
-                    }
-                } elseif (isset($handler['function'])) {
-                    if (FALSE !== ($link = call_user_func($handler['function'], $url, $purl, $str))) {
-                        return $link;
-                    }
-                }
-            /*} elseif (is_string($handler)) {
-                $function = explode('::', $handler);
-                if (isset($function[1])) {
-                    if ($function[0] == 'this') {
-                        if (FALSE !== ($link = call_user_func(array($this, $function[1], $url, $purl, $str))) {
-                            return $link;
-                        }
-                    } else
-                        if (FALSE !== ($link = call_user_func(array($function[0], $function[1]), $url, $purl, $str))) {
-                            return $link;
-                        }
-                    }
-                } else {
-                    if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str))) {
-                        return $link;
-                    }
-                }
-            }*/
+            if (FALSE !== ($link = call_user_func(array($this, $handler), $url, $purl, $str))) {
+                return $link . $following;
+            }
         }
 
-        return $str;
+        return $str . $following;
     }
 
     /**
@@ -745,8 +754,7 @@ EOP;
             } else {
                 $link_url = $url;
             }
-            $link = "<a href=\"{$link_url}\">{$str}</a>";
-            return $link;
+            return "<a href=\"{$link_url}\">{$str}</a>";
         }
         return FALSE;
     }
@@ -830,6 +838,9 @@ EOP;
     function plugin_viewImage($url, $purl, $str)
     {
         global $_conf;
+        if (P2Util::isUrlWikipediaJa($url)) {
+            return FALSE;
+        }
 
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
             $picto_url = 'http://pic.to/'.$purl['host'].$purl['path'];
@@ -852,6 +863,10 @@ EOP;
     {
         global $_conf;
         global $pre_thumb_unlimited, $pre_thumb_ignore_limit, $pre_thumb_limit_k;
+
+        if (P2Util::isUrlWikipediaJa($url)) {
+            return FALSE;
+        }
 
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
             // インラインプレビューの有効判定
