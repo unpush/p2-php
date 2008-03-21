@@ -612,6 +612,8 @@ EOP;
         // 引用やURLなどをリンク
         $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
 
+        $msg = wikipedia($msg); // Wikipediaへの自動リンクなんだぜ。
+
         return $msg;
     }
 
