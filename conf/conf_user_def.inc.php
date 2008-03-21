@@ -189,6 +189,10 @@ $conf_user_rad['quote_res_view'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['strip_linebreaks'] = 0; // (0)
 $conf_user_rad['strip_linebreaks'] = array('1' => 'する', '0' => 'しない');
 
+// [[単語]]をWikipediaへのリンクにする（する:1, しない:0）
+$conf_user_def['link_wikipedia'] = 1; // (0)
+$conf_user_rad['link_wikipedia'] = array('1' => 'する', '0' => 'しない');
+
 // 携帯閲覧時、文末の改行と連続する改行を除去（する:1, しない:0）
 $conf_user_def['mobile.strip_linebreaks'] = 0; // (0)
 $conf_user_rad['mobile.strip_linebreaks'] = array('1' => 'する', '0' => 'しない');
@@ -248,6 +252,10 @@ $conf_user_rad['mobile.underline_id'] = array('1' => 'する', '0' => 'しない');
 // 携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数
 $conf_user_def['mobile.copy_divide_len'] = 0; // (0)
 $conf_user_rules['mobile.copy_divide_len'] = array('notIntExceptMinusToDef');
+
+// 携帯閲覧時、[[単語]]をWikipediaへのリンクにする（する:1, しない:0）
+$conf_user_def['mobile.link_wikipedia'] = 1; // (0)
+$conf_user_rad['mobile.link_wikipedia'] = array('1' => 'する', '0' => 'しない');
 
 // }}}
 // {{{ NG/あぼーん

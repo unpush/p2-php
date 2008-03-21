@@ -282,6 +282,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
         array('quote_res_view', '引用レスを表示'),
         array('strip_linebreaks', '文末の改行と連続する改行を除去'),
+        array('link_wikipedia', '[[単語]]をWikipediaへのリンクにする'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -438,6 +439,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('mobile.strip_linebreaks', '文末の改行と連続する改行を除去'),
 
         array('mobile.copy_divide_len', '「写」のコピー用テキストボックスを分割する文字数'),
+        array('mobile.link_wikipedia', '[[単語]]をWikipediaへのリンクにする'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
