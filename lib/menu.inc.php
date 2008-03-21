@@ -146,6 +146,26 @@ echo <<<EOP
 EOP;
 
 //==============================================================
+// ■ImageCache2
+//==============================================================
+if ($_conf['expack.ic2.enabled']) {
+    echo <<<EOP
+<div class="menu_cate"><b class="menu_cate" onclick="showHide('c_ic2');">ImageCache2</b><br>
+    <div class="itas" id="c_ic2">
+    　<a href="iv2.php" target="_blank">画像キャッシュ一覧</a><br>
+<!--
+    　<a href="ic2_setter.php">アップローダ</a>
+        (<a href="#" onclick="return OpenSubWin('ic2_setter.php?popup=1', 480, 320, 1, 1);">p</a>)<br>
+    　<a href="ic2_getter.php">ダウンローダ</a>
+        (<a href="#" onclick="return OpenSubWin('ic2_getter.php?popup=1', 480, 320, 1, 1);">p</a>)<br>
+-->
+    　<a href="ic2_manager.php">データベース管理</a>
+    </div>
+</div>
+EOP;
+}
+
+//==============================================================
 // カテゴリと板をHTML表示
 //==============================================================
 $brd_menus = BrdCtl::readBrdMenus();

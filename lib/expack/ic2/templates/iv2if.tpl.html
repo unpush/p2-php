@@ -1,0 +1,25 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<title>IC2::Filter</title>
+</head>
+<body bgcolor="{k_color[c_bgcolor]}" text="{k_color[c_text]}" link="{k_color[c_link]}" vlink="{k_color[c_vlink]}">
+
+<h1>IC2::Filter</h1>
+<hr>
+
+{move.outputHeader():h}
+{move.hidden:h}
+<input type="hidden" name="session_no_close" value="1" flexy:ignore="yes">
+{move.order.html:h}{move.sort.html:h}<br>
+{move.field.html:h}に↓を含む<br>
+{move.key.html:h}<br>
+ﾗﾝｸ{move.compare.html:h}{move.threshold.html:h}&nbsp;{move.search.html:h}
+</form>
+
+<hr>
+<p><a href="{php_self}?page={page}" class="viewer_title">戻る</a></p>
+
+</body>
+</html>

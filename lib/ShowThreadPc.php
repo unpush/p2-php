@@ -1,5 +1,7 @@
 <?php
 require_once P2_LIB_DIR . '/ShowThread.php';
+require_once P2EX_LIBRARY_DIR . '/expack_loader.class.php';
+ExpackLoader::loadImageCache();
 
 /**
  * p2 - スレッドを表示する クラス PC用
@@ -25,12 +27,31 @@ class ShowThreadPc extends ShowThread
             'plugin_link2chKako',
             'plugin_link2chSubject',
         );
-        if ($_conf['preview_thumbnail']) {
+        if (P2_IMAGECACHE_AVAILABLE == 2) {
+            $this->url_handlers[] = 'plugin_imageCache2';
+        } elseif ($_conf['preview_thumbnail']) {
             $this->url_handlers[] = 'plugin_viewImage';
         }
         $_conf['link_youtube']  and $this->url_handlers[] = 'plugin_linkYouTube';
         $_conf['link_niconico'] and $this->url_handlers[] = 'plugin_linkNicoNico';
         $this->url_handlers[] = 'plugin_linkURL';
+
+        // サムネイル表示制限数を設定
+        if (!isset($GLOBALS['pre_thumb_unlimited']) || !isset($GLOBALS['pre_thumb_limit'])) {
+            if (isset($_conf['pre_thumb_limit']) && $_conf['pre_thumb_limit'] > 0) {
+                $GLOBALS['pre_thumb_limit'] = $_conf['pre_thumb_limit'];
+                $GLOBALS['pre_thumb_unlimited'] = FALSE;
+            } else {
+                $GLOBALS['pre_thumb_limit'] = NULL; // ヌル値だとisset()はFALSEを返す
+                $GLOBALS['pre_thumb_unlimited'] = TRUE;
+            }
+        }
+        $GLOBALS['pre_thumb_ignore_limit'] = FALSE;
+
+        // ImageCache2初期化
+        if (P2_IMAGECACHE_AVAILABLE == 2) {
+            ExpackLoader::initImageCache($this);
+        }
     }
 
     /**
@@ -909,6 +930,24 @@ EOMSG;
         return array_unique($quote_res_nums);
     }
     
+
+    /**
+     * 画像をHTMLポップアップ&ポップアップウインドウサイズに合わせる
+     */
+    function imageHtmpPopup($img_url, $img_tag, $link_str)
+    {
+        global $_conf;
+
+        if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.fitimage']) {
+            $fimg_url = str_replace('&amp;', '&', $img_url);
+            $popup_url = "ic2_fitimage.php?url=" . rawurlencode($fimg_url);
+        } else {
+            $popup_url = $img_url;
+        }
+
+        $pops = ($_conf['iframe_popup'] == 1) ? $img_tag . $link_str : array($link_str, $img_tag);
+        return $this->iframe_popup(array($img_url, $popup_url), $pops, $_conf['ext_win_target_at']);
+    }
     // }}}
     // {{{ link_callback()から呼び出されるURL書き換えメソッド
 
@@ -1180,6 +1219,131 @@ EOP;
             return $view_img;
         }
         return false;
+    }
+
+    /**
+     * ImageCache2サムネイル変換
+     */
+    function plugin_imageCache2($url, $purl, $str)
+    {
+        global $_conf;
+        global $pre_thumb_unlimited, $pre_thumb_ignore_limit, $pre_thumb_limit;
+        static $serial = 0;
+
+        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+            // 準備
+            $serial++;
+            $thumb_id = 'thumbs' . $serial . '_' . P2_REQUEST_ID;
+            $tmp_thumb = './img/ic_load.png';
+            $url_en = rawurlencode($url);
+
+            $icdb = &new IC2DB_Images;
+
+            // r=0:リンク;r=1:リダイレクト;r=2:PHPで表示
+            // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
+            $img_url = 'ic2.php?r=1&amp;uri=' . $url_en;
+            $thumb_url = 'ic2.php?r=1&amp;t=1&amp;uri=' . $url_en;
+
+            // DBに画像情報が登録されていたとき
+            if ($icdb->get($url)) {
+
+                // ウィルスに感染していたファイルのとき
+                if ($icdb->mime == 'clamscan/infected') {
+                    return "<img class=\"thumbnail\" src=\"./img/x04.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\"> <s>{$str}</s>";
+                }
+                // あぼーん画像のとき
+                if ($icdb->rank < 0) {
+                    return "<img class=\"thumbnail\" src=\"./img/x01.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\"> <s>{$str}</s>";
+                }
+
+                // オリジナルがキャッシュされているときは画像を直接読み込む
+                $_img_url = $this->thumbnailer->srcPath($icdb->size, $icdb->md5, $icdb->mime);
+                if (file_exists($_img_url)) {
+                    $img_url = $_img_url;
+                    $cached = TRUE;
+                } else {
+                    $cached = FALSE;
+                }
+
+                // サムネイルが作成されていているときは画像を直接読み込む
+                $_thumb_url = $this->thumbnailer->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
+                if (file_exists($_thumb_url)) {
+                    $thumb_url = $_thumb_url;
+                    // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
+                    if (!is_null($this->img_memo) && !strstr($icdb->memo, $this->img_memo)){
+                        $update = &new IC2DB_Images;
+                        if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
+                            $update->memo = $this->img_memo . ' ' . $icdb->memo;
+                        } else {
+                            $update->memo = $this->img_memo;
+                        }
+                        $update->whereAddQuoted('uri', '=', $url);
+                        $update->update();
+                    }
+                }
+
+                // サムネイルの画像サイズ
+                $thumb_size = $this->thumbnailer->calc($icdb->width, $icdb->height);
+                $thumb_size = preg_replace('/(\d+)x(\d+)/', 'width="$1" height="$2"', $thumb_size);
+                $tmp_thumb = './img/ic_load1.png';
+
+            // 画像がキャッシュされていないとき
+            // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
+            } else {
+                // 画像がブラックリストorエラーログにあるか確認
+                if (FALSE !== ($errcode = $icdb->ic2_isError($url))) {
+                    return "<img class=\"thumbnail\" src=\"./img/{$errcode}.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\"> <s>{$str}</s>";
+                }
+
+                $cached = FALSE;
+
+                $img_url .= $this->img_memo_query;
+                $thumb_url .= $this->img_memo_query;
+                $thumb_size = '';
+                $tmp_thumb = './img/ic_load2.png';
+            }
+
+            // キャッシュされておらず、表示数制限が有効のとき
+            if (!$cached && !$pre_thumb_unlimited && !$pre_thumb_ignore_limit) {
+                // 表示制限を超えていたら、表示しない
+                // 表示制限を超えていなければ、表示制限カウンタを下げる
+                if ($pre_thumb_limit <= 0) {
+                    $show_thumb = FALSE;
+                } else {
+                    $show_thumb = TRUE;
+                    $pre_thumb_limit--;
+                }
+            } else {
+                $show_thumb = TRUE;
+            }
+
+            // 表示モード
+            if ($show_thumb) {
+                $img_tag = "<img class=\"thumbnail\" src=\"{$thumb_url}\" {$thumb_size} hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                if ($_conf['iframe_popup']) {
+                    $view_img = $this->imageHtmpPopup($img_url, $img_tag, $str);
+                } else {
+                    $view_img = "<a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$img_tag}{$str}</a>";
+                }
+            } else {
+                $img_tag = "<img id=\"{$thumb_id}\" class=\"thumbnail\" src=\"{$tmp_thumb}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                $view_img = "<a href=\"{$img_url}\" onclick=\"return loadThumb('{$thumb_url}','{$thumb_id}')\"{$_conf['ext_win_target_at']}>{$img_tag}</a><a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
+            }
+
+            // ソースへのリンクをime付きで表示
+            if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.through_ime']) {
+                $ime_url = P2Util::throughIme($url);
+                if ($_conf['iframe_popup'] == 3) {
+                    $ime_mark = '<img src="img/ime.png" width="22" height="12" alt="">';
+                } else {
+                    $ime_mark = '[ime]';
+                }
+                $view_img .= " <a class=\"img_through_ime\" href=\"{$ime_url}\"{$_conf['ext_win_target_at']}>{$ime_mark}</a>";
+            }
+
+            return $view_img;
+        }
+        return FALSE;
     }
 
     // }}}

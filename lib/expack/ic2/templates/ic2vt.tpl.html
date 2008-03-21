@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+	<title>ImageCache2 - {title}</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
+	<link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={skin}" />
+	<script type="text/javascript" src="js/basic.js?{rep2expack:h}"></script>
+	<script type="text/javascript" src="js/ic2vt.js?{rep2expack:h}"></script>
+</head>
+<body onload="setWinTitle()">
+
+<h3 class="thread_title">ImageCache2 - {title}</h3>
+{info_msg:h}
+<hr />
+
+<form method="post" action="{php_self}" target="_self" onsubmit="return confirm('本当によろしいですか？');" flexy:ignore="yes">
+
+{if:data}
+{if:data_renderer_errlog}<flexy:include src="_vt_errlog.tpl.html" />{else:}
+{if:data_renderer_blacklist}<flexy:include src="_vt_blacklist.tpl.html" />{end:}
+{end:}
+<hr />
+
+<div id="footer">
+	<input type="hidden" name="table"  value="{mode}" />
+	全てのチェックボックスを
+	<input type="button" value="選択" onclick="vt_checkAll('on');" />
+	<input type="button" value="解除" onclick="vt_checkAll('off');" />
+	<input type="button" value="反転" onclick="vt_checkAll('reverse');" />
+	<br />
+	<input type="submit" name="delete" value="チェックしたレコードを消去" />
+	<input type="submit" name="clean"  value="すべてのレコードを消去" />
+	<input type="button" onclick="self.location.href='{reload_js}#footer'" value="リロード" />
+</div>
+
+</form>
+{else:}
+<p id="footer">{title}は空です。</p>
+{end:}
+
+</body>
+</html>

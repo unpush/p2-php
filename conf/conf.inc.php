@@ -617,6 +617,25 @@ function stripslashesR($var, $r = 0)
 }
 
 /**
+ * 再帰的にaddslashesをかける
+ * (ExUtil)
+ */
+function addslashes_r($var, $r = 0)
+{
+    if (is_array($var)) {
+        if ($r < 3) {
+            $r++;
+            foreach ($var as $key => $value) {
+                $var[$key] = addslashes_r($value, $r);
+            }
+        } /* else { p2die("too deep multi dimentional array given."); } */
+    } elseif (is_string($var)) {
+        $var = addslashes($var);
+    }
+    return $var;
+}
+
+/**
  * 再帰的にヌル文字を削除する
  * mbstringで変換テーブルにない(?)外字を変換すると
  * NULL(0x00)になってしまうことがあるので消去する

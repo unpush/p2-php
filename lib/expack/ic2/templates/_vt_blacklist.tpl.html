@@ -1,0 +1,13 @@
+<dl style="margin:0">
+{foreach:data,row}
+	<dt>
+		<input type="checkbox" name="target[]" value="{row.uri}" flexy:ignore="yes" />
+		<b>{row.type}</b>
+	</dt>
+	<dd>
+		URL: {row.uri}<br />
+		Size: {row.size:n} Bytes<br />
+		MD5: {row.md5:h}
+	</dd>
+{end:}
+</dl>

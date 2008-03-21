@@ -1,0 +1,9 @@
+{foreach:items,i,item}
+<div id="info{item[id]}" class="respopup" onmouseover="showResPopUp('info{item[id]}', event)" onmouseout="hideResPopUp('info{item[id]}')"><table border="0" cellspacing="1" cellpadding="0">
+	<tr><td class="tdleft"><b>URL</b></td><td class="tdcont">{item[uri]}</td></tr>
+	<tr><td class="tdleft"><b>サイズ</b></td><td class="tdcont">{item[width]:h} &times; {item[height]:h}, {item[size]:n}バイト</td></tr>
+	<tr><td class="tdleft"><b>ランク</b></td><td class="tdcont">{item[rank_f]}</td></tr>
+	<tr><td class="tdleft"><b>メモ</b></td><td class="tdcont">{item[memo]}</td></tr>
+</table></div>
+<div id="exif{item[id]}" class="respopup" onmouseover="showResPopUp('exif{item[id]}', event)" onmouseout="hideResPopUp('exif{item[id]}')" flexy:if="item[exif]">{this.plugin(#Info_Dump#,item[exif]):h}</div>
+{end:}
