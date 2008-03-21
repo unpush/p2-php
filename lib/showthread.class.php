@@ -327,7 +327,7 @@ EOP;
 
     function wikipedia($msg) { // [[語句]]があった時にWikipediaへ自動リンクするんだぜ？
         global $_conf;
-        $msg = mb_convert_encoding($msg, "UTF-8", "SJIS_win"); // SJISはうざいからUTF-8に変換するんだぜ？
+        $msg = mb_convert_encoding($msg, "UTF-8", "SJIS-win"); // SJISはうざいからUTF-8に変換するんだぜ？
         if($_conf['ktai']){
             $wikipedia = "http://ja.wapedia.org/"; // WapediaのURLなんだぜ？
         }else{
@@ -335,12 +335,12 @@ EOP;
         }
         $search = "/\[\[[^\[\]\n<>]+\]\]+/"; // 目印となる正規表現なんだぜ？
         preg_match_all($search, $msg, $matches); // [[語句]]を探すんだぜ？
-        $matched = preg_replace("/^\[\[|\]\]$/", "", $matches[0]); // いったん"[["と"]]"を取るんだぜ？
-        foreach ($matched as $value) { // リンクに変換するんだぜ？
-            $replaced[] = "[[<a href=?"" . P2Util::throughIme($wikipedia . rawurlencode($value)) . "?"" . $_conf['ext_win_target_at'] . ">$value</a>]]"; // しっかりimeを通すんだぜ？
+        $matches = preg_replace("/^\[\[|\]\]$/", "", $matches[0]); // いったん"[["と"]]"を取るんだぜ？
+        foreach ($matches as $value) { // リンクに変換するんだぜ？
+            $replaced[] = "[[<a href=\"" . P2Util::throughIme($wikipedia . rawurlencode($value)) . "\"" . $_conf['ext_win_target_at'] . ">$value</a>]]"; // しっかりimeを通すんだぜ？
         }
-        $msg = str_replace($matches[0], $replaced, $msg); // 変換後の本文を戻すんだぜ？
-        $msg = mb_convert_encoding($msg, "SJIS_win", "UTF-8"); // UTF-8からSJISに戻すんだぜ？
+        $msg = str_replace($matches[0], $replaced[0], $msg); // 変換後の本文を戻すんだぜ？
+        $msg = mb_convert_encoding($msg, "SJIS-win", "UTF-8"); // UTF-8からSJISに戻すんだぜ？
         return $msg;
     }
 }
