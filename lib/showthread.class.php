@@ -333,13 +333,12 @@ EOP;
         }else{
             $wikipedia = "http://ja.wikipedia.org/wiki/"; // WikipediaのURLなんだぜ？
         }
-        $search = "/\[\[[^\[\]\n<>]+\]\]+/"; // 目印となる正規表現なんだぜ？
+        $search = "/\[\[([^\[\]\n<>]+)\]\]+/"; // 目印となる正規表現なんだぜ？
         preg_match_all($search, $msg, $matches); // [[語句]]を探すんだぜ？
-        $matches = preg_replace("/^\[\[|\]\]$/", "", $matches[0]); // いったん"[["と"]]"を取るんだぜ？
-        foreach ($matches as $value) { // リンクに変換するんだぜ？
-            $replaced[] = "[[<a href=\"" . P2Util::throughIme($wikipedia . rawurlencode($value)) . "\"" . $_conf['ext_win_target_at'] . ">$value</a>]]"; // しっかりimeを通すんだぜ？
+        foreach ($matches[1] as $value) { // リンクに変換するんだぜ？
+            $replaced = "<a href=\"" . P2Util::throughIme($wikipedia . rawurlencode($value)) . "\"" . $_conf['ext_win_target_at'] . ">$value</a>"; // しっかりimeを通すんだぜ？
+            $msg = str_replace("[[$value]]", "[[$replaced]]", $msg); // 変換後の本文を戻すんだぜ？
         }
-        $msg = str_replace($matches[0], $replaced[0], $msg); // 変換後の本文を戻すんだぜ？
         $msg = mb_convert_encoding($msg, "SJIS-win", "UTF-8"); // UTF-8からSJISに戻すんだぜ？
         return $msg;
     }
