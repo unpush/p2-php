@@ -708,7 +708,11 @@ EOP;
 
         // リンクの属性にHTMLポップアップ用のイベントハンドラを加える
         $pop_attr = $attr;
-        $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
+        if ($_conf['iframe_popup_event'] == 1) {
+            $pop_attr .= " onClick=\"showHtmlPopUp('{$pop_url}',event,0); return false;\"";
+        } else {
+            $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
+        }
         $pop_attr .= " onmouseout=\"offHtmlPopUp()\"";
 
         // 最終調整
