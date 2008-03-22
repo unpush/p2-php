@@ -79,6 +79,9 @@ class LinkPluginCtl
         foreach ($this->data as $v) {
             if (preg_match('{'.$v['match'].'}', $url)) {
                 $src = @preg_replace ('{'.$v['match'].'}', $v['replace'], $url);
+                if (strstr($v['replace'], '$ime_url')) {
+                    $src = str_replace('$ime_url', P2Util::throughIme($url), $src);
+                }
                 if (strstr($v['replace'], '$str')) {
                     $src = str_replace('$str', $str, $src);
                 }
