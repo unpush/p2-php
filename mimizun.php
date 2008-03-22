@@ -32,7 +32,7 @@ if ($_GET['img']) {
 } else {
     if ($mimizun->isEnable()) {
         $mimizun->id = $_GET['id'];
-        header('Location: ' . P2Util::throughIme($mimizun->getIDURL()));
+        header('Location: ' . html_entity_decode(P2Util::throughIme($mimizun->getIDURL())));
     } else {
         P2Util::printSimpleHtml('‚±‚Ì”Â‚Í‘Î‰‚µ‚Ä‚¢‚Ü‚¹‚ñB');
     }
