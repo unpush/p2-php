@@ -3,4 +3,4 @@ $	<a href="mimizun.php?bbs=$bbs&amp;id=$id" onClick="stophide=true; showHtmlPopU
 $	<a href="stalker.php?bbs=$bbs&amp;id=$id" onClick="stophide=true; showHtmlPopUp('stalker.php?bbs=$bbs&amp;id=$id',event,0)" onmouseout="offHtmlPopUp()" title="このIDをIDストーカーで表示" target="_blank"><img src="stalker.php?img=1&amp;host=$host&amp;bbs=$bbs" height=12px></a>	1
 0?(\d+)/0?(\d+)\(	$1/$2(	2
 \) (\d)	)$1	2
-(\d\d:\d\d):\d\d(\.\d\d)?	$1
+(\d\d:\d\d):\d\d(\.\d\d)?	$1	2
