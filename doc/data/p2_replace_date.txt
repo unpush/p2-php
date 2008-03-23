@@ -4,3 +4,4 @@ $	<a href="stalker.php?bbs=$bbs&amp;id=$id" onClick="stophide=true; showHtmlPopU
 0?(\d+)/0?(\d+)\(	$1/$2(	2
 \) (\d)	)$1	2
 (\d\d:\d\d):\d\d(\.\d\d)?	$1	2
+0?(\d:\d\d)	$1	2
