@@ -813,7 +813,7 @@ EOP;
             if (is_null($mode)) {
                 $mode = 2;
             }
-            $pop_attr .= " onClick=\"showHtmlPopUp('{$pop_url}',event,0); return false;\"";
+            $pop_attr .= " onClick=\"stophide=true; showHtmlPopUp('{$pop_url}',event,0); return false;\"";
         } else {
             $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
         }
