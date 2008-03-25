@@ -76,13 +76,13 @@ EOHEADER;
 
     if (!$sidebar) {
         echo <<<EOMENUFRAME
-<frameset cols="156,*" frameborder="1" border="1">
+<frameset cols="{$_conf['frame_menu_width']},*" frameborder="1" border="1">
     <frame src="menu.php" name="menu" scrolling="auto">
 EOMENUFRAME;
     }
 
     echo <<<EOMAINFRAME
-    <frameset rows="40%,60%" frameborder="1" border="2">
+    <frameset rows="{$_conf['frame_subject_width']},{$_conf['frame_read_width']}" frameborder="1" border="2">
         <frame src="{$title_page}" name="subject" scrolling="auto">
         <frame src="{$htm['read_page']}" name="read" scrolling="auto">
     </frameset>

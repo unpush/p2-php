@@ -4,6 +4,8 @@
 	ImageCache2::Viewer
 */
 
+var last_checked_box = null, last_unchecked_box = null;
+
 function showToolbarExtra()
 {
 	var ext = document.getElementById('toolbarExtra');
@@ -42,6 +44,58 @@ function iv2_checkAll(mode)
 				break;
 		}
 	}
+}
+
+function iv2_checked(cbox, evt)
+{
+	var evt = (evt) ? evt : ((window.event) ? window.event : null);
+	var chk = cbox.checked;
+
+	if (evt && evt.shiftKey) {
+		var tgt = null;
+
+		if (last_checked_box) {
+			tgt = last_checked_box;
+			chk = true;
+		} else if (last_unchecked_box) {
+			tgt = last_unchecked_box;
+			chk = false;
+		}
+
+		if (tgt) {
+			var cboxes = document.getElementsByName('change[]');
+			var i = 0, j = -1, k = -1, l = cboxes.length;
+
+			while (i < l) {
+				if (cboxes[i] == cbox) {
+					j = i;
+					if (k != -1) break;
+				} else if (cboxes[i] == tgt) {
+					k = i;
+					if (j != -1) break;
+				}
+				i++;
+			}
+
+			if (i < l) {
+				if (j > k) {
+					while (j >= k) cboxes[j--].checked = chk;
+				} else {
+					while (j <= k) cboxes[j++].checked = chk;
+				}
+			}
+		}
+	}
+
+	if (chk) {
+		last_checked_box = cbox;
+		last_unchecked_box = null;
+	} else {
+		last_checked_box = null;
+		last_unchecked_box = cbox;
+	}
+
+	return true;
 }
 
 function pageJump(page)

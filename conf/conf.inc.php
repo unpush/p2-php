@@ -65,6 +65,15 @@ ob_implicit_flush(0);
 // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
 ini_set('arg_separator.output', '&amp;');
 
+// セッションIDの 付加機能が有効となった場合に、セッションIDを含めるために書き換 えられるHTMLタグにimg=srcを追加
+$temp_rewriter_tags = explode(',', ini_get('url_rewriter.tags'));
+if (is_array($temp_rewriter_tags)) {
+    if (!array_search('img=src', $temp_rewriter_tags)) {
+        $temp_rewriter_tags[] = 'img=src';
+        ini_set('url_rewriter.tags', implode(',', $temp_rewriter_tags));
+    }
+}
+
 // リクエストIDを設定
 define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
 

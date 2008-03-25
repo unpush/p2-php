@@ -30,6 +30,8 @@ SPM.init = function(aThread)
 	}
 	SPM.setOnPopUp(spm, spm.id, false);
 
+	spm.appendItem('レスを検索', (function(evt){stophide=true; showHtmlPopUp('read.php?bbs=' + aThread.bbs + '&key=' + aThread.key.toString() + '&host=' + aThread.host + '&ls=all&field=msg&word=%3E' + spmResNum + '%5B%5E%5Cd%5D&method=regex&match=on,renzokupop=true',((evt) ? evt : ((window.event) ? event : null)),0);}));
+
 	// コピペ用フォーム
 	spm.appendItem('レスコピー', (function(){SPM.invite(aThread)}));
 
@@ -126,6 +128,11 @@ SPM.show = function(aThread, resnum, resid, evt)
 		spmSelected = window.getSelection();
 	} else if (document.selection) {
 		spmSelected = document.selection.createRange().text;
+	}
+	if (document.all) { // IE用
+		document.all[aThread.objName + '_spm'].firstChild.firstChild.nodeValue = resnum + 'へのレスを検索';
+	} else if (document.getElementById) { // DOM対応用（Mozilla）
+		document.getElementById(aThread.objName + '_spm').firstChild.firstChild.nodeValue = resnum + 'へのレスを検索';
 	}
 	showResPopUp(aThread.objName + '_spm' ,evt);
 	return false;

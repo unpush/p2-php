@@ -143,6 +143,10 @@ echo <<<EOHEADER
     <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>\n
+
+    <script type="text/javascript" src="./js/yui-ext/yui.js"></script>
+    <script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css" />
 EOHEADER;
 
 if ($_conf['expack.am.enabled']) {
@@ -160,19 +164,17 @@ echo <<<EOHEADER
     <script type="text/javascript">
     <!--
     gIsPageLoaded = false;
-
-    function pageLoaded()
-    {
+    addLoadEvent(function() {
         gIsPageLoaded = true;
         setWinTitle();
-    }
+    });
     -->
     </script>\n
 EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">
+<body id="read" onclick="hideHtmlPopUp(event);">
 <div id="popUpContainer"></div>\n
 EOP;
 

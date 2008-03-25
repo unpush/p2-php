@@ -634,6 +634,8 @@ EOP;
         // 引用やURLなどをリンク
         $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
 
+        $msg = $this->wikipedia($msg); // Wikipediaへの自動リンクなんだぜ。
+
         return $msg;
     }
 
@@ -829,7 +831,14 @@ EOP;
 
         // リンクの属性にHTMLポップアップ用のイベントハンドラを加える
         $pop_attr = $attr;
-        $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
+        if ($_conf['iframe_popup'] == 4) {
+            if (is_null($mode)) {
+                $mode = 2;
+            }
+            $pop_attr .= " onClick=\"stophide=true; showHtmlPopUp('{$pop_url}',event,0); return false;\"";
+        } else {
+            $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
+        }
         $pop_attr .= " onmouseout=\"offHtmlPopUp()\"";
 
         // 最終調整

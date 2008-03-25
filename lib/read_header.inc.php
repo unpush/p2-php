@@ -184,6 +184,10 @@ echo <<<EOP
     <script type="text/javascript" src="js/invite.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>\n
+
+	<script type="text/javascript" src="./js/yui-ext/yui.js"></script>
+	<script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
+	<link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css">\n
 EOP;
 
 if ($_conf['expack.am.enabled']) {
@@ -210,23 +214,24 @@ if (empty($_GET['one'])) {
     $onLoad_script .= "setWinTitle();";
 }
 
+$fade = empty($_GET['fade']) ? 'false' : 'true';
+
 echo <<<EOHEADER
     <script type="text/javascript">
     <!--
+    gFade = {$fade};
     gIsPageLoaded = false;
-
-    function pageLoaded()
-    {
+    addLoadEvent(function() {
         gIsPageLoaded = true;
         {$onLoad_script}
-    }
+    });
     //-->
     </script>\n
 EOHEADER;
 
 echo <<<EOP
 </head>
-<body onLoad="pageLoaded();">
+<body id="read" onclick="hideHtmlPopUp(event);">
 <div id="popUpContainer"></div>\n
 EOP;
 
