@@ -240,6 +240,7 @@ EOP;
                 $unum_ht_c = <<<EOP
 <a class="un_n" href="{$_conf['subject_php']}?{$base_q}{$spmode_q}&amp;dele=true" target="_self" onclick="if (!window.confirm('ƒƒO‚ðíœ‚µ‚Ü‚·‚©H')) {return false;} {$delelog_js}"{$title_at}>-</a>
 EOP;
+                $class_r = ' class="nosubject"';
 
             // V’…‚ ‚è
             } elseif ($aThread->unum > 0) {
