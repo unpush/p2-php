@@ -378,11 +378,11 @@ function detectThread()
     if (($nama_url = $_GET['nama_url']) || ($nama_url = $_GET['url'])) {
 
             // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            if (preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches)) {
+            if (preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.(cgi|html)\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches)) {
                 $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[6];
+                $bbs = $matches[4];
+                $key = $matches[5];
+                $ls = $matches[7];
 
             // 2ch or pink âﬂãéÉçÉOhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
             } elseif ( preg_match("/(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html/", $nama_url, $matches) ){ //2ch pink âﬂãéÉçÉOhtml
