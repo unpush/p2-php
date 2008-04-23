@@ -120,7 +120,7 @@ function &machiHtmltoDatLines(&$mlines)
         } elseif (preg_match('{<title>(.*)</title>}i', $ml, $matches)) {
             $mtitle = $matches[1];
             continue;
-        } elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+) <font size=1>\[ (.+)$/i", $ml, $matches)) {
+        } elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+) <font size=1>\[ ?(.*)$/i", $ml, $matches)) {
             $order = $matches[1];
             $mail = $matches[3];
             $name = preg_replace('{<font color="?#.+?"?>(.+)</font>}i', '$1', $matches[4]);
