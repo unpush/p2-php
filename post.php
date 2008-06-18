@@ -545,7 +545,9 @@ function postIt($host, $bbs, $key, $post)
             }
         }
 
-        $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i';
+        /* 2ch側 guid=ON の仕様変更 */
+        /* $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i'; */
+        $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi(?:\\?guid=ON)?\"?>/i';
         $form_replace = <<<EOFORM
 <form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
     <input type="hidden" name="detect_hint" value="◎◇　◇◎">

@@ -160,9 +160,12 @@ if ($_conf['expack.spm.enabled']) {
     echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2expack']}\"></script>\n";
 }
 
+$fade = empty($_GET['fade']) ? 'false' : 'true';
+
 echo <<<EOHEADER
     <script type="text/javascript">
     <!--
+    gFade = {$fade};
     gIsPageLoaded = false;
     addLoadEvent(function() {
         gIsPageLoaded = true;
