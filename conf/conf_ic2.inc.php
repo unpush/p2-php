@@ -122,6 +122,9 @@ $_conf['expack.ic2.viewer.inum'] = 10;
 // ‚µ‚«‚¢’l (-1 ~ 5)
 $_conf['expack.ic2.viewer.threshold'] = 0;
 
+// ”äŠr•û–@ (>= | = | <=)
+$_conf['expack.ic2.viewer.compare'] = '>=';
+
 // •À‚Ñ‘Ö‚¦Šî€ (time | uri | date_uri | name | size | width | height | pixels)
 $_conf['expack.ic2.viewer.order'] = "time";
 
