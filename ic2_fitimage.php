@@ -22,12 +22,17 @@ $url = $_GET['url'];
 $x = '';
 $y = '';
 
+$info_key_type = 'url';
+$info_key_value = $url;
+
 $icdb = &new IC2DB_Images;
 $thumbnailer = &new ThumbNailer;
 if (preg_match('/^' . preg_quote($thumbnailer->sourcedir, '/') . '/', $url) && file_exists($url)) {
     $info = getimagesize($url);
     $x = $info[0];
     $y = $info[1];
+    $info_key_type = 'md5';
+    $info_key_value = preg_replace('/^\\d+_([0-9a-f]+)\\..*/', '\\1', basename($url));
 } elseif (preg_match('{(?:[\w.]*/)?ic2\.php\?(?:.*&)?ur[il]=([^&]+)(?:&|$)}', $url, $m)) {
     $url = rawurldecode($m[1]);
     if ($icdb->get($url)) {
@@ -35,7 +40,11 @@ if (preg_match('/^' . preg_quote($thumbnailer->sourcedir, '/') . '/', $url) && f
         $x = $icdb->width;
         $y = $icdb->height;
     }
+    $info_key_type = 'id';
+    $info_key_value = $icdb->id;
 }
+
+$info_key_value = htmlspecialchars($info_key_value, ENT_QUOTES);
 
 $alt = htmlspecialchars(basename($url));
 
@@ -64,15 +73,18 @@ echo <<<EOF
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
     <script type="text/javascript" src="js/fitimage.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/iv2.js?{$_conf['p2expack']}"></script>
 </head>
-<body onload="focus()">
+<body onload="focus();fiGetImageInfo('{$info_key_type}', '{$info_key_value}');">
+<div id="btn" style="border:1px solid black;padding:2px;background-color:white">
+    <input type="hidden" id="fi_id" value=""><input type="text" id="fi_memo" size="50" value=""><br>
+    <img src="img/fi_full.gif" width="15" height="15" onclick="fitimage('full')" alt="XY">
+    <img src="img/fi_height.gif" width="15" height="15" onclick="fitimage('height')" alt="Y">
+    <img src="img/fi_width.gif" width="15" height="15" onclick="fitimage('width')" alt="X">
+    <div id="fi_stars" style="position:absolute;bottom:2;right:2;cursor:pointer"><img src="img/star-x0.png" width="16" height="16" alt="-1" onclick="fiUpdateRank(-1)"><span onclick="fiUpdateRank(0)" style="color:gray">&diams;</span><img src="img/star-s0.png" width="16" height="16" alt="1" onclick="fiUpdateRank(1)"><img src="img/star-s0.png" width="16" height="16" alt="2" onclick="fiUpdateRank(2)"><img src="img/star-s0.png" width="16" height="16" alt="3" onclick="fiUpdateRank(3)"><img src="img/star-s0.png" width="16" height="16" alt="4" onclick="fiUpdateRank(4)"><img src="img/star-s0.png" width="16" height="16" alt="5" onclick="fiUpdateRank(5)"></div>
+</div>
 <div id="pct">
     <img id="picture" src="{$url}" width="{$x}" height="{$y}" onclick="fiShowHide()" onload="{$afi_js}" alt="{$alt}">
-</div>
-<div id="btn">
-    <img src="img/fi_height.gif" width="15" height="15" onclick="fitimage('height')" alt="Y"><br>
-    <img src="img/fi_width.gif" width="15" height="15" onclick="fitimage('width')" alt="X"><br>
-    <img src="img/fi_full.gif" width="15" height="15" onclick="fitimage('full')" alt="XY">
 </div>
 </body>
 </html>
