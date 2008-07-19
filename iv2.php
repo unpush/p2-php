@@ -62,7 +62,7 @@ $_defaults = array(
     'field' => $ini['Viewer']['field'],
     'key'   => '',
     'threshold' => $ini['Viewer']['threshold'],
-    'compare' => '>=',
+    'compare' => $ini['Viewer']['compare'],
     'mode' => 0,
     'thumbtype' => 1,
 );

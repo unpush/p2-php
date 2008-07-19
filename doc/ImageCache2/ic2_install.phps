@@ -79,11 +79,12 @@ case 'pgsql':
     $table_extra_defs = '';
     break;
 case 'sqlite':
+case 'sqlite3':
     $serial = 'INTEGER PRIMARY KEY';
     $table_extra_defs = '';
     break;
 default:
-    die('MySQL, PostgreSQL, SQLite以外のデータベースには対応していません。');
+    die('MySQL, PostgreSQL, SQLite2, SQLite3以外のデータベースには対応していません。');
 }
 
 // テーブル名は設定によってはDBの予約語が使われるかもしれないのでDB_xxx::quoteIdentifier()で
