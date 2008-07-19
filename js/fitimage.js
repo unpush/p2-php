@@ -125,5 +125,62 @@ function fiTrigger(evt)
 	}
 }
 
+function fiGetImageInfo(type, value)
+{
+	var info = getImageInfo(type, value);
+	if (!info) {
+		alert('画像情報を取得できませんでした');
+		return;
+	}
+
+	var info_array = info.split(',');
+	var id, rank, memo;
+
+	if (info_array.length < 3) {
+		alert('画像情報を取得できませんでした');
+		return;
+	}
+
+	id = parseInt(info_array[0]);
+	rank = parseInt(info_array[1]);
+	memo = info_array[2];
+	for (var i = 3; i < info_array.length; i++) {
+		memo += ',' + info_array[i];
+	}
+
+	fiSetRank(rank);
+	document.getElementById('fi_id').value = id.toString();
+	document.getElementById('fi_memo').value = memo;
+}
+
+function fiSetRank(rank)
+{
+	var images = document.getElementById('fi_stars').getElementsByTagName('img');
+	images[0].setAttribute('src', 'img/star-x' + ((rank == -1) ? '1' : '0') + '.png');
+	for (var i = 1; i < images.length; i++) {
+		images[i].setAttribute('src', 'img/star-s' + ((i > rank) ? '0' : '1') + '.png');
+	}
+}
+
+function fiUpdateRank(rank)
+{
+	var id = document.getElementById('fi_id').value;
+	if (!id) {
+		alert('画像IDが設定されていません');
+		return;
+	}
+
+	var objHTTP = getXmlHttp();
+	if (!objHTTP) {
+		alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
+	}
+	var url = 'ic2_setrank.php?id=' + id + '&rank=' + rank.toString();
+	var res = getResponseTextHttp(objHTTP, url, 'nc');
+	if (res == '1') {
+		fiSetRank(rank);
+	}
+	return false;
+}
+
 //イベントハンドラを定義
 document.onkeydown = fiTrigger;
