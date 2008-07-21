@@ -6,8 +6,8 @@
 */
 
 $_conf['p2version'] = '1.7,29+';    // rep2のバージョン
-$_conf['p2expack'] = '070720.9999'; // 拡張パックのバージョン
-$_conf['p2name'] = 'WowFlutter';    // rep2の名前。
+$_conf['p2expack'] = '080721.0721'; // 拡張パックのバージョン
+$_conf['p2name'] = 'UmiNoHi';       // rep2の名前。
 
 //======================================================================
 // 基本設定処理
@@ -246,27 +246,30 @@ $_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win');
 // {{{ 端末判定
 
 $_conf['login_check_ip']  = 1; // ログイン時にIPアドレスを検証する
-$_conf['input_type_search'] = FALSE;
+$_conf['input_type_search'] = false;
 
 $mobile = &Net_UserAgent_Mobile::singleton();
 
 // PC
 if ($mobile->isNonMobile()) {
-    $_conf['ktai'] = FALSE;
-    $_conf['disable_cookie'] = FALSE;
+    $_conf['ktai'] = false;
+    $_conf['disable_cookie'] = false;
 
     if (P2Util::isBrowserSafariGroup()) {
         $_conf['accept_charset'] = 'UTF-8';
-        $_conf['input_type_search'] = TRUE;
+        $_conf['input_type_search'] = true;
     } else {
         $_conf['accept_charset'] = 'Shift_JIS';
+        if (P2Util::isClientOSWindowsCE() || P2Util::isBrowserNintendoDS() || P2Util::isBrowserPSP()) {
+            $_conf['ktai'] = true;
+        }
     }
 
 // 携帯
 } else {
     require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
 
-    $_conf['ktai'] = TRUE;
+    $_conf['ktai'] = true;
     $_conf['accept_charset'] = 'Shift_JIS';
 
     // ベンダ判定
@@ -275,13 +278,13 @@ if ($mobile->isNonMobile()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
             p2die("UAがDoCoMoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
         }
-        $_conf['disable_cookie'] = TRUE;
+        $_conf['disable_cookie'] = true;
     // EZweb (au or Tu-Ka)
     } elseif ($mobile->isEZweb()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
             p2die("UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
         }
-        $_conf['disable_cookie'] = FALSE;
+        $_conf['disable_cookie'] = false;
     // Vodafone Live!
     } elseif ($mobile->isVodafone()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrSoftBank()) {
@@ -290,9 +293,9 @@ if ($mobile->isNonMobile()) {
         //$_conf['accesskey'] = 'DIRECTKEY';
         // W型端末と3GC型端末はCookieが使える
         if ($mobile->isTypeW() || $mobile->isType3GC()) {
-            $_conf['disable_cookie'] = FALSE;
+            $_conf['disable_cookie'] = false;
         } else {
-            $_conf['disable_cookie'] = TRUE;
+            $_conf['disable_cookie'] = true;
         }
     // AirH" Phone
     } elseif ($mobile->isAirHPhone()) {
@@ -302,12 +305,23 @@ if ($mobile->isNonMobile()) {
             p2die("UAがAirH\"ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
         }
         */
-        $_conf['disable_cookie'] = FALSE;
+        $_conf['disable_cookie'] = false;
     // その他
     } else {
-        $_conf['disable_cookie'] = TRUE;
+        $_conf['disable_cookie'] = true;
     }
 }
+
+// iPhone, iPod Touch
+if (P2Util::isBrowserIphone()) {
+    $_conf['accept_charset'] = 'UTF-8';
+    $_conf['input_type_search'] = true;
+    $_conf['ktai'] = true;
+    $_conf['iphone'] = true;
+} else {
+    $_conf['iphone'] = false;
+}
+
 
 // }}}
 // {{{ クエリーによる強制ビュー指定
@@ -323,7 +337,8 @@ $_conf['k_input_ht'] = '';
 
 // 強制PCビュー指定
 $_conf['k_at_q'] = '';
-if (isset($_GET['b']) and $_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
+$_req = &${'_' . $_SERVER['REQUEST_METHOD']};
+if (isset($_req['b']) && $_req['b'] == 'pc') {
     if ($_conf['ktai']) {
         $_conf['view_forced_by_query'] = true;
         $_conf['ktai'] = false;
@@ -336,18 +351,19 @@ if (isset($_GET['b']) and $_GET['b'] == 'pc' || $_POST['b'] == 'pc') {
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
 
 // 強制携帯ビュー指定（b=k。k=1は過去互換用）
-} elseif (!empty($_GET['k']) || !empty($_POST['k']) or ($_GET['b'] == 'k' || $_POST['b'] == 'k')) {
+} elseif (!empty($_req['k']) || (isset($_req['b']) && $_req['b'] == 'k')) {
     if (!$_conf['ktai']) {
         $_conf['view_forced_by_query'] = true;
         $_conf['ktai'] = true;
     }
     $_conf['b'] = 'k';
     //output_add_rewrite_var('b', 'k');
-    
+
     $_conf['k_at_a'] = '&amp;b=k';
     $_conf['k_at_q'] = '?b=k';
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="k">';
 }
+unset($_req);
 // }}}
 
 $_conf['k_to_index_ht'] = <<<EOP
@@ -489,11 +505,11 @@ fontconfig_apply_custom();
 foreach ($STYLE as $K => $V) {
     if (empty($V)) {
         $STYLE[$K] = '';
-    } elseif (strpos($K, 'fontfamily') !== FALSE) {
+    } elseif (strpos($K, 'fontfamily') !== false) {
         $STYLE[$K] = set_css_fonts($V);
-    } elseif (strpos($K, 'color') !== FALSE) {
+    } elseif (strpos($K, 'color') !== false) {
         $STYLE[$K] = set_css_color($V);
-    } elseif (strpos($K, 'background') !== FALSE) {
+    } elseif (strpos($K, 'background') !== false) {
         $STYLE[$K] = 'url("' . addslashes($V) . '")';
     }
 }
@@ -538,7 +554,7 @@ if ($_conf['ktai']) {
     if ($_conf['mobile.match_color']) {
         $_conf['k_filter_marker'] = '<font color="' . htmlspecialchars($_conf['mobile.match_color']) . '">\\1</font>';
     } else {
-        $_conf['k_filter_marker'] = FALSE;
+        $_conf['k_filter_marker'] = false;
     }
 }
 
@@ -584,8 +600,8 @@ if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
     require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
-    if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == FALSE) ||
-        ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == TRUE)
+    if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
+        ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
     ) {
         HostCheck::forbidden();
     }
@@ -795,8 +811,11 @@ function fontconfig_detect_agent($ua = null)
         return 'windows';
     }
     if (preg_match('/\bMac(intoth)?\b/', $ua)) {
-        if (preg_match('/\b(Safari|AppleWebKit)\/(\d+(\.\d+)?)\b/', $ua, $matches)) {
-            if (400 < (float) $matches[2]) {
+        if (preg_match('/\b(Safari|AppleWebKit)\/([\d]+)/', $ua, $matches)) {
+            $version = (int)$matches[2];
+            if ($version >= 500) {
+                return 'safari3';
+            } else if ($version >= 400) {
                 return 'safari2';
             } else {
                 return 'safari1';
@@ -1002,7 +1021,7 @@ function p2die($err, $msg = null, $raw = false)
 function p2checkenv($check_recommended)
 {
     global $_info_msg_ht;
-    
+
     $php_version = phpversion();
     $required_version = '4.3.3';
     $recommended_version = '5.2.3';

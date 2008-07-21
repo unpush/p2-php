@@ -9,6 +9,7 @@ $ch_title = P2Util::re_htmlspecialchars($channel['title']);
 echo <<<EOH
 <html lang="ja">
 <head>
+{$_conf['meta_charset_ht']}
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$title}</title>
 </head>
