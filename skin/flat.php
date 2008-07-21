@@ -17,14 +17,12 @@ $STYLE['a_underline_none'] = "1"; // ("2") リンクに下線を（つける:0, つけない:1,
 
 // フォント ======================================================
 
-if(strstr($_SERVER['HTTP_USER_AGENT'], "Mac")){
+if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
 	/* Mac用フォントファミリー*/
-	if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ブラウザが Macで Safari等の WebKitを使っているものなら */
-		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro"); // ("Hiragino Kaku Gothic Pro") 基本のフォント for Safari
-		$STYLE['fontfamily_bold'] = ""; // ("") 基本ボールド用フォント for Safari（普通の太字より太くしたい場合は"Hiragino Kaku Gothic Std"）
-		if (!strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit/4")){
-			$STYLE['fontfamily_bold'] = "HiraKakuPro-W6";
-		}
+	if (strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false) {
+		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro");
+		$STYLE['fontfamily_bold'] = array("Myriad Pro", "Lucida Grande", "Hiragino Kaku Gothic Pro");
+		$STYLE['fontweight_bold'] = "bold";
 	} else {
 		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "ヒラギノ丸ゴ Pro W4"); // ("ヒラギノ角ゴ Pro W3") 基本のフォント
 		$STYLE['fontfamily_bold'] = "ヒラギノ角ゴ Pro W6"; // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）

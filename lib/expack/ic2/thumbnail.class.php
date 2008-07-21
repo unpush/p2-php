@@ -273,7 +273,7 @@ class ThumbNailer
 
         // イメージドライバにサムネイル作成処理をさせる
         $convertorClass = 'Thumbnailer_' . ucfirst(strtolower($this->driver));
-        if ($this->driver == 'Thumbnailer_Imagick') {
+        if ($convertorClass == 'Thumbnailer_Imagick') {
             if (version_compare(phpversion(), '5.0.0', '<')) {
                 if (!class_exists('Imagick')) {
                     $convertorClass = 'Thumbnailer_Imagick09';
