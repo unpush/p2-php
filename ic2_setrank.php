@@ -24,13 +24,17 @@ header('Content-Type: text/html; charset=Shift_JIS');
 // {{{ ‰Šú‰»
 
 // ƒpƒ‰ƒ[ƒ^‚ğŒŸØ
-if (!isset($_GET['id']) || !isset($_GET['rank'])) {
+$remove = !empty($_GET['remove']);
+
+if (!isset($_GET['id']) || !(isset($_GET['rank']) || $remove)) {
     echo '-1';
     exit;
 }
+
 $id = (int) $_GET['id'];
-$rank = (int) $_GET['rank'];
-if ($id == 0 || $rank > 5 || $rank < -1) {
+$rank = isset($_GET['rank']) ? (int) $_GET['rank'] : 0;
+
+if ($id <= 0 || $rank > 5 || ($rank < -1 && !($remove && $rank == -5))) {
     echo '0';
     exit;
 }
@@ -48,18 +52,43 @@ require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
 
 $finder = &new IC2DB_Images;
 $finder->whereAdd(sprintf('id = %d', $id));
+
+$code = -1;
+
 if ($finder->find(1)) {
-    $setter = &new IC2DB_Images;
-    $setter->rank = $rank;
-    $setter->whereAddQuoted('size', '=', $finder->size);
-    $setter->whereAddQuoted('md5',  '=', $finder->md5);
-    $setter->whereAddQuoted('mime', '=', $finder->mime);
-    if ($setter->update()) {
-        echo '1';
-    } else {
-        echo '0';
+    if ($rank != -5) {
+        $setter = &new IC2DB_Images;
+        $setter->rank = $rank;
+        $setter->whereAddQuoted('size', '=', $finder->size);
+        $setter->whereAddQuoted('md5',  '=', $finder->md5);
+        $setter->whereAddQuoted('mime', '=', $finder->mime);
+        if ($setter->update()) {
+            $code = 1;
+        } else {
+            $code = 0;
+        }
+    }
+
+    if ($remove) {
+        global $_info_msg_ht;
+        require_once P2EX_LIB_DIR . '/ic2/managedb.inc.php';
+
+        $orig_info_msg_ht = $_info_msg_ht;
+        $_info_msg_ht = '';
+
+        $removed_files = manageDB_remove(array($finder->id), $rank < 0);
+        if ($code != 0 && $_info_msg_ht === '') {
+            $code = 1;
+        } else {
+            $code = 0;
+        }
+
+        $_info_msg_ht = $orig_info_msg_ht;
     }
 }
+
+echo $code;
+
 exit;
 
 // }}}

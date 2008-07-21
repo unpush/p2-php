@@ -18,10 +18,16 @@ if (isset($STYLE['respop_color']) && strlen($STYLE['respop_color']) > 0) {
 	$respop_color = "color:{$STYLE['respop_color']};";
 }
 
-if($STYLE['fontfamily_bold']){
+if ($STYLE['fontfamily_bold']) {
+	$fontstyle_bold = empty($STYLE['fontstyle_bold']) ? 'normal' : $STYLE['fontstyle_bold'];
+	$fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
 	echo <<<EOSTYLE
 
-h3{font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";} /* スレッドタイトル*/
+h3 {
+	font-family:"{$STYLE['fontfamily_bold']}";
+	font-style: {$fontstyle_bold};
+	font-weight: {$fontweight_bold};
+}
 
 EOSTYLE;
 }

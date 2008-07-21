@@ -723,12 +723,12 @@ function ic2_display($path, $params)
                 //$flexy->setData('javascripts', array('js'));
             } else {
                 $flexy->setData('pc', false);
-                $k_color = array();
-                $k_color['c_bgcolor'] = isset($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '';
-                $k_color['c_text']  = isset($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '';
-                $k_color['c_link']  = isset($_conf['mobile.link_color'])  ? $_conf['mobile.link_color']  : '';
-                $k_color['c_vlink'] = isset($_conf['mobile.vlink_color']) ? $_conf['mobile.vlink_color'] : '';
-                $flexy->setData('k_color', $k_color);
+                $flexy->setData('k_color', array(
+                    'c_bgcolor' => !empty($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '#ffffff',
+                    'c_text'    => !empty($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '#000000',
+                    'c_link'    => !empty($_conf['mobile.link_color'])  ? $_conf['mobile.link_color']  : '#0000ff',
+                    'c_vlink'   => !empty($_conf['mobile.vlink_color']) ? $_conf['mobile.vlink_color'] : '#9900ff',
+                ));
             }
             if ($thumb == 2) {
                 if ($ini['General']['inline'] == 1) {

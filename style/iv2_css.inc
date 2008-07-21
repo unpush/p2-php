@@ -4,7 +4,17 @@
 // vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
 // mi: charset=Shift_JIS
 
-$boldstyle = ($STYLE['fontfamily_bold']) ? "font-family: \"{$STYLE['fontfamily_bold']}\";" : 'font-weight: bold;';
+if ($STYLE['fontfamily_bold']) {
+	$boldstyle = "font-family: \"{$STYLE['fontfamily_bold']}\";";
+	if (!empty($STYLE['fontstyle_bold'])) {
+		$boldstyle .= "font-style: {$STYLE['fontstyle_bold']};";
+	}
+	if (!empty($STYLE['fontweight_bold'])) {
+		$boldstyle .= "font-weight: {$STYLE['fontweight_bold']};";
+	}
+} else {
+	$boldstyle = 'font-weight: bold;';
+}
 
 echo <<<EOSTYLE
 

@@ -678,8 +678,44 @@ class P2Util{
      */
     function isBrowserSafariGroup()
     {
-        return (boolean)preg_match('/Safari|AppleWebKit|Konqueror/', $_SERVER['HTTP_USER_AGENT']);
+        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Safari')      !== false ||
+                strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false ||
+                strpos($_SERVER['HTTP_USER_AGENT'], 'Konqueror')   !== false);
     }
+
+    /**
+     * ブラウザがWindows CEで動作するものならtrueを返す
+     */
+    function isClientOSWindowsCE()
+    {
+        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows CE') !== false);
+    }
+
+    /**
+     * ニンテンドーDSブラウザーならtrueを返す
+     */
+    function isBrowserNintendoDS()
+    {
+        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Nitro') !== false &&
+                strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false);
+    }
+
+    /**
+     * ブラウザがPSPならtrueを返す
+     */
+    function isBrowserPSP()
+    {
+        return (strpos($_SERVER['HTTP_USER_AGENT'], 'PlayStation Portable') !== false);
+    }
+
+    /**
+     * ブラウザがiPhone or iPod Touchならtrueを返す
+     */
+    function isBrowserIphone()
+    {
+        return (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false ||
+                strpos($_SERVER['HTTP_USER_AGENT'], 'iPod')   !== false);
+}
 
     /**
      * URLがウィキペディア日本語版の記事ならtrueを返す

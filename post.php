@@ -57,6 +57,8 @@ if (!isset($ttitle)) {
     }
 }
 
+//$MESSAGE = rtrim($MESSAGE);
+
 // {{{ ソースコードがきれいに再現されるように変換
 
 if (!empty($_POST['fix_source'])) {
@@ -545,8 +547,6 @@ function postIt($host, $bbs, $key, $post)
             }
         }
 
-        /* 2ch側 guid=ON の仕様変更 */
-        /* $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i'; */
         $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi(?:\\?guid=ON)?\"?>/i';
         $form_replace = <<<EOFORM
 <form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">

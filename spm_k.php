@@ -97,6 +97,7 @@ echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
+{$_conf['meta_charset_ht']}
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$ptitle_ht}</title>
 </head>\n

@@ -156,9 +156,10 @@ function fiGetImageInfo(type, value)
 function fiSetRank(rank)
 {
 	var images = document.getElementById('fi_stars').getElementsByTagName('img');
-	images[0].setAttribute('src', 'img/star-x' + ((rank == -1) ? '1' : '0') + '.png');
-	for (var i = 1; i < images.length; i++) {
-		images[i].setAttribute('src', 'img/star-s' + ((i > rank) ? '0' : '1') + '.png');
+	var pos = rank + 1;
+	images[0].setAttribute('src', 'img/sn' + ((rank == -1) ? '1' : '0') + '.png');
+	for (var i = 2; i < images.length; i++) {
+		images[i].setAttribute('src', 'img/s' + ((i > pos) ? '0' : '1') + '.png');
 	}
 }
 

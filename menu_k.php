@@ -77,8 +77,9 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$ptitle}</title>
+{$_conf['meta_charset_ht']}
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<title>{$ptitle}</title>
 EOP;
 
 echo <<<EOP
