@@ -18,15 +18,17 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     // クラスA-Cのプライベートアドレス
     'private'   => 1,
     // NTT DoCoMo iモード
-    'docomo'    => 1,
+    'docomo'    => 0,
     // au EZweb
-    'au'        => 1,
+    'au'        => 0,
     // SoftBank Mobile
-    'softbank'  => 1,
+    'softbank'  => 0,
     // WILLCOM AIR-EDGE
-    'willcom'   => 1,
+    'willcom'   => 0,
     // EMOBILE
-    'emobile'   => 1,
+    'emobile'   => 0,
+    // iPhone 3G
+    'iphone'    => 0,
     // ユーザー設定
     'custom'    => 0,
     // ユーザー設定 (IPv6)

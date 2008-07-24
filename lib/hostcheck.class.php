@@ -182,6 +182,7 @@ EOF;
                 ($flag == $_HOSTCHKCONF['host_type']['softbank'] && HostCheck::isAddrSoftbank($addr)) ||
                 ($flag == $_HOSTCHKCONF['host_type']['willcom'] && HostCheck::isAddrWillcom($addr)) ||
                 ($flag == $_HOSTCHKCONF['host_type']['emobile'] && HostCheck::isAddrEmobile($addr)) ||
+                ($flag == $_HOSTCHKCONF['host_type']['iphone'] && HostCheck::isAddrIphone($addr)) ||
                 ($flag == $_HOSTCHKCONF['host_type']['custom'] && !empty($custom) && HostCheck::isAddrInBand($addr, $custom)))
             {
                 return $ret;
@@ -550,7 +551,7 @@ EOF;
             $addr = $_SERVER['REMOTE_ADDR'];
         }
         // ‚æ‚­•ª‚©‚Á‚Ä‚È‚¢‚Ì‚Å‘åŽG”c
-        $yHost = '/\.(jp-[a-z]|[a-z]\.vodafone|pcsitebrowser|softbank)\.ne\.jp$/';
+        $yHost = '/\.(?:jp-[a-z]|[a-z]\.vodafone|pcsitebrowser|softbank)\.ne\.jp$/';
         $yBand = array(
             '123.108.236.0/24',
             '123.108.237.0/27',
@@ -701,7 +702,7 @@ EOF;
         return HostCheck::isAddrInBand($addr, $wBand, $wHost);
     }
 
-// }}}
+    // }}}
     // {{{ isAddrEmobile()
 
     /**
@@ -714,14 +715,32 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $eHost = '/^e(mnet|-?mobile)\.ne\.jp$/';
-        $eBand = array(
+        $emHost = '/^e(?:mnet|-?mobile)\.ne\.jp$/';
+        $emBand = array(
             '117.55.1.224/27',
         );
-        return HostCheck::isAddrInBand($addr, $eBand, $eHost);
+        return HostCheck::isAddrInBand($addr, $emBand, $emHost);
     }
 
-// }}}
+    // }}}
+    // {{{ isAddrIphone()
+
+    /**
+     * iPhone 3G (SoftBank)?
+     */
+    function isAddrIphone($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+        $iHost = '/\.(?:[0-9]|1[0-5])\.tik\.panda-world\.ne\.jp$/';
+        $iBand = array(
+            '126.240.0.0/12',
+        );
+        return HostCheck::isAddrInBand($addr, $iBand, $iHost);
+    }
+
+    // }}}
 }
 
 // }}}
