@@ -19,7 +19,7 @@ if (!empty($GLOBALS['wakati_words'])) {
 
 if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
     $allfav_ht = <<<EOP
-<p><a href="subject.php?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></p>
+<div><a href="subject.php?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></div>
 EOP;
 }
 
@@ -70,7 +70,7 @@ $sb_range_st = "{$sb_range_on}/{$sb_disp_all_num} ";
 
 if (!$disp_navi['all_once']) {
     $k_sb_navi_ht = <<<EOP
-<p>{$sb_range_st}{$mae_ht} {$tugi_ht}</p>
+<div>{$sb_range_st}{$mae_ht} {$tugi_ht}</div>
 EOP;
 }
 
@@ -160,13 +160,13 @@ echo $k_sb_navi_ht;
 include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 echo $allfav_ht;
 echo $switchfavlist_ht;
-echo "<p>";
+echo "<div>";
 echo $dat_soko_ht;
 echo $taborn_link_ht;
 echo $buildnewthread_ht;
-echo "</p>";
+echo "</div>";
 echo $htm['change_sort'];
 echo "<hr>";
-echo "<p><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></p>";
+echo "<div><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></div>";
 
 echo '</body></html>';

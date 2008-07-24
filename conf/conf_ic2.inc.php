@@ -14,6 +14,7 @@ $_conf['expack.ic2.general.compiledir'] = "compile";
 
 // DSN (DBに接続するためのデータソース名)
 // @link http://jp.pear.php.net/manual/ja/package.database.db.intro-dsn.php
+// 例)
 //  MySQL:       "mysql://username:password@localhost:3306/database"
 //  PostgreSQL:  "pgsql://username:password@localhost:5432/database"
 //  SQLite2:     "sqlite:///./cache/imgcache.sqlite"

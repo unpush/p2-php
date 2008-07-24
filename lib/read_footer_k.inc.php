@@ -42,26 +42,22 @@ EOP;
         $q_ichi = $res1['body']." | ";
     }
     echo <<<EOP
-<p>
-<a id="footer" name="footer">{$hd['read_range']}</a><br>
+<div><a id="footer" name="footer">{$hd['read_range']}</a><br>
 {$read_navi_previous_btm}
 {$read_navi_next_btm}
 {$read_navi_latest_btm}
 {$read_footer_navi_new_btm}
 {$dores_ht}
-{$read_navi_filter_btm}
-</p>
-<p>
-    {$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.Å£</a>
-</p>
+{$read_navi_filter_btm}</div>
+<div>{$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.Å£</a></div>
 {$htm['goto']}\n
 EOP;
     if ($diedat_msg) {
         echo '<hr>';
         echo $diedat_msg;
-        echo '<p>';
+        echo '<div>';
         echo  $motothre_ht;
-        echo '</p>' . "\n";
+        echo '</div>' . "\n";
     }
 }
 echo '<hr>'.$_conf['k_to_index_ht'] . "\n";
