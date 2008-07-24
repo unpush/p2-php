@@ -192,17 +192,15 @@ if ($aThread->diedat) {
     $motothre_ht = "<a href=\"{$motothre_url}\">{$motothre_url}</a>";
 
     echo $diedat_msg;
-    echo "<p>";
+    echo "<div>";
     echo  $motothre_ht;
-    echo "</p>";
+    echo "</div>";
     echo "<hr>";
 
     // 既得レスがなければツールバー表示
     if (!$aThread->rescount) {
         echo <<<EOP
-<p>
-{$toolbar_right_ht}
-</p>
+<div>{$toolbar_right_ht}</div>
 EOP;
     }
 }
@@ -211,13 +209,11 @@ EOP;
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])) {
 
     echo <<<EOP
-<p>
-{$htm['read_navi_range']}
+<div>{$htm['read_navi_range']}
 {$read_navi_previous}
 {$read_navi_next}
 {$read_navi_latest}
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#footer">{$_conf['k_accesskey']['bottom']}.▼</a>
-</p>\n
+<a {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#footer">{$_conf['k_accesskey']['bottom']}.▼</a></div>\n
 EOP;
 
 }

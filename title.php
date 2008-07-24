@@ -137,7 +137,7 @@ echo <<<EOP
 <br>
 <div class="container">
     {$newversion_found}
-    <p>rep2-expack rev.{$_conf['p2expack']}; based on rep2-{$_conf['p2version']}<br>
+    <p>rep2-expack rev.{$_conf['p2expack']}; extends rep2-{$_conf['p2version']}<br>
     <a href="{$expack_url_r}"{$_conf['ext_win_target_at']}>{$_conf['expack.web_url']}</a><br>
     <a href="{$p2web_url_r}"{$_conf['ext_win_target_at']}>{$_conf['p2web_url']}</a></p>
     <ul>
