@@ -42,14 +42,14 @@ EOP;
         $q_ichi = $res1['body']." | ";
     }
     echo <<<EOP
-<div><a id="footer" name="footer">{$hd['read_range']}</a><br>
+<div class="read-footer"><a id="footer" name="footer">{$hd['read_range']}</a><br>
 {$read_navi_previous_btm}
 {$read_navi_next_btm}
 {$read_navi_latest_btm}
 {$read_footer_navi_new_btm}
 {$dores_ht}
 {$read_navi_filter_btm}</div>
-<div>{$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.Å£</a></div>
+<div class="read-footer">{$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.Å£</a></div>
 {$htm['goto']}\n
 EOP;
     if ($diedat_msg) {
@@ -61,5 +61,15 @@ EOP;
     }
 }
 echo '<hr>'.$_conf['k_to_index_ht'] . "\n";
+
+// iPhone & ImageCache2
+if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
+    $ic2conf = ic2_loadconfig();
+    if ($ic2conf['Thumb1']['width'] > 80) {
+        include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
+    } else {
+        include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+    }
+}
 
 echo '</body></html>';

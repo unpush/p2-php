@@ -150,6 +150,7 @@ if ($_conf['input_type_search']) {
     <?php echo $_conf['meta_charset_ht']; ?>
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <?php echo $_conf['extra_headers_ht']; ?>
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>2chåüçı by Google : <?php echo $word; ?></title>
     <link rel="stylesheet" href="css.php?css=style&amp;skin=<?php echo $skin_en; ?>" type="text/css">

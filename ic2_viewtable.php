@@ -89,6 +89,8 @@ $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
 $flexy->setData('reload_js', $_SERVER['SCRIPT_NAME'] . '?nt=' . time() . '&table=' . $mode);
 $flexy->setData('info_msg', $_info_msg_ht);
+$flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
+$flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 
 if ($table->find()) {
     switch ($mode) {

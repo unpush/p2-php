@@ -134,17 +134,20 @@ function fiGetImageInfo(type, value)
 	}
 
 	var info_array = info.split(',');
-	var id, rank, memo;
 
-	if (info_array.length < 3) {
+	if (info_array.length < 6) {
 		alert('‰æ‘œî•ñ‚ðŽæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½');
 		return;
 	}
 
-	id = parseInt(info_array[0]);
-	rank = parseInt(info_array[1]);
-	memo = info_array[2];
-	for (var i = 3; i < info_array.length; i++) {
+	var id     = parseInt(info_array[0]);
+	var width  = parseInt(info_array[1]);
+	var height = parseInt(info_array[2]);
+	var size   = parseInt(info_array[3]);
+	var rank   = parseInt(info_array[4]);
+	var memo   = info_array[5];
+
+	for (var i = 6; i < info_array.length; i++) {
 		memo += ',' + info_array[i];
 	}
 
