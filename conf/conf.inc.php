@@ -621,6 +621,13 @@ if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
 // }}}
 // {{{ セッション
 
+// クッキーが使えない場合にsession.use_only_cookiesが1だとセッションが
+// 継続できないので（セキュリティリスクが高まるがクッキーがない場合は
+// こうするしかない）
+if ($_conf['disable_cookie'] && ini_get('session.use_only_cookies')) {
+    ini_set('session.use_only_cookies', 0);
+}
+
 // 名前は、セッションクッキーを破棄するときのために、セッション利用の有無に関わらず設定する
 session_name('PS');
 
