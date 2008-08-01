@@ -1492,6 +1492,7 @@ EOJS;
 
         foreach($replaced as $v) {
             $url_en = rawurlencode($v['url']);
+            $url_ht = htmlspecialchars($v['url'], ENT_QUOTES);
             $ref_en = $v['referer'] ? '&amp;ref=' . rawurlencode($v['referer']) : '';
 
             // 準備
@@ -1552,6 +1553,9 @@ EOJS;
                 $thumb_size = preg_replace('/(\d+)x(\d+)/', 'width="$1" height="$2"', $thumb_size);
                 $tmp_thumb = './img/ic_load1.png';
 
+                $orig_img_url   = $img_url;
+                $orig_thumb_url = $thumb_url;
+
             // 画像がキャッシュされていないとき
             // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
             } else {
@@ -1563,6 +1567,9 @@ EOJS;
 
                 $cached = FALSE;
 
+
+                $orig_img_url   = $img_url;
+                $orig_thumb_url = $thumb_url;
                 $img_url .= $this->img_memo_query;
                 $thumb_url .= $this->img_memo_query;
                 $thumb_size = '';
@@ -1595,6 +1602,10 @@ EOJS;
                 $img_tag = "<img id=\"{$thumb_id}\" class=\"thumbnail\" src=\"{$tmp_thumb}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
                 $view_img = "<a href=\"{$img_url}\" onclick=\"return loadThumb('{$thumb_url}','{$thumb_id}')\"{$_conf['ext_win_target_at']}>{$img_tag}</a><a href=\"{$img_url}\"{$_conf['ext_win_target_at']}></a>";
             }
+
+            $view_img .= '<img class="ic2-info-opener" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
+                    //. "'{$url_ht}', '{$orig_img_url}', '{$_conf['ext_win_target']}', '{$orig_thumb_url}', event)\">";
+                      . "'{$url_ht}', event)\">";
 
             $result .= $view_img;
         }
