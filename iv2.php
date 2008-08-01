@@ -321,6 +321,8 @@ if ($_conf['ktai']) {
 } else {
     $flexy->setData('skin', str_replace('&amp;', '&', $skin_en));
 }
+$flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
+$flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 
 // }}}
 // {{{ validate

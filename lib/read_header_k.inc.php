@@ -137,6 +137,13 @@ EOP;
 
 // }}}
 
+// iPhone & ImageCache2
+if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
+    $ic2_iphone_js = "<script type=\"text/javascript\" src=\"js/ic2_iphone.js?{$_conf['p2expack']}\"></script>";
+    $_conf['extra_headers_ht'] .= $ic2_iphone_js;
+    $_conf['extra_headers_xht'] .= $ic2_iphone_js;
+}
+
 //====================================================================
 // ŒŸõ‚Ì“Á•Ê‚Èˆ—
 //====================================================================
@@ -168,6 +175,7 @@ echo <<<EOHEADER
 <html>
 <head>
 {$_conf['meta_charset_ht']}
+{$_conf['extra_headers_ht']}
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$ptitle_ht}</title>\n
 EOHEADER;
@@ -209,7 +217,7 @@ EOP;
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])) {
 
     echo <<<EOP
-<div>{$htm['read_navi_range']}
+<div class="read-header">{$htm['read_navi_range']}
 {$read_navi_previous}
 {$read_navi_next}
 {$read_navi_latest}

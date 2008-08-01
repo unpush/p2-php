@@ -41,10 +41,10 @@ EOP;
     $rss_k_ht = '';
     $iv2_k_ht = '';
     if ($_conf['expack.rss.enabled']) {
-        $rss_k_ht = "#.<a {$_conf['accesskey']}=\"#\" href=\"menu_k.php?view=rss{$m_rss_set_a}{$_conf['k_at_a']}\">RSS</a><br>";
+        $rss_k_ht = "<a href=\"menu_k.php?view=rss{$m_rss_set_a}{$_conf['k_at_a']}\">RSS</a><br>";
     }
     if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) {
-        $iv2_k_ht = "%.<a href=\"iv2.php{$_conf['k_at_q']}\">‰æ‘œ·¬¯¼­ˆê——</a><br>";
+        $iv2_k_ht = "<a href=\"iv2.php{$_conf['k_at_q']}\">‰æ‘œ·¬¯¼­ˆê——</a><br>";
     }
 
     //=========================================================
@@ -56,6 +56,7 @@ EOP;
 <html>
 <head>
 {$_conf['meta_charset_ht']}
+{$_conf['extra_headers_ht']}
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$ptitle}</title>
 </head>
@@ -74,7 +75,7 @@ EOP;
 <a {$_conf['accesskey']}="9" href="setting.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">9.Û¸Ş²İŠÇ—</a><br>
 <a {$_conf['accesskey']}="0" href="editpref.php?dummy=1{$user_at_a}{$_conf['k_at_a']}">0.İ’èŠÇ—</a><br>
 {$rss_k_ht}
-?.<a href="tgrepc.php{$_conf['k_at_q']}">½ÚÀ²ŒŸõ</a><br>
+<a href="tgrepc.php{$_conf['k_at_q']}">½ÚÀ²ŒŸõ</a><br>
 {$iv2_k_ht}
 
 <hr>

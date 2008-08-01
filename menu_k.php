@@ -78,6 +78,7 @@ echo <<<EOP
 <html>
 <head>
 {$_conf['meta_charset_ht']}
+{$_conf['extra_headers_ht']}
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$ptitle}</title>
 EOP;

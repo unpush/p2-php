@@ -1333,6 +1333,7 @@ EOJS;
             $thumb_id = 'thumbs' . $serial . '_' . P2_REQUEST_ID;
             $tmp_thumb = './img/ic_load.png';
             $url_en = rawurlencode($url);
+            $url_ht = htmlspecialchars($url, ENT_QUOTES);
 
             $icdb = &new IC2DB_Images;
 
@@ -1384,6 +1385,9 @@ EOJS;
                 $thumb_size = preg_replace('/(\d+)x(\d+)/', 'width="$1" height="$2"', $thumb_size);
                 $tmp_thumb = './img/ic_load1.png';
 
+                $orig_img_url   = $img_url;
+                $orig_thumb_url = $thumb_url;
+
             // 画像がキャッシュされていないとき
             // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
             } else {
@@ -1394,6 +1398,9 @@ EOJS;
 
                 $cached = FALSE;
 
+
+                $orig_img_url   = $img_url;
+                $orig_thumb_url = $thumb_url;
                 $img_url .= $this->img_memo_query;
                 $thumb_url .= $this->img_memo_query;
                 $thumb_size = '';
@@ -1437,6 +1444,10 @@ EOJS;
                 }
                 $view_img .= " <a class=\"img_through_ime\" href=\"{$ime_url}\"{$_conf['ext_win_target_at']}>{$ime_mark}</a>";
             }
+
+            $view_img .= '<img class="ic2-info-opener" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
+                    //. "'{$url_ht}', '{$orig_img_url}', '{$_conf['ext_win_target']}', '{$orig_thumb_url}', event)\">";
+                      . "'{$url_ht}', event)\">";
 
             return $view_img;
         }

@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>tGrep<?php if (strlen($htm['query']) > 0) { echo ' - ', $htm['query']; } ?></title>
-    <?php echo $htm['mobile_css']; ?>
+    <?php echo $htm['mobile_css'], $_conf['extra_headers_ht']; ?>
 </head>
 <body>
 
