@@ -171,6 +171,8 @@ $view->info_msg = $_info_msg_ht;
 $view->upfiles  = $upfiles;
 $view->maxfilesize = $maxsize_si;
 $view->maxpostsize = ini_get('post_max_size');
+$view->extra_headers   = $_conf['extra_headers_ht'];
+$view->extra_headers_x = $_conf['extra_headers_xht'];
 
 // ページを表示
 P2Util::header_nocache();

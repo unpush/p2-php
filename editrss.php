@@ -67,6 +67,7 @@ echo <<<EOP
     {$_conf['meta_charset_ht']}
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
+    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>p2 - RSS‚Ì•À‚Ñ‘Ö‚¦</title>
     <script type="text/javascript" src="js/yui/YAHOO.js?{$_conf['p2expack']}" ></script>

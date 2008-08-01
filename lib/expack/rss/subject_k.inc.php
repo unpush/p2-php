@@ -8,6 +8,7 @@ echo <<<EOH
 <html lang="ja">
 <head>
 {$_conf['meta_charset_ht']}
+{$_conf['extra_headers_ht']}
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$title}</title>
 </head>

@@ -127,14 +127,22 @@ EOP;
 
 // include_once P2_LIB_DIR . '/read_header.inc.php';
 
+// iPhone & ImageCache2
+if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
+    $ic2_iphone_js = '<script type="text/javascript" src="js/ic2_iphone.js"></script>';
+    $_conf['extra_headers_ht'] .= $ic2_iphone_js;
+    $_conf['extra_headers_xht'] .= $ic2_iphone_js;
+}
+
 echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
 <head>
     {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
+    {$_conf['extra_headers_ht']}
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle_ht}</title>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
@@ -158,6 +166,9 @@ if ($_conf['expack.am.enabled']) {
 if ($_conf['expack.spm.enabled']) {
     echo "\t<script type=\"text/javascript\" src=\"js/invite.js?{$_conf['p2expack']}\"></script>\n";
     echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2expack']}\"></script>\n";
+}
+if ($_conf['expack.ic2.enabled']) {
+    echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css?{$_conf['p2expack']}\">\n";
 }
 
 $fade = empty($_GET['fade']) ? 'false' : 'true';
@@ -624,6 +635,11 @@ EOP;
         {$sb_ht} ÇÃ <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1">êVíÖÇ‹Ç∆Çﬂì«Ç›ÇÃë±Ç´</a>
     </div>\n
 EOP;
+}
+
+if ($_conf['expack.ic2.enabled']) {
+    echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js?{$_conf['p2expack']}\"></script>";
+    include P2EX_LIB_DIR . '/ic2/templates/info.tpl.html';
 }
 
 echo '</body></html>';

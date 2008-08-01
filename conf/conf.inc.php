@@ -6,8 +6,8 @@
 */
 
 $_conf['p2version'] = '1.7.29';     // rep2のバージョン
-$_conf['p2expack'] = '080724.0700'; // 拡張パックのバージョン
-$_conf['p2name'] = '30AD,30E9,30C3,2606'; // rep2の名前
+$_conf['p2expack'] = '080731.1729'; // 拡張パックのバージョン
+$_conf['p2name'] = 'pickle';        // rep2の名前
 
 //======================================================================
 // 基本設定処理
@@ -319,8 +319,19 @@ if (P2Util::isBrowserIphone()) {
     $_conf['input_type_search'] = true;
     $_conf['ktai'] = true;
     $_conf['iphone'] = true;
+    $_conf['extra_headers_ht'] = <<<EOS
+<meta name="viewport" content="width=320" content="initial-scale=1.0">
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2expack']}">
+<script type="text/javascript" src="js/iphone.js?{$_conf['p2expack']}"></script>
+EOS;
+    $_conf['extra_headers_xht'] = <<<EOS
+<meta name="viewport" content="width=320" content="initial-scale=1.0" />
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2expack']}" />
+<script type="text/javascript" src="js/iphone.js?{$_conf['p2expack']}"></script>
+EOS;
 } else {
     $_conf['iphone'] = false;
+    $_conf['extra_headers_ht'] = $_conf['extra_headers_xht'] = '';
 }
 
 
@@ -610,6 +621,13 @@ if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
 
 // }}}
 // {{{ セッション
+
+// クッキーが使えない場合にsession.use_only_cookiesが1だとセッションが
+// 継続できないので（セキュリティリスクが高まるがクッキーがない場合は
+// こうするしかない）
+if ($_conf['disable_cookie'] && ini_get('session.use_only_cookies')) {
+    ini_set('session.use_only_cookies', 0);
+}
 
 // 名前は、セッションクッキーを破棄するときのために、セッション利用の有無に関わらず設定する
 session_name('PS');

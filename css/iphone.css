@@ -1,0 +1,138 @@
+/* General */
+
+body {
+	margin: 0px;
+	padding: 10px;
+	font-family: sans-serif;
+	line-height: 140%;
+}
+
+div, h1, h2, h3, h4, h5, h6, li, p {
+	word-break: normal;
+	word-wrap: break-word;
+}
+
+a {
+	word-break: break-all;
+}
+
+p, form {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+div.read-footer {
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	line-height: 150%;
+}
+
+div.read-header a, div.read-footer a {
+	font-size: large;
+	/* margin-left: 0.3em; */
+	margin-right: 0.3em;
+}
+
+div.pager a {
+	font-size: large;
+	margin-left: 0.3em;
+	margin-right: 0.3em;
+}
+
+a img {
+	vertical-align: middle;
+}
+
+/* ImageCache2 */
+
+div#ic2-info {
+	display: none;
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	width: 300px;
+	margin: 0px;
+	padding: 0px;
+	z-index: 100;
+	line-height: 100%;
+}
+
+div#ic2-info-head, div#ic2-info-foot {
+	background-image: url('../img/iphone/bg-b.png');
+	margin: 0px 20px;
+	padding: 0px;
+	font-size: 1px;
+	line-height: 1px;
+}
+
+div#ic2-info-body {
+	background-image: url('../img/iphone/bg-b.png');
+	margin: 0px 4px;
+	padding: 0px 16px;
+}
+
+#ic2-info-preview,
+#ic2-info-message {
+	margin: 0px;
+	padding: 2px;
+	vertical-align: middle;
+}
+
+#ic2-info-preview {
+	background-image: url('../img/iphone/ck-wt.png');
+	text-align:center;
+}
+
+#ic2-info-message {
+	color: #ffffff;
+	line-height: 120%;
+	/* text-shadow: #666633 1px 1px 0px; */
+	word-break: break-all;
+}
+
+#ic2-info-rating {
+	margin: 5px 0px 0px 0px;
+	padding: 0px;
+	font-size: 8px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+div#ic2-info img {
+	margin: 0px;
+	border-width: 0px;
+}
+
+img#ic2-info-closer {
+	cursor: pointer;
+	position: absolute;
+	top: -8px;
+	left: -4px;
+	z-index: 200;
+	clear: right;
+}
+
+img#ic2-info-closer,
+img.ic2-info-opener,
+div#ic2-info-rating img {
+	cursor: pointer;
+}
+
+div#ic2-info-head img.lcorner,
+div#ic2-info-foot img.lcorner {
+	margin-left: -16px;
+}
+
+div#ic2-info-head img.rcorner,
+div#ic2-info-foot img.rcorner {
+	position: absolute;
+	right: 4px;
+}
+
+div#ic2-info-head img.rcorner {
+	top: 0px;
+}
+
+div#ic2-info-foot img.rcorner {
+	bottom: 0px;
+}

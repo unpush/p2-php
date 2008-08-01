@@ -143,7 +143,8 @@ $flexy = &new HTML_Template_Flexy($_flexy_options);
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('skin', $skin_en);
 $flexy->setData('isPopUp', $isPopUp);
-
+$flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
+$flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 
 // }}}
 // {{{ validate

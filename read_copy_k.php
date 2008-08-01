@@ -116,7 +116,7 @@ echo $_conf['doctype'];
 ?>
 <html>
 <head>
-<?php echo $_conf['meta_charset_ht']; ?>
+<?php echo $_conf['meta_charset_ht'], $_conf['extra_headers_ht']; ?>
 <title><?php echo $ttitle_ht; ?>/<?php echo $resid; ?></title>
 </head>
 <body<?php echo $k_color_settings; ?>>

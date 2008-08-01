@@ -122,9 +122,10 @@ function editFile($path, $encode)
 <html lang="ja">
 <head>
     {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
+    {$_conf['extra_headers_ht']}
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle}</title>
 </head>
 <body onLoad="top.document.title=self.document.title;">

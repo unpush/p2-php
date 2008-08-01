@@ -912,7 +912,8 @@ EOP;
             }
 
             $url_en = rawurlencode($url);
-            $img_str = '[IC2:'.$purl['host'].':'.basename($purl['path']).']';
+            $url_ht = htmlspecialchars($url, ENT_QUOTES);
+            $img_str = null;
 
             $icdb = &new IC2DB_Images;
 
@@ -944,19 +945,24 @@ EOP;
                 }
 
                 // インラインプレビューが有効のとき
+                $prv_url = null;
                 if ($this->thumbnailer->ini['General']['inline'] == 1) {
-                    $_prvw_url = $this->inline_prvw->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
-                    $r_type = ($this->thumbnailer->ini['General']['redirect'] == 1) ? 1 : 2;
+                    $prv_url = $this->inline_prvw->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
+
                     // サムネイル表示制限数以内のとき
                     if ($inline_preview_flag) {
                         // プレビュー画像が作られているかどうかでimg要素の属性を決定
-                        if (file_exists($_prvw_url)) {
-                            $prvw_size = explode('x', $this->inline_prvw->calc($icdb->width, $icdb->height));
-                            $img_str = "<img src=\"ic2.php?r={$r_type}&amp;t=1&amp;id={$icdb->id}\" width=\"{$prvw_size[0]}\" height=\"{$prvw_size[1]}\">";
-                        } elseif ($src_exists) {
-                            $img_str = "<img src=\"ic2.php?r={$r_type}&amp;t=1&amp;id={$icdb->id}\">";
+                        if (file_exists($prv_url)) {
+                            $prv_size = explode('x', $this->inline_prvw->calc($icdb->width, $icdb->height));
+                            $img_str = "<img src=\"{$prv_url}\" width=\"{$prvw_size[0]}\" height=\"{$prvw_size[1]}\">";
                         } else {
-                            $img_str = "<img src=\"ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}\">";
+                            $r_type = ($this->thumbnailer->ini['General']['redirect'] == 1) ? 1 : 2;
+                            if ($src_exists) {
+                                $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;id={$icdb->id}";
+                            } else {
+                                $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}";
+                            }
+                            $img_str = "<img src=\"{$prv_url}\">";
                         }
                         $inline_preview_done = TRUE;
                     } else {
@@ -1003,8 +1009,26 @@ EOP;
             } else {
                 $backto = '';
             }
-            return "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";
+
+            if (is_null($img_str)) {
+                return sprintf('<a href="%s%s">[IC2:%s:%s]</a>',
+                               $img_url,
+                               $backto,
+                               htmlspecialchars($purl['host']),
+                               htmlspecialchars(basename($purl['path']))
+                               );
+            }
+
+            if ($_conf['iphone']) {
+                return "<a href=\"{$img_url}{$backto}\" target=\"_blank\">{$img_str}</a>"
+                   //. ' <img class="ic2-info-opener" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
+                     . ' <input type="button" value="i" onclick="ic2info.show('
+                     . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";
+            } else {
+                return "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";
+            }
         }
+
         return FALSE;
     }
 

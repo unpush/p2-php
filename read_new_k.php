@@ -123,6 +123,13 @@ EOP;
 EOP;
 }
 
+// iPhone & ImageCache2
+if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
+    $ic2_iphone_js = "<script type=\"text/javascript\" src=\"js/ic2_iphone.js?{$_conf['p2expack']}\"></script>";
+    $_conf['extra_headers_ht'] .= $ic2_iphone_js;
+    $_conf['extra_headers_xht'] .= $ic2_iphone_js;
+}
+
 // ========================================================
 // include_once P2_LIB_DIR . '/read_header.inc.php';
 
@@ -131,6 +138,7 @@ echo <<<EOHEADER
 <html>
 <head>
 {$_conf['meta_charset_ht']}
+{$_conf['extra_headers_ht']}
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <title>{$ptitle_ht}</title>\n
 EOHEADER;
@@ -441,7 +449,7 @@ EOP;
 EOTOOLBAR;
 
     $read_footer_ht = <<<EOP
-<div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
+<div class="read-footer" id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
 {$read_range_ht}
 {$spm_ht}<br>
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}
@@ -508,6 +516,16 @@ EOP;
 }
 
 echo '<hr>'.$_conf['k_to_index_ht']."\n";
+
+// iPhone & ImageCache2
+if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
+    $ic2conf = ic2_loadconfig();
+    if ($ic2conf['Thumb1']['width'] > 80) {
+        include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
+    } else {
+        include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+    }
+}
 
 echo '</body></html>';
 

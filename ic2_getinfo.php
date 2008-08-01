@@ -26,7 +26,6 @@ header('Content-Type: text/html; charset=UTF-8');
 // ƒpƒ‰ƒ[ƒ^‚ðŒŸØ
 if (!isset($_GET['id']) && !isset($_GET['url']) && !isset($_GET['md5'])) {
     echo '-1';
-    var_dump($_GET);
     exit;
 }
 
@@ -45,12 +44,15 @@ $finder = &new IC2DB_Images;
 if (isset($_GET['id'])) {
     $finder->whereAdd(sprintf('id=%d', (int)$_GET['id']));
 } elseif (isset($_GET['url'])) {
-    $finder->whereAddQuoted('url', '=', (string)$_GET['url']);
+    $finder->whereAddQuoted('uri', '=', (string)$_GET['url']);
 } else {
     $finder->whereAddQuoted('md5', '=', (string)$_GET['md5']);
 }
 if ($finder->find(1)) {
-    printf('%d,%d,%s', $finder->id, $finder->rank, $finder->memo);
+    printf('%d,%d,%d,%d,%d,%s',
+           $finder->id, $finder->width, $finder->height,
+           $finder->size, $finder->rank, $finder->memo
+           );
 } else {
     echo '-1';
 }
