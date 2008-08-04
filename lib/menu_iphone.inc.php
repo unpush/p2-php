@@ -199,7 +199,7 @@ function setSearchTarget(is_board)
 {
     var f = document.getElementById('search');
     var k = document.getElementById('keyword');
-    if (is_board) {
+    if (is_board == 'true') {
         f.setAttribute('action', 'menu_k.php');
         k.setAttribute('name', 'word');
     } else {
