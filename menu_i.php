@@ -46,8 +46,8 @@ if (isset($_POST['word'])) {
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
-    <meta name="viewport" content="width=320" content="initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=Shift_JIS" />
+    <meta name="viewport" content="width=<?php echo $_conf['viewport_width']; ?>, initial-scale=1.0" />
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
     <title>rep2</title>
     <script type="application/x-javascript" src="iui/iui.js"></script>
@@ -180,7 +180,10 @@ if ($_conf['expack.misc.multi_favs']) {
     // }}}
 } else {
     iShowFavIta('お気に板');
-    iShowRSS('RSS');
+
+    if ($_conf['expack.rss.enabled']) { 
+        iShowRSS('RSS');
+    }
 }
 ?>
 

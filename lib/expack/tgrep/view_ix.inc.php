@@ -1,5 +1,4 @@
 <?php
-require_once P2_LIB_DIR . '/thread.class.php';
 
 if ($htm['query'] === '') {
     echo "<div class=\"panel\" title=\"スレ検索\">無効なキーワードです。</div>";
