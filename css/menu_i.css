@@ -1,0 +1,16 @@
+ul.tgrep-result {
+	
+}
+
+ul.tgrep-result li {
+	
+}
+
+ul.tgrep-result li a {
+	word-break: break-all;
+}
+
+ul.tgrep-result li span {
+	font-size: medium;
+	font-weight: normal;
+}

@@ -53,6 +53,15 @@ if (isset($_GET['setfavita'])) {
     setFavIta();
 }
 
+// iPhone
+if ($_conf['iphone'] && (
+    (isset($_GET['view']) && in_array($_GET['view'], array('favita', 'rss'))) ||
+    (!isset($_GET['view']) && !(isset($word) && strlen($word) > 0))
+)) {
+    header('Location: index.php');
+    exit;
+}
+
 //================================================================
 // ÉÅÉCÉì
 //================================================================

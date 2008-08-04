@@ -4,11 +4,37 @@
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>tGrep<?php if (strlen($htm['query']) > 0) { echo ' - ', $htm['query']; } ?></title>
-    <?php echo $htm['mobile_css'], $_conf['extra_headers_ht']; ?>
+    <?php echo $_conf['extra_headers_ht']; ?>
+    <style type="text/css">
+h1, h2, h3, h4 {
+    font-size: medium;
+    margin-bottom: 0.5em;
+}
+
+ul {
+    margin: 0.5em;
+}
+
+div#quicksearch ul, div#recent ul {
+    display: block;
+    padding: 0px;
+}
+
+div#quicksearch li, div#recent li {
+    display: inline;
+    padding: 0px;
+    margin: 0px 0.5em 0px 0px;
+    font-size: large;
+}
+
+div#howto ul {
+    padding-left: 1.5em;
+}
+</style>
 </head>
 <body>
 
-<h1 id="top" name="top">ｽﾚｯﾄﾞﾀｲﾄﾙ検索</h1>
+<h1 id="top" name="top">スレッドタイトル検索</h1>
 
 <!-- Search Form -->
 <form action="<?php echo $htm['php_self']; ?>" method="get">
@@ -21,27 +47,31 @@
 <?php if (!$query) { ?>
 <?php
 if ($_conf['expack.tgrep.quicksearch']) {
+    echo "<div id=\"quicksearch\">\n";
     include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
-    echo "<hr>\n";
+    echo "</div>\n<hr>\n";
 }
 if ($_conf['expack.tgrep.recent_num'] > 0) {
+    echo "<div id=\"recent\">\n";
     include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
-    echo "<hr>\n";
+    echo "</div>\n<hr>\n";
 }
 ?>
 <!-- HowTo -->
+<div id="howto">
 <h4>仕様</h4>
 <ul>
-<li>ｷｰﾜｰﾄﾞはｽﾍﾟｰｽ区切りで3つまで指定でき､すべてを含むものが抽出されます｡</li>
-<li>2つ目以降のｷｰﾜｰﾄﾞで頭に&quot;-&quot;をつけると､それを含まないものが抽出されます｡</li>
-<li>&quot; または &#39; で囲まれた部分はｽﾍﾟｰｽが入っていても一つのｷｰﾜｰﾄﾞとして扱います｡</li>
-<li>ｷｰﾜｰﾄﾞの全角半角､大文字小文字は無視されます｡</li>
-<li>ﾃﾞｰﾀﾍﾞｰｽの更新頻度は3時間に1回で､ﾚｽ数･勢い･活発さは更新時点での値です｡</li>
+<li>キーワードはスペース区切りで3つまで指定でき、すべてを含むものが抽出されます。</li>
+<li>2つ目以降のキーワードで頭に&quot;-&quot;をつけると、それを含まないものが抽出されます。</li>
+<li>&quot; または &#39; で囲まれた部分はスペースが入っていても一つのキーワードとして扱います。</li>
+<li>キーワードの全角半角、大文字小文字は無視されます。</li>
+<li>データベースの更新頻度は3時間に1回で、レス数・勢い・活発さは更新時点での値です。</li>
 </uL>
+</div>
 <?php } ?>
 <?php if ($errors) { ?>
 <!-- Errors -->
-<h4>ｴﾗｰ</h4>
+<h4>エラー</h4>
 <ul><?php foreach ($errors as $error) { ?><li><?php echo htmlspecialchars($error, ENT_QUOTES); ?></li><?php } ?></ul>
 <?php } ?>
 
@@ -57,7 +87,7 @@ if ($_conf['expack.tgrep.recent_num'] > 0) {
 <form action="<?php echo $htm['php_self']; ?>" method="get">
 <input type="hidden" name="Q" value="<?php echo $htm['query']; ?>">
 <select name="C">
-<option value="">ｶﾃｺﾞﾘを選択</option>
+<option value="">カテゴリを選択</option>
 <?php foreach ($profile['categories'] as $c) { ?><option value="<?php echo $c->id; ?>"<?php if ($c->id == $htm['category']) { echo ' selected'; } ?>><?php echo mb_convert_kana(htmlspecialchars($c->name, ENT_QUOTES), 'rnsk'); ?> (<?php echo $c->hits; ?>)</option><?php } ?>
 </select>
 <input type="submit" value="絞込">
@@ -67,7 +97,7 @@ if ($_conf['expack.tgrep.recent_num'] > 0) {
 
 <?php if ($threads) { ?>
 <!-- ThreadList and Pager -->
-<div><a href="#bottom" <?php echo $_conf['accesskey']; ?>="8" align="right" title="下へ">8.▼</a></div>
+<div><a href="#bottom" align="right" title="下へ">▼</a></div>
 <?php
 include_once P2_LIB_DIR . '/thread.class.php';
 foreach ($threads as $o => $t) {
@@ -94,7 +124,7 @@ foreach ($threads as $o => $t) {
 <p><?php echo $o; ?>.<a href="<?php echo $turl; ?>"><?php echo $ttitle; ?></a><br>
 <small><?php echo date('y/m/d ', $t->tkey); ?><a href="<?php echo $burl; ?>"><?php echo $itaj; ?>(<?php echo $profile['boards'][$t->bid]->hits; ?>)</a></small></p>
 <?php } ?>
-<div><a href="#top" <?php echo $_conf['accesskey']; ?>="2" align="right" title="上へ">2.▲</a></div>
+<div><a href="#top" align="right" title="上へ">▲</a></div>
 <?php if ($htm['pager']) { ?>
 <hr>
 <div><?php echo $htm['pager']; ?></div>
@@ -102,11 +132,11 @@ foreach ($threads as $o => $t) {
 <?php } ?>
 <hr>
 <p id="bottom" name="bottom">
-<a <?php echo $_conf['accesskey']; ?>="0" href="index.php">0.TOP</a>
+<a href="index.php">TOP</a>
 <?php if ($query) { ?>
-<a <?php echo $_conf['accesskey']; ?>="5" href="tgrepc.php">5.tGrep</a>
+<a href="tgrepc.php">tGrep</a>
 <?php if ($_conf['expack.tgrep.quicksearch']) { ?>
-<a <?php echo $_conf['accesskey']; ?>="9" href="tgrepctl.php?file=quick&amp;query=<?php echo $htm['query_en']; ?>">9.<?php echo $htm['query']; ?>を一発検索に追加</a>
+<a href="tgrepctl.php?file=quick&amp;query=<?php echo $htm['query_en']; ?>"><?php echo $htm['query']; ?>を一発検索に追加</a>
 <?php } ?>
 <?php } ?>
 </p>

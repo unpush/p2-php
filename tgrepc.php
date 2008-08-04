@@ -25,12 +25,25 @@ if ($_conf['view_forced_by_query']) {
 
 // {{{ 準備
 
+if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        require_once P2_LIB_DIR . '/menu_iphone.inc.php';
+        $_GET['Q'] = unicode_urldecode($_POST['iq']);
+    } else {
+        $_GET['Q'] = $_GET['iq'];
+    }
+    $ix = true;
+} else {
+    $ix = false;
+}
+
 $query_params = array();
 if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
-    include_once 'Cache/Lite.php';
-    include_once 'HTTP/Client.php';
+    require_once 'Cache/Lite.php';
+    require_once 'HTTP/Client.php';
+
     $query_params['q'] = $_GET['Q'];
-    $query_params['n'] = $limit = ($_conf['ktai']) ? '25' : '100';
+    $query_params['n'] = $limit = ($_conf['ktai'] || $_conf['iphone']) ? '25' : '100';
     //$query_keys = array('s', 'b', 'c', 'o', 'n', 'p');
     $query_keys = array('c', 'p');
     foreach ($query_keys as $_k) {
@@ -45,6 +58,7 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
         }
     }
     mb_convert_variables('UTF-8', 'SJIS-win', $query_params);
+
     ini_set('arg_separator.output', '&'); // ≒ ini_restore('arg_separator.output');
     $query = http_build_query($query_params);
     ini_set('arg_separator.output', '&amp;');
@@ -176,7 +190,7 @@ if (!$_conf['ktai']) {
 $htm['search_attr'] .= ' maxlength="50" value="' . $htm['query'] . '"';
 
 // スタイルシート
-if (!$_conf['ktai']) {
+if (!$_conf['ktai'] && !$_conf['iphone']) {
     $htm['message_background'] = "background-color:#ffffcc;";
     if (isset($STYLE['respop_bgcolor']) || isset($STYLE['respop_background'])) {
         $htm['message_background'] = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
@@ -229,7 +243,7 @@ MOBILE_STYLE;
 }
 
 // ページャ
-if ($subhits && $subhits > $limit) {
+if (!$ix && $subhits && $subhits > $limit) {
     include_once 'Pager/Pager.php';
     $pager_options = array();
     $pager_options = array(
@@ -280,10 +294,19 @@ if ($subhits && $subhits > $limit) {
 if (empty($_GET['M'])) {
     P2Util::header_nocache();
 }
-if (!$_conf['ktai']) {
-    include P2EX_LIB_DIR . '/tgrep/view.inc.php';
-} else {
+
+if ($ix) {
+    header('Content-Type: application/xml; charset=UTF-8');
+    //header('Content-Type: text/plain; charset=UTF-8');
+    ob_start();
+    include P2EX_LIB_DIR . '/tgrep/view_ix.inc.php';
+    echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
+} elseif ($_conf['iphone']) {
+    include P2EX_LIB_DIR . '/tgrep/view_i.inc.php';
+} elseif ($_conf['ktai']) {
     include P2EX_LIB_DIR . '/tgrep/view_k.inc.php';
+} else {
+    include P2EX_LIB_DIR . '/tgrep/view.inc.php';
 }
 
 // }}}
