@@ -1,15 +1,15 @@
 <?php
 // vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
 /**
- * rep2 - iPhone専用メニュー (要iui)
+ * rep2 - iPhone/iPod Touch専用メニュー (要iui)
  *
  * @link http://code.google.com/p/iui/
  */
 
-require_once P2_LIB_DIR . '/brdctl.class.php';
-
-// TODO: レンダリング済の板リストをキャッシュする
-$brd_menus = BrdCtl::read_brds()
+if (isset($_GET['cate_id'])) {
+    iShowBrdMenu((int)$_GET['cate_id']);
+    return;
+}
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -46,7 +46,7 @@ $brd_menus = BrdCtl::read_brds()
     <li><a href="subject.php?spmode=fav" target="_self">お気にスレ</a></li>
     <li><a href="menu_k.php?view=favita" target="_self">お気に板</a></li>
 <?php } ?>
-    <li><a href="#cate">板リスト</a></li>
+    <li><a href="?cate_id=0">板リスト</a></li>
     <li><a href="subject.php?spmode=palace&amp;norefresh=1" target="_self">スレの殿堂</a></li>
 
     <li class="group">履歴</li>
@@ -99,7 +99,7 @@ if ($_conf['expack.misc.multi_favs']) {
     echo $fav_new_elems;
     echo '<li class="group">全て</li>';
     echo $fav_elems;
-    echo '</ul>';
+    echo "</ul>\n";
 
     // }}}
     // {{{ お気に板
@@ -112,7 +112,7 @@ if ($_conf['expack.misc.multi_favs']) {
         echo "<li><a href=\"menu_k.php?view=favita&amp;m_favita_set={$no}\" target=\"_self\">{$name}</a></li>";
     }
 
-    echo '</ul>';
+    echo "</ul>\n";
 
     // }}}
     // {{{ RSS
@@ -126,49 +126,13 @@ if ($_conf['expack.misc.multi_favs']) {
             echo "<li><a href=\"menu_k.php?view=rss&amp;m_rss_set={$no}\" target=\"_self\">{$name}</a></li>";
         }
 
-        echo '</ul>';
+        echo "</ul>\n";
     }
 
     // }}}
 }
 // }}}
 ?>
-
-<!-- {{{ 板リスト (カテゴリ一覧) -->
-<ul id="cate" title="板リスト"><?php
-if ($brd_menus) {
-    $cate_id = 0;
-    foreach ($brd_menus as $a_brd_menu) {
-        foreach ($a_brd_menu->categories as $category) {
-            $cate_id++;
-            echo "<li><a href=\"#cate{$cate_id}\">{$category->name}</a></li>";
-        }
-    }
-}
-?></ul>
-<!-- }}} -->
-
-<!-- {{{ 板リスト (カテゴリ別) -->
-<?php
-if ($brd_menus) {
-    $cate_id = 0;
-    foreach ($brd_menus as $a_brd_menu) {
-        foreach ($a_brd_menu->categories as $category) {
-            $cate_id++;
-
-            echo "<ul id=\"cate{$cate_id}\" title=\"{$category->name}\">";
-
-            foreach ($category->menuitas as $mita) {
-                echo "<li><a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}",
-                        "&amp;itaj_en={$mita->itaj_en}\" target=\"_self\">{$mita->itaj_ht}</a></li>";
-            }
-
-            echo '</ul>';
-        }
-    }
-}
-?>
-<!-- }}} -->
 
 <!-- {{{ ログイン情報 -->
 <div id="login_info" class="panel" title="ログイン情報">
@@ -236,3 +200,76 @@ function setSearchTarget(is_board)
 
 </body>
 </html>
+<?php
+return;
+
+/**
+ * XMLHttpRequestで板リストをカテゴリごとに表示するための関数
+ *
+ * @param int $cate_id
+ * @return void
+ */
+function iShowBrdMenu($cate_id = 0)
+{
+    header('Content-Type: text/html; charset=UTF-8');
+    ob_start();
+    _iShowBrdMenu($cate_id);
+    echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
+}
+
+/**
+ * iShowBrdMenu()の実体
+ *
+ * @param int $cate_id
+ * @return void
+ */
+function _iShowBrdMenu($cate_id = 0)
+{
+    global $_conf;
+
+    require_once P2_LIB_DIR . '/brdctl.class.php';
+
+    $brd_menus = BrdCtl::read_brds();
+
+    if (!$brd_menus) {
+        echo "<div id=\"cate{$cate_id}\" class=\"panel\">板リストは空です。</div>\n";
+        return;
+    }
+
+    // {{{ カテゴリ一覧
+
+    if (!$cate_id) {
+        echo '<ul id="cate0" title="板リスト">';
+        $n = 0;
+        foreach ($brd_menus as $a_brd_menu) {
+            foreach ($a_brd_menu->categories as $category) {
+                $n++;
+                echo "<li><a href=\"?cate_id={$n}\">{$category->name}</a></li>";
+            }
+        }
+        echo "</ul>\n";
+        return;
+    }
+
+    // }}}
+    // {{{ カテゴリ
+
+    $n = 0;
+    foreach ($brd_menus as $a_brd_menu) {
+        foreach ($a_brd_menu->categories as $category) {
+            if (++$n == $cate_id) {
+                echo "<ul id=\"cate{$cate_id}\" title=\"{$category->name}\">";
+                foreach ($category->menuitas as $mita) {
+                    echo "<li><a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}",
+                            "&amp;itaj_en={$mita->itaj_en}\" target=\"_self\">{$mita->itaj_ht}</a></li>";
+                }
+                echo "</ul>\n";
+                return;
+            }
+        }
+    }
+
+    // }}}
+
+    echo "<div id=\"cate{$cate_id}\" class=\"panel\">カテゴリが見つかりませんでした。</div>\n";
+}
