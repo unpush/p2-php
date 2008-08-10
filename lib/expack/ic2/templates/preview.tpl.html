@@ -31,6 +31,10 @@
 	<li flexy:foreach="info,key,value">{key}:{value}</li>
 </ul>
 
+<div flexy:if="stars">
+rank:<a flexy:foreach="stars,n,src" href="{sertank}{n:h}"><img src="{src:h}" height="16" alt="{n:h}" border="0"></a>
+</div>
+
 <hr>
 
 <div flexy:if="edit">

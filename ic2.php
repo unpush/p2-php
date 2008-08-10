@@ -153,23 +153,35 @@ if ($result) {
         ic2_error('x04', '', false);
     }
     // あぼーんフラグ（rankが負）が立っていたら終了。
-    if (!$force && $search->rank < 0 ) {
+    if (!$force && $search->rank < 0 && !isset($_REQUEST['rank'])) {
         ic2_error('x01', '', false);
     }
     $filepath = $thumbnailer->srcPath($search->size, $search->md5, $search->mime);
     $params = array('uri' => $search->uri, 'name' => $search->name, 'size' => $search->size,
                     'md5' => $search->md5, 'width' => $search->width, 'height' => $search->height,
-                    'mime' => $search->mime, 'memo' => $search->memo);
+                    'mime' => $search->mime, 'memo' => $search->memo, 'rank' => $rank);
 
     // 自動メモ機能が有効のとき
     if ($ini['General']['automemo'] && !is_null($memo) && !strstr($search->memo, $memo)) {
-        if (!empty($search->memo)) {
+        if (is_string($search->memo) && strlen($search->memo) > 0) {
             $memo .= ' ' . $search->memo;
         }
-        $update = &new IC2DB_Images;
-        $update->memo = $memo;
-        $update->whereAddQuoted('uri', '=', $uri);
-        $update->update();
+        $update_memo = &new IC2DB_Images;
+        $update_memo->memo = $memo;
+        $update_memo->whereAddQuoted('uri', '=', $search->uri);
+        $update_memo->update();
+        unset($update_memo);
+    }
+
+    // ランク変更
+    if (isset($_REQUEST['rank'])) {
+        $update_rank = &new IC2DB_Images;
+        $update_rank->rank = $rank;
+        $update_rank->whereAddQuoted('size', '=', $search->size);
+        $update_rank->whereAddQuoted('md5',  '=', $search->md5);
+        $update_rank->whereAddQuoted('mime', '=', $search->mime);
+        $update_rank->update();
+        unset($update_rank);
     }
 
     // ファイルが保存されていればそれでよし、保存されていなければレコードを削除する。
@@ -421,7 +433,9 @@ $params = array('uri' => $uri, 'host' => $host, 'name' => $name, 'size' => $size
 ic2_checkSizeOvered($tmpfile, $params);
 
 // 同じ画像があぼーんされているか確認
-$rank = ic2_checkAbornedFile($tmpfile, $params);
+if (($check = ic2_checkAbornedFile($tmpfile, $params)) !== false) {
+    $rank = $check;
+}
 
 // }}}
 // {{{ finish
@@ -551,7 +565,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
         }
     }
 
-    return 0;
+    return false;
 }
 
 function ic2_checkSizeOvered($tmpfile, $params)
@@ -634,7 +648,6 @@ function ic2_display($path, $params)
                 $_REQUEST = array_map('addslashes_r', $_REQUEST);
             }
 
-            $img_p = isset($uri) ? 'uri=' . rawurlencode($uri) : (isset($id) ? 'id=' . $id : 'file=' . $file);
             if (isset($uri)) {
                 $img_o = 'uri';
                 $img_p = $uri;
@@ -704,7 +717,7 @@ function ic2_display($path, $params)
             $qf->accept($rdr);
 
             // 表示
-            $flexy->setData('title', 'キャッシュ完了');
+            $flexy->setData('title', 'IC2::Cached');
             if (!$_conf['ktai']) {
                 $flexy->setData('pc', true);
                 $flexy->setData('skin', $GLOBALS['skin_name']);
@@ -719,7 +732,20 @@ function ic2_display($path, $params)
                     'c_vlink'   => !empty($_conf['mobile.vlink_color']) ? $_conf['mobile.vlink_color'] : '#9900ff',
                 ));
             }
-            if ($thumb == 2) {
+
+            $rank = isset($params['rank']) ? $params['rank'] : 0;
+            $stars = array();
+            $stars[-1] = 'img/' . (($rank == -1) ? 'sn1' : 'sn0') . '.png';
+            $stars[ 0] = 'img/' . (($rank ==  0) ? 'sz1' : 'sz0') . '.png';
+            for ($i = 1; $i <= 5; $i++) {
+                $stars[$i] = 'img/' . (($rank >= $i) ? 's1' : 's0') . '.png';
+            }
+
+            $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0";
+
+            $flexy->setData('stars', $stars);
+
+            if ($thumb == 2 && $rank >= 0) {
                 if ($ini['General']['inline'] == 1) {
                     $t = 2;
                     $link = null;
@@ -737,14 +763,20 @@ function ic2_display($path, $params)
                 $flexy->setData('link', $path);
                 $flexy->setData('info', null);
             }
+
             if (isset($_REQUEST['from'])) {
                 $flexy->setData('backto', $_REQUEST['from']);
+                $setrank_url .= '&from=' . rawurlencode($_REQUEST['from']);
             } elseif (isset($_SERVER['HTTP_REFERER'])) {
                 $flexy->setData('backto', $_SERVER['HTTP_REFERER']);
             } else {
                 $flexy->setData('backto', null);
             }
-            $flexy->setData('edit', extension_loaded('gd'));
+
+            $flexy->setData('stars', $stars);
+            $flexy->setData('sertank', $setrank_url . '&rank=');
+
+            $flexy->setData('edit', (extension_loaded('gd') && $rank >= 0));
             $flexy->setData('form', $rdr->toObject());
             $flexy->setData('doctype', $_conf['doctype']);
             $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
