@@ -37,15 +37,33 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
 
 // アクセスを許可するIPアドレス帯域
 // “IPアドレス => マスク”形式の連想配列
+// $_conf['secure']['auth_host'] == 1 かつ
+// $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 1 のとき使われる
 $GLOBALS['_HOSTCHKCONF']['custom_allowed_host'] = array(
     //'192.168.0.0' => 24,
 );
 
+// アクセスを許可するリモートホストの正規表現
+// preg_match()関数の第一引数として正しい文字列であること
+// 使用しない場合はnull
+// $_conf['secure']['auth_host'] == 1 かつ
+// $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 1 のとき使われる
+$_HOSTCHKCONF['custom_allowed_host_regex'] = null;
+
 // アクセスを拒否するIPアドレス帯域
 // “IPアドレス => マスク”形式の連想配列
+// $_conf['secure']['auth_host'] == 2 かつ
+// $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 0 のとき使われる
 $GLOBALS['_HOSTCHKCONF']['custom_denied_host'] = array(
     //'192.168.0.0' => 24,
 );
+
+// アクセスを拒否するリモートホストの正規表現
+// preg_match()関数の第一引数として正しい文字列であること
+// 使用しない場合はnull
+// $_conf['secure']['auth_host'] == 2 かつ
+// $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 0 のとき使われる
+$_HOSTCHKCONF['custom_denied_host_regex'] = null;
 
 // BBQキャッシュの有効期限 (秒数で指定、0なら永久焼き)
 $GLOBALS['_HOSTCHKCONF']['auth_bbq_burned_expire'] = 0;

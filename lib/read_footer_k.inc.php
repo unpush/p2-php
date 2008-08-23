@@ -17,6 +17,10 @@ if ($_conf['filtering'] && $aThread->rescount) {
 } else {
     $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
 }
+if ($_conf['iphone']) {
+    // マイナスをハイフン(U+2020)で置換して電話番号としてリンクされるのを防ぐ
+    $read_range_on = str_replace('-', '‐', $read_range_on);
+}
 $hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
 
 // レス番指定移動 etc.
@@ -42,14 +46,19 @@ EOP;
         $q_ichi = $res1['body']." | ";
     }
     echo <<<EOP
-<div class="read-footer"><a id="footer" name="footer">{$hd['read_range']}</a><br>
+<div><a id="footer" name="footer">{$hd['read_range']}</a></div>
+<div class="navi">
 {$read_navi_previous_btm}
 {$read_navi_next_btm}
 {$read_navi_latest_btm}
 {$read_footer_navi_new_btm}
 {$dores_ht}
-{$read_navi_filter_btm}</div>
-<div class="read-footer">{$toolbar_right_ht} <a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a></div>
+{$read_navi_filter_btm}
+</div>
+<div class="toolbar">
+{$toolbar_right_ht}
+<a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a>
+</div>
 {$htm['goto']}\n
 EOP;
     if ($diedat_msg) {

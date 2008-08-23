@@ -28,7 +28,7 @@ if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_se
 $add_rss_form_ht = <<<EOFORM
 <hr>
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="detect_hint" value="ž@ž">
+    <input type="hidden" name="_hint" value="ž">
     <input type="hidden" id="setrss" name="setrss" value="1">
     <table border="0" cellspacing="1" cellpadding="0">
         <tr>
@@ -70,17 +70,17 @@ echo <<<EOP
     {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>p2 - RSS‚Ì•À‚Ñ‘Ö‚¦</title>
-    <script type="text/javascript" src="js/yui/YAHOO.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/log.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/event.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/dom.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/yui/dragdrop.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDOnTop.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDSwap.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDMy.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDMy2.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDList.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDPlayer.js?{$_conf['p2expack']}" ></script>
+    <script type="text/javascript" src="js/yui/YAHOO.js"></script>
+    <script type="text/javascript" src="js/yui/log.js"></script>
+    <script type="text/javascript" src="js/yui/event.js"></script>
+    <script type="text/javascript" src="js/yui/dom.js"></script>
+    <script type="text/javascript" src="js/yui/dragdrop.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDOnTop.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDSwap.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDMy.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDMy2.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDList.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDPlayer.js"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=editfavita&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -207,8 +207,13 @@ function submitApply()
 }
 
 
+// iPhone—p
+if ($_conf['iphone'] && file_exists('./iui/iui.js')) {
+    $onclick = '';
+    $m_php = 'menu_i.php?nt=' . time();
+
 // PC—p
-if (!$_conf['ktai']) {
+} elseif (!$_conf['ktai']) {
     $onclick = " onclick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['SCRIPT_NAME'];
 

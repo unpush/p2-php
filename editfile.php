@@ -136,7 +136,7 @@ EOHEADER;
     echo "Edit: ".$path;
     echo <<<EOFORM
 <form action="{$_SERVER['SCRIPT_NAME']}" method="post" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="ž@ž">
+    <input type="hidden" name="_hint" value="ž">
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="modori_url" value="{$modori_url}">
     <input type="hidden" name="encode" value="{$encode}">

@@ -812,6 +812,10 @@ function sortThreads(&$aThreadList)
         $aThreadList->num = sizeof($aThreadList->threads);
     }
 
+    if (!empty($_REQUEST['rsort'])) {
+        $aThreadList->threads = array_reverse($aThreadList->threads);
+    }
+
     $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sort');
 
     return true;

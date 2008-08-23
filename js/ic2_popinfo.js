@@ -108,7 +108,7 @@ window.onload = function(){
 				}*/
 
 				_messageContainer.appendChild(document.createTextNode(
-					_number_format(width) + 'x' + _number_format(height) + ' (' + _number_format(size) + ' bytes)'
+					width.toString() + 'x' + height.toString() + ' (' + _number_format(size) + ' bytes)'
 				));
 				_ratingContainer.style.display = 'block';
 				self._targetId = id.toString();

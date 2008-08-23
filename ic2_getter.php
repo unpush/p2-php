@@ -58,7 +58,7 @@ $qf_defaults = array(
 
 // フォームの固定値
 $qf_constants = array(
-    'detect_hint' => '◎◇　◇◎',
+    '_hint'       => '◎◇',
     'download'    => 'ダウンロード',
     'reset'       => 'リセット',
     'close'       => '閉じる',
@@ -143,6 +143,7 @@ $flexy = &new HTML_Template_Flexy($_flexy_options);
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('skin', $skin_en);
 $flexy->setData('isPopUp', $isPopUp);
+$flexy->setData('doctype', $_conf['doctype']);
 $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
 $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 
@@ -177,9 +178,9 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     if (isset($params['memo']) && strlen(trim($params['memo'])) > 0) {
         $new_memo = IC2DB_Images::uniform($params['memo'], 'SJIS-win');
         $_memo_en = rawurlencode($new_memo);
-        $_hint_en = rawurlencode(mb_convert_encoding('◎◇　◇◎', 'UTF-8', 'SJIS-win'));
+        $_hint_en = rawurlencode(mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win'));
         // レンダリング時にhtmlspecialchars()されるので、ここでは&を&amp;にしない
-        $extra_params .= '&detect_hint=' . $_hint_en . '&memo=' . $_memo_en;
+        $extra_params .= '&_hint=' . $_hint_en . '&memo=' . $_memo_en;
     } else {
         $new_memo = NULL;
     }

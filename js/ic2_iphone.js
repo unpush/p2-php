@@ -1,15 +1,13 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
 /*
 	ImageCache2::iPhone
 */
 
 var ic2info = null;
-var _oldOnLoad = window.onload;
+var _IC2_IPHONE_JS_OLD_ONLOAD = window.onload;
 
 window.onload = function(){
-	if (_oldOnLoad) {
-		_oldOnLoad();
+	if (_IC2_IPHONE_JS_OLD_ONLOAD) {
+		_IC2_IPHONE_JS_OLD_ONLOAD();
 	}
 
 	// {{{ initiaize
@@ -105,7 +103,7 @@ window.onload = function(){
 				}
 
 				_messageContainer.appendChild(document.createTextNode(
-					_number_format(width) + 'x' + _number_format(height) + ' (' + _number_format(size) + ' bytes)'
+					width.toString() + 'x' + height.toString() + ' (' + _number_format(size) + ' bytes)'
 				));
 				_ratingContainer.style.display = 'block';
 				self._targetId = id.toString();
@@ -214,3 +212,14 @@ window.onload = function(){
 		})(i - 1);
 	}
 };
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=css fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

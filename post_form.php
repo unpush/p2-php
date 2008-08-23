@@ -111,8 +111,8 @@ EOP;
         echo "<link rel=\"stylesheet\" href=\"css.php?css=prvw&amp;skin={$skin_en}\" type=\"text/css\">\n";
     }
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/post_form.js?{$_conf['p2expack']}"></script>\n
+    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/post_form.js"></script>\n
 EOP;
 }
 

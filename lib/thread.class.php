@@ -317,10 +317,12 @@ class Thread{
     {
         global $_conf;
 
+        $mobile = (!$_conf['ktai'] || $_conf['iphone'] || $original) ? false : true;
+
         // 2chŒn
         if (P2Util::isHost2chs($this->host)) {
             // PC
-            if (empty($_conf['ktai']) || $original) {
+            if (!$mobile) {
                 $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
             // Œg‘Ñ
             } else {
@@ -337,17 +339,17 @@ class Thread{
         // ‚Ü‚¿BBS
         } elseif (P2Util::isHostMachiBbs($this->host)) {
             $motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";
-            if ($_conf['ktai'] && !$original) { $motothre_url .= '&IMODE=TRUE'; }
+            if ($mobile) { $motothre_url .= '&IMODE=TRUE'; }
 
         // ‚Ü‚¿‚Ñ‚Ë‚Á‚Æ
         } elseif (P2Util::isHostMachiBbsNet($this->host)) {
             $motothre_url = "http://{$this->host}/test/read.cgi?bbs={$this->bbs}&key={$this->key}";
-            if ($_conf['ktai'] && !$original) { $motothre_url .= '&imode=true'; }
+            if ($mobile) { $motothre_url .= '&imode=true'; }
 
         // JBBS‚µ‚½‚ç‚Î
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
             list($host, $category) = explode('/', P2Util::adjustHostJbbs($this->host), 2);
-            $bbs_cgi = (empty($_conf['ktai']) || $original) ? 'i.cgi' : 'read.cgi';
+            $bbs_cgi = ($mobile) ? 'i.cgi' : 'read.cgi';
             $motothre_url = "http://{$host}/bbs/{$bbs_cgi}/{$category}/{$this->bbs}/{$this->key}/{$this->ls}";
 
         // ‚»‚Ì‘¼

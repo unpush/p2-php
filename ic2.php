@@ -746,6 +746,7 @@ function ic2_display($path, $params)
             }
             $flexy->setData('edit', extension_loaded('gd'));
             $flexy->setData('form', $rdr->toObject());
+            $flexy->setData('doctype', $_conf['doctype']);
             $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
             $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
             $flexy->compile('preview.tpl.html');

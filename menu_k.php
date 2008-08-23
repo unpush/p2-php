@@ -53,15 +53,6 @@ if (isset($_GET['setfavita'])) {
     setFavIta();
 }
 
-// iPhone
-if ($_conf['iphone'] && (
-    (isset($_GET['view']) && in_array($_GET['view'], array('favita', 'rss'))) ||
-    (!isset($_GET['view']) && !(isset($word) && strlen($word) > 0))
-)) {
-    header('Location: index.php');
-    exit;
-}
-
 //================================================================
 // ÉÅÉCÉì
 //================================================================
@@ -125,7 +116,7 @@ if($_GET['view']=="favita"){
 if ($_GET['view'] != "favita" && $_GET['view'] != "rss" && !$_GET['cateid']) {
     $kensaku_form_ht = <<<EOFORM
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="ÅùÅûÅ@ÅûÅù">
+    <input type="hidden" name="_hint" value="ÅùÅû">
     {$_conf['k_input_ht']}
     <input type="hidden" name="nr" value="1">
     <input type="text" id="word" name="word" value="{$word}" size="12">

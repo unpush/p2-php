@@ -16,6 +16,9 @@ class ShowThreadK extends ShowThread{
 
     var $aas_rotate = '右に90°回転'; // AAS 回転リンク文字列
 
+    var $respopup_at = '';  // レスポップアップ・イベントハンドラ
+    var $target_at = '';    // 引用、省略、ID、NG等のリンクターゲット
+
     /**
      * コンストラクタ
      */
@@ -24,6 +27,11 @@ class ShowThreadK extends ShowThread{
         parent::ShowThread($aThread);
 
         global $_conf;
+
+        if ($_conf['iphone']) {
+            $this->respopup_at = ' onclick="return iResPopUp(this, event);"';
+            $this->target_at = ' target="_blank"';
+        }
 
         $this->url_handlers = array(
             'plugin_link2ch',
@@ -151,7 +159,6 @@ class ShowThreadK extends ShowThread{
         // }}}
 
         $tores = "";
-        $rpop = "";
         $isNgName = false;
         $isNgMail = false;
         $isNgId = false;
@@ -313,7 +320,7 @@ class ShowThreadK extends ShowThread{
         if ($ng_msg_info) {
             $ng_type = implode(', ', $ng_msg_info);
             $msg = <<<EOMSG
-<s><font color="{$STYLE['mobile_read_ngword_color']}">$ng_type</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
+<s><font color="{$STYLE['mobile_read_ngword_color']}">$ng_type</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
 EOMSG;
             // AAS
             if ($isAA && P2_AAS_AVAILABLE) {
@@ -323,8 +330,8 @@ EOMSG;
                 } else {
                     $aas_txt = "AAS";
                 }
-                $msg .= " <a href=\"{$aas_url}\">{$aas_txt}</a>";
-                $msg .= " <a href=\"{$aas_url}&amp;rotate=1\">{$this->aas_rotate}</a>";
+                $msg .= " <a href=\"{$aas_url}\"{$this->target_at}>{$aas_txt}</a>";
+                $msg .= " <a href=\"{$aas_url}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
             }
         }
 
@@ -334,7 +341,7 @@ EOMSG;
 <s><font color="{$STYLE['mobile_read_ngword_color']}">$name</font></s>
 EONAME;
             $msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
+<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
 EOMSG;
 
         // NGメール変換
@@ -352,7 +359,7 @@ EOMSG;
 <s><font color="{$STYLE['mobile_read_ngword_color']}">$date_id</font></s>
 EOID;
             $msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
+<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
 EOMSG;
         }
 
@@ -365,22 +372,50 @@ EOP;
         }
         */
 
-        // 番号（オンザフライ時）
-        if ($this->thread->onthefly) {
-            $GLOBALS['newres_to_show_flag'] = true;
-            $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_onthefly_color']}'\">{$i}</font>]";
-        // 番号（新着レス時）
-        } elseif ($i > $this->thread->readnum) {
-            $GLOBALS['newres_to_show_flag'] = true;
-            $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_newres_color']}\">{$i}</font>]";
-        // 番号
+        if ($_conf['iphone']) {
+            $tores .= "<div class=\"res\" id=\"r{$i}\" name=\"r{$i}\"><div class=\"res-header\">";
+
+            // 番号（オンザフライ時）
+            if ($this->thread->onthefly) {
+                $GLOBALS['newres_to_show_flag'] = true;
+                $tores .= "<span class=\"no onthefly\">{$i}</span>";
+            // 番号（新着レス時）
+            } elseif ($i > $this->thread->readnum) {
+                $GLOBALS['newres_to_show_flag'] = true;
+                $tores .= "<span class=\"no new\">{$i}</span>"; // york!
+            // 番号
+            } else {
+                $tores .= "<span class=\"no\">{$i}</span>";
+            }
+
+            // 名前
+            $tores .= " <span class=\"name\">{$name}</span>"; 
+
+            // メール
+            $tores .= " <span class=\"mail\">{$mail}</span>"; 
         } else {
-            $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$i}]";
-        }
-        $tores .= $name . ":"; // 名前
-        // メール
-        if ($mail) {
-            $tores .= $mail . ": ";
+            // 番号（オンザフライ時）
+            if ($this->thread->onthefly) {
+                $GLOBALS['newres_to_show_flag'] = true;
+                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_onthefly_color']}'\">{$i}</font>]";
+            // 番号（新着レス時）
+            } elseif ($i > $this->thread->readnum) {
+                $GLOBALS['newres_to_show_flag'] = true;
+                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_newres_color']}\">{$i}</font>]";
+            // 番号
+            } else {
+                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$i}]";
+            }
+
+            // 名前
+            if ($name) {
+                $tores .= "{$name}: "; 
+            }
+
+            // メール
+            if ($mail) {
+                $tores .= "{$mail}: "; 
+            }
         }
 
         // IDフィルタ
@@ -391,9 +426,19 @@ EOP;
             $date_id = preg_replace('!(ID: ?)([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?O(?=[^0-9A-Za-z/.+]|$)!', '$1$2<u>O</u>', $date_id);
         }
 
-        $tores .= $date_id . "<br>\n"; // 日付とID
-        $tores .= $rpop; // レスポップアップ用引用
-        $tores .= "{$msg}</div><hr>\n"; // 内容
+        if ($_conf['iphone']) {
+            // 日付とID
+            $tores .= " <span class=\"date-id\">{$date_id}</span></div>\n"; 
+
+            // 内容
+            $tores .= "<div class=\"message\">{$msg}</div></div>\n";
+        } else {
+            // 日付とID
+            $tores .= "{$date_id}<br>\n"; 
+
+            // 内容
+            $tores .= "{$msg}</div><hr>\n";
+        }
 
         // まとめてフィルタ色分け
         if ($GLOBALS['word_fm'] && $GLOBALS['res_filter']['match'] != 'off') {
@@ -439,7 +484,7 @@ EOP;
         $name = str_replace("</b>", "", $name);
         $name = str_replace("<b>", "", $name);
 
-        return $name;
+        return ($name == ' ') ? '' : $name;
     }
 
 
@@ -475,7 +520,7 @@ EOP;
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
             $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quote_res_callback'), $msg);
 
-            $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\">略</a>";
+            $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>略</a>";
             return $msg;
         }
 
@@ -584,7 +629,6 @@ EOP;
     {
         global $_conf;
 
-        $ext_target_at = ($_conf['iphone']) ? ' target="_blank"' : '';
         $in_url = $s[1];
 
         // 通勤ブラウザ
@@ -594,7 +638,7 @@ EOP;
             if ($_conf['through_ime']) {
                 $tsukin_url = P2Util::throughIme($tsukin_url);
             }
-            $tsukin_link = "<a href=\"{$tsukin_url}\"{$ext_target_at}>通</a>";
+            $tsukin_link = '<a href="'.$tsukin_url.'">通</a>';
         }
 
         // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
@@ -642,7 +686,7 @@ EOP;
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$qsign}{$appointed_num}</a>";
     }
 
     /**
@@ -672,7 +716,7 @@ EOP;
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$from}-{$to}";
 
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$qsign}{$appointed_num}</a>";
     }
 
     /**
@@ -702,7 +746,7 @@ EOP;
         $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
 
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $num_ht = '(' . "<a href=\"{$filter_url}\">" . $this->thread->idcount[$id] . '</a>)';
+            $num_ht = "(<a href=\"{$filter_url}\"{$this->target_at}>{$this->thread->idcount[$id]}</a>)";
         } else {
             return $idstr;
         }
@@ -724,8 +768,6 @@ EOP;
         global $_conf;
 
         if (isset($purl['scheme'])) {
-            $ext_target_at = ($_conf['iphone']) ? ' target="_blank"' : '';
-
             // 携帯用外部URL変換
             if ($_conf['k_use_tsukin']) {
                 return $this->ktai_exturl_callback(array('', $url, $str));
@@ -736,7 +778,7 @@ EOP;
             } else {
                 $link_url = $url;
             }
-            return "<a href=\"{$link_url}\"{$ext_target_at}>{$str}</a>";
+            return "<a href=\"{$link_url}\">{$str}</a>";
         }
         return FALSE;
     }
@@ -825,18 +867,16 @@ EOP;
             return FALSE;
         }
 
-        $ext_target_at = ($_conf['iphone']) ? ' target="_blank"' : '';
-
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
             $picto_url = 'http://pic.to/'.$purl['host'].$purl['path'];
-            $picto_tag = "<a href=\"{$picto_url}\"{$ext_target_at}>(ﾋﾟ)</a> ";
+            $picto_tag = '<a href="'.$picto_url.'">(ﾋﾟ)</a> ';
             if ($_conf['through_ime']) {
                 $link_url  = P2Util::throughIme($url);
                 $picto_url = P2Util::throughIme($picto_url);
             } else {
                 $link_url = $url;
             }
-            return "{$picto_tag}<a href=\"{$link_url}\"{$ext_target_at}>{$str}</a>";
+            return "{$picto_tag}<a href=\"{$link_url}\">{$str}</a>";
         }
         return FALSE;
     }

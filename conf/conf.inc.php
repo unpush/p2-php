@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7.29';     // rep2のバージョン
-$_conf['p2expack'] = '080804.2046'; // 拡張パックのバージョン
+$_conf['p2expack'] = '080808.2359'; // 拡張パックのバージョン
 $_conf['p2name'] = 'expack';        // rep2の名前
 
 //======================================================================
@@ -249,16 +249,15 @@ if (P2Util::isBrowserIphone()) {
     $_conf['disable_cookie'] = false;
     $_conf['accept_charset'] = 'UTF-8';
     $_conf['input_type_search'] = true;
-    $_conf['viewport_width'] = 320;
     $_conf['extra_headers_ht'] = <<<EOS
-<meta name="viewport" content="width={$_conf['viewport_width']}">
-<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2expack']}">
-<script type="text/javascript" src="js/iphone.js?{$_conf['p2expack']}"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css">
+<script type="text/javascript" src="js/iphone.js"></script>
 EOS;
     $_conf['extra_headers_xht'] = <<<EOS
-<meta name="viewport" content="width={$_conf['viewport_width']}" />
-<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2expack']}" />
-<script type="text/javascript" src="js/iphone.js?{$_conf['p2expack']}"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css" />
+<script type="text/javascript" src="js/iphone.js"></script>
 EOS;
 
 // PC
@@ -375,7 +374,12 @@ EOP;
 // {{{ DOCTYPE HTML 宣言
 
 $ie_strict = false;
-if (!$_conf['ktai']) {
+if ($_conf['iphone']) {
+    $_conf['doctype'] = <<<EODOC
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">\n
+EODOC;
+} elseif (!$_conf['ktai']) {
     if ($ie_strict) {
         $_conf['doctype'] = <<<EODOC
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"

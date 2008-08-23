@@ -178,26 +178,26 @@ echo <<<EOP
     <title>{$ptitle_ht}</title>\n
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/showhide.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/respopup.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/invite.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>\n
+    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/showhide.js"></script>
+    <script type="text/javascript" src="js/respopup.js"></script>
+    <script type="text/javascript" src="js/htmlpopup.js"></script>
+    <script type="text/javascript" src="js/invite.js"></script>
+    <script type="text/javascript" src="js/setfavjs.js"></script>
+    <script type="text/javascript" src="js/delelog.js"></script>\n
 EOP;
 
 if ($_conf['expack.am.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js?{$_conf['p2expack']}\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js\"></script>\n";
 }
 /*if ($_conf['expack.misc.async_respop']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/async.js?{$_conf['p2expack']}\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/async.js\"></script>\n";
 }*/
 if ($_conf['expack.spm.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2expack']}\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js\"></script>\n";
 }
 if ($_conf['expack.ic2.enabled']) {
-    echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css?{$_conf['p2expack']}\">\n";
+    echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css\">\n";
 }
 
 $onLoad_script = "";
@@ -306,7 +306,7 @@ EOP;
 
     echo <<<EOP
 <form id="header" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
-    <input type="hidden" name="detect_hint" value="ž@ž">
+    <input type="hidden" name="_hint" value="ž">
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
     <input type="hidden" name="host" value="{$aThread->host}">

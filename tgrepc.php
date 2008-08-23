@@ -274,7 +274,7 @@ if (!$is_ajax && $subhits && $subhits > $limit) {
         'totalItems'    => $subhits,
         'perPage'       => $limit,
         'urlVar'        => 'P',
-        'extraVars'     => array('hint' => 'ž@ž'),
+        'extraVars'     => array('_hint' => 'ž'),
         'importQuery'   => false,
         'curPageSpanPre'    => '<b>',
         'curPageSpanPost'   => '</b>',

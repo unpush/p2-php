@@ -30,7 +30,7 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 // お気に板追加フォーム
 $add_favita_form_ht = <<<EOFORM
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    <input type="hidden" name="_hint" value="◎◇">
     <p>
         {$_conf['k_input_ht']}
         板URL: <input type="text" id="url" name="url" value="http://" size="48">
@@ -77,17 +77,17 @@ EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <script type="text/javascript" src="js/yui/YAHOO.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/log.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/event.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/dom.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/yui/dragdrop.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDOnTop.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDSwap.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDMy.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDMy2.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDList.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDPlayer.js?{$_conf['p2expack']}" ></script>
+    <script type="text/javascript" src="js/yui/YAHOO.js"></script>
+    <script type="text/javascript" src="js/yui/log.js"></script>
+    <script type="text/javascript" src="js/yui/event.js"></script>
+    <script type="text/javascript" src="js/yui/dom.js"></script>
+    <script type="text/javascript" src="js/yui/dragdrop.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDOnTop.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDSwap.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDMy.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDMy2.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDList.js"></script>
+    <script type="text/javascript" src="js/yui/ygDDPlayer.js"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=editfavita&amp;skin={$skin_en}" type="text/css">\n
 EOP;
@@ -199,8 +199,13 @@ function submitApply()
 }
 
 
+// iPhone用
+if ($_conf['iphone'] && file_exists('./iui/iui.js')) {
+    $onclick = '';
+    $m_php = 'menu_i.php?nt=' . time();
+
 // PC用
-if (!$_conf['ktai']) {
+} elseif (!$_conf['ktai']) {
     $onclick = " onClick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
     $m_php = $_SERVER['SCRIPT_NAME'];
 

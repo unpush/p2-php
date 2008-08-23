@@ -47,18 +47,19 @@ if (isset($_POST['word'])) {
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
     <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=Shift_JIS" />
-    <meta name="viewport" content="width=<?php echo $_conf['viewport_width']; ?>" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
     <title>rep2</title>
     <script type="application/x-javascript" src="iui/iui.js"></script>
     <link rel="stylesheet" type="text/css" href="iui/iui.css" />
     <link rel="stylesheet" type="text/css" href="css/menu_i.css" />
+    <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png" />
 </head>
 <body>
 
 <div class="toolbar">
     <h1 id="pageTitle"></h1>
-    <a id="backButton" class="button" style="z-index:7" href="#"></a>
+    <a id="backButton" class="button" style="z-index:2" href="#"></a>
     <a class="button leftButton" href="#boardSearch">板</a>
     <a class="button" href="#threadSearch">ｽﾚ</a>
 </div>
@@ -117,6 +118,9 @@ if ($_conf['expack.misc.multi_favs']) {
     $fav_elem_prefix = '';
 
     foreach ($favlist as $no => $name) {
+        if (strlen($name) == 0) {
+            $name = ($no ? "お気にスレ{$no}" : 'お気にスレ');
+        }
         $fav_url = "subject.php?spmode=fav&amp;m_favlist_set={$no}";
         $fav_elems .= "<li><a href=\"{$fav_url}\" target=\"_self\">{$name}</a></li>";
         $fav_new_elems .= "<li><a href=\"{$fav_url}&amp;sb_view=shinchaku\" target=\"_self\">{$name}</a></li>";
@@ -137,6 +141,9 @@ if ($_conf['expack.misc.multi_favs']) {
     echo '<ul id="favita" title="お気に板">';
 
     foreach ($favita as $no => $name) {
+        if (strlen($name) == 0) {
+            $favita[$no] = $name = ($no ? "お気に板{$no}" : 'お気に板');
+        }
         echo "<li><a href=\"#favita{$no}\">{$name}</a></li>";
     }
 
@@ -161,6 +168,9 @@ if ($_conf['expack.misc.multi_favs']) {
         echo '<ul id="rss" title="RSS">';
 
         foreach ($rss as $no => $name) {
+            if (strlen($name) == 0) {
+                $rss[$no] = $name = ($no ? "RSS{$no}" : 'RSS');
+            }
             echo "<li><a href=\"#rss{$no}\">{$name}</a></li>";
         }
 
@@ -240,8 +250,8 @@ EOP;
   accept-charset="<?php echo $_conf['accept_charset']; ?>">
 <fieldset>
     <h1>板検索</h1>
-    <a class="button leftButton" type="cancel">Cancel</a>
-    <a class="button blueButton" type="submit">Search</a>
+    <a class="button leftButton" type="cancel">取消</a>
+    <a class="button blueButton" type="submit">検索</a>
     <label>word:</label>
     <input type="text" name="word" />
 </fieldset>
@@ -254,8 +264,8 @@ EOP;
   accept-charset="<?php echo $_conf['accept_charset']; ?>">
 <fieldset>
     <h1>スレッド検索</h1>
-    <a class="button leftButton" type="cancel">Cancel</a>
-    <a class="button blueButton" type="submit">Search</a>
+    <a class="button leftButton" type="cancel">取消</a>
+    <a class="button blueButton" type="submit">検索</a>
     <label>word:</label>
     <input type="text" name="iq" />
 </fieldset>
@@ -265,6 +275,7 @@ EOP;
 </body>
 </html>
 <?php
+
 /*
  * Local Variables:
  * mode: php
