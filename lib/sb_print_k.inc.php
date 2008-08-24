@@ -9,7 +9,6 @@ function sb_print_k(&$aThreadList)
 {
     global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
     global $sb_view;
-    static $open_in_tab_flag = false;
 
     //=================================================
 
@@ -65,17 +64,6 @@ function sb_print_k(&$aThreadList)
 
     if ($_conf['iphone']) {
         echo '<ul class="subject">';
-        if (!$open_in_tab_flag) {
-            echo <<<EOP
-<li class="open-in-tab"><input type="checkbox" onclick="
- change_link_target('.//a[@href and starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]', this.checked);
- change_link_target('.//form[@method=&quot;get&quot; and @action=&quot;{$_conf['read_new_k_php']}&quot;]', this.checked);
- change_link_target('.//ul[@class=&quot;subject&quot;]/li/a[@href]', this.checked);
- this.nextSibling.style.color = (this.checked) ? '#ff0000' : '#808080';
-"><span onclick="check_prev(this);">新しいタブで開く</span></li>
-EOP;
-            $open_in_tab_flag = true;
-        }
     }
 
     $i = 0;

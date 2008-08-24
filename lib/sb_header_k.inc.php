@@ -110,6 +110,14 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
+if ($_conf['iphone']) {
+    P2Util::printOpenInTab(array(
+        ".//a[starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]",
+        ".//form[@method=&quot;get&quot; and @action=&quot;{$_conf['read_new_k_php']}&quot;]",
+        ".//ul[@class=&quot;subject&quot;]/li/a[@href]"
+    ));
+}
+
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 

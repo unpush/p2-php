@@ -96,10 +96,10 @@ if (isset($_POST['word'])) {
 <?php if ($_conf['expack.rss.enabled']) { ?>
     <li><a href="#rss">RSS</a></li>
 <?php } ?>
-    <li><a href="#tgrep">スレッド検索</a></li>
 <?php if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) { ?>
     <li><a href="iv2.php" target="_self">画像キャッシュ一覧</a></li>
 <?php } ?>
+    <li><a href="#tgrep">スレッド検索</a></li>
 
     <li class="group">管理</li>
     <li><a href="editpref.php" target="_self">設定管理</a></li>

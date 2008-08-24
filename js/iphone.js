@@ -179,12 +179,58 @@ function adjust_textarea_size()
 }
 
 // }}}
+// {{{ make_textarea_smaller()
+
+/*
+ * textareaの高さを小さくする
+ *
+ * @param String id
+ * @return void
+ */
+function make_textarea_smaller(id)
+{
+	var area = document.getElementById(id);
+	if (!area) {
+		return;
+	}
+
+	//var y = area.clientHeight;
+	var rows = area.hasAttribute('rows') ? parseInt(area.getAttribute('rows')) : 3;
+	rows = Math.max(rows - 1, 3);
+	area.setAttribute('rows', rows.toString());
+	//window.scrollBy(0, area.clientHeight - y);
+}
+
+// }}}
+// {{{ make_textarea_larger()
+
+/*
+ * textareaの高さを大きくする
+ *
+ * @param String id
+ * @return void
+ */
+function make_textarea_larger(id)
+{
+	var area = document.getElementById(id);
+	if (!area) {
+		return;
+	}
+
+	//var y = area.clientHeight;
+	var rows = area.hasAttribute('rows') ? parseInt(area.getAttribute('rows')) : 3;
+	rows = Math.max(rows + 1, 3);
+	area.setAttribute('rows', rows.toString());
+	//window.scrollBy(0, area.clientHeight - y);
+}
+
+// }}}
 // {{{ change_link_target()
 
 /*
  * リンクターゲットを切り替える
  *
- * @param String expr
+ * @param String|Array expr
  * @param Boolean toggle
  * @param Element contextNode
  * @param String target
@@ -193,6 +239,20 @@ function adjust_textarea_size()
 function change_link_target(expr, toggle)
 {
 	var contextNode = (arguments.length > 2 && arguments[2]) ? arguments[2] : document.body;
+
+	if (typeof expr != 'string') {
+		var args = [toggle, contextNode];
+		if (arguments.length > 3) {
+			args.push(arguments[3]);
+		}
+		for (var i = 0; i < expr.length; i++) {
+			args.unshift(expr[i]);
+			change_link_target.apply(this, args);
+			args.shift();
+		}
+		return;
+	}
+
 	var anchors = document.evaluate(expr,
 	                                contextNode,
 	                                null,

@@ -6,6 +6,8 @@
 
 var _RESPOPUP_IPHONE_JS_HASH = new Object();
 var _RESPOPUP_IPHONE_JS_INDEX = 0;
+var _RESPOPUP_IPHONE_JS_XPATH = './/div[@class="res"]' +
+	'//a[starts-with(@href, "read.php?") or starts-with(@href, "subject.php?")]';
 
 // }}}
 // {{{ _irespopup_get_z_index()
@@ -75,11 +77,15 @@ function _irespopup_make_deactivate(obj, key)
 function iResPopUp(url, evt)
 {
 	var yOffset = Math.max(10, evt.getOffsetY() - 20).toString() + 'px';
+	var cbox = document.getElementById('open-in-tab-cbox');
 
 	if (_RESPOPUP_IPHONE_JS_HASH[url]) {
 		_RESPOPUP_IPHONE_JS_INDEX++;
 		_RESPOPUP_IPHONE_JS_HASH[url].style.top = yOffset;
 		_RESPOPUP_IPHONE_JS_HASH[url].style.zIndex = _irespopup_get_z_index();
+		if (cbox && cbox.checked) {
+			change_link_target(_RESPOPUP_IPHONE_JS_XPATH, true, _RESPOPUP_IPHONE_JS_HASH[url]);
+		}
 		return false;
 	}
 
@@ -112,6 +118,10 @@ function iResPopUp(url, evt)
 			rewrite_external_link(container);
 
 			_RESPOPUP_IPHONE_JS_HASH[url] = container;
+
+			if (cbox && cbox.checked) {
+				change_link_target(_RESPOPUP_IPHONE_JS_XPATH, true, container);
+			}
 
 			return false;
 		}

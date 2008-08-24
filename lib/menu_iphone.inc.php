@@ -321,8 +321,10 @@ function menu_iphone_show_feed_list($title, $no = null)
  */
 function menu_iphone_open_in_tab()
 {
-    return '<li class="open-in-tab"><input type="checkbox" onclick="toggle_open_in_tab(this);">' .
-           '<span onclick="check_prev(this);">新しいタブで開く</span></li>';
+    return '<li class="open-in-tab" onclick="check_prev(this.childNodes[1]);">' .
+           '<input type="checkbox" onclick="toggle_open_in_tab(this);">' .
+           '<span>新しいタブで開く</span>' .
+           '</li>';
 }
 
 // }}}

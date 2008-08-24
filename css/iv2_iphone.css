@@ -71,6 +71,10 @@ tr.iv2-image > td.iv2-image-thumb {
 	background-color: #000000;
 }
 
+tr.iv2-image > td.iv2-image-thumb > a {
+	display: block;
+}
+
 tr.iv2-image > td.iv2-image-info {
 	padding: 5px 10px;
 	text-align: left;

@@ -19,15 +19,14 @@ body > div > ul {
 	padding-left: 1.5em;
 }
 
-ul.tgrep-result > li > a,
-div#tgrep_info > ul > li > a {
+ul.tgrep-result > li > a, div#tgrep_info > ul > li > a {
 	word-break: break-all;
 }
 
 li.open-in-tab {
 	margin: 0;
 	padding: 5px 10px;
-	color: #808080;
+	color: #aaaaaa;
 	background-color: #eeeeee;
 	font-size: medium;
 	font-weight: bold;
@@ -42,4 +41,8 @@ li.open-in-tab > input[type="checkbox"] {
 	width: 16px;
 	height: 16px;
 	vertical-align: middle;
+}
+
+li.open-in-tab > span {
+	cursor: pointer;
 }

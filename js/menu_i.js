@@ -93,9 +93,9 @@ function toggle_open_in_tab(cbox)
 	                   '_self');
 
 	if (cbox.checked) {
-		cbox.nextSibling.style.color = '#ff0000';
+		cbox.nextSibling.style.color = '#ff3333';
 	} else {
-		cbox.nextSibling.style.color = '#808080';
+		cbox.nextSibling.style.color = '#aaaaaa';
 	}
 }
 

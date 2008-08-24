@@ -11,6 +11,12 @@ if ($_conf['ktai']) {
     $htm['table_break1'] = '';
     $htm['table_break2'] = '';
     $htm['table_end'] = '<br>';
+    if ($_conf['iphone']) {
+        $htm['options'] .= <<<EOS
+<input type="button" onclick="make_textarea_smaller('MESSAGE');" value="|">
+<input type="button" onclick="make_textarea_larger('MESSAGE');" value="{">
+EOS;
+    }
     $name_tab_at = '';
     $mail_tab_at = '';
     $msg_tab_at = '';

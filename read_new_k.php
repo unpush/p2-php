@@ -159,9 +159,16 @@ echo <<<EOHEADER
 <title>{$ptitle_ht}</title>\n
 EOHEADER;
 
+echo "</head><body{$_conf['k_colors']}>";
+
+if ($_conf['iphone']) {
+    P2Util::printOpenInTab(array(
+        ".//div[@class=&quot;res&quot; or @class=&quot;read_new_footer&quot;]//a[starts-with(@href, &quot;{$_conf['read_php']}?&quot;) or starts-with(@href, &quot;{$_conf['subject_php']}?&quot;)]",
+        ".//div[@class=&quot;read_new_footer&quot;]//a[starts-with(@href, &quot;spm_k.php?&quot;)]"
+    ));
+}
+
 echo <<<EOP
-</head>
-<body{$_conf['k_colors']}>
 <div>{$sb_ht}ÇÃêVÇ‹Ç∆Çﬂ
 <a class="button" id="above" name="above" {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#bottom">{$_conf['k_accesskey']['bottom']}.Å•</a></div>\n
 EOP;
@@ -269,7 +276,7 @@ for ($x = 0; $x < $linesize; $x++) {
     }
 
     // ñ¢ì«êîêßå¿
-    if ($unum_limit > 0 && $aThread->unum > $unum_limit) {
+    if ($unum_limit > 0 && $aThread->unum >= $unum_limit) {
         unset($aThread);
         continue;
     }
@@ -472,7 +479,7 @@ EOP;
 EOTOOLBAR;
 
     $read_footer_ht = <<<EOP
-<div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
+<div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_footer">
 {$read_range_ht}
 {$spm_ht}<br>
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}

@@ -192,6 +192,14 @@ echo <<<EOP
 <body{$_conf['k_colors']}>\n
 EOP;
 
+if ($_conf['iphone']) {
+    P2Util::printOpenInTab(array(
+        ".//div[@class=&quot;res&quot;]//a[starts-with(@href, &quot;{$_conf['read_php']}?&quot;) or starts-with(@href, &quot;{$_conf['subject_php']}?&quot;)]",
+        ".//div[@class=&quot;navi&quot; or @class=&quot;toolbar&quot;]//a[starts-with(@href, &quot;info.php?&quot;) or starts-with(@href, &quot;post_form.php?&quot;) or starts-with(@href, &quot;read_filter_k.php?&quot;)]",
+        ".//form[@method=&quot;get&quot; and @action=&quot;spm_k.php&quot;]"
+    ));
+}
+
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
@@ -215,7 +223,7 @@ if ($aThread->diedat) {
     // 既得レスがなければツールバー表示
     if (!$aThread->rescount) {
         echo <<<EOP
-<div>{$toolbar_right_ht}</div>
+<div class="toolbar">{$toolbar_right_ht}</div>
 EOP;
     }
 }
@@ -224,7 +232,7 @@ EOP;
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])) {
 
     echo <<<EOP
-<div class="pager">{$htm['read_navi_range']}
+<div class="navi">{$htm['read_navi_range']}
 {$read_navi_previous}
 {$read_navi_next}
 {$read_navi_latest}

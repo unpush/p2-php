@@ -53,7 +53,7 @@ div.iv2-image-title {
 		<tr class="iv2-image" flexy:foreach="items,i,item">
 			<td class="iv2-image-thumb"><a href="{item[thumb_k]}"><img src="{item[thumb]}" width="{item[t_width]:h}" height="{item[t_height]:h}"></a></td>
 			<td class="iv2-image-info">
-				<div class="iv2-image-title">{if:item[memo]}{item[memo]}{else:}{item[name]}{end:}</div>
+				<div class="iv2-image-title" onclick="void(0)">{if:item[memo]}{item[memo]}{else:}{item[name]}{end:}</div>
 				{item[f_change]:h}<span class="iv2-image-size" onclick="check_prev(this);">{item[width]:h}&times;{item[height]:h}</span>{item[rank_i]:h}
 			</td>
 		</tr>

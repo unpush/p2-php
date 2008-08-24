@@ -63,7 +63,7 @@ $_conf['expack.ic2.general.bgcolor'] = "#FFFFFF";
 
 // 携帯でもサムネイルをインライン表示する (off:0;on:1)
 // このときの大きさはPCと同じ
-$_conf['expack.ic2.general.inline'] = 0;
+$_conf['expack.ic2.general.inline'] = 1;
 
 // 携帯用の画像を表示するときLocation ヘッダを使ってリダイレクトする (off:0;on:1)
 // offならPHPで適切なContent-Typeヘッダと画像を出力する
@@ -270,8 +270,7 @@ $_conf['expack.ic2.thumb3.quality'] = 80;
 // "設定名" => arrray(width, height, quality) の連想配列
 $_conf['expack.ic2.dynamic.presets'] = array(
     //"WQVGA待受" => array(240, 400, 90),
-    //"W-ZERO3縦" => array(480, 599, 90),
-    //"W-ZERO3横" => array(640, 439, 90),
+    //"iPhone待受" => array(320, 480, 0),
 );
 
 // }}}

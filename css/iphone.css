@@ -91,6 +91,45 @@ a.button, div.navi a[href], div.pager a[href], div.toolbar a[href] {
 	-webkit-border-radius: 15px;
 }
 
+/* Open in New Tab */
+
+body > div#open-in-tab {
+	margin: -10px -10px 5px -10px;
+	padding: 5px 10px;
+	color: #808080;
+	background-color: #eeeeee;
+	font-size: medium;
+	font-weight: bold;
+	line-height: 100%;
+	text-align: right;
+	border-bottom: #808080 solid 1px;
+}
+
+body > div#open-in-tab > input[type="checkbox"] {
+	visibility: hidden;
+	margin: 0;
+	padding: 0;
+	width: 12px;
+	height: 12px;
+	vertical-align: bottom;
+}
+
+body > div#open-in-tab > span {
+	cursor: pointer;
+	display: inline-block;
+	margin: 0 0 -6px 0;
+	padding: 4px 6px 0 6px;
+	text-align: center;
+	vertical-align: bottom;
+	color: #aaaaaa;
+	background-color: #fafafa;
+	border: #808080 solid 1px;
+	border-bottom-color: #fafafa;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	cursor: pointer;
+}
+
 /* Read */
 
 h3 > font[color], div > font[color] > b {
@@ -315,26 +354,6 @@ ul.subject > li span.score {
 }
 
 ul.subject > li span.date {
-}
-
-ul.subject > li.open-in-tab {
-	margin: 0;
-	padding: 5px 10px;
-	color: #808080;
-	background-color: #eeeeee;
-	font-size: medium;
-	font-weight: bold;
-	line-height: 100%;
-	text-align: right;
-}
-
-ul.subject > li.open-in-tab > input[type="checkbox"] {
-	visibility: hidden;
-	margin: 0;
-	padding: 0;
-	width: 16px;
-	height: 16px;
-	vertical-align: middle;
 }
 
 /*
