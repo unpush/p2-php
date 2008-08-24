@@ -16,11 +16,6 @@ class IC2DB_Skel extends DB_DataObject
     // }}}
     // {{{ constcurtor
 
-    function IC2DB_Skel()
-    {
-        $this->__construct();
-    }
-
     function __construct()
     {
         static $set_to_utf8 = false;
@@ -41,7 +36,11 @@ class IC2DB_Skel extends DB_DataObject
 
         // クライアントの文字セットに UTF-8 を指定
         if (!$set_to_utf8) {
-            $driver = strtolower($dbextension);
+            if (preg_match('/^(\w+)(?:\((\w+)\))?:/', $this->_database_dsn, $m)) {
+                $driver = strtolower($m[1]);
+            } else {
+                $driver = 'unknown';
+            }
 
             switch ($driver) {
             case 'mysql':

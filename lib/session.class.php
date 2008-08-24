@@ -12,7 +12,7 @@ $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッショ
  * ただし、$_SESSION[$this->sess_array]（$_SESSION['_sess_array']） は予約語となっている。
  *
  * ■用例
- * $_session =& new Session(); // ※この時点でPHP標準セッションがスタートする
+ * $_session = new Session(); // ※この時点でPHP標準セッションがスタートする
  * if ($msg = $_session->checkSessionError()) { // よりセキュアなセッションチェック
  *     die('Error: ' . $msg);
  * }
@@ -39,7 +39,7 @@ class Session{
      *
      * ここでPHPの標準セッションがスタートする
      */
-    function Session($session_name = NULL, $session_id = NULL)
+    function __construct($session_name = NULL, $session_id = NULL)
     {
         session_cache_limiter('none'); // キャッシュ制御なし
 
@@ -216,9 +216,9 @@ class Session{
     {
         // {{{ DoCoMoはUTN時にUA後部が変わるので機種名で検証する
 
-        $mobile = &Net_UserAgent_Mobile::singleton();
+        $mobile = Net_UserAgent_Mobile::singleton();
         if ($mobile->isDoCoMo()) {
-            $mobile_b = &Net_UserAgent_Mobile::factory($_SESSION[$this->sess_array]['ua']);
+            $mobile_b = Net_UserAgent_Mobile::factory($_SESSION[$this->sess_array]['ua']);
             if ($mobile_b->getModel() == $mobile->getModel()) {
                 return true;
             }

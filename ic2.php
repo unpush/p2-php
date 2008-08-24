@@ -90,7 +90,7 @@ if ($thumb < 1 || $thumb > 3 ) { $thumb = 0; }
 if ($rank < -1) { $rank = -1; } elseif ($rank > 5) { $rank = 5; }
 if ($memo === '') { $memo = null; }
 
-$thumbnailer = &new ThumbNailer($thumb);
+$thumbnailer = new ThumbNailer($thumb);
 
 // }}}
 // {{{ sleep
@@ -125,10 +125,10 @@ if ($doDL) {
 // {{{ search
 
 // 画像がキャッシュされているか確認
-$search = &new IC2DB_Images;
+$search = new IC2DB_Images;
 $retry = false;
 if ($memo !== null) {
-    $memo = $search->uniform($memo, 'SJIS-win');
+    $memo = $search->uniform($memo, 'CP932');
 }
 
 if ($doDL) {
@@ -166,7 +166,7 @@ if ($result) {
         if (is_string($search->memo) && strlen($search->memo) > 0) {
             $memo .= ' ' . $search->memo;
         }
-        $update = &new IC2DB_Images;
+        $update = new IC2DB_Images;
         $update->memo = $params['memo'] = $memo;
         $update->whereAddQuoted('uri', '=', $search->uri);
         $update->update();
@@ -175,7 +175,7 @@ if ($result) {
 
     // ランク変更
     if (isset($_REQUEST['rank'])) {
-        $update = &new IC2DB_Images;
+        $update = new IC2DB_Images;
         $update->rank = $params['rank'] = $rank;
         $update->whereAddQuoted('size', '=', $search->size);
         $update->whereAddQuoted('md5',  '=', $search->md5);
@@ -207,7 +207,7 @@ if ($result) {
 
 // 画像がブラックリストにあるか確認
 require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
-$blacklist = &new IC2DB_BlackList;
+$blacklist = new IC2DB_BlackList;
 if ($blacklist->get($uri)) {
     switch ($blacklist->type) {
         case 0:
@@ -228,7 +228,7 @@ if ($blacklist->get($uri)) {
 // 画像がエラーログにあるか確認
 if (!$force && $ini['Getter']['checkerror']) {
     require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
-    $errlog = &new IC2DB_Errors;
+    $errlog = new IC2DB_Errors;
     if ($errlog->get($uri)) {
         ic2_error($errlog->errcode, '', false);
     }
@@ -246,7 +246,7 @@ $ic2_ua = (!empty($_conf['expack.user_agent']))
     ? $_conf['expack.user_agent'] : $_SERVER['HTTP_USER_AGENT'];
 
 // キャッシュされていなければ、取得を試みる
-$client = &new HTTP_Client;
+$client = new HTTP_Client;
 $client->setRequestParameter('timeout', $conn_timeout);
 $client->setRequestParameter('readTimeout', array($read_timeout, 0));
 $client->setMaxRedirects(3);
@@ -305,7 +305,7 @@ $code = $client_h->head($uri);
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());
 }
-$head = &$client_h->currentResponse();
+$head = $client_h->currentResponse();
 
 // 304 Not Modified のとき
 if ($filepath && $force && $time && $code == 304) {
@@ -352,7 +352,7 @@ if (PEAR::isError($code)) {
     ic2_error($code);
 }
 
-$response = &$client->currentResponse();
+$response = $client->currentResponse();
 
 // 一時ファイルに保存
 $tmpfile = tempnam($ini['General']['cachedir'], 'tmp_');
@@ -452,7 +452,7 @@ if (($force || !file_exists($newfile)) && !@rename($tmpfile, $newfile)) {
 @chmod($newfile, 0644);
 
 // データベースにファイル情報を記録する
-$record = &new IC2DB_Images;
+$record = new IC2DB_Images;
 if ($retry && $size == $_size && $md5 == $_md5 && $mime == $_mime) {
     $record->time = time();
     if ($ini['General']['automemo'] && !is_null($memo)) {
@@ -491,7 +491,7 @@ function ic2_aborn($params, $infected = false)
     global $ini;
     extract($params);
 
-    $aborn = &new IC2DB_Images;
+    $aborn = new IC2DB_Images;
     $aborn->uri = $uri;
     $aborn->host = $host;
     $aborn->name = $name;
@@ -514,7 +514,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
     extract($params);
 
     // ブラックリスト検索
-    $bl_check = &new IC2DB_BlackList;
+    $bl_check = new IC2DB_BlackList;
     $bl_check->whereAddQuoted('size', '=', $size);
     $bl_check->whereAddQuoted('md5',  '=', $md5);
     if ($bl_check->find(true)) {
@@ -536,7 +536,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
     }
 
     // あぼーん画像検索
-    $check = &new IC2DB_Images;
+    $check = new IC2DB_Images;
     $check->whereAddQuoted('size', '=', $size);
     $check->whereAddQuoted('md5',  '=', $md5);
     //$check->whereAddQuoted('mime', '=', $mime); // SizeとMD5で十分
@@ -675,7 +675,7 @@ function ic2_display($path, $params)
                 'q' => $ini["Thumb{$thumb}"]['quality'],
                 'r'  => '0',
             );
-            $mobile = &Net_UserAgent_Mobile::singleton();
+            $mobile = Net_UserAgent_Mobile::singleton();
             $qa = 'size=3 maxlength=3';
             if ($mobile->isDoCoMo()) {
                 $qa .= ' istyle=4';
@@ -688,7 +688,7 @@ function ic2_display($path, $params)
             foreach ($ini['Dynamic']['presets'] as $_preset_name => $_preset_params) {
                 $_presets[$_preset_name] = $_preset_name;
             }
-            $qf = &new HTML_QuickForm('imgmaker', 'get', 'ic2_mkthumb.php');
+            $qf = new HTML_QuickForm('imgmaker', 'get', 'ic2_mkthumb.php');
             $qf->setConstants($_constants);
             $qf->setDefaults($_defaults);
             $qf->addElement('hidden', 't');
@@ -712,8 +712,8 @@ function ic2_display($path, $params)
                 'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
                 'numberFormat' => '', // ",0,'.',','" と等価
             );
-            $flexy = &new HTML_Template_Flexy($_flexy_options);
-            $rdr = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
+            $flexy = new HTML_Template_Flexy($_flexy_options);
+            $rdr = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
             $qf->accept($rdr);
 
             // 表示
@@ -860,10 +860,10 @@ function ic2_error($code, $optmsg = '', $write_log = true)
 
     if ($write_log) {
         require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
-        $logger = &new IC2DB_Errors;
+        $logger = new IC2DB_Errors;
         $logger->uri     = isset($uri) ? $uri : (isset($id) ? $id : $file);
         $logger->errcode = $code;
-        $logger->errmsg  = mb_convert_encoding($message, 'UTF-8', 'SJIS-win');
+        $logger->errmsg  = mb_convert_encoding($message, 'UTF-8', 'CP932');
         $logger->occured = time();
         $logger->insert();
         $logger->ic2_errlog_lotate();

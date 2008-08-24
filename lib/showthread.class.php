@@ -22,12 +22,12 @@ class ShowThread{
     /**
      * コンストラクタ
      */
-    function ShowThread(&$aThread)
+    function __construct($aThread)
     {
         global $_conf;
 
         // スレッドオブジェクトを登録
-        $this->thread = &$aThread;
+        $this->thread = $aThread;
 
         $this->str_to_link_regex = '{'
             . '(?P<link>(<[Aa] .+?>)(.*?)(</[Aa]>))' // リンク（PCREの特性上、必ずこのパターンを最初に試行する）
@@ -121,7 +121,7 @@ class ShowThread{
     {
         global $ngaborns;
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
 
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
             foreach ($ngaborns[$code]['data'] as $k => $v) {
@@ -141,40 +141,40 @@ class ShowThread{
                     $re_method = $v['regex'];
                     /*if ($re_method($v['word'], $resfield, $matches)) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return htmlspecialchars($matches[0], ENT_QUOTES);
                     }*/
                      if ($re_method($v['word'], $resfield)) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
                     }
                // 大文字小文字を無視(1)
                 } elseif (!empty($v['ignorecase'])) {
                     if (stristr($resfield, $v['word'])) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
                     }
                 // 大文字小文字を無視(2)
                 } elseif ($ic) {
                     if (stristr($resfield, $v['word'])) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
                     }
                 // 単純に文字列が含まれるかどうかをチェック
                 } else {
                     if (strstr($resfield, $v['word'])) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
                     }
                 }
             }
         }
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
         return false;
     }
 
@@ -185,7 +185,7 @@ class ShowThread{
     {
         global $ngaborns;
 
-        $t = &$this->thread;
+        $t = $this->thread;
         $target = $t->host . '/' . $t->bbs . '/' . $t->key . '/' . $resnum;
 
         if (isset($ngaborns['aborn_res']['data']) && is_array($ngaborns['aborn_res']['data'])) {
@@ -207,7 +207,7 @@ class ShowThread{
         global $ngaborns;
 
         if (isset($ngaborns[$code]['data'][$k])) {
-            $v =& $ngaborns[$code]['data'][$k];
+            $v = &$ngaborns[$code]['data'][$k];
             $v['lasttime'] = date('Y/m/d G:i'); // HIT時間を更新
             if (empty($v['hits'])) {
                 $v['hits'] = 1; // 初HIT
@@ -246,7 +246,7 @@ class ShowThread{
     /**
      * レスフィルタリングのターゲットを得る
      */
-    function getFilterTarget(&$ares, &$i, &$name, &$mail, &$date_id, &$msg)
+    function getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)
     {
         switch ($GLOBALS['res_filter']['field']) {
             case 'name':
@@ -275,7 +275,7 @@ class ShowThread{
     /**
      * レスフィルタリングのマッチ判定
      */
-    function filterMatch(&$target, &$resnum)
+    function filterMatch($target, $resnum)
     {
         global $_conf;
         global $filter_hits, $filter_range;

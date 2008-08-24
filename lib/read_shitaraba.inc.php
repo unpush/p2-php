@@ -58,7 +58,7 @@ function shitarabaDownload()
     // {{{ したらばならEUCをSJISに変換
     if (P2Util::isHostJbbsShitaraba($aThread->host)) {
         $temp_data = @file_get_contents($tempfile);
-        $temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'eucJP-win');
+        $temp_data = mb_convert_encoding($temp_data, 'CP932', 'CP51932');
         if (FileCtl::file_write_contents($tempfile, $temp_data) === false) {
             die('Error: cannot write file.');
         }
@@ -73,7 +73,7 @@ function shitarabaDownload()
     // ↓rawmode.cgiではこれは出ないだろう
     /*
     // （JBBS）ERROR!: スレッドがありません。過去ログ倉庫にもありません。
-    if (preg_match("/^ERROR.*$/i", $mlines[0], $matches)) {
+    if (preg_match("/^ERROR.*\$/i", $mlines[0], $matches)) {
         $aThread->getdat_error_msg_ht .= $matches[0];
         $aThread->diedat = true;
         return false;
@@ -81,7 +81,7 @@ function shitarabaDownload()
     */
 
     // {{{ DATを書き込む
-    if ($mdatlines =& shitarabaDatTo2chDatLines($mlines)) {
+    if ($mdatlines = shitarabaDatTo2chDatLines($mlines)) {
 
         $file_append = ($file_append) ? FILE_APPEND : 0;
 
@@ -110,7 +110,7 @@ function shitarabaDownload()
  *
  * @see shitarabaDownload()
  */
-function &shitarabaDatTo2chDatLines(&$mlines)
+function shitarabaDatTo2chDatLines($mlines)
 {
     if (!$mlines) {
         $retval = false;

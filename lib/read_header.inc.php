@@ -57,14 +57,21 @@ $before_rnum = $aThread->resrange['start'] - $rnum_range;
 if ($before_rnum < 1) { $before_rnum = 1; }
 if ($aThread->resrange['start'] == 1) {
     $read_navi_previous_isInvisible = true;
+} else {
+    $read_navi_previous_isInvisible = false;
 }
 //if ($before_rnum != 1) {
 //    $read_navi_previous_anchor = "#r{$before_rnum}";
+//} else {
+    $read_navi_previous_anchor = '';
 //}
 
 if (!$read_navi_previous_isInvisible) {
     $read_navi_previous = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}{$offline_q}{$read_navi_previous_anchor}\">{$prev_st}{$rnum_range}</a>";
     $read_navi_previous_header = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}{$offline_q}#r{$aThread->resrange['start']}\">{$prev_st}{$rnum_range}</a>";
+} else {
+    $read_navi_previous = '';
+    $read_navi_previous_header = '';
 }
 
 //----------------------------------------------
@@ -78,6 +85,8 @@ if ($aThread->resrange['to'] > $aThread->rescount) {
 }
 if ($aThread->resrange['to'] == $aThread->rescount) {
     $read_navi_next_anchor = "#r{$aThread->rescount}";
+} else {
+    $read_navi_next_anchor = '';
 }
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
@@ -279,7 +288,7 @@ EOP;
 }
 
 
-if ($aThread->rescount and (!$_GET['renzokupop'])) {
+if ($aThread->rescount && empty($_GET['renzokupop'])) {
 // レスフィルタ ===============================
     $selected_field = array('hole' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'msg' => '');
     $selected_field[($res_filter['field'])] = ' selected';
@@ -347,10 +356,12 @@ if (top == self) {
 EOP;
 // }}}
 
-if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and !$_GET['renzokupop']) {
+if (empty($_GET['renzokupop']) && ($aThread->rescount || (!empty($_GET['one']) && !$aThread->diedat))) {
 
-    if ($_GET['one']) {
+    if (!empty($_GET['one'])) {
         $id_header = ' id="header"';
+    } else {
+        $id_header = '';
     }
     echo <<<EOP
 <table{$id_header} width="100%" style="padding:0px 0px 10px 0px;">

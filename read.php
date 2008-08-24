@@ -28,22 +28,13 @@ detectThread();    // global $host, $bbs, $key, $ls
 //=================================================
 // レスフィルタ
 //=================================================
-if (isset($_POST['word'])) { $word = $_POST['word']; }
-if (isset($_GET['word'])) { $word = $_GET['word']; }
-if (isset($_POST['field'])) { $res_filter['field'] = $_POST['field']; }
-if (isset($_GET['field'])) { $res_filter['field'] = $_GET['field']; }
-if (isset($_POST['match'])) { $res_filter['match'] = $_POST['match']; }
-if (isset($_GET['match'])) { $res_filter['match'] = $_GET['match']; }
-if (isset($_POST['method'])) { $res_filter['method'] = $_POST['method']; }
-if (isset($_GET['method'])) { $res_filter['method'] = $_GET['method']; }
+$word = isset($_REQUEST['word']) ? $_REQUEST['word'] : null;
+$res_filter = array('field' => 'hole', 'match' => 'on', 'method' => 'or');
+if (!empty($_REQUEST['field']))  { $res_filter['field']  = $_REQUEST['field'];  }
+if (!empty($_REQUEST['match']))  { $res_filter['match']  = $_REQUEST['match'];  }
+if (!empty($_REQUEST['method'])) { $res_filter['method'] = $_REQUEST['method']; }
 
 if (isset($word) && strlen($word) > 0) {
-
-    // デフォルトオプション
-    if (empty($res_filter['field']))  { $res_filter['field']  = "hole"; }
-    if (empty($res_filter['match']))  { $res_filter['match']  = "on"; }
-    if (empty($res_filter['method'])) { $res_filter['method'] = "or"; }
-
     if (!($res_filter['method'] == 'regex' && preg_match('/^\.+$/', $word))) {
         $_conf['filtering'] = true;
         include_once P2_LIB_DIR . '/strctl.class.php';
@@ -108,7 +99,7 @@ $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 //==================================================================
 
 if (!isset($aThread)) {
-    $aThread =& new ThreadRead();
+    $aThread = new ThreadRead();
 }
 
 // lsのセット
@@ -142,7 +133,7 @@ $aThread->getThreadInfoFromIdx();
 // preview >>1
 //==========================================================
 
-if ($_GET['one']) {
+if (!empty($_GET['one'])) {
     $body = $aThread->previewOne();
     $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . " / " . $aThread->ttitle_hd;
     include_once P2_LIB_DIR . '/read_header.inc.php';
@@ -154,7 +145,9 @@ if ($_GET['one']) {
 //===========================================================
 // DATのダウンロード
 //===========================================================
-if (empty($_GET['offline'])) {
+$offline = !empty($_GET['offline']);
+
+if (!$offline) {
     $aThread->downloadDat();
 }
 
@@ -162,13 +155,13 @@ if (empty($_GET['offline'])) {
 $aThread->readDat();
 
 // オフライン指定でもログがなければ、改めて強制読み込み
-if (empty($aThread->datlines) && !empty($_GET['offline'])) {
+if (empty($aThread->datlines) && $offline) {
     $aThread->downloadDat();
     $aThread->readDat();
 }
 
-
-$aThread->setTitleFromLocal(); // タイトルを取得して設定
+// タイトルを取得して設定
+$aThread->setTitleFromLocal();
 
 //===========================================================
 // 表示レス番の範囲を設定
@@ -183,7 +176,7 @@ if ($_conf['ktai']) {
 if ($aThread->isKitoku()) {
 
     //「新着レスの表示」の時は特別にちょっと前のレスから表示
-    if ($_GET['nt']) {
+    if (!empty($_GET['nt'])) {
         if (substr($aThread->ls, -1) == "-") {
             $n = $aThread->ls - $before_respointer;
             if ($n < 1) { $n = 1; }
@@ -241,7 +234,7 @@ if ($_conf['ktai']) {
 
     if ($aThread->rescount) {
         include_once P2_LIB_DIR . '/showthreadk.class.php';
-        $aShowThread =& new ShowThreadK($aThread);
+        $aShowThread = new ShowThreadK($aThread);
         $aShowThread->datToHtml();
     }
 
@@ -288,12 +281,12 @@ function filterCount(n){
 EOP;
     }
 
-    $debug && $profiler->enterSection("datToHtml");
+    //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("datToHtml");
 
     if ($aThread->rescount) {
 
         include_once P2_LIB_DIR . '/showthreadpc.class.php';
-        $aShowThread =& new ShowThreadPc($aThread);
+        $aShowThread = new ShowThreadPc($aThread);
 
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
         echo $res1['q'];
@@ -309,7 +302,7 @@ EOP;
         $aShowThread->datToHtml();
     }
 
-    $debug && $profiler->leaveSection("datToHtml");
+    //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("datToHtml");
 
     // フィルタ結果を表示
     if ($word && $aThread->rescount) {
@@ -357,7 +350,7 @@ if ($aThread->rescount) {
 //===========================================================
 // 履歴を記録
 //===========================================================
-if ($aThread->rescount) {
+if ($aThread->rescount && !$is_ajax) {
     $newdata = "{$aThread->ttitle}<>{$aThread->key}<>$idx_data[2]<><><>{$aThread->readnum}<>$idx_data[6]<>$idx_data[7]<>$idx_data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
     recRecent($newdata);
 }
@@ -381,8 +374,16 @@ function detectThread()
 {
     global $_conf, $host, $bbs, $key, $ls;
 
+    if (isset($_GET['nama_url'])) {
+        $name_url = $_GET['nama_url'];
+    } elseif (isset($_GET['url'])) {
+        $nama_url = $_GET['url'];
+    } else {
+        $nama_url = null;
+    }
+
     // スレURLの直接指定
-    if (($nama_url = $_GET['nama_url']) || ($nama_url = $_GET['url'])) {
+    if ($nama_url) {
 
             // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
             if (preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches)) {
@@ -420,14 +421,10 @@ function detectThread()
             }
 
     } else {
-        if ($_GET['host']) { $host = $_GET['host']; } // "pc.2ch.net"
-        if ($_POST['host']) { $host = $_POST['host']; }
-        if ($_GET['bbs']) { $bbs = $_GET['bbs']; } // "php"
-        if ($_POST['bbs']) { $bbs = $_POST['bbs']; }
-        if ($_GET['key']) { $key = $_GET['key']; } // "1022999539"
-        if ($_POST['key']) { $key = $_POST['key']; }
-        if ($_GET['ls']) {$ls = $_GET['ls']; } // "all"
-        if ($_POST['ls']) { $ls = $_POST['ls']; }
+        $host = isset($_REQUEST['host']) ? $_REQUEST['host'] : null; // "pc.2ch.net"
+        $bbs  = isset($_REQUEST['bbs'])  ? $_REQUEST['bbs']  : null; // "php"
+        $key  = isset($_REQUEST['key'])  ? $_REQUEST['key']  : null; // "1022999539"
+        $ls   = isset($_REQUEST['ls'])   ? $_REQUEST['ls']   : null; // "all"
     }
 
     if (!($host && $bbs && $key)) {

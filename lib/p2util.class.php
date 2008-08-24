@@ -3,6 +3,8 @@
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
+// {{{ p2escape()
+
 /**
 * htmlspecialchars($value, ENT_QUOTES) のショートカット
 *
@@ -13,19 +15,24 @@ function p2escape($str)
     return htmlspecialchars($str, ENT_QUOTES);
 }
 
+// }}}
+// {{{ P2Util
 
 /**
-* p2 - p2用のユーティリティクラス
-* インスタンスを作らずにクラスメソッドで利用する
-*
-* @create  2004/07/15
-*/
-class P2Util{
+ * p2 - p2用のユーティリティクラス
+ * インスタンスを作らずにクラスメソッドで利用する
+ *
+ * @create  2004/07/15
+ * @static
+ */
+class P2Util
+{
+    // {{{ fileDownload()
 
     /**
      * ■ ファイルをダウンロード保存する
      */
-    function &fileDownload($url, $localfile, $disp_error = 1)
+    static public function fileDownload($url, $localfile, $disp_error = 1)
     {
         global $_conf, $_info_msg_ht;
 
@@ -39,9 +46,9 @@ class P2Util{
 
         // DL
         include_once P2_LIB_DIR . '/wap.class.php';
-        $wap_ua =& new UserAgent();
+        $wap_ua = new UserAgent();
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req =& new Request();
+        $wap_req = new Request();
         $wap_req->setUrl($url);
         $wap_req->setModified($modified);
         if ($_conf['proxy_use']) {
@@ -50,7 +57,7 @@ class P2Util{
         $wap_res = $wap_ua->request($wap_req);
 
         if ($wap_res->is_error() && $disp_error) {
-            $url_t = P2Util::throughIme($wap_req->url);
+            $url_t = self::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
         }
@@ -66,10 +73,13 @@ class P2Util{
         return $wap_res;
     }
 
+    // }}}
+    // {{{ checkDirWritable()
+
     /**
      * ■パーミッションの注意を喚起する
      */
-    function checkDirWritable($aDir)
+    static public function checkDirWritable($aDir)
     {
         global $_info_msg_ht, $_conf;
 
@@ -101,31 +111,37 @@ class P2Util{
         }
     }
 
+    // }}}
+    // {{{ cacheFileForDL()
+
     /**
      * ■ダウンロードURLからキャッシュファイルパスを返す
      */
-    function cacheFileForDL($url)
+    static public function cacheFileForDL($url)
     {
         global $_conf;
 
         $parsed = parse_url($url); // URL分解
 
-        $save_uri = $parsed['host'] ? $parsed['host'] : '';
-        $save_uri .= $parsed['port'] ? ':'.$parsed['port'] : '';
-        $save_uri .= $parsed['path'] ? $parsed['path'] : '';
-        $save_uri .= $parsed['query'] ? '?'.$parsed['query'] : '';
+        $save_uri  = isset($parsed['host'])  ?       $parsed['host']  : '';
+        $save_uri .= isset($parsed['port'])  ? ':' . $parsed['port']  : '';
+        $save_uri .= isset($parsed['path'])  ?       $parsed['path']  : '';
+        $save_uri .= isset($parsed['query']) ? '?' . $parsed['query'] : '';
 
-        $cachefile = $_conf['cache_dir'] . "/" . $save_uri;
+        $cachefile = $_conf['cache_dir'] . '/' . $save_uri;
 
         FileCtl::mkdir_for($cachefile);
 
         return $cachefile;
     }
 
+    // }}}
+    // {{{ getItaName()
+
     /**
      * ■ hostとbbsから板名を返す
      */
-    function getItaName($host, $bbs)
+    static public function getItaName($host, $bbs)
     {
         global $_conf, $ita_names;
 
@@ -135,7 +151,7 @@ class P2Util{
             return $ita_names[$id];
         }
 
-        $idx_host_dir = P2Util::idxDirOfHost($host);
+        $idx_host_dir = self::idxDirOfHost($host);
         $p2_setting_txt = $idx_host_dir."/".$bbs."/p2_setting.txt";
 
         if (file_exists($p2_setting_txt)) {
@@ -169,20 +185,23 @@ class P2Util{
         return null;
     }
 
+    // }}}
+    // {{{ datDirOfHost()
+
     /**
      * hostからdatの保存ディレクトリを返す
      */
-    function datDirOfHost($host)
+    static public function datDirOfHost($host)
     {
         global $_conf;
 
         // 2channel or bbspink
-        if (P2Util::isHost2chs($host)) {
+        if (self::isHost2chs($host)) {
             $dat_host_dir = $_conf['dat_dir']."/2channel";
         // machibbs.com
-        } elseif (P2Util::isHostMachiBbs($host)) {
+        } elseif (self::isHostMachiBbs($host)) {
             $dat_host_dir = $_conf['dat_dir']."/machibbs.com";
-        } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
+        } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !self::isHostJbbsShitaraba($host)) {
             $dat_host_dir = $_conf['dat_dir']."/".rawurlencode($host);
             $old_dat_host_dir = $_conf['dat_dir']."/".$host;
             if (is_dir($old_dat_host_dir)) {
@@ -195,20 +214,23 @@ class P2Util{
         return $dat_host_dir;
     }
 
+    // }}}
+    // {{{ idxDirOfHost()
+
     /**
      * ■ hostからidxの保存ディレクトリを返す
      */
-    function idxDirOfHost($host)
+    static public function idxDirOfHost($host)
     {
         global $_conf;
 
         // 2channel or bbspink
-        if (P2Util::isHost2chs($host)) {
+        if (self::isHost2chs($host)) {
             $idx_host_dir = $_conf['idx_dir']."/2channel";
         // machibbs.com
-        } elseif (P2Util::isHostMachiBbs($host)){
+        } elseif (self::isHostMachiBbs($host)){
             $idx_host_dir = $_conf['idx_dir']."/machibbs.com";
-        } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
+        } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !self::isHostJbbsShitaraba($host)) {
             $idx_host_dir = $_conf['idx_dir']."/".rawurlencode($host);
             $old_idx_host_dir = $_conf['idx_dir']."/".$host;
             if (is_dir($old_idx_host_dir)) {
@@ -221,67 +243,73 @@ class P2Util{
         return $idx_host_dir;
     }
 
+    // }}}
+    // {{{ getFailedPostFilePath()
+
     /**
      * ■ failed_post_file のパスを得る関数
      */
-    function getFailedPostFilePath($host, $bbs, $key = false)
+    static public function getFailedPostFilePath($host, $bbs, $key = false)
     {
         if ($key) {
             $filename = $key.'.failed.data.php';
         } else {
             $filename = 'failed.data.php';
         }
-        return $failed_post_file = P2Util::idxDirOfHost($host).'/'.$bbs.'/'.$filename;
+        return $failed_post_file = self::idxDirOfHost($host).'/'.$bbs.'/'.$filename;
     }
+
+    // }}}
+    // {{{ getListNaviRange()
 
     /**
      * ■リストのナビ範囲を返す
      */
-    function getListNaviRange($disp_from, $disp_range, $disp_all_num)
+    static public function getListNaviRange($disp_from, $disp_range, $disp_all_num)
     {
-        $disp_end = 0;
-        $disp_navi = array();
-
         if (!$disp_all_num) {
-            $disp_navi['from'] = 0;
-            $disp_navi['end'] = 0;
-            $disp_navi['all_once'] = true;
-            $disp_navi['mae_from'] = 1;
-            $disp_navi['tugi_from'] = 1;
-            return $disp_navi;
+            return array(
+                'all_once'  => true,
+                'from'      => 0,
+                'end'       => 0,
+                'limit'     => 0,
+                'offset'    => 0,
+                'mae_from'  => 1,
+                'tugi_from' => 1,
+                'range_st'  => '-',
+            );
         }
 
-        $disp_navi['from'] = $disp_from;
+        $disp_from = max(1, $disp_from);
+        $disp_range = max(0, $disp_range - 1);
+        $disp_navi = array();
 
-        $disp_range = $disp_range-1;
+        $disp_navi['all_once'] = false;
+        $disp_navi['from'] = $disp_from;
 
         // fromが越えた
         if ($disp_navi['from'] > $disp_all_num) {
-            $disp_navi['from'] = $disp_all_num - $disp_range;
-            if ($disp_navi['from'] < 1) {
-                $disp_navi['from'] = 1;
-            }
+            $disp_navi['from'] = max(1, $disp_all_num - $disp_range);
             $disp_navi['end'] = $disp_all_num;
 
         // from 越えない
         } else {
+            $disp_navi['end'] = $disp_navi['from'] + $disp_range;
+
             // end 越えた
-            if ($disp_navi['from'] + $disp_range > $disp_all_num) {
+            if ($disp_navi['end'] > $disp_all_num) {
                 $disp_navi['end'] = $disp_all_num;
                 if ($disp_navi['from'] == 1) {
                     $disp_navi['all_once'] = true;
                 }
-            // end 越えない
-            } else {
-                $disp_navi['end'] = $disp_from + $disp_range;
             }
         }
 
-        $disp_navi['mae_from'] = $disp_from -1 -$disp_range;
-        if ($disp_navi['mae_from'] < 1) {
-            $disp_navi['mae_from'] = 1;
-        }
-        $disp_navi['tugi_from'] = $disp_navi['end'] +1;
+        $disp_navi['offset'] = $disp_navi['from'] - 1;
+        $disp_navi['limit'] = $disp_navi['end'] - $disp_navi['offset'];
+
+        $disp_navi['mae_from'] = max(1, $disp_navi['offset'] - $disp_range);
+        $disp_navi['tugi_from'] = min($disp_all_num, $disp_navi['end']) + 1;
 
 
         if ($disp_navi['from'] == $disp_navi['end']) {
@@ -294,12 +322,15 @@ class P2Util{
         return $disp_navi;
     }
 
+    // }}}
+    // {{{ recKeyIdx()
+
     /**
      * ■ key.idx に data を記録する
      *
      * @param   array   $data   要素の順番に意味あり。
      */
-    function recKeyIdx($keyidx, $data)
+    static public function recKeyIdx($keyidx, $data)
     {
         global $_conf;
 
@@ -321,14 +352,17 @@ class P2Util{
         return true;
     }
 
+    // }}}
+    // {{{ cachePathForCookie()
+
     /**
      * ■ホストからクッキーファイルパスを返す
      */
-    function cachePathForCookie($host)
+    static public function cachePathForCookie($host)
     {
         global $_conf;
 
-        if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !P2Util::isHostJbbsShitaraba($host)) {
+        if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !self::isHostJbbsShitaraba($host)) {
             $cookie_host_dir = $_conf['cookie_dir']."/".rawurlencode($host);
             $old_cookie_host_dir = $_conf['cookie_dir']."/".$host;
             if (is_dir($old_cookie_host_dir)) {
@@ -345,10 +379,13 @@ class P2Util{
         return $cachefile;
     }
 
+    // }}}
+    // {{{ throughIme()
+
     /**
      * ■中継ゲートを通すためのURL変換
      */
-    function throughIme($url)
+    static public function throughIme($url)
     {
         global $_conf;
         static $manual_exts = null;
@@ -401,10 +438,13 @@ class P2Util{
         return $url_r;
     }
 
+    // }}}
+    // {{{ isHost2chs()
+
     /**
      * ■ host が 2ch or bbspink なら true を返す
      */
-    function isHost2chs($host)
+    static public function isHost2chs($host)
     {
         if (preg_match("/\.(2ch\.net|bbspink\.com)/", $host)) {
             return true;
@@ -413,10 +453,13 @@ class P2Util{
         }
     }
 
+    // }}}
+    // {{{ isHostBe2chNet()
+
     /**
      * ■ host が be.2ch.net なら true を返す
      */
-    function isHostBe2chNet($host)
+    static public function isHostBe2chNet($host)
     {
         if (preg_match("/^be\.2ch\.net/", $host)) {
             return true;
@@ -425,10 +468,13 @@ class P2Util{
         }
     }
 
+    // }}}
+    // {{{ isHostBbsPink()
+
     /**
      * ■ host が bbspink なら true を返す
      */
-    function isHostBbsPink($host)
+    static public function isHostBbsPink($host)
     {
         if (preg_match("/\.bbspink\.com/", $host)) {
             return true;
@@ -437,10 +483,13 @@ class P2Util{
         }
     }
 
+    // }}}
+    // {{{ isHostMachiBbs()
+
     /**
      * ■ host が machibbs なら true を返す
      */
-    function isHostMachiBbs($host)
+    static public function isHostMachiBbs($host)
     {
         if (preg_match("/\.(machibbs\.com|machi\.to)/", $host)) {
             return true;
@@ -449,10 +498,13 @@ class P2Util{
         }
     }
 
+    // }}}
+    // {{{ isHostMachiBbsNet()
+
     /**
      * ■ host が machibbs.net まちビねっと なら true を返す
      */
-    function isHostMachiBbsNet($host)
+    static public function isHostMachiBbsNet($host)
     {
         if (preg_match("/\.(machibbs\.net)/", $host)) {
             return true;
@@ -461,10 +513,13 @@ class P2Util{
         }
     }
 
+    // }}}
+    // {{{ isHostJbbsShitaraba()
+
     /**
      * ■ host が livedoor レンタル掲示板 : したらば なら true を返す
      */
-    function isHostJbbsShitaraba($in_host)
+    static public function isHostJbbsShitaraba($in_host)
     {
         if ($in_host == 'rentalbbs.livedoor.com') {
             return true;
@@ -475,21 +530,27 @@ class P2Util{
         }
     }
 
+    // }}}
+    // {{{ adjustHostJbbs()
+
     /**
      * ■livedoor レンタル掲示板 : したらばのホスト名変更に対応して変更する
      *
      * @param    string    $in_str    ホスト名でもURLでもなんでも良い
      */
-    function adjustHostJbbs($in_str)
+    static public function adjustHostJbbs($in_str)
     {
         return preg_replace('/jbbs\.(shitaraba\.com|livedoor\.com)/', 'jbbs.livedoor.jp', $in_str, 1);
         //return preg_replace('/jbbs\.(shitaraba\.com|livedoor\.(com|jp))/', 'rentalbbs.livedoor.com', $in_str, 1);
     }
 
+    // }}}
+    // {{{ header_nocache()
+
     /**
     * ■ http header no cache を出力
     */
-    function header_nocache()
+    static public function header_nocache()
     {
         header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // 日付が過去
         header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); // 常に修正されている
@@ -498,10 +559,13 @@ class P2Util{
         header("Pragma: no-cache"); // HTTP/1.0
     }
 
+    // }}}
+    // {{{ header_content_type()
+
     /**
     * ■ http header Content-Type 出力
     */
-    function header_content_type($content_type = null)
+    static public function header_content_type($content_type = null)
     {
         if ($content_type) {
             header($content_type);
@@ -510,12 +574,15 @@ class P2Util{
         }
     }
 
+    // }}}
+    // {{{ transResHistLogPhpToDat()
+
     /**
      * ■データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
      *
      * 最初は、dat形式（<>）だったのが、データPHP形式（TAB）になり、そしてまた v1.6.0 でdat形式（<>）に戻った
      */
-    function transResHistLogPhpToDat()
+    static public function transResHistLogPhpToDat()
     {
         global $_conf;
 
@@ -555,10 +622,13 @@ class P2Util{
         return true;
     }
 
+    // }}}
+    // {{{ transResHistLogDatToPhp()
+
     /**
      * ■dat形式（<>）の書き込み履歴をデータPHP形式（TAB）に変換する
      */
-    function transResHistLogDatToPhp()
+    static public function transResHistLogDatToPhp()
     {
         global $_conf;
 
@@ -584,10 +654,13 @@ class P2Util{
         return true;
     }
 
+    // }}}
+    // {{{ getLastAccessLog()
+
     /**
      * ■前回のアクセス情報を取得
      */
-    function getLastAccessLog($logfile)
+    static public function getLastAccessLog($logfile)
     {
         // 読み込んで
         if (!$lines = DataPhp::fileDataPhp($logfile)) {
@@ -609,11 +682,13 @@ class P2Util{
         return $alog;
     }
 
+    // }}}
+    // {{{ recAccessLog()
 
     /**
      * ■アクセス情報をログに記録する
      */
-    function recAccessLog($logfile, $maxline = 100, $format = 'dataphp')
+    static public function recAccessLog($logfile, $maxline = 100, $format = 'dataphp')
     {
         global $_conf, $_login;
 
@@ -673,68 +748,89 @@ class P2Util{
         return true;
     }
 
+    // }}}
+    // {{{ isBrowserSafariGroup()
+
     /**
      * ブラウザがSafari系ならtrueを返す
      */
-    function isBrowserSafariGroup()
+    static public function isBrowserSafariGroup()
     {
         return (strpos($_SERVER['HTTP_USER_AGENT'], 'Safari')      !== false ||
                 strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false ||
                 strpos($_SERVER['HTTP_USER_AGENT'], 'Konqueror')   !== false);
     }
 
+    // }}}
+    // {{{ isClientOSWindowsCE()
+
     /**
      * ブラウザがWindows CEで動作するものならtrueを返す
      */
-    function isClientOSWindowsCE()
+    static public function isClientOSWindowsCE()
     {
         return (strpos($_SERVER['HTTP_USER_AGENT'], 'Windows CE') !== false);
     }
 
+    // }}}
+    // {{{ isBrowserNintendoDS()
+
     /**
      * ニンテンドーDSブラウザーならtrueを返す
      */
-    function isBrowserNintendoDS()
+    static public function isBrowserNintendoDS()
     {
         return (strpos($_SERVER['HTTP_USER_AGENT'], 'Nitro') !== false &&
                 strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false);
     }
 
+    // }}}
+    // {{{ isBrowserPSP()
+
     /**
      * ブラウザがPSPならtrueを返す
      */
-    function isBrowserPSP()
+    static public function isBrowserPSP()
     {
         return (strpos($_SERVER['HTTP_USER_AGENT'], 'PlayStation Portable') !== false);
     }
 
+    // }}}
+    // {{{ isBrowserIphone()
+
     /**
      * ブラウザがiPhone or iPod Touchならtrueを返す
      */
-    function isBrowserIphone()
+    static public function isBrowserIphone()
     {
         return (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') !== false ||
                 strpos($_SERVER['HTTP_USER_AGENT'], 'iPod')   !== false);
-}
+    }
+
+    // }}}
+    // {{{ isUrlWikipediaJa()
 
     /**
      * URLがウィキペディア日本語版の記事ならtrueを返す
      */
-    function isUrlWikipediaJa($url)
+    static public function isUrlWikipediaJa($url)
     {
         return (substr($url, 0, 29) == 'http://ja.wikipedia.org/wiki/');
     }
 
+    // }}}
+    // {{{ saveIdPw2ch()
+
     /**
      * 2ch●ログインのIDとPASSと自動ログイン設定を保存する
      */
-    function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')
+    static public function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')
     {
         global $_conf;
 
         include_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
-        $md5_crypt_key = P2Util::getAngoKey();
+        $md5_crypt_key = self::getAngoKey();
         $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
         $idpw2ch_cont = <<<EOP
 <?php
@@ -753,10 +849,13 @@ EOP;
         return true;
     }
 
+    // }}}
+    // {{{ readIdPw2ch()
+
     /**
      * 2ch●ログインの保存済みIDとPASSと自動ログイン設定を読み込む
      */
-    function readIdPw2ch()
+    static public function readIdPw2ch()
     {
         global $_conf;
 
@@ -774,37 +873,46 @@ EOP;
 
         // パスを複合化
         if (!is_null($rec_login2chPW)) {
-            $md5_crypt_key = P2Util::getAngoKey();
+            $md5_crypt_key = self::getAngoKey();
             $login2chPW = md5_decrypt($rec_login2chPW, $md5_crypt_key, 32);
         }
 
         return array($rec_login2chID, $login2chPW, $rec_autoLogin2ch);
     }
 
+    // }}}
+    // {{{ getAngoKey()
+
     /**
      * getAngoKey
      */
-    function getAngoKey()
+    static public function getAngoKey()
     {
         global $_login;
 
         return $_login->user . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
     }
 
+    // }}}
+    // {{{ getCsrfId()
+
     /**
      * getCsrfId
      */
-    function getCsrfId()
+    static public function getCsrfId()
     {
         global $_login;
 
         return md5($_login->user . $_login->pass_x . $_SERVER['HTTP_USER_AGENT']);
     }
 
+    // }}}
+    // {{{ print403()
+
     /**
      * 403 Fobbidenを出力する
      */
-    function print403($msg = '')
+    static public function print403($msg = '')
     {
         header('HTTP/1.0 403 Forbidden');
         echo <<<ERR
@@ -828,6 +936,7 @@ ERR;
         exit;
     }
 
+    // }}}
     // {{{ scandir_r()
 
     /**
@@ -835,7 +944,7 @@ ERR;
      *
      * リストをファイルとディレクトリに分けて返す。それそれのリストは単純な配列
      */
-    function scandir_r($dir)
+    static public function scandir_r($dir)
     {
         $dir = realpath($dir);
         $list = array('files' => array(), 'dirs' => array());
@@ -846,7 +955,7 @@ ERR;
             }
             $filename = $dir . DIRECTORY_SEPARATOR . $filename;
             if (is_dir($filename)) {
-                $child = P2Util::scandir_r($filename);
+                $child = self::scandir_r($filename);
                 if ($child) {
                     $list['dirs'] = array_merge($list['dirs'], $child['dirs']);
                     $list['files'] = array_merge($list['files'], $child['files']);
@@ -867,7 +976,6 @@ ERR;
      *
      * $targetDirから最終更新より$lifeTime秒以上たったファイルを削除
      *
-     * @access  public
      * @param   string   $targetDir  ガーベッジコレクション対象ディレクトリ
      * @param   integer  $lifeTime   ファイルの有効期限（秒）
      * @param   string   $prefix     対象ファイル名の接頭辞（オプション）
@@ -875,14 +983,19 @@ ERR;
      * @param   boolean  $recurive   再帰的にガーベッジコレクションするか否か（デフォルトではFALSE）
      * @return  array    削除に成功したファイルと失敗したファイルを別々に記録した二次元の配列
      */
-    function garbageCollection($targetDir, $lifeTime, $prefix = '', $suffix = '', $recursive = FALSE)
+    static public function garbageCollection($targetDir,
+                                             $lifeTime,
+                                             $prefix = '',
+                                             $suffix = '',
+                                             $recursive = false
+                                             )
     {
         $result = array('successed' => array(), 'failed' => array(), 'skipped' => array());
         $expire = time() - $lifeTime;
         //ファイルリスト取得
         if ($recursive) {
-            $list = P2Util::scandir_r($targetDir);
-            $files = &$list['files'];
+            $list = self::scandir_r($targetDir);
+            $files = $list['files'];
         } else {
             $list = scandir($targetDir);
             $files = array();
@@ -926,12 +1039,11 @@ ERR;
      * session.save_pathのパスの深さが2より大きい場合、ガーベッジコレクションは行われないため
      * 自分でガーベッジコレクションしないといけない。
      *
-     * @access  public
      * @return  void
      *
      * @link http://jp.php.net/manual/ja/ref.session.php#ini.session.save-path
      */
-    function session_gc()
+    static public function session_gc()
     {
         global $_conf;
 
@@ -944,7 +1056,7 @@ ERR;
         mt_srand();
         if (mt_rand(1, $d) <= $p) {
             $m = (int)ini_get('session.gc_maxlifetime');
-            P2Util::garbageCollection($_conf['session_dir'], $m);
+            self::garbageCollection($_conf['session_dir'], $m);
         }
     }
 
@@ -959,12 +1071,11 @@ ERR;
      * (バージョン1.0.0以降、Var_Dump::display() の第二引数が真のとき
      *  直接表示する代わりに、ダンプ結果が文字列として返る。)
      *
-     * @access  public
      * @param   array    $info    テーブルにしたい配列
      * @param   integer  $indent  結果のHTMLを見やすくするためのインデント量
      * @return  string   <table>~</table>
      */
-    function Info_Dump($info, $indent = 0)
+    static public function Info_Dump($info, $indent = 0)
     {
         $table = '<table border="0" cellspacing="1" cellpadding="0">' . "\n";
         $n = count($info);
@@ -979,7 +1090,7 @@ ERR;
                     $table .= '<tr><td class="tdleft"><b>' . $key . '</b></td><td class="tdcont">';
                 }
                 if (is_array($value)) {
-                    $table .= P2Util::Info_Dump($value, $indent+1); //配列の場合は再帰呼び出しで展開
+                    $table .= self::Info_Dump($value, $indent+1); //配列の場合は再帰呼び出しで展開
                 } elseif ($value === true) {
                     $table .= '<i>TRUE</i>';
                 } elseif ($value === false) {
@@ -995,7 +1106,7 @@ ERR;
                         $table .= '<table border="0" cellspacing="1" cellpadding="0" class="child">';
                         $table .= "\n\t\t<tr><td id=\"rule\">{$value}</tr></td>\n\t</table>";
                     } elseif (preg_match('/^(https?|ftp):\/\/[\w\/\.\+\-\?=~@#%&:;]+$/i', $value)) { //リンク
-                        $table .= '<a href="' . P2Util::throughIme($value) . '" target="_blank">' . $value . '</a>';
+                        $table .= '<a href="' . self::throughIme($value) . '" target="_blank">' . $value . '</a>';
                     } elseif ($key == '背景色' || substr($key, -6) == '_COLOR') { //カラーサンプル
                         $table .= "<span class=\"colorset\" style=\"color:{$value};\">■</span>（{$value}）";
                     } else {
@@ -1019,7 +1130,7 @@ ERR;
     /**
      * ["&<>]が実体参照になっているかどうか不明な文字列に対してhtmlspecialchars()をかける
      */
-    function re_htmlspecialchars($str)
+    static public function re_htmlspecialchars($str)
     {
         // e修飾子を付けたとき、"は自動でエスケープされるようだ
         return preg_replace('/["<>]|&(?!#?\w+;)/e', 'htmlspecialchars("$0", ENT_QUOTES)', $str);
@@ -1031,7 +1142,7 @@ ERR;
     /**
      * トリップを生成する
      */
-    function mkTrip($key, $length = 10)
+    static public function mkTrip($key, $length = 10)
     {
         $salt = substr($key . 'H.', 1, 2);
         $salt = preg_replace('/[^\.-z]/', '.', $salt);
@@ -1041,6 +1152,7 @@ ERR;
     }
 
     // }}}
+    // {{{ getWebPage
 
     /**
      * Webページを取得する
@@ -1051,7 +1163,7 @@ ERR;
      *
      * @return array|false 成功したらページ内容を返す。失敗したらfalseを返す。
      */
-    function getWebPage($url, &$error_msg, $timeout = 15)
+    static public function getWebPage($url, &$error_msg, $timeout = 15)
     {
         include_once "HTTP/Request.php";
 
@@ -1062,7 +1174,7 @@ ERR;
             $params['proxy_port'] = $_conf['proxy_port'];
         }
 
-        $req =& new HTTP_Request($url, $params);
+        $req = new HTTP_Request($url, $params);
         //$req->addHeader("X-PHP-Version", phpversion());
 
         $response = $req->sendRequest();
@@ -1082,39 +1194,48 @@ ERR;
         return false;
     }
 
+    // }}}
+    // {{{ getMyUrl()
+
     /**
      * 現在のURLを取得する（GETクエリーはなし）
      *
      * @return string
      * @see http://ns1.php.gr.jp/pipermail/php-users/2003-June/016472.html
      */
-    function getMyUrl()
+    static public function getMyUrl()
     {
         $s = empty($_SERVER['HTTPS']) ? '' : 's';
+        $port = ($_SERVER['SERVER_PORT'] == ($s ? 443 : 80)) ? '' : ':' . $_SERVER['SERVER_PORT'];
         $url = "http{$s}://" . $_SERVER['HTTP_HOST'] . $port . $_SERVER['SCRIPT_NAME'];
         // もしくは
-        //$port = ($_SERVER['SERVER_PORT'] == '80') ? '' : ':' . $_SERVER['SERVER_PORT'];
         //$url = "http{$s}://" . $_SERVER['SERVER_NAME'] . $port . $_SERVER['SCRIPT_NAME'];
 
         return $url;
     }
+
+    // }}}
+    // {{{ printSimpleHtml()
 
     /**
      * シンプルにHTMLを表示する
      *
      * @return void
      */
-    function printSimpleHtml($body)
+    static public function printSimpleHtml($body)
     {
         echo "<html><body>{$body}</body></html>";
     }
+
+    // }}}
+    // {{{ isNetFront()
 
     /**
      * isNetFront?
      *
      * @return boolean
      */
-    function isNetFront()
+    static public function isNetFront()
     {
         if (preg_match('/(NetFront|AVEFront\/|AVE-Front\/)/', $_SERVER['HTTP_USER_AGENT'])) {
             return true;
@@ -1123,26 +1244,32 @@ ERR;
         }
     }
 
+    // }}}
+    // {{{ encodeResponseTextForSafari()
+
     /**
      * XMLHttpRequestのレスポンスをSafari用にエンコードする
      *
      * @return string
      */
-    function encodeResponseTextForSafari($response, $encoding = 'SJIS-win')
+    static public function encodeResponseTextForSafari($response, $encoding = 'CP932')
     {
         $response = mb_convert_encoding($response, 'UTF-8', $encoding);
         $response = mb_encode_numericentity($response, array(0x80, 0xFFFF, 0, 0xFFFF), 'UTF-8');
         return $response;
     }
 
+    // }}}
+    // {{{ printOpenInTab()
+
     /**
-     * リンクを新しいタブで開くスイッチを出力する
+     * リンクを新しいタブで開くスイッチを出力する (iPhone用UI)
      *
      * @param string|array $expr XPath式またはXPath式の配列
      * @param bool $return
      * @return  void
      */
-    function printOpenInTab($expr, $return = false)
+    static public function printOpenInTab($expr, $return = false)
     {
         if (is_array($expr)) {
             $expr = "['" . implode("','", array_map(create_function(
@@ -1166,4 +1293,19 @@ EOP;
             echo $html;
         }
     }
+
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

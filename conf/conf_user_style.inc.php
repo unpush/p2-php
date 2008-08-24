@@ -18,9 +18,9 @@ $STYLE['a_underline_none'] = "2"; // ("2") リンクに下線を（つける:0, つけない:1,
 
 $STYLE['fontfamily'] = "ヒラギノ角ゴ Pro W3"; // ("ヒラギノ角ゴ Pro W3") 基本のフォント
 
-if (strstr($_SERVER['HTTP_USER_AGENT'], "Mac")) {
+if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
 
-    if(! $browser == "Safari"){ /* ブラウザが Macで Safari 以外 なら */
+    if(!P2Util::isBrowserSafariGroup()){ /* ブラウザが Macで Safari 以外 なら */
         $STYLE['fontfamily_bold'] = "ヒラギノ角ゴ Pro W6"; // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）
     }
 

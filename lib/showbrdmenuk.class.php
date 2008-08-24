@@ -9,7 +9,7 @@ class ShowBrdMenuK{
     /**
      * コンストラクタ
      */
-    function ShowBrdMenuK()
+    function __construct()
     {
         $this->cate_id = 1;
     }
@@ -17,7 +17,7 @@ class ShowBrdMenuK{
     /**
      * ■板メニューカテゴリをプリントする for 携帯
      */
-    function printCate(&$categories)
+    function printCate($categories)
     {
         global $_conf, $list_navi_ht;
 
@@ -197,12 +197,23 @@ EOP;
 
         $lines = @file($_conf['favita_path']); // favita読み込み
         if ($lines) {
-            echo 'お気に板 [<a href="editfavita.php?k=1">編集</a>]<hr>';
+            if ($_conf['expack.misc.multi_favs']) {
+                $favset_title = FavSetManager::getFavSetPageTitleHt('m_favita_set', 'お気に板');
+            } else {
+                $favset_title = 'お気に板';
+            }
+
+            echo "<div>{$favset_title}";
+            if ($_conf['merge_favita']) {
+                echo " (<a href=\"{$_conf['subject_php']}?spmode=merge_favita{$_conf['k_at_a']}{$_conf['m_favita_set_at_a']}\">まとめ</a>)";
+            }
+            echo " [<a href=\"editfavita.php{$_conf['k_at_q']}{$_conf['m_favita_set_at_a']}\">編集</a>]<hr>";
+
             $i = 0;
             foreach ($lines as $l) {
                 $i++;
                 $l = rtrim($l);
-                if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
+                if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", $l, $matches)) {
                     $itaj = rtrim($matches[3]);
                     $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
                     $itaj_en = rawurlencode(base64_encode($itaj));
@@ -214,12 +225,14 @@ EOP;
                         $key_num_st = "";
                     }
                     echo <<<EOP
-    <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$_conf['k_at_a']}"{$access_at}>{$key_num_st}{$itaj_view}</a><br>
+<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$_conf['k_at_a']}"{$access_at}>{$key_num_st}{$itaj_view}</a><br>
 EOP;
-                    //  [<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;view=favita{$_conf['k_at_a']}">削</a>]
+                    //  [<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;view=favita{$_conf['k_at_a']}{$_conf['m_favita_set_at_a']}">削</a>]
                     $show_flag = true;
                 }
             }
+
+            echo "</div>";
         }
 
         if (empty($show_flag)) {

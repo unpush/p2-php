@@ -32,19 +32,38 @@ window.onload = (function(){
 		anchors.snapshotItem(i).setAttribute('target', '_blank');
 	}
 
-	// テーブルの大きさを調整
-	resize_image_table();
-
-	// 古い回転時のイベントハンドラを保存
-	_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE = document.body.onorientationchange;
-
-	// 回転時のイベントハンドラを設定
-	document.body.onorientationchange = (function(){
-		if (_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE) {
-			_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE();
-		}
+	if (typeof window.orientation != 'undefined') {
+		// テーブルの大きさを調整
 		resize_image_table();
-	});
+
+		// 古い回転時のイベントハンドラを保存
+		_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE = document.body.onorientationchange;
+
+		// 回転時のイベントハンドラを設定
+		document.body.onorientationchange = (function(){
+			if (_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE) {
+				_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE();
+			}
+			resize_image_table();
+		});
+	} else {
+		// 回転をサポートしないブラウザ
+		var table = document.getElementById('iv2-images');
+		if (table) {
+			var width = document.body.clientWidth;
+			var css = document.styleSheets[document.styleSheets.length - 3];
+			css.insertRule('table#iv2-images { width: ' + width.toString() + 'px; }');
+
+			var cells = table.getElementsByTagName('td');
+			if (cells && cells.length) {
+				width -= (cells[0].clientWidth + 20);
+				css.insertRule('div.iv2-image-title { width: ' + width.toString() + 'px; }');
+			}
+		}
+
+		document.styleSheets[document.styleSheets.length - 2].disabled = true;
+		document.styleSheets[document.styleSheets.length - 1].disabled = true;
+	}
 });
 
 // }}}
@@ -57,12 +76,12 @@ window.onload = (function(){
  */
 function resize_image_table()
 {
-	if (!window.orientation || window.orientation % 180 == 0) {
+	if (window.orientation % 180 == 0) {
+		document.styleSheets[document.styleSheets.length - 1].disabled = false;
+		document.styleSheets[document.styleSheets.length - 2].disabled = true;
+	} else {
 		document.styleSheets[document.styleSheets.length - 2].disabled = false;
 		document.styleSheets[document.styleSheets.length - 1].disabled = true;
-	} else {
-		document.styleSheets[document.styleSheets.length - 2].disabled = true;
-		document.styleSheets[document.styleSheets.length - 1].disabled = false;
 	}
 }
 

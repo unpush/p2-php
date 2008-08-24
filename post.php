@@ -103,7 +103,7 @@ if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
     // JBBS@したらば なら
     if (P2Util::isHostJbbsShitaraba($host)) {
         $bbs_cgi = "../../bbs/write.cgi";
-        preg_match("/(\w+)$/", $host, $ar);
+        preg_match('/(\\w+)$/', $host, $ar);
         $dir = $ar[1];
         $dir_k = "DIR";
     }
@@ -415,7 +415,7 @@ function postIt($host, $bbs, $key, $post)
 
             // したらば or be.2ch.netなら、EUCに変換
             if (P2Util::isHostJbbsShitaraba($host) || P2Util::isHostBe2chNet($host)) {
-                $value = mb_convert_encoding($value, 'eucJP-win', 'SJIS-win');
+                $value = mb_convert_encoding($value, 'CP51932', 'CP932');
             }
 
             $post_enc[] = $name."=".urlencode($value);
@@ -500,7 +500,7 @@ function postIt($host, $bbs, $key, $post)
 
     // be.2ch.net or JBBSしたらば 文字コード変換 EUC→SJIS
     if (P2Util::isHostBe2chNet($host) || P2Util::isHostJbbsShitaraba($host)) {
-        $response = mb_convert_encoding($response, 'SJIS-win', 'eucJP-win');
+        $response = mb_convert_encoding($response, 'CP932', 'CP51932');
 
         //<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">
         $response = preg_replace("{(<head>.*<META http-equiv=\"Content-Type\" content=\"text/html; charset=)EUC-JP(\">.*</head>)}is", "$1Shift_JIS$2", $response);
@@ -690,7 +690,7 @@ function getKeyInSubject()
     global $host, $bbs, $ttitle;
 
     require_once P2_LIB_DIR . '/SubjectTxt.class.php';
-    $aSubjectTxt =& new SubjectTxt($host, $bbs);
+    $aSubjectTxt = new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {
         if (strstr($l, $ttitle)) {

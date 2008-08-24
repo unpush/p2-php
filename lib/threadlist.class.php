@@ -16,8 +16,9 @@ class ThreadList{
     /**
      * コンストラクタ
      */
-    function ThreadList()
+    function __construct()
     {
+        $this->threads = array();
         $this->num = 0;
     }
 
@@ -26,27 +27,44 @@ class ThreadList{
     {
         global $_conf;
 
-        if ($name == "recent") {
+        $halfwidth = ($_conf['ktai'] && !$_conf['ktai']);
+
+        switch ($name) {
+        case 'recent':
             $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? "最近読んだｽﾚ" : "最近読んだスレ";
-        } elseif ($name == "res_hist") {
+            $this->ptitle = $halfwidth ? '最近読んだｽﾚ' : '最近読んだスレ';
+            break;
+        case 'res_hist':
             $this->spmode = $name;
-            $this->ptitle = "書き込み履歴";
-        } elseif ($name == "fav") {
+            $this->ptitle = '書き込み履歴';
+            break;
+        case 'fav':
             $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? "お気にｽﾚ" : "お気にスレ";
-        } elseif ($name == "taborn") {
+            $this->ptitle = $halfwidth ? 'お気にｽﾚ' : 'お気にスレ';
+            break;
+        case 'taborn':
             $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? "$this->itaj (ｱﾎﾞﾝ中)" : "$this->itaj (あぼーん中)";
-        } elseif ($name == "soko") {
+            $this->ptitle = $this->itaj . ($halfwidth ? ' (ｱﾎﾞﾝ中)' : ' (あぼーん中)');
+            break;
+        case 'soko':
             $this->spmode = $name;
-            $this->ptitle = "$this->itaj (dat倉庫)";
-        } elseif ($name == "palace") {
+            $this->ptitle = "{$this->itaj} (dat倉庫)";
+            break;
+        case 'palace':
             $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? "ｽﾚの殿堂" : "スレの殿堂";
-        } elseif ($name == "news") {
+            $this->ptitle = $halfwidth ? 'ｽﾚの殿堂' : 'スレの殿堂';
+            break;
+        case 'merge_favita':
             $this->spmode = $name;
-            $this->ptitle = $_conf['ktai'] ? "ﾆｭｰｽﾁｪｯｸ" : "ニュースチェック";
+            if ($_conf['expack.misc.multi_favs']) {
+                $this->ptitle = str_replace(array('&gt;', '&lt;', '&quot;', '&#039;'),
+                                            array('>', '<', '"', "'"),
+                                            FavSetManager::getFavSetPageTitleHt('m_favita_set', 'お気に板')
+                                            ) . ' (まとめ)';
+            } else {
+                $this->ptitle = 'お気に板 (まとめ)';
+            }
+            break;
         }
     }
 
@@ -85,7 +103,7 @@ class ThreadList{
     {
         global $_conf, $_info_msg_ht;
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
 
         if ($this->spmode) {
 
@@ -111,48 +129,48 @@ class ThreadList{
                     //return false;
                 }
 
-            // ニュース系サブジェクト読み込み
-            } elseif ($this->spmode == "news") {
+            // お気に板をまとめて読み込み
+            } elseif ($this->spmode == "merge_favita") {
+                require_once P2_LIB_DIR . '/SubjectTxt.class.php';
 
-                $news = array(
-                    array('host' => 'news18.2ch.net', 'bbs' => 'bizplus'), // ビジネスnews+
-                    array('host' => 'news19.2ch.net', 'bbs' => 'newsplus'), // ニュース速報+
-                    array('host' => 'live14.2ch.net', 'bbs' => 'wildplus'), // ニュース二軍+
-                    array('host' => 'news19.2ch.net', 'bbs' => 'moeplus'), // 萌えニュース+
-                    array('host' => 'news18.2ch.net', 'bbs' => 'mnewsplus'), // 芸スポ速報+
-                    array('host' => 'news18.2ch.net', 'bbs' => 'femnewsplus'), // femalenews+
-                    array('host' => 'news18.2ch.net', 'bbs' => 'dqnplus'), // 痛いニュース+
-                    array('host' => 'news18.2ch.net', 'bbs' => 'scienceplus'), // 科学ニュース+
-                    array('host' => 'live14.2ch.net', 'bbs' => 'liveplus'), // ニュース実況+
-                    array('host' => 'news20.2ch.net', 'bbs' => 'news'), // ニュース速報
-                    array('host' => 'news18.2ch.net', 'bbs' => 'trafficinfo'), // 交通情報
-                    array('host' => 'music4.2ch.net', 'bbs' => 'musicnews'), // 芸能音楽速報
-                    array('host' => 'anime.2ch.net', 'bbs' => 'comicnews'), // アニメ漫画速報
-                    array('host' => 'news19.2ch.net', 'bbs' => 'gamenews'), // ゲーム速報
-                    array('host' => 'pc8.2ch.net', 'bbs' => 'pcnews'), // PCニュース
-                    array('host' => 'news18.2ch.net', 'bbs' => 'news7'), // 私のニュース
-                    array('host' => 'bubble4.2ch.net', 'bbs' => 'archives'), // 懐かしニュース
-                    array('host' => 'news18.2ch.net', 'bbs' => 'news2'), // ニュース議論
-                    array('host' => 'tmp6.2ch.net', 'bbs' => 'asia'), // ニュース極東
-                    array('host' => 'tmp6.2ch.net', 'bbs' => 'bakanews'), // バカニュース
-                    array('host' => 'news18.2ch.net', 'bbs' => 'editorial'), // 社説
-                );
-                foreach ($news as $n) {
+                $favitas = array();
 
-                    require_once P2_LIB_DIR . '/SubjectTxt.class.php';
-                    $aSubjectTxt =& new SubjectTxt($n['host'], $n['bbs']);
+                if (file_exists($_conf['favita_path'])) {
+                    foreach (file($_conf['favita_path']) as $l) {
+                        if (preg_match("/^\t?(.+?)\t(.+?)\t.+?\$/", rtrim($l), $m)) {
+                            $favitas[] = array('host' => $m[1], 'bbs' => $m[2]);
+                        }
+                    }
+                }
+
+                if (empty($_REQUEST['norefresh']) &&
+                    !(empty($_REQUEST['refresh']) && isset($_REQUEST['word'])) &&
+                    extension_loaded('http')
+                ) {
+                    require_once P2_LIB_DIR . '/p2httpext.class.php';
+                    P2HttpRequestPool::fetchSubjectTxt($favitas);
+                    $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+                }
+
+                $lines = array();
+                $i = 0;
+
+                foreach ($favitas as $ita) {
+                    $aSubjectTxt = new SubjectTxt($ita['host'], $ita['bbs']);
+                    $k = ++$i / 10;
 
                     if (is_array($aSubjectTxt->subject_lines)) {
+                        $j = 0;
                         foreach ($aSubjectTxt->subject_lines as $l) {
-                            if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches)) {
-                                //$this->isonline = true;
-                                unset($al);
-                                $al['key'] = $matches[1];
-                                $al['ttitle'] = rtrim($matches[4]);
-                                $al['rescount'] = $matches[6];
-                                $al['host'] = $n['host'];
-                                $al['bbs'] = $n['bbs'];
-                                $lines[] = $al;
+                            if (preg_match('/^([0-9]+)\\.(?:dat|cgi)(?:,|<>)(.+) ?(?:\\(|（)([0-9]+)(?:\\)|）)/', $l, $m)) {
+                                $lines[] = array(
+                                    'key' => $m[1],
+                                    'ttitle' => rtrim($m[2]),
+                                    'rescount' => (int)$m[3],
+                                    'host' => $ita['host'],
+                                    'bbs' => $ita['bbs'],
+                                    'torder' => ++$j + $k,
+                                );
                             }
                         }
                     }
@@ -177,7 +195,7 @@ class ThreadList{
 
                 $lines = array();
 
-                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat'); //
+                //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat'); //
                 // ■datログディレクトリを走査して孤立datにidx付加 =================
                 if ($cdir = dir($dat_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     // ディレクトリ走査
@@ -208,9 +226,9 @@ class ThreadList{
                     }
                     $cdir->close();
                 }
-                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat');//
+                //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat');//
 
-                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx');//
+                //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx');//
                 // {{{ idxログディレクトリを走査してidx情報を抽出してリスト化
                 if ($cdir = dir($idx_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     // ディレクトリ走査
@@ -223,7 +241,7 @@ class ThreadList{
                     $cdir->close();
                 }
                 // }}}
-                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx');//
+                //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx');//
 
             // ■スレの殿堂の場合  // p2_palace.idx 読み込み
             } elseif ($this->spmode == "palace") {
@@ -237,12 +255,12 @@ class ThreadList{
         // ■オンライン上の subject.txt を読み込む（spmodeでない場合）
         } else {
             require_once P2_LIB_DIR . '/SubjectTxt.class.php';
-            $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
-            $lines =& $aSubjectTxt->subject_lines;
+            $aSubjectTxt = new SubjectTxt($this->host, $this->bbs);
+            $lines = $aSubjectTxt->subject_lines;
 
         }
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('readList()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('readList()');
 
         return $lines;
     }
@@ -250,14 +268,14 @@ class ThreadList{
     /**
      * ■ addThread メソッド
      */
-    function addThread(&$aThread)
+    function addThread($aThread)
     {
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('addThread()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('addThread()');
 
-        $this->threads[] =& $aThread;
+        $this->threads[] = $aThread;
         $this->num++;
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('addThread()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('addThread()');
 
         return $this->num;
     }

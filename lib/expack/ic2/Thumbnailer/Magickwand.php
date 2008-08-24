@@ -164,12 +164,12 @@ class Thumbnailer_Magickwand extends Thumbnailer_Common
      * @param string $errmsg
      * @return object PEAR_Error
      */
-    function &_raiseError($im, $errmsg)
+    function _raiseError($im, $errmsg)
     {
         if (WandHasException($im)) {
             $errmsg .= "\n" . WandGetExceptionString($im);
         }
-        $err = &PEAR::raiseError($errmsg);
+        $err = PEAR::raiseError($errmsg);
         return $err;
     }
 

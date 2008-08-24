@@ -9,24 +9,38 @@
     データ
     *／ ？＞
 */
-class DataPhp{
 
-    function getPre()
+// {{{ DataPhp
+
+/**
+ * @static
+ */
+class DataPhp
+{
+    // {{{ getPre()
+
+    static public function getPre()
     {
         return "<?php /*\n";
     }
 
-    function getHip()
+    // }}}
+    // {{{ getHip()
+
+    static public function getHip()
     {
         return "\n*/ ?>";
     }
+
+    // }}}
+    // {{{ getDataPhpCont()
 
     /**
      * ■データphp形式のファイルを読み込む
      *
      * 文字列のアンエスケープも行う
      */
-    function getDataPhpCont($data_php)
+    static public function getDataPhpCont($data_php)
     {
         if (!$cont = @file_get_contents($data_php)) {
             // 読み込みエラーならfalse、空っぽなら""を返す
@@ -49,12 +63,15 @@ class DataPhp{
         }
     }
 
+    // }}}
+    // {{{ fileDataPhp()
+
     /**
      * ■データphp形式のファイルをラインで読み込む
      *
      * 文字列のアンエスケープも行う
      */
-    function fileDataPhp($data_php)
+    static public function fileDataPhp($data_php)
     {
         if (!$cont = DataPhp::getDataPhpCont($data_php)) {
             // 読み込みエラーならfalse、空っぽなら空配列を返す
@@ -99,13 +116,16 @@ class DataPhp{
         }
     }
 
+    // }}}
+    // {{{ writeDataPhp()
+
     /**
      * データphp形式のファイルにデータを記録する
      *
      * 文字列のエスケープも行う
      * @param srting $cont 記録するデータ文字列。
      */
-    function writeDataPhp($data_php, &$cont, $perm = 0606)
+    static public function writeDataPhp($data_php, $cont, $perm = 0606)
     {
         // &<>/ を &xxx; にエスケープして
         $new_cont = DataPhp::escapeDataPhp($cont);
@@ -128,10 +148,13 @@ class DataPhp{
         return true;
     }
 
+    // }}}
+    // {{{ putDataPhp()
+
     /**
      * データphp形式のファイルで、末尾にデータを追加する
      */
-    function putDataPhp($data_php, &$cont, $perm = 0606, $ncheck = false)
+    static public function putDataPhp($data_php, $cont, $perm = 0606, $ncheck = false)
     {
         if ($cont === "") {
             return true;
@@ -181,10 +204,13 @@ class DataPhp{
         return true;
     }
 
+    // }}}
+    // {{{ escapeDataPhp()
+
     /**
      * ■データphp形式のデータをエスケープする
      */
-    function escapeDataPhp($str)
+    static public function escapeDataPhp($str)
     {
         // &<>/ → &xxx; のエスケープをする
         $str = str_replace("&", "&amp;", $str);
@@ -194,10 +220,13 @@ class DataPhp{
         return $str;
     }
 
+    // }}}
+    // {{{ unescapeDataPhp()
+
     /**
      * ■データphp形式のデータをアンエスケープする
      */
-    function unescapeDataPhp($str)
+    static public function unescapeDataPhp($str)
     {
         // &<>/ → &xxx; のエスケープを元に戻す
         $str = str_replace('&lt;', '<', $str);
@@ -207,4 +236,18 @@ class DataPhp{
         return $str;
     }
 
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

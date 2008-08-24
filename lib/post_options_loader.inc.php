@@ -12,6 +12,21 @@ $time = $time + $fake_time * 60;
 
 $csrfid = P2Util::getCsrfId();
 
+$hd['FROM'] = '';
+$hd['mail'] = '';
+$hd['MESSAGE'] = '';
+$hd['subject'] = '';
+
+$htm['be2ch'] = '';
+$htm['sage_cb'] = '';
+$htm['maru_post'] = '';
+$htm['block_submit'] = '';
+$htm['src_fix'] = '';
+$htm['options'] = '';
+$htm['options_k'] = '';
+$htm['subject'] = '';
+$htm['resform_ttitle'] = '';
+
 $htm['disable_js'] = <<<EOP
 <script type="text/javascript">
 <!--
@@ -97,7 +112,7 @@ $hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
 
 
 // 参考 クラシック COLS='60' ROWS='8'
-$mobile = &Net_UserAgent_Mobile::singleton();
+$mobile = Net_UserAgent_Mobile::singleton();
 // PC
 if (!$_conf['ktai']) {
     $name_size_at = ' size="19"';
@@ -130,7 +145,6 @@ EOP;
 
 // {{{ 2ch●書き込み
 
-$htm['maru_post'] = '';
 if (P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php'])) {
     $htm['maru_post'] = <<<EOP
 <span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox" value="1"><label for="maru">●</label></span>
@@ -140,7 +154,6 @@ EOP;
 // }}}
 // {{{ 書き込みブロック用チェックボックス
 
-$htm['block_submit'] = '';
 if (!$_conf['ktai']) {
     $htm['block_submit'] = <<<EOP
 <input type="checkbox" id="block_submit" onclick="switchBlockSubmit(this.checked)"><label for="block_submit">block</label>
@@ -150,7 +163,6 @@ EOP;
 // }}}
 // {{{ ソースコード補正用チェックボックス
 
-$htm['src_fix'] = '';
 if (!$_conf['ktai']) {
     if ($_conf['editor_srcfix'] == 1 || ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d\.2ch\.net/', $host))) {
         $htm['src_fix'] = <<<EOP
@@ -162,8 +174,6 @@ EOP;
 // }}}
 // {{{ 定型文・アクティブモナー
 
-$htm['options'] = '';
-$htm['options_k'] = '';
 /*
 $_aapreview_activemona = (!$_conf['ktai'] && $_conf['expack.am.enabled'] && $_conf['expack.editor.with_activemona']);
 $_aapreveiw_aas = ($_conf['expack.aas.enabled'] && $_conf['expack.editor.with_aas']);
@@ -186,7 +196,7 @@ $htm['dpreview2'] = '';
 if (!$_conf['ktai'] && $_conf['expack.editor.dpreview']) {
     $_dpreview_noname = 'null';
     if (P2Util::isHost2chs($host)) {
-        $_dpreview_st = &new SettingTxt($host, $bbs);
+        $_dpreview_st = new SettingTxt($host, $bbs);
         $_dpreview_st->setSettingArray();
         if (!empty($_dpreview_st->setting_array['BBS_NONAME_NAME'])) {
             $_dpreview_noname = $_dpreview_st->setting_array['BBS_NONAME_NAME'];
@@ -245,7 +255,7 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
     if (!empty($_GET['inyou'])) {
         require_once P2_LIB_DIR . '/thread.class.php';
         require_once P2_LIB_DIR . '/threadread.class.php';
-        $aThread = &new ThreadRead;
+        $aThread = new ThreadRead;
         $aThread->setThreadPathInfo($host, $bbs, $key);
         $aThread->readDat($aThread->keydat);
         $q_resar = $aThread->explodeDatLine($aThread->datlines[$q_resnum-1]);

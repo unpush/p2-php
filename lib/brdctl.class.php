@@ -3,15 +3,21 @@
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/brdmenu.class.php';
 
+// {{{ BrdCtl
+
 /**
  * p2 - BrdCtl -- 板リストコントロールクラス for menu.php
+ *
+ * @static
  */
-class BrdCtl{
+class BrdCtl
+{
+    // {{{ read_brds()
 
     /**
      * boardを全て読み込む
      */
-    function read_brds()
+    static public function read_brds()
     {
         $brd_menus_dir = BrdCtl::read_brd_dir();
         $brd_menus_online = BrdCtl::read_brd_online();
@@ -19,10 +25,13 @@ class BrdCtl{
         return $brd_menus;
     }
 
+    // }}}
+    // {{{ read_brd_dir()
+
     /**
      * boardディレクトリを走査して読み込む
      */
-    function read_brd_dir()
+    static public function read_brd_dir()
     {
         global $_info_msg_ht;
 
@@ -37,10 +46,10 @@ class BrdCtl{
                 }
                 $filepath = $brd_dir.'/'.$entry;
                 if ($data = @file($filepath)) {
-                    $aBrdMenu =& new BrdMenu();    // クラス BrdMenu のオブジェクトを生成
+                    $aBrdMenu = new BrdMenu();    // クラス BrdMenu のオブジェクトを生成
                     $aBrdMenu->setBrdMatch($filepath);    // パターンマッチ形式を登録
                     $aBrdMenu->setBrdList($data);    // カテゴリーと板をセット
-                    $brd_menus[] =& $aBrdMenu;
+                    $brd_menus[] = $aBrdMenu;
 
                 } else {
                     $_info_msg_ht .= "<p>p2 error: 板リスト {$entry} が読み込めませんでした。</p>\n";
@@ -52,14 +61,18 @@ class BrdCtl{
         return $brd_menus;
     }
 
+    // }}}
+    // {{{ read_brd_online()
+
     /**
     * オンライン板リストを読込む
     */
-    function read_brd_online()
+    static public function read_brd_online()
     {
         global $_conf, $_info_msg_ht;
 
         $brd_menus = array();
+        $isNewDL = false;
 
         if ($_conf['brdfile_online']) {
             $cachefile = P2Util::cacheFileForDL($_conf['brdfile_online']);
@@ -69,7 +82,7 @@ class BrdCtl{
             // キャッシュがある場合
             if (file_exists($cachefile.'.p2.brd')) {
                 // norefreshならDLしない
-                if ($_GET['nr']) {
+                if (!empty($_GET['nr'])) {
                     $noDL = true;
                 // キャッシュの更新が指定時間以内ならDLしない
                 } elseif (@filemtime($cachefile.'.p2.brd') > time() - 60 * 60 * $_conf['menu_dl_interval']) {
@@ -105,7 +118,7 @@ class BrdCtl{
                     }
 
                     //echo "NEW!<br>"; //
-                    $aBrdMenu =& new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
+                    $aBrdMenu = new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
                     $aBrdMenu->makeBrdFile($cachefile); // .p2.brdファイルを生成
                     $brd_menus[] = $aBrdMenu;
                     unset($aBrdMenu);
@@ -130,11 +143,11 @@ class BrdCtl{
 
             if (!$read_html_flag) {
                 if ($data = @file($cache_brd)) {
-                    $aBrdMenu =& new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
+                    $aBrdMenu = new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
                     $aBrdMenu->setBrdMatch($cache_brd); // パターンマッチ形式を登録
                     $aBrdMenu->setBrdList($data); // カテゴリーと板をセット
                     if ($aBrdMenu->num) {
-                        $brd_menus[] =& $aBrdMenu;
+                        $brd_menus[] = $aBrdMenu;
                     } else {
                         $_info_msg_ht .=  "<p>p2 エラー: {$cache_brd} から板メニューを生成することはできませんでした。</p>\n";
                     }
@@ -148,4 +161,18 @@ class BrdCtl{
         return $brd_menus;
     }
 
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

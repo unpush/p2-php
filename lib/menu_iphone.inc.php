@@ -217,13 +217,24 @@ function menu_iphone_show_favorite_boards($title, $no = null)
 {
     global $_conf;
 
+    if ($_conf['expack.misc.multi_favs']) {
+        $favset_q = "?m_favita_set={$no}";
+        $favset_q_a = "&amp;m_favita_set={$no}";
+    } else {
+        $favset_q = $favset_q_a = '';
+    }
+
     echo "<ul id=\"favita{$no}\" title=\"{$title}\">";
 
     echo menu_iphone_open_in_tab();
 
+    if ($_conf['merge_favita']) {
+        echo "<li><a href=\"{$_conf['subject_php']}?spmode=merge_favita{$favset_q_a}\" target=\"_self\">{$title} (Ç‹Ç∆Çﬂ)</a></li>";
+    }
+
     if ($lines = @file($_conf['favita_path'])) {
         foreach ($lines as $l) {
-            if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", rtrim($l), $matches)) {
+            if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", rtrim($l), $matches)) {
                 $itaj = rtrim($matches[3]);
                 $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
                 $itaj_en = rawurlencode(base64_encode($itaj));
@@ -234,11 +245,7 @@ function menu_iphone_show_favorite_boards($title, $no = null)
     }
 
     //echo '<li class="group">&nbsp;</li>';
-    echo '<li><a href="editfavita.php';
-    if ($_conf['expack.misc.multi_favs']) {
-        echo '?m_favita_set=' . $no;
-    }
-    echo '" class="align-r" target="_self">ï“èW</a></li>';
+    echo "<li><a href=\"editfavita.php{$favset_q}\" class=\"align-r\" target=\"_self\">ï“èW</a></li>";
 
     echo "</ul>\n";
 }

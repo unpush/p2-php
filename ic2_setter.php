@@ -85,12 +85,12 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
         $_info_msg_ht .= $err_fmt['none'];
     } else {
         // サムネイル作成クラスのインスタンスを作成
-        $thumbnailer = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+        $thumbnailer = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
 
         // DBに記録する共通データを設定
         $f_host = 'localhost';
         $f_time = time();
-        $f_memo = isset($_POST['memo']) ? IC2DB_Images::uniform($_POST['memo'], 'SJIS-win') : '';
+        $f_memo = isset($_POST['memo']) ? IC2DB_Images::staticUniform($_POST['memo'], 'CP932') : '';
         $f_rank = isset($_POST['rank']) ? intval($_POST['rank']) : 0;
         if ($f_rank > 5) {
             $f_rank = 5;
@@ -132,7 +132,7 @@ $_flexy_options = array(
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+$flexy = new HTML_Template_Flexy($_flexy_options);
 $flexy->compile('ic2s.tpl.html');
 
 if (!$isPopUp && (!empty($upfiles) || $_info_msg_ht != '')) {
@@ -160,7 +160,7 @@ if ($showForm) {
 }
 
 // テンプレート変数
-$view = &new stdClass;
+$view = new stdClass;
 $view->php_self = $_SERVER['SCRIPT_NAME'];
 $view->STYLE    = $STYLE;
 $view->skin     = $skin_en;
@@ -188,7 +188,7 @@ $flexy->outputObject($view, $elements);
  */
 function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errcode)
 {
-    global $_conf, $_hfs, $ini, $err_fmt;
+    global $_conf, $ini, $err_fmt;
     global $mimemap, $mimeregex, $maxsize, $maxwidth, $maxheight;
 
     $path_ht = htmlspecialchars($path, ENT_QUOTES);
@@ -237,10 +237,10 @@ function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errc
     // ファイル名を取得
     $basename = mb_basename($path);
     if ($basename == '') {
-        if ($_hfs) {
-            $name = combinehfskana($name);
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
+            $name = combine_nfd_kana($name);
         }
-        $name = mb_convert_encoding($name, 'SJIS-win', 'UTF-8,eucJP-win,SJIS-win');
+        $name = mb_convert_encoding($name, 'CP932', 'UTF-8,CP51932,CP932');
         $basename = mb_basename($name);
         if ($name == '') {
             return sprintf($err_fmt['name'], $path_ht);
@@ -269,12 +269,12 @@ function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errc
  */
 function ic2_register_uploaded_file($file)
 {
-    global $_conf, $_hfs, $ini, $err_fmt;
+    global $_conf, $ini, $err_fmt;
     global $thumbnailer;
     global $f_host, $f_time, $f_memo, $f_rank;
 
-    $utf8_path = mb_convert_encoding($file['path'], 'UTF-8', 'SJIS-win');
-    $utf8_name = mb_convert_encoding($file['name'], 'UTF-8', 'SJIS-win');
+    $utf8_path = mb_convert_encoding($file['path'], 'UTF-8', 'CP932');
+    $utf8_name = mb_convert_encoding($file['name'], 'UTF-8', 'CP932');
     $file['path'] = htmlspecialchars($file['path'], ENT_QUOTES);
     $file['name'] = htmlspecialchars($file['name'], ENT_QUOTES);
     $file['memo'] = $f_memo;
@@ -290,7 +290,7 @@ function ic2_register_uploaded_file($file)
     }
 
     // 既存の画像か検索
-    $search1 = &new IC2DB_Images;
+    $search1 = new IC2DB_Images;
     $search1->whereAddQuoted('size', '=', $file['size']);
     $search1->whereAddQuoted('md5',  '=', $file['md5']);
     $search1->whereAddQuoted('mime', '=', $file['mime']);
@@ -308,7 +308,7 @@ function ic2_register_uploaded_file($file)
             } else {
                 $update->memo = $f_memo;
             }
-            $file['memo'] = mb_convert_encoding($update->memo, 'SJIS-win', 'UTF-8');
+            $file['memo'] = mb_convert_encoding($update->memo, 'CP932', 'UTF-8');
             $changed = TRUE;
         }
         if ($search1->rank != $f_rank) {
@@ -325,7 +325,7 @@ function ic2_register_uploaded_file($file)
 
     } else {
 
-        $record = &new IC2DB_Images;
+        $record = new IC2DB_Images;
         $record->uri    = $utf8_path;
         $record->host   = $f_host;
         $record->name   = $utf8_name;

@@ -9,6 +9,8 @@ include_once './conf/conf.inc.php';
 $explanation = '見たいスレッドのURLを入力して下さい。例：http://pc.2ch.net/test/read.cgi/mac/1034199997/';
 
 // $defurl = getLastReadTreadUrl();
+$defurl = '';
+$ini_url_text = '';
 
 $onClick_ht = <<<EOP
 var url_v=document.forms["urlform"].elements["url_text"].value;

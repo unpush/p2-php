@@ -51,7 +51,7 @@ $datlines = array_map('rtrim', $datlines);
 // ファイルの下に記録されているものが新しい
 $datlines = array_reverse($datlines);
 
-$aResHist =& new ResHist();
+$aResHist = new ResHist();
 
 $aResHist->readLines($datlines);
 

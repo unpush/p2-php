@@ -49,7 +49,7 @@ if (!$_conf['expack.aas.enabled']) {
 // {{{ 設定
 
 // このファイルの文字コード
-define('AAS_SCRIPT_CHARSET', 'SJIS-win');
+define('AAS_SCRIPT_CHARSET', 'CP932');
 
 // HTML→プレーンテキスト変換処理の文字コード
 define('AAS_INTERNAL_CHARSET', 'UTF-8');
@@ -219,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // レス読み込み
 if (empty($errors) && $_SERVER['REQUEST_METHOD'] != 'POST') {
     require_once P2_LIB_DIR . '/threadread.class.php';
-    $aThread = &new ThreadRead;
+    $aThread = new ThreadRead;
     $aThread->setThreadPathInfo($host, $bbs, $key);
     if (!$aThread->readDat()) {
         $errors[] = 'datが読み込めませんでした。';
@@ -257,7 +257,7 @@ if (count($errors) > 0) {
 // {{{ メイン処理
 
 // 文字コード変換
-$text = mb_convert_encoding($text, AAS_INTERNAL_CHARSET, 'SJIS-win');
+$text = mb_convert_encoding($text, AAS_INTERNAL_CHARSET, 'CP932');
 
 // 制御文字以外をすべて数値文字参照に変換
 $regex = '/&(\\w+|#x([[:xdigit:]]{1,4}))(;|\\b)/';
@@ -276,11 +276,7 @@ $text = str_replace($u3000, '  ', $text);
 $text = mb_convert_encoding($text, $_conf['expack.aas.output_charset'], AAS_INTERNAL_CHARSET);
 */
 // エラーハンドラを設定
-/*if (version_compare(phpversion(), '5.0.0', '>')) {
-    set_error_handler('aas_ttfErrorHandler', E_WARNING);
-} else {
-    set_error_handler('aas_ttfErrorHandler');
-}*/
+//set_error_handler('aas_ttfErrorHandler', E_WARNING);
 
 // 元のテキストの文字数が多いとエラーになるので
 // テキストボックスの大きさ判定用の文字列を作成
@@ -391,8 +387,7 @@ if ($rotate) {
     // Bug #24155 (gdImageRotate270 rotation problem).
     //$new_image = imagerotate(imagerotate($image, 180, $bgcolor), 90, $bgcolor);
     imagedestroy($image);
-    unset($image);
-    $image = &$new_image;
+    $image = $new_image;
 }
 
 // エラーハンドラを戻す

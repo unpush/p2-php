@@ -5,22 +5,23 @@
 /**
  * sb_print - スレッド一覧を表示する (<tr>～</tr>)
  */
-function sb_print(&$aThreadList)
+function sb_print($aThreadList)
 {
-    global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
+    global $_conf, $sb_view, $p2_setting, $STYLE;
 
-    $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sb_print()');
+    //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sb_print()');
 
     if (!$aThreadList->threads) {
         print "<tr><td>　該当サブジェクトはなかったぽ</td></tr>";
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
         return;
     }
 
     // 変数 ================================================
 
     // >>1 表示
-    if (($_conf['sb_show_one'] == 1) or ($_conf['sb_show_one'] == 2 and ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus")) {
+    $only_one_bool = false;
+    if (($_conf['sb_show_one'] == 1) or ($_conf['sb_show_one'] == 2 and (strpos($aThreadList->bbs, 'news') !== false || $aThreadList->bbs == 'bizplus'))) {
         // spmodeは除く
         if (empty($aThreadList->spmode)) {
             $only_one_bool = true;
@@ -30,12 +31,18 @@ function sb_print(&$aThreadList)
     // チェックボックス
     if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
         $checkbox_bool = true;
+    } else {
+        $checkbox_bool = false;
     }
 
     // 板名
     if ($aThreadList->spmode and $aThreadList->spmode != "taborn" and $aThreadList->spmode != "soko") {
         $ita_name_bool = true;
+    } else {
+        $ita_name_bool = false;
     }
+
+    $htm = array('ita_td' => '');
 
     $norefresh_q = "&amp;norefresh=true";
 
@@ -125,6 +132,8 @@ EOP;
     //spmodeがあればクエリー追加
     if ($aThreadList->spmode) {
         $spmode_q = "&amp;spmode={$aThreadList->spmode}";
+    } else {
+        $spmode_q = '';
     }
     $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
@@ -201,6 +210,7 @@ EOP;
 
 
         // お気に入り ========================================
+        $fav_ht = '';
         if ($_conf['sb_show_fav']) {
             if ($aThreadList->spmode != "taborn") {
 
@@ -235,6 +245,8 @@ EOP;
             $rescount_q = "";
             $offline_q = "&amp;offline=true";
             $anum_ht = "";
+        } else {
+            $offline_q = '';
         }
 
         // タイトル未取得なら
@@ -281,18 +293,23 @@ EOP;
         // オンリー>>1 =============================================
         if ($only_one_bool) {
             $one_ht = "<td{$class_t}><a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true\">&gt;&gt;1</a></td>";
+        } else {
+            $one_ht = '';
         }
 
         // チェックボックス =============================================
         if ($checkbox_bool) {
-            $checked_ht = "";
+            $checked_ht = '';
             if ($aThreadList->spmode == "taborn") {
                 if (!$aThread->isonline) { $checked_ht=" checked"; } // or ($aThread->rescount >= 1000)
             }
             $checkbox_ht = "<td{$class_tc}><input name=\"checkedkeys[]\" type=\"checkbox\" value=\"{$aThread->key}\"$checked_ht></td>";
+        } else {
+            $checkbox_ht = '';
         }
 
         // 並替 =============================================
+        $edit_ht = '';
         if ($sb_view == "edit") {
             $unum_ht = "";
             $rescount_ht = "";
@@ -351,6 +368,6 @@ EOP;
 
     }
 
-    $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
+    //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
     return true;
 }

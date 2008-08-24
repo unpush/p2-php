@@ -21,7 +21,7 @@ if ($GLOBALS['_conf']['expack.rss.with_imgcache'] &&
 /**
  * RSSをダウンロードし、パース結果を返す
  */
-function &p2GetRSS($remotefile, $atom=0)
+function p2GetRSS($remotefile, $atom=0)
 {
     global $_conf, $_info_msg_ht;
 
@@ -66,7 +66,7 @@ function &p2GetRSS($remotefile, $atom=0)
 /**
  * RSSをパースする
  */
-function &p2ParseRSS($xmlpath, $atom=0)
+function p2ParseRSS($xmlpath, $atom=0)
 {
     global $_info_msg_ht;
 
@@ -104,8 +104,8 @@ function &p2ParseRSS($xmlpath, $atom=0)
         }
         fclose($fp);
     }
-    $rss = &new XML_RSS($rsspath, $srcenc, $tgtenc);*/
-    $rss = &new XML_RSS($rsspath);
+    $rss = new XML_RSS($rsspath, $srcenc, $tgtenc);*/
+    $rss = new XML_RSS($rsspath);
     if (PEAR::isError($rss)) {
         $_info_msg_ht = '<p>p2 error: RSS - ' . $rss->getMessage() . '</p>';
         return $rss;
@@ -224,11 +224,11 @@ function atom_to_rss_by_xsl($input, $stylesheet, $output)
     // PHP4互換モードでは使えないAPIを使うので、一時的に同モードをOffにする
     ini_set('zend.ze1_compatibility_mode', 'Off');
 
-    $xmlDoc = &new DomDocument;
+    $xmlDoc = new DomDocument;
     $xmlDoc->load($input);
-    $xslDoc = &new DomDocument;
+    $xslDoc = new DomDocument;
     $xslDoc->load($stylesheet);
-    $proc = &new XSLTProcessor;
+    $proc = new XSLTProcessor;
     $proc->importStyleSheet($xslDoc);
     $rssDoc = $proc->transformToDoc($xmlDoc);
     $rssDoc->save($output);
@@ -249,7 +249,7 @@ function atom_to_rss_by_xsl($input, $stylesheet, $output)
  * RSSのitem要素に任意の子要素があるかどうかをチェックする
  * 空要素は無視
  */
-function rss_item_exists(&$items, $element)
+function rss_item_exists($items, $element)
 {
     foreach ($items as $item) {
         if (isset($item[$element]) && strlen(trim($item[$element])) > 0) {

@@ -60,7 +60,7 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
             }
         }
     }
-    mb_convert_variables('UTF-8', 'SJIS-win', $query_params);
+    mb_convert_variables('UTF-8', 'CP932', $query_params);
 
     ini_set('arg_separator.output', '&'); // Å‡ ini_restore('arg_separator.output');
     $query = http_build_query($query_params);
@@ -74,7 +74,7 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
     if (!is_dir($cache_options['cacheDir'])) {
         FileCtl::mkdir_for($cache_options['cacheDir'] . 'dummyFileName');
     }
-    $cache = &new Cache_Lite($cache_options);
+    $cache = new Cache_Lite($cache_options);
     $cache_id_result = md5($query);
     $cache_id_profile = md5($query_params['q']);
     $cache_group_result = 'tgrep2result';
@@ -106,17 +106,17 @@ if ($query) {
         if (isset($search_result['profile'])) {
             $search_profile = array('modified' => $search_result['modified'], 'profile' => $search_result['profile']);
             unset($search_result['profile']);
-            mb_convert_variables('SJIS-win', 'UTF-8', $search_profile);
+            mb_convert_variables('CP932', 'UTF-8', $search_profile);
             $cache->save($search_profile, $cache_id_profile, $cache_group_profile);
         }
-        $regex = mb_convert_encoding($search_profile['profile']['regex'], 'UTF-8', 'SJIS-win');
+        $regex = mb_convert_encoding($search_profile['profile']['regex'], 'UTF-8', 'CP932');
         if (!empty($search_result['threads'])) {
             foreach (array_keys($search_result['threads']) as $order) {
                 $_title = preg_replace($regex, '<b class="filtering">$0</b>', $search_result['threads'][$order]->title);
                 $search_result['threads'][$order]->title = preg_replace('|&(?=[^;]*</?b>)|u', '&amp;', $_title);
             }
         }
-        mb_convert_variables('SJIS-win', 'UTF-8', $search_result);
+        mb_convert_variables('CP932', 'UTF-8', $search_result);
         $cache->save($search_result, $cache_id_result, $cache_group_result);
     }
 
@@ -280,7 +280,7 @@ if (!$is_ajax && $subhits && $subhits > $limit) {
         'curPageSpanPost'   => '</b>',
     );
     $pager_extra_vars = $query_params;
-    mb_convert_variables('SJIS-win', 'UTF-8', $pager_extra_vars);
+    mb_convert_variables('CP932', 'UTF-8', $pager_extra_vars);
     if (get_magic_quotes_gpc()) {
         $pager_extra_vars = array_map('addslashes', $pager_extra_vars);
     }
@@ -342,7 +342,7 @@ exit;
 function tgrep_search($query)
 {
     global $_conf;
-    $client = &new HTTP_Client;
+    $client = new HTTP_Client;
     $client->setDefaultHeader('User-Agent', 'p2-tgrep-client');
     $code = $client->get($_conf['expack.tgrep_url'] . '?' . $query);
     if (PEAR::isError($code)) {
@@ -350,7 +350,7 @@ function tgrep_search($query)
     } elseif ($code != 200) {
         die("HTTP Error - {$code}");
     }
-    $response = &$client->currentResponse();
+    $response = $client->currentResponse();
     $result = unserialize($response['body']);
     if (!$result) {
         die('Error: åüçıåãâ ÇÃìWäJÇ…é∏îsÇµÇ‹ÇµÇΩÅB');

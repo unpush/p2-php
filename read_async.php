@@ -40,7 +40,7 @@ $_conf['ktai'] = FALSE;
 //==================================================================
 // ƒƒCƒ“
 //==================================================================
-$aThread = &new ThreadRead;
+$aThread = new ThreadRead;
 
 
 //==========================================================
@@ -117,8 +117,8 @@ $node = '‚È‚¢‚ÛB';
 
 if ($aThread->rescount) {
 
-    //$aShowThread = &new ShowThreadTree($aThread);
-    $aShowThread = &new ShowThreadPc($aThread);
+    //$aShowThread = new ShowThreadTree($aThread);
+    $aShowThread = new ShowThreadPc($aThread);
 
     if (isset($aShowThread->thread->datlines[$rp])) {
         $ares = $aShowThread->thread->datlines[$rp];

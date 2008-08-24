@@ -1,17 +1,22 @@
 <?php
-/*
-    p2 - StrCtl -- 文字列操作クラス
+// {{{ StrCtl
 
-    クラスメソッドで利用する
-*/
-class StrCtl{
+/**
+ * p2 - StrCtl -- 文字列操作クラス
+ * クラスメソッドで利用する
+ *
+ * @static
+ */
+class StrCtl
+{
+    // {{{ wordForMatch()
 
     /**
      * フォームから送られてきたワードをマッチ関数に適合させる
      *
      * @return string $word_fm 適合パターン。SJISで返す。
      */
-    function wordForMatch($word, $method = 'regex')
+    static public function wordForMatch($word, $method = 'regex')
     {
         $word_fm = $word;
 
@@ -26,13 +31,13 @@ class StrCtl{
         if (in_array($method, array('and', 'or', 'just'))) {
             // preg_quote()で2バイト目が0x5B("[")の"ー"なども変換されてしまうので
             // UTF-8にしてから正規表現の特殊文字をエスケープ
-            $word_fm = mb_convert_encoding($word_fm, 'UTF-8', 'SJIS-win');
+            $word_fm = mb_convert_encoding($word_fm, 'UTF-8', 'CP932');
             if (P2_MBREGEX_AVAILABLE == 1) {
                 $word_fm = preg_quote($word_fm);
             } else {
                 $word_fm = preg_quote($word_fm, '/');
             }
-            $word_fm = mb_convert_encoding($word_fm, 'SJIS-win', 'UTF-8');
+            $word_fm = mb_convert_encoding($word_fm, 'CP932', 'UTF-8');
 
         // 他、regex（正規表現）なら
         } else {
@@ -43,14 +48,18 @@ class StrCtl{
         return $word_fm;
     }
 
+    // }}}
+    // {{{ filterMatch()
+
     /**
      * マルチバイト対応で正規表現マッチする
      *
      * @param string $pattern マッチ文字列。SJISで入ってくる。
      * @param string $target  検索対象文字列。SJISで入ってくる。
-     * @param string $zenhan  全角/半角の区別を完全になくす（これをオンにすると、メモリの使用量が倍くらいになる。速度負担はそれほどでもない）
+     * @param string $zenhan  全角/半角の区別を完全になくす
+     * （これをオンにすると、メモリの使用量が倍くらいになる。速度負担はそれほどでもない）
      */
-    function filterMatch($pattern, $target, $zenhan = true)
+    static public function filterMatch($pattern, $target, $zenhan = true)
     {
         // 全角/半角を（ある程度）区別なくマッチ
         if ($zenhan) {
@@ -70,10 +79,10 @@ class StrCtl{
             $result = @mb_eregi($pattern, $target);    // None|Error:FALSE
         } else {
             // UTF-8に変換してから処理する
-            $pattern_utf8 = '/' . mb_convert_encoding($pattern, 'UTF-8', 'SJIS-win') . '/iu';
-            $target_utf8 = mb_convert_encoding($target, 'UTF-8', 'SJIS-win');
+            $pattern_utf8 = '/' . mb_convert_encoding($pattern, 'UTF-8', 'CP932') . '/iu';
+            $target_utf8 = mb_convert_encoding($target, 'UTF-8', 'CP932');
             $result = @preg_match($pattern_utf8, $target_utf8);    // None:0, Error:FALSE
-            //$result = mb_convert_encoding($result, 'SJIS-win', 'UTF-8');
+            //$result = mb_convert_encoding($result, 'CP932', 'UTF-8');
         }
 
         if (!$result) {
@@ -83,13 +92,16 @@ class StrCtl{
         }
     }
 
+    // }}}
+    // {{{ filterMarking()
+
     /**
      * マルチバイト対応でマーキングする
      *
      * @param string $pattern マッチ文字列。SJISで入ってくる。
      * @param string $target 置換対象文字列。SJISで入ってくる。
      */
-    function filterMarking($pattern, &$target, $marker = '<b class="filtering">\\1</b>')
+    static public function filterMarking($pattern, $target, $marker = '<b class="filtering">\\1</b>')
     {
         // 全角/半角を（ある程度）区別なくマッチ
         $pattern = StrCtl::getPatternZenHan($pattern);
@@ -101,10 +113,10 @@ class StrCtl{
             $result = @mb_eregi_replace($pattern, $marker, $target);    // Error:FALSE
         } else {
             // UTF-8に変換してから処理する
-            $pattern_utf8 = '/' . mb_convert_encoding($pattern, 'UTF-8', 'SJIS-win') . '/iu';
-            $target_utf8 = mb_convert_encoding($target, 'UTF-8', 'SJIS-win');
+            $pattern_utf8 = '/' . mb_convert_encoding($pattern, 'UTF-8', 'CP932') . '/iu';
+            $target_utf8 = mb_convert_encoding($target, 'UTF-8', 'CP932');
             $result = @preg_replace($pattern_utf8, $marker, $target_utf8);
-            $result = mb_convert_encoding($result, 'SJIS-win', 'UTF-8');
+            $result = mb_convert_encoding($result, 'CP932', 'UTF-8');
         }
 
         if ($result === FALSE) {
@@ -113,10 +125,13 @@ class StrCtl{
         return $result;
     }
 
+    // }}}
+    // {{{ getPatternZenHan()
+
     /**
      * 全角/半角を（ある程度）区別なくパッチするための正規表現パターンを得る
      */
-    function getPatternZenHan($pattern)
+    static public function getPatternZenHan($pattern)
     {
         $pattern_han = StrCtl::getPatternToHan($pattern);
 
@@ -143,17 +158,15 @@ class StrCtl{
         //$pattern = str_replace($kigou['zen'], $kigou['han'], $pattern);
 
         if (P2_MBREGEX_AVAILABLE == 1) {
-
             foreach ($kigou['zen'] as $k => $v) {
-
                 $word_fm = $kigou['zen'][$k];
 
                 /*
                 // preg_quote()で2バイト目が0x5B("[")の"ー"なども変換されてしまうので
                 // UTF-8にしてから正規表現の特殊文字をエスケープ
-                $word_fm = mb_convert_encoding($word_fm, 'UTF-8', 'SJIS-win');
+                $word_fm = mb_convert_encoding($word_fm, 'UTF-8', 'CP932');
                 $word_fm = preg_quote($word_fm);
-                $word_fm = mb_convert_encoding($word_fm, 'SJIS-win', 'UTF-8');
+                $word_fm = mb_convert_encoding($word_fm, 'CP932', 'UTF-8');
                 */
 
                 $pattern = mb_ereg_replace($word_fm, $kigou['han'][$k], $pattern);
@@ -163,15 +176,16 @@ class StrCtl{
         //echo $pattern;
         $pattern = mb_convert_kana($pattern, 'rnk');
 
-
-
         return $pattern;
     }
+
+    // }}}
+    // {{{ getPatternToZen()
 
     /**
      * （パターン）文字列を全角にする
      */
-    function getPatternToZen($pattern, $no_escape = false)
+    static public function getPatternToZen($pattern, $no_escape = false)
     {
         $kigou = StrCtl::getKigouPattern($no_escape);
 
@@ -180,16 +194,13 @@ class StrCtl{
 
         if (P2_MBREGEX_AVAILABLE == 1) {
             foreach ($kigou['zen'] as $k => $v) {
-
                 $word_fm = $kigou['han'][$k];
-
 
                 // preg_quote()で2バイト目が0x5B("[")の"ー"なども変換されてしまうので
                 // UTF-8にしてから正規表現の特殊文字をエスケープ
-                $word_fm = mb_convert_encoding($word_fm, 'UTF-8', 'SJIS-win');
+                $word_fm = mb_convert_encoding($word_fm, 'UTF-8', 'CP932');
                 $word_fm = preg_quote($word_fm);
-                $word_fm = mb_convert_encoding($word_fm, 'SJIS-win', 'UTF-8');
-
+                $word_fm = mb_convert_encoding($word_fm, 'CP932', 'UTF-8');
 
                 $pattern = mb_ereg_replace($word_fm, $kigou['zen'][$k], $pattern);
             }
@@ -200,10 +211,13 @@ class StrCtl{
         return $pattern;
     }
 
+    // }}}
+    // {{{ getKigouPattern()
+
     /**
      * 全角/半角の記号パターンを得る
      */
-    function getKigouPattern($no_escape = false)
+    static public function getKigouPattern($no_escape = false)
     {
         $kigou['zen'] = array('｀', '（', '）', '？', '＃', '＄', '％', '＠', '＜',   '＞', '！',   '＊', '＋', '＆',  '＝', '～', '｜', '｛', '｝', '＿');
         $kigou['han'] = array('`',  '\(', '\)', '\?', '#',  '\$', '%',  '@',  '&lt;', '&gt;', '\!', '\*', '\+', '&amp;', '=', '~', '\|', '\{', '\}', '_');
@@ -225,13 +239,16 @@ class StrCtl{
         return $kigou;
     }
 
+    // }}}
+    // {{{ toJavaScript()
+
     /**
      * Shift_JISの文字列をJavaScriptのUnicode表記(\uhhhh)に変換する
      *
      * ASCIIのprintableな文字からHTMLの特殊文字とバックスラッシュを
      * 除いた範囲の文字はそのままにしておく
      */
-    function toJavaScript($str, $charset = 'SJIS-win')
+    static public function toJavaScript($str, $charset = 'CP932')
     {
         //            "   &   '   <   >   \  DEL
         $xcs = array(34, 38, 39, 60, 62, 92, 127);
@@ -256,4 +273,19 @@ class StrCtl{
 
         return $js;
     }
+
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

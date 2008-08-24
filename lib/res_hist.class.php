@@ -30,7 +30,7 @@ class ResHist{
     /**
      * コンストラクタ
      */
-    function ResHist()
+    function __construct()
     {
         $this->articles = array();
         $this->num = 0;
@@ -52,7 +52,7 @@ class ResHist{
 
         foreach ($lines as $aline) {
 
-            $aResArticle =& new ResArticle();
+            $aResArticle = new ResArticle();
 
             $resar = explode("<>", rtrim($aline));
             $aResArticle->name      = $resar[0];
@@ -82,9 +82,9 @@ class ResHist{
      *
      * @return void
      */
-    function addRes(&$aResArticle)
+    function addRes($aResArticle)
     {
-        $this->articles[] =& $aResArticle;
+        $this->articles[] = $aResArticle;
         $this->num++;
     }
 
@@ -116,7 +116,7 @@ class ResHist{
             'spacesAfterSeparator' => 0,
         );
 
-        $pager = & Pager::factory($params);
+        $pager = Pager::factory($params);
         $links = $pager->getLinks();
         $data  = $pager->getPageData();
 

@@ -11,6 +11,7 @@ $newtime = date("gis");
 $reloaded_time = date("m/d G:i:s"); //更新時刻
 
 // スレあぼーんチェック、倉庫 =============================================
+$taborn_check_ht = '';
 if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
     $offline_num = $aThreadList->num - $online_num;
     $taborn_check_ht = <<<EOP
@@ -64,7 +65,7 @@ EOP;
     $ptitle_ht = <<<EOP
     <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）</span>
 EOP;
-} elseif ($ptitle_url) {
+} elseif (!empty($ptitle_url)) {
     $ptitle_ht = <<<EOP
     <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}"><b>{$ptitle_hd}</b></a></span>
 EOP;
@@ -75,6 +76,7 @@ EOP;
 }
 
 // ビュー部分設定 ==============================================
+$edit_ht = '';
 if ($aThreadList->spmode) { // スペシャルモード時
     if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){    // お気にスレ or 殿堂なら
         if($sb_view=="edit"){
@@ -96,30 +98,30 @@ $sb_form_hidden_ht = <<<EOP
 EOP;
 
 //表示件数 ==================================================
-if(!$aThreadList->spmode || $aThreadList->spmode=="news"){
+if(!$aThreadList->spmode || $aThreadList->spmode == 'merge_favita'){
 
-    if($p2_setting['viewnum']=="100"){$vncheck_100=" selected";}
-    elseif($p2_setting['viewnum']=="150"){$vncheck_150=" selected";}
-    elseif($p2_setting['viewnum']=="200"){$vncheck_200=" selected";}
-    elseif($p2_setting['viewnum']=="250"){$vncheck_250=" selected";}
-    elseif($p2_setting['viewnum']=="300"){$vncheck_300=" selected";}
-    elseif($p2_setting['viewnum']=="400"){$vncheck_400=" selected";}
-    elseif($p2_setting['viewnum']=="500"){$vncheck_500=" selected";}
-    elseif($p2_setting['viewnum']=="all"){$vncheck_all=" selected";}
-    else{$p2_setting['viewnum']="150"; $vncheck_150=" selected";} //基本設定
+    $vncheck = array('100', '150', '200', '250', '300', '400', '500', 'all');
+    $vncheck = array_combine($vncheck, array_fill(0, count($vncheck), ''));
+    if (array_key_exists($p2_setting['viewnum'], $vncheck)) {
+        $vncheck[$p2_setting['viewnum']] = ' selected';
+    } else {
+        $vncheck['150'] = ' selected';
+    }
 
     $sb_disp_num_ht =<<<EOP
-        <select name="viewnum">
-            <option value="100"{$vncheck_100}>100件</option>
-            <option value="150"{$vncheck_150}>150件</option>
-            <option value="200"{$vncheck_200}>200件</option>
-            <option value="250"{$vncheck_250}>250件</option>
-            <option value="300"{$vncheck_300}>300件</option>
-            <option value="400"{$vncheck_400}>400件</option>
-            <option value="500"{$vncheck_500}>500件</option>
-            <option value="all"{$vncheck_all}>全て</option>
-        </select>
+<select name="viewnum">
+    <option value="100"{$vncheck['100']}>100件</option>
+    <option value="150"{$vncheck['150']}>150件</option>
+    <option value="200"{$vncheck['200']}>200件</option>
+    <option value="250"{$vncheck['250']}>250件</option>
+    <option value="300"{$vncheck['300']}>300件</option>
+    <option value="400"{$vncheck['400']}>400件</option>
+    <option value="500"{$vncheck['500']}>500件</option>
+    <option value="all"{$vncheck['all']}>全て</option>
+</select>
 EOP;
+} else {
+    $sb_disp_num_ht = '';
 }
 
 // フィルタ検索 ==================================================
@@ -129,18 +131,20 @@ if ($_conf['enable_exfilter'] == 2) {
     $selected_method[($sb_filter['method'])] = ' selected';
 
     $sb_form_method_ht = <<<EOP
-            <select id="method" name="method">
-                <option value="or"{$selected_method['or']}>いずれか</option>
-                <option value="and"{$selected_method['and']}>すべて</option>
-                <option value="just"{$selected_method['just']}>そのまま</option>
-                <option value="regex"{$selected_method['regex']}>正規表現</option>
-                <option value="similar"{$selected_method['similar']}>自然文</option>
-            </select>
+<select id="method" name="method">
+    <option value="or"{$selected_method['or']}>いずれか</option>
+    <option value="and"{$selected_method['and']}>すべて</option>
+    <option value="just"{$selected_method['just']}>そのまま</option>
+    <option value="regex"{$selected_method['regex']}>正規表現</option>
+    <option value="similar"{$selected_method['similar']}>自然文</option>
+</select>
 EOP;
+} else {
+    $sb_form_method_ht = '';
 }
 
 $hd['word'] = (isset($GLOBALS['wakati_word'])) ? htmlspecialchars($GLOBALS['wakati_word'], ENT_QUOTES) : htmlspecialchars($word, ENT_QUOTES);
-$checked_ht['find_cont'] = (!empty($_REQUEST['find_cont'])) ? 'checked' : '';
+$checked_ht = array('find_cont' => (!empty($_REQUEST['find_cont'])) ? 'checked' : '');
 
 $input_find_cont_ht = <<<EOP
 <input type="checkbox" name="find_cont" value="1"{$checked_ht['find_cont']} title="スレ本文を検索対象に含める（DAT取得済みスレッドのみ）">本文
@@ -158,18 +162,16 @@ EOP;
 
 
 // チェックフォーム =====================================
+$abornoff_ht = '';
 if ($aThreadList->spmode == "taborn") {
-    $abornoff_ht = <<<EOP
-    <input type="submit" name="submit" value="{$abornoff_st}">
-EOP;
+    $abornoff_ht = "<input type=\"submit\" name=\"submit\" value=\"{$abornoff_st}\">";
 }
+$check_form_ht = '';
 if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
     $check_form_ht = <<<EOP
-    <p>
-        チェックした項目の
-        <input type="submit" name="submit" value="{$deletelog_st}">
-        $abornoff_ht
-    </p>
+<p>チェックした項目の
+<input type="submit" name="submit" value="{$deletelog_st}">
+{$abornoff_ht}</p>
 EOP;
 }
 
@@ -326,7 +328,6 @@ echo $_info_msg_ht;
 $_info_msg_ht = "";
 
 echo <<<EOP
-    $taborn_check_ht
-    $check_form_ht
-    <table cellspacing="0" width="100%">\n
+{$taborn_check_ht}{$check_form_ht}
+<table cellspacing="0" width="100%">\n
 EOP;

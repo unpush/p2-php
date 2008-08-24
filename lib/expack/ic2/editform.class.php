@@ -1,13 +1,18 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 require_once 'HTML/Template/Flexy/Element.php';
 
+// {{{ EditForm
+
+/**
+ * 画像編集用フォーム要素を生成するクラス
+ *
+ * @static
+ */
 class EditForm
 {
+    // {{{ header()
 
-    function header($hiddens, $mode)
+    static public function header($hiddens, $mode)
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -35,8 +40,10 @@ class EditForm
         return $mf_head->toHtmlnoClose();
     }
 
+    // }}}
+    // {{{ submit()
 
-    function submit($id = '')
+    static public function submit($id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -51,8 +58,10 @@ class EditForm
         return $mf_submit->toHtml();
     }
 
+    // }}}
+    // {{{ remove()
 
-    function remove($id = '')
+    static public function remove($id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -67,8 +76,10 @@ class EditForm
         return $mf_remove->toHtml();
     }
 
+    // }}}
+    // {{{ toblack()
 
-    function toblack($id = '')
+    static public function toblack($id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -83,8 +94,10 @@ class EditForm
         return $mf_toblack->toHtml();
     }
 
+    // }}}
+    // {{{ reset()
 
-    function reset($id = '')
+    static public function reset($id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -99,8 +112,10 @@ class EditForm
         return $mf_reset->toHtml();
     }
 
+    // }}}
+    // {{{ checkAllOn()
 
-    function checkAllOn($id = '')
+    static public function checkAllOn($id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -115,8 +130,10 @@ class EditForm
         return $mf_allon->toHtml();
     }
 
+    // }}}
+    // {{{ checkAllOff()
 
-    function checkAllOff($id = '')
+    static public function checkAllOff($id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -131,8 +148,10 @@ class EditForm
         return $mf_alloff->toHtml();
     }
 
+    // }}}
+    // {{{ checkAllReverse()
 
-    function checkAllReverse($id = '')
+    static public function checkAllReverse($id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -147,8 +166,10 @@ class EditForm
         return $mf_allreverse->toHtml();
     }
 
+    // }}}
+    // {{{ selectRank()
 
-    function selectRank($range, $id = '')
+    static public function selectRank($range, $id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -160,10 +181,10 @@ class EditForm
         $mfa_option = array(
             'flexy:xhtml' => $is_xhtml,
         );
-        $mf_select = &new HTML_Template_Flexy_Element('select', $mfa_select);
+        $mf_select = new HTML_Template_Flexy_Element('select', $mfa_select);
         $i = 0;
         foreach ($range as $key => $value) {
-            $mf_select->children[$i] = &new HTML_Template_Flexy_Element('option', $mfa_option);
+            $mf_select->children[$i] = new HTML_Template_Flexy_Element('option', $mfa_option);
             $mf_select->children[$i]->setAttributes(array('value' =>$key));
             if ($key == 0) {
                 $mf_select->children[$i]->setAttributes('selected');
@@ -177,8 +198,10 @@ class EditForm
         return $mf_select->toHtml();
     }
 
+    // }}}
+    // {{{ textMemo()
 
-    function textMemo($id = '')
+    static public function textMemo($id = '')
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -194,12 +217,14 @@ class EditForm
         if ($_conf['ktai']) {
             unset($mfa_text['id'], $mfa_text['size']);
         }
-        $mf_text = &new HTML_Template_Flexy_Element('input', $mfa_text);
+        $mf_text = new HTML_Template_Flexy_Element('input', $mfa_text);
         return $mf_text->toHtml();
     }
 
+    // }}}
+    // {{{ imgManager()
 
-    function imgManager(&$img, &$status)
+    static public function imgManager($img, $status)
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -260,11 +285,11 @@ class EditForm
         );
 
         // DBを更新するチェックボックス
-        $mf_change = &new HTML_Template_Flexy_Element('input', $mfa_checkbox);
+        $mf_change = new HTML_Template_Flexy_Element('input', $mfa_checkbox);
         $mng['f_change'] = $mf_change->toHtml();
 
         // あぼーん（rankを-1にして画像を削除）するラジオボタン
-        $mf_aborn = &new HTML_Template_Flexy_Element('input', $mfa_radio);
+        $mf_aborn = new HTML_Template_Flexy_Element('input', $mfa_radio);
         $mf_aborn->setAttributes(array(
             'name' => "img[{$img['id']}][rank]",
             'id' => "img{$img['id']}_aborn",
@@ -278,7 +303,7 @@ class EditForm
         // ランクを変更するラジオボタン
         $mng['f_rank'] = array();
         for ($i = 0; $i < 6; $i ++) {
-            $mf_rank = &new HTML_Template_Flexy_Element('input', $mfa_radio);
+            $mf_rank = new HTML_Template_Flexy_Element('input', $mfa_radio);
             $mf_rank->setAttributes(array(
                 'name' => "img[{$img['id']}][rank]",
                 'id' => "img{$img['id']}_rank{$i}",
@@ -290,30 +315,32 @@ class EditForm
             }
             $mng['f_rank'][] = $mf_rank->toHtml();
         }
-        $mf_hidden_rank = &new HTML_Template_Flexy_Element('input', $mfa_hidden_rank);
+        $mf_hidden_rank = new HTML_Template_Flexy_Element('input', $mfa_hidden_rank);
         $mng['f_hidden_rank'] = $mf_hidden_rank->toHtml();
 
         // メモ内容を変更するテキストエリア
-        $mf_memo = &new HTML_Template_Flexy_Element('textarea', $mfa_textarea);
+        $mf_memo = new HTML_Template_Flexy_Element('textarea', $mfa_textarea);
         $mf_memo->setValue($status['memo']);
         $mng['f_memo'] = $mf_memo->toHtml();
 
         // メモ内容の初期状態を保存する隠し要素
-        $mf_hidden_msg = &new HTML_Template_Flexy_Element('input', $mfa_hidden_msg);
+        $mf_hidden_msg = new HTML_Template_Flexy_Element('input', $mfa_hidden_msg);
         $mf_hidden_msg->setValue($status['memo']);
         $mng['f_hidden_msg'] = $mf_hidden_msg->toHtml();
 
         // 画像を削除するチェックボックス
-        $mf_remove = &new HTML_Template_Flexy_Element('input', $mfa_remove);
+        $mf_remove = new HTML_Template_Flexy_Element('input', $mfa_remove);
         $mng['f_remove'] = $mf_remove->toHtml();
-        $mf_black = &new HTML_Template_Flexy_Element('input', $mfa_black);
+        $mf_black = new HTML_Template_Flexy_Element('input', $mfa_black);
         $mng['f_black'] = $mf_black->toHtml();
 
         return $mng;
     }
 
+    // }}}
+    // {{{ imgChecker()
 
-    function imgChecker(&$img)
+    static public function imgChecker($img)
     {
         global $_conf;
         $is_xhtml = empty($_conf['ktai']);
@@ -331,11 +358,70 @@ class EditForm
         if ($_conf['ktai']) {
             unset($mfa_checkbox['id'], $mfa_checkbox['onclick']);
         }
-        $mf_change = &new HTML_Template_Flexy_Element('input', $mfa_checkbox);
+        $mf_change = new HTML_Template_Flexy_Element('input', $mfa_checkbox);
         $chk['f_change'] = $mf_change->toHtml();
 
         return $chk;
     }
 
-
+    // }}}
 }
+
+// }}}
+// {{{ editFormForFlexy
+
+/**
+ * インスタンスをFlexyにアサインして使うためのラッパークラス
+ */
+class EditFormForFlexy
+{
+    public function header($hiddens, $mode) {
+        return EditForm::header($hiddens, $mode);
+    }
+    public function submit($id = '') {
+        return EditForm::submit($id);
+    }
+    public function remove($id = '') {
+        return EditForm::remove($id);
+    }
+    public function toblack($id = '') {
+        return EditForm::toblack($id);
+    }
+    public function reset($id = '') {
+        return EditForm::reset($id);
+    }
+    public function checkAllOn($id = '') {
+        return EditForm::checkAllOn($id);
+    }
+    public function checkAllOff($id = '') {
+        return EditForm::checkAllOff($id);
+    }
+    public function checkAllReverse($id = '') {
+        return EditForm::checkAllReverse($id);
+    }
+    public function selectRank($range, $id = '') {
+        return EditForm::selectRank($range, $id);
+    }
+    public function textMemo($id = '') {
+        return EditForm::textMemo($id);
+    }
+    public function imgManager($img, $status) {
+        return EditForm::imgManager($img, $status);
+    }
+    public function imgChecker($img) {
+        return EditForm::imgChecker($img);
+    }
+}
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

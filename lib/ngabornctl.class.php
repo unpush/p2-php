@@ -1,13 +1,37 @@
 <?php
-/*
-    p2 - NGあぼーんを操作するクラス
-*/
-class NgAbornCtl{
+/**
+ * p2 - NGあぼーんを操作するクラス
+ */
+
+// {{{ GLOBALS
+
+$GLOBALS['ngaborns_hits'] = array(
+    'aborn_chain'   => 0,
+    'aborn_freq'    => 0,
+    'aborn_mail'    => 0,
+    'aborn_id'      => 0,
+    'aborn_msg'     => 0,
+    'aborn_name'    => 0,
+    'aborn_res'     => 0,
+    'ng_chain'      => 0,
+    'ng_freq'       => 0,
+    'ng_id'         => 0,
+    'ng_mail'       => 0,
+    'ng_msg'        => 0,
+    'ng_name'       => 0,
+);
+
+// }}}
+// {{{ NgAbornCtl
+
+class NgAbornCtl
+{
+    // {{{ saveNgAborns()
 
     /**
      * あぼーん&NGワード設定を保存する
      */
-    function saveNgAborns()
+    static public function saveNgAborns()
     {
         global $ngaborns, $ngaborns_hits;
         global $_conf;
@@ -16,7 +40,7 @@ class NgAbornCtl{
         if ($GLOBALS['ngaborns_hits']) {
             foreach ($ngaborns_hits as $code => $v) {
 
-                if ($ngaborns[$code]['data']) {
+                if (isset($ngaborns[$code]) && !empty($ngaborns[$code]['data'])) {
 
                     // 更新時間でソートする
                     usort($ngaborns[$code]['data'], array('NgAbornCtl', 'cmpLastTime'));
@@ -62,12 +86,13 @@ class NgAbornCtl{
         return true;
     }
 
+    // }}}
+    // {{{ cmpLastTime()
+
     /**
      * NGあぼーんHIT記録を更新時間でソートする
-     *
-     * @private
      */
-    function cmpLastTime($a, $b)
+    static public function cmpLastTime($a, $b)
     {
         if (empty($a['lasttime']) || empty($b['lasttime'])) {
             return strcmp($a['lasttime'], $b['lasttime']);
@@ -75,32 +100,36 @@ class NgAbornCtl{
         return (strtotime($a['lasttime']) < strtotime($b['lasttime'])) ? 1 : -1;
     }
 
+    // }}}
+    // {{{ loadNgAborns()
+
     /**
      * あぼーん&NGワード設定を読み込む
      */
-    function loadNgAborns()
+    static public function loadNgAborns()
     {
         $ngaborns = array();
 
-        $ngaborns['aborn_res'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_res.txt'); // これだけ少し性格が異なる
-        $ngaborns['aborn_name'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_name.txt');
-        $ngaborns['aborn_mail'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_mail.txt');
-        $ngaborns['aborn_msg'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_msg.txt');
-        $ngaborns['aborn_id'] = NgAbornCtl::readNgAbornFromFile('p2_aborn_id.txt');
-        $ngaborns['ng_name'] = NgAbornCtl::readNgAbornFromFile('p2_ng_name.txt');
-        $ngaborns['ng_mail'] = NgAbornCtl::readNgAbornFromFile('p2_ng_mail.txt');
-        $ngaborns['ng_msg'] = NgAbornCtl::readNgAbornFromFile('p2_ng_msg.txt');
-        $ngaborns['ng_id'] = NgAbornCtl::readNgAbornFromFile('p2_ng_id.txt');
+        $ngaborns['aborn_res'] = self::_readNgAbornFromFile('p2_aborn_res.txt'); // これだけ少し性格が異なる
+        $ngaborns['aborn_name'] = self::_readNgAbornFromFile('p2_aborn_name.txt');
+        $ngaborns['aborn_mail'] = self::_readNgAbornFromFile('p2_aborn_mail.txt');
+        $ngaborns['aborn_msg'] = self::_readNgAbornFromFile('p2_aborn_msg.txt');
+        $ngaborns['aborn_id'] = self::_readNgAbornFromFile('p2_aborn_id.txt');
+        $ngaborns['ng_name'] = self::_readNgAbornFromFile('p2_ng_name.txt');
+        $ngaborns['ng_mail'] = self::_readNgAbornFromFile('p2_ng_mail.txt');
+        $ngaborns['ng_msg'] = self::_readNgAbornFromFile('p2_ng_msg.txt');
+        $ngaborns['ng_id'] = self::_readNgAbornFromFile('p2_ng_id.txt');
 
         return $ngaborns;
     }
 
+    // }}}
+    // {{{ _readNgAbornFromFile()
+
     /**
      * readNgAbornFromFile
-     *
-     * @private
      */
-    function readNgAbornFromFile($filename)
+    static private function _readNgAbornFromFile($filename)
     {
         global $_conf;
 
@@ -170,7 +199,20 @@ class NgAbornCtl{
 
         }
         return $array;
-
     }
 
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

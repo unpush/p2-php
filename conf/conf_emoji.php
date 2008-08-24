@@ -9,7 +9,7 @@ require_once 'Net/UserAgent/Mobile.php';
 
 function getEmoji()
 {
-    $mobile = &Net_UserAgent_Mobile::singleton();
+    $mobile = Net_UserAgent_Mobile::singleton();
     $emoji = array();
 
     $emoji['ut1'] = 'Å£';

@@ -3,7 +3,7 @@
 /**
  *  p2 最初のログイン画面を表示する
  */
-function printLoginFirst(&$_login)
+function printLoginFirst($_login)
 {
     global $_info_msg_ht, $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
@@ -52,7 +52,7 @@ function printLoginFirst(&$_login)
     //==============================================
     // 補助認証
     //==============================================
-    $mobile = &Net_UserAgent_Mobile::singleton();
+    $mobile = Net_UserAgent_Mobile::singleton();
 
     // {{{ EZ認証
 
@@ -116,9 +116,9 @@ function printLoginFirst(&$_login)
         $add_mail = '';
     }
 
-    if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_login->user_u)) {
+    if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_login->user_u)) {
         $hd['form_login_id'] = htmlspecialchars($_login->user_u, ENT_QUOTES);
-    } elseif (!empty($_POST['form_login_id']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_POST['form_login_id'])) {
+    } elseif (!empty($_POST['form_login_id']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_POST['form_login_id'])) {
         $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
     } else {
         $hd['form_login_id'] = '';

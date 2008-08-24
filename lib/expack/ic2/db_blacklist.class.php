@@ -16,11 +16,6 @@ class IC2DB_BlackList extends IC2DB_Skel
     // }}}
     // {{{ constcurtor
 
-    function IC2DB_BlackList()
-    {
-        $this->__construct();
-    }
-
     function __construct()
     {
         parent::__construct();

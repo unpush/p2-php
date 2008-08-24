@@ -26,20 +26,20 @@ header('Content-Type: text/html; charset=Shift_JIS');
 
 // Ç®ãCÇ…î¬
 if (isset($_GET['m_favita_set'])) {
-    $aShowBrdMenuPc = &new ShowBrdMenuPc;
+    $aShowBrdMenuPc = new ShowBrdMenuPc;
     ob_start();
     $aShowBrdMenuPc->print_favIta();
     $menuItem = ob_get_clean();
-    $menuItem = preg_replace('/^\s*<div class="menu_cate">.+?<div class="itas" id="c_favita">\s*/s', '', $menuItem);
-    $menuItem = preg_replace('/\s*<\/div>\s*<\/div>\s*$/s', '', $menuItem);
+    $menuItem = preg_replace('{^\\s*<div class="menu_cate">.+?<div class="itas" id="c_favita">\\s*}s', '', $menuItem);
+    $menuItem = preg_replace('{\\s*</div>\\s*</div>\\s*$}s', '', $menuItem);
 
 // RSS
 } elseif (isset($_GET['m_rss_set'])) {
     ob_start();
     @include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
     $menuItem = ob_get_clean();
-    $menuItem = preg_replace('/^\s*<div class="menu_cate">.+?<div class="itas" id="c_rss">\s*/s', '', $menuItem);
-    $menuItem = preg_replace('/\s*<\/div>\s*<\/div>\s*$/s', '', $menuItem);
+    $menuItem = preg_replace('{^\\s*<div class="menu_cate">.+?<div class="itas" id="c_rss">\\s*}s', '', $menuItem);
+    $menuItem = preg_replace('{\\s*</div>\\s*</div>\\s*$}s', '', $menuItem);
 
 // ÉXÉLÉì
 } elseif (isset($_GET['m_skin_set'])) {

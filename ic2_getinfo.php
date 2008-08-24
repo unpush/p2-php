@@ -40,7 +40,7 @@ require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
 // }}}
 // {{{ execute
 
-$finder = &new IC2DB_Images;
+$finder = new IC2DB_Images;
 if (isset($_GET['id'])) {
     $finder->whereAdd(sprintf('id=%d', (int)$_GET['id']));
 } elseif (isset($_GET['url'])) {

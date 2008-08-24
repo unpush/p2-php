@@ -1,22 +1,70 @@
 <?php
-/*
-    rep2 - 基本設定ファイル
+/**
+ * rep2 - 基本設定ファイル
+ * このファイルは、特に理由の無い限り変更しないこと
+ */
 
-    このファイルは、特に理由の無い限り変更しないこと
-*/
+// バージョン情報
+$_conf = array(
+    'p2version' => '1.7.29',        // rep2のバージョン
+    'p2expack'  => '080820.0600',   // 拡張パックのバージョン
+    'p2name'    => 'expack',        // rep2の名前
+);
 
-$_conf['p2version'] = '1.7.29';     // rep2のバージョン
-$_conf['p2expack'] = '080815.0225'; // 拡張パックのバージョン
-$_conf['p2name'] = 'expack';        // rep2の名前
+// {{{ グローバル変数を初期化
+
+$_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
+
+$MYSTYLE    = array();
+$STYLE      = array();
+$debug      = false;
+$mobile     = null;
+$skin       = null;
+$skin_en    = null;
+$skin_etag  = null;
+$skin_name  = null;
+$_login     = null;
+$_p2session = null;
+
+$conf_user_def   = array();
+$conf_user_rules = array();
+$conf_user_rad   = array();
+$conf_user_sel   = array();
+
+// }}}
+
+// 基本設定処理を実行
+p2configure();
+
+// クリーンアップ
+if (basename($_SERVER['SCRIPT_NAME']) != 'edit_conf_user.php') {
+    unset($conf_user_def, $conf_user_rules, $conf_user_rad, $conf_user_sel);
+}
+
+// E_NOTICE および暗黙の配列初期化除け
+$_conf['filtering'] = false;
+$hd = array('word' => null);
+$htm = array();
+$word = null;
+
+// {{{ p2configure()
+
+/**
+ * 一時変数でグローバル変数を汚染しないように設定処理を関数化
+ */
+function p2configure()
+{
+    global $MYSTYLE, $STYLE, $debug, $mobile, $skin, $skin_en;
+    global $_conf, $_info_msg_ht, $_login, $_p2session;
+    global $conf_user_def, $conf_user_rules, $conf_user_rad, $conf_user_sel;
 
 //======================================================================
 // 基本設定処理
 //======================================================================
 // エラー出力設定（今はNOTICEを出さないコードを心掛けているけれど、昔書いた部分でたくさん出ると思う）
-error_reporting(E_ALL & ~E_NOTICE);
-// PHPの仕様変更時のために予約しておく
-//defined('E_STRICT') && error_reporting(error_reporting() & ~E_STRICT);
-//defined('E_DEPRECATED') && error_reporting(error_reporting() & ~E_DEPRECATED);
+//error_reporting(E_ALL & ~E_STRICT);
+error_reporting(E_ALL & ~(E_NOTICE | E_STRICT));
+//error_reporting(E_ALL & ~(E_NOTICE | E_STRICT | E_DEPRECATED));
 
 // {{{ 基本変数
 
@@ -35,8 +83,6 @@ $_conf['read_new_php']          = 'read_new.php';
 $_conf['read_new_k_php']        = 'read_new_k.php';
 $_conf['cookie_file_name']      = 'p2_cookie.txt';
 
-$_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
-
 // }}}
 // {{{ 環境設定
 
@@ -44,7 +90,7 @@ $_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
 p2checkenv(__LINE__);
 
 // デバッグ
-$debug = !empty($_GET['debug']);
+//$debug = !empty($_GET['debug']);
 
 // タイムゾーンをセット
 if (function_exists('date_default_timezone_set')) {
@@ -87,8 +133,8 @@ ini_set('default_charset', 'Shift_JIS');
 // }}}
 // {{{ 文字コードの指定
 
-//mb_detect_order("SJIS-win,eucJP-win,ASCII");
-mb_internal_encoding('SJIS-win');
+//mb_detect_order("CP932,CP51932,ASCII");
+mb_internal_encoding('CP932');
 mb_http_output('pass');
 mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
 //mb_substitute_character(0x3013); // 〓
@@ -96,7 +142,7 @@ mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
 
 if (function_exists('mb_ereg_replace')) {
     define('P2_MBREGEX_AVAILABLE', 1);
-    @mb_regex_encoding('SJIS-win');
+    @mb_regex_encoding('CP932');
 } else {
     define('P2_MBREGEX_AVAILABLE', 0);
 }
@@ -140,7 +186,6 @@ $_pear_required = array(
     'File/Util.php'             => 'File',
     'HTTP/Request.php'          => 'HTTP_Request',
     'Net/UserAgent/Mobile.php'  => 'Net_UserAgent_Mobile',
-    'PHP/Compat.php'            => 'PHP_Compat',
 );
 if ($debug) {
     $_pear_required['Benchmark/Profiler.php'] = 'Benchmark';
@@ -162,10 +207,6 @@ EOP;
     }
 }
 
-if (version_compare(phpversion(), '5.1.0', '<')) {
-    PHP_Compat::loadVersion('5.1.0');
-}
-
 require_once P2_LIBRARY_DIR . '/p2util.class.php';
 require_once P2_LIBRARY_DIR . '/dataphp.class.php';
 require_once P2_LIBRARY_DIR . '/session.class.php';
@@ -174,8 +215,8 @@ require_once P2_LIBRARY_DIR . '/login.class.php';
 // }}}
 // {{{ デバッグ
 
-if (!empty($debug)) {
-    $profiler =& new Benchmark_Profiler(true);
+if ($debug) {
+    $profiler = new Benchmark_Profiler(true);
     // printMemoryUsage();
     register_shutdown_function('printMemoryUsage');
 }
@@ -187,20 +228,21 @@ if (!empty($debug)) {
  * フォームからの入力を一括でクォート除去＆文字コード変換
  * フォームのaccept-encoding属性をUTF-8(Safari系) or Shift_JIS(その他)にし、
  * さらにhidden要素で美乳テーブルの文字を仕込むことで誤判定を減らす
- * 変換元候補にeucJP-winがあるのはHTTP入力の文字コードがEUCに自動変換されるサーバのため
+ * 変換元候補にCP51932(EUCエンコードされたWindows-31J)があるのは
+ * HTTP入力の文字コードがEUCに自動変換されるサーバのため
  */
 if (!empty($_GET)) {
     if (get_magic_quotes_gpc()) {
         $_GET = array_map('stripslashes_r', $_GET);
     }
-    mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_GET);
+    mb_convert_variables('CP932', 'UTF-8,CP51932,CP932', $_GET);
     $_GET = array_map('nullfilter_r', $_GET);
 }
 if (!empty($_POST)) {
     if (get_magic_quotes_gpc()) {
         $_POST = array_map('stripslashes_r', $_POST);
     }
-    mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_POST);
+    mb_convert_variables('CP932', 'UTF-8,CP51932,CP932', $_POST);
     $_POST = array_map('nullfilter_r', $_POST);
     $_REQUEST = array_merge($_GET, $_POST);
 } else {
@@ -232,7 +274,7 @@ $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html;
 $_conf['detect_hint'] = '◎◇';
 $_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
 $_conf['detect_hint_input_xht'] = '<input type="hidden" name="_hint" value="◎◇" />';
-$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win');
+$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'CP932');
 
 // {{{ 端末判定
 
@@ -240,7 +282,7 @@ $_conf['login_check_ip']  = 1; // ログイン時にIPアドレスを検証する
 $_conf['input_type_search'] = false;
 $_conf['extra_headers_ht'] = $_conf['extra_headers_xht'] = '';
 
-$mobile = &Net_UserAgent_Mobile::singleton();
+$mobile = Net_UserAgent_Mobile::singleton();
 
 // iPhone, iPod Touch
 if (P2Util::isBrowserIphone()) {
@@ -339,9 +381,7 @@ $_conf['k_at_q'] = '';
 $_conf['k_input_ht'] = '';
 
 // 強制PCビュー指定
-$_conf['k_at_q'] = '';
-$_req = &${'_' . $_SERVER['REQUEST_METHOD']};
-if (isset($_req['b']) && $_req['b'] == 'pc') {
+if (isset($_REQUEST['b']) && $_REQUEST['b'] == 'pc') {
     if ($_conf['ktai']) {
         $_conf['view_forced_by_query'] = true;
         $_conf['ktai'] = false;
@@ -354,7 +394,7 @@ if (isset($_req['b']) && $_req['b'] == 'pc') {
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
 
 // 強制携帯ビュー指定（b=k。k=1は過去互換用）
-} elseif (!empty($_req['k']) || (isset($_req['b']) && $_req['b'] == 'k')) {
+} elseif (!empty($_REQUEST['k']) || (isset($_REQUEST['b']) && $_REQUEST['b'] == 'k')) {
     if (!$_conf['ktai']) {
         $_conf['view_forced_by_query'] = true;
         $_conf['ktai'] = true;
@@ -366,7 +406,7 @@ if (isset($_req['b']) && $_req['b'] == 'pc') {
     $_conf['k_at_q'] = '?b=k';
     $_conf['k_input_ht'] = '<input type="hidden" name="b" value="k">';
 }
-unset($_req);
+
 // }}}
 
 $_conf['k_to_index_ht'] = <<<EOP
@@ -491,10 +531,6 @@ include_once $skin;
 // }}}
 // {{{ デザイン設定の調整処理
 
-if (!is_array($STYLE)) {
-    $STYLE = array();
-}
-
 if (!isset($STYLE['post_pop_size'])) { $STYLE['post_pop_size'] = "610,350"; }
 if (!isset($STYLE['post_msg_rows'])) { $STYLE['post_msg_rows'] = 10; }
 if (!isset($STYLE['post_msg_cols'])) { $STYLE['post_msg_cols'] = 70; }
@@ -528,20 +564,29 @@ if (!$_conf['ktai'] && $_conf['expack.am.enabled']) {
     }
 }
 
+// }}}
+// {{{ 携帯用カラーリングの調整処理
+
 $_conf['k_colors'] = '';
+
 if ($_conf['ktai']) {
-    if ($_conf['mobile.background_color']) {
-        $_conf['k_colors'] .= ' bgcolor="' . htmlspecialchars($_conf['mobile.background_color']) . '"';
+    // 基本色
+    if (!$_conf['iphone']) {
+        if ($_conf['mobile.background_color']) {
+            $_conf['k_colors'] .= ' bgcolor="' . htmlspecialchars($_conf['mobile.background_color']) . '"';
+        }
+        if ($_conf['mobile.text_color']) {
+            $_conf['k_colors'] .= ' text="' . htmlspecialchars($_conf['mobile.text_color']) . '"';
+        }
+        if ($_conf['mobile.link_color']) {
+            $_conf['k_colors'] .= ' link="' . htmlspecialchars($_conf['mobile.link_color']) . '"';
+        }
+        if ($_conf['mobile.vlink_color']) {
+            $_conf['k_colors'] .= ' vlink="' . htmlspecialchars($_conf['mobile.vlink_color']) . '"';
+        }
     }
-    if ($_conf['mobile.text_color']) {
-        $_conf['k_colors'] .= ' text="' . htmlspecialchars($_conf['mobile.text_color']) . '"';
-    }
-    if ($_conf['mobile.link_color']) {
-        $_conf['k_colors'] .= ' link="' . htmlspecialchars($_conf['mobile.link_color']) . '"';
-    }
-    if ($_conf['mobile.vlink_color']) {
-        $_conf['k_colors'] .= ' vlink="' . htmlspecialchars($_conf['mobile.vlink_color']) . '"';
-    }
+
+    // 文字色
     if ($_conf['mobile.newthre_color']) {
         $STYLE['mobile_subject_newthre_color'] = htmlspecialchars($_conf['mobile.newthre_color']);
     }
@@ -558,9 +603,19 @@ if ($_conf['ktai']) {
     if ($_conf['mobile.onthefly_color']) {
         $STYLE['mobile_read_onthefly_color'] = htmlspecialchars($_conf['mobile.onthefly_color']);
     }
-    // 携帯用マーカー
+
+    // マーカー
     if ($_conf['mobile.match_color']) {
-        $_conf['k_filter_marker'] = '<font color="' . htmlspecialchars($_conf['mobile.match_color']) . '">\\1</font>';
+        if ($_conf['iphone']) {
+            $k_filter_marker_style = '<style type="text/css">b.filtering, span.matched { color: '
+                                   . htmlspecialchars($_conf['mobile.match_color'], ENT_QUOTES)
+                                   . '; }</style>';
+            $_conf['extra_headers_ht'] .= $k_filter_marker_style;
+            $_conf['extra_headers_xht'] .= $k_filter_marker_style;
+            $_conf['k_filter_marker'] = '<span class="matched">\\1</span>';
+        } else {
+            $_conf['k_filter_marker'] = '<font color="' . htmlspecialchars($_conf['mobile.match_color']) . '">\\1</font>';
+        }
     } else {
         $_conf['k_filter_marker'] = false;
     }
@@ -593,8 +648,8 @@ $_conf['matome_cache_path'] = P2_PREF_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'mat
 $_conf['matome_cache_ext'] = '.htm';
 $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
-// 初期化直後の設定を保存
-$__conf = $_conf;
+$_conf['orig_favlist_file'] = $_conf['favlist_file'];
+$_conf['orig_favita_path']  = $_conf['favita_path'];
 
 // {{{ ありえない引数のエラー
 
@@ -632,7 +687,7 @@ if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
     $_conf['use_session'] = 1;
 }
 
-if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) { 
+if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) {
 
     // {{{ セッションデータ保存ディレクトリをチェック
 
@@ -653,7 +708,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 
     // }}}
 
-    $_p2session =& new Session();
+    $_p2session = new Session();
     if ($_conf['disable_cookie'] && !ini_get('session.use_trans_sid')) {
         output_add_rewrite_var(session_name(), session_id());
     }
@@ -668,21 +723,26 @@ if ($_conf['expack.misc.multi_favs']) {
     FavSetManager::loadAllFavSet();
     // お気にセットを切り替える
     FavSetManager::switchFavSet();
+} else {
+    $_conf['m_favlist_set'] = $_conf['m_favlist_set_at_a'] = $_conf['m_favlist_set_input_ht'] = '';
+    $_conf['m_favita_set']  = $_conf['m_favita_set_at_a']  = $_conf['m_favita_set_input_ht']  = '';
+    $_conf['m_rss_set']     = $_conf['m_rss_set_at_a']     = $_conf['m_rss_set_input_ht']     = '';
 }
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
 require_once P2_LIBRARY_DIR . '/login.class.php';
-$_login =& new Login();
+$_login = new Login();
 
 // おまじない
 $a = ceil(1/2);
 $b = floor(1/3);
 $c = round(1/4, 1);
-unset($a, $b, $c);
 
-//=====================================================================
-// 関数
-//=====================================================================
+}
+
+// }}} p2configure()
+// {{{ stripslashes_r()
+
 /**
  * 再帰的にstripslashesをかける
  * GET/POST/COOKIE変数用なのでオブジェクトのプロパティには対応しない
@@ -705,6 +765,9 @@ function stripslashes_r($var, $r = 0)
     return $var;
 }
 
+// }}}
+// {{{ addslashes_r()
+
 /**
  * 再帰的にaddslashesをかける
  * (ExUtil)
@@ -725,6 +788,9 @@ function addslashes_r($var, $r = 0)
     }
     return $var;
 }
+
+// }}}
+// {{{ nullfilter_r()
 
 /**
  * 再帰的にヌル文字を削除する
@@ -749,6 +815,9 @@ function nullfilter_r($var, $r = 0)
     return $var;
 }
 
+// }}}
+// {{{ printMemoryUsage()
+
 /**
  * メモリの使用量を表示する
  *
@@ -765,9 +834,12 @@ function printMemoryUsage()
     }
     $kb = $usage / 1024;
     $kb = number_format($kb, 2, '.', '');
-    
+
     echo 'Memory Usage: ' . $kb . 'KB';
 }
+
+// }}}
+// {{{ si2int(), si2real()
 
 /**
  * SI単位系の値を整数に変換する
@@ -790,12 +862,15 @@ function si2real($num, $kmg)
     return $num;
 }
 
+// }}}
+// {{{ mb_basename()
+
 /**
  * マルチバイト対応のbasename()
  *
  * @return string
  */
-function mb_basename($path, $encoding = 'SJIS-win')
+function mb_basename($path, $encoding = 'CP932')
 {
     if (!mb_substr_count($path, '/', $encoding)) {
         return $path;
@@ -804,6 +879,9 @@ function mb_basename($path, $encoding = 'SJIS-win')
     $pos = mb_strrpos($path, '/', $encoding);
     return mb_substr($path, $pos + 1, $len - $pos, $encoding);
 }
+
+// }}}
+// {{{ fontconfig_detect_agent()
 
 /**
  * フォント設定用にユーザエージェントを判定する
@@ -836,6 +914,9 @@ function fontconfig_detect_agent($ua = null)
     }
     return 'other';
 }
+
+// }}}
+// {{{ fontconfig_apply_custom()
 
 /**
  * フォント設定を読み込む
@@ -885,6 +966,9 @@ function fontconfig_apply_custom()
     $skin_en .= '&amp;etag=' . urlencode($skin_etag);
 }
 
+// }}}
+// {{{ print_style_tags()
+
 /**
  * スタイルシートを読み込むタグを表示
  *
@@ -909,6 +993,9 @@ function print_style_tags()
     }
 }
 
+// }}}
+// {{{ set_css_fonts()
+
 /**
  * スタイルシートのフォント指定を調整する
  *
@@ -926,6 +1013,9 @@ function set_css_fonts($fonts)
     return trim($fonts, '"');
 }
 
+// }}}
+// {{{ set_css_color()
+
 /**
  * スタイルシートの色指定を調整する
  *
@@ -936,15 +1026,8 @@ function set_css_color($color)
     return preg_replace('/^#([0-9A-F])([0-9A-F])([0-9A-F])$/i', '#$1$1$2$2$3$3', $color);
 }
 
-/**
- * Safari からアップロードされたファイル名の濁音・半濁音にマッチする正規表現
- */
-$GLOBALS['COMBINEHFSKANA_REGEX'] = str_replace(
-    array('%u3099%', '%u309A%'),
-    array(pack('C*', 0xE3, 0x82, 0x99), pack('C*', 0xE3, 0x82, 0x9A)),
-    mb_convert_encoding(
-        '/([うか-こさ-そた-とは-ほウカ-コサ-ソタ-トハ-ホゝヽ])%u3099%|([は-ほハ-ホ])%u309A%/u',
-        'UTF-8', 'SJIS-win'));
+// }}}
+// {{{ combine_nfd_kana()
 
 /**
  * Safari からアップロードされたファイル名の文字化けを補正する関数
@@ -953,12 +1036,27 @@ $GLOBALS['COMBINEHFSKANA_REGEX'] = str_replace(
  *
  * @return string
  */
-function combinehfskana($str)
+function combine_nfd_kana($str)
 {
-    return preg_replace_callback($GLOBALS['COMBINEHFSKANA_REGEX'], '_combinehfskana', $str);
+    /*
+    static $regex = null;
+    if ($regex === null) {
+        // UTF-8,NFDの濁音・半濁音にマッチする正規表現
+        $regex = str_replace(array('%u3099%', '%u309A%'),
+                             array(pack('C*', 0xE3, 0x82, 0x99), pack('C*', 0xE3, 0x82, 0x9A)),
+                             mb_convert_encoding('/([うか-こさ-そた-とは-ほウカ-コサ-ソタ-トハ-ホゝヽ])%u3099%'
+                                                 . '|([は-ほハ-ホ])%u309A%/u',
+                                                 'UTF-8',
+                                                 'CP932'
+                                                 )
+                             );
+    }
+    return preg_replace_callback($regex, '_combine_nfd_kana', $str);
+    */
+    return preg_replace_callback('/([\\x{3046}\\x{304b}-\\x{3053}\\x{3055}-\\x{305d}\\x{305f}-\\x{3068}\\x{306f}-\\x{307b}\\x{30a6}\\x{30ab}-\\x{30b3}\\x{30b5}-\\x{30bd}\\x{30bf}-\\x{30c8}\\x{30cf}-\\x{30db}\\x{309d}\\x{30fd}])\\x{3099}|([\\x{306f}-\\x{307b}\\x{30cf}-\\x{30db}])\\x{309a}/u', '_combine_nfd_kana', $str);
 }
 
-function _combinehfskana($m)
+function _combine_nfd_kana($m)
 {
     if ($m[1]) {
         $C = unpack('C*', $m[1]);
@@ -970,21 +1068,39 @@ function _combinehfskana($m)
     return pack('C*', $C[1], $C[2], $C[3]);
 }
 
-/**
- * すごく適当な分かち書き用正規表現
- */
-$GLOBALS['WAKATI_REGEX'] = mb_convert_encoding(
-    '/(' . implode('|', array(
-        //'[一-龠]+[ぁ-ん]*',
-        //'[一-龠]+',
-        '[一二三四五六七八九十]+',
-        '[丁-龠]+',
-        '[ぁ-ん][ぁ-んー～゛゜]*',
-        '[ァ-ヶ][ァ-ヶー～゛゜]*',
-        //'[a-z][a-z_\\-]*',
-        //'[0-9][0-9.]*',
-        '[0-9a-z][0-9a-z_\\-]*',
-    )) . ')/u', 'UTF-8', 'SJIS-win');
+// }}}
+// {{{ wakati()
+
+// 漢字にマッチする正規表現
+//$GLOBALS['KANJI_REGEX'] = mb_convert_encoding('/[一-龠]/u', 'UTF-8', 'CP932');
+$GLOBALS['KANJI_REGEX'] = '/[\\x{4e00}-\\x{9fa0}]/u';
+
+// すごく適当な分かち書き用正規表現
+/*
+$GLOBALS['WAKATI_REGEX'] = mb_convert_encoding('/(' . implode('|', array(
+    //'[一-龠]+[ぁ-ん]*',
+    //'[一-龠]+',
+    '[一二三四五六七八九十]+',
+    '[丁-龠]+',
+    '[ぁ-ん][ぁ-んー～゛゜]*',
+    '[ァ-ヶ][ァ-ヶー～゛゜]*',
+    //'[a-z][a-z_\\-]*',
+    //'[0-9][0-9.]*',
+    '[0-9a-z][0-9a-z_\\-]*',
+)) . ')/u', 'UTF-8', 'CP932');
+*/
+$GLOBALS['WAKATI_REGEX'] = <<<EOP
+/(
+#[\\x{4e00}-\\x{9fa0}]+[\\x{3041}-\\x{3093}]*|
+#[\\x{4e00}-\\x{9fa0}]+|
+[\\x{4e00}\\x{4e8c}\\x{4e09}\\x{56db}\\x{4e94}\\x{516d}\\x{4e03}\\x{516b}\\x{4e5d}\\x{5341}]+|
+[\\x{4e01}-\\x{9fa0}]+|
+[\\x{3041}-\\x{3093}][\\x{3041}-\\x{3093}\\x{30fc}\\x{301c}\\x{309b}\\x{309c}]*|
+[\\x{30a1}-\\x{30f6}][\\x{30a1}-\\x{30f6}\\x{30fc}\\x{301c}\\x{309b}\\x{309c}]*|
+#[a-z][a-z_\\-]*|
+#[0-9][0-9.]*|
+[0-9a-z][0-9a-z_\\-]*)/ux
+EOP;
 
 /**
  * すごく適当な正規化＆分かち書き関数
@@ -995,9 +1111,12 @@ function wakati($str)
 {
     return array_filter(array_map('trim', preg_split($GLOBALS['WAKATI_REGEX'],
         mb_strtolower(mb_convert_kana(mb_convert_encoding(
-            $str, 'UTF-8', 'SJIS-win'), 'KVas', 'UTF-8'), 'UTF-8'),
+            $str, 'UTF-8', 'CP932'), 'KVas', 'UTF-8'), 'UTF-8'),
         -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY)), 'strlen');
 }
+
+// }}}
+// {{{ p2die()
 
 /**
  * メッセージを表示して終了
@@ -1021,6 +1140,9 @@ function p2die($err, $msg = null, $raw = false)
     echo '</body></html>';
 }
 
+// }}}
+// {{{ p2checkenv()
+
 /**
  * 動作環境を確認する
  *
@@ -1031,8 +1153,8 @@ function p2checkenv($check_recommended)
     global $_info_msg_ht;
 
     $php_version = phpversion();
-    $required_version = '4.3.3';
-    $recommended_version = '5.2.3';
+    $required_version = '5.2.1';
+    $recommended_version = '5.2.6';
 
     if (version_compare($php_version, $required_version, '<')) {
         p2die('PHP ' . $required_version . ' 未満では使えません。');
@@ -1059,3 +1181,16 @@ EOP;
         $_info_msg_ht .= ' &quot;p2checkenv(false);&quot; に書き換えてください）</small></p>';
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

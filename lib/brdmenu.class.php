@@ -14,7 +14,7 @@ class BrdMenu{
     var $ita_match;     // 板マッチ形式
     var $matches;       // マッチした BrdMenuIta オブジェクトを格納する配列
 
-    function BrdMenu()
+    function __construct()
     {
         $this->categories = array();
         $this->num = 0;
@@ -24,9 +24,9 @@ class BrdMenu{
     /**
      * カテゴリーを追加する
      */
-    function addBrdMenuCate(&$aBrdMenuCate)
+    function addBrdMenuCate($aBrdMenuCate)
     {
-        $this->categories[] =& $aBrdMenuCate;
+        $this->categories[] = $aBrdMenuCate;
         $this->num++;
     }
 
@@ -36,15 +36,15 @@ class BrdMenu{
     function setBrdMatch($brdName)
     {
         // html形式
-        if (preg_match("/(html?|cgi)$/", $brdName)) {
-            $this->format = "html";
-            $this->cate_match = "/<B>(.+)<\/B><BR>.*$/i";
-            $this->ita_match = "/^<A HREF=\"?(http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?)\"?( target=\"?_blank\"?)?>(.+)<\/A>(<br>)?$/i";
+        if (preg_match('/(html?|cgi)$/', $brdName)) {
+            $this->format = 'html';
+            $this->cate_match = '{<B>(.+)</B><BR>.*$}i';
+            $this->ita_match = '{^<A HREF="?(http://(.+)/([^/]+)/([^/]+\\.html?)?)"?( target="?_blank"?)?>(.+)</A>(<br>)?$}i';
         // brd形式
         } else {
-            $this->format = "brd";
-            $this->cate_match = "/^(.+)\t([0-9])$/";
-            $this->ita_match = "/^\t?(.+)\t(.+)\t(.+)$/";
+            $this->format = 'brd';
+            $this->cate_match = "/^(.+)\t([0-9])\$/";
+            $this->ita_match = "/^\t?(.+)\t(.+)\t(.+)\$/";
         }
     }
 
@@ -57,6 +57,8 @@ class BrdMenu{
 
         if (empty($data)) { return false; }
 
+        $do_filtering = !empty($GLOBALS['words_fm']);
+
         // 除外URLリスト
         $not_bbs_list = array("http://members.tripod.co.jp/Backy/del_2ch/");
 
@@ -65,7 +67,7 @@ class BrdMenu{
 
             // カテゴリを探す
             if (preg_match($this->cate_match, $v, $matches)) {
-                $aBrdMenuCate =& new BrdMenuCate($matches[1]);
+                $aBrdMenuCate = new BrdMenuCate($matches[1]);
                 if ($this->format == 'brd') {
                     $aBrdMenuCate->is_open = $matches[2];
                 }
@@ -79,7 +81,7 @@ class BrdMenu{
                         if ($not_a_bbs == $matches[1]) { continue 2; }
                     }
                 }
-                $aBrdMenuIta =& new BrdMenuIta();
+                $aBrdMenuIta = new BrdMenuIta();
                 // html形式
                 if ($this->format == 'html') {
                     $aBrdMenuIta->host = $matches[2];
@@ -96,7 +98,7 @@ class BrdMenu{
                 // {{{ 板検索マッチ
 
                 // and検索
-                if ($GLOBALS['words_fm']) {
+                if ($do_filtering) {
 
                     $no_match = false;
 
@@ -126,7 +128,7 @@ class BrdMenu{
                             $aBrdMenuIta->itaj_ht = '<b class="filtering">'.$aBrdMenuIta->itaj_ht.'</b>';
                         }
 
-                        $this->matches[] = &$aBrdMenuIta;
+                        $this->matches[] = $aBrdMenuIta;
 
                     // 検索が見つからなくて、さらに携帯の時
                     } else {
@@ -211,9 +213,9 @@ class BrdMenuCate{
     /**
      * 板を追加する
      */
-    function addBrdMenuIta(&$aBrdMenuIta)
+    function addBrdMenuIta($aBrdMenuIta)
     {
-        $this->menuitas[] =& $aBrdMenuIta;
+        $this->menuitas[] = $aBrdMenuIta;
         $this->num++;
     }
 

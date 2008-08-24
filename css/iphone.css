@@ -36,6 +36,10 @@ a img {
 	vertical-align: middle;
 }
 
+b.filtering, span.matched {
+	font-weight: bold;
+}
+
 /* Forms */
 
 input, select, textarea {
@@ -75,7 +79,7 @@ div.navi, div.pager, div.toolbar {
 	margin: 5px 0;
 }
 
-a.button, div.navi a[href], div.pager a[href], div.toolbar a[href] {
+a.button, div.navi a[href]:not(.nobutton), div.pager a[href]:not(.nobutton), div.toolbar a[href]:not(.nobutton) {
 	display: inline-block;
 	min-width: 12px;  /* 15 * 2 - (8 + 1) * 2 */
 	height: 22px;     /* 15 * 2 - (3 + 1) * 2 */
@@ -89,6 +93,15 @@ a.button, div.navi a[href], div.pager a[href], div.toolbar a[href] {
 	background: #ffffff url('../img/iphone/btn-bg.png') repeat-x left bottom;
 	border: #505050 solid 1px;
 	-webkit-border-radius: 15px;
+}
+
+div#read_new_header {
+}
+
+div#read_new_footer {
+}
+
+div.read_new_toolbar {
 }
 
 /* Open in New Tab */
@@ -220,6 +233,14 @@ div.respop > img.close-button {
 	position: absolute;
 	top: 0;
 	left: 2px;
+}
+
+a.aas {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 5px;
+	padding: 0;
+	border: #aaaaaa inset 3px;
 }
 
 /* Subject */

@@ -61,7 +61,7 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
     $_GET['popup'] = 2;
     require_once P2_LIB_DIR . '/thread.class.php';
     require_once P2_LIB_DIR . '/threadread.class.php';
-    $aThread = &new ThreadRead;
+    $aThread = new ThreadRead;
     $aThread->setThreadPathInfo($host, $bbs, $key);
     $aThread->readDat($aThread->keydat);
     $resar = $aThread->explodeDatLine($aThread->datlines[$resnum-1]);
@@ -118,7 +118,7 @@ if (strstr($mode, '_msg')) {
         $aborn_str = preg_replace('/\r\n|\r|\n/u', ' <br> ', $aborn_str);
         // $selected_stringはJavaScriptのencodeURIComponent()関数でURLエンコードされており、
         // encodeURIComponent()はECMA-262 3rd Editionの仕様により文字列をUTF-8で扱うため。
-        $aborn_str = mb_convert_encoding($aborn_str, 'SJIS-win', 'UTF-8');
+        $aborn_str = mb_convert_encoding($aborn_str, 'CP932', 'UTF-8');
         $aborn_str = htmlspecialchars($aborn_str, ENT_QUOTES);
     } elseif (!isset($aborn_str)) {
         $aborn_str = '';

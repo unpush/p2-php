@@ -29,18 +29,20 @@ function rss_get_image($src_url, $memo='')
  */
 function rss_get_image_ic2($src_url, $memo='')
 {
-    $icdb = &new IC2DB_images;
     static $thumbnailer = NULL;
     static $thumbnailer_k = NULL;
+
     if (is_null($thumbnailer)) {
-        $thumbnailer = &new ThumbNailer(1);
-        $thumbnailer_k = &new ThumbNailer(2);
+        $thumbnailer = new ThumbNailer(1);
+        $thumbnailer_k = new ThumbNailer(2);
     }
 
+    $icdb = new IC2DB_images;
+
     if ($thumbnailer->ini['General']['automemo'] && $memo !== '') {
-        $img_memo = IC2DB_Images::uniform($memo, 'SJIS-win');
+        $img_memo = $icdb->uniform($memo, 'CP932');
         if ($memo !== '') {
-            $hint = mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win');
+            $hint = mb_convert_encoding('◎◇', 'UTF-8', 'CP932');
             $img_memo_query = '&amp;_hint=' . rawurlencode($hint);
             $img_memo_query .= '&amp;memo=' . rawurlencode($img_memo);
         } else {
@@ -98,7 +100,7 @@ function rss_get_image_ic2($src_url, $memo='')
             $thumb_url = $_thumb_url;
             // 自動タイトルメモ機能がONでタイトルが記録されていないときはDBを更新
             if (!is_null($img_memo) && !strstr($icdb->memo, $img_memo)){
-                $update = &new IC2DB_images;
+                $update = new IC2DB_images;
                 if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                     $update->memo = $img_memo . ' ' . $icdb->memo;
                 } else {

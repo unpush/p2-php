@@ -361,6 +361,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('through_ime', '外部URLジャンプする際に通すゲート (直接, p2 ime(自動転送), p2 ime(手動転送), p2 ime(pのみ手動転送), r.p(自動転送1秒), r.p(自動転送0秒), r.p(手動転送), r.p(pのみ手動転送))'),
         array('ime_manual_ext', 'ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）'),
         array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加 (する, しない)'),
+        array('merge_favita', 'お気に板のスレ一覧をまとめて表示。お気に板の数によっては、CPUとメモリを大量に消費する。'),
         array('favita_order_dnd', 'ドラッグ＆ドロップでお気に板を並べ替える (する, しない)'),
         array('enable_menu_new', '板メニューに新着数を表示 (する, しない, お気に板のみ)'),
         array('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)'),

@@ -45,7 +45,7 @@ if (!$_conf['ktai']) {
 }
 
 // {{{ スレ立てなら
-if ($_GET['newthread']) {
+if (!empty($_GET['newthread'])) {
     $ptitle = "{$itaj} - 新規スレッド作成";
 
     // machibbs、JBBS@したらば なら

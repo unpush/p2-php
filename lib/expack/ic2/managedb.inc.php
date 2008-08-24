@@ -24,7 +24,7 @@ function manageDB_update($updated)
     }
 
     // トランザクションの開始
-    $ta = &new IC2DB_Images;
+    $ta = new IC2DB_Images;
     if ($ta->_db->phptype == 'pgsql') {
         $ta->query('BEGIN');
     } elseif ($ta->_db->phptype == 'sqlite') {
@@ -33,19 +33,19 @@ function manageDB_update($updated)
 
     // 画像データを更新
     foreach ($updated as $id => $data) {
-        $icdb = &new IC2DB_Images;
+        $icdb = new IC2DB_Images;
         $icdb->whereAdd("id = $id");
         if ($icdb->find(TRUE)) {
             // メモを更新
             if ($icdb->memo != $data['memo']) {
-                $memo = &new IC2DB_Images;
+                $memo = new IC2DB_Images;
                 $memo->memo = (strlen($data['memo']) > 0) ? $data['memo'] : '';
                 $memo->whereAdd("id = $id");
                 $memo->update();
             }
             // ランクを更新
             if ($icdb->rank != $data['rank']) {
-                $rank = &new IC2DB_Images;
+                $rank = new IC2DB_Images;
                 $rank->rank = $data['rank'];
                 $rank->whereAddQuoted('size', '=', $icdb->size);
                 $rank->whereAddQuoted('md5',  '=', $icdb->md5);
@@ -88,7 +88,7 @@ function manageDB_remove($target, $to_blacklist = FALSE)
     }
 
     // トランザクションの開始
-    $ta = &new IC2DB_Images;
+    $ta = new IC2DB_Images;
     if ($ta->_db->phptype == 'pgsql') {
         $ta->query('BEGIN');
     } elseif ($ta->_db->phptype == 'sqlite') {
@@ -97,14 +97,14 @@ function manageDB_remove($target, $to_blacklist = FALSE)
 
     // 画像を削除
     foreach ($target as $id) {
-        $icdb = &new IC2DB_Images;
+        $icdb = new IC2DB_Images;
         $icdb->whereAdd("id = $id");
 
         if ($icdb->find(TRUE)) {
             // キャッシュしているファイルを削除
-            $t1 = &new ThumbNailer(1);
-            $t2 = &new ThumbNailer(2);
-            $t3 = &new ThumbNailer(3);
+            $t1 = new ThumbNailer(1);
+            $t2 = new ThumbNailer(2);
+            $t3 = new ThumbNailer(3);
             $srcPath = $t1->srcPath($icdb->size, $icdb->md5, $icdb->mime);
             $t1Path = $t1->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
             $t2Path = $t2->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
@@ -128,7 +128,7 @@ function manageDB_remove($target, $to_blacklist = FALSE)
 
             // ブラックリスト送りの準備
             if ($to_blacklist) {
-                $_blacklist = &new IC2DB_BlackList;
+                $_blacklist = new IC2DB_BlackList;
                 $_blacklist->size = $icdb->size;
                 $_blacklist->md5  = $icdb->md5;
                 if ($icdb->mime == 'clamscan/infected' || $icdb->rank == -4) {
@@ -141,7 +141,7 @@ function manageDB_remove($target, $to_blacklist = FALSE)
             }
 
             // 同一画像を検索
-            $remover = &new IC2DB_Images;
+            $remover = new IC2DB_Images;
             $remover->whereAddQuoted('size', '=', $icdb->size);
             $remover->whereAddQuoted('md5',  '=', $icdb->md5);
             //$remover->whereAddQuoted('mime', '=', $icdb->mime); // SizeとMD5で十分
@@ -149,7 +149,7 @@ function manageDB_remove($target, $to_blacklist = FALSE)
             while ($remover->fetch()) {
                 // ブラックリスト送りにする
                 if ($to_blacklist) {
-                    $blacklist = clone($_blacklist);
+                    $blacklist = clone $_blacklist;
                     $blacklist->uri = $remover->uri;
                     $blacklist->insert();
                 }
@@ -192,7 +192,7 @@ function manageDB_setRank($target, $rank)
         }
     }
 
-    $icdb = &new IC2DB_Images;
+    $icdb = new IC2DB_Images;
     $icdb->rank = $rank;
     foreach ($target as $id) {
         $icdb->whereAdd("id = $id", 'OR');
@@ -224,7 +224,7 @@ function manageDB_addMemo($target, $memo)
     }
 
     // トランザクションの開始
-    $ta = &new IC2DB_Images;
+    $ta = new IC2DB_Images;
     if ($ta->_db->phptype == 'pgsql') {
         $ta->query('BEGIN');
     } elseif ($ta->_db->phptype == 'sqlite') {
@@ -233,10 +233,10 @@ function manageDB_addMemo($target, $memo)
 
     // メモに指定文字列が含まれていなければ更新
     foreach ($target as $id) {
-        $find = &new IC2DB_Images;
+        $find = new IC2DB_Images;
         $find->whereAdd("id = $id");
         if ($find->find(TRUE) && !strstr($find->memo, $memo)) {
-            $update = &new IC2DB_Images;
+            $update = new IC2DB_Images;
             $update->whereAdd("id = $id");
             if (strlen($find->memo) > 0) {
                 $update->memo = $find->memo . ' ' . $memo;

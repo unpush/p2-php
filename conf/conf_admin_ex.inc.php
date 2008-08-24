@@ -122,12 +122,9 @@ $_conf['expack.aas.font_path'] = "./ttf/mona.ttf"; // ("./ttf/mona.ttf")
 $_conf['expack.aas.unknown_char'] = "?"; // ("?")
 
 // フォント描画処理の文字コード
-// "eucJP-win" では configure のオプションに --enable-gd-native-ttf が指定されていないと文字化けする
+// "CP51932" では configure のオプションに --enable-gd-native-ttf が指定されていないと文字化けする
 // このとき Unicode 対応フォントを使っているなら "UTF-8" にすると正しく表示できる
-$_conf['expack.aas.output_charset'] = "eucJP-win"; // ("eucJP-win")
-if (strcasecmp(substr(PHP_OS, 0, 6), 'Darwin') == 0) {
-    $_conf['expack.aas.output_charset'] = "UTF-8";
-}
+$_conf['expack.aas.output_charset'] = "CP51932"; // ("CP51932")
 
 // }}}
 // ----------------------------------------------------------------------

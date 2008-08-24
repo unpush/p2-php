@@ -60,7 +60,7 @@ class ThumbNailer
      *
      * @access public
      */
-    function ThumbNailer($mode = IC2_THUMB_SIZE_DEFAULT, $dynamic_options = null)
+    function __construct($mode = IC2_THUMB_SIZE_DEFAULT, $dynamic_options = null)
     {
         if (is_array($dynamic_options) && count($dynamic_options) > 0) {
             $options = array_merge($this->default_options, $dynamic_options);
@@ -76,7 +76,7 @@ class ThumbNailer
         $this->ini = ic2_loadconfig();
 
         // データベースに接続
-        $icdb = &new IC2DB_Images;
+        $icdb = new IC2DB_Images;
         $this->db = &$icdb->getDatabaseConnection();
         if (DB::isError($this->db)) {
             $this->error($this->db->getMessage());
@@ -202,7 +202,7 @@ class ThumbNailer
      *          テンポラリ・サムネイルの生成に成功したとき、true
      *          失敗したとき PEAR_Error
      */
-    function &convert($size, $md5, $mime, $width, $height, $force = false)
+    function convert($size, $md5, $mime, $width, $height, $force = false)
     {
         // 画像
         if (!empty($this->intermd) && file_exists($this->intermd)) {
@@ -274,20 +274,14 @@ class ThumbNailer
         // イメージドライバにサムネイル作成処理をさせる
         $convertorClass = 'Thumbnailer_' . ucfirst(strtolower($this->driver));
         if ($convertorClass == 'Thumbnailer_Imagick') {
-            if (version_compare(phpversion(), '5.0.0', '<')) {
-                if (!class_exists('Imagick')) {
-                    $convertorClass = 'Thumbnailer_Imagick09';
-                }
-            } else {
-                if (!class_exists('Imagick', false)) {
-                    $convertorClass = 'Thumbnailer_Imagick09';
-                }
+            if (!class_exists('Imagick', false)) {
+                $convertorClass = 'Thumbnailer_Imagick09';
             }
         }
 
         require_once dirname(__FILE__) . '/' . str_replace('_', '/', $convertorClass) . '.php';
 
-        $convertor = &new $convertorClass();
+        $convertor = new $convertorClass();
         $convertor->setBgColor($this->bgcolor[0], $this->bgcolor[1], $this->bgcolor[2]);
         $convertor->setHttp(true);
         if ($this->type == '.png') {
@@ -475,7 +469,7 @@ class ThumbNailer
     function dirID($size = null, $md5 = null, $mime = null)
     {
         if ($size && $md5 && $mime) {
-            $icdb = &new IC2DB_Images;
+            $icdb = new IC2DB_Images;
             $icdb->whereAddQUoted('size', '=', $size);
             $icdb->whereAddQuoted('md5',  '=', $md5);
             $icdb->whereAddQUoted('mime', '=', $mime);

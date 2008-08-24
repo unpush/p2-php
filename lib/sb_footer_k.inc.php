@@ -10,17 +10,22 @@ $tugi_ht = "";
 $bbs_q = "&amp;bbs=".$aThreadList->bbs;
 
 if (!empty($GLOBALS['wakati_words'])) {
-    $word_at = "&amp;method=similar&amp;word=" . rawurlencode($GLOBALS['wakati_word']);
+    $word_at = '&amp;method=similar&amp;word=' . rawurlencode($GLOBALS['wakati_word']);
 } elseif ($word) {
-    $word_at = "&amp;word=$word";
+    $word_at = '&amp;word=' . rawurldecode($word);
+    if (isset($sb_filter['method']) && $sb_filter['method'] == 'or') {
+        $word_at .= '&amp;method=or';
+    }
 } else {
-    $word_at = "";
+    $word_at = '';
 }
 
 if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
     $allfav_ht = <<<EOP
-<div class=\"pager\"><a href="subject.php?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></div>
+<div class=\"pager\"><a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></div>
 EOP;
+} else {
+    $allfav_ht = '';
 }
 
 // ページタイトル部分HTML設定 ====================================
@@ -32,9 +37,9 @@ EOP;
     $ptitle_ht = <<<EOP
 <a href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" target="_blank">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（dat倉庫）
 EOP;
-} elseif ($ptitle_url) {
+} elseif (!empty($ptitle_url)) {
     $ptitle_ht = <<<EOP
-<a  href="{$ptitle_url}" target="_blank"><b>{$ptitle_hd}</b></a>
+<a href="{$ptitle_url}" class="nobutton"><b>{$ptitle_hd}</b></a>
 EOP;
 } else {
     $ptitle_ht = <<<EOP
@@ -44,25 +49,34 @@ EOP;
 
 // {{{ ナビ
 
-$sb_view_at = "";
 if (!empty($_REQUEST['sb_view'])) {
     $sb_view_at = "&amp;sb_view=" . htmlspecialchars($_REQUEST['sb_view']);
+} else {
+    $sb_view_at = '';
 }
 
 if (!empty($_REQUEST['rsort'])) {
     $sb_view_at .= '&amp;rsort=1';
 }
 
+if ($_conf['expack.misc.multi_favs']) {
+    $sb_view_at .= $_conf['m_favita_set_at_a'];
+}
+
 if ($disp_navi['from'] > 1) {
     $mae_ht = <<<EOP
 <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
+} else {
+    $mae_ht = '';
 }
 
 if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
     $tugi_ht = <<<EOP
 <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
+} else {
+    $tugi_ht = '';
 }
 
 if ($disp_navi['from'] == $disp_navi['end']) {
@@ -76,43 +90,62 @@ if (!$disp_navi['all_once']) {
     $k_sb_navi_ht = <<<EOP
 <div class="pager">{$sb_range_st}{$mae_ht} {$tugi_ht}</div>
 EOP;
+} else {
+    $k_sb_navi_ht = '';
 }
 
 // }}}
 // {{{ dat倉庫
+
 // スペシャルモードでなければ、またはあぼーんリストなら
 if (!$aThreadList->spmode or $aThreadList->spmode == "taborn") {
     $dat_soko_ht = <<<EOP
  <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$_conf['k_at_a']}">dat倉庫</a>
 EOP;
+} else {
+    $dat_soko_ht = '';
 }
-// }}}
 
+// }}}
 // {{{ あぼーん中のスレッド
+
 if ($ta_num) {
     $taborn_link_ht = <<<EOP
  <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$_conf['k_at_a']}">ｱﾎﾞﾝ中({$ta_num})</a>
 EOP;
+} else {
+    $taborn_link_ht = '';
 }
-// }}}
 
+// }}}
 // {{{ 新規スレッド作成
+
 if (!$aThreadList->spmode) {
     $buildnewthread_ht = <<<EOP
  <a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=1{$_conf['k_at_a']}">ｽﾚ立て</a>
 EOP;
+} else {
+    $buildnewthread_ht = '';
 }
+
 // }}}
 // {{{ お気にスレセット切替
 
 if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
     $switchfavlist_ht = '<div>' . FavSetManager::makeFavSetSwitchForm('m_favlist_set', 'お気にスレ', NULL, NULL, FALSE, array('spmode' => 'fav')) . '</div>';
+} else {
+    $switchfavlist_ht = '';
 }
 
 // }}}
 // {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
 
-$sorts = array('midoku' => '新着', 'res' => 'ﾚｽ', 'no' => 'No.', 'title' => 'ﾀｲﾄﾙ');
+if ($_conf['iphone']) {
+    $sorts = array('midoku' => '新着', 'res' => 'レス', 'no' => 'No.', 'title' => 'タイトル');
+} else {
+    $sorts = array('midoku' => '新着', 'res' => 'ﾚｽ', 'no' => 'No.', 'title' => 'ﾀｲﾄﾙ');
+}
+
 if ($aThreadList->spmode and $aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') {
     $sorts['ita'] = '板';
 }

@@ -14,23 +14,25 @@ class ShowThreadK extends ShowThread{
 
     var $am_autong = false; // 自動AA略をするか否か
 
-    var $aas_rotate = '右に90°回転'; // AAS 回転リンク文字列
+    var $aas_rotate = '90°回転'; // AAS 回転リンク文字列
 
     var $respopup_at = '';  // レスポップアップ・イベントハンドラ
     var $target_at = '';    // 引用、省略、ID、NG等のリンクターゲット
+    var $check_st = '確';   // 省略、NG等のリンク文字列
 
     /**
      * コンストラクタ
      */
-    function ShowThreadK(&$aThread)
+    function __construct($aThread)
     {
-        parent::ShowThread($aThread);
+        parent::__construct($aThread);
 
         global $_conf;
 
         if ($_conf['iphone']) {
             $this->respopup_at = ' onclick="return iResPopUp(this, event);"';
             $this->target_at = ' target="_blank"';
+            $this->check_st = '&#x2620;';
         }
 
         $this->url_handlers = array(
@@ -177,8 +179,8 @@ class ShowThreadK extends ShowThread{
 
         // {{{ あぼーんチェック
 
-        $aborned_res .= "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>\n"; // 名前
-        $aborned_res .= ""; // 内容
+        $aborned_res  = "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>" // 名前
+                      . ""; // 内容
         $ng_msg_info = array();
 
         // 頻出IDあぼーん
@@ -189,7 +191,7 @@ class ShowThreadK extends ShowThread{
                 $ngaborns_hits['aborn_freq']++;
                 $this->aborn_nums[] = $i;
                 return $aborned_res;
-            } elseif (!$_GET['nong']) {
+            } elseif (!$nong) {
                 $ngaborns_hits['ng_freq']++;
                 $ngaborns_body_hits++;
                 $this->ng_nums[] = $i;
@@ -260,7 +262,7 @@ class ShowThreadK extends ShowThread{
         }
 
         // NGチェック ========
-        if (!$_GET['nong']) {
+        if (empty($_GET['nong'])) {
             // NGネームチェック
             if ($this->ngAbornCheck('ng_name', $name) !== false) {
                 $ngaborns_hits['ng_name']++;
@@ -320,7 +322,7 @@ class ShowThreadK extends ShowThread{
         if ($ng_msg_info) {
             $ng_type = implode(', ', $ng_msg_info);
             $msg = <<<EOMSG
-<s><font color="{$STYLE['mobile_read_ngword_color']}">$ng_type</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
+<s><font color="{$STYLE['mobile_read_ngword_color']}">$ng_type</font></s> <a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$this->check_st}</a>
 EOMSG;
             // AAS
             if ($isAA && P2_AAS_AVAILABLE) {
@@ -330,8 +332,8 @@ EOMSG;
                 } else {
                     $aas_txt = "AAS";
                 }
-                $msg .= " <a href=\"{$aas_url}\"{$this->target_at}>{$aas_txt}</a>";
-                $msg .= " <a href=\"{$aas_url}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
+                $msg .= " <a class=\"aas\" href=\"{$aas_url}\"{$this->target_at}>{$aas_txt}</a>";
+                $msg .= " <a class=\"button\" href=\"{$aas_url}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
             }
         }
 
@@ -341,7 +343,7 @@ EOMSG;
 <s><font color="{$STYLE['mobile_read_ngword_color']}">$name</font></s>
 EONAME;
             $msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
+<a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$this->check_st}</a>
 EOMSG;
 
         // NGメール変換
@@ -359,7 +361,7 @@ EOMSG;
 <s><font color="{$STYLE['mobile_read_ngword_color']}">$date_id</font></s>
 EOID;
             $msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
+<a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$this->check_st}</a>
 EOMSG;
         }
 
@@ -451,7 +453,7 @@ EOP;
 
         // 全角英数スペースカナを半角に
         if (!empty($_conf['k_save_packet'])) {
-            $tores = mb_convert_kana($tores, 'rnsk'); // SJIS-win だと ask で ＜ を < に変換してしまうようだ
+            $tores = mb_convert_kana($tores, 'rnsk'); // CP932 だと ask で ＜ を < に変換してしまうようだ
         }
 
         return $tores;
@@ -583,7 +585,7 @@ EOP;
             if (P2Util::isUrlWikipediaJa($url) && strlen($following) > 0) {
                 $leading = ord($following);
                 if ((($leading ^ 0x90) < 32 && $leading != 0x80) || ($leading ^ 0xE0) < 16) {
-                    $url .= rawurlencode(mb_convert_encoding($following, 'UTF-8', 'SJIS-win'));
+                    $url .= rawurlencode(mb_convert_encoding($following, 'UTF-8', 'CP932'));
                     $str .= $following;
                     $following = '';
                 }
@@ -805,6 +807,9 @@ EOP;
         global $_conf;
 
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
+            if (!isset($m[4])) {
+                $m[4] = '';
+            }
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
             return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
         }
@@ -907,7 +912,7 @@ EOP;
             $url_ht = htmlspecialchars($url, ENT_QUOTES);
             $img_str = null;
 
-            $icdb = &new IC2DB_Images;
+            $icdb = new IC2DB_Images;
 
             // r=0:リンク;r=1:リダイレクト;r=2:PHPで表示
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
@@ -941,7 +946,7 @@ EOP;
                 if ($this->thumbnailer->ini['General']['inline'] == 1) {
                     // PCでread_new_k.phpにアクセスしたとき等
                     if (!isset($this->inline_prvw) || !is_object($this->inline_prvw)) {
-                        $this->inline_prvw =& $this->thumbnailer;
+                        $this->inline_prvw = $this->thumbnailer;
                     }
                     $prv_url = $this->inline_prvw->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
 
@@ -968,7 +973,7 @@ EOP;
 
                 // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
                 if (!is_null($this->img_memo) && !strstr($icdb->memo, $this->img_memo)){
-                    $update = &new IC2DB_Images;
+                    $update = new IC2DB_Images;
                     if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                         $update->memo = $this->img_memo . ' ' . $icdb->memo;
                     } else {

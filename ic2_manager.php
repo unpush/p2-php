@@ -28,7 +28,7 @@ require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 $ini = ic2_loadconfig();
 
 // データベースに接続
-$db = &DB::connect($ini['General']['dsn']);
+$db = DB::connect($ini['General']['dsn']);
 if (DB::isError($db)) {
     die('<html><body><p>'.$result->getMessage().'</p></body></html>');
 }
@@ -42,7 +42,7 @@ $_flexy_options = array(
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+$flexy = new HTML_Template_Flexy($_flexy_options);
 
 // }}}
 // {{{ データベース操作・ファイル削除

@@ -3,6 +3,17 @@
  *  p2 ‘‚«‚İƒtƒH[ƒ€
  */
 
+if (!isset($popup)) {
+    $popup = 0;
+}
+if (!isset($newthread_hidden_ht)) {
+    $newthread_hidden_ht = '';
+}
+if (!isset($readnew_hidden_ht)) {
+    $readnew_hidden_ht = '';
+}
+
+
 if ($_conf['ktai']) {
     $htm['k_br'] = '<br>';
     $htm['kaiko_on_js'] = '';

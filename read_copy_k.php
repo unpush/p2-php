@@ -38,7 +38,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 //=================================================
 // レス読み込み
 //=================================================
-$aThread = &new ThreadRead;
+$aThread = new ThreadRead;
 $aThread->setThreadPathInfo($host, $bbs, $key);
 if (file_exists($aThread->keydat)) {
     // スレッド情報
@@ -58,7 +58,7 @@ if (file_exists($aThread->keydat)) {
     }
     // 投稿フォームへのリンク
     $post_url = "post_form.php?host={$host}&amp;bbs={$bbs}&amp;key={$key}";
-    $post_url .= "&amp;rescount={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;k=1";
+    $post_url .= "&amp;rescount={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;b=k";
     $post_link = "<a href=\"{$post_url}\">ﾚｽ</a>";
     // 元スレへのリンク
     $moto_link = '<a href="' . P2Util::throughIme($url_k_txt) . '">元ｽﾚ</a>';
@@ -106,7 +106,7 @@ JavaScriptにしてしまった方がいいかも？
 javascript:(function(){for (var j=0;j<document.forms.length;j++){for (var i=0;i<document.forms[j].elements.length;i++) {k=document.forms[j].elements[i];if(k.type=="textarea"){k.rows=10;k.cols=34;}}}})(); 
 */
 $kyopon_size = '';
-$mobile = &Net_UserAgent_Mobile::singleton();
+$mobile = Net_UserAgent_Mobile::singleton();
 if ($mobile->isAirHPhone()) {
     $kyopon_size = ' rows="10" cols="34"';
 }

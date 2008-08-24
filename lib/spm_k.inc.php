@@ -8,7 +8,7 @@
  *
  * @return string
  */
-function kspform(&$aThread, $default = '', $params = null)
+function kspform($aThread, $default = '', $params = null)
 {
     global $_conf;
 

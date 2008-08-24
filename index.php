@@ -13,7 +13,10 @@ $_login->authorize(); //ÉÜÅ[ÉUîFèÿ
 makeDenyHtaccess($_conf['pref_dir']);
 makeDenyHtaccess($_conf['dat_dir']);
 makeDenyHtaccess($_conf['idx_dir']);
-makeImageCacheDenyHtaccess($_conf['expack.ic2.General.cachedir']);
+if ($_conf['expack.ic2.enabled']) {
+    include 'conf/conf_ic2.inc.php';
+    makeImageCacheDenyHtaccess($_conf['expack.ic2.general.cachedir']);
+}
 
 //=============================================================
 
@@ -53,7 +56,7 @@ if ($_conf['ktai']) {
         }
     }
 
-    $sidebar = $_GET['sidebar'];
+    $sidebar = !empty($_GET['sidebar']);
 
     $ptitle = "rep2";
     //======================================================

@@ -70,7 +70,7 @@ EOP;
 //====================================================
 // ï‚èïîFèÿ
 //====================================================
-$mobile = &Net_UserAgent_Mobile::singleton();
+$mobile = Net_UserAgent_Mobile::singleton();
 
 // EZîFèÿ
 if (!is_null($_SERVER['HTTP_X_UP_SUBNO'])) {

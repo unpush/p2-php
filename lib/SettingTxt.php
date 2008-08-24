@@ -86,7 +86,7 @@ class SettingTxt{
             $params['proxy_host'] = $_conf['proxy_host'];
             $params['proxy_port'] = $_conf['proxy_port'];
         }
-        $req =& new HTTP_Request($this->url, $params);
+        $req = new HTTP_Request($this->url, $params);
         $modified && $req->addHeader("If-Modified-Since", $modified);
         $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
 
@@ -102,7 +102,7 @@ class SettingTxt{
                 include_once P2_LIB_DIR . '/BbsMap.class.php';
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
-                    $aNewSettingTxt = &new SettingTxt($new_host, $this->bbs);
+                    $aNewSettingTxt = new SettingTxt($new_host, $this->bbs);
                     $body = $aNewSettingTxt->downloadSettingTxt();
                     return true;
                 }
@@ -131,7 +131,7 @@ class SettingTxt{
 
             // ‚µ‚½‚ç‚Î or be.2ch.net ‚È‚çEUC‚ðSJIS‚É•ÏŠ·
             if (P2Util::isHostJbbsShitaraba($this->host) || P2Util::isHostBe2chNet($this->host)) {
-                $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
+                $body = mb_convert_encoding($body, 'CP932', 'CP51932');
             }
 
             if (FileCtl::file_write_contents($this->setting_txt, $body) === false) {

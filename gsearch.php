@@ -63,7 +63,7 @@ if (isset($_GET['word'])) {
     unset($_GET['word']);
 }
 if (isset($_GET['q'])) {
-    $q = mb_convert_encoding($_GET['q'], 'UTF-8', 'SJIS-win');
+    $q = mb_convert_encoding($_GET['q'], 'UTF-8', 'CP932');
     $word = htmlspecialchars($_GET['q'], ENT_QUOTES);
 } else {
     $word = $q = '';
@@ -88,14 +88,14 @@ if (!empty($q)) {
     $q .= ' site:2ch.net';
 
     // Google検索クラスのインスタンスを生成する
-    $google = &GoogleSearch::factory($wsdl, $key);
+    $google = GoogleSearch::factory($wsdl, $key);
 
     // インスタンス生成に失敗
     if (PEAR::isError($google)) {
         $result = '<b>Error: ' . $google->getMessage() . '</b>';
     // インスタンス生成に成功
     } else {
-        $resultObj = &$google->doSearch($q, $perPage, $start);
+        $resultObj = $google->doSearch($q, $perPage, $start);
         // エラー発生
         if (PEAR::isError($resultObj)) {
             $result = '<b>Error: ' . $resultObj->getMessage() . '</b>';
@@ -108,7 +108,7 @@ if (!empty($q)) {
             $totalItems = $resultObj->estimatedTotalResultsCount;
             // ヒットあり
             if ($totalItems > 0) {
-                $converter = &new Google_Converter;
+                $converter = new Google_Converter;
                 $result = array();
                 $popups = array();
                 $id = 1;
@@ -134,7 +134,7 @@ if (!empty($q)) {
 // }}}
 // {{{ Display
 
-$renderer = &new Google_Renderer;
+$renderer = new Google_Renderer;
 
 $search_element_type = 'text';
 $search_element_extra_attributes = '';

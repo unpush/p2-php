@@ -30,58 +30,41 @@ class PresetManager
     /**
      * 定型文の連想配列
      *
-     * @access private
      * @var array
      */
-    var $_data;
+    private $_data;
 
     /**
      * 設定ファイルのパス名
      *
-     * @access private
      * @var string
      */
-    var $_filename;
+    private $_filename;
 
     /**
      * 改行を許可するか否か
      *
-     * @access private
      * @var bool
      */
-    var $_allowLinebreaks;
+    private $_allowLinebreaks;
 
     /**
      * ツリー表示モード (0-3)
      *
-     * @access private
      * @var bool
      */
-    var $_treeMode;
+    private $_treeMode;
 
     // }}}
     // {{{ constructor
 
     /**
-     * コンストラクタ (PHP5スタイル)
+     * コンストラクタ
      *
-     * @access public
      * @param string $filename
      * @param bool $allow_linebreaks
      */
-    function __construct($filename, $allow_linebreaks = false)
-    {
-        $this->PresetManager($filename, $allow_linebreaks);
-    }
-
-    /**
-     * コンストラクタ (PHP4スタイル)
-     *
-     * @access public
-     * @param string $filename
-     * @param bool $allow_linebreaks
-     */
-    function PresetManager($filename, $allow_linebreaks = false)
+    public function __construct($filename, $allow_linebreaks = false)
     {
         if (!file_exists($filename)) {
             FileCtl::make_datafile($filename);
@@ -103,13 +86,12 @@ class PresetManager
     /**
      * 定型文を登録する
      *
-     * @access public
      * @param string $key
      * @param string $value
      * @param bool $overwrite
      * @return bool
      */
-    function setData($key, $value, $overwrite = true)
+    public function setData($key, $value, $overwrite = true)
     {
         $key = $this->_normalizeKey($key);
         if ($key === '') {
@@ -135,11 +117,10 @@ class PresetManager
     /**
      * 定型文を取得する
      *
-     * @access public
      * @param string $key
      * @return string|null
      */
-    function getData($key)
+    public function getData($key)
     {
         $key = $this->_normalizeKey($key);
         if (array_key_exists($key, $this->_data)) {
@@ -155,11 +136,10 @@ class PresetManager
     /**
      * 定型文が登録されているかどうか判定する
      *
-     * @access public
      * @param string $key
      * @return bool
      */
-    function hasData($key)
+    public function hasData($key)
     {
         $key = $this->_normalizeKey($key);
         if ($key === '') {
@@ -175,11 +155,10 @@ class PresetManager
     /**
      * 定型文を削除する
      *
-     * @access public
      * @param string $key
      * @return bool
      */
-    function removeData($key)
+    public function removeData($key)
     {
         $key = $this->_normalizeKey($key);
         if ($key === '') {
@@ -220,8 +199,6 @@ class PresetManager
     {
         ksort($this->_data);
 
-        $php5 = (substr(phpversion(), 0, 1) != '4');
-
         if ($as_tree) {
             $ret = $this->_createNode();
 
@@ -232,21 +209,12 @@ class PresetManager
                     mb_convert_variables('CP932', 'UTF-8', $keys);
                 }
 
-                if ($php5) {
-                    $ref = $ret;
-                } else {
-                    $ref = &$ret;
-                }
-
+                $ref = $ret;
                 foreach ($keys as $k) {
                     if (!array_key_exists($k, $ref->children)) {
                         $ref->children[$k] = $this->_createNode($k, null, $ref->depth + 1);
                     }
-                    if ($php5) {
-                        $ref = $ref->children[$k];
-                    } else {
-                        $ref = &$ref->children[$k];
-                    }
+                    $ref = $ref->children[$k];
                 }
 
                 if ($as_utf8) {
@@ -358,10 +326,9 @@ class PresetManager
     /**
      * 定型文を保存する
      *
-     * @access public
      * @return bool
      */
-    function save()
+    public function save()
     {
         ksort($this->_data);
         return (FileCtl::file_write_contents($this->_filename, serialize($this->_data)) !== false);
@@ -373,11 +340,10 @@ class PresetManager
     /**
      * 定型文のキーを正規化する
      *
-     * @access private
      * @param string $key
      * @return string
      */
-    function _normalizeKey($key)
+    private function _normalizeKey($key)
     {
         $key = mb_convert_encoding($key, 'UTF-8', 'CP932');
         $key = preg_replace(array('/[\\x00-\\x20]+/u', '@//+@u'), array(' ', '/'), $key);
@@ -390,11 +356,10 @@ class PresetManager
     /**
      * 定型文の内容を正規化する
      *
-     * @access private
      * @param string $value
      * @return string
      */
-    function _normalizeValue($value)
+    private function _normalizeValue($value)
     {
         $value = mb_convert_encoding($value, 'UTF-8', 'CP932');
         $value = preg_replace('/\\r\\n?/u', "\n", $value);
@@ -412,11 +377,10 @@ class PresetManager
     /**
      * ツリー表示用のノードオブジェクトを作成する
      *
-     * @access private
      * @param string $name
      * @return stdClass
      */
-    function _createNode($name = null, $value = null, $depth = 0)
+    private function _createNode($name = null, $value = null, $depth = 0)
     {
         $node = new stdClass;
         $node->name = $name;
@@ -432,13 +396,12 @@ class PresetManager
     /**
      * ノードをHTMLに変換する
      *
-     * @access private
      * @param stdClass $node
      * @param callback $linker
      * @param string $id_str
      * @return string
      */
-    function _nodeToHTML($node, $linker, $id_str)
+    private function _nodeToHTML($node, $linker, $id_str)
     {
         $ret = '';
 
@@ -489,13 +452,12 @@ class PresetManager
     /**
      * リーフをHTMLに変換する
      *
-     * @access private
      * @param stdClass $node
      * @param callback $linker
      * @param string $id_str
      * @return string
      */
-    function _leafToHTML($node, $linker, $id_str)
+    private function _leafToHTML($node, $linker, $id_str)
     {
         if ($node->value === null) {
             return '';

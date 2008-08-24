@@ -9,6 +9,7 @@ $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
 // dat倉庫 =======================
 // スペシャルモードでなければ、またはあぼーんリストなら
+$dat_soko_ht = '';
 if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){
     $dat_soko_ht =<<<EOP
     <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko" target="_self">dat倉庫</a> |
@@ -69,6 +70,7 @@ echo $import_dat_ht;
 echo "</p>";
 
 // スペシャルモードでなければフォーム入力補完========================
+$ini_url_text = '';
 if (!$aThreadList->spmode) {
     if (P2Util::isHostJbbsShitaraba($aThread->host)) { // したらば
         $ini_url_text = "http://{$aThreadList->host}/bbs/read.cgi?BBS={$aThreadList->bbs}&KEY=";

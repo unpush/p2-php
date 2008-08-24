@@ -46,7 +46,7 @@ class UserAgent{
      */
     function request($req, $only_header = false, $postdata_urlencode = true)
     {
-        $res =& new Response();
+        $res = new Response();
 
         $purl = parse_url($req->url); // URL分解
         if (isset($purl['query'])) { // クエリー
@@ -291,7 +291,7 @@ class Response{
     /**
      * コンストラクタ
      */
-    function Response()
+    function __construct()
     {
         $code = false;
         $message = '';

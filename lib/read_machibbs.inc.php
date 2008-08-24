@@ -61,7 +61,7 @@ function machiDownload()
     }
 
     // {{{ DATを書き込む
-    if ($mdatlines =& machiHtmltoDatLines($mlines)) {
+    if ($mdatlines = machiHtmltoDatLines($mlines)) {
 
         $file_append = ($file_append) ? FILE_APPEND : 0;
 
@@ -90,7 +90,7 @@ function machiDownload()
  *
  * @see machiDownload()
  */
-function &machiHtmltoDatLines(&$mlines)
+function machiHtmltoDatLines($mlines)
 {
     if (!$mlines) {
         $retval = false;
@@ -105,25 +105,25 @@ function &machiHtmltoDatLines(&$mlines)
         }
 
         if ($tuduku) {
-            if (preg_match("/^ \]<\/font><br><dd>(.*) <br><br>$/i", $ml, $matches)) {
+            if (preg_match('{^ \\]</font><br><dd>(.*) <br><br>$}i', $ml, $matches)) {
                 $body = $matches[1];
             } else {
                 unset($tuduku);
                 continue;
             }
-        } elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+)<br><dd>(.*) <br><br>$/i", $ml, $matches)) {
+        } elseif (preg_match('{^<dt>(?:<a[^>]+?>)?(\\d+)(?:</a>)? 名前：(<font color="#.+?">|<a href="mailto:(.*)">)<b> (.+) </b>(</font>|</a>) 投稿日： (.+)<br><dd>(.*) <br><br>$}i', $ml, $matches)) {
             $order = $matches[1];
             $mail = $matches[3];
-            $name = preg_replace("/<font color=\"?#.+?\"?>(.+)<\/font>/i", "\\1", $matches[4]);
+            $name = preg_replace('{<font color="?#.+?"?>(.+)</font}/i', '\\1', $matches[4]);
             $date = $matches[6];
             $body = $matches[7];
         } elseif (preg_match('{<title>(.*)</title>}i', $ml, $matches)) {
             $mtitle = $matches[1];
             continue;
-        } elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+) <font size=1>\[ ?(.*)$/i", $ml, $matches)) {
+        } elseif (preg_match('{^<dt>(?:<a[^>]+?>)?(\\d+)(?:</a>)? 名前：(<font color="#.+?">|<a href="mailto:(.*)">)<b> (.+) </b>(</font>|</a>) 投稿日： (.+) <font size=1>\\[ ?(.*)$}i', $ml, $matches)) {
             $order = $matches[1];
             $mail = $matches[3];
-            $name = preg_replace('{<font color="?#.+?"?>(.+)</font>}i', '$1', $matches[4]);
+            $name = preg_replace('{<font color="?#.+?"?>(.+)</font>}i', '\\1', $matches[4]);
             $date = $matches[6];
             $ip = $matches[7];
             $tuduku = true;

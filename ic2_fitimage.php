@@ -25,8 +25,8 @@ $y = '';
 $info_key_type = 'url';
 $info_key_value = $url;
 
-$icdb = &new IC2DB_Images;
-$thumbnailer = &new ThumbNailer;
+$icdb = new IC2DB_Images;
+$thumbnailer = new ThumbNailer;
 if (preg_match('/^' . preg_quote($thumbnailer->sourcedir, '/') . '/', $url) && file_exists($url)) {
     $info = getimagesize($url);
     $x = $info[0];

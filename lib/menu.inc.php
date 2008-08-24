@@ -26,6 +26,8 @@ if (isset($_GET['word'])) {
 } elseif (isset($_POST['word'])) {
     $word = $_POST['word'];
 }
+$hd = array('word' => '');
+$GLOBALS['ita_mikke'] = array('num' => 0);
 
 // ¡”ÂŒŸõ ====================================
 if (isset($word) && strlen($word) > 0) {
@@ -61,7 +63,7 @@ if (isset($_GET['setfavita'])) {
 //================================================================
 // ¡ƒƒCƒ“
 //================================================================
-$aShowBrdMenuPc =& new ShowBrdMenuPc();
+$aShowBrdMenuPc = new ShowBrdMenuPc();
 
 //============================================================
 // ¡ƒwƒbƒ_
@@ -356,18 +358,12 @@ if (isset($word) && strlen($word) > 0) {
         }
     } else {
         $match_cates = array();
-        $match_cates[0] = &new BrdMenuCate("&quot;{$hd['word']}&quot;‚ðŠÜ‚Þ”Â {$GLOBALS['ita_mikke']['num']}hit!\n");
+        $match_cates[0] = new BrdMenuCate("&quot;{$hd['word']}&quot;‚ðŠÜ‚Þ”Â {$GLOBALS['ita_mikke']['num']}hit!\n");
         $match_cates[0]->is_open = true;
         foreach ($brd_menus as $a_brd_menu) {
             if (!empty($a_brd_menu->matches)) {
-                if (version_compare(phpversion(), '5.0.0', 'ge')) {
-                    foreach ($a_brd_menu->matches as $match_ita) {
-                        $match_cates[0]->addBrdMenuIta(clone($match_ita));
-                    }
-                } else {
-                    foreach ($a_brd_menu->matches as $match_ita) {
-                        $match_cates[0]->addBrdMenuIta($match_ita);
-                    }
+                foreach ($a_brd_menu->matches as $match_ita) {
+                    $match_cates[0]->addBrdMenuIta(clone $match_ita);
                 }
             }
         }
@@ -399,7 +395,7 @@ EOP;
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
-if ($_conf['menu_hide_brds'] && !$ita_mikke['num']) {
+if ($_conf['menu_hide_brds'] && !$GLOBALS['ita_mikke']['num']) {
     $brd_menus_style = ' style="display:none"';
 } else {
     $brd_menus_style = '';

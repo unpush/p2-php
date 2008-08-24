@@ -156,11 +156,11 @@ if ($_conf['ktai']) {
 // {{{ prepare (DB & Cache)
 
 // DB_DataObjectを継承したDAO
-$icdb = &new IC2DB_Images;
-$db = &$icdb->getDatabaseConnection();
+$icdb = new IC2DB_Images;
+$db = $icdb->getDatabaseConnection();
 
 // サムネイル作成クラス
-$thumb = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+$thumb = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
     require_once 'Cache.php';
@@ -174,9 +174,9 @@ if ($ini['Viewer']['cache']) {
         'cache_table'   => $ini['Cache']['table'],
         'highwater'     => (int)$ini['Cache']['highwater'],
         'lowwater'      => (int)$ini['Cache']['lowwater'],
-        'db' => &$db
+        'db' => $db
     );
-    $cache = &new Cache_Function('db', $cache_options, (int)$ini['Cache']['expires']);
+    $cache = new Cache_Function('db', $cache_options, (int)$ini['Cache']['expires']);
     // 有効期限切れキャッシュのガーベッジコレクションなど
     if (isset($_GET['cache_clean'])) {
         $cache_clean = $_GET['cache_clean'];
@@ -189,7 +189,7 @@ if ($ini['Viewer']['cache']) {
         // キャッシュを全削除
         case 'all':
             $sql = sprintf('DELETE FROM %s', $db->quoteIdentifier($ini['Cache']['table']));
-            $result = &$db->query($sql);
+            $result = $db->query($sql);
             if (DB::isError($result)) {
                 die($result->getMessage());
             }
@@ -208,7 +208,7 @@ if ($ini['Viewer']['cache']) {
     }
     // SQLiteならVACUUMを実行（PostgreSQLは普通cronでvacuumdbするのでここではしない）
     if ($vacuumdb && is_a($db, 'DB_sqlite')) {
-        $result = &$db->query('VACUUM');
+        $result = $db->query('VACUUM');
         if (DB::isError($result)) {
             die($result->getMessage());
         }
@@ -225,7 +225,7 @@ if (is_a($db, 'db_sqlite')) {
     {
         return intval(date('Ymd', $ts));
     }
-    $sqlite = &$db->connection;
+    $sqlite = $db->connection;
     sqlite_create_function($sqlite, 'unix2date', 'iv2_sqlite_unix2date', 1);
 } else {
     $isSQLite = false;
@@ -247,7 +247,7 @@ if (get_magic_quotes_gpc()) {
 // （レンダリング前に $qf->updateAttributes(array('method' => 'get')); とする）
 $_attribures = array('accept-charset' => 'UTF-8,Shift_JIS');
 $_method = ($_SERVER['REQUEST_METHOD'] == 'GET') ? 'get' : 'post';
-$qf = &new HTML_QuickForm('go', $_method, $_SERVER['SCRIPT_NAME'], '_self', $_attribures);
+$qf = new HTML_QuickForm('go', $_method, $_SERVER['SCRIPT_NAME'], '_self', $_attribures);
 $qf->registerRule('numRange', null, 'RuleNumericRange');
 $qf->registerRule('inArray', null, 'RuleInArray');
 $qf->registerRule('inArrayKeys', null, 'RuleInArrayKeys');
@@ -258,34 +258,34 @@ $qfe = array();
 // フォーム要素の定義
 
 // ページ移動のためのsubmit要素
-$qfe['start'] = &$qf->addElement('button', 'start');
-$qfe['prev']  = &$qf->addElement('button', 'prev');
-$qfe['next']  = &$qf->addElement('button', 'next');
-$qfe['end']   = &$qf->addElement('button', 'end');
-$qfe['jump']  = &$qf->addElement('button', 'jump');
+$qfe['start'] = $qf->addElement('button', 'start');
+$qfe['prev']  = $qf->addElement('button', 'prev');
+$qfe['next']  = $qf->addElement('button', 'next');
+$qfe['end']   = $qf->addElement('button', 'end');
+$qfe['jump']  = $qf->addElement('button', 'jump');
 
 // 表示方法などを指定するinput要素
-$qfe['page']      = &$qf->addElement('text', 'page', 'ページ番号を指定', array('size' => 3));
-$qfe['cols']      = &$qf->addElement('text', 'cols', '横', array('size' => 3, 'maxsize' => 2));
-$qfe['rows']      = &$qf->addElement('text', 'rows', '縦', array('size' => 3, 'maxsize' => 2));
-$qfe['order']     = &$qf->addElement('select', 'order', '並び順', $_order);
-$qfe['sort']      = &$qf->addElement('select', 'sort', '方向', $_sort);
-$qfe['field']     = &$qf->addElement('select', 'field', 'フィールド', $_field);
-$qfe['key']       = &$qf->addElement('text', 'key', 'キーワード', array('size' => 20));
-$qfe['compare']   = &$qf->addElement('select', 'compare', '比較方法', $_compare);
-$qfe['threshold'] = &$qf->addElement('select', 'threshold', 'しきい値', $_threshold);
+$qfe['page']      = $qf->addElement('text', 'page', 'ページ番号を指定', array('size' => 3));
+$qfe['cols']      = $qf->addElement('text', 'cols', '横', array('size' => 3, 'maxsize' => 2));
+$qfe['rows']      = $qf->addElement('text', 'rows', '縦', array('size' => 3, 'maxsize' => 2));
+$qfe['order']     = $qf->addElement('select', 'order', '並び順', $_order);
+$qfe['sort']      = $qf->addElement('select', 'sort', '方向', $_sort);
+$qfe['field']     = $qf->addElement('select', 'field', 'フィールド', $_field);
+$qfe['key']       = $qf->addElement('text', 'key', 'キーワード', array('size' => 20));
+$qfe['compare']   = $qf->addElement('select', 'compare', '比較方法', $_compare);
+$qfe['threshold'] = $qf->addElement('select', 'threshold', 'しきい値', $_threshold);
 
 // 文字コード判定のヒントにする隠し要素
-$qfe['_hint'] = &$qf->addElement('hidden', '_hint');
+$qfe['_hint'] = $qf->addElement('hidden', '_hint');
 
 // 検索を実行するsubmit要素
-$qfe['search'] = &$qf->addElement('submit', 'search');
+$qfe['search'] = $qf->addElement('submit', 'search');
 
 // モード変更をするselect要素
-$qfe['mode'] = &$qf->addElement('select', 'mode', 'モード', $_mode);
+$qfe['mode'] = $qf->addElement('select', 'mode', 'モード', $_mode);
 
 // モード変更を確定するsubmit要素
-$qfe['cngmode'] = &$qf->addElement('submit', 'cngmode');
+$qfe['cngmode'] = $qf->addElement('submit', 'cngmode');
 
 // フォームのルール
 $qf->addRule('cols', '1 to 20',  'numRange', array('min' => 1, 'max' => 20),  'client', true);
@@ -307,7 +307,7 @@ $_flexy_options = array(
     'plugins' => array('P2Util' => P2_LIB_DIR . '/p2util.class.php')
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+$flexy = new HTML_Template_Flexy($_flexy_options);
 
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('base_dir', dirname($_SERVER['SCRIPT_NAME']));
@@ -365,11 +365,11 @@ if ($_conf['ktai']) {
     // フィルタリング用フォームを表示
     if (!empty($_GET['show_iv2_kfilter'])) {
         !defined('P2_NO_SAVE_PACKET') && define('P2_NO_SAVE_PACKET', true);
-        $r = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
+        $r = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
         $qfe['key']->removeAttribute('size');
         $qf->updateAttributes(array('method' => 'get'));
         $qf->accept($r);
-        $qfObj = &$r->toObject();
+        $qfObj = $r->toObject();
         $flexy->setData('page', $page);
         $flexy->setData('move', $qfObj);
         P2Util::header_nocache();
@@ -417,7 +417,7 @@ if (!($threshold == -1 && $compate == '>=')) {
 
 // キーワード検索をするとき
 if ($key !== '') {
-    $keys = explode(' ', $icdb->uniform($key, 'SJIS-win'));
+    $keys = explode(' ', $icdb->uniform($key, 'CP932'));
     foreach ($keys as $k) {
         $operator = 'LIKE';
         $wildcard = '%';
@@ -467,7 +467,7 @@ if ($mysql == 0 && ($ini['Viewer']['unique'] || $dc > 2)) {
     if ($dc > 1) {
         $subq .= ' HAVING COUNT(*) >= ' . $dc;
     }
-    // echo '<!--', mb_convert_encoding($subq, 'SJIS-win', 'UTF-8'), '-->';
+    // echo '<!--', mb_convert_encoding($subq, 'CP932', 'UTF-8'), '-->';
     $icdb->whereAdd("id IN ($subq)");
 }
 
@@ -486,7 +486,7 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
         // メモを追加
         if (!empty($_POST['addmemo'])) {
             $newmemo = get_magic_quotes_gpc() ? stripslashes($_POST['addmemo']) : $_POST['addmemo'];
-            $newmemo = $icdb->uniform($newmemo, 'SJIS-win');
+            $newmemo = $icdb->uniform($newmemo, 'CP932');
             if ($newmemo !== '') {
                  manageDB_addMemo($target, $newmemo);
             }
@@ -514,7 +514,7 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
                 $newmemo = get_magic_quotes_gpc() ? stripslashes($_POST['img'][$id]['memo']) : $_POST['img'][$id]['memo'];
                 $data = array(
                     'rank' => intval($_POST['img'][$id]['rank']),
-                    'memo' => $icdb->uniform($newmemo, 'SJIS-win')
+                    'memo' => $icdb->uniform($newmemo, 'CP932')
                 );
                 if (0 < $id && -1 <= $data['rank'] && $data['rank'] <= 5) {
                     $updated[$id] = $data;
@@ -658,7 +658,7 @@ if ($all == 0) {
             'compare' => $compare, 'threshold' => $threshold
         );
         $pager_q = $mf_hiddens;
-        mb_convert_variables('UTF-8', 'SJIS-win', $pager_q);
+        mb_convert_variables('UTF-8', 'CP932', $pager_q);
 
         // ページ番号を更新
         $qfe['page']->setValue($page);
@@ -699,7 +699,7 @@ if ($all == 0) {
 
     // 編集モード用フォームを生成
     if ($mode == 1 || $mode == 2) {
-        $flexy->setData('editFormHeader', EditForm::header($mf_hiddens, $mode));
+        $flexy->setData('editFormHeader', EditForm::header((isset($mf_hiddens) ? $mf_hiddens : array()), $mode));
         if ($mode == 1) {
             $flexy->setData('editFormCheckAllOn', EditForm::checkAllOn());
             $flexy->setData('editFormCheckAllOff', EditForm::checkAllOff());
@@ -711,8 +711,7 @@ if ($all == 0) {
             $flexy->setData('editFormRemove', EditForm::remove());
             $flexy->setData('editFormBlackList', EditForm::toblack());
         } elseif ($mode == 2) {
-            $editForm = &new EditForm;
-            $flexy->setData('editForm', $editForm);
+            $flexy->setData('editForm', new EditFormForFlexy);
         }
     }
 
@@ -777,7 +776,7 @@ if ($all == 0) {
         // 配列どうしなら+演算子で要素を追加できる
         // （キーの重複する値を上書きしたいときはarray_merge()を使う）
         $img = $icdb->toArray();
-        mb_convert_variables('SJIS-win', 'UTF-8', $img);
+        mb_convert_variables('CP932', 'UTF-8', $img);
         // ランク・メモは変更されることが多く、一覧用のデータキャッシュに影響を与えないように別に処理する
         $status = array();
         $status['rank'] = $img['rank'];
@@ -900,7 +899,7 @@ if ($_conf['ktai']) {
 }
 
 // フォームを最終調整し、テンプレート用オブジェクトに変換
-$r = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
+$r = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
 //$r->setLabelTemplate('_label.tpl.html');
 //$r->setHtmlTemplate('_html.tpl.html');
 $qf->updateAttributes(array('method' => 'get')); // リクエストをPOSTでも受け入れるため、ここで変更
@@ -914,7 +913,7 @@ $qf->updateAttributes(array('method' => 'get')); // リクエストをPOSTでも受け入れ
     $qfe['key']->updateAttributes($input_type_search_attributes);
 }*/
 $qf->accept($r);
-$qfObj = &$r->toObject();
+$qfObj = $r->toObject();
 
 // 変数をAssign
 $flexy->setData('title', $title);
@@ -934,7 +933,7 @@ if ($list_template == 'iv2ip.tpl.html') {
     $flexy->setData('title_width_h', 480 - (10 * 2) - (int)$ini['Thumb1']['width']);
     $flexy->output();
 } elseif ($list_template == 'iv2i.tpl.html') {
-    $mobile = &Net_UserAgent_Mobile::singleton();
+    $mobile = Net_UserAgent_Mobile::singleton();
     $elements = $flexy->getElements();
     if ($mobile->isDoCoMo()) {
         $elements['page']->setAttributes('istyle="4"');

@@ -50,7 +50,7 @@ if (!empty($preset)) {
 }
 $attachment = !empty($_GET['z']);
 
-$search = &new IC2DB_Images;
+$search = new IC2DB_Images;
 
 switch ($type) {
     case 'id':
@@ -67,7 +67,7 @@ switch ($type) {
 
 if ($search->find(true)) {
     if (!empty($_GET['o'])) {
-        $thumb = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+        $thumb = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
         $src = $thumb->srcPath($search->size, $search->md5, $search->mime);
         if (!file_exists($src)) {
             ic2_mkthumb_error("&quot;{$uri}&quot;のローカルキャッシュがありません。");
@@ -75,8 +75,8 @@ if ($search->find(true)) {
             ic2_mkthumb_success(basename($src), $search->mime, $src, true, $attachment);
         }
     } else {
-        $thumb = &new ThumbNailer($thumb, $options);
-        $result = &$thumb->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);
+        $thumb = new ThumbNailer($thumb, $options);
+        $result = $thumb->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);
         if (PEAR::isError($result)) {
             ic2_mkthumb_error($result->getMessage());
         } else {

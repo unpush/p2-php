@@ -116,7 +116,7 @@ $okini_itas = array();
 $i = 0;
 if (is_array($lines)) {
     foreach ($lines as $l) {
-        if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)$/", rtrim($l), $matches)) {
+        if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)\$/", rtrim($l), $matches)) {
             $id = "li{$i}";
             $okini_itas[$id]['itaj']       = $itaj = rtrim($matches[3]);
             $okini_itas[$id]['itaj_en']    = $itaj_en = base64_encode($itaj);

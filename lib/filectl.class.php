@@ -1,5 +1,6 @@
 <?php
-
+// {{{ constants
+/*
 if (!defined('FILE_USE_INCLUDE_PATH')) {
     define('FILE_USE_INCLUDE_PATH', 1);
 }
@@ -7,17 +8,24 @@ if (!defined('FILE_USE_INCLUDE_PATH')) {
 if (!defined('FILE_APPEND')) {
     define('FILE_APPEND', 8);
 }
+*/
+// }}}
+// {{{ FileCtl
 
 /**
  * ファイルを操作するクラス
  * インスタンスを作らずにクラスメソッドで利用する
+ *
+ * @static
  */
-class FileCtl{
+class FileCtl
+{
+    // {{{ make_datafile()
 
     /**
      * 書き込み用のファイルがなければ生成してパーミッションを調整する
      */
-    function make_datafile($file, $perm = 0606)
+    static public function make_datafile($file, $perm = 0606)
     {
         // 念のためにデフォルト補正しておく
         if (empty($perm)) {
@@ -42,10 +50,13 @@ class FileCtl{
         return true;
     }
 
+    // }}}
+    // {{{ mkdir_for()
+
     /**
      * 親ディレクトリがなければ生成してパーミッションを調整する
      */
-    function mkdir_for($apath)
+    static public function mkdir_for($apath)
     {
         global $_conf;
 
@@ -69,10 +80,13 @@ class FileCtl{
         return true;
     }
 
+    // }}}
+    // {{{ get_gzfile_contents()
+
     /**
      * gzファイルの中身を取得する
      */
-    function get_gzfile_contents($filepath)
+    static public function get_gzfile_contents($filepath)
     {
         if (is_readable($filepath)) {
             ob_start();
@@ -85,79 +99,39 @@ class FileCtl{
         }
     }
 
+    // }}}
+    // {{{ file_write_contents()
+
     /**
      * 文字列をファイルに書き込む
-     * （PHP5のfile_put_contentsの代替的役割）
+     * （file_put_contents()+強制LOCK_EX）
      *
-     * このfunctionは、PHP License に基づく、Aidan Lister氏 <aidan@php.net> による、
-     * PHP_Compat の file_put_contents.php のコードを元に、独自の変更（flock() など）を加えたものです。
-     * This product includes PHP, freely available from <http://www.php.net/>
+     * @param string $filename
+     * @param mixed $data
+     * @param int $flags
+     * @param resource $context
      */
-    function file_write_contents($filename, $content, $flags = null, $resource_context = null)
+    static public function file_write_contents($filename,
+                                               $data,
+                                               $flags = 0,
+                                               $context = null
+                                               )
     {
-        // If $cont is an array, convert it to a string
-        if (is_array($content)) {
-            $content = implode('', $content);
-        }
-
-        /*
-        shift_jisの文字が途中から入ったりすると、stringではないと判断されることがある？
-        // If we don't have a string, throw an error
-        if (!is_string($content)) {
-            trigger_error('file_write_contents() '.$filename.', The 2nd parameter should be either a string or an array', E_USER_WARNING);
-            return false;
-        }
-        */
-
-        // Get the length of date to write
-        $length = strlen($content);
-
-        // Check what mode we are using
-        $file_append = ($flags & FILE_APPEND) ? true : false;
-        $mode = $file_append ? 'ab' : 'ab';
-
-        // Check if we're using the include path
-        $use_inc_path = ($flags & FILE_USE_INCLUDE_PATH) ?
-                    true :
-                    false;
-
-        // Open the file for writing
-        if (($fh = @fopen($filename, $mode, $use_inc_path)) === false) {
-            trigger_error('file_write_contents() '.$filename.', failed to open stream: Permission denied', E_USER_WARNING);
-            return false;
-        }
-
-        @flock($fh, LOCK_EX);
-        $last = ignore_user_abort(1);
-
-        // Write to the file
-        $bytes = 0;
-
-        if (!$file_append) {
-            ftruncate($fh, 0);
-        }
-
-        if (($bytes = @fwrite($fh, $content)) === false) {
-            $errormsg = sprintf('file_write_contents() Failed to write %d bytes to %s',
-                            $length,
-                            $filename);
-            trigger_error($errormsg, E_USER_WARNING);
-            ignore_user_abort($last);
-            return false;
-        }
-
-        ignore_user_abort($last);
-        @flock($fh, LOCK_UN);
-        fclose($fh);
-
-        if ($bytes != $length) {
-            $errormsg = sprintf('file_put_contents() Only %d of %d bytes written, possibly out of free disk space.',
-                            $bytes,
-                            $length);
-            trigger_error($errormsg, E_USER_WARNING);
-            return false;
-        }
-
-        return $bytes;
+        return file_put_contents($filename, $data, $flags | LOCK_EX, $context);
     }
+
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

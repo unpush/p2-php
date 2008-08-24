@@ -17,7 +17,7 @@ class Login{
     /**
      * コンストラクタ
      */
-    function Login()
+    function __construct()
     {
         $login_user = $this->setdownLoginUser();
 
@@ -58,28 +58,28 @@ class Login{
         } else {
             $add_mail = '';
         }
-        if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_REQUEST['form_login_id'])) {
+        if (isset($_REQUEST['form_login_id']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_REQUEST['form_login_id'])) {
             $login_user = $this->setdownLoginUserWithRequest();
 
         // GET引数での指定
-        } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_REQUEST['user'])) {
+        } elseif (isset($_REQUEST['user']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_REQUEST['user'])) {
             $login_user = $_REQUEST['user'];
 
         // Cookieで指定
-        } elseif (($user = $this->getUserFromCid($_COOKIE['cid'])) !== false) {
-            if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $user)) {
+        } elseif (isset($_COOKIE['cid']) && ($user = $this->getUserFromCid($_COOKIE['cid'])) !== false) {
+            if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $user)) {
                 $login_user = $user;
             }
 
         // Sessionで指定
-        } elseif (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SESSION['login_user'])) {
+        } elseif (isset($_SESSION['login_user']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_SESSION['login_user'])) {
             $login_user = $_SESSION['login_user'];
 
         /*
         // Basic認証で指定
         } elseif (!empty($_REQUEST['basic'])) {
 
-            if (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_SERVER['PHP_AUTH_USER']))) {
+            if (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_SERVER['PHP_AUTH_USER']))) {
                 $login_user = $_SERVER['PHP_AUTH_USER'];
 
             } else {
@@ -133,7 +133,7 @@ class Login{
             // 補助認証をクリア
             $this->clearCookieAuth();
 
-            $mobile = &Net_UserAgent_Mobile::singleton();
+            $mobile = Net_UserAgent_Mobile::singleton();
 
             if (isset($_SERVER['HTTP_X_UP_SUBNO'])) {
                 file_exists($_conf['auth_ez_file']) && unlink($_conf['auth_ez_file']);
@@ -259,7 +259,7 @@ class Login{
             }
         }
 
-        $mobile = &Net_UserAgent_Mobile::singleton();
+        $mobile = Net_UserAgent_Mobile::singleton();
 
         // ■EZweb認証パススルー サブスクライバID
         if ($mobile->isEZweb() && isset($_SERVER['HTTP_X_UP_SUBNO']) && file_exists($_conf['auth_ez_file'])) {
@@ -415,7 +415,7 @@ class Login{
     {
         global $_conf, $_info_msg_ht;
 
-        $mobile = &Net_UserAgent_Mobile::singleton();
+        $mobile = Net_UserAgent_Mobile::singleton();
 
         // {{{ 認証登録処理 EZweb
 

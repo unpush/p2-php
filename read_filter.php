@@ -37,7 +37,7 @@ $popup_filter = 1;
 /**
  * ‘ÎÛƒŒƒX‚Ìˆ—
  */
-$aThread = &new ThreadRead;
+$aThread = new ThreadRead;
 $aThread->setThreadPathInfo($host, $bbs, $key);
 $aThread->readDat($aThread->keydat);
 
@@ -49,7 +49,7 @@ if (isset($aThread->datlines[$resnum - 1])) {
     $date_id = $resar[2];
     $msg = $resar[3];
 
-    $aShowThread = &new ShowThreadPc($aThread);
+    $aShowThread = new ShowThreadPc($aThread);
     $word = $aShowThread->getFilterTarget($ares, $resnum, $name, $mail, $date_id, $msg);
     if (strlen($word) == 0) {
         unset($word);

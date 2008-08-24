@@ -79,9 +79,13 @@ $before_rnum = $aThread->resrange['start'] - $rnum_range;
 if ($before_rnum < 1) { $before_rnum = 1; }
 if ($aThread->resrange['start'] == 1) {
     $read_navi_previous_isInvisible = true;
+} else {
+    $read_navi_previous_isInvisible = false;
 }
 //if ($before_rnum != 1) {
 //    $read_navi_previous_anchor = "#r{$before_rnum}";
+//} else {
+    $read_navi_previous_anchor = '';
 //}
 
 if (!$read_navi_previous_isInvisible) {
@@ -96,10 +100,13 @@ if ($aThread->resrange['to'] >= $aThread->rescount) {
     //$read_navi_next_anchor = "#r{$aThread->rescount}";
     $read_navi_next_isInvisible = true;
  }else {
+    $read_navi_next_isInvisible = false;
     // $read_navi_next_anchor = "#r{$aThread->resrange['to']}";
 }
 if ($aThread->resrange['to'] == $aThread->rescount) {
     $read_navi_next_anchor = "#r{$aThread->rescount}";
+} else {
+    $read_navi_next_anchor = '';
 }
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
@@ -195,7 +202,7 @@ EOP;
 if ($_conf['iphone']) {
     P2Util::printOpenInTab(array(
         ".//div[@class=&quot;res&quot;]//a[starts-with(@href, &quot;{$_conf['read_php']}?&quot;) or starts-with(@href, &quot;{$_conf['subject_php']}?&quot;)]",
-        ".//div[@class=&quot;navi&quot; or @class=&quot;toolbar&quot;]//a[starts-with(@href, &quot;info.php?&quot;) or starts-with(@href, &quot;post_form.php?&quot;) or starts-with(@href, &quot;read_filter_k.php?&quot;)]",
+        ".//div[@class=&quot;navi&quot; or @class=&quot;toolbar&quot;]//a[not(starts-with(@href, &quot;#&quot;) or starts-with(@href, &quot;http://&quot;) or starts-with(@href, &quot;https://&quot;))]",
         ".//form[@method=&quot;get&quot; and @action=&quot;spm_k.php&quot;]"
     ));
 }
@@ -229,7 +236,7 @@ EOP;
 }
 
 
-if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])) {
+if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) && empty($_GET['renzokupop'])) {
 
     echo <<<EOP
 <div class="navi">{$htm['read_navi_range']}

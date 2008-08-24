@@ -60,7 +60,7 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
 // スレの指定
 //=================================================
 kspDetectThread(); // global $host, $bbs, $key, $ls
-$aThread =& new Thread();
+$aThread = new Thread();
 // hostを分解してidxファイルのパスを求める
 if (!isset($aThread->keyidx)) {
     $aThread->setThreadPathInfo($host, $bbs, $key);

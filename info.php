@@ -100,7 +100,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // メイン
 //=================================================================
 
-$aThread =& new Thread();
+$aThread = new Thread();
 
 // hostを分解してidxファイルのパスを求める
 $aThread->setThreadPathInfo($host, $bbs, $key);

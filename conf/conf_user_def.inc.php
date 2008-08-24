@@ -300,6 +300,10 @@ $conf_user_def['ime_manual_ext'] = "exe,zip"; // ("exe,zip")
 $conf_user_def['join_favrank'] = 0; // (0)
 $conf_user_rad['join_favrank'] = array('1' => 'する', '0' => 'しない');
 
+// お気に板のスレ一覧をまとめて表示 (する:1, しない:0, 既得スレのみ:2)
+$conf_user_def['merge_favita'] = 0; // (0)
+$conf_user_rad['merge_favita'] = array('1' => 'する', '0' => 'しない', '2' => '既得スレのみ');
+
 // ドラッグ＆ドロップでお気に板を並べ替える（する:1, しない:0）
 $conf_user_def['favita_order_dnd'] = 1; // (1)
 $conf_user_rad['favita_order_dnd'] = array('1' => 'する', '0' => 'しない');

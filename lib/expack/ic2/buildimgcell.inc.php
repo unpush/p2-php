@@ -2,7 +2,7 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-function buildImgCell(&$img)
+function buildImgCell($img)
 {
     global $_conf, $ini, $icdb, $thumb;
 

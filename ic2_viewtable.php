@@ -40,13 +40,13 @@ $mode = $_REQUEST['table'];
 switch ($mode) {
     case 'errlog':
         require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
-        $table = &new IC2DB_Errors;
+        $table = new IC2DB_Errors;
         $table->orderBy('occured ASC');
         $title = 'エラーログ';
         break;
     case 'blacklist':
         require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
-        $table = &new IC2DB_BlackList;
+        $table = new IC2DB_BlackList;
         $table->orderBy('uri ASC');
         $title = 'ブラックリスト';
         break;
@@ -55,10 +55,10 @@ switch ($mode) {
 }
 
 
-$db = &$table->getDatabaseConnection();
+$db = $table->getDatabaseConnection();
 if (isset($_POST['clean'])) {
     $sql = 'DELETE FROM ' . $db->quoteIdentifier($table->__table);
-    $result = &$db->query($sql);
+    $result = $db->query($sql);
     if (DB::isError($result)) {
         die('<html><body><p>'.$result->getMessage().'</p></body></html>');
     }
@@ -81,7 +81,7 @@ $_flexy_options = array(
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+$flexy = new HTML_Template_Flexy($_flexy_options);
 
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('skin', $skin_en);
@@ -115,25 +115,25 @@ $flexy->output();
 // }}}
 // {{{ 関数
 
-function ic2dumptable_errlog(&$dbdo)
+function ic2dumptable_errlog($dbdo)
 {
     $data = array();
     while ($dbdo->fetch()) {
-        $obj = &new stdClass;
+        $obj = new stdClass;
         $obj->uri = $dbdo->uri;
         $obj->date = date('Y-m-d (D) H:i:s', $dbdo->occured);
         $obj->code = $dbdo->errcode;
-        $obj->message = mb_convert_encoding($dbdo->errmsg, 'SJIS-win', 'UTF-8');
+        $obj->message = mb_convert_encoding($dbdo->errmsg, 'CP932', 'UTF-8');
         $data[] = $obj;
     }
     return $data;
 }
 
-function ic2dumptable_blacklist(&$dbdo)
+function ic2dumptable_blacklist($dbdo)
 {
     $data = array();
     while ($dbdo->fetch()) {
-        $obj = &new stdClass;
+        $obj = new stdClass;
         $obj->uri = $dbdo->uri;
         switch ($dbdo->type) {
             case '0':

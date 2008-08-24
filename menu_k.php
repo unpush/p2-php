@@ -56,7 +56,7 @@ if (isset($_GET['setfavita'])) {
 //================================================================
 // メイン
 //================================================================
-$aShowBrdMenuK =& new ShowBrdMenuK();
+$aShowBrdMenuK = new ShowBrdMenuK();
 
 //============================================================
 // ヘッダ
@@ -99,7 +99,7 @@ if($_GET['view']=="favita"){
 
 //RSSリスト読み込み
 } elseif ($_GET['view'] == "rss" && $_conf['expack.rss.enabled']) {
-    //$mobile = &Net_UserAgent_Mobile::singleton();
+    //$mobile = Net_UserAgent_Mobile::singleton();
     if ($mobile->isNonMobile()) {
         output_add_rewrite_var('b', 'k');
     }

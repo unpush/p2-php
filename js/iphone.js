@@ -83,7 +83,7 @@ window.onload = (function(){
  */
 function rewrite_external_link(contextNode)
 {
-	var anchors = document.evaluate('.//a[@href and starts-with(@href, "http")]',
+	var anchors = document.evaluate('.//a[starts-with(@href, "http://") or starts-with(@href, "https://")]',
 	                                contextNode,
 	                                null,
 	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,

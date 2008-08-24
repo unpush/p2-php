@@ -5,9 +5,9 @@
 /**
  * sb_print - スレッド一覧を表示する (<tr>～</tr>)
  */
-function sb_print_k(&$aThreadList)
+function sb_print_k($aThreadList)
 {
-    global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
+    global $_conf, $sb_view, $p2_setting, $STYLE;
     global $sb_view;
 
     //=================================================
@@ -23,8 +23,14 @@ function sb_print_k(&$aThreadList)
 
     // 変数 ================================================
 
+    $only_one_bool = false;
+    $ita_name_bool = false;
+    $sortq_spmode = '';
+    $sortq_host = '';
+    $sortq_ita = '';
+
     // >>1
-    if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs=="bizplus" || $aThreadList->spmode=="news") {
+    if (strpos($aThreadList->bbs, 'news') !== false || $aThreadList->bbs == 'bizplus') {
         // 倉庫は除く
         if ($aThreadList->spmode != "soko") {
             $only_one_bool = true;
@@ -75,6 +81,7 @@ function sb_print_k(&$aThreadList)
 
         $bbs_q = "&amp;bbs=".$aThread->bbs;
         $key_q = "&amp;key=".$aThread->key;
+        $offline_q = '';
 
         if ($aThreadList->spmode!="taborn") {
             if (!$aThread->torder) {$aThread->torder=$i;}

@@ -37,10 +37,16 @@ EOP;
 <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
 EOP;
         }
+    } else {
+        $dores_ht = '';
     }
-    if ($res1['body']) {
+
+    if (isset($res1) && isset($res1['body'])) {
         $q_ichi = $res1['body']." | ";
+    } else {
+        $q_ichi = '';
     }
+
     echo <<<EOP
 <div><a id="footer" name="footer">{$hd['read_range']}</a></div>
 <div class="navi">

@@ -24,7 +24,7 @@ class SubjectTxt{
     /**
      * コンストラクタ
      */
-    function SubjectTxt($host, $bbs)
+    function __construct($host, $bbs)
     {
         $this->host = $host;
         $this->bbs =  $bbs;
@@ -84,6 +84,8 @@ class SubjectTxt{
             if (file_exists($this->subject_file)) {
                 if (!empty($_REQUEST['norefresh']) || (empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
                     return;    // 更新しない場合は、その場で抜けてしまう
+                } elseif (!empty($GLOBALS['expack.subject.multi-threaded-download.done'])) {
+                    return;    // 並列ダウンロード済の場合も抜ける
                 } elseif (empty($_POST['newthread']) and $this->isSubjectTxtFresh()) {
                     return;    // 新規スレ立て時でなく、更新が新しい場合も抜ける
                 }
@@ -102,7 +104,7 @@ class SubjectTxt{
             $params['proxy_host'] = $_conf['proxy_host'];
             $params['proxy_port'] = $_conf['proxy_port'];
         }
-        $req =& new HTTP_Request($this->subject_url, $params);
+        $req = new HTTP_Request($this->subject_url, $params);
         $modified && $req->addHeader("If-Modified-Since", $modified);
         $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
 
@@ -117,7 +119,7 @@ class SubjectTxt{
                 include_once P2_LIB_DIR . '/BbsMap.class.php';
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
-                    $aNewSubjectTxt = &new SubjectTxt($new_host, $this->bbs);
+                    $aNewSubjectTxt = new SubjectTxt($new_host, $this->bbs);
                     $body = $aNewSubjectTxt->downloadSubject();
                     return $body;
                 }
@@ -142,7 +144,7 @@ class SubjectTxt{
 
             // したらば or be.2ch.net ならEUCをSJISに変換
             if (P2Util::isHostJbbsShitaraba($this->host) || P2Util::isHostBe2chNet($this->host)) {
-                $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
+                $body = mb_convert_encoding($body, 'CP932', 'CP51932');
             }
 
             // eashmに保存する場合

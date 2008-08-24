@@ -25,9 +25,9 @@ class ShowThreadPc extends ShowThread{
     /**
      * コンストラクタ
      */
-    function ShowThreadPc(&$aThread)
+    function __construct($aThread)
     {
-        parent::ShowThread($aThread);
+        parent::__construct($aThread);
 
         global $_conf;
 
@@ -91,7 +91,7 @@ class ShowThreadPc extends ShowThread{
         $status_title = htmlspecialchars($this->thread->itaj, ENT_QUOTES) . " / " . $this->thread->ttitle_hd;
         //$status_title = str_replace("'", "\'", $status_title);
         //$status_title = str_replace('"', "\'\'", $status_title);
-        echo "<dl onMouseover=\"window.top.status='{$status_title}';\">";
+        echo "<dl onmouseover=\"window.top.status='{$status_title}';\">";
 
         // まず 1 を表示
         if (!$nofirst) {
@@ -173,8 +173,8 @@ class ShowThreadPc extends ShowThread{
 
         // {{{ あぼーんチェック
 
-        $aborned_res .= "<dt id=\"r{$i}\" class=\"aborned\"><span>&nbsp;</span></dt>\n"; // 名前
-        $aborned_res .= "<!-- <dd class=\"aborned\">&nbsp;</dd> -->\n"; // 内容
+        $aborned_res = "<dt id=\"r{$i}\" class=\"aborned\"><span>&nbsp;</span></dt>\n" // 名前
+                     . "<!-- <dd class=\"aborned\">&nbsp;</dd> -->\n"; // 内容
         $ng_msg_info = array();
 
         // 頻出IDあぼーん
@@ -304,10 +304,12 @@ class ShowThreadPc extends ShowThread{
             $quote_res_nums = $this->checkQuoteResNums($i, $name, $msg);
 
             foreach ($quote_res_nums as $rnv) {
-                if (!$this->quote_res_nums_done[$rnv]) {
-                    $ds = $this->qRes($this->thread->datlines[$rnv-1], $rnv);
-                    $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
-                    $rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></dd>\n";
+                if (!isset($this->quote_res_nums_done[$rnv])) {
+                    if (isset($this->thread->datlines[$rnv-1])) {
+                        $ds = $this->qRes($this->thread->datlines[$rnv-1], $rnv);
+                        $onPopUp_at = " onmouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onmouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
+                        $rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></dd>\n";
+                    }
                     $this->quote_res_nums_done[$rnv] = true;
                 }
             }
@@ -333,7 +335,7 @@ class ShowThreadPc extends ShowThread{
         if ($ng_msg_info) {
             $ng_type = implode(', ', $ng_msg_info);
             $msg = <<<EOMSG
-<s class="ngword" onMouseover="document.getElementById('ngm{$ngaborns_body_hits}').style.display = 'block';">$ng_type</s>
+<s class="ngword" onmouseover="document.getElementById('ngm{$ngaborns_body_hits}').style.display = 'block';">$ng_type</s>
 <div id="ngm{$ngaborns_body_hits}" style="display:none;">$msg</div>
 EOMSG;
         }
@@ -341,7 +343,7 @@ EOMSG;
         // NGネーム変換
         if ($isNgName) {
             $name = <<<EONAME
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$name</s>
+<s class="ngword" onmouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$name</s>
 EONAME;
             $msg = <<<EOMSG
 <div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
@@ -350,7 +352,7 @@ EOMSG;
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
+<s class="ngword" onmouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
 EOMAIL;
             $msg = <<<EOMSG
 <div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
@@ -359,7 +361,7 @@ EOMSG;
         // NGID変換
         } elseif ($isNgId) {
             $date_id = <<<EOID
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$date_id</s>
+<s class="ngword" onmouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$date_id</s>
 EOID;
             $msg = <<<EOMSG
 <div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
@@ -430,7 +432,7 @@ EOP;
         }*/
 
         // まとめてフィルタ色分け
-        if ($GLOBALS['word_fm'] && $res_filter['match'] != 'off') {
+        if (!empty($GLOBALS['word_fm']) && $res_filter['match'] != 'off') {
             $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
         }
 
@@ -449,17 +451,22 @@ EOP;
             return false;
         }
 
+        $rpop = '';
         $dummy_msg = "";
         $this->quote_check_depth = 0;
         $quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
         foreach ($quote_res_nums as $rnv) {
-            if (!$this->quote_res_nums_done[$rnv]) {
+            if (!isset($this->quote_res_nums_done[$rnv])) {
                 if ($this->thread->ttitle_hd) {
                     $ds = "<b>{$this->thread->ttitle_hd}</b><br><br>";
+                } else {
+                    $ds = '';
                 }
-                $ds .= $this->qRes( $this->thread->datlines[$rnv-1], $rnv );
-                $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
-                $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></div>\n";
+                if (isset($this->thread->datlines[$rnv-1])) {
+                    $ds .= $this->qRes($this->thread->datlines[$rnv-1], $rnv);
+                }
+                $onPopUp_at = " onmouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onmouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
+                $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>{$ds}</i></div>\n";
                 $this->quote_res_nums_done[$rnv] = true;
             }
         }
@@ -552,7 +559,7 @@ EOP;
         // 数字をリンク化
         if ($_conf['quote_res_view']) {
             /*
-            $onPopUp_at = " onMouseover=\"showResPopUp('q\\1of{$this->thread->key}',event)\" onMouseout=\"hideResPopUp('q\\1of{$this->thread->key}')\"";
+            $onPopUp_at = " onmouseover=\"showResPopUp('q\\1of{$this->thread->key}',event)\" onmouseout=\"hideResPopUp('q\\1of{$this->thread->key}')\"";
             $name && $name = preg_replace("/([1-9][0-9]*)/","<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=\\1\"{$_conf['bbs_win_target_at']}{$onPopUp_at}>\\1</a>", $name, 1);
             */
             // 数字を引用レスポップアップリンク化
@@ -660,7 +667,7 @@ EOP;
             if (P2Util::isUrlWikipediaJa($url) && strlen($following) > 0) {
                 $leading = ord($following);
                 if ((($leading ^ 0x90) < 32 && $leading != 0x80) || ($leading ^ 0xE0) < 16) {
-                    $url .= rawurlencode(mb_convert_encoding($following, 'UTF-8', 'SJIS-win'));
+                    $url .= rawurlencode(mb_convert_encoding($following, 'UTF-8', 'CP932'));
                     $str .= $following;
                     $following = '';
                 }
@@ -906,20 +913,24 @@ EOP;
         $name = preg_replace("/(◆.*)/", "", $name, 1);
 
         // 名前
-        if (preg_match("/[0-9]+/", $name, $matches)) {
-            $a_quote_res_num=$matches[0];
+        if (preg_match('/[1-9]\\d*/', $name, $matches)) {
+            $a_quote_res_num = (int)$matches[0];
+            $a_quote_res_idx = $a_quote_res_num - 1;
 
             if ($a_quote_res_num) {
                 $quote_res_nums[] = $a_quote_res_num;
 
-                if ($a_quote_res_num != $res_num) { // 自分自身の番号と同一でなければ、
-                    if (!$this->quote_res_nums_checked[$a_quote_res_num]) { // チェックしていない番号を再帰チェック
+                // 自分自身の番号と同一でなければ、
+                if ($a_quote_res_num != $res_num) {
+                    // チェックしていない番号を再帰チェック
+                    if (!isset($this->quote_res_nums_checked[$a_quote_res_num])) {
                         $this->quote_res_nums_checked[$a_quote_res_num] = true;
-
-                        $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_num-1]);
-                        $quote_name = $datalinear[0];
-                        $quote_msg = $this->thread->datlines[$a_quote_res_num-1];
-                        $quote_res_nums = array_merge( $quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg) );
+                        if (isset($this->thread->datlines[$a_quote_res_idx])) {
+                            $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_idx]);
+                            $quote_name = $datalinear[0];
+                            $quote_msg = $this->thread->datlines[$a_quote_res_idx];
+                            $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
+                        }
                      }
                  }
              }
@@ -938,6 +949,8 @@ EOP;
                 if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
 
                     foreach ($matches[0] as $a_quote_res_num) {
+                        $a_quote_res_num = (int)$a_quote_res_num;
+                        $a_quote_res_idx = $a_quote_res_num - 1;
 
                         //echo $a_quote_res_num;
 
@@ -947,13 +960,14 @@ EOP;
                         // 自分自身の番号と同一でなければ、
                         if ($a_quote_res_num != $res_num) {
                             // チェックしていない番号を再帰チェック
-                            if (!$this->quote_res_nums_checked[$a_quote_res_num]) {
+                            if (!isset($this->quote_res_nums_checked[$a_quote_res_num])) {
                                 $this->quote_res_nums_checked[$a_quote_res_num] = true;
-
-                                $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_num-1]);
-                                $quote_name = $datalinear[0];
-                                $quote_msg = $this->thread->datlines[$a_quote_res_num-1];
-                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
+                                if (isset($this->thread->datlines[$a_quote_res_idx])) {
+                                    $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_idx]);
+                                    $quote_name = $datalinear[0];
+                                    $quote_msg = $this->thread->datlines[$a_quote_res_idx];
+                                    $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
+                                }
                              }
                          }
 
@@ -1187,6 +1201,9 @@ EOJS;
         global $_conf;
 
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
+            if (!isset($m[4])) {
+                $m[4] = '';
+            }
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
             if ($_conf['iframe_popup']) {
                 if (preg_match('/^[0-9\\-n]+$/', $m[4])) {
@@ -1326,7 +1343,7 @@ EOJS;
             $url_en = rawurlencode($url);
             $url_ht = htmlspecialchars($url, ENT_QUOTES);
 
-            $icdb = &new IC2DB_Images;
+            $icdb = new IC2DB_Images;
 
             // r=0:リンク;r=1:リダイレクト;r=2:PHPで表示
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
@@ -1360,7 +1377,7 @@ EOJS;
                     $thumb_url = $_thumb_url;
                     // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
                     if (!is_null($this->img_memo) && !strstr($icdb->memo, $this->img_memo)){
-                        $update = &new IC2DB_Images;
+                        $update = new IC2DB_Images;
                         if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                             $update->memo = $this->img_memo . ' ' . $icdb->memo;
                         } else {

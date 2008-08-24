@@ -28,7 +28,7 @@ class ThreadRead extends Thread{
     /**
      * コンストラクタ
      */
-    function ThreadRead()
+    function __construct()
     {
         $this->getdat_error_msg_ht = "";
     }
@@ -70,7 +70,7 @@ class ThreadRead extends Thread{
                 $this->downloadDat2chMaru();
 
             // 2chの過去ログ倉庫読み
-            } elseif ($_GET['kakolog'] && $_GET['kakoget']) {
+            } elseif (!empty($_GET['kakolog']) && !empty($_GET['kakoget'])) {
                 if ($_GET['kakoget'] == 1) {
                     $ext = '.dat.gz';
                 } elseif ($_GET['kakoget'] == 2) {
@@ -134,7 +134,7 @@ class ThreadRead extends Thread{
             $send_path = $url;
         } else {
             $send_host = $purl['host'];
-            $send_port = $purl['port'];
+            $send_port = isset($purl['port']) ? $purl['port'] : 80;
             $send_path = $purl['path'].$purl['query'];
         }
 
@@ -177,7 +177,7 @@ class ThreadRead extends Thread{
         }
         $wr = "";
         fputs($fp, $request);
-
+        $start_here = false;
         while (!feof($fp)) {
 
             if ($start_here) {
@@ -207,7 +207,7 @@ class ThreadRead extends Thread{
                         die('Error: cannot write file.');
                     }
 
-                    $debug && $GLOBALS['profiler']->enterSection("dat_size_check");
+                    //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("dat_size_check");
                     // 取得後サイズチェック
                     if ($zero_read == false && $this->onbytes) {
                         $this->getDatBytesFromLocalDat(); // $aThread->length をset
@@ -216,18 +216,18 @@ class ThreadRead extends Thread{
                             unset($this->onbytes);
                             unset($this->modified);
                             $_info_msg_ht .= "p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>";
-                            $debug && $GLOBALS['profiler']->leaveSection("dat_size_check");
+                            //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("dat_size_check");
                             return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
 
                         // サイズが同じならそのまま
                         } elseif ($this->onbytes == $this->length) {
                             fclose($fp);
                             $this->isonline = true;
-                            $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
+                            //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat_size_check');
                             return true;
                         }
                     }
-                    $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
+                    //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat_size_check');
 
                 // スレッドがないと判断
                 } else {
@@ -332,7 +332,7 @@ class ThreadRead extends Thread{
             return false;
         }
 
-        unset($datgz_attayo, $start_here, $isGzip, $done_gunzip, $marudatlines, $code);
+        //unset($datgz_attayo, $start_here, $isGzip, $done_gunzip, $marudatlines, $code);
 
         $method = 'GET';
         // $uaMona → @see login2ch.inc.php
@@ -391,6 +391,7 @@ class ThreadRead extends Thread{
 
         fputs($fp, $request);
         $body = '';
+        $start_here = false;
         while (!feof($fp)) {
 
             if ($start_here) {
@@ -611,6 +612,7 @@ class ThreadRead extends Thread{
 
         fputs($fp, $request);
         $body = "";
+        $start_here = false;
         while (!feof($fp)) {
 
             if ($start_here) {
@@ -751,10 +753,10 @@ class ThreadRead extends Thread{
 
         $read_response_html = "";
         include_once P2_LIB_DIR . '/wap.class.php';
-        $wap_ua =& new UserAgent();
+        $wap_ua = new UserAgent();
         $wap_ua->setAgent($_conf['p2name']."/".$_conf['p2version']."; expack-".$_conf['p2expack']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req =& new Request();
+        $wap_req = new Request();
         $wap_req->setUrl($read_url);
         if ($_conf['proxy_use']) {
             $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
@@ -860,7 +862,7 @@ class ThreadRead extends Thread{
 
             // be.2ch.net ならEUC→SJIS変換
             if (P2Util::isHostBe2chNet($this->host)) {
-                $first_line = mb_convert_encoding($first_line, 'SJIS-win', 'eucJP-win');
+                $first_line = mb_convert_encoding($first_line, 'CP932', 'CP51932');
             }
 
             $first_datline = rtrim($first_line);
@@ -925,7 +927,7 @@ class ThreadRead extends Thread{
             }
 
             fputs($fp, $request);
-
+            $start_here = false;
             while (!feof($fp)) {
 
                 if ($start_here) {
@@ -962,7 +964,7 @@ class ThreadRead extends Thread{
 
             // be.2ch.net ならEUC→SJIS変換
             if (P2Util::isHostBe2chNet($this->host)) {
-                $first_line = mb_convert_encoding($first_line, 'SJIS-win', 'eucJP-win');
+                $first_line = mb_convert_encoding($first_line, 'CP932', 'CP51932');
             }
 
             $first_datline = rtrim($first_line);
@@ -990,7 +992,7 @@ class ThreadRead extends Thread{
 
         include_once P2_LIB_DIR . '/showthread.class.php';
         include_once P2_LIB_DIR . '/showthreadpc.class.php';
-        $aShowThread =& new ShowThreadPc($this);
+        $aShowThread = new ShowThreadPc($this);
         $body .= $aShowThread->transRes($first_line, 1); // 1を表示
         unset($aShowThread);
 
@@ -1018,7 +1020,9 @@ class ThreadRead extends Thread{
     {
         global $_conf;
 
+        $start = 1;
         $to = false;
+        $nofirst = false;
 
         // nを含んでいる場合は、>>1を表示しない（$nofirst）
         if (strstr($this->ls, 'n')) {
@@ -1151,8 +1155,8 @@ class ThreadRead extends Thread{
                 // 念のためSJISとUTF-8も文字コード判定の候補に入れておく
                 // ・・・が、文字化けしたタイトルのスレッドで誤判定があったので、指定しておく
                 if (P2Util::isHostBe2chNet($this->host)) {
-                    //mb_convert_variables('SJIS-win', 'eucJP-win,SJIS-win,UTF-8', $this->datlines);
-                    mb_convert_variables('SJIS-win', 'eucJP-win', $this->datlines);
+                    //mb_convert_variables('CP932', 'CP51932,CP932,UTF-8', $this->datlines);
+                    mb_convert_variables('CP932', 'CP51932', $this->datlines);
                 }
 
                 if (!strstr($this->datlines[0], "<>")) {
@@ -1186,7 +1190,11 @@ class ThreadRead extends Thread{
                 $lar = explode('<>', $line);
                 if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $lar[2], $matches)) {
                     $id = $matches[1];
-                    $this->idcount[$id]++;
+                    if (isset($this->idcount[$id])) {
+                        $this->idcount[$id]++;
+                    } else {
+                        $this->idcount[$id] = 1;
+                    }
                 }
             }
         }

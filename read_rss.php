@@ -5,7 +5,7 @@
     expack - 簡易RSSリーダ（<description>または<content:encoded>の内容を表示）
 
     RSS系ファイルはUTF-8で書いて、携帯に出力するときだけSJISにしたいけど
-    mbstring.script_encoding = SJIS-win との整合性を考えるとSJISのままが無難かな？
+    mbstring.script_encoding = CP932 との整合性を考えるとSJISのままが無難かな？
 */
 
 // {{{ p2基本設定読み込み&認証
@@ -50,7 +50,7 @@ $xml_ht = P2Util::re_htmlspecialchars($xml);
 
 if ($xml) {
     require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
-    $rss = &p2GetRSS($xml, $atom);
+    $rss = p2GetRSS($xml, $atom);
     if (is_a($rss, 'XML_Parser')) {
         clearstatcache();
         $rss_parse_success = TRUE;
@@ -65,9 +65,9 @@ if ($xml) {
         if (preg_match('/^<\\?xml version="1.0" encoding="((?i:iso)-8859-(?:[1-9]|1[0-5]))" ?\\?>/', $xmldec, $matches)) {
             $encoding = $matches[1];
         } else {
-            $encoding = 'UTF-8,eucJP-win,SJIS-win,JIS';
+            $encoding = 'UTF-8,CP51932,CP932,JIS';
         }
-        mb_convert_variables('SJIS-win', $encoding, $channel, $items);
+        mb_convert_variables('CP932', $encoding, $channel, $items);
     } else {
         $rss_parse_success = FALSE;
     }

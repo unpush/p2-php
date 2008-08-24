@@ -56,9 +56,9 @@ EOP;
     $ptitle_ht = <<<EOP
 <a href="{$ptitle_url}"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）
 EOP;
-} elseif ($ptitle_url) {
+} elseif (!empty($ptitle_url)) {
     $ptitle_ht = <<<EOP
-<a href="{$ptitle_url}"><b>{$ptitle_hd}</b></a>
+<a href="{$ptitle_url}" class="nobutton"><b>{$ptitle_hd}</b></a>
 EOP;
 } else {
     $ptitle_ht = <<<EOP
@@ -73,16 +73,31 @@ $sb_form_hidden_ht = <<<EOP
 <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
 <input type="hidden" name="host" value="{$aThreadList->host}">
 <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-{$_conf['k_input_ht']}
+{$_conf['k_input_ht']}{$_conf['m_favita_set_input_ht']}
 EOP;
 
 // フィルタ検索 ==================================================
+
 $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
-if (!$aThreadList->spmode) {
+
+$filter_form_ht = '';
+$hit_ht = '';
+
+if (!$spmode_without_palace_or_favita) {
+    if ($_conf['iphone']) {
+        $hd['label_for_method_open'] = '<span onclick="check_prev(this);">';
+        $hd['label_for_method_close'] = '</span>';
+    } else {
+        $hd['label_for_method_open'] = '<label for="method">';
+        $hd['label_for_method_close'] = '</label>';
+    }
+
+    $hd['method_checked_at'] = (isset($sb_filter['method']) && $sb_filter['method'] == 'or') ? ' checked' : '';
+
     $filter_form_ht = <<<EOP
-<form method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}">
-{$sb_form_hidden_ht}
-<input type="text" id="word" name="word" value="{$hd['word']}" size="12">
+<form method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}">
+{$sb_form_hidden_ht}<input type="text" id="word" name="word" value="{$hd['word']}" size="15">
+<input type="checkbox" id="method" name="method" value="or"{$hd['method_checked_at']}>{$hd['label_for_method_open']}OR{$hd['label_for_method_close']}
 <input type="submit" name="submit_kensaku" value="検索">
 </form>\n
 EOP;
@@ -90,7 +105,7 @@ EOP;
 
 // 検索結果
 if ($GLOBALS['sb_mikke_num']) {
-    $hit_ht = "<div>\"{$word}\" {$GLOBALS['sb_mikke_num']}hit!</div>";
+    $hit_ht = "<div>&quot;{$word}&quot; {$GLOBALS['sb_mikke_num']}hit!</div>";
 }
 
 
@@ -113,7 +128,7 @@ EOP;
 if ($_conf['iphone']) {
     P2Util::printOpenInTab(array(
         ".//a[starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]",
-        ".//form[@method=&quot;get&quot; and @action=&quot;{$_conf['read_new_k_php']}&quot;]",
+        ".//form[@action=&quot;{$_conf['read_new_k_php']}&quot; or @action=&quot;{$_conf['subject_php']}&quot;]",
         ".//ul[@class=&quot;subject&quot;]/li/a[@href]"
     ));
 }
@@ -136,6 +151,7 @@ EOP;
 
 echo $filter_form_ht;
 echo $hit_ht;
+
 if (!$_conf['iphone']) {
     echo '<hr>';
 }

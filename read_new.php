@@ -42,6 +42,9 @@ if (isset($_conf['rnum_all_range']) and $_conf['rnum_all_range'] > 0) {
 $sb_view = "shinchaku";
 $newtime = date("gis");
 
+$online_num = 0;
+$newthre_num = 0;
+
 $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
 //=================================================
@@ -79,7 +82,7 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 }
 ob_start();
 
-$aThreadList =& new ThreadList();
+$aThreadList = new ThreadList();
 
 // 板とモードのセット===================================
 $ta_keys = array();
@@ -106,7 +109,20 @@ if ($spmode) {
 }
 
 // ソースリスト読込
-$lines = $aThreadList->readList();
+if ($spmode == 'merge_favita') {
+    if ($_conf['expack.misc.multi_favs'] && !empty($_conf['m_favita_set'])) {
+        $merged_faivta_read_idx = $_conf['pref_dir'] . '/p2_favita' . $_conf['m_favita_set'] . '_read.idx';
+    } else {
+        $merged_faivta_read_idx = $_conf['pref_dir'] . '/p2_favita_read.idx';
+    }
+    if ($have_merged_faivta_read_idx = file_exists($merged_faivta_read_idx)) {
+        $lines = file($merged_faivta_read_idx);
+    } else {
+        $lines = $aThreadList->readList();
+    }
+} else {
+    $lines = $aThreadList->readList();
+}
 
 // ページヘッダ表示 ===================================
 $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
@@ -199,6 +215,7 @@ $_info_msg_ht = "";
 //==============================================================
 
 $linesize = sizeof($lines);
+$subject_txts = array();
 
 for ($x = 0; $x < $linesize ; $x++) {
 
@@ -207,7 +224,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
 
     $l = $lines[$x];
-    $aThread =& new ThreadRead();
+    $aThread = new ThreadRead();
 
     $aThread->torder = $x + 1;
 
@@ -232,6 +249,18 @@ for ($x = 0; $x < $linesize ; $x++) {
         case "palace": // スレの殿堂
             $aThread->getThreadInfoFromExtIdxLine($l);
             break;
+        case "merge_favita": // お気に板をマージ
+            if ($have_merged_faivta_read_idx) {
+                $aThread->getThreadInfoFromExtIdxLine($l);
+            } else {
+                $aThread->key = $l['key'];
+                $aThread->setTtitle($l['ttitle']);
+                $aThread->rescount = $l['rescount'];
+                $aThread->host = $l['host'];
+                $aThread->bbs = $l['bbs'];
+                $aThread->torder = $l['torder'];
+            }
+            break;
         }
     // subject (not spmode)の場合
     } else {
@@ -246,6 +275,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         continue;
     }
 
+    $subject_id = $aThread->host . '/' . $aThread->bbs;
 
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
 
@@ -253,7 +283,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     $aThread->getThreadInfoFromIdx();
 
     // 新着のみ(for subject) =========================================
-    if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) {
+    if (!$aThreadList->spmode && $sb_view == 'shinchaku' && empty($_GET['word'])) {
         if ($aThread->unum < 1) {
             unset($aThread);
             continue;
@@ -261,7 +291,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
 
     // スレッドあぼーんチェック =====================================
-    if ($aThreadList->spmode != 'taborn' and $ta_keys[$aThread->key]) {
+    if ($aThreadList->spmode != 'taborn' && !empty($ta_keys[$aThread->key])) {
             unset($ta_keys[$aThread->key]);
             continue; // あぼーんスレはスキップ
     }
@@ -270,18 +300,20 @@ for ($x = 0; $x < $linesize ; $x++) {
     if ($aThreadList->spmode && $sb_view != "edit") {
 
         // subject.txt が未DLなら落としてデータを配列に格納
-        if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
+        if (empty($subject_txts[$subject_id])) {
 
             require_once P2_LIB_DIR . '/SubjectTxt.class.php';
-            $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
+            $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
-            $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
+            $subject_txts[$subject_id] = $aSubjectTxt->subject_lines;
         }
 
         // スレ情報取得 =============================
-        if ($subject_txts["$aThread->host/$aThread->bbs"]) {
-            foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
-                if (@preg_match("/^{$aThread->key}/", $l)) {
+        if (!empty($subject_txts[$subject_id])) {
+            $thread_key = (string)$aThread->key;
+            $thread_key_len = strlen($aThread->key);
+            foreach ($subject_txts[$subject_id] as $l) {
+                if (substr($l, 0, $thread_key_len) == $thread_key) {
                     $aThread->getThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
                     break;
                 }
@@ -289,7 +321,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         }
 
         // 新着のみ(for spmode) ===============================
-        if ($sb_view == 'shinchaku' and empty($_GET['word'])) {
+        if ($sb_view == 'shinchaku' && empty($_GET['word'])) {
             if ($aThread->unum < 1) {
                 unset($aThread);
                 continue;
@@ -329,15 +361,15 @@ for ($x = 0; $x < $linesize ; $x++) {
     unset($aThread);
 }
 
-// $aThread =& new ThreadRead();
+// $aThread = new ThreadRead();
 
 //======================================================================
 //  スレッドの新着部分を読み込んで表示する
 //======================================================================
-function readNew(&$aThread)
+function readNew($aThread)
 {
     global $_conf, $newthre_num, $STYLE;
-    global $_info_msg_ht;
+    global $_info_msg_ht, $sid_q, $word;
     static $favlist_titles = null;
 
     if ($_conf['expack.misc.multi_favs'] && is_null($favlist_titles)) {
@@ -425,25 +457,22 @@ function readNew(&$aThread)
     $next_thre_num = $newthre_num + 1;
     if ($prev_thre_num != 0) {
         $prev_thre_ht = "<a href=\"#ntt{$prev_thre_num}\">▲</a>";
+    } else {
+        $prev_thre_ht = '';
     }
-    $next_thre_ht = "<a id=\"#ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">▼</a> ";
+    $next_thre_ht = "<a id=\"#ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">▼</a>";
 
     echo $_info_msg_ht;
     $_info_msg_ht = "";
 
     // ヘッダ部分HTML
     $read_header_ht = <<<EOP
-    <table id="ntt{$newthre_num}" width="100%" style="padding:0px 10px 0px 0px;">
-        <tr>
-            <td align="left">
-                <h3 class="thread_title">{$aThread->ttitle_hd}</h3>
-            </td>
-            <td align="right">
-                {$prev_thre_ht}
-                {$next_thre_ht}
-            </td>
-        </tr>
-    </table>\n
+<table id="ntt{$newthre_num}" width="100%" style="padding:0px 10px 0px 0px;">
+    <tr>
+        <td align="left"><h3 class="thread_title">{$aThread->ttitle_hd}</h3></td>
+        <td align="right">{$prev_thre_ht} {$next_thre_ht}</td>
+    </tr>
+</table>\n
 EOP;
 
     //==================================================================
@@ -455,7 +484,7 @@ EOP;
         // $aThread->datToHtml(); // dat を html に変換表示
         include_once P2_LIB_DIR . '/showthread.class.php';
         include_once P2_LIB_DIR . '/showthreadpc.class.php';
-        $aShowThread =& new ShowThreadPc($aThread);
+        $aShowThread = new ShowThreadPc($aThread);
         // async
         /*if ($_conf['expack.misc.async_respop']) {
             $read_header_ht .= $aShowThread->getASyncObjJs();
@@ -600,8 +629,6 @@ EOP;
                     $data[10], $data[11], $aThread->datochiok);
         P2Util::recKeyIdx($aThread->keyidx, $sar); // key.idxに記録
     }
-
-    unset($aThread);
 }
 
 //==================================================================
@@ -615,24 +642,26 @@ if (!$aThreadList->num) {
     echo "<hr>";
 }
 
+$shinchaku_matome_url = "{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}";
+
+if ($aThreadList->spmode == 'merge_favita') {
+    $shinchaku_matome_url .= $_conf['m_favita_set_at_a'];
+}
+
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     if (!empty($GLOBALS['limit_to_eq_to'])) {
         $str = '新着まとめ読みの更新/続き';
     } else {
         $str = '新着まとめ読みを更新';
     }
-    echo <<<EOP
-    <div id="ntt{$newthre_num}" align="center">
-        {$sb_ht} の <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}">{$str}</a>
-    </div>\n
-EOP;
 } else {
-     echo <<<EOP
-    <div id="ntt{$newthre_num}" align="center">
-        {$sb_ht} の <a href="{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1">新着まとめ読みの続き</a>
-    </div>\n
-EOP;
+    $str = '新着まとめ読みの続き';
+    $shinchaku_matome_url .= '&amp;norefresh=1';
 }
+
+echo <<<EOP
+<div id="ntt{$newthre_num}" align="center">{$sb_ht} の <a href="{$shinchaku_matome_url}">{$str}</a></div>\n
+EOP;
 
 if ($_conf['expack.ic2.enabled']) {
     echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js\"></script>";
