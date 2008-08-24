@@ -373,7 +373,7 @@ EOP;
         */
 
         if ($_conf['iphone']) {
-            $tores .= "<div class=\"res\" id=\"r{$i}\" name=\"r{$i}\"><div class=\"res-header\">";
+            $tores .= "<div class=\"res\" id=\"r{$i}\"><div class=\"res-header\">";
 
             // 番号（オンザフライ時）
             if ($this->thread->onthefly) {
@@ -382,7 +382,7 @@ EOP;
             // 番号（新着レス時）
             } elseif ($i > $this->thread->readnum) {
                 $GLOBALS['newres_to_show_flag'] = true;
-                $tores .= "<span class=\"no new\">{$i}</span>"; // york!
+                $tores .= "<span class=\"no newres\">{$i}</span>";
             // 番号
             } else {
                 $tores .= "<span class=\"no\">{$i}</span>";
