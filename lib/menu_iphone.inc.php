@@ -232,9 +232,9 @@ function menu_iphone_show_favorite_boards($title, $no = null)
         echo "<li><a href=\"{$_conf['subject_php']}?spmode=merge_favita{$favset_q_a}\" target=\"_self\">{$title} (‚Ü‚Æ‚ß)</a></li>";
     }
 
-    if ($lines = @file($_conf['favita_path'])) {
+    if ($lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", rtrim($l), $matches)) {
+            if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", $l, $matches)) {
                 $itaj = rtrim($matches[3]);
                 $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
                 $itaj_en = rawurlencode(base64_encode($itaj));
@@ -272,9 +272,8 @@ function menu_iphone_show_feed_list($title, $no = null)
 
     $errors = array();
 
-    if ($rss_list = @file($_conf['expack.rss.setting_path'])) {
+    if ($rss_list = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES)) {
         foreach ($rss_list as $rss_info) {
-            $rss_info = rtrim($rss_info);
             $p = explode("\t", $rss_info);
             if (count($p) > 1) {
                 $site = $p[0];

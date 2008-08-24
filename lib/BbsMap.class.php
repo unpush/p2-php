@@ -109,8 +109,8 @@ class BbsMap
         if (isset($done[$brd_path])) {
             return;
         }
-        $lines = self::_readData($brd_path);
-        if (!$lines) {
+
+        if (!($lines = FileCtl::file_read_lines($brd_path))) {
             return;
         }
         $map = self::_getMapping();
@@ -187,8 +187,8 @@ class BbsMap
         if (isset($done[$idx_path])) {
             return;
         }
-        $lines = self::_readData($idx_path);
-        if (!$lines) {
+
+        if (!($lines = FileCtl::file_read_lines($idx_path))) {
             return;
         }
         $map = self::_getMapping();
@@ -378,29 +378,6 @@ class BbsMap
         // }}}
 
         return (self::$_map = $map);
-    }
-
-    // }}}
-    // {{{ _readData()
-
-    /**
-     * 更新前のデータを読み込む
-     *
-     * @param   string  $path   読み込むファイルのパス
-     * @return  array   ファイルの内容、読み出しに失敗したときは false
-     */
-    static private function _readData($path)
-    {
-        if (!file_exists($path)) {
-            return false;
-        }
-
-        $lines = file($path);
-        if (!$lines) {
-            return false;
-        }
-
-        return $lines;
     }
 
     // }}}

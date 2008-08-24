@@ -61,12 +61,10 @@ if (!$aThread->itaj) {
 }
 
 // idxƒtƒ@ƒCƒ‹‚ª‚ ‚ê‚Î“Ç‚Ýž‚Þ
-if (is_readable($aThread->keyidx)) {
-    $lines = @file($aThread->keyidx);
-    $l = rtrim($lines[0]);
-    $data = explode('<>', $l);
+if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+    $data = explode('<>', $lines[0]);
 } else {
-    $data = array_fill(0, 10, '');
+    $data = array_fill(0, 12, '');
 }
 $aThread->getThreadInfoFromIdx();
 

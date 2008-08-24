@@ -92,11 +92,10 @@ if (!empty($_POST['submit_save'])) {
 // {{{ ÉäÉXÉgì«Ç›çûÇ›
 
 $formdata = array();
-if (file_exists($path)) {
-    $lines = file($path);
+if ($lines = FileCtl::file_read_lines($path, FILE_IGNORE_NEW_LINES)) {
     $i = 0;
-    foreach ($lines as $line) {
-        $lar = explode("\t", rtrim($line, "\r\n"));
+    foreach ($lines as $l) {
+        $lar = explode("\t", $l);
         if (strlen($lar[0]) == 0) {
             continue;
         }

@@ -160,7 +160,7 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
     }
 
     if ($curlrtn == 0) {
-        if ($r = @file_get_contents($tempfile)) {
+        if ($r = FileCtl::file_read_contents($tempfile)) {
             return $r;
         }
     }
@@ -184,7 +184,7 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
         if (!file_exists($tempfile) || !filesize($tempfile)) {
             execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, false);
         }
-        if ($r = @file_get_contents($tempfile)) {
+        if ($r = FileCtl::file_read_contents($tempfile)) {
             return $r;
         }
 

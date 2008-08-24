@@ -14,10 +14,9 @@ function deleMsg($checked_hists)
     global $_conf;
 
     // 読み込んで
-    if (!$reslines = file($_conf['p2_res_hist_dat'])) {
+    if (!$reslines = FileCtl::file_read_lines($_conf['p2_res_hist_dat'], FILE_IGNORE_NEW_LINES)) {
         die("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
     }
-    $reslines = array_map('rtrim', $reslines);
 
     // ファイルの下に記録されているものが新しいので逆順にする
     $reslines = array_reverse($reslines);

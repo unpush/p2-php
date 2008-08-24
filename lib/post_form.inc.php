@@ -18,20 +18,32 @@ if ($_conf['ktai']) {
     $htm['k_br'] = '<br>';
     $htm['kaiko_on_js'] = '';
     $htm['kaiko_set_hidden_js'] = '';
-    $htm['table_begin'] = '<br>';
+    $htm['table_begin'] = '';
     $htm['table_break1'] = '';
     $htm['table_break2'] = '';
     $htm['table_end'] = '<br>';
     if ($_conf['iphone']) {
-        $htm['options'] .= <<<EOS
-<input type="button" onclick="make_textarea_smaller('MESSAGE');" value="－">
+        $htm['options'] .= <<<EOP
+<div style="text-align:right;">
+<!-- <input type="checkbox" onclick="enable_input_autocorrect('MESSAGE', this.checked);"><span onclick="check_prev(this);">autocorrect</span> -->
+<input type="button" onclick="make_textarea_smaller('MESSAGE');make_textarea_smaller('MESSAGE');" value="－">
 <input type="button" onclick="make_textarea_larger('MESSAGE');" value="＋">
-EOS;
+</div>
+EOP;
+        $htm['name_label'] = '<span style="display:inline-block;width:3em;text-align:right;">名前</span>：';
+        $htm['mail_label'] = '<span style="display:inline-block;width:3em;text-align:right;">E-mail</span>：';
+        $htm['name_extra_at'] = ' autocorrect="off" autocapitalize="off"';
+        $htm['mail_extra_at'] = ' autocorrect="off" autocapitalize="off"';
+        $htm['msg_extra_at'] = ' autocorrect="off" autocapitalize="off"';
+        $htm['submit_extra_at'] = '';
+    } else {
+        $htm['name_label'] = '名前：';
+        $htm['mail_label'] = 'E-mail：';
+        $htm['name_extra_at'] = '';
+        $htm['mail_extra_at'] = '';
+        $htm['msg_extra_at'] = '';
+        $htm['submit_extra_at'] = '';
     }
-    $name_tab_at = '';
-    $mail_tab_at = '';
-    $msg_tab_at = '';
-    $submit_tab_at = '';
 } else {
     $htm['k_br'] = '';
     if ($_conf['expack.editor.dpreview']) {
@@ -48,10 +60,12 @@ EOS;
     $htm['table_break1'] = '</td></tr><tr><td align="left">';
     $htm['table_break2'] = '</td><td align="right">';
     $htm['table_end'] = '</td></tr></table>';
-    $name_tab_at    = ' tabindex="1"';
-    $mail_tab_at    = ' tabindex="2"';
-    $msg_tab_at     = ' tabindex="3"';
-    $submit_tab_at  = ' tabindex="4"';
+    $htm['name_label'] = '<label for="FROM">名前</label>：';
+    $htm['mail_label'] = '<label for="mail">E-mail</label>：';
+    $htm['name_extra_at'] = ' tabindex="1"';
+    $htm['mail_extra_at'] = ' tabindex="2"';
+    $htm['msg_extra_at'] = ' tabindex="3"';
+    $htm['submit_extra_at'] = ' tabindex="4"';
 }
 
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
@@ -61,19 +75,20 @@ $htm['post_form'] = <<<EOP
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}"{$onsubmit_at}>
 <input type="hidden" name="_hint" value="◎◇">
 {$htm['subject']}
-{$htm['maru_post']} 名前： <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}{$name_tab_at}>{$htm['k_br']}
- E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}{$mail_tab_at}>{$htm['k_br']}
+{$htm['maru_post']}
+{$htm['name_label']}<input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}{$htm['name_extra_at']}>{$htm['k_br']}
+{$htm['mail_label']}<input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}{$htm['mail_extra_at']}>{$htm['k_br']}
 {$htm['sage_cb']}
 {$htm['options']}
 {$htm['table_begin']}
-<textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kaiko_on_js']}{$msg_tab_at}>{$hd['MESSAGE']}</textarea>
+<textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kaiko_on_js']}{$htm['msg_extra_at']}>{$hd['MESSAGE']}</textarea>
 {$htm['table_break1']}
 {$htm['dpreview_onoff']}
 {$htm['dpreview_amona']}
 {$htm['src_fix']}
 {$htm['block_submit']}
 {$htm['table_break2']}
-<input id="kakiko_submit" type="submit" name="submit" value="{$submit_value}"{$htm['kaiko_set_hidden_js']}{$submit_tab_at}>
+<input id="kakiko_submit" type="submit" name="submit" value="{$submit_value}"{$htm['kaiko_set_hidden_js']}{$htm['submit_extra_at']}>
 {$htm['be2ch']}
 {$htm['table_end']}
 

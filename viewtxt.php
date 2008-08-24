@@ -61,13 +61,17 @@ function viewTxtFile($file, $encode)
     $ptitle = $filename;
 
     //ファイル内容読み込み
-    $cont = @file_get_contents($file);
-
-    if ($encode == "EUC-JP") {
-        $cont = mb_convert_encoding($cont, 'CP932', 'CP51932');
+    $cont = FileCtl::file_read_contents($file);
+    if ($cont === false) {
+        $cont_area = '';
+    } else {
+        if ($encode == 'EUC-JP') {
+            $cont = mb_convert_encoding($cont, 'CP932', 'CP51932');
+        } elseif ($encode == 'UTF-8') {
+            $cont = mb_convert_encoding($cont, 'CP932', 'UTF-8');
+        }
+        $cont_area = htmlspecialchars($cont, ENT_QUOTES);
     }
-
-    $cont_area = htmlspecialchars($cont, ENT_QUOTES);
 
     // プリント
     echo <<<EOHEADER

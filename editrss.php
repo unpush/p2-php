@@ -118,7 +118,7 @@ if ($_conf['expack.misc.multi_favs']) {
 // rssƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
 FileCtl::make_datafile($_conf['expack.rss.setting_path'], $_conf['expack.rss.setting_perm']);
 // rss“Ç‚İ‚İ
-$lines = file($_conf['expack.rss.setting_path']);
+$lines = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES);
 $myrss = array();
 
 $i = 0;

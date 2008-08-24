@@ -228,24 +228,35 @@ function sb_print_k($aThreadList)
 
         //ボディ
         if ($_conf['iphone']) {
-            // 勢い
-            if ($_conf['sb_show_ikioi'] && $aThread->dayres > 0) {
-                // 0.0 とならないように小数点第2位で切り上げ
-                $htm['ikioi'] = sprintf(' / <span class="num speed">%01.1f</span>', ceil($aThread->dayres * 10) / 10);
+            // ポップアップ用の隠しスレッド情報。torderの指示子が"%d"でないのはmerge_favitaのため
+            $thre_info = sprintf('[%s] %s (%01.1fレス/日)',
+                                 $aThread->torder,                 // 順序
+                                 date('y/m/d H:i', $aThread->key), // スレ立て日時
+                                 $aThread->dayres                  // 勢い。切り上げなし
+                                 );
+
+            // 勢い判定。なぜか不安定になるのでlog10()の結果で分岐はしない
+            $dayres = (int)$aThread->dayres;
+            if ($dayres > 9999) {
+                $classspeed = '10000';
+            } elseif ($dayres > 999) {
+                $classspeed = '1000';
+            } elseif ($dayres > 99) {
+                $classspeed = '100';
+            } elseif ($dayres > 9) {
+                $classspeed = '10';
+            } elseif ($dayres > 0) {
+                $classspeed = '1';
             } else {
-                $htm['ikioi'] = '';
+                $classspeed = '0';
             }
 
             if ($htm['ita'] !== '') {
                 $htm['ita'] = "<span class=\"ita\">{$htm['ita']}</span>";
             }
 
-            $htm['birthday'] = date('y/m/d', $aThread->key);
-
             echo <<<EOP
-<li><a href="{$thre_url}">{$htm['unum']} <span class="{$classtitle}">{$aThread->ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a>
-<div class="bg1"><span class="num order">{$aThread->torder}</span>{$htm['ikioi']}</div>
-<div class="bg2"><span class="date">{$htm['birthday']}</span></div></li>\n
+<li class="dayres-{$classspeed}"><a href="{$thre_url}"><span class="info">{$thre_info}</span>{$htm['unum']} <span class="{$classtitle}">{$aThread->ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
         } else {
             echo <<<EOP

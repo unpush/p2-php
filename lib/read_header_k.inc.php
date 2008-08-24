@@ -25,7 +25,11 @@ $bbs_q = "&amp;bbs=".$aThread->bbs;
 $key_q = "&amp;key=".$aThread->key;
 $offline_q = "&amp;offline=1";
 
-$hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+$do_filtering = (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0);
+
+if ($do_filtering) {
+    $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+}
 
 //=================================================================
 // ヘッダ
@@ -95,11 +99,13 @@ if (!$read_navi_previous_isInvisible) {
 
 //----------------------------------------------
 // $read_navi_next -- 次100
-if ($aThread->resrange['to'] >= $aThread->rescount) {
+if ($do_filtering) {
+    $read_navi_next_isInvisible = false;
+} elseif ($aThread->resrange['to'] >= $aThread->rescount) {
     $aThread->resrange['to'] = $aThread->rescount;
     //$read_navi_next_anchor = "#r{$aThread->rescount}";
     $read_navi_next_isInvisible = true;
- }else {
+} else {
     $read_navi_next_isInvisible = false;
     // $read_navi_next_anchor = "#r{$aThread->resrange['to']}";
 }
@@ -163,7 +169,6 @@ EOS;
 //====================================================================
 if ($filter_hits !== NULL) {
     include P2_LIB_DIR . '/read_filter_k.inc.php';
-    resetReadNaviHeaderK();
 }
 
 //====================================================================
@@ -253,7 +258,7 @@ echo "<h3><font color=\"{$STYLE['mobile_read_ttitle_color']}\">{$aThread->ttitle
 
 $filter_fields = array('hole' => '', 'msg' => 'ﾒｯｾｰｼﾞが', 'name' => '名前が', 'mail' => 'ﾒｰﾙが', 'date' => '日付が', 'id' => 'IDが', 'belv' => 'ﾎﾟｲﾝﾄが');
 
-if ($word) {
+if ($do_filtering) {
     echo "検索結果: ";
     echo "{$filter_fields[$res_filter['field']]}";
     echo "&quot;{$hd['word']}&quot;を";

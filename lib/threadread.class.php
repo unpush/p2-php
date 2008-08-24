@@ -57,7 +57,10 @@ class ThreadRead extends Thread{
             // 2ch bbspink●読み
             if (P2Util::isHost2chs($this->host) && !empty($_GET['maru'])) {
                 // ログインしてなければ or ログイン後、24時間以上経過していたら自動再ログイン
-                if ((!file_exists($_conf['sid2ch_php']) or $_REQUEST['relogin2ch']) or (@filemtime($_conf['sid2ch_php']) < time() - 60*60*24)) {
+                if (!file_exists($_conf['sid2ch_php']) ||
+                    !empty($_REQUEST['relogin2ch']) ||
+                    (filemtime($_conf['sid2ch_php']) < time() - 60*60*24))
+                {
                     include_once P2_LIB_DIR . '/login2ch.inc.php';
                     if (!login2ch()) {
                         $this->getdat_error_msg_ht .= $this->get2chDatError();
@@ -464,8 +467,7 @@ class ThreadRead extends Thread{
                     }
 
                     // クリーニング =====
-                    $marudatlines = @file($this->keydat);
-                    if ($marudatlines) {
+                    if ($marudatlines = FileCtl::file_read_lines($this->keydat)) {
                         $firstline = array_shift($marudatlines);
                         // チャンクとか
                         if (!strstr($firstline, "+OK")) {
@@ -1149,7 +1151,7 @@ class ThreadRead extends Thread{
         global $_conf;
 
         if (file_exists($this->keydat)) {
-            if ($this->datlines = @file($this->keydat)) {
+            if ($this->datlines = FileCtl::file_read_lines($this->keydat)) {
 
                 // be.2ch.net ならEUC→SJIS変換
                 // 念のためSJISとUTF-8も文字コード判定の候補に入れておく

@@ -143,9 +143,9 @@ $common_q = "host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->ke
 
 /*
 // お気にスレリスト 読込
-if ($favlines = @file($_conf['favlist_file'])) {
+if ($favlines = FileCtl::file_read_lines($_conf['favlist_file'], FILE_IGNORE_NEW_LINES)) {
     foreach ($favlines as $l) {
-        $favarray = explode('<>', rtrim($l));
+        $favarray = explode('<>', $l);
         if ($aThread->key == $favarray[1] && $aThread->bbs == $favarray[11]) {
             $aThread->fav = "1";
             if ($favarray[0]) {
@@ -192,9 +192,9 @@ EOP;
 
 // 殿堂入りスレリスト 読込
 $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
-if ($pallines = @file($palace_idx)) {
+if ($pallines = FileCtl::file_read_lines($palace_idx, FILE_IGNORE_NEW_LINES)) {
     foreach ($pallines as $l) {
-        $palarray = explode('<>', rtrim($l));
+        $palarray = explode('<>', $l);
         if ($aThread->key == $palarray[1]) {
             $isPalace = true;
             if ($palarray[0]) {
@@ -221,9 +221,9 @@ if ($isPalace) {
 // スレッドあぼーんリスト読込
 $idx_host_dir = P2Util::idxDirOfHost($host);
 $taborn_file = $idx_host_dir . '/' . $bbs . '/p2_threads_aborn.idx';
-if ($tabornlist = @file($taborn_file)) {
+if ($tabornlist = FileCtl::file_read_lines($taborn_file, FILE_IGNORE_NEW_LINES)) {
     foreach ($tabornlist as $l) {
-        $tarray = explode('<>', rtrim($l));
+        $tarray = explode('<>', $l);
         if ($aThread->key == $tarray[1]) {
             $isTaborn = true;
             break;

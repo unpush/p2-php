@@ -16,8 +16,8 @@ function machiDownload()
 
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
     if (file_exists($aThread->keydat)) {
-        $dls = @file($aThread->keydat);
-        if (sizeof($dls) != $aThread->gotnum) {
+        $dls = FileCtl::file_read_lines($aThread->keydat);
+        if (!$dls || sizeof($dls) != $aThread->gotnum) {
             // echo 'bad size!<br>';
             unlink($aThread->keydat);
             $aThread->gotnum = 0;
@@ -48,7 +48,7 @@ function machiDownload()
         return false;
     }
 
-    $mlines = @file($tempfile);
+    $mlines = FileCtl::file_read_lines($tempfile);
 
     // 一時ファイルを削除する
     unlink($tempfile);

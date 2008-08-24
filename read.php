@@ -51,9 +51,11 @@ if (isset($word) && strlen($word) > 0) {
     }
     if ($_conf['ktai']) {
         $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
-        $filter_range = array();
-        $filter_range['start'] = ($page - 1) * $_conf['k_rnum_range'] + 1;
-        $filter_range['to'] = $filter_range['start'] + $_conf['k_rnum_range'] - 1;
+        $filter_range = array(
+            'page'  => $page,
+            'start' => ($page - 1) * $_conf['k_rnum_range'] + 1,
+            'to'    => $page * $_conf['k_rnum_range'],
+        );
     }
 } else {
     $word = null;
@@ -67,7 +69,7 @@ $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 // フィルタ指定がなければ前回保存を読み込む（フォームのデフォルト値で利用）
 if (!isset($GLOBALS['word'])) {
 
-    if ($res_filter_cont = @file_get_contents($cachefile)) {
+    if ($res_filter_cont = FileCtl::file_read_contents($cachefile)) {
         $res_filter = unserialize($res_filter_cont);
     }
 
@@ -123,9 +125,10 @@ $aThread->itaj = P2Util::getItaName($host, $bbs);
 if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 
 // idxファイルがあれば読み込む
-if (is_readable($aThread->keyidx)) {
-    $lines = @file($aThread->keyidx);
-    $idx_data = explode('<>', rtrim($lines[0]));
+if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+    $idx_data = explode('<>', $lines[0]);
+} else {
+    $idx_data = array_fill(0, 12, '');
 }
 $aThread->getThreadInfoFromIdx();
 
@@ -242,9 +245,6 @@ if ($_conf['ktai']) {
         echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
     } else {
         // フッタプリント
-        if ($filter_hits !== NULL) {
-            resetReadNaviFooterK();
-        }
         include_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
 
@@ -445,19 +445,18 @@ function recRecent($data)
     // $_conf['rct_file'] ファイルがなければ生成
     FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']);
 
-    $lines = @file($_conf['rct_file']);
+    $lines = FileCtl::file_read_lines($_conf['rct_file'], FILE_IGNORE_NEW_LINES);
     $neolines = array();
 
     // {{{ 最初に重複要素を削除しておく
 
     if (is_array($lines)) {
-        foreach ($lines as $line) {
-            $line = rtrim($line);
-            $lar = explode('<>', $line);
+        foreach ($lines as $l) {
+            $lar = explode('<>', $l);
             $data_ar = explode('<>', $data);
             if ($lar[1] == $data_ar[1]) { continue; } // keyで重複回避
             if (!$lar[1]) { continue; } // keyのないものは不正データ
-            $neolines[] = $line;
+            $neolines[] = $l;
         }
     }
 

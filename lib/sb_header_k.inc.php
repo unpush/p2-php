@@ -83,6 +83,14 @@ $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
 $filter_form_ht = '';
 $hit_ht = '';
 
+if ($_conf['iphone']) {
+    $hd['input_nocorrect_at'] = ' autocorrect="off" autocapitalize="off"';
+    $hd['input_numeric_at'] = ' autocorrect="off" autocapitalize="off" placeholder="#"';
+} else {
+    $hd['input_nocorrect_at'] = '';
+    $hd['input_numeric_at'] = ' maxlength="4" istyle="4" format="4N" mode="numeric"';
+}
+
 if (!$spmode_without_palace_or_favita) {
     if ($_conf['iphone']) {
         $hd['label_for_method_open'] = '<span onclick="check_prev(this);">';
@@ -96,7 +104,7 @@ if (!$spmode_without_palace_or_favita) {
 
     $filter_form_ht = <<<EOP
 <form method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}">
-{$sb_form_hidden_ht}<input type="text" id="word" name="word" value="{$hd['word']}" size="15">
+{$sb_form_hidden_ht}<input type="text" id="word" name="word" value="{$hd['word']}" size="15"{$hd['input_nocorrect_at']}>
 <input type="checkbox" id="method" name="method" value="or"{$hd['method_checked_at']}>{$hd['label_for_method_open']}OR{$hd['label_for_method_close']}
 <input type="submit" name="submit_kensaku" value="åüçı">
 </form>\n
@@ -144,7 +152,7 @@ echo <<<EOP
 <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
 <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
 <input type="hidden" name="nt" value="1">{$shinchaku_norefresh_ht}
-ñ¢ì«êîÇ™<input type="text" name="unum_limit" value="100" size="4" maxlength="4" istyle="4" format="4N" mode="numeric">ñ¢ñûÇÃ
+ñ¢ì«êîÇ™<input type="text" name="unum_limit" value="100" size="4"{$hd['input_numeric_at']}>ñ¢ñûÇÃ
 <input type="submit" value="êVÇ‹Ç∆Çﬂ">
 </form>\n
 EOP;

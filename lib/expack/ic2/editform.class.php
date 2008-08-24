@@ -21,7 +21,7 @@ class EditForm
             'id' => 'edit',
             'action' => $_SERVER['SCRIPT_NAME'],
             'method' => 'post',
-            'accept-charset' => $GLOBALS['_conf']['accept_charset'],
+            'accept-charset' => $_conf['accept_charset'],
         ));
         if ($mode == 2) {
             $mf_head->setAttributes('onsubmit="return prePost();"');
@@ -216,6 +216,10 @@ class EditForm
         );
         if ($_conf['ktai']) {
             unset($mfa_text['id'], $mfa_text['size']);
+        }
+        if ($_conf['iphone']) {
+            $mfa_text['autocorrect'] = 'off';
+            $mfa_text['autocapitalize'] = 'off';
         }
         $mf_text = new HTML_Template_Flexy_Element('input', $mfa_text);
         return $mf_text->toHtml();

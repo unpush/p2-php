@@ -36,9 +36,10 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
     // FileCtl::mkdir_for($idxfile);
 
     // 既にidxデータがあるなら読み込む
-    if ($lines = @file($idxfile)) {
-        $l = rtrim($lines[0]);
-        $data = explode('<>', $l);
+    if ($lines = FileCtl::file_read_lines($idxfile, FILE_IGNORE_NEW_LINES)) {
+        $data = explode('<>', $lines[0]);
+    } else {
+        $data = array_fill(0, 12, '');
     }
 
     // {{{ スレッド.idx 記録
@@ -73,7 +74,7 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
     FileCtl::make_datafile($favlist_file, $_conf['favlist_perm']);
 
     // favlist読み込み
-    $favlines = @file($favlist_file);
+    $favlines = FileCtl::file_read_lines($favlist_file, FILE_IGNORE_NEW_LINES);
 
     //================================================
     // 処理
@@ -84,10 +85,9 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
     // 最初に重複要素を削除しておく
     if (!empty($favlines)) {
         $i = -1;
-        foreach ($favlines as $line) {
+        foreach ($favlines as $l) {
             $i++;
-            $line = rtrim($line);
-            $lar = explode('<>', $line);
+            $lar = explode('<>', $l);
             // 重複回避
             if ($lar[1] == $key && $lar[11] == $bbs) {
                 $before_line_num = $i; // 移動前の行番号をセット
@@ -96,7 +96,7 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
             } elseif (!$lar[1]) {
                 continue;
             } else {
-                $neolines[] = $line;
+                $neolines[] = $l;
             }
         }
     }

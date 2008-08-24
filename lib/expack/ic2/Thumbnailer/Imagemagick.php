@@ -1,7 +1,7 @@
 <?php
 /**
  * Thumbnailer_Imagemagick
- * PHP Versions 4 and 5
+ * PHP Version 5
  */
 
 require_once dirname(__FILE__) . '/Common.php';
@@ -13,10 +13,10 @@ require_once dirname(__FILE__) . '/Common.php';
  */
 class Thumbnailer_Imagemagick extends Thumbnailer_Common
 {
-    // {{{ protected properties
+    // {{{ properties
 
-    var $_imagemagick_convert = 'convert';
-    var $_imagemagick_version6 = true;
+    protected $_imagemagick_convert = 'convert';
+    protected $_imagemagick_version6 = true;
 
     // }}}
     // {{{ setImageMagickConvertPath()
@@ -24,11 +24,10 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     /**
      * Sets the path of convert(1);
      *
-     * @access public
      * @param string $path
      * @return void
      */
-    function setImageMagickConvertPath($path)
+    public function setImageMagickConvertPath($path)
     {
         if (is_file($path) && is_executable($path)) {
             $this->_imagemagick_convert = escapeshellarg($path);
@@ -41,11 +40,10 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     /**
      * Sets wheter the avaliable ImageMagick's version is greater than 6.0 or not.
      *
-     * @access public
      * @param bool $version6
      * @return void
      */
-    function setImageMagick6($version6)
+    public function setImageMagick6($version6)
     {
         $this->_imagemagick_version6 = $version6;
     }
@@ -56,14 +54,13 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     /**
      * Convert and save.
      *
-     * @access public
      * @param string $source
      * @param string $thumbnail
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function save($source, $thumbnail, $size)
+    public function save($source, $thumbnail, $size)
     {
         $command = $this->_convert($source, $size) . ' ' . escapeshellarg($thumbnail);
         @exec($command, $results, $status);
@@ -73,7 +70,7 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
                 if ($errstr === '') { break; }
                 $errmsg .= $errstr . "\n";
             }
-            $retval = &PEAR::raiseError($errmsg);
+            $retval = PEAR::raiseError($errmsg);
         } else {
             $retval = true;
         }
@@ -86,13 +83,12 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     /**
      * Convert and capture.
      *
-     * @access public
      * @param string $source
      * @param array $size
      * @return string
      * @throws PEAR_Error
      */
-    function capture($source, $size)
+    public function capture($source, $size)
     {
         $command = $this->_convert($source, $size) . ' -';
         ob_start();
@@ -100,7 +96,7 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
         $retval = ob_get_clean();
         if ($status != 0) {
             unset($retval);
-            $retval = &PEAR::raiseError("convert failed. (`{$command}`)");
+            $retval = PEAR::raiseError("convert failed. (`{$command}`)");
         }
         return $retval;
     }
@@ -111,20 +107,19 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     /**
      * Convert and output.
      *
-     * @access public
      * @param string $source
      * @param string $name
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function output($source, $name, $size)
+    public function output($source, $name, $size)
     {
         $command = $this->_convert($source, $size) . ' -';
         $this->_httpHeader($name);
         @passthru($command, $status);
         if ($status != 0) {
-            $retval = &PEAR::raiseError("convert failed. (`{$command}`)");
+            $retval = PEAR::raiseError("convert failed. (`{$command}`)");
         } else {
             $retval = true;
         }
@@ -137,12 +132,11 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     /**
      * Image conversion abstraction.
      *
-     * @access protected
      * @param string $source
      * @param array $size
      * @return string
      */
-    function _convert($source, $size)
+    protected function _convert($source, $size)
     {
         $source = (!$source || $source == '-') ? '-' : escapeshellarg($source);
         extract($size);

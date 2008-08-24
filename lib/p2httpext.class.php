@@ -393,12 +393,16 @@ class P2HttpRequestPool
         // {{{ ダウンロード対象を設定
 
         // お気に板等の.idx形式のファイルをパース
-        if (is_string($subjects) && file_exists($subjects)) {
-            $lines = file($subjects);
+        if (is_string($subjects)) {
+            $lines = FileCtl::file_read_lines($subjects, FILE_IGNORE_NEW_LINES);
+            if (!$lines) {
+                return;
+            }
+
             $subjects = array();
 
-            foreach ($lines as $line) {
-                $la = explode('<>', rtrim($line));
+            foreach ($lines as $l) {
+                $la = explode('<>', $l);
                 if (count($la) < 12) {
                     continue;
                 }
@@ -452,7 +456,7 @@ class P2HttpRequestPool
         $pool = new HttpRequestPool;
         $mutex = tmpfile();
         $time = time() - $_conf['sb_dl_interval'];
-        $sjis2euc = null;
+        $eucjp2sjis = null;
 
         // 各subject.txtへのリクエストをプールにアタッチ
         foreach ($subjects as $subject) {
@@ -466,10 +470,10 @@ class P2HttpRequestPool
             $url = 'http://' . $host . '/' . $bbs . '/subject.txt';
 
             if (P2Util::isHostJbbsShitaraba($host) || P2Util::isHostBe2chNet($host)) {
-                if ($sjis2euc === null) {
-                    $sjis2euc = new P2HttpCallback_SaveEucjpAsSjis;
+                if ($eucjp2sjis === null) {
+                    $eucjp2sjis = new P2HttpCallback_SaveEucjpAsSjis;
                 }
-                $pool->attach(new P2HttpGet($url, $file, null, $sjis2euc, null, $mutex));
+                $pool->attach(new P2HttpGet($url, $file, null, $eucjp2sjis, null, $mutex));
             } else {
                 $pool->attach(new P2HttpGet($url, $file, null, null, null, $mutex));
             }

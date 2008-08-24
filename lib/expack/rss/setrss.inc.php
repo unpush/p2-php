@@ -55,7 +55,7 @@ $site = htmlspecialchars($site, ENT_QUOTES);
 FileCtl::make_datafile($_conf['expack.rss.setting_path'], $_conf['expack.rss.setting_perm']);
 
 // rss_path“Ç‚İ‚İ;
-$lines = @file($_conf['expack.rss.setting_path']);
+$lines = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES);
 
 // }}}
 // {{{ ˆ—
@@ -67,7 +67,6 @@ if ($lines) {
     foreach ($lines as $l) {
         $i++;
 
-        $l = rtrim($l);
         $lar = explode("\t", $l);
 
         if ($lar[1] == $xml) { // d•¡‰ñ”ğ

@@ -11,13 +11,16 @@ include_once P2_LIB_DIR . '/spm_k.inc.php';
 // •\Ž¦”ÍˆÍ
 if ($_conf['filtering'] && $aThread->rescount) {
     $filter_range['end'] = min($filter_range['to'], $filter_hits);
-    $read_range_on = "{$filter_range['start']}-{$filter_range['end']}/{$filter_hits}hit";
+    $read_range_on = "{$filter_range['start']}-{$filter_range['end']}";
+    $rescount_st = "{$filter_hits}hits/{$aThread->rescount}";
 } elseif ($aThread->resrange['start'] == $aThread->resrange['to']) {
     $read_range_on = $aThread->resrange['start'];
+    $rescount_st = (string)$aThread->rescount;
 } else {
     $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
+    $rescount_st = (string)$aThread->rescount;
 }
-$hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
+$hd['read_range'] = "{$read_range_on}/{$rescount_st}";
 
 // ƒŒƒX”ÔŽw’èˆÚ“® etc.
 $htm['goto'] = kspform($aThread, ($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']));
@@ -47,8 +50,14 @@ EOP;
         $q_ichi = '';
     }
 
+    require_once P2_LIB_DIR . '/read_jump_k.inc.php';
+    if ($_conf['iphone']) {
+        echo get_read_jump($aThread, "<span id=\"footer\">{$rescount_st}</span>", true);
+    } else {
+        echo get_read_jump($aThread, "<a id=\"footer\" name=\"footer\">{$hd['read_range']}</a>", false);
+    }
+
     echo <<<EOP
-<div><a id="footer" name="footer">{$hd['read_range']}</a></div>
 <div class="navi">
 {$read_navi_previous_btm}
 {$read_navi_next_btm}

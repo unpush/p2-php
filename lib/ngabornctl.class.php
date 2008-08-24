@@ -133,9 +133,12 @@ class NgAbornCtl
     {
         global $_conf;
 
-        $lines = array();
-        $array['file'] = $_conf['pref_dir'].'/'.$filename;
-        if ($lines = @file($array['file'])) {
+        $array = array(
+            'file' => $_conf['pref_dir'] . '/' . $filename,
+            'data' => array(),
+        );
+
+        if ($lines = FileCtl::file_read_lines($array['file'])) {
             foreach ($lines as $l) {
                 $lar = explode("\t", trim($l));
                 if (strlen($lar[0]) == 0) {

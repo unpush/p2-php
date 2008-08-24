@@ -143,7 +143,7 @@ function getMatomeCache($num = '')
     $dnum = ($num) ? '.'.$num : '';
     $file = $_conf['matome_cache_path'] . $dnum . $ext;
 
-    $cont = @file_get_contents($file);
+    $cont = FileCtl::file_read_contents($file);
 
     if (strlen($cont) > 0) {
         return $cont;

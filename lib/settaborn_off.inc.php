@@ -22,7 +22,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     if (!file_exists($taborn_idx)) { die("あぼーんリストが見つかりませんでした。"); }
 
     // p2_threads_aborn.idx 読み込み
-    $taborn_lines = @file($taborn_idx);
+    $taborn_lines = FileCtl::file_read_lines($taborn_idx, FILE_IGNORE_NEW_LINES);
 
     // 指定keyを削除
     foreach ($taborn_off_keys as $val) {
@@ -31,7 +31,6 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
 
         if ($taborn_lines) {
             foreach ($taborn_lines as $line) {
-                $line = rtrim($line);
                 $lar = explode('<>', $line);
                 if ($lar[1] == $val) { // key発見
                     // echo "key:{$val} のスレッドをあぼーん解除しました。<br>";

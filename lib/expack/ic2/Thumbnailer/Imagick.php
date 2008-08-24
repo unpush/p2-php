@@ -18,7 +18,6 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
     /**
      * Convert and save.
      *
-     * @access public
      * @param string $source
      * @param string $thumbnail
      * @param array $size
@@ -40,7 +39,6 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
     /**
      * Convert and capture.
      *
-     * @access public
      * @param string $source
      * @param array $size
      * @return string
@@ -61,7 +59,6 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
     /**
      * Convert and output.
      *
-     * @access public
      * @param string $source
      * @param string $name
      * @param array $size
@@ -90,12 +87,11 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
     /**
      * Image conversion abstraction.
      *
-     * @access protected (Currently set to be public because of PHP4 compatibility of the parent class.)
      * @param string $source
      * @param array $size
-     * @return object Imagick
+     * @return Imagick
      */
-    /*protected*/ public function _convert($source, $size)
+    protected function _convert($source, $size)
     {
         extract($size);
 

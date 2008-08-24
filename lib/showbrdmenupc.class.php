@@ -75,55 +75,68 @@ EOP;
 EOP;
         }
 
-        $lines= @file($_conf['favita_path']); // favita読み込み
-
-        if($lines){
+        // favita読み込み
+        $favitas = array();
+        if ($lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES)) {
             foreach ($lines as $l) {
-                $l = rtrim($l);
                 if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", $l, $matches)) {
-                    $itaj = rtrim($matches[3]);
-                    $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
-                    $itaj_en = rawurlencode(base64_encode($itaj));
-                    $itaj_js = addslashes($itaj_view);
+                    $favitas[] = array(
+                        'host' => $matches[1],
+                        'bbs'  => $matches[2],
+                        'itaj' => $matches[3],
+                    );
+                }
+            }
+        }
 
-                    $p_htm['star'] = <<<EOP
-<a href="{$menu_php_ht}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0{$_conf['m_favita_set_at_a']}" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す" onclick="return window.confirm('「{$itaj_js}」をお気に板から外してよろしいですか？');">★</a>
-EOP;
-                    //  onClick="return confirmSetFavIta('{$itaj_ht}');"
-                    // 新着数を表示する場合
-                    if ($_conf['enable_menu_new'] && !empty($_GET['new'])) {
-                        $matome_i++;
-                        $host = $matches[1];
-                        $bbs = $matches[2];
-                        $spmode = "";
-                        $shinchaku_num = 0;
-                        $_newthre_num = 0;
-                        $newthre_ht = "";
-                        include("./subject_new.php");    // $shinchaku_num, $_newthre_num をセット
-                        if ($shinchaku_num > 0) {
-                            $class_newres_num = " class=\"newres_num\"";
-                        } else {
-                            $class_newres_num = " class=\"newres_num_zero\"";
-                        }
-                        if ($_newthre_num) {
-                            $newthre_ht = "{$_newthre_num}";
-                        }
-                        echo <<<EOP
-    {$p_htm['star']} <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}" onClick="chMenuColor({$matome_i});">{$itaj_view}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$matches[1]}&amp;bbs={$matches[2]}" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>\n
-EOP;
+        if ($favitas) {
+            // 新着数を表示する場合・まとめてプリフェッチ
+            if ($_conf['enable_menu_new'] && !empty($_GET['new']) && extension_loaded('http')) {
+                require_once P2_LIB_DIR . '/p2httpext.class.php';
+                P2HttpRequestPool::fetchSubjectTxt($favitas);
+                $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+            }
 
-                    // 新着数を表示しない場合
+            foreach ($favitas as $favita) {
+                extract($favita);
+                $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
+                $itaj_en = rawurlencode(base64_encode($itaj));
+                $itaj_js = addslashes($itaj_view);
+
+                $p_htm['star'] = <<<EOP
+<a href="{$menu_php_ht}?host={$host}&amp;bbs={$bbs}&amp;setfavita=0{$_conf['m_favita_set_at_a']}" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す" onclick="return window.confirm('「{$itaj_js}」をお気に板から外してよろしいですか？');">★</a>
+EOP;
+                //  onClick="return confirmSetFavIta('{$itaj_ht}');"
+                // 新着数を表示する場合
+                if ($_conf['enable_menu_new'] && !empty($_GET['new'])) {
+                    $matome_i++;
+                    $spmode = null;
+
+                    // $shinchaku_num, $_newthre_num をセット
+                    include P2_LIB_DIR . '/subject_new.inc.php';
+
+                    if ($shinchaku_num > 0) {
+                        $class_newres_num = ' class="newres_num"';
                     } else {
-                        echo <<<EOP
-    {$p_htm['star']} <a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}">{$itaj_view}</a><br>\n
+                        $class_newres_num = ' class="newres_num_zero"';
+                    }
+                    if ($_newthre_num) {
+                        $newthre_ht = "{$_newthre_num}";
+                    } else {
+                        $newthre_ht = '';
+                    }
+                    echo <<<EOP
+    {$p_htm['star']} <a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}&amp;itaj_en={$itaj_en}" onClick="chMenuColor({$matome_i});">{$itaj_view}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$host}&amp;bbs={$bbs}" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>\n
 EOP;
 
-                    }
+                // 新着数を表示しない場合
+                } else {
+                    echo <<<EOP
+    {$p_htm['star']} <a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}&amp;itaj_en={$itaj_en}">{$itaj_view}</a><br>\n
+EOP;
 
                 }
-
                 flush();
-
             } // foreach
 
         // 空っぽなら
@@ -131,7 +144,7 @@ EOP;
             echo '　（空っぽ）';
         }
 
-       echo "  </div>\n</div>\n";
+        echo "  </div>\n</div>\n";
     }
 
 }

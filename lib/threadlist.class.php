@@ -109,7 +109,7 @@ class ThreadList{
 
             // ローカルの履歴ファイル 読み込み
             if ($this->spmode == "recent") {
-                if ($lines = @file($_conf['rct_file'])) {
+                if ($lines = FileCtl::file_read_lines($_conf['rct_file'])) {
                     //$_info_msg_ht = "<p>履歴は空っぽです</p>";
                     //return false;
                 }
@@ -117,14 +117,14 @@ class ThreadList{
             // ローカルの書き込み履歴ファイル 読み込み
             } elseif ($this->spmode == "res_hist") {
                 $rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
-                if ($lines = @file($rh_idx)) {
+                if ($lines = FileCtl::file_read_lines($rh_idx)) {
                     //$_info_msg_ht = "<p>書き込み履歴は空っぽです</p>";
                     //return false;
                 }
 
             //ローカルのお気にファイル 読み込み
             } elseif ($this->spmode == "fav") {
-                if ($lines = @file($_conf['favlist_file'])) {
+                if ($lines = FileCtl::file_read_lines($_conf['favlist_file'])) {
                     //$_info_msg_ht = "<p>お気にスレは空っぽです</p>";
                     //return false;
                 }
@@ -157,10 +157,11 @@ class ThreadList{
 
                 foreach ($favitas as $ita) {
                     $aSubjectTxt = new SubjectTxt($ita['host'], $ita['bbs']);
-                    $k = ++$i / 10;
+                    $k = (float)sprintf('0.%d', ++$i);
 
                     if (is_array($aSubjectTxt->subject_lines)) {
                         $j = 0;
+
                         foreach ($aSubjectTxt->subject_lines as $l) {
                             if (preg_match('/^([0-9]+)\\.(?:dat|cgi)(?:,|<>)(.+) ?(?:\\(|（)([0-9]+)(?:\\)|）)/', $l, $m)) {
                                 $lines[] = array(
@@ -179,7 +180,7 @@ class ThreadList{
             // p2_threads_aborn.idx 読み込み
             } elseif ($this->spmode == "taborn") {
                 $dat_host_dir = P2Util::datDirOfHost($this->host);
-                $lines = @file($dat_host_dir."/".$this->bbs."/p2_threads_aborn.idx");
+                $lines = FileCtl::file_read_lines($dat_host_dir."/".$this->bbs."/p2_threads_aborn.idx");
 
             // ■spmodeがdat倉庫の場合 ======================
             } elseif ($this->spmode == "soko") {
@@ -203,8 +204,8 @@ class ThreadList{
                         if (preg_match($dat_pattern, $entry, $matches)) {
                             $theidx = $idx_bbs_dir."/".$matches[1].".idx";
                             if (!file_exists($theidx)) {
-                                if ($datlines = @file($dat_bbs_dir."/".$entry)) {
-                                    $firstdatline = rtrim($datlines[0]);
+                                if ($datlines = FileCtl::file_read_lines($dat_bbs_dir . '/' . $entry, FILE_IGNORE_NEW_LINES)) {
+                                    $firstdatline = $datlines[0];
                                     if (strstr($firstdatline, "<>")) {
                                         $datline_sepa = "<>";
                                     } else {
@@ -234,8 +235,10 @@ class ThreadList{
                     // ディレクトリ走査
                     while ($entry = $cdir->read()) {
                         if (preg_match($idx_pattern, $entry)) {
-                            $idl = @file($idx_bbs_dir."/".$entry);
-                            array_push($lines, $idl[0]);
+                            $idl = FileCtl::file_read_lines($idx_bbs_dir."/".$entry);
+                            if (is_array($idl)) {
+                                array_push($lines, $idl[0]);
+                            }
                         }
                     }
                     $cdir->close();
@@ -246,7 +249,7 @@ class ThreadList{
             // ■スレの殿堂の場合  // p2_palace.idx 読み込み
             } elseif ($this->spmode == "palace") {
                 $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
-                if ($lines = @file($palace_idx)) {
+                if ($lines = FileCtl::file_read_lines($palace_idx)) {
                     // $_info_msg_ht = "<p>殿堂はがらんどうです</p>";
                     // return false;
                 }

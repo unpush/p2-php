@@ -45,7 +45,7 @@ class BrdCtl
                     continue;
                 }
                 $filepath = $brd_dir.'/'.$entry;
-                if ($data = @file($filepath)) {
+                if ($data = FileCtl::file_read_lines($filepath)) {
                     $aBrdMenu = new BrdMenu();    // クラス BrdMenu のオブジェクトを生成
                     $aBrdMenu->setBrdMatch($filepath);    // パターンマッチ形式を登録
                     $aBrdMenu->setBrdList($data);    // カテゴリーと板をセット
@@ -142,7 +142,7 @@ class BrdCtl
             }
 
             if (!$read_html_flag) {
-                if ($data = @file($cache_brd)) {
+                if ($data = FileCtl::file_read_lines($cache_brd)) {
                     $aBrdMenu = new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
                     $aBrdMenu->setBrdMatch($cache_brd); // パターンマッチ形式を登録
                     $aBrdMenu->setBrdList($data); // カテゴリーと板をセット

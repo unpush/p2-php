@@ -20,6 +20,7 @@ $me_dir_url = dirname($me_url);
 $menu_side_url = $me_dir_url.'/menu_side.php';
 
 $brd_menus = array();
+$matome_i = 0;
 
 if (isset($_GET['word'])) {
     $word = $_GET['word'];
@@ -279,19 +280,34 @@ EOP;
 
 // ■新着数を表示する場合
 if ($_conf['enable_menu_new'] == 1 and $_GET['new']) {
+    $_has_pecl_http = extension_loaded('http');
 
+    if ($_has_pecl_http) {
+        require_once P2_LIB_DIR . '/p2httpext.class.php';
+        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+    }
+
+    if ($_has_pecl_http) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_file']);
+    }
     initMenuNewSp("fav");    // 新着数を初期化
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="f">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
+    if ($_has_pecl_http) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['rct_file']);
+    }
     initMenuNewSp("recent");    // 新着数を初期化
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="h">最近読んだスレ</a> (<a href="{$_conf['read_new_php']}?spmode=recent" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
+    if ($_has_pecl_http) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['pref_dir'] . '/p2_res_hist.idx');
+    }
     initMenuNewSp("res_hist");    // 新着数を初期化
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}" onClick="chMenuColor({$matome_i});">書込履歴</a> <a href="read_res_hist.php" target="read">ログ</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
@@ -466,7 +482,7 @@ function initMenuNewSp($spmode_in)
     $host = "";
     $bbs = "";
     $spmode = $spmode_in;
-    include("./subject_new.php");    // $shinchaku_num, $_newthre_num をセット
+    include P2_LIB_DIR . '/subject_new.inc.php'; // $shinchaku_num, $_newthre_num をセット
     if ($shinchaku_num > 0) {
         $class_newres_num = ' class="newres_num"';
     } else {

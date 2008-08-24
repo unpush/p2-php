@@ -21,10 +21,10 @@ function settaborn($host, $bbs, $key, $set)
     $idxfile = "{$idx_host_dir}/{$bbs}/{$key}.idx";
 
     // データがあるなら読み込む
-    if (is_readable($idxfile)) {
-        $lines = @file($idxfile);
-        $l = rtrim($lines[0]);
-        $data = explode('<>', $l);
+    if ($lines = FileCtl::file_read_lines($idxfile, FILE_IGNORE_NEW_LINES)) {
+        $data = explode('<>', $lines[0]);
+    } else {
+        $data = array_fill(0, 12, '');
     }
 
     //==================================================================
@@ -39,14 +39,13 @@ function settaborn($host, $bbs, $key, $set)
     FileCtl::make_datafile($taborn_idx, $_conf['p2_perm']);
 
     // p2_threads_aborn.idx 読み込み;
-    $taborn_lines= @file($taborn_idx);
+    $taborn_lines= FileCtl::file_read_lines($taborn_idx, FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
 
     if ($taborn_lines) {
-        foreach ($taborn_lines as $line) {
-            $line = rtrim($line);
-            $lar = explode('<>', $line);
+        foreach ($taborn_lines as $l) {
+            $lar = explode('<>', $l);
             if ($lar[1] == $key) {
                 $aborn_attayo = true; // 既にあぼーん中である
                 if ($set == 0 or $set == 2) {
@@ -56,7 +55,7 @@ function settaborn($host, $bbs, $key, $set)
                 continue;
             }
             if (!$lar[1]) { continue; } // keyのないものは不正データ
-            $neolines[] = $line;
+            $neolines[] = $l;
         }
     }
 

@@ -185,7 +185,7 @@ class SettingTxt{
 
         $this->setting_array = array();
 
-        if (!$lines = file($this->setting_txt)) {
+        if (!$lines = FileCtl::file_read_lines($this->setting_txt)) {
             return false;
         }
 
@@ -200,7 +200,7 @@ class SettingTxt{
         $this->setting_array['p2version'] = $_conf['p2version'];
 
         // パースキャッシュファイルを保存する
-        if (file_put_contents($this->setting_cache, serialize($this->setting_array), LOCK_EX) === false) {
+        if (FileCtl::file_write_contents($this->setting_cache, serialize($this->setting_array)) === false) {
             return false;
         }
 

@@ -99,10 +99,10 @@ if ($spmode) {
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $taborn_file = $idx_host_dir."/".$bbs."/p2_threads_aborn.idx";
 
-    if ($tabornlines = @file($taborn_file)) {
-        $ta_num = sizeOf($tabornlines);
+    if ($tabornlines = FileCtl::file_read_lines($taborn_file, FILE_IGNORE_NEW_LINES)) {
+        $ta_num = sizeof($tabornlines);
         foreach ($tabornlines as $l) {
-            $tarray = explode('<>', rtrim($l));
+            $tarray = explode('<>', $l);
             $ta_keys[ $tarray[1] ] = true;
         }
     }
@@ -115,9 +115,11 @@ if ($spmode == 'merge_favita') {
     } else {
         $merged_faivta_read_idx = $_conf['pref_dir'] . '/p2_favita_read.idx';
     }
-    if ($have_merged_faivta_read_idx = file_exists($merged_faivta_read_idx)) {
-        $lines = file($merged_faivta_read_idx);
+    $lines = FileCtl::file_read_lines($merged_faivta_read_idx);
+    if (is_array($lines)) {
+        $have_merged_faivta_read_idx = true;
     } else {
+        $have_merged_faivta_read_idx = false;
         $lines = $aThreadList->readList();
     }
 } else {
@@ -402,9 +404,10 @@ function readNew($aThread)
     if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 
     // idxファイルがあれば読み込む
-    if (is_readable($aThread->keyidx)) {
-        $lines = @file($aThread->keyidx);
-        $data = explode('<>', rtrim($lines[0]));
+    if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+        $data = explode('<>', $lines[0]);
+    } else {
+        $data = array_fill(0, 12, '');
     }
     $aThread->getThreadInfoFromIdx();
 
@@ -582,7 +585,7 @@ EOTOOLBAR;
     }
 
     // datサイズ
-    if ($dsize_ht = @filesize($aThread->keydat)) {
+    if (file_exists($aThread->keydat) && $dsize_ht = filesize($aThread->keydat)) {
         $dsize_ht = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
     } else {
         $dsize_ht = '';

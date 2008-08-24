@@ -176,7 +176,7 @@ function checkUpdatan()
 
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら
-        if (@filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
+        if (filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
             $no_p2status_dl_flag = true;
         }
     }
@@ -185,8 +185,8 @@ function checkUpdatan()
         P2Util::fileDownload($ver_txt_url, $cachefile);
     }
 
-    $ver_txt = file($cachefile);
-    $update_ver = rtrim($ver_txt[0]);
+    $ver_txt = FileCtl::file_read_lines($cachefile, FILE_IGNORE_NEW_LINES);
+    $update_ver = $ver_txt[0];
     $kita = 'ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!';
     //$kita = 'ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!';
 

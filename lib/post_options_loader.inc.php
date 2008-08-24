@@ -78,8 +78,8 @@ EOP;
 
 // {{{ key.idx‚©‚ç–¼‘O‚Æƒ[ƒ‹‚ğ“Ç‚İ
 
-if ($lines = @file($key_idx)) {
-    $line = explode('<>', rtrim($lines[0]));
+if ($lines = FileCtl::file_read_lines($key_idx, FILE_IGNORE_NEW_LINES)) {
+    $line = explode('<>', $lines[0]);
     $hd['FROM'] = htmlspecialchars($line[7], ENT_QUOTES);
     $hd['mail'] = htmlspecialchars($line[8], ENT_QUOTES);
 }

@@ -12,9 +12,13 @@ function kspform($aThread, $default = '', $params = null)
 {
     global $_conf;
 
-    // 入力を4桁の数字に限定するための属性
-    //$numonly_at = 'maxlength="4" istyle="4" format="*N" mode="numeric"';
-    $numonly_at = 'maxlength="4" istyle="4" format="4N" mode="numeric"';
+    if ($_conf['iphone']) {
+        $input_numeric_at = ' autocorrect="off" autocapitalize="off" placeholder="#"';
+    } else {
+        // 入力を4桁以下の数字に限定する
+        //$input_numeric_at = ' maxlength="4" istyle="4" format="*N" mode="numeric"';
+        $input_numeric_at = ' maxlength="4" istyle="4" format="4N" mode="numeric"';
+    }
 
     // 選択可能なオプション
     $options = array();
@@ -62,7 +66,7 @@ function kspform($aThread, $default = '', $params = null)
     $form .= '</select>';
 
     // 数値入力フォームと実行ボタン
-    $form .= "<input type=\"text\" size=\"3\" name=\"ktool_value\" value=\"{$default}\" {$numonly_at}>";
+    $form .= "<input type=\"text\" size=\"3\" name=\"ktool_value\" value=\"{$default}\"{$input_numeric_at}>";
     $form .= '<input type="submit" value="OK" title="OK">';
 
     $form .= '</form>';

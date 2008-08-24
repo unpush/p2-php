@@ -259,7 +259,7 @@ EOP;
     <a class="button leftButton" type="cancel">ŽæÁ</a>
     <a class="button blueButton" type="submit">ŒŸõ</a>
     <label>word:</label>
-    <input type="text" name="word" />
+    <input type="text" name="word" autocorrect="off" autocapitalize="off" />
 </fieldset>
 </form>
 <!-- }}} -->
@@ -273,7 +273,7 @@ EOP;
     <a class="button leftButton" type="cancel">ŽæÁ</a>
     <a class="button blueButton" type="submit">ŒŸõ</a>
     <label>word:</label>
-    <input type="text" name="iq" />
+    <input type="text" name="iq" autocorrect="off" autocapitalize="off" />
 </fieldset>
 </form>
 <!-- }}} -->

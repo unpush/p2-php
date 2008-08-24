@@ -94,7 +94,7 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
 if ($popup == 2) {
     // あぼーん・NGワード登録
     if (preg_match('/^(aborn|ng)_/', $mode) && ($aborn_str = trim($aborn_str)) !== '') {
-        if (file_exists($path) && ($data = @file($path))) {
+        if (file_exists($path) && ($data = FileCtl::file_read_lines($path))) {
             $data = array_map('trim', $data);
             $data = array_filter($data, create_function('$v', 'return ($v !== "");'));
             array_unshift($data, $aborn_str);

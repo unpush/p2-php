@@ -137,7 +137,10 @@ if ($query) {
         // ŒŸõ—š—ð‚ðXV
         if ($_conf['expack.tgrep.recent_num'] > 0) {
             FileCtl::make_datafile($_conf['expack.tgrep.recent_file'], $_conf['expack.tgrep.file_perm']);
-            $tgrep_recent_list = array_filter(array_map('trim', (array) @file($_conf['expack.tgrep.recent_file'])), 'strlen');
+            $tgrep_recent_list = FileCtl::file_read_lines($_conf['expack.tgrep.recent_file'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            if (!is_array($tgrep_recent_list)) {
+                $tgrep_recent_list = array();
+            }
             array_unshift($tgrep_recent_list, preg_replace('/[\r\n\t]/', ' ', trim($_GET['Q'])));
             $tgrep_recent_list = array_unique($tgrep_recent_list);
             while (count($tgrep_recent_list) > $_conf['expack.tgrep.recent_num']) {

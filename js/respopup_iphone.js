@@ -123,6 +123,23 @@ function iResPopUp(url, evt)
 				change_link_target(_RESPOPUP_IPHONE_JS_XPATH, true, container);
 			}
 
+			var lastres = document.evaluate('./div[@class="res" and position() = last()]',
+			                                container,
+			                                null,
+			                                XPathResult.ANY_UNORDERED_NODE_TYPE,
+			                                null
+			                                ).singleNodeValue;
+
+			if (lastres) {
+				var back = document.createElement('div');
+				back.className = 'respop-back';
+				var anchor = document.createElement('a');
+				anchor.setAttribute('href', '#' + popid);
+				anchor.innerText = 'Å£';
+				back.appendChild(anchor);
+				lastres.appendChild(back);
+			}
+
 			return false;
 		}
 	}

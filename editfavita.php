@@ -110,13 +110,13 @@ $_info_msg_ht = '';
 // favitaƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
 FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 // favita“Ç‚İ‚İ
-$lines = file($_conf['favita_path']);
+$lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES);
 $okini_itas = array();
 
 $i = 0;
 if (is_array($lines)) {
     foreach ($lines as $l) {
-        if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)\$/", rtrim($l), $matches)) {
+        if (preg_match("/^\t?(.+?)\t(.+?)\t(.+?)\$/", $l, $matches)) {
             $id = "li{$i}";
             $okini_itas[$id]['itaj']       = $itaj = rtrim($matches[3]);
             $okini_itas[$id]['itaj_en']    = $itaj_en = base64_encode($itaj);

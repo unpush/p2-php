@@ -38,10 +38,9 @@ class FavSetManager
 
         foreach ($favlist_files as $i => $favlist_file) {
             $_conf['favlists'][$i] = array();
-            if (file_exists($favlist_file)) {
-                $favlines = file($favlist_file);
-                foreach ($favlines as $line) {
-                    $lar = explode('<>', rtrim($line));
+            if ($favlines = FileCtl::file_read_lines($favlist_file, FILE_IGNORE_NEW_LINES)) {
+                foreach ($favlines as $l) {
+                    $lar = explode('<>', $l);
                     // bbsのないものは不正データなのでスキップ
                     if (!isset($lar[11])) {
                         continue;

@@ -177,7 +177,7 @@ class Thread{
     {
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('getThreadInfoFromIdx');
 
-        if (!$lines = @file($this->keyidx)) {
+        if (!$lines = FileCtl::file_read_lines($this->keyidx)) {
             //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromIdx');
             return false;
         }
@@ -239,7 +239,12 @@ class Thread{
     function getDatBytesFromLocalDat()
     {
         clearstatcache();
-        return $this->length = intval(@filesize($this->keydat));
+        if (file_exists($this->keydat)) {
+            $this->length = filesize($this->keydat);
+        } else {
+            $this->length = 0;
+        }
+        return $this->length;
     }
 
     /**

@@ -31,9 +31,8 @@ function print_rss_list()
 
     echo "\t<div class=\"itas\" id=\"c_rss\">\n";
 
-    if ($rss_list = @file($_conf['expack.rss.setting_path'])) {
+    if ($rss_list = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES)) {
         foreach ($rss_list as $rss_info) {
-            $rss_info = rtrim($rss_info);
             $p = explode("\t", $rss_info);
             if (count($p) > 1) {
                 $site = $p[0];
@@ -81,9 +80,8 @@ function print_rss_list_k()
     echo '<hr>';
 
     $i = 1;
-    if ($rss_list = @file($_conf['expack.rss.setting_path'])) {
+    if ($rss_list = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES)) {
         foreach ($rss_list as $rss_info) {
-            $rss_info = rtrim($rss_info);
             $p = explode("\t", $rss_info);
             if (count($p) > 1) {
                 $site = $p[0];

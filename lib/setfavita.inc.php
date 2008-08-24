@@ -53,7 +53,7 @@ function setFavIta()
     FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 
     //favita_path読み込み;
-    $lines = @file($_conf['favita_path']);
+    $lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES);
 
     //================================================
     // 処理
@@ -66,7 +66,6 @@ function setFavIta()
         $i = -1;
         foreach ($lines as $l) {
             $i++;
-            $l = rtrim($l);
 
             // {{{ 旧データ（ver0.6.0以下）移行措置
             if (!preg_match("/^\t/", $l)) {

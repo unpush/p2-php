@@ -68,9 +68,8 @@ if (!isset($aThread->keyidx)) {
 $aThread->itaj = P2Util::getItaName($host, $bbs);
 if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 // idxファイルがあれば読み込む
-if (is_readable($aThread->keyidx)) {
-    $lines = @file($aThread->keyidx);
-    $idx_data = explode('<>', rtrim($lines[0]));
+if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+    $idx_data = explode('<>', $lines[0]);
 } else {
     p2die('指定されたスレッドのidxがありません。');
 }

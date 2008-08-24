@@ -70,7 +70,7 @@ class PresetManager
             FileCtl::make_datafile($filename);
             $this->_data = array();
         } else {
-            $content = @file_get_contents($filename);
+            $content = FileCtl::file_read_contents($filename);
             if (!$content || !is_array($this->_data = @unserialize($content))) {
                 $this->_data = array();
             }

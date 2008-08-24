@@ -19,9 +19,10 @@ function setPal($host, $bbs, $key, $setpal)
     $idxfile = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
 
     // 既に key.idx データがあるなら読み込む
-    if ($lines = @file($idxfile)) {
-        $l = rtrim($lines[0]);
-        $data = explode('<>', $l);
+    if ($lines = FileCtl::file_read_lines($idxfile, FILE_IGNORE_NEW_LINES)) {
+        $data = explode('<>', $lines[0]);
+    } else {
+        $data = array_fill(0, 12, '');
     }
 
     //==================================================================
@@ -33,7 +34,7 @@ function setPal($host, $bbs, $key, $setpal)
     FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
 
     // palace_idx 読み込み
-    $pallines = @file($palace_idx);
+    $pallines = FileCtl::file_read_lines($palace_idx, FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
     $before_line_num = 0;
@@ -44,7 +45,6 @@ function setPal($host, $bbs, $key, $setpal)
         $i = -1;
         foreach ($pallines as $l) {
             $i++;
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // 重複回避
             if ($lar[1] == $key && $lar[11] == $bbs) {

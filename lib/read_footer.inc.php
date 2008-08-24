@@ -76,7 +76,7 @@ EOP;
 
     // datサイズ
     $htm['dsize'] = '';
-    if ($dsize_ht = @filesize($aThread->keydat)) {
+    if (file_exists($aThread->keydat) && $dsize_ht = filesize($aThread->keydat)) {
         $htm['dsize'] = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
     }
 

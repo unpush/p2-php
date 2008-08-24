@@ -42,11 +42,9 @@ P2Util::transResHistLogPhpToDat();
 // 特殊DAT読み
 //==================================================================
 // 読み込んで
-if (!$datlines = @file($_conf['p2_res_hist_dat'])) {
+if (!$datlines = FileCtl::file_read_lines($_conf['p2_res_hist_dat'], FILE_IGNORE_NEW_LINES)) {
     die("p2 - 書き込み履歴内容は空っぽのようです");
 }
-
-$datlines = array_map('rtrim', $datlines);
 
 // ファイルの下に記録されているものが新しい
 $datlines = array_reverse($datlines);

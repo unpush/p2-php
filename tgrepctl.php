@@ -50,7 +50,10 @@ if (!empty($_GET['query'])) {
     $query = preg_replace('/[\r\n\t]/', ' ', trim($_GET['query']));
 
     FileCtl::make_datafile($list_file, $_conf['expack.tgrep.file_perm']);
-    $tgrep_list = array_filter(array_map('trim', (array) @file($list_file)), 'strlen');
+    $tgrep_list = FileCtl::file_read_lines($list_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!is_array($tgrep_list)) {
+        $tgrep_list = array();
+    }
 
     if ($purge) {
         $tgrep_tmp_list = $tgrep_list;

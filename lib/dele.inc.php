@@ -110,11 +110,8 @@ function checkRecent($host, $bbs, $key)
 {
     global $_conf;
 
-    $lines = @file($_conf['rct_file']);
-    // あればtrue
-    if (is_array($lines)) {
+    if ($lines = FileCtl::file_read_lines($_conf['rct_file'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // あったら
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
@@ -134,12 +131,10 @@ function checkResHist($host, $bbs, $key)
 {
     global $_conf;
 
-    $rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
-    $lines = @file($rh_idx);
-    // あればtrue
-    if (is_array($lines)) {
+    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
+
+    if ($lines = FileCtl::file_read_lines($rh_idx, FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // あったら
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
@@ -159,22 +154,19 @@ function offRecent($host, $bbs, $key)
 {
     global $_conf;
 
-    $lines = @file($_conf['rct_file']);
-
     $neolines = array();
 
     // {{{ あれば削除
 
-    if (is_array($lines)) {
-        foreach ($lines as $line) {
-            $line = rtrim($line);
-            $lar = explode('<>', $line);
+    if ($lines = FileCtl::file_read_lines($_conf['rct_file'], FILE_IGNORE_NEW_LINES)) {
+        foreach ($lines as $l) {
+            $lar = explode('<>', $l);
             // 削除（スキップ）
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
                 $done = true;
                 continue;
             }
-            $neolines[] = $line;
+            $neolines[] = $l;
         }
     }
 
@@ -218,16 +210,14 @@ function offResHist($host, $bbs, $key)
 {
     global $_conf;
 
-    $rh_idx = $_conf['pref_dir'].'/p2_res_hist.idx';
-    $lines = @file($rh_idx);
+    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
 
     $neolines = array();
 
     // {{{ あれば削除
 
-    if (is_array($lines)) {
+    if ($lines = FileCtl::file_read_lines($rh_idx, FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // 削除（スキップ）
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {

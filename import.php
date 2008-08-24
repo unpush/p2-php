@@ -84,14 +84,16 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
     // ファイルを保存し、リンクを作成
     if (!$is_error) {
         move_uploaded_file($_FILES['dat_file']['tmp_name'], $dat_path);
-        $datlines = file($dat_path);
-        if (strstr($datlines[0], '<>')) {
-            $one = explode('<>', $datlines[0]);
-        } else {
-            $one = explode(',', $datlines[0]);
+        $ttitle = '???';
+        if ($datlines = FileCtl::file_read_lines($dat_path, FILE_IGNORE_NEW_LINES)) {
+            if (strstr($datlines[0], '<>')) {
+                $one = explode('<>', $datlines[0]);
+            } else {
+                $one = explode(',', $datlines[0]);
+            }
+            $ttitle = array_pop($one);
+            unset($datlines, $one);
         }
-        unset($datlines);
-        $ttitle = array_pop($one);
         $read_url = sprintf('%s?host=%s&bbs=%s&key=%d&offline=true', $_conf['read_php'], rawurlencode($host), rawurlencode($bbs), $key);
         $link_ht = sprintf('<p><a href="%s" target="read"><b>%s</b> を今すぐ読む。</a></p>', $read_url, $ttitle);
     }

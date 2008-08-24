@@ -11,13 +11,18 @@ $bbs_q = "&amp;bbs=".$aThreadList->bbs;
 
 if (!empty($GLOBALS['wakati_words'])) {
     $word_at = '&amp;method=similar&amp;word=' . rawurlencode($GLOBALS['wakati_word']);
+    $word_input_ht = '<input type="hidden" name="method" value="similar">';
+    $word_input_ht .= '<input type="hidden" name="word" value="' . htmlspecialchars($GLOBALS['wakati_word'], ENT_QUOTES) . '">';
 } elseif ($word) {
     $word_at = '&amp;word=' . rawurldecode($word);
+    $word_input_ht = '<input type="hidden" name="word" value="' . htmlspecialchars($word, ENT_QUOTES) . '">';
     if (isset($sb_filter['method']) && $sb_filter['method'] == 'or') {
         $word_at .= '&amp;method=or';
+        $word_input_ht = '<input type="hidden" name="method" value="or">';
     }
 } else {
     $word_at = '';
+    $word_input_ht = '';
 }
 
 if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
@@ -50,17 +55,21 @@ EOP;
 // {{{ ナビ
 
 if (!empty($_REQUEST['sb_view'])) {
-    $sb_view_at = "&amp;sb_view=" . htmlspecialchars($_REQUEST['sb_view']);
+    $sb_view_at = "&amp;sb_view=" . rawurlencode($_REQUEST['sb_view']);
+    $sb_view_input_ht = '<input type="hidden" name="sb_view" value="' . htmlspecialchars($_REQUEST['sb_view'], ENT_QUOTES) . '">';
 } else {
     $sb_view_at = '';
+    $sb_view_input_ht = '';
 }
 
 if (!empty($_REQUEST['rsort'])) {
     $sb_view_at .= '&amp;rsort=1';
+    $sb_view_input_ht .= '<input type="hidden" name="rsort" value="1">';
 }
 
-if ($_conf['expack.misc.multi_favs']) {
+if ($aThreadList->spmode == 'merge_favita' && $_conf['expack.misc.multi_favs']) {
     $sb_view_at .= $_conf['m_favita_set_at_a'];
+    $sb_view_input_ht .= $_conf['m_favita_set_input_ht'];
 }
 
 if ($disp_navi['from'] > 1) {
@@ -84,12 +93,67 @@ if ($disp_navi['from'] == $disp_navi['end']) {
 } else {
     $sb_range_on = "{$disp_navi['from']}-{$disp_navi['end']}";
 }
-$sb_range_st = "{$sb_range_on}/{$sb_disp_all_num} ";
 
 if (!$disp_navi['all_once']) {
-    $k_sb_navi_ht = <<<EOP
-<div class="pager">{$sb_range_st}{$mae_ht} {$tugi_ht}</div>
+    if ($_conf['k_sb_disp_range'] < 1) {
+        $k_sb_navi_select_from_ht = '<option value="1">$_conf[&#39;k_sb_disp_range&#39;] の値が不正です</option>';
+    } else {
+        if ($disp_navi['offset'] % $_conf['k_sb_disp_range']) {
+            $k_sb_navi_select_from_ht = "<option value=\"{$disp_navi['from']}\" selected>{$sb_range_on}</option>";
+        } else {
+            $k_sb_navi_select_from_ht = '';
+        }
+
+        /*$k_sb_navi_select_optgroup = $_conf['k_sb_disp_range'] * 5;
+        if ($k_sb_navi_select_optgroup >= $sb_disp_all_num) {
+            $k_sb_navi_select_optgroup = 0; 
+        }*/
+
+        for ($i = 0; $i < $sb_disp_all_num; $i += $_conf['k_sb_disp_range']) {
+            $j = $i + 1;
+            $k = $i + $_conf['k_sb_disp_range'];
+            if ($k > $sb_disp_all_num) {
+                $k = $sb_disp_all_num;
+            }
+
+            /*if ($k_sb_navi_select_optgroup && $i % $k_sb_navi_select_optgroup == 0) {
+                if ($i) {
+                    $k_sb_navi_select_from_ht .= '</optgroup>';
+                }
+                $k_sb_navi_select_from_ht .= "<optgroup label=\"{$j}-\">";
+            }*/
+
+            $l = ($j == $k) ? "$j" : "{$j}-{$k}";
+
+            if ($j == $disp_navi['from']) {
+                $k_sb_navi_select_from_ht .= "<option value=\"{$j}\" selected>{$l}</option>";
+            } else {
+                $k_sb_navi_select_from_ht .= "<option value=\"{$j}\">{$l}</option>";
+            }
+        }
+
+        /*if ($k_sb_navi_select_optgroup) {
+            $k_sb_navi_select_from_ht .= '</optgroup>';
+        }*/
+    }
+
+    if ($_conf['iphone']) {
+        $k_sb_navi_ht = <<<EOP
+<div class="pager"><select onchange="location.href = '{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from=' + this.options[this.selectedIndex].value + '{$sb_view_at}{$word_at}{$_conf['k_at_a']}';">{$k_sb_navi_select_from_ht}</select>/{$sb_disp_all_num} {$mae_ht} {$tugi_ht}</div>
 EOP;
+    } else {
+        $k_sb_navi_ht = <<<EOP
+<div>{$sb_range_on}/{$sb_disp_all_num} {$mae_ht} {$tugi_ht}</div>
+<form method="get" action="{$_conf['subject_php']}">
+<input type="hidden" name="host" value="{$aThreadList->host}">
+<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
+<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
+<input type="hidden" name="norefresh" value="1">
+<select name="from">{$k_sb_navi_select_from_ht}</select><input type="submit" value="GO">
+{$sb_view_input_ht}{$word_input_ht}{$_conf['k_input_ht']}
+</form>
+EOP;
+    }
 } else {
     $k_sb_navi_ht = '';
 }

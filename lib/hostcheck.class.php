@@ -89,10 +89,9 @@ EOF;
         }
 
         // ƒLƒƒƒbƒVƒ…‚ð“Ç‚Ýž‚Þ
-        $lines = file($cache_file);
-        if (is_array($lines)) {
-            foreach ($lines as $line) {
-                list($query, $result, $expires) = explode("\t", rtrim($line, "\n"));
+        if ($lines = FileCtl::file_read_lines($cache_file, FILE_IGNORE_NEW_LINES)) {
+            foreach ($lines as $l) {
+                list($query, $result, $expires) = explode("\t", $l);
                 if ($expires > $now) {
                     $list[$query] = array($result, $expires);
                 }

@@ -225,6 +225,26 @@ function make_textarea_larger(id)
 }
 
 // }}}
+// {{{ enable_input_autocorrect()
+
+/*
+ * フォームのautocorrectの有効・無効を切り替える
+ *
+ * @param String id
+ * @param Boolean id
+ * @return void
+ */
+function enable_input_autocorrect(id, onoff)
+{
+	var elem = document.getElementById(id);
+	if (!elem) {
+		return;
+	}
+
+	elem.setAttribute('autocorrect', (onoff ? 'on' : 'off'));
+}
+
+// }}}
 // {{{ change_link_target()
 
 /*

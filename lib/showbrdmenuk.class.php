@@ -195,8 +195,8 @@ EOP;
 
         $show_flag = false;
 
-        $lines = @file($_conf['favita_path']); // favitaì«Ç›çûÇ›
-        if ($lines) {
+        // favitaì«Ç›çûÇ›
+        if ($lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES)) {
             if ($_conf['expack.misc.multi_favs']) {
                 $favset_title = FavSetManager::getFavSetPageTitleHt('m_favita_set', 'Ç®ãCÇ…î¬');
             } else {
@@ -212,7 +212,6 @@ EOP;
             $i = 0;
             foreach ($lines as $l) {
                 $i++;
-                $l = rtrim($l);
                 if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", $l, $matches)) {
                     $itaj = rtrim($matches[3]);
                     $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);

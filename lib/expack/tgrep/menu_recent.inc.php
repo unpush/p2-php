@@ -20,10 +20,11 @@ function tgrep_read_recent_list()
 {
     global $_conf;
 
-    if (file_exists($_conf['expack.tgrep.recent_file'])) {
-        return array_filter(array_map('trim', (array) @file($_conf['expack.tgrep.recent_file'])), 'strlen');
+    $list = FileCtl::file_read_lines($_conf['expack.tgrep.recent_file'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!is_array($list)) {
+        return array();
     }
-    return array();
+    return $list;
 }
 
 /**

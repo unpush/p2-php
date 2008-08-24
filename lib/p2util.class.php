@@ -156,7 +156,7 @@ class P2Util
 
         if (file_exists($p2_setting_txt)) {
 
-            $p2_setting_cont = @file_get_contents($p2_setting_txt);
+            $p2_setting_cont = FileCtl::file_read_contents($p2_setting_txt);
             if ($p2_setting_cont) {
                 $p2_setting = unserialize($p2_setting_cont);
                 if (isset($p2_setting['itaj'])) {
@@ -640,7 +640,7 @@ class P2Util
         // p2_res_hist.dat.php がなくて、p2_res_hist.dat が読み込み可能であったら
         if ((!file_exists($_conf['p2_res_hist_dat_php'])) and is_readable($_conf['p2_res_hist_dat'])) {
             // 読み込んで
-            if ($cont = @file_get_contents($_conf['p2_res_hist_dat'])) {
+            if ($cont = FileCtl::file_read_contents($_conf['p2_res_hist_dat'])) {
                 // <>区切りからタブ区切りに変更する
                 // まずタブを全て外して
                 $cont = str_replace("\t", "", $cont);
@@ -696,7 +696,7 @@ class P2Util
         if ($format == 'dataphp') {
             $lines = DataPhp::fileDataPhp($logfile);
         } else {
-            $lines = @file($logfile);
+            $lines = FileCtl::file_read_lines($logfile);
         }
 
         if ($lines) {

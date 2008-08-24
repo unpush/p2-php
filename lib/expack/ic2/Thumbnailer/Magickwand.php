@@ -1,7 +1,7 @@
 <?php
 /**
  * Thumbnailer_Magickwand
- * PHP Versions 4 and 5
+ * PHP Version 5
  */
 
 require_once dirname(__FILE__) . '/Common.php';
@@ -10,6 +10,8 @@ require_once dirname(__FILE__) . '/Common.php';
 
 /**
  * Image manipulation class which uses magickwand php extension.
+ *
+ * @deprecated
  */
 class Thumbnailer_Magickwand extends Thumbnailer_Common
 {
@@ -18,14 +20,13 @@ class Thumbnailer_Magickwand extends Thumbnailer_Common
     /**
      * Convert and save.
      *
-     * @access public
      * @param string $source
      * @param string $thumbnail
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function save($source, $thumbnail, $size)
+    public function save($source, $thumbnail, $size)
     {
         $im = $this->_convert($source, $size);
         if (PEAR::isError($im)) {
@@ -45,13 +46,12 @@ class Thumbnailer_Magickwand extends Thumbnailer_Common
     /**
      * Convert and capture.
      *
-     * @access public
      * @param string $source
      * @param array $size
      * @return string
      * @throws PEAR_Error
      */
-    function capture($source, $size)
+    public function capture($source, $size)
     {
         $im = $this->_convert($source, $size);
         if (PEAR::isError($im)) {
@@ -72,14 +72,13 @@ class Thumbnailer_Magickwand extends Thumbnailer_Common
     /**
      * Convert and output.
      *
-     * @access public
      * @param string $source
      * @param string $name
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function output($source, $name, $size)
+    public function output($source, $name, $size)
     {
         $im = $this->_convert($source, $size);
         if (PEAR::isError($im)) {
@@ -100,13 +99,12 @@ class Thumbnailer_Magickwand extends Thumbnailer_Common
     /**
      * Image conversion abstraction.
      *
-     * @access protected
      * @param string $source
      * @param array $size
      * @return resource MagickWand
      * @throws PEAR_Error
      */
-    function _convert($source, $size)
+    protected function _convert($source, $size)
     {
         extract($size);
 
@@ -159,12 +157,11 @@ class Thumbnailer_Magickwand extends Thumbnailer_Common
     /**
      * Raises PEAR_Error.
      *
-     * @access protected
      * @param resource MagickWand $im
      * @param string $errmsg
-     * @return object PEAR_Error
+     * @return PEAR_Error
      */
-    function _raiseError($im, $errmsg)
+    protected function _raiseError($im, $errmsg)
     {
         if (WandHasException($im)) {
             $errmsg .= "\n" . WandGetExceptionString($im);

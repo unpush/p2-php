@@ -42,7 +42,7 @@ class DataPhp
      */
     static public function getDataPhpCont($data_php)
     {
-        if (!$cont = @file_get_contents($data_php)) {
+        if (!$cont = FileCtl::file_read_contents($data_php)) {
             // 読み込みエラーならfalse、空っぽなら""を返す
             return $cont;
 
@@ -165,7 +165,7 @@ class DataPhp
 
         $cont_esc = DataPhp::escapeDataPhp($cont);
 
-        $old_cont = @file_get_contents($data_php);
+        $old_cont = FileCtl::file_read_contents($data_php);
         if ($old_cont) {
             // ファイルが、データphp形式以外の場合は、何もせずにfalseを返す
             if (!preg_match("/^\s*<\?php\s\/\*/", $old_cont)) {

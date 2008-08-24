@@ -80,7 +80,7 @@ if (!empty($_POST['fix_source'])) {
 // {{{ クッキーの読み込み
 
 $cookie_file = P2Util::cachePathForCookie($host);
-if ($cookie_cont = @file_get_contents($cookie_file)) {
+if ($cookie_cont = FileCtl::file_read_contents($cookie_file)) {
     $p2cookies = unserialize($cookie_cont);
     if ($p2cookies['expires']) {
         if (time() > strtotime($p2cookies['expires'])) { // 期限切れなら破棄
@@ -160,7 +160,7 @@ if (!empty($_POST['newthread'])) {
 if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
 
     // ログイン後、24時間以上経過していたら自動再ログイン
-    if (file_exists($_conf['idpw2ch_php']) and @filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
+    if (file_exists($_conf['idpw2ch_php']) && filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
         include_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     }
@@ -225,8 +225,8 @@ if ($host && $bbs && $key) {
     $keyidx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
 
     // 読み込み
-    if ($keylines = @file($keyidx)) {
-        $akeyline = explode('<>', rtrim($keylines[0]));
+    if ($keylines = FileCtl::file_read_lines($keyidx, FILE_IGNORE_NEW_LINES)) {
+        $akeyline = explode('<>', $keylines[0]);
     }
     $sar = array($akeyline[0], $akeyline[1], $akeyline[2], $akeyline[3], $akeyline[4],
                  $akeyline[5], $akeyline[6], $tag_rec_n['FROM'], $tag_rec_n['mail'], $akeyline[9],
@@ -246,7 +246,7 @@ if ($host && $bbs && $key) {
     $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
     FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']); // なければ生成
 
-    $lines = @file($rh_idx);
+    $lines = FileCtl::file_read_lines($rh_idx, FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
 
@@ -254,7 +254,6 @@ if ($host && $bbs && $key) {
 
     if (is_array($lines)) {
         foreach ($lines as $line) {
-            $line = rtrim($line);
             $lar = explode('<>', $line);
             if ($lar[1] == $key) { continue; } // 重複回避
             if (!$lar[1]) { continue; } // keyのないものは不正データ
