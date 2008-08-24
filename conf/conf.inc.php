@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7.29';     // rep2のバージョン
-$_conf['p2expack'] = '080808.2359'; // 拡張パックのバージョン
+$_conf['p2expack'] = '080812.2345'; // 拡張パックのバージョン
 $_conf['p2name'] = 'expack';        // rep2の名前
 
 //======================================================================
@@ -251,11 +251,13 @@ if (P2Util::isBrowserIphone()) {
     $_conf['input_type_search'] = true;
     $_conf['extra_headers_ht'] = <<<EOS
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
+<meta name="format-detection" content="telephone=no">
 <link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css">
 <script type="text/javascript" src="js/iphone.js"></script>
 EOS;
     $_conf['extra_headers_xht'] = <<<EOS
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+<meta name="format-detection" content="telephone=no" />
 <link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css" />
 <script type="text/javascript" src="js/iphone.js"></script>
 EOS;

@@ -159,29 +159,29 @@ if ($result) {
     $filepath = $thumbnailer->srcPath($search->size, $search->md5, $search->mime);
     $params = array('uri' => $search->uri, 'name' => $search->name, 'size' => $search->size,
                     'md5' => $search->md5, 'width' => $search->width, 'height' => $search->height,
-                    'mime' => $search->mime, 'memo' => $search->memo, 'rank' => $rank);
+                    'mime' => $search->mime, 'memo' => $search->memo, 'rank' => $search->rank);
 
     // 自動メモ機能が有効のとき
     if ($ini['General']['automemo'] && !is_null($memo) && !strstr($search->memo, $memo)) {
         if (is_string($search->memo) && strlen($search->memo) > 0) {
             $memo .= ' ' . $search->memo;
         }
-        $update_memo = &new IC2DB_Images;
-        $update_memo->memo = $memo;
-        $update_memo->whereAddQuoted('uri', '=', $search->uri);
-        $update_memo->update();
-        unset($update_memo);
+        $update = &new IC2DB_Images;
+        $update->memo = $params['memo'] = $memo;
+        $update->whereAddQuoted('uri', '=', $search->uri);
+        $update->update();
+        unset($update);
     }
 
     // ランク変更
     if (isset($_REQUEST['rank'])) {
-        $update_rank = &new IC2DB_Images;
-        $update_rank->rank = $rank;
-        $update_rank->whereAddQuoted('size', '=', $search->size);
-        $update_rank->whereAddQuoted('md5',  '=', $search->md5);
-        $update_rank->whereAddQuoted('mime', '=', $search->mime);
-        $update_rank->update();
-        unset($update_rank);
+        $update = &new IC2DB_Images;
+        $update->rank = $params['rank'] = $rank;
+        $update->whereAddQuoted('size', '=', $search->size);
+        $update->whereAddQuoted('md5',  '=', $search->md5);
+        $update->whereAddQuoted('mime', '=', $search->mime);
+        $update->update();
+        unset($update);
     }
 
     // ファイルが保存されていればそれでよし、保存されていなければレコードを削除する。
@@ -718,13 +718,13 @@ function ic2_display($path, $params)
 
             // 表示
             $flexy->setData('title', 'IC2::Cached');
+            $flexy->setData('pc', !$_conf['ktai']);
+            $flexy->setData('iphone', $_conf['iphone']);
             if (!$_conf['ktai']) {
-                $flexy->setData('pc', true);
                 $flexy->setData('skin', $GLOBALS['skin_name']);
                 //$flexy->setData('stylesheets', array('css'));
                 //$flexy->setData('javascripts', array('js'));
             } else {
-                $flexy->setData('pc', false);
                 $flexy->setData('k_color', array(
                     'c_bgcolor' => !empty($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '#ffffff',
                     'c_text'    => !empty($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '#000000',
@@ -734,16 +734,19 @@ function ic2_display($path, $params)
             }
 
             $rank = isset($params['rank']) ? $params['rank'] : 0;
+            $img_dir = $_conf['iphone'] ? 'img/iphone/' : 'img/';
             $stars = array();
-            $stars[-1] = 'img/' . (($rank == -1) ? 'sn1' : 'sn0') . '.png';
-            $stars[ 0] = 'img/' . (($rank ==  0) ? 'sz1' : 'sz0') . '.png';
+            $stars[-1] = $img_dir . (($rank == -1) ? 'sn1' : 'sn0') . '.png';
+            //$stars[0] = $img_dir . (($rank ==  0) ? 'sz1' : 'sz0') . '.png';
+            $stars[0] = $img_dir . ($_conf['iphone'] ? 'sz0' : 'sz1') . '.png';
             for ($i = 1; $i <= 5; $i++) {
-                $stars[$i] = 'img/' . (($rank >= $i) ? 's1' : 's0') . '.png';
+                $stars[$i] = $img_dir . (($rank >= $i) ? 's1' : 's0') . '.png';
             }
 
             $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0";
 
             $flexy->setData('stars', $stars);
+            $flexy->setData('params', $params);
 
             if ($thumb == 2 && $rank >= 0) {
                 if ($ini['General']['inline'] == 1) {
@@ -764,7 +767,9 @@ function ic2_display($path, $params)
                 $flexy->setData('info', null);
             }
 
-            if (isset($_REQUEST['from'])) {
+            if (!$_conf['ktai'] || $_conf['iphone']) {
+                $flexy->setData('backto', null);
+            } elseif (isset($_REQUEST['from'])) {
                 $flexy->setData('backto', $_REQUEST['from']);
                 $setrank_url .= '&from=' . rawurlencode($_REQUEST['from']);
             } elseif (isset($_SERVER['HTTP_REFERER'])) {
@@ -775,6 +780,11 @@ function ic2_display($path, $params)
 
             $flexy->setData('stars', $stars);
             $flexy->setData('sertank', $setrank_url . '&rank=');
+
+            if ($_conf['iphone']) {
+                $_conf['extra_headers_ht'] .= '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">';
+                $_conf['extra_headers_xht'] .= '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css" />';
+            }
 
             $flexy->setData('edit', (extension_loaded('gd') && $rank >= 0));
             $flexy->setData('form', $rdr->toObject());

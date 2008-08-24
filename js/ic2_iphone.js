@@ -115,7 +115,7 @@ window.onload = function(){
 		}
 
 		_infoContainer.style.display = 'block';
-		_infoContainer.style.top = Math.max(10, evt.pageY - 80).toString() + 'px';
+		_infoContainer.style.top = Math.max(10, evt.getOffsetY() - 80).toString() + 'px';
 	}
 
 	// }}}

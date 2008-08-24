@@ -23,33 +23,42 @@
 <body bgcolor="{k_color[c_bgcolor]}" text="{k_color[c_text]}" link="{k_color[c_link]}" vlink="{k_color[c_vlink]}">
 {end:}
 
-<p>{if:link}<a href="{link}">{end:}
+<div id="ic2-preview">{if:link}<a href="{link}">{end:}
 {if:preview}<img src="{preview}">{else:}‰æ‘œ‚ğ•\¦{end:}
-{if:link}</a>{end:}</p>
+{if:link}</a>{end:}</div>
 
 <ul flexy:if="info">
 	<li flexy:foreach="info,key,value">{key}:{value}</li>
 </ul>
 
-<div flexy:if="stars">
-rank:<a flexy:foreach="stars,n,src" href="{sertank}{n:h}"><img src="{src:h}" height="16" alt="{n:h}" border="0"></a>
+<div id="ic2-preview-info">{params[uri]}
+<div id="ic2-preview-rating" flexy:if="stars">
+<span flexy:if="!iphone">×İ¸:</span>
+<a flexy:foreach="stars,n,src" href="{sertank}{n:h}"><img src="{src:h}" alt="{n:h}" border="0"></a>
+</div>
 </div>
 
+{if:edit}
+{if:!iphone}
 <hr>
-
-<div flexy:if="edit">
+{end:}
+<div id="ic2-preview-edit">
 	‰æ‘œ•ÒW<br>
 	{form.outputHeader():h}
 	{form.hidden:h}
-		{form.p.html:h} {form.x.html:h}&times;{form.y.html:h}E{form.q.html:h}<br>
-		{form.r.label:h}{form.r.html:h} {form.w.label:h}{form.w.html:h} {form.z.label:h}{form.z.html:h}<br>
+		{form.p.html:h} {form.x.html:h}&times;{form.y.html:h}, {form.q.html:h}<br>
+		{form.r.label:h}{form.r.html:h}
+		{if:iphone}{form.w.html:h}<span onclick="check_prev(this);">{form.w.label:h}</span>{else:}<label>{form.w.html:h}{form.w.label:h}</label>{end:}
+		{if:iphone}{form.z.html:h}<span onclick="check_prev(this);">{form.z.label:h}</span>{else:}<label>{form.z.html:h}{form.z.label:h}</label>{end:}<br>
 		{form.s.html:h} {form.o.html:h}
 	</form>
 </div>
+{end:}
 
+{if:backto}
 <hr>
-
-<p flexy:if="backto"><a href="{backto}">–ß‚é</a></p>
+<div class="navi"><a href="{backto}">–ß‚é</a></div>
+{end:}
 
 </body>
 </html>

@@ -5,7 +5,8 @@
 /* 必ずtabber.jsの後に読み込む */
 
 var oldonload = window.onload;
-window.onload = function() {
+window.onload = (function()
+{
 	// ウインドウのタイトルを設定
 	setWinTitle();
 	if (!document.getElementsByTagName) {
@@ -79,4 +80,4 @@ window.onload = function() {
 		tabs[i].appendChild(document.createElement('li')).appendChild(defaultTab);
 		return;
 	}
-}
+});

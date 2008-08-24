@@ -74,7 +74,7 @@ function _irespopup_make_deactivate(obj, key)
  */
 function iResPopUp(url, evt)
 {
-	var yOffset = Math.max(10, evt.pageY - 20).toString() + 'px';
+	var yOffset = Math.max(10, evt.getOffsetY() - 20).toString() + 'px';
 
 	if (_RESPOPUP_IPHONE_JS_HASH[url]) {
 		_RESPOPUP_IPHONE_JS_INDEX++;

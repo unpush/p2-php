@@ -1013,8 +1013,8 @@ EOP;
 
             if ($_conf['iphone']) {
                 return "<a href=\"{$img_url}{$backto}\" target=\"_blank\">{$img_str}</a>"
-                   //. ' <img class="ic2-info-opener" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
-                     . ' <input type="button" value="i" onclick="ic2info.show('
+                   //. ' <img class="ic2-show-info" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
+                     . ' <input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('
                      . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";
             } else {
                 return "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";

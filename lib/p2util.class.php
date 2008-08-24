@@ -288,10 +288,6 @@ class P2Util{
             $range_on_st = $disp_navi['from'];
         } else {
             $range_on_st = "{$disp_navi['from']}-{$disp_navi['end']}";
-            if ($_conf['iphone']) {
-                // マイナスをハイフン(U+2020)で置換して電話番号としてリンクされるのを防ぐ
-                $range_on_st = str_replace('-', '‐', $range_on_st);
-            }
         }
         $disp_navi['range_st'] = "{$range_on_st}/{$disp_all_num} ";
 

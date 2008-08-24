@@ -17,10 +17,6 @@ if ($_conf['filtering'] && $aThread->rescount) {
 } else {
     $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
 }
-if ($_conf['iphone']) {
-    // マイナスをハイフン(U+2020)で置換して電話番号としてリンクされるのを防ぐ
-    $read_range_on = str_replace('-', '‐', $read_range_on);
-}
 $hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
 
 // レス番指定移動 etc.

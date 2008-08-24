@@ -24,18 +24,18 @@ EOP;
 EOP;
         $shinchaku_norefresh_ht = '';
     }
-    $shinchaku_matome_ht .= <<<EOP
-\n<form class="ib" method="get" action="{$_conf['read_new_k_php']}">
-<input type="hidden" name="host" value="{$aThreadList->host}">
-<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
-<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-<input type="hidden" name="nt" value="1">{$shinchaku_norefresh_ht}
-未読数が<input type="text" name="unum_limit" value="100" size="4" maxlength="4" istyle="4" format="4N" mode="numeric">未満の
-<input type="submit" value="新まとめ">
-</form>\n
-EOP;
 } else {
     $shinchaku_matome_ht = '';
+}
+
+if ($_conf['iphone'] && empty($upper_toolbar_done)) {
+    // iPhone (2.0.1) のSafariではlabel要素が効かない (タグで囲む、for属性ともに) のでonclickで代用する
+    $shinchaku_matome_ht .= <<<EOP
+<input type="checkbox" onclick="
+ change_link_target('.//a[@href and starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]', this.checked);
+ change_link_target('.//ul[@class=&quot;subject&quot;]/li/a[@href]', this.checked);
+"><span onclick="check_prev(this); this.previousSibling.onclick();">TAB</span>
+EOP;
 }
 
 // プリント==============================================

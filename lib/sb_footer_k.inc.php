@@ -69,10 +69,6 @@ if ($disp_navi['from'] == $disp_navi['end']) {
     $sb_range_on = $disp_navi['from'];
 } else {
     $sb_range_on = "{$disp_navi['from']}-{$disp_navi['end']}";
-    if ($_conf['iphone']) {
-        // マイナスをハイフン(U+2020)で置換して電話番号としてリンクされるのを防ぐ
-        $sb_range_on = str_replace('-', '‐', $sb_range_on);
-    }
 }
 $sb_range_st = "{$sb_range_on}/{$sb_disp_all_num} ";
 
@@ -143,7 +139,8 @@ if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->s
     $htm['change_sort'] .= "<input type=\"hidden\" name=\"host\" value=\"{$aThreadList->host}\">";
     $htm['change_sort'] .= "<input type=\"hidden\" name=\"bbs\" value=\"{$aThreadList->bbs}\">";
 }
-$htm['change_sort'] .= 'ｿｰﾄ:<select name="sort">';
+
+$htm['change_sort'] .= '<select name="sort">';
 foreach ($sorts as $k => $v) {
     if ($GLOBALS['now_sort'] == $k) {
         $selected = ' selected';
@@ -152,14 +149,19 @@ foreach ($sorts as $k => $v) {
     }
     $htm['change_sort'] .= "<option value=\"{$k}\"{$selected}>{$v}</option>";
 }
+$htm['change_sort'] .= '</select>';
 
 if (!empty($_REQUEST['sb_view'])) {
     $htm['change_sort'] .= "<input type=\"hidden\" name=\"sb_view\" value=\"" . htmlspecialchars($_REQUEST['sb_view']) . "\">";
 }
-
-$htm['change_sort'] .= '</select>';
-$htm['change_sort'] .= '<label>逆順<input type="checkbox" name="rsort" value="1"></label>';
-$htm['change_sort'] .= '<input type="submit" value="変更"></form>';
+if ($_conf['iphone']) {
+    // iPhone (2.0.1) のSafariではlabel要素が効かない (タグで囲む、for属性ともに) のでonclickで代用する
+    $htm['change_sort'] .= ' <input type="checkbox" name="rsort" value="1">';
+    $htm['change_sort'] .= '<span onclick="check_prev(this);">逆順</span>';
+} else {
+    $htm['change_sort'] .= ' <label><input type="checkbox" name="rsort" value="1">逆順</label>';
+}
+$htm['change_sort'] .= ' <input type="submit" value="並び替え"></form>';
 
 // }}}
 

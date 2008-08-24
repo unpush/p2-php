@@ -14,6 +14,12 @@ if (!$_conf['expack.ic2.enabled']) {
     exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
 
+if ($_conf['iphone']) {
+    $iv2_iphone_js = '<script type="text/javascript" src="js/iv2_iphone.js"></script>';
+    $_conf['extra_headers_ht'] .= '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">' . $iv2_iphone_js;
+    $_conf['extra_headers_xht'] .= '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css" />' . $iv2_iphone_js;
+}
+
 // ビュー判定用の隠し要素
 
 if ($_conf['view_forced_by_query']) {
@@ -314,6 +320,8 @@ if ($_conf['ktai']) {
 } else {
     $flexy->setData('skin', str_replace('&amp;', '&', $skin_en));
 }
+$flexy->setData('pc', !$_conf['ktai']);
+$flexy->setData('iphone', $_conf['iphone']);
 $flexy->setData('doctype', $_conf['doctype']);
 $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
 $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
@@ -911,12 +919,14 @@ $flexy->compile($list_template);
 if ($list_template == 'iv2i.tpl.html') {
     $mobile = &Net_UserAgent_Mobile::singleton();
     $elements = $flexy->getElements();
-    if ($mobile->isDoCoMo()) {
-        $elements['page']->setAttributes('istyle="4"');
-    } elseif ($mobile->isEZweb()) {
-        $elements['page']->setAttributes('format="*N"');
-    } elseif ($mobile->isVodafone()) {
-        $elements['page']->setAttributes('mode="numeric"');
+    if (!$_conf['iphone']) {
+        if ($mobile->isDoCoMo()) {
+            $elements['page']->setAttributes('istyle="4"');
+        } elseif ($mobile->isEZweb()) {
+            $elements['page']->setAttributes('format="*N"');
+        } elseif ($mobile->isVodafone()) {
+            $elements['page']->setAttributes('mode="numeric"');
+        }
     }
     $view = false;
     $flexy->outputObject($view, $elements);

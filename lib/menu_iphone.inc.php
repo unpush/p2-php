@@ -1,9 +1,9 @@
 <?php
 /**
- * rep2 - iPhone/iPod Touch専用メニューライブラリ
+ * rep2 - iPhone/iPod Touch用メニューのためのライブラリ
  */
 
-// {{{ unicode_urldecode
+// {{{ menu_iphone_unicode_urldecode()
 
 /**
  * フォームから %uHHHH 形式で送られてきた文字列をデコードする
@@ -15,18 +15,18 @@
  *
  * @param string $str
  */
-function unicode_urldecode($str)
+function menu_iphone_unicode_urldecode($str)
 {
-    return preg_replace_callback('/%u([0-9A-F]{4})/', '_unicode_urldecode', $str);
+    return preg_replace_callback('/%u([0-9A-F]{4})/', '_menu_iphone_unicode_urldecode', $str);
 }
 
 /**
- * unicode_urldecode() から呼ばれるコールバック関数
+ * menu_iphone_unicode_urldecode() から呼ばれるコールバック関数
  *
  * @param array $m
  * @return string
  */
-function _unicode_urldecode($m)
+function _menu_iphone_unicode_urldecode($m)
 {
     $code = hexdec($m[1]);
 
@@ -50,7 +50,7 @@ function _unicode_urldecode($m)
 }
 
 // }}}
-// {{{ xWrap()
+// {{{ menu_iphone_ajax()
 
 /**
  * XMLHttpRequest用のラッパー
@@ -59,7 +59,7 @@ function _unicode_urldecode($m)
  * @param ...
  * @return mixed
  */
-function xWrap($func)
+function menu_iphone_ajax($func)
 {
     if (!headers_sent()) {
         //header('Content-Type: application/xhtml+xml; charset=UTF-8');
@@ -73,7 +73,7 @@ function xWrap($func)
         array_shift($args);
         $ret = call_user_func_array($func, $args);
     } else {
-        $ret = $func();
+        $ret = call_user_func($func);
     }
 
     echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
@@ -82,7 +82,7 @@ function xWrap($func)
 }
 
 // }}}
-// {{{ iShowBrdMenu()
+// {{{ menu_iphone_show_board_menu()
 
 /**
  * 板リストをカテゴリごとに表示する
@@ -90,7 +90,7 @@ function xWrap($func)
  * @param int $cateid
  * @return void
  */
-function iShowBrdMenu($cateid = 0)
+function menu_iphone_show_board_menu($cateid = 0)
 {
     global $_conf;
 
@@ -146,7 +146,7 @@ function iShowBrdMenu($cateid = 0)
 }
 
 // }}}
-// {{{ iShowBrdMatched()
+// {{{ menu_iphone_show_matched_boards()
 
 /**
  * キーワードにマッチした板リストを表示する
@@ -154,7 +154,7 @@ function iShowBrdMenu($cateid = 0)
  * @param string $word
  * @return void
  */
-function iShowBrdMatched($word)
+function menu_iphone_show_matched_boards($word)
 {
     global $_conf;
 
@@ -197,7 +197,7 @@ function iShowBrdMatched($word)
 }
 
 // }}}
-// {{{ iShowFavIta()
+// {{{ menu_iphone_show_favorite_boards()
 
 /**
  * お気に板リストを表示する
@@ -206,7 +206,7 @@ function iShowBrdMatched($word)
  * @param int    $no
  * @return void
  */
-function iShowFavIta($title, $no = null)
+function menu_iphone_show_favorite_boards($title, $no = null)
 {
     global $_conf;
 
@@ -235,16 +235,16 @@ function iShowFavIta($title, $no = null)
 }
 
 // }}}
-// {{{ iShowRSS()
+// {{{ menu_iphone_show_feed_list()
 
 /**
- * RSSリストを表示する
+ * フィードリストを表示する
  *
  * @param string $title
  * @param int    $no
  * @return void
  */
-function iShowRSS($title, $no = null)
+function menu_iphone_show_feed_list($title, $no = null)
 {
     global $_conf;
 

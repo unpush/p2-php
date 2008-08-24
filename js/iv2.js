@@ -127,7 +127,11 @@ function rankUp(itemId)
 
 function getRank(itemId)
 {
-	return parseInt(document.getElementById('rank'+itemId).innerHTML, 10);
+	var value = document.getElementById('rank'+itemId).innerHTML;
+	if (value == 'В†ВЏБ[Вс') {
+		return -1;
+	}
+	return parseInt(value, 10);
 }
 
 function setRank(itemId, rank)

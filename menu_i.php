@@ -11,12 +11,12 @@ require_once P2_LIB_DIR . '/menu_iphone.inc.php';
 $_login->authorize(); //ユーザ認証
 
 if (isset($_GET['cateid'])) {
-    xWrap('iShowBrdMenu', (int)$_GET['cateid']);
+    menu_iphone_ajax('menu_iphone_show_board_menu', (int)$_GET['cateid']);
     exit;
 }
 
 if (isset($_POST['word'])) {
-    $word = unicode_urldecode($_POST['word']);
+    $word = menu_iphone_unicode_urldecode($_POST['word']);
     if (preg_match('/^\.+$/', $word)) {
         $word = '';
     }
@@ -33,7 +33,7 @@ if (isset($_POST['word'])) {
             $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word);
         }
 
-        xWrap('iShowBrdMatched', $word);
+        menu_iphone_ajax('menu_iphone_show_matched_boards', $word);
     } else {
         header('Content-Type: application/xml; charset=UTF-8');
         echo mb_convert_encoding('<div class="panel">無効なキーワードです。</div>', 'UTF-8', 'CP932');
@@ -74,7 +74,7 @@ if (isset($_POST['word'])) {
 <?php if ($_conf['expack.misc.multi_favs']) { ?>
     <li><a href="#fav">お気にスレ</a></li>
 <?php } else { ?>
-    <li><a href="subject.php?spmode=fav&amp;sb_view=shinchaku" target="_self">お気にスレの新着</a></li>
+    <?php /* <li><a href="subject.php?spmode=fav&amp;sb_view=shinchaku" target="_self">お気にスレの新着</a></li> */ ?>
     <li><a href="subject.php?spmode=fav" target="_self">お気にスレ</a></li>
 <?php } ?>
     <li><a href="#favita">お気に板</a></li>
@@ -82,10 +82,13 @@ if (isset($_POST['word'])) {
     <li><a href="subject.php?spmode=palace&amp;norefresh=1" target="_self">スレの殿堂</a></li>
 
     <li class="group">履歴</li>
-    <li><a href="subject.php?spmode=recent&amp;sb_view=shinchaku" target="_self">最近読んだスレの新着</a></li>
+    <?php /* <li><a href="subject.php?spmode=recent&amp;sb_view=shinchaku" target="_self">最近読んだスレの新着</a></li> */ ?>
     <li><a href="subject.php?spmode=recent" target="_self">最近読んだスレ</a></li>
+<?php if ($_conf['res_hist_rec_num']) { ?>
     <li><a href="subject.php?spmode=res_hist" target="_self">書き込み履歴</a></li>
+<?php if ($_conf['res_write_rec']) { ?>
     <li><a href="read_res_hist.php" target="_self">書き込み履歴の内容</a></li>
+<?php } } ?>
 
     <li class="group">expack</li>
 <?php if ($_conf['expack.rss.enabled']) { ?>
@@ -93,7 +96,7 @@ if (isset($_POST['word'])) {
 <?php } ?>
     <li><a href="#tgrep">スレッド検索</a></li>
 <?php if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) { ?>
-    <li><a href="iv2.php" target="_self">画像キャッシュ</a></li>
+    <li><a href="iv2.php" target="_self">画像キャッシュ一覧</a></li>
 <?php } ?>
 
     <li class="group">管理</li>
@@ -123,13 +126,13 @@ if ($_conf['expack.misc.multi_favs']) {
         }
         $fav_url = "subject.php?spmode=fav&amp;m_favlist_set={$no}";
         $fav_elems .= "<li><a href=\"{$fav_url}\" target=\"_self\">{$name}</a></li>";
-        $fav_new_elems .= "<li><a href=\"{$fav_url}&amp;sb_view=shinchaku\" target=\"_self\">{$name}</a></li>";
+        //$fav_new_elems .= "<li><a href=\"{$fav_url}&amp;sb_view=shinchaku\" target=\"_self\">{$name}</a></li>";
     }
 
     echo '<ul id="fav" title="お気にスレ">';
-    echo '<li class="group">新着</li>';
-    echo $fav_new_elems;
-    echo '<li class="group">全て</li>';
+    //echo '<li class="group">新着</li>';
+    //echo $fav_new_elems;
+    //echo '<li class="group">全て</li>';
     echo $fav_elems;
     echo "</ul>\n";
 
@@ -154,7 +157,7 @@ if ($_conf['expack.misc.multi_favs']) {
     foreach ($favita as $no => $name) {
         $_conf['favita_path'] = $_conf['pref_dir'] . '/'
             . ($no ? "p2_favita{$no}.brd" : 'p2_favita.brd');
-        iShowFavIta($name, $no);
+        menu_iphone_show_favorite_boards($name, $no);
     }
 
     $_conf['favita_path'] = $orig_favita_path;
@@ -181,7 +184,7 @@ if ($_conf['expack.misc.multi_favs']) {
         foreach ($rss as $no => $name) {
             $_conf['expack.rss.setting_path'] = $_conf['pref_dir'] . '/'
                     . ($no ? "p2_rss{$no}.txt" : 'p2_rss.txt');
-            iShowRSS($name, $no);
+            menu_iphone_show_feed_list($name, $no);
         }
 
         $_conf['expack.rss.setting_pat'] = $orig_rss_setting_path;
@@ -189,10 +192,10 @@ if ($_conf['expack.misc.multi_favs']) {
 
     // }}}
 } else {
-    iShowFavIta('お気に板');
+    menu_iphone_show_favorite_boards('お気に板');
 
     if ($_conf['expack.rss.enabled']) { 
-        iShowRSS('RSS');
+        menu_iphone_show_feed_list('RSS');
     }
 }
 ?>

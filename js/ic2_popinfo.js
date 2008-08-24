@@ -1,15 +1,23 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
 /*
-	ImageCache2::Pop-Up Image Informations
-*/
+ * ImageCache2 - 画像情報ポップアップ
+ */
+
+// {{{ GLOBALS
 
 var ic2info = null;
-var _oldOnLoad = window.onload;
+var _IV2_POPINFO_JS_OLD_ONLOAD = window.onload;
 
-window.onload = function(){
-	if (_oldOnLoad) {
-		_oldOnLoad();
+// }}}
+// {{{ window.onload()
+
+/*
+ * ImageCache2 画像情報ポップアップを初期化する
+ *
+ * @return void
+ */
+window.onload = (function(){
+	if (_IV2_POPINFO_JS_OLD_ONLOAD) {
+		_IV2_POPINFO_JS_OLD_ONLOAD();
 	}
 
 	// {{{ initiaize
@@ -43,7 +51,7 @@ window.onload = function(){
 		return '&_=' + (new Date()).getTime().toString();
 	}
 
-	// }}
+	// }}}
 	// {{{ show()
 
 	/*
@@ -222,4 +230,17 @@ window.onload = function(){
 			return function(){ self.updateRank(n); };
 		})(i - 1);
 	}
-};
+});
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=css fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

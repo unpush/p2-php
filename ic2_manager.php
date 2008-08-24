@@ -179,6 +179,8 @@ $flexy->setData('info_msg', $_info_msg_ht);
 if ($db->dsn['phptype'] == 'sqlite') {
     $flexy->setData('isSQLite', TRUE);
 }
+$flexy->setData('pc', !$_conf['ktai']);
+$flexy->setData('iphone', $_conf['iphone']);
 $flexy->setData('doctype', $_conf['doctype']);
 $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
 $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
