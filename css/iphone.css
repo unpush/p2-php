@@ -1,4 +1,6 @@
-/* General */
+/* rep2expack - stylesheet for iPhone */
+
+/* {{{ General */
 
 body {
 	margin: 0;
@@ -52,7 +54,8 @@ span.label {
 	cursor: pointer;
 }
 
-/* Forms */
+/* }}} *
+/* {{{ Forms */
 
 input, select, textarea {
 	font-size: medium;
@@ -85,13 +88,18 @@ form.inline-block {
 	margin: 0 5px;
 }
 
-/* Navigations */
+/* }}} *
+/* {{{ Navigations */
 
 div.navi, div.pager, div.toolbar {
 	margin: 5px 0;
 }
 
-a.button, div.navi a[href]:not(.nobutton), div.pager a[href]:not(.nobutton), div.toolbar a[href]:not(.nobutton) {
+a.button,
+div.navi a[href]:not(.nobutton),
+div.pager a[href]:not(.nobutton),
+div.toolbar a[href]:not(.nobutton)
+{
 	display: inline-block;
 	min-width: 12px;  /* 15 * 2 - (8 + 1) * 2 */
 	height: 22px;     /* 15 * 2 - (3 + 1) * 2 */
@@ -116,7 +124,8 @@ div#read_new_footer {
 div.read_new_toolbar {
 }
 
-/* Open in New Tab */
+/* }}} *
+/* {{{ Open in New Tab */
 
 body > div#open-in-tab {
 	margin: -10px -10px 5px -10px;
@@ -153,7 +162,8 @@ body > div#open-in-tab > span {
 	-webkit-border-top-right-radius: 5px;
 }
 
-/* Read */
+/* }}} *
+/* {{{ Read */
 
 h3 > font[color], div > font[color] > b {
 	color: #252525;
@@ -269,7 +279,8 @@ a.aas {
 	border: #aaaaaa inset 3px;
 }
 
-/* Subject */
+/* }}} *
+/* {{{ Subject */
 
 p.empty-subject {
 	margin: 10px -10px;
@@ -300,6 +311,7 @@ ul.subject > li > a {
 	display: block;
 	margin: 0;
 	padding: 8px 10px;
+	word-break: normal;
 	font-size: medium;
 	text-decoration: none;
 	color: #000000;
@@ -338,6 +350,7 @@ ul.subject > li > a > span.info {
 }
 
 ul.subject > li > a > span.title {
+	word-break: break-all;
 	font-size: large;
 	font-weight: bold;
 }
@@ -376,6 +389,8 @@ ul.subject > li > a > span.count:after {
 
 ul.subject > li > a > span.score {
 }
+
+/* }}} */
 
 /*
  * Local Variables:

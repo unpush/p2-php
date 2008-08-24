@@ -12,7 +12,7 @@ $reloaded_time = date("m/d G:i:s"); //更新時刻
 
 // スレあぼーんチェック、倉庫 =============================================
 $taborn_check_ht = '';
-if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
+if (($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko') && $aThreadList->threads) {
     $offline_num = $aThreadList->num - $online_num;
     $taborn_check_ht = <<<EOP
     <form class="check" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">\n
@@ -90,11 +90,10 @@ if ($aThreadList->spmode) { // スペシャルモード時
 
 // フォームhidden ==================================================
 $sb_form_hidden_ht = <<<EOP
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
     <input type="hidden" name="host" value="{$aThreadList->host}">
     <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-    {$_conf['k_input_ht']}
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 EOP;
 
 //表示件数 ==================================================
@@ -131,7 +130,7 @@ if ($_conf['enable_exfilter'] == 2) {
     $selected_method[($sb_filter['method'])] = ' selected';
 
     $sb_form_method_ht = <<<EOP
-<select id="method" name="method">
+<select name="method">
     <option value="or"{$selected_method['or']}>いずれか</option>
     <option value="and"{$selected_method['and']}>すべて</option>
     <option value="just"{$selected_method['just']}>そのまま</option>
@@ -153,7 +152,7 @@ EOP;
 $filter_form_ht = <<<EOP
         <form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
             {$sb_form_hidden_ht}
-            <input type="text" id="word" name="word" value="{$hd['word']}" size="16">{$sb_form_method_ht}
+            <input type="text" name="word" value="{$hd['word']}" size="16">{$sb_form_method_ht}
             {$input_find_cont_ht}
             <input type="submit" name="submit_kensaku" value="検索">
         </form>
@@ -167,7 +166,7 @@ if ($aThreadList->spmode == "taborn") {
     $abornoff_ht = "<input type=\"submit\" name=\"submit\" value=\"{$abornoff_st}\">";
 }
 $check_form_ht = '';
-if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
+if ($taborn_check_ht) {
     $check_form_ht = <<<EOP
 <p>チェックした項目の
 <input type="submit" name="submit" value="{$deletelog_st}">

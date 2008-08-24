@@ -308,7 +308,7 @@ class ShowThreadPc extends ShowThread{
                     if (isset($this->thread->datlines[$rnv-1])) {
                         $ds = $this->qRes($this->thread->datlines[$rnv-1], $rnv);
                         $onPopUp_at = " onmouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onmouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
-                        $rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></dd>\n";
+                        $rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}>{$ds}</dd>\n";
                     }
                     $this->quote_res_nums_done[$rnv] = true;
                 }
@@ -393,7 +393,7 @@ EOP;
         } elseif ($i > $this->thread->readnum) {
             $GLOBALS['newres_to_show_flag'] = true;
             // 番号（新着レス時）
-            $tores .= "<dt id=\"r{$i}\"><font color=\"{$STYLE['read_newres_color']}\" class=\"spmSW\"{$spmeh}>{$i}</font> ：";
+            $tores .= "<dt id=\"r{$i}\"><span style=\"color:{$STYLE['read_newres_color']}\" class=\"spmSW\"{$spmeh}>{$i}</span> ：";
         } elseif ($_conf['expack.spm.enabled']) {
             // 番号（SPM）
             $tores .= "<dt id=\"r{$i}\"><span class=\"spmSW\"{$spmeh}>{$i}</span> ：";
@@ -467,7 +467,7 @@ EOP;
                     $ds .= $this->qRes($this->thread->datlines[$rnv-1], $rnv);
                 }
                 $onPopUp_at = " onmouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event)\" onmouseout=\"hideResPopUp('q{$rnv}of{$this->thread->key}')\"";
-                $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>{$ds}</i></div>\n";
+                $rpop .= "<div id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}>{$ds}</div>\n";
                 $this->quote_res_nums_done[$rnv] = true;
             }
         }
@@ -685,6 +685,11 @@ EOP;
 
         // ime.nuを外す
         $url = preg_replace('|^([a-z]+://)ime\\.nu/|', '$1', $url);
+
+        // エスケープされていない特殊文字をエスケープ
+        $url = htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false);
+        $str = htmlspecialchars($str, ENT_QUOTES, 'Shift_JIS', false);
+        //$following = htmlspecialchars($following, ENT_QUOTES, 'Shift_JIS', false);
 
         // URLをパース
         $purl = @parse_url($url);
@@ -1339,10 +1344,11 @@ EOJS;
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
             // 準備
             $serial++;
-            $thumb_id = 'thumbs' . $serial . '_' . P2_REQUEST_ID;
+            $thumb_id = 'thumbs' . $serial . $this->thumb_id_suffix;
             $tmp_thumb = './img/ic_load.png';
+            $url_ht = $url;
+            $url = str_replace('&amp', '&', $url);
             $url_en = rawurlencode($url);
-            $url_ht = htmlspecialchars($url, ENT_QUOTES);
 
             $icdb = new IC2DB_Images;
 

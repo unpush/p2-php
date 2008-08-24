@@ -2,7 +2,7 @@
 // rep2 -  スレッド表示部分の初期表示
 // フレーム3分割画面、右下部分
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 // {{{ スレ指定フォーム
 

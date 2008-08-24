@@ -36,7 +36,7 @@ div.iv2-image-title {
 <p flexy:if="nomatch">Ç»Ç¢Ç€ÅB</p>
 
 <div flexy:if="!nomatch">
-	{editFormHeader:h}
+	{editFormHeader:h}<input type="hidden" name="page" value="{page:h}" flexy:ignore="yes">
 	<div class="pager" id="top">{pager:h} <a href="#bottom">{e[dt1]:h}</a></div>
 
 	<table id="iv2-images">

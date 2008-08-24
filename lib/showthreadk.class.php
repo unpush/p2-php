@@ -609,6 +609,11 @@ EOP;
             return $str . $following;
         }
 
+        // エスケープされていない特殊文字をエスケープ
+        $url = htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false);
+        $str = htmlspecialchars($str, ENT_QUOTES, 'Shift_JIS', false);
+        //$following = htmlspecialchars($following, ENT_QUOTES, 'Shift_JIS', false);
+
         // URLを処理
         foreach ($this->user_url_handlers as $handler) {
             if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
@@ -908,8 +913,9 @@ EOP;
                 $inline_preview_done = FALSE;
             }
 
+            $url_ht = $url;
+            $url = str_replace('&amp;', '&', $url);
             $url_en = rawurlencode($url);
-            $url_ht = htmlspecialchars($url, ENT_QUOTES);
             $img_str = null;
 
             $icdb = new IC2DB_Images;

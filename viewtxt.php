@@ -3,7 +3,7 @@
     p2 - txt を 表示
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 

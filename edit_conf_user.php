@@ -3,7 +3,7 @@
  *  p2 - ユーザ設定編集UI
  */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 include_once './conf/conf_user_def.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
 
@@ -168,8 +168,6 @@ $_info_msg_ht = "";
 
 echo <<<EOP
 <form id="edit_conf_user_form" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['k_input_ht']}
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
 
@@ -647,7 +645,10 @@ EOP;
     }
 }
 
-echo '</form>' . "\n";
+echo <<<EOP
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
+</form>\n
+EOP;
 
 
 // 携帯なら
@@ -655,7 +656,6 @@ if ($_conf['ktai']) {
     echo <<<EOP
 <hr>
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}">
-{$_conf['k_input_ht']}
 <select name="edit_conf_user_group_en">
 EOP;
     if ($_conf['iphone']) {
@@ -680,6 +680,7 @@ EOP;
     echo <<<EOP
 </select>
 <input type="submit" value="の設定を編集">
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>
 <hr>
 <a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="editpref.php{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.設定編集</a>

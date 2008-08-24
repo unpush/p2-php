@@ -76,12 +76,12 @@ function _irespopup_make_deactivate(obj, key)
  */
 function iResPopUp(url, evt)
 {
-	var yOffset = Math.max(10, evt.getOffsetY() - 20).toString() + 'px';
+	var yOffset = Math.max(10, evt.getOffsetY() - 20);
 	var cbox = document.getElementById('open-in-tab-cbox');
 
 	if (_RESPOPUP_IPHONE_JS_HASH[url]) {
 		_RESPOPUP_IPHONE_JS_INDEX++;
-		_RESPOPUP_IPHONE_JS_HASH[url].style.top = yOffset;
+		_RESPOPUP_IPHONE_JS_HASH[url].style.top = yOffset.toString() + 'px';
 		_RESPOPUP_IPHONE_JS_HASH[url].style.zIndex = _irespopup_get_z_index();
 		if (cbox && cbox.checked) {
 			change_link_target(_RESPOPUP_IPHONE_JS_XPATH, true, _RESPOPUP_IPHONE_JS_HASH[url]);
@@ -104,7 +104,7 @@ function iResPopUp(url, evt)
 			container.id = popid;
 			container.className = 'respop';
 			container.innerHTML = req.responseText.replace(/<[^<>]+? id="/, '$0' + popid + '_'); //"
-			container.style.top = yOffset;
+			container.style.top = yOffset.toString() + 'px';
 			container.style.zIndex = _irespopup_get_z_index();
 			//container.onclick = _irespopup_make_activate(container);
 
@@ -135,6 +135,10 @@ function iResPopUp(url, evt)
 				back.className = 'respop-back';
 				var anchor = document.createElement('a');
 				anchor.setAttribute('href', '#' + popid);
+				anchor.onclick = (function(){
+					scrollTo(0, yOffset - 10);
+					return false;
+				});
 				anchor.innerText = 'Å£';
 				back.appendChild(anchor);
 				lastres.appendChild(back);

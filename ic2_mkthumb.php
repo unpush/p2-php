@@ -1,9 +1,11 @@
 <?php
-/* ImageCache2 - サムネイルの再構築 */
+/**
+ * ImageCache2 - サムネイルの再構築
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 ini_set('display_errors', true);

@@ -3,8 +3,8 @@
     p2 -  設定管理
 */
 
-include_once './conf/conf.inc.php';
-include_once P2_LIB_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -250,7 +250,6 @@ EOP;
 
         echo <<<EOP
 <form action="editpref.php" method="post" accept-charset="{$_conf['accept_charset']}" target="_self" style="margin:0">
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="favsetlist" value="1">
     <fieldset>
         <legend>セット切り替え・名称変更（セット名を空にするとデフォルトの名前に戻ります）</legend>
@@ -271,6 +270,7 @@ EOP;
             <input type="submit" value="変更">
         </div>
     </fieldset>
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n\n
 EOP;
 
@@ -432,7 +432,7 @@ function printEditFileForm($path_value, $submit_value)
 </form>\n
 EOFORM;
 
-    if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
         $ht = '&nbsp;' . preg_replace('/>\s+</', '><', $ht);
     }
     echo $ht;
@@ -457,7 +457,7 @@ function getSyncFavoritesFormHt($path_value, $submit_value)
 </form>\n
 EOFORM;
 
-    if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
         $ht = '&nbsp;' . preg_replace('/>\s+</', '><', $ht);
     }
     return $ht;

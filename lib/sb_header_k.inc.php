@@ -69,11 +69,10 @@ EOP;
 // }}}
 // フォーム ==================================================
 $sb_form_hidden_ht = <<<EOP
-<input type="hidden" name="_hint" value="◎◇">
 <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
 <input type="hidden" name="host" value="{$aThreadList->host}">
 <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-{$_conf['k_input_ht']}{$_conf['m_favita_set_input_ht']}
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}{$_conf['m_favita_set_input_ht']}
 EOP;
 
 // フィルタ検索 ==================================================

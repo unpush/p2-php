@@ -4,7 +4,7 @@
 
 // p2 - 携帯版レスコピー
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 
@@ -20,7 +20,6 @@ $id_ht = '';
 $back_link = '';
 $post_link = '';
 $moto_link = '';
-$form_id = P2_REQUEST_ID;
 
 //=====================================================
 // スレッド情報
@@ -121,7 +120,7 @@ echo $_conf['doctype'];
 </head>
 <body<?php echo $k_color_settings; ?>>
 <?php echo $_info_msg_ht; ?>
-<form id="<?php echo $form_id; ?>" action="<?php echo $action_ht; ?>" method="post">
+<form action="<?php echo $action_ht; ?>" method="post">
 ｽﾚ:<br>
 <input type="text" name="ttitle_txt" value="<?php echo $ttitle_ht; ?>"><br>
 <input type="text" name="url_txt" value="<?php echo $url_txt; ?>"><br>

@@ -1,12 +1,9 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0: */
-/* mi: charset=Shift_JIS */
-
 /* ImageCache2 - インストーラっていうか環境チェッカ */
 
 // {{{ p2基本設定読み込み＆認証
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
@@ -325,6 +322,37 @@ foreach ($dirs as $dir) {
 
 <hr>
 
+<h2>.htaccessを作成</h2>
+
+<?php
+$htaccess_path = $ini['General']['cachedir'] . '/.htaccess';
+$htaccess_cont = <<<EOS
+Order allow,deny
+Deny from all
+<FilesMatch "\\.(gif|jpg|png)\$">
+    Allow from all
+</FilesMatch>\n
+EOS;
+$cachedir_path_ht = htmlspecialchars(realpath($ini['General']['cachedir']), ENT_QUOTES);
+$htaccess_path_ht = htmlspecialchars($htaccess_path, ENT_QUOTES);
+$htaccess_cont_ht = htmlspecialchars($htaccess_cont, ENT_QUOTES);
+
+if (FileCtl::file_write_contents($htaccess_path, $htaccess_cont) !== false) {
+    echo <<<EOS
+<p>ファイル <em>{$htaccess_path_ht}</em> を作成</p>
+<div>Apacheの場合、パフォーマンスのため、また、.htaccess自体が無効かもしれないので、上記.htaccesを削除してhttpd.confに以下のような記述をすることをおすすめします。</div>
+<pre>&lt;Directory &quot;{$cachedir_path_ht}&quot;&gt;
+{$htaccess_cont_ht}&lt;/Directory&gt;</pre>
+EOS;
+} else {
+    echo "<p>ファイル <em>{$htaccess_path_ht}</em> の<strong>作成失敗</strong></p>\n";
+    $ok = FALSE;
+}
+
+?>
+
+<hr>
+
 <h2><?php echo ($ok ? "準備OK" : "だめぽ"); ?></h2>
 
 <?php if (!$ok) echo '<!-- '; ?>
@@ -335,4 +363,14 @@ foreach ($dirs as $dir) {
 </html>
 <?php
 // }}}
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

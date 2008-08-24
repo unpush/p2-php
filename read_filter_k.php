@@ -63,7 +63,6 @@ echo <<<EOF
 <p>{$ttitle_back}</p>
 <hr>
 <form id="header" method="get" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}">
-<input type="hidden" name="_hint" value="ž">
 <input type="hidden" name="host" value="{$host}">
 <input type="hidden" name="bbs" value="{$bbs}">
 <input type="hidden" name="key" value="{$key}">
@@ -97,7 +96,7 @@ echo <<<EOF
 </select><br>
 <input type="submit" name="s2" value="ŒŸõ">
 </div>
-{$_conf['k_input_ht']}
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>
 </body>
 </html>

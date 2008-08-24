@@ -369,8 +369,8 @@ $conf_user_rad['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP
 // }}}
 // {{{ 拡張パックとiPhone
 
-include 'conf/conf_user_def_ex.inc.php';
-include 'conf/conf_user_def_i.inc.php';
+include './conf/conf_user_def_ex.inc.php';
+include './conf/conf_user_def_i.inc.php';
 
 // }}}
 

@@ -928,7 +928,7 @@ EOP;
 </html>
 ERR;
         // IEデフォルトのメッセージを表示させないようにスペースを出力
-        if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
             for ($i = 0 ; $i < 512; $i++) {
                 echo ' ';
             }

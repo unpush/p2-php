@@ -1,7 +1,7 @@
 <?php
 // アクセス元ホストをチェックする関数群クラス
 
-require_once 'conf/conf_hostcheck.php';
+require_once './conf/conf_hostcheck.php';
 
 // {{{ HostCheck
 

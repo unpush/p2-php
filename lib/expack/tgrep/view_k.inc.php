@@ -12,9 +12,9 @@
 
 <!-- Search Form -->
 <form action="<?php echo $htm['php_self']; ?>" method="get">
-<input type="hidden" name="_hint" value="ž">
 <input name="Q" <?php echo $htm['search_attr']; ?>>
 <input type="submit" value="ŒŸõ">
+<?php echo $_conf['detect_hint_input_ht'], $_conf['k_input_ht']; ?>
 </form>
 <hr>
 

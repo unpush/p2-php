@@ -1,3 +1,4 @@
+
 <?php
 /**
  * p2 -  クッキー認証処理
@@ -5,7 +6,7 @@
  * 内部文字エンコーディング: Shift_JIS
  */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 

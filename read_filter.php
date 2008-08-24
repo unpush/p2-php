@@ -7,7 +7,7 @@
     SPMからのレスフィルタリングで使用
 */
 
-require_once 'conf/conf.inc.php'; //基本設定読込
+require_once './conf/conf.inc.php'; //基本設定読込
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/showthread.class.php';
 require_once P2_LIB_DIR . '/showthreadpc.class.php';

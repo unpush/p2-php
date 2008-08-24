@@ -8,7 +8,7 @@
 // {{{ ‰Šú‰»
 
 // ‰Šúİ’è“Ç‚İ‚İ & ƒ†[ƒU”FØ
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 $_login->authorize();
 
 require_once 'HTML/Template/Flexy.php';
@@ -173,7 +173,7 @@ include($skin);
 if ($updated_fontconfig['enabled']) {
     fontconfig_apply_custom();
 } else {
-    $skin_en = preg_replace('/&amp;_=[^&]*/', '&amp;_=' . urlencode($skin_uniq), $skin_en);
+    $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . urlencode($skin_uniq);
 }
 $controllerObject->STYLE = $STYLE;
 $controllerObject->skin = $skin_en;

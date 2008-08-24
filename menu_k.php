@@ -3,7 +3,7 @@
     p2 -  板メニュー 携帯用
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/brdctl.class.php';
 require_once P2_LIB_DIR . '/showbrdmenuk.class.php';
 
@@ -99,11 +99,10 @@ if($_GET['view']=="favita"){
 
 //RSSリスト読み込み
 } elseif ($_GET['view'] == "rss" && $_conf['expack.rss.enabled']) {
-    //$mobile = Net_UserAgent_Mobile::singleton();
-    if ($mobile->isNonMobile()) {
-        output_add_rewrite_var('b', 'k');
+    if ($_conf['view_forced_by_query']) {
+        output_add_rewrite_var('b', $_conf['b']);
     }
-    @include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
+    require_once P2EX_LIB_DIR . '/rss/menu.inc.php';
 
 
 // それ以外ならbrd読み込み
@@ -116,11 +115,10 @@ if($_GET['view']=="favita"){
 if ($_GET['view'] != "favita" && $_GET['view'] != "rss" && !$_GET['cateid']) {
     $kensaku_form_ht = <<<EOFORM
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="_hint" value="◎◇">
-    {$_conf['k_input_ht']}
     <input type="hidden" name="nr" value="1">
     <input type="text" id="word" name="word" value="{$word}" size="12">
     <input type="submit" name="submit" value="板検索">
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
 EOFORM;
 

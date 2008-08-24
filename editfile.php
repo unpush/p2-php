@@ -3,7 +3,7 @@
     ファイルをブラウザで編集する
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -136,14 +136,15 @@ EOHEADER;
     echo "Edit: ".$path;
     echo <<<EOFORM
 <form action="{$_SERVER['SCRIPT_NAME']}" method="post" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="modori_url" value="{$modori_url}">
     <input type="hidden" name="encode" value="{$encode}">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
-    <input type="submit" name="submit" value="Save"> $_info_msg_ht<br>
+    <input type="submit" name="submit" value="Save">
+    {$_info_msg_ht}<br>
     <textarea style="font-size:9pt;" id="filecont" name="filecont" wrap="off"{$rows_at}{$cols_at}>{$cont_area}</textarea>
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>
 EOFORM;
 

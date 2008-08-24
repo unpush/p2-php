@@ -316,7 +316,6 @@ EOP;
 
     echo <<<EOP
 <form id="header" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
     <input type="hidden" name="host" value="{$aThread->host}">
@@ -338,6 +337,7 @@ EOP;
     </select>
     レスを
     <input type="submit" name="submit_filter" value="フィルタ表示">
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
 EOP;
 }

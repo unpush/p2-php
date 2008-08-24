@@ -56,7 +56,7 @@ EOP;
     $htm['kaiko_on_js'] = sprintf($htm['kaiko_on_js_fmt'], $htm['kaiko_on_js_func'], $htm['kaiko_on_js_cond']);
     //$htm['kaiko_on_js'] .= ' ondblclick="this.rows=this.value.split(/\r\n|\r|\n/).length+1"';
     $htm['kaiko_set_hidden_js'] = ' onclick="setHiddenValue(this);"';
-    $htm['table_begin'] = '<table border="0" cellpadding="0" cellspaing="0"><tr><td align="left" colspan="2">';
+    $htm['table_begin'] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td align="left" colspan="2">';
     $htm['table_break1'] = '</td></tr><tr><td align="left">';
     $htm['table_break2'] = '</td><td align="right">';
     $htm['table_end'] = '</td></tr></table>';
@@ -73,7 +73,6 @@ $htm['post_form'] = <<<EOP
 {$htm['disable_js']}
 {$htm['resform_ttitle']}
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}"{$onsubmit_at}>
-<input type="hidden" name="_hint" value="ž">
 {$htm['subject']}
 {$htm['maru_post']}
 {$htm['name_label']}<input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}{$htm['name_extra_at']}>{$htm['k_br']}
@@ -102,7 +101,7 @@ $htm['post_form'] = <<<EOP
 <input type="hidden" name="ttitle_en" value="{$ttitle_en}">
 <input type="hidden" name="csrfid" value="{$csrfid}">
 {$newthread_hidden_ht}{$readnew_hidden_ht}
-{$_conf['k_input_ht']}
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>
 {$htm['options_k']}\n
 EOP;

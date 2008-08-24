@@ -2,7 +2,7 @@
 // p2 - 書き込み履歴 レス内容表示
 // フレーム分割画面、右下部分
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/res_hist.class.php';
 require_once P2_LIB_DIR . '/read_res_hist.inc.php';

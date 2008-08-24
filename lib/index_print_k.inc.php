@@ -47,6 +47,16 @@ EOP;
         $iv2_k_ht = "<a href=\"iv2.php{$_conf['k_at_q']}\">画像ｷｬｯｼｭ一覧</a><br>";
     }
 
+    // iuiについて
+    if ($_conf['iphone']) {
+        $_info_msg_ht .= <<<EOS
+<p style="margin:16px 0;padding:12px 16px;color:#000000;background-color:#ffffff;border:black dashed 1px;-webkit-border-radius:12px;">
+iPhoneユーザには<strong>iui</strong>のインストールをおすすめします。<br>
+iuiは <em>http://code.google.com/p/iui/</em> で配布されています。<br>
+iuiをダウンロード・解凍してできた &quot;iui&quot; フォルダをrep2フォルダに入れるとiPhone用のメニューが利用できるようになります。</p>
+EOS;
+    }
+
     //=========================================================
     // 携帯用 HTML プリント
     //=========================================================

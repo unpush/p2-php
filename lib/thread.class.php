@@ -10,49 +10,54 @@ class Thread
 {
     // {{{ properties
 
-    public $ttitle;    // スレタイトル // idxline[0] // < は &lt; だったりする
-    public $key;       // スレッドID // idxline[1]
-    public $length;    // local Dat Bytes(int) // idxline[2]
-    public $gotnum;    //（個人にとっての）既得レス数 // idxline[3]
-    public $rescount;  // スレッドの総レス数（未取得分も含む）
-    public $modified;  // datのLast-Modified // idxline[4]
-    public $readnum;   // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
-    public $fav;       //お気に入り(bool的に) // idxline[6] favlist.idxも参照
-    public $favs;      //お気に入りセット登録状態(boolの配列)
-    // name         // ここでは利用せず idxline[7]（他所で利用）
-    // mail         // ここでは利用せず idxline[8]（他所で利用）
-    public $newline;   // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
+    public $ttitle;     // スレタイトル // idxline[0] // < は &lt; だったりする
+    public $key;        // スレッドID // idxline[1]
+    public $length;     // local Dat Bytes(int) // idxline[2]
+    public $gotnum;     //（個人にとっての）既得レス数 // idxline[3]
+    public $rescount;   // スレッドの総レス数（未取得分も含む）
+    public $modified;   // datのLast-Modified // idxline[4]
+    public $readnum;    // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
+    public $fav;        //お気に入り(bool的に) // idxline[6] favlist.idxも参照
+    /*
+    public $favs;       //お気に入りセット登録状態(boolの配列)
+    */
+    protected $_favs;   //お気に入りセット登録状態(boolの配列)
+    /*
+    public $name;       // ここでは利用せず idxline[7]（他所で利用）
+    public $mail;       // ここでは利用せず idxline[8]（他所で利用）
+    */
+    public $newline;    // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
 
     // ※hostとはいうものの、2ch外の場合は、host以下のディレクトリまで含まれていたりする。
-    public $host;      // ex)pc.2ch.net // idxline[10]
-    public $bbs;       // ex)mac // idxline[11]
-    public $itaj;      // 板名 ex)新・mac
+    public $host;       // ex)pc.2ch.net // idxline[10]
+    public $bbs;        // ex)mac // idxline[11]
+    public $itaj;       // 板名 ex)新・mac
 
-    public $datochiok; // DAT落ち取得権限があればTRUE(1) // idxline[12]
+    public $datochiok;  // DAT落ち取得権限があればTRUE(1) // idxline[12]
 
-    public $torder;    // スレッド新しい順番号
-    public $unum;      // 未読（新着レス）数
+    public $torder;     // スレッド新しい順番号
+    public $unum;       // 未読（新着レス）数
 
-    public $keyidx;    // idxファイルパス
-    public $keydat;    // ローカルdatファイルパス
+    public $keyidx;     // idxファイルパス
+    public $keydat;     // ローカルdatファイルパス
 
-    public $isonline;  // 板サーバにあればtrue。subject.txtやdat取得時に確認してセットされる。
-    public $new;       // 新規スレならtrue
+    public $isonline;   // 板サーバにあればtrue。subject.txtやdat取得時に確認してセットされる。
+    public $new;        // 新規スレならtrue
 
     /*
-    public $ttitle_hc; // < が &lt; であったりするので、デコードしたスレタイトル
-    public $ttitle_hd; // HTML表示用に、エンコードされたスレタイトル
-    public $ttitle_ht; // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
+    public $ttitle_hc;  // < が &lt; であったりするので、デコードしたスレタイトル
+    public $ttitle_hd;  // HTML表示用に、エンコードされたスレタイトル
+    public $ttitle_ht;  // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
     */
-    protected $_ttitle_hc; // < が &lt; であったりするので、デコードしたスレタイトル
-    protected $_ttitle_hd; // HTML表示用に、エンコードされたスレタイトル
-    protected $_ttitle_ht; // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
+    protected $_ttitle_hc;  // < が &lt; であったりするので、デコードしたスレタイトル
+    protected $_ttitle_hd;  // HTML表示用に、エンコードされたスレタイトル
+    protected $_ttitle_ht;  // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
 
-    public $dayres;    // 一日当たりのレス数。勢い。
+    public $dayres;     // 一日当たりのレス数。勢い。
 
-    public $dat_type;  // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
+    public $dat_type;   // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
 
-    public $ls = '';   // 表示レス番号の指定
+    public $ls = '';    // 表示レス番号の指定
 
     public $similarity; // タイトルの類似性
 
@@ -69,24 +74,34 @@ class Thread
         $this->_ttitle_hc = null;
         $this->_ttitle_hd = null;
         $this->_ttitle_ht = null;
-        $this->_unknown_props = null;
     }
 
     // }}}
     // {{{ __get()
 
     /**
-     * ゲッター (ttitle_hc, ttitle_hd, ttitle_ht を必要になったときに設定・取得する)
+     * ゲッター
+     *
+     * 毎回必要でなく、生成コストのかかるプロパティ
+     * (ttitle_hc, ttitle_hd, ttitle_ht, favs)
+     * を必要になったときに設定・取得する
+     *
+     * _unknown_props は予備
+     *
+     * @param   string  $name
+     * @return  mixed
      */
     public function __get($name)
     {
         switch ($name) {
         case 'ttitle_hc':
-            return $this->_getTtitleHc();
+            return $this->getTtitleHc();
         case 'ttitle_hd':
-            return $this->_getTtitleHd();
+            return $this->getTtitleHd();
         case 'ttitle_ht':
-            return $this->_getTtitleHt();
+            return $this->getTtitleHt();
+        case 'favs':
+            return $this->getFavStatus();
         default:
             if (!is_array($this->_unknown_props)) {
                 $this->_unknown_props = array();
@@ -102,7 +117,15 @@ class Thread
     // {{{ __set()
 
     /**
-     * セッター (ttitle_hc, ttitle_hd, ttitle_ht を任意の値に設定する)
+     * セッター
+     *
+     * ttitle_hc, ttitle_hd, ttitle_ht を任意の値に設定する
+     *
+     * _unknown_props は予備
+     *
+     * @param   string  $name
+     * @param   mixed   $value
+     * @return  void
      */
     public function __set($name, $value)
     {
@@ -130,18 +153,18 @@ class Thread
     /**
      * ttitleをセットする
      */
-    function setTtitle($ttitle)
+    public function setTtitle($ttitle)
     {
         $this->ttitle = $ttitle;
     }
 
     // }}}
-    // {{{ _setTtitleHc()
+    // {{{ getTtitleHc()
 
     /**
      * HTMLの特殊文字をデコードしたスレタイトルを取得する
      */
-    protected function _getTtitleHc()
+    public function getTtitleHc()
     {
         if ($this->_ttitle_hc === null) {
             // < が &lt; であったりするので、デコードする
@@ -155,12 +178,12 @@ class Thread
     }
 
     // }}}
-    // {{{ _setTtitleHd()
+    // {{{ getTtitleHd()
 
     /**
      * HTML表示用に特殊文字をエンコードしたスレタイトルを取得する
      */
-    protected function _getTtitleHd()
+    public function getTtitleHd()
     {
         if ($this->_ttitle_hd === null) {
             // HTML表示用に htmlspecialchars() したもの
@@ -170,12 +193,12 @@ class Thread
     }
 
     // }}}
-    // {{{ _setTtitleHt()
+    // {{{ getTtitleHt()
 
     /**
      * HTML表示用に調整されたスレタイトルを取得する
      */
-    protected function _getTtitleHt()
+    public function getTtitleHt()
     {
         global $_conf;
 
@@ -184,18 +207,18 @@ class Thread
             if ($_conf['ktai']) {
                 $tt_max_len = $_conf['sb_ttitle_max_len_k'];
                 $tt_trim_len = $_conf['sb_ttitle_trim_len_k'];
-                $tt_trip_pos = $_conf['sb_ttitle_trim_pos_k'];
+                $tt_trim_pos = $_conf['sb_ttitle_trim_pos_k'];
             } else {
                 $tt_max_len = $_conf['sb_ttitle_max_len'];
                 $tt_trim_len = $_conf['sb_ttitle_trim_len'];
-                $tt_trip_pos = $_conf['sb_ttitle_trim_pos'];
+                $tt_trim_pos = $_conf['sb_ttitle_trim_pos'];
             }
 
-            $ttitle_hc = $this->_getTtitleHc();
+            $ttitle_hc = $this->getTtitleHc();
             $ttitle_len = strlen($ttitle_hc);
 
             if ($tt_max_len > 0 && $ttitle_len > $tt_max_len && $ttitle_len > $tt_trim_len) {
-                switch ($tt_trip_pos) {
+                switch ($tt_trim_pos) {
                 case -1:
                     $a_ttitle = '... ';
                     $a_ttitle .= mb_strcut($ttitle_hc, $ttitle_len - $tt_trim_len);
@@ -213,7 +236,7 @@ class Thread
                 }
                 $this->_ttitle_ht = htmlspecialchars($a_ttitle, ENT_QUOTES);
             } else {
-                $this->_ttitle_ht = $this->_getTtitleHd();
+                $this->_ttitle_ht = $this->getTtitleHd();
             }
         }
         return $this->_ttitle_ht;
@@ -238,13 +261,7 @@ class Thread
             }
         }
 
-        /*
-        if ($la[6]) {
-            $this->fav = $la[6];
-        }
-        */
-
-        $this->getFavStatus();
+        //$this->fav = (int)$la[6];
     }
 
     // }}}
@@ -257,19 +274,14 @@ class Thread
     {
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('setThreadPathInfo()');
 
-        $this->host =   $host;
-        $this->bbs =    $bbs;
-        $this->key =    $key;
+        $this->host = $host;
+        $this->bbs = $bbs;
+        $this->key = $key;
 
-        $dat_host_dir = P2Util::datDirOfHost($this->host);
-        $idx_host_dir = P2Util::idxDirOfHost($this->host);
-
-        $this->keydat = $dat_host_dir . '/' . $this->bbs . '/' . $this->key . '.dat';
-        $this->keyidx = $idx_host_dir . '/' . $this->bbs . '/' . $this->key . '.idx';
+        $this->keydat = P2Util::datDirOfHost($host) . '/' . $bbs . '/' . $key . '.dat';
+        $this->keyidx = P2Util::idxDirOfHost($host) . '/' . $bbs . '/' . $key . '.idx';
 
         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setThreadPathInfo()');
-
-        $this->getFavStatus();
 
         return true;
     }
@@ -334,9 +346,7 @@ class Thread
             $this->gotnum = 0;
         }
 
-        if ($lar[6]) {
-            $this->fav = $lar[6];
-        }
+        $this->fav = (int)$lar[6]; // あえてboolでなく
 
         if (isset($lar[12])) {
             $this->datochiok = $lar[12];
@@ -593,20 +603,20 @@ class Thread
     {
         global $_conf;
 
-        if (!$_conf['expack.misc.multi_favs']) {
-            return;
-        }
-
-        $this->favs = array();
-        foreach ($_conf['favlists'] as $num => $favlist) {
-            $this->favs[$num] = false;
-            foreach ($favlist as $fav) {
-                if ($this->key == $fav['key'] && $this->bbs == $fav['bbs']) {
-                    $this->favs[$num] = true;
-                    break;
+        if (!is_array($this->_favs)) {
+            if (!$_conf['expack.misc.multi_favs'] || $_conf['expack.misc.favset_num'] < 0) {
+                $this->_favs = array($this->fav);
+            } else {
+                $this->_favs = array_fill(0, $_conf['expack.misc.favset_num'] + 1, false);
+                foreach ($_conf['favlists'] as $num => $favlist) {
+                    if (isset($favlist[$this->bbs])) {
+                        $this->_favs[$num] = in_array($this->key, $favlist[$this->bbs]);
+                    }
                 }
             }
         }
+
+        return $this->_favs;
     }
 
     // }}}

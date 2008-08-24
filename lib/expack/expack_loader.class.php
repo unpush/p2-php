@@ -125,6 +125,7 @@ class ExpackLoader
         global $_conf;
 
         if (!$_conf['ktai']) {
+            $aShowThread->thumb_id_suffix = '-' . strtr(microtime(), '. ', '--');
             $aShowThread->thumbnailer = new ThumbNailer(1);
         } else {
             $aShowThread->inline_prvw = new ThumbNailer(1);
@@ -133,9 +134,8 @@ class ExpackLoader
 
         if ($aShowThread->thumbnailer->ini['General']['automemo']) {
             $aShowThread->img_memo = IC2DB_Images::staticUniform($aShowThread->thread->ttitle, 'CP932');
-            $hint = mb_convert_encoding('ž', 'UTF-8', 'CP932');
-            $aShowThread->img_memo_query = '&amp;_hint=' . rawurlencode($hint);
-            $aShowThread->img_memo_query .= '&amp;memo=' . rawurlencode($aShowThread->img_memo);
+            $aShowThread->img_memo_query = '&amp;memo=' . rawurlencode($aShowThread->img_memo);
+            $aShowThread->img_memo_query .= '&amp;' . $_conf['detect_hint_q_utf8'];
         } else {
             $aShowThread->img_memo = NULL;
             $aShowThread->img_memo_query = '';

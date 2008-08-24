@@ -1,9 +1,13 @@
 <?php
-/* ImageCache2 - 画像のダウンロード・サムネイル作成 */
+/**
+ * ImageCache2 - 画像のダウンロード・サムネイル作成
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
@@ -162,7 +166,7 @@ if ($result) {
                     'mime' => $search->mime, 'memo' => $search->memo, 'rank' => $search->rank);
 
     // 自動メモ機能が有効のとき
-    if ($ini['General']['automemo'] && !is_null($memo) && !strstr($search->memo, $memo)) {
+    if ($ini['General']['automemo'] && !is_null($memo) && strpos($search->memo, $memo) === false) {
         if (is_string($search->memo) && strlen($search->memo) > 0) {
             $memo .= ' ' . $search->memo;
         }
@@ -623,8 +627,8 @@ function ic2_display($path, $params)
                 case '.png': header("Content-Type: image/png; name=\"{$name}\""); break;
                 case '.gif': header("Content-Type: image/gif; name=\"{$name}\""); break;
                 default:
-                    if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE') ||
-                        strstr($_SERVER['HTTP_USER_AGENT'], 'Opera')
+                    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false ||
+                        strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false
                     ) {
                         header("Content-Type: application/octetstream; name=\"{$name}\"");
                     } else {

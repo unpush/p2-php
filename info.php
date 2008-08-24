@@ -3,7 +3,7 @@
     p2 - スレッド情報ウィンドウ
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/dele.inc.php';

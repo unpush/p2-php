@@ -2,11 +2,15 @@
 /* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
 /* mi: charset=Shift_JIS */
 
-/* ImageCache2 - ダウンローダ */
+/**
+ * ImageCache2 - ダウンローダ
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
@@ -58,7 +62,7 @@ $qf_defaults = array(
 
 // フォームの固定値
 $qf_constants = array(
-    '_hint'       => '◎◇',
+    '_hint'       => $_conf['detect_hint'],
     'download'    => 'ダウンロード',
     'reset'       => 'リセット',
     'close'       => '閉じる',
@@ -180,9 +184,8 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     if (isset($params['memo']) && strlen(trim($params['memo'])) > 0) {
         $new_memo = IC2DB_Images::staticUniform($params['memo'], 'CP932');
         $_memo_en = rawurlencode($new_memo);
-        $_hint_en = rawurlencode(mb_convert_encoding('◎◇', 'UTF-8', 'CP932'));
         // レンダリング時にhtmlspecialchars()されるので、ここでは&を&amp;にしない
-        $extra_params .= '&_hint=' . $_hint_en . '&memo=' . $_memo_en;
+        $extra_params .= '&memo=' . $_memo_en . '&' . $_conf['detect_hint_q_utf8'];
     } else {
         $new_memo = NULL;
     }
@@ -384,3 +387,14 @@ $flexy->output();
 
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

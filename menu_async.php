@@ -6,7 +6,7 @@
     現状ではお気に板とRSSのセット切り替えのみ対応
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/brdctl.class.php';
 require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
 
@@ -74,9 +74,9 @@ function changeSkin($skin)
     }
 
     if ($skin == 'conf_style') {
-        $newskin = 'conf/conf_user_style.php';
+        $newskin = './conf/conf_user_style.php';
     } else {
-        $newskin = 'skin/' . $skin . '.php';
+        $newskin = './skin/' . $skin . '.php';
     }
 
     if (file_exists($newskin)) {

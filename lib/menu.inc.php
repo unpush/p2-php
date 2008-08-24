@@ -173,26 +173,23 @@ if ($_conf['input_type_search']) {
     // 板検索
     echo <<<EOP
     <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self" class="inline-form">
-        <input type="hidden" name="_hint" value="◎◇">
         <input type="search" name="word" value="{$hd['word']}" size="16" autosave="rep2.expack.search.menu" results="10" placeholder="板検索">
-        {$_conf['k_input_ht']}
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br />\n
 EOP;
     // スレタイ検索
     echo <<<EOP
     <form method="GET" action="tgrepc.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form">
-        <input type="hidden" name="_hint" value="◎◇">
         <input type="search" name="Q" value="" size="16" autosave="rep2.expack.search.thread" results="{$_conf['expack.tgrep.recent2_num']}" placeholder="スレタイ検索">
-        {$_conf['k_input_ht']}
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     // Google検索
     if ($google_search_enabled) {
         echo <<<EOP
     <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form">
-        <input type="hidden" name="_hint" value="◎◇">
         <input type="search" name="q" value="" size="16" autosave="rep2.expack.search.google" results="{$_conf['expack.google.recent2_num']}" placeholder="Google検索">
-        {$_conf['k_input_ht']}
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     }
@@ -204,23 +201,23 @@ EOP;
     // 板検索
     echo <<<EOP
     <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self" class="inline-form" style="white-space:nowrap">
-        <input type="hidden" name="_hint" value="◎◇">
         <input type="text" name="word" value="{$hd['word']}" size="12"><input type="submit" name="submit" value="板">
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     // スレタイ検索
     echo <<<EOP
     <form method="GET" action="tgrepc.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form" style="white-space:nowrap">
-        <input type="hidden" name="_hint" value="◎◇">
         <input type="text" name="Q" value="" size="12"><input type="submit" value="ｽﾚ">
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     // Google検索
     if ($google_search_enabled) {
         echo <<<EOP
     <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form" style="white-space:nowrap">
-        <input type="hidden" name="_hint" value="◎◇">
         <input type="text" name="q" value="" size="12"><input type="submit" value="G">
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     }

@@ -143,17 +143,16 @@ EOP;
             $list_disp_all_num = $GLOBALS['ita_mikke']['num']; //
             $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
 
-            $detect_hint_q = 't_hint='.urlencode('ž');
-            $word_q = '&amp;word='.rawurlencode($_REQUEST['word']);
+            $word_en = rawurlencode($word);
 
             if ($disp_navi['from'] > 1) {
                 $mae_ht = <<<EOP
-<a href="menu_k.php?w{$detect_hint_q}{$word_q}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">‘O</a>
+<a href="menu_k.php?word={$word_en}&amp;from={$disp_navi['mae_from']}&amp;nr=1&amp;{$_conf['detect_hint_q']}{$_conf['k_at_a']}">‘O</a>
 EOP;
             }
             if ($disp_navi['end'] < $list_disp_all_num) {
                 $tugi_ht = <<<EOP
-<a href="menu_k.php?{$detect_hint_q}{$word_q}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">ŽŸ</a>
+<a href="menu_k.php?word={$word_en}&amp;from={$disp_navi['tugi_from']}&amp;nr=1&amp;{$_conf['detect_hint_q']}{$_conf['k_at_a']}">ŽŸ</a>
 EOP;
             }
 

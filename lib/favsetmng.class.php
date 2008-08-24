@@ -45,7 +45,12 @@ class FavSetManager
                     if (!isset($lar[11])) {
                         continue;
                     }
-                    $_conf['favlists'][$i][] = array('key' => $lar[1], 'bbs' => $lar[11]);
+                    $bbs = $lar[11];
+                    if (!isset($_conf['favlists'][$i][$bbs])) {
+                        $_conf['favlists'][$i][$bbs] = array($lar[1]);
+                    } else {
+                        $_conf['favlists'][$i][$bbs][] = $lar[1];
+                    }
                 }
             }
         }

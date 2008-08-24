@@ -10,18 +10,14 @@
 
 // {{{ p2Šî–{Ý’è“Ç‚Ýž‚Ý&”FØ
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 // }}}
 
 if ($_conf['view_forced_by_query']) {
-    if (!$_conf['ktai']) {
-        output_add_rewrite_var('b', 'pc');
-    } else {
-        output_add_rewrite_var('b', 'k');
-    }
+    output_add_rewrite_var('b', $_conf['b']);
 }
 
 //============================================================

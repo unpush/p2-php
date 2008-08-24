@@ -3,7 +3,7 @@
     p2 - レス書き込みフォーム
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ユーザ認証

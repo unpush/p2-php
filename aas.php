@@ -37,7 +37,7 @@
 
 // {{{ p2Šî–{Ý’è“Ç‚Ýž‚Ý&”FØ
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 

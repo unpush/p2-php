@@ -4,9 +4,9 @@
 
 // p2 - RSS編集
 
-include_once './conf/conf.inc.php';
-include_once P2_LIB_DIR . '/filectl.class.php';
-include_once P2_LIB_DIR . '/strctl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/strctl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -28,7 +28,6 @@ if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_se
 $add_rss_form_ht = <<<EOFORM
 <hr>
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" id="setrss" name="setrss" value="1">
     <table border="0" cellspacing="1" cellpadding="0">
         <tr>
@@ -46,6 +45,7 @@ $add_rss_form_ht = <<<EOFORM
             </td>
         </tr>
     </table>
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
 EOFORM;
 

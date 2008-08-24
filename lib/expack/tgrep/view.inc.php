@@ -48,9 +48,9 @@
     <td align="left" valign="middle"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
     <td align="left" valign="middle">
         <form id="searchForm" name="searchForm" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
-        <input type="hidden" name="_hint" value="ÅùÅû" />
         <input id="Q" name="Q" <?php echo $htm['search_attr']; ?> />
         <input type="submit" value="åüçı" />
+        <?php echo $_conf['detect_hint_input_xht'], $_conf['k_input_ht']; ?>
         </form>
     </td>
     <td align="right" valign="middle"><?php if ($threads) { ?><a class="toolanchor" href="#sbtoolbar2" target="_self">Å•</a><?php } else { ?>Å@<?php } ?></td>
@@ -172,9 +172,9 @@ foreach ($threads as $o => $t) {
     <td align="left" valign="middle"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
     <td align="left" valign="middle">
         <form id="searchForm2" name="searchForm" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
-        <input type="hidden" name="_hint" value="ÅùÅû" />
         <input id="Q2" name="Q" <?php echo $htm['search_attr']; ?> />
         <input type="submit" value="åüçı" />
+        <?php echo $_conf['detect_hint_input_xht'], $_conf['k_input_ht']; ?>
         </form>
     </td>
     <td align="right" valign="middle"><a class="toolanchor" href="#sbtoolbar1" target="_self">Å£</a></td>

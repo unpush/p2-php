@@ -19,7 +19,7 @@ EOM;
 if ($_conf['expack.editor.constant']) {
     // ’èŒ^•¶‚Ì‰Šú‰»‚Æ“Ç‚İ‚İ
     $CONSTANT = array();
-    @include 'conf/conf_constant.php';
+    @include './conf/conf_constant.php';
     // ƒtƒH[ƒ€‚Ì¶¬
     $js['dp_cnstmsg'] = '';
     if ($_conf['expack.editor.dpreview']) {

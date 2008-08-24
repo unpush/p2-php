@@ -3,7 +3,7 @@
     p2 - レス書き込み
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
@@ -529,29 +529,31 @@ function postIt($host, $bbs, $key, $post)
     // cookie確認（post再チャレンジ）
     } elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
-        $htm['more_hidden_post'] = '';
+        $GLOBALS['_post_form_hidden_values'] = <<<EOFORM
+<input type="hidden" name="host" value="{$host}">
+<input type="hidden" name="popup" value="{$popup}">
+<input type="hidden" name="rescount" value="{$rescount}">
+<input type="hidden" name="ttitle_en" value="{$ttitle_en}">
+EOFORM;
         $more_hidden_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru', 'csrfid', 'k', 'b');
         foreach ($more_hidden_keys as $hk) {
             if (isset($_POST[$hk])) {
                 $value_hd = htmlspecialchars($_POST[$hk], ENT_QUOTES);
-                $htm['more_hidden_post'] .= "<input type=\"hidden\" name=\"{$hk}\" value=\"{$value_hd}\">\n";
+                $GLOBALS['_post_form_hidden_values'] .= "\n<input type=\"hidden\" name=\"{$hk}\" value=\"{$value_hd}\">";
             }
         }
 
-        $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi(?:\\?guid=ON)?\"?>/i';
-        $form_replace = <<<EOFORM
-<form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="_hint" value="◎◇">
-    <input type="hidden" name="host" value="{$host}">
-    <input type="hidden" name="popup" value="{$popup}">
-    <input type="hidden" name="rescount" value="{$rescount}">
-    <input type="hidden" name="ttitle_en" value="{$ttitle_en}">
-    <input type="hidden" name="sub" value="\$1">
-    {$htm['more_hidden_post']}
-EOFORM;
-        $response = preg_replace($form_pattern, $form_replace, $response);
+        $replaced = preg_replace_callback('{<form method="?POST"? action="?\\.\\./test/(sub)?bbs\\.cgi(?:\\?guid=ON)?"?>(.+?)</form>}i', 'replacePostFormCb', $response, -1, $count);
 
-        $h_b = explode("</head>", $response);
+        if ($count != 1) {
+            echo '<html><head><title>p2 ERROR</title></head><body>';
+            echo '<h1>p2 ERROR</h1><p>サーバからのレスポンスが変です。</p><pre>';
+            echo htmlspecialchars($response, ENT_QUOTES);
+            echo '</pre></body></html>';
+            return false;
+        }
+
+        $h_b = explode('</head>', $replaced, 2);
 
         // HTMLプリント
         echo $h_b[0];
@@ -736,4 +738,22 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
     }
 
     return $out_str;
+}
+
+/**
+ * COOKIEの確認フォームを書き換えるコールバック関数
+ *
+ * @param array $m
+ * @return string
+ */
+function replacePostFormCb($m)
+{
+    global $_conf, $_post_form_hidden_values;
+
+    return <<<EOFORM
+<form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
+{$m[2]}<input type="hidden" name="sub" value="{$m[1]}">
+{$_post_form_hidden_values}{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
+</form>
+EOFORM;
 }

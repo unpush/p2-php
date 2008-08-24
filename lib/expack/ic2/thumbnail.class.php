@@ -128,8 +128,6 @@ class ThumbNailer
                 $this->error('無効なイメージドライバです。');
         }
 
-        $this->epeg = ($this->ini['General']['epeg'] && extension_loaded('epeg')) ? true : false;
-
         // ディレクトリ設定
         $this->cachedir   = $this->ini['General']['cachedir'];
         $this->sourcedir  = $this->cachedir . '/' . $this->ini['Source']['name'];
@@ -165,6 +163,16 @@ class ThumbNailer
             $this->quality = 0;
         }
         $this->trim = (bool) $options['trim'];
+
+        // Epeg使用判定
+        if ($this->ini['General']['epeg'] && extension_loaded('epeg') &&
+            !$this->dynamic && $this->type == '.jpg' &&
+            $this->quality <= $this->ini['General']['epeg_quality_limit'])
+        {
+            $this->epeg = true;
+        } else {
+            $this->epeg = false;
+        }
 
         // サムネイルの背景色設定
         if (preg_match('/^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})$/i', // RGB各色2桁の16進数
@@ -243,7 +251,7 @@ class ThumbNailer
         }*/
 
         // Epegでサムネイルを作成
-        if ($mime == 'image/jpeg' && $this->type == '.jpg' && $this->epeg && !$this->dynamic) {
+        if ($mime == 'image/jpeg' && $this->epeg) {
             $dst = ($this->dynamic) ? '' : $thumb;
             $result = epeg_thumbnail_create($src, $dst, $this->max_width, $this->max_height, $this->quality);
             if ($result == false) {

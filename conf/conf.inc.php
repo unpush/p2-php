@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080823.0100',   // 拡張パックのバージョン
+    'p2expack'  => '080824.0200',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -20,7 +20,6 @@ $_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
 $MYSTYLE    = array();
 $STYLE      = array();
 $debug      = false;
-$mobile     = null;
 $skin       = null;
 $skin_en    = null;
 $skin_name  = null;
@@ -56,18 +55,20 @@ $word = null;
  */
 function p2configure()
 {
-    global $MYSTYLE, $STYLE, $debug, $mobile;
+    global $MYSTYLE, $STYLE, $debug;
     global $skin, $skin_en, $skin_name, $skin_uniq;
     global $_conf, $_info_msg_ht, $_login, $_p2session;
     global $conf_user_def, $conf_user_rules, $conf_user_rad, $conf_user_sel;
 
-//======================================================================
-// 基本設定処理
-//======================================================================
-// エラー出力設定（今はNOTICEを出さないコードを心掛けているけれど、昔書いた部分でたくさん出ると思う）
+// エラー出力設定
 //error_reporting(E_ALL & ~E_STRICT);
 error_reporting(E_ALL & ~(E_NOTICE | E_STRICT));
 //error_reporting(E_ALL & ~(E_NOTICE | E_STRICT | E_DEPRECATED));
+
+// 新規ログインとメンバーログインの同時指定はありえないので、エラーを出す
+if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
+    p2die('無効なURLです。');
+}
 
 // {{{ 基本変数
 
@@ -98,7 +99,7 @@ p2checkenv(__LINE__);
 // タイムゾーンをセット
 date_default_timezone_set('Asia/Tokyo');
 
-@set_time_limit(60); // (60) スクリプト実行制限時間(秒)
+set_time_limit(60); // (60) スクリプト実行制限時間(秒)
 
 // 自動フラッシュをオフにする
 ob_implicit_flush(0);
@@ -110,11 +111,11 @@ ob_implicit_flush(0);
 // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
 ini_set('arg_separator.output', '&amp;');
 
-// リクエストIDを設定
-define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
+// リクエストIDを設定 (コストが大きい割に使っていないので廃止)
+//define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
 
 // Windows なら
-if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
     // Windows
     defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ';');
     defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '\\');
@@ -141,7 +142,7 @@ mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
 
 if (function_exists('mb_ereg_replace')) {
     define('P2_MBREGEX_AVAILABLE', 1);
-    @mb_regex_encoding('CP932');
+    mb_regex_encoding('CP932');
 } else {
     define('P2_MBREGEX_AVAILABLE', 0);
 }
@@ -149,23 +150,23 @@ if (function_exists('mb_ereg_replace')) {
 // }}}
 // {{{ ライブラリ類のパス設定
 
+define('P2_BASE_DIR', dirname(dirname(__FILE__)));
+
 // 基本的な機能を提供するするライブラリ
-define('P2_LIBRARY_DIR', './lib');
-define('P2_LIB_DIR', './lib');
+define('P2_LIB_DIR', P2_BASE_DIR . '/lib');
 
 // おまけ的な機能を提供するするライブラリ
-define('P2EX_LIBRARY_DIR', './lib/expack');
-define('P2EX_LIB_DIR', './lib/expack');
+define('P2EX_LIB_DIR', P2_BASE_DIR . '/lib/expack');
 
 // スタイルシート
-define('P2_STYLE_DIR', './style');
+define('P2_STYLE_DIR', P2_BASE_DIR. '/style');
 
 // PEARインストールディレクトリ、検索パスに追加される
-define('P2_PEAR_DIR', './includes');
+define('P2_PEAR_DIR', P2_BASE_DIR . '/includes');
 
 // PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
 // Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
-define('P2_PEAR_HACK_DIR', './lib/pear_hack');
+define('P2_PEAR_HACK_DIR', P2_BASE_DIR . '/lib/pear_hack');
 
 // 検索パスをセット
 if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
@@ -222,34 +223,55 @@ if ($debug) {
 }
 
 // }}}
-// {{{ フォームからの入力を一括でサニタイズ
+// {{{ リクエスト変数の処理
 
 /**
- * フォームからの入力を一括でクォート除去＆文字コード変換
- * フォームのaccept-encoding属性をUTF-8(Safari系) or Shift_JIS(その他)にし、
- * さらにhidden要素で美乳テーブルの文字を仕込むことで誤判定を減らす
- * 変換元候補にCP51932(EUCエンコードされたWindows-31J)があるのは
- * HTTP入力の文字コードがEUCに自動変換されるサーバのため
+ * リクエスト変数を一括でクォート除去＆文字コード変換
+ *
+ * 日本語を入力する可能性のあるフォームには隠し要素で
+ * エンコーディング判定用の文字列を仕込んでいる
+ *
+ * $_COOKIE は $_REQUEST に含めない
  */
-if (!empty($_GET)) {
+if (!empty($_GET) || !empty($_POST)) {
+    if (isset($_REQUEST['_hint'])) {
+        // "CP932" は "SJIS-win" のエイリアスで、"SJIS-win" と "SJIS" は別物
+        // "CP51932", "eucJP-win", "EUC-JP" はそれぞれ別物 (libmbfl的な意味で)
+        $request_encoding = mb_detect_encoding($_REQUEST['_hint'], 'UTF-8,CP51932,CP932');
+        if ($request_encoding == 'SJIS-win') {
+            $request_encoding = false;
+        }
+    } else {
+        $request_encoding = 'UTF-8,CP51932,CP932';
+    }
+
     if (get_magic_quotes_gpc()) {
         $_GET = array_map('stripslashes_r', $_GET);
-    }
-    mb_convert_variables('CP932', 'UTF-8,CP51932,CP932', $_GET);
-    $_GET = array_map('nullfilter_r', $_GET);
-}
-if (!empty($_POST)) {
-    if (get_magic_quotes_gpc()) {
         $_POST = array_map('stripslashes_r', $_POST);
     }
-    mb_convert_variables('CP932', 'UTF-8,CP51932,CP932', $_POST);
-    $_POST = array_map('nullfilter_r', $_POST);
-    $_REQUEST = array_merge($_GET, $_POST);
+
+    if ($request_encoding) {
+        mb_convert_variables('CP932', $request_encoding, $_GET, $_POST);
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $_POST = array_map('nullfilter_r', $_POST);
+        if (count($_GET)) {
+            $_GET = array_map('nullfilter_r', $_GET);
+            $_REQUEST = array_merge($_GET, $_POST);
+        } else {
+            $_REQUEST = $_POST;
+        }
+    } else {
+        $_GET = array_map('nullfilter_r', $_GET);
+        $_REQUEST = $_GET;
+    }
 } else {
-    $_REQUEST = $_GET;
+    $_REQUEST = array();
 }
 
 // }}}
+// {{{ 管理者用設定etc.
 
 // 管理者用設定を読み込み
 if (!include_once './conf/conf_admin.inc.php') {
@@ -275,13 +297,16 @@ $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html;
 $_conf['detect_hint'] = '◎◇';
 $_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
 $_conf['detect_hint_input_xht'] = '<input type="hidden" name="_hint" value="◎◇" />';
-$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'CP932');
+//$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'CP932');
+$_conf['detect_hint_q'] = '_hint=%81%9D%81%9E'; // urlencode($_conf['detect_hint'])
+$_conf['detect_hint_q_utf8'] = '_hint=%E2%97%8E%E2%97%87'; // urlencode($_conf['detect_hint_utf8'])
 
+// }}}
 // {{{ 端末判定
 
 $_conf['login_check_ip']  = 1; // ログイン時にIPアドレスを検証する
 $_conf['input_type_search'] = false;
-$_conf['extra_headers_ht'] = $_conf['extra_headers_xht'] = '';
+$_conf['extra_headers_ht'] = '';
 
 $mobile = Net_UserAgent_Mobile::singleton();
 
@@ -292,22 +317,6 @@ if (P2Util::isBrowserIphone()) {
     $_conf['disable_cookie'] = false;
     $_conf['accept_charset'] = 'UTF-8';
     $_conf['input_type_search'] = true;
-
-    // Webclipアイコンはimg/touch-iconに数パターン置いてある
-    $_conf['extra_headers_ht'] = <<<EOS
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
-<meta name="format-detection" content="telephone=no">
-<link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png">
-<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2_version_id']}">
-<script type="text/javascript" src="js/iphone.js?{$_conf['p2_version_id']}"></script>
-EOS;
-    $_conf['extra_headers_xht'] = <<<EOS
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
-<meta name="format-detection" content="telephone=no" />
-<link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png" />
-<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2_version_id']}" />
-<script type="text/javascript" src="js/iphone.js?{$_conf['p2_version_id']}"></script>
-EOS;
 
 // PC
 } elseif ($mobile->isNonMobile()) {
@@ -376,58 +385,123 @@ EOS;
 // }}}
 // {{{ クエリーによる強制ビュー指定
 
-// b=pc はまだリンク先が完全でない
-// output_add_rewrite_var() は便利だが、出力がバッファされて体感速度が落ちるのが難点。。
-// 体感速度を落とさない良い方法ないかな？
+// b=pc はまだリンク先が完全でない?
+// b=i はCSSでWebKitの独自拡張/先行実装プロパティを多用している
 
+$_conf['b'] = $_conf['client_type'] = ($_conf['iphone'] ? 'i' : ($_conf['ktai'] ? 'k' : 'pc'));
 $_conf['view_forced_by_query'] = false;
 $_conf['k_at_a'] = '';
 $_conf['k_at_q'] = '';
 $_conf['k_input_ht'] = '';
 
-// 強制PCビュー指定
-if (isset($_REQUEST['b']) && $_REQUEST['b'] == 'pc') {
-    if ($_conf['ktai']) {
+if (isset($_REQUEST['b'])) {
+    switch ($_REQUEST['b']) {
+
+    // 強制PCビュー指定
+    case 'pc':
+        if ($_conf['b'] != 'pc') {
+            $_conf['b'] = 'pc';
+            $_conf['ktai'] = false;
+            $_conf['iphone'] = false;
+        }
+        break;
+
+    // 強制iPhoneビュー指定
+    case 'i':
+        if ($_conf['b'] != 'i') {
+            $_conf['b'] = 'i';
+            $_conf['ktai'] = true;
+            $_conf['iphone'] = true;
+        }
+        break;
+
+    // 強制携帯ビュー指定
+    case 'k':
+        if ($_conf['b'] != 'k') {
+            $_conf['b'] = 'k';
+            $_conf['ktai'] = true;
+            $_conf['iphone'] = false;
+        }
+        break;
+
+    } // endswitch
+
+    // 強制ビュー指定されていたなら
+    if ($_conf['b'] != $_conf['client_type']) {
         $_conf['view_forced_by_query'] = true;
-        $_conf['ktai'] = false;
+        $_conf['k_at_a'] = '&amp;b=' . $_conf['b'];
+        $_conf['k_at_q'] = '?b=' . $_conf['b'];
+        $_conf['k_input_ht'] = '<input type="hidden" name="b" value="' . $_conf['b'] . '">';
+        //output_add_rewrite_var('b', $_conf['b']);
     }
-    $_conf['b'] = 'pc';
-    //output_add_rewrite_var('b', 'pc');
-
-    $_conf['k_at_a'] = '&amp;b=pc';
-    $_conf['k_at_q'] = '?b=pc';
-    $_conf['k_input_ht'] = '<input type="hidden" name="b" value="pc">';
-
-// 強制携帯ビュー指定（b=k。k=1は過去互換用）
-} elseif (!empty($_REQUEST['k']) || (isset($_REQUEST['b']) && $_REQUEST['b'] == 'k')) {
-    if (!$_conf['ktai']) {
-        $_conf['view_forced_by_query'] = true;
-        $_conf['ktai'] = true;
-    }
-    $_conf['b'] = 'k';
-    //output_add_rewrite_var('b', 'k');
-
-    $_conf['k_at_a'] = '&amp;b=k';
-    $_conf['k_at_q'] = '?b=k';
-    $_conf['k_input_ht'] = '<input type="hidden" name="b" value="k">';
 }
 
 // }}}
+// {{{ 携帯・iPhone用変数
 
-$_conf['k_to_index_ht'] = <<<EOP
+// iPhone用HTMLヘッダ要素
+if ($_conf['client_type'] == 'i') {
+    switch ($_conf['b']) {
+
+    // 強制PCビュー時
+    case 'pc':
+        $_conf['extra_headers_ht'] = <<<EOS
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png">
+<style type="text/css">body { -webkit-text-size-adjust: none; }</style>
+EOS;
+        break;
+
+    // 強制携帯ビュー時
+    case 'k':
+        $_conf['extra_headers_ht'] = <<<EOS
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png">
+<style type="text/css">
+body { word-break: normal; word-break: break-all; -webkit-text-size-adjust: none; }
+* { font-family: sans-serif; font-size: medium; line-height: 150%; }
+h1 { font-size: xx-large; }
+h2 { font-size: x-large; }
+h3 { font-size: large; }
+</style>
+EOS;
+        break;
+
+    // 純正iPhoneビュー
+    case 'i':
+    default:
+        $_conf['extra_headers_ht'] = <<<EOS
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png">
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/iphone.js?{$_conf['p2_version_id']}"></script>
+EOS;
+
+    } // endswitch
+
+// 強制iPhoneビュー時
+} elseif ($_conf['iphone']) {
+    $_conf['extra_headers_ht'] = <<<EOS
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/iphone.js?{$_conf['p2_version_id']}"></script>
+EOS;
+}
+
+// 携帯用「トップに戻る」リンク
+if ($_conf['ktai']) {
+    $_conf['k_to_index_ht'] = <<<EOP
 <a {$_conf['accesskey']}="0" href="index.php{$_conf['k_at_q']}">0.TOP</a>
 EOP;
+}
 
+// }}}
 // {{{ DOCTYPE HTML 宣言
 
 $ie_strict = false;
-if ($_conf['iphone']) {
-    $_conf['doctype'] = <<<EODOC
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">\n
-EODOC;
-} elseif (!$_conf['ktai']) {
-    if ($ie_strict) {
+if (!$_conf['ktai'] || $_conf['client_type'] != 'k') {
+    if ($ie_strict || strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') === false) {
         $_conf['doctype'] = <<<EODOC
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">\n
@@ -440,9 +514,6 @@ EODOC;
 }
 
 // }}}
-
-//======================================================================
-
 // {{{ ユーザ設定 読込
 
 // ユーザ設定ファイル
@@ -487,8 +558,7 @@ if (file_exists($_conf['conf_user_file'])) {
         filemtime(__FILE__) > $conf_user_mtime ||
         filemtime('./conf/conf_user_def.inc.php')    > $conf_user_mtime ||
         filemtime('./conf/conf_user_def_ex.inc.php') > $conf_user_mtime ||
-        filemtime('./conf/conf_user_def_i.inc.php')  > $conf_user_mtime
-        )
+        filemtime('./conf/conf_user_def_i.inc.php')  > $conf_user_mtime)
     {
         // デフォルト設定を読み込む
         include_once './conf/conf_user_def.inc.php';
@@ -558,25 +628,28 @@ if ($_conf['expack.user_agent']) {
 // {{{ デザイン設定 読込
 
 $skin_name = 'conf_user_style';
-$skin = 'conf/conf_user_style.inc.php';
+$skin = './conf/conf_user_style.inc.php';
 if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
     if (file_exists($_conf['expack.skin.setting_path'])) {
         $skin_name = rtrim(file_get_contents($_conf['expack.skin.setting_path']));
-        $skin = 'skin/' . $skin_name . '.php';
+        $skin = './skin/' . $skin_name . '.php';
     } else {
         FileCtl::make_datafile($_conf['expack.skin.setting_path'], $_conf['expack.skin.setting_perm']);
     }
     if (isset($_REQUEST['skin']) && preg_match('/^\w+$/', $_REQUEST['skin']) && $skin_name != $_REQUEST['skin']) {
         $skin_name = $_REQUEST['skin'];
-        $skin = 'skin/' . $skin_name . '.php';
+        $skin = './skin/' . $skin_name . '.php';
         FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin_name);
     }
 }
 if (!file_exists($skin)) {
     $skin_name = 'conf_user_style';
-    $skin = 'conf/conf_user_style.inc.php';
+    $skin = './conf/conf_user_style.inc.php';
 }
 $skin_en = urlencode($skin_name) . '&amp;_=' . P2_VERSION_ID;
+if ($_conf['view_forced_by_query']) {
+    $skin_en .= $_conf['k_at_a'];
+}
 include_once $skin;
 
 // }}}
@@ -662,7 +735,6 @@ if ($_conf['ktai']) {
                                    . htmlspecialchars($_conf['mobile.match_color'], ENT_QUOTES)
                                    . '; }</style>';
             $_conf['extra_headers_ht'] .= $k_filter_marker_style;
-            $_conf['extra_headers_xht'] .= $k_filter_marker_style;
             $_conf['k_filter_marker'] = '<span class="matched">\\1</span>';
         } else {
             $_conf['k_filter_marker'] = '<font color="' . htmlspecialchars($_conf['mobile.match_color']) . '">\\1</font>';
@@ -673,10 +745,8 @@ if ($_conf['ktai']) {
 }
 
 // }}}
+// {{{ 変数設定
 
-//======================================================================
-// 変数設定
-//======================================================================
 $_conf['rct_file'] =            $_conf['pref_dir'] . '/p2_recent.idx';
 $_conf['p2_res_hist_dat'] =     $_conf['pref_dir'] . '/p2_res_hist.dat'; // 書き込みログファイル（dat）
 $_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // 書き込みログファイル（データPHP）
@@ -701,13 +771,6 @@ $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
 $_conf['orig_favlist_file'] = $_conf['favlist_file'];
 $_conf['orig_favita_path']  = $_conf['favita_path'];
-
-// {{{ ありえない引数のエラー
-
-// 新規ログインとメンバーログインの同時指定はありえないので、エラー出す
-if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
-    p2die('無効なURLです。');
-}
 
 // }}}
 // {{{ ホストチェック
@@ -765,6 +828,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 }
 
 // }}}
+// {{{ お気にセット
 
 // 複数のお気にセットを使うとき
 if ($_conf['expack.misc.multi_favs']) {
@@ -779,6 +843,14 @@ if ($_conf['expack.misc.multi_favs']) {
     $_conf['m_rss_set']     = $_conf['m_rss_set_at_a']     = $_conf['m_rss_set_input_ht']     = '';
 }
 
+// }}}
+// {{{ misc.
+
+// XHTMLヘッダ要素
+if (defined('P2_OUTPUT_XHTML')) {
+    $_conf['extra_headers_xht'] = preg_replace('/<((?:link|meta) .+?)>/', '<\\1 />', $_conf['extra_headers_ht']);
+}
+
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
 require_once P2_LIB_DIR . '/login.class.php';
 $_login = new Login();
@@ -788,6 +860,7 @@ $a = ceil(1/2);
 $b = floor(1/3);
 $c = round(1/4, 1);
 
+// }}}
 }
 
 // }}} p2configure()
@@ -844,9 +917,8 @@ function addslashes_r($var, $r = 0)
 
 /**
  * 再帰的にヌル文字を削除する
- * mbstringで変換テーブルにない(?)外字を変換すると
- * NULL(0x00)になってしまうことがあるので消去する
- * (ExUtil)
+ *
+ * NULLバイトアタック対策
  *
  * @return  array|string
  */
@@ -988,11 +1060,7 @@ function fontconfig_apply_custom()
             $current_fontconfig = array('enabled' => false, 'custom' => array());
         }
         if ($current_fontconfig['enabled'] && is_array($current_fontconfig['custom'][$type])) {
-            $skin_uniq = '';
-            $sha1 = sha1($fontconfig_data . P2_VERSION_ID);
-            for ($i = 0; $i < 40; $i +=5) {
-                $skin_uniq .= base_convert(substr($sha1, $i, 5), 16, 32);
-            }
+            $skin_uniq = P2_VERSION_ID . sprintf('.%u', crc32($fontconfig_data));
             foreach ($current_fontconfig['custom'][$type] as $key => $value) {
                 if (strstr($key, 'fontfamily') && $value == '-') {
                     if ($key == 'fontfamily_aa') {
@@ -1012,7 +1080,7 @@ function fontconfig_apply_custom()
             }
         }
     }
-    $skin_en = preg_replace('/&amp;_=[^&]*/', '&amp;_=' . urlencode($skin_uniq), $skin_en);
+    $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . urlencode($skin_uniq);
 }
 
 // }}}
@@ -1027,17 +1095,15 @@ function print_style_tags()
 {
     global $skin_name, $skin_uniq;
     $style_a = '';
-    if ($skin_name) { $style_a .= '&skin=' . urlencode($skin_name); }
-    if ($skin_uniq) { $style_a .= '&_=' . urlencode($skin_uniq); }
+    if (strlen($skin_name)) { $style_a .= '&skin=' . urlencode($skin_name); }
+    if (strlen($skin_uniq)) { $style_a .= '&_=' . urlencode($skin_uniq); }
     if ($styles = func_get_args()) {
         echo "\t<style type=\"text/css\">\n";
-        echo "\t<!-->\n";
         foreach ($styles as $style) {
             if (file_exists(P2_STYLE_DIR . '/' . $style . '_css.inc')) {
                 printf("\t@import 'css.php?css=%s%s';\n", $style, $style_a);
             }
         }
-        echo "\t-->\n";
         echo "\t</style>\n";
     }
 }

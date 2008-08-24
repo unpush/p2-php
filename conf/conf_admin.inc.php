@@ -108,6 +108,6 @@ $_conf['conf_user_perm'] =  0606;   // ユーザ設定ファイル
 // ----------------------------------------------------------------------
 // {{{ 拡張パック
 
-include_once 'conf/conf_admin_ex.inc.php';
+include_once './conf/conf_admin_ex.inc.php';
 
 // }}}

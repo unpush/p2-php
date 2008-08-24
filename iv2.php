@@ -1,12 +1,15 @@
 <?php
-/* ImageCache2 - 画像キャッシュ一覧 */
+/**
+ * ImageCache2 - 画像キャッシュ一覧
+ */
 
 // {{{ p2基本設定読み込み&認証
 
 define('P2_FORCE_USE_SESSION', 1);
 define('P2_SESSION_NO_CLOSE', 1);
+define('P2_OUTPUT_XHTML', 1);
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
@@ -360,7 +363,7 @@ if ($_conf['ktai']) {
     $overwritable_params = array('order', 'sort', 'field', 'key', 'threshold', 'compare');
 
     // 絵文字を読み込む
-    require_once 'conf/conf_emoji.php';
+    require_once './conf/conf_emoji.php';
     $emj = getEmoji();
     $flexy->setData('e', $emj);
 

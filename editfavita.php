@@ -3,9 +3,9 @@
     p2 -  お気に入り編集
 */
 
-include_once './conf/conf.inc.php';
-include_once P2_LIB_DIR . '/filectl.class.php';
-include_once P2_LIB_DIR . '/strctl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/strctl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -30,14 +30,13 @@ if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
 // お気に板追加フォーム
 $add_favita_form_ht = <<<EOFORM
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
-    <input type="hidden" name="_hint" value="◎◇">
     <p>
-        {$_conf['k_input_ht']}
         板URL: <input type="text" id="url" name="url" value="http://" size="48">
         板名: <input type="text" id="itaj" name="itaj" value="" size="16">
         <input type="hidden" id="setfavita" name="setfavita" value="1">
         <input type="submit" name="submit" value="新規追加">
     </p>
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
 EOFORM;
 

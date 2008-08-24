@@ -10,7 +10,7 @@
         （先方に迷惑がかかる可能性が非常に高いので）
 */
 
-require_once 'conf/conf.inc.php'; // 基本設定
+require_once './conf/conf.inc.php'; // 基本設定
 require_once P2_LIB_DIR . '/p2util.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 

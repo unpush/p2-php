@@ -49,14 +49,16 @@ EOP;
 echo "</table>\n";
 
 // チェックフォーム =====================================
-echo $check_form_ht;
-//フォームフッタ
-echo <<<EOP
+if ($taborn_check_ht) {
+    echo $check_form_ht;
+    //フォームフッタ
+    echo <<<EOP
         <input type="hidden" name="host" value="{$aThreadList->host}">
         <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
         <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
     </form>\n
 EOP;
+}
 
 // sbject ツールバー =====================================
 include P2_LIB_DIR . '/sb_toolbar.inc.php';

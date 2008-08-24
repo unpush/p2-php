@@ -15,7 +15,7 @@
 <p flexy:if="nomatch">Ç»Ç¢Ç€ÅB</p>
 
 <div flexy:if="!nomatch">
-{editFormHeader:h}
+{editFormHeader:h}<input type="hidden" name="page" value="{page:h}" flexy:ignore="yes">
 <div align="center" id="top" name="top">{pager1:h}</div>
 <hr>
 <div align="right"><a href="#bottom" accesskey="8" DIRECTKEY="8">{e[8]:h}{e[dt1]:h}</a></div>

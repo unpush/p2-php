@@ -3,7 +3,7 @@
     p2 - あぼーんワード編集インタフェース
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -229,8 +229,6 @@ if ($_conf['ktai']) {
 echo <<<EOP
 {$usage}
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['k_input_ht']}
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="path" value="{$path_ht}">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
@@ -303,7 +301,10 @@ if (!$_conf['ktai']) {
     echo '</table>'."\n";
 }
 
-echo '</form>'."\n";
+echo <<<EOP
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
+</form>\n
+EOP;
 
 
 // 携帯なら

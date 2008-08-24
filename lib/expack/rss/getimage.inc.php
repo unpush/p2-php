@@ -42,8 +42,7 @@ function rss_get_image_ic2($src_url, $memo='')
     if ($thumbnailer->ini['General']['automemo'] && $memo !== '') {
         $img_memo = $icdb->uniform($memo, 'CP932');
         if ($memo !== '') {
-            $hint = mb_convert_encoding('ÅùÅû', 'UTF-8', 'CP932');
-            $img_memo_query = '&amp;_hint=' . rawurlencode($hint);
+            $img_memo_query = '&amp;' . $_conf['detect_hint_q_utf8'];
             $img_memo_query .= '&amp;memo=' . rawurlencode($img_memo);
         } else {
             $img_memo = NULL;

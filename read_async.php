@@ -6,7 +6,7 @@
     ツリー表示以外のルーチンはread.phpから拝借
 */
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/thread.class.php';    //スレッドクラス読込
 require_once P2_LIB_DIR . '/threadread.class.php';    //スレッドリードクラス読込
 require_once P2_LIB_DIR . '/filectl.class.php';

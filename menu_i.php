@@ -5,7 +5,7 @@
  * @link http://code.google.com/p/iui/
  */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/menu_iphone.inc.php';
 
 $_login->authorize(); //ƒ†[ƒU”FØ

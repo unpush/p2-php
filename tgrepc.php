@@ -9,7 +9,7 @@
 
 // {{{ p2Šî–{Ý’è“Ç‚Ýž‚Ý&”FØ
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
@@ -31,11 +31,7 @@ if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
 } else {
     $is_ajax = false;
     if ($_conf['view_forced_by_query']) {
-        if (!$_conf['ktai']) {
-            output_add_rewrite_var('b', 'pc');
-        } else {
-            output_add_rewrite_var('b', 'k');
-        }
+        output_add_rewrite_var('b', $_conf['b']);
     }
 }
 
@@ -277,7 +273,7 @@ if (!$is_ajax && $subhits && $subhits > $limit) {
         'totalItems'    => $subhits,
         'perPage'       => $limit,
         'urlVar'        => 'P',
-        'extraVars'     => array('_hint' => 'ž'),
+        'extraVars'     => array('_hint' => $_conf['detect_hint']),
         'importQuery'   => false,
         'curPageSpanPre'    => '<b>',
         'curPageSpanPost'   => '</b>',

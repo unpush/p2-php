@@ -182,13 +182,13 @@ function _get_read_jump_filter_form(ThreadRead $aThread, $options)
     global $_conf, $hd;
 
     return <<<EOP
-<input type="hidden" name="_hint" value="ž">
 <input type="hidden" name="host" value="{$aThread->host}">
 <input type="hidden" name="bbs" value="{$aThread->bbs}">
 <input type="hidden" name="key" value="{$aThread->key}">
 <input type="hidden" name="word" value="{$hd['word']}">
 <select name="page">{$options}</select><input type="submit" value="GO">
-<input type="hidden" name="offline" value="1">{$_conf['k_input_ht']}
+<input type="hidden" name="offline" value="1">
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 EOP;
 }
 

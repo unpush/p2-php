@@ -3,7 +3,7 @@
     p2 - 特殊機能実行スクリプト（携帯）
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/spm_k.inc.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';

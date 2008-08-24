@@ -4,7 +4,7 @@
     フレーム分割画面、右下部分
 */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/threadlist.class.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
@@ -146,10 +146,6 @@ EOP;
 if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
     $_conf['extra_headers_ht'] .= <<<EOS
 <link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
-<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
-EOS;
-    $_conf['extra_headers_xht'] .= <<<EOS
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
 <script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
 }
@@ -464,7 +460,7 @@ function readNew($aThread)
     } else {
         $prev_thre_ht = '';
     }
-    $next_thre_ht = "<a id=\"#ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">▼</a>";
+    $next_thre_ht = "<a id=\"ntta{$next_thre_num}\" href=\"#ntt{$next_thre_num}\">▼</a>";
 
     echo $_info_msg_ht;
     $_info_msg_ht = "";
@@ -646,7 +642,7 @@ if (!$aThreadList->num) {
     echo "<hr>";
 }
 
-$shinchaku_matome_url = "{$_conf['read_new_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}";
+$shinchaku_matome_url = "{$_conf['read_new_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}&amp;nt={$newtime}";
 
 if ($aThreadList->spmode == 'merge_favita') {
     $shinchaku_matome_url .= $_conf['m_favita_set_at_a'];

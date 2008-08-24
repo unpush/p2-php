@@ -1,7 +1,7 @@
 <?php
 // p2 -  タイトルページ
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -52,59 +52,45 @@ if ($array = P2Util::readIdPw2ch()) {
 // プリント設定
 //=========================================================
 // 最新版チェック
-if (!empty($_conf['updatan_haahaa'])) {
+$newversion_found = '';
+/*if (!empty($_conf['updatan_haahaa'])) {
     $newversion_found = checkUpdatan();
-}
+}*/
 
 // ログインユーザ情報
 $htm['auth_user'] = "<p>ログインユーザ: {$_login->user_u} - " . date("Y/m/d (D) G:i") . "</p>\n";
 
 // （携帯）ログイン用URL
-//$user_u_q = empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
-//$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
-$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=k';
+$url_b = htmlspecialchars(rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=', ENT_QUOTES);
 
-$htm['ktai_url'] = '<p>携帯ログイン用URL <a href="'.$url.'" target="_blank">'.$url.'</a></p>'."\n";
+$htm['ktai_url'] = <<<EOT
+<table border="0" cellspacing="0" cellpadding="1">
+    <tbody>
+        <tr><th>携帯用URL:</th><td><a href="{$url_b}k" target="_blank">{$url_b}k</a></td></tr>
+        <tr><th>iPhone用URL:</th><td><a href="{$url_b}i" target="_blank">{$url_b}i</a></td></tr>
+    </tbody>
+</table>
+EOT;
 
 // 前回のログイン情報
+$htm['last_login'] = '';
 if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
     if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
         $htm['log'] = array_map('htmlspecialchars', $log);
-        $htm['last_login'] = <<<EOP
-前回のログイン情報 - {$htm['log']['date']}<br>
-ユーザ:     {$htm['log']['user']}<br>
-IP:         {$htm['log']['ip']}<br>
-HOST:       {$htm['log']['host']}<br>
-UA:         {$htm['log']['ua']}<br>
-REFERER:    {$htm['log']['referer']}
-EOP;
-    }
-/*
-    $htm['last_login'] =<<<EOP
-<table cellspacing="0" cellpadding="2";>
-    <tr>
-        <td colspan="2">前回のログイン情報</td>
-    </tr>
-    <tr>
-        <td align="right">時刻: </td><td>{$alog['date']}</td>
-    </tr>
-    <tr>
-        <td align="right">ユーザ: </td><td>{$alog['user']}</td>
-    </tr>
-    <tr>
-        <td align="right">IP: </td><td>{$alog['ip']}</td>
-    </tr>
-    <tr>
-        <td align="right">HOST: </td><td>{$alog['host']}</td>
-    </tr>
-    <tr>
-        <td align="right">UA: </td><td>{$alog['ua']}</td>
-    </tr>
-    <tr>
-        <td align="right">REFERER: </td><td>{$alog['referer']}</td>
+        $htm['last_login'] = <<<EOT
+<br>
+<table border="0" cellspacing="0" cellpadding="1">
+    <caption>前回のログイン情報 - {$htm['log']['date']}</caption>
+    <tbody>
+        <tr><th>ユーザ:</th><td>{$htm['log']['user']}</td></tr>
+        <tr><th>IP:</th><td>{$htm['log']['ip']}</td></tr>
+        <tr><th>HOST:</th><td>{$htm['log']['host']}</td></tr>
+        <tr><th>UA:</th><td>{$htm['log']['ua']}</td></tr>
+        <tr><th>REFERER:</th><td>{$htm['log']['referer']}</td></tr>
+    </tbody>
 </table>
-EOP;
-*/
+EOT;
+    }
 }
 
 //=========================================================
@@ -125,6 +111,29 @@ echo <<<EOP
     <base target="read">
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <style type="text/css">
+    <!--
+    table caption {
+        text-align: left;
+        font-size: {$STYLE['fontsize']};
+    }
+    table th {
+        padding-right: 0.25em;
+        text-align: right;
+        vertical-align: top;
+        white-space: nowrap;
+        lihe-height: 100%;
+        font-weight: normal;
+        font-size: {$STYLE['fontsize']};
+    }
+    table td {
+        text-align: left;
+        vertical-align: top;
+        lihe-height: 100%;
+        font-size: {$STYLE['fontsize']};
+    }
+    -->
+    </style>
 </head>
 <body>\n
 EOP;

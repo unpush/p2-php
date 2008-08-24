@@ -261,7 +261,7 @@ function sb_print_k($aThreadList)
             }
 
             echo <<<EOP
-<li><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span>{$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
+<li><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
         } else {
             echo <<<EOP
