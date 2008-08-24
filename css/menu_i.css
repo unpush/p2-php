@@ -1,16 +1,25 @@
-ul.tgrep-result {
-	
+.align-c { text-align: center !important; }
+.align-l { text-align: left   !important; }
+.align-r { text-align: right  !important; }
+
+.color-r { color: red  !important; }
+.color-b { color: blue !important; }
+
+.size-l { font-size: large  !important; }
+.size-m { font-size: medium !important; }
+.size-s { font-size: small  !important; }
+
+.style-i { font-style: italic !important; }
+.style-n { font-style: normal !important; }
+
+.weight-b { font-weight: bold   !important; }
+.weight-n { font-weight: normal !important; }
+
+body > div > ul {
+	padding-left: 1.5em;
 }
 
-ul.tgrep-result li {
-	
-}
-
-ul.tgrep-result li a {
+ul.tgrep-result > li > a,
+div#tgrep_info > ul > li > a {
 	word-break: break-all;
-}
-
-ul.tgrep-result li span {
-	font-size: medium;
-	font-weight: normal;
 }

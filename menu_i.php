@@ -47,7 +47,7 @@ if (isset($_POST['word'])) {
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
     <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=Shift_JIS" />
-    <meta name="viewport" content="width=<?php echo $_conf['viewport_width']; ?>, initial-scale=1.0" />
+    <meta name="viewport" content="width=<?php echo $_conf['viewport_width']; ?>" />
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
     <title>rep2</title>
     <script type="application/x-javascript" src="iui/iui.js"></script>
@@ -66,7 +66,7 @@ if (isset($_POST['word'])) {
 <!-- {{{ トップメニュー -->
 <ul id="top" title="rep2" selected="true">
 <?php if ($_info_msg_ht) { ?>
-    <li><a href="#info_msg" style="color:red">エラー</a></li>
+    <li><a href="#info_msg" class="color-r">エラー</a></li>
 <?php } ?>
 
     <li class="group">リスト</li>
@@ -90,9 +90,9 @@ if (isset($_POST['word'])) {
 <?php if ($_conf['expack.rss.enabled']) { ?>
     <li><a href="#rss">RSS</a></li>
 <?php } ?>
-    <li><a href="tgrepc.php" target="_self">スレッドタイトル検索</a></li>
+    <li><a href="#tgrep">スレッド検索</a></li>
 <?php if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) { ?>
-    <li><a href="iv2.php" target="_self">画像キャッシュ一覧</a></li>
+    <li><a href="iv2.php" target="_self">画像キャッシュ</a></li>
 <?php } ?>
 
     <li class="group">管理</li>
@@ -210,6 +210,30 @@ EOP;
 </div>
 <!-- }}} -->
 
+<!-- {{{ スレッド検索 -->
+<ul id="tgrep" title="スレッド検索">
+    <li><a href="#tgrep_info">スレッド検索について</a></li>
+    <li class="group">クイックサーチ</li>
+    <?php include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php'; ?>
+    <li class="group">検索履歴</li>
+    <?php include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php'; ?>
+</ul>
+<!-- }}} -->
+
+<!-- {{{ スレッド検索について -->
+<div id="tgrep_info" class="panel" title="tGrepについて">
+<ul>
+    <li>rep2 機能拡張パックのスレッド検索は tGrep (<a href="http://page2.xrea.jp/tgrep/" target="_blank">http://page2.xrea.jp/tgrep/</a>) を利用しています。</li>
+    <li>iPhoneではメニュー右上の「ｽﾚ」ボタンをタップして現れるダイアログから検索します。</li>
+    <li>キーワードはスペース区切りで3つまで指定でき、すべてを含むものが抽出されます。</li>
+    <li>2つ目以降のキーワードで頭に - (半角マイナス) をつけると、それを含まないものが抽出されます。</li>
+    <li>&quot; または &#39; で囲まれた部分は一つのキーワードとして扱われます。</li>
+    <li>キーワードの全角半角、大文字小文字は無視されます。</li>
+    <li>データベースの更新は3時間に1回で、レス数などは更新時点での値です。</li>
+</ul>
+</div>
+<!-- }}} -->
+
 <!-- {{{ 板検索ダイアログ -->
 <form id="boardSearch" class="dialog"
   method="post" action="menu_i.php"
@@ -224,7 +248,7 @@ EOP;
 </form>
 <!-- }}} -->
 
-<!-- {{{ スレッドタイトル検索ダイアログ -->
+<!-- {{{ スレッド検索ダイアログ -->
 <form id="threadSearch" class="dialog"
   method="post" action="tgrepc.php"
   accept-charset="<?php echo $_conf['accept_charset']; ?>">

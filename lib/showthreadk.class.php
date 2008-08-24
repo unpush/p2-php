@@ -584,6 +584,7 @@ EOP;
     {
         global $_conf;
 
+        $ext_target_at = ($_conf['iphone']) ? ' target="_blank"' : '';
         $in_url = $s[1];
 
         // 通勤ブラウザ
@@ -593,7 +594,7 @@ EOP;
             if ($_conf['through_ime']) {
                 $tsukin_url = P2Util::throughIme($tsukin_url);
             }
-            $tsukin_link = '<a href="'.$tsukin_url.'">通</a>';
+            $tsukin_link = "<a href=\"{$tsukin_url}\"{$ext_target_at}>通</a>";
         }
 
         // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
@@ -723,6 +724,8 @@ EOP;
         global $_conf;
 
         if (isset($purl['scheme'])) {
+            $ext_target_at = ($_conf['iphone']) ? ' target="_blank"' : '';
+
             // 携帯用外部URL変換
             if ($_conf['k_use_tsukin']) {
                 return $this->ktai_exturl_callback(array('', $url, $str));
@@ -733,7 +736,7 @@ EOP;
             } else {
                 $link_url = $url;
             }
-            return "<a href=\"{$link_url}\">{$str}</a>";
+            return "<a href=\"{$link_url}\"{$ext_target_at}>{$str}</a>";
         }
         return FALSE;
     }
@@ -822,16 +825,18 @@ EOP;
             return FALSE;
         }
 
+        $ext_target_at = ($_conf['iphone']) ? ' target="_blank"' : '';
+
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
             $picto_url = 'http://pic.to/'.$purl['host'].$purl['path'];
-            $picto_tag = '<a href="'.$picto_url.'">(ﾋﾟ)</a> ';
+            $picto_tag = "<a href=\"{$picto_url}\"{$ext_target_at}>(ﾋﾟ)</a> ";
             if ($_conf['through_ime']) {
                 $link_url  = P2Util::throughIme($url);
                 $picto_url = P2Util::throughIme($picto_url);
             } else {
                 $link_url = $url;
             }
-            return "{$picto_tag}<a href=\"{$link_url}\">{$str}</a>";
+            return "{$picto_tag}<a href=\"{$link_url}\"{$ext_target_at}>{$str}</a>";
         }
         return FALSE;
     }

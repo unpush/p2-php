@@ -15,14 +15,6 @@ $_login->authorize();
 
 // }}}
 
-if ($_conf['view_forced_by_query']) {
-    if (!$_conf['ktai']) {
-        output_add_rewrite_var('b', 'pc');
-    } else {
-        output_add_rewrite_var('b', 'k');
-    }
-}
-
 // {{{ 準備
 
 if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
@@ -32,10 +24,21 @@ if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
     } else {
         $_GET['Q'] = $_GET['iq'];
     }
-    $ix = true;
+    if (isset($_GET['ic'])) {
+        unset($_GET['B'], $_GET['C'], $_GET['S'], $_GET['P'], $_GET['ib']);
+    }
+    $is_ajax = true;
 } else {
-    $ix = false;
+    $is_ajax = false;
+    if ($_conf['view_forced_by_query']) {
+        if (!$_conf['ktai']) {
+            output_add_rewrite_var('b', 'pc');
+        } else {
+            output_add_rewrite_var('b', 'k');
+        }
+    }
 }
+
 
 $query_params = array();
 if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
@@ -45,7 +48,7 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
     $query_params['q'] = $_GET['Q'];
     $query_params['n'] = $limit = ($_conf['ktai'] || $_conf['iphone']) ? '25' : '100';
     //$query_keys = array('s', 'b', 'c', 'o', 'n', 'p');
-    $query_keys = array('c', 'p');
+    $query_keys = array('s', 'b', 'c', 'p');
     foreach ($query_keys as $_k) {
         $_K = strtoupper($_k);
         if (isset($_GET[$_K])) {
@@ -159,14 +162,34 @@ if ($query) {
 // 基本変数
 $htm = array();
 $htm['tgrep_url'] = htmlspecialchars($_conf['expack.tgrep_url'], ENT_QUOTES);
-$htm['php_self'] = 'tgrepc.php'; //htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
-$htm['query'] = (isset($_GET['Q'])) ? htmlspecialchars($_GET['Q'], ENT_QUOTES) : '';
-$htm['query_en'] = (isset($_GET['Q'])) ? urlencode($_GET['Q']) : '';
-$htm['category'] = (isset($_GET['C'])) ? intval($_GET['C']) : 0;
+$htm['php_self']  = 'tgrepc.php'; //htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
+$htm['query']     = (isset($_GET['Q'])) ? htmlspecialchars($_GET['Q'], ENT_QUOTES) : '';
+$htm['query_en']  = (isset($_GET['Q'])) ? rawurlencode($_GET['Q']) : '';
+
+if (isset($_GET['ib']) && isset($_GET['S']) && isset($_GET['B'])) {
+    $htm['category'] = 0;
+    $htm['board']   = intval($_GET['ib']);
+    $htm['site']    = htmlspecialchars($_GET['S'], ENT_QUOTES);
+    $htm['site_en'] = rawurlencode($_GET['S']);
+    $htm['bbs']     = htmlspecialchars($_GET['B'], ENT_QUOTES);
+    $htm['bbs_en']  = rawurlencode($_GET['B']);
+} elseif (isset($_GET['C'])) {
+    $htm['category'] = intval($_GET['C']);
+    $htm['board']   = 0;
+    $htm['site_en'] = $htm['bbs_en'] = $htm['site'] = $htm['bbs'] = '';
+} else {
+    $htm['category'] = $htm['board'] = 0;
+    $htm['site_en'] = $htm['bbs_en'] = $htm['site'] = $htm['bbs'] = '';
+}
+
 $htm['skin_q'] = 'skin=' . $skin_en;
+
 if ($profile) {
     $htm['allhits'] = number_format($profile['hits']);
-    if ($htm['category'] && isset($profile['categories'][$htm['category']])) {
+    if ($htm['board'] && isset($profile['boards'][$htm['board']])) {
+        $subhits = $profile['boards'][$_GET['ib']]->hits;
+        $htm['hits'] = number_format($subhits);
+    } elseif ($htm['category'] && isset($profile['categories'][$htm['category']])) {
         $subhits = $profile['categories'][$htm['category']]->hits;
         $htm['hits'] = number_format($subhits);
     } else {
@@ -243,7 +266,7 @@ MOBILE_STYLE;
 }
 
 // ページャ
-if (!$ix && $subhits && $subhits > $limit) {
+if (!$is_ajax && $subhits && $subhits > $limit) {
     include_once 'Pager/Pager.php';
     $pager_options = array();
     $pager_options = array(
@@ -295,14 +318,12 @@ if (empty($_GET['M'])) {
     P2Util::header_nocache();
 }
 
-if ($ix) {
+if ($is_ajax) {
     header('Content-Type: application/xml; charset=UTF-8');
     //header('Content-Type: text/plain; charset=UTF-8');
     ob_start();
-    include P2EX_LIB_DIR . '/tgrep/view_ix.inc.php';
+    include P2EX_LIB_DIR . '/tgrep/view_x.inc.php';
     echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
-} elseif ($_conf['iphone']) {
-    include P2EX_LIB_DIR . '/tgrep/view_i.inc.php';
 } elseif ($_conf['ktai']) {
     include P2EX_LIB_DIR . '/tgrep/view_k.inc.php';
 } else {

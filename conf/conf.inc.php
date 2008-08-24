@@ -6,7 +6,7 @@
 */
 
 $_conf['p2version'] = '1.7.29';     // rep2のバージョン
-$_conf['p2expack'] = '080803.1340'; // 拡張パックのバージョン
+$_conf['p2expack'] = '080804.2046'; // 拡張パックのバージョン
 $_conf['p2name'] = 'expack';        // rep2の名前
 
 //======================================================================
@@ -238,12 +238,33 @@ $_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win');
 
 $_conf['login_check_ip']  = 1; // ログイン時にIPアドレスを検証する
 $_conf['input_type_search'] = false;
+$_conf['extra_headers_ht'] = $_conf['extra_headers_xht'] = '';
 
 $mobile = &Net_UserAgent_Mobile::singleton();
 
+// iPhone, iPod Touch
+if (P2Util::isBrowserIphone()) {
+    $_conf['ktai'] = true;
+    $_conf['iphone'] = true;
+    $_conf['disable_cookie'] = false;
+    $_conf['accept_charset'] = 'UTF-8';
+    $_conf['input_type_search'] = true;
+    $_conf['viewport_width'] = 320;
+    $_conf['extra_headers_ht'] = <<<EOS
+<meta name="viewport" content="width={$_conf['viewport_width']}">
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2expack']}">
+<script type="text/javascript" src="js/iphone.js?{$_conf['p2expack']}"></script>
+EOS;
+    $_conf['extra_headers_xht'] = <<<EOS
+<meta name="viewport" content="width={$_conf['viewport_width']}" />
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2expack']}" />
+<script type="text/javascript" src="js/iphone.js?{$_conf['p2expack']}"></script>
+EOS;
+
 // PC
-if ($mobile->isNonMobile()) {
+} elseif ($mobile->isNonMobile()) {
     $_conf['ktai'] = false;
+    $_conf['iphone'] = false;
     $_conf['disable_cookie'] = false;
 
     if (P2Util::isBrowserSafariGroup()) {
@@ -261,6 +282,7 @@ if ($mobile->isNonMobile()) {
     require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
 
     $_conf['ktai'] = true;
+    $_conf['iphone'] = false;
     $_conf['accept_charset'] = 'Shift_JIS';
 
     // ベンダ判定
@@ -302,29 +324,6 @@ if ($mobile->isNonMobile()) {
         $_conf['disable_cookie'] = true;
     }
 }
-
-// iPhone, iPod Touch
-if (P2Util::isBrowserIphone()) {
-    $_conf['accept_charset'] = 'UTF-8';
-    $_conf['input_type_search'] = true;
-    $_conf['ktai'] = true;
-    $_conf['iphone'] = true;
-    $_conf['viewport_width'] = 320;
-    $_conf['extra_headers_ht'] = <<<EOS
-<meta name="viewport" content="width={$_conf['viewport_width']}, initial-scale=1.0">
-<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2expack']}">
-<script type="text/javascript" src="js/iphone.js?{$_conf['p2expack']}"></script>
-EOS;
-    $_conf['extra_headers_xht'] = <<<EOS
-<meta name="viewport" content="width={$_conf['viewport_width']}, initial-scale=1.0" />
-<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2expack']}" />
-<script type="text/javascript" src="js/iphone.js?{$_conf['p2expack']}"></script>
-EOS;
-} else {
-    $_conf['iphone'] = false;
-    $_conf['extra_headers_ht'] = $_conf['extra_headers_xht'] = '';
-}
-
 
 // }}}
 // {{{ クエリーによる強制ビュー指定

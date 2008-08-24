@@ -7,9 +7,11 @@
 
 /**
  * フォームから %uHHHH 形式で送られてきた文字列をデコードする
+ * %UHHHHHHHH としてBMP外の文字も来る可能性がある?
  *
  * %HH は既にデコードされているものとして扱うため、予期しない結果になることも。
- * %UHHHHHHHH としてBMP外の文字も来る可能性がある?
+ * 厳密には $_SERVER['QUERY_STRING'] (GET) なり php://input (POST) なりを読んで
+ * 生のデータを解析する必要がある。
  *
  * @param string $str
  */
@@ -161,7 +163,7 @@ function iShowBrdMatched($word)
     $brd_menus = BrdCtl::read_brds();
 
     $word_ht = htmlspecialchars($word, ENT_QUOTES);
-    $title = $word_ht . ' - 板検索';
+    $title = $word_ht . ' (板)';
 
     if (!$brd_menus) {
         echo "<div class=\"panel\" title=\"{$title}\">板リストは空です。</div>\n";
@@ -222,12 +224,12 @@ function iShowFavIta($title, $no = null)
         }
     }
 
-    echo '<li class="group">&nbsp;</li>';
+    //echo '<li class="group">&nbsp;</li>';
     echo '<li><a href="editfavita.php';
     if ($_conf['expack.misc.multi_favs']) {
         echo '?m_favita_set=' . $no;
     }
-    echo '" style="text-align:right" target="_self">編集</a></li>';
+    echo '" class="align-r" target="_self">編集</a></li>';
 
     echo "</ul>\n";
 }
@@ -288,12 +290,12 @@ function iShowRSS($title, $no = null)
         }
     }
 
-    echo '<li class="group">&nbsp;</li>';
+    //echo '<li class="group">&nbsp;</li>';
     echo '<li><a href="editrss.php';
     if ($_conf['expack.misc.multi_favs']) {
         echo '?m_rss_set=' . $no;
     }
-    echo '" style="text-align:right" target="_self">編集</a></li>';
+    echo '" class="align-r" target="_self">編集</a></li>';
 
     echo "</ul>\n";
 }
