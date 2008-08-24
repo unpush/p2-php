@@ -51,6 +51,7 @@ if (isset($_POST['word'])) {
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
     <title>rep2</title>
     <script type="application/x-javascript" src="iui/iui.js"></script>
+    <script type="application/x-javascript" src="js/menu_i.js"></script>
     <link rel="stylesheet" type="text/css" href="iui/iui.css" />
     <link rel="stylesheet" type="text/css" href="css/menu_i.css" />
     <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png" />
@@ -69,6 +70,7 @@ if (isset($_POST['word'])) {
 <?php if ($_info_msg_ht) { ?>
     <li><a href="#info_msg" class="color-r">エラー</a></li>
 <?php } ?>
+    <?php echo menu_iphone_open_in_tab(); ?>
 
     <li class="group">リスト</li>
 <?php if ($_conf['expack.misc.multi_favs']) { ?>
@@ -130,6 +132,7 @@ if ($_conf['expack.misc.multi_favs']) {
     }
 
     echo '<ul id="fav" title="お気にスレ">';
+    echo menu_iphone_open_in_tab();
     //echo '<li class="group">新着</li>';
     //echo $fav_new_elems;
     //echo '<li class="group">全て</li>';

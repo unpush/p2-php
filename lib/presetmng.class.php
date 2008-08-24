@@ -325,7 +325,7 @@ class PresetManager
             }
 
             if ($this->_treeMode == PRESETMANAGER_ALL_LEAVES_FIRST) {
-                // 全てのリーフをノードより先に表示
+                // 全てのリーフをブランチより先に表示
                 foreach ($data->children as $node) {
                     $ret .= $this->_leafToHTML($node, $linker, $id_str);
                 }
@@ -336,7 +336,7 @@ class PresetManager
             }
 
             if ($this->_treeMode == PRESETMANAGER_ALL_NODES_FIRST) {
-                // 全てのリーフをノードより後に表示
+                // 全てのリーフをブランチより後に表示
                 foreach ($data->children as $node) {
                     $ret .= $this->_leafToHTML($node, $linker, $id_str);
                 }
@@ -443,7 +443,7 @@ class PresetManager
         $ret = '';
 
         if ($this->_treeMode == PRESETMANAGER_REAF_FIRST) {
-            // 同名のリーフをノードより先に表示
+            // 同名のリーフをブランチより先に表示
              $ret .= $this->_leafToHTML($node, $linker, $id_str);
         }
 
@@ -455,7 +455,7 @@ class PresetManager
             $ret .= "<ul>\n";
 
             if ($this->_treeMode == PRESETMANAGER_ALL_LEAVES_FIRST) {
-                // 全てのリーフをノードより先に表示
+                // 全てのリーフをブランチより先に表示
                 foreach ($node->children as $n) {
                     $ret .= $this->_leafToHTML($n, $linker, $id_str);
                 }
@@ -466,7 +466,7 @@ class PresetManager
             }
 
             if ($this->_treeMode == PRESETMANAGER_ALL_NODES_FIRST) {
-                // 全てのリーフをノードより後に表示
+                // 全てのリーフをブランチより後に表示
                 foreach ($node->children as $n) {
                     $ret .= $this->_leafToHTML($n, $linker, $id_str);
                 }
@@ -476,7 +476,7 @@ class PresetManager
         }
 
         if ($this->_treeMode == PRESETMANAGER_NODE_FIRST) {
-            // 同名のリーフをノードより後に表示
+            // 同名のリーフをブランチより後に表示
             $ret .= $this->_leafToHTML($node, $linker, $id_str);
         }
 

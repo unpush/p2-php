@@ -23,3 +23,23 @@ ul.tgrep-result > li > a,
 div#tgrep_info > ul > li > a {
 	word-break: break-all;
 }
+
+li.open-in-tab {
+	margin: 0;
+	padding: 5px 10px;
+	color: #808080;
+	background-color: #eeeeee;
+	font-size: medium;
+	font-weight: bold;
+	line-height: 100%;
+	text-align: right;
+}
+
+li.open-in-tab > input[type="checkbox"] {
+	visibility: hidden;
+	margin: 0;
+	padding: 0;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+}

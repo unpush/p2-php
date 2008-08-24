@@ -20,7 +20,7 @@ $_login->authorize();
 if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         require_once P2_LIB_DIR . '/menu_iphone.inc.php';
-        $_GET['Q'] = unicode_urldecode($_POST['iq']);
+        $_GET['Q'] = menu_iphone_unicode_urldecode($_POST['iq']);
     } else {
         $_GET['Q'] = $_GET['iq'];
     }
@@ -319,16 +319,22 @@ if (empty($_GET['M'])) {
 }
 
 if ($is_ajax) {
-    header('Content-Type: application/xml; charset=UTF-8');
-    //header('Content-Type: text/plain; charset=UTF-8');
+    require_once P2_LIB_DIR . '/menu_iphone.inc.php';
     ob_start();
     include P2EX_LIB_DIR . '/tgrep/view_x.inc.php';
-    echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
+    $content = mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
+    if (!headers_sent()) {
+        header('Content-Type: application/xml; charset=UTF-8');
+        //header('Content-Type: text/plain; charset=UTF-8');
+        header('Content-Length: ' . strlen($content));
+    }
+    echo $content;
 } elseif ($_conf['ktai']) {
     include P2EX_LIB_DIR . '/tgrep/view_k.inc.php';
 } else {
     include P2EX_LIB_DIR . '/tgrep/view.inc.php';
 }
+exit;
 
 // }}}
 // {{{ ä÷êî

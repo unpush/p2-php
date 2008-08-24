@@ -1,0 +1,88 @@
+{doctype:h}
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	{extra_headers:h}
+	<title>{title}</title>
+	<style type="text/css">
+tr.iv2-image {
+	min-height: {thumb_height:h}px;
+}
+td.iv2-image-thumb {
+	width: {thumb_width:h}px;
+}
+	</style>
+	<style type="text/css" media="only screen and (min-device-width: 321px)">
+table#iv2-images {
+	width: 100%;
+	margin: 0;
+}
+div.iv2-image-title {
+	max-width: 640px;
+}
+	</style>
+	<style type="text/css" media="only screen and (max-device-width: 320px)">
+table#iv2-images {
+	width: 320px;
+}
+div.iv2-image-title {
+	width: {title_width_v:h}px;
+}
+	</style>
+	<style type="text/css" media="only screen and (max-device-height: 480px)">
+table#iv2-images {
+	width: 480px;
+}
+div.iv2-image-title {
+	width: {title_width_h:h}px;
+}
+	</style>
+</head>
+<body>
+<h1>{title}</h1>
+
+<p flexy:if="nomatch">ないぽ。</p>
+
+<div flexy:if="!nomatch">
+	{editFormHeader:h}
+	<div class="pager" id="top">{pager:h} <a href="#bottom">{e[dt1]:h}</a></div>
+
+	<table id="iv2-images">
+		<tbody>
+		<tr class="iv2-image" flexy:foreach="items,i,item">
+			<td class="iv2-image-thumb"><a href="{item[thumb_k]}"><img src="{item[thumb]}" width="{item[t_width]:h}" height="{item[t_height]:h}"></a></td>
+			<td class="iv2-image-info">
+				<div class="iv2-image-title">{if:item[memo]}{item[memo]}{else:}{item[name]}{end:}</div>
+				{item[f_change]:h}<span class="iv2-image-size" onclick="check_prev(this);">{item[width]:h}&times;{item[height]:h}</span>{item[rank_i]:h}
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	
+	<div class="pager" id="bottom">{pager:h} <a href="#top">{e[ut1]:h}</a></div>
+
+	<div id="iv2-edit-form">
+		<h3>チェックした画像を編集</h3>
+		<div>ランク:{editFormSelect:h}<br>メモを追加:{editFormText:h}<br>{editFormSubmit:h}</div>
+	</div>
+
+	<div id="iv2-remove-form">
+		<h3>チェックした画像を削除</h3>
+		<div>{editFormRemove:h}{editFormBlackList:h}<span onclick="check_prev(this);">ブラックリストに登録</span></div>
+	</div>
+
+	</form>
+</div>
+
+<div class="navi">
+	<a href="{top_url}">TOP</a>
+	<a href="{php_self}?session_no_close=1&amp;reset_filter=1">IC2::Viewer</a>
+	<a href="{php_self}?page={page}&amp;show_iv2_kfilter=1">検索・ソート</a>
+	<form method="get" action="{php_self}">
+		<input type="text" name="page" size="3"><input type="submit" value="GO">
+	</form>
+</div>
+
+</body>
+</html>

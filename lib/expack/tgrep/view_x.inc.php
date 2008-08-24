@@ -102,6 +102,8 @@ if (isset($_GET['ic'])) {
     // •\Ž¦”ÍˆÍ
     echo $disp_range;
 
+    echo menu_iphone_open_in_tab();
+
     foreach ($threads as $o => $t) {
         $host_en = rawurlencode($t->host);
         $bbs_en = rawurlencode($t->bbs);

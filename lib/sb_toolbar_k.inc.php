@@ -28,16 +28,6 @@ EOP;
     $shinchaku_matome_ht = '';
 }
 
-if ($_conf['iphone'] && empty($upper_toolbar_done)) {
-    // iPhone (2.0.1) のSafariではlabel要素が効かない (タグで囲む、for属性ともに) のでonclickで代用する
-    $shinchaku_matome_ht .= <<<EOP
-<input type="checkbox" onclick="
- change_link_target('.//a[@href and starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]', this.checked);
- change_link_target('.//ul[@class=&quot;subject&quot;]/li/a[@href]', this.checked);
-"><span onclick="check_prev(this); this.previousSibling.onclick();">TAB</span>
-EOP;
-}
-
 // プリント==============================================
 echo "<div>{$ptitle_ht} {$shinchaku_matome_ht}</div>\n";
 

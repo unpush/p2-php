@@ -131,4 +131,4 @@ function iResPopUp(url, evt)
  * indent-tabs-mode: t
  * End:
  */
-/* vim: set syn=css fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

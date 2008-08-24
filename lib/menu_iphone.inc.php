@@ -61,24 +61,28 @@ function _menu_iphone_unicode_urldecode($m)
  */
 function menu_iphone_ajax($func)
 {
-    if (!headers_sent()) {
-        //header('Content-Type: application/xhtml+xml; charset=UTF-8');
-        header('Content-Type: application/xml; charset=UTF-8');
-        //header('Content-Type: text/plain; charset=UTF-8');
-    }
     ob_start();
 
     $args = func_get_args();
     if (count($args) > 1) {
         array_shift($args);
-        $ret = call_user_func_array($func, $args);
+        $return = call_user_func_array($func, $args);
     } else {
-        $ret = call_user_func($func);
+        $return = call_user_func($func);
     }
 
-    echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
+    $content = mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
 
-    return $ret;
+    if (!headers_sent()) {
+        //header('Content-Type: application/xhtml+xml; charset=UTF-8');
+        header('Content-Type: application/xml; charset=UTF-8');
+        //header('Content-Type: text/plain; charset=UTF-8');
+        header('Content-Length: '. strlen($content));
+    }
+
+    echo $content;
+
+    return $return;
 }
 
 // }}}
@@ -130,6 +134,7 @@ function menu_iphone_show_board_menu($cateid = 0)
         foreach ($a_brd_menu->categories as $category) {
             if (++$i == $cateid) {
                 echo "<ul id=\"cate{$cateid}\" title=\"{$category->name}\">";
+                echo menu_iphone_open_in_tab();
                 foreach ($category->menuitas as $mita) {
                     echo "<li><a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}",
                             "&amp;itaj_en={$mita->itaj_en}\" target=\"_self\">{$mita->itaj_ht}</a></li>";
@@ -178,6 +183,8 @@ function menu_iphone_show_matched_boards($word)
 
     echo "<ul title=\"{$title}\">";
 
+    echo menu_iphone_open_in_tab();
+
     foreach ($brd_menus as $a_brd_menu) {
         foreach ($a_brd_menu->categories as $category) {
             $t = false;
@@ -211,6 +218,8 @@ function menu_iphone_show_favorite_boards($title, $no = null)
     global $_conf;
 
     echo "<ul id=\"favita{$no}\" title=\"{$title}\">";
+
+    echo menu_iphone_open_in_tab();
 
     if ($lines = @file($_conf['favita_path'])) {
         foreach ($lines as $l) {
@@ -251,6 +260,8 @@ function menu_iphone_show_feed_list($title, $no = null)
     require_once P2EX_LIB_DIR . '/rss/common.inc.php';
 
     echo "<ul id=\"rss{$no}\" title=\"{$title}\">";
+
+    echo menu_iphone_open_in_tab();
 
     $errors = array();
 
@@ -298,6 +309,20 @@ function menu_iphone_show_feed_list($title, $no = null)
     echo '" class="align-r" target="_self">編集</a></li>';
 
     echo "</ul>\n";
+}
+
+// }}}
+// {{{ menu_iphone_open_in_tab()
+
+/**
+ * リンクを新しいタブで開くように変更するチェックボックスを生成する
+ *
+ * @return string
+ */
+function menu_iphone_open_in_tab()
+{
+    return '<li class="open-in-tab"><input type="checkbox" onclick="toggle_open_in_tab(this);">' .
+           '<span onclick="check_prev(this);">新しいタブで開く</span></li>';
 }
 
 // }}}

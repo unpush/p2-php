@@ -939,6 +939,10 @@ EOP;
                 // インラインプレビューが有効のとき
                 $prv_url = null;
                 if ($this->thumbnailer->ini['General']['inline'] == 1) {
+                    // PCでread_new_k.phpにアクセスしたとき等
+                    if (!isset($this->inline_prvw) || !is_object($this->inline_prvw)) {
+                        $this->inline_prvw =& $this->thumbnailer;
+                    }
                     $prv_url = $this->inline_prvw->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
 
                     // サムネイル表示制限数以内のとき

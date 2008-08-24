@@ -1,19 +1,5 @@
 /* ImageCache2 */
 
-/* Viewer */
-
-div.iv2-images {
-	margin: -5px 0;
-}
-
-div.iv2-images > div {
-	margin: 10px 0;
-}
-
-div.iv2-images > div > a > img {
-	margin: 0 10px 0 5px;
-}
-
 /* Preview */
 
 div#ic2-preview {

@@ -1,0 +1,95 @@
+/* ImageCache2::Viewer */
+
+h1 {
+	margin: -10px -10px 5px -10px;
+	padding: 5px;
+	text-align: center;
+	font-size: x-large;
+	color: #ffffff;
+	background-color: #555555;
+}
+
+div.pager {
+	position: relative;
+	text-align: left;
+}
+
+div.pager > a[href="#top"], div.pager > a[href="#bottom"] {
+	position: absolute;
+	right: 0;
+}
+
+div.navi {
+	text-align: center;
+}
+
+div#iv2-edit-form {
+	margin: 0 -10px;
+	padding: 0;
+}
+
+div#iv2-remove-form {
+	margin: 0 -10px;
+	padding: 0;
+	border-bottom: #cccccc solid 1px;
+}
+
+div#iv2-edit-form > h3, div#iv2-remove-form > h3 {
+	margin: 0;
+	padding: 5px 10px;
+	font-size: medium;
+	color: #ffffff;
+	background-color: #808080;
+}
+
+div#iv2-edit-form > div, div#iv2-remove-form > div {
+	margin: 0;
+	padding: 5px 10px;
+	background-color: #ffffff;
+}
+
+/* Table */
+
+table#iv2-images {
+	margin: 0 -10px;
+	border-spacing: 0 1px;
+	background-color: #cccccc;
+}
+
+tr.iv2-image {
+}
+
+tr.iv2-image > td {
+	margin: 0;
+	padding: 0;
+	line-height: 100%;
+}
+
+tr.iv2-image > td.iv2-image-thumb {
+	text-align: center;
+	vertical-align: middle;
+	background-color: #000000;
+}
+
+tr.iv2-image > td.iv2-image-info {
+	padding: 5px 10px;
+	text-align: left;
+	vertical-align: middle;
+	background-color: #ffffff;
+}
+
+tr.iv2-image > td.iv2-image-info > div.iv2-image-title {
+	margin: 0;
+	padding: 0;
+	font-size: large;
+	font-weight: bold;
+	line-height: 200%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+tr.iv2-image > td.iv2-image-info > span.iv2-image-size {
+	color: #808080;
+	margin-right: 5px;
+}

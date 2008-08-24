@@ -133,6 +133,9 @@ function confirm_open_external_link()
 function check_prev(elem)
 {
 	elem.previousSibling.checked = !elem.previousSibling.checked;
+	if (elem.previousSibling.onclick) {
+		elem.previousSibling.onclick();
+	}
 }
 
 // }}}
@@ -146,6 +149,9 @@ function check_prev(elem)
 function check_next(elem)
 {
 	elem.nextSibling.checked = !elem.nextSibling.checked;
+	if (elem.nextSibling.onclick) {
+		elem.nextSibling.onclick();
+	}
 }
 
 // }}}
@@ -180,12 +186,15 @@ function adjust_textarea_size()
  *
  * @param String expr
  * @param Boolean toggle
+ * @param Element contextNode
+ * @param String target
  * @return void
  */
 function change_link_target(expr, toggle)
 {
+	var contextNode = (arguments.length > 2 && arguments[2]) ? arguments[2] : document.body;
 	var anchors = document.evaluate(expr,
-	                                document.body,
+	                                contextNode,
 	                                null,
 	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
 	                                null
@@ -194,6 +203,10 @@ function change_link_target(expr, toggle)
 	if (toggle) {
 		for (var i = 0; i < anchors.snapshotLength; i++) {
 			anchors.snapshotItem(i).setAttribute('target', '_blank');
+		}
+	} else if (arguments.length > 3) {
+		for (var i = 0; i < anchors.snapshotLength; i++) {
+			anchors.snapshotItem(i).setAttribute('target', arguments[3]);
 		}
 	} else {
 		for (var i = 0; i < anchors.snapshotLength; i++) {
@@ -223,4 +236,4 @@ Event.prototype.getOffsetY = (function(){ return this.pageY; });
  * indent-tabs-mode: t
  * End:
  */
-/* vim: set syn=css fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */
