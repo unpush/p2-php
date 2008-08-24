@@ -7,9 +7,11 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080822.0000',   // 拡張パックのバージョン
+    'p2expack'  => '080823.0100',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
+
+define('P2_VERSION_ID', sprintf('%u', crc32($_conf['p2version'] . ';' . $_conf['p2expack'])));
 
 // {{{ グローバル変数を初期化
 
@@ -21,8 +23,8 @@ $debug      = false;
 $mobile     = null;
 $skin       = null;
 $skin_en    = null;
-$skin_etag  = null;
 $skin_name  = null;
+$skin_uniq  = null;
 $_login     = null;
 $_p2session = null;
 
@@ -54,7 +56,8 @@ $word = null;
  */
 function p2configure()
 {
-    global $MYSTYLE, $STYLE, $debug, $mobile, $skin, $skin_en;
+    global $MYSTYLE, $STYLE, $debug, $mobile;
+    global $skin, $skin_en, $skin_name, $skin_uniq;
     global $_conf, $_info_msg_ht, $_login, $_p2session;
     global $conf_user_def, $conf_user_rules, $conf_user_rad, $conf_user_sel;
 
@@ -93,11 +96,7 @@ p2checkenv(__LINE__);
 //$debug = !empty($_GET['debug']);
 
 // タイムゾーンをセット
-if (function_exists('date_default_timezone_set')) {
-    date_default_timezone_set('Asia/Tokyo');
-} else {
-    putenv('TZ=JST-9');
-}
+date_default_timezone_set('Asia/Tokyo');
 
 @set_time_limit(60); // (60) スクリプト実行制限時間(秒)
 
@@ -207,10 +206,11 @@ EOP;
     }
 }
 
-require_once P2_LIBRARY_DIR . '/p2util.class.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/session.class.php';
-require_once P2_LIBRARY_DIR . '/login.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/p2util.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/session.class.php';
+require_once P2_LIB_DIR . '/login.class.php';
 
 // }}}
 // {{{ デバッグ
@@ -265,9 +265,10 @@ $_conf['cache_dir'] = $_conf['data_dir'] . '/cache'; // 2005/6/29 $_conf['pref_d
 // テンポラリディレクトリ (パーミッションは707)
 $_conf['tmp_dir'] = $_conf['data_dir'] . '/tmp';
 
+$_conf['p2_version_id'] = P2_VERSION_ID;
+
 $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
-
 $_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">';
 
 // 文字コード自動判定用のヒント文字列
@@ -291,17 +292,21 @@ if (P2Util::isBrowserIphone()) {
     $_conf['disable_cookie'] = false;
     $_conf['accept_charset'] = 'UTF-8';
     $_conf['input_type_search'] = true;
+
+    // Webclipアイコンはimg/touch-iconに数パターン置いてある
     $_conf['extra_headers_ht'] = <<<EOS
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
 <meta name="format-detection" content="telephone=no">
-<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css">
-<script type="text/javascript" src="js/iphone.js"></script>
+<link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png">
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     $_conf['extra_headers_xht'] = <<<EOS
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
 <meta name="format-detection" content="telephone=no" />
-<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css" />
-<script type="text/javascript" src="js/iphone.js"></script>
+<link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png" />
+<link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2_version_id']}" />
+<script type="text/javascript" src="js/iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
 
 // PC
@@ -322,7 +327,7 @@ EOS;
 
 // 携帯
 } else {
-    require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
+    require_once P2_LIB_DIR . '/hostcheck.class.php';
 
     $_conf['ktai'] = true;
     $_conf['iphone'] = false;
@@ -440,11 +445,7 @@ EODOC;
 
 // {{{ ユーザ設定 読込
 
-// デフォルト設定（conf_user_def.inc.php）を読み込む
-include_once './conf/conf_user_def.inc.php';
-$_conf = array_merge($_conf, $conf_user_def);
-
-// ユーザ設定があれば読み込む
+// ユーザ設定ファイル
 $_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.srd.cgi';
 
 // 旧形式ファイルをコピー
@@ -452,15 +453,66 @@ $conf_user_file_old = $_conf['pref_dir'] . '/conf_user.inc.php';
 if (!file_exists($_conf['conf_user_file']) && file_exists($conf_user_file_old)) {
     $old_cont = DataPhp::getDataPhpCont($conf_user_file_old);
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
-    file_put_contents($_conf['conf_user_file'], $old_cont);
+    if (FileCtl::file_write_contents($_conf['conf_user_file'], $old_cont) === false) {
+        $_info_msg_ht .= '<p>旧形式ユーザ設定のコピーに失敗しました。</p>';
+    }
 }
 
-$conf_user = array();
+// ユーザ設定があれば読み込む
 if (file_exists($_conf['conf_user_file'])) {
     if ($cont = file_get_contents($_conf['conf_user_file'])) {
         $conf_user = unserialize($cont);
+    } else {
+        $conf_user = null;
+    }
+
+    // 何らかの理由でユーザ設定ファイルが壊れていたら
+    if (!is_array($conf_user)) {
+        if (unlink($_conf['conf_user_file'])) {
+            $_info_msg_ht .= '<p>ユーザ設定ファイルが壊れていたので破棄しました。</p>';
+        } else {
+            $_info_msg_ht .= '<p>ユーザ設定ファイルが壊れていますが、破棄できませんでした。<br>&quot;';
+            $_info_msg_ht .= htmlspecialchars(realpath($_conf['conf_user_file']), ENT_QUOTES);
+            $_info_msg_ht .= '&quot; を手動で削除してください。</p>';
+        }
+        $conf_user = array();
+        $conf_user_mtime = 0;
+    } else {
+        $conf_user_mtime = filemtime($_conf['conf_user_file']);
+    }
+
+    // ユーザ設定ファイルとデフォルト設定ファイルの更新日時をチェック
+    if (!isset($conf_user['.']) ||
+        $conf_user['.'] != P2_VERSION_ID ||
+        filemtime(__FILE__) > $conf_user_mtime ||
+        filemtime('./conf/conf_user_def.inc.php')    > $conf_user_mtime ||
+        filemtime('./conf/conf_user_def_ex.inc.php') > $conf_user_mtime ||
+        filemtime('./conf/conf_user_def_i.inc.php')  > $conf_user_mtime
+        )
+    {
+        // デフォルト設定を読み込む
+        include_once './conf/conf_user_def.inc.php';
+        $_conf = array_merge($_conf, $conf_user_def, $conf_user);
+
+        // 新しいユーザ設定をキャッシュ
+        $conf_user = array('.' => P2_VERSION_ID);
+        foreach ($conf_user_def as $k => $v) {
+            $conf_user[$k] = $_conf[$k];
+        }
+        if (FileCtl::file_write_contents($_conf['conf_user_file'], serialize($conf_user)) === false) {
+            $_info_msg_ht .= '<p>ユーザ設定のキャッシュに失敗しました</p>';
+        }
+
+    // ユーザ設定ファイルの更新日時の方が新しい場合は、デフォルト設定を無視
+    } else {
         $_conf = array_merge($_conf, $conf_user);
     }
+
+    unset($cont, $conf_user);
+} else {
+    // デフォルト設定を読み込む
+    include_once './conf/conf_user_def.inc.php';
+    $_conf = array_merge($_conf, $conf_user_def);
 }
 
 // }}}
@@ -512,7 +564,6 @@ if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
         $skin_name = rtrim(file_get_contents($_conf['expack.skin.setting_path']));
         $skin = 'skin/' . $skin_name . '.php';
     } else {
-        require_once P2_LIBRARY_DIR . '/filectl.class.php';
         FileCtl::make_datafile($_conf['expack.skin.setting_path'], $_conf['expack.skin.setting_perm']);
     }
     if (isset($_REQUEST['skin']) && preg_match('/^\w+$/', $_REQUEST['skin']) && $skin_name != $_REQUEST['skin']) {
@@ -525,7 +576,7 @@ if (!file_exists($skin)) {
     $skin_name = 'conf_user_style';
     $skin = 'conf/conf_user_style.inc.php';
 }
-$skin_en = urlencode($skin_name);
+$skin_en = urlencode($skin_name) . '&amp;_=' . P2_VERSION_ID;
 include_once $skin;
 
 // }}}
@@ -543,7 +594,7 @@ if (!isset($STYLE['mobile_read_newres_color']))     { $STYLE['mobile_read_newres
 if (!isset($STYLE['mobile_read_ngword_color']))     { $STYLE['mobile_read_ngword_color']     = "#bbbbbb"; }
 if (!isset($STYLE['mobile_read_onthefly_color']))   { $STYLE['mobile_read_onthefly_color']   = "#00aa00"; }
 
-$skin_etag = $_conf['p2expack'];
+$skin_uniq = P2_VERSION_ID;
 fontconfig_apply_custom();
 
 foreach ($STYLE as $K => $V) {
@@ -662,7 +713,7 @@ if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
 // {{{ ホストチェック
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once P2_LIBRARY_DIR . '/hostcheck.class.php';
+    require_once P2_LIB_DIR . '/hostcheck.class.php';
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
     ) {
@@ -693,7 +744,6 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 
     if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
         if (!is_dir($_conf['session_dir'])) {
-            require_once P2_LIBRARY_DIR . '/filectl.class.php';
             FileCtl::mkdir_for($_conf['session_dir'] . '/dummy_filename');
         } elseif (!is_writable($_conf['session_dir'])) {
             p2die("セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
@@ -718,7 +768,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 
 // 複数のお気にセットを使うとき
 if ($_conf['expack.misc.multi_favs']) {
-    require_once P2_LIBRARY_DIR . '/favsetmng.class.php';
+    require_once P2_LIB_DIR . '/favsetmng.class.php';
     // 切り替え表示用に全てのお気に板を読み込んでおく
     FavSetManager::loadAllFavSet();
     // お気にセットを切り替える
@@ -730,7 +780,7 @@ if ($_conf['expack.misc.multi_favs']) {
 }
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
-require_once P2_LIBRARY_DIR . '/login.class.php';
+require_once P2_LIB_DIR . '/login.class.php';
 $_login = new Login();
 
 // おまじない
@@ -925,7 +975,7 @@ function fontconfig_detect_agent($ua = null)
  */
 function fontconfig_apply_custom()
 {
-    global $STYLE, $_conf, $skin_en, $skin_etag;
+    global $STYLE, $_conf, $skin_en, $skin_uniq;
     if ($_conf['expack.skin.enabled']) {
         $_conf['expack.am.fontfamily.orig'] = (isset($_conf['expack.am.fontfamily']))
             ? $_conf['expack.am.fontfamily'] : '';
@@ -938,10 +988,10 @@ function fontconfig_apply_custom()
             $current_fontconfig = array('enabled' => false, 'custom' => array());
         }
         if ($current_fontconfig['enabled'] && is_array($current_fontconfig['custom'][$type])) {
-            $skin_etag = '';
-            $sha1 = sha1($fontconfig_data . $_conf['p2expack']);
+            $skin_uniq = '';
+            $sha1 = sha1($fontconfig_data . P2_VERSION_ID);
             for ($i = 0; $i < 40; $i +=5) {
-                $skin_etag .= base_convert(substr($sha1, $i, 5), 16, 32);
+                $skin_uniq .= base_convert(substr($sha1, $i, 5), 16, 32);
             }
             foreach ($current_fontconfig['custom'][$type] as $key => $value) {
                 if (strstr($key, 'fontfamily') && $value == '-') {
@@ -962,8 +1012,7 @@ function fontconfig_apply_custom()
             }
         }
     }
-    $skin_en = preg_replace('/&amp;etag=[^&]*/', '', $skin_en);
-    $skin_en .= '&amp;etag=' . urlencode($skin_etag);
+    $skin_en = preg_replace('/&amp;_=[^&]*/', '&amp;_=' . urlencode($skin_uniq), $skin_en);
 }
 
 // }}}
@@ -976,10 +1025,10 @@ function fontconfig_apply_custom()
  */
 function print_style_tags()
 {
-    global $skin_name, $skin_etag;
+    global $skin_name, $skin_uniq;
     $style_a = '';
     if ($skin_name) { $style_a .= '&skin=' . urlencode($skin_name); }
-    if ($skin_etag) { $style_a .= '&etag=' . urlencode($skin_etag); }
+    if ($skin_uniq) { $style_a .= '&_=' . urlencode($skin_uniq); }
     if ($styles = func_get_args()) {
         echo "\t<style type=\"text/css\">\n";
         echo "\t<!-->\n";
@@ -1153,7 +1202,7 @@ function p2checkenv($check_recommended)
     global $_info_msg_ht;
 
     $php_version = phpversion();
-    $required_version = '5.2.1';
+    $required_version = '5.2.3';
     $recommended_version = '5.2.6';
 
     if (version_compare($php_version, $required_version, '<')) {

@@ -114,7 +114,7 @@ function machiHtmltoDatLines($mlines)
         } elseif (preg_match('{^<dt>(?:<a[^>]+?>)?(\\d+)(?:</a>)? ñºëOÅF(<font color="#.+?">|<a href="mailto:(.*)">)<b> (.+) </b>(</font>|</a>) ìäçeì˙ÅF (.+)<br><dd>(.*) <br><br>$}i', $ml, $matches)) {
             $order = $matches[1];
             $mail = $matches[3];
-            $name = preg_replace('{<font color="?#.+?"?>(.+)</font}/i', '\\1', $matches[4]);
+            $name = preg_replace('{<font color="?#.+?"?>(.+)</font>}i', '\\1', $matches[4]);
             $date = $matches[6];
             $body = $matches[7];
         } elseif (preg_match('{<title>(.*)</title>}i', $ml, $matches)) {

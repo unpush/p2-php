@@ -717,6 +717,7 @@ function ic2_display($path, $params)
             $qf->accept($rdr);
 
             // •\Ž¦
+            $flexy->setData('p2vid', P2_VERSION_ID);
             $flexy->setData('title', 'IC2::Cached');
             $flexy->setData('pc', !$_conf['ktai']);
             $flexy->setData('iphone', $_conf['iphone']);
@@ -782,8 +783,12 @@ function ic2_display($path, $params)
             $flexy->setData('sertank', $setrank_url . '&rank=');
 
             if ($_conf['iphone']) {
-                $_conf['extra_headers_ht'] .= '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">';
-                $_conf['extra_headers_xht'] .= '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css" />';
+                $_conf['extra_headers_ht'] .= <<<EOP
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+EOP;
+                $_conf['extra_headers_xht'] .= <<<EOP
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
+EOP;
             }
 
             $flexy->setData('edit', (extension_loaded('gd') && $rank >= 0));

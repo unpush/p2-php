@@ -174,7 +174,11 @@ class P2HttpGet extends HttpRequest
         }
 
         if (!isset($options['useragent'])) {
-            $options['useragent'] = "Monazilla/1.00 ({$_conf['p2name']}/{$_conf['p2version']})";
+            $options['useragent'] = sprintf('Monazilla/1.00 (%s/%s; expack-%s)',
+                                            $_conf['p2name'],
+                                            $_conf['p2version'],
+                                            $_conf['p2expack']
+                                            );
         }
 
         if (!isset($options['lastmodified']) && file_exists($save_path)) {

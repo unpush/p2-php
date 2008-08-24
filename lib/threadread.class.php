@@ -30,6 +30,7 @@ class ThreadRead extends Thread{
      */
     function __construct()
     {
+        parent::__construct();
         $this->getdat_error_msg_ht = "";
     }
 

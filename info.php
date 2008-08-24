@@ -299,14 +299,15 @@ EOHEADER;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=info&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
 }
 
 if ($_GET['popup'] == 2) {
     echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/closetimer.js"></script>
+    <script type="text/javascript" src="js/closetimer.js?{$_conf['p2_version_id']}"></script>
 EOSCRIPT;
     $body_onload = <<<EOP
  onLoad="startTimer(document.getElementById('timerbutton'))"

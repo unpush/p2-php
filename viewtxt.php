@@ -79,10 +79,9 @@ function viewTxtFile($file, $encode)
 <html lang="ja">
 <head>
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
     <title>{$ptitle}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body onLoad="top.document.title=self.document.title;">\n
 EOHEADER;

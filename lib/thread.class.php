@@ -1,118 +1,231 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ Thread
 
 /**
  * p2 - スレッドクラス
  */
-class Thread{
+class Thread
+{
+    // {{{ properties
 
-    var $ttitle;    // スレタイトル // idxline[0] // < は &lt; だったりする
-    var $key;       // スレッドID // idxline[1]
-    var $length;    // local Dat Bytes(int) // idxline[2]
-    var $gotnum;    //（個人にとっての）既得レス数 // idxline[3]
-    var $rescount;  // スレッドの総レス数（未取得分も含む）
-    var $modified;  // datのLast-Modified // idxline[4]
-    var $readnum;   // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
-    var $fav;       //お気に入り(bool的に) // idxline[6] favlist.idxも参照
-    var $favs;      //お気に入りセット登録状態(boolの配列)
+    public $ttitle;    // スレタイトル // idxline[0] // < は &lt; だったりする
+    public $key;       // スレッドID // idxline[1]
+    public $length;    // local Dat Bytes(int) // idxline[2]
+    public $gotnum;    //（個人にとっての）既得レス数 // idxline[3]
+    public $rescount;  // スレッドの総レス数（未取得分も含む）
+    public $modified;  // datのLast-Modified // idxline[4]
+    public $readnum;   // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
+    public $fav;       //お気に入り(bool的に) // idxline[6] favlist.idxも参照
+    public $favs;      //お気に入りセット登録状態(boolの配列)
     // name         // ここでは利用せず idxline[7]（他所で利用）
     // mail         // ここでは利用せず idxline[8]（他所で利用）
-    var $newline;   // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
+    public $newline;   // 次の新規取得レス番号 // idxline[9] 廃止予定。旧互換のため残してはいる。
 
     // ※hostとはいうものの、2ch外の場合は、host以下のディレクトリまで含まれていたりする。
-    var $host;      // ex)pc.2ch.net // idxline[10]
-    var $bbs;       // ex)mac // idxline[11]
-    var $itaj;      // 板名 ex)新・mac
+    public $host;      // ex)pc.2ch.net // idxline[10]
+    public $bbs;       // ex)mac // idxline[11]
+    public $itaj;      // 板名 ex)新・mac
 
-    var $datochiok; // DAT落ち取得権限があればTRUE(1) // idxline[12]
+    public $datochiok; // DAT落ち取得権限があればTRUE(1) // idxline[12]
 
-    var $torder;    // スレッド新しい順番号
-    var $unum;      // 未読（新着レス）数
+    public $torder;    // スレッド新しい順番号
+    public $unum;      // 未読（新着レス）数
 
-    var $keyidx;    // idxファイルパス
-    var $keydat;    // ローカルdatファイルパス
+    public $keyidx;    // idxファイルパス
+    public $keydat;    // ローカルdatファイルパス
 
-    var $isonline;  // 板サーバにあればtrue。subject.txtやdat取得時に確認してセットされる。
-    var $new;       // 新規スレならtrue
+    public $isonline;  // 板サーバにあればtrue。subject.txtやdat取得時に確認してセットされる。
+    public $new;       // 新規スレならtrue
 
-    var $ttitle_hc; // < が &lt; であったりするので、デコードしたスレタイトル
-    var $ttitle_hd; // HTML表示用に、エンコードされたスレタイトル
-    var $ttitle_ht; // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
+    /*
+    public $ttitle_hc; // < が &lt; であったりするので、デコードしたスレタイトル
+    public $ttitle_hd; // HTML表示用に、エンコードされたスレタイトル
+    public $ttitle_ht; // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
+    */
+    protected $_ttitle_hc; // < が &lt; であったりするので、デコードしたスレタイトル
+    protected $_ttitle_hd; // HTML表示用に、エンコードされたスレタイトル
+    protected $_ttitle_ht; // スレタイトル表示用HTMLコード。フィルタリング強調されていたりも。
 
-    var $dayres;    // 一日当たりのレス数。勢い。
+    public $dayres;    // 一日当たりのレス数。勢い。
 
-    var $dat_type;  // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
+    public $dat_type;  // datの形式（2chの旧形式dat（,区切り）なら"2ch_old"）
 
-    var $ls = '';   // 表示レス番号の指定
+    public $ls = '';   // 表示レス番号の指定
 
-    var $similarity; // タイトルの類似性
+    public $similarity; // タイトルの類似性
+
+    protected $_unknown_props;
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct()
+    public function __construct()
     {
+        $this->_ttitle_hc = null;
+        $this->_ttitle_hd = null;
+        $this->_ttitle_ht = null;
+        $this->_unknown_props = null;
     }
 
+    // }}}
+    // {{{ __get()
+
     /**
-     * ttitleをセットする（ついでにttitle_hc, ttitle_hd, ttitle_htも）
+     * ゲッター (ttitle_hc, ttitle_hd, ttitle_ht を必要になったときに設定・取得する)
+     */
+    public function __get($name)
+    {
+        switch ($name) {
+        case 'ttitle_hc':
+            return $this->_getTtitleHc();
+        case 'ttitle_hd':
+            return $this->_getTtitleHd();
+        case 'ttitle_ht':
+            return $this->_getTtitleHt();
+        default:
+            if (!is_array($this->_unknown_props)) {
+                $this->_unknown_props = array();
+            }
+            if (array_key_exists($name, $this->_unknown_props)) {
+                return $this->_unknown_props[$name];
+            }
+            return null;
+        }
+    }
+
+    // }}}
+    // {{{ __set()
+
+    /**
+     * セッター (ttitle_hc, ttitle_hd, ttitle_ht を任意の値に設定する)
+     */
+    public function __set($name, $value)
+    {
+        switch ($name) {
+        case 'ttitle_hc':
+            $this->_ttitle_hc = $value;
+            break;
+        case 'ttitle_hd':
+            $this->_ttitle_hd = $value;
+            break;
+        case 'ttitle_ht':
+            $this->_ttitle_ht = $value;
+            break;
+        default:
+            if (!is_array($this->_unknown_props)) {
+                $this->_unknown_props = array();
+            }
+            $this->_unknown_props[$name] = $value;
+        }
+    }
+
+    // }}}
+    // {{{ setTtitle()
+
+    /**
+     * ttitleをセットする
      */
     function setTtitle($ttitle)
     {
+        $this->ttitle = $ttitle;
+    }
+
+    // }}}
+    // {{{ _setTtitleHc()
+
+    /**
+     * HTMLの特殊文字をデコードしたスレタイトルを取得する
+     */
+    protected function _getTtitleHc()
+    {
+        if ($this->_ttitle_hc === null) {
+            // < が &lt; であったりするので、デコードする
+            //$this->_ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');
+
+            // html_entity_decode() は結構重いので代替、、こっちだと半分くらいの処理時間
+            $this->_ttitle_hc = str_replace(array('&lt;', '&gt;', '&amp;', '&quot;'),
+                                            array('<'   , '>'   , '&'    , '"'     ), $this->ttitle);
+        }
+        return $this->_ttitle_hc;
+    }
+
+    // }}}
+    // {{{ _setTtitleHd()
+
+    /**
+     * HTML表示用に特殊文字をエンコードしたスレタイトルを取得する
+     */
+    protected function _getTtitleHd()
+    {
+        if ($this->_ttitle_hd === null) {
+            // HTML表示用に htmlspecialchars() したもの
+            $this->_ttitle_hd = htmlspecialchars($this->ttitle, ENT_QUOTES, 'Shift_JIS', false);
+        }
+        return $this->_ttitle_hd;
+    }
+
+    // }}}
+    // {{{ _setTtitleHt()
+
+    /**
+     * HTML表示用に調整されたスレタイトルを取得する
+     */
+    protected function _getTtitleHt()
+    {
         global $_conf;
 
-        $this->ttitle = $ttitle;
-        // < が &lt; であったりするので、まずデコードしたものを
-        //$this->ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');
-
-        // html_entity_decode() は結構重いので代替、、こっちだと半分くらいの処理時間
-        $this->ttitle_hc = str_replace(array('&lt;', '&gt;', '&amp;', '&quot;'),
-                                       array('<'   , '>'   , '&'    , '"'     ), $this->ttitle);
-
-        // HTML表示用に htmlspecialchars() したもの
-        $this->ttitle_hd = htmlspecialchars($this->ttitle_hc, ENT_QUOTES);
-
-        // 一覧表示用に長さを切り詰めてから htmlspecialchars() したもの
-        if ($_conf['ktai']) {
-            $tt_max_len = $_conf['sb_ttitle_max_len_k'];
-            $tt_trim_len = $_conf['sb_ttitle_trim_len_k'];
-            $tt_trip_pos = $_conf['sb_ttitle_trim_pos_k'];
-        } else {
-            $tt_max_len = $_conf['sb_ttitle_max_len'];
-            $tt_trim_len = $_conf['sb_ttitle_trim_len'];
-            $tt_trip_pos = $_conf['sb_ttitle_trim_pos'];
-        }
-        $ttitle_len = strlen($this->ttitle_hc);
-        if ($tt_max_len > 0 && $ttitle_len > $tt_max_len && $ttitle_len > $tt_trim_len) {
-            switch ($tt_trip_pos) {
-            case -1:
-                $a_ttitle = '... ';
-                $a_ttitle .= mb_strcut($this->ttitle_hc, $ttitle_len - $tt_trim_len);
-                break;
-            case 0:
-                $trim_len = floor($tt_trim_len / 2);
-                $a_ttitle = mb_strcut($this->ttitle_hc, 0, $trim_len);
-                $a_ttitle .= ' ... ';
-                $a_ttitle .= mb_strcut($this->ttitle_hc, $ttitle_len - $trim_len);
-                break;
-            case 1:
-            default:
-                $a_ttitle = mb_strcut($this->ttitle_hc, 0, $tt_trim_len);
-                $a_ttitle .= ' ...';
+        if ($this->_ttitle_ht === null) {
+            // 一覧表示用に長さを切り詰めてから htmlspecialchars() したもの
+            if ($_conf['ktai']) {
+                $tt_max_len = $_conf['sb_ttitle_max_len_k'];
+                $tt_trim_len = $_conf['sb_ttitle_trim_len_k'];
+                $tt_trip_pos = $_conf['sb_ttitle_trim_pos_k'];
+            } else {
+                $tt_max_len = $_conf['sb_ttitle_max_len'];
+                $tt_trim_len = $_conf['sb_ttitle_trim_len'];
+                $tt_trip_pos = $_conf['sb_ttitle_trim_pos'];
             }
-            $this->ttitle_ht = htmlspecialchars($a_ttitle, ENT_QUOTES);
-        } else {
-            $this->ttitle_ht = $this->ttitle_hd;
+
+            $ttitle_hc = $this->_getTtitleHc();
+            $ttitle_len = strlen($ttitle_hc);
+
+            if ($tt_max_len > 0 && $ttitle_len > $tt_max_len && $ttitle_len > $tt_trim_len) {
+                switch ($tt_trip_pos) {
+                case -1:
+                    $a_ttitle = '... ';
+                    $a_ttitle .= mb_strcut($ttitle_hc, $ttitle_len - $tt_trim_len);
+                    break;
+                case 0:
+                    $trim_len = floor($tt_trim_len / 2);
+                    $a_ttitle = mb_strcut($ttitle_hc, 0, $trim_len);
+                    $a_ttitle .= ' ... ';
+                    $a_ttitle .= mb_strcut($ttitle_hc, $ttitle_len - $trim_len);
+                    break;
+                case 1:
+                default:
+                    $a_ttitle = mb_strcut($ttitle_hc, 0, $tt_trim_len);
+                    $a_ttitle .= ' ...';
+                }
+                $this->_ttitle_ht = htmlspecialchars($a_ttitle, ENT_QUOTES);
+            } else {
+                $this->_ttitle_ht = $this->_getTtitleHd();
+            }
         }
+        return $this->_ttitle_ht;
     }
+
+    // }}}
+    // {{{ getThreadInfoFromExtIdxLine()
 
     /**
      * fav, recent用の拡張idxリストからラインデータを取得する
      */
-    function getThreadInfoFromExtIdxLine($l)
+    public function getThreadInfoFromExtIdxLine($l)
     {
         $la = explode('<>', rtrim($l));
         $this->host = $la[10];
@@ -134,10 +247,13 @@ class Thread{
         $this->getFavStatus();
     }
 
+    // }}}
+    // {{{ setThreadPathInfo()
+
     /**
      * Set Path info
      */
-    function setThreadPathInfo($host, $bbs, $key)
+    public function setThreadPathInfo($host, $bbs, $key)
     {
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('setThreadPathInfo()');
 
@@ -158,10 +274,13 @@ class Thread{
         return true;
     }
 
+    // }}}
+    // {{{ isKitoku()
+
     /**
      * スレッドが既得済みならtrueを返す
      */
-    function isKitoku()
+    public function isKitoku()
     {
         // if (file_exists($this->keyidx)) {
         if ($this->gotnum || $this->readnum || $this->newline > 1) {
@@ -170,10 +289,13 @@ class Thread{
         return false;
     }
 
+    // }}}
+    // {{{ getThreadInfoFromIdx()
+
     /**
      * 既得スレッドデータをkey.idxから取得する
      */
-    function getThreadInfoFromIdx()
+    public function getThreadInfoFromIdx()
     {
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('getThreadInfoFromIdx');
 
@@ -233,10 +355,13 @@ class Thread{
         return $key_line;
     }
 
+    // }}}
+    // {{{ getDatBytesFromLocalDat()
+
     /**
      * ローカルDATのファイルサイズを取得する
      */
-    function getDatBytesFromLocalDat()
+    public function getDatBytesFromLocalDat()
     {
         clearstatcache();
         if (file_exists($this->keydat)) {
@@ -247,10 +372,13 @@ class Thread{
         return $this->length;
     }
 
+    // }}}
+    // {{{ getThreadInfoFromSubjectTxtLine()
+
     /**
      * subject.txt の一行からスレ情報を取得する
      */
-    function getThreadInfoFromSubjectTxtLine($l)
+    public function getThreadInfoFromSubjectTxtLine($l)
     {
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('getThreadInfoFromSubjectTxtLine()');
 
@@ -275,10 +403,13 @@ class Thread{
         return FALSE;
     }
 
+    // }}}
+    // {{{ setTitleFromLocal()
+
     /**
      * スレタイトル取得メソッド
      */
-    function setTitleFromLocal()
+    public function setTitleFromLocal()
     {
         if (!isset($this->ttitle)) {
 
@@ -314,14 +445,25 @@ class Thread{
         return $this->ttitle;
     }
 
+    // }}}
+    // {{{ getMotoThread()
+
     /**
      * 元スレURLを返す
      */
-    function getMotoThread($original = false)
+    public function getMotoThread($force_pc = false)
     {
         global $_conf;
 
-        $mobile = (!$_conf['ktai'] || $_conf['iphone'] || $original) ? false : true;
+        if ($force_pc) {
+            $mobile = false;
+        } elseif ($_conf['iphone']) {
+            $mobile = false;
+        } elseif ($_conf['ktai']) {
+            $mobile = true;
+        } else {
+            $mobile = false;
+        }
 
         // 2ch系
         if (P2Util::isHost2chs($this->host)) {
@@ -364,10 +506,13 @@ class Thread{
         return $motothre_url;
     }
 
+    // }}}
+    // {{{ setDayRes()
+
     /**
      * 勢い（レス/日）をセットする
      */
-    function setDayRes($nowtime = false)
+    public function setDayRes($nowtime = false)
     {
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('setDayRes()');
 
@@ -389,10 +534,13 @@ class Thread{
         return false;
     }
 
+    // }}}
+    // {{{ getTimePerRes()
+
     /**
      * レス間隔（時間/レス）を取得する
      */
-    function getTimePerRes()
+    public function getTimePerRes()
     {
         $noresult_st = "-";
 
@@ -435,13 +583,16 @@ class Thread{
         return $spd_st;
     }
 
+    // }}}
+    // {{{ getFavStatus()
+
     /**
      * お気に入り登録状態を取得する
      */
-    function getFavStatus()
+    public function getFavStatus()
     {
         global $_conf;
-        
+
         if (!$_conf['expack.misc.multi_favs']) {
             return;
         }
@@ -457,4 +608,19 @@ class Thread{
             }
         }
     }
+
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

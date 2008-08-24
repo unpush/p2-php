@@ -457,8 +457,9 @@ EOP;
         $quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
         foreach ($quote_res_nums as $rnv) {
             if (!isset($this->quote_res_nums_done[$rnv])) {
-                if ($this->thread->ttitle_hd) {
-                    $ds = "<b>{$this->thread->ttitle_hd}</b><br><br>";
+                $ttitle = $this->thread->ttitle_hd;
+                if (strlen($ttitle)) {
+                    $ds = "<b>{$ttitle}</b><br><br>";
                 } else {
                     $ds = '';
                 }

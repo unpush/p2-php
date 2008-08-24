@@ -181,18 +181,19 @@ function sb_print_k($aThreadList)
         }
 
         // タイトル未取得なら
-        if (!$aThread->ttitle_ht) {
+        $ttitle_ht = $aThread->ttitle_ht;
+        if (strlen($ttitle_ht) == 0) {
             // 見かけ上のタイトルなので携帯対応URLである必要はない
             //if (P2Util::isHost2chs($aThread->host)) {
-            //    $aThread->ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
+            //    $ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
             //}else{
-                $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
+                $ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
             //}
         }
 
         // 全角英数カナスペースを半角に
         if (!empty($_conf['k_save_packet'])) {
-            $aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
+            $ttitle_ht = mb_convert_kana($ttitle_ht, 'rnsk');
         }
 
         if ($_conf['iphone']) {
@@ -235,20 +236,24 @@ function sb_print_k($aThreadList)
                                  $aThread->dayres                  // 勢い。切り上げなし
                                  );
 
-            // 勢い判定。なぜか不安定になるのでlog10()の結果で分岐はしない
-            $dayres = (int)$aThread->dayres;
-            if ($dayres > 9999) {
-                $classspeed = '10000';
-            } elseif ($dayres > 999) {
-                $classspeed = '1000';
-            } elseif ($dayres > 99) {
-                $classspeed = '100';
-            } elseif ($dayres > 9) {
-                $classspeed = '10';
-            } elseif ($dayres > 0) {
-                $classspeed = '1';
+            if ($_conf['iphone.subject.indicate-speed']) {
+                // 勢い判定。なぜか不安定になるのでlog10()の結果で分岐はしない
+                $dayres = (int)$aThread->dayres;
+                if ($dayres > 9999) {
+                    $classspeed_at = ' class="dayres-10000"';
+                } elseif ($dayres > 999) {
+                    $classspeed_at = ' class="dayres-1000"';
+                } elseif ($dayres > 99) {
+                    $classspeed_at = ' class="dayres-100"';
+                } elseif ($dayres > 9) {
+                    $classspeed_at = ' class="dayres-10"';
+                } elseif ($dayres > 0) {
+                    $classspeed_at = ' class="dayres-1"';
+                } else {
+                    $classspeed_at = ' class="dayres-0"';
+                }
             } else {
-                $classspeed = '0';
+                $classspeed_at = '';
             }
 
             if ($htm['ita'] !== '') {
@@ -256,11 +261,11 @@ function sb_print_k($aThreadList)
             }
 
             echo <<<EOP
-<li class="dayres-{$classspeed}"><a href="{$thre_url}"><span class="info">{$thre_info}</span>{$htm['unum']} <span class="{$classtitle}">{$aThread->ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
+<li><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span>{$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
         } else {
             echo <<<EOP
-<div>{$htm['unum']}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</div>\n
+<div>{$htm['unum']}{$aThread->torder}.<a href="{$thre_url}">{$ttitle_ht}</a> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</div>\n
 EOP;
         }
     }

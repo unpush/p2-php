@@ -15,14 +15,16 @@ if (!$_conf['expack.ic2.enabled']) {
 }
 
 if ($_conf['iphone']) {
-    $_conf['extra_headers_ht'] .=
-        '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">' .
-        '<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css">' .
-        '<script type="text/javascript" src="js/iv2_iphone.js"></script>';
-    $_conf['extra_headers_xht'] .=
-        '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css" />' .
-        '<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css" />' .
-        '<script type="text/javascript" src="js/iv2_iphone.js"></script>';
+    $_conf['extra_headers_ht'] .= <<<EOP
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
+EOP;
+    $_conf['extra_headers_xht'] .= <<<EOP
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
+<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}" />
+<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
+EOP;
 }
 
 // ƒrƒ…[”»’è—p‚Ì‰B‚µ—v‘f
@@ -311,7 +313,7 @@ $flexy = new HTML_Template_Flexy($_flexy_options);
 
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('base_dir', dirname($_SERVER['SCRIPT_NAME']));
-$flexy->setData('rep2expack', $_conf['p2expack']);
+$flexy->setData('p2vid', P2_VERSION_ID);
 $flexy->setData('_hint', $_conf['detect_hint']);
 if ($_conf['iphone']) {
     $flexy->setData('top_url', 'index.php');

@@ -674,7 +674,9 @@ for ($x = 0; $x < $linesize; $x++) {
     if ((!$aThread->rescount) and $aThread->gotnum) {
         $aThread->rescount = $aThread->gotnum;
     }
-    if (!$aThread->ttitle_ht) { $aThread->ttitle_ht = $aThread->ttitle_hd; }
+
+    // マーキング等の処理をしない場合 ttitle_hc, ttitle_hd, ttitle_ht はJITで設定される
+    //if (!$aThread->ttitle_ht) { $aThread->ttitle_ht = $aThread->ttitle_hd; }
 
     // 新着あり
     if ($aThread->unum > 0) {

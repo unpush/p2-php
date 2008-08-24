@@ -153,13 +153,13 @@ EOP;
 // iPhone
 if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOS
-<script type="text/javascript" src="js/respopup_iphone.js"></script>
+<script type="text/javascript" src="js/respopup_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     // ImageCache2
     if ($_conf['expack.ic2.enabled']) {
         $_conf['extra_headers_ht'] .= <<<EOS
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">
-<script type="text/javascript" src="js/ic2_iphone.js"></script>
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     }
 }

@@ -528,21 +528,22 @@ function aas_isTextInPicture($size, $font, $hint, $lines, $max_width, $max_heigh
  */
 function aas_parseColor($hex)
 {
-    if (!preg_match('/^#?([[:xdigit:]]{3}|[[:xdigit:]]{6})$/', $hex)) {
+    if (!preg_match('/^#?(?:[[:xdigit:]]{3}|[[:xdigit:]]{6})$/', $hex)) {
         return false;
     }
-    if ($hex{0} == '#') {
-        $hex = substr($hex, 1);
+    if ($hex[0] == '#') {
+        $dec = hexdec(substr($hex, 1));
+    } else {
+        $dec = hexdec($hex);
     }
-    if (strlen($hex) == 3) {
-        $r = hexdec($hex{0});
-        $g = hexdec($hex{1});
-        $b = hexdec($hex{2});
-        return array($r * 16 + $r, $g * 16 + $g, $b * 16 + $b);
+    if (strlen($hex) < 6) {
+        $r = ($dec & 0xf00) >> 8;
+        $g = ($dec & 0xf0) >> 4;
+        $b = $dec & 0xf;
+        return array(($r << 4) | $r, ($g << 4) | $g, ($b << 4) | $b);
+    } else {
+        return array(($dec & 0xff0000) >> 16, ($dec & 0xff00) >> 8, $dec & 0xff);
     }
-    preg_match('/(..)(..)(..)/', $hex, $colors);
-    array_shift($colors);
-    return array_map('hexdec', $colors);
 }
 
 /**

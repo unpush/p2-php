@@ -95,12 +95,13 @@ EOP;
 echo <<<EOP
     <title>{$ptitle}</title>
     <base target="subject">
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=menu&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/showhide.js"></script>
-    <script type="text/javascript" src="js/menu.js"></script>
-    <script type="text/javascript" src="js/tgrepctl.js"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=menu&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/showhide.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/menu.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/tgrepctl.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
     <!--
     function addSidebar(title, url) {

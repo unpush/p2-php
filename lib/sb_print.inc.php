@@ -250,12 +250,13 @@ EOP;
         }
 
         // タイトル未取得なら
-        if (!$aThread->ttitle_ht) {
-            $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
+        $ttitle_ht = $aThread->ttitle_ht;
+        if (strlen($ttitle_ht) == 0) {
+            $ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
         }
 
         if ($aThread->similarity) {
-            $aThread->ttitle_ht .= sprintf(' <var>(%0.1f)</var>', $aThread->similarity * 100);
+            $ttitle_ht .= sprintf(' <var>(%0.1f)</var>', $aThread->similarity * 100);
         }
 
         // 元スレ
@@ -363,7 +364,7 @@ EOP;
         // ボディ
         echo "<tr{$class_r}>{$edit_ht}{$unum_ht}{$rescount_ht}{$one_ht}{$checkbox_ht}
 <td{$class_to}>{$torder_ht}</td>
-<td{$class_tl} nowrap>$moto_thre_ht<a id=\"tt{$i}\" href=\"{$thre_url}\" title=\"{$aThread->ttitle_hd}\"{$classtitle_q}{$change_color}>{$aThread->ttitle_ht}</a></td>
+<td{$class_tl} nowrap>$moto_thre_ht<a id=\"tt{$i}\" href=\"{$thre_url}\" title=\"{$aThread->ttitle_hd}\"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></td>
 {$htm['ita_td']}{$spd_ht}{$ikioi_ht}{$birth_ht}{$fav_ht}</tr>\n";
 
     }

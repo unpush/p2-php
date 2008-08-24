@@ -26,6 +26,8 @@ class ActiveMona
      * Unicode の
      * [^\x00-\x7F\x{2010}-\x{203B}\x{3000}-\x{3002}\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{FF00}-\x{FFEF}]
      * をベースに SJIS に作り直してあるが、若干の違いがある。
+     *
+     * "\1" はREGEX_AやREGEX_Bに捕獲式集合が使われていないことが前提なので注意
      */
     const REGEX_C = '([^\\x00-\\x7F\\xA1-\\xDF　、。，．：；０-ヶー～・…※！？＃＄％＆＊＋／＝])\\1\\1';
 
@@ -47,7 +49,21 @@ class ActiveMona
     private $_mona;
 
     /**
-     * 正規表現
+     * 行数判定に使う改行文字
+     *
+     * @var string
+     */
+    private $_lb;
+
+    /**
+     * 正規表現で判定する行数の下限-1
+     *
+     * @var int
+     */
+    private $_ln;
+
+    /**
+     * AA判定する正規表現
      *
      * @var string
      */
@@ -73,10 +89,14 @@ class ActiveMona
     /**
      * コンストラクタ
      */
-    public function __construct()
+    public function __construct($linebreaks = '<br>')
     {
+        global $_conf;
+
         $this->_mona = '<img src="img/aa.png" width="19" height="12" alt="" class="aMonaSW" onclick="activeMona(\'%s\')">';
         //$this->_mona = '<img src="img/mona.png" width="39" height="12" alt="（´∀｀） class="aMonaSW" onclick="activeMona(\'%s\')"">';
+        $this->_lb = $linebreaks;
+        $this->_ln = $_conf['expack.am.lines_limit'] - 1;
         $this->_re = '(?:' . self::REGEX_A . '|' . self::REGEX_B . '|' . self::REGEX_C . ')';
     }
 
@@ -99,10 +119,13 @@ class ActiveMona
      */
     function detectAA($msg)
     {
-        if (mb_ereg($this->_re, $msg)) {
+        if (substr_count($msg, $this->_lb) < $this->_ln) {
+            return false;
+        } elseif (mb_ereg($this->_re, $msg)) {
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     // }}}

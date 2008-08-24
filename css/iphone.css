@@ -16,8 +16,16 @@ div, h1, h2, h3, h4, h5, h6, li, p {
 	word-wrap: break-word;
 }
 
-h1, h2, h3, h4, h5, h6, p, form {
+h1, h2, h3, h4, h5, h6, p, form, fieldset {
 	margin: 8px 0;
+}
+
+body > h1:first-child, body > h2:first-child,
+body > h3:first-child, body > h4:first-child,
+body > h5:first-child, body > h6:first-child,
+body > p:first-child, body > form:first-child
+{
+	margin-top: 0;
 }
 
 a {
@@ -38,6 +46,10 @@ a img {
 
 b.filtering, span.matched {
 	font-weight: bold;
+}
+
+span.label {
+	cursor: pointer;
 }
 
 /* Forms */
@@ -128,7 +140,6 @@ body > div#open-in-tab > input[type="checkbox"] {
 }
 
 body > div#open-in-tab > span {
-	cursor: pointer;
 	display: inline-block;
 	margin: 0 0 -6px 0;
 	padding: 4px 6px 0 6px;
@@ -140,7 +151,6 @@ body > div#open-in-tab > span {
 	border-bottom-color: #fafafa;
 	-webkit-border-top-left-radius: 5px;
 	-webkit-border-top-right-radius: 5px;
-	cursor: pointer;
 }
 
 /* Read */
@@ -279,61 +289,36 @@ ul.subject > li {
 	display: block;
 	margin: 0;
 	padding: 0;
-	border-bottom: #808080 solid 1px;
-	background-color: #ffffff;
+	border-bottom: #e0e0e0 solid 1px;
 }
 
 ul.subject > li:first-child {
-	border-top: #808080 solid 1px;
-}
-
-ul.subject > li.dayres-0 {
-	background-color: #eeeeee;
-}
-
-ul.subject > li.dayres-1 {
-	background-color: #ffcccc;
-}
-
-ul.subject > li.dayres-10 {
-	background-color: #ff9999;
-}
-
-ul.subject > li.dayres-100 {
-	background-color: #ff6666;
-}
-
-ul.subject > li.dayres-1000 {
-	background-color: #ff3333;
-}
-
-ul.subject > li.dayres-10000 {
-	background-color: #ff0000;
+	border-top: #e0e0e0 solid 1px;
 }
 
 ul.subject > li > a {
 	display: block;
-	margin: 0 0 0 10px;
-	padding: 7px;
+	margin: 0;
+	padding: 8px 10px;
 	font-size: medium;
 	text-decoration: none;
-	color: #252525;
+	color: #000000;
 	background-color: #ffffff;
 }
 
 ul.subject > li > a:link {
-	color: #252525;
+	color: #000000;
 	background-color: #ffffff;
 }
 
 ul.subject > li > a:visited {
-	color: #585858;
+	color: #666666;
 	background-color: #ffffff;
 }
 
 ul.subject > li > a:active {
 	color: #ffffff;
-	background-color: #1234ef;
+	background-color: #194fdb;
 }
 
 ul.subject > li > a:link > span.new {
@@ -358,7 +343,6 @@ ul.subject > li > a > span.title {
 }
 
 ul.subject > li > a > span.ita {
-	font-style: italic;
 }
 
 ul.subject > li > a > span.num {

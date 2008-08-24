@@ -200,13 +200,13 @@ EOP;
 echo <<<EOP
     <title>{$ptitle_hd}</title>
     <base target="read">
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=subject&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/setfavjs.js"></script>
-    <script type="text/javascript" src="js/settabornjs.js"></script>
-    <script type="text/javascript" src="js/delelog.js"></script>
-    <script type="text/javascript" src="js/jquery.pack.js"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;skin={$skin_en}">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/settabornjs.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/jquery.pack.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
     <!--
     function setWinTitle(){

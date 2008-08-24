@@ -124,14 +124,17 @@ class ShowThread{
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
 
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
+            $bbs = $this->thread->bbs;
+            $title = $this->thread->ttitle_hc;
+
             foreach ($ngaborns[$code]['data'] as $k => $v) {
                 // 板チェック
-                if (isset($v['bbs']) && in_array($this->thread->bbs, $v['bbs']) == FALSE) {
+                if (isset($v['bbs']) && in_array($bbs, $v['bbs']) == FALSE) {
                     continue;
                 }
 
                 // タイトルチェック
-                if (isset($v['title']) && stristr($this->thread->ttitle_hc, $v['title']) === FALSE) {
+                if (isset($v['title']) && stristr($title, $v['title']) === FALSE) {
                     continue;
                 }
 

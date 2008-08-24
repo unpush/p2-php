@@ -173,12 +173,11 @@ include($skin);
 if ($updated_fontconfig['enabled']) {
     fontconfig_apply_custom();
 } else {
-    $skin_en = preg_replace('/&amp;etag=[^&]*/', '', $skin_en);
-    $skin_en .= '&amp;etag=' . urlencode($skin_etag);
+    $skin_en = preg_replace('/&amp;_=[^&]*/', '&amp;_=' . urlencode($skin_uniq), $skin_en);
 }
 $controllerObject->STYLE = $STYLE;
 $controllerObject->skin = $skin_en;
-$controllerObject->rep2expack = $_conf['p2expack'];
+$controllerObject->p2vid = P2_VERSION_ID;
 
 // o—Í
 $flexy->outputObject($controllerObject, $elements);

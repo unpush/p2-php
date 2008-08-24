@@ -162,7 +162,7 @@ EOP;
 }
 
 if ($_conf['expack.ic2.enabled']) {
-    echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js\"></script>";
+    echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js?{$_conf['p2_version_id']}\"></script>";
     include P2EX_LIB_DIR . '/ic2/templates/info.tpl.html';
 }
 

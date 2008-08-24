@@ -84,8 +84,9 @@ EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=editpref&amp;skin={$skin_en}" type="text/css">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=editpref&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
 }
 
@@ -117,7 +118,7 @@ $ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
 
 echo '<div>';
 echo <<<EOP
-<a href="edit_conf_user.php{$_conf['k_at_q']}">ユーザ設定編集</a>
+<a href="edit_conf_user.php{$_conf['k_at_q']}" class="button">ユーザ設定編集</a>
 EOP;
 if (empty($_conf['ktai']) && $_conf['expack.skin.enabled']) {
     $skin_options = array('conf_user_style' => '標準');

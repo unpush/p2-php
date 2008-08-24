@@ -104,15 +104,16 @@ EOHEADER;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=post&amp;skin={$skin_en}">
 EOP;
     if ($_conf['expack.editor.dpreview']) {
         echo "<link rel=\"stylesheet\" href=\"css.php?css=prvw&amp;skin={$skin_en}\" type=\"text/css\">\n";
     }
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/post_form.js"></script>\n
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/post_form.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 }
 

@@ -1,9 +1,10 @@
 <?php
-/*
-    p2 - ユーザ設定編集UI
-*/
+/**
+ *  p2 - ユーザ設定編集UI
+ */
 
 include_once './conf/conf.inc.php';
+include_once './conf/conf_user_def.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -41,40 +42,29 @@ if (!empty($_POST['submit_save'])) {
     // ルールを適用する
     applyRules();
 
-    // 正の実数 or 0 でないもの → デフォルト矯正
-    //notFloatExceptMinusToDef();
-
-    /**
-     * デフォルト値 $conf_user_def と変更値 $_POST['conf_edit'] の両方が存在していて、
-     * デフォルト値と変更値が異なる場合のみ設定保存する（その他のデータは保存されず、破棄される）
-     * ただし、$_POST['conf_keep_old'] == true のときはデータを破棄しない（メモリの少ない携帯対策）
-     */
-    $conf_save = array();
+    // ポストされた値 > 現在の値 > デフォルト値 の順で新しい設定を作成する
+    $conf_save = array('.' => P2_VERSION_ID);
     foreach ($conf_user_def as $k => $v) {
-        if (isset($_POST['conf_edit'][$k])) {
-            if ($v != $_POST['conf_edit'][$k]) {
-                $conf_save[$k] = $_POST['conf_edit'][$k];
-            }
-        } elseif (!empty($_POST['conf_keep_old']) && isset($_conf[$k])) {
-            if ($v != $_conf[$k]) {
-                $conf_save[$k] = $_conf[$k];
-            }
+        if (array_key_exists($k, $_POST['conf_edit'])) {
+            $conf_save[$k] = $_POST['conf_edit'][$k];
+        } elseif (array_key_exists($k, $_conf)) {
+            $conf_save[$k] = $_conf[$k];
+        } else {
+            $conf_save[$k] = $v;
         }
     }
 
     // シリアライズして保存
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
-    if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
+    if (FileCtl::file_write_contents($_conf['conf_user_file'], serialize($conf_save)) === false) {
         $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
-        trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
     } else {
         $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
         // 変更があれば、内部データも更新しておく
-        $_conf = array_merge($_conf, $conf_user_def);
-        if (is_array($conf_save)) {
-            $_conf = array_merge($_conf, $conf_save);
-        }
+        $_conf = array_merge($_conf, $conf_user_def, $conf_save);
     }
+
+    unset($conf_save);
 
 // }}}
 // {{{ デフォルトに戻すボタンが押されていたら
@@ -142,13 +132,13 @@ EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/tabber/tabber.js"></script>
-    <script type="text/javascript" src="js/edit_conf_user.js"></script>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="style/tabber/tabber.css" type="text/css">
-    <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/tabber/tabber.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/edit_conf_user.js?{$_conf['p2_version_id']}"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="style/tabber/tabber.css">
+    <link rel="stylesheet" type="text/css" href="css.php?css=edit_conf_user&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
 }
 
@@ -476,6 +466,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.am.display', 'スイッチを表示する位置'),
         array('expack.am.autodetect', '自動で判定し、AA用表示をする（PC）'),
         array('expack.am.autong_k', '自動で判定し、NGワードにする。AAS が有効なら AAS のリンクも作成（携帯）'),
+        array('expack.am.lines_limit', '自動判定する行数の下限'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
     if (isset($_conf['expack.am.fontfamily.orig'])) {
@@ -594,6 +585,57 @@ if (!$_conf['ktai']) {
     echo <<<EOP
 </div><!-- end of tab -->
 </div><!-- end of child tabset "拡張パック設定" -->
+
+<div class="tabbertab" title="iPhone設定">
+<h3>iPhone設定</h3>
+<div class="tabber">\n
+EOP;
+}
+
+// {{{ 拡張パック設定
+// {{{ iPhone - subject
+
+$groupname = 'subject-i';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('iphone.subject.indicate-speed', '勢いを示すインジケーターを表示'),
+        array('iphone.subject.speed.width', 'インジケーターの幅 (pixels)'),
+        array('iphone.subject.speed.0rpd', 'インジケーターの色 (1レス/日未満)'),
+        array('iphone.subject.speed.1rpd', 'インジケーターの色 (1レス/日以上)'),
+        array('iphone.subject.speed.10rpd', 'インジケーターの色 (10レス/日以上)'),
+        array('iphone.subject.speed.100rpd', 'インジケーターの色 (100レス/日以上)'),
+        array('iphone.subject.speed.1000rpd', 'インジケーターの色 (1000レス/日以上)'),
+        array('iphone.subject.speed.10000rpd', 'インジケーターの色 (10000レス/日以上)'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ iPhone - read
+/*
+$groupname = 'read-i';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+*/
+// }}}
+// }}}
+
+// PC用表示
+if (!$_conf['ktai']) {
+    echo <<<EOP
+</div><!-- end of tab -->
+</div><!-- end of child tabset "iPhone設定" -->
 </div><!-- end of parent tabset -->\n
 EOP;
 // 携帯用表示
@@ -605,9 +647,6 @@ EOP;
     }
 }
 
-if ($keep_old) {
-    echo '<input type="hidden" name="conf_keep_old" value="true">' . "\n";
-}
 echo '</form>' . "\n";
 
 
@@ -619,11 +658,24 @@ if ($_conf['ktai']) {
 {$_conf['k_input_ht']}
 <select name="edit_conf_user_group_en">
 EOP;
+    if ($_conf['iphone']) {
+        echo '<optgroup label="rep2基本設定">';
+    }
     foreach ($groups as $groupname) {
+        if ($_conf['iphone']) {
+            if ($groupname == 'tGrep') {
+                echo '</optgroup><optgroup label="拡張パック設定">';
+            } elseif ($groupname == 'subject-i') {
+                echo '</optgroup><optgroup label="iPhone設定">';
+            }
+        }
         $group_ht = htmlspecialchars($groupname, ENT_QUOTES);
         $group_en = htmlspecialchars(base64_encode($groupname));
         $selected = ($selected_group == $groupname) ? ' selected' : '';
         echo "<option value=\"{$group_en}\"{$selected}>{$group_ht}</option>";
+    }
+    if ($_conf['iphone']) {
+        echo '</optgroup>';
     }
     echo <<<EOP
 </select>
@@ -642,6 +694,8 @@ exit;
 //=====================================================================
 // 関数（このファイル内のみの利用）
 //=====================================================================
+
+// {{{ applyRules()
 
 /**
  * ルール設定（$conf_user_rules）に基づいて、フィルタ処理（デフォルトセット）を行う
@@ -664,19 +718,10 @@ function applyRules()
     }
 }
 
+// }}} 
+// {{{ フィルタ関数
 // emptyToDef() などのフィルタはEditConfFiterクラスなどにまとめる予定
-
-/**
- * CSS値のためのフィルタリングを行う
- *
- * @param   string  $str    入力された値
- * @param   string  $def    デフォルトの値
- * @return  string
- */
-function filterCssValue($str, $def = '')
-{
-    return preg_replace('/[^0-9a-zA-Z-%]/', '', $str);
-}
+// {{{ emptyToDef()
 
 /**
  * emptyの時は、デフォルトセットする
@@ -692,6 +737,9 @@ function emptyToDef($val, $def)
     }
     return $val;
 }
+
+// }}}
+// {{{ notIntExceptMinusToDef()
 
 /**
  * 正の整数化できる時は正の整数化（0を含む）し、
@@ -720,6 +768,9 @@ function notIntExceptMinusToDef($val, $def)
     return $val;
 }
 
+// }}}
+// {{{ notFloatExceptMinusToDef()
+
 /**
  * 正の実数化できる時は正の実数化（0を含む）し、
  * できない時は、デフォルトセットする
@@ -732,20 +783,23 @@ function notFloatExceptMinusToDef($val, $def)
 {
     // 全角→半角 矯正
     $val = mb_convert_kana($val, 'a');
-    // 整数化できるなら
+    // 実数化できるなら
     if (is_numeric($val)) {
-        // 整数化する
+        // 実数化する
         $val = floatval($val);
         // 負の数はデフォルトに
         if ($val < 0.0) {
             $val = floatval($def);
         }
-    // 整数化できないものは、デフォルトに
+    // 実数化できないものは、デフォルトに
     } else {
         $val = floatval($def);
     }
     return $val;
 }
+
+// }}}
+// {{{ notSelToDef()
 
 /**
  * 選択肢にない値はデフォルトセットする
@@ -768,6 +822,313 @@ function notSelToDef()
     }
     return true;
 }
+
+// }}}
+// {{{ escapeHtmlExceptEntity()
+
+/**
+ * 既存のエンティティを除いて特殊文字をHTMLエンティティ化する
+ *
+ * htmlspecialchars() の第四引数 $double_encode は PHP 5.2.3 で追加された
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function escapeHtmlExceptEntity($val, $def)
+{
+    return htmlspecialchars($val, ENT_QUOTES, 'Shift_JIS', false);
+}
+
+// }}}
+// {{{ notHtmlColorToDef()
+
+/**
+ * 空の場合とHTMLの色として正しくない場合は、デフォルトセットする
+ * W3Cの仕様で定義されていないが、ブラウザは認識する名前は許可しない
+ * orangeはCSS2.1の色だけど、例外的に許可
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notHtmlColorToDef($val, $def)
+{
+    if (strlen($val) == 0) {
+        return $def;
+    }
+
+    $val = strtolower($val);
+
+    // 色名か16進数
+    if (in_array($val, array('black',   // #000000
+                             'silver',  // #c0c0c0
+                             'gray',    // #808080
+                             'white',   // #ffffff
+                             'maroon',  // #800000
+                             'red',     // #ff0000
+                             'purple',  // #800080
+                             'fuchsia', // #ff00ff
+                             'green',   // #008000
+                             'lime',    // #00ff00
+                             'olive',   // #808000
+                             'yellow',  // #ffff00
+                             'navy',    // #000080
+                             'blue',    // #0000ff
+                             'teal',    // #008080
+                             'aqua',    // #00ffff
+                             'orange',  // #ffa500
+                             )) ||
+        preg_match('/^#[0-9a-f]{6}$/', $val))
+    {
+        return $val;
+    }
+
+    return $def;
+}
+
+// }}}
+// {{{ notCssColorToDef()
+
+/**
+ * 空の場合とCSSの色として正しくない場合は、デフォルトセットする
+ * W3Cの仕様で定義されていないが、ブラウザは認識する名前は許可しない
+ * transparent,inherit,noneは許可
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notCssColorToDef($val, $def)
+{
+    if (strlen($val) == 0) {
+        return $def;
+    }
+
+    $val = strtolower($val);
+
+    // 色名か16進数
+    if (in_array($val, array('black',   // #000000
+                             'silver',  // #c0c0c0
+                             'gray',    // #808080
+                             'white',   // #ffffff
+                             'maroon',  // #800000
+                             'red',     // #ff0000
+                             'purple',  // #800080
+                             'fuchsia', // #ff00ff
+                             'green',   // #008000
+                             'lime',    // #00ff00
+                             'olive',   // #808000
+                             'yellow',  // #ffff00
+                             'navy',    // #000080
+                             'blue',    // #0000ff
+                             'teal',    // #008080
+                             'aqua',    // #00ffff
+                             'orange',  // #ffa500
+                             'transparent',
+                             'inherit',
+                             'none')) ||
+        preg_match('/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/', $val))
+    {
+        return $val;
+    }
+
+    // rgb(d,d,d)
+    if (preg_match('/rgb\\(
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*(0|[1-9][0-9]*)[ ]*
+                    \\)/x', $val, $m))
+    {
+        return sprintf('rgb(%d, %d, %d)',
+                       min(255, (int)$m[1]),
+                       min(255, (int)$m[2]),
+                       min(255, (int)$m[3])
+                       );
+    }
+
+    // rgba(%,%,%)
+    if (preg_match('/rgb\\(
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*(0|[1-9][0-9]*)%[ ]*
+                    \\)/x', $val, $m))
+    {
+        return sprintf('rgb(%d%%, %d%%, %d%%)',
+                       min(100, (int)$m[1]),
+                       min(100, (int)$m[2]),
+                       min(100, (int)$m[3])
+                       );
+    }
+
+    // rgba(d,d,d,f)
+    if (preg_match('/rgba\\(
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*([01](?:\\.[0-9]+)?)[ ]*
+                    \\)/x', $val, $m))
+    {
+        return sprintf('rgba(%d, %d, %d, %0.2f)',
+                       min(255, (int)$m[1]),
+                       min(255, (int)$m[2]),
+                       min(255, (int)$m[3]),
+                       min(1.0, (float)$m[4])
+                       );
+    }
+
+    // rgba(%,%,%,f)
+    if (preg_match('/rgba\\(
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*([01](?:\\.[0-9]+)?)[ ]*
+                    \\)/x', $val, $m))
+    {
+        return sprintf('rgba(%d%%, %d%%, %d%%, %0.2f)',
+                       min(100, (int)$m[1]),
+                       min(100, (int)$m[2]),
+                       min(100, (int)$m[3]),
+                       min(1.0, (float)$m[4])
+                       );
+    }
+
+    return $def;
+}
+
+// }}}
+// {{{ notCssFontSizeToDef()
+
+/**
+ * CSSのフォントの大きさとして正しくない場合は、デフォルトセットする
+ * media="screen" を前提に、in,cm,mm,pt,pc等の絶対的な単位はサポートしない
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notCssFontSizeToDef($val, $def)
+{
+    if (strlen($val) == 0) {
+        return $def;
+    }
+
+    $val = strtolower($val);
+
+    // キーワード
+    if (in_array($val, array('xx-large', 'x-large', 'large',
+                             'larger', 'medium', 'smaller',
+                             'small', 'x-small', 'xx-small')))
+    {
+        return $val;
+    }
+
+    // 整数
+    if (preg_match('/^[1-9][0-9]*(?:em|ex|px|%)$/', $val)) {
+        return $val;
+    }
+
+    // 実数 (小数点第3位で四捨五入、余分な0を切り捨て)
+    if (preg_match('/^((?:0|[1-9][0-9]*)\\.[0-9]+)(em|ex|px|%)$/', $val, $m)) {
+        $val = rtrim(sprintf('%0.2f', (float)$m[1]), '.0');
+        if ($val !== '0') {
+            return $val . $m[2];
+        }
+    }
+
+    return $def;
+}
+
+// }}}
+// {{{ notCssSizeToDef()
+
+/**
+ * CSSの大きさとして正しくない場合は、デフォルトセットする
+ * media="screen" を前提に、in,cm,mm,pt,pc等の絶対的な単位はサポートしない
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @param   boolean $allow_zero
+ * @param   boolean $allow_negative
+ * @return  string
+ */
+function notCssSizeToDef($val, $def, $allow_zero = true, $allow_negative = true)
+{
+    if (strlen($val) == 0) {
+        return $def;
+    }
+
+    $val = strtolower($val);
+
+    // 0
+    if ($allow_zero && $val === '0') {
+        return '0';
+    }
+
+    // 整数 (0は単位なしに)
+    if (preg_match('/^(-?(?:0|[1-9][0-9]*))(?:em|ex|px|%)$/', $val, $m)) {
+        $i = (int)$m[1];
+        if ($i > 0 || ($i < 0 && $allow_negative) || $allow_zero) {
+            if ($i === 0) {
+                return '0';
+            } else {
+                return $val;
+            }
+        }
+    }
+
+    // 実数 (小数点第3位で四捨五入、余分な0を切り捨て)
+    if (preg_match('/^(-?(?:0|[1-9][0-9]*)\\.[0-9]+)(em|ex|px|%)$/', $val, $m)) {
+        $f = (float)$m[1];
+        if ($f > 0.0 || ($f < 0.0 && $allow_negative) || $allow_zero) {
+            $val = rtrim(sprintf('%0.2f', $f), '.0');
+            if ($val === '0') {
+                if ($allow_zero) {
+                    return '0';
+                }
+            } else {
+                return $val . $m[2];
+            }
+        }
+    }
+
+    return $def;
+}
+
+// }}}
+// {{{ notCssPositiveSizeToDef()
+
+/**
+ * CSSの大きさとして正しくない場合か、正の値でないときは、デフォルトセットする
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notCssPositiveSizeToDef($val, $def)
+{
+    return notCssSizeToDef($val, $def, false, false);
+}
+
+// }}}
+// {{{ notCssSizeExceptMinusToDef()
+
+/**
+ * CSSの大きさとして正しくない場合か、負の値のときは、デフォルトセットする
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notCssSizeExceptMinusToDef($val, $def)
+{
+    return notCssSizeToDef($val, $def, true, false);
+}
+
+// }}}
+// }}}
+// {{{ 表示用関数
+// {{{ getGroupShowFlags()
 
 /**
  * グループの表示モードを得る
@@ -800,6 +1161,9 @@ function getGroupShowFlags($group_key, $conf_key = null)
     }
     return $flags;
 }
+
+// }}}
+// {{{ getGroupSepaHtml()
 
 /**
  * グループ分け用のHTMLを得る（関数内でPC、携帯用表示を振り分け）
@@ -851,6 +1215,9 @@ EOP;
     return $ht;
 }
 
+// }}}
+// {{{ getGroupEndHtml()
+
 /**
  * グループ終端のHTMLを得る（携帯では空）
  *
@@ -885,6 +1252,9 @@ EOP;
     }
     return $ht;
 }
+
+// }}}
+// {{{ getEditConfHtml()
 
 /**
  * 編集フォームinput用HTMLを得る（関数内でPC、携帯用表示を振り分け）
@@ -940,7 +1310,7 @@ function getEditConfHtml($name, $description_ht, $flags)
             $input_size_at = '';
         }
         $form_ht = <<<EOP
-<input type="text" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>\n
+<input type="text" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>
 EOP;
         if (is_string($conf_user_def[$name])) {
             $def_views[$name] = htmlspecialchars($conf_user_def[$name], ENT_QUOTES);
@@ -949,27 +1319,28 @@ EOP;
         }
     }
 
+    // iPhone用
+    if ($_conf['iphone']) {
+        return "<fieldset><legend>{$name}</legend>{$description_ht}<br>{$form_ht}</fieldset>\n";
+
+    // 携帯用
+    } elseif ($_conf['ktai']) {
+        return "[{$name}]<br>{$description_ht}<br>{$form_ht}<br><br>\n";
+
     // PC用
-    if (!$_conf['ktai']) {
-        $r = <<<EOP
+    } else {
+        return <<<EOP
     <tr title="デフォルト値: {$def_views[$name]}">
         <td>{$name}</td>
         <td>{$form_ht}</td>
         <td>{$description_ht}</td>
     </tr>\n
 EOP;
-    // 携帯用
-    } else {
-        $r = <<<EOP
-[{$name}]<br>
-{$description_ht}<br>
-{$form_ht}<br>
-<br>\n
-EOP;
     }
-
-    return $r;
 }
+
+// }}}
+// {{{ getEditConfHidHtml()
 
 /**
  * 編集フォームhidden用HTMLを得る
@@ -991,6 +1362,9 @@ function getEditConfHidHtml($name)
 
     return $form_ht;
 }
+
+// }}}
+// {{{ getEditConfSelHtml()
 
 /**
  * 編集フォームselect用HTMLを得る
@@ -1024,6 +1398,9 @@ function getEditConfSelHtml($name)
     return $form_ht;
 }
 
+// }}}
+// {{{ getEditConfRadHtml()
+
 /**
  * 編集フォームradio用HTMLを得る
  *
@@ -1048,11 +1425,18 @@ function getEditConfRadHtml($name)
         }
         $key_ht = htmlspecialchars($key, ENT_QUOTES);
         $value_ht = htmlspecialchars($value, ENT_QUOTES);
-        $form_ht .= "<label><input type=\"radio\" name=\"conf_edit[{$name}]\" value=\"{$key_ht}\"{$checked}>{$value_ht}</label>\n";
+        if ($_conf['iphone']) {
+            $form_ht .= "<input type=\"radio\" name=\"conf_edit[{$name}]\" value=\"{$key_ht}\"{$checked}><span onclick=\"if(!this.previousSibling.checked)this.previousSibling.checked=true;\">{$value_ht}</span>\n";
+        } else {
+            $form_ht .= "<label><input type=\"radio\" name=\"conf_edit[{$name}]\" value=\"{$key_ht}\"{$checked}>{$value_ht}</label>\n";
+        }
     } // foreach
 
     return $form_ht;
 }
+
+// }}}
+// {{{ printEditConfGroupHtml()
 
 /**
  * 編集フォームを表示する
@@ -1074,3 +1458,17 @@ function printEditConfGroupHtml($groupname, $conflist, $flags)
     }
     echo getGroupEndHtml($flags);
 }
+
+// }}}
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

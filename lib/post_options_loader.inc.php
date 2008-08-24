@@ -213,8 +213,8 @@ if (!$_conf['ktai'] && $_conf['expack.editor.dpreview']) {
         $_dpreview_pos = 'dpreview';
     }
     $htm[$_dpreview_pos] = <<<EOP
-<script type="text/javascript" src="js/strutil.js"></script>
-<script type="text/javascript" src="js/dpreview.js"></script>
+<script type="text/javascript" src="js/strutil.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/dpreview.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript">
 <!--
 var dpreview_use = true;

@@ -243,12 +243,12 @@ $body_onload = '';
 
 if (!$_conf['ktai']) {
     echo <<<EOSTYLE
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=info&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOSTYLE;
     if ($popup == 2) {
-        echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js\"></script>\n";
+        echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js?{$_conf['p2_version_id']}\"></script>\n";
         if (preg_match('/^aborn_/', $mode)) {
             if ($mode != 'aborn_res' && isset($aborn_id) && strlen($aborn_id) >= 8) {
                 $aborn_target = 'ID:' . addslashes($aborn_id);

@@ -254,6 +254,7 @@ EOP;
     {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 EOP;
     if (!$_conf['ktai']) {
         echo "<style type=\"text/css\" media=\"all\">\n<!--\n";

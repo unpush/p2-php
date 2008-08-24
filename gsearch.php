@@ -153,12 +153,12 @@ if ($_conf['input_type_search']) {
     <?php echo $_conf['extra_headers_ht']; ?>
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>2chåüçı by Google : <?php echo $word; ?></title>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin=<?php echo $skin_en; ?>" type="text/css">
-    <link rel="stylesheet" href="css.php?css=read&amp;skin=<?php echo $skin_en; ?>" type="text/css">
-    <link rel="stylesheet" href="css.php?css=subject&amp;skin=<?php echo $skin_en; ?>" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/gpopup.js"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin=<?php echo $skin_en; ?>">
+    <link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin=<?php echo $skin_en; ?>">
+    <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;skin=<?php echo $skin_en; ?>">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?<?php echo $_conf['p2_version_id']; ?>"></script>
+    <script type="text/javascript" src="js/gpopup.js?<?php echo $_conf['p2_version_id']; ?>"></script>
 </head>
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 <table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td align="left">

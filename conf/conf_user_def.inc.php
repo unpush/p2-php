@@ -367,8 +367,20 @@ $conf_user_def['precede_phpcurl'] = 0;  // (0)
 $conf_user_rad['precede_phpcurl'] = array('0' => 'コマンドライン版', '1' => 'PHP関数版');
 
 // }}}
-// {{{ ■拡張パック
+// {{{ 拡張パックとiPhone
 
-include_once 'conf/conf_user_def_ex.inc.php';
+include 'conf/conf_user_def_ex.inc.php';
+include 'conf/conf_user_def_i.inc.php';
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -70,11 +70,11 @@ echo <<<EOF
     {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>fitImage - {$alt}</title>
-    <link rel="stylesheet" href="css.php?css=fitimage&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/fitimage.js"></script>
-    <script type="text/javascript" src="js/iv2.js"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=fitimage&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/fitimage.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/iv2.js?{$_conf['p2_version_id']}"></script>
 </head>
 <body onload="focus();fiGetImageInfo('{$info_key_type}', '{$info_key_value}');">
 <div id="btn" style="border:1px solid black;padding:2px;background-color:white">
