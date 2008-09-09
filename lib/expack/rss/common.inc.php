@@ -3,14 +3,17 @@
  * rep2expack - RSSユーティリティ関数
  */
 
+require_once P2_LIB_DIR . '/filectl.class.php';
 require_once 'PEAR.php';
+
+// {{{ rss_get_save_path()
 
 /**
  * RSSのURLからローカルに保存するファイルのパスを設定する
  */
 function rss_get_save_path($remotefile)
 {
-    global $_conf;
+    global $_conf, $_info_msg_ht;
     static $done = array();
 
     $remotefile = preg_replace('|^feed://|', 'http://', $remotefile);
@@ -52,6 +55,8 @@ function rss_get_save_path($remotefile)
 
     return ($done[$remotefile] = $localpath);
 }
+
+// }}}
 
 /*
  * Local Variables:

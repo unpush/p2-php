@@ -1,14 +1,18 @@
 <?php
-/* ImageCache2 - ダウンローダ */
+/**
+ * ImageCache2 - ダウンローダ
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -26,23 +30,21 @@ if (get_magic_quotes_gpc()) {
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
 
 // ポップアップウインドウ？
 $isPopUp = empty($_GET['popup']) ? 0 : 1;
 
+
 // }}}
 // {{{ config
 
+
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
-
-// DB_DataObjectの設定
-$_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => false, 'quote_identifiers' => true);
 
 // フォームのデフォルト値
 $qf_defaults = array(
@@ -57,10 +59,10 @@ $qf_defaults = array(
 
 // フォームの固定値
 $qf_constants = array(
-    '_hint'     => $_conf['detect_hint'],
-    'download'  => 'ダウンロード',
-    'reset'     => 'リセット',
-    'close'     => '閉じる',
+    '_hint'       => $_conf['detect_hint'],
+    'download'    => 'ダウンロード',
+    'reset'       => 'リセット',
+    'close'       => '閉じる',
 );
 
 // プレビューの大きさ
@@ -82,14 +84,16 @@ $_attr_submit = array();
 $_attr_reset  = array();
 $_attr_close  = array('onclick' => 'window.close()');
 
+
 // }}}
 // {{{ prepare (Form & Template)
+
 
 // 画像ダウンロード用フォームを設定
 $_attribures = array('accept-charset' => 'UTF-8,Shift_JIS');
 $_target = $isPopUp ? '_self' : 'read';
 
-$qf = &new HTML_QuickForm('get', 'get', $_SERVER['SCRIPT_NAME'], $_target, $_attribures);
+$qf = new HTML_QuickForm('get', 'get', $_SERVER['SCRIPT_NAME'], $_target, $_attribures);
 $qf->setDefaults($qf_defaults);
 $qf->setConstants($qf_constants);
 
@@ -97,24 +101,24 @@ $qf->setConstants($qf_constants);
 $qfe = array();
 
 // 隠し要素
-$qfe['detect_hint'] = &$qf->addElement('hidden', 'detect_hint');
-$qfe['popup'] = &$qf->addElement('hidden', 'popup');
+$qfe['detect_hint'] = $qf->addElement('hidden', 'detect_hint');
+$qfe['popup'] = $qf->addElement('hidden', 'popup');
 
 // URLと連番設定
-$qfe['uri']     = &$qf->addElement('text', 'uri', 'URL', $_attr_uri);
-$qfe['serial']  = &$qf->addElement('checkbox', 'serial', '連番', null, $_attr_s_chk);
-$qfe['from']    = &$qf->addElement('text', 'from', 'From', $_attr_s_from);
-$qfe['to']      = &$qf->addElement('text', 'to', 'To', $_attr_s_to);
-$qfe['padding'] = &$qf->addElement('text', 'padding', '0で詰める桁数', $_attr_s_pad);
+$qfe['uri']     = $qf->addElement('text', 'uri', 'URL', $_attr_uri);
+$qfe['serial']  = $qf->addElement('checkbox', 'serial', '連番', NULL, $_attr_s_chk);
+$qfe['from']    = $qf->addElement('text', 'from', 'From', $_attr_s_from);
+$qfe['to']      = $qf->addElement('text', 'to', 'To', $_attr_s_to);
+$qfe['padding'] = $qf->addElement('text', 'padding', '0で詰める桁数', $_attr_s_pad);
 
 // リファラとメモ
-$qfe['ref']  = &$qf->addElement('text', 'ref', 'リファラ', $_attr_ref);
-$qfe['memo'] = &$qf->addElement('text', 'memo', '　　メモ', $_attr_memo);
+$qfe['ref']  = $qf->addElement('text', 'ref', 'リファラ', $_attr_ref);
+$qfe['memo'] = $qf->addElement('text', 'memo', '　　メモ', $_attr_memo);
 
 // プレビューの大きさ
 $preview_size = array();
 foreach ($_preview_size as $value => $lavel) {
-    $preview_size[$value] = &HTML_QuickForm::createElement('radio', null, null, $lavel, $value);
+    $preview_size[$value] = HTML_QuickForm::createElement('radio', NULL, NULL, $lavel, $value);
 }
 $qf->addGroup($preview_size, 'preview_size', 'プレビュー', '&nbsp;');
 if (!isset($_GET['preview_size'])) {
@@ -122,39 +126,44 @@ if (!isset($_GET['preview_size'])) {
 }
 
 // 決定・リセット・閉じる
-$qfe['download'] = &$qf->addElement('submit', 'download');
-$qfe['reset']    = &$qf->addElement('reset', 'reset');
-$qfe['close']    = &$qf->addElement('button', 'close', null, $_attr_close);
+$qfe['download'] = $qf->addElement('submit', 'download');
+$qfe['reset']    = $qf->addElement('reset', 'reset');
+$qfe['close']    = $qf->addElement('button', 'close', NULL, $_attr_close);
 
 // Flexy
 $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'cp932',
     'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
-    'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
+    'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+$flexy = new HTML_Template_Flexy($_flexy_options);
 
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('skin', $skin_en);
 $flexy->setData('isPopUp', $isPopUp);
+$flexy->setData('pc', !$_conf['ktai']);
+$flexy->setData('iphone', $_conf['iphone']);
+$flexy->setData('doctype', $_conf['doctype']);
+$flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
+$flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 
 // }}}
 // {{{ validate
 
-$execDL = false;
+$execDL = FALSE;
 if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri']) && isset($params['download'])) {
-    $execDL = true;
+    $execDL = TRUE;
     $params = array_map('trim', $params);
 
     // URLを検証
     $purl = @parse_url($params['uri']);
     if (!$purl || !preg_match('/^(https?)$/', $purl['scheme']) || empty($purl['host']) || empty($purl['path'])) {
-        P2Util::pushInfoHtml('<p>エラー: 不正なURL</p>');
-        $execDL = false;
-        $isError = true;
+        $_info_msg_ht .= '<p>エラー: 不正なURL</p>';
+        $execDL = FALSE;
+        $isError = TRUE;
     }
 
     // プレビューの大きさ
@@ -170,32 +179,32 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
         $extra_params .= '&ref=' . rawurlencode($params['ref']);
     }
     if (isset($params['memo']) && strlen(trim($params['memo'])) > 0) {
-        $new_memo = IC2DB_Images::uniform($params['memo'], 'SJIS-win');
+        $new_memo = IC2DB_Images::staticUniform($params['memo'], 'CP932');
         $_memo_en = rawurlencode($new_memo);
-        $_hint_en = rawurlencode($_conf['detect_hint_utf8']);
         // レンダリング時にhtmlspecialchars()されるので、ここでは&を&amp;にしない
-        $extra_params .= '&detect_hint=' . $_hint_en . '&memo=' . $_memo_en;
+        $extra_params .= '&memo=' . $_memo_en . '&' . $_conf['detect_hint_q_utf8'];
     } else {
-        $new_memo = null;
+        $new_memo = NULL;
     }
+
 
     // 連番
     $serial_pattern = '/\\[(\\d+)-(\\d+)\\]/';
     if (!empty($params['serial'])) {
 
         // プレースホルダとユーザ指定パラメータ
-        if (strstr($params['uri'], '%s') && !preg_match($serial_pattern, $params['uri'], $from_to)) {
-            if (strstr(preg_replace('/%s/', ' ', $params['uri'], 1), '%s')) {
-                P2Util::pushInfoHtml('<p>エラー: URLに含められるプレースホルダは一つだけです。</p>');
-                $execDL = false;
-                $isError = true;
+        if (strpos($params['uri'], '%s') !== false && !preg_match($serial_pattern, $params['uri'], $from_to)) {
+            if (strpos(preg_replace('/%s/', ' ', $params['uri'], 1), '%s') !== false) {
+                $_info_msg_ht .= '<p>エラー: URLに含められるプレースホルダは一つだけです。</p>';
+                $execDL = FALSE;
+                $isError = TRUE;
             } elseif (preg_match('/\\D/', $params['from']) || strlen($params['from']) == 0 ||
                       preg_match('/\\D/', $params['to'])   || strlen($params['to'])   == 0 ||
                       preg_match('/\\D/', $params['padding'])
             ) {
-                P2Util::pushInfoHtml('<p>エラー: 連番パラメータに誤りがあります。</p>');
-                $execDL = false;
-                $isError = true;
+                $_info_msg_ht .= '<p>エラー: 連番パラメータに誤りがあります。</p>';
+                $execDL = FALSE;
+                $isError = TRUE;
             } else {
                 $serial = array();
                 $serial['from'] = (int)$params['from'];
@@ -208,12 +217,12 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
              }
 
         // [from-to] を展開
-        } elseif (preg_match($serial_pattern, $params['uri'], $from_to) && !strstr($params['uri'], '%s')) {
+        } elseif (preg_match($serial_pattern, $params['uri'], $from_to) && strpos($params['uri'], '%s') === false) {
             $params['uri'] = preg_replace($serial_pattern, '%s', $params['uri'], 1);
             if (preg_match($serial_pattern, $params['uri'])) {
-                P2Util::pushInfoHtml('<p>エラー: URLに含められる連番パターンは一つだけです。</p>');
-                $execDL = false;
-                $isError = true;
+                $_info_msg_ht .= '<p>エラー: URLに含められる連番パターンは一つだけです。</p>';
+                $execDL = FALSE;
+                $isError = TRUE;
             } else {
                 $serial = array();
                 $serial['from'] = (int)$from_to[1];
@@ -229,30 +238,30 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
 
         // どちらも無いか、両方がある
         } else {
-            P2Util::pushInfoHtml('<p>エラー: URLに連番のプレースホルダ(<samp>%s</samp>)またはパターン(<samp>[from-to]</samp>)が含まれていないか、両方が含まれています。</p>');
-            $execDL = false;
-            $isError = true;
+            $_info_msg_ht .= '<p>エラー: URLに連番のプレースホルダ(<samp>%s</samp>)またはパターン(<samp>[from-to]</samp>)が含まれていないか、両方が含まれています。</p>';
+            $execDL = FALSE;
+            $isError = TRUE;
         }
 
         // 範囲を検証
         if (isset($serial) && $serial['from'] >= $serial['to']) {
-            P2Util::pushInfoHtml('<p>エラー: 連番の終りの番号は始まりの番号より大きくないといけません。</p>');
-            $execDL = false;
-            $isError = true;
-            $serial = null;
+            $_info_msg_ht .= '<p>エラー: 連番の終りの番号は始まりの番号より大きくないといけません。</p>';
+            $execDL = FALSE;
+            $isError = TRUE;
+            $serial = NULL;
         }
 
     // 連番なし
     } else {
-        if (strstr($params['uri'], '%s') || preg_match($serial_pattern, $params['uri'], $from_to)) {
-            P2Util::pushInfoHtml('<p>エラー: 連番にチェックが入っていませんが、URLに連番ダウンロード用の文字列が含まれています。</p>');
-            $execDL = false;
-            $isError = true;
+        if (strpos($params['uri'], '%s') !== false || preg_match($serial_pattern, $params['uri'], $from_to)) {
+            $_info_msg_ht .= '<p>エラー: 連番にチェックが入っていませんが、URLに連番ダウンロード用の文字列が含まれています。</p>';
+            $execDL = FALSE;
+            $isError = TRUE;
         }
         $qfe['from']->updateAttributes('disabled="disabled"');
         $qfe['to']->updateAttributes('disabled="disabled"');
         $qfe['padding']->updateAttributes('disabled="disabled"');
-        $serial = null;
+        $serial = NULL;
     }
 
 } else {
@@ -261,8 +270,10 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     $qfe['padding']->updateAttributes('disabled="disabled"');
 }
 
+
 // }}}
 // {{{ generate
+
 
 if ($execDL) {
 
@@ -277,11 +288,11 @@ if ($execDL) {
         }
     }
 
-    $thumbnailer = &new ThumbNailer($thumb_type);
+    $thumbnailer = new ThumbNailer($thumb_type);
     $images = array();
 
     foreach ($URLs as $url) {
-        $icdb = &new IC2DB_Images;
+        $icdb = new IC2DB_Images;
         $img_title = htmlspecialchars($url, ENT_QUOTES);
         $url_en = rawurlencode($url);
         $src_url = 'ic2.php?r=1&uri=' . $url_en;
@@ -291,7 +302,7 @@ if ($execDL) {
         $img_memo = $new_memo;
 
          // 画像がブラックリストorエラーログにあるとき
-        if (false !== ($errcode = $icdb->ic2_isError($url))) {
+        if (FALSE !== ($errcode = $icdb->ic2_isError($url))) {
             $img_title = "<s>{$img_title}</s>";
             $thumb_url = "./img/{$errcode}.png";
 
@@ -310,8 +321,8 @@ if ($execDL) {
                 $thumb_y = $thumb_xy[2];
             }
             // メモが記録されていないときはDBを更新
-            if (isset($new_memo) && !strstr($icdb->memo, $new_memo)){
-                $update = clone($icdb);
+            if (isset($new_memo) && strpos($icdb->memo, $new_memo) === false){
+                $update = clone $icdb;
                 if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                     $update->memo = $new_memo . ' ' . $icdb->memo;
                 } else {
@@ -329,38 +340,39 @@ if ($execDL) {
             $thumb_url .= $extra_params;
         }
 
-        $img = &new StdClass;
+        $img = new stdClass;
         $img->title     = $img_title;
         $img->src_url   = $src_url;
         $img->thumb_url = $thumb_url;
         $img->thumb_x   = $thumb_x;
         $img->thumb_y   = $thumb_y;
-        $img->memo      = mb_convert_encoding($img_memo, 'SJIS-win', 'UTF-8');
+        $img->memo      = mb_convert_encoding($img_memo, 'CP932', 'UTF-8');
         $images[] = $img;
     }
 
     $flexy->setData('images', $images);
     if ($isPopUp) {
-        $flexy->setData('showForm', true);
+        $flexy->setData('showForm', TRUE);
     }
 } else {
     if (empty($isError) || $isPopUp) {
-        $flexy->setData('showForm', true);
+        $flexy->setData('showForm', TRUE);
     }
 }
 
 // }}}
 // {{{ output
 
+
 // フォームをテンプレート用オブジェクトに変換
-$r = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
+$r = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
 //$r->setLabelTemplate('_label.tpl.html');
 //$r->setHtmlTemplate('_html.tpl.html');
 $qf->accept($r);
-$qfObj = &$r->toObject();
+$qfObj = $r->toObject();
 
 // 変数をAssign
-$flexy->setData('info_msg', P2Util::getInfoHtml());
+$flexy->setData('info_msg', $_info_msg_ht);
 $flexy->setData('STYLE', $STYLE);
 $flexy->setData('js', $qf->getValidationScript());
 $flexy->setData('get', $qfObj);
@@ -369,6 +381,7 @@ $flexy->setData('get', $qfObj);
 P2Util::header_nocache();
 $flexy->compile('ic2g.tpl.html');
 $flexy->output();
+
 
 // }}}
 

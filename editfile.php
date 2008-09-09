@@ -3,14 +3,14 @@
     ファイルをブラウザで編集する
 */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
 // 引数エラー
 if (!isset($_REQUEST['path'])) {
-    die('Error: path が指定されていません');
+    p2die('path が指定されていません');
 }
 
 // 変数 ==================================
@@ -18,8 +18,8 @@ $path       = isset($_REQUEST['path'])       ? $_REQUEST['path']       : null;
 $modori_url = isset($_REQUEST['modori_url']) ? $_REQUEST['modori_url'] : null;
 $encode     = isset($_REQUEST['encode'])     ? $_REQUEST['encode']     : null;
 
-$rows = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : (!empty($_conf['ktai']) ? 5 : 36);
-$cols = isset($_REQUEST['cols']) ? intval($_REQUEST['cols']) : (!empty($_conf['ktai']) ? 0 : 128);
+$rows = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : ($_conf['ktai'] ? 5 : 36);
+$cols = isset($_REQUEST['cols']) ? intval($_REQUEST['cols']) : ($_conf['ktai'] ? 0 : 128);
 
 isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 
@@ -45,7 +45,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
         $files_st .= "「".$afile."」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の書き込めるファイルは、".$files_st."だけ！");
+    p2die(basename($_SERVER['SCRIPT_NAME']) . " 先生の書き込めるファイルは、{$files_st}だけ！");
 }
 
 //=========================================================
@@ -53,7 +53,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
 //=========================================================
 if (isset($filecont)) {
     if (setFile($path, $filecont, $encode)) {
-        P2Util::pushInfoHtml("saved, OK.");
+        $_info_msg_ht .= "saved, OK.";
     }
 }
 
@@ -64,20 +64,22 @@ exit;
 //=========================================================
 // 関数
 //=========================================================
+// {{{ setFile()
+
 /**
  * ファイルに内容をセットする関数
  */
 function setFile($path, $cont, $encode)
 {
     if ($path == '') {
-        die('Error: path が指定されていません');
+        p2die('path が指定されていません');
     }
 
     if ($encode == "EUC-JP") {
-        $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
+        $cont = mb_convert_encoding($cont, 'CP932', 'CP51932');
     }
     // 書き込む
-    $fp = @fopen($path, 'wb') or die("Error: cannot write. ( $path )");
+    $fp = @fopen($path, 'wb') or p2die("cannot write. ({$path})");
     @flock($fp, LOCK_EX);
     fputs($fp, $cont);
     @flock($fp, LOCK_UN);
@@ -85,26 +87,29 @@ function setFile($path, $cont, $encode)
     return true;
 }
 
+// }}}
+// {{{ editFile()
+
 /**
  * ファイル内容を読み込んで編集する関数
  */
 function editFile($path, $encode)
 {
-    global $_conf, $modori_url, $rows, $cols;
+    global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
 
     if ($path == '') {
-        die('Error: path が指定されていません');
+        p2die('path が指定されていません');
     }
 
     $filename = basename($path);
     $ptitle = "Edit: ".$filename;
 
     //ファイル内容読み込み
-    FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
+    FileCtl::make_datafile($path) or p2die("cannot make file. ({$path})");
     $cont = file_get_contents($path);
 
     if ($encode == "EUC-JP") {
-        $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
+        $cont = mb_convert_encoding($cont, 'CP932', 'CP51932');
     }
 
     $cont_area = htmlspecialchars($cont, ENT_QUOTES);
@@ -121,31 +126,30 @@ function editFile($path, $encode)
     echo <<<EOHEADER
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
 </head>
-<body onLoad="top.document.title=self.document.title;">
+<body onload="top.document.title=self.document.title;">
 EOHEADER;
-
-    P2Util::printInfoHtml();
 
     echo $modori_url_ht;
 
     echo "Edit: ".$path;
     echo <<<EOFORM
 <form action="{$_SERVER['SCRIPT_NAME']}" method="post" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['detect_hint_input_ht']}
     <input type="hidden" name="path" value="{$path}">
     <input type="hidden" name="modori_url" value="{$modori_url}">
     <input type="hidden" name="encode" value="{$encode}">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
-    <input type="submit" name="submit" value="Save"><br>
+    <input type="submit" name="submit" value="Save">
+    {$_info_msg_ht}<br>
     <textarea style="font-size:9pt;" id="filecont" name="filecont" wrap="off"{$rows_at}{$cols_at}>{$cont_area}</textarea>
-    {$_conf['k_input_ht']}
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>
 EOFORM;
 
@@ -153,6 +157,8 @@ EOFORM;
 
     return true;
 }
+
+// }}}
 
 /*
  * Local Variables:

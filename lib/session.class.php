@@ -1,8 +1,10 @@
 <?php
-
-require_once 'Net/UserAgent/Mobile.php';
+// {{{ GLOBALS
 
 $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッションを強制破棄させたい時にUPしたりする）
+
+// }}}
+// {{{ Session
 
 /**
  * Session Class
@@ -12,9 +14,9 @@ $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッショ
  * ただし、$_SESSION[$this->sess_array]（$_SESSION['_sess_array']） は予約語となっている。
  *
  * ■用例
- * $_session =& new Session(); // ※この時点でPHP標準セッションがスタートする
+ * $_session = new Session(); // ※この時点でPHP標準セッションがスタートする
  * if ($msg = $_session->checkSessionError()) { // よりセキュアなセッションチェック
- *     die('Error: ' . $msg);
+ *     p2die($msg);
  * }
  *
  * $_SESSIONへのアクセスを終えた後は、session_write_close()しておくとよいだろう。
@@ -29,17 +31,24 @@ $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッショ
  * </IfModule>
  *
  * でもOK。
+ *
+ * @author aki
  */
 class Session
 {
-    var $sess_array = '_sess_array';
+    // {{{ properties
+
+    public $sess_array = '_sess_array';
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      *
      * ここでPHPの標準セッションがスタートする
      */
-    function Session($session_name = null, $session_id = null)
+    public function __construct($session_name = NULL, $session_id = NULL)
     {
         session_cache_limiter('none'); // キャッシュ制御なし
 
@@ -52,27 +61,27 @@ class Session
         Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0
         Pragma: no-cache
         */
-
     }
+
+    // }}}
+    // {{{ _autoBegin()
 
     /**
      * よりセキュアなセッション管理を開始する
-     *
-     * @access  private
-     * @return  void
+     * @return bool
      */
-    function autoBegin()
+    private function _autoBegin()
     {
         // まだ強化セッションが始まっていなかったら
         if (!isset($_SESSION[$this->sess_array]['actime'])) {
 
             // セッション変数($this->sess_array)を初期セット
-            $this->initSess();
+            $this->_initSess();
 
             // セッション変数の登録に失敗したら、エラー
             if (!isset($_SESSION[$this->sess_array]['actime'])) {
-                trigger_error('Session::autoBegin() セッション変数を登録できませんでした。', E_USER_WARNING);
-                die('Error: Session');
+                trigger_error('Session::_autoBegin() セッション変数を登録できませんでした。', E_USER_WARNING);
+                p2die('Session');
                 return false;
             }
         }
@@ -80,13 +89,15 @@ class Session
         return true;
     }
 
+    // }}}
+    // {{{ _initSess()
+
     /**
      * セッション始めに変数をセットする
      *
-     * @access  private
-     * @return  void
+     * @return void
      */
-    function initSess()
+    private function _initSess()
     {
         // 初期化
         $_SESSION[$this->sess_array] = array();
@@ -96,20 +107,20 @@ class Session
         $_SESSION[$this->sess_array]['ua']         = $_SERVER['HTTP_USER_AGENT'];
         // $_SESSION[$this->sess_array]['referer'] = $_SERVER['HTTP_REFERER'];
         $_SESSION[$this->sess_array]['version']    = $GLOBALS['_SESS_VERSION'];
-
-        return true;
     }
+
+    // }}}
+    // {{{ checkSessionError()
 
     /**
      * セッションの妥当性をチェックして、エラーがあればメッセージを得る。アクセス時間の更新もここで。
      *
-     * @access  public
-     * @return  false|string エラーがあれば、（unSession()して）エラーメッセージを返す。なければfalseを返す。
+     * @return false|string エラーがあれば、（unSession()して）エラーメッセージを返す。なければfalseを返す。
      */
-    function checkSessionError()
+    public function checkSessionError()
     {
         // 強化セッション
-        $this->autoBegin();
+        $this->_autoBegin();
 
         $error_msg = '';
 
@@ -118,27 +129,27 @@ class Session
 
         } else {
 
-            if (!$this->checkAcTime()) {
+            if (!$this->_checkAcTime()) {
                 $error_msg = 'セッションの時間切れです。再度ログインし直してください。';
             }
 
-            if (!$this->checkVersion()) {
+            if (!$this->_checkVersion()) {
                 $error_msg = 'セッションのバージョンが正しくありません。'
                     .'（これはシステムのバージョンアップによって、一時的に起こることのある現象です）';
             }
 
-            if (!$this->checkIP()) {
+            if (!$this->_checkIP()) {
                 $error_msg = 'セッションのIPが正しくありません。';
             }
 
-            if (!$this->checkUA()) {
+            if (!$this->_checkUA()) {
                 $error_msg = 'セッションのUAが正しくありません。';
             }
         }
 
         // エラーがあれば、（unSession()して）エラーメッセージを返す。
         if ($error_msg) {
-            $this->unSession();
+            self::unSession();
             return $error_msg;
         }
 
@@ -159,13 +170,15 @@ class Session
         return false;
     }
 
+    // }}}
+    // {{{ _checkAcTime()
+
     /**
      * セッションのアクセス時間をチェックする
      *
-     * @access  private
-     * @return  boolean
+     * @return bool
      */
-    function checkAcTime($minutes = 30)
+    private function _checkAcTime($minutes = 30)
     {
         // 最終アクセス時間から、一定時間以上が経過していればExpire
         if ($_SESSION[$this->sess_array]['actime'] + $minutes * 60 < time()) {
@@ -175,13 +188,15 @@ class Session
         }
     }
 
+    // }}}
+    // {{{ _checkVersion()
+
     /**
      * セッションのバージョンをチェックする
      *
-     * @access  private
-     * @return  boolean
+     * @return bool
      */
-    function checkVersion()
+    private function _checkVersion()
     {
         if ($_SESSION[$this->sess_array]['version'] == $GLOBALS['_SESS_VERSION']) {
             return true;
@@ -190,13 +205,15 @@ class Session
         }
     }
 
+    // }}}
+    // {{{ _checkIP()
+
     /**
      * IPアドレス妥当性チェックする
      *
-     * @access  private
-     * @return  boolean
+     * @return bool
      */
-    function checkIP()
+    private function _checkIP()
     {
         $check_level = 1; // 0～4 DoCoMoを考慮すると、1まで
 
@@ -211,19 +228,21 @@ class Session
         return true;
     }
 
+    // }}}
+    // {{{ _checkUA()
+
     /**
      * UAでセッションの妥当性をチェックする
      *
-     * @access  private
-     * @return  boolean
+     * @return bool
      */
-    function checkUA()
+    private function _checkUA()
     {
         // {{{ DoCoMoはUTN時にUA後部が変わるので機種名で検証する
 
-        $mobile = &Net_UserAgent_Mobile::singleton();
+        $mobile = Net_UserAgent_Mobile::singleton();
         if ($mobile->isDoCoMo()) {
-            $mobile_b = &Net_UserAgent_Mobile::factory($_SESSION[$this->sess_array]['ua']);
+            $mobile_b = Net_UserAgent_Mobile::factory($_SESSION[$this->sess_array]['ua']);
             if ($mobile_b->getModel() == $mobile->getModel()) {
                 return true;
             }
@@ -242,18 +261,18 @@ class Session
         }
     }
 
+    // }}}
+    // {{{ unSession()
+
     /**
      * $_SESSIONでセッションを破棄する
-     *
-     * スタティックメソッド Session::unSession() でも呼び出せる
      *
      * セッションがない、もしくは正しくない場合などに
      * http://jp.php.net/manual/ja/function.session-destroy.php
      *
-     * @access  public
-     * @return  void
+     * @return void
      */
-    function unSession()
+    static public function unSession()
     {
         global $_conf;
 
@@ -285,7 +304,10 @@ class Session
         }
     }
 
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

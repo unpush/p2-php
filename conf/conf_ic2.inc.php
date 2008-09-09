@@ -8,17 +8,16 @@
 // キャッシュ保存ディレクトリのパス
 $_conf['expack.ic2.general.cachedir'] = "./cache";
 
-// コンパイル済テンプレート保存ディレクトリ名
-// （cachedirのサブディレクトリ）
-$_conf['expack.ic2.general.compiledir'] = "compile";
-
 // DSN (DBに接続するためのデータソース名)
 // @link http://jp.pear.php.net/manual/ja/package.database.db.intro-dsn.php
-// 例1 SQLite:      "sqlite:///./cache/imgcache.sqlite"
-// 例2 PostgreSQL:  "pgsql://username:password@localhost:5432/database"
-// 例3 MySQL:       "mysql://username:password@localhost:3306/database"
+// 例)
+//  MySQL:       "mysql://username:password@localhost:3306/database"
+//  PostgreSQL:  "pgsql://username:password@localhost:5432/database"
+//  SQLite2:     "sqlite:///./cache/imgcache.sqlite"
+//  SQLite3:     "sqlite3:///./cache/imgcache.sqlite3"
 // 注1: username,password,databaseは実際のものと読み替える。
 // 注2: MySQL,PosrgreSQLでは予めデータベースを作っておく。
+// 注3: SQlite3のサポートは実験的なもので、非推奨
 $_conf['expack.ic2.general.dsn'] = "";
 
 // DBで使うテーブル名
@@ -47,6 +46,9 @@ $_conf['expack.ic2.general.driver'] = "gd";
 // http://page2.xrea.jp/index.php#php_epeg
 $_conf['expack.ic2.general.epeg'] = 0;
 
+// JPEG の品質がこの値より小さいとき Epeg エクステンションを使う
+$_conf['expack.ic2.general.epeg_quality_limit'] = 90;
+
 // ImageMagickのパス（convertがある“ディレクトリ”のパス）
 // httpdの環境変数でパスが通っているなら空のままでよい
 // パスを明示的に指定する場合は、スペースがあるとサムネイルが作成できないので注意
@@ -57,7 +59,7 @@ $_conf['expack.ic2.general.bgcolor'] = "#FFFFFF";
 
 // 携帯でもサムネイルをインライン表示する (off:0;on:1)
 // このときの大きさはPCと同じ
-$_conf['expack.ic2.general.inline'] = 0;
+$_conf['expack.ic2.general.inline'] = 1;
 
 // 携帯用の画像を表示するときLocation ヘッダを使ってリダイレクトする (off:0;on:1)
 // offならPHPで適切なContent-Typeヘッダと画像を出力する
@@ -89,7 +91,7 @@ $_conf['expack.ic2.viewer.title'] = "ImageCache2::Viewer";
 
 // Lightbox Plus で画像を表示 (off:0;on:1)
 // @link http://serennz.sakura.ne.jp/toybox/lightbox/?ja
-$_conf['expack.ic2.viewer.lightbox'] = 1;
+$_conf['expack.ic2.viewer.lightbox'] = 0;
 
 // オリジナル画像が見つからないレコードを自動で消去する (off:0;on:1)
 $_conf['expack.ic2.viewer.delete_src_not_exists'] = 0;
@@ -99,7 +101,7 @@ $_conf['expack.ic2.viewer.delete_src_not_exists'] = 0;
 $_conf['expack.ic2.viewer.cache'] = 0;
 
 // 重複画像を最初にヒットする1枚だけ表示 (off:0;on:1)
-// サブクエリを使うためバージョン4.1未満のMySQLでは無効
+// サブクエリに対応していないMySQL 4.1未満で有効にするとエラーが出る
 $_conf['expack.ic2.viewer.unique'] = 0;
 
 // Exif情報を表示 (off:0;on:1)
@@ -257,6 +259,15 @@ $_conf['expack.ic2.thumb3.height'] = 480;
 
 // サムネイルのJPEG品質
 $_conf['expack.ic2.thumb3.quality'] = 80;
+
+// }}}
+// {{{ 生成した画像をキャッシュしない動的生成のプリセット値
+
+// "設定名" => arrray(width, height, quality) の連想配列
+$_conf['expack.ic2.dynamic.presets'] = array(
+    //"WQVGA待受" => array(240, 400, 90),
+    //"iPhone待受" => array(320, 480, 0),
+);
 
 // }}}
 

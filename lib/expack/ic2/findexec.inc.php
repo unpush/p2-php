@@ -1,7 +1,9 @@
 <?php
 /**
- * rep2expack - ImageCache2
+ * ImageCache2 - 実行ファイル検索関数
  */
+
+// {{{ findexec()
 
 /**
  * $search_pathから実行ファイル$commandを検索する
@@ -11,7 +13,7 @@
 function findexec($command, $search_path = '', $escape = true)
 {
     // Windowsか、その他のOSか
-    if (substr(PHP_OS, 0, 3) == 'WIN') {
+    if (P2_OS_WINDOWS) {
         if (strtolower(strrchr($command, '.')) != '.exe') {
             $command .= '.exe';
         }
@@ -19,12 +21,14 @@ function findexec($command, $search_path = '', $escape = true)
     } else {
         $check = 'is_executable';
     }
+
     // $search_pathが空のときは環境変数PATHから検索する
     if ($search_path == '') {
         $search_dirs = explode(PATH_SEPARATOR, getenv('PATH'));
     } else {
         $search_dirs = explode(PATH_SEPARATOR, $search_path);
     }
+
     // 検索
     foreach ($search_dirs as $path) {
         $path = realpath($path);
@@ -35,9 +39,12 @@ function findexec($command, $search_path = '', $escape = true)
             return ($escape ? escapeshellarg($command) : $command);
         }
     }
+
     // 見つからなかった
     return false;
 }
+
+// }}}
 
 /*
  * Local Variables:

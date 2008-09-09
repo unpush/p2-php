@@ -1,72 +1,55 @@
 <?php
 /**
- * rep2expack - お気にセット系ユーティリティクラス
+ * rep2expack -お気にセットの設定・切り替えユーティリティ
  */
 
-// {{{ class FavSetManager
+// {{{ FavSetManager
 
+/**
+ * お気にセットの設定・切り替えユーティリティクラス
+ *
+ * @static
+ */
 class FavSetManager
 {
-    // {{{ getSetDefinition()
-
-    /**
-     * セット定義を取得する
-     *
-     * @return  array
-     * @access  public
-     * @static
-     */
-    function getSetDefinition()
-    {
-        return array(
-            // お気にスレセット
-            'm_favlist_set' => array('favlist_set_num', 'favlist_file', 'p2_favlist%d.idx'),
-            // お気に板セット
-            'm_favita_set' => array('favita_set_num', 'favita_path', 'p2_favita%d.brd'),
-            // RSSセット
-            'm_rss_set' => array('expack.rss.set_num', 'expack.rss.setting_path', 'p2_rss%d.txt'),
-        );
-    }
-
-    // }}}
     // {{{ loadAllFavSet()
 
     /**
      * すべてのお気にスレを読み込む
      *
-     * @param   bool $force 通常は1回だけしか実行されないようになっているが、
-     *                      true のときは強制的に更新される
-     * @return  void
-     * @access  public
-     * @static
+     * @param bool $force
+     * @return void
      */
-    function loadAllFavSet($force = false)
+    static public function loadAllFavSet($force = false)
     {
-        global $_conf, $__conf;
-        static $done = null;
+        global $_conf;
+        static $done = false;
 
-        if (!$force && !is_null($done)) {
+        if ($done && !$force) {
             return;
         }
 
         $_conf['favlists'] = array();
-        $favlist_files = array();
-        $favlist_files[0] = $__conf['favlist_file'];
-        for ($i = 1; $i <= $_conf['favlist_set_num']; $i++) {
-            $favlist_files[$i] = $_conf['pref_dir'] . sprintf('/p2_favlist%d.idx', $i);
+        $favlist_indexes = array($_conf['orig_favlist_idx']);
+        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+            $favlist_indexes[$i] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favlist%d.idx', $i);
         }
 
-        foreach ($favlist_files as $i => $favlist_file) {
+        foreach ($favlist_indexes as $i => $favlist_idx) {
             $_conf['favlists'][$i] = array();
-            if (file_exists($favlist_file)) {
-                $favlines = file($favlist_file);
-                foreach ($favlines as $line) {
-                    $lar = explode('<>', rtrim($line));
+            if ($favlines = FileCtl::file_read_lines($favlist_idx, FILE_IGNORE_NEW_LINES)) {
+                foreach ($favlines as $l) {
+                    $lar = explode('<>', $l);
                     // bbsのないものは不正データなのでスキップ
                     if (!isset($lar[11])) {
                         continue;
                     }
-                    $_conf['favlists'][$i][] = array('key' => $lar[1], 'bbs' => $lar[11]);
+                    $bbs = $lar[11];
+                    if (!isset($_conf['favlists'][$i][$bbs])) {
+                        $_conf['favlists'][$i][$bbs] = array($lar[1]);
+                    } else {
+                        $_conf['favlists'][$i][$bbs][] = $lar[1];
+                    }
                 }
             }
         }
@@ -74,44 +57,60 @@ class FavSetManager
         $done = true;
     }
 
+    // }}}
+    // {{{ switchFavSet()
+
     /**
      * お気にスレ、お気に板、RSSのカレントセットを切り替える
      *
-     * @param   bool $force 通常は1回だけしか実行されないようになっているが、
-     *                      true のときは強制的に更新される
-     * @return  void
-     * @access  public
-     * @static
+     * @param bool $force
+     * @return void
      */
-    function switchFavSet($force = false)
+    static public function switchFavSet($force = false)
     {
         global $_conf;
-        static $done = null;
+        static $done = false;
 
-        if (!$force && !is_null($done)) {
+        if ($done && !$force) {
             return;
         }
 
-        $sets = FavSetManager::getSetDefinition();
+        $sets = array(
+            // お気にスレセット
+            'm_favlist_set' => array('favlist_idx', 'p2_favlist%d.idx'),
+            // お気に板セット
+            'm_favita_set' => array('favita_brd', 'p2_favita%d.brd'),
+            // RSSセット
+            'm_rss_set' => array('expack.rss.setting_path', 'p2_rss%d.txt'),
+        );
+
         $ar = array();
 
         foreach ($sets as $key => $value) {
-            list($num_conf_key, $path_conf_key, $name_format) = $value;
-            if (isset($_REQUEST[$key]) && 0 <= $_REQUEST[$key] && $_REQUEST[$key] <= $_conf[$num_conf_key]) {
+            if (isset($_REQUEST[$key]) && 0 <= $_REQUEST[$key] && $_REQUEST[$key] <= $_conf['expack.misc.favset_num']) {
                 $_SESSION[$key] = (int)$_REQUEST[$key];
             }
-            $ar[] = $key . '=' . ((isset($_SESSION[$key])) ? $_SESSION[$key] : 0);
+
+            $_conf[$key] = $id = (isset($_SESSION[$key])) ? $_SESSION[$key] : 0;
+            $_conf["{$key}_at_a"] = "&amp;{$key}={$id}";
+            $_conf["{$key}_input_ht"] = "<input type=\"hidden\" name=\"{$_conf[$key]}\" value=\"{$id}\">";
+
+            $ar[] = $key . '=' . $id;
+
             if (!empty($_SESSION[$key])) {
-                $_conf[$path_conf_key] = $_conf['pref_dir'] . '/' . sprintf($name_format, $_SESSION[$key]);
+                list($cnf, $fmt) = $value;
+                $_conf[$cnf] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf($fmt, $_SESSION[$key]);
             }
         }
 
-        $k_to_index_q = implode('&', $ar);
-        if ($_conf['ktai'] && $_conf['view_forced_by_query']) {
-            $k_to_index_q .= '&b=k';
+        if ($_conf['ktai'] && !$_conf['iphone']) {
+            $k_to_index_q = implode('&', $ar);
+            if ($_conf['view_forced_by_query']) {
+                $k_to_index_q .= '&b=k';
+            }
+            $k_to_index_q = htmlspecialchars($k_to_index_q, ENT_QUOTES);
+            $_conf['k_to_index_ht'] = "<a href=\"index.php?{$k_to_index_q}\"{$_conf['k_accesskey_at'][0]}>{$_conf['k_accesskey_st'][0]}TOP</a>";
         }
-        $k_to_index_q = htmlspecialchars($k_to_index_q, ENT_QUOTES);
-        $_conf['k_to_index_ht'] = "<a {$_conf['accesskey']}=\"0\" href=\"index.php?{$k_to_index_q}\">0.TOP</a>";
 
         $done = true;
     }
@@ -122,21 +121,18 @@ class FavSetManager
     /**
      * お気にスレ、お気に板、RSSのセットリスト（タイトル一覧）を読み込む
      *
-     * @param   string $set_name    セット名 ()
-     * @return  array   セット名が指定されているときはそのセットのタイトル一覧、
-     *                  指定されていなければ全てのセットのタイトル一覧
-     * @access  public
-     * @static
+     * @param string $set_name
+     * @return array
      */
-    function getFavSetTitles($set_name = null)
+    static public function getFavSetTitles($set_name = null)
     {
         global $_conf;
 
-        if (!file_exists($_conf['expack.favset.namefile'])) {
+        if (!file_exists($_conf['expack.misc.favset_file'])) {
             return false;
         }
 
-        $favset_titles = @unserialize(file_get_contents($_conf['expack.favset.namefile']));
+        $favset_titles = @unserialize(file_get_contents($_conf['expack.misc.favset_file']));
 
         if ($set_name === null) {
             return $favset_titles;
@@ -154,8 +150,12 @@ class FavSetManager
 
     /**
      * セットリストからページタイトルを取得する
+     *
+     * @param string $set_name
+     * @param string $default_title
+     * @return string
      */
-    function getFavSetPageTitleHt($set_name, $default_title)
+    static public function getFavSetPageTitleHt($set_name, $default_title)
     {
         global $_conf;
 
@@ -173,7 +173,7 @@ class FavSetManager
             $title = $favlist_titles[$i];
         }
         // 全角英数スペースカナを半角に
-        if (!empty($_conf['ktai']) && !empty($_conf['k_save_packet'])) {
+        if ($_conf['ktai'] && $_conf['mobile.save_packet']) {
             $title = mb_convert_kana($title, 'rnsk');
         }
         return $title;
@@ -184,11 +184,21 @@ class FavSetManager
 
     /**
      * お気にスレ、お気に板、RSSのセットリストを切り替えるフォームを生成する
+     *
+     * @param string $set_name
+     * @param string $set_title
+     * @param string $script
+     * @param bool $inline
+     * @param array $hidden_values
+     * @return string
      */
-    function makeFavSetSwitchForm($set_name, $set_title,
-                                  $script = null, $target = null, $inline = false,
-                                  $hidden_values = array()
-                                  )
+    static public function makeFavSetSwitchForm($set_name,
+                                                $set_title,
+                                                $script = null,
+                                                $target = null,
+                                                $inline = false,
+                                                array $hidden_values = null
+                                                )
     {
         global $_conf;
 
@@ -222,20 +232,22 @@ class FavSetManager
 
     /**
      * お気にスレ、お気に板、RSSのセットリストを切り替えるselect要素を生成する
+     *
+     * @param string $set_name
+     * @param string $set_title
+     * @param bool $set_selected
+     * @param string $onchange
+     * @return string
      */
-    function makeFavSetSwitchElem($set_name, $set_title, $set_selected = false, $onchange = null)
+    static public function makeFavSetSwitchElem($set_name,
+                                                $set_title,
+                                                $set_selected = false,
+                                                $onchange = null
+                                                )
     {
         global $_conf;
 
         // 変数初期化
-        $sets = FavSetManager::getSetDefinition();
-        if (!isset($sets[$set_name])) {
-            return '';
-        }
-        $num_conf_key = $sets[$set_name][0];
-        if ($_conf[$num_conf_key] == 0) {
-            return '';
-        }
         $i = (isset($_SESSION[$set_name])) ? (int)$_SESSION[$set_name] : 0;
         if ($onchange) {
             $onchange_ht = " onchange=\"{$onchange}\"";
@@ -253,12 +265,12 @@ class FavSetManager
         if (!$set_selected) {
             $select_ht .= "<option value=\"{$i}\" selected>[{$set_title}]</option>";
         }
-        for ($j = 0; $j <= $_conf[$num_conf_key]; $j++) {
+        for ($j = 0; $j <= $_conf['expack.misc.favset_num']; $j++) {
             if (!isset($titles[$j]) || strlen($titles[$j]) == 0) {
                 $titles[$j] = ($j == 0) ? $set_title : $set_title . $j;
             }
             // 全角英数スペースカナを半角に
-            if (!empty($_conf['ktai']) && !empty($_conf['k_save_packet'])) {
+            if ($_conf['ktai'] && $_conf['mobile.save_packet']) {
                 $titles[$j] = mb_convert_kana($titles[$j], 'rnsk');
             }
             $selected = ($set_selected && $i == $j) ? ' selected' : '';
@@ -270,7 +282,6 @@ class FavSetManager
     }
 
     // }}}
-
 }
 
 // }}}

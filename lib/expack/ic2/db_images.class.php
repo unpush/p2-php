@@ -1,12 +1,10 @@
 <?php
-/**
- * rep2expack - ImageCache2
- */
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
 
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
+// {{{ constants
 
 define('P2_IMAGECACHE_OK',     0);
 define('P2_IMAGECACHE_ABORN',  1);
@@ -14,21 +12,28 @@ define('P2_IMAGECACHE_BROKEN', 2);
 define('P2_IMAGECACHE_LARGE',  3);
 define('P2_IMAGECACHE_VIRUS',  4);
 
+// }}}
+// {{{ GLOBALS
+
 $GLOBALS['_P2_GETIMAGE_CACHE'] = array();
+
+// }}}
+// {{{ IC2DB_Images
 
 class IC2DB_Images extends IC2DB_Skel
 {
-    // {{{ properties
+    // {{{ constants
+
+    const OK     = 0;
+    const ABORN  = 1;
+    const BROKEN = 2;
+    const LARGE  = 3;
+    const VIRUS  = 4;
 
     // }}}
     // {{{ constcurtor
 
-    function IC2DB_Images()
-    {
-        $this->__construct();
-    }
-
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->__table = $this->_ini['General']['table'];
@@ -37,7 +42,7 @@ class IC2DB_Images extends IC2DB_Skel
     // }}}
     // {{{ table()
 
-    function table()
+    public function table()
     {
         return array(
             'id'   => DB_DATAOBJECT_INT,
@@ -58,7 +63,7 @@ class IC2DB_Images extends IC2DB_Skel
     // }}}
     // {{{ keys()
 
-    function keys()
+    public function keys()
     {
         return array('uri');
     }
@@ -67,36 +72,18 @@ class IC2DB_Images extends IC2DB_Skel
     // {{{ uniform()
 
     // 検索用に文字列をフォーマットする
-    // このメソッドのみ静的にコールできる
-    function uniform($str, $enc)
+    public function uniform($str, $enc)
     {
-        // 内部エンコーディングを保存
-        $incode = mb_internal_encoding();
-        // 内部エンコーディングをUTF-8に
-        mb_internal_encoding('UTF-8');
-        // 文字列を検索用に変換
-        if (!$enc) {
-            $enc = mb_detect_encoding($str, 'SJIS-win,UTF-8,eucJP-win,JIS');
-        }
-        if ($enc != 'UTF-8') {
-            $str = mb_convert_encoding($str, 'UTF-8', $enc);
-        }
-        $str = mb_convert_kana($str, 'KVas');
-        $str = mb_convert_case($str, MB_CASE_LOWER);
-        $str = trim($str);
-        $str = preg_replace('/\s+/u', ' ', $str);
-        // 内部エンコーディングを戻す
-        mb_internal_encoding($incode);
-        return $str;
+        return self::staticUniform($str, $enc);
     }
 
     // }}}
     // {{{ ic2_isError()
 
-    function ic2_isError($url)
+    public function ic2_isError($url)
     {
         // ブラックリストをチェック
-        $blacklist = &new IC2DB_BlackList;
+        $blacklist = new IC2DB_BlackList;
         if ($blacklist->get($url)) {
             switch ($blacklist->type) {
                 case 0:
@@ -112,18 +99,51 @@ class IC2DB_Images extends IC2DB_Skel
 
         // エラーログをチェック
         if ($this->_ini['Getter']['checkerror']) {
-            $errlog = &new IC2DB_Errors;
+            $errlog = new IC2DB_Errors;
             if ($errlog->get($url)) {
                 return $errlog->errcode;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     // }}}
+    // {{{ staticUniform()
 
+    /**
+     * 検索用に文字列をフォーマットする
+     */
+    static public function staticUniform($str, $enc)
+    {
+        // 内部エンコーディングを保存
+        $incode = mb_internal_encoding();
+
+        // 内部エンコーディングをUTF-8に
+        mb_internal_encoding('UTF-8');
+
+        // 文字列を検索用に変換
+        if (!$enc) {
+            $enc = mb_detect_encoding($str, 'CP932,UTF-8,CP51932,JIS');
+        }
+        if ($enc != 'UTF-8') {
+            $str = mb_convert_encoding($str, 'UTF-8', $enc);
+        }
+        $str = mb_convert_kana($str, 'KVas');
+        $str = mb_convert_case($str, MB_CASE_LOWER);
+        $str = trim($str);
+        $str = preg_replace('/\s+/u', ' ', $str);
+
+        // 内部エンコーディングを戻す
+        mb_internal_encoding($incode);
+
+        return $str;
+    }
+
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

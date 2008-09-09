@@ -1,12 +1,12 @@
 <?php
 /**
- * rep2expack - 投稿フォーム拡張 (携帯用)
+ * rep2expack - 書き込みフォームへの追加要素 for Mobile
  */
 
 // 定型文の初期化と読み込み
 $CONSTANT = array();
 $CONSTAREA = '';
-@include 'conf/conf_constant.php';
+@include './conf/conf_constant.php';
 
 if (basename($_SERVER['SCRIPT_NAME']) == 'post_form.php') {
     $CONST_TARGET = $_SERVER['SCRIPT_NAME'];
@@ -16,7 +16,6 @@ if (basename($_SERVER['SCRIPT_NAME']) == 'post_form.php') {
 
 // フォームの生成
 $htm['options_k'] .= "<form method=\"get\" action=\"{$CONST_TARGET}\" accept-charset=\"{$_conf['accept_charset']}\">";
-$htm['options_k'] .= $_conf['detect_hint_input_ht'] . $_conf['k_input_ht'];
 foreach ($_GET as $get_key => $get_value) {
     if ($get_key == 'disp' || $get_key == 'CONSTANT') {
         continue;
@@ -35,6 +34,8 @@ foreach ($CONSTANT as $constant_key => $constant_value) {
 $htm['options_k'] .= '</select>';
 
 $htm['options_k'] .= '<input type="submit" name="disp" value="表示" title="表示">';
+$htm['options_k'] .= $_conf['detect_hint_input_ht'];
+$htm['options_k'] .= $_conf['k_input_ht'];
 $htm['options_k'] .= '</form>';
 
 if ($CONSTAREA) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * rep2expack - 投稿フォーム拡張
+ * rep2expack - 書き込みフォームへの追加要素 for PC
  */
 
 // 書き込みフォームをモナーフォントにするスイッチを追加
@@ -20,7 +20,7 @@ EOM;
 if ($_conf['expack.editor.constant']) {
     // 定型文の初期化と読み込み
     $CONSTANT = array();
-    @include 'conf/conf_constant.php';
+    @include './conf/conf_constant.php';
     // フォームの生成
     $js['dp_cnstmsg'] = '';
     if ($_conf['expack.editor.dpreview']) {

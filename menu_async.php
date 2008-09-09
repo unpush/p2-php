@@ -1,12 +1,12 @@
 <?php
-/*
-    p2 - 板メニューの非同期読み込み
-    現状ではお気に板とRSSのセット切り替えのみ対応
-*/
+/**
+ * rep2expack - 板メニューの非同期読み込み
+ * 現状ではお気に板とRSSのセット切り替えのみ対応
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/brdctl.class.php';
-require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/brdctl.class.php';
+require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -24,20 +24,20 @@ header('Content-Type: text/html; charset=Shift_JIS');
 
 // お気に板
 if (isset($_GET['m_favita_set'])) {
-    $aShowBrdMenuPc = &new ShowBrdMenuPc;
+    $aShowBrdMenuPc = new ShowBrdMenuPc;
     ob_start();
-    $aShowBrdMenuPc->print_favIta();
+    $aShowBrdMenuPc->printFavIta();
     $menuItem = ob_get_clean();
-    $menuItem = preg_replace('/^\s*<div class="menu_cate">.+?<div class="itas" id="c_favita">\s*/s', '', $menuItem);
-    $menuItem = preg_replace('/\s*<\/div>\s*<\/div>\s*$/s', '', $menuItem);
+    $menuItem = preg_replace('{^\\s*<div class="menu_cate">.+?<div class="itas" id="c_favita">\\s*}s', '', $menuItem);
+    $menuItem = preg_replace('{\\s*</div>\\s*</div>\\s*$}s', '', $menuItem);
 
 // RSS
 } elseif (isset($_GET['m_rss_set'])) {
     ob_start();
-    @include_once P2EX_LIBRARY_DIR . '/rss/menu.inc.php';
+    @include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
     $menuItem = ob_get_clean();
-    $menuItem = preg_replace('/^\s*<div class="menu_cate">.+?<div class="itas" id="c_rss">\s*/s', '', $menuItem);
-    $menuItem = preg_replace('/\s*<\/div>\s*<\/div>\s*$/s', '', $menuItem);
+    $menuItem = preg_replace('{^\\s*<div class="menu_cate">.+?<div class="itas" id="c_rss">\\s*}s', '', $menuItem);
+    $menuItem = preg_replace('{\\s*</div>\\s*</div>\\s*$}s', '', $menuItem);
 
 // スキン
 } elseif (isset($_GET['m_skin_set'])) {
@@ -58,7 +58,7 @@ echo $menuItem;
 exit;
 
 // }}}
-// {{{ 関数
+// {{{ changeSkin()
 
 /**
  * スキンを切り替える
@@ -72,13 +72,13 @@ function changeSkin($skin)
     }
 
     if ($skin == 'conf_style') {
-        $newskin = 'conf/conf_user_style.php';
+        $newskin = './conf/conf_user_style.php';
     } else {
-        $newskin = 'skin/' . $skin . '.php';
+        $newskin = './skin/' . $skin . '.php';
     }
 
     if (file_exists($newskin)) {
-        if (FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin) !== false) {
+        if (FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin) !== FALSE) {
             return $skin;
         } else {
             return "p2 error: {$_conf['expack.skin.setting_path']} にスキン設定を書き込めませんでした。";

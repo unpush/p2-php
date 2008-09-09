@@ -1,15 +1,17 @@
 <?php
-// p2 ースタイル設定
-// 全般
+/**
+ * rep2 - スタイル設定
+ * 全般
+ */
 
 $a_underline_none_css = '';
 if ($STYLE['a_underline_none'] == 1) {
-    $a_underline_none_css = "a{text-decoration:none;}";
+	$a_underline_none_css = "a{text-decoration:none;}";
 }
 
 // ブラウザが Camino なら
 if (strstr($_SERVER['HTTP_USER_AGENT'], "Camino") || strstr($_SERVER['HTTP_USER_AGENT'], "Chimera")) {
-    echo <<<EOSTYLE
+	echo <<<EOSTYLE
 
 input,option,select,textarea{
 	font-size:10px;
@@ -27,11 +29,15 @@ input,option,select,textarea{
 EOSTYLE;
 }
 
-if($STYLE['fontfamily_bold']){
+if ($STYLE['fontfamily_bold']) {
+	$fontstyle_bold = empty($STYLE['fontstyle_bold']) ? 'normal' : $STYLE['fontstyle_bold'];
+	$fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
 	echo <<<EOSTYLE
 
 b,strong,th{
-	font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";
+	font-family:"{$STYLE['fontfamily_bold']}";
+	font-style: {$fontstyle_bold};
+	font-weight: {$fontweight_bold};
 }
 
 EOSTYLE;
@@ -81,18 +87,24 @@ form.inline-form {
 	display: inline;
 }
 
+p.info-msg {
+	margin: 4px 12px;
+	font-size: 12px;
+	line-height: 120%;
+}
+
 EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-    include_once (P2_STYLE_DIR . '/mystyle_css.php');
-    if (isset($MYSTYLE['style']) || isset($MYSTYLE['base'])) {
-        disp_mystyle('style');
-    }
+	require_once P2_STYLE_DIR . '/mystyle_css.php';
+	if (isset($MYSTYLE['style']) || isset($MYSTYLE['base'])) {
+		disp_mystyle('style');
+	}
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

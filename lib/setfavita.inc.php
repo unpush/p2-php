@@ -1,19 +1,20 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+/**
+ * rep2 - お気に板の処理
+ */
+
+require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ setFavIta()
 
 /**
- * お気に板をセットする関数
+ * お気に板をセットする
  *
  * $set は、0(解除), 1(追加), top, up, down, bottom
- *
- * @access  public
- * @return  boolean  実行成否
  */
 function setFavIta()
 {
-    global $_conf;
-
-    // {{{ パラメータの設定
+    global $_conf, $_info_msg_ht;
 
     if (isset($_GET['setfavita'])) {
         $setfavita = $_GET['setfavita'];
@@ -21,64 +22,57 @@ function setFavIta()
         $setfavita = $_POST['setfavita'];
     }
 
-    $host = isset($_GET['host']) ? $_GET['host'] : null;
-    $bbs  = isset($_GET['bbs'])  ? $_GET['bbs']  : null;
+    $host = isset($_GET['host']) ? $_GET['host'] : NULL;
+    $bbs = isset($_GET['bbs']) ? $_GET['bbs'] : NULL;
 
-    if (!empty($_POST['url'])) {
+    if ($_POST['url']) {
         if (preg_match("/http:\/\/(.+)\/([^\/]+)\/([^\/]+\.html?)?/", $_POST['url'], $matches)) {
-            $host = preg_replace('{/test/read\.cgi$}', '', $matches[1]);
+            $host = $matches[1];
+            $host = preg_replace('{/test/read\.cgi$}', '', $host);
             $bbs = $matches[2];
         } else {
-            P2Util::pushInfoHtml("<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>");
+            $_info_msg_ht .= "<p>p2 info: 「{$_POST['url']}」は板のURLとして無効です。</p>";
         }
     }
 
-    $list = isset($_POST['list']) ? $_POST['list'] : '';
+    $list = $_POST['list'];
 
-    // リストで並び替え
-    if (!empty($_POST['submit_listfavita'])) {
-        if (!$list) {
-            P2Util::pushInfoHtml("<p>p2 info: リストの指定が変です</p>");
-            return false;
-        }
-
-    // 新規追加 or 一つずつ並び替え
-    } elseif (!$host || !$bbs) {
-        P2Util::pushInfoHtml("<p>p2 info: 板の指定が変です</p>");
+    if (!$host && !$bbs and (!(!empty($_POST['submit_setfavita']) && $list))) {
+        $_info_msg_ht .= "<p>p2 info: 板の指定が変です</p>";
         return false;
     }
 
-    $itaj = isset($_POST['itaj']) ? $_POST['itaj'] : '';
-
-    if (!$itaj && isset($_GET['itaj_en'])) {
+    if (isset($_POST['itaj'])) {
+        $itaj = $_POST['itaj'];
+    }
+    if (!isset($itaj) && isset($_GET['itaj_en'])) {
         $itaj = base64_decode($_GET['itaj_en']);
     }
-    !$itaj and $itaj = $bbs;
+    if (empty($itaj)) { $itaj = $bbs; }
 
-    // }}}
+    //================================================
+    // 読み込み
+    //================================================
+    // p2_favita.brd ファイルがなければ生成
+    FileCtl::make_datafile($_conf['favita_brd'], $_conf['favita_perm']);
+
+    // p2_favita.brd 読み込み;
+    $lines = FileCtl::file_read_lines($_conf['favita_brd'], FILE_IGNORE_NEW_LINES);
 
     //================================================
     // 処理
     //================================================
-    FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
-
-    $lines = file($_conf['favita_path']);
-    if ($lines === false) {
-        return false;
-    }
-
     $neolines = array();
     $before_line_num = 0;
 
-    // 最初に重複要素を消去しておく
-    if ($lines) {
+    // 最初に重複要素を消去
+    if (!empty($lines)) {
         $i = -1;
         foreach ($lines as $l) {
             $i++;
-            $l = rtrim($l);
 
             // {{{ 旧データ（ver0.6.0以下）移行措置
-            if (!preg_match("/^\t/", $l)) {
+            if ($l[0] != "\t") {
                 $l = "\t".$l;
             }
             // }}}
@@ -97,22 +91,26 @@ function setFavIta()
     }
 
     // 記録データ設定
-
-    // リスト丸ごとポストして指定
-    if (!empty($_POST['submit_listfavita']) && $list) {
+    if (!empty($_POST['submit_setfavita']) && $list) {
         $rec_lines = array();
         foreach (explode(',', $list) as $aList) {
             list($host, $bbs, $itaj_en) = explode('@', $aList);
             $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
         }
-        P2Util::pushInfoHtml('<script language="javascript">');
-        P2Util::pushInfoHtml("if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }");
-        P2Util::pushInfoHtml('</script>');
 
-    // 一つのデータを指定して操作
+        $_info_msg_ht .= <<<EOJS
+<script type="text/javascript">
+//<![CDATA[
+if (parent.menu) {
+    parent.menu.location.href = '{$_conf['menu_php']}?nr=1';
+}
+//]]>
+</script>\n
+EOJS;
+
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
-        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
+        include_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
 
     // 解除
@@ -128,14 +126,14 @@ function setFavIta()
     }
 
     // 書き込む
-    if (file_put_contents($_conf['favita_path'], $cont, LOCK_EX) === false) {
-        trigger_error("file_put_contents(" . $_conf['favita_path'] . ")", E_USER_WARNING);
-        die('Error: cannot write file.');
-        return false;
+    if (FileCtl::file_write_contents($_conf['favita_brd'], $cont) === false) {
+        p2die('cannot write file.');
     }
 
     return true;
 }
+
+// }}}
 
 /*
  * Local Variables:

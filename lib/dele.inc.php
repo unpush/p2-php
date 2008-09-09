@@ -1,21 +1,23 @@
 <?php
-/*
-    p2 - スレッドデータ、DATを削除するための関数郡
-*/
+/**
+ * rep2 - スレッドデータ、DATを削除するための関数郡
+ */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/setfav.inc.php';
-require_once P2_LIBRARY_DIR . '/setpalace.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/setfav.inc.php';
+require_once P2_LIB_DIR . '/setpalace.inc.php';
+
+// {{{ deleteLogs()
 
 /**
- * 指定した配列keysのログ（idx, (dat, srd)）を削除して、
+ * ■指定した配列keysのログ（idx, (dat, srd)）を削除して、
  * ついでに履歴からも外す。お気にスレ、殿堂からも外す。
  *
  * ユーザがログを削除する時は、通常この関数が呼ばれる
  *
- * @access  public
- * @param   array  $keys  削除対象のkeyを格納した配列
- * @return  integer|false   削除できたら1, 削除対象がなければ2を返す。失敗があればfalse。
+ * @public
+ * @param array $keys 削除対象のkeyを格納した配列
+ * @return int 失敗があれば0, 削除できたら1, 削除対象がなければ2を返す。
  */
 function deleteLogs($host, $bbs, $keys)
 {
@@ -38,34 +40,36 @@ function deleteLogs($host, $bbs, $keys)
             setPal($host, $bbs, $akey, 0);
             $rs[] = deleteThisKey($host, $bbs, $akey);
         }
-        if (array_search(1, $rs) !== false) {
+        if (array_search(0, $rs) !== false) {
+            $r = 0;
+        } elseif (array_search(1, $rs) !== false) {
             $r = 1;
         } elseif (array_search(2, $rs) !== false) {
             $r = 2;
         } else {
-            $r = false;
+            $r = 0;
         }
     }
     return $r;
 }
 
+// }}}
+// {{{ deleteThisKey()
+
 /**
- * 指定したキーのスレッドログ（idx (,dat)）を削除する
+ * ■指定したキーのスレッドログ（idx (,dat)）を削除する
  *
  * 通常は、この関数を直接呼び出すことはない。deleteLogs() から呼び出される。
  *
  * @see deleteLogs()
- * @return  integer|false  削除できたら1, 削除対象がなければ2を返す。失敗があればfalse。
+ * @return int 失敗があれば0, 削除できたら1, 削除対象がなければ2を返す。
  */
 function deleteThisKey($host, $bbs, $key)
 {
     global $_conf;
 
-    $dat_host_dir = P2Util::datDirOfHost($host);
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-
-    $anidx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
-    $adat  = $dat_host_dir . '/' . $bbs . '/' . $key . '.dat';
+    $anidx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
+    $adat = P2Util::datDirOfHostBbs($host, $bbs) . $key . '.dat';
 
     // Fileの削除処理
     // idx（個人用設定）
@@ -88,7 +92,7 @@ function deleteThisKey($host, $bbs, $key)
 
     // 失敗があれば
     if (!empty($failed_flag)) {
-        return false;
+        return 0;
     // 削除できたら
     } elseif (!empty($deleted_flag)) {
         return 1;
@@ -98,26 +102,20 @@ function deleteThisKey($host, $bbs, $key)
     }
 }
 
+// }}}
+// {{{ checkRecent()
 
 /**
- * 指定したキーが最近読んだスレに入ってるかどうかをチェックする
+ * ■指定したキーが最近読んだスレに入ってるかどうかをチェックする
  *
- * @access  public
- * @return  boolean  入っていたらtrue
+ * @public
  */
 function checkRecent($host, $bbs, $key)
 {
     global $_conf;
 
-    if (!file_exists($_conf['rct_file'])) {
-        return false;
-    }
-
-    $lines = file($_conf['rct_file']);
-    // あればtrue
-    if (is_array($lines)) {
+    if ($lines = FileCtl::file_read_lines($_conf['recent_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // あったら
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
@@ -128,27 +126,20 @@ function checkRecent($host, $bbs, $key)
     return false;
 }
 
+// }}}
+// {{{ checkResHist()
+
 /**
- * 指定したキーが書き込み履歴に入ってるかどうかをチェックする
+ * ■指定したキーが書き込み履歴に入ってるかどうかをチェックする
  *
- * @access  public
- * @return  boolean  入っていたらtrue
+ * @public
  */
 function checkResHist($host, $bbs, $key)
 {
     global $_conf;
 
-    $rh_idx = $_conf['pref_dir'] . "/p2_res_hist.idx";
-
-    if (!file_exists($rh_idx)) {
-        return false;
-    }
-
-    $lines = file($rh_idx);
-    // あればtrue
-    if (is_array($lines)) {
+    if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // あったら
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
@@ -159,96 +150,26 @@ function checkResHist($host, $bbs, $key)
     return false;
 }
 
+// }}}
+// {{{ offRecent()
+
 /**
- * 指定したキーの履歴（最近読んだスレ）を削除する
+ * ■指定したキーの履歴（最近読んだスレ）を削除する
  *
- * @access  public
- * @return  integer|false  削除したなら1, 削除対象がなければ2。失敗はfalse
+ * @public
  */
 function offRecent($host, $bbs, $key)
 {
     global $_conf;
 
-    if (!file_exists($_conf['rct_file'])) {
-        return 2;
-    }
-
-    $lines = file($_conf['rct_file']);
-    if ($lines === false) {
-        return false;
-    }
-
     $neolines = array();
+
+    $lock = new P2Lock($_conf['recent_idx'], false);
 
     // {{{ あれば削除
 
-    if (is_array($lines)) {
-        foreach ($lines as $line) {
-            $line = rtrim($line);
-            $lar = explode('<>', $line);
-            // 削除（スキップ）
-            if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
-                $done = true;
-                continue;
-            }
-            $neolines[] = $line;
-        }
-    }
-
-    // }}}
-    // {{{ 書き込む
-
-    if (is_array($neolines)) {
-        $cont = '';
-        foreach ($neolines as $l) {
-            $cont .= $l . "\n";
-        }
-
-        if (FileCtl::filePutRename($_conf['rct_file'], $cont) === false) {
-            $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
-            trigger_error($errmsg, E_USER_WARNING);
-            return false;
-        }
-
-    }
-
-    // }}}
-
-    if (!empty($done)) {
-        return 1;
-    } else {
-        return 2;
-    }
-}
-
-/**
- * 指定したキーの書き込み履歴を削除する
- *
- * @access  public
- * @return  integer|false  削除したなら1, 削除対象がなければ2。失敗はfalse
- */
-function offResHist($host, $bbs, $key)
-{
-    global $_conf;
-
-    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
-
-    if (!file_exists($rh_idx)) {
-        return 2;
-    }
-
-    $lines = file($rh_idx);
-    if ($lines === false) {
-        return false;
-    }
-
-    $neolines = array();
-
-    // {{{ あれば削除
-
-    if (is_array($lines)) {
+    if ($lines = FileCtl::file_read_lines($_conf['recent_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // 削除（スキップ）
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
@@ -268,12 +189,9 @@ function offResHist($host, $bbs, $key)
             $cont .= $l . "\n";
         }
 
-        if (FileCtl::filePutRename($rh_idx, $cont) === false) {
-            $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
-            trigger_error($errmsg, E_USER_WARNING);
-            return false;
+        if (FileCtl::file_write_contents($_conf['recent_idx'], $cont) === false) {
+            p2die('cannot write file.');
         }
-
     }
 
     // }}}
@@ -284,6 +202,61 @@ function offResHist($host, $bbs, $key)
         return 2;
     }
 }
+
+// }}}
+// {{{ offResHist()
+
+/**
+ * ■指定したキーの書き込み履歴を削除する
+ *
+ * @public
+ */
+function offResHist($host, $bbs, $key)
+{
+    global $_conf;
+
+    $neolines = array();
+
+    $lock = new P2Lock($_conf['res_hist_idx'], false);
+
+    // {{{ あれば削除
+
+    if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'], FILE_IGNORE_NEW_LINES)) {
+        foreach ($lines as $l) {
+            $lar = explode('<>', $l);
+            // 削除（スキップ）
+            if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
+                $done = true;
+                continue;
+            }
+            $neolines[] = $l;
+        }
+    }
+
+    // }}}
+    // {{{ 書き込む
+
+    if (is_array($neolines)) {
+        $cont = '';
+        foreach ($neolines as $l) {
+            $cont .= $l . "\n";
+        }
+
+        if (FileCtl::file_write_contents($_conf['res_hist_idx'], $cont) === false) {
+            p2die('cannot write file.');
+        }
+    }
+
+    // }}}
+
+    if (!empty($done)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+// }}}
 
 /*
  * Local Variables:

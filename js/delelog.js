@@ -1,5 +1,4 @@
-////
-// 削除関数
+// ■削除関数
 // deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);
 //
 function deleLog(tquery, info_pop_width, info_pop_height, page, obj)
@@ -9,9 +8,9 @@ function deleLog(tquery, info_pop_width, info_pop_height, page, obj)
 	if ((page == 'read') && !gIsPageLoaded) {
 		return false;
 	}
-
+	
 	var objHTTP = getXmlHttp();
-
+	
 	if (!objHTTP) {
 		// alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
 		// XMLHTTP（と obj.parentNode.innerHTML） に未対応なら小窓で
@@ -19,8 +18,8 @@ function deleLog(tquery, info_pop_width, info_pop_height, page, obj)
 		return OpenSubWin(infourl,info_pop_width,info_pop_height,0,0);
 	}
 
-	var url = 'httpcmd.php?' + tquery + '&cmd=delelog'; // スクリプトと、コマンド指定
-
+	url = 'httpcmd.php?' + tquery + '&cmd=delelog'; // スクリプトと、コマンド指定
+	
 	var res = getResponseTextHttp(objHTTP, url, 'nc');
 	var rmsg = "";
 	if (res) {

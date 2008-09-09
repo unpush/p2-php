@@ -1,43 +1,58 @@
 <?php
-/**
- * rep2expack - ImageCache2
- */
+// {{{ MatrixManager
 
 /**
  * ImageCache2 - s—ñŠÇ—ƒNƒ‰ƒX
  */
 class MatrixManager
 {
-    var $cols;
-    var $rows;
-    var $cells;
-    function MatrixManager($cols, $rows, $cells = null)
+    // {{{ properties
+
+    private $_max;
+    private $_cols;
+    private $_rows;
+
+    // }}}
+    // {{{ constructor
+
+    public function __construct($cols, $rows, $cells = null)
     {
         if ($cells) {
-            $this->max = $cells;
+            $this->_max = $cells;
         } else {
-            $this->max = $cols * $rows;
+            $this->_max = $cols * $rows;
         }
-        $this->cols = $cols;
-        $this->rows = $rows;
+        $this->_cols = $cols;
+        $this->_rows = $rows;
     }
-    function isFirstColumn($i)
+
+    // }}}
+    // {{{ methods
+
+    public function isFirstColumn($i)
     {
-        return ($i % $this->cols == 0);
+        return ($i % $this->_cols == 0);
     }
-    function isLastColumn($i)
+
+    public function isLastColumn($i)
     {
-        return ($i % $this->cols == $this->cols - 1 || $i + 1 == $this->max);
+        return ($i % $this->_cols == $this->_cols - 1 || $i + 1 == $this->_max);
     }
-    function isFirstRow($i)
+
+    public function isFirstRow($i)
     {
-        return ($i < $this->cols);
+        return ($i < $this->_cols);
     }
-    function isLastRow($i)
+
+    public function isLastRow($i)
     {
-        return ($this->max - ($i + 1) < $this->cols);
+        return ($this->_max - ($i + 1) < $this->_cols);
     }
+
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

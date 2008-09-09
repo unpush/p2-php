@@ -1,11 +1,16 @@
 <?php
-// p2 - RSS編集
+/**
+ * rep2expck - RSSリスト編集
+ */
 
-include_once './conf/conf.inc.php';
-include_once P2_LIBRARY_DIR . '/filectl.class.php';
-include_once P2_LIBRARY_DIR . '/strctl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/strctl.class.php';
 
 $_login->authorize(); // ユーザ認証
+
+// 変数 =============
+$_info_msg_ht = '';
 
 //================================================================
 //特殊な前置処理
@@ -13,7 +18,7 @@ $_login->authorize(); // ユーザ認証
 
 //RSSの追加・削除、並び替え
 if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_setrss'])) {
-    include P2EX_LIBRARY_DIR . '/rss/setrss.inc.php';
+    include P2EX_LIB_DIR . '/rss/setrss.inc.php';
 }
 
 // プリント用変数 ======================================================
@@ -21,8 +26,7 @@ if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_se
 // RSS追加フォーム
 $add_rss_form_ht = <<<EOFORM
 <hr>
-<form method="post" action="editrss.php" accept-charset="{$_conf['accept_charset']}" target="_self">
-    {$_conf['detect_hint_input_ht']}
+<form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
     <input type="hidden" id="setrss" name="setrss" value="1">
     <table border="0" cellspacing="1" cellpadding="0">
         <tr>
@@ -40,14 +44,13 @@ $add_rss_form_ht = <<<EOFORM
             </td>
         </tr>
     </table>
-    {$_conf['k_input_ht']}
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
 EOFORM;
 
 // RSS切替フォーム
-if ($_conf['expack.favset.enabled'] && $_conf['expack.rss.set_num'] > 0) {
-    $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS',
-        null, null, !$_conf['ktai']);
+if ($_conf['expack.misc.multi_favs']) {
+    $switch_rss_form_ht = FavSetManager::makeFavSetSwitchForm('m_rss_set', 'RSS', NULL, NULL, !$_conf['ktai']);
 } else {
     $switch_rss_form_ht = '';
 }
@@ -60,36 +63,38 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>p2 - RSSの並び替え</title>
-    <script type="text/javascript" src="js/yui/YAHOO.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/log.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/event.js?{$_conf['p2expack']}" ></script>
-    <script type="text/javascript" src="js/yui/dom.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/yui/dragdrop.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDOnTop.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDSwap.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDMy.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDMy2.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDList.js?{$_conf['p2expack']}" ></script>
-        <script type="text/javascript" src="js/yui/ygDDPlayer.js?{$_conf['p2expack']}" ></script>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=editfavita&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=editfavita&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/yui/YAHOO.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/log.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/event.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/dom.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/dragdrop.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/ygDDOnTop.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/ygDDSwap.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/ygDDMy.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/ygDDMy2.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/ygDDList.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/yui/ygDDPlayer.js?{$_conf['p2_version_id']}"></script>
 </head>
 <body>\n
 EOP;
 
-P2Util::printInfoHtml();
+echo $_info_msg_ht;
+$_info_msg_ht = '';
 
 //================================================================
 // メイン部分HTML表示
 //================================================================
 // ページタイトル
-if ($_conf['expack.favset.enabled'] && $_conf['expack.rss.set_num'] > 0) {
+if ($_conf['expack.misc.multi_favs']) {
     $i = (isset($_SESSION['m_rss_set'])) ? (int)$_SESSION['m_rss_set'] : 0;
     $rss_titles = FavSetManager::getFavSetTitles('m_rss_set');
     if (!$rss_titles || !isset($rss_titles[$i]) || strlen($rss_titles[$i]) == 0) {
@@ -112,34 +117,37 @@ if ($_conf['expack.favset.enabled'] && $_conf['expack.rss.set_num'] > 0) {
 // rssファイルがなければ生成
 FileCtl::make_datafile($_conf['expack.rss.setting_path'], $_conf['expack.rss.setting_perm']);
 // rss読み込み
-$lines = file($_conf['expack.rss.setting_path']);
 $myrss = array();
 
 $i = 0;
-if (is_array($lines)) {
+if ($lines = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES)) {
     foreach ($lines as $l) {
-        $l = rtrim($l);
         $p = explode("\t", $l);
         if (count($p) > 1) {
-            $id = "li{$i}";
-            $myrss[$id]['site']       = $site = rtrim($p[0]);
-            $myrss[$id]['site_en']    = $site_en = base64_encode($site);
-            $myrss[$id]['site_view']  = htmlspecialchars($site);
-            $myrss[$id]['site_ht']    = "&amp;site_en=" . $site_en;
-            $myrss[$id]['xml']        = $xml = $p[1];
-            $myrss[$id]['xml_en']     = rawurlencode($xml);
-            $myrss[$id]['atom']       = $atom = ((isset($p[2]) && $p[2] == 1) ? '1' : '0');
-            $myrss[$id]['value']      = StrCtl::toJavaScript("{$site}\t{$xml}\t{$atom}");
-
+            $site = $p[0];
+            $xml  = $p[1];
+            $atom = !empty($p[2]) ? '1' : '0';
+            $site_en = base64_encode($site);
+            $myrss["li{$i}"] = array(
+                'site'      => $site,
+                'site_en'   => $site_en,
+                'site_view' => htmlspecialchars($site, ENT_QUOTES),
+                'site_ht'   => "&amp;site_en={$site_en}",
+                'xml'       => $xml,
+                'xml_en'    => rawurlencode($xml),
+                'atom'      => $atom,
+                'value'     => StrCtl::toJavaScript("{$site}\t{$xml}\t{$atom}"),
+            );
             $i++;
         }
     }
 }
 
 // PC用
-if (empty($_conf['ktai']) and !empty($lines)) {
+if (!$_conf['ktai'] and !empty($lines)) {
 ?>
 <script type="text/javascript">
+//<![CDATA[
     // var gLogger = new ygLogger("test_noimpl.php");
     var dd = []
     var gVarObj = new Object();
@@ -196,14 +204,20 @@ function submitApply()
     //alert(document.form['list'].value);
     //document.form.submit();
 }
+//]]>
 </script>
 <?php
 }
 
 
+// iPhone用
+if ($_conf['iphone'] && file_exists('./iui/iui.js')) {
+    $onclick = '';
+    $m_php = 'menu_i.php?nt=' . time();
+
 // PC用
-if (!$_conf['ktai']) {
-    $onclick = " onclick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
+} elseif (!$_conf['ktai']) {
+    $onclick = " onclick=\"if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }\"";
     $m_php = $_SERVER['SCRIPT_NAME'];
 
 // 携帯用
@@ -220,7 +234,7 @@ echo $add_rss_form_ht;
 echo "<hr>\n";
 
 // PC（NetFrontを除外）
-if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+if (!$_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
 
     if ($lines) {
         $script_enable_html .= <<<EOP
@@ -251,7 +265,7 @@ EOP;
 <input type="hidden" name="list">
 
 <input type="submit" value="元に戻す">
-<input type="submit" name="submit_setrss" value="変更を適用する" onClick="submitApply();">
+<input type="submit" name="submit_setrss" value="変更を適用する" onclick="submitApply();">
 
 </div>
 </form>
@@ -262,9 +276,9 @@ EOP;
 
     echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 document.write("{$out}");
-//-->
+//]]>
 </script>
 EOP;
 
@@ -275,7 +289,7 @@ EOP;
 //================================================================
 if ($lines) {
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+    if ($_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '<noscript>';
     }
     echo 'RSSの並び替え';
@@ -315,7 +329,7 @@ EOP;
     }
     echo "</table>\n";
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+    if (!$_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '</noscript>';
     }
 }

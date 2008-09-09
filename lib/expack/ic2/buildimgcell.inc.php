@@ -1,9 +1,11 @@
 <?php
 /**
- * rep2expack - ImageCache2
+ * ImageCache2 - 一覧表示用ユーティリティ関数
  */
 
-function buildImgCell(&$img)
+// {{{ ic2_image_extra_info()
+
+function ic2_image_extra_info($img)
 {
     global $_conf, $ini, $icdb, $thumb;
 
@@ -31,9 +33,9 @@ function buildImgCell(&$img)
         $add['thumb'] = $thumb->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
 
         // サムネイルの縦横の大きさを計算
-        @preg_match('/(\d+)x(\d+)/', $thumb->calc($icdb->width, $icdb->height), $m);
-        $add['t_width'] = $m[1];
-        $add['t_height'] = $m[2];
+        $m = explode('x', $thumb->calc($icdb->width, $icdb->height));
+        $add['t_width'] = (int)$m[0];
+        $add['t_height'] = (int)$m[1];
 
     }
 
@@ -52,6 +54,9 @@ function buildImgCell(&$img)
     return $add;
 }
 
+// }}}
+// {{{ ic2_read_exif()
+
 function ic2_read_exif($path)
 {
     $exif = @exif_read_data($path, '', true, false);
@@ -68,6 +73,8 @@ function ic2_read_exif($path)
         return null;
     }
 }
+
+// }}}
 
 /*
  * Local Variables:

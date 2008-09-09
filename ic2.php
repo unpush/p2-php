@@ -1,14 +1,18 @@
 <?php
-/* ImageCache2 - 画像のダウンロード・サムネイル作成 */
+/**
+ * ImageCache2 - 画像のダウンロード・サムネイル作成
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -18,21 +22,17 @@ if (!$_conf['expack.ic2.enabled']) {
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
 require_once 'HTTP/Client.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
 
 // 受け付けるMIMEタイプ
 $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
 
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
-
-// DB_DataObjectの設定
-$_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => false, 'quote_identifiers' => true);
 
 // }}}
 // {{{ prepare
@@ -55,10 +55,16 @@ if (empty($id) && empty($uri) && empty($file)) {
     ic2_error('x06', 'URLまたはファイル名がありません。', false);
 }
 
+if (!is_dir($_conf['tmp_dir'])) {
+    FileCtl::mkdir_for($_conf['tmp_dir'] . '/__dummy__');
+}
+
 if (!empty($uri)) {
-    $uri = preg_replace('{^(https?://)ime\\.(nu|st)/}', '$1', $uri);
+    $uri = preg_replace('{^(https?://)ime\\.(?:nu|st)/}', '\\1', $uri);
     $pURL = @parse_url($uri);
-    if (!$pURL || !preg_match('/^(https?)$/', $pURL['scheme']) || empty($pURL['host']) || empty($pURL['path'])) {
+    if (!$pURL || ($pURL['scheme'] != 'http' && $pURL['scheme'] != 'https') ||
+        empty($pURL['host']) || empty($pURL['path']))
+    {
         ic2_error('x06', '不正なURLです。', false);
     }
 
@@ -94,7 +100,31 @@ if ($thumb < 1 || $thumb > 3 ) { $thumb = 0; }
 if ($rank < -1) { $rank = -1; } elseif ($rank > 5) { $rank = 5; }
 if ($memo === '') { $memo = null; }
 
-$thumbnailer = &new ThumbNailer($thumb);
+$thumbnailer = new ThumbNailer($thumb);
+
+// }}}
+// {{{ IC2TempFile
+
+class IC2TempFile
+{
+    private $_filename = null;
+
+    public function __construct($filename)
+    {
+        if (touch($filename)) {
+            $this->_filename = realpath($filename);
+        }
+    }
+
+    public function __destruct()
+    {
+        if ($this->_filename !== null) {
+            if (file_exists($this->_filename)) {
+                unlink($this->_filename);
+            }
+        }
+    }
+}
 
 // }}}
 // {{{ sleep
@@ -102,13 +132,13 @@ $thumbnailer = &new ThumbNailer($thumb);
 if ($doDL) {
     // 同じ画像のURIに対するクエリが（ほぼ）同時に発行されたときの重複GETを防ぐ
     // sleepした時間はプロセスの実行時間に含まれないので独自にタイマーを用意する（無限ループ回避）
-    $tmpchecker = $ini['General']['cachedir'] . '/q_' . md5($uri);
-    if (file_exists($tmpchecker)) {
+    $dl_lock_file = $_conf['tmp_dir'] . DIRECTORY_SEPARATOR . 'ic2_lck_' . md5($uri);
+    if (file_exists($dl_lock_file)) {
         $offtimer = ini_get('max_execution_time');
         if ($offtimer == 0) {
             $offtimer = 30;
         }
-        while (file_exists($tmpchecker)) {
+        while (file_exists($dl_lock_file)) {
             sleep(1); // 1秒停止
             $offtimer--;
             if ($offtimer < 0) {
@@ -118,21 +148,17 @@ if ($doDL) {
     }
 
     // テンポラリファイルを作成、終了時に自動削除
-    touch($tmpchecker);
-    // exitしたときはregister_shutdown_function()が効かないようなので
-    // ic2_display(),ic2_error()各関数の先頭でic2_removeTmpFile()をコールすることにした。
-    // スマートとは言いがたいが期待通りの動作はしてくれるのでよしとする。
-    //register_shutdown_function('ic2_removeTmpFile');
+    $dl_lock_obj = new IC2TempFile($dl_lock_file);
 }
 
 // }}}
 // {{{ search
 
 // 画像がキャッシュされているか確認
-$search = &new IC2DB_Images;
+$search = new IC2DB_Images;
 $retry = false;
 if ($memo !== null) {
-    $memo = $search->uniform($memo, 'SJIS-win');
+    $memo = $search->uniform($memo, 'CP932');
 }
 
 if ($doDL) {
@@ -157,23 +183,35 @@ if ($result) {
         ic2_error('x04', '', false);
     }
     // あぼーんフラグ（rankが負）が立っていたら終了。
-    if (!$force && $search->rank < 0 ) {
+    if (!$force && $search->rank < 0 && !isset($_REQUEST['rank'])) {
         ic2_error('x01', '', false);
     }
     $filepath = $thumbnailer->srcPath($search->size, $search->md5, $search->mime);
     $params = array('uri' => $search->uri, 'name' => $search->name, 'size' => $search->size,
                     'md5' => $search->md5, 'width' => $search->width, 'height' => $search->height,
-                    'mime' => $search->mime, 'memo' => $search->memo);
+                    'mime' => $search->mime, 'memo' => $search->memo, 'rank' => $search->rank);
 
     // 自動メモ機能が有効のとき
-    if ($ini['General']['automemo'] && !is_null($memo) && !strstr($search->memo, $memo)) {
-        if (!empty($search->memo)) {
+    if ($ini['General']['automemo'] && !is_null($memo) && strpos($search->memo, $memo) === false) {
+        if (is_string($search->memo) && strlen($search->memo) > 0) {
             $memo .= ' ' . $search->memo;
         }
-        $update = &new IC2DB_Images;
-        $update->memo = $memo;
-        $update->whereAddQuoted('uri', '=', $uri);
+        $update = new IC2DB_Images;
+        $update->memo = $params['memo'] = $memo;
+        $update->whereAddQuoted('uri', '=', $search->uri);
         $update->update();
+        unset($update);
+    }
+
+    // ランク変更
+    if (isset($_REQUEST['rank'])) {
+        $update = new IC2DB_Images;
+        $update->rank = $params['rank'] = $rank;
+        $update->whereAddQuoted('size', '=', $search->size);
+        $update->whereAddQuoted('md5',  '=', $search->md5);
+        $update->whereAddQuoted('mime', '=', $search->mime);
+        $update->update();
+        unset($update);
     }
 
     // ファイルが保存されていればそれでよし、保存されていなければレコードを削除する。
@@ -198,8 +236,8 @@ if ($result) {
 }
 
 // 画像がブラックリストにあるか確認
-require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
-$blacklist = &new IC2DB_BlackList;
+require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
+$blacklist = new IC2DB_BlackList;
 if ($blacklist->get($uri)) {
     switch ($blacklist->type) {
         case 0:
@@ -219,8 +257,8 @@ if ($blacklist->get($uri)) {
 
 // 画像がエラーログにあるか確認
 if (!$force && $ini['Getter']['checkerror']) {
-    require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
-    $errlog = &new IC2DB_Errors;
+    require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
+    $errlog = new IC2DB_Errors;
     if ($errlog->get($uri)) {
         ic2_error($errlog->errcode, '', false);
     }
@@ -238,13 +276,13 @@ $ic2_ua = (!empty($_conf['expack.user_agent']))
     ? $_conf['expack.user_agent'] : $_SERVER['HTTP_USER_AGENT'];
 
 // キャッシュされていなければ、取得を試みる
-$client = &new HTTP_Client;
+$client = new HTTP_Client;
 $client->setRequestParameter('timeout', $conn_timeout);
 $client->setRequestParameter('readTimeout', array($read_timeout, 0));
 $client->setMaxRedirects(3);
 $client->setDefaultHeader('User-Agent', $ic2_ua);
 if ($force && $time) {
-    $client->setDefaultHeader('If-Modified-Since', gmdate('D, d M Y H:i:s \G\M\T', $time));
+    $client->setDefaultHeader('If-Modified-Since', http_date($time));
 }
 
 // プロキシ設定
@@ -292,12 +330,12 @@ if (is_string($referer)) {
 // {{{ head
 
 // まずはHEADでチェック
-$client_h = clone($client);
+$client_h = clone $client;
 $code = $client_h->head($uri);
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());
 }
-$head = &$client_h->currentResponse();
+$head = $client_h->currentResponse();
 
 // 304 Not Modified のとき
 if ($filepath && $force && $time && $code == 304) {
@@ -322,7 +360,7 @@ if (isset($head['headers']['content-length'])) {
     $conent_length = (int)$head['headers']['content-length'];
     $maxsize = $ini['Source']['maxsize'];
     if (preg_match('/(\d+\.?\d*)([KMG])/i', $maxsize, $m)) {
-        $maxsize = si2int($m[1], $m[2]);
+        $maxsize = p2_si2int($m[1], $m[2]);
     } else {
         $maxsize = (int)$maxsize;
     }
@@ -344,11 +382,12 @@ if (PEAR::isError($code)) {
     ic2_error($code);
 }
 
-$response = &$client->currentResponse();
+$response = $client->currentResponse();
 
 // 一時ファイルに保存
-$tmpfile = tempnam($ini['General']['cachedir'], 'tmp_');
-$fp = @fopen($tmpfile, 'wb');
+$tmpfile = tempnam($_conf['tmp_dir'], 'ic2_get_');
+$tmpobj = new IC2TempFile($tmpfile);
+$fp = fopen($tmpfile, 'wb');
 if (!$fp) {
     ic2_error('x02', "fopen失敗。($tmpfile)");
 }
@@ -385,7 +424,6 @@ if ($ini['Getter']['virusscan']) {
                 'memo' => $memo
             );
             ic2_aborn($params, true);
-            @unlink($tmpfile);
             ic2_error('x04', 'ウィルスを発見しました。');
         }
     }
@@ -425,7 +463,9 @@ $params = array('uri' => $uri, 'host' => $host, 'name' => $name, 'size' => $size
 ic2_checkSizeOvered($tmpfile, $params);
 
 // 同じ画像があぼーんされているか確認
-$rank = ic2_checkAbornedFile($tmpfile, $params);
+if (($check = ic2_checkAbornedFile($tmpfile, $params)) !== false) {
+    $rank = $check;
+}
 
 // }}}
 // {{{ finish
@@ -442,7 +482,7 @@ if (($force || !file_exists($newfile)) && !@rename($tmpfile, $newfile)) {
 @chmod($newfile, 0644);
 
 // データベースにファイル情報を記録する
-$record = &new IC2DB_Images;
+$record = new IC2DB_Images;
 if ($retry && $size == $_size && $md5 == $_md5 && $mime == $_mime) {
     $record->time = time();
     if ($ini['General']['automemo'] && !is_null($memo)) {
@@ -475,13 +515,14 @@ ic2_finish($newfile, $thumb, $params, $force);
 
 // }}}
 // {{{ 関数
+// {{{ ic2_aborn()
 
 function ic2_aborn($params, $infected = false)
 {
     global $ini;
     extract($params);
 
-    $aborn = &new IC2DB_Images;
+    $aborn = new IC2DB_Images;
     $aborn->uri = $uri;
     $aborn->host = $host;
     $aborn->name = $name;
@@ -498,26 +539,32 @@ function ic2_aborn($params, $infected = false)
     return $aborn->insert();
 }
 
+// }}}
+// {{{ ic2_checkAbornedFile()
+
 function ic2_checkAbornedFile($tmpfile, $params)
 {
     global $ini;
     extract($params);
 
     // ブラックリスト検索
-    $bl_check = &new IC2DB_BlackList;
+    $bl_check = new IC2DB_BlackList;
     $bl_check->whereAddQuoted('size', '=', $size);
     $bl_check->whereAddQuoted('md5',  '=', $md5);
     if ($bl_check->find(true)) {
-        $bl_add = clone($bl_check);
+        $bl_add = clone $bl_check;
+        $bl_add->id = null;
         $bl_add->uri = $uri;
-        $bl_add->insert();
-        switch ($bl_check->type) {
+        switch ((int)$bl_check->type) {
             case 0:
                 $errcode = 'x05'; // No More
+                break;
             case 1:
                 $errcode = 'x01'; // Aborn
+                break;
             case 2:
                 $errcode = 'x04'; // Virus
+                break;
             default:
                 $errcode = 'x06'; // Unknown
         }
@@ -526,7 +573,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
     }
 
     // あぼーん画像検索
-    $check = &new IC2DB_Images;
+    $check = new IC2DB_Images;
     $check->whereAddQuoted('size', '=', $size);
     $check->whereAddQuoted('md5',  '=', $md5);
     //$check->whereAddQuoted('mime', '=', $mime); // SizeとMD5で十分
@@ -535,7 +582,6 @@ function ic2_checkAbornedFile($tmpfile, $params)
     $check->orderByArray(array('rank' => 'ASC'));
     if ($check->find(true)) {
         if ($check->rank < 0) {
-            @unlink($tmpfile);
             ic2_aborn($params);
             // 現状では（たぶんずっと） -1 or -4 だけだが、一応
             if ($check->rank >= -5) {
@@ -555,8 +601,11 @@ function ic2_checkAbornedFile($tmpfile, $params)
         }
     }
 
-    return 0;
+    return false;
 }
+
+// }}}
+// {{{ ic2_checkSizeOvered()
 
 function ic2_checkSizeOvered($tmpfile, $params)
 {
@@ -567,7 +616,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
 
     $maxsize = $ini['Source']['maxsize'];
     if (preg_match('/(\d+\.?\d*)([KMG])/i', $maxsize, $m)) {
-        $maxsize = si2int($m[1], $m[2]);
+        $maxsize = p2_si2int($m[1], $m[2]);
     } else {
         $maxsize = (int)$maxsize;
     }
@@ -586,7 +635,6 @@ function ic2_checkSizeOvered($tmpfile, $params)
     }
 
     if ($isError) {
-        @unlink($tmpfile);
         ic2_aborn($params);
         ic2_error('x03', $errmsg);
     }
@@ -594,11 +642,12 @@ function ic2_checkSizeOvered($tmpfile, $params)
     return true;
 }
 
-function ic2_display($path)
-{
-    global $_conf, $ini, $thumb, $redirect, $id, $uri, $file;
+// }}}
+// {{{ ic2_display()
 
-    ic2_removeTmpFile();
+function ic2_display($path, $params)
+{
+    global $_conf, $ini, $thumb, $redirect, $id, $uri, $file, $thumbnailer;
 
     $name = basename($path);
     $ext = strrchr($name, '.');
@@ -613,8 +662,8 @@ function ic2_display($path)
                 case '.png': header("Content-Type: image/png; name=\"{$name}\""); break;
                 case '.gif': header("Content-Type: image/gif; name=\"{$name}\""); break;
                 default:
-                    if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE') ||
-                        strstr($_SERVER['HTTP_USER_AGENT'], 'Opera')
+                    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false ||
+                        strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') !== false
                     ) {
                         header("Content-Type: application/octetstream; name=\"{$name}\"");
                     } else {
@@ -638,7 +687,6 @@ function ic2_display($path)
                 $_REQUEST = array_map('addslashes_r', $_REQUEST);
             }
 
-            $img_p = isset($uri) ? 'uri=' . rawurlencode($uri) : (isset($id) ? 'id=' . $id : 'file=' . $file);
             if (isset($uri)) {
                 $img_o = 'uri';
                 $img_p = $uri;
@@ -652,65 +700,95 @@ function ic2_display($path)
             $img_q = $img_o . '=' . rawurlencode($img_p);
 
             // QuickFormの初期化
+            $_size = explode('x', $thumbnailer->calc($params['width'], $params['height']));
             $_constants = array(
+                'o' => sprintf('原寸 (%dx%d)', $params['width'], $params['height']),
                 's' => '作成',
                 't' => $thumb,
                 'u' => $img_p,
                 'v' => $img_o,
+                'x' => $_size[0],
+                'y' => $_size[1],
             );
             $_defaults = array(
                 'q' => $ini["Thumb{$thumb}"]['quality'],
                 'r'  => '0',
             );
-            $mobile = &Net_UserAgent_Mobile::singleton();
+            $mobile = Net_UserAgent_Mobile::singleton();
             $qa = 'size=3 maxlength=3';
             if ($mobile->isDoCoMo()) {
                 $qa .= ' istyle=4';
             } elseif ($mobile->isEZweb()) {
                 $qa .= ' format=*N';
-            } elseif ($mobile->isVodafone()) {
+            } elseif ($mobile->isSoftBank()) {
                 $qa .= ' mode=numeric';
             }
-            $qf = &new HTML_QuickForm('imgmaker', 'get', 'ic2_mkthumb.php');
+            $_presets = array('' => 'サイズ・品質');
+            foreach ($ini['Dynamic']['presets'] as $_preset_name => $_preset_params) {
+                $_presets[$_preset_name] = $_preset_name;
+            }
+            $qf = new HTML_QuickForm('imgmaker', 'get', 'ic2_mkthumb.php');
             $qf->setConstants($_constants);
             $qf->setDefaults($_defaults);
             $qf->addElement('hidden', 't');
             $qf->addElement('hidden', 'u');
             $qf->addElement('hidden', 'v');
+            $qf->addElement('text', 'x', '高さ', $qa);
+            $qf->addElement('text', 'y', '横幅', $qa);
             $qf->addElement('text', 'q', '品質', $qa);
+            $qf->addElement('select', 'p', 'プリセット', $_presets);
             $qf->addElement('select', 'r', '回転', array('0' => 'なし', '90' => '右に90°', '270' => '左に90°', '180' => '180°'));
-            $qf->addElement('checkbox', 'p', 'トリム');
+            $qf->addElement('checkbox', 'w', 'トリム');
+            $qf->addElement('checkbox', 'z', 'DL');
             $qf->addElement('submit', 's');
+            $qf->addElement('submit', 'o');
 
             // FlexyとQurickForm_Rendererの初期化
             $_flexy_options = array(
                 'locale' => 'ja',
                 'charset' => 'cp932',
                 'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
-                'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
+                'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
                 'numberFormat' => '', // ",0,'.',','" と等価
             );
-            $flexy = &new HTML_Template_Flexy($_flexy_options);
-            $rdr = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
+            $flexy = new HTML_Template_Flexy($_flexy_options);
+            $rdr = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
             $qf->accept($rdr);
 
             // 表示
-            $flexy->setData('title', 'キャッシュ完了');
+            $flexy->setData('p2vid', P2_VERSION_ID);
+            $flexy->setData('title', 'IC2::Cached');
+            $flexy->setData('pc', !$_conf['ktai']);
+            $flexy->setData('iphone', $_conf['iphone']);
             if (!$_conf['ktai']) {
-                $flexy->setData('pc', true);
                 $flexy->setData('skin', $GLOBALS['skin_name']);
                 //$flexy->setData('stylesheets', array('css'));
                 //$flexy->setData('javascripts', array('js'));
             } else {
-                $flexy->setData('pc', false);
-                $k_color = array();
-                $k_color['c_bgcolor'] = isset($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '';
-                $k_color['c_text']  = isset($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '';
-                $k_color['c_link']  = isset($_conf['mobile.link_color'])  ? $_conf['mobile.link_color']  : '';
-                $k_color['c_vlink'] = isset($_conf['mobile.vlink_color']) ? $_conf['mobile.vlink_color'] : '';
-                $flexy->setData('k_color', $k_color);
+                $flexy->setData('k_color', array(
+                    'c_bgcolor' => !empty($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '#ffffff',
+                    'c_text'    => !empty($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '#000000',
+                    'c_link'    => !empty($_conf['mobile.link_color'])  ? $_conf['mobile.link_color']  : '#0000ff',
+                    'c_vlink'   => !empty($_conf['mobile.vlink_color']) ? $_conf['mobile.vlink_color'] : '#9900ff',
+                ));
             }
-            if ($thumb == 2) {
+
+            $rank = isset($params['rank']) ? $params['rank'] : 0;
+            $img_dir = $_conf['iphone'] ? 'img/iphone/' : 'img/';
+            $stars = array();
+            $stars[-1] = $img_dir . (($rank == -1) ? 'sn1' : 'sn0') . '.png';
+            //$stars[0] = $img_dir . (($rank ==  0) ? 'sz1' : 'sz0') . '.png';
+            $stars[0] = $img_dir . ($_conf['iphone'] ? 'sz0' : 'sz1') . '.png';
+            for ($i = 1; $i <= 5; $i++) {
+                $stars[$i] = $img_dir . (($rank >= $i) ? 's1' : 's0') . '.png';
+            }
+
+            $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0";
+
+            $flexy->setData('stars', $stars);
+            $flexy->setData('params', $params);
+
+            if ($thumb == 2 && $rank >= 0) {
                 if ($ini['General']['inline'] == 1) {
                     $t = 2;
                     $link = null;
@@ -728,26 +806,49 @@ function ic2_display($path)
                 $flexy->setData('link', $path);
                 $flexy->setData('info', null);
             }
-            if (isset($_REQUEST['from'])) {
+
+            if (!$_conf['ktai'] || $_conf['iphone']) {
+                $flexy->setData('backto', null);
+            } elseif (isset($_REQUEST['from'])) {
                 $flexy->setData('backto', $_REQUEST['from']);
+                $setrank_url .= '&from=' . rawurlencode($_REQUEST['from']);
             } elseif (isset($_SERVER['HTTP_REFERER'])) {
                 $flexy->setData('backto', $_SERVER['HTTP_REFERER']);
             } else {
                 $flexy->setData('backto', null);
             }
-            $flexy->setData('edit', extension_loaded('gd'));
+
+            $flexy->setData('stars', $stars);
+            $flexy->setData('sertank', $setrank_url . '&rank=');
+
+            if ($_conf['iphone']) {
+                $_conf['extra_headers_ht'] .= <<<EOP
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+EOP;
+                $_conf['extra_headers_xht'] .= <<<EOP
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
+EOP;
+            }
+
+            $flexy->setData('edit', (extension_loaded('gd') && $rank >= 0));
             $flexy->setData('form', $rdr->toObject());
+            $flexy->setData('doctype', $_conf['doctype']);
+            $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
+            $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
             $flexy->compile('preview.tpl.html');
+
+            P2Util::header_nocache();
             $flexy->output();
     }
     exit;
 }
 
+// }}}
+// {{{ ic2_error()
+
 function ic2_error($code, $optmsg = '', $write_log = true)
 {
     global $id, $uri, $file, $redirect;
-
-    ic2_removeTmpFile();
 
     $map = array(
         100 => 'Continue',
@@ -805,11 +906,11 @@ function ic2_error($code, $optmsg = '', $write_log = true)
     }
 
     if ($write_log) {
-        require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
-        $logger = &new IC2DB_Errors;
+        require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
+        $logger = new IC2DB_Errors;
         $logger->uri     = isset($uri) ? $uri : (isset($id) ? $id : $file);
         $logger->errcode = $code;
-        $logger->errmsg  = mb_convert_encoding($message, 'UTF-8', 'SJIS-win');
+        $logger->errmsg  = mb_convert_encoding($message, 'UTF-8', 'CP932');
         $logger->occured = time();
         $logger->insert();
         $logger->ic2_errlog_lotate();
@@ -838,6 +939,9 @@ EOF;
     exit;
 }
 
+// }}}
+// {{{ ic2_finish()
+
 function ic2_finish($filepath, $thumb, $params, $force)
 {
     global $thumbnailer;
@@ -845,24 +949,17 @@ function ic2_finish($filepath, $thumb, $params, $force)
     extract($params);
 
     if ($thumb == 0) {
-        ic2_display($filepath);
+        ic2_display($filepath, $params);
     } else {
         $thumbpath = $thumbnailer->convert($size, $md5, $mime, $width, $height, $force);
         if (PEAR::isError($thumbpath)) {
             ic2_error('x02', $thumbpath->getMessage());
         }
-        ic2_display($thumbpath);
+        ic2_display($thumbpath, $params);
     }
 }
 
-function ic2_removeTmpFile()
-{
-    global $tmpfile, $tmpchecker;
-
-    file_exists($tmpfile) && unlink($tmpfile);
-    file_exists($tmpchecker) && unlink($tmpchecker);
-}
-
+// }}}
 // }}}
 
 /*

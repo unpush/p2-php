@@ -1,9 +1,11 @@
 <?php
-// p2 ースタイル設定
-// for post.php 情報ウィンドウ
+/**
+ * rep2 - スタイル設定
+ * for post.php 情報ウィンドウ
+ */
 
 if($STYLE['a_underline_none'] == 2){
-    $thre_title_underline_css = "a.thre_title{text-decoration:none;}";
+	$thre_title_underline_css = "a.thre_title{text-decoration:none;}";
 }
 
 echo <<<EOSTYLE
@@ -23,15 +25,15 @@ EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-    include_once (P2_STYLE_DIR . '/mystyle_css.php');
-    $_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-    if (isset($MYSTYLE[$_mystylename])) {
-        disp_mystyle($_mystylename);
-    }
+	require_once P2_STYLE_DIR . '/mystyle_css.php';
+	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+	if (isset($MYSTYLE[$_mystylename])) {
+		disp_mystyle($_mystylename);
+	}
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

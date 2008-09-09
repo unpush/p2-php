@@ -1,10 +1,10 @@
 <?php
-/*
-    rep2 -  設定管理ページ
-*/
+/**
+ * rep2 - 設定管理ページ
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -12,35 +12,29 @@ $_login->authorize(); // ユーザ認証
 $ptitle = 'ログイン管理';
 
 if ($_conf['ktai']) {
-    $status_st      = 'ｽﾃｰﾀｽ';
-    $autho_user_st  = '認証ﾕｰｻﾞ';
-    $client_host_st = '端末ﾎｽﾄ';
-    $client_ip_st   = '端末IPｱﾄﾞﾚｽ';
-    $browser_ua_st  = 'ﾌﾞﾗｳｻﾞUA';
-    $p2error_st     = 'rep2 ｴﾗｰ';
+    $status_st = "ｽﾃｰﾀｽ";
+    $autho_user_st = "認証ﾕｰｻﾞ";
+    $client_host_st = "端末ﾎｽﾄ";
+    $client_ip_st = "端末IPｱﾄﾞﾚｽ";
+    $browser_ua_st = "ﾌﾞﾗｳｻﾞUA";
+    $p2error_st = "rep2 ｴﾗｰ";
 } else {
-    $status_st      = 'ステータス';
-    $autho_user_st  = '認証ユーザ';
-    $client_host_st = '端末ホスト';
-    $client_ip_st   = '端末IPアドレス';
-    $browser_ua_st  = 'ブラウザUA';
-    $p2error_st     = 'rep2 エラー';
+    $status_st = "ステータス";
+    $autho_user_st = "認証ユーザ";
+    $client_host_st = "端末ホスト";
+    $client_ip_st = "端末IPアドレス";
+    $browser_ua_st = "ブラウザUA";
+    $p2error_st = "rep2 エラー";
 }
 
 $autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
-
-
-$body_onload = '';
-if (!$_conf['ktai']) {
-    $body_onload = ' onLoad="setWinTitle();"';
-}
 
 // HOSTを取得
 if (!$hc[remoto_host] = $_SERVER['REMOTE_HOST']) {
     $hc[remoto_host] = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 }
 if ($hc[remoto_host] == $_SERVER['REMOTE_ADDR']) {
-    $hc[remoto_host] = '';
+    $hc[remoto_host] = "";
 }
 
 $hc['ua'] = $_SERVER['HTTP_USER_AGENT'];
@@ -55,22 +49,24 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=setting&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=setting&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="setWinTitle();"';
 echo <<<EOP
 </head>
 <body{$body_at}>
@@ -84,7 +80,8 @@ EOP;
 }
 
 // インフォメッセージ表示
-P2Util::printInfoHtml();
+echo $_info_msg_ht;
+$_info_msg_ht = "";
 
 echo "<ul id=\"setting_menu\">";
 
@@ -114,7 +111,7 @@ echo "</p>\n";
 
 // フッタプリント===================
 if ($_conf['ktai']) {
-    echo '<hr>'.$_conf['k_to_index_ht']."\n";
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 }
 
 echo '</body></html>';

@@ -1,18 +1,20 @@
 <?php
-// p2 - スタイル設定
-// for ImageCache2:fitimage.php
+/**
+ * rep2 - スタイル設定
+ * for ImageCache2:fitimage.php
+ */
 
-if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
-    $button_position = 'absolute';
+if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
+	$button_position = 'absolute';
 } else {
-    $button_position = 'fixed';
+	$button_position = 'fixed';
 }
 
 echo <<<EOSTYLE
 
 body {
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 div#pct {
@@ -25,8 +27,17 @@ div#pct img {
 div#btn {
 	display: none;
 	position: {$button_position};
-	top: 2px;
-	left: 2px;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 2px;
+	font-size: xx-small;
+	line-height: 100%;
+	background-color: #ffffff;
+	border-top: none;
+	border-left: none;
+	border-right: #000000 solid 1px;
+	border-bottom: #000000 solid 1px;
 }
 
 div#btn img {
@@ -38,15 +49,15 @@ EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-    include_once (P2_STYLE_DIR . '/mystyle_css.php');
-    $_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-    if (isset($MYSTYLE[$_mystylename])) {
-        disp_mystyle($_mystylename);
-    }
+	require_once P2_STYLE_DIR . '/mystyle_css.php';
+	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+	if (isset($MYSTYLE[$_mystylename])) {
+		disp_mystyle($_mystylename);
+	}
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

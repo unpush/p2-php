@@ -1,13 +1,14 @@
 <?php
-// p2 - まちBBSの関数
+/**
+ * rep2 - まちBBS用の関数
+ */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ machiDownload()
 
 /**
  * まちBBSの read.pl を読んで datに保存する
- *
- * @access  public
- * @return  boolean
  */
 function machiDownload()
 {
@@ -16,10 +17,9 @@ function machiDownload()
     $GLOBALS['machi_latest_num'] = '';
 
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
-
     if (file_exists($aThread->keydat)) {
-        $dls = file($aThread->keydat);
-        if (sizeof($dls) != $aThread->gotnum) {
+        $dls = FileCtl::file_read_lines($aThread->keydat);
+        if (!$dls || sizeof($dls) != $aThread->gotnum) {
             // echo 'bad size!<br>';
             unlink($aThread->keydat);
             $aThread->gotnum = 0;
@@ -27,7 +27,6 @@ function machiDownload()
     } else {
         $aThread->gotnum = 0;
     }
-
     // }}}
 
     if ($aThread->gotnum == 0) {
@@ -41,7 +40,7 @@ function machiDownload()
     // まちBBS
     $machiurl = "http://{$aThread->host}/bbs/read.pl?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
 
-    $tempfile = $aThread->keydat . '.html.temp';
+    $tempfile = $aThread->keydat.'.html.temp';
 
     FileCtl::mkdir_for($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
@@ -51,7 +50,7 @@ function machiDownload()
         return false;
     }
 
-    $mlines = file($tempfile);
+    $mlines = FileCtl::file_read_lines($tempfile);
 
     // 一時ファイルを削除する
     unlink($tempfile);
@@ -64,9 +63,9 @@ function machiDownload()
     }
 
     // {{{ DATを書き込む
-    if ($mdatlines =& machiHtmltoDatLines($mlines)) {
+    if ($mdatlines = machiHtmltoDatLines($mlines)) {
 
-        $rsc = $file_append ? (FILE_APPEND | LOCK_EX) : LOCK_EX;
+        $file_append = ($file_append) ? FILE_APPEND : 0;
 
         $cont = '';
         for ($i = $START; $i <= $GLOBALS['machi_latest_num']; $i++) {
@@ -76,9 +75,8 @@ function machiDownload()
                 $cont .= "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n";
             }
         }
-        if (file_put_contents($aThread->keydat, $cont, $rsc) === false) {
-            trigger_error("file_put_contents(" . $aThread->keydat . ")", E_USER_WARNING);
-            die('Error: cannot write file.');
+        if (FileCtl::file_write_contents($aThread->keydat, $cont, $file_append) === false) {
+            p2die('cannot write file.');
         }
     }
     // }}}
@@ -88,21 +86,21 @@ function machiDownload()
     return true;
 }
 
+// }}}
+// {{{ machiHtmltoDatLines()
 
 /**
  * まちBBSのread.plで読み込んだHTMLをdatに変換する
  *
  * @see machiDownload()
- * @return  array|false
  */
-function &machiHtmltoDatLines(&$mlines)
+function machiHtmltoDatLines($mlines)
 {
     if (!$mlines) {
         $retval = false;
         return $retval;
     }
-
-    $mdatlines = '';
+    $mdatlines = "";
 
     foreach ($mlines as $ml) {
         $ml = rtrim($ml);
@@ -111,25 +109,25 @@ function &machiHtmltoDatLines(&$mlines)
         }
 
         if ($tuduku) {
-            if (preg_match("/^ \]<\/font><br><dd>(.*) <br><br>$/i", $ml, $matches)) {
+            if (preg_match('{^ \\]</font><br><dd>(.*) <br><br>$}i', $ml, $matches)) {
                 $body = $matches[1];
             } else {
                 unset($tuduku);
                 continue;
             }
-        } elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+)<br><dd>(.*) <br><br>$/i", $ml, $matches)) {
+        } elseif (preg_match('{^<dt>(?:<a[^>]+?>)?(\\d+)(?:</a>)? 名前：(<font color="#.+?">|<a href="mailto:(.*)">)<b> (.+) </b>(</font>|</a>) 投稿日： (.+)<br><dd>(.*) <br><br>$}i', $ml, $matches)) {
             $order = $matches[1];
             $mail = $matches[3];
-            $name = preg_replace("/<font color=\"?#.+?\"?>(.+)<\/font>/i", "\\1", $matches[4]);
+            $name = preg_replace('{<font color="?#.+?"?>(.+)</font>}i', '\\1', $matches[4]);
             $date = $matches[6];
             $body = $matches[7];
         } elseif (preg_match('{<title>(.*)</title>}i', $ml, $matches)) {
             $mtitle = $matches[1];
             continue;
-        } elseif (preg_match("/^<dt>(?:<a[^>]+?>)?(\d+)(?:<\/a>)? 名前：(<font color=\"#.+?\">|<a href=\"mailto:(.*)\">)<b> (.+) <\/b>(<\/font>|<\/a>) 投稿日： (.+) <font size=1>\[ (.+)$/i", $ml, $matches)) {
+        } elseif (preg_match('{^<dt>(?:<a[^>]+?>)?(\\d+)(?:</a>)? 名前：(<font color="#.+?">|<a href="mailto:(.*)">)<b> (.+) </b>(</font>|</a>) 投稿日： (.+) <font size=1>\\[ ?(.*)$}i', $ml, $matches)) {
             $order = $matches[1];
             $mail = $matches[3];
-            $name = preg_replace('{<font color="?#.+?"?>(.+)</font>}i', '$1', $matches[4]);
+            $name = preg_replace('{<font color="?#.+?"?>(.+)</font>}i', '\\1', $matches[4]);
             $date = $matches[6];
             $ip = $matches[7];
             $tuduku = true;
@@ -157,6 +155,8 @@ function &machiHtmltoDatLines(&$mlines)
 
     return $mdatlines;
 }
+
+// }}}
 
 /*
  * Local Variables:

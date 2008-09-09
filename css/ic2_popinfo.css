@@ -1,0 +1,112 @@
+/* rep2expack - stylesheet for ImageCache2 on PC */
+
+/* {{{ Pop-Up Information */
+
+div#ic2-info {
+	display: none;
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	min-width: 160px;
+	max-width: 480px;
+	margin: 0px;
+	padding: 0px;
+	z-index: 999;
+	line-height: 100%;
+}
+
+div#ic2-info-head, div#ic2-info-foot {
+	background-image: url('../img/iphone/bg-b.png');
+	margin: 0px 9px;
+	padding: 0px;
+	font-size: 1px;
+	line-height: 1px;
+}
+
+div#ic2-info-body {
+	background-image: url('../img/iphone/bg-b.png');
+	margin: 0px 4px;
+	padding: 0px 5px;
+}
+
+#ic2-info-preview,
+#ic2-info-message {
+	margin: 0px;
+	padding: 2px;
+	font-size: 12px;
+	vertical-align: middle;
+}
+
+#ic2-info-preview {
+	background-image: url('../img/iphone/ck-wt.png');
+	text-align:center;
+}
+
+#ic2-info-message,
+#ic2-info-rating {
+	margin: 0px 0px 0px 3px;
+	padding: 0px;
+	text-align: center;
+}
+
+#ic2-info-message {
+	color: #ffffff;
+	line-height: 120%;
+	/* text-shadow: #666633 1px 1px 0px; */
+}
+
+#ic2-info-rating {
+	font-size: 6px;
+	white-space: nowrap;
+}
+
+div#ic2-info img {
+	margin: 0px;
+	border-width: 0px;
+}
+
+img#ic2-info-closer {
+	position: absolute;
+	top: -8px;
+	left: -4px;
+	z-index: 1000;
+}
+
+
+img#ic2-info-closer,
+img.ic2-info-opener,
+div#ic2-info-rating img {
+	cursor: pointer;
+}
+
+div#ic2-info-head img.lcorner,
+div#ic2-info-foot img.lcorner {
+	margin-left: -5px;
+}
+
+div#ic2-info-head img.rcorner,
+div#ic2-info-foot img.rcorner {
+	position: absolute;
+	right: 4px;
+}
+
+div#ic2-info-head img.rcorner {
+	top: 0px;
+}
+
+div#ic2-info-foot img.rcorner {
+	bottom: 0px;
+}
+
+/* }}} */
+
+/*
+ * Local Variables:
+ * mode: css
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=css fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

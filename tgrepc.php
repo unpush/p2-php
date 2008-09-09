@@ -1,34 +1,49 @@
 <?php
 /**
- * スレッドタイトル検索 [tGrep] クライアント
+ * スレッドタイトル検索 tGrep クライアント
  *
- * http://page2.xrea.jp/tgrep/tgrep2-test.cgi を利用
+ * http://page2.xrea.jp/tgrep/ を利用
  */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 // }}}
+// {{{ 準備
 
-if ($b == 'pc') {
-    output_add_rewrite_var('b', 'pc');
-} elseif ($b == 'k' || $k) {
-    output_add_rewrite_var('b', 'k');
+if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        require_once P2_LIB_DIR . '/menu_iphone.inc.php';
+        $_GET['Q'] = menu_iphone_unicode_urldecode($_POST['iq']);
+    } else {
+        $_GET['Q'] = $_GET['iq'];
+    }
+    if (isset($_GET['ic'])) {
+        unset($_GET['B'], $_GET['C'], $_GET['S'], $_GET['P'], $_GET['ib']);
+    }
+    $is_ajax = true;
+} else {
+    $is_ajax = false;
+    if ($_conf['view_forced_by_query']) {
+        output_add_rewrite_var('b', $_conf['b']);
+    }
 }
 
-// {{{ 準備
 
 $query_params = array();
 if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
     require_once 'Cache/Lite.php';
     require_once 'HTTP/Client.php';
+
     $query_params['q'] = $_GET['Q'];
-    $query_params['n'] = $limit = ($_conf['ktai']) ? '25' : '100';
+    $query_params['n'] = $limit = ($_conf['ktai'] || $_conf['iphone']) ? '25' : '100';
     //$query_keys = array('s', 'b', 'c', 'o', 'n', 'p');
-    $query_keys = array('c', 'p');
+    $query_keys = array('s', 'b', 'c', 'p');
     foreach ($query_keys as $_k) {
         $_K = strtoupper($_k);
         if (isset($_GET[$_K])) {
@@ -40,20 +55,21 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
             }
         }
     }
-    mb_convert_variables('UTF-8', 'SJIS-win', $query_params);
+    mb_convert_variables('UTF-8', 'CP932', $query_params);
+
     ini_set('arg_separator.output', '&'); // ≒ ini_restore('arg_separator.output');
     $query = http_build_query($query_params);
     ini_set('arg_separator.output', '&amp;');
     $cache_options = array(
-        'cacheDir' => $_conf['pref_dir'] . '/p2_cache/',
+        'cacheDir' => $_conf['cache_dir'] . DIRECTORY_SEPARATOR . 'tgrep' . DIRECTORY_SEPARATOR,
         'lifeTime' => 3600,
         'fileNameProtection' => false,
         'automaticSerialization' => true,
     );
     if (!is_dir($cache_options['cacheDir'])) {
-        FileCtl::mkdir_for($cache_options['cacheDir'] . 'dummyFileName');
+        FileCtl::mkdir_for($cache_options['cacheDir'] . '__dummy__');
     }
-    $cache = &new Cache_Lite($cache_options);
+    $cache = new Cache_Lite($cache_options);
     $cache_id_result = md5($query);
     $cache_id_profile = md5($query_params['q']);
     $cache_group_result = 'tgrep2result';
@@ -85,24 +101,24 @@ if ($query) {
         if (isset($search_result['profile'])) {
             $search_profile = array('modified' => $search_result['modified'], 'profile' => $search_result['profile']);
             unset($search_result['profile']);
-            mb_convert_variables('SJIS-win', 'UTF-8', $search_profile);
+            mb_convert_variables('CP932', 'UTF-8', $search_profile);
             $cache->save($search_profile, $cache_id_profile, $cache_group_profile);
         }
-        $regex = mb_convert_encoding($search_profile['profile']['regex'], 'UTF-8', 'SJIS-win');
+        $regex = mb_convert_encoding($search_profile['profile']['regex'], 'UTF-8', 'CP932');
         if (!empty($search_result['threads'])) {
             foreach (array_keys($search_result['threads']) as $order) {
                 $_title = preg_replace($regex, '<b class="filtering">$0</b>', $search_result['threads'][$order]->title);
                 $search_result['threads'][$order]->title = preg_replace('|&(?=[^;]*</?b>)|u', '&amp;', $_title);
             }
         }
-        mb_convert_variables('SJIS-win', 'UTF-8', $search_result);
+        mb_convert_variables('CP932', 'UTF-8', $search_result);
         $cache->save($search_result, $cache_id_result, $cache_group_result);
     }
 
     // 検索結果キャッシュのガーベッジコレクション
     if (mt_rand(0, 99) == 0) {
-        FileCtl::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_result);
-        FileCtl::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_profile);
+        P2Util::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_result);
+        P2Util::garbageCollection($cache_options['cacheDir'], $cache_options['lifeTime'], 'cache_' . $cache_group_profile);
     }
 
     $errors = (isset($search_result['errors'])) ? $search_result['errors'] : null;
@@ -116,7 +132,10 @@ if ($query) {
         // 検索履歴を更新
         if ($_conf['expack.tgrep.recent_num'] > 0) {
             FileCtl::make_datafile($_conf['expack.tgrep.recent_file'], $_conf['expack.tgrep.file_perm']);
-            $tgrep_recent_list = array_filter(array_map('trim', (array) @file($_conf['expack.tgrep.recent_file'])), 'strlen');
+            $tgrep_recent_list = FileCtl::file_read_lines($_conf['expack.tgrep.recent_file'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            if (!is_array($tgrep_recent_list)) {
+                $tgrep_recent_list = array();
+            }
             array_unshift($tgrep_recent_list, preg_replace('/[\r\n\t]/', ' ', trim($_GET['Q'])));
             $tgrep_recent_list = array_unique($tgrep_recent_list);
             while (count($tgrep_recent_list) > $_conf['expack.tgrep.recent_num']) {
@@ -124,8 +143,9 @@ if ($query) {
             }
             $tgrep_recent_data = implode("\n", $tgrep_recent_list) . "\n";
             if (FileCtl::file_write_contents($_conf['expack.tgrep.recent_file'], $tgrep_recent_data) === false) {
-                die("Error: cannot write file.");
+                p2die('cannot write file.');
             }
+            chmod($_conf['expack.tgrep.recent_file'], $_conf['p2_perm']);
         }
     }
 } else {
@@ -141,14 +161,34 @@ if ($query) {
 // 基本変数
 $htm = array();
 $htm['tgrep_url'] = htmlspecialchars($_conf['expack.tgrep_url'], ENT_QUOTES);
-$htm['php_self'] = 'tgrepc.php'; //htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
-$htm['query'] = (isset($_GET['Q'])) ? htmlspecialchars($_GET['Q'], ENT_QUOTES) : '';
-$htm['query_en'] = (isset($_GET['Q'])) ? urlencode($_GET['Q']) : '';
-$htm['category'] = (isset($_GET['C'])) ? intval($_GET['C']) : 0;
+$htm['php_self']  = 'tgrepc.php'; //htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
+$htm['query']     = (isset($_GET['Q'])) ? htmlspecialchars($_GET['Q'], ENT_QUOTES) : '';
+$htm['query_en']  = (isset($_GET['Q'])) ? rawurlencode($_GET['Q']) : '';
+
+if (isset($_GET['ib']) && isset($_GET['S']) && isset($_GET['B'])) {
+    $htm['category'] = 0;
+    $htm['board']   = intval($_GET['ib']);
+    $htm['site']    = htmlspecialchars($_GET['S'], ENT_QUOTES);
+    $htm['site_en'] = rawurlencode($_GET['S']);
+    $htm['bbs']     = htmlspecialchars($_GET['B'], ENT_QUOTES);
+    $htm['bbs_en']  = rawurlencode($_GET['B']);
+} elseif (isset($_GET['C'])) {
+    $htm['category'] = intval($_GET['C']);
+    $htm['board']   = 0;
+    $htm['site_en'] = $htm['bbs_en'] = $htm['site'] = $htm['bbs'] = '';
+} else {
+    $htm['category'] = $htm['board'] = 0;
+    $htm['site_en'] = $htm['bbs_en'] = $htm['site'] = $htm['bbs'] = '';
+}
+
 $htm['skin_q'] = 'skin=' . $skin_en;
+
 if ($profile) {
     $htm['allhits'] = number_format($profile['hits']);
-    if ($htm['category'] && isset($profile['categories'][$htm['category']])) {
+    if ($htm['board'] && isset($profile['boards'][$htm['board']])) {
+        $subhits = $profile['boards'][$_GET['ib']]->hits;
+        $htm['hits'] = number_format($subhits);
+    } elseif ($htm['category'] && isset($profile['categories'][$htm['category']])) {
         $subhits = $profile['categories'][$htm['category']]->hits;
         $htm['hits'] = number_format($subhits);
     } else {
@@ -172,7 +212,7 @@ if (!$_conf['ktai']) {
 $htm['search_attr'] .= ' maxlength="50" value="' . $htm['query'] . '"';
 
 // スタイルシート
-if (!$_conf['ktai']) {
+if (!$_conf['ktai'] && !$_conf['iphone']) {
     $htm['message_background'] = "background-color:#ffffcc;";
     if (isset($STYLE['respop_bgcolor']) || isset($STYLE['respop_background'])) {
         $htm['message_background'] = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};";
@@ -225,8 +265,8 @@ MOBILE_STYLE;
 }
 
 // ページャ
-if ($subhits && $subhits > $limit) {
-    require_once 'Pager.php';
+if (!$is_ajax && $subhits && $subhits > $limit) {
+    include_once 'Pager/Pager.php';
     $pager_options = array();
     $pager_options = array(
         'mode'          => 'Sliding',
@@ -239,7 +279,7 @@ if ($subhits && $subhits > $limit) {
         'curPageSpanPost'   => '</b>',
     );
     $pager_extra_vars = $query_params;
-    mb_convert_variables('SJIS-win', 'UTF-8', $pager_extra_vars);
+    mb_convert_variables('CP932', 'UTF-8', $pager_extra_vars);
     if (get_magic_quotes_gpc()) {
         $pager_extra_vars = array_map('addslashes', $pager_extra_vars);
     }
@@ -276,30 +316,43 @@ if ($subhits && $subhits > $limit) {
 if (empty($_GET['M'])) {
     P2Util::header_nocache();
 }
-if (!$_conf['ktai']) {
-    include P2EX_LIBRARY_DIR . '/tgrep/view.inc.php';
+
+if ($is_ajax) {
+    require_once P2_LIB_DIR . '/menu_iphone.inc.php';
+    ob_start();
+    include P2EX_LIB_DIR . '/tgrep/view_x.inc.php';
+    $content = mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
+    if (!headers_sent()) {
+        header('Content-Type: application/xml; charset=UTF-8');
+        //header('Content-Type: text/plain; charset=UTF-8');
+        //header('Content-Length: ' . strlen($content));
+    }
+    echo $content;
+} elseif ($_conf['ktai']) {
+    include P2EX_LIB_DIR . '/tgrep/view_k.inc.php';
 } else {
-    include P2EX_LIBRARY_DIR . '/tgrep/view_k.inc.php';
+    include P2EX_LIB_DIR . '/tgrep/view.inc.php';
 }
+exit;
 
 // }}}
-// {{{ 関数
+// {{{ tgrep_search()
 
 function tgrep_search($query)
 {
     global $_conf;
-    $client = &new HTTP_Client;
+    $client = new HTTP_Client;
     $client->setDefaultHeader('User-Agent', 'p2-tgrep-client');
     $code = $client->get($_conf['expack.tgrep_url'] . '?' . $query);
     if (PEAR::isError($code)) {
-        die($code->getMessage());
+        p2die($code->getMessage());
     } elseif ($code != 200) {
-        die("HTTP Error - {$code}");
+        p2die("HTTP Error - {$code}");
     }
-    $response = &$client->currentResponse();
+    $response = $client->currentResponse();
     $result = unserialize($response['body']);
     if (!$result) {
-        die('Error: 検索結果の展開に失敗しました。');
+        p2die('Error: 検索結果の展開に失敗しました。');
     }
     return $result;
 }

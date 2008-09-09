@@ -1,12 +1,9 @@
-/* p2 - 並び替え（お気に板 */
+/* p2 - 並べ替えJavaScriptファイル */
 
-////
-// makeOptionList
-//
-function makeOptionList(fidx) 
+function makeOptionList(form_idx)
 {
-	if (fidx == null) { fidx = 0; }
-	var val = "";
+	if (form_idx == null) { fidx = 0; }
+	val = "";
 	for (j=0; j<document.form[fidx].length; j++) {
 		if (val > "") { val += ","; }
 		if (document.form[fidx].options[j].value > "") {
@@ -16,21 +13,16 @@ function makeOptionList(fidx)
 	return val;
 }
 
-// submitApply
-//
-function submitApply(fidx)
+function submitApply(form_idx)
 {
-	if (fidx == null) { fidx = 0; }
+	if (form_idx == null) { fidx = 0; }
 	document.form['list'].value = makeOptionList(fidx);
 	document.form.submit();
 }
 
-////
-// order
-//
-function order(action, fidx) 
+function order(action, form_idx)
 {
-	if (fidx == null) { fidx = 0; }
+	if (form_idx == null) { fidx = 0; }
 	sel = document.form[fidx].selectedIndex;
 	if (sel != -1 && document.form[fidx].options[sel].value > "") {
 		selText = document.form[fidx].options[sel].text;

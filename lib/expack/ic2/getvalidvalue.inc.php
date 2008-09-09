@@ -1,7 +1,9 @@
 <?php
 /**
- * rep2expack - ImageCache2
+ * ImageCache2 - リクエスト変数の矯正ユーティリティ関数
  */
+
+// {{{ getValidValue()
 
 /**
  * Submitされた値が妥当なら（フィルタを適用して）返し、そうでなければデフォルト値を適用する
@@ -24,6 +26,9 @@ function getValidValue($key, $default, $filter = '')
     return (strlen($filter) > 0) ? $filter($value) : $value;
 }
 
+// }}}
+// {{{ intoRange()
+
 /**
  * 数値を指定された範囲に無理矢理押し込める関数
  */
@@ -43,6 +48,8 @@ function intoRange($int)
     }
     return max($min, min($max, intval($int)));
 }
+
+// }}}
 
 /*
  * Local Variables:

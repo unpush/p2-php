@@ -1,17 +1,15 @@
 <?php
-/*
-    expack - スレッドをツリー表示する
-    ツリー表示以外のルーチンはread.phpから拝借
-*/
+/**
+ * rep2expack - スレッドをツリー表示する
+ * ツリー表示以外のルーチンはread.phpから拝借
+ */
 
-require_once 'conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';    //スレッドクラス読込
-require_once P2_LIBRARY_DIR . '/threadread.class.php';    //スレッドリードクラス読込
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/ngabornctl.class.php';
-require_once P2_LIBRARY_DIR . '/showthread.class.php';    //HTML表示クラス
-require_once P2_LIBRARY_DIR . '/showthreadpc.class.php';  //HTML表示クラス
-//require_once P2_LIBRARY_DIR . '/showthreadtree.class.php'; // ツリー表示クラス
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/threadread.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once P2_LIB_DIR . '/showthreadpc.class.php';
+//require_once P2_LIB_DIR . '/showthreadtree.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -22,9 +20,10 @@ $_login->authorize(); // ユーザ認証
 $newtime = date('gis'); // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 //$_today = date('y/m/d');
 
+$_info_msg_ht = '';
+
 if (empty($_GET['host']) || empty($_GET['bbs']) || empty($_GET['key']) || empty($_GET['ls'])) {
-    P2Util::printSimpleHtml('p2 - read_async.php: レスの指定が変です。');
-    die('');
+    p2die('レスの指定が変です。');
 }
 
 $host = $_GET['host'];
@@ -32,12 +31,12 @@ $bbs  = $_GET['bbs'];
 $key  = $_GET['key'];
 $mode = isset($_GET['q']) ? (int)$_GET['q'] : 0;
 
-$_conf['ktai'] = false;
+$_conf['ktai'] = FALSE;
 
 //==================================================================
 // メイン
 //==================================================================
-$aThread = &new ThreadRead;
+$aThread = new ThreadRead;
 
 
 //==========================================================
@@ -58,12 +57,10 @@ if (!$aThread->itaj) {
 }
 
 // idxファイルがあれば読み込む
-if (is_readable($aThread->keyidx)) {
-    $lines = @file($aThread->keyidx);
-    $l = rtrim($lines[0]);
-    $data = explode('<>', $l);
+if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+    $data = explode('<>', $lines[0]);
 } else {
-    $data = array_fill(0, 10, '');
+    $data = array_fill(0, 12, '');
 }
 $aThread->getThreadInfoFromIdx();
 
@@ -114,8 +111,8 @@ $node = 'ないぽ。';
 
 if ($aThread->rescount) {
 
-    //$aShowThread = &new ShowThreadTree($aThread);
-    $aShowThread = &new ShowThreadPc($aThread);
+    //$aShowThread = new ShowThreadTree($aThread);
+    $aShowThread = new ShowThreadPc($aThread);
 
     if (isset($aShowThread->thread->datlines[$rp])) {
         $ares = $aShowThread->thread->datlines[$rp];

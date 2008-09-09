@@ -1,21 +1,21 @@
 <?php
-/*
-    p2 - txt を 表示
-*/
+/**
+ * rep2 - txt を 表示
+ */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
 // 引数エラー
 if (!isset($_GET['file'])) {
-    die('Error: file が指定されていません');
+    p2die('file が指定されていません');
 }
 
 //=========================================================
 // 変数
 //=========================================================
-$file = (isset($_GET['file'])) ? $_GET['file'] : null;
+$file = (isset($_GET['file'])) ? $_GET['file'] : NULL;
 $encode = "Shift_JIS";
 
 //=========================================================
@@ -33,62 +33,72 @@ if ($readable_files && $file and (!in_array($file, $readable_files))) {
         $files_st .= "「".$afile."」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の読めるファイルは、".$files_st."だけ！");
+    p2die(basename($_SERVER['SCRIPT_NAME'])." 先生の読めるファイルは、{$files_st}だけ！");
 }
 
 //=========================================================
 // HTMLプリント
 //=========================================================
 // 読み込むファイルは拡張子.txtだけ
-if (preg_match("/\.txt$/i", $file)) {
+if (preg_match('/\\.txt$/i', $file)) {
     viewTxtFile($file, $encode);
 } else {
-    die("error: cannot view \"$file\"");
+    p2die("error: cannot view \"{$file}\"");
 }
+
+// {{{ viewTxtFile()
 
 /**
  * ファイル内容を読み込んで表示する関数
  */
 function viewTxtFile($file, $encode)
 {
+    global $_info_msg_ht;
+
     if ($file == '') {
-        die('Error: file が指定されていません');
+        p2die('file が指定されていません');
     }
 
     $filename = basename($file);
     $ptitle = $filename;
 
     //ファイル内容読み込み
-    $cont = @file_get_contents($file);
-
-    if ($encode == "EUC-JP") {
-        $cont = mb_convert_encoding($cont, 'SJIS-win', 'eucJP-win');
+    $cont = FileCtl::file_read_contents($file);
+    if ($cont === false) {
+        $cont_area = '';
+    } else {
+        if ($encode == 'EUC-JP') {
+            $cont = mb_convert_encoding($cont, 'CP932', 'CP51932');
+        } elseif ($encode == 'UTF-8') {
+            $cont = mb_convert_encoding($cont, 'CP932', 'UTF-8');
+        }
+        $cont_area = htmlspecialchars($cont, ENT_QUOTES);
     }
-
-    $cont_area = htmlspecialchars($cont, ENT_QUOTES);
 
     // プリント
     echo <<<EOHEADER
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
 <head>
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>
-<body onLoad="top.document.title=self.document.title;">\n
+<body onload="top.document.title=self.document.title;">\n
 EOHEADER;
 
-    echo P2Util::printInfoHtml();
-    echo '<pre>';
+    echo $_info_msg_ht;
+    echo "<pre>";
     echo $cont_area;
-    echo '</pre>';
+    echo "</pre>";
     echo '</body></html>';
 
-    return true;
+    return TRUE;
 }
+
+// }}}
 
 /*
  * Local Variables:

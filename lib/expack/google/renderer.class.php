@@ -1,85 +1,73 @@
 <?php
-/**
- * rep2expack - search 2ch using Google Web APIs
- */
+require_once 'Pager/Pager.php';
 
-require_once 'Pager.php';
+// {{{ Google_Renderer
 
 class Google_Renderer
 {
-    // {{{ properties
+    // {{{ constants
 
     /**
      * 検索結果ブロックの開始タグ
-     *
-     * @var string
-     * @access private
      */
-    var $opener = '<table cellspacing="0" width="100%">';
+    const OPENER = '<table cellspacing="0" width="100%">';
 
     /**
      * 検索結果・ヘッダ
-     *
-     * @var string
-     * @access private
      */
-    var $header = '<tr class="tableheader">
-    <td class="t%s">種類</td>
-    <td class="t%s">タイトル</td>
-    <td class="t%s">範囲</td>
-    <td class="t%s">板</td>
+    const HEADER = '<tr class="tableheader">
+    <td class="t">種類</td>
+    <td class="t">タイトル</td>
+    <td class="t">範囲</td>
+    <td class="t">板</td>
 </tr>';
 
     /**
      * 検索結果・各アイテム
-     *
-     * @var string
-     * @access private
      */
-    var $body = '<tr>
-    <td class="t%s">%s</td>
-    <td class="t%s">%s</td>
-    <td class="tn%s">%s</td>
-    <td class="t%s">%s</td>
+    const BODY = '<tr class="%s">
+    <td class="t">%s</td>
+    <td class="t">%s</td>
+    <td class="tn">%s</td>
+    <td class="t">%s</td>
 </tr>';
 
     /**
      * 検索結果・エラー
-     *
-     * @var string
-     * @access private
      */
-    var $error = '<tr><td colspan="4" align="center">%s</td></tr>';
+    const ERROR = '<tr><td colspan="4" align="center">%s</td></tr>';
 
     /**
      * 検索結果・フッタ
-     *
-     * @var string
-     * @access private
      */
-    var $footer = '<tr class="tableheader">
-    <td class="t%s" colspan="4" align="center">%d-%d / %d hits.</td>
+    const FOOTER = '<tr class="tableheader">
+    <td class="t" colspan="4" align="center">%d-%d / %d hits.</td>
 </tr>';
 
     /**
      * 検索結果ブロックの終了タグ
-     *
-     * @var string
-     * @access private
      */
-    var $closer = '</table>';
+    const CLOSER = '</table>';
 
     // }}}
-    // {{{ getRowClass()
+    // {{{ properties
+
+    /**
+     * 現在の行数
+     *
+     * @var int
+     */
+    private $_rows = 0;
+
+    // }}
+    // {{{ _getRowClass()
 
     /**
      * 奇数行か偶数行かの識別子を返す
      */
-    function getRowClass()
+    private function _getRowClass()
     {
-        static $i = 0;
-        $i++;
-        return ($i % 2 == 1) ? '' : '2';
+        return (++$this->_rows % 2) ? 'r1' : 'r2';
     }
 
     // }}}
@@ -89,21 +77,20 @@ class Google_Renderer
      * 検索結果を出力する
      *
      * @return void
-     * @access public
      */
-    function printSearchResult(&$result, $word, $perPage, $start, $totalItems)
+    public function printSearchResult($result, $word, $perPage, $start, $totalItems)
     {
-        echo $this->opener;
-        $this->printSearchResultHeader($this->getRowClass());
+        echo self::OPENER;
+        $this->printSearchResultHeader();
         if (is_array($result) && count($result) > 0) {
             foreach ($result as $id => $val) {
-                $this->printSearchResultBody($id, $val, $this->getRowClass());
+                $this->printSearchResultBody($id, $val, $this->_getRowClass());
             }
         } elseif (is_string($result) && strlen($result) > 0) {
-            printf($this->error, $result);
+            printf(self::ERROR, $result);
         }
-        $this->printSearchResultFooter($perPage, $start, $totalItems, $this->getRowClass());
-        echo $this->closer;
+        $this->printSearchResultFooter($perPage, $start, $totalItems);
+        echo self::CLOSER;
     }
 
     // }}}
@@ -113,11 +100,10 @@ class Google_Renderer
      * 検索結果のヘッダを出力する
      *
      * @return void
-     * @access public
      */
-    function printSearchResultHeader($rc)
+    public function printSearchResultHeader()
     {
-        printf($this->header, $rc, $rc, $rc, $rc);
+        echo self::HEADER;
     }
 
     // }}}
@@ -127,9 +113,8 @@ class Google_Renderer
      * 検索結果の本体を出力する
      *
      * @return void
-     * @access public
      */
-    function printSearchResultBody($id, $val, $rc)
+    public function printSearchResultBody($id, $val, $rc)
     {
         $eh = "onmouseover=\"gShowPopUp('s%s',event)\" onmouseout=\"gHidePopUp('s%s')\"";
         $title = "<a class=\"thre_title\" href=\"%s\" {$eh} target=\"%s\" >%s</a>";
@@ -139,7 +124,7 @@ class Google_Renderer
         $range_col = ($val['ls']  !== '') ? $val['ls']  : '&nbsp;';
         $ita_col   = ($val['ita'] !== '') ? $val['ita'] : '&nbsp;';
 
-        printf($this->body, $rc, $type_col, $rc, $title_col, $rc, $range_col, $rc, $ita_col);
+        printf(self::BODY, $rc, $type_col, $title_col, $range_col, $ita_col);
     }
 
     // }}}
@@ -149,14 +134,13 @@ class Google_Renderer
      * 検索結果のフッタを出力する
      *
      * @return void
-     * @access public
      */
-    function printSearchResultFooter($perPage, $start, $totalItems, $rc)
+    public function printSearchResultFooter($perPage, $start, $totalItems)
     {
         $from = ($totalItems > 0) ? ($start + 1) : 0;
         $to   = min($start + $perPage, $totalItems);
 
-        printf($this->footer, $rc, $from, $to, $totalItems);
+        printf(self::FOOTER, $from, $to, $totalItems);
     }
 
     // }}}
@@ -166,9 +150,8 @@ class Google_Renderer
      * ポップアップ用隠し要素を出力する
      *
      * @return void
-     * @access public
      */
-    function printPopup(&$popups)
+    public function printPopup($popups)
     {
         if (!is_array($popups) || count($popups) == 0) {
             return;
@@ -189,9 +172,8 @@ class Google_Renderer
      * ページ移動用リンクを出力する
      *
      * @return void
-     * @access public
      */
-    function printPager($perPage, $totalItems)
+    public function printPager($perPage, $totalItems)
     {
         if (false !== ($pager = &$this->makePager($perPage, $totalItems))) {
             echo '<table id="sbtoolbar2" class="toolbar" cellspacing="0"><tr><td align="center">';
@@ -207,12 +189,11 @@ class Google_Renderer
      * 検索結果内でのページ移動用にPEAR::Pagerのインスタンスを作成する
      *
      * @return object
-     * @access public
      */
-    function &makePager($perPage, $totalItems)
+    public function makePager($perPage, $totalItems)
     {
         if ($totalItems == 0 || $totalItems <= $perPage) {
-            $retval = false;
+            $retval = FALSE;
             return $retval;
         }
 
@@ -226,27 +207,15 @@ class Google_Renderer
             'spacesAfterSeparator'  => 1,
         );
 
-        $pager = &Pager::factory($pagerOptions);
+        $pager = Pager::factory($pagerOptions);
 
         return $pager;
     }
 
     // }}}
-    // {{{ _rawurlencode_cb()
-
-    /**
-     * array_walk_recursive()のコールバックメソッドとして使用
-     *
-     * @return void
-     * @access public
-     */
-    function _rawurlencode_cb(&$value, $key)
-    {
-        $value = rawurlencode($value);
-    }
-
-    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

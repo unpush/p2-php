@@ -1,24 +1,26 @@
 <?php
-// p2 - 書き込み履歴 のための関数群。（クラスにしたいところ）
+/**
+ * rep2 - 書き込み履歴 のための関数群
+ */
 
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+
+// {{{ deleMsg()
 
 /**
  * チェックした書き込み記事を削除する
- *
- * @access  public
- * @return  boolean
  */
 function deleMsg($checked_hists)
 {
     global $_conf;
 
-    if (!$reslines = file($_conf['p2_res_hist_dat'])) {
-        P2Util::printSimpleHtml("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
-        die('');
-        return false;
+    $lock = new P2Lock($_conf['res_hist_dat'], false);
+
+    // 読み込んで
+    $reslines = FileCtl::file_read_lines($_conf['res_hist_dat'], FILE_IGNORE_NEW_LINES);
+    if ($reslines === false) {
+        p2die("{$_conf['res_hist_dat']} を開けませんでした");
     }
-    $reslines = array_map('rtrim', $reslines);
 
     // ファイルの下に記録されているものが新しいので逆順にする
     $reslines = array_reverse($reslines);
@@ -28,7 +30,6 @@ function deleMsg($checked_hists)
     // チェックして整えて
     if ($reslines) {
         $n = 1;
-        $rmnums = array();
         foreach ($reslines as $ares) {
             $rar = explode("<>", $ares);
 
@@ -41,38 +42,38 @@ function deleMsg($checked_hists)
         }
         $neolines = rmLine($rmnums, $reslines);
 
-        P2Util::pushInfoHtml("<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>");
+        $_info_msg_ht .= "<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>";
     }
 
     if (is_array($neolines)) {
         // 行順を戻す
         $neolines = array_reverse($neolines);
 
-        $cont = '';
+        $cont = "";
         if ($neolines) {
             $cont = implode("\n", $neolines) . "\n";
         }
 
-        // 書き込み処理
-        if (FileCtl::filePutRename($_conf['p2_res_hist_dat'], $cont) === false) {
-            $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
-            trigger_error($errmsg, E_USER_WARNING);
-            return false;
+        // 書き込む
+        if (FileCtl::file_write_contents($_conf['res_hist_dat'], $cont) === false) {
+            p2die('cannot write file.');
         }
     }
-    return true;
 }
+
+// }}}
+// {{{ checkMsgID()
 
 /**
  * 番号と日付が一致するかをチェックする
  *
- * @return  boolean  一致したらtrue
+ * @return boolean
  */
 function checkMsgID($checked_hists, $order, $date)
 {
     if ($checked_hists) {
         foreach ($checked_hists as $v) {
-            $vary = explode(",,,,", $v);    // ",,,," は外部から来る変数で、特殊な変なデリミタ
+            $vary = explode(",,,,", $v);    // ",,,," は外部から来る変数で、特殊なデリミタ
             if (($vary[0] == $order) and ($vary[1] == $date)) {
                 return true;
             }
@@ -81,27 +82,46 @@ function checkMsgID($checked_hists, $order, $date)
     return false;
 }
 
+// }}}
+// {{{ rmLine()
+
 /**
  * 指定した番号（配列指定）を行リストから削除する
- *
- * @return  array|false  削除した結果の行リストを返す
  */
-function rmLine($rmnums, $lines)
+function rmLine($order_list, $lines)
 {
     if ($lines) {
         $neolines = array();
         $i = 0;
         foreach ($lines as $l) {
             $i++;
-            if (in_array($i, $rmnums)) {
-                continue; // 削除扱い
-            }
+            if (checkOrder($order_list, $i)) { continue; } // 削除扱い
             $neolines[] = $l;
         }
         return $neolines;
     }
     return false;
 }
+
+// }}}
+// {{{ checkOrder()
+
+/**
+ * 番号と配列を比較
+ */
+function checkOrder($order_list, $order)
+{
+    if ($order_list) {
+        foreach ($order_list as $n) {
+            if ($n == $order) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// }}}
 
 /*
  * Local Variables:

@@ -1,8 +1,20 @@
 <?php
-// p2 - スタイル設定
-// for ImageCache2:iv2.php
+/**
+ * rep2 - スタイル設定
+ * for ImageCache2:iv2.php
+ */
 
-$boldstyle = ($STYLE['fontfamily_bold']) ? "font-family: \"{$STYLE['fontfamily_bold']}\";" : 'font-weight: bold;';
+if ($STYLE['fontfamily_bold']) {
+	$boldstyle = "font-family: \"{$STYLE['fontfamily_bold']}\";";
+	if (!empty($STYLE['fontstyle_bold'])) {
+		$boldstyle .= "font-style: {$STYLE['fontstyle_bold']};";
+	}
+	if (!empty($STYLE['fontweight_bold'])) {
+		$boldstyle .= "font-weight: {$STYLE['fontweight_bold']};";
+	}
+} else {
+	$boldstyle = 'font-weight: bold;';
+}
 
 echo <<<EOSTYLE
 
@@ -136,15 +148,15 @@ EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-    include_once (P2_STYLE_DIR . '/mystyle_css.php');
-    $_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-    if (isset($MYSTYLE[$_mystylename])) {
-        disp_mystyle($_mystylename);
-    }
+	require_once P2_STYLE_DIR . '/mystyle_css.php';
+	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+	if (isset($MYSTYLE[$_mystylename])) {
+		disp_mystyle($_mystylename);
+	}
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

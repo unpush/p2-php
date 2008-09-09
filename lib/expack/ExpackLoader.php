@@ -1,14 +1,19 @@
 <?php
-// {{{ class ExpackLoader
+// {{{ ExpackLoader
 
 /**
  * 拡張パック初期化クラス
+ *
+ * @static
  */
 class ExpackLoader
 {
     // {{{ loadActiveMona()
 
-    function loadActiveMona()
+    /**
+     * アクティブモナーの準備をする
+     */
+    static public function loadActiveMona()
     {
         global $_conf;
 
@@ -19,7 +24,7 @@ class ExpackLoader
         if ((!$_conf['ktai'] && $_conf['expack.am.enabled']) ||
             ($_conf['ktai'] && $_conf['expack.am.enabled'] && $_conf['expack.am.autong_k'])
         ) {
-            require_once P2EX_LIBRARY_DIR . '/activemona.class.php';
+            require_once P2EX_LIB_DIR . '/ActiveMona.php';
             define('P2_ACTIVEMONA_AVAILABLE', 1);
         } else {
             define('P2_ACTIVEMONA_AVAILABLE', 0);
@@ -29,11 +34,14 @@ class ExpackLoader
     // }}}
     // {{{ initActiveMona()
 
-    function initActiveMona(&$aShowThread)
+    /**
+     * スレッド表示オブジェクトにアクティブモナーで使う変数をアサインする
+     */
+    static public function initActiveMona($aShowThread)
     {
         global $_conf;
 
-        $aShowThread->activeMona = &ActiveMona::singleton();
+        $aShowThread->activeMona = ActiveMona::singleton();
         $aShowThread->am_enabled = true;
 
         if (!$_conf['ktai']) {
@@ -56,7 +64,10 @@ class ExpackLoader
     // }}}
     // {{{ loadImageCache()
 
-    function loadImageCache()
+    /**
+     * ImageCache2の準備をする
+     */
+    static public function loadImageCache()
     {
         global $_conf;
 
@@ -65,13 +76,13 @@ class ExpackLoader
         }
 
         if ((!$_conf['ktai'] && $_conf['expack.ic2.enabled'] % 2 == 1) ||
-            ($_conf['ktai'] && $_conf['expack.ic2.enabled'] >= 2)
-        ) {
-            require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-            require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
-            require_once P2EX_LIBRARY_DIR . '/ic2/db_blacklist.class.php';
-            require_once P2EX_LIBRARY_DIR . '/ic2/db_errors.class.php';
-            require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+            ($_conf['ktai'] && $_conf['expack.ic2.enabled'] >= 2))
+        {
+            require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+            require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+            require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
+            require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
+            require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
             define('P2_IMAGECACHE_AVAILABLE', 2);
         } else {
             define('P2_IMAGECACHE_AVAILABLE', 0);
@@ -81,7 +92,10 @@ class ExpackLoader
     // }}}
     // {{{ loadAAS()
 
-    function loadAAS()
+    /**
+     * AASの準備をする
+     */
+    static public function loadAAS()
     {
         global $_conf;
 
@@ -103,50 +117,69 @@ class ExpackLoader
     // }}}
     // {{{ initImageCache()
 
-    function initImageCache(&$aShowThread)
+    /**
+     * スレッド表示オブジェクトにImageCache2で使う変数をアサインする
+     */
+    static public function initImageCache($aShowThread)
     {
         global $_conf;
 
         if (!$_conf['ktai']) {
-            $aShowThread->thumbnailer = &new ThumbNailer(1);
+            $aShowThread->thumb_id_suffix = '-' . strtr(microtime(), '. ', '--');
+            $aShowThread->thumbnailer = new ThumbNailer(1);
         } else {
-            $aShowThread->inline_prvw = &new ThumbNailer(1);
-            $aShowThread->thumbnailer = &new ThumbNailer(2);
+            $aShowThread->inline_prvw = new ThumbNailer(1);
+            $aShowThread->thumbnailer = new ThumbNailer(2);
         }
 
         if ($aShowThread->thumbnailer->ini['General']['automemo']) {
-            $aShowThread->img_memo = IC2DB_Images::uniform($aShowThread->thread->ttitle, 'SJIS-win');
-            $aShowThread->img_memo_query = '&amp;hint=' . rawurlencode($_conf['detect_hint_utf8']);
-            $aShowThread->img_memo_query .= '&amp;memo=' . rawurlencode($aShowThread->img_memo);
+            $aShowThread->img_memo = IC2DB_Images::staticUniform($aShowThread->thread->ttitle, 'CP932');
+            $aShowThread->img_memo_query = '&amp;memo=' . rawurlencode($aShowThread->img_memo);
+            $aShowThread->img_memo_query .= '&amp;' . $_conf['detect_hint_q_utf8'];
         } else {
             $aShowThread->img_memo = null;
             $aShowThread->img_memo_query = '';
+        }
+
+        require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+        if (!IC2Switch::get($_conf['ktai'])) {
+            $GLOBALS['pre_thumb_limit'] = 0;
+            $GLOBALS['pre_thumb_limit_k'] = 0;
+            $GLOBALS['pre_thumb_unlimited'] = false;
+            $GLOBALS['pre_thumb_ignore_limit'] = false;
+            $_conf['expack.ic2.newres_ignore_limit'] = false;
+            $_conf['expack.ic2.newres_ignore_limit_k'] = false;
         }
     }
 
     // }}}
     // {{{ initAAS()
 
-    function initAAS(&$aShowThread)
+    /**
+     * スレッド表示オブジェクトにAASで使う変数をアサインする
+     */
+    static public function initAAS($aShowThread)
     {
         global $_conf;
 
-        if (!$_conf['ktai']) {
-            //
-        } else {
+        if ($_conf['iphone']) {
+            $aShowThread->aas_rotate = '&#x21BB;';
+        } elseif ($_conf['ktai']) {
             $mobile = &Net_UserAgent_Mobile::singleton();
             /**
-             * @link http://www.nttdocomo.co.jp/p_s/imode/tag/emoji/e1.html
+             * @link http://www.nttdocomo.co.jp/service/imode/make/content/pictograph/
              * @link http://www.au.kddi.com/ezfactory/tec/spec/3.html
-             * @link http://developers.vodafone.jp/dp/tool_dl/web/picword_top.php
+             * @link http://mb.softbank.jp/mb/service/3G/mail/pictogram/
              */
             if ($mobile->isDoCoMo()) {
-                $aShowThread->aas_rotate = '&#63962;';      // リサイクル, 拡42, F9DA
+                $aShowThread->aas_rotate = '&#xF9DA;';      // リサイクル, 拡42
             } elseif ($mobile->isEZweb()) {
                 $aShowThread->aas_rotate = '&#xF47D;';      // 循環矢印, 807
-            } elseif ($mobile->isVodafone()) {
+            } elseif ($mobile->isSoftBank()) {
                 $aShowThread->aas_rotate = "\x1b\$Pc\x0f";  // 渦巻, 414
             }
+        } else {
+            //
         }
     }
 

@@ -1,18 +1,15 @@
 <?php
 /**
- * rep2expack - datをインポートする
- *
- * @todo Zipアーカイブのインポート対応
- * @todo HTMLのインポート対応
+ * rep2 - datをインポートする
  */
 
-require_once 'conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/p2util.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php'; // 基本設定
+require_once P2_LIB_DIR . '/p2util.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
-// 変数
+// 変数 =============
 $link_ht = '';
 $max_size = 1000000;
 
@@ -24,18 +21,18 @@ $default_key = !empty($_REQUEST['key']) ? htmlspecialchars($_REQUEST['key'], ENT
 // アップロードされたファイルの処理
 //================================================================
 if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && isset($_FILES['dat_file'])) {
-    $is_error = false;
+    $is_error = FALSE;
 
     // アップロード成功のとき
     if ($_FILES['dat_file']['error'] == UPLOAD_ERR_OK) {
         // 値の検証
         if ($_POST['MAX_FILE_SIZE'] != $max_size) {
-            $is_error = false;
-            P2Util::pushInfoHtml('<p>Warning: フォームの MAX_FILE_SIZE の値が改ざんされています。</p>');
+            $is_error = TRUE;
+            $_info_msg_ht .= '<p>Warning: フォームの MAX_FILE_SIZE の値が改ざんされています。</p>';
         }
         if (!preg_match('/^[1-9][0-9]+\.dat$/', $_FILES['dat_file']['name'])) {
-            $is_error = true;
-            P2Util::pushInfoHtml('<p>Error: アップロードされたdatのファイル名が変です。</p>');
+            $is_error = TRUE;
+            $_info_msg_ht .= '<p>Error: アップロードされたdatのファイル名が変です。</p>';
         }
         $host = $_POST['host'];
         $bbs  = $_POST['bbs'];
@@ -44,35 +41,34 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
         /*} elseif (preg_match('/^[1-9][0-9]+$/', $_POST['key'])) {
             $key = $_POST['key'];
             if ($key != preg_replace('/\.(dat|html?)$/', '', $_FILES['dat_file']['name'])) {
-                $is_error = true;
-                P2Util::pushInfoHtml('<p>Error: アップロードされたdatのファイル名とスレッドキーがマッチしません。</p>');
+                $is_error = TRUE;
+                $_info_msg_ht .= '<p>Error: アップロードされたdatのファイル名とスレッドキーがマッチしません。</p>';
             }
         } else {
-            $is_error = true;
-            P2Util::pushInfoHtml('<p>Error: スレッドキーの指定が変です。</p>');
+            $is_error = TRUE;
+            $_info_msg_ht .= '<p>Error: スレッドキーの指定が変です。</p>';
         }*/
-        $dat_name = $key . '.dat';
-        $dat_path = P2Util::datDirOfHost($host) . '/' . $bbs . '/' . $dat_name;
+        $dat_path = P2Util::datDirOfHostBbs($host, $bbs) . $key . '.dat';
 
     // アップロード失敗のとき
     } else {
-        $is_error = true;
+        $is_error = TRUE;
         // エラーメッセージは http://jp.php.net/manual/ja/features.file-upload.errors.php からコピペ
         switch ($_FILES['dat_file']['error']) {
             case UPLOAD_ERR_INI_SIZE:
-                P2Util::pushInfoHtml('<p>Error: アップロードされたファイルは、php.ini の upload_max_filesize ディレクティブの値を超えています。</p>');
+                $_info_msg_ht .= '<p>Error: アップロードされたファイルは、php.ini の upload_max_filesize ディレクティブの値を超えています。</p>';
                 break;
             case UPLOAD_ERR_FORM_SIZE:
-                P2Util::pushInfoHtml('<p>Error: アップロードされたファイルは、HTMLフォームで指定された MAX_FILE_SIZE を超えています。</p>');
+                $_info_msg_ht .= '<p>Error: アップロードされたファイルは、HTMLフォームで指定された MAX_FILE_SIZE を超えています。</p>';
                 break;
             case UPLOAD_ERR_PARTIAL:
-                P2Util::pushInfoHtml('<p>Error: アップロードされたファイルは一部のみしかアップロードされていません。</p>');
+                $_info_msg_ht .= '<p>Error: アップロードされたファイルは一部のみしかアップロードされていません。</p>';
                 break;
             case UPLOAD_ERR_NO_FILE:
-                P2Util::pushInfoHtml('<p>Error: ファイルはアップロードされませんでした。</p>');
+                $_info_msg_ht .= '<p>Error: ファイルはアップロードされませんでした。</p>';
                 break;
             default:
-                P2Util::pushInfoHtml('<p>Error: 原因不明のエラー。</p>');
+                $_info_msg_ht .= '<p>Error: 原因不明のエラー。</p>';
                 break;
         }
     }
@@ -80,27 +76,27 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
     // ファイルを保存し、リンクを作成
     if (!$is_error) {
         move_uploaded_file($_FILES['dat_file']['tmp_name'], $dat_path);
-        $datlines = file($dat_path);
-        if (strstr($datlines[0], '<>')) {
-            $one = explode('<>', $datlines[0]);
-        } else {
-            $one = explode(',', $datlines[0]);
+        $ttitle = '???';
+        if ($datlines = FileCtl::file_read_lines($dat_path, FILE_IGNORE_NEW_LINES)) {
+            if (strpos($datlines[0], '<>') !== false) {
+                $one = explode('<>', $datlines[0]);
+            } else {
+                $one = explode(',', $datlines[0]);
+            }
+            $ttitle = array_pop($one);
+            unset($datlines, $one);
         }
-        unset($datlines);
-        $ttitle = array_pop($one);
         $read_url = sprintf('%s?host=%s&bbs=%s&key=%d&offline=true', $_conf['read_php'], rawurlencode($host), rawurlencode($bbs), $key);
         $link_ht = sprintf('<p><a href="%s" target="read"><b>%s</b> を今すぐ読む。</a></p>', $read_url, $ttitle);
     }
 
 } elseif (!empty($_POST['host']) || !empty($_POST['bbs']) || !empty($_POST['key']) || isset($_FILES['dat_file'])) {
-    P2Util::pushInfoHtml('<p>Error: 板URLが指定されていないか、datが選択されていません。</p>');
+    $_info_msg_ht .= '<p>Error: 板URLが指定されていないか、datが選択されていません。</p>';
 }
 
 //================================================================
-// HTML表示
-//================================================================
-
 // ヘッダ
+//================================================================
 P2Util::header_nocache();
 echo $_conf['doctype'];
 echo <<<EOP
@@ -110,16 +106,20 @@ echo <<<EOP
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>p2 - datのインポート</title>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>\n
 EOP;
 
-P2Util::printInfoHtml();
+echo $_info_msg_ht;
+$_info_msg_ht = '';
 
-// ボディ
+//================================================================
+// メイン部分HTML表示
+//================================================================
 echo <<<EOP
 <p>datのインポート</p>
 <form method="post" enctype="multipart/form-data" action="{$_SERVER['SCRIPT_NAME']}">
@@ -153,7 +153,9 @@ if ($link_ht) {
 EOP;
 }
 
-// フッタ
+//================================================================
+// フッタHTML表示
+//================================================================
 echo '</body></html>';
 
 /*

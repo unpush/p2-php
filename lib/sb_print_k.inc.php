@@ -1,31 +1,43 @@
 <?php
-// p2 スレッドサブジェクト表示関数 携帯用
-// for subject.php
+/**
+ * rep2 スレッドサブジェクト表示関数 携帯用
+ * for subject.php
+ */
+
+// {{{ sb_print_k()
 
 /**
  * sb_print - スレッド一覧を表示する (<tr>～</tr>)
  */
-function sb_print_k(&$aThreadList)
+function sb_print_k($aThreadList)
 {
-    global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
+    global $_conf, $sb_view, $p2_setting, $STYLE;
     global $sb_view;
+
+    //=================================================
 
     if (!$aThreadList->threads) {
         if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
-            echo "<p>お気にｽﾚに新着なかったぽ</p>";
+            echo '<p class="empty-subject">お気にｽﾚに新着なかったぽ</p>';
         } else {
-            echo "<p>該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>";
+            echo '<p class="empty-subject">該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>';
         }
         return;
     }
 
-    // 変数
+    // 変数 ================================================
+
+    $only_one_bool = false;
+    $ita_name_bool = false;
+    $sortq_spmode = '';
+    $sortq_host = '';
+    $sortq_ita = '';
 
     // >>1
-    if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs=="bizplus" || $aThreadList->spmode=="news") {
+    if (strpos($aThreadList->bbs, 'news') !== false || $aThreadList->bbs == 'bizplus') {
         // 倉庫は除く
         if ($aThreadList->spmode != "soko") {
-            $onlyone_bool = true;
+            $only_one_bool = true;
         }
     }
 
@@ -34,26 +46,21 @@ function sb_print_k(&$aThreadList)
         $ita_name_bool = true;
     }
 
-    $norefresh_q = '&amp;norefresh=1';
+    $norefresh_q = "&amp;norefresh=1";
 
-    // ソート
+    // ソート ==================================================
 
     // スペシャルモード時
     if ($aThreadList->spmode) {
-        $sortq_spmode = '&amp;spmode=' . $aThreadList->spmode;
-        // カテゴリのマージ表示なら
-        if ($aThreadList->spmode == 'cate' && isset($_GET['cate_name'])) {
-            $sortq_spmode .= '&amp;cate_name=' . rawurlencode($_GET['cate_name']);
-        }
+        $sortq_spmode = "&amp;spmode={$aThreadList->spmode}";
         // あぼーんなら
-        if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
-            $sortq_host = '&amp;host=' . $aThreadList->host;
-            $sortq_ita = '&amp;bbs=' . $aThreadList->bbs;
+        if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
+            $sortq_host = "&amp;host={$aThreadList->host}";
+            $sortq_ita = "&amp;bbs={$aThreadList->bbs}";
         }
     } else {
-        $sortq_spmode = '';
-        $sortq_host = '&amp;host=' . $aThreadList->host;
-        $sortq_ita = '&amp;bbs=' . $aThreadList->bbs;
+        $sortq_host = "&amp;host={$aThreadList->host}";
+        $sortq_ita = "&amp;bbs={$aThreadList->bbs}";
     }
 
     $midoku_sort_ht = "<a href=\"{$_conf['subject_php']}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}{$_conf['k_at_a']}\">新着</a>";
@@ -62,70 +69,101 @@ function sb_print_k(&$aThreadList)
     // ボディ
     //=====================================================
 
-    $spmode_q = $sortq_spmode;
+    // spmodeがあればクエリー追加
+    if ($aThreadList->spmode) {$spmode_q = "&amp;spmode={$aThreadList->spmode}";}
+
+    if ($_conf['iphone']) {
+        echo '<ul class="subject">';
+    }
 
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
-
         $i++;
-        $midoku_ari = '';
-        $anum_ht = ''; //#r1
+        $midoku_ari = "";
+        $anum_ht = ""; //#r1
+        $htm = array('ita' => '', 'rnum' => '', 'unum' => '', 'sim' => '');
 
-        $bbs_q = "&amp;bbs=" . $aThread->bbs;
-        $key_q = "&amp;key=" . $aThread->key;
+        $bbs_q = "&amp;bbs=".$aThread->bbs;
+        $key_q = "&amp;key=".$aThread->key;
+        $offline_q = '';
 
         if ($aThreadList->spmode!="taborn") {
             if (!$aThread->torder) {$aThread->torder=$i;}
         }
 
-        // 新着レス数
-        $unum_ht = '';
+        // 新着レス数 =============================================
         // 既得済み
         if ($aThread->isKitoku()) {
-            $unum_ht="{$aThread->unum}";
+            $htm['unum'] = "{$aThread->unum}";
 
             $anum = $aThread->rescount - $aThread->unum +1 - $_conf['respointer'];
             if ($anum > $aThread->rescount) { $anum = $aThread->rescount; }
             $anum_ht = "#r{$anum}";
 
-            // 新着あり
-            if ($aThread->unum > 0) {
-                $midoku_ari = true;
-                $unum_ht = "<font color=\"{$STYLE['mobile_subject_newres_color']}\">{$aThread->unum}</font>";
-            }
+            // iPhone用
+            if ($_conf['iphone']) {
+                $classunum = 'num unread';
 
-            // subject.txtにない時
-            if (!$aThread->isonline) {
-                // 誤動作防止のためログ削除操作をロック
-                $unum_ht = "-";
-            }
+                // 新着あり
+                if ($aThread->unum >= 1) {
+                    $midoku_ari = true;
+                    $classunum .= ' new';
+                }
 
-            $unum_ht = "[" . $unum_ht . "]";
+                // subject.txtにない時
+                if (!$aThread->isonline) {
+                    $htm['unum'] = '-';
+                    $classunum .= ' offline';
+                }
+
+                $htm['unum'] = "<span class=\"{$classunum}\">{$htm['unum']}</span>";
+            } else {
+                // 新着あり
+                if ($aThread->unum >= 1) {
+                    $midoku_ari = true;
+                    $htm['unum'] = "<font color=\"{$STYLE['mobile_subject_newres_color']}\">{$aThread->unum}</font>";
+                }
+
+                // subject.txtにない時
+                if (!$aThread->isonline) {
+                    $htm['unum'] = '-';
+                }
+
+                $htm['unum'] = "[{$htm['unum']}]";
+            }
         }
 
         // 新規スレ
-        if ($aThread->new) {
-            $unum_ht = "<font color=\"{$STYLE['mobile_subject_newthre_color']}\">新</font>";
+        if ($_conf['iphone']) {
+            $classtitle = 'title';
+            if ($aThread->new) {
+                $classtitle .= ' new';
+            }
+        } else {
+            if ($aThread->new) {
+                $htm['unum'] = "<font color=\"{$STYLE['mobile_subject_newthre_color']}\">新</font>";
+            }
         }
 
-        // 総レス数
+        // 総レス数 =============================================
         $rescount_ht = "{$aThread->rescount}";
 
-        // 板名
+        // 板名 ============================================
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
             $ita_name_hd = htmlspecialchars($ita_name, ENT_QUOTES);
 
             // 全角英数カナスペースを半角に
-            if (!empty($_conf['k_save_packet'])) {
+            if (!empty($_conf['mobile.save_packet'])) {
                 $ita_name_hd = mb_convert_kana($ita_name_hd, 'rnsk');
             }
 
-            // $htm['ita'] = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hd}</a>)";
-            $htm['ita'] = "({$ita_name_hd})";
+            //$htm['ita'] = "<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hd}</a>)";
+            //$htm['ita'] = " ({$ita_name_hd})";
+            $htm['ita'] = $ita_name_hd;
         }
 
-        // torder(info)
+        // torder(info) =================================================
         /*
         if ($aThread->fav) { //お気にスレ
             $torder_st = "<b>{$aThread->torder}</b>";
@@ -136,56 +174,63 @@ function sb_print_k(&$aThreadList)
         */
         $torder_ht = $aThread->torder;
 
-        // title
-        $rescount_q = "&amp;rescount=" . $aThread->rescount;
+        // title =================================================
+        $rescount_q = '&amp;rescount=' . $aThread->rescount;
 
         // dat倉庫 or 殿堂なら
-        if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") {
+        if ($aThreadList->spmode == 'soko' || $aThreadList->spmode == 'palace') {
             $rescount_q = '';
-            $offline_q = "&amp;offline=true";
+            $offline_q = '&amp;offline=true';
             $anum_ht = '';
         }
 
         // タイトル未取得なら
-        if (!$aThread->ttitle_ht) {
+        $ttitle_ht = $aThread->ttitle_ht;
+        if (strlen($ttitle_ht) == 0) {
             // 見かけ上のタイトルなので携帯対応URLである必要はない
             //if (P2Util::isHost2chs($aThread->host)) {
-            //    $aThread->ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
+            //    $ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
             //}else{
-                $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
+                $ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
             //}
         }
 
         // 全角英数カナスペースを半角に
-        if (!empty($_conf['k_save_packet'])) {
-            $aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
+        if (!empty($_conf['mobile.save_packet'])) {
+            $ttitle_ht = mb_convert_kana($ttitle_ht, 'rnsk');
         }
 
-        $aThread->ttitle_ht = $aThread->ttitle_ht . " (" . $rescount_ht . ")";
-        if ($aThread->similarity) {
-            $aThread->ttitle_ht .= sprintf(' %0.1f%%', $aThread->similarity * 100);
-        }
-
-        // 新規スレ
-        if ($aThread->new) {
-            $classtitle_q = ' class="thre_title_new"';
+        if ($_conf['iphone']) {
+            $htm['rnum'] = "<span class=\"num count\">{$rescount_ht}</span>";
+            if ($aThread->similarity) {
+                $htm['sim'] .= sprintf(' <span class="num score">%0.1f%%</span>', $aThread->similarity * 100);
+            }
         } else {
-            $classtitle_q = ' class="thre_title"';
+            $htm['rnum'] = "({$rescount_ht})";
+            if ($aThread->similarity) {
+                $htm['sim'] .= sprintf(' %0.1f%%', $aThread->similarity * 100);
+            }
         }
 
         $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 
         // オンリー>>1
-        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true&amp;k_continue=1{$_conf['k_at_a']}";
-        if ($onlyone_bool) {
+        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true&amp;k_continue=1{$_conf['k_at_a']}";
+        if ($only_one_bool) {
             $one_ht = "<a href=\"{$onlyone_url}\">&gt;&gt;1</a>";
         }
 
-        if (P2Util::isHost2chs($aThreadList->host) and !$aThread->isKitoku()) {
-            if ($GLOBALS['_conf']['k_sb_show_first'] == 1) {
+        // >>1のみ, >>1から
+        if (P2Util::isHost2chs($aThreadList->host) && !$aThread->isKitoku()) {
+            switch ($_conf['mobile.sb_show_first']) {
+            case 1:
                 $thre_url = $onlyone_url;
-            } elseif ($GLOBALS['_conf']['k_sb_show_first'] == 2) {
+                break;
+            case 2:
                 $thre_url .= '&amp;ls=1-';
+                break;
+            default:
+                $thre_url .= '&amp;ls=l' . $_conf['mobile.rnum_range'];
             }
         }
 
@@ -201,15 +246,58 @@ function sb_print_k(&$aThreadList)
         // スレッド一覧 table ボディ HTMLプリント <tr></tr>
         //====================================================================================
 
-        // ボディ
-        echo <<<EOP
-<div>
-{$unum_ht}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>{$htm['ita']}
-</div>
+        //ボディ
+        if ($_conf['iphone']) {
+            // ポップアップ用の隠しスレッド情報。torderの指示子が"%d"でないのはmerge_favitaのため
+            $thre_info = sprintf('[%s] %s (%01.1fレス/日)',
+                                 $aThread->torder,                 // 順序
+                                 date('y/m/d H:i', $aThread->key), // スレ立て日時
+                                 $aThread->dayres                  // 勢い。切り上げなし
+                                 );
+
+            if ($_conf['iphone.subject.indicate-speed']) {
+                // 勢い判定。なぜか不安定になるのでlog10()の結果で分岐はしない
+                $dayres = (int)$aThread->dayres;
+                if ($dayres > 9999) {
+                    $classspeed_at = ' class="dayres-10000"';
+                } elseif ($dayres > 999) {
+                    $classspeed_at = ' class="dayres-1000"';
+                } elseif ($dayres > 99) {
+                    $classspeed_at = ' class="dayres-100"';
+                } elseif ($dayres > 9) {
+                    $classspeed_at = ' class="dayres-10"';
+                } elseif ($dayres > 0) {
+                    $classspeed_at = ' class="dayres-1"';
+                } else {
+                    $classspeed_at = ' class="dayres-0"';
+                }
+            } else {
+                $classspeed_at = '';
+            }
+
+            if ($htm['ita'] !== '') {
+                $htm['ita'] = "<span class=\"ita\">{$htm['ita']}</span>";
+            }
+
+            $thre_info_at = rawurlencode(base64_encode($aThread->ttitle)) . ','
+                          . $aThread->key . ',' . $aThread->bbs . ',' . $aThread->host;
+
+            echo <<<EOP
+<li title="{$thre_info_at}"><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
+        } else {
+            echo <<<EOP
+<div>{$htm['unum']}{$aThread->torder}.<a href="{$thre_url}">{$ttitle_ht}</a> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</div>\n
+EOP;
+        }
     }
 
+    if ($_conf['iphone']) {
+        echo '</ul>';
+    }
 }
+
+// }}}
 
 /*
  * Local Variables:

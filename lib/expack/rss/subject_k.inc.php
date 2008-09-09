@@ -1,6 +1,6 @@
 <?php
 /**
- * rep2expack - RSSの見出し一覧表示 (携帯用)
+ * rep2expack - 簡易RSSリーダ（記事一覧・携帯用）
  */
 
 // {{{ ヘッダ
@@ -8,15 +8,16 @@
 echo <<<EOH
 <html lang="ja">
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{$_conf['extra_headers_ht']}
 <title>{$title}</title>
 </head>
 <body{$_conf['k_colors']}>
+{$_info_msg_ht}
+<p><b>{$title}</b></p>
+<hr>\n
 EOH;
-
-P2Util::printInfoHtml();
-
-echo "<p><b>{$title}</b></p><hr>";
 
 // RSSがパースできなかったとき
 if (!$rss_parse_success) {
@@ -50,12 +51,12 @@ $i = 0;
 echo "<ol>\n";
 foreach ($items as $item) {
     $item = array_map('trim', $item);
-    $item_title = P2Util::re_htmlspecialchars($item['title']);
+    $item_title = htmlspecialchars($item['title'], ENT_QUOTES, 'Shift_JIS', false);
     $link_orig = P2Util::throughIme($item['link']);
     // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
     $view_jig = '';
     /*
-    $link_jig = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . urlencode($item['link']);
+    $link_jig = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . rawurlencode($item['link']);
     $view_jig = ' <a href="' . P2Util::throughIme($link_jig) . '">jW</a>';
     */
     if ((isset($item['content:encoded']) && $item['content:encoded'] !== '') ||
@@ -74,10 +75,10 @@ echo "</ol>\n";
 
 echo <<<EOF
 <hr>
-<p>
-<a {$_conf['accesskey']}="9" href="menu_k.php?view=rss">9.RSS</a>
+<div class="center">
+<a href="menu_k.php?view=rss"{$_conf['k_accesskey_at'][9]}>{$_conf['k_accesskey_st'][9]}RSS</a>
 {$_conf['k_to_index_ht']}
-</p>
+</div>
 <hr>
 <form id="urlform" method="post" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
 RSS/Atomを直接指定<br>

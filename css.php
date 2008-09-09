@@ -1,30 +1,41 @@
 <?php
-// p2 - スタイルシートを外部スタイルシートとして出力する
+/**
+ * rep2expack - スタイルシートを外部スタイルシートとして出力する
+ */
 
-// 初期設定読み込み & ユーザ認証
-require_once 'conf/conf.inc.php';
+// {{{ 初期設定読み込み & ユーザ認証
+
+require_once './conf/conf.inc.php';
 $_login->authorize();
 
-// 妥当なファイルか検証
+// }}}
+// {{{ 妥当なファイルか検証
+
 if (isset($_GET['css']) && preg_match('/^\w+$/', $_GET['css'])) {
     $css = P2_STYLE_DIR . '/' . $_GET['css'] . '_css.inc';
-}
-if (!isset($css) || !file_exists($css)) {
+    if (!file_exists($css)) {
+        exit;
+    }
+} else {
     exit;
 }
 
-// ヘッダ
+// }}}
+// {{{ 出力
+
+// クエリにユニークキーを埋め込んでいるいるので、キャッシュさせてよい
+$now = time();
+header('Expires: ' . http_date($now + 3600));
+header('Last-Modified: ' . http_date($now));
+header('Pragma: cache');
 header('Content-Type: text/css; charset=Shift_JIS');
-
-// スタイルシート読込
-ob_start();
-include_once $css;
-$stylesheet = ob_get_contents();
-ob_end_clean();
-
-// 表示
 echo "@charset \"Shift_JIS\";\n\n";
-echo $stylesheet;
+ob_start();
+include $css;
+// 空スタイルを除去
+echo preg_replace('/[a-z\\-]+[ \\t]*:[ \\t]*;/', '', ob_get_clean());
+
+// }}}
 
 /*
  * Local Variables:

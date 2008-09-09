@@ -1,11 +1,14 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+/**
+ * rep2 - スレッドあぼーん複数一括解除処理
+ */
+
+require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ settaborn_off()
 
 /**
- * スレッドあぼーんを複数一括解除する関数
- *
- * @access  public
- * @return  boolean  実行成否
+ * ■スレッドあぼーんを複数一括解除する
  */
 function settaborn_off($host, $bbs, $taborn_off_keys)
 {
@@ -14,20 +17,15 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     }
 
     // p2_threads_aborn.idx のパス取得
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
+    $taborn_idx = P2Util::idxDirOfHostBbs($host, $bbs) . 'p2_threads_aborn.idx';
 
     // p2_threads_aborn.idx がなければ
     if (!file_exists($taborn_idx)) {
-        die("あぼーんリストが見つかりませんでした。");
-        return false;
+        p2die('あぼーんリストが見つかりませんでした。');
     }
 
     // p2_threads_aborn.idx 読み込み
-    $taborn_lines = file($taborn_idx);
-    if ($taborn_lines === false) {
-        return false;
-    }
+    $taborn_lines = FileCtl::file_read_lines($taborn_idx, FILE_IGNORE_NEW_LINES);
 
     // 指定keyを削除
     foreach ($taborn_off_keys as $val) {
@@ -36,7 +34,6 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
 
         if ($taborn_lines) {
             foreach ($taborn_lines as $line) {
-                $line = rtrim($line);
                 $lar = explode('<>', $line);
                 if ($lar[1] == $val) { // key発見
                     // echo "key:{$val} のスレッドをあぼーん解除しました。<br>";
@@ -52,7 +49,6 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     }
 
     // 書き込む
-
     if (file_exists($taborn_idx)) {
         copy($taborn_idx, $taborn_idx.'.bak'); // 念のためバックアップ
     }
@@ -64,8 +60,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
         }
     }
     if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
-        die('Error: cannot write file.');
-        return false;
+        p2die('cannot write file.');
     }
 
     /*
@@ -75,9 +70,9 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
         // echo "あぼーん解除、完了しました。";
     }
     */
-
-    return true;
 }
+
+// }}}
 
 /*
  * Local Variables:

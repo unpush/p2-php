@@ -1,13 +1,17 @@
 <?php
 /**
- * tGrep 検索履歴メニュー
+ * rep2xpack - tGrep 検索履歴メニュー
  */
 
-if ($_conf['ktai']) {
+if ($_conf['iphone']) {
+    tgrep_print_recent_list_i();
+} elseif ($_conf['ktai']) {
     tgrep_print_recent_list_k();
 } else {
     tgrep_print_recent_list();
 }
+
+// {{{ tgrep_read_recent_list()
 
 /**
  * 検索履歴を読み込む
@@ -16,11 +20,15 @@ function tgrep_read_recent_list()
 {
     global $_conf;
 
-    if (file_exists($_conf['expack.tgrep.recent_file'])) {
-        return array_filter(array_map('trim', (array) @file($_conf['expack.tgrep.recent_file'])), 'strlen');
+    $list = FileCtl::file_read_lines($_conf['expack.tgrep.recent_file'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!is_array($list)) {
+        return array();
     }
-    return array();
+    return $list;
 }
+
+// }}}
+// {{{ tgrep_print_recent_list()
 
 /**
  * PC用表示
@@ -52,6 +60,9 @@ function tgrep_print_recent_list()
     }
 }
 
+// }}}
+// {{{ tgrep_print_recent_list_k()
+
 /**
  * 携帯用表示
  */
@@ -75,6 +86,31 @@ function tgrep_print_recent_list_k()
         echo '<p>（なし）</p>' . "\n";
     }
 }
+
+// }}}
+// {{{ tgrep_print_recent_list_i()
+
+/**
+ * iPhone用表示
+ */
+function tgrep_print_recent_list_i()
+{
+    global $_conf;
+
+    $tgrep_recent_list = tgrep_read_recent_list();
+
+    if ($tgrep_recent_list) {
+        foreach ($tgrep_recent_list as $tgrep_recent_query) {
+            $tgrep_recent_query_en = rawurlencode($tgrep_recent_query);
+            $tgrep_recent_query_ht = htmlspecialchars($tgrep_recent_query, ENT_QUOTES);
+            echo '<li><a href="tgrepc.php?iq=' . $tgrep_recent_query_en . '">' . $tgrep_recent_query_ht . '</a></li>' . "\n";
+        }
+    } else {
+        echo '<li class="weight-n">（なし）</li>' . "\n";
+    }
+}
+
+// }}}
 
 /*
  * Local Variables:

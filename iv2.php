@@ -1,23 +1,40 @@
 <?php
-/* ImageCache2 - 画像キャッシュ一覧 */
+/**
+ * ImageCache2 - 画像キャッシュ一覧
+ */
 
 // {{{ p2基本設定読み込み&認証
 
 define('P2_FORCE_USE_SESSION', 1);
 define('P2_SESSION_NO_CLOSE', 1);
+define('P2_OUTPUT_XHTML', 1);
+define('P2_USE_PEAR_HACK', 1);
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
-if ($b == 'pc') {
-    output_add_rewrite_var('b', 'pc');
-} elseif ($b == 'k' || $k) {
-    output_add_rewrite_var('b', 'k');
+if ($_conf['iphone']) {
+    $_conf['extra_headers_ht'] .= <<<EOP
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
+EOP;
+    $_conf['extra_headers_xht'] .= <<<EOP
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
+<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}" />
+<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
+
+// ビュー判定用の隠し要素
+
+if ($_conf['view_forced_by_query']) {
+    output_add_rewrite_var('b', $_conf['b']);
 }
 
 // }}}
@@ -31,16 +48,16 @@ require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
 require_once 'HTML/Template/Flexy/Element.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/quickrules.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/editform.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/managedb.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/getvalidvalue.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/buildimgcell.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/matrix.class.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/quickrules.class.php';
+require_once P2EX_LIB_DIR . '/ic2/editform.class.php';
+require_once P2EX_LIB_DIR . '/ic2/managedb.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/getvalidvalue.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/buildimgcell.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/matrix.class.php';
 
 // }}}
 // {{{ config
@@ -48,12 +65,13 @@ require_once P2EX_LIBRARY_DIR . '/ic2/matrix.class.php';
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
 
-// DB_DataObjectの設定
-$_dbdo_options = &PEAR::getStaticProperty('DB_DataObject','options');
-$_dbdo_options = array('database' => $ini['General']['dsn'], 'debug' => false, 'quote_identifiers' => true);
-
 // Exif表示が有効か？
 $show_exif = ($ini['Viewer']['exif'] && extension_loaded('exif'));
+
+$_default_mode = (int)$_conf['expack.ic2.viewer_default_mode'];
+if ($_default_mode < 0 || $_default_mode > 3) {
+    $_default_mode = 0;
+}
 
 // フォームのデフォルト値
 $_defaults = array(
@@ -67,7 +85,7 @@ $_defaults = array(
     'key'   => '',
     'threshold' => $ini['Viewer']['threshold'],
     'compare' => '>=',
-    'mode' => 0,
+    'mode' => $_default_mode,
 );
 
 // フォームの固定値
@@ -122,9 +140,9 @@ $_sort = array(
 
 // 検索フィールド
 $_field = array(
-    'uri'  => 'URL',
-    'name' => 'ファイル名',
-    'memo' => 'メモ',
+    'uri'   => 'URL',
+    'name'  => 'ファイル名',
+    'memo'  => 'メモ',
 );
 
 // モード
@@ -149,11 +167,12 @@ if ($_conf['ktai']) {
 // {{{ prepare (DB & Cache)
 
 // DB_DataObjectを継承したDAO
-$icdb = &new IC2DB_Images;
-$db = &$icdb->getDatabaseConnection();
+$icdb = new IC2DB_Images;
+$db = $icdb->getDatabaseConnection();
+$db_class = strtolower(get_class($db));
 
 // サムネイル作成クラス
-$thumb = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+$thumb = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
     require_once 'Cache.php';
@@ -167,9 +186,9 @@ if ($ini['Viewer']['cache']) {
         'cache_table'   => $ini['Cache']['table'],
         'highwater'     => (int)$ini['Cache']['highwater'],
         'lowwater'      => (int)$ini['Cache']['lowwater'],
-        'db' => &$db
+        'db' => $db
     );
-    $cache = &new Cache_Function('db', $cache_options, (int)$ini['Cache']['expires']);
+    $cache = new Cache_Function('db', $cache_options, (int)$ini['Cache']['expires']);
     // 有効期限切れキャッシュのガーベッジコレクションなど
     if (isset($_GET['cache_clean'])) {
         $cache_clean = $_GET['cache_clean'];
@@ -182,9 +201,9 @@ if ($ini['Viewer']['cache']) {
         // キャッシュを全削除
         case 'all':
             $sql = sprintf('DELETE FROM %s', $db->quoteIdentifier($ini['Cache']['table']));
-            $result = &$db->query($sql);
+            $result = $db->query($sql);
             if (DB::isError($result)) {
-                die($result->getMessage());
+                p2die($result->getMessage());
             }
             $vacuumdb = true;
             break;
@@ -200,28 +219,15 @@ if ($ini['Viewer']['cache']) {
             $vacuumdb = false;
     }
     // SQLiteならVACUUMを実行（PostgreSQLは普通cronでvacuumdbするのでここではしない）
-    if ($vacuumdb && is_a($db, 'DB_sqlite')) {
-        $result = &$db->query('VACUUM');
+    if ($vacuumdb && $db_class == 'db_sqlite') {
+        $result = $db->query('VACUUM');
         if (DB::isError($result)) {
-            die($result->getMessage());
+            p2die($result->getMessage());
         }
     }
     $enable_cache = true;
 } else {
     $enable_cache = false;
-}
-
-// SQLite UDF
-if (is_a($db, 'db_sqlite')) {
-    $isSQLite = true;
-    function iv2_sqlite_unix2date($ts)
-    {
-        return intval(date('Ymd', $ts));
-    }
-    $sqlite = &$db->connection;
-    sqlite_create_function($sqlite, 'unix2date', 'iv2_sqlite_unix2date', 1);
-} else {
-    $isSQLite = false;
 }
 
 // }}}
@@ -240,7 +246,7 @@ if (get_magic_quotes_gpc()) {
 // （レンダリング前に $qf->updateAttributes(array('method' => 'get')); とする）
 $_attribures = array('accept-charset' => 'UTF-8,Shift_JIS');
 $_method = ($_SERVER['REQUEST_METHOD'] == 'GET') ? 'get' : 'post';
-$qf = &new HTML_QuickForm('go', $_method, $_SERVER['SCRIPT_NAME'], '_self', $_attribures);
+$qf = new HTML_QuickForm('go', $_method, $_SERVER['SCRIPT_NAME'], '_self', $_attribures);
 $qf->registerRule('numRange', null, 'RuleNumericRange');
 $qf->registerRule('inArray', null, 'RuleInArray');
 $qf->registerRule('inArrayKeys', null, 'RuleInArrayKeys');
@@ -251,34 +257,34 @@ $qfe = array();
 // フォーム要素の定義
 
 // ページ移動のためのsubmit要素
-$qfe['start'] = &$qf->addElement('button', 'start');
-$qfe['prev']  = &$qf->addElement('button', 'prev');
-$qfe['next']  = &$qf->addElement('button', 'next');
-$qfe['end']   = &$qf->addElement('button', 'end');
-$qfe['jump']  = &$qf->addElement('button', 'jump');
+$qfe['start'] = $qf->addElement('button', 'start');
+$qfe['prev']  = $qf->addElement('button', 'prev');
+$qfe['next']  = $qf->addElement('button', 'next');
+$qfe['end']   = $qf->addElement('button', 'end');
+$qfe['jump']  = $qf->addElement('button', 'jump');
 
 // 表示方法などを指定するinput要素
-$qfe['page']      = &$qf->addElement('text', 'page', 'ページ番号を指定', array('size' => 3));
-$qfe['cols']      = &$qf->addElement('text', 'cols', '横', array('size' => 3, 'maxsize' => 2));
-$qfe['rows']      = &$qf->addElement('text', 'rows', '縦', array('size' => 3, 'maxsize' => 2));
-$qfe['order']     = &$qf->addElement('select', 'order', '並び順', $_order);
-$qfe['sort']      = &$qf->addElement('select', 'sort', '方向', $_sort);
-$qfe['field']     = &$qf->addElement('select', 'field', 'フィールド', $_field);
-$qfe['key']       = &$qf->addElement('text', 'key', 'キーワード', array('size' => 20));
-$qfe['compare']   = &$qf->addElement('select', 'compare', '比較方法', $_compare);
-$qfe['threshold'] = &$qf->addElement('select', 'threshold', 'しきい値', $_threshold);
+$qfe['page']      = $qf->addElement('text', 'page', 'ページ番号を指定', array('size' => 3));
+$qfe['cols']      = $qf->addElement('text', 'cols', '横', array('size' => 3, 'maxsize' => 2));
+$qfe['rows']      = $qf->addElement('text', 'rows', '縦', array('size' => 3, 'maxsize' => 2));
+$qfe['order']     = $qf->addElement('select', 'order', '並び順', $_order);
+$qfe['sort']      = $qf->addElement('select', 'sort', '方向', $_sort);
+$qfe['field']     = $qf->addElement('select', 'field', 'フィールド', $_field);
+$qfe['key']       = $qf->addElement('text', 'key', 'キーワード', array('size' => 20));
+$qfe['compare']   = $qf->addElement('select', 'compare', '比較方法', $_compare);
+$qfe['threshold'] = $qf->addElement('select', 'threshold', 'しきい値', $_threshold);
 
-// 文字コード判定のヒントにする隠しinput要素
-$qfe['_hint'] = &$qf->addElement('hidden', '_hint');
+// 文字コード判定のヒントにする隠し要素
+$qfe['_hint'] = $qf->addElement('hidden', '_hint');
 
 // 検索を実行するsubmit要素
-$qfe['search'] = &$qf->addElement('submit', 'search');
+$qfe['search'] = $qf->addElement('submit', 'search');
 
 // モード変更をするselect要素
-$qfe['mode'] = &$qf->addElement('select', 'mode', 'モード', $_mode);
+$qfe['mode'] = $qf->addElement('select', 'mode', 'モード', $_mode);
 
 // モード変更を確定するsubmit要素
-$qfe['cngmode'] = &$qf->addElement('submit', 'cngmode');
+$qfe['cngmode'] = $qf->addElement('submit', 'cngmode');
 
 // フォームのルール
 $qf->addRule('cols', '1 to 20',  'numRange', array('min' => 1, 'max' => 20),  'client', true);
@@ -294,30 +300,41 @@ $qf->addRule('mode', 'invalid mode.', 'inArrayKeys', $_mode);
 $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'cp932',
-    'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
-    'templateDir' => P2EX_LIBRARY_DIR . '/ic2/templates',
+    'compileDir' => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'iv2',
+    'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
-    'plugins' => array('P2Util' => P2_LIBRARY_DIR . '/p2util.class.php')
+    'plugins' => array('P2Util' => P2_LIB_DIR . '/p2util.class.php')
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+if (!is_dir($_conf['compile_dir'])) {
+    FileCtl::mkdir_for($_conf['compile_dir'] . '/__dummy__');
+}
+
+$flexy = new HTML_Template_Flexy($_flexy_options);
 
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('base_dir', dirname($_SERVER['SCRIPT_NAME']));
-$flexy->setData('rep2expack', $_conf['p2expack']);
+$flexy->setData('p2vid', P2_VERSION_ID);
 $flexy->setData('_hint', $_conf['detect_hint']);
-if ($_conf['ktai']) {
-    $k_color = array();
-    $k_color['c_bgcolor'] = isset($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '';
-    $k_color['c_text']  = isset($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '';
-    $k_color['c_link']  = isset($_conf['mobile.link_color'])  ? $_conf['mobile.link_color']  : '';
-    $k_color['c_vlink'] = isset($_conf['mobile.vlink_color']) ? $_conf['mobile.vlink_color'] : '';
-    $flexy->setData('k_color', $k_color);
+if ($_conf['iphone']) {
+    $flexy->setData('top_url', 'index.php');
+} elseif ($_conf['ktai']) {
+    $flexy->setData('k_color', array(
+        'c_bgcolor' => !empty($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '#ffffff',
+        'c_text'    => !empty($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '#000000',
+        'c_link'    => !empty($_conf['mobile.link_color'])  ? $_conf['mobile.link_color']  : '#0000ff',
+        'c_vlink'   => !empty($_conf['mobile.vlink_color']) ? $_conf['mobile.vlink_color'] : '#9900ff',
+    ));
     $flexy->setData('top_url', dirname($_SERVER['SCRIPT_NAME']) . '/index.php');
     $flexy->setData('accesskey', $_conf['accesskey']);
 } else {
     $flexy->setData('skin', str_replace('&amp;', '&', $skin_en));
 }
+$flexy->setData('pc', !$_conf['ktai']);
+$flexy->setData('iphone', $_conf['iphone']);
+$flexy->setData('doctype', $_conf['doctype']);
+$flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
+$flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 
 // }}}
 // {{{ validate
@@ -344,18 +361,20 @@ if ($_conf['ktai']) {
     $overwritable_params = array('order', 'sort', 'field', 'key', 'threshold', 'compare');
 
     // 絵文字を読み込む
-    require_once 'conf/conf_emoji.php';
-    $emj = getEmoji();
+    require_once P2_LIB_DIR . '/emoji.inc.php';
+    $emj = p2_get_emoji();
     $flexy->setData('e', $emj);
+    $flexy->setData('ak', $_conf['k_accesskey_at']);
+    $flexy->setData('as', $_conf['k_accesskey_st']);
 
     // フィルタリング用フォームを表示
     if (!empty($_GET['show_iv2_kfilter'])) {
         !defined('P2_NO_SAVE_PACKET') && define('P2_NO_SAVE_PACKET', true);
-        $r = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
+        $r = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
         $qfe['key']->removeAttribute('size');
         $qf->updateAttributes(array('method' => 'get'));
         $qf->accept($r);
-        $qfObj = &$r->toObject();
+        $qfObj = $r->toObject();
         $flexy->setData('page', $page);
         $flexy->setData('move', $qfObj);
         P2Util::header_nocache();
@@ -403,16 +422,21 @@ if (!($threshold == -1 && $compate == '>=')) {
 
 // キーワード検索をするとき
 if ($key !== '') {
-    $keys = explode(' ', $icdb->uniform($key, 'SJIS-win'));
+    $keys = explode(' ', $icdb->uniform($key, 'CP932'));
     foreach ($keys as $k) {
         $operator = 'LIKE';
         $wildcard = '%';
-        if (preg_match('/[%_]/', $k)) {
+        $not = false;
+        if ($k[0] == '-' && strlen($k) > 1) {
+            $not = true;
+            $k = substr($k, 1);
+        }
+        if (strpos($k, '%') !== false || strpos($k, '_') !== false) {
             // SQLite2はLIKE演算子の右辺でバックスラッシュによるエスケープや
             // ESCAPEでエスケープ文字を指定することができないのでGLOB演算子を使う
-            if (strtolower(get_class($db)) == 'db_sqlite') {
-                if (preg_match('/[*?]/', $k)) {
-                    die('ImageCache2 - Warning:「%または_」と「*または?」が混在するキーワードは使えません。');
+            if ($db_class == 'db_sqlite') {
+                if (strpos($k, '*') !== false || strpos($k, '?') !== false) {
+                    p2die('ImageCache2 Warning', '「%または_」と「*または?」が混在するキーワードは使えません。');
                 } else {
                     $operator = 'GLOB';
                     $wildcard = '*';
@@ -422,19 +446,19 @@ if ($key !== '') {
             }
         }
         $expr = $wildcard . $k . $wildcard;
+        if ($not) {
+            $operator = 'NOT ' . $operator;
+        }
         $icdb->whereAddQuoted($field, $operator, $expr);
     }
     $qfe['key']->setValue($key);
 }
 
 // 重複画像をスキップするとき
-// 総数を正しくカウントするためにサブクエリを使う
-// サブクエリに対応していないバージョン4.1未満のMySQLでは重複画像のスキップは無効
-$dc = 0; // 試験的パラメータ、登録レコード数がこれ以上の画像のみを抽出
-$mysql = preg_match('/^mysql:/', $ini['General']['dsn']); // MySQL 4.1.2以降のphptypeは"mysqli"
-if ($mysql == 0 && ($ini['Viewer']['unique'] || $dc > 2)) {
+$_find_duplicated = 0; // 試験的パラメータ、登録レコード数がこれ以上の画像のみを抽出
+if ($ini['Viewer']['unique'] || $_find_duplicated > 1) {
     $subq = 'SELECT ' . (($sort == 'ASC') ? 'MIN' : 'MAX') . '(id) FROM ';
-    $subq .= $icdb->_db->quoteIdentifier($ini['General']['table']);
+    $subq .= $db->quoteIdentifier($ini['General']['table']);
     if (isset($keys)) {
         // サブクエリ内でフィルタリングするので親クエリのWHERE句をパクってきてリセット
         $subq .= $icdb->_query['condition'];
@@ -442,10 +466,10 @@ if ($mysql == 0 && ($ini['Viewer']['unique'] || $dc > 2)) {
     }
     // md5だけでグループ化しても十分とは思うけど、一応。
     $subq .= ' GROUP BY size, md5, mime';
-    if ($dc > 1) {
-        $subq .= ' HAVING COUNT(*) >= ' . $dc;
+    if ($_find_duplicated > 1) {
+        $subq .= sprintf(' HAVING COUNT(*) > %d', $_find_duplicated - 1);
     }
-    // echo '<!--', mb_convert_encoding($subq, 'SJIS-win', 'UTF-8'), '-->';
+    // echo '<!--', mb_convert_encoding($subq, 'CP932', 'UTF-8'), '-->';
     $icdb->whereAdd("id IN ($subq)");
 }
 
@@ -464,7 +488,7 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
         // メモを追加
         if (!empty($_POST['addmemo'])) {
             $newmemo = get_magic_quotes_gpc() ? stripslashes($_POST['addmemo']) : $_POST['addmemo'];
-            $newmemo = $icdb->uniform($newmemo, 'SJIS-win');
+            $newmemo = $icdb->uniform($newmemo, 'CP932');
             if ($newmemo !== '') {
                  manageDB_addMemo($target, $newmemo);
             }
@@ -492,7 +516,7 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
                 $newmemo = get_magic_quotes_gpc() ? stripslashes($_POST['img'][$id]['memo']) : $_POST['img'][$id]['memo'];
                 $data = array(
                     'rank' => intval($_POST['img'][$id]['rank']),
-                    'memo' => $icdb->uniform($newmemo, 'SJIS-win')
+                    'memo' => $icdb->uniform($newmemo, 'CP932')
                 );
                 if (0 < $id && -1 <= $data['rank'] && $data['rank'] <= 5) {
                     $updated[$id] = $data;
@@ -545,7 +569,7 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
 $sql = sprintf('SELECT COUNT(*) FROM %s %s', $db->quoteIdentifier($ini['General']['table']), $icdb->_query['condition']);
 $all = $db->getOne($sql);
 if (DB::isError($all)) {
-    die($all->getMessage());
+    p2die($all->getMessage());
 }
 
 // マッチするレコードがなかったらエラーを表示、レコードがあれば表示用オブジェクトに値を代入
@@ -584,48 +608,65 @@ if ($all == 0) {
     $prev_page = max(1, $page - 1);
     $next_page = min($page + 1, $last_page);
 
-    // ページ遷移用リンク（携帯）を生成
-    if ($_conf['ktai']) {
+    // ページ遷移用リンク（iPhone）を生成
+    if ($_conf['iphone']) {
         $pg_base = htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
-        $pg_pos = $page . '/' . $last_page;
-        $pg_delim = ' | ';
-        $pg_fmt_akey = '<a href="%s?page=%d" %s="%d">%s%s</a>';
-        $pg_fmt_link = '<a href="%s?page=%d">%s</a>';
-        $pg_fmt_none = '%s %s';
-        $_ak = $_conf['accesskey'];
+        $pager = '';
+        if ($page != 1) {
+            $pager .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base,          1, $emj['lt2']);
+            $pager .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base, $prev_page, $emj['lt1']);
+        }
+        $pager .= sprintf('%d/%d', $page, $last_page);
+        if ($page != $last_page) {
+            $pager .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $next_page, $emj['rt1']);
+            $pager .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $last_page, $emj['rt2']);
+        }
+        $flexy->setData('pager', $pager);
+
+    // ページ遷移用リンク（携帯）を生成
+    } elseif ($_conf['ktai']) {
+        $pg_base = htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
+        $pg_pos = sprintf('%d/%d', $page, $last_page);
         $pager1 = '';
         $pager2 = '';
-        if ($page == 1) {
-            //$pager1 .= sprintf($pg_fmt_none, $emj['lt2'], $emj['lt1']) . ' ';
-            //$pager2 .= sprintf($pg_fmt_none, $emj['lt2'], $emj['lt1']) . ' ';
-        } else {
-            $pager1 .= sprintf($pg_fmt_akey, $pg_base,          1, $_ak, 1, $emj[1], $emj['lt2']) . ' ';
-            $pager1 .= sprintf($pg_fmt_akey, $pg_base, $prev_page, $_ak, 4, $emj[4], $emj['lt1']) . ' ';
-            $pager2 .= sprintf($pg_fmt_link, $pg_base,          1, $emj['lt2']) . ' ';
-            $pager2 .= sprintf($pg_fmt_link, $pg_base, $prev_page, $emj['lt1']) . ' ';
+        if ($page != 1) {
+            $pager1 .= sprintf('<a href="%s?page=%d"%s>%s%s</a> ',
+                               $pg_base,
+                               1,
+                               $_conf['k_accesskey_at'][1],
+                               $_conf['k_accesskey_st'][1],
+                               $emj['lt2']
+                               );
+            $pager1 .= sprintf('<a href="%s?page=%d"%s>%s%s</a> ',
+                               $pg_base,
+                               $prev_page,
+                               $_conf['k_accesskey_at'][4],
+                               $_conf['k_accesskey_st'][4],
+                               $emj['lt1']
+                               );
+            $pager2 .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base,          1, $emj['lt2']);
+            $pager2 .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base, $prev_page, $emj['lt1']);
         }
         $pager1 .= $pg_pos;
         $pager2 .= $pg_pos;
-        if ($page == $last_page) {
-            //$pager1 .= ' ' . sprintf($pg_fmt_none, $emj['rt1'], $emj['rt2']);
-            //$pager2 .= ' ' . sprintf($pg_fmt_none, $emj['rt1'], $emj['rt2']);
-        } else {
-            $pager1 .= ' ' . sprintf($pg_fmt_link, $pg_base, $next_page, $emj['rt1']);
-            $pager1 .= ' ' . sprintf($pg_fmt_link, $pg_base, $last_page, $emj['rt2']);
-            $pager2 .= ' ' . sprintf($pg_fmt_akey, $pg_base, $next_page, $_ak, 6, $emj[6], $emj['rt1']);
-            $pager2 .= ' ' . sprintf($pg_fmt_akey, $pg_base, $last_page, $_ak, 9, $emj[9], $emj['rt2']);
+        if ($page != $last_page) {
+            $pager1 .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $next_page, $emj['rt1']);
+            $pager1 .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $last_page, $emj['rt2']);
+            $pager2 .= sprintf(' <a href="%s?page=%d"%s>%s%s</a>',
+                               $pg_base,
+                               $next_page,
+                               $_conf['k_accesskey_at'][6],
+                               $_conf['k_accesskey_st'][6],
+                               $emj['rt1']
+                               );
+            $pager2 .= sprintf(' <a href="%s?page=%d"%s>%s%s</a>',
+                               $pg_base,
+                               $last_page,
+                               $_conf['k_accesskey_at'][9],
+                               $_conf['k_accesskey_st'][9],
+                               $emj['rt2']
+                               );
         }
-        /*$pager1 .= $pg_delim;
-        $pager2 .= $pg_delim;
-        if (empty($_SESSION['iv2i_filter'])) {
-            $pager_search = "<a href=\"{$pg_url}?page={$page}&amp;show_iv2_kfilter=1\">索</a>";
-            $pager1 .= $pager_search;
-            $pager2 .= $pager_search;
-        } else {
-            $pager_reset = "<a href=\"{$pg_url}?page=1&amp;session_no_close=1&amp;reset_filter=1\">解</a>";
-            $pager1 .= $pager_reset;
-            $pager2 .= $pager_reset;
-        }*/
         $flexy->setData('pager1', $pager1);
         $flexy->setData('pager2', $pager2);
 
@@ -639,7 +680,7 @@ if ($all == 0) {
             'compare' => $compare, 'threshold' => $threshold
         );
         $pager_q = $mf_hiddens;
-        mb_convert_variables('UTF-8', 'SJIS-win', $pager_q);
+        mb_convert_variables('UTF-8', 'CP932', $pager_q);
 
         // ページ番号を更新
         $qfe['page']->setValue($page);
@@ -680,7 +721,7 @@ if ($all == 0) {
 
     // 編集モード用フォームを生成
     if ($mode == 1 || $mode == 2) {
-        $flexy->setData('editFormHeader', EditForm::header($mf_hiddens, $mode));
+        $flexy->setData('editFormHeader', EditForm::header((isset($mf_hiddens) ? $mf_hiddens : array()), $mode));
         if ($mode == 1) {
             $flexy->setData('editFormCheckAllOn', EditForm::checkAllOn());
             $flexy->setData('editFormCheckAllOff', EditForm::checkAllOff());
@@ -692,8 +733,7 @@ if ($all == 0) {
             $flexy->setData('editFormRemove', EditForm::remove());
             $flexy->setData('editFormBlackList', EditForm::toblack());
         } elseif ($mode == 2) {
-            $editForm = &new EditForm;
-            $flexy->setData('editForm', $editForm);
+            $flexy->setData('editForm', new EditFormForFlexy);
         }
     }
 
@@ -702,15 +742,23 @@ if ($all == 0) {
     if ($order == 'pixels') {
         $orderBy = '(width * height) ' . $sort;
     } elseif ($order == 'date_uri' || $order == 'date_uri2') {
-        if ($isSQLite) {
+        if ($db_class == 'db_sqlite') {
+            /*
+            function iv2_sqlite_unix2date($ts)
+            {
+                return date('Ymd', (int)$ts);
+            }
+            sqlite_create_function($db->connection, 'unix2date', 'iv2_sqlite_unix2date', 1);
             $time2date = 'unix2date("time")';
+            */
+            $time2date = 'php(\'date\', \'Ymd\', "time")';
         } else {
             // 32400 = 9*60*60 (時差補正)
             $time2date = sprintf('floor((%s + 32400) / 86400)', $db->quoteIdentifier('time'));
         }
         $orderBy .= sprintf('%s %s, %s ', $time2date, $sort, $db->quoteIdentifier('uri'));
         if ($order == 'date_uri') {
-             $orderBy .= $sort;
+            $orderBy .= $sort;
         } else {
             $orderBy .= ($sort == 'ASC') ? 'DESC' : 'ASC';
         }
@@ -758,17 +806,24 @@ if ($all == 0) {
         // 配列どうしなら+演算子で要素を追加できる
         // （キーの重複する値を上書きしたいときはarray_merge()を使う）
         $img = $icdb->toArray();
-        mb_convert_variables('SJIS-win', 'UTF-8', $img);
+        mb_convert_variables('CP932', 'UTF-8', $img);
         // ランク・メモは変更されることが多く、一覧用のデータキャッシュに影響を与えないように別に処理する
         $status = array();
         $status['rank'] = $img['rank'];
         $status['rank_f'] = ($img['rank'] == -1) ? 'あぼーん' : $img['rank'];
+        if ($img['rank'] == -1) {
+            $status['rank_i'] = '<img src="img/sn1a.png" width="16" height="16">';
+        } elseif ($img['rank'] > 0 && $img['rank'] <= 5) {
+            $status['rank_i'] = str_repeat('<img src="img/s1a.png" width="16" height="16">', $img['rank']);
+        } else {
+            $status['rank_i'] = '';
+        }
         $status['memo'] = $img['memo'];
         unset($img['rank'], $img['memo']);
 
         // 表示用変数を設定
         if ($enable_cache) {
-            $add = $cache->call('buildImgCell', $img);
+            $add = $cache->call('ic2_image_extra_info', $img);
             if ($mode == 1) {
                 $chk = EditForm::imgChecker($img); // 比較的軽いのでキャッシュしない
                 $add += $chk;
@@ -777,7 +832,7 @@ if ($all == 0) {
                 $add += $mng;
             }
         } else {
-            $add = buildImgCell($img);
+            $add = ic2_image_extra_info($img);
             if ($mode == 1) {
                 $chk = EditForm::imgChecker($img);
                 $add += $chk;
@@ -856,7 +911,7 @@ $flexy->setData('removedFiles', $removed_files);
 // モード別の最終処理
 if ($_conf['ktai']) {
     $title = str_replace('ImageCache2', 'IC2', $ini['Viewer']['title']);
-    $list_template = 'iv2i.tpl.html';
+    $list_template = ($_conf['iphone']) ? 'iv2ip.tpl.html' : 'iv2i.tpl.html';
 } else {
     switch ($mode) {
         case 2:
@@ -874,7 +929,7 @@ if ($_conf['ktai']) {
 }
 
 // フォームを最終調整し、テンプレート用オブジェクトに変換
-$r = &new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
+$r = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
 //$r->setLabelTemplate('_label.tpl.html');
 //$r->setHtmlTemplate('_html.tpl.html');
 $qf->updateAttributes(array('method' => 'get')); // リクエストをPOSTでも受け入れるため、ここで変更
@@ -888,7 +943,7 @@ $qf->updateAttributes(array('method' => 'get')); // リクエストをPOSTでも受け入れ
     $qfe['key']->updateAttributes($input_type_search_attributes);
 }*/
 $qf->accept($r);
-$qfObj = &$r->toObject();
+$qfObj = $r->toObject();
 
 // 変数をAssign
 $flexy->setData('title', $title);
@@ -901,17 +956,23 @@ $flexy->setData('lightbox', $lightbox);
 // ページを表示
 P2Util::header_nocache();
 $flexy->compile($list_template);
-if ($list_template == 'iv2i.tpl.html') {
-    $mobile = &Net_UserAgent_Mobile::singleton();
+if ($list_template == 'iv2ip.tpl.html') {
+    $flexy->setData('thumb_width', (int)$ini['Thumb1']['width']);
+    $flexy->setData('thumb_height', (int)$ini['Thumb1']['height']);
+    $flexy->setData('title_width_v', 320 - (10 * 2) - (int)$ini['Thumb1']['width']);
+    $flexy->setData('title_width_h', 480 - (10 * 2) - (int)$ini['Thumb1']['width']);
+    $flexy->output();
+} elseif ($list_template == 'iv2i.tpl.html') {
+    $mobile = Net_UserAgent_Mobile::singleton();
     $elements = $flexy->getElements();
     if ($mobile->isDoCoMo()) {
         $elements['page']->setAttributes('istyle="4"');
     } elseif ($mobile->isEZweb()) {
         $elements['page']->setAttributes('format="*N"');
-    } elseif ($mobile->isVodafone()) {
+    } elseif ($mobile->isSoftBank()) {
         $elements['page']->setAttributes('mode="numeric"');
     }
-    $view = false;
+    $view = null;
     $flexy->outputObject($view, $elements);
 } else {
     $flexy->output();

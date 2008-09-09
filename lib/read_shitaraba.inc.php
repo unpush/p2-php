@@ -1,13 +1,16 @@
 <?php
-// p2 - したらばJBBS（jbbs.livedoor.jp）の関数
+/**
+ * rep2 - したらばJBBS jbbs.livedoor.jp 用の関数
+ *
+ * 各種BBSに対応できるプロファイルクラスみたいなのを作りたいものだ。。 aki
+ */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ shitarabaDownload()
 
 /**
  * したらばJBBSの rawmode.cgi を読んで、datに保存する（2ch風に整形）
- *
- * @access  public
- * @return  boolean
  */
 function shitarabaDownload()
 {
@@ -16,10 +19,9 @@ function shitarabaDownload()
     $GLOBALS['machi_latest_num'] = '';
 
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
-
     if (file_exists($aThread->keydat)) {
-        $dls = file($aThread->keydat);
-        if (sizeof($dls) != $aThread->gotnum) {
+        $dls = FileCtl::file_read_lines($aThread->keydat);
+        if (!$dls || sizeof($dls) != $aThread->gotnum) {
             // echo 'bad size!<br>';
             unlink($aThread->keydat);
             $aThread->gotnum = 0;
@@ -27,7 +29,6 @@ function shitarabaDownload()
     } else {
         $aThread->gotnum = 0;
     }
-
     // }}}
 
     if ($aThread->gotnum == 0) {
@@ -46,7 +47,7 @@ function shitarabaDownload()
         $machiurl = "http://{$host}/bbs/rawmode.cgi/{$category}/{$aThread->bbs}/{$aThread->key}/{$START}-";
     }
 
-    $tempfile = $aThread->keydat . '.dat.temp';
+    $tempfile = $aThread->keydat.'.dat.temp';
 
     FileCtl::mkdir_for($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
@@ -56,16 +57,17 @@ function shitarabaDownload()
         return false;
     }
 
-    // したらばならEUCをSJISに変換
+    // {{{ したらばならEUCをSJISに変換
     if (P2Util::isHostJbbsShitaraba($aThread->host)) {
-        $temp_data = file_get_contents($tempfile);
-        $temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'eucJP-win');
-        if (FileCtl::filePutRename($tempfile, $temp_data) === false) {
-            die('Error: cannot write file.');
+        $temp_data = FileCtl::file_read_contents($tempfile);
+        $temp_data = mb_convert_encoding($temp_data, 'CP932', 'CP51932');
+        if (FileCtl::file_write_contents($tempfile, $temp_data) === false) {
+            p2die('cannot write file.');
         }
     }
+    // }}}
 
-    $mlines = file($tempfile);
+    $mlines = FileCtl::file_read_lines($tempfile);
 
     // 一時ファイルを削除する
     unlink($tempfile);
@@ -73,17 +75,17 @@ function shitarabaDownload()
     // ↓rawmode.cgiではこれは出ないだろう
     /*
     // （JBBS）ERROR!: スレッドがありません。過去ログ倉庫にもありません。
-    if (preg_match("/^ERROR.*$/i", $mlines[0], $matches)) {
-        $aThread->getdat_error_msg_ht .= $matches[0];
+    if (stripos($mlines[0], 'ERROR') === 0) {
+        $aThread->getdat_error_msg_ht .= $mlines[0];
         $aThread->diedat = true;
         return false;
     }
     */
 
     // {{{ DATを書き込む
-    if ($mdatlines =& shitarabaDatTo2chDatLines($mlines)) {
+    if ($mdatlines = shitarabaDatTo2chDatLines($mlines)) {
 
-        $rsc = $file_append ? (FILE_APPEND | LOCK_EX) : LOCK_EX;
+        $file_append = ($file_append) ? FILE_APPEND : 0;
 
         $cont = '';
         for ($i = $START; $i <= $GLOBALS['machi_latest_num']; $i++) {
@@ -93,10 +95,8 @@ function shitarabaDownload()
                 $cont .= "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n";
             }
         }
-        if (file_put_contents($aThread->keydat, $cont, $rsc) === false) {
-            trigger_error("file_put_contents(" . $aThread->keydat . ")", E_USER_WARNING);
-            die('Error: cannot write file.');
-            return false;
+        if (FileCtl::file_write_contents($aThread->keydat, $cont, $file_append) === false) {
+            p2die('cannot write file.');
         }
     }
     // }}}
@@ -106,21 +106,21 @@ function shitarabaDownload()
     return true;
 }
 
+// }}}
+// {{{ shitarabaDatTo2chDatLines()
 
 /**
  * したらばBBSの rawmode.cgi で読み込んだDATを2ch風datに変換する
  *
  * @see shitarabaDownload()
- * @return  array|false
  */
-function &shitarabaDatTo2chDatLines(&$mlines)
+function shitarabaDatTo2chDatLines($mlines)
 {
     if (!$mlines) {
         $retval = false;
         return $retval;
     }
-
-    $mdatlines = '';
+    $mdatlines = "";
 
     foreach ($mlines as $ml) {
         $ml = rtrim($ml);
@@ -163,6 +163,8 @@ function &shitarabaDatTo2chDatLines(&$mlines)
 
     return $mdatlines;
 }
+
+// }}}
 
 /*
  * Local Variables:

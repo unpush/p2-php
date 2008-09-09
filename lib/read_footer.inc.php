@@ -1,34 +1,34 @@
 <?php
-/*
-    p2 -  スレッド表示 -  フッタ部分 -  for read.php
-*/
+/**
+ * rep2 - スレッド表示 -  フッタ部分 -  for read.php
+ */
 
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
 
 //=====================================================================
-// フッタ
+// ■フッタ
 //=====================================================================
 
 if ($_conf['bottom_res_form']) {
 
-    $bbs        = $aThread->bbs;
-    $key        = $aThread->key;
-    $host       = $aThread->host;
-    $rescount   = $aThread->rescount;
-    $ttitle_en  = base64_encode($aThread->ttitle);
+    $bbs = $aThread->bbs;
+    $key = $aThread->key;
+    $host = $aThread->host;
+    $rescount = $aThread->rescount;
+    $ttitle_en = base64_encode($aThread->ttitle);
 
     $submit_value = '書き込む';
 
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    include_once P2_LIBRARY_DIR . '/post_options_loader.inc.php';
+    include_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
 
-    include_once P2_LIBRARY_DIR . '/post_form.inc.php';
+    include_once P2_LIB_DIR . '/post_form.inc.php';
 
     // フォーム
     $res_form_ht = <<<EOP
@@ -40,15 +40,15 @@ EOP;
 EOP;
 
     $onmouse_showform_ht = <<<EOP
- onMouseover="document.getElementById('kakiko').style.display = 'block';"
+ onmouseover="document.getElementById('kakiko').style.display = 'block';"
 EOP;
 
 }
 
 // ============================================================
-$sid_q = defined('SID') ? '&amp;'.strip_tags(SID) : '';
+$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
-if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // and empty($_GET['renzokupop'])
+if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET['renzokupop'])
 
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
@@ -57,27 +57,26 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
 EOP;
         } else {
             $htm['dores'] = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target="_self" onclick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
 EOP;
         }
 
-        $htm['dores'] = '<span style="white-space: nowrap;">' . $htm['dores'] . '</span>';
         $res_form_ht_pb = $res_form_ht;
     }
 
     if ($res1['body']) {
-        $q_ichi = $res1['body'] . " | ";
+        $q_ichi = $res1['body']." | ";
     }
 
     // レスのすばやさ
     $htm['spd'] = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
-        $htm['spd'] = '<span class="spd" style="white-space: nowrap;" title="すばやさ＝時間/レス">' . "" . $spd_st."".'</span>';
+        $htm['spd'] = '<span class="spd" title="すばやさ＝時間/レス">' . $spd_st . '</span>';
     }
 
     // datサイズ
     $htm['dsize'] = '';
-    if ($dsize_ht = @filesize($aThread->keydat)) {
+    if (file_exists($aThread->keydat) && $dsize_ht = filesize($aThread->keydat)) {
         $htm['dsize'] = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
     }
 
@@ -102,7 +101,7 @@ GOTO;
     */
 
     if (!empty($GLOBALS['last_hit_resnum'])) {
-        $read_navi_next_anchor = '';
+        $read_navi_next_anchor = "";
         if ($GLOBALS['last_hit_resnum'] == $aThread->rescount) {
             $read_navi_next_anchor = "#r{$aThread->rescount}";
         }
@@ -114,10 +113,10 @@ GOTO;
     }
     // }}}
 
-    // プリント
+    // ■プリント
     echo <<<EOP
 <hr>
-<table id="footer" class="toolbar" width="100%" style="padding:0px 10px 0px 0px;">
+<table id="footer" width="100%" style="padding:0px 10px 0px 0px;">
     <tr>
         <td align="left">
             {$q_ichi}
@@ -144,20 +143,30 @@ GOTO;
 EOP;
 
     if ($diedat_msg) {
-        echo "<hr>$diedat_msg<p>$motothre_ht</p>";
+        echo "<hr>";
+        echo $diedat_msg;
+        echo "<p>";
+        echo $motothre_ht;
+        echo "</p>";
     }
 }
 
 if (!empty($_GET['showres'])) {
     echo <<<EOP
     <script type="text/javascript">
-    <!--
+    <![CDATA[
     document.getElementById('kakiko').style.display = 'block';
-    //-->
+    //]]>
     </script>\n
 EOP;
 }
 
+if ($_conf['expack.ic2.enabled']) {
+    echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js?{$_conf['p2_version_id']}\"></script>";
+    include P2EX_LIB_DIR . '/ic2/templates/info.tpl.html';
+}
+
+// ====
 echo '</body></html>';
 
 /*

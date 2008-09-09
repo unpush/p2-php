@@ -1,8 +1,13 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
 /*
-	ImageCache2::Viewer
-*/
+ * ImageCache2::Viewer
+ */
+
+// {{{ GLOBALS
+
+var last_checked_box = null, last_unchecked_box = null;
+
+// }}}
+// {{{ showToolbarExtra()
 
 function showToolbarExtra()
 {
@@ -15,6 +20,9 @@ function showToolbarExtra()
 	return false;
 }
 
+// }}}
+// {{{ hideToolbarExtra()
+
 function hideToolbarExtra()
 {
 	var ext = document.getElementById('toolbarExtra');
@@ -25,6 +33,9 @@ function hideToolbarExtra()
 	swb.style.display = 'none';
 	return false;
 }
+
+// }}}
+// {{{ iv2_checkAll()
 
 function iv2_checkAll(mode)
 {
@@ -44,10 +55,71 @@ function iv2_checkAll(mode)
 	}
 }
 
+// }}}
+// {{{ iv2_checked()
+
+function iv2_checked(cbox, evt)
+{
+	var evt = (evt) ? evt : ((window.event) ? window.event : null);
+	var chk = cbox.checked;
+
+	if (evt && evt.shiftKey) {
+		var tgt = null;
+
+		if (last_checked_box) {
+			tgt = last_checked_box;
+			chk = true;
+		} else if (last_unchecked_box) {
+			tgt = last_unchecked_box;
+			chk = false;
+		}
+
+		if (tgt) {
+			var cboxes = document.getElementsByName('change[]');
+			var i = 0, j = -1, k = -1, l = cboxes.length;
+
+			while (i < l) {
+				if (cboxes[i] == cbox) {
+					j = i;
+					if (k != -1) break;
+				} else if (cboxes[i] == tgt) {
+					k = i;
+					if (j != -1) break;
+				}
+				i++;
+			}
+
+			if (i < l) {
+				if (j > k) {
+					while (j >= k) cboxes[j--].checked = chk;
+				} else {
+					while (j <= k) cboxes[j++].checked = chk;
+				}
+			}
+		}
+	}
+
+	if (chk) {
+		last_checked_box = cbox;
+		last_unchecked_box = null;
+	} else {
+		last_checked_box = null;
+		last_unchecked_box = cbox;
+	}
+
+	return true;
+}
+
+// }}}
+// {{{ pageJump()
+
 function pageJump(page)
 {
 	location.href = document.getElementById('current_page').value.replace(/page=[0-9]*/, 'page='+page);
 }
+
+// }}}
+// {{{ rankDown()
 
 function rankDown(itemId)
 {
@@ -55,9 +127,13 @@ function rankDown(itemId)
 	var rank = getRank(itemId);
 	if (rank > -1) {
 		rank--;
-		setRank(itemId, rank);
+		return setRank(itemId, rank);
 	}
+	return false;
 }
+
+// }}}
+// {{{ rankUp()
 
 function rankUp(itemId)
 {
@@ -65,14 +141,25 @@ function rankUp(itemId)
 	var rank = getRank(itemId);
 	if (rank < 5) {
 		rank++;
-		setRank(itemId, rank);
+		return setRank(itemId, rank);
 	}
+	return false;
 }
+
+// }}}
+// {{{ getRank()
 
 function getRank(itemId)
 {
-	return parseInt(document.getElementById('rank'+itemId).innerText, 10);
+	var value = document.getElementById('rank'+itemId).innerHTML;
+	if (value == 'あぼーん') {
+		return -1;
+	}
+	return parseInt(value, 10);
 }
+
+// }}}
+// {{{ setRank()
 
 function setRank(itemId, rank)
 {
@@ -83,6 +170,43 @@ function setRank(itemId, rank)
 	var url = 'ic2_setrank.php?id=' + itemId + '&rank=' + rank.toString();
 	var res = getResponseTextHttp(objHTTP, url, 'nc');
 	if (res == '1') {
-		document.getElementById('rank'+itemId).innerText = rank.toString();
+		document.getElementById('rank'+itemId).innerHTML = rank.toString();
+		return true;
 	}
+	return false;
 }
+
+// }}}
+// {{{ getImageInfo()
+
+function getImageInfo(type, value)
+{
+	var objHTTP = getXmlHttp();
+	if (!objHTTP) {
+		alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
+	}
+	var url = 'ic2_getinfo.php?';
+	if (type == 'id') {
+		url += 'id=' + parseInt(value).toString();
+	} else {
+		url += encodeURIComponent(type) + '=' + encodeURIComponent(value);
+	}
+	var res = getResponseTextHttp(objHTTP, url, 'nc');
+	if (res == '-1') {
+		return false;
+	}
+	return res;
+}
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

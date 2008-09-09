@@ -16,7 +16,7 @@
 	tr.group td { text-align: center; }
 	td.label { white-space: nowrap; text-align: right; }
 	</style>
-	<script type="text/javascript" src="js/basic.js?{rep2expack:h}"></script>
+	<script type="text/javascript" src="js/basic.js?{p2vid:h}"></script>
 </head>
 <body onload="setWinTitle();">
 <p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; フォント設定編集</p>
@@ -24,8 +24,8 @@
 <ul>
 	<li>空の値はスキンの設定が適用されます。</li>
 	<li>フォントを &quot;-&quot; (半角ハイフンひとつ) にするとスキンの設定を無効にします。</li>
-	<li flexy:if="safari2">Safari 2.0 以降ではスタイルシートで特別に設定しなくても &lt;b&gt; タグで太字になるので、太字が正しく反映されないスキンでは太字フォントを &quot;-&quot; にしてみてください。</li>
-	<li flexy:if="macos">WebKit を使っていないブラウザはモナーフォントのような全角プロポーショナルフォントを正しくレンダリングできないことがあるので、アクティブモナーでレイアウトが崩れるときはアスキーアート用フォントを &quot;-&quot; にしてみてください。</li>
+	<li>太字ウェイトおよび太字スタイルは太字フォントが指定さている場合のみ有効です。</li>
+	<li flexy:if="mac">WebKit を使っていないブラウザはモナーフォントのような全角プロポーショナルフォントを正しくレンダリングできないことがあるので、アクティブモナーでレイアウトが崩れるときはアスキーアート用フォントを &quot;-&quot; にしてみてください。</li>
 </ul>
 
 <form method="post" action="edit_user_font.php">
@@ -55,7 +55,12 @@
 			<td class="label">太字フォント</td>
 			<td colspan="3"><input type="text" size="30" value="{skindata[fontfamily_bold]}" readonly></td>
 		</tr><tr>
-			<td class="label">アスキーアート</td>
+			<td class="label">太字ウェイト</td>
+			<td><select disabled><option value="{skindata[fontweight_bold]}">{skindata[fontweight_bold]}</option></select></td>
+			<td class="label">太字スタイル</td>
+			<td><select disabled><option value="{skindata[fontstyle_bold]}">{skindata[fontstyle_bold]}</option></select></td>
+		</tr><tr>
+			<td class="label">AAフォント</td>
 			<td colspan="3"><input type="text" size="30" value="{skindata[fontfamily_aa]}" readonly></td>
 		</tr>
 		<tr class="group">
@@ -63,22 +68,22 @@
 		</tr>
 		<tr>
 			<td class="label">基本</td>
-			<td><select disabled><option value="{skindata[fontsize]}">{skindata[fontsize_nu]}</option></select></td>
+			<td><select disabled><option value="{skindata[fontsize]}">{skindata[fontsize]}</option></select></td>
 			<td class="label">板メニュー</td>
-			<td><select disabled><option value="{skindata[menu_fontsize]}">{skindata[menu_fontsize_nu]}</option></select></td>
+			<td><select disabled><option value="{skindata[menu_fontsize]}">{skindata[menu_fontsize]}</option></select></td>
 		</tr><tr>
 			<td class="label">スレ一覧</td>
-			<td><select disabled><option value="{skindata[sb_fontsize]}">{skindata[sb_fontsize_nu]}</option></select></td>
+			<td><select disabled><option value="{skindata[sb_fontsize]}">{skindata[sb_fontsize]}</option></select></td>
 			<td class="label">スレッド内容</td>
-			<td><select disabled><option value="{skindata[read_fontsize]}">{skindata[read_fontsize_nu]}</option></select></td>
+			<td><select disabled><option value="{skindata[read_fontsize]}">{skindata[read_fontsize]}</option></select></td>
 		</tr><tr>
 			<td class="label">フォーム</td>
-			<td><select disabled><option value="{skindata[form_fontsize]}">{skindata[form_fontsize_nu]}</option></select></td>
-			<td class="label">レスポップアップ</td>
-			<td><select disabled><option value="{skindata[respop_fontsize]}">{skindata[respop_fontsize_nu]}</option></select></td>
+			<td><select disabled><option value="{skindata[form_fontsize]}">{skindata[form_fontsize]}</option></select></td>
+			<td class="label">ポップアップ</td>
+			<td><select disabled><option value="{skindata[respop_fontsize]}">{skindata[respop_fontsize]}</option></select></td>
 		</tr><tr>
 			<td class="label">情報ウィンドウ</td>
-			<td><select disabled><option value="{skindata[infowin_fontsize]}">{skindata[infowin_fontsize_nu]}</option></select></td>
+			<td><select disabled><option value="{skindata[infowin_fontsize]}">{skindata[infowin_fontsize]}</option></select></td>
 			<td class="label">&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
@@ -98,7 +103,12 @@
 			<td class="label">太字フォント</td>
 			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily_bold[%s]" size="30"></td>
 		</tr><tr>
-			<td class="label">アスキーアート</td>
+			<td class="label">太字ウェイト</td>
+			<td><select flexy:nameuses="type" name="fontweight_bold[%s]"></select></td>
+			<td class="label">太字スタイル</td>
+			<td><select flexy:nameuses="type" name="fontstyle_bold[%s]"></select></td>
+		</tr><tr>
+			<td class="label">AAフォント</td>
 			<td colspan="3"><input type="text" flexy:nameuses="type" name="fontfamily_aa[%s]" size="30"></td>
 		</tr>
 		<tr class="group">
@@ -117,7 +127,7 @@
 		</tr><tr>
 			<td class="label">フォーム</td>
 			<td><select flexy:nameuses="type" name="form_fontsize[%s]"></select></td>
-			<td class="label">レスポップアップ</td>
+			<td class="label">ポップアップ</td>
 			<td><select flexy:nameuses="type" name="respop_fontsize[%s]"></select></td>
 		</tr><tr>
 			<td class="label">情報ウィンドウ</td>

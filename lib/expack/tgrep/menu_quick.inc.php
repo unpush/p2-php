@@ -1,13 +1,17 @@
 <?php
 /**
- * tGrep お気にリストメニュー
+ * rep2expack -tGrep お気にリストメニュー
  */
 
-if ($_conf['ktai']) {
+if ($_conf['iphone']) {
+    tgrep_print_quick_list_i();
+} elseif ($_conf['ktai']) {
     tgrep_print_quick_list_k();
 } else {
     tgrep_print_quick_list();
 }
+
+// {{{ tgrep_read_quick_list()
 
 /**
  * お気にリストを読み込む
@@ -16,11 +20,15 @@ function tgrep_read_quick_list()
 {
     global $_conf;
 
-    if (file_exists($_conf['expack.tgrep.quick_file'])) {
-        return array_filter(array_map('trim', (array) @file($_conf['expack.tgrep.quick_file'])), 'strlen');
+    $list = FileCtl::file_read_lines($_conf['expack.tgrep.quick_file'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if (!is_array($list)) {
+        return array();
     }
-    return array();
+    return $list;
 }
+
+// }}}
+// {{{ tgrep_print_quick_list()
 
 /**
  * PC用表示
@@ -53,6 +61,9 @@ function tgrep_print_quick_list()
     }
 }
 
+// }}}
+// {{{ tgrep_print_quick_list_k()
+
 /**
  * 携帯用表示
  */
@@ -84,6 +95,31 @@ function tgrep_print_quick_list_k()
         echo '<p><a href="tgrepctl.php?file=quick&amp;clear=all">一発検索をｸﾘｱ</a></p>' . "\n";
     }
 }
+
+// }}}
+// {{{ tgrep_print_quick_list_i()
+
+/**
+ * iPhone用表示
+ */
+function tgrep_print_quick_list_i()
+{
+    global $_conf;
+
+    $tgrep_quick_list = tgrep_read_quick_list();
+
+    if ($tgrep_quick_list) {
+        foreach ($tgrep_quick_list as $tgrep_quick_query) {
+            $tgrep_quick_query_en = rawurlencode($tgrep_quick_query);
+            $tgrep_quick_query_ht = htmlspecialchars($tgrep_quick_query, ENT_QUOTES);
+            echo '<li><a href="tgrepc.php?iq=' . $tgrep_quick_query_en . '">' . $tgrep_quick_query_ht . '</a></li>' . "\n";
+        }
+    } else {
+        echo '<li class="weight-n">（なし）</li>' . "\n";
+    }
+}
+
+// }}}
 
 /*
  * Local Variables:

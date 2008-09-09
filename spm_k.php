@@ -1,12 +1,12 @@
 <?php
-/*
-    p2 - 特殊機能実行スクリプト（携帯）
-*/
+/**
+ * rep2 - 特殊機能実行スクリプト（携帯）
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/spm_k.inc.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/spm_k.inc.php';
+require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -17,18 +17,19 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
     $ktv = (int)$_GET['ktool_value'];
     switch ($_GET['ktool_name']) {
         case 'goto':
-            $_REQUEST['ls'] = $_GET['ls'] = $ktv . '-' . ($ktv + $_conf['k_rnum_range']);
+            $_REQUEST['ls'] = $_GET['ls'] = $ktv . '-' . ($ktv + $_conf['mobile.rnum_range']);
             include 'read.php';
             exit;
+        case 'res':
         case 'res_quote':
             $_GET['resnum'] = $ktv;
-            $_GET['inyou'] = 1;
+            $_GET['inyou'] = ($_GET['ktool_name'] == 'res') ? -1 : 1;
             include 'post_form.php';
             exit;
         case 'copy_quote':
             $_GET['inyou'] = 1;
         case 'copy':
-            $GLOBALS['_read_copy_resnum'] = $ktv;
+            $_GET['copy'] = $ktv;
             include 'read_copy_k.php';
             exit;
         case 'aas_rotate':
@@ -60,7 +61,7 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
 // スレの指定
 //=================================================
 kspDetectThread(); // global $host, $bbs, $key, $ls
-$aThread =& new Thread();
+$aThread = new Thread();
 // hostを分解してidxファイルのパスを求める
 if (!isset($aThread->keyidx)) {
     $aThread->setThreadPathInfo($host, $bbs, $key);
@@ -68,9 +69,8 @@ if (!isset($aThread->keyidx)) {
 $aThread->itaj = P2Util::getItaName($host, $bbs);
 if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 // idxファイルがあれば読み込む
-if (is_readable($aThread->keyidx)) {
-    $lines = @file($aThread->keyidx);
-    $idx_data = explode('<>', rtrim($lines[0]));
+if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+    $idx_data = explode('<>', $lines[0]);
 } else {
     p2die('指定されたスレッドのidxがありません。');
 }
@@ -95,14 +95,17 @@ echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{$_conf['extra_headers_ht']}
 <title>{$ptitle_ht}</title>
 </head>\n
 EOHEADER;
 
 echo "<body{$_conf['k_colors']}>";
 
-P2Util::printInfoHtml();
+echo $_info_msg_ht;
+$_info_msg_ht = '';
 
 echo "<p><a href=\"{$thread_url}\">{$ptitle_ht}</a></p>";
 echo '<hr>';
@@ -112,7 +115,7 @@ echo '<p>';
 if (!empty($_GET['from_read_new'])) {
     echo "<a href=\"{$_conf['read_new_k_php']}?cview=1{$_conf['k_at_a']}\">まとめ読みに戻る</a><br>";
 }
-echo "<a href=\"{$thread_url}\">ｽﾚに戻る<a/>";
+echo "<a href=\"{$thread_url}\">ｽﾚに戻る</a>";
 echo '</p>';
 echo '</body></html>';
 exit;

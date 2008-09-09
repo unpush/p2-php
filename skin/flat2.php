@@ -1,27 +1,23 @@
 <?php
-// p2 - ƒfƒUƒCƒ“—p Ý’èƒtƒ@ƒCƒ‹
-
-/*
-    ƒRƒƒ“ƒg–`“ª‚Ì() “à‚ÍƒfƒtƒHƒ‹ƒg’l
-    Ý’è‚Í style/*_css.inc ‚Æ˜A“®
-*/
-
-//======================================================================
-// ƒfƒUƒCƒ“ƒJƒXƒ^ƒ}ƒCƒY
-//======================================================================
+/**
+ * rep2 - ƒfƒUƒCƒ“—p Ý’èƒtƒ@ƒCƒ‹
+ *
+ * flatƒXƒLƒ“‚ÌFÊ‚ðÂŒn‚©‚çÔŒn‚É‚µAƒRƒ“ƒgƒ‰ƒXƒg‚à‹­‚ß‚É‚µ‚½ƒXƒLƒ“
+ *
+ * ƒRƒƒ“ƒg–`“ª‚Ì() “à‚ÍƒfƒtƒHƒ‹ƒg’l
+ * Ý’è‚Í style/*_css.inc ‚Æ˜A“®
+ */
 
 $STYLE['a_underline_none'] = "1"; // ("2") ƒŠƒ“ƒN‚É‰ºü‚ði‚Â‚¯‚é:0, ‚Â‚¯‚È‚¢:1, ƒXƒŒƒ^ƒCƒgƒ‹ˆê——‚¾‚¯‚Â‚¯‚È‚¢:2j
 
-// ƒtƒHƒ“ƒg ======================================================
+// {{{ ƒtƒHƒ“ƒg
 
-if(strstr($_SERVER['HTTP_USER_AGENT'], "Mac")){
+if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
     /* Mac—pƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
-    if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ƒuƒ‰ƒEƒU‚ª Mac‚Å Safari“™‚Ì WebKit‚ðŽg‚Á‚Ä‚¢‚é‚à‚Ì‚È‚ç */
-        $STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro"); // ("Hiragino Kaku Gothic Pro") Šî–{‚ÌƒtƒHƒ“ƒg for Safari
-        $STYLE['fontfamily_bold'] = ""; // ("") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒg for Safarii•’Ê‚Ì‘¾Žš‚æ‚è‘¾‚­‚µ‚½‚¢ê‡‚Í"Hiragino Kaku Gothic Std"j
-        if (!strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit/4")){
-            $STYLE['fontfamily_bold'] = "HiraKakuPro-W6";
-        }
+    if (P2Util::isBrowserSafariGroup()){ /* SafariŒn‚È‚ç */
+        $STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro");
+        $STYLE['fontfamily_bold'] = array("Myriad Pro", "Lucida Grande", "Hiragino Kaku Gothic Pro");
+        $STYLE['fontweight_bold'] = "bold";
     } else {
         $STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "ƒqƒ‰ƒMƒmŠÛƒS Pro W4"); // ("ƒqƒ‰ƒMƒmŠpƒS Pro W3") Šî–{‚ÌƒtƒHƒ“ƒg
         $STYLE['fontfamily_bold'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W6"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W6") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒgi•’Ê‚É‘¾Žš‚É‚µ‚½‚¢ê‡‚ÍŽw’è‚µ‚È‚¢("")j
@@ -47,13 +43,15 @@ if(strstr($_SERVER['HTTP_USER_AGENT'], "Mac")){
     $STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
 }
 
-//======================================================================
-// FÊ‚ÌÝ’è
-//======================================================================
-// –³Žw’è("")‚Íƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgFA‚Ü‚½‚ÍŠî–{Žw’è‚Æ‚È‚è‚Ü‚·B
-// —Dæ“x‚ÍAŒÂ•Êƒy[ƒWŽw’è ¨ Šî–{Žw’è ¨ Žg—pƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgŽw’è ‚Å‚·B
+// }}}
+/**
+ * FÊ‚ÌÝ’è
+ *
+ * –³Žw’è("")‚Íƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgFA‚Ü‚½‚ÍŠî–{Žw’è‚Æ‚È‚è‚Ü‚·B
+ * —Dæ“x‚ÍAŒÂ•Êƒy[ƒWŽw’è ¨ Šî–{Žw’è ¨ Žg—pƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgŽw’è ‚Å‚·B
+ */
+// {{{ Šî–{(style)
 
-// Šî–{(style) =======================
 $STYLE['bgcolor'] = "#FFFFFF"; // ("#ffffff") Šî–{ ”wŒiF
 $STYLE['background'] = ""; // ("") Šî–{ ”wŒi‰æ‘œ
 $STYLE['textcolor'] = "#000000"; // ("#000") Šî–{ ƒeƒLƒXƒgF
@@ -63,7 +61,9 @@ $STYLE['acolor_h'] = "#32AF32"; // ("#09c") Šî–{ ƒ}ƒEƒXƒI[ƒo[Žž‚ÌƒŠƒ“ƒNF
 
 $STYLE['fav_color'] = "#195EFF"; // ("#999") ‚¨‹C‚Éƒ}[ƒN‚ÌF
 
-// ƒƒjƒ…[(menu) ====================
+// }}}
+// {{{ ƒƒjƒ…[(menu)
+
 $STYLE['menu_bgcolor'] = "#FEDFED"; //("#fff") ƒƒjƒ…[‚Ì”wŒiF
 $STYLE['menu_color'] = "#000000"; //("#000") menu ƒeƒLƒXƒgF
 $STYLE['menu_background'] = ""; //("") ƒƒjƒ…[‚Ì”wŒi‰æ‘œ
@@ -78,7 +78,9 @@ $STYLE['menu_ita_color_h'] = "#195EFF"; // ("#09c") ƒƒjƒ…[ ”Â ƒ}ƒEƒXƒI[ƒo[Žž
 $STYLE['menu_newthre_color'] = "#98AAC4";   // ("hotpink") menu V‹KƒXƒŒƒbƒh”‚ÌF
 $STYLE['menu_newres_color'] = "#98AAC4";    // ("#ff3300") menu V’…ƒŒƒX”‚ÌF
 
-// ƒXƒŒˆê——(subject) ====================
+// }}}
+// {{{ ƒXƒŒˆê——(subject)
+
 $STYLE['sb_bgcolor'] = "#E3E3E3"; // ("#fff") subject ”wŒiF
 $STYLE['sb_background'] = ""; // ("") subject ”wŒi‰æ‘œ
 $STYLE['sb_color'] = "#000000";  // ("#000") subject ƒeƒLƒXƒgF
@@ -120,7 +122,9 @@ $STYLE['sb_thre_title_new_color'] = "#FF4500";  // ("red") subject V‹KƒXƒŒƒ^ƒCƒ
 $STYLE['sb_tool_newres_color'] = "#FF4500"; // ("#ff3300") subject ƒc[ƒ‹ƒo[“à V‹KƒŒƒX”‚ÌF
 $STYLE['sb_newres_color'] = "#FF4500"; // ("#ff3300") subject V’…ƒŒƒX”‚ÌF
 
-// ƒXƒŒ“à—e(read) ====================
+// }}}
+// {{{ ƒXƒŒ“à—e(read)
+
 $STYLE['read_bgcolor'] = "#FFFFFF"; // ("#efefef") ƒXƒŒƒbƒh•\Ž¦‚Ì”wŒiF
 $STYLE['read_background'] = ""; // ("") ƒXƒŒƒbƒh•\Ž¦‚Ì”wŒi‰æ‘œ
 $STYLE['read_color'] = "#000000"; // ("#000") ƒXƒŒƒbƒh•\Ž¦‚ÌƒeƒLƒXƒgF
@@ -137,17 +141,23 @@ $STYLE['read_mail_color'] = "#32AF32"; // ("") “ŠeŽÒ‚Ìmail‚ÌF ex)"#a00000"
 $STYLE['read_mail_sage_color'] = "#32CD32"; // ("") sage‚ÌŽž‚Ì“ŠeŽÒ‚Ìmail‚ÌF ex)"#00b000"
 $STYLE['read_ngword'] = "#E3E3E3"; // ("#bbbbbb") NGƒ[ƒh‚ÌF
 
-// ŽÀ‹µƒ‚[ƒh ================
+// }}}
+// {{{ ŽÀ‹µƒ‚[ƒh
+
 $SYTLE['live_b_width'] = "1px"; // ("1px") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[•
 $SYTLE['live_b_color'] = "#008080"; // ("#888") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[F
 $SYTLE['live_b_style'] = "dashed"; // ("solid") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[Œ`Ž®
 
-// ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€ ================
+// }}}
+// {{{ ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€
+
 $STYLE['post_pop_size'] = "610,350"; // ("610,350") ƒŒƒX‘‚«ž‚Ýƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³i‰¡,cj
 $STYLE['post_msg_rows'] = 10; // (10) ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€AƒƒbƒZ[ƒWƒtƒB[ƒ‹ƒh‚Ìs”
 $STYLE['post_msg_cols'] = 70; // (70) ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€AƒƒbƒZ[ƒWƒtƒB[ƒ‹ƒh‚ÌŒ…”
 
-// ƒŒƒXƒ|ƒbƒvƒAƒbƒv ====================
+// }}}
+// {{{ ƒŒƒXƒ|ƒbƒvƒAƒbƒv
+
 $STYLE['respop_color'] = "#000000"; // ("#000") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚ÌƒeƒLƒXƒgF
 $STYLE['respop_bgcolor'] = "#F9F9F9"; // ("#ffffcc") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ì”wŒiF
 $STYLE['respop_background'] = ""; // ("") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ì”wŒi‰æ‘œ
@@ -159,7 +169,9 @@ $STYLE['info_pop_size'] = "600,380"; // ("600,380") î•ñƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì
 
 $STYLE['conf_btn_bgcolor'] = '#efefef';
 
-// ƒXƒ^ƒCƒ‹‚Ìã‘‚« ====================
+// }}}
+// {{{ style/*_css.inc ‚Å’è‹`‚³‚ê‚Ä‚¢‚È‚¢Ý’è
+
 $MYSTYLE['read']['body']['margin'] = "0";
 $MYSTYLE['read']['body']['padding'] = "5px 10px";
 $MYSTYLE['read']['form#header']['margin'] = "-5px -10px 2px -10px";
@@ -186,7 +198,7 @@ $MYSTYLE['subject']['table.toolbar']['border-right'] = "none";
 $MYSTYLE['subject']['table.toolbar *']['padding'] = "0";
 $MYSTYLE['subject']['table.toolbar *']['line-height'] = "100%";
 $MYSTYLE['subject']['table.toolbar td']['padding'] = "1px";
-$MYSTYLE['subject']['tr.tableheader td']['color'] = "#F9F9F9";
+$MYSTYLE['subject']['tr.tableheader th']['color'] = "#F9F9F9";
 $MYSTYLE['subject']['tr.tableheader a']['color'] = "#F9F9F9";
 $MYSTYLE['subject']['tr.tableheader a:hover']['color'] = "#E3E3E3";
 $MYSTYLE['subject']['tr#pager td']['color'] = "#F9F9F9";
@@ -195,6 +207,8 @@ $MYSTYLE['subject']['tr#pager a:hover']['color'] = "#E3E3E3";
 
 $MYSTYLE['iv2']['div#toolbar']['background'] = "#000000 url('./skin/flat/header2_l.png') top repeat-x";
 $MYSTYLE['iv2']['div#toolbar td']['color'] = "#FFFFFF";
+
+// }}}
 
 /*
  * Local Variables:

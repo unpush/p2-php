@@ -1,11 +1,13 @@
 <?php
-// p2 - 書き込み履歴 レス内容表示
-// フレーム分割画面、右下部分
+/**
+ * rep2 - 書き込み履歴 レス内容表示
+ * フレーム分割画面、右下部分
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/res_hist.class.php';
-require_once P2_LIBRARY_DIR . '/read_res_hist.inc.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/res_hist.class.php';
+require_once P2_LIB_DIR . '/read_res_hist.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -31,8 +33,7 @@ if ($_POST['submit'] == $deletemsg_st or isset($_GET['checked_hists'])) {
     $checked_hists and deleMsg($checked_hists);
 }
 
-// 古いバージョンの形式であるデータPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、
-// dat形式（p2_res_hist.dat, <>区切り）に変換する
+// データPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、dat形式（p2_res_hist.dat, <>区切り）に変換する
 P2Util::transResHistLogPhpToDat();
 
 //======================================================================
@@ -43,18 +44,18 @@ P2Util::transResHistLogPhpToDat();
 // 特殊DAT読み
 //==================================================================
 // 読み込んで
-if (!file_exists($_conf['p2_res_hist_dat']) or !$datlines = file($_conf['p2_res_hist_dat'])) {
-    P2Util::printSimpleHtml('p2 - 書き込み履歴内容は空っぽのようです');
-    die('');
+if (!$datlines = FileCtl::file_read_lines($_conf['res_hist_dat'], FILE_IGNORE_NEW_LINES)) {
+    echo '<html><head><title>', $ptitle, '</title></head>',
+         '<body><p>書き込み履歴内容は空っぽのようです</p></body></html>';
+    exit;
 }
-
-$datlines = array_map('rtrim', $datlines);
-$datlines_num = count($datlines);
 
 // ファイルの下に記録されているものが新しい
 $datlines = array_reverse($datlines);
 
-$aResHist =& new ResHist();
+$aResHist = new ResHist();
+
+$aResHist->readLines($datlines);
 
 // HTMLプリント用変数
 $htm['checkall'] = '全てのチェックボックスを
@@ -74,22 +75,24 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
 EOP;
 
 // PC用表示
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/respopup.js?{$_conf['p2expack']}"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function hist_checkAll(mode) {
         if (!document.getElementsByName) {
             return;
@@ -100,25 +103,26 @@ if (!$_conf['ktai']) {
             checkboxes[i].checked = mode;
         }
     }
-    // -->
+    //]]>
     </script>\n
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="gIsPageLoaded = true;"';
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="gIsPageLoaded = true;"';
 echo <<<EOP
 </head>
 <body{$body_at}>\n
 EOP;
 
-P2Util::printInfoHtml();
+echo $_info_msg_ht;
+$_info_msg_ht = "";
 
 // 携帯用表示
 if ($_conf['ktai']) {
     echo "{$ptitle}<br>";
     echo '<div id="header" name="header">';
     $aResHist->showNaviK("header");
-    echo " <a {$_conf['accesskey']}=\"8\" href=\"#footer\"{$_conf['k_at_a']}>8.▼</a><br>";
+    echo " <a href=\"#footer\"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}▼</a><br>";
     echo "</div>";
     echo "<hr>";
 
@@ -146,9 +150,9 @@ EOP;
 // レス記事 表示
 //==================================================================
 if ($_conf['ktai']) {
-    $aResHist->showArticlesK($datlines);
+    $aResHist->showArticlesK();
 } else {
-    $aResHist->showArticles($datlines);
+    $aResHist->showArticles();
 }
 
 //==================================================================
@@ -157,10 +161,10 @@ if ($_conf['ktai']) {
 // 携帯用表示
 if ($_conf['ktai']) {
     echo '<div id="footer" name="footer">';
-    $aResHist->showNaviK('footer', $datlines_num);
-    echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$_conf['k_at_a']}>2.▲</a><br>";
+    $aResHist->showNaviK("footer");
+    echo " <a href=\"#header\"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}▲</a><br>";
     echo "</div>";
-    echo "<p>{$_conf['k_to_index_ht']}</p>";
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 
 // PC用表示
 } else {

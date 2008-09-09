@@ -1,10 +1,9 @@
 <?php
-/*
-    rep2 - ホスト単位でのアクセス許可/拒否の設定ファイル
-
-    このファイルの設定は、必要に応じて変更してください
-*/
-
+/**
+ * rep2 - ホスト単位でのアクセス許可/拒否の設定ファイル
+ *
+ * このファイルの設定は、必要に応じて変更してください
+ */
 
 $GLOBALS['_HOSTCHKCONF'] = array();
 
@@ -14,32 +13,63 @@ $GLOBALS['_HOSTCHKCONF'] = array();
 // $_conf['secure']['auth_host'] == 2 のとき、値が0（偽）のホストのみ拒否。
 $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     // p2が動作しているマシン
-        'localhost' => 1,
-    // クラスA~Cのプライベートアドレス
-        'private'   => 1,
-    // iモード
-        'DoCoMo'    => 1,
-    // ezWEB
-        'au'        => 1,
-    // Vodafone Live!
-        'Vodafone'  => 1,
-    // Air H"
-        'AirH'      => 1,
+    'localhost' => 1,
+    // クラスA-Cのプライベートアドレス
+    'private'   => 1,
+    // NTT DoCoMo iモード
+    'docomo'    => 0,
+    // au EZweb
+    'au'        => 0,
+    // SoftBank Mobile
+    'softbank'  => 0,
+    // WILLCOM AIR-EDGE
+    'willcom'   => 0,
+    // EMOBILE
+    'emobile'   => 0,
+    // iPhone 3G
+    'iphone'    => 0,
     // ユーザー設定
-        'custom'    => 0,
+    'custom'    => 0,
+    // ユーザー設定 (IPv6)
+    'custom_v6' => 0,
 );
 
 // アクセスを許可するIPアドレス帯域
 // “IPアドレス => マスク”形式の連想配列
+// $_conf['secure']['auth_host'] == 1 かつ
+// $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 1 のとき使われる
 $GLOBALS['_HOSTCHKCONF']['custom_allowed_host'] = array(
     //'192.168.0.0' => 24,
+    //'210.143.108.0' => 24, // jig
+    //'117.55.0.0' => 17,   // emb? @link http://pc11.2ch.net/test/read.cgi/software/1216565984/531
+    //'60.254.192.0' => 18, // 同上
+    //'119.72.0.0' => 16,   // 同上
+    //'219.73.128.0' => 17, // openmobile? @link http://pc11.2ch.net/test/read.cgi/software/1216565984/534
 );
+$GLOBALS['_HOSTCHKCONF']['custom_allowed_host_v6'] = null;
+
+// アクセスを許可するリモートホストの正規表現
+// preg_match()関数の第一引数として正しい文字列であること
+// 使用しない場合はnull
+// $_conf['secure']['auth_host'] == 1 かつ
+// $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 1 のとき使われる
+$GLOBALS['_HOSTCHKCONF']['custom_allowed_host_regex'] = null;
 
 // アクセスを拒否するIPアドレス帯域
 // “IPアドレス => マスク”形式の連想配列
+// $_conf['secure']['auth_host'] == 2 かつ
+// $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 0 のとき使われる
 $GLOBALS['_HOSTCHKCONF']['custom_denied_host'] = array(
     //'192.168.0.0' => 24,
 );
+$GLOBALS['_HOSTCHKCONF']['custom_denied_host_v6'] = null;
+
+// アクセスを拒否するリモートホストの正規表現
+// preg_match()関数の第一引数として正しい文字列であること
+// 使用しない場合はnull
+// $_conf['secure']['auth_host'] == 2 かつ
+// $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 0 のとき使われる
+$GLOBALS['_HOSTCHKCONF']['custom_denied_host_regex'] = null;
 
 // BBQキャッシュの有効期限 (秒数で指定、0なら永久焼き)
 $GLOBALS['_HOSTCHKCONF']['auth_bbq_burned_expire'] = 0;

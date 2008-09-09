@@ -8,34 +8,40 @@ define(P2_SUBJECT_TXT_STORAGE, 'eashm');    // 要eAccelerator
 shmにしてもパフォーマンスはほとんど変わらない（ようだ）
 */
 
+// {{{ SubjectTxt
+
 /**
  * SubjectTxtクラス
  */
 class SubjectTxt
 {
-    var $host;
-    var $bbs;
-    var $subject_url;
-    var $subject_file;
-    var $subject_lines;
-    var $storage; // file, eashm(eAccelerator shm) // 2006/02/27 aki eashm は非推奨
+    // {{{ properties
+
+    public $host;
+    public $bbs;
+    public $subject_url;
+    public $subject_file;
+    public $subject_lines;
+    public $storage; // file, eashm(eAccelerator shm) // 2006/02/27 aki eashm は非推奨
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function SubjectTxt($host, $bbs)
+    public function __construct($host, $bbs)
     {
         $this->host = $host;
         $this->bbs =  $bbs;
-        if (defined('P2_SUBJECT_TXT_STORAGE') && P2_SUBJECT_TXT_STORAGE == 'eashm') {
-            $this->storage = P2_SUBJECT_TXT_STORAGE;
-        } else {
+        //if (defined('P2_SUBJECT_TXT_STORAGE') && P2_SUBJECT_TXT_STORAGE == 'eashm') {
+        //    $this->storage = P2_SUBJECT_TXT_STORAGE;
+        //} else {
             $this->storage = 'file';
-        }
+        //}
 
-        $this->subject_file = P2Util::datDirOfHost($this->host) . '/' . $this->bbs . '/subject.txt';
-
-        $this->subject_url = "http://" . $this->host . '/' . $this->bbs . "/subject.txt";
+        $this->subject_file = P2Util::datDirOfHostBbs($host, $bbs) . 'subject.txt';
+        $this->subject_url = 'http://' . $host . '/' . $bbs . '/subject.txt';
 
         // したらばのlivedoor移転に対応。読込先をlivedoorとする。
         $this->subject_url = P2Util::adjustHostJbbs($this->subject_url);
@@ -44,22 +50,26 @@ class SubjectTxt
         $this->dlAndSetSubject();
     }
 
+    // }}}
+    // {{{ dlAndSetSubject()
+
     /**
      * subject.txtをダウンロード＆セットする
      *
-     * @access  private
-     * @return  boolean  セットできれば true
+     * @return boolean セットできれば true、できなければ false
      */
-    function dlAndSetSubject()
+    public function dlAndSetSubject()
     {
+        /*
         if ($this->storage == 'eashm') {
-            $cont = eaccelerator_get("$this->host/$this->bbs");
+            $cont = eaccelerator_get("{$this->host}/{$this->bbs}");
         } else {
             $cont = '';
         }
-        if (!$cont || !empty($_POST['newthread'])) {
+        */
+        //if (!$cont || !empty($_POST['newthread'])) {*/
             $cont = $this->downloadSubject();
-        }
+        //}
         if ($this->setSubjectLines($cont)) {
             return true;
         } else {
@@ -67,15 +77,17 @@ class SubjectTxt
         }
     }
 
+    // }}}
+    // {{{ downloadSubject()
+
     /**
      * subject.txtをダウンロードする
      *
-     * @access  private?
-     * @return  string|false  subject.txt の中身
+     * @return string subject.txt の中身
      */
-    function downloadSubject()
+    public function downloadSubject()
     {
-        global $_conf;
+        global $_conf, $_info_msg_ht;
 
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
@@ -85,17 +97,21 @@ class SubjectTxt
             if (file_exists($this->subject_file)) {
                 if (!empty($_REQUEST['norefresh']) || (empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
                     return;    // 更新しない場合は、その場で抜けてしまう
+                } elseif (!empty($GLOBALS['expack.subject.multi-threaded-download.done'])) {
+                    return;    // 並列ダウンロード済の場合も抜ける
                 } elseif (empty($_POST['newthread']) and $this->isSubjectTxtFresh()) {
                     return;    // 新規スレ立て時でなく、更新が新しい場合も抜ける
                 }
-                $modified = gmdate("D, d M Y H:i:s", filemtime($this->subject_file))." GMT";
+                $modified = http_date(filemtime($this->subject_file));
             } else {
                 $modified = false;
             }
         }
 
         // DL
-        include_once "HTTP/Request.php";
+        if (!class_exists('HTTP_Request', false)) {
+            require_once 'HTTP/Request.php';
+        }
 
         $params = array();
         $params['timeout'] = $_conf['fsockopen_time_limit'];
@@ -103,7 +119,7 @@ class SubjectTxt
             $params['proxy_host'] = $_conf['proxy_host'];
             $params['proxy_port'] = $_conf['proxy_port'];
         }
-        $req =& new HTTP_Request($this->subject_url, $params);
+        $req = new HTTP_Request($this->subject_url, $params);
         $modified && $req->addHeader("If-Modified-Since", $modified);
         $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
 
@@ -115,10 +131,10 @@ class SubjectTxt
             $code = $req->getResponseCode();
             if ($code == 302) {
                 // ホストの移転を追跡
-                include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
+                include_once P2_LIB_DIR . '/BbsMap.class.php';
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
-                    $aNewSubjectTxt = &new SubjectTxt($new_host, $this->bbs);
+                    $aNewSubjectTxt = new SubjectTxt($new_host, $this->bbs);
                     $body = $aNewSubjectTxt->downloadSubject();
                     return $body;
                 }
@@ -131,42 +147,37 @@ class SubjectTxt
 
         if (isset($error_msg) && strlen($error_msg) > 0) {
             $url_t = P2Util::throughIme($this->subject_url);
-            P2Util::pushInfoHtml("<div>Error: {$error_msg}<br>");
-            P2Util::pushInfoHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> に接続できませんでした。</div>");
+            $_info_msg_ht .= "<div>Error: {$error_msg}<br>";
+            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->subject_url}</a> に接続できませんでした。</div>";
             $body = '';
         } else {
             $body = $req->getResponseBody();
         }
 
-        // DL成功して かつ 更新されていたら
+        // ■ DL成功して かつ 更新されていたら
         if ($body && $code != "304") {
 
             // したらば or be.2ch.net ならEUCをSJISに変換
             if (P2Util::isHostJbbsShitaraba($this->host) || P2Util::isHostBe2chNet($this->host)) {
-                $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
+                $body = mb_convert_encoding($body, 'CP932', 'CP51932');
             }
 
             // eashmに保存する場合
+            /*
             if ($this->storage == 'eashm') {
-                $eacc_key = "$this->host/$this->bbs";
+                $eacc_key = "{$this->host}/{$this->bbs}";
                 eaccelerator_lock($eacc_key);
                 //echo $body;
                 eaccelerator_put($eacc_key, $body, $_conf['sb_dl_interval']);
                 eaccelerator_unlock($eacc_key);
-
+            */
             // ファイルに保存する場合
-            } else {
-                if (FileCtl::filePutRename($this->subject_file, $body) === false) {
-                    // 保存に失敗はしたが、既存のが読み込めるならそれを返しておく
-                    if (is_readable) {
-                        return file_get_contents($this->subject_file);
-                    } else {
-                        die("Error: cannot write file");
-                        return false;
-                    }
+            //} else {
+                if (FileCtl::file_write_contents($this->subject_file, $body) === false) {
+                    p2die('cannot write file');
                 }
                 chmod($this->subject_file, $perm);
-            }
+            //}
         } else {
             // touchすることで更新インターバルが効くので、しばらく再チェックされなくなる
             // （変更がないのに修正時間を更新するのは、少し気が進まないが、ここでは特に問題ないだろう）
@@ -178,13 +189,15 @@ class SubjectTxt
         return $body;
     }
 
+    // }}}
+    // {{{ isSubjectTxtFresh()
+
     /**
      * subject.txt が新鮮なら true を返す
      *
-     * @access  private
-     * @return  boolean  新鮮なら true。そうでなければ false。
+     * @return boolean 新鮮なら true。そうでなければ false。
      */
-    function isSubjectTxtFresh()
+    public function isSubjectTxtFresh()
     {
         global $_conf;
 
@@ -200,30 +213,37 @@ class SubjectTxt
         return false;
     }
 
+    // }}}
+    // {{{ setSubjectLines()
+
     /**
      * subject.txt を読み込む
      *
      * 成功すれば、$this->subject_lines がセットされる
      *
-     * @access  private
-     * @param   string   $cont    これは eashm 用に渡している。
-     * @return  boolean  実行成否
+     * @param string $cont これは eashm 用に渡している。
+     * @return boolean 実行成否
      */
-    function setSubjectLines($cont = '')
+    public function setSubjectLines($cont = '')
     {
+        /*
         if ($this->storage == 'eashm') {
             if (!$cont) {
-                $cont = eaccelerator_get("$this->host/$this->bbs");
+                $cont = eaccelerator_get("{$this->host}/{$this->bbs}");
             }
             $this->subject_lines = explode("\n", $cont);
-
+        */
+        /*
         } elseif ($this->storage == 'file') {
-            if (extension_loaded('zlib') and strstr($this->host, '.2ch.net')) {
-                $this->subject_lines = gzfile($this->subject_file);    // これはそのうち外す 2005/6/5
+            if (extension_loaded('zlib') && strpos($this->host, '.2ch.net') !== false) {
+                $this->subject_lines = FileCtl::gzfile_read_lines($this->subject_file); // これはそのうち外す 2005/6/5
             } else {
-                $this->subject_lines = file($this->subject_file);
+                */
+                $this->subject_lines = FileCtl::file_read_lines($this->subject_file);
+                /*
             }
         }
+        */
 
         // JBBS@したらばなら重複スレタイを削除する
         if (P2Util::isHostJbbsShitaraba($this->host)) {
@@ -237,7 +257,10 @@ class SubjectTxt
         }
     }
 
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

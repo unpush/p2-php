@@ -1,47 +1,51 @@
 <?php
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+/**
+ * rep2 - 殿堂入り関係の処理
+ */
+
+require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ setPal()
 
 /**
- * スレを殿堂入りにセットする関数
+ * スレを殿堂入りにセットする
  *
  * $set は、0(解除), 1(追加), top, up, down, bottom
- *
- * @access  public
- * @return  boolean  実行成否
  */
 function setPal($host, $bbs, $key, $setpal)
 {
     global $_conf;
 
      // key.idx のパスを求めて
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
+    $idxfile = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
 
     // 既に key.idx データがあるなら読み込む
-    if (file_exists($idxfile) and $lines = file($idxfile)) {
-        $l = rtrim($lines[0]);
-        $data = explode('<>', $l);
+    if ($lines = FileCtl::file_read_lines($idxfile, FILE_IGNORE_NEW_LINES)) {
+        $data = explode('<>', $lines[0]);
+    } else {
+        $data = array_fill(0, 12, '');
     }
 
+    //==================================================================
     // p2_palace.idxに書き込む
-    $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx';
+    //==================================================================
+    $lock = new P2Lock($_conf['palace_idx'], false);
 
-    FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
+    // palace_idx ファイルがなければ生成
+    FileCtl::make_datafile($_conf['palace_idx'], $_conf['palace_perm']);
 
-    $pallines = file($palace_idx);
-    if ($pallines === false) {
-        return false;
-    }
+    // palace_idx 読み込み
+    $pallines = FileCtl::file_read_lines($_conf['palace_idx'], FILE_IGNORE_NEW_LINES);
 
-     $neolines = array();
-     $before_line_num = 0;
+    $neolines = array();
+    $before_line_num = 0;
 
-     // 最初に重複要素を削除しておく
-    if ($pallines) {
+     // {{{ 最初に重複要素を削除しておく
+
+    if (!empty($pallines)) {
         $i = -1;
         foreach ($pallines as $l) {
             $i++;
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // 重複回避
             if ($lar[1] == $key && $lar[11] == $bbs) {
@@ -56,10 +60,12 @@ function setPal($host, $bbs, $key, $setpal)
         }
     }
 
+    // }}}
+
     // 新規データ設定
     if ($setpal) {
-        $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once P2_LIBRARY_DIR . '/getsetposlines.inc.php';
+        $newdata = "{$data[0]}<>{$key}<>{$data[2]}<>{$data[3]}<>{$data[4]}<>{$data[5]}<>{$data[6]}<>{$data[7]}<>{$data[8]}<>{$data[9]}<>{$host}<>{$bbs}";
+        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setpal);
     } else {
         $rec_lines = $neolines;
@@ -73,15 +79,14 @@ function setPal($host, $bbs, $key, $setpal)
     }
 
     // 書き込む
-    $temp_file = $palace_idx . '.tmp';
-    if (FileCtl::filePutRename($palace_idx, $cont) === false) {
-        $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
-        trigger_error($errmsg, E_USER_WARNING);
-        return false;
+    if (FileCtl::file_write_contents($_conf['palace_idx'], $cont) === false) {
+        p2die('cannot write file.');
     }
 
     return true;
 }
+
+// }}}
 
 /*
  * Local Variables:

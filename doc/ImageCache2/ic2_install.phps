@@ -1,45 +1,43 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0: */
-/* mi: charset=Shift_JIS */
-
-/* ImageCache2 - インストーラっていうか環境チェッカ */
+/**
+ * ImageCache2::Installer
+ */
 
 // {{{ p2基本設定読み込み＆認証
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 if ($_conf['expack.ic2.enabled'] == 0) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
 // {{{ ライブラリ読み込み＆初期化
 
-$ok = TRUE;
+$ok = true;
 
 // ライブラリ読み込み
-function libNotFound() { die('<p>必要なライブラリがありません。</p>'); }
-(require_once 'PEAR.php') or libNotFound();
-(require_once 'DB.php') or libNotFound();
-(require_once 'DB/DataObject.php') or libNotFound();
-(require_once 'HTML/QuickForm.php') or libNotFound();
-(require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php') or libNotFound();
-(require_once 'HTML/Template/Flexy.php') or libNotFound();
-(require_once 'HTML/Template/Flexy/Element.php') or libNotFound();
-(require_once 'Validate.php') or libNotFound();
-(require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php') or libNotFound();
-(require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php') or libNotFound();
-(require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php') or libNotFound();
-(require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php') or libNotFound();
+require_once 'PEAR.php';
+require_once 'DB.php';
+require_once 'DB/DataObject.php';
+require_once 'HTML/QuickForm.php';
+require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
+require_once 'HTML/Template/Flexy.php';
+require_once 'HTML/Template/Flexy/Element.php';
+require_once 'Validate.php';
+require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
 
 // DB_DataObjectの設定
 $options = &PEAR::getStaticProperty('DB_DataObject','options');
-$options = array('database' => $ini['General']['dsn'], 'quote_identifiers' => TRUE);
+$options = array('database' => $ini['General']['dsn'], 'quote_identifiers' => true);
 
 // 設定関連のエラーはこれらのクラスのコンストラクタでチェックされる
 $thumbnailer = &new ThumbNailer;
@@ -79,11 +77,12 @@ case 'pgsql':
     $table_extra_defs = '';
     break;
 case 'sqlite':
+case 'sqlite3':
     $serial = 'INTEGER PRIMARY KEY';
     $table_extra_defs = '';
     break;
 default:
-    die('MySQL, PostgreSQL, SQLite以外のデータベースには対応していません。');
+    die('MySQL, PostgreSQL, SQLite2, SQLite3以外のデータベースには対応していません。');
 }
 
 // テーブル名は設定によってはDBの予約語が使われるかもしれないのでDB_xxx::quoteIdentifier()で
@@ -213,7 +212,7 @@ function ic2_createTable($sql)
     if (DB::isError($result)) {
         $why = $result->getMessage();
         if (!stristr($why, 'already exists')) {
-            $ok = FALSE;
+            $ok = false;
         }
         echo $why;
     } else {
@@ -236,7 +235,7 @@ function ic2_createIndex($sql)
         $why = $result->getMessage();
         echo $why;
         if (!stristr($why, 'already exists') && !stristr($why, 'unknown error')) {
-            $ok = FALSE;
+            $ok = false;
         } else {
             echo " (既にインデックス作成済みならOK)";
         }
@@ -294,7 +293,6 @@ foreach ($createIndexSQL as $sql) {
 
 <?php
 $dirs = array(
-    $ini['General']['compiledir'],
     $ini['Source']['name'],
     $ini['Thumb1']['name'],
     $ini['Thumb2']['name'],
@@ -302,24 +300,55 @@ $dirs = array(
 );
 
 foreach ($dirs as $dir) {
-    $path = $ini['General']['cachedir'] . '/' . $dir;
+    $path = $ini['General']['cachedir'] . DIRECTORY_SEPARATOR . $dir;
     if (is_dir($path)) {
         echo "<p>ディレクトリ <em>{$path}</em> は作成済";
         if (is_writable($path)) {
             echo "（書き込み権限あり）</p>\n";
         } else {
             echo "（<strong>書き込み権限なし</strong>）</p>\n";
-            $ok = FALSE;
+            $ok = false;
         }
     } else {
         if (@mkdir($path)) {
             echo "<p>ディレクトリ <em>{$path}</em> を作成</p>\n";
         } else {
             echo "<p>ディレクトリ <em>{$path}</em> の<strong>作成失敗</strong></p>\n";
-            $ok = FALSE;
+            $ok = false;
         }
     }
 }
+?>
+
+<hr>
+
+<h2>.htaccessを作成</h2>
+
+<?php
+$htaccess_path = $ini['General']['cachedir'] . '/.htaccess';
+$htaccess_cont = <<<EOS
+Order allow,deny
+Deny from all
+<FilesMatch "\\.(gif|jpg|png)\$">
+    Allow from all
+</FilesMatch>\n
+EOS;
+$cachedir_path_ht = htmlspecialchars(realpath($ini['General']['cachedir']), ENT_QUOTES);
+$htaccess_path_ht = htmlspecialchars($htaccess_path, ENT_QUOTES);
+$htaccess_cont_ht = htmlspecialchars($htaccess_cont, ENT_QUOTES);
+
+if (FileCtl::file_write_contents($htaccess_path, $htaccess_cont) !== false) {
+    echo <<<EOS
+<p>ファイル <em>{$htaccess_path_ht}</em> を作成</p>
+<div>Apacheの場合、パフォーマンスのため、また、.htaccess自体が無効かもしれないので、上記.htaccesを削除してhttpd.confに以下のような記述をすることをおすすめします。</div>
+<pre>&lt;Directory &quot;{$cachedir_path_ht}&quot;&gt;
+{$htaccess_cont_ht}&lt;/Directory&gt;</pre>
+EOS;
+} else {
+    echo "<p>ファイル <em>{$htaccess_path_ht}</em> の<strong>作成失敗</strong></p>\n";
+    $ok = false;
+}
+
 ?>
 
 <hr>
@@ -334,4 +363,14 @@ foreach ($dirs as $dir) {
 </html>
 <?php
 // }}}
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

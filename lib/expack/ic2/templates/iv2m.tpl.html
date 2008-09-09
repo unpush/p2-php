@@ -6,13 +6,14 @@
 	<meta http-equiv="Content-Style-Type" content="text/css" />
 	<meta http-equiv="Content-Script-Type" content="text/javascript" />
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+	{extra_headers_x:h}
 	<title>{title}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
 	<link rel="stylesheet" type="text/css" href="css.php?css=iv2&amp;skin={skin}" />
-	<script type="text/javascript" src="js/basic.js?{rep2expack:h}"></script>
-	<script type="text/javascript" src="js/iv2.js?{rep2expack:h}"></script>
-	<script type="text/javascript" src="js/iv2m.js?{rep2expack:h}"></script>
+	<script type="text/javascript" src="js/basic.js?{p2vid:h}"></script>
+	<script type="text/javascript" src="js/iv2.js?{p2vid:h}"></script>
+	<script type="text/javascript" src="js/iv2m.js?{p2vid:h}"></script>
 	{js:h}
 	{if:lightbox}<flexy:include src="_iv2_lightbox.tpl.html"/>
 	{else:}<flexy:include src="_iv2_onload.tpl.html" flexy:if="!lightbox"/>

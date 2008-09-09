@@ -1,10 +1,12 @@
 <?php
 /**
- * rep2expack - RSS画像キャッシュ
+ * rep2expck - RSS画像キャッシュ
  */
 
-require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+
+// {{{ rss_get_image()
 
 /**
  * イメージキャッシュのURLと画像サイズを返す
@@ -22,30 +24,35 @@ function rss_get_image($src_url, $memo='')
     return $cache[$key];
 }
 
+// }}}
+// {{{ rss_get_image_ic2()
+
 /**
  * イメージキャッシュのURLと画像サイズを返す (ImageCache2)
  */
 function rss_get_image_ic2($src_url, $memo='')
 {
-    $icdb = &new IC2DB_images;
-    static $thumbnailer = null;
-    static $thumbnailer_k = null;
+    static $thumbnailer = NULL;
+    static $thumbnailer_k = NULL;
+
     if (is_null($thumbnailer)) {
-        $thumbnailer = &new ThumbNailer(1);
-        $thumbnailer_k = &new ThumbNailer(2);
+        $thumbnailer = new ThumbNailer(1);
+        $thumbnailer_k = new ThumbNailer(2);
     }
 
+    $icdb = new IC2DB_images;
+
     if ($thumbnailer->ini['General']['automemo'] && $memo !== '') {
-        $img_memo = IC2DB_Images::uniform($memo, 'SJIS-win');
+        $img_memo = $icdb->uniform($memo, 'CP932');
         if ($memo !== '') {
-            $img_memo_query = '&amp;hint=' . rawurlencode($_conf['detect_hint_utf8']);
+            $img_memo_query = '&amp;' . $_conf['detect_hint_q_utf8'];
             $img_memo_query .= '&amp;memo=' . rawurlencode($img_memo);
         } else {
-            $img_memo = null;
+            $img_memo = NULL;
             $img_memo_query = '';
         }
     } else {
-        $img_memo = null;
+        $img_memo = NULL;
         $img_memo_query = '';
     }
 
@@ -65,7 +72,7 @@ function rss_get_image_ic2($src_url, $memo='')
     $thumb_k_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en;
     $thumb_k_url2 = 'ic2.php?r=0&amp;t=1&amp;id=';
     $thumb_k_size = '';
-    $src_exists = false;
+    $src_exists = FALSE;
 
     // DBに画像情報が登録されていたとき
     if ($icdb->get($src_url)) {
@@ -86,7 +93,7 @@ function rss_get_image_ic2($src_url, $memo='')
         if (file_exists($_img_url)) {
             $img_url = $_img_url;
             $img_size = "width=\"{$icdb->width}\" height=\"{$icdb->height}\"";
-            $src_exists = true;
+            $src_exists = TRUE;
         }
 
         // サムネイルが作成されていているときは画像を直接読み込む
@@ -94,8 +101,8 @@ function rss_get_image_ic2($src_url, $memo='')
         if (file_exists($_thumb_url)) {
             $thumb_url = $_thumb_url;
             // 自動タイトルメモ機能がONでタイトルが記録されていないときはDBを更新
-            if (!is_null($img_memo) && !strstr($icdb->memo, $img_memo)){
-                $update = &new IC2DB_images;
+            if (!is_null($img_memo) && strpos($icdb->memo, $img_memo) === false){
+                $update = new IC2DB_images;
                 if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                     $update->memo = $img_memo . ' ' . $icdb->memo;
                 } else {
@@ -140,6 +147,8 @@ function rss_get_image_ic2($src_url, $memo='')
 
     return $result;
 }
+
+// }}}
 
 /*
  * Local Variables:

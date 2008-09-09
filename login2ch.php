@@ -1,10 +1,10 @@
 <?php
 /**
- *    p2 - 2ch●ログイン管理
+ * rep2 - 2ch●ログイン管理
  */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -28,7 +28,7 @@ if (isset($_POST['login2chID']) && isset($_POST['login2chPW'])) {
 
     P2Util::saveIdPw2ch($_POST['login2chID'], $_POST['login2chPW'], $autoLogin2ch);
 
-    include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
+    include_once P2_LIB_DIR . '/login2ch.inc.php';
     login2ch();
 }
 
@@ -42,7 +42,7 @@ if ($array = P2Util::readIdPw2ch()) {
 //==============================================================
 if (isset($_GET['login2ch'])) {
     if ($_GET['login2ch'] == "in") {
-        include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
+        include_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     } elseif ($_GET['login2ch'] == "out") {
         if (file_exists($_conf['sid2ch_php'])) {
@@ -55,13 +55,13 @@ if (isset($_GET['login2ch'])) {
 // ヘッダ
 //================================================================
 if ($_conf['ktai']) {
-    $login_st       = 'ﾛｸﾞｲﾝ';
-    $logout_st      = 'ﾛｸﾞｱｳﾄ';
-    $password_st    = 'ﾊﾟｽﾜｰﾄﾞ';
+    $login_st = "ﾛｸﾞｲﾝ";
+    $logout_st = "ﾛｸﾞｱｳﾄ";
+    $password_st = "ﾊﾟｽﾜｰﾄﾞ";
 } else {
-    $login_st       = 'ログイン';
-    $logout_st      = 'ログアウト';
-    $password_st    = 'パスワード';
+    $login_st = "ログイン";
+    $logout_st = "ログアウト";
+    $password_st = "パスワード";
 }
 
 if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
@@ -70,36 +70,33 @@ if (file_exists($_conf['sid2ch_php'])) { // 2ch●書き込み
     $ptitle = "2ch{$login_st}管理";
 }
 
-$body_onload = '';
-if (!$_conf['ktai']) {
-    $body_onload = " onLoad=\"setWinTitle();\"";
-}
-
 P2Util::header_nocache();
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=login2ch&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=login2ch&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="setWinTitle();"';
 
 echo <<<EOP
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function checkPass2ch(){
         if (pass2ch_input = document.getElementById('login2chPW')) {
             if (pass2ch_input.value == "") {
@@ -108,7 +105,7 @@ echo <<<EOP
             }
         }
     }
-    // -->
+    //]]>
     </script>
 </head>
 <body{$body_at}>
@@ -120,7 +117,8 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-P2Util::printInfoHtml();
+echo $_info_msg_ht;
+$_info_msg_ht = "";
 
 //================================================================
 // 2ch●ログインフォーム
@@ -181,7 +179,7 @@ echo <<<EOFORM
     ID: <input type="text" name="login2chID" value="{$login2chID}"{$id_input_size_at}><br>
     {$password_st}: <input type="password" name="login2chPW" id="login2chPW"{$pass_input_size_at}><br>
     <input type="checkbox" id="autoLogin2ch" name="autoLogin2ch" value="1"{$autoLogin2ch_checked}><label for="autoLogin2ch">起動時に自動{$login_st}する</label><br>
-    <input type="submit" name="submit" value="{$idsub_str}" onClick="return checkPass2ch();">
+    <input type="submit" name="submit" value="{$idsub_str}" onclick="return checkPass2ch();">
 </form>\n
 EOFORM;
 
@@ -198,8 +196,7 @@ echo <<<EOP
 EOP;
 
 if ($_conf['ktai']) {
-    echo "<hr>";
-    echo $_conf['k_to_index_ht'];
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 }
 
 echo '</body></html>';

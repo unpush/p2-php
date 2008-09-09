@@ -1,74 +1,66 @@
 <?php
-/*
-    p2 - スレッド表示スクリプト
-    フレーム分割画面、右下部分
-*/
+/**
+ * rep2 - スレッド表示スクリプト
+ * フレーム分割画面、右下部分
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/thread.class.php';
-require_once P2_LIBRARY_DIR . '/threadread.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/ngabornctl.class.php';
-require_once P2_LIBRARY_DIR . '/showthread.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/threadread.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/ngabornctl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
+//================================================================
 // 変数
+//================================================================
 $newtime = date('gis');  // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 // $_today = date('y/m/d');
+$is_ajax = !empty($_GET['ajax']);
 
+//=================================================
 // スレの指定
-list($host, $bbs, $key, $ls) = detectThread();
+//=================================================
+detectThread();    // global $host, $bbs, $key, $ls
 
-// {{{ レスフィルタ
+//=================================================
+// レスフィルタ
+//=================================================
+$word = isset($_REQUEST['word']) ? $_REQUEST['word'] : null;
+$res_filter = array('field' => 'hole', 'match' => 'on', 'method' => 'or');
+if (!empty($_REQUEST['field']))  { $res_filter['field']  = $_REQUEST['field'];  }
+if (!empty($_REQUEST['match']))  { $res_filter['match']  = $_REQUEST['match'];  }
+if (!empty($_REQUEST['method'])) { $res_filter['method'] = $_REQUEST['method']; }
 
-$GLOBALS['word'] = null;
-if (isset($_POST['word']))  { $GLOBALS['word'] = $_POST['word']; }
-if (isset($_GET['word']))   { $GLOBALS['word'] = $_GET['word']; }
-if (isset($_POST['field'])) { $res_filter['field'] = $_POST['field']; }
-if (isset($_GET['field']))  { $res_filter['field'] = $_GET['field']; }
-if (isset($_POST['match'])) { $res_filter['match'] = $_POST['match']; }
-if (isset($_GET['match']))  { $res_filter['match'] = $_GET['match']; }
-if (isset($_POST['method'])){ $res_filter['method'] = $_POST['method']; }
-if (isset($_GET['method'])) { $res_filter['method'] = $_GET['method']; }
-
-if (strlen($GLOBALS['word']) > 0) {
-
-    // デフォルトオプション
-    if (empty($res_filter['field']))  { $res_filter['field']  = 'hole'; }
-    if (empty($res_filter['match']))  { $res_filter['match']  = 'on'; }
-    if (empty($res_filter['method'])) { $res_filter['method'] = 'or'; }
-
-    if (!($res_filter['method'] == 'regex' && preg_match('/^\.+$/', $GLOBALS['word']))) {
-        include_once P2_LIBRARY_DIR . '/strctl.class.php';
-        $GLOBALS['word_fm'] = StrCtl::wordForMatch($GLOBALS['word'], $res_filter['method']);
-        if ($res_filter['method'] != 'just') {
-            if (P2_MBREGEX_AVAILABLE == 1) {
-                $GLOBALS['words_fm'] = mb_split('\s+', $GLOBALS['word_fm']);
-            } else {
-                $GLOBALS['words_fm'] = preg_split('/\s+/', $GLOBALS['word_fm']);
-            }
-            $GLOBALS['word_fm'] = implode('|', $GLOBALS['words_fm']);
+if (isset($word) && strlen($word) > 0) {
+    if ($res_filter['method'] == 'regex' && substr_count($word, '.') == strlen($word)) {
+        $word = null;
+    } elseif (p2_set_filtering_word($word, $res_filter['method']) !== null) {
+        $_conf['filtering'] = true;
+        if ($_conf['ktai']) {
+            $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
+            $filter_range = array(
+                'page'  => $page,
+                'start' => ($page - 1) * $_conf['mobile.rnum_range'] + 1,
+                'to'    => $page * $_conf['mobile.rnum_range'],
+            );
         }
-    }
-    if ($_conf['ktai']) {
-        $filter_page = isset($_REQUEST['filter_page']) ? max(1, intval($_REQUEST['filter_page'])) : 1;
-        $filter_range = array();
-        $filter_range['start'] = ($filter_page - 1) * $_conf['k_rnum_range'] + 1;
-        $filter_range['to'] = $filter_range['start'] + $_conf['k_rnum_range'] - 1;
+    } else {
+        $word = null;
     }
 } else {
+    $word = null;
 }
 
-// }}}
-// {{{ フィルタ値保存
-
+//=================================================
+// フィルタ値保存
+//=================================================
 $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 
 // フィルタ指定がなければ前回保存を読み込む（フォームのデフォルト値で利用）
 if (!isset($GLOBALS['word'])) {
 
-    if ($res_filter_cont = @file_get_contents($cachefile)) {
+    if ($res_filter_cont = FileCtl::file_read_contents($cachefile)) {
         $res_filter = unserialize($res_filter_cont);
     }
 
@@ -83,15 +75,16 @@ if (!isset($GLOBALS['word'])) {
         }
         if ($res_filter_cont && !$popup_filter) {
             if (FileCtl::file_write_contents($cachefile, $res_filter_cont) === false) {
-                die("Error: cannot write file.");
+                p2die('cannot write file.');
             }
         }
     }
 }
 
-// }}}
 
+//=================================================
 // あぼーん&NGワード設定読み込み
+//=================================================
 $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 
 //==================================================================
@@ -99,15 +92,17 @@ $GLOBALS['ngaborns'] = NgAbornCtl::loadNgAborns();
 //==================================================================
 
 if (!isset($aThread)) {
-    $aThread =& new ThreadRead();
+    $aThread = new ThreadRead();
 }
 
 // lsのセット
 if (!empty($ls)) {
-    $aThread->ls = strip_tags(mb_convert_kana($ls, 'a'));
+    $aThread->ls = mb_convert_kana($ls, 'a');
 }
 
-// {{{ idxの読み込み
+//==========================================================
+// idxの読み込み
+//==========================================================
 
 // hostを分解してidxファイルのパスを求める
 if (!isset($aThread->keyidx)) {
@@ -121,49 +116,54 @@ $aThread->itaj = P2Util::getItaName($host, $bbs);
 if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 
 // idxファイルがあれば読み込む
-if (file_exists($aThread->keyidx)) {
-    $lines = file($aThread->keyidx);
-    $idx_data = explode('<>', rtrim($lines[0]));
+if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+    $idx_data = explode('<>', $lines[0]);
+} else {
+    $idx_data = array_fill(0, 12, '');
 }
 $aThread->getThreadInfoFromIdx();
 
-// }}}
-// {{{ preview >>1
+//==========================================================
+// preview >>1
+//==========================================================
 
-if (!empty($_GET['onlyone'])) {
-
+//if (!empty($_GET['onlyone'])) {
+if (!empty($_GET['one'])) {
     $aThread->ls = '1';
+    $aThread->resrange = array('start' => 1, 'to' => 1, 'nofirst' => false);
 
     // 必ずしも正確ではないが便宜的に
-    if (!isset($aThread->rescount) and !empty($_GET['rc'])) {
-        $aThread->rescount = $_GET['rc'];
+    //if (!isset($aThread->rescount) && !empty($_GET['rc'])) {
+    if (!isset($aThread->rescount) && !empty($_GET['rescount'])) {
+        //$aThread->rescount = $_GET['rc'];
+        $aThread->rescount = (int)$_GET['rescount'];
     }
 
-    $body = $aThread->previewOne();
     $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . ' / ' . $aThread->ttitle_hd;
 
     // PC
-    if (empty($GLOBALS['_conf']['ktai'])) {
-        $read_header_inc_php = P2_LIBRARY_DIR . '/read_header.inc.php';
-        $read_footer_inc_php = P2_LIBRARY_DIR . '/read_footer.inc.php';
+    if (!$_conf['ktai']) {
+        $read_header_inc_php = P2_LIB_DIR . '/read_header.inc.php';
+        $read_footer_inc_php = P2_LIB_DIR . '/read_footer.inc.php';
     // 携帯
     } else {
-        $read_header_inc_php = P2_LIBRARY_DIR . '/read_header_k.inc.php';
-        $read_footer_inc_php = P2_LIBRARY_DIR . '/read_footer_k.inc.php';
+        $read_header_inc_php = P2_LIB_DIR . '/read_header_k.inc.php';
+        $read_footer_inc_php = P2_LIB_DIR . '/read_footer_k.inc.php';
     }
-    include_once $read_header_inc_php;
 
-    echo $body;
-
-    include_once $read_footer_inc_php;
+    require_once $read_header_inc_php;
+    echo $aThread->previewOne();
+    require_once $read_footer_inc_php;
 
     return;
 }
 
-// }}}
-
+//===========================================================
 // DATのダウンロード
-if (empty($_GET['offline'])) {
+//===========================================================
+$offline = !empty($_GET['offline']);
+
+if (!$offline) {
     $aThread->downloadDat();
 }
 
@@ -171,18 +171,19 @@ if (empty($_GET['offline'])) {
 $aThread->readDat();
 
 // オフライン指定でもログがなければ、改めて強制読み込み
-if (empty($aThread->datlines) && !empty($_GET['offline'])) {
+if (empty($aThread->datlines) && $offline) {
     $aThread->downloadDat();
     $aThread->readDat();
 }
 
+// タイトルを取得して設定
+$aThread->setTitleFromLocal();
 
-$aThread->setTitleFromLocal(); // タイトルを取得して設定
-
-// {{{ 表示レス番の範囲を設定する
-
+//===========================================================
+// 表示レス番の範囲を設定
+//===========================================================
 if ($_conf['ktai']) {
-    $before_respointer = $_conf['before_respointer_k'];
+    $before_respointer = $_conf['mobile.before_respointer'];
 } else {
     $before_respointer = $_conf['before_respointer'];
 }
@@ -195,7 +196,7 @@ if ($aThread->isKitoku()) {
         if (substr($aThread->ls, -1) == '-') {
             $n = $aThread->ls - $before_respointer;
             if ($n < 1) { $n = 1; }
-            $aThread->ls = "$n-";
+            $aThread->ls = $n . '-';
         }
 
     } elseif (!$aThread->ls) {
@@ -205,10 +206,10 @@ if ($aThread->isKitoku()) {
         } elseif ($from_num > $aThread->rescount) {
             $from_num = $aThread->rescount - $_conf['respointer'] - $before_respointer;
         }
-        $aThread->ls = "$from_num-";
+        $aThread->ls = $from_num . '-';
     }
 
-    if ($_conf['ktai'] && (!strstr($aThread->ls, 'n'))) {
+    if ($_conf['ktai'] && strpos($aThread->ls, 'n') === false) {
         $aThread->ls = $aThread->ls . 'n';
     }
 
@@ -220,79 +221,76 @@ if ($aThread->isKitoku()) {
 }
 
 // フィルタリングの時は、all固定とする
-if (isset($GLOBALS['word'])) {
+if (isset($word)) {
     $aThread->ls = 'all';
 }
 
 $aThread->lsToPoint();
 
-// }}}
-
+//===============================================================
 // プリント
-$ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . ' / '. $aThread->ttitle_hd;
+//===============================================================
+$ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES)." / ".$aThread->ttitle_hd;
 
 if ($_conf['ktai']) {
 
     if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
         $GLOBALS['filter_hits'] = 0;
     } else {
-        $GLOBALS['filter_hits'] = null;
+        $GLOBALS['filter_hits'] = NULL;
     }
 
-    // ヘッダプリント
-    include_once P2_LIBRARY_DIR . '/read_header_k.inc.php';
+    require_once P2_LIB_DIR . '/showthreadk.class.php';
+    $aShowThread = new ShowThreadK($aThread);
 
-    if ($aThread->rescount) {
-        include_once P2_LIBRARY_DIR . '/showthreadk.class.php';
-        $aShowThread =& new ShowThreadK($aThread);
+    if ($is_ajax) {
+        header('Content-Type: text/plain; charset=UTF-8');
+        echo mb_convert_encoding($aShowThread->getDatToHtml(), 'UTF-8', 'CP932');
+    } else {
+        include_once P2_LIB_DIR . '/read_header_k.inc.php';
         $aShowThread->datToHtml();
+        if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
+            echo $aShowThread->getSpmObjJs();
+        }
+        include_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
-
-    // フッタプリント
-    if ($filter_hits !== null) {
-        resetReadNaviFooterK();
-    }
-    include_once P2_LIBRARY_DIR . '/read_footer_k.inc.php';
 
 } else {
 
     // ヘッダ 表示
-    include_once P2_LIBRARY_DIR . '/read_header.inc.php';
+    include_once P2_LIB_DIR . '/read_header.inc.php';
     flush();
 
     //===========================================================
     // ローカルDatを変換してHTML表示
     //===========================================================
     // レスがあり、検索指定があれば
-    if (strlen($GLOBALS['word']) > 0 && $aThread->rescount) {
+    if (isset($word) && $aThread->rescount) {
 
         $all = $aThread->rescount;
 
         $GLOBALS['filter_hits'] = 0;
 
-        $hits_line = "<p><b id=\"filerstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>";
+        echo "<p><b id=\"filerstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>\n";
         echo <<<EOP
 <script type="text/javascript">
-<!--
-document.writeln('{$hits_line}');
+//<![CDATA[
 var searching = document.getElementById('searching');
-
 function filterCount(n){
     if (searching) {
         searching.innerHTML = n;
     }
 }
--->
+//]]>
 </script>
 EOP;
     }
 
-    $debug && $profiler->enterSection("datToHtml");
+    //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("datToHtml");
 
     if ($aThread->rescount) {
-
-        include_once P2_LIBRARY_DIR . '/showthreadpc.class.php';
-        $aShowThread =& new ShowThreadPc($aThread);
+        require_once P2_LIB_DIR . '/showthreadpc.class.php';
+        $aShowThread = new ShowThreadPc($aThread);
 
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
         echo $res1['q'];
@@ -302,25 +300,25 @@ EOP;
         }*/
         // SPM
         if ($_conf['expack.spm.enabled']) {
-            echo $aShowThread->getSPMObjJs();
+            echo $aShowThread->getSpmObjJs();
         }
 
         $aShowThread->datToHtml();
     }
 
-    $debug && $profiler->leaveSection("datToHtml");
+    //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("datToHtml");
 
     // フィルタ結果を表示
-    if (strlen($GLOBALS['word']) > 0 && $aThread->rescount) {
+    if ($word && $aThread->rescount) {
         echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 var filerstart = document.getElementById('filerstart');
 if (filerstart) {
     filerstart.style.backgroundColor = 'yellow';
     filerstart.style.fontWeight = 'bold';
 }
--->
+//]]>
 </script>\n
 EOP;
         if ($GLOBALS['filter_hits'] > 5) {
@@ -329,17 +327,18 @@ EOP;
     }
 
     // フッタ 表示
-    include_once P2_LIBRARY_DIR . '/read_footer.inc.php';
+    include_once P2_LIB_DIR . '/read_footer.inc.php';
 
 }
 flush();
 
-// {{{ idxの値を設定、記録
-
+//===========================================================
+// idxの値を設定、記録
+//===========================================================
 if ($aThread->rescount) {
 
     // 検索の時は、既読数を更新しない
-    if (isset($GLOBALS['word']) and strlen($GLOBALS['word']) > 0) {
+    if ((isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) || $is_ajax) {
         $aThread->readnum = $idx_data[5];
     } else {
         $aThread->readnum = min($aThread->rescount, max(0, $idx_data[5], $aThread->resrange['to']));
@@ -352,132 +351,71 @@ if ($aThread->rescount) {
     P2Util::recKeyIdx($aThread->keyidx, $sar); // key.idxに記録
 }
 
-// }}}
-
+//===========================================================
 // 履歴を記録
-if ($aThread->rescount) {
-    $newdata = "{$aThread->ttitle}<>{$aThread->key}<>{$idx_data[2]}<><><>{$aThread->readnum}<>{$idx_data[6]}<>{$idx_data[7]}<>{$idx_data[8]}<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
+//===========================================================
+if ($aThread->rescount && !$is_ajax) {
+    $newdata = "{$aThread->ttitle}<>{$aThread->key}<>$idx_data[2]<><><>{$aThread->readnum}<>$idx_data[6]<>$idx_data[7]<>$idx_data[8]<>{$newline}<>{$aThread->host}<>{$aThread->bbs}";
     recRecent($newdata);
 }
 
 // NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
 
-// 以上
+// 以上 ---------------------------------------------------------------
 exit;
 
-
 //===============================================================================
-// 関数 （このファイル内でのみ利用）
+// 関数
 //===============================================================================
+// {{{ detectThread()
 
 /**
  * スレッドを指定する
- *
- * @return  array|false
  */
 function detectThread()
 {
-    global $_conf;
+    global $_conf, $host, $bbs, $key, $ls;
 
-    // スレURLの直接指定
-    if (($url = $_GET['nama_url']) || ($url = $_GET['url'])) { 
-
-            $url = trim($url);
-
-            // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            if (preg_match('{http://([^/]+\.(2ch\.net|bbspink\.com))/test/read\.cgi/([^/]+)/([0-9]+)/?([^/]+)?}', $url, $matches)) {
-                $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[5];
-
-            // c-docomo c-au c-other http://c-au.2ch.net/test/--3!mail=sage/operate/1159594301/519-n
-            } elseif (preg_match('{http://((c-docomo|c-au|c-other)\.2ch\.net)/test/([^/]+)/([^/]+)/([0-9]+)/?([^/]+)?}', $url, $m)) {
-                require_once P2_LIBRARY_DIR . '/BbsMap.class.php';
-                if ($mapped_host = BbsMap::get2chHostByBbs($m[4])) {
-                    $host = $mapped_host;
-                    $bbs = $m[4];
-                    $key = $m[5];
-                    $ls = $m[6];
-                }
-
-            // 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
-            } elseif ( preg_match("/(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html/", $url, $matches) ){ //2ch pink 過去ログhtml
-                $host = $matches[2];
-                $bbs = $matches[5];
-                $key = $matches[7];
-                $kakolog_uri = $matches[1];
-                $_GET['kakolog'] = urlencode($kakolog_uri);
-
-            // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
-            } elseif ( preg_match("/http:\/\/([^\/]+\.machibbs\.com|[^\/]+\.machi\.to)\/bbs\/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*/", $url, $matches) ){
-                $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[6] ."-". $matches[8];
-            } elseif (preg_match("{http://((jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}", $url, $matches)) {
-                $host = $matches[1];
-                $bbs = $matches[5];
-                $key = $matches[6];
-                $ls = $matches[8] ."-". $matches[10];
-
-            // したらばJBBS http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100
-            } elseif ( preg_match("{http://(jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^\"]*}", $url, $matches) ){
-                $host = $matches[1] ."/". $matches[2];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[5];
-            }
-
-    } else {
-        if ($_GET['host'])  { $host = $_GET['host']; } // "pc.2ch.net"
-        if ($_POST['host']) { $host = $_POST['host']; }
-        if ($_GET['bbs'])   { $bbs  = $_GET['bbs']; } // "php"
-        if ($_POST['bbs'])  { $bbs  = $_POST['bbs']; }
-        if ($_GET['key'])   { $key  = $_GET['key']; } // "1022999539"
-        if ($_POST['key'])  { $key  = $_POST['key']; }
-        if ($_GET['ls'])    { $ls   = $_GET['ls']; } // "all"
-        if ($_POST['ls'])   { $ls   = $_POST['ls']; }
-    }
+    list($nama_url, $host, $bbs, $key, $ls) = P2Util::detectThread();
 
     if (!($host && $bbs && $key)) {
-        $htm['url'] = htmlspecialchars($url, ENT_QUOTES);
-        $msg = "p2 - {$_conf['read_php']}: スレッドの指定が変です。<br>"
-            . "<a href=\"{$htm['url']}\">" . $htm['url'] . "</a>";
-        die($msg);
-        return false;
+        if ($nama_url) {
+            $nama_url = htmlspecialchars($nama_url, ENT_QUOTES);
+            p2die('スレッドの指定が変です。', "<a href=\"{$nama_url}\">{$nama_url}</a>", true);
+        } else {
+            p2die('スレッドの指定が変です。');
+        }
     }
-
-    return array($host, $bbs, $key, $ls);
 }
+
+// }}}
+// {{{ recRecent()
 
 /**
  * 履歴を記録する
- *
- * @return  boolean
  */
 function recRecent($data)
 {
     global $_conf;
 
-    if (false === FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm'])) {
-        return false;
-    }
+    $lock = new P2Lock($_conf['recent_idx'], false);
 
-    $lines = file($_conf['rct_file']);
+    // $_conf['recent_idx'] ファイルがなければ生成
+    FileCtl::make_datafile($_conf['recent_idx'], $_conf['rct_perm']);
+
+    $lines = FileCtl::file_read_lines($_conf['recent_idx'], FILE_IGNORE_NEW_LINES);
     $neolines = array();
 
     // {{{ 最初に重複要素を削除しておく
 
     if (is_array($lines)) {
-        foreach ($lines as $line) {
-            $line = rtrim($line);
-            $lar = explode('<>', $line);
+        foreach ($lines as $l) {
+            $lar = explode('<>', $l);
             $data_ar = explode('<>', $data);
             if ($lar[1] == $data_ar[1]) { continue; } // keyで重複回避
             if (!$lar[1]) { continue; } // keyのないものは不正データ
-            $neolines[] = $line;
+            $neolines[] = $l;
         }
     }
 
@@ -498,18 +436,17 @@ function recRecent($data)
             $cont .= $l . "\n";
         }
 
-        if (FileCtl::filePutRename($_conf['rct_file'], $cont) === false) {
-            $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
-            trigger_error($errmsg, E_USER_WARNING);
-            return false;
+        if (FileCtl::file_write_contents($_conf['recent_idx'], $cont) === false) {
+            p2die('cannot write file.');
         }
-
     }
 
     // }}}
 
     return true;
 }
+
+// }}}
 
 /*
  * Local Variables:

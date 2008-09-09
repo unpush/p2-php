@@ -1,12 +1,12 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
 /*
-	ImageCache2::Downloader
-*/
+ *ImageCache2::Downloader
+ */
 
-//==============================================================
-// URL に連番指定が入っているかを判定し、フォームの各要素を操作する
-//==============================================================
+// {{{ checkSerial()
+
+/*
+ * URL に連番指定が入っているかを判定し、フォームの各要素を操作する
+ */
 function checkSerial(url)
 {
 	var re = /\[[0-9]+-[0-9]+\]/;
@@ -26,9 +26,12 @@ function checkSerial(url)
 	}
 }
 
-//==============================================================
-// 連番の範囲を指定する要素の有効・無効を切り替える
-//==============================================================
+// }}}
+// {{{ setSerialAvailable()
+
+/*
+ * 連番の範囲を指定する要素の有効・無効を切り替える
+ */
 function setSerialAvailable(onoff)
 {
 	var from = document.getElementById('s_from');
@@ -52,3 +55,16 @@ function setSerialAvailable(onoff)
 		pad.disabled  = true;
 	}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

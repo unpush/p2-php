@@ -1,28 +1,25 @@
 <?php
-/*
-    p2 - レス書き込み
-*/
+/**
+ * rep2 - レス書き込み
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/dataphp.class.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
 if (!empty($_conf['disable_res'])) {
-    P2Util::printSimpleHtml('p2 error: 書き込み機能は無効です。');
-    die('');
+    p2die('書き込み機能は無効です。');
 }
 
 // 引数エラー
 if (empty($_POST['host'])) {
-    P2Util::printSimpleHtml('p2 error: 引数の指定が変です');
-    die('');
+    p2die('引数の指定が変です');
 }
 
 if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-    P2Util::printSimpleHtml('p2 error: 不正なポストです');
-    die('');
+    p2die('不正なポストです');
 }
 
 if ($_conf['expack.aas.enabled'] && !empty($_POST['PREVIEW_AAS'])) {
@@ -36,10 +33,10 @@ if ($_conf['expack.aas.enabled'] && !empty($_POST['PREVIEW_AAS'])) {
 $newtime = date('gis');
 
 $post_keys = array(
-    'FROM', 'mail', 'MESSAGE',
-    'bbs', 'key', 'time',
-    'host', 'popup', 'rescount',
-    'subject', 'submit',
+    'FROM','mail','MESSAGE',
+    'bbs','key','time',
+    'host','popup','rescount',
+    'subject','submit',
     'sub',
     'ttitle_en');
 
@@ -56,6 +53,8 @@ if (!isset($ttitle)) {
         $ttitle = '';
     }
 }
+
+//$MESSAGE = rtrim($MESSAGE);
 
 // {{{ ソースコードがきれいに再現されるように変換
 
@@ -78,7 +77,7 @@ if (!empty($_POST['fix_source'])) {
 // {{{ クッキーの読み込み
 
 $cookie_file = P2Util::cachePathForCookie($host);
-if ($cookie_cont = @file_get_contents($cookie_file)) {
+if ($cookie_cont = FileCtl::file_read_contents($cookie_file)) {
     $p2cookies = unserialize($cookie_cont);
     if ($p2cookies['expires']) {
         if (time() > strtotime($p2cookies['expires'])) { // 期限切れなら破棄
@@ -101,7 +100,7 @@ if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
     // JBBS@したらば なら
     if (P2Util::isHostJbbsShitaraba($host)) {
         $bbs_cgi = "../../bbs/write.cgi";
-        preg_match("/(\w+)$/", $host, $ar);
+        preg_match('/(\\w+)$/', $host, $ar);
         $dir = $ar[1];
         $dir_k = "DIR";
     }
@@ -155,11 +154,11 @@ if (!empty($_POST['newthread'])) {
 
 // {{{ 2chで●ログイン中ならsid追加
 
-if (!empty($_POST['maru_kakiko']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
+if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['sid2ch_php'])) {
 
     // ログイン後、24時間以上経過していたら自動再ログイン
-    if (file_exists($_conf['idpw2ch_php']) and @filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
-        include_once P2_LIBRARY_DIR . '/login2ch.inc.php';
+    if (file_exists($_conf['idpw2ch_php']) && filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
+        include_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     }
 
@@ -182,21 +181,25 @@ if (!empty($_POST['newthread'])) {
 // 書き込み処理
 //================================================================
 
+//=============================================
 // ポスト実行
+//=============================================
 $posted = postIt($host, $bbs, $key, $post);
 
+//=============================================
 // cookie 保存
-FileCtl::make_datafile($cookie_file, $_conf['p2_perm']);
-if ($p2cookies) {
-    $cookie_cont = serialize($p2cookies);
-}
+//=============================================
+FileCtl::make_datafile($cookie_file, $_conf['p2_perm']); // なければ生成
+if ($p2cookies) {$cookie_cont = serialize($p2cookies);}
 if ($cookie_cont) {
-    if (file_put_contents($cookie_file, $cookie_cont, LOCK_EX) === false) {
-        die("Error: cannot write file.");
+    if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
+        p2die('cannot write file.');
     }
 }
 
+//=============================================
 // スレ立て成功なら、subjectからkeyを取得
+//=============================================
 if (!empty($_POST['newthread']) && $posted) {
     sleep(1);
     $key = getKeyInSubject();
@@ -214,12 +217,11 @@ $tag_rec_n['FROM'] = ($tag_rec['FROM'] == '') ? 'P2NULL' : $tag_rec['FROM'];
 $tag_rec_n['mail'] = ($tag_rec['mail'] == '') ? 'P2NULL' : $tag_rec['mail'];
 
 if ($host && $bbs && $key) {
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $keyidx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
+    $keyidx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
 
-    $akeyline = array();
-    if ($keylines = @file($keyidx)) {
-        $akeyline = explode('<>', rtrim($keylines[0]));
+    // 読み込み
+    if ($keylines = FileCtl::file_read_lines($keyidx, FILE_IGNORE_NEW_LINES)) {
+        $akeyline = explode('<>', $keylines[0]);
     }
     $sar = array($akeyline[0], $akeyline[1], $akeyline[2], $akeyline[3], $akeyline[4],
                  $akeyline[5], $akeyline[6], $tag_rec_n['FROM'], $tag_rec_n['mail'], $akeyline[9],
@@ -236,44 +238,52 @@ if (empty($posted)) {
 
 if ($host && $bbs && $key) {
 
-    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
-    FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']);
+    $lock = new P2Lock($_conf['res_hist_idx'], false);
 
-    $lines = file($rh_idx);
+    FileCtl::make_datafile($_conf['res_hist_idx'], $_conf['res_write_perm']); // なければ生成
+
+    $lines = FileCtl::file_read_lines($_conf['res_hist_idx'], FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
 
-    // 最初に重複要素を削除しておく
+    // {{{ 最初に重複要素を削除しておく
+
     if (is_array($lines)) {
         foreach ($lines as $line) {
-            $line = rtrim($line);
             $lar = explode('<>', $line);
-            if ($lar[1] == $key) { continue; } // 重複回避
-            if (!$lar[1]) { continue; } // keyのないものは不正データ
+            // 重複回避, keyのないものは不正データ
+            if (!$lar[1] || $lar[1] == $key) {
+                continue;
+            } 
             $neolines[] = $line;
         }
     }
 
+    // }}}
+
     // 新規データ追加
-    $newdata = "$ttitle<>$key<><><><><><>".$tag_rec['FROM'].'<>'.$tag_rec['mail']."<><>$host<>$bbs";
+    $newdata = "{$ttitle}<>{$key}<><><><><><>{$tag_rec['FROM']}<>{$tag_rec['mail']}<><>{$host}<>{$bbs}";
     array_unshift($neolines, $newdata);
     while (sizeof($neolines) > $_conf['res_hist_rec_num']) {
         array_pop($neolines);
     }
 
-    // 書き込む
+    // {{{ 書き込む
+
     if ($neolines) {
         $cont = '';
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
 
-        if (FileCtl::filePutRename($rh_idx, $cont) === false) {
-            $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed . ', __FUNCTION__);
-            trigger_error($errmsg, E_USER_WARNING);
-            //return false;
+        if (FileCtl::file_write_contents($_conf['res_hist_idx'], $cont) === false) {
+            p2die('cannot write file.');
         }
     }
+
+    // }}}
+
+    $lock->free();
 }
 
 //=============================================
@@ -288,7 +298,7 @@ if ($_conf['res_write_rec']) {
     $message = htmlspecialchars($MESSAGE, ENT_NOQUOTES);
     $message = preg_replace("/\r?\n/", "<br>", $message);
 
-    FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']);
+    FileCtl::make_datafile($_conf['res_hist_dat'], $_conf['res_write_perm']); // なければ生成
 
     $resnum = '';
     if (!empty($_POST['newthread'])) {
@@ -310,38 +320,37 @@ if ($_conf['res_write_rec']) {
     $cont = $newdata."\n";
 
     // 書き込み処理
-    if (file_put_contents($_conf['p2_res_hist_dat'], $cont, FILE_APPEND | LOCK_EX) === false) {
+    if (FileCtl::file_write_contents($_conf['res_hist_dat'], $cont, FILE_APPEND) === false) {
         trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
-        //P2Util::pushInfoHtml("<p>p2 error: 書き込みログの保存に失敗しました</p>");
+        //$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";
     }
 }
 
-exit;
-
 //===========================================================
-// 関数 （このファイル内でのみ利用）
+// 関数
 //===========================================================
+// {{{ postIt()
 
 /**
- * レスを書き込む or 新規スレッドを立てる
- * スレ立ての場合は、$key は空 '' でよい
+ * レスを書き込む
  *
  * @return boolean 書き込み成功なら true、失敗なら false
  */
 function postIt($host, $bbs, $key, $post)
 {
-    global $_conf, $post_result, $post_error2ch, $p2cookies, $popup, $rescount, $ttitle_en, $STYLE;
+    global $_conf, $post_result, $post_error2ch, $p2cookies, $popup, $rescount, $ttitle_en;
+    global $STYLE, $skin_en;
     global $bbs_cgi, $post_cache;
 
-    $method = 'POST';
-    $bbs_cgi_url = 'http://' . $host . $bbs_cgi;
+    $method = "POST";
+    $bbs_cgi_url = "http://" . $host.  $bbs_cgi;
 
-    $URL = parse_url($bbs_cgi_url);
-    if (isset($URL['query'])) {
-        $URL['query'] = '?' . $URL['query'];
+    $URL = parse_url($bbs_cgi_url); // URL分解
+    if (isset($URL['query'])) { // クエリー
+        $URL['query'] = "?".$URL['query'];
     } else {
-        $URL['query'] = '';
+        $URL['query'] = "";
     }
 
     // プロキシ
@@ -355,23 +364,23 @@ function postIt($host, $bbs, $key, $post)
         $send_path = $URL['path'] . $URL['query'];
     }
 
-    !$send_port and $send_port = 80;
+    if (!$send_port) { $send_port = 80; }    // デフォルトを80
 
-    $request = $method . " " . $send_path . " HTTP/1.0\r\n";
-    $request .= "Host: " . $URL['host'] . "\r\n";
+    $request = $method." ".$send_path." HTTP/1.0\r\n";
+    $request .= "Host: ".$URL['host']."\r\n";
 
-    $add_user_info = ''; //"; p2-client-ip: {$_SERVER['REMOTE_ADDR']}";
+    $add_user_info = "; p2-client-ip: {$_SERVER['REMOTE_ADDR']}";
 
     $httpua_fmt = "Monazilla/1.00 (%s/%s; expack-%s%s)";
     $httpua = sprintf($httpua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack'], $add_user_info);
     $request .= "User-Agent: ".$httpua."\r\n";
-    $request .= 'Referer: http://' . $URL['host'] . '/' . "\r\n";
+    $request .= 'Referer: http://'.$URL['host'].'/'."\r\n";
 
     // クライアントのIPを送信するp2独自のヘッダ
-    //$request .= 'X-P2-CLIENT-IP: ' . $_SERVER['REMOTE_ADDR'] . "/\r\n";
+    $request .= "p2-Client-IP: ".$_SERVER['REMOTE_ADDR']."/\r\n";
 
     // クッキー
-    $cookies_to_send = '';
+    $cookies_to_send = "";
     if ($p2cookies) {
         foreach ($p2cookies as $cname => $cvalue) {
             if ($cname != 'expires') {
@@ -380,11 +389,10 @@ function postIt($host, $bbs, $key, $post)
         }
     }
 
-    // be.2ch 認証クッキー
-    // be板では自動Be書き込みを試みる
-    if (P2Util::isBbsBe2chNet($host, $bbs) || !empty($_REQUEST['submit_beres'])) {
-        $cookies_to_send .= ' MDMD=' . $_conf['be_2ch_code'] . ';'; // be.2ch.netの認証コード(パスワードではない)
-        $cookies_to_send .= ' DMDM=' . $_conf['be_2ch_mail'] . ';'; // be.2ch.netの登録メールアドレス
+    // be.2ch.net 認証クッキー
+    if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['submit_beres'])) {
+        $cookies_to_send .= ' MDMD='.$_conf['be_2ch_code'].';';    // be.2ch.netの認証コード(パスワードではない)
+        $cookies_to_send .= ' DMDM='.$_conf['be_2ch_mail'].';';    // be.2ch.netの登録メールアドレス
     }
 
     if (!$cookies_to_send) { $cookies_to_send = ' ;'; }
@@ -401,10 +409,10 @@ function postIt($host, $bbs, $key, $post)
 
             // したらば or be.2ch.netなら、EUCに変換
             if (P2Util::isHostJbbsShitaraba($host) || P2Util::isHostBe2chNet($host)) {
-                $value = mb_convert_encoding($value, 'eucJP-win', 'SJIS-win');
+                $value = mb_convert_encoding($value, 'CP51932', 'CP932');
             }
 
-            $post_enc[] = $name."=".urlencode($value);
+            $post_enc[] = $name . '=' . rawurlencode($value);
         }
         $postdata = implode("&", $post_enc);
         $request .= "Content-Type: application/x-www-form-urlencoded\r\n";
@@ -416,9 +424,6 @@ function postIt($host, $bbs, $key, $post)
         $request .= "\r\n";
     }
     // }}}
-
-    $maru_kakiko = isset($_POST['maru_kakiko']) ? $_POST['maru_kakiko'] : '';
-    setConfUser('maru_kakiko', $_POST['maru_kakiko']);
 
     // 書き込みを一時的に保存
     $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
@@ -432,61 +437,64 @@ function postIt($host, $bbs, $key, $post)
         return false;
     }
 
-    // HTTPリクエスト送信
+    //echo '<h4>$request</h4><p>' . $request . "</p>"; //for debug
     fputs($fp, $request);
 
-    // header
     while (!feof($fp)) {
 
-        $l = fgets($fp, 8192);
+        if ($start_here) {
 
-        // クッキーキタ
-        if (preg_match("/Set-Cookie: (.+?)\r\n/", $l, $matches)) {
-            //echo "<p>".$matches[0]."</p>"; //
-            $cgroups = explode(";", $matches[1]);
-            if ($cgroups) {
-                foreach ($cgroups as $v) {
-                    if (preg_match("/(.+)=(.*)/", $v, $m)) {
-                        $k = ltrim($m[1]);
-                        if ($k != "path") {
-                            $p2cookies[$k] = $m[2];
+            while (!feof($fp)) {
+                $wr .= fread($fp, 164000);
+            }
+            $response = $wr;
+            break;
+
+        } else {
+            $l = fgets($fp, 164000);
+            //echo $l ."<br>"; // for debug
+            $response_header_ht .= $l."<br>";
+            // クッキーキタ
+            if (preg_match("/Set-Cookie: (.+?)\r\n/", $l, $matches)) {
+                //echo "<p>".$matches[0]."</p>"; //
+                $cgroups = explode(";", $matches[1]);
+                if ($cgroups) {
+                    foreach ($cgroups as $v) {
+                        if (preg_match("/(.+)=(.*)/", $v, $m)) {
+                            $k = ltrim($m[1]);
+                            if ($k != "path") {
+                                $p2cookies[$k] = $m[2];
+                            }
                         }
                     }
                 }
-            }
-            if ($p2cookies) {
-                unset($cookies_to_send);
-                foreach ($p2cookies as $cname => $cvalue) {
-                    if ($cname != "expires") {
-                        $cookies_to_send .= " {$cname}={$cvalue};";
+                if ($p2cookies) {
+                    unset($cookies_to_send);
+                    foreach ($p2cookies as $cname => $cvalue) {
+                        if ($cname != "expires") {
+                            $cookies_to_send .= " {$cname}={$cvalue};";
+                        }
                     }
+                    $newcokkies = "Cookie:{$cookies_to_send}\r\n";
+
+                    $request = preg_replace("/Cookie: .*?\r\n/", $newcokkies, $request);
                 }
-                $newcokkies = "Cookie:{$cookies_to_send}\r\n";
 
-                $request = preg_replace("/Cookie: .*?\r\n/", $newcokkies, $request);
+            // 転送は書き込み成功と判断
+            } elseif (preg_match("/^Location: /", $l, $matches)) {
+                $post_seikou = true;
             }
-
-        // 転送は書き込み成功と判断
-        } elseif (preg_match("/^Location: /", $l, $matches)) {
-            $post_seikou = true;
-        }
-        if ($l == "\r\n") {
-            break;
+            if ($l == "\r\n") {
+                $start_here = true;
+            }
         }
 
     }
-
-    // body
-    $response = '';
-    while (!feof($fp)) {
-        $response .= fread($fp, 164000);
-    }
-
     fclose($fp);
 
-    // be.2ch or JBBSしたらば 文字コード変換 EUC→SJIS
-    if (P2Util::isBbsBe2chNet($host, $bbs) || P2Util::isHostJbbsShitaraba($host)) {
-        $response = mb_convert_encoding($response, 'SJIS-win', 'eucJP-win');
+    // be.2ch.net or JBBSしたらば 文字コード変換 EUC→SJIS
+    if (P2Util::isHostBe2chNet($host) || P2Util::isHostJbbsShitaraba($host)) {
+        $response = mb_convert_encoding($response, 'CP932', 'CP51932');
 
         //<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">
         $response = preg_replace("{(<head>.*<META http-equiv=\"Content-Type\" content=\"text/html; charset=)EUC-JP(\">.*</head>)}is", "$1Shift_JIS$2", $response);
@@ -501,14 +509,10 @@ function postIt($host, $bbs, $key, $post)
 
     // カキコミ成功
     if (preg_match($kakikonda_match, $response, $matches) or $post_seikou) {
-
-        // クッキーの書き込み自動保存を消去する
-        isset($_COOKIE['post_msg']) and setcookie('post_msg', '', time() - 3600);
-
         $reload = empty($_POST['from_read_new']);
         showPostMsg(true, '書きこみが終わりました。', $reload);
 
-        // 投稿失敗記録があれば削除する
+        // 投稿失敗記録を削除
         if (file_exists($failed_post_file)) {
             unlink($failed_post_file);
         }
@@ -520,37 +524,38 @@ function postIt($host, $bbs, $key, $post)
     // cookie確認（post再チャレンジ）
     } elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
 
-        $htm['more_hidden_post'] = '';
-        $more_hidden_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru_kakiko', 'csrfid');
+        $GLOBALS['_post_form_hidden_values'] = <<<EOFORM
+<input type="hidden" name="host" value="{$host}">
+<input type="hidden" name="popup" value="{$popup}">
+<input type="hidden" name="rescount" value="{$rescount}">
+<input type="hidden" name="ttitle_en" value="{$ttitle_en}">
+EOFORM;
+        $more_hidden_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru', 'csrfid', 'k', 'b');
         foreach ($more_hidden_keys as $hk) {
             if (isset($_POST[$hk])) {
                 $value_hd = htmlspecialchars($_POST[$hk], ENT_QUOTES);
-                $htm['more_hidden_post'] .= "<input type=\"hidden\" name=\"{$hk}\" value=\"{$value_hd}\">\n";
+                $GLOBALS['_post_form_hidden_values'] .= "\n<input type=\"hidden\" name=\"{$hk}\" value=\"{$value_hd}\">";
             }
         }
 
-        $form_pattern = '/<form method=\"?POST\"? action=\"?\\.\\.\\/test\\/(sub)?bbs\\.cgi\"?>/i';
-        $form_replace = <<<EOFORM
-<form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['detect_hint_input_ht']}
-    <input type="hidden" name="host" value="{$host}">
-    <input type="hidden" name="popup" value="{$popup}">
-    <input type="hidden" name="rescount" value="{$rescount}">
-    <input type="hidden" name="ttitle_en" value="{$ttitle_en}">
-    <input type="hidden" name="sub" value="\$1">
-    {$htm['more_hidden_post']}
-    {$_conf['k_input_ht']}
-EOFORM;
-        $response = preg_replace($form_pattern, $form_replace, $response);
+        $replaced = preg_replace_callback('{<form method="?POST"? action="?\\.\\./test/(sub)?bbs\\.cgi(?:\\?guid=ON)?"?>(.+?)</form>}i', 'replacePostFormCb', $response, -1, $count);
 
-        $h_b = explode("</head>", $response);
+        if ($count != 1) {
+            echo '<html><head><title>p2 ERROR</title></head><body>';
+            echo '<h1>p2 ERROR</h1><p>サーバからのレスポンスが変です。</p><pre>';
+            echo htmlspecialchars($response, ENT_QUOTES);
+            echo '</pre></body></html>';
+            return false;
+        }
+
+        $h_b = explode('</head>', $replaced, 2);
 
         // HTMLプリント
         echo $h_b[0];
         if (!$_conf['ktai']) {
             echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=post&amp;skin={$skin_en}">\n
 EOP;
         }
         if ($popup) {
@@ -559,9 +564,9 @@ EOP;
             $mado_okisa_y = $mado_okisa[1] + 200;
             echo <<<EOSCRIPT
             <script type="text/javascript">
-            <!--
+            //<![CDATA[
                 resizeTo({$mado_okisa_x},{$mado_okisa_y});
-            // -->
+            //]]>
             </script>
 EOSCRIPT;
         }
@@ -579,19 +584,21 @@ EOSCRIPT;
     }
 }
 
-/**
- * 書き込み処理結果をHTML表示する
- *
- * @param   boolean  $is_done     書き込み完了したならtrue
- * @param   string   $result_msg  結果メッセージ
- * @param   boolean  $reload      opener画面を自動で更新するならtrue
- * @return  void
- */
-function showPostMsg($is_done, $result_msg, $reload)
-{
-    global $_conf, $location_ht, $popup, $STYLE, $ttitle;
+// }}}
+// {{{ showPostMsg()
 
-    // プリント用変数
+/**
+ * 書き込み処理結果表示する
+ *
+ * @return void
+ */
+function showPostMsg($isDone, $result_msg, $reload)
+{
+    global $_conf, $location_ht, $popup, $ttitle;
+    global $STYLE, $skin_en;
+    global $_info_msg_ht;
+
+    // プリント用変数 ===============
     if (!$_conf['ktai']) {
         $class_ttitle = ' class="thre_title"';
     }
@@ -602,49 +609,50 @@ function showPostMsg($is_done, $result_msg, $reload)
     if ($popup) {
         $popup_ht = <<<EOJS
 <script type="text/javascript">
-<!--
+//<![CDATA[
     opener.location.href="{$location_noenc}";
     var delay= 3*1000;
     setTimeout("window.close()", delay);
-// -->
+//]]>
 </script>
 EOJS;
 
     } else {
-        $meta_refresh_ht = <<<EOP
-        <meta http-equiv="refresh" content="1;URL={$location_noenc}">
+        $_conf['extra_headers_ht'] .= <<<EOP
+<meta http-equiv="refresh" content="1;URL={$location_noenc}">
 EOP;
     }
 
-    // プリント
+    // プリント ==============
     echo $_conf['doctype'];
     echo <<<EOHEADER
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-{$meta_refresh_ht}
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
 EOHEADER;
 
-    if ($is_done) {
-        echo "<title>p2 - 書きこみました。</title>";
+    if ($isDone) {
+        echo "    <title>p2 - 書きこみました。</title>";
     } else {
-        echo "<title>{$ptitle}</title>";
+        echo "    <title>{$ptitle}</title>";
     }
 
     if (!$_conf['ktai']) {
         echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=post&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
         if ($popup) {
             echo <<<EOSCRIPT
             <script type="text/javascript">
-            <!--
+            //<![CDATA[
                 resizeTo({$STYLE['post_pop_size']});
-            // -->
+            //]]>
             </script>
 EOSCRIPT;
         }
@@ -657,9 +665,11 @@ EOSCRIPT;
 EOP;
     }
 
-    echo "</head><body{$_conf['k_colors']}>\n";
+    echo "</head>\n";
+    echo "<body{$_conf['k_colors']}>\n";
 
-    P2Util::printInfoHtml();
+    echo $_info_msg_ht;
+    $_info_msg_ht = "";
 
     echo <<<EOP
 <p>{$ttitle_ht}</p>
@@ -670,20 +680,23 @@ EOP;
 EOP;
 }
 
+// }}}
+// {{{ getKeyInSubject()
+
 /**
  *  subjectからkeyを取得する
  *
- * @return  string|false
+ * @return string|false
  */
 function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
-    $aSubjectTxt =& new SubjectTxt($host, $bbs);
+    require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+    $aSubjectTxt = new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {
-        if (strstr($l, $ttitle)) {
+        if (strpos($l, $ttitle) !== false) {
             if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/", $l, $matches)) {
                 return $key = $matches[1];
             }
@@ -692,10 +705,13 @@ function getKeyInSubject()
     return false;
 }
 
+// }}}
+// {{{ tab2space()
+
 /**
  * 整形を維持しながら、タブをスペースに置き換える
  *
- * @return  string
+ * @return string
  */
 function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 {
@@ -728,6 +744,29 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 
     return $out_str;
 }
+
+// }}}
+// {{{ replacePostFormCb()
+
+/**
+ * COOKIEの確認フォームを書き換えるコールバック関数
+ *
+ * @param array $m
+ * @return string
+ */
+function replacePostFormCb($m)
+{
+    global $_conf, $_post_form_hidden_values;
+
+    return <<<EOFORM
+<form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
+{$m[2]}<input type="hidden" name="sub" value="{$m[1]}">
+{$_post_form_hidden_values}{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
+</form>
+EOFORM;
+}
+
+// }}}
 
 /*
  * Local Variables:

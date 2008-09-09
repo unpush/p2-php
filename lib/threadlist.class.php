@@ -1,389 +1,352 @@
 <?php
+require_once P2_LIB_DIR . '/thread.class.php';
+
+// {{{ ThreadList
+
 /**
- * p2 - ThreadList クラス
+ * rep2 - ThreadList クラス
  */
 class ThreadList
 {
-    var $threads;   // クラスThreadのオブジェクトを格納する配列
-    var $num;       // 格納されたThreadオブジェクトの数
-    var $host;      // ex)pc.2ch.net
-    var $bbs;       // ex)mac
-    var $itaj;      // 板名 ex)新・mac板
-    var $itaj_hd;   // HTML表示用に、板名を htmlspecialchars() したもの
-    var $spmode;    // 普通板以外のスペシャルモード
-    var $ptitle;    // ページタイトル
+    // {{{ properties
+
+    public $threads;   // クラスThreadのオブジェクトを格納する配列
+    public $num;       // 格納されたThreadオブジェクトの数
+    public $host;      // ex)pc.2ch.net
+    public $bbs;       // ex)mac
+    public $itaj;      // 板名 ex)新・mac板
+    public $itaj_hd;   // HTML表示用に、板名を htmlspecialchars() したもの
+    public $spmode;    // 普通板以外のスペシャルモード
+    public $ptitle;    // ページタイトル
+
+    // }}}
+    // {{{ constructor
 
     /**
-     * @constructor
+     * コンストラクタ
      */
-    function ThreadList()
+    public function __construct()
     {
+        $this->threads = array();
         $this->num = 0;
     }
 
+    // }}}
+    // {{{ setSpMode()
+
     /**
-     * setSpMode
-     *
-     * @access  public
-     * @return  void
+     * spmodeを設定する
      */
-    function setSpMode($name)
+    public function setSpMode($name)
     {
         global $_conf;
 
-        $valid_modename = true;
+        $halfwidth = ($_conf['ktai'] && !$_conf['iphone']);
 
         switch ($name) {
-            case 'recent':
-                $this->ptitle = $_conf['ktai'] ? '最近読んだｽﾚ' : '最近読んだスレ';
-                break;
-            case 'res_hist':
-                $this->ptitle = '書き込み履歴';
-                break;
-            case 'fav':
-                $this->ptitle = $_conf['ktai'] ? 'お気にｽﾚ' : 'お気にスレ';
-                break;
-            case 'taborn':
-                $this->ptitle = $this->itaj . ($_conf['ktai'] ? ' (ｱﾎﾞﾝ中)' : ' (あぼーん中)');
-                break;
-            case 'soko':
-                $this->ptitle = $this->itaj . ' (dat倉庫)';
-                break;
-            case 'palace':
-                $this->ptitle = $_conf['ktai'] ? 'ｽﾚの殿堂' : 'スレの殿堂';
-                break;
-            case 'cate':
-                $this->ptitle = ($_conf['ktai'] ? 'ｶﾃｺﾞﾘ' : 'カテゴリ') . ': ' . $this->itaj;
-                break;
-            case 'favita':
-                $this->ptitle = 'お気に板';
-                break;
-            default:
-                $valid_modename = false;
-        }
-
-        if ($valid_modename) {
+        case 'recent':
             $this->spmode = $name;
+            $this->ptitle = $halfwidth ? '最近読んだｽﾚ' : '最近読んだスレ';
+            break;
+        case 'res_hist':
+            $this->spmode = $name;
+            $this->ptitle = '書き込み履歴';
+            break;
+        case 'fav':
+            $this->spmode = $name;
+            $this->ptitle = $halfwidth ? 'お気にｽﾚ' : 'お気にスレ';
+            break;
+        case 'taborn':
+            $this->spmode = $name;
+            $this->ptitle = $this->itaj . ($halfwidth ? ' (ｱﾎﾞﾝ中)' : ' (あぼーん中)');
+            break;
+        case 'soko':
+            $this->spmode = $name;
+            $this->ptitle = "{$this->itaj} (dat倉庫)";
+            break;
+        case 'palace':
+            $this->spmode = $name;
+            $this->ptitle = $halfwidth ? 'ｽﾚの殿堂' : 'スレの殿堂';
+            break;
+        case 'merge_favita':
+            $this->spmode = $name;
+            if ($_conf['expack.misc.multi_favs']) {
+                $this->ptitle = str_replace(array('&gt;', '&lt;', '&quot;', '&#039;'),
+                                            array('>', '<', '"', "'"),
+                                            FavSetManager::getFavSetPageTitleHt('m_favita_set', 'お気に板')
+                                            ) . ' (まとめ)';
+            } else {
+                $this->ptitle = 'お気に板 (まとめ)';
+            }
+            break;
         }
     }
 
+    // }}}
+    // {{{ setIta()
+
     /**
-     * 総合的に板情報（host, bbs, 板名）をセットする
-     *
-     * @access  public
-     * @return  void
+     * ■ 総合的に板情報（host, bbs, 板名）をセットする
      */
-    function setIta($host, $bbs, $itaj = '')
+    public function setIta($host, $bbs, $itaj = "")
     {
         $this->host = $host;
         $this->bbs = $bbs;
         $this->setItaj($itaj);
+
+        return true;
     }
 
-    /**
-     * 板名をセットする
-     *
-     * @access  public
-     * @return  void
-     */
-    function setItaj($itaj)
-    {
-        $this->itaj = $itaj ? $itaj : $this->bbs;
+    // }}}
+    // {{{ setItaj()
 
+    /**
+     * ■板名をセットする
+     */
+    public function setItaj($itaj)
+    {
+        if ($itaj) {
+            $this->itaj = $itaj;
+        } else {
+            $this->itaj = $this->bbs;
+        }
         $this->itaj_hd = htmlspecialchars($this->itaj, ENT_QUOTES);
         $this->ptitle = $this->itaj;
+
+        return true;
     }
 
+    // }}}
+    // {{{ readList()
+
     /**
-     * readList
-     *
-     * @access  public
-     * @return  array
+     * ■ readList メソッド
      */
-    function readList()
+    public function readList()
     {
-        global $_conf;
+        global $_conf, $_info_msg_ht;
 
-        $lines = array();
-
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('readList()');
 
         switch ($this->spmode) {
 
-            // {{{ ローカルの履歴ファイル 読み込み
+        // ローカルの履歴ファイル 読み込み
+        case 'recent':
+            if ($lines = FileCtl::file_read_lines($_conf['recent_idx'])) {
+                //$_info_msg_ht = '<p>履歴は空っぽです</p>';
+                //return false;
+            }
+            break;
 
-            case 'recent':
-                if (file_exists($_conf['rct_file'])) {
-                    $lines = file($_conf['rct_file']);
+        // ローカルの書き込み履歴ファイル 読み込み
+        case 'res_hist':
+            if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'])) {
+                //$_info_msg_ht = '<p>書き込み履歴は空っぽです</p>';
+                //return false;
+            }
+            break;
+
+        //ローカルのお気にファイル 読み込み
+        case 'fav':
+            if ($lines = FileCtl::file_read_lines($_conf['favlist_idx'])) {
+                //$_info_msg_ht = '<p>お気にスレは空っぽです</p>';
+                //return false;
+            }
+            break;
+
+        // お気に板をまとめて読み込み
+        case 'merge_favita':
+            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+
+            $favitas = array();
+
+            if (file_exists($_conf['favita_brd'])) {
+                foreach (file($_conf['favita_brd']) as $l) {
+                    if (preg_match("/^\t?(.+?)\t(.+?)\t.+?\$/", rtrim($l), $m)) {
+                        $favitas[] = array('host' => $m[1], 'bbs' => $m[2]);
+                    }
                 }
-                /*if (!$lines) {
-                    P2Util::pushInfoHtml('<p>履歴は空っぽです</p>');
-                    return false;
-                }*/
-                break;
+            }
 
-            // }}}
-            // {{{ ローカルの書き込み履歴ファイル 読み込み
-
-            case 'res_hist':
-                $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
-                if (file_exists($rh_idx)) {
-                    $lines = file($rh_idx);
+            if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
+                if ($_conf['expack.use_pecl_http'] == 1) {
+                    require_once P2_LIB_DIR . '/p2httpext.class.php';
+                    P2HttpRequestPool::fetchSubjectTxt($favitas);
+                    $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+                } elseif ($_conf['expack.use_pecl_http'] == 2) {
+                    require_once P2_CLI_DIR . '/P2CommandRunner.php';
+                    if (P2CommandRunner::fetchSubjectTxt('merge_favita', $_conf)) {
+                        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+                    }
                 }
-                /*if (!$lines) {
-                    P2Util::pushInfoHtml('<p>書き込み履歴は空っぽです</p>');
-                    return false;
-                }*/
-                break;
+            }
 
-            // }}}
-            // {{{ ローカルのお気にファイル 読み込み
+            $lines = array();
+            $i = 0;
 
-            case 'fav':
-                if (file_exists($_conf['favlist_file'])) {
-                    $lines = file($_conf['favlist_file']);
-                }
-                /*if (!$lines) {
-                    P2Util::pushInfoHtml('<p>お気にスレは空っぽです</p>');
-                    return false;
-                }*/
-                break;
+            foreach ($favitas as $ita) {
+                $aSubjectTxt = new SubjectTxt($ita['host'], $ita['bbs']);
+                $k = (float)sprintf('0.%d', ++$i);
 
-            // }}}
-            // {{{ スレの殿堂の場合  // p2_palace.idx 読み込み
+                if (is_array($aSubjectTxt->subject_lines)) {
+                    $j = 0;
 
-            case 'palace':
-                $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx';
-                if (file_exists($palace_idx)) {
-                    $lines = file($palace_idx);
-                }
-                /*if (!$lines) {
-                    P2Util::pushInfoHtml('<p>殿堂はがらんどうです</p>');
-                    return false;
-                }*/
-                break;
-
-            // }}}
-            // {{{ スレッドあぼーんリスト  // p2_threads_aborn.idx 読み込み
-
-            case 'taborn':
-                $taborn_idx = P2Util::datDirOfHost($this->host). '/' . $this->bbs . '/p2_threads_aborn.idx';
-                if (file_exists($taborn_idx)) {
-                    $lines = file($taborn_idx);
-                }
-                /*if (!$lines) {
-                    P2Util::pushInfoHtml('<p>スレッドあぼーんリストは空っぽです</p>');
-                    return false;
-                }*/
-                break;
-
-            // }}}
-            // {{{ dat倉庫の場合
-
-            case 'soko':
-                $dat_host_dir = P2Util::datDirOfHost($this->host);
-                $idx_host_dir = P2Util::idxDirOfHost($this->host);
-
-                $dat_bbs_dir = $dat_host_dir. '/' . $this->bbs;
-                $idx_bbs_dir = $idx_host_dir. '/' . $this->bbs;
-
-                $dat_pattern = '/([0-9]+)\.dat$/';
-                $idx_pattern = '/([0-9]+)\.idx$/';
-
-                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat');
-                // datログディレクトリを走査して孤立datにidx付加
-                if ($cdir = dir($dat_bbs_dir)) { // or die ('ログディレクトリがないよ！');
-                    // ディレクトリ走査
-                    while ($entry = $cdir->read()) {
-                        if (preg_match($dat_pattern, $entry, $matches)) {
-                            $theidx = $idx_bbs_dir. '/' . $matches[1] . '.idx';
-                            if (!file_exists($theidx)) {
-                                if ($datlines = @file($dat_bbs_dir. '/' . $entry)) {
-                                    $firstdatline = rtrim($datlines[0]);
-                                    if (strstr($firstdatline, '<>')) {
-                                        $datline_sepa = '<>';
-                                    } else {
-                                        $datline_sepa = ',';
-                                    }
-                                    $d = explode($datline_sepa, $firstdatline);
-                                    $atitle = $d[4];
-                                    $gotnum = sizeof($datlines);
-                                    $readnum = $gotnum;
-                                    $anewline = $readnum + 1;
-                                    $data = array($atitle, $matches[1], '', $gotnum, '',
-                                                $readnum, '', '', '', $anewline,
-                                                '', '', '');
-                                    P2Util::recKeyIdx($theidx, $data);
-                                }
-                            }
-                            // array_push($lines, $idl[0]);
+                    foreach ($aSubjectTxt->subject_lines as $l) {
+                        if (preg_match('/^([0-9]+)\\.(?:dat|cgi)(?:,|<>)(.+) ?(?:\\(|（)([0-9]+)(?:\\)|）)/', $l, $m)) {
+                            $lines[] = array(
+                                'key' => $m[1],
+                                'ttitle' => rtrim($m[2]),
+                                'rescount' => (int)$m[3],
+                                'host' => $ita['host'],
+                                'bbs' => $ita['bbs'],
+                                'torder' => ++$j + $k,
+                            );
                         }
                     }
-                    $cdir->close();
                 }
-                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat');
+            }
+            break;
 
-                $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx');
-                // {{{ idxログディレクトリを走査してidx情報を抽出してリスト化
-                if ($cdir = dir($idx_bbs_dir)) { // or die ('ログディレクトリがないよ！');
-                    // ディレクトリ走査
-                    while ($entry = $cdir->read()) {
-                        if (preg_match($idx_pattern, $entry)) {
-                            $idl = file($idx_bbs_dir . '/' . $entry);
+        // p2_threads_aborn.idx 読み込み
+        case 'taborn':
+            $taborn_file = $this->getIdxDir() . 'p2_threads_aborn.idx';
+            $lines = FileCtl::file_read_lines($taborn_file);
+            break;
+
+        // spmodeがdat倉庫の場合
+        case 'soko':
+            $dat_host_bbs_dir = $this->getDatDir(false);
+            $idx_host_bbs_dir = $this->getIdxDir(false);
+
+            $lines = array();
+
+            //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat');
+            // datログディレクトリを走査して孤立datにidx付加
+            if ($cdir = dir($dat_host_bbs_dir)) { // or die ("ログディレクトリがないよ！");
+                // ディレクトリ走査
+                while ($entry = $cdir->read()) {
+                    if (preg_match('/([0-9]+)\\.dat$/', $entry, $matches)) {
+                        $theidx = $idx_host_bbs_dir . DIRECTORY_SEPARATOR . $matches[1] . '.idx';
+                        if (!file_exists($theidx)) {
+                            $thedat = $dat_host_bbs_dir . DIRECTORY_SEPARATOR . $entry;
+                            if ($datlines = FileCtl::file_read_lines($thedat, FILE_IGNORE_NEW_LINES)) {
+                                $firstdatline = $datlines[0];
+                                if (strpos($firstdatline, '<>') !== false) {
+                                    $datline_sepa = '<>';
+                                } else {
+                                    $datline_sepa = ',';
+                                }
+                                $d = explode($datline_sepa, $firstdatline);
+                                $atitle = $d[4];
+                                $gotnum = sizeof($datlines);
+                                $readnum = $gotnum;
+                                $anewline = $readnum + 1;
+                                $data = array($atitle, $matches[1], '', $gotnum, '',
+                                            $readnum, '', '', '', $anewline,
+                                            '', '', '');
+                                P2Util::recKeyIdx($theidx, $data);
+                            }
+                        }
+                        // array_push($lines, $idl[0]);
+                    }
+                }
+                $cdir->close();
+            }
+            //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('dat');
+
+            //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx');
+            // {{{ idxログディレクトリを走査してidx情報を抽出してリスト化
+            if ($cdir = dir($idx_host_bbs_dir)) { // or die ("ログディレクトリがないよ！");
+                // ディレクトリ走査
+                while ($entry = $cdir->read()) {
+                    if (preg_match('/([0-9]+)\\.idx$/', $entry)) {
+                        $thedix = $idx_host_bbs_dir . DIRECTORY_SEPARATOR . $entry;
+                        $idl = FileCtl::file_read_lines($thedix);
+                        if (is_array($idl)) {
                             array_push($lines, $idl[0]);
                         }
                     }
-                    $cdir->close();
                 }
-                // }}}
-                $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx');
-                break;
-
+                $cdir->close();
+            }
             // }}}
-            // {{{ お気に板のサブジェクト一覧読み込み
+            //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('idx');
+            break;
 
-            case 'favita':
-                if (!file_exists($_conf['favita_path'])) {
-                    break;
-                }
-                $favitas = file_get_contents($_conf['favita_path']);
-                if (!preg_match_all('/^\t?(.+)\t(.+)\t(.+)$/m', $favitas, $fmatches, PREG_SET_ORDER)) {
-                    break;
-                }
+        // スレの殿堂の場合  // p2_palace.idx 読み込み
+        case 'palace':
+            if ($lines = FileCtl::file_read_lines($_conf['palace_idx'])) {
+                // $_info_msg_ht = "<p>殿堂はがらんどうです</p>";
+                // return false;
+            }
+            break;
 
-                // お気に板の各板メニュー読み込み
-                require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
-                $num_boards = 0;
-                $num_threads = 0;
-                foreach ($fmatches as $fm) {
-                    $aSubjectTxt = &new SubjectTxt($fm[1], $fm[2]);
-                    if (!is_array($aSubjectTxt->subject_lines)) {
-                        continue;
-                    }
-                    if (!preg_match_all('/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/m',
-                        implode("\n", $aSubjectTxt->subject_lines), $lmatches, PREG_SET_ORDER))
-                    {
-                        continue;
-                    }
-                    $lmatches = array_slice($lmatches, 0, $_conf['expack.mergedlist.max_threads_per_board']);
-                    foreach ($lmatches as $lm) {
-                        $lines[] = array(
-                            'key'       => $lm[1],
-                            'ttitle'    => trim($lm[4]),
-                            'rescount'  => $lm[6],
-                            'host'      => $fm[1],
-                            'bbs'       => $fm[2],
-                        );
-                        if (++$num_threads >= $_conf['expack.mergedlist.max_threads']) {
-                            break 2;
-                        }
-                    }
-                    if (++$num_boards >= $_conf['expack.mergedlist.max_boards']) {
-                        break;
-                    }
-                }
-                break;
-
-            // }}}
-            // {{{ 特定カテゴリのサブジェクト一覧読み込み
-
-            case 'cate':
-                if (!isset($_GET['cate_name'])) {
-                    break;
-                }
-
-                // 板メニュー読み込み
-                require_once P2_LIBRARY_DIR . '/brdctl.class.php';
-                $brd_menus = BrdCtl::read_brds();
-                if (!$brd_menus) {
-                    break;
-                }
-
-                // カテゴリ検索
-                $menuitas = null;
-                foreach ($brd_menus as $a_brd_menu) {
-                    foreach ($a_brd_menu->categories as $cate) {
-                        if ($cate->name == $_GET['cate_name']) {
-                            $menuitas = $cate->menuitas;
-                            break 2;
-                        }
-                    }
-                }
-                if (!$menuitas) {
-                    break;
-                }
-
-                // カテゴリ内の各板メニュー読み込み
-                require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
-                $num_boards = 0;
-                $num_threads = 0;
-                foreach ($menuitas as $mita) {
-                    $aSubjectTxt = &new SubjectTxt($mita->host, $mita->bbs);
-                    if (!is_array($aSubjectTxt->subject_lines)) {
-                        continue;
-                    }
-                    if (!preg_match_all('/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|（)([0-9]+)(\)|）)/m',
-                        implode("\n", $aSubjectTxt->subject_lines), $matches, PREG_SET_ORDER))
-                    {
-                        continue;
-                    }
-                    $matches = array_slice($matches, 0, $_conf['expack.mergedlist.max_threads_per_board']);
-                    foreach ($matches as $m) {
-                        $lines[] = array(
-                            'key'       => $m[1],
-                            'ttitle'    => trim($m[4]),
-                            'rescount'  => $m[6],
-                            'host'      => $mita->host,
-                            'bbs'       => $mita->bbs,
-                        );
-                        if (++$num_threads >= $_conf['expack.mergedlist.max_threads']) {
-                            break 2;
-                        }
-                    }
-                    if (++$num_boards >= $_conf['expack.mergedlist.max_boards']) {
-                        break;
-                    }
-                }
-                break;
-
-            // }}}
-            // {{{ オンライン上の subject.txt を読み込む（spmodeでない場合）
-
-            default:
-                // 念のため、ここでもspmodeのチェックをしておく
-                if (!$this->spmode) {
-                    require_once P2_LIBRARY_DIR . '/SubjectTxt.class.php';
-                    $aSubjectTxt =& new SubjectTxt($this->host, $this->bbs);
-                    $lines =& $aSubjectTxt->subject_lines;
-                }
-
-            // }}}
+        // オンライン上の subject.txt を読み込む（spmodeでない場合）
+        default:
+            if (!$this->spmode) {
+                require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+                $aSubjectTxt = new SubjectTxt($this->host, $this->bbs);
+                $lines = $aSubjectTxt->subject_lines;
+            }
         }
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('readList()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('readList()');
 
         return $lines;
     }
 
-    /**
-     * addThread
-     *
-     * @access  public
-     * @return  integer
-     */
-    function addThread(&$aThread)
-    {
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('addThread()');
+    // }}}
+    // {{{ addThread()
 
-        $this->threads[] =& $aThread;
+    /**
+     * ■ addThread メソッド
+     */
+    public function addThread(Thread $aThread)
+    {
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('addThread()');
+
+        $this->threads[] = $aThread;
         $this->num++;
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('addThread()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('addThread()');
 
         return $this->num;
     }
 
+    // }}}
+    // {{{ getDatDir()
+
+    /**
+     * datの保存ディレクトリを返す
+     *
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::datDirOfHost(), Thread::getDatDir()
+     */
+    public function getDatDir($dir_sep = true)
+    {
+        return P2Util::datDirOfHostBbs($this->host, $this->bbs, $dir_sep);
+    }
+
+    // }}}
+    // {{{ getIdxDir()
+
+    /**
+     * idxの保存ディレクトリを返す
+     *
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::idxDirOfHost(), Thread::getIdxDir()
+     */
+    public function getIdxDir($dir_sep = true)
+    {
+        return P2Util::idxDirOfHostBbs($this->host, $this->bbs, $dir_sep);
+    }
+
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

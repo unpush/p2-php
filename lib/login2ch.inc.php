@@ -1,22 +1,27 @@
 <?php
+/**
+ * rep2 - 2chログイン
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
-require_once P2_LIBRARY_DIR . '/wap.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/wap.class.php';
+
+// {{{ login2ch()
 
 /**
- * 2ch IDにログインする
+ * ■2ch IDにログインする
  */
 function login2ch()
 {
-    global $_conf;
+    global $_conf, $_info_msg_ht;
 
     // 2ch●ID, PW設定を読み込む
     if ($array = P2Util::readIdPw2ch()) {
         list($login2chID, $login2chPW, $autoLogin2ch) = $array;
 
     } else {
-        P2Util::pushInfoHtml("<p>p2 error: ログインのためのIDとパスワードを登録して下さい。[<a href=\"login2ch.php\" target=\"subject\">2chログイン管理</a>]</p>");
+        $_info_msg_ht .= "<p>p2 error: ログインのためのIDとパスワードを登録して下さい。[<a href=\"login2ch.php\" target=\"subject\">2chログイン管理</a>]</p>";
         return false;
     }
 
@@ -82,9 +87,9 @@ function login2ch()
         if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
         if (file_exists($_conf['sid2ch_php']))  { unlink($_conf['sid2ch_php']); }
 
-        P2Util::pushInfoHtml("<p>p2 info: 2ちゃんねるへの●IDログインを行うには、systemでcurlコマンドが使用可能であるか、PHPの<a href=\"http://www.php.net/manual/ja/ref.curl.php\">CURL関数</a>が有効である必要があります。</p>");
+        $_info_msg_ht .= "<p>p2 info: 2ちゃんねるへの●IDログインを行うには、systemでcurlコマンドが使用可能であるか、PHPの<a href=\"http://www.php.net/manual/ja/ref.curl.php\">CURL関数</a>が有効である必要があります。</p>";
 
-        P2Util::pushInfoHtml("<p>p2 error: 2ch●ログインのSESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>");
+        $_info_msg_ht .= "<p>p2 error: 2ch●ログインのSESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>";
         return false;
     }
 
@@ -98,18 +103,18 @@ function login2ch()
     // 分解
     if (preg_match('/SESSION-ID=(.+?):(.+)/', $r, $matches)) {
         $uaMona = $matches[1];
-        $SID2ch = $matches[1] . ':' . $matches[2];
+        $SID2ch = $matches[1].':'.$matches[2];
     } else {
         if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
-        P2Util::pushInfoHtml("<p>p2 error: ログイン接続に失敗しました。</p>");
+        $_info_msg_ht .= "<p>p2 error: ログイン接続に失敗しました。</p>";
         return false;
     }
 
     // 認証照合失敗なら
     if ($uaMona == 'ERROR') {
-        file_exists($_conf['idpw2ch_php']) and unlink($_conf['idpw2ch_php']);
-        file_exists($_conf['sid2ch_php']) and unlink($_conf['sid2ch_php']);
-        P2Util::pushInfoHtml("<p>p2 error: SESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>");
+        if (file_exists($_conf['idpw2ch_php'])) { unlink($_conf['idpw2ch_php']); }
+        if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
+        $_info_msg_ht .= "<p>p2 error: SESSION-IDの取得に失敗しました。IDとパスワードを確認の上、ログインし直して下さい。</p>";
         return false;
     }
 
@@ -123,8 +128,8 @@ function login2ch()
 ?>
 EOP;
     FileCtl::make_datafile($_conf['sid2ch_php'], $_conf['pass_perm']); // $_conf['sid2ch_php'] がなければ生成
-    if (file_put_contents($_conf['sid2ch_php'], $cont, LOCK_EX) === false) {
-        P2Util::pushInfoHtml("<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>");
+    if (FileCtl::file_write_contents($_conf['sid2ch_php'], $cont) === false) {
+        $_info_msg_ht .= "<p>p2 Error: {$_conf['sid2ch_php']} を保存できませんでした。ログイン登録失敗。</p>";
         return false;
     }
     // }}}
@@ -132,9 +137,11 @@ EOP;
     return $SID2ch;
 }
 
+// }}}
+// {{{ getAuth2chWithCommandCurl()
 
 /**
- * systemコマンドでcurlを実行して、2chログインのSIDを得る
+ * ■systemコマンドでcurlを実行して、2chログインのSIDを得る
  */
 function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)
 {
@@ -160,7 +167,7 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
     }
 
     if ($curlrtn == 0) {
-        if ($r = @file_get_contents($tempfile)) {
+        if ($r = FileCtl::file_read_contents($tempfile)) {
             return $r;
         }
     }
@@ -168,8 +175,11 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
     return false;
 }
 
+// }}}
+// {{{ getAuth2chWithPhpCurl()
+
 /**
- * PHPのcurlで2chログインのSIDを得る
+ * ■PHPのcurlで2chログインのSIDを得る
  */
 function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)
 {
@@ -184,7 +194,7 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
         if (!file_exists($tempfile) || !filesize($tempfile)) {
             execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, false);
         }
-        if ($r = @file_get_contents($tempfile)) {
+        if ($r = FileCtl::file_read_contents($tempfile)) {
             return $r;
         }
 
@@ -193,8 +203,11 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
     return false;
 }
 
+// }}}
+// {{{ execAuth2chWithPhpCurl()
+
 /**
- * PHPのcurlを実行する
+ * ■PHPのcurlを実行する
  */
 function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, $withk = false)
 {
@@ -226,18 +239,20 @@ function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $
     return;
 }
 
+// }}}
+// {{{ getAuth2chWithOpenSSL()
+
 /**
- * fsockopenでSSL接続して2chログインのSIDを得る（証明書検証なし）
+ * ■fsockopenでSSL接続して2chログインのSIDを得る（証明書検証なし）
  */
 function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua, $dolib2ch)
 {
     global $_conf;
 
-    $wap_ua =& new UserAgent;
+    $wap_ua = new UserAgent;
     $wap_ua->setAgent($dolib2ch);
     $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-
-    $wap_req =& new Request;
+    $wap_req = new Request;
     $wap_req->setMethod('POST');
     $wap_req->post['ID'] = $login2chID;
     $wap_req->post['PW'] = $login2chPW;
@@ -252,7 +267,7 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
     // 第二引数をfalseにして生のまま送信させる。
     $wap_res = $wap_ua->request($wap_req, false, false);
 
-    //$GLOBALS['_info_msg_ht'] .= Var_Dump::display(array($wap_ua, $wap_req, $wap_res), true);
+    //$GLOBALS['_info_msg_ht'] .= Var_Dump::display(array($wap_ua, $wap_req, $wap_res), TRUE);
 
     if ($wap_res->is_error()) {
         return false;
@@ -260,6 +275,8 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
 
     return $wap_res->content;
 }
+
+// }}}
 
 /*
  * Local Variables:

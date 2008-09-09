@@ -1,7 +1,9 @@
 <?php
-// p2 - SPMあぼーん
+/**
+ * rep2 - SPMあぼーん
+ */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -56,9 +58,9 @@ if (preg_match('/^(aborn|ng)_/', $mode)) {
 
 if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
     $_GET['popup'] = 2;
-    require_once P2_LIBRARY_DIR . '/thread.class.php';
-    require_once P2_LIBRARY_DIR . '/threadread.class.php';
-    $aThread = &new ThreadRead;
+    require_once P2_LIB_DIR . '/thread.class.php';
+    require_once P2_LIB_DIR . '/threadread.class.php';
+    $aThread = new ThreadRead;
     $aThread->setThreadPathInfo($host, $bbs, $key);
     $aThread->readDat($aThread->keydat);
     $resar = $aThread->explodeDatLine($aThread->datlines[$resnum-1]);
@@ -72,13 +74,13 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
     if ($_conf['expack.spm.ngaborn_confirm'] == 0 && !isset($aborn_str)) {
         if ($mode == 'aborn_res') {
             $aborn_str = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
-        } elseif (strstr($mode, '_name')) {
+        } elseif (strpos($mode, '_name') !== false) {
             $aborn_str = $resar[0];
-        } elseif (strstr($mode, '_mail')) {
+        } elseif (strpos($mode, '_mail') !== false) {
             $aborn_str = $resar[1];
-        } elseif (strstr($mode, '_id')) {
+        } elseif (strpos($mode, '_id') !== false) {
             $aborn_str = $aborn_id;
-        } elseif (strstr($mode, '_msg')) {
+        } elseif (strpos($mode, '_msg') !== false) {
             $popup = 1;
         }
     }
@@ -91,7 +93,7 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
 if ($popup == 2) {
     // あぼーん・NGワード登録
     if (preg_match('/^(aborn|ng)_/', $mode) && ($aborn_str = trim($aborn_str)) !== '') {
-        if (file_exists($path) && ($data = @file($path))) {
+        if (file_exists($path) && ($data = FileCtl::file_read_lines($path))) {
             $data = array_map('trim', $data);
             $data = array_filter($data, create_function('$v', 'return ($v !== "");'));
             array_unshift($data, $aborn_str);
@@ -108,15 +110,16 @@ if ($popup == 2) {
     }
 }
 
-if (strstr($mode, '_msg')) {
+if (strpos($mode, '_msg') !== false) {
     if (isset($_GET['selected_string'])) {
-        include_once P2_LIBRARY_DIR . '/strctl.class.php';
+        include_once P2_LIB_DIR . '/strctl.class.php';
         $aborn_str = trim($_GET['selected_string']);
         $aborn_str = preg_replace('/\r\n|\r|\n/u', ' <br> ', $aborn_str);
         // $selected_stringはJavaScriptのencodeURIComponent()関数でURLエンコードされており、
         // encodeURIComponent()はECMA-262 3rd Editionの仕様により文字列をUTF-8で扱うため。
-        $aborn_str = mb_convert_encoding($aborn_str, 'SJIS-win', 'UTF-8');
+        $aborn_str = mb_convert_encoding($aborn_str, 'CP932', 'UTF-8');
         $aborn_str = htmlspecialchars($aborn_str, ENT_QUOTES);
+        $input_size_at = ($_conf['ktai']) ? '' : ' size="50"';
     } elseif (!isset($aborn_str)) {
         $aborn_str = '';
     }
@@ -162,7 +165,7 @@ switch ($mode) {
         if ($popup == 2) {
             $msg = 'あぼーんワード（メッセージ）に <b>' . $aborn_str . '</b> を登録しました。';
         } else {
-            $msg = 'あぼーんワード（メッセージ）<br><input type="text" name="aborn_str" size="50" value="' . $aborn_str . '">';
+            $msg = 'あぼーんワード（メッセージ）<br><input type="text" name="aborn_str"' . $input_size_at . ' value="' . $aborn_str . '">';
         }
         $edit_value = 'あぼーんワード編集：メッセージ';
         break;
@@ -201,7 +204,7 @@ switch ($mode) {
         if ($popup == 2) {
             $msg = 'NGワード（メッセージ）に <b>' . $aborn_str . '</b> を登録しました。';
         } else {
-            $msg = 'NGワード（メッセージ）<br><input type="text" name="aborn_str" size="50" value="' . $aborn_str . '">';
+            $msg = 'NGワード（メッセージ）<br><input type="text" name="aborn_str"' . $input_size_at . ' value="' . $aborn_str . '">';
         }
         $edit_value = 'NGワード編集：メッセージ';
         break;
@@ -228,10 +231,11 @@ echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$title_st}</title>\n
 EOHEADER;
 
@@ -239,12 +243,12 @@ $body_onload = '';
 
 if (!$_conf['ktai']) {
     echo <<<EOSTYLE
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=info&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOSTYLE;
     if ($popup == 2) {
-        echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js?{$_conf['p2expack']}\"></script>\n";
+        echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js?{$_conf['p2_version_id']}\"></script>\n";
         if (preg_match('/^aborn_/', $mode)) {
             if ($mode != 'aborn_res' && isset($aborn_id) && strlen($aborn_id) >= 8) {
                 $aborn_target = 'ID:' . addslashes($aborn_id);
@@ -255,17 +259,18 @@ EOSTYLE;
             }
             echo <<<EOJS
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function infoSpLiveAborn()
     {
         var tgt = "{$aborn_target}";
         var once = {$aborn_once};
         /*try {*/
-            var heads = opener.document.getElementsByTagName('dt');
+            var heads = opener.document.getElementsByTagName('div');
             for (var i = heads.length - 1; i >= 0 ; i--) {
-                if (heads[i].innerHTML.indexOf(tgt) != -1) {
-                    heads[i].parentNode.removeChild(heads[i].nextSibling);
-                    heads[i].parentNode.removeChild(heads[i]);
+                if (heads[i].className.indexOf('res-header') != -1 &&
+                    heads[i].innerHTML.indexOf(tgt) != -1)
+                {
+                    heads[i].parentNode.parentNode.removeChild(heads[i].parentNode);
                     if (once) break;
                 }
             }
@@ -275,7 +280,7 @@ EOSTYLE;
         }*/
         return true;
     }
-    // -->
+    //]]>
     </script>\n
 EOJS;
             $body_onload = " onload=\"infoSpLiveAborn();startTimer(document.getElementById('timerbutton'));\"";
@@ -294,7 +299,6 @@ echo <<<EOP
 EOP;
 
 echo "<form action=\"info_sp.php\" method=\"get\" accept-charset=\"{$_conf['accept_charset']}\">\n";
-echo "\t{$_conf['detect_hint_input_ht']}\n";
 echo "<p>{$msg}</p>\n";
 if ($popup == 1 && $msg != "") {
     foreach ($_GET as $idx => $value) {
@@ -315,13 +319,12 @@ if ($popup == 1 && $msg != "") {
     if (!$_conf['ktai']) {
         echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
     }
-    echo "</form>\n";
-} elseif (empty($_conf['ktai']) && $popup == 2) {
+} elseif (!$_conf['ktai'] && $popup == 2) {
     echo <<<EOB
     <input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))">\n
 EOB;
 }
-echo "\t{$_conf['k_input_ht']}\n";
+echo "\t{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}\n";
 echo "</form>\n";
 
 //データファイルの編集ボタン
@@ -335,8 +338,8 @@ echo "</form>\n";
     echo "</form>\n";
 } else*/
 if (isset($edit_value)) {
-    $rows = !empty($_conf['ktai']) ? 5 : 36;
-    $cols = !empty($_conf['ktai']) ? 0 : 128;
+    $rows = $_conf['ktai'] ? 5 : 36;
+    $cols = $_conf['ktai'] ? 0 : 128;
     $edit_php = ($mode == 'aborn_res') ? 'editfile.php' : 'edit_aborn_word.php';
     echo <<<EOFORM
 <form action="{$edit_php}" method="get"{$target_edit_at}>
@@ -347,7 +350,7 @@ if (isset($edit_value)) {
     <input type="hidden" name="cols" value="{$cols}">
     <input type="submit" value="{$edit_value}">\n
 EOFORM;
-    if (empty($_conf['ktai']) && $popup == 1 && $msg == "") {
+    if (!$_conf['ktai'] && $popup == 1 && $msg == "") {
         echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
     }
     echo "</form>\n";
@@ -362,7 +365,7 @@ if ($_conf['ktai']) {
     if (!empty($_GET['from_read_new'])) {
         echo "<a href=\"{$_conf['read_new_k_php']}?cview=1\">まとめ読みに戻る</a><br>";
     }
-    echo "<a href=\"{$thread_url}\">ｽﾚに戻る<a/>";
+    echo "<a href=\"{$thread_url}\">ｽﾚに戻る</a>";
     echo '</p>';
 }
 

@@ -1,15 +1,15 @@
 <?php
-/*
-    p2 -  板メニュー
-    フレーム分割画面、左側部分 PC用
+/**
+ * rep2 - 板メニュー
+ * フレーム分割画面、左側部分 PC用
+ *
+ * menu.php, menu_side.php より読み込まれる
+ */
 
-    menu.php, menu_side.php より読み込まれる
-*/
+require_once P2_LIB_DIR . '/brdctl.class.php';
+require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
 
-require_once P2_LIBRARY_DIR . '/brdctl.class.php';
-require_once P2_LIBRARY_DIR . '/showbrdmenupc.class.php';
-
-$_login->authorize(); // ユーザ認証
+$_login->authorize(); //ユーザ認証
 
 //==============================================================
 // 変数設定
@@ -17,28 +17,46 @@ $_login->authorize(); // ユーザ認証
 $me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
 // menu_side.php の URL。（ローカルパス指定はできないようだ）
-$menu_side_url = $me_dir_url . '/menu_side.php';
+$menu_side_url = $me_dir_url.'/menu_side.php';
 
 $brd_menus = array();
+$matome_i = 0;
 
-BrdCtl::parseWord(); // set $GLOBALS['word']
+if (isset($_GET['word'])) {
+    $word = $_GET['word'];
+} elseif (isset($_POST['word'])) {
+    $word = $_POST['word'];
+}
+$hd = array('word' => '');
+$GLOBALS['ita_mikke'] = array('num' => 0);
+
+// 板検索
+if (isset($word) && strlen($word) > 0) {
+    if (substr_count($word, '.') == strlen($word)) {
+        $word = null;
+    } elseif (p2_set_filtering_word($word, 'and') !== null) {
+        $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
+    } else {
+        $word = null;
+    }
+}
 
 //============================================================
-// 特殊な前処理
+// 特殊な前置処理
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIBRARY_DIR . '/setfavita.inc.php';
+    include_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
 //================================================================
-// メイン
+// ■メイン
 //================================================================
-$aShowBrdMenuPc =& new ShowBrdMenuPc();
+$aShowBrdMenuPc = new ShowBrdMenuPc();
 
 //============================================================
-// ヘッダ
+// ■ヘッダ
 //============================================================
 $reloaded_time = date('n/j G:i:s'); // 更新時刻
 $ptitle = 'p2 - menu';
@@ -48,10 +66,11 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
-    <meta http-equiv="Content-Script-Type" content="text/javascript">\n
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}\n
 EOP;
 
 // 自動更新
@@ -65,14 +84,15 @@ EOP;
 echo <<<EOP
     <title>{$ptitle}</title>
     <base target="subject">
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=menu&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/showhide.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/menu.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/tgrepctl.js?{$_conf['p2expack']}"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=menu&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/showhide.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/menu.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/tgrepctl.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function addSidebar(title, url) {
        if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
           window.sidebar.addPanel(title, url, '');
@@ -100,13 +120,21 @@ echo <<<EOP
         document.getElementById(unid).style.color="{$STYLE['menu_color']}";
     }
 
-    // -->
-    </script>
+    //]]>
+    </script>\n
+EOP;
+    if ($_conf['expack.ic2.enabled']) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/ic2_switch.js?{$_conf['p2_version_id']}"></script>\n
+EOP;
+}
+echo <<<EOP
 </head>
 <body>\n
 EOP;
 
-P2Util::printInfoHtml();
+echo $_info_msg_ht;
+$_info_msg_ht = '';
 
 if (!empty($sidebar)) {
     echo <<<EOP
@@ -121,7 +149,7 @@ EOP;
 }
 
 //==============================================================
-// クイック検索
+// ■クイック検索
 //==============================================================
 
     echo <<<EOP
@@ -129,37 +157,35 @@ EOP;
 EOP;
 
 if ($_conf['expack.google.enabled'] && $_conf['expack.google.key'] && file_exists($_conf['expack.google.wsdl'])) {
-    $google_search_enabled = true;
+    $google_search_enabled = TRUE;
 } else {
-    $google_search_enabled = false;
+    $google_search_enabled = FALSE;
 }
+
 
 if ($_conf['input_type_search']) {
 // {{{ <input type="search">を使う
 
     // 板検索
-echo <<<EOP
+    echo <<<EOP
     <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self" class="inline-form">
-        {$_conf['detect_hint_input_ht']}
         <input type="search" name="word" value="{$hd['word']}" size="16" autosave="rep2.expack.search.menu" results="10" placeholder="板検索">
-        {$_conf['k_input_ht']}
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br />\n
 EOP;
     // スレタイ検索
     echo <<<EOP
     <form method="GET" action="tgrepc.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form">
-        {$_conf['detect_hint_input_ht']}
         <input type="search" name="Q" value="" size="16" autosave="rep2.expack.search.thread" results="{$_conf['expack.tgrep.recent2_num']}" placeholder="スレタイ検索">
-        {$_conf['k_input_ht']}
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     // Google検索
     if ($google_search_enabled) {
         echo <<<EOP
     <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form">
-        {$_conf['detect_hint_input_ht']}
         <input type="search" name="q" value="" size="16" autosave="rep2.expack.search.google" results="{$_conf['expack.google.recent2_num']}" placeholder="Google検索">
-        {$_conf['k_input_ht']}
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     }
@@ -171,23 +197,23 @@ EOP;
     // 板検索
     echo <<<EOP
     <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self" class="inline-form" style="white-space:nowrap">
-        {$_conf['detect_hint_input_ht']}
         <input type="text" name="word" value="{$hd['word']}" size="12"><input type="submit" name="submit" value="板">
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     // スレタイ検索
     echo <<<EOP
     <form method="GET" action="tgrepc.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form" style="white-space:nowrap">
-        {$_conf['detect_hint_input_ht']}
         <input type="text" name="Q" value="" size="12"><input type="submit" value="ｽﾚ">
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     // Google検索
     if ($google_search_enabled) {
         echo <<<EOP
     <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form" style="white-space:nowrap">
-        {$_conf['detect_hint_input_ht']}
         <input type="text" name="q" value="" size="12"><input type="submit" value="G">
+        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
     }
@@ -200,73 +226,114 @@ echo <<<EOP
 EOP;
 
 //==============================================================
-// お気に板をプリントする
+// ■お気に板をプリントする
 //==============================================================
-$aShowBrdMenuPc->printFavItaHtml();
+$aShowBrdMenuPc->printFavIta();
 
 flush();
 
 //==============================================================
-// tGrep一発検索をプリントする
+// ■tGrep一発検索をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.quicksearch']) {
-    include_once P2EX_LIBRARY_DIR . '/tgrep/menu_quick.inc.php';
+    include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
 }
 
 //==============================================================
-// tGrep検索履歴をプリントする
+// ■tGrep検索履歴をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.recent_num'] > 0) {
-    include_once P2EX_LIBRARY_DIR . '/tgrep/menu_recent.inc.php';
+    include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
 }
 
 //==============================================================
-// RSSをプリントする
+// ■RSSをプリントする
 //==============================================================
 if ($_conf['expack.rss.enabled']) {
-    include_once P2EX_LIBRARY_DIR . '/rss/menu.inc.php';
+    include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
 }
 
 flush();
 
 //==============================================================
-// 特別
+// ■特別
 //==============================================================
 $norefresh_q = '&amp;norefresh=true';
 
 echo <<<EOP
-<div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_spacial');" target="_self">特別</a></b>
+<div class="menu_cate"><b><a class="menu_cate" href="javascript:void(0);" onclick="showHide('c_spacial');" target="_self">特別</a></b>
 EOP;
-if ($_conf['expack.favset.enabled'] && $_conf['favlist_set_num'] > 0) {
+if ($_conf['expack.misc.multi_favs']) {
     $favlist_onchange = "openFavList('{$_conf['subject_php']}', this.options[this.selectedIndex].value, window.top.subject);";
     echo "<br>\n";
-    echo FavSetManager::makeFavSetSwitchElem('m_favlist_set', 'お気にスレ', false, $favlist_onchange);
+    echo FavSetManager::makeFavSetSwitchElem('m_favlist_set', 'お気にスレ', FALSE, $favlist_onchange);
 }
 echo <<<EOP
     <div class="itas" id="c_spacial">
 EOP;
 
-// 新着数を表示する場合
-if ($_conf['enable_menu_new'] == 1 and $_GET['new']) {
+// ■新着数を表示する場合
+if ($_conf['enable_menu_new'] == 1 && $_GET['new']) {
+    // 並列ダウンロードの設定
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        require_once P2_LIB_DIR . '/p2httpext.class.php';
+        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        require_once P2_CLI_DIR . '/P2CommandRunner.php';
+        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+    }
 
-    initMenuNewSp("fav");    // 新着数を初期化
+    // {{{ お気にスレ
+
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_idx']);
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        P2CommandRunner::fetchSubjectTxt('fav', $_conf);
+    }
+
+    // 新着数を初期化
+    initMenuNewSp('fav');
     echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="f">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+    　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" onclick="chMenuColor({$matome_i});" accesskey="f">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
-    initMenuNewSp("recent");    // 新着数を初期化
+    // }}}
+    // {{{ 最近読んだスレ
+
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['recent_idx']);
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        P2CommandRunner::fetchSubjectTxt('recent', $_conf);
+    }
+
+    // 新着数を初期化
+    initMenuNewSp('recent');
     echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" onClick="chMenuColor({$matome_i});" accesskey="h">最近読んだスレ</a> (<a href="{$_conf['read_new_php']}?spmode=recent" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+    　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" onclick="chMenuColor({$matome_i});" accesskey="h">最近読んだスレ</a> (<a href="{$_conf['read_new_php']}?spmode=recent" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
-    initMenuNewSp("res_hist");    // 新着数を初期化
+    // }}}
+    // {{{ 書き込み履歴
+
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['res_hist_idx']);
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        P2CommandRunner::fetchSubjectTxt('res_hist', $_conf);
+    }
+
+    // 新着数を初期化
+    initMenuNewSp('res_hist');
     echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}" onClick="chMenuColor({$matome_i});">書込履歴</a> <a href="read_res_hist.php" target="read">ログ</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+    　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}" onclick="chMenuColor({$matome_i});">書込履歴</a> <a href="read_res_hist.php" target="read">ログ</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
+    // }}}
 // 新着数を表示しない場合
 } else {
     echo <<<EOP
@@ -277,7 +344,7 @@ EOP;
 }
 
 echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}" title="DAT落ちしたスレ用のお気に入り">スレの殿堂</a><br>
+    　<a href="{$_conf['subject_php']}?spmode=palace{$norefresh_q}" title="DATしたスレ用のお気に入り">スレの殿堂</a><br>
     　<a href="setting.php">ログイン管理</a><br>
     　<a href="editpref.php">設定管理</a><br>
     　<a href="import.php" onclick="return OpenSubWin('import.php', 600, 380, 0, 0);">datのインポート</a><br>
@@ -287,11 +354,20 @@ echo <<<EOP
 EOP;
 
 //==============================================================
-// ImageCache2
+// ■ImageCache2
 //==============================================================
 if ($_conf['expack.ic2.enabled']) {
+    require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+
+    if (IC2Switch::get()) {
+        $ic2sw = array('inline', 'none');
+    } else {
+        $ic2sw = array('none', 'inline');
+    }
+
     echo <<<EOP
-<div class="menu_cate"><b class="menu_cate" onclick="showHide('c_ic2');">ImageCache2</b><br>
+<div class="menu_cate"><b class="menu_cate" onclick="showHide('c_ic2');">ImageCache2</b>
+    (<a href="#" id="ic2_switch_on" onclick="return ic2_menu_switch(0);" style="display:{$ic2sw[0]};font-weight:bold;">ON</a><a href="#" id="ic2_switch_off" onclick="return ic2_menu_switch(1);" style="display:{$ic2sw[1]};font-weight:bold;">OFF</a>)<br>
     <div class="itas" id="c_ic2">
     　<a href="iv2.php" target="_blank">画像キャッシュ一覧</a><br>
     　<a href="ic2_setter.php">アップローダ</a>
@@ -305,40 +381,34 @@ EOP;
 }
 
 //==============================================================
-// カテゴリと板を表示
+// ■カテゴリと板を表示
 //==============================================================
 // brd読み込み
-$brd_menus_dir = BrdCtl::readBrdLocal();
-$brd_menus_online = BrdCtl::readBrdOnline();
+$brd_menus_dir = BrdCtl::read_brd_dir();
+$brd_menus_online = BrdCtl::read_brd_online();
 $brd_menus = array_merge($brd_menus_dir, $brd_menus_online);
 
 //===========================================================
-// プリント
+// ■プリント
 //===========================================================
 
 // {{{ 検索ワードがあれば
 
-if (strlen($GLOBALS['word']) > 0) {
+if (isset($word) && strlen($word) > 0) {
 
-    $msg_ht = '<p>';
+    $msg_ht .= '<p>';
     if (empty($GLOBALS['ita_mikke']['num'])) {
         if (empty($GLOBALS['threti_match_ita_num'])) {
             $msg_ht .=  "\"{$hd['word']}\"を含む板は見つかりませんでした。\n";
         }
     } else {
         $match_cates = array();
-        $match_cates[0] = &new BrdMenuCate("&quot;{$hd['word']}&quot;を含む板 {$GLOBALS['ita_mikke']['num']}hit!\n");
+        $match_cates[0] = new BrdMenuCate("&quot;{$hd['word']}&quot;を含む板 {$GLOBALS['ita_mikke']['num']}hit!\n");
         $match_cates[0]->is_open = true;
         foreach ($brd_menus as $a_brd_menu) {
             if (!empty($a_brd_menu->matches)) {
-                if (version_compare(phpversion(), '5.0.0', 'ge')) {
-                    foreach ($a_brd_menu->matches as $match_ita) {
-                        $match_cates[0]->addBrdMenuIta(clone($match_ita));
-                    }
-                } else {
-                    foreach ($a_brd_menu->matches as $match_ita) {
-                        $match_cates[0]->addBrdMenuIta($match_ita);
-                    }
+                foreach ($a_brd_menu->matches as $match_ita) {
+                    $match_cates[0]->addBrdMenuIta(clone $match_ita);
                 }
             }
         }
@@ -351,25 +421,26 @@ if (strlen($GLOBALS['word']) > 0) {
         $msg_ht .= '（自動オープンするよ）';
             echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
     parent.subject.location.href="{$_conf['subject_php']}?host={$GLOBALS['ita_mikke']['host']}&bbs={$GLOBALS['ita_mikke']['bbs']}&itaj_en={$GLOBALS['ita_mikke']['itaj_en']}";
-// -->
+//]]>
 </script>
 EOP;
         }
     }
     $msg_ht .= '</p>';
 
-    P2Util::pushInfoHtml($msg_ht);
+    $_info_msg_ht .= $msg_ht;
 } else {
     $match_cates = null;
 }
 
 // }}}
 
-P2Util::printInfoHtml();
+echo $_info_msg_ht;
+$_info_msg_ht = "";
 
-if ($_conf['menu_hide_brds'] && !$ita_mikke['num']) {
+if ($_conf['menu_hide_brds'] && !$GLOBALS['ita_mikke']['num']) {
     $brd_menus_style = ' style="display:none"';
 } else {
     $brd_menus_style = '';
@@ -411,15 +482,15 @@ EOP;
 // フッタを表示
 //==============================================================
 
-// for Mozilla Sidebar
+// ■for Mozilla Sidebar
 if (empty($sidebar)) {
     echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
-    document.writeln("<p><a href=\"javascript:void(0);\" onClick=\"addSidebar('p2 Menu', '{$menu_side_url}');\">p2 Menuを Sidebar に追加</a></p>");
+    document.writeln("<p><a href=\"javascript:void(0);\" onclick=\"addSidebar('p2 Menu', '{$menu_side_url}');\">p2 Menuを Sidebar に追加<" + "/a><" + "/p>");
 }
--->
+//]]>
 </script>\n
 EOP;
 }
@@ -428,7 +499,7 @@ echo '</body></html>';
 
 
 //==============================================================
-// 関数 （このファイル内でのみ利用）
+// 関数
 //==============================================================
 /**
  * spmode用のmenuの新着数を初期化する
@@ -437,10 +508,10 @@ function initMenuNewSp($spmode_in)
 {
     global $shinchaku_num, $matome_i, $host, $bbs, $spmode, $STYLE, $class_newres_num;
     $matome_i++;
-    $host = '';
-    $bbs = '';
+    $host = "";
+    $bbs = "";
     $spmode = $spmode_in;
-    include "./subject_new.php";    // $shinchaku_num, $_newthre_num をセット
+    include P2_LIB_DIR . '/subject_new.inc.php'; // $shinchaku_num, $_newthre_num をセット
     if ($shinchaku_num > 0) {
         $class_newres_num = ' class="newres_num"';
     } else {

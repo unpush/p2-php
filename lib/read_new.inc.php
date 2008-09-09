@@ -1,13 +1,12 @@
 <?php
-/*
-    p2 - for read_new.php, read_new_k.php
-*/
+/**
+ * rep2 - for read_new.php, read_new_k.php
+ */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
-//===============================================
-// 関数
-//===============================================
+// {{{ saveMatomeCache()
+
 /**
  * 新着まとめ読みのキャッシュを残す
  *
@@ -31,11 +30,13 @@ function saveMatomeCache()
         $ext = $_conf['matome_cache_ext'];
     }
 
+    $lock = new P2Lock($_conf['matome_cache_path'] . $ext, false);
+
     // ローテーション
     $max = $_conf['matome_cache_max'];
     $i = $max;
     while ($i >= 0) {
-        $di = ($i == 0) ? '' : '.' . $i;
+        $di = ($i == 0) ? '' : '.'.$i;
         $tfile = $_conf['matome_cache_path'] . $di . $ext;
         $next = $i + 1;
         $nfile = $_conf['matome_cache_path'] . '.' . $next . $ext;
@@ -43,7 +44,7 @@ function saveMatomeCache()
             if ($i == $max) {
                 unlink($tfile);
             } else {
-                if (strstr(PHP_OS, 'WIN') and file_exists($nfile)) {
+                if (P2_OS_WINDOWS && file_exists($nfile)) {
                     unlink($nfile);
                 }
                 rename($tfile, $nfile);
@@ -57,14 +58,15 @@ function saveMatomeCache()
     //echo "<!-- {$file} -->";
 
     FileCtl::make_datafile($file, $_conf['p2_perm']);
-    if (file_put_contents($file, $GLOBALS['read_new_html'], LOCK_EX) === false) {
-        trigger_error("file_put_contents(" . $file . ")", E_USER_WARNING);
-        die('Error: cannot write file.');
-        return false;
+    if (FileCtl::file_write_contents($file, $GLOBALS['read_new_html']) === false) {
+        p2die('cannot write file.');
     }
 
     return true;
 }
+
+// }}}
+// {{{ saveMatomeCacheFromTmpFile()
 
 /**
  * 新着まとめ読みのキャッシュを残す（一時ファイルに書き込んだ内容を改めてキャッシュに保存）
@@ -116,7 +118,7 @@ function saveMatomeCacheFromTmpFile()
     FileCtl::make_datafile($file, $_conf['p2_perm']);
     $fh = fopen($file, 'wb');
     if (!$fh) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
     @flock($fh, LOCK_EX);
     fseek($GLOBALS['read_new_tmp_fh'], 0);
@@ -129,10 +131,11 @@ function saveMatomeCacheFromTmpFile()
     return true;
 }
 
+// }}}
+// {{{ getMatomeCache()
+
 /**
- * 新着まとめ読みのキャッシュを取得する
- *
- * @return string|null|false
+ * 新着まとめ読みのキャッシュを取得
  */
 function getMatomeCache($num = '')
 {
@@ -147,11 +150,7 @@ function getMatomeCache($num = '')
     $dnum = ($num) ? '.'.$num : '';
     $file = $_conf['matome_cache_path'] . $dnum . $ext;
 
-    if (file_exists($file)) {
-        $cont = file_get_contents($file);
-    } else {
-        return null;
-    }
+    $cont = FileCtl::file_read_contents($file);
 
     if (strlen($cont) > 0) {
         return $cont;
@@ -159,6 +158,8 @@ function getMatomeCache($num = '')
         return false;
     }
 }
+
+// }}}
 
 /*
  * Local Variables:

@@ -1,6 +1,8 @@
 <?php
-// p2 ースタイル設定
-// for 書き込みプレビュー
+/**
+ * rep2 - スタイル設定
+ * for 書き込みプレビュー
+ */
 
 if (!isset($STYLE['respop_bgcolor']))	{ $STYLE['respop_bgcolor'] = '#ffffcc'; }
 if (!isset($STYLE['respop_background'])) { $STYLE['respop_background'] = ''; }
@@ -88,15 +90,15 @@ EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-    include_once (P2_STYLE_DIR . '/mystyle_css.php');
-    $_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-    if (isset($MYSTYLE[$_mystylename])) {
-        disp_mystyle($_mystylename);
-    }
+	require_once P2_STYLE_DIR . '/mystyle_css.php';
+	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+	if (isset($MYSTYLE[$_mystylename])) {
+		disp_mystyle($_mystylename);
+	}
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

@@ -1,4 +1,6 @@
 <?php
+// {{{ SettingTxt
+
 /**
  * SettingTxtクラス
  *
@@ -6,42 +8,52 @@
  */
 class SettingTxt
 {
-    var $host;
-    var $bbs;
-    var $url;           // SETTING.TXT のURL
-    var $setting_txt;   // SETTING.TXT ローカル保存ファイルパス
-    var $setting_cache; // p2_kb_setting.srd $this->setting_array を serialize() したデータファイル
-    var $setting_array = array(); // SETTING.TXTをパースした連想配列
-    var $cache_interval;
+    // {{{ properties
+
+    public $setting_array; // SETTING.TXTをパースした連想配列
+
+    private $_host;
+    private $_bbs;
+    private $_url;           // SETTING.TXT のURL
+    private $_setting_txt;   // SETTING.TXT ローカル保存ファイルパス
+    private $_setting_cache; // p2_kb_setting.srd $this->setting_array を serialize() したデータファイル
+    private $_cache_interval;
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function SettingTxt($host, $bbs)
+    public function __construct($host, $bbs)
     {
-        $this->cache_interval = 60 * 60 * 12; // キャッシュは12時間有効
+        $this->_cache_interval = 60 * 60 * 12; // キャッシュは12時間有効
 
-        $this->host = $host;
-        $this->bbs =  $bbs;
+        $this->_host = $host;
+        $this->_bbs =  $bbs;
 
-        $dat_bbs_dir = P2Util::datDirOfHost($this->host) . '/' . $this->bbs;
-        $this->setting_txt = $dat_bbs_dir . '/SETTING.TXT';
-        $this->setting_cache = $dat_bbs_dir . '/p2_kb_setting.srd';
+        $dat_host_bbs_dir_s = P2Util::datDirOfHostBbs($host, $bbs);
+        $this->_setting_txt = $dat_host_bbs_dir_s . 'SETTING.TXT';
+        $this->_setting_cache = $dat_host_bbs_dir_s . 'p2_kb_setting.srd';
 
-        $this->url = "http://" . $this->host . '/' . $this->bbs . "/SETTING.TXT";
-        //$this->url = P2Util::adjustHostJbbs($this->url); // したらばのlivedoor移転に対応。読込先をlivedoorとする。
+        $this->_url = 'http://' . $host . '/' . $bbs . '/SETTING.TXT';
+        //$this->_url = P2Util::adjustHostJbbs($this->_url); // したらばのlivedoor移転に対応。読込先をlivedoorとする。
+
+        $this->setting_array = array();
 
         // SETTING.TXT をダウンロード＆セットする
         $this->dlAndSetData();
     }
 
+    // }}}
+    // {{{ dlAndSetData()
+
     /**
      * SETTING.TXT をダウンロード＆セットする
      *
-     * @access  private
-     * @return  boolean  セットできれば true
+     * @return boolean セットできれば true、できなければ false
      */
-    function dlAndSetData()
+    public function dlAndSetData()
     {
         $this->downloadSettingTxt();
 
@@ -52,21 +64,23 @@ class SettingTxt
         }
     }
 
+    // }}}
+    // {{{ downloadSettingTxt()
+
     /**
      * SETTING.TXT をダウンロードして、パースして、キャッシュする
      *
-     * @access  private?
-     * @return  boolean  実行成否
+     * @return boolean 実行成否
      */
-    function downloadSettingTxt()
+    public function downloadSettingTxt()
     {
-        global $_conf;
+        global $_conf, $_info_msg_ht;
 
-        $perm = !empty($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
+        $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
-        FileCtl::mkdir_for($this->setting_txt); // 板ディレクトリが無ければ作る
+        FileCtl::mkdir_for($this->_setting_txt); // 板ディレクトリが無ければ作る
 
-        if (file_exists($this->setting_cache) && file_exists($this->setting_txt)) {
+        if (file_exists($this->_setting_cache) && file_exists($this->_setting_txt)) {
             // 更新しない場合は、その場で抜けてしまう
             if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
                 return true;
@@ -74,13 +88,15 @@ class SettingTxt
             } elseif ($this->isCacheFresh()) {
                 return true;
             }
-            $modified = gmdate("D, d M Y H:i:s", filemtime($this->setting_txt)) . " GMT";
+            $modified = http_date(filemtime($this->_setting_txt));
         } else {
             $modified = false;
         }
 
         // DL
-        include_once "HTTP/Request.php";
+        if (!class_exists('HTTP_Request', false)) {
+            require_once 'HTTP/Request.php';
+        }
 
         $params = array();
         $params['timeout'] = $_conf['fsockopen_time_limit'];
@@ -88,7 +104,7 @@ class SettingTxt
             $params['proxy_host'] = $_conf['proxy_host'];
             $params['proxy_port'] = $_conf['proxy_port'];
         }
-        $req =& new HTTP_Request($this->url, $params);
+        $req = new HTTP_Request($this->_url, $params);
         $modified && $req->addHeader("If-Modified-Since", $modified);
         $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
 
@@ -101,10 +117,10 @@ class SettingTxt
 
             if ($code == 302) {
                 // ホストの移転を追跡
-                include_once P2_LIBRARY_DIR . '/BbsMap.class.php';
-                $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
-                if ($new_host != $this->host) {
-                    $aNewSettingTxt = &new SettingTxt($new_host, $this->bbs);
+                include_once P2_LIB_DIR . '/BbsMap.class.php';
+                $new_host = BbsMap::getCurrentHost($this->_host, $this->_bbs);
+                if ($new_host != $this->_host) {
+                    $aNewSettingTxt = new SettingTxt($new_host, $this->_bbs);
                     $body = $aNewSettingTxt->downloadSettingTxt();
                     return true;
                 }
@@ -118,10 +134,10 @@ class SettingTxt
 
         // DLエラー
         if (isset($error_msg) && strlen($error_msg) > 0) {
-            $url_t = P2Util::throughIme($this->url);
-            P2Util::pushInfoHtml("<div>Error: {$error_msg}<br>");
-            P2Util::pushInfoHtml("p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->url}</a> に接続できませんでした。</div>");
-            touch($this->setting_txt); // DL失敗した場合も touch
+            $url_t = P2Util::throughIme($this->_url);
+            $_info_msg_ht .= "<div>Error: {$error_msg}<br>";
+            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$this->_url}</a> に接続できませんでした。</div>";
+            touch($this->_setting_txt); // DL失敗した場合も touch
             return false;
 
         }
@@ -132,14 +148,14 @@ class SettingTxt
         if ($body && $code != "304") {
 
             // したらば or be.2ch.net ならEUCをSJISに変換
-            if (P2Util::isHostJbbsShitaraba($this->host) || P2Util::isHostBe2chNet($this->host)) {
-                $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
+            if (P2Util::isHostJbbsShitaraba($this->_host) || P2Util::isHostBe2chNet($this->_host)) {
+                $body = mb_convert_encoding($body, 'CP932', 'CP51932');
             }
 
-            if (FileCtl::filePutRename($this->setting_txt, $body) === false) {
-                die("Error: cannot write file");
+            if (FileCtl::file_write_contents($this->_setting_txt, $body) === false) {
+                p2die('cannot write file');
             }
-            chmod($this->setting_txt, $perm);
+            chmod($this->_setting_txt, $perm);
 
             // パースしてキャッシュを保存する
             if (!$this->cacheParsedSettingTxt()) {
@@ -148,26 +164,27 @@ class SettingTxt
 
         } else {
             // touchすることで更新インターバルが効くので、しばらく再チェックされなくなる
-            touch($this->setting_txt);
+            touch($this->_setting_txt);
         }
 
         return true;
     }
 
+    // }}}
+    // {{{ isCacheFresh()
 
     /**
      * キャッシュが新鮮なら true を返す
      *
-     * @acccess  private
-     * @return   boolean
+     * @return boolean 新鮮なら true。そうでなければ false。
      */
-    function isCacheFresh()
+    public function isCacheFresh()
     {
         // キャッシュがある場合
-        if (file_exists($this->setting_cache)) {
+        if (file_exists($this->_setting_cache)) {
             // キャッシュの更新が指定時間以内なら
             // clearstatcache();
-            if (filemtime($this->setting_cache) > time() - $this->cache_interval) {
+            if (filemtime($this->_setting_cache) > time() - $this->_cache_interval) {
                 return true;
             }
         }
@@ -175,26 +192,28 @@ class SettingTxt
         return false;
     }
 
+    // }}}
+    // {{{ cacheParsedSettingTxt()
+
     /**
      * SETTING.TXT をパースしてキャッシュ保存する
      *
      * 成功すれば、$this->setting_array がセットされる
      *
-     * @acccess  private
-     * @return   boolean  実行成否
+     * @return boolean 実行成否
      */
-    function cacheParsedSettingTxt()
+    public function cacheParsedSettingTxt()
     {
         global $_conf;
 
         $this->setting_array = array();
 
-        if (!$lines = file($this->setting_txt)) {
+        if (!$lines = FileCtl::file_read_lines($this->_setting_txt)) {
             return false;
         }
 
         foreach ($lines as $line) {
-            if (strstr($line, '=')) {
+            if (strpos($line, '=') !== false) {
                 list($key, $value) = explode('=', $line, 2);
                 $key = trim($key);
                 $value = trim($value);
@@ -204,35 +223,37 @@ class SettingTxt
         $this->setting_array['p2version'] = $_conf['p2version'];
 
         // パースキャッシュファイルを保存する
-        if (FileCtl::filePutRename($this->setting_cache, serialize($this->setting_array)) === false) {
+        if (FileCtl::file_write_contents($this->_setting_cache, serialize($this->setting_array)) === false) {
             return false;
         }
 
         return true;
     }
 
+    // }}}
+    // {{{ setSettingArray()
+
     /**
      * SETTING.TXT のパースデータを読み込む
      *
      * 成功すれば、$this->setting_array がセットされる
      *
-     * @acccess  private
-     * @return   boolean  実行成否
+     * @return boolean 実行成否
      */
-    function setSettingArray()
+    public function setSettingArray()
     {
         global $_conf;
 
-        if (!file_exists($this->setting_cache)) {
+        if (!file_exists($this->_setting_cache)) {
             return false;
         }
 
-        $this->setting_array = unserialize(file_get_contents($this->setting_cache));
+        $this->setting_array = unserialize(file_get_contents($this->_setting_cache));
 
         /*
         if ($this->setting_array['p2version'] != $_conf['p2version']) {
-            unlink($this->setting_cache);
-            unlink($this->setting_txt);
+            unlink($this->_setting_cache);
+            unlink($this->_setting_txt);
         }
         */
 
@@ -243,7 +264,10 @@ class SettingTxt
         }
     }
 
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

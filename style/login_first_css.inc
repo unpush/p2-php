@@ -1,6 +1,8 @@
 <?php
-// p2 ースタイル設定
-// for login_first
+/**
+ * rep2 - スタイル設定
+ * for login_first
+ */
 
 echo <<<EOSTYLE
 
@@ -20,15 +22,15 @@ EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-    include_once (P2_STYLE_DIR . '/mystyle_css.php');
-    $_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-    if (isset($MYSTYLE[$_mystylename])) {
-        disp_mystyle($_mystylename);
-    }
+	require_once P2_STYLE_DIR . '/mystyle_css.php';
+	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
+	if (isset($MYSTYLE[$_mystylename])) {
+		disp_mystyle($_mystylename);
+	}
 }
 
 /*
- * Local variables:
+ * Local Variables:
  * mode: php
  * coding: cp932
  * tab-width: 4

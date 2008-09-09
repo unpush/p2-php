@@ -1,40 +1,49 @@
 <?php
 /**
- * rep2expack - RSSパーザ
+ * rep2expack - RSS Parser
  */
 
-require_once P2EX_LIBRARY_DIR . '/rss/common.inc.php';
+require_once P2EX_LIB_DIR . '/rss/common.inc.php';
 require_once 'XML/RSS.php';
+
+// {{{ ImageCache2との連携判定
 
 if ($GLOBALS['_conf']['expack.rss.with_imgcache'] &&
     ((!$GLOBALS['_conf']['ktai'] && $GLOBALS['_conf']['expack.ic2.enabled'] % 2 == 1) ||
-    ($GLOBALS['_conf']['ktai'] && $GLOBALS['_conf']['expack.ic2.enabled'] >= 2))
-) {
-    require_once P2EX_LIBRARY_DIR . '/rss/getimage.inc.php';
-    define('P2_RSS_IMAGECACHE_AVAILABLE', 1);
+    ($GLOBALS['_conf']['ktai'] && $GLOBALS['_conf']['expack.ic2.enabled'] >= 2)))
+{
+    require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+    if (IC2Switch::get($GLOBALS['_conf']['ktai'])) {
+        require_once P2EX_LIB_DIR . '/rss/getimage.inc.php';
+        define('P2_RSS_IMAGECACHE_AVAILABLE', 1);
+    } else {
+        define('P2_RSS_IMAGECACHE_AVAILABLE', 0);
+    }
 } else {
     define('P2_RSS_IMAGECACHE_AVAILABLE', 0);
 }
 
+// }}}
+// {{{ p2GetRSS()
 
 /**
  * RSSをダウンロードし、パース結果を返す
  */
-function &p2GetRSS($remotefile, $atom=0)
+function p2GetRSS($remotefile, $atom=0)
 {
-    global $_conf;
+    global $_conf, $_info_msg_ht;
 
     $refresh = (!empty($_GET['refresh']) || !empty($_POST['refresh']));
 
     $localpath = rss_get_save_path($remotefile);
     if (PEAR::isError($localpath)) {
-        P2Util::pushInfoHtml("<p>" . $localpath->getMessage() . "</p>\n");
+        $_info_msg_ht .= "<p>" . $localpath->getMessage() . "</p>\n";
         return $localpath;
     }
 
     // 保存用ディレクトリがなければつくる
     if (!is_dir(dirname($localpath))) {
-        require_once P2_LIBRARY_DIR . '/filectl.class.php';
+        require_once P2_LIB_DIR . '/filectl.class.php';
         FileCtl::mkdir_for($localpath);
     }
 
@@ -61,18 +70,22 @@ function &p2GetRSS($remotefile, $atom=0)
 
 }
 
+// }}}
+// {{{ p2ParseRSS()
 
 /**
  * RSSをパースする
  */
-function &p2ParseRSS($xmlpath, $atom=0)
+function p2ParseRSS($xmlpath, $atom=0)
 {
+    global $_info_msg_ht;
+
     // $atomが真ならXSLを使ってRSS 1.0に変換
     // （変換済みファイルが存在しないか、$atom==2のときに実行される）
     // 元のXML(Atom)でencoding属性が正しく指定されていればXSLTプロセッサが自動で
     // 文字コードをUTF-8(XSLで指定した文字コード)に変換してくれる
     if ($atom) {
-        $xslpath = P2EX_LIBRARY_DIR . '/rss/atom03-to-rss10.xsl';
+        $xslpath = P2EX_LIB_DIR . '/rss/atom03-to-rss10.xsl';
         $rsspath = $xmlpath . '.rss';
         if (file_exists($rsspath) && $atom != 2) {
             // OK
@@ -82,7 +95,7 @@ function &p2ParseRSS($xmlpath, $atom=0)
                 return $retval;
             }
         } else {
-            P2Util::pushInfoHtml('<p>p2 error: Atomフィードを読むにはPHPのXSLT機能拡張またはXSL機能拡張が必要です。</p>');
+            $_info_msg_ht = '<p>p2 error: Atomフィードを読むにはPHPのXSLT機能拡張またはXSL機能拡張が必要です。</p>';
             $retval = false;
             return $retval;
         }
@@ -101,10 +114,10 @@ function &p2ParseRSS($xmlpath, $atom=0)
         }
         fclose($fp);
     }
-    $rss = &new XML_RSS($rsspath, $srcenc, $tgtenc);*/
-    $rss = &new XML_RSS($rsspath);
+    $rss = new XML_RSS($rsspath, $srcenc, $tgtenc);*/
+    $rss = new XML_RSS($rsspath);
     if (PEAR::isError($rss)) {
-        P2Util::pushInfoHtml('<p>p2 error: RSS - ' . $rss->getMessage() . '</p>');
+        $_info_msg_ht = '<p>p2 error: RSS - ' . $rss->getMessage() . '</p>';
         return $rss;
     }
     // 解析対象のタグを上書き
@@ -134,23 +147,26 @@ function &p2ParseRSS($xmlpath, $atom=0)
     // RSSをパース
     $result = $rss->parse();
     if (PEAR::isError($result)) {
-        P2Util::pushInfoHtml('<p>p2 error: RSS - ' . $result->getMessage() . '</p>');
+        $_info_msg_ht = '<p>p2 error: RSS - ' . $result->getMessage() . '</p>';
         return $result;
     }
 
     return $rss;
 }
 
+// }}}
+// {{{ atom_to_rss()
+
 /**
  * Atom 0.3 を RSS 1.0 に変換する（共通）
  */
 function atom_to_rss($input, $stylesheet, $output)
 {
-    global $_conf;
+    global $_conf, $_info_msg_ht;
 
     // 保存用ディレクトリがなければつくる
     if (!is_dir(dirname($output))) {
-        require_once P2_LIBRARY_DIR . '/filectl.class.php';
+        require_once P2_LIB_DIR . '/filectl.class.php';
         FileCtl::mkdir_for($output);
     }
 
@@ -166,7 +182,7 @@ function atom_to_rss($input, $stylesheet, $output)
         if (file_exists($output)) {
             unlink($output);
         }
-        return false;
+        return FALSE;
     }
     chmod($output, $_conf['expack.rss.setting_perm']);
 
@@ -180,72 +196,91 @@ function atom_to_rss($input, $stylesheet, $output)
         '/<(\/)?(creator|subject|date|pubdate)>/u' => '<$1dc:$2>');
     $rss_fixed = preg_replace(array_keys($rss_fix_patterns), array_values($rss_fix_patterns), $rss_content);
     if (md5($rss_content) != md5($rss_fixed)) {
-        $fp = @fopen($output, 'wb') or die("Error: cannot write. ( $output )");
+        $fp = @fopen($output, 'wb') or p2die("cannot write. ({$output})");
         flock($fp, LOCK_EX);
         fwrite($fp, $rss_fixed);
         flock($fp, LOCK_UN);
         fclose($fp);
     }
 
-    return true;
+    return TRUE;
 }
 
+// }}}
+// {{{ atom_to_rss_by_xslt()
 
 /**
  * Atom 0.3 を RSS 1.0 に変換する（PHP4, XSLT）
  */
 function atom_to_rss_by_xslt($input, $stylesheet, $output)
 {
+    global $_info_msg_ht;
+
     $xh = xslt_create();
     if (!@xslt_process($xh, $input, $stylesheet, $output)) {
         $errmsg = xslt_errno($xh) . ': ' . xslt_error($xh);
-        P2Util::pushInfoHtml('<p>p2 error: XSLT - AtomをRSSに変換できませんでした。(' . $errmsg . ')</p>');
+        $_info_msg_ht = '<p>p2 error: XSLT - AtomをRSSに変換できませんでした。(' . $errmsg . ')</p>';
         xslt_free($xh);
-        return false;
+        return FALSE;
     }
     xslt_free($xh);
 
-    return file_get_contents($output);
+    return FileCtl::file_read_contents($output);
 }
 
+// }}}
+// {{{ atom_to_rss_by_xsl()
 
 /**
  * Atom 0.3 を RSS 1.0 に変換する（PHP5, DOM & XSL）
  */
 function atom_to_rss_by_xsl($input, $stylesheet, $output)
 {
-    $xmlDoc = &new DomDocument;
-    $xmlDoc->load($input);
-    $xslDoc = &new DomDocument;
-    $xslDoc->load($stylesheet);
-    $proc = &new XSLTProcessor;
-    $proc->importStyleSheet($xslDoc);
-    $rssDoc = $proc->transformToDoc($xmlDoc);
-    $rssDoc->save($output);
+    global $_info_msg_ht;
 
-    $rss_content = file_get_contents($output);
+    $xmlDoc = new DomDocument;
+    if ($xmlDoc->load(realpath($input))) {
+        $xslDoc = new DomDocument;
+        $xslDoc->load(realpath($stylesheet));
+
+        $proc = new XSLTProcessor;
+        $proc->importStyleSheet($xslDoc);
+
+        $rssDoc = $proc->transformToDoc($xmlDoc);
+        $rssDoc->save($output);
+
+        $rss_content = FileCtl::file_read_contents($output);
+    } else {
+        $rss_content = null;
+    }
+
     if (!$rss_content) {
-        P2Util::pushInfoHtml('<p>p2 error: XSL - AtomをRSSに変換できませんでした。</p>');
-        return false;
+        $_info_msg_ht = '<p>p2 error: XSL - AtomをRSSに変換できませんでした。</p>';
+        return FALSE;
     }
 
     return $rss_content;
 }
 
+// }}}
+// {{{ rss_item_exists()
+
 /**
  * RSSのitem要素に任意の子要素があるかどうかをチェックする
  * 空要素は無視
  */
-function rss_item_exists(&$items, $element)
+function rss_item_exists($items, $element)
 {
     foreach ($items as $item) {
         if (isset($item[$element]) && strlen(trim($item[$element])) > 0) {
-            return true;
+            return TRUE;
         }
     }
-    return false;
+    return FALSE;
 }
 
+// }}}
+// {{{ rss_format_date()
 
 /**
  * RSSの日付を表示用に調整する
@@ -264,6 +299,8 @@ function rss_format_date($date)
     return htmlspecialchars($date, ENT_QUOTES);
 }
 
+// }}}
+// {{{ rss_desc_converter()
 
 /**
  * RSSのdescription要素を表示用に調整する
@@ -287,6 +324,9 @@ function rss_desc_converter($description)
 
     return $description;
 }
+
+// }}}
+// {{{ rss_desc_tag_cleaner()
 
 /**
  * 無効タグ属性などを消去するコールバック関数
@@ -398,6 +438,9 @@ function rss_desc_tag_cleaner($tag)
     return $tag;
 }
 
+// }}}
+// {{{ rss_url_rel_to_abs()
+
 /**
  * 相対 URL を絶対 URL にして返す関数
  *
@@ -472,6 +515,8 @@ function rss_url_rel_to_abs($url)
     //絶対 URL を返す
     return $top . implode('/', $paths1) . $query;
 }
+
+// }}}
 
 /*
  * Local Variables:

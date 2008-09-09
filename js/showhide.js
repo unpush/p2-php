@@ -1,6 +1,6 @@
 /* p2 - メニューカテゴリの開閉のためのJavaScript */
 
-var gHideClassName = 'itas_hide'; // 最初から隠しておく時のクラス名
+var gHideClassName = 'itas_hide';
 
 if (document.getElementById) {
 	document.writeln('<style type="text/css" media="all">');
@@ -10,13 +10,10 @@ if (document.getElementById) {
 	document.writeln('</style>');
 }
 
-////
-// showHide
-//
 function showHide(id) {
-
+	
 	var obj = document.getElementById(id);
-
+		
 	if (!obj) {
 		return false;
 	}

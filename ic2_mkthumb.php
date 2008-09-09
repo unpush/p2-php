@@ -1,39 +1,63 @@
 <?php
-/* ImageCache2 - サムネイルの再構築 */
+/**
+ * ImageCache2 - サムネイルの再構築
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
-
+ini_set('display_errors', true);
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
 
-if ($GLOBALS['debug']) {
+/*if ($GLOBALS['debug']) {
     require_once 'Var_Dump.php';
     Var_Dump::display($_GET);
     exit;
-}
+}*/
 
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/database.class.php';
-require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
 
-$uri   = $_GET['u'];
-$type  = $_GET['v'];
-$thumb = isset($_GET['t']) ? intval($_GET['t']) : 0;
+// {{{ リクエストパラメータの処理
+
+$uri    = $_GET['u'];
+$type   = $_GET['v'];
+$thumb  = isset($_GET['t']) ? intval($_GET['t']) : 0;
 $options = array();
-$options['quality'] = isset($_GET['q']) ? intval($_GET['q']) : NULL;
+$options['quality'] = isset($_GET['q']) ? intval($_GET['q']) : null;
 $options['rotate']  = isset($_GET['r']) ? intval($_GET['r']) : 0;
-$options['trim']    = !empty($_GET['p']);
+$options['trim']    = !empty($_GET['w']);
+if (isset($_GET['x']) && $_GET['x'] >= 1 && isset($_GET['y']) && $_GET['y'] >= 1) {
+    $options['width']   = intval($_GET['x']);
+    $options['height']  = intval($_GET['y']);
+}
+$preset = isset($_GET['p']) ? $_GET['p'] : '';
+if (!empty($preset)) {
+    $ini = ic2_loadconfig();
+    $preset = $_GET['p'];
+    if (isset($ini['Dynamic']['presets'][$preset])) {
+        $options['width']   = $ini['Dynamic']['presets'][$preset][0];
+        $options['height']  = $ini['Dynamic']['presets'][$preset][1];
+        if (isset($ini['Dynamic']['presets'][$preset][2])) {
+            $options['quality'] = $ini['Dynamic']['presets'][$preset][2];
+        }
+    }
+}
+$attachment = !empty($_GET['z']);
 
-$search = &new IC2DB_Images;
+// }}}
+// {{{ 画像を検索・サムネイルを作成
+
+$search = new IC2DB_Images;
 
 switch ($type) {
     case 'id':
@@ -49,35 +73,61 @@ switch ($type) {
 }
 
 if ($search->find(true)) {
-    // 縦横のサイズが大きい画像はまず中間イメージを作成する
-    if ($search->width > 1280 || $search->height > 1280) {
-        $thumbX = &new ThumbNailer(IC2_THUMB_SIZE_INTERMD);
-        $resultX = &$thumbX->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);
-        if (PEAR::isError($result)) {
-            error($resultX->getMessage());
-            exit;
-        }
-        $options['intermd'] = $resultX;
-    }
-    $thumb = &new ThumbNailer($thumb, $options);
-    $result = &$thumb->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);
-    if (PEAR::isError($result)) {
-        error($result->getMessage());
-    } else {
-        $name = 'filename="' . basename($result) . '"';
-        if ($thumb->type == '.png') {
-            header('Content-Type: image/png; ' . $name);
+    if (!empty($_GET['o'])) {
+        $thumb = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+        $src = $thumb->srcPath($search->size, $search->md5, $search->mime);
+        if (!file_exists($src)) {
+            ic2_mkthumb_error("&quot;{$uri}&quot;のローカルキャッシュがありません。");
         } else {
-            header('Content-Type: image/jpeg; ' . $name);
+            ic2_mkthumb_success(basename($src), $search->mime, $src, true, $attachment);
         }
-        header('Content-Disposition: inline; ' . $name);
-        echo $thumb->buf;
+    } else {
+        $thumb = new ThumbNailer($thumb, $options);
+        $result = $thumb->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);
+        if (PEAR::isError($result)) {
+            ic2_mkthumb_error($result->getMessage());
+        } else {
+            $mime = ($thumb->type == '.png') ? 'image/png' : 'image/jpeg';
+            ic2_mkthumb_success(basename($result), $mime, $thumb->buf, false, $attachment);
+        }
     }
 } else {
-    error("&quot;{$uri}&quot;はキャッシュされていません。");
+    ic2_mkthumb_error("&quot;{$uri}&quot;はキャッシュされていません。");
 }
 
-function error($msg)
+// }}}
+// {{{ ic2_mkthumb_success()
+
+/**
+ * サムネイルの作成に成功した場合
+ */
+function ic2_mkthumb_success($name, $mime, $data, $is_file, $attachment)
+{
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    header(sprintf('Content-Type: %s; filename="%s"', $mime, $name));
+    if ($attachment) {
+        header(sprintf('Content-Disposition: attachment; filename="%s"', $name));
+    } else {
+        header(sprintf('Content-Disposition: inline; filename="%s"', $name));
+    }
+    if ($is_file) {
+        header(sprintf('Content-Length: %d', filesize($data)));
+        readfile($data);
+    } else {
+        header(sprintf('Content-Length: %d', strlen($data)));
+        echo $data;
+    }
+}
+
+// }}}
+// {{{ ic2_mkthumb_error()
+
+/**
+ * サムネイルの作成に失敗した場合
+ */
+function ic2_mkthumb_error($msg)
 {
     echo <<<EOF
 <html>
@@ -88,6 +138,8 @@ function error($msg)
 </html>
 EOF;
 }
+
+// }}}
 
 /*
  * Local Variables:

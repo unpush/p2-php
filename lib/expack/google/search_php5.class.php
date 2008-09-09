@@ -1,26 +1,11 @@
 <?php
-/**
- * rep2expack - search 2ch using Google Web APIs
- */
-
 require_once 'PEAR.php';
 require_once dirname(__FILE__) . '/search.class.php';
 
+// {{{ GoogleSearch_PHP5
+
 class GoogleSearch_PHP5 extends GoogleSearch_Common
 {
-    // {{{ constructor
-
-    /**
-     * コンストラクタ
-     *
-     * @return void
-     * @access public
-     */
-    public function __construct()
-    {
-    }
-
-    // }}}
     // {{{ init()
 
     /**
@@ -43,14 +28,14 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
         $this->setConf($wsdl, $key);
 
         try {
-            $this->soapClient = &new SoapClient($wsdl, $this->options);
+            $this->_soapClient = new SoapClient($wsdl, $this->_options);
         } catch (SoapFault $e) {
             $errfmt = 'SOAP Fault: (faultcode: %s; faultstring: %s;)';
             $errmsg = sprintf($errfmt, $e->faultcode, $e->faultstring);
             return PEAR::raiseError($errmsg);
         }
 
-        return true;
+        return TRUE;
     }
 
     // }}}
@@ -69,7 +54,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
     {
         $params = $this->prepareParams($q, $maxResults, $start);
         try {
-            $result = call_user_func_array(array($this->soapClient, 'doGoogleSearch'), $params);
+            $result = call_user_func_array(array($this->_soapClient, 'doGoogleSearch'), $params);
         } catch (SoapFault $e) {
             $errfmt = 'SOAP Fault: (faultcode: %s; faultstring: %s;)';
             $errmsg = sprintf($errfmt, $e->faultcode, $e->faultstring);
@@ -80,6 +65,8 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
 
     // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

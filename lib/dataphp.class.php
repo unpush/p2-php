@@ -1,34 +1,48 @@
 <?php
-/*
-    2006/02/24 aki DataPhp形式はもう使わない方向。拡張子 .cgi を代替とする
+/**
+ * 2006/02/24 aki DataPhp形式はもう使わない方向性。拡張子 .cgi を代替とする
+ *
+ * データファイルにWebから直接アクセスされても中をみられないようにphp形式のファイルでデータを取り扱うクラス
+ * インスタンスを作らずにクラスメソッドで利用する。ファイルの保存形式は、以下のような感じ。
+ *
+ * ＜？php ／*
+ * データ
+ * *／ ？＞
+ */
 
-    データファイルにWebから直接アクセスされても中をみられないようにphp形式のファイルでデータを取り扱うクラス
-    インスタンスを作らずにスタティックメソッドで利用する。ファイルの保存形式は、以下のような感じ。
+// {{{ DataPhp
 
-    ＜？php ／*
-    データ
-    *／ ？＞
-*/
+/**
+ * @static
+ */
 class DataPhp
 {
-    function getPre()
+    // {{{ getPre()
+
+    static public function getPre()
     {
         return "<?php /*\n";
     }
 
-    function getHip()
+    // }}}
+    // {{{ getHip()
+
+    static public function getHip()
     {
         return "\n*/ ?>";
     }
 
+    // }}}
+    // {{{ getDataPhpCont()
+
     /**
-     * データphp形式のファイルを読み込む
+     * ■データphp形式のファイルを読み込む
      *
      * 文字列のアンエスケープも行う
      */
-    function getDataPhpCont($data_php)
+    static public function getDataPhpCont($data_php)
     {
-        if (!$cont = @file_get_contents($data_php)) {
+        if (!$cont = FileCtl::file_read_contents($data_php)) {
             // 読み込みエラーならfalse、空っぽなら""を返す
             return $cont;
 
@@ -49,12 +63,15 @@ class DataPhp
         }
     }
 
+    // }}}
+    // {{{ fileDataPhp()
+
     /**
-     * データphp形式のファイルをラインで読み込む
+     * ■データphp形式のファイルをラインで読み込む
      *
      * 文字列のアンエスケープも行う
      */
-    function fileDataPhp($data_php)
+    static public function fileDataPhp($data_php)
     {
         if (!$cont = DataPhp::getDataPhpCont($data_php)) {
             // 読み込みエラーならfalse、空っぽなら空配列を返す
@@ -99,14 +116,16 @@ class DataPhp
         }
     }
 
+    // }}}
+    // {{{ writeDataPhp()
+
     /**
-     * データphp形式のファイルにデータを記録する（モードはwb）
-     * 文字列のエスケープも行う
+     * データphp形式のファイルにデータを記録する
      *
-     * @param   srting   $cont  記録するデータ文字列
-     * @return  boolean
+     * 文字列のエスケープも行う
+     * @param srting $cont 記録するデータ文字列。
      */
-    function writeDataPhp($data_php, &$cont, $perm = 0606)
+    static public function writeDataPhp($data_php, $cont, $perm = 0606)
     {
         // &<>/ を &xxx; にエスケープして
         $new_cont = DataPhp::escapeDataPhp($cont);
@@ -115,31 +134,27 @@ class DataPhp
         $new_cont = DataPhp::getPre() . $new_cont . DataPhp::getHip();
 
         // ファイルがなければ生成
-        if (false === FileCtl::make_datafile($data_php, $perm)) {
-            return false;
-        }
-
+        FileCtl::make_datafile($data_php, $perm);
         // 書き込む
-        if (!$fp = fopen($data_php, 'wb')) {
-             trigger_error("fopen($data_php)", E_USER_WARNING);
-             die("Error: ファイルを更新できませんでした");
-             return false;
-        }
-        @flock($fp, LOCK_EX);
+        $fp = @fopen($data_php, 'wb') or p2die("{$data_php} を更新できませんでした");
+        flock($fp, LOCK_EX);
         $last = ignore_user_abort(1);
         ftruncate($fp, 0);
         fwrite($fp, $new_cont);
         ignore_user_abort($last);
-        @flock($fp, LOCK_UN);
+        flock($fp, LOCK_UN);
         fclose($fp);
 
         return true;
     }
 
+    // }}}
+    // {{{ putDataPhp()
+
     /**
      * データphp形式のファイルで、末尾にデータを追加する
      */
-    function putDataPhp($data_php, &$cont, $perm = 0606, $ncheck = false)
+    static public function putDataPhp($data_php, $cont, $perm = 0606, $ncheck = false)
     {
         if ($cont === "") {
             return true;
@@ -150,7 +165,7 @@ class DataPhp
 
         $cont_esc = DataPhp::escapeDataPhp($cont);
 
-        $old_cont = @file_get_contents($data_php);
+        $old_cont = FileCtl::file_read_contents($data_php);
         if ($old_cont) {
             // ファイルが、データphp形式以外の場合は、何もせずにfalseを返す
             if (!preg_match("/^\s*<\?php\s\/\*/", $old_cont)) {
@@ -177,22 +192,25 @@ class DataPhp
         // ファイルがなければ生成
         FileCtl::make_datafile($data_php, $perm);
         // 書き込む
-        $fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
-        @flock($fp, LOCK_EX);
+        $fp = @fopen($data_php, 'wb') or p2die("{$data_php} を更新できませんでした");
+        flock($fp, LOCK_EX);
         $last = ignore_user_abort(1);
         ftruncate($fp, 0);
         fwrite($fp, $new_cont);
         ignore_user_abort($last);
-        @flock($fp, LOCK_UN);
+        flock($fp, LOCK_UN);
         fclose($fp);
 
         return true;
     }
 
+    // }}}
+    // {{{ escapeDataPhp()
+
     /**
-     * データphp形式のデータをエスケープする
+     * ■データphp形式のデータをエスケープする
      */
-    function escapeDataPhp($str)
+    static public function escapeDataPhp($str)
     {
         // &<>/ → &xxx; のエスケープをする
         $str = str_replace("&", "&amp;", $str);
@@ -202,10 +220,13 @@ class DataPhp
         return $str;
     }
 
+    // }}}
+    // {{{ unescapeDataPhp()
+
     /**
-     * データphp形式のデータをアンエスケープする
+     * ■データphp形式のデータをアンエスケープする
      */
-    function unescapeDataPhp($str)
+    static public function unescapeDataPhp($str)
     {
         // &<>/ → &xxx; のエスケープを元に戻す
         $str = str_replace('&lt;', '<', $str);
@@ -215,7 +236,10 @@ class DataPhp
         return $str;
     }
 
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

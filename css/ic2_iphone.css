@@ -1,0 +1,125 @@
+/* rep2expack - stylesheet for ImageCache2 on iPhone */
+
+/* {{{ Preview */
+
+div#ic2-preview {
+	margin: -10px -10px 0 -10px;
+	padding: 0;
+	text-align: center;
+	background-color: #666666;
+}
+
+div#ic2-preview > a {
+	display: inline-block;
+	padding: 5px;
+	color: #eeeeee;
+}
+
+div#ic2-preview-info {
+	margin: 0 -10px 10px -10px;
+	padding: 10px;
+	line-height: 100%;
+	color: #ffffff;
+	background-color: #333333;
+}
+
+div#ic2-preview-info > div#ic2-preview-rating {
+	margin: 5px 0 0 0;
+	text-align: center;
+}
+
+div#ic2-preview-edit {
+}
+
+div#ic2-preview-edit > form {
+	line-height: 45px;
+}
+
+div#ic2-preview-edit input[type="text"] {
+	padding-right: 3px;
+	padding-left: 3px;
+	-webkit-border-radius: 0;
+}
+
+/* }}} */
+/* {{{ Pop-Up Information */
+
+div#ic2-info {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 300px;
+	margin: 0;
+	padding: 12px 6px 0 14px;
+	z-index: 999;
+}
+
+div#ic2-info-body {
+	margin: 0;
+	padding: 12px 10px 8px 10px;
+	line-height: 100%;
+	color: #ffffff;
+	background-color: rgba(0, 0, 0, 0.8);
+	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
+	-webkit-border-radius: 8px;
+}
+
+#ic2-info-preview,
+#ic2-info-message {
+	margin: 0;
+	padding: 2px;
+	vertical-align: middle;
+}
+
+#ic2-info-preview {
+	background-image: url('../img/iphone/ck-wt.png');
+	text-align:center;
+}
+
+#ic2-info-message {
+	line-height: 120%;
+	word-break: break-all;
+}
+
+#ic2-info-rating {
+	margin: 5px 0 0 0;
+	padding: 0;
+	font-size: 8px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+div#ic2-info img {
+	margin: 0;
+	border-width: 0;
+}
+
+img#ic2-info-closer {
+	position: absolute;
+	top: 0;
+	left: 2px;
+}
+
+div#ic2-info-rating img,
+img#ic2-info-closer,
+img.ic2-show-info {
+	cursor: pointer;
+}
+
+input[type="button"].ic2-show-info {
+	font-size: small;
+}
+
+/* }}} */
+
+/*
+ * Local Variables:
+ * mode: css
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=css fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

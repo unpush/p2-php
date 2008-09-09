@@ -1,6 +1,12 @@
 <?php
 /**
- * p2 - ポジションを考慮しながら、ラインデータを追加して、結果を取得する
+ * rep2 - ポジションを考慮しながら、ラインデータを追加して、結果を取得する関数
+ */
+
+// {{{ getSetPosLines()
+
+/**
+ * ポジションを考慮しながら、ラインデータを追加して、結果を取得する
  *
  * @param array     $lines            あらかめじめ重複要素を削除したライン配列
  * @param string    $data             新規ラインデータ
@@ -55,6 +61,8 @@ function getSetPosLines($lines, $data, $before_line_num, $set)
 
     return $reclines;
 }
+
+// }}}
 
 /*
  * Local Variables:

@@ -1,105 +1,164 @@
 <?php
 /**
- * スレッドを表示する クラス
+ * rep2- スレッドを表示する クラス
  */
-class ShowThread
+
+require_once P2_LIB_DIR . '/threadread.class.php';
+
+// {{{ ShowThread
+
+abstract class ShowThread
 {
-    var $thread; // スレッドオブジェクトの参照
+    // {{{ properties
 
-    var $str_to_link_regex; // リンクすべき文字列の正規表現
-    var $str_to_link_limit = 30; // 一つのレスにおけるリンク変換の制限回数（荒らし対策）
+    static private $_matome_count = 0;
 
-    var $url_handlers;      // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
-    var $user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
+    protected $_matome; // まとめ読みモード時のスレッド番号
 
-    var $ngaborn_frequent; // 頻出IDをあぼーんする
+    protected $_str_to_link_regex; // リンクすべき文字列の正規表現
 
-    var $aborn_nums;    // あぼーんレス番号を格納する配列
-    var $ng_nums;       // NGレス番号を格納する配列
+    protected $_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
+    protected $_user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
 
-    var $activeMona;            // アクティブモナー・オブジェクト
-    var $am_enabled = false;    // アクティブモナーが有効か否か
+    protected $_ngaborn_frequent; // 頻出IDをあぼーんする
+
+    protected $_aborn_nums; // あぼーんレス番号を格納する配列
+    protected $_ng_nums; // NGレス番号を格納する配列
+
+    public $thread; // スレッドオブジェクト
+
+    public $activeMona; // アクティブモナー・オブジェクト
+    public $am_enabled = false; // アクティブモナーが有効か否か
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function ShowThread(&$aThread)
+    protected function __construct(ThreadRead $aThread, $matome = false)
     {
         global $_conf;
 
-        // スレッドオブジェクトの参照を登録
-        $this->thread = &$aThread;
+        // スレッドオブジェクトを登録
+        $this->thread = $aThread;
 
-        $this->str_to_link_regex = '{'
-            . '(?P<link>(<[Aa] .+?>)(.*?)(</[Aa]>))' // リンク（PCREの特性上、必ずこのパターンを最初に試行する）
-            . '|'
-            . '(?:'
-            .   '(?P<quote>' // 引用
-            .       '((?:&gt;|＞){1,2} ?)' // 引用符
-            .       '('
-            .           '(?:[1-9]\\d{0,3})' // 1つ目の番号
-            .           '(?:'
-            .               '(?: ?(?:[,=]|、) ?[1-9]\\d{0,3})+' // 連続
-            .               '|'
-            .               '-(?:[1-9]\\d{0,3})?' // 範囲
-            .           ')?'
-            .       ')'
-            .       '(?=\\D|$)'
-            .   ')' // 引用ここまで
-            . '|'
-            .   '(?P<url>(ftp|h?t?tps?)://([0-9A-Za-z][\\w!#%&+*,\\-./:;=?@\\[\\]^~]+))' // URL
-            .   '([^\s<>]*)' // URLの直後、タグorホワイトスペースが現れるまでの文字列
-            . '|'
-            .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
-            . ')'
-            . '}';
+        // まとめ読みモードか否か
+        if ($matome) {
+            $this->_matome = ++self::$_matome_count;
+        } else {
+            $this->_matome = false;
+        }
 
-        $this->url_handlers = array();
-        $this->user_url_handlers = array();
+        // PHP 5.3ならNowdocで静的プロパティやクラス定数にできるし、すべき
+        // ちなみに5.3だとpreg_replace_callback()でも名前付き捕獲式集合が有効
+        $this->_str_to_link_regex = <<<EOP
+{
+  (?P<link>(<[Aa][ ].+?>)(.*?)(</[Aa]>)) # リンク（PCREの特性上、必ずこのパターンを最初に試行する）
+  |
+  (?:
+    (?P<quote> # 引用
+      ((?:&gt;|＞){1,2}[ ]?) # 引用符
+      (
+        (?:[1-9]\\d{0,3}) # 1つ目の番号
+        (?:
+          (?:[ ]?(?:[,=]|、)[ ]?[1-9]\\d{0,3})+ # 連続
+          |
+          -(?:[1-9]\\d{0,3})? # 範囲
+        )?
+      )
+      (?=\\D|\$)
+    ) # 引用ここまで
+  |
+    (?P<url>(ftp|h?t?tps?)://([0-9A-Za-z][\\w;/?:@=&\$\\-_.+!*'(),#%\\[\\]^~]+)) # URL
+    ([^\\s<>]*) # URLの直後、タグorホワイトスペースが現れるまでの文字列
+  |
+    (?P<id>ID:[ ]?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|\$)) # ID（8,10桁 +PC/携帯識別フラグ）
+  )
+}x
+EOP;
 
-        $this->ngaborn_frequent = 0;
+        $this->_url_handlers = array();
+        $this->_user_url_handlers = array();
+
+        $this->_ngaborn_frequent = 0;
         if ($_conf['ngaborn_frequent']) {
             if ($_conf['ngaborn_frequent_dayres'] == 0) {
-                $this->ngaborn_frequent = $_conf['ngaborn_frequent'];
+                $this->_ngaborn_frequent = $_conf['ngaborn_frequent'];
             } elseif ($this->thread->setDayRes() && $this->thread->dayres < $_conf['ngaborn_frequent_dayres']) {
-                $this->ngaborn_frequent = $_conf['ngaborn_frequent'];
+                $this->_ngaborn_frequent = $_conf['ngaborn_frequent'];
             }
         }
 
-        $this->aborn_nums = array();
-        $this->ng_nums = array();
+        $this->_aborn_nums = array();
+        $this->_ng_nums = array();
     }
+
+    // }}}
+    // {{{ abstract methods
+    // {{{ datToHtml()
 
     /**
      * DatをHTML変換して表示する
-     * （継承先クラスで実装）
      */
-    function datToHtml()
-    {
-    }
+    abstract public function datToHtml();
+
+    // }}}
+    // {{{ transRes()
+
+    /**
+     * DatレスをHTMLレスに変換する
+     *
+     * @param   string  $ares   datの1ライン
+     * @param   int     $i      レス番号
+     * @return  string
+     */
+    abstract public function transRes($ares, $i);
+
+    // }}}
+    // {{{ transName()
+
+    /**
+     * 名前をHTML用に変換する
+     *
+     * @param   string  $name   名前
+     * @return  string
+     */
+    abstract public function transName($name);
+
+    // }}}
+    // {{{ transMsg()
+
+    /**
+     * datのレスメッセージをHTML表示用メッセージに変換する
+     *
+     * @param   string  $msg    メッセージ
+     * @param   int     $mynum  レス番号
+     * @return  string
+     */
+    abstract public function transMsg($msg, $mynum);
+
+    // }}}
+    // }}}
+    // {{{ getDatToHtml()
 
     /**
      * DatをHTML変換したものを取得する
      */
-    function getDatToHtml()
+    public function getDatToHtml()
     {
         ob_start();
         $this->datToHtml();
-        $html = ob_get_contents();
-        ob_end_clean();
-
-        return $html;
+        return ob_get_clean();
     }
+
+    // }}}
+    // {{{ replaceBeId()
 
     /**
      * BEプロファイルリンク変換
-     *
-     * @access  protected
-     * @param   string     $data_id  2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)
-     * @param   integer    $i        レス番号
-     * @return  string
      */
-    function replaceBeId($date_id, $i)
+    public function replaceBeId($date_id, $i)
     {
         global $_conf;
 
@@ -110,8 +169,8 @@ class ShowThread
         if (preg_match($be_match, $date_id)) {
             $date_id = preg_replace($be_match, $beid_replace, $date_id);
 
-        // 2006/10/20(金) 11:46:08 ID:YS696rnVP BE:32616498-DIA(30003)
         } else {
+
             $beid_replace = "<a href=\"http://be.2ch.net/test/p.php?i=\$1&u=d:http://{$this->thread->host}/test/read.cgi/{$this->thread->bbs}/{$this->thread->key}/{$i}\"{$_conf['ext_win_target_at']}>?\$2</a>";
             $date_id = preg_replace('|BE: ?(\d+)-(#*)|i', $beid_replace, $date_id);
         }
@@ -119,27 +178,30 @@ class ShowThread
         return $date_id;
     }
 
+    // }}}
+    // {{{ ngAbornCheck()
 
     /**
      * NGあぼーんチェック
-     *
-     * @return  string|false
      */
-    function ngAbornCheck($code, $resfield, $ic = false)
+    public function ngAbornCheck($code, $resfield, $ic = false)
     {
         global $ngaborns;
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ngAbornCheck()');
 
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
+            $bbs = $this->thread->bbs;
+            $title = $this->thread->ttitle_hc;
+
             foreach ($ngaborns[$code]['data'] as $k => $v) {
                 // 板チェック
-                if (isset($v['bbs']) && in_array($this->thread->bbs, $v['bbs']) == false) {
+                if (isset($v['bbs']) && in_array($bbs, $v['bbs']) == false) {
                     continue;
                 }
 
                 // タイトルチェック
-                if (isset($v['title']) && stristr($this->thread->ttitle_hc, $v['title']) === false) {
+                if (isset($v['title']) && stripos($title, $v['title']) === false) {
                     continue;
                 }
 
@@ -149,54 +211,47 @@ class ShowThread
                     $re_method = $v['regex'];
                     /*if ($re_method($v['word'], $resfield, $matches)) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return htmlspecialchars($matches[0], ENT_QUOTES);
                     }*/
                      if ($re_method($v['word'], $resfield)) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
                     }
-               // 大文字小文字を無視(1)
-                } elseif (!empty($v['ignorecase'])) {
-                    if (stristr($resfield, $v['word'])) {
+               // 大文字小文字を無視
+                } elseif ($ic || !empty($v['ignorecase'])) {
+                    if (stripos($resfield, $v['word']) !== false) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                        return $v['cond'];
-                    }
-                // 大文字小文字を無視(2)
-                } elseif ($ic) {
-                    if (stristr($resfield, $v['word'])) {
-                        $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
                     }
                 // 単純に文字列が含まれるかどうかをチェック
                 } else {
-                    if (strstr($resfield, $v['word'])) {
+                    if (strpos($resfield, $v['word']) !== false) {
                         $this->ngAbornUpdate($code, $k);
-                        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
                     }
                 }
             }
         }
 
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
         return false;
     }
 
+    // }}}
+    // {{{ abornResCheck()
+
     /**
      * 特定レスの透明あぼーんチェック
-     *
-     * @return  boolean
      */
-    function abornResCheck($resnum)
+    public function abornResCheck($resnum)
     {
         global $ngaborns;
 
-        $t = &$this->thread;
-        $target = $t->host . '/' . $t->bbs . '/' . $t->key . '/' . $resnum;
+        $target = $this->thread->host . '/' . $this->thread->bbs . '/' . $this->thread->key . '/' . $resnum;
 
         if (isset($ngaborns['aborn_res']['data']) && is_array($ngaborns['aborn_res']['data'])) {
             foreach ($ngaborns['aborn_res']['data'] as $k => $v) {
@@ -209,25 +264,28 @@ class ShowThread
         return false;
     }
 
+    // }}}
+    // {{{ ngAbornUpdate()
+
     /**
      * NG/あぼ～ん日時と回数を更新
-     *
-     * @return  void
      */
-    function ngAbornUpdate($code, $k)
+    public function ngAbornUpdate($code, $k)
     {
         global $ngaborns;
 
         if (isset($ngaborns[$code]['data'][$k])) {
-            $v =& $ngaborns[$code]['data'][$k];
-            $v['lasttime'] = date('Y/m/d G:i'); // HIT時間を更新
-            if (empty($v['hits'])) {
-                $v['hits'] = 1; // 初HIT
+            $ngaborns[$code]['data'][$k]['lasttime'] = date('Y/m/d G:i'); // HIT時間を更新
+            if (empty($ngaborns[$code]['data'][$k]['hits'])) {
+                $ngaborns[$code]['data'][$k]['hits'] = 1; // 初HIT
             } else {
-                $v['hits']++; // HIT回数を更新
+                $ngaborns[$code]['data'][$k]['hits']++; // HIT回数を更新
             }
         }
     }
+
+    // }}}
+    // {{{ addURLHandler()
 
     /**
      * ユーザ定義URLハンドラ（メッセージ中のURLを書き換える関数）を追加する
@@ -240,27 +298,27 @@ class ShowThread
      *  1. string $url  URL
      *  2. array  $purl URLをparse_url()したもの
      *  3. string $str  パターンにマッチした文字列、URLと同じことが多い
-     *  4. object &$aShowThread 呼び出し元のオブジェクト
+     *  4. object $aShowThread 呼び出し元のオブジェクト
      * である
      * 常にFALSEを返し、内部で処理するだけの関数を登録してもよい
      *
-     * @param   string|array $function  関数名か、array(string $classname, string $methodname)
-     *                                  もしくは array(object $instance, string $methodname)
+     * @param   callback $function  コールバックメソッド
      * @return  void
      * @access  public
      * @todo    ユーザ定義URLハンドラのオートロード機能を実装
      */
-    function addURLHandler($function)
+    public function addURLHandler($function)
     {
-        $this->user_url_handlers[] = $function;
+        $this->_user_url_handlers[] = $function;
     }
+
+    // }}}
+    // {{{ getFilterTarget()
 
     /**
      * レスフィルタリングのターゲットを得る
-     *
-     * @return  string
      */
-    function getFilterTarget(&$ares, &$i, &$name, &$mail, &$date_id, &$msg)
+    public function getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)
     {
         switch ($GLOBALS['res_filter']['field']) {
             case 'name':
@@ -286,17 +344,18 @@ class ShowThread
         return $target;
     }
 
+    // }}}
+    // {{{ filterMatch()
+
     /**
      * レスフィルタリングのマッチ判定
-     *
-     * @return  boolean
      */
-    function filterMatch(&$target, &$resnum)
+    public function filterMatch($target, $resnum)
     {
         global $_conf;
         global $filter_hits, $filter_range;
 
-        $failed = ($GLOBALS['res_filter']['match'] == 'off') ? true : false;
+        $failed = ($GLOBALS['res_filter']['match'] == 'off') ? TRUE : FALSE;
 
         if ($GLOBALS['res_filter']['method'] == 'and') {
             $words_fm_hit = 0;
@@ -320,8 +379,7 @@ class ShowThread
 
         $GLOBALS['filter_hits']++;
 
-        // 表示範囲外なら偽判定とする
-        if (isset($GLOBALS['word']) && !empty($filter_range) &&
+        if ($_conf['filtering'] && !empty($filter_range) &&
             ($filter_hits < $filter_range['start'] || $filter_hits > $filter_range['to'])
         ) {
             return false;
@@ -332,16 +390,20 @@ class ShowThread
         if (!$_conf['ktai']) {
             echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 filterCount({$GLOBALS['filter_hits']});
--->
+//]]>
 </script>\n
 EOP;
         }
 
         return true;
     }
+
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

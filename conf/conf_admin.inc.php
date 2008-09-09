@@ -1,9 +1,9 @@
 <?php
-/*
-    rep2 - ŠÇ—Ò—pİ’èƒtƒ@ƒCƒ‹
-
-    ‚±‚Ìƒtƒ@ƒCƒ‹‚Ìİ’è‚ÍA•K—v‚É‰‚¶‚Ä•ÏX‚µ‚Ä‚­‚¾‚³‚¢
-*/
+/**
+ * rep2 - ŠÇ—Ò—pİ’èƒtƒ@ƒCƒ‹
+ *
+ * ‚±‚Ìƒtƒ@ƒCƒ‹‚Ìİ’è‚ÍA•K—v‚É‰‚¶‚Ä•ÏX‚µ‚Ä‚­‚¾‚³‚¢
+ */
 
 // ----------------------------------------------------------------------
 // {{{ ƒf[ƒ^•Û‘¶ƒfƒBƒŒƒNƒgƒŠ‚Ìİ’è
@@ -38,6 +38,7 @@ $_conf['pref_dir'] = "./data";      // ("./data")
  * ‰æ‘œ‚âconf.php‚ğƒ[ƒh‚µ‚È‚¢phpƒXƒNƒŠƒvƒg‚àƒAƒNƒZƒX§ŒÀ‚Ì
  * ‘ÎÛ‚É‚Å‚«‚é‚Ì‚ÅA‰Â”\‚È‚ç‚»‚Á‚¿‚ğg‚¤‚Ù‚¤‚ª‚¢‚¢B
  */
+$_conf['secure'] = array();
 
 // ƒzƒXƒgƒ`ƒFƒbƒN‚ğ‚·‚é (0:‚µ‚È‚¢; 1:w’è‚³‚ê‚½ƒzƒXƒg‚Ì‚İ‹–‰Â; 2:w’è‚³‚ê‚½ƒzƒXƒg‚Ì‚İ‹‘”Û;)
 $_conf['secure']['auth_host'] = 1;  // (1)
@@ -51,7 +52,6 @@ $_conf['disable_res'] = 0;          // (0)
 // }}}
 // ----------------------------------------------------------------------
 
-// ƒZƒbƒVƒ‡ƒ“‚ğg‚¤ê‡‚ÍAPHP‚Ìİ’è‚Å session.use_trans_sid ‚ğ—LŒø‚É‚·‚é‚±‚Æ‚ğ„§‚·‚é
 $_conf['use_session'] = 2;          // (2) ƒZƒbƒVƒ‡ƒ“‚ğ—˜—pi‚·‚é:1, ‚µ‚È‚¢:0, cookie”FØ‚ª—˜—p‚³‚ê‚Ä‚¢‚È‚¢‚Ì‚İ‚·‚é:2j
 
 $_conf['session_save'] = 'p2';      // ('p2') sessionƒf[ƒ^‚Ì•Û‘¶ŠÇ— (PHPƒfƒtƒHƒ‹ƒg:'', p2‚Åƒtƒ@ƒCƒ‹ŠÇ—:'p2')
@@ -66,7 +66,7 @@ $_conf['menu_dl_interval'] = 1;     // (1) ”Â menu ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚
 $_conf['sb_dl_interval'] = 300;     // (300) subject.txt ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b)
 
 // $_conf['dat_dl_interval'] = 20;  // (20) dat ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b) // ‚±‚Ìİ’è‚ÍŒ»İ‚Í‹@”\‚µ‚Ä‚¢‚È‚¢
-$_conf['p2status_dl_interval'] = 360; // (360) p2statusiƒAƒbƒvƒf[ƒgƒ`ƒFƒbƒNj‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•ª)
+$_conf['p2status_dl_interval'] = 7; // (7) p2statusiƒAƒbƒvƒf[ƒgƒ`ƒFƒbƒNj‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (“ú)
 
 $_conf['login_log_rec'] = 1;        // (1) ƒƒOƒCƒ“ƒƒO‚ğ‹L˜^i‚·‚é:1, ‚µ‚È‚¢:0j
 $_conf['login_log_rec_num'] = 200;  // (200) ƒƒOƒCƒ“ƒƒO‚Ì‹L˜^”
@@ -76,17 +76,19 @@ $_conf['cid_expire_day'] = 30;      // (30) Cookie ID‚Ì—LŒøŠúŒÀ“ú”
 
 // {{{ Œg‘ÑƒAƒNƒZƒXƒL[
 
-$_conf['k_accesskey']['matome'] = '3'; // V‚Ü‚Æ‚ß
-$_conf['k_accesskey']['latest'] = '3'; // V
-$_conf['k_accesskey']['res'] =    '7'; // Ú½
-$_conf['k_accesskey']['above'] =  '2'; // ã
-$_conf['k_accesskey']['up'] =     '5'; // i”Âj
-$_conf['k_accesskey']['prev'] =   '4'; // ‘O
-$_conf['k_accesskey']['bottom'] = '8'; // ‰º
-$_conf['k_accesskey']['next'] =   '6'; // Ÿ
-$_conf['k_accesskey']['info'] =   '9'; // î
-$_conf['k_accesskey']['dele'] =   '*'; // í
-$_conf['k_accesskey']['filter'] = '#'; // õ
+$_conf['k_accesskey'] = array(
+    'matome' => '3', // V‚Ü‚Æ‚ß
+    'latest' => '3', // V
+    'res'    => '7', // Ú½
+    'above'  => '2', // ã
+    'up'     => '5', // i”Âj
+    'prev'   => '4', // ‘O
+    'bottom' => '8', // ‰º
+    'next'   => '6', // Ÿ
+    'info'   => '9', // î
+    'dele'   => '*', // í
+    'filter' => '#', // õ
+);
 
 // }}}
 // {{{ ƒp[ƒ~ƒbƒVƒ‡ƒ“‚Ìİ’è
@@ -108,7 +110,7 @@ $_conf['conf_user_perm'] =  0606;   // ƒ†[ƒUİ’èƒtƒ@ƒCƒ‹
 // ----------------------------------------------------------------------
 // {{{ Šg’£ƒpƒbƒN
 
-include_once 'conf/conf_admin_ex.inc.php';
+include_once './conf/conf_admin_ex.inc.php';
 
 // }}}
 

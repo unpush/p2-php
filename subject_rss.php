@@ -1,31 +1,25 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    expack - 簡易RSSリーダ（記事一覧）
-
-    RSS系ファイルはUTF-8で書いて、携帯に出力するときだけSJISにしたいけど
-    mbstring.script_encoding = SJIS-win との整合性を考えるとSJISのままが無難かな？
-*/
+/**
+ * rep2expack - 簡易RSSリーダ（記事一覧）
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 // }}}
 
-if ($b == 'pc') {
-    output_add_rewrite_var('b', 'pc');
-} elseif ($b == 'k' || $k) {
-    output_add_rewrite_var('b', 'k');
+if ($_conf['view_forced_by_query']) {
+    output_add_rewrite_var('b', $_conf['b']);
 }
 
 //============================================================
 // 変数の初期化
 //============================================================
 
+$_info_msg_ht = '';
 $channel = array();
 $items = array();
 
@@ -35,7 +29,7 @@ $atom = empty($_REQUEST['atom']) ? 0 : 1;
 $site_en = trim($_REQUEST['site_en']);
 
 $xml_en = rawurlencode($xml);
-$xml_ht = P2Util::re_htmlspecialchars($xml);
+$xml_ht = htmlspecialchars($xml, ENT_QUOTES, 'Shift_JIS', false);
 
 
 //============================================================
@@ -43,11 +37,11 @@ $xml_ht = P2Util::re_htmlspecialchars($xml);
 //============================================================
 
 if ($xml) {
-    require_once P2EX_LIBRARY_DIR . '/rss/parser.inc.php';
-    $rss = &p2GetRSS($xml, $atom);
+    require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
+    $rss = p2GetRSS($xml, $atom);
     if (is_a($rss, 'XML_Parser')) {
         clearstatcache();
-        $rss_parse_success = true;
+        $rss_parse_success = TRUE;
         $xml_path = rss_get_save_path($xml);
         $mtime    = filemtime($xml_path);
         $channel  = $rss->getChannelInfo();
@@ -59,14 +53,14 @@ if ($xml) {
         if (preg_match('/^<\\?xml version="1.0" encoding="((?i:iso)-8859-(?:[1-9]|1[0-5]))" ?\\?>/', $xmldec, $matches)) {
             $encoding = $matches[1];
         } else {
-            $encoding = 'UTF-8,eucJP-win,SJIS-win,JIS';
+            $encoding = 'UTF-8,CP51932,CP932,JIS';
         }
-        mb_convert_variables('SJIS-win', $encoding, $channel, $items);
+        mb_convert_variables('CP932', $encoding, $channel, $items);
     } else {
-        $rss_parse_success = false;
+        $rss_parse_success = FALSE;
     }
 } else {
-    $rss_parse_success = false;
+    $rss_parse_success = FALSE;
 }
 
 
@@ -75,7 +69,7 @@ if ($xml) {
 //===================================================================
 
 //タイトル
-$title = isset($channel['title']) ? P2Util::re_htmlspecialchars($channel['title']) : '';
+$title = isset($channel['title']) ? htmlspecialchars($channel['title'], ENT_QUOTES, 'Shift_JIS', false) : '';
 
 //更新時刻
 $reloaded_time = date('m/d G:i:s');
@@ -95,17 +89,20 @@ if ($_conf['ktai']) {
     }
 }
 echo $_conf['doctype'];
-include P2EX_LIBRARY_DIR . '/rss/' . ($_conf['ktai'] ? 'subject_k' : 'subject') . '.inc.php';
+include P2EX_LIB_DIR . '/rss/' . ($_conf['ktai'] ? 'subject_k' : 'subject') . '.inc.php';
 
-//============================================================
-// 2ch,bbspink内リンクをp2で読むためのコールバック関数
-//============================================================
+// {{{ rss_link2ch_callback()
+
+/**
+ * 2ch,bbspink内リンクをp2で読むためのコールバック関数
+ */
 function rss_link2ch_callback($s)
 {
     global $_conf;
-    $read_url = "{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[6]}";
-    return $read_url;
+    return "{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[6]}";
 }
+
+// }}}
 
 /*
  * Local Variables:

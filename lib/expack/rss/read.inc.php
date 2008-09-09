@@ -1,11 +1,11 @@
 <?php
 /**
- * rep2expack - RSSの内容表示
+ * rep2expack - 簡易RSSリーダ（内容・PC用）
  */
 
 // {{{ ヘッダ
 
-$ch_title = P2Util::re_htmlspecialchars($channel['title']);
+$ch_title = htmlspecialchars($channel['title'], ENT_QUOTES, 'Shift_JIS', false);
 
 echo <<<EOH
 <html lang="ja">
@@ -14,24 +14,24 @@ echo <<<EOH
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$title}</title>
     <base target="{$_conf['expack.rss.target_frame']}">
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function setWinTitle(){
         if (top != self) {top.document.title=self.document.title;}
     }
-    // -->
+    //]]>
     </script>
 </head>
 <body onload="setWinTitle()">
+{$_info_msg_ht}
 EOH;
-
-P2Util::printInfoHtml();
 
 // RSSがパースできなかったとき
 if (!$rss_parse_success) {
@@ -77,7 +77,7 @@ function rss_print_content($item, $num, $count)
     $next_item_ht = '';
 
     // リンク
-    $item_title = P2Util::re_htmlspecialchars($item['title']);
+    $item_title = htmlspecialchars($item['title'], ENT_QUOTES, 'Shift_JIS', false);
 
     // タイトル
     $link_orig = P2Util::throughIme($item['link']);

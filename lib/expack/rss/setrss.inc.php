@@ -3,7 +3,7 @@
  * rep2expack - RSSリストの処理
  */
 
-require_once P2_LIBRARY_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 
 // {{{ 変数
 
@@ -11,27 +11,56 @@ require_once P2_LIBRARY_DIR . '/filectl.class.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!empty($_POST['submit_setrss'])) {
         FileCtl::make_datafile($_conf['expack.rss.setting_path'], $_conf['expack.rss.setting_perm']);
-        $fp = @fopen($_conf['expack.rss.setting_path'], 'wb');
+
+        $fp = fopen($_conf['expack.rss.setting_path'], 'wb');
         if (!$fp) {
-            die("Error: {$_conf['expack.rss.setting_path']} を更新できませんでした");
+            p2die("{$_conf['expack.rss.setting_path']} を更新できませんでした");
         }
+        flock($fp, LOCK_EX);
+
         if (isset($_POST['list'])) {
-            fputs($fp, $_POST['list']);
+            if (preg_match_all('/^([^\\t]+)\\t([^\\t]+)(?:\\t([^\\t]*))?$/m', $_POST['list'], $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $m) {
+                    $site = trim($m[1]);
+                    $xml  = trim($m[2]);
+                    if (isset($m[3])) {
+                        $atom = trim($m[3]);
+                        $atom = ($atom === '' || $atom === '0') ? '0' : '1';
+                    } else {
+                        $atom = '0';
+                    }
+                    fputs($fp, "{$site}\t{$xml}\t{$atom}\n");
+                }
+            }
         }
+
+        flock($fp, LOCK_UN);
         fclose($fp);
-        P2Util::pushInfoHtml("<script type=\"text/javascript\">if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>");
+
+        $_info_msg_ht .= <<<EOJS
+<script type="text/javascript">
+//<![CDATA[
+if (parent.menu) {
+    parent.menu.location.href = '{$_conf['menu_php']}?nr=1';
+}
+//]]>
+</script>\n
+EOJS;
+
+        unset($site, $xml, $atom, $m, $matches, $fp);
         return;
     }
-    $setrss  = trim($_POST['setrss']);
-    $xml     = trim($_POST['xml']);
-    $site    = trim($_POST['site']);
-    $site_en = trim($_POST['site_en']);
+
+    $setrss  = isset($_POST['setrss'])  ? trim($_POST['setrss'])  : '';
+    $xml     = isset($_POST['xml'])     ? trim($_POST['xml'])     : '';
+    $site    = isset($_POST['site'])    ? trim($_POST['site'])    : '';
+    $site_en = isset($_POST['site_en']) ? trim($_POST['site_en']) : '';
     $atom    = empty($_POST['atom']) ? 0 : 1;
 } else {
-    $setrss  = trim($_GET['setrss']);
-    $xml     = trim($_GET['xml']);
-    $site    = trim($_GET['site']);
-    $site_en = trim($_GET['site_en']);
+    $setrss  = isset($_POST['setrss'])  ? trim($_GET['setrss'])  : '';
+    $xml     = isset($_POST['xml'])     ? trim($_GET['xml'])     : '';
+    $site    = isset($_POST['site'])    ? trim($_GET['site'])    : '';
+    $site_en = isset($_POST['site_en']) ? trim($_GET['site_en']) : '';
     $atom    = empty($_GET['atom']) ? 0 : 1;
 }
 // RSSのタイトル設定
@@ -42,9 +71,10 @@ if ($site === '') {
         $site = basename($xml);
     }
 }
+
 // ログに記録する変数を最低限のサニタイズ
-$xml = preg_replace_callback('/\s/', 'rawurlencode', $xml);
-$site = preg_replace('/\s/', ' ', $site);
+$xml = preg_replace_callback('/\\s/', 'rawurlencode', $xml);
+$site = preg_replace('/\\s/', ' ', $site);
 $site = htmlspecialchars($site, ENT_QUOTES);
 
 // }}}
@@ -54,7 +84,7 @@ $site = htmlspecialchars($site, ENT_QUOTES);
 FileCtl::make_datafile($_conf['expack.rss.setting_path'], $_conf['expack.rss.setting_perm']);
 
 // rss_path読み込み;
-$lines = @file($_conf['expack.rss.setting_path']);
+$lines = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES);
 
 // }}}
 // {{{ 処理
@@ -66,7 +96,6 @@ if ($lines) {
     foreach ($lines as $l) {
         $i++;
 
-        $l = rtrim($l);
         $lar = explode("\t", $l);
 
         if ($lar[1] == $xml) { // 重複回避
@@ -124,8 +153,9 @@ if ($setrss) {
 
 $fp = @fopen($_conf['expack.rss.setting_path'], 'wb');
 if (!$fp) {
-    die("Error: {$_conf['expack.rss.setting_path']} を更新できませんでした");
+    p2die("{$_conf['expack.rss.setting_path']} を更新できませんでした");
 }
+flock($fp, LOCK_EX);
 if ($neolines) {
     $i = 0;
     foreach ($neolines as $l) {
@@ -142,6 +172,7 @@ if ($neolines) {
 } else {
     fputs($fp, $newdata);
 }
+flock($fp, LOCK_UN);
 fclose($fp);
 
 // }}}
