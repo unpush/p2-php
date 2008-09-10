@@ -29,7 +29,7 @@ $resid = $_GET['copy'];
 $quote = !empty($_GET['inyou']);
 
 if (isset($_SERVER['HTTP_REFERER'])) {
-    $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="戻る">' . 戻る . '</a>';
+    $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="戻る">' . 戻る . '</a> ';
 }
 
 //=================================================
@@ -56,9 +56,9 @@ if (file_exists($aThread->keydat)) {
     // 投稿フォームへのリンク
     $post_url = "post_form.php?host={$host}&amp;bbs={$bbs}&amp;key={$key}";
     $post_url .= "&amp;rescount={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;b=k";
-    $post_link = "<a href=\"{$post_url}\">ﾚｽ</a>";
+    $post_link = "<a href=\"{$post_url}\">レス</a> ";
     // 元スレへのリンク
-    $moto_link = '<a href="' . P2Util::throughIme($url_k_txt) . '">元ｽﾚ</a>';
+    $moto_link = '<a href="' . P2Util::throughIme($url_k_txt) . '">元スレ</a> ';
     // 指定番号のレスをパース
     $p = $resid - 1;
     if (isset($aThread->datlines[$p])) {
@@ -116,12 +116,48 @@ echo $_conf['doctype'];
 <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 <?php echo $_conf['extra_headers_ht']; ?>
+<?php if ($_conf['iphone']) {
+echo <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function read_copy_adjsut_text_width()
+{
+	var texts = document.evaluate('.//input[@type="text"]',
+	                                document.body,
+	                                null,
+	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+	                                null
+	                                );
+
+	for (var i = 0; i < texts.snapshotLength; i++) {
+		var node = texts.snapshotItem(i);
+		var width = node.parentNode.clientWidth;
+		if (width > 100) {
+			width -= 18; // 適当
+			if (width > 480) {
+				width = 480; // maxWidth
+			}
+			node.style.width = width.toString() + 'px';
+		}
+	}
+}
+
+window.addEventListener('load', function(evt){
+	read_copy_adjsut_text_width();
+	document.body.addEventListener('orientationchange', function(evt){
+		read_copy_adjsut_text_width();
+	});
+});
+//]]>
+</script>\n
+EOS;
+} ?>
 <title><?php echo $ttitle_ht; ?>/<?php echo $resid; ?></title>
 </head>
 <body<?php echo $k_color_settings; ?>>
 <?php echo $_info_msg_ht; ?>
 <form action="<?php echo $action_ht; ?>" method="post">
-ｽﾚ:<br>
+スレ:<br>
 <input type="text" name="ttitle_txt" value="<?php echo $ttitle_ht; ?>"><br>
 <input type="text" name="url_txt" value="<?php echo $url_txt; ?>"><br>
 <?php echo $url_k_ht; ?>
@@ -133,10 +169,12 @@ echo $_conf['doctype'];
 <?php foreach ($msg_txts as $msg_txt) { ?>
 <textarea<?php echo $kyopon_size; ?>><?php echo $msg_txt; ?></textarea><br>
 <?php } ?>
-ﾌﾘｰ:<br>
+フリー:<br>
 <textarea name="free" rows="2"></textarea>
 </form>
-<?php echo $back_link; ?> <?php echo $post_link; ?> <?php echo $moto_link; ?>
+<div class="center navi">
+<?php echo $back_link, $post_link, $moto_link; ?>
+</div>
 </body>
 </html>
 <?php

@@ -33,7 +33,7 @@ class Login
         if ($login_user == NULL) {
 
             // ƒƒOƒCƒ“Ž¸”s
-            include_once P2_LIB_DIR . '/login_first.inc.php';
+            require_once P2_LIB_DIR . '/login_first.inc.php';
             printLoginFirst($this);
             exit;
         }
@@ -134,7 +134,7 @@ class Login
 
         if (!$this->_authCheck()) {
             // ƒƒOƒCƒ“Ž¸”s
-            include_once P2_LIB_DIR . '/login_first.inc.php';
+            require_once P2_LIB_DIR . '/login_first.inc.php';
             printLoginFirst($this);
             exit;
         }
@@ -732,7 +732,7 @@ EOP;
             return false;
         }
 
-        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         $key = $this->getMd5CryptKey();
 
@@ -756,7 +756,7 @@ EOP;
     {
         global $_conf;
 
-        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         $key = $this->getMd5CryptKey();
 

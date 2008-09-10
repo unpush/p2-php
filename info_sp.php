@@ -112,7 +112,7 @@ if ($popup == 2) {
 
 if (strpos($mode, '_msg') !== false) {
     if (isset($_GET['selected_string'])) {
-        include_once P2_LIB_DIR . '/strctl.class.php';
+        require_once P2_LIB_DIR . '/strctl.class.php';
         $aborn_str = trim($_GET['selected_string']);
         $aborn_str = preg_replace('/\r\n|\r|\n/u', ' <br> ', $aborn_str);
         // $selected_stringはJavaScriptのencodeURIComponent()関数でURLエンコードされており、

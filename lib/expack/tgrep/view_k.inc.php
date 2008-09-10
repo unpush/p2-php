@@ -25,11 +25,11 @@
 <?php if (!$query) { ?>
 <?php
 if ($_conf['expack.tgrep.quicksearch']) {
-    include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
+    require_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
     echo "<hr>\n";
 }
 if ($_conf['expack.tgrep.recent_num'] > 0) {
-    include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
+    require_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
     echo "<hr>\n";
 }
 ?>
@@ -73,7 +73,7 @@ if ($_conf['expack.tgrep.recent_num'] > 0) {
 <!-- ThreadList and Pager -->
 <div><a href="#bottom" align="right" title="â∫Ç÷"<?php echo $_conf['k_accesskey_at']['bottom']; ?>><?php echo $_conf['k_accesskey_st']['bottom']; ?>Å•</a></div>
 <?php
-include_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/thread.class.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);

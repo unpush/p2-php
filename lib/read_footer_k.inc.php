@@ -3,7 +3,7 @@
  * rep2 - スレッド表示 - フッタ部分 - 携帯用 for read.php
  */
 
-include_once P2_LIB_DIR . '/spm_k.inc.php';
+require_once P2_LIB_DIR . '/spm_k.inc.php';
 
 //=====================================================================
 // フッタ

@@ -110,7 +110,7 @@ EOJS;
 
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
-        include_once P2_LIB_DIR . '/getsetposlines.inc.php';
+        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
 
     // ‰ğœ

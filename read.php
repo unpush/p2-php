@@ -247,18 +247,18 @@ if ($_conf['ktai']) {
         header('Content-Type: text/plain; charset=UTF-8');
         echo mb_convert_encoding($aShowThread->getDatToHtml(), 'UTF-8', 'CP932');
     } else {
-        include_once P2_LIB_DIR . '/read_header_k.inc.php';
+        require_once P2_LIB_DIR . '/read_header_k.inc.php';
         $aShowThread->datToHtml();
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
         }
-        include_once P2_LIB_DIR . '/read_footer_k.inc.php';
+        require_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
 
 } else {
 
     // ヘッダ 表示
-    include_once P2_LIB_DIR . '/read_header.inc.php';
+    require_once P2_LIB_DIR . '/read_header.inc.php';
     flush();
 
     //===========================================================
@@ -327,7 +327,7 @@ EOP;
     }
 
     // フッタ 表示
-    include_once P2_LIB_DIR . '/read_footer.inc.php';
+    require_once P2_LIB_DIR . '/read_footer.inc.php';
 
 }
 flush();

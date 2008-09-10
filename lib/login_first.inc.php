@@ -333,8 +333,8 @@ EOP;
 <style type="text/css">
 /* <![CDATA[ */\n
 EOP;
-        include 'style/style_css.inc';
-        include 'style/login_first_css.inc';
+        include P2_STYLE_DIR . '/style_css.inc';
+        include P2_STYLE_DIR . '/login_first_css.inc';
         echo <<<EOP
 \n/* ]]> */
 </style>\n

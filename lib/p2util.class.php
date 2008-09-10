@@ -75,7 +75,7 @@ class P2Util
         }
 
         // DL
-        include_once P2_LIB_DIR . '/wap.class.php';
+        require_once P2_LIB_DIR . '/wap.class.php';
         $wap_ua = new UserAgent();
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req = new Request();
@@ -1010,7 +1010,7 @@ class P2Util
     {
         global $_conf;
 
-        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         $md5_crypt_key = self::getAngoKey();
         $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
@@ -1044,7 +1044,7 @@ EOP;
     {
         global $_conf;
 
-        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         if (!file_exists($_conf['idpw2ch_php'])) {
             return false;

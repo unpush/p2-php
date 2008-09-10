@@ -214,10 +214,7 @@ include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 
 echo <<<EOP
 <form method="get" action="{$_conf['read_new_k_php']}">
-<input type="hidden" name="host" value="{$aThreadList->host}">
-<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
-<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-<input type="hidden" name="nt" value="1">{$shinchaku_norefresh_ht}
+{$sb_form_hidden_ht}<input type="hidden" name="nt" value="1">{$shinchaku_norefresh_ht}
 –¢“Ç”‚ª<input type="text" name="unum_limit" value="100" size="4"{$hd['input_numeric_at']}>–¢–‚Ì
 <input type="submit" value="V‚Ü‚Æ‚ß">
 </form>\n

@@ -173,21 +173,6 @@ EOP;
 }
 
 // }}}
-// {{{ 定型文・アクティブモナー
-
-/*
-$_aapreview_activemona = (!$_conf['ktai'] && $_conf['expack.am.enabled'] && $_conf['expack.editor.with_activemona']);
-$_aapreveiw_aas = ($_conf['expack.aas.enabled'] && $_conf['expack.editor.with_aas']);
-
-if ($_conf['expack.editor.constant'] || $_aapreview_activemona || $_aapreveiw_aas) {
-    if (!$_conf['ktai']) {
-        @include P2EX_LIB_DIR . '/post_options.inc.php';
-    } else {
-        @include P2EX_LIB_DIR . '/post_options_k.inc.php';
-    }
-}
-*/
-// }}}
 // {{{ 書き込みプレビュー
 
 $htm['dpreview_onoff'] = '';

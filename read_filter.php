@@ -5,7 +5,7 @@
  * SPMからのレスフィルタリングで使用
  */
 
-require_once './conf/conf.inc.php'; //基本設定読込
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/showthreadpc.class.php';
 
@@ -62,7 +62,7 @@ if (isset($aThread->datlines[$resnum - 1])) {
 }
 
 // read.phpに処理を渡す
-include $_conf['read_php'];
+include P2_BASE_DIR . '/read.php';
 
 /*
  * Local Variables:

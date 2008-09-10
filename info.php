@@ -76,7 +76,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // {{{ お気に入りスレッド
 
 } elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
-    include_once P2_LIB_DIR . '/setfav.inc.php';
+    require_once P2_LIB_DIR . '/setfav.inc.php';
     if (isset($_GET['setnum'])) {
         setFav($host, $bbs, $key, $_GET['setfav'], $_GET['setnum']);
     } else {
@@ -90,14 +90,14 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // {{{ 殿堂入り
 
 } elseif (isset($_GET['setpal']) && $key && $host && $bbs) {
-    include_once P2_LIB_DIR . '/setpalace.inc.php';
+    require_once P2_LIB_DIR . '/setpalace.inc.php';
     setPal($host, $bbs, $key, $_GET['setpal']);
 
 // }}}
 // {{{ スレッドあぼーん
 
 } elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-    include_once P2_LIB_DIR . '/settaborn.inc.php';
+    require_once P2_LIB_DIR . '/settaborn.inc.php';
     settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 

@@ -46,7 +46,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIB_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -236,21 +236,21 @@ flush();
 // ■tGrep一発検索をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.quicksearch']) {
-    include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
+    require_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
 }
 
 //==============================================================
 // ■tGrep検索履歴をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.recent_num'] > 0) {
-    include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
+    require_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
 }
 
 //==============================================================
 // ■RSSをプリントする
 //==============================================================
 if ($_conf['expack.rss.enabled']) {
-    include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
+    require_once P2EX_LIB_DIR . '/rss/menu.inc.php';
 }
 
 flush();
