@@ -43,20 +43,20 @@ require_once 'PEAR.php';
 require_once 'DB.php';
 require_once 'DB/DataObject.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
 
 // }}}
 // {{{ execute
 
-$finder = new IC2DB_Images;
+$finder = new IC2_DataObject_Images;
 $finder->whereAdd(sprintf('id = %d', $id));
 
 $code = -1;
 
 if ($finder->find(1)) {
     if ($rank != -5) {
-        $setter = new IC2DB_Images;
+        $setter = new IC2_DataObject_Images;
         $setter->rank = $rank;
         $setter->whereAddQuoted('size', '=', $finder->size);
         $setter->whereAddQuoted('md5',  '=', $finder->md5);

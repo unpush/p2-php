@@ -81,9 +81,9 @@ case 'taborn':
 
 case 'ic2':
     if (isset($_REQUEST['switch'])) {
-        require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+        require_once P2EX_LIB_DIR . '/ic2/Switch.php';
         $switch = (bool)$_REQUEST['switch'];
-        if (IC2Switch::set($switch, !empty($_REQUEST['mobile']))) {
+        if (IC2_Switch::set($switch, !empty($_REQUEST['mobile']))) {
             if ($switch) {
                 $r_msg = '1'; // ON‚É‚µ‚½
             } else {

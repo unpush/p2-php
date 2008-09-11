@@ -24,7 +24,7 @@ require_once 'DB/DataObject.php';
 require_once 'HTML/Template/Flexy.php';
 require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
 
 // }}}
 // {{{ 設定と消去
@@ -39,14 +39,14 @@ if (!isset($_REQUEST['table'])) {
 $mode = $_REQUEST['table'];
 switch ($mode) {
     case 'errlog':
-        require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
-        $table = new IC2DB_Errors;
+        require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
+        $table = new IC2_DataObject_Errors;
         $table->orderBy('occured ASC');
         $title = 'エラーログ';
         break;
     case 'blacklist':
-        require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
-        $table = new IC2DB_BlackList;
+        require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
+        $table = new IC2_DataObject__BlackList;
         $table->orderBy('uri ASC');
         $title = 'ブラックリスト';
         break;

@@ -61,7 +61,7 @@ if (isset($_POST['word'])) {
 // $hashesの取得は未実装。現状では戻るボタンが効かなくなるので封印。
 /*
 if (isset($hashes) && is_array($hashes) && count($hashes)) {
-    require_once P2_LIB_DIR . '/strctl.class.php';
+    require_once P2_LIB_DIR . '/StrCtl.php';
 
     $js = '';
     $last = array_pop($hashes);

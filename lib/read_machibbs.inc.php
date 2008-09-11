@@ -3,7 +3,7 @@
  * rep2 - Ç‹ÇøBBSópÇÃä÷êî
  */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 // {{{ machiDownload()
 

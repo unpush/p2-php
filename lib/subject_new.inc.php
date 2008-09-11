@@ -6,9 +6,9 @@
  * subject.php Ç∆åZíÌÇ»ÇÃÇ≈àÍèèÇ…ñ ì|ÇÇ›ÇÈ
  */
 
-require_once P2_LIB_DIR . '/threadlist.class.php';
-require_once P2_LIB_DIR . '/thread.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/ThreadList.php';
+require_once P2_LIB_DIR . '/Thread.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 $_newthre_num = 0;
 $shinchaku_num = 0;
@@ -157,7 +157,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         if (!isset($subject_txts[$subject_id])) {
             $subject_txts[$subject_id] = array();
             if (!class_exists('SubjectTxt', false)) {
-                require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+                require_once P2_LIB_DIR . '/SubjectTxt.php';
             }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
@@ -243,7 +243,7 @@ for ($x = 0; $x < $linesize ; $x++) {
 
     // êVãKÉXÉå
     } elseif ($aThread->new) {
-        $_newthre_num++; // Å¶showbrdmenupc.class.php
+        $_newthre_num++; // Å¶ShowBrdMenuPc.php
     }
 
 }

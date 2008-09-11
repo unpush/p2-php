@@ -6,8 +6,8 @@
 // {{{ p2Šî–{Ý’è“Ç‚Ýž‚Ý&”FØ
 
 require_once './conf/conf.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 $_login->authorize();
 
@@ -25,8 +25,8 @@ $y = '';
 $info_key_type = 'url';
 $info_key_value = $url;
 
-$icdb = new IC2DB_Images;
-$thumbnailer = new ThumbNailer;
+$icdb = new IC2_DataObject_Images;
+$thumbnailer = new IC2_Thumbnailer;
 if (preg_match('/^' . preg_quote($thumbnailer->sourcedir, '/') . '/', $url) && file_exists($url)) {
     $info = getimagesize($url);
     $x = $info[0];

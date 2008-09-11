@@ -24,9 +24,9 @@ require_once 'DB/DataObject.php';
 require_once 'HTTP/Client.php';
 require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 // 受け付けるMIMEタイプ
 $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
@@ -100,7 +100,7 @@ if ($thumb < 1 || $thumb > 3 ) { $thumb = 0; }
 if ($rank < -1) { $rank = -1; } elseif ($rank > 5) { $rank = 5; }
 if ($memo === '') { $memo = null; }
 
-$thumbnailer = new ThumbNailer($thumb);
+$thumbnailer = new IC2_Thumbnailer($thumb);
 
 // }}}
 // {{{ IC2TempFile
@@ -155,7 +155,7 @@ if ($doDL) {
 // {{{ search
 
 // 画像がキャッシュされているか確認
-$search = new IC2DB_Images;
+$search = new IC2_DataObject_Images;
 $retry = false;
 if ($memo !== null) {
     $memo = $search->uniform($memo, 'CP932');
@@ -196,7 +196,7 @@ if ($result) {
         if (is_string($search->memo) && strlen($search->memo) > 0) {
             $memo .= ' ' . $search->memo;
         }
-        $update = new IC2DB_Images;
+        $update = new IC2_DataObject_Images;
         $update->memo = $params['memo'] = $memo;
         $update->whereAddQuoted('uri', '=', $search->uri);
         $update->update();
@@ -205,7 +205,7 @@ if ($result) {
 
     // ランク変更
     if (isset($_REQUEST['rank'])) {
-        $update = new IC2DB_Images;
+        $update = new IC2_DataObject_Images;
         $update->rank = $params['rank'] = $rank;
         $update->whereAddQuoted('size', '=', $search->size);
         $update->whereAddQuoted('md5',  '=', $search->md5);
@@ -236,8 +236,8 @@ if ($result) {
 }
 
 // 画像がブラックリストにあるか確認
-require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
-$blacklist = new IC2DB_BlackList;
+require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
+$blacklist = new IC2_DataObject__BlackList;
 if ($blacklist->get($uri)) {
     switch ($blacklist->type) {
         case 0:
@@ -257,8 +257,8 @@ if ($blacklist->get($uri)) {
 
 // 画像がエラーログにあるか確認
 if (!$force && $ini['Getter']['checkerror']) {
-    require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
-    $errlog = new IC2DB_Errors;
+    require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
+    $errlog = new IC2_DataObject_Errors;
     if ($errlog->get($uri)) {
         ic2_error($errlog->errcode, '', false);
     }
@@ -482,7 +482,7 @@ if (($force || !file_exists($newfile)) && !@rename($tmpfile, $newfile)) {
 @chmod($newfile, 0644);
 
 // データベースにファイル情報を記録する
-$record = new IC2DB_Images;
+$record = new IC2_DataObject_Images;
 if ($retry && $size == $_size && $md5 == $_md5 && $mime == $_mime) {
     $record->time = time();
     if ($ini['General']['automemo'] && !is_null($memo)) {
@@ -522,7 +522,7 @@ function ic2_aborn($params, $infected = false)
     global $ini;
     extract($params);
 
-    $aborn = new IC2DB_Images;
+    $aborn = new IC2_DataObject_Images;
     $aborn->uri = $uri;
     $aborn->host = $host;
     $aborn->name = $name;
@@ -548,7 +548,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
     extract($params);
 
     // ブラックリスト検索
-    $bl_check = new IC2DB_BlackList;
+    $bl_check = new IC2_DataObject__BlackList;
     $bl_check->whereAddQuoted('size', '=', $size);
     $bl_check->whereAddQuoted('md5',  '=', $md5);
     if ($bl_check->find(true)) {
@@ -573,7 +573,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
     }
 
     // あぼーん画像検索
-    $check = new IC2DB_Images;
+    $check = new IC2_DataObject_Images;
     $check->whereAddQuoted('size', '=', $size);
     $check->whereAddQuoted('md5',  '=', $md5);
     //$check->whereAddQuoted('mime', '=', $mime); // SizeとMD5で十分
@@ -906,8 +906,8 @@ function ic2_error($code, $optmsg = '', $write_log = true)
     }
 
     if ($write_log) {
-        require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
-        $logger = new IC2DB_Errors;
+        require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
+        $logger = new IC2_DataObject_Errors;
         $logger->uri     = isset($uri) ? $uri : (isset($id) ? $id : $file);
         $logger->errcode = $code;
         $logger->errmsg  = mb_convert_encoding($message, 'UTF-8', 'CP932');

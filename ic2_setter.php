@@ -20,9 +20,9 @@ if (!$_conf['expack.ic2.enabled']) {
 
 require_once 'HTML/Template/Flexy.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 // }}}
 // {{{ config
@@ -86,12 +86,12 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
         $_info_msg_ht .= $err_fmt['none'];
     } else {
         // サムネイル作成クラスのインスタンスを作成
-        $thumbnailer = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+        $thumbnailer = new IC2_Thumbnailer(IC2_THUMB_SIZE_DEFAULT);
 
         // DBに記録する共通データを設定
         $f_host = 'localhost';
         $f_time = time();
-        $f_memo = isset($_POST['memo']) ? IC2DB_Images::staticUniform($_POST['memo'], 'CP932') : '';
+        $f_memo = isset($_POST['memo']) ? IC2_DataObject_Images::staticUniform($_POST['memo'], 'CP932') : '';
         $f_rank = isset($_POST['rank']) ? intval($_POST['rank']) : 0;
         if ($f_rank > 5) {
             $f_rank = 5;
@@ -295,7 +295,7 @@ function ic2_register_uploaded_file($file)
     }
 
     // 既存の画像か検索
-    $search1 = new IC2DB_Images;
+    $search1 = new IC2_DataObject_Images;
     $search1->whereAddQuoted('size', '=', $file['size']);
     $search1->whereAddQuoted('md5',  '=', $file['md5']);
     $search1->whereAddQuoted('mime', '=', $file['mime']);
@@ -330,7 +330,7 @@ function ic2_register_uploaded_file($file)
 
     } else {
 
-        $record = new IC2DB_Images;
+        $record = new IC2_DataObject_Images;
         $record->uri    = $utf8_path;
         $record->host   = $f_host;
         $record->name   = $utf8_name;

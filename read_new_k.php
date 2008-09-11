@@ -5,11 +5,11 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/threadlist.class.php';
-require_once P2_LIB_DIR . '/threadread.class.php';
-require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once P2_LIB_DIR . '/NgAbornCtl.php';
+require_once P2_LIB_DIR . '/ThreadList.php';
+require_once P2_LIB_DIR . '/ThreadRead.php';
+require_once P2_LIB_DIR . '/ShowThreadK.php';
 require_once P2_LIB_DIR . '/read_new.inc.php';
-require_once P2_LIB_DIR . '/showthreadk.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -288,7 +288,7 @@ for ($x = 0; $x < $linesize; $x++) {
         // subject.txtが未DLなら落としてデータを配列に格納
         if (empty($subject_txts[$subject_id])) {
             if (!class_exists('SubjectTxt', false)) {
-                require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+                require_once P2_LIB_DIR . '/SubjectTxt.php';
             }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 

@@ -1,7 +1,7 @@
 <?php
 
-require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/session.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
+require_once P2_LIB_DIR . '/Session.php';
 
 // {{{ Login
 
@@ -845,7 +845,7 @@ EOP;
     private function _checkIp($type)
     {
         if (!class_exists('HostCheck', false)) {
-            require_once P2_LIB_DIR . '/hostcheck.class.php';
+            require_once P2_LIB_DIR . '/HostCheck.php';
         }
 
         // PHPはクラス・メソッド・関数の大文字小文字を区別しないが...

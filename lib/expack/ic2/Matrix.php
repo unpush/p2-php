@@ -1,10 +1,10 @@
 <?php
-// {{{ MatrixManager
+// {{{ IC2_Matrix
 
 /**
  * ImageCache2 - s—ñŠÇ—ƒNƒ‰ƒX
  */
-class MatrixManager
+class IC2_Matrix
 {
     // {{{ properties
 

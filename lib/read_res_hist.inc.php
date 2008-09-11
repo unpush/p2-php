@@ -3,7 +3,7 @@
  * rep2 - ‘‚«‚İ—š—ğ ‚Ì‚½‚ß‚ÌŠÖ”ŒQ
  */
 
-require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/DataPhp.php';
 
 // {{{ deleMsg()
 

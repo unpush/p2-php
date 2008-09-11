@@ -1,14 +1,14 @@
 <?php
 require_once 'HTML/Template/Flexy/Element.php';
 
-// {{{ EditForm
+// {{{ IC2_EditForm
 
 /**
  * 画像編集用フォーム要素を生成するクラス
  *
  * @static
  */
-class EditForm
+class IC2_EditForm
 {
     // {{{ header()
 
@@ -377,43 +377,43 @@ class EditForm
 /**
  * インスタンスをFlexyにアサインして使うためのラッパークラス
  */
-class EditFormForFlexy
+class IC2_EditForm_Object
 {
     public function header($hiddens, $mode) {
-        return EditForm::header($hiddens, $mode);
+        return IC2_EditForm::header($hiddens, $mode);
     }
     public function submit($id = '') {
-        return EditForm::submit($id);
+        return IC2_EditForm::submit($id);
     }
     public function remove($id = '') {
-        return EditForm::remove($id);
+        return IC2_EditForm::remove($id);
     }
     public function toblack($id = '') {
-        return EditForm::toblack($id);
+        return IC2_EditForm::toblack($id);
     }
     public function reset($id = '') {
-        return EditForm::reset($id);
+        return IC2_EditForm::reset($id);
     }
     public function checkAllOn($id = '') {
-        return EditForm::checkAllOn($id);
+        return IC2_EditForm::checkAllOn($id);
     }
     public function checkAllOff($id = '') {
-        return EditForm::checkAllOff($id);
+        return IC2_EditForm::checkAllOff($id);
     }
     public function checkAllReverse($id = '') {
-        return EditForm::checkAllReverse($id);
+        return IC2_EditForm::checkAllReverse($id);
     }
     public function selectRank($range, $id = '') {
-        return EditForm::selectRank($range, $id);
+        return IC2_EditForm::selectRank($range, $id);
     }
     public function textMemo($id = '') {
-        return EditForm::textMemo($id);
+        return IC2_EditForm::textMemo($id);
     }
     public function imgManager($img, $status) {
-        return EditForm::imgManager($img, $status);
+        return IC2_EditForm::imgManager($img, $status);
     }
     public function imgChecker($img) {
-        return EditForm::imgChecker($img);
+        return IC2_EditForm::imgChecker($img);
     }
 }
 

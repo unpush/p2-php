@@ -5,12 +5,12 @@
 
 require_once 'HTML/QuickForm/Rule.php';
 
-// {{{ RuleNumericRange
+// {{{ IC2_QuickForm_Rule_NumberInRange
 
 /**
  * QuickFormのルール（数の範囲、QuickFormのサンプルより引用）
  */
-class RuleNumericRange extends HTML_QuickForm_Rule
+class IC2_QuickForm_Rule_NumberInRange extends HTML_QuickForm_Rule
 {
     // {{{ validate()
 
@@ -50,12 +50,12 @@ class RuleNumericRange extends HTML_QuickForm_Rule
 }
 
 // }}}
-// {{{ RuleInArray
+// {{{ IC2_QuickForm_Rule_InArray
 
 /**
  * QuickFormのルール（配列に要素があるか）
  */
-class RuleInArray extends HTML_QuickForm_Rule
+class IC2_QuickForm_Rule_InArray extends HTML_QuickForm_Rule
 {
     // {{{ validate()
 
@@ -71,12 +71,12 @@ class RuleInArray extends HTML_QuickForm_Rule
 }
 
 // }}}
-// {{{ RuleInArrayKeys
+// {{{ IC2_QuickForm_ArrayKeyExists
 
 /**
  * QuickFormのルール（配列にキーがあるか）
  */
-class RuleInArrayKeys extends HTML_QuickForm_Rule
+class IC2_QuickForm_ArrayKeyExists extends HTML_QuickForm_Rule
 {
     // {{{ validate()
 

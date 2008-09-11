@@ -21,7 +21,7 @@ define('P2_FTS_DEBUG_OUTPUT_FILE', '/tmp/p2_fetch_subject_txt.log');
 $P2_CONF_DIR = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'conf';
 
 require_once $P2_CONF_DIR . DIRECTORY_SEPARATOR . 'conf.inc.php';
-require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'p2httpext.class.php';
+require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'P2HttpExt.php';
 require_once 'Console/Getopt.php';
 
 // }}}

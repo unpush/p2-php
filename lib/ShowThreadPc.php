@@ -3,8 +3,8 @@
  * rep2 - スレッドを表示する クラス PC用
  */
 
-require_once P2_LIB_DIR . '/showthread.class.php';
-require_once P2_LIB_DIR . '/strctl.class.php';
+require_once P2_LIB_DIR . '/ShowThread.php';
+require_once P2_LIB_DIR . '/StrCtl.php';
 require_once P2EX_LIB_DIR . '/ExpackLoader.php';
 
 ExpackLoader::loadAAS();
@@ -1645,7 +1645,7 @@ EOP;
             $url = str_replace('&amp', '&', $url);
             $url_en = rawurlencode($url);
 
-            $icdb = new IC2DB_Images;
+            $icdb = new IC2_DataObject_Images;
 
             // r=0:リンク;r=1:リダイレクト;r=2:PHPで表示
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
@@ -1679,7 +1679,7 @@ EOP;
                     $thumb_url = $_thumb_url;
                     // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
                     if (!is_null($this->img_memo) && strpos($icdb->memo, $this->img_memo) === false){
-                        $update = new IC2DB_Images;
+                        $update = new IC2_DataObject_Images;
                         if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                             $update->memo = $this->img_memo . ' ' . $icdb->memo;
                         } else {

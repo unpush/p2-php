@@ -195,10 +195,10 @@ $P2_LIB_DIR_S = P2_LIB_DIR . DIRECTORY_SEPARATOR;
 // {{{ 環境チェックとデバッグ
 
 // ユーティリティを読み込む
-require_once $P2_LIB_DIR_S . 'dataphp.class.php';
-require_once $P2_LIB_DIR_S . 'filectl.class.php';
+require_once $P2_LIB_DIR_S . 'DataPhp.php';
+require_once $P2_LIB_DIR_S . 'FileCtl.php';
+require_once $P2_LIB_DIR_S . 'P2Util.php';
 require_once $P2_LIB_DIR_S . 'p2util.inc.php';
-require_once $P2_LIB_DIR_S . 'p2util.class.php';
 
 // 動作環境を確認 (要件を満たしているならコメントアウト可)
 p2checkenv(__LINE__);
@@ -317,7 +317,7 @@ if (defined('P2_CLI_RUN')) {
 // {{{ ホストチェック
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once $P2_LIB_DIR_S . 'hostcheck.class.php';
+    require_once $P2_LIB_DIR_S . 'HostCheck.php';
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
     ) {
@@ -881,7 +881,7 @@ if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
 }
 
 if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) {
-    require_once $P2_LIB_DIR_S . 'session.class.php';
+    require_once $P2_LIB_DIR_S . 'Session.php';
 
     // {{{ セッションデータ保存ディレクトリをチェック
 
@@ -918,7 +918,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 
 // 複数のお気にセットを使うとき
 if ($_conf['expack.misc.multi_favs']) {
-    require_once $P2_LIB_DIR_S . 'favsetmng.class.php';
+    require_once $P2_LIB_DIR_S . 'FavSetManager.php';
     // 切り替え表示用に全てのお気に板を読み込んでおく
     FavSetManager::loadAllFavSet();
     // お気にセットを切り替える
@@ -954,7 +954,7 @@ if (defined('P2_OUTPUT_XHTML')) {
 }
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
-require_once $P2_LIB_DIR_S . 'login.class.php';
+require_once $P2_LIB_DIR_S . 'Login.php';
 $_login = new Login();
 
 // おまじない

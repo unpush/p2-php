@@ -79,10 +79,10 @@ class ExpackLoader
             ($_conf['ktai'] && $_conf['expack.ic2.enabled'] >= 2))
         {
             require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-            require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-            require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
-            require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
-            require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+            require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+            require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
+            require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
+            require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
             define('P2_IMAGECACHE_AVAILABLE', 2);
         } else {
             define('P2_IMAGECACHE_AVAILABLE', 0);
@@ -126,14 +126,14 @@ class ExpackLoader
 
         if (!$_conf['ktai']) {
             $aShowThread->thumb_id_suffix = '-' . strtr(microtime(), '. ', '--');
-            $aShowThread->thumbnailer = new ThumbNailer(1);
+            $aShowThread->thumbnailer = new IC2_Thumbnailer(1);
         } else {
-            $aShowThread->inline_prvw = new ThumbNailer(1);
-            $aShowThread->thumbnailer = new ThumbNailer(2);
+            $aShowThread->inline_prvw = new IC2_Thumbnailer(1);
+            $aShowThread->thumbnailer = new IC2_Thumbnailer(2);
         }
 
         if ($aShowThread->thumbnailer->ini['General']['automemo']) {
-            $aShowThread->img_memo = IC2DB_Images::staticUniform($aShowThread->thread->ttitle, 'CP932');
+            $aShowThread->img_memo = IC2_DataObject_Images::staticUniform($aShowThread->thread->ttitle, 'CP932');
             $aShowThread->img_memo_query = '&amp;memo=' . rawurlencode($aShowThread->img_memo);
             $aShowThread->img_memo_query .= '&amp;' . $_conf['detect_hint_q_utf8'];
         } else {
@@ -141,8 +141,8 @@ class ExpackLoader
             $aShowThread->img_memo_query = '';
         }
 
-        require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
-        if (!IC2Switch::get($_conf['ktai'])) {
+        require_once P2EX_LIB_DIR . '/ic2/Switch.php';
+        if (!IC2_Switch::get($_conf['ktai'])) {
             $GLOBALS['pre_thumb_limit'] = 0;
             $GLOBALS['pre_thumb_limit_k'] = 0;
             $GLOBALS['pre_thumb_unlimited'] = false;

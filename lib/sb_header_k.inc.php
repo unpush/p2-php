@@ -175,8 +175,8 @@ EOP;
 if ($_conf['iphone']) {
     /*
     if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) {
-        require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
-        if (IC2Switch::get(false)) {
+        require_once P2EX_LIB_DIR . '/ic2/Switch.php';
+        if (IC2_Switch::get(false)) {
             $ic2_switch_checked = ' checked';
             $ic2_switch_color = '#ff3333';
         } else {

@@ -117,7 +117,7 @@ class SettingTxt
 
             if ($code == 302) {
                 // ƒzƒXƒg‚ÌˆÚ“]‚ð’ÇÕ
-                require_once P2_LIB_DIR . '/BbsMap.class.php';
+                require_once P2_LIB_DIR . '/BbsMap.php';
                 $new_host = BbsMap::getCurrentHost($this->_host, $this->_bbs);
                 if ($new_host != $this->_host) {
                     $aNewSettingTxt = new SettingTxt($new_host, $this->_bbs);

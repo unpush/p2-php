@@ -7,9 +7,8 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/threadlist.class.php';
-require_once P2_LIB_DIR . '/thread.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/ThreadList.php';
+require_once P2_LIB_DIR . '/Thread.php';
 
 //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 
@@ -258,7 +257,7 @@ if ($spmode == 'merge_favita') {
 
 if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
     if ($_conf['expack.use_pecl_http'] == 1) {
-        require_once P2_LIB_DIR . '/p2httpext.class.php';
+        require_once P2_LIB_DIR . '/P2HttpExt.php';
         switch ($spmode) {
         case 'fav':
             P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_idx']);
@@ -534,7 +533,7 @@ for ($x = 0; $x < $linesize; $x++) {
         if (!isset($subject_txts[$subject_id])) {
             $subject_txts[$subject_id] = array();
 
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            require_once P2_LIB_DIR . '/SubjectTxt.php';
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('subthre_read');

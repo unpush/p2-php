@@ -1,10 +1,10 @@
 <?php
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
 
-// {{{ IC2DB_Errors
+// {{{ IC2_DataObject_Errors
 
-class IC2DB_Errors extends IC2DB_Skel
+class IC2_DataObject_Errors extends IC2_DataObject_Common
 {
     // {{{ constcurtor
 

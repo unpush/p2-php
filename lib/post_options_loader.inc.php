@@ -4,7 +4,7 @@
  */
 
 require_once P2_LIB_DIR . '/SettingTxt.php';
-require_once P2_LIB_DIR . '/strctl.class.php';
+require_once P2_LIB_DIR . '/StrCtl.php';
 
 $js = array();
 
@@ -239,8 +239,8 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
     $q_resnum = $_GET['resnum'];
     $hd['MESSAGE'] = "&gt;&gt;" . $q_resnum . "\r\n";
     if (!empty($_GET['inyou'])) {
-        require_once P2_LIB_DIR . '/thread.class.php';
-        require_once P2_LIB_DIR . '/threadread.class.php';
+        require_once P2_LIB_DIR . '/Thread.php';
+        require_once P2_LIB_DIR . '/ThreadRead.php';
         $aThread = new ThreadRead;
         $aThread->setThreadPathInfo($host, $bbs, $key);
         $aThread->readDat($aThread->keydat);

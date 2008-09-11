@@ -4,8 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/dataphp.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
@@ -700,7 +698,7 @@ function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+    require_once P2_LIB_DIR . '/SubjectTxt.php';
     $aSubjectTxt = new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {

@@ -24,8 +24,8 @@ if (!$_conf['expack.ic2.enabled']) {
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 // {{{ リクエストパラメータの処理
 
@@ -57,7 +57,7 @@ $attachment = !empty($_GET['z']);
 // }}}
 // {{{ 画像を検索・サムネイルを作成
 
-$search = new IC2DB_Images;
+$search = new IC2_DataObject_Images;
 
 switch ($type) {
     case 'id':
@@ -74,7 +74,7 @@ switch ($type) {
 
 if ($search->find(true)) {
     if (!empty($_GET['o'])) {
-        $thumb = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+        $thumb = new IC2_Thumbnailer(IC2_THUMB_SIZE_DEFAULT);
         $src = $thumb->srcPath($search->size, $search->md5, $search->mime);
         if (!file_exists($src)) {
             ic2_mkthumb_error("&quot;{$uri}&quot;のローカルキャッシュがありません。");
@@ -82,7 +82,7 @@ if ($search->find(true)) {
             ic2_mkthumb_success(basename($src), $search->mime, $src, true, $attachment);
         }
     } else {
-        $thumb = new ThumbNailer($thumb, $options);
+        $thumb = new IC2_Thumbnailer($thumb, $options);
         $result = $thumb->convert($search->size, $search->md5, $search->mime, $search->width, $search->height);
         if (PEAR::isError($result)) {
             ic2_mkthumb_error($result->getMessage());

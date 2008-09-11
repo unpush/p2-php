@@ -3,7 +3,7 @@
  * rep2 - ‚¨‹C‚É”Â‚Ìˆ—
  */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 // {{{ setFavIta()
 

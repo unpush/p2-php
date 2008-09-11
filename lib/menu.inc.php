@@ -6,8 +6,8 @@
  * menu.php, menu_side.php より読み込まれる
  */
 
-require_once P2_LIB_DIR . '/brdctl.class.php';
-require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
+require_once P2_LIB_DIR . '/BrdCtl.php';
+require_once P2_LIB_DIR . '/ShowBrdMenuPc.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -276,7 +276,7 @@ EOP;
 if ($_conf['enable_menu_new'] == 1 && $_GET['new']) {
     // 並列ダウンロードの設定
     if ($_conf['expack.use_pecl_http'] == 1) {
-        require_once P2_LIB_DIR . '/p2httpext.class.php';
+        require_once P2_LIB_DIR . '/P2HttpExt.php';
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
     } elseif ($_conf['expack.use_pecl_http'] == 2) {
         require_once P2_CLI_DIR . '/P2CommandRunner.php';
@@ -357,9 +357,9 @@ EOP;
 // ■ImageCache2
 //==============================================================
 if ($_conf['expack.ic2.enabled']) {
-    require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+    require_once P2EX_LIB_DIR . '/ic2/Switch.php';
 
-    if (IC2Switch::get()) {
+    if (IC2_Switch::get()) {
         $ic2sw = array('inline', 'none');
     } else {
         $ic2sw = array('none', 'inline');
