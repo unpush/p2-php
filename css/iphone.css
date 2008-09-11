@@ -235,6 +235,13 @@ h3 > font[color], div > font[color] > b {
 	color: #252525;
 }
 
+div:not(.res-header) > span.onthefly {
+	padding: 2px 4px;
+	border: #00aa00 solid 1px;
+	color: #00aa00;
+	font-style: italic;
+}
+
 div.res:not(.aborned) {
 	margin: 8px 0;
 	padding: 0;

@@ -50,11 +50,13 @@ EOP;
         $q_ichi = '';
     }
 
-    require_once P2_LIB_DIR . '/read_jump_k.inc.php';
-    if ($_conf['iphone']) {
-        echo get_read_jump($aThread, "<span id=\"footer\">{$rescount_st}</span>", true);
-    } else {
-        echo get_read_jump($aThread, "<a id=\"footer\" name=\"footer\">{$hd['read_range']}</a>", false);
+    if (empty($_GET['one'])) {
+        require_once P2_LIB_DIR . '/read_jump_k.inc.php';
+        if ($_conf['iphone']) {
+            echo get_read_jump($aThread, "<span id=\"footer\">{$rescount_st}</span>", true);
+        } else {
+            echo get_read_jump($aThread, "<a id=\"footer\" name=\"footer\">{$hd['read_range']}</a>", false);
+        }
     }
 
     echo <<<EOP

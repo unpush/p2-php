@@ -139,6 +139,7 @@ if (!empty($_GET['one'])) {
         $aThread->rescount = (int)$_GET['rescount'];
     }
 
+    $preview = $aThread->previewOne();
     $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . ' / ' . $aThread->ttitle_hd;
 
     // PC
@@ -152,7 +153,7 @@ if (!empty($_GET['one'])) {
     }
 
     require_once $read_header_inc_php;
-    echo $aThread->previewOne();
+    echo $preview;
     require_once $read_footer_inc_php;
 
     return;

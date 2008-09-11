@@ -883,7 +883,7 @@ class ThreadRead extends Thread
      */
     public function previewOne()
     {
-        global $_conf, $ptitle_ht, $_info_msg_ht;
+        global $_conf, $_info_msg_ht;
 
         if (!($this->host && $this->bbs && $this->key)) { return false; }
 
@@ -1020,16 +1020,23 @@ class ThreadRead extends Thread
             }
         }
 
-        $this->onthefly && $body .= "<div><span class=\"onthefly\">on the fly</span></div>\n";
+        if ($_conf['ktai']) {
+            require_once P2_LIB_DIR . '/showthreadk.class.php';
+            $aShowThread = new ShowThreadK($this);
+            $aShowThread->am_autong = false;
+        } else {
+            require_once P2_LIB_DIR . '/showthreadpc.class.php';
+            $aShowThread = new ShowThreadPc($this);
+        }
+
+        $body = '';
+        if ($this->onthefly) {
+            $body .= "<div><span class=\"onthefly\">on the fly</span></div>\n";
+        }
         $body .= "<div class=\"thread\">\n";
-
-        require_once P2_LIB_DIR . '/showthread.class.php';
-        require_once P2_LIB_DIR . '/showthreadpc.class.php';
-        $aShowThread = new ShowThreadPc($this);
         $body .= $aShowThread->transRes($first_line, 1); // 1‚ð•\Ž¦
-        unset($aShowThread);
-
         $body .= "</div>\n";
+
         return $body;
     }
 

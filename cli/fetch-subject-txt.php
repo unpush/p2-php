@@ -88,6 +88,7 @@ case 'fav':
         // @see FavSetManager::switchFavSet()
         $source = $pref_dir_s . sprintf('p2_favlist%d.idx', $set);
     }
+    break;
 
 // Å‹ß“Ç‚ñ‚¾ƒXƒŒ
 case 'recent':
