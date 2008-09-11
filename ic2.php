@@ -747,7 +747,7 @@ function ic2_display($path, $params)
             $_flexy_options = array(
                 'locale' => 'ja',
                 'charset' => 'cp932',
-                'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
+                'compileDir' => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'ic2',
                 'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
                 'numberFormat' => '', // ",0,'.',','" ‚Æ“™‰¿
             );
