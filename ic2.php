@@ -96,7 +96,7 @@ if (!empty($uri)) {
 }
 
 // ТlВ╠Т▓Ро
-if (!in_array($thmub, array(IC2_Thumbnailer::SIZE_PC,
+if (!in_array($thumb, array(IC2_Thumbnailer::SIZE_PC,
                             IC2_Thumbnailer::SIZE_MOBILE,
                             IC2_Thumbnailer::SIZE_INTERMD)))
 {

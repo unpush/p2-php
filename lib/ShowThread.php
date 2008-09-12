@@ -3,12 +3,40 @@
  * rep2- スレッドを表示する クラス
  */
 
+require_once P2_LIB_DIR . '/HostCheck.php';
 require_once P2_LIB_DIR . '/ThreadRead.php';
 
 // {{{ ShowThread
 
 abstract class ShowThread
 {
+    // {{{ constants
+
+    const LINK_REGEX = '{
+(?P<link>(<[Aa][ ].+?>)(.*?)(</[Aa]>)) # リンク（PCREの特性上、必ずこのパターンを最初に試行する）
+|
+(?:
+  (?P<quote> # 引用
+    ((?:&gt;|＞){1,2}[ ]?) # 引用符
+    (
+      (?:[1-9]\\d{0,3}) # 1つ目の番号
+      (?:
+        (?:[ ]?(?:[,=]|、)[ ]?[1-9]\\d{0,3})+ # 連続
+        |
+        -(?:[1-9]\\d{0,3})? # 範囲
+      )?
+    )
+    (?=\\D|\$)
+  ) # 引用ここまで
+|                                  # PHP 5.3縛りにするなら、↓の\'のエスケープを外し、NOWDOCにする
+  (?P<url>(ftp|h?t?tps?)://([0-9A-Za-z][\\w;/?:@=&\$\\-_.+!*\'(),#%\\[\\]^~]+)) # URL
+  ([^\\s<>]*) # URLの直後、タグorホワイトスペースが現れるまでの文字列
+|
+  (?P<id>ID:[ ]?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|\$)) # ID（8,10桁 +PC/携帯識別フラグ）
+)
+}x';
+
+    // }}}
     // {{{ properties
 
     static private $_matome_count = 0;
@@ -50,34 +78,6 @@ abstract class ShowThread
             $this->_matome = false;
         }
 
-        // PHP 5.3ならNowdocで静的プロパティやクラス定数にできるし、すべき
-        // ちなみに5.3だとpreg_replace_callback()でも名前付き捕獲式集合が有効
-        $this->_str_to_link_regex = <<<EOP
-{
-  (?P<link>(<[Aa][ ].+?>)(.*?)(</[Aa]>)) # リンク（PCREの特性上、必ずこのパターンを最初に試行する）
-  |
-  (?:
-    (?P<quote> # 引用
-      ((?:&gt;|＞){1,2}[ ]?) # 引用符
-      (
-        (?:[1-9]\\d{0,3}) # 1つ目の番号
-        (?:
-          (?:[ ]?(?:[,=]|、)[ ]?[1-9]\\d{0,3})+ # 連続
-          |
-          -(?:[1-9]\\d{0,3})? # 範囲
-        )?
-      )
-      (?=\\D|\$)
-    ) # 引用ここまで
-  |
-    (?P<url>(ftp|h?t?tps?)://([0-9A-Za-z][\\w;/?:@=&\$\\-_.+!*'(),#%\\[\\]^~]+)) # URL
-    ([^\\s<>]*) # URLの直後、タグorホワイトスペースが現れるまでの文字列
-  |
-    (?P<id>ID:[ ]?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|\$)) # ID（8,10桁 +PC/携帯識別フラグ）
-  )
-}x
-EOP;
-
         $this->_url_handlers = array();
         $this->_user_url_handlers = array();
 
@@ -95,13 +95,28 @@ EOP;
     }
 
     // }}}
-    // {{{ abstract methods
+    // {{{ getDatToHtml()
+
+    /**
+     * DatをHTML変換したものを取得する
+     *
+     * @return  bool|string
+     */
+    public function getDatToHtml()
+    {
+        return $this->datToHtml(true);
+    }
+
+    // }}}
     // {{{ datToHtml()
 
     /**
-     * DatをHTML変換して表示する
+     * DatをHTMLに変換して表示する
+     *
+     * @param   bool $return    trueなら変換結果を出力せずに返す
+     * @return  bool|string
      */
-    abstract public function datToHtml();
+    abstract public function datToHtml($return = false);
 
     // }}}
     // {{{ transRes()
@@ -137,20 +152,6 @@ EOP;
      * @return  string
      */
     abstract public function transMsg($msg, $mynum);
-
-    // }}}
-    // }}}
-    // {{{ getDatToHtml()
-
-    /**
-     * DatをHTML変換したものを取得する
-     */
-    public function getDatToHtml()
-    {
-        ob_start();
-        $this->datToHtml();
-        return ob_get_clean();
-    }
 
     // }}}
     // {{{ replaceBeId()
@@ -407,29 +408,160 @@ EOP;
      * 文末の改行と連続する改行を取り除く
      *
      * @param string $msg
-     * @param int $count
      * @param string $replacement
      * @return string
      */
-    public function stripLineBreaks($msg, $count = 3, $replacement = '<br><br>')
+    public function stripLineBreaks($msg, $replacement = ' <br><br> ')
     {
-        $count = (int)$count;
-        if ($count < 2) {
-            return $msg;
-        }
-
         if (P2_MBREGEX_AVAILABLE) {
             $msg = mb_ereg_replace('(?:[\\s　]*<br>)+[\\s　]*$', '', $msg);
-            $msg = mb_ereg_replace("(?:[\\s　]*<br>){{$count},}", $replacement, $msg);
+            $msg = mb_ereg_replace('(?:[\\s　]*<br>){3,}', $replacement, $msg);
         } else {
             mb_convert_variables('UTF-8', 'CP932', $msg, $replacement);
             $msg = preg_replace('/(?:[\\s\\x{3000}]*<br>)+[\\s\\x{3000}]*$/u', '', $msg);
-            $msg = preg_replace("/(?:[\\s\\x{3000}]*<br>){{$count},}/u", $replacement, $msg);
+            $msg = preg_replace('/(?:[\\s\\x{3000}]*<br>){3,}/u', $replacement, $msg);
             $msg = mb_convert_encoding($msg, 'CP932', 'UTF-8');
         }
 
         return $msg;
     }
+
+    // }}}
+    // {{{ transLink()
+
+    /**
+     * リンク対象文字列を変換する
+     *
+     * @param string $str
+     * @return string
+     */
+    public function transLink($str)
+    {
+        return preg_replace_callback(self::LINK_REGEX, array($this, 'link_callback'), $str);
+    }
+
+    // }}}
+    // {{{ link_callback()
+
+    /**
+     * リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
+     *
+     * @param array $s
+     * @return string
+     */
+    public function link_callback(array $s)
+    {
+        global $_conf;
+
+        $orig = $s[0];
+        $following = '';
+
+        // マッチしたサブパターンに応じて分岐
+        // リンク
+        if ($s['link']) {
+            if (preg_match('{ href=(["\'])?(.+?)(?(1)\\1)(?=[ >])}i', $s[2], $m)) {
+                $url = $m[2];
+                $str = $s[3];
+            } else {
+                return $s[3];
+            }
+
+        // 引用
+        } elseif ($s['quote']) {
+            if (strpos($s[7], '-') !== false) {
+                return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
+            }
+            return preg_replace_callback('/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
+                                         array($this, 'quote_res_callback'), $s['quote']);
+
+        // http or ftp のURL
+        } elseif ($s['url']) {
+            if ($_conf['ktai'] && $s[9] == 'ftp') {
+                return $orig;
+            }
+            $url = preg_replace('/^t?(tps?)$/', 'ht$1', $s[9]) . '://' . $s[10];
+            $str = $s['url'];
+            $following = $s[11];
+            if (strlen($following) > 0) {
+                // ウィキペディア日本語版のURLで、SJISの2バイト文字の上位バイト
+                // (0x81-0x9F,0xE0-0xEF)が続くとき
+                if (P2Util::isUrlWikipediaJa($url)) {
+                    $leading = ord($following);
+                    if ((($leading ^ 0x90) < 32 && $leading != 0x80) || ($leading ^ 0xE0) < 16) {
+                        $url .= rawurlencode(mb_convert_encoding($following, 'UTF-8', 'CP932'));
+                        $str .= $following;
+                        $following = '';
+                    }
+                } elseif (strpos($following, 'tp://') !== false) {
+                    // 全角スペース+URL等の場合があるので再チェック
+                    $following = $this->transLink($following);
+                }
+            }
+
+        // ID
+        } elseif ($s['id'] && $_conf['flex_idpopup']) { // && $_conf['flex_idlink_k']
+            return $this->idfilter_callback(array($s['id'], $s[13]));
+
+        // その他（予備）
+        } else {
+            return strip_tags($orig);
+        }
+
+        // ime.nuを外す
+        $url = preg_replace('|^([a-z]+://)ime\\.nu/|', '$1', $url);
+
+        // エスケープされていない特殊文字をエスケープ
+        $url = htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false);
+        $str = htmlspecialchars($str, ENT_QUOTES, 'Shift_JIS', false);
+
+        // URLをパース・ホストを検証
+        $purl = @parse_url($url);
+        if (!$purl || !array_key_exists('host', $purl) ||
+            strpos($purl['host'], '.') === false ||
+            $purl['host'] == '127.0.0.1' ||
+            //HostCheck::isAddrLocal($purl['host']) ||
+            //HostCheck::isAddrPrivate($purl['host']) ||
+            P2Util::isHostExample($purl['host']))
+        {
+            return $orig;
+        }
+
+        // URLを処理
+        foreach ($this->_user_url_handlers as $handler) {
+            if (false !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
+                return $link . $following;
+            }
+        }
+        foreach ($this->_url_handlers as $handler) {
+            if (false !== ($link = $this->$handler($url, $purl, $str))) {
+                return $link . $following;
+            }
+        }
+
+        return $orig;
+    }
+
+    // }}}
+    // {{{ quote_res_callback()
+
+    /**
+     * 引用変換（単独）
+     *
+     * @param array $s
+     * @return string
+     */
+    abstract public function quote_res_callback(array $s);
+
+    // }}}
+    // {{{ quote_res_range_callback()
+
+    /**
+     * 引用変換（範囲）
+     *
+     * @param array $s
+     * @return string
+     */
+    abstract public function quote_res_range_callback(array $s);
 
     // }}}
 }

@@ -99,32 +99,45 @@ class ShowThreadPc extends ShowThread
     // {{{ datToHtml()
 
     /**
-     * DatをHTMLに変換表示する
+     * DatをHTMLに変換して表示する
+     *
+     * @param   bool $return    trueなら変換結果を出力せずに返す
+     * @return  bool|string
      */
-    public function datToHtml()
+    public function datToHtml($return = false)
     {
         // 表示レス範囲が指定されていなければ
         if (!$this->thread->resrange) {
-            echo '<b>p2 error: {$this->resrange} is FALSE at datToHtml()</b>';
-            return false;
+            $error = '<b>p2 error: {$this->resrange} is FALSE at datToHtml()</b>';
+            if ($return) {
+                return $error;
+            } else {
+                echo $error;
+                return false;
+            }
         }
 
         $start = $this->thread->resrange['start'];
         $to = $this->thread->resrange['to'];
         $nofirst = $this->thread->resrange['nofirst'];
 
-        $status_title = htmlspecialchars($this->thread->itaj, ENT_QUOTES) . " / " . $this->thread->ttitle_hd;
-        //$status_title = str_replace("'", "\'", $status_title);
-        //$status_title = str_replace('"', "\'\'", $status_title);
-        echo "<div class=\"thread\" onmouseover=\"window.top.status='{$status_title}';\">";
+        $status_title = htmlspecialchars($this->thread->itaj) . ' / ' . $this->thread->ttitle_hd;
+        $status_title = str_replace(array('\\', '&#039;'), array('\\\\', "\\'"), $status_title);
+
+        $buf = "<div class=\"thread\" onmouseover=\"window.top.status='{$status_title}';\">\n";
 
         // まず 1 を表示
         if (!$nofirst) {
-            echo $this->transRes($this->thread->datlines[0], 1);
+            $buf .= $this->transRes($this->thread->datlines[0], 1);
+        }
+
+        if (!$return) {
+            echo $buf;
+            flush();
+            $buf = '';
         }
 
         for ($i = $start; $i <= $to; $i++) {
-
             if (!$nofirst and $i == 1) {
                 continue;
             }
@@ -132,15 +145,23 @@ class ShowThreadPc extends ShowThread
                 $this->thread->readnum = $i-1;
                 break;
             }
-            echo $this->transRes($this->thread->datlines[$i-1], $i);
-            flush();
+            $buf .= $this->transRes($this->thread->datlines[$i-1], $i);
+            if (!$return) {
+                echo $buf;
+                flush();
+                $buf = '';
+            }
         }
 
-        echo "</div>\n";
+        $buf .= "</div>\n";
 
-        //$s2e = array($start, $i-1);
-        //return $s2e;
-        return true;
+        if ($return) {
+            return $buf;
+        } else {
+            echo $buf;
+            flush();
+            return true;
+        }
     }
 
     // }}}
@@ -686,11 +707,11 @@ EOJS;
 
         // 文末の改行と連続する改行を除去
         if ($_conf['strip_linebreaks']) {
-            $msg = $this->stripLineBreaks($msg, 3, '<br><span class="stripped">***</span><br>');
+            $msg = $this->stripLineBreaks($msg /*, ' <br><span class="stripped">***</span><br> '*/);
         }
 
         // 引用やURLなどをリンク
-        $msg = preg_replace_callback($this->_str_to_link_regex, array($this, 'link_callback'), $msg);
+        $msg = $this->transLink($msg);
 
         return $msg;
     }
@@ -716,104 +737,15 @@ EOP;
 
     // }}}
     // {{{ コールバックメソッド
-    // {{{ link_callback()
-
-    /**
-     * リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
-     */
-    public function link_callback($s)
-    {
-        global $_conf;
-
-        // preg_replace_callback()では名前付きでキャプチャできない？
-        if (!isset($s['link'])) {
-            $s['link']  = $s[1];
-            $s['quote'] = $s[5];
-            $s['url']   = $s[8];
-            $s['id']    = $s[12];
-        }
-
-        $following = '';
-
-        // マッチしたサブパターンに応じて分岐
-        // リンク
-        if ($s['link']) {
-            if (preg_match('{ href=(["\'])?(.+?)(?(1)\\1)(?=[ >])}i', $s[2], $m)) {
-                $url = $m[2];
-                $str = $s[3];
-            } else {
-                return $s[3];
-            }
-
-        // 引用
-        } elseif ($s['quote']) {
-            if (strpos($s[7], '-') !== false) {
-                return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
-            }
-            return preg_replace_callback('/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/', array($this, 'quote_res_callback'), $s['quote']);
-
-        // http or ftp のURL
-        } elseif ($s['url']) {
-            $url = preg_replace('/^t?(tps?)$/', 'ht$1', $s[9]) . '://' . $s[10];
-            $str = $s['url'];
-            $following = $s[11];
-            // ウィキペディア日本語版のURLで、SJISの2バイト文字の上位バイト(0x81-0x9F,0xE0-0xEF)が続くとき
-            if (P2Util::isUrlWikipediaJa($url) && strlen($following) > 0) {
-                $leading = ord($following);
-                if ((($leading ^ 0x90) < 32 && $leading != 0x80) || ($leading ^ 0xE0) < 16) {
-                    $url .= rawurlencode(mb_convert_encoding($following, 'UTF-8', 'CP932'));
-                    $str .= $following;
-                    $following = '';
-                }
-            }
-
-        // ID
-        } elseif ($s['id'] && $_conf['flex_idpopup']) {
-            return $this->idfilter_callback(array($s['id'], $s[13]));
-
-        // その他（予備）
-        } else {
-            return strip_tags($s[0]);
-        }
-
-        // ime.nuを外す
-        $url = preg_replace('|^([a-z]+://)ime\\.nu/|', '$1', $url);
-
-        // エスケープされていない特殊文字をエスケープ
-        $url = htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false);
-        $str = htmlspecialchars($str, ENT_QUOTES, 'Shift_JIS', false);
-        //$following = htmlspecialchars($following, ENT_QUOTES, 'Shift_JIS', false);
-
-        // URLをパース
-        $purl = @parse_url($url);
-        if (!$purl || !isset($purl['host']) || strpos($purl['host'], '.') === false || $purl['host'] == '127.0.0.1') {
-            return $str . $following;
-        }
-
-        // URLを処理
-        foreach ($this->_user_url_handlers as $handler) {
-            if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
-                return $link . $following;
-            }
-        }
-        foreach ($this->_url_handlers as $handler) {
-            if (FALSE !== ($link = call_user_func(array($this, $handler), $url, $purl, $str))) {
-                return $link . $following;
-            }
-        }
-
-        return $str . $following;
-    }
-
-    // }}}
     // {{{ quote_res_callback()
 
     /**
      * 引用変換（単独）
      *
+     * @param array $s
      * @return string
      */
-    public function quote_res_callback($s)
+    public function quote_res_callback(array $s)
     {
         global $_conf;
 
@@ -843,9 +775,10 @@ EOP;
     /**
      * 引用変換（範囲）
      *
+     * @param array $s
      * @return string
      */
-    public function quote_res_range_callback($s)
+    public function quote_res_range_callback(array $s)
     {
         global $_conf;
 
@@ -1582,12 +1515,12 @@ EOP;
         global $pre_thumb_unlimited, $pre_thumb_limit;
 
         if (P2Util::isUrlWikipediaJa($url)) {
-            return FALSE;
+            return false;
         }
 
         // 表示制限
         if (!$pre_thumb_unlimited && empty($pre_thumb_limit)) {
-            return FALSE;
+            return false;
         }
 
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
@@ -1617,7 +1550,8 @@ EOP;
 
             return $view_img;
         }
-        return FALSE;
+
+        return false;
     }
 
     // }}}
@@ -1638,7 +1572,7 @@ EOP;
         static $serial = 0;
 
         if (P2Util::isUrlWikipediaJa($url)) {
-            return FALSE;
+            return false;
         }
 
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
@@ -1673,9 +1607,9 @@ EOP;
                 $_img_url = $this->thumbnailer->srcPath($icdb->size, $icdb->md5, $icdb->mime);
                 if (file_exists($_img_url)) {
                     $img_url = $_img_url;
-                    $cached = TRUE;
+                    $cached = true;
                 } else {
-                    $cached = FALSE;
+                    $cached = false;
                 }
 
                 // サムネイルが作成されていているときは画像を直接読み込む
@@ -1707,11 +1641,11 @@ EOP;
             // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
             } else {
                 // 画像がブラックリストorエラーログにあるか確認
-                if (FALSE !== ($errcode = $icdb->ic2_isError($url))) {
+                if (false !== ($errcode = $icdb->ic2_isError($url))) {
                     return "<img class=\"thumbnail\" src=\"./img/{$errcode}.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\"> <s>{$str}</s>";
                 }
 
-                $cached = FALSE;
+                $cached = false;
 
 
                 $orig_img_url   = $img_url;
@@ -1727,13 +1661,13 @@ EOP;
                 // 表示制限を超えていたら、表示しない
                 // 表示制限を超えていなければ、表示制限カウンタを下げる
                 if ($pre_thumb_limit <= 0) {
-                    $show_thumb = FALSE;
+                    $show_thumb = false;
                 } else {
-                    $show_thumb = TRUE;
+                    $show_thumb = true;
                     $pre_thumb_limit--;
                 }
             } else {
-                $show_thumb = TRUE;
+                $show_thumb = true;
             }
 
             // 表示モード
@@ -1766,7 +1700,8 @@ EOP;
 
             return $view_img;
         }
-        return FALSE;
+
+        return false;
     }
 
     // }}}

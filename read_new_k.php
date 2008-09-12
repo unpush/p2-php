@@ -461,7 +461,6 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     $read_cont_ht = '';
     if ($aThread->rescount) {
-        //$aThread->datToHtml(); // dat ‚ð html ‚É•ÏŠ·•\Ž¦
         $aShowThread = new ShowThreadK($aThread, true);
         // SPM
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {

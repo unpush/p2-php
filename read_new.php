@@ -476,7 +476,6 @@ EOP;
     $aThread->resrange['nofirst'] = true;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
-        // $aThread->datToHtml(); // dat ‚ð html ‚É•ÏŠ·•\Ž¦
         $aShowThread = new ShowThreadPc($aThread, true);
         // async
         /*if ($_conf['expack.misc.async_respop']) {
