@@ -96,9 +96,22 @@ if (!empty($uri)) {
 }
 
 // ТlВ╠Т▓Ро
-if ($thumb < 1 || $thumb > 3 ) { $thumb = 0; }
-if ($rank < -1) { $rank = -1; } elseif ($rank > 5) { $rank = 5; }
-if ($memo === '') { $memo = null; }
+if (!in_array($thmub, array(IC2_Thumbnailer::SIZE_PC,
+                            IC2_Thumbnailer::SIZE_MOBILE,
+                            IC2_Thumbnailer::SIZE_INTERMD)))
+{
+    $thumb = IC2_Thumbnailer::SIZE_DEFAULT;
+}
+
+if ($rank < -1) {
+    $rank = -1;
+} elseif ($rank > 5) {
+    $rank = 5;
+}
+
+if ($memo === '') {
+    $memo = null;
+}
 
 $thumbnailer = new IC2_Thumbnailer($thumb);
 

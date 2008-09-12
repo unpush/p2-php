@@ -280,6 +280,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('bbs_win_target', 'rep2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
         array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
         array('quote_res_view', '引用レスを表示'),
+        array('strip_linebreaks', '文末の改行と連続する改行を除去'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -432,6 +433,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('mobile.clip_time_sec', '時刻の秒を省略表示'),
         array('mobile.clip_unique_id', '重複しないIDは末尾のみの省略表示'),
         array('mobile.underline_id', 'ID末尾の&quot;O&quot;に下線を引く'),
+        array('mobile.strip_linebreaks', '文末の改行と連続する改行を除去'),
 
         array('mobile.copy_divide_len', '「写」のコピー用テキストボックスを分割する文字数'),
     );

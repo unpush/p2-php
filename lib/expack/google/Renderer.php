@@ -10,16 +10,16 @@ class Google_Renderer
     /**
      * 検索結果ブロックの開始タグ
      */
-    const OPENER = '<table cellspacing="0" width="100%">';
+    const OPENER = '<table class="threadlist" cellspacing="0">';
 
     /**
      * 検索結果・ヘッダ
      */
     const HEADER = '<tr class="tableheader">
-    <td class="t">種類</td>
-    <td class="t">タイトル</td>
-    <td class="t">範囲</td>
-    <td class="t">板</td>
+    <th class="t">種類</th>
+    <th class="t">タイトル</th>
+    <th class="t">範囲</th>
+    <th class="t">板</th>
 </tr>';
 
     /**
@@ -41,7 +41,7 @@ class Google_Renderer
      * 検索結果・フッタ
      */
     const FOOTER = '<tr class="tableheader">
-    <td class="t" colspan="4" align="center">%d-%d / %d hits.</td>
+    <td class="t" colspan="4" style="text-align:center;">%d-%d / %d hits.</td>
 </tr>';
 
     /**
@@ -81,7 +81,9 @@ class Google_Renderer
     public function printSearchResult($result, $word, $perPage, $start, $totalItems)
     {
         echo self::OPENER;
+        echo '<thead>';
         $this->printSearchResultHeader();
+        echo '</thead><tbody>';
         if (is_array($result) && count($result) > 0) {
             foreach ($result as $id => $val) {
                 $this->printSearchResultBody($id, $val, $this->_getRowClass());
@@ -89,7 +91,9 @@ class Google_Renderer
         } elseif (is_string($result) && strlen($result) > 0) {
             printf(self::ERROR, $result);
         }
+        echo '</tbody><tfoot>';
         $this->printSearchResultFooter($perPage, $start, $totalItems);
+        echo '</tfoot>';
         echo self::CLOSER;
     }
 
@@ -176,7 +180,7 @@ class Google_Renderer
     public function printPager($perPage, $totalItems)
     {
         if (false !== ($pager = &$this->makePager($perPage, $totalItems))) {
-            echo '<table id="sbtoolbar2" class="toolbar" cellspacing="0"><tr><td align="center">';
+            echo '<table id="sbtoolbar2" class="toolbar" cellspacing="0"><tr><td style="text-align:center;">';
             echo $pager->links;
             echo '</td></tr></table>';
         }

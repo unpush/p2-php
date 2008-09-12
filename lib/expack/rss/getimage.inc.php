@@ -36,11 +36,11 @@ function rss_get_image_ic2($src_url, $memo='')
     static $thumbnailer_k = NULL;
 
     if (is_null($thumbnailer)) {
-        $thumbnailer = new IC2_Thumbnailer(1);
-        $thumbnailer_k = new IC2_Thumbnailer(2);
+        $thumbnailer = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_PC);
+        $thumbnailer_k = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_MOBILE);
     }
 
-    $icdb = new IC2DB_images;
+    $icdb = new IC2_DataObject_Images;
 
     if ($thumbnailer->ini['General']['automemo'] && $memo !== '') {
         $img_memo = $icdb->uniform($memo, 'CP932');
@@ -102,7 +102,7 @@ function rss_get_image_ic2($src_url, $memo='')
             $thumb_url = $_thumb_url;
             // 自動タイトルメモ機能がONでタイトルが記録されていないときはDBを更新
             if (!is_null($img_memo) && strpos($icdb->memo, $img_memo) === false){
-                $update = new IC2DB_images;
+                $update = new IC2_DataObject_Images;
                 if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                     $update->memo = $img_memo . ' ' . $icdb->memo;
                 } else {

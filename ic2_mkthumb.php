@@ -74,7 +74,7 @@ switch ($type) {
 
 if ($search->find(true)) {
     if (!empty($_GET['o'])) {
-        $thumb = new IC2_Thumbnailer(IC2_THUMB_SIZE_DEFAULT);
+        $thumb = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_DEFAULT);
         $src = $thumb->srcPath($search->size, $search->md5, $search->mime);
         if (!file_exists($src)) {
             ic2_mkthumb_error("&quot;{$uri}&quot;のローカルキャッシュがありません。");

@@ -401,6 +401,37 @@ EOP;
     }
 
     // }}}
+    // {{{ stripLineBreaks()
+
+    /**
+     * 文末の改行と連続する改行を取り除く
+     *
+     * @param string $msg
+     * @param int $count
+     * @param string $replacement
+     * @return string
+     */
+    public function stripLineBreaks($msg, $count = 3, $replacement = '<br><br>')
+    {
+        $count = (int)$count;
+        if ($count < 2) {
+            return $msg;
+        }
+
+        if (P2_MBREGEX_AVAILABLE) {
+            $msg = mb_ereg_replace('(?:[\\s　]*<br>)+[\\s　]*$', '', $msg);
+            $msg = mb_ereg_replace("(?:[\\s　]*<br>){{$count},}", $replacement, $msg);
+        } else {
+            mb_convert_variables('UTF-8', 'CP932', $msg, $replacement);
+            $msg = preg_replace('/(?:[\\s\\x{3000}]*<br>)+[\\s\\x{3000}]*$/u', '', $msg);
+            $msg = preg_replace("/(?:[\\s\\x{3000}]*<br>){{$count},}/u", $replacement, $msg);
+            $msg = mb_convert_encoding($msg, 'CP932', 'UTF-8');
+        }
+
+        return $msg;
+    }
+
+    // }}}
 }
 
 // }}}

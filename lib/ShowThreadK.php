@@ -34,6 +34,8 @@ class ShowThreadK extends ShowThread
     private $_dateIdPattern;    // 日付書き換えの検索パターン
     private $_dateIdReplace;    // 日付書き換えの置換文字列
 
+    private $_lineBreaksReplace; // 連続する改行の置換文字列
+
     // }}}
     // {{{ constructor
 
@@ -44,7 +46,7 @@ class ShowThreadK extends ShowThread
     {
         parent::__construct($aThread, $matome);
 
-        global $_conf;
+        global $_conf, $STYLE;
 
         if ($_conf['iphone']) {
             $this->respopup_at = ' onclick="return iResPopUp(this, event);"';
@@ -87,6 +89,18 @@ class ShowThreadK extends ShowThread
         } else {
             $this->_dateIdPattern = '~^(?:' . date('Y|y') . ')/~';
             $this->_dateIdReplace = '';
+        }
+
+        // 連続する改行の置換文字列を設定
+        if ($_conf['mobile.strip_linebreaks']) {
+            $ngword_color = $GLOBALS['STYLE']['mobile_read_ngword_color'];
+            if (strpos($ngword_color, '\\') === false && strpos($ngword_color, '$') === false) {
+                $this->_lineBreaksReplace = "<br><s><font color=\"{$ngword_color}\">***</font></s><br>";
+            } else {
+                $this->_lineBreaksReplace = '<br><s>***</s><br>';
+            }
+        } else {
+            $this->_lineBreaksReplace = null;
         }
 
         // サムネイル表示制限数を設定
@@ -620,7 +634,7 @@ EOP;
             // <br>以外のタグを除去し、長さを切り詰める
             $msg = strip_tags($msg, '<br>');
             $msg = mb_strcut($msg, 0, $_conf['mobile.ryaku_size']);
-            $msg = preg_replace('/ *<[^>]*$/i', '', $msg);
+            $msg = preg_replace('/ *<[^>]*$/', '', $msg);
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
             $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quote_res_callback'), $msg);
@@ -632,6 +646,11 @@ EOP;
         // 新着レスの画像は表示制限を無視する設定なら
         if ($mynum > $this->thread->readnum && $_conf['expack.ic2.newres_ignore_limit_k']) {
             $pre_thumb_ignore_limit = TRUE;
+        }
+
+        // 文末の改行と連続する改行を除去
+        if ($_conf['mobile.strip_linebreaks']) {
+            $msg = $this->stripLineBreaks($msg, 3, $this->_lineBreaksReplace);
         }
 
         // 引用やURLなどをリンク

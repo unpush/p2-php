@@ -28,8 +28,8 @@ require_once 'HTML/Template/Flexy.php';
 require_once 'HTML/Template/Flexy/Element.php';
 require_once 'Validate.php';
 require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 
 // 設定ファイル読み込み
@@ -40,9 +40,9 @@ $options = &PEAR::getStaticProperty('DB_DataObject','options');
 $options = array('database' => $ini['General']['dsn'], 'quote_identifiers' => true);
 
 // 設定関連のエラーはこれらのクラスのコンストラクタでチェックされる
-$thumbnailer = &new ThumbNailer;
-$icdb = &new IC2DB_images;
-$db = &$icdb->getDatabaseConnection();
+$thumbnailer = new IC2_Thumbnailer;
+$icdb = new IC2_DataObject_Images;
+$db = $icdb->getDatabaseConnection();
 
 // }}}
 // {{{ SQL生成
@@ -54,9 +54,9 @@ case 'mysql':
 case 'mysqli':
     $serial = 'INTEGER PRIMARY KEY AUTO_INCREMENT';
     $table_extra_defs = ' TYPE=MyISAM';
-    $version = &$db->getRow("SHOW VARIABLES LIKE 'version'", array(), DB_FETCHMODE_ORDERED);
+    $version = $db->getRow("SHOW VARIABLES LIKE 'version'", array(), DB_FETCHMODE_ORDERED);
     if (!DB::isError($version) && version_compare($version[1], '4.1.0') != -1) {
-        $charset = &$db->getRow("SHOW VARIABLES LIKE 'character_set_database'", array(), DB_FETCHMODE_ORDERED);
+        $charset = $db->getRow("SHOW VARIABLES LIKE 'character_set_database'", array(), DB_FETCHMODE_ORDERED);
         if (!DB::isError($charset) && $charset[1] == 'latin1') {
             $errmsg = "<p><b>Warning:</b> データベースの文字セットが latin1 に設定されています。</p>";
             $errmsg .= "<p>mysqld の default-character-set が binary, ujis, utf8 等でないと日本語の文字が壊れるので ";

@@ -86,7 +86,7 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
         $_info_msg_ht .= $err_fmt['none'];
     } else {
         // サムネイル作成クラスのインスタンスを作成
-        $thumbnailer = new IC2_Thumbnailer(IC2_THUMB_SIZE_DEFAULT);
+        $thumbnailer = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_DEFAULT);
 
         // DBに記録する共通データを設定
         $f_host = 'localhost';

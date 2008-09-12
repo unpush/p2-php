@@ -71,7 +71,7 @@ class IC2_Thumbnailer
     /**
      * コンストラクタ
      */
-    public function __construct($mode = IC2_THUMB_SIZE_DEFAULT, $dynamic_options = null)
+    public function __construct($mode = self::SIZE_DEFAULT, $dynamic_options = null)
     {
         if (is_array($dynamic_options) && count($dynamic_options) > 0) {
             $options = array_merge($this->default_options, $dynamic_options);
@@ -95,17 +95,18 @@ class IC2_Thumbnailer
 
         // サムネイルモード判定
         switch ($mode) {
-            case IC2_THUMB_SIZE_INTERMD:
-                $this->mode = IC2_THUMB_SIZE_INTERMD;
+            case self::SIZE_INTERMD:
+                $this->mode = self::SIZE_INTERMD;
                 $setting = $this->ini['Thumb3'];
                 break;
-            case IC2_THUMB_SIZE_MOBILE:
-                $this->mode = IC2_THUMB_SIZE_MOBILE;
+            case self::SIZE_MOBILE:
+                $this->mode = self::SIZE_MOBILE;
                 $setting = $this->ini['Thumb2'];
                 break;
-            case IC2_THUMB_SIZE_PC:
+            case self::SIZE_PC:
+            case self::SIZE_DEFAULT:
             default:
-                $this->mode = IC2_THUMB_SIZE_PC;
+                $this->mode = self::SIZE_PC;
                 $setting = $this->ini['Thumb1'];
         }
 

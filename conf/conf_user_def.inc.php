@@ -181,6 +181,14 @@ $conf_user_rad['bottom_res_form'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['quote_res_view'] = 1; // (1)
 $conf_user_rad['quote_res_view'] = array('1' => 'する', '0' => 'しない');
 
+// PC閲覧時、文末の改行と連続する改行を除去（する:1, しない:0）
+$conf_user_def['strip_linebreaks'] = 0; // (0)
+$conf_user_rad['strip_linebreaks'] = array('1' => 'する', '0' => 'しない');
+
+// 携帯閲覧時、文末の改行と連続する改行を除去（する:1, しない:0）
+$conf_user_def['mobile.strip_linebreaks'] = 0; // (0)
+$conf_user_rad['mobile.strip_linebreaks'] = array('1' => 'する', '0' => 'しない');
+
 // 携帯閲覧時、一度に表示するレスの数
 $conf_user_def['mobile.rnum_range'] = 15; // (15)
 $conf_user_rules['mobile.rnum_range'] = array('emptyToDef', 'notIntExceptMinusToDef');

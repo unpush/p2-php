@@ -684,6 +684,11 @@ EOJS;
             $pre_thumb_ignore_limit = TRUE;
         }
 
+        // 文末の改行と連続する改行を除去
+        if ($_conf['strip_linebreaks']) {
+            $msg = $this->stripLineBreaks($msg, 3, '<br><span class="stripped">***</span><br>');
+        }
+
         // 引用やURLなどをリンク
         $msg = preg_replace_callback($this->_str_to_link_regex, array($this, 'link_callback'), $msg);
 

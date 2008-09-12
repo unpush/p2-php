@@ -67,9 +67,9 @@ $qf_constants = array(
 
 // ƒvƒŒƒrƒ…[‚Ì‘å‚«‚³
 $_preview_size = array(
-    '1' => $ini['Thumb1']['width'] . '&times;' . $ini['Thumb1']['height'],
-    '2' => $ini['Thumb2']['width'] . '&times;' . $ini['Thumb2']['height'],
-    '3' => $ini['Thumb3']['width'] . '&times;' . $ini['Thumb3']['height'],
+    IC2_Thumbnailer::SIZE_PC      => $ini['Thumb1']['width'] . '&times;' . $ini['Thumb1']['height'],
+    IC2_Thumbnailer::SIZE_MOBILE  => $ini['Thumb2']['width'] . '&times;' . $ini['Thumb2']['height'],
+    IC2_Thumbnailer::SIZE_INTERMD => $ini['Thumb3']['width'] . '&times;' . $ini['Thumb3']['height'],
 );
 
 // ‘®«
