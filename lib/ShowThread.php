@@ -505,6 +505,14 @@ EOP;
         $orig = $s[0];
         $following = '';
 
+        // PHP 5.3 未満の preg_replace_callback() では名前付き捕獲式集合が使えないので
+        if (!array_key_exists('link', $s)) {
+            $s['link']  = $s[1];
+            $s['quote'] = $s[5];
+            $s['url']   = $s[8];
+            $s['id']    = $s[12];
+        }
+
         // マッチしたサブパターンに応じて分岐
         // リンク
         if ($s['link']) {
