@@ -103,7 +103,10 @@ function iResPopUp(url, evt)
 
 			container.id = popid;
 			container.className = 'respop';
-			container.innerHTML = req.responseText.replace(/<[^<>]+? id="/, '$0' + popid + '_'); //"
+			container.innerHTML = req.responseText
+				.replace(/^<div class="thread">/, '')
+				.replace(/<\/div>\s*$/, '')
+				.replace(/<[^<>]+? id="/, '$0' + popid + '_'); //"
 			container.style.top = yOffset.toString() + 'px';
 			container.style.zIndex = _irespopup_get_z_index();
 			//container.onclick = _irespopup_make_activate(container);

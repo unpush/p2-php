@@ -477,18 +477,13 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
         $aShowThread = new ShowThreadPc($aThread, true);
-        // async
-        /*if ($_conf['expack.misc.async_respop']) {
-            $read_header_ht .= $aShowThread->getASyncObjJs();
-        }*/
-        // SPM
+
         if ($_conf['expack.spm.enabled']) {
             $read_header_ht .= $aShowThread->getSpmObjJs();
         }
 
         $res1 = $aShowThread->quoteOne();
         $read_cont_ht = $res1['q'];
-
         $read_cont_ht .= $aShowThread->getDatToHtml();
 
         unset($aShowThread);

@@ -462,10 +462,11 @@ EOP;
     $read_cont_ht = '';
     if ($aThread->rescount) {
         $aShowThread = new ShowThreadK($aThread, true);
-        // SPM
+
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             $read_cont_ht .= $aShowThread->getSpmObjJs();
         }
+
         $read_cont_ht .= $aShowThread->getDatToHtml();
 
         unset($aShowThread);

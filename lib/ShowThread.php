@@ -26,13 +26,13 @@ abstract class ShowThread
         -(?:[1-9]\\d{0,3})? # 範囲
       )?
     )
-    (?=\\D|\$)
+    (?=\\D|$)
   ) # 引用ここまで
 |                                  # PHP 5.3縛りにするなら、↓の\'のエスケープを外し、NOWDOCにする
-  (?P<url>(ftp|h?t?tps?)://([0-9A-Za-z][\\w;/?:@=&\$\\-_.+!*\'(),#%\\[\\]^~]+)) # URL
+  (?P<url>(ftp|h?t?tps?)://([0-9A-Za-z][\\w;/?:@=&$\\-_.+!*\'(),#%\\[\\]^~]+)) # URL
   ([^\\s<>]*) # URLの直後、タグorホワイトスペースが現れるまでの文字列
 |
-  (?P<id>ID:[ ]?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|\$)) # ID（8,10桁 +PC/携帯識別フラグ）
+  (?P<id>ID:[ ]?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$)) # ID（8,10桁 +PC/携帯識別フラグ）
 )
 }x';
 
@@ -116,7 +116,56 @@ abstract class ShowThread
      * @param   bool $return    trueなら変換結果を出力せずに返す
      * @return  bool|string
      */
-    abstract public function datToHtml($return = false);
+    public function datToHtml($return = false)
+    {
+        // 表示レス範囲が指定されていなければ
+        if (!$this->thread->resrange) {
+            $error = '<p><b>p2 error: {$this->resrange} is FALSE at datToHtml()</b></p>';
+            if ($return) {
+                return $error;
+            } else {
+                echo $error;
+                return false;
+            }
+        }
+
+        $start = $this->thread->resrange['start'];
+        $to = $this->thread->resrange['to'];
+        $nofirst = $this->thread->resrange['nofirst'];
+
+        $buf = "<div class=\"thread\">\n";
+
+        // まず 1 を表示
+        if (!$nofirst) {
+            $buf .= $this->transRes($this->thread->datlines[0], 1);
+        }
+
+        for ($i = $start - 1; $i < $to; $i++) {
+            if (!$nofirst and $i == 0) {
+                continue;
+            }
+            if (!$this->thread->datlines[$i]) {
+                $this->thread->readnum = $i;
+                break;
+            }
+            $buf .= $this->transRes($this->thread->datlines[$i], $i + 1);
+            if (!$return && $i % 10 == 0) {
+                echo $buf;
+                flush();
+                $buf = '';
+            }
+        }
+
+        $buf .= "</div>\n";
+
+        if ($return) {
+            return $buf;
+        } else {
+            echo $buf;
+            flush();
+            return true;
+        }
+    }
 
     // }}}
     // {{{ transRes()

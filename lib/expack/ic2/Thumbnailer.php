@@ -8,24 +8,18 @@ require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
 require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
 
-// {{{ constants
-
-define('IC2_THUMB_SIZE_DEFAULT', 1);
-define('IC2_THUMB_SIZE_PC',      1);
-define('IC2_THUMB_SIZE_MOBILE',  2);
-define('IC2_THUMB_SIZE_INTERMD', 3);
-
-// }}}
 // {{{ IC2_Thumbnailer
 
 class IC2_Thumbnailer
 {
     // {{{ constants
 
-    const SIZE_DEFAULT  = 1;
+    const SIZE_SOURCE   = 0; // ic2.php のため、便宜上設定しているが、好ましくない
     const SIZE_PC       = 1;
     const SIZE_MOBILE   = 2;
     const SIZE_INTERMD  = 3;
+
+    const SIZE_DEFAULT  = 1;
 
     // }}}
     // {{{ properties
@@ -70,10 +64,13 @@ class IC2_Thumbnailer
 
     /**
      * コンストラクタ
+     *
+     * @param int $mode
+     * @param array $dynamic_options
      */
-    public function __construct($mode = self::SIZE_DEFAULT, $dynamic_options = null)
+    public function __construct($mode = self::SIZE_DEFAULT, array $dynamic_options = null)
     {
-        if (is_array($dynamic_options) && count($dynamic_options) > 0) {
+        if ($dynamic_options) {
             $options = array_merge($this->default_options, $dynamic_options);
             $this->dynamic = true;
             $this->intermd = $options['intermd'];
@@ -95,19 +92,21 @@ class IC2_Thumbnailer
 
         // サムネイルモード判定
         switch ($mode) {
-            case self::SIZE_INTERMD:
-                $this->mode = self::SIZE_INTERMD;
-                $setting = $this->ini['Thumb3'];
+            case self::SIZE_SOURCE:
+            case self::SIZE_PC:
+                $this->mode = self::SIZE_PC;
+                $setting = $this->ini['Thumb1'];
                 break;
             case self::SIZE_MOBILE:
                 $this->mode = self::SIZE_MOBILE;
                 $setting = $this->ini['Thumb2'];
                 break;
-            case self::SIZE_PC:
-            case self::SIZE_DEFAULT:
+            case self::SIZE_INTERMD:
+                $this->mode = self::SIZE_INTERMD;
+                $setting = $this->ini['Thumb3'];
+                break;
             default:
-                $this->mode = self::SIZE_PC;
-                $setting = $this->ini['Thumb1'];
+                $this->error('無効なサムネイルモードです。');
         }
 
         // イメージドライバ判定
@@ -235,10 +234,10 @@ class IC2_Thumbnailer
         $thumbURL = $this->thumbPath($size, $md5, $mime);
         $thumb = $this->thumbPath($size, $md5, $mime, true);
         if ($src == false) {
-            $error = &PEAR::raiseError("無効なMIMEタイプ。({$mime})");
+            $error = PEAR::raiseError("無効なMIMEタイプ。({$mime})");
             return $error;
         } elseif (!file_exists($src)) {
-            $error = &PEAR::raiseError("ソース画像がキャッシュされていません。({$src})");
+            $error = PEAR::raiseError("ソース画像がキャッシュされていません。({$src})");
             return $error;
         }
         if (!$force && !$this->dynamic && file_exists($thumb)) {
@@ -246,7 +245,7 @@ class IC2_Thumbnailer
         }
         $thumbdir = dirname($thumb);
         if (!is_dir($thumbdir) && !@mkdir($thumbdir)) {
-            $error = &PEAR::raiseError("ディレクトリを作成できませんでした。({$thumbdir})");
+            $error = PEAR::raiseError("ディレクトリを作成できませんでした。({$thumbdir})");
             return $error;
         }
 
@@ -256,7 +255,7 @@ class IC2_Thumbnailer
             if (@copy($src, $thumb)) {
                 return $thumbURL;
             } else {
-                $error = &PEAR::raiseError("画像をコピーできませんでした。({$src} -&gt; {$thumb})");
+                $error = PEAR::raiseError("画像をコピーできませんでした。({$src} -&gt; {$thumb})");
                 return $error;
             }
         }*/
@@ -266,7 +265,7 @@ class IC2_Thumbnailer
             $dst = ($this->dynamic) ? '' : $thumb;
             $result = epeg_thumbnail_create($src, $dst, $this->max_width, $this->max_height, $this->quality);
             if ($result == false) {
-                $error = &PEAR::raiseError("サムネイルを作成できませんでした。({$src} -&gt; {$dst})");
+                $error = PEAR::raiseError("サムネイルを作成できませんでした。({$src} -&gt; {$dst})");
                 return $error;
             }
             if ($this->dynamic) {

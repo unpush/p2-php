@@ -244,14 +244,17 @@ if ($_conf['ktai']) {
     $aShowThread = new ShowThreadK($aThread);
 
     if ($is_ajax) {
-        header('Content-Type: text/plain; charset=UTF-8');
+        header('Content-Type: text/html; charset=UTF-8');
         echo mb_convert_encoding($aShowThread->getDatToHtml(), 'UTF-8', 'CP932');
     } else {
         require_once P2_LIB_DIR . '/read_header_k.inc.php';
-        $aShowThread->datToHtml();
+
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
         }
+
+        $aShowThread->datToHtml();
+
         require_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
 
@@ -292,16 +295,12 @@ EOP;
         require_once P2_LIB_DIR . '/ShowThreadPc.php';
         $aShowThread = new ShowThreadPc($aThread);
 
-        $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
-        echo $res1['q'];
-        // async
-        /*if ($_conf['expack.misc.async_respop']) {
-            echo $aShowThread->getASyncObjJs();
-        }*/
-        // SPM
         if ($_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
         }
+
+        $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
+        echo $res1['q'];
 
         $aShowThread->datToHtml();
     }

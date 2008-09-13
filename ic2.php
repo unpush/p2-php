@@ -42,11 +42,11 @@ $id       = isset($_REQUEST['id'])    ? intval($_REQUEST['id']) : null;
 $uri      = isset($_REQUEST['uri'])   ? $_REQUEST['uri'] : (isset($_REQUEST['url']) ? $_REQUEST['url'] : null);
 $file     = isset($_REQUEST['file'])  ? $_REQUEST['file'] : null;
 $force    = !empty($_REQUEST['f']);   // 強制更新
-$thumb    = isset($_REQUEST['t'])     ? intval($_REQUEST['t']) : 0;       // サムネイルタイプ
-$redirect = isset($_REQUEST['r'])     ? intval($_REQUEST['r']) : 1;       // 表示方法
-$rank     = isset($_REQUEST['rank'])  ? intval($_REQUEST['rank']) : 0;    // ランキング
+$thumb    = isset($_REQUEST['t'])     ? intval($_REQUEST['t']) : IC2_Thumbnailer::SIZE_SOURCE;  // サムネイルタイプ
+$redirect = isset($_REQUEST['r'])     ? intval($_REQUEST['r']) : 1;     // 表示方法
+$rank     = isset($_REQUEST['rank'])  ? intval($_REQUEST['rank']) : 0;  // レーティング
 $memo     = (isset($_REQUEST['memo']) && strlen($_REQUEST['memo']) > 0) ? $_REQUEST['memo'] : null; // メモ
-$referer  = (isset($_REQUEST['ref']) && strlen($_REQUEST['ref']) > 0)   ? $_REQUEST['ref'] : null;  // リファラ
+$referer  = (isset($_REQUEST['ref']) && strlen($_REQUEST['ref']) > 0)   ? $_REQUEST['ref']  : null; // リファラ
 
 /*if (!isset($uri) && false !== ($url = getenv('PATH_INFO'))) {
     $uri = 'http:/' . $url;
@@ -96,7 +96,8 @@ if (!empty($uri)) {
 }
 
 // 値の調整
-if (!in_array($thumb, array(IC2_Thumbnailer::SIZE_PC,
+if (!in_array($thumb, array(IC2_Thumbnailer::SIZE_SOURCE,
+                            IC2_Thumbnailer::SIZE_PC,
                             IC2_Thumbnailer::SIZE_MOBILE,
                             IC2_Thumbnailer::SIZE_INTERMD)))
 {
