@@ -161,6 +161,12 @@ EOS;
 <script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     }
+    // SPM
+    if ($_conf['expack.spm.enabled']) {
+        $_conf['extra_headers_ht'] .= <<<EOS
+<script type="text/javascript" src="js/spm_iphone.js?{$_conf['p2_version_id']}"></script>
+EOS;
+    }
 }
 
 //====================================================================

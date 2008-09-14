@@ -213,7 +213,7 @@ class SettingTxt
         }
 
         foreach ($lines as $line) {
-            if (strstr($line, '=')) {
+            if (strpos($line, '=') !== false) {
                 list($key, $value) = explode('=', $line, 2);
                 $key = trim($key);
                 $value = trim($value);

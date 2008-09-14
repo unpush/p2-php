@@ -32,7 +32,7 @@ if (is_numeric($num)) {
     $num = (int)$num;
 }
 $xml_en = rawurlencode($xml);
-$xml_ht = P2Util::re_htmlspecialchars($xml);
+$xml_ht = htmlspecialchars($xml, ENT_QUOTES, 'Shift_JIS', false);
 
 
 //============================================================
@@ -73,9 +73,9 @@ if ($xml) {
 
 //ƒ^ƒCƒgƒ‹
 if (isset($num)) {
-    $title = P2Util::re_htmlspecialchars($items[$num]['title']);
+    $title = htmlspecialchars($items[$num]['title'], ENT_QUOTES, 'Shift_JIS', false);
 } else {
-    $title = P2Util::re_htmlspecialchars($channel['title']);
+    $title = htmlspecialchars($channel['title'], ENT_QUOTES, 'Shift_JIS', false);
 }
 
 

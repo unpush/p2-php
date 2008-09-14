@@ -16,18 +16,19 @@ $explanation = '見たいスレッドのURLを入力して下さい。例：http://pc.2ch.net/test/
 $defurl = '';
 $ini_url_text = '';
 
-$onClick_ht = <<<EOP
+$onclick_ht = <<<EOP
 var url_v=document.forms["urlform"].elements["url_text"].value;
 if(url_v=="" || url_v=="{$ini_url_text}"){
     alert("{$explanation}");
     return false;
 }
 EOP;
+$onclick_ht = htmlspecialchars($onclick_ht, ENT_QUOTES);
 $htm['urlform'] = <<<EOP
     <form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
         スレURLを直接指定
         <input id="url_text" type="text" value="{$defurl}" name="url" size="62">
-        <input type="submit" name="btnG" value="表示" onClick='{$onClick_ht}'>
+        <input type="submit" name="btnG" value="表示" onclick="{$onclick_ht}">
     </form>\n
 EOP;
 

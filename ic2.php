@@ -56,9 +56,11 @@ if (empty($id) && empty($uri) && empty($file)) {
 }
 
 if (!empty($uri)) {
-    $uri = preg_replace('{^(https?://)ime\\.(nu|st)/}', '$1', $uri);
+    $uri = preg_replace('{^(https?://)ime\\.(?:nu|st)/}', '\\1', $uri);
     $pURL = @parse_url($uri);
-    if (!$pURL || !preg_match('/^(https?)$/', $pURL['scheme']) || empty($pURL['host']) || empty($pURL['path'])) {
+    if (!$pURL || ($pURL['scheme'] != 'http' && $pURL['scheme'] != 'https') ||
+        empty($pURL['host']) || empty($pURL['path']))
+    {
         ic2_error('x06', '不正なURLです。', false);
     }
 
@@ -304,7 +306,7 @@ if (is_string($referer)) {
 // {{{ head
 
 // まずはHEADでチェック
-$client_h = clone($client);
+$client_h = clone $client;
 $code = $client_h->head($uri);
 if (PEAR::isError($code)) {
     ic2_error('x02', $code->getMessage());
@@ -526,16 +528,19 @@ function ic2_checkAbornedFile($tmpfile, $params)
     $bl_check->whereAddQuoted('size', '=', $size);
     $bl_check->whereAddQuoted('md5',  '=', $md5);
     if ($bl_check->find(true)) {
-        $bl_add = clone($bl_check);
+        $bl_add = clone $bl_check;
+        $bl_add->id = null;
         $bl_add->uri = $uri;
-        $bl_add->insert();
-        switch ($bl_check->type) {
+        switch ((int)$bl_check->type) {
             case 0:
                 $errcode = 'x05'; // No More
+                break;
             case 1:
                 $errcode = 'x01'; // Aborn
+                break;
             case 2:
                 $errcode = 'x04'; // Virus
+                break;
             default:
                 $errcode = 'x06'; // Unknown
         }

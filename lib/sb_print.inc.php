@@ -101,7 +101,7 @@ EOP;
     if ($only_one_bool) { echo "<td class=\"t\">&nbsp;</td>"; }
     // チェックボックス
     if ($checkbox_bool) {
-        echo "<td class=\"tc\"><input id=\"allbox\" name=\"allbox\" type=\"checkbox\" onClick=\"checkAll();\" title=\"すべての項目を選択、または選択解除\"></td>";
+        echo "<td class=\"tc\"><input id=\"allbox\" name=\"allbox\" type=\"checkbox\" onclick=\"checkAll();\" title=\"すべての項目を選択、または選択解除\"></td>";
     }
     // No.
     $title = empty($aThreadList->spmode) ? " title=\"2ch標準の並び順番号\"" : '';
@@ -178,7 +178,7 @@ EOP;
         if ($aThread->isKitoku()) {
 
             // $ttitle_en_q は節減省略
-            $onclick_at = " onClick=\"return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this);\"";
+            $onclick_at = " onclick=\"return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this);\"";
             $title_at = " title=\"クリックするとログ削除\"";
 
             $unum_ht_c = "<a class=\"un\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\"{$onclick_at}{$title_at}>{$aThread->unum}</a>";
@@ -196,7 +196,7 @@ EOP;
             // subject.txtにない時
             if (!$aThread->isonline) {
                 // JavaScriptでの確認ダイアログあり
-                $unum_ht_c = "<a class=\"un_n\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onClick=\"if (!window.confirm('ログを削除しますか？')) {return false;} return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this)\"{$title_at}>-</a>";
+                $unum_ht_c = "<a class=\"un_n\" href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$spmode_q}&amp;dele=true\" target=\"_self\" onclick=\"if (!window.confirm('ログを削除しますか？')) {return false;} return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$sid_q}', {$STYLE['info_pop_size']}, 'subject', this)\"{$title_at}>-</a>";
             }
 
         }
@@ -225,7 +225,7 @@ EOP;
 
                 // $ttitle_en_q も付けた方がいいが、節約のため省略する
                 $fav_ht = <<<EOP
-<td{$class_t}><a class="fav" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$favdo_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'subject', this);" title="{$favtitle}">{$favmark}</a></td>
+<td{$class_t}><a class="fav" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$favdo_q}" target="info" onclick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'subject', this);" title="{$favtitle}">{$favmark}</a></td>
 EOP;
             }
         }
@@ -237,7 +237,7 @@ EOP;
         } else {
             $torder_st = $aThread->torder;
         }
-        $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?host={$aThread->host}{$bbs_q}{$key_q}\" target=\"_self\" onClick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)\">{$torder_st}</a>";
+        $torder_ht = "<a id=\"to{$i}\" class=\"info\" href=\"info.php?host={$aThread->host}{$bbs_q}{$key_q}\" target=\"_self\" onclick=\"return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)\">{$torder_st}</a>";
 
         // title =================================================
         $chUnColor_ht = "";
@@ -293,7 +293,7 @@ EOP;
         if ($midoku_ari) {
             $chUnColor_ht = "chUnColor('{$i}');";
         }
-        $change_color = " onClick=\"chTtColor('{$i}');{$chUnColor_ht}\"";
+        $change_color = " onclick=\"chTtColor('{$i}');{$chUnColor_ht}\"";
 
         // オンリー>>1 =============================================
         if ($only_one_bool) {

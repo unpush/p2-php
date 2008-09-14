@@ -13,7 +13,7 @@
 function findexec($command, $search_path = '', $escape = true)
 {
     // WindowsÇ©ÅAÇªÇÃëºÇÃOSÇ©
-    if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
+    if (P2_OS_WINDOWS) {
         if (strtolower(strrchr($command, '.')) != '.exe') {
             $command .= '.exe';
         }

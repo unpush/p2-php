@@ -42,7 +42,7 @@ $buildnewthread_ht = '';
 $import_dat_ht = '';
 if (!$aThreadList->spmode) {
     $buildnewthread_ht = <<<EOP
-    <a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)">新規スレッド作成</a>
+    <a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true" target="_self" onclick="return OpenSubWin('post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=true&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)">新規スレッド作成</a>
 EOP;
     $import_dat_ht = <<<EOP
  | <a href="import.php?host={$aThreadList->host}{$bbs_q}" onclick="return OpenSubWin('import.php?host={$aThreadList->host}{$bbs_q}', 600, 380, 0, 0);" target="_self">datのインポート</a>
@@ -94,19 +94,19 @@ if (!$aThreadList->spmode) {
 }
 
 //if(!$aThreadList->spmode || $aThreadList->spmode=="fav" || $aThreadList->spmode=="recent" || $aThreadList->spmode=="res_hist"){
-$onClick_ht =<<<EOP
+$onclick_ht =<<<EOP
 var url_v=document.forms["urlform"].elements["url_text"].value;
 if (url_v=="" || url_v=="{$ini_url_text}") {
     alert("見たいスレッドのURLを入力して下さい。 例：http://pc.2ch.net/test/read.cgi/mac/1034199997/");
     return false;
 }
 EOP;
-$onClick_ht = htmlspecialchars($onClick_ht, ENT_QUOTES);
+$onclick_ht = htmlspecialchars($onclick_ht, ENT_QUOTES);
 echo <<<EOP
     <form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
             スレURLを直接指定
             <input id="url_text" type="text" value="{$ini_url_text}" name="url" size="62">
-            <input type="submit" name="btnG" value="表示" onclick="{$onClick_ht}">
+            <input type="submit" name="btnG" value="表示" onclick="{$onclick_ht}">
     </form>\n
 EOP;
 if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {

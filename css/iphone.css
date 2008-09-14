@@ -143,26 +143,88 @@ body > div#open-in-tab > input[type="checkbox"] {
 	visibility: hidden;
 	margin: 0;
 	padding: 0;
-	width: 12px;
-	height: 12px;
+	width: 10px;
+	height: 10px;
 	vertical-align: bottom;
 }
 
 body > div#open-in-tab > span {
 	display: inline-block;
 	margin: 0 0 -6px 0;
-	padding: 4px 6px 0 6px;
+	padding: 4px 6px 1px 6px;
 	text-align: center;
 	vertical-align: bottom;
 	color: #aaaaaa;
 	background-color: #fafafa;
 	border: #808080 solid 1px;
-	border-bottom-color: #fafafa;
 	-webkit-border-top-left-radius: 5px;
 	-webkit-border-top-right-radius: 5px;
 }
 
-/* }}} *
+body > div#open-in-tab > span.active-label {
+	border-bottom-color: #fafafa;
+}
+
+/* }}} */
+/* {{{ SPM */
+
+div#spm {
+	display: none;
+	position: absolute;
+	/*width: 300px;*/
+	top: 0;
+	left: 10px;
+	z-index: 1000;
+	margin: 5px 0 0 5px;
+	padding 0;
+	color: #ffffff;
+	background-color: rgba(0, 0, 0, 0.8);
+	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
+	-webkit-border-radius: 8px;
+}
+
+div#spm span#spm-num {
+	/*color: #ffffcc;*/
+	/*text-decoration: underline;;*/
+}
+
+div#spm > div {
+	margin: 0;
+	padding: 8px;
+	line-height: 100%;
+}
+
+div#spm > div#spm-reply {
+	text-align: center;
+	font-size: x-large;
+	font-weight: bold;
+	border-bottom-color: rgba(255, 255, 255, 0.80);
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+}
+
+div#spm > div#spm-reply > span#spm-reply-quote {
+}
+
+div#spm > div#spm-reply > span#spm-reply-noquote {
+	font-size: large;
+}
+
+div#spm > div#spm-action {
+	text-align: center;
+}
+
+div#spm > div#spm-action > select {
+	background-color: #ffffff;
+}
+
+div#spm > img#spm-closer {
+	position: absolute;
+	top: -12px;
+	left: -12px;
+}
+
+/* }}} */
 /* {{{ Read */
 
 h3 > font[color], div > font[color] > b {

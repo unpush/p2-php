@@ -17,6 +17,8 @@ class ShowThreadPc extends ShowThread
 {
     // {{{ properties
 
+    static private $_spm_objects = array();
+
     private $_quote_res_nums_checked; // ポップアップ表示されるチェック済みレス番号を登録した配列
     private $_quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
     private $_quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
@@ -438,7 +440,7 @@ EOP;
 
         // メール
         if ($mail) {
-            if (strstr($mail, "sage") && $STYLE['read_mail_sage_color']) {
+            if (strpos($mail, 'sage') !== false && $STYLE['read_mail_sage_color']) {
                 $tores .= "<span class=\"sage\">{$mail}</span> ：";
             } elseif ($STYLE['read_mail_color']) {
                 $tores .= "<span class=\"mail\">{$mail}</span> ：";
@@ -743,7 +745,7 @@ EOP;
 
         // 引用
         } elseif ($s['quote']) {
-            if (strstr($s[7], '-')) {
+            if (strpos($s[7], '-') !== false) {
                 return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
             }
             return preg_replace_callback('/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/', array($this, 'quote_res_callback'), $s['quote']);
@@ -782,7 +784,7 @@ EOP;
 
         // URLをパース
         $purl = @parse_url($url);
-        if (!$purl || !isset($purl['host']) || !strstr($purl['host'], '.') || $purl['host'] == '127.0.0.1') {
+        if (!$purl || !isset($purl['host']) || strpos($purl['host'], '.') === false || $purl['host'] == '127.0.0.1') {
             return $str . $following;
         }
 
@@ -1166,21 +1168,18 @@ EOJS;
     }
 
     // }}}
-    // {{{ getSPMObjJs()
+    // {{{ getSpmObjJs()
 
     /**
      * スマートポップアップメニューを生成するJavaScriptコードを生成する
      */
-    public function getSPMObjJs()
+    public function getSpmObjJs($retry = false)
     {
         global $_conf, $STYLE;
-        static $menu_done = array();
-        static $target_done = false;
 
-        if (isset($menu_done[$this->spmObjName])) {
-            return;
+        if (isset(self::$_spm_objects[$this->spmObjName])) {
+            return $retry ? self::$_spm_objects[$this->spmObjName] : '';
         }
-        $menu_done[$this->spmObjName] = true;
 
         $ttitle_en = rawurlencode(base64_encode($this->thread->ttitle));
 
@@ -1214,8 +1213,7 @@ EOJS;
 //<![CDATA[\n
 EOJS;
 
-        if (!$target_done) {
-            $target_done = true;
+        if (!count(self::$_spm_objects)) {
             $code .= sprintf("spmFlexTarget = '%s';\n", StrCtl::toJavaScript($_conf['expack.spm.filter_target']));
             if ($_conf['expack.aas.enabled']) {
                 $code .= sprintf("var aas_popup_width = %d;\n", $_conf['expack.aas.image_width_pc'] + 10);
@@ -1224,7 +1222,6 @@ EOJS;
         }
 
         $code .= <<<EOJS
-// 主なスレッド情報と各種設定をプロパティに持つオブジェクト
 var {$this->spmObjName} = {
     'objName':'{$this->spmObjName}',
     'rc':'{$this->thread->rescount}',
@@ -1237,11 +1234,12 @@ var {$this->spmObjName} = {
     'ls':'{$_spm_ls}',
     'spmOption':[{$spmOptions}]
 };
-//スマートポップアップメニュー生成
 makeSPM({$this->spmObjName});
 //]]>
 </script>\n
 EOJS;
+
+        self::$_spm_objects[$this->spmObjName] = $code;
 
         return $code;
     }
@@ -1541,7 +1539,7 @@ EOJS;
                 if (file_exists($_thumb_url)) {
                     $thumb_url = $_thumb_url;
                     // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
-                    if (!is_null($this->img_memo) && !strstr($icdb->memo, $this->img_memo)){
+                    if (!is_null($this->img_memo) && strpos($icdb->memo, $this->img_memo) === false){
                         $update = new IC2DB_Images;
                         if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                             $update->memo = $this->img_memo . ' ' . $icdb->memo;

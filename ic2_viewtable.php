@@ -64,7 +64,7 @@ if (isset($_POST['clean'])) {
     }
 } elseif (isset($_POST['delete']) && isset($_POST['target']) && is_array($_POST['target'])) {
     foreach ($_POST['target'] as $target) {
-        $delete = clone($table);
+        $delete = clone $table;
         $delete->uri = $target;
         $delete->delete();
     }

@@ -85,7 +85,7 @@ function viewTxtFile($file, $encode)
     <title>{$ptitle}</title>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>
-<body onLoad="top.document.title=self.document.title;">\n
+<body onload="top.document.title=self.document.title;">\n
 EOHEADER;
 
     echo $_info_msg_ht;

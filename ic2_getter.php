@@ -193,8 +193,8 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
     if (!empty($params['serial'])) {
 
         // プレースホルダとユーザ指定パラメータ
-        if (strstr($params['uri'], '%s') && !preg_match($serial_pattern, $params['uri'], $from_to)) {
-            if (strstr(preg_replace('/%s/', ' ', $params['uri'], 1), '%s')) {
+        if (strpos($params['uri'], '%s') !== false && !preg_match($serial_pattern, $params['uri'], $from_to)) {
+            if (strpos(preg_replace('/%s/', ' ', $params['uri'], 1), '%s') !== false) {
                 $_info_msg_ht .= '<p>エラー: URLに含められるプレースホルダは一つだけです。</p>';
                 $execDL = FALSE;
                 $isError = TRUE;
@@ -217,7 +217,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
              }
 
         // [from-to] を展開
-        } elseif (preg_match($serial_pattern, $params['uri'], $from_to) && !strstr($params['uri'], '%s')) {
+        } elseif (preg_match($serial_pattern, $params['uri'], $from_to) && strpos($params['uri'], '%s') === false) {
             $params['uri'] = preg_replace($serial_pattern, '%s', $params['uri'], 1);
             if (preg_match($serial_pattern, $params['uri'])) {
                 $_info_msg_ht .= '<p>エラー: URLに含められる連番パターンは一つだけです。</p>';
@@ -253,7 +253,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
 
     // 連番なし
     } else {
-        if (strstr($params['uri'], '%s') || preg_match($serial_pattern, $params['uri'], $from_to)) {
+        if (strpos($params['uri'], '%s') !== false || preg_match($serial_pattern, $params['uri'], $from_to)) {
             $_info_msg_ht .= '<p>エラー: 連番にチェックが入っていませんが、URLに連番ダウンロード用の文字列が含まれています。</p>';
             $execDL = FALSE;
             $isError = TRUE;
@@ -321,8 +321,8 @@ if ($execDL) {
                 $thumb_y = $thumb_xy[2];
             }
             // メモが記録されていないときはDBを更新
-            if (isset($new_memo) && !strstr($icdb->memo, $new_memo)){
-                $update = clone($icdb);
+            if (isset($new_memo) && strpos($icdb->memo, $new_memo) === false){
+                $update = clone $icdb;
                 if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                     $update->memo = $new_memo . ' ' . $icdb->memo;
                 } else {

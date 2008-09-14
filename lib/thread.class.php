@@ -434,7 +434,7 @@ class Thread
                 $l = fgets($fd, 32800);
                 fclose($fd);
                 $firstdatline = rtrim($l);
-                if (strstr($firstdatline, "<>")) {
+                if (strpos($firstdatline, '<>') !== false) {
                     $datline_sepa = "<>";
                 } else {
                     $datline_sepa = ",";

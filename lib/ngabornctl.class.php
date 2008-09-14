@@ -184,7 +184,7 @@ class NgAbornCtl
                         $ar['word'] = $matches[3];
                     }
                     // ‘å•¶š¬•¶š‚ğ–³‹
-                    if ($matches[2] && strstr($matches[2], 'i')) {
+                    if ($matches[2] && strpos($matches[2], 'i') !== false) {
                         if ($ar['regex'] == 'mb_ereg') {
                             $ar['regex'] = 'mb_eregi';
                         } else {

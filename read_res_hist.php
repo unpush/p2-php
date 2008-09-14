@@ -106,7 +106,7 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="gIsPageLoaded = true;"';
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="gIsPageLoaded = true;"';
 echo <<<EOP
 </head>
 <body{$body_at}>\n

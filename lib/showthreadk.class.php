@@ -4,7 +4,9 @@
  */
 
 require_once P2_LIB_DIR . '/showthread.class.php';
+require_once P2_LIB_DIR . '/strctl.class.php';
 require_once P2EX_LIB_DIR . '/expack_loader.class.php';
+
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
 ExpackLoader::loadImageCache();
@@ -15,6 +17,8 @@ class ShowThreadK extends ShowThread
 {
     // {{{ properties
 
+    static private $_spm_objects = array();
+
     public $BBS_NONAME_NAME = '';
 
     public $am_autong = false; // 自動AA略をするか否か
@@ -24,6 +28,8 @@ class ShowThreadK extends ShowThread
     public $respopup_at = '';  // レスポップアップ・イベントハンドラ
     public $target_at = '';    // 引用、省略、ID、NG等のリンクターゲット
     public $check_st = '確';   // 省略、NG等のリンク文字列
+
+    public $spmObjName; // スマートポップアップメニュー用JavaScriptオブジェクト名
 
     // }}}
     // {{{ constructor
@@ -92,6 +98,13 @@ class ShowThreadK extends ShowThread
         if (P2_AAS_AVAILABLE) {
             ExpackLoader::initAAS($this);
         }
+
+        // SPM初期化
+        //if ($this->_matome) {
+        //    $this->spmObjName = sprintf('t%dspm%u', $this->_matome, crc32($this->thread->keydat));
+        //} else {
+            $this->spmObjName = sprintf('spm%u', crc32($this->thread->keydat));
+        //}
     }
 
     // }}}
@@ -359,7 +372,7 @@ EOMSG;
         // NGネーム変換
         if ($isNgName) {
             $name = <<<EONAME
-<s><font color="{$STYLE['mobile_read_ngword_color']}">$name</font></s>
+<s><font color="{$STYLE['mobile_read_ngword_color']}">{$name}</font></s>
 EONAME;
             $msg = <<<EOMSG
 <a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$this->check_st}</a>
@@ -368,16 +381,16 @@ EOMSG;
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
-<s class="ngword" onMouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
+<s class="ngword" onmouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">{$mail}</s>
 EOMAIL;
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" style="display:none;">{$msg}</div>
 EOMSG;
 
         // NGID変換
         } elseif ($isNgId) {
             $date_id = <<<EOID
-<s><font color="{$STYLE['mobile_read_ngword_color']}">$date_id</font></s>
+<s><font color="{$STYLE['mobile_read_ngword_color']}">{$date_id}</font></s>
 EOID;
             $msg = <<<EOMSG
 <a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$this->check_st}</a>
@@ -396,22 +409,28 @@ EOP;
         if ($_conf['iphone']) {
             $tores .= "<div id=\"{$res_id}\" class=\"res\"><div class=\"res-header\">";
 
-            // 番号（オンザフライ時）
+            $no_class = 'no';
+            $no_onclick = '';
+
+            // オンザフライ時
             if ($this->thread->onthefly) {
                 $GLOBALS['newres_to_show_flag'] = true;
-                $tores .= "<span class=\"no onthefly\">{$i}</span>";
-            // 番号（新着レス時）
+                $no_class .= ' onthefly';
+            // 新着レス時
             } elseif ($i > $this->thread->readnum) {
                 $GLOBALS['newres_to_show_flag'] = true;
-                $tores .= "<span class=\"no newres\">{$i}</span>";
-            // 番号
-            } else {
-                $tores .= "<span class=\"no\">{$i}</span>";
+                $no_class .= ' newres';
             }
 
+            // SPM
+            if ($_conf['expack.spm.enabled']) {
+                $no_onclick = " onclick=\"SPM.show({$this->spmObjName},{$i},'{$res_id}',event)\"";
+            }
+
+            // 番号
+            $tores .= "<span class=\"{$no_class}\"{$no_onclick}>{$i}</span>";
             // 名前
             $tores .= " <span class=\"name\">{$name}</span>";
-
             // メール
             $tores .= " <span class=\"mail\">{$mail}</span>";
         } else {
@@ -584,6 +603,90 @@ EOP;
     }
 
     // }}}
+    // {{{ getSpmObjJs()
+
+    /**
+     * スマートポップアップメニューに必要なスレッド情報を格納したJavaScriptコードを取得
+     */
+    public function getSpmObjJs($retry = false)
+    {
+        global $_conf;
+
+        if (isset(self::$_spm_objects[$this->spmObjName])) {
+            return $retry ? self::$_spm_objects[$this->spmObjName] : '';
+        }
+
+        $ttitle_en = rawurlencode(base64_encode($this->thread->ttitle));
+
+        $motothre_url = $this->thread->getMotoThread();
+        $motothre_url = substr($motothre_url, 0, strlen($this->thread->ls) * -1);
+
+        // エスケープ
+        $_spm_title = StrCtl::toJavaScript($this->thread->ttitle_hc);
+        $_spm_url = addslashes($motothre_url);
+        $_spm_host = addslashes($this->thread->host);
+        $_spm_bbs = addslashes($this->thread->bbs);
+        $_spm_key = addslashes($this->thread->key);
+        $_spm_ls = addslashes($this->thread->ls);
+        $_spm_b = ($_conf['view_forced_by_query']) ? "&b={$_conf['b']}" : '';
+
+        $code = <<<EOJS
+<script type="text/javascript">
+//<![CDATA[
+var {$this->spmObjName} = {
+    'objName':'{$this->spmObjName}',
+    'query':'&host={$_spm_host}&bbs={$_spm_bbs}&key={$_spm_key}&rescount={$this->thread->rescount}&ttitle_en={$ttitle_en}{$_spm_b}',
+    'rc':'{$this->thread->rescount}',
+    'title':'{$_spm_title}',
+    'ttitle_en':'{$ttitle_en}',
+    'url':'{$_spm_url}',
+    'host':'{$_spm_host}',
+    'bbs':'{$_spm_bbs}',
+    'key':'{$_spm_key}',
+    'ls':'{$_spm_ls}',
+    'client':['{$_conf['b']}','{$_conf['client_type']}']
+};
+//]]>
+</script>\n
+EOJS;
+
+        self::$_spm_objects[$this->spmObjName] = $code;
+
+        return $code;
+    }
+
+    // }}}
+    // {{{ getSpmElementHtml()
+
+    /**
+     * スマートポップアップメニュー用のHTMLを生成する
+     */
+    static public function getSpmElementHtml()
+    {
+        global $_conf;
+
+        return <<<EOP
+<div id="spm">
+<div id="spm-reply">
+    <span id="spm-reply-quote" onclick="SPM.replyTo(true)">&gt;&gt;<span id="spm-num">???</span>にレス</span>
+    <span id="spm-reply-noquote" onclick="SPM.replyTo(false)">[引用なし]</span>
+</div>
+<div id="spm-action"><select id="spm-select-target">
+    <option value="name">名前</option>
+    <option value="mail">メール</option>
+    <option value="id" selected>ID</option>
+    <option value="msg">本文</option>
+</select>を<select id="spm-select-action">
+    <option value="aborn" selected>あぼーん</option>
+    <option value="ng">NG</option>
+<!-- <option value="search">検索</option> -->
+</select><input type="button" onclick="SPM.doAction()" value="OK"></div>
+<img id="spm-closer" src="img/iphone/close.png" width="24" height="26" onclick="SPM.hide()">
+</div>
+EOP;
+    }
+
+    // }}}
     // {{{ コールバックメソッド
     // {{{ link_callback()
 
@@ -616,7 +719,7 @@ EOP;
 
         // 引用
         } elseif ($s['quote']) {
-            if (strstr($s[7], '-')) {
+            if (strpos($s[7], '-') !== false) {
                 return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
             }
             return preg_replace_callback('/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/', array($this, 'quote_res_callback'), $s['quote']);
@@ -653,7 +756,7 @@ EOP;
 
         // URLをパース
         $purl = @parse_url($url);
-        if (!$purl || !isset($purl['host']) || !strstr($purl['host'], '.') || $purl['host'] == '127.0.0.1') {
+        if (!$purl || !isset($purl['host']) || strpos($purl['host'], '.') === false || $purl['host'] == '127.0.0.1') {
             return $str . $following;
         }
 
@@ -1062,7 +1165,7 @@ EOP;
                 }
 
                 // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
-                if (!is_null($this->img_memo) && !strstr($icdb->memo, $this->img_memo)){
+                if (!is_null($this->img_memo) && strpos($icdb->memo, $this->img_memo) === false){
                     $update = new IC2DB_Images;
                     if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                         $update->memo = $this->img_memo . ' ' . $icdb->memo;

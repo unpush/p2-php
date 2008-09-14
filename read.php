@@ -178,10 +178,10 @@ if ($aThread->isKitoku()) {
 
     //「新着レスの表示」の時は特別にちょっと前のレスから表示
     if (!empty($_GET['nt'])) {
-        if (substr($aThread->ls, -1) == "-") {
+        if (substr($aThread->ls, -1) == '-') {
             $n = $aThread->ls - $before_respointer;
             if ($n < 1) { $n = 1; }
-            $aThread->ls = "$n-";
+            $aThread->ls = $n . '-';
         }
 
     } elseif (!$aThread->ls) {
@@ -191,11 +191,11 @@ if ($aThread->isKitoku()) {
         } elseif ($from_num > $aThread->rescount) {
             $from_num = $aThread->rescount - $_conf['respointer'] - $before_respointer;
         }
-        $aThread->ls = "$from_num-";
+        $aThread->ls = $from_num . '-';
     }
 
-    if ($_conf['ktai'] && (!strstr($aThread->ls, "n"))) {
-        $aThread->ls = $aThread->ls."n";
+    if ($_conf['ktai'] && strpos($aThread->ls, 'n') === false) {
+        $aThread->ls = $aThread->ls . 'n';
     }
 
 // 未取得なら
@@ -236,6 +236,10 @@ if ($_conf['ktai']) {
     if ($aThread->rescount) {
         require_once P2_LIB_DIR . '/showthreadk.class.php';
         $aShowThread = new ShowThreadK($aThread);
+        // SPM
+        if (!$is_ajax && $_conf['iphone'] && $_conf['expack.spm.enabled']) {
+            echo $aShowThread->getSpmObjJs();
+        }
         $aShowThread->datToHtml();
     }
 
@@ -293,7 +297,7 @@ EOP;
         }*/
         // SPM
         if ($_conf['expack.spm.enabled']) {
-            echo $aShowThread->getSPMObjJs();
+            echo $aShowThread->getSpmObjJs();
         }
 
         $aShowThread->datToHtml();
@@ -477,11 +481,11 @@ function recRecent($data)
             $cont .= $l . "\n";
         }
 
-        $write_file = strstr(PHP_OS, 'WIN') ? $_conf['rct_file'] : $temp_file;
+        $write_file = P2_OS_WINDOWS ? $_conf['rct_file'] : $temp_file;
         if (FileCtl::file_write_contents($write_file, $cont) === false) {
             die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
         }
-        if (!strstr(PHP_OS, 'WIN')) {
+        if (!P2_OS_WINDOWS) {
             if (!rename($write_file, $_conf['rct_file'])) {
                 die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
             }

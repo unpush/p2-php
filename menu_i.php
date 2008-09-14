@@ -98,6 +98,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
             _old_onload();
         }
         var subMenus = [<?php echo $js; ?>];
+        var delayMsec = 200;
         var contextNode = document.getElementById('top');
         function p2SelectChild()
         {
@@ -116,14 +117,14 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
                                    false, false, false, false, 0, null
                                    );
                 anchor.dispatchEvent(evt);
-                contextNode = child;
-            }
-            if (subMenus.length) {
-                setTimeout(p2SelectChild, 200);
+                if (subMenus.length) {
+                    contextNode = child;
+                    setTimeout(p2SelectChild, delayMsec);
+                }
             }
         }
         if (subMenus.length) {
-            setTimeout(p2SelectChild, 200);
+            setTimeout(p2SelectChild, delayMsec);
         }
     });
     //]]>

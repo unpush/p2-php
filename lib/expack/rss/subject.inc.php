@@ -158,11 +158,11 @@ foreach ($items as $item) {
     }
     // トピック
     if ($subject_column_ht) {
-        $subject_ht = "<td class=\"t\">" . P2Util::re_htmlspecialchars($item['dc:subject']) . "</td>";
+        $subject_ht = "<td class=\"t\">" . htmlspecialchars($item['dc:subject'], ENT_QUOTES, 'Shift_JIS', false) . "</td>";
     }
     // 文責
     if ($creator_column_ht) {
-        $creator_ht = "<td class=\"t\">" . P2Util::re_htmlspecialchars($item['dc:creator']) . "</td>";
+        $creator_ht = "<td class=\"t\">" . htmlspecialchars($item['dc:creator'], ENT_QUOTES, 'Shift_JIS', false) . "</td>";
     }
     // 日時
     if ($date_column_ht) {

@@ -29,12 +29,6 @@ if ($_conf['ktai']) {
 
 $autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
 
-
-$body_onload = "";
-if (!$_conf['ktai']) {
-    $body_onload = " onLoad=\"setWinTitle();\"";
-}
-
 // HOST‚ðŽæ“¾
 if (!$hc[remoto_host] = $_SERVER['REMOTE_HOST']) {
     $hc[remoto_host] = gethostbyaddr($_SERVER['REMOTE_ADDR']);
@@ -72,7 +66,7 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="setWinTitle();"';
 echo <<<EOP
 </head>
 <body{$body_at}>

@@ -234,7 +234,7 @@ abstract class ShowThread
                     }
                 // 単純に文字列が含まれるかどうかをチェック
                 } else {
-                    if (strstr($resfield, $v['word'])) {
+                    if (strpos($resfield, $v['word']) !== false) {
                         $this->ngAbornUpdate($code, $k);
                         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];

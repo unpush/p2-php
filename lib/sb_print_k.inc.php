@@ -264,8 +264,11 @@ function sb_print_k($aThreadList)
                 $htm['ita'] = "<span class=\"ita\">{$htm['ita']}</span>";
             }
 
+            $thre_info_at = rawurlencode(base64_encode($aThread->ttitle)) . ','
+                          . $aThread->key . ',' . $aThread->bbs . ',' . $aThread->host;
+
             echo <<<EOP
-<li><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
+<li title="{$thre_info_at}"><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
         } else {
             echo <<<EOP

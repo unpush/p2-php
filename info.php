@@ -25,6 +25,12 @@ if (!empty($_GET['popup'])) {
     $popup_q = '';
 }
 
+if ($_conf['iphone']) {
+    $btn_class = ' class="button"';
+} else {
+    $btn_class = '';
+}
+
 // 以下どれか一つがなくてもダメ出し
 if (empty($host) || empty($bbs) || empty($key)) {
     die('p2 error: 引数が正しくありません。');
@@ -164,8 +170,15 @@ if ($_conf['expack.misc.multi_favs']) {
     $favmark = $favdo ? '+' : '★';
     $favtitle = ((!isset($favlist_titles[0]) || $favlist_titles[0] == '') ? 'お気にスレ' : $favlist_titles[0]) . ($favdo ? 'に追加' : 'から外す');
     $setnum_q = '&amp;setnum=0';
-    $fav_ht = <<<EOP
-<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
+    if ($_conf['iphone']) {
+        $fav_ht = '<br>';
+        $fav_delim = ' ';
+    } else {
+        $fav_ht = '';
+        $fav_delim = ' | ';
+    }
+    $fav_ht .= <<<EOP
+<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"{$btn_class}><span class="fav" title="{$favtitle}">{$favmark}</span></a>
 EOP;
     for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
         $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
@@ -174,7 +187,7 @@ EOP;
         $favtitle = ((!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') ? 'お気にスレ' . $i : $favlist_titles[$i]) . ($favdo ? 'に追加' : 'から外す');
         $setnum_q = '&amp;setnum=' . $i;
         $fav_ht .= <<<EOP
- | <a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
+{$fav_delim}<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"{$btn_class}><span class="fav" title="{$favtitle}">{$favmark}</span></a>
 EOP;
     }
 } else {
@@ -183,7 +196,7 @@ EOP;
     $favmark = $favdo ? '+' : '★';
     $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $fav_ht = <<<EOP
-<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
+<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$popup_q}{$_conf['k_at_a']}"{$btn_class}><span class="fav" title="{$favtitle}">{$favmark}</span></a>
 EOP;
 }
 
@@ -210,9 +223,9 @@ $paldo = $isPalace ? 0 : 1;
 $pal_a_ht = "info.php?{$common_q}&amp;setpal={$paldo}{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}";
 
 if ($isPalace) {
-    $pal_ht = "<a href=\"{$pal_a_ht}\">★</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\"{$btn_class}>★</a>";
 } else {
-    $pal_ht = "<a href=\"{$pal_a_ht}\">+</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\"{$btn_class}>+</a>";
 }
 
 // }}}
@@ -297,21 +310,19 @@ echo <<<EOHEADER
     <title>{$hd['title']}</title>\n
 EOHEADER;
 
+$body_onload = '';
 if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="stylesheet" type="text/css" href="css.php?css=info&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
-}
-
-if ($_GET['popup'] == 2) {
-    echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/closetimer.js?{$_conf['p2_version_id']}"></script>
+    if ($_GET['popup'] == 2) {
+        echo <<<EOSCRIPT
+    <script type="text/javascript" src="js/closetimer.js?{$_conf['p2_version_id']}"></script>\n
 EOSCRIPT;
-    $body_onload = <<<EOP
- onLoad="startTimer(document.getElementById('timerbutton'))"
-EOP;
+        $body_onload = ' onload="startTimer(document.getElementById(\'timerbutton\'))"';
+    }
 }
 
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
@@ -406,10 +417,10 @@ if ($_conf['ktai']) {
 if (!empty($_GET['popup'])) {
     echo '<div align="center">';
     if ($_GET['popup'] == 1) {
-        echo '<form action=""><input type="button" value="ウィンドウを閉じる" onClick="window.close();"></form>';
+        echo '<form action=""><input type="button" value="ウィンドウを閉じる" onclick="window.close();"></form>';
     } elseif ($_GET['popup'] == 2) {
         echo <<<EOP
-    <form action=""><input id="timerbutton" type="button" value="Close Timer" onClick="stopTimer(document.getElementById('timerbutton'))"></form>
+    <form action=""><input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))"></form>
 EOP;
     }
     echo '</div>' . "\n";

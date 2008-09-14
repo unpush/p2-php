@@ -133,7 +133,7 @@ function editFile($path, $encode)
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle}</title>
 </head>
-<body onLoad="top.document.title=self.document.title;">
+<body onload="top.document.title=self.document.title;">
 EOHEADER;
 
     echo $modori_url_ht;

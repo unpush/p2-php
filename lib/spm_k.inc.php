@@ -27,6 +27,7 @@ function kspform($aThread, $default = '', $params = null)
     $options['goto'] = 'GO';
     $options['copy'] = 'ºËß°';
     $options['copy_quote'] = '&gt;ºËß°';
+    $options['res']  = 'Ú½';
     $options['res_quote']  = '&gt;Ú½';
     if ($_conf['expack.aas.enabled']) {
         $options['aas']        = 'AAS';

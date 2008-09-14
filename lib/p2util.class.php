@@ -601,7 +601,7 @@ class P2Util
                 // p2_res_hist.dat があれば、名前を変えてバックアップ。（もう要らない）
                 if (file_exists($_conf['p2_res_hist_dat'])) {
                     $bak_file = $_conf['p2_res_hist_dat'] . '.bak';
-                    if (strstr(PHP_OS, 'WIN') and file_exists($bak_file)) {
+                    if (P2_OS_WINDOWS && file_exists($bak_file)) {
                         unlink($bak_file);
                     }
                     rename($_conf['p2_res_hist_dat'], $bak_file);
@@ -613,7 +613,7 @@ class P2Util
 
                 // p2_res_hist.dat.php を名前を変えてバックアップ。（もう要らない）
                 $bak_file = $_conf['p2_res_hist_dat_php'] . '.bak';
-                if (strstr(PHP_OS, 'WIN') and file_exists($bak_file)) {
+                if (P2_OS_WINDOWS && file_exists($bak_file)) {
                     unlink($bak_file);
                 }
                 rename($_conf['p2_res_hist_dat_php'], $bak_file);
@@ -1130,10 +1130,9 @@ ERR;
     /**
      * ["&<>]が実体参照になっているかどうか不明な文字列に対してhtmlspecialchars()をかける
      */
-    static public function re_htmlspecialchars($str)
+    static public function re_htmlspecialchars($str, $charset = 'Shift_JIS')
     {
-        // e修飾子を付けたとき、"は自動でエスケープされるようだ
-        return preg_replace('/["<>]|&(?!#?\w+;)/e', 'htmlspecialchars("$0", ENT_QUOTES)', $str);
+        return htmlspecialchars($str, ENT_QUOTES, $charset, false);
     }
 
     // }}}
@@ -1286,7 +1285,7 @@ ERR;
 <div id="open-in-tab"><input type="checkbox" id="open-in-tab-cbox" onclick="
  change_link_target({$expr}, this.checked);
  this.nextSibling.style.color = (this.checked) ? '#ff3333' : '#aaaaaa';
-"><span onclick="check_prev(this);">新しいタブで開く</span></div>
+"><span class="active-label" onclick="check_prev(this);">新しいタブで開く</span></div>
 EOP;
 
         if ($return) {

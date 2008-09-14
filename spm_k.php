@@ -20,9 +20,10 @@ if (isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
             $_REQUEST['ls'] = $_GET['ls'] = $ktv . '-' . ($ktv + $_conf['k_rnum_range']);
             include 'read.php';
             exit;
+        case 'res':
         case 'res_quote':
             $_GET['resnum'] = $ktv;
-            $_GET['inyou'] = 1;
+            $_GET['inyou'] = ($_GET['ktool_name'] == 'res') ? -1 : 1;
             include 'post_form.php';
             exit;
         case 'copy_quote':

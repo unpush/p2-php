@@ -82,14 +82,21 @@ EOP;
 }
 echo '<hr>'.$_conf['k_to_index_ht'] . "\n";
 
-// iPhone & ImageCache2
-if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
-    require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-    $ic2conf = ic2_loadconfig();
-    if ($ic2conf['Thumb1']['width'] > 80) {
-        include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
-    } else {
-        include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+// iPhone
+if ($_conf['iphone']) {
+    // ImageCache2
+    if ($_conf['expack.ic2.enabled']) {
+        require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+        $ic2conf = ic2_loadconfig();
+        if ($ic2conf['Thumb1']['width'] > 80) {
+            include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
+        } else {
+            include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+        }
+    }
+    // SPM
+    if ($_conf['expack.spm.enabled']) {
+        echo ShowThreadK::getSpmElementHtml();
     }
 }
 

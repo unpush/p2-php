@@ -124,7 +124,7 @@ if ($lines = FileCtl::file_read_lines($path, FILE_IGNORE_NEW_LINES)) {
             $ar['word'] = $m[3];
             $ar['re'] = ' checked';
             // 大文字小文字を無視
-            if ($m[2] && strstr($m[2], 'i')) {
+            if ($m[2] && strpos($m[2], 'i') !== false) {
                 $ar['ic'] = ' checked';
             }
         // 大文字小文字を無視
@@ -176,7 +176,7 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="top.document.title=self.document.title;"';
 echo <<<EOP
 </head>
 <body{$body_at}>\n
@@ -197,7 +197,7 @@ if (!$_conf['ktai']) {
         <tr class="group">
             <td colspan="6" align="center">
                 <input type="submit" name="submit_save" value="変更を保存する">
-                <input type="submit" name="submit_default" value="リストを空にする" onClick="if (!window.confirm('リストを空にしてもよろしいですか？（やり直しはできません）')) {return false;}"><br>
+                <input type="submit" name="submit_default" value="リストを空にする" onclick="if (!window.confirm('リストを空にしてもよろしいですか？（やり直しはできません）')) {return false;}"><br>
             </td>
         </tr>\n
 EOP;
@@ -265,15 +265,29 @@ EOP;
 // 携帯用表示
 } else {
     echo "新規登録<br>\n";
-    $row_format = <<<EOP
+    if ($_conf['iphone']) {
+        $row_format = <<<EOP
+<fieldset>
+<input type="text" name="nga[%1\$d][word]" value="%2\$s"><br>
+板:<input type="text" name="nga[%1\$d][bbs]" value="%7\$s"><br>
+ｽﾚ:<input type="text" name="nga[%1\$d][tt]" value="%8\$s"><br>
+<input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s>i
+<input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>re
+<input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">
+<input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)
+</fieldset>\n
+EOP;
+    } else {
+        $row_format = <<<EOP
 <input type="text" name="nga[%1\$d][word]" value="%2\$s"><br>
 板:<input type="text" size="5" name="nga[%1\$d][bbs]" value="%7\$s">
 ｽﾚﾀｲ:<input type="text" size="5" name="nga[%1\$d][tt]" value="%8\$s"><br>
 <input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s>i
 <input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>re
 <input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">
-<input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)<br>\n
+<input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)<hr>\n
 EOP;
+    }
 }
 
 printf($row_format, -1, '', '', '', '--', 0, '', '');
@@ -281,6 +295,9 @@ printf($row_format, -1, '', '', '', '--', 0, '', '');
 echo $htm['form_submit'];
 
 if (!empty($formdata)) {
+    if ($_conf['ktai'] && !$_conf['iphone']) {
+        echo "<hr>\n";
+    }
     foreach ($formdata as $k => $v) {
         printf($row_format,
             $k,

@@ -93,7 +93,7 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="top.document.title=self.document.title;"';
 echo "</head><body{$body_at}>\n";
 
 echo $_info_msg_ht;
@@ -208,7 +208,7 @@ if ($_conf['iphone'] && file_exists('./iui/iui.js')) {
 
 // PC用
 } elseif (!$_conf['ktai']) {
-    $onclick = " onClick='if (parent.menu) { parent.menu.location.href=\"{$_conf['menu_php']}?nr=1\"; }'";
+    $onclick = " onclick=\"if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }\"";
     $m_php = $_SERVER['SCRIPT_NAME'];
 
 // 携帯用
@@ -256,7 +256,7 @@ EOP;
 <input type="hidden" name="list">
 
 <input type="submit" value="元に戻す">
-<input type="submit" name="submit_setfavita" value="変更を適用する" onClick="submitApply();">
+<input type="submit" name="submit_setfavita" value="変更を適用する" onclick="submitApply();">
 
 </div>
 </form>

@@ -300,14 +300,14 @@ function ic2_register_uploaded_file($file)
     $search1->whereAddQuoted('md5',  '=', $file['md5']);
     $search1->whereAddQuoted('mime', '=', $file['mime']);
 
-    $search2 = clone($search1);
+    $search2 = clone $search1;
     $search1->whereAddQuoted('uri',  '=', $utf8_path);
 
     // ‘S‚­“¯‚¶‰æ‘œ‚ª“o˜^‚³‚ê‚Ä‚¢‚½‚Æ‚«
     if ($search1->find(TRUE)) {
-        $update = clone($search1);
+        $update = clone $search1;
         $changed = FALSE;
-        if (strlen($f_memo) > 0 && !strstr($search1->memo, $f_memo)){
+        if (strlen($f_memo) > 0 && strpos($search1->memo, $f_memo) === false){
             if (!is_null($search1->memo) && strlen($search1->memo) > 0) {
                 $update->memo = $f_memo . ' ' . $search1->memo;
             } else {

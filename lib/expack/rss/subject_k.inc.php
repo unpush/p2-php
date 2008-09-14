@@ -51,7 +51,7 @@ $i = 0;
 echo "<ol>\n";
 foreach ($items as $item) {
     $item = array_map('trim', $item);
-    $item_title = P2Util::re_htmlspecialchars($item['title']);
+    $item_title = htmlspecialchars($item['title'], ENT_QUOTES, 'Shift_JIS', false);
     $link_orig = P2Util::throughIme($item['link']);
     // jigƒuƒ‰ƒEƒUWEB http://bwXXXX.jig.jp/fweb/?_jig_=
     $view_jig = '';

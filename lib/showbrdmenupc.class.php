@@ -37,7 +37,7 @@ class ShowBrdMenuPc
             foreach ($categories as $cate) {
                 if ($cate->num > 0) {
                     echo "<div class=\"menu_cate\">\n";
-                    echo "  <b><a class=\"menu_cate\" href=\"javascript:void(0);\" onClick=\"showHide('c{$this->_cate_id}');\" target=\"_self\">{$cate->name}</a></b>\n";
+                    echo "  <b><a class=\"menu_cate\" href=\"javascript:void(0);\" onclick=\"showHide('c{$this->_cate_id}');\" target=\"_self\">{$cate->name}</a></b>\n";
                     if ($cate->is_open or $cate->ita_match_num) {
                         echo "  <div class=\"itas\" id=\"c{$this->_cate_id}\">\n";
                     } else {
@@ -68,7 +68,7 @@ class ShowBrdMenuPc
 
         echo <<<EOP
 <div class="menu_cate">
-  <b><a class="menu_cate" href="javascript:void(0);" onClick="showHide('c_favita');" target="_self">お気に板</a></b> [<a href="editfavita.php" target="subject">編集</a>]
+  <b><a class="menu_cate" href="javascript:void(0);" onclick="showHide('c_favita');" target="_self">お気に板</a></b> [<a href="editfavita.php" target="subject">編集</a>]
 EOP;
         // お気に板切り替え
         if ($_conf['expack.misc.multi_favs']) {
@@ -121,7 +121,7 @@ EOP;
                 $p_htm['star'] = <<<EOP
 <a href="{$menu_php_ht}?host={$host}&amp;bbs={$bbs}&amp;setfavita=0{$_conf['m_favita_set_at_a']}" target="_self" class="fav" title="「{$itaj_view}」をお気に板から外す" onclick="return window.confirm('「{$itaj_js}」をお気に板から外してよろしいですか？');">★</a>
 EOP;
-                //  onClick="return confirmSetFavIta('{$itaj_ht}');"
+                //  onclick="return confirmSetFavIta('{$itaj_ht}');"
                 // 新着数を表示する場合
                 if ($_conf['enable_menu_new'] && !empty($_GET['new'])) {
                     $matome_i++;
@@ -141,7 +141,7 @@ EOP;
                         $newthre_ht = '';
                     }
                     echo <<<EOP
-    {$p_htm['star']} <a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}&amp;itaj_en={$itaj_en}" onClick="chMenuColor({$matome_i});">{$itaj_view}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$host}&amp;bbs={$bbs}" target="read" id="un{$matome_i}" onClick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>\n
+    {$p_htm['star']} <a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}&amp;itaj_en={$itaj_en}" onclick="chMenuColor({$matome_i});">{$itaj_view}</a> <span id="newthre{$matome_i}" class="newthre_num">{$newthre_ht}</span> (<a href="{$_conf['read_new_php']}?host={$host}&amp;bbs={$bbs}" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>\n
 EOP;
 
                 // 新着数を表示しない場合

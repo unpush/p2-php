@@ -163,6 +163,12 @@ EOS;
 <script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     }
+    // SPM
+    if ($_conf['expack.spm.enabled']) {
+        $_conf['extra_headers_ht'] .= <<<EOS
+<script type="text/javascript" src="js/spm_iphone.js?{$_conf['p2_version_id']}"></script>
+EOS;
+    }
 }
 
 // ========================================================
@@ -458,7 +464,10 @@ EOP;
     if ($aThread->rescount) {
         //$aThread->datToHtml(); // dat Ç html Ç…ïœä∑ï\é¶
         $aShowThread = new ShowThreadK($aThread, true);
-
+        // SPM
+        if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
+            $read_cont_ht .= $aShowThread->getSpmObjJs();
+        }
         $read_cont_ht .= $aShowThread->getDatToHtml();
 
         unset($aShowThread);
@@ -521,7 +530,7 @@ EOTOOLBAR;
 <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_toolbar">
 {$read_range_ht}
 <a class="button" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
-<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">ì¡</a>
+<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">ì¡</a>
 <br>
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
 <a class="button" href="#ntt{$newthre_num}">Å£</a>
@@ -595,14 +604,21 @@ EOP;
 
 echo '<hr>'.$_conf['k_to_index_ht']."\n";
 
-// iPhone & ImageCache2
-if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
-    require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-    $ic2conf = ic2_loadconfig();
-    if ($ic2conf['Thumb1']['width'] > 80) {
-        include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
-    } else {
-        include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+// iPhone
+if ($_conf['iphone']) {
+    // ImageCache2
+    if ($_conf['expack.ic2.enabled']) {
+        require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+        $ic2conf = ic2_loadconfig();
+        if ($ic2conf['Thumb1']['width'] > 80) {
+            include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
+        } else {
+            include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+        }
+    }
+    // SPM
+    if ($_conf['expack.spm.enabled']) {
+        echo ShowThreadK::getSpmElementHtml();
     }
 }
 

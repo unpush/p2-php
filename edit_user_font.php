@@ -120,7 +120,7 @@ foreach ($fontconfig_params as $pname) {
         foreach ($fontconfig_types as $tname => $ttitle) {
             $newElemName = sprintf($elemName, $tname);
             if (!isset($elements[$newElemName])) {
-                $elements[$newElemName] = clone($elements[$elemName]);
+                $elements[$newElemName] = clone $elements[$elemName];
             }
             if (!is_array($updated_fontconfig['custom'][$tname])) {
                 $updated_fontconfig['custom'][$tname] = array();

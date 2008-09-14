@@ -229,7 +229,7 @@ class ThreadList
                             if (!file_exists($theidx)) {
                                 if ($datlines = FileCtl::file_read_lines($dat_bbs_dir . '/' . $entry, FILE_IGNORE_NEW_LINES)) {
                                     $firstdatline = $datlines[0];
-                                    if (strstr($firstdatline, "<>")) {
+                                    if (strpos($firstdatline, '<>') !== false) {
                                         $datline_sepa = "<>";
                                     } else {
                                         $datline_sepa = ",";

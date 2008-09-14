@@ -279,11 +279,11 @@ if ($host && $bbs && $key) {
             $cont .= $l . "\n";
         }
 
-        $write_file = strstr(PHP_OS, 'WIN') ? $rh_idx : $temp_file;
+        $write_file = P2_OS_WINDOWS ? $rh_idx : $temp_file;
         if (FileCtl::file_write_contents($write_file, $cont) === false) {
             die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
         }
-        if (!strstr(PHP_OS, 'WIN')) {
+        if (!P2_OS_WINDOWS) {
             if (!rename($write_file, $rh_idx)) {
                 die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
             }
@@ -701,7 +701,7 @@ function getKeyInSubject()
     $aSubjectTxt = new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {
-        if (strstr($l, $ttitle)) {
+        if (strpos($l, $ttitle) !== false) {
             if (preg_match("/^([0-9]+)\.(dat|cgi)(,|<>)(.+) ?(\(|Åi)([0-9]+)(\)|Åj)/", $l, $matches)) {
                 return $key = $matches[1];
             }

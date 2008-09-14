@@ -489,7 +489,7 @@ class ThreadRead extends Thread
                     if ($marudatlines = FileCtl::file_read_lines($this->keydat)) {
                         $firstline = array_shift($marudatlines);
                         // チャンクとか
-                        if (!strstr($firstline, "+OK")) {
+                        if (strpos($firstline, '+OK') === false) {
                             $secondline = array_shift($marudatlines);
                         }
                         $cont = '';
@@ -900,7 +900,7 @@ class ThreadRead extends Thread
             }
 
             $first_datline = rtrim($first_line);
-            if (strstr($first_datline, "<>")) {
+            if (strpos($first_datline, '<>') !== false) {
                 $datline_sepa = "<>";
             } else {
                 $datline_sepa = ",";
@@ -1003,7 +1003,7 @@ class ThreadRead extends Thread
 
             $first_datline = rtrim($first_line);
 
-            if (strstr($first_datline, "<>")) {
+            if (strpos($first_datline, '<>') !== false) {
                 $datline_sepa = "<>";
             } else {
                 $datline_sepa = ",";
@@ -1065,9 +1065,9 @@ class ThreadRead extends Thread
         $nofirst = false;
 
         // nを含んでいる場合は、>>1を表示しない（$nofirst）
-        if (strstr($this->ls, 'n')) {
+        if (strpos($this->ls, 'n') !== false) {
             $nofirst = true;
-            $this->ls = preg_replace("/n/", "", $this->ls);
+            $this->ls = str_replace('n', '', $this->ls);
         }
 
         // 範囲指定で分割
@@ -1202,7 +1202,7 @@ class ThreadRead extends Thread
                     mb_convert_variables('CP932', 'CP51932', $this->datlines);
                 }
 
-                if (!strstr($this->datlines[0], "<>")) {
+                if (strpos($this->datlines[0], '<>') === false) {
                     $this->dat_type = "2ch_old";
                 }
             }

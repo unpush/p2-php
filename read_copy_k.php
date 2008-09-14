@@ -65,7 +65,7 @@ if (file_exists($aThread->keydat)) {
         $resar = $aThread->explodeDatLine($aThread->datlines[$p]);
         $name_txt = trim(strip_tags($resar[0]));
         $mail_txt = trim(strip_tags($resar[1]));
-        if (strstr($resar[2], 'ID:')) {
+        if (strpos($resar[2], 'ID:') !== false) {
             $date_txt = preg_replace('/ ?ID: ?([0-9A-Za-z\/.+?]+)([.,]|õ)?.*$/', '', $resar[2]);
             $id_txt = preg_replace('/^.*ID: ?([0-9A-Za-z\/.+?]+)([.,]|õ)?.*$/', 'ID:$1', $resar[2]);
             $id_ht = "<input type=\"text\" name=\"id_txt\" value=\"{$id_txt}\"><br>";

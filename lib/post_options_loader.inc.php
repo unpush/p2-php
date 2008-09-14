@@ -134,14 +134,14 @@ if (!$_conf['ktai']) {
 
 // Be.2ch
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-    $htm['be2ch'] = '<input type="submit" id="submit_beres" name="submit_beres" value="BE‚Å‘‚«ž‚Þ" onClick="setHiddenValue(this);">';
+    $htm['be2ch'] = '<input type="submit" id="submit_beres" name="submit_beres" value="BE‚Å‘‚«ž‚Þ" onclick="setHiddenValue(this);">';
 }
 
 // PC—p sage checkbox
 if (!$_conf['ktai']) {
     $on_check_sage = 'onChange="checkSage();"';
     $htm['sage_cb'] = <<<EOP
-<input id="sage" type="checkbox" onClick="mailSage()"><label for="sage">sage</label>
+<input id="sage" type="checkbox" onclick="mailSage()"><label for="sage">sage</label>
 EOP;
 }
 
@@ -264,12 +264,13 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         $q_resar = array_map('trim', $q_resar);
         $q_resar[3] = strip_tags($q_resar[3], '<br>');
         if ($_GET['inyou'] == 1 || $_GET['inyou'] == 3) {
-            $hd['MESSAGE'] .= "&gt;  ";
-            $hd['MESSAGE'] .= preg_replace("/ *<br> ?/","\r\n&gt;  ", $q_resar[3]);
+            $hd['MESSAGE'] .= '&gt; ';
+            $hd['MESSAGE'] .= preg_replace('/\\s*<br>\\s*/',"\r\n&gt; ", $q_resar[3]);
             $hd['MESSAGE'] .= "\r\n";
         }
         if ($_GET['inyou'] == 2 || $_GET['inyou'] == 3) {
-            $htm['orig_msg'] = <<<EOM
+            if (!$_conf['ktai'] || $_conf['iphone']) {
+                $htm['orig_msg'] = <<<EOM
 <fieldset id="original_msg">
 <legend>Original Message:</legend>
     <div>
@@ -281,6 +282,13 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
     <div id="orig_msg" class="prvw_msg">{$q_resar[3]}</div>
 </fieldset>
 EOM;
+            } else {
+                $htm['orig_msg'] = <<<EOM
+<div><i>Original Message:</i>
+[{$q_resnum}]: <b>{$q_resar[0]}</b>: {$q_resar[1]}: {$q_resar[2]}<br>
+{$q_resar[3]}</div>
+EOM;
+            }
         }
     }
 }

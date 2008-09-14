@@ -118,8 +118,12 @@ if ($GLOBALS['sb_mikke_num']) {
 }
 
 // スレの勢いを示すためのCSS
-if ($_conf['iphone'] && $_conf['iphone.subject.indicate-speed']) {
+if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOS
+<script type="text/javascript" src="js/sb_iphone.js"></script>
+EOS;
+    if ($_conf['iphone.subject.indicate-speed']) {
+        $_conf['extra_headers_ht'] .= <<<EOS
 <style type="text/css">
 /* <![CDATA[ */
 ul.subject > li > a { border-left: transparent solid {$_conf['iphone.subject.speed.width']}px; }
@@ -132,6 +136,7 @@ ul.subject > li > a.dayres-10000 { border-left-color: {$_conf['iphone.subject.sp
 /* ]]> */
 </style>
 EOS;
+    }
 }
 
 
@@ -152,11 +157,17 @@ echo <<<EOP
 EOP;
 
 if ($_conf['iphone']) {
-    P2Util::printOpenInTab(array(
+    $open_in_tab = explode('>', P2Util::printOpenInTab(array(
         ".//a[starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]",
         ".//form[@action=&quot;{$_conf['read_new_k_php']}&quot; or @action=&quot;{$_conf['subject_php']}&quot;]",
         ".//ul[@class=&quot;subject&quot;]/li/a[@href]"
-    ));
+    ), true), 2);
+    echo <<<EOP
+{$open_in_tab[0]}><input type="checkbox" id="sb-show-info-cbox" onclick="
+ toggle_sb_show_info(this.checked);
+ this.nextSibling.style.color = (this.checked) ? '#ff3333' : '#aaaaaa';
+"><span onclick="check_prev(this);">スレッド情報</span>{$open_in_tab[1]}
+EOP;
 }
 
 echo $_info_msg_ht;

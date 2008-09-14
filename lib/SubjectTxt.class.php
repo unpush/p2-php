@@ -231,7 +231,7 @@ class SubjectTxt
             $this->subject_lines = explode("\n", $cont);
 
         } elseif ($this->storage == 'file') {
-            if (extension_loaded('zlib') and strstr($this->host, '.2ch.net')) {
+            if (extension_loaded('zlib') && strpos($this->host, '.2ch.net') !== false) {
                 $this->subject_lines = FileCtl::gzfile_read_lines($this->subject_file); // ‚±‚ê‚Í‚»‚Ì‚¤‚¿ŠO‚· 2005/6/5
             } else {
                 $this->subject_lines = FileCtl::file_read_lines($this->subject_file);

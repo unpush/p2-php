@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080826.0130',   // 拡張パックのバージョン
+    'p2expack'  => '080827.0000',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -122,9 +122,11 @@ if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
     // Windows
     defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ';');
     defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '\\');
+    define('P2_OS_WINDOWS', 1);
 } else {
     defined('PATH_SEPARATOR') or define('PATH_SEPARATOR', ':');
     defined('DIRECTORY_SEPARATOR') or define('DIRECTORY_SEPARATOR', '/');
+    define('P2_OS_WINDOWS', 0);
 }
 
 // }}}

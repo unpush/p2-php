@@ -70,11 +70,6 @@ if (file_exists($_conf['sid2ch_php'])) { // 2chœ‘‚«‚İ
     $ptitle = "2ch{$login_st}ŠÇ—";
 }
 
-$body_onload = "";
-if (!$_conf['ktai']) {
-    $body_onload = " onLoad=\"setWinTitle();\"";
-}
-
 P2Util::header_nocache();
 echo $_conf['doctype'];
 echo <<<EOP
@@ -97,7 +92,7 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="setWinTitle();"';
 
 echo <<<EOP
     <script type="text/javascript">
@@ -184,7 +179,7 @@ echo <<<EOFORM
     ID: <input type="text" name="login2chID" value="{$login2chID}"{$id_input_size_at}><br>
     {$password_st}: <input type="password" name="login2chPW" id="login2chPW"{$pass_input_size_at}><br>
     <input type="checkbox" id="autoLogin2ch" name="autoLogin2ch" value="1"{$autoLogin2ch_checked}><label for="autoLogin2ch">‹N“®‚É©“®{$login_st}‚·‚é</label><br>
-    <input type="submit" name="submit" value="{$idsub_str}" onClick="return checkPass2ch();">
+    <input type="submit" name="submit" value="{$idsub_str}" onclick="return checkPass2ch();">
 </form>\n
 EOFORM;
 

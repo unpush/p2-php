@@ -170,11 +170,6 @@ if ($_conf['ktai']) {
 //=========================================================
 // HTMLƒvƒŠƒ“ƒg
 //=========================================================
-$p_htm['body_onload'] = '';
-if (!$_conf['ktai']) {
-    $p_htm['body_onload'] = ' onLoad="setWinTitle();"';
-}
-
 P2Util::header_nocache();
 echo $_conf['doctype'];
 echo <<<EOP
@@ -197,7 +192,7 @@ if (!$_conf['ktai']) {
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $p_htm['body_onload'];
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="setWinTitle();"';
 echo <<<EOP
 </head>
 <body{$body_at}>

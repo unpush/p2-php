@@ -74,13 +74,13 @@ if ($popup == 1 || $_conf['expack.spm.ngaborn_confirm'] == 0) {
     if ($_conf['expack.spm.ngaborn_confirm'] == 0 && !isset($aborn_str)) {
         if ($mode == 'aborn_res') {
             $aborn_str = $host . '/' . $bbs . '/' . $key . '/' . $resnum;
-        } elseif (strstr($mode, '_name')) {
+        } elseif (strpos($mode, '_name') !== false) {
             $aborn_str = $resar[0];
-        } elseif (strstr($mode, '_mail')) {
+        } elseif (strpos($mode, '_mail') !== false) {
             $aborn_str = $resar[1];
-        } elseif (strstr($mode, '_id')) {
+        } elseif (strpos($mode, '_id') !== false) {
             $aborn_str = $aborn_id;
-        } elseif (strstr($mode, '_msg')) {
+        } elseif (strpos($mode, '_msg') !== false) {
             $popup = 1;
         }
     }
@@ -110,7 +110,7 @@ if ($popup == 2) {
     }
 }
 
-if (strstr($mode, '_msg')) {
+if (strpos($mode, '_msg') !== false) {
     if (isset($_GET['selected_string'])) {
         include_once P2_LIB_DIR . '/strctl.class.php';
         $aborn_str = trim($_GET['selected_string']);
@@ -119,6 +119,7 @@ if (strstr($mode, '_msg')) {
         // encodeURIComponent()はECMA-262 3rd Editionの仕様により文字列をUTF-8で扱うため。
         $aborn_str = mb_convert_encoding($aborn_str, 'CP932', 'UTF-8');
         $aborn_str = htmlspecialchars($aborn_str, ENT_QUOTES);
+        $input_size_at = ($_conf['ktai']) ? '' : ' size="50"';
     } elseif (!isset($aborn_str)) {
         $aborn_str = '';
     }
@@ -164,7 +165,7 @@ switch ($mode) {
         if ($popup == 2) {
             $msg = 'あぼーんワード（メッセージ）に <b>' . $aborn_str . '</b> を登録しました。';
         } else {
-            $msg = 'あぼーんワード（メッセージ）<br><input type="text" name="aborn_str" size="50" value="' . $aborn_str . '">';
+            $msg = 'あぼーんワード（メッセージ）<br><input type="text" name="aborn_str"' . $input_size_at . ' value="' . $aborn_str . '">';
         }
         $edit_value = 'あぼーんワード編集：メッセージ';
         break;
@@ -203,7 +204,7 @@ switch ($mode) {
         if ($popup == 2) {
             $msg = 'NGワード（メッセージ）に <b>' . $aborn_str . '</b> を登録しました。';
         } else {
-            $msg = 'NGワード（メッセージ）<br><input type="text" name="aborn_str" size="50" value="' . $aborn_str . '">';
+            $msg = 'NGワード（メッセージ）<br><input type="text" name="aborn_str"' . $input_size_at . ' value="' . $aborn_str . '">';
         }
         $edit_value = 'NGワード編集：メッセージ';
         break;
@@ -317,7 +318,6 @@ if ($popup == 1 && $msg != "") {
     if (!$_conf['ktai']) {
         echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
     }
-    echo "</form>\n";
 } elseif (!$_conf['ktai'] && $popup == 2) {
     echo <<<EOB
     <input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))">\n
@@ -364,7 +364,7 @@ if ($_conf['ktai']) {
     if (!empty($_GET['from_read_new'])) {
         echo "<a href=\"{$_conf['read_new_k_php']}?cview=1\">まとめ読みに戻る</a><br>";
     }
-    echo "<a href=\"{$thread_url}\">ｽﾚに戻る<a/>";
+    echo "<a href=\"{$thread_url}\">ｽﾚに戻る</a>";
     echo '</p>';
 }
 

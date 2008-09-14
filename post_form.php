@@ -84,12 +84,6 @@ $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name
 //==========================================================
 // HTMLƒvƒŠƒ“ƒg
 //==========================================================
-if (!$_conf['ktai']) {
-    $body_on_load = <<<EOP
- onLoad="setFocus('MESSAGE'); checkSage();"
-EOP;
-}
-
 echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
@@ -117,7 +111,7 @@ EOP;
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_on_load;
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="setFocus(\'MESSAGE\'); checkSage();"';
 echo <<<EOP
 </head>
 <body{$body_at}>\n

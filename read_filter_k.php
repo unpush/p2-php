@@ -69,7 +69,7 @@ echo <<<EOF
 <input type="hidden" name="offline" value="1">
 <div>
 <input id="word" name="word" autocorrect="off" autocapitalize="off">
-<input type="submit" name="s1" value="ŒŸõ">
+<input type="submit" id="submit1" name="submit_filter" value="ŒŸõ">
 </div>
 <hr>
 <div style="white-space:nowrap">
@@ -93,7 +93,7 @@ echo <<<EOF
 <option value="on"{$match['on']}>ŠÜ‚Þ</option>
 <option value="off"{$match['off']}>ŠÜ‚Ü‚È‚¢</option>
 </select><br>
-<input type="submit" name="s2" value="ŒŸõ">
+<input type="submit" id="submit2" name="submit_filter" value="ŒŸõ">
 </div>
 {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>

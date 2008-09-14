@@ -79,7 +79,7 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
         move_uploaded_file($_FILES['dat_file']['tmp_name'], $dat_path);
         $ttitle = '???';
         if ($datlines = FileCtl::file_read_lines($dat_path, FILE_IGNORE_NEW_LINES)) {
-            if (strstr($datlines[0], '<>')) {
+            if (strpos($datlines[0], '<>') !== false) {
                 $one = explode('<>', $datlines[0]);
             } else {
                 $one = explode(',', $datlines[0]);

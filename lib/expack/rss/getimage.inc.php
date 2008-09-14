@@ -101,7 +101,7 @@ function rss_get_image_ic2($src_url, $memo='')
         if (file_exists($_thumb_url)) {
             $thumb_url = $_thumb_url;
             // 自動タイトルメモ機能がONでタイトルが記録されていないときはDBを更新
-            if (!is_null($img_memo) && !strstr($icdb->memo, $img_memo)){
+            if (!is_null($img_memo) && strpos($icdb->memo, $img_memo) === false){
                 $update = new IC2DB_images;
                 if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                     $update->memo = $img_memo . ' ' . $icdb->memo;
