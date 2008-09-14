@@ -151,22 +151,11 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
 
     if ($sb_filter['method'] == 'similar') {
         $GLOBALS['wakati_word'] = $GLOBALS['word'];
-        $GLOBALS['wakati_words'] = wakati($GLOBALS['word']);
+        $GLOBALS['wakati_words'] = p2_wakati($GLOBALS['word']);
         if (!$GLOBALS['wakati_words']) {
             unset($GLOBALS['wakati_word'], $GLOBALS['wakati_words']);
         } else {
-            include_once P2_LIB_DIR . '/strctl.class.php';
-            $wakati_filter = create_function('$s', 'return (preg_match($GLOBALS["KANJI_REGEX"], $s) || (preg_match($GLOBALS["WAKATI_REGEX"], $s) && mb_strlen($s, "UTF-8") > 1));');
-            $wakati_words2 = array_filter($GLOBALS['wakati_words'], $wakati_filter);
-            if (!$wakati_words2) {
-                $GLOBALS['wakati_hl_regex'] = $GLOBALS['wakati_word'];
-            } else {
-                rsort($wakati_words2, SORT_STRING);
-                $GLOBALS['wakati_hl_regex'] = implode(' ', $wakati_words2);
-                $GLOBALS['wakati_hl_regex'] = mb_convert_encoding($GLOBALS['wakati_hl_regex'], 'CP932', 'UTF-8');
-            }
-            $GLOBALS['wakati_hl_regex'] = StrCtl::wordForMatch($GLOBALS['wakati_hl_regex'], 'or');
-            $GLOBALS['wakati_hl_regex'] = str_replace(' ', '|', $GLOBALS['wakati_hl_regex']);
+            $GLOBALS['wakati_hl_regex'] = p2_get_highlighting_regex($GLOBALS['wakati_words']);
             $GLOBALS['wakati_length'] = mb_strlen($GLOBALS['wakati_word'], 'CP932');
             $GLOBALS['wakati_score'] = getSbScore($GLOBALS['wakati_words'], $GLOBALS['wakati_length']);
             if (!isset($_conf['expack.min_similarity'])) {
@@ -177,24 +166,12 @@ if (empty($_REQUEST['submit_refresh']) or !empty($_REQUEST['submit_kensaku'])) {
             $_conf['expack.min_similarity'] = (float) $_conf['expack.min_similarity'];
         }
         $word = '';
-    } elseif (preg_match('/^\.+$/', $word)) {
+    } elseif (substr_count($word, '.') == strlen($word)) {
         $word = '';
     }
 
     if (strlen($word) > 0)  {
-        include_once P2_LIB_DIR . '/strctl.class.php';
-        $word_fm = StrCtl::wordForMatch($word, $sb_filter['method']);
-        if ($sb_filter['method'] != 'just') {
-            if (P2_MBREGEX_AVAILABLE == 1) {
-                $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
-                $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
-            } else {
-                $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
-                $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
-            }
-        }
-
-        if (strlen($GLOBALS['word_fm']) > 0) {
+        if (p2_set_filtering_word($word, $sb_filter['method']) !== null) {
             $do_filtering = true;
         }
     }
@@ -1160,7 +1137,7 @@ function getSbScore($words, $length)
  */
 function setSbSimilarity($aThread)
 {
-    $common_words = array_intersect(wakati($aThread->ttitle_hc), $GLOBALS['wakati_words']);
+    $common_words = array_intersect(p2_wakati($aThread->ttitle_hc), $GLOBALS['wakati_words']);
     if (!$common_words) {
         $aThread->similarity = 0.0;
         return false;

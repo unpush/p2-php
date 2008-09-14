@@ -3,19 +3,6 @@
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
-// {{{ p2escape()
-
-/**
-* htmlspecialchars($value, ENT_QUOTES) のショートカット
-*
-* @create  2006/03/27
-*/
-function p2escape($str)
-{
-    return htmlspecialchars($str, ENT_QUOTES);
-}
-
-// }}}
 // {{{ P2Util
 
 /**
@@ -1297,6 +1284,96 @@ EOP;
         } else {
             echo $html;
         }
+    }
+
+    // }}}
+    // {{{ detectThread()
+
+    /**
+     * スレッド指定を検出する
+     *
+     * @param string $url
+     * @return array
+     */
+    static public function detectThread($url = null)
+    {
+        if ($url) {
+            $nama_url = $url;
+        } elseif (isset($_GET['nama_url'])) {
+            $name_url = $_GET['nama_url'];
+        } elseif (isset($_GET['url'])) {
+            $nama_url = $_GET['url'];
+        } else {
+            $nama_url = null;
+        }
+
+        // スレURLの直接指定
+        if ($nama_url) {
+
+            // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
+            if (preg_match('<http://([^/]+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi
+                    /([^/]+)/([0-9]+)(?:/([^/]*))?>x', $nama_url, $matches))
+            {
+                $host = $matches[1];
+                $bbs = $matches[2];
+                $key = $matches[3];
+                $ls = (isset($matches[4]) && strlen($matches[4])) ? $matches[4] : '';
+
+            // 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
+            } elseif (preg_match('<(http://([^/]+\\.(?:2ch\\.net|bbspink\\.com))(?:/[^/]+)?/([^/]+)
+                    /kako/\\d+(?:/\\d+)?/(\\d+)).html>x', $nama_url, $matches))
+            {
+                $host = $matches[2];
+                $bbs = $matches[3];
+                $key = $matches[4];
+                $ls = '';
+                $kakolog_url = $matches[1];
+                $_GET['kakolog'] = rawurlencode($kakolog_url);
+
+            // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
+            } elseif (preg_match('<http://([^/]+\\.machibbs\\.com|[^/]+\\.machi\\.to)/bbs/read\\.(?:pl|cgi)
+                    \\?BBS=([^&]+)&KEY=(\\d+)(?:&START=(\\d+))?(?:&END=(\\d+))?[^\\"]*>x', $nama_url, $matches))
+            {
+                $host = $matches[1];
+                $bbs = $matches[2];
+                $key = $matches[3];
+                $ls = isset($matches[4]) ? $matches[4] : '';
+                $ls .= '-';
+                $ls .= isset($matches[5]) ? $matches[5] : '';
+
+            } elseif (preg_match('<http://((jbbs\\.(?:livedoor\\.(?:jp|com)|shitaraba\\.com))(?:/([^/]+))?)/bbs/read\\.(?:pl|cgi)
+                    \\?BBS=([^&]+)&KEY=(\\d+)(?:&START=(\\d+))?(?:&END=(\\d+))?[^"]*>x', $nama_url, $matches))
+            {
+                $host = $matches[1];
+                $bbs = $matches[4];
+                $key = $matches[5];
+                $ls = isset($matches[6]) ? $matches[6] : '';
+                $ls .= '-';
+                $ls .= isset($matches[7]) ? $matches[7] : '';
+
+            // したらばJBBS http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100
+            } elseif (preg_match('<http://(jbbs\\.(?:livedoor\\.(?:jp|com)|shitaraba\\.com))/bbs/read\\.cgi
+                    /(\\w+)/(\\d+)/(\\d+)/((?:\\d+)?-(?:\\d+)?)?[^"]*>x', $nama_url, $matches))
+            {
+                $host = $matches[1] . '/' . $matches[2];
+                $bbs = $matches[3];
+                $key = $matches[4];
+                $ls = isset($matches[5]) ? $matches[5] : '';
+            }
+
+            // 補正
+            if ($ls == '-') {
+                $ls = '';
+            }
+
+        } else {
+            $host = isset($_REQUEST['host']) ? $_REQUEST['host'] : null; // "pc.2ch.net"
+            $bbs  = isset($_REQUEST['bbs'])  ? $_REQUEST['bbs']  : null; // "php"
+            $key  = isset($_REQUEST['key'])  ? $_REQUEST['key']  : null; // "1022999539"
+            $ls   = isset($_REQUEST['ls'])   ? $_REQUEST['ls']   : null; // "all"
+        }
+
+        return array($nama_url, $host, $bbs, $key, $ls);
     }
 
     // }}}

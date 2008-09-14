@@ -2,24 +2,9 @@
  * IC2::Viewer - DOMを操作してiPhoneに最適化する
  */
 
-// {{{ GLOBALS
-
-var _IV2_IPHONE_JS_OLD_ONLOAD = window.onload;
-var _IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE;
-
-// }}}
 // {{{ window.onload()
 
-/*
- * iPhone用に要素を調整する
- *
- * @return void
- */
-window.onload = (function(){
-	if (_IV2_IPHONE_JS_OLD_ONLOAD) {
-		_IV2_IPHONE_JS_OLD_ONLOAD();
-	}
-
+window.addEventListener('load', function(evt){
 	// サムネイルをタップしたとき、新しいタブで開くようにする
 	var anchors = document.evaluate('.//td[@class="iv2-image-thumb"]/a[@href]',
 	                                document.body,
@@ -36,14 +21,8 @@ window.onload = (function(){
 		// テーブルの大きさを調整
 		resize_image_table();
 
-		// 古い回転時のイベントハンドラを保存
-		_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE = document.body.onorientationchange;
-
-		// 回転時のイベントハンドラを設定
-		document.body.onorientationchange = (function(){
-			if (_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE) {
-				_IV2_IPHONE_JS_OLD_ONORIENTATIONCHANGE();
-			}
+		// 回転時のイベントハンドラを追加
+		document.body.addEventListener('orientationchange', function(evt){
 			resize_image_table();
 		});
 	} else {

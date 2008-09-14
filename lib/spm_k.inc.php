@@ -87,54 +87,7 @@ function kspDetectThread()
 {
     global $_conf, $host, $bbs, $key, $ls;
 
-    // スレURLの直接指定
-    if (($nama_url = $_GET['nama_url']) || ($nama_url = $_GET['url'])) {
-
-            // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            if (preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches)) {
-                $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[6];
-
-            // 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
-            } elseif ( preg_match("/(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html/", $nama_url, $matches) ){ //2ch pink 過去ログhtml
-                $host = $matches[2];
-                $bbs = $matches[5];
-                $key = $matches[7];
-                $kakolog_uri = $matches[1];
-                $_GET['kakolog'] = rawurlencode($kakolog_uri);
-
-            // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
-            } elseif ( preg_match("/http:\/\/([^\/]+\.machibbs\.com|[^\/]+\.machi\.to)\/bbs\/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*/", $nama_url, $matches) ){
-                $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[6] ."-". $matches[8];
-            } elseif (preg_match("{http://((jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}", $nama_url, $matches)) {
-                $host = $matches[1];
-                $bbs = $matches[5];
-                $key = $matches[6];
-                $ls = $matches[8] ."-". $matches[10];
-
-            // したらばJBBS http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100
-            }elseif( preg_match("{http://(jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^\"]*}", $nama_url, $matches) ){
-                $host = $matches[1] ."/". $matches[2];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[5];
-            }
-
-    } else {
-        if ($_GET['host']) { $host = $_GET['host']; } // "pc.2ch.net"
-        if ($_POST['host']) { $host = $_POST['host']; }
-        if ($_GET['bbs']) { $bbs = $_GET['bbs']; } // "php"
-        if ($_POST['bbs']) { $bbs = $_POST['bbs']; }
-        if ($_GET['key']) { $key = $_GET['key']; } // "1022999539"
-        if ($_POST['key']) { $key = $_POST['key']; }
-        if ($_GET['ls']) {$ls = $_GET['ls']; } // "all"
-        if ($_POST['ls']) { $ls = $_POST['ls']; }
-    }
+    list($nama_url, $host, $bbs, $key, $ls) = P2Util::detectThread();
 
     if (!($host && $bbs && $key)) {
         if ($nama_url) {

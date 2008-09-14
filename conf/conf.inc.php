@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080829.1910',   // 拡張パックのバージョン
+    'p2expack'  => '080830.1940',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -147,7 +147,7 @@ if (function_exists('mb_ereg_replace')) {
 // }}}
 // {{{ ライブラリ類のパス設定
 
-define('P2_BASE_DIR', dirname(dirname(__FILE__)));
+define('P2_BASE_DIR', dirname(dirname(__FILE__))); // dirname(__DIR__) @php-5.3
 
 // 基本的な機能を提供するするライブラリ
 define('P2_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib');
@@ -163,11 +163,14 @@ define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
 
 // PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
 // Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
-define('P2_PEAR_HACK_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'pear_hack');
+// include_pathを追加するのはパフォーマンスに影響を及ぼすため、本当に必要な場合のみ定義
+if (defined('P2_USE_PEAR_HACK')) {
+    define('P2_PEAR_HACK_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'pear_hack');
+}
 
 // 検索パスをセット
 $include_path = P2_BASE_DIR;
-if (is_dir(P2_PEAR_HACK_DIR)) {
+if (defined('P2_PEAR_HACK_DIR')) {
     $include_path .= PATH_SEPARATOR . P2_PEAR_HACK_DIR;
 }
 if (is_dir(P2_PEAR_DIR)) {
@@ -179,6 +182,7 @@ set_include_path($include_path);
 // ライブラリを読み込む
 
 require_once 'Net/UserAgent/Mobile.php';
+require_once P2_LIB_DIR . '/p2util.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/p2util.class.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
@@ -194,8 +198,8 @@ p2checkenv(__LINE__);
 if ($debug) {
     require_once 'Benchmark/Profiler.php';
     $profiler = new Benchmark_Profiler(true);
-    // printMemoryUsage();
-    register_shutdown_function('printMemoryUsage');
+    // print_memory_usage();
+    register_shutdown_function('print_memory_usage');
 }
 
 // }}}
@@ -260,10 +264,10 @@ if (!include_once './conf/conf_admin.inc.php') {
 }
 
 // ディレクトリの絶対パス化
-$_conf['data_dir'] = p2realpath($_conf['data_dir']);
-$_conf['dat_dir']  = p2realpath($_conf['dat_dir']);
-$_conf['idx_dir']  = p2realpath($_conf['idx_dir']);
-$_conf['pref_dir'] = p2realpath($_conf['pref_dir']);
+$_conf['data_dir'] = p2_realpath($_conf['data_dir']);
+$_conf['dat_dir']  = p2_realpath($_conf['dat_dir']);
+$_conf['idx_dir']  = p2_realpath($_conf['idx_dir']);
+$_conf['pref_dir'] = p2_realpath($_conf['pref_dir']);
 
 // 管理用保存ディレクトリ (パーミッションは707)
 $_conf['admin_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'admin';
@@ -653,21 +657,20 @@ if (!isset($STYLE['mobile_read_ngword_color']))     { $STYLE['mobile_read_ngword
 if (!isset($STYLE['mobile_read_onthefly_color']))   { $STYLE['mobile_read_onthefly_color']   = "#00aa00"; }
 
 $skin_uniq = P2_VERSION_ID;
-fontconfig_apply_custom();
 
 foreach ($STYLE as $K => $V) {
     if (empty($V)) {
         $STYLE[$K] = '';
     } elseif (strpos($K, 'fontfamily') !== false) {
-        $STYLE[$K] = set_css_fonts($V);
+        $STYLE[$K] = p2_correct_css_fontfamily($V);
     } elseif (strpos($K, 'color') !== false) {
-        $STYLE[$K] = set_css_color($V);
+        $STYLE[$K] = p2_correct_css_color($V);
     } elseif (strpos($K, 'background') !== false) {
         $STYLE[$K] = 'url("' . addslashes($V) . '")';
     }
 }
 if (!$_conf['ktai'] && $_conf['expack.am.enabled']) {
-    $_conf['expack.am.fontfamily'] = set_css_fonts($_conf['expack.am.fontfamily']);
+    $_conf['expack.am.fontfamily'] = p2_correct_css_fontfamily($_conf['expack.am.fontfamily']);
     if ($STYLE['fontfamily']) {
         $_conf['expack.am.fontfamily'] .= '","' . $STYLE['fontfamily'];
     }
@@ -830,468 +833,14 @@ if (defined('P2_OUTPUT_XHTML')) {
 }
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
-require_once P2_LIB_DIR . '/login.class.php';
 $_login = new Login();
 
 // おまじない
-$a = ceil(1/2);
-$b = floor(1/3);
-$c = round(1/4, 1);
+//$a = ceil(1/2);
+//$b = floor(1/3);
+//$c = round(1/4, 1);
 
 // }}}
-}
-
-// }}} p2configure()
-// {{{ stripslashes_r()
-
-/**
- * 再帰的にstripslashesをかける
- * GET/POST/COOKIE変数用なのでオブジェクトのプロパティには対応しない
- * (ExUtil)
- *
- * @return  array|string
- */
-function stripslashes_r($var, $r = 0)
-{
-    if (is_array($var)) {
-        if ($r < 3) {
-            $r++;
-            foreach ($var as $key => $value) {
-                $var[$key] = stripslashes_r($value, $r);
-            }
-        } /* else { p2die("too deep multi dimentional array given."); } */
-    } elseif (is_string($var)) {
-        $var = stripslashes($var);
-    }
-    return $var;
-}
-
-// }}}
-// {{{ addslashes_r()
-
-/**
- * 再帰的にaddslashesをかける
- * (ExUtil)
- *
- * @return  array|string
- */
-function addslashes_r($var, $r = 0)
-{
-    if (is_array($var)) {
-        if ($r < 3) {
-            $r++;
-            foreach ($var as $key => $value) {
-                $var[$key] = addslashes_r($value, $r);
-            }
-        } /* else { p2die("too deep multi dimentional array given."); } */
-    } elseif (is_string($var)) {
-        $var = addslashes($var);
-    }
-    return $var;
-}
-
-// }}}
-// {{{ nullfilter_r()
-
-/**
- * 再帰的にヌル文字を削除する
- *
- * NULLバイトアタック対策
- *
- * @return  array|string
- */
-function nullfilter_r($var, $r = 0)
-{
-    if (is_array($var)) {
-        if ($r < 3) {
-            $r++;
-            foreach ($var as $key => $value) {
-                $var[$key] = nullfilter_r($value, $r);
-            }
-        } /* else { p2die("too deep multi dimentional array given."); } */
-    } elseif (is_string($var)) {
-        $var = str_replace("\x00", '', $var);
-    }
-    return $var;
-}
-
-// }}}
-// {{{ printMemoryUsage()
-
-/**
- * メモリの使用量を表示する
- *
- * @return void
- */
-function printMemoryUsage()
-{
-    if (function_exists('memory_get_usage')) {
-        $usage = memory_get_usage();
-    } elseif (function_exists('xdebug_memory_usage')) {
-        $usage = xdebug_memory_usage();
-    } else {
-        $usage = -1;
-    }
-    $kb = $usage / 1024;
-    $kb = number_format($kb, 2, '.', '');
-
-    echo 'Memory Usage: ' . $kb . 'KB';
-}
-
-// }}}
-// {{{ si2int(), si2real()
-
-/**
- * SI単位系の値を整数に変換する
- * 厳密には1000倍するのが正しいが、PC界隈 (記憶装置除く) の慣例に従って1024倍する
- *
- * @return float
- */
-function si2int($num, $kmg)
-{
-    return si2real($num, $kmg);
-}
-function si2real($num, $kmg)
-{
-    $num = (float)$num;
-    switch (strtoupper($kmg)) {
-        case 'G': $num *= 1024;
-        case 'M': $num *= 1024;
-        case 'K': $num *= 1024;
-    }
-    return $num;
-}
-
-// }}}
-// {{{ mb_basename()
-
-/**
- * マルチバイト対応のbasename()
- *
- * @return string
- */
-function mb_basename($path, $encoding = 'CP932', $use_os_directory_separator = false)
-{
-    if ($use_os_directory_separator && DIRECTORY_SEPARATOR != '/') {
-        $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
-    }
-    if (!mb_substr_count($path, '/', $encoding)) {
-        return $path;
-    }
-    $len = mb_strlen($path, $encoding);
-    $pos = mb_strrpos($path, '/', $encoding);
-    return mb_substr($path, $pos + 1, $len - $pos, $encoding);
-}
-
-// }}}
-// {{{ fontconfig_detect_agent()
-
-/**
- * フォント設定用にユーザエージェントを判定する
- *
- * @return string
- */
-function fontconfig_detect_agent($ua = null)
-{
-    if ($ua === null) {
-        $ua = $_SERVER['HTTP_USER_AGENT'];
-    }
-    if (preg_match('/\bWindows\b/', $ua)) {
-        return 'windows';
-    }
-    if (preg_match('/\bMac(intoth)?\b/', $ua)) {
-        if (preg_match('/\b(Safari|AppleWebKit)\/([\d]+)/', $ua, $matches)) {
-            $version = (int)$matches[2];
-            if ($version >= 500) {
-                return 'safari3';
-            } else if ($version >= 400) {
-                return 'safari2';
-            } else {
-                return 'safari1';
-            }
-        } elseif (preg_match('/\b(Mac ?OS ?X)\b/', $ua)) {
-            return 'macosx';
-        } else {
-            return 'macos9';
-        }
-    }
-    return 'other';
-}
-
-// }}}
-// {{{ fontconfig_apply_custom()
-
-/**
- * フォント設定を読み込む
- *
- * @return void
- */
-function fontconfig_apply_custom()
-{
-    global $STYLE, $_conf, $skin_en, $skin_uniq;
-    if ($_conf['expack.skin.enabled']) {
-        $_conf['expack.am.fontfamily.orig'] = (isset($_conf['expack.am.fontfamily']))
-            ? $_conf['expack.am.fontfamily'] : '';
-        $type = fontconfig_detect_agent();
-        if (file_exists($_conf['expack.skin.fontconfig_path'])) {
-            $fontconfig_data = file_get_contents($_conf['expack.skin.fontconfig_path']);
-            $current_fontconfig = unserialize($fontconfig_data);
-        }
-        if (!is_array($current_fontconfig)) {
-            $current_fontconfig = array('enabled' => false, 'custom' => array());
-        }
-        if ($current_fontconfig['enabled'] && is_array($current_fontconfig['custom'][$type])) {
-            $skin_uniq = P2_VERSION_ID . sprintf('.%u', crc32($fontconfig_data));
-            foreach ($current_fontconfig['custom'][$type] as $key => $value) {
-                if (strstr($key, 'fontfamily') && $value == '-') {
-                    if ($key == 'fontfamily_aa') {
-                        $_conf['expack.am.fontfamily'] = '';
-                    } else {
-                        $STYLE["{$key}.orig"] = (isset($STYLE[$key])) ? $STYLE[$key] : '';
-                        $STYLE[$key] = '';
-                    }
-                } elseif ($value) {
-                    if ($key == 'fontfamily_aa') {
-                        $_conf['expack.am.fontfamily'] = $value;
-                    } else {
-                        $STYLE["{$key}.orig"] = (isset($STYLE[$key])) ? $STYLE[$key] : '';
-                        $STYLE[$key] = $value;
-                    }
-                }
-            }
-        }
-    }
-    $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . rawurlencode($skin_uniq);
-}
-
-// }}}
-// {{{ print_style_tags()
-
-/**
- * スタイルシートを読み込むタグを表示
- *
- * @return void
- */
-function print_style_tags()
-{
-    global $skin_name, $skin_uniq;
-    $style_a = '';
-    if (strlen($skin_name)) { $style_a .= '&skin=' . rawurlencode($skin_name); }
-    if (strlen($skin_uniq)) { $style_a .= '&_=' . rawurlencode($skin_uniq); }
-    if ($styles = func_get_args()) {
-        echo "\t<style type=\"text/css\">\n";
-        echo "\t/* <![CDATA[ */\n";
-        foreach ($styles as $style) {
-            if (file_exists(P2_STYLE_DIR . '/' . $style . '_css.inc')) {
-                printf("\t@import 'css.php?css=%s%s';\n", $style, $style_a);
-            }
-        }
-        echo "\t/* ]]> */\n";
-        echo "\t</style>\n";
-    }
-}
-
-// }}}
-// {{{ set_css_fonts()
-
-/**
- * スタイルシートのフォント指定を調整する
- *
- * @return string
- */
-function set_css_fonts($fonts)
-{
-    if (is_string($fonts)) {
-        $fonts = preg_split('/(["\'])?\\s*,\\s*(?(1)\\1)/', trim($fonts, " \t\"'"));
-    } elseif (!is_array($fonts)) {
-        return '';
-    }
-    $fonts = '"' . implode('","', $fonts) . '"';
-    $fonts = preg_replace('/"(serif|sans-serif|cursive|fantasy|monospace)"/', '$1', $fonts);
-    return trim($fonts, '"');
-}
-
-// }}}
-// {{{ set_css_color()
-
-/**
- * スタイルシートの色指定を調整する
- *
- * @return string
- */
-function set_css_color($color)
-{
-    return preg_replace('/^#([0-9A-F])([0-9A-F])([0-9A-F])$/i', '#$1$1$2$2$3$3', $color);
-}
-
-// }}}
-// {{{ combine_nfd_kana()
-
-/**
- * Safari からアップロードされたファイル名の文字化けを補正する関数
- * 清音+濁点・清音+半濁点を一文字にまとめる (NFD で正規化された かな を NFC にする)
- * 入出力の文字コードはUTF-8
- *
- * @return string
- */
-function combine_nfd_kana($str)
-{
-    /*
-    static $regex = null;
-    if ($regex === null) {
-        // UTF-8,NFDの濁音・半濁音にマッチする正規表現
-        $regex = str_replace(array('%u3099%', '%u309A%'),
-                             array(pack('C*', 0xE3, 0x82, 0x99), pack('C*', 0xE3, 0x82, 0x9A)),
-                             mb_convert_encoding('/([うか-こさ-そた-とは-ほウカ-コサ-ソタ-トハ-ホゝヽ])%u3099%'
-                                                 . '|([は-ほハ-ホ])%u309A%/u',
-                                                 'UTF-8',
-                                                 'CP932'
-                                                 )
-                             );
-    }
-    return preg_replace_callback($regex, '_combine_nfd_kana', $str);
-    */
-    return preg_replace_callback('/([\\x{3046}\\x{304b}-\\x{3053}\\x{3055}-\\x{305d}\\x{305f}-\\x{3068}\\x{306f}-\\x{307b}\\x{30a6}\\x{30ab}-\\x{30b3}\\x{30b5}-\\x{30bd}\\x{30bf}-\\x{30c8}\\x{30cf}-\\x{30db}\\x{309d}\\x{30fd}])\\x{3099}|([\\x{306f}-\\x{307b}\\x{30cf}-\\x{30db}])\\x{309a}/u', '_combine_nfd_kana', $str);
-}
-
-function _combine_nfd_kana($m)
-{
-    if ($m[1]) {
-        $C = unpack('C*', $m[1]);
-        $C[3] += 1;
-    } elseif ($m[2]) {
-        $C = unpack('C*', $m[2]);
-        $C[3] += 2;
-    }
-    return pack('C*', $C[1], $C[2], $C[3]);
-}
-
-// }}}
-// {{{ wakati()
-
-// 漢字にマッチする正規表現
-//$GLOBALS['KANJI_REGEX'] = mb_convert_encoding('/[一-龠]/u', 'UTF-8', 'CP932');
-$GLOBALS['KANJI_REGEX'] = '/[\\x{4e00}-\\x{9fa0}]/u';
-
-// すごく適当な分かち書き用正規表現
-/*
-$GLOBALS['WAKATI_REGEX'] = mb_convert_encoding('/(' . implode('|', array(
-    //'[一-龠]+[ぁ-ん]*',
-    //'[一-龠]+',
-    '[一二三四五六七八九十]+',
-    '[丁-龠]+',
-    '[ぁ-ん][ぁ-んー～゛゜]*',
-    '[ァ-ヶ][ァ-ヶー～゛゜]*',
-    //'[a-z][a-z_\\-]*',
-    //'[0-9][0-9.]*',
-    '[0-9a-z][0-9a-z_\\-]*',
-)) . ')/u', 'UTF-8', 'CP932');
-*/
-$GLOBALS['WAKATI_REGEX'] = <<<EOP
-/(
-#[\\x{4e00}-\\x{9fa0}]+[\\x{3041}-\\x{3093}]*|
-#[\\x{4e00}-\\x{9fa0}]+|
-[\\x{4e00}\\x{4e8c}\\x{4e09}\\x{56db}\\x{4e94}\\x{516d}\\x{4e03}\\x{516b}\\x{4e5d}\\x{5341}]+|
-[\\x{4e01}-\\x{9fa0}]+|
-[\\x{3041}-\\x{3093}][\\x{3041}-\\x{3093}\\x{30fc}\\x{301c}\\x{309b}\\x{309c}]*|
-[\\x{30a1}-\\x{30f6}][\\x{30a1}-\\x{30f6}\\x{30fc}\\x{301c}\\x{309b}\\x{309c}]*|
-#[a-z][a-z_\\-]*|
-#[0-9][0-9.]*|
-[0-9a-z][0-9a-z_\\-]*)/ux
-EOP;
-
-/**
- * すごく適当な正規化＆分かち書き関数
- *
- * @return array
- */
-function wakati($str)
-{
-    return array_filter(array_map('trim', preg_split($GLOBALS['WAKATI_REGEX'],
-        mb_strtolower(mb_convert_kana(mb_convert_encoding(
-            $str, 'UTF-8', 'CP932'), 'KVas', 'UTF-8'), 'UTF-8'),
-        -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY)), 'strlen');
-}
-
-// }}}
-// {{{ p2die()
-
-/**
- * メッセージを表示して終了
- * ヘッダが出力されている場合、<body>までは出力済と見なす
- *
- * @param   string  $err    エラー概要
- * @param   string  $msg    詳細な説明
- * @param   boolean $raw    詳細な説明をエスケープするか否か
- * @return  void
- */
-function p2die($err = null, $msg = null, $raw = false)
-{
-    if (!headers_sent()) {
-        P2Util::header_nocache();
-        echo <<<EOH
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-{$GLOBALS['_conf']['extra_headers_ht']}
-<title>rep2 error</title>
-</head>
-<body>
-EOH;
-    }
-
-    echo '<h3>rep2 error</h3>';
-
-    if ($err !== null) {
-        echo '<p><strong>', htmlspecialchars($err, ENT_QUOTES), '</strong></p>';
-    }
-
-    if ($msg !== null) {
-        if ($raw) {
-            echo '<p>', nl2br(htmlspecialchars($msg, ENT_QUOTES)), '</p>';
-        } else {
-            echo $msg;
-        }
-    }
-
-    if (true) {
-        echo '<pre><em>backtrace:</em>';
-
-        $p2_file_prefix = P2_BASE_DIR . DIRECTORY_SEPARATOR;
-        $p2_base_dir_len = strlen(P2_BASE_DIR);
-        $backtrace = debug_backtrace();
-        $c = count($backtrace);
-
-        foreach ($backtrace as $bt) {
-            echo "\n";
-
-            if (strpos($bt['file'], $p2_file_prefix) === 0) {
-                $filename = '.' . substr($bt['file'], $p2_base_dir_len);
-            } else {
-                $filename = '(external)' . DIRECTORY_SEPARATOR . basename($bt['file']);
-            }
-            printf('  % 2d. %s (line %d)', $c--, $filename, $bt['line']);
-
-            if (array_key_exists('function', $bt) && $bt['function'] !== '' && $bt['function'] !== 'p2die') {
-                if (array_key_exists('class', $bt) && $bt['class'] !== '') {
-                    printf(': %s%s%s()',
-                           $bt['class'],
-                           str_replace('>', '&gt;', $bt['type']),
-                           $bt['function']
-                           );
-                } else {
-                    printf(': %s()', $bt['function']);
-                }
-            }
-        }
-
-        echo '</pre>';
-    }
-
-    echo '</body></html>';
-    exit(1);
 }
 
 // }}}
@@ -1337,32 +886,17 @@ EOP;
 }
 
 // }}}
-// {{{ p2realpath()
-
-/**
- * 実在しない(かもしれない)ファイルの絶対パスを取得する
- */
-function p2realpath($path)
-{
-    if (file_exists($path)) {
-        return realpath($path);
-    }
-    if (!class_exists('File_Util', false)) {
-        require_once 'File/Util.php';
-    }
-    return File_Util::realPath($path);
-}
-
-// }}}
 // {{{ __autoload()
 
 /**
  * PEARで第2引数をfalseにせずにclass_exists()を読んでいる可能性があるので
  * __autoload()を使うのは怖い
  */
-/*function __autoload($class_name)
+/*function __autoload($name)
 {
-    require_once str_replace('_', DIRECTORY_SEPARATOR, $class_name) . '.php';
+    if (preg_match('/^[A-Za-z_][0-9A-Za-z_]*$/', $name)) {
+        require_once str_replace('_', DIRECTORY_SEPARATOR, $name) . '.php';
+    }
 }*/
 
 // }}}

@@ -33,27 +33,20 @@ if (!empty($_REQUEST['match']))  { $res_filter['match']  = $_REQUEST['match'];  
 if (!empty($_REQUEST['method'])) { $res_filter['method'] = $_REQUEST['method']; }
 
 if (isset($word) && strlen($word) > 0) {
-    if (!($res_filter['method'] == 'regex' && preg_match('/^\.+$/', $word))) {
+    if ($res_filter['method'] == 'regex' && substr_count($word, '.') == strlen($word)) {
+        $word = null;
+    } elseif (p2_set_filtering_word($word, $res_filter['method']) !== null) {
         $_conf['filtering'] = true;
-        include_once P2_LIB_DIR . '/strctl.class.php';
-        $word_fm = StrCtl::wordForMatch($word, $res_filter['method']);
-        if ($res_filter['method'] != 'just') {
-            if (P2_MBREGEX_AVAILABLE == 1) {
-                $words_fm = @mb_split('\s+', $word_fm);
-                $word_fm = @mb_ereg_replace('\s+', '|', $word_fm);
-            } else {
-                $words_fm = @preg_split('/\s+/u', $word_fm);
-                $word_fm = @preg_replace('/\s+/u', '|', $word_fm);
-            }
+        if ($_conf['ktai']) {
+            $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
+            $filter_range = array(
+                'page'  => $page,
+                'start' => ($page - 1) * $_conf['k_rnum_range'] + 1,
+                'to'    => $page * $_conf['k_rnum_range'],
+            );
         }
-    }
-    if ($_conf['ktai']) {
-        $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
-        $filter_range = array(
-            'page'  => $page,
-            'start' => ($page - 1) * $_conf['k_rnum_range'] + 1,
-            'to'    => $page * $_conf['k_rnum_range'],
-        );
+    } else {
+        $word = null;
     }
 } else {
     $word = null;
@@ -374,58 +367,7 @@ function detectThread()
 {
     global $_conf, $host, $bbs, $key, $ls;
 
-    if (isset($_GET['nama_url'])) {
-        $name_url = $_GET['nama_url'];
-    } elseif (isset($_GET['url'])) {
-        $nama_url = $_GET['url'];
-    } else {
-        $nama_url = null;
-    }
-
-    // スレURLの直接指定
-    if ($nama_url) {
-
-            // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            if (preg_match("/http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))\/test\/read\.cgi\/([^\/]+)\/([0-9]+)(\/)?([^\/]+)?/", $nama_url, $matches)) {
-                $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[6];
-
-            // 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
-            } elseif ( preg_match("/(http:\/\/([^\/]+\.(2ch\.net|bbspink\.com))(\/[^\/]+)?\/([^\/]+)\/kako\/\d+(\/\d+)?\/(\d+)).html/", $nama_url, $matches) ){ //2ch pink 過去ログhtml
-                $host = $matches[2];
-                $bbs = $matches[5];
-                $key = $matches[7];
-                $kakolog_uri = $matches[1];
-                $_GET['kakolog'] = rawurlencode($kakolog_uri);
-
-            // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
-            } elseif ( preg_match("/http:\/\/([^\/]+\.machibbs\.com|[^\/]+\.machi\.to)\/bbs\/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*/", $nama_url, $matches) ){
-                $host = $matches[1];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[6] ."-". $matches[8];
-            } elseif (preg_match("{http://((jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}", $nama_url, $matches)) {
-                $host = $matches[1];
-                $bbs = $matches[5];
-                $key = $matches[6];
-                $ls = $matches[8] ."-". $matches[10];
-
-            // したらばJBBS http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100
-            }elseif( preg_match("{http://(jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^\"]*}", $nama_url, $matches) ){
-                $host = $matches[1] ."/". $matches[2];
-                $bbs = $matches[3];
-                $key = $matches[4];
-                $ls = $matches[5];
-            }
-
-    } else {
-        $host = isset($_REQUEST['host']) ? $_REQUEST['host'] : null; // "pc.2ch.net"
-        $bbs  = isset($_REQUEST['bbs'])  ? $_REQUEST['bbs']  : null; // "php"
-        $key  = isset($_REQUEST['key'])  ? $_REQUEST['key']  : null; // "1022999539"
-        $ls   = isset($_REQUEST['ls'])   ? $_REQUEST['ls']   : null; // "all"
-    }
+    list($nama_url, $host, $bbs, $key, $ls) = P2Util::detectThread();
 
     if (!($host && $bbs && $key)) {
         if ($nama_url) {

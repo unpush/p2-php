@@ -219,6 +219,47 @@ class P2HttpGet extends HttpRequest
                                             );
         }
 
+        if ($_conf['proxy_use'] && !isset($options['proxyhost']) && !empty($_conf['proxy_host'])) {
+            $options['proxyhost'] = $_conf['proxy_host'];
+            if (!empty($_conf['proxy_port']) && is_numeric($_conf['proxy_port'])) {
+                $options['proxyport'] = (int)$_conf['proxy_port'];
+            } elseif (strpos($_conf['proxy_host'], ':') === false) {
+                $options['proxyport'] = 80;
+            }
+            /*
+            $options['proxytype'] = HTTP_PROXY_HTTP;
+            if (isset($_conf['proxy_type'])) {
+                switch ($_conf['proxy_type']) {
+                case 'http':   $options['proxytype'] = HTTP_PROXY_HTTP;   break;
+                case 'socks4': $options['proxytype'] = HTTP_PROXY_SOCKS4; break;
+                case 'socks5': $options['proxytype'] = HTTP_PROXY_SOCKS5; break;
+                default:
+                    if (is_numeric($options['proxytype'])) {
+                        $options['proxytype'] = (int)$_conf['proxy_type'];
+                    }
+                }
+            }
+
+            if (!empty($_conf['proxy_auth'])) {
+                $options['proxy_auth'] = $_conf['proxy_auth'];
+                $options['proxyauthtype'] = HTTP_AUTH_BASIC;
+                if (isset($_conf['proxy_auth_type'])) {
+                    switch ($_conf['proxy_auth_type']) {
+                    case 'basic':  $options['proxyauthtype'] = HTTP_AUTH_BASIC;  break;
+                    case 'digest': $options['proxyauthtype'] = HTTP_AUTH_DIGEST; break;
+                    case 'ntlm':   $options['proxyauthtype'] = HTTP_AUTH_NTLM;   break;
+                    case 'gssneg': $options['proxyauthtype'] = HTTP_AUTH_GSSNEG; break;
+                    case 'any':    $options['proxyauthtype'] = HTTP_AUTH_ANY;    break;
+                    default:
+                        if (is_numeric($options['proxytype'])) {
+                            $options['proxyauthtype'] = (int)$_conf['proxy_auth_type'];
+                        }
+                    }
+                }
+            }
+            */
+        }
+
         if (!isset($options['lastmodified']) && file_exists($save_path)) {
             $options['lastmodified'] = filemtime($save_path);
         } else {
@@ -262,7 +303,17 @@ class P2HttpGet extends HttpRequest
         try {
             return parent::send();
         } catch (HttpException $e) {
-            $this->onFinish(false);
+            if ($this->getResponseCode() == 0) {
+                $this->onFinish(false);
+            } else {
+                $this->setError(sprintf('%s (%d) %s',
+                                        get_class($e),
+                                        $e->getCode(),
+                                        htmlspecialchars($e->getMessage(), ENT_QUOTES)
+                                        ),
+                                self::E_EXCEPTION
+                                );
+            }
             return false;
         }
     }
@@ -500,7 +551,7 @@ class P2HttpRequestQueue implements Iterator, Countable
      *
      * @var array
      */
-    private $_queue;
+    protected $_queue;
 
     /**
      * 現在の要素
@@ -648,6 +699,30 @@ class P2HttpRequestQueue implements Iterator, Countable
     public function valid()
     {
         return ($this->_current !== false);
+    }
+
+    // }}}
+}
+
+// }}}
+// {{{ P2HttpRequestStack
+
+/**
+ * HttpRequest用のスタック
+ */
+class P2HttpRequestStack extends P2HttpRequestQueue
+{
+    // {{{ push()
+
+    /**
+     * スタックにHttpRequestを追加する
+     *
+     * @param HttpRequest $req
+     * @return void
+     */
+    public function push(HttpRequest $req)
+    {
+        array_unshift($this->_queue, $req);
     }
 
     // }}}

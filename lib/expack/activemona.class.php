@@ -9,27 +9,27 @@ class ActiveMona
     // {{{ constants
 
     /**
-     * AA によく使われるパディング
+     * AA用フォント切替スイッチのフォーマット
      */
-    const REGEX_A = '　{4}|(?: 　){2}';
+    const MONA = '<img src="img/aa.png" width="19" height="12" alt="" class="aMonaSW" onclick="activeMona(\'%s\')">';
+    //const MONA = '<img src="img/mona.png" width="39" height="12" alt="（´∀｀） class="aMonaSW" onclick="activeMona(\'%s\')"">';
 
     /**
+     * AA判定パターン
+     *
      * 罫線
      * [\\u2500-\\u257F] [\\x{849F}-\\x{84BE}]
-     */
-    const REGEX_B = '[─-╂]{5}';
-
-    /**
+     *
+     * および
+     *
      * Latin-1,全角スペースと句読点,ひらがな,カタカナ,
      * 半角・全角形 以外の同じ文字が3つ連続するパターン
      *
      * Unicode の
      * [^\x00-\x7F\x{2010}-\x{203B}\x{3000}-\x{3002}\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{FF00}-\x{FFEF}]
      * をベースに SJIS に作り直してあるが、若干の違いがある。
-     *
-     * "\1" はREGEX_AやREGEX_Bに捕獲式集合が使われていないことが前提なので注意
      */
-    const REGEX_C = '([^\\x00-\\x7F\\xA1-\\xDF　、。，．：；０-ヶー～・…※！？＃＄％＆＊＋／＝])\\1\\1';
+    const REGEX = '(?:[─-╂]{5}|([^\\x00-\\x7F\\xA1-\\xDF　、。，．：；０-ヶー～・…※！？＃＄％＆＊＋／＝])\\1\\1)';
 
     // }}}
     // {{{ properties
@@ -37,16 +37,9 @@ class ActiveMona
     /**
      * インスタンス
      *
-     * @var ActiveMona
+     * @var array(ActiveMona)
      */
-    static private $_am = null;
-
-    /**
-     * モナーフォント表示スイッチ
-     *
-     * @var string
-     */
-    private $_mona;
+    static private $_am = array();
 
     /**
      * 行数判定に使う改行文字
@@ -62,25 +55,21 @@ class ActiveMona
      */
     private $_ln;
 
-    /**
-     * AA判定する正規表現
-     *
-     * @var string
-     */
-    private $_re;
-
     // }}}
     // {{{ singleton()
 
     /**
      * シングルトン
+     *
+     * @param string $linebreaks
+     * @return ActiveMona
      */
-    static public function singleton()
+    static public function singleton($linebreaks = '<br>')
     {
-        if (self::$_am === null) {
-            self::$_am = new ActiveMona();
+        if (!array_key_exists($linebreaks, self::$_am)) {
+            self::$_am[$linebreaks] = new ActiveMona($linebreaks);
         }
-        return self::$_am;
+        return self::$_am[$linebreaks];
     }
 
     // }}}
@@ -88,27 +77,29 @@ class ActiveMona
 
     /**
      * コンストラクタ
+     *
+     * @param string $linebreaks
      */
     public function __construct($linebreaks = '<br>')
     {
         global $_conf;
 
-        $this->_mona = '<img src="img/aa.png" width="19" height="12" alt="" class="aMonaSW" onclick="activeMona(\'%s\')">';
-        //$this->_mona = '<img src="img/mona.png" width="39" height="12" alt="（´∀｀） class="aMonaSW" onclick="activeMona(\'%s\')"">';
         $this->_lb = $linebreaks;
         $this->_ln = $_conf['expack.am.lines_limit'] - 1;
-        $this->_re = '(?:' . self::REGEX_A . '|' . self::REGEX_B . '|' . self::REGEX_C . ')';
     }
 
     // }}}
     // {{{ getMona()
 
     /**
-     * モナーフォント表示スイッチを生成
+     * AA用フォント切替スイッチを生成
+     *
+     * @param string $id
+     * @return string
      */
     function getMona($id)
     {
-        return sprintf($this->_mona, $id);
+        return sprintf(self::MONA, $id);
     }
 
     // }}}
@@ -116,15 +107,24 @@ class ActiveMona
 
     /**
      * AA判定
+     *
+     * @param string $msg
+     * @return bool
      */
     function detectAA($msg)
     {
         if (substr_count($msg, $this->_lb) < $this->_ln) {
             return false;
-        } elseif (mb_ereg($this->_re, $msg)) {
+        } elseif (substr_count($msg, '　　') > 5) {
             return true;
-        } else {
+        } elseif (!mb_ereg_search_init($msg, self::REGEX)) {
             return false;
+        } else {
+            $i = 0;
+            while ($i < 3 && mb_ereg_search()) {
+                $i++;
+            }
+            return ($i == 3);
         }
     }
 

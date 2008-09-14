@@ -33,14 +33,14 @@ $ini = ic2_loadconfig();
 // 最大ファイルサイズを設定
 $ic2_maxsize = $ini['Source']['maxsize'];
 if (preg_match('/(\d+\.?\d*)([KMG])/i', $ic2_maxsize, $m)) {
-    $ic2_maxsize = si2int($m[1], $m[2]);
+    $ic2_maxsize = p2_si2int($m[1], $m[2]);
 } else {
     $ic2_maxsize = (int)$ic2_maxsize;
 }
 
 $ini_maxsize = ini_get('upload_max_filesize');
 if (preg_match('/(\d+\.?\d*)([KMG])/i', $ini_maxsize, $m)) {
-    $ini_maxsize = si2int($m[1], $m[2]);
+    $ini_maxsize = p2_si2int($m[1], $m[2]);
 } else {
     $ini_maxsize = (int)$ini_maxsize;
 }
@@ -237,13 +237,13 @@ function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errc
     }
 
     // ファイル名を取得
-    $basename = mb_basename($path);
+    $basename = p2_mb_basename($path);
     if ($basename == '') {
         if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
-            $name = combine_nfd_kana($name);
+            $name = p2_combine_nfd_kana($name);
         }
         $name = mb_convert_encoding($name, 'CP932', 'UTF-8,CP51932,CP932');
-        $basename = mb_basename($name);
+        $basename = p2_mb_basename($name);
         if ($name == '') {
             return sprintf($err_fmt['name'], $path_ht);
         }

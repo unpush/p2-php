@@ -5,16 +5,11 @@
 // {{{ GLOBALS
 
 var ic2info = null;
-var _IC2_IPHONE_JS_OLD_ONLOAD = window.onload;
 
 // }}}
 // {{{ window.onload()
 
-window.onload = (function(){
-	if (_IC2_IPHONE_JS_OLD_ONLOAD) {
-		_IC2_IPHONE_JS_OLD_ONLOAD();
-	}
-
+window.addEventListener('load', function(evt){
 	// {{{ initiaize
 
 	var self = ic2info = new Object();

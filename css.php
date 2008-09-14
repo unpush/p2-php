@@ -8,6 +8,9 @@
 require_once './conf/conf.inc.php';
 $_login->authorize();
 
+require_once P2_LIB_DIR . '/fontconfig.inc.php';
+fontconfig_apply_custom();
+
 // }}}
 // {{{ ‘Ã“–‚Èƒtƒ@ƒCƒ‹‚©ŒŸØ
 
@@ -18,21 +21,6 @@ if (isset($_GET['css']) && preg_match('/^\w+$/', $_GET['css'])) {
     }
 } else {
     exit;
-}
-
-// }}}
-// {{{ http_date() ŠÖ”
-
-if (!function_exists('http_date')) {
-    function http_date($timestamp = null)
-    {
-        if ($timestamp === null) {
-            //return str_replace('+0000', 'GMT', gmdate(DATE_RFC1123));
-            return gmdate('D, d M Y H:i:s \\G\\M\\T');
-        }
-        //return str_replace('+0000', 'GMT', gmdate(DATE_RFC1123, $timestamp));
-        return gmdate('D, d M Y H:i:s \\G\\M\\T', $timestamp);
-    }
 }
 
 // }}}

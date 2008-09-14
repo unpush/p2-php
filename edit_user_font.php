@@ -7,7 +7,11 @@
 
 // ‰ŠúÝ’è“Ç‚Ýž‚Ý & ƒ†[ƒU”FØ
 require_once './conf/conf.inc.php';
+
 $_login->authorize();
+
+require_once P2_LIB_DIR . '/fontconfig.inc.php';
+fontconfig_apply_custom();
 
 require_once 'HTML/Template/Flexy.php';
 

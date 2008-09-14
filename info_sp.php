@@ -265,11 +265,12 @@ EOSTYLE;
         var tgt = "{$aborn_target}";
         var once = {$aborn_once};
         /*try {*/
-            var heads = opener.document.getElementsByTagName('dt');
+            var heads = opener.document.getElementsByTagName('div');
             for (var i = heads.length - 1; i >= 0 ; i--) {
-                if (heads[i].innerHTML.indexOf(tgt) != -1) {
-                    heads[i].parentNode.removeChild(heads[i].nextSibling);
-                    heads[i].parentNode.removeChild(heads[i]);
+                if (heads[i].className.indexOf('res-header') != -1 &&
+                    heads[i].innerHTML.indexOf(tgt) != -1)
+                {
+                    heads[i].parentNode.parentNode.removeChild(heads[i].parentNode);
                     if (once) break;
                 }
             }

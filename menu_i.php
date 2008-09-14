@@ -26,27 +26,20 @@ if (isset($_GET['cateid'])) {
 
 if (isset($_POST['word'])) {
     $word = menu_iphone_unicode_urldecode($_POST['word']);
-    if (preg_match('/^\.+$/', $word)) {
+    if (substr_count($word, '.') == strlen($word)) {
         $word = '';
     }
 
     if (strlen($word) > 0) {
-        // and検索
-        include_once P2_LIB_DIR . '/strctl.class.php';
-        $word = StrCtl::wordForMatch($word, 'and');
-        if (P2_MBREGEX_AVAILABLE == 1) {
-            $GLOBALS['words_fm'] = @mb_split('\s+', $word);
-            $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word);
-        } else {
-            $GLOBALS['words_fm'] = @preg_split('/\s+/', $word);
-            $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word);
+        $word = p2_set_filtering_word($word, 'and');
+        if ($word !== null) {
+            menu_iphone_ajax('menu_iphone_show_matched_boards', $word);
+            exit;
         }
-
-        menu_iphone_ajax('menu_iphone_show_matched_boards', $word);
-    } else {
-        header('Content-Type: application/xml; charset=UTF-8');
-        echo mb_convert_encoding('<div class="panel">無効なキーワードです。</div>', 'UTF-8', 'CP932');
     }
+
+    header('Content-Type: application/xml; charset=UTF-8');
+    echo mb_convert_encoding('<div class="panel">無効なキーワードです。</div>', 'UTF-8', 'CP932');
     exit;
 }
 

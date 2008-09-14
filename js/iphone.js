@@ -2,23 +2,9 @@
  * rep2expack - DOMを操作してiPhoneに最適化する
  */
 
-// {{{ GLOBALS
-
-var _IPHONE_JS_OLD_ONLOAD = window.onload;
-
-// }}}
 // {{{ window.onload()
 
-/*
- * iPhone用に要素を調整する
- *
- * @return void
- */
-window.onload = (function(){
-	if (_IPHONE_JS_OLD_ONLOAD) {
-		_IPHONE_JS_OLD_ONLOAD();
-	}
-
+window.addEventListener('load', function(evt){
 	// accesskey属性とキー番号表示を削除
 	var anchors = document.evaluate('.//a[@accesskey]',
 	                                document.body,
@@ -62,7 +48,7 @@ window.onload = (function(){
 	adjust_textarea_size();
 
 	// 回転時のイベントハンドラを設定
-	document.body.onorientationchange = (function(){
+	document.body.addEventListener('orientationchange', function(evt){
 		adjust_textarea_size();
 	});
 

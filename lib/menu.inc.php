@@ -30,27 +30,16 @@ if (isset($_GET['word'])) {
 $hd = array('word' => '');
 $GLOBALS['ita_mikke'] = array('num' => 0);
 
-// Å°î¬åüçı ====================================
+// î¬åüçı
 if (isset($word) && strlen($word) > 0) {
-
-    if (preg_match('/^\.+$/', $word)) {
-        $word = '';
-    }
-
-    // andåüçı
-    include_once P2_LIB_DIR . '/strctl.class.php';
-    $word_fm = StrCtl::wordForMatch($word, 'and');
-    if (P2_MBREGEX_AVAILABLE == 1) {
-        $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
-        $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
+    if (substr_count($word, '.') == strlen($word)) {
+        $word = null;
+    } elseif (p2_set_filtering_word($word, 'and') !== null) {
+        $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
     } else {
-        $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
-        $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
+        $word = null;
     }
-
-    $hd['word'] = htmlspecialchars($word, ENT_QUOTES);
 }
-
 
 //============================================================
 // ì¡éÍÇ»ëOíuèàóù

@@ -336,7 +336,7 @@ if (isset($head['headers']['content-length'])) {
     $conent_length = (int)$head['headers']['content-length'];
     $maxsize = $ini['Source']['maxsize'];
     if (preg_match('/(\d+\.?\d*)([KMG])/i', $maxsize, $m)) {
-        $maxsize = si2int($m[1], $m[2]);
+        $maxsize = p2_si2int($m[1], $m[2]);
     } else {
         $maxsize = (int)$maxsize;
     }
@@ -593,7 +593,7 @@ function ic2_checkSizeOvered($tmpfile, $params)
 
     $maxsize = $ini['Source']['maxsize'];
     if (preg_match('/(\d+\.?\d*)([KMG])/i', $maxsize, $m)) {
-        $maxsize = si2int($m[1], $m[2]);
+        $maxsize = p2_si2int($m[1], $m[2]);
     } else {
         $maxsize = (int)$maxsize;
     }

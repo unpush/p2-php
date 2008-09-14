@@ -25,21 +25,13 @@ if (isset($_GET['word'])) {
 }
 
 if (isset($word) && strlen($word) > 0) {
-
-    if (preg_match('/^\.+$/', $word)) {
-        $word = '';
-    }
-
-    // andåüçı
-    include_once P2_LIB_DIR . '/strctl.class.php';
-    $word_fm = StrCtl::wordForMatch($word, 'and');
-    if (P2_MBREGEX_AVAILABLE == 1) {
-        $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
-        $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
+    if (substr_count($word, '.') == strlen($word)) {
+        $word = null;
     } else {
-        $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
-        $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
+        p2_set_filtering_word($word, 'and');
     }
+} else {
+    $word = null;
 }
 
 // }}}

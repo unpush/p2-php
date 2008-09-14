@@ -8,6 +8,7 @@
 define('P2_FORCE_USE_SESSION', 1);
 define('P2_SESSION_NO_CLOSE', 1);
 define('P2_OUTPUT_XHTML', 1);
+define('P2_USE_PEAR_HACK', 1);
 
 require_once './conf/conf.inc.php';
 
@@ -443,13 +444,8 @@ if ($key !== '') {
 }
 
 // 重複画像をスキップするとき
-/*
-  同一画像をグループ化するためにサブクエリを使う。
-  バージョン4.1未満のMySQLではサブクエリに対応しておらず、
-  MySQLサーバのバージョンチェックが面倒なのでMySQLでは無効。
-*/
 $_find_duplicated = 0; // 試験的パラメータ、登録レコード数がこれ以上の画像のみを抽出
-if (($ini['Viewer']['unique'] || $_find_duplicated > 1) && strpos($db_class, 'mysql') === false) {
+if ($ini['Viewer']['unique'] || $_find_duplicated > 1) {
     $subq = 'SELECT ' . (($sort == 'ASC') ? 'MIN' : 'MAX') . '(id) FROM ';
     $subq .= $db->quoteIdentifier($ini['General']['table']);
     if (isset($keys)) {
