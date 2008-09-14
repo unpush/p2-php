@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $fp = fopen($_conf['expack.rss.setting_path'], 'wb');
         if (!$fp) {
-            die("Error: {$_conf['expack.rss.setting_path']} を更新できませんでした");
+            p2die("{$_conf['expack.rss.setting_path']} を更新できませんでした");
         }
         flock($fp, LOCK_EX);
 
@@ -153,8 +153,9 @@ if ($setrss) {
 
 $fp = @fopen($_conf['expack.rss.setting_path'], 'wb');
 if (!$fp) {
-    die("Error: {$_conf['expack.rss.setting_path']} を更新できませんでした");
+    p2die("{$_conf['expack.rss.setting_path']} を更新できませんでした");
 }
+flock($fp, LOCK_EX);
 if ($neolines) {
     $i = 0;
     foreach ($neolines as $l) {
@@ -171,6 +172,7 @@ if ($neolines) {
 } else {
     fputs($fp, $newdata);
 }
+flock($fp, LOCK_UN);
 fclose($fp);
 
 // }}}

@@ -10,9 +10,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <?php echo $_conf['extra_headers_xht']; ?>
     <title>tGrep<?php if (strlen($htm['query']) > 0) { echo ' - ', $htm['query']; } ?></title>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;<?php echo $htm['skin_q']; ?>" />
     <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;<?php echo $htm['skin_q']; ?>" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <style type="text/css">
     /* <![CDATA[ */
     div.tgrep_message {

@@ -65,7 +65,7 @@ class P2Util
         // 更新されていたら
         if ($wap_res->is_success() && $wap_res->code != "304") {
             if (FileCtl::file_write_contents($localfile, $wap_res->content) === false) {
-                die("Error: cannot write file.");
+                p2die('cannot write file.');
             }
             chmod($localfile, $perm);
         }
@@ -176,7 +176,7 @@ class P2Util
                 FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
                 $p2_setting_cont = serialize($p2_setting);
                 if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
-                    die("Error: {$p2_setting_txt} を更新できませんでした");
+                    p2die("{$p2_setting_txt} を更新できませんでした");
                 }
                 return $ita_names[$id];
             }
@@ -346,7 +346,7 @@ class P2Util
 
         FileCtl::make_datafile($keyidx, $_conf['key_perm']);
         if (FileCtl::file_write_contents($keyidx, $cont) === false) {
-            die("Error: cannot write file. recKeyIdx()");
+            p2die('cannot write file.');
         }
 
         return true;
@@ -840,10 +840,13 @@ class P2Util
 ?>
 EOP;
         FileCtl::make_datafile($_conf['idpw2ch_php'], $_conf['pass_perm']);    // ファイルがなければ生成
-        $fp = @fopen($_conf['idpw2ch_php'], 'wb') or die("p2 Error: {$_conf['idpw2ch_php']} を更新できませんでした");
-        @flock($fp, LOCK_EX);
+        $fp = @fopen($_conf['idpw2ch_php'], 'wb');
+        if (!$fp) {
+            p2die("{$_conf['idpw2ch_php']} を更新できませんでした");
+        }
+        flock($fp, LOCK_EX);
         fputs($fp, $idpw2ch_cont);
-        @flock($fp, LOCK_UN);
+        flock($fp, LOCK_UN);
         fclose($fp);
 
         return true;
@@ -919,6 +922,7 @@ EOP;
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>403 Forbidden</title>
 </head>
 <body>

@@ -222,7 +222,7 @@ class ThreadRead extends Thread
                     $file_append = ($zero_read) ? 0 : FILE_APPEND;
 
                     if (FileCtl::file_write_contents($this->keydat, $wr, $file_append) === false) {
-                        die('Error: cannot write file.');
+                        p2die('cannot write file.');
                     }
 
                     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("dat_size_check");
@@ -430,7 +430,7 @@ class ThreadRead extends Thread
                         $gztempfile = $this->keydat.".gz";
                         FileCtl::mkdir_for($gztempfile);
                         if (FileCtl::file_write_contents($gztempfile, $body) === false) {
-                            die("Error: cannot write file. downloadDat2chMaru()");
+                            p2die('cannot write file. downloadDat2chMaru()');
                         }
 
                         // PHP‚Å‰ð“€“Ç‚Ýž‚Ý
@@ -481,7 +481,7 @@ class ThreadRead extends Thread
                     if (!$done_gunzip) {
                         FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
                         if (FileCtl::file_write_contents($this->keydat, $body) === false) {
-                            die("Error: cannot write file. downloadDat2chMaru()");
+                            p2die('cannot write file. downloadDat2chMaru()');
                         }
                     }
 
@@ -503,7 +503,7 @@ class ThreadRead extends Thread
                         }
                         FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
                         if (FileCtl::file_write_contents($this->keydat, $cont) === false) {
-                            die("Error: cannot write file. downloadDat2chMaru()");
+                            p2die('cannot write file. downloadDat2chMaru()');
                         }
                     }
 
@@ -654,7 +654,7 @@ class ThreadRead extends Thread
                         $gztempfile = $this->keydat.".gz";
                         FileCtl::mkdir_for($gztempfile);
                         if (FileCtl::file_write_contents($gztempfile, $body) === false) {
-                            die("Error: cannot write file. downloadDat2chKako()");
+                            p2die('cannot write file. downloadDat2chKako()');
                         }
                         if (extension_loaded('zlib')) {
                             $body = FileCtl::get_gzfile_contents($gztempfile);
@@ -691,7 +691,7 @@ class ThreadRead extends Thread
                     if (!$done_gunzip) {
                         FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
                         if (FileCtl::file_write_contents($this->keydat, $body) === false) {
-                            die("Error: cannot write file. downloadDat2chKako()");
+                            p2die('cannot write file. downloadDat2chKako()');
                         }
                     }
 

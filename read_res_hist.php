@@ -45,7 +45,9 @@ P2Util::transResHistLogPhpToDat();
 //==================================================================
 // 読み込んで
 if (!$datlines = FileCtl::file_read_lines($_conf['p2_res_hist_dat'], FILE_IGNORE_NEW_LINES)) {
-    die("p2 - 書き込み履歴内容は空っぽのようです");
+    echo '<html><head><title>', $ptitle, '</title></head>',
+         '<body><p>書き込み履歴内容は空っぽのようです</p></body></html>';
+    exit;
 }
 
 // ファイルの下に記録されているものが新しい
@@ -73,11 +75,11 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
 EOP;
 

@@ -137,10 +137,12 @@ function kspDetectThread()
     }
 
     if (!($host && $bbs && $key)) {
-        $htm['nama_url'] = htmlspecialchars($nama_url, ENT_QUOTES);
-        $msg = "p2 - {$_conf['read_php']}: スレッドの指定が変です。<br>"
-            . "<a href=\"{$htm['nama_url']}\">" . $htm['nama_url'] . "</a>";
-        die($msg);
+        if ($nama_url) {
+            $nama_url = htmlspecialchars($nama_url, ENT_QUOTES);
+            p2die('スレッドの指定が変です。', "<a href=\"{$nama_url}\">{$nama_url}</a>", true);
+        } else {
+            p2die('スレッドの指定が変です。');
+        }
     }
 }
 

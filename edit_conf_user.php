@@ -11,7 +11,7 @@ $_login->authorize(); // ユーザ認証
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-        die('p2 error: 不正なポストです');
+        p2die('不正なポストです');
     }
 }
 
@@ -122,11 +122,11 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 
@@ -136,8 +136,8 @@ if (!$_conf['ktai']) {
     <script type="text/javascript" src="js/tabber/tabber.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/edit_conf_user.js?{$_conf['p2_version_id']}"></script>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
-    <link rel="stylesheet" type="text/css" href="style/tabber/tabber.css">
     <link rel="stylesheet" type="text/css" href="css.php?css=edit_conf_user&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="style/tabber/tabber.css?{$_conf['p2_version_id']}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
 }

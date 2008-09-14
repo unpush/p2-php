@@ -62,7 +62,7 @@ function shitarabaDownload()
         $temp_data = FileCtl::file_read_contents($tempfile);
         $temp_data = mb_convert_encoding($temp_data, 'CP932', 'CP51932');
         if (FileCtl::file_write_contents($tempfile, $temp_data) === false) {
-            die('Error: cannot write file.');
+            p2die('cannot write file.');
         }
     }
     // }}}
@@ -75,8 +75,8 @@ function shitarabaDownload()
     // ↓rawmode.cgiではこれは出ないだろう
     /*
     // （JBBS）ERROR!: スレッドがありません。過去ログ倉庫にもありません。
-    if (preg_match("/^ERROR.*\$/i", $mlines[0], $matches)) {
-        $aThread->getdat_error_msg_ht .= $matches[0];
+    if (stripos($mlines[0], 'ERROR') === 0) {
+        $aThread->getdat_error_msg_ht .= $mlines[0];
         $aThread->diedat = true;
         return false;
     }
@@ -96,7 +96,7 @@ function shitarabaDownload()
             }
         }
         if (FileCtl::file_write_contents($aThread->keydat, $cont, $file_append) === false) {
-            die('Error: cannot write file.');
+            p2die('cannot write file.');
         }
     }
     // }}}

@@ -38,7 +38,7 @@ $bbs    = isset($_REQUEST['bbs'])    ? $_REQUEST['bbs']    : null;
 $spmode = isset($_REQUEST['spmode']) ? $_REQUEST['spmode'] : null;
 
 if (!($host && $bbs) && !$spmode) {
-    die('p2 error: 必要な引数が指定されていません');
+    p2die('必要な引数が指定されていません');
 }
 
 // }}}
@@ -744,7 +744,7 @@ if ($spmode == 'merge_favita') {
     FileCtl::make_datafile($merged_faivta_read_idx, $_conf['p2_perm']);
     $fp = fopen($merged_faivta_read_idx, 'wb');
     if (!$fp || !flock($fp, LOCK_EX)) {
-        die("Error: cannot write file {$merged_faivta_read_idx}.");
+        p2die("cannot write file {$merged_faivta_read_idx}.");
     }
 
     foreach ($aThreadList->threads as $aThread) {
@@ -1000,7 +1000,7 @@ function saveSbSetting($p2_setting_txt, $p2_setting, $pre_setting)
         if ($p2_setting) {
             if ($p2_setting_cont = serialize($p2_setting)) {
                 if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
-                    die("Error: cannot write file.");
+                    p2die('cannot write file.');
                 }
             }
         }
@@ -1054,7 +1054,7 @@ function saveSubjectKeys($subject_keys, $sb_keys_txt, $sb_keys_b_txt)
         }
         if ($sb_keys_cont = serialize($subject_keys)) {
             if (FileCtl::file_write_contents($sb_keys_txt, $sb_keys_cont) === false) {
-                die("Error: cannot write file.");
+                p2die('cannot write file.');
             }
         }
     }

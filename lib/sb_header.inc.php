@@ -181,11 +181,11 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">\n
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}\n
 EOP;
 
 if ($_conf['refresh_time']) {
@@ -201,6 +201,7 @@ echo <<<EOP
     <base target="read">
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/settabornjs.js?{$_conf['p2_version_id']}"></script>

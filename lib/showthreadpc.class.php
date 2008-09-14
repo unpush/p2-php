@@ -412,8 +412,8 @@ EOP;
 
         // SPM
         if ($_conf['expack.spm.enabled']) {
-            $spmeh = " onmouseover=\"showSPM({$this->spmObjName},{$i},'{$res_id}',event)\"";
-            $spmeh .= " onmouseout=\"hideResPopUp('{$this->spmObjName}_spm')\"";
+            $spmeh = " onmouseover=\"{$this->spmObjName}.show({$i},'{$msg_id}',event)\"";
+            $spmeh .= " onmouseout=\"{$this->spmObjName}.hide(event)\"";
         } else {
             $spmeh = '';
         }
@@ -579,8 +579,8 @@ EOJS;
 
         // SPM
         if ($_conf['expack.spm.enabled']) {
-            $spmeh = " onmouseover=\"showSPM({$this->spmObjName},{$i},'{$qmsg_id}',event)\"";
-            $spmeh .= " onmouseout=\"hideResPopUp('{$this->spmObjName}_spm')\"";
+            $spmeh = " onmouseover=\"{$this->spmObjName}.show({$i},'{$qmsg_id}',event)\"";
+            $spmeh .= " onmouseout=\"{$this->spmObjName}.hide(event)\"";
         } else {
             $spmeh = '';
         }
@@ -1234,7 +1234,7 @@ var {$this->spmObjName} = {
     'ls':'{$_spm_ls}',
     'spmOption':[{$spmOptions}]
 };
-makeSPM({$this->spmObjName});
+SPM.init({$this->spmObjName});
 //]]>
 </script>\n
 EOJS;

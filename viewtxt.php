@@ -9,7 +9,7 @@ $_login->authorize(); // ユーザ認証
 
 // 引数エラー
 if (!isset($_GET['file'])) {
-    die('Error: file が指定されていません');
+    p2die('file が指定されていません');
 }
 
 //=========================================================
@@ -33,17 +33,17 @@ if ($readable_files && $file and (!in_array($file, $readable_files))) {
         $files_st .= "「".$afile."」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の読めるファイルは、".$files_st."だけ！");
+    p2die(basename($_SERVER['SCRIPT_NAME'])." 先生の読めるファイルは、{$files_st}だけ！");
 }
 
 //=========================================================
 // HTMLプリント
 //=========================================================
 // 読み込むファイルは拡張子.txtだけ
-if (preg_match("/\.txt$/i", $file)) {
+if (preg_match('/\\.txt$/i', $file)) {
     viewTxtFile($file, $encode);
 } else {
-    die("error: cannot view \"$file\"");
+    p2die("error: cannot view \"{$file}\"");
 }
 
 // {{{ viewTxtFile()
@@ -56,7 +56,7 @@ function viewTxtFile($file, $encode)
     global $_info_msg_ht;
 
     if ($file == '') {
-        die('Error: file が指定されていません');
+        p2die('file が指定されていません');
     }
 
     $filename = basename($file);
@@ -80,8 +80,9 @@ function viewTxtFile($file, $encode)
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
 <head>
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>

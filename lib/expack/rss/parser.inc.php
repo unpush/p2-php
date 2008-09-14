@@ -191,7 +191,7 @@ function atom_to_rss($input, $stylesheet, $output)
         '/<(\/)?(creator|subject|date|pubdate)>/u' => '<$1dc:$2>');
     $rss_fixed = preg_replace(array_keys($rss_fix_patterns), array_values($rss_fix_patterns), $rss_content);
     if (md5($rss_content) != md5($rss_fixed)) {
-        $fp = @fopen($output, 'wb') or die("Error: cannot write. ( $output )");
+        $fp = @fopen($output, 'wb') or p2die("cannot write. ({$output})");
         flock($fp, LOCK_EX);
         fwrite($fp, $rss_fixed);
         flock($fp, LOCK_UN);

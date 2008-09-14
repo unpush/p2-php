@@ -14,7 +14,7 @@ require_once './conf/conf.inc.php';
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 if ($_conf['iphone']) {
@@ -163,6 +163,7 @@ if ($_conf['ktai']) {
 // DB_DataObjectを継承したDAO
 $icdb = new IC2DB_Images;
 $db = $icdb->getDatabaseConnection();
+$db_class = strtolower(get_class($db));
 
 // サムネイル作成クラス
 $thumb = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
@@ -196,7 +197,7 @@ if ($ini['Viewer']['cache']) {
             $sql = sprintf('DELETE FROM %s', $db->quoteIdentifier($ini['Cache']['table']));
             $result = $db->query($sql);
             if (DB::isError($result)) {
-                die($result->getMessage());
+                p2die($result->getMessage());
             }
             $vacuumdb = true;
             break;
@@ -212,28 +213,15 @@ if ($ini['Viewer']['cache']) {
             $vacuumdb = false;
     }
     // SQLiteならVACUUMを実行（PostgreSQLは普通cronでvacuumdbするのでここではしない）
-    if ($vacuumdb && is_a($db, 'DB_sqlite')) {
+    if ($vacuumdb && $db_class == 'db_sqlite') {
         $result = $db->query('VACUUM');
         if (DB::isError($result)) {
-            die($result->getMessage());
+            p2die($result->getMessage());
         }
     }
     $enable_cache = true;
 } else {
     $enable_cache = false;
-}
-
-// SQLite UDF
-if (is_a($db, 'db_sqlite')) {
-    $isSQLite = true;
-    function iv2_sqlite_unix2date($ts)
-    {
-        return intval(date('Ymd', $ts));
-    }
-    $sqlite = $db->connection;
-    sqlite_create_function($sqlite, 'unix2date', 'iv2_sqlite_unix2date', 1);
-} else {
-    $isSQLite = false;
 }
 
 // }}}
@@ -431,12 +419,12 @@ if ($key !== '') {
             $not = true;
             $k = substr($k, 1);
         }
-        if (preg_match('/[%_]/', $k)) {
+        if (strpos($k, '%') !== false || strpos($k, '_') !== false) {
             // SQLite2はLIKE演算子の右辺でバックスラッシュによるエスケープや
             // ESCAPEでエスケープ文字を指定することができないのでGLOB演算子を使う
-            if (strtolower(get_class($db)) == 'db_sqlite') {
-                if (preg_match('/[*?]/', $k)) {
-                    die('ImageCache2 - Warning:「%または_」と「*または?」が混在するキーワードは使えません。');
+            if ($db_class == 'db_sqlite') {
+                if (strpos($k, '*') !== false || strpos($k, '?') !== false) {
+                    p2die('ImageCache2 Warning', '「%または_」と「*または?」が混在するキーワードは使えません。');
                 } else {
                     $operator = 'GLOB';
                     $wildcard = '*';
@@ -455,13 +443,15 @@ if ($key !== '') {
 }
 
 // 重複画像をスキップするとき
-// 総数を正しくカウントするためにサブクエリを使う
-// サブクエリに対応していないバージョン4.1未満のMySQLでは重複画像のスキップは無効
-$dc = 0; // 試験的パラメータ、登録レコード数がこれ以上の画像のみを抽出
-$mysql = preg_match('/^mysql:/', $ini['General']['dsn']); // MySQL 4.1.2以降のphptypeは"mysqli"
-if ($mysql == 0 && ($ini['Viewer']['unique'] || $dc > 2)) {
+/*
+  同一画像をグループ化するためにサブクエリを使う。
+  バージョン4.1未満のMySQLではサブクエリに対応しておらず、
+  MySQLサーバのバージョンチェックが面倒なのでMySQLでは無効。
+*/
+$_find_duplicated = 0; // 試験的パラメータ、登録レコード数がこれ以上の画像のみを抽出
+if (($ini['Viewer']['unique'] || $_find_duplicated > 1) && strpos($db_class, 'mysql') === false) {
     $subq = 'SELECT ' . (($sort == 'ASC') ? 'MIN' : 'MAX') . '(id) FROM ';
-    $subq .= $icdb->_db->quoteIdentifier($ini['General']['table']);
+    $subq .= $db->quoteIdentifier($ini['General']['table']);
     if (isset($keys)) {
         // サブクエリ内でフィルタリングするので親クエリのWHERE句をパクってきてリセット
         $subq .= $icdb->_query['condition'];
@@ -469,8 +459,8 @@ if ($mysql == 0 && ($ini['Viewer']['unique'] || $dc > 2)) {
     }
     // md5だけでグループ化しても十分とは思うけど、一応。
     $subq .= ' GROUP BY size, md5, mime';
-    if ($dc > 1) {
-        $subq .= ' HAVING COUNT(*) >= ' . $dc;
+    if ($_find_duplicated > 1) {
+        $subq .= sprintf(' HAVING COUNT(*) > %d', $_find_duplicated - 1);
     }
     // echo '<!--', mb_convert_encoding($subq, 'CP932', 'UTF-8'), '-->';
     $icdb->whereAdd("id IN ($subq)");
@@ -572,7 +562,7 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
 $sql = sprintf('SELECT COUNT(*) FROM %s %s', $db->quoteIdentifier($ini['General']['table']), $icdb->_query['condition']);
 $all = $db->getOne($sql);
 if (DB::isError($all)) {
-    die($all->getMessage());
+    p2die($all->getMessage());
 }
 
 // マッチするレコードがなかったらエラーを表示、レコードがあれば表示用オブジェクトに値を代入
@@ -725,15 +715,23 @@ if ($all == 0) {
     if ($order == 'pixels') {
         $orderBy = '(width * height) ' . $sort;
     } elseif ($order == 'date_uri' || $order == 'date_uri2') {
-        if ($isSQLite) {
+        if ($db_class == 'db_sqlite') {
+            /*
+            function iv2_sqlite_unix2date($ts)
+            {
+                return date('Ymd', (int)$ts);
+            }
+            sqlite_create_function($db->connection, 'unix2date', 'iv2_sqlite_unix2date', 1);
             $time2date = 'unix2date("time")';
+            */
+            $time2date = 'php(\'date\', \'Ymd\', "time")';
         } else {
             // 32400 = 9*60*60 (時差補正)
             $time2date = sprintf('floor((%s + 32400) / 86400)', $db->quoteIdentifier('time'));
         }
         $orderBy .= sprintf('%s %s, %s ', $time2date, $sort, $db->quoteIdentifier('uri'));
         if ($order == 'date_uri') {
-             $orderBy .= $sort;
+            $orderBy .= $sort;
         } else {
             $orderBy .= ($sort == 'ASC') ? 'DESC' : 'ASC';
         }

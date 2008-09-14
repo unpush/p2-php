@@ -7,6 +7,8 @@
 
 // {{{ p2基本設定読み込み&認証
 
+define('P2_OUTPUT_XHTML', 1);
+
 require_once './conf/conf.inc.php';
 
 $_login->authorize();
@@ -141,7 +143,7 @@ if ($query) {
             }
             $tgrep_recent_data = implode("\n", $tgrep_recent_list) . "\n";
             if (FileCtl::file_write_contents($_conf['expack.tgrep.recent_file'], $tgrep_recent_data) === false) {
-                die("Error: cannot write file.");
+                p2die('cannot write file.');
             }
         }
     }
@@ -342,14 +344,14 @@ function tgrep_search($query)
     $client->setDefaultHeader('User-Agent', 'p2-tgrep-client');
     $code = $client->get($_conf['expack.tgrep_url'] . '?' . $query);
     if (PEAR::isError($code)) {
-        die($code->getMessage());
+        p2die($code->getMessage());
     } elseif ($code != 200) {
-        die("HTTP Error - {$code}");
+        p2die("HTTP Error - {$code}");
     }
     $response = $client->currentResponse();
     $result = unserialize($response['body']);
     if (!$result) {
-        die('Error: 検索結果の展開に失敗しました。');
+        p2die('Error: 検索結果の展開に失敗しました。');
     }
     return $result;
 }

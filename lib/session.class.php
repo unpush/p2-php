@@ -16,7 +16,7 @@ $GLOBALS['_SESS_VERSION'] = 1; // セッションのバージョン（全ての稼動途中セッショ
  * ■用例
  * $_session = new Session(); // ※この時点でPHP標準セッションがスタートする
  * if ($msg = $_session->checkSessionError()) { // よりセキュアなセッションチェック
- *     die('Error: ' . $msg);
+ *     p2die($msg);
  * }
  *
  * $_SESSIONへのアクセスを終えた後は、session_write_close()しておくとよいだろう。
@@ -81,7 +81,7 @@ class Session
             // セッション変数の登録に失敗したら、エラー
             if (!isset($_SESSION[$this->sess_array]['actime'])) {
                 trigger_error('Session::_autoBegin() セッション変数を登録できませんでした。', E_USER_WARNING);
-                die('Error: Session');
+                p2die('Session');
                 return false;
             }
         }

@@ -153,7 +153,7 @@ class SettingTxt
             }
 
             if (FileCtl::file_write_contents($this->_setting_txt, $body) === false) {
-                die("Error: cannot write file");
+                p2die('cannot write file');
             }
             chmod($this->_setting_txt, $perm);
 

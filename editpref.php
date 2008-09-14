@@ -74,11 +74,11 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 

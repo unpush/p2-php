@@ -1,25 +1,20 @@
 <?php
-/*
-    rep2 - ƒfƒUƒCƒ“—p Ý’èƒtƒ@ƒCƒ‹
-
-    ƒRƒƒ“ƒg–`“ª‚Ì() “à‚ÍƒfƒtƒHƒ‹ƒg’l
-    Ý’è‚Í style/*_css.inc ‚Æ˜A“®
-    
-    ‚±‚Ìƒtƒ@ƒCƒ‹‚ÌÝ’è‚ÍA‚¨D‚Ý‚É‰ž‚¶‚Ä•ÏX‚µ‚Ä‚­‚¾‚³‚¢
-*/
- 
-//======================================================================
-// ƒfƒUƒCƒ“ƒJƒXƒ^ƒ}ƒCƒY
-//======================================================================
+/**
+ * rep2 - ƒfƒUƒCƒ“—p Ý’èƒtƒ@ƒCƒ‹
+ *
+ * ƒRƒƒ“ƒg–`“ª‚Ì() “à‚ÍƒfƒtƒHƒ‹ƒg’l
+ * Ý’è‚Í style/*_css.inc ‚Æ˜A“®
+ *
+ * ‚±‚Ìƒtƒ@ƒCƒ‹‚ÌÝ’è‚ÍA‚¨D‚Ý‚É‰ž‚¶‚Ä•ÏX‚µ‚Ä‚­‚¾‚³‚¢
+ */
 
 $STYLE['a_underline_none'] = "2"; // ("2") ƒŠƒ“ƒN‚É‰ºü‚ði‚Â‚¯‚é:0, ‚Â‚¯‚È‚¢:1, ƒXƒŒƒ^ƒCƒgƒ‹ˆê——‚¾‚¯‚Â‚¯‚È‚¢:2j
 
-// ƒtƒHƒ“ƒg ======================================================
+// {{{ ƒtƒHƒ“ƒg
 
 $STYLE['fontfamily'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W3"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W3") Šî–{‚ÌƒtƒHƒ“ƒg
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
-
     if(!P2Util::isBrowserSafariGroup()){ /* ƒuƒ‰ƒEƒU‚ª Mac‚Å Safari ˆÈŠO ‚È‚ç */
         $STYLE['fontfamily_bold'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W6"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W6") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒgi•’Ê‚É‘¾Žš‚É‚µ‚½‚¢ê‡‚ÍŽw’è‚µ‚È‚¢("")j
     }
@@ -44,13 +39,15 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
     $STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
 }
 
-//======================================================================
-// FÊ‚ÌÝ’è
-//======================================================================
-// –³Žw’è("")‚Íƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgFA‚Ü‚½‚ÍŠî–{Žw’è‚Æ‚È‚è‚Ü‚·B
-// —Dæ“x‚ÍAŒÂ•Êƒy[ƒWŽw’è ¨ Šî–{Žw’è ¨ Žg—pƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgŽw’è ‚Å‚·B
+// }}}
+/**
+ * FÊ‚ÌÝ’è
+ *
+ * –³Žw’è("")‚Íƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgFA‚Ü‚½‚ÍŠî–{Žw’è‚Æ‚È‚è‚Ü‚·B
+ * —Dæ“x‚ÍAŒÂ•Êƒy[ƒWŽw’è ¨ Šî–{Žw’è ¨ Žg—pƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgŽw’è ‚Å‚·B
+ */
+// {{{ Šî–{(style)
 
-// Šî–{(style)=======================
 $STYLE['bgcolor'] = "#ffffff"; // ("#ffffff") Šî–{ ”wŒiF
 $STYLE['textcolor'] = "#000"; // ("#000") Šî–{ ƒeƒLƒXƒgF
 $STYLE['acolor'] = ""; // ("") Šî–{ ƒŠƒ“ƒNF
@@ -59,7 +56,9 @@ $STYLE['acolor_h'] = "#09c"; // ("#09c") Šî–{ ƒ}ƒEƒXƒI[ƒo[Žž‚ÌƒŠƒ“ƒNF
 
 $STYLE['fav_color'] = "#999"; // ("#999") ‚¨‹C‚Éƒ}[ƒN‚ÌF
 
-// ƒƒjƒ…[(menu)====================
+// }}}
+// {{{ ƒƒjƒ…[(menu)
+
 $STYLE['menu_bgcolor'] = "#fff"; //("#fff") menu ”wŒiF
 $STYLE['menu_color'] = "#000"; //("#000") menu ƒeƒLƒXƒgF
 $STYLE['menu_cate_color'] = "#333"; // ("#333") menu ƒJƒeƒSƒŠ[‚ÌF
@@ -73,7 +72,9 @@ $STYLE['menu_ita_color_h'] = "#09c"; // ("#09c") menu ”Â ƒ}ƒEƒXƒI[ƒo[Žž‚ÌƒŠƒ“ƒ
 $STYLE['menu_newthre_color'] = "hotpink";    // ("hotpink") menu V‹KƒXƒŒƒbƒh”‚ÌF
 $STYLE['menu_newres_color'] = "#ff3300";    // ("#ff3300") menu V’…ƒŒƒX”‚ÌF
 
-// ƒXƒŒˆê——(subject)====================
+// }}}
+// {{{ ƒXƒŒˆê——(subject)
+
 $STYLE['sb_bgcolor'] = "#fff"; // ("#fff") subject ”wŒiF
 $STYLE['sb_color'] = "#000";  // ("#000") subject ƒeƒLƒXƒgF
 
@@ -110,7 +111,9 @@ $STYLE['sb_thre_title_new_color'] = "red";    // ("red") subject V‹KƒXƒŒƒ^ƒCƒgƒ
 $STYLE['sb_tool_newres_color'] = "#ff3300"; // ("#ff3300") subject ƒc[ƒ‹ƒo[“à V‹KƒŒƒX”‚ÌF
 $STYLE['sb_newres_color'] = "#ff3300"; // ("#ff3300") subject V’…ƒŒƒX”‚ÌF
 
-// ƒXƒŒ“à—e(read)====================
+// }}}
+// {{{ ƒXƒŒ“à—e(read)
+
 $STYLE['read_bgcolor'] = "#efefef"; // ("#efefef") ƒXƒŒƒbƒh•\Ž¦‚Ì”wŒiF
 $STYLE['read_color'] = "#000"; // ("#000") ƒXƒŒƒbƒh•\Ž¦‚ÌƒeƒLƒXƒgF
 
@@ -126,7 +129,9 @@ $STYLE['read_mail_color'] = ""; // ("") “ŠeŽÒ‚Ìmail‚ÌF ex)"#a00000"
 $STYLE['read_mail_sage_color'] = ""; // ("") sage‚ÌŽž‚Ì“ŠeŽÒ‚Ìmail‚ÌF ex)"#00b000"
 $STYLE['read_ngword'] = "#bbbbbb"; // ("#bbbbbb") NGƒ[ƒh‚ÌF
 
-// ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€================
+// }}}
+// {{{ ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€
+
 $STYLE['post_pop_size'] = "610,350"; // ("610,350") ƒŒƒX‘‚«ž‚Ýƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³i‰¡,cj
 $STYLE['post_msg_rows'] = 10; // (10) ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€AƒƒbƒZ[ƒWƒtƒB[ƒ‹ƒh‚Ìs”
 $STYLE['post_msg_cols'] = 70; // (70) ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€AƒƒbƒZ[ƒWƒtƒB[ƒ‹ƒh‚ÌŒ…”
@@ -134,3 +139,16 @@ $STYLE['post_msg_cols'] = 70; // (70) ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€AƒƒbƒZ[ƒWƒtƒB[ƒ‹ƒh
 $STYLE['info_pop_size'] = "600,380"; // ("600,380") î•ñƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³i‰¡,cj
 
 $STYLE['conf_btn_bgcolor'] = '#efefef';
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

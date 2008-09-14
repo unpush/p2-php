@@ -68,16 +68,16 @@ if (!empty($_GET['query'])) {
     $tgrep_list = array_unique($tgrep_list);
     $tgrep_data = implode("\n", $tgrep_list) . "\n";
     if (FileCtl::file_write_contents($list_file, $tgrep_data) === false) {
-        die("Error: cannot write file.");
+        p2die('cannot write file.');
     }
 } elseif (!empty($_GET['clear']) && file_exists($list_file)) {
     $fp = @fopen($list_file, 'w');
     if (!$fp) {
-        die("Error: cannot write file.");
+        p2die('cannot write file.');
     }
-    @flock($fp, LOCK_EX);
+    flock($fp, LOCK_EX);
     ftruncate($fp, 0);
-    @flock($fp, LOCK_UN);
+    flock($fp, LOCK_UN);
     fclose($fp);
 }
 

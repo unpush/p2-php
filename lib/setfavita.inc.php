@@ -72,7 +72,7 @@ function setFavIta()
             $i++;
 
             // {{{ 旧データ（ver0.6.0以下）移行措置
-            if (!preg_match("/^\t/", $l)) {
+            if ($l[0] != "\t") {
                 $l = "\t".$l;
             }
             // }}}
@@ -127,7 +127,7 @@ EOJS;
 
     // 書き込む
     if (FileCtl::file_write_contents($_conf['favita_path'], $cont) === false) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
 
     return true;

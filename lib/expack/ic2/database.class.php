@@ -29,14 +29,14 @@ class IC2DB_Skel extends DB_DataObject
         $ini = ic2_loadconfig();
         $this->_ini = $ini;
         if (!$ini['General']['dsn']) {
-            die("<p><b>Error:</b> DSNが設定されていません。</p>");
+            p2die('DSNが設定されていません。');
         }
 
         // データベースへ接続
         $this->_database_dsn = $ini['General']['dsn'];
         $this->_db = $this->getDatabaseConnection();
         if (DB::isError($this->_db)) {
-            die($this->_db->getMessage());
+            p2die($this->_db->getMessage());
         }
 
         // クライアントの文字セットに UTF-8 を指定

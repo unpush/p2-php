@@ -20,7 +20,7 @@ $r_msg = "";
 
 // cmdが指定されていなければ、何も返さずに終了
 if (!isset($_GET['cmd']) && !isset($_POST['cmd'])) {
-    die('');
+    exit;
 }
 
 // コマンド取得

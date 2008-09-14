@@ -41,15 +41,15 @@ class FileCtl
 
         if (!file_exists($file)) {
             // 親ディレクトリが無ければ作る
-            self::mkdir_for($file) or die("Error: cannot make parent dirs. ( $file )");
-            touch($file) or die("Error: cannot touch. ( $file )");
+            self::mkdir_for($file) or p2die("cannot make parent dirs. ({$file})");
+            touch($file) or p2die("cannot touch. ({$file})");
             chmod($file, $perm);
         } else {
             if (!is_writable($file)) {
                 $cont = self::file_read_contents($file);
                 unlink($file);
                 if (self::file_write_contents($file, $cont) === false) {
-                    die('Error: cannot write file.');
+                    p2die('cannot write file.');
                 }
                 chmod($file, $perm);
             }
@@ -72,15 +72,15 @@ class FileCtl
         $perm = (!empty($_conf['data_dir_perm'])) ? $_conf['data_dir_perm'] : 0707;
 
         if (!$parentdir = dirname($apath)) {
-            die("Error: cannot mkdir. ( {$parentdir} )<br>親ディレクトリが空白です。");
+            p2die("cannot mkdir. ({$parentdir})", '親ディレクトリが空白です。');
         }
         $i = 1;
         if (!is_dir($parentdir)) {
             if ($i > $dir_limit) {
-                die("Error: cannot mkdir. ( {$parentdir} )<br>階層を上がり過ぎたので、ストップしました。");
+                p2die("cannot mkdir. ({$parentdir})", '階層を上がり過ぎたので、ストップしました。');
             }
             self::mkdir_for($parentdir);
-            mkdir($parentdir, $perm) or die("Error: cannot mkdir. ( {$parentdir} )");
+            mkdir($parentdir, $perm) or p2die("cannot mkdir. ({$parentdir})");
             chmod($parentdir, $perm);
             $i++;
         }

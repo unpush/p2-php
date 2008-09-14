@@ -121,7 +121,7 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
 
     // ‘‚«‚Ş
     if (FileCtl::file_write_contents($favlist_file, $cont) === false) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
 
 

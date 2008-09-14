@@ -13,7 +13,7 @@ $_login->authorize(); // ユーザ認証
 //==================================================
 if (empty($_GET['host'])) {
     // 引数エラー
-    die('p2 error: host が指定されていません');
+    p2die('host が指定されていません');
 } else {
     $host = $_GET['host'];
 }
@@ -88,18 +88,18 @@ echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOHEADER;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
-    <link rel="stylesheet" type="text/css" href="css.php?css=post&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=post&amp;skin={$skin_en}">\n
 EOP;
     if ($_conf['expack.editor.dpreview']) {
         echo "<link rel=\"stylesheet\" href=\"css.php?css=prvw&amp;skin={$skin_en}\" type=\"text/css\">\n";

@@ -10,7 +10,7 @@ require_once './conf/conf.inc.php';
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}

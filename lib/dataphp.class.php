@@ -136,13 +136,13 @@ class DataPhp
         // ファイルがなければ生成
         FileCtl::make_datafile($data_php, $perm);
         // 書き込む
-        $fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
-        @flock($fp, LOCK_EX);
+        $fp = @fopen($data_php, 'wb') or p2die("{$data_php} を更新できませんでした");
+        flock($fp, LOCK_EX);
         $last = ignore_user_abort(1);
         ftruncate($fp, 0);
         fwrite($fp, $new_cont);
         ignore_user_abort($last);
-        @flock($fp, LOCK_UN);
+        flock($fp, LOCK_UN);
         fclose($fp);
 
         return true;
@@ -192,13 +192,13 @@ class DataPhp
         // ファイルがなければ生成
         FileCtl::make_datafile($data_php, $perm);
         // 書き込む
-        $fp = @fopen($data_php, 'wb') or die("Error: {$data_php} を更新できませんでした");
-        @flock($fp, LOCK_EX);
+        $fp = @fopen($data_php, 'wb') or p2die("{$data_php} を更新できませんでした");
+        flock($fp, LOCK_EX);
         $last = ignore_user_abort(1);
         ftruncate($fp, 0);
         fwrite($fp, $new_cont);
         ignore_user_abort($last);
-        @flock($fp, LOCK_UN);
+        flock($fp, LOCK_UN);
         fclose($fp);
 
         return true;

@@ -375,8 +375,7 @@ class BbsMap
 
         $map_cache = serialize($map);
         if (FileCtl::file_write_contents($map_cache_path, $map_cache) === false) {
-            $errmsg = sprintf('Error: cannot write file. (%s)', htmlspecialchars($map_cache_path, ENT_QUOTES));
-            die($errmsg);
+            p2die("cannot write file. ({$map_cache_path})");
         }
 
         // }}}
@@ -404,8 +403,7 @@ class BbsMap
             $cont = '';
         }
         if (FileCtl::file_write_contents($path, $cont) === false) {
-            $errmsg = sprintf('Error: cannot write file. (%s)', htmlspecialchars($path, ENT_QUOTES));
-            die($errmsg);
+            p2die("cannot write file. ({$path})");
         }
     }
 

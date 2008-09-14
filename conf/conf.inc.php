@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080827.0000',   // 拡張パックのバージョン
+    'p2expack'  => '080828.0000',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -306,7 +306,6 @@ $_conf['p2_version_id'] = P2_VERSION_ID;
 
 $_conf['doctype'] = '';
 $_conf['accesskey'] = 'accesskey';
-$_conf['meta_charset_ht'] = '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">';
 
 // 文字コード自動判定用のヒント文字列
 $_conf['detect_hint'] = '◎◇';
@@ -1104,11 +1103,13 @@ function print_style_tags()
     if (strlen($skin_uniq)) { $style_a .= '&_=' . rawurlencode($skin_uniq); }
     if ($styles = func_get_args()) {
         echo "\t<style type=\"text/css\">\n";
+        echo "\t/* <![CDATA[ */\n";
         foreach ($styles as $style) {
             if (file_exists(P2_STYLE_DIR . '/' . $style . '_css.inc')) {
                 printf("\t@import 'css.php?css=%s%s';\n", $style, $style_a);
             }
         }
+        echo "\t/* ]]> */\n";
         echo "\t</style>\n";
     }
 }
@@ -1240,16 +1241,36 @@ function wakati($str)
 
 /**
  * メッセージを表示して終了
+ * ヘッダが出力されている場合、<body>までは出力済と見なす
  *
  * @param   string  $err    エラー概要
  * @param   string  $msg    詳細な説明
  * @param   boolean $raw    詳細な説明をエスケープするか否か
  * @return  void
  */
-function p2die($err, $msg = null, $raw = false)
+function p2die($err = null, $msg = null, $raw = false)
 {
-    echo '<html><head><title>p2 error</title></head><body>';
-    echo '<h3>p2 error: ', htmlspecialchars($err, ENT_QUOTES), '</h3>';
+    if (!headers_sent()) {
+        P2Util::header_nocache();
+        echo <<<EOH
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{$GLOBALS['_conf']['extra_headers_ht']}
+<title>rep2 error</title>
+</head>
+<body>
+EOH;
+    }
+
+    echo '<h3>rep2 error</h3>';
+
+    if ($err !== null) {
+        echo '<p><strong>', htmlspecialchars($err, ENT_QUOTES), '</strong></p>';
+    }
+
     if ($msg !== null) {
         if ($raw) {
             echo '<p>', nl2br(htmlspecialchars($msg, ENT_QUOTES)), '</p>';
@@ -1257,7 +1278,46 @@ function p2die($err, $msg = null, $raw = false)
             echo $msg;
         }
     }
+
+    if (true) {
+        echo '<pre><em>backtrace:</em>';
+
+        $call_p2die = true;
+        $p2_file_prefix = P2_BASE_DIR . DIRECTORY_SEPARATOR;
+        $p2_base_dir_len = strlen(P2_BASE_DIR);
+        $backtrace = debug_backtrace();
+        $c = count($backtrace);
+
+        foreach ($backtrace as $bt) {
+            echo "\n";
+
+            if (strpos($bt['file'], $p2_file_prefix) === 0) {
+                $filename = '.' . substr($bt['file'], $p2_base_dir_len);
+            } else {
+                $filename = '(external)' . DIRECTORY_SEPARATOR . basename($bt['file']);
+            }
+            printf('  % 2d. %s (line %d)', $c--, $filename, $bt['line']);
+
+            if (!$call_p2die && array_key_exists('function', $bt) && $bt['function'] !== '') {
+                if (array_key_exists('class', $bt) && $bt['class'] !== '') {
+                    printf(': %s%s%s()',
+                           $bt['class'],
+                           str_replace('>', '&gt;', $bt['type']),
+                           $bt['function']
+                           );
+                } else {
+                    printf(': %s()', $bt['function']);
+                }
+            }
+
+            $call_p2die = false;
+        }
+
+        echo '</pre>';
+    }
+
     echo '</body></html>';
+    exit;
 }
 
 // }}}

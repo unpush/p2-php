@@ -14,6 +14,7 @@ echo <<<EOH
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$title}</title>
     <base target="{$_conf['expack.rss.target_frame']}">
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">

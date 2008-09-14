@@ -16,7 +16,7 @@ function deleMsg($checked_hists)
 
     // 読み込んで
     if (!$reslines = FileCtl::file_read_lines($_conf['p2_res_hist_dat'], FILE_IGNORE_NEW_LINES)) {
-        die("p2 Error: {$_conf['p2_res_hist_dat']} を開けませんでした");
+        p2die("{$_conf['p2_res_hist_dat']} を開けませんでした");
     }
 
     // ファイルの下に記録されているものが新しいので逆順にする
@@ -56,11 +56,11 @@ function deleMsg($checked_hists)
         $temp_file = $_conf['p2_res_hist_dat'] . '.tmp';
         $write_file = P2_OS_WINDOWS ? $_conf['p2_res_hist_dat'] : $temp_file;
         if (FileCtl::file_write_contents($write_file, $cont) === false) {
-            die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
+            p2die('cannot write file.');
         }
         if (!P2_OS_WINDOWS) {
             if (!rename($write_file, $_conf['p2_res_hist_dat'])) {
-                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+                p2die('cannot rename file.');
             }
         }
 

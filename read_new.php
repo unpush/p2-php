@@ -58,7 +58,7 @@ if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
 if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
 
 if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
-    die('p2 error: 必要な引数が指定されていません');
+    p2die('必要な引数が指定されていません');
 }
 
 //=================================================
@@ -74,7 +74,7 @@ if (P2_READ_NEW_SAVE_MEMORY) {
     register_shutdown_function('saveMatomeCacheFromTmpFile');
     $read_new_tmp_fh = tmpfile();
     if (!is_resource($read_new_tmp_fh)) {
-        die('Error: cannot make tmpfile.');
+        p2die('cannot make tmpfile.');
     }
 } else {
     register_shutdown_function('saveMatomeCache');
@@ -154,11 +154,11 @@ echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle_ht}</title>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={$skin_en}">

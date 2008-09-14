@@ -41,7 +41,7 @@ class BrdCtl
         if ($cdir = @dir($brd_dir)) {
             // ディレクトリ走査
             while ($entry = $cdir->read()) {
-                if (preg_match('/^\./', $entry)) {
+                if ($entry[0] == '.') {
                     continue;
                 }
                 $filepath = $brd_dir.'/'.$entry;

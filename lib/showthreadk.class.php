@@ -424,7 +424,7 @@ EOP;
 
             // SPM
             if ($_conf['expack.spm.enabled']) {
-                $no_onclick = " onclick=\"SPM.show({$this->spmObjName},{$i},'{$res_id}',event)\"";
+                $no_onclick = " onclick=\"{$this->spmObjName}.show({$i},'{$res_id}',event)\"";
             }
 
             // î‘çÜ
@@ -646,6 +646,8 @@ var {$this->spmObjName} = {
     'ls':'{$_spm_ls}',
     'client':['{$_conf['b']}','{$_conf['client_type']}']
 };
+{$this->spmObjName}.show = (function(no,id,evt){SPM.show({$this->spmObjName},no,id,evt);});
+{$this->spmObjName}.hide = SPM.hide; // (function(evt){SPM.hide(evt);});
 //]]>
 </script>\n
 EOJS;
@@ -681,7 +683,7 @@ EOJS;
     <option value="ng">NG</option>
 <!-- <option value="search">åüçı</option> -->
 </select><input type="button" onclick="SPM.doAction()" value="OK"></div>
-<img id="spm-closer" src="img/iphone/close.png" width="24" height="26" onclick="SPM.hide()">
+<img id="spm-closer" src="img/iphone/close.png" width="24" height="26" onclick="SPM.hide(event)">
 </div>
 EOP;
     }

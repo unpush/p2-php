@@ -82,7 +82,7 @@ if (!isset($GLOBALS['word'])) {
         }
         if ($res_filter_cont && !$popup_filter) {
             if (FileCtl::file_write_contents($cachefile, $res_filter_cont) === false) {
-                die("Error: cannot write file.");
+                p2die('cannot write file.');
             }
         }
     }
@@ -428,10 +428,12 @@ function detectThread()
     }
 
     if (!($host && $bbs && $key)) {
-        $htm['nama_url'] = htmlspecialchars($nama_url, ENT_QUOTES);
-        $msg = "p2 - {$_conf['read_php']}: スレッドの指定が変です。<br>"
-            . "<a href=\"{$htm['nama_url']}\">" . $htm['nama_url'] . "</a>";
-        die($msg);
+        if ($nama_url) {
+            $nama_url = htmlspecialchars($nama_url, ENT_QUOTES);
+            p2die('スレッドの指定が変です。', "<a href=\"{$nama_url}\">{$nama_url}</a>", true);
+        } else {
+            p2die('スレッドの指定が変です。');
+        }
     }
 }
 
@@ -483,11 +485,11 @@ function recRecent($data)
 
         $write_file = P2_OS_WINDOWS ? $_conf['rct_file'] : $temp_file;
         if (FileCtl::file_write_contents($write_file, $cont) === false) {
-            die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
+            p2die('cannot write file.');
         }
         if (!P2_OS_WINDOWS) {
             if (!rename($write_file, $_conf['rct_file'])) {
-                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+                p2die('cannot rename file.');
             }
         }
 

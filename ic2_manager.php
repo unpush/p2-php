@@ -12,7 +12,7 @@ require_once './conf/conf.inc.php';
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -30,7 +30,7 @@ $ini = ic2_loadconfig();
 // データベースに接続
 $db = DB::connect($ini['General']['dsn']);
 if (DB::isError($db)) {
-    die('<html><body><p>'.$result->getMessage().'</p></body></html>');
+    p2die($result->getMessage());
 }
 
 // テンプレートエンジン初期化

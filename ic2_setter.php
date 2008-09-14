@@ -12,7 +12,7 @@ require_once './conf/conf.inc.php';
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -81,7 +81,7 @@ $upfiles = array();
 if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
     $errors = array_count_values($_FILES['upimg']['error']);
     if (!empty($errors[UPLOAD_ERR_NO_TMP_DIR])) {
-        die('<html><body><p>ファイルアップロード用のテンポラリフォルダがありません。</p></body></html>');
+        p2die('ImageCache2 - ファイルアップロード用のテンポラリフォルダがありません。');
     } elseif (count($_FILES['upimg']['error']) == $errors[UPLOAD_ERR_NO_FILE]) {
         $_info_msg_ht .= $err_fmt['none'];
     } else {

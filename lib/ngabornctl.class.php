@@ -38,6 +38,15 @@ class NgAbornCtl
 
         // HITした時のみ更新する
         if ($GLOBALS['ngaborns_hits']) {
+
+            $lasttime = date('Y/m/d G:i');
+            if ($_conf['ngaborn_daylimit']) {
+                $daylimit = time() - 60 * 60 * 24 * $_conf['ngaborn_daylimit'];
+            } else {
+                $daylimit = 0;
+            }
+            $errors = '';
+
             foreach ($ngaborns_hits as $code => $v) {
 
                 if (isset($ngaborns[$code]) && !empty($ngaborns[$code]['data'])) {
@@ -45,21 +54,20 @@ class NgAbornCtl
                     // 更新時間でソートする
                     usort($ngaborns[$code]['data'], array('NgAbornCtl', 'cmpLastTime'));
 
-                    $cont = "";
+                    $cont = '';
                     foreach ($ngaborns[$code]['data'] as $a_ngaborn) {
 
-                        // 必要ならここで古いデータはスキップ（削除）する
-                        if (!empty($a_ngaborn['lasttime']) && $_conf['ngaborn_daylimit']) {
-                            if (strtotime($a_ngaborn['lasttime']) < time() - 60 * 60 * 24 * $_conf['ngaborn_daylimit']) {
+                        if (empty($a_ngaborn['lasttime']) || $a_ngaborn['lasttime'] == '--') {
+                            // 古いデータを削除する都合上、仮に現在の日時を付与
+                            $a_ngaborn['lasttime'] = $lasttime;
+                         } else {
+                            // 必要ならここで古いデータはスキップ（削除）する
+                            if ($daylimit > 0 && strtotime($a_ngaborn['lasttime']) < $daylimit) {
                                 continue;
                             }
                         }
 
-                        if (empty($a_ngaborn['lasttime'])) {
-                            $a_ngaborn['lasttime'] = date('Y/m/d G:i');
-                        }
-
-                        $cont .= $a_ngaborn['cond'] . "\t" . $a_ngaborn['lasttime'] . "\t" . $a_ngaborn['hits'] . "\n";
+                        $cont .= sprintf("%s\t%s\t%d\n", $a_ngaborn['cond'], $a_ngaborn['lasttime'], $a_ngaborn['hits']);
                     } // foreach
 
                     /*
@@ -70,18 +78,23 @@ class NgAbornCtl
 
                     // 書き込む
 
-                    $fp = @fopen($ngaborns[$code]['file'], 'wb'); // or die("Error: cannot write. ( $ngaborns[$code]['file'] )");
-                    if ($fp) {
-                        @flock($fp, LOCK_EX);
+                    $fp = @fopen($ngaborns[$code]['file'], 'wb');
+                    if (!$fp) {
+                        $errors .= "cannot write. ({$ngaborns[$code]['file']})\n";
+                    } else {
+                        flock($fp, LOCK_EX);
                         fputs($fp, $cont);
-                        @flock($fp, LOCK_UN);
+                        flock($fp, LOCK_UN);
                         fclose($fp);
                     }
-
 
                 } // if
 
             } // foreach
+
+            if ($errors != '') {
+                p2die('NGあぼーんファイルが更新できませんでした。', $errors);
+            }
         }
         return true;
     }
@@ -97,7 +110,10 @@ class NgAbornCtl
         if (empty($a['lasttime']) || empty($b['lasttime'])) {
             return strcmp($a['lasttime'], $b['lasttime']);
         }
-        return (strtotime($a['lasttime']) < strtotime($b['lasttime'])) ? 1 : -1;
+        if ($a['lasttime'] == $b['lasttime']) {
+            return $b['hits'] - $a['hits'];
+        }
+        return strtotime($b['lasttime']) - strtotime($a['lasttime']);
     }
 
     // }}}

@@ -57,7 +57,7 @@ function saveMatomeCache()
 
     FileCtl::make_datafile($file, $_conf['p2_perm']);
     if (FileCtl::file_write_contents($file, $GLOBALS['read_new_html']) === false) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
 
     return true;
@@ -116,7 +116,7 @@ function saveMatomeCacheFromTmpFile()
     FileCtl::make_datafile($file, $_conf['p2_perm']);
     $fh = fopen($file, 'wb');
     if (!$fh) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
     @flock($fh, LOCK_EX);
     fseek($GLOBALS['read_new_tmp_fh'], 0);

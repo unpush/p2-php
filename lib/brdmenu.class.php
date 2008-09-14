@@ -193,7 +193,7 @@ class BrdMenu
 
         if ($cont) {
             if (FileCtl::file_write_contents($p2brdfile, $cont) === false) {
-                die("p2 error: {$p2brdfile} を更新できませんでした");
+                p2die("{$p2brdfile} を更新できませんでした");
             }
             return $p2brdfile;
         } else {

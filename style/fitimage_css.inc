@@ -37,8 +37,12 @@ div#btn img {
 }
 
 div#fi_stars {
-    display: inline;
-    display: inline-block;
+	display: inline;
+	display: inline-block;
+	position: absolute;
+	bottom: 2px;
+	right: 2px;
+	cursor: pointer;
 }
 
 EOSTYLE;

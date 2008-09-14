@@ -13,7 +13,7 @@ $path_ht = htmlspecialchars($path, ENT_QUOTES);
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-        die('p2 error: 不正なポストです');
+        p2die('不正なポストです');
     }
 }
 
@@ -32,7 +32,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
         $files_st .= "「".$afile."」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の書き込めるファイルは、".$files_st."だけ！");
+    p2die(basename($_SERVER['SCRIPT_NAME']) . " 先生の書き込めるファイルは、{$files_st}だけ！");
 }
 
 //=====================================================================
@@ -159,11 +159,11 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 

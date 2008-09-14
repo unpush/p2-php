@@ -1,60 +1,57 @@
 <?php
-// p2 - デザイン用 設定ファイル
-
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-/*
-	コメント冒頭の() 内はデフォルト値
-	設定は style/*_css.inc と連動
-*/
- 
-//======================================================================
-// デザインカスタマイズ
-//======================================================================
+/**
+ * rep2 - デザイン用 設定ファイル
+ *
+ * flatスキンの色彩を青系から赤系にし、コントラストも強めにしたスキン
+ *
+ * コメント冒頭の() 内はデフォルト値
+ * 設定は style/*_css.inc と連動
+ */
 
 $STYLE['a_underline_none'] = "1"; // ("2") リンクに下線を（つける:0, つけない:1, スレタイトル一覧だけつけない:2）
 
-// フォント ======================================================
+// {{{ フォント
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
-	/* Mac用フォントファミリー*/
-	if (strpos($_SERVER['HTTP_USER_AGENT'], 'AppleWebKit') !== false) {
-		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro");
-		$STYLE['fontfamily_bold'] = array("Myriad Pro", "Lucida Grande", "Hiragino Kaku Gothic Pro");
-		$STYLE['fontweight_bold'] = "bold";
-	} else {
-		$STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "ヒラギノ丸ゴ Pro W4"); // ("ヒラギノ角ゴ Pro W3") 基本のフォント
-		$STYLE['fontfamily_bold'] = "ヒラギノ角ゴ Pro W6"; // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）
-	}
-	/* Mac用フォントサイズ */
-	$STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
-	$STYLE['menu_fontsize'] = "11px"; // ("11px") 板メニューのフォントの大きさ
-	$STYLE['sb_fontsize'] = "11px"; // ("11px") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] = "12px"; // ("12px") スレッド内容表示のフォントの大きさ
-	$STYLE['respop_fontsize'] = "11px"; // ("11px") 引用レスポップアップ表示のフォントの大きさ
-	$STYLE['infowin_fontsize'] = "11px"; // ("11px") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select のフォントの大きさ（Caminoを除く）
+    /* Mac用フォントファミリー*/
+    if (P2Util::isBrowserSafariGroup()){ /* Safari系なら */
+        $STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro");
+        $STYLE['fontfamily_bold'] = array("Myriad Pro", "Lucida Grande", "Hiragino Kaku Gothic Pro");
+        $STYLE['fontweight_bold'] = "bold";
+    } else {
+        $STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "ヒラギノ丸ゴ Pro W4"); // ("ヒラギノ角ゴ Pro W3") 基本のフォント
+        $STYLE['fontfamily_bold'] = "ヒラギノ角ゴ Pro W6"; // ("ヒラギノ角ゴ Pro W6") 基本ボールド用フォント（普通に太字にしたい場合は指定しない("")）
+    }
+    /* Mac用フォントサイズ */
+    $STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
+    $STYLE['menu_fontsize'] = "11px"; // ("11px") 板メニューのフォントの大きさ
+    $STYLE['sb_fontsize'] = "11px"; // ("11px") スレ一覧のフォントの大きさ
+    $STYLE['read_fontsize'] = "12px"; // ("12px") スレッド内容表示のフォントの大きさ
+    $STYLE['respop_fontsize'] = "11px"; // ("11px") 引用レスポップアップ表示のフォントの大きさ
+    $STYLE['infowin_fontsize'] = "11px"; // ("11px") 情報ウィンドウのフォントの大きさ
+    $STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select のフォントの大きさ（Caminoを除く）
 }else{
-	/* Mac以外のフォントファミリー*/
-	$STYLE['fontfamily'] = "ＭＳ Ｐゴシック"; // ("ＭＳ Ｐゴシック") 基本のフォント
-	/* Mac以外のフォントサイズ */
-	$STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
-	$STYLE['menu_fontsize'] = "12px"; // ("12px") 板メニューのフォントの大きさ
-	$STYLE['sb_fontsize'] = "12px"; // ("12px") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] = "13px"; // ("13px") スレッド内容表示のフォントの大きさ
-	$STYLE['respop_fontsize'] = "11px"; // ("12px") 引用レスポップアップ表示のフォントの大きさ
-	$STYLE['infowin_fontsize'] = "12px"; // ("12px") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select のフォントの大きさ
+    /* Mac以外のフォントファミリー*/
+    $STYLE['fontfamily'] = "ＭＳ Ｐゴシック"; // ("ＭＳ Ｐゴシック") 基本のフォント
+    /* Mac以外のフォントサイズ */
+    $STYLE['fontsize'] = "12px"; // ("12px") 基本フォントの大きさ
+    $STYLE['menu_fontsize'] = "12px"; // ("12px") 板メニューのフォントの大きさ
+    $STYLE['sb_fontsize'] = "12px"; // ("12px") スレ一覧のフォントの大きさ
+    $STYLE['read_fontsize'] = "13px"; // ("13px") スレッド内容表示のフォントの大きさ
+    $STYLE['respop_fontsize'] = "11px"; // ("12px") 引用レスポップアップ表示のフォントの大きさ
+    $STYLE['infowin_fontsize'] = "12px"; // ("12px") 情報ウィンドウのフォントの大きさ
+    $STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select のフォントの大きさ
 }
 
-//======================================================================
-// 色彩の設定
-//======================================================================
-// 無指定("")はブラウザのデフォルト色、または基本指定となります。
-// 優先度は、個別ページ指定 → 基本指定 → 使用ブラウザのデフォルト指定 です。
+// }}}
+/**
+ * 色彩の設定
+ *
+ * 無指定("")はブラウザのデフォルト色、または基本指定となります。
+ * 優先度は、個別ページ指定 → 基本指定 → 使用ブラウザのデフォルト指定 です。
+ */
+// {{{ 基本(style)
 
-// 基本(style) =======================
 $STYLE['bgcolor'] = "#FFFFFF"; // ("#ffffff") 基本 背景色
 $STYLE['background'] = ""; // ("") 基本 背景画像
 $STYLE['textcolor'] = "#000000"; // ("#000") 基本 テキスト色
@@ -64,7 +61,9 @@ $STYLE['acolor_h'] = "#32AF32"; // ("#09c") 基本 マウスオーバー時のリンク色
 
 $STYLE['fav_color'] = "#195EFF"; // ("#999") お気にマークの色
 
-// メニュー(menu) ====================
+// }}}
+// {{{ メニュー(menu)
+
 $STYLE['menu_bgcolor'] = "#FEDFED"; //("#fff") メニューの背景色
 $STYLE['menu_color'] = "#000000"; //("#000") menu テキスト色
 $STYLE['menu_background'] = ""; //("") メニューの背景画像
@@ -76,10 +75,12 @@ $STYLE['menu_ita_color'] = "#000000"; // ("") メニュー 板 リンク色
 $STYLE['menu_ita_color_v'] = "#686A6E"; // ("") メニュー 板 訪問済みリンク色
 $STYLE['menu_ita_color_h'] = "#195EFF"; // ("#09c") メニュー 板 マウスオーバー時のリンク色
 
-$STYLE['menu_newthre_color'] = "#98AAC4";	// ("hotpink") menu 新規スレッド数の色
-$STYLE['menu_newres_color'] = "#98AAC4";	// ("#ff3300") menu 新着レス数の色
+$STYLE['menu_newthre_color'] = "#98AAC4";   // ("hotpink") menu 新規スレッド数の色
+$STYLE['menu_newres_color'] = "#98AAC4";    // ("#ff3300") menu 新着レス数の色
 
-// スレ一覧(subject) ====================
+// }}}
+// {{{ スレ一覧(subject)
+
 $STYLE['sb_bgcolor'] = "#E3E3E3"; // ("#fff") subject 背景色
 $STYLE['sb_background'] = ""; // ("") subject 背景画像
 $STYLE['sb_color'] = "#000000";  // ("#000") subject テキスト色
@@ -114,14 +115,16 @@ $STYLE['sb_tool_acolor_v'] = "#FFFFFF"; // ("#d6e7ff") subject ツールバー内 訪問
 $STYLE['sb_tool_acolor_h'] = "#E3E3E3"; // ("#fff") subject ツールバー内 マウスオーバー時のリンク色
 $STYLE['sb_tool_sepa_color'] = "#E3E3E3"; // ("#000") subject ツールバー内 セパレータ文字色
 
-$STYLE['sb_now_sort_color'] = "#FAFA23";	// ("#1144aa") subject 現在のソート色
+$STYLE['sb_now_sort_color'] = "#FAFA23";    // ("#1144aa") subject 現在のソート色
 
-$STYLE['sb_thre_title_new_color'] = "#FF4500";	// ("red") subject 新規スレタイトルの色
+$STYLE['sb_thre_title_new_color'] = "#FF4500";  // ("red") subject 新規スレタイトルの色
 
 $STYLE['sb_tool_newres_color'] = "#FF4500"; // ("#ff3300") subject ツールバー内 新規レス数の色
 $STYLE['sb_newres_color'] = "#FF4500"; // ("#ff3300") subject 新着レス数の色
 
-// スレ内容(read) ====================
+// }}}
+// {{{ スレ内容(read)
+
 $STYLE['read_bgcolor'] = "#FFFFFF"; // ("#efefef") スレッド表示の背景色
 $STYLE['read_background'] = ""; // ("") スレッド表示の背景画像
 $STYLE['read_color'] = "#000000"; // ("#000") スレッド表示のテキスト色
@@ -138,17 +141,23 @@ $STYLE['read_mail_color'] = "#32AF32"; // ("") 投稿者のmailの色 ex)"#a00000"
 $STYLE['read_mail_sage_color'] = "#32CD32"; // ("") sageの時の投稿者のmailの色 ex)"#00b000"
 $STYLE['read_ngword'] = "#E3E3E3"; // ("#bbbbbb") NGワードの色
 
-// 実況モード ================
+// }}}
+// {{{ 実況モード
+
 $SYTLE['live_b_width'] = "1px"; // ("1px") 実況モード、ボーダー幅
 $SYTLE['live_b_color'] = "#008080"; // ("#888") 実況モード、ボーダー色
 $SYTLE['live_b_style'] = "dashed"; // ("solid") 実況モード、ボーダー形式
 
-// レス書き込みフォーム ================
+// }}}
+// {{{ レス書き込みフォーム
+
 $STYLE['post_pop_size'] = "610,350"; // ("610,350") レス書き込みポップアップウィンドウの大きさ（横,縦）
 $STYLE['post_msg_rows'] = 10; // (10) レス書き込みフォーム、メッセージフィールドの行数
 $STYLE['post_msg_cols'] = 70; // (70) レス書き込みフォーム、メッセージフィールドの桁数
 
-// レスポップアップ ====================
+// }}}
+// {{{ レスポップアップ
+
 $STYLE['respop_color'] = "#000000"; // ("#000") レスポップアップのテキスト色
 $STYLE['respop_bgcolor'] = "#F9F9F9"; // ("#ffffcc") レスポップアップの背景色
 $STYLE['respop_background'] = ""; // ("") レスポップアップの背景画像
@@ -160,7 +169,9 @@ $STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの
 
 $STYLE['conf_btn_bgcolor'] = '#efefef';
 
-// スタイルの上書き ====================
+// }}}
+// {{{ style/*_css.inc で定義されていない設定
+
 $MYSTYLE['read']['body']['margin'] = "0";
 $MYSTYLE['read']['body']['padding'] = "5px 10px";
 $MYSTYLE['read']['form#header']['margin'] = "-5px -10px 2px -10px";
@@ -196,3 +207,16 @@ $MYSTYLE['subject']['tr#pager a:hover']['color'] = "#E3E3E3";
 
 $MYSTYLE['iv2']['div#toolbar']['background'] = "#000000 url('./skin/flat/header2_l.png') top repeat-x";
 $MYSTYLE['iv2']['div#toolbar td']['color'] = "#FFFFFF";
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

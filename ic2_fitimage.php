@@ -12,7 +12,7 @@ require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -67,11 +67,11 @@ echo $_conf['doctype'];
 echo <<<EOF
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>fitImage - {$alt}</title>
     <link rel="stylesheet" type="text/css" href="css.php?css=fitimage&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
@@ -85,7 +85,7 @@ echo <<<EOF
     <img src="img/fi_full.gif" width="15" height="15" onclick="fitimage('full')" alt="XY">
     <img src="img/fi_height.gif" width="15" height="15" onclick="fitimage('height')" alt="Y">
     <img src="img/fi_width.gif" width="15" height="15" onclick="fitimage('width')" alt="X">
-    <div id="fi_stars" style="position:absolute;bottom:2;right:2;cursor:pointer"><img src="img/sn0.png" width="16" height="16" alt="-1" onclick="fiUpdateRank(-1)"><img src="img/sz1.png" width="10" height="16" alt="0" onclick="fiUpdateRank(0)"><img src="img/s0.png" width="16" height="16" alt="1" onclick="fiUpdateRank(1)"><img src="img/s0.png" width="16" height="16" alt="2" onclick="fiUpdateRank(2)"><img src="img/s0.png" width="16" height="16" alt="3" onclick="fiUpdateRank(3)"><img src="img/s0.png" width="16" height="16" alt="4" onclick="fiUpdateRank(4)"><img src="img/s0.png" width="16" height="16" alt="5" onclick="fiUpdateRank(5)"></div>
+    <div id="fi_stars"><img src="img/sn0.png" width="16" height="16" alt="-1" onclick="fiUpdateRank(-1)"><img src="img/sz1.png" width="10" height="16" alt="0" onclick="fiUpdateRank(0)"><img src="img/s0.png" width="16" height="16" alt="1" onclick="fiUpdateRank(1)"><img src="img/s0.png" width="16" height="16" alt="2" onclick="fiUpdateRank(2)"><img src="img/s0.png" width="16" height="16" alt="3" onclick="fiUpdateRank(3)"><img src="img/s0.png" width="16" height="16" alt="4" onclick="fiUpdateRank(4)"><img src="img/s0.png" width="16" height="16" alt="5" onclick="fiUpdateRank(5)"></div>
 </div>
 <div id="pct">
     <img id="picture" src="{$url}" width="{$x}" height="{$y}" onclick="fiShowHide()" onload="{$afi_js}" alt="{$alt}">

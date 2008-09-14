@@ -84,11 +84,11 @@ function setPal($host, $bbs, $key, $setpal)
     $temp_file = $palace_idx . '.tmp';
     $write_file = P2_OS_WINDOWS ? $palace_idx : $temp_file;
     if (FileCtl::file_write_contents($write_file, $cont) === false) {
-        die('Error: cannot write file. ' . __FUNCTION__ . '()');
+        p2die('cannot write file.');
     }
     if (!P2_OS_WINDOWS) {
         if (!rename($write_file, $palace_idx)) {
-            die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+            p2die('cannot rename file.');
         }
     }
 

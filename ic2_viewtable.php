@@ -12,7 +12,7 @@ require_once './conf/conf.inc.php';
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -33,7 +33,7 @@ require_once P2EX_LIB_DIR . '/ic2/database.class.php';
 $ini = ic2_loadconfig();
 
 if (!isset($_REQUEST['table'])) {
-    die('<html><body><p>ic2 error - 不正なクエリ</p></body></html>');
+    p2die('ImageCache2 - 不正なクエリ');
 }
 
 $mode = $_REQUEST['table'];
@@ -51,7 +51,7 @@ switch ($mode) {
         $title = 'ブラックリスト';
         break;
     default:
-        die('<html><body><p>ic2 error - 不正なクエリ</p></body></html>');
+        p2die('ImageCache2 - 不正なクエリ');
 }
 
 
@@ -60,7 +60,7 @@ if (isset($_POST['clean'])) {
     $sql = 'DELETE FROM ' . $db->quoteIdentifier($table->__table);
     $result = $db->query($sql);
     if (DB::isError($result)) {
-        die('<html><body><p>'.$result->getMessage().'</p></body></html>');
+        p2die($result->getMessage());
     }
 } elseif (isset($_POST['delete']) && isset($_POST['target']) && is_array($_POST['target'])) {
     foreach ($_POST['target'] as $target) {

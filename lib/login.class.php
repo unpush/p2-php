@@ -556,7 +556,7 @@ EOP;
 EOP;
         FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']); // ファイルがなければ生成
         if (FileCtl::file_write_contents($_conf['auth_user_file'], $auth_user_cont) === false) {
-            die("p2 error: {$_conf['auth_user_file']} を保存できませんでした。認証{$p_str['user']}登録失敗。");
+            p2die("{$_conf['auth_user_file']} を保存できませんでした。認証{$p_str['user']}登録失敗。");
         }
 
         return true;

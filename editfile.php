@@ -10,7 +10,7 @@ $_login->authorize(); // ユーザ認証
 
 // 引数エラー
 if (!isset($_REQUEST['path'])) {
-    die('Error: path が指定されていません');
+    p2die('path が指定されていません');
 }
 
 // 変数 ==================================
@@ -45,7 +45,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
         $files_st .= "「".$afile."」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の書き込めるファイルは、".$files_st."だけ！");
+    p2die(basename($_SERVER['SCRIPT_NAME']) . " 先生の書き込めるファイルは、{$files_st}だけ！");
 }
 
 //=========================================================
@@ -72,14 +72,14 @@ exit;
 function setFile($path, $cont, $encode)
 {
     if ($path == '') {
-        die('Error: path が指定されていません');
+        p2die('path が指定されていません');
     }
 
     if ($encode == "EUC-JP") {
         $cont = mb_convert_encoding($cont, 'CP932', 'CP51932');
     }
     // 書き込む
-    $fp = @fopen($path, 'wb') or die("Error: cannot write. ( $path )");
+    $fp = @fopen($path, 'wb') or p2die("cannot write. ({$path})");
     @flock($fp, LOCK_EX);
     fputs($fp, $cont);
     @flock($fp, LOCK_UN);
@@ -98,14 +98,14 @@ function editFile($path, $encode)
     global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
 
     if ($path == '') {
-        die('Error: path が指定されていません');
+        p2die('path が指定されていません');
     }
 
     $filename = basename($path);
     $ptitle = "Edit: ".$filename;
 
     //ファイル内容読み込み
-    FileCtl::make_datafile($path) or die("Error: cannot make file. ( $path )");
+    FileCtl::make_datafile($path) or p2die("cannot make file. ({$path})");
     $cont = file_get_contents($path);
 
     if ($encode == "EUC-JP") {
@@ -126,11 +126,11 @@ function editFile($path, $encode)
     echo <<<EOHEADER
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
 </head>
 <body onload="top.document.title=self.document.title;">

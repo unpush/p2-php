@@ -21,7 +21,9 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
 
     // p2_threads_aborn.idx がなければ
-    if (!file_exists($taborn_idx)) { die("あぼーんリストが見つかりませんでした。"); }
+    if (!file_exists($taborn_idx)) {
+        p2die('あぼーんリストが見つかりませんでした。');
+    }
 
     // p2_threads_aborn.idx 読み込み
     $taborn_lines = FileCtl::file_read_lines($taborn_idx, FILE_IGNORE_NEW_LINES);
@@ -59,7 +61,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
         }
     }
     if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
 
     /*

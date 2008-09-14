@@ -79,7 +79,7 @@ function settaborn($host, $bbs, $key, $set)
         }
     }
     if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
 
     $GLOBALS['title_msg'] = $title_msg_pre;

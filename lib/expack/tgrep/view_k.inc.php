@@ -6,8 +6,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-    <meta http-equiv="Content-Style-Type" content="text/css">
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>tGrep<?php if (strlen($htm['query']) > 0) { echo ' - ', $htm['query']; } ?></title>
     <?php echo $htm['mobile_css'], $_conf['extra_headers_ht']; ?>
 </head>

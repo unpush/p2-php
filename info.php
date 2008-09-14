@@ -33,7 +33,7 @@ if ($_conf['iphone']) {
 
 // 以下どれか一つがなくてもダメ出し
 if (empty($host) || empty($bbs) || empty($key)) {
-    die('p2 error: 引数が正しくありません。');
+    p2die('引数が正しくありません。');
 }
 
 //================================================================
@@ -302,11 +302,11 @@ echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$hd['title']}</title>\n
 EOHEADER;
 
@@ -435,7 +435,7 @@ if ($_conf['ktai']) {
 echo '</body></html>';
 
 // 終了
-exit();
+exit;
 
 //=======================================================
 // 関数

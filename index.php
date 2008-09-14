@@ -73,8 +73,9 @@ if ($_conf['ktai']) {
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
-    <link href="favicon.ico" type="image/x-icon" rel="shortcut icon">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>\n
 EOHEADER;
 

@@ -54,7 +54,7 @@ if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
 if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
 
 if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
-    die('p2 error: 必要な引数が指定されていません');
+    p2die('必要な引数が指定されていません');
 }
 
 // 未読数制限
@@ -79,7 +79,7 @@ if (P2_READ_NEW_SAVE_MEMORY) {
     register_shutdown_function('saveMatomeCacheFromTmpFile');
     $read_new_tmp_fh = tmpfile();
     if (!is_resource($read_new_tmp_fh)) {
-        die('Error: cannot make tmpfile.');
+        p2die('cannot make tmpfile.');
     }
 } else {
     register_shutdown_function('saveMatomeCache');
@@ -178,9 +178,9 @@ echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
-{$_conf['meta_charset_ht']}
-{$_conf['extra_headers_ht']}
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{$_conf['extra_headers_ht']}
 <title>{$ptitle_ht}</title>\n
 EOHEADER;
 

@@ -23,7 +23,7 @@ $newtime = date('gis'); // “¯‚¶ƒŠƒ“ƒN‚ğƒNƒŠƒbƒN‚µ‚Ä‚àÄ“Ç‚µ‚È‚¢d—l‚É‘ÎR‚·‚éƒ
 $_info_msg_ht = '';
 
 if (empty($_GET['host']) || empty($_GET['bbs']) || empty($_GET['key']) || empty($_GET['ls'])) {
-    die("p2 - read_async.php: ƒŒƒX‚Ìw’è‚ª•Ï‚Å‚·B");
+    p2die('ƒŒƒX‚Ìw’è‚ª•Ï‚Å‚·B');
 }
 
 $host = $_GET['host'];

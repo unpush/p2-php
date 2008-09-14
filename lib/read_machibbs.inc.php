@@ -76,7 +76,7 @@ function machiDownload()
             }
         }
         if (FileCtl::file_write_contents($aThread->keydat, $cont, $file_append) === false) {
-            die('Error: cannot write file.');
+            p2die('cannot write file.');
         }
     }
     // }}}

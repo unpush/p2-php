@@ -28,7 +28,7 @@ $_login->authorize();
 // }}}
 
 if ($_conf['expack.google.enabled'] == 0) {
-    exit('<html><body><p>Google検索は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('Google検索は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 if ($_conf['view_forced_by_query']) {
@@ -141,11 +141,11 @@ if ($_conf['input_type_search']) {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
 <head>
-    <?php echo $_conf['meta_charset_ht']; ?>
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <?php echo $_conf['extra_headers_ht']; ?>
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <?php echo $_conf['extra_headers_ht']; ?>
     <title>2ch検索 by Google : <?php echo $word; ?></title>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin=<?php echo $skin_en; ?>">
     <link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin=<?php echo $skin_en; ?>">

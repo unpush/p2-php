@@ -10,19 +10,16 @@ require_once P2_LIB_DIR . '/filectl.class.php';
 $_login->authorize(); // ユーザ認証
 
 if (!empty($_conf['disable_res'])) {
-    P2Util::printSimpleHtml('p2 error: 書き込み機能は無効です。');
-    die('');
+    p2die('書き込み機能は無効です。');
 }
 
 // 引数エラー
 if (empty($_POST['host'])) {
-    P2Util::printSimpleHtml('p2 error: 引数の指定が変です');
-    die('');
+    p2die('引数の指定が変です');
 }
 
 if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-    P2Util::printSimpleHtml('p2 error: 不正なポストです');
-    die('');
+    p2die('不正なポストです');
 }
 
 if ($_conf['expack.aas.enabled'] && !empty($_POST['PREVIEW_AAS'])) {
@@ -196,7 +193,7 @@ FileCtl::make_datafile($cookie_file, $_conf['p2_perm']); // なければ生成
 if ($p2cookies) {$cookie_cont = serialize($p2cookies);}
 if ($cookie_cont) {
     if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
-        die("Error: cannot write file.");
+        p2die('cannot write file.');
     }
 }
 
@@ -281,11 +278,11 @@ if ($host && $bbs && $key) {
 
         $write_file = P2_OS_WINDOWS ? $rh_idx : $temp_file;
         if (FileCtl::file_write_contents($write_file, $cont) === false) {
-            die('p2 error: cannot write file. ' . __FUNCTION__ . '()');
+            p2die('cannot write file.');
         }
         if (!P2_OS_WINDOWS) {
             if (!rename($write_file, $rh_idx)) {
-                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
+                p2die('cannot rename file.');
             }
         }
     }
@@ -346,7 +343,8 @@ if ($_conf['res_write_rec']) {
  */
 function postIt($host, $bbs, $key, $post)
 {
-    global $_conf, $post_result, $post_error2ch, $p2cookies, $popup, $rescount, $ttitle_en, $STYLE;
+    global $_conf, $post_result, $post_error2ch, $p2cookies, $popup, $rescount, $ttitle_en;
+    global $STYLE, $skin_en;
     global $bbs_cgi, $post_cache;
 
     $method = "POST";
@@ -600,7 +598,8 @@ EOSCRIPT;
  */
 function showPostMsg($isDone, $result_msg, $reload)
 {
-    global $_conf, $location_ht, $popup, $STYLE, $ttitle;
+    global $_conf, $location_ht, $popup, $ttitle;
+    global $STYLE, $skin_en;
     global $_info_msg_ht;
 
     // プリント用変数 ===============
@@ -623,8 +622,8 @@ function showPostMsg($isDone, $result_msg, $reload)
 EOJS;
 
     } else {
-        $meta_refresh_ht = <<<EOP
-        <meta http-equiv="refresh" content="1;URL={$location_noenc}">
+        $_conf['extra_headers_ht'] .= <<<EOP
+<meta http-equiv="refresh" content="1;URL={$location_noenc}">
 EOP;
     }
 
@@ -633,12 +632,11 @@ EOP;
     echo <<<EOHEADER
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-{$meta_refresh_ht}
+    {$_conf['extra_headers_ht']}
 EOHEADER;
 
     if ($isDone) {
@@ -649,8 +647,9 @@ EOHEADER;
 
     if (!$_conf['ktai']) {
         echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=post&amp;skin={$skin_en}" type="text/css">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=post&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
         if ($popup) {
             echo <<<EOSCRIPT

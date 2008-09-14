@@ -56,10 +56,13 @@ if (isset($_POST['form_login_pass'])) {
 ?>
 EOP;
         FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']); // ファイルがなければ生成
-        $fp = @fopen($_conf['auth_user_file'], "wb") or die("rep2 Error: {$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
-        @flock($fp, LOCK_EX);
+        $fp = @fopen($_conf['auth_user_file'], 'wb');
+        if (!$fp) {
+            p2die("{$_conf['auth_user_file']} を保存できませんでした。認証ユーザ登録失敗。");
+        }
+        flock($fp, LOCK_EX);
         fputs($fp, $auth_user_cont);
-        @flock($fp, LOCK_UN);
+        flock($fp, LOCK_UN);
         fclose($fp);
 
         $_info_msg_ht .= '<p>○認証パスワードを変更登録しました</p>';
@@ -175,11 +178,11 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$p_str['ptitle']}</title>\n
 EOP;
 

@@ -172,7 +172,7 @@ class SubjectTxt
             // ƒtƒ@ƒCƒ‹‚É•Û‘¶‚·‚éê‡
             } else {
                 if (FileCtl::file_write_contents($this->subject_file, $body) === false) {
-                    die("Error: cannot write file");
+                    p2die('cannot write file');
                 }
                 chmod($this->subject_file, $perm);
             }

@@ -8,9 +8,9 @@
 echo <<<EOH
 <html lang="ja">
 <head>
-{$_conf['meta_charset_ht']}
-{$_conf['extra_headers_ht']}
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{$_conf['extra_headers_ht']}
 <title>{$title}</title>
 </head>
 <body{$_conf['k_colors']}>
