@@ -1,7 +1,9 @@
 <?php
-/*
-    rep2 機能拡張パック - 携帯から SPM 相当の機能を利用するための関数
-*/
+/**
+ * rep2expack - 携帯から SPM 相当の機能を利用するための関数
+ */
+
+// {{{ kspform()
 
 /**
  * レス番号を指定して 移動・コピー(+引用)・AAS するフォームを生成
@@ -74,6 +76,9 @@ function kspform($aThread, $default = '', $params = null)
     return $form;
 }
 
+// }}{
+// {{{ kspDetectThread()
+
 /**
  * スレッドを指定する
  */
@@ -97,7 +102,7 @@ function kspDetectThread()
                 $bbs = $matches[5];
                 $key = $matches[7];
                 $kakolog_uri = $matches[1];
-                $_GET['kakolog'] = urlencode($kakolog_uri);
+                $_GET['kakolog'] = rawurlencode($kakolog_uri);
 
             // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
             } elseif ( preg_match("/http:\/\/([^\/]+\.machibbs\.com|[^\/]+\.machi\.to)\/bbs\/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*/", $nama_url, $matches) ){
@@ -137,3 +142,16 @@ function kspDetectThread()
         die($msg);
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

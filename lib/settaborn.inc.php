@@ -1,7 +1,11 @@
 <?php
-// p2 - スレッドあぼーんの関数
+/**
+ * rep2 - スレッドあぼーんの関数
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ settaborn()
 
 /**
  * スレッドあぼーんをオンオフする
@@ -83,3 +87,16 @@ function settaborn($host, $bbs, $key, $set)
 
     return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

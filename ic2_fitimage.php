@@ -16,6 +16,7 @@ if (!$_conf['expack.ic2.enabled']) {
 }
 
 // }}}
+// {{{ 画像検索・出力用変数設定
 
 $url = $_GET['url'];
 $x = '';
@@ -58,6 +59,9 @@ if ($x && $y) {
     }
 }
 
+// }}}
+// {{{ HTML出力
+
 P2Util::header_nocache();
 echo $_conf['doctype'];
 echo <<<EOF
@@ -89,6 +93,8 @@ echo <<<EOF
 </body>
 </html>
 EOF;
+
+// }}}
 
 /*
  * Local Variables:

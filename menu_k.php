@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 -  板メニュー 携帯用
-*/
+/**
+ * rep2 - 板メニュー 携帯用
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/brdctl.class.php';
@@ -95,7 +95,7 @@ $_info_msg_ht = "";
 // お気に板をプリントする
 //==============================================================
 if($_GET['view']=="favita"){
-    $aShowBrdMenuK->print_favIta();
+    $aShowBrdMenuK->printFavIta();
 
 //RSSリスト読み込み
 } elseif ($_GET['view'] == "rss" && $_conf['expack.rss.enabled']) {
@@ -214,3 +214,14 @@ echo $list_navi_ht;
 echo $modori_url_ht;
 echo $_conf['k_to_index_ht'];
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

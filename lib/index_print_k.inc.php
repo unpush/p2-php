@@ -1,7 +1,9 @@
 <?php
-/*
-    rep2 -  携帯用インデックスプリント関数
-*/
+/**
+ * rep2 - 携帯用インデックスプリント関数
+ */
+
+// {{{ index_print_k()
 
 /**
 * 携帯用インデックスプリント
@@ -96,3 +98,16 @@ EOS;
 EOP;
 
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

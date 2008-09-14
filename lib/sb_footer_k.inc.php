@@ -1,6 +1,8 @@
 <?php
-// p2 -  サブジェクト - 携帯フッタ表示
-// for subject.php
+/**
+ * rep2 - サブジェクト - 携帯フッタ表示
+ * for subject.php
+ */
 
 //=================================================
 //フッタプリント
@@ -280,3 +282,14 @@ echo '<hr>';
 echo "<div><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></div>";
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

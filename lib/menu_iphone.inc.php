@@ -77,7 +77,7 @@ function menu_iphone_ajax($func)
         //header('Content-Type: application/xhtml+xml; charset=UTF-8');
         header('Content-Type: application/xml; charset=UTF-8');
         //header('Content-Type: text/plain; charset=UTF-8');
-        header('Content-Length: '. strlen($content));
+        //header('Content-Length: '. strlen($content));
     }
 
     echo $content;
@@ -328,7 +328,7 @@ function menu_iphone_show_feed_list($title, $no = null)
 function menu_iphone_open_in_tab()
 {
     return '<li class="open-in-tab" onclick="check_prev(this.childNodes[1]);">' .
-           '<input type="checkbox" onclick="toggle_open_in_tab(this);">' .
+           '<input type="checkbox" onclick="toggle_open_in_tab(this);" />' .
            '<span>新しいタブで開く</span>' .
            '</li>';
 }

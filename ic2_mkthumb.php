@@ -15,17 +15,19 @@ if (!$_conf['expack.ic2.enabled']) {
 
 // }}}
 
-if ($GLOBALS['debug']) {
+/*if ($GLOBALS['debug']) {
     require_once 'Var_Dump.php';
     Var_Dump::display($_GET);
     exit;
-}
+}*/
 
 require_once 'PEAR.php';
 require_once 'DB/DataObject.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/database.class.php';
 require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+
+// {{{ リクエストパラメータの処理
 
 $uri    = $_GET['u'];
 $type   = $_GET['v'];
@@ -51,6 +53,9 @@ if (!empty($preset)) {
     }
 }
 $attachment = !empty($_GET['z']);
+
+// }}}
+// {{{ 画像を検索・サムネイルを作成
 
 $search = new IC2DB_Images;
 
@@ -90,8 +95,12 @@ if ($search->find(true)) {
     ic2_mkthumb_error("&quot;{$uri}&quot;はキャッシュされていません。");
 }
 
-exit;
+// }}}
+// {{{ ic2_mkthumb_success()
 
+/**
+ * サムネイルの作成に成功した場合
+ */
 function ic2_mkthumb_success($name, $mime, $data, $is_file, $attachment)
 {
     while (ob_get_level()) {
@@ -112,6 +121,12 @@ function ic2_mkthumb_success($name, $mime, $data, $is_file, $attachment)
     }
 }
 
+// }}}
+// {{{ ic2_mkthumb_error()
+
+/**
+ * サムネイルの作成に失敗した場合
+ */
 function ic2_mkthumb_error($msg)
 {
     echo <<<EOF
@@ -123,6 +138,8 @@ function ic2_mkthumb_error($msg)
 </html>
 EOF;
 }
+
+// }}}
 
 /*
  * Local Variables:

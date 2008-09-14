@@ -1,8 +1,8 @@
 <?php
-/*
-    p2 -  サブジェクト - ヘッダ表示
-    for subject.php
-*/
+/**
+ * rep2 - サブジェクト - ヘッダ表示
+ * for subject.php
+ */
 
 //===================================================================
 // 変数
@@ -207,7 +207,7 @@ echo <<<EOP
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/jquery.pack.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function setWinTitle(){
         var shinchaku_ari = "$shinchaku_attayo";
         if(shinchaku_ari){
@@ -253,14 +253,14 @@ echo <<<EOP
         }
     }
     \$(setWinTitle);
-    // -->
+    //]]>
     </script>\n
 EOP;
 
 if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
     echo <<<EOJS
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function checkAll(){
         var trk = 0;
         var inp = document.getElementsByTagName('input');
@@ -272,13 +272,13 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
             }
         }
     }
-    // -->
+    //]]>
     </script>
 EOJS;
 } elseif ($aThreadList->spmode == "recent") {
     echo <<<EOJS
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     \$(function(){
         var offrec_callback = function (row, html, status) {
             if (status == 'error') {
@@ -289,9 +289,9 @@ EOJS;
                 row.remove();
             }
         };
-        var col_proto = \$('<td style="padding:2px 0px 2px 4px"></td>');
-        var off_proto = \$('<a>×</a>');
-        \$('tr.tableheader').prepend('<td style="width:1em;padding:0"></td>');
+        var col_proto = \$('<td style="padding:2px 0px 2px 4px"><' + '/td>');
+        var off_proto = \$('<a>×<' + '/a>');
+        \$('tr.tableheader').prepend('<td style="width:1em;padding:0"><' + '/td>');
         \$('a.info').each(function(){
             var self = \$(this);
             var row = \$(self.parents('tr').get(0));
@@ -310,7 +310,7 @@ EOJS;
             row.prepend(col);
         })
     });
-    // -->
+    //]]>
     </script>
 EOJS;
 }
@@ -318,7 +318,7 @@ EOJS;
 
 echo <<<EOP
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<body>
 EOP;
 
 include P2_LIB_DIR . '/sb_toolbar.inc.php';
@@ -330,3 +330,14 @@ echo <<<EOP
 {$taborn_check_ht}{$check_form_ht}
 <table cellspacing="0" width="100%">\n
 EOP;
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

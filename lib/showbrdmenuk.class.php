@@ -1,23 +1,33 @@
 <?php
-/**
- * p2 - ボードメニューを表示する クラス(携帯)
- */
-class ShowBrdMenuK{
+// {{{ ShowBrdMenuK
 
-    var $cate_id; // カテゴリーID
+/**
+ * rep2 - ボードメニューを表示する クラス(携帯)
+ */
+class ShowBrdMenuK
+{
+    // {{{ properties
+
+    private $_cate_id; // カテゴリーID
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct()
+    public function __construct()
     {
-        $this->cate_id = 1;
+        $this->_cate_id = 1;
     }
+
+    // }}}
+    // {{{ printCate()
 
     /**
      * ■板メニューカテゴリをプリントする for 携帯
      */
-    function printCate($categories)
+    public function printCate(array $categories)
     {
         global $_conf, $list_navi_ht;
 
@@ -50,18 +60,21 @@ EOP;
             }
 
             foreach ($categories as $cate) {
-                if ($this->cate_id >= $disp_navi['from'] and $this->cate_id <= $disp_navi['end']) {
-                    echo "<a href=\"menu_k.php?cateid={$this->cate_id}&amp;nr=1{$_conf['k_at_a']}\">{$cate->name}</a>($cate->num)<br>\n";//$this->cate_id
+                if ($this->_cate_id >= $disp_navi['from'] and $this->_cate_id <= $disp_navi['end']) {
+                    echo "<a href=\"menu_k.php?cateid={$this->_cate_id}&amp;nr=1{$_conf['k_at_a']}\">{$cate->name}</a>($cate->num)<br>\n";//$this->_cate_id
                 }
-                $this->cate_id++;
+                $this->_cate_id++;
             }
         }
     }
 
+    // }}}
+    // {{{ printIta()
+
     /**
      * 板メニューカテゴリの板をプリントする for 携帯
      */
-    function printIta($categories)
+    public function printIta(array $categories)
     {
         global $_conf, $list_navi_ht;
 
@@ -69,10 +82,9 @@ EOP;
 
             foreach ($categories as $cate) {
                 if ($cate->num > 0) {
-                    if($this->cate_id == $_GET['cateid']){
+                    if($this->_cate_id == $_GET['cateid']){
 
                         echo "{$cate->name}<hr>\n";
-
 
                         // 表示数制限 ====================
                         if ($_GET['from']) {
@@ -85,12 +97,12 @@ EOP;
 
                         if ($disp_navi['from'] > 1) {
                             $mae_ht = <<<EOP
-<a href="menu_k.php?cateid={$this->cate_id}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a>
+<a href="menu_k.php?cateid={$this->_cate_id}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a>
 EOP;
                         }
                         if ($disp_navi['end'] < $list_disp_all_num) {
                             $tugi_ht = <<<EOP
-<a href="menu_k.php?cateid={$this->cate_id}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a>
+<a href="menu_k.php?cateid={$this->_cate_id}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a>
 EOP;
                         }
 
@@ -99,7 +111,6 @@ EOP;
 {$disp_navi['range_st']}{$mae_ht} {$tugi_ht}<br>
 EOP;
                         }
-
 
                         $i = 0;
                         foreach ($cate->menuitas as $mita) {
@@ -119,21 +130,23 @@ EOP;
 
                     }
                 }
-                $this->cate_id++;
+                $this->_cate_id++;
             }
         }
     }
 
+    // }}}
+    // {{{ printItaSearch()
+
     /**
      * 板名を検索してプリントする for 携帯
      */
-    function printItaSearch($categories)
+    public function printItaSearch(array $categories)
     {
         global $_conf, $_info_msg_ht, $word;
         global $list_navi_ht;
 
         if ($categories) {
-
             // {{{ 表示数制限
             if ($_GET['from']) {
                 $list_disp_from = $_GET['from'];
@@ -180,15 +193,18 @@ EOP;
                     }
 
                 }
-                $this->cate_id++;
+                $this->_cate_id++;
             }
         }
     }
 
+    // }}}
+    // {{{ printFavIta()
+
     /**
      * お気に板をプリントする for 携帯
      */
-    function print_favIta()
+    public function printFavIta()
     {
         global $_conf;
 
@@ -238,5 +254,18 @@ EOP;
         }
     }
 
-
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

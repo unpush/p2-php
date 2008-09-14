@@ -1,60 +1,72 @@
 <?php
-// p2 - 書き込み履歴のクラス
+/**
+ * rep2 - 書き込み履歴のクラス
+ */
+
+// {{{ ResArticle
 
 /**
  * レス記事のクラス
  */
-class ResArticle{
-    var $name;
-    var $mail;
-    var $daytime;
-    var $msg;
-    var $ttitle;
-    var $host;
-    var $bbs;
-    var $itaj;
-    var $key;
-    var $resnum;
-    var $order; // 記事番号
+class ResArticle
+{
+    public $name;
+    public $mail;
+    public $daytime;
+    public $msg;
+    public $ttitle;
+    public $host;
+    public $bbs;
+    public $itaj;
+    public $key;
+    public $resnum;
+    public $order; // 記事番号
 }
+
+// }}}
+// {{{ ResHist
 
 /**
  * 書き込みログのクラス
  */
-class ResHist{
-    var $articles; // クラス ResArticle のオブジェクトを格納する配列
-    var $num; // 格納された BrdMenuCate オブジェクトの数
+class ResHist
+{
+    // {{{ properties
 
-    var $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
+    public $articles; // クラス ResArticle のオブジェクトを格納する配列
+    public $num; // 格納された BrdMenuCate オブジェクトの数
+
+    public $resrange; // array( 'start' => i, 'to' => i, 'nofirst' => bool )
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct()
+    public function __construct()
     {
         $this->articles = array();
         $this->num = 0;
     }
 
+    // }}}
+    // {{{ readLines()
+
     /**
      * 書き込みログの lines をパースして読み込む
      *
      * @param  array    $lines
-     * @return boolean  実効成否
+     * @return void
      */
-    function readLines($lines)
+    public function readLines(array $lines)
     {
         $n = 1;
-        if (!is_array($lines)) {
-            trigger_error(__FUNCTION__ . '(), ' . 'illegal argument', E_USER_WARNING);
-            return false;
-        }
 
         foreach ($lines as $aline) {
-
             $aResArticle = new ResArticle();
 
-            $resar = explode("<>", rtrim($aline));
+            $resar = explode('<>', $aline);
             $aResArticle->name      = $resar[0];
             $aResArticle->mail      = $resar[1];
             $aResArticle->daytime   = $resar[2];
@@ -74,26 +86,31 @@ class ResHist{
 
             $n++;
         }
-        return true;
     }
+
+    // }}}
+    // {{{ addRes()
 
     /**
      * レスを追加する
      *
      * @return void
      */
-    function addRes($aResArticle)
+    public function addRes(ResArticle $aResArticle)
     {
         $this->articles[] = $aResArticle;
         $this->num++;
     }
+
+    // }}}
+    // {{{ showArticles()
 
     /**
      * レス記事を表示する PC用
      *
      * @return void
      */
-    function showArticles()
+    public function showArticles()
     {
         global $_conf, $STYLE;
 
@@ -124,7 +141,7 @@ class ResHist{
             echo "<div>{$pager->links}</div>";
         }
 
-        echo '<dl>';
+        echo "<div class=\"thread\">\n";
 
         foreach ($data as $a_res) {
             $hd['daytime'] = htmlspecialchars($a_res->daytime, ENT_QUOTES);
@@ -148,40 +165,45 @@ class ResHist{
         <a href="info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}{$_conf['k_at_a']}" target="_self" onClick="return OpenSubWin('info.php?host={$a_res->host}&amp;bbs={$a_res->bbs}&amp;key={$a_res->key}&amp;popup=1{$sid_q}',{$STYLE['info_pop_size']},0,0)">情報</a>
 EOP;
 
-            $res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$hd['daytime']}\"> ";
+            $res_ht = "<div class=\"res\">\n";
+            $res_ht .= "<div class=\"res-header\"><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$hd['daytime']}\"> ";
             $res_ht .= "{$a_res->order} ："; // 番号
             $res_ht .= '<span class="name"><b>' . htmlspecialchars($a_res->name, ENT_QUOTES) . '</b></span> ：'; // 名前
             // メール
             if ($a_res->mail) {
                 $res_ht .= htmlspecialchars($a_res->mail, ENT_QUOTES) . ' ：';
             }
-            $res_ht .= "{$hd['daytime']}</dt>\n"; // 日付とID
+            $res_ht .= "{$hd['daytime']}</div>\n"; // 日付とID
             // 板名
-            $res_ht .= "<dd><a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\" target=\"subject\">{$hd['itaj']}</a> / ";
+            $res_ht .= "<div class=\"res-hist-board\"><a href=\"{$_conf['subject_php']}?host={$a_res->host}&amp;bbs={$a_res->bbs}{$_conf['k_at_a']}\" target=\"subject\">{$hd['itaj']}</a> / ";
             if ($href_ht) {
-                $res_ht .= "<a href=\"{$href_ht}\"><b>{$hd['ttitle']}</b></a> - {$info_view_ht}\n";
+                $res_ht .= "<a href=\"{$href_ht}\"><b>{$hd['ttitle']}</b></a> - {$info_view_ht}";
             } elseif ($hd['ttitle']) {
-                $res_ht .= "<b>{$hd['ttitle']}</b>\n";
+                $res_ht .= "<b>{$hd['ttitle']}</b>";
             }
-            $res_ht .= "<br><br>";
-            $res_ht .= "{$a_res->msg}<br><br></dd>\n"; // 内容
+            $res_ht .= "</div>\n";
+            $res_ht .= "<div class=\"message\">{$a_res->msg}</div>\n"; // 内容
+            $res_ht .= "</div>\n";
 
             echo $res_ht;
             flush();
         }
 
-        echo '</dl>';
+        echo "</div>\n";
 
         if ($pager->links) {
             echo "<div>{$pager->links}</div>";
         }
     }
 
+    // }}}
+    // {{{ showNaviK()
+
     /**
      * 携帯用ナビを表示する
      * 表示範囲もセットされる
      */
-    function showNaviK($position)
+    public function showNaviK($position)
     {
         global $_conf;
 
@@ -242,15 +264,17 @@ EOP;
         }
 
         echo $list_navi_ht;
-
     }
+
+    // }}}
+    // {{{ showArticlesK()
 
     /**
      * レス記事を表示するメソッド 携帯用
      *
      * @return void
      */
-    function showArticlesK()
+    public function showArticlesK()
     {
         global $_conf;
 
@@ -319,7 +343,7 @@ EOP;
             // 削除
             //$res_ht = "<dt><input name=\"checked_hists[]\" type=\"checkbox\" value=\"{$a_res->order},,,,{$hd['daytime']}\"> ";
             $from_q = isset($_GET['from']) ? '&amp;from=' . $_GET['from'] : '';
-            $dele_ht = "[<a href=\"read_res_hist.php?checked_hists[]={$a_res->order},,,," . htmlspecialchars(urlencode($a_res->daytime), ENT_QUOTES) . "{$from_q}{$_conf['k_at_a']}\">削除</a>]";
+            $dele_ht = "[<a href=\"read_res_hist.php?checked_hists[]={$a_res->order},,,," . rawurlencode($a_res->daytime) . "{$from_q}{$_conf['k_at_a']}\">削除</a>]";
             $res_ht .= $dele_ht;
 
             $res_ht .= '<br>';
@@ -328,4 +352,19 @@ EOP;
             echo $res_ht;
         }
     }
+
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

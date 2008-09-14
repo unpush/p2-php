@@ -1,43 +1,55 @@
 <?php
-// p2 - スレッド リード クラス
+/**
+ * rep2 - スレッド リード クラス
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/thread.class.php';
 
+// {{{ ThreadRead
+
 /**
  * スレッドリードクラス
  */
-class ThreadRead extends Thread{
+class ThreadRead extends Thread
+{
+    // {{{ properties
 
-    var $datlines; // datから読み込んだラインを格納する配列
+    public $datlines; // datから読み込んだラインを格納する配列
 
-    var $resrange; // array('start' => i, 'to' => i, 'nofirst' => bool)
+    public $resrange; // array('start' => i, 'to' => i, 'nofirst' => bool)
 
-    var $onbytes; // サーバから取得したdatサイズ
-    var $diedat; // サーバからdat取得しようとしてできなかった時にtrueがセットされる
-    var $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
+    public $onbytes; // サーバから取得したdatサイズ
+    public $diedat; // サーバからdat取得しようとしてできなかった時にtrueがセットされる
+    public $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
 
-    var $idcount; // 配列。key は ID記号, value は ID出現回数
+    public $idcount; // 配列。key は ID記号, value は ID出現回数
 
-    var $one_id; // >>1 の ID
+    public $one_id; // >>1 の ID
 
-    var $getdat_error_msg_ht; // dat取得に失敗した時に表示されるメッセージ（HTML）
+    public $getdat_error_msg_ht; // dat取得に失敗した時に表示されるメッセージ（HTML）
 
-    var $old_host;  // ホスト移転検出時、移転前のホストを保持する
+    public $old_host;  // ホスト移転検出時、移転前のホストを保持する
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->getdat_error_msg_ht = "";
     }
 
+    // }}}
+    // {{{ downloadDat()
+
     /**
      * DATをダウンロードする
      */
-    function downloadDat()
+    public function downloadDat()
     {
         global $_conf;
         global $uaMona, $SID2ch;    // include_once P2_LIB_DIR . '/login2ch.inc.php';
@@ -71,7 +83,7 @@ class ThreadRead extends Thread{
                 }
 
                 include $_conf['sid2ch_php'];
-                $this->downloadDat2chMaru();
+                $this->_downloadDat2chMaru();
 
             // 2chの過去ログ倉庫読み
             } elseif (!empty($_GET['kakolog']) && !empty($_GET['kakoget'])) {
@@ -80,24 +92,26 @@ class ThreadRead extends Thread{
                 } elseif ($_GET['kakoget'] == 2) {
                     $ext = '.dat';
                 }
-                $this->downloadDat2chKako(urldecode($_GET['kakolog']), $ext);
+                $this->_downloadDat2chKako(urldecode($_GET['kakolog']), $ext);
 
             // 2ch or 2ch互換
             } else {
                 // DATを差分DLする
-                $this->downloadDat2ch($this->length);
+                $this->_downloadDat2ch($this->length);
             }
 
         }
-
     }
+
+    // }}}
+    // {{{ _downloadDat2ch()
 
     /**
      * 標準方法で 2ch互換 DAT を差分ダウンロードする
      *
      * @return mix 取得できたか、更新がなかった場合はtrueを返す
      */
-    function downloadDat2ch($from_bytes)
+    private function _downloadDat2ch($from_bytes)
     {
         global $_conf, $_info_msg_ht;
         global $debug;
@@ -199,7 +213,7 @@ class ThreadRead extends Thread{
                             fclose($fp);
                             unset($this->onbytes);
                             unset($this->modified);
-                            return $this->downloadDat2ch(0); // あぼーん検出。全部取り直し。
+                            return $this->_downloadDat2ch(0); // あぼーん検出。全部取り直し。
                         }
                         $wr = substr($wr, 1);
                     }
@@ -221,7 +235,7 @@ class ThreadRead extends Thread{
                             unset($this->modified);
                             $_info_msg_ht .= "p2 info: $this->onbytes/$this->length ファイルサイズが変なので、datを再取得<br>";
                             //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("dat_size_check");
-                            return $this->downloadDat2ch(0); //datサイズは不正。全部取り直し。
+                            return $this->_downloadDat2ch(0); //datサイズは不正。全部取り直し。
 
                         // サイズが同じならそのまま
                         } elseif ($this->onbytes == $this->length) {
@@ -236,7 +250,7 @@ class ThreadRead extends Thread{
                 // スレッドがないと判断
                 } else {
                     fclose($fp);
-                    $this->downloadDat2chNotFound();
+                    $this->_downloadDat2chNotFound();
                     return false;
                 }
 
@@ -258,10 +272,10 @@ class ThreadRead extends Thread{
                             fclose($fp);
                             $this->old_host = $this->host;
                             $this->host = $new_host;
-                            return $this->downloadDat2ch($from_bytes);
+                            return $this->_downloadDat2ch($from_bytes);
                         } else {
                             fclose($fp);
-                            $this->downloadDat2chNotFound();
+                            $this->_downloadDat2chNotFound();
                             return false;
                         }
 
@@ -275,11 +289,11 @@ class ThreadRead extends Thread{
                         fclose($fp);
                         unset($this->onbytes);
                         unset($this->modified);
-                        return $this->downloadDat2ch(0); // あぼーん検出。全部取り直し。
+                        return $this->_downloadDat2ch(0); // あぼーん検出。全部取り直し。
 
                     } else {
                         fclose($fp);
-                        $this->downloadDat2chNotFound();
+                        $this->_downloadDat2chNotFound();
                         return false;
                     }
                 }
@@ -310,12 +324,13 @@ class ThreadRead extends Thread{
         return true;
     }
 
+    // }}}
+    // {{{ _downloadDat2chNotFound()
+
     /**
      * 2ch DATをダウンロードできなかったときに呼び出される
-     *
-     * @access protected
      */
-    function downloadDat2chNotFound()
+    private function _downloadDat2chNotFound()
     {
         // 2ch, bbspink ならread.cgiで確認
         if (P2Util::isHost2chs($this->host)) {
@@ -325,10 +340,13 @@ class ThreadRead extends Thread{
         return false;
     }
 
+    // }}}
+    // {{{ _downloadDat2chMaru()
+
     /**
      * 2ch●用 DATをダウンロードする
      */
-    function downloadDat2chMaru()
+    private function _downloadDat2chMaru()
     {
         global $_conf, $uaMona, $SID2ch, $_info_msg_ht;
 
@@ -344,7 +362,7 @@ class ThreadRead extends Thread{
         $p2ua = $uaMona . sprintf($p2ua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack']);
 
         //  GET /test/offlaw.cgi?bbs=板名&key=スレッド番号&sid=セッションID HTTP/1.1
-        $SID2ch = urlencode($SID2ch);
+        $SID2ch = rawurlencode($SID2ch);
         $url = 'http://' . $this->host . "/test/offlaw.cgi/{$this->bbs}/{$this->key}/?raw=0.0&sid={$SID2ch}";
 
         $purl = parse_url($url); // URL分解
@@ -492,7 +510,7 @@ class ThreadRead extends Thread{
                 // dat.gzはなかったと判断
                 } else {
                     fclose($fp);
-                    return $this->downloadDat2chMaruNotFound();
+                    return $this->_downloadDat2chMaruNotFound();
                 }
 
             // ヘッダの処理
@@ -511,7 +529,7 @@ class ThreadRead extends Thread{
                         return "304 Not Modified";
                     } else {
                         fclose($fp);
-                        return $this->downloadDat2chMaruNotFound();
+                        return $this->_downloadDat2chMaruNotFound();
                     }
 
                 } elseif (preg_match("/^Content-Encoding: (x-)?gzip/", $l, $matches)) {
@@ -537,10 +555,13 @@ class ThreadRead extends Thread{
         return true;
     }
 
+    // }}}
+    // {{{ _downloadDat2chMaruNotFound()
+
     /**
      * ●IDでの取得ができなかったときに呼び出される
      */
-    function downloadDat2chMaruNotFound()
+    private function _downloadDat2chMaruNotFound()
     {
         global $_conf;
 
@@ -556,10 +577,13 @@ class ThreadRead extends Thread{
         }
     }
 
+    // }}}
+    // {{{ _downloadDat2chKako()
+
     /**
      * 2chの過去ログ倉庫からdat.gzをダウンロード＆解凍する
      */
-    function downloadDat2chKako($uri, $ext)
+    private function _downloadDat2chKako($uri, $ext)
     {
         global $_conf, $_info_msg_ht;
 
@@ -674,7 +698,7 @@ class ThreadRead extends Thread{
                 // なかったと判断
                 } else {
                     fclose($fp);
-                    return $this->downloadDat2chKakoNotFound($uri, $ext);
+                    return $this->_downloadDat2chKakoNotFound($uri, $ext);
 
                 }
 
@@ -691,7 +715,7 @@ class ThreadRead extends Thread{
                         return "304 Not Modified";
                     } else {
                         fclose($fp);
-                        return $this->downloadDat2chKakoNotFound($uri, $ext);
+                        return $this->_downloadDat2chKakoNotFound($uri, $ext);
                     }
 
                 } elseif (preg_match("/^Content-Encoding: (x-)?gzip/", $l, $matches)) {
@@ -711,18 +735,21 @@ class ThreadRead extends Thread{
         return true;
     }
 
+    // }}}
+    // {{{ _downloadDat2chKakoNotFound()
+
     /**
      * 過去ログを取得できなかったときに呼び出される
      *
      * @private
      */
-    function downloadDat2chKakoNotFound($uri, $ext)
+    private function _downloadDat2chKakoNotFound($uri, $ext)
     {
         global $_conf;
 
         if ($ext == ".dat.gz") {
             //.dat.gzがなかったら.datでもう一度
-            return $this->downloadDat2chKako($uri, ".dat");
+            return $this->_downloadDat2chKako($uri, ".dat");
         }
         if ($_GET['kakolog']) {
             $kakolog_ht = "<p><a href=\"{$_GET['kakolog']}.html\"{$_conf['bbs_win_target_at']}>{$_GET['kakolog']}.html</a></p>";
@@ -731,16 +758,17 @@ class ThreadRead extends Thread{
         $this->getdat_error_msg_ht .= $kakolog_ht;
         $this->diedat = true;
         return false;
-
     }
+
+    // }}}
+    // {{{ get2chDatError()
 
     /**
      * 2chのdatを取得できなかった原因を返す
      *
-     * @private
      * @return  string エラーメッセージ（原因がわからない場合は空で返す）
      */
-    function get2chDatError()
+    public function get2chDatError()
     {
         global $_conf, $_info_msg_ht;
 
@@ -812,7 +840,7 @@ class ThreadRead extends Thread{
             if (preg_match($kakohtml_match, $read_response_html, $matches)) {
                 $dat_response_status = "隊長! 過去ログ倉庫で、html化されたスレッドを発見しました。";
                 $kakolog_uri = "http://{$this->host}/{$matches[1]}";
-                $kakolog_url_en = urlencode($kakolog_uri);
+                $kakolog_url_en = rawurlencode($kakolog_uri);
                 $read_kako_url = "{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;kakolog={$kakolog_url_en}&amp;kakoget=1";
                 $dat_response_msg = "<p>2ch info - 隊長! 過去ログ倉庫で、<a href=\"{$kakolog_uri}.html\"{$_conf['bbs_win_target_at']}>スレッド {$matches[3]}.html</a> を発見しました。 [<a href=\"{$read_kako_url}\">p2に取り込んで読む</a>]</p>";
 
@@ -848,10 +876,13 @@ class ThreadRead extends Thread{
         return $dat_response_msg;
     }
 
+    // }}}
+    // {{{ previewOne()
+
     /**
      * >>1のみをプレビューする
      */
-    function previewOne()
+    public function previewOne()
     {
         global $_conf, $ptitle_ht, $_info_msg_ht;
 
@@ -990,8 +1021,8 @@ class ThreadRead extends Thread{
             }
         }
 
-        $this->onthefly && $body .= "<div><span class=\"onthefly\">on the fly</span></div>";
-        $body .= "<dl>";
+        $this->onthefly && $body .= "<div><span class=\"onthefly\">on the fly</span></div>\n";
+        $body .= "<div class=\"thread\">\n";
 
         include_once P2_LIB_DIR . '/showthread.class.php';
         include_once P2_LIB_DIR . '/showthreadpc.class.php';
@@ -999,14 +1030,17 @@ class ThreadRead extends Thread{
         $body .= $aShowThread->transRes($first_line, 1); // 1を表示
         unset($aShowThread);
 
-        $body .= "</dl>\n";
+        $body .= "</div>\n";
         return $body;
     }
+
+    // }}}
+    // {{{ previewOneNotFound()
 
     /**
      * >>1をプレビューでスレッドデータが見つからなかったときに呼び出される
      */
-    function previewOneNotFound()
+    public function previewOneNotFound()
     {
         // 2ch, bbspink ならread.cgiで確認
         if (P2Util::isHost2chs($this->host)) {
@@ -1016,10 +1050,13 @@ class ThreadRead extends Thread{
         return false;
     }
 
+    // }}}
+    // {{{ lsToPoint()
+
     /**
      * $lsを分解してstartとtoとnofirstを求める
      */
-    function lsToPoint()
+    public function lsToPoint()
     {
         global $_conf;
 
@@ -1143,11 +1180,14 @@ class ThreadRead extends Thread{
         return $this->resrange;
     }
 
+    // }}}
+    // {{{ readDat()
+
     /**
      * Datを読み込む
      * $this->datlines を set する
      */
-    function readDat()
+    public function readDat()
     {
         global $_conf;
 
@@ -1183,10 +1223,13 @@ class ThreadRead extends Thread{
         return true;
     }
 
+    // }}}
+    // {{{ setIdCount()
+
     /**
      * 一つのスレ内でのID出現数をセットする
      */
-    function setIdCount($lines)
+    public function setIdCount($lines)
     {
         if ($lines) {
             foreach ($lines as $line) {
@@ -1204,11 +1247,13 @@ class ThreadRead extends Thread{
         return;
     }
 
+    // }}}
+    // {{{ explodeDatLine()
 
     /**
      * datlineをexplodeする
      */
-    function explodeDatLine($aline)
+    public function explodeDatLine($aline)
     {
         $aline = rtrim($aline);
 
@@ -1224,4 +1269,18 @@ class ThreadRead extends Thread{
         return $parts;
     }
 
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

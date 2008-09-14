@@ -114,7 +114,11 @@ $flexy->output();
 
 // }}}
 // {{{ 関数
+// {{{ ic2dumptable_errlog()
 
+/**
+ * エラーログを取得する
+ */
 function ic2dumptable_errlog($dbdo)
 {
     $data = array();
@@ -129,6 +133,12 @@ function ic2dumptable_errlog($dbdo)
     return $data;
 }
 
+// }}}
+// {{{ ic2dumptable_blacklist()
+
+/**
+ * ブラックリストを取得する
+ */
 function ic2dumptable_blacklist($dbdo)
 {
     $data = array();
@@ -155,6 +165,7 @@ function ic2dumptable_blacklist($dbdo)
     return $data;
 }
 
+// }}}
 // }}}
 
 /*

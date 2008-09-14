@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 - レス書き込みフォーム
-*/
+/**
+ * rep2 - レス書き込みフォーム
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
@@ -135,3 +135,14 @@ echo $htm['post_form'];
 echo $htm['dpreview2'];
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

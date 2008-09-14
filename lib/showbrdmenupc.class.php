@@ -1,34 +1,47 @@
 <?php
+// {{{ ShowBrdMenuPc
+
 /**
- * p2 - ボードメニューを表示する クラス
+ * rep2 - ボードメニューを表示する クラス
  */
-class ShowBrdMenuPc{
+class ShowBrdMenuPc
+{
+    // {{{ properties
 
-    var $cate_id; // カテゴリーID
+    private $_cate_id; // カテゴリーID
 
-    function __construct()
+    // }}}
+    // {{{ constructor
+
+    /**
+     * コンストラクタ
+     */
+    public function __construct()
     {
-        $this->cate_id = 1;
+        $this->_cate_id = 1;
     }
+
+    // }}}
+    // {{{ printBrdMenu()
 
     /**
      * 板メニューをプリントする
      */
-    function printBrdMenu($categories)
+    public function printBrdMenu(array $categories)
     {
         global $_conf, $_info_msg_ht;
 
-        $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['SCRIPT_NAME']);
-
         if ($categories) {
+            $menu_php_ht = htmlspecialchars((isset($GLOBALS['menu_php_self'])) ? $GLOBALS['menu_php_self'] : $_SERVER['SCRIPT_NAME']);
+
             foreach ($categories as $cate) {
                 if ($cate->num > 0) {
                     echo "<div class=\"menu_cate\">\n";
-                    echo "  <b><a class=\"menu_cate\" href=\"javascript:void(0);\" onClick=\"showHide('c{$this->cate_id}');\" target=\"_self\">{$cate->name}</a></b>\n";
+                    echo "  <b><a class=\"menu_cate\" href=\"javascript:void(0);\" onClick=\"showHide('c{$this->_cate_id}');\" target=\"_self\">{$cate->name}</a></b>\n";
                     if ($cate->is_open or $cate->ita_match_num) {
-                        echo "  <div class=\"itas\" id=\"c{$this->cate_id}\">\n";
+                        echo "  <div class=\"itas\" id=\"c{$this->_cate_id}\">\n";
                     } else {
-                        echo "  <div class=\"itas_hide\" id=\"c{$this->cate_id}\">\n";
+                        echo "  <div class=\"itas_hide\" id=\"c{$this->_cate_id}\">\n";
                     }
                     foreach ($cate->menuitas as $mita) {
                         echo "    <a href=\"{$menu_php_ht}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1\" target=\"_self\" class=\"fav\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}\">{$mita->itaj_ht}</a><br>\n";
@@ -36,16 +49,18 @@ class ShowBrdMenuPc{
                     echo "  </div>\n";
                     echo "</div>\n";
                 }
-                $this->cate_id++;
+                $this->_cate_id++;
             }
         }
-
     }
+
+    // }}}
+    // {{{ printFavIta()
 
     /**
      * お気に板をプリントする
      */
-    function print_favIta()
+    public function printFavIta()
     {
         global $_conf, $matome_i, $STYLE;
 
@@ -147,4 +162,18 @@ EOP;
         echo "  </div>\n</div>\n";
     }
 
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

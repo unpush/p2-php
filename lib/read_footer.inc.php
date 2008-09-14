@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 -  スレッド表示 -  フッタ部分 -  for read.php
-*/
+/**
+ * rep2 - スレッド表示 -  フッタ部分 -  for read.php
+ */
 
 require_once P2_LIB_DIR . '/dataphp.class.php';
 
@@ -154,9 +154,9 @@ EOP;
 if (!empty($_GET['showres'])) {
     echo <<<EOP
     <script type="text/javascript">
-    <!--
+    <![CDATA[
     document.getElementById('kakiko').style.display = 'block';
-    //-->
+    //]]>
     </script>\n
 EOP;
 }
@@ -168,3 +168,14 @@ if ($_conf['expack.ic2.enabled']) {
 
 // ====
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

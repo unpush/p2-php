@@ -1,19 +1,15 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    expack - スレッドをツリー表示する
-    ツリー表示以外のルーチンはread.phpから拝借
-*/
+/**
+ * rep2expack - スレッドをツリー表示する
+ * ツリー表示以外のルーチンはread.phpから拝借
+ */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/thread.class.php';    //スレッドクラス読込
-require_once P2_LIB_DIR . '/threadread.class.php';    //スレッドリードクラス読込
+require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/ngabornctl.class.php';
-require_once P2_LIB_DIR . '/showthread.class.php';    //HTML表示クラス
-require_once P2_LIB_DIR . '/showthreadpc.class.php';  //HTML表示クラス
-//require_once P2_LIB_DIR . '/showthreadtree.class.php'; // ツリー表示クラス
+require_once P2_LIB_DIR . '/showthreadpc.class.php';
+//require_once P2_LIB_DIR . '/showthreadtree.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -188,3 +184,14 @@ P2Util::recRecent($newdata);
 
 // NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

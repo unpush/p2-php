@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 -  設定管理
-*/
+/**
+ * rep2 - 設定管理
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
@@ -120,7 +120,7 @@ echo '<div>';
 echo <<<EOP
 <a href="edit_conf_user.php{$_conf['k_at_q']}" class="button">ユーザ設定編集</a>
 EOP;
-if (empty($_conf['ktai']) && $_conf['expack.skin.enabled']) {
+if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
     $skin_options = array('conf_user_style' => '標準');
     $skin_dir = opendir('./skin');
     if ($skin_dir) {
@@ -389,6 +389,8 @@ exit;
 //==============================================================================
 // 関数
 //==============================================================================
+// {{{ printEditFileForm()
+
 /**
  * 設定ファイル編集ウインドウを開くフォームHTMLをプリントする
  *
@@ -438,6 +440,9 @@ EOFORM;
     echo $ht;
 }
 
+// }}}
+// {{{ getSyncFavoritesFormHt()
+
 /**
  * ホストの同期用フォームのHTMLを取得する
  *
@@ -462,6 +467,9 @@ EOFORM;
     }
     return $ht;
 }
+
+// }}}
+// {{{ getFavSetListFormHt()
 
 /**
  * お気に入りセット切り替え・セット名変更用フォームのHTMLを取得する（PC用）
@@ -502,6 +510,9 @@ EOFORM;
     return $ht;
 }
 
+// }}}
+// {{{ getFavSetListFormHtK()
+
 /**
  * お気に入りセット切り替え用フォームのHTMLを取得する（携帯用）
  *
@@ -541,6 +552,9 @@ function getFavSetListFormHtK($set_name, $set_title)
 
     return $ht;
 }
+
+// }}}
+// {{{ updateFavSetList()
 
 /**
  * お気に入りセットリストを更新する
@@ -585,3 +599,16 @@ function updateFavSetList()
 
     return TRUE;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

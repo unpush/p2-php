@@ -1,8 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// p2 - “o˜^‚µ‚½RSS‚ðƒƒjƒ…[‚É•\Ž¦
+/**
+ * rep2expack - “o˜^‚µ‚½RSS‚ðƒƒjƒ…[‚É•\Ž¦
+ */
 
 require_once P2EX_LIB_DIR . '/rss/common.inc.php';
 
@@ -11,6 +10,8 @@ if ($_conf['ktai']) {
 } else {
     print_rss_list();
 }
+
+// {{{ print_rss_list()
 
 /**
  * “o˜^‚³‚ê‚Ä‚¢‚éRSSˆê——‚ð•\Ž¦
@@ -68,6 +69,9 @@ function print_rss_list()
 
 }
 
+// }}}
+// {{{ print_rss_list_k()
+
 /**
  * “o˜^‚³‚ê‚Ä‚¢‚éRSSˆê——‚ð•\Ž¦iŒg‘Ñ—pj
  */
@@ -117,3 +121,16 @@ function print_rss_list_k()
     }
 
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

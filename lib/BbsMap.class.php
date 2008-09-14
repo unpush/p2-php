@@ -296,6 +296,10 @@ class BbsMap
         // }}}
         // {{{ メニューをダウンロード
 
+        if (!class_exists('HTTP_Request', false)) {
+            require_once 'HTTP/Request.php';
+        }
+
         $params = array();
         $params['timeout'] = $_conf['fsockopen_time_limit'];
         //$params['readTimeout'] = array($_conf['fsockopen_time_limit'], 0);

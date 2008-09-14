@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 -  スレッド表示 -  フッタ部分 -  携帯用 for read.php
-*/
+/**
+ * rep2 - スレッド表示 - フッタ部分 - 携帯用 for read.php
+ */
 
 include_once P2_LIB_DIR . '/spm_k.inc.php';
 
@@ -94,3 +94,14 @@ if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
 }
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

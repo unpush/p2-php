@@ -798,7 +798,7 @@ if ($all == 0) {
 
         // 表示用変数を設定
         if ($enable_cache) {
-            $add = $cache->call('buildImgCell', $img);
+            $add = $cache->call('ic2_image_extra_info', $img);
             if ($mode == 1) {
                 $chk = EditForm::imgChecker($img); // 比較的軽いのでキャッシュしない
                 $add += $chk;
@@ -807,7 +807,7 @@ if ($all == 0) {
                 $add += $mng;
             }
         } else {
-            $add = buildImgCell($img);
+            $add = ic2_image_extra_info($img);
             if ($mode == 1) {
                 $chk = EditForm::imgChecker($img);
                 $add += $chk;

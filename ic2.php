@@ -489,6 +489,7 @@ ic2_finish($newfile, $thumb, $params, $force);
 
 // }}}
 // {{{ ŠÖ”
+// {{{ ic2_aborn()
 
 function ic2_aborn($params, $infected = false)
 {
@@ -511,6 +512,9 @@ function ic2_aborn($params, $infected = false)
     }
     return $aborn->insert();
 }
+
+// }}}
+// {{{ ic2_checkAbornedFile()
 
 function ic2_checkAbornedFile($tmpfile, $params)
 {
@@ -572,6 +576,9 @@ function ic2_checkAbornedFile($tmpfile, $params)
     return false;
 }
 
+// }}}
+// {{{ ic2_checkSizeOvered()
+
 function ic2_checkSizeOvered($tmpfile, $params)
 {
     global $ini;
@@ -607,6 +614,9 @@ function ic2_checkSizeOvered($tmpfile, $params)
 
     return true;
 }
+
+// }}}
+// {{{ ic2_display()
 
 function ic2_display($path, $params)
 {
@@ -806,6 +816,9 @@ EOP;
     exit;
 }
 
+// }}}
+// {{{ ic2_error()
+
 function ic2_error($code, $optmsg = '', $write_log = true)
 {
     global $id, $uri, $file, $redirect;
@@ -901,6 +914,9 @@ EOF;
     exit;
 }
 
+// }}}
+// {{{ ic2_finish()
+
 function ic2_finish($filepath, $thumb, $params, $force)
 {
     global $thumbnailer;
@@ -918,6 +934,9 @@ function ic2_finish($filepath, $thumb, $params, $force)
     }
 }
 
+// }}}
+// {{{ ic2_removeTmpFile()
+
 function ic2_removeTmpFile()
 {
     global $tmpfile, $tmpchecker;
@@ -926,6 +945,7 @@ function ic2_removeTmpFile()
     file_exists($tmpchecker) && unlink($tmpchecker);
 }
 
+// }}}
 // }}}
 
 /*

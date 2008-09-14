@@ -1,15 +1,12 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    rep2機能拡張パック - スレッド表示プリフィルタ
-
-    SPMからのレスフィルタリングで使用
-*/
+/**
+ * rep2expack - スレッド表示プリフィルタ
+ *
+ * SPMからのレスフィルタリングで使用
+ */
 
 require_once './conf/conf.inc.php'; //基本設定読込
 require_once P2_LIB_DIR . '/threadread.class.php';
-require_once P2_LIB_DIR . '/showthread.class.php';
 require_once P2_LIB_DIR . '/showthreadpc.class.php';
 
 $_login->authorize(); // ユーザ認証
@@ -64,7 +61,16 @@ if (isset($aThread->datlines[$resnum - 1])) {
     unset($ares, $resar, $name, $mail, $date_id, $msg, $aShowThread);
 }
 
-/**
- * read.phpに処理を渡す
+// read.phpに処理を渡す
+include $_conf['read_php'];
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
  */
-include ($_conf['read_php']);
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

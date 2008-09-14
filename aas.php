@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
  * Ascii Art Scope for rep2
  *
@@ -415,6 +413,7 @@ exit;
 
 // }}}
 // {{{ 関数
+// {{{ aas_toNumericEntity()
 
 /**
  * 実体参照・と16進数の数値参照を10真数の数値参照に変換する
@@ -452,6 +451,9 @@ function aas_toNumericEntity($e)
     }
     return $_conf['expack.aas.unknown_char'];
 }
+
+// }}}
+// {{{ aas_decodeHTMLEntity()
 
 /**
  * 実体参照・数値参照をデコードする
@@ -498,6 +500,9 @@ function aas_decodeHTMLEntity($e)
     return $_conf['expack.aas.unknown_char'];
 }
 
+// }}}
+// {{{ aas_getTextBoxSize()
+
 /**
  * テキストボックスの大きさを計算する
  */
@@ -511,6 +516,9 @@ function aas_getTextBoxSize($size, $font, $hint, $lines)
     return array($box_width, $box_height);
 }
 
+// }}}
+// {{{ aas_isTextInPicture()
+
 /**
  * テキストが画像に収まり切るかチェックする
  */
@@ -522,6 +530,9 @@ function aas_isTextInPicture($size, $font, $hint, $lines, $max_width, $max_heigh
     }
     return true;
 }
+
+// }}}
+// {{{ aas_parseColor()
 
 /**
  * 3桁または6桁の16進数表記の色指定を array(int, int, int) に変換して返す
@@ -546,6 +557,9 @@ function aas_parseColor($hex)
     }
 }
 
+// }}}
+// {{{ aas_ttfErrorHandler()
+
 /**
  * imagettftext(), imagettfbbox() の入力文字列が大きすぎたときのエラー処理
  */
@@ -565,3 +579,15 @@ function aas_ttfErrorHandler($errno, $errstr, $errfile, $errline)
 }
 
 // }}}
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

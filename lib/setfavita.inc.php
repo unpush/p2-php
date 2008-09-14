@@ -1,7 +1,11 @@
 <?php
-// p2 -  お気に板の処理
+/**
+ * rep2 - お気に板の処理
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ setFavIta()
 
 /**
  * お気に板をセットする
@@ -93,7 +97,16 @@ function setFavIta()
             list($host, $bbs, $itaj_en) = explode('@', $aList);
             $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
         }
-        $_info_msg_ht .= "<script type=\"text/javascript\">if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
+
+        $_info_msg_ht .= <<<EOJS
+<script type="text/javascript">
+//<![CDATA[
+if (parent.menu) {
+    parent.menu.location.href = '{$_conf['menu_php']}?nr=1';
+}
+//]]>
+</script>\n
+EOJS;
 
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
@@ -119,3 +132,16 @@ function setFavIta()
 
     return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

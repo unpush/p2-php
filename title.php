@@ -1,5 +1,7 @@
 <?php
-// p2 -  タイトルページ
+/**
+ * rep2 - タイトルページ
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
@@ -112,7 +114,7 @@ echo <<<EOP
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <style type="text/css">
-    <!--
+    /* <![CDATA[ */
     table caption {
         text-align: left;
         font-size: {$STYLE['fontsize']};
@@ -132,7 +134,7 @@ echo <<<EOP
         lihe-height: 100%;
         font-size: {$STYLE['fontsize']};
     }
-    -->
+    /* ]]> */
     </style>
 </head>
 <body>\n
@@ -169,6 +171,8 @@ EOP;
 //==================================================
 // 関数
 //==================================================
+// {{{ checkUpdatan()
+
 /**
  * オンライン上のrep2-expack最新版をチェックする
  *
@@ -213,3 +217,16 @@ EOP;
     }
     return $newversion_found_html;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

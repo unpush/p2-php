@@ -1,6 +1,8 @@
 <?php
-// p2 - 書き込み履歴 レス内容表示
-// フレーム分割画面、右下部分
+/**
+ * rep2 - 書き込み履歴 レス内容表示
+ * フレーム分割画面、右下部分
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
@@ -88,7 +90,7 @@ if (!$_conf['ktai']) {
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function hist_checkAll(mode) {
         if (!document.getElementsByName) {
             return;
@@ -99,7 +101,7 @@ if (!$_conf['ktai']) {
             checkboxes[i].checked = mode;
         }
     }
-    // -->
+    //]]>
     </script>\n
 EOP;
 }
@@ -180,3 +182,14 @@ if (!$_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

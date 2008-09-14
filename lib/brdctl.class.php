@@ -6,7 +6,7 @@ require_once P2_LIB_DIR . '/brdmenu.class.php';
 // {{{ BrdCtl
 
 /**
- * p2 - BrdCtl -- 板リストコントロールクラス for menu.php
+ * rep2 - BrdCtl -- 板リストコントロールクラス for menu.php
  *
  * @static
  */

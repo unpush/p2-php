@@ -12,6 +12,7 @@ require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_newthre_num = 0;
 $shinchaku_num = 0;
+$ta_num = 0;
 $ta_keys = array();
 $nowtime = time();
 
@@ -253,3 +254,14 @@ for ($x = 0; $x < $linesize ; $x++) {
 }
 
 unset($aThread, $aThreadList, $lines, $pre_subject_keys, $subject_txts, $ta_keys);
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

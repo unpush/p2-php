@@ -1,18 +1,14 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/database.class.php';
 
+// {{{ IC2DB_Errors
+
 class IC2DB_Errors extends IC2DB_Skel
 {
-    // {{{ properties
-
-    // }}}
     // {{{ constcurtor
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $this->__table = $this->_ini['General']['error_table'];
@@ -21,7 +17,7 @@ class IC2DB_Errors extends IC2DB_Skel
     // }}}
     // {{{ table()
 
-    function table()
+    public function table()
     {
         return array(
             'uri'     => DB_DATAOBJECT_STR,
@@ -34,7 +30,7 @@ class IC2DB_Errors extends IC2DB_Skel
     // }}}
     // {{{ keys()
 
-    function keys()
+    public function keys()
     {
         return array('uri');
     }
@@ -42,7 +38,7 @@ class IC2DB_Errors extends IC2DB_Skel
     // }}}
     // {{{ ic2_errlog_lotate()
 
-    function ic2_errlog_lotate()
+    public function ic2_errlog_lotate()
     {
         $ini = ic2_loadconfig();
         $error_log_num = $ini['General']['error_log_num'];
@@ -76,10 +72,23 @@ class IC2DB_Errors extends IC2DB_Skel
     // }}}
     // {{{ ic2_errlog_clean()
 
-    function ic2_errlog_clean()
+    public function ic2_errlog_clean()
     {
         return $this->_db->query('DELETE FROM ' . $this->_db->quoteIdentifier($this->__table));
     }
 
     // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

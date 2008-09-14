@@ -23,7 +23,7 @@ if ($STYLE['fontfamily_bold']) {
 	$fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
 	echo <<<EOSTYLE
 
-h3 {
+h3, h4 {
 	font-family:"{$STYLE['fontfamily_bold']}";
 	font-style: {$fontstyle_bold};
 	font-weight: {$fontweight_bold};
@@ -47,17 +47,78 @@ a:link{color:{$STYLE['read_acolor']};}
 a:visited{color:{$STYLE['read_acolor_v']};}
 a:hover{color:{$STYLE['read_acolor_h']};}
 
-i{font-style:normal;} /* 引用レス*/
-dd.respopup{margin:8px 8px;} /* レスポップアップ*/
-
-.thread_title{
-	margin:6px 0; line-height:120%; font-size:14pt; color:{$STYLE['read_thread_title_color']};
+h3.thread_title {
+	margin: 6px 0;
+	line-height:120%;
+	font-size: 18px;
+	color: {$STYLE['read_thread_title_color']};
 }
+h4.thread_title {
+	margin: 0 0 12px 0;
+	line-height:100%;
+	font-size: 14px;
+	color: {$STYLE['read_thread_title_color']};
+}
+
 .thre_title{color:{$STYLE['read_thread_title_color']};}
 .name{color:{$STYLE['read_name_color']};} /* 投稿者の名前 */
 .mail{color:{$STYLE['read_mail_color']};} /* 投稿者のmail */
 .sage{color:{$STYLE['read_mail_sage_color']};} /* 投稿者のmail(sage) */
 img.thumbnail{border:solid 1px;} /* 画像URLの先読みサムネイル*/
+
+div.thread {
+	margin: 0;
+	padding: 1.0em 0 0 0;
+}
+
+/* レス */
+div.res {
+	margin: 0 0 2.0em 0;
+	padding: 0;
+}
+
+/* 引用レスポップアップ */
+div.respopup {
+	position: absolute;
+	visibility: hidden; /* 普段は隠しておく*/
+	{$respop_background}
+	{$respop_border}
+	{$respop_color}
+	font-size:{$STYLE['respop_fontsize']};
+	margin: 0;
+	padding: 8px;
+	line-height: 120%;
+}
+
+/* あぼーんレス */
+div.res.aborned {
+	margin: 0;
+	padding: 0;
+	font-size: xx-small;
+	line-height: 100%;
+}
+
+div.res.aborned * {
+	display: none;
+}
+
+/* レスヘッダ */
+div.res-header {
+	margin: 0;
+	padding: 0;
+}
+
+/* レスボディ (通常) */
+div.res div.message {
+	margin: 0;
+	padding: 2px 0 0 2.5em;
+}
+
+/* レスボディ (引用レスポップアップ) */
+div.respopup div.message {
+	margin: 0;
+	padding: 2px 0 0 1.0em;
+}
 
 /* 新着レス番号（ここではカラーが新着確認の機能を持っているので特別にfontで
 カラー指定をしている。thread_class.inc - transRes を参照)	*/
@@ -74,20 +135,6 @@ img.thumbnail{border:solid 1px;} /* 画像URLの先読みサムネイル*/
 }
 
 .ngword{color:{$STYLE['read_ngword']};}
-
-.aborned{ font-size:1px; }
-.aborned span{ display:none; }
-
-.respopup{ 	/* 引用レスポップアップ */
-	position:absolute;
-	visibility:hidden; /* 普段は隠しておく*/
-	{$respop_background}
-	{$respop_border}
-	{$respop_color}
-	font-size:{$STYLE['respop_fontsize']};
-	padding:8px;
-	line-height:120%;
-}
 
 #iframespace{ /* HTMLポップアップスペース */
 	position:absolute;

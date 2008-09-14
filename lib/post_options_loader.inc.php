@@ -1,5 +1,7 @@
 <?php
-// p2 - レス書き込みフォームの機能読み込み
+/**
+ * rep2 - レス書き込みフォームの機能読み込み
+ */
 
 require_once P2_LIB_DIR . '/SettingTxt.php';
 require_once P2_LIB_DIR . '/strctl.class.php';
@@ -29,7 +31,7 @@ $htm['resform_ttitle'] = '';
 
 $htm['disable_js'] = <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 // Thanks naoya <http://d.hatena.ne.jp/naoya/20050804/1123152230>
 
 function isNetFront() {
@@ -72,7 +74,7 @@ function setHiddenValue(button) {
   }
 }
 
-//-->
+//]]>
 </script>\n
 EOP;
 
@@ -216,12 +218,12 @@ if (!$_conf['ktai'] && $_conf['expack.editor.dpreview']) {
 <script type="text/javascript" src="js/strutil.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/dpreview.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript">
-<!--
+//<![CDATA[
 var dpreview_use = true;
 var dpreview_on = false;
 var dpreview_hide = {$_dpreview_hide};
 var noname_name = {$_dpreview_noname};
-// -->
+//]]>
 </script>
 <fieldset id="dpreview" style="display:none;">
 <legend>preview</legend>
@@ -297,3 +299,14 @@ if (!$_conf['ktai']) {
 }
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,10 +1,8 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
- * スレッドタイトル検索 [tGrep] クライアント
+ * スレッドタイトル検索 tGrep クライアント
  *
- * http://page2.xrea.jp/tgrep/tgrep2-test.cgi を利用
+ * http://page2.xrea.jp/tgrep/ を利用
  */
 
 // {{{ p2基本設定読み込み&認証
@@ -14,7 +12,6 @@ require_once './conf/conf.inc.php';
 $_login->authorize();
 
 // }}}
-
 // {{{ 準備
 
 if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
@@ -325,7 +322,7 @@ if ($is_ajax) {
     if (!headers_sent()) {
         header('Content-Type: application/xml; charset=UTF-8');
         //header('Content-Type: text/plain; charset=UTF-8');
-        header('Content-Length: ' . strlen($content));
+        //header('Content-Length: ' . strlen($content));
     }
     echo $content;
 } elseif ($_conf['ktai']) {
@@ -336,7 +333,7 @@ if ($is_ajax) {
 exit;
 
 // }}}
-// {{{ 関数
+// {{{ tgrep_search()
 
 function tgrep_search($query)
 {
@@ -358,3 +355,14 @@ function tgrep_search($query)
 }
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

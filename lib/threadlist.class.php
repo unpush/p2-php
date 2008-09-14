@@ -1,33 +1,47 @@
 <?php
-/**
- * p2 - ThreadList クラス
- */
-class ThreadList{
+require_once P2_LIB_DIR . '/thread.class.php';
 
-    var $threads;   // クラスThreadのオブジェクトを格納する配列
-    var $num;       // 格納されたThreadオブジェクトの数
-    var $host;      // ex)pc.2ch.net
-    var $bbs;       // ex)mac
-    var $itaj;      // 板名 ex)新・mac板
-    var $itaj_hd;   // HTML表示用に、板名を htmlspecialchars() したもの
-    var $spmode;    // 普通板以外のスペシャルモード
-    var $ptitle;    // ページタイトル
+// {{{ ThreadList
+
+/**
+ * rep2 - ThreadList クラス
+ */
+class ThreadList
+{
+    // {{{ properties
+
+    public $threads;   // クラスThreadのオブジェクトを格納する配列
+    public $num;       // 格納されたThreadオブジェクトの数
+    public $host;      // ex)pc.2ch.net
+    public $bbs;       // ex)mac
+    public $itaj;      // 板名 ex)新・mac板
+    public $itaj_hd;   // HTML表示用に、板名を htmlspecialchars() したもの
+    public $spmode;    // 普通板以外のスペシャルモード
+    public $ptitle;    // ページタイトル
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct()
+    public function __construct()
     {
         $this->threads = array();
         $this->num = 0;
     }
 
-    //==============================================
-    function setSpMode($name)
+    // }}}
+    // {{{ setSpMode()
+
+    /**
+     * spmodeを設定する
+     */
+    public function setSpMode($name)
     {
         global $_conf;
 
-        $halfwidth = ($_conf['ktai'] && !$_conf['ktai']);
+        $halfwidth = ($_conf['ktai'] && !$_conf['iphone']);
 
         switch ($name) {
         case 'recent':
@@ -68,10 +82,13 @@ class ThreadList{
         }
     }
 
+    // }}}
+    // {{{ setIta()
+
     /**
      * ■ 総合的に板情報（host, bbs, 板名）をセットする
      */
-    function setIta($host, $bbs, $itaj = "")
+    public function setIta($host, $bbs, $itaj = "")
     {
         $this->host = $host;
         $this->bbs = $bbs;
@@ -80,10 +97,13 @@ class ThreadList{
         return true;
     }
 
+    // }}}
+    // {{{ setItaj()
+
     /**
      * ■板名をセットする
      */
-    function setItaj($itaj)
+    public function setItaj($itaj)
     {
         if ($itaj) {
             $this->itaj = $itaj;
@@ -96,10 +116,13 @@ class ThreadList{
         return true;
     }
 
+    // }}}
+    // {{{ readList()
+
     /**
      * ■ readList メソッド
      */
-    function readList()
+    public function readList()
     {
         global $_conf, $_info_msg_ht;
 
@@ -268,10 +291,13 @@ class ThreadList{
         return $lines;
     }
 
+    // }}}
+    // {{{ addThread()
+
     /**
      * ■ addThread メソッド
      */
-    function addThread($aThread)
+    public function addThread(Thread $aThread)
     {
         //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('addThread()');
 
@@ -283,4 +309,18 @@ class ThreadList{
         return $this->num;
     }
 
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

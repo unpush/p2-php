@@ -1,3 +1,8 @@
+<?php
+/**
+ * rep2expack - tGrep ŒŸõŒ‹‰Ê‚ÌƒŒƒ“ƒ_ƒŠƒ“ƒO for PC
+ */
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
@@ -9,6 +14,7 @@
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;<?php echo $htm['skin_q']; ?>" />
     <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;<?php echo $htm['skin_q']; ?>" />
     <style type="text/css">
+    /* <![CDATA[ */
     div.tgrep_message {
         margin:0; padding:0; line-height:120%;
         <?php echo $htm['message_background'], $htm['message_border'], $htm['message_color']; ?>
@@ -28,19 +34,20 @@
         border-top:<?php echo $STYLE['sb_th_bgcolor']; ?> solid 1px;
         <?php echo $htm['message_background'], $htm['message_color']; ?>
     }
+    /* ]]> */
     </style>
     <script type="text/javascript">
-    // <![CDATA[
+    //<![CDATA[
     function setWinTitle() {
         if (top != self) {top.document.title=self.document.title;}
     }
     function sf() {
         <?php if (strlen($htm['query']) == 0) { echo 'document.getElementById("Q").focus()'; } ?>
     }
-    // ]]>
+    //]]>
     </script>
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="sf();setWinTitle();gIsPageLoaded=true;">
+<body onload="sf();setWinTitle();gIsPageLoaded=true;">
 
 <!-- Toolbar1 -->
 <table id="sbtoolbar1" class="toolbar" cellspacing="0">
@@ -99,7 +106,7 @@
 <select onchange="location.href=document.getElementById('h_subject_php').value+'?word='+document.getElementById('h_query_en').value+this.options[this.selectedIndex].value">
 <option value="">-</option>
 <?php $m = ($htm['category'] && isset($profile['categories'][$htm['category']])) ? $profile['categories'][$htm['category']]->member : null; ?>
-<?php foreach ($profile['boards'] as $n => $b) { if (!$m || in_array($n, $m)) { ?><option value="<?php printf('&amp;host=%s&amp;bbs=%s&amp;itaj_en=%s', $b->host, $b->bbs, urlencode(base64_encode($b->name))); ?>"><?php echo htmlspecialchars($b->name, ENT_QUOTES); ?> (<?php echo $b->hits; ?>)</option><?php } } ?>
+<?php foreach ($profile['boards'] as $n => $b) { if (!$m || in_array($n, $m)) { ?><option value="<?php printf('&amp;host=%s&amp;bbs=%s&amp;itaj_en=%s', $b->host, $b->bbs, rawurlencode(base64_encode($b->name))); ?>"><?php echo htmlspecialchars($b->name, ENT_QUOTES); ?> (<?php echo $b->hits; ?>)</option><?php } } ?>
 </select>
 </div>
 <?php } ?>
@@ -126,7 +133,7 @@ include_once P2_LIB_DIR . '/thread.class.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);
-    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, urlencode(base64_encode($t->ita)), $htm['query_en']);
+    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, rawurlencode(base64_encode($t->ita)), $htm['query_en']);
     if (P2Util::isHostMachiBbs($t->host)) {
         $ourl = sprintf('http://%s/bbs/read.pl?BBS=%s&KEY=%s', $t->host, $t->bbs, $t->tkey);
     } else {
@@ -184,3 +191,15 @@ foreach ($threads as $o => $t) {
 
 </body>
 </html>
+<?php
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

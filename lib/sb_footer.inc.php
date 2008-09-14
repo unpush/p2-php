@@ -1,11 +1,13 @@
 <?php
-/*
-    p2 - サブジェクト - フッタ表示
-    for subject.php
-*/
+/**
+ * rep2 - サブジェクト - フッタ表示
+ * for subject.php
+ */
 
 $bbs_q = "&amp;bbs=".$aThreadList->bbs;
 $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
+
+$have_sb_footer_links = false;
 
 // dat倉庫 =======================
 // スペシャルモードでなければ、またはあぼーんリストなら
@@ -14,6 +16,7 @@ if(!$aThreadList->spmode or $aThreadList->spmode=="taborn"){
     $dat_soko_ht =<<<EOP
     <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko" target="_self">dat倉庫</a> |
 EOP;
+    $have_sb_footer_links = true;
 }
 
 // あぼーん中のスレッド =================
@@ -22,6 +25,7 @@ if ($ta_num) {
     $taborn_link_ht = <<<EOP
     <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn" target="_self">あぼーん中のスレッド (<span id="ta_num">{$ta_num}</span>)</a> |
 EOP;
+    $have_sb_footer_links = true;
 }
 
 // あぼーん =======================
@@ -30,6 +34,7 @@ if (!$aThreadList->spmode) {
     $taborn_now_ht = <<<EOP
     <a href="javascript:void(0)" onclick="return showTAborn(1, '1', {$STYLE['info_pop_size']}, 'subject', this)" target="_self">スレッドあぼーん</a> |
 EOP;
+    $have_sb_footer_links = true;
 }
 
 // 新規スレッド作成・datのインポート =======
@@ -42,6 +47,7 @@ EOP;
     $import_dat_ht = <<<EOP
  | <a href="import.php?host={$aThreadList->host}{$bbs_q}" onclick="return OpenSubWin('import.php?host={$aThreadList->host}{$bbs_q}', 600, 380, 0, 0);" target="_self">datのインポート</a>
 EOP;
+    $have_sb_footer_links = true;
 }
 
 // HTMLプリント==============================================
@@ -63,13 +69,15 @@ EOP;
 // sbject ツールバー =====================================
 include P2_LIB_DIR . '/sb_toolbar.inc.php';
 
-echo "<p>";
-echo $dat_soko_ht;
-echo $taborn_link_ht;
-echo $taborn_now_ht;
-echo $buildnewthread_ht;
-echo $import_dat_ht;
-echo "</p>";
+if ($have_sb_footer_links) {
+    echo "<p>";
+    echo $dat_soko_ht;
+    echo $taborn_link_ht;
+    echo $taborn_now_ht;
+    echo $buildnewthread_ht;
+    echo $import_dat_ht;
+    echo "</p>";
+}
 
 // スペシャルモードでなければフォーム入力補完========================
 $ini_url_text = '';
@@ -93,11 +101,12 @@ if (url_v=="" || url_v=="{$ini_url_text}") {
     return false;
 }
 EOP;
+$onClick_ht = htmlspecialchars($onClick_ht, ENT_QUOTES);
 echo <<<EOP
     <form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
             スレURLを直接指定
             <input id="url_text" type="text" value="{$ini_url_text}" name="url" size="62">
-            <input type="submit" name="btnG" value="表示" onClick='{$onClick_ht}'>
+            <input type="submit" name="btnG" value="表示" onclick="{$onClick_ht}">
     </form>\n
 EOP;
 if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
@@ -110,3 +119,14 @@ if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
 //================
 echo '</body>
 </html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 - txt を 表示
-*/
+/**
+ * rep2 - txt を 表示
+ */
 
 require_once './conf/conf.inc.php';
 
@@ -45,6 +45,8 @@ if (preg_match("/\.txt$/i", $file)) {
 } else {
     die("error: cannot view \"$file\"");
 }
+
+// {{{ viewTxtFile()
 
 /**
  * ファイル内容を読み込んで表示する関数
@@ -94,3 +96,16 @@ EOHEADER;
 
     return TRUE;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

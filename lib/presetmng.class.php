@@ -180,7 +180,7 @@ class PresetManager
      *
      * @return void
      */
-    function clearAllData()
+    public function clearAllData()
     {
         $this->_data = array();
     }
@@ -195,7 +195,7 @@ class PresetManager
      * @param bool $as_utf8
      * @return array|stdClass
      */
-    function getAllData($as_tree = false, $as_utf8 = false)
+    public function getAllData($as_tree = false, $as_utf8 = false)
     {
         ksort($this->_data);
 
@@ -257,7 +257,7 @@ class PresetManager
      * @param array $options
      * @return string
      */
-    function getAllDataAsHTML($as_tree = false, $as_utf8 = false, $options = array())
+    public function getAllDataAsHTML($as_tree = false, $as_utf8 = false, $options = array())
     {
         $data = $this->getAllData($as_tree, $as_utf8);
 

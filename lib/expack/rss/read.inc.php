@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - 簡易RSSリーダ（内容・PC用）
+ */
 
 // {{{ ヘッダ
 
@@ -20,11 +21,11 @@ echo <<<EOH
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function setWinTitle(){
         if (top != self) {top.document.title=self.document.title;}
     }
-    // -->
+    //]]>
     </script>
 </head>
 <body onload="setWinTitle()">
@@ -135,3 +136,14 @@ EOP;
 }
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

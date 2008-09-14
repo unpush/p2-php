@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
  * 2chÇ©ÇÁGoogle APIÇégÇ¡ÇƒåüçıÇµÅAp2Ç≈ì«ÇﬁÇΩÇﬂÇÃÉäÉìÉNÇ…ïœä∑Ç∑ÇÈ
  *
@@ -156,7 +154,7 @@ if ($_conf['input_type_search']) {
     <script type="text/javascript" src="js/basic.js?<?php echo $_conf['p2_version_id']; ?>"></script>
     <script type="text/javascript" src="js/gpopup.js?<?php echo $_conf['p2_version_id']; ?>"></script>
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<body>
 <table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td align="left">
     <span class="itatitle"><a class="aitatitle" href="<?php echo $_SERVER['SCRIPT_NAME']; ?>"><b>2chåüçı by Google</b></a></span>
     <form action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>" style="display:inline;">
@@ -169,3 +167,14 @@ if ($_conf['input_type_search']) {
 <?php $renderer->printPopup($popups); ?>
 </body>
 </html>
+<?php
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

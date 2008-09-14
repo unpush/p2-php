@@ -1,8 +1,12 @@
 <?php
-// rep2 -  スレッド表示部分の初期表示
-// フレーム3分割画面、右下部分
+/**
+ * rep2 - スレッド表示部分の初期表示
+ * フレーム3分割画面、右下部分
+ */
 
 require_once './conf/conf.inc.php';
+
+$_login->authorize(); // ユーザ認証
 
 // {{{ スレ指定フォーム
 
@@ -28,10 +32,8 @@ $htm['urlform'] = <<<EOP
 EOP;
 
 // }}}
+// {{{ HTMLプリント
 
-//=============================================================
-// HTMLプリント
-//=============================================================
 echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
@@ -53,3 +55,16 @@ echo <<<EOP
 </body>
 </html>
 EOP;
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,12 +1,12 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2機能拡張パック - RSS画像キャッシュ
-*/
+/**
+ * rep2expck - RSS画像キャッシュ
+ */
 
 require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
 require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+
+// {{{ rss_get_image()
 
 /**
  * イメージキャッシュのURLと画像サイズを返す
@@ -23,6 +23,9 @@ function rss_get_image($src_url, $memo='')
 
     return $cache[$key];
 }
+
+// }}}
+// {{{ rss_get_image_ic2()
 
 /**
  * イメージキャッシュのURLと画像サイズを返す (ImageCache2)
@@ -144,3 +147,16 @@ function rss_get_image_ic2($src_url, $memo='')
 
     return $result;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

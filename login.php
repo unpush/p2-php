@@ -1,6 +1,6 @@
 <?php
 /**
- * rep2 ログイン
+ * rep2 - ログイン
  */
 
 require_once './conf/conf.inc.php';
@@ -31,7 +31,7 @@ if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
 }
 
 // （携帯）ログイン用URL
-//$user_u_q = !empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
+//$user_u_q = $_conf['ktai'] ? "?user={$_login->user_u}" : '';
 //$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
 $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=k';
 
@@ -233,3 +233,14 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

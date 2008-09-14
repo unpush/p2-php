@@ -1,6 +1,6 @@
 <?php
 /**
- *  p2 - ユーザ設定編集UI
+ *  rep2 - ユーザ設定編集UI
  */
 
 require_once './conf/conf.inc.php';

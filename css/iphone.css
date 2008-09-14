@@ -169,12 +169,19 @@ h3 > font[color], div > font[color] > b {
 	color: #252525;
 }
 
-div.res {
+div.res:not(.aborned) {
 	margin: 8px 0;
 	padding: 0;
 	background-color: #ffffff;
 	border: #808080 solid 1px;
 	-webkit-border-radius: 8px;
+}
+
+div.res.aborned {
+	margin: 0;
+	padding: 0;
+	fonr-size: xx-small;
+	line-height: 100%;
 }
 
 div.res > div.message {

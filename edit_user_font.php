@@ -1,9 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    expack - フォント設定編集インタフェース
-*/
+/**
+ * rep2expack - フォント設定編集インタフェース
+ */
 
 // {{{ 初期化
 
@@ -173,7 +171,7 @@ include($skin);
 if ($updated_fontconfig['enabled']) {
     fontconfig_apply_custom();
 } else {
-    $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . urlencode($skin_uniq);
+    $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . rawurlencode($skin_uniq);
 }
 $controllerObject->STYLE = $STYLE;
 $controllerObject->skin = $skin_en;
@@ -181,6 +179,8 @@ $controllerObject->p2vid = P2_VERSION_ID;
 
 // 出力
 $flexy->outputObject($controllerObject, $elements);
+
+// {{{ fontconfig_load_skin_setting()
 
 /**
  * カスタム設定で上書きされていないスキン設定を読み込む
@@ -221,6 +221,9 @@ function fontconfig_load_skin_setting()
     return $skindata;
 }
 
+// }}}
+// {{{ fontconfig_implode_fonts()
+
 function fontconfig_implode_fonts($fonts)
 {
     if (!is_array($fonts)) {
@@ -229,7 +232,23 @@ function fontconfig_implode_fonts($fonts)
     return '"' . implode('","', array_map('fontconfig_trim', $fonts)) . '"';
 }
 
+// }}}
+// {{{ fontconfig_trim()
+
 function fontconfig_trim($str)
 {
     return trim($str, " \r\n\t\x0B\"'\0");
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

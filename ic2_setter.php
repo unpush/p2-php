@@ -181,6 +181,7 @@ $flexy->outputObject($view, $elements);
 
 // }}}
 // {{{ 関数
+// {{{ ic2_check_uploaded_file()
 
 /**
  * アップロードされた各画像ファイルを検証する。
@@ -262,6 +263,9 @@ function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errc
     // DBに登録し、結果を返す
     return ic2_register_uploaded_file($file);
 }
+
+// }}}
+// {{{ ic2_register_uploaded_file()
 
 /**
  * アップロードされた画像ファイルをDBに登録する。
@@ -363,6 +367,7 @@ function ic2_register_uploaded_file($file)
     return $file;
 }
 
+// }}}
 // }}}
 
 /*

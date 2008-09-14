@@ -1,8 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// p2 - SPMあぼーん
+/**
+ * rep2 - SPMあぼーん
+ */
 
 require_once './conf/conf.inc.php';
 
@@ -259,7 +258,7 @@ EOSTYLE;
             }
             echo <<<EOJS
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function infoSpLiveAborn()
     {
         var tgt = "{$aborn_target}";
@@ -279,7 +278,7 @@ EOSTYLE;
         }*/
         return true;
     }
-    // -->
+    //]]>
     </script>\n
 EOJS;
             $body_onload = " onload=\"infoSpLiveAborn();startTimer(document.getElementById('timerbutton'));\"";
@@ -319,7 +318,7 @@ if ($popup == 1 && $msg != "") {
         echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
     }
     echo "</form>\n";
-} elseif (empty($_conf['ktai']) && $popup == 2) {
+} elseif (!$_conf['ktai'] && $popup == 2) {
     echo <<<EOB
     <input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))">\n
 EOB;
@@ -338,8 +337,8 @@ echo "</form>\n";
     echo "</form>\n";
 } else*/
 if (isset($edit_value)) {
-    $rows = !empty($_conf['ktai']) ? 5 : 36;
-    $cols = !empty($_conf['ktai']) ? 0 : 128;
+    $rows = $_conf['ktai'] ? 5 : 36;
+    $cols = $_conf['ktai'] ? 0 : 128;
     $edit_php = ($mode == 'aborn_res') ? 'editfile.php' : 'edit_aborn_word.php';
     echo <<<EOFORM
 <form action="{$edit_php}" method="get"{$target_edit_at}>
@@ -350,7 +349,7 @@ if (isset($edit_value)) {
     <input type="hidden" name="cols" value="{$cols}">
     <input type="submit" value="{$edit_value}">\n
 EOFORM;
-    if (empty($_conf['ktai']) && $popup == 1 && $msg == "") {
+    if (!$_conf['ktai'] && $popup == 1 && $msg == "") {
         echo "\t<input type=\"button\" value=\"キャンセル\" onclick=\"window.close();\">\n";
     }
     echo "</form>\n";
@@ -370,3 +369,14 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,11 +1,12 @@
 <?php
-// p2 - 書き込み履歴 のための関数群
+/**
+ * rep2 - 書き込み履歴 のための関数群
+ */
 
 require_once P2_LIB_DIR . '/dataphp.class.php';
 
-//======================================================================
-// 関数
-//======================================================================
+// {{{ deleMsg()
+
 /**
  * チェックした書き込み記事を削除する
  */
@@ -67,6 +68,9 @@ function deleMsg($checked_hists)
     }
 }
 
+// }}}
+// {{{ checkMsgID()
+
 /**
  * 番号と日付が一致するかをチェックする
  *
@@ -84,6 +88,9 @@ function checkMsgID($checked_hists, $order, $date)
     }
     return false;
 }
+
+// }}}
+// {{{ rmLine()
 
 /**
  * 指定した番号（配列指定）を行リストから削除する
@@ -103,6 +110,9 @@ function rmLine($order_list, $lines)
     return false;
 }
 
+// }}}
+// {{{ checkOrder()
+
 /**
  * 番号と配列を比較
  */
@@ -117,3 +127,16 @@ function checkOrder($order_list, $order)
     }
     return false;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

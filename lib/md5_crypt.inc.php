@@ -1,16 +1,17 @@
 <?php
-/*
-    このファイルの関数は、PHPマニュアルページよりの拝借です。感謝。
-    http://jp.php.net/manual/ja/function.md5.php
+/**
+ * このファイルの関数は、PHPマニュアルページよりの拝借です。感謝。
+ * @link http://jp.php.net/manual/ja/function.md5.php
+ *
+ * Alexander Valyalkin
+ * 01-Jul-2004 05:41
+ * Below is MD5-based block cypher (MDC-like), which works in 128bit CFB mode.
+ * It is very useful to encrypt secret data before transfer it over the network.
+ * $iv_len - initialization vector's length.
+ * 0 <= $iv_len <= 512
+ */
 
-
-    Alexander Valyalkin
-    01-Jul-2004 05:41
-    Below is MD5-based block cypher (MDC-like), which works in 128bit CFB mode.
-    It is very useful to encrypt secret data before transfer it over the network.
-    $iv_len - initialization vector's length.
-    0 <= $iv_len <= 512
-*/
+// {{{ get_rnd_iv()
 
 function get_rnd_iv($iv_len)
 {
@@ -20,6 +21,9 @@ function get_rnd_iv($iv_len)
    }
    return $iv;
 }
+
+// }}}
+// {{{ md5_decrypt()
 
 function md5_encrypt($plain_text, $password, $iv_len = 16)
 {
@@ -38,6 +42,9 @@ function md5_encrypt($plain_text, $password, $iv_len = 16)
    return base64_encode($enc_text);
 }
 
+// }}}
+// {{{ md5_decrypt()
+
 function md5_decrypt($enc_text, $password, $iv_len = 16)
 {
    $enc_text = base64_decode($enc_text);
@@ -54,6 +61,8 @@ function md5_decrypt($enc_text, $password, $iv_len = 16)
    return preg_replace('/\\x13\\x00*$/', '', $plain_text);
 }
 
+// }}}
+
 /******************************************/
 /*
 $plain_text = 'very secret string';
@@ -67,3 +76,14 @@ echo "encrypted text is: [${enc_text}]<br />\n";
 $plain_text2 = md5_decrypt($enc_text, $password);
 echo "decrypted text is: [${plain_text2}]<br />\n";
 */
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

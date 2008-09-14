@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 -  お気に入り編集
-*/
+/**
+ * rep2 - お気に入り編集
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
@@ -132,9 +132,10 @@ if (is_array($lines)) {
 }
 
 // PC用
-if (empty($_conf['ktai']) and !empty($lines)) {
+if (!$_conf['ktai'] and !empty($lines)) {
 ?>
 <script type="text/javascript">
+//<![CDATA[
     // var gLogger = new ygLogger("test_noimpl.php");
     var dd = []
     var gVarObj = new Object();
@@ -194,6 +195,7 @@ function submitApply()
     //alert(document.form['list'].value);
     //document.form.submit();
 }
+//]]>
 </script>
 <?php
 }
@@ -223,7 +225,7 @@ echo $add_favita_form_ht;
 echo '<hr>';
 
 // PC（NetFrontを除外）
-if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+if (!$_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
 
     if ($lines) {
         $script_enable_html .= <<<EOP
@@ -278,7 +280,7 @@ EOP;
 //================================================================
 if ($lines) {
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+    if (!$_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '<noscript>';
     }
     echo 'お気に板の並び替え';
@@ -306,7 +308,7 @@ EOP;
 
     echo "</table>";
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+    if (!$_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '</noscript>';
     }
 }
@@ -325,3 +327,14 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

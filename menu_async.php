@@ -1,10 +1,8 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2 - 板メニューの非同期読み込み
-    現状ではお気に板とRSSのセット切り替えのみ対応
-*/
+/**
+ * rep2expack - 板メニューの非同期読み込み
+ * 現状ではお気に板とRSSのセット切り替えのみ対応
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/brdctl.class.php';
@@ -28,7 +26,7 @@ header('Content-Type: text/html; charset=Shift_JIS');
 if (isset($_GET['m_favita_set'])) {
     $aShowBrdMenuPc = new ShowBrdMenuPc;
     ob_start();
-    $aShowBrdMenuPc->print_favIta();
+    $aShowBrdMenuPc->printFavIta();
     $menuItem = ob_get_clean();
     $menuItem = preg_replace('{^\\s*<div class="menu_cate">.+?<div class="itas" id="c_favita">\\s*}s', '', $menuItem);
     $menuItem = preg_replace('{\\s*</div>\\s*</div>\\s*$}s', '', $menuItem);
@@ -60,7 +58,7 @@ echo $menuItem;
 exit;
 
 // }}}
-// {{{ 関数
+// {{{ changeSkin()
 
 /**
  * スキンを切り替える
@@ -91,3 +89,14 @@ function changeSkin($skin)
 }
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,35 +1,56 @@
 <?php
 /**
- * スレッドを表示する クラス
+ * rep2- スレッドを表示する クラス
  */
-class ShowThread{
 
-    var $thread; // スレッドオブジェクト
+require_once P2_LIB_DIR . '/threadread.class.php';
 
-    var $str_to_link_regex; // リンクすべき文字列の正規表現
+// {{{ ShowThread
 
-    var $url_handlers; // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
-    var $user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
+abstract class ShowThread
+{
+    // {{{ properties
 
-    var $ngaborn_frequent; // 頻出IDをあぼーんする
+    static private $_matome_count = 0;
 
-    var $aborn_nums; // あぼーんレス番号を格納する配列
-    var $ng_nums; // NGレス番号を格納する配列
+    protected $_matome; // まとめ読みモード時のスレッド番号
 
-    var $activeMona; // アクティブモナー・オブジェクト
-    var $am_enabled = false; // アクティブモナーが有効か否か
+    protected $_str_to_link_regex; // リンクすべき文字列の正規表現
+
+    protected $_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
+    protected $_user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
+
+    protected $_ngaborn_frequent; // 頻出IDをあぼーんする
+
+    protected $_aborn_nums; // あぼーんレス番号を格納する配列
+    protected $_ng_nums; // NGレス番号を格納する配列
+
+    public $thread; // スレッドオブジェクト
+
+    public $activeMona; // アクティブモナー・オブジェクト
+    public $am_enabled = false; // アクティブモナーが有効か否か
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct($aThread)
+    protected function __construct(ThreadRead $aThread, $matome = false)
     {
         global $_conf;
 
         // スレッドオブジェクトを登録
         $this->thread = $aThread;
 
-        $this->str_to_link_regex = '{'
+        // まとめ読みモードか否か
+        if ($matome) {
+            $this->_matome = ++self::$_matome_count;
+        } else {
+            $this->_matome = false;
+        }
+
+        $this->_str_to_link_regex = '{'
             . '(?P<link>(<[Aa] .+?>)(.*?)(</[Aa]>))' // リンク（PCREの特性上、必ずこのパターンを最初に試行する）
             . '|'
             . '(?:'
@@ -53,34 +74,74 @@ class ShowThread{
             . ')'
             . '}';
 
-        $this->url_handlers = array();
-        $this->user_url_handlers = array();
+        $this->_url_handlers = array();
+        $this->_user_url_handlers = array();
 
-        $this->ngaborn_frequent = 0;
+        $this->_ngaborn_frequent = 0;
         if ($_conf['ngaborn_frequent']) {
             if ($_conf['ngaborn_frequent_dayres'] == 0) {
-                $this->ngaborn_frequent = $_conf['ngaborn_frequent'];
+                $this->_ngaborn_frequent = $_conf['ngaborn_frequent'];
             } elseif ($this->thread->setDayRes() && $this->thread->dayres < $_conf['ngaborn_frequent_dayres']) {
-                $this->ngaborn_frequent = $_conf['ngaborn_frequent'];
+                $this->_ngaborn_frequent = $_conf['ngaborn_frequent'];
             }
         }
 
-        $this->aborn_nums = array();
-        $this->ng_nums = array();
+        $this->_aborn_nums = array();
+        $this->_ng_nums = array();
     }
+
+    // }}}
+    // {{{ abstract methods
+    // {{{ datToHtml()
 
     /**
      * DatをHTML変換して表示する
      */
-    function datToHtml()
-    {
-        return '';
-    }
+    abstract public function datToHtml();
+
+    // }}}
+    // {{{ transRes()
+
+    /**
+     * DatレスをHTMLレスに変換する
+     *
+     * @param   string  $ares   datの1ライン
+     * @param   int     $i      レス番号
+     * @return  string
+     */
+    abstract public function transRes($ares, $i);
+
+    // }}}
+    // {{{ transName()
+
+    /**
+     * 名前をHTML用に変換する
+     *
+     * @param   string  $name   名前
+     * @return  string
+     */
+    abstract public function transName($name);
+
+    // }}}
+    // {{{ transMsg()
+
+    /**
+     * datのレスメッセージをHTML表示用メッセージに変換する
+     *
+     * @param   string  $msg    メッセージ
+     * @param   int     $mynum  レス番号
+     * @return  string
+     */
+    abstract public function transMsg($msg, $mynum);
+
+    // }}}
+    // }}}
+    // {{{ getDatToHtml()
 
     /**
      * DatをHTML変換したものを取得する
      */
-    function getDatToHtml()
+    public function getDatToHtml()
     {
         ob_start();
         $this->datToHtml();
@@ -90,10 +151,13 @@ class ShowThread{
         return $html;
     }
 
+    // }}}
+    // {{{ replaceBeId()
+
     /**
      * BEプロファイルリンク変換
      */
-    function replaceBeId($date_id, $i)
+    public function replaceBeId($date_id, $i)
     {
         global $_conf;
 
@@ -113,11 +177,13 @@ class ShowThread{
         return $date_id;
     }
 
+    // }}}
+    // {{{ ngAbornCheck()
 
     /**
      * NGあぼーんチェック
      */
-    function ngAbornCheck($code, $resfield, $ic = FALSE)
+    public function ngAbornCheck($code, $resfield, $ic = FALSE)
     {
         global $ngaborns;
 
@@ -181,10 +247,13 @@ class ShowThread{
         return false;
     }
 
+    // }}}
+    // {{{ abornResCheck()
+
     /**
      * 特定レスの透明あぼーんチェック
      */
-    function abornResCheck($resnum)
+    public function abornResCheck($resnum)
     {
         global $ngaborns;
 
@@ -202,23 +271,28 @@ class ShowThread{
         return false;
     }
 
+    // }}}
+    // {{{ ngAbornUpdate()
+
     /**
      * NG/あぼ～ん日時と回数を更新
      */
-    function ngAbornUpdate($code, $k)
+    public function ngAbornUpdate($code, $k)
     {
         global $ngaborns;
 
         if (isset($ngaborns[$code]['data'][$k])) {
-            $v = &$ngaborns[$code]['data'][$k];
-            $v['lasttime'] = date('Y/m/d G:i'); // HIT時間を更新
-            if (empty($v['hits'])) {
-                $v['hits'] = 1; // 初HIT
+            $ngaborns[$code]['data'][$k]['lasttime'] = date('Y/m/d G:i'); // HIT時間を更新
+            if (empty($ngaborns[$code]['data'][$k]['hits'])) {
+                $ngaborns[$code]['data'][$k]['hits'] = 1; // 初HIT
             } else {
-                $v['hits']++; // HIT回数を更新
+                $ngaborns[$code]['data'][$k]['hits']++; // HIT回数を更新
             }
         }
     }
+
+    // }}}
+    // {{{ addURLHandler()
 
     /**
      * ユーザ定義URLハンドラ（メッセージ中のURLを書き換える関数）を追加する
@@ -231,25 +305,27 @@ class ShowThread{
      *  1. string $url  URL
      *  2. array  $purl URLをparse_url()したもの
      *  3. string $str  パターンにマッチした文字列、URLと同じことが多い
-     *  4. object &$aShowThread 呼び出し元のオブジェクト
+     *  4. object $aShowThread 呼び出し元のオブジェクト
      * である
      * 常にFALSEを返し、内部で処理するだけの関数を登録してもよい
      *
-     * @param   string|array $function  関数名か、array(string $classname, string $methodname)
-     *                                  もしくは array(object $instance, string $methodname)
+     * @param   callback $function  コールバックメソッド
      * @return  void
      * @access  public
      * @todo    ユーザ定義URLハンドラのオートロード機能を実装
      */
-    function addURLHandler($function)
+    public function addURLHandler($function)
     {
-        $this->user_url_handlers[] = $function;
+        $this->_user_url_handlers[] = $function;
     }
+
+    // }}}
+    // {{{ getFilterTarget()
 
     /**
      * レスフィルタリングのターゲットを得る
      */
-    function getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)
+    public function getFilterTarget($ares, $i, $name, $mail, $date_id, $msg)
     {
         switch ($GLOBALS['res_filter']['field']) {
             case 'name':
@@ -275,10 +351,13 @@ class ShowThread{
         return $target;
     }
 
+    // }}}
+    // {{{ filterMatch()
+
     /**
      * レスフィルタリングのマッチ判定
      */
-    function filterMatch($target, $resnum)
+    public function filterMatch($target, $resnum)
     {
         global $_conf;
         global $filter_hits, $filter_range;
@@ -318,13 +397,28 @@ class ShowThread{
         if (!$_conf['ktai']) {
             echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 filterCount({$GLOBALS['filter_hits']});
--->
+//]]>
 </script>\n
 EOP;
         }
 
         return true;
     }
+
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

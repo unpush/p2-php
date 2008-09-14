@@ -1,6 +1,6 @@
 <?php
 /**
- *    p2 - 2ch●ログイン管理
+ * rep2 - 2ch●ログイン管理
  */
 
 require_once './conf/conf.inc.php';
@@ -101,7 +101,7 @@ $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
 
 echo <<<EOP
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function checkPass2ch(){
         if (pass2ch_input = document.getElementById('login2chPW')) {
             if (pass2ch_input.value == "") {
@@ -110,7 +110,7 @@ echo <<<EOP
             }
         }
     }
-    // -->
+    //]]>
     </script>
 </head>
 <body{$body_at}>
@@ -206,3 +206,14 @@ if ($_conf['ktai']) {
 }
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

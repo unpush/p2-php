@@ -1,15 +1,15 @@
 <?php
-/*
-    p2 - スレッド表示スクリプト - 新着まとめ読み
-    フレーム分割画面、右下部分
-*/
+/**
+ * rep2 - スレッド表示スクリプト - 新着まとめ読み
+ * フレーム分割画面、右下部分
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/threadlist.class.php';
-require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/ngabornctl.class.php';
 require_once P2_LIB_DIR . '/read_new.inc.php';
+require_once P2_LIB_DIR . '/showthreadpc.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -186,7 +186,7 @@ if ($_conf['expack.ic2.enabled']) {
 
 echo <<<EOHEADER
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     gIsPageLoaded = false;
 
     function pageLoaded()
@@ -194,7 +194,7 @@ echo <<<EOHEADER
         gIsPageLoaded = true;
         setWinTitle();
     }
-    -->
+    //]]>
     </script>\n
 EOHEADER;
 
@@ -482,9 +482,7 @@ EOP;
     $GLOBALS['newres_to_show_flag'] = false;
     if ($aThread->rescount) {
         // $aThread->datToHtml(); // dat を html に変換表示
-        include_once P2_LIB_DIR . '/showthread.class.php';
-        include_once P2_LIB_DIR . '/showthreadpc.class.php';
-        $aShowThread = new ShowThreadPc($aThread);
+        $aShowThread = new ShowThreadPc($aThread, true);
         // async
         /*if ($_conf['expack.misc.async_respop']) {
             $read_header_ht .= $aShowThread->getASyncObjJs();
@@ -678,3 +676,14 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 
 // NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

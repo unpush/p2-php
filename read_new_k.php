@@ -1,15 +1,15 @@
 <?php
-/*
-    p2 - スレッド表示スクリプト - 新着まとめ読み（携帯）
-    フレーム分割画面、右下部分
-*/
+/**
+ * rep2 - スレッド表示スクリプト - 新着まとめ読み（携帯）
+ * フレーム分割画面、右下部分
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/threadlist.class.php';
-require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/ngabornctl.class.php';
 require_once P2_LIB_DIR . '/read_new.inc.php';
+require_once P2_LIB_DIR . '/showthreadk.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -417,7 +417,7 @@ function readNew($aThread)
     //==================================================================
     $motothre_url = $aThread->getMotoThread();
 
-    $ttitle_en = base64_encode($aThread->ttitle);
+    $ttitle_en = rawurlencode(base64_encode($aThread->ttitle));
     $ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
     $bbs_q = "&amp;bbs=".$aThread->bbs;
     $key_q = "&amp;key=".$aThread->key;
@@ -457,9 +457,7 @@ EOP;
     $read_cont_ht = '';
     if ($aThread->rescount) {
         //$aThread->datToHtml(); // dat を html に変換表示
-        include_once P2_LIB_DIR . '/showthread.class.php';
-        include_once P2_LIB_DIR . '/showthreadk.class.php';
-        $aShowThread = new ShowThreadK($aThread);
+        $aShowThread = new ShowThreadK($aThread, true);
 
         $read_cont_ht .= $aShowThread->getDatToHtml();
 
@@ -618,3 +616,14 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 
 // NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 - レス書き込み
-*/
+/**
+ * rep2 - レス書き込み
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
@@ -337,6 +337,7 @@ if ($_conf['res_write_rec']) {
 //===========================================================
 // 関数
 //===========================================================
+// {{{ postIt()
 
 /**
  * レスを書き込む
@@ -417,7 +418,7 @@ function postIt($host, $bbs, $key, $post)
                 $value = mb_convert_encoding($value, 'CP51932', 'CP932');
             }
 
-            $post_enc[] = $name."=".urlencode($value);
+            $post_enc[] = $name . '=' . rawurlencode($value);
         }
         $postdata = implode("&", $post_enc);
         $request .= "Content-Type: application/x-www-form-urlencoded\r\n";
@@ -569,9 +570,9 @@ EOP;
             $mado_okisa_y = $mado_okisa[1] + 200;
             echo <<<EOSCRIPT
             <script type="text/javascript">
-            <!--
+            //<![CDATA[
                 resizeTo({$mado_okisa_x},{$mado_okisa_y});
-            // -->
+            //]]>
             </script>
 EOSCRIPT;
         }
@@ -588,6 +589,9 @@ EOSCRIPT;
         return false;
     }
 }
+
+// }}}
+// {{{ showPostMsg()
 
 /**
  * 書き込み処理結果表示する
@@ -610,11 +614,11 @@ function showPostMsg($isDone, $result_msg, $reload)
     if ($popup) {
         $popup_ht = <<<EOJS
 <script type="text/javascript">
-<!--
+//<![CDATA[
     opener.location.href="{$location_noenc}";
     var delay= 3*1000;
     setTimeout("window.close()", delay);
-// -->
+//]]>
 </script>
 EOJS;
 
@@ -651,9 +655,9 @@ EOP;
         if ($popup) {
             echo <<<EOSCRIPT
             <script type="text/javascript">
-            <!--
+            //<![CDATA[
                 resizeTo({$STYLE['post_pop_size']});
-            // -->
+            //]]>
             </script>
 EOSCRIPT;
         }
@@ -681,6 +685,9 @@ EOP;
 EOP;
 }
 
+// }}}
+// {{{ getKeyInSubject()
+
 /**
  *  subjectからkeyを取得する
  *
@@ -702,6 +709,9 @@ function getKeyInSubject()
     }
     return false;
 }
+
+// }}}
+// {{{ tab2space()
 
 /**
  * 整形を維持しながら、タブをスペースに置き換える
@@ -740,6 +750,9 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
     return $out_str;
 }
 
+// }}}
+// {{{ replacePostFormCb()
+
 /**
  * COOKIEの確認フォームを書き換えるコールバック関数
  *
@@ -757,3 +770,16 @@ function replacePostFormCb($m)
 </form>
 EOFORM;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

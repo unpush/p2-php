@@ -1,8 +1,13 @@
 <?php
+/**
+ * rep2 - 2chログイン
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/wap.class.php';
+
+// {{{ login2ch()
 
 /**
  * ■2ch IDにログインする
@@ -132,6 +137,8 @@ EOP;
     return $SID2ch;
 }
 
+// }}}
+// {{{ getAuth2chWithCommandCurl()
 
 /**
  * ■systemコマンドでcurlを実行して、2chログインのSIDを得る
@@ -168,6 +175,9 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
     return false;
 }
 
+// }}}
+// {{{ getAuth2chWithPhpCurl()
+
 /**
  * ■PHPのcurlで2chログインのSIDを得る
  */
@@ -192,6 +202,9 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
 
     return false;
 }
+
+// }}}
+// {{{ execAuth2chWithPhpCurl()
 
 /**
  * ■PHPのcurlを実行する
@@ -226,6 +239,9 @@ function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $
     return;
 }
 
+// }}}
+// {{{ getAuth2chWithOpenSSL()
+
 /**
  * ■fsockopenでSSL接続して2chログインのSIDを得る（証明書検証なし）
  */
@@ -259,3 +275,16 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
 
     return $wap_res->content;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

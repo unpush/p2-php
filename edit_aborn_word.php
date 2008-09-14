@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 - あぼーんワード編集インタフェース
-*/
+/**
+ * rep2 - あぼーんワード編集インタフェース
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
@@ -320,3 +320,14 @@ echo '</body></html>';
 
 // ここまで
 exit;
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

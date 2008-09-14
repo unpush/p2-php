@@ -18,8 +18,8 @@ $path       = isset($_REQUEST['path'])       ? $_REQUEST['path']       : null;
 $modori_url = isset($_REQUEST['modori_url']) ? $_REQUEST['modori_url'] : null;
 $encode     = isset($_REQUEST['encode'])     ? $_REQUEST['encode']     : null;
 
-$rows = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : (!empty($_conf['ktai']) ? 5 : 36);
-$cols = isset($_REQUEST['cols']) ? intval($_REQUEST['cols']) : (!empty($_conf['ktai']) ? 0 : 128);
+$rows = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : ($_conf['ktai'] ? 5 : 36);
+$cols = isset($_REQUEST['cols']) ? intval($_REQUEST['cols']) : ($_conf['ktai'] ? 0 : 128);
 
 isset($_POST['filecont']) and $filecont = $_POST['filecont'];
 
@@ -64,6 +64,8 @@ exit;
 //=========================================================
 // 関数
 //=========================================================
+// {{{ setFile()
+
 /**
  * ファイルに内容をセットする関数
  */
@@ -84,6 +86,9 @@ function setFile($path, $cont, $encode)
     fclose($fp);
     return true;
 }
+
+// }}}
+// {{{ editFile()
 
 /**
  * ファイル内容を読み込んで編集する関数
@@ -152,3 +157,16 @@ EOFORM;
 
     return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

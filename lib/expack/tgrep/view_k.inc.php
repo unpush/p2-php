@@ -1,3 +1,8 @@
+<?php
+/**
+ * rep2expack - tGrep 検索結果のレンダリング for Mobile
+ */
+?>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
@@ -73,7 +78,7 @@ include_once P2_LIB_DIR . '/thread.class.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);
-    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, urlencode(base64_encode($t->ita)), $htm['query_en']);
+    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, rawurlencode(base64_encode($t->ita)), $htm['query_en']);
     $aThread = new Thread;
     $aThread->setThreadPathInfo($t->host, $t->bbs, $t->tkey);
     if ($aThread->getThreadInfoFromIdx() && $aThread->isKitoku()) {
@@ -112,3 +117,15 @@ foreach ($threads as $o => $t) {
 </p>
 </body>
 </html>
+<?php
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,9 +1,11 @@
 <?php
-/*
-    p2 - ‚Ü‚¿BBS—p‚ÌŠÖ”
-*/
+/**
+ * rep2 - ‚Ü‚¿BBS—p‚ÌŠÖ”
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ machiDownload()
 
 /**
  * ‚Ü‚¿BBS‚Ì read.pl ‚ð“Ç‚ñ‚Å dat‚É•Û‘¶‚·‚é
@@ -84,6 +86,8 @@ function machiDownload()
     return true;
 }
 
+// }}}
+// {{{ machiHtmltoDatLines()
 
 /**
  * ‚Ü‚¿BBS‚Ìread.pl‚Å“Ç‚Ýž‚ñ‚¾HTML‚ðdat‚É•ÏŠ·‚·‚é
@@ -151,3 +155,16 @@ function machiHtmltoDatLines($mlines)
 
     return $mdatlines;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

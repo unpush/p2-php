@@ -1,8 +1,6 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
- * tGrep 検索履歴メニュー
+ * rep2xpack - tGrep 検索履歴メニュー
  */
 
 if ($_conf['iphone']) {
@@ -12,6 +10,8 @@ if ($_conf['iphone']) {
 } else {
     tgrep_print_recent_list();
 }
+
+// {{{ tgrep_read_recent_list()
 
 /**
  * 検索履歴を読み込む
@@ -26,6 +26,9 @@ function tgrep_read_recent_list()
     }
     return $list;
 }
+
+// }}}
+// {{{ tgrep_print_recent_list()
 
 /**
  * PC用表示
@@ -57,6 +60,9 @@ function tgrep_print_recent_list()
     }
 }
 
+// }}}
+// {{{ tgrep_print_recent_list_k()
+
 /**
  * 携帯用表示
  */
@@ -81,6 +87,9 @@ function tgrep_print_recent_list_k()
     }
 }
 
+// }}}
+// {{{ tgrep_print_recent_list_i()
+
 /**
  * iPhone用表示
  */
@@ -100,3 +109,16 @@ function tgrep_print_recent_list_i()
         echo '<li class="weight-n">（なし）</li>' . "\n";
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

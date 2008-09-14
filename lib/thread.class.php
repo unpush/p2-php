@@ -4,7 +4,7 @@ require_once P2_LIB_DIR . '/filectl.class.php';
 // {{{ Thread
 
 /**
- * p2 - スレッドクラス
+ * rep2 - スレッドクラス
  */
 class Thread
 {
@@ -485,7 +485,7 @@ class Thread
                 if (P2Util::isHostBbsPink($this->host)) {
                     $motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
                 } else {
-                    $mail = urlencode($_conf['my_mail']);
+                    $mail = rawurlencode($_conf['my_mail']);
                     // c.2chはl指定に非対応なので、代わりにn
                     $ls = (substr($this->ls, 0, 1) == 'l') ? 'n' : $this->ls;
                     $motothre_url = "http://c.2ch.net/test/--3!mail={$mail}/{$this->bbs}/{$this->key}/{$ls}";

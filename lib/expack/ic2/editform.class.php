@@ -15,7 +15,7 @@ class EditForm
     static public function header($hiddens, $mode)
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mf_head = new HTML_Template_Flexy_Element('form', array(
             'name' => 'edit',
             'id' => 'edit',
@@ -46,7 +46,7 @@ class EditForm
     static public function submit($id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mf_submit = new HTML_Template_Flexy_Element('input', array(
             'type' => 'submit',
             'name' => 'edit_submit',
@@ -64,7 +64,7 @@ class EditForm
     static public function remove($id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mf_remove = new HTML_Template_Flexy_Element('input', array(
             'type' => 'submit',
             'name' => 'edit_remove',
@@ -82,7 +82,7 @@ class EditForm
     static public function toblack($id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mf_toblack = new HTML_Template_Flexy_Element('input', array(
             'type' => 'checkbox',
             'name' => 'edit_toblack',
@@ -100,7 +100,7 @@ class EditForm
     static public function reset($id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mf_reset = new HTML_Template_Flexy_Element('input', array(
             'type' => 'reset',
             'name' => 'edit_reset',
@@ -118,7 +118,7 @@ class EditForm
     static public function checkAllOn($id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mf_allon = new HTML_Template_Flexy_Element('input', array(
             'type' => 'button',
             'id' => 'edit_checkAllOn' . $id,
@@ -136,7 +136,7 @@ class EditForm
     static public function checkAllOff($id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mf_alloff = new HTML_Template_Flexy_Element('input', array(
             'type' => 'button',
             'id' => 'edit_checkAllOff' . $id,
@@ -154,7 +154,7 @@ class EditForm
     static public function checkAllReverse($id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mf_allreverse = new HTML_Template_Flexy_Element('input', array(
             'type' => 'button',
             'id' => 'edit_checkAllReverse' . $id,
@@ -172,7 +172,7 @@ class EditForm
     static public function selectRank($range, $id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mfa_select = array(
             'name' => 'setrank',
             'id' => 'edit_rank' . $id,
@@ -204,7 +204,7 @@ class EditForm
     static public function textMemo($id = '')
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $mfa_text = array(
             'type' => 'text',
             'name' => 'addmemo',
@@ -231,7 +231,7 @@ class EditForm
     static public function imgManager($img, $status)
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         global $ini;
 
         $mng = array();
@@ -347,7 +347,7 @@ class EditForm
     static public function imgChecker($img)
     {
         global $_conf;
-        $is_xhtml = empty($_conf['ktai']);
+        $is_xhtml = !$_conf['ktai'];
         $chk = array();
 
         $mfa_checkbox = array(

@@ -1,14 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2 - datをインポートする
-
-    TODO: HTMLのインポート対応
-        ただし、ローカルファイルのアップロード（拡張子で判定）の実装のみに留め、
-        にくちゃんねる等のURLを直接指定してダウンロードする機能はつけない。
-        （先方に迷惑がかかる可能性が非常に高いので）
-*/
+/**
+ * rep2 - datをインポートする
+ */
 
 require_once './conf/conf.inc.php'; // 基本設定
 require_once P2_LIB_DIR . '/p2util.class.php';
@@ -165,3 +158,14 @@ EOP;
 // フッタHTML表示
 //================================================================
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

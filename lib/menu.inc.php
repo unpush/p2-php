@@ -1,10 +1,10 @@
 <?php
-/*
-    p2 -  板メニュー
-    フレーム分割画面、左側部分 PC用
-
-    menu.php, menu_side.php より読み込まれる
-*/
+/**
+ * rep2 - 板メニュー
+ * フレーム分割画面、左側部分 PC用
+ *
+ * menu.php, menu_side.php より読み込まれる
+ */
 
 require_once P2_LIB_DIR . '/brdctl.class.php';
 require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
@@ -103,7 +103,7 @@ echo <<<EOP
     <script type="text/javascript" src="js/menu.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/tgrepctl.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function addSidebar(title, url) {
        if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
           window.sidebar.addPanel(title, url, '');
@@ -131,7 +131,7 @@ echo <<<EOP
         document.getElementById(unid).style.color="{$STYLE['menu_color']}";
     }
 
-    // -->
+    //]]>
     </script>
 </head>
 <body>\n
@@ -232,7 +232,7 @@ EOP;
 //==============================================================
 // ■お気に板をプリントする
 //==============================================================
-$aShowBrdMenuPc->print_favIta();
+$aShowBrdMenuPc->printFavIta();
 
 flush();
 
@@ -390,9 +390,9 @@ if (isset($word) && strlen($word) > 0) {
         $msg_ht .= '（自動オープンするよ）';
             echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
     parent.subject.location.href="{$_conf['subject_php']}?host={$GLOBALS['ita_mikke']['host']}&bbs={$GLOBALS['ita_mikke']['bbs']}&itaj_en={$GLOBALS['ita_mikke']['itaj_en']}";
-// -->
+//]]>
 </script>
 EOP;
         }
@@ -455,11 +455,11 @@ EOP;
 if (empty($sidebar)) {
     echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 if ((typeof window.sidebar == "object") && (typeof window.sidebar.addPanel == "function")) {
-    document.writeln("<p><a href=\"javascript:void(0);\" onClick=\"addSidebar('p2 Menu', '{$menu_side_url}');\">p2 Menuを Sidebar に追加</a></p>");
+    document.writeln("<p><a href=\"javascript:void(0);\" onClick=\"addSidebar('p2 Menu', '{$menu_side_url}');\">p2 Menuを Sidebar に追加<" + "/a><" + "/p>");
 }
--->
+//]]>
 </script>\n
 EOP;
 }
@@ -487,3 +487,14 @@ function initMenuNewSp($spmode_in)
         $class_newres_num = ' class="newres_num_zero"';
     }
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

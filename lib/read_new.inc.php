@@ -1,13 +1,12 @@
 <?php
-/*
-    p2 - for read_new.php, read_new_k.php
-*/
+/**
+ * rep2 - for read_new.php, read_new_k.php
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
 
-//===============================================
-// 関数
-//===============================================
+// {{{ saveMatomeCache()
+
 /**
  * 新着まとめ読みのキャッシュを残す
  *
@@ -63,6 +62,9 @@ function saveMatomeCache()
 
     return true;
 }
+
+// }}}
+// {{{ saveMatomeCacheFromTmpFile()
 
 /**
  * 新着まとめ読みのキャッシュを残す（一時ファイルに書き込んだ内容を改めてキャッシュに保存）
@@ -127,6 +129,9 @@ function saveMatomeCacheFromTmpFile()
     return true;
 }
 
+// }}}
+// {{{ getMatomeCache()
+
 /**
  * 新着まとめ読みのキャッシュを取得
  */
@@ -151,3 +156,16 @@ function getMatomeCache($num = '')
         return false;
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

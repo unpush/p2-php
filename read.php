@@ -1,15 +1,13 @@
 <?php
-/*
-    p2 - スレッド表示スクリプト
-    フレーム分割画面、右下部分
-*/
+/**
+ * rep2 - スレッド表示スクリプト
+ * フレーム分割画面、右下部分
+ */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/ngabornctl.class.php';
-require_once P2_LIB_DIR . '/showthread.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -236,7 +234,7 @@ if ($_conf['ktai']) {
     }
 
     if ($aThread->rescount) {
-        include_once P2_LIB_DIR . '/showthreadk.class.php';
+        require_once P2_LIB_DIR . '/showthreadk.class.php';
         $aShowThread = new ShowThreadK($aThread);
         $aShowThread->datToHtml();
     }
@@ -267,7 +265,7 @@ if ($_conf['ktai']) {
         $hits_line = "<p><b id=\"filerstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>";
         echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 document.writeln('{$hits_line}');
 var searching = document.getElementById('searching');
 
@@ -276,7 +274,7 @@ function filterCount(n){
         searching.innerHTML = n;
     }
 }
--->
+//]]>
 </script>
 EOP;
     }
@@ -284,8 +282,7 @@ EOP;
     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("datToHtml");
 
     if ($aThread->rescount) {
-
-        include_once P2_LIB_DIR . '/showthreadpc.class.php';
+        require_once P2_LIB_DIR . '/showthreadpc.class.php';
         $aShowThread = new ShowThreadPc($aThread);
 
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
@@ -308,13 +305,13 @@ EOP;
     if ($word && $aThread->rescount) {
         echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 var filerstart = document.getElementById('filerstart');
 if (filerstart) {
     filerstart.style.backgroundColor = 'yellow';
     filerstart.style.fontWeight = 'bold';
 }
--->
+//]]>
 </script>\n
 EOP;
         if ($GLOBALS['filter_hits'] > 5) {
@@ -361,11 +358,10 @@ NgAbornCtl::saveNgAborns();
 // 以上 ---------------------------------------------------------------
 exit;
 
-
-
 //===============================================================================
 // 関数
 //===============================================================================
+// {{{ detectThread()
 
 /**
  * スレッドを指定する
@@ -398,7 +394,7 @@ function detectThread()
                 $bbs = $matches[5];
                 $key = $matches[7];
                 $kakolog_uri = $matches[1];
-                $_GET['kakolog'] = urlencode($kakolog_uri);
+                $_GET['kakolog'] = rawurlencode($kakolog_uri);
 
             // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
             } elseif ( preg_match("/http:\/\/([^\/]+\.machibbs\.com|[^\/]+\.machi\.to)\/bbs\/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*/", $nama_url, $matches) ){
@@ -434,6 +430,9 @@ function detectThread()
         die($msg);
     }
 }
+
+// }}}
+// {{{ recRecent()
 
 /**
  * 履歴を記録する
@@ -494,3 +493,16 @@ function recRecent($data)
 
     return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

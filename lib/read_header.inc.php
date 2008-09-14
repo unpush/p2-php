@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 -  スレッド表示 -  ヘッダ部分 -  for read.php
-*/
+/**
+ * rep2 - スレッド表示 -  ヘッダ部分 -  for read.php
+ */
 
 // 変数
 $diedat_msg = "";
@@ -226,7 +226,7 @@ if (empty($_GET['one'])) {
 
 echo <<<EOHEADER
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     gIsPageLoaded = false;
 
     function pageLoaded()
@@ -234,7 +234,7 @@ echo <<<EOHEADER
         gIsPageLoaded = true;
         {$onLoad_script}
     }
-    //-->
+    //]]>
     </script>\n
 EOHEADER;
 
@@ -343,18 +343,17 @@ EOP;
 }
 
 // {{{ p2フレーム 3ペインで開く
-$htm['p2frame'] = <<<EOP
-<a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く</a> |
-EOP;
+
 $htm['p2frame'] = <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 if (top == self) {
-    document.writeln('{$htm['p2frame']}');
+    document.writeln('<a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く<' + '/a> |');
 }
-//-->
+//]]>
 </script>\n
 EOP;
+
 // }}}
 
 if (empty($_GET['renzokupop']) && ($aThread->rescount || (!empty($_GET['one']) && !$aThread->diedat))) {
@@ -390,3 +389,14 @@ EOP;
 //if (!$_GET['renzokupop']) {
     echo "<h3 class=\"thread_title\">{$aThread->ttitle_hd}</h3>\n";
 //}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,10 +1,10 @@
 <?php
-/*
-    p2 -  スレッドサブジェクト表示スクリプト
-    フレーム分割画面、右上部分
-
-    lib/subject_new.inc.php と兄弟なので、一緒に面倒をみること
-*/
+/**
+ * rep2 - スレッドサブジェクト表示スクリプト
+ * フレーム分割画面、右上部分
+ *
+ * lib/subject_new.inc.php と兄弟なので、一緒に面倒をみること
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/threadlist.class.php';
@@ -879,10 +879,9 @@ if (!$spmode) {
 // ここまで
 exit;
 
+// {{{ 関数
+// {{{ autoTAbornOff()
 
-//==============================================================
-// 関数
-//==============================================================
 /**
  * 既にdat落ちしているスレは自動的にあぼーんを解除する
  * $ta_keys はあぼーんリストに入っていたけれど、あぼーんされずに残ったスレたち
@@ -911,6 +910,9 @@ function autoTAbornOff($aThreadList, $ta_keys)
 
     return true;
 }
+
+// }}}
+// {{{ sortThreads()
 
 /**
  * スレ一覧（$aThreadList->threads）をソートする
@@ -977,6 +979,9 @@ function sortThreads($aThreadList)
     return true;
 }
 
+// }}}
+// {{{ saveSbSetting()
+
 /**
  * p2_setting 記録する
  */
@@ -1005,6 +1010,9 @@ function saveSbSetting($p2_setting_txt, $p2_setting, $pre_setting)
     return true;
 }
 
+// }}}
+// {{{ getSubjectKeys()
+
 /**
  * $subject_keys を取得する
  */
@@ -1024,6 +1032,9 @@ function getSubjectKeys($sb_keys_txt, $sb_keys_b_txt)
     }
     return array();
 }
+
+// }}}
+// {{{ saveSubjectKeys()
 
 /**
  * $subject_keys をシリアライズして保存する
@@ -1051,6 +1062,9 @@ function saveSubjectKeys($subject_keys, $sb_keys_txt, $sb_keys_b_txt)
 
     return true;
 }
+
+// }}}
+// {{{ matchSbFilter()
 
 /**
  * スレタイ（と本文）でマッチしたらtrueを返す
@@ -1102,6 +1116,9 @@ function matchSbFilter($aThread)
     return true;
 }
 
+// }}}
+// {{{ getSbScore()
+
 /**
  * スレッドタイトルのスコアを計算して返す
  */
@@ -1135,6 +1152,9 @@ function getSbScore($words, $length)
     return $score;
 }
 
+// }}}
+// {{{ setSbSimilarity()
+
 /**
  * スレッドタイトルの類似性を計算して返す
  */
@@ -1152,9 +1172,10 @@ function setSbSimilarity($aThread)
     return true;
 }
 
-//============================================================
-// ソート関数
-//============================================================
+// }}}
+// }}}
+// {{{ ソート関数
+// {{{ cmp_midoku()
 
 /**
  * 新着ソート
@@ -1172,6 +1193,9 @@ function cmp_midoku($a, $b)
     }
 }
 
+// }}}
+// {{{ cmp_res()
+
 /**
  * レス数 ソート
  */
@@ -1184,6 +1208,9 @@ function cmp_res($a, $b)
     }
 }
 
+// }}}
+// {{{ cmp_title()
+
 /**
  * タイトル ソート
  */
@@ -1195,6 +1222,9 @@ function cmp_title($a, $b)
         return strcmp($a->ttitle,$b->ttitle);
     }
 }
+
+// }}}
+// {{{ cmp_ita()
 
 /**
  * 板 ソート
@@ -1212,6 +1242,9 @@ function cmp_ita($a, $b)
     }
 }
 
+// }}}
+// {{{ cmp_fav()
+
 /**
  * お気に ソート
  */
@@ -1223,6 +1256,9 @@ function cmp_fav($a, $b)
         return strcmp($b->fav, $a->fav);
     }
 }
+
+// }}}
+// {{{ cmp_dayres_midoku()
 
 /**
  * 勢いソート（新着レス優先）
@@ -1240,6 +1276,9 @@ function cmp_dayres_midoku($a, $b)
     }
 }
 
+// }}}
+// {{{ cmp_dayres()
+
 /**
  * 勢いソート
  */
@@ -1252,6 +1291,9 @@ function cmp_dayres($a, $b)
     }
 }
 
+// }}}
+// {{{ cmp_key()
+
 /**
  * key ソート
  */
@@ -1260,6 +1302,9 @@ function cmp_key($a, $b)
     return ($a->key < $b->key) ? 1 : -1;
 }
 
+// }}}
+// {{{ cmp_no()
+
 /**
  * No. ソート
  */
@@ -1267,6 +1312,9 @@ function cmp_no($a, $b)
 {
     return ($a->torder > $b->torder) ? 1 : -1;
 }
+
+// }}}
+// {{{ cmp_similarity()
 
 /**
  * 類似性ソート
@@ -1279,3 +1327,17 @@ function cmp_similarity($a, $b)
         return ($a->similarity < $b->similarity) ? 1 : -1;
     }
 }
+
+// }}}
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,11 +1,13 @@
 <?php
-/*
-    p2 - スレッドデータ、DATを削除するための関数郡
-*/
+/**
+ * rep2 - スレッドデータ、DATを削除するための関数郡
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/setfav.inc.php';
 require_once P2_LIB_DIR . '/setpalace.inc.php';
+
+// {{{ deleteLogs()
 
 /**
  * ■指定した配列keysのログ（idx, (dat, srd)）を削除して、
@@ -50,6 +52,9 @@ function deleteLogs($host, $bbs, $keys)
     }
     return $r;
 }
+
+// }}}
+// {{{ deleteThisKey()
 
 /**
  * ■指定したキーのスレッドログ（idx (,dat)）を削除する
@@ -100,6 +105,8 @@ function deleteThisKey($host, $bbs, $key)
     }
 }
 
+// }}}
+// {{{ checkRecent()
 
 /**
  * ■指定したキーが最近読んだスレに入ってるかどうかをチェックする
@@ -121,6 +128,9 @@ function checkRecent($host, $bbs, $key)
     }
     return false;
 }
+
+// }}}
+// {{{ checkResHist()
 
 /**
  * ■指定したキーが書き込み履歴に入ってるかどうかをチェックする
@@ -144,6 +154,9 @@ function checkResHist($host, $bbs, $key)
     }
     return false;
 }
+
+// }}}
+// {{{ offRecent()
 
 /**
  * ■指定したキーの履歴（最近読んだスレ）を削除する
@@ -200,6 +213,9 @@ function offRecent($host, $bbs, $key)
         return 2;
     }
 }
+
+// }}}
+// {{{ offResHist()
 
 /**
  * ■指定したキーの書き込み履歴を削除する
@@ -258,3 +274,16 @@ function offResHist($host, $bbs, $key)
         return 2;
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

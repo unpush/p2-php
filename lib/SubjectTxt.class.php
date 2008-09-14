@@ -1,5 +1,4 @@
 <?php
-
 /*
 define(P2_SUBJECT_TXT_STORAGE, 'eashm');    // 要eAccelerator
 
@@ -9,22 +8,29 @@ define(P2_SUBJECT_TXT_STORAGE, 'eashm');    // 要eAccelerator
 shmにしてもパフォーマンスはほとんど変わらない（ようだ）
 */
 
+// {{{ SubjectTxt
+
 /**
  * SubjectTxtクラス
  */
-class SubjectTxt{
+class SubjectTxt
+{
+    // {{{ properties
 
-    var $host;
-    var $bbs;
-    var $subject_url;
-    var $subject_file;
-    var $subject_lines;
-    var $storage; // file, eashm(eAccelerator shm) // 2006/02/27 aki eashm は非推奨
+    public $host;
+    public $bbs;
+    public $subject_url;
+    public $subject_file;
+    public $subject_lines;
+    public $storage; // file, eashm(eAccelerator shm) // 2006/02/27 aki eashm は非推奨
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct($host, $bbs)
+    public function __construct($host, $bbs)
     {
         $this->host = $host;
         $this->bbs =  $bbs;
@@ -45,12 +51,15 @@ class SubjectTxt{
         $this->dlAndSetSubject();
     }
 
+    // }}}
+    // {{{ dlAndSetSubject()
+
     /**
      * subject.txtをダウンロード＆セットする
      *
      * @return boolean セットできれば true、できなければ false
      */
-    function dlAndSetSubject()
+    public function dlAndSetSubject()
     {
         if ($this->storage == 'eashm') {
             $cont = eaccelerator_get("$this->host/$this->bbs");
@@ -67,12 +76,15 @@ class SubjectTxt{
         }
     }
 
+    // }}}
+    // {{{ downloadSubject()
+
     /**
      * subject.txtをダウンロードする
      *
      * @return string subject.txt の中身
      */
-    function downloadSubject()
+    public function downloadSubject()
     {
         global $_conf, $_info_msg_ht;
 
@@ -95,8 +107,10 @@ class SubjectTxt{
             }
         }
 
-        // ■DL
-        include_once "HTTP/Request.php";
+        // DL
+        if (!class_exists('HTTP_Request', false)) {
+            require_once 'HTTP/Request.php';
+        }
 
         $params = array();
         $params['timeout'] = $_conf['fsockopen_time_limit'];
@@ -173,13 +187,15 @@ class SubjectTxt{
         return $body;
     }
 
+    // }}}
+    // {{{ isSubjectTxtFresh()
 
     /**
      * subject.txt が新鮮なら true を返す
      *
      * @return boolean 新鮮なら true。そうでなければ false。
      */
-    function isSubjectTxtFresh()
+    public function isSubjectTxtFresh()
     {
         global $_conf;
 
@@ -195,6 +211,9 @@ class SubjectTxt{
         return false;
     }
 
+    // }}}
+    // {{{ setSubjectLines()
+
     /**
      * subject.txt を読み込む
      *
@@ -203,7 +222,7 @@ class SubjectTxt{
      * @param string $cont これは eashm 用に渡している。
      * @return boolean 実行成否
      */
-    function setSubjectLines($cont = '')
+    public function setSubjectLines($cont = '')
     {
         if ($this->storage == 'eashm') {
             if (!$cont) {
@@ -231,4 +250,18 @@ class SubjectTxt{
         }
     }
 
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

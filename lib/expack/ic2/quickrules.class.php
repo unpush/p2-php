@@ -1,13 +1,23 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - HTML_QuickFormのカスタムルール
+ */
 
 require_once 'HTML/QuickForm/Rule.php';
 
-// QuickFormのルール（数の範囲、QuickFormのサンプルより引用）
+// {{{ RuleNumericRange
+
+/**
+ * QuickFormのルール（数の範囲、QuickFormのサンプルより引用）
+ */
 class RuleNumericRange extends HTML_QuickForm_Rule
 {
-    function validate($value, $options)
+    // {{{ validate()
+
+    /**
+     * @return bool
+     */
+    public function validate($value, $options)
     {
         if (isset($options['min']) && floatval($value) < $options['min']) {
             return false;
@@ -18,7 +28,13 @@ class RuleNumericRange extends HTML_QuickForm_Rule
         return true;
     }
 
-    function getValidationScript($options = null)
+    // }}}
+    // {{{ getValidationScript()
+
+    /**
+     * @return string
+     */
+    public function getValidationScript($options = null)
     {
         $jsCheck = array();
         if (isset($options['min'])) {
@@ -28,29 +44,62 @@ class RuleNumericRange extends HTML_QuickForm_Rule
             $jsCheck[] = 'Number({jsVar}) <= ' . $options['max'];
         }
         return array('', "{jsVar} != '' && !(" . implode(' && ', $jsCheck) . ')');
-    } // end func getValidationScript
+    }
+
+    // }}}
 }
 
-// QuickFormのルール（配列に要素があるか）
+// }}}
+// {{{ RuleInArray
+
+/**
+ * QuickFormのルール（配列に要素があるか）
+ */
 class RuleInArray extends HTML_QuickForm_Rule
 {
-    function validate($value, $options)
+    // {{{ validate()
+
+    /**
+     * @return bool
+     */
+    public function validate($value, $options)
     {
-        if (in_array($value, $options)) {
-            return true;
-        }
-        return false;
+        return in_array($value, $options);
     }
+
+    // }}}
 }
 
-// QuickFormのルール（配列に要素があるか）
+// }}}
+// {{{ RuleInArrayKeys
+
+/**
+ * QuickFormのルール（配列にキーがあるか）
+ */
 class RuleInArrayKeys extends HTML_QuickForm_Rule
 {
-    function validate($value, $options)
+    // {{{ validate()
+
+    /**
+     * @return bool
+     */
+    public function validate($value, $options)
     {
-        if (isset($options[$value])) {
-            return true;
-        }
-        return false;
+        return array_key_exists($value, $options);
     }
+
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

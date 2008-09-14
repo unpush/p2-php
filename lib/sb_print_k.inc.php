@@ -1,6 +1,10 @@
 <?php
-// p2 スレッドサブジェクト表示関数 携帯用
-// for subject.php
+/**
+ * rep2 スレッドサブジェクト表示関数 携帯用
+ * for subject.php
+ */
+
+// {{{ sb_print_k()
 
 /**
  * sb_print - スレッド一覧を表示する (<tr>～</tr>)
@@ -274,3 +278,16 @@ EOP;
         echo '</ul>';
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

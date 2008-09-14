@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 - スレッド情報ウィンドウ
-*/
+/**
+ * rep2 - スレッド情報ウィンドウ
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/thread.class.php';
@@ -429,6 +429,8 @@ exit();
 //=======================================================
 // 関数
 //=======================================================
+// {{{ print_info_line()
+
 /**
  * スレ情報HTMLを表示する
  */
@@ -444,6 +446,9 @@ function print_info_line($s, $c_ht)
         echo "<tr><td class=\"tdleft\" nowrap><b>{$s}</b>&nbsp;</td><td class=\"tdcont\">{$c_ht}</td></tr>\n";
     }
 }
+
+// }}}
+// {{{ getCopypaFormHtml()
 
 /**
  * スレタイとURLのコピペ用のフォームを取得する
@@ -465,3 +470,17 @@ EOP;
 
     return $htm;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
+

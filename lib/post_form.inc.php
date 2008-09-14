@@ -1,6 +1,6 @@
 <?php
 /**
- *  p2 書き込みフォーム
+ *  rep2 - 書き込みフォーム
  */
 
 if (!isset($popup)) {
@@ -53,7 +53,7 @@ EOP;
     }
     $htm['kaiko_on_js_func'] = sprintf("adjustTextareaRows(this,%d,2)", $STYLE['post_msg_rows']);
     $htm['kaiko_on_js_cond'] = '!event||((event.keyCode&&(event.keyCode==8||event.keyCode==13))||event.ctrlKey||event.metaKey||event.altKey)';
-    $htm['kaiko_on_js'] = sprintf($htm['kaiko_on_js_fmt'], $htm['kaiko_on_js_func'], $htm['kaiko_on_js_cond']);
+    $htm['kaiko_on_js'] = sprintf($htm['kaiko_on_js_fmt'], $htm['kaiko_on_js_func'], htmlspecialchars($htm['kaiko_on_js_cond'], ENT_QUOTES));
     //$htm['kaiko_on_js'] .= ' ondblclick="this.rows=this.value.split(/\r\n|\r|\n/).length+1"';
     $htm['kaiko_set_hidden_js'] = ' onclick="setHiddenValue(this);"';
     $htm['table_begin'] = '<table border="0" cellpadding="0" cellspacing="0"><tr><td align="left" colspan="2">';
@@ -105,3 +105,14 @@ $htm['post_form'] = <<<EOP
 </form>
 {$htm['options_k']}\n
 EOP;
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

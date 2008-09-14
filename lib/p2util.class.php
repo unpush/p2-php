@@ -19,7 +19,7 @@ function p2escape($str)
 // {{{ P2Util
 
 /**
- * p2 - p2用のユーティリティクラス
+ * rep2 - p2用のユーティリティクラス
  * インスタンスを作らずにクラスメソッドで利用する
  *
  * @create  2004/07/15
@@ -1165,7 +1165,9 @@ ERR;
      */
     static public function getWebPage($url, &$error_msg, $timeout = 15)
     {
-        include_once "HTTP/Request.php";
+        if (!class_exists('HTTP_Request', false)) {
+            require_once 'HTTP/Request.php';
+        }
 
         $params = array("timeout" => $timeout);
 

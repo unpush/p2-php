@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 - 特殊機能実行スクリプト（携帯）
-*/
+/**
+ * rep2 - 特殊機能実行スクリプト（携帯）
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/spm_k.inc.php';
@@ -118,3 +118,14 @@ echo "<a href=\"{$thread_url}\">ｽﾚに戻る</a>";
 echo '</p>';
 echo '</body></html>';
 exit;
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

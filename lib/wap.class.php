@@ -1,8 +1,14 @@
 <?php
-// WWW Access on PHP
-// http://member.nifty.ne.jp/hippo2000/perltips/LWP.html を参考にしつつ似たような簡易のものを
+/**
+ * WWW Access on PHP
+ * http://member.nifty.ne.jp/hippo2000/perltips/LWP.html を参考にしつつ似たような簡易のものを
+ *
+ * @author aki
+ */
 
 // 2005/04/20 aki このクラスは役割終了にして、PEAR利用に移行したい（HTTP_Clientなど）
+
+// {{{ UserAgent
 
 /**
  * UserAgent クラス
@@ -11,31 +17,52 @@
  *  setTimeout()
  *  request() : リクエストをサーバに送信して、レスポンスを返す。
  */
-class UserAgent{
+class UserAgent
+{
+    // {{{ properties
 
-    var $agent;  // User-Agent。アプリケーションの名前。
-    var $timeout;
-    var $maxRedirect;
-    var $redirectCount;
-    var $redirectCache;
+    private $_agent;  // User-Agent。アプリケーションの名前。
+    private $_timeout;
+    private $_maxRedirect;
+    private $_redirectCount;
+    private $_redirectCache;
+
+    // }}}
+    // {{{ constructor
+
+    public function __construct()
+    {
+        $this->_agent = null;
+        $this->_timeout = -1;
+        $this->_maxRedirect = 3;
+        $this->_redirectCount = 0;
+        $this->_redirectCache = array();
+    }
+
+    // }}}
+    // {{{ setAgent()
 
     /**
      * setAgent
      */
-    function setAgent($agent_name)
+    public function setAgent($agent_name)
     {
-        $this->agent = $agent_name;
-        return;
+        $this->_agent = $agent_name;
     }
+
+    // }}}
+    // {{{ setTimeout()
 
     /**
      * setTimeout
      */
-    function setTimeout($timeout)
+    public function setTimeout($timeout)
     {
-        $this->timeout = $timeout;
-        return;
+        $this->_timeout = $timeout;
     }
+
+    // }}}
+    // {{{ request()
 
     /**
      * request
@@ -44,7 +71,7 @@ class UserAgent{
      *
      * @param only_header bool 中身は取得せずにヘッダのみ取得する
      */
-    function request($req, $only_header = false, $postdata_urlencode = true)
+    public function request(Request $req, $only_header = false, $postdata_urlencode = true)
     {
         $res = new Response();
 
@@ -74,8 +101,8 @@ class UserAgent{
 
         $request = $req->method." ".$send_path." HTTP/1.0\r\n";
         $request .= "Host: ".$purl['host']."\r\n";
-        if ($this->agent) {
-            $request .= "User-Agent: ".$this->agent."\r\n";
+        if ($this->_agent) {
+            $request .= "User-Agent: ".$this->_agent."\r\n";
         }
         $request .= "Connection: Close\r\n";
         //$request .= "Accept-Encoding: gzip\r\n";
@@ -99,7 +126,7 @@ class UserAgent{
             // 通常はURLエンコードする
             if ($postdata_urlencode) {
                 while (list($name, $value) = each($req->post)) {
-                    $POST[] = $name.'='.urlencode($value);
+                    $POST[] = $name . '=' . rawurlencode($value);
                 }
                 $postdata_content_type = 'application/x-www-form-urlencoded';
 
@@ -120,8 +147,8 @@ class UserAgent{
         }
 
         // WEBサーバへ接続
-        if ($this->timeout) {
-            $fp = fsockopen($send_host, $send_port, $errno, $errstr, $this->timeout);
+        if ($this->_timeout > 0) {
+            $fp = fsockopen($send_host, $send_port, $errno, $errstr, $this->_timeout);
         } else {
             $fp = fsockopen($send_host, $send_port, $errno, $errstr);
         }
@@ -160,17 +187,17 @@ class UserAgent{
             // リダイレクト(301 Moved, 302 Found)を追跡
             // RFC2616 - Section 10.3
             /*if ($GLOBALS['trace_http_redirect']) {
-                if ($res->code == '301' || ($res->code == '302' && $req->is_safe_method())) {
-                    if (empty($this->redirectCache)) {
-                        $this->maxRedirect   = 5;
-                        $this->redirectCount = 0;
-                        $this->redirectCache = array();
+                if ($res->code == '301' || ($res->code == '302' && $req->isSafeMethod())) {
+                    if (!$this->_redirectCache) {
+                        $this->_maxRedirect   = 5;
+                        $this->_redirectCount = 0;
+                        $this->_redirectCache = array();
                     }
-                    while ($res->is_redirect() && isset($res->headers['Location']) && $this->redirectCount < $this->maxRedirect) {
-                        $this->redirectCache[] = $res;
+                    while ($res->is_redirect() && isset($res->headers['Location']) && $this->_redirectCount < $this->_maxRedirect) {
+                        $this->_redirectCache[] = $res;
                         $req->setUrl($res->headers['Location']);
                         $res = $this->request($req);
-                        $this->redirectCount++;
+                        $this->_redirectCount++;
                     }
                 }
             } elseif ($res->is_redirect() && isset($res->headers['Location'])) {
@@ -186,27 +213,35 @@ class UserAgent{
         }
     }
 
+    // }}}
 }
 
+// }}}
+// {{{ Request
 
 /**
  * Request クラス
  */
-class Request{
+class Request
+{
+    // {{{ properties
 
-    var $method; // GET, POST, HEADのいずれか(デフォルトはGET、PUTはなし)
-    var $url; // http://から始まるURL( http://user:pass@host:port/path?query )
-    var $headers; // 任意の追加ヘッダ。文字列。
-    var $content; // 任意のデータの固まり。
-    var $post;    // POSTの時に送信するデータを格納した配列("変数名"=>"値")
-    var $proxy; // ('host'=>"", 'port'=>"")
+    public $method; // GET, POST, HEADのいずれか(デフォルトはGET、PUTはなし)
+    public $url; // http://から始まるURL( http://user:pass@host:port/path?query )
+    public $headers; // 任意の追加ヘッダ。文字列。
+    public $content; // 任意のデータの固まり。
+    public $post;    // POSTの時に送信するデータを格納した配列("変数名"=>"値")
+    public $proxy; // ('host'=>"", 'port'=>"")
 
-    var $modified;
+    public $modified;
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function Request()
+    public function __construct()
     {
         $this->method = 'GET';
         $this->url = '';
@@ -217,56 +252,69 @@ class Request{
         $this->modified = false;
     }
 
+    // }}}
+    // {{{ setProxy()
+
     /**
      * setProxy
      */
-    function setProxy($host, $port)
+    public function setProxy($host, $port)
     {
         $this->proxy['host'] = $host;
         $this->proxy['port'] = $port;
-        return;
     }
+
+    // }}}
+    // {{{ setMethod()
 
     /**
      * setMethod
      */
-    function setMethod($method)
+    public function setMethod($method)
     {
         $this->method = $method;
-        return;
     }
+
+    // }}}
+    // {{{ setUrl()
 
     /**
      * setUrl
      */
-    function setUrl($url)
+    public function setUrl($url)
     {
         $this->url = $url;
-        return;
     }
+
+    // }}}
+    // {{{ setModified()
 
     /**
      * setModified
      */
-    function setModified($modified)
+    public function setModified($modified)
     {
         $this->modified = $modified;
-        return;
     }
+
+    // }}}
+    // {{{ setHeaders()
 
     /**
      * setHeaders
      */
-    function setHeaders($headers)
+    public function setHeaders($headers)
     {
         $this->headers = $headers;
-        return;
     }
 
+    // }}}
+    // {{{ isSafeMethod()
+
     /**
-     * is_safe_method
+     * isSafeMethod
      */
-    function is_safe_method()
+    public function isSafeMethod()
     {
         $method = strtoupper($this->method);
         // RFC2616 - Section 9
@@ -276,22 +324,32 @@ class Request{
             return false;
         }
     }
+
+    // }}}
 }
+
+// }}}
+// {{{ Response
 
 /**
  * Response クラス
  */
-class Response{
+class Response
+{
+    // {{{ properties
 
-    var $code; // リクエストの結果を示す数値
-    var $message;  // codeに対応する人間が読める短い文字列。
-    var $headers;    // 配列
-    var $content; // 内容。任意のデータの固まり。
+    public $code; // リクエストの結果を示す数値
+    public $message;  // codeに対応する人間が読める短い文字列。
+    public $headers;    // 配列
+    public $content; // 内容。任意のデータの固まり。
+
+    // }}}
+    // {{{ constructor()
 
     /**
      * コンストラクタ
      */
-    function __construct()
+    public function __construct()
     {
         $code = false;
         $message = '';
@@ -299,10 +357,13 @@ class Response{
         $headers = array();
     }
 
+    // }}}
+    // {{{ is_success()
+
     /**
      * is_success
      */
-    function is_success()
+    public function is_success()
     {
         if ($this->code == 200 || $this->code == 206 || $this->code == 304) {
             return true;
@@ -310,11 +371,14 @@ class Response{
             return false;
         }
     }
+
+    // }}}
+    // {{{ is_error()
 
     /**
      * is_error
      */
-    function is_error()
+    public function is_error()
     {
         if ($this->code == 200 || $this->code == 206 || $this->code == 304) {
             return false;
@@ -323,10 +387,13 @@ class Response{
         }
     }
 
+    // }}}
+    // {{{ is_redirect()
+
     /**
      * is_redirect
      */
-    function is_redirect()
+    public function is_redirect()
     {
         if ($this->code == 301 || $this->code == 302) {
             return true;
@@ -335,6 +402,8 @@ class Response{
         }
     }
 
+    // }}}
+    // {{{ HTTP Status Codes (note)
 /*
     000, 'Unknown Error',
     200, 'OK',
@@ -361,5 +430,18 @@ class Response{
     602, 'Connection Failed',
     603, 'Timed Out',
 */
-
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,11 +1,13 @@
 <?php
-/*
-    p2 - したらばJBBS jbbs.livedoor.jp 用の関数
-
-    // 各種BBSに対応できるプロファイルクラスみたいなのを作りたいものだ。。 aki
-*/
+/**
+ * rep2 - したらばJBBS jbbs.livedoor.jp 用の関数
+ *
+ * 各種BBSに対応できるプロファイルクラスみたいなのを作りたいものだ。。 aki
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ shitarabaDownload()
 
 /**
  * したらばJBBSの rawmode.cgi を読んで、datに保存する（2ch風に整形）
@@ -104,6 +106,8 @@ function shitarabaDownload()
     return true;
 }
 
+// }}}
+// {{{ shitarabaDatTo2chDatLines()
 
 /**
  * したらばBBSの rawmode.cgi で読み込んだDATを2ch風datに変換する
@@ -159,3 +163,16 @@ function shitarabaDatTo2chDatLines($mlines)
 
     return $mdatlines;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

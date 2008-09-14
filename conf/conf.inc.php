@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080824.0200',   // 拡張パックのバージョン
+    'p2expack'  => '080826.0130',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -107,6 +107,9 @@ ob_implicit_flush(0);
 // クライアントから接続を切られても処理を続行する
 // ignore_user_abort(1);
 
+// file($filename, FILE_IGNORE_NEW_LINES) で CR/LF/CR+LF のいずれも行末として扱う
+ini_set('auto_detect_line_endings', 1);
+
 // session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
 // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
 ini_set('arg_separator.output', '&amp;');
@@ -153,35 +156,34 @@ if (function_exists('mb_ereg_replace')) {
 define('P2_BASE_DIR', dirname(dirname(__FILE__)));
 
 // 基本的な機能を提供するするライブラリ
-define('P2_LIB_DIR', P2_BASE_DIR . '/lib');
+define('P2_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib');
 
 // おまけ的な機能を提供するするライブラリ
-define('P2EX_LIB_DIR', P2_BASE_DIR . '/lib/expack');
+define('P2EX_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'expack');
 
 // スタイルシート
-define('P2_STYLE_DIR', P2_BASE_DIR. '/style');
+define('P2_STYLE_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR .  'style');
 
 // PEARインストールディレクトリ、検索パスに追加される
-define('P2_PEAR_DIR', P2_BASE_DIR . '/includes');
+define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
 
 // PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
 // Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
-define('P2_PEAR_HACK_DIR', P2_BASE_DIR . '/lib/pear_hack');
+define('P2_PEAR_HACK_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'pear_hack');
 
 // 検索パスをセット
-if (is_dir(P2_PEAR_DIR) || is_dir(P2_PEAR_HACK_DIR)) {
-    $include_path = '.';
-    if (is_dir(P2_PEAR_HACK_DIR)) {
-        $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_HACK_DIR);
-    }
-    if (is_dir(P2_PEAR_DIR)) {
-        $include_path .= PATH_SEPARATOR . realpath(P2_PEAR_DIR);
-    }
-    $include_path .= PATH_SEPARATOR . get_include_path();
-    set_include_path($include_path);
+$include_path = P2_BASE_DIR;
+if (is_dir(P2_PEAR_HACK_DIR)) {
+    $include_path .= PATH_SEPARATOR . P2_PEAR_HACK_DIR;
 }
+if (is_dir(P2_PEAR_DIR)) {
+    $include_path .= PATH_SEPARATOR . P2_PEAR_DIR;
+}
+$include_path .= PATH_SEPARATOR . get_include_path();
+set_include_path($include_path);
 
 // ライブラリを読み込む
+/*
 $_pear_required = array(
     'File/Util.php'             => 'File',
     'HTTP/Request.php'          => 'HTTP_Request',
@@ -206,7 +208,9 @@ EOP;
         p2die('PEAR の ' . $_pear_pkg . ' がインストールされていません。', $msg, true);
     }
 }
+*/
 
+require_once 'Net/UserAgent/Mobile.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/p2util.class.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
@@ -217,6 +221,7 @@ require_once P2_LIB_DIR . '/login.class.php';
 // {{{ デバッグ
 
 if ($debug) {
+    require_once 'Benchmark/Profiler.php';
     $profiler = new Benchmark_Profiler(true);
     // printMemoryUsage();
     register_shutdown_function('printMemoryUsage');
@@ -278,15 +283,23 @@ if (!include_once './conf/conf_admin.inc.php') {
     p2die('管理者用設定ファイルを読み込めませんでした。');
 }
 
+// ディレクトリの絶対パス化
+$_conf['data_dir'] = p2realpath($_conf['data_dir']);
+$_conf['dat_dir']  = p2realpath($_conf['dat_dir']);
+$_conf['idx_dir']  = p2realpath($_conf['idx_dir']);
+$_conf['pref_dir'] = p2realpath($_conf['pref_dir']);
+
 // 管理用保存ディレクトリ (パーミッションは707)
-$_conf['admin_dir'] = $_conf['data_dir'] . '/admin';
+$_conf['admin_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'admin';
 
 // cache 保存ディレクトリ (パーミッションは707)
-$_conf['cache_dir'] = $_conf['data_dir'] . '/cache'; // 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
+// 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
+$_conf['cache_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'cache';
 
 // テンポラリディレクトリ (パーミッションは707)
-$_conf['tmp_dir'] = $_conf['data_dir'] . '/tmp';
+$_conf['tmp_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'tmp';
 
+// バージョンIDを二重引用符やヒアドキュメント内に埋め込むための変数
 $_conf['p2_version_id'] = P2_VERSION_ID;
 
 $_conf['doctype'] = '';
@@ -298,8 +311,8 @@ $_conf['detect_hint'] = '◎◇';
 $_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
 $_conf['detect_hint_input_xht'] = '<input type="hidden" name="_hint" value="◎◇" />';
 //$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'CP932');
-$_conf['detect_hint_q'] = '_hint=%81%9D%81%9E'; // urlencode($_conf['detect_hint'])
-$_conf['detect_hint_q_utf8'] = '_hint=%E2%97%8E%E2%97%87'; // urlencode($_conf['detect_hint_utf8'])
+$_conf['detect_hint_q'] = '_hint=%81%9D%81%9E'; // rawurlencode($_conf['detect_hint'])
+$_conf['detect_hint_q_utf8'] = '_hint=%E2%97%8E%E2%97%87'; // rawurlencode($_conf['detect_hint_utf8'])
 
 // }}}
 // {{{ 端末判定
@@ -543,7 +556,7 @@ if (file_exists($_conf['conf_user_file'])) {
             $_info_msg_ht .= '<p>ユーザ設定ファイルが壊れていたので破棄しました。</p>';
         } else {
             $_info_msg_ht .= '<p>ユーザ設定ファイルが壊れていますが、破棄できませんでした。<br>&quot;';
-            $_info_msg_ht .= htmlspecialchars(realpath($_conf['conf_user_file']), ENT_QUOTES);
+            $_info_msg_ht .= htmlspecialchars($_conf['conf_user_file'], ENT_QUOTES);
             $_info_msg_ht .= '&quot; を手動で削除してください。</p>';
         }
         $conf_user = array();
@@ -588,9 +601,6 @@ if (file_exists($_conf['conf_user_file'])) {
 // }}}
 // {{{ デフォルト設定
 
-if (!is_dir($_conf['pref_dir']))    { $_conf['pref_dir'] = "./data"; }
-if (!is_dir($_conf['dat_dir']))     { $_conf['dat_dir'] = "./data"; }
-if (!is_dir($_conf['idx_dir']))     { $_conf['idx_dir'] = "./data"; }
 if (!isset($_conf['rct_rec_num']))  { $_conf['rct_rec_num'] = 20; }
 if (!isset($_conf['res_hist_rec_num'])) { $_conf['res_hist_rec_num'] = 20; }
 if (!isset($_conf['posted_rec_num'])) { $_conf['posted_rec_num'] = 1000; }
@@ -646,7 +656,7 @@ if (!file_exists($skin)) {
     $skin_name = 'conf_user_style';
     $skin = './conf/conf_user_style.inc.php';
 }
-$skin_en = urlencode($skin_name) . '&amp;_=' . P2_VERSION_ID;
+$skin_en = rawurlencode($skin_name) . '&amp;_=' . P2_VERSION_ID;
 if ($_conf['view_forced_by_query']) {
     $skin_en .= $_conf['k_at_a'];
 }
@@ -731,10 +741,8 @@ if ($_conf['ktai']) {
     // マーカー
     if ($_conf['mobile.match_color']) {
         if ($_conf['iphone']) {
-            $k_filter_marker_style = '<style type="text/css">b.filtering, span.matched { color: '
-                                   . htmlspecialchars($_conf['mobile.match_color'], ENT_QUOTES)
-                                   . '; }</style>';
-            $_conf['extra_headers_ht'] .= $k_filter_marker_style;
+            $_conf['extra_headers_ht'] .= sprintf('<style type="text/css">b.filtering, span.matched { color: %s; }</style>',
+                                                  htmlspecialchars($_conf['mobile.match_color']));
             $_conf['k_filter_marker'] = '<span class="matched">\\1</span>';
         } else {
             $_conf['k_filter_marker'] = '<font color="' . htmlspecialchars($_conf['mobile.match_color']) . '">\\1</font>';
@@ -762,10 +770,7 @@ $_conf['auth_docomo_file'] =    $_conf['pref_dir'] . '/p2_auth_docomo.php';
 $_conf['login_log_file'] =      $_conf['pref_dir'] . "/p2_login.log.php";
 $_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';
 
-// saveMatomeCache() のために $_conf['pref_dir'] を絶対パスに変換する
-define('P2_PREF_DIR_REAL_PATH', File_Util::realPath($_conf['pref_dir']));
-
-$_conf['matome_cache_path'] = P2_PREF_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'matome_cache';
+$_conf['matome_cache_path'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . 'matome_cache';
 $_conf['matome_cache_ext'] = '.htm';
 $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
@@ -792,9 +797,7 @@ session_name('PS');
 
 // セッションデータ保存ディレクトリを規定
 if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
-    // $_conf['data_dir'] を絶対パスに変換する
-    define('P2_DATA_DIR_REAL_PATH', File_Util::realPath($_conf['data_dir']));
-    $_conf['session_dir'] = P2_DATA_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'session';
+    $_conf['session_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'session';
 }
 
 if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
@@ -1080,7 +1083,7 @@ function fontconfig_apply_custom()
             }
         }
     }
-    $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . urlencode($skin_uniq);
+    $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . rawurlencode($skin_uniq);
 }
 
 // }}}
@@ -1095,8 +1098,8 @@ function print_style_tags()
 {
     global $skin_name, $skin_uniq;
     $style_a = '';
-    if (strlen($skin_name)) { $style_a .= '&skin=' . urlencode($skin_name); }
-    if (strlen($skin_uniq)) { $style_a .= '&_=' . urlencode($skin_uniq); }
+    if (strlen($skin_name)) { $style_a .= '&skin=' . rawurlencode($skin_name); }
+    if (strlen($skin_uniq)) { $style_a .= '&_=' . rawurlencode($skin_uniq); }
     if ($styles = func_get_args()) {
         echo "\t<style type=\"text/css\">\n";
         foreach ($styles as $style) {
@@ -1296,6 +1299,35 @@ EOP;
         $_info_msg_ht .= ' &quot;p2checkenv(false);&quot; に書き換えてください）</small></p>';
     }
 }
+
+// }}}
+// {{{ p2realpath()
+
+/**
+ * 実在しない(かもしれない)ファイルの絶対パスを取得する
+ */
+function p2realpath($path)
+{
+    if (file_exists($path)) {
+        return realpath($path);
+    }
+    if (!class_exists('File_Util', false)) {
+        require_once 'File/Util.php';
+    }
+    return File_Util::realPath($path);
+}
+
+// }}}
+// {{{ __autoload()
+
+/**
+ * PEARで第2引数をfalseにせずにclass_exists()を読んでいる可能性があるので
+ * __autoload()を使うのは怖い
+ */
+/*function __autoload($class_name)
+{
+    require_once str_replace('_', DIRECTORY_SEPARATOR, $class_name) . '.php';
+}*/
 
 // }}}
 

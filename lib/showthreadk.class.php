@@ -1,31 +1,39 @@
 <?php
-/*
-    p2 - 携帯用でスレッドを表示する クラス
-*/
+/**
+ * rep2 - 携帯用でスレッドを表示する クラス
+ */
 
+require_once P2_LIB_DIR . '/showthread.class.php';
 require_once P2EX_LIB_DIR . '/expack_loader.class.php';
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
 ExpackLoader::loadImageCache();
 
-class ShowThreadK extends ShowThread{
+// {{{ ShowThreadK
 
-    var $BBS_NONAME_NAME = '';
+class ShowThreadK extends ShowThread
+{
+    // {{{ properties
 
-    var $am_autong = false; // 自動AA略をするか否か
+    public $BBS_NONAME_NAME = '';
 
-    var $aas_rotate = '90°回転'; // AAS 回転リンク文字列
+    public $am_autong = false; // 自動AA略をするか否か
 
-    var $respopup_at = '';  // レスポップアップ・イベントハンドラ
-    var $target_at = '';    // 引用、省略、ID、NG等のリンクターゲット
-    var $check_st = '確';   // 省略、NG等のリンク文字列
+    public $aas_rotate = '90°回転'; // AAS 回転リンク文字列
+
+    public $respopup_at = '';  // レスポップアップ・イベントハンドラ
+    public $target_at = '';    // 引用、省略、ID、NG等のリンクターゲット
+    public $check_st = '確';   // 省略、NG等のリンク文字列
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct($aThread)
+    public function __construct(ThreadRead $aThread, $matome = false)
     {
-        parent::__construct($aThread);
+        parent::__construct($aThread, $matome);
 
         global $_conf;
 
@@ -35,7 +43,7 @@ class ShowThreadK extends ShowThread{
             $this->check_st = '&#x2620;';
         }
 
-        $this->url_handlers = array(
+        $this->_url_handlers = array(
             'plugin_link2ch',
             'plugin_linkMachi',
             'plugin_linkJBBS',
@@ -43,11 +51,11 @@ class ShowThreadK extends ShowThread{
             'plugin_link2chSubject',
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
-            $this->url_handlers[] = 'plugin_imageCache2';
+            $this->_url_handlers[] = 'plugin_imageCache2';
         } elseif ($_conf['k_use_picto']) {
-            $this->url_handlers[] = 'plugin_viewImage';
+            $this->_url_handlers[] = 'plugin_viewImage';
         }
-        $this->url_handlers[] = 'plugin_linkURL';
+        $this->_url_handlers[] = 'plugin_linkURL';
 
         if (empty($_conf['k_bbs_noname_name'])) {
             require_once P2_LIB_DIR . '/SettingTxt.php';
@@ -86,10 +94,13 @@ class ShowThreadK extends ShowThread{
         }
     }
 
+    // }}}
+    // {{{ datToHtml()
+
     /**
      * DatをHTMLに変換表示する
      */
-    function datToHtml()
+    public function datToHtml()
     {
         if (!$this->thread->resrange) {
             echo '<p><b>p2 error: {$this->resrange} is FALSE at datToHtml()</b></p>';
@@ -121,13 +132,17 @@ class ShowThreadK extends ShowThread{
         return true;
     }
 
+    // }}}
+    // {{{ transRes()
 
     /**
      * DatレスをHTMLレスに変換する
      *
-     * 引数 - datの1ライン, レス番号
+     * @param   string  $ares   datの1ライン
+     * @param   int     $i      レス番号
+     * @return  string
      */
-    function transRes($ares, $i)
+    public function transRes($ares, $i)
     {
         global $_conf, $STYLE, $mae_msg, $res_filter;
         global $ngaborns_hits;
@@ -160,7 +175,13 @@ class ShowThreadK extends ShowThread{
 
         // }}}
 
-        $tores = "";
+        $tores = '';
+        if ($this->_matome) {
+            $res_id = "t{$this->_matome}r{$i}";
+        } else {
+            $res_id = "r{$i}";
+        }
+
         $isNgName = false;
         $isNgMail = false;
         $isNgId = false;
@@ -169,7 +190,7 @@ class ShowThreadK extends ShowThread{
         $isChain = false;
         $isAA = false;
 
-        if (($_conf['flex_idpopup'] || $this->ngaborn_frequent || $_conf['ngaborn_chain']) &&
+        if (($_conf['flex_idpopup'] || $this->_ngaborn_frequent || $_conf['ngaborn_chain']) &&
             preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|', $date_id, $matches))
         {
             $id = $matches[1];
@@ -179,22 +200,20 @@ class ShowThreadK extends ShowThread{
 
         // {{{ あぼーんチェック
 
-        $aborned_res  = "<div id=\"r{$i}\" name=\"r{$i}\">&nbsp;</div>" // 名前
-                      . ""; // 内容
         $ng_msg_info = array();
 
         // 頻出IDあぼーん
-        if ($this->ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
+        if ($this->_ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
             if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->one_id) {
                 // >>1 はそのまま表示
-            } elseif ($this->ngaborn_frequent == 1) {
+            } elseif ($this->_ngaborn_frequent == 1) {
                 $ngaborns_hits['aborn_freq']++;
-                $this->aborn_nums[] = $i;
-                return $aborned_res;
+                $this->_aborn_nums[] = $i;
+                return $this->_abornedRes($res_id);
             } elseif (!$nong) {
                 $ngaborns_hits['ng_freq']++;
                 $ngaborns_body_hits++;
-                $this->ng_nums[] = $i;
+                $this->_ng_nums[] = $i;
                 $isFreq = true;
                 $ng_msg_info[] = sprintf('頻出ID:%s(%d)', $id, $this->thread->idcount[$id]);
             }
@@ -203,24 +222,24 @@ class ShowThreadK extends ShowThread{
         // 連鎖あぼーん
         if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
             $chain_nums = array_unique(array_map('intval', split('[-,]+', trim(implode(',', $matches[1]), '-,'))));
-            if (array_intersect($chain_nums, $this->aborn_nums)) {
+            if (array_intersect($chain_nums, $this->_aborn_nums)) {
                 if ($_conf['ngaborn_chain'] == 1) {
                     $ngaborns_hits['aborn_chain']++;
-                    $this->aborn_nums[] = $i;
-                    return $aborned_res;
+                    $this->_aborn_nums[] = $i;
+                    return $this->_abornedRes($res_id);
                 } else {
                     $a_chain_num = array_shift($chain_nums);
                     $ngaborns_hits['ng_chain']++;
-                    $this->ng_nums[] = $i;
+                    $this->_ng_nums[] = $i;
                     $ngaborns_body_hits++;
                     $isChain = true;
                     $ng_msg_info[] = sprintf('連鎖NG:&gt;&gt;%d(ｱﾎﾞﾝ)', $a_chain_num);
                 }
-            } elseif (array_intersect($chain_nums, $this->ng_nums)) {
+            } elseif (array_intersect($chain_nums, $this->_ng_nums)) {
                 $a_chain_num = array_shift($chain_nums);
                 $ngaborns_hits['ng_chain']++;
                 $ngaborns_body_hits++;
-                $this->ng_nums[] = $i;
+                $this->_ng_nums[] = $i;
                 $isChain = true;
                 $ng_msg_info[] = sprintf('連鎖NG:&gt;&gt;%d', $a_chain_num);
             }
@@ -229,36 +248,36 @@ class ShowThreadK extends ShowThread{
         // あぼーんレス
         if ($this->abornResCheck($i) !== false) {
             $ngaborns_hits['aborn_res']++;
-            $this->aborn_nums[] = $i;
-            return $aborned_res;
+            $this->_aborn_nums[] = $i;
+            return $this->_abornedRes($res_id);
         }
 
         // あぼーんネーム
         if ($this->ngAbornCheck('aborn_name', $name) !== false) {
             $ngaborns_hits['aborn_name']++;
-            $this->aborn_nums[] = $i;
-            return $aborned_res;
+            $this->_aborn_nums[] = $i;
+            return $this->_abornedRes($res_id);
         }
 
         // あぼーんメール
         if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
             $ngaborns_hits['aborn_mail']++;
-            $this->aborn_nums[] = $i;
-            return $aborned_res;
+            $this->_aborn_nums[] = $i;
+            return $this->_abornedRes($res_id);
         }
 
         // あぼーんID
         if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
             $ngaborns_hits['aborn_id']++;
-            $this->aborn_nums[] = $i;
-            return $aborned_res;
+            $this->_aborn_nums[] = $i;
+            return $this->_abornedRes($res_id);
         }
 
         // あぼーんメッセージ
         if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
             $ngaborns_hits['aborn_msg']++;
-            $this->aborn_nums[] = $i;
-            return $aborned_res;
+            $this->_aborn_nums[] = $i;
+            return $this->_abornedRes($res_id);
         }
 
         // NGチェック ========
@@ -267,7 +286,7 @@ class ShowThreadK extends ShowThread{
             if ($this->ngAbornCheck('ng_name', $name) !== false) {
                 $ngaborns_hits['ng_name']++;
                 $ngaborns_head_hits++;
-                $this->ng_nums[] = $i;
+                $this->_ng_nums[] = $i;
                 $isNgName = true;
             }
 
@@ -275,7 +294,7 @@ class ShowThreadK extends ShowThread{
             if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
                 $ngaborns_hits['ng_mail']++;
                 $ngaborns_head_hits++;
-                $this->ng_nums[] = $i;
+                $this->_ng_nums[] = $i;
                 $isNgMail = true;
             }
 
@@ -283,7 +302,7 @@ class ShowThreadK extends ShowThread{
             if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
                 $ngaborns_hits['ng_id']++;
                 $ngaborns_head_hits++;
-                $this->ng_nums[] = $i;
+                $this->_ng_nums[] = $i;
                 $isNgId = true;
             }
 
@@ -292,14 +311,14 @@ class ShowThreadK extends ShowThread{
             if ($a_ng_msg !== false) {
                 $ngaborns_hits['ng_msg']++;
                 $ngaborns_body_hits++;
-                $this->ng_nums[] = $i;
+                $this->_ng_nums[] = $i;
                 $isNgMsg = true;
                 $ng_msg_info[] = sprintf('NGﾜｰﾄﾞ:%s', htmlspecialchars($a_ng_msg, ENT_QUOTES));
             }
 
             // AAチェック
             if ($this->am_autong && $this->activeMona->detectAA($msg)) {
-                $this->ng_nums[] = $i;
+                $this->_ng_nums[] = $i;
                 $ngaborns_body_hits++;
                 $isAA = true;
                 $ng_msg_info[] = '&lt;AA略&gt;';
@@ -375,7 +394,7 @@ EOP;
         */
 
         if ($_conf['iphone']) {
-            $tores .= "<div class=\"res\" id=\"r{$i}\"><div class=\"res-header\">";
+            $tores .= "<div id=\"{$res_id}\" class=\"res\"><div class=\"res-header\">";
 
             // 番号（オンザフライ時）
             if ($this->thread->onthefly) {
@@ -391,32 +410,32 @@ EOP;
             }
 
             // 名前
-            $tores .= " <span class=\"name\">{$name}</span>"; 
+            $tores .= " <span class=\"name\">{$name}</span>";
 
             // メール
-            $tores .= " <span class=\"mail\">{$mail}</span>"; 
+            $tores .= " <span class=\"mail\">{$mail}</span>";
         } else {
             // 番号（オンザフライ時）
             if ($this->thread->onthefly) {
                 $GLOBALS['newres_to_show_flag'] = true;
-                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_onthefly_color']}'\">{$i}</font>]";
+                $tores .= "<div id=\"{$res_id}\" name=\"{$res_id}\">[<font color=\"{$STYLE['mobile_read_onthefly_color']}'\">{$i}</font>]";
             // 番号（新着レス時）
             } elseif ($i > $this->thread->readnum) {
                 $GLOBALS['newres_to_show_flag'] = true;
-                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_newres_color']}\">{$i}</font>]";
+                $tores .= "<div id=\"{$res_id}\" name=\"{$res_id}\">[<font color=\"{$STYLE['mobile_read_newres_color']}\">{$i}</font>]";
             // 番号
             } else {
-                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$i}]";
+                $tores .= "<div id=\"{$res_id}\" name=\"{$res_id}\">[{$i}]";
             }
 
             // 名前
             if ($name) {
-                $tores .= "{$name}: "; 
+                $tores .= "{$name}: ";
             }
 
             // メール
             if ($mail) {
-                $tores .= "{$mail}: "; 
+                $tores .= "{$mail}: ";
             }
         }
 
@@ -430,13 +449,13 @@ EOP;
 
         if ($_conf['iphone']) {
             // 日付とID
-            $tores .= " <span class=\"date-id\">{$date_id}</span></div>\n"; 
+            $tores .= " <span class=\"date-id\">{$date_id}</span></div>\n";
 
             // 内容
             $tores .= "<div class=\"message\">{$msg}</div></div>\n";
         } else {
             // 日付とID
-            $tores .= "{$date_id}<br>\n"; 
+            $tores .= "{$date_id}<br>\n";
 
             // 内容
             $tores .= "{$msg}</div><hr>\n";
@@ -459,10 +478,16 @@ EOP;
         return $tores;
     }
 
+    // }}}
+    // {{{ transName()
+
     /**
      * 名前をHTML用に変換する
+     *
+     * @param   string  $name   名前
+     * @return  string
      */
-    function transName($name)
+    public function transName($name)
     {
         global $_conf;
 
@@ -489,12 +514,17 @@ EOP;
         return ($name == ' ') ? '' : $name;
     }
 
+    // }}}
+    // {{{ transMsg()
 
     /**
-     * ■ datのレスメッセージをHTML表示用メッセージに変換する
-     * string transMsg(string str)
+     * datのレスメッセージをHTML表示用メッセージに変換する
+     *
+     * @param   string  $msg    メッセージ
+     * @param   int     $mynum  レス番号
+     * @return  string
      */
-    function transMsg($msg, $mynum)
+    public function transMsg($msg, $mynum)
     {
         global $_conf;
         global $res_filter, $word_fm;
@@ -532,17 +562,35 @@ EOP;
         }
 
         // 引用やURLなどをリンク
-        $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg);
+        $msg = preg_replace_callback($this->_str_to_link_regex, array($this, 'link_callback'), $msg);
 
         return $msg;
     }
 
+    // }}}
+    // {{{ _abornedRes()
+
+    /**
+     * あぼーんレスのHTMLを取得する
+     *
+     * @param  string $res_id
+     * @return string
+     */
+    protected function _abornedRes($res_id)
+    {
+        return <<<EOP
+<div id="{$res_id}" name="{$res_id}" class="res aborned">&nbsp;</div>\n
+EOP;
+    }
+
+    // }}}
     // {{{ コールバックメソッド
+    // {{{ link_callback()
 
     /**
      * ■リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
      */
-    function link_callback($s)
+    public function link_callback($s)
     {
         global $_conf;
 
@@ -615,12 +663,12 @@ EOP;
         //$following = htmlspecialchars($following, ENT_QUOTES, 'Shift_JIS', false);
 
         // URLを処理
-        foreach ($this->user_url_handlers as $handler) {
+        foreach ($this->_user_url_handlers as $handler) {
             if (FALSE !== ($link = call_user_func($handler, $url, $purl, $str, $this))) {
                 return $link . $following;
             }
         }
-        foreach ($this->url_handlers as $handler) {
+        foreach ($this->_url_handlers as $handler) {
             if (FALSE !== ($link = call_user_func(array($this, $handler), $url, $purl, $str))) {
                 return $link . $following;
             }
@@ -629,10 +677,13 @@ EOP;
         return $str . $following;
     }
 
+    // }}}
+    // {{{ ktai_exturl_callback()
+
     /**
      * ■携帯用外部URL変換
      */
-    function ktai_exturl_callback($s)
+    public function ktai_exturl_callback($s)
     {
         global $_conf;
 
@@ -641,7 +692,7 @@ EOP;
         // 通勤ブラウザ
         $tsukin_link = '';
         if ($_conf['k_use_tsukin']) {
-            $tsukin_url = 'http://www.sjk.co.jp/c/w.exe?y='.urlencode($in_url);
+            $tsukin_url = 'http://www.sjk.co.jp/c/w.exe?y=' . rawurlencode($in_url);
             if ($_conf['through_ime']) {
                 $tsukin_url = P2Util::throughIme($tsukin_url);
             }
@@ -651,7 +702,7 @@ EOP;
         // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
         $jig_link = '';
         /*
-        $jig_url = 'http://bwXXXX.jig.jp/fweb/?_jig_='.urlencode($in_url);
+        $jig_url = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . rawurlencode($in_url);
         if ($_conf['through_ime']) {
             $jig_url = P2Util::throughIme($jig_url);
         }
@@ -676,10 +727,13 @@ EOP;
         return $r;
     }
 
+    // }}}
+    // {{{ quote_res_callback()
+
     /**
      * ■引用変換
      */
-    function quote_res_callback($s)
+    public function quote_res_callback($s)
     {
         global $_conf;
 
@@ -696,10 +750,13 @@ EOP;
         return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$qsign}{$appointed_num}</a>";
     }
 
+    // }}}
+    // {{{ quote_res_range_callback()
+
     /**
      * ■引用変換（範囲）
      */
-    function quote_res_range_callback($s)
+    public function quote_res_range_callback($s)
     {
         global $_conf;
 
@@ -726,6 +783,9 @@ EOP;
         return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$qsign}{$appointed_num}</a>";
     }
 
+    // }}}
+    // {{{ idfilter_callback()
+
     /**
      * IDフィルタリングリンク変換
      *
@@ -733,7 +793,7 @@ EOP;
      * @return  string
      * @access  public
      */
-    function idfilter_callback($s)
+    public function idfilter_callback($s)
     {
         global $_conf;
 
@@ -762,15 +822,18 @@ EOP;
     }
 
     // }}}
+    // }}}
     // {{{ link_callback()から呼び出されるURL書き換えメソッド
-
-    // これらのメソッドは引数が処理対象パターンに合致しないとFALSEを返し、
-    // link_callback()はFALSEが返ってくると$url_handlersに登録されている次の関数/メソッドに処理させようとする。
+    /**
+     * これらのメソッドは引数が処理対象パターンに合致しないとFALSEを返し、
+     * link_callback()はFALSEが返ってくると$_url_handlersに登録されている次の関数/メソッドに処理させようとする。
+     */
+    // {{{ plugin_linkURL()
 
     /**
      * URLリンク
      */
-    function plugin_linkURL($url, $purl, $str)
+    public function plugin_linkURL($url, $purl, $str)
     {
         global $_conf;
 
@@ -790,10 +853,13 @@ EOP;
         return FALSE;
     }
 
+    // }}}
+    // {{{ plugin_link2chSubject()
+
     /**
      * 2ch bbspink 板リンク
      */
-    function plugin_link2chSubject($url, $purl, $str)
+    public function plugin_link2chSubject($url, $purl, $str)
     {
         global $_conf;
 
@@ -804,10 +870,13 @@ EOP;
         return FALSE;
     }
 
+    // }}}
+    // {{{ plugin_link2ch()
+
     /**
      * 2ch bbspink スレッドリンク
      */
-    function plugin_link2ch($url, $purl, $str)
+    public function plugin_link2ch($url, $purl, $str)
     {
         global $_conf;
 
@@ -821,10 +890,13 @@ EOP;
         return FALSE;
     }
 
+    // }}}
+    // {{{ plugin_link2chKako()
+
     /**
      * 2ch過去ログhtml
      */
-    function plugin_link2chKako($url, $purl, $str)
+    public function plugin_link2chKako($url, $purl, $str)
     {
         global $_conf;
 
@@ -835,10 +907,13 @@ EOP;
         return FALSE;
     }
 
+    // }}}
+    // {{{ plugin_linkMachi()
+
     /**
      * まちBBS / JBBS＠したらば  内リンク
      */
-    function plugin_linkMachi($url, $purl, $str)
+    public function plugin_linkMachi($url, $purl, $str)
     {
         global $_conf;
 
@@ -852,10 +927,13 @@ EOP;
         return FALSE;
     }
 
+    // }}}
+    // {{{ plugin_linkJBBS()
+
     /**
      * JBBS＠したらば  内リンク
      */
-    function plugin_linkJBBS($url, $purl, $str)
+    public function plugin_linkJBBS($url, $purl, $str)
     {
         global $_conf;
 
@@ -866,10 +944,13 @@ EOP;
         return FALSE;
     }
 
+    // }}}
+    // {{{ plugin_viewImage()
+
     /**
      * 画像ポップアップ変換
      */
-    function plugin_viewImage($url, $purl, $str)
+    public function plugin_viewImage($url, $purl, $str)
     {
         global $_conf;
 
@@ -891,10 +972,13 @@ EOP;
         return FALSE;
     }
 
+    // }}}
+    // {{{ plugin_imageCache2()
+
     /**
      * 画像URLのImageCache2変換
      */
-    function plugin_imageCache2($url, $purl, $str)
+    public function plugin_imageCache2($url, $purl, $str)
     {
         global $_conf;
         global $pre_thumb_unlimited, $pre_thumb_ignore_limit, $pre_thumb_limit_k;
@@ -1040,5 +1124,18 @@ EOP;
     }
 
     // }}}
-
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

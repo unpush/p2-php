@@ -1,9 +1,11 @@
 <?php
-/*
-    p2 - スレッドあぼーん複数一括解除処理
-*/
+/**
+ * rep2 - スレッドあぼーん複数一括解除処理
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ settaborn_off()
 
 /**
  * ■スレッドあぼーんを複数一括解除する
@@ -67,5 +69,17 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
         // echo "あぼーん解除、完了しました。";
     }
     */
-
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

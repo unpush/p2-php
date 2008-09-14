@@ -1,5 +1,7 @@
 <?php
-// rep2 -  インデックスページ
+/**
+ * rep2 - インデックスページ
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
@@ -108,9 +110,8 @@ EONOFRAMES;
     echo '</html>';
 }
 
-//============================================================================
-// 関数
-//============================================================================
+// {{{ makeDenyHtaccess()
+
 /**
  * ディレクトリに（アクセス拒否のための） .htaccess がなければ、自動で生成する
  */
@@ -122,3 +123,16 @@ function makeDenyHtaccess($dir)
         FileCtl::file_write_contents($hta, $data);
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

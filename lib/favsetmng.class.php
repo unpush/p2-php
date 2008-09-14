@@ -174,7 +174,7 @@ class FavSetManager
             $title = $favlist_titles[$i];
         }
         // 全角英数スペースカナを半角に
-        if (!empty($_conf['ktai']) && !empty($_conf['k_save_packet'])) {
+        if ($_conf['ktai'] && $_conf['k_save_packet']) {
             $title = mb_convert_kana($title, 'rnsk');
         }
         return $title;
@@ -271,7 +271,7 @@ class FavSetManager
                 $titles[$j] = ($j == 0) ? $set_title : $set_title . $j;
             }
             // 全角英数スペースカナを半角に
-            if (!empty($_conf['ktai']) && !empty($_conf['k_save_packet'])) {
+            if ($_conf['ktai'] && $_conf['k_save_packet']) {
                 $titles[$j] = mb_convert_kana($titles[$j], 'rnsk');
             }
             $selected = ($set_selected && $i == $j) ? ' selected' : '';

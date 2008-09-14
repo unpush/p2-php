@@ -1,8 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// p2 - RSS編集
+/**
+ * rep2expck - RSSリスト編集
+ */
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
@@ -118,34 +117,37 @@ if ($_conf['expack.misc.multi_favs']) {
 // rssファイルがなければ生成
 FileCtl::make_datafile($_conf['expack.rss.setting_path'], $_conf['expack.rss.setting_perm']);
 // rss読み込み
-$lines = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES);
 $myrss = array();
 
 $i = 0;
-if (is_array($lines)) {
+if ($lines = FileCtl::file_read_lines($_conf['expack.rss.setting_path'], FILE_IGNORE_NEW_LINES)) {
     foreach ($lines as $l) {
-        $l = rtrim($l);
         $p = explode("\t", $l);
         if (count($p) > 1) {
-            $id = "li{$i}";
-            $myrss[$id]['site']       = $site = rtrim($p[0]);
-            $myrss[$id]['site_en']    = $site_en = base64_encode($site);
-            $myrss[$id]['site_view']  = htmlspecialchars($site);
-            $myrss[$id]['site_ht']    = "&amp;site_en=" . $site_en;
-            $myrss[$id]['xml']        = $xml = $p[1];
-            $myrss[$id]['xml_en']     = rawurlencode($xml);
-            $myrss[$id]['atom']       = $atom = ((isset($p[2]) && $p[2] == 1) ? '1' : '0');
-            $myrss[$id]['value']      = StrCtl::toJavaScript("{$site}\t{$xml}\t{$atom}");
-
+            $site = $p[0];
+            $xml  = $p[1];
+            $atom = !empty($p[2]) ? '1' : '0';
+            $site_en = base64_encode($site);
+            $myrss["li{$i}"] = array(
+                'site'      => $site,
+                'site_en'   => $site_en,
+                'site_view' => htmlspecialchars($site, ENT_QUOTES),
+                'site_ht'   => "&amp;site_en={$site_en}",
+                'xml'       => $xml,
+                'xml_en'    => rawurlencode($xml),
+                'atom'      => $atom,
+                'value'     => StrCtl::toJavaScript("{$site}\t{$xml}\t{$atom}"),
+            );
             $i++;
         }
     }
 }
 
 // PC用
-if (empty($_conf['ktai']) and !empty($lines)) {
+if (!$_conf['ktai'] and !empty($lines)) {
 ?>
 <script type="text/javascript">
+//<![CDATA[
     // var gLogger = new ygLogger("test_noimpl.php");
     var dd = []
     var gVarObj = new Object();
@@ -202,6 +204,7 @@ function submitApply()
     //alert(document.form['list'].value);
     //document.form.submit();
 }
+//]]>
 </script>
 <?php
 }
@@ -231,7 +234,7 @@ echo $add_rss_form_ht;
 echo "<hr>\n";
 
 // PC（NetFrontを除外）
-if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+if (!$_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
 
     if ($lines) {
         $script_enable_html .= <<<EOP
@@ -273,9 +276,9 @@ EOP;
 
     echo <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 document.write("{$out}");
-//-->
+//]]>
 </script>
 EOP;
 
@@ -286,7 +289,7 @@ EOP;
 //================================================================
 if ($lines) {
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+    if ($_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '<noscript>';
     }
     echo 'RSSの並び替え';
@@ -326,7 +329,7 @@ EOP;
     }
     echo "</table>\n";
     // PC（NetFrontを除外）
-    if (empty($_conf['ktai']) && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
+    if (!$_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         echo '</noscript>';
     }
 }
@@ -336,3 +339,14 @@ EOP;
 //================================================================
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

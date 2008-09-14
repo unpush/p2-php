@@ -1,20 +1,22 @@
 <?php
-/*
-    p2 - お気にスレ関係の処理スクリプト
-
-    お気にスレの追加削除や、順序変更で呼ばれる
-
-    2005/03/10 以前
-    スレ個別idxでのお気に入りフラグは、現在は使用（機能）していない。
-    お気にスレ情報は、favlist.idxでまとめて受け持つ。
-    ↓
-    2005/03/10
-    スレッド表示時の負荷軽減を目的として、スレッド.idxでもお気にスレ情報を持つこととする。
-    subjectでお気にスレ一覧表示 → favlist.idx を参照
-    スレッド表示時のお気にスレ表示 → スレッド.idx を参照
-*/
+/**
+ * rep2 - お気にスレ関係の処理スクリプト
+ *
+ * お気にスレの追加削除や、順序変更で呼ばれる
+ *
+ * 2005/03/10 以前
+ * スレ個別idxでのお気に入りフラグは、現在は使用（機能）していない。
+ * お気にスレ情報は、favlist.idxでまとめて受け持つ。
+ * ↓
+ * 2005/03/10
+ * スレッド表示時の負荷軽減を目的として、スレッド.idxでもお気にスレ情報を持つこととする。
+ * subjectでお気にスレ一覧表示 → favlist.idx を参照
+ * スレッド表示時のお気にスレ表示 → スレッド.idx を参照
+ */
 
 require_once P2_LIB_DIR . '/filectl.class.php';
+
+// {{{ setFav()
 
 /**
  * お気にスレをセットする
@@ -181,7 +183,7 @@ function postFavRank($post)
     /* POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付 */
     if (strtoupper($method) == "POST") {
         while (list($name, $value) = each($post)) {
-            $POST[] = $name."=".urlencode($value);
+            $POST[] = $name . '=' . rawurlencode($value);
         }
         $postdata = implode("&", $POST);
         $request .= "Content-Type: application/x-www-form-urlencoded\r\n";
@@ -217,3 +219,16 @@ function postFavRank($post)
         //return $body;
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,9 +1,16 @@
 <?php
+/**
+ * rep2 - 最初のログイン画面を表示する
+ */
+
+require_once P2_LIB_DIR . '/login.class.php';
+
+// {{{ printLoginFirst()
 
 /**
- *  p2 最初のログイン画面を表示する
+ *  最初のログイン画面を表示する
  */
-function printLoginFirst($_login)
+function printLoginFirst(Login $_login)
 {
     global $_info_msg_ht, $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
@@ -254,13 +261,19 @@ EOP;
     {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>{$ptitle}</title>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
     if (!$_conf['ktai']) {
-        echo "<style type=\"text/css\" media=\"all\">\n<!--\n";
-        @include 'style/style_css.inc';
-        @include 'style/login_first_css.inc';
-        echo "\n-->\n</style>\n";
+        echo <<<EOP
+<style type="text/css">
+/* <![CDATA[ */\n
+EOP;
+        include 'style/style_css.inc';
+        include 'style/login_first_css.inc';
+        echo <<<EOP
+\n/* ]]> */
+</style>\n
+EOP;
     }
     echo "</head><body>\n";
     echo "<h3>{$ptitle}</h3>\n";
@@ -281,3 +294,16 @@ EOP;
 
     return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

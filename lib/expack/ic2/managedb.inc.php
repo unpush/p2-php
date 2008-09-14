@@ -1,13 +1,14 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * ImageCache2 - 画像情報を操作する関数
+ */
 
 require_once P2EX_LIB_DIR . '/ic2/database.class.php';
 require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
 require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
 require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
 
-// TODO: 引数の検証とトランザクションの開始/終了を一つにまとめる
+// {{{ manageDB_update()
 
 /**
  * 画像情報を更新
@@ -25,10 +26,11 @@ function manageDB_update($updated)
 
     // トランザクションの開始
     $ta = new IC2DB_Images;
-    if ($ta->_db->phptype == 'pgsql') {
+    $db = $ta->getDatabaseConnection();
+    if ($db->phptype == 'pgsql') {
         $ta->query('BEGIN');
-    } elseif ($ta->_db->phptype == 'sqlite') {
-        $ta->_db->query('BEGIN;');
+    } elseif ($db->phptype == 'sqlite') {
+        $db->query('BEGIN;');
     }
 
     // 画像データを更新
@@ -56,12 +58,15 @@ function manageDB_update($updated)
     }
 
     // トランザクションのコミット
-    if ($ta->_db->phptype == 'pgsql') {
+    if ($db->phptype == 'pgsql') {
         $ta->query('COMMIT');
-    } elseif ($ta->_db->phptype == 'sqlite') {
-        $ta->_db->query('COMMIT;');
+    } elseif ($db->phptype == 'sqlite') {
+        $db->query('COMMIT;');
     }
 }
+
+// }}}
+// {{{ manageDB_remove()
 
 /**
  * 画像を削除
@@ -89,10 +94,11 @@ function manageDB_remove($target, $to_blacklist = FALSE)
 
     // トランザクションの開始
     $ta = new IC2DB_Images;
-    if ($ta->_db->phptype == 'pgsql') {
+    $db = $ta->getDatabaseConnection();
+    if ($db->phptype == 'pgsql') {
         $ta->query('BEGIN');
-    } elseif ($ta->_db->phptype == 'sqlite') {
-        $ta->_db->query('BEGIN;');
+    } elseif ($db->phptype == 'sqlite') {
+        $db->query('BEGIN;');
     }
 
     // 画像を削除
@@ -160,14 +166,17 @@ function manageDB_remove($target, $to_blacklist = FALSE)
     }
 
     // トランザクションのコミット
-    if ($ta->_db->phptype == 'pgsql') {
+    if ($db->phptype == 'pgsql') {
         $ta->query('COMMIT');
-    } elseif ($ta->_db->phptype == 'sqlite') {
-        $ta->_db->query('COMMIT;');
+    } elseif ($db->phptype == 'sqlite') {
+        $db->query('COMMIT;');
     }
 
     return $removed_files;
 }
+
+// }}}
+// {{{ manageDB_setRank()
 
 /**
  * ランクを設定
@@ -200,6 +209,9 @@ function manageDB_setRank($target, $rank)
     $icdb->update();
 }
 
+// }}}
+// {{{ manageDB_addMemo()
+
 /**
  * メモを追加
  */
@@ -225,10 +237,11 @@ function manageDB_addMemo($target, $memo)
 
     // トランザクションの開始
     $ta = new IC2DB_Images;
-    if ($ta->_db->phptype == 'pgsql') {
+    $db = $ta->getDatabaseConnection();
+    if ($db->phptype == 'pgsql') {
         $ta->query('BEGIN');
-    } elseif ($ta->_db->phptype == 'sqlite') {
-        $ta->_db->query('BEGIN;');
+    } elseif ($db->phptype == 'sqlite') {
+        $db->query('BEGIN;');
     }
 
     // メモに指定文字列が含まれていなければ更新
@@ -250,9 +263,22 @@ function manageDB_addMemo($target, $memo)
     }
 
     // トランザクションのコミット
-    if ($ta->_db->phptype == 'pgsql') {
+    if ($db->phptype == 'pgsql') {
         $ta->query('COMMIT');
-    } elseif ($ta->_db->phptype == 'sqlite') {
-        $ta->_db->query('COMMIT;');
+    } elseif ($db->phptype == 'sqlite') {
+        $db->query('COMMIT;');
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

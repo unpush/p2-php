@@ -10,10 +10,19 @@ require_once P2_LIB_DIR . '/menu_iphone.inc.php';
 
 $_login->authorize(); //ユーザ認証
 
+if ($_conf['view_forced_by_query']) {
+    output_add_rewrite_var('b', $_conf['b']);
+}
+
+// {{{ 板リスト (Ajax)
+
 if (isset($_GET['cateid'])) {
     menu_iphone_ajax('menu_iphone_show_board_menu', (int)$_GET['cateid']);
     exit;
 }
+
+// }}}
+// {{{ 板検索 (Ajax)
 
 if (isset($_POST['word'])) {
     $word = menu_iphone_unicode_urldecode($_POST['word']);
@@ -41,6 +50,9 @@ if (isset($_POST['word'])) {
     exit;
 }
 
+// }}}
+// {{{ HTML出力
+// {{{ ヘッダ
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -50,13 +62,83 @@ if (isset($_POST['word'])) {
     <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
     <title>rep2</title>
-    <script type="application/x-javascript" src="iui/iui.js"></script>
-    <script type="application/x-javascript" src="js/menu_i.js"></script>
     <link rel="stylesheet" type="text/css" href="iui/iui.css" />
     <link rel="stylesheet" type="text/css" href="css/menu_i.css" />
     <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png" />
+    <script type="application/x-javascript" src="iui/iui.js"></script>
+    <script type="application/x-javascript" src="js/menu_i.js"></script>
+<?php
+// {{{ 指定サブメニューへ自動で移動
+// $hashesの取得は未実装。現状では戻るボタンが効かなくなるので封印。
+/*
+if (isset($hashes) && is_array($hashes) && count($hashes)) {
+    require_once P2_LIB_DIR . '/strctl.class.php';
+
+    $js = '';
+    $last = array_pop($hashes);
+    while (($hash = array_shift($hashes)) !== null) {
+        $hash = trim($hash);
+        if ($hash === '') {
+            continue;
+        }
+        $js .= "'" . StrCtl::toJavaScript($hash) . "',";
+    }
+    $hash = trim($last);
+    if ($hash !== '') {
+        $js .= "'" . StrCtl::toJavaScript($hash) . "'";
+    } else {
+        $js .= "'_'";
+    }
+?>
+    <script type="application/x-javascript">
+    //<![CDATA[
+    var _old_onload = window.onload;
+    window.onload = (function(){
+        if (_old_onload) {
+            _old_onload();
+        }
+        var subMenus = [<?php echo $js; ?>];
+        var contextNode = document.getElementById('top');
+        function p2SelectChild()
+        {
+            var id = subMenus.shift();
+            var anchor = document.evaluate('./li/a[@href="#' + id + '"]',
+                                           contextNode,
+                                           null,
+                                           XPathResult.ANY_UNORDERED_NODE_TYPE,
+                                           null
+                                           ).singleNodeValue;
+            var child = document.getElementById(id);
+            if (anchor && child) {
+                var evt = document.createEvent('MouseEvents');
+                evt.initMouseEvent('click', true, true, window,
+                                   0, 0, 0, 0, 0,
+                                   false, false, false, false, 0, null
+                                   );
+                anchor.dispatchEvent(evt);
+                contextNode = child;
+            }
+            if (subMenus.length) {
+                setTimeout(p2SelectChild, 200);
+            }
+        }
+        if (subMenus.length) {
+            setTimeout(p2SelectChild, 200);
+        }
+    });
+    //]]>
+    </script>
+<?php
+}*/
+// }}}
+?>
 </head>
 <body>
+
+<?php
+// }}}
+// {{{ ツールバー
+?>
 
 <div class="toolbar">
     <h1 id="pageTitle"></h1>
@@ -65,7 +147,11 @@ if (isset($_POST['word'])) {
     <a class="button" href="#threadSearch">ｽﾚ</a>
 </div>
 
-<!-- {{{ トップメニュー -->
+<?php
+// }}}
+// {{{ トップメニュー
+?>
+
 <ul id="top" title="rep2" selected="true">
 <?php if ($_info_msg_ht) { ?>
     <li><a href="#info_msg" class="color-r">エラー</a></li>
@@ -106,13 +192,17 @@ if (isset($_POST['word'])) {
     <li><a href="setting.php" target="_self">ログイン管理</a></li>
     <li><a href="#login_info">ログイン情報</a></li>
 </ul>
-<!-- }}} -->
 
 <?php
-// エラー
+// }}}
+// {{{ エラー
+
 if ($_info_msg_ht) { 
     echo '<div id="info_msg" class="panel" title="エラー">', $_info_msg_ht, '</div>';
 }
+
+// }}}
+// {{{ サブメニュー
 
 if ($_conf['expack.misc.multi_favs']) {
     // {{{ お気にスレ
@@ -201,9 +291,11 @@ if ($_conf['expack.misc.multi_favs']) {
         menu_iphone_show_feed_list('RSS');
     }
 }
+
+// }}}
+// {{{ ログイン情報
 ?>
 
-<!-- {{{ ログイン情報 -->
 <div id="login_info" class="panel" title="ログイン情報">
 <h2>認証ユーザ</h2>
 <p><strong><?php echo $_login->user; ?></strong> - <?php echo date('Y/m/d (D) G:i:s'); ?></p>
@@ -224,9 +316,12 @@ EOP;
 ?></pre>
 <?php } ?>
 </div>
-<!-- }}} -->
 
-<!-- {{{ スレッド検索 -->
+<?php
+// }}}
+// {{{ スレッド検索
+?>
+
 <ul id="tgrep" title="スレッド検索">
     <li><a href="#tgrep_info">スレッド検索について</a></li>
     <li class="group">クイックサーチ</li>
@@ -234,9 +329,12 @@ EOP;
     <li class="group">検索履歴</li>
     <?php include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php'; ?>
 </ul>
-<!-- }}} -->
 
-<!-- {{{ スレッド検索について -->
+<?php
+// }}}
+// {{{ スレッド検索について
+?>
+
 <div id="tgrep_info" class="panel" title="tGrepについて">
 <ul>
     <li>rep2 機能拡張パックのスレッド検索は tGrep (<a href="http://page2.xrea.jp/tgrep/" target="_blank">http://page2.xrea.jp/tgrep/</a>) を利用しています。</li>
@@ -248,9 +346,12 @@ EOP;
     <li>データベースの更新は3時間に1回で、レス数などは更新時点での値です。</li>
 </ul>
 </div>
-<!-- }}} -->
 
-<!-- {{{ 板検索ダイアログ -->
+<?php
+// }}}
+// {{{ 板検索ダイアログ
+?>
+
 <form id="boardSearch" class="dialog"
   method="post" action="menu_i.php"
   accept-charset="<?php echo $_conf['accept_charset']; ?>">
@@ -262,9 +363,12 @@ EOP;
     <input type="text" name="word" autocorrect="off" autocapitalize="off" />
 </fieldset>
 </form>
-<!-- }}} -->
 
-<!-- {{{ スレッド検索ダイアログ -->
+<?php
+// }}}
+// {{{ スレッド検索ダイアログ
+?>
+
 <form id="threadSearch" class="dialog"
   method="post" action="tgrepc.php"
   accept-charset="<?php echo $_conf['accept_charset']; ?>">
@@ -276,11 +380,15 @@ EOP;
     <input type="text" name="iq" autocorrect="off" autocapitalize="off" />
 </fieldset>
 </form>
-<!-- }}} -->
+
+<?php
+// }}}
+?>
 
 </body>
 </html>
 <?php
+// }}}
 
 /*
  * Local Variables:

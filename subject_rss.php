@@ -1,12 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    expack - 簡易RSSリーダ（記事一覧）
-
-    RSS系ファイルはUTF-8で書いて、携帯に出力するときだけSJISにしたいけど
-    mbstring.script_encoding = CP932 との整合性を考えるとSJISのままが無難かな？
-*/
+/**
+ * rep2expack - 簡易RSSリーダ（記事一覧）
+ */
 
 // {{{ p2基本設定読み込み&認証
 
@@ -96,12 +91,26 @@ if ($_conf['ktai']) {
 echo $_conf['doctype'];
 include P2EX_LIB_DIR . '/rss/' . ($_conf['ktai'] ? 'subject_k' : 'subject') . '.inc.php';
 
-//============================================================
-// 2ch,bbspink内リンクをp2で読むためのコールバック関数
-//============================================================
+// {{{ rss_link2ch_callback()
+
+/**
+ * 2ch,bbspink内リンクをp2で読むためのコールバック関数
+ */
 function rss_link2ch_callback($s)
 {
     global $_conf;
-    $read_url = "{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[6]}";
-    return $read_url;
+    return "{$_conf['read_php']}?host={$s[1]}&amp;bbs={$s[3]}&amp;key={$s[4]}&amp;ls={$s[6]}";
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

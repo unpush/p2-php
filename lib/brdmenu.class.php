@@ -2,38 +2,51 @@
 
 require_once P2_LIB_DIR . '/filectl.class.php';
 
+// {{{ BrdMenu
+
 /**
- * p2 - ボードメニュークラス for menu.php
+ * rep2 - ボードメニュークラス for menu.php
  */
-class BrdMenu{
+class BrdMenu
+{
+    // {{{ properties
 
-    var $categories;    // クラス BrdMenuCate のオブジェクトを格納する配列
-    var $num;           // 格納された BrdMenuCate オブジェクトの数
-    var $format;        // html形式か、brd形式か("html", "brd")
-    var $cate_match;    // カテゴリーマッチ形式
-    var $ita_match;     // 板マッチ形式
-    var $matches;       // マッチした BrdMenuIta オブジェクトを格納する配列
+    public $categories;    // クラス BrdMenuCate のオブジェクトを格納する配列
+    public $num;           // 格納された BrdMenuCate オブジェクトの数
+    public $format;        // html形式か、brd形式か("html", "brd")
+    public $cate_match;    // カテゴリーマッチ形式
+    public $ita_match;     // 板マッチ形式
+    public $matches;       // マッチした BrdMenuIta オブジェクトを格納する配列
 
-    function __construct()
+    // }}}
+    // {{{ constructor
+
+    public function __construct()
     {
         $this->categories = array();
-        $this->num = 0;
-        $this->matches =array();
+        $this->num = 0; 
+        $this->matches = array();
     }
+
+    // }}}
+    // {{{ addBrdMenuCate()
 
     /**
      * カテゴリーを追加する
      */
-    function addBrdMenuCate($aBrdMenuCate)
+    public function addBrdMenuCate(BrdMenuCate $aBrdMenuCate)
     {
         $this->categories[] = $aBrdMenuCate;
         $this->num++;
     }
 
+    // }}}
+    // {{{ setBrdMatch()
+
     /**
     * パターンマッチの形式を登録する
     */
-    function setBrdMatch($brdName)
+    public function setBrdMatch($brdName)
     {
         // html形式
         if (preg_match('/(html?|cgi)$/', $brdName)) {
@@ -48,10 +61,13 @@ class BrdMenu{
         }
     }
 
+    // }}}
+    // {{{ setBrdList()
+
     /**
     * データを読み込んで、カテゴリと板を登録する
     */
-    function setBrdList($data)
+    public function setBrdList($data)
     {
         global $_conf;
 
@@ -147,12 +163,15 @@ class BrdMenu{
         }
     }
 
+    // }}}
+    // {{{ makeBrdFile()
+
     /**
     * brdファイルを生成する
     *
     * @return    string    brdファイルのパス
     */
-    function makeBrdFile($cachefile)
+    public function makeBrdFile($cachefile)
     {
         global $_conf, $_info_msg_ht, $word;
 
@@ -185,23 +204,32 @@ class BrdMenu{
         }
     }
 
+    // }}}
 }
+
+// }}}
+// {{{ BrdMenuCate
 
 /**
 * ボードメニューカテゴリークラス
 */
-class BrdMenuCate{
+class BrdMenuCate
+{
+    // {{{ properties
 
-    var $name;          // カテゴリーの名前
-    var $menuitas;      // クラスBrdMenuItaのオブジェクトを格納する配列
-    var $num;           // 格納されたBrdMenuItaオブジェクトの数
-    var $is_open;       // 開閉状態(bool)
-    var $ita_match_num; // 検索にヒットした板の数
+    public $name;          // カテゴリーの名前
+    public $menuitas;      // クラスBrdMenuItaのオブジェクトを格納する配列
+    public $num;           // 格納されたBrdMenuItaオブジェクトの数
+    public $is_open;       // 開閉状態(bool)
+    public $ita_match_num; // 検索にヒットした板の数
+
+    // }}}
+    // {{{ constructor
 
     /**
     * コンストラクタ
     */
-    function BrdMenuCate($name)
+    public function __construct($name)
     {
         $this->num = 0;
         $this->menuitas = array();
@@ -210,31 +238,59 @@ class BrdMenuCate{
         $this->name = $name;
     }
 
+    // }}}
+    // {{{ addBrdMenuIta()
+
     /**
      * 板を追加する
      */
-    function addBrdMenuIta($aBrdMenuIta)
+    public function addBrdMenuIta(BrdMenuIta $aBrdMenuIta)
     {
         $this->menuitas[] = $aBrdMenuIta;
         $this->num++;
     }
 
+    // }}}
 }
+
+// }}}
+// {{{ BrdMenuIta
 
 /**
 * ボードメニュー板クラス
 */
-class BrdMenuIta{
-    var $host;
-    var $bbs;
-    var $itaj;    // 板名
-    var $itaj_en;    // 板名をエンコードしたもの
-    var $itaj_ht;    // HTMLで出力する板名（フィルタリングしたもの）
+class BrdMenuIta
+{
+    // {{{ properties
 
-    function setItaj($itaj)
+    public $host;
+    public $bbs;
+    public $itaj;    // 板名
+    public $itaj_en;    // 板名をエンコードしたもの
+    public $itaj_ht;    // HTMLで出力する板名（フィルタリングしたもの）
+
+    // }}}
+    // {{{ setItaj()
+
+    public function setItaj($itaj)
     {
         $this->itaj = $itaj;
         $this->itaj_en = rawurlencode(base64_encode($this->itaj));
         $this->itaj_ht = htmlspecialchars($this->itaj, ENT_QUOTES);
     }
+
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - 簡易RSSリーダ（記事一覧・携帯用）
+ */
 
 // {{{ ヘッダ
 
@@ -55,7 +56,7 @@ foreach ($items as $item) {
     // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
     $view_jig = '';
     /*
-    $link_jig = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . urlencode($item['link']);
+    $link_jig = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . rawurlencode($item['link']);
     $view_jig = ' <a href="' . P2Util::throughIme($link_jig) . '">jW</a>';
     */
     if ((isset($item['content:encoded']) && $item['content:encoded'] !== '') ||
@@ -91,3 +92,14 @@ RSS/Atomを直接指定<br>
 EOF;
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

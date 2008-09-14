@@ -8,40 +8,53 @@ require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/database.class.php';
 require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
 
+// {{{ constants
+
 define('IC2_THUMB_SIZE_DEFAULT', 1);
 define('IC2_THUMB_SIZE_PC',      1);
 define('IC2_THUMB_SIZE_MOBILE',  2);
 define('IC2_THUMB_SIZE_INTERMD', 3);
 
+// }}}
+// {{{ ThumbNailer
+
 class ThumbNailer
 {
+    // {{{ constants
+
+    const SIZE_DEFAULT  = 1;
+    const SIZE_PC       = 1;
+    const SIZE_MOBILE   = 2;
+    const SIZE_INTERMD  = 3;
+
+    // }}}
     // {{{ properties
 
-    var $db;            // @var object  PEAR DB_{phptype}のインスタンス
-    var $ini;           // @var array   ImageCache2の設定
-    var $mode;          // @var int     サムネイルの種類
-    var $cachedir;      // @var string  ImageCache2のキャッシュ保存ディレクトリ
-    var $sourcedir;     // @var string  ソース保存ディレクトリ
-    var $thumbdir;      // @var string  サムネイル保存ディレクトリ
-    var $driver;        // @var string  イメージドライバの種類
-    var $epeg;          // @var bool    Epegが利用可能か否か
-    var $magick;        // @var string  ImageMagickのパス
-    var $magick6;       // @var bool    ImageMagick6以上か否か
-    var $max_width;     // @var int     サムネイルの最大幅
-    var $max_height;    // @var int     サムネイルの最大高さ
-    var $type;          // @var string  サムネイルの画像形式（JPEGかPNG）
-    var $quality;       // @var int     サムネイルの品質
-    var $bgcolor;       // @var mixed   サムネイルの背景色
-    var $resize;        // @var bolean  画像をリサイズするか否か
-    var $rotate;        // @var int     画像を回転する角度（回転しないとき0）
-    var $trim;          // @var bolean  画像をトリミングするか否か
-    var $coord;         // @var array   画像をトリミングする範囲（トリミングしないときfalse）
-    var $found;         // @var array   IC2DB_Imagesでクエリを送信した結果
-    var $dynamic;       // @var bool    動的生成するか否か（trueのとき結果をファイルに保存しない）
-    var $intermd;       // @var string  動的生成に利用する中間イメージのパス（ソースから直接生成するときfalse）
-    var $buf;           // @var string  動的生成した画像データ
+    public $db;            // @var object  PEAR DB_{phptype}のインスタンス
+    public $ini;           // @var array   ImageCache2の設定
+    public $mode;          // @var int     サムネイルの種類
+    public $cachedir;      // @var string  ImageCache2のキャッシュ保存ディレクトリ
+    public $sourcedir;     // @var string  ソース保存ディレクトリ
+    public $thumbdir;      // @var string  サムネイル保存ディレクトリ
+    public $driver;        // @var string  イメージドライバの種類
+    public $epeg;          // @var bool    Epegが利用可能か否か
+    public $magick;        // @var string  ImageMagickのパス
+    public $magick6;       // @var bool    ImageMagick6以上か否か
+    public $max_width;     // @var int     サムネイルの最大幅
+    public $max_height;    // @var int     サムネイルの最大高さ
+    public $type;          // @var string  サムネイルの画像形式（JPEGかPNG）
+    public $quality;       // @var int     サムネイルの品質
+    public $bgcolor;       // @var mixed   サムネイルの背景色
+    public $resize;        // @var bolean  画像をリサイズするか否か
+    public $rotate;        // @var int     画像を回転する角度（回転しないとき0）
+    public $trim;          // @var bolean  画像をトリミングするか否か
+    public $coord;         // @var array   画像をトリミングする範囲（トリミングしないときfalse）
+    public $found;         // @var array   IC2DB_Imagesでクエリを送信した結果
+    public $dynamic;       // @var bool    動的生成するか否か（trueのとき結果をファイルに保存しない）
+    public $intermd;       // @var string  動的生成に利用する中間イメージのパス（ソースから直接生成するときfalse）
+    public $buf;           // @var string  動的生成した画像データ
     // @var array $default_options,    動的生成時のオプション
-    var $default_options = array(
+    public $default_options = array(
         'quality' => null,
         'width'   => null,
         'height'  => null,
@@ -50,17 +63,15 @@ class ThumbNailer
         'intermd' => false,
     );
     // @var array $mimemap, MIMEタイプと拡張子の対応表
-    var $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
+    public $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
 
     // }}}
     // {{{ constructor
 
     /**
      * コンストラクタ
-     *
-     * @access public
      */
-    function __construct($mode = IC2_THUMB_SIZE_DEFAULT, $dynamic_options = null)
+    public function __construct($mode = IC2_THUMB_SIZE_DEFAULT, $dynamic_options = null)
     {
         if (is_array($dynamic_options) && count($dynamic_options) > 0) {
             $options = array_merge($this->default_options, $dynamic_options);
@@ -199,18 +210,17 @@ class ThumbNailer
     }
 
     // }}}
-    // {{{ convert method
+    // {{{ convert()
 
     /**
      * サムネイルを作成
      *
-     * @access  public
      * @return  string|bool|PEAR_Error
      *          サムネイルを生成・保存に成功したとき、サムネイルのパス
      *          テンポラリ・サムネイルの生成に成功したとき、true
      *          失敗したとき PEAR_Error
      */
-    function convert($size, $md5, $mime, $width, $height, $force = false)
+    public function convert($size, $md5, $mime, $width, $height, $force = false)
     {
         // 画像
         if (!empty($this->intermd) && file_exists($this->intermd)) {
@@ -321,14 +331,13 @@ class ThumbNailer
     }
 
     // }}}
-    // {{{ public utility methods
+    // {{{ utility methods
+    // {{{ calc()
 
     /**
      * サムネイルサイズ計算
-     *
-     * @access public
      */
-    function calc($width, $height, $return_array = false)
+    public function calc($width, $height, $return_array = false)
     {
         // デフォルト値・フラグを設定
         $t_width  = $width;
@@ -406,12 +415,13 @@ class ThumbNailer
         }
     }
 
+    // }}}
+    // {{{ srcPath()
+
     /**
      * ソース画像のパスを取得
-     *
-     * @access public
      */
-    function srcPath($size, $md5, $mime, $FSFullPath = false)
+    public function srcPath($size, $md5, $mime, $FSFullPath = false)
     {
         $directory = $this->getSubDir($this->sourcedir, $size, $md5, $mime, $FSFullPath);
         if (!$directory) {
@@ -423,12 +433,13 @@ class ThumbNailer
         return $directory . ($FSFullPath ? DIRECTORY_SEPARATOR : '/') . $basename;
     }
 
+    // }}}
+    // {{{ thumbPath()
+
     /**
      * サムネイルのパスを取得
-     *
-     * @access public
      */
-    function thumbPath($size, $md5, $mime, $FSFullPath = false)
+    public function thumbPath($size, $md5, $mime, $FSFullPath = false)
     {
         $directory = $this->getSubDir($this->thumbdir, $size, $md5, $mime, $FSFullPath);
         if (!$directory) {
@@ -447,12 +458,13 @@ class ThumbNailer
         return $directory . ($FSFullPath ? DIRECTORY_SEPARATOR : '/') . $basename;
     }
 
+    // }}}
+    // {{{ getSubDir()
+
     /**
      * 画像が保存されるサブディレクトリのパスを取得
-     *
-     * @access public
      */
-    function getSubDir($basedir, $size, $md5, $mime, $FSFullPath = false)
+    public function getSubDir($basedir, $size, $md5, $mime, $FSFullPath = false)
     {
         if (!is_dir($basedir)) {
             return false;
@@ -469,12 +481,13 @@ class ThumbNailer
         return $directory;
     }
 
+    // }}}
+    // {{{ dirID()
+
     /**
      * 画像1000枚ごとにインクリメントするディレクトリIDを取得
-     *
-     * @access public
      */
-    function dirID($size = null, $md5 = null, $mime = null)
+    public function dirID($size = null, $md5 = null, $mime = null)
     {
         if ($size && $md5 && $mime) {
             $icdb = new IC2DB_Images;
@@ -496,15 +509,14 @@ class ThumbNailer
         return str_pad(ceil($nextid / 1000), 5, 0, STR_PAD_LEFT);
     }
 
-    // }}
-    // {{{ error method
+    // }}}
+    // }}}
+    // {{{ error()
 
     /**
      * エラーメッセージを表示して終了
-     *
-     * @access public
      */
-    function error($message = '')
+    public function error($message = '')
     {
         echo <<<EOF
 <html>
@@ -517,8 +529,10 @@ EOF;
         exit;
     }
 
-    // }}
+    // }}}
 }
+
+// }}}
 
 /*
  * Local Variables:

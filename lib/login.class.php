@@ -3,21 +3,29 @@
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/session.class.php';
 
+// {{{ Login
+
 /**
- * p2 - ログイン認証を扱うクラス
+ * rep2 - ログイン認証を扱うクラス
  *
  * @create  2005/6/14
+ * @author aki
  */
-class Login{
+class Login
+{
+    // {{{ properties
 
-    var $user;   // ユーザ名（内部的なもの）
-    var $user_u; // ユーザ名（ユーザと直接触れる部分）
-    var $pass_x; // 暗号化されたパスワード
+    public $user;   // ユーザ名（内部的なもの）
+    public $user_u; // ユーザ名（ユーザと直接触れる部分）
+    public $pass_x; // 暗号化されたパスワード
+
+    // }}}
+    // {{{ constructor
 
     /**
      * コンストラクタ
      */
-    function __construct()
+    public function __construct()
     {
         $login_user = $this->setdownLoginUser();
 
@@ -34,19 +42,25 @@ class Login{
         $this->pass_x = NULL;
     }
 
+    // }}}
+    // {{{ setUser()
+
     /**
      * ユーザ名をセットする
      */
-    function setUser($user)
+    public function setUser($user)
     {
         $this->user_u = $user;
         $this->user = $user;
     }
 
+    // }}}
+    // {{{ setdownLoginUser()
+
     /**
      * ログインユーザ名の指定を得る
      */
-    function setdownLoginUser()
+    public function setdownLoginUser()
     {
         $login_user = NULL;
 
@@ -95,24 +109,30 @@ class Login{
         return $login_user;
     }
 
+    // }}}
+    // {{{ setdownLoginUserWithRequest()
+
     /**
      * REQUESTからログインユーザ名の指定を得る
      */
-    function setdownLoginUserWithRequest()
+    public function setdownLoginUserWithRequest()
     {
         return $_REQUEST['form_login_id'];
     }
 
+    // }}}
+    // {{{ authorize()
+
     /**
      * 認証を行う
      */
-    function authorize()
+    public function authorize()
     {
         global $_conf, $_p2session;
 
         // {{{ 認証チェック
 
-        if (!$this->authCheck()) {
+        if (!$this->_authCheck()) {
             // ログイン失敗
             include_once P2_LIB_DIR . '/login_first.inc.php';
             printLoginFirst($this);
@@ -147,7 +167,7 @@ class Login{
             */
             }
 
-            // $user_u_q = empty($_conf['ktai']) ? '' : '?user=' . $this->user_u;
+            // $user_u_q = $_conf['ktai'] ? "?user={$this->user_u}" : '';
 
             $url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/'; // . $user_u_q;
 
@@ -181,10 +201,13 @@ class Login{
         return true;
     }
 
+    // }}}
+    // {{{ checkAuthUserFile()
+
     /**
      * 認証ユーザ設定のファイルを調べて、無効なデータなら捨ててしまう
      */
-    function checkAuthUserFile()
+    public function checkAuthUserFile()
     {
         global $_conf;
 
@@ -198,13 +221,15 @@ class Login{
         return true;
     }
 
+    // }}}
+    // {{{ _authCheck()
+
     /**
      * 認証のチェックを行う
      *
-     * @access protected
      * @return bool
      */
-    function authCheck()
+    private function _authCheck()
     {
         global $_info_msg_ht, $_conf;
         global $_login_failed_flag;
@@ -303,7 +328,7 @@ class Login{
             if (isset($_p2session)) {
                 if ($msg = $_p2session->checkSessionError()) {
                     $GLOBALS['_info_msg_ht'] .= '<p>p2 error: ' . htmlspecialchars($msg) . '</p>';
-                    //$_p2session->unSession();
+                    //Session::unSession();
                     // ログイン失敗
                     return false;
                 }
@@ -313,7 +338,7 @@ class Login{
 
             if ($this->user_u == $_SESSION['login_user']) {
                 if ($_SESSION['login_pass_x'] != $this->pass_x) {
-                    $_p2session->unSession();
+                    Session::unSession();
                     return false;
 
                 } else {
@@ -376,10 +401,13 @@ class Login{
         return false;
     }
 
+    // }}}
+    // {{{ logLoginSuccess()
+
     /**
      * ログインログを記録する
      */
-    function logLoginSuccess()
+    public function logLoginSuccess()
     {
         global $_conf;
 
@@ -391,10 +419,13 @@ class Login{
         return true;
     }
 
+    // }}}
+    // {{{ logLoginFailed()
+
     /**
      * ログイン失敗ログを記録する
      */
-    function logLoginFailed()
+    public function logLoginFailed()
     {
         global $_conf;
 
@@ -406,12 +437,13 @@ class Login{
         return true;
     }
 
+    // }}}
+    // {{{ registKtaiId()
+
     /**
      * 携帯用端末IDの認証登録をセットする
-     *
-     * @access protected
      */
-    function registKtaiId()
+    public function registKtaiId()
     {
         global $_conf, $_info_msg_ht;
 
@@ -423,12 +455,12 @@ class Login{
 
             if ($_REQUEST['regist_ez'] == '1') {
                 if ($_SERVER['HTTP_X_UP_SUBNO']) {
-                    $this->registAuth('registed_ez', $_SERVER['HTTP_X_UP_SUBNO'], $_conf['auth_ez_file']);
+                    $this->_registAuth('registed_ez', $_SERVER['HTTP_X_UP_SUBNO'], $_conf['auth_ez_file']);
                 } else {
                     $_info_msg_ht .= '<p class="infomsg">×EZweb用サブスクライバIDでの認証登録はできませんでした</p>'."\n";
                 }
             } else {
-                $this->registAuthOff($_conf['auth_ez_file']);
+                $this->_registAuthOff($_conf['auth_ez_file']);
             }
 
         // }}}
@@ -438,12 +470,12 @@ class Login{
 
             if ($_REQUEST['regist_jp'] == '1') {
                 if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-                    $this->registAuth('registed_jp', $SN, $_conf['auth_jp_file']);
+                    $this->_registAuth('registed_jp', $SN, $_conf['auth_jp_file']);
                 } else {
                     $_info_msg_ht .= '<p class="infomsg">×Vodafone用固有IDでの認証登録はできませんでした</p>'."\n";
                 }
             } else {
-                $this->registAuthOff($_conf['auth_jp_file']);
+                $this->_registAuthOff($_conf['auth_jp_file']);
             }
 
         // }}}
@@ -452,24 +484,25 @@ class Login{
         } elseif (!empty($_REQUEST['ctl_regist_docomo'])) {
             if ($_REQUEST['regist_docomo'] == '1') {
                 if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-                    $this->registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
+                    $this->_registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
                 } else {
                     $_info_msg_ht .= '<p class="infomsg">×DoCoMo用固有IDでの認証登録はできませんでした</p>'."\n";
                 }
             } else {
-                $this->registAuthOff($_conf['auth_docomo_file']);
+                $this->_registAuthOff($_conf['auth_docomo_file']);
             }
         }
 
         // }}}
     }
 
+    // }}}
+    // {{{ _registAuth()
+
     /**
      * 端末IDを認証ファイル登録する
-     *
-     * @access protected
      */
-    function registAuth($key, $sub_id, $auth_file)
+    private function _registAuth($key, $sub_id, $auth_file)
     {
         global $_conf, $_info_msg_ht;
 
@@ -479,35 +512,38 @@ class Login{
 ?>
 EOP;
         FileCtl::make_datafile($auth_file, $_conf['pass_perm']);
-        $fp = @fopen($auth_file, 'wb');
+        $fp = fopen($auth_file, 'wb');
         if (!$fp) {
             $_info_msg_ht .= "<p>Error: データを保存できませんでした。認証登録失敗。</p>";
             return false;
         }
-        @flock($fp, LOCK_EX);
+        flock($fp, LOCK_EX);
         fwrite($fp, $cont);
-        @flock($fp, LOCK_UN);
+        flock($fp, LOCK_UN);
         fclose($fp);
         return true;
     }
 
+    // }}}
+    // {{{ _registAuthOff()
+
     /**
      * 端末IDの認証ファイル登録を外す
-     *
-     * @access protected
      */
-    function registAuthOff($auth_file)
+    private function _registAuthOff($auth_file)
     {
         if (file_exists($auth_file)) {
             unlink($auth_file);
         }
-        return;
     }
+
+    // }}}
+    // {{{ makeUser()
 
     /**
      * 新規ユーザを作成する
      */
-    function makeUser($user_u, $pass)
+    public function makeUser($user_u, $pass)
     {
         global $_conf;
 
@@ -526,12 +562,13 @@ EOP;
         return true;
     }
 
+    // }}}
+    // {{{ registCookie()
+
     /**
      * cookie認証を登録/解除する
-     *
-     * @access protected
      */
-    function registCookie()
+    public function registCookie()
     {
         if (!empty($_REQUEST['ctl_regist_cookie'])) {
             if ($_REQUEST['regist_cookie'] == '1') {
@@ -541,14 +578,16 @@ EOP;
                 $this->clearCookieAuth();
             }
         }
-        return true;
     }
+
+    // }}}
+    // {{{ clearCookieAuth()
 
     /**
      * Cookie認証をクリアする
      */
-     function clearCookieAuth()
-     {
+    public function clearCookieAuth()
+    {
         setcookie('cid', '', time() - 3600);
         setcookie('p2_user', '', time() - 3600);    //  廃止要素 2005/6/13
         setcookie('p2_pass', '', time() - 3600);    //  廃止要素 2005/6/13
@@ -557,14 +596,17 @@ EOP;
         $_COOKIE = array();
 
         return true;
-     }
+    }
+
+    // }}}
+    // {{{ setCookieCid()
 
     /**
      * CIDをcookieにセットする
      *
      * @return boolean
      */
-    function setCookieCid($user_u, $pass_x)
+    public function setCookieCid($user_u, $pass_x)
     {
         global $_conf;
 
@@ -577,12 +619,15 @@ EOP;
         }
     }
 
+    // }}}
+    // {{{ makeCid()
+
     /**
      * IDとPASSと時間をくるめて暗号化したCookie情報（CID）を生成取得する
      *
      * @return mixed
      */
-    function makeCid($user_u, $pass_x)
+    public function makeCid($user_u, $pass_x)
     {
         if (is_null($user_u) || is_null($pass_x)) {
             return false;
@@ -600,12 +645,15 @@ EOP;
         return $cid;
     }
 
+    // }}}
+    // {{{ getCidInfo()
+
     /**
      * Cookie（CID）からユーザ情報を得る
      *
      * @return array|false 成功すれば配列、失敗なら false を返す
      */
-    function getCidInfo($cid)
+    public function getCidInfo($cid)
     {
         global $_conf;
 
@@ -624,12 +672,15 @@ EOP;
         }
     }
 
+    // }}}
+    // {{{ getUserFromCid()
+
     /**
      * Cookie情報（CID）からuserを得る
      *
      * @return mixed
      */
-    function getUserFromCid($cid)
+    public function getUserFromCid($cid)
     {
         if (!$ar = $this->getCidInfo($cid)) {
             return false;
@@ -638,12 +689,15 @@ EOP;
         return $user = $ar[0];
     }
 
+    // }}}
+    // {{{ checkUserPwWithCid()
+
     /**
      * Cookie情報（CID）とuser, passを照合する
      *
      * @return boolean
      */
-    function checkUserPwWithCid($cid)
+    public function checkUserPwWithCid($cid)
     {
         global $_conf;
 
@@ -666,15 +720,32 @@ EOP;
         }
     }
 
+    // }}}
+    // {{{ getMd5CryptKey()
+
     /**
      * md5_encrypt, md5_decrypt のためにクリプトキーを得る
      *
      * @return string
      */
-    function getMd5CryptKey()
+    public function getMd5CryptKey()
     {
         //return $_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE'];
         return $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
     }
 
+    // }}}
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

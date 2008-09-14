@@ -2,7 +2,7 @@
 // {{{ StrCtl
 
 /**
- * p2 - StrCtl -- 文字列操作クラス
+ * rep2 - StrCtl -- 文字列操作クラス
  * クラスメソッドで利用する
  *
  * @static
@@ -64,12 +64,12 @@ class StrCtl
         // 全角/半角を（ある程度）区別なくマッチ
         if ($zenhan) {
             // 全角/半角を 完全に 区別なくマッチ
-            $pattern = StrCtl::getPatternToHan($pattern);
-            $target = StrCtl::getPatternToHan($target, true);
+            $pattern = self::getPatternToHan($pattern);
+            $target = self::getPatternToHan($target, true);
 
         } else {
             // 全角/半角を ある程度 区別なくマッチ
-            $pattern = StrCtl::getPatternZenHan($pattern);
+            $pattern = self::getPatternZenHan($pattern);
         }
 
         // HTML要素にマッチさせないための否定先読みパターンを付加
@@ -104,7 +104,7 @@ class StrCtl
     static public function filterMarking($pattern, $target, $marker = '<b class="filtering">\\1</b>')
     {
         // 全角/半角を（ある程度）区別なくマッチ
-        $pattern = StrCtl::getPatternZenHan($pattern);
+        $pattern = self::getPatternZenHan($pattern);
 
         // HTML要素にマッチさせないための否定先読みパターンを付加
         $pattern = '(' . $pattern . ')(?![^<]*>)';
@@ -133,12 +133,12 @@ class StrCtl
      */
     static public function getPatternZenHan($pattern)
     {
-        $pattern_han = StrCtl::getPatternToHan($pattern);
+        $pattern_han = self::getPatternToHan($pattern);
 
         if ($pattern != $pattern_han) {
             $pattern = $pattern.'|'.$pattern_han;
         }
-        $pattern_zen = StrCtl::getPatternToZen($pattern);
+        $pattern_zen = self::getPatternToZen($pattern);
 
         if ($pattern != $pattern_zen) {
             $pattern = $pattern.'|'.$pattern_zen;
@@ -147,12 +147,15 @@ class StrCtl
         return $pattern;
     }
 
+    // }}}
+    // {{{ getPatternToHan()
+
     /**
      * （パターン）文字列を半角にする
      */
-    function getPatternToHan($pattern, $no_escape = false)
+    static public function getPatternToHan($pattern, $no_escape = false)
     {
-        $kigou = StrCtl::getKigouPattern($no_escape);
+        $kigou = self::getKigouPattern($no_escape);
 
         // 壊れる
         //$pattern = str_replace($kigou['zen'], $kigou['han'], $pattern);
@@ -187,7 +190,7 @@ class StrCtl
      */
     static public function getPatternToZen($pattern, $no_escape = false)
     {
-        $kigou = StrCtl::getKigouPattern($no_escape);
+        $kigou = self::getKigouPattern($no_escape);
 
         // 壊れる
         // $pattern = str_replace($kigou['han'], $kigou['zen'], $pattern);
