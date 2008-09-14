@@ -1268,8 +1268,10 @@ EOJS;
                 $link_url = $url;
             }
 
+            $is_http = ($purl['scheme'] == 'http' || $purl['scheme'] == 'https');
+
             // HTMLポップアップ
-            if ($_conf['iframe_popup'] && preg_match('/https?/', $purl['scheme'])) {
+            if ($_conf['iframe_popup'] && $is_http) {
                 // p2pm/expm 指定の場合のみ、特別に手動転送指定を追加する
                 if ($_conf['through_ime'] == 'p2pm') {
                     $pop_url = preg_replace('/\\?(enc=1&amp;)url=/', '?$1m=1&amp;url=', $link_url);
@@ -1284,8 +1286,12 @@ EOJS;
             }
 
             // ブラクラチェッカ
-            if ($_conf['brocra_checker_use'] && preg_match('/https?/', $purl['scheme'])) {
-                $brocra_checker_url = $_conf['brocra_checker_url'] . '?' . $_conf['brocra_checker_query'] . '=' . rawurlencode($url);
+            if ($_conf['brocra_checker_use'] && $_conf['brocra_checker_url'] && $is_http) {
+                if (strlen($_conf['brocra_checker_query'])) {
+                    $brocra_checker_url = $_conf['brocra_checker_url'] . '?' . $_conf['brocra_checker_query'] . '=' . rawurlencode($url);
+                } else {
+                    $brocra_checker_url = rtrim($_conf['brocra_checker_url'], '/') . '/' . $url;
+                }
                 // ブラクラチェッカ・ime
                 if ($_conf['through_ime']) {
                     $brocra_checker_url = P2Util::throughIme($brocra_checker_url);

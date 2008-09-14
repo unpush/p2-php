@@ -354,9 +354,9 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('enable_menu_new', '板メニューに新着数を表示 (する, しない, お気に板のみ)'),
         array('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)'),
         array('menu_hide_brds', '板カテゴリ一覧を閉じた状態にする (する, しない)'),
-//        array('brocra_checker_use', 'ブラクラチェッカ (つける, つけない)'),
-//        array('brocra_checker_url', 'ブラクラチェッカURL'),
-//        array('brocra_checker_query', 'ブラクラチェッカのクエリー'),
+        array('brocra_checker_use', 'ブラクラチェッカ (つける, つけない)'),
+        array('brocra_checker_url', 'ブラクラチェッカURL'),
+        array('brocra_checker_query', 'ブラクラチェッカのクエリー (空の場合、PATH_INFOでURLを渡す)'),
         array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする (off, レスのみ, サブジェクトも)'),
         array('k_save_packet', '携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する, しない)'),
         array('proxy_use', 'プロキシを利用 (する, しない)'), 
@@ -822,6 +822,27 @@ function notSelToDef()
         }
     }
     return true;
+}
+
+// }}}
+// {{{ invalidUrlToDef()
+
+/**
+ * HTTPまたはHTTPSのURLでない場合はデフォルトセットする
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function invalidUrlToDef($val, $def)
+{
+    $purl = @parse_url($val);
+    if (is_array($purl) && array_key_exists('scheme', $purl) &&
+        ($purl['scheme'] == 'http' || $purl['scheme'] == 'https'))
+    {
+        return $val;
+    }
+    return $def;
 }
 
 // }}}

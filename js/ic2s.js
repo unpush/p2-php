@@ -1,15 +1,18 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
 /*
-	ImageCache2::Uploader
-*/
+ * ImageCache2::Uploader
+ */
+
+// {{{ GLOBALS
 
 var fileUploadFormControllers = new Array;
 
-//==============================================================
-// ファイルアップロード用フォーム要素の数を増減する
-// カスタムオブジェクトのコンストラクタ
-//==============================================================
+// }}}
+// {{{ fileUploadFormController()
+
+/*
+ * ファイルアップロード用フォーム要素の数を増減する
+ * カスタムオブジェクトのコンストラクタ
+ */
 function fileUploadFormController(containerId, submitId, fileElemName, pathElemName, formLabel)
 {
 	var controllerId = fileUploadFormControllers.length;
@@ -32,6 +35,8 @@ function fileUploadFormController(containerId, submitId, fileElemName, pathElemN
 
 	var itemContainer = new Array;
 	var formContainer = new Array;
+
+	// {{{ addFile()
 
 	this.addFile = function()
 	{
@@ -62,6 +67,9 @@ function fileUploadFormController(containerId, submitId, fileElemName, pathElemN
 		formContainer.push(el);
 	}
 
+	// }}}
+	// {{{ removeFile()
+
 	this.removeFile = function()
 	{
 		var dv, el;
@@ -71,6 +79,9 @@ function fileUploadFormController(containerId, submitId, fileElemName, pathElemN
 			elementContainer.removeChild(dv);
 		}
 	}
+
+	// }}}
+	// {{{ resetFile()
 
 	this.resetFile = function()
 	{
@@ -84,15 +95,24 @@ function fileUploadFormController(containerId, submitId, fileElemName, pathElemN
 		this.enableSubmit();
 	}
 
+	// }}}
+	// {{{ enableSubmit()
+
 	this.enableSubmit = function()
 	{
 		submitButton.disabled = false;
 	}
 
+	// }}}
+	// {{{ disableSubmit()
+
 	this.disableSubmit = function()
 	{
 		submitButton.disabled = true;
 	}
+
+	// }}}
+	// {{{ preSubmit()
 
 	this.preSubmit = function()
 	{
@@ -124,6 +144,8 @@ function fileUploadFormController(containerId, submitId, fileElemName, pathElemN
 		return true;
 	}
 
+	// }}}
+
 	// インスタンス作成時にフォームを一つ追加する
 	this.addFile();
 
@@ -131,12 +153,28 @@ function fileUploadFormController(containerId, submitId, fileElemName, pathElemN
 	fileUploadFormControllers.push(this);
 }
 
-//==============================================================
-// ファイルアップロード用フォームの要素にアクセスしやすいようにする
-// カスタムオブジェクトのコンストラクタ
-//==============================================================
+// }}}
+// {{{ fileUploadFormElement()
+
+/*
+ * ファイルアップロード用フォームの要素にアクセスしやすいようにする
+ * カスタムオブジェクトのコンストラクタ
+ */
 function fileUploadFormElement(fileElem, pathElem)
 {
 	this.fileElem = fileElem;
 	this.pathElem = pathElem;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

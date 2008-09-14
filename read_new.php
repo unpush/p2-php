@@ -310,9 +310,9 @@ for ($x = 0; $x < $linesize ; $x++) {
         // ƒXƒŒî•ñæ“¾ =============================
         if (!empty($subject_txts[$subject_id])) {
             $thread_key = (string)$aThread->key;
-            $thread_key_len = strlen($aThread->key);
+            $thread_key_len = strlen($thread_key);
             foreach ($subject_txts[$subject_id] as $l) {
-                if (substr($l, 0, $thread_key_len) == $thread_key) {
+                if (strncmp($l, $thread_key, $thread_key_len) == 0) {
                     $aThread->getThreadInfoFromSubjectTxtLine($l); // subject.txt ‚©‚çƒXƒŒî•ñæ“¾
                     break;
                 }

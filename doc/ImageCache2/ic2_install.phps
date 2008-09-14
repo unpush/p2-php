@@ -1,5 +1,7 @@
 <?php
-/* ImageCache2 - インストーラっていうか環境チェッカ */
+/**
+ * ImageCache2::Installer
+ */
 
 // {{{ p2基本設定読み込み＆認証
 
@@ -8,35 +10,34 @@ require_once './conf/conf.inc.php';
 $_login->authorize();
 
 if ($_conf['expack.ic2.enabled'] == 0) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
 // {{{ ライブラリ読み込み＆初期化
 
-$ok = TRUE;
+$ok = true;
 
 // ライブラリ読み込み
-function libNotFound() { die('<p>必要なライブラリがありません。</p>'); }
-(require_once 'PEAR.php') or libNotFound();
-(require_once 'DB.php') or libNotFound();
-(require_once 'DB/DataObject.php') or libNotFound();
-(require_once 'HTML/QuickForm.php') or libNotFound();
-(require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php') or libNotFound();
-(require_once 'HTML/Template/Flexy.php') or libNotFound();
-(require_once 'HTML/Template/Flexy/Element.php') or libNotFound();
-(require_once 'Validate.php') or libNotFound();
-(require_once P2EX_LIBRARY_DIR . '/ic2/findexec.inc.php') or libNotFound();
-(require_once P2EX_LIBRARY_DIR . '/ic2/db_images.class.php') or libNotFound();
-(require_once P2EX_LIBRARY_DIR . '/ic2/thumbnail.class.php') or libNotFound();
-(require_once P2EX_LIBRARY_DIR . '/ic2/loadconfig.inc.php') or libNotFound();
+require_once 'PEAR.php';
+require_once 'DB.php';
+require_once 'DB/DataObject.php';
+require_once 'HTML/QuickForm.php';
+require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
+require_once 'HTML/Template/Flexy.php';
+require_once 'HTML/Template/Flexy/Element.php';
+require_once 'Validate.php';
+require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 
 // 設定ファイル読み込み
 $ini = ic2_loadconfig();
 
 // DB_DataObjectの設定
 $options = &PEAR::getStaticProperty('DB_DataObject','options');
-$options = array('database' => $ini['General']['dsn'], 'quote_identifiers' => TRUE);
+$options = array('database' => $ini['General']['dsn'], 'quote_identifiers' => true);
 
 // 設定関連のエラーはこれらのクラスのコンストラクタでチェックされる
 $thumbnailer = &new ThumbNailer;
@@ -211,7 +212,7 @@ function ic2_createTable($sql)
     if (DB::isError($result)) {
         $why = $result->getMessage();
         if (!stristr($why, 'already exists')) {
-            $ok = FALSE;
+            $ok = false;
         }
         echo $why;
     } else {
@@ -234,7 +235,7 @@ function ic2_createIndex($sql)
         $why = $result->getMessage();
         echo $why;
         if (!stristr($why, 'already exists') && !stristr($why, 'unknown error')) {
-            $ok = FALSE;
+            $ok = false;
         } else {
             echo " (既にインデックス作成済みならOK)";
         }
@@ -307,14 +308,14 @@ foreach ($dirs as $dir) {
             echo "（書き込み権限あり）</p>\n";
         } else {
             echo "（<strong>書き込み権限なし</strong>）</p>\n";
-            $ok = FALSE;
+            $ok = false;
         }
     } else {
         if (@mkdir($path)) {
             echo "<p>ディレクトリ <em>{$path}</em> を作成</p>\n";
         } else {
             echo "<p>ディレクトリ <em>{$path}</em> の<strong>作成失敗</strong></p>\n";
-            $ok = FALSE;
+            $ok = false;
         }
     }
 }
@@ -346,7 +347,7 @@ if (FileCtl::file_write_contents($htaccess_path, $htaccess_cont) !== false) {
 EOS;
 } else {
     echo "<p>ファイル <em>{$htaccess_path_ht}</em> の<strong>作成失敗</strong></p>\n";
-    $ok = FALSE;
+    $ok = false;
 }
 
 ?>

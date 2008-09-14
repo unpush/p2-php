@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080828.0000',   // 拡張パックのバージョン
+    'p2expack'  => '080829.1910',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -65,11 +65,6 @@ function p2configure()
 error_reporting(E_ALL & ~(E_NOTICE | E_STRICT));
 //error_reporting(E_ALL & ~(E_NOTICE | E_STRICT | E_DEPRECATED));
 
-// 新規ログインとメンバーログインの同時指定はありえないので、エラーを出す
-if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
-    p2die('無効なURLです。');
-}
-
 // {{{ 基本変数
 
 $_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
@@ -89,9 +84,6 @@ $_conf['cookie_file_name']      = 'p2_cookie.txt';
 
 // }}}
 // {{{ 環境設定
-
-// 動作環境を確認 (要件を満たしているならコメントアウト可)
-p2checkenv(__LINE__);
 
 // デバッグ
 //$debug = !empty($_GET['debug']);
@@ -185,32 +177,6 @@ $include_path .= PATH_SEPARATOR . get_include_path();
 set_include_path($include_path);
 
 // ライブラリを読み込む
-/*
-$_pear_required = array(
-    'File/Util.php'             => 'File',
-    'HTTP/Request.php'          => 'HTTP_Request',
-    'Net/UserAgent/Mobile.php'  => 'Net_UserAgent_Mobile',
-);
-if ($debug) {
-    $_pear_required['Benchmark/Profiler.php'] = 'Benchmark';
-}
-
-foreach ($_pear_required as $_pear_file => $_pear_pkg) {
-    if (!include_once($_pear_file)) {
-        $url1 = 'http://akid.s17.xrea.com/p2puki/pukiwiki.php?PEAR%A4%CE%A5%A4%A5%F3%A5%B9%A5%C8%A1%BC%A5%EB';
-        $url2 = 'http://page2.xrea.jp/p2pear/index.php';
-        $url1_t = P2Util::throughIme($url1);
-        $url2_t = P2Util::throughIme($url2);
-        $msg = <<<EOP
-<ul>
-    <li><a href="{$url1_t}" target="_blank">p2Wiki: PEARのインストール</a></li>
-    <li><a href="{$url2_t}" target="_blank">p2pear (PEAR詰め合わせ)</a></li>
-</ul>
-EOP;
-        p2die('PEAR の ' . $_pear_pkg . ' がインストールされていません。', $msg, true);
-    }
-}
-*/
 
 require_once 'Net/UserAgent/Mobile.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
@@ -220,7 +186,10 @@ require_once P2_LIB_DIR . '/session.class.php';
 require_once P2_LIB_DIR . '/login.class.php';
 
 // }}}
-// {{{ デバッグ
+// {{{ 環境チェックとデバッグ
+
+// 動作環境を確認 (要件を満たしているならコメントアウト可)
+p2checkenv(__LINE__);
 
 if ($debug) {
     require_once 'Benchmark/Profiler.php';
@@ -231,6 +200,11 @@ if ($debug) {
 
 // }}}
 // {{{ リクエスト変数の処理
+
+// 新規ログインとメンバーログインの同時指定はありえないので、エラーを出す
+if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
+    p2die('無効なURLです。');
+}
 
 /**
  * リクエスト変数を一括でクォート除去＆文字コード変換
@@ -996,8 +970,11 @@ function si2real($num, $kmg)
  *
  * @return string
  */
-function mb_basename($path, $encoding = 'CP932')
+function mb_basename($path, $encoding = 'CP932', $use_os_directory_separator = false)
 {
+    if ($use_os_directory_separator && DIRECTORY_SEPARATOR != '/') {
+        $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
+    }
     if (!mb_substr_count($path, '/', $encoding)) {
         return $path;
     }
@@ -1282,7 +1259,6 @@ EOH;
     if (true) {
         echo '<pre><em>backtrace:</em>';
 
-        $call_p2die = true;
         $p2_file_prefix = P2_BASE_DIR . DIRECTORY_SEPARATOR;
         $p2_base_dir_len = strlen(P2_BASE_DIR);
         $backtrace = debug_backtrace();
@@ -1298,7 +1274,7 @@ EOH;
             }
             printf('  % 2d. %s (line %d)', $c--, $filename, $bt['line']);
 
-            if (!$call_p2die && array_key_exists('function', $bt) && $bt['function'] !== '') {
+            if (array_key_exists('function', $bt) && $bt['function'] !== '' && $bt['function'] !== 'p2die') {
                 if (array_key_exists('class', $bt) && $bt['class'] !== '') {
                     printf(': %s%s%s()',
                            $bt['class'],
@@ -1309,15 +1285,13 @@ EOH;
                     printf(': %s()', $bt['function']);
                 }
             }
-
-            $call_p2die = false;
         }
 
         echo '</pre>';
     }
 
     echo '</body></html>';
-    exit;
+    exit(1);
 }
 
 // }}}

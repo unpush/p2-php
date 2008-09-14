@@ -1,11 +1,16 @@
 /*
-	ImageCache2::iPhone
-*/
+ * ImageCache2::iPhone
+ */
+
+// {{{ GLOBALS
 
 var ic2info = null;
 var _IC2_IPHONE_JS_OLD_ONLOAD = window.onload;
 
-window.onload = function(){
+// }}}
+// {{{ window.onload()
+
+window.onload = (function(){
 	if (_IC2_IPHONE_JS_OLD_ONLOAD) {
 		_IC2_IPHONE_JS_OLD_ONLOAD();
 	}
@@ -157,7 +162,7 @@ window.onload = function(){
 	}
 
 	// }}}
-	// {{{ setRank(rank)
+	// {{{ setRank()
 
 	self.setRank = function(rank)
 	{
@@ -169,7 +174,7 @@ window.onload = function(){
 	}
 
 	// }}}
-	// {{{ updateRank
+	// {{{ updateRank()
 
 	self.updateRank = function(rank)
 	{
@@ -211,7 +216,9 @@ window.onload = function(){
 			return function(){ self.updateRank(n); };
 		})(i - 1);
 	}
-};
+});
+
+// }}}
 
 /*
  * Local Variables:

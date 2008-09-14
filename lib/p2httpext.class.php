@@ -6,6 +6,11 @@
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/p2util.class.php';
 
+// {{{ CONSTANTS
+
+define('P2HTTPEXT_DEBUG', 0);
+
+// }}}
 // {{{ P2HttpCallback
 
 /**
@@ -90,6 +95,34 @@ class P2HttpCallback_SaveUtf8AsSjis implements P2HttpCallback
  */
 class P2HttpGet extends HttpRequest
 {
+    // {{{ constants
+
+    /**
+     * エラーコード：デバッグ
+     */
+    const E_DEBUG = -1;
+
+    /**
+     * エラーコード：エラーなし
+     */
+    const E_NONE = 0;
+
+    /**
+     * エラーコード：HTTPエラー
+     */
+    const E_HTTP = 1;
+
+    /**
+     * エラーコード：接続失敗
+     */
+    const E_CONNECTION = 2;
+
+    /**
+     * エラーコード：例外発生
+     */
+    const E_EXCEPTION = 3;
+
+    // }}}
     // {{{ properties
 
     /**
@@ -105,6 +138,13 @@ class P2HttpGet extends HttpRequest
      * @var int
      */
     private $_savePerm;
+
+    /**
+     * エラーコード
+     *
+     * @var int
+     */
+    private $_errorCode;
 
     /**
      * エラー情報
@@ -128,11 +168,11 @@ class P2HttpGet extends HttpRequest
     private $_onFailure;
 
     /**
-     * 排他ロック用のファイルハンドル
+     * 次に実行するリクエスト
      *
-     * @var resource
+     * @var P2HttpGet
      */
-    private $_mutex;
+    private $_next;
 
     // }}}
     // {{{ constructor
@@ -145,14 +185,12 @@ class P2HttpGet extends HttpRequest
      * @param array $options
      * @param P2HttpCallback $on_success
      * @param P2HttpCallback $on_failure
-     * @param resource $mutex
      */
     public function __construct($url,
                                 $save_path,
                                 array $options = null,
                                 P2HttpCallback $on_success = null,
-                                P2HttpCallback $on_failure = null,
-                                $mutex = null
+                                P2HttpCallback $on_failure = null
                                 )
     {
         global $_conf;
@@ -189,12 +227,44 @@ class P2HttpGet extends HttpRequest
 
         $this->_savePath = $save_path;
         $this->_savePerm = !empty($_conf['dl_savePerm']) ? $_conf['dl_savePerm'] : 0606;
-        $this->_errorInfo = null;
+        $this->_errorCode = self::E_NONE;
+        $this->_errorInfo = '';
         $this->_onSuccess = $on_success;
         $this->_onFailure = $on_failure;
-        $this->_mutex = is_resource($mutex) ? $mutex : null;
+        $this->_next = null;
 
         parent::__construct($url, HttpRequest::METH_GET, $options);
+    }
+
+    // }}}
+    // {{{ __toString()
+
+    /**
+     * オブジェクトの文字列表記を取得する
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return sprintf('%s: %s => %s', get_class($this), $this->getUrl(), $this->_savePath);
+    }
+
+    // }}}
+    // {{{ send()
+
+    /**
+     * リクエストを送信する
+     *
+     * @return HttpMessage
+     */
+    public function send()
+    {
+        try {
+            return parent::send();
+        } catch (HttpException $e) {
+            $this->onFinish(false);
+            return false;
+        }
     }
 
     // }}}
@@ -208,36 +278,33 @@ class P2HttpGet extends HttpRequest
      */
     public function onFinish($success)
     {
-        if ($this->_mutex) {
-            flock($this->_mutex, LOCK_EX);
-            //$this->setErrorInfo('locked');
-        }
-
-        try {
-            if ($success) {
-                if (($code = $this->getResponseCode()) == 200) {
-                    if ($this->_onSuccess) {
-                        $this->_onSuccess->execute($this);
-                    } else {
-                        file_put_contents($this->_savePath, $this->getResponseBody(), LOCK_EX);
-                        chmod($this->_savePath, $this->_savePerm);
-                    }
+        if ($success) {
+            if (($code = $this->getResponseCode()) == 200) {
+                if ($this->_onSuccess) {
+                    $this->_onSuccess->execute($this);
                 } else {
-                    if ($this->_onFailure) {
-                        $this->_onFailure->execute($this);
-                    } elseif ($code != 304) {
-                        $this->setErrorInfo(sprintf('HTTP %d %s', $code, $this->getResponseStatus()));
-                    }
+                    file_put_contents($this->_savePath, $this->getResponseBody(), LOCK_EX);
+                    chmod($this->_savePath, $this->_savePerm);
                 }
             } else {
-                $this->setErrorInfo('HTTP Connection Error!');
+                if ($this->_onFailure) {
+                    $this->_onFailure->execute($this);
+                } elseif ($code == 304) {
+                    //touch($this->_savePath);
+                } else {
+                    $this->setError(sprintf('HTTP %d %s', $code, $this->getResponseStatus()),
+                                    self::E_HTTP
+                                    );
+                }
             }
-        } catch (Exception $e) {
-            $this->setErrorInfo(sprintf('%s (%d) %s', get_class($e), $e->getCode(), $e->getMessage()));
-        }
-
-        if ($this->_mutex) {
-            flock($this->_mutex, LOCK_UN);
+            if (P2HTTPEXT_DEBUG && !$this->hasError()) {
+                $this->setError(sprintf('HTTP %d %s', $code, $this->getResponseStatus()),
+                                self::E_DEBUG
+                                );
+            }
+        } else {
+            $this->setError('HTTP Connection Error!', self::E_CONNECTION);
+            $this->setNext(null);
         }
     }
 
@@ -245,7 +312,7 @@ class P2HttpGet extends HttpRequest
     // {{{ getSavePath()
 
     /**
-     * ダウンロードしたデータを保存する際のパスを返す
+     * ダウンロードしたデータを保存する際のパスを取得する
      *
      * @return string
      */
@@ -258,7 +325,7 @@ class P2HttpGet extends HttpRequest
     // {{{ getSavePermission()
 
     /**
-     * ダウンロードしたデータを保存する際のパーミッションを返す
+     * ダウンロードしたデータを保存する際のパーミッションを取得する
      *
      * @return int
      */
@@ -268,10 +335,51 @@ class P2HttpGet extends HttpRequest
     }
 
     // }}}
+    // {{{ setSavePath()
+
+    /**
+     * ダウンロードしたデータを保存する際のパスを設定する
+     *
+     * @param string $path
+     * @return void
+     */
+    public function setSavePath($path)
+    {
+        $this->_savePath = $path;
+    }
+
+    // }}}
+    // {{{ setSavePermission()
+
+    /**
+     * ダウンロードしたデータを保存する際のパーミッションを設定する
+     *
+     * @param int $perm
+     * @return void
+     */
+    public function setSavePermission($perm)
+    {
+        $this->_savePerm = $perm;
+    }
+
+    // }}}
+    // {{{ getErrorCode()
+
+    /**
+     * エラーコードを取得する
+     *
+     * @return int
+     */
+    public function getErrorCode()
+    {
+        return $this->_errorCode;
+    }
+
+    // }}}
     // {{{ getErrorInfo()
 
     /**
-     * エラー情報を返す
+     * エラー情報を取得する
      *
      * @return string
      */
@@ -281,30 +389,72 @@ class P2HttpGet extends HttpRequest
     }
 
     // }}}
-    // {{{ setErrorInfo()
+    // {{{ setError()
 
     /**
      * エラー情報を設定する
      *
-     * @param string $err
+     * @param string $info
+     * @param int $code
      * @return void
      */
-    public function setErrorInfo($err)
+    public function setError($info, $code)
     {
-        $this->_errorInfo = $err;
+        $this->_errorCode = $code;
+        $this->_errorInfo = $info;
     }
 
     // }}}
     // {{{ hasError()
 
     /**
-     * エラーの有無を返す
+     * エラーの有無をチェックする
      *
      * @return bool
      */
     public function hasError()
     {
-        return !is_null($this->_errorInfo);
+        return ($this->_errorCode != self::E_NONE);
+    }
+
+    // }}}
+    // {{{ getNext()
+
+    /**
+     * 次のリクエストを取得する
+     *
+     * @return P2HttpGet
+     */
+    public function getNext()
+    {
+        return $this->_next;
+    }
+
+    // }}}
+    // {{{ setNext()
+
+    /**
+     * 次のリクエストを設定する
+     *
+     * @param P2HttpGet $next
+     * @return void
+     */
+    public function setNext(P2HttpGet $next = null)
+    {
+        $this->_next = $next;
+    }
+
+    // }}}
+    // {{{ hasNext()
+
+    /**
+     * 次のリクエストの有無をチェックする
+     *
+     * @return bool
+     */
+    public function hasNext()
+    {
+        return !is_null($this->_next);
     }
 
     // }}}
@@ -318,7 +468,7 @@ class P2HttpGet extends HttpRequest
      * @param array $options
      * @param P2HttpCallback $on_success
      * @param P2HttpCallback $on_failure
-     * @return P2HttpGet
+     * @return array(P2HttpGet, HttpMessage)
      */
     static public function fetch($url,
                                  $save_path,
@@ -328,12 +478,176 @@ class P2HttpGet extends HttpRequest
                                  )
     {
         $req = new P2HttpGet($url, $save_path, $options, $on_success, $on_failure);
-        try {
-            $req->send();
-        } catch (HttpException $e) {
-            $req->setErrorInfo(sprintf('%s (%d) %s', get_class($e), $e->getCode(), $e->getMessage()));
+        $res = $req->send();
+        return array($req, $res);
+    }
+
+    // }}}
+}
+
+// }}}
+// {{{ P2HttpRequestQueue
+
+/**
+ * HttpRequest用のキュー
+ */
+class P2HttpRequestQueue implements Iterator, Countable
+{
+    // {{{ properties
+
+    /**
+     * HttpRequestの配列
+     *
+     * @var array
+     */
+    private $_queue;
+
+    /**
+     * 現在の要素
+     *
+     * @var HttpRequest
+     */
+    private $_current;
+
+    /**
+     * 現在のキー
+     *
+     * @var int
+     */
+    private $_key;
+
+    // }}}
+    // {{{ constructor
+
+    /**
+     * コンストラクタ
+     *
+     * @param HttpRequest ...
+     */
+    public function __construct()
+    {
+        $this->_queue = array();
+
+        $argc = func_num_args();
+        if ($argc > 0) {
+            $argv = func_get_args();
+            foreach ($argv as $req) {
+                $this->push($req);
+            }
         }
-        return $req;
+    }
+
+    // }}}
+    // {{{ push()
+
+    /**
+     * キューにHttpRequestを追加する
+     *
+     * @param HttpRequest $req
+     * @return void
+     */
+    public function push(HttpRequest $req)
+    {
+        $this->_queue[] = $req;
+    }
+
+    // }}}
+    // {{{ pop()
+
+    /**
+     * キューからHttpRequestを取り出す
+     *
+     * @return HttpRequest|null
+     */
+    public function pop()
+    {
+        return array_shift($this->_queue);
+    }
+
+    // }}}
+    // {{{ count()
+
+    /**
+     * キューに登録されているHttpRequestの数を取得する
+     * (Countable)
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->_queue);
+    }
+
+    // }}}
+    // {{{ current()
+
+    /**
+     * 現在の要素を取得する
+     * (Iterator)
+     *
+     * @return HttpRequest
+     */
+    public function current()
+    {
+        return $this->_current;
+    }
+
+    // }}}
+    // {{{ key()
+
+    /**
+     * 現在のキーを取得する
+     * (Iterator)
+     *
+     * @return int
+     */
+    public function key()
+    {
+        return $this->_key;
+    }
+
+    // }}}
+    // {{{ next()
+
+    /**
+     * イテレータを前方に移動する
+     * (Iterator)
+     *
+     * @return void
+     */
+    public function next()
+    {
+        $this->_current = next($this->_queue);
+        $this->_key = key($this->_queue);
+    }
+
+    // }}}
+    // {{{ rewind()
+
+    /**
+     * イテレータを巻き戻す
+     * (Iterator)
+     *
+     * @return void
+     */
+    public function rewind()
+    {
+        $this->_current = reset($this->_queue);
+        $this->_key = key($this->_queue);
+    }
+
+    // }}}
+    // {{{ valid()
+
+    /**
+     * 現在の要素が有効かどうかをチェックする
+     * (Iterator)
+     *
+     * @return bool
+     */
+    public function valid()
+    {
+        return ($this->_current !== false);
     }
 
     // }}}
@@ -349,34 +663,83 @@ class P2HttpGet extends HttpRequest
  */
 class P2HttpRequestPool
 {
-    // {{{ _send()
+    // {{{ constants
+
+    /**
+     * 並列に実行するリクエスト数の上限
+     */
+    const MAX_REQUESTS = 10;
+
+    /**
+     * 同一ホストに対して並列に実行するリクエスト数の上限
+     */
+    const MAX_REQUESTS_PER_HOST = 2;
+
+    // }}}
+    // {{{ send()
 
     /**
      * プールにアタッチされているリクエストを送信する
      *
      * @param HttpRequestPool $pool
+     * @param P2HttpRequestQueue $queue
      * @return void
      */
-    static protected function _send(HttpRequestPool $pool)
+    static public function send(HttpRequestPool $pool, P2HttpRequestQueue $queue = null)
     {
-        global $_info_msg_ht;
+        $err = '';
 
-        while (count($pool)) {
-            try {
-                $pool->send();
-            } catch (HttpException $e) {
-                // pass
-            }
-
-            foreach ($pool->getFinishedRequests() as $req) {
-                $pool->detach($req);
-                if ($req instanceof P2HttpGet && $req->hasError()) {
-                    $_info_msg_ht .= sprintf('<div><em>%s</em>: %s</div>',
-                                             htmlspecialchars($req->getUrl(), ENT_QUOTES),
-                                             htmlspecialchars($req->getErrorInfo(), ENT_QUOTES)
-                                             );
+        try {
+            // キューからプールに追加
+            if ($queue && ($c = count($pool)) < self::MAX_REQUESTS) {
+                while ($c < self::MAX_REQUESTS && ($req = $queue->pop())) {
+                    $pool->attach($req);
+                    $c++;
                 }
             }
+
+            // リクエストを送信
+            while ($c = count($pool)) {
+                $pool->send();
+
+                // 終了したリクエストの処理
+                foreach ($pool->getFinishedRequests() as $req) {
+                    $pool->detach($req);
+                    $c--;
+
+                    if ($req instanceof P2HttpGet) {
+                        if ($req->hasError()) {
+                            $err .= sprintf('<li><em>%s</em>: %s</li>',
+                                            htmlspecialchars($req->getUrl(), ENT_QUOTES),
+                                            htmlspecialchars($req->getErrorInfo(), ENT_QUOTES)
+                                            );
+                        }
+
+                        if ($req->hasNext()) {
+                            $pool->attach($req->getNext());
+                            $c++;
+                        }
+                    }
+                }
+
+                // キューからプールに追加
+                if ($queue) {
+                    while ($c < self::MAX_REQUESTS && ($req = $queue->pop())) {
+                        $pool->attach($req);
+                        $c++;
+                    }
+                }
+            }
+        } catch (HttpException $e) {
+            $err .= sprintf('<li>%s (%d) %s</li>',
+                            get_class($e),
+                            $e->getCode(),
+                            htmlspecialchars($e->getMessage(), ENT_QUOTES)
+                            );
+        }
+
+        if ($err !== '') {
+            $GLOBALS['_info_msg_ht'] .= "<ul class=\"errors\">{$err}</ul>\n";
         }
     }
 
@@ -448,21 +811,20 @@ class P2HttpRequestPool
             return;
         }
 
-        // 最終チェック
         if (!count($subjects)) {
             return;
         }
 
         // }}}
-        // {{{ HttpRequestPoolをセットアップ
+        // {{{ キューをセットアップ
 
-        // HttpRequestPoolおよびその他の変数を初期化
-        $pool = new HttpRequestPool;
-        $mutex = tmpfile();
+        // キューおよびその他の変数を初期化
+        $queue = new P2HttpRequestQueue;
+        $hosts = array();
         $time = time() - $_conf['sb_dl_interval'];
         $eucjp2sjis = null;
 
-        // 各subject.txtへのリクエストをプールにアタッチ
+        // 各subject.txtへのリクエストをキューに追加
         foreach ($subjects as $subject) {
             list($host, $bbs) = $subject;
 
@@ -477,20 +839,30 @@ class P2HttpRequestPool
                 if ($eucjp2sjis === null) {
                     $eucjp2sjis = new P2HttpCallback_SaveEucjpAsSjis;
                 }
-                $pool->attach(new P2HttpGet($url, $file, null, $eucjp2sjis, null, $mutex));
+                $req = new P2HttpGet($url, $file, null, $eucjp2sjis);
             } else {
-                $pool->attach(new P2HttpGet($url, $file, null, null, null, $mutex));
+                $req = new P2HttpGet($url, $file);
             }
+
+            // 同一ホストに対しての同時接続は MAX_REQUESTS_PER_HOST まで
+            if (!isset($hosts[$host])) {
+                $hosts[$host] = new P2HttpRequestQueue;
+                $queue->push($req);
+            } elseif (count($hosts[$host]) < self::MAX_REQUESTS_PER_HOST) {
+                $queue->push($req);
+            } else {
+                $hosts[$host]->pop()->setNext($req);
+            }
+            $hosts[$host]->push($req);
         }
 
         // }}}
 
         // リクエストを送信
-        if (count($pool)) {
-            self::_send($pool);
+        if (count($queue)) {
+            self::send(new HttpRequestPool, $queue);
             clearstatcache();
         }
-        fclose($mutex);
     }
 
     // }}}

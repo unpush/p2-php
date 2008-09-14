@@ -12,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={skin}" />
 	<link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={skin}" />
 	<style type="text/css">
+	/* <![CDATA[ */
 		h3.thread_title a {
 			color: {STYLE[read_thread_title_color]:h};
 		}
@@ -28,9 +29,16 @@
 			background: {STYLE[respop_bgcolor]:h} {STYLE[respop_background]:h};
 			border: {STYLE[respop_b_width]:h} {STYLE[respop_b_color]:h} {STYLE[respop_b_style]:h};
 		}
-		div#serial_howto p, div#serial_howto ul, div#serial_howto ol {
+		div#serial_howto p,
+		div#serial_howto dl,
+		div#serial_howto dd,
+		div#serial_howto ol {
 			margin: 8px;
-			padding 0px;
+			padding: 0;
+		}
+		div#serial_howto dt {
+			margin: 0;
+			padding: 0;
 		}
 		div#serial_howto li {
 			margin-bottom: 5px;
@@ -41,6 +49,7 @@
 		span.underline {
 			text-decoration: underline;
 		}
+	/* ]]> */
 	</style>
 	<script type="text/javascript" src="js/basic.js?{p2vid:h}"></script>
 	<script type="text/javascript" src="js/showhide.js?{p2vid:h}"></script>
@@ -66,7 +75,7 @@
 	{get.preview_size.label:h}: {get.preview_size.html:h}<br />
 	<label>{get.ref.label:h}: {get.ref.html:h}</label><br />
 	<label>{get.memo.label:h}: {get.memo.html:h}</label>
-<div>
+</div>
 
 <hr />
 
@@ -78,9 +87,9 @@
 	<p>&quot;連番&quot; にチェックが入っていて、URLにプレースホルダ(%s)またはパターン([from-to])があると、連番で画像をダウンロードします。<br />
 	連番ダウンロード用の文字列はURLに一つだけ含めることができ、複数あるとエラーとなります。<br />
 	また、連番にチェックが入っていないのに連番ダウンロード用の文字列がURLに含まれるときもエラーとなります。</p>
-	<ul>
-		<li>
-			<strong>プレースホルダを使う</strong>
+	<dl>
+		<dt><strong>プレースホルダを使う</strong></dt>
+		<dd>
 			<ol>
 				<li>URLの連番にしたいところを <samp><b>%s</b></samp> とする。<br />
 					（例: <samp>http://images.example.com/serial<span class="underline">%s</span>.jpg</samp>）</li>
@@ -97,24 +106,24 @@
 					<samp>1/100/4</samp> → <samp>0001,0002,..,0099,0100</samp>
 				</li>
 			</ol>
-		</li>
-		<li>
-			<strong>パターンを使う</strong>
+		</dd>
+		<dt><strong>パターンを使う</strong></dt>
+		<dd>
 			<ol>
 				<li>URLの連番にしたいところを <samp><b>[from-to]</b></samp> とする。<br />
 					（例: <samp>http://images.example.com/serial<span class="underline">[1-100]</span>.jpg</samp>）</li>
 				<li>&quot;from&quot; と &quot;to&quot; の桁数が同じなら、その桁数で左側を0で詰める。</li>
 				<li>&quot;from&quot; と &quot;to&quot; の桁数が異なるときは字詰めは行われず、先頭の0も切り捨てられる。</li>
 				<li>
-					[from-to]</samp> → 変換後の例<br />
+					<samp>[from-to]</samp> → 変換後の例<br />
 					<samp>[1-100]</samp> → <samp>1,2,..,99,100</samp><br />
 					<samp>[01-100]</samp> → <samp>1,2,..,99,100</samp><br />
 					<samp>[001-100]</samp> → <samp>001,002,..,099,100</samp><br />
 					<samp>[0001-0100]</samp> → <samp>0001,0002,..,0099,0100</samp>
 				</li>
 			</ol>
-		</li>
-	</ul>
+		</dd>
+	</dl>
 </div>
 {end:}
 

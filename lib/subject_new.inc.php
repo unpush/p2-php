@@ -224,9 +224,9 @@ for ($x = 0; $x < $linesize ; $x++) {
             if (isset($subject_txts[$subject_id])) {
                 $it = 1;
                 $thread_key = (string)$aThread->key;
-                $thread_key_len = strlen($aThread->key);
+                $thread_key_len = strlen($thread_key);
                 foreach ($subject_txts[$subject_id] as $l) {
-                    if (substr($l, 0, $thread_key_len) == $thread_key) {
+                    if (strncmp($l, $thread_key, $thread_key_len) == 0) {
                         // subject.txt ‚©‚çƒXƒŒî•ñŽæ“¾
                         $aThread->getThreadInfoFromSubjectTxtLine($l);
                         break;

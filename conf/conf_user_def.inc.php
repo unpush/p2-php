@@ -34,7 +34,7 @@ $conf_user_def['first_page'] = "first_cont.php"; // ("first_cont.php")
 // ("http://menu.2ch.net/bbsmenu.html")                     // 2ch基本
 
 $conf_user_def['brdfile_online'] = "http://azlucky.s25.xrea.com/2chboard/bbsmenu.html";
-$conf_user_rules['brdfile_online'] = array('emptyToDef');
+$conf_user_rules['brdfile_online'] = array('emptyToDef', 'invalidUrlToDef');
 
 // }}}
 // {{{ ■subject
@@ -325,10 +325,11 @@ $conf_user_def['brocra_checker_use'] = 0; // (0)
 $conf_user_rad['brocra_checker_use'] = array('1' => 'つける', '0' => 'つけない');
 
 // ブラクラチェッカURL
-$conf_user_def['brocra_checker_url'] = "http://www.jah.ne.jp/~fild/cgi-bin/LBCC/lbcc.cgi";
+$conf_user_def['brocra_checker_url'] = ""; // ("")
+$conf_user_rules['brocra_checker_url'] = array('emptyToDef', 'invalidUrlToDef');
 
 // ブラクラチェッカのクエリー
-$conf_user_def['brocra_checker_query'] = "url";
+$conf_user_def['brocra_checker_query'] = ""; // ("")
 
 // フィルタリングでAND/OR検索を可能にする（off:0, レスのみ:1, サブジェクトも:2）
 $conf_user_def['enable_exfilter'] = 2; // (2)

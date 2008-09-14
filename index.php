@@ -32,7 +32,7 @@ if ($_conf['ktai']) {
         header('Location: '.$me_dir_url.'/read.php?'.$_SERVER['QUERY_STRING']);
         exit;
     }
-    if ($_conf['iphone'] && file_exists('./iui/iui.js')) {
+    if ($_conf['iphone']) {
         include './menu_i.php';
         exit;
     }
