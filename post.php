@@ -93,12 +93,12 @@ $host = P2Util::adjustHostJbbs($host);
 
 // machibbs、JBBS@したらば なら
 if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
-    $bbs_cgi = "/bbs/write.cgi";
+    $bbs_cgi = '/bbs/write.cgi';
 
     // JBBS@したらば なら
     if (P2Util::isHostJbbsShitaraba($host)) {
         $bbs_cgi = '../../bbs/write.cgi';
-        preg_match('/(\\w+)$/', $host, $ar);
+        preg_match('/\\/(\\w+)$/', $host, $ar);
         $dir = $ar[1];
         $dir_k = 'DIR';
     }
@@ -125,7 +125,7 @@ if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
 // submit は書き込むで固定してしまう（Beで書き込むの場合もあるため）
 $submit = '書き込む';
 
-$post = array_combine($post_send_keys, call_user_func_array('compact', $post_param_keys));
+$post = array_combine($post_send_keys, compact($post_param_keys));
 $post_cache = $post;
 unset($post_cache['submit']);
 
@@ -338,16 +338,14 @@ function postIt($host, $bbs, $key, $post)
     global $STYLE, $skin_en;
     global $bbs_cgi, $post_cache;
 
-    $send_client_ip = false;
-
-    $method = "POST";
-    $bbs_cgi_url = "http://" . $host.  $bbs_cgi;
+    $method = 'POST';
+    $bbs_cgi_url = 'http://' . $host . $bbs_cgi;
 
     $URL = parse_url($bbs_cgi_url); // URL分解
     if (isset($URL['query'])) { // クエリー
-        $URL['query'] = "?".$URL['query'];
+        $URL['query'] = '?' . $URL['query'];
     } else {
-        $URL['query'] = "";
+        $URL['query'] = '';
     }
 
     // プロキシ
@@ -363,27 +361,13 @@ function postIt($host, $bbs, $key, $post)
 
     if (!$send_port) { $send_port = 80; }    // デフォルトを80
 
-    $request = $method." ".$send_path." HTTP/1.0\r\n";
-    $request .= "Host: ".$URL['host']."\r\n";
-
-    if ($send_client_ip) {
-        $add_user_info = "; p2-client-ip: {$_SERVER['REMOTE_ADDR']}";
-    } else {
-        $add_user_info = '';
-    }
-
-    $httpua_fmt = "Monazilla/1.00 (%s/%s; expack-%s%s)";
-    $httpua = sprintf($httpua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack'], $add_user_info);
-    $request .= "User-Agent: ".$httpua."\r\n";
-    $request .= 'Referer: http://'.$URL['host'].'/'."\r\n";
-
-    // クライアントのIPを送信するp2独自のヘッダ
-    if ($send_client_ip) {
-        $request .= "p2-Client-IP: ".$_SERVER['REMOTE_ADDR']."/\r\n";
-    }
+    $request = "{$method} {$send_path} HTTP/1.0\r\n";
+    $request .= "Host: {$URL['host']}\r\n";
+    $request .= "User-Agent: Monazilla/1.00 ({$_conf['p2ua']})\r\n";
+    $request .= "Referer: http://{$URL['host']}/\r\n";
 
     // クッキー
-    $cookies_to_send = "";
+    $cookies_to_send = '';
     if ($p2cookies) {
         foreach ($p2cookies as $cname => $cvalue) {
             if ($cname != 'expires') {
@@ -406,7 +390,7 @@ function postIt($host, $bbs, $key, $post)
 
     // {{{ POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付
 
-    if (strtoupper($method) == "POST") {
+    if (strcasecmp($method, 'POST') == 0) {
         $post_enc = array();
         while (list($name, $value) = each($post)) {
 
@@ -581,8 +565,7 @@ EOSCRIPT;
 
     // その他はレスポンスをそのまま表示
     } else {
-        $response = ereg_replace('こちらでリロードしてください。<a href="\.\./[a-z]+/index\.html"> GO! </a><br>', "", $response);
-        echo $response;
+        echo preg_replace('@こちらでリロードしてください。<a href="\\.\\./[a-z]+/index\\.html"> GO! </a><br>@', '', $response);
         return false;
     }
 }

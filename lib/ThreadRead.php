@@ -51,7 +51,6 @@ class ThreadRead extends Thread
     public function downloadDat()
     {
         global $_conf;
-        global $uaMona, $SID2ch;    // require_once P2_LIB_DIR . '/login2ch.inc.php';
 
         // まちBBS
         if (P2Util::isHostMachiBbs($this->host)) {
@@ -128,20 +127,16 @@ class ThreadRead extends Thread
             $from_bytes = $from_bytes - 1;
         }
 
-        $method = "GET";
-        $uaMona = "Monazilla/1.00";
+        $method = 'GET';
 
-        $p2ua_fmt = " (%s/%s; expack-%s)";
-        $p2ua = $uaMona . sprintf($p2ua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack']);
-
-        $url = 'http://' . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
+        $url = "http://{$this->host}/{$this->bbs}/dat/{$this->key}.dat";
         //$url="http://news2.2ch.net/test/read.cgi?bbs=newsplus&key=1038486598";
 
         $purl = parse_url($url); // URL分解
         if (isset($purl['query'])) { // クエリー
-            $purl['query'] = "?".$purl['query'];
+            $purl['query'] = '?' . $purl['query'];
         } else {
-            $purl['query'] = "";
+            $purl['query'] = '';
         }
 
         // プロキシ
@@ -152,20 +147,20 @@ class ThreadRead extends Thread
         } else {
             $send_host = $purl['host'];
             $send_port = isset($purl['port']) ? $purl['port'] : 80;
-            $send_path = $purl['path'].$purl['query'];
+            $send_path = $purl['path'] . $purl['query'];
         }
 
         if (!$send_port) {
             $send_port = 80; // デフォルトを80
         }
 
-        $request = $method." ".$send_path." HTTP/1.0\r\n";
-        $request .= "Host: ".$purl['host']."\r\n";
+        $request = "{$method} {$send_path} HTTP/1.0\r\n";
+        $request .= "Host: {$purl['host']}\r\n";
         $request .= "Accept: */*\r\n";
         //$request .= "Accept-Charset: Shift_JIS\r\n";
         //$request .= "Accept-Encoding: gzip, deflate\r\n";
         $request .= "Accept-Language: ja, en\r\n";
-        $request .= "User-Agent: ".$p2ua."\r\n";
+        $request .= "User-Agent: Monazilla/1.00 ({$_conf['p2ua']})\r\n";
         if (!$zero_read) {
             $request .= "Range: bytes={$from_bytes}-\r\n";
         }
@@ -347,6 +342,7 @@ class ThreadRead extends Thread
      */
     private function _downloadDat2chMaru()
     {
+        // $uaMona, $SID2ch → @see lib/login2ch.inc.php
         global $_conf, $uaMona, $SID2ch, $_info_msg_ht;
 
         if (!($this->host && $this->bbs && $this->key && $this->keydat)) {
@@ -356,13 +352,10 @@ class ThreadRead extends Thread
         //unset($datgz_attayo, $start_here, $isGzip, $done_gunzip, $marudatlines, $code);
 
         $method = 'GET';
-        // $uaMona → @see login2ch.inc.php
-        $p2ua_fmt = " (%s/%s; expack-%s)";
-        $p2ua = $uaMona . sprintf($p2ua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack']);
 
         //  GET /test/offlaw.cgi?bbs=板名&key=スレッド番号&sid=セッションID HTTP/1.1
-        $SID2ch = rawurlencode($SID2ch);
-        $url = 'http://' . $this->host . "/test/offlaw.cgi/{$this->bbs}/{$this->key}/?raw=0.0&sid={$SID2ch}";
+        $url = "http://{$this->host}/test/offlaw.cgi/{$this->bbs}/{$this->key}/?raw=0.0&sid=";
+        $url .= rawurlencode($SID2ch);
 
         $purl = parse_url($url); // URL分解
         if (isset($purl['query'])) { // クエリー
@@ -390,8 +383,8 @@ class ThreadRead extends Thread
         $request .= "Host: ".$purl['host']."\r\n";
         $request .= "Accept-Encoding: gzip, deflate\r\n";
         //$request .= "Accept-Language: ja, en\r\n";
-        $request .= "User-Agent: ".$p2ua."\r\n";
-        //$request .= "X-2ch-UA: ".$_conf['p2name']."/".$_conf['p2version']."\r\n";
+        $request .= "User-Agent: {$uaMona} ({$_conf['p2ua']})\r\n";
+        //$request .= "X-2ch-UA: {$_conf['p2ua']}\r\n";
         //$request .= "Range: bytes={$from_bytes}-\r\n";
         $request .= "Connection: Close\r\n";
         /*
@@ -588,9 +581,7 @@ class ThreadRead extends Thread
 
         $url = $uri.$ext;
 
-        $method = "GET";
-        $httpua_fmt = "Monazilla/1.00 (%s/%s; expack-%s)";
-        $httpua = sprintf($httpua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack']);
+        $method = 'GET';
 
         $purl = parse_url($url); // URL分解
         // クエリー
@@ -615,9 +606,9 @@ class ThreadRead extends Thread
             $send_port = 80;
         }
 
-        $request = $method." ".$send_path." HTTP/1.0\r\n";
-        $request .= "Host: ".$purl['host']."\r\n";
-        $request .= "User-Agent: ".$httpua."\r\n";
+        $request = "{$method} {$send_path} HTTP/1.0\r\n";
+        $request .= "Host: {$purl['host']}\r\n";
+        $request .= "User-Agent: Monazilla/1.00 ({$_conf['p2ua']})\r\n";
         $request .= "Connection: Close\r\n";
         //$request .= "Accept-Encoding: gzip\r\n";
         /*
@@ -784,7 +775,7 @@ class ThreadRead extends Thread
         $read_response_html = "";
         require_once P2_LIB_DIR . '/Wap.php';
         $wap_ua = new UserAgent();
-        $wap_ua->setAgent($_conf['p2name']."/".$_conf['p2version']."; expack-".$_conf['p2expack']); // ここは、"Monazilla/" をつけるとNG
+        $wap_ua->setAgent($_conf['p2ua']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req = new Request();
         $wap_req->setUrl($read_url);
@@ -912,14 +903,14 @@ class ThreadRead extends Thread
         // ローカルdatなければオンラインから
         if (!$first_line) {
 
-            $method = "GET";
-            $url = "http://" . $this->host . "/{$this->bbs}/dat/{$this->key}.dat";
+            $method = 'GET';
+            $url = "http://{$this->host}/{$this->bbs}/dat/{$this->key}.dat";
 
             $purl = parse_url($url); // URL分解
             if (isset($purl['query'])) { // クエリー
-                $purl['query'] = "?".$purl['query'];
+                $purl['query'] = '?' . $purl['query'];
             } else {
-                $purl['query'] = "";
+                $purl['query'] = '';
             }
 
             // プロキシ
@@ -930,16 +921,14 @@ class ThreadRead extends Thread
             } else {
                 $send_host = $purl['host'];
                 $send_port = $purl['port'];
-                $send_path = $purl['path'].$purl['query'];
+                $send_path = $purl['path'] . $purl['query'];
             }
 
             if (!$send_port) {$send_port = 80;} // デフォルトを80
 
-            $request = $method." ".$send_path." HTTP/1.0\r\n";
-            $request .= "Host: ".$purl['host']."\r\n";
-            $httpua_fmt = "Monazilla/1.00 (%s/%s; expack-%s)";
-            $httpua = sprintf($httpua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack']);
-            $request .= "User-Agent: ".$httpua."\r\n";
+            $request = "{$method} {$send_path} HTTP/1.0\r\n";
+            $request .= "Host: {$purl['host']}\r\n";
+            $request .= "User-Agent: Monazilla/1.00 ({$_conf['p2ua']})\r\n";
             // $request .= "Range: bytes={$from_bytes}-\r\n";
 
             // Basic認証用のヘッダ
