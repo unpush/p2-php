@@ -61,7 +61,7 @@ function getEmoji()
         $emoji[8] = '<img localsrc="187">';
         $emoji[9] = '<img localsrc="188">';
         $emoji[0] = '<img localsrc="325">';
-    } elseif ($mobile->isVodafone()) {
+    } elseif ($mobile->isSoftBank()) {
         $_esc = chr(0x1B) . '$';
         $_si = chr(0x0F);
         $emoji['lt1'] = $_esc . 'F[' . $_si;

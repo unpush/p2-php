@@ -155,15 +155,16 @@ class Login
 
             $mobile = Net_UserAgent_Mobile::singleton();
 
-            if (isset($_SERVER['HTTP_X_UP_SUBNO'])) {
-                file_exists($_conf['auth_ez_file']) && unlink($_conf['auth_ez_file']);
+            if ($mobile->isEZweb()) {
+                $this->_registAuthOff($_conf['auth_ez_file']);
 
-            } elseif ($mobile->isVodafone()) {
-                file_exists($_conf['auth_jp_file']) && unlink($_conf['auth_jp_file']);
+            } elseif ($mobile->isSoftBank()) {
+                $this->_registAuthOff($_conf['auth_jp_file']);
 
             /* DoCoMoはログイン画面が表示されるので、補助認証情報を自動破棄しない
             } elseif ($mobile->isDoCoMo()) {
-                file_exists($_conf['auth_docomo_file']) && unlink($_conf['auth_docomo_file']);
+                $this->_registAuthOff($_conf['auth_imodeid_file']);
+                $this->_registAuthOff($_conf['auth_docomo_file']);
             */
             }
 
@@ -271,7 +272,8 @@ class Login
             return false;
         }
 
-        // ■クッキー認証パススルー
+        // {{{ クッキー認証パススルー
+
         if (isset($_COOKIE['cid'])) {
 
             if ($this->checkUserPwWithCid($_COOKIE['cid'])) {
@@ -284,47 +286,12 @@ class Login
             }
         }
 
-        $mobile = Net_UserAgent_Mobile::singleton();
+        // }}}
+        // {{{ すでにセッションが登録されていたら、セッションで認証
 
-        // ■EZweb認証パススルー サブスクライバID
-        if ($mobile->isEZweb() && isset($_SERVER['HTTP_X_UP_SUBNO']) && file_exists($_conf['auth_ez_file'])) {
-            include $_conf['auth_ez_file'];
-            if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
-                return true;
-            }
-        }
-
-        // ■J-PHONE認証パススルー
-        // パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
-        // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-        if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-            if (file_exists($_conf['auth_jp_file'])) {
-                include $_conf['auth_jp_file'];
-                if ($SN == $registed_jp) {
-                    return true;
-                }
-            }
-        }
-
-        // ■DoCoMo UTN認証
-        // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
-        if (empty($_POST['form_login_id'])) {
-
-            if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-                if (file_exists($_conf['auth_docomo_file'])) {
-                    include $_conf['auth_docomo_file'];
-                    if ($SN == $registed_docomo) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        // ■すでにセッションが登録されていたら、セッションで認証
         if (isset($_SESSION['login_user']) && isset($_SESSION['login_pass_x'])) {
 
-            // {{{ セッションが利用されているなら、セッションの妥当性チェック
-
+            // セッションが利用されているなら、セッションの妥当性チェック
             if (isset($_p2session)) {
                 if ($msg = $_p2session->checkSessionError()) {
                     $GLOBALS['_info_msg_ht'] .= '<p>p2 error: ' . htmlspecialchars($msg) . '</p>';
@@ -333,8 +300,6 @@ class Login
                     return false;
                 }
             }
-
-            // }}}
 
             if ($this->user_u == $_SESSION['login_user']) {
                 if ($_SESSION['login_pass_x'] != $this->pass_x) {
@@ -347,7 +312,9 @@ class Login
             }
         }
 
-        // ■フォームからログインした時
+        // }}}
+        // {{{ フォームからログインした時
+
         if (!empty($_POST['submit_member'])) {
 
             // フォームログイン成功なら
@@ -368,11 +335,100 @@ class Login
 
                 // ログイン失敗ログを記録する
                 $this->logLoginFailed();
+
+                return false;
             }
         }
 
+        // }}}
+
+        $mobile = Net_UserAgent_Mobile::singleton();
+
+        // {{{ DoCoMo iモードID認証
+
+        /**
+         * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html#imodeid
+         */
+        if (!isset($_GET['auth_type']) || $_GET['auth_type'] == 'imodeid') {
+            if ($mobile->isDoCoMo() && ($UID = $mobile->getUID()) !== null) {
+                if (file_exists($_conf['auth_imodeid_file'])) {
+                    include $_conf['auth_imodeid_file'];
+                    if (isset($registed_imodeid) && $registed_imodeid == $UID) {
+                        if (!$this->_checkIp('docomo')) {
+                            p2die('端末ID認証エラー',
+                                  "UAがDoCoMo端末ですが、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // }}}
+        // {{{ DoCoMo 端末製造番号認証
+
+        /**
+         * ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
+         * @link http://www.nttdocomo.co.jp/service/imode/make/content/html/tag/utn.html
+         */
+        if (isset($_GET['auth_type']) && $_GET['auth_type'] == 'utn') {
+            if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== null) {
+                if (file_exists($_conf['auth_docomo_file'])) {
+                    include $_conf['auth_docomo_file'];
+                    if (isset($registed_docomo) && $registed_docomo == $SN) {
+                        if (!$this->_checkIp('docomo')) {
+                            p2die('端末ID認証エラー',
+                                  "UAがDoCoMo端末ですが、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // }}}
+        // {{{ EZweb サブスクライバID認証
+
+        /**
+         * @link http://www.au.kddi.com/ezfactory/tec/spec/4_4.html
+         */
+        if ($mobile->isEZweb() && ($UID = $mobile->getUID()) !== null) {
+            if (file_exists($_conf['auth_ez_file'])) {
+                include $_conf['auth_ez_file'];
+                if (isset($registed_ez) && $registed_ez == $UID) {
+                    if (!$this->_checkIp('au')) {
+                        p2die('端末ID認証エラー',
+                              "UAがau端末ですが、EZwebのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                    }
+                    return true;
+                }
+            }
+        }
+
+        // }}}
+        // {{{ SoftBank 端末シリアル番号認証
+
+        /**
+         * パケット対応機 要ユーザID通知ONの設定
+         * @link http://creation.mb.softbank.jp/web/web_ua_about.html
+         */
+        if ($mobile->isSoftBank() && ($SN = $mobile->getSerialNumber()) !== null) {
+            if (file_exists($_conf['auth_jp_file'])) {
+                include $_conf['auth_jp_file'];
+                if (isset($registed_jp) && $registed_jp == $SN) {
+                    if (!$this->_checkIp('softbank')) {
+                        p2die('端末ID認証エラー',
+                              "UAがSoftBank端末ですが、SoftBank MobileのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                    }
+                    return true;
+                }
+            }
+        }
+
+        // }}}
+        // {{{ Basic認証 (disabled)
+
         /*
-        // Basic認証
         if (!empty($_REQUEST['basic'])) {
             if (isset($_SERVER['PHP_AUTH_USER']) and ($_SERVER['PHP_AUTH_USER'] == $this->user_u) && (sha1($_SERVER['PHP_AUTH_PW']) == $this->pass_x)) {
 
@@ -397,6 +453,8 @@ class Login
             }
         }
         */
+
+        // }}}
 
         return false;
     }
@@ -449,48 +507,88 @@ class Login
 
         $mobile = Net_UserAgent_Mobile::singleton();
 
-        // {{{ 認証登録処理 EZweb
+        // {{{ 認証登録処理 DoCoMo iモードID & 端末製造番号
+
+        if (!empty($_REQUEST['ctl_regist_imodeid']) || !empty($_REQUEST['ctl_regist_docomo'])) {
+            // {{{ iモードID
+
+            if (!empty($_REQUEST['ctl_regist_imodeid'])) {
+                if (isset($_REQUEST['regist_imodeid']) && $_REQUEST['regist_imodeid'] == '1') {
+                    if (!$mobile->isDoCoMo() || !$this->_checkIp('docomo')) {
+                        p2die('端末ID登録エラー',
+                              "UAがDoCoMo端末でないか、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                    }
+                    if (($UID = $mobile->getUID()) !== null) {
+                        $this->_registAuth('registed_imodeid', $UID, $_conf['auth_imodeid_file']);
+                    } else {
+                        $_info_msg_ht .= '<p class="infomsg">×DoCoMo iモードIDでの認証登録はできませんでした</p>'."\n";
+                    }
+                } else {
+                    $this->_registAuthOff($_conf['auth_imodeid_file']);
+                }
+            }
+
+            // }}}
+            // {{{ 端末製造番号
+
+            if (!empty($_REQUEST['ctl_regist_docomo'])) {
+                if (isset($_REQUEST['regist_docomo']) && $_REQUEST['regist_docomo'] == '1') {
+                    if (!$mobile->isDoCoMo() || !$this->_checkIp('docomo')) {
+                        p2die('端末ID登録エラー',
+                              "UAがDoCoMo端末でないか、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                    }
+                    if (($SN = $mobile->getSerialNumber()) !== null) {
+                        $this->_registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
+                    } else {
+                        $_info_msg_ht .= '<p class="infomsg">×DoCoMo 端末製造番号での認証登録はできませんでした</p>'."\n";
+                    }
+                } else {
+                    $this->_registAuthOff($_conf['auth_docomo_file']);
+                }
+            }
+
+            // }}}
+            return;
+        }
+
+        // }}}
+        // {{{ 認証登録処理 EZweb サブスクライバID
 
         if (!empty($_REQUEST['ctl_regist_ez'])) {
-
-            if ($_REQUEST['regist_ez'] == '1') {
-                if ($_SERVER['HTTP_X_UP_SUBNO']) {
-                    $this->_registAuth('registed_ez', $_SERVER['HTTP_X_UP_SUBNO'], $_conf['auth_ez_file']);
+            if (isset($_REQUEST['regist_ez']) && $_REQUEST['regist_ez'] == '1') {
+                if (!$mobile->isEZweb() || !$this->_checkIp('au')) {
+                    p2die('端末ID登録エラー',
+                          "UAがau端末でないか、EZwebのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                }
+                if (($UID = $mobile->getUID()) !== null) {
+                    $this->_registAuth('registed_ez', $UID, $_conf['auth_ez_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×EZweb用サブスクライバIDでの認証登録はできませんでした</p>'."\n";
+                    $_info_msg_ht .= '<p class="infomsg">×EZweb サブスクライバIDでの認証登録はできませんでした</p>'."\n";
                 }
             } else {
                 $this->_registAuthOff($_conf['auth_ez_file']);
             }
+            return;
+        }
 
         // }}}
-        // {{{ 認証登録処理 Vodafone
+        // {{{ 認証登録処理 SoftBank 端末シリアル番号
 
-        } elseif (!empty($_REQUEST['ctl_regist_jp'])) {
-
-            if ($_REQUEST['regist_jp'] == '1') {
-                if ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+        if (!empty($_REQUEST['ctl_regist_jp'])) {
+            if (isset($_REQUEST['regist_jp']) && $_REQUEST['regist_jp'] == '1') {
+                if (!$mobile->isSoftBank() || !$this->_checkIp('softbank')) {
+                    p2die('端末ID登録エラー',
+                          "UAがSoftBank端末でないか、SoftBank MobileのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                }
+                if (($SN = $mobile->getSerialNumber()) !== null) {
                     $this->_registAuth('registed_jp', $SN, $_conf['auth_jp_file']);
                 } else {
-                    $_info_msg_ht .= '<p class="infomsg">×Vodafone用固有IDでの認証登録はできませんでした</p>'."\n";
+                    $_info_msg_ht .= '<p class="infomsg">×SoftBank 端末シリアル番号での認証登録はできませんでした</p>'."\n";
                 }
             } else {
                 $this->_registAuthOff($_conf['auth_jp_file']);
             }
-
-        // }}}
-        // {{{ 認証登録処理 DoCoMo
-
-        } elseif (!empty($_REQUEST['ctl_regist_docomo'])) {
-            if ($_REQUEST['regist_docomo'] == '1') {
-                if ($mobile->isDoCoMo() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-                    $this->_registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
-                } else {
-                    $_info_msg_ht .= '<p class="infomsg">×DoCoMo用固有IDでの認証登録はできませんでした</p>'."\n";
-                }
-            } else {
-                $this->_registAuthOff($_conf['auth_docomo_file']);
-            }
+            return;
         }
 
         // }}}
@@ -732,6 +830,31 @@ EOP;
     {
         //return $_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE'];
         return $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+    }
+
+    // }}}
+    // {{{ _checkIp()
+
+    /**
+     * IPアドレス帯域の検証をする
+     *
+     * @param string $type
+     * @return bool
+     */
+    private function _checkIp($type)
+    {
+        if (!class_exists('HostCheck', false)) {
+            require_once P2_LIB_DIR . '/hostcheck.class.php';
+        }
+
+        // PHPはクラス・メソッド・関数の大文字小文字を区別しないが...
+        $method = 'isAddr' . ucfirst(strtolower($type));
+        if (method_exists('HostCheck', $method)) {
+            return HostCheck::$method();
+        }
+
+        // ここに来ないように引数を記述すること
+        p2die('Login::_checkIp() Failure', "Invalid argument ({$type}).");
     }
 
     // }}}

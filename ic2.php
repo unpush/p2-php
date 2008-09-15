@@ -700,7 +700,7 @@ function ic2_display($path, $params)
                 $qa .= ' istyle=4';
             } elseif ($mobile->isEZweb()) {
                 $qa .= ' format=*N';
-            } elseif ($mobile->isVodafone()) {
+            } elseif ($mobile->isSoftBank()) {
                 $qa .= ' mode=numeric';
             }
             $_presets = array('' => 'サイズ・品質');
@@ -816,6 +816,8 @@ EOP;
             $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
             $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
             $flexy->compile('preview.tpl.html');
+
+            P2Util::header_nocache();
             $flexy->output();
     }
     exit;

@@ -165,7 +165,7 @@ class ExpackLoader
                 $aShowThread->aas_rotate = '&#xF9DA;';      // ƒŠƒTƒCƒNƒ‹, Šg42
             } elseif ($mobile->isEZweb()) {
                 $aShowThread->aas_rotate = '&#xF47D;';      // zŠÂ–îˆó, 807
-            } elseif ($mobile->isVodafone()) {
+            } elseif ($mobile->isSoftBank()) {
                 $aShowThread->aas_rotate = "\x1b\$Pc\x0f";  // ‰QŠª, 414
             }
         } else {

@@ -51,7 +51,7 @@ $alt = htmlspecialchars(basename($url));
 $afi_js = '';
 if ($x && $y) {
     if ($_conf['expack.ic2.fitimage'] == 1) {
-        $afi_js = "fi.fitTo('autofit');";
+        $afi_js = "fi.fitTo('contract');";
     } elseif ($_conf['expack.ic2.fitimage'] == 2) {
         $afi_js = "fi.fitTo('width');";
     } elseif ($_conf['expack.ic2.fitimage'] == 3) {
@@ -80,37 +80,69 @@ echo <<<EOF
     <script type="text/javascript" src="js/fitimage.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
     //<![CDATA[
-    var fi;
+    var fi, fiTimer = null;
 
-    function onClickImage(evt)
+    function fiSetup()
     {
-        fiShowHide();
-    }
+        window.focus();
 
-    function onDoubleClickImage(evt)
-    {
-        if (fi.currentMode == 'auto') {
-            fi.fitTo('autofit');
-        } else {
-            fi.fitTo(fi.currentMode);
+        function \$(id) { return document.getElementById(id); }
+
+        var img = \$('picture');
+
+        fi = new FitImage(img, {$x}, {$y});
+        {$afi_js}
+
+        img.onclick = function(evt)
+        {
+            if (fiTimer) {
+                clearTimeout(fiTimer);
+            }
+            fiTimer = setTimeout('fiShowHide(); fiTimer = null;', 250);
+        };
+
+        img.ondblclick = function(evt)
+        {
+            if (fiTimer) {
+                clearTimeout(fiTimer);
+                fiTimer = null;
+            }
+            if (fi.currentMode == 'auto') {
+                fi.fitTo(fi.defaultMode);
+            } else {
+                fi.fitTo(fi.currentMode);
+            }
+        };
+
+        //\$('fi_fit_xy').onclick = function(evt){ fi.fitTo('full'); };
+        \$('fi_fit_x').onclick = function(evt){ fi.fitTo('width'); };
+        \$('fi_fit_y').onclick = function(evt){ fi.fitTo('height'); };
+
+        fiGetImageInfo('{$info_key_type}', '{$info_key_value}');
+
+        if (\$('fi_id').value != '') {
+            var stars = \$('fi_stars').getElementsByTagName('img');
+            for (var i = 0; i < stars.length; i++) {
+                stars[i].onclick = (function(n){
+                    return function(){ fiUpdateRank(n); };
+                })(i - 1);
+            }
         }
     }
     //]]>
     </script>
 </head>
-<body onload="focus();fiGetImageInfo('{$info_key_type}','{$info_key_value}');fi = new FitImage('picture',{$x},{$y});{$afi_js}">
+<body onload="fiSetup()">
 <div id="btn">
     <input type="hidden" id="fi_id" value="">
     <!-- <input type="text" id="fi_memo" size="50" value=""><br> -->
-    <!-- <img src="img/fi_full.gif" width="15" height="15" onclick="fi.fitTo('full')" alt="XY"> -->
-    <img src="img/fi_height.gif" width="15" height="15" onclick="fi.fitTo('height')" alt="Y">
-    <img src="img/fi_width.gif" width="15" height="15" onclick="fi.fitTo('width')" alt="X">
+    <!-- <img id="fi_fit_xy" src="img/fi_full.gif" width="15" height="15" alt="XY"> -->
+    <img id="fi_fit_y" src="img/fi_height.gif" width="15" height="15" alt="Y">
+    <img id="fi_fit_x" src="img/fi_width.gif" width="15" height="15" alt="X">
     &nbsp;
-    <span id="fi_stars"><img src="img/sn0.png" width="16" height="16" alt="-1" onclick="fiUpdateRank(-1)"><img src="img/sz1.png" width="10" height="16" alt="0" onclick="fiUpdateRank(0)"><img src="img/s0.png" width="16" height="16" alt="1" onclick="fiUpdateRank(1)"><img src="img/s0.png" width="16" height="16" alt="2" onclick="fiUpdateRank(2)"><img src="img/s0.png" width="16" height="16" alt="3" onclick="fiUpdateRank(3)"><img src="img/s0.png" width="16" height="16" alt="4" onclick="fiUpdateRank(4)"><img src="img/s0.png" width="16" height="16" alt="5" onclick="fiUpdateRank(5)"></span>
+    <span id="fi_stars"><img src="img/sn0.png" width="16" height="16" alt="-1"><img src="img/sz1.png" width="10" height="16" alt="0"><img src="img/s0.png" width="16" height="16" alt="1"><img src="img/s0.png" width="16" height="16" alt="2"><img src="img/s0.png" width="16" height="16" alt="3"><img src="img/s0.png" width="16" height="16" alt="4"><img src="img/s0.png" width="16" height="16" alt="5"></span>
 </div>
-<div id="pct">
-    <img id="picture" src="{$url}" width="{$x}" height="{$y}" onclick="onClickImage(event)" ondblclick="onDoubleClickImage(event)" alt="{$alt}">
-</div>
+<div id="pct"><img id="picture" src="{$url}" width="{$x}" height="{$y}" alt="{$alt}"></div>
 </body>
 </html>
 EOF;

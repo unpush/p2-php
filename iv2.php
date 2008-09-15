@@ -938,7 +938,7 @@ if ($list_template == 'iv2ip.tpl.html') {
         $elements['page']->setAttributes('istyle="4"');
     } elseif ($mobile->isEZweb()) {
         $elements['page']->setAttributes('format="*N"');
-    } elseif ($mobile->isVodafone()) {
+    } elseif ($mobile->isSoftBank()) {
         $elements['page']->setAttributes('mode="numeric"');
     }
     $view = null;

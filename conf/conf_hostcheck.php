@@ -40,6 +40,11 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
 // $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 1 ‚Ì‚Æ‚«Žg‚í‚ê‚é
 $GLOBALS['_HOSTCHKCONF']['custom_allowed_host'] = array(
     //'192.168.0.0' => 24,
+    //'210.143.108.0' => 24, // jig
+    //'117.55.0.0' => 17,   // emb? @link http://pc11.2ch.net/test/read.cgi/software/1216565984/531
+    //'60.254.192.0' => 18, // “¯ã
+    //'119.72.0.0' => 16,   // “¯ã
+    //'219.73.128.0' => 17, // openmobile? @link http://pc11.2ch.net/test/read.cgi/software/1216565984/534
 );
 $GLOBALS['_HOSTCHKCONF']['custom_allowed_host_v6'] = null;
 

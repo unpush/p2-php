@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080831.0620',   // 拡張パックのバージョン
+    'p2expack'  => '080901.0000',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -283,9 +283,6 @@ $_conf['tmp_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'tmp';
 // バージョンIDを二重引用符やヒアドキュメント内に埋め込むための変数
 $_conf['p2_version_id'] = P2_VERSION_ID;
 
-$_conf['doctype'] = '';
-$_conf['accesskey'] = 'accesskey';
-
 // 文字コード自動判定用のヒント文字列
 $_conf['detect_hint'] = '◎◇';
 $_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
@@ -297,9 +294,16 @@ $_conf['detect_hint_q_utf8'] = '_hint=%E2%97%8E%E2%97%87'; // rawurlencode($_con
 // }}}
 // {{{ 端末判定
 
-$_conf['login_check_ip']  = 1; // ログイン時にIPアドレスを検証する
+$_conf['ktai'] = false;
+$_conf['iphone'] = false;
 $_conf['input_type_search'] = false;
+
+$_conf['doctype'] = '';
 $_conf['extra_headers_ht'] = '';
+$_conf['accesskey'] = 'accesskey';
+$_conf['accept_charset'] = 'Shift_JIS';
+
+$support_cookies = true;
 
 $mobile = Net_UserAgent_Mobile::singleton();
 
@@ -307,21 +311,16 @@ $mobile = Net_UserAgent_Mobile::singleton();
 if (P2Util::isBrowserIphone()) {
     $_conf['ktai'] = true;
     $_conf['iphone'] = true;
-    $_conf['disable_cookie'] = false;
-    $_conf['accept_charset'] = 'UTF-8';
     $_conf['input_type_search'] = true;
+    $_conf['accept_charset'] = 'UTF-8';
 
 // PC
 } elseif ($mobile->isNonMobile()) {
-    $_conf['ktai'] = false;
-    $_conf['iphone'] = false;
-    $_conf['disable_cookie'] = false;
 
     if (P2Util::isBrowserSafariGroup()) {
-        $_conf['accept_charset'] = 'UTF-8';
         $_conf['input_type_search'] = true;
+        $_conf['accept_charset'] = 'UTF-8';
     } else {
-        $_conf['accept_charset'] = 'Shift_JIS';
         if (P2Util::isClientOSWindowsCE() || P2Util::isBrowserNintendoDS() || P2Util::isBrowserPSP()) {
             $_conf['ktai'] = true;
         }
@@ -329,49 +328,31 @@ if (P2Util::isBrowserIphone()) {
 
 // 携帯
 } else {
-    require_once P2_LIB_DIR . '/hostcheck.class.php';
-
     $_conf['ktai'] = true;
-    $_conf['iphone'] = false;
-    $_conf['accept_charset'] = 'Shift_JIS';
 
-    // ベンダ判定
-    // DoCoMo i-Mode
+    // NTT DoCoMo iモード
     if ($mobile->isDoCoMo()) {
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
-            p2die("UAがDoCoMoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-        }
-        $_conf['disable_cookie'] = true;
-    // EZweb (au or Tu-Ka)
+        $support_cookies = false;
+
+    // au EZweb
     } elseif ($mobile->isEZweb()) {
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
-            p2die("UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+        $support_cookies = true;
+
+    // SoftBank Mobile
+    } elseif ($mobile->isSoftBank()) {
+        $_conf['accesskey'] = 'DIRECTKEY';
+        // 3GC型端末とW型端末はCookieが使える
+        if (!$mobile->isType3GC() && !$mobile->isTypeW()) {
+            $support_cookies = false;
         }
-        $_conf['disable_cookie'] = false;
-    // Vodafone Live!
-    } elseif ($mobile->isVodafone()) {
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrSoftBank()) {
-            p2die("UAがSoftBankですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-        }
-        //$_conf['accesskey'] = 'DIRECTKEY';
-        // W型端末と3GC型端末はCookieが使える
-        if ($mobile->isTypeW() || $mobile->isType3GC()) {
-            $_conf['disable_cookie'] = false;
-        } else {
-            $_conf['disable_cookie'] = true;
-        }
-    // AirH" Phone
+
+    // WILLCOM AIR-EDGE
     } elseif ($mobile->isAirHPhone()) {
-        /*
-        // AirH"では端末ID認証を行わないので、コメントアウト
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrAirh()) {
-            p2die("UAがAirH\"ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-        }
-        */
-        $_conf['disable_cookie'] = false;
+        $support_cookies = true;
+
     // その他
     } else {
-        $_conf['disable_cookie'] = true;
+        $support_cookies = true;
     }
 }
 
@@ -739,20 +720,21 @@ if ($_conf['ktai']) {
 // }}}
 // {{{ 変数設定
 
-$_conf['rct_file'] =            $_conf['pref_dir'] . '/p2_recent.idx';
-$_conf['p2_res_hist_dat'] =     $_conf['pref_dir'] . '/p2_res_hist.dat'; // 書き込みログファイル（dat）
-$_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // 書き込みログファイル（データPHP）
-$_conf['cookie_dir'] =          $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
-$_conf['favlist_file'] =        $_conf['pref_dir'] . "/p2_favlist.idx";
-$_conf['favita_path'] =         $_conf['pref_dir'] . "/p2_favita.brd";
-$_conf['idpw2ch_php'] =         $_conf['pref_dir'] . "/p2_idpw2ch.php";
-$_conf['sid2ch_php'] =          $_conf['pref_dir'] . "/p2_sid2ch.php";
-$_conf['auth_user_file'] =      $_conf['pref_dir'] . "/p2_auth_user.php";
-$_conf['auth_ez_file'] =        $_conf['pref_dir'] . "/p2_auth_ez.php";
-$_conf['auth_jp_file'] =        $_conf['pref_dir'] . "/p2_auth_jp.php";
-$_conf['auth_docomo_file'] =    $_conf['pref_dir'] . '/p2_auth_docomo.php';
-$_conf['login_log_file'] =      $_conf['pref_dir'] . "/p2_login.log.php";
-$_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';
+$_conf['rct_file']              = $_conf['pref_dir'] . '/p2_recent.idx';        // 最近呼んだスレ (idx)
+$_conf['p2_res_hist_dat']       = $_conf['pref_dir'] . '/p2_res_hist.dat';      // 書き込みログファイル (dat)
+$_conf['p2_res_hist_dat_php']   = $_conf['pref_dir'] . '/p2_res_hist.dat.php';  // 書き込みログファイル (データPHP)
+$_conf['cookie_dir']            = $_conf['pref_dir'] . '/p2_cookie';            // COOKIE保存ディレクトリ
+$_conf['favlist_file']          = $_conf['pref_dir'] . '/p2_favlist.idx';       // お気にスレ (idx)
+$_conf['favita_path']           = $_conf['pref_dir'] . '/p2_favita.brd';        // お気に板 (brd)
+$_conf['idpw2ch_php']           = $_conf['pref_dir'] . '/p2_idpw2ch.php';       // 2ch ID認証設定ファイル (データPHP)
+$_conf['sid2ch_php']            = $_conf['pref_dir'] . '/p2_sid2ch.php';        // 2ch ID認証セッションID記録ファイル (データPHP)
+$_conf['auth_user_file']        = $_conf['pref_dir'] . '/p2_auth_user.php';     // 認証ユーザ設定ファイル(データPHP)
+$_conf['auth_imodeid_file']     = $_conf['pref_dir'] . '/p2_auth_imodeid.php';  // DoCoMo iモードID認証ファイル (データPHP)
+$_conf['auth_docomo_file']      = $_conf['pref_dir'] . '/p2_auth_docomo.php';   // DoCoMo 端末製造番号認証ファイル (データPHP)
+$_conf['auth_ez_file']          = $_conf['pref_dir'] . '/p2_auth_ez.php';       // EZweb サブスクライバID認証ファイル (データPHP)
+$_conf['auth_jp_file']          = $_conf['pref_dir'] . '/p2_auth_jp.php';       // SoftBank 端末シリアル番号認証ファイル (データPHP)
+$_conf['login_log_file']        = $_conf['pref_dir'] . '/p2_login.log.php';     // ログイン履歴 (データPHP)
+$_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';  // ログイン失敗履歴 (データPHP)
 
 $_conf['matome_cache_path'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . 'matome_cache';
 $_conf['matome_cache_ext'] = '.htm';
@@ -809,8 +791,14 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
     // }}}
 
     $_p2session = new Session();
-    if ($_conf['disable_cookie'] && !ini_get('session.use_trans_sid')) {
-        output_add_rewrite_var(session_name(), session_id());
+
+    if (!$support_cookies) {
+        if (ini_get('session.use_only_cookies')) {
+            p2die('Session unavailable', 'php.ini で session.use_only_cookies が On になっています。');
+        }
+        if (!ini_get('session.use_trans_sid')) {
+            output_add_rewrite_var(session_name(), session_id());
+        }
     }
 }
 

@@ -75,13 +75,40 @@ EOP;
 //====================================================
 $mobile = Net_UserAgent_Mobile::singleton();
 
+// DoCoMo認証
+if ($mobile->isDoCoMo()) {
+    $p_htm['auth_ctl'] = '';
+
+    if (file_exists($_conf['auth_imodeid_file'])) {
+        $p_htm['auth_ctl'] .= <<<EOP
+iモードID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_imodeid=1{$_conf['k_at_a']}">解除</a>]<br>
+EOP;
+    }
+    if (file_exists($_conf['auth_docomo_file'])) {
+        $p_htm['auth_ctl'] .= <<<EOP
+DoCoMo端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1{$_conf['k_at_a']}">解除</a>]<br>
+EOP;
+    }
+
+    if ($p_htm['auth_ctl'] == '' && $_login->pass_x) {
+        if (empty($_SERVER['HTTPS'])) {
+            $p_htm['auth_ctl'] = <<<EOP
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_imodeid=1&amp;regist_imodeid=1&amp;guid=ON{$_conf['k_at_a']}">iモードIDで認証を登録</a>]<br>
+EOP;
+        } else {
+            $p_htm['auth_ctl'] = <<<EOP
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1&amp;regist_docomo=1{$_conf['k_at_a']}" utn>DoCoMo端末IDで認証を登録</a>]<br>
+EOP;
+        }
+    }
+
 // EZ認証
-if (!is_null($_SERVER['HTTP_X_UP_SUBNO'])) {
+} elseif ($mobile->isEZweb()) {
     if (file_exists($_conf['auth_ez_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
 EZ端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
-    } else {
+    } elseif ($mobile->getUID() !== null) {
         if ($_login->pass_x) {
             $p_htm['auth_ctl'] = <<<EOP
 [<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1&amp;regist_ez=1{$_conf['k_at_a']}">EZ端末IDで認証を登録</a>]<br>
@@ -89,30 +116,16 @@ EOP;
         }
     }
 
-// J認証
-} elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
+// Y!認証
+} elseif ($mobile->isSoftBank()) {
     if (file_exists($_conf['auth_jp_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
-J端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1{$_conf['k_at_a']}">解除</a>]<br>
+Y!端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1{$_conf['k_at_a']}">解除</a>]<br>
 EOP;
-    } else {
+    } elseif ($mobile->getSerialNumber() !== null) {
         if ($_login->pass_x) {
             $p_htm['auth_ctl'] = <<<EOP
-[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1&amp;regist_jp=1{$_conf['k_at_a']}">J端末IDで認証を登録</a>]<br>
-EOP;
-        }
-    }
-
-// DoCoMo認証
-} elseif ($mobile->isDoCoMo()) {
-    if (file_exists($_conf['auth_docomo_file'])) {
-        $p_htm['auth_ctl'] = <<<EOP
-DoCoMo端末ID認証登録済[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1{$_conf['k_at_a']}">解除</a>]<br>
-EOP;
-    } else {
-        if ($_login->pass_x) {
-            $p_htm['auth_ctl'] = <<<EOP
-[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1&amp;regist_docomo=1{$_conf['k_at_a']}" utn>DoCoMo端末IDで認証を登録</a>]<br>
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1&amp;regist_jp=1{$_conf['k_at_a']}">Y!端末IDで認証を登録</a>]<br>
 EOP;
         }
     }

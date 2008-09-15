@@ -458,8 +458,6 @@ EOF;
             '124.146.174.0/24',
             '124.146.175.0/24',
             '210.153.87.0/24', // フルブラウザ
-
-            '210.143.108.0/24', // jig 2005/6/23
         );
         return self::isAddrInBand($addr, $iBand, $iHost);
     }
@@ -510,8 +508,6 @@ EOF;
             '121.111.231.160/27',
             '121.111.227.0/25',
             '121.111.227.160/27',
-
-            '210.143.108.0/24', // jig 2005/6/23
         );
         return self::isAddrInBand($addr, $ezBand, $ezHost);
     }
@@ -536,7 +532,7 @@ EOF;
     /**
      * SoftBank?
      *
-     * @link http://developers.softbankmobile.co.jp/dp/tech_svc/web/ip.php
+     * @link http://creation.mb.softbank.jp/web/web_ip.html
      */
     static public function isAddrSoftbank($addr = null)
     {
@@ -557,8 +553,6 @@ EOF;
             '210.175.1.128/25',
             '210.228.189.0/24',
             '211.8.159.128/25',
-
-            '210.143.108.0/24', // jig 2005/6/23
         );
         return self::isAddrInBand($addr, $yBand, $yHost);
     }
@@ -689,8 +683,6 @@ EOF;
             '219.108.11.0/24',
             '219.108.12.0/24',
             '219.108.13.0/24',
-
-            '210.143.108.0/24', // jig 2005/6/23
         );
         return self::isAddrInBand($addr, $wBand, $wHost);
     }

@@ -7,87 +7,129 @@
 /*
  * コンストラクタ
  *
- * @param String id     画像のid
+ * @param String id     画像のidまたはDOM要素
  * @param Number width  画像の幅
  * @param Number height 画像の高さ
  */
 function FitImage(id, width, height)
 {
-	// {{{ properties
-
-	this.picture = document.getElementById(id);
+	this.picture = (typeof id == 'string') ? document.getElementById(id) : id;
 	this.imgX = width;
 	this.imgY = height;
-	this.currentMode = '_init_';
+	this.ratio = width / height;
+	this.currentMode = 'init';
+	this.defaultMode = (this.getFieldWidth() > width && this.getFieldHeight() > height) ? 'expand' : 'contract';
+}
 
-	// }}}
-	// {{{ FitImage.fitTo()
+// }}}
+// {{{ FitImage.getFieldWidth()
 
-	/*
-	 * 画像をウインドウにフィットさせるメソッド
-	 */
-	this.fitTo = function(mode)
-	{
+/*
+ * ウインドウの幅を取得する
+ *
+ * @return Number
+ */
+FitImage.prototype.getFieldWidth = function()
+{
+	if (document.all) { //IE用
+		return ((document.compatMode == 'CSS1Compat') ? document.documentElement : document.body).clientWidth;
+	} else {
+		return window.innerWidth;
+	}
+}
+
+// }}}
+// {{{ FitImage.getFieldHeight()
+
+/*
+ * ウインドウの高さを取得する
+ *
+ * @return Number
+ */
+FitImage.prototype.getFieldHeight = function()
+{
+	if (document.all) { //IE用
+		return ((document.compatMode == 'CSS1Compat') ? document.documentElement : document.body).clientHeight;
+	} else {
+		return window.innerHeight;
+	}
+}
+
+// }}}
+// {{{ FitImage.fitTo()
+
+/*
+ * 画像をウインドウにフィットさせる
+ *
+ * @param String mode
+ * @return void
+ */
+FitImage.prototype.fitTo = function(mode)
+{
+	if (this.currentMode == mode || (this.currentMode == 'init' && this.defaultMode == 'expand')) {
+		// 元の大きさに戻す
+		this.currentMode = 'auto';
+		this.picture.style.width = 'auto';
+		this.picture.style.height = 'auto';
+	} else {
 		var winX, winY, cssX, cssY;
 
-		if (document.all) { //IE用
-			var _body = (document.compatMode == 'CSS1Compat') ? document.documentElement : document.body;
-			winX = _body.clientWidth;
-			winY = _body.clientHeight;
-		} else {
-			winX = window.innerWidth;
-			winY = window.innerHeight;
+		winX = this.getFieldWidth();
+		winY = this.getFieldHeight();
+
+		// ウインドウに合わせて拡大・縮小判定
+		switch (mode) {
+		  case 'contract':
+			if (winX / winY > this.ratio) {
+				mode = 'height'
+				this.currentMode = (winY < this.imgY) ? 'height' : 'auto';
+			} else {
+				mode = 'width'
+				this.currentMode = (winX < this.imgX) ? 'width' : 'auto';
+			}
+			cssX = Math.min(winX, this.imgX).toString() + 'px';
+			cssY = Math.min(winY, this.imgY).toString() + 'px';
+			break;
+
+		  case 'expand':
+			if (winX / winY > this.ratio) {
+				mode = 'height'
+				this.currentMode = (winY > this.imgY) ? 'height' : 'auto';
+			} else {
+				mode = 'width'
+				this.currentMode = (winX > this.imgX) ? 'width' : 'auto';
+			}
+			cssX = Math.max(winX, this.imgX).toString() + 'px';
+			cssY = Math.max(winY, this.imgY).toString() + 'px';
+			break;
+
+		  default:
+			this.currentMode = mode;
+			cssX = winX.toString() + 'px';
+			cssY = winY.toString() + 'px';
 		}
 
-		if (this.currentMode == mode) {
-			this.currentMode = 'auto';
-			this.picture.style.width = 'auto';
+		// 実際にリサイズ
+		switch (mode) {
+		  case 'full':
+			this.picture.style.width = cssX;
+			this.picture.style.height = cssY;
+			break;
+
+		  case 'width':
+			this.picture.style.width = cssX;
 			this.picture.style.height = 'auto';
-		} else {
-			var autofit = false;
+			break;
 
-			if (mode == 'autofit') {
-				autofit = true;
-				if (winX / winY > this.imgX / this.imgY) {
-					mode = 'height'
-					this.currentMode = (winY < this.imgY) ? 'height' : 'auto';
-				} else {
-					mode = 'width'
-					this.currentMode = (winX < this.imgX) ? 'width' : 'auto';
-				}
-			} else {
-				this.currentMode = mode;
-			}
+		  case 'height':
+			this.picture.style.width = 'auto';
+			this.picture.style.height = cssY;
+			break;
 
-			if (autofit) {
-				cssX = Math.min(winX, this.imgX).toString() + 'px';
-				cssY = Math.min(winY, this.imgY).toString() + 'px';
-			} else {
-				cssX = winX.toString() + 'px';
-				cssY = winY.toString() + 'px';
-			}
-
-			switch (mode) {
-				/*
-				case 'full':
-					this.picture.style.width = cssX;
-					this.picture.style.height = cssY;
-					break;
-				*/
-				case 'width':
-					this.picture.style.width = cssX;
-					this.picture.style.height = 'auto';
-					break;
-				case 'height':
-					this.picture.style.width = 'auto';
-					this.picture.style.height = cssY;
-					break;
-				default:
-			}
+		  default:
+			break;
 		}
 	}
-
-	// }}}
 }
 
 // }}}
