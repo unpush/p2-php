@@ -17,6 +17,11 @@ class P2Util
     // {{{ properties
 
     /**
+     * getItaName() のキャッシュ
+     */
+    static private $_itaNames = array();
+
+    /**
      * _p2DirOfHost() のキャッシュ
      */
     static private $_hostDirs = array();
@@ -168,12 +173,12 @@ class P2Util
      */
     static public function getItaName($host, $bbs)
     {
-        global $_conf, $ita_names;
+        global $_conf;
 
         $id = $host . '/' . $bbs;
 
-        if (isset($ita_names[$id])) {
-            return $ita_names[$id];
+        if (array_key_exists($id, self::$_itaNames)) {
+            return self::$_itaNames[$id];
         }
 
         $p2_setting_txt = self::idxDirOfHostBbs($host, $bbs) . 'p2_setting.txt';
@@ -184,8 +189,8 @@ class P2Util
             if ($p2_setting_cont) {
                 $p2_setting = unserialize($p2_setting_cont);
                 if (isset($p2_setting['itaj'])) {
-                    $ita_names[$id] = $p2_setting['itaj'];
-                    return $ita_names[$id];
+                    self::$_itaNames[$id] = $p2_setting['itaj'];
+                    return self::$_itaNames[$id];
                 }
             }
         }
@@ -195,14 +200,14 @@ class P2Util
             require_once P2_LIB_DIR . '/BbsMap.class.php';
             $itaj = BbsMap::getBbsName($host, $bbs);
             if ($itaj != $bbs) {
-                $ita_names[$id] = $p2_setting['itaj'] = $itaj;
+                self::$_itaNames[$id] = $p2_setting['itaj'] = $itaj;
 
                 FileCtl::make_datafile($p2_setting_txt, $_conf['p2_perm']);
                 $p2_setting_cont = serialize($p2_setting);
                 if (FileCtl::file_write_contents($p2_setting_txt, $p2_setting_cont) === false) {
                     p2die("{$p2_setting_txt} を更新できませんでした");
                 }
-                return $ita_names[$id];
+                return self::$_itaNames[$id];
             }
         }
 
@@ -703,7 +708,8 @@ class P2Util
     /**
      * livedoor レンタル掲示板 : したらばのホスト名変更に対応して変更する
      *
-     * @param    string    $in_str    ホスト名でもURLでもなんでも良い
+     * @param   string  $in_str     ホスト名でもURLでもなんでも良い
+     * @return  string
      */
     static public function adjustHostJbbs($in_str)
     {
@@ -715,8 +721,10 @@ class P2Util
     // {{{ header_nocache()
 
     /**
-    * ■ http header no cache を出力
-    */
+     * http header no cache を出力
+     *
+     * @return void
+     */
     static public function header_nocache()
     {
         header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // 日付が過去
@@ -730,12 +738,19 @@ class P2Util
     // {{{ header_content_type()
 
     /**
-    * ■ http header Content-Type 出力
-    */
+     * HTTP header Content-Type 出力
+     *
+     * @param string $content_type
+     * @return void
+     */
     static public function header_content_type($content_type = null)
     {
         if ($content_type) {
-            header($content_type);
+            if (strpos($content_type, 'Content-Type: ') === 0) {
+                header($content_type);
+            } else {
+                header('Content-Type: ' . $content_type);
+            }
         } else {
             header('Content-Type: text/html; charset=Shift_JIS');
         }

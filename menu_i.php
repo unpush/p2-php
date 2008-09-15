@@ -81,11 +81,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
 ?>
     <script type="application/x-javascript">
     //<![CDATA[
-    var _old_onload = window.onload;
-    window.onload = (function(){
-        if (_old_onload) {
-            _old_onload();
-        }
+    window.addEventListener('load', function(evt){
         var subMenus = [<?php echo $js; ?>];
         var delayMsec = 200;
         var contextNode = document.getElementById('top');

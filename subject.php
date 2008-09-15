@@ -930,6 +930,8 @@ function sortThreads($aThreadList)
             }
             break;
         case 'bd':
+            $cmp = 'cmp_key';
+            break;
         case 'fav':
         case 'ita':
         case 'res':

@@ -66,7 +66,7 @@ $_conf['menu_dl_interval'] = 1;     // (1) ”Â menu ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚
 $_conf['sb_dl_interval'] = 300;     // (300) subject.txt ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b)
 
 // $_conf['dat_dl_interval'] = 20;  // (20) dat ‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•b) // ‚±‚Ìİ’è‚ÍŒ»İ‚Í‹@”\‚µ‚Ä‚¢‚È‚¢
-$_conf['p2status_dl_interval'] = 360; // (360) p2statusiƒAƒbƒvƒf[ƒgƒ`ƒFƒbƒNj‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (•ª)
+$_conf['p2status_dl_interval'] = 7; // (7) p2statusiƒAƒbƒvƒf[ƒgƒ`ƒFƒbƒNj‚ÌƒLƒƒƒbƒVƒ…‚ğXV‚¹‚¸‚É•Û‚·‚éŠÔ (“ú)
 
 $_conf['login_log_rec'] = 1;        // (1) ƒƒOƒCƒ“ƒƒO‚ğ‹L˜^i‚·‚é:1, ‚µ‚È‚¢:0j
 $_conf['login_log_rec_num'] = 200;  // (200) ƒƒOƒCƒ“ƒƒO‚Ì‹L˜^”

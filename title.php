@@ -55,9 +55,9 @@ if ($array = P2Util::readIdPw2ch()) {
 //=========================================================
 // 最新版チェック
 $newversion_found = '';
-/*if (!empty($_conf['updatan_haahaa'])) {
+if (!empty($_conf['updatan_haahaa'])) {
     $newversion_found = checkUpdatan();
-}*/
+}
 
 // ログインユーザ情報
 $htm['auth_user'] = "<p>ログインユーザ: {$_login->user_u} - " . date("Y/m/d (D) G:i") . "</p>\n";
@@ -158,7 +158,7 @@ echo <<<EOP
         <li><a href="viewtxt.php?file=doc/README-EX.txt">README-EX.txt</a></li>
         <li><a href="img/how_to_use.png">ごく簡単な操作法</a></li>
         <li><a href="{$expack_hist_url_r}"{$_conf['ext_win_target_at']}>拡張パック 更新記録</a></li>
-        <li><a href="viewtxt.php?file=doc/ChangeLog.txt">ChangeLog（rep2 更新記録）</a></li>
+        <!-- <li><a href="viewtxt.php?file=doc/ChangeLog.txt">ChangeLog（rep2 更新記録）</a></li> -->
     </ul>
     {$htm['auth_user']}
     {$htm['ktai_url']}
@@ -190,7 +190,7 @@ function checkUpdatan()
 
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら
-        if (filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
+        if (filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 86400) {
             $no_p2status_dl_flag = true;
         }
     }

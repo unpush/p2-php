@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080903.1752',   // 拡張パックのバージョン
+    'p2expack'  => '080904.1646',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -72,7 +72,7 @@ $_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.php';
 $_conf['favrank_url']           = 'http://akid.s17.xrea.com/favrank/favrank.php';
 $_conf['expack.web_url']        = 'http://page2.xrea.jp/expack/';
 $_conf['expack.download_url']   = 'http://page2.xrea.jp/expack/index.php/download';
-$_conf['expack.history_url']    = 'http://page2.xrea.jp/expack/index.php/history#ASAP';
+$_conf['expack.history_url']    = 'http://page2.xrea.jp/expack/index.php/history';
 $_conf['expack.tgrep_url']      = 'http://page2.xrea.jp/tgrep/search';
 $_conf['expack.ime_url']        = 'http://page2.xrea.jp/r.p';
 $_conf['menu_php']              = 'menu.php';
