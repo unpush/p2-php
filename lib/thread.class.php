@@ -278,8 +278,8 @@ class Thread
         $this->bbs = $bbs;
         $this->key = $key;
 
-        $this->keydat = P2Util::datDirOfHost($host) . '/' . $bbs . '/' . $key . '.dat';
-        $this->keyidx = P2Util::idxDirOfHost($host) . '/' . $bbs . '/' . $key . '.idx';
+        $this->keydat = $this->getDatDir() . $key . '.dat';
+        $this->keyidx = $this->getIdxDir() . $key . '.idx';
 
         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setThreadPathInfo()');
 
@@ -617,6 +617,36 @@ class Thread
         }
 
         return $this->_favs;
+    }
+
+    // }}}
+    // {{{ getDatDir()
+
+    /**
+     * datの保存ディレクトリを返す
+     *
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::datDirOfHost(), ThreadList::getDatDir()
+     */
+    public function getDatDir($dir_sep = true)
+    {
+        return P2Util::datDirOfHostBbs($this->host, $this->bbs, $dir_sep);
+    }
+
+    // }}}
+    // {{{ getIdxDir()
+
+    /**
+     * idxの保存ディレクトリを返す
+     *
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::idxDirOfHost(), ThreadList::getIdxDir()
+     */
+    public function getIdxDir($dir_sep = true)
+    {
+        return P2Util::idxDirOfHostBbs($this->host, $this->bbs, $dir_sep);
     }
 
     // }}}

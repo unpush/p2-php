@@ -44,7 +44,7 @@ define('P2_REGEX_WAKATI', '/(
 [0-9a-z][0-9a-z_\\-]*)/ux');
 
 /**
- * UTF-8,NFDのひらがな・カタカナにマッチする正規表現
+ * UTF-8,NFDのひらがな・カタカナの濁音・半濁音にマッチする正規表現
  */
 /*
 define('P2_REGEX_NFD_KANA',

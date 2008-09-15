@@ -201,33 +201,26 @@ class ThreadList
                 }
 
             // p2_threads_aborn.idx 読み込み
-            } elseif ($this->spmode == "taborn") {
-                $dat_host_dir = P2Util::datDirOfHost($this->host);
-                $lines = FileCtl::file_read_lines($dat_host_dir."/".$this->bbs."/p2_threads_aborn.idx");
+            } elseif ($this->spmode == 'taborn') {
+                $taborn_file = $this->getIdxDir() . 'p2_threads_aborn.idx';
+                $lines = FileCtl::file_read_lines($taborn_file);
 
-            // ■spmodeがdat倉庫の場合 ======================
-            } elseif ($this->spmode == "soko") {
-
-                $dat_host_dir = P2Util::datDirOfHost($this->host);
-                $idx_host_dir = P2Util::idxDirOfHost($this->host);
-
-                $dat_bbs_dir = $dat_host_dir."/".$this->bbs;
-                $idx_bbs_dir = $idx_host_dir."/".$this->bbs;
-
-                $dat_pattern = '/([0-9]+)\.dat$/';
-                $idx_pattern = '/([0-9]+)\.idx$/';
+            // spmodeがdat倉庫の場合
+            } elseif ($this->spmode == 'soko') {
+                $dat_host_bbs_dir = $this->getDatDir(false);
+                $idx_host_bbs_dir = $this->getIdxDir(false);
 
                 $lines = array();
 
                 //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('dat'); //
                 // ■datログディレクトリを走査して孤立datにidx付加 =================
-                if ($cdir = dir($dat_bbs_dir)) { // or die ("ログディレクトリがないよ！");
+                if ($cdir = dir($dat_host_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     // ディレクトリ走査
                     while ($entry = $cdir->read()) {
-                        if (preg_match($dat_pattern, $entry, $matches)) {
-                            $theidx = $idx_bbs_dir."/".$matches[1].".idx";
+                        if (preg_match('/([0-9]+)\\.dat$/', $entry, $matches)) {
+                            $theidx = $idx_host_bbs_dir . DIRECTORY_SEPARATOR . $matches[1] . '.idx';
                             if (!file_exists($theidx)) {
-                                if ($datlines = FileCtl::file_read_lines($dat_bbs_dir . '/' . $entry, FILE_IGNORE_NEW_LINES)) {
+                                if ($datlines = FileCtl::file_read_lines($dat_host_bbs_dir . DIRECTORY_SEPARATOR . $entry, FILE_IGNORE_NEW_LINES)) {
                                     $firstdatline = $datlines[0];
                                     if (strpos($firstdatline, '<>') !== false) {
                                         $datline_sepa = "<>";
@@ -254,11 +247,11 @@ class ThreadList
 
                 //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('idx');//
                 // {{{ idxログディレクトリを走査してidx情報を抽出してリスト化
-                if ($cdir = dir($idx_bbs_dir)) { // or die ("ログディレクトリがないよ！");
+                if ($cdir = dir($idx_host_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     // ディレクトリ走査
                     while ($entry = $cdir->read()) {
-                        if (preg_match($idx_pattern, $entry)) {
-                            $idl = FileCtl::file_read_lines($idx_bbs_dir."/".$entry);
+                        if (preg_match('/([0-9]+)\\.idx$/', $entry)) {
+                            $idl = FileCtl::file_read_lines($idx_host_bbs_dir . DIRECTORY_SEPARATOR . $entry);
                             if (is_array($idl)) {
                                 array_push($lines, $idl[0]);
                             }
@@ -307,6 +300,36 @@ class ThreadList
         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('addThread()');
 
         return $this->num;
+    }
+
+    // }}}
+    // {{{ getDatDir()
+
+    /**
+     * datの保存ディレクトリを返す
+     *
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::datDirOfHost(), Thread::getDatDir()
+     */
+    public function getDatDir($dir_sep = true)
+    {
+        return P2Util::datDirOfHostBbs($this->host, $this->bbs, $dir_sep);
+    }
+
+    // }}}
+    // {{{ getIdxDir()
+
+    /**
+     * idxの保存ディレクトリを返す
+     *
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::idxDirOfHost(), Thread::getIdxDir()
+     */
+    public function getIdxDir($dir_sep = true)
+    {
+        return P2Util::idxDirOfHostBbs($this->host, $this->bbs, $dir_sep);
     }
 
     // }}}

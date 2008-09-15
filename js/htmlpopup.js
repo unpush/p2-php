@@ -41,12 +41,12 @@ function hideHtmlPopUpCallback(evt)
 function showHtmlPopUp(url,ev,showHtmlDelaySec)
 {
 	if (!document.createElement) { return; } // DOM非対応
-	
+
 	// まだ onLoad されていなく、コンテナもなければ、抜ける
 	if (!gIsPageLoaded && !document.getElementById('popUpContainer')) {
 		return;
 	}
-	
+
 	showHtmlDelaySec = showHtmlDelaySec * 1000;
 
 	if (!node_div || url != gUrl) {
@@ -87,9 +87,10 @@ function showHtmlPopUpDo()
 		node_div = document.createElement('div');
 		node_div.setAttribute('id', "iframespace");
 
-		node_close = document.createElement('div');
-		node_close.setAttribute('id', "closebox");
-		//node_close.setAttribute('onMouseover', "hideHtmlPopUp()");
+		if (!window.addEventListener && !window.attachEvent) {
+			node_close = document.createElement('div');
+			node_close.setAttribute('id', "closebox");
+		}
 
 		// IE用
 		if (document.all) {
@@ -99,18 +100,22 @@ function showHtmlPopUpDo()
 			node_div.style.pixelLeft  = gX + x_adjust; //ポップアップ位置
 			node_div.style.pixelTop  = body.scrollTop; //gY + y_adjust;
 			var cX = gX + x_adjust - closebox_width;
-			node_close.style.pixelLeft  = cX; //ポップアップ位置
-			node_close.style.pixelTop  = body.scrollTop; //gY + y_adjust;
+			if (node_close) {
+				node_close.style.pixelLeft  = cX; //ポップアップ位置
+				node_close.style.pixelTop  = body.scrollTop; //gY + y_adjust;
+			}
 			var yokohaba = body.clientWidth - node_div.style.pixelLeft -20; //微調整付
 			var tatehaba = body.clientHeight -20;
-		
+
 		// DOM対応用（Mozilla）
-		} else if (document.getElementById) {
+		} else {
 			node_div.style.left = gX + x_adjust + "px"; //ポップアップ位置
 			node_div.style.top = window.pageYOffset + "px"; //gY + y_adjust + "px";
 			var cX = gX + x_adjust - closebox_width;
-			node_close.style.left = cX + "px"; // ポップアップ位置
-			node_close.style.top = window.pageYOffset + "px"; // gY + y_adjust + "px";
+			if (node_close) {
+				node_close.style.left = cX + "px"; // ポップアップ位置
+				node_close.style.top = window.pageYOffset + "px"; // gY + y_adjust + "px";
+			}
 			var yokohaba = window.innerWidth - gX - x_adjust -20; // 微調整付
 			var tatehaba = window.innerHeight - 20;
 		}
@@ -121,16 +126,18 @@ function showHtmlPopUpDo()
 			pageMargin = " marginheight=\"0\" marginwidth=\"0\" hspace=\"0\" vspace=\"0\"";
 		}
 		node_div.innerHTML = "<iframe src=\""+gUrl+"\" frameborder=\"1\" border=\"1\" style=\"background-color:#fff;\" width=" + yokohaba + " height=" + tatehaba + pageMargin +">&nbsp;</iframe>";
-		
-		node_close.innerHTML = '<b onclick="hideHtmlPopUpCallback(event)" style="cursor:pointer;">×</b>';
-		
+
+		if (node_close) {
+			node_close.innerHTML = '<b onclick="hideHtmlPopUpCallback(event)" style="cursor:pointer;">×</b>';
+		}
+
 		var popUpContainer = document.getElementById("popUpContainer");
-		if (popUpContainer) {
-			popUpContainer.appendChild(node_div);
+		if (!popUpContainer) {
+			popUpContainer = document.body;
+		}
+		popUpContainer.appendChild(node_div);
+		if (node_close) {
 			popUpContainer.appendChild(node_close);
-		} else {
-			document.body.appendChild(node_div);
-			document.body.appendChild(node_close);
 		}
 	}
 }

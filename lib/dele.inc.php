@@ -68,11 +68,8 @@ function deleteThisKey($host, $bbs, $key)
 {
     global $_conf;
 
-    $dat_host_dir = P2Util::datDirOfHost($host);
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-
-    $anidx = $idx_host_dir . '/'.$bbs.'/'.$key.'.idx';
-    $adat = $dat_host_dir . '/'.$bbs.'/'.$key.'.dat';
+    $anidx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
+    $adat = P2Util::datDirOfHostBbs($host, $bbs) . $key . '.dat';
 
     // Fileの削除処理
     // idx（個人用設定）

@@ -258,7 +258,7 @@ $client->setRequestParameter('readTimeout', array($read_timeout, 0));
 $client->setMaxRedirects(3);
 $client->setDefaultHeader('User-Agent', $ic2_ua);
 if ($force && $time) {
-    $client->setDefaultHeader('If-Modified-Since', gmdate('D, d M Y H:i:s \G\M\T', $time));
+    $client->setDefaultHeader('If-Modified-Since', http_date($time));
 }
 
 // ƒvƒƒLƒVİ’è

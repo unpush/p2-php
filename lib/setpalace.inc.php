@@ -17,8 +17,7 @@ function setPal($host, $bbs, $key, $setpal)
     global $_conf;
 
      // key.idx のパスを求めて
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
+    $idxfile = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
 
     // 既に key.idx データがあるなら読み込む
     if ($lines = FileCtl::file_read_lines($idxfile, FILE_IGNORE_NEW_LINES)) {

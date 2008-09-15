@@ -48,8 +48,7 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
             $is_error = TRUE;
             $_info_msg_ht .= '<p>Error: スレッドキーの指定が変です。</p>';
         }*/
-        $dat_name = $key . '.dat';
-        $dat_path = P2Util::datDirOfHost($host) . '/' . $bbs . '/' . $dat_name;
+        $dat_path = P2Util::datDirOfHostBbs($host, $bbs) . $key . '.dat';
 
     // アップロード失敗のとき
     } else {

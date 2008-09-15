@@ -91,14 +91,11 @@ if ($spmode) {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
     }
     $aThreadList->setSpMode($spmode);
-
 } else {
     $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
 
     // スレッドあぼーんリスト読込
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $taborn_file = $idx_host_dir."/".$bbs."/p2_threads_aborn.idx";
-
+    $taborn_file = $aThreadList->getIdxDir() . 'p2_threads_aborn.idx';
     if ($tabornlines = FileCtl::file_read_lines($taborn_file, FILE_IGNORE_NEW_LINES)) {
         $ta_num = sizeof($tabornlines);
         foreach ($tabornlines as $l) {

@@ -267,7 +267,7 @@ class P2HttpGet extends HttpRequest
         }
 
         $this->_savePath = $save_path;
-        $this->_savePerm = !empty($_conf['dl_savePerm']) ? $_conf['dl_savePerm'] : 0606;
+        $this->_savePerm = !empty($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
         $this->_errorCode = self::E_NONE;
         $this->_errorInfo = '';
         $this->_onSuccess = $on_success;
@@ -903,7 +903,7 @@ class P2HttpRequestPool
         foreach ($subjects as $subject) {
             list($host, $bbs) = $subject;
 
-            $file = P2Util::datDirOfHost($host) . '/' . $bbs . '/subject.txt';
+            $file = P2Util::datDirOfHostBbs($host, $bbs) . 'subject.txt';
             if (!$force && file_exists($file) && filemtime($file) > $time) {
                 continue;
             }

@@ -23,7 +23,7 @@ if (!isset($spmode)) {
 // {{{ sb_keys 設定
 
 if (!$spmode) {
-    $sb_keys_txt = P2Util::idxDirOfHost($host) . '/' . $bbs . '/' . 'p2_sb_keys.txt';
+    $sb_keys_txt = P2Util::idxDirOfHostBbs($host, $bbs) . 'p2_sb_keys.txt';
 
     if ($pre_sb_cont = FileCtl::file_read_contents($sb_keys_txt)) {
         $pre_subject_keys = @unserialize($pre_sb_cont);
@@ -56,11 +56,8 @@ if ($spmode) {
     // if(!$p2_setting['itaj']){$p2_setting['itaj'] = P2Util::getItaName($host, $bbs);}
     $aThreadList->setIta($host, $bbs, $p2_setting['itaj']);
 
-    // {{{ ■スレッドあぼーんリスト読込
-
-    $idx_host_dir = P2Util::idxDirOfHost($aThreadList->host);
-    $taborn_file = $idx_host_dir.'/'.$aThreadList->bbs.'/p2_threads_aborn.idx';
-
+    // スレッドあぼーんリスト読込
+    $taborn_file = $aThreadList->getIdxDir() . 'p2_threads_aborn.idx';
     if ($tabornlines = FileCtl::file_read_lines($taborn_file, FILE_IGNORE_NEW_LINES)) {
         $ta_num = sizeof($tabornlines);
         foreach ($tabornlines as $l) {
@@ -68,9 +65,6 @@ if ($spmode) {
             $ta_keys[ $data[1] ] = true;
         }
     }
-
-    // }}}
-
 }
 
 // ソースリスト読込

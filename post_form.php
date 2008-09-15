@@ -31,8 +31,7 @@ $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
 $ttitle = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
 $ttitle_hd = htmlspecialchars($ttitle, ENT_QUOTES);
 
-$idx_host_dir = P2Util::idxDirOfHost($host);
-$key_idx = $idx_host_dir.'/'.$bbs.'/'.$key.'.idx';
+$key_idx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
 
 // フォームのオプション読み込み
 include_once P2_LIB_DIR . '/post_options_loader.inc.php';

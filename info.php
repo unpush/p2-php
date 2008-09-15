@@ -232,8 +232,7 @@ if ($isPalace) {
 // {{{ スレッドあぼーんチェック
 
 // スレッドあぼーんリスト読込
-$idx_host_dir = P2Util::idxDirOfHost($host);
-$taborn_file = $idx_host_dir . '/' . $bbs . '/p2_threads_aborn.idx';
+$taborn_file = P2Util::idxDirOfHostBbs($host, $bbs) . 'p2_threads_aborn.idx';
 if ($tabornlist = FileCtl::file_read_lines($taborn_file, FILE_IGNORE_NEW_LINES)) {
     foreach ($tabornlist as $l) {
         $tarray = explode('<>', $l);

@@ -269,7 +269,7 @@ class BbsMap
 
         $bbsmenu_url = 'http://menu.2ch.net/bbsmenu.html';  // 公式メニューの URL
         $altmenu_url = 'http://www.2ch.se/bbsmenu.html';    // 代替メニューの URL
-        $map_cache_path = $_conf['pref_dir'] . '/p2_cache/host_bbs_map.txt';
+        $map_cache_path = $_conf['cache_dir'] . '/host_bbs_map.txt';
         $map_cache_lifetime = 600; // TTLは少し短めに
         $err_fmt = '<p>rep2 error: BbsMap: %s - %s をダウンロードできませんでした。</p>';
         $use_alt = false;
@@ -304,7 +304,7 @@ class BbsMap
         $params['timeout'] = $_conf['fsockopen_time_limit'];
         //$params['readTimeout'] = array($_conf['fsockopen_time_limit'], 0);
         if (isset($mtime)) {
-            $params['requestHeaders'] = array('If-Modified-Since' => gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+            $params['requestHeaders'] = array('If-Modified-Since' => http_date($mtime));
         }
         if ($_conf['proxy_use']) {
             $params['proxy_host'] = $_conf['proxy_host'];

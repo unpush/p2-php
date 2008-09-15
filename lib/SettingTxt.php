@@ -32,9 +32,9 @@ class SettingTxt
         $this->_host = $host;
         $this->_bbs =  $bbs;
 
-        $dat_bbs_dir = P2Util::datDirOfHost($host) . '/' . $bbs;
-        $this->_setting_txt = $dat_bbs_dir . '/SETTING.TXT';
-        $this->_setting_cache = $dat_bbs_dir . '/p2_kb_setting.srd';
+        $dat_host_bbs_dir_s = P2Util::datDirOfHostBbs($host, $bbs);
+        $this->_setting_txt = $dat_host_bbs_dir_s . 'SETTING.TXT';
+        $this->_setting_cache = $dat_host_bbs_dir_s . 'p2_kb_setting.srd';
 
         $this->_url = 'http://' . $host . '/' . $bbs . '/SETTING.TXT';
         //$this->_url = P2Util::adjustHostJbbs($this->_url); // ‚µ‚½‚ç‚Î‚ÌlivedoorˆÚ“]‚É‘Î‰žB“Çžæ‚ðlivedoor‚Æ‚·‚éB
@@ -88,7 +88,7 @@ class SettingTxt
             } elseif ($this->isCacheFresh()) {
                 return true;
             }
-            $modified = gmdate("D, d M Y H:i:s", filemtime($this->_setting_txt)) . " GMT";
+            $modified = http_date(filemtime($this->_setting_txt));
         } else {
             $modified = false;
         }

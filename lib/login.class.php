@@ -313,34 +313,6 @@ class Login
         }
 
         // }}}
-        // {{{ フォームからログインした時
-
-        if (!empty($_POST['submit_member'])) {
-
-            // フォームログイン成功なら
-            if ($_POST['form_login_id'] == $this->user_u and sha1($_POST['form_login_pass']) == $this->pass_x) {
-
-                // 古いクッキーをクリアしておく
-                $this->clearCookieAuth();
-
-                // ログインログを記録する
-                $this->logLoginSuccess();
-
-                return true;
-
-            // フォームログイン失敗なら
-            } else {
-                $_info_msg_ht .= '<p class="infomsg">p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>';
-                $_login_failed_flag = true;
-
-                // ログイン失敗ログを記録する
-                $this->logLoginFailed();
-
-                return false;
-            }
-        }
-
-        // }}}
 
         $mobile = Net_UserAgent_Mobile::singleton();
 
@@ -422,6 +394,34 @@ class Login
                     }
                     return true;
                 }
+            }
+        }
+
+        // }}}
+        // {{{ フォームからログインした時
+
+        if (!empty($_POST['submit_member'])) {
+
+            // フォームログイン成功なら
+            if ($_POST['form_login_id'] == $this->user_u and sha1($_POST['form_login_pass']) == $this->pass_x) {
+
+                // 古いクッキーをクリアしておく
+                $this->clearCookieAuth();
+
+                // ログインログを記録する
+                $this->logLoginSuccess();
+
+                return true;
+
+            // フォームログイン失敗なら
+            } else {
+                $_info_msg_ht .= '<p class="infomsg">p2 info: ログインできませんでした。<br>ユーザ名かパスワードが違います。</p>';
+                $_login_failed_flag = true;
+
+                // ログイン失敗ログを記録する
+                $this->logLoginFailed();
+
+                return false;
             }
         }
 
@@ -687,10 +687,11 @@ EOP;
     public function clearCookieAuth()
     {
         setcookie('cid', '', time() - 3600);
+        /*
         setcookie('p2_user', '', time() - 3600);    //  廃止要素 2005/6/13
         setcookie('p2_pass', '', time() - 3600);    //  廃止要素 2005/6/13
         setcookie('p2_pass_x', '', time() - 3600);  //  廃止要素 2005/6/13
-
+        */
         $_COOKIE = array();
 
         return true;

@@ -38,6 +38,7 @@ $_conf['pref_dir'] = "./data";      // ("./data")
  * 画像やconf.phpをロードしないphpスクリプトもアクセス制限の
  * 対象にできるので、可能ならそっちを使うほうがいい。
  */
+$_conf['secure'] = array();
 
 // ホストチェックをする (0:しない; 1:指定されたホストのみ許可; 2:指定されたホストのみ拒否;)
 $_conf['secure']['auth_host'] = 1;  // (1)
@@ -51,7 +52,6 @@ $_conf['disable_res'] = 0;          // (0)
 // }}}
 // ----------------------------------------------------------------------
 
-// セッションを使う場合は、PHPの設定で session.use_trans_sid を有効にすることを推奨する
 $_conf['use_session'] = 2;          // (2) セッションを利用（する:1, しない:0, cookie認証が利用されていない時のみする:2）
 
 $_conf['session_save'] = 'p2';      // ('p2') sessionデータの保存管理 (PHPデフォルト:'', p2でファイル管理:'p2')
@@ -76,17 +76,19 @@ $_conf['cid_expire_day'] = 30;      // (30) Cookie IDの有効期限日数
 
 // {{{ 携帯アクセスキー
 
-$_conf['k_accesskey']['matome'] = '3'; // 新まとめ
-$_conf['k_accesskey']['latest'] = '3'; // 新
-$_conf['k_accesskey']['res'] =    '7'; // ﾚｽ
-$_conf['k_accesskey']['above'] =  '2'; // 上
-$_conf['k_accesskey']['up'] =     '5'; // （板）
-$_conf['k_accesskey']['prev'] =   '4'; // 前
-$_conf['k_accesskey']['bottom'] = '8'; // 下
-$_conf['k_accesskey']['next'] =   '6'; // 次
-$_conf['k_accesskey']['info'] =   '9'; // 情
-$_conf['k_accesskey']['dele'] =   '*'; // 削
-$_conf['k_accesskey']['filter'] = '#'; // 索
+$_conf['k_accesskey'] = array(
+    'matome' => '3', // 新まとめ
+    'latest' => '3', // 新
+    'res'    => '7', // ﾚｽ
+    'above'  => '2', // 上
+    'up'     => '5', // （板）
+    'prev'   => '4', // 前
+    'bottom' => '8', // 下
+    'next'   => '6', // 次
+    'info'   => '9', // 情
+    'dele'   => '*', // 削
+    'filter' => '#', // 索
+);
 
 // }}}
 // {{{ パーミッションの設定

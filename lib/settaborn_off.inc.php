@@ -17,8 +17,7 @@ function settaborn_off($host, $bbs, $taborn_off_keys)
     }
 
     // p2_threads_aborn.idx ‚ÌƒpƒXŽæ“¾
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
+    $taborn_idx = P2Util::idxDirOfHostBbs($host, $bbs) . 'p2_threads_aborn.idx';
 
     // p2_threads_aborn.idx ‚ª‚È‚¯‚ê‚Î
     if (!file_exists($taborn_idx)) {

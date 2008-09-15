@@ -217,9 +217,7 @@ $tag_rec_n['FROM'] = ($tag_rec['FROM'] == '') ? 'P2NULL' : $tag_rec['FROM'];
 $tag_rec_n['mail'] = ($tag_rec['mail'] == '') ? 'P2NULL' : $tag_rec['mail'];
 
 if ($host && $bbs && $key) {
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-
-    $keyidx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
+    $keyidx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
 
     // ì«Ç›çûÇ›
     if ($keylines = FileCtl::file_read_lines($keyidx, FILE_IGNORE_NEW_LINES)) {

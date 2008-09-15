@@ -34,15 +34,14 @@ class SubjectTxt
     {
         $this->host = $host;
         $this->bbs =  $bbs;
-        if (defined('P2_SUBJECT_TXT_STORAGE') && P2_SUBJECT_TXT_STORAGE == 'eashm') {
-            $this->storage = P2_SUBJECT_TXT_STORAGE;
-        } else {
+        //if (defined('P2_SUBJECT_TXT_STORAGE') && P2_SUBJECT_TXT_STORAGE == 'eashm') {
+        //    $this->storage = P2_SUBJECT_TXT_STORAGE;
+        //} else {
             $this->storage = 'file';
-        }
+        //}
 
-        $this->subject_file = P2Util::datDirOfHost($this->host) . '/' . $this->bbs . '/subject.txt';
-
-        $this->subject_url = "http://" . $this->host . '/' . $this->bbs . "/subject.txt";
+        $this->subject_file = P2Util::datDirOfHostBbs($host, $bbs) . 'subject.txt';
+        $this->subject_url = 'http://' . $host . '/' . $bbs . '/subject.txt';
 
         // したらばのlivedoor移転に対応。読込先をlivedoorとする。
         $this->subject_url = P2Util::adjustHostJbbs($this->subject_url);
@@ -61,14 +60,16 @@ class SubjectTxt
      */
     public function dlAndSetSubject()
     {
+        /*
         if ($this->storage == 'eashm') {
-            $cont = eaccelerator_get("$this->host/$this->bbs");
+            $cont = eaccelerator_get("{$this->host}/{$this->bbs}");
         } else {
             $cont = '';
         }
-        if (!$cont || !empty($_POST['newthread'])) {
+        */
+        //if (!$cont || !empty($_POST['newthread'])) {*/
             $cont = $this->downloadSubject();
-        }
+        //}
         if ($this->setSubjectLines($cont)) {
             return true;
         } else {
@@ -101,7 +102,7 @@ class SubjectTxt
                 } elseif (empty($_POST['newthread']) and $this->isSubjectTxtFresh()) {
                     return;    // 新規スレ立て時でなく、更新が新しい場合も抜ける
                 }
-                $modified = gmdate("D, d M Y H:i:s", filemtime($this->subject_file))." GMT";
+                $modified = http_date(filemtime($this->subject_file));
             } else {
                 $modified = false;
             }
@@ -162,20 +163,21 @@ class SubjectTxt
             }
 
             // eashmに保存する場合
+            /*
             if ($this->storage == 'eashm') {
-                $eacc_key = "$this->host/$this->bbs";
+                $eacc_key = "{$this->host}/{$this->bbs}";
                 eaccelerator_lock($eacc_key);
                 //echo $body;
                 eaccelerator_put($eacc_key, $body, $_conf['sb_dl_interval']);
                 eaccelerator_unlock($eacc_key);
-
+            */
             // ファイルに保存する場合
-            } else {
+            //} else {
                 if (FileCtl::file_write_contents($this->subject_file, $body) === false) {
                     p2die('cannot write file');
                 }
                 chmod($this->subject_file, $perm);
-            }
+            //}
         } else {
             // touchすることで更新インターバルが効くので、しばらく再チェックされなくなる
             // （変更がないのに修正時間を更新するのは、少し気が進まないが、ここでは特に問題ないだろう）
@@ -224,19 +226,24 @@ class SubjectTxt
      */
     public function setSubjectLines($cont = '')
     {
+        /*
         if ($this->storage == 'eashm') {
             if (!$cont) {
-                $cont = eaccelerator_get("$this->host/$this->bbs");
+                $cont = eaccelerator_get("{$this->host}/{$this->bbs}");
             }
             $this->subject_lines = explode("\n", $cont);
-
+        */
+        /*
         } elseif ($this->storage == 'file') {
             if (extension_loaded('zlib') && strpos($this->host, '.2ch.net') !== false) {
                 $this->subject_lines = FileCtl::gzfile_read_lines($this->subject_file); // これはそのうち外す 2005/6/5
             } else {
+                */
                 $this->subject_lines = FileCtl::file_read_lines($this->subject_file);
+                /*
             }
         }
+        */
 
         // JBBS@したらばなら重複スレタイを削除する
         if (P2Util::isHostJbbsShitaraba($this->host)) {

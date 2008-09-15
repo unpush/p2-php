@@ -14,10 +14,48 @@ require_once P2_LIB_DIR . '/filectl.class.php';
  */
 class P2Util
 {
+    // {{{ properties
+
+    /**
+     * _p2DirOfHost() のキャッシュ
+     */
+    static private $_hostDirs = array();
+
+    /**
+     * isHost2chs() のキャッシュ
+     */
+    static private $_hostIs2chs = array();
+
+    /**
+     * isHostBe2chNet() のキャッシュ
+     */
+    //static private $_hostIsBe2chNet = array();
+
+    /**
+     * isHostBbsPink() のキャッシュ
+     */
+    static private $_hostIsBbsPink = array();
+
+    /**
+     * isHostMachiBbs() のキャッシュ
+     */
+    static private $_hostIsMachiBbs = array();
+
+    /**
+     * isHostMachiBbsNet() のキャッシュ
+     */
+    static private $_hostIsMachiBbsNet = array();
+
+    /**
+     * isHostJbbsShitaraba() のキャッシュ
+     */
+    static private $_hostIsJbbsShitaraba = array();
+
+    // }}}
     // {{{ fileDownload()
 
     /**
-     * ■ ファイルをダウンロード保存する
+     *  ファイルをダウンロード保存する
      */
     static public function fileDownload($url, $localfile, $disp_error = 1)
     {
@@ -26,7 +64,7 @@ class P2Util
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
         if (file_exists($localfile)) {
-            $modified = gmdate("D, d M Y H:i:s", filemtime($localfile))." GMT";
+            $modified = http_date(filemtime($localfile));
         } else {
             $modified = false;
         }
@@ -64,7 +102,7 @@ class P2Util
     // {{{ checkDirWritable()
 
     /**
-     * ■パーミッションの注意を喚起する
+     * パーミッションの注意を喚起する
      */
     static public function checkDirWritable($aDir)
     {
@@ -102,7 +140,7 @@ class P2Util
     // {{{ cacheFileForDL()
 
     /**
-     * ■ダウンロードURLからキャッシュファイルパスを返す
+     * ダウンロードURLからキャッシュファイルパスを返す
      */
     static public function cacheFileForDL($url)
     {
@@ -126,7 +164,7 @@ class P2Util
     // {{{ getItaName()
 
     /**
-     * ■ hostとbbsから板名を返す
+     *  hostとbbsから板名を返す
      */
     static public function getItaName($host, $bbs)
     {
@@ -138,8 +176,7 @@ class P2Util
             return $ita_names[$id];
         }
 
-        $idx_host_dir = self::idxDirOfHost($host);
-        $p2_setting_txt = $idx_host_dir."/".$bbs."/p2_setting.txt";
+        $p2_setting_txt = self::idxDirOfHostBbs($host, $bbs) . 'p2_setting.txt';
 
         if (file_exists($p2_setting_txt)) {
 
@@ -173,68 +210,159 @@ class P2Util
     }
 
     // }}}
+    // {{{ _p2DirOfHost()
+
+    /**
+     * hostからrep2の各種データ保存ディレクトリを返す
+     *
+     * @param string $base_dir
+     * @param string $host
+     * @param bool $dir_sep
+     * @return string
+     */
+    static private function _p2DirOfHost($base_dir, $host, $dir_sep = true)
+    {
+        $key = $base_dir . DIRECTORY_SEPARATOR . $host;
+        if (array_key_exists($key, self::$_hostDirs)) {
+            if ($dir_sep) {
+                return self::$_hostDirs[$key] . DIRECTORY_SEPARATOR;
+            }
+            return self::$_hostDirs[$key];
+        }
+
+        // 念のため、スラッシュ除去
+        $host = trim($host, '/');
+
+        // 2channel or bbspink
+        if (self::isHost2chs($host)) {
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . '2channel';
+
+        // machibbs.com
+        } elseif (self::isHostMachiBbs($host)) {
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . 'machibbs.com';
+
+        // jbbs.livedoor.jp (livedoor レンタル掲示板)
+        } elseif (self::isHostJbbsShitaraba($host)) {
+            if (DIRECTORY_SEPARATOR == '/') {
+                $host_dir = $base_dir . DIRECTORY_SEPARATOR . $host;
+            } else {
+                $host_dir = $base_dir . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
+            }
+
+        // livedoor レンタル掲示板以外でスラッシュ等の文字を含むとき
+        } elseif (preg_match('/[^0-9A-Za-z.\\-_]/', $host)) {
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . rawurlencode($host);
+            /*
+            if (DIRECTORY_SEPARATOR == '/') {
+                $old_host_dir = $base_dir . DIRECTORY_SEPARATOR . $host;
+            } else {
+                $old_host_dir = $base_dir . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
+            }
+            if (is_dir($old_host_dir)) {
+                rename($old_host_dir, $host_dir);
+                clearstatcache();
+            }
+            */
+
+        // その他
+        } else {
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . $host;
+        }
+
+        // キャッシュする
+        self::$_hostDirs[$key] = $host_dir;
+
+        // ディレクトリ区切り文字を追加
+        if ($dir_sep) {
+            $host_dir .= DIRECTORY_SEPARATOR;
+        }
+
+        return $host_dir;
+    }
+
+    // }}}
     // {{{ datDirOfHost()
 
     /**
      * hostからdatの保存ディレクトリを返す
+     * 古いコードとの互換のため、デフォルトではディレクトリ区切り文字を追加しない
+     *
+     * @param string $host
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::_p2DirOfHost()
      */
-    static public function datDirOfHost($host)
+    static public function datDirOfHost($host, $dir_sep = false)
     {
-        global $_conf;
-
-        // 2channel or bbspink
-        if (self::isHost2chs($host)) {
-            $dat_host_dir = $_conf['dat_dir']."/2channel";
-        // machibbs.com
-        } elseif (self::isHostMachiBbs($host)) {
-            $dat_host_dir = $_conf['dat_dir']."/machibbs.com";
-        } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !self::isHostJbbsShitaraba($host)) {
-            $dat_host_dir = $_conf['dat_dir']."/".rawurlencode($host);
-            $old_dat_host_dir = $_conf['dat_dir']."/".$host;
-            if (is_dir($old_dat_host_dir)) {
-                rename($old_dat_host_dir, $dat_host_dir);
-                clearstatcache();
-            }
-        } else {
-            $dat_host_dir = $_conf['dat_dir']."/".$host;
-        }
-        return $dat_host_dir;
+        return self::_p2DirOfHost($GLOBALS['_conf']['dat_dir'], $host, $dir_sep);
     }
 
     // }}}
     // {{{ idxDirOfHost()
 
     /**
-     * ■ hostからidxの保存ディレクトリを返す
+     * hostからidxの保存ディレクトリを返す
+     * 古いコードとの互換のため、デフォルトではディレクトリ区切り文字を追加しない
+     *
+     * @param string $host
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::_p2DirOfHost()
      */
-    static public function idxDirOfHost($host)
+    static public function idxDirOfHost($host, $dir_sep = false)
     {
-        global $_conf;
+        return self::_p2DirOfHost($GLOBALS['_conf']['idx_dir'], $host, $dir_sep);
+    }
 
-        // 2channel or bbspink
-        if (self::isHost2chs($host)) {
-            $idx_host_dir = $_conf['idx_dir']."/2channel";
-        // machibbs.com
-        } elseif (self::isHostMachiBbs($host)){
-            $idx_host_dir = $_conf['idx_dir']."/machibbs.com";
-        } elseif (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !self::isHostJbbsShitaraba($host)) {
-            $idx_host_dir = $_conf['idx_dir']."/".rawurlencode($host);
-            $old_idx_host_dir = $_conf['idx_dir']."/".$host;
-            if (is_dir($old_idx_host_dir)) {
-                rename($old_idx_host_dir, $idx_host_dir);
-                clearstatcache();
-            }
-        } else {
-            $idx_host_dir = $_conf['idx_dir']."/".$host;
+    // }}}
+    // {{{ datDirOfHostBbs()
+
+    /**
+     * host,bbsからdatの保存ディレクトリを返す
+     * デフォルトでディレクトリ区切り文字を追加する
+     *
+     * @param string $host
+     * @param string $bbs
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::_p2DirOfHost()
+     */
+    static public function datDirOfHostBbs($host, $bbs, $dir_sep = true)
+    {
+        $dir = self::_p2DirOfHost($GLOBALS['_conf']['dat_dir'], $host) . $bbs;
+        if ($dir_sep) {
+            $dir .= DIRECTORY_SEPARATOR;
         }
-        return $idx_host_dir;
+        return $dir;
+    }
+
+    // }}}
+    // {{{ idxDirOfHostBbs()
+
+    /**
+     * host,bbsからidxの保存ディレクトリを返す
+     * デフォルトでディレクトリ区切り文字を追加する
+     *
+     * @param string $host
+     * @param string $bbs
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::_p2DirOfHost()
+     */
+    static public function idxDirOfHostBbs($host, $bbs, $dir_sep = true)
+    {
+        $dir = self::_p2DirOfHost($GLOBALS['_conf']['idx_dir'], $host) . $bbs;
+        if ($dir_sep) {
+            $dir .= DIRECTORY_SEPARATOR;
+        }
+        return $dir;
     }
 
     // }}}
     // {{{ getFailedPostFilePath()
 
     /**
-     * ■ failed_post_file のパスを得る関数
+     *  failed_post_file のパスを得る関数
      */
     static public function getFailedPostFilePath($host, $bbs, $key = false)
     {
@@ -243,14 +371,14 @@ class P2Util
         } else {
             $filename = 'failed.data.php';
         }
-        return $failed_post_file = self::idxDirOfHost($host).'/'.$bbs.'/'.$filename;
+        return $failed_post_file = self::idxDirOfHostBbs($host, $bbs) . $filename;
     }
 
     // }}}
     // {{{ getListNaviRange()
 
     /**
-     * ■リストのナビ範囲を返す
+     * リストのナビ範囲を返す
      */
     static public function getListNaviRange($disp_from, $disp_range, $disp_all_num)
     {
@@ -313,7 +441,7 @@ class P2Util
     // {{{ recKeyIdx()
 
     /**
-     * ■ key.idx に data を記録する
+     *  key.idx に data を記録する
      *
      * @param   array   $data   要素の順番に意味あり。
      */
@@ -343,23 +471,39 @@ class P2Util
     // {{{ cachePathForCookie()
 
     /**
-     * ■ホストからクッキーファイルパスを返す
+     * ホストからクッキーファイルパスを返す
      */
     static public function cachePathForCookie($host)
     {
         global $_conf;
 
-        if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host) && !self::isHostJbbsShitaraba($host)) {
-            $cookie_host_dir = $_conf['cookie_dir']."/".rawurlencode($host);
-            $old_cookie_host_dir = $_conf['cookie_dir']."/".$host;
-            if (is_dir($old_cookie_host_dir)) {
-                rename($old_cookie_host_dir, $cookie_host_dir);
-                clearstatcache();
+        $host = trim($host, '/');
+
+        if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host)) {
+            if (self::isHostJbbsShitaraba($host)) {
+                if (DIRECTORY_SEPARATOR == '/') {
+                    $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
+                } else {
+                    $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
+                }
+            } else {
+                $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . rawurlencode($host);
+                /*
+                if (DIRECTORY_SEPARATOR == '/') {
+                    $old_cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
+                } else {
+                    $old_cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
+                }
+                if (is_dir($old_cookie_host_dir)) {
+                    rename($old_cookie_host_dir, $cookie_host_dir);
+                    clearstatcache();
+                }
+                */
             }
         } else {
-            $cookie_host_dir = $_conf['cookie_dir']."/".$host;
+            $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
         }
-        $cachefile = $cookie_host_dir."/".$_conf['cookie_file_name'];
+        $cachefile = $cookie_host_dir . DIRECTORY_SEPARATOR . $_conf['cookie_file_name'];
 
         FileCtl::mkdir_for($cachefile);
 
@@ -370,7 +514,7 @@ class P2Util
     // {{{ throughIme()
 
     /**
-     * ■中継ゲートを通すためのURL変換
+     * 中継ゲートを通すためのURL変換
      */
     static public function throughIme($url)
     {
@@ -429,106 +573,125 @@ class P2Util
     // {{{ isHost2chs()
 
     /**
-     * ■ host が 2ch or bbspink なら true を返す
+     * host が 2ch or bbspink なら true を返す
+     *
+     * @param string $host
+     * @return bool
      */
     static public function isHost2chs($host)
     {
-        if (preg_match("/\.(2ch\.net|bbspink\.com)/", $host)) {
-            return true;
-        } else {
-            return false;
+        if (!array_key_exists($host, self::$_hostIs2chs)) {
+            self::$_hostIs2chs[$host] = (bool)preg_match('<^[^/]+\\.(?:2ch\\.net|bbspink\\.com)$>', $host);
         }
+        return self::$_hostIs2chs[$host];
     }
 
     // }}}
     // {{{ isHostBe2chNet()
 
     /**
-     * ■ host が be.2ch.net なら true を返す
+     * host が be.2ch.net なら true を返す
+     *
+     * @param string $host
+     * @return bool
      */
     static public function isHostBe2chNet($host)
     {
-        if (preg_match("/^be\.2ch\.net/", $host)) {
-            return true;
-        } else {
-            return false;
+        return ($host == 'be.2ch.net');
+        /*
+        if (!array_key_exists($host, self::$_hostIsBe2chNet)) {
+            self::$_hostIsBe2chNet[$host] = ($host == 'be.2ch.net');
         }
+        return self::$_hostIsBe2chNet[$host];
+        */
     }
 
     // }}}
     // {{{ isHostBbsPink()
 
     /**
-     * ■ host が bbspink なら true を返す
+     * host が bbspink なら true を返す
+     *
+     * @param string $host
+     * @return bool
      */
     static public function isHostBbsPink($host)
     {
-        if (preg_match("/\.bbspink\.com/", $host)) {
-            return true;
-        } else {
-            return false;
+        if (!array_key_exists($host, self::$_hostIsBbsPink)) {
+            self::$_hostIsBbsPink[$host] = (bool)preg_match('<^[^/]+\\.bbspink\\.com$>', $host);
         }
+        return self::$_hostIsBbsPink[$host];
     }
 
     // }}}
     // {{{ isHostMachiBbs()
 
     /**
-     * ■ host が machibbs なら true を返す
+     * host が machibbs なら true を返す
+     *
+     * @param string $host
+     * @return bool
      */
     static public function isHostMachiBbs($host)
     {
-        if (preg_match("/\.(machibbs\.com|machi\.to)/", $host)) {
-            return true;
-        } else {
-            return false;
+        if (!array_key_exists($host, self::$_hostIsMachiBbs)) {
+            self::$_hostIsMachiBbs[$host] = (bool)preg_match('<^[^/]+\\.(?:machibbs\\.com|machi\\.to)$>', $host);
         }
+        return self::$_hostIsMachiBbs[$host];
     }
 
     // }}}
     // {{{ isHostMachiBbsNet()
 
     /**
-     * ■ host が machibbs.net まちビねっと なら true を返す
+     * host が machibbs.net まちビねっと なら true を返す
+     *
+     * @param string $host
+     * @return bool
      */
     static public function isHostMachiBbsNet($host)
     {
-        if (preg_match("/\.(machibbs\.net)/", $host)) {
-            return true;
-        } else {
-            return false;
+        if (!array_key_exists($host, self::$_hostIsMachiBbsNet)) {
+            self::$_hostIsMachiBbsNet[$host] = (bool)preg_match('<^[^/]+\\.machibbs\\.net$>', $host);
         }
+        return self::$_hostIsMachiBbsNet[$host];
     }
 
     // }}}
     // {{{ isHostJbbsShitaraba()
 
     /**
-     * ■ host が livedoor レンタル掲示板 : したらば なら true を返す
+     * host が livedoor レンタル掲示板 : したらば なら true を返す
+     *
+     * @param string $host
+     * @return bool
      */
     static public function isHostJbbsShitaraba($in_host)
     {
-        if ($in_host == 'rentalbbs.livedoor.com') {
-            return true;
-        } elseif (preg_match('/jbbs\.(shitaraba\.com|livedoor\.(com|jp))/', $in_host)) {
-            return true;
-        } else {
-            return false;
+        if (!array_key_exists($in_host, self::$_hostIsJbbsShitaraba)) {
+            if ($in_host == 'rentalbbs.livedoor.com') {
+                self::$_hostIsJbbsShitaraba[$in_host] = true;
+            } elseif (preg_match('<^jbbs\\.(?:shitaraba\\.com|livedoor\\.(?:com|jp))(?:/|$)>', $in_host)) {
+                self::$_hostIsJbbsShitaraba[$in_host] = true;
+            } else {
+                self::$_hostIsJbbsShitaraba[$in_host] = false;
+            }
         }
+        return self::$_hostIsJbbsShitaraba[$in_host];
     }
 
     // }}}
     // {{{ adjustHostJbbs()
 
     /**
-     * ■livedoor レンタル掲示板 : したらばのホスト名変更に対応して変更する
+     * livedoor レンタル掲示板 : したらばのホスト名変更に対応して変更する
      *
      * @param    string    $in_str    ホスト名でもURLでもなんでも良い
      */
     static public function adjustHostJbbs($in_str)
     {
-        return preg_replace('/jbbs\.(shitaraba\.com|livedoor\.com)/', 'jbbs.livedoor.jp', $in_str, 1);
-        //return preg_replace('/jbbs\.(shitaraba\.com|livedoor\.(com|jp))/', 'rentalbbs.livedoor.com', $in_str, 1);
+        return preg_replace('<(^|/)jbbs\\.(?:shitaraba|livedoor)\\.com(/|$)>', '\\1jbbs.livedoor.jp\\2', $in_str, 1);
+        //return preg_replace('<(^|/)jbbs\\.(?:shitaraba\\.com|livedoor\\.(?:com|jp))(/|$)>', '\\1rentalbbs.livedoor.com\\2', $in_str, 1);
     }
 
     // }}}
@@ -540,7 +703,7 @@ class P2Util
     static public function header_nocache()
     {
         header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // 日付が過去
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); // 常に修正されている
+        header("Last-Modified: " . http_date()); // 常に修正されている
         header("Cache-Control: no-store, no-cache, must-revalidate"); // HTTP/1.1
         header("Cache-Control: post-check=0, pre-check=0", false);
         header("Pragma: no-cache"); // HTTP/1.0
@@ -565,7 +728,7 @@ class P2Util
     // {{{ transResHistLogPhpToDat()
 
     /**
-     * ■データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
+     * データPHP形式（TAB）の書き込み履歴をdat形式（TAB）に変換する
      *
      * 最初は、dat形式（<>）だったのが、データPHP形式（TAB）になり、そしてまた v1.6.0 でdat形式（<>）に戻った
      */
@@ -613,7 +776,7 @@ class P2Util
     // {{{ transResHistLogDatToPhp()
 
     /**
-     * ■dat形式（<>）の書き込み履歴をデータPHP形式（TAB）に変換する
+     * dat形式（<>）の書き込み履歴をデータPHP形式（TAB）に変換する
      */
     static public function transResHistLogDatToPhp()
     {
@@ -645,7 +808,7 @@ class P2Util
     // {{{ getLastAccessLog()
 
     /**
-     * ■前回のアクセス情報を取得
+     * 前回のアクセス情報を取得
      */
     static public function getLastAccessLog($logfile)
     {
@@ -673,7 +836,7 @@ class P2Util
     // {{{ recAccessLog()
 
     /**
-     * ■アクセス情報をログに記録する
+     * アクセス情報をログに記録する
      */
     static public function recAccessLog($logfile, $maxline = 100, $format = 'dataphp')
     {
@@ -1377,9 +1540,28 @@ EOP;
     }
 
     // }}}
+    // {{{ debug()
+    /*
+    static public function debug()
+    {
+        echo PHP_EOL;
+        echo '/', '*', '<pre>', PHP_EOL;
+        echo htmlspecialchars(print_r(self::$_hostDirs, true)), PHP_EOL;
+        echo htmlspecialchars(print_r(array_map('intval', self::$_hostIs2chs), true)), PHP_EOL;
+        //echo htmlspecialchars(print_r(array_map('intval', self::$_hostIsBe2chNet), true)), PHP_EOL;
+        echo htmlspecialchars(print_r(array_map('intval', self::$_hostIsBbsPink), true)), PHP_EOL;
+        echo htmlspecialchars(print_r(array_map('intval', self::$_hostIsMachiBbs), true)), PHP_EOL;
+        echo htmlspecialchars(print_r(array_map('intval', self::$_hostIsMachiBbsNet), true)), PHP_EOL;
+        echo htmlspecialchars(print_r(array_map('intval', self::$_hostIsJbbsShitaraba), true)), PHP_EOL;
+        echo '</pre>', '*', '/', PHP_EOL;
+    }
+    */
+    // }}}
 }
 
 // }}}
+
+//register_shutdown_function(array('P2Util', 'debug'));
 
 /*
  * Local Variables:

@@ -21,8 +21,8 @@ function settaborn($host, $bbs, $key, $set)
     //==================================================================
 
     // idxfileのパスを求めて
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = "{$idx_host_dir}/{$bbs}/{$key}.idx";
+    $idx_host_bbs_dir_s = P2Util::idxDirOfHostBbs($host, $bbs);
+    $idxfile = $idx_host_bbs_dir_s . $key . '.idx';
 
     // データがあるなら読み込む
     if ($lines = FileCtl::file_read_lines($idxfile, FILE_IGNORE_NEW_LINES)) {
@@ -36,8 +36,7 @@ function settaborn($host, $bbs, $key, $set)
     //==================================================================
 
     // p2_threads_aborn.idx のパス取得
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
+    $taborn_idx = $idx_host_bbs_dir_s . 'p2_threads_aborn.idx';
 
     // p2_threads_aborn.idx がなければ生成
     FileCtl::make_datafile($taborn_idx, $_conf['p2_perm']);

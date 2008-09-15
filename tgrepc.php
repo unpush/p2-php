@@ -61,7 +61,7 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
     $query = http_build_query($query_params);
     ini_set('arg_separator.output', '&amp;');
     $cache_options = array(
-        'cacheDir' => $_conf['pref_dir'] . '/p2_cache/',
+        'cacheDir' => $_conf['cache_dir'] . DIRECTORY_SEPARATOR,
         'lifeTime' => 3600,
         'fileNameProtection' => false,
         'automaticSerialization' => true,

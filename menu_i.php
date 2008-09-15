@@ -198,13 +198,18 @@ if ($_conf['expack.misc.multi_favs']) {
     // {{{ お気にスレ
 
     $favlist = FavSetManager::getFavSetTitles('m_favlist_set');
+    if (!$favlist) {
+        $favlist = array();
+    }
     $fav_elems = '';
     $fav_new_elems = '';
     $fav_elem_prefix = '';
 
-    foreach ($favlist as $no => $name) {
-        if (strlen($name) == 0) {
-            $name = ($no ? "お気にスレ{$no}" : 'お気にスレ');
+    for ($no = 0; $no <= $_conf['expack.misc.favset_num']; $no++) {
+        if (isset($favlist[$no]) && strlen($favlist[$no]) > 0) {
+            $name = $favlist[$no];
+        } else {
+            $favlist[$no] = $name = ($no ? "お気にスレ{$no}" : 'お気にスレ');
         }
         $fav_url = "subject.php?spmode=fav&amp;m_favlist_set={$no}";
         $fav_elems .= "<li><a href=\"{$fav_url}\" target=\"_self\">{$name}</a></li>";
@@ -223,11 +228,16 @@ if ($_conf['expack.misc.multi_favs']) {
     // {{{ お気に板
 
     $favita = FavSetManager::getFavSetTitles('m_favita_set');
+    if (!$favita) {
+        $favita = array();
+    }
 
     echo '<ul id="favita" title="お気に板">';
 
-    foreach ($favita as $no => $name) {
-        if (strlen($name) == 0) {
+    for ($no = 0; $no <= $_conf['expack.misc.favset_num']; $no++) {
+        if (isset($favita[$no]) && strlen($favita[$no]) > 0) {
+            $name = $favita[$no];
+        } else {
             $favita[$no] = $name = ($no ? "お気に板{$no}" : 'お気に板');
         }
         echo "<li><a href=\"#favita{$no}\">{$name}</a></li>";
@@ -250,11 +260,16 @@ if ($_conf['expack.misc.multi_favs']) {
 
     if ($_conf['expack.rss.enabled']) { 
         $rss = FavSetManager::getFavSetTitles('m_rss_set');
+        if (!$rss) {
+            $rss = array();
+        }
 
         echo '<ul id="rss" title="RSS">';
 
-        foreach ($rss as $no => $name) {
-            if (strlen($name) == 0) {
+        for ($no = 0; $no <= $_conf['expack.misc.favset_num']; $no++) {
+            if (isset($rss[$no]) && strlen($rss[$no]) > 0) {
+                $name = $rss[$no];
+            } else {
                 $rss[$no] = $name = ($no ? "RSS{$no}" : 'RSS');
             }
             echo "<li><a href=\"#rss{$no}\">{$name}</a></li>";

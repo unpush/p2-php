@@ -53,12 +53,11 @@ if ($spmode) {
         $p2_setting_txt = $_conf['pref_dir'] . '/p2_setting_' . $spmode . '.txt';
     }
 } else {
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idx_bbs_dir_s = $idx_host_dir . '/' . $bbs . '/';
+    $idx_host_bbs_dir_s = P2Util::idxDirOfHostBbs($host, $bbs);
 
-    $p2_setting_txt = $idx_bbs_dir_s . 'p2_setting.txt';
-    $sb_keys_b_txt =  $idx_bbs_dir_s . 'p2_sb_keys_b.txt';
-    $sb_keys_txt =    $idx_bbs_dir_s . 'p2_sb_keys.txt';
+    $p2_setting_txt = $idx_host_bbs_dir_s . 'p2_setting.txt';
+    $sb_keys_b_txt =  $idx_host_bbs_dir_s . 'p2_sb_keys_b.txt';
+    $sb_keys_txt =    $idx_host_bbs_dir_s . 'p2_sb_keys.txt';
 
     $pre_subject_keys = getSubjectKeys($sb_keys_txt, $sb_keys_b_txt);
     $subject_keys = array();
@@ -232,10 +231,10 @@ if ($spmode == 'merge_favita') {
                 $_bbs  = $matches[2];
                 $_id   = $_host . '/' . $_bbs;
 
-                $_idx_bbs_dir   = P2Util::idxDirOfHost($_host) . '/' . $_bbs;
-                $_sb_keys_txt   = $_idx_bbs_dir . '/p2_sb_keys.txt';
-                $_sb_keys_txt_a = $_idx_bbs_dir . '/p2_sb_keys_m.txt';
-                $_sb_keys_txt_b = $_idx_bbs_dir . '/p2_sb_keys_m_b.txt';
+                $_idx_host_bbs_dir_s = P2Util::idxDirOfHostBbs($_host, $_bbs);
+                $_sb_keys_txt   = $_idx_host_bbs_dir_s . 'p2_sb_keys.txt';
+                $_sb_keys_txt_a = $_idx_host_bbs_dir_s . 'p2_sb_keys_m.txt';
+                $_sb_keys_txt_b = $_idx_host_bbs_dir_s . 'p2_sb_keys_m_b.txt';
 
                 $favitas[$_id] = array('host' => $_host, 'bbs' => $_bbs);
                 $pre_subject_keys[$_id] = getSubjectKeys($_sb_keys_txt, $_sb_keys_txt);
@@ -254,8 +253,7 @@ if ($spmode == 'merge_favita') {
 }
 
 //============================================================
-// 更新する場合、前もって一括＆並列ダウンロード
-// (PHP >= 5.2, 要pecl_http)
+// 更新する場合、前もって一括＆並列ダウンロード (要pecl_http)
 //============================================================
 
 if (empty($_REQUEST['norefresh']) &&
@@ -310,9 +308,7 @@ if ($spmode) {
     $aThreadList->setIta($host, $bbs, $p2_setting['itaj']);
 
     // スレッドあぼーんリスト読込
-    $idx_host_dir = P2Util::idxDirOfHost($aThreadList->host);
-    $taborn_file = $idx_host_dir.'/'.$aThreadList->bbs.'/p2_threads_aborn.idx';
-
+    $taborn_file = $aThreadList->getIdxDir() . 'p2_threads_aborn.idx';
     if ($tabornlines = FileCtl::file_read_lines($taborn_file, FILE_IGNORE_NEW_LINES)) {
         $ta_num = sizeof($tabornlines);
         foreach ($tabornlines as $l) {
