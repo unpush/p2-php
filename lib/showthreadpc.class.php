@@ -423,29 +423,29 @@ EOP;
         if ($this->thread->onthefly) {
             $GLOBALS['newres_to_show_flag'] = true;
             //番号（オンザフライ時）
-            $tores .= "<div class=\"res-header\"><span class=\"ontheflyresorder spmSW\"{$spmeh}>{$i}</span> ：";
+            $tores .= "<div class=\"res-header\"><span class=\"ontheflyresorder spmSW\"{$spmeh}>{$i}</span> : ";
         } elseif ($i > $this->thread->readnum) {
             $GLOBALS['newres_to_show_flag'] = true;
             // 番号（新着レス時）
-            $tores .= "<div class=\"res-header\"><span style=\"color:{$STYLE['read_newres_color']}\" class=\"spmSW\"{$spmeh}>{$i}</span> ：";
+            $tores .= "<div class=\"res-header\"><span style=\"color:{$STYLE['read_newres_color']}\" class=\"spmSW\"{$spmeh}>{$i}</span> : ";
         } elseif ($_conf['expack.spm.enabled']) {
             // 番号（SPM）
-            $tores .= "<div class=\"res-header\"><span class=\"spmSW\"{$spmeh}>{$i}</span> ：";
+            $tores .= "<div class=\"res-header\"><span class=\"spmSW\"{$spmeh}>{$i}</span> : ";
         } else {
             // 番号
-            $tores .= "<div class=\"res-header\">{$i} ：";
+            $tores .= "<div class=\"res-header\">{$i} : ";
         }
         // 名前
-        $tores .= "<span class=\"name\"><b>{$name}</b></span>：";
+        $tores .= preg_replace('{<b>[ ]*</b>}i', '', "<span class=\"name\"><b>{$name}</b></span> : ");
 
         // メール
         if ($mail) {
             if (strpos($mail, 'sage') !== false && $STYLE['read_mail_sage_color']) {
-                $tores .= "<span class=\"sage\">{$mail}</span> ：";
+                $tores .= "<span class=\"sage\">{$mail}</span> : ";
             } elseif ($STYLE['read_mail_color']) {
-                $tores .= "<span class=\"mail\">{$mail}</span> ：";
+                $tores .= "<span class=\"mail\">{$mail}</span> : ";
             } else {
-                $tores .= $mail." ：";
+                $tores .= $mail . ' : ';
             }
         }
 
@@ -586,10 +586,12 @@ EOJS;
         }
 
         // $toresにまとめて出力
-        $tores .= "<div class=\"res-header\">";
-        $tores .= "<span class=\"spmSW\"{$spmeh}>{$i}</span> ："; // 番号
-        $tores .= "<b>$name</b> ："; // 名前
-        if($mail){ $tores .= $mail." ："; } // メール
+        $tores .= '<div class="res-header">';
+        $tores .= "<span class=\"spmSW\"{$spmeh}>{$i}</span> : "; // 番号
+        $tores .= preg_replace('{<b>[ ]*</b>}i', '', "<b>{$name}</b> : ");
+        if ($mail) {
+            $tores .= $mail . ' : '; // メール
+        }
         $tores .= $date_id; // 日付とID
         if ($this->am_side_of_id) {
             $tores .= ' ' . $this->activeMona->getMona($qmsg_id);
@@ -613,7 +615,7 @@ EOJS;
     {
         global $_conf;
 
-        $nameID = "";
+        $nameID = '';
 
         // ID付なら分解する
         if (preg_match('/(.*)(◆.*)/', $name, $matches)) {
@@ -635,7 +637,7 @@ EOJS;
 
         if (!empty($nameID)) { $name = $name . $nameID; }
 
-        $name = $name." "; // 文字化け回避
+        $name = $name . ' '; // 文字化け回避
 
         /*
         $b = unpack('C*', $name);
@@ -664,10 +666,13 @@ EOJS;
         global $pre_thumb_ignore_limit;
 
         // 2ch旧形式のdat
-        if ($this->thread->dat_type == "2ch_old") {
+        if ($this->thread->dat_type == '2ch_old') {
             $msg = str_replace('＠｀', ',', $msg);
-            $msg = preg_replace('/&amp([^;])/', '&$1', $msg);
+            $msg = preg_replace('/&amp(?=[^;])/', '&', $msg);
         }
+
+        // &補正
+        $msg = preg_replace('/&(?!#?\\w+;)/', '&amp;', $msg);
 
         // Safariから投稿されたリンク中チルダの文字化け補正
         //$msg = preg_replace('{(h?t?tp://[\w\.\-]+/)～([\w\.\-%]+/?)}', '$1~$2', $msg);
@@ -1032,7 +1037,7 @@ EOP;
 
         $quote_res_nums = array();
 
-        $name = preg_replace("/(◆.*)/", "", $name, 1);
+        $name = preg_replace('/(◆.*)/', '', $name, 1);
 
         // 名前
         if (preg_match('/[1-9]\\d*/', $name, $matches)) {

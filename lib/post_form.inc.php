@@ -80,7 +80,7 @@ $htm['post_form'] = <<<EOP
 {$htm['sage_cb']}
 {$htm['options']}
 {$htm['table_begin']}
-<textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kaiko_on_js']}{$htm['msg_extra_at']}>{$hd['MESSAGE']}</textarea>
+<textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at}{$wrap_at}{$htm['kaiko_on_js']}{$htm['msg_extra_at']}>{$hd['MESSAGE']}</textarea>
 {$htm['table_break1']}
 {$htm['dpreview_onoff']}
 {$htm['dpreview_amona']}

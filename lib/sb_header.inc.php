@@ -326,7 +326,7 @@ $_info_msg_ht = "";
 
 echo <<<EOP
 {$taborn_check_ht}{$check_form_ht}
-<table cellspacing="0" width="100%">\n
+<table class="threadlist" cellspacing="0">\n
 EOP;
 
 /*

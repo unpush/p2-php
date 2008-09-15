@@ -16,7 +16,7 @@ function sb_print($aThreadList)
     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sb_print()');
 
     if (!$aThreadList->threads) {
-        echo '<tr><td>　該当サブジェクトはなかったぽ</td></tr>';
+        echo '<tbody><tr><td>　該当サブジェクトはなかったぽ</td></tr></tbody>';
         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
         return;
     }
@@ -45,9 +45,22 @@ function sb_print($aThreadList)
         $ita_name_bool = false;
     }
 
-    $htm = array('ita_td' => '');
-
     $norefresh_q = '&amp;norefresh=true';
+
+    $td = array('edit' => '', 'offrec' => '', 'unum' => '', 'rescount' => '',
+                'one' => '', 'checkbox' => '', 'ita' => '', 'spd' => '',
+                'ikioi' => '', 'birth' => '', 'fav' => '');
+
+    // td欄 cssクラス
+    $class_t  = ' class="t"';   // 基本
+    $class_te = ' class="te"';  // 並び替え
+    $class_tu = ' class="tu"';  // 新着レス数
+    $class_tn = ' class="tn"';  // レス数
+    $class_tc = ' class="tc"';  // チェックボックス
+    $class_to = ' class="to"';  // オーダー番号
+    $class_tl = ' class="tl"';  // タイトル
+    $class_ts = ' class="ts"';  // すばやさ
+    $class_ti = ' class="ti"';  // 勢い
 
     // ソート ==================================================
 
@@ -79,81 +92,83 @@ function sb_print($aThreadList)
     //=====================================================
     // テーブルヘッダ
     //=====================================================
-    echo '<tr class="tableheader">';
+    echo "<thead>\n<tr class=\"tableheader\">\n";
 
     // 並替
     if ($sb_view == 'edit') {
-        echo '<td class="te">&nbsp;</td>';
+        echo "<th{$class_te}>&nbsp;</th>\n";
     }
     // 履歴の解除
     if ($aThreadList->spmode == 'recent') {
-        echo '<td class="t">&nbsp;</td>';
+        echo "<th{$class_t}>&nbsp;</th>\n";
     }
     // 新着
     if ($sb_view != 'edit') {
         echo <<<EOP
-<td id="sb_th_midoku" class="tu" nowrap><a{$class_sort_midoku} href="{$_conf['subject_php']}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">新着</a></td>
+<th{$class_tu} id="sb_th_midoku"><a{$class_sort_midoku} href="{$_conf['subject_php']}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">新着</a></th>\n
 EOP;
     }
     // レス数
     if ($sb_view != 'edit') {
         echo <<<EOP
-<td id="sb_th_res" class="tn" nowrap><a{$class_sort_res} href="{$_conf['subject_php']}?sort=res{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">レス</a></td>
+<th{$class_tn} id="sb_th_res"><a{$class_sort_res} href="{$_conf['subject_php']}?sort=res{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">レス</a></th>\n
 EOP;
     }
     // >>1
     if ($only_one_bool) {
-        echo '<td class="t">&nbsp;</td>';
+        echo "<th{$class_t}>&nbsp;</th>\n";
     }
     // チェックボックス
     if ($checkbox_bool) {
         echo <<<EOP
-<td class="tc"><input id="allbox" name="allbox" type="checkbox" onclick="checkAll();" title="すべての項目を選択、または選択解除"></td>
+<th{$class_tc}><input id="allbox" name="allbox" type="checkbox" onclick="checkAll();" title="すべての項目を選択、または選択解除"></th>\n
 EOP;
     }
     // No.
     $title = empty($aThreadList->spmode) ? ' title="2ch標準の並び順番号"' : '';
     echo <<<EOP
-<td id="sb_th_no" class="to"><a{$class_sort_no} href="{$_conf['subject_php']}?sort=no{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self"{$title}>No.</a></td>
+<th{$class_to} id="sb_th_no"><a{$class_sort_no} href="{$_conf['subject_php']}?sort=no{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self"{$title}>No.</a></th>\n
 EOP;
     // タイトル
     echo <<<EOP
-<td id="sb_th_title" class="tl"><a{$class_sort_title} href="{$_conf['subject_php']}?sort=title{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">タイトル</a></td>
+<th{$class_tl} id="sb_th_title"><a{$class_sort_title} href="{$_conf['subject_php']}?sort=title{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">タイトル</a></th>\n
 EOP;
     // 板
     if ($ita_name_bool) {
         echo <<<EOP
-<td id="sb_th_ita" class="t"><a{$class_sort_ita} href="{$_conf['subject_php']}?sort=ita{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">板</a></td>
+<th{$class_t} id="sb_th_ita"><a{$class_sort_ita} href="{$_conf['subject_php']}?sort=ita{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">板</a></th>\n
 EOP;
     }
     // すばやさ
     if ($_conf['sb_show_spd']) {
         echo <<<EOP
-<td id="sb_th_spd" class="ts"><a{$class_sort_spd} href="{$_conf['subject_php']}?sort=spd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">すばやさ</a></td>
+<th{$class_ts} id="sb_th_spd"><a{$class_sort_spd} href="{$_conf['subject_php']}?sort=spd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">すばやさ</a></th>\n
 EOP;
     }
     // 勢い
     if ($_conf['sb_show_ikioi']) {
         echo <<<EOP
-<td id="sb_th_ikioi" class="ti"><a{$class_sort_ikioi} href="{$_conf['subject_php']}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">勢い</a></td>
+<th{$class_ti} id="sb_th_ikioi"><a{$class_sort_ikioi} href="{$_conf['subject_php']}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">勢い</a></th>\n
 EOP;
     }
     // Birthday
     echo <<<EOP
-<td id="sb_th_bd" class="t"><a{$class_sort_bd} href="{$_conf['subject_php']}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">Birthday</a></td>
+<th{$class_t} id="sb_th_bd"><a{$class_sort_bd} href="{$_conf['subject_php']}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">Birthday</a></th>\n
 EOP;
     // お気に入り
     if ($_conf['sb_show_fav'] && $aThreadList->spmode != 'taborn') {
         echo <<<EOP
-<td id="sb_th_fav" class="t"><a{$class_sort_fav} href="{$_conf['subject_php']}?sort=fav{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self" title="お気にスレ">☆</a></td>
+<th{$class_t} id="sb_th_fav"><a{$class_sort_fav} href="{$_conf['subject_php']}?sort=fav{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self" title="お気にスレ">☆</a></th>\n
 EOP;
     }
 
-    echo "</tr>\n";
+    echo "</tr>\n</thead>\n";
 
     //=====================================================
     //テーブルボディ
     //=====================================================
+
+    echo "<tbody>\n";
 
     //spmodeがあればクエリー追加
     if ($aThreadList->spmode) {
@@ -168,17 +183,6 @@ EOP;
         $sid_q = "&amp;{$sid}";
         $sid_js = "+'{$sid_q}'";
     }
-
-    // td欄 cssクラス
-    $class_t  = ' class="t"';   // 基本
-    $class_te = ' class="te"';  // 並び替え
-    $class_tu = ' class="tu"';  // 新着レス数
-    $class_tn = ' class="tn"';  // レス数
-    $class_tc = ' class="tc"';  // チェックボックス
-    $class_to = ' class="to"';  // オーダー番号
-    $class_tl = ' class="tl"';  // タイトル
-    $class_ts = ' class="ts"';  // すばやさ
-    $class_ti = ' class="ti"';  // 勢い
 
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
@@ -232,20 +236,21 @@ EOP;
             }
         }
 
-        $unum_ht = "<td{$class_tu}>{$unum_ht_c}</td>";
+        $td['unum'] = "<td{$class_tu}>{$unum_ht_c}</td>\n";
 
         // 総レス数 =============================================
-        $rescount_ht = "<td{$class_tn}>{$aThread->rescount}</td>";
+        $td['rescount'] = "<td{$class_tn}>{$aThread->rescount}</td>\n";
 
         // 板名 ============================================
         if ($ita_name_bool) {
             $ita_name_ht = htmlspecialchars($aThread->itaj ? $aThread->itaj : $aThread->bbs, ENT_QUOTES);
-            $htm['ita_td'] = "<td{$class_t} nowrap><a href=\"{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}\" target=\"_self\">{$ita_name_ht}</a></td>";
+            $td['ita'] = <<<EOP
+<td{$class_t}><a href="{$_conf['subject_php']}?host={$aThread->host}&amp;bbs={$aThread->bbs}" target="_self">{$ita_name_ht}</a></td>\n
+EOP;
         }
 
 
         // お気に入り ========================================
-        $fav_ht = '';
         if ($_conf['sb_show_fav']) {
             if ($aThreadList->spmode != 'taborn') {
 
@@ -255,8 +260,8 @@ EOP;
                 $favdo_q = '&amp;setfav='.$favdo;
 
                 // $ttitle_en_q も付けた方がいいが、節約のため省略する
-                $fav_ht = <<<EOP
-<td{$class_t}><a class="fav" href="info.php?{$base_q}{$favdo_q}" target="info" onclick="return wrapSetFavJs('{$base_q}','{$favdo}',this);" title="{$favtitle}">{$favmark}</a></td>
+                $td['fav'] = <<<EOP
+<td{$class_t}><a class="fav" href="info.php?{$base_q}{$favdo_q}" target="info" onclick="return wrapSetFavJs('{$base_q}','{$favdo}',this);" title="{$favtitle}">{$favmark}</a></td>\n
 EOP;
             }
         }
@@ -326,9 +331,9 @@ EOP;
 
         // オンリー>>1
         if ($only_one_bool) {
-            $one_ht = "<td{$class_t}><a href=\"{$_conf['read_php']}?{$base_q}&amp;one=true\">&gt;&gt;1</a></td>";
-        } else {
-            $one_ht = '';
+            $td['one'] = <<<EOP
+<td{$class_t}><a href="{$_conf['read_php']}?{$base_q}&amp;one=true">&gt;&gt;1</a></td>\n
+EOP;
         }
 
         // チェックボックス
@@ -339,16 +344,15 @@ EOP;
                     $checked_ht = ' checked';
                 }
             }
-            $checkbox_ht = "<td{$class_tc}><input name=\"checkedkeys[]\" type=\"checkbox\" value=\"{$aThread->key}\"{$checked_ht}></td>";
-        } else {
-            $checkbox_ht = '';
+            $td['checkbox'] = <<<EOP
+<td{$class_tc}><input name="checkedkeys[]" type="checkbox" value="{$aThread->key}"{$checked_ht}></td>\n
+EOP;
         }
 
         // 並替
-        $edit_ht = '';
         if ($sb_view == 'edit') {
-            $unum_ht = '';
-            $rescount_ht = '';
+            $td['unum'] = '';
+            $td['rescount'] = '';
             $sb_view_q = '&amp;sb_view=edit';
             if ($aThreadList->spmode == 'fav') {
                 $setkey = 'setfav';
@@ -357,34 +361,31 @@ EOP;
             }
             $narabikae_a = "{$_conf['subject_php']}?{$base_q}{$spmode_q}{$sb_view_q}";
 
-            $edit_ht = <<<EOP
+            $td['edit'] = <<<EOP
 <td{$class_te}>
     <a class="te" href="{$narabikae_a}&amp;{$setkey}=top" target="_self">▲</a>
     <a class="te" href="{$narabikae_a}&amp;{$setkey}=up" target="_self">↑</a>
     <a class="te" href="{$narabikae_a}&amp;{$setkey}=down" target="_self">↓</a>
     <a class="te" href="{$narabikae_a}&amp;{$setkey}=bottom" target="_self">▼</a>
-</td>
+</td>\n
 EOP;
         }
 
         // 最近読んだスレの解除
-        $offrec_ht = '';
         if ($aThreadList->spmode == 'recent') {
-            $offrec_ht = <<<EOP
-<td{$class_tc}><a href="info.php?{$base_q}&amp;offrec=true" target="_self" onclick="return offrec_ajax(this.href.toString(),this.parentNode.parentNode);">×</a></td>
+            $td['offrec'] = <<<EOP
+<td{$class_tc}><a href="info.php?{$base_q}&amp;offrec=true" target="_self" onclick="return offrec_ajax(this.href.toString(),this.parentNode.parentNode);">×</a></td>\n
 EOP;
         }
 
         // すばやさ（＝ 時間/レス ＝ レス間隔）
-        $spd_ht = '';
         if ($_conf['sb_show_spd']) {
             if ($spd_st = $aThread->getTimePerRes()) {
-                $spd_ht = "<td{$class_ts}>{$spd_st}</td>";
+                $td['spd'] = "<td{$class_ts}>{$spd_st}</td>\n";
             }
         }
 
         // 勢い
-        $ikioi_ht = '';
         if ($_conf['sb_show_ikioi']) {
             if ($aThread->dayres > 0) {
                 // 0.0 とならないように小数点第2位で切り上げ
@@ -393,12 +394,12 @@ EOP;
             } else {
                 $dayres_st = '-';
             }
-            $ikioi_ht = "<td{$class_ti}>{$dayres_st}</td>";
+            $td['ikioi'] = "<td{$class_ti}>{$dayres_st}</td>\n";
         }
 
         // Birthday
         $birthday = date('y/m/d', $aThread->key); // (y/m/d H:i)
-        $birth_ht = "<td{$class_t}>{$birthday}</td>";
+        $td['birth'] = "<td{$class_t}>{$birthday}</td>\n";
 
         //====================================================================================
         // スレッド一覧 table ボディ HTMLプリント <tr></tr>
@@ -407,13 +408,14 @@ EOP;
         // ボディ
         echo <<<EOR
 <tr{$class_r}>
-{$edit_ht}{$offrec_ht}{$unum_ht}{$rescount_ht}{$one_ht}{$checkbox_ht}<td{$class_to}>{$torder_ht}</td>
-<td{$class_tl} nowrap>{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}" title="{$aThread->ttitle_hd}"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></td>
-{$htm['ita_td']}{$spd_ht}{$ikioi_ht}{$birth_ht}{$fav_ht}
-</tr>\n
+{$td['edit']}{$td['offrec']}{$td['unum']}{$td['rescount']}{$td['one']}{$td['checkbox']}<td{$class_to}>{$torder_ht}</td>
+<td{$class_tl}>{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}" title="{$aThread->ttitle_hd}"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></td>
+{$td['ita']}{$td['spd']}{$td['ikioi']}{$td['birth']}{$td['fav']}</tr>\n
 EOR;
 
     }
+
+    echo "</tbody>\n";
 
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sb_print()');
     return true;

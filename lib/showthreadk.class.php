@@ -525,10 +525,8 @@ EOP;
 
         if ($nameID) {$name = $name . $nameID;}
 
-        $name = $name." "; // 文字化け回避
-
-        $name = str_replace("</b>", "", $name);
-        $name = str_replace("<b>", "", $name);
+        // 文字化け回避とタグ除去
+        $name = preg_replace('{</?[Bb]>}', '', '', $name . ' ');
 
         return ($name == ' ') ? '' : $name;
     }
@@ -552,10 +550,13 @@ EOP;
         $ryaku = false;
 
         // 2ch旧形式のdat
-        if ($this->thread->dat_type == "2ch_old") {
+        if ($this->thread->dat_type == '2ch_old') {
             $msg = str_replace('＠｀', ',', $msg);
-            $msg = preg_replace('/&amp([^;])/', '&$1', $msg);
+            $msg = preg_replace('/&amp(?=[^;])/', '&', $msg);
         }
+
+        // &補正
+        $msg = preg_replace('/&(?!#?\\w+;)/', '&amp;', $msg);
 
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>

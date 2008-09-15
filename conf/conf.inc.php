@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080904.1646',   // 拡張パックのバージョン
+    'p2expack'  => '080905.0030',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -128,23 +128,6 @@ ini_set('default_mimetype', 'text/html');
 ini_set('default_charset', 'Shift_JIS');
 
 // }}}
-// {{{ 文字コードの指定
-
-//mb_detect_order("CP932,CP51932,ASCII");
-mb_internal_encoding('CP932');
-mb_http_output('pass');
-mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
-//mb_substitute_character(0x3013); // 〓
-//ob_start('mb_output_handler');
-
-if (function_exists('mb_ereg_replace')) {
-    define('P2_MBREGEX_AVAILABLE', 1);
-    mb_regex_encoding('CP932');
-} else {
-    define('P2_MBREGEX_AVAILABLE', 0);
-}
-
-// }}}
 // {{{ ライブラリ類のパス設定
 
 define('P2_BASE_DIR', dirname(dirname(__FILE__))); // dirname(__DIR__) @php-5.3
@@ -179,28 +162,46 @@ if (is_dir(P2_PEAR_DIR)) {
 $include_path .= PATH_SEPARATOR . get_include_path();
 set_include_path($include_path);
 
-// ライブラリを読み込む
+// }}}
+// {{{ 環境チェックとデバッグ
 
-require_once 'Net/UserAgent/Mobile.php';
+// ユーティリティを読み込む
 require_once P2_LIB_DIR . '/p2util.inc.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/p2util.class.php';
+
+// 動作環境を確認 (要件を満たしているならコメントアウト可)
+p2checkenv(__LINE__);
+
+// ライブラリを読み込む
+require_once 'Net/UserAgent/Mobile.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/session.class.php';
 require_once P2_LIB_DIR . '/login.class.php';
 require_once P2_LIB_DIR . '/fontconfig.inc.php';
-
-// }}}
-// {{{ 環境チェックとデバッグ
-
-// 動作環境を確認 (要件を満たしているならコメントアウト可)
-p2checkenv(__LINE__);
 
 if ($debug) {
     require_once 'Benchmark/Profiler.php';
     $profiler = new Benchmark_Profiler(true);
     // print_memory_usage();
     register_shutdown_function('print_memory_usage');
+}
+
+// }}}
+// {{{ 文字コードの指定
+
+//mb_detect_order("CP932,CP51932,ASCII");
+mb_internal_encoding('CP932');
+mb_http_output('pass');
+mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
+//mb_substitute_character(0x3013); // 〓
+//ob_start('mb_output_handler');
+
+if (function_exists('mb_ereg_replace')) {
+    define('P2_MBREGEX_AVAILABLE', 1);
+    mb_regex_encoding('CP932');
+} else {
+    define('P2_MBREGEX_AVAILABLE', 0);
 }
 
 // }}}
@@ -843,7 +844,7 @@ $_login = new Login();
 /**
  * 動作環境を確認する
  *
- * @return  void
+ * @return bool
  */
 function p2checkenv($check_recommended)
 {
@@ -853,15 +854,24 @@ function p2checkenv($check_recommended)
     $required_version = '5.2.3';
     $recommended_version = '5.2.6';
 
+    // PHPのバージョン
     if (version_compare($php_version, $required_version, '<')) {
-        p2die('PHP ' . $required_version . ' 未満では使えません。');
+        p2die("PHP {$required_version} 未満では使えません。");
     }
-    if (!extension_loaded('mbstring')) {
-        p2die('PHPのインストールが不十分です。mbstring拡張モジュールがロードされていません。');
+
+    // 必須拡張モジュール
+    foreach (array('mbstring', 'pcre', 'session', 'zlib') as $ext) {
+        if (!extension_loaded($ext)) {
+            p2die("{$ext} 拡張モジュールがロードされていません。");
+        }
     }
+
+    // セーフモード
     if (ini_get('safe_mode')) {
         p2die('セーフモードで動作するPHPでは使えません。');
     }
+
+    // register_globals
     if (ini_get('register_globals')) {
         $msg = <<<EOP
 予期しない動作を避けるために php.ini で register_globals を Off にしてください。
@@ -870,13 +880,30 @@ EOP;
         p2die('register_globals が On です。', $msg);
     }
 
-    if ($check_recommended && version_compare($php_version, $recommended_version, '<')) {
-        $_info_msg_ht .= '<p><b>推奨バージョンより古いPHPで動作しています。</b> <i>(PHP ' . $php_version . ')</i><br>';
-        $_info_msg_ht .= 'PHP ' . $recommended_version . ' 以降にアップデートすることをおすすめします。<br>';
-        $_info_msg_ht .= '<small>（このメッセージを表示しないようにするには ' . htmlspecialchars(__FILE__, ENT_QUOTES);
-        $_info_msg_ht .= ' の ' . $check_recommended . ' 行目の &quot;p2checkenv(__LINE__);&quot; を';
-        $_info_msg_ht .= ' &quot;p2checkenv(false);&quot; に書き換えてください）</small></p>';
+    // eAccelerator
+    if (extension_loaded('eaccelerator') && version_compare(EACCELERATOR_VERSION, '0.9.5.2', '<')) {
+        $err = 'eAcceleratorを更新してください。';
+        $ev = EACCELERATOR_VERSION;
+        $msg = <<<EOP
+PHP 5.2 で例外を捕捉できないバージョンの eAccelerator ({$ev}) がインストールされています。
+この問題が修正された eAccelerator 0.9.5.2 以降を使用してください。
+EOP;
+        p2die($err, $msg);
     }
+
+    // 推奨バージョン
+    if ($check_recommended && version_compare($php_version, $recommended_version, '<')) {
+        $conf_php = htmlspecialchars(__FILE__, ENT_QUOTES);
+        $_info_msg_ht .= <<<EOP
+<p><strong>推奨バージョンより古いPHPで動作しています。</strong><em>(PHP {$php_version})</em><br>
+PHP {$recommended_version} 以降にアップデートすることをおすすめします。<br>
+<small>（このメッセージを表示しないようにするには {$conf_php} の {$check_recommended} 行目の
+&quot;p2checkenv(__LINE__);&quot; を quot;p2checkenv(false);&quot; に書き換えてください）</small></p>
+EOP;
+        return false;
+    }
+
+    return true;
 }
 
 // }}}

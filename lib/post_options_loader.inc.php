@@ -115,21 +115,20 @@ $hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
 
 // 参考 クラシック COLS='60' ROWS='8'
 $mobile = Net_UserAgent_Mobile::singleton();
+$wrap_at = ''; // wrap属性はW3C HTML 4.01仕様に存在しない
 // PC
 if (!$_conf['ktai']) {
     $name_size_at = ' size="19"';
     $mail_size_at = ' size="19"';
     $msg_cols_at = ' cols="' . $STYLE['post_msg_cols'] . '"';
-    $wrap = 'off';
 // willcom
 } elseif($mobile->isAirHPhone()) {
     $msg_cols_at = ' cols="' . $STYLE['post_msg_cols'] . '"';
-    $wrap = 'soft';
 // 携帯
 } else {
     $STYLE['post_msg_rows'] = 5;
     $msg_cols_at = '';
-    $wrap = 'soft';
+    $wrap_at = ' wrap="soft"';
 }
 
 // Be.2ch
