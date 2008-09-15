@@ -230,8 +230,7 @@ class P2Util
             return self::$_hostDirs[$key];
         }
 
-        // 念のため、スラッシュ除去
-        $host = trim($host, '/');
+        $host = self::normalizeHostName($host);
 
         // 2channel or bbspink
         if (self::isHost2chs($host)) {
@@ -477,7 +476,7 @@ class P2Util
     {
         global $_conf;
 
-        $host = trim($host, '/');
+        $host = self::normalizeHostName($host);
 
         if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host)) {
             if (self::isHostJbbsShitaraba($host)) {
@@ -567,6 +566,24 @@ class P2Util
         }
 
         return $url_r;
+    }
+
+    // }}}
+    // {{{ normalizeHostName()
+
+    /**
+     * hostを正規化する
+     *
+     * @param string $host
+     * @return string
+     */
+    static public function normalizeHostName($host)
+    {
+        $host = trim($host, '/');
+        if (($sp = strpos($host, '/')) !== false) {
+            return strtolower(substr($host, 0, $sp)) . substr($host, $sp);
+        }
+        return strtolower($host);
     }
 
     // }}}

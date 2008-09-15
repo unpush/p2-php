@@ -14,31 +14,38 @@ $norefresh_q = "&amp;norefresh=1";
 
 $p2_subject_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}";
 
+// 通常 板
+if (!$aThreadList->spmode) {
+    // 検索語あり
+    if ((isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) || !empty($GLOBALS['wakati_words'])) {
+        $ptitle_url = $p2_subject_url;
+
+    // 2ch系 (iPhone除く)
+    } elseif (!$_conf['iphone'] && P2Util::isHost2chs($aThreadList->host)) {
+        if (P2Util::isHostBbsPink($aThreadList->host)) {
+            //$ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
+            $ptitle_url = "http://speedo.ula.cc/test/p.so/{$aThreadList->host}/{$aThreadList->bbs}/";
+        } else {
+            $ptitle_url = "http://c.2ch.net/test/-/{$aThreadList->bbs}/i";
+        }
+
+    // その他
+    } else {
+        $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/";
+        // 特別なパターン index2.html
+        // match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
+        if (!strcasecmp($aThreadList->host, 'livesoccer.net')) {
+            $ptitle_url .= 'index2.html';
+        }
+    }
+
 // あぼーん or 倉庫
-if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
+} elseif ($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko') {
     $ptitle_url = $p2_subject_url;
 
 // 書き込み履歴
 } elseif ($aThreadList->spmode == 'res_hist') {
     $ptitle_url = "./read_res_hist.php{$_conf['k_at_q']}#footer";
-
-// 通常 板
-} elseif (!$aThreadList->spmode) {
-    // 特別なパターン index2.html
-    // match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
-    if (preg_match('/(www\.onpuch\.jp|livesoccer\.net)/', $aThreadList->host)) {
-        $ptitle_url = $ptitle_url . 'index2.html';
-    } elseif (!empty($GLOBALS['word']) || !empty($GLOBALS['wakati_words'])) {
-        $ptitle_url = $p2_subject_url;
-    } elseif ($_conf['iphone']) {
-        $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/";
-    } else {
-        if (P2Util::isHostBbsPink($aThreadList->host)) {
-            $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
-        } else {
-            $ptitle_url = "http://c.2ch.net/test/-/{$aThreadList->bbs}/i";
-        }
-    }
 }
 
 // }}}
@@ -50,11 +57,11 @@ if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
     $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 }
 
-if ($aThreadList->spmode == "taborn") {
+if ($aThreadList->spmode == 'taborn') {
     $ptitle_ht = <<<EOP
 <a href="{$ptitle_url}"><b>{$aThreadList->itaj_hd}</b></a>（ｱﾎﾞﾝ中）
 EOP;
-} elseif ($aThreadList->spmode == "soko") {
+} elseif ($aThreadList->spmode == 'soko') {
     $ptitle_ht = <<<EOP
 <a href="{$ptitle_url}"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）
 EOP;

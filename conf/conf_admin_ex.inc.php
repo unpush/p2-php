@@ -11,6 +11,9 @@
 // ImageCache2 等でファイルをリモートから取得する際の User-Agent
 $_conf['expack.user_agent'] = ""; // ("")
 
+// pecl_http が利用できる場合、HttpRequestPool による並列ダウロードを有効にする
+$_conf['expack.use_pecl_http'] = 1; // (1)
+
 // }}}
 // ----------------------------------------------------------------------
 // {{{ スキン

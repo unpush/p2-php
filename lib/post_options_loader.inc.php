@@ -166,7 +166,7 @@ EOP;
 // {{{ ソースコード補正用チェックボックス
 
 if (!$_conf['ktai']) {
-    if ($_conf['editor_srcfix'] == 1 || ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d\.2ch\.net/', $host))) {
+    if ($_conf['editor_srcfix'] == 1 || ($_conf['editor_srcfix'] == 2 && preg_match('/pc\\d+\\.2ch\\.net/', $host))) {
         $htm['src_fix'] = <<<EOP
 <input type="checkbox" id="fix_source" name="fix_source" value="1"><label for="fix_source">src</label>
 EOP;

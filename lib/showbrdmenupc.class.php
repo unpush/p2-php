@@ -106,7 +106,7 @@ EOP;
 
         if ($favitas) {
             // 新着数を表示する場合・まとめてプリフェッチ
-            if ($_conf['enable_menu_new'] && !empty($_GET['new']) && extension_loaded('http')) {
+            if ($_conf['enable_menu_new'] && !empty($_GET['new']) && $_conf['expack.use_pecl_http'] && extension_loaded('http')) {
                 require_once P2_LIB_DIR . '/p2httpext.class.php';
                 P2HttpRequestPool::fetchSubjectTxt($favitas);
                 $GLOBALS['expack.subject.multi-threaded-download.done'] = true;

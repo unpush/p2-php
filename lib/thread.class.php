@@ -483,7 +483,8 @@ class Thread
             // Œg‘Ñ
             } else {
                 if (P2Util::isHostBbsPink($this->host)) {
-                    $motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
+                    //$motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
+                    $motothre_url = "http://speedo.ula.cc/test/r.so/{$this->host}/{$this->bbs}/{$this->key}/{$this->ls}"; 
                 } else {
                     $mail = rawurlencode($_conf['my_mail']);
                     // c.2ch‚Ílw’è‚É”ñ‘Î‰‚È‚Ì‚ÅA‘ã‚í‚è‚Én

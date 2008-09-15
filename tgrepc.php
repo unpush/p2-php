@@ -145,6 +145,7 @@ if ($query) {
             if (FileCtl::file_write_contents($_conf['expack.tgrep.recent_file'], $tgrep_recent_data) === false) {
                 p2die('cannot write file.');
             }
+            chmod($_conf['expack.tgrep.recent_file'], $_conf['p2_perm']);
         }
     }
 } else {

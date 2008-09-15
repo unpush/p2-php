@@ -45,7 +45,7 @@ if (isset($_GET['file'])) {
 
 if (!empty($_GET['query'])) {
     $purge = !empty($_GET['purge']);
-    $query = preg_replace('/[\r\n\t]/', ' ', trim($_GET['query']));
+    $query = preg_replace('/\\s+/', ' ', trim($_GET['query']));
 
     FileCtl::make_datafile($list_file, $_conf['expack.tgrep.file_perm']);
     $tgrep_list = FileCtl::file_read_lines($list_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -70,6 +70,7 @@ if (!empty($_GET['query'])) {
     if (FileCtl::file_write_contents($list_file, $tgrep_data) === false) {
         p2die('cannot write file.');
     }
+    chmod($list_file, $_conf['p2_perm']);
 } elseif (!empty($_GET['clear']) && file_exists($list_file)) {
     $fp = @fopen($list_file, 'w');
     if (!$fp) {
@@ -79,6 +80,7 @@ if (!empty($_GET['query'])) {
     ftruncate($fp, 0);
     flock($fp, LOCK_UN);
     fclose($fp);
+    chmod($list_file, $_conf['p2_perm']);
 }
 
 // }}}

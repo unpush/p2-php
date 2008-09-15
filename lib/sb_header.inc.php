@@ -7,8 +7,8 @@
 //===================================================================
 // 変数
 //===================================================================
-$newtime = date("gis");
-$reloaded_time = date("m/d G:i:s"); //更新時刻
+$newtime = date('gis');
+$reloaded_time = date('m/d G:i:s'); //更新時刻
 
 // スレあぼーんチェック、倉庫 =============================================
 $taborn_check_ht = '';
@@ -18,15 +18,15 @@ if (($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko') && $aTh
     <form class="check" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">\n
 EOP;
     if ($offline_num > 0) {
-        if ($aThreadList->spmode == "taborn") {
+        if ($aThreadList->spmode == 'taborn') {
             $taborn_check_ht .= <<<EOP
-        <p>{$aThreadList->num}件中、{$offline_num}件のスレッドが既に板サーバのスレッド一覧から外れているようです（自動でチェックがつきます）</p>\n
+<p>{$aThreadList->num}件中、{$offline_num}件のスレッドが既に板サーバのスレッド一覧から外れているようです（自動でチェックがつきます）</p>\n
 EOP;
         }
         /*
-        elseif ($aThreadList->spmode == "soko") {
+        elseif ($aThreadList->spmode == 'soko') {
             $taborn_check_ht .= <<<EOP
-        <p>{$aThreadList->num}件のdat落ちスレッドが保管されています。</p>\n
+<p>{$aThreadList->num}件のdat落ちスレッドが保管されています。</p>\n
 EOP;
         }*/
     }
@@ -36,18 +36,24 @@ EOP;
 // HTML表示用変数 for ツールバー(sb_toolbar.inc.php)
 //===============================================================
 
-$norefresh_q = "&amp;norefresh=true";
+$norefresh_q = '&amp;norefresh=true';
 
 // ページタイトル部分URL設定 ====================================
-if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
-    $ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}";
-} elseif ($aThreadList->spmode == "res_hist") {
-    $ptitle_url = "./read_res_hist.php#footer";
-} elseif (!$aThreadList->spmode) {
+// 通常 板
+if (!$aThreadList->spmode) {
     $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/";
-    if (preg_match("/www\.onpuch\.jp/", $aThreadList->host)) {$ptitle_url = $ptitle_url."index2.html";}
-    if (preg_match("/livesoccer\.net/", $aThreadList->host)) {$ptitle_url = $ptitle_url."index2.html";}
     // match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
+    if (!strcasecmp($aThreadList->host, 'livesoccer.net')) {
+        $ptitle_url .= 'index2.html';
+    }
+
+// あぼーん or 倉庫
+} elseif ($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko') {
+    $ptitle_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}";
+
+// 書き込み履歴
+} elseif ($aThreadList->spmode == 'res_hist') {
+    $ptitle_url = './read_res_hist.php#footer';
 }
 
 // ページタイトル部分HTML設定 ====================================
@@ -57,31 +63,31 @@ if ($aThreadList->spmode == 'fav' && $_conf['expack.misc.multi_favs']) {
     $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 }
 
-if ($aThreadList->spmode == "taborn") {
+if ($aThreadList->spmode == 'taborn') {
     $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（あぼーん中）</span>
+<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（あぼーん中）</span>
 EOP;
-} elseif ($aThreadList->spmode == "soko") {
+} elseif ($aThreadList->spmode == 'soko') {
     $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）</span>
+<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}" target="_self"><b>{$aThreadList->itaj_hd}</b></a>（dat倉庫）</span>
 EOP;
 } elseif (!empty($ptitle_url)) {
     $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url}"><b>{$ptitle_hd}</b></a></span>
+<span class="itatitle"><a class="aitatitle" href="{$ptitle_url}"><b>{$ptitle_hd}</b></a></span>
 EOP;
 } else {
     $ptitle_ht = <<<EOP
-    <span class="itatitle"><b>{$ptitle_hd}</b></span>
+<span class="itatitle"><b>{$ptitle_hd}</b></span>
 EOP;
 }
 
 // ビュー部分設定 ==============================================
 $edit_ht = '';
 if ($aThreadList->spmode) { // スペシャルモード時
-    if($aThreadList->spmode=="fav" or $aThreadList->spmode=="palace"){    // お気にスレ or 殿堂なら
-        if($sb_view=="edit"){
+    if ($aThreadList->spmode == 'fav' || $aThreadList->spmode == 'palace'){ // お気にスレ or 殿堂なら
+        if ($sb_view == 'edit'){
             $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}{$norefresh_q}\" target=\"_self\">並替</a>";
-        }else{
+        } else {
             $edit_ht="<a class=\"narabi\" href=\"{$_conf['subject_php']}?spmode={$aThreadList->spmode}&amp;sb_view=edit{$norefresh_q}\" target=\"_self\">並替</a>";
 
         }
@@ -97,7 +103,7 @@ $sb_form_hidden_ht = <<<EOP
 EOP;
 
 //表示件数 ==================================================
-if(!$aThreadList->spmode || $aThreadList->spmode == 'merge_favita'){
+if (!$aThreadList->spmode || $aThreadList->spmode == 'merge_favita') {
 
     $vncheck = array('100', '150', '200', '250', '300', '400', '500', 'all');
     $vncheck = array_combine($vncheck, array_fill(0, count($vncheck), ''));
@@ -162,7 +168,7 @@ EOP;
 
 // チェックフォーム =====================================
 $abornoff_ht = '';
-if ($aThreadList->spmode == "taborn") {
+if ($aThreadList->spmode == 'taborn') {
     $abornoff_ht = "<input type=\"submit\" name=\"submit\" value=\"{$abornoff_st}\">";
 }
 $check_form_ht = '';
@@ -253,12 +259,21 @@ echo <<<EOP
             toid_obj.style.color="{$STYLE['thre_title_color_v']}";
         }
     }
+    function wrapDeleLog(qeury, from){
+        return deleLog(qeury, {$STYLE['info_pop_size']}, 'subject', from);
+    }
+    function wrapSetFavJs(query, favdo, from){
+        return setFavJs(query, favdo, {$STYLE['info_pop_size']}, 'subject', from);
+    }
+    function wrapOpenSubWin(url){
+        return OpenSubWin(url + '&popup=1', {$STYLE['info_pop_size']}, 0, 0);
+    }
     \$(setWinTitle);
     //]]>
     </script>\n
 EOP;
 
-if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
+if ($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko') {
     echo <<<EOJS
     <script type="text/javascript">
     //<![CDATA[
@@ -276,41 +291,23 @@ if ($aThreadList->spmode == "taborn" or $aThreadList->spmode == "soko") {
     //]]>
     </script>
 EOJS;
-} elseif ($aThreadList->spmode == "recent") {
+} elseif ($aThreadList->spmode == 'recent') {
     echo <<<EOJS
     <script type="text/javascript">
     //<![CDATA[
-    \$(function(){
-        var offrec_callback = function (row, html, status) {
+    function offrec_ajax(url, row)
+    {
+        \$.get(url, null, function(html, status){
             if (status == 'error') {
-                alert('Async error!');
+                window.alert('Async error!');
             } else if (html.indexOf('履歴解除失敗') != -1) {
-                alert('履歴解除失敗!');
+                window.alert('履歴解除失敗!');
             } else {
-                row.remove();
+                row.parentNode.removeChild(row);
             }
-        };
-        var col_proto = \$('<td style="padding:2px 0px 2px 4px"><' + '/td>');
-        var off_proto = \$('<a>×<' + '/a>');
-        \$('tr.tableheader').prepend('<td style="width:1em;padding:0"><' + '/td>');
-        \$('a.info').each(function(){
-            var self = \$(this);
-            var row = \$(self.parents('tr').get(0));
-            var col = col_proto.clone();
-            var off = off_proto.clone();
-            var url = self.attr('href') + '&offrec=true';
-            off.attr('href', url);
-            off.removeAttr('onclick');
-            off.click(function(){
-                \$.get(url, null, function(html, status){
-                    offrec_callback(row, html, status);
-                });
-                return false;
-            });
-            col.append(off);
-            row.prepend(col);
-        })
-    });
+        });
+        return false;
+    }
     //]]>
     </script>
 EOJS;

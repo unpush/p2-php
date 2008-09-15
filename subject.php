@@ -258,7 +258,7 @@ if ($spmode == 'merge_favita') {
 
 if (empty($_REQUEST['norefresh']) &&
     !(empty($_REQUEST['refresh']) && isset($_REQUEST['word'])) &&
-    extension_loaded('http')
+    $_conf['expack.use_pecl_http'] && extension_loaded('http')
 ) {
     require_once P2_LIB_DIR . '/p2httpext.class.php';
     switch ($spmode) {

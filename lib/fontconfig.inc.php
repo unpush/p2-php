@@ -15,12 +15,12 @@ function fontconfig_detect_agent($ua = null)
     if ($ua === null) {
         $ua = $_SERVER['HTTP_USER_AGENT'];
     }
-    if (preg_match('/\bWindows\b/', $ua)) {
+    if (preg_match('/\\bWindows\\b/', $ua)) {
         return 'windows';
     }
-    if (preg_match('/\bMac(intoth)?\b/', $ua)) {
-        if (preg_match('/\b(Safari|AppleWebKit)\/([\d]+)/', $ua, $matches)) {
-            $version = (int)$matches[2];
+    if (preg_match('/\\bMac(?:intoth)?\\b/', $ua)) {
+        if (preg_match('/\\b(?:Safari|AppleWebKit)\\/([\\d]+)/', $ua, $matches)) {
+            $version = (int)$matches[1];
             if ($version >= 500) {
                 return 'safari3';
             } else if ($version >= 400) {
@@ -28,7 +28,7 @@ function fontconfig_detect_agent($ua = null)
             } else {
                 return 'safari1';
             }
-        } elseif (preg_match('/\b(Mac ?OS ?X)\b/', $ua)) {
+        } elseif (preg_match('/\\bMac ?OS ?X\\b/', $ua)) {
             return 'macosx';
         } else {
             return 'macos9';
@@ -71,18 +71,19 @@ function fontconfig_apply_custom()
             $skin_uniq = P2_VERSION_ID . sprintf('.%u', crc32($fontconfig_data));
 
             foreach ($current_fontconfig['custom'][$type] as $key => $value) {
-                if (strstr($key, 'fontfamily') && $value == '-') {
-                    if ($key == 'fontfamily_aa') {
+                if ($value === '') {
+                    continue;
+                } elseif ($key == 'fontfamily_aa') {
+                    if ($value == '-') {
                         $_conf['expack.am.fontfamily'] = '';
                     } else {
-                        $STYLE["{$key}.orig"] = (isset($STYLE[$key])) ? $STYLE[$key] : '';
-                        $STYLE[$key] = '';
+                        $_conf['expack.am.fontfamily'] = p2_correct_css_fontfamily($value);
                     }
-                } elseif ($value) {
-                    if ($key == 'fontfamily_aa') {
-                        $_conf['expack.am.fontfamily'] = $value;
+                } else {
+                    $STYLE["{$key}.orig"] = isset($STYLE[$key]) ? $STYLE[$key] : '';
+                    if (strpos($key, 'fontfamily') !== false) {
+                        $STYLE[$key] = p2_correct_css_fontfamily($value);
                     } else {
-                        $STYLE["{$key}.orig"] = (isset($STYLE[$key])) ? $STYLE[$key] : '';
                         $STYLE[$key] = $value;
                     }
                 }

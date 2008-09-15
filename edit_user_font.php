@@ -163,6 +163,7 @@ $fontconfig_data = serialize($updated_fontconfig);
 $fontconfig_new_hath = md5($fontconfig_data);
 if (strcmp($fontconfig_hash, $fontconfig_new_hath) != 0) {
     FileCtl::file_write_contents($_conf['expack.skin.fontconfig_path'], $fontconfig_data);
+    chmod($_conf['expack.skin.fontconfig_path'], $_conf['p2_perm']);
 }
 
 // スタイルシートをリセット

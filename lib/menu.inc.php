@@ -267,7 +267,7 @@ EOP;
 
 // ¡V’…”‚ğ•\¦‚·‚éê‡
 if ($_conf['enable_menu_new'] == 1 and $_GET['new']) {
-    $_has_pecl_http = extension_loaded('http');
+    $_has_pecl_http = ($_conf['expack.use_pecl_http'] && extension_loaded('http'));
 
     if ($_has_pecl_http) {
         require_once P2_LIB_DIR . '/p2httpext.class.php';
