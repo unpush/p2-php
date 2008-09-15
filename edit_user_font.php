@@ -7,11 +7,7 @@
 
 // 初期設定読み込み & ユーザ認証
 require_once './conf/conf.inc.php';
-
 $_login->authorize();
-
-require_once P2_LIB_DIR . '/fontconfig.inc.php';
-fontconfig_apply_custom();
 
 require_once 'HTML/Template/Flexy.php';
 
@@ -171,7 +167,18 @@ if (strcmp($fontconfig_hash, $fontconfig_new_hath) != 0) {
 
 // スタイルシートをリセット
 unset($STYLE);
-include($skin);
+include $skin;
+foreach ($STYLE as $K => $V) {
+    if (empty($V)) {
+        $STYLE[$K] = '';
+    } elseif (strpos($K, 'fontfamily') !== false) {
+        $STYLE[$K] = p2_correct_css_fontfamily($V);
+    } elseif (strpos($K, 'color') !== false) {
+        $STYLE[$K] = p2_correct_css_color($V);
+    } elseif (strpos($K, 'background') !== false) {
+        $STYLE[$K] = 'url("' . addslashes($V) . '")';
+    }
+}
 if ($updated_fontconfig['enabled']) {
     fontconfig_apply_custom();
 } else {

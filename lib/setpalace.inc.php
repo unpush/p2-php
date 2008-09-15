@@ -30,7 +30,8 @@ function setPal($host, $bbs, $key, $setpal)
     //==================================================================
     // p2_palace.idx‚É‘‚«‚Ş
     //==================================================================
-    $palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
+    $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx';
+    $lock = new P2Lock($palace_idx, false);
 
     // palace_idx ƒtƒ@ƒCƒ‹‚ª‚È‚¯‚ê‚Î¶¬
     FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
@@ -79,20 +80,10 @@ function setPal($host, $bbs, $key, $setpal)
         }
     }
 
-    // {{{ ‘‚«‚Ş
-
-    $temp_file = $palace_idx . '.tmp';
-    $write_file = P2_OS_WINDOWS ? $palace_idx : $temp_file;
-    if (FileCtl::file_write_contents($write_file, $cont) === false) {
+    // ‘‚«‚Ş
+    if (FileCtl::file_write_contents($palace_idx, $cont) === false) {
         p2die('cannot write file.');
     }
-    if (!P2_OS_WINDOWS) {
-        if (!rename($write_file, $palace_idx)) {
-            p2die('cannot rename file.');
-        }
-    }
-
-    // }}}
 
     return true;
 }

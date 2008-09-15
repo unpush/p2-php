@@ -8,9 +8,6 @@
 require_once './conf/conf.inc.php';
 $_login->authorize();
 
-require_once P2_LIB_DIR . '/fontconfig.inc.php';
-fontconfig_apply_custom();
-
 // }}}
 // {{{ ‘Ã“–‚Èƒtƒ@ƒCƒ‹‚©ŒŸØ
 

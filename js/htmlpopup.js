@@ -15,7 +15,26 @@ ecX = 0;
 ecY = 0;
 
 /**
- * HTMLプアップを表示する
+ * クローズボタンもしくはポップアップ外部をクリックして閉じるための関数
+ */
+function hideHtmlPopUpCallback(evt)
+{
+	hideHtmlPopUp();
+
+	// イベントリスナを削除
+	if (window.removeEventListener) {
+		// W3C  DOM
+		document.body.removeEventListener('click', hideHtmlPopUpCallback, false);
+		evt.preventDefault();
+	} else if (window.detachEvent) {
+		// IE
+		document.body.detachEvent('onclick', hideHtmlPopUpCallback);
+		window.event.returnValue = false;
+	}
+}
+
+/**
+ * HTMLポップアップを表示する
  *
  * 複数の引用レス番や(p)の onMouseover で呼び出される
  */
@@ -39,6 +58,15 @@ function showHtmlPopUp(url,ev,showHtmlDelaySec)
 			ecY = event.clientY;
 		}
 		showHtmlTimerID = setTimeout("showHtmlPopUpDo()", showHtmlDelaySec); // HTML表示ディレイタイマー
+	}
+
+	// HTMLポップアップ外部をクリックしても閉じられるようにする
+	if (window.addEventListener) {
+		// W3C  DOM
+		document.body.addEventListener('click', hideHtmlPopUpCallback, false);
+	} else if (window.attachEvent) {
+		// IE
+		document.body.attachEvent('onclick', hideHtmlPopUpCallback);
 	}
 }
 
@@ -94,7 +122,7 @@ function showHtmlPopUpDo()
 		}
 		node_div.innerHTML = "<iframe src=\""+gUrl+"\" frameborder=\"1\" border=\"1\" style=\"background-color:#fff;\" width=" + yokohaba + " height=" + tatehaba + pageMargin +">&nbsp;</iframe>";
 		
-		node_close.innerHTML = "<b onMouseover=\"hideHtmlPopUp()\">×</b>";
+		node_close.innerHTML = '<b onclick="hideHtmlPopUpCallback(event)" style="cursor:pointer;">×</b>';
 		
 		var popUpContainer = document.getElementById("popUpContainer");
 		if (popUpContainer) {

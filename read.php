@@ -389,6 +389,8 @@ function recRecent($data)
 {
     global $_conf;
 
+    $lock = new P2Lock($_conf['rct_file'], false);
+
     // $_conf['rct_file'] ÉtÉ@ÉCÉãÇ™Ç»ÇØÇÍÇŒê∂ê¨
     FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']);
 
@@ -418,23 +420,15 @@ function recRecent($data)
 
     // {{{ èëÇ´çûÇﬁ
 
-    $temp_file = $_conf['rct_file'] . '.tmp';
     if ($neolines) {
         $cont = '';
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
 
-        $write_file = P2_OS_WINDOWS ? $_conf['rct_file'] : $temp_file;
-        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+        if (FileCtl::file_write_contents($_conf['rct_file'], $cont) === false) {
             p2die('cannot write file.');
         }
-        if (!P2_OS_WINDOWS) {
-            if (!rename($write_file, $_conf['rct_file'])) {
-                p2die('cannot rename file.');
-            }
-        }
-
     }
 
     // }}}

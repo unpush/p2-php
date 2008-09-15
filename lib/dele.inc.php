@@ -169,6 +169,8 @@ function offRecent($host, $bbs, $key)
 
     $neolines = array();
 
+    $lock = new P2Lock($_conf['rct_file'], false);
+
     // {{{ Ç†ÇÍÇŒçÌèú
 
     if ($lines = FileCtl::file_read_lines($_conf['rct_file'], FILE_IGNORE_NEW_LINES)) {
@@ -186,22 +188,14 @@ function offRecent($host, $bbs, $key)
     // }}}
     // {{{ èëÇ´çûÇﬁ
 
-    $temp_file = $_conf['rct_file'] . '.tmp';
     if (is_array($neolines)) {
         $cont = '';
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
 
-        // Windows Ç≈ÇÕ rename() Ç≈è„èëÇ´Ç≈Ç´Ç»Ç¢ÇÁÇµÇ¢ÅBhttp://ns1.php.gr.jp/pipermail/php-users/2005-October/027827.html
-        $write_file = P2_OS_WINDOWS ? $_conf['rct_file'] : $temp_file;
-        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+        if (FileCtl::file_write_contents($_conf['rct_file'], $cont) === false) {
             p2die('cannot write file.');
-        }
-        if (!P2_OS_WINDOWS) {
-            if (!rename($write_file, $_conf['rct_file'])) {
-                p2die('cannot rename file.');
-            }
         }
     }
 
@@ -230,6 +224,8 @@ function offResHist($host, $bbs, $key)
 
     $neolines = array();
 
+    $lock = new P2Lock($rh_idx, false);
+
     // {{{ Ç†ÇÍÇŒçÌèú
 
     if ($lines = FileCtl::file_read_lines($rh_idx, FILE_IGNORE_NEW_LINES)) {
@@ -247,22 +243,14 @@ function offResHist($host, $bbs, $key)
     // }}}
     // {{{ èëÇ´çûÇﬁ
 
-    $temp_file = $rh_idx . '.tmp';
     if (is_array($neolines)) {
         $cont = '';
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
 
-        // Windows Ç≈ÇÕ rename() Ç≈è„èëÇ´Ç≈Ç´Ç»Ç¢ÇÁÇµÇ¢ÅBhttp://ns1.php.gr.jp/pipermail/php-users/2005-October/027827.html
-        $write_file = P2_OS_WINDOWS ? $rh_idx : $temp_file;
-        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+        if (FileCtl::file_write_contents($rh_idx, $cont) === false) {
             p2die('cannot write file.');
-        }
-        if (!P2_OS_WINDOWS) {
-            if (!rename($write_file, $rh_idx)) {
-                p2die('cannot rename file.');
-            }
         }
     }
 

@@ -30,6 +30,8 @@ function saveMatomeCache()
         $ext = $_conf['matome_cache_ext'];
     }
 
+    $lock = new P2Lock($_conf['matome_cache_path'] . $ext, false);
+
     // ローテーション
     $max = $_conf['matome_cache_max'];
     $i = $max;

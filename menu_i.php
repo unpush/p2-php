@@ -30,16 +30,12 @@ if (isset($_POST['word'])) {
         $word = '';
     }
 
-    if (strlen($word) > 0) {
-        $word = p2_set_filtering_word($word, 'and');
-        if ($word !== null) {
-            menu_iphone_ajax('menu_iphone_show_matched_boards', $word);
-            exit;
-        }
+    if (strlen($word) > 0 && p2_set_filtering_word($word, 'and') !== null) {
+        menu_iphone_ajax('menu_iphone_show_matched_boards', $word);
+    } else {
+        header('Content-Type: application/xml; charset=UTF-8');
+        echo mb_convert_encoding('<div class="panel">無効なキーワードです。</div>', 'UTF-8', 'CP932');
     }
-
-    header('Content-Type: application/xml; charset=UTF-8');
-    echo mb_convert_encoding('<div class="panel">無効なキーワードです。</div>', 'UTF-8', 'CP932');
     exit;
 }
 

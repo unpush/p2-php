@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080830.1940',   // 拡張パックのバージョン
+    'p2expack'  => '080831.0620',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -188,6 +188,7 @@ require_once P2_LIB_DIR . '/p2util.class.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/session.class.php';
 require_once P2_LIB_DIR . '/login.class.php';
+require_once P2_LIB_DIR . '/fontconfig.inc.php';
 
 // }}}
 // {{{ 環境チェックとデバッグ
@@ -639,7 +640,7 @@ $skin_en = rawurlencode($skin_name) . '&amp;_=' . P2_VERSION_ID;
 if ($_conf['view_forced_by_query']) {
     $skin_en .= $_conf['k_at_a'];
 }
-include_once $skin;
+include $skin;
 
 // }}}
 // {{{ デザイン設定の調整処理
@@ -669,11 +670,16 @@ foreach ($STYLE as $K => $V) {
         $STYLE[$K] = 'url("' . addslashes($V) . '")';
     }
 }
-if (!$_conf['ktai'] && $_conf['expack.am.enabled']) {
-    $_conf['expack.am.fontfamily'] = p2_correct_css_fontfamily($_conf['expack.am.fontfamily']);
-    if ($STYLE['fontfamily']) {
-        $_conf['expack.am.fontfamily'] .= '","' . $STYLE['fontfamily'];
+
+if (!$_conf['ktai']) {
+    if ($_conf['expack.am.enabled']) {
+        $_conf['expack.am.fontfamily'] = p2_correct_css_fontfamily($_conf['expack.am.fontfamily']);
+        if ($STYLE['fontfamily']) {
+            $_conf['expack.am.fontfamily'] .= '","' . $STYLE['fontfamily'];
+        }
     }
+
+    fontconfig_apply_custom();
 }
 
 // }}}

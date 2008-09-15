@@ -241,6 +241,9 @@ if (empty($posted)) {
 if ($host && $bbs && $key) {
 
     $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
+
+    $lock = new P2Lock($rh_idx, false);
+
     FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']); // ‚È‚¯‚ê‚Î¶¬
 
     $lines = FileCtl::file_read_lines($rh_idx, FILE_IGNORE_NEW_LINES);
@@ -269,25 +272,20 @@ if ($host && $bbs && $key) {
 
     // {{{ ‘‚«ž‚Þ
 
-    $temp_file = $rh_idx . '.tmp';
     if ($neolines) {
         $cont = '';
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
 
-        $write_file = P2_OS_WINDOWS ? $rh_idx : $temp_file;
-        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+        if (FileCtl::file_write_contents($rh_idx, $cont) === false) {
             p2die('cannot write file.');
-        }
-        if (!P2_OS_WINDOWS) {
-            if (!rename($write_file, $rh_idx)) {
-                p2die('cannot rename file.');
-            }
         }
     }
 
     // }}}
+
+    $lock->free();
 }
 
 //=============================================

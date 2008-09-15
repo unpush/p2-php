@@ -14,8 +14,11 @@ function deleMsg($checked_hists)
 {
     global $_conf;
 
+    $lock = new P2Lock($_conf['p2_res_hist_dat'], false);
+
     // “Ç‚İ‚ñ‚Å
-    if (!$reslines = FileCtl::file_read_lines($_conf['p2_res_hist_dat'], FILE_IGNORE_NEW_LINES)) {
+    $reslines = FileCtl::file_read_lines($_conf['p2_res_hist_dat'], FILE_IGNORE_NEW_LINES);
+    if ($reslines === false) {
         p2die("{$_conf['p2_res_hist_dat']} ‚ğŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½");
     }
 
@@ -51,20 +54,10 @@ function deleMsg($checked_hists)
             $cont = implode("\n", $neolines) . "\n";
         }
 
-        // {{{ ‘‚«‚İˆ—
-
-        $temp_file = $_conf['p2_res_hist_dat'] . '.tmp';
-        $write_file = P2_OS_WINDOWS ? $_conf['p2_res_hist_dat'] : $temp_file;
-        if (FileCtl::file_write_contents($write_file, $cont) === false) {
+        // ‘‚«‚Ş
+        if (FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont) === false) {
             p2die('cannot write file.');
         }
-        if (!P2_OS_WINDOWS) {
-            if (!rename($write_file, $_conf['p2_res_hist_dat'])) {
-                p2die('cannot rename file.');
-            }
-        }
-
-        // }}}
     }
 }
 

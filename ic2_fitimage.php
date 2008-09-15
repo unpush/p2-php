@@ -51,11 +51,11 @@ $alt = htmlspecialchars(basename($url));
 $afi_js = '';
 if ($x && $y) {
     if ($_conf['expack.ic2.fitimage'] == 1) {
-        $afi_js = "autofitimage('auto',{$x},{$y})";
+        $afi_js = "fi.fitTo('autofit');";
     } elseif ($_conf['expack.ic2.fitimage'] == 2) {
-        $afi_js = "autofitimage('height',{$x},{$y})";
+        $afi_js = "fi.fitTo('width');";
     } elseif ($_conf['expack.ic2.fitimage'] == 3) {
-        $afi_js = "autofitimage('width',{$x},{$y})";
+        $afi_js = "fi.fitTo('height');";
     }
 }
 
@@ -76,19 +76,40 @@ echo <<<EOF
     <link rel="stylesheet" type="text/css" href="css.php?css=fitimage&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
-    <script type="text/javascript" src="js/fitimage.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/iv2.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/fitimage.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+    var fi;
+
+    function onClickImage(evt)
+    {
+        fiShowHide();
+    }
+
+    function onDoubleClickImage(evt)
+    {
+        if (fi.currentMode == 'auto') {
+            fi.fitTo('autofit');
+        } else {
+            fi.fitTo(fi.currentMode);
+        }
+    }
+    //]]>
+    </script>
 </head>
-<body onload="focus();fiGetImageInfo('{$info_key_type}', '{$info_key_value}');">
-<div id="btn" style="border:1px solid black;padding:2px;background-color:white">
-    <input type="hidden" id="fi_id" value=""><input type="text" id="fi_memo" size="50" value=""><br>
-    <img src="img/fi_full.gif" width="15" height="15" onclick="fitimage('full')" alt="XY">
-    <img src="img/fi_height.gif" width="15" height="15" onclick="fitimage('height')" alt="Y">
-    <img src="img/fi_width.gif" width="15" height="15" onclick="fitimage('width')" alt="X">
-    <div id="fi_stars"><img src="img/sn0.png" width="16" height="16" alt="-1" onclick="fiUpdateRank(-1)"><img src="img/sz1.png" width="10" height="16" alt="0" onclick="fiUpdateRank(0)"><img src="img/s0.png" width="16" height="16" alt="1" onclick="fiUpdateRank(1)"><img src="img/s0.png" width="16" height="16" alt="2" onclick="fiUpdateRank(2)"><img src="img/s0.png" width="16" height="16" alt="3" onclick="fiUpdateRank(3)"><img src="img/s0.png" width="16" height="16" alt="4" onclick="fiUpdateRank(4)"><img src="img/s0.png" width="16" height="16" alt="5" onclick="fiUpdateRank(5)"></div>
+<body onload="focus();fiGetImageInfo('{$info_key_type}','{$info_key_value}');fi = new FitImage('picture',{$x},{$y});{$afi_js}">
+<div id="btn">
+    <input type="hidden" id="fi_id" value="">
+    <!-- <input type="text" id="fi_memo" size="50" value=""><br> -->
+    <!-- <img src="img/fi_full.gif" width="15" height="15" onclick="fi.fitTo('full')" alt="XY"> -->
+    <img src="img/fi_height.gif" width="15" height="15" onclick="fi.fitTo('height')" alt="Y">
+    <img src="img/fi_width.gif" width="15" height="15" onclick="fi.fitTo('width')" alt="X">
+    &nbsp;
+    <span id="fi_stars"><img src="img/sn0.png" width="16" height="16" alt="-1" onclick="fiUpdateRank(-1)"><img src="img/sz1.png" width="10" height="16" alt="0" onclick="fiUpdateRank(0)"><img src="img/s0.png" width="16" height="16" alt="1" onclick="fiUpdateRank(1)"><img src="img/s0.png" width="16" height="16" alt="2" onclick="fiUpdateRank(2)"><img src="img/s0.png" width="16" height="16" alt="3" onclick="fiUpdateRank(3)"><img src="img/s0.png" width="16" height="16" alt="4" onclick="fiUpdateRank(4)"><img src="img/s0.png" width="16" height="16" alt="5" onclick="fiUpdateRank(5)"></span>
 </div>
 <div id="pct">
-    <img id="picture" src="{$url}" width="{$x}" height="{$y}" onclick="fiShowHide()" onload="{$afi_js}" alt="{$alt}">
+    <img id="picture" src="{$url}" width="{$x}" height="{$y}" onclick="onClickImage(event)" ondblclick="onDoubleClickImage(event)" alt="{$alt}">
 </div>
 </body>
 </html>

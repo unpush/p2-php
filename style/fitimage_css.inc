@@ -4,7 +4,7 @@
  * for ImageCache2:fitimage.php
  */
 
-if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
 	$button_position = 'absolute';
 } else {
 	$button_position = 'fixed';
@@ -13,8 +13,8 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
 echo <<<EOSTYLE
 
 body {
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 div#pct {
@@ -27,21 +27,21 @@ div#pct img {
 div#btn {
 	display: none;
 	position: {$button_position};
-	top: 2px;
-	left: 2px;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 2px;
+	font-size: xx-small;
+	line-height: 100%;
+	background-color: #ffffff;
+	border-top: none;
+	border-left: none;
+	border-right: #000000 solid 1px;
+	border-bottom: #000000 solid 1px;
 }
 
 div#btn img {
 	margin: 1px;
-	cursor: pointer;
-}
-
-div#fi_stars {
-	display: inline;
-	display: inline-block;
-	position: absolute;
-	bottom: 2px;
-	right: 2px;
 	cursor: pointer;
 }
 
