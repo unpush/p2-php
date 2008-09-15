@@ -38,9 +38,9 @@ if ($_conf['view_forced_by_query']) {
 // {{{ Init
 
 // ライブラリ読み込み
-require_once P2EX_LIB_DIR . '/google/search.class.php';
-require_once P2EX_LIB_DIR . '/google/converter.class.php';
-require_once P2EX_LIB_DIR . '/google/renderer.class.php';
+require_once P2EX_LIB_DIR . '/google/Search.php';
+require_once P2EX_LIB_DIR . '/google/Converter.php';
+require_once P2EX_LIB_DIR . '/google/Renderer.php';
 
 // Google Search WSDLファイルのパス
 $wsdl = $_conf['expack.google.wsdl'];
@@ -82,7 +82,7 @@ if (!empty($q)) {
     $q .= ' site:2ch.net';
 
     // Google検索クラスのインスタンスを生成する
-    $google = GoogleSearch::factory($wsdl, $key);
+    $google = Google_Search::factory($wsdl, $key);
 
     // インスタンス生成に失敗
     if (PEAR::isError($google)) {
@@ -155,7 +155,7 @@ if ($_conf['input_type_search']) {
     <script type="text/javascript" src="js/gpopup.js?<?php echo $_conf['p2_version_id']; ?>"></script>
 </head>
 <body>
-<table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td align="left">
+<table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td class="toolbar-title">
     <span class="itatitle"><a class="aitatitle" href="<?php echo $_SERVER['SCRIPT_NAME']; ?>"><b>2ch検索 by Google</b></a></span>
     <form action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>" style="display:inline;">
         <input type="<?php echo $search_element_type; ?>" name="q" value="<?php echo $word; ?>"<?php echo $search_element_extra_attributes; ?>>

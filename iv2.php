@@ -172,7 +172,7 @@ $db = $icdb->getDatabaseConnection();
 $db_class = strtolower(get_class($db));
 
 // サムネイル作成クラス
-$thumb = new IC2_Thumbnailer(IC2_THUMB_SIZE_DEFAULT);
+$thumb = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
     require_once 'Cache.php';

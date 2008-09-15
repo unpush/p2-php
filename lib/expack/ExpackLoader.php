@@ -126,10 +126,10 @@ class ExpackLoader
 
         if (!$_conf['ktai']) {
             $aShowThread->thumb_id_suffix = '-' . strtr(microtime(), '. ', '--');
-            $aShowThread->thumbnailer = new IC2_Thumbnailer(1);
+            $aShowThread->thumbnailer = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_PC);
         } else {
-            $aShowThread->inline_prvw = new IC2_Thumbnailer(1);
-            $aShowThread->thumbnailer = new IC2_Thumbnailer(2);
+            $aShowThread->inline_prvw = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_PC);
+            $aShowThread->thumbnailer = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_MOBILE);
         }
 
         if ($aShowThread->thumbnailer->ini['General']['automemo']) {

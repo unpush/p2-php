@@ -104,13 +104,13 @@ function manageDB_remove($target, $to_blacklist = false)
     // 画像を削除
     foreach ($target as $id) {
         $icdb = new IC2_DataObject_Images;
-        $icdb->whereAdd("id = $id");
+        $icdb->whereAdd("id = {$id}");
 
         if ($icdb->find(true)) {
             // キャッシュしているファイルを削除
-            $t1 = new IC2_Thumbnailer(1);
-            $t2 = new IC2_Thumbnailer(2);
-            $t3 = new IC2_Thumbnailer(3);
+            $t1 = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_PC);
+            $t2 = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_MOBILE);
+            $t3 = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_INTERMD);
             $srcPath = $t1->srcPath($icdb->size, $icdb->md5, $icdb->mime);
             $t1Path = $t1->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
             $t2Path = $t2->thumbPath($icdb->size, $icdb->md5, $icdb->mime);

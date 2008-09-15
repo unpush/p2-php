@@ -150,10 +150,13 @@ div.message a {
 	color:#0a0;
 }
 
-span.ngword {
-	cursor: pointer;
+.ngword, .stripped {
 	text-decoration: line-through;
 	color: {$STYLE['read_ngword']};
+}
+
+span.ngword {
+	cursor: pointer;
 }
 
 div.ngmsg {

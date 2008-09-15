@@ -1,16 +1,11 @@
 <?php
-/**
- * PHP5のサポートは廃止したが、PEARのSOAPを使うので残している
- */
-
-require_once 'PEAR.php';
+require_once dirname(__FILE__) . '/Common.php';
 require_once 'SOAP/Client.php';
 require_once 'SOAP/WSDL.php';
-require_once dirname(__FILE__) . '/search.class.php';
 
-// {{{ GoogleSearch_PHP4
+// {{{ Google_Search_PearSoap
 
-class GoogleSearch_PHP4 extends GoogleSearch_Common
+class Google_Search_PearSoap extends Google_Search_Common
 {
     // {{{ init()
 
@@ -46,7 +41,7 @@ class GoogleSearch_PHP4 extends GoogleSearch_Common
 
         $this->_soapClient = $soapClient;
 
-        return TRUE;
+        return true;
     }
 
     // }}}

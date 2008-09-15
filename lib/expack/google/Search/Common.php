@@ -1,46 +1,7 @@
 <?php
-// {{{ GoogleSearch
+require_once 'PEAR.php';
 
-/**
- * Google検索クラスを生成するクラス
- *
- * ファクトリパターンを使ってみる。
- *
- * @static
- */
-class GoogleSearch
-{
-    // {{{ factory()
-
-    /**
-     * PHPのバージョンに応じてSOAPクライアント機能を利用するクラスを選択する
-     *
-     * @param string $wsdl  Google Search WSDLファイルのパス
-     * @param string $key   Google Key
-     * @return object
-     */
-    static public function factory($wsdl, $key)
-    {
-        global $_conf;
-        if (extension_loaded('soap') && empty($_conf['expack.google.force_pear'])) {
-            require_once dirname(__FILE__) . '/search_php5.class.php';
-            $google = new GoogleSearch_PHP5();
-        } else {
-            require_once dirname(__FILE__) . '/search_php4.class.php';
-            $google = new GoogleSearch_PHP4();
-        }
-        $available = $google->init($wsdl, $key);
-        if (PEAR::isError($available)) {
-            return $available;
-        }
-        return $google;
-    }
-
-    // }}}
-}
-
-// }}}
-// {{{ class GoogleSearch_Common
+// {{{ Google_Search_Common
 
 /**
  * Google Web APIs を利用して検索するクラス
@@ -48,7 +9,7 @@ class GoogleSearch
  * SOAPの使い方がPHP4(PEAR)とPHP5(extension)で全く異なるので、
  * このクラスを継承してそれぞれに対応したクラスを作る。
  */
-abstract class GoogleSearch_Common
+abstract class Google_Search_Common
 {
     // {{{ properties
 
@@ -160,7 +121,7 @@ abstract class GoogleSearch_Common
      * @param integer $maxResults  検索結果を取得する最大数
      * @return object
      */
-    abstract public function doSearch($q, $maxResults, $start);
+    abstract public function doSearch($q, $maxResults = 10, $start = 0);
 
     // }}}
 }

@@ -1,10 +1,9 @@
 <?php
-require_once 'PEAR.php';
-require_once dirname(__FILE__) . '/search.class.php';
+require_once dirname(__FILE__) . '/Common.php';
 
-// {{{ GoogleSearch_PHP5
+// {{{ Google_Search_SoapExtension
 
-class GoogleSearch_PHP5 extends GoogleSearch_Common
+class Google_Search_SoapExtension extends Google_Search_Common
 {
     // {{{ init()
 
@@ -35,7 +34,7 @@ class GoogleSearch_PHP5 extends GoogleSearch_Common
             return PEAR::raiseError($errmsg);
         }
 
-        return TRUE;
+        return true;
     }
 
     // }}}

@@ -551,8 +551,8 @@ class P2Util
             break;
         case 'p2':
         case 'p2pm':
-                $url_r = $_conf['p2ime_url'].'?enc=1&amp;url='.$url_en;
-                break;
+            $url_r = $_conf['p2ime_url'].'?enc=1&amp;url='.$url_en;
+            break;
         case 'p2m':
             $url_r = $_conf['p2ime_url'].'?enc=1&amp;m=1&amp;url='.$url_en;
             break;
@@ -589,6 +589,20 @@ class P2Util
             return strtolower(substr($host, 0, $sp)) . substr($host, $sp);
         }
         return strtolower($host);
+    }
+
+    // }}}
+    // {{ isHostExample
+
+    /**
+     * host ‚ª—á¦—pƒhƒƒCƒ“‚È‚ç true ‚ğ•Ô‚·
+     *
+     * @param string $host
+     * @return bool
+     */
+    static public function isHostExample($host)
+    {
+        return (bool)preg_match('/(?:^|\\.)example\\.(?:com|net|org|jp)$/i', $host);
     }
 
     // }}}
@@ -997,7 +1011,7 @@ class P2Util
      */
     static public function isUrlWikipediaJa($url)
     {
-        return (substr($url, 0, 29) == 'http://ja.wikipedia.org/wiki/');
+        return (strncmp($url, 'http://ja.wikipedia.org/wiki/', 29) == 0);
     }
 
     // }}}
