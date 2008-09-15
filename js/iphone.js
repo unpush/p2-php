@@ -5,42 +5,6 @@
 // {{{ window.onload()
 
 window.addEventListener('load', function(evt){
-	// accesskey属性とキー番号表示を削除
-	var anchors = document.evaluate('.//a[@accesskey]',
-	                                document.body,
-	                                null,
-	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-	                                null
-	                                );
-	var re = new RegExp('^[0-9#*]\\.');
-
-	for (var i = 0; i < anchors.snapshotLength; i++) {
-		var node = anchors.snapshotItem(i);
-		var txt = node.firstChild;
-
-		if (txt && txt.nodeType == 3 && re.test(txt.nodeValue)) {
-			// TOPへのリンクをボタン化
-			if (txt.nodeValue == '0.TOP') {
-				node.className = 'button';
-				if (node.parentNode.childNodes.length == 1) {
-					node.parentNode.style.textAlign = 'center';
-				} else if (node.parentNode == document.body) {
-					var container = document.createElement('div');
-					container.style.textAlign = 'center';
-					document.body.insertBefore(container, node);
-					document.body.removeChild(node);
-					container.appendChild(node);
-				}
-			}
-
-			// キー番号表示を削除
-			txt.nodeValue = txt.nodeValue.replace(re, '');
-		}
-
-		// accceskey属性を削除
-		node.removeAttribute('accesskey');
-	}
-
 	// 外部リンクを書き換える
 	rewrite_external_link(document.body);
 
@@ -279,6 +243,22 @@ function change_link_target(expr, toggle)
 			anchors.snapshotItem(i).removeAttribute('target');
 		}
 	}
+}
+
+// }}}
+// {{{ switch_tab_color()
+
+/*
+ * タブの文字色を変更する
+ *
+ * @param Element tab
+ * @param Boolean onoff
+ * @return void
+ */
+function switch_tab_color(tab, onoff)
+{
+	tab.style.color = (onoff) ? '#ff3333' : '#aaaaaa';
+	//tab.style.borderBottomColor = (onoff) ? '#fafafa' : '#808080';
 }
 
 // }}}

@@ -29,7 +29,7 @@ function md5_encrypt($plain_text, $password, $iv_len = 16)
 {
    $plain_text .= "\x13";
    $n = strlen($plain_text);
-   if ($n % 16) $plain_text .= str_repeat("\0", 16 - ($n % 16));
+   if ($n % 16) $plain_text .= str_repeat(chr(0), 16 - ($n % 16));
    $i = 0;
    $enc_text = get_rnd_iv($iv_len);
    $iv = substr($password ^ $enc_text, 0, 512);

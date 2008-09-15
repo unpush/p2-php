@@ -10,10 +10,15 @@ require_once 'XML/RSS.php';
 
 if ($GLOBALS['_conf']['expack.rss.with_imgcache'] &&
     ((!$GLOBALS['_conf']['ktai'] && $GLOBALS['_conf']['expack.ic2.enabled'] % 2 == 1) ||
-    ($GLOBALS['_conf']['ktai'] && $GLOBALS['_conf']['expack.ic2.enabled'] >= 2))
-) {
-    require_once P2EX_LIB_DIR . '/rss/getimage.inc.php';
-    define('P2_RSS_IMAGECACHE_AVAILABLE', 1);
+    ($GLOBALS['_conf']['ktai'] && $GLOBALS['_conf']['expack.ic2.enabled'] >= 2)))
+{
+    require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+    if (IC2Switch::get($GLOBALS['_conf']['ktai'])) {
+        require_once P2EX_LIB_DIR . '/rss/getimage.inc.php';
+        define('P2_RSS_IMAGECACHE_AVAILABLE', 1);
+    } else {
+        define('P2_RSS_IMAGECACHE_AVAILABLE', 0);
+    }
 } else {
     define('P2_RSS_IMAGECACHE_AVAILABLE', 0);
 }

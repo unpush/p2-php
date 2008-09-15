@@ -166,13 +166,17 @@ class ThreadList
                     }
                 }
 
-                if (empty($_REQUEST['norefresh']) &&
-                    !(empty($_REQUEST['refresh']) && isset($_REQUEST['word'])) &&
-                    $_conf['expack.use_pecl_http'] && extension_loaded('http')
-                ) {
-                    require_once P2_LIB_DIR . '/p2httpext.class.php';
-                    P2HttpRequestPool::fetchSubjectTxt($favitas);
-                    $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+                if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
+                    if ($_conf['expack.use_pecl_http'] == 1) {
+                        require_once P2_LIB_DIR . '/p2httpext.class.php';
+                        P2HttpRequestPool::fetchSubjectTxt($favitas);
+                        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+                    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+                        require_once P2_CLI_DIR . '/P2CommandRunner.php';
+                        if (P2CommandRunner::fetchSubjectTxt('merge_favita', $_conf)) {
+                            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+                        }
+                    }
                 }
 
                 $lines = array();

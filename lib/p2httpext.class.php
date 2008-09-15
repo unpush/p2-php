@@ -816,6 +816,17 @@ class P2HttpRequestPool
         if ($err !== '') {
             $GLOBALS['_info_msg_ht'] .= "<ul class=\"errors\">{$err}</ul>\n";
         }
+
+        if (P2HTTPEXT_DEBUG) {
+            if ($ph = http_persistent_handles_count()) {
+                $ph_dump = str_replace('  ', ' ', print_r($ph, true));
+                $ph_dump = preg_replace('/[\\r\\n]+/', "\n", $ph_dump);
+                $ph_dump = preg_replace('/(Array|Object)\\n *\(/', '\\1(', $ph_dump);
+                $GLOBALS['_info_msg_ht'] .= "<pre>Persistent Handles:\n";
+                $GLOBALS['_info_msg_ht'] .= htmlspecialchars($ph_dump, ENT_QUOTES);
+                $GLOBALS['_info_msg_ht'] .= "</pre>\n";
+            }
+        }
     }
 
     // }}}

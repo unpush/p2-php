@@ -36,13 +36,13 @@ EOP;
 }
 
 // ページタイトル部分HTML設定 ====================================
-if ($aThreadList->spmode == "taborn") {
+if ($aThreadList->spmode == 'taborn') {
     $ptitle_ht = <<<EOP
-<a href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" target="_blank">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（ｱﾎﾞﾝ中）
+<a href="{$ptitle_url}"{$_conf['k_accesskey_at']['up']}">{$_conf['k_accesskey_st']['up']}<b>{$aThreadList->itaj}</b></a> (ｱﾎﾞﾝ中)
 EOP;
-} elseif ($aThreadList->spmode == "soko") {
+} elseif ($aThreadList->spmode == 'soko') {
     $ptitle_ht = <<<EOP
-<a href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" target="_blank">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（dat倉庫）
+<a href="{$ptitle_url}"{$_conf['k_accesskey_at']['up']}">{$_conf['k_accesskey_st']['up']}<b>{$aThreadList->itaj}</b></a> (dat倉庫)
 EOP;
 } elseif (!empty($ptitle_url)) {
     $ptitle_ht = <<<EOP
@@ -76,7 +76,7 @@ if ($aThreadList->spmode == 'merge_favita' && $_conf['expack.misc.multi_favs']) 
 
 if ($disp_navi['from'] > 1) {
     $mae_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['mae_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['prev']}>{$_conf['k_accesskey_st']['prev']}前</a>
 EOP;
 } else {
     $mae_ht = '';
@@ -84,7 +84,7 @@ EOP;
 
 if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
     $tugi_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$norefresh_q}&amp;from={$disp_navi['tugi_from']}{$sb_view_at}{$word_at}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['next']}>{$_conf['k_accesskey_st']['next']}次</a>
 EOP;
 } else {
     $tugi_ht = '';
@@ -279,7 +279,7 @@ echo $buildnewthread_ht;
 echo '</div>';
 echo $htm['change_sort'];
 echo '<hr>';
-echo "<div><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></div>";
+echo "<div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 
 echo '</body></html>';
 

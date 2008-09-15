@@ -31,12 +31,24 @@ class FileCtl
 
     /**
      * 書き込み用のファイルがなければ生成してパーミッションを調整する
+     *
+     * @param string $file
+     * @param int $perm
+     * @return bool
      */
-    static public function make_datafile($file, $perm = 0606)
+    static public function make_datafile($file, $perm = null)
     {
-        // 念のためにデフォルト補正しておく
-        if (empty($perm)) {
-            $perm = 0606;
+        global $_conf;
+
+        // デフォルトのパーミッション
+        if ($perm === null || !($perm & 0777)) {
+            $default_perm = 0777 & $_conf['p2_perm'];
+            $perm = $default_perm ? $default_perm : 0606;
+        }
+
+        if (strrchr($file, P2_NULLBYTE) !== false) {
+            $epath = str_replace(P2_NULLBYTE, '\\0', $file);
+            p2die("cannot make datafile. ({$epath})", 'ファイル名にNULLバイトが含まれています。');
         }
 
         if (!file_exists($file)) {
@@ -62,17 +74,29 @@ class FileCtl
 
     /**
      * 親ディレクトリがなければ生成してパーミッションを調整する
+     *
+     * @param string $apath
+     * @param int $perm
+     * @return bool
      */
-    static public function mkdir_for($apath)
+    static public function mkdir_for($apath, $perm = null)
     {
         global $_conf;
 
-        $dir_limit = 50; // 親階層を上る制限回数
+        // デフォルトのパーミッション
+        if ($perm === null || !($perm & 0777)) {
+            $default_perm = 0777 & $_conf['data_dir_perm'];
+            $perm = $default_perm ? $default_perm : 0707;
+        }
 
-        $perm = (!empty($_conf['data_dir_perm'])) ? $_conf['data_dir_perm'] : 0707;
+        $dir_limit = 50; // 親階層を上る制限回数
 
         if (!$parentdir = dirname($apath)) {
             p2die("cannot mkdir. ({$parentdir})", '親ディレクトリが空白です。');
+        }
+        if (strrchr($parentdir, P2_NULLBYTE) !== false) {
+            $epath = str_replace(P2_NULLBYTE, '\\0', $parentdir);
+            p2die("cannot mkdir. ({$epath})", 'ディレクトリ名にNULLバイトが含まれています。');
         }
         $i = 1;
         if (!is_dir($parentdir)) {

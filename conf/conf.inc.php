@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080905.0030',   // 拡張パックのバージョン
+    'p2expack'  => '080907.1530',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -91,7 +91,10 @@ $_conf['cookie_file_name']      = 'p2_cookie.txt';
 // タイムゾーンをセット
 date_default_timezone_set('Asia/Tokyo');
 
-set_time_limit(60); // (60) スクリプト実行制限時間(秒)
+// スクリプト実行制限時間 (秒)
+if (!defined('P2_CLI_RUN')) {
+    set_time_limit(60); // (60) 
+}
 
 // 自動フラッシュをオフにする
 ob_implicit_flush(0);
@@ -121,6 +124,9 @@ if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
     define('P2_OS_WINDOWS', 0);
 }
 
+// mbstring.script_encoding = SJIS-win だと "\0", "\x00" 以降がカットされるので
+define('P2_NULLBYTE', chr(0));
+
 // }}}
 // {{{ P2Util::header_content_type() を不要にするおまじない
 
@@ -139,7 +145,7 @@ define('P2_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib');
 define('P2EX_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'expack');
 
 // スタイルシート
-define('P2_STYLE_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR .  'style');
+define('P2_STYLE_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'style');
 
 // PEARインストールディレクトリ、検索パスに追加される
 define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
@@ -150,6 +156,9 @@ define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
 if (defined('P2_USE_PEAR_HACK')) {
     define('P2_PEAR_HACK_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'pear_hack');
 }
+
+// コマンドラインツール
+define('P2_CLI_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'cli');
 
 // 検索パスをセット
 $include_path = P2_BASE_DIR;
@@ -166,19 +175,13 @@ set_include_path($include_path);
 // {{{ 環境チェックとデバッグ
 
 // ユーティリティを読み込む
+require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/p2util.inc.php';
 require_once P2_LIB_DIR . '/p2util.class.php';
 
 // 動作環境を確認 (要件を満たしているならコメントアウト可)
 p2checkenv(__LINE__);
-
-// ライブラリを読み込む
-require_once 'Net/UserAgent/Mobile.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/dataphp.class.php';
-require_once P2_LIB_DIR . '/session.class.php';
-require_once P2_LIB_DIR . '/login.class.php';
-require_once P2_LIB_DIR . '/fontconfig.inc.php';
 
 if ($debug) {
     require_once 'Benchmark/Profiler.php';
@@ -202,6 +205,89 @@ if (function_exists('mb_ereg_replace')) {
     mb_regex_encoding('CP932');
 } else {
     define('P2_MBREGEX_AVAILABLE', 0);
+}
+
+// }}}
+// {{{ 管理者用設定etc.
+
+// 管理者用設定を読み込み
+require_once './conf/conf_admin.inc.php';
+
+// ディレクトリの絶対パス化
+$_conf['data_dir'] = p2_realpath($_conf['data_dir']);
+$_conf['dat_dir']  = p2_realpath($_conf['dat_dir']);
+$_conf['idx_dir']  = p2_realpath($_conf['idx_dir']);
+$_conf['pref_dir'] = p2_realpath($_conf['pref_dir']);
+
+// 管理用保存ディレクトリ (パーミッションは707)
+$_conf['admin_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'admin';
+
+// cache 保存ディレクトリ (パーミッションは707)
+// 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
+$_conf['cache_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'cache';
+
+// テンポラリディレクトリ (パーミッションは707)
+$_conf['tmp_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'tmp';
+
+// バージョンIDを二重引用符やヒアドキュメント内に埋め込むための変数
+$_conf['p2_version_id'] = P2_VERSION_ID;
+
+// 文字コード自動判定用のヒント文字列
+$_conf['detect_hint'] = '◎◇';
+$_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
+$_conf['detect_hint_input_xht'] = '<input type="hidden" name="_hint" value="◎◇" />';
+//$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'CP932');
+$_conf['detect_hint_q'] = '_hint=%81%9D%81%9E'; // rawurlencode($_conf['detect_hint'])
+$_conf['detect_hint_q_utf8'] = '_hint=%E2%97%8E%E2%97%87'; // rawurlencode($_conf['detect_hint_utf8'])
+
+// }}}
+// {{{ 変数設定
+
+$_conf['rct_file']              = $_conf['pref_dir'] . '/p2_recent.idx';        // 最近呼んだスレ (idx)
+$_conf['p2_res_hist_dat']       = $_conf['pref_dir'] . '/p2_res_hist.dat';      // 書き込みログファイル (dat)
+$_conf['p2_res_hist_dat_php']   = $_conf['pref_dir'] . '/p2_res_hist.dat.php';  // 書き込みログファイル (データPHP)
+$_conf['cookie_dir']            = $_conf['pref_dir'] . '/p2_cookie';            // COOKIE保存ディレクトリ
+$_conf['favlist_file']          = $_conf['pref_dir'] . '/p2_favlist.idx';       // お気にスレ (idx)
+$_conf['favita_path']           = $_conf['pref_dir'] . '/p2_favita.brd';        // お気に板 (brd)
+$_conf['idpw2ch_php']           = $_conf['pref_dir'] . '/p2_idpw2ch.php';       // 2ch ID認証設定ファイル (データPHP)
+$_conf['sid2ch_php']            = $_conf['pref_dir'] . '/p2_sid2ch.php';        // 2ch ID認証セッションID記録ファイル (データPHP)
+$_conf['auth_user_file']        = $_conf['pref_dir'] . '/p2_auth_user.php';     // 認証ユーザ設定ファイル(データPHP)
+$_conf['auth_imodeid_file']     = $_conf['pref_dir'] . '/p2_auth_imodeid.php';  // DoCoMo iモードID認証ファイル (データPHP)
+$_conf['auth_docomo_file']      = $_conf['pref_dir'] . '/p2_auth_docomo.php';   // DoCoMo 端末製造番号認証ファイル (データPHP)
+$_conf['auth_ez_file']          = $_conf['pref_dir'] . '/p2_auth_ez.php';       // EZweb サブスクライバID認証ファイル (データPHP)
+$_conf['auth_jp_file']          = $_conf['pref_dir'] . '/p2_auth_jp.php';       // SoftBank 端末シリアル番号認証ファイル (データPHP)
+$_conf['login_log_file']        = $_conf['pref_dir'] . '/p2_login.log.php';     // ログイン履歴 (データPHP)
+$_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';  // ログイン失敗履歴 (データPHP)
+
+$_conf['matome_cache_path'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . 'matome_cache';
+$_conf['matome_cache_ext'] = '.htm';
+$_conf['matome_cache_max'] = 3; // 予備キャッシュの数
+
+$_conf['orig_favlist_file'] = $_conf['favlist_file'];
+$_conf['orig_favita_path']  = $_conf['favita_path'];
+
+// 補正
+if ($_conf['expack.use_pecl_http'] && !extension_loaded('http')) {
+    if (!($_conf['expack.use_pecl_http'] == 2 && $_conf['expack.dl_pecl_http'])) {
+        $_conf['expack.use_pecl_http'] = 0;
+    }
+}
+
+// コマンドラインモードではここまで
+if (defined('P2_CLI_RUN')) {
+    return;
+}
+
+// }}}
+// {{{ ホストチェック
+
+if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
+    require_once P2_LIB_DIR . '/hostcheck.class.php';
+    if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
+        ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
+    ) {
+        HostCheck::forbidden();
+    }
 }
 
 // }}}
@@ -258,51 +344,17 @@ if (!empty($_GET) || !empty($_POST)) {
 }
 
 // }}}
-// {{{ 管理者用設定etc.
-
-// 管理者用設定を読み込み
-if (!include_once './conf/conf_admin.inc.php') {
-    p2die('管理者用設定ファイルを読み込めませんでした。');
-}
-
-// ディレクトリの絶対パス化
-$_conf['data_dir'] = p2_realpath($_conf['data_dir']);
-$_conf['dat_dir']  = p2_realpath($_conf['dat_dir']);
-$_conf['idx_dir']  = p2_realpath($_conf['idx_dir']);
-$_conf['pref_dir'] = p2_realpath($_conf['pref_dir']);
-
-// 管理用保存ディレクトリ (パーミッションは707)
-$_conf['admin_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'admin';
-
-// cache 保存ディレクトリ (パーミッションは707)
-// 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
-$_conf['cache_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'cache';
-
-// テンポラリディレクトリ (パーミッションは707)
-$_conf['tmp_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'tmp';
-
-// バージョンIDを二重引用符やヒアドキュメント内に埋め込むための変数
-$_conf['p2_version_id'] = P2_VERSION_ID;
-
-// 文字コード自動判定用のヒント文字列
-$_conf['detect_hint'] = '◎◇';
-$_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
-$_conf['detect_hint_input_xht'] = '<input type="hidden" name="_hint" value="◎◇" />';
-//$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'CP932');
-$_conf['detect_hint_q'] = '_hint=%81%9D%81%9E'; // rawurlencode($_conf['detect_hint'])
-$_conf['detect_hint_q_utf8'] = '_hint=%E2%97%8E%E2%97%87'; // rawurlencode($_conf['detect_hint_utf8'])
-
-// }}}
 // {{{ 端末判定
+
+require_once 'Net/UserAgent/Mobile.php';
 
 $_conf['ktai'] = false;
 $_conf['iphone'] = false;
 $_conf['input_type_search'] = false;
 
-$_conf['doctype'] = '';
-$_conf['extra_headers_ht'] = '';
 $_conf['accesskey'] = 'accesskey';
 $_conf['accept_charset'] = 'Shift_JIS';
+$_conf['extra_headers_ht'] = '';
 
 $support_cookies = true;
 
@@ -412,6 +464,178 @@ if (isset($_REQUEST['b'])) {
 }
 
 // }}}
+// {{{ ユーザ設定 読込
+
+// ユーザ設定ファイル
+$_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.srd.cgi';
+
+// 旧形式ファイルをコピー
+$conf_user_file_old = $_conf['pref_dir'] . '/conf_user.inc.php';
+if (!file_exists($_conf['conf_user_file']) && file_exists($conf_user_file_old)) {
+    $old_cont = DataPhp::getDataPhpCont($conf_user_file_old);
+    FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
+    if (FileCtl::file_write_contents($_conf['conf_user_file'], $old_cont) === false) {
+        $_info_msg_ht .= '<p>旧形式ユーザ設定のコピーに失敗しました。</p>';
+    }
+}
+
+// ユーザ設定があれば読み込む
+if (file_exists($_conf['conf_user_file'])) {
+    if ($cont = file_get_contents($_conf['conf_user_file'])) {
+        $conf_user = unserialize($cont);
+    } else {
+        $conf_user = null;
+    }
+
+    // 何らかの理由でユーザ設定ファイルが壊れていたら
+    if (!is_array($conf_user)) {
+        if (unlink($_conf['conf_user_file'])) {
+            $_info_msg_ht .= '<p>ユーザ設定ファイルが壊れていたので破棄しました。</p>';
+        } else {
+            $_info_msg_ht .= '<p>ユーザ設定ファイルが壊れていますが、破棄できませんでした。<br>&quot;';
+            $_info_msg_ht .= htmlspecialchars($_conf['conf_user_file'], ENT_QUOTES);
+            $_info_msg_ht .= '&quot; を手動で削除してください。</p>';
+        }
+        $conf_user = array();
+        $conf_user_mtime = 0;
+    } else {
+        $conf_user_mtime = filemtime($_conf['conf_user_file']);
+    }
+
+    // ユーザ設定ファイルとデフォルト設定ファイルの更新日時をチェック
+    if (!isset($conf_user['.']) ||
+        $conf_user['.'] != P2_VERSION_ID ||
+        filemtime(__FILE__) > $conf_user_mtime ||
+        filemtime('./conf/conf_user_def.inc.php')    > $conf_user_mtime ||
+        filemtime('./conf/conf_user_def_ex.inc.php') > $conf_user_mtime ||
+        filemtime('./conf/conf_user_def_i.inc.php')  > $conf_user_mtime)
+    {
+        // デフォルト設定を読み込む
+        require_once './conf/conf_user_def.inc.php';
+        $_conf = array_merge($_conf, $conf_user_def, $conf_user);
+
+        // 新しいユーザ設定をキャッシュ
+        $conf_user = array('.' => P2_VERSION_ID);
+        foreach ($conf_user_def as $k => $v) {
+            $conf_user[$k] = $_conf[$k];
+        }
+        if (FileCtl::file_write_contents($_conf['conf_user_file'], serialize($conf_user)) === false) {
+            $_info_msg_ht .= '<p>ユーザ設定のキャッシュに失敗しました</p>';
+        }
+
+    // ユーザ設定ファイルの更新日時の方が新しい場合は、デフォルト設定を無視
+    } else {
+        $_conf = array_merge($_conf, $conf_user);
+    }
+
+    unset($cont, $conf_user);
+} else {
+    // デフォルト設定を読み込む
+    require_once './conf/conf_user_def.inc.php';
+    $_conf = array_merge($_conf, $conf_user_def);
+}
+
+// }}}
+// {{{ デフォルト設定
+
+if (!isset($_conf['rct_rec_num']))          { $_conf['rct_rec_num'] = 20; }
+if (!isset($_conf['res_hist_rec_num']))     { $_conf['res_hist_rec_num'] = 20; }
+if (!isset($_conf['posted_rec_num']))       { $_conf['posted_rec_num'] = 1000; }
+if (!isset($_conf['before_respointer']))    { $_conf['before_respointer'] = 20; }
+if (!isset($_conf['sort_zero_adjust']))     { $_conf['sort_zero_adjust'] = 0.1; }
+if (!isset($_conf['display_threads_num']))  { $_conf['display_threads_num'] = 150; }
+if (!isset($_conf['cmp_dayres_midoku']))    { $_conf['cmp_dayres_midoku'] = 1; }
+if (!isset($_conf['k_sb_disp_range']))      { $_conf['k_sb_disp_range'] = 30; }
+if (!isset($_conf['k_rnum_range']))         { $_conf['k_rnum_range'] = 10; }
+if (!isset($_conf['pre_thumb_height']))     { $_conf['pre_thumb_height'] = "32"; }
+if (!isset($_conf['quote_res_view']))       { $_conf['quote_res_view'] = 1; }
+if (!isset($_conf['res_write_rec']))        { $_conf['res_write_rec'] = 1; }
+
+// }}}
+// {{{ ユーザ設定の調整処理
+
+$_conf['ext_win_target_at'] = ($_conf['ext_win_target']) ? " target=\"{$_conf['ext_win_target']}\"" : '';
+$_conf['bbs_win_target_at'] = ($_conf['bbs_win_target']) ? " target=\"{$_conf['bbs_win_target']}\"" : '';
+
+if ($_conf['get_new_res']) {
+    if ($_conf['get_new_res'] == 'all') {
+        $_conf['get_new_res_l'] = $_conf['get_new_res'];
+    } else {
+        $_conf['get_new_res_l'] = 'l'.$_conf['get_new_res'];
+    }
+} else {
+    $_conf['get_new_res_l'] = 'l200';
+}
+
+if ($_conf['expack.user_agent']) {
+    ini_set('user_agent', $_conf['expack.user_agent']);
+}
+
+// }}}
+// {{{ デザイン設定 読込
+
+$skin_name = 'conf_user_style';
+$skin = './conf/conf_user_style.inc.php';
+if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
+    if (file_exists($_conf['expack.skin.setting_path'])) {
+        $skin_name = rtrim(file_get_contents($_conf['expack.skin.setting_path']));
+        $skin = './skin/' . $skin_name . '.php';
+    } else {
+        FileCtl::make_datafile($_conf['expack.skin.setting_path'], $_conf['expack.skin.setting_perm']);
+    }
+    if (isset($_REQUEST['skin']) && preg_match('/^\w+$/', $_REQUEST['skin']) && $skin_name != $_REQUEST['skin']) {
+        $skin_name = $_REQUEST['skin'];
+        $skin = './skin/' . $skin_name . '.php';
+        FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin_name);
+    }
+}
+if (!file_exists($skin)) {
+    $skin_name = 'conf_user_style';
+    $skin = './conf/conf_user_style.inc.php';
+}
+$skin_en = rawurlencode($skin_name) . '&amp;_=' . P2_VERSION_ID;
+if ($_conf['view_forced_by_query']) {
+    $skin_en .= $_conf['k_at_a'];
+}
+
+// デフォルト設定を読み込んで
+include './conf/conf_user_style.inc.php';
+// スキンで上書き
+if ($skin != './conf/conf_user_style.inc.php') {
+    include $skin;
+}
+
+// }}}
+// {{{ デザイン設定の調整処理
+
+$skin_uniq = P2_VERSION_ID;
+
+foreach ($STYLE as $K => $V) {
+    if (empty($V)) {
+        $STYLE[$K] = '';
+    } elseif (strpos($K, 'fontfamily') !== false) {
+        $STYLE[$K] = p2_correct_css_fontfamily($V);
+    } elseif (strpos($K, 'color') !== false) {
+        $STYLE[$K] = p2_correct_css_color($V);
+    } elseif (strpos($K, 'background') !== false) {
+        $STYLE[$K] = 'url("' . addslashes($V) . '")';
+    }
+}
+
+if (!$_conf['ktai']) {
+    require_once P2_LIB_DIR . '/fontconfig.inc.php';
+
+    if ($_conf['expack.am.enabled']) {
+        $_conf['expack.am.fontfamily'] = p2_correct_css_fontfamily($_conf['expack.am.fontfamily']);
+        if ($STYLE['fontfamily']) {
+            $_conf['expack.am.fontfamily'] .= '","' . $STYLE['fontfamily'];
+        }
+    }
+
+    fontconfig_apply_custom();
+}
+
+// }}}
 // {{{ 携帯・iPhone用変数
 
 // iPhone用HTMLヘッダ要素
@@ -464,204 +688,103 @@ EOS;
 EOS;
 }
 
-// 携帯用「トップに戻る」リンク
+// 携帯用「トップに戻る」リンクとaccesskey
 if ($_conf['ktai']) {
-    $_conf['k_to_index_ht'] = <<<EOP
-<a {$_conf['accesskey']}="0" href="index.php{$_conf['k_at_q']}">0.TOP</a>
+    // iPhone
+    if ($_conf['iphone']) {
+        $_conf['k_accesskey_at'] = array_fill(0, 10, '');
+        $_conf['k_accesskey_at']['*'] = '';
+        $_conf['k_accesskey_at']['#'] = '';
+        foreach ($_conf['k_accesskey'] as $name => $key) {
+            $_conf['k_accesskey_at'][$name] = '';
+        }
+
+        $_conf['k_accesskey_st'] = $_conf['k_accesskey_at'];
+
+        $_conf['k_to_index_ht'] = <<<EOP
+<a href="index.php{$_conf['k_at_q']}" class="button">TOP</a>
 EOP;
-}
 
-// }}}
-// {{{ DOCTYPE HTML 宣言
-
-$ie_strict = false;
-if (!$_conf['ktai'] || $_conf['client_type'] != 'k') {
-    if ($ie_strict || strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') === false) {
-        $_conf['doctype'] = <<<EODOC
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-        "http://www.w3.org/TR/html4/loose.dtd">\n
-EODOC;
+    // その他
     } else {
-        $_conf['doctype'] = <<<EODOC
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n
-EODOC;
-    }
-}
+        // SoftBank Mobile
+        if ($_conf['accesskey'] == 'DIRECTKEY') {
+            $_conf['k_accesskey_at'] = array(
+                '0' => ' directkey="0" nonumber',
+                '1' => ' directkey="1" nonumber',
+                '2' => ' directkey="2" nonumber',
+                '3' => ' directkey="3" nonumber',
+                '4' => ' directkey="4" nonumber',
+                '5' => ' directkey="5" nonumber',
+                '6' => ' directkey="6" nonumber',
+                '7' => ' directkey="7" nonumber',
+                '8' => ' directkey="8" nonumber',
+                '9' => ' directkey="9" nonumber',
+                '*' => ' directkey="*" nonumber',
+                '#' => ' directkey="#" nonumber',
+            );
 
-// }}}
-// {{{ ユーザ設定 読込
-
-// ユーザ設定ファイル
-$_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.srd.cgi';
-
-// 旧形式ファイルをコピー
-$conf_user_file_old = $_conf['pref_dir'] . '/conf_user.inc.php';
-if (!file_exists($_conf['conf_user_file']) && file_exists($conf_user_file_old)) {
-    $old_cont = DataPhp::getDataPhpCont($conf_user_file_old);
-    FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
-    if (FileCtl::file_write_contents($_conf['conf_user_file'], $old_cont) === false) {
-        $_info_msg_ht .= '<p>旧形式ユーザ設定のコピーに失敗しました。</p>';
-    }
-}
-
-// ユーザ設定があれば読み込む
-if (file_exists($_conf['conf_user_file'])) {
-    if ($cont = file_get_contents($_conf['conf_user_file'])) {
-        $conf_user = unserialize($cont);
-    } else {
-        $conf_user = null;
-    }
-
-    // 何らかの理由でユーザ設定ファイルが壊れていたら
-    if (!is_array($conf_user)) {
-        if (unlink($_conf['conf_user_file'])) {
-            $_info_msg_ht .= '<p>ユーザ設定ファイルが壊れていたので破棄しました。</p>';
+        // その他
         } else {
-            $_info_msg_ht .= '<p>ユーザ設定ファイルが壊れていますが、破棄できませんでした。<br>&quot;';
-            $_info_msg_ht .= htmlspecialchars($_conf['conf_user_file'], ENT_QUOTES);
-            $_info_msg_ht .= '&quot; を手動で削除してください。</p>';
-        }
-        $conf_user = array();
-        $conf_user_mtime = 0;
-    } else {
-        $conf_user_mtime = filemtime($_conf['conf_user_file']);
-    }
-
-    // ユーザ設定ファイルとデフォルト設定ファイルの更新日時をチェック
-    if (!isset($conf_user['.']) ||
-        $conf_user['.'] != P2_VERSION_ID ||
-        filemtime(__FILE__) > $conf_user_mtime ||
-        filemtime('./conf/conf_user_def.inc.php')    > $conf_user_mtime ||
-        filemtime('./conf/conf_user_def_ex.inc.php') > $conf_user_mtime ||
-        filemtime('./conf/conf_user_def_i.inc.php')  > $conf_user_mtime)
-    {
-        // デフォルト設定を読み込む
-        include_once './conf/conf_user_def.inc.php';
-        $_conf = array_merge($_conf, $conf_user_def, $conf_user);
-
-        // 新しいユーザ設定をキャッシュ
-        $conf_user = array('.' => P2_VERSION_ID);
-        foreach ($conf_user_def as $k => $v) {
-            $conf_user[$k] = $_conf[$k];
-        }
-        if (FileCtl::file_write_contents($_conf['conf_user_file'], serialize($conf_user)) === false) {
-            $_info_msg_ht .= '<p>ユーザ設定のキャッシュに失敗しました</p>';
+            $_conf['k_accesskey_at'] = array(
+                '0' => ' accesskey="0"',
+                '1' => ' accesskey="1"',
+                '2' => ' accesskey="2"',
+                '3' => ' accesskey="3"',
+                '4' => ' accesskey="4"',
+                '5' => ' accesskey="5"',
+                '6' => ' accesskey="6"',
+                '7' => ' accesskey="7"',
+                '8' => ' accesskey="8"',
+                '9' => ' accesskey="9"',
+                '*' => ' accesskey="*"',
+                '#' => ' accesskey="#"',
+            );
         }
 
-    // ユーザ設定ファイルの更新日時の方が新しい場合は、デフォルト設定を無視
-    } else {
-        $_conf = array_merge($_conf, $conf_user);
-    }
-
-    unset($cont, $conf_user);
-} else {
-    // デフォルト設定を読み込む
-    include_once './conf/conf_user_def.inc.php';
-    $_conf = array_merge($_conf, $conf_user_def);
-}
-
-// }}}
-// {{{ デフォルト設定
-
-if (!isset($_conf['rct_rec_num']))  { $_conf['rct_rec_num'] = 20; }
-if (!isset($_conf['res_hist_rec_num'])) { $_conf['res_hist_rec_num'] = 20; }
-if (!isset($_conf['posted_rec_num'])) { $_conf['posted_rec_num'] = 1000; }
-if (!isset($_conf['before_respointer'])) { $_conf['before_respointer'] = 20; }
-if (!isset($_conf['sort_zero_adjust'])) { $_conf['sort_zero_adjust'] = 0.1; }
-if (!isset($_conf['display_threads_num'])) { $_conf['display_threads_num'] = 150; }
-if (!isset($_conf['cmp_dayres_midoku'])) { $_conf['cmp_dayres_midoku'] = 1; }
-if (!isset($_conf['k_sb_disp_range'])) { $_conf['k_sb_disp_range'] = 30; }
-if (!isset($_conf['k_rnum_range'])) { $_conf['k_rnum_range'] = 10; }
-if (!isset($_conf['pre_thumb_height'])) { $_conf['pre_thumb_height'] = "32"; }
-if (!isset($_conf['quote_res_view'])) { $_conf['quote_res_view'] = 1; }
-if (!isset($_conf['res_write_rec'])) { $_conf['res_write_rec'] = 1; }
-
-// }}}
-// {{{ ユーザ設定の調整処理
-
-$_conf['ext_win_target_at'] = ($_conf['ext_win_target']) ? " target=\"{$_conf['ext_win_target']}\"" : "";
-$_conf['bbs_win_target_at'] = ($_conf['bbs_win_target']) ? " target=\"{$_conf['bbs_win_target']}\"" : "";
-
-if ($_conf['get_new_res']) {
-    if ($_conf['get_new_res'] == 'all') {
-        $_conf['get_new_res_l'] = $_conf['get_new_res'];
-    } else {
-        $_conf['get_new_res_l'] = 'l'.$_conf['get_new_res'];
-    }
-} else {
-    $_conf['get_new_res_l'] = 'l200';
-}
-
-if ($_conf['expack.user_agent']) {
-    ini_set('user_agent', $_conf['expack.user_agent']);
-}
-
-// }}}
-// {{{ デザイン設定 読込
-
-$skin_name = 'conf_user_style';
-$skin = './conf/conf_user_style.inc.php';
-if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
-    if (file_exists($_conf['expack.skin.setting_path'])) {
-        $skin_name = rtrim(file_get_contents($_conf['expack.skin.setting_path']));
-        $skin = './skin/' . $skin_name . '.php';
-    } else {
-        FileCtl::make_datafile($_conf['expack.skin.setting_path'], $_conf['expack.skin.setting_perm']);
-    }
-    if (isset($_REQUEST['skin']) && preg_match('/^\w+$/', $_REQUEST['skin']) && $skin_name != $_REQUEST['skin']) {
-        $skin_name = $_REQUEST['skin'];
-        $skin = './skin/' . $skin_name . '.php';
-        FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin_name);
-    }
-}
-if (!file_exists($skin)) {
-    $skin_name = 'conf_user_style';
-    $skin = './conf/conf_user_style.inc.php';
-}
-$skin_en = rawurlencode($skin_name) . '&amp;_=' . P2_VERSION_ID;
-if ($_conf['view_forced_by_query']) {
-    $skin_en .= $_conf['k_at_a'];
-}
-include $skin;
-
-// }}}
-// {{{ デザイン設定の調整処理
-
-if (!isset($STYLE['post_pop_size'])) { $STYLE['post_pop_size'] = "610,350"; }
-if (!isset($STYLE['post_msg_rows'])) { $STYLE['post_msg_rows'] = 10; }
-if (!isset($STYLE['post_msg_cols'])) { $STYLE['post_msg_cols'] = 70; }
-if (!isset($STYLE['info_pop_size'])) { $STYLE['info_pop_size'] = "600,380"; }
-
-if (!isset($STYLE['mobile_subject_newthre_color'])) { $STYLE['mobile_subject_newthre_color'] = "#ff0000"; }
-if (!isset($STYLE['mobile_subject_newres_color']))  { $STYLE['mobile_subject_newres_color']  = "#ff6600"; }
-if (!isset($STYLE['mobile_read_ttitle_color']))     { $STYLE['mobile_read_ttitle_color']     = "#1144aa"; }
-if (!isset($STYLE['mobile_read_newres_color']))     { $STYLE['mobile_read_newres_color']     = "#ff6600"; }
-if (!isset($STYLE['mobile_read_ngword_color']))     { $STYLE['mobile_read_ngword_color']     = "#bbbbbb"; }
-if (!isset($STYLE['mobile_read_onthefly_color']))   { $STYLE['mobile_read_onthefly_color']   = "#00aa00"; }
-
-$skin_uniq = P2_VERSION_ID;
-
-foreach ($STYLE as $K => $V) {
-    if (empty($V)) {
-        $STYLE[$K] = '';
-    } elseif (strpos($K, 'fontfamily') !== false) {
-        $STYLE[$K] = p2_correct_css_fontfamily($V);
-    } elseif (strpos($K, 'color') !== false) {
-        $STYLE[$K] = p2_correct_css_color($V);
-    } elseif (strpos($K, 'background') !== false) {
-        $STYLE[$K] = 'url("' . addslashes($V) . '")';
-    }
-}
-
-if (!$_conf['ktai']) {
-    if ($_conf['expack.am.enabled']) {
-        $_conf['expack.am.fontfamily'] = p2_correct_css_fontfamily($_conf['expack.am.fontfamily']);
-        if ($STYLE['fontfamily']) {
-            $_conf['expack.am.fontfamily'] .= '","' . $STYLE['fontfamily'];
+        switch ($_conf['mobile.display_accesskey']) {
+        case 2:
+            require_once P2_LIB_DIR . '/emoji.inc.php';
+            $emoji = p2_get_emoji($mobile);
+            //$emoji = p2_get_emoji(Net_UserAgent_Mobile::factory('KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0'));
+            $_conf['k_accesskey_st'] = array(
+                '0' => $emoji[0],
+                '1' => $emoji[1],
+                '2' => $emoji[2],
+                '3' => $emoji[3],
+                '4' => $emoji[4],
+                '5' => $emoji[5],
+                '6' => $emoji[6],
+                '7' => $emoji[7],
+                '8' => $emoji[8],
+                '9' => $emoji[9],
+                '*' => $emoji['*'],
+                '#' => $emoji['#'],
+            );
+            break;
+        case 0:
+            $_conf['k_accesskey_st'] = array_fill(0, 10, '');
+            $_conf['k_accesskey_st']['*'] = '';
+            $_conf['k_accesskey_st']['#'] = '';
+            break;
+        case 1:
+        default:
+            $_conf['k_accesskey_st'] = array(
+                0 => '0.', 1 => '1.', 2 => '2.', 3 => '3.', 4 => '4.',
+                5 => '5.', 6 => '6.', 7 => '7.', 8 => '8.', 9 => '9.',
+                '*' => '*.', '#' => '#.'
+            );
         }
-    }
 
-    fontconfig_apply_custom();
+        foreach ($_conf['k_accesskey'] as $name => $key) {
+            $_conf['k_accesskey_at'][$name] = $_conf['k_accesskey_at'][$key];
+            $_conf['k_accesskey_st'][$name] = $_conf['k_accesskey_st'][$key];
+        }
+
+        $_conf['k_to_index_ht'] = <<<EOP
+<a href="index.php{$_conf['k_at_q']}"{$_conf['k_accesskey_at'][0]}>{$_conf['k_accesskey_st'][0]}TOP</a>
+EOP;
+    }
 }
 
 // }}}
@@ -719,44 +842,6 @@ if ($_conf['ktai']) {
 }
 
 // }}}
-// {{{ 変数設定
-
-$_conf['rct_file']              = $_conf['pref_dir'] . '/p2_recent.idx';        // 最近呼んだスレ (idx)
-$_conf['p2_res_hist_dat']       = $_conf['pref_dir'] . '/p2_res_hist.dat';      // 書き込みログファイル (dat)
-$_conf['p2_res_hist_dat_php']   = $_conf['pref_dir'] . '/p2_res_hist.dat.php';  // 書き込みログファイル (データPHP)
-$_conf['cookie_dir']            = $_conf['pref_dir'] . '/p2_cookie';            // COOKIE保存ディレクトリ
-$_conf['favlist_file']          = $_conf['pref_dir'] . '/p2_favlist.idx';       // お気にスレ (idx)
-$_conf['favita_path']           = $_conf['pref_dir'] . '/p2_favita.brd';        // お気に板 (brd)
-$_conf['idpw2ch_php']           = $_conf['pref_dir'] . '/p2_idpw2ch.php';       // 2ch ID認証設定ファイル (データPHP)
-$_conf['sid2ch_php']            = $_conf['pref_dir'] . '/p2_sid2ch.php';        // 2ch ID認証セッションID記録ファイル (データPHP)
-$_conf['auth_user_file']        = $_conf['pref_dir'] . '/p2_auth_user.php';     // 認証ユーザ設定ファイル(データPHP)
-$_conf['auth_imodeid_file']     = $_conf['pref_dir'] . '/p2_auth_imodeid.php';  // DoCoMo iモードID認証ファイル (データPHP)
-$_conf['auth_docomo_file']      = $_conf['pref_dir'] . '/p2_auth_docomo.php';   // DoCoMo 端末製造番号認証ファイル (データPHP)
-$_conf['auth_ez_file']          = $_conf['pref_dir'] . '/p2_auth_ez.php';       // EZweb サブスクライバID認証ファイル (データPHP)
-$_conf['auth_jp_file']          = $_conf['pref_dir'] . '/p2_auth_jp.php';       // SoftBank 端末シリアル番号認証ファイル (データPHP)
-$_conf['login_log_file']        = $_conf['pref_dir'] . '/p2_login.log.php';     // ログイン履歴 (データPHP)
-$_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';  // ログイン失敗履歴 (データPHP)
-
-$_conf['matome_cache_path'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . 'matome_cache';
-$_conf['matome_cache_ext'] = '.htm';
-$_conf['matome_cache_max'] = 3; // 予備キャッシュの数
-
-$_conf['orig_favlist_file'] = $_conf['favlist_file'];
-$_conf['orig_favita_path']  = $_conf['favita_path'];
-
-// }}}
-// {{{ ホストチェック
-
-if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once P2_LIB_DIR . '/hostcheck.class.php';
-    if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
-        ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
-    ) {
-        HostCheck::forbidden();
-    }
-}
-
-// }}}
 // {{{ セッション
 
 // 名前は、セッションクッキーを破棄するときのために、セッション利用の有無に関わらず設定する
@@ -772,6 +857,7 @@ if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
 }
 
 if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) {
+    require_once P2_LIB_DIR . '/session.class.php';
 
     // {{{ セッションデータ保存ディレクトリをチェック
 
@@ -822,12 +908,29 @@ if ($_conf['expack.misc.multi_favs']) {
 // }}}
 // {{{ misc.
 
+// DOCTYPE HTML 宣言
+$_conf['doctype'] = '';
+$ie_strict = false;
+if (!$_conf['ktai'] || $_conf['client_type'] != 'k') {
+    if ($ie_strict || strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') === false) {
+        $_conf['doctype'] = <<<EODOC
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">\n
+EODOC;
+    } else {
+        $_conf['doctype'] = <<<EODOC
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">\n
+EODOC;
+    }
+}
+
 // XHTMLヘッダ要素
 if (defined('P2_OUTPUT_XHTML')) {
     $_conf['extra_headers_xht'] = preg_replace('/<((?:link|meta) .+?)>/', '<\\1 />', $_conf['extra_headers_ht']);
 }
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
+require_once P2_LIB_DIR . '/login.class.php';
 $_login = new Login();
 
 // おまじない
@@ -885,10 +988,11 @@ EOP;
         $err = 'eAcceleratorを更新してください。';
         $ev = EACCELERATOR_VERSION;
         $msg = <<<EOP
-PHP 5.2 で例外を捕捉できないバージョンの eAccelerator ({$ev}) がインストールされています。
-この問題が修正された eAccelerator 0.9.5.2 以降を使用してください。
+<p>PHP 5.2で例外を捕捉できない問題のあるeAccelerator ({$ev})がインストールされています。<br>
+eAcceleratorを無効にするか、この問題が修正されたeAccelerator 0.9.5.2以降を使用してください。<br>
+<a href="http://eaccelerator.net/">http://eaccelerator.net/</a></p>
 EOP;
-        p2die($err, $msg);
+        p2die($err, $msg, true);
     }
 
     // 推奨バージョン

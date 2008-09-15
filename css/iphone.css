@@ -54,6 +54,10 @@ span.label {
 	cursor: pointer;
 }
 
+div.center {
+	text-align: center;
+}
+
 /* }}} *
 /* {{{ Forms */
 

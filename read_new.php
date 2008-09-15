@@ -139,14 +139,6 @@ EOP;
 
 // include_once P2_LIB_DIR . '/read_header.inc.php';
 
-// iPhone & ImageCache2
-if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
-    $_conf['extra_headers_ht'] .= <<<EOS
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
-<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
-EOS;
-}
-
 echo $_conf['doctype'];
 echo <<<EOHEADER
 <html lang="ja">
@@ -167,6 +159,9 @@ echo <<<EOHEADER
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>\n
 EOHEADER;
 
+if ($_conf['link_youtube'] == 2 || $_conf['link_niconico'] == 2) {
+    echo "\t<script type=\"text/javascript\" src=\"js/preview_video.js?{$_conf['p2_version_id']}\"></script>\n";
+}
 if ($_conf['expack.am.enabled']) {
     echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js?{$_conf['p2_version_id']}\"></script>\n";
 }
@@ -178,6 +173,7 @@ if ($_conf['expack.spm.enabled']) {
     echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2_version_id']}\"></script>\n";
 }
 if ($_conf['expack.ic2.enabled']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/loadthumb.js?{$_conf['p2_version_id']}\"></script>\n";
     echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css?{$_conf['p2_version_id']}\">\n";
 }
 

@@ -17,7 +17,7 @@ $next_st = 'ŽŸ*';
 if ($filter_range['page'] > 1) {
     $read_navi_previous_url = $_conf['read_php'] . $_conf['filter_q'] . ($filter_range['page'] - 1) . $_conf['k_at_a'];
     $read_navi_previous = "<a href=\"{$read_navi_previous_url}\">{$prev_st}</a>";
-    $read_navi_previous_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['prev']}\" href=\"{$read_navi_previous_url}\">{$_conf['k_accesskey']['prev']}.{$prev_st}</a>";
+    $read_navi_previous_btm = "<a href=\"{$read_navi_previous_url}\"{$_conf['k_accesskey_at']['prev']}>{$_conf['k_accesskey_st']['prev']}{$prev_st}</a>";
 } else {
     $read_navi_previous = '';
     $read_navi_previous_btm = '';
@@ -25,8 +25,8 @@ if ($filter_range['page'] > 1) {
 
 if ($filter_range['to'] < $filter_hits) {
     $read_navi_next_url = $_conf['read_php'] . $_conf['filter_q'] . ($filter_range['page'] + 1) . $_conf['k_at_a'];
-    $read_navi_next = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\" href=\"{$read_navi_next_url}\">{$_conf['k_accesskey']['next']}.{$next_st}</a>";
-    $read_navi_next_btm = "<a {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\" href=\"{$read_navi_next_url}\">{$_conf['k_accesskey']['next']}.{$next_st}</a>";
+    $read_navi_next = "<a href=\"{$read_navi_next_url}\"{$_conf['k_accesskey_at']['next']}>{$_conf['k_accesskey_st']['next']}{$next_st}</a>";
+    $read_navi_next_btm = "<a href=\"{$read_navi_next_url}\"{$_conf['k_accesskey_at']['next']}>{$_conf['k_accesskey_st']['next']}{$next_st}</a>";
 } else {
     $read_navi_next = '';
     $read_navi_next_btm = '';

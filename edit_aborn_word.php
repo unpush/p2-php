@@ -328,8 +328,10 @@ EOP;
 if ($_conf['ktai']) {
     echo <<<EOP
 <hr>
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="editpref.php{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.İ’è•ÒW</a>
+<div class="center">
+<a href="editpref.php{$_conf['k_at_q']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}İ’è•ÒW</a>
 {$_conf['k_to_index_ht']}
+</div>
 EOP;
 }
 

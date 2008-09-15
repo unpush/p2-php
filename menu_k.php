@@ -146,7 +146,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
         unset($word);
     }
     $modori_url_ht = <<<EOP
-<div><a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">”ÂØ½Ä</a></div>
+<a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">”ÂØ½Ä</a>
 EOP;
 }
 
@@ -174,7 +174,7 @@ if (isset($_GET['cateid'])) {
         }
     }
     $modori_url_ht = <<<EOP
-<a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">”ÂØ½Ä</a><br>
+<a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">”ÂØ½Ä</a>
 EOP;
 }
 
@@ -203,9 +203,10 @@ if ($_conf['expack.misc.multi_favs'] && ($_GET['view'] == 'favita' || $_GET['vie
 
 echo '<hr>';
 echo $list_navi_ht;
+echo '<div class="center">';
 echo $modori_url_ht;
 echo $_conf['k_to_index_ht'];
-echo '</body></html>';
+echo '</div></body></html>';
 
 /*
  * Local Variables:

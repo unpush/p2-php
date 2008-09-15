@@ -9,6 +9,7 @@
 require_once './conf/conf.inc.php';
 $_login->authorize();
 
+require_once P2_LIB_DIR . '/fontconfig.inc.php';
 require_once 'HTML/Template/Flexy.php';
 
 $flexy_options = array(
@@ -249,7 +250,7 @@ function fontconfig_implode_fonts($fonts)
 
 function fontconfig_trim($str)
 {
-    return trim($str, " \r\n\t\x0B\"'\0");
+    return trim($str, " \r\n\t\x0B\"'" . P2_NULLBYTE);
 }
 
 // }}}

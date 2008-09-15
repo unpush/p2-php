@@ -111,7 +111,7 @@ echo "</p>\n";
 
 // フッタプリント===================
 if ($_conf['ktai']) {
-    echo '<hr>'.$_conf['k_to_index_ht']."\n";
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 }
 
 echo '</body></html>';

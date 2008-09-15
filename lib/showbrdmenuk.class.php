@@ -44,19 +44,17 @@ class ShowBrdMenuK
 
             if ($disp_navi['from'] > 1) {
                 $mae_ht = <<<EOP
-<a href="menu_k.php?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
+<a href="menu_k.php?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['prev']}>{$_conf['k_accesskey_st']['prev']}前</a>
 EOP;
             }
             if ($disp_navi['end'] < $list_disp_all_num) {
                 $tugi_ht = <<<EOP
-<a href="menu_k.php?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
+<a href="menu_k.php?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['next']}>{$_conf['k_accesskey_st']['next']}次</a>
 EOP;
             }
 
             if (!$disp_navi['all_once']) {
-                $list_navi_ht = <<<EOP
-{$disp_navi['range_st']}{$mae_ht} {$tugi_ht}<br>
-EOP;
+                $list_navi_ht = "{$disp_navi['range_st']}{$mae_ht} {$tugi_ht}<br>";
             }
 
             foreach ($categories as $cate) {
@@ -116,15 +114,15 @@ EOP;
                         foreach ($cate->menuitas as $mita) {
                             $i++;
                             if ($i <= 9) {
-                                $access_num_st = "$i.";
-                                $akey_at = " {$_conf['accesskey']}=\"{$i}\"";
+                                $accesskey_at = $_conf['k_accesskey_at'][$i];
+                                $accesskey_st = $_conf['k_accesskey_st'][$i];
                             } else {
-                                $access_num_st = "";
-                                $akey_at = "";
+                                $accesskey_at = '';
+                                $accesskey_st = '';
                             }
                             // 板名プリント
                             if ($i >= $disp_navi['from'] and $i <= $disp_navi['end']) {
-                                echo "<a href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1&amp;view=favita{$_conf['k_at_a']}\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$_conf['k_at_a']}\"{$akey_at}>{$access_num_st}{$mita->itaj_ht}</a><br>\n";
+                                echo "<a href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}&amp;setfavita=1&amp;view=favita{$_conf['k_at_a']}\">+</a> <a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$_conf['k_at_a']}\"{$accesskey_at}>{$accesskey_st}{$mita->itaj_ht}</a><br>\n";
                             }
                         }
 
@@ -170,9 +168,7 @@ EOP;
             }
 
             if (!$disp_navi['all_once']) {
-                $list_navi_ht = <<<EOP
-{$disp_navi['range_st']}{$mae_ht} {$tugi_ht}<br>
-EOP;
+                $list_navi_ht = "{$disp_navi['range_st']} {$mae_ht} {$tugi_ht}<br>";
             }
             // }}}
 
@@ -232,14 +228,14 @@ EOP;
                     $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
                     $itaj_en = rawurlencode(base64_encode($itaj));
                     if ($i <= 9) {
-                        $access_at = " {$_conf['accesskey']}={$i}";
-                        $key_num_st = "$i.";
+                        $accesskey_at = $_conf['k_accesskey_at'][$i];
+                        $accesskey_st = $_conf['k_accesskey_st'][$i];
                     } else {
-                        $access_at = "";
-                        $key_num_st = "";
+                        $accesskey_at = '';
+                        $accesskey_st = '';
                     }
                     echo <<<EOP
-<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$_conf['k_at_a']}"{$access_at}>{$key_num_st}{$itaj_view}</a><br>
+<a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$_conf['k_at_a']}"{$accesskey_at}>{$accesskey_st}{$itaj_view}</a><br>
 EOP;
                     //  [<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;view=favita{$_conf['k_at_a']}{$_conf['m_favita_set_at_a']}">削</a>]
                     $show_flag = true;

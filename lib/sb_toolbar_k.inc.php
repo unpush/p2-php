@@ -4,8 +4,8 @@
  * for subject.php
  */
 
-$matome_accesskey_at = "";
-$matome_accesskey_navi = "";
+$matome_accesskey_at = '';
+$matome_accesskey_navi = '';
 
 if (empty($upper_toolbar_done)) {
     if ($_conf['iphone']) {
@@ -13,7 +13,7 @@ if (empty($upper_toolbar_done)) {
         $updown_ht = "<a href=\"#footer\">Å•</a>";
     } else {
         $toolbar_at = ' id="header" name="header"';
-        $updown_ht = "<a href=\"#footer\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['bottom']}\">{$_conf['k_accesskey']['bottom']}.Å•</a>";
+        $updown_ht = "<a href=\"#footer\"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}Å•</a>";
     }
 } else {
     if ($_conf['iphone']) {
@@ -21,9 +21,9 @@ if (empty($upper_toolbar_done)) {
         $updown_ht = "<a href=\"#header\">Å£</a>";
     } else {
         $toolbar_at = ' id="footer" name="footer"';
-        $updown_ht = "<a href=\"#header\" {$_conf['accesskey']}=\"{$_conf['k_accesskey']['above']}\">{$_conf['k_accesskey']['above']}.Å£</a>";
-        $matome_accesskey_at = " {$_conf['accesskey']}=\"{$_conf['k_accesskey']['matome']}\"";
-        $matome_accesskey_navi = "{$_conf['k_accesskey']['matome']}.";
+        $updown_ht = "<a href=\"#header\"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}Å£</a>";
+        $matome_accesskey_at = $_conf['k_accesskey_at']['matome'];
+        $matome_accesskey_navi = $_conf['k_accesskey_st']['matome'];
     }
 }
 

@@ -98,22 +98,22 @@ function print_rss_list_k()
                     $atom_q = '';
                 }
                 if ($i <= 9) {
-                    $access_at = " {$_conf['accesskey']}={$i}";
-                    $key_num_st = "$i ";
+                    $accesskey_at = $_conf['k_accesskey_at'][$i];
+                    $accesskey_st = "{$i} ";
                 } else {
-                    $access_at = '';
-                    $key_num_st = '';
+                    $accesskey_at = '';
+                    $accesskey_st = '';
                 }
                 $localpath = rss_get_save_path($xml);
                 if (PEAR::isError($localpath)) {
-                    echo $key_num_st . $site . ' ' . $localpath->getMessage() . "<br>\n";
+                    echo $accesskey_st . $site . ' ' . $localpath->getMessage() . "<br>\n";
                 } else {
                     $mtime   = file_exists($localpath) ? filemtime($localpath) : 0;
                     $site_en = rawurlencode(base64_encode($site));
                     $xml_en = rawurlencode($xml);
                     $rss_q = sprintf('?xml=%s&site_en=%s%s&mt=%d', $xml_en, $site_en, $atom_q, $mtime);
                     $rss_q_ht = htmlspecialchars($rss_q, ENT_QUOTES);
-                    echo "{$key_num_st}<a href=\"subject_rss.php{$rss_q_ht}\"{$access_at}>{$site}</a><br>\n";
+                    echo "{$accesskey_st}<a href=\"subject_rss.php{$rss_q_ht}\"{$accesskey_at}>{$site}</a><br>\n";
                 }
                 $i++;
             }

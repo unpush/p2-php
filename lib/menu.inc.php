@@ -121,7 +121,14 @@ echo <<<EOP
     }
 
     //]]>
-    </script>
+    </script>\n
+EOP;
+    if ($_conf['expack.ic2.enabled']) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/ic2_switch.js?{$_conf['p2_version_id']}"></script>\n
+EOP;
+}
+echo <<<EOP
 </head>
 <body>\n
 EOP;
@@ -266,41 +273,67 @@ echo <<<EOP
 EOP;
 
 // ■新着数を表示する場合
-if ($_conf['enable_menu_new'] == 1 and $_GET['new']) {
-    $_has_pecl_http = ($_conf['expack.use_pecl_http'] && extension_loaded('http'));
-
-    if ($_has_pecl_http) {
+if ($_conf['enable_menu_new'] == 1 && $_GET['new']) {
+    // 並列ダウンロードの設定
+    if ($_conf['expack.use_pecl_http'] == 1) {
         require_once P2_LIB_DIR . '/p2httpext.class.php';
+        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        require_once P2_CLI_DIR . '/P2CommandRunner.php';
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
     }
 
-    if ($_has_pecl_http) {
+    // {{{ お気にスレ
+
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
         P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_file']);
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        P2CommandRunner::fetchSubjectTxt('fav', $_conf);
     }
-    initMenuNewSp("fav");    // 新着数を初期化
+
+    // 新着数を初期化
+    initMenuNewSp('fav');
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=fav{$norefresh_q}" onclick="chMenuColor({$matome_i});" accesskey="f">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
-    if ($_has_pecl_http) {
+    // }}}
+    // {{{ 最近読んだスレ
+
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
         P2HttpRequestPool::fetchSubjectTxt($_conf['rct_file']);
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        P2CommandRunner::fetchSubjectTxt('recent', $_conf);
     }
-    initMenuNewSp("recent");    // 新着数を初期化
+
+    // 新着数を初期化
+    initMenuNewSp('recent');
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=recent{$norefresh_q}" onclick="chMenuColor({$matome_i});" accesskey="h">最近読んだスレ</a> (<a href="{$_conf['read_new_php']}?spmode=recent" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
-    if ($_has_pecl_http) {
+    // }}}
+    // {{{ 書き込み履歴
+
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
         P2HttpRequestPool::fetchSubjectTxt($_conf['pref_dir'] . '/p2_res_hist.idx');
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        P2CommandRunner::fetchSubjectTxt('res_hist', $_conf);
     }
-    initMenuNewSp("res_hist");    // 新着数を初期化
+
+    // 新着数を初期化
+    initMenuNewSp('res_hist');
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=res_hist{$norefresh_q}" onclick="chMenuColor({$matome_i});">書込履歴</a> <a href="read_res_hist.php" target="read">ログ</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$matome_i}" onclick="chUnColor({$matome_i});"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     flush();
 
+    // }}}
 // 新着数を表示しない場合
 } else {
     echo <<<EOP
@@ -324,8 +357,17 @@ EOP;
 // ■ImageCache2
 //==============================================================
 if ($_conf['expack.ic2.enabled']) {
+    require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+
+    if (IC2Switch::get()) {
+        $ic2sw = array('inline', 'none');
+    } else {
+        $ic2sw = array('none', 'inline');
+    }
+
     echo <<<EOP
-<div class="menu_cate"><b class="menu_cate" onclick="showHide('c_ic2');">ImageCache2</b><br>
+<div class="menu_cate"><b class="menu_cate" onclick="showHide('c_ic2');">ImageCache2</b>
+    (<a href="#" id="ic2_switch_on" onclick="return ic2_menu_switch(0);" style="display:{$ic2sw[0]};font-weight:bold;">ON</a><a href="#" id="ic2_switch_off" onclick="return ic2_menu_switch(1);" style="display:{$ic2sw[1]};font-weight:bold;">OFF</a>)<br>
     <div class="itas" id="c_ic2">
     　<a href="iv2.php" target="_blank">画像キャッシュ一覧</a><br>
     　<a href="ic2_setter.php">アップローダ</a>

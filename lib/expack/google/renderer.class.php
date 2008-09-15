@@ -15,7 +15,7 @@ class Google_Renderer
     /**
      * 検索結果・ヘッダ
      */
-    const header = '<tr class="tableheader">
+    const HEADER = '<tr class="tableheader">
     <td class="t">種類</td>
     <td class="t">タイトル</td>
     <td class="t">範囲</td>

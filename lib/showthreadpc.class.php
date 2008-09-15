@@ -5,7 +5,7 @@
 
 require_once P2_LIB_DIR . '/showthread.class.php';
 require_once P2_LIB_DIR . '/strctl.class.php';
-require_once P2EX_LIB_DIR . '/expack_loader.class.php';
+require_once P2EX_LIB_DIR . '/ExpackLoader.php';
 
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
@@ -53,6 +53,12 @@ class ShowThreadPc extends ShowThread
             $this->_url_handlers[] = 'plugin_imageCache2';
         } elseif ($_conf['preview_thumbnail']) {
             $this->_url_handlers[] = 'plugin_viewImage';
+        }
+        if ($_conf['link_youtube']) {
+            $this->_url_handlers[] = 'plugin_linkYouTube';
+        }
+        if ($_conf['link_niconico']) {
+            $this->_url_handlers[] = 'plugin_linkNicoNico';
         }
         $this->_url_handlers[] = 'plugin_linkURL';
 
@@ -615,37 +621,29 @@ EOJS;
     {
         global $_conf;
 
-        $nameID = '';
-
-        // ID付なら分解する
-        if (preg_match('/(.*)(◆.*)/', $name, $matches)) {
-            $name = $matches[1];
-            $nameID = $matches[2];
+        // トリップやホスト付きなら分解する
+        if (($pos = strpos($name, '◆')) !== false) {
+            $trip = substr($name, $pos);
+            $name = substr($name, 0, $pos);
+        } else {
+            $trip = null;
         }
 
-        // 数字をリンク化
+        // 数字を引用レスポップアップリンク化
         if ($_conf['quote_res_view']) {
-            /*
-            $onPopUp_at = " onmouseover=\"showResPopUp('q\\1of{$this->thread->key}',event)\" onmouseout=\"hideResPopUp('q\\1of{$this->thread->key}')\"";
-            $name && $name = preg_replace("/([1-9][0-9]*)/","<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=\\1\"{$_conf['bbs_win_target_at']}{$onPopUp_at}>\\1</a>", $name, 1);
-            */
-            // 数字を引用レスポップアップリンク化
-            // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
-            $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-            $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+            $name = preg_replace_callback('/^( ?(?:&gt;|＞)* ?)?([1-9]\\d{0,3})(?=\\D|$)/',
+                                          array($this, 'quote_res_callback'), $name, 1);
         }
 
-        if (!empty($nameID)) { $name = $name . $nameID; }
-
-        $name = $name . ' '; // 文字化け回避
-
-        /*
-        $b = unpack('C*', $name);
-        $t = array_pop($b);
-        if ((0x80 <= $t && $t <= 0x9F) || (0xE0 <= $t && $t <= 0xEF)) {
-            $name = $name." ";
+        if ($trip) {
+            $name .= $trip;
+        } elseif ($name) {
+            // 文字化け回避
+            $name = $name . ' ';
+            //if (in_array(0xF0 & ord(substr($name, -1)), array(0x80, 0x90, 0xE0))) {
+            //    $name .= ' ';
+            //}
         }
-        */
 
         return $name;
     }
@@ -1260,6 +1258,11 @@ EOJS;
 
     /**
      * URLリンク
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
      */
     public function plugin_linkURL($url, $purl, $str)
     {
@@ -1336,6 +1339,11 @@ EOJS;
 
     /**
      * 2ch bbspink    板リンク
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
      */
     public function plugin_link2chSubject($url, $purl, $str)
     {
@@ -1353,6 +1361,11 @@ EOJS;
 
     /**
      * 2ch bbspink    スレッドリンク
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
      */
     public function plugin_link2ch($url, $purl, $str)
     {
@@ -1381,6 +1394,11 @@ EOJS;
 
     /**
      * 2ch過去ログhtml
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
      */
     public function plugin_link2chKako($url, $purl, $str)
     {
@@ -1402,6 +1420,11 @@ EOJS;
 
     /**
      * まちBBS / JBBS＠したらば  内リンク
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
      */
     public function plugin_linkMachi($url, $purl, $str)
     {
@@ -1426,6 +1449,11 @@ EOJS;
 
     /**
      * JBBS＠したらば  内リンク
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
      */
     public function plugin_linkJBBS($url, $purl, $str)
     {
@@ -1443,10 +1471,111 @@ EOJS;
     }
 
     // }}}
+    // {{{ plugin_linkYouTube()
+
+    /**
+     * YouTubeリンク変換プラグイン
+     * [wish] YouTube APIを利用して、画像サムネイルのみにしたい
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
+     */
+    public function plugin_linkYouTube($url, $purl, $str)
+    {
+        global $_conf;
+
+        // http://www.youtube.com/watch?v=Mn8tiFnAUAI
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+            // ime
+            if ($_conf['through_ime']) {
+                $link_url = P2Util::throughIme($url);
+            } else {
+                $link_url = $url;
+            }
+
+            // HTMLポップアップ
+            if ($_conf['iframe_popup']) {
+                $link = $this->iframe_popup($link_url, $str, $_conf['ext_win_target_at']);
+            } else {
+                $link = "<a href=\"{$link_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
+            }
+
+            $subd = $m[1];
+            $id = $m[2];
+
+            if ($_conf['link_youtube'] == 2) {
+                return <<<EOP
+{$link} <img class="preview-video-switch" src="img/show.png" width="30" height="12" alt="show" onclick="preview_video_youtube('{$id}', this);">
+EOP;
+            } else {
+                return <<<EOP
+{$link}<div class="preview-video preview-video-youtuve"><object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{$id}" valuetype="ref" type="application/x-shockwave-flash"><param name="wmode" value="transparent"><embed src="http://www.youtube.com/v/{$id}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></object></div>
+EOP;
+            }
+        }
+        return FALSE;
+    }
+
+    // }}}
+    // {{{ plugin_linkNicoNico()
+
+    /**
+     * ニコニコ動画変換プラグイン
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
+     */
+    public function plugin_linkNicoNico($url, $purl, $str)
+    {
+        global $_conf;
+
+        // http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
+        // http://www.nicovideo.jp/watch/utvWwAM30N0No
+        if (preg_match('{^http://(?:www\\.)?nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+            // ime
+            if ($_conf['through_ime']) {
+                $link_url = P2Util::throughIme($url);
+            } else {
+                $link_url = $url;
+            }
+
+            // HTMLポップアップ
+            if ($_conf['iframe_popup']) {
+                $link = $this->iframe_popup($link_url, $str, $_conf['ext_win_target_at']);
+            } else {
+                $link = "<a href=\"{$link_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
+            }
+
+            $url = P2Util::throughIme($url);
+            $id = $m[1];
+
+            if ($_conf['link_niconico'] == 2) {
+                return <<<EOP
+{$link} <img class="preview-video-switch" src="img/show.png" width="30" height="12" alt="show" onclick="preview_video_niconico('{$id}', this);">
+EOP;
+            } else {
+                return <<<EOP
+{$link}<div class="preview-video preview-video-niconico"><iframe src="http://ext.nicovideo.jp/thumb/{$id}" width="425" height="175" scrolling="auto" frameborder="0"></iframe></div>
+EOP;
+            }
+        }
+        return FALSE;
+    }
+
+    // }}}
     // {{{ plugin_viewImage()
 
     /**
      * 画像ポップアップ変換
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
      */
     public function plugin_viewImage($url, $purl, $str)
     {
@@ -1497,6 +1626,11 @@ EOJS;
 
     /**
      * ImageCache2サムネイル変換
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
      */
     public function plugin_imageCache2($url, $purl, $str)
     {
@@ -1612,7 +1746,7 @@ EOJS;
                     $view_img = "<a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$img_tag}{$str}</a>";
                 }
             } else {
-                $img_tag = "<img id=\"{$thumb_id}\" class=\"thumbnail\" src=\"{$tmp_thumb}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                $img_tag = "<img id=\"{$thumb_id}\" class=\"thumbnail\" src=\"{$tmp_thumb}\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
                 $view_img = "<a href=\"{$img_url}\" onclick=\"return loadThumb('{$thumb_url}','{$thumb_id}')\"{$_conf['ext_win_target_at']}>{$img_tag}</a><a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
             }
 

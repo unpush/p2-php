@@ -239,8 +239,7 @@ echo '</p>';
 echo $login_form_ht;
 
 if ($_conf['ktai']) {
-    echo "<hr>\n";
-    echo $_conf['k_to_index_ht'];
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 }
 
 echo '</body></html>';

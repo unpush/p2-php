@@ -378,8 +378,7 @@ if (!empty($links)) {
 
 // 携帯用フッタ
 if ($_conf['ktai']) {
-    echo "<hr>\n";
-    echo $_conf['k_to_index_ht'] . "\n";
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 }
 
 echo '</body></html>';

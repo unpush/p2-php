@@ -95,16 +95,16 @@ EOMAINFRAME;
 
     if (!$sidebar) {
         echo <<<EONOFRAMES
-    <noframes>
-        <body>
-            <h1>{$ptitle}</h1>
-            <ul>
-                <li>　携帯用URL: <a href="{$me_url_b}k">{$me_url_b}k</a></li>
-                <li>iPhone用URL: <a href="{$me_url_b}i">{$me_url_b}i</a></li>
-            </ul>
-        </body>
-    </noframes>
-</frameset>\n
+</frameset>
+<noframes>
+    <body>
+        <h1>{$ptitle}</h1>
+        <ul>
+            <li>　携帯用URL: <a href="{$me_url_b}k">{$me_url_b}k</a></li>
+            <li>iPhone用URL: <a href="{$me_url_b}i">{$me_url_b}i</a></li>
+        </ul>
+    </body>
+</noframes>\n
 EONOFRAMES;
     }
 

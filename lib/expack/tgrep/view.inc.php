@@ -116,17 +116,17 @@
 
 <?php if ($threads) { ?>
 <!-- ThreadList and Pager -->
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
+<table class="threadlist" cellspacing="0">
 <thead>
 <tr class="tableheader">
-    <td class="ti">新着</td>
-    <td class="ti">レス</td>
-    <td class="ti">No.</td>
-    <td class="tl">タイトル</td>
-    <td class="t">板</td>
-    <td class="t">Birthday</td>
-    <td class="ti">勢い</td>
-    <td class="ti">活発さ</td>
+    <th class="ti">新着</th>
+    <th class="ti">レス</th>
+    <th class="ti">No.</th>
+    <th class="tl">タイトル</th>
+    <th class="t">板</th>
+    <th class="t">Birthday</th>
+    <th class="ti">勢い</th>
+    <th class="ti">活発さ</th>
 </tr>
 </thead>
 <tbody>
@@ -179,9 +179,9 @@ foreach ($threads as $o => $t) {
 <!-- Toolbar2 -->
 <table id="sbtoolbar2" class="toolbar" cellspacing="0">
 <tr>
-    <td align="left" valign="middle"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
+    <td align="left" valign="middle"><span class="itatitle" id="bottom"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
     <td align="left" valign="middle">
-        <form id="searchForm2" name="searchForm" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
+        <form id="searchForm2" name="searchForm2" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
         <input id="Q2" name="Q" <?php echo $htm['search_attr']; ?> />
         <input type="submit" value="検索" />
         <?php echo $_conf['detect_hint_input_xht'], $_conf['k_input_ht']; ?>

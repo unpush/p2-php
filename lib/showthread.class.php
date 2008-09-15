@@ -187,7 +187,7 @@ EOP;
     /**
      * NGあぼーんチェック
      */
-    public function ngAbornCheck($code, $resfield, $ic = FALSE)
+    public function ngAbornCheck($code, $resfield, $ic = false)
     {
         global $ngaborns;
 
@@ -199,12 +199,12 @@ EOP;
 
             foreach ($ngaborns[$code]['data'] as $k => $v) {
                 // 板チェック
-                if (isset($v['bbs']) && in_array($bbs, $v['bbs']) == FALSE) {
+                if (isset($v['bbs']) && in_array($bbs, $v['bbs']) == false) {
                     continue;
                 }
 
                 // タイトルチェック
-                if (isset($v['title']) && stristr($title, $v['title']) === FALSE) {
+                if (isset($v['title']) && stripos($title, $v['title']) === false) {
                     continue;
                 }
 
@@ -222,16 +222,9 @@ EOP;
                         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
                     }
-               // 大文字小文字を無視(1)
-                } elseif (!empty($v['ignorecase'])) {
-                    if (stristr($resfield, $v['word'])) {
-                        $this->ngAbornUpdate($code, $k);
-                        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
-                        return $v['cond'];
-                    }
-                // 大文字小文字を無視(2)
-                } elseif ($ic) {
-                    if (stristr($resfield, $v['word'])) {
+               // 大文字小文字を無視
+                } elseif ($ic || !empty($v['ignorecase'])) {
+                    if (stripos($resfield, $v['word']) !== false) {
                         $this->ngAbornUpdate($code, $k);
                         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');
                         return $v['cond'];
@@ -261,8 +254,7 @@ EOP;
     {
         global $ngaborns;
 
-        $t = $this->thread;
-        $target = $t->host . '/' . $t->bbs . '/' . $t->key . '/' . $resnum;
+        $target = $this->thread->host . '/' . $this->thread->bbs . '/' . $this->thread->key . '/' . $resnum;
 
         if (isset($ngaborns['aborn_res']['data']) && is_array($ngaborns['aborn_res']['data'])) {
             foreach ($ngaborns['aborn_res']['data'] as $k => $v) {

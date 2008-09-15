@@ -1453,10 +1453,10 @@ ERR;
      * リンクを新しいタブで開くスイッチを出力する (iPhone用UI)
      *
      * @param string|array $expr XPath式またはXPath式の配列
-     * @param bool $return
+     * @param string $extra_switches
      * @return  void
      */
-    static public function printOpenInTab($expr, $return = false)
+    static public function printOpenInTab($expr, $extra_switches = '')
     {
         if (is_array($expr)) {
             $expr = "['" . implode("','", array_map(create_function(
@@ -1466,19 +1466,11 @@ ERR;
             $expr = "'" . str_replace("'", "\\'", $expr) . "'";
         }
 
-// this.nextSibling.style.borderBottomColor = (this.checked) ? '#fafafa' : '#808080';
-        $html = <<<EOP
-<div id="open-in-tab"><input type="checkbox" id="open-in-tab-cbox" onclick="
- change_link_target({$expr}, this.checked);
- this.nextSibling.style.color = (this.checked) ? '#ff3333' : '#aaaaaa';
+        echo <<<EOP
+<div id="open-in-tab">{$extra_switches}<input type="checkbox" id="open-in-tab-cbox"
+ onclick="change_link_target({$expr}, this.checked); switch_tab_color(this.nextSibling, this.checked);
 "><span class="active-label" onclick="check_prev(this);">新しいタブで開く</span></div>
 EOP;
-
-        if ($return) {
-            return $html;
-        } else {
-            echo $html;
-        }
     }
 
     // }}}

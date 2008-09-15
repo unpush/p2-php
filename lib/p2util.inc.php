@@ -89,7 +89,7 @@ function p2h($str)
  */
 function p2die($err = null, $msg = null, $raw = false)
 {
-    if (!headers_sent()) {
+    if (!defined('P2_CLI_RUN') && !headers_sent()) {
         header('Expires: ' . http_date(0)); // “ú•t‚ª‰ß‹
         header('Last-Modified: ' . http_date()); // í‚ÉC³‚³‚ê‚Ä‚¢‚é
         header('Cache-Control: no-store, no-cache, must-revalidate'); // HTTP/1.1
@@ -156,8 +156,10 @@ EOH;
         echo '</pre>';
     }
 
-    echo '</body></html>';
-    exit(1);
+    if (!defined('P2_CLI_RUN')) {
+        echo '</body></html>';
+    }
+    exit(2);
 }
 
 // }}}
@@ -254,7 +256,7 @@ function nullfilter_r($var, $r = 0)
             }
         } /* else { p2die("too deep multi dimentional array given."); } */
     } elseif (is_string($var)) {
-        $var = str_replace("\x00", '', $var);
+        $var = str_replace(P2_NULLBYTE, '', $var);
     }
     return $var;
 }

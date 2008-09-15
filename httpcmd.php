@@ -16,25 +16,21 @@ header('Content-Type: text/html; charset=Shift_JIS');
 
 // }}}
 
-$r_msg = "";
+$r_msg = '';
 
-// cmdが指定されていなければ、何も返さずに終了
-if (!isset($_GET['cmd']) && !isset($_POST['cmd'])) {
+// コマンド取得 (指定されていなければ、何も返さずに終了)
+if (!isset($_REQUEST['cmd'])) {
     exit;
+} else {
+    $cmd = $_REQUEST['cmd'];
 }
 
-// コマンド取得
-if (isset($_GET['cmd'])) {
-    $cmd = $_GET['cmd'];
-} elseif (isset($_POST['cmd'])) {
-    $cmd = $_POST['cmd'];
-}
-
+switch ($cmd) {
 // {{{ ログ削除
 
-if ($cmd == 'delelog') {
+case 'delelog':
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
-        include_once P2_LIB_DIR . '/dele.inc.php';
+        require_once P2_LIB_DIR . '/dele.inc.php';
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
         if (empty($r)) {
             $r_msg = "0"; // 失敗
@@ -44,13 +40,14 @@ if ($cmd == 'delelog') {
             $r_msg = "2"; // なし
         }
     }
+    break;
 
 // }}}
 // {{{ お気にスレ
 
-} elseif ($cmd == 'setfav') {
+case 'setfav':
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
-        include_once P2_LIB_DIR . '/setfav.inc.php';
+        require_once P2_LIB_DIR . '/setfav.inc.php';
         if (isset($_REQUEST['setnum'])) {
             $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav'], $_REQUEST['setnum']);
         } else {
@@ -62,13 +59,14 @@ if ($cmd == 'delelog') {
             $r_msg = "1"; // 完了
         }
     }
+    break;
 
 // }}}
 // {{{ スレッドあぼーん
 
-} elseif ($cmd == 'taborn') {
+case 'taborn':
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['taborn'])) {
-        include_once P2_LIB_DIR . '/settaborn.inc.php';
+        require_once P2_LIB_DIR . '/settaborn.inc.php';
         $r = settaborn($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['taborn']);
         if (empty($r)) {
             $r_msg = "0"; // 失敗
@@ -76,8 +74,29 @@ if ($cmd == 'delelog') {
             $r_msg = "1"; // 完了
         }
     }
-}
+    break;
+
 // }}}
+// {{{ ImageCaceh2 ON/OFF
+
+case 'ic2':
+    if (isset($_REQUEST['switch'])) {
+        require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+        $switch = (bool)$_REQUEST['switch'];
+        if (IC2Switch::set($switch, !empty($_REQUEST['mobile']))) {
+            if ($switch) {
+                $r_msg = '1'; // ONにした
+            } else {
+                $r_msg = '2'; // OFFにした
+            }
+        } else {
+            $r_msg = '0'; // 失敗
+        }
+    }
+    break;
+
+// }}}
+}
 // {{{ 結果出力
 
 if (P2Util::isBrowserSafariGroup()) {

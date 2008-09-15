@@ -75,10 +75,10 @@ echo "</ol>\n";
 
 echo <<<EOF
 <hr>
-<p>
-<a {$_conf['accesskey']}="9" href="menu_k.php?view=rss">9.RSS</a>
+<div class="center">
+<a href="menu_k.php?view=rss"{$_conf['k_accesskey_at'][9]}>{$_conf['k_accesskey_st'][9]}RSS</a>
 {$_conf['k_to_index_ht']}
-</p>
+</div>
 <hr>
 <form id="urlform" method="post" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
 RSS/Atom‚ğ’¼Úw’è<br>

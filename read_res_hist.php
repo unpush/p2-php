@@ -122,7 +122,7 @@ if ($_conf['ktai']) {
     echo "{$ptitle}<br>";
     echo '<div id="header" name="header">';
     $aResHist->showNaviK("header");
-    echo " <a {$_conf['accesskey']}=\"8\" href=\"#footer\"{$_conf['k_at_a']}>8.Å•</a><br>";
+    echo " <a href=\"#footer\"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}Å•</a><br>";
     echo "</div>";
     echo "<hr>";
 
@@ -162,9 +162,9 @@ if ($_conf['ktai']) {
 if ($_conf['ktai']) {
     echo '<div id="footer" name="footer">';
     $aResHist->showNaviK("footer");
-    echo " <a {$_conf['accesskey']}=\"2\" href=\"#header\"{$_conf['k_at_a']}>2.Å£</a><br>";
+    echo " <a href=\"#header\"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}Å£</a><br>";
     echo "</div>";
-    echo "<p>{$_conf['k_to_index_ht']}</p>";
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 
 // PCópï\é¶
 } else {

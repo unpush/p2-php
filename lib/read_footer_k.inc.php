@@ -33,11 +33,11 @@ if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
             $dores_ht = <<<EOP
-      | <a href="{$motothre_url}" target="_blank" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+ | <a href="{$motothre_url}"{$_conf['k_accesskey_at']['res']}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
 EOP;
         } else {
             $dores_ht = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['res']}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
 EOP;
         }
     } else {
@@ -68,7 +68,7 @@ EOP;
 </div>
 <div class="toolbar">
 {$toolbar_right_ht}
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.Å£</a>
+<a href="#header"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}Å£</a>
 </div>
 {$htm['goto']}\n
 EOP;
@@ -80,7 +80,7 @@ EOP;
         echo '</div>' . "\n";
     }
 }
-echo '<hr>'.$_conf['k_to_index_ht'] . "\n";
+echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 
 // iPhone
 if ($_conf['iphone']) {

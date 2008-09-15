@@ -5,7 +5,7 @@
 
 require_once P2_LIB_DIR . '/showthread.class.php';
 require_once P2_LIB_DIR . '/strctl.class.php';
-require_once P2EX_LIB_DIR . '/expack_loader.class.php';
+require_once P2EX_LIB_DIR . '/ExpackLoader.php';
 
 ExpackLoader::loadAAS();
 ExpackLoader::loadActiveMona();
@@ -344,7 +344,9 @@ class ShowThreadK extends ShowThread
         // まとめて出力
         //=============================================================
 
-        $name = $this->transName($name); // 名前HTML変換
+        if ($name) {
+            $name = $this->transName($name); // 名前HTML変換
+        }
         $msg = $this->transMsg($msg, $i); // メッセージHTML変換
 
         // BEプロファイルリンク変換
@@ -508,27 +510,31 @@ EOP;
      */
     public function transName($name)
     {
-        global $_conf;
+        $name = strip_tags($name);
 
-        $nameID = "";
-
-        // ID付なら分解する
-        if (preg_match("/(.*)(◆.*)/", $name, $matches)) {
-            $name = $matches[1];
-            $nameID = $matches[2];
+        // トリップやホスト付きなら分解する
+        if (($pos = strpos($name, '◆')) !== false) {
+            $trip = substr($name, $pos);
+            $name = substr($name, 0, $pos);
+        } else {
+            $trip = null;
         }
 
         // 数字を引用レスポップアップリンク化
-        // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
-        $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-        $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+        $name = preg_replace_callback('/^( ?(?:&gt;|＞)* ?)?([1-9]\\d{0,3})(?=\\D|$)/',
+                                      array($this, 'quote_res_callback'), $name, 1);
 
-        if ($nameID) {$name = $name . $nameID;}
+        if ($trip) {
+            $name .= $trip;
+        } elseif ($name) {
+            // 文字化け回避
+            $name = $name . ' ';
+            //if (in_array(0xF0 & ord(substr($name, -1)), array(0x80, 0x90, 0xE0))) {
+            //    $name .= ' ';
+            //}
+        }
 
-        // 文字化け回避とタグ除去
-        $name = preg_replace('{</?[Bb]>}', '', '', $name . ' ');
-
-        return ($name == ' ') ? '' : $name;
+        return $name;
     }
 
     // }}}

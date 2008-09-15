@@ -237,24 +237,24 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         array('refresh_time', 'スレッド一覧の自動更新間隔 (分指定。0なら自動更新しない)'),
 
-        array('sb_show_motothre', 'スレッド一覧で未取得スレに対して元スレへのリンク（・）を表示 (する, しない)'),
-        array('sb_show_one', 'PC閲覧時、スレッド一覧（板表示）で&gt;&gt;1を表示 (する, しない, ニュース系のみ)'),
-        array('k_sb_show_first', '携帯のスレッド一覧（板表示）から初めてのスレを開く時の表示方法 (ﾌﾟﾚﾋﾞｭｰ&gt;&gt;1, 1からN件表示, 最新N件表示)'),
-        array('sb_show_spd', 'スレッド一覧ですばやさ（レス間隔）を表示 (する, しない)'),
-        array('sb_show_ikioi', 'スレッド一覧で勢い（1日あたりのレス数）を表示 (する, しない)'),
-        array('sb_show_fav', 'スレッド一覧でお気にスレマーク★を表示 (する, しない)'),
+        array('sb_show_motothre', 'スレッド一覧で未取得スレに対して元スレへのリンク（・）を表示'),
+        array('sb_show_one', 'PC閲覧時、スレッド一覧（板表示）で&gt;&gt;1を表示'),
+        array('k_sb_show_first', '携帯のスレッド一覧（板表示）から初めてのスレを開く時の表示方法'),
+        array('sb_show_spd', 'スレッド一覧ですばやさ（レス間隔）を表示'),
+        array('sb_show_ikioi', 'スレッド一覧で勢い（1日あたりのレス数）を表示'),
+        array('sb_show_fav', 'スレッド一覧でお気にスレマーク★を表示'),
         array('sb_sort_ita', '板表示のスレッド一覧でのデフォルトのソート指定'),
-        array('sort_zero_adjust', '新着ソートでの「既得なし」の「新着数ゼロ」に対するソート優先順位 (上位, 混在, 下位)'),
-        array('cmp_dayres_midoku', '勢いソート時に新着レスのあるスレを優先 (する, しない)'),
+        array('sort_zero_adjust', '新着ソートでの「既得なし」の「新着数ゼロ」に対するソート優先順位'),
+        array('cmp_dayres_midoku', '勢いソート時に新着レスのあるスレを優先'),
         array('k_sb_disp_range', '携帯閲覧時、一度に表示するスレの数'),
-        array('viewall_kitoku', '既得スレは表示件数に関わらず表示 (する, しない)'),
+        array('viewall_kitoku', '既得スレは表示件数に関わらず表示'),
 
         array('sb_ttitle_max_len', 'PC閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
         array('sb_ttitle_trim_len', 'PC閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos', 'PC閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)'),
+        array('sb_ttitle_trim_pos', 'PC閲覧時、スレッドタイトルを切り詰める位置'),
         array('sb_ttitle_max_len_k', '携帯閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
         array('sb_ttitle_trim_len_k', '携帯閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos_k', '携帯閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)'),
+        array('sb_ttitle_trim_pos_k', '携帯閲覧時、スレッドタイトルを切り詰める位置'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -273,31 +273,32 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('before_respointer', 'PC閲覧時、ポインタの何コ前のレスから表示するか'),
         array('before_respointer_new', '新着まとめ読みの時、ポインタの何コ前のレスから表示するか'),
         array('rnum_all_range', '新着まとめ読みで一度に表示するレス数'),
-        array('preview_thumbnail', '画像URLの先読みサムネイルを表示 (する, しない)'),
+        array('preview_thumbnail', '画像URLの先読みサムネイルを表示'),
         array('pre_thumb_limit', '画像URLの先読みサムネイルを一度に表示する制限数 (0で無制限)'),
 //        array('pre_thumb_height', '画像サムネイルの縦の大きさを指定 (ピクセル)'),
 //        array('pre_thumb_width', '画像サムネイルの横の大きさを指定 (ピクセル)'),
-        array('link_youtube', 'YouTubeのリンクをプレビュー表示（する, しない)'),
-        array('iframe_popup', 'HTMLポップアップ (する, しない, pでする, 画像でする)'),
+        array('link_youtube', 'YouTubeのリンクをプレビュー表示<br>(手動の場合はURLの横の<img src="img/show.png" width="30" height="12" alt="show">をクリックして表示)'),
+        array('link_niconico', 'ニコニコ動画のリンクをプレビュー表示<br>(手動の場合はURLの横の<img src="img/show.png" width="30" height="12" alt="show">をクリックして表示)'),
+        array('iframe_popup', 'HTMLポップアップ'),
 //        array('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)'),
-        array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換 (する, しない)'),
-        array('ext_win_target', '外部サイト等へジャンプする時に開くウィンドウのターゲット名 (同窓:&quot;&quot;, 新窓:&quot;_blank&quot;)'),
-        array('bbs_win_target', 'p2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名 (同窓:&quot;&quot;, 新窓:&quot;_blank&quot;)'),
-        array('bottom_res_form', 'スレッド下部に書き込みフォームを表示 (する, しない)'),
-        array('quote_res_view', '引用レスを表示 (する, しない)'),
+        array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換'),
+        array('ext_win_target', '外部サイト等へジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
+        array('bbs_win_target', 'rep2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
+        array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
+        array('quote_res_view', '引用レスを表示'),
 
         array('k_rnum_range', '携帯閲覧時、一度に表示するレスの数'),
         array('ktai_res_size', '携帯閲覧時、一つのレスの最大表示サイズ'),
         array('ktai_ryaku_size', '携帯閲覧時、レスを省略したときの表示サイズ'),
         array('k_aa_ryaku_size', '携帯閲覧時、AAらしきレスを省略するサイズ (0なら無効)'),
         array('before_respointer_k', '携帯閲覧時、ポインタの何コ前のレスから表示するか'),
-        array('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用 (する, しない)'),
-        array('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用 (する, しない)'),
+        array('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用'),
+        array('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用'),
 
-        array('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示 (する, しない)'),
-        array('k_clip_unique_id', '携帯閲覧時、重複しないIDは末尾のみの省略表示 (する, しない)'),
-        array('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示 (する, しない)'),
-        array('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示 (する, しない)'),
+        array('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示'),
+        array('k_clip_unique_id', '携帯閲覧時、重複しないIDは末尾のみの省略表示'),
+        array('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示'),
+        array('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示'),
         array('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
@@ -313,11 +314,11 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('ngaborn_frequent', '&gt;&gt;1 以外の頻出IDをあぼーんする (する, しない, NGにする)'),
-        array('ngaborn_frequent_one', '&gt;&gt;1 も頻出IDあぼーんの対象外にする (する, しない)'),
+        array('ngaborn_frequent', '&gt;&gt;1 以外の頻出IDをあぼーんする'),
+        array('ngaborn_frequent_one', '&gt;&gt;1 も頻出IDあぼーんの対象外にする'),
         array('ngaborn_frequent_num', '頻出IDあぼーんのしきい値 (出現回数がこれ以上のIDをあぼーん)'),
-        array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない (総レス数/スレ立てからの日数、0なら無効)'),
-        array('ngaborn_chain', '連鎖NGあぼーん (する, しない, あぼーんレスへのレスもNGにする)<br>処理を軽くするため、表示範囲のレスにしか連鎖しない'),
+        array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない<br>(総レス数/スレ立てからの日数、0なら無効)'),
+        array('ngaborn_chain', '連鎖NGあぼーん (処理を軽くするため、表示範囲のレスにしか連鎖しない)<br>「する」ならあぼーんレスへのレスはあぼーん、NGレスへのレスはNG。<br>「すべてNGにする」の場合、あぼーんレスへのレスもNGにする。'),
         array('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す (日数)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
@@ -340,30 +341,30 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('my_FROM', 'レス書き込み時のデフォルトの名前'),
         array('my_mail', 'レス書き込み時のデフォルトのmail'),
 
-        array('editor_srcfix', 'PC閲覧時、ソースコードのコピペに適した補正をするチェックボックスを表示（する, しない, pc鯖のみ）'),
+        array('editor_srcfix', 'PC閲覧時、ソースコードのコピペに適した補正をするチェックボックスを表示'),
 
         array('get_new_res', '新しいスレッドを取得した時に表示するレス数(全て表示する場合:&quot;all&quot;)'),
         array('rct_rec_num', '最近読んだスレの記録数'),
         array('res_hist_rec_num', '書き込み履歴の記録数'),
-        array('res_write_rec', '書き込み内容ログを記録 (する, しない)'),
-        array('through_ime', '外部URLジャンプする際に通すゲート (直接, p2 ime(自動転送), p2 ime(手動転送), p2 ime(pのみ手動転送), r.p(自動転送1秒), r.p(自動転送0秒), r.p(手動転送), r.p(pのみ手動転送))'),
+        array('res_write_rec', '書き込み内容ログを記録'),
+        array('through_ime', '外部URLジャンプする際に通すゲート'),
         array('ime_manual_ext', 'ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）'),
-        array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加 (する, しない)'),
-        array('merge_favita', 'お気に板のスレ一覧をまとめて表示。お気に板の数によっては、CPUとメモリを大量に消費する。'),
-        array('favita_order_dnd', 'ドラッグ＆ドロップでお気に板を並べ替える (する, しない)'),
-        array('enable_menu_new', '板メニューに新着数を表示 (する, しない, お気に板のみ)'),
-        array('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)'),
-        array('menu_hide_brds', '板カテゴリ一覧を閉じた状態にする (する, しない)'),
+        array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加'),
+        array('merge_favita', 'お気に板のスレ一覧をまとめて表示 (お気に板の数によっては処理に時間がかかる)'),
+        array('favita_order_dnd', 'ドラッグ＆ドロップでお気に板を並べ替える'),
+        array('enable_menu_new', '板メニューに新着数を表示'),
+        array('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない)'),
+        array('menu_hide_brds', '板カテゴリ一覧を閉じた状態にする'),
         array('brocra_checker_use', 'ブラクラチェッカ (つける, つけない)'),
         array('brocra_checker_url', 'ブラクラチェッカURL'),
         array('brocra_checker_query', 'ブラクラチェッカのクエリー (空の場合、PATH_INFOでURLを渡す)'),
-        array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする (off, レスのみ, サブジェクトも)'),
-        array('k_save_packet', '携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する, しない)'),
-        array('proxy_use', 'プロキシを利用 (する, しない)'), 
-        array('proxy_host', 'プロキシホスト ex)"127.0.0.1", "www.p2proxy.com"'), 
-        array('proxy_port', 'プロキシポート ex)"8080"'), 
-        array('precede_openssl', '●ログインを、まずはopensslで試みる。※PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある。'),
-        array('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか (コマンドライン版, PHP関数版)'),
+        array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする'),
+        array('k_save_packet', '携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換'),
+        array('proxy_use', 'プロキシを利用'), 
+        array('proxy_host', 'プロキシホスト ex)&quot;127.0.0.1&quot;, &quot;www.p2proxy.com&quot;'), 
+        array('proxy_port', 'プロキシポート ex)&quot;8080&quot;'), 
+        array('precede_openssl', '●ログインを、まずはopensslで試みる<br>(PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある)'),
+        array('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -388,7 +389,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('mobile.ngword_color', 'NGワード'),
         array('mobile.onthefly_color', 'オンザフライレス番号'),
         array('mobile.match_color', 'フィルタリングでマッチしたキーワード'),
-        array('mobile.id_underline', 'ID末尾の&quot;O&quot;に下線を引く (する, しない)'),
+        array('mobile.id_underline', 'ID末尾の&quot;O&quot;に下線を引く'),
+        array('mobile.display_accesskey', 'アクセスキーの番号を表示'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -418,7 +420,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.tgrep.quicksearch', '一発検索（表示, 非表示）'),
+        array('expack.tgrep.quicksearch', '一発検索'),
         array('expack.tgrep.recent_num', '検索履歴を記録する数（記録しない:0）'),
         array('expack.tgrep.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用（記録しない:0）'),
     );
@@ -483,10 +485,10 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 } else {
     $conflist = array(
         //array('expack.editor.constant', '定型文 (使う, 使わない)'),
-        array('expack.editor.dpreview', 'リアルタイム・プレビュー (投稿フォームの上に表示, 投稿フォームの下に表示, 非表示)'),
-        array('expack.editor.dpreview_chkaa', 'リアルタイム・プレビューでAA補正用のチェックボックスを表示する (する, しない)'),
-        array('expack.editor.check_message', '本文が空でないかチェック (する, しない)'),
-        array('expack.editor.check_sage', 'sageチェック (する, しない)'),
+        array('expack.editor.dpreview', 'リアルタイム・プレビュー'),
+        array('expack.editor.dpreview_chkaa', 'リアルタイム・プレビューでAA補正用のチェックボックスを表示する'),
+        array('expack.editor.check_message', '本文が空でないかチェック'),
+        array('expack.editor.check_sage', 'sageチェック'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -501,7 +503,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.rss.check_interval', 'RSSが更新されたかどうか確認する間隔（分指定）'),
+        array('expack.rss.check_interval', 'RSSが更新されたかどうか確認する間隔 (分指定)'),
         array('expack.rss.target_frame', 'RSSの外部リンクを開くフレームまたはウインドウ'),
         array('expack.rss.desc_target_frame', '概要を開くフレームまたはウインドウ'),
     );
@@ -518,11 +520,12 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.ic2.through_ime', 'キャッシュに失敗したときの確認用にime経由でソースへのリンクを作成 (する, しない)'),
-        array('expack.ic2.fitimage', 'ポップアップ画像の大きさをウインドウの大きさに合わせる (する, しない, 幅が大きいときだけする, 高さが大きいときだけする, 手動でする)'),
+        array('expack.ic2.viewer_default_mode', '画像キャッシュ一覧のデフォルト表示モード'),
+        array('expack.ic2.through_ime', 'キャッシュに失敗したときの確認用にime経由でソースへのリンクを作成'),
+        array('expack.ic2.fitimage', 'ポップアップ画像の大きさをウインドウの大きさに合わせる'),
         array('expack.ic2.pre_thumb_limit_k', '携帯でインライン・サムネイルが有効のときの表示する制限数 (0で無制限)'),
-        array('expack.ic2.newres_ignore_limit', '新着レスの画像は pre_thumb_limit を無視して全て表示 (する, しない)'),
-        array('expack.ic2.newres_ignore_limit_k', '携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示 (する, しない)'),
+        array('expack.ic2.newres_ignore_limit', '新着レスの画像は pre_thumb_limit を無視して全て表示'),
+        array('expack.ic2.newres_ignore_limit_k', '携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -539,8 +542,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         array('expack.google.key', 'Google Web APIs の登録キー', P2_EDIT_CONF_USER_LONGTEXT),
         //array('expack.google.recent_num', '検索履歴を記録する数（記録しない:0）'),
-        array('expack.google.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用（記録しない:0）'),
-        array('expack.google.force_pear', 'SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う（YES, NO）'),
+        array('expack.google.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用 (記録しない:0)'),
+        array('expack.google.force_pear', 'SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -555,7 +558,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.aas.inline', '携帯で自動 AA 判定と連動し、インライン表示 (する, しない)'),
+        array('expack.aas.inline', '携帯で自動 AA 判定と連動し、インライン表示'),
         array('expack.aas.image_type', '画像形式 (PNG, JPEG, GIF)'),
         array('expack.aas.jpeg_quality', 'JPEGの品質 (0-100)'),
         array('expack.aas.image_width', '携帯用の画像の横幅 (ピクセル)'),
@@ -564,8 +567,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.aas.image_height_pc', 'PC用の画像の高さ (ピクセル)'),
         array('expack.aas.image_width_il', 'インライン画像の横幅 (ピクセル)'),
         array('expack.aas.image_height_il', 'インライン画像の高さ (ピクセル)'),
-        array('expack.aas.trim', '画像の余白をトリミング (する, しない)'),
-        array('expack.aas.bold', '太字 (する, しない)'),
+        array('expack.aas.trim', '画像の余白をトリミング'),
+        array('expack.aas.bold', '太字'),
         array('expack.aas.fgcolor', '文字色 (6桁または3桁の16進数)'),
         array('expack.aas.bgcolor', '背景色 (6桁または3桁の16進数)'),
         array('expack.aas.max_fontsize', '最大の文字サイズ (ポイント)'),
@@ -683,8 +686,10 @@ EOP;
 {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>
 <hr>
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="editpref.php{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.設定編集</a>
+<div class="center">
+<a href="editpref.php{$_conf['k_at_q']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}設定編集</a>
 {$_conf['k_to_index_ht']}
+</div>
 EOP;
 }
 

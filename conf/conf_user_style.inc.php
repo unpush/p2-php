@@ -141,6 +141,16 @@ $STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの
 $STYLE['conf_btn_bgcolor'] = '#efefef';
 
 // }}}
+// {{{ 携帯
+
+$STYLE['mobile_subject_newthre_color'] = "#ff0000"; // ("#ff0000")
+$STYLE['mobile_subject_newres_color']  = "#ff6600"; // ("#ff6600")
+$STYLE['mobile_read_ttitle_color']     = "#1144aa"; // ("#1144aa")
+$STYLE['mobile_read_newres_color']     = "#ff6600"; // ("#ff6600")
+$STYLE['mobile_read_ngword_color']     = "#bbbbbb"; // ("#bbbbbb")
+$STYLE['mobile_read_onthefly_color']   = "#00aa00"; // ("#00aa00")
+
+// }}}
 
 /*
  * Local Variables:

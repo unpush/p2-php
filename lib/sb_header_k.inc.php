@@ -146,6 +146,14 @@ EOS;
     }
 }
 
+/*
+if ($_conf['iphone'] && ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3)) {
+    $_conf['extra_headers_ht'] .= <<<EOS
+<script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/ic2_switch.js?{$_conf['p2_version_id']}"></script>
+EOS;
+}
+*/
 
 //=================================================
 //ヘッダプリント
@@ -163,18 +171,40 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
+// タブで開くetc.
 if ($_conf['iphone']) {
-    $open_in_tab = explode('>', P2Util::printOpenInTab(array(
+    /*
+    if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) {
+        require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+        if (IC2Switch::get(false)) {
+            $ic2_switch_checked = ' checked';
+            $ic2_switch_color = '#ff3333';
+        } else {
+            $ic2_switch_checked = '';
+            $ic2_switch_color = '#aaaaaa';
+        }
+        $extra_switches = <<<EOP
+<input type="checkbox" id="sb-switch-ic2-cbox" onclick="ic2_mobile_switch(this.checked);
+ switch_tab_color(this.nextSibling, this.checked);
+"{$ic2_switch_checked}><span onclick="check_prev(this);" style="color:{$ic2_switch_color};">IC2</span>
+EOP;
+    } else {
+        $extra_switches = '';
+    }
+
+    $extra_switches .= <<<EOP
+    */
+    $extra_switches = <<<EOP
+<input type="checkbox" id="sb-show-info-cbox" onclick="toggle_sb_show_info(this.checked);
+ switch_tab_color(this.nextSibling, this.checked);
+"><span onclick="check_prev(this);">スレッド情報</span>
+EOP;
+
+    P2Util::printOpenInTab(array(
         ".//a[starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]",
         ".//form[@action=&quot;{$_conf['read_new_k_php']}&quot; or @action=&quot;{$_conf['subject_php']}&quot;]",
         ".//ul[@class=&quot;subject&quot;]/li/a[@href]"
-    ), true), 2);
-    echo <<<EOP
-{$open_in_tab[0]}><input type="checkbox" id="sb-show-info-cbox" onclick="
- toggle_sb_show_info(this.checked);
- this.nextSibling.style.color = (this.checked) ? '#ff3333' : '#aaaaaa';
-"><span onclick="check_prev(this);">スレッド情報</span>{$open_in_tab[1]}
-EOP;
+    ), $extra_switches);
 }
 
 echo $_info_msg_ht;

@@ -259,13 +259,11 @@ if ($_conf['ktai']) {
 
         $GLOBALS['filter_hits'] = 0;
 
-        $hits_line = "<p><b id=\"filerstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>";
+        echo "<p><b id=\"filerstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>\n";
         echo <<<EOP
 <script type="text/javascript">
 //<![CDATA[
-document.writeln('{$hits_line}');
 var searching = document.getElementById('searching');
-
 function filterCount(n){
     if (searching) {
         searching.innerHTML = n;

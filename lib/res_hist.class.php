@@ -235,35 +235,31 @@ EOP;
         $this->resrange['nofirst'] = false;
 
         if ($disp_navi['from'] > 1) {
-            if ($position == "footer") {
+            if ($position == 'footer') {
                 $mae_ht = <<<EOP
-        <a {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}" href="read_res_hist.php?from={$disp_navi['mae_from']}{$_conf['k_at_a']}">{$_conf['k_accesskey']['prev']}.前</a>
+<a href="read_res_hist.php?from={$disp_navi['mae_from']}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['prev']}>{$_conf['k_accesskey_st']['prev']}前</a>
 EOP;
             } else {
                 $mae_ht = <<<EOP
-        <a href="read_res_hist.php?from={$disp_navi['mae_from']}{$_conf['k_at_a']}">前</a>
+<a href="read_res_hist.php?from={$disp_navi['mae_from']}{$_conf['k_at_a']}">前</a>
 EOP;
             }
         }
         if ($disp_navi['end'] < $list_disp_all_num) {
-            if ($position == "footer") {
+            if ($position == 'footer') {
                 $tugi_ht = <<<EOP
-        <a {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}" href="read_res_hist.php?from={$disp_navi['tugi_from']}{$_conf['k_at_a']}">{$_conf['k_accesskey']['next']}.次</a>
+<a href="read_res_hist.php?from={$disp_navi['tugi_from']}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['next']}>{$_conf['k_accesskey_st']['next']}次</a>
 EOP;
             } else {
                 $tugi_ht = <<<EOP
-        <a href="read_res_hist.php?from={$disp_navi['tugi_from']}{$_conf['k_at_a']}">次</a>
+<a href="read_res_hist.php?from={$disp_navi['tugi_from']}{$_conf['k_at_a']}">次</a>
 EOP;
             }
         }
 
         if (!$disp_navi['all_once']) {
-            $list_navi_ht = <<<EOP
-        {$disp_navi['range_st']}{$mae_ht} {$tugi_ht}
-EOP;
+            echo "<div class=\"navi\">{$disp_navi['range_st']} {$mae_ht} {$tugi_ht}</div>\n";
         }
-
-        echo $list_navi_ht;
     }
 
     // }}}

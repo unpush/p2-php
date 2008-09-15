@@ -256,28 +256,32 @@ if ($spmode == 'merge_favita') {
 // 更新する場合、前もって一括＆並列ダウンロード (要pecl_http)
 //============================================================
 
-if (empty($_REQUEST['norefresh']) &&
-    !(empty($_REQUEST['refresh']) && isset($_REQUEST['word'])) &&
-    $_conf['expack.use_pecl_http'] && extension_loaded('http')
-) {
-    require_once P2_LIB_DIR . '/p2httpext.class.php';
-    switch ($spmode) {
-    case 'fav':
-        P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_file']);
-        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
-        break;
-    case 'recent':
-        P2HttpRequestPool::fetchSubjectTxt($_conf['rct_file']);
-        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
-        break;
-    case 'res_hist':
-        P2HttpRequestPool::fetchSubjectTxt($_conf['pref_dir'] . '/p2_res_hist.idx');
-        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
-        break;
-    case 'merge_favita':
-        P2HttpRequestPool::fetchSubjectTxt($favitas);
-        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
-        break;
+if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        require_once P2_LIB_DIR . '/p2httpext.class.php';
+        switch ($spmode) {
+        case 'fav':
+            P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_file']);
+            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+            break;
+        case 'recent':
+            P2HttpRequestPool::fetchSubjectTxt($_conf['rct_file']);
+            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+            break;
+        case 'res_hist':
+            P2HttpRequestPool::fetchSubjectTxt($_conf['pref_dir'] . '/p2_res_hist.idx');
+            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+            break;
+        case 'merge_favita':
+            P2HttpRequestPool::fetchSubjectTxt($favitas);
+            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+            break;
+        }
+    } elseif ($_conf['expack.use_pecl_http'] == 2) {
+        require_once P2_CLI_DIR . '/P2CommandRunner.php';
+        if (P2CommandRunner::fetchSubjectTxt($spmode, $_conf)) {
+            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+        }
     }
 }
 

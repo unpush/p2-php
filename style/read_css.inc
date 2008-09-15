@@ -64,7 +64,17 @@ h4.thread_title {
 .name{color:{$STYLE['read_name_color']};} /* 投稿者の名前 */
 .mail{color:{$STYLE['read_mail_color']};} /* 投稿者のmail */
 .sage{color:{$STYLE['read_mail_sage_color']};} /* 投稿者のmail(sage) */
-img.thumbnail{border:solid 1px;} /* 画像URLの先読みサムネイル*/
+
+/* 画像URLの先読みサムネイル*/
+img.thumbnail {
+	/*border-color: inherit;*/
+	border-color: {$STYLE['read_color']};
+	border-style: solid;
+	border-width: 1px;
+}
+a img.thumbnail {
+	border-color: {$STYLE['read_acolor']};
+}
 
 div.thread {
 	margin: 0;
@@ -255,6 +265,10 @@ a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* 新着レス */
 }
 
 /* }}} */
+
+.preview-video-switch {
+	cursor: pointer;
+}
 
 EOSTYLE;
 

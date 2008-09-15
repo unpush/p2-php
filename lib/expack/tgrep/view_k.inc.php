@@ -71,7 +71,7 @@ if ($_conf['expack.tgrep.recent_num'] > 0) {
 
 <?php if ($threads) { ?>
 <!-- ThreadList and Pager -->
-<div><a href="#bottom" <?php echo $_conf['accesskey']; ?>="8" align="right" title="‰º‚Ö">8.¥</a></div>
+<div><a href="#bottom" align="right" title="‰º‚Ö"<?php echo $_conf['k_accesskey_at']['bottom']; ?>><?php echo $_conf['k_accesskey_st']['bottom']; ?>¥</a></div>
 <?php
 include_once P2_LIB_DIR . '/thread.class.php';
 foreach ($threads as $o => $t) {
@@ -98,7 +98,7 @@ foreach ($threads as $o => $t) {
 <p><?php echo $o; ?>.<a href="<?php echo $turl; ?>"><?php echo $ttitle; ?></a><br>
 <small><?php echo date('y/m/d ', $t->tkey); ?><a href="<?php echo $burl; ?>"><?php echo $itaj; ?>(<?php echo $profile['boards'][$t->bid]->hits; ?>)</a></small></p>
 <?php } ?>
-<div><a href="#top" <?php echo $_conf['accesskey']; ?>="2" align="right" title="ã‚Ö">2.£</a></div>
+<div><a href="#top" align="right" title="ã‚Ö"<?php echo $_conf['k_accesskey_at']['above']; ?>><?php echo $_conf['k_accesskey_st']['above']; ?>£</a></div>
 <?php if ($htm['pager']) { ?>
 <hr>
 <div><?php echo $htm['pager']; ?></div>
@@ -106,11 +106,11 @@ foreach ($threads as $o => $t) {
 <?php } ?>
 <hr>
 <p id="bottom" name="bottom">
-<a <?php echo $_conf['accesskey']; ?>="0" href="index.php">0.TOP</a>
+<?php echo $_conf['k_to_index_ht'], ' '; ?>
 <?php if ($query) { ?>
-<a <?php echo $_conf['accesskey']; ?>="5" href="tgrepc.php">5.tGrep</a>
+<a href="tgrepc.php"<?php echo $_conf['k_accesskey_at'][5]; ?>><?php echo $_conf['k_accesskey_st'][5]; ?>tGrep</a>
 <?php if ($_conf['expack.tgrep.quicksearch']) { ?>
-<a <?php echo $_conf['accesskey']; ?>="9" href="tgrepctl.php?file=quick&amp;query=<?php echo $htm['query_en']; ?>">9.<?php echo $htm['query']; ?>‚ğˆê”­ŒŸõ‚É’Ç‰Á</a>
+<a href="tgrepctl.php?file=quick&amp;query=<?php echo $htm['query_en']; ?>"<?php echo $_conf['k_accesskey_at'][9]; ?>><?php echo $_conf['k_accesskey_st'][9], $htm['query']; ?>‚ğˆê”­ŒŸõ‚É’Ç‰Á</a>
 <?php } ?>
 <?php } ?>
 </p>

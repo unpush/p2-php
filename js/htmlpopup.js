@@ -59,15 +59,6 @@ function showHtmlPopUp(url,ev,showHtmlDelaySec)
 		}
 		showHtmlTimerID = setTimeout("showHtmlPopUpDo()", showHtmlDelaySec); // HTML表示ディレイタイマー
 	}
-
-	// HTMLポップアップ外部をクリックしても閉じられるようにする
-	if (window.addEventListener) {
-		// W3C  DOM
-		document.body.addEventListener('click', hideHtmlPopUpCallback, false);
-	} else if (window.attachEvent) {
-		// IE
-		document.body.attachEvent('onclick', hideHtmlPopUpCallback);
-	}
 }
 
 /**
@@ -139,6 +130,15 @@ function showHtmlPopUpDo()
 		if (node_close) {
 			popUpContainer.appendChild(node_close);
 		}
+	}
+
+	// HTMLポップアップ外部をクリックしても閉じられるようにする
+	if (window.addEventListener) {
+		// W3C  DOM
+		document.body.addEventListener('click', hideHtmlPopUpCallback, false);
+	} else if (window.attachEvent) {
+		// IE
+		document.body.attachEvent('onclick', hideHtmlPopUpCallback);
 	}
 }
 

@@ -110,7 +110,7 @@ class FavSetManager
                 $k_to_index_q .= '&b=k';
             }
             $k_to_index_q = htmlspecialchars($k_to_index_q, ENT_QUOTES);
-            $_conf['k_to_index_ht'] = "<a {$_conf['accesskey']}=\"0\" href=\"index.php?{$k_to_index_q}\">0.TOP</a>";
+            $_conf['k_to_index_ht'] = "<a href=\"index.php?{$k_to_index_q}\"{$_conf['k_accesskey_at'][0]}>{$_conf['k_accesskey_st'][0]}TOP</a>";
         }
 
         $done = true;
