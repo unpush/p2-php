@@ -3,7 +3,7 @@
  * rep2 - Å‰‚ÌƒƒOƒCƒ“‰æ–Ê‚ğ•\¦‚·‚é
  */
 
-require_once P2_LIB_DIR . '/login.class.php';
+require_once P2_LIB_DIR . '/Login.php';
 
 // {{{ printLoginFirst()
 
@@ -333,8 +333,8 @@ EOP;
 <style type="text/css">
 /* <![CDATA[ */\n
 EOP;
-        include 'style/style_css.inc';
-        include 'style/login_first_css.inc';
+        include P2_STYLE_DIR . '/style_css.inc';
+        include P2_STYLE_DIR . '/login_first_css.inc';
         echo <<<EOP
 \n/* ]]> */
 </style>\n

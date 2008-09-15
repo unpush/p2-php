@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ÉÜÅ[ÉUîFèÿ
 
@@ -28,7 +27,7 @@ if (isset($_POST['login2chID']) && isset($_POST['login2chPW'])) {
 
     P2Util::saveIdPw2ch($_POST['login2chID'], $_POST['login2chPW'], $autoLogin2ch);
 
-    include_once P2_LIB_DIR . '/login2ch.inc.php';
+    require_once P2_LIB_DIR . '/login2ch.inc.php';
     login2ch();
 }
 
@@ -42,7 +41,7 @@ if ($array = P2Util::readIdPw2ch()) {
 //==============================================================
 if (isset($_GET['login2ch'])) {
     if ($_GET['login2ch'] == "in") {
-        include_once P2_LIB_DIR . '/login2ch.inc.php';
+        require_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     } elseif ($_GET['login2ch'] == "out") {
         if (file_exists($_conf['sid2ch_php'])) {

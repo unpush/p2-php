@@ -3,14 +3,14 @@
  * ImagCache2::ON/OFF
  */
 
-// {{{ IC2Switch
+// {{{ IC2_Switch
 
 /**
  * ImageCache2 の一時的な有効・無効切替クラス
  *
  * @static
  */
-class IC2Switch
+class IC2_Switch
 {
     // {{{ constants
 

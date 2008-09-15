@@ -3,7 +3,7 @@
  * rep2expack - RSSユーティリティ関数
  */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 require_once 'PEAR.php';
 
 // {{{ rss_get_save_path()

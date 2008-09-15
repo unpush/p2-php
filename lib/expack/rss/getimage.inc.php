@@ -3,8 +3,8 @@
  * rep2expck - RSS‰æ‘œƒLƒƒƒbƒVƒ…
  */
 
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 // {{{ rss_get_image()
 
@@ -36,8 +36,8 @@ function rss_get_image_ic2($src_url, $memo='')
     static $thumbnailer_k = NULL;
 
     if (is_null($thumbnailer)) {
-        $thumbnailer = new ThumbNailer(1);
-        $thumbnailer_k = new ThumbNailer(2);
+        $thumbnailer = new IC2_Thumbnailer(1);
+        $thumbnailer_k = new IC2_Thumbnailer(2);
     }
 
     $icdb = new IC2DB_images;

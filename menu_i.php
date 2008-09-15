@@ -61,7 +61,7 @@ if (isset($_POST['word'])) {
 // $hashesの取得は未実装。現状では戻るボタンが効かなくなるので封印。
 /*
 if (isset($hashes) && is_array($hashes) && count($hashes)) {
-    require_once P2_LIB_DIR . '/strctl.class.php';
+    require_once P2_LIB_DIR . '/StrCtl.php';
 
     $js = '';
     $last = array_pop($hashes);
@@ -244,7 +244,7 @@ if ($_conf['expack.misc.multi_favs']) {
     $orig_favita_brd = $_conf['favita_brd'];
 
     foreach ($favita as $no => $name) {
-        $_conf['favita_brd'] = $_conf['pref_dir'] . '/'
+        $_conf['favita_brd'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR
             . ($no ? "p2_favita{$no}.brd" : 'p2_favita.brd');
         menu_iphone_show_favorite_boards($name, $no);
     }
@@ -276,7 +276,7 @@ if ($_conf['expack.misc.multi_favs']) {
         $orig_rss_setting_path = $_conf['expack.rss.setting_path'];
 
         foreach ($rss as $no => $name) {
-            $_conf['expack.rss.setting_path'] = $_conf['pref_dir'] . '/'
+            $_conf['expack.rss.setting_path'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR
                     . ($no ? "p2_rss{$no}.txt" : 'p2_rss.txt');
             menu_iphone_show_feed_list($name, $no);
         }
@@ -326,9 +326,9 @@ EOP;
 <ul id="tgrep" title="スレッド検索">
     <li><a href="#tgrep_info">スレッド検索について</a></li>
     <li class="group">クイックサーチ</li>
-    <?php include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php'; ?>
+    <?php require_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php'; ?>
     <li class="group">検索履歴</li>
-    <?php include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php'; ?>
+    <?php require_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php'; ?>
 </ul>
 
 <?php

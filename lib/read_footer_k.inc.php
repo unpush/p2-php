@@ -3,7 +3,7 @@
  * rep2 - スレッド表示 - フッタ部分 - 携帯用 for read.php
  */
 
-include_once P2_LIB_DIR . '/spm_k.inc.php';
+require_once P2_LIB_DIR . '/spm_k.inc.php';
 
 //=====================================================================
 // フッタ
@@ -50,11 +50,13 @@ EOP;
         $q_ichi = '';
     }
 
-    require_once P2_LIB_DIR . '/read_jump_k.inc.php';
-    if ($_conf['iphone']) {
-        echo get_read_jump($aThread, "<span id=\"footer\">{$rescount_st}</span>", true);
-    } else {
-        echo get_read_jump($aThread, "<a id=\"footer\" name=\"footer\">{$hd['read_range']}</a>", false);
+    if (empty($_GET['one'])) {
+        require_once P2_LIB_DIR . '/read_jump_k.inc.php';
+        if ($_conf['iphone']) {
+            echo get_read_jump($aThread, "<span id=\"footer\">{$rescount_st}</span>", true);
+        } else {
+            echo get_read_jump($aThread, "<a id=\"footer\" name=\"footer\">{$hd['read_range']}</a>", false);
+        }
     }
 
     echo <<<EOP
@@ -97,7 +99,7 @@ if ($_conf['iphone']) {
     // SPM
     if ($_conf['expack.spm.enabled']) {
         if (!class_exists('ShowThreadK', false)) {
-            require_once P2_LIB_DIR . '/showthreadk.class.php';
+            require_once P2_LIB_DIR . '/ShowThreadK.php';
         }
         echo ShowThreadK::getSpmElementHtml();
     }

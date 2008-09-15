@@ -29,13 +29,13 @@ if (isset($_GET['file'])) {
         break;
     default:
         if ($_conf['ktai']) {
-            include 'tgrepc.php';
+            include P2_BASE_DIR . '/tgrepc.php';
         }
         exit;
     }
 } else {
     if ($_conf['ktai']) {
-        include 'tgrepc.php';
+        include P2_BASE_DIR . '/tgrepc.php';
     }
     exit;
 }
@@ -94,7 +94,7 @@ unset($_GET['clear'], $_GET['file'], $_GET['purge'], $_GET['query'],
 
 P2Util::header_nocache();
 if ($_conf['ktai']) {
-    include 'tgrepc.php';
+    include P2_BASE_DIR . '/tgrepc.php';
 } else {
     header('Content-Type: text/html; charset=Shift_JIS');
     define('TGREP_SMARTLIST_PRINT_ONLY_LINKS', 1);

@@ -7,7 +7,7 @@
 // ƒo[ƒWƒ‡ƒ“î•ñ
 $_conf = array(
     'p2version' => '1.7.29+1.8.14', // rep2‚Ìƒo[ƒWƒ‡ƒ“
-    'p2expack'  => '080909.2310',   // Šg’£ƒpƒbƒN‚Ìƒo[ƒWƒ‡ƒ“
+    'p2expack'  => '080911.1800',   // Šg’£ƒpƒbƒN‚Ìƒo[ƒWƒ‡ƒ“
     'p2name'    => 'expack',        // rep2‚Ì–¼‘O
 );
 
@@ -80,7 +80,6 @@ $_conf['subject_php']           = 'subject.php';
 $_conf['read_php']              = 'read.php';
 $_conf['read_new_php']          = 'read_new.php';
 $_conf['read_new_k_php']        = 'read_new_k.php';
-$_conf['cookie_file_name']      = 'p2_cookie.txt';
 
 // }}}
 // {{{ ŠÂ‹«İ’è
@@ -136,7 +135,9 @@ ini_set('default_charset', 'Shift_JIS');
 // }}}
 // {{{ ƒ‰ƒCƒuƒ‰ƒŠ—Ş‚ÌƒpƒXİ’è
 
-define('P2_BASE_DIR', dirname(dirname(__FILE__))); // dirname(__DIR__) @php-5.3
+define('P2_CONF_DIR', dirname(__FILE__)); // __DIR__ @php-5.3
+
+define('P2_BASE_DIR', dirname(P2_CONF_DIR));
 
 // Šî–{“I‚È‹@”\‚ğ’ñ‹Ÿ‚·‚é‚·‚éƒ‰ƒCƒuƒ‰ƒŠ
 define('P2_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib');
@@ -146,6 +147,9 @@ define('P2EX_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEP
 
 // ƒXƒ^ƒCƒ‹ƒV[ƒg
 define('P2_STYLE_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'style');
+
+// ƒXƒLƒ“
+define('P2_SKIN_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'skin');
 
 // PEARƒCƒ“ƒXƒg[ƒ‹ƒfƒBƒŒƒNƒgƒŠAŒŸõƒpƒX‚É’Ç‰Á‚³‚ê‚é
 define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
@@ -161,24 +165,40 @@ if (defined('P2_USE_PEAR_HACK')) {
 define('P2_CLI_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'cli');
 
 // ŒŸõƒpƒX‚ğƒZƒbƒg
-$include_path = P2_BASE_DIR;
+$include_path = '';
 if (defined('P2_PEAR_HACK_DIR')) {
-    $include_path .= PATH_SEPARATOR . P2_PEAR_HACK_DIR;
+    $include_path .= P2_PEAR_HACK_DIR . PATH_SEPARATOR;
 }
 if (is_dir(P2_PEAR_DIR)) {
-    $include_path .= PATH_SEPARATOR . P2_PEAR_DIR;
+    $include_path .= P2_PEAR_DIR . PATH_SEPARATOR;
+} else {
+    $paths = array();
+    foreach (explode(PATH_SEPARATOR, get_include_path()) as $dir) {
+        if (is_dir($dir)) {
+            $dir = realpath($dir);
+            if ($dir != P2_BASE_DIR) {
+                $paths[] = $dir;
+            }
+        }
+    }
+    if (count($paths)) {
+        $include_path .= implode(PATH_SEPARATOR, array_unique($paths)) . PATH_SEPARATOR;
+    }
 }
-$include_path .= PATH_SEPARATOR . get_include_path();
+$include_path .= P2_BASE_DIR; // fallback
 set_include_path($include_path);
+
+$P2_CONF_DIR_S = P2_CONF_DIR . DIRECTORY_SEPARATOR;
+$P2_LIB_DIR_S = P2_LIB_DIR . DIRECTORY_SEPARATOR;
 
 // }}}
 // {{{ ŠÂ‹«ƒ`ƒFƒbƒN‚ÆƒfƒoƒbƒO
 
 // ƒ†[ƒeƒBƒŠƒeƒB‚ğ“Ç‚İ‚Ş
-require_once P2_LIB_DIR . '/dataphp.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/p2util.inc.php';
-require_once P2_LIB_DIR . '/p2util.class.php';
+require_once $P2_LIB_DIR_S . 'DataPhp.php';
+require_once $P2_LIB_DIR_S . 'FileCtl.php';
+require_once $P2_LIB_DIR_S . 'P2Util.php';
+require_once $P2_LIB_DIR_S . 'p2util.inc.php';
 
 // “®ìŠÂ‹«‚ğŠm”F (—vŒ‚ğ–‚½‚µ‚Ä‚¢‚é‚È‚çƒRƒƒ“ƒgƒAƒEƒg‰Â)
 p2checkenv(__LINE__);
@@ -211,7 +231,7 @@ if (function_exists('mb_ereg_replace')) {
 // {{{ ŠÇ—Ò—pİ’èetc.
 
 // ŠÇ—Ò—pİ’è‚ğ“Ç‚İ‚İ
-require_once './conf/conf_admin.inc.php';
+require_once $P2_CONF_DIR_S . 'conf_admin.inc.php';
 
 // ƒfƒBƒŒƒNƒgƒŠ‚Ìâ‘ÎƒpƒX‰»
 $_conf['data_dir'] = p2_realpath($_conf['data_dir']);
@@ -273,11 +293,13 @@ $_conf['login_log_file']    = $pref_dir_s . 'p2_login.log.php';     // ƒƒOƒCƒ“—
 $_conf['login_failed_log_file'] = $pref_dir_s . 'p2_login_failed.dat.php';  // ƒƒOƒCƒ“¸”s—š—ğ (ƒf[ƒ^PHP)
 
 $_conf['matome_cache_path'] = $pref_dir_s . 'matome_cache';
-$_conf['matome_cache_ext'] = '.htm';
-$_conf['matome_cache_max'] = 3; // —\”õƒLƒƒƒbƒVƒ…‚Ì”
+$_conf['matome_cache_ext']  = '.htm';
+$_conf['matome_cache_max']  = 3; // —\”õƒLƒƒƒbƒVƒ…‚Ì”
 
-$_conf['orig_favita_brd']  = $_conf['favita_brd'];
-$_conf['orig_favlist_idx'] = $_conf['favlist_idx'];
+$_conf['orig_favita_brd']   = $_conf['favita_brd'];
+$_conf['orig_favlist_idx']  = $_conf['favlist_idx'];
+
+$_conf['cookie_file_name']  = 'p2_cookie.txt';
 
 // •â³
 if ($_conf['expack.use_pecl_http'] && !extension_loaded('http')) {
@@ -295,7 +317,7 @@ if (defined('P2_CLI_RUN')) {
 // {{{ ƒzƒXƒgƒ`ƒFƒbƒN
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once P2_LIB_DIR . '/hostcheck.class.php';
+    require_once $P2_LIB_DIR_S . 'HostCheck.php';
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
     ) {
@@ -522,16 +544,16 @@ if (file_exists($_conf['conf_user_file'])) {
     if (!isset($conf_user['.']) ||
         $conf_user['.'] != P2_VERSION_ID ||
         filemtime(__FILE__) > $conf_user_mtime ||
-        filemtime('./conf/conf_user_def.inc.php')    > $conf_user_mtime ||
-        filemtime('./conf/conf_user_def_ex.inc.php') > $conf_user_mtime ||
-        filemtime('./conf/conf_user_def_i.inc.php')  > $conf_user_mtime)
+        filemtime($P2_CONF_DIR_S . 'conf_user_def.inc.php')    > $conf_user_mtime ||
+        filemtime($P2_CONF_DIR_S . 'conf_user_def_ex.inc.php') > $conf_user_mtime ||
+        filemtime($P2_CONF_DIR_S . 'conf_user_def_i.inc.php')  > $conf_user_mtime)
     {
         // ƒfƒtƒHƒ‹ƒgİ’è‚ğ“Ç‚İ‚Ş
-        require_once './conf/conf_user_def.inc.php';
+        require_once $P2_CONF_DIR_S . 'conf_user_def.inc.php';
 
         // İ’è‚ÌXV
         if (!array_key_exists('mobile.link_youtube', $conf_user)) {
-            require_once P2_LIB_DIR . '/conf_user_updater.inc.php';
+            require_once $P2_LIB_DIR_S . 'conf_user_updater.inc.php';
             $conf_user = conf_user_update_080908($conf_user);
         }
 
@@ -554,7 +576,7 @@ if (file_exists($_conf['conf_user_file'])) {
     unset($cont, $conf_user);
 } else {
     // ƒfƒtƒHƒ‹ƒgİ’è‚ğ“Ç‚İ‚Ş
-    require_once './conf/conf_user_def.inc.php';
+    require_once $P2_CONF_DIR_S . 'conf_user_def.inc.php';
     $_conf = array_merge($_conf, $conf_user_def);
 }
 
@@ -582,23 +604,23 @@ if ($_conf['expack.user_agent']) {
 // {{{ ƒfƒUƒCƒ“İ’è “Ç
 
 $skin_name = 'conf_user_style';
-$skin = './conf/conf_user_style.inc.php';
+$skin = $P2_CONF_DIR_S . 'conf_user_style.inc.php';
 if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
     if (file_exists($_conf['expack.skin.setting_path'])) {
         $skin_name = rtrim(file_get_contents($_conf['expack.skin.setting_path']));
-        $skin = './skin/' . $skin_name . '.php';
+        $skin = P2_SKIN_DIR . DIRECTORY_SEPARATOR . $skin_name . '.php';
     } else {
         FileCtl::make_datafile($_conf['expack.skin.setting_path'], $_conf['expack.skin.setting_perm']);
     }
-    if (isset($_REQUEST['skin']) && preg_match('/^\w+$/', $_REQUEST['skin']) && $skin_name != $_REQUEST['skin']) {
+    if (isset($_REQUEST['skin']) && preg_match('/^\\w+$/', $_REQUEST['skin']) && $skin_name != $_REQUEST['skin']) {
         $skin_name = $_REQUEST['skin'];
-        $skin = './skin/' . $skin_name . '.php';
+        $skin = P2_SKIN_DIR . DIRECTORY_SEPARATOR . $skin_name . '.php';
         FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin_name);
     }
 }
 if (!file_exists($skin)) {
     $skin_name = 'conf_user_style';
-    $skin = './conf/conf_user_style.inc.php';
+    $skin = $P2_CONF_DIR_S . 'conf_user_style.inc.php';
 }
 $skin_en = rawurlencode($skin_name) . '&amp;_=' . P2_VERSION_ID;
 if ($_conf['view_forced_by_query']) {
@@ -606,9 +628,9 @@ if ($_conf['view_forced_by_query']) {
 }
 
 // ƒfƒtƒHƒ‹ƒgİ’è‚ğ“Ç‚İ‚ñ‚Å
-include './conf/conf_user_style.inc.php';
+include $P2_CONF_DIR_S . 'conf_user_style.inc.php';
 // ƒXƒLƒ“‚Åã‘‚«
-if ($skin != './conf/conf_user_style.inc.php') {
+if ($skin != $P2_CONF_DIR_S . 'conf_user_style.inc.php') {
     include $skin;
 }
 
@@ -630,7 +652,7 @@ foreach ($STYLE as $K => $V) {
 }
 
 if (!$_conf['ktai']) {
-    require_once P2_LIB_DIR . '/fontconfig.inc.php';
+    require_once $P2_LIB_DIR_S . 'fontconfig.inc.php';
 
     if ($_conf['expack.am.enabled']) {
         $_conf['expack.am.fontfamily'] = p2_correct_css_fontfamily($_conf['expack.am.fontfamily']);
@@ -751,7 +773,7 @@ EOP;
 
         switch ($_conf['mobile.display_accesskey']) {
         case 2:
-            require_once P2_LIB_DIR . '/emoji.inc.php';
+            require_once $P2_LIB_DIR_S . 'emoji.inc.php';
             $emoji = p2_get_emoji($mobile);
             //$emoji = p2_get_emoji(Net_UserAgent_Mobile::factory('KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0'));
             $_conf['k_accesskey_st'] = array(
@@ -859,7 +881,7 @@ if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
 }
 
 if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) {
-    require_once P2_LIB_DIR . '/session.class.php';
+    require_once $P2_LIB_DIR_S . 'Session.php';
 
     // {{{ ƒZƒbƒVƒ‡ƒ“ƒf[ƒ^•Û‘¶ƒfƒBƒŒƒNƒgƒŠ‚ğƒ`ƒFƒbƒN
 
@@ -896,7 +918,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 
 // •¡”‚Ì‚¨‹C‚ÉƒZƒbƒg‚ğg‚¤‚Æ‚«
 if ($_conf['expack.misc.multi_favs']) {
-    require_once P2_LIB_DIR . '/favsetmng.class.php';
+    require_once $P2_LIB_DIR_S . 'FavSetManager.php';
     // Ø‚è‘Ö‚¦•\¦—p‚É‘S‚Ä‚Ì‚¨‹C‚É”Â‚ğ“Ç‚İ‚ñ‚Å‚¨‚­
     FavSetManager::loadAllFavSet();
     // ‚¨‹C‚ÉƒZƒbƒg‚ğØ‚è‘Ö‚¦‚é
@@ -932,7 +954,7 @@ if (defined('P2_OUTPUT_XHTML')) {
 }
 
 // ƒƒOƒCƒ“ƒNƒ‰ƒX‚ÌƒCƒ“ƒXƒ^ƒ“ƒX¶¬iƒƒOƒCƒ“ƒ†[ƒU‚ªw’è‚³‚ê‚Ä‚¢‚È‚¯‚ê‚ÎA‚±‚Ì“_‚ÅƒƒOƒCƒ“ƒtƒH[ƒ€•\¦‚Éj
-require_once P2_LIB_DIR . '/login.class.php';
+require_once $P2_LIB_DIR_S . 'Login.php';
 $_login = new Login();
 
 // ‚¨‚Ü‚¶‚È‚¢

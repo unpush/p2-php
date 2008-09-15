@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -23,7 +22,7 @@ $synctitles = array(
 
 // ホストの同期
 if (isset($_POST['sync'])) {
-    require_once P2_LIB_DIR . '/BbsMap.class.php';
+    require_once P2_LIB_DIR . '/BbsMap.php';
 
     $sync_boards = array();
     $sync_indexes = array();

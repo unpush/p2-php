@@ -14,7 +14,7 @@
  * スレッド表示時のお気にスレ表示 → スレッド.idx を参照
  */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 // {{{ setFav()
 

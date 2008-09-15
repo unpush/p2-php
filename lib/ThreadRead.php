@@ -3,8 +3,8 @@
  * rep2 - スレッド リード クラス
  */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
+require_once P2_LIB_DIR . '/Thread.php';
 
 // {{{ ThreadRead
 
@@ -51,15 +51,15 @@ class ThreadRead extends Thread
     public function downloadDat()
     {
         global $_conf;
-        global $uaMona, $SID2ch;    // include_once P2_LIB_DIR . '/login2ch.inc.php';
+        global $uaMona, $SID2ch;    // require_once P2_LIB_DIR . '/login2ch.inc.php';
 
         // まちBBS
         if (P2Util::isHostMachiBbs($this->host)) {
-            include_once P2_LIB_DIR . '/read_machibbs.inc.php';
+            require_once P2_LIB_DIR . '/read_machibbs.inc.php';
             machiDownload();
         // JBBS@したらば
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
-            include_once P2_LIB_DIR . '/read_shitaraba.inc.php';
+            require_once P2_LIB_DIR . '/read_shitaraba.inc.php';
             shitarabaDownload();
 
         // 2ch系
@@ -73,7 +73,7 @@ class ThreadRead extends Thread
                     !empty($_REQUEST['relogin2ch']) ||
                     (filemtime($_conf['sid2ch_php']) < time() - 60*60*24))
                 {
-                    include_once P2_LIB_DIR . '/login2ch.inc.php';
+                    require_once P2_LIB_DIR . '/login2ch.inc.php';
                     if (!login2ch()) {
                         $this->getdat_error_msg_ht .= $this->get2chDatError();
                         $this->diedat = true;
@@ -265,7 +265,7 @@ class ThreadRead extends Thread
                     } elseif ($code == "302") { // Found
 
                         // ホストの移転を追跡
-                        include_once P2_LIB_DIR . '/BbsMap.class.php';
+                        require_once P2_LIB_DIR . '/BbsMap.php';
                         $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                         if ($new_host != $this->host) {
                             fclose($fp);
@@ -782,7 +782,7 @@ class ThreadRead extends Thread
         // {{{ read.cgi からHTMLを取得
 
         $read_response_html = "";
-        include_once P2_LIB_DIR . '/wap.class.php';
+        require_once P2_LIB_DIR . '/Wap.php';
         $wap_ua = new UserAgent();
         $wap_ua->setAgent($_conf['p2name']."/".$_conf['p2version']."; expack-".$_conf['p2expack']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
@@ -883,7 +883,7 @@ class ThreadRead extends Thread
      */
     public function previewOne()
     {
-        global $_conf, $ptitle_ht, $_info_msg_ht;
+        global $_conf, $_info_msg_ht;
 
         if (!($this->host && $this->bbs && $this->key)) { return false; }
 
@@ -1020,16 +1020,23 @@ class ThreadRead extends Thread
             }
         }
 
-        $this->onthefly && $body .= "<div><span class=\"onthefly\">on the fly</span></div>\n";
+        if ($_conf['ktai']) {
+            require_once P2_LIB_DIR . '/ShowThreadK.php';
+            $aShowThread = new ShowThreadK($this);
+            $aShowThread->am_autong = false;
+        } else {
+            require_once P2_LIB_DIR . '/ShowThreadPc.php';
+            $aShowThread = new ShowThreadPc($this);
+        }
+
+        $body = '';
+        if ($this->onthefly) {
+            $body .= "<div><span class=\"onthefly\">on the fly</span></div>\n";
+        }
         $body .= "<div class=\"thread\">\n";
-
-        include_once P2_LIB_DIR . '/showthread.class.php';
-        include_once P2_LIB_DIR . '/showthreadpc.class.php';
-        $aShowThread = new ShowThreadPc($this);
         $body .= $aShowThread->transRes($first_line, 1); // 1を表示
-        unset($aShowThread);
-
         $body .= "</div>\n";
+
         return $body;
     }
 

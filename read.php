@@ -5,9 +5,8 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/threadread.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once P2_LIB_DIR . '/NgAbornCtl.php';
+require_once P2_LIB_DIR . '/ThreadRead.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -139,6 +138,7 @@ if (!empty($_GET['one'])) {
         $aThread->rescount = (int)$_GET['rescount'];
     }
 
+    $preview = $aThread->previewOne();
     $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . ' / ' . $aThread->ttitle_hd;
 
     // PC
@@ -152,7 +152,7 @@ if (!empty($_GET['one'])) {
     }
 
     require_once $read_header_inc_php;
-    echo $aThread->previewOne();
+    echo $preview;
     require_once $read_footer_inc_php;
 
     return;
@@ -240,25 +240,25 @@ if ($_conf['ktai']) {
         $GLOBALS['filter_hits'] = NULL;
     }
 
-    require_once P2_LIB_DIR . '/showthreadk.class.php';
+    require_once P2_LIB_DIR . '/ShowThreadK.php';
     $aShowThread = new ShowThreadK($aThread);
 
     if ($is_ajax) {
         header('Content-Type: text/plain; charset=UTF-8');
         echo mb_convert_encoding($aShowThread->getDatToHtml(), 'UTF-8', 'CP932');
     } else {
-        include_once P2_LIB_DIR . '/read_header_k.inc.php';
+        require_once P2_LIB_DIR . '/read_header_k.inc.php';
         $aShowThread->datToHtml();
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
         }
-        include_once P2_LIB_DIR . '/read_footer_k.inc.php';
+        require_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
 
 } else {
 
     // ヘッダ 表示
-    include_once P2_LIB_DIR . '/read_header.inc.php';
+    require_once P2_LIB_DIR . '/read_header.inc.php';
     flush();
 
     //===========================================================
@@ -289,7 +289,7 @@ EOP;
     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("datToHtml");
 
     if ($aThread->rescount) {
-        require_once P2_LIB_DIR . '/showthreadpc.class.php';
+        require_once P2_LIB_DIR . '/ShowThreadPc.php';
         $aShowThread = new ShowThreadPc($aThread);
 
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
@@ -327,7 +327,7 @@ EOP;
     }
 
     // フッタ 表示
-    include_once P2_LIB_DIR . '/read_footer.inc.php';
+    require_once P2_LIB_DIR . '/read_footer.inc.php';
 
 }
 flush();

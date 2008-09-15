@@ -4,8 +4,7 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/strctl.class.php';
+require_once P2_LIB_DIR . '/StrCtl.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -15,12 +14,12 @@ $_login->authorize(); // ユーザ認証
 
 // お気に板の追加・削除、並び替え
 if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['submit_setfavita'])) {
-    include_once P2_LIB_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 // お気に板のホストを同期
 if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
-    include_once P2_LIB_DIR . '/BbsMap.class.php';
+    require_once P2_LIB_DIR . '/BbsMap.php';
     BbsMap::syncBrd($_conf['favita_brd']);
 }
 

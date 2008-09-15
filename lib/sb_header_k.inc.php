@@ -175,8 +175,8 @@ EOP;
 if ($_conf['iphone']) {
     /*
     if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) {
-        require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
-        if (IC2Switch::get(false)) {
+        require_once P2EX_LIB_DIR . '/ic2/Switch.php';
+        if (IC2_Switch::get(false)) {
             $ic2_switch_checked = ' checked';
             $ic2_switch_color = '#ff3333';
         } else {
@@ -214,10 +214,7 @@ include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 
 echo <<<EOP
 <form method="get" action="{$_conf['read_new_k_php']}">
-<input type="hidden" name="host" value="{$aThreadList->host}">
-<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
-<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
-<input type="hidden" name="nt" value="1">{$shinchaku_norefresh_ht}
+{$sb_form_hidden_ht}<input type="hidden" name="nt" value="1">{$shinchaku_norefresh_ht}
 ñ¢ì«êîÇ™<input type="text" name="unum_limit" value="100" size="4"{$hd['input_numeric_at']}>ñ¢ñûÇÃ
 <input type="submit" value="êVÇ‹Ç∆Çﬂ">
 </form>\n

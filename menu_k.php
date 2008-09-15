@@ -4,8 +4,8 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/brdctl.class.php';
-require_once P2_LIB_DIR . '/showbrdmenuk.class.php';
+require_once P2_LIB_DIR . '/BrdCtl.php';
+require_once P2_LIB_DIR . '/ShowBrdMenuK.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -41,7 +41,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIB_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 

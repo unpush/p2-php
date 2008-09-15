@@ -266,7 +266,7 @@ MOBILE_STYLE;
 
 // ƒy[ƒWƒƒ
 if (!$is_ajax && $subhits && $subhits > $limit) {
-    include_once 'Pager/Pager.php';
+    require_once 'Pager/Pager.php';
     $pager_options = array();
     $pager_options = array(
         'mode'          => 'Sliding',

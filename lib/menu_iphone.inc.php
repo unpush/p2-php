@@ -98,7 +98,7 @@ function menu_iphone_show_board_menu($cateid = 0)
 {
     global $_conf;
 
-    require_once P2_LIB_DIR . '/brdctl.class.php';
+    require_once P2_LIB_DIR . '/BrdCtl.php';
 
     $brd_menus = BrdCtl::read_brds();
 
@@ -163,7 +163,7 @@ function menu_iphone_show_matched_boards($word)
 {
     global $_conf;
 
-    require_once P2_LIB_DIR . '/brdctl.class.php';
+    require_once P2_LIB_DIR . '/BrdCtl.php';
 
     $brd_menus = BrdCtl::read_brds();
 

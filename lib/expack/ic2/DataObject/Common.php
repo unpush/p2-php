@@ -3,12 +3,12 @@ require_once 'DB.php';
 require_once 'DB/DataObject.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 
-// {{{ IC2DB_Skel
+// {{{ IC2_DataObject_Common
 
 /**
  * @abstract
  */
-class IC2DB_Skel extends DB_DataObject
+class IC2_DataObject_Common extends DB_DataObject
 {
     // {{{ properties
 

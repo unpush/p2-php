@@ -21,7 +21,7 @@ $ttitle_back = (isset($_SERVER['HTTP_REFERER']))
 /**
  * 前回フィルタ値読み込み
  */
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 

@@ -5,8 +5,8 @@
 
 require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
 
 // {{{ constants
 
@@ -16,9 +16,9 @@ define('IC2_THUMB_SIZE_MOBILE',  2);
 define('IC2_THUMB_SIZE_INTERMD', 3);
 
 // }}}
-// {{{ ThumbNailer
+// {{{ IC2_Thumbnailer
 
-class ThumbNailer
+class IC2_Thumbnailer
 {
     // {{{ constants
 
@@ -49,7 +49,7 @@ class ThumbNailer
     public $rotate;        // @var int     画像を回転する角度（回転しないとき0）
     public $trim;          // @var bolean  画像をトリミングするか否か
     public $coord;         // @var array   画像をトリミングする範囲（トリミングしないときfalse）
-    public $found;         // @var array   IC2DB_Imagesでクエリを送信した結果
+    public $found;         // @var array   IC2_DataObject_Imagesでクエリを送信した結果
     public $dynamic;       // @var bool    動的生成するか否か（trueのとき結果をファイルに保存しない）
     public $intermd;       // @var string  動的生成に利用する中間イメージのパス（ソースから直接生成するときfalse）
     public $buf;           // @var string  動的生成した画像データ
@@ -87,7 +87,7 @@ class ThumbNailer
         $this->ini = ic2_loadconfig();
 
         // データベースに接続
-        $icdb = new IC2DB_Images;
+        $icdb = new IC2_DataObject_Images;
         $this->db = &$icdb->getDatabaseConnection();
         if (DB::isError($this->db)) {
             $this->error($this->db->getMessage());
@@ -490,7 +490,7 @@ class ThumbNailer
     public function dirID($size = null, $md5 = null, $mime = null)
     {
         if ($size && $md5 && $mime) {
-            $icdb = new IC2DB_Images;
+            $icdb = new IC2_DataObject_Images;
             $icdb->whereAddQUoted('size', '=', $size);
             $icdb->whereAddQuoted('md5',  '=', $md5);
             $icdb->whereAddQUoted('mime', '=', $mime);

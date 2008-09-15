@@ -49,15 +49,15 @@ require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
 require_once 'HTML/Template/Flexy/Element.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
-require_once P2EX_LIB_DIR . '/ic2/quickrules.class.php';
-require_once P2EX_LIB_DIR . '/ic2/editform.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/QuickForm/Rules.php';
+require_once P2EX_LIB_DIR . '/ic2/EditForm.php';
 require_once P2EX_LIB_DIR . '/ic2/managedb.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/getvalidvalue.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/buildimgcell.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/matrix.class.php';
+require_once P2EX_LIB_DIR . '/ic2/Matrix.php';
 
 // }}}
 // {{{ config
@@ -167,12 +167,12 @@ if ($_conf['ktai']) {
 // {{{ prepare (DB & Cache)
 
 // DB_DataObjectを継承したDAO
-$icdb = new IC2DB_Images;
+$icdb = new IC2_DataObject_Images;
 $db = $icdb->getDatabaseConnection();
 $db_class = strtolower(get_class($db));
 
 // サムネイル作成クラス
-$thumb = new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+$thumb = new IC2_Thumbnailer(IC2_THUMB_SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
     require_once 'Cache.php';
@@ -247,9 +247,9 @@ if (get_magic_quotes_gpc()) {
 $_attribures = array('accept-charset' => 'UTF-8,Shift_JIS');
 $_method = ($_SERVER['REQUEST_METHOD'] == 'GET') ? 'get' : 'post';
 $qf = new HTML_QuickForm('go', $_method, $_SERVER['SCRIPT_NAME'], '_self', $_attribures);
-$qf->registerRule('numRange', null, 'RuleNumericRange');
-$qf->registerRule('inArray', null, 'RuleInArray');
-$qf->registerRule('inArrayKeys', null, 'RuleInArrayKeys');
+$qf->registerRule('numberInRange',  null, 'IC2_QuickForm_Rule_NumberInRange');
+$qf->registerRule('inArray',        null, 'IC2_QuickForm_Rule_InArray');
+$qf->registerRule('arrayKeyExists', null, 'IC2_QuickForm_ArrayKeyExists');
 $qf->setDefaults($_defaults);
 $qf->setConstants($_constants);
 $qfe = array();
@@ -287,14 +287,14 @@ $qfe['mode'] = $qf->addElement('select', 'mode', 'モード', $_mode);
 $qfe['cngmode'] = $qf->addElement('submit', 'cngmode');
 
 // フォームのルール
-$qf->addRule('cols', '1 to 20',  'numRange', array('min' => 1, 'max' => 20),  'client', true);
-$qf->addRule('rows', '1 to 100', 'numRange', array('min' => 1, 'max' => 100), 'client', true);
-$qf->addRule('order', 'invalid order.', 'inArrayKeys', $_order);
-$qf->addRule('sort',  'invalid sort.',  'inArrayKeys', $_sort);
-$qf->addRule('field', 'invalid field.', 'inArrayKeys', $_field);
-$qf->addRule('threshold', '-1 to 5', 'numRange', array('min' => -1, 'max' => 5));
-$qf->addRule('compare', 'invalid compare.', 'inArrayKeys', $_compare);
-$qf->addRule('mode', 'invalid mode.', 'inArrayKeys', $_mode);
+$qf->addRule('cols', '1 to 20',  'numberInRange', array('min' => 1, 'max' => 20),  'client', true);
+$qf->addRule('rows', '1 to 100', 'numberInRange', array('min' => 1, 'max' => 100), 'client', true);
+$qf->addRule('order', 'invalid order.', 'arrayKeyExists', $_order);
+$qf->addRule('sort',  'invalid sort.',  'arrayKeyExists', $_sort);
+$qf->addRule('field', 'invalid field.', 'arrayKeyExists', $_field);
+$qf->addRule('threshold', '-1 to 5', 'numberInRange', array('min' => -1, 'max' => 5));
+$qf->addRule('compare', 'invalid compare.', 'arrayKeyExists', $_compare);
+$qf->addRule('mode', 'invalid mode.', 'arrayKeyExists', $_mode);
 
 // Flexy
 $_flexy_options = array(
@@ -303,7 +303,7 @@ $_flexy_options = array(
     'compileDir' => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'iv2',
     'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
-    'plugins' => array('P2Util' => P2_LIB_DIR . '/p2util.class.php')
+    'plugins' => array('P2Util' => P2_LIB_DIR . '/P2Util.php')
 );
 
 if (!is_dir($_conf['compile_dir'])) {
@@ -684,7 +684,7 @@ if ($all == 0) {
 
         // ページ番号を更新
         $qfe['page']->setValue($page);
-        $qf->addRule('page', "1 to {$last_page}", 'numRange', array('min' => 1, 'max' => $last_page), 'client', true);
+        $qf->addRule('page', "1 to {$last_page}", 'numberInRange', array('min' => 1, 'max' => $last_page), 'client', true);
 
         // 一時的にパラメータ区切り文字を & にして現在のページのURLを生成
         $pager_separator = ini_get('arg_separator.output');
@@ -721,19 +721,19 @@ if ($all == 0) {
 
     // 編集モード用フォームを生成
     if ($mode == 1 || $mode == 2) {
-        $flexy->setData('editFormHeader', EditForm::header((isset($mf_hiddens) ? $mf_hiddens : array()), $mode));
+        $flexy->setData('editFormHeader', IC2_EditForm::header((isset($mf_hiddens) ? $mf_hiddens : array()), $mode));
         if ($mode == 1) {
-            $flexy->setData('editFormCheckAllOn', EditForm::checkAllOn());
-            $flexy->setData('editFormCheckAllOff', EditForm::checkAllOff());
-            $flexy->setData('editFormCheckAllReverse', EditForm::checkAllReverse());
-            $flexy->setData('editFormSelect', EditForm::selectRank($_threshold));
-            $flexy->setData('editFormText', EditForm::textMemo());
-            $flexy->setData('editFormSubmit', EditForm::submit());
-            $flexy->setData('editFormReset', EditForm::reset());
-            $flexy->setData('editFormRemove', EditForm::remove());
-            $flexy->setData('editFormBlackList', EditForm::toblack());
+            $flexy->setData('editFormCheckAllOn', IC2_EditForm::checkAllOn());
+            $flexy->setData('editFormCheckAllOff', IC2_EditForm::checkAllOff());
+            $flexy->setData('editFormCheckAllReverse', IC2_EditForm::checkAllReverse());
+            $flexy->setData('editFormSelect', IC2_EditForm::selectRank($_threshold));
+            $flexy->setData('editFormText', IC2_EditForm::textMemo());
+            $flexy->setData('editFormSubmit', IC2_EditForm::submit());
+            $flexy->setData('editFormReset', IC2_EditForm::reset());
+            $flexy->setData('editFormRemove', IC2_EditForm::remove());
+            $flexy->setData('editFormBlackList', IC2_EditForm::toblack());
         } elseif ($mode == 2) {
-            $flexy->setData('editForm', new EditFormForFlexy);
+            $flexy->setData('editForm', new IC2_EditForm_Object);
         }
     }
 
@@ -825,19 +825,19 @@ if ($all == 0) {
         if ($enable_cache) {
             $add = $cache->call('ic2_image_extra_info', $img);
             if ($mode == 1) {
-                $chk = EditForm::imgChecker($img); // 比較的軽いのでキャッシュしない
+                $chk = IC2_EditForm::imgChecker($img); // 比較的軽いのでキャッシュしない
                 $add += $chk;
             } elseif ($mode == 2) {
-                $mng = $cache->call('EditForm::imgManager', $img, $status);
+                $mng = $cache->call('IC2_EditForm::imgManager', $img, $status);
                 $add += $mng;
             }
         } else {
             $add = ic2_image_extra_info($img);
             if ($mode == 1) {
-                $chk = EditForm::imgChecker($img);
+                $chk = IC2_EditForm::imgChecker($img);
                 $add += $chk;
             } elseif ($mode == 2) {
-                $mng = EditForm::imgManager($img, $status);
+                $mng = IC2_EditForm::imgManager($img, $status);
                 $add += $mng;
             }
         }
@@ -900,7 +900,7 @@ if ($all == 0) {
 
     $flexy->setData('items', $items);
     $flexy->setData('popup', $popup);
-    $flexy->setData('matrix', new MatrixManager($cols, $rows, $i));
+    $flexy->setData('matrix', new IC2_Matrix($cols, $rows, $i));
 }
 
 $flexy->setData('removedFiles', $removed_files);

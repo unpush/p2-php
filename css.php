@@ -11,8 +11,8 @@ $_login->authorize();
 // }}}
 // {{{ ë√ìñÇ»ÉtÉ@ÉCÉãÇ©åüèÿ
 
-if (isset($_GET['css']) && preg_match('/^\w+$/', $_GET['css'])) {
-    $css = P2_STYLE_DIR . '/' . $_GET['css'] . '_css.inc';
+if (isset($_GET['css']) && preg_match('/^\\w+$/', $_GET['css'])) {
+    $css = P2_STYLE_DIR . DIRECTORY_SEPARATOR . $_GET['css'] . '_css.inc';
     if (!file_exists($css)) {
         exit;
     }

@@ -4,8 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/dataphp.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -23,7 +21,7 @@ if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
 }
 
 if ($_conf['expack.aas.enabled'] && !empty($_POST['PREVIEW_AAS'])) {
-    include 'aas.php';
+    include P2_BASE_DIR . '/aas.php';
     exit;
 }
 
@@ -158,7 +156,7 @@ if (!empty($_POST['maru']) and P2Util::isHost2chs($host) && file_exists($_conf['
 
     // ログイン後、24時間以上経過していたら自動再ログイン
     if (file_exists($_conf['idpw2ch_php']) && filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
-        include_once P2_LIB_DIR . '/login2ch.inc.php';
+        require_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     }
 
@@ -343,6 +341,8 @@ function postIt($host, $bbs, $key, $post)
     global $STYLE, $skin_en;
     global $bbs_cgi, $post_cache;
 
+    $send_client_ip = false;
+
     $method = "POST";
     $bbs_cgi_url = "http://" . $host.  $bbs_cgi;
 
@@ -369,7 +369,11 @@ function postIt($host, $bbs, $key, $post)
     $request = $method." ".$send_path." HTTP/1.0\r\n";
     $request .= "Host: ".$URL['host']."\r\n";
 
-    $add_user_info = "; p2-client-ip: {$_SERVER['REMOTE_ADDR']}";
+    if ($send_client_ip) {
+        $add_user_info = "; p2-client-ip: {$_SERVER['REMOTE_ADDR']}";
+    } else {
+        $add_user_info = '';
+    }
 
     $httpua_fmt = "Monazilla/1.00 (%s/%s; expack-%s%s)";
     $httpua = sprintf($httpua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack'], $add_user_info);
@@ -377,7 +381,9 @@ function postIt($host, $bbs, $key, $post)
     $request .= 'Referer: http://'.$URL['host'].'/'."\r\n";
 
     // クライアントのIPを送信するp2独自のヘッダ
-    $request .= "p2-Client-IP: ".$_SERVER['REMOTE_ADDR']."/\r\n";
+    if ($send_client_ip) {
+        $request .= "p2-Client-IP: ".$_SERVER['REMOTE_ADDR']."/\r\n";
+    }
 
     // クッキー
     $cookies_to_send = "";
@@ -692,7 +698,7 @@ function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+    require_once P2_LIB_DIR . '/SubjectTxt.php';
     $aSubjectTxt = new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {

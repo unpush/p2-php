@@ -3,7 +3,7 @@
  * rep2 - スレッド表示 -  フッタ部分 -  for read.php
  */
 
-require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/DataPhp.php';
 
 //=====================================================================
 // ■フッタ
@@ -22,13 +22,13 @@ if ($_conf['bottom_res_form']) {
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    include_once P2_LIB_DIR . '/post_options_loader.inc.php';
+    require_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
 
-    include_once P2_LIB_DIR . '/post_form.inc.php';
+    require_once P2_LIB_DIR . '/post_form.inc.php';
 
     // フォーム
     $res_form_ht = <<<EOP

@@ -48,7 +48,7 @@ if (file_exists($_conf['expack.skin.fontconfig_path'])) {
         $current_fontconfig = array('enabled' => false, 'custom' => array());
     }
 } else {
-    require_once P2_LIB_DIR . '/filectl.class.php';
+    require_once P2_LIB_DIR . '/FileCtl.php';
     FileCtl::make_datafile($_conf['expack.skin.fontconfig_path'], $_conf['expack.skin.fontconfig_perm']);
     $current_fontconfig = array('enabled' => false, 'custom' => array());
 }

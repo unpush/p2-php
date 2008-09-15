@@ -6,8 +6,8 @@
  * menu.php, menu_side.php より読み込まれる
  */
 
-require_once P2_LIB_DIR . '/brdctl.class.php';
-require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
+require_once P2_LIB_DIR . '/BrdCtl.php';
+require_once P2_LIB_DIR . '/ShowBrdMenuPc.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -46,7 +46,7 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIB_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
@@ -236,21 +236,21 @@ flush();
 // ■tGrep一発検索をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.quicksearch']) {
-    include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
+    require_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
 }
 
 //==============================================================
 // ■tGrep検索履歴をプリントする
 //==============================================================
 if ($_conf['expack.tgrep.recent_num'] > 0) {
-    include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
+    require_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
 }
 
 //==============================================================
 // ■RSSをプリントする
 //==============================================================
 if ($_conf['expack.rss.enabled']) {
-    include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
+    require_once P2EX_LIB_DIR . '/rss/menu.inc.php';
 }
 
 flush();
@@ -276,7 +276,7 @@ EOP;
 if ($_conf['enable_menu_new'] == 1 && $_GET['new']) {
     // 並列ダウンロードの設定
     if ($_conf['expack.use_pecl_http'] == 1) {
-        require_once P2_LIB_DIR . '/p2httpext.class.php';
+        require_once P2_LIB_DIR . '/P2HttpExt.php';
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
     } elseif ($_conf['expack.use_pecl_http'] == 2) {
         require_once P2_CLI_DIR . '/P2CommandRunner.php';
@@ -357,9 +357,9 @@ EOP;
 // ■ImageCache2
 //==============================================================
 if ($_conf['expack.ic2.enabled']) {
-    require_once P2EX_LIB_DIR . '/ic2/switch.class.php';
+    require_once P2EX_LIB_DIR . '/ic2/Switch.php';
 
-    if (IC2Switch::get()) {
+    if (IC2_Switch::get()) {
         $ic2sw = array('inline', 'none');
     } else {
         $ic2sw = array('none', 'inline');

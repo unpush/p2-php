@@ -1,7 +1,7 @@
 <?php
 
-require_once P2_LIB_DIR . '/dataphp.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/DataPhp.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 // {{{ P2Util
 
@@ -75,7 +75,7 @@ class P2Util
         }
 
         // DL
-        include_once P2_LIB_DIR . '/wap.class.php';
+        require_once P2_LIB_DIR . '/Wap.php';
         $wap_ua = new UserAgent();
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req = new Request();
@@ -197,7 +197,7 @@ class P2Util
 
         // ”Â–¼Long‚ÌŽæ“¾
         if (!isset($p2_setting['itaj'])) {
-            require_once P2_LIB_DIR . '/BbsMap.class.php';
+            require_once P2_LIB_DIR . '/BbsMap.php';
             $itaj = BbsMap::getBbsName($host, $bbs);
             if ($itaj != $bbs) {
                 self::$_itaNames[$id] = $p2_setting['itaj'] = $itaj;
@@ -1010,7 +1010,7 @@ class P2Util
     {
         global $_conf;
 
-        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         $md5_crypt_key = self::getAngoKey();
         $crypted_login2chPW = md5_encrypt($login2chPW, $md5_crypt_key, 32);
@@ -1044,7 +1044,7 @@ EOP;
     {
         global $_conf;
 
-        include_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
 
         if (!file_exists($_conf['idpw2ch_php'])) {
             return false;

@@ -1,8 +1,8 @@
 <?php
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
 
 // {{{ constants
 
@@ -18,9 +18,9 @@ define('P2_IMAGECACHE_VIRUS',  4);
 $GLOBALS['_P2_GETIMAGE_CACHE'] = array();
 
 // }}}
-// {{{ IC2DB_Images
+// {{{ IC2_DataObject_Images
 
-class IC2DB_Images extends IC2DB_Skel
+class IC2_DataObject_Images extends IC2_DataObject_Common
 {
     // {{{ constants
 
@@ -83,7 +83,7 @@ class IC2DB_Images extends IC2DB_Skel
     public function ic2_isError($url)
     {
         // ブラックリストをチェック
-        $blacklist = new IC2DB_BlackList;
+        $blacklist = new IC2_DataObject__BlackList;
         if ($blacklist->get($url)) {
             switch ($blacklist->type) {
                 case 0:
@@ -99,7 +99,7 @@ class IC2DB_Images extends IC2DB_Skel
 
         // エラーログをチェック
         if ($this->_ini['Getter']['checkerror']) {
-            $errlog = new IC2DB_Errors;
+            $errlog = new IC2_DataObject_Errors;
             if ($errlog->get($url)) {
                 return $errlog->errcode;
             }

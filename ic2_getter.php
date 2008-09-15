@@ -31,9 +31,9 @@ require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 // ポップアップウインドウ？
 $isPopUp = empty($_GET['popup']) ? 0 : 1;
@@ -134,7 +134,7 @@ $qfe['close']    = $qf->addElement('button', 'close', NULL, $_attr_close);
 $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'cp932',
-    'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
+    'compileDir' => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'ic2',
     'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
 );
@@ -179,7 +179,7 @@ if ($qf->validate() && ($params = $qf->getSubmitValues()) && isset($params['uri'
         $extra_params .= '&ref=' . rawurlencode($params['ref']);
     }
     if (isset($params['memo']) && strlen(trim($params['memo'])) > 0) {
-        $new_memo = IC2DB_Images::staticUniform($params['memo'], 'CP932');
+        $new_memo = IC2_DataObject_Images::staticUniform($params['memo'], 'CP932');
         $_memo_en = rawurlencode($new_memo);
         // レンダリング時にhtmlspecialchars()されるので、ここでは&を&amp;にしない
         $extra_params .= '&memo=' . $_memo_en . '&' . $_conf['detect_hint_q_utf8'];
@@ -288,11 +288,11 @@ if ($execDL) {
         }
     }
 
-    $thumbnailer = new ThumbNailer($thumb_type);
+    $thumbnailer = new IC2_Thumbnailer($thumb_type);
     $images = array();
 
     foreach ($URLs as $url) {
-        $icdb = new IC2DB_Images;
+        $icdb = new IC2_DataObject_Images;
         $img_title = htmlspecialchars($url, ENT_QUOTES);
         $url_en = rawurlencode($url);
         $src_url = 'ic2.php?r=1&uri=' . $url_en;
