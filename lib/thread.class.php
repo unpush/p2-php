@@ -205,9 +205,9 @@ class Thread
         if ($this->_ttitle_ht === null) {
             // ˆê——•\¦—p‚É’·‚³‚ğØ‚è‹l‚ß‚Ä‚©‚ç htmlspecialchars() ‚µ‚½‚à‚Ì
             if ($_conf['ktai']) {
-                $tt_max_len = $_conf['sb_ttitle_max_len_k'];
-                $tt_trim_len = $_conf['sb_ttitle_trim_len_k'];
-                $tt_trim_pos = $_conf['sb_ttitle_trim_pos_k'];
+                $tt_max_len = $_conf['mobile.sb_ttitle_max_len'];
+                $tt_trim_len = $_conf['mobile.sb_ttitle_trim_len'];
+                $tt_trim_pos = $_conf['mobile.sb_ttitle_trim_pos'];
             } else {
                 $tt_max_len = $_conf['sb_ttitle_max_len'];
                 $tt_trim_len = $_conf['sb_ttitle_trim_len'];

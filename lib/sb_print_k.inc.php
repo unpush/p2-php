@@ -154,7 +154,7 @@ function sb_print_k($aThreadList)
             $ita_name_hd = htmlspecialchars($ita_name, ENT_QUOTES);
 
             // 全角英数カナスペースを半角に
-            if (!empty($_conf['k_save_packet'])) {
+            if (!empty($_conf['mobile.save_packet'])) {
                 $ita_name_hd = mb_convert_kana($ita_name_hd, 'rnsk');
             }
 
@@ -175,13 +175,13 @@ function sb_print_k($aThreadList)
         $torder_ht = $aThread->torder;
 
         // title =================================================
-        $rescount_q = "&amp;rescount=" . $aThread->rescount;
+        $rescount_q = '&amp;rescount=' . $aThread->rescount;
 
         // dat倉庫 or 殿堂なら
-        if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") {
-            $rescount_q = "";
-            $offline_q = "&amp;offline=true";
-            $anum_ht = "";
+        if ($aThreadList->spmode == 'soko' || $aThreadList->spmode == 'palace') {
+            $rescount_q = '';
+            $offline_q = '&amp;offline=true';
+            $anum_ht = '';
         }
 
         // タイトル未取得なら
@@ -196,14 +196,14 @@ function sb_print_k($aThreadList)
         }
 
         // 全角英数カナスペースを半角に
-        if (!empty($_conf['k_save_packet'])) {
+        if (!empty($_conf['mobile.save_packet'])) {
             $ttitle_ht = mb_convert_kana($ttitle_ht, 'rnsk');
         }
 
         if ($_conf['iphone']) {
             $htm['rnum'] = "<span class=\"num count\">{$rescount_ht}</span>";
             if ($aThread->similarity) {
-                $htm['sim'] .= sprintf(' <span class=\"num score\">%0.1f%%</span>', $aThread->similarity * 100);
+                $htm['sim'] .= sprintf(' <span class="num score">%0.1f%%</span>', $aThread->similarity * 100);
             }
         } else {
             $htm['rnum'] = "({$rescount_ht})";
@@ -214,14 +214,29 @@ function sb_print_k($aThreadList)
 
         $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 
-        // オンリー>>1 =============================================
+        // オンリー>>1
+        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true&amp;k_continue=1{$_conf['k_at_a']}";
         if ($only_one_bool) {
-            $one_ht = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true{$_conf['k_at_a']}\">&gt;&gt;1</a>";
+            $one_ht = "<a href=\"{$onlyone_url}\">&gt;&gt;1</a>";
         }
 
-        //アクセスキー=====
+        // >>1のみ, >>1から
+        if (P2Util::isHost2chs($aThreadList->host) && !$aThread->isKitoku()) {
+            switch ($_conf['mobile.sb_show_first']) {
+            case 1:
+                $thre_url = $onlyone_url;
+                break;
+            case 2:
+                $thre_url .= '&amp;ls=1-';
+                break;
+            default:
+                $thre_url .= '&amp;ls=l' . $_conf['mobile.rnum_range'];
+            }
+        }
+
+        // アクセスキー
         /*
-        $access_ht = "";
+        $access_ht = '';
         if ($aThread->torder >= 1 and $aThread->torder <= 9) {
             $access_ht = " {$_conf['accesskey']}=\"{$aThread->torder}\"";
         }

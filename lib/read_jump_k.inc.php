@@ -35,34 +35,34 @@ function _get_read_jump(ThreadRead $aThread, $use_onchange)
 {
     global $_conf;
 
-    if ($_conf['k_rnum_range'] < 1) {
-        $options = '<option value="1">$_conf[&#39;k_rnum_range&#39;] の値が不正です</option>';
+    if ($_conf['mobile.rnum_range'] < 1) {
+        $options = '<option value="1">$_conf[&#39;mobile.rnum_range&#39;] の値が不正です</option>';
     } else {
-        //if (($aThread->resrange['start'] - 1) % $_conf['k_rnum_range']) {
-        if ($aThread->resrange['start'] != 1 && $aThread->resrange['start'] % $_conf['k_rnum_range']) {
+        //if ($aThread->resrange['start'] != 1 && $aThread->resrange['start'] % $_conf['mobile.rnum_range']) {
+        if (($aThread->resrange['start'] - 1) % $_conf['mobile.rnum_range']) {
             $options = "<option value=\"{$aThread->ls}\" selected>{$aThread->ls}</option>";
         } else {
             $options = '';
         }
 
-        /*$optgroup = $_conf['k_rnum_range'] * 5;
+        /*$optgroup = $_conf['mobile.rnum_range'] * 5;
         if ($optgroup >= $aThread->rescount) {
             $optgroup = 0; 
         }*/
 
-        $pages = ceil($aThread->rescount / $_conf['k_rnum_range']);
+        $pages = ceil($aThread->rescount / $_conf['mobile.rnum_range']);
 
         for ($i = 0; $i < $pages; $i++) {
             $j = $i + 1;
-            $k = $i * $_conf['k_rnum_range'] + 1;
-            $l = $j * $_conf['k_rnum_range'];
+            $k = $i * $_conf['mobile.rnum_range'] + 1;
+            $l = $j * $_conf['mobile.rnum_range'] + 1;
             if ($l > $aThread->rescount) {
                 $l = $aThread->rescount;
             }
 
-            if ($k > 1) {
+            /*if ($k > 1) {
                 $k--;
-            }
+            }*/
 
             /*if ($optgroup && $i % $optgroup == 0) {
                 if ($i) {
@@ -71,12 +71,18 @@ function _get_read_jump(ThreadRead $aThread, $use_onchange)
                 $options .= "<optgroup label=\"{$j}-\">";
             }*/
 
-            $m = ($k == $l) ? "$k" : "{$k}-{$l}";
+            if ($k == $l) {
+                $m = (string)$k;
+                $n = "{$m}n";
+            } else {
+                $m = "{$k}-";
+                $n = "{$m}{$l}n";
+            }
 
             if ($k == $aThread->resrange['start']) {
-                $options .= "<option value=\"{$m}n\" selected>{$m}</option>";
+                $options .= "<option value=\"{$n}\" selected>{$m}</option>";
             } else {
-                $options .= "<option value=\"{$m}n\">{$m}</option>";
+                $options .= "<option value=\"{$n}\">{$m}</option>";
             }
         }
 
@@ -102,22 +108,22 @@ function _get_read_jump_filter(ThreadRead $aThread, $use_onchange)
 {
     global $_conf, $filter_range, $filter_hits;
 
-    if ($_conf['k_rnum_range'] < 1) {
-        $options = '<option value="1">$_conf[&#39;k_rnum_range&#39;] の値が不正です</option>';
+    if ($_conf['mobile.rnum_range'] < 1) {
+        $options = '<option value="1">$_conf[&#39;mobile.rnum_range&#39;] の値が不正です</option>';
     } else {
         $options = '';
 
-        /*$optgroup = $_conf['k_rnum_range'] * 5;
+        /*$optgroup = $_conf['mobile.rnum_range'] * 5;
         if ($optgroup >= $filter_hits) {
             $optgroup = 0; 
         }*/
 
-        $pages = ceil($filter_hits / $_conf['k_rnum_range']);
+        $pages = ceil($filter_hits / $_conf['mobile.rnum_range']);
 
         for ($i = 0; $i < $pages; $i++) {
             $j = $i + 1;
-            $k = $i * $_conf['k_rnum_range'] + 1;
-            $l = $j * $_conf['k_rnum_range'];
+            $k = $i * $_conf['mobile.rnum_range'] + 1;
+            $l = $j * $_conf['mobile.rnum_range'];
             if ($l > $filter_hits) {
                 $l = $filter_hits;
             }
@@ -129,7 +135,7 @@ function _get_read_jump_filter(ThreadRead $aThread, $use_onchange)
                 $options .= "<optgroup label=\"{$j}-\">";
             }*/
 
-            $m = ($k == $l) ? "$k" : "{$k}-{$l}";
+            $m = ($k == $l) ? "$k" : "{$k}-"; //"{$k}-{$l}";
 
             if ($j == $filter_range['page']) {
                 $options .= "<option value=\"{$j}\" selected>{$m}</option>";

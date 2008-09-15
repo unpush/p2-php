@@ -156,8 +156,9 @@ for ($x = 0; $x < $linesize ; $x++) {
         //  subject.txt‚ª–¢DL‚È‚ç—Ž‚Æ‚µ‚Äƒf[ƒ^‚ð”z—ñ‚ÉŠi”[
         if (!isset($subject_txts[$subject_id])) {
             $subject_txts[$subject_id] = array();
-
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            if (!class_exists('SubjectTxt', false)) {
+                require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('subthre_read'); //

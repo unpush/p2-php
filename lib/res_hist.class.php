@@ -209,7 +209,7 @@ EOP;
 
         // •\Ž¦”§ŒÀ
         $list_disp_all_num = $this->num;
-        $list_disp_range = $_conf['k_rnum_range'];
+        $list_disp_range = $_conf['mobile.rnum_range'];
 
         if ($_GET['from']) {
             $list_disp_from = $_GET['from'];
@@ -300,8 +300,8 @@ EOP;
             // ‘å‚«‚³§ŒÀ
             if (!$_GET['k_continue']) {
                 $msg = $a_res->msg;
-                if (strlen($msg) > $_conf['ktai_res_size']) {
-                    $msg = substr($msg, 0, $_conf['ktai_ryaku_size']);
+                if (strlen($msg) > $_conf['mobile.res_size']) {
+                    $msg = substr($msg, 0, $_conf['mobile.ryaku_size']);
 
                     // ––”ö‚É<br>‚ª‚ ‚ê‚ÎŽæ‚èœ‚­
                     if (substr($msg, -1) == ">") {

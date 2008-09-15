@@ -155,6 +155,7 @@ echo <<<EOHEADER
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/ngabornctl.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>\n
 EOHEADER;
@@ -293,8 +294,9 @@ for ($x = 0; $x < $linesize ; $x++) {
 
         // subject.txt ‚ª–¢DL‚È‚ç—Ž‚Æ‚µ‚Äƒf[ƒ^‚ð”z—ñ‚ÉŠi”[
         if (empty($subject_txts[$subject_id])) {
-
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            if (!class_exists('SubjectTxt', false)) {
+                require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts[$subject_id] = $aSubjectTxt->subject_lines;

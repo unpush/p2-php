@@ -238,23 +238,18 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('refresh_time', 'スレッド一覧の自動更新間隔 (分指定。0なら自動更新しない)'),
 
         array('sb_show_motothre', 'スレッド一覧で未取得スレに対して元スレへのリンク（・）を表示'),
-        array('sb_show_one', 'PC閲覧時、スレッド一覧（板表示）で&gt;&gt;1を表示'),
-        array('k_sb_show_first', '携帯のスレッド一覧（板表示）から初めてのスレを開く時の表示方法'),
+        array('sb_show_one', 'スレッド一覧（板表示）で&gt;&gt;1を表示'),
         array('sb_show_spd', 'スレッド一覧ですばやさ（レス間隔）を表示'),
         array('sb_show_ikioi', 'スレッド一覧で勢い（1日あたりのレス数）を表示'),
         array('sb_show_fav', 'スレッド一覧でお気にスレマーク★を表示'),
         array('sb_sort_ita', '板表示のスレッド一覧でのデフォルトのソート指定'),
         array('sort_zero_adjust', '新着ソートでの「既得なし」の「新着数ゼロ」に対するソート優先順位'),
         array('cmp_dayres_midoku', '勢いソート時に新着レスのあるスレを優先'),
-        array('k_sb_disp_range', '携帯閲覧時、一度に表示するスレの数'),
         array('viewall_kitoku', '既得スレは表示件数に関わらず表示'),
 
-        array('sb_ttitle_max_len', 'PC閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
-        array('sb_ttitle_trim_len', 'PC閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos', 'PC閲覧時、スレッドタイトルを切り詰める位置'),
-        array('sb_ttitle_max_len_k', '携帯閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
-        array('sb_ttitle_trim_len_k', '携帯閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos_k', '携帯閲覧時、スレッドタイトルを切り詰める位置'),
+        array('sb_ttitle_max_len', 'スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
+        array('sb_ttitle_trim_len', 'スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
+        array('sb_ttitle_trim_pos', 'スレッドタイトルを切り詰める位置'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -270,7 +265,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 } else {
     $conflist = array(
         array('respointer', 'スレ内容表示時、未読の何コ前のレスにポインタを合わせるか'),
-        array('before_respointer', 'PC閲覧時、ポインタの何コ前のレスから表示するか'),
+        array('before_respointer', 'ポインタの何コ前のレスから表示するか'),
         array('before_respointer_new', '新着まとめ読みの時、ポインタの何コ前のレスから表示するか'),
         array('rnum_all_range', '新着まとめ読みで一度に表示するレス数'),
         array('preview_thumbnail', '画像URLの先読みサムネイルを表示'),
@@ -286,20 +281,6 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('bbs_win_target', 'rep2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
         array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
         array('quote_res_view', '引用レスを表示'),
-
-        array('k_rnum_range', '携帯閲覧時、一度に表示するレスの数'),
-        array('ktai_res_size', '携帯閲覧時、一つのレスの最大表示サイズ'),
-        array('ktai_ryaku_size', '携帯閲覧時、レスを省略したときの表示サイズ'),
-        array('k_aa_ryaku_size', '携帯閲覧時、AAらしきレスを省略するサイズ (0なら無効)'),
-        array('before_respointer_k', '携帯閲覧時、ポインタの何コ前のレスから表示するか'),
-        array('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用'),
-        array('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用'),
-
-        array('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示'),
-        array('k_clip_unique_id', '携帯閲覧時、重複しないIDは末尾のみの省略表示'),
-        array('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示'),
-        array('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示'),
-        array('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -359,38 +340,11 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('brocra_checker_url', 'ブラクラチェッカURL'),
         array('brocra_checker_query', 'ブラクラチェッカのクエリー (空の場合、PATH_INFOでURLを渡す)'),
         array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする'),
-        array('k_save_packet', '携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換'),
         array('proxy_use', 'プロキシを利用'), 
         array('proxy_host', 'プロキシホスト ex)&quot;127.0.0.1&quot;, &quot;www.p2proxy.com&quot;'), 
         array('proxy_port', 'プロキシポート ex)&quot;8080&quot;'), 
         array('precede_openssl', '●ログインを、まずはopensslで試みる<br>(PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある)'),
         array('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか'),
-    );
-    printEditConfGroupHtml($groupname, $conflist, $flags);
-}
-
-// }}}
-// {{{ Mobile Color
-
-$groupname = 'Mobile';
-$groups[] = $groupname;
-$flags = getGroupShowFlags($groupname);
-if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
-    $keep_old = true;
-} else {
-    $conflist = array(
-        array('mobile.background_color', '背景'),
-        array('mobile.text_color', '基本文字色'),
-        array('mobile.link_color', 'リンク'),
-        array('mobile.vlink_color', '訪問済みリンク'),
-        array('mobile.newthre_color', '新着スレッドマーク'),
-        array('mobile.ttitle_color', 'スレッドタイトル'),
-        array('mobile.newres_color', '新着レス番号'),
-        array('mobile.ngword_color', 'NGワード'),
-        array('mobile.onthefly_color', 'オンザフライレス番号'),
-        array('mobile.match_color', 'フィルタリングでマッチしたキーワード'),
-        array('mobile.id_underline', 'ID末尾の&quot;O&quot;に下線を引く'),
-        array('mobile.display_accesskey', 'アクセスキーの番号を表示'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -403,6 +357,132 @@ if (!$_conf['ktai']) {
     echo <<<EOP
 </div><!-- end of tab -->
 </div><!-- end of child tabset "rep2基本設定" -->
+
+<div class="tabbertab" title="携帯端末設定">
+<h3>携帯端末設定</h3>
+<div class="tabber">\n
+EOP;
+}
+
+// {{{ 携帯端末設定
+// {{{ Mobile
+
+$groupname = 'mobile';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('mobile.background_color', '背景色'),
+        array('mobile.text_color', '基本文字色'),
+        array('mobile.link_color', 'リンク色'),
+        array('mobile.vlink_color', '訪問済みリンク色'),
+        array('mobile.newthre_color', '新着スレッドマークの色'),
+        array('mobile.ttitle_color', 'スレッドタイトルの色'),
+        array('mobile.newres_color', '新着レス番号の色'),
+        array('mobile.ngword_color', 'NGワードの色'),
+        array('mobile.onthefly_color', 'オンザフライレス番号の色'),
+        array('mobile.match_color', 'フィルタリングでマッチしたキーワードの色'),
+        array('mobile.display_accesskey', 'アクセスキーの番号を表示'),
+        array('mobile.save_packet', 'パケット量を減らすため、全角英数・カナ・スペースを半角に変換'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ Mobile - subject
+
+$groupname = 'subject (mobile)';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('mobile.sb_show_first', 'スレッド一覧（板表示）から初めてのスレを開く時の表示方法'),
+        array('mobile.sb_disp_range', '一度に表示するスレの数'),
+        array('mobile.sb_ttitle_max_len', 'スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
+        array('mobile.sb_ttitle_trim_len', 'スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
+        array('mobile.sb_ttitle_trim_pos', 'スレッドタイトルを切り詰める位置'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ Mobile - read
+
+$groupname = 'read (mobile)';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('mobile.rnum_range', '一度に表示するレスの数'),
+        array('mobile.res_size', '一つのレスの最大表示サイズ'),
+        array('mobile.ryaku_size', 'レスを省略したときの表示サイズ'),
+        array('mobile.aa_ryaku_size', 'AAらしきレスを省略するサイズ (0なら無効)'),
+        array('mobile.before_respointer', 'ポインタの何コ前のレスから表示するか'),
+        array('mobile.use_tsukin', '外部リンクに通勤ブラウザ(通)を利用'),
+        array('mobile.use_picto', '画像リンクにpic.to(ﾋﾟ)を利用'),
+        array('mobile.link_youtube', 'YouTubeのリンクをサムネイル表示'),
+
+        array('mobile.bbs_noname_name', 'デフォルトの名無し名を表示'),
+        array('mobile.date_zerosuppress', '日付の0を省略表示'),
+        array('mobile.clip_time_sec', '時刻の秒を省略表示'),
+        array('mobile.clip_unique_id', '重複しないIDは末尾のみの省略表示'),
+        array('mobile.underline_id', 'ID末尾の&quot;O&quot;に下線を引く'),
+
+        array('mobile.copy_divide_len', '「写」のコピー用テキストボックスを分割する文字数'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ iPhone - subject
+
+$groupname = 'subject (iPhone)';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('iphone.subject.indicate-speed', '勢いを示すインジケーターを表示'),
+        array('iphone.subject.speed.width', 'インジケーターの幅 (pixels)'),
+        array('iphone.subject.speed.0rpd', 'インジケーターの色 (1レス/日未満)'),
+        array('iphone.subject.speed.1rpd', 'インジケーターの色 (1レス/日以上)'),
+        array('iphone.subject.speed.10rpd', 'インジケーターの色 (10レス/日以上)'),
+        array('iphone.subject.speed.100rpd', 'インジケーターの色 (100レス/日以上)'),
+        array('iphone.subject.speed.1000rpd', 'インジケーターの色 (1000レス/日以上)'),
+        array('iphone.subject.speed.10000rpd', 'インジケーターの色 (10000レス/日以上)'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ iPhone - read
+/*
+$groupname = 'read (iPhone)';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+*/
+// }}}
+// }}}
+
+// PC用表示
+if (!$_conf['ktai']) {
+    echo <<<EOP
+</div><!-- end of tab -->
+</div><!-- end of child tabset "携帯端末設定" -->
 
 <div class="tabbertab" title="拡張パック設定">
 <h3>拡張パック設定</h3>
@@ -586,57 +666,6 @@ if (!$_conf['ktai']) {
     echo <<<EOP
 </div><!-- end of tab -->
 </div><!-- end of child tabset "拡張パック設定" -->
-
-<div class="tabbertab" title="iPhone設定">
-<h3>iPhone設定</h3>
-<div class="tabber">\n
-EOP;
-}
-
-// {{{ 拡張パック設定
-// {{{ iPhone - subject
-
-$groupname = 'subject-i';
-$groups[] = $groupname;
-$flags = getGroupShowFlags($groupname);
-if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
-    $keep_old = true;
-} else {
-    $conflist = array(
-        array('iphone.subject.indicate-speed', '勢いを示すインジケーターを表示'),
-        array('iphone.subject.speed.width', 'インジケーターの幅 (pixels)'),
-        array('iphone.subject.speed.0rpd', 'インジケーターの色 (1レス/日未満)'),
-        array('iphone.subject.speed.1rpd', 'インジケーターの色 (1レス/日以上)'),
-        array('iphone.subject.speed.10rpd', 'インジケーターの色 (10レス/日以上)'),
-        array('iphone.subject.speed.100rpd', 'インジケーターの色 (100レス/日以上)'),
-        array('iphone.subject.speed.1000rpd', 'インジケーターの色 (1000レス/日以上)'),
-        array('iphone.subject.speed.10000rpd', 'インジケーターの色 (10000レス/日以上)'),
-    );
-    printEditConfGroupHtml($groupname, $conflist, $flags);
-}
-
-// }}}
-// {{{ iPhone - read
-/*
-$groupname = 'read-i';
-$groups[] = $groupname;
-$flags = getGroupShowFlags($groupname);
-if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
-    $keep_old = true;
-} else {
-    $conflist = array(
-    );
-    printEditConfGroupHtml($groupname, $conflist, $flags);
-}
-*/
-// }}}
-// }}}
-
-// PC用表示
-if (!$_conf['ktai']) {
-    echo <<<EOP
-</div><!-- end of tab -->
-</div><!-- end of child tabset "iPhone設定" -->
 </div><!-- end of parent tabset -->\n
 EOP;
 // 携帯用表示

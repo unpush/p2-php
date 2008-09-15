@@ -542,7 +542,7 @@ function getFavSetListFormHtK($set_name, $set_title)
                 $titles[$j] = $set_title . $j;
             }
         }
-        if (!empty($_conf['k_save_packet'])) {
+        if (!empty($_conf['mobile.save_packet'])) {
             $titles[$j] = mb_convert_kana($titles[$j], 'rnsk');
         }
         $ht .= "<option value=\"{$j}\"{$selected[$j]}>{$titles[$j]}</option>";

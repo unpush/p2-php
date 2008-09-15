@@ -360,6 +360,8 @@ if ($_conf['ktai']) {
     require_once P2_LIB_DIR . '/emoji.inc.php';
     $emj = p2_get_emoji();
     $flexy->setData('e', $emj);
+    $flexy->setData('ak', $_conf['k_accesskey_at']);
+    $flexy->setData('as', $_conf['k_accesskey_st']);
 
     // フィルタリング用フォームを表示
     if (!empty($_GET['show_iv2_kfilter'])) {
@@ -625,9 +627,19 @@ if ($all == 0) {
         $pager2 = '';
         if ($page != 1) {
             $pager1 .= sprintf('<a href="%s?page=%d"%s>%s%s</a> ',
-                               $pg_base,          1, $_conf['k_accesskey_at'][1], $emj[1], $emj['lt2']);
+                               $pg_base,
+                               1,
+                               $_conf['k_accesskey_at'][1],
+                               $_conf['k_accesskey_st'][1],
+                               $emj['lt2']
+                               );
             $pager1 .= sprintf('<a href="%s?page=%d"%s>%s%s</a> ',
-                               $pg_base, $prev_page, $_conf['k_accesskey_at'][4], $emj[4], $emj['lt1']);
+                               $pg_base,
+                               $prev_page,
+                               $_conf['k_accesskey_at'][4],
+                               $_conf['k_accesskey_st'][4],
+                               $emj['lt1']
+                               );
             $pager2 .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base,          1, $emj['lt2']);
             $pager2 .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base, $prev_page, $emj['lt1']);
         }
@@ -637,9 +649,19 @@ if ($all == 0) {
             $pager1 .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $next_page, $emj['rt1']);
             $pager1 .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $last_page, $emj['rt2']);
             $pager2 .= sprintf(' <a href="%s?page=%d"%s>%s%s</a>',
-                               $pg_base, $next_page, $_conf['k_accesskey_at'][6], $emj[6], $emj['rt1']);
+                               $pg_base,
+                               $next_page,
+                               $_conf['k_accesskey_at'][6],
+                               $_conf['k_accesskey_st'][6],
+                               $emj['rt1']
+                               );
             $pager2 .= sprintf(' <a href="%s?page=%d"%s>%s%s</a>',
-                               $pg_base, $last_page, $_conf['k_accesskey_at'][9], $emj[9], $emj['rt2']);
+                               $pg_base,
+                               $last_page,
+                               $_conf['k_accesskey_at'][9],
+                               $_conf['k_accesskey_st'][9],
+                               $emj['rt2']
+                               );
         }
         $flexy->setData('pager1', $pager1);
         $flexy->setData('pager2', $pager2);

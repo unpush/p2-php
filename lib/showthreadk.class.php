@@ -31,6 +31,10 @@ class ShowThreadK extends ShowThread
 
     public $spmObjName; // スマートポップアップメニュー用JavaScriptオブジェクト名
 
+    private $_dateIdPattern;    // 日付書き換えの検索パターン
+    private $_dateIdReplace;    // 日付書き換えの置換文字列
+    private $_doIdDetection;    // ID識別をするかどうか
+
     // }}}
     // {{{ constructor
 
@@ -58,13 +62,19 @@ class ShowThreadK extends ShowThread
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
             $this->_url_handlers[] = 'plugin_imageCache2';
-        } elseif ($_conf['k_use_picto']) {
+        } elseif ($_conf['mobile.use_picto']) {
             $this->_url_handlers[] = 'plugin_viewImage';
+        }
+        if ($_conf['mobile.link_youtube']) {
+            $this->_url_handlers[] = 'plugin_linkYouTube';
         }
         $this->_url_handlers[] = 'plugin_linkURL';
 
-        if (empty($_conf['k_bbs_noname_name'])) {
-            require_once P2_LIB_DIR . '/SettingTxt.php';
+        $this->BBS_NONAME_NAME = null;
+        if (!$_conf['mobile.bbs_noname_name']) {
+            if (!class_exists('SettingTxt', false)) {
+                require_once P2_LIB_DIR . '/SettingTxt.php';
+            }
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             $st->setSettingArray();
             if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
@@ -72,17 +82,33 @@ class ShowThreadK extends ShowThread
             }
         }
 
+        if ($_conf['mobile.date_zerosuppress']) {
+            $this->_dateIdPattern = '~^(?:' . date('Y|y') . ')/(?:0(\\d)|(\\d\\d))?(?:(/)0)?~';
+            $this->_dateIdReplace = '$1$2$3';
+        } else {
+            $this->_dateIdPattern = '~^(?:' . date('Y|y') . ')/~';
+            $this->_dateIdReplace = '';
+        }
+
+        if ($_conf['mobile.clip_unique_id'] || $_conf['mobile.underline_id'] ||
+            $_conf['flex_idpopup'] || $_conf['ngaborn_chain'] || $this->_ngaborn_frequent)
+        {
+            $this->_doIdDetection = true;
+        } else {
+            $this->_doIdDetection = false;
+        }
+
         // サムネイル表示制限数を設定
         if (!isset($GLOBALS['pre_thumb_unlimited']) || !isset($GLOBALS['expack.ic2.pre_thumb_limit_k'])) {
             if (isset($_conf['expack.ic2.pre_thumb_limit_k']) && $_conf['expack.ic2.pre_thumb_limit_k'] > 0) {
                 $GLOBALS['pre_thumb_limit_k'] = $_conf['expack.ic2.pre_thumb_limit_k'];
-                $GLOBALS['pre_thumb_unlimited'] = FALSE;
+                $GLOBALS['pre_thumb_unlimited'] = false;
             } else {
-                $GLOBALS['pre_thumb_limit_k'] = NULL;   // ヌル値だとisset()はFALSEを返す
-                $GLOBALS['pre_thumb_unlimited'] = TRUE;
+                $GLOBALS['pre_thumb_limit_k'] = null;   // ヌル値だとisset()はFALSEを返す
+                $GLOBALS['pre_thumb_unlimited'] = true;
             }
         }
-        $GLOBALS['pre_thumb_ignore_limit'] = FALSE;
+        $GLOBALS['pre_thumb_ignore_limit'] = false;
 
         // アクティブモナー初期化
         if (P2_ACTIVEMONA_AVAILABLE) {
@@ -165,10 +191,11 @@ class ShowThreadK extends ShowThread
         $resar = $this->thread->explodeDatLine($ares);
         $name = $resar[0];
         $mail = $resar[1];
-        $date_id = $resar[2];
+        $date_id = str_replace('ID: ', 'ID:', $resar[2]);
         $msg = $resar[3];
 
-        if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
+        // デフォルトの名前と同じなら省略
+        if ($name === $this->BBS_NONAME_NAME) {
             $name = '';
         }
 
@@ -203,9 +230,7 @@ class ShowThreadK extends ShowThread
         $isChain = false;
         $isAA = false;
 
-        if (($_conf['flex_idpopup'] || $this->_ngaborn_frequent || $_conf['ngaborn_chain']) &&
-            preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|', $date_id, $matches))
-        {
+        if ($this->_doIdDetection && preg_match('|ID:([0-9A-Za-z/.+]{8,11})|', $date_id, $matches)) {
             $id = $matches[1];
         } else {
             $id = null;
@@ -339,6 +364,57 @@ class ShowThreadK extends ShowThread
         }
 
         // }}}
+        // {{{ 日付・IDを調整
+
+        // 現在の年号は省略カットする。月日の先頭0もカット。
+        $date_id = preg_replace($this->_dateIdPattern, $this->_dateIdReplace, $date_id);
+
+        // 曜日と時間の間を詰める
+        $date_id = str_replace(') ', ')', $date_id);
+
+        // 秒もカット
+        if ($_conf['mobile.clip_time_sec']) {
+            $date_id = preg_replace('/(\\d\\d:\\d\\d):\\d\\d(?:\\.\\d\\d)?/', '$1', $date_id);
+        }
+
+        // ID
+        if ($id !== null) {
+            $id_id = 'ID:' . $id;
+            $id_suffix = substr($id, -1);
+
+            if ($_conf['mobile.underline_id'] && strlen($id) % 2 && $id_suffix == 'O') {
+                $do_underline_id_suffix = true;
+            } else {
+                $do_underline_id_suffix = false;
+            }
+
+            if ($this->thread->idcount[$id] > 1) {
+                if ($_conf['flex_idpopup'] == 1) {
+                    $date_id = str_replace($id_id, $this->idfilter_callback(array($id_id, $id)), $date_id);
+                }
+                if ($do_underline_id_suffix) {
+                    $date_id = str_replace($id_id, substr($id_id, 0, -1) . '<u>O</u>', $date_id);
+                }
+            } else {
+                if ($_conf['mobile.clip_unique_id']) {
+                    if ($do_underline_id_suffix) {
+                        $date_id = str_replace($id_id, 'ID:*<u>O</u>', $date_id);
+                    } else {
+                        $date_id = str_replace($id_id, 'ID:*' . $id_suffix, $date_id);
+                    }
+                } else {
+                    if ($do_underline_id_suffix) {
+                        $date_id = str_replace($id_id, substr($id_id, 0, -1) . '<u>O</u>', $date_id);
+                    }
+                }
+            }
+        } else {
+            if ($_conf['mobile.clip_unique_id']) {
+                $date_id = str_replace('ID:???', 'ID:?', $date_id);
+            }
+        }
+
+        // }}}
 
         //=============================================================
         // まとめて出力
@@ -435,6 +511,10 @@ EOP;
             $tores .= " <span class=\"name\">{$name}</span>";
             // メール
             $tores .= " <span class=\"mail\">{$mail}</span>";
+            // 日付とID
+            $tores .= " <span class=\"date-id\">{$date_id}</span></div>\n";
+            // 内容
+            $tores .= "<div class=\"message\">{$msg}</div></div>\n";
         } else {
             // 番号（オンザフライ時）
             if ($this->thread->onthefly) {
@@ -451,33 +531,13 @@ EOP;
 
             // 名前
             if ($name) {
-                $tores .= "{$name}: ";
-            }
-
+                $tores .= "{$name}: "; }
             // メール
             if ($mail) {
                 $tores .= "{$mail}: ";
             }
-        }
-
-        // IDフィルタ
-        if ($_conf['flex_idpopup'] == 1 && $id && $this->thread->idcount[$id] > 1) {
-            $date_id = preg_replace_callback('!ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$)!', array($this, 'idfilter_callback'), $date_id);
-        }
-        if ($_conf['mobile.id_underline']) {
-            $date_id = preg_replace('!(ID: ?)([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?O(?=[^0-9A-Za-z/.+]|$)!', '$1$2<u>O</u>', $date_id);
-        }
-
-        if ($_conf['iphone']) {
-            // 日付とID
-            $tores .= " <span class=\"date-id\">{$date_id}</span></div>\n";
-
-            // 内容
-            $tores .= "<div class=\"message\">{$msg}</div></div>\n";
-        } else {
             // 日付とID
             $tores .= "{$date_id}<br>\n";
-
             // 内容
             $tores .= "{$msg}</div><hr>\n";
         }
@@ -492,7 +552,7 @@ EOP;
         }
 
         // 全角英数スペースカナを半角に
-        if (!empty($_conf['k_save_packet'])) {
+        if (!empty($_conf['mobile.save_packet'])) {
             $tores = mb_convert_kana($tores, 'rnsk'); // CP932 だと ask で ＜ を < に変換してしまうようだ
         }
 
@@ -569,10 +629,10 @@ EOP;
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
         // 大きさ制限
-        if (empty($_GET['k_continue']) && strlen($msg) > $_conf['ktai_res_size']) {
+        if (empty($_GET['k_continue']) && strlen($msg) > $_conf['mobile.res_size']) {
             // <br>以外のタグを除去し、長さを切り詰める
             $msg = strip_tags($msg, '<br>');
-            $msg = mb_strcut($msg, 0, $_conf['ktai_ryaku_size']);
+            $msg = mb_strcut($msg, 0, $_conf['mobile.ryaku_size']);
             $msg = preg_replace('/ *<[^>]*$/i', '', $msg);
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
@@ -803,7 +863,7 @@ EOP;
 
         // 通勤ブラウザ
         $tsukin_link = '';
-        if ($_conf['k_use_tsukin']) {
+        if ($_conf['mobile.use_tsukin']) {
             $tsukin_url = 'http://www.sjk.co.jp/c/w.exe?y=' . rawurlencode($in_url);
             if ($_conf['through_ime']) {
                 $tsukin_url = P2Util::throughIme($tsukin_url);
@@ -885,9 +945,9 @@ EOP;
         }
         // read.phpで表示範囲を判定するので冗長ではある
         if (!$to) {
-            $to = min($from + $_conf['k_rnum_range'] - 1, $this->thread->rescount);
+            $to = min($from + $_conf['mobile.rnum_range'] - 1, $this->thread->rescount);
         } else {
-            $to = min($to, $from + $_conf['k_rnum_range'] - 1, $this->thread->rescount);
+            $to = min($to, $from + $_conf['mobile.rnum_range'] - 1, $this->thread->rescount);
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$from}-{$to}";
@@ -951,7 +1011,7 @@ EOP;
 
         if (isset($purl['scheme'])) {
             // 携帯用外部URL変換
-            if ($_conf['k_use_tsukin']) {
+            if ($_conf['mobile.use_tsukin']) {
                 return $this->ktai_exturl_callback(array('', $url, $str));
             }
             // ime
@@ -1057,10 +1117,54 @@ EOP;
     }
 
     // }}}
+    // {{{ plugin_linkYouTube()
+
+    /**
+     * YouTubeリンク変換プラグイン
+     *
+     * Zend_Gdata_Youtubeを使えばサムネイルその他の情報を簡単に取得できるが...
+     *
+     * @param   string $url
+     * @param   array $purl
+     * @param   string $str
+     * @return  string|false
+     */
+    public function plugin_linkYouTube($url, $purl, $str)
+    {
+        global $_conf;
+
+        // http://www.youtube.com/watch?v=Mn8tiFnAUAI
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+            $subd = $m[1];
+            $id = $m[2];
+
+            if ($_conf['mobile.link_youtube'] == 2) {
+                $link = $str;
+            } else {
+                $link = $this->plugin_linkURL($url, $purl, $str);
+                if ($link === false) {
+                    // plugin_linkURL()がちゃんと機能している限りここには来ない
+                    if ($_conf['through_ime']) {
+                        $link_url = P2Util::throughIme($url);
+                    } else {
+                        $link_url = $url;
+                    }
+                    $link = "<a href=\"{$link_url}\">{$str}</a>";
+                }
+            }
+
+            return <<<EOP
+{$link}<br><img src="http://img.youtube.com/vi/{$id}/default.jpg" alt="YouTube {$id}">
+EOP;
+        }
+        return FALSE;
+    }
+
+    // }}}
     // {{{ plugin_viewImage()
 
     /**
-     * 画像ポップアップ変換
+     * 画像リンク変換
      */
     public function plugin_viewImage($url, $purl, $str)
     {

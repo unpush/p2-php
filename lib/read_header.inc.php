@@ -191,6 +191,7 @@ echo <<<EOP
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/ngabornctl.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>\n
 EOP;

@@ -35,7 +35,7 @@ if (!defined('P2_READ_NEW_SAVE_MEMORY')) {
 //==================================================================
 // 変数
 //==================================================================
-$GLOBALS['rnum_all_range'] = $_conf['k_rnum_range'];
+$GLOBALS['rnum_all_range'] = $_conf['mobile.rnum_range'];
 
 $sb_view = "shinchaku";
 $newtime = date("gis");
@@ -287,8 +287,9 @@ for ($x = 0; $x < $linesize; $x++) {
 
         // subject.txtが未DLなら落としてデータを配列に格納
         if (empty($subject_txts[$subject_id])) {
-
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            if (!class_exists('SubjectTxt', false)) {
+                require_once P2_LIB_DIR . '/SubjectTxt.class.php';
+            }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts[$subject_id] = $aSubjectTxt->subject_lines;

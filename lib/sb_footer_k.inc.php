@@ -97,23 +97,23 @@ if ($disp_navi['from'] == $disp_navi['end']) {
 }
 
 if (!$disp_navi['all_once']) {
-    if ($_conf['k_sb_disp_range'] < 1) {
-        $k_sb_navi_select_from_ht = '<option value="1">$_conf[&#39;k_sb_disp_range&#39;] の値が不正です</option>';
+    if ($_conf['mobile.sb_disp_range'] < 1) {
+        $k_sb_navi_select_from_ht = '<option value="1">$_conf[&#39;mobile.sb_disp_range&#39;] の値が不正です</option>';
     } else {
-        if ($disp_navi['offset'] % $_conf['k_sb_disp_range']) {
+        if ($disp_navi['offset'] % $_conf['mobile.sb_disp_range']) {
             $k_sb_navi_select_from_ht = "<option value=\"{$disp_navi['from']}\" selected>{$sb_range_on}</option>";
         } else {
             $k_sb_navi_select_from_ht = '';
         }
 
-        /*$k_sb_navi_select_optgroup = $_conf['k_sb_disp_range'] * 5;
+        /*$k_sb_navi_select_optgroup = $_conf['mobile.sb_disp_range'] * 5;
         if ($k_sb_navi_select_optgroup >= $sb_disp_all_num) {
             $k_sb_navi_select_optgroup = 0; 
         }*/
 
-        for ($i = 0; $i < $sb_disp_all_num; $i += $_conf['k_sb_disp_range']) {
+        for ($i = 0; $i < $sb_disp_all_num; $i += $_conf['mobile.sb_disp_range']) {
             $j = $i + 1;
-            $k = $i + $_conf['k_sb_disp_range'];
+            $k = $i + $_conf['mobile.sb_disp_range'];
             if ($k > $sb_disp_all_num) {
                 $k = $sb_disp_all_num;
             }

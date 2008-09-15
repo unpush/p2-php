@@ -40,7 +40,7 @@ class ShowBrdMenuK
                 $list_disp_from = 1;
             }
             $list_disp_all_num = sizeof($categories);
-            $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
+            $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['mobile.sb_disp_range'], $list_disp_all_num);
 
             if ($disp_navi['from'] > 1) {
                 $mae_ht = <<<EOP
@@ -91,7 +91,7 @@ EOP;
                             $list_disp_from = 1;
                         }
                         $list_disp_all_num = $cate->num;
-                        $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
+                        $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['mobile.sb_disp_range'], $list_disp_all_num);
 
                         if ($disp_navi['from'] > 1) {
                             $mae_ht = <<<EOP
@@ -152,7 +152,7 @@ EOP;
                 $list_disp_from = 1;
             }
             $list_disp_all_num = $GLOBALS['ita_mikke']['num']; //
-            $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
+            $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['mobile.sb_disp_range'], $list_disp_all_num);
 
             $word_en = rawurlencode($word);
 

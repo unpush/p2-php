@@ -767,7 +767,7 @@ if ($_conf['ktai']) {
     $aThreadList->num = count($aThreadList->threads);
     $sb_disp_all_num = $aThreadList->num;
 
-    $disp_navi = P2Util::getListNaviRange($sb_disp_from , $_conf['k_sb_disp_range'], $sb_disp_all_num);
+    $disp_navi = P2Util::getListNaviRange($sb_disp_from , $_conf['mobile.sb_disp_range'], $sb_disp_all_num);
     if ($aThreadList->threads) {
         $aThreadList->threads = array_slice($aThreadList->threads, $disp_navi['offset'], $disp_navi['limit']);
     }

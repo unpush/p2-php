@@ -40,8 +40,8 @@ $favdo = ($aThread->fav) ? 0 : 1;
 
 // レスナビ設定 =====================================================
 
-$rnum_range = $_conf['k_rnum_range'];
-$latest_show_res_num = $_conf['k_rnum_range']; // 最新XX
+$rnum_range = $_conf['mobile.rnum_range'];
+$latest_show_res_num = $_conf['mobile.rnum_range']; // 最新XX
 
 $read_navi_range = "";
 $read_navi_previous = "";
@@ -64,7 +64,7 @@ $htm['read_navi_range'] = '';
 for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
     $offline_range_q = '';
     $accesskey_at = ($i == 1) ? $_conf['k_accesskey_at'][1] : '';
-    $ito = $i + $rnum_range - 1;
+    $ito = $i + $rnum_range;// - 1;
     if ($ito <= $aThread->gotnum) {
         $offline_range_q = $offline_q;
     }

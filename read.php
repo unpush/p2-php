@@ -41,8 +41,8 @@ if (isset($word) && strlen($word) > 0) {
             $page = (isset($_REQUEST['page'])) ? max(1, intval($_REQUEST['page'])) : 1;
             $filter_range = array(
                 'page'  => $page,
-                'start' => ($page - 1) * $_conf['k_rnum_range'] + 1,
-                'to'    => $page * $_conf['k_rnum_range'],
+                'start' => ($page - 1) * $_conf['mobile.rnum_range'] + 1,
+                'to'    => $page * $_conf['mobile.rnum_range'],
             );
         }
     } else {
@@ -127,12 +127,34 @@ $aThread->getThreadInfoFromIdx();
 // preview >>1
 //==========================================================
 
+//if (!empty($_GET['onlyone'])) {
 if (!empty($_GET['one'])) {
-    $body = $aThread->previewOne();
-    $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . " / " . $aThread->ttitle_hd;
-    include_once P2_LIB_DIR . '/read_header.inc.php';
-    echo $body;
-    include_once P2_LIB_DIR . '/read_footer.inc.php';
+    $aThread->ls = '1';
+    $aThread->resrange = array('start' => 1, 'to' => 1, 'nofirst' => false);
+
+    // 必ずしも正確ではないが便宜的に
+    //if (!isset($aThread->rescount) && !empty($_GET['rc'])) {
+    if (!isset($aThread->rescount) && !empty($_GET['rescount'])) {
+        //$aThread->rescount = $_GET['rc'];
+        $aThread->rescount = (int)$_GET['rescount'];
+    }
+
+    $ptitle_ht = htmlspecialchars($aThread->itaj, ENT_QUOTES) . ' / ' . $aThread->ttitle_hd;
+
+    // PC
+    if (!$_conf['ktai']) {
+        $read_header_inc_php = P2_LIB_DIR . '/read_header.inc.php';
+        $read_footer_inc_php = P2_LIB_DIR . '/read_footer.inc.php';
+    // 携帯
+    } else {
+        $read_header_inc_php = P2_LIB_DIR . '/read_header_k.inc.php';
+        $read_footer_inc_php = P2_LIB_DIR . '/read_footer_k.inc.php';
+    }
+
+    require_once $read_header_inc_php;
+    echo $aThread->previewOne();
+    require_once $read_footer_inc_php;
+
     return;
 }
 
@@ -161,7 +183,7 @@ $aThread->setTitleFromLocal();
 // 表示レス番の範囲を設定
 //===========================================================
 if ($_conf['ktai']) {
-    $before_respointer = $_conf['before_respointer_k'];
+    $before_respointer = $_conf['mobile.before_respointer'];
 } else {
     $before_respointer = $_conf['before_respointer'];
 }
@@ -218,28 +240,19 @@ if ($_conf['ktai']) {
         $GLOBALS['filter_hits'] = NULL;
     }
 
+    require_once P2_LIB_DIR . '/showthreadk.class.php';
+    $aShowThread = new ShowThreadK($aThread);
+    $content = $aShowThread->getDatToHtml();
+
     if ($is_ajax) {
         header('Content-Type: text/plain; charset=UTF-8');
-        ob_start();
+        echo mb_convert_encoding($content, 'UTF-8', 'CP932');
     } else {
-        // ヘッダプリント
         include_once P2_LIB_DIR . '/read_header_k.inc.php';
-    }
-
-    if ($aThread->rescount) {
-        require_once P2_LIB_DIR . '/showthreadk.class.php';
-        $aShowThread = new ShowThreadK($aThread);
-        // SPM
-        if (!$is_ajax && $_conf['iphone'] && $_conf['expack.spm.enabled']) {
+        echo $content;
+        if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
         }
-        $aShowThread->datToHtml();
-    }
-
-    if ($is_ajax) {
-        echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
-    } else {
-        // フッタプリント
         include_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
 

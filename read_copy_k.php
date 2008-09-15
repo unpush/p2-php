@@ -86,7 +86,7 @@ if (file_exists($aThread->keydat)) {
 }
 
 $msg_len = mb_strlen($msg_txt);
-$len = $GLOBALS['_conf']['k_copy_divide_len'] ? $GLOBALS['_conf']['k_copy_divide_len'] : 10000;
+$len = $GLOBALS['_conf']['mobile.copy_divide_len'] ? $GLOBALS['_conf']['mobile.copy_divide_len'] : 10000;
 $msg_txts = array();
 for ($i = 0; $i < $msg_len; $i += $len) {
     $msg_txts[] = mb_substr($msg_txt, $i, $len);

@@ -46,7 +46,7 @@ class FileCtl
             $perm = $default_perm ? $default_perm : 0606;
         }
 
-        if (strrchr($file, P2_NULLBYTE) !== false) {
+        if (strpos($file, P2_NULLBYTE) !== false) {
             $epath = str_replace(P2_NULLBYTE, '\\0', $file);
             p2die("cannot make datafile. ({$epath})", 'ファイル名にNULLバイトが含まれています。');
         }
@@ -94,7 +94,7 @@ class FileCtl
         if (!$parentdir = dirname($apath)) {
             p2die("cannot mkdir. ({$parentdir})", '親ディレクトリが空白です。');
         }
-        if (strrchr($parentdir, P2_NULLBYTE) !== false) {
+        if (strpos($parentdir, P2_NULLBYTE) !== false) {
             $epath = str_replace(P2_NULLBYTE, '\\0', $parentdir);
             p2die("cannot mkdir. ({$epath})", 'ディレクトリ名にNULLバイトが含まれています。');
         }

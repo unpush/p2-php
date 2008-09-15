@@ -1078,8 +1078,8 @@ class ThreadRead extends Thread
             if (substr($n[0], 0, 1) == "l") {
                 $ln = intval(substr($n[0], 1));
                 if ($_conf['ktai']) {
-                    if ($ln > $_conf['k_rnum_range']) {
-                        $ln = $_conf['k_rnum_range'];
+                    if ($ln > $_conf['mobile.rnum_range']) {
+                        $ln = $_conf['mobile.rnum_range'];
                     }
                 }
                 $start = $this->rescount - $ln + 1;
@@ -1160,13 +1160,13 @@ class ThreadRead extends Thread
             if ($_conf['ktai']) {
                 // 表示数制限
                 /*
-                if ($start + $_conf['k_rnum_range'] -1 <= $to) {
-                    $to = $start + $_conf['k_rnum_range'] -1;
+                if ($start + $_conf['mobile.rnum_range'] -1 <= $to) {
+                    $to = $start + $_conf['mobile.rnum_range'] -1;
                 }
                 */
                 // 次X件では、前一つを含み、実質+1となるので、1つおまけする
-                if ($start + $_conf['k_rnum_range'] <= $to) {
-                    $to = $start + $_conf['k_rnum_range'];
+                if ($start + $_conf['mobile.rnum_range'] <= $to) {
+                    $to = $start + $_conf['mobile.rnum_range'];
                 }
                 if ($_conf['filtering']) {
                     $start = 1;
@@ -1176,7 +1176,7 @@ class ThreadRead extends Thread
             }
         }
 
-        $this->resrange = array('start'=>$start,'to'=>$to,'nofirst'=>$nofirst);
+        $this->resrange = compact('start', 'to', 'nofirst');
         return $this->resrange;
     }
 
@@ -1211,7 +1211,10 @@ class ThreadRead extends Thread
         }
         $this->rescount = sizeof($this->datlines);
 
-        if ($_conf['flex_idpopup'] || $_conf['ngaborn_frequent']) {
+        if ($_conf['flex_idpopup'] || $_conf['ngaborn_frequent'] || ($_conf['ktai'] &&
+            ($_conf['mobile.clip_unique_id'] || $_conf['mobile.underline_id'])
+            ))
+        {
             $lar = explode('<>', $this->datlines[0]);
             if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $lar[2], $matches)) {
                 $this->one_id = $matches[1];

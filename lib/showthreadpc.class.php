@@ -373,36 +373,36 @@ class ShowThreadPc extends ShowThread
         if ($ng_msg_info) {
             $ng_type = implode(', ', $ng_msg_info);
             $msg = <<<EOMSG
-<s class="ngword" onmouseover="document.getElementById('ngm{$ngaborns_body_hits}').style.display = 'block';">$ng_type</s>
-<div id="ngm{$ngaborns_body_hits}" style="display:none;">$msg</div>
+<span class="ngword" onclick="show_ng_message('ngm{$ngaborns_body_hits}', this);">{$ng_type}</span>
+<div id="ngm{$ngaborns_body_hits}" class="ngmsg ngmsg-by-msg">{$msg}</div>
 EOMSG;
         }
 
         // NGネーム変換
         if ($isNgName) {
             $name = <<<EONAME
-<s class="ngword" onmouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$name</s>
+<span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$name}</span>
 EONAME;
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngmsg ngmsg-by-name">{$msg}</div>
 EOMSG;
 
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
-<s class="ngword" onmouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$mail</s>
+<span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$mail}</span>
 EOMAIL;
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngmsg ngmsg-by-mail">{$msg}</div>
 EOMSG;
 
         // NGID変換
         } elseif ($isNgId) {
             $date_id = <<<EOID
-<s class="ngword" onmouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">$date_id</s>
+<span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$date_id}</span>
 EOID;
             $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" style="display:none;">$msg</div>
+<div id="ngn{$ngaborns_head_hits}" class="ngmsg ngmsg-by-id">{$msg}</div>
 EOMSG;
 
         }
@@ -1475,7 +1475,8 @@ EOJS;
 
     /**
      * YouTubeリンク変換プラグイン
-     * [wish] YouTube APIを利用して、画像サムネイルのみにしたい
+     *
+     * Zend_Gdata_Youtubeを使えばサムネイルその他の情報を簡単に取得できるが...
      *
      * @param   string $url
      * @param   array $purl
@@ -1550,7 +1551,6 @@ EOP;
                 $link = "<a href=\"{$link_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
             }
 
-            $url = P2Util::throughIme($url);
             $id = $m[1];
 
             if ($_conf['link_niconico'] == 2) {

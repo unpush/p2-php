@@ -6,8 +6,8 @@
 
 // バージョン情報
 $_conf = array(
-    'p2version' => '1.7.29',        // rep2のバージョン
-    'p2expack'  => '080907.1530',   // 拡張パックのバージョン
+    'p2version' => '1.7.29+1.8.14', // rep2のバージョン
+    'p2expack'  => '080908.1732',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -367,16 +367,16 @@ if (P2Util::isBrowserIphone()) {
     $_conf['input_type_search'] = true;
     $_conf['accept_charset'] = 'UTF-8';
 
-// PC
+// PC等
 } elseif ($mobile->isNonMobile()) {
-
+    // Safari
     if (P2Util::isBrowserSafariGroup()) {
         $_conf['input_type_search'] = true;
         $_conf['accept_charset'] = 'UTF-8';
-    } else {
-        if (P2Util::isClientOSWindowsCE() || P2Util::isBrowserNintendoDS() || P2Util::isBrowserPSP()) {
-            $_conf['ktai'] = true;
-        }
+
+    // Windows Mobile, 携帯ゲーム機
+    } elseif (P2Util::isClientOSWindowsCE() || P2Util::isBrowserNintendoDS() || P2Util::isBrowserPSP()) {
+        $_conf['ktai'] = true;
     }
 
 // 携帯
@@ -388,24 +388,27 @@ if (P2Util::isBrowserIphone()) {
         $support_cookies = false;
 
     // au EZweb
-    } elseif ($mobile->isEZweb()) {
-        $support_cookies = true;
+    //} elseif ($mobile->isEZweb()) {
+    //    $support_cookies = true;
 
     // SoftBank Mobile
     } elseif ($mobile->isSoftBank()) {
-        $_conf['accesskey'] = 'DIRECTKEY';
-        // 3GC型端末とW型端末はCookieが使える
-        if (!$mobile->isType3GC() && !$mobile->isTypeW()) {
-            $support_cookies = false;
+        // 3GC型端末はnonumber属性をサポートしないのでaccesskeyを使う
+        if (!$mobile->isType3GC()) {
+            $_conf['accesskey'] = 'DIRECTKEY';
+            // 3GC型端末とW型端末以外はCookieをサポートしない
+            if (!$mobile->isTypeW()) {
+                $support_cookies = false;
+            }
         }
 
     // WILLCOM AIR-EDGE
-    } elseif ($mobile->isAirHPhone()) {
-        $support_cookies = true;
+    //} elseif ($mobile->isWillcom()) {
+    //    $support_cookies = true;
 
     // その他
-    } else {
-        $support_cookies = true;
+    //} else {
+    //    $support_cookies = true;
     }
 }
 
@@ -512,6 +515,13 @@ if (file_exists($_conf['conf_user_file'])) {
     {
         // デフォルト設定を読み込む
         require_once './conf/conf_user_def.inc.php';
+
+        // 設定の更新
+        if (!array_key_exists('mobile.link_youtube', $conf_user)) {
+            require_once P2_LIB_DIR . '/conf_user_updater.inc.php';
+            $conf_user = conf_user_update_080908($conf_user);
+        }
+
         $_conf = array_merge($_conf, $conf_user_def, $conf_user);
 
         // 新しいユーザ設定をキャッシュ
@@ -534,22 +544,6 @@ if (file_exists($_conf['conf_user_file'])) {
     require_once './conf/conf_user_def.inc.php';
     $_conf = array_merge($_conf, $conf_user_def);
 }
-
-// }}}
-// {{{ デフォルト設定
-
-if (!isset($_conf['rct_rec_num']))          { $_conf['rct_rec_num'] = 20; }
-if (!isset($_conf['res_hist_rec_num']))     { $_conf['res_hist_rec_num'] = 20; }
-if (!isset($_conf['posted_rec_num']))       { $_conf['posted_rec_num'] = 1000; }
-if (!isset($_conf['before_respointer']))    { $_conf['before_respointer'] = 20; }
-if (!isset($_conf['sort_zero_adjust']))     { $_conf['sort_zero_adjust'] = 0.1; }
-if (!isset($_conf['display_threads_num']))  { $_conf['display_threads_num'] = 150; }
-if (!isset($_conf['cmp_dayres_midoku']))    { $_conf['cmp_dayres_midoku'] = 1; }
-if (!isset($_conf['k_sb_disp_range']))      { $_conf['k_sb_disp_range'] = 30; }
-if (!isset($_conf['k_rnum_range']))         { $_conf['k_rnum_range'] = 10; }
-if (!isset($_conf['pre_thumb_height']))     { $_conf['pre_thumb_height'] = "32"; }
-if (!isset($_conf['quote_res_view']))       { $_conf['quote_res_view'] = 1; }
-if (!isset($_conf['res_write_rec']))        { $_conf['res_write_rec'] = 1; }
 
 // }}}
 // {{{ ユーザ設定の調整処理

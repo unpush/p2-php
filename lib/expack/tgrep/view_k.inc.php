@@ -87,7 +87,7 @@ foreach ($threads as $o => $t) {
         $rnum = $t->resnum;
         $nnum = '';
     }
-    if (!empty($_conf['k_save_packet'])) {
+    if (!empty($_conf['mobile.save_packet'])) {
         $ttitle = mb_convert_kana($t->title, 'rnsk');
         $itaj = mb_convert_kana($t->ita, 'rnsk');
     } else {

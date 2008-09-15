@@ -62,11 +62,29 @@ table.toolbar {
 
 table.toolbar td {
 	margin: 0;
-	padding: 2px;
+	padding: 4px;
 	white-space: nowrap;
+	text-align: left;
+	vertical-align: middle;
 	color: {$STYLE['sb_tool_sepa_color']};
 	font-size: {$STYLE['sb_fontsize']};
+	line-height: 100%;
 }
+
+table.toolbar td.toolbar-title {
+	padding-left: 12px;
+}
+table.toolbar td.toolbar-update {
+}
+table.toolbar td.toolbar-filter {
+}
+table.toolbar td.toolbar-edit {
+}
+table.toolbar td.toolbar-anchor {
+	padding-right: 12px;
+	text-align: right;
+}
+
 table.toolbar a{
 	color: {$STYLE['sb_tool_acolor']};
 }
@@ -102,7 +120,8 @@ table.threadlist tr.tableheader th {
 /* ”Â‚Ì–¼‘O */
 .itatitle{
 	display: inline;
-	margin: 4px 2px 4px 12px;
+	margin: 0;
+	padding: 0;
 	font-size: 14px;
 	color: {$STYLE['sb_tool_color']};
 }

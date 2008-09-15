@@ -130,6 +130,12 @@ div.respopup div.message {
 	padding: 2px 0 0 1.0em;
 }
 
+/* レスボディ内リンクの折り返し */
+div.message a {
+	word-wrap: break-word;
+	word-break: break-all;
+}
+
 /* 新着レス番号（ここではカラーが新着確認の機能を持っているので特別にfontで
 カラー指定をしている。thread_class.inc - transRes を参照)	*/
 /* .newres{color:{$newres_color};} ← よって現在は無効の設定 */
@@ -144,7 +150,15 @@ div.respopup div.message {
 	color:#0a0;
 }
 
-.ngword{color:{$STYLE['read_ngword']};}
+span.ngword {
+	cursor: pointer;
+	text-decoration: line-through;
+	color: {$STYLE['read_ngword']};
+}
+
+div.ngmsg {
+	display: none;
+}
 
 #iframespace{ /* HTMLポップアップスペース */
 	position:absolute;
