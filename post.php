@@ -238,13 +238,11 @@ if (empty($posted)) {
 
 if ($host && $bbs && $key) {
 
-    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
+    $lock = new P2Lock($_conf['res_hist_idx'], false);
 
-    $lock = new P2Lock($rh_idx, false);
+    FileCtl::make_datafile($_conf['res_hist_idx'], $_conf['res_write_perm']); // なければ生成
 
-    FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']); // なければ生成
-
-    $lines = FileCtl::file_read_lines($rh_idx, FILE_IGNORE_NEW_LINES);
+    $lines = FileCtl::file_read_lines($_conf['res_hist_idx'], FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
 
@@ -253,8 +251,10 @@ if ($host && $bbs && $key) {
     if (is_array($lines)) {
         foreach ($lines as $line) {
             $lar = explode('<>', $line);
-            if ($lar[1] == $key) { continue; } // 重複回避
-            if (!$lar[1]) { continue; } // keyのないものは不正データ
+            // 重複回避, keyのないものは不正データ
+            if (!$lar[1] || $lar[1] == $key) {
+                continue;
+            } 
             $neolines[] = $line;
         }
     }
@@ -262,7 +262,7 @@ if ($host && $bbs && $key) {
     // }}}
 
     // 新規データ追加
-    $newdata = "$ttitle<>$key<><><><><><>".$tag_rec['FROM'].'<>'.$tag_rec['mail']."<><>$host<>$bbs";
+    $newdata = "{$ttitle}<>{$key}<><><><><><>{$tag_rec['FROM']}<>{$tag_rec['mail']}<><>{$host}<>{$bbs}";
     array_unshift($neolines, $newdata);
     while (sizeof($neolines) > $_conf['res_hist_rec_num']) {
         array_pop($neolines);
@@ -276,7 +276,7 @@ if ($host && $bbs && $key) {
             $cont .= $l . "\n";
         }
 
-        if (FileCtl::file_write_contents($rh_idx, $cont) === false) {
+        if (FileCtl::file_write_contents($_conf['res_hist_idx'], $cont) === false) {
             p2die('cannot write file.');
         }
     }
@@ -298,7 +298,7 @@ if ($_conf['res_write_rec']) {
     $message = htmlspecialchars($MESSAGE, ENT_NOQUOTES);
     $message = preg_replace("/\r?\n/", "<br>", $message);
 
-    FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']); // なければ生成
+    FileCtl::make_datafile($_conf['res_hist_dat'], $_conf['res_write_perm']); // なければ生成
 
     $resnum = '';
     if (!empty($_POST['newthread'])) {
@@ -320,7 +320,7 @@ if ($_conf['res_write_rec']) {
     $cont = $newdata."\n";
 
     // 書き込み処理
-    if (FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont, FILE_APPEND) === false) {
+    if (FileCtl::file_write_contents($_conf['res_hist_dat'], $cont, FILE_APPEND) === false) {
         trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         // これは実際は表示されないけれども
         //$_info_msg_ht .= "<p>p2 error: 書き込みログの保存に失敗しました</p>";

@@ -33,7 +33,6 @@ class ShowThreadK extends ShowThread
 
     private $_dateIdPattern;    // 日付書き換えの検索パターン
     private $_dateIdReplace;    // 日付書き換えの置換文字列
-    private $_doIdDetection;    // ID識別をするかどうか
 
     // }}}
     // {{{ constructor
@@ -88,14 +87,6 @@ class ShowThreadK extends ShowThread
         } else {
             $this->_dateIdPattern = '~^(?:' . date('Y|y') . ')/~';
             $this->_dateIdReplace = '';
-        }
-
-        if ($_conf['mobile.clip_unique_id'] || $_conf['mobile.underline_id'] ||
-            $_conf['flex_idpopup'] || $_conf['ngaborn_chain'] || $this->_ngaborn_frequent)
-        {
-            $this->_doIdDetection = true;
-        } else {
-            $this->_doIdDetection = false;
         }
 
         // サムネイル表示制限数を設定
@@ -194,6 +185,8 @@ class ShowThreadK extends ShowThread
         $date_id = str_replace('ID: ', 'ID:', $resar[2]);
         $msg = $resar[3];
 
+        $id = $this->thread->ids[$i];
+
         // デフォルトの名前と同じなら省略
         if ($name === $this->BBS_NONAME_NAME) {
             $name = '';
@@ -230,19 +223,13 @@ class ShowThreadK extends ShowThread
         $isChain = false;
         $isAA = false;
 
-        if ($this->_doIdDetection && preg_match('|ID:([0-9A-Za-z/.+]{8,11})|', $date_id, $matches)) {
-            $id = $matches[1];
-        } else {
-            $id = null;
-        }
-
         // {{{ あぼーんチェック
 
         $ng_msg_info = array();
 
         // 頻出IDあぼーん
         if ($this->_ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
-            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->one_id) {
+            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->ids[1]) {
                 // >>1 はそのまま表示
             } elseif ($this->_ngaborn_frequent == 1) {
                 $ngaborns_hits['aborn_freq']++;

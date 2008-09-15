@@ -60,17 +60,7 @@ $pointer_header_at = ' id="header" name="header"';
 //----------------------------------------------
 // $htm['read_navi_range'] -- 1- 101- 201-
 
-$htm['read_navi_range'] = '';
-for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
-    $offline_range_q = '';
-    $accesskey_at = ($i == 1) ? $_conf['k_accesskey_at'][1] : '';
-    $ito = $i + $rnum_range;// - 1;
-    if ($ito <= $aThread->gotnum) {
-        $offline_range_q = $offline_q;
-    }
-    $htm['read_navi_range'] .= "<a{$pointer_header_at} href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$i}-{$ito}{$offline_range_q}{$_conf['k_at_a']}\"{$accesskey_at}>{$i}-</a>\t";
-    break;  // 1-‚Ì‚İ•\¦
-}
+$htm['read_navi_range'] = "<a{$pointer_header_at} href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=1-{$rnum_range}{$offline_range_q}{$_conf['k_at_a']}\"{$_conf['k_accesskey_at'][1]}>1-</a>\t";
 
 
 //----------------------------------------------
@@ -95,7 +85,7 @@ if (!$read_navi_previous_isInvisible) {
 
 //----------------------------------------------
 // $read_navi_next -- Ÿ100
-if ($do_filtering) {
+if ($do_filtering || !empty($_GET['one'])) {
     $read_navi_next_isInvisible = false;
 } elseif ($aThread->resrange['to'] >= $aThread->rescount) {
     $aThread->resrange['to'] = $aThread->rescount;

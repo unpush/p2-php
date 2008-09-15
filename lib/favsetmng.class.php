@@ -30,15 +30,14 @@ class FavSetManager
         }
 
         $_conf['favlists'] = array();
-        $favlist_files = array();
-        $favlist_files[0] = $_conf['orig_favlist_file'];
+        $favlist_indexes = array($_conf['orig_favlist_idx']);
         for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
-            $favlist_files[$i] = $_conf['pref_dir'] . sprintf('/p2_favlist%d.idx', $i);
+            $favlist_indexes[$i] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favlist%d.idx', $i);
         }
 
-        foreach ($favlist_files as $i => $favlist_file) {
+        foreach ($favlist_indexes as $i => $favlist_idx) {
             $_conf['favlists'][$i] = array();
-            if ($favlines = FileCtl::file_read_lines($favlist_file, FILE_IGNORE_NEW_LINES)) {
+            if ($favlines = FileCtl::file_read_lines($favlist_idx, FILE_IGNORE_NEW_LINES)) {
                 foreach ($favlines as $l) {
                     $lar = explode('<>', $l);
                     // bbsのないものは不正データなのでスキップ
@@ -78,9 +77,9 @@ class FavSetManager
 
         $sets = array(
             // お気にスレセット
-            'm_favlist_set' => array('favlist_file', 'p2_favlist%d.idx'),
+            'm_favlist_set' => array('favlist_idx', 'p2_favlist%d.idx'),
             // お気に板セット
-            'm_favita_set' => array('favita_path', 'p2_favita%d.brd'),
+            'm_favita_set' => array('favita_brd', 'p2_favita%d.brd'),
             // RSSセット
             'm_rss_set' => array('expack.rss.setting_path', 'p2_rss%d.txt'),
         );
@@ -100,7 +99,7 @@ class FavSetManager
 
             if (!empty($_SESSION[$key])) {
                 list($cnf, $fmt) = $value;
-                $_conf[$cnf] = $_conf['pref_dir'] . '/' . sprintf($fmt, $_SESSION[$key]);
+                $_conf[$cnf] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf($fmt, $_SESSION[$key]);
             }
         }
 

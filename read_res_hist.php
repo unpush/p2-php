@@ -44,7 +44,7 @@ P2Util::transResHistLogPhpToDat();
 // “ÁêDAT“Ç‚İ
 //==================================================================
 // “Ç‚İ‚ñ‚Å
-if (!$datlines = FileCtl::file_read_lines($_conf['p2_res_hist_dat'], FILE_IGNORE_NEW_LINES)) {
+if (!$datlines = FileCtl::file_read_lines($_conf['res_hist_dat'], FILE_IGNORE_NEW_LINES)) {
     echo '<html><head><title>', $ptitle, '</title></head>',
          '<body><p>‘‚«‚İ—š—ğ“à—e‚Í‹ó‚Á‚Û‚Ì‚æ‚¤‚Å‚·</p></body></html>';
     exit;

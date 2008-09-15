@@ -242,14 +242,13 @@ if ($_conf['ktai']) {
 
     require_once P2_LIB_DIR . '/showthreadk.class.php';
     $aShowThread = new ShowThreadK($aThread);
-    $content = $aShowThread->getDatToHtml();
 
     if ($is_ajax) {
         header('Content-Type: text/plain; charset=UTF-8');
-        echo mb_convert_encoding($content, 'UTF-8', 'CP932');
+        echo mb_convert_encoding($aShowThread->getDatToHtml(), 'UTF-8', 'CP932');
     } else {
         include_once P2_LIB_DIR . '/read_header_k.inc.php';
-        echo $content;
+        $aShowThread->datToHtml();
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
         }
@@ -400,12 +399,12 @@ function recRecent($data)
 {
     global $_conf;
 
-    $lock = new P2Lock($_conf['rct_file'], false);
+    $lock = new P2Lock($_conf['recent_idx'], false);
 
-    // $_conf['rct_file'] ファイルがなければ生成
-    FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm']);
+    // $_conf['recent_idx'] ファイルがなければ生成
+    FileCtl::make_datafile($_conf['recent_idx'], $_conf['rct_perm']);
 
-    $lines = FileCtl::file_read_lines($_conf['rct_file'], FILE_IGNORE_NEW_LINES);
+    $lines = FileCtl::file_read_lines($_conf['recent_idx'], FILE_IGNORE_NEW_LINES);
     $neolines = array();
 
     // {{{ 最初に重複要素を削除しておく
@@ -437,7 +436,7 @@ function recRecent($data)
             $cont .= $l . "\n";
         }
 
-        if (FileCtl::file_write_contents($_conf['rct_file'], $cont) === false) {
+        if (FileCtl::file_write_contents($_conf['recent_idx'], $cont) === false) {
             p2die('cannot write file.');
         }
     }

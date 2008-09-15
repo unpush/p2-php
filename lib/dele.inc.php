@@ -114,7 +114,7 @@ function checkRecent($host, $bbs, $key)
 {
     global $_conf;
 
-    if ($lines = FileCtl::file_read_lines($_conf['rct_file'], FILE_IGNORE_NEW_LINES)) {
+    if ($lines = FileCtl::file_read_lines($_conf['recent_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
             $lar = explode('<>', $l);
             // あったら
@@ -138,9 +138,7 @@ function checkResHist($host, $bbs, $key)
 {
     global $_conf;
 
-    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
-
-    if ($lines = FileCtl::file_read_lines($rh_idx, FILE_IGNORE_NEW_LINES)) {
+    if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
             $lar = explode('<>', $l);
             // あったら
@@ -166,11 +164,11 @@ function offRecent($host, $bbs, $key)
 
     $neolines = array();
 
-    $lock = new P2Lock($_conf['rct_file'], false);
+    $lock = new P2Lock($_conf['recent_idx'], false);
 
     // {{{ あれば削除
 
-    if ($lines = FileCtl::file_read_lines($_conf['rct_file'], FILE_IGNORE_NEW_LINES)) {
+    if ($lines = FileCtl::file_read_lines($_conf['recent_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
             $lar = explode('<>', $l);
             // 削除（スキップ）
@@ -191,7 +189,7 @@ function offRecent($host, $bbs, $key)
             $cont .= $l . "\n";
         }
 
-        if (FileCtl::file_write_contents($_conf['rct_file'], $cont) === false) {
+        if (FileCtl::file_write_contents($_conf['recent_idx'], $cont) === false) {
             p2die('cannot write file.');
         }
     }
@@ -217,15 +215,13 @@ function offResHist($host, $bbs, $key)
 {
     global $_conf;
 
-    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
-
     $neolines = array();
 
-    $lock = new P2Lock($rh_idx, false);
+    $lock = new P2Lock($_conf['res_hist_idx'], false);
 
     // {{{ あれば削除
 
-    if ($lines = FileCtl::file_read_lines($rh_idx, FILE_IGNORE_NEW_LINES)) {
+    if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
             $lar = explode('<>', $l);
             // 削除（スキップ）
@@ -246,7 +242,7 @@ function offResHist($host, $bbs, $key)
             $cont .= $l . "\n";
         }
 
-        if (FileCtl::file_write_contents($rh_idx, $cont) === false) {
+        if (FileCtl::file_write_contents($_conf['res_hist_idx'], $cont) === false) {
             p2die('cannot write file.');
         }
     }

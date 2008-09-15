@@ -157,11 +157,12 @@ class BbsMap
         // }}}
         // {{{ 書込
 
+        $brd_name = htmlspecialchars(basename($brd_path), ENT_QUOTES);
         if ($updated) {
             self::_writeData($brd_path, $neolines);
-            $_info_msg_ht .= sprintf('<p>rep2 info: %s を同期しました。</p>', htmlspecialchars($brd_path, ENT_QUOTES));
+            $_info_msg_ht .= sprintf('<p class="info-msg">rep2 info: %s を同期しました。</p>', $brd_name);
         } else {
-            $_info_msg_ht .= sprintf('<p>rep2 info: %s は変更されませんでした。</p>', htmlspecialchars($brd_path, ENT_QUOTES));
+            $_info_msg_ht .= sprintf('<p class="info-msg">rep2 info: %s は変更されませんでした。</p>', $brd_name);
         }
         $done[$brd_path] = true;
 
@@ -225,11 +226,12 @@ class BbsMap
         // }}}
         // {{{ 書込
 
+        $idx_name = htmlspecialchars(basename($idx_path), ENT_QUOTES);
         if ($updated) {
             self::_writeData($idx_path, $neolines);
-            $_info_msg_ht .= sprintf('<p>rep2 info: %s を同期しました。</p>', htmlspecialchars($idx_path, ENT_QUOTES));
+            $_info_msg_ht .= sprintf('<p class="info-msg">rep2 info: %s を同期しました。</p>', $idx_name);
         } else {
-            $_info_msg_ht .= sprintf('<p>rep2 info: %s は変更されませんでした。</p>', htmlspecialchars($idx_path, ENT_QUOTES));
+            $_info_msg_ht .= sprintf('<p class="info-msg">rep2 info: %s は変更されませんでした。</p>', $idx_name);
         }
         $done[$idx_path] = true;
 
@@ -247,9 +249,9 @@ class BbsMap
     static public function syncFav()
     {
         global $_conf;
-        self::syncBrd($_conf['favita_path']);
-        self::syncIdx($_conf['favlist_file']);
-        self::syncIdx($_conf['rct_file']);
+        self::syncBrd($_conf['favita_brd']);
+        self::syncIdx($_conf['favlist_idx']);
+        self::syncIdx($_conf['recent_idx']);
     }
 
     // }}}

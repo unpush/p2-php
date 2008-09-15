@@ -207,7 +207,7 @@ EOP;
         $show_flag = false;
 
         // favitaì«Ç›çûÇ›
-        if ($lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES)) {
+        if ($lines = FileCtl::file_read_lines($_conf['favita_brd'], FILE_IGNORE_NEW_LINES)) {
             if ($_conf['expack.misc.multi_favs']) {
                 $favset_title = FavSetManager::getFavSetPageTitleHt('m_favita_set', 'Ç®ãCÇ…î¬');
             } else {

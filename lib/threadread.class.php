@@ -23,9 +23,8 @@ class ThreadRead extends Thread
     public $diedat; // サーバからdat取得しようとしてできなかった時にtrueがセットされる
     public $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
 
-    public $idcount; // 配列。key は ID記号, value は ID出現回数
-
-    public $one_id; // >>1 の ID
+    public $ids;     // レス番号をキー、IDを値とする連想配列
+    public $idcount; // IDをキー、出現回数を値とする連想配列
 
     public $getdat_error_msg_ht; // dat取得に失敗した時に表示されるメッセージ（HTML）
 
@@ -1209,18 +1208,13 @@ class ThreadRead extends Thread
         } else {
             return false;
         }
+
         $this->rescount = sizeof($this->datlines);
 
-        if ($_conf['flex_idpopup'] || $_conf['ngaborn_frequent'] || ($_conf['ktai'] &&
-            ($_conf['mobile.clip_unique_id'] || $_conf['mobile.underline_id'])
-            ))
+        if ($_conf['flex_idpopup'] || $_conf['ngaborn_chain'] || $_conf['ngaborn_frequent'] ||
+            ($_conf['ktai'] && ($_conf['mobile.clip_unique_id'] || $_conf['mobile.underline_id'])))
         {
-            $lar = explode('<>', $this->datlines[0]);
-            if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $lar[2], $matches)) {
-                $this->one_id = $matches[1];
-            }
-            $this->idcount = array();
-            $this->setIdCount($this->datlines);
+            $this->_setIdCount();
         }
 
         return true;
@@ -1232,22 +1226,25 @@ class ThreadRead extends Thread
     /**
      * 一つのスレ内でのID出現数をセットする
      */
-    public function setIdCount($lines)
+    private function _setIdCount()
     {
-        if ($lines) {
-            foreach ($lines as $line) {
-                $lar = explode('<>', $line);
-                if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $lar[2], $matches)) {
-                    $id = $matches[1];
-                    if (isset($this->idcount[$id])) {
-                        $this->idcount[$id]++;
-                    } else {
-                        $this->idcount[$id] = 1;
-                    }
-                }
+        if (!$this->datlines) {
+            return;
+        }
+
+        $i = 0;
+        $ids = array_fill(1, $this->rescount, null);
+
+        foreach ($this->datlines as $l) {
+            $lar = explode('<>', $l);
+            $i++;
+            if (preg_match('<ID: ?([0-9a-zA-Z/.+]{8,11})>', $lar[2], $m)) {
+                $ids[$i] = $m[1];
             }
         }
-        return;
+
+        $this->ids = $ids;
+        $this->idcount = array_count_values(array_filter($ids, 'is_string'));
     }
 
     // }}}

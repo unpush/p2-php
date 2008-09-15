@@ -149,10 +149,7 @@ EOP;
     {
         ob_start();
         $this->datToHtml();
-        $html = ob_get_contents();
-        ob_end_clean();
-
-        return $html;
+        return ob_get_clean();
     }
 
     // }}}

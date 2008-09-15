@@ -224,8 +224,8 @@ if ($spmode == 'merge_favita') {
     $subject_keys = array();
     $sb_key_txts = array();
 
-    if (file_exists($_conf['favita_path'])) {
-        foreach (file($_conf['favita_path']) as $l) {
+    if (file_exists($_conf['favita_brd'])) {
+        foreach (file($_conf['favita_brd']) as $l) {
             if (preg_match("/^\t?(.+?)\t(.+?)\t.+?\$/", rtrim($l), $matches)) {
                 $_host = $matches[1];
                 $_bbs  = $matches[2];
@@ -261,15 +261,15 @@ if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_RE
         require_once P2_LIB_DIR . '/p2httpext.class.php';
         switch ($spmode) {
         case 'fav':
-            P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_file']);
+            P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_idx']);
             $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
             break;
         case 'recent':
-            P2HttpRequestPool::fetchSubjectTxt($_conf['rct_file']);
+            P2HttpRequestPool::fetchSubjectTxt($_conf['recent_idx']);
             $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
             break;
         case 'res_hist':
-            P2HttpRequestPool::fetchSubjectTxt($_conf['pref_dir'] . '/p2_res_hist.idx');
+            P2HttpRequestPool::fetchSubjectTxt($_conf['res_hist_idx']);
             $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
             break;
         case 'merge_favita':
@@ -328,7 +328,7 @@ if ($spmode) {
 $lines = $aThreadList->readList();
 
 // {{{ お気にスレリスト 読込
-if ($favlines = FileCtl::file_read_lines($_conf['favlist_file'], FILE_IGNORE_NEW_LINES)) {
+if ($favlines = FileCtl::file_read_lines($_conf['favlist_idx'], FILE_IGNORE_NEW_LINES)) {
     foreach ($favlines as $l) {
         $data = explode('<>', $l);
         $fav_keys[ $data[1] ] = $data[11];
@@ -1048,46 +1048,31 @@ function saveSubjectKeys($subject_keys, $sb_keys_txt, $sb_keys_b_txt)
 /**
  * スレタイ（と本文）でマッチしたらtrueを返す
  */
-function matchSbFilter($aThread)
+function matchSbFilter(Thread $aThread)
 {
     // 全文検索でdatがあれば、内容を読み込む
-    if (!empty($_REQUEST['find_cont']) && file_exists($aThread->keydat)) {
-        $dat_cont = file_get_contents($aThread->keydat);
+    if (!empty($_REQUEST['find_cont'])) {
+        if (file_exists($aThread->keydat)) {
+            $subject = file_get_contents($aThread->keydat);
+            // be.2ch.net はEUC
+            if (P2Util::isHostBe2chNet($aThread->host)) {
+                $subject = mb_convert_encoding($subject, 'CP932', 'CP51932');
+            }
+        } else {
+            return false;
+        }
+    } else {
+        $subject = $aThread->ttitle;
     }
 
-    if ($GLOBALS['sb_filter']['method'] == "and") {
-        reset($GLOBALS['words_fm']);
-        foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
-            // 全文検索でdatがあれば、内容を検索
-            if (!empty($_REQUEST['find_cont']) && file_exists($aThread->keydat)) {
-                // be.2ch.net はEUC
-                if (P2Util::isHostBe2chNet($aThread->host)) {
-                   $target_cont = mb_convert_encoding($word_fm_ao, 'CP51932', 'CP932');
-                }
-                if (!StrCtl::filterMatch($target_cont, $dat_cont)) {
-                   return false;
-                }
-
-            // スレタイを検索
-            } elseif (!StrCtl::filterMatch($word_fm_ao, $aThread->ttitle)) {
+    if ($GLOBALS['sb_filter']['method'] == 'and') {
+        foreach ($GLOBALS['words_fm'] as $word) {
+            if (!StrCtl::filterMatch($word, $subject)) {
                 return false;
             }
         }
-
     } else {
-        // 全文検索でdatがあれば、内容を検索
-        if (!empty($_REQUEST['find_cont']) && file_exists($aThread->keydat)) {
-            $target_cont = $GLOBALS['word_fm'];
-            // be.2ch.net はEUC
-            if (P2Util::isHostBe2chNet($aThread->host)) {
-                $target_cont = mb_convert_encoding($target_cont, 'CP51932', 'CP932');
-            }
-            if (!StrCtl::filterMatch($target_cont, $dat_cont)) {
-                return false;
-            }
-
-        // スレタイだけ検索
-        } elseif (!StrCtl::filterMatch($GLOBALS['word_fm'], $aThread->ttitle)) {
+        if (!StrCtl::filterMatch($GLOBALS['word_fm'], $subject)) {
             return false;
         }
     }

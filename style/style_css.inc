@@ -87,6 +87,12 @@ form.inline-form {
 	display: inline;
 }
 
+p.info-msg {
+	margin: 4px 12px;
+	font-size: 12px;
+	line-height: 120%;
+}
+
 EOSTYLE;
 
 // ƒXƒ^ƒCƒ‹‚Ìã‘‚«

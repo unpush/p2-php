@@ -166,6 +166,8 @@ class ShowThreadPc extends ShowThread
         $date_id = $resar[2];
         $msg = $resar[3];
 
+        $id = $this->thread->ids[$i];
+
         // {{{ フィルタリング
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
@@ -198,21 +200,13 @@ class ShowThreadPc extends ShowThread
         $isFreq = false;
         $isChain = false;
 
-        if (($_conf['flex_idpopup'] || $this->_ngaborn_frequent || $_conf['ngaborn_chain']) &&
-            preg_match('|ID: ?([0-9A-Za-z/.+]{8,11})|', $date_id, $matches))
-        {
-            $id = $matches[1];
-        } else {
-            $id = null;
-        }
-
         // {{{ あぼーんチェック
 
         $ng_msg_info = array();
 
         // 頻出IDあぼーん
         if ($this->_ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
-            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->one_id) {
+            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->ids[1]) {
                 // >>1 はそのまま表示
             } elseif ($this->_ngaborn_frequent == 1) {
                 $ngaborns_hits['aborn_freq']++;

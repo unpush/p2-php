@@ -232,7 +232,7 @@ function menu_iphone_show_favorite_boards($title, $no = null)
         echo "<li><a href=\"{$_conf['subject_php']}?spmode=merge_favita{$favset_q_a}\" target=\"_self\">{$title} (‚Ü‚Æ‚ß)</a></li>";
     }
 
-    if ($lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES)) {
+    if ($lines = FileCtl::file_read_lines($_conf['favita_brd'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
             if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", $l, $matches)) {
                 $itaj = rtrim($matches[3]);

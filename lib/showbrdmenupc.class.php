@@ -92,7 +92,7 @@ EOP;
 
         // favitaì«Ç›çûÇ›
         $favitas = array();
-        if ($lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES)) {
+        if ($lines = FileCtl::file_read_lines($_conf['favita_brd'], FILE_IGNORE_NEW_LINES)) {
             foreach ($lines as $l) {
                 if (preg_match("/^\t?(.+)\t(.+)\t(.+)\$/", $l, $matches)) {
                     $favitas[] = array(

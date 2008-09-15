@@ -55,6 +55,10 @@ if (empty($id) && empty($uri) && empty($file)) {
     ic2_error('x06', 'URLまたはファイル名がありません。', false);
 }
 
+if (!is_dir($_conf['tmp_dir'])) {
+    FileCtl::mkdir_for($_conf['tmp_dir'] . '/__dummy__');
+}
+
 if (!empty($uri)) {
     $uri = preg_replace('{^(https?://)ime\\.(?:nu|st)/}', '\\1', $uri);
     $pURL = @parse_url($uri);
@@ -99,18 +103,42 @@ if ($memo === '') { $memo = null; }
 $thumbnailer = new ThumbNailer($thumb);
 
 // }}}
+// {{{ IC2TempFile
+
+class IC2TempFile
+{
+    private $_filename = null;
+
+    public function __construct($filename)
+    {
+        if (touch($filename)) {
+            $this->_filename = realpath($filename);
+        }
+    }
+
+    public function __destruct()
+    {
+        if ($this->_filename !== null) {
+            if (file_exists($this->_filename)) {
+                unlink($this->_filename);
+            }
+        }
+    }
+}
+
+// }}}
 // {{{ sleep
 
 if ($doDL) {
     // 同じ画像のURIに対するクエリが（ほぼ）同時に発行されたときの重複GETを防ぐ
     // sleepした時間はプロセスの実行時間に含まれないので独自にタイマーを用意する（無限ループ回避）
-    $tmpchecker = $ini['General']['cachedir'] . '/q_' . md5($uri);
-    if (file_exists($tmpchecker)) {
+    $dl_lock_file = $_conf['tmp_dir'] . DIRECTORY_SEPARATOR . 'ic2_lck_' . md5($uri);
+    if (file_exists($dl_lock_file)) {
         $offtimer = ini_get('max_execution_time');
         if ($offtimer == 0) {
             $offtimer = 30;
         }
-        while (file_exists($tmpchecker)) {
+        while (file_exists($dl_lock_file)) {
             sleep(1); // 1秒停止
             $offtimer--;
             if ($offtimer < 0) {
@@ -120,11 +148,7 @@ if ($doDL) {
     }
 
     // テンポラリファイルを作成、終了時に自動削除
-    touch($tmpchecker);
-    // exitしたときはregister_shutdown_function()が効かないようなので
-    // ic2_display(),ic2_error()各関数の先頭でic2_removeTmpFile()をコールすることにした。
-    // スマートとは言いがたいが期待通りの動作はしてくれるのでよしとする。
-    //register_shutdown_function('ic2_removeTmpFile');
+    $dl_lock_obj = new IC2TempFile($dl_lock_file);
 }
 
 // }}}
@@ -361,8 +385,9 @@ if (PEAR::isError($code)) {
 $response = $client->currentResponse();
 
 // 一時ファイルに保存
-$tmpfile = tempnam($ini['General']['cachedir'], 'tmp_');
-$fp = @fopen($tmpfile, 'wb');
+$tmpfile = tempnam($_conf['tmp_dir'], 'ic2_get_');
+$tmpobj = new IC2TempFile($tmpfile);
+$fp = fopen($tmpfile, 'wb');
 if (!$fp) {
     ic2_error('x02', "fopen失敗。($tmpfile)");
 }
@@ -399,7 +424,6 @@ if ($ini['Getter']['virusscan']) {
                 'memo' => $memo
             );
             ic2_aborn($params, true);
-            @unlink($tmpfile);
             ic2_error('x04', 'ウィルスを発見しました。');
         }
     }
@@ -558,7 +582,6 @@ function ic2_checkAbornedFile($tmpfile, $params)
     $check->orderByArray(array('rank' => 'ASC'));
     if ($check->find(true)) {
         if ($check->rank < 0) {
-            @unlink($tmpfile);
             ic2_aborn($params);
             // 現状では（たぶんずっと） -1 or -4 だけだが、一応
             if ($check->rank >= -5) {
@@ -612,7 +635,6 @@ function ic2_checkSizeOvered($tmpfile, $params)
     }
 
     if ($isError) {
-        @unlink($tmpfile);
         ic2_aborn($params);
         ic2_error('x03', $errmsg);
     }
@@ -626,8 +648,6 @@ function ic2_checkSizeOvered($tmpfile, $params)
 function ic2_display($path, $params)
 {
     global $_conf, $ini, $thumb, $redirect, $id, $uri, $file, $thumbnailer;
-
-    ic2_removeTmpFile();
 
     $name = basename($path);
     $ext = strrchr($name, '.');
@@ -830,8 +850,6 @@ function ic2_error($code, $optmsg = '', $write_log = true)
 {
     global $id, $uri, $file, $redirect;
 
-    ic2_removeTmpFile();
-
     $map = array(
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -939,17 +957,6 @@ function ic2_finish($filepath, $thumb, $params, $force)
         }
         ic2_display($thumbpath, $params);
     }
-}
-
-// }}}
-// {{{ ic2_removeTmpFile()
-
-function ic2_removeTmpFile()
-{
-    global $tmpfile, $tmpchecker;
-
-    file_exists($tmpfile) && unlink($tmpfile);
-    file_exists($tmpchecker) && unlink($tmpchecker);
 }
 
 // }}}

@@ -14,12 +14,12 @@ function deleMsg($checked_hists)
 {
     global $_conf;
 
-    $lock = new P2Lock($_conf['p2_res_hist_dat'], false);
+    $lock = new P2Lock($_conf['res_hist_dat'], false);
 
     // 読み込んで
-    $reslines = FileCtl::file_read_lines($_conf['p2_res_hist_dat'], FILE_IGNORE_NEW_LINES);
+    $reslines = FileCtl::file_read_lines($_conf['res_hist_dat'], FILE_IGNORE_NEW_LINES);
     if ($reslines === false) {
-        p2die("{$_conf['p2_res_hist_dat']} を開けませんでした");
+        p2die("{$_conf['res_hist_dat']} を開けませんでした");
     }
 
     // ファイルの下に記録されているものが新しいので逆順にする
@@ -55,7 +55,7 @@ function deleMsg($checked_hists)
         }
 
         // 書き込む
-        if (FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont) === false) {
+        if (FileCtl::file_write_contents($_conf['res_hist_dat'], $cont) === false) {
             p2die('cannot write file.');
         }
     }

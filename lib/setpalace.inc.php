@@ -29,14 +29,13 @@ function setPal($host, $bbs, $key, $setpal)
     //==================================================================
     // p2_palace.idxに書き込む
     //==================================================================
-    $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx';
-    $lock = new P2Lock($palace_idx, false);
+    $lock = new P2Lock($_conf['palace_idx'], false);
 
     // palace_idx ファイルがなければ生成
-    FileCtl::make_datafile($palace_idx, $_conf['palace_perm']);
+    FileCtl::make_datafile($_conf['palace_idx'], $_conf['palace_perm']);
 
     // palace_idx 読み込み
-    $pallines = FileCtl::file_read_lines($palace_idx, FILE_IGNORE_NEW_LINES);
+    $pallines = FileCtl::file_read_lines($_conf['palace_idx'], FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
     $before_line_num = 0;
@@ -65,8 +64,8 @@ function setPal($host, $bbs, $key, $setpal)
 
     // 新規データ設定
     if ($setpal) {
-        $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once P2_LIB_DIR . '/getsetposlines.inc.php';
+        $newdata = "{$data[0]}<>{$key}<>{$data[2]}<>{$data[3]}<>{$data[4]}<>{$data[5]}<>{$data[6]}<>{$data[7]}<>{$data[8]}<>{$data[9]}<>{$host}<>{$bbs}";
+        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setpal);
     } else {
         $rec_lines = $neolines;
@@ -80,7 +79,7 @@ function setPal($host, $bbs, $key, $setpal)
     }
 
     // 書き込む
-    if (FileCtl::file_write_contents($palace_idx, $cont) === false) {
+    if (FileCtl::file_write_contents($_conf['palace_idx'], $cont) === false) {
         p2die('cannot write file.');
     }
 

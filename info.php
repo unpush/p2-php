@@ -149,7 +149,7 @@ $common_q = "host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->ke
 
 /*
 // お気にスレリスト 読込
-if ($favlines = FileCtl::file_read_lines($_conf['favlist_file'], FILE_IGNORE_NEW_LINES)) {
+if ($favlines = FileCtl::file_read_lines($_conf['favlist_idx'], FILE_IGNORE_NEW_LINES)) {
     foreach ($favlines as $l) {
         $favarray = explode('<>', $l);
         if ($aThread->key == $favarray[1] && $aThread->bbs == $favarray[11]) {
@@ -204,8 +204,7 @@ EOP;
 // {{{ palace チェック
 
 // 殿堂入りスレリスト 読込
-$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
-if ($pallines = FileCtl::file_read_lines($palace_idx, FILE_IGNORE_NEW_LINES)) {
+if ($pallines = FileCtl::file_read_lines($_conf['palace_idx'], FILE_IGNORE_NEW_LINES)) {
     foreach ($pallines as $l) {
         $palarray = explode('<>', $l);
         if ($aThread->key == $palarray[1]) {

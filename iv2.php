@@ -300,11 +300,15 @@ $qf->addRule('mode', 'invalid mode.', 'inArrayKeys', $_mode);
 $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'cp932',
-    'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
+    'compileDir' => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'iv2',
     'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" ‚Æ“™‰¿
     'plugins' => array('P2Util' => P2_LIB_DIR . '/p2util.class.php')
 );
+
+if (!is_dir($_conf['compile_dir'])) {
+    FileCtl::mkdir_for($_conf['compile_dir'] . '/__dummy__');
+}
 
 $flexy = new HTML_Template_Flexy($_flexy_options);
 

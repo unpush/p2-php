@@ -14,7 +14,7 @@ require_once 'HTML/Template/Flexy.php';
 
 $flexy_options = array(
     'templateDir' => './skin',
-    'compileDir'  => $_conf['cache_dir'],
+    'compileDir'  => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'fontconfig',
     'locale' => 'ja',
     'charset' => 'cp932',
 );
@@ -86,11 +86,12 @@ switch ($type) {
 
 // }}}
 
+if (!is_dir($_conf['compile_dir'])) {
+    FileCtl::mkdir_for($_conf['compile_dir'] . '/__dummy__');
+}
+
 // テンプレートをコンパイル
 $flexy = new HTML_Template_Flexy($flexy_options);
-if (!is_dir($_conf['cache_dir'])) {
-    FileCtl::mkdir_for($_conf['cache_dir'] . '/dummy_filename');
-}
 $flexy->compile('edit_user_font.tpl.html');
 $elements = $flexy->getElements();
 

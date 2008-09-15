@@ -21,7 +21,7 @@ if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['sub
 // お気に板のホストを同期
 if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
     include_once P2_LIB_DIR . '/BbsMap.class.php';
-    BbsMap::syncBrd($_conf['favita_path']);
+    BbsMap::syncBrd($_conf['favita_brd']);
 }
 
 
@@ -108,9 +108,9 @@ $_info_msg_ht = '';
 //================================================================
 
 // favitaファイルがなければ生成
-FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
+FileCtl::make_datafile($_conf['favita_brd'], $_conf['favita_perm']);
 // favita読み込み
-$lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES);
+$lines = FileCtl::file_read_lines($_conf['favita_brd'], FILE_IGNORE_NEW_LINES);
 $okini_itas = array();
 
 $i = 0;

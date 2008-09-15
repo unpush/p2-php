@@ -44,7 +44,7 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
     }
 
     // {{{ スレッド.idx 記録
-    if (($setfav == '0' || $setfav == '1') && $_conf['favlist_file'] == $_conf['orig_favlist_file']) {
+    if (($setfav == '0' || $setfav == '1') && $_conf['favlist_idx'] == $_conf['orig_favlist_idx']) {
         // お気にスレから外した結果、idxの意味がなくなれば削除する
         if ($setfav == '0' and (!$data[3] && !$data[4] && $data[9] <= 1)) {
             @unlink($idxfile);
@@ -63,19 +63,19 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
 
     if (!is_null($setnum) && $_conf['expack.misc.multi_favs']) {
         if (0 < $setnum && $setnum <= $_conf['expack.misc.favset_num']) {
-            $favlist_file = $_conf['pref_dir'] . sprintf('/p2_favlist%d.idx', $setnum);
+            $favlist_idx = $_conf['pref_dir'] . sprintf('/p2_favlist%d.idx', $setnum);
         } else {
-            $favlist_file = $_conf['orig_favlist_file'];
+            $favlist_idx = $_conf['orig_favlist_idx'];
         }
     } else {
-        $favlist_file = $_conf['favlist_file'];
+        $favlist_idx = $_conf['favlist_idx'];
     }
 
     // favlistファイルがなければ生成
-    FileCtl::make_datafile($favlist_file, $_conf['favlist_perm']);
+    FileCtl::make_datafile($favlist_idx, $_conf['favlist_perm']);
 
     // favlist読み込み
-    $favlines = FileCtl::file_read_lines($favlist_file, FILE_IGNORE_NEW_LINES);
+    $favlines = FileCtl::file_read_lines($favlist_idx, FILE_IGNORE_NEW_LINES);
 
     //================================================
     // 処理
@@ -104,8 +104,8 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
 
     // 記録データ設定
     if ($setfav) {
-        $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>1<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
-        include_once P2_LIB_DIR . '/getsetposlines.inc.php';
+        $newdata = "{$data[0]}<>{$key}<>{$data[2]}<>{$data[3]}<>{$data[4]}<>{$data[5]}<>1<>{$data[7]}<>{$data[8]}<>{$data[9]}<>{$host}<>{$bbs}";
+        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfav);
     } else {
         $rec_lines = $neolines;
@@ -119,7 +119,7 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
     }
 
     // 書き込む
-    if (FileCtl::file_write_contents($favlist_file, $cont) === false) {
+    if (FileCtl::file_write_contents($favlist_idx, $cont) === false) {
         p2die('cannot write file.');
     }
 
@@ -127,7 +127,7 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
     //================================================
     // お気にスレ共有
     //================================================
-    if ($_conf['join_favrank'] && $_conf['favlist_file'] == $_conf['orig_favlist_file']) {
+    if ($_conf['join_favrank'] && $_conf['favlist_idx'] == $_conf['orig_favlist_idx']) {
         if ($setfav == "0") {
             $act = "out";
         } elseif ($setfav == "1") {

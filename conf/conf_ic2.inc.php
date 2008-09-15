@@ -8,10 +8,6 @@
 // キャッシュ保存ディレクトリのパス
 $_conf['expack.ic2.general.cachedir'] = "./cache";
 
-// コンパイル済テンプレート保存ディレクトリ名
-// （cachedirのサブディレクトリ）
-$_conf['expack.ic2.general.compiledir'] = "compile";
-
 // DSN (DBに接続するためのデータソース名)
 // @link http://jp.pear.php.net/manual/ja/package.database.db.intro-dsn.php
 // 例)

@@ -53,11 +53,11 @@ function setFavIta()
     //================================================
     // 読み込み
     //================================================
-    //favita_pathファイルがなければ生成
-    FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
+    // p2_favita.brd ファイルがなければ生成
+    FileCtl::make_datafile($_conf['favita_brd'], $_conf['favita_perm']);
 
-    //favita_path読み込み;
-    $lines = FileCtl::file_read_lines($_conf['favita_path'], FILE_IGNORE_NEW_LINES);
+    // p2_favita.brd 読み込み;
+    $lines = FileCtl::file_read_lines($_conf['favita_brd'], FILE_IGNORE_NEW_LINES);
 
     //================================================
     // 処理
@@ -126,7 +126,7 @@ EOJS;
     }
 
     // 書き込む
-    if (FileCtl::file_write_contents($_conf['favita_path'], $cont) === false) {
+    if (FileCtl::file_write_contents($_conf['favita_brd'], $cont) === false) {
         p2die('cannot write file.');
     }
 

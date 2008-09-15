@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.14', // rep2のバージョン
-    'p2expack'  => '080908.1732',   // 拡張パックのバージョン
+    'p2expack'  => '080909.2310',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -219,14 +219,24 @@ $_conf['dat_dir']  = p2_realpath($_conf['dat_dir']);
 $_conf['idx_dir']  = p2_realpath($_conf['idx_dir']);
 $_conf['pref_dir'] = p2_realpath($_conf['pref_dir']);
 
-// 管理用保存ディレクトリ (パーミッションは707)
+// 管理用保存ディレクトリ
 $_conf['admin_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'admin';
 
-// cache 保存ディレクトリ (パーミッションは707)
-// 2005/6/29 $_conf['pref_dir'] . '/p2_cache' より変更
+// cache 保存ディレクトリ
+// 2005/06/29 $_conf['pref_dir'] . '/p2_cache' より変更
 $_conf['cache_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'cache';
 
-// テンポラリディレクトリ (パーミッションは707)
+// Cookie 保存ディレクトリ
+// 2008/09/09 $_conf['pref_dir'] . '/p2_cookie' より変更
+$_conf['cookie_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'cookie';
+
+// コンパイルされたテンプレートの保存ディレクトリ
+$_conf['compile_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'compile';
+
+// セッションデータ保存ディレクトリ
+$_conf['session_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'session';
+
+// テンポラリディレクトリ
 $_conf['tmp_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'tmp';
 
 // バージョンIDを二重引用符やヒアドキュメント内に埋め込むための変数
@@ -243,28 +253,31 @@ $_conf['detect_hint_q_utf8'] = '_hint=%E2%97%8E%E2%97%87'; // rawurlencode($_con
 // }}}
 // {{{ 変数設定
 
-$_conf['rct_file']              = $_conf['pref_dir'] . '/p2_recent.idx';        // 最近呼んだスレ (idx)
-$_conf['p2_res_hist_dat']       = $_conf['pref_dir'] . '/p2_res_hist.dat';      // 書き込みログファイル (dat)
-$_conf['p2_res_hist_dat_php']   = $_conf['pref_dir'] . '/p2_res_hist.dat.php';  // 書き込みログファイル (データPHP)
-$_conf['cookie_dir']            = $_conf['pref_dir'] . '/p2_cookie';            // COOKIE保存ディレクトリ
-$_conf['favlist_file']          = $_conf['pref_dir'] . '/p2_favlist.idx';       // お気にスレ (idx)
-$_conf['favita_path']           = $_conf['pref_dir'] . '/p2_favita.brd';        // お気に板 (brd)
-$_conf['idpw2ch_php']           = $_conf['pref_dir'] . '/p2_idpw2ch.php';       // 2ch ID認証設定ファイル (データPHP)
-$_conf['sid2ch_php']            = $_conf['pref_dir'] . '/p2_sid2ch.php';        // 2ch ID認証セッションID記録ファイル (データPHP)
-$_conf['auth_user_file']        = $_conf['pref_dir'] . '/p2_auth_user.php';     // 認証ユーザ設定ファイル(データPHP)
-$_conf['auth_imodeid_file']     = $_conf['pref_dir'] . '/p2_auth_imodeid.php';  // DoCoMo iモードID認証ファイル (データPHP)
-$_conf['auth_docomo_file']      = $_conf['pref_dir'] . '/p2_auth_docomo.php';   // DoCoMo 端末製造番号認証ファイル (データPHP)
-$_conf['auth_ez_file']          = $_conf['pref_dir'] . '/p2_auth_ez.php';       // EZweb サブスクライバID認証ファイル (データPHP)
-$_conf['auth_jp_file']          = $_conf['pref_dir'] . '/p2_auth_jp.php';       // SoftBank 端末シリアル番号認証ファイル (データPHP)
-$_conf['login_log_file']        = $_conf['pref_dir'] . '/p2_login.log.php';     // ログイン履歴 (データPHP)
-$_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';  // ログイン失敗履歴 (データPHP)
+$pref_dir_s = $_conf['pref_dir'] . DIRECTORY_SEPARATOR;
 
-$_conf['matome_cache_path'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . 'matome_cache';
+$_conf['favita_brd']        = $pref_dir_s . 'p2_favita.brd';        // お気に板 (brd)
+$_conf['favlist_idx']       = $pref_dir_s . 'p2_favlist.idx';       // お気にスレ (idx)
+$_conf['recent_idx']        = $pref_dir_s . 'p2_recent.idx';        // 最近読んだスレ (idx)
+$_conf['palace_idx']        = $pref_dir_s . 'p2_palace.idx';        // スレの殿堂 (idx)
+$_conf['res_hist_idx']      = $pref_dir_s . 'p2_res_hist.idx';      // 書き込みログ (idx)
+$_conf['res_hist_dat']      = $pref_dir_s . 'p2_res_hist.dat';      // 書き込みログファイル (dat)
+$_conf['res_hist_dat_php']  = $pref_dir_s . 'p2_res_hist.dat.php';  // 書き込みログファイル (データPHP)
+$_conf['idpw2ch_php']       = $pref_dir_s . 'p2_idpw2ch.php';       // 2ch ID認証設定ファイル (データPHP)
+$_conf['sid2ch_php']        = $pref_dir_s . 'p2_sid2ch.php';        // 2ch ID認証セッションID記録ファイル (データPHP)
+$_conf['auth_user_file']    = $pref_dir_s . 'p2_auth_user.php';     // 認証ユーザ設定ファイル(データPHP)
+$_conf['auth_imodeid_file'] = $pref_dir_s . 'p2_auth_imodeid.php';  // DoCoMo iモードID認証ファイル (データPHP)
+$_conf['auth_docomo_file']  = $pref_dir_s . 'p2_auth_docomo.php';   // DoCoMo 端末製造番号認証ファイル (データPHP)
+$_conf['auth_ez_file']      = $pref_dir_s . 'p2_auth_ez.php';       // EZweb サブスクライバID認証ファイル (データPHP)
+$_conf['auth_jp_file']      = $pref_dir_s . 'p2_auth_jp.php';       // SoftBank 端末シリアル番号認証ファイル (データPHP)
+$_conf['login_log_file']    = $pref_dir_s . 'p2_login.log.php';     // ログイン履歴 (データPHP)
+$_conf['login_failed_log_file'] = $pref_dir_s . 'p2_login_failed.dat.php';  // ログイン失敗履歴 (データPHP)
+
+$_conf['matome_cache_path'] = $pref_dir_s . 'matome_cache';
 $_conf['matome_cache_ext'] = '.htm';
 $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
-$_conf['orig_favlist_file'] = $_conf['favlist_file'];
-$_conf['orig_favita_path']  = $_conf['favita_path'];
+$_conf['orig_favita_brd']  = $_conf['favita_brd'];
+$_conf['orig_favlist_idx'] = $_conf['favlist_idx'];
 
 // 補正
 if ($_conf['expack.use_pecl_http'] && !extension_loaded('http')) {
@@ -840,11 +853,6 @@ if ($_conf['ktai']) {
 
 // 名前は、セッションクッキーを破棄するときのために、セッション利用の有無に関わらず設定する
 session_name('PS');
-
-// セッションデータ保存ディレクトリを規定
-if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
-    $_conf['session_dir'] = $_conf['data_dir'] . DIRECTORY_SEPARATOR . 'session';
-}
 
 if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
     $_conf['use_session'] = 1;

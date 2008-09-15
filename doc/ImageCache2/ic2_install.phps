@@ -293,7 +293,6 @@ foreach ($createIndexSQL as $sql) {
 
 <?php
 $dirs = array(
-    $ini['General']['compiledir'],
     $ini['Source']['name'],
     $ini['Thumb1']['name'],
     $ini['Thumb2']['name'],
@@ -301,7 +300,7 @@ $dirs = array(
 );
 
 foreach ($dirs as $dir) {
-    $path = $ini['General']['cachedir'] . '/' . $dir;
+    $path = $ini['General']['cachedir'] . DIRECTORY_SEPARATOR . $dir;
     if (is_dir($path)) {
         echo "<p>ディレクトリ <em>{$path}</em> は作成済";
         if (is_writable($path)) {

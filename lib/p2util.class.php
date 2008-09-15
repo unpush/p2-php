@@ -774,31 +774,31 @@ class P2Util
         }
 
         // p2_res_hist.dat.php が読み込み可能であったら
-        if (is_readable($_conf['p2_res_hist_dat_php'])) {
+        if (is_readable($_conf['res_hist_dat_php'])) {
             // 読み込んで
-            if ($cont = DataPhp::getDataPhpCont($_conf['p2_res_hist_dat_php'])) {
+            if ($cont = DataPhp::getDataPhpCont($_conf['res_hist_dat_php'])) {
                 // タブ区切りから<>区切りに変更する
                 $cont = str_replace("\t", "<>", $cont);
 
                 // p2_res_hist.dat があれば、名前を変えてバックアップ。（もう要らない）
-                if (file_exists($_conf['p2_res_hist_dat'])) {
-                    $bak_file = $_conf['p2_res_hist_dat'] . '.bak';
+                if (file_exists($_conf['res_hist_dat'])) {
+                    $bak_file = $_conf['res_hist_dat'] . '.bak';
                     if (P2_OS_WINDOWS && file_exists($bak_file)) {
                         unlink($bak_file);
                     }
-                    rename($_conf['p2_res_hist_dat'], $bak_file);
+                    rename($_conf['res_hist_dat'], $bak_file);
                 }
 
                 // 保存
-                FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']);
-                FileCtl::file_write_contents($_conf['p2_res_hist_dat'], $cont);
+                FileCtl::make_datafile($_conf['res_hist_dat'], $_conf['res_write_perm']);
+                FileCtl::file_write_contents($_conf['res_hist_dat'], $cont);
 
                 // p2_res_hist.dat.php を名前を変えてバックアップ。（もう要らない）
-                $bak_file = $_conf['p2_res_hist_dat_php'] . '.bak';
+                $bak_file = $_conf['res_hist_dat_php'] . '.bak';
                 if (P2_OS_WINDOWS && file_exists($bak_file)) {
                     unlink($bak_file);
                 }
-                rename($_conf['p2_res_hist_dat_php'], $bak_file);
+                rename($_conf['res_hist_dat_php'], $bak_file);
             }
         }
         return true;
@@ -820,9 +820,9 @@ class P2Util
         }
 
         // p2_res_hist.dat.php がなくて、p2_res_hist.dat が読み込み可能であったら
-        if ((!file_exists($_conf['p2_res_hist_dat_php'])) and is_readable($_conf['p2_res_hist_dat'])) {
+        if ((!file_exists($_conf['res_hist_dat_php'])) and is_readable($_conf['res_hist_dat'])) {
             // 読み込んで
-            if ($cont = FileCtl::file_read_contents($_conf['p2_res_hist_dat'])) {
+            if ($cont = FileCtl::file_read_contents($_conf['res_hist_dat'])) {
                 // <>区切りからタブ区切りに変更する
                 // まずタブを全て外して
                 $cont = str_replace("\t", "", $cont);
@@ -830,7 +830,7 @@ class P2Util
                 $cont = str_replace("<>", "\t", $cont);
 
                 // データPHP形式で保存
-                DataPhp::writeDataPhp($_conf['p2_res_hist_dat_php'], $cont, $_conf['res_write_perm']);
+                DataPhp::writeDataPhp($_conf['res_hist_dat_php'], $cont, $_conf['res_write_perm']);
             }
         }
         return true;

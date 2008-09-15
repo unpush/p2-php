@@ -241,15 +241,15 @@ if ($_conf['expack.misc.multi_favs']) {
 
     echo "</ul>\n";
 
-    $orig_favita_path = $_conf['favita_path'];
+    $orig_favita_brd = $_conf['favita_brd'];
 
     foreach ($favita as $no => $name) {
-        $_conf['favita_path'] = $_conf['pref_dir'] . '/'
+        $_conf['favita_brd'] = $_conf['pref_dir'] . '/'
             . ($no ? "p2_favita{$no}.brd" : 'p2_favita.brd');
         menu_iphone_show_favorite_boards($name, $no);
     }
 
-    $_conf['favita_path'] = $orig_favita_path;
+    $_conf['favita_brd'] = $orig_favita_brd;
 
     // }}}
     // {{{ RSS

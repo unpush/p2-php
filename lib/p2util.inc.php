@@ -82,6 +82,9 @@ function p2h($str)
  * メッセージを表示して終了
  * ヘッダが出力されている場合、<body>までは出力済と見なす
  *
+ * 終了ステータスコード2はP2CommandRunnerにエラーメッセージが
+ * HTMLであることを通知するため
+ *
  * @param   string $err エラー概要
  * @param   string $msg 詳細な説明
  * @param   bool   $raw 詳細な説明をエスケープするか否か
@@ -116,9 +119,9 @@ EOH;
 
     if ($msg !== null) {
         if ($raw) {
-            echo '<p>', nl2br(htmlspecialchars($msg, ENT_QUOTES)), '</p>';
-        } else {
             echo $msg;
+        } else {
+            echo '<p>', nl2br(htmlspecialchars($msg, ENT_QUOTES)), '</p>';
         }
     }
 

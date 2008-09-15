@@ -61,13 +61,13 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
     $query = http_build_query($query_params);
     ini_set('arg_separator.output', '&amp;');
     $cache_options = array(
-        'cacheDir' => $_conf['cache_dir'] . DIRECTORY_SEPARATOR,
+        'cacheDir' => $_conf['cache_dir'] . DIRECTORY_SEPARATOR . 'tgrep' . DIRECTORY_SEPARATOR,
         'lifeTime' => 3600,
         'fileNameProtection' => false,
         'automaticSerialization' => true,
     );
     if (!is_dir($cache_options['cacheDir'])) {
-        FileCtl::mkdir_for($cache_options['cacheDir'] . 'dummyFileName');
+        FileCtl::mkdir_for($cache_options['cacheDir'] . '__dummy__');
     }
     $cache = new Cache_Lite($cache_options);
     $cache_id_result = md5($query);

@@ -83,7 +83,7 @@ switch ($mode) {
 // お気にスレ
 case 'fav':
     if ($set == 0) {
-        $source = $_conf['favlist_file'];
+        $source = $_conf['favlist_idx'];
     } else {
         // @see FavSetManager::switchFavSet()
         $source = $pref_dir_s . sprintf('p2_favlist%d.idx', $set);
@@ -91,18 +91,18 @@ case 'fav':
 
 // 最近読んだスレ
 case 'recent':
-    $source = $_conf['rct_file'];
+    $source = $_conf['recent_idx'];
     break;
 
 // 書き込み履歴
 case 'res_hist':
-    $source = $pref_dir_s . 'p2_res_hist.idx';
+    $source = $_conf['res_hist_idx'];
     break;
 
 // お気に板をマージ
 case 'merge_favita':
     if ($set == 0) {
-        $source = $_conf['favita_path'];
+        $source = $_conf['favita_brd'];
     } else {
         // @see FavSetManager::switchFavSet()
         $source = $pref_dir_s . sprintf('p2_favita%d.brd', $set);
