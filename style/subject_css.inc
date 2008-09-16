@@ -161,6 +161,9 @@ a.now_sort:link    { color: {$STYLE['sb_now_sort_color']}; }
 a.now_sort:visited { color: {$STYLE['sb_now_sort_color']}; }
 a.now_sort:hover   { color: {$STYLE['sb_acolor_h']}; }
 
+/* 現在のソート形式 (逆順) */
+a.now_sort.rsort { text-decoration: underline overline; }
+
 /* スレタイトル */
 a.thre_title:link    { color: {$STYLE['thre_title_color']}; }
 a.thre_title:visited { color: {$STYLE['thre_title_color_v']}; }
