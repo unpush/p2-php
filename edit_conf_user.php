@@ -244,6 +244,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('sb_sort_ita', '板表示のスレッド一覧でのデフォルトのソート指定'),
         array('sort_zero_adjust', '新着ソートでの「既得なし」の「新着数ゼロ」に対するソート優先順位'),
         array('cmp_dayres_midoku', '勢いソート時に新着レスのあるスレを優先'),
+        array('cmp_title_norm', 'タイトルソート時に全角半角・大文字小文字を無視'),
         array('viewall_kitoku', '既得スレは表示件数に関わらず表示'),
 
         array('sb_ttitle_max_len', 'スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),

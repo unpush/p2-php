@@ -9,7 +9,6 @@
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/ThreadList.php';
-require_once P2_LIB_DIR . '/sort_threadlist.inc.php';
 
 //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 
@@ -708,7 +707,13 @@ unset($lines);
 autoTAbornOff($aThreadList, $ta_keys);
 
 // ソート
-sort_threadlist($aThreadList);
+if (!empty($GLOBALS['wakati_words'])) {
+    $now_sort = 'title';
+    $sort_mode = 'similarity';
+} else {
+    $sort_mode = $now_sort;
+}
+$aThreadList->sort($sort_mode, !empty($_REQUEST['rsort']));
 
 // ソート後、お気に板の既得スレidxを作成 (新着まとめ読みの効率を良くするためのキャッシュ)
 if ($spmode == 'merge_favita') {

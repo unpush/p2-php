@@ -91,7 +91,7 @@ function sb_print($aThreadList)
     $rsortq_bd      = '';   // Birthday
     $rsortq_fav     = '';   // ‚¨‹C‚É“ü‚è
     if (empty($_REQUEST['rsort'])) {
-        ${'rsortq_' . $GLOBALS['now_sort']} = '&rsort=1';
+        ${'rsortq_' . $GLOBALS['now_sort']} = '&amp;rsort=1';
     }
 
     $sortq_spmode = '';

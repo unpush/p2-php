@@ -1,105 +1,10 @@
 <?php
 /**
- * rep2 - スレッドリストをソートする
+ * rep2 - スレッドリストをソートする関数群
  */
 
 require_once P2_LIB_DIR . '/ThreadList.php';
 
-// {{{ sort_threadlist()
-
-/**
- * スレッドリストをソートする
- *
- * @param   ThreadList $aThreadList
- * @return  void
- */
-function sort_threadlist(ThreadList $aThreadList)
-{
-    global $_conf;
-
-    if (!$aThreadList->threads) {
-        return;
-    }
-
-    //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sort');
-
-    $do_benchmark = false;
-    $use_multisort = true;
-    $reverse = !empty($_REQUEST['rsort']);
-    $cmp = null;
-
-    if (!empty($GLOBALS['wakati_words'])) {
-        $GLOBALS['now_sort'] = 'title';
-        $cmp = 'cmp_similarity';
-    } else {
-        switch ($GLOBALS['now_sort']) {
-        case 'midoku':
-            if ($aThreadList->spmode == 'soko') {
-                $cmp = 'cmp_key';
-            } else {
-                $cmp = 'cmp_midoku';
-            }
-            break;
-        case 'ikioi':
-        case 'spd':
-            if ($_conf['cmp_dayres_midoku']) {
-                $cmp = 'cmp_dayres_midoku';
-            } else {
-                $cmp = 'cmp_dayres';
-            }
-            break;
-        case 'no':
-            if ($aThreadList->spmode == 'soko') {
-                $cmp = 'cmp_key';
-            } else {
-                $cmp = 'cmp_no';
-            }
-            break;
-        case 'bd':
-            $cmp = 'cmp_key';
-            break;
-        case 'fav':
-        case 'ita':
-        case 'res':
-        case 'title':
-            $cmp = 'cmp_' . $GLOBALS['now_sort'];
-            break;
-        }
-    }
-
-    if ($cmp) {
-        if ($do_benchmark) {
-            $before = microtime(true);
-        }
-
-        if ($use_multisort) {
-            $cmp = 'multi_' . $cmp;
-            $cmp($aThreadList, $reverse);
-        } else {
-            usort($aThreadList->threads, $cmp);
-        }
-    }
-
-    if (!($cmp && $use_multisort) && $reverse) {
-        $aThreadList->threads = array_reverse($aThreadList->threads);
-    }
-
-    if ($cmp && $do_benchmark) {
-        $after = microtime(true);
-        $count = count($aThreadList->threads);
-        $GLOBALS['_info_msg_ht'] .= sprintf(
-            '<p class="info-msg" style="font-family:monospace">%s(%d thread%s)%s = %0.6f sec.</p>',
-            $cmp,
-            number_format($count),
-            ($count > 1) ? 's' : '',
-            $reverse ? '+reverse' : '',
-            $after - $before);
-    }
-
-    //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sort');
-}
-
-// }}}
 // {{{ 新着ソート: cmp_midoku(), multi_cmp_midoku()
 
 /**
@@ -132,13 +37,12 @@ function cmp_midoku($a, $b)
 function multi_cmp_midoku(ThreadList $aThreadList, $reverse = false)
 {
     $new = array();
-    $fallen = array();
     $unum = array();
     $torder = array();
 
     foreach ($aThreadList->threads as $t) {
         $new[] = $t->new;
-        $unum[] = $t->unum;
+        $unum[] = ($t->unum < 0) ? -1 : $t->unum;
         $torder[] = $t->torder;
     }
 
@@ -222,9 +126,16 @@ function multi_cmp_title(ThreadList $aThreadList, $reverse = false)
     $ttitle = array();
     $torder = array();
 
-    foreach ($aThreadList->threads as $t) {
-        $ttitle[] = $t->ttitle;
-        $torder[] = $t->torder;
+    if ($GLOBALS['_conf']['cmp_title_norm']) {
+        foreach ($aThreadList->threads as $t) {
+            $ttitle[] = strtoupper(mb_convert_kana($t->ttitle, 'KVas'));
+            $torder[] = $t->torder;
+        }
+    } else {
+        foreach ($aThreadList->threads as $t) {
+            $ttitle[] = $t->ttitle;
+            $torder[] = $t->torder;
+        }
     }
 
     array_multisort($ttitle,    SORT_STRING,    $reverse ? SORT_DESC : SORT_ASC,
@@ -297,7 +208,7 @@ function cmp_fav($a, $b)
     if ($a->fav == $b->fav) {
         return ($a->torder > $b->torder) ? 1 : -1;
     } else {
-        return strcmp($b->fav, $a->fav);
+        return ($a->fav < $b->fav) ? 1 : -1;
     }
 }
 
@@ -318,7 +229,7 @@ function multi_cmp_fav(ThreadList $aThreadList, $reverse = false)
         $torder[] = $t->torder;
     }
 
-    array_multisort($fav,       SORT_STRING,    $reverse ? SORT_ASC : SORT_DESC,
+    array_multisort($fav,       SORT_NUMERIC,   $reverse ? SORT_ASC : SORT_DESC,
                     $torder,    SORT_NUMERIC,   $reverse ? SORT_DESC : SORT_ASC,
                     $aThreadList->threads
                     );
