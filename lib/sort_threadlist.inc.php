@@ -359,19 +359,16 @@ function multi_cmp_dayres_midoku(ThreadList $aThreadList, $reverse = false)
     $new = array();
     $hasu = array();
     $dayres = array();
-    $unum = array();
 
     foreach ($aThreadList->threads as $t) {
         $new[] = $t->new;
-        $hasu[] = ($t->unum >= 1) ? 1 : 0;
+        $hasu[] = ($t->unum >= 1) ? 1 : $t->unum;
         $dayres[] = $t->dayres;
-        $unum[] = $t->unum;
     }
 
     array_multisort($new,       SORT_NUMERIC,   $reverse ? SORT_ASC : SORT_DESC,
                     $hasu,      SORT_NUMERIC,   $reverse ? SORT_ASC : SORT_DESC,
                     $dayres,    SORT_NUMERIC,   $reverse ? SORT_ASC : SORT_DESC,
-                    $unum,      SORT_NUMERIC,   $reverse ? SORT_ASC : SORT_DESC,
                     $aThreadList->threads
                     );
 }
