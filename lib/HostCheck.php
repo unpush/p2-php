@@ -259,7 +259,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $ip_regex = '/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/';
+        $ip_regex = '/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$/';
         $errmsg = "\n<br><b>NOTICE: Wrong IP Address given.</b> ($addr)<br>\n";
 
         // IPアドレスを検証
@@ -348,7 +348,7 @@ EOF;
             } else {
                 $remote_host = self::cachedGetHostByAddr(long2ip($addr));
             }
-            if (@preg_match($regex, $remote_host)) {
+            if (@preg_match($regex, strtolower($remote_host))) {
                 return true;
             }
         }
@@ -450,7 +450,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $iHost = '/^proxy[0-9a-f]\d\d\.docomo\.ne\.jp$/';
+        $iHost = '/^proxy[0-9a-f]\\d\\d\\.docomo\\.ne\\.jp$/';
         $iBand = array(
             '210.153.84.0/24',
             '210.136.161.0/24',
@@ -475,7 +475,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $ezHost = '/^wb\d\dproxy\d\d\.ezweb\.ne\.jp$/';
+        $ezHost = '/^w[ab](\\d\\dproxy\\d\\d|cc\\d\\d?s\\d\\d?)\\.ezweb\\.ne\\.jp$/';
         $ezBand = array(
             '210.169.40.0/24',
             '210.196.3.192/26',
@@ -533,15 +533,16 @@ EOF;
      * SoftBank?
      *
      * @link http://creation.mb.softbank.jp/web/web_ip.html
+     * @link http://creation.mb.softbank.jp/xseries/xseries_ip.html
      */
     static public function isAddrSoftbank($addr = null)
     {
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        // よく分かってないので大雑把
-        $yHost = '/\.(?:jp-[a-z]|[a-z]\.vodafone|pcsitebrowser|softbank)\.ne\.jp$/';
+        $yHost = '/\\.(?:jp-[a-z]|[a-z]\\.vodafone|softbank|openmobile|pcsitebrowser)\\.ne\\.jp$/';
         $yBand = array(
+            // Yahoo!ケータイ
             '123.108.236.0/24',
             '123.108.237.0/27',
             '202.179.204.0/24',
@@ -553,6 +554,14 @@ EOF;
             '210.175.1.128/25',
             '210.228.189.0/24',
             '211.8.159.128/25',
+            // PCサイトブラウザ
+            '123.108.237.240/28',
+            '202.253.96.0/28',
+            // Xシリーズ (IE)
+            '123.108.237.240/28',
+            '202.253.96.0/28',
+            // Xシリーズ (他アプリ)
+            '219.73.128.0/17',
         );
         return self::isAddrInBand($addr, $yBand, $yHost);
     }
@@ -584,7 +593,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $wHost = '/^[Pp]\d{12}\.ppp\.prin\.ne\.jp$/';
+        $wHost = '/^p\\d{12}\\.ppp\\.prin\\.ne\\.jp$/';
         $wBand = array(
             '61.198.142.0/24',
             '219.108.14.0/24',
@@ -700,7 +709,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $emHost = '/^e(?:mnet|-?mobile)\.ne\.jp$/';
+        $emHost = '/^e(?:mnet|-?mobile)\\.ne\\.jp$/';
         $emBand = array(
             '117.55.1.224/27',
         );
@@ -718,7 +727,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $iHost = '/\.(?:[0-9]|1[0-5])\.tik\.panda-world\.ne\.jp$/';
+        $iHost = '/\\.(?:[0-9]|1[0-5])\\.tik\\.panda-world\\.ne\\.jp$/';
         $iBand = array(
             '126.240.0.0/12',
         );
