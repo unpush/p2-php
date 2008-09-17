@@ -52,7 +52,7 @@ function shitarabaDownload()
     FileCtl::mkdir_for($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
 
-    if ($machiurl_res->is_error()) {
+    if ($machiurl_res->isError()) {
         $aThread->diedat = true;
         return false;
     }

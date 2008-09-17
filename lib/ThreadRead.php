@@ -772,19 +772,21 @@ class ThreadRead extends Thread
 
         // {{{ read.cgi ‚©‚çHTML‚ğæ“¾
 
-        $read_response_html = "";
-        require_once P2_LIB_DIR . '/Wap.php';
-        $wap_ua = new UserAgent();
+        $read_response_html = '';
+        if (!class_exists('WapRequest', false)) {
+            require_once P2_LIB_DIR . '/Wap.php';
+        }
+        $wap_ua = new WapUserAgent();
         $wap_ua->setAgent($_conf['p2ua']); // ‚±‚±‚ÍA"Monazilla/" ‚ğ‚Â‚¯‚é‚ÆNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req = new Request();
+        $wap_req = new WapRequest();
         $wap_req->setUrl($read_url);
         if ($_conf['proxy_use']) {
             $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
         }
         $wap_res = $wap_ua->request($wap_req);
 
-        if ($wap_res->is_error()) {
+        if ($wap_res->isError()) {
             $url_t = P2Util::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> ‚ÉÚ‘±‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B</div>";
