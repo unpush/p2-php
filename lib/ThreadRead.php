@@ -81,7 +81,7 @@ class ThreadRead extends Thread
                 }
 
                 include $_conf['sid2ch_php'];
-                $this->_downloadDat2chMaru();
+                $this->_downloadDat2chMaru($uaMona, $SID2ch);
 
             // 2chの過去ログ倉庫読み
             } elseif (!empty($_GET['kakolog']) && !empty($_GET['kakoget'])) {
@@ -339,11 +339,15 @@ class ThreadRead extends Thread
 
     /**
      * 2ch●用 DATをダウンロードする
+     *
+     * @param string $uaMona
+     * @param string $SID2ch
+     * @return bool
+     * @see lib/login2ch.inc.php
      */
-    private function _downloadDat2chMaru()
+    private function _downloadDat2chMaru($uaMona, $SID2ch)
     {
-        // $uaMona, $SID2ch → @see lib/login2ch.inc.php
-        global $_conf, $uaMona, $SID2ch, $_info_msg_ht;
+        global $_conf;
 
         if (!($this->host && $this->bbs && $this->key && $this->keydat)) {
             return false;
@@ -398,7 +402,7 @@ class ThreadRead extends Thread
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+            P2Util::pushInfoHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
             $this->diedat = true;
             return false;
         }
