@@ -845,7 +845,7 @@ EOP;
     private function _checkIp($type)
     {
         if (!class_exists('HostCheck', false)) {
-            require_once P2_LIB_DIR . '/HostCheck.php';
+            require P2_LIB_DIR . '/HostCheck.php';
         }
 
         // PHPはクラス・メソッド・関数の大文字小文字を区別しないが...

@@ -778,7 +778,7 @@ class ThreadRead extends Thread
 
         $read_response_html = '';
         if (!class_exists('WapRequest', false)) {
-            require_once P2_LIB_DIR . '/Wap.php';
+            require P2_LIB_DIR . '/Wap.php';
         }
         $wap_ua = new WapUserAgent();
         $wap_ua->setAgent($_conf['p2ua']); // ‚±‚±‚ÍA"Monazilla/" ‚ğ‚Â‚¯‚é‚ÆNG

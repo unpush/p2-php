@@ -1512,7 +1512,7 @@ EOP;
             $thumb_id = 'thumbs' . $serial . $this->thumb_id_suffix;
             $tmp_thumb = './img/ic_load.png';
             $url_ht = $url;
-            $url = str_replace('&amp', '&', $url);
+            $url = str_replace('&amp;', '&', $url);
             $url_en = rawurlencode($url);
 
             $icdb = new IC2_DataObject_Images;

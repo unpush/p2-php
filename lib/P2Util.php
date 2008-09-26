@@ -76,7 +76,7 @@ class P2Util
 
         // DL
         if (!class_exists('WapRequest', false)) {
-            require_once P2_LIB_DIR . '/Wap.php';
+            require P2_LIB_DIR . '/Wap.php';
         }
         $wap_ua = new WapUserAgent();
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
@@ -1367,7 +1367,7 @@ ERR;
     static public function getWebPage($url, &$error_msg, $timeout = 15)
     {
         if (!class_exists('HTTP_Request', false)) {
-            require_once 'HTTP/Request.php';
+            require 'HTTP/Request.php';
         }
 
         $params = array("timeout" => $timeout);

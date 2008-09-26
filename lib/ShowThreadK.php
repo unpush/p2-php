@@ -74,7 +74,7 @@ class ShowThreadK extends ShowThread
         $this->BBS_NONAME_NAME = null;
         if (!$_conf['mobile.bbs_noname_name']) {
             if (!class_exists('SettingTxt', false)) {
-                require_once P2_LIB_DIR . '/SettingTxt.php';
+                require P2_LIB_DIR . '/SettingTxt.php';
             }
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             $st->setSettingArray();
