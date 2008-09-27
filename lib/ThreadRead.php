@@ -23,6 +23,7 @@ class ThreadRead extends Thread
     public $diedat; // サーバからdat取得しようとしてできなかった時にtrueがセットされる
     public $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
 
+    public $idp;     // レス番号をキー、IDの前の文字列 ("ID:", " " 等) を値とする連想配列
     public $ids;     // レス番号をキー、IDを値とする連想配列
     public $idcount; // IDをキー、出現回数を値とする連想配列
 
@@ -1235,16 +1236,19 @@ class ThreadRead extends Thread
         }
 
         $i = 0;
+        $idp = array_fill(1, $this->rescount, null);
         $ids = array_fill(1, $this->rescount, null);
 
         foreach ($this->datlines as $l) {
             $lar = explode('<>', $l);
             $i++;
-            if (preg_match('<ID: ?([0-9a-zA-Z/.+]{8,11})>', $lar[2], $m)) {
-                $ids[$i] = $m[1];
+            if (preg_match('<(ID: ?| )([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$)>', $lar[2], $m)) {
+                $idp[$i] = $m[1];
+                $ids[$i] = $m[2];
             }
         }
 
+        $this->idp = $idp;
         $this->ids = $ids;
         $this->idcount = array_count_values(array_filter($ids, 'is_string'));
     }

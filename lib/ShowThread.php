@@ -481,24 +481,24 @@ EOP;
     /**
      * リンク対象文字列を変換する
      *
-     * @param string $str
-     * @return string
+     * @param   string $str
+     * @return  string
      */
     public function transLink($str)
     {
-        return preg_replace_callback(self::LINK_REGEX, array($this, 'link_callback'), $str);
+        return preg_replace_callback(self::LINK_REGEX, array($this, 'transLinkDo'), $str);
     }
 
     // }}}
-    // {{{ link_callback()
+    // {{{ transLinkDo()
 
     /**
      * リンク対象文字列の種類を判定して対応した関数/メソッドに渡す
      *
-     * @param array $s
-     * @return string
+     * @param   array   $s
+     * @return  string
      */
-    public function link_callback(array $s)
+    public function transLinkDo(array $s)
     {
         global $_conf;
 
@@ -526,10 +526,10 @@ EOP;
         // 引用
         } elseif ($s['quote']) {
             if (strpos($s[7], '-') !== false) {
-                return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
+                return $this->quoteResRange($s['quote'], $s[6], $s[7]);
             }
             return preg_replace_callback('/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                                         array($this, 'quote_res_callback'), $s['quote']);
+                                         array($this, 'quoteResCallback'), $s['quote']);
 
         // http or ftp のURL
         } elseif ($s['url']) {
@@ -557,7 +557,7 @@ EOP;
 
         // ID
         } elseif ($s['id'] && $_conf['flex_idpopup']) { // && $_conf['flex_idlink_k']
-            return $this->idfilter_callback(array($s['id'], $s[13]));
+            return $this->idFilter($s['id'], $s[13]);
 
         // その他（予備）
         } else {
@@ -599,26 +599,84 @@ EOP;
     }
 
     // }}}
-    // {{{ quote_res_callback()
+    // {{{ idFilter()
+
+    /**
+     * IDフィルタリング変換
+     *
+     * @param   string  $idstr  ID:xxxxxxxxxx
+     * @param   string  $id        xxxxxxxxxx
+     * @return  string
+     */
+    abstract public function idFilter($idstr, $id);
+
+    // }}}
+    // {{{ idFilterCallback()
+
+    /**
+     * IDフィルタリング変換
+     *
+     * @param   array   $s  正規表現にマッチした要素の配列
+     * @return  string
+     */
+    final public function idFilterCallback(array $s)
+    {
+        return $this->idFilter($s[0], $s[1]);
+    }
+
+    // }}}
+    // {{{ quoteRes()
 
     /**
      * 引用変換（単独）
      *
-     * @param array $s
-     * @return string
+     * @param   string  $full           >>1
+     * @param   string  $qsign          >>
+     * @param   string  $appointed_num    1
+     * @return  string
      */
-    abstract public function quote_res_callback(array $s);
+    abstract public function quoteRes($full, $qsign, $appointed_num);
 
     // }}}
-    // {{{ quote_res_range_callback()
+    // {{{ quoteResCallback()
+
+    /**
+     * 引用変換（単独）
+     *
+     * @param   array   $s  正規表現にマッチした要素の配列
+     * @return  string
+     */
+    final public function quoteResCallback(array $s)
+    {
+        return $this->quoteRes($s[0], $s[1], $s[2]);
+    }
+
+    // }}}
+    // {{{ quoteResRange()
 
     /**
      * 引用変換（範囲）
      *
-     * @param array $s
-     * @return string
+     * @param   string  $full           >>1-100
+     * @param   string  $qsign          >>
+     * @param   string  $appointed_num    1-100
+     * @return  string
      */
-    abstract public function quote_res_range_callback(array $s);
+    abstract public function quoteResRange($full, $qsign, $appointed_num);
+
+    // }}}
+    // {{{ quoteResRangeCallback()
+
+    /**
+     * 引用変換（範囲）
+     *
+     * @param   array   $s  正規表現にマッチした要素の配列
+     * @return  string
+     */
+    final public function quoteResRangeCallback(array $s)
+    {
+        return $this->quoteResRange($s[0], $s[1], $s[2]);
+    }
 
     // }}}
 }
