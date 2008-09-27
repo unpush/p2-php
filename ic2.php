@@ -689,9 +689,15 @@ function ic2_display($path, $params)
             readfile($path);
             exit;
         default:
-            require_once 'HTML/Template/Flexy.php';
-            require_once 'HTML/QuickForm.php';
-            require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
+            if (!class_exists('HTML_Template_Flexy', false)) {
+                require 'HTML/Template/Flexy.php';
+            }
+            if (!class_exists('HTML_QuickForm', false)) {
+                require 'HTML/QuickForm.php';
+            }
+            if (!class_exists('HTML_QuickForm_Renderer_ObjectFlexy', false)) {
+                require 'HTML/QuickForm/Renderer/ObjectFlexy.php';
+            }
 
             // conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
             // バグの温床となる可能性も否定できない・・・

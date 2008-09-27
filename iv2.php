@@ -42,6 +42,8 @@ if ($_conf['view_forced_by_query']) {
 
 // ライブラリ読み込み
 require_once 'PEAR.php';
+require_once 'Cache.php';
+require_once 'Cache/Function.php';
 require_once 'DB.php';
 require_once 'DB/DataObject.php';
 require_once 'HTML/QuickForm.php';
@@ -175,8 +177,6 @@ $db_class = strtolower(get_class($db));
 $thumb = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
-    require_once 'Cache.php';
-    require_once 'Cache/Function.php';
     // データキャッシュにはCache_Container_db(Cache 1.5.4)をハックしてMySQL以外にも対応させ、
     // コンストラクタがDB_xxx(DB_mysqlなど)のインスタンスを受け取れるようにしたものを使う。
     // （ファイル名・クラス名は同じで、include_pathを調整して

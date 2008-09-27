@@ -206,7 +206,9 @@ require_once $P2_LIB_DIR_S . 'p2util.inc.php';
 p2checkenv(__LINE__);
 
 if ($debug) {
-    require_once 'Benchmark/Profiler.php';
+    if (!class_exists('Benchmark_Profiler', false)) {
+        require 'Benchmark/Profiler.php';
+    }
     $profiler = new Benchmark_Profiler(true);
     // print_memory_usage();
     register_shutdown_function('print_memory_usage');

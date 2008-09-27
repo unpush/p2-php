@@ -94,7 +94,9 @@ if (!empty($q)) {
         if (PEAR::isError($resultObj)) {
             $result = '<b>Error: ' . $resultObj->getMessage() . '</b>';
             if (!empty($resultObj->userinfo)) {
-                require_once 'Var_Dump.php';
+                if (!class_exists('Var_Dump', false)) {
+                    require 'Var_Dump.php';
+                }
                 $result .= Var_Dump::display($resultObj->getUserInfo(), TRUE, 'HTML4_Table');
             }
         // リクエスト成功
