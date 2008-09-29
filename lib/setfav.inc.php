@@ -150,15 +150,13 @@ function postFavRank($post)
 {
     global $_conf;
 
-    $method = "POST";
-    $httpua_fmt = "Monazilla/1.00 (%s/%s; expack-%s)";
-    $httpua = sprintf($httpua_fmt, $_conf['p2name'], $_conf['p2version'], $_conf['p2expack']);
+    $method = 'POST';
 
     $URL = parse_url($_conf['favrank_url']); // URL分解
     if (isset($URL['query'])) { // クエリー
-        $URL['query'] = "?".$URL['query'];
+        $URL['query'] = '?' . $URL['query'];
     } else {
-        $URL['query'] = "";
+        $URL['query'] = '';
     }
 
     // プロキシ
@@ -169,14 +167,14 @@ function postFavRank($post)
     } else {
         $send_host = $URL['host'];
         $send_port = $URL['port'];
-        $send_path = $URL['path'].$URL['query'];
+        $send_path = $URL['path'] . $URL['query'];
     }
 
     if (!$send_port) {$send_port = 80;} // デフォルトを80
 
-    $request = $method." ".$send_path." HTTP/1.0\r\n";
-    $request .= "Host: ".$URL['host']."\r\n";
-    $request .= "User-Agent: ".$httpua."\r\n";
+    $request = "{$method} {$send_path} HTTP/1.0\r\n";
+    $request .= "Host: {$URL['host']}\r\n";
+    $request .= "User-Agent: Monazilla/1.00 ({$_conf['p2ua']})\r\n";
     $request .= "Connection: Close\r\n";
 
     /* POSTの時はヘッダを追加して末尾にURLエンコードしたデータを添付 */

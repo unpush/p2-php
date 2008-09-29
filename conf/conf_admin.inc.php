@@ -53,12 +53,6 @@ $_conf['secure']['auth_bbq'] = 0;   // (0)
 // 書き込みを掲示板サーバで直接行うように （する:1, しない:0）
 $_conf['disable_res'] = 0;          // (0)
 
-// 2chに書き込む際の固定パラメータ (hana=mogera, kiri=tanpo)
-$_conf['post_fixed_params'] = array(
-    'hana' => 'mogera',
-    'kiri' => 'tanpo',
-);
-
 // 書き込んだレスの最大記録数 // この設定は現在は機能していない
 //$_conf['posted_rec_num'] = 1000;    // (1000)
 

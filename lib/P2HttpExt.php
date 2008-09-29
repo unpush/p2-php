@@ -212,11 +212,7 @@ class P2HttpGet extends HttpRequest
         }
 
         if (!isset($options['useragent'])) {
-            $options['useragent'] = sprintf('Monazilla/1.00 (%s/%s; expack-%s)',
-                                            $_conf['p2name'],
-                                            $_conf['p2version'],
-                                            $_conf['p2expack']
-                                            );
+            $options['useragent'] = "Monazilla/1.00 ({$_conf['p2ua']})";
         }
 
         if ($_conf['proxy_use'] && !isset($options['proxyhost']) && !empty($_conf['proxy_host'])) {
