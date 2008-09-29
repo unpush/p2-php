@@ -102,7 +102,20 @@ function rss_print_content_k($item, $num, $count)
     }
 
     // •\Ž¦
-    echo <<<EOP
+    if ($_conf['iphone']) {
+        echo <<<EOP
+<h3>{$item_title}</h3>
+<div>{$creator_ht}{$date_ht} <a href="{$link_orig}">’¼</a>{$view_jig}</div>
+<hr>
+<div>{$description_ht}</div>
+<hr>
+<div class="read-footer">{$prev_item_ht} {$next_item_ht}<br>
+<a href="subject_rss.php?xml={$xml_en}">{$ch_title}</a><br>
+{$_conf['k_to_index_ht']}
+</div>\n
+EOP;
+    } else {
+        echo <<<EOP
 <h3>{$item_title}</h3>
 <div>{$creator_ht}{$date_ht} <a href="{$link_orig}">’¼</a>{$view_jig}</div>
 <hr>
@@ -114,7 +127,7 @@ function rss_print_content_k($item, $num, $count)
 {$_conf['k_to_index_ht']}
 </div>\n
 EOP;
-
+    }
 }
 
 // }}}

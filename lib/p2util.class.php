@@ -1134,4 +1134,36 @@ ERR;
         $response = mb_encode_numericentity($response, array(0x80, 0xFFFF, 0, 0xFFFF), 'UTF-8');
         return $response;
     }
+
+    /**
+     * リンクを新しいタブで開くスイッチを出力する
+     *
+     * @param string|array $expr XPath式またはXPath式の配列
+     * @param bool $return
+     * @return  void
+     */
+    function printOpenInTab($expr, $return = false)
+    {
+        if (is_array($expr)) {
+            $expr = "['" . implode("','", array_map(create_function(
+                        '$s', 'return str_replace("\'", "\\\\\'", $s);'
+                    ), $expr)) . "']";
+        } else {
+            $expr = "'" . str_replace("'", "\\'", $expr) . "'";
+        }
+
+// this.nextSibling.style.borderBottomColor = (this.checked) ? '#fafafa' : '#808080';
+        $html = <<<EOP
+<div id="open-in-tab"><input type="checkbox" id="open-in-tab-cbox" onclick="
+ change_link_target({$expr}, this.checked);
+ this.nextSibling.style.color = (this.checked) ? '#ff3333' : '#aaaaaa';
+"><span onclick="check_prev(this);">新しいタブで開く</span></div>
+EOP;
+
+        if ($return) {
+            return $html;
+        } else {
+            echo $html;
+        }
+    }
 }

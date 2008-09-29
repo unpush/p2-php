@@ -8,11 +8,11 @@
 </head>
 <body>
 
-<h1 id="top" name="top">tGrep for rep2</h1>
+<h1 id="top" name="top">½Ú¯ÄŞÀ²ÄÙŒŸõ</h1>
 
 <!-- Search Form -->
 <form action="<?php echo $htm['php_self']; ?>" method="get">
-<input type="hidden" name="hint" value="@">
+<input type="hidden" name="_hint" value="">
 <input name="Q" <?php echo $htm['search_attr']; ?>>
 <input type="submit" value="ŒŸõ">
 </form>

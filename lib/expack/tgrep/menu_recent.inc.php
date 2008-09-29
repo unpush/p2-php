@@ -5,7 +5,9 @@
  * tGrep 検索履歴メニュー
  */
 
-if ($_conf['ktai']) {
+if ($_conf['iphone']) {
+    tgrep_print_recent_list_i();
+} elseif ($_conf['ktai']) {
     tgrep_print_recent_list_k();
 } else {
     tgrep_print_recent_list();
@@ -75,5 +77,25 @@ function tgrep_print_recent_list_k()
         echo '<p><a href="tgrepctl.php?file=recent&amp;clear=all">検索履歴をｸﾘｱ</a></p>' . "\n";
     } else {
         echo '<p>（なし）</p>' . "\n";
+    }
+}
+
+/**
+ * iPhone用表示
+ */
+function tgrep_print_recent_list_i()
+{
+    global $_conf;
+
+    $tgrep_recent_list = tgrep_read_recent_list();
+
+    if ($tgrep_recent_list) {
+        foreach ($tgrep_recent_list as $tgrep_recent_query) {
+            $tgrep_recent_query_en = rawurlencode($tgrep_recent_query);
+            $tgrep_recent_query_ht = htmlspecialchars($tgrep_recent_query, ENT_QUOTES);
+            echo '<li><a href="tgrepc.php?iq=' . $tgrep_recent_query_en . '">' . $tgrep_recent_query_ht . '</a></li>' . "\n";
+        }
+    } else {
+        echo '<li class="weight-n">（なし）</li>' . "\n";
     }
 }

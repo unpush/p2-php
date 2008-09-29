@@ -152,13 +152,15 @@ EOF;
                 $flag = 1;
                 $ret  = true;
                 $custom = $_HOSTCHKCONF['custom_allowed_host'];
-                $custom_v6 = $_HOSTCHKCONF['custom_allowed_host_v6'];
+                $custom_v6 = @$_HOSTCHKCONF['custom_allowed_host_v6'];
+                $custom_re = $_HOSTCHKCONF['custom_allowed_host_regex'];
                 break;
             case 2:
                 $flag = 0;
                 $ret  = false;
                 $custom = $_HOSTCHKCONF['custom_denied_host'];
-                $custom_v6 = $_HOSTCHKCONF['custom_denied_host_v6'];
+                $custom_v6 = @$_HOSTCHKCONF['custom_denied_host_v6'];
+                $custom_re = $_HOSTCHKCONF['custom_denied_host_regex'];
                 break;
             default:
                 return true;
@@ -183,7 +185,7 @@ EOF;
                 ($flag == $_HOSTCHKCONF['host_type']['willcom'] && HostCheck::isAddrWillcom($addr)) ||
                 ($flag == $_HOSTCHKCONF['host_type']['emobile'] && HostCheck::isAddrEmobile($addr)) ||
                 ($flag == $_HOSTCHKCONF['host_type']['iphone'] && HostCheck::isAddrIphone($addr)) ||
-                ($flag == $_HOSTCHKCONF['host_type']['custom'] && !empty($custom) && HostCheck::isAddrInBand($addr, $custom)))
+                ($flag == $_HOSTCHKCONF['host_type']['custom'] && (!empty($custom) || !empty($custom_re)) && HostCheck::isAddrInBand($addr, $custom, $custom_re)))
             {
                 return $ret;
             }

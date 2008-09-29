@@ -137,11 +137,18 @@ EOP;
 
 // }}}
 
-// iPhone & ImageCache2
-if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
-    $ic2_iphone_js = "<script type=\"text/javascript\" src=\"js/ic2_iphone.js?{$_conf['p2expack']}\"></script>";
-    $_conf['extra_headers_ht'] .= $ic2_iphone_js;
-    $_conf['extra_headers_xht'] .= $ic2_iphone_js;
+// iPhone
+if ($_conf['iphone']) {
+    $_conf['extra_headers_ht'] .= <<<EOS
+<script type="text/javascript" src="js/respopup_iphone.js"></script>
+EOS;
+    // ImageCache2
+    if ($_conf['expack.ic2.enabled']) {
+        $_conf['extra_headers_ht'] .= <<<EOS
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">
+<script type="text/javascript" src="js/ic2_iphone.js"></script>
+EOS;
+    }
 }
 
 //====================================================================
@@ -163,7 +170,7 @@ $toolbar_right_ht = <<<EOTOOLBAR
 <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.{$itaj_hd}</a>
 <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['info']}">{$_conf['k_accesskey']['info']}.{$info_st}</a>
 <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['dele']}">{$_conf['k_accesskey']['dele']}.{$delete_st}</a>
-<a href="{$motothre_url}">{$moto_thre_st}</a>
+<a href="{$motothre_url}" target="_blank">{$moto_thre_st}</a>
 <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}{$_conf['k_at_a']}">{$siml_thre_st}</a>
 EOTOOLBAR;
 // }}}
@@ -185,6 +192,14 @@ echo <<<EOP
 <body{$_conf['k_colors']}>\n
 EOP;
 
+if ($_conf['iphone']) {
+    P2Util::printOpenInTab(array(
+        ".//div[@class=&quot;res&quot;]//a[starts-with(@href, &quot;{$_conf['read_php']}?&quot;) or starts-with(@href, &quot;{$_conf['subject_php']}?&quot;)]",
+        ".//div[@class=&quot;navi&quot; or @class=&quot;toolbar&quot;]//a[starts-with(@href, &quot;info.php?&quot;) or starts-with(@href, &quot;post_form.php?&quot;) or starts-with(@href, &quot;read_filter_k.php?&quot;)]",
+        ".//form[@method=&quot;get&quot; and @action=&quot;spm_k.php&quot;]"
+    ));
+}
+
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
@@ -197,7 +212,7 @@ if ($aThread->diedat) {
         $diedat_msg = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
     }
 
-    $motothre_ht = "<a href=\"{$motothre_url}\">{$motothre_url}</a>";
+    $motothre_ht = "<a href=\"{$motothre_url}\" target=\"_blank\">{$motothre_url}</a>";
 
     echo $diedat_msg;
     echo "<div>";
@@ -208,7 +223,7 @@ if ($aThread->diedat) {
     // 既得レスがなければツールバー表示
     if (!$aThread->rescount) {
         echo <<<EOP
-<div>{$toolbar_right_ht}</div>
+<div class="toolbar">{$toolbar_right_ht}</div>
 EOP;
     }
 }
@@ -217,7 +232,7 @@ EOP;
 if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and (!$_GET['renzokupop'])) {
 
     echo <<<EOP
-<div class="read-header">{$htm['read_navi_range']}
+<div class="navi">{$htm['read_navi_range']}
 {$read_navi_previous}
 {$read_navi_next}
 {$read_navi_latest}
@@ -238,4 +253,6 @@ if ($word) {
     echo ($res_filter['match'] == 'on') ? '含む' : '含まない';
 }
 
-echo "<hr>";
+if (!$_conf['iphone']) {
+    echo '<hr>';
+}

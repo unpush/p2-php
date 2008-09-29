@@ -126,9 +126,14 @@ EOP;
 
 // iPhone & ImageCache2
 if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
-    $ic2_iphone_js = '<script type="text/javascript" src="js/ic2_iphone.js"></script>';
-    $_conf['extra_headers_ht'] .= $ic2_iphone_js;
-    $_conf['extra_headers_xht'] .= $ic2_iphone_js;
+    $_conf['extra_headers_ht'] .= <<<EOS
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">
+<script type="text/javascript" src="js/ic2_iphone.js"></script>
+EOS;
+    $_conf['extra_headers_xht'] .= <<<EOS
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css" />
+<script type="text/javascript" src="js/ic2_iphone.js"></script>
+EOS;
 }
 
 echo $_conf['doctype'];
@@ -143,11 +148,11 @@ echo <<<EOHEADER
     <title>{$ptitle_ht}</title>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/respopup.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>\n
+    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/respopup.js"></script>
+    <script type="text/javascript" src="js/htmlpopup.js"></script>
+    <script type="text/javascript" src="js/setfavjs.js"></script>
+    <script type="text/javascript" src="js/delelog.js"></script>\n
 
     <script type="text/javascript" src="./js/yui-ext/yui.js"></script>
     <script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
@@ -155,17 +160,17 @@ echo <<<EOHEADER
 EOHEADER;
 
 if ($_conf['expack.am.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js?{$_conf['p2expack']}\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js\"></script>\n";
 }
 /*if ($_conf['expack.misc.async_respop']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/async.js?{$_conf['p2expack']}\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/async.js\"></script>\n";
 }*/
 if ($_conf['expack.spm.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/invite.js?{$_conf['p2expack']}\"></script>\n";
-    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2expack']}\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/invite.js\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js\"></script>\n";
 }
 if ($_conf['expack.ic2.enabled']) {
-    echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css?{$_conf['p2expack']}\">\n";
+    echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css\">\n";
 }
 
 $fade = empty($_GET['fade']) ? 'false' : 'true';
@@ -635,7 +640,7 @@ EOP;
 }
 
 if ($_conf['expack.ic2.enabled']) {
-    echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js?{$_conf['p2expack']}\"></script>";
+    echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js\"></script>";
     include P2EX_LIB_DIR . '/ic2/templates/info.tpl.html';
 }
 

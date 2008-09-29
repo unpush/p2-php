@@ -329,7 +329,7 @@ class EditForm
             '/' => $is_xhtml,
         );
         if ($_conf['ktai']) {
-            unset($mfa_checkbox['id']);
+            unset($mfa_checkbox['id'], $mfa_checkbox['onclick']);
         }
         $mf_change = &new HTML_Template_Flexy_Element('input', $mfa_checkbox);
         $chk['f_change'] = $mf_change->toHtml();

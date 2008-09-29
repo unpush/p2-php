@@ -64,6 +64,7 @@ class BrdCtl{
         if ($_conf['brdfile_online']) {
             $cachefile = P2Util::cacheFileForDL($_conf['brdfile_online']);
             $noDL = false;
+            $read_html_flag = false;
 
             // キャッシュがある場合
             if (file_exists($cachefile.'.p2.brd')) {
@@ -93,12 +94,28 @@ class BrdCtl{
 
                 // 更新されていたら新規キャッシュ作成
                 if ($isNewDL) {
+                    // 検索結果がキャッシュされるのを回避
+                    if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
+                        $_tmp = array($GLOBALS['word'], $GLOBALS['word_fm'], $GLOBALS['words_fm']);
+                        $GLOBALS['word'] = null;
+                        $GLOBALS['word_fm'] = null;
+                        $GLOBALS['words_fm'] = null;
+                    } else {
+                        $_tmp = null;
+                    }
+
                     //echo "NEW!<br>"; //
                     $aBrdMenu =& new BrdMenu(); // クラス BrdMenu のオブジェクトを生成
                     $aBrdMenu->makeBrdFile($cachefile); // .p2.brdファイルを生成
                     $brd_menus[] = $aBrdMenu;
-                    $read_html_flag = true;
                     unset($aBrdMenu);
+
+                    if ($_tmp) {
+                        list($GLOBALS['word'], $GLOBALS['word_fm'], $GLOBALS['words_fm']) = $_tmp;
+                        $brd_menus = array();
+                    } else {
+                        $read_html_flag = true;
+                    }
                 }
 
                 if (file_exists($cachefile.'.p2.brd')) {

@@ -260,6 +260,9 @@ if (file_exists($aThread->keydat) or file_exists($aThread->keyidx)) {
 // HTMLプリント
 //=================================================================
 if ($_conf['ktai']) {
+    $target_read_at = '';
+    $target_sb_at = '';
+} else {
     $target_read_at = ' target="read"';
     $target_sb_at = ' target="sbject"';
 }
@@ -303,7 +306,7 @@ EOP;
 
 if ($_GET['popup'] == 2) {
     echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/closetimer.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/closetimer.js"></script>
 EOSCRIPT;
     $body_onload = <<<EOP
  onLoad="startTimer(document.getElementById('timerbutton'))"
@@ -337,7 +340,7 @@ if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($a
 if (!$_conf['ktai']) {
     echo "<table cellspacing=\"0\">\n";
 }
-print_info_line("元スレ", "<a href=\"{$motothre_url}\"{$target_read_at}>{$motothre_url}</a>");
+print_info_line("元スレ", "<a href=\"{$motothre_url}\" target=\"_blank\">{$motothre_url}</a>");
 if (!$_conf['ktai']) {
     print_info_line("ホスト", $aThread->host);
 }

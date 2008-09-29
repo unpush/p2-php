@@ -1,238 +1,341 @@
 <?php
-// vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
 /**
- * rep2 - iPhone専用メニュー (要iui)
- *
- * @link http://code.google.com/p/iui/
+ * rep2 - iPhone/iPod Touch用メニューのためのライブラリ
  */
 
-require_once P2_LIB_DIR . '/brdctl.class.php';
+// {{{ menu_iphone_unicode_urldecode()
 
-// TODO: レンダリング済の板リストをキャッシュする
-$brd_menus = BrdCtl::read_brds()
-
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
-    <meta name="viewport" content="width=320" content="initial-scale=1.0" />
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
-    <title>rep2</title>
-    <script type="application/x-javascript" src="iui/iui.js"></script>
-    <link rel="stylesheet" type="text/css" href="iui/iui.css" />
-</head>
-<body>
-
-<div class="toolbar">
-    <h1 id="pageTitle"></h1>
-    <a id="backButton" class="button" href="#"></a>
-    <a class="button" href="#search">検索</a>
-</div>
-
-<!-- {{{ トップメニュー -->
-<ul id="top" title="Menu" selected="true">
-<?php if ($_info_msg_ht) { ?>
-    <li><a href="#info_msg" style="color:red">エラー</a></li>
-<?php } ?>
-
-    <li class="group">リスト</li>
-<?php if ($_conf['expack.misc.multi_favs']) { ?>
-    <li><a href="#fav">お気にスレ</a></li>
-    <li><a href="#favita">お気に板</a></li>
-<?php } else { ?>
-    <li><a href="subject.php?spmode=fav&amp;sb_view=shinchaku" target="_self">お気にスレの新着</a></li>
-    <li><a href="subject.php?spmode=fav" target="_self">お気にスレ</a></li>
-    <li><a href="menu_k.php?view=favita" target="_self">お気に板</a></li>
-<?php } ?>
-    <li><a href="#cate">板リスト</a></li>
-    <li><a href="subject.php?spmode=palace&amp;norefresh=1" target="_self">スレの殿堂</a></li>
-
-    <li class="group">履歴</li>
-    <li><a href="subject.php?spmode=recent&amp;sb_view=shinchaku" target="_self">最近読んだスレの新着</a></li>
-    <li><a href="subject.php?spmode=recent" target="_self">最近読んだスレ</a></li>
-    <li><a href="subject.php?spmode=res_hist" target="_self">書き込み履歴</a></li>
-    <li><a href="read_res_hist.php" target="_self">書き込み履歴の内容</a></li>
-
-    <li class="group">expack</li>
-<?php if ($_conf['expack.rss.enabled']) { if ($_conf['expack.misc.multi_favs']) { ?>
-    <li><a href="#rss">RSS</a></li>
-<?php } else { ?>
-    <li><a href="menu_k.php?view=rss" target="_self">RSS</a></li>
-<?php } } ?>
-    <li><a href="tgrepc.php" target="_self">スレッドタイトル検索</a></li>
-<?php if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) { ?>
-    <li><a href="iv2.php" target="_self">画像キャッシュ一覧</a></li>
-<?php } ?>
-
-    <li class="group">管理</li>
-    <li><a href="editpref.php" target="_self">設定管理</a></li>
-    <li><a href="setting.php" target="_self">ログイン管理</a></li>
-    <li><a href="#login_info">ログイン情報</a></li>
-</ul>
-<!-- }}} -->
-
-<?php
-// エラー
-if ($_info_msg_ht) { 
-    echo '<div id="info_msg" class="panel" title="エラー">', $_info_msg_ht, '</div>';
+/**
+ * フォームから %uHHHH 形式で送られてきた文字列をデコードする
+ * %UHHHHHHHH としてBMP外の文字も来る可能性がある?
+ *
+ * %HH は既にデコードされているものとして扱うため、予期しない結果になることも。
+ * 厳密には $_SERVER['QUERY_STRING'] (GET) なり php://input (POST) なりを読んで
+ * 生のデータを解析する必要がある。
+ *
+ * @param string $str
+ */
+function menu_iphone_unicode_urldecode($str)
+{
+    return preg_replace_callback('/%u([0-9A-F]{4})/', '_menu_iphone_unicode_urldecode', $str);
 }
 
-// {{{ お気にセット
-if ($_conf['expack.misc.multi_favs']) {
-    // {{{ お気にスレ
+/**
+ * menu_iphone_unicode_urldecode() から呼ばれるコールバック関数
+ *
+ * @param array $m
+ * @return string
+ */
+function _menu_iphone_unicode_urldecode($m)
+{
+    $code = hexdec($m[1]);
 
-    $favlist = FavSetManager::getFavSetTitles('m_favlist_set');
-    $fav_elems = '';
-    $fav_new_elems = '';
-    $fav_elem_prefix = '';
-
-    foreach ($favlist as $no => $name) {
-        $fav_url = "subject.php?spmode=fav&amp;m_favlist_set={$no}";
-        $fav_elems .= "<li><a href=\"{$fav_url}\" target=\"_self\">{$name}</a></li>";
-        $fav_new_elems .= "<li><a href=\"{$fav_url}&amp;sb_view=shinchaku\" target=\"_self\">{$name}</a></li>";
+    if (/* Out of Unicode */
+        //$code > 0x10FFFF ||
+        /* Out of BMP */
+        $code > 0xFFFF ||
+        /* Surrogate */
+        ($code > 0xD7FF && $code < 0xE000) ||
+        /* Noncharacter */
+        ($code > 0xFDCF && $code < 0xFDF0) || ($code & 0xFFFE) == 0xFFFE ||
+        /* Overflow */
+        $code < 0 ||
+        /* Null byte */
+        $code == 0)
+    {
+        return '';
     }
 
-    echo '<ul id="fav" title="お気にスレ">';
-    echo '<li class="group">新着</li>';
-    echo $fav_new_elems;
-    echo '<li class="group">全て</li>';
-    echo $fav_elems;
-    echo '</ul>';
-
-    // }}}
-    // {{{ お気に板
-
-    $favita = FavSetManager::getFavSetTitles('m_favita_set');
-
-    echo '<ul id="favita" title="お気に板">';
-
-    foreach ($favita as $no => $name) {
-        echo "<li><a href=\"menu_k.php?view=favita&amp;m_favita_set={$no}\" target=\"_self\">{$name}</a></li>";
-    }
-
-    echo '</ul>';
-
-    // }}}
-    // {{{ RSS
-
-    if ($_conf['expack.rss.enabled']) { 
-        $rss = FavSetManager::getFavSetTitles('m_rss_set');
-
-        echo '<ul id="rss" title="RSS">';
-
-        foreach ($favita as $no => $name) {
-            echo "<li><a href=\"menu_k.php?view=rss&amp;m_rss_set={$no}\" target=\"_self\">{$name}</a></li>";
-        }
-
-        echo '</ul>';
-    }
-
-    // }}}
+    return mb_convert_encoding(pack('n', $code), 'CP932', 'UCS-2');
 }
+
 // }}}
-?>
+// {{{ menu_iphone_ajax()
 
-<!-- {{{ 板リスト (カテゴリ一覧) -->
-<ul id="cate" title="板リスト"><?php
-if ($brd_menus) {
-    $cate_id = 0;
+/**
+ * XMLHttpRequest用のラッパー
+ *
+ * @param callback $func
+ * @param ...
+ * @return mixed
+ */
+function menu_iphone_ajax($func)
+{
+    ob_start();
+
+    $args = func_get_args();
+    if (count($args) > 1) {
+        array_shift($args);
+        $return = call_user_func_array($func, $args);
+    } else {
+        $return = call_user_func($func);
+    }
+
+    $content = mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
+
+    if (!headers_sent()) {
+        //header('Content-Type: application/xhtml+xml; charset=UTF-8');
+        header('Content-Type: application/xml; charset=UTF-8');
+        //header('Content-Type: text/plain; charset=UTF-8');
+        header('Content-Length: '. strlen($content));
+    }
+
+    echo $content;
+
+    return $return;
+}
+
+// }}}
+// {{{ menu_iphone_show_board_menu()
+
+/**
+ * 板リストをカテゴリごとに表示する
+ *
+ * @param int $cateid
+ * @return void
+ */
+function menu_iphone_show_board_menu($cateid = 0)
+{
+    global $_conf;
+
+    require_once P2_LIB_DIR . '/brdctl.class.php';
+
+    $brd_menus = BrdCtl::read_brds();
+
+    if (!$brd_menus) {
+        echo "<div id=\"cate{$cateid}\" class=\"panel\">板リストは空です。</div>\n";
+        return;
+    }
+
+    // {{{ カテゴリ一覧
+
+    if (!$cateid) {
+        echo '<ul id="cate0" title="板リスト">';
+        $i = 0;
+        $j = 0;
+        foreach ($brd_menus as $a_brd_menu) {
+            foreach ($a_brd_menu->categories as $category) {
+                $i++;
+                echo "<li><a href=\"menu_i.php?cateid={$i}\">{$category->name}</a></li>";
+            }
+            if ($j++ > 0) {
+                echo '<li class="group">&nbsp;</li>';
+            }
+        }
+        echo "</ul>\n";
+        return;
+    }
+
+    // }}}
+    // {{{ カテゴリ
+
+    $i = 0;
     foreach ($brd_menus as $a_brd_menu) {
         foreach ($a_brd_menu->categories as $category) {
-            $cate_id++;
-            echo "<li><a href=\"#cate{$cate_id}\">{$category->name}</a></li>";
+            if (++$i == $cateid) {
+                echo "<ul id=\"cate{$cateid}\" title=\"{$category->name}\">";
+                echo menu_iphone_open_in_tab();
+                foreach ($category->menuitas as $mita) {
+                    echo "<li><a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}",
+                            "&amp;itaj_en={$mita->itaj_en}\" target=\"_self\">{$mita->itaj_ht}</a></li>";
+                }
+                echo "</ul>\n";
+                return;
+            }
         }
     }
-}
-?></ul>
-<!-- }}} -->
 
-<!-- {{{ 板リスト (カテゴリ別) -->
-<?php
-if ($brd_menus) {
-    $cate_id = 0;
+    // }}}
+
+    echo "<div id=\"cate{$cateid}\" class=\"panel\">カテゴリが見つかりませんでした。</div>\n";
+}
+
+// }}}
+// {{{ menu_iphone_show_matched_boards()
+
+/**
+ * キーワードにマッチした板リストを表示する
+ *
+ * @param string $word
+ * @return void
+ */
+function menu_iphone_show_matched_boards($word)
+{
+    global $_conf;
+
+    require_once P2_LIB_DIR . '/brdctl.class.php';
+
+    $brd_menus = BrdCtl::read_brds();
+
+    $word_ht = htmlspecialchars($word, ENT_QUOTES);
+    $title = $word_ht . ' (板)';
+
+    if (!$brd_menus) {
+        echo "<div class=\"panel\" title=\"{$title}\">板リストは空です。</div>\n";
+        return;
+    }
+
+    if ($GLOBALS['ita_mikke']['num'] == 0) {
+        echo "<div class=\"panel\" title=\"{$title}\">",
+                "&quot;{$word_ht}&quot; にマッチする板はありませんでした。</div>\n";
+        return;
+    }
+
+    echo "<ul title=\"{$title}\">";
+
+    echo menu_iphone_open_in_tab();
+
     foreach ($brd_menus as $a_brd_menu) {
         foreach ($a_brd_menu->categories as $category) {
-            $cate_id++;
-
-            echo "<ul id=\"cate{$cate_id}\" title=\"{$category->name}\">";
-
+            $t = false;
             foreach ($category->menuitas as $mita) {
+                if (!$t) {
+                    echo "<li class=\"group\">{$category->name}</li>";
+                    $t = true;
+                }
                 echo "<li><a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}",
                         "&amp;itaj_en={$mita->itaj_en}\" target=\"_self\">{$mita->itaj_ht}</a></li>";
+                $i++;
             }
-
-            echo '</ul>';
         }
     }
-}
-?>
-<!-- }}} -->
 
-<!-- {{{ ログイン情報 -->
-<div id="login_info" class="panel" title="ログイン情報">
-<h2>認証ユーザ</h2>
-<p><strong><?php echo $_login->user; ?></strong> - <?php echo date('Y/m/d (D) G:i:s'); ?></p>
-<?php if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) { ?>
-<h2>前回のログイン</h2>
-<pre style="word-wrap:break-word;word-break:break-all"><?php
-if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
-    $log_hd = array_map('htmlspecialchars', $log);
-    echo <<<EOP
-<strong>DATE:</strong> {$log_hd['date']}
-<strong>USER:</strong> {$log_hd['user']}
-<strong>  IP:</strong> {$log_hd['ip']}
-<strong>HOST:</strong> {$log_hd['host']}
-<strong>  UA:</strong> {$log_hd['ua']}
-<strong>REFERER:</strong> {$log_hd['referer']}
-EOP;
+    echo "</ul>\n";
 }
-?></pre>
-<?php } ?>
-</div>
-<!-- }}} -->
 
-<!-- {{{ 検索用JavaScript -->
-<script type="application/x-javascript">
-function setSearchTarget(is_board)
+// }}}
+// {{{ menu_iphone_show_favorite_boards()
+
+/**
+ * お気に板リストを表示する
+ *
+ * @param string $title
+ * @param int    $no
+ * @return void
+ */
+function menu_iphone_show_favorite_boards($title, $no = null)
 {
-    var f = document.getElementById('search');
-    var k = document.getElementById('keyword');
-    if (is_board) {
-        f.setAttribute('action', 'menu_k.php');
-        k.setAttribute('name', 'word');
-    } else {
-        f.setAttribute('action', 'tgrepc.php');
-        k.setAttribute('name', 'Q');
+    global $_conf;
+
+    echo "<ul id=\"favita{$no}\" title=\"{$title}\">";
+
+    echo menu_iphone_open_in_tab();
+
+    if ($lines = @file($_conf['favita_path'])) {
+        foreach ($lines as $l) {
+            if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", rtrim($l), $matches)) {
+                $itaj = rtrim($matches[3]);
+                $itaj_view = htmlspecialchars($itaj, ENT_QUOTES);
+                $itaj_en = rawurlencode(base64_encode($itaj));
+                echo "<li><a href=\"{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}",
+                        "&amp;itaj_en={$itaj_en}\" target=\"_self\">{$itaj_view}</a></li>";
+            }
+        }
     }
+
+    //echo '<li class="group">&nbsp;</li>';
+    echo '<li><a href="editfavita.php';
+    if ($_conf['expack.misc.multi_favs']) {
+        echo '?m_favita_set=' . $no;
+    }
+    echo '" class="align-r" target="_self">編集</a></li>';
+
+    echo "</ul>\n";
 }
-</script>
-<!-- }}} -->
 
-<!-- {{{ 検索パネル -->
-<form id="search" class="panel" title="検索"
-  method="get" action="tgrepc.php" target="_self"
-  accept-charset="<?php echo $_conf['accept_charset']; ?>">
-<fieldset>
-    <div class="row">
-        <label>モード</label>
-        <div class="toggle" onclick="setSearchTarget(this.getAttribute('toggled'))">
-            <span class="thumb"></span>
-            <span class="toggleOn">板</span>
-            <span class="toggleOff">スレ</span>
-        </div>
-    </div>
-    <div class="row">
-        <label>キーワード</label>
-        <input type="text" id="keyword" name="Q" value="" />
-    </div>
-    <div class="row">
-        <input type="submit" value="OK" />
-    </div>
-</fieldset>
-</form>
-<!-- }}} -->
+// }}}
+// {{{ menu_iphone_show_feed_list()
 
-</body>
-</html>
+/**
+ * フィードリストを表示する
+ *
+ * @param string $title
+ * @param int    $no
+ * @return void
+ */
+function menu_iphone_show_feed_list($title, $no = null)
+{
+    global $_conf;
+
+    require_once P2EX_LIB_DIR . '/rss/common.inc.php';
+
+    echo "<ul id=\"rss{$no}\" title=\"{$title}\">";
+
+    echo menu_iphone_open_in_tab();
+
+    $errors = array();
+
+    if ($rss_list = @file($_conf['expack.rss.setting_path'])) {
+        foreach ($rss_list as $rss_info) {
+            $rss_info = rtrim($rss_info);
+            $p = explode("\t", $rss_info);
+            if (count($p) > 1) {
+                $site = $p[0];
+                $xml  = $p[1];
+                if (!empty($p[2])) {
+                    $atom = 1;
+                    $atom_q = '&atom=1';
+                } else {
+                    $atom = 0;
+                    $atom_q = '';
+                }
+                $localpath = rss_get_save_path($xml);
+                if (PEAR::isError($localpath)) {
+                    $errors[] = array($site, $localpath->getMessage());
+                } else {
+                    $mtime   = file_exists($localpath) ? filemtime($localpath) : 0;
+                    $site_en = rawurlencode(base64_encode($site));
+                    $xml_en = rawurlencode($xml);
+                    $rss_q = sprintf('?xml=%s&site_en=%s%s&mt=%d', $xml_en, $site_en, $atom_q, $mtime);
+                    $rss_q_ht = htmlspecialchars($rss_q, ENT_QUOTES);
+                    echo "<li><a href=\"subject_rss.php{$rss_q_ht}\" target=\"_self\">{$site}</a></li>";
+                }
+            }
+        }
+    }
+
+    if (count($errors)) {
+        echo '<li class="group">エラー</li>';
+        foreach ($errors as $error) {
+            echo "<li>{$error[0]} - {$error[1]}</li>";
+        }
+    }
+
+    //echo '<li class="group">&nbsp;</li>';
+    echo '<li><a href="editrss.php';
+    if ($_conf['expack.misc.multi_favs']) {
+        echo '?m_rss_set=' . $no;
+    }
+    echo '" class="align-r" target="_self">編集</a></li>';
+
+    echo "</ul>\n";
+}
+
+// }}}
+// {{{ menu_iphone_open_in_tab()
+
+/**
+ * リンクを新しいタブで開くように変更するチェックボックスを生成する
+ *
+ * @return string
+ */
+function menu_iphone_open_in_tab()
+{
+    return '<li class="open-in-tab" onclick="check_prev(this.childNodes[1]);">' .
+           '<input type="checkbox" onclick="toggle_open_in_tab(this);">' .
+           '<span>新しいタブで開く</span>' .
+           '</li>';
+}
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

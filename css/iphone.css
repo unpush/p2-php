@@ -1,10 +1,14 @@
 /* General */
 
 body {
-	margin: 0px;
+	margin: 0;
 	padding: 10px;
 	font-family: sans-serif;
+	font-size: medium;
 	line-height: 140%;
+	color: #000000;
+	background-color: #fafafa;
+	-webkit-text-size-adjust: none;
 }
 
 div, h1, h2, h3, h4, h5, h6, li, p {
@@ -12,127 +16,353 @@ div, h1, h2, h3, h4, h5, h6, li, p {
 	word-wrap: break-word;
 }
 
+h1, h2, h3, h4, h5, h6, p, form {
+	margin: 8px 0;
+}
+
 a {
 	word-break: break-all;
 }
 
-p, form {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
+a:link {
+	color: #0000ff;
 }
 
-div.read-footer {
-	margin-top: 0.3em;
-	margin-bottom: 0.3em;
-	line-height: 150%;
-}
-
-div.read-header a, div.read-footer a {
-	font-size: large;
-	/* margin-left: 0.3em; */
-	margin-right: 0.3em;
-}
-
-div.pager a {
-	font-size: large;
-	margin-left: 0.3em;
-	margin-right: 0.3em;
+a:visited {
+	color: #0080ff;
 }
 
 a img {
 	vertical-align: middle;
 }
 
-/* ImageCache2 */
+/* Forms */
 
-div#ic2-info {
-	display: none;
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	width: 300px;
-	margin: 0px;
-	padding: 0px;
-	z-index: 100;
-	line-height: 100%;
+input, select, textarea {
+	font-size: medium;
 }
 
-div#ic2-info-head, div#ic2-info-foot {
-	background-image: url('../img/iphone/bg-b.png');
-	margin: 0px 20px;
-	padding: 0px;
-	font-size: 1px;
-	line-height: 1px;
-}
-
-div#ic2-info-body {
-	background-image: url('../img/iphone/bg-b.png');
-	margin: 0px 4px;
-	padding: 0px 16px;
-}
-
-#ic2-info-preview,
-#ic2-info-message {
-	margin: 0px;
-	padding: 2px;
+input[type="checkbox"] {
+	width: 24px;
+	height: 24px;
+	-webkit-border-radius: 8px;
 	vertical-align: middle;
 }
 
-#ic2-info-preview {
-	background-image: url('../img/iphone/ck-wt.png');
-	text-align:center;
+input[type="checkbox"]:checked {
+	background-color: #808080;
+	border-color: #555555;
 }
 
-#ic2-info-message {
-	color: #ffffff;
-	line-height: 120%;
-	/* text-shadow: #666633 1px 1px 0px; */
+textarea {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+form.inline {
+	display: inline;
+	margin: 0 5px;
+}
+
+form.inline-block {
+	display: inline-block;
+	margin: 0 5px;
+}
+
+/* Navigations */
+
+div.navi, div.pager, div.toolbar {
+	margin: 5px 0;
+}
+
+a.button, div.navi a[href], div.pager a[href], div.toolbar a[href] {
+	display: inline-block;
+	min-width: 12px;  /* 15 * 2 - (8 + 1) * 2 */
+	height: 22px;     /* 15 * 2 - (3 + 1) * 2 */
+	margin: 4px 2px;
+	padding: 3px 8px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 150%;
+	text-decoration: none;
+	color: #000000;
+	background: #ffffff url('../img/iphone/btn-bg.png') repeat-x left bottom;
+	border: #505050 solid 1px;
+	-webkit-border-radius: 15px;
+}
+
+/* Open in New Tab */
+
+body > div#open-in-tab {
+	margin: -10px -10px 5px -10px;
+	padding: 5px 10px;
+	color: #808080;
+	background-color: #eeeeee;
+	font-size: medium;
+	font-weight: bold;
+	line-height: 100%;
+	text-align: right;
+	border-bottom: #808080 solid 1px;
+}
+
+body > div#open-in-tab > input[type="checkbox"] {
+	visibility: hidden;
+	margin: 0;
+	padding: 0;
+	width: 12px;
+	height: 12px;
+	vertical-align: bottom;
+}
+
+body > div#open-in-tab > span {
+	cursor: pointer;
+	display: inline-block;
+	margin: 0 0 -6px 0;
+	padding: 4px 6px 0 6px;
+	text-align: center;
+	vertical-align: bottom;
+	color: #aaaaaa;
+	background-color: #fafafa;
+	border: #808080 solid 1px;
+	border-bottom-color: #fafafa;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	cursor: pointer;
+}
+
+/* Read */
+
+h3 > font[color], div > font[color] > b {
+	color: #252525;
+}
+
+div.res {
+	margin: 8px 0;
+	padding: 0;
+	background-color: #ffffff;
+	border: #808080 solid 1px;
+	-webkit-border-radius: 8px;
+}
+
+div.res > div.message {
+	margin: 0;
+	padding: 8px;
+	line-height: 140%;
 	word-break: break-all;
 }
 
-#ic2-info-rating {
-	margin: 5px 0px 0px 0px;
-	padding: 0px;
-	font-size: 8px;
-	text-align: center;
-	white-space: nowrap;
+div.res > div.res-header {
+	margin: 0;
+	padding: 8px;
+	line-height: 120%;
+	border-bottom: #808080 solid 1px;
 }
 
-div#ic2-info img {
-	margin: 0px;
-	border-width: 0px;
+div.res-header > span.no {
 }
 
-img#ic2-info-closer {
+div.res-header > span.no.newres {
+	color: #ff6600;
+}
+
+div.res-header > span.no.onthefly {
+	color: #00aa00;
+}
+
+div.res-header > span.no:before {
+	content: "[";
+	color: #000000;
+}
+
+div.res-header > span.no:after {
+	content: "]";
+	color: #000000;
+}
+
+div.res-header > span.name {
+}
+
+div.res-header > span.name:after {
+	content: ":";
+}
+
+div.res-header > span.mail {
+}
+
+div.res-header > span.mail:after {
+	content: ":";
+}
+
+div.res-header > span.date-id {
+}
+
+div.respop {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 12px 6px 0 14px;
+}
+
+div.respop > div.res {
+	margin: 0 0 8px 0 !important;
+	background-color: rgba(255, 255, 240, 0.9) !important;
+	border-color: rgba(108, 108, 108, 0.8) !important;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
+}
+
+div.respop > div.res > div.res-header {
+	border-bottom-color: rgba(108, 108, 108, 0.8) !important;
+}
+
+div.respop > img.close-button {
 	cursor: pointer;
 	position: absolute;
-	top: -8px;
-	left: -4px;
-	z-index: 200;
-	clear: right;
+	top: 0;
+	left: 2px;
 }
 
-img#ic2-info-closer,
-img.ic2-info-opener,
-div#ic2-info-rating img {
-	cursor: pointer;
+/* Subject */
+
+p.empty-subject {
+	margin: 10px -10px;
+	padding: 7px 11px;
+	background-color: #ffffff;
+	border-top: #808080 solid 1px;
+	border-bottom: #808080 solid 1px;
 }
 
-div#ic2-info-head img.lcorner,
-div#ic2-info-foot img.lcorner {
-	margin-left: -16px;
+ul.subject {
+	display: block;
+	margin: 10px -10px;
+	padding: 0;
+	background-color: #ffffff;
 }
 
-div#ic2-info-head img.rcorner,
-div#ic2-info-foot img.rcorner {
+ul.subject > li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	border-bottom: #808080 solid 1px;
+	position: relative;
+}
+
+ul.subject > li:first-child {
+	border-top: #808080 solid 1px;
+}
+
+ul.subject > li > a {
+	display: block;
+	margin: 0;
+	padding: 7px 11px;
+	position: relative;
+	z-index: 3;
+	font-size: medium;
+	text-decoration: none;
+}
+
+ul.subject > li > a:link {
+	color: #252525;
+}
+
+ul.subject > li > a:visited {
+	color: #585858;
+}
+
+ul.subject > li > a:active {
+	color: #ffffff;
+	background-color: #1234ef;
+}
+
+ul.subject > li > a:link > span.new {
+	color: #ff0000;
+}
+
+ul.subject > li > a:visited > span.new {
+	color: #fa5825;
+}
+
+ul.subject > li > a:active > span.new {
+	color: #ffffff;
+}
+
+ul.subject > li > div.bg1 {
 	position: absolute;
-	right: 4px;
+	z-index: 2;
+	top: 5px;
+	left: 5px;
+	font-size: xx-large;
+	font-weight: bold;
+	color: #d5d5d5;
 }
 
-div#ic2-info-head img.rcorner {
-	top: 0px;
+ul.subject > li > div.bg2 {
+	position: absolute;
+	z-index: 1;
+	bottom: 3px;
+	right: 5px;
+	font-size: x-large;
+	font-weight: bold;
+	color: #d5d5d5;
 }
 
-div#ic2-info-foot img.rcorner {
-	bottom: 0px;
+ul.subject > li span.title {
+	font-size: large;
+	font-weight: bold;
 }
+
+ul.subject > li span.ita {
+	font-style: italic;
+}
+
+ul.subject > li span.num {
+}
+
+ul.subject > li span.unread {
+	padding: 0 4px;
+	color: #ffffff !important;
+	background-color: #666666;
+	-webkit-border-radius: 8px;
+}
+
+ul.subject > li span.unread.new {
+	font-weight: bold;
+	background-color: #ff0000;
+}
+
+ul.subject > li span.unread.offline {
+}
+
+ul.subject > li span.order {
+}
+
+ul.subject > li span.count {
+}
+
+ul.subject > li span.count:before {
+	content: "(";
+}
+
+ul.subject > li span.count:after {
+	content: ")";
+}
+
+ul.subject > li span.speed {
+}
+
+ul.subject > li span.score {
+}
+
+ul.subject > li span.date {
+}
+
+/*
+ * Local Variables:
+ * mode: css
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=css fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

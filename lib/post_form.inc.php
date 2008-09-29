@@ -11,6 +11,12 @@ if ($_conf['ktai']) {
     $htm['table_break1'] = '';
     $htm['table_break2'] = '';
     $htm['table_end'] = '<br>';
+    if ($_conf['iphone']) {
+        $htm['options'] .= <<<EOS
+<input type="button" onclick="make_textarea_smaller('MESSAGE');" value="Å|">
+<input type="button" onclick="make_textarea_larger('MESSAGE');" value="Å{">
+EOS;
+    }
     $name_tab_at = '';
     $mail_tab_at = '';
     $msg_tab_at = '';
@@ -42,7 +48,7 @@ $htm['post_form'] = <<<EOP
 {$htm['disable_js']}
 {$htm['resform_ttitle']}
 <form id="resform" method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}"{$onsubmit_at}>
-<input type="hidden" name="detect_hint" value="ÅùÅûÅ@ÅûÅù">
+<input type="hidden" name="_hint" value="ÅùÅû">
 {$htm['subject']}
 {$htm['maru_post']} ñºëOÅF <input id="FROM" name="FROM" type="text" value="{$hd['FROM']}"{$name_size_at}{$name_tab_at}>{$htm['k_br']}
  E-mail : <input id="mail" name="mail" type="text" value="{$hd['mail']}"{$mail_size_at}{$on_check_sage}{$mail_tab_at}>{$htm['k_br']}

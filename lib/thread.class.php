@@ -69,12 +69,8 @@ class Thread{
         //$this->ttitle_hc = html_entity_decode($this->ttitle, ENT_COMPAT, 'Shift_JIS');
 
         // html_entity_decode() は結構重いので代替、、こっちだと半分くらいの処理時間
-        $a_ttitle = $this->ttitle;
-        $a_ttitle = str_replace('&lt;', '<', $a_ttitle);
-        $a_ttitle = str_replace('&gt;', '>', $a_ttitle);
-        $a_ttitle = str_replace('&amp;', '&', $a_ttitle);
-        $a_ttitle = str_replace('&quot;', '"', $a_ttitle);
-        $this->ttitle_hc = $a_ttitle;
+        $this->ttitle_hc = str_replace(array('&lt;', '&gt;', '&amp;', '&quot;'),
+                                       array('<'   , '>'   , '&'    , '"'     ), $this->ttitle);
 
         // HTML表示用に htmlspecialchars() したもの
         $this->ttitle_hd = htmlspecialchars($this->ttitle_hc, ENT_QUOTES);
@@ -321,10 +317,12 @@ class Thread{
     {
         global $_conf;
 
+        $mobile = (!$_conf['ktai'] || $_conf['iphone'] || $original) ? false : true;
+
         // 2ch系
         if (P2Util::isHost2chs($this->host)) {
             // PC
-            if (empty($_conf['ktai']) || $original) {
+            if (!$mobile) {
                 $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
             // 携帯
             } else {
@@ -341,17 +339,17 @@ class Thread{
         // まちBBS
         } elseif (P2Util::isHostMachiBbs($this->host)) {
             $motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";
-            if ($_conf['ktai'] && !$original) { $motothre_url .= '&IMODE=TRUE'; }
+            if ($mobile) { $motothre_url .= '&IMODE=TRUE'; }
 
         // まちびねっと
         } elseif (P2Util::isHostMachiBbsNet($this->host)) {
             $motothre_url = "http://{$this->host}/test/read.cgi?bbs={$this->bbs}&key={$this->key}";
-            if ($_conf['ktai'] && !$original) { $motothre_url .= '&imode=true'; }
+            if ($mobile) { $motothre_url .= '&imode=true'; }
 
         // JBBSしたらば
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
             list($host, $category) = explode('/', P2Util::adjustHostJbbs($this->host), 2);
-            $bbs_cgi = (empty($_conf['ktai']) || $original) ? 'i.cgi' : 'read.cgi';
+            $bbs_cgi = ($mobile) ? 'i.cgi' : 'read.cgi';
             $motothre_url = "http://{$host}/bbs/{$bbs_cgi}/{$category}/{$this->bbs}/{$this->key}/{$this->ls}";
 
         // その他
