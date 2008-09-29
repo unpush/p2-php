@@ -74,7 +74,25 @@ function sb_print($aThreadList)
     $class_sort_ikioi   = '';   // 勢い
     $class_sort_bd      = '';   // Birthday
     $class_sort_fav     = '';   // お気に入り
-    ${'class_sort_' . $GLOBALS['now_sort']} = ' class="now_sort"';
+    if (empty($_REQUEST['rsort'])) {
+        ${'class_sort_' . $GLOBALS['now_sort']} = ' class="now_sort"';
+    } else {
+        ${'class_sort_' . $GLOBALS['now_sort']} = ' class="now_sort rsort"';
+    }
+
+    // 逆順ソート用クエリ
+    $rsortq_midoku  = '';   // 新着
+    $rsortq_res     = '';   // レス
+    $rsortq_no      = '';   // No.
+    $rsortq_title   = '';   // タイトル
+    $rsortq_ita     = '';   // 板
+    $rsortq_spd     = '';   // すばやさ
+    $rsortq_ikioi   = '';   // 勢い
+    $rsortq_bd      = '';   // Birthday
+    $rsortq_fav     = '';   // お気に入り
+    if (empty($_REQUEST['rsort'])) {
+        ${'rsortq_' . $GLOBALS['now_sort']} = '&amp;rsort=1';
+    }
 
     $sortq_spmode = '';
     $sortq_host = '';
@@ -88,6 +106,8 @@ function sb_print($aThreadList)
         $sortq_host = "&amp;host={$aThreadList->host}";
         $sortq_ita = "&amp;bbs={$aThreadList->bbs}";
     }
+
+    $sortq_common = $sortq_spmode . $sortq_host . $sortq_ita;
 
     //=====================================================
     // テーブルヘッダ
@@ -105,13 +125,13 @@ function sb_print($aThreadList)
     // 新着
     if ($sb_view != 'edit') {
         echo <<<EOP
-<th{$class_tu} id="sb_th_midoku"><a{$class_sort_midoku} href="{$_conf['subject_php']}?sort=midoku{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">新着</a></th>\n
+<th{$class_tu} id="sb_th_midoku"><a{$class_sort_midoku} href="{$_conf['subject_php']}?sort=midoku{$sortq_common}{$rsortq_midoku}{$norefresh_q}" target="_self">新着</a></th>\n
 EOP;
     }
     // レス数
     if ($sb_view != 'edit') {
         echo <<<EOP
-<th{$class_tn} id="sb_th_res"><a{$class_sort_res} href="{$_conf['subject_php']}?sort=res{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">レス</a></th>\n
+<th{$class_tn} id="sb_th_res"><a{$class_sort_res} href="{$_conf['subject_php']}?sort=res{$sortq_common}{$rsortq_res}{$norefresh_q}" target="_self">レス</a></th>\n
 EOP;
     }
     // >>1
@@ -127,38 +147,38 @@ EOP;
     // No.
     $title = empty($aThreadList->spmode) ? ' title="2ch標準の並び順番号"' : '';
     echo <<<EOP
-<th{$class_to} id="sb_th_no"><a{$class_sort_no} href="{$_conf['subject_php']}?sort=no{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self"{$title}>No.</a></th>\n
+<th{$class_to} id="sb_th_no"><a{$class_sort_no} href="{$_conf['subject_php']}?sort=no{$sortq_common}{$rsortq_no}{$norefresh_q}" target="_self"{$title}>No.</a></th>\n
 EOP;
     // タイトル
     echo <<<EOP
-<th{$class_tl} id="sb_th_title"><a{$class_sort_title} href="{$_conf['subject_php']}?sort=title{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">タイトル</a></th>\n
+<th{$class_tl} id="sb_th_title"><a{$class_sort_title} href="{$_conf['subject_php']}?sort=title{$sortq_common}{$rsortq_title}{$norefresh_q}" target="_self">タイトル</a></th>\n
 EOP;
     // 板
     if ($ita_name_bool) {
         echo <<<EOP
-<th{$class_t} id="sb_th_ita"><a{$class_sort_ita} href="{$_conf['subject_php']}?sort=ita{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">板</a></th>\n
+<th{$class_t} id="sb_th_ita"><a{$class_sort_ita} href="{$_conf['subject_php']}?sort=ita{$sortq_common}{$rsortq_ita}{$norefresh_q}" target="_self">板</a></th>\n
 EOP;
     }
     // すばやさ
     if ($_conf['sb_show_spd']) {
         echo <<<EOP
-<th{$class_ts} id="sb_th_spd"><a{$class_sort_spd} href="{$_conf['subject_php']}?sort=spd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">すばやさ</a></th>\n
+<th{$class_ts} id="sb_th_spd"><a{$class_sort_spd} href="{$_conf['subject_php']}?sort=spd{$sortq_common}{$rsortq_spd}{$norefresh_q}" target="_self">すばやさ</a></th>\n
 EOP;
     }
     // 勢い
     if ($_conf['sb_show_ikioi']) {
         echo <<<EOP
-<th{$class_ti} id="sb_th_ikioi"><a{$class_sort_ikioi} href="{$_conf['subject_php']}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">勢い</a></th>\n
+<th{$class_ti} id="sb_th_ikioi"><a{$class_sort_ikioi} href="{$_conf['subject_php']}?sort=ikioi{$sortq_common}{$rsortq_ikioi}{$norefresh_q}" target="_self">勢い</a></th>\n
 EOP;
     }
     // Birthday
     echo <<<EOP
-<th{$class_t} id="sb_th_bd"><a{$class_sort_bd} href="{$_conf['subject_php']}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self">Birthday</a></th>\n
+<th{$class_t} id="sb_th_bd"><a{$class_sort_bd} href="{$_conf['subject_php']}?sort=bd{$sortq_common}{$rsortq_bd}{$norefresh_q}" target="_self">Birthday</a></th>\n
 EOP;
     // お気に入り
     if ($_conf['sb_show_fav'] && $aThreadList->spmode != 'taborn') {
         echo <<<EOP
-<th{$class_t} id="sb_th_fav"><a{$class_sort_fav} href="{$_conf['subject_php']}?sort=fav{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}" target="_self" title="お気にスレ">☆</a></th>\n
+<th{$class_t} id="sb_th_fav"><a{$class_sort_fav} href="{$_conf['subject_php']}?sort=fav{$sortq_common}{$rsortq_fav}{$norefresh_q}" target="_self" title="お気にスレ">☆</a></th>\n
 EOP;
     }
 

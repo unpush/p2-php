@@ -44,7 +44,6 @@ $GLOBALS['_HOSTCHKCONF']['custom_allowed_host'] = array(
     //'117.55.0.0' => 17,   // emb? @link http://pc11.2ch.net/test/read.cgi/software/1216565984/531
     //'60.254.192.0' => 18, // “¯ã
     //'119.72.0.0' => 16,   // “¯ã
-    //'219.73.128.0' => 17, // openmobile? @link http://pc11.2ch.net/test/read.cgi/software/1216565984/534
 );
 $GLOBALS['_HOSTCHKCONF']['custom_allowed_host_v6'] = null;
 

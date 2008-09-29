@@ -80,6 +80,10 @@ $conf_user_sel['sort_zero_adjust'] = array('0.1' => '上位', '0' => '混在', '-0.1
 $conf_user_def['cmp_dayres_midoku'] = 1; // (1)
 $conf_user_rad['cmp_dayres_midoku'] = array('1' => 'する', '0' => 'しない');
 
+// タイトルソート時に全角半角・大文字小文字を無視 (する:1, しない:0)
+$conf_user_def['cmp_title_norm'] = 0; // (0)
+$conf_user_rad['cmp_title_norm'] = array('1' => 'する', '0' => 'しない');
+
 // 携帯閲覧時、一度に表示するスレの数
 $conf_user_def['mobile.sb_disp_range'] = 30; // (30)
 $conf_user_rules['mobile.sb_disp_range'] = array('emptyToDef', 'notIntExceptMinusToDef');

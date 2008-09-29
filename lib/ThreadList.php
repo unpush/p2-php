@@ -314,6 +314,108 @@ class ThreadList
     }
 
     // }}}
+    // {{{ sort()
+
+    /**
+     * スレッドを並び替える
+     *
+     * @param string $mode
+     * @param bool $reverse
+     * @return void
+     */
+    public function sort($mode, $reverse = false)
+    {
+        global $_conf, $_info_msg_ht;
+
+        if (!$this->threads) {
+            return;
+        }
+
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sort');
+
+        $do_benchmark = false;
+        $use_multisort = true;
+        $cmp = null;
+
+        switch ($mode) {
+        case 'midoku':
+            if ($this->spmode == 'soko') {
+                $cmp = 'cmp_key';
+            } else {
+                $cmp = 'cmp_midoku';
+            }
+            break;
+        case 'ikioi':
+        case 'spd':
+            if ($_conf['cmp_dayres_midoku']) {
+                $cmp = 'cmp_dayres_midoku';
+            } else {
+                $cmp = 'cmp_dayres';
+            }
+            break;
+        case 'no':
+            if ($this->spmode == 'soko') {
+                $cmp = 'cmp_key';
+            } else {
+                $cmp = 'cmp_no';
+            }
+            break;
+        case 'bd':
+            $cmp = 'cmp_key';
+            break;
+        case 'fav':
+        case 'ita':
+        case 'res':
+        case 'title':
+            $cmp = 'cmp_' . $mode;
+            break;
+        case 'similarity':
+            if (!empty($GLOBALS['wakati_words'])) {
+                $cmp = 'cmp_similarity';
+            } else {
+                $cmp = 'cmp_title';
+            }
+            break;
+        default:
+            $_info_msg_ht .= sprintf('<p class="info-msg">ソート指定が変です。(%s)</p>',
+                                     htmlspecialchars($mode, ENT_QUOTES));
+        }
+
+        if ($cmp) {
+            if (!function_exists($cmp)) {
+                require_once P2_LIB_DIR . '/sort_threadlist.inc.php';
+            }
+            if ($do_benchmark) {
+                $before = microtime(true);
+            }
+            if ($use_multisort) {
+                $cmp = 'multi_' . $cmp;
+                $cmp($this, $reverse);
+            } else {
+                usort($this->threads, $cmp);
+            }
+        }
+
+        if (!($cmp && $use_multisort) && $reverse) {
+            $this->threads = array_reverse($this->threads);
+        }
+
+        if ($cmp && $do_benchmark) {
+            $after = microtime(true);
+            $count = count($this->threads);
+            $_info_msg_ht .= sprintf(
+                '<p class="info-msg" style="font-family:monospace">%s(%d thread%s)%s = %0.6f sec.</p>',
+                $cmp,
+                number_format($count),
+                ($count > 1) ? 's' : '',
+                $reverse ? '+reverse' : '',
+                $after - $before);
+        }
+
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sort');
+    }
+
+    // }}}
     // {{{ getDatDir()
 
     /**

@@ -7,8 +7,8 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/ThreadList.php';
 require_once P2_LIB_DIR . '/Thread.php';
+require_once P2_LIB_DIR . '/ThreadList.php';
 
 //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 
@@ -707,7 +707,13 @@ unset($lines);
 autoTAbornOff($aThreadList, $ta_keys);
 
 // ソート
-sortThreads($aThreadList);
+if (!empty($GLOBALS['wakati_words'])) {
+    $now_sort = 'title';
+    $sort_mode = 'similarity';
+} else {
+    $sort_mode = $now_sort;
+}
+$aThreadList->sort($sort_mode, !empty($_REQUEST['rsort']));
 
 // ソート後、お気に板の既得スレidxを作成 (新着まとめ読みの効率を良くするためのキャッシュ)
 if ($spmode == 'merge_favita') {
@@ -888,76 +894,6 @@ function autoTAbornOff($aThreadList, $ta_keys)
 }
 
 // }}}
-// {{{ sortThreads()
-
-/**
- * スレ一覧（$aThreadList->threads）をソートする
- */
-function sortThreads($aThreadList)
-{
-    global $_conf;
-
-    if (!$aThreadList->threads) {
-        return;
-    }
-
-    //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('sort');
-
-    $cmp = null;
-
-    if (!empty($GLOBALS['wakati_words'])) {
-        $GLOBALS['now_sort'] = 'title';
-        $cmp = 'cmp_similarity';
-    } else {
-        switch ($GLOBALS['now_sort']) {
-        case 'midoku':
-            if ($aThreadList->spmode == 'soko') {
-                $cmp = 'cmp_key';
-            } else {
-                $cmp = 'cmp_midoku';
-            }
-            break;
-        case 'ikioi':
-        case 'spd':
-            if ($_conf['cmp_dayres_midoku']) {
-                $cmp = 'cmp_dayres_midoku';
-            } else {
-                $cmp = 'cmp_dayres';
-            }
-            break;
-        case 'no':
-            if ($aThreadList->spmode == 'soko') {
-                $cmp = 'cmp_key';
-            } else {
-                $cmp = 'cmp_no';
-            }
-            break;
-        case 'bd':
-            $cmp = 'cmp_key';
-            break;
-        case 'fav':
-        case 'ita':
-        case 'res':
-        case 'title':
-            $cmp = 'cmp_' . $GLOBALS['now_sort'];
-            break;
-        }
-    }
-
-    if ($cmp) {
-        usort($aThreadList->threads, $cmp);
-    }
-
-    if (!empty($_REQUEST['rsort'])) {
-        $aThreadList->threads = array_reverse($aThreadList->threads);
-    }
-
-    //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('sort');
-
-    return true;
-}
-
-// }}}
 // {{{ saveSbSetting()
 
 /**
@@ -1133,162 +1069,6 @@ function setSbSimilarity($aThread)
     // debug (title 属性)
     //$aThread->ttitle_hd = mb_convert_encoding(htmlspecialchars(implode(' ', $common_words)), 'CP932', 'UTF-8');
     return true;
-}
-
-// }}}
-// }}}
-// {{{ ソート関数
-// {{{ cmp_midoku()
-
-/**
- * 新着ソート
- */
-function cmp_midoku($a, $b)
-{
-    if ($a->new == $b->new) {
-        if (($a->unum == $b->unum) or ($a->unum < 0) && ($b->unum < 0)) {
-            return ($a->torder > $b->torder) ? 1 : -1;
-        } else {
-            return ($a->unum < $b->unum) ? 1 : -1;
-        }
-    } else {
-        return ($a->new < $b->new) ? 1 : -1;
-    }
-}
-
-// }}}
-// {{{ cmp_res()
-
-/**
- * レス数 ソート
- */
-function cmp_res($a, $b)
-{
-    if ($a->rescount == $b->rescount) {
-        return ($a->torder > $b->torder) ? 1 : -1;
-    } else {
-        return ($a->rescount < $b->rescount) ? 1 : -1;
-    }
-}
-
-// }}}
-// {{{ cmp_title()
-
-/**
- * タイトル ソート
- */
-function cmp_title($a, $b)
-{
-    if ($a->ttitle == $b->ttitle) {
-        return ($a->torder > $b->torder) ? 1 : -1;
-    } else {
-        return strcmp($a->ttitle,$b->ttitle);
-    }
-}
-
-// }}}
-// {{{ cmp_ita()
-
-/**
- * 板 ソート
- */
-function cmp_ita($a, $b)
-{
-    if ($a->host != $b->host) {
-        return strcmp($a->host, $b->host);
-    } else {
-        if ($a->itaj != $b->itaj) {
-            return strcmp($a->itaj, $b->itaj);
-        } else {
-            return ($a->torder > $b->torder) ? 1 : -1;
-        }
-    }
-}
-
-// }}}
-// {{{ cmp_fav()
-
-/**
- * お気に ソート
- */
-function cmp_fav($a, $b)
-{
-    if ($a->fav == $b->fav) {
-        return ($a->torder > $b->torder) ? 1 : -1;
-    } else {
-        return strcmp($b->fav, $a->fav);
-    }
-}
-
-// }}}
-// {{{ cmp_dayres_midoku()
-
-/**
- * 勢いソート（新着レス優先）
- */
-function cmp_dayres_midoku($a, $b)
-{
-    if ($a->new == $b->new) {
-        if (($a->unum == $b->unum) or ($a->unum >= 1) && ($b->unum >= 1)) {
-            return ($a->dayres < $b->dayres) ? 1 : -1;
-        } else {
-            return ($a->unum < $b->unum) ? 1 : -1;
-        }
-    } else {
-        return ($a->new < $b->new) ? 1 : -1;
-    }
-}
-
-// }}}
-// {{{ cmp_dayres()
-
-/**
- * 勢いソート
- */
-function cmp_dayres($a, $b)
-{
-    if ($a->new == $b->new) {
-        return ($a->dayres < $b->dayres) ? 1 : -1;
-    } else {
-        return ($a->new < $b->new) ? 1 : -1;
-    }
-}
-
-// }}}
-// {{{ cmp_key()
-
-/**
- * key ソート
- */
-function cmp_key($a, $b)
-{
-    return ($a->key < $b->key) ? 1 : -1;
-}
-
-// }}}
-// {{{ cmp_no()
-
-/**
- * No. ソート
- */
-function cmp_no($a, $b)
-{
-    return ($a->torder > $b->torder) ? 1 : -1;
-}
-
-// }}}
-// {{{ cmp_similarity()
-
-/**
- * 類似性ソート
- */
-function cmp_similarity($a, $b)
-{
-    if ($a->similarity == $b->similarity) {
-        return ($a->key < $b->key) ? 1 : -1;
-    } else {
-        return ($a->similarity < $b->similarity) ? 1 : -1;
-    }
 }
 
 // }}}
