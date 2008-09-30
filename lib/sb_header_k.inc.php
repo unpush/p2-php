@@ -24,24 +24,17 @@ if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
 } elseif (!$aThreadList->spmode) {
     // 特別なパターン index2.html
     // match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
-    if (preg_match('/www\.onpuch\.jp/', $aThreadList->host)) {
+    if (preg_match('/(www\.onpuch\.jp|livesoccer\.net)/', $aThreadList->host)) {
         $ptitle_url = $ptitle_url . 'index2.html';
-    } elseif (preg_match("/livesoccer\.net/", $aThreadList->host)) {
-        $ptitle_url = $ptitle_url . 'index2.html';
-
-    // PC
-    } elseif (!$_conf['ktai']) {
-        $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
-    // 携帯
+    } elseif (!empty($GLOBALS['word']) || !empty($GLOBALS['wakati_words'])) {
+        $ptitle_url = $p2_subject_url;
+    } elseif ($_conf['iphone']) {
+        $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/";
     } else {
-        if (!empty($GLOBALS['word']) || !empty($GLOBALS['wakati_words'])) {
-            $ptitle_url = $p2_subject_url;
+        if (P2Util::isHostBbsPink($aThreadList->host)) {
+            $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
         } else {
-            if (P2Util::isHostBbsPink($aThreadList->host)) {
-                $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/i/";
-            } else {
-                $ptitle_url = "http://c.2ch.net/test/-/{$aThreadList->bbs}/i";
-            }
+            $ptitle_url = "http://c.2ch.net/test/-/{$aThreadList->bbs}/i";
         }
     }
 }
@@ -76,7 +69,7 @@ EOP;
 // }}}
 // フォーム ==================================================
 $sb_form_hidden_ht = <<<EOP
-<input type="hidden" name="detect_hint" value="◎◇　◇◎">
+<input type="hidden" name="_hint" value="◎◇">
 <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
 <input type="hidden" name="host" value="{$aThreadList->host}">
 <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
@@ -117,11 +110,32 @@ echo <<<EOP
 <body{$_conf['k_colors']}>
 EOP;
 
+if ($_conf['iphone']) {
+    P2Util::printOpenInTab(array(
+        ".//a[starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]",
+        ".//form[@method=&quot;get&quot; and @action=&quot;{$_conf['read_new_k_php']}&quot;]",
+        ".//ul[@class=&quot;subject&quot;]/li/a[@href]"
+    ));
+}
+
 echo $_info_msg_ht;
 $_info_msg_ht = "";
 
 include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 
+echo <<<EOP
+<form method="get" action="{$_conf['read_new_k_php']}">
+<input type="hidden" name="host" value="{$aThreadList->host}">
+<input type="hidden" name="bbs" value="{$aThreadList->bbs}">
+<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
+<input type="hidden" name="nt" value="1">{$shinchaku_norefresh_ht}
+未読数が<input type="text" name="unum_limit" value="100" size="4" maxlength="4" istyle="4" format="4N" mode="numeric">未満の
+<input type="submit" value="新まとめ">
+</form>\n
+EOP;
+
 echo $filter_form_ht;
 echo $hit_ht;
-echo "<hr>";
+if (!$_conf['iphone']) {
+    echo '<hr>';
+}

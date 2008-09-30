@@ -278,7 +278,7 @@ if (!$_conf['ktai']) {
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
 EOSTYLE;
     if ($popup == 2) {
-        echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js?{$_conf['p2expack']}\"></script>\n";
+        echo "\t<script type=\"text/javascript\" src=\"js/closetimer.js\"></script>\n";
         if (preg_match('/^aborn_/', $mode)) {
             if ($mode != 'aborn_res' && isset($aborn_id) && strlen($aborn_id) >= 8) {
                 $aborn_target = 'ID:' . addslashes($aborn_id);
@@ -328,7 +328,7 @@ echo <<<EOP
 EOP;
 
 echo "<form action=\"info_sp.php\" method=\"get\" accept-charset=\"{$_conf['accept_charset']}\">\n";
-echo "\t<input type=\"hidden\" name=\"detect_hint\" value=\"ž@ž\">\n";
+echo "\t<input type=\"hidden\" name=\"_hint\" value=\"ž\">\n";
 echo "<p>{$msg}</p>\n";
 if ($popup == 1 && $msg != "") {
     foreach ($_GET as $idx => $value) {

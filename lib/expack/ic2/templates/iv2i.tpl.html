@@ -1,3 +1,4 @@
+{doctype:h}
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
@@ -15,20 +16,20 @@
 
 <div flexy:if="!nomatch">
 {editFormHeader:h}
-<div class="pager" align="center" id="top" name="top">{pager1:h}</div>
+<div align="center" id="top" name="top">{pager1:h}</div>
 <hr>
-<div align="right"><a href="#bottom" accesskey="8" DIRECTKEY="9">{e[8]:h}{e[dt1]:h}</a></div>
+<div align="right"><a href="#bottom" accesskey="8" DIRECTKEY="8">{e[8]:h}{e[dt1]:h}</a></div>
 <div flexy:foreach="items,i,item">{item[f_change]:h}<a href="{item[thumb_k]}"><img src="{item[thumb]}" width="{item[t_width]:h}" height="{item[t_height]:h}"></a>{item[width]:h}x{item[height]:h}({item[rank]:h})</div>
-<div align="right"><a href="#top" accesskey="2" DIRECTKEY="3">{e[2]:h}{e[ut1]:h}</a></div>
+<div align="right"><a href="#top" accesskey="2" DIRECTKEY="2">{e[2]:h}{e[ut1]:h}</a></div>
 <hr>
-<div class="pager" align="center" id="bottom" name="bottom">{pager2:h}</div>
+<div align="center" id="bottom" name="bottom">{pager2:h}</div>
 <hr>
 <div>
 [ﾁｪｯｸした画像を編集]<br>
 ﾗﾝｸ:{editFormSelect:h}<br>
-ﾒﾓを追加:<br>
-{editFormText:h}<br>
-{editFormSubmit:h}<br>
+ﾒﾓを追加:{editFormText:h}<br>
+{editFormSubmit:h}<hr>
+[ﾁｪｯｸした画像を削除]<br>
 {editFormRemove:h}{editFormBlackList:h}ﾌﾞﾗｯｸﾘｽﾄに登録
 </div>
 </form>
@@ -36,10 +37,9 @@
 
 <hr>
 
-<div class="read-footer">
+<div class="navi">
 <a href="{top_url}" accesskey="0" DIRECTKEY="0">{e[0]:h}TOP</a>
 <a href="{php_self}?session_no_close=1&amp;reset_filter=1" accesskey="5" DIRECTKEY="5">{e[5]:h}IC2::Viewer</a>
-<br>
 <a href="{php_self}?page={page}&amp;show_iv2_kfilter=1" accesskey="7" DIRECTKEY="7">{e[7]:h}検索・ソート</a>&nbsp;
 <form method="get" action="{php_self}">
 <input type="text" name="page" size="3"><input type="submit" value="GO">

@@ -19,22 +19,22 @@ if (!empty($GLOBALS['wakati_words'])) {
 
 if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
     $allfav_ht = <<<EOP
-<div><a href="subject.php?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></div>
+<div class=\"pager\"><a href="subject.php?spmode=fav{$norefresh_q}{$_conf['k_at_a']}">全てのお気にｽﾚを表示</a></div>
 EOP;
 }
 
 // ページタイトル部分HTML設定 ====================================
 if ($aThreadList->spmode == "taborn") {
     $ptitle_ht = <<<EOP
-<a href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（ｱﾎﾞﾝ中）
+<a href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" target="_blank">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（ｱﾎﾞﾝ中）
 EOP;
 } elseif ($aThreadList->spmode == "soko") {
     $ptitle_ht = <<<EOP
-<a  href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（dat倉庫）
+<a href="{$ptitle_url}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" target="_blank">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（dat倉庫）
 EOP;
 } elseif ($ptitle_url) {
     $ptitle_ht = <<<EOP
-<a  href="{$ptitle_url}"><b>{$ptitle_hd}</b></a>
+<a  href="{$ptitle_url}" target="_blank"><b>{$ptitle_hd}</b></a>
 EOP;
 } else {
     $ptitle_ht = <<<EOP
@@ -47,6 +47,10 @@ EOP;
 $sb_view_at = "";
 if (!empty($_REQUEST['sb_view'])) {
     $sb_view_at = "&amp;sb_view=" . htmlspecialchars($_REQUEST['sb_view']);
+}
+
+if (!empty($_REQUEST['rsort'])) {
+    $sb_view_at .= '&amp;rsort=1';
 }
 
 if ($disp_navi['from'] > 1) {
@@ -70,7 +74,7 @@ $sb_range_st = "{$sb_range_on}/{$sb_disp_all_num} ";
 
 if (!$disp_navi['all_once']) {
     $k_sb_navi_ht = <<<EOP
-<div>{$sb_range_st}{$mae_ht} {$tugi_ht}</div>
+<div class="pager">{$sb_range_st}{$mae_ht} {$tugi_ht}</div>
 EOP;
 }
 
@@ -135,7 +139,8 @@ if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->s
     $htm['change_sort'] .= "<input type=\"hidden\" name=\"host\" value=\"{$aThreadList->host}\">";
     $htm['change_sort'] .= "<input type=\"hidden\" name=\"bbs\" value=\"{$aThreadList->bbs}\">";
 }
-$htm['change_sort'] .= 'ｿｰﾄ:<select name="sort">';
+
+$htm['change_sort'] .= '<select name="sort">';
 foreach ($sorts as $k => $v) {
     if ($GLOBALS['now_sort'] == $k) {
         $selected = ' selected';
@@ -144,29 +149,37 @@ foreach ($sorts as $k => $v) {
     }
     $htm['change_sort'] .= "<option value=\"{$k}\"{$selected}>{$v}</option>";
 }
+$htm['change_sort'] .= '</select>';
 
 if (!empty($_REQUEST['sb_view'])) {
     $htm['change_sort'] .= "<input type=\"hidden\" name=\"sb_view\" value=\"" . htmlspecialchars($_REQUEST['sb_view']) . "\">";
 }
-
-$htm['change_sort'] .= '</select>';
-$htm['change_sort'] .= '<input type="submit" value="変更"></form>';
+if ($_conf['iphone']) {
+    // iPhone (2.0.1) のSafariではlabel要素が効かない (タグで囲む、for属性ともに) のでonclickで代用する
+    $htm['change_sort'] .= ' <input type="checkbox" name="rsort" value="1">';
+    $htm['change_sort'] .= '<span onclick="check_prev(this);">逆順</span>';
+} else {
+    $htm['change_sort'] .= ' <label><input type="checkbox" name="rsort" value="1">逆順</label>';
+}
+$htm['change_sort'] .= ' <input type="submit" value="並び替え"></form>';
 
 // }}}
 
 // HTMLプリント ==============================================
-echo "<hr>";
+if (!$_conf['iphone']) {
+    echo '<hr>';
+}
 echo $k_sb_navi_ht;
 include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
 echo $allfav_ht;
 echo $switchfavlist_ht;
-echo "<div>";
+echo '<div class="pager">';
 echo $dat_soko_ht;
 echo $taborn_link_ht;
 echo $buildnewthread_ht;
-echo "</div>";
+echo '</div>';
 echo $htm['change_sort'];
-echo "<hr>";
+echo '<hr>';
 echo "<div><a {$_conf['accesskey']}=\"0\" href=\"index.php{$_conf['k_at_q']}\">0.TOP</a></div>";
 
 echo '</body></html>';

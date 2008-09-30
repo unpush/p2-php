@@ -31,7 +31,7 @@ if ($_conf['ktai']) {
         exit;
     }
     if ($_conf['iphone'] && file_exists('./iui/iui.js')) {
-        include P2_LIB_DIR . '/menu_iphone.inc.php';
+        include './menu_i.php';
         exit;
     }
     include_once P2_LIB_DIR . '/index_print_k.inc.php';

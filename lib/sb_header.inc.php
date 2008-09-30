@@ -88,7 +88,7 @@ if ($aThreadList->spmode) { // スペシャルモード時
 
 // フォームhidden ==================================================
 $sb_form_hidden_ht = <<<EOP
-    <input type="hidden" name="detect_hint" value="◎◇　◇◎">
+    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="bbs" value="{$aThreadList->bbs}">
     <input type="hidden" name="host" value="{$aThreadList->host}">
     <input type="hidden" name="spmode" value="{$aThreadList->spmode}">
@@ -200,10 +200,10 @@ echo <<<EOP
     <base target="read">
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=subject&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/settabornjs.js?{$_conf['p2expack']}"></script>
-    <script type="text/javascript" src="js/delelog.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/setfavjs.js"></script>
+    <script type="text/javascript" src="js/settabornjs.js"></script>
+    <script type="text/javascript" src="js/delelog.js"></script>
     <script type="text/javascript" src="js/jquery.pack.js"></script>
     <script type="text/javascript">
     <!--

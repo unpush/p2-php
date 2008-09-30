@@ -82,12 +82,14 @@ class FavSetManager
             }
         }
 
-        $k_to_index_q = implode('&', $ar);
-        if ($_conf['ktai'] && $_conf['view_forced_by_query']) {
-            $k_to_index_q .= '&b=k';
+        if ($_conf['ktai'] && !$_conf['iphone']) {
+            $k_to_index_q = implode('&', $ar);
+            if ($_conf['view_forced_by_query']) {
+                $k_to_index_q .= '&b=k';
+            }
+            $k_to_index_q = htmlspecialchars($k_to_index_q, ENT_QUOTES);
+            $_conf['k_to_index_ht'] = "<a {$_conf['accesskey']}=\"0\" href=\"index.php?{$k_to_index_q}\">0.TOP</a>";
         }
-        $k_to_index_q = htmlspecialchars($k_to_index_q, ENT_QUOTES);
-        $_conf['k_to_index_ht'] = "<a {$_conf['accesskey']}=\"0\" href=\"index.php?{$k_to_index_q}\">0.TOP</a>";
 
         $done = TRUE;
     }

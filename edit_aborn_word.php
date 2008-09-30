@@ -172,7 +172,7 @@ EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js?{$_conf['p2expack']}"></script>
+    <script type="text/javascript" src="js/basic.js"></script>
     <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
     <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
@@ -234,7 +234,7 @@ echo <<<EOP
 {$usage}
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
     {$_conf['k_input_ht']}
-    <input type="hidden" name="detect_hint" value="ž@ž">
+    <input type="hidden" name="_hint" value="ž">
     <input type="hidden" name="path" value="{$path_ht}">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;

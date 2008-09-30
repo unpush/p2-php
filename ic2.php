@@ -153,23 +153,35 @@ if ($result) {
         ic2_error('x04', '', false);
     }
     // あぼーんフラグ（rankが負）が立っていたら終了。
-    if (!$force && $search->rank < 0 ) {
+    if (!$force && $search->rank < 0 && !isset($_REQUEST['rank'])) {
         ic2_error('x01', '', false);
     }
     $filepath = $thumbnailer->srcPath($search->size, $search->md5, $search->mime);
     $params = array('uri' => $search->uri, 'name' => $search->name, 'size' => $search->size,
                     'md5' => $search->md5, 'width' => $search->width, 'height' => $search->height,
-                    'mime' => $search->mime, 'memo' => $search->memo);
+                    'mime' => $search->mime, 'memo' => $search->memo, 'rank' => $search->rank);
 
     // 自動メモ機能が有効のとき
     if ($ini['General']['automemo'] && !is_null($memo) && !strstr($search->memo, $memo)) {
-        if (!empty($search->memo)) {
+        if (is_string($search->memo) && strlen($search->memo) > 0) {
             $memo .= ' ' . $search->memo;
         }
         $update = &new IC2DB_Images;
-        $update->memo = $memo;
-        $update->whereAddQuoted('uri', '=', $uri);
+        $update->memo = $params['memo'] = $memo;
+        $update->whereAddQuoted('uri', '=', $search->uri);
         $update->update();
+        unset($update);
+    }
+
+    // ランク変更
+    if (isset($_REQUEST['rank'])) {
+        $update = &new IC2DB_Images;
+        $update->rank = $params['rank'] = $rank;
+        $update->whereAddQuoted('size', '=', $search->size);
+        $update->whereAddQuoted('md5',  '=', $search->md5);
+        $update->whereAddQuoted('mime', '=', $search->mime);
+        $update->update();
+        unset($update);
     }
 
     // ファイルが保存されていればそれでよし、保存されていなければレコードを削除する。
@@ -432,7 +444,9 @@ $params = array('uri' => $uri, 'host' => $host, 'name' => $name, 'size' => $size
 ic2_checkSizeOvered($tmpfile, $params);
 
 // 同じ画像があぼーんされているか確認
-$rank = ic2_checkAbornedFile($tmpfile, $params);
+if (($check = ic2_checkAbornedFile($tmpfile, $params)) !== false) {
+    $rank = $check;
+}
 
 // }}}
 // {{{ finish
@@ -562,7 +576,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
         }
     }
 
-    return 0;
+    return false;
 }
 
 function ic2_checkSizeOvered($tmpfile, $params)
@@ -645,7 +659,6 @@ function ic2_display($path, $params)
                 $_REQUEST = array_map('addslashes_r', $_REQUEST);
             }
 
-            $img_p = isset($uri) ? 'uri=' . rawurlencode($uri) : (isset($id) ? 'id=' . $id : 'file=' . $file);
             if (isset($uri)) {
                 $img_o = 'uri';
                 $img_p = $uri;
@@ -715,14 +728,14 @@ function ic2_display($path, $params)
             $qf->accept($rdr);
 
             // 表示
-            $flexy->setData('title', 'キャッシュ完了');
+            $flexy->setData('title', 'IC2::Cached');
+            $flexy->setData('pc', !$_conf['ktai']);
+            $flexy->setData('iphone', $_conf['iphone']);
             if (!$_conf['ktai']) {
-                $flexy->setData('pc', true);
                 $flexy->setData('skin', $GLOBALS['skin_name']);
                 //$flexy->setData('stylesheets', array('css'));
                 //$flexy->setData('javascripts', array('js'));
             } else {
-                $flexy->setData('pc', false);
                 $flexy->setData('k_color', array(
                     'c_bgcolor' => !empty($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '#ffffff',
                     'c_text'    => !empty($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '#000000',
@@ -730,7 +743,23 @@ function ic2_display($path, $params)
                     'c_vlink'   => !empty($_conf['mobile.vlink_color']) ? $_conf['mobile.vlink_color'] : '#9900ff',
                 ));
             }
-            if ($thumb == 2) {
+
+            $rank = isset($params['rank']) ? $params['rank'] : 0;
+            $img_dir = $_conf['iphone'] ? 'img/iphone/' : 'img/';
+            $stars = array();
+            $stars[-1] = $img_dir . (($rank == -1) ? 'sn1' : 'sn0') . '.png';
+            //$stars[0] = $img_dir . (($rank ==  0) ? 'sz1' : 'sz0') . '.png';
+            $stars[0] = $img_dir . ($_conf['iphone'] ? 'sz0' : 'sz1') . '.png';
+            for ($i = 1; $i <= 5; $i++) {
+                $stars[$i] = $img_dir . (($rank >= $i) ? 's1' : 's0') . '.png';
+            }
+
+            $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0";
+
+            $flexy->setData('stars', $stars);
+            $flexy->setData('params', $params);
+
+            if ($thumb == 2 && $rank >= 0) {
                 if ($ini['General']['inline'] == 1) {
                     $t = 2;
                     $link = null;
@@ -748,15 +777,29 @@ function ic2_display($path, $params)
                 $flexy->setData('link', $path);
                 $flexy->setData('info', null);
             }
-            if (isset($_REQUEST['from'])) {
+
+            if (!$_conf['ktai'] || $_conf['iphone']) {
+                $flexy->setData('backto', null);
+            } elseif (isset($_REQUEST['from'])) {
                 $flexy->setData('backto', $_REQUEST['from']);
+                $setrank_url .= '&from=' . rawurlencode($_REQUEST['from']);
             } elseif (isset($_SERVER['HTTP_REFERER'])) {
                 $flexy->setData('backto', $_SERVER['HTTP_REFERER']);
             } else {
                 $flexy->setData('backto', null);
             }
-            $flexy->setData('edit', extension_loaded('gd'));
+
+            $flexy->setData('stars', $stars);
+            $flexy->setData('sertank', $setrank_url . '&rank=');
+
+            if ($_conf['iphone']) {
+                $_conf['extra_headers_ht'] .= '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">';
+                $_conf['extra_headers_xht'] .= '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css" />';
+            }
+
+            $flexy->setData('edit', (extension_loaded('gd') && $rank >= 0));
             $flexy->setData('form', $rdr->toObject());
+            $flexy->setData('doctype', $_conf['doctype']);
             $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
             $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
             $flexy->compile('preview.tpl.html');

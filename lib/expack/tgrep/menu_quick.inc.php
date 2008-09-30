@@ -5,7 +5,9 @@
  * tGrep お気にリストメニュー
  */
 
-if ($_conf['ktai']) {
+if ($_conf['iphone']) {
+    tgrep_print_quick_list_i();
+} elseif ($_conf['ktai']) {
     tgrep_print_quick_list_k();
 } else {
     tgrep_print_quick_list();
@@ -84,5 +86,25 @@ function tgrep_print_quick_list_k()
     echo '</form>' . "\n";
     if ($tgrep_quick_list) {
         echo '<p><a href="tgrepctl.php?file=quick&amp;clear=all">一発検索をｸﾘｱ</a></p>' . "\n";
+    }
+}
+
+/**
+ * iPhone用表示
+ */
+function tgrep_print_quick_list_i()
+{
+    global $_conf;
+
+    $tgrep_quick_list = tgrep_read_quick_list();
+
+    if ($tgrep_quick_list) {
+        foreach ($tgrep_quick_list as $tgrep_quick_query) {
+            $tgrep_quick_query_en = rawurlencode($tgrep_quick_query);
+            $tgrep_quick_query_ht = htmlspecialchars($tgrep_quick_query, ENT_QUOTES);
+            echo '<li><a href="tgrepc.php?iq=' . $tgrep_quick_query_en . '">' . $tgrep_quick_query_ht . '</a></li>' . "\n";
+        }
+    } else {
+        echo '<li class="weight-n">（なし）</li>' . "\n";
     }
 }

@@ -16,6 +16,9 @@ class ShowThreadK extends ShowThread{
 
     var $aas_rotate = '右に90°回転'; // AAS 回転リンク文字列
 
+    var $respopup_at = '';  // レスポップアップ・イベントハンドラ
+    var $target_at = '';    // 引用、省略、ID、NG等のリンクターゲット
+
     /**
      * コンストラクタ
      */
@@ -24,6 +27,11 @@ class ShowThreadK extends ShowThread{
         parent::ShowThread($aThread);
 
         global $_conf;
+
+        if ($_conf['iphone']) {
+            $this->respopup_at = ' onclick="return iResPopUp(this, event);"';
+            $this->target_at = ' target="_blank"';
+        }
 
         $this->url_handlers = array(
             'plugin_link2ch',
@@ -172,7 +180,6 @@ class ShowThreadK extends ShowThread{
         // }}}
 
         $tores = "";
-        $rpop = "";
         $isNgName = false;
         $isNgMail = false;
         $isNgId = false;
@@ -348,7 +355,7 @@ class ShowThreadK extends ShowThread{
         if ($ng_msg_info) {
             $ng_type = implode(', ', $ng_msg_info);
             $msg = <<<EOMSG
-<s><font color="{$STYLE['mobile_read_ngword_color']}">$ng_type</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
+<s><font color="{$STYLE['mobile_read_ngword_color']}">$ng_type</font></s> <a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
 EOMSG;
             // AAS
             if ($isAA && P2_AAS_AVAILABLE) {
@@ -358,8 +365,8 @@ EOMSG;
                 } else {
                     $aas_txt = "AAS";
                 }
-                $msg .= " <a href=\"{$aas_url}\">{$aas_txt}</a>";
-                $msg .= " <a href=\"{$aas_url}&amp;rotate=1\">{$this->aas_rotate}</a>";
+                $msg .= " <a href=\"{$aas_url}\"{$this->target_at}>{$aas_txt}</a>";
+                $msg .= " <a href=\"{$aas_url}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
             }
         }
 
@@ -369,7 +376,7 @@ EOMSG;
 <s><font color="{$STYLE['mobile_read_ngword_color']}">$name</font></s>
 EONAME;
             $msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
+<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
 EOMSG;
 
         // NGメール変換
@@ -387,7 +394,7 @@ EOMSG;
 <s><font color="{$STYLE['mobile_read_ngword_color']}">$date_id</font></s>
 EOID;
             $msg = <<<EOMSG
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
+<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>確</a>
 EOMSG;
         }
 
@@ -402,22 +409,50 @@ EOP;
 
         $num_ht = $_conf['wiki.spm.mobile'] ? "<a href=\"spm_k.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;spm_default={$i}{$_conf['k_at_a']}\">{$i}</a>" : $i;
 
-        // 番号（オンザフライ時）
-        if ($this->thread->onthefly) {
-            $GLOBALS['newres_to_show_flag'] = true;
-            $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_onthefly_color']}'\">{$num_ht}</font>]";
-        // 番号（新着レス時）
-        } elseif ($i > $this->thread->readnum) {
-            $GLOBALS['newres_to_show_flag'] = true;
-            $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_newres_color']}\">{$num_ht}</font>]";
-        // 番号
+        if ($_conf['iphone']) {
+            $tores .= "<div class=\"res\" id=\"r{$i}\"><div class=\"res-header\">";
+
+            // 番号（オンザフライ時）
+            if ($this->thread->onthefly) {
+                $GLOBALS['newres_to_show_flag'] = true;
+                $tores .= "<span class=\"no onthefly\">{$num_ht}</span>";
+            // 番号（新着レス時）
+            } elseif ($i > $this->thread->readnum) {
+                $GLOBALS['newres_to_show_flag'] = true;
+                $tores .= "<span class=\"no newres\">{$num_ht}</span>";
+            // 番号
+            } else {
+                $tores .= "<span class=\"no\">{$num_ht}</span>";
+            }
+
+            // 名前
+            $tores .= " <span class=\"name\">{$name}</span>"; 
+
+            // メール
+            $tores .= " <span class=\"mail\">{$mail}</span>"; 
         } else {
-            $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$num_ht}]";
-        }
-        $tores .= $name . ":"; // 名前
-        // メール
-        if ($mail) {
-            $tores .= $mail . ": ";
+            // 番号（オンザフライ時）
+            if ($this->thread->onthefly) {
+                $GLOBALS['newres_to_show_flag'] = true;
+                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_onthefly_color']}'\">{$num_ht}</font>]";
+            // 番号（新着レス時）
+            } elseif ($i > $this->thread->readnum) {
+                $GLOBALS['newres_to_show_flag'] = true;
+                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[<font color=\"{$STYLE['mobile_read_newres_color']}\">{$num_ht}</font>]";
+            // 番号
+            } else {
+                $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$num_ht}]";
+            }
+
+            // 名前
+            if ($name) {
+                $tores .= "{$name}: "; 
+            }
+
+            // メール
+            if ($mail) {
+                $tores .= "{$mail}: "; 
+            }
         }
 
         // IDフィルタ
@@ -444,9 +479,19 @@ EOP;
             $date_id = preg_replace('!(ID: ?)([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?O(?=[^0-9A-Za-z/.+]|$)!', '$1$2<u>O</u>', $date_id);
         }
 
-        $tores .= $date_id . "<br>\n"; // 日付とID
-        $tores .= $rpop; // レスポップアップ用引用
-        $tores .= "{$msg}</div><hr>\n"; // 内容
+        if ($_conf['iphone']) {
+            // 日付とID
+            $tores .= " <span class=\"date-id\">{$date_id}</span></div>\n"; 
+
+            // 内容
+            $tores .= "<div class=\"message\">{$msg}</div></div>\n";
+        } else {
+            // 日付とID
+            $tores .= "{$date_id}<br>\n"; 
+
+            // 内容
+            $tores .= "{$msg}</div><hr>\n";
+        }
 
         // まとめてフィルタ色分け
         if ($GLOBALS['word_fm'] && $GLOBALS['res_filter']['match'] != 'off') {
@@ -492,7 +537,7 @@ EOP;
         $name = str_replace("</b>", "", $name);
         $name = str_replace("<b>", "", $name);
 
-        return $name;
+        return ($name == ' ') ? '' : $name;
     }
 
 
@@ -528,7 +573,7 @@ EOP;
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
             $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quote_res_callback'), $msg);
 
-            $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\">略</a>";
+            $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>略</a>";
             return $msg;
         }
 
@@ -694,7 +739,7 @@ EOP;
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$qsign}{$appointed_num}</a>";
     }
 
     /**
@@ -724,7 +769,7 @@ EOP;
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$from}-{$to}";
 
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$qsign}{$appointed_num}</a>";
     }
 
     /**
@@ -754,7 +799,7 @@ EOP;
         $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls=all&amp;offline=1&amp;idpopup=1&amp;field=id&amp;method=just&amp;match=on&amp;word=" . rawurlencode($id).$_conf['k_at_a'];
 
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $num_ht = '(' . "<a href=\"{$filter_url}\">" . $this->thread->idcount[$id] . '</a>)';
+            $num_ht = "(<a href=\"{$filter_url}\"{$this->target_at}>{$this->thread->idcount[$id]}</a>)";
         } else {
             return $idstr;
         }
@@ -947,6 +992,10 @@ EOP;
                 // インラインプレビューが有効のとき
                 $prv_url = null;
                 if ($this->thumbnailer->ini['General']['inline'] == 1) {
+                    // PCでread_new_k.phpにアクセスしたとき等
+                    if (!isset($this->inline_prvw) || !is_object($this->inline_prvw)) {
+                        $this->inline_prvw =& $this->thumbnailer;
+                    }
                     $prv_url = $this->inline_prvw->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
 
                     // サムネイル表示制限数以内のとき
@@ -1021,8 +1070,8 @@ EOP;
 
             if ($_conf['iphone']) {
                 return "<a href=\"{$img_url}{$backto}\" target=\"_blank\">{$img_str}</a>"
-                   //. ' <img class="ic2-info-opener" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
-                     . ' <input type="button" value="i" onclick="ic2info.show('
+                   //. ' <img class="ic2-show-info" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
+                     . ' <input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('
                      . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";
             } else {
                 return "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";

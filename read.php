@@ -21,6 +21,7 @@ require_once P2_LIBRARY_DIR . '/wiki/read.inc.php';
 //================================================================
 $newtime = date('gis');  // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
 // $_today = date('y/m/d');
+$is_ajax = !empty($_GET['ajax']);
 
 //=================================================
 // スレの指定
@@ -233,8 +234,13 @@ if ($_conf['ktai']) {
         $GLOBALS['filter_hits'] = NULL;
     }
 
-    // ヘッダプリント
-    include_once P2_LIB_DIR . '/read_header_k.inc.php';
+    if ($is_ajax) {
+        header('Content-Type: text/plain; charset=UTF-8');
+        ob_start();
+    } else {
+        // ヘッダプリント
+        include_once P2_LIB_DIR . '/read_header_k.inc.php';
+    }
 
     if ($aThread->rescount) {
         include_once P2_LIB_DIR . '/showthreadk.class.php';
@@ -242,11 +248,15 @@ if ($_conf['ktai']) {
         $aShowThread->datToHtml();
     }
 
-    // フッタプリント
-    if ($filter_hits !== NULL) {
-        resetReadNaviFooterK();
+    if ($is_ajax) {
+        echo mb_convert_encoding(ob_get_clean(), 'UTF-8', 'CP932');
+    } else {
+        // フッタプリント
+        if ($filter_hits !== NULL) {
+            resetReadNaviFooterK();
+        }
+        include_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
-    include_once P2_LIB_DIR . '/read_footer_k.inc.php';
 
 } else {
 
@@ -334,7 +344,7 @@ flush();
 if ($aThread->rescount) {
 
     // 検索の時は、既読数を更新しない
-    if (isset($GLOBALS['word']) and strlen($GLOBALS['word']) > 0) {
+    if ((isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) || $is_ajax) {
         $aThread->readnum = $idx_data[5];
     } else {
         $aThread->readnum = min($aThread->rescount, max(0, $idx_data[5], $aThread->resrange['to']));

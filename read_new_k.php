@@ -54,6 +54,15 @@ if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
     die('p2 error: 必要な引数が指定されていません');
 }
 
+// 未読数制限
+if (isset($_POST['unum_limit'])) {
+    $unum_limit = (int)$_POST['unum_limit'];
+} elseif (isset($_GET['unum_limit'])) {
+    $unum_limit = (int)$_GET['unum_limit'];
+} else {
+    $unum_limit = 0;
+}
+
 //=================================================
 // あぼーん&NGワード設定読み込み
 //=================================================
@@ -123,11 +132,18 @@ EOP;
 EOP;
 }
 
-// iPhone & ImageCache2
-if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
-    $ic2_iphone_js = "<script type=\"text/javascript\" src=\"js/ic2_iphone.js?{$_conf['p2expack']}\"></script>";
-    $_conf['extra_headers_ht'] .= $ic2_iphone_js;
-    $_conf['extra_headers_xht'] .= $ic2_iphone_js;
+// iPhone
+if ($_conf['iphone']) {
+    $_conf['extra_headers_ht'] .= <<<EOS
+<script type="text/javascript" src="js/respopup_iphone.js"></script>
+EOS;
+    // ImageCache2
+    if ($_conf['expack.ic2.enabled']) {
+        $_conf['extra_headers_ht'] .= <<<EOS
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">
+<script type="text/javascript" src="js/ic2_iphone.js"></script>
+EOS;
+    }
 }
 
 // ========================================================
@@ -143,11 +159,18 @@ echo <<<EOHEADER
 <title>{$ptitle_ht}</title>\n
 EOHEADER;
 
+echo "</head><body{$_conf['k_colors']}>";
+
+if ($_conf['iphone']) {
+    P2Util::printOpenInTab(array(
+        ".//div[@class=&quot;res&quot; or @class=&quot;read_new_footer&quot;]//a[starts-with(@href, &quot;{$_conf['read_php']}?&quot;) or starts-with(@href, &quot;{$_conf['subject_php']}?&quot;)]",
+        ".//div[@class=&quot;read_new_footer&quot;]//a[starts-with(@href, &quot;spm_k.php?&quot;)]"
+    ));
+}
+
 echo <<<EOP
-</head>
-<body{$_conf['k_colors']}>
-<p>{$sb_ht}の新まとめ
-<a id="above" name="above" {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#bottom">{$_conf['k_accesskey']['bottom']}.▼</a></p>\n
+<div>{$sb_ht}の新まとめ
+<a class="button" id="above" name="above" {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#bottom">{$_conf['k_accesskey']['bottom']}.▼</a></div>\n
 EOP;
 
 echo $_info_msg_ht;
@@ -250,6 +273,12 @@ for ($x = 0; $x < $linesize; $x++) {
                 continue;
             }
         }
+    }
+
+    // 未読数制限
+    if ($unum_limit > 0 && $aThread->unum >= $unum_limit) {
+        unset($aThread);
+        continue;
     }
 
     if ($aThread->isonline) { $online_num++; } // 生存数set
@@ -362,10 +391,10 @@ function readNew(&$aThread)
     $prev_thre_num = $newthre_num - 1;
     $next_thre_num = $newthre_num + 1;
     if ($prev_thre_num != 0) {
-        $prev_thre_ht = "<a href=\"#ntt{$prev_thre_num}\">▲</a>";
+        $prev_thre_ht = "<a class=\"button\" href=\"#ntt{$prev_thre_num}\">▲</a>";
     }
     //$next_thre_ht = "<a href=\"#ntt{$next_thre_num}\">▼</a> ";
-    $next_thre_ht = "<a href=\"#ntt_bt{$newthre_num}\">▼</a> ";
+    $next_thre_ht = "<a class=\"button\" href=\"#ntt_bt{$newthre_num}\">▼</a> ";
 
     $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
@@ -377,10 +406,11 @@ function readNew(&$aThread)
     $_info_msg_ht = "";
 
     $read_header_ht = <<<EOP
-        <hr>
-        <p id="ntt{$newthre_num}" name="ntt{$newthre_num}"><font color="{$STYLE['mobile_read_ttitle_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</p>
-        <hr>\n
+<hr><div id="ntt{$newthre_num}" name="ntt{$newthre_num}"><font color="{$STYLE['mobile_read_ttitle_color']}"><b>{$aThread->ttitle_hd}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</div>
 EOP;
+    if (!$_conf['iphone']) {
+        $read_header_ht .= '<hr>';
+    }
 
     //==================================================================
     // ローカルDatを読み込んでHTML表示
@@ -433,7 +463,7 @@ EOP;
     }
 
     $spm_ht = <<<EOP
-<a href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
+<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
 EOP;
 
     // ツールバー部分HTML =======
@@ -445,15 +475,15 @@ EOP;
     $toolbar_right_ht .= <<<EOTOOLBAR
 <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
 <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a>
-<a href="{$motothre_url}">元ｽﾚ</a>\n
+<a href="{$motothre_url}" target="_blank">元ｽﾚ</a>\n
 EOTOOLBAR;
 
     $read_footer_ht = <<<EOP
-<div class="read-footer" id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}">
+<div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_footer">
 {$read_range_ht}
 {$spm_ht}<br>
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}
-<a href="#ntt{$newthre_num}">▲</a>
+<a class="button" href="#ntt{$newthre_num}">▲</a>
 </div>
 <hr>\n
 EOP;
@@ -494,6 +524,12 @@ if (!$aThreadList->num) {
     echo "<hr>";
 }
 
+if ($unum_limit > 0) {
+    $unum_limit_at_a = "&amp;unum_limit={$unum_limit}";
+} else {
+    $unum_limit_at_a = '';
+}
+
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     if (!empty($GLOBALS['limit_to_eq_to'])) {
         $str = '新着まとめの更新/続き';
@@ -502,15 +538,15 @@ if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !emp
     }
     echo <<<EOP
 <div>
-{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.{$str}</a>
-<a id="bottom" name="bottom" {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#above">{$_conf['k_accesskey']['above']}.▲</a>
+{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}&amp;nt={$newtime}{$unum_limit_at_a}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.{$str}</a>
+<a class="button" id="bottom" name="bottom" {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#above">{$_conf['k_accesskey']['above']}.▲</a>
 </div>\n
 EOP;
 } else {
     echo <<<EOP
 <div>
-{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&bbs={$aThreadList->bbs}&spmode={$aThreadList->spmode}&nt={$newtime}&amp;norefresh=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめの続き</a>
-<a id="bottom" name="bottom" {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#above">{$_conf['k_accesskey']['above']}.▲</a>
+{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}&amp;nt={$newtime}&amp;norefresh=1{$unum_limit_at_a}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめの続き</a>
+<a class="button" id="bottom" name="bottom" {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#above">{$_conf['k_accesskey']['above']}.▲</a>
 </div>\n
 EOP;
 }
@@ -519,6 +555,7 @@ echo '<hr>'.$_conf['k_to_index_ht']."\n";
 
 // iPhone & ImageCache2
 if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
+    require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
     $ic2conf = ic2_loadconfig();
     if ($ic2conf['Thumb1']['width'] > 80) {
         include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';

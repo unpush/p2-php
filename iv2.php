@@ -14,6 +14,17 @@ if (!$_conf['expack.ic2.enabled']) {
     exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
 }
 
+if ($_conf['iphone']) {
+    $_conf['extra_headers_ht'] .=
+        '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">' .
+        '<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css">' .
+        '<script type="text/javascript" src="js/iv2_iphone.js"></script>';
+    $_conf['extra_headers_xht'] .=
+        '<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css" />' .
+        '<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css" />' .
+        '<script type="text/javascript" src="js/iv2_iphone.js"></script>';
+}
+
 // ビュー判定用の隠し要素
 
 if ($_conf['view_forced_by_query']) {
@@ -309,7 +320,9 @@ $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('base_dir', dirname($_SERVER['SCRIPT_NAME']));
 $flexy->setData('rep2expack', $_conf['p2expack']);
 $flexy->setData('_hint', $_conf['detect_hint']);
-if ($_conf['ktai']) {
+if ($_conf['iphone']) {
+    $flexy->setData('top_url', 'index.php');
+} elseif ($_conf['ktai']) {
     $flexy->setData('k_color', array(
         'c_bgcolor' => !empty($_conf['mobile.background_color']) ? $_conf['mobile.background_color'] : '#ffffff',
         'c_text'    => !empty($_conf['mobile.text_color'])  ? $_conf['mobile.text_color']  : '#000000',
@@ -321,6 +334,9 @@ if ($_conf['ktai']) {
 } else {
     $flexy->setData('skin', str_replace('&amp;', '&', $skin_en));
 }
+$flexy->setData('pc', !$_conf['ktai']);
+$flexy->setData('iphone', $_conf['iphone']);
+$flexy->setData('doctype', $_conf['doctype']);
 $flexy->setData('extra_headers',   $_conf['extra_headers_ht']);
 $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 
@@ -601,48 +617,45 @@ if ($all == 0) {
     $prev_page = max(1, $page - 1);
     $next_page = min($page + 1, $last_page);
 
-    // ページ遷移用リンク（携帯）を生成
-    if ($_conf['ktai']) {
+    // ページ遷移用リンク（iPhone）を生成
+    if ($_conf['iphone']) {
         $pg_base = htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
-        $pg_pos = $page . '/' . $last_page;
-        $pg_delim = ' | ';
-        $pg_fmt_akey = '<a href="%s?page=%d" %s="%d">%s%s</a>';
-        $pg_fmt_link = '<a href="%s?page=%d">%s</a>';
-        $pg_fmt_none = '%s %s';
-        $_ak = $_conf['accesskey'];
+        $pager = '';
+        if ($page != 1) {
+            $pager .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base,          1, $emj['lt2']);
+            $pager .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base, $prev_page, $emj['lt1']);
+        }
+        $pager .= sprintf('%d/%d', $page, $last_page);
+        if ($page != $last_page) {
+            $pager .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $next_page, $emj['rt1']);
+            $pager .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $last_page, $emj['rt2']);
+        }
+        $flexy->setData('pager', $pager);
+
+    // ページ遷移用リンク（携帯）を生成
+    } elseif ($_conf['ktai']) {
+        $pg_base = htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
+        $pg_pos = sprintf('%d/%d', $page, $last_page);
         $pager1 = '';
         $pager2 = '';
-        if ($page == 1) {
-            //$pager1 .= sprintf($pg_fmt_none, $emj['lt2'], $emj['lt1']) . ' ';
-            //$pager2 .= sprintf($pg_fmt_none, $emj['lt2'], $emj['lt1']) . ' ';
-        } else {
-            $pager1 .= sprintf($pg_fmt_akey, $pg_base,          1, $_ak, 1, $emj[1], $emj['lt2']) . ' ';
-            $pager1 .= sprintf($pg_fmt_akey, $pg_base, $prev_page, $_ak, 4, $emj[4], $emj['lt1']) . ' ';
-            $pager2 .= sprintf($pg_fmt_link, $pg_base,          1, $emj['lt2']) . ' ';
-            $pager2 .= sprintf($pg_fmt_link, $pg_base, $prev_page, $emj['lt1']) . ' ';
+        if ($page != 1) {
+            $pager1 .= sprintf('<a href="%s?page=%d" %s="%d">%s%s</a> ',
+                               $pg_base,          1, $_conf['accesskey'], 1, $emj[1], $emj['lt2']);
+            $pager1 .= sprintf('<a href="%s?page=%d" %s="%d">%s%s</a> ',
+                               $pg_base, $prev_page, $_conf['accesskey'], 4, $emj[4], $emj['lt1']);
+            $pager2 .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base,          1, $emj['lt2']);
+            $pager2 .= sprintf('<a href="%s?page=%d">%s</a> ', $pg_base, $prev_page, $emj['lt1']);
         }
         $pager1 .= $pg_pos;
         $pager2 .= $pg_pos;
-        if ($page == $last_page) {
-            //$pager1 .= ' ' . sprintf($pg_fmt_none, $emj['rt1'], $emj['rt2']);
-            //$pager2 .= ' ' . sprintf($pg_fmt_none, $emj['rt1'], $emj['rt2']);
-        } else {
-            $pager1 .= ' ' . sprintf($pg_fmt_link, $pg_base, $next_page, $emj['rt1']);
-            $pager1 .= ' ' . sprintf($pg_fmt_link, $pg_base, $last_page, $emj['rt2']);
-            $pager2 .= ' ' . sprintf($pg_fmt_akey, $pg_base, $next_page, $_ak, 6, $emj[6], $emj['rt1']);
-            $pager2 .= ' ' . sprintf($pg_fmt_akey, $pg_base, $last_page, $_ak, 9, $emj[9], $emj['rt2']);
+        if ($page != $last_page) {
+            $pager1 .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $next_page, $emj['rt1']);
+            $pager1 .= sprintf(' <a href="%s?page=%d">%s</a>', $pg_base, $last_page, $emj['rt2']);
+            $pager2 .= sprintf(' <a href="%s?page=%d" %s="%d">%s%s</a>',
+                               $pg_base, $next_page, $_conf['accesskey'], 6, $emj[6], $emj['rt1']);
+            $pager2 .= sprintf(' <a href="%s?page=%d" %s="%d">%s%s</a>',
+                               $pg_base, $last_page, $_conf['accesskey'], 9, $emj[9], $emj['rt2']);
         }
-        /*$pager1 .= $pg_delim;
-        $pager2 .= $pg_delim;
-        if (empty($_SESSION['iv2i_filter'])) {
-            $pager_search = "<a href=\"{$pg_url}?page={$page}&amp;show_iv2_kfilter=1\">索</a>";
-            $pager1 .= $pager_search;
-            $pager2 .= $pager_search;
-        } else {
-            $pager_reset = "<a href=\"{$pg_url}?page=1&amp;session_no_close=1&amp;reset_filter=1\">解</a>";
-            $pager1 .= $pager_reset;
-            $pager2 .= $pager_reset;
-        }*/
         $flexy->setData('pager1', $pager1);
         $flexy->setData('pager2', $pager2);
 
@@ -781,6 +794,13 @@ if ($all == 0) {
         $status = array();
         $status['rank'] = $img['rank'];
         $status['rank_f'] = ($img['rank'] == -1) ? 'あぼーん' : $img['rank'];
+        if ($img['rank'] == -1) {
+            $status['rank_i'] = '<img src="img/sn1a.png" width="16" height="16">';
+        } elseif ($img['rank'] > 0 && $img['rank'] <= 5) {
+            $status['rank_i'] = str_repeat('<img src="img/s1a.png" width="16" height="16">', $img['rank']);
+        } else {
+            $status['rank_i'] = '';
+        }
         $status['memo'] = $img['memo'];
         unset($img['rank'], $img['memo']);
 
@@ -874,7 +894,7 @@ $flexy->setData('removedFiles', $removed_files);
 // モード別の最終処理
 if ($_conf['ktai']) {
     $title = str_replace('ImageCache2', 'IC2', $ini['Viewer']['title']);
-    $list_template = 'iv2i.tpl.html';
+    $list_template = ($_conf['iphone']) ? 'iv2ip.tpl.html' : 'iv2i.tpl.html';
 } else {
     switch ($mode) {
         case 2:
@@ -919,7 +939,13 @@ $flexy->setData('lightbox', $lightbox);
 // ページを表示
 P2Util::header_nocache();
 $flexy->compile($list_template);
-if ($list_template == 'iv2i.tpl.html') {
+if ($list_template == 'iv2ip.tpl.html') {
+    $flexy->setData('thumb_width', (int)$ini['Thumb1']['width']);
+    $flexy->setData('thumb_height', (int)$ini['Thumb1']['height']);
+    $flexy->setData('title_width_v', 320 - (10 * 2) - (int)$ini['Thumb1']['width']);
+    $flexy->setData('title_width_h', 480 - (10 * 2) - (int)$ini['Thumb1']['width']);
+    $flexy->output();
+} elseif ($list_template == 'iv2i.tpl.html') {
     $mobile = &Net_UserAgent_Mobile::singleton();
     $elements = $flexy->getElements();
     if ($mobile->isDoCoMo()) {
@@ -929,7 +955,7 @@ if ($list_template == 'iv2i.tpl.html') {
     } elseif ($mobile->isVodafone()) {
         $elements['page']->setAttributes('mode="numeric"');
     }
-    $view = false;
+    $view = null;
     $flexy->outputObject($view, $elements);
 } else {
     $flexy->output();

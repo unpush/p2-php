@@ -14,9 +14,9 @@ function sb_print_k(&$aThreadList)
 
     if (!$aThreadList->threads) {
         if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
-            echo "<p>お気にｽﾚに新着なかったぽ</p>";
+            echo '<p class="empty-subject">お気にｽﾚに新着なかったぽ</p>';
         } else {
-            echo "<p>該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>";
+            echo '<p class="empty-subject">該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>';
         }
         return;
     }
@@ -62,11 +62,16 @@ function sb_print_k(&$aThreadList)
     // spmodeがあればクエリー追加
     if ($aThreadList->spmode) {$spmode_q = "&amp;spmode={$aThreadList->spmode}";}
 
+    if ($_conf['iphone']) {
+        echo '<ul class="subject">';
+    }
+
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
         $i++;
         $midoku_ari = "";
         $anum_ht = ""; //#r1
+        $htm = array('ita' => '', 'rnum' => '', 'unum' => '', 'sim' => '');
 
         $bbs_q = "&amp;bbs=".$aThread->bbs;
         $key_q = "&amp;key=".$aThread->key;
@@ -76,33 +81,57 @@ function sb_print_k(&$aThreadList)
         }
 
         // 新着レス数 =============================================
-        $unum_ht = "";
         // 既得済み
         if ($aThread->isKitoku()) {
-            $unum_ht="{$aThread->unum}";
+            $htm['unum'] = "{$aThread->unum}";
 
             $anum = $aThread->rescount - $aThread->unum +1 - $_conf['respointer'];
             if ($anum > $aThread->rescount) { $anum = $aThread->rescount; }
             $anum_ht = "#r{$anum}";
 
-            // 新着あり
-            if ($aThread->unum > 0) {
-                $midoku_ari = true;
-                $unum_ht = "<font color=\"{$STYLE['mobile_subject_newres_color']}\">{$aThread->unum}</font>";
-            }
+            // iPhone用
+            if ($_conf['iphone']) {
+                $classunum = 'num unread';
 
-            // subject.txtにない時
-            if (!$aThread->isonline) {
-                // 誤動作防止のためログ削除操作をロック
-                $unum_ht = "-";
-            }
+                // 新着あり
+                if ($aThread->unum >= 1) {
+                    $midoku_ari = true;
+                    $classunum .= ' new';
+                }
 
-            $unum_ht = "[".$unum_ht."]";
+                // subject.txtにない時
+                if (!$aThread->isonline) {
+                    $htm['unum'] = '-';
+                    $classunum .= ' offline';
+                }
+
+                $htm['unum'] = "<span class=\"{$classunum}\">{$htm['unum']}</span>";
+            } else {
+                // 新着あり
+                if ($aThread->unum >= 1) {
+                    $midoku_ari = true;
+                    $htm['unum'] = "<font color=\"{$STYLE['mobile_subject_newres_color']}\">{$aThread->unum}</font>";
+                }
+
+                // subject.txtにない時
+                if (!$aThread->isonline) {
+                    $htm['unum'] = '-';
+                }
+
+                $htm['unum'] = "[{$htm['unum']}]";
+            }
         }
 
         // 新規スレ
-        if ($aThread->new) {
-            $unum_ht = "<font color=\"{$STYLE['mobile_subject_newthre_color']}\">新</font>";
+        if ($_conf['iphone']) {
+            $classtitle = 'title';
+            if ($aThread->new) {
+                $classtitle .= ' new';
+            }
+        } else {
+            if ($aThread->new) {
+                $htm['unum'] = "<font color=\"{$STYLE['mobile_subject_newthre_color']}\">新</font>";
+            }
         }
 
         // 総レス数 =============================================
@@ -118,8 +147,9 @@ function sb_print_k(&$aThreadList)
                 $ita_name_hd = mb_convert_kana($ita_name_hd, 'rnsk');
             }
 
-            // $htm['ita'] = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hd}</a>)";
-            $htm['ita'] = "({$ita_name_hd})";
+            //$htm['ita'] = "<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hd}</a>)";
+            //$htm['ita'] = " ({$ita_name_hd})";
+            $htm['ita'] = $ita_name_hd;
         }
 
         // torder(info) =================================================
@@ -158,16 +188,16 @@ function sb_print_k(&$aThreadList)
             $aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
         }
 
-        $aThread->ttitle_ht = $aThread->ttitle_ht . " (" . $rescount_ht . ")";
-        if ($aThread->similarity) {
-            $aThread->ttitle_ht .= sprintf(' %0.1f%%', $aThread->similarity * 100);
-        }
-
-        // 新規スレ
-        if ($aThread->new) {
-            $classtitle_q = " class=\"thre_title_new\"";
+        if ($_conf['iphone']) {
+            $htm['rnum'] = "<span class=\"num count\">{$rescount_ht}</span>";
+            if ($aThread->similarity) {
+                $htm['sim'] .= sprintf(' <span class=\"num score\">%0.1f%%</span>', $aThread->similarity * 100);
+            }
         } else {
-            $classtitle_q = " class=\"thre_title\"";
+            $htm['rnum'] = "({$rescount_ht})";
+            if ($aThread->similarity) {
+                $htm['sim'] .= sprintf(' %0.1f%%', $aThread->similarity * 100);
+            }
         }
 
         $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
@@ -190,11 +220,34 @@ function sb_print_k(&$aThreadList)
         //====================================================================================
 
         //ボディ
-        echo <<<EOP
-<div>
-{$unum_ht}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>{$htm['ita']}
-</div>
+        if ($_conf['iphone']) {
+            // 勢い
+            if ($_conf['sb_show_ikioi'] && $aThread->dayres > 0) {
+                // 0.0 とならないように小数点第2位で切り上げ
+                $htm['ikioi'] = sprintf(' / <span class="num speed">%01.1f</span>', ceil($aThread->dayres * 10) / 10);
+            } else {
+                $htm['ikioi'] = '';
+            }
+
+            if ($htm['ita'] !== '') {
+                $htm['ita'] = "<span class=\"ita\">{$htm['ita']}</span>";
+            }
+
+            $htm['birthday'] = date('y/m/d', $aThread->key);
+
+            echo <<<EOP
+<li><a href="{$thre_url}">{$htm['unum']} <span class="{$classtitle}">{$aThread->ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a>
+<div class="bg1"><span class="num order">{$aThread->torder}</span>{$htm['ikioi']}</div>
+<div class="bg2"><span class="date">{$htm['birthday']}</span></div></li>\n
 EOP;
+        } else {
+            echo <<<EOP
+<div>{$htm['unum']}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</div>\n
+EOP;
+        }
     }
 
+    if ($_conf['iphone']) {
+        echo '</ul>';
+    }
 }

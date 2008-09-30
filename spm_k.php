@@ -117,7 +117,7 @@ echo '<p>';
 if (!empty($_GET['from_read_new'])) {
     echo "<a href=\"{$_conf['read_new_k_php']}?cview=1{$_conf['k_at_a']}\">�܂Ƃߓǂ݂ɖ߂�</a><br>";
 }
-echo "<a href=\"{$thread_url}\">�ڂɖ߂�<a/>";
+echo "<a href=\"{$thread_url}\">�ڂɖ߂�</a>";
 echo '</p>';
 echo '</body></html>';
 exit;

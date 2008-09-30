@@ -157,8 +157,8 @@ if ($_conf['input_type_search']) {
     <link rel="stylesheet" href="css.php?css=read&amp;skin=<?php echo $skin_en; ?>" type="text/css">
     <link rel="stylesheet" href="css.php?css=subject&amp;skin=<?php echo $skin_en; ?>" type="text/css">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/basic.js?<?php echo $_conf['p2expack']; ?>"></script>
-    <script type="text/javascript" src="js/gpopup.js?<?php echo $_conf['p2expack']; ?>"></script>
+    <script type="text/javascript" src="js/basic.js"></script>
+    <script type="text/javascript" src="js/gpopup.js"></script>
 </head>
 <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 <table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td align="left">

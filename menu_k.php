@@ -116,7 +116,7 @@ if($_GET['view']=="favita"){
 if ($_GET['view'] != "favita" && $_GET['view'] != "rss" && !$_GET['cateid']) {
     $kensaku_form_ht = <<<EOFORM
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="detect_hint" value="ž@ž">
+    <input type="hidden" name="_hint" value="ž">
     {$_conf['k_input_ht']}
     <input type="hidden" name="nr" value="1">
     <input type="text" id="word" name="word" value="{$word}" size="12">

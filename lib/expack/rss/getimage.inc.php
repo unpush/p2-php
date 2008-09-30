@@ -40,8 +40,8 @@ function rss_get_image_ic2($src_url, $memo='')
     if ($thumbnailer->ini['General']['automemo'] && $memo !== '') {
         $img_memo = IC2DB_Images::uniform($memo, 'SJIS-win');
         if ($memo !== '') {
-            $hint = mb_convert_encoding('@', 'UTF-8', 'SJIS-win');
-            $img_memo_query = '&amp;hint=' . rawurlencode($hint);
+            $hint = mb_convert_encoding('', 'UTF-8', 'SJIS-win');
+            $img_memo_query = '&amp;_hint=' . rawurlencode($hint);
             $img_memo_query .= '&amp;memo=' . rawurlencode($img_memo);
         } else {
             $img_memo = NULL;
