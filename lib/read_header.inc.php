@@ -190,11 +190,24 @@ echo <<<EOP
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
-    <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2_version_id']}"></script>
+
     <script type="text/javascript" src="js/ngabornctl.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
+
+if ($_conf['iframe_popup_type'] == 1) {
+    echo <<<EOP
+    <script type="text/javascript" src="./js/yui-ext/yui.js"></script>
+    <script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css">
+    <script type="text/javascript" src="js/htmlpopup_resizable.js?{$_conf['p2_version_id']}"></script>
+EOP;
+} else {
+    echo <<<EOP
+    <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
 
 if ($_conf['link_youtube'] == 2 || $_conf['link_niconico'] == 2) {
     echo <<<EOP
@@ -241,6 +254,12 @@ if (empty($_GET['one'])) {
     $onload_script .= 'setWinTitle();';
 }
 
+if ($_conf['iframe_popup_type'] == 1) {
+    $fade = empty($_GET['fade']) ? 'false' : 'true';
+    $onload_script .= "gFade = {$fade};";
+    $bodyadd = ' onclick="hideHtmlPopUp(event);"';
+}
+
 echo <<<EOHEADER
     <script type="text/javascript">
     //<![CDATA[
@@ -265,7 +284,7 @@ EOHEADER;
 
 echo <<<EOP
 </head>
-<body><div id="popUpContainer"></div>\n
+<body{$bodyadd}><div id="popUpContainer"></div>\n
 EOP;
 
 echo $_info_msg_ht;

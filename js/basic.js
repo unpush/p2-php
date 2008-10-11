@@ -387,6 +387,14 @@ function escapeHTML(cont)
 	return document.createElement('div').appendChild(document.createTextNode(cont)).parentNode.innerHTML;
 }
 
+/**
+ * @return  object
+ */
+function getDocumentBodyIE()
+{
+	return (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
+}
+
 /*
  * Local Variables:
  * mode: javascript
