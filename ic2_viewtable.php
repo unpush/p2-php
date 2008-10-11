@@ -1,18 +1,18 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    ImageCache2 - エラーログ・ブラックリスト閲覧
-*/
+/**
+ * ImageCache2 - エラーログ・ブラックリスト閲覧
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -24,7 +24,7 @@ require_once 'DB/DataObject.php';
 require_once 'HTML/Template/Flexy.php';
 require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
 
 // }}}
 // {{{ 設定と消去
@@ -33,38 +33,38 @@ require_once P2EX_LIB_DIR . '/ic2/database.class.php';
 $ini = ic2_loadconfig();
 
 if (!isset($_REQUEST['table'])) {
-    die('<html><body><p>ic2 error - 不正なクエリ</p></body></html>');
+    p2die('ImageCache2 - 不正なクエリ');
 }
 
 $mode = $_REQUEST['table'];
 switch ($mode) {
     case 'errlog':
-        require_once P2EX_LIB_DIR . '/ic2/db_errors.class.php';
-        $table = &new IC2DB_Errors;
+        require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
+        $table = new IC2_DataObject_Errors;
         $table->orderBy('occured ASC');
         $title = 'エラーログ';
         break;
     case 'blacklist':
-        require_once P2EX_LIB_DIR . '/ic2/db_blacklist.class.php';
-        $table = &new IC2DB_BlackList;
+        require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
+        $table = new IC2_DataObject__BlackList;
         $table->orderBy('uri ASC');
         $title = 'ブラックリスト';
         break;
     default:
-        die('<html><body><p>ic2 error - 不正なクエリ</p></body></html>');
+        p2die('ImageCache2 - 不正なクエリ');
 }
 
 
-$db = &$table->getDatabaseConnection();
+$db = $table->getDatabaseConnection();
 if (isset($_POST['clean'])) {
     $sql = 'DELETE FROM ' . $db->quoteIdentifier($table->__table);
-    $result = &$db->query($sql);
+    $result = $db->query($sql);
     if (DB::isError($result)) {
-        die('<html><body><p>'.$result->getMessage().'</p></body></html>');
+        p2die($result->getMessage());
     }
 } elseif (isset($_POST['delete']) && isset($_POST['target']) && is_array($_POST['target'])) {
     foreach ($_POST['target'] as $target) {
-        $delete = clone($table);
+        $delete = clone $table;
         $delete->uri = $target;
         $delete->delete();
     }
@@ -76,12 +76,12 @@ if (isset($_POST['clean'])) {
 $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'cp932',
-    'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
+    'compileDir' => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'ic2',
     'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+$flexy = new HTML_Template_Flexy($_flexy_options);
 
 $flexy->setData('php_self', $_SERVER['SCRIPT_NAME']);
 $flexy->setData('skin', $skin_en);
@@ -114,26 +114,36 @@ $flexy->output();
 
 // }}}
 // {{{ 関数
+// {{{ ic2dumptable_errlog()
 
-function ic2dumptable_errlog(&$dbdo)
+/**
+ * エラーログを取得する
+ */
+function ic2dumptable_errlog($dbdo)
 {
     $data = array();
     while ($dbdo->fetch()) {
-        $obj = &new stdClass;
+        $obj = new stdClass;
         $obj->uri = $dbdo->uri;
         $obj->date = date('Y-m-d (D) H:i:s', $dbdo->occured);
         $obj->code = $dbdo->errcode;
-        $obj->message = mb_convert_encoding($dbdo->errmsg, 'SJIS-win', 'UTF-8');
+        $obj->message = mb_convert_encoding($dbdo->errmsg, 'CP932', 'UTF-8');
         $data[] = $obj;
     }
     return $data;
 }
 
-function ic2dumptable_blacklist(&$dbdo)
+// }}}
+// {{{ ic2dumptable_blacklist()
+
+/**
+ * ブラックリストを取得する
+ */
+function ic2dumptable_blacklist($dbdo)
 {
     $data = array();
     while ($dbdo->fetch()) {
-        $obj = &new stdClass;
+        $obj = new stdClass;
         $obj->uri = $dbdo->uri;
         switch ($dbdo->type) {
             case '0':
@@ -156,3 +166,15 @@ function ic2dumptable_blacklist(&$dbdo)
 }
 
 // }}}
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,19 +1,14 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    expack - ÉXÉåÉbÉhÇÉcÉäÅ[ï\é¶Ç∑ÇÈ
-    ÉcÉäÅ[ï\é¶à»äOÇÃÉãÅ[É`ÉìÇÕread.phpÇ©ÇÁîqéÿ
-*/
+/**
+ * rep2expack - ÉXÉåÉbÉhÇÉcÉäÅ[ï\é¶Ç∑ÇÈ
+ * ÉcÉäÅ[ï\é¶à»äOÇÃÉãÅ[É`ÉìÇÕread.phpÇ©ÇÁîqéÿ
+ */
 
-require_once 'conf/conf.inc.php';
-require_once P2_LIB_DIR . '/thread.class.php';    //ÉXÉåÉbÉhÉNÉâÉXì«çû
-require_once P2_LIB_DIR . '/threadread.class.php';    //ÉXÉåÉbÉhÉäÅ[ÉhÉNÉâÉXì«çû
-require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/ngabornctl.class.php';
-require_once P2_LIB_DIR . '/showthread.class.php';    //HTMLï\é¶ÉNÉâÉX
-require_once P2_LIB_DIR . '/showthreadpc.class.php';  //HTMLï\é¶ÉNÉâÉX
-//require_once P2_LIB_DIR . '/showthreadtree.class.php'; // ÉcÉäÅ[ï\é¶ÉNÉâÉX
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/NgAbornCtl.php';
+require_once P2_LIB_DIR . '/ThreadRead.php';
+require_once P2_LIB_DIR . '/ShowThreadPc.php';
+//require_once P2_LIB_DIR . '/ShowThreadTree.php';
 
 $_login->authorize(); // ÉÜÅ[ÉUîFèÿ
 
@@ -27,7 +22,7 @@ $newtime = date('gis'); // ìØÇ∂ÉäÉìÉNÇÉNÉäÉbÉNÇµÇƒÇ‡çƒì«çûÇµÇ»Ç¢édólÇ…ëŒçRÇ∑ÇÈÉ
 $_info_msg_ht = '';
 
 if (empty($_GET['host']) || empty($_GET['bbs']) || empty($_GET['key']) || empty($_GET['ls'])) {
-    die("p2 - read_async.php: ÉåÉXÇÃéwíËÇ™ïœÇ≈Ç∑ÅB");
+    p2die('ÉåÉXÇÃéwíËÇ™ïœÇ≈Ç∑ÅB');
 }
 
 $host = $_GET['host'];
@@ -40,7 +35,7 @@ $_conf['ktai'] = FALSE;
 //==================================================================
 // ÉÅÉCÉì
 //==================================================================
-$aThread = &new ThreadRead;
+$aThread = new ThreadRead;
 
 
 //==========================================================
@@ -61,12 +56,10 @@ if (!$aThread->itaj) {
 }
 
 // idxÉtÉ@ÉCÉãÇ™Ç†ÇÍÇŒì«Ç›çûÇﬁ
-if (is_readable($aThread->keyidx)) {
-    $lines = @file($aThread->keyidx);
-    $l = rtrim($lines[0]);
-    $data = explode('<>', $l);
+if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+    $data = explode('<>', $lines[0]);
 } else {
-    $data = array_fill(0, 10, '');
+    $data = array_fill(0, 12, '');
 }
 $aThread->getThreadInfoFromIdx();
 
@@ -117,8 +110,8 @@ $node = 'Ç»Ç¢Ç€ÅB';
 
 if ($aThread->rescount) {
 
-    //$aShowThread = &new ShowThreadTree($aThread);
-    $aShowThread = &new ShowThreadPc($aThread);
+    //$aShowThread = new ShowThreadTree($aThread);
+    $aShowThread = new ShowThreadPc($aThread);
 
     if (isset($aShowThread->thread->datlines[$rp])) {
         $ares = $aShowThread->thread->datlines[$rp];
@@ -190,3 +183,14 @@ P2Util::recRecent($newdata);
 
 // NGÇ†Ç⁄Å[ÇÒÇãLò^
 NgAbornCtl::saveNgAborns();
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

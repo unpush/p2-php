@@ -1,9 +1,9 @@
 <?php
-/*
-    p2 -  スレッド表示 -  フッタ部分 -  for read.php
-*/
+/**
+ * rep2 - スレッド表示 -  フッタ部分 -  for read.php
+ */
 
-require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/DataPhp.php';
 
 //=====================================================================
 // ■フッタ
@@ -22,13 +22,13 @@ if ($_conf['bottom_res_form']) {
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    include_once P2_LIB_DIR . '/post_options_loader.inc.php';
+    require_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>
 EOP;
 
-    include_once P2_LIB_DIR . '/post_form.inc.php';
+    require_once P2_LIB_DIR . '/post_form.inc.php';
 
     // フォーム
     $res_form_ht = <<<EOP
@@ -40,7 +40,7 @@ EOP;
 EOP;
 
     $onmouse_showform_ht = <<<EOP
- onMouseover="document.getElementById('kakiko').style.display = 'block';"
+ onmouseover="document.getElementById('kakiko').style.display = 'block';"
 EOP;
 
 }
@@ -57,7 +57,7 @@ if ($aThread->rescount or ($_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
 EOP;
         } else {
             $htm['dores'] = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target="_self" onClick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}" target="_self" onclick="return OpenSubWin('post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}&amp;popup=1{$sid_q}',{$STYLE['post_pop_size']},1,0)"{$onmouse_showform_ht}>{$dores_st}</a>
 EOP;
         }
 
@@ -76,7 +76,7 @@ EOP;
 
     // datサイズ
     $htm['dsize'] = '';
-    if ($dsize_ht = @filesize($aThread->keydat)) {
+    if (file_exists($aThread->keydat) && $dsize_ht = filesize($aThread->keydat)) {
         $htm['dsize'] = sprintf('<span class="spd" title="%s">%01.1fKB</span> |', 'datサイズ', $dsize_ht / 1024);
     }
 
@@ -154,17 +154,28 @@ EOP;
 if (!empty($_GET['showres'])) {
     echo <<<EOP
     <script type="text/javascript">
-    <!--
+    <![CDATA[
     document.getElementById('kakiko').style.display = 'block';
-    //-->
+    //]]>
     </script>\n
 EOP;
 }
 
 if ($_conf['expack.ic2.enabled']) {
-    echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js\"></script>";
+    echo "<script type=\"text/javascript\" src=\"js/ic2_popinfo.js?{$_conf['p2_version_id']}\"></script>";
     include P2EX_LIB_DIR . '/ic2/templates/info.tpl.html';
 }
 
 // ====
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

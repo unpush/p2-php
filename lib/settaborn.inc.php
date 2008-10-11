@@ -1,7 +1,11 @@
 <?php
-// p2 - スレッドあぼーんの関数
+/**
+ * rep2 - スレッドあぼーんの関数
+ */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
+
+// {{{ settaborn()
 
 /**
  * スレッドあぼーんをオンオフする
@@ -17,14 +21,14 @@ function settaborn($host, $bbs, $key, $set)
     //==================================================================
 
     // idxfileのパスを求めて
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = "{$idx_host_dir}/{$bbs}/{$key}.idx";
+    $idx_host_bbs_dir_s = P2Util::idxDirOfHostBbs($host, $bbs);
+    $idxfile = $idx_host_bbs_dir_s . $key . '.idx';
 
     // データがあるなら読み込む
-    if (is_readable($idxfile)) {
-        $lines = @file($idxfile);
-        $l = rtrim($lines[0]);
-        $data = explode('<>', $l);
+    if ($lines = FileCtl::file_read_lines($idxfile, FILE_IGNORE_NEW_LINES)) {
+        $data = explode('<>', $lines[0]);
+    } else {
+        $data = array_fill(0, 12, '');
     }
 
     //==================================================================
@@ -32,21 +36,19 @@ function settaborn($host, $bbs, $key, $set)
     //==================================================================
 
     // p2_threads_aborn.idx のパス取得
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $taborn_idx = "{$idx_host_dir}/{$bbs}/p2_threads_aborn.idx";
+    $taborn_idx = $idx_host_bbs_dir_s . 'p2_threads_aborn.idx';
 
     // p2_threads_aborn.idx がなければ生成
     FileCtl::make_datafile($taborn_idx, $_conf['p2_perm']);
 
     // p2_threads_aborn.idx 読み込み;
-    $taborn_lines= @file($taborn_idx);
+    $taborn_lines= FileCtl::file_read_lines($taborn_idx, FILE_IGNORE_NEW_LINES);
 
     $neolines = array();
 
     if ($taborn_lines) {
-        foreach ($taborn_lines as $line) {
-            $line = rtrim($line);
-            $lar = explode('<>', $line);
+        foreach ($taborn_lines as $l) {
+            $lar = explode('<>', $l);
             if ($lar[1] == $key) {
                 $aborn_attayo = true; // 既にあぼーん中である
                 if ($set == 0 or $set == 2) {
@@ -56,7 +58,7 @@ function settaborn($host, $bbs, $key, $set)
                 continue;
             }
             if (!$lar[1]) { continue; } // keyのないものは不正データ
-            $neolines[] = $line;
+            $neolines[] = $l;
         }
     }
 
@@ -76,7 +78,7 @@ function settaborn($host, $bbs, $key, $set)
         }
     }
     if (FileCtl::file_write_contents($taborn_idx, $cont) === false) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
 
     $GLOBALS['title_msg'] = $title_msg_pre;
@@ -84,3 +86,16 @@ function settaborn($host, $bbs, $key, $set)
 
     return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

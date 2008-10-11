@@ -1,8 +1,9 @@
 <?php
-// rep2 -  インデックスページ
+/**
+ * rep2 - インデックスページ
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -13,12 +14,12 @@ $_login->authorize(); //ユーザ認証
 makeDenyHtaccess($_conf['pref_dir']);
 makeDenyHtaccess($_conf['dat_dir']);
 makeDenyHtaccess($_conf['idx_dir']);
-makeImageCacheDenyHtaccess($_conf['expack.ic2.General.cachedir']);
 
 //=============================================================
 
 $me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
+$me_url_b = htmlspecialchars(rtrim($me_dir_url, '/') . '/?b=', ENT_QUOTES);
 
 if ($_conf['ktai']) {
 
@@ -30,11 +31,11 @@ if ($_conf['ktai']) {
         header('Location: '.$me_dir_url.'/read.php?'.$_SERVER['QUERY_STRING']);
         exit;
     }
-    if ($_conf['iphone'] && file_exists('./iui/iui.js')) {
-        include './menu_i.php';
+    if ($_conf['iphone']) {
+        include P2_BASE_DIR . '/menu_i.php';
         exit;
     }
-    include_once P2_LIB_DIR . '/index_print_k.inc.php';
+    require_once P2_LIB_DIR . '/index_print_k.inc.php';
     index_print_k();
 
 } else {
@@ -53,14 +54,14 @@ if ($_conf['ktai']) {
         }
     }
 
-    $sidebar = $_GET['sidebar'];
+    $sidebar = !empty($_GET['sidebar']);
 
     $ptitle = "rep2";
     //======================================================
     // PC用 HTMLプリント
     //======================================================
-    P2Util::header_nocache();
-     if ($_conf['doctype']) { 
+    //P2Util::header_nocache();
+    if ($_conf['doctype']) { 
         echo str_replace(
             array('Transitional', 'loose.dtd'),
             array('Frameset', 'frameset.dtd'),
@@ -69,40 +70,48 @@ if ($_conf['ktai']) {
     echo <<<EOHEADER
 <html lang="ja">
 <head>
-    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-    <meta http-equiv="Content-Style-Type" content="text/css">
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
-    <link href="favicon.ico" type="image/x-icon" rel="shortcut icon">
-</head>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+</head>\n
 EOHEADER;
 
     if (!$sidebar) {
         echo <<<EOMENUFRAME
-<frameset cols="{$_conf['frame_menu_width']},*" frameborder="1" border="1">
-    <frame src="menu.php" name="menu" scrolling="auto">
+<frameset id="menuframe" cols="{$_conf['frame_menu_width']},*" border="1">
+    <frame src="menu.php" id="menu" name="menu" scrolling="auto" frameborder="1">\n
 EOMENUFRAME;
     }
 
     echo <<<EOMAINFRAME
-    <frameset rows="{$_conf['frame_subject_width']},{$_conf['frame_read_width']}" frameborder="1" border="2">
-        <frame src="{$title_page}" name="subject" scrolling="auto">
-        <frame src="{$htm['read_page']}" name="read" scrolling="auto">
-    </frameset>
+    <frameset id="mainframe" rows="{$_conf['frame_subject_width']},{$_conf['frame_read_width']}" border="2">
+        <frame src="{$title_page}" id="subject" name="subject" scrolling="auto" frameborder="1">
+        <frame src="{$htm['read_page']}" id="read" name="read" scrolling="auto" frameborder="1">
+    </frameset>\n
 EOMAINFRAME;
 
     if (!$sidebar) {
-        echo '</frameset>'."\n";
+        echo <<<EONOFRAMES
+</frameset>
+<noframes>
+    <body>
+        <h1>{$ptitle}</h1>
+        <ul>
+            <li>　携帯用URL: <a href="{$me_url_b}k">{$me_url_b}k</a></li>
+            <li>iPhone用URL: <a href="{$me_url_b}i">{$me_url_b}i</a></li>
+        </ul>
+    </body>
+</noframes>\n
+EONOFRAMES;
     }
 
     echo '</html>';
-
 }
 
-//============================================================================
-// 関数
-//============================================================================
+// {{{ makeDenyHtaccess()
+
 /**
  * ディレクトリに（アクセス拒否のための） .htaccess がなければ、自動で生成する
  */
@@ -114,25 +123,16 @@ function makeDenyHtaccess($dir)
         FileCtl::file_write_contents($hta, $data);
     }
 }
-/**
- * ディレクトリに（画像以外アクセス拒否のための） .htaccess がなければ、自動で生成する
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
  */
-function makeImageCacheDenyHtaccess($dir)
-{
-    $hta = $dir . '/.htaccess';
-    $allow_pattern = '\.(gif|jpe?g|png)$';
-    /*if (is_dir($dir) && !file_exists($hta)) {
-        $data = <<<HTACCESS
-Order allow,deny
-<FilesMatch "{$allow_pattern}">
-    Allow from all
-</FilesMatch>
-Deny from all\n
-HTACCESS;
-        FileCtl::file_write_contents($hta, $data);
-    }*/
-    // 書き込み権限の無い（≒ユーザが自分で作成した）.htaccess は消去しない
-    if (is_dir($dir) && file_exists($hta) && is_writable($hta)) {
-        unlink($hta);
-    }
-}
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

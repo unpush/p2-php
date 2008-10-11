@@ -5,34 +5,32 @@
  * @link http://code.google.com/p/iui/
  */
 
-include_once './conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/menu_iphone.inc.php';
 
 $_login->authorize(); //ユーザ認証
+
+if ($_conf['view_forced_by_query']) {
+    output_add_rewrite_var('b', $_conf['b']);
+}
+
+// {{{ 板リスト (Ajax)
 
 if (isset($_GET['cateid'])) {
     menu_iphone_ajax('menu_iphone_show_board_menu', (int)$_GET['cateid']);
     exit;
 }
 
+// }}}
+// {{{ 板検索 (Ajax)
+
 if (isset($_POST['word'])) {
     $word = menu_iphone_unicode_urldecode($_POST['word']);
-    if (preg_match('/^\.+$/', $word)) {
+    if (substr_count($word, '.') == strlen($word)) {
         $word = '';
     }
 
-    if (strlen($word) > 0) {
-        // and検索
-        include_once P2_LIB_DIR . '/strctl.class.php';
-        $word = StrCtl::wordForMatch($word, 'and');
-        if (P2_MBREGEX_AVAILABLE == 1) {
-            $GLOBALS['words_fm'] = @mb_split('\s+', $word);
-            $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word);
-        } else {
-            $GLOBALS['words_fm'] = @preg_split('/\s+/', $word);
-            $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word);
-        }
-
+    if (strlen($word) > 0 && p2_set_filtering_word($word, 'and') !== null) {
         menu_iphone_ajax('menu_iphone_show_matched_boards', $word);
     } else {
         header('Content-Type: application/xml; charset=UTF-8');
@@ -41,6 +39,9 @@ if (isset($_POST['word'])) {
     exit;
 }
 
+// }}}
+// {{{ HTML出力
+// {{{ ヘッダ
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -50,13 +51,80 @@ if (isset($_POST['word'])) {
     <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
     <title>rep2</title>
-    <script type="application/x-javascript" src="iui/iui.js"></script>
-    <script type="application/x-javascript" src="js/menu_i.js"></script>
     <link rel="stylesheet" type="text/css" href="iui/iui.css" />
     <link rel="stylesheet" type="text/css" href="css/menu_i.css" />
     <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png" />
+    <script type="application/x-javascript" src="iui/iui.js"></script>
+    <script type="application/x-javascript" src="js/menu_i.js"></script>
+<?php
+// {{{ 指定サブメニューへ自動で移動
+// $hashesの取得は未実装。現状では戻るボタンが効かなくなるので封印。
+/*
+if (isset($hashes) && is_array($hashes) && count($hashes)) {
+    require_once P2_LIB_DIR . '/StrCtl.php';
+
+    $js = '';
+    $last = array_pop($hashes);
+    while (($hash = array_shift($hashes)) !== null) {
+        $hash = trim($hash);
+        if ($hash === '') {
+            continue;
+        }
+        $js .= "'" . StrCtl::toJavaScript($hash) . "',";
+    }
+    $hash = trim($last);
+    if ($hash !== '') {
+        $js .= "'" . StrCtl::toJavaScript($hash) . "'";
+    } else {
+        $js .= "'_'";
+    }
+?>
+    <script type="application/x-javascript">
+    //<![CDATA[
+    window.addEventListener('load', function(evt){
+        var subMenus = [<?php echo $js; ?>];
+        var delayMsec = 200;
+        var contextNode = document.getElementById('top');
+        function p2SelectChild()
+        {
+            var id = subMenus.shift();
+            var anchor = document.evaluate('./li/a[@href="#' + id + '"]',
+                                           contextNode,
+                                           null,
+                                           XPathResult.ANY_UNORDERED_NODE_TYPE,
+                                           null
+                                           ).singleNodeValue;
+            var child = document.getElementById(id);
+            if (anchor && child) {
+                var evt = document.createEvent('MouseEvents');
+                evt.initMouseEvent('click', true, true, window,
+                                   0, 0, 0, 0, 0,
+                                   false, false, false, false, 0, null
+                                   );
+                anchor.dispatchEvent(evt);
+                if (subMenus.length) {
+                    contextNode = child;
+                    setTimeout(p2SelectChild, delayMsec);
+                }
+            }
+        }
+        if (subMenus.length) {
+            setTimeout(p2SelectChild, delayMsec);
+        }
+    });
+    //]]>
+    </script>
+<?php
+}*/
+// }}}
+?>
 </head>
 <body>
+
+<?php
+// }}}
+// {{{ ツールバー
+?>
 
 <div class="toolbar">
     <h1 id="pageTitle"></h1>
@@ -65,7 +133,11 @@ if (isset($_POST['word'])) {
     <a class="button" href="#threadSearch">ｽﾚ</a>
 </div>
 
-<!-- {{{ トップメニュー -->
+<?php
+// }}}
+// {{{ トップメニュー
+?>
+
 <ul id="top" title="rep2" selected="true">
 <?php if ($_info_msg_ht) { ?>
     <li><a href="#info_msg" class="color-r">エラー</a></li>
@@ -106,25 +178,34 @@ if (isset($_POST['word'])) {
     <li><a href="setting.php" target="_self">ログイン管理</a></li>
     <li><a href="#login_info">ログイン情報</a></li>
 </ul>
-<!-- }}} -->
 
 <?php
-// エラー
+// }}}
+// {{{ エラー
+
 if ($_info_msg_ht) { 
     echo '<div id="info_msg" class="panel" title="エラー">', $_info_msg_ht, '</div>';
 }
+
+// }}}
+// {{{ サブメニュー
 
 if ($_conf['expack.misc.multi_favs']) {
     // {{{ お気にスレ
 
     $favlist = FavSetManager::getFavSetTitles('m_favlist_set');
+    if (!$favlist) {
+        $favlist = array();
+    }
     $fav_elems = '';
     $fav_new_elems = '';
     $fav_elem_prefix = '';
 
-    foreach ($favlist as $no => $name) {
-        if (strlen($name) == 0) {
-            $name = ($no ? "お気にスレ{$no}" : 'お気にスレ');
+    for ($no = 0; $no <= $_conf['expack.misc.favset_num']; $no++) {
+        if (isset($favlist[$no]) && strlen($favlist[$no]) > 0) {
+            $name = $favlist[$no];
+        } else {
+            $favlist[$no] = $name = ($no ? "お気にスレ{$no}" : 'お気にスレ');
         }
         $fav_url = "subject.php?spmode=fav&amp;m_favlist_set={$no}";
         $fav_elems .= "<li><a href=\"{$fav_url}\" target=\"_self\">{$name}</a></li>";
@@ -143,11 +224,16 @@ if ($_conf['expack.misc.multi_favs']) {
     // {{{ お気に板
 
     $favita = FavSetManager::getFavSetTitles('m_favita_set');
+    if (!$favita) {
+        $favita = array();
+    }
 
     echo '<ul id="favita" title="お気に板">';
 
-    foreach ($favita as $no => $name) {
-        if (strlen($name) == 0) {
+    for ($no = 0; $no <= $_conf['expack.misc.favset_num']; $no++) {
+        if (isset($favita[$no]) && strlen($favita[$no]) > 0) {
+            $name = $favita[$no];
+        } else {
             $favita[$no] = $name = ($no ? "お気に板{$no}" : 'お気に板');
         }
         echo "<li><a href=\"#favita{$no}\">{$name}</a></li>";
@@ -155,26 +241,31 @@ if ($_conf['expack.misc.multi_favs']) {
 
     echo "</ul>\n";
 
-    $orig_favita_path = $_conf['favita_path'];
+    $orig_favita_brd = $_conf['favita_brd'];
 
     foreach ($favita as $no => $name) {
-        $_conf['favita_path'] = $_conf['pref_dir'] . '/'
+        $_conf['favita_brd'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR
             . ($no ? "p2_favita{$no}.brd" : 'p2_favita.brd');
         menu_iphone_show_favorite_boards($name, $no);
     }
 
-    $_conf['favita_path'] = $orig_favita_path;
+    $_conf['favita_brd'] = $orig_favita_brd;
 
     // }}}
     // {{{ RSS
 
     if ($_conf['expack.rss.enabled']) { 
         $rss = FavSetManager::getFavSetTitles('m_rss_set');
+        if (!$rss) {
+            $rss = array();
+        }
 
         echo '<ul id="rss" title="RSS">';
 
-        foreach ($rss as $no => $name) {
-            if (strlen($name) == 0) {
+        for ($no = 0; $no <= $_conf['expack.misc.favset_num']; $no++) {
+            if (isset($rss[$no]) && strlen($rss[$no]) > 0) {
+                $name = $rss[$no];
+            } else {
                 $rss[$no] = $name = ($no ? "RSS{$no}" : 'RSS');
             }
             echo "<li><a href=\"#rss{$no}\">{$name}</a></li>";
@@ -185,7 +276,7 @@ if ($_conf['expack.misc.multi_favs']) {
         $orig_rss_setting_path = $_conf['expack.rss.setting_path'];
 
         foreach ($rss as $no => $name) {
-            $_conf['expack.rss.setting_path'] = $_conf['pref_dir'] . '/'
+            $_conf['expack.rss.setting_path'] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR
                     . ($no ? "p2_rss{$no}.txt" : 'p2_rss.txt');
             menu_iphone_show_feed_list($name, $no);
         }
@@ -201,9 +292,11 @@ if ($_conf['expack.misc.multi_favs']) {
         menu_iphone_show_feed_list('RSS');
     }
 }
+
+// }}}
+// {{{ ログイン情報
 ?>
 
-<!-- {{{ ログイン情報 -->
 <div id="login_info" class="panel" title="ログイン情報">
 <h2>認証ユーザ</h2>
 <p><strong><?php echo $_login->user; ?></strong> - <?php echo date('Y/m/d (D) G:i:s'); ?></p>
@@ -224,19 +317,25 @@ EOP;
 ?></pre>
 <?php } ?>
 </div>
-<!-- }}} -->
 
-<!-- {{{ スレッド検索 -->
+<?php
+// }}}
+// {{{ スレッド検索
+?>
+
 <ul id="tgrep" title="スレッド検索">
     <li><a href="#tgrep_info">スレッド検索について</a></li>
     <li class="group">クイックサーチ</li>
-    <?php include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php'; ?>
+    <?php require_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php'; ?>
     <li class="group">検索履歴</li>
-    <?php include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php'; ?>
+    <?php require_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php'; ?>
 </ul>
-<!-- }}} -->
 
-<!-- {{{ スレッド検索について -->
+<?php
+// }}}
+// {{{ スレッド検索について
+?>
+
 <div id="tgrep_info" class="panel" title="tGrepについて">
 <ul>
     <li>rep2 機能拡張パックのスレッド検索は tGrep (<a href="http://page2.xrea.jp/tgrep/" target="_blank">http://page2.xrea.jp/tgrep/</a>) を利用しています。</li>
@@ -248,9 +347,12 @@ EOP;
     <li>データベースの更新は3時間に1回で、レス数などは更新時点での値です。</li>
 </ul>
 </div>
-<!-- }}} -->
 
-<!-- {{{ 板検索ダイアログ -->
+<?php
+// }}}
+// {{{ 板検索ダイアログ
+?>
+
 <form id="boardSearch" class="dialog"
   method="post" action="menu_i.php"
   accept-charset="<?php echo $_conf['accept_charset']; ?>">
@@ -259,12 +361,15 @@ EOP;
     <a class="button leftButton" type="cancel">取消</a>
     <a class="button blueButton" type="submit">検索</a>
     <label>word:</label>
-    <input type="text" name="word" />
+    <input type="text" name="word" autocorrect="off" autocapitalize="off" />
 </fieldset>
 </form>
-<!-- }}} -->
 
-<!-- {{{ スレッド検索ダイアログ -->
+<?php
+// }}}
+// {{{ スレッド検索ダイアログ
+?>
+
 <form id="threadSearch" class="dialog"
   method="post" action="tgrepc.php"
   accept-charset="<?php echo $_conf['accept_charset']; ?>">
@@ -273,14 +378,18 @@ EOP;
     <a class="button leftButton" type="cancel">取消</a>
     <a class="button blueButton" type="submit">検索</a>
     <label>word:</label>
-    <input type="text" name="iq" />
+    <input type="text" name="iq" autocorrect="off" autocapitalize="off" />
 </fieldset>
 </form>
-<!-- }}} -->
+
+<?php
+// }}}
+?>
 
 </body>
 </html>
 <?php
+// }}}
 
 /*
  * Local Variables:

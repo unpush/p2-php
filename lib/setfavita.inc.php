@@ -1,7 +1,11 @@
 <?php
-// p2 -  お気に板の処理
+/**
+ * rep2 - お気に板の処理
+ */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
+
+// {{{ setFavIta()
 
 /**
  * お気に板をセットする
@@ -49,11 +53,11 @@ function setFavIta()
     //================================================
     // 読み込み
     //================================================
-    //favita_pathファイルがなければ生成
-    FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
+    // p2_favita.brd ファイルがなければ生成
+    FileCtl::make_datafile($_conf['favita_brd'], $_conf['favita_perm']);
 
-    //favita_path読み込み;
-    $lines = @file($_conf['favita_path']);
+    // p2_favita.brd 読み込み;
+    $lines = FileCtl::file_read_lines($_conf['favita_brd'], FILE_IGNORE_NEW_LINES);
 
     //================================================
     // 処理
@@ -66,10 +70,9 @@ function setFavIta()
         $i = -1;
         foreach ($lines as $l) {
             $i++;
-            $l = rtrim($l);
 
             // {{{ 旧データ（ver0.6.0以下）移行措置
-            if (!preg_match("/^\t/", $l)) {
+            if ($l[0] != "\t") {
                 $l = "\t".$l;
             }
             // }}}
@@ -94,11 +97,20 @@ function setFavIta()
             list($host, $bbs, $itaj_en) = explode('@', $aList);
             $rec_lines[] = "\t{$host}\t{$bbs}\t" . base64_decode($itaj_en);
         }
-        $_info_msg_ht .= "<script type=\"text/javascript\">if (parent.menu) { parent.menu.location.href='{$_conf['menu_php']}?nr=1'; }</script>";
+
+        $_info_msg_ht .= <<<EOJS
+<script type="text/javascript">
+//<![CDATA[
+if (parent.menu) {
+    parent.menu.location.href = '{$_conf['menu_php']}?nr=1';
+}
+//]]>
+</script>\n
+EOJS;
 
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
-        include_once P2_LIB_DIR . '/getsetposlines.inc.php';
+        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
 
     // 解除
@@ -114,9 +126,22 @@ function setFavIta()
     }
 
     // 書き込む
-    if (FileCtl::file_write_contents($_conf['favita_path'], $cont) === false) {
-        die('Error: cannot write file.');
+    if (FileCtl::file_write_contents($_conf['favita_brd'], $cont) === false) {
+        p2die('cannot write file.');
     }
 
     return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

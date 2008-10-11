@@ -1,21 +1,20 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    expack - フォント設定編集インタフェース
-*/
+/**
+ * rep2expack - フォント設定編集インタフェース
+ */
 
 // {{{ 初期化
 
 // 初期設定読み込み & ユーザ認証
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 $_login->authorize();
 
+require_once P2_LIB_DIR . '/fontconfig.inc.php';
 require_once 'HTML/Template/Flexy.php';
 
 $flexy_options = array(
     'templateDir' => './skin',
-    'compileDir'  => $_conf['cache_dir'],
+    'compileDir'  => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'fontconfig',
     'locale' => 'ja',
     'charset' => 'cp932',
 );
@@ -49,7 +48,7 @@ if (file_exists($_conf['expack.skin.fontconfig_path'])) {
         $current_fontconfig = array('enabled' => false, 'custom' => array());
     }
 } else {
-    require_once P2_LIB_DIR . '/filectl.class.php';
+    require_once P2_LIB_DIR . '/FileCtl.php';
     FileCtl::make_datafile($_conf['expack.skin.fontconfig_path'], $_conf['expack.skin.fontconfig_perm']);
     $current_fontconfig = array('enabled' => false, 'custom' => array());
 }
@@ -87,11 +86,12 @@ switch ($type) {
 
 // }}}
 
+if (!is_dir($_conf['compile_dir'])) {
+    FileCtl::mkdir_for($_conf['compile_dir'] . '/__dummy__');
+}
+
 // テンプレートをコンパイル
 $flexy = new HTML_Template_Flexy($flexy_options);
-if (!is_dir($_conf['cache_dir'])) {
-    FileCtl::mkdir_for($_conf['cache_dir'] . '/dummy_filename');
-}
 $flexy->compile('edit_user_font.tpl.html');
 $elements = $flexy->getElements();
 
@@ -122,7 +122,7 @@ foreach ($fontconfig_params as $pname) {
         foreach ($fontconfig_types as $tname => $ttitle) {
             $newElemName = sprintf($elemName, $tname);
             if (!isset($elements[$newElemName])) {
-                $elements[$newElemName] = clone($elements[$elemName]);
+                $elements[$newElemName] = clone $elements[$elemName];
             }
             if (!is_array($updated_fontconfig['custom'][$tname])) {
                 $updated_fontconfig['custom'][$tname] = array();
@@ -165,23 +165,36 @@ $fontconfig_data = serialize($updated_fontconfig);
 $fontconfig_new_hath = md5($fontconfig_data);
 if (strcmp($fontconfig_hash, $fontconfig_new_hath) != 0) {
     FileCtl::file_write_contents($_conf['expack.skin.fontconfig_path'], $fontconfig_data);
+    chmod($_conf['expack.skin.fontconfig_path'], $_conf['p2_perm']);
 }
 
 // スタイルシートをリセット
 unset($STYLE);
-include($skin);
+include $skin;
+foreach ($STYLE as $K => $V) {
+    if (empty($V)) {
+        $STYLE[$K] = '';
+    } elseif (strpos($K, 'fontfamily') !== false) {
+        $STYLE[$K] = p2_correct_css_fontfamily($V);
+    } elseif (strpos($K, 'color') !== false) {
+        $STYLE[$K] = p2_correct_css_color($V);
+    } elseif (strpos($K, 'background') !== false) {
+        $STYLE[$K] = 'url("' . addslashes($V) . '")';
+    }
+}
 if ($updated_fontconfig['enabled']) {
     fontconfig_apply_custom();
 } else {
-    $skin_en = preg_replace('/&amp;etag=[^&]*/', '', $skin_en);
-    $skin_en .= '&amp;etag=' . urlencode($skin_etag);
+    $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . rawurlencode($skin_uniq);
 }
 $controllerObject->STYLE = $STYLE;
 $controllerObject->skin = $skin_en;
-$controllerObject->rep2expack = $_conf['p2expack'];
+$controllerObject->p2vid = P2_VERSION_ID;
 
 // 出力
 $flexy->outputObject($controllerObject, $elements);
+
+// {{{ fontconfig_load_skin_setting()
 
 /**
  * カスタム設定で上書きされていないスキン設定を読み込む
@@ -222,6 +235,9 @@ function fontconfig_load_skin_setting()
     return $skindata;
 }
 
+// }}}
+// {{{ fontconfig_implode_fonts()
+
 function fontconfig_implode_fonts($fonts)
 {
     if (!is_array($fonts)) {
@@ -230,7 +246,23 @@ function fontconfig_implode_fonts($fonts)
     return '"' . implode('","', array_map('fontconfig_trim', $fonts)) . '"';
 }
 
+// }}}
+// {{{ fontconfig_trim()
+
 function fontconfig_trim($str)
 {
-    return trim($str, " \r\n\t\x0B\"'\0");
+    return trim($str, " \r\n\t\x0B\"'" . P2_NULLBYTE);
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

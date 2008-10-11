@@ -1,7 +1,7 @@
 <?php
-/*
-    p2 -  スレッド表示 -  ヘッダ部分 -  for read.php
-*/
+/**
+ * rep2 - スレッド表示 -  ヘッダ部分 -  for read.php
+ */
 
 // 変数
 $diedat_msg = "";
@@ -57,14 +57,21 @@ $before_rnum = $aThread->resrange['start'] - $rnum_range;
 if ($before_rnum < 1) { $before_rnum = 1; }
 if ($aThread->resrange['start'] == 1) {
     $read_navi_previous_isInvisible = true;
+} else {
+    $read_navi_previous_isInvisible = false;
 }
 //if ($before_rnum != 1) {
 //    $read_navi_previous_anchor = "#r{$before_rnum}";
+//} else {
+    $read_navi_previous_anchor = '';
 //}
 
 if (!$read_navi_previous_isInvisible) {
     $read_navi_previous = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}{$offline_q}{$read_navi_previous_anchor}\">{$prev_st}{$rnum_range}</a>";
     $read_navi_previous_header = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}{$offline_q}#r{$aThread->resrange['start']}\">{$prev_st}{$rnum_range}</a>";
+} else {
+    $read_navi_previous = '';
+    $read_navi_previous_header = '';
 }
 
 //----------------------------------------------
@@ -78,6 +85,8 @@ if ($aThread->resrange['to'] > $aThread->rescount) {
 }
 if ($aThread->resrange['to'] == $aThread->rescount) {
     $read_navi_next_anchor = "#r{$aThread->rescount}";
+} else {
+    $read_navi_next_anchor = '';
 }
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
@@ -132,7 +141,7 @@ if ($_conf['expack.misc.multi_favs']) {
     $favtitle = ((!isset($favlist_titles[0]) || $favlist_titles[0] == '') ? 'お気にスレ' : $favlist_titles[0]) . ($favdo ? 'に追加' : 'から外す');
     $setnum_q = '&amp;setnum=0';
     $toolbar_setfav_ht .= <<<EOP
-<span class="favdo set0"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '0');" title="{$favtitle}">{$favmark}</a></span>
+<span class="favdo set0"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onclick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '0');" title="{$favtitle}">{$favmark}</a></span>
 EOP;
     for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
         $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
@@ -141,7 +150,7 @@ EOP;
         $favtitle = ((!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') ? 'お気にスレ' . $i : $favlist_titles[$i]) . ($favdo ? 'に追加' : 'から外す');
         $setnum_q = '&amp;setnum=' . $i;
         $toolbar_setfav_ht .= <<<EOP
-|<span class="favdo set{$i}"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '{$i}');" title="{$favtitle}">{$favmark}</a></span>
+|<span class="favdo set{$i}"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onclick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '{$i}');" title="{$favtitle}">{$favmark}</a></span>
 EOP;
     }
     $toolbar_setfav_ht .= ']';
@@ -151,16 +160,16 @@ EOP;
     $favmark = $favdo ? '+' : '★';
     $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $toolbar_setfav_ht = <<<EOP
-<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span>
+<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onclick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span>
 EOP;
 }
 
 $toolbar_right_ht = <<<EOTOOLBAR
             <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
-            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a>
+            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onclick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a>
             {$toolbar_setfav_ht}
-            <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onClick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span>
-<!--            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onClick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
+            <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onclick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span>
+<!--            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onclick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
             <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">{$moto_thre_st}</a>
             <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}" target="subject" title="タイトルが似ているスレッドを検索">{$siml_thre_st}</a>
 EOTOOLBAR;
@@ -170,74 +179,110 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
-    <title>{$ptitle_ht}</title>\n
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=read&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/showhide.js"></script>
-    <script type="text/javascript" src="js/respopup.js"></script>
-    <script type="text/javascript" src="js/htmlpopup.js"></script>
-    <script type="text/javascript" src="js/invite.js"></script>
-    <script type="text/javascript" src="js/setfavjs.js"></script>
-    <script type="text/javascript" src="js/delelog.js"></script>\n
+    {$_conf['extra_headers_ht']}
+    <title>{$ptitle_ht}</title>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
 
-	<script type="text/javascript" src="./js/yui-ext/yui.js"></script>
-	<script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
-	<link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css">\n
+    <script type="text/javascript" src="js/ngabornctl.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 
-if ($_conf['expack.am.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js\"></script>\n";
-}
-/*if ($_conf['expack.misc.async_respop']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/async.js\"></script>\n";
-}*/
-if ($_conf['expack.spm.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js\"></script>\n";
-}
-if ($_conf['expack.ic2.enabled']) {
-    echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css\">\n";
+if ($_conf['iframe_popup_type'] == 1) {
+    echo <<<EOP
+    <script type="text/javascript" src="./js/yui-ext/yui.js"></script>
+    <script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css">
+    <script type="text/javascript" src="js/htmlpopup_resizable.js?{$_conf['p2_version_id']}"></script>
+EOP;
+} else {
+    echo <<<EOP
+    <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2_version_id']}"></script>
+EOP;
 }
 
-$onLoad_script = "";
+if ($_conf['link_youtube'] == 2 || $_conf['link_niconico'] == 2) {
+    echo "\t<script type=\"text/javascript\" src=\"js/preview_video.js?{$_conf['p2_version_id']}\"></script>\n";
+}
+if ($_conf['expack.am.enabled']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js?{$_conf['p2_version_id']}\"></script>\n";
+}
+/*if ($_conf['expack.misc.async_respop']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/async.js?{$_conf['p2_version_id']}\"></script>\n";
+}*/
+if ($_conf['expack.spm.enabled']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/invite.js?{$_conf['p2_version_id']}\"></script>\n";
+    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2_version_id']}\"></script>\n";
+}
+if ($_conf['expack.ic2.enabled']) {
+    echo "\t<script type=\"text/javascript\" src=\"js/loadthumb.js?{$_conf['p2_version_id']}\"></script>\n";
+    echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css?{$_conf['p2_version_id']}\">\n";
+}
+
+$onload_script = '';
 
 if ($_conf['bottom_res_form']) {
     if ($_conf['expack.editor.dpreview']) {
-        echo "<link rel=\"stylesheet\" href=\"css.php?css=prvw&amp;skin={$skin_en}\" type=\"text/css\">\n";
+        echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css.php?css=prvw&amp;skin={$skin_en}\">\n";
     }
-    echo '<script type="text/javascript" src="js/post_form.js?'.$_conf['p2expack'].'"></script>'."\n";
-    $onLoad_script .= "checkSage();";
+    echo "\t<script type=\"text/javascript\" src=\"js/post_form.js?{$_conf['p2_version_id']}\"></script>\n";
+    $onload_script .= 'checkSage();';
 }
 
 if (empty($_GET['one'])) {
-    $onLoad_script .= "setWinTitle();";
+    $onload_script .= 'setWinTitle();';
 }
 
-$fade = empty($_GET['fade']) ? 'false' : 'true';
-
-echo <<<EOHEADER
+if ($_conf['iframe_popup_type'] == 1) {
+    $fade = empty($_GET['fade']) ? 'false' : 'true';
+    echo <<<EOHEADER
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     gFade = {$fade};
     gIsPageLoaded = false;
+
     addLoadEvent(function() {
         gIsPageLoaded = true;
-        {$onLoad_script}
+        {$onload_script}
     });
-    //-->
+    //]]>
     </script>\n
 EOHEADER;
 
-echo <<<EOP
+    echo <<<EOP
 </head>
 <body id="read" onclick="hideHtmlPopUp(event);">
 <div id="popUpContainer"></div>\n
 EOP;
+} else {
+    echo <<<EOHEADER
+    <script type="text/javascript">
+    //<![CDATA[
+    gIsPageLoaded = false;
+
+    function pageLoaded()
+    {
+        gIsPageLoaded = true;
+        {$onload_script}
+    }
+    //]]>
+    </script>\n
+EOHEADER;
+
+    echo <<<EOP
+</head>
+<body onload="pageLoaded();">
+<div id="popUpContainer"></div>\n
+EOP;
+}
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";
@@ -251,7 +296,7 @@ if ($aThread->diedat) {
         $diedat_msg = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
     }
 
-    $motothre_popup = " onMouseover=\"showHtmlPopUp('{$motothre_url}',event,{$_conf['iframe_popup_delay']})\" onMouseout=\"offHtmlPopUp()\"";
+    $motothre_popup = " onmouseover=\"showHtmlPopUp('{$motothre_url}',event,{$_conf['iframe_popup_delay']})\" onmouseout=\"offHtmlPopUp()\"";
     if ($_conf['iframe_popup'] == 1) {
         $motothre_ht = "<a href=\"{$motothre_url}\"{$_conf['bbs_win_target_at']}{$motothre_popup}>{$motothre_url}</a>";
     } elseif ($_conf['iframe_popup'] == 2) {
@@ -284,7 +329,7 @@ EOP;
 }
 
 
-if ($aThread->rescount and (!$_GET['renzokupop'])) {
+if ($aThread->rescount && empty($_GET['renzokupop'])) {
 // レスフィルタ ===============================
     $selected_field = array('hole' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'msg' => '');
     $selected_field[($res_filter['field'])] = ' selected';
@@ -311,7 +356,6 @@ EOP;
 
     echo <<<EOP
 <form id="header" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
     <input type="hidden" name="host" value="{$aThread->host}">
@@ -333,29 +377,31 @@ EOP;
     </select>
     レスを
     <input type="submit" name="submit_filter" value="フィルタ表示">
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
 EOP;
 }
 
 // {{{ p2フレーム 3ペインで開く
-$htm['p2frame'] = <<<EOP
-<a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く</a> |
-EOP;
+
 $htm['p2frame'] = <<<EOP
 <script type="text/javascript">
-<!--
+//<![CDATA[
 if (top == self) {
-    document.writeln('{$htm['p2frame']}');
+    document.writeln('<a href="index.php?url={$motothre_url}&amp;offline=1">p2フレーム 3ペインで開く<' + '/a> |');
 }
-//-->
+//]]>
 </script>\n
 EOP;
+
 // }}}
 
-if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) and !$_GET['renzokupop']) {
+if (empty($_GET['renzokupop']) && ($aThread->rescount || (!empty($_GET['one']) && !$aThread->diedat))) {
 
-    if ($_GET['one']) {
+    if (!empty($_GET['one'])) {
         $id_header = ' id="header"';
+    } else {
+        $id_header = '';
     }
     echo <<<EOP
 <table{$id_header} width="100%" style="padding:0px 0px 10px 0px;">
@@ -383,3 +429,14 @@ EOP;
 //if (!$_GET['renzokupop']) {
     echo "<h3 class=\"thread_title\">{$aThread->ttitle_hd}</h3>\n";
 //}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

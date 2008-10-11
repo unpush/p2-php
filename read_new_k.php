@@ -1,14 +1,14 @@
 <?php
-/*
-    p2 - スレッド表示スクリプト - 新着まとめ読み（携帯）
-    フレーム分割画面、右下部分
-*/
+/**
+ * rep2 - スレッド表示スクリプト - 新着まとめ読み（携帯）
+ * フレーム分割画面、右下部分
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/threadlist.class.php';
-require_once P2_LIB_DIR . '/thread.class.php';
-require_once P2_LIB_DIR . '/threadread.class.php';
-require_once P2_LIB_DIR . '/ngabornctl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/NgAbornCtl.php';
+require_once P2_LIB_DIR . '/ThreadList.php';
+require_once P2_LIB_DIR . '/ThreadRead.php';
+require_once P2_LIB_DIR . '/ShowThreadK.php';
 require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
@@ -35,10 +35,13 @@ if (!defined('P2_READ_NEW_SAVE_MEMORY')) {
 //==================================================================
 // 変数
 //==================================================================
-$GLOBALS['rnum_all_range'] = $_conf['k_rnum_range'];
+$GLOBALS['rnum_all_range'] = $_conf['mobile.rnum_range'];
 
 $sb_view = "shinchaku";
 $newtime = date("gis");
+
+$newthre_num = 0;
+$online_num = 0;
 
 //=================================================
 // 板の指定
@@ -51,7 +54,7 @@ if (isset($_GET['spmode'])) { $spmode = $_GET['spmode']; }
 if (isset($_POST['spmode'])) { $spmode = $_POST['spmode']; }
 
 if ((!isset($host) || !isset($bbs)) && !isset($spmode)) {
-    die('p2 error: 必要な引数が指定されていません');
+    p2die('必要な引数が指定されていません');
 }
 
 // 未読数制限
@@ -76,7 +79,7 @@ if (P2_READ_NEW_SAVE_MEMORY) {
     register_shutdown_function('saveMatomeCacheFromTmpFile');
     $read_new_tmp_fh = tmpfile();
     if (!is_resource($read_new_tmp_fh)) {
-        die('Error: cannot make tmpfile.');
+        p2die('cannot make tmpfile.');
     }
 } else {
     register_shutdown_function('saveMatomeCache');
@@ -84,9 +87,10 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 }
 ob_start();
 
-$aThreadList =& new ThreadList();
+$aThreadList = new ThreadList();
 
 // 板とモードのセット ===================================
+$ta_keys = array();
 if ($spmode) {
     if ($spmode == "taborn" or $spmode == "soko") {
         $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
@@ -96,20 +100,33 @@ if ($spmode) {
     $aThreadList->setIta($host, $bbs, P2Util::getItaName($host, $bbs));
 
     // スレッドあぼーんリスト読込
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $taborn_file = $idx_host_dir.'/'.$bbs.'/p2_threads_aborn.idx';
-
-    if ($tabornlines = @file($taborn_file)) {
-        $ta_num = sizeOf($tabornlines);
+    $taborn_file = $aThreadList->getIdxDir() . 'p2_threads_aborn.idx';
+    if ($tabornlines = FileCtl::file_read_lines($taborn_file, FILE_IGNORE_NEW_LINES)) {
+        $ta_num = sizeof($tabornlines);
         foreach ($tabornlines as $l) {
-            $tarray = explode('<>', rtrim($l));
+            $tarray = explode('<>', $l);
             $ta_keys[ $tarray[1] ] = true;
         }
     }
 }
 
 // ソースリスト読込
-$lines = $aThreadList->readList();
+if ($spmode == 'merge_favita') {
+    if ($_conf['expack.misc.multi_favs'] && !empty($_conf['m_favita_set'])) {
+        $merged_faivta_read_idx = $_conf['pref_dir'] . '/p2_favita' . $_conf['m_favita_set'] . '_read.idx';
+    } else {
+        $merged_faivta_read_idx = $_conf['pref_dir'] . '/p2_favita_read.idx';
+    }
+    $lines = FileCtl::file_read_lines($merged_faivta_read_idx);
+    if (is_array($lines)) {
+        $have_merged_faivta_read_idx = true;
+    } else {
+        $have_merged_faivta_read_idx = false;
+        $lines = $aThreadList->readList();
+    }
+} else {
+    $lines = $aThreadList->readList();
+}
 
 // ページヘッダ表示 ===================================
 $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
@@ -121,41 +138,47 @@ if ($aThreadList->spmode) {
 <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$ptitle_hd}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
 EOP;
 } else {
     $sb_ht = <<<EOP
 <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hd}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$_conf['k_accesskey']['up']}.{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
 EOP;
 }
 
 // iPhone
 if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOS
-<script type="text/javascript" src="js/respopup_iphone.js"></script>
+<script type="text/javascript" src="js/respopup_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     // ImageCache2
     if ($_conf['expack.ic2.enabled']) {
         $_conf['extra_headers_ht'] .= <<<EOS
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css">
-<script type="text/javascript" src="js/ic2_iphone.js"></script>
+<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
+EOS;
+    }
+    // SPM
+    if ($_conf['expack.spm.enabled']) {
+        $_conf['extra_headers_ht'] .= <<<EOS
+<script type="text/javascript" src="js/spm_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     }
 }
 
 // ========================================================
-// include_once P2_LIB_DIR . '/read_header.inc.php';
+// require_once P2_LIB_DIR . '/read_header.inc.php';
 
 echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
-{$_conf['meta_charset_ht']}
-{$_conf['extra_headers_ht']}
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{$_conf['extra_headers_ht']}
 <title>{$ptitle_ht}</title>\n
 EOHEADER;
 
@@ -163,14 +186,14 @@ echo "</head><body{$_conf['k_colors']}>";
 
 if ($_conf['iphone']) {
     P2Util::printOpenInTab(array(
-        ".//div[@class=&quot;res&quot; or @class=&quot;read_new_footer&quot;]//a[starts-with(@href, &quot;{$_conf['read_php']}?&quot;) or starts-with(@href, &quot;{$_conf['subject_php']}?&quot;)]",
-        ".//div[@class=&quot;read_new_footer&quot;]//a[starts-with(@href, &quot;spm_k.php?&quot;)]"
+        ".//div[@class=&quot;res&quot;]//a[starts-with(@href, &quot;{$_conf['read_php']}?&quot;) or starts-with(@href, &quot;{$_conf['subject_php']}?&quot;)]",
+        ".//div[@id=&quot;read_new_header&quot; or @id=&quot;read_new_footer&quot; or @class=&quot;read_new_toolbar&quot;]//a[not(starts-with(@href, &quot;#&quot;) or starts-with(@href, &quot;http://&quot;) or starts-with(@href, &quot;https://&quot;))]"
     ));
 }
 
 echo <<<EOP
-<div>{$sb_ht}の新まとめ
-<a class="button" id="above" name="above" {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#bottom">{$_conf['k_accesskey']['bottom']}.▼</a></div>\n
+<div id="read_new_header">{$sb_ht}の新まとめ
+<a class="button" id="above" name="above" href="#bottom"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}▼</a></div>\n
 EOP;
 
 echo $_info_msg_ht;
@@ -181,6 +204,7 @@ $_info_msg_ht = "";
 //==============================================================
 
 $linesize = sizeof($lines);
+$subject_txts = array();
 
 for ($x = 0; $x < $linesize; $x++) {
 
@@ -189,7 +213,7 @@ for ($x = 0; $x < $linesize; $x++) {
     }
 
     $l = $lines[$x];
-    $aThread =& new ThreadRead();
+    $aThread = new ThreadRead();
 
     $aThread->torder = $x + 1;
 
@@ -213,6 +237,18 @@ for ($x = 0; $x < $linesize; $x++) {
         case "palace":    // 殿堂入り
             $aThread->getThreadInfoFromExtIdxLine($l);
             break;
+        case "merge_favita": // お気に板をマージ
+            if ($have_merged_faivta_read_idx) {
+                $aThread->getThreadInfoFromExtIdxLine($l);
+            } else {
+                $aThread->key = $l['key'];
+                $aThread->setTtitle($l['ttitle']);
+                $aThread->rescount = $l['rescount'];
+                $aThread->host = $l['host'];
+                $aThread->bbs = $l['bbs'];
+                $aThread->torder = $l['torder'];
+            }
+            break;
         }
     // subject (not spmode)
     } else {
@@ -227,11 +263,13 @@ for ($x = 0; $x < $linesize; $x++) {
         continue;
     }
 
+    $subject_id = $aThread->host . '/' . $aThread->bbs;
+
     $aThread->setThreadPathInfo($aThread->host, $aThread->bbs, $aThread->key);
     $aThread->getThreadInfoFromIdx(); // 既得スレッドデータをidxから取得
 
     // 新着のみ(for subject) =========================================
-    if (!$aThreadList->spmode and $sb_view == "shinchaku" and !$_GET['word']) {
+    if (!$aThreadList->spmode && $sb_view == 'shinchaku' && empty($_GET['word'])) {
         if ($aThread->unum < 1) {
             unset($aThread);
             continue;
@@ -239,7 +277,7 @@ for ($x = 0; $x < $linesize; $x++) {
     }
 
     // スレッドあぼーんチェック =====================================
-    if ($aThreadList->spmode != "taborn" and $ta_keys[$aThread->key]) {
+    if ($aThreadList->spmode != "taborn" && !empty($ta_keys[$aThread->key])) {
         unset($ta_keys[$aThread->key]);
         continue; // あぼーんスレはスキップ
     }
@@ -248,18 +286,21 @@ for ($x = 0; $x < $linesize; $x++) {
     if ($aThreadList->spmode && $sb_view != "edit") {
 
         // subject.txtが未DLなら落としてデータを配列に格納
-        if (!$subject_txts["$aThread->host/$aThread->bbs"]) {
+        if (empty($subject_txts[$subject_id])) {
+            if (!class_exists('SubjectTxt', false)) {
+                require_once P2_LIB_DIR . '/SubjectTxt.php';
+            }
+            $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
-            require_once P2_LIB_DIR . '/SubjectTxt.class.php';
-            $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
-
-            $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
+            $subject_txts[$subject_id] = $aSubjectTxt->subject_lines;
         }
 
         // スレ情報取得 =============================
-        if ($subject_txts["$aThread->host/$aThread->bbs"]) {
-            foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
-                if (@preg_match("/^{$aThread->key}/", $l)) {
+        if (!empty($subject_txts[$subject_id])) {
+            $thread_key = (string)$aThread->key;
+            $thread_key_len = strlen($thread_key);
+            foreach ($subject_txts[$subject_id] as $l) {
+                if (strncmp($l, $thread_key, $thread_key_len) == 0) {
                     $aThread->getThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
                     break;
                 }
@@ -267,7 +308,7 @@ for ($x = 0; $x < $linesize; $x++) {
         }
 
         // 新着のみ(for spmode) ===============================
-        if ($sb_view == "shinchaku" and !$_GET['word']) {
+        if ($sb_view == "shinchaku" && empty($_GET['word'])) {
             if ($aThread->unum < 1) {
                 unset($aThread);
                 continue;
@@ -313,15 +354,15 @@ for ($x = 0; $x < $linesize; $x++) {
     unset($aThread);
 }
 
-//$aThread =& new ThreadRead();
+//$aThread = new ThreadRead();
 
 //======================================================================
 // スレッドの新着部分を読み込んで表示する
 //======================================================================
-function readNew(&$aThread)
+function readNew($aThread)
 {
     global $_conf, $newthre_num, $STYLE;
-    global $_info_msg_ht, $spmode;
+    global $_info_msg_ht, $spmode, $word;
 
     $newthre_num++;
 
@@ -338,9 +379,10 @@ function readNew(&$aThread)
     if (!$aThread->itaj) { $aThread->itaj = $aThread->bbs; }
 
     // idxファイルがあれば読み込む
-    if (is_readable($aThread->keyidx)) {
-        $lines = @file($aThread->keyidx);
-        $data = explode('<>', rtrim($lines[0]));
+    if ($lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES)) {
+        $data = explode('<>', $lines[0]);
+    } else {
+        $data = array_fill(0, 12, '');
     }
     $aThread->getThreadInfoFromIdx();
 
@@ -380,13 +422,13 @@ function readNew(&$aThread)
     //==================================================================
     $motothre_url = $aThread->getMotoThread();
 
-    $ttitle_en = base64_encode($aThread->ttitle);
+    $ttitle_en = rawurlencode(base64_encode($aThread->ttitle));
     $ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
     $bbs_q = "&amp;bbs=".$aThread->bbs;
     $key_q = "&amp;key=".$aThread->key;
     $popup_q = "&amp;popup=1";
 
-    // include_once P2_LIB_DIR . '/read_header.inc.php';
+    // require_once P2_LIB_DIR . '/read_header.inc.php';
 
     $prev_thre_num = $newthre_num - 1;
     $next_thre_num = $newthre_num + 1;
@@ -417,11 +459,13 @@ EOP;
     //==================================================================
     $aThread->resrange['nofirst'] = true;
     $GLOBALS['newres_to_show_flag'] = false;
+    $read_cont_ht = '';
     if ($aThread->rescount) {
-        //$aThread->datToHtml(); // dat を html に変換表示
-        include_once P2_LIB_DIR . '/showthread.class.php';
-        include_once P2_LIB_DIR . '/showthreadk.class.php';
-        $aShowThread =& new ShowThreadK($aThread);
+        $aShowThread = new ShowThreadK($aThread, true);
+
+        if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
+            $read_cont_ht .= $aShowThread->getSpmObjJs();
+        }
 
         $read_cont_ht .= $aShowThread->getDatToHtml();
 
@@ -431,9 +475,6 @@ EOP;
     //==================================================================
     // フッタ 表示
     //==================================================================
-    //include($read_footer_inc);
-
-    //----------------------------------------------
     // $read_footer_navi_new  続きを読む 新着レスの表示
     $newtime = date("gis");  // リンクをクリックしても再読込しない仕様に対抗するダミークエリー
 
@@ -452,6 +493,7 @@ EOP;
 
     $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\">新着ﾚｽの表示</a>";
 
+    /*
     if (!empty($_conf['disable_res'])) {
         $dores_ht = <<<EOP
 <a href="{$motothre_url}" target="_blank">ﾚｽ</a>
@@ -461,28 +503,32 @@ EOP;
 <a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
 EOP;
     }
-
-    $spm_ht = <<<EOP
-<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
-EOP;
+    */
 
     // ツールバー部分HTML =======
     if ($spmode) {
         $toolbar_itaj_ht = <<<EOP
-(<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}">{$itaj_hd}</a>)
+ (<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}">{$itaj_hd}</a>)
 EOP;
+    } else {
+        $toolbar_itaj_ht = '';
     }
+
+    /*
     $toolbar_right_ht .= <<<EOTOOLBAR
 <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
 <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a>
 <a href="{$motothre_url}" target="_blank">元ｽﾚ</a>\n
 EOTOOLBAR;
+    */
 
     $read_footer_ht = <<<EOP
-<div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_footer">
+<div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_toolbar">
 {$read_range_ht}
-{$spm_ht}<br>
-<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> {$toolbar_itaj_ht}
+<a class="button" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
+<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
+<br>
+<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
 <a class="button" href="#ntt{$newthre_num}">▲</a>
 </div>
 <hr>\n
@@ -530,37 +576,45 @@ if ($unum_limit > 0) {
     $unum_limit_at_a = '';
 }
 
+$shinchaku_matome_url = "{$_conf['read_new_k_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}&amp;nt={$newtime}{$unum_limit_at_a}{$_conf['k_at_a']}";
+
+if ($aThreadList->spmode == 'merge_favita') {
+    $shinchaku_matome_url .= $_conf['m_favita_set_at_a'];
+}
+
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     if (!empty($GLOBALS['limit_to_eq_to'])) {
         $str = '新着まとめの更新/続き';
     } else {
         $str = '新まとめを更新';
     }
-    echo <<<EOP
-<div>
-{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}&amp;nt={$newtime}{$unum_limit_at_a}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.{$str}</a>
-<a class="button" id="bottom" name="bottom" {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#above">{$_conf['k_accesskey']['above']}.▲</a>
-</div>\n
-EOP;
 } else {
-    echo <<<EOP
-<div>
-{$sb_ht_btm}の<a href="{$_conf['read_new_k_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}&amp;nt={$newtime}&amp;norefresh=1{$unum_limit_at_a}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.新まとめの続き</a>
-<a class="button" id="bottom" name="bottom" {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#above">{$_conf['k_accesskey']['above']}.▲</a>
-</div>\n
-EOP;
+    $str = '新まとめの続き';
+    $shinchaku_matome_url .= '&amp;norefresh=1';
 }
 
-echo '<hr>'.$_conf['k_to_index_ht']."\n";
+echo <<<EOP
+<div id="read_new_footer">{$sb_ht_btm}の<a href="{$shinchaku_matome_url}"{$_conf['k_accesskey_at']['next']}>{$_conf['k_accesskey_st']['next']}{$str}</a>
+<a class="button" id="bottom" name="bottom" href="#above"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}▲</a></div>\n
+EOP;
 
-// iPhone & ImageCache2
-if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
-    require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-    $ic2conf = ic2_loadconfig();
-    if ($ic2conf['Thumb1']['width'] > 80) {
-        include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
-    } else {
-        include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
+
+// iPhone
+if ($_conf['iphone']) {
+    // ImageCache2
+    if ($_conf['expack.ic2.enabled']) {
+        require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+        $ic2conf = ic2_loadconfig();
+        if ($ic2conf['Thumb1']['width'] > 80) {
+            include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
+        } else {
+            include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+        }
+    }
+    // SPM
+    if ($_conf['expack.spm.enabled']) {
+        echo ShowThreadK::getSpmElementHtml();
     }
 }
 
@@ -574,3 +628,14 @@ if (P2_READ_NEW_SAVE_MEMORY) {
 
 // NGあぼーんを記録
 NgAbornCtl::saveNgAborns();
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -8,10 +8,6 @@
 // キャッシュ保存ディレクトリのパス
 $_conf['expack.ic2.general.cachedir'] = "./cache";
 
-// コンパイル済テンプレート保存ディレクトリ名
-// （cachedirのサブディレクトリ）
-$_conf['expack.ic2.general.compiledir'] = "compile";
-
 // DSN (DBに接続するためのデータソース名)
 // @link http://jp.pear.php.net/manual/ja/package.database.db.intro-dsn.php
 // 例)
@@ -105,7 +101,7 @@ $_conf['expack.ic2.viewer.delete_src_not_exists'] = 0;
 $_conf['expack.ic2.viewer.cache'] = 0;
 
 // 重複画像を最初にヒットする1枚だけ表示 (off:0;on:1)
-// サブクエリを使うためバージョン4.1未満のMySQLでは無効
+// サブクエリに対応していないMySQL 4.1未満で有効にするとエラーが出る
 $_conf['expack.ic2.viewer.unique'] = 0;
 
 // Exif情報を表示 (off:0;on:1)

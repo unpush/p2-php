@@ -1,14 +1,12 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2 - 板メニューの非同期読み込み
-    現状ではお気に板とRSSのセット切り替えのみ対応
-*/
+/**
+ * rep2expack - 板メニューの非同期読み込み
+ * 現状ではお気に板とRSSのセット切り替えのみ対応
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/brdctl.class.php';
-require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/BrdCtl.php';
+require_once P2_LIB_DIR . '/ShowBrdMenuPc.php';
 
 $_login->authorize(); //ユーザ認証
 
@@ -26,20 +24,20 @@ header('Content-Type: text/html; charset=Shift_JIS');
 
 // お気に板
 if (isset($_GET['m_favita_set'])) {
-    $aShowBrdMenuPc = &new ShowBrdMenuPc;
+    $aShowBrdMenuPc = new ShowBrdMenuPc;
     ob_start();
-    $aShowBrdMenuPc->print_favIta();
+    $aShowBrdMenuPc->printFavIta();
     $menuItem = ob_get_clean();
-    $menuItem = preg_replace('/^\s*<div class="menu_cate">.+?<div class="itas" id="c_favita">\s*/s', '', $menuItem);
-    $menuItem = preg_replace('/\s*<\/div>\s*<\/div>\s*$/s', '', $menuItem);
+    $menuItem = preg_replace('{^\\s*<div class="menu_cate">.+?<div class="itas" id="c_favita">\\s*}s', '', $menuItem);
+    $menuItem = preg_replace('{\\s*</div>\\s*</div>\\s*$}s', '', $menuItem);
 
 // RSS
 } elseif (isset($_GET['m_rss_set'])) {
     ob_start();
-    @include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
+    require_once P2EX_LIB_DIR . '/rss/menu.inc.php';
     $menuItem = ob_get_clean();
-    $menuItem = preg_replace('/^\s*<div class="menu_cate">.+?<div class="itas" id="c_rss">\s*/s', '', $menuItem);
-    $menuItem = preg_replace('/\s*<\/div>\s*<\/div>\s*$/s', '', $menuItem);
+    $menuItem = preg_replace('{^\\s*<div class="menu_cate">.+?<div class="itas" id="c_rss">\\s*}s', '', $menuItem);
+    $menuItem = preg_replace('{\\s*</div>\\s*</div>\\s*$}s', '', $menuItem);
 
 // スキン
 } elseif (isset($_GET['m_skin_set'])) {
@@ -60,7 +58,7 @@ echo $menuItem;
 exit;
 
 // }}}
-// {{{ 関数
+// {{{ changeSkin()
 
 /**
  * スキンを切り替える
@@ -74,9 +72,9 @@ function changeSkin($skin)
     }
 
     if ($skin == 'conf_style') {
-        $newskin = 'conf/conf_user_style.php';
+        $newskin = './conf/conf_user_style.php';
     } else {
-        $newskin = 'skin/' . $skin . '.php';
+        $newskin = './skin/' . $skin . '.php';
     }
 
     if (file_exists($newskin)) {
@@ -91,3 +89,14 @@ function changeSkin($skin)
 }
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

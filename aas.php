@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
  * Ascii Art Scope for rep2
  *
@@ -37,19 +35,19 @@
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 if (!$_conf['expack.aas.enabled']) {
-    exit('<html><body><p>AASは無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('AASは無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
 // {{{ 設定
 
 // このファイルの文字コード
-define('AAS_SCRIPT_CHARSET', 'SJIS-win');
+define('AAS_SCRIPT_CHARSET', 'CP932');
 
 // HTML→プレーンテキスト変換処理の文字コード
 define('AAS_INTERNAL_CHARSET', 'UTF-8');
@@ -218,8 +216,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // レス読み込み
 if (empty($errors) && $_SERVER['REQUEST_METHOD'] != 'POST') {
-    require_once P2_LIB_DIR . '/threadread.class.php';
-    $aThread = &new ThreadRead;
+    require_once P2_LIB_DIR . '/ThreadRead.php';
+    $aThread = new ThreadRead;
     $aThread->setThreadPathInfo($host, $bbs, $key);
     if (!$aThread->readDat()) {
         $errors[] = 'datが読み込めませんでした。';
@@ -257,7 +255,7 @@ if (count($errors) > 0) {
 // {{{ メイン処理
 
 // 文字コード変換
-$text = mb_convert_encoding($text, AAS_INTERNAL_CHARSET, 'SJIS-win');
+$text = mb_convert_encoding($text, AAS_INTERNAL_CHARSET, 'CP932');
 
 // 制御文字以外をすべて数値文字参照に変換
 $regex = '/&(\\w+|#x([[:xdigit:]]{1,4}))(;|\\b)/';
@@ -276,11 +274,7 @@ $text = str_replace($u3000, '  ', $text);
 $text = mb_convert_encoding($text, $_conf['expack.aas.output_charset'], AAS_INTERNAL_CHARSET);
 */
 // エラーハンドラを設定
-/*if (version_compare(phpversion(), '5.0.0', '>')) {
-    set_error_handler('aas_ttfErrorHandler', E_WARNING);
-} else {
-    set_error_handler('aas_ttfErrorHandler');
-}*/
+//set_error_handler('aas_ttfErrorHandler', E_WARNING);
 
 // 元のテキストの文字数が多いとエラーになるので
 // テキストボックスの大きさ判定用の文字列を作成
@@ -391,8 +385,7 @@ if ($rotate) {
     // Bug #24155 (gdImageRotate270 rotation problem).
     //$new_image = imagerotate(imagerotate($image, 180, $bgcolor), 90, $bgcolor);
     imagedestroy($image);
-    unset($image);
-    $image = &$new_image;
+    $image = $new_image;
 }
 
 // エラーハンドラを戻す
@@ -420,6 +413,7 @@ exit;
 
 // }}}
 // {{{ 関数
+// {{{ aas_toNumericEntity()
 
 /**
  * 実体参照・と16進数の数値参照を10真数の数値参照に変換する
@@ -457,6 +451,9 @@ function aas_toNumericEntity($e)
     }
     return $_conf['expack.aas.unknown_char'];
 }
+
+// }}}
+// {{{ aas_decodeHTMLEntity()
 
 /**
  * 実体参照・数値参照をデコードする
@@ -503,6 +500,9 @@ function aas_decodeHTMLEntity($e)
     return $_conf['expack.aas.unknown_char'];
 }
 
+// }}}
+// {{{ aas_getTextBoxSize()
+
 /**
  * テキストボックスの大きさを計算する
  */
@@ -516,6 +516,9 @@ function aas_getTextBoxSize($size, $font, $hint, $lines)
     return array($box_width, $box_height);
 }
 
+// }}}
+// {{{ aas_isTextInPicture()
+
 /**
  * テキストが画像に収まり切るかチェックする
  */
@@ -528,27 +531,34 @@ function aas_isTextInPicture($size, $font, $hint, $lines, $max_width, $max_heigh
     return true;
 }
 
+// }}}
+// {{{ aas_parseColor()
+
 /**
  * 3桁または6桁の16進数表記の色指定を array(int, int, int) に変換して返す
  */
 function aas_parseColor($hex)
 {
-    if (!preg_match('/^#?([[:xdigit:]]{3}|[[:xdigit:]]{6})$/', $hex)) {
+    if (!preg_match('/^#?(?:[[:xdigit:]]{3}|[[:xdigit:]]{6})$/', $hex)) {
         return false;
     }
-    if ($hex{0} == '#') {
-        $hex = substr($hex, 1);
+    if ($hex[0] == '#') {
+        $dec = hexdec(substr($hex, 1));
+    } else {
+        $dec = hexdec($hex);
     }
-    if (strlen($hex) == 3) {
-        $r = hexdec($hex{0});
-        $g = hexdec($hex{1});
-        $b = hexdec($hex{2});
-        return array($r * 16 + $r, $g * 16 + $g, $b * 16 + $b);
+    if (strlen($hex) < 6) {
+        $r = ($dec & 0xf00) >> 8;
+        $g = ($dec & 0xf0) >> 4;
+        $b = $dec & 0xf;
+        return array(($r << 4) | $r, ($g << 4) | $g, ($b << 4) | $b);
+    } else {
+        return array(($dec & 0xff0000) >> 16, ($dec & 0xff00) >> 8, $dec & 0xff);
     }
-    preg_match('/(..)(..)(..)/', $hex, $colors);
-    array_shift($colors);
-    return array_map('hexdec', $colors);
 }
+
+// }}}
+// {{{ aas_ttfErrorHandler()
 
 /**
  * imagettftext(), imagettfbbox() の入力文字列が大きすぎたときのエラー処理
@@ -569,3 +579,15 @@ function aas_ttfErrorHandler($errno, $errstr, $errfile, $errline)
 }
 
 // }}}
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

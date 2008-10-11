@@ -1,13 +1,12 @@
 <?php
-/*
-    p2 - for read_new.php, read_new_k.php
-*/
+/**
+ * rep2 - for read_new.php, read_new_k.php
+ */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
-//===============================================
-// 関数
-//===============================================
+// {{{ saveMatomeCache()
+
 /**
  * 新着まとめ読みのキャッシュを残す
  *
@@ -31,6 +30,8 @@ function saveMatomeCache()
         $ext = $_conf['matome_cache_ext'];
     }
 
+    $lock = new P2Lock($_conf['matome_cache_path'] . $ext, false);
+
     // ローテーション
     $max = $_conf['matome_cache_max'];
     $i = $max;
@@ -43,7 +44,7 @@ function saveMatomeCache()
             if ($i == $max) {
                 unlink($tfile);
             } else {
-                if (strstr(PHP_OS, 'WIN') and file_exists($nfile)) {
+                if (P2_OS_WINDOWS && file_exists($nfile)) {
                     unlink($nfile);
                 }
                 rename($tfile, $nfile);
@@ -58,11 +59,14 @@ function saveMatomeCache()
 
     FileCtl::make_datafile($file, $_conf['p2_perm']);
     if (FileCtl::file_write_contents($file, $GLOBALS['read_new_html']) === false) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
 
     return true;
 }
+
+// }}}
+// {{{ saveMatomeCacheFromTmpFile()
 
 /**
  * 新着まとめ読みのキャッシュを残す（一時ファイルに書き込んだ内容を改めてキャッシュに保存）
@@ -114,7 +118,7 @@ function saveMatomeCacheFromTmpFile()
     FileCtl::make_datafile($file, $_conf['p2_perm']);
     $fh = fopen($file, 'wb');
     if (!$fh) {
-        die('Error: cannot write file.');
+        p2die('cannot write file.');
     }
     @flock($fh, LOCK_EX);
     fseek($GLOBALS['read_new_tmp_fh'], 0);
@@ -126,6 +130,9 @@ function saveMatomeCacheFromTmpFile()
 
     return true;
 }
+
+// }}}
+// {{{ getMatomeCache()
 
 /**
  * 新着まとめ読みのキャッシュを取得
@@ -143,7 +150,7 @@ function getMatomeCache($num = '')
     $dnum = ($num) ? '.'.$num : '';
     $file = $_conf['matome_cache_path'] . $dnum . $ext;
 
-    $cont = @file_get_contents($file);
+    $cont = FileCtl::file_read_contents($file);
 
     if (strlen($cont) > 0) {
         return $cont;
@@ -151,3 +158,16 @@ function getMatomeCache($num = '')
         return false;
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

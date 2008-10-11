@@ -1,9 +1,16 @@
 <?php
+/**
+ * rep2 - 最初のログイン画面を表示する
+ */
+
+require_once P2_LIB_DIR . '/Login.php';
+
+// {{{ printLoginFirst()
 
 /**
- *  p2 最初のログイン画面を表示する
+ *  最初のログイン画面を表示する
  */
-function printLoginFirst(&$_login)
+function printLoginFirst(Login $_login)
 {
     global $_info_msg_ht, $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
@@ -52,44 +59,85 @@ function printLoginFirst(&$_login)
     //==============================================
     // 補助認証
     //==============================================
-    $mobile = &Net_UserAgent_Mobile::singleton();
+    $mobile = Net_UserAgent_Mobile::singleton();
 
-    // {{{ EZ認証
+    // {{{ DoCoMo iモードID認証
 
-    if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
-        if (file_exists($_conf['auth_ez_file'])) {
-            include $_conf['auth_ez_file'];
-            if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
-                $auth_sub_input_ht = '端末ID OK : ﾕｰｻﾞ名だけでﾛｸﾞｲﾝできます｡<br>';
+    if ($mobile->isDoCoMo()) {
+        /**
+         * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html#imodeid
+         */
+        if (($UID = $mobile->getUID()) !== null) {
+            // HTTPかつguid=ONでリクエストされない限りここに来ることはない
+            if (file_exists($_conf['auth_imodeid_file'])) {
+                include $_conf['auth_imodeid_file'];
+                if (isset($registed_imodeid) && $registed_imodeid == $UID) {
+                    $auth_sub_input_ht = 'iモードID OK : ﾕｰｻﾞ名だけでﾛｸﾞｲﾝできます｡<br>';
+                }
             }
-        } else {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_ez" value="1">'."\n".
-                '<input type="checkbox" name="regist_ez" value="1" checked>EZ端末IDで認証を登録<br>';
+        }
+
+        if ($auth_sub_input_ht == '') {
+            if (empty($_SERVER['HTTPS'])) {
+                $regist_imodeid_chedked = ' checked';
+                $regist_docomo_chedked = '';
+            } else {
+                $regist_imodeid_chedked = '';
+                $regist_docomo_chedked = ' checked';
+            }
+            $auth_sub_input_ht = <<<EOP
+<input type="hidden" name="ctl_regist_imodeid" value="1">
+<input type="hidden" name="ctl_regist_docomo" value="1">
+<input type="checkbox" name="regist_imodeid" value="1"{$regist_imodeid_chedked}>iモードIDで認証を登録<br>
+<input type="checkbox" name="regist_docomo" value="1"{$regist_docomo_chedked}>DoCoMo端末IDで認証を登録<br>
+EOP;
         }
 
     // }}}
-    // {{{ J認証
+    // {{{ EZweb サブスクライバID認証
 
-    // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-    } elseif ($mobile->isVodafone() && ($SN = $mobile->getSerialNumber()) !== NULL) {
-        if (file_exists($_conf['auth_jp_file'])) {
-            include $_conf['auth_jp_file'];
-            if ($SN == $registed_jp) {
-                $auth_sub_input_ht = '端末ID OK : ﾕｰｻﾞ名だけでﾛｸﾞｲﾝできます｡<br>';
+    } elseif ($mobile->isEZweb()) {
+        /**
+         * @link http://www.au.kddi.com/ezfactory/tec/spec/4_4.html
+         */
+        if (($UID = $mobile->getUID()) !== null) {
+            if (file_exists($_conf['auth_ez_file'])) {
+                include $_conf['auth_ez_file'];
+                if (isset($registed_ez) && $registed_ez == $UID) {
+                    $auth_sub_input_ht = '端末ID OK : ﾕｰｻﾞ名だけでﾛｸﾞｲﾝできます｡<br>';
+                }
             }
-        } else {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_jp" value="1">'."\n".
-                '<input type="checkbox" name="regist_jp" value="1" checked>J端末IDで認証を登録<br>';
+        }
+
+        if ($auth_sub_input_ht == '') {
+            $auth_sub_input_ht = <<<EOP
+<input type="hidden" name="ctl_regist_ez" value="1">
+<input type="checkbox" name="regist_ez" value="1" checked>EZ端末IDで認証を登録<br>
+EOP;
         }
 
     // }}}
-    // {{{ DoCoMo認証
+    // {{{ SoftBank 端末シリアル番号認証
 
-    } elseif ($mobile->isDoCoMo()) {
-        if (file_exists($_conf['auth_docomo_file'])) {
-        } else {
-            $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_docomo" value="1">'."\n".
-                '<input type="checkbox" name="regist_docomo" value="1" checked>DoCoMo端末IDで認証を登録<br>';
+    } elseif ($mobile->isSoftBank()) {
+        /**
+         * パケット対応機 要ユーザID通知ONの設定
+         * @link http://creation.mb.softbank.jp/web/web_ua_about.html
+         */
+        if (($SN = $mobile->getSerialNumber()) !== null) {
+            if (file_exists($_conf['auth_jp_file'])) {
+                include $_conf['auth_jp_file'];
+                if (isset($registed_jp) && $registed_jp == $SN) {
+                    $auth_sub_input_ht = '端末ID OK : ﾕｰｻﾞ名だけでﾛｸﾞｲﾝできます｡<br>';
+                }
+            }
+        }
+
+        if ($auth_sub_input_ht == '') {
+            $auth_sub_input_ht = <<<EOP
+<input type="hidden" name="ctl_regist_jp" value="1">
+<input type="checkbox" name="regist_jp" value="1" checked>Y!端末IDで認証を登録<br>
+EOP;
         }
 
     // }}}
@@ -116,9 +164,9 @@ function printLoginFirst(&$_login)
         $add_mail = '';
     }
 
-    if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_login->user_u)) {
+    if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_login->user_u)) {
         $hd['form_login_id'] = htmlspecialchars($_login->user_u, ENT_QUOTES);
-    } elseif (!empty($_POST['form_login_id']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $_POST['form_login_id'])) {
+    } elseif (!empty($_POST['form_login_id']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_POST['form_login_id'])) {
         $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
     } else {
         $hd['form_login_id'] = '';
@@ -132,23 +180,47 @@ function printLoginFirst(&$_login)
     }
 
     // DoCoMoの固有端末認証（セッション利用時のみ有効）
-    $docomo_utn_ht = '';
+    $docomo_auth_ht = '';
 
     //if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
-    if ($_conf['use_session'] && $mobile->isDoCoMo()) {
-        $docomo_utn_ht = '<p><a href="' . $myname . '?user=' . htmlspecialchars($_login->user_u, ENT_QUOTES) . '" utn>DoCoMo固有端末認証</a></p>';
+    if ($mobile->isDoCoMo()) {
+        if ($_conf['use_session']) {
+            if (file_exists($_conf['auth_imodeid_file']) && empty($_SERVER['HTTPS'])) {
+                $docomo_auth_ht .= sprintf('<p><a href="%s?auth_type=imodeid&amp;user=%s&amp;guid=ON">iモードID認証</a></p>',
+                                           $myname,
+                                           rawurldecode($_login->user_u)
+                                           );
+            }
+            if (file_exists($_conf['auth_docomo_file'])) {
+                $docomo_auth_ht .= sprintf('<p><a href="%s?auth_type=utn&amp;user=%s" utn>DoCoMo端末ID認証</a></p>',
+                                           $myname,
+                                           rawurldecode($_login->user_u)
+                                           );
+            }
+        } else {
+            $docomo_auth_ht = '<p>conf/conf_admin.inc.php でｾｯｼｮﾝを利用するように設定変更してください｡</p>';
+        }
     }
 
     // DoCoMoならpasswordにしない
     if ($mobile->isDoCoMo()) {
-        $type = "text";
+        $type = 'text';
+        $utn = ' utn';
     } else {
-        $type = "password";
+        $type = 'password';
+        $utn = '';
     }
 
     // {{{ ログイン用フォームを生成
 
     $hd['REQUEST_URI'] = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES);
+    if ($mobile->isDoCoMo()) {
+        if (strpos($hd['REQUEST_URI'], '?') === false) {
+            $hd['REQUEST_URI'] .= '?guid=ON';
+        } else {
+            $hd['REQUEST_URI'] .= '&amp;guid=ON';
+        }
+    }
 
     if (file_exists($_conf['auth_user_file'])) {
         $submit_ht = '<input type="submit" name="submit_member" value="ユーザログイン">';
@@ -165,8 +237,8 @@ function printLoginFirst(&$_login)
         $k_input_size_at = ' size="32"';
     }
     $login_form_ht = <<<EOP
-{$docomo_utn_ht}
-<form id="login" method="POST" action="{$hd['REQUEST_URI']}" target="_self" utn>
+{$docomo_auth_ht}
+<form id="login" method="POST" action="{$hd['REQUEST_URI']}" target="_self"{$utn}>
     {$_conf['k_input_ht']}
     {$p_str['user']}: <input type="text" name="form_login_id" value="{$hd['form_login_id']}"{$k_roman_input_at}{$k_input_size_at}><br>
     {$p_str['password']}: <input type="{$type}" name="form_login_pass" value="{$hd['form_login_pass']}"{$k_roman_input_at}><br>
@@ -248,18 +320,25 @@ EOP;
     echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
     if (!$_conf['ktai']) {
-        echo "<style type=\"text/css\" media=\"all\">\n<!--\n";
-        @include 'style/style_css.inc';
-        @include 'style/login_first_css.inc';
-        echo "\n-->\n</style>\n";
+        echo <<<EOP
+<style type="text/css">
+/* <![CDATA[ */\n
+EOP;
+        include P2_STYLE_DIR . '/style_css.inc';
+        include P2_STYLE_DIR . '/login_first_css.inc';
+        echo <<<EOP
+\n/* ]]> */
+</style>\n
+EOP;
     }
     echo "</head><body>\n";
     echo "<h3>{$ptitle}</h3>\n";
@@ -280,3 +359,16 @@ EOP;
 
     return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

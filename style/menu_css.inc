@@ -1,8 +1,8 @@
 <?php
-// p2 ースタイル設定
-// for menu
-// vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
-// mi: charset=Shift_JIS
+/**
+ * rep2 - スタイル設定
+ * for menu
+ */
 
 if ($STYLE['a_underline_none'] == 1) {
 	$cate_underline_css = '';
@@ -65,11 +65,20 @@ EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-	include_once (P2_STYLE_DIR . '/mystyle_css.php');
+	require_once P2_STYLE_DIR . '/mystyle_css.php';
 	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
 	if (isset($MYSTYLE[$_mystylename])) {
 		disp_mystyle($_mystylename);
 	}
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,3 +1,8 @@
+<?php
+/**
+ * rep2expack - tGrep 検索結果のレンダリング for PC
+ */
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
@@ -5,10 +10,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <?php echo $_conf['extra_headers_xht']; ?>
     <title>tGrep<?php if (strlen($htm['query']) > 0) { echo ' - ', $htm['query']; } ?></title>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;<?php echo $htm['skin_q']; ?>" />
     <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;<?php echo $htm['skin_q']; ?>" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <style type="text/css">
+    /* <![CDATA[ */
     div.tgrep_message {
         margin:0; padding:0; line-height:120%;
         <?php echo $htm['message_background'], $htm['message_border'], $htm['message_color']; ?>
@@ -28,19 +37,20 @@
         border-top:<?php echo $STYLE['sb_th_bgcolor']; ?> solid 1px;
         <?php echo $htm['message_background'], $htm['message_color']; ?>
     }
+    /* ]]> */
     </style>
     <script type="text/javascript">
-    // <![CDATA[
+    //<![CDATA[
     function setWinTitle() {
         if (top != self) {top.document.title=self.document.title;}
     }
     function sf() {
         <?php if (strlen($htm['query']) == 0) { echo 'document.getElementById("Q").focus()'; } ?>
     }
-    // ]]>
+    //]]>
     </script>
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="sf();setWinTitle();gIsPageLoaded=true;">
+<body onload="sf();setWinTitle();gIsPageLoaded=true;">
 
 <!-- Toolbar1 -->
 <table id="sbtoolbar1" class="toolbar" cellspacing="0">
@@ -48,9 +58,9 @@
     <td align="left" valign="middle"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
     <td align="left" valign="middle">
         <form id="searchForm" name="searchForm" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
-        <input type="hidden" name="_hint" value="◎◇" />
         <input id="Q" name="Q" <?php echo $htm['search_attr']; ?> />
         <input type="submit" value="検索" />
+        <?php echo $_conf['detect_hint_input_xht'], $_conf['k_input_ht']; ?>
         </form>
     </td>
     <td align="right" valign="middle"><?php if ($threads) { ?><a class="toolanchor" href="#sbtoolbar2" target="_self">▼</a><?php } else { ?>　<?php } ?></td>
@@ -99,34 +109,34 @@
 <select onchange="location.href=document.getElementById('h_subject_php').value+'?word='+document.getElementById('h_query_en').value+this.options[this.selectedIndex].value">
 <option value="">-</option>
 <?php $m = ($htm['category'] && isset($profile['categories'][$htm['category']])) ? $profile['categories'][$htm['category']]->member : null; ?>
-<?php foreach ($profile['boards'] as $n => $b) { if (!$m || in_array($n, $m)) { ?><option value="<?php printf('&amp;host=%s&amp;bbs=%s&amp;itaj_en=%s', $b->host, $b->bbs, urlencode(base64_encode($b->name))); ?>"><?php echo htmlspecialchars($b->name, ENT_QUOTES); ?> (<?php echo $b->hits; ?>)</option><?php } } ?>
+<?php foreach ($profile['boards'] as $n => $b) { if (!$m || in_array($n, $m)) { ?><option value="<?php printf('&amp;host=%s&amp;bbs=%s&amp;itaj_en=%s', $b->host, $b->bbs, rawurlencode(base64_encode($b->name))); ?>"><?php echo htmlspecialchars($b->name, ENT_QUOTES); ?> (<?php echo $b->hits; ?>)</option><?php } } ?>
 </select>
 </div>
 <?php } ?>
 
 <?php if ($threads) { ?>
 <!-- ThreadList and Pager -->
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
+<table class="threadlist" cellspacing="0">
 <thead>
 <tr class="tableheader">
-    <td class="ti">新着</td>
-    <td class="ti">レス</td>
-    <td class="ti">No.</td>
-    <td class="tl">タイトル</td>
-    <td class="t">板</td>
-    <td class="t">Birthday</td>
-    <td class="ti">勢い</td>
-    <td class="ti">活発さ</td>
+    <th class="ti">新着</th>
+    <th class="ti">レス</th>
+    <th class="ti">No.</th>
+    <th class="tl">タイトル</th>
+    <th class="t">板</th>
+    <th class="t">Birthday</th>
+    <th class="ti">勢い</th>
+    <th class="ti">活発さ</th>
 </tr>
 </thead>
 <tbody>
 <?php
 $R = true;
-include_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/Thread.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);
-    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, urlencode(base64_encode($t->ita)), $htm['query_en']);
+    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, rawurlencode(base64_encode($t->ita)), $htm['query_en']);
     if (P2Util::isHostMachiBbs($t->host)) {
         $ourl = sprintf('http://%s/bbs/read.pl?BBS=%s&KEY=%s', $t->host, $t->bbs, $t->tkey);
     } else {
@@ -169,12 +179,12 @@ foreach ($threads as $o => $t) {
 <!-- Toolbar2 -->
 <table id="sbtoolbar2" class="toolbar" cellspacing="0">
 <tr>
-    <td align="left" valign="middle"><span class="itatitle" id="top"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
+    <td align="left" valign="middle"><span class="itatitle" id="bottom"><a class="aitatitle" href="<?php echo $htm['tgrep_url']; ?>" target="_blank"><b>tGrep for rep2</b></a></span></td>
     <td align="left" valign="middle">
-        <form id="searchForm2" name="searchForm" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
-        <input type="hidden" name="_hint" value="◎◇" />
+        <form id="searchForm2" name="searchForm2" action="<?php echo $htm['php_self']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>">
         <input id="Q2" name="Q" <?php echo $htm['search_attr']; ?> />
         <input type="submit" value="検索" />
+        <?php echo $_conf['detect_hint_input_xht'], $_conf['k_input_ht']; ?>
         </form>
     </td>
     <td align="right" valign="middle"><a class="toolanchor" href="#sbtoolbar1" target="_self">▲</a></td>
@@ -184,3 +194,15 @@ foreach ($threads as $o => $t) {
 
 </body>
 </html>
+<?php
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

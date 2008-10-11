@@ -1,7 +1,7 @@
 <?php
 /**
  * Thumbnailer_Imagick09
- * PHP Versions 4 and 5
+ * PHP Version 5
  */
 
 require_once dirname(__FILE__) . '/Common.php';
@@ -10,6 +10,8 @@ require_once dirname(__FILE__) . '/Common.php';
 
 /**
  * Image manipulation class which uses imagick php extension version 0.9.13 or earlier.
+ *
+ * @deprecated
  */
 class Thumbnailer_Imagick09 extends Thumbnailer_Common
 {
@@ -18,14 +20,13 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
     /**
      * Convert and save.
      *
-     * @access public
      * @param string $source
      * @param string $thumbnail
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function save($source, $thumbnail, $size)
+    public function save($source, $thumbnail, $size)
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを保存
@@ -37,7 +38,7 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
         if (!$result) {
             $reason = imagick_failedreason($dst);
             $detail = imagick_faileddescription($dst);
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail}:{$reason}:{$detail})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail}:{$reason}:{$detail})");
         } else {
             $retval = true;
         }
@@ -54,13 +55,12 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
      * imagick_image2blob() ではうまくいかないので
      * いったん一時ファイルに書き出したデータを読み込む
      *
-     * @access public
      * @param string $source
      * @param array $size
      * @return string
      * @throws PEAR_Error
      */
-    function capture($source, $size)
+    public function capture($source, $size)
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを作成
@@ -73,7 +73,7 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
         if (!$result) {
             $reason = imagick_failedreason($dst);
             $detail = imagick_faileddescription($dst);
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail}:{$reason}:{$detail})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail}:{$reason}:{$detail})");
         } else {
             $retval = file_get_contents($tempfile);
         }
@@ -90,14 +90,13 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
      * imagick_image2blob() ではうまくいかないので
      * いったん一時ファイルに書き出し、readfile() する
      *
-     * @access protected
      * @param string $source
      * @param string $name
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function output($source, $name, $size)
+    public function output($source, $name, $size)
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを出力
@@ -110,7 +109,7 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
         if (!$result) {
             $reason = imagick_failedreason($dst);
             $detail = imagick_faileddescription($dst);
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$name}:{$reason}:{$detail})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$name}:{$reason}:{$detail})");
         } else {
             $this->_httpHeader($name, filesize($tempfile));
             readfile($tempfile);
@@ -126,12 +125,11 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
     /**
      * Image conversion abstraction.
      *
-     * @access protected
      * @param string $source
      * @param array $size
      * @return resource imagick handle
      */
-    function _convert($source, $size)
+    protected function _convert($source, $size)
     {
         extract($size);
         // ソースのイメージストリームを取得
@@ -142,7 +140,7 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
                 $detail = imagick_faileddescription($src);
                 imagick_destroyhandle($src);
             }
-            $error = &PEAR::raiseError("Failed to load the image. ({$source}:{$reason}:{$detail})");
+            $error = PEAR::raiseError("Failed to load the image. ({$source}:{$reason}:{$detail})");
             return $error;
         }
         // サムネイルのイメージストリームを作成

@@ -1,30 +1,44 @@
 <?php
 /**
  * Thumbnailer_Common
- * PHP Versions 4 and 5
+ * PHP Version 5
  */
 
 require_once 'PEAR.php';
 
+// {{{ _thumbnailer_common_unlink_tempfile()
+
+/**
+ * Remove the temporary file.
+ *
+ * @param string $file
+ * @return void
+ */
+function _thumbnailer_common_unlink_tempfile($file)
+{
+    if (file_exists($file)) {
+        @unlink($file);
+    }
+}
+
+// }}}
 // {{{ Thumbnailer_Common
 
 /**
  * Image manipulation abstraction.
- *
- * @abstract
  */
-class Thumbnailer_Common
+abstract class Thumbnailer_Common
 {
-    // {{{ protected properties
+    // {{{ properties
 
-    var $_bgcolor = array(0, 0, 0, 255);
-    var $_http = false;
-    var $_png = false;
-    var $_quality = 70;
-    var $_resampling = true;
-    var $_rotation = 0;
-    var $_tempDir = '/tmp';
-    var $_trimming = false;
+    protected $_bgcolor = array(0, 0, 0, 255);
+    protected $_http = false;
+    protected $_png = false;
+    protected $_quality = 70;
+    protected $_resampling = true;
+    protected $_rotation = 0;
+    protected $_tempDir = '/tmp';
+    protected $_trimming = false;
 
     // }}}
     // {{{ getBgColor()
@@ -32,10 +46,9 @@ class Thumbnailer_Common
     /**
      * Gets background color.
      *
-     * @access public
      * @return array
      */
-    function getBgColor()
+    public function getBgColor()
     {
         return $this->_bgcolor;
     }
@@ -46,10 +59,9 @@ class Thumbnailer_Common
     /**
      * Gets whether to output HTTP headers.
      *
-     * @access public
      * @return bool
      */
-    function isHttp()
+    public function isHttp()
     {
         return $this->_http;
     }
@@ -60,10 +72,9 @@ class Thumbnailer_Common
     /**
      * Gets whether to save as png or jpeg.
      *
-     * @access public
      * @return bool
      */
-    function isPng()
+    public function isPng()
     {
         return $this->_png;
     }
@@ -74,10 +85,9 @@ class Thumbnailer_Common
     /**
      * Gets quality.
      *
-     * @access public
      * @return int
      */
-    function getQuality()
+    public function getQuality()
     {
         return $this->_quality;
     }
@@ -88,10 +98,9 @@ class Thumbnailer_Common
     /**
      * Gets whether to reample or not.
      *
-     * @access public
      * @return bool
      */
-    function doesResampling()
+    public function doesResampling()
     {
         return $this->_resampling;
     }
@@ -102,10 +111,9 @@ class Thumbnailer_Common
     /**
      * Gets rotation.
      *
-     * @access public
      * @return int
      */
-    function getRotation()
+    public function getRotation()
     {
         return $this->_rotation;
     }
@@ -116,10 +124,9 @@ class Thumbnailer_Common
     /**
      * Gets temporaty directory.
      *
-     * @access public
      * @return string
      */
-    function getTempDir()
+    public function getTempDir()
     {
         return $this->_tempDir;
     }
@@ -130,10 +137,9 @@ class Thumbnailer_Common
     /**
      * Gets whether to trim or not.
      *
-     * @access public
      * @return bool
      */
-    function doesTrimming()
+    public function doesTrimming()
     {
         return $this->_trimming;
     }
@@ -144,14 +150,13 @@ class Thumbnailer_Common
     /**
      * Sets background color.
      *
-     * @access public
      * @param int $r
      * @param int $g
      * @param int $b
      * @param int $a (optional)
      * @return void
      */
-    function setBgColor($r, $g, $b, $a = 255)
+    public function setBgColor($r, $g, $b, $a = 255)
     {
         $this->_bgcolor = array($r, $g, $b, $a);
     }
@@ -162,11 +167,10 @@ class Thumbnailer_Common
     /**
      * Sets whether to output HTTP headers.
      *
-     * @access public
      * @param bool $http
      * @return void
      */
-    function setHttp($http)
+    public function setHttp($http)
     {
         $this->_http = $http;
     }
@@ -177,11 +181,10 @@ class Thumbnailer_Common
     /**
      * Sets whether to save as png or jpeg.
      *
-     * @access public
      * @param bool $png
      * @return void
      */
-    function setPng($png)
+    public function setPng($png)
     {
         $this->_png = $png;
     }
@@ -192,11 +195,10 @@ class Thumbnailer_Common
     /**
      * Sets quality.
      *
-     * @access public
      * @param int $quality
      * @return void
      */
-    function setQuality($quality)
+    public function setQuality($quality)
     {
         $this->_quality = $quality;
     }
@@ -207,11 +209,10 @@ class Thumbnailer_Common
     /**
      * Sets whether to reample or not.
      *
-     * @access public
      * @param bool $resample
      * @return void
      */
-    function setResampling($resample)
+    public function setResampling($resample)
     {
         $this->_resampling = $resample;
     }
@@ -222,11 +223,10 @@ class Thumbnailer_Common
     /**
      * Sets rotation.
      *
-     * @access public
      * @param int $angle
      * @return void
      */
-    function setRotation($degrees)
+    public function setRotation($degrees)
     {
         $this->_rotation = $degrees;
     }
@@ -237,11 +237,10 @@ class Thumbnailer_Common
     /**
      * Sets temporaty directory.
      *
-     * @access public
      * @param string $dir
      * @return void
      */
-    function setTempDir($dir)
+    public function setTempDir($dir)
     {
         if (is_dir($dir)) {
             $this->_tempDir = realpath($dir);
@@ -254,11 +253,10 @@ class Thumbnailer_Common
     /**
      * Sets whether to trim or not.
      *
-     * @access public
      * @param bool $trim
      * @return void
      */
-    function setTrimming($trim)
+    public function setTrimming($trim)
     {
         $this->_trimming = $trim;
     }
@@ -269,49 +267,34 @@ class Thumbnailer_Common
     /**
      * Convert and save.
      *
-     * @abstract
-     * @access public
      * @param string $source
      * @param string $thumbnail
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function save($source, $thumbnail, $size)
-    {
-        return PEAR::raiseError(__CLASS__ . '::' . __METHOD__ . ' must be inherited.');
-    }
+    abstract public function save($source, $thumbnail, $size);
 
     /**
      * Convert and capture.
      *
-     * @abstract
-     * @access public
      * @param string $source
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function capture($source, $size)
-    {
-        return PEAR::raiseError(__CLASS__ . '::' . __METHOD__ . ' must be inherited.');
-    }
+    abstract public function capture($source, $size);
 
     /**
      * Convert and output.
      *
-     * @abstract
-     * @access public
      * @param string $source
      * @param string $name
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function output($source, $name, $size)
-    {
-        return PEAR::raiseError(__CLASS__ . '::' . __METHOD__ . ' must be inherited.');
-    }
+    abstract public function output($source, $name, $size);
 
     // }}}
     // {{{ _convert()
@@ -319,16 +302,11 @@ class Thumbnailer_Common
     /**
      * Image conversion abstraction.
      *
-     * @abstract
-     * @access protected
      * @param string $source
      * @param array $size
      * @return mixed
      */
-    function _convert($source, $size)
-    {
-        return PEAR::raiseError(__CLASS__ . '::' . __METHOD__ . ' must be inherited.');
-    }
+    abstract protected function _convert($source, $size);
 
     // }}}
     // {{{ _tempnam()
@@ -336,15 +314,12 @@ class Thumbnailer_Common
     /**
      * Creates temporary file name which will be removed on shutdown.
      *
-     * @access protected
      * @return string
      */
-    function _tempnam()
+    protected function _tempnam()
     {
         $tmp = tempnam($this->_tempDir, 'thumb_temp_');
-        $esc = addslashes($tmp);
-        register_shutdown_function(create_function('',
-            'if (file_exists("' . $esc . '")) { @unlink("' . $esc . '"); }'));
+        register_shutdown_function('_thumbnailer_common_unlink_tempfile', $tmp);
         return $tmp;
     }
 
@@ -354,12 +329,11 @@ class Thumbnailer_Common
     /**
      * Outputs HTTP header.
      *
-     * @access protected
      * @param string $name
      * @param int $length
      * @return void
      */
-    function _httpHeader($name = null, $length = null)
+    protected function _httpHeader($name = null, $length = null)
     {
         if ($this->isHttp()) {
             $mimetype = 'image/' . (($this->_png) ? 'png' : 'jpeg');

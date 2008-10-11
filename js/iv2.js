@@ -1,10 +1,13 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
 /*
-	ImageCache2::Viewer
-*/
+ * ImageCache2::Viewer
+ */
+
+// {{{ GLOBALS
 
 var last_checked_box = null, last_unchecked_box = null;
+
+// }}}
+// {{{ showToolbarExtra()
 
 function showToolbarExtra()
 {
@@ -17,6 +20,9 @@ function showToolbarExtra()
 	return false;
 }
 
+// }}}
+// {{{ hideToolbarExtra()
+
 function hideToolbarExtra()
 {
 	var ext = document.getElementById('toolbarExtra');
@@ -27,6 +33,9 @@ function hideToolbarExtra()
 	swb.style.display = 'none';
 	return false;
 }
+
+// }}}
+// {{{ iv2_checkAll()
 
 function iv2_checkAll(mode)
 {
@@ -45,6 +54,9 @@ function iv2_checkAll(mode)
 		}
 	}
 }
+
+// }}}
+// {{{ iv2_checked()
 
 function iv2_checked(cbox, evt)
 {
@@ -98,10 +110,16 @@ function iv2_checked(cbox, evt)
 	return true;
 }
 
+// }}}
+// {{{ pageJump()
+
 function pageJump(page)
 {
 	location.href = document.getElementById('current_page').value.replace(/page=[0-9]*/, 'page='+page);
 }
+
+// }}}
+// {{{ rankDown()
 
 function rankDown(itemId)
 {
@@ -114,6 +132,9 @@ function rankDown(itemId)
 	return false;
 }
 
+// }}}
+// {{{ rankUp()
+
 function rankUp(itemId)
 {
 	itemId = itemId.toString();
@@ -125,6 +146,9 @@ function rankUp(itemId)
 	return false;
 }
 
+// }}}
+// {{{ getRank()
+
 function getRank(itemId)
 {
 	var value = document.getElementById('rank'+itemId).innerHTML;
@@ -133,6 +157,9 @@ function getRank(itemId)
 	}
 	return parseInt(value, 10);
 }
+
+// }}}
+// {{{ setRank()
 
 function setRank(itemId, rank)
 {
@@ -148,6 +175,9 @@ function setRank(itemId, rank)
 	}
 	return false;
 }
+
+// }}}
+// {{{ getImageInfo()
 
 function getImageInfo(type, value)
 {
@@ -167,3 +197,16 @@ function getImageInfo(type, value)
 	}
 	return res;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

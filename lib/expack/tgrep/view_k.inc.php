@@ -1,8 +1,12 @@
+<?php
+/**
+ * rep2expack - tGrep 検索結果のレンダリング for Mobile
+ */
+?>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-    <meta http-equiv="Content-Style-Type" content="text/css">
-    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
     <title>tGrep<?php if (strlen($htm['query']) > 0) { echo ' - ', $htm['query']; } ?></title>
     <?php echo $htm['mobile_css'], $_conf['extra_headers_ht']; ?>
 </head>
@@ -12,20 +16,20 @@
 
 <!-- Search Form -->
 <form action="<?php echo $htm['php_self']; ?>" method="get">
-<input type="hidden" name="_hint" value="◎◇">
 <input name="Q" <?php echo $htm['search_attr']; ?>>
 <input type="submit" value="検索">
+<?php echo $_conf['detect_hint_input_ht'], $_conf['k_input_ht']; ?>
 </form>
 <hr>
 
 <?php if (!$query) { ?>
 <?php
 if ($_conf['expack.tgrep.quicksearch']) {
-    include_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
+    require_once P2EX_LIB_DIR . '/tgrep/menu_quick.inc.php';
     echo "<hr>\n";
 }
 if ($_conf['expack.tgrep.recent_num'] > 0) {
-    include_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
+    require_once P2EX_LIB_DIR . '/tgrep/menu_recent.inc.php';
     echo "<hr>\n";
 }
 ?>
@@ -67,13 +71,13 @@ if ($_conf['expack.tgrep.recent_num'] > 0) {
 
 <?php if ($threads) { ?>
 <!-- ThreadList and Pager -->
-<div><a href="#bottom" <?php echo $_conf['accesskey']; ?>="8" align="right" title="下へ">8.▼</a></div>
+<div><a href="#bottom" align="right" title="下へ"<?php echo $_conf['k_accesskey_at']['bottom']; ?>><?php echo $_conf['k_accesskey_st']['bottom']; ?>▼</a></div>
 <?php
-include_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/Thread.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);
-    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, urlencode(base64_encode($t->ita)), $htm['query_en']);
+    $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s', $_conf['subject_php'], $t->host, $t->bbs, rawurlencode(base64_encode($t->ita)), $htm['query_en']);
     $aThread = new Thread;
     $aThread->setThreadPathInfo($t->host, $t->bbs, $t->tkey);
     if ($aThread->getThreadInfoFromIdx() && $aThread->isKitoku()) {
@@ -83,7 +87,7 @@ foreach ($threads as $o => $t) {
         $rnum = $t->resnum;
         $nnum = '';
     }
-    if (!empty($_conf['k_save_packet'])) {
+    if (!empty($_conf['mobile.save_packet'])) {
         $ttitle = mb_convert_kana($t->title, 'rnsk');
         $itaj = mb_convert_kana($t->ita, 'rnsk');
     } else {
@@ -94,7 +98,7 @@ foreach ($threads as $o => $t) {
 <p><?php echo $o; ?>.<a href="<?php echo $turl; ?>"><?php echo $ttitle; ?></a><br>
 <small><?php echo date('y/m/d ', $t->tkey); ?><a href="<?php echo $burl; ?>"><?php echo $itaj; ?>(<?php echo $profile['boards'][$t->bid]->hits; ?>)</a></small></p>
 <?php } ?>
-<div><a href="#top" <?php echo $_conf['accesskey']; ?>="2" align="right" title="上へ">2.▲</a></div>
+<div><a href="#top" align="right" title="上へ"<?php echo $_conf['k_accesskey_at']['above']; ?>><?php echo $_conf['k_accesskey_st']['above']; ?>▲</a></div>
 <?php if ($htm['pager']) { ?>
 <hr>
 <div><?php echo $htm['pager']; ?></div>
@@ -102,13 +106,25 @@ foreach ($threads as $o => $t) {
 <?php } ?>
 <hr>
 <p id="bottom" name="bottom">
-<a <?php echo $_conf['accesskey']; ?>="0" href="index.php">0.TOP</a>
+<?php echo $_conf['k_to_index_ht'], ' '; ?>
 <?php if ($query) { ?>
-<a <?php echo $_conf['accesskey']; ?>="5" href="tgrepc.php">5.tGrep</a>
+<a href="tgrepc.php"<?php echo $_conf['k_accesskey_at'][5]; ?>><?php echo $_conf['k_accesskey_st'][5]; ?>tGrep</a>
 <?php if ($_conf['expack.tgrep.quicksearch']) { ?>
-<a <?php echo $_conf['accesskey']; ?>="9" href="tgrepctl.php?file=quick&amp;query=<?php echo $htm['query_en']; ?>">9.<?php echo $htm['query']; ?>を一発検索に追加</a>
+<a href="tgrepctl.php?file=quick&amp;query=<?php echo $htm['query_en']; ?>"<?php echo $_conf['k_accesskey_at'][9]; ?>><?php echo $_conf['k_accesskey_st'][9], $htm['query']; ?>を一発検索に追加</a>
 <?php } ?>
 <?php } ?>
 </p>
 </body>
 </html>
+<?php
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

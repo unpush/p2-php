@@ -1,6 +1,6 @@
-/* ImageCache2 */
+/* rep2expack - stylesheet for ImageCache2 on iPhone */
 
-/* Preview */
+/* {{{ Preview */
 
 div#ic2-preview {
 	margin: -10px -10px 0 -10px;
@@ -41,7 +41,8 @@ div#ic2-preview-edit input[type="text"] {
 	-webkit-border-radius: 0;
 }
 
-/* Pop-Up Information */
+/* }}} */
+/* {{{ Pop-Up Information */
 
 div#ic2-info {
 	display: none;
@@ -109,6 +110,8 @@ img.ic2-show-info {
 input[type="button"].ic2-show-info {
 	font-size: small;
 }
+
+/* }}} */
 
 /*
  * Local Variables:

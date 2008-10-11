@@ -6,37 +6,34 @@
 	{extra_headers:h}
 	<title>{title}</title>
 	<style type="text/css">
+	/* <![CDATA[ */
 tr.iv2-image {
 	min-height: {thumb_height:h}px;
 }
 td.iv2-image-thumb {
 	width: {thumb_width:h}px;
 }
-	</style>
-	<style type="text/css" media="only screen and (min-device-width: 321px)">
-table#iv2-images {
-	width: 100%;
-	margin: 0;
-}
-div.iv2-image-title {
-	max-width: 640px;
-}
-	</style>
-	<style type="text/css" media="only screen and (max-device-width: 320px)">
-table#iv2-images {
-	width: 320px;
-}
-div.iv2-image-title {
-	width: {title_width_v:h}px;
-}
+	/* ]]> */
 	</style>
 	<style type="text/css" media="only screen and (max-device-height: 480px)">
+	/* <![CDATA[ */
 table#iv2-images {
 	width: 480px;
 }
 div.iv2-image-title {
 	width: {title_width_h:h}px;
 }
+	/* ]]> */
+	</style>
+	<style type="text/css" media="only screen and (max-device-width: 320px)">
+	/* <![CDATA[ */
+table#iv2-images {
+	width: 320px;
+}
+div.iv2-image-title {
+	width: {title_width_v:h}px;
+}
+	/* ]]> */
 	</style>
 </head>
 <body>
@@ -45,7 +42,7 @@ div.iv2-image-title {
 <p flexy:if="nomatch">ないぽ。</p>
 
 <div flexy:if="!nomatch">
-	{editFormHeader:h}
+	{editFormHeader:h}<input type="hidden" name="page" value="{page:h}" flexy:ignore="yes">
 	<div class="pager" id="top">{pager:h} <a href="#bottom">{e[dt1]:h}</a></div>
 
 	<table id="iv2-images">
@@ -80,7 +77,7 @@ div.iv2-image-title {
 	<a href="{php_self}?session_no_close=1&amp;reset_filter=1">IC2::Viewer</a>
 	<a href="{php_self}?page={page}&amp;show_iv2_kfilter=1">検索・ソート</a>
 	<form method="get" action="{php_self}">
-		<input type="text" name="page" size="3"><input type="submit" value="GO">
+		<input type="text" name="page" size="3" autocorrect="off" autocapitalize="off" placeholder="#"><input type="submit" value="GO">
 	</form>
 </div>
 

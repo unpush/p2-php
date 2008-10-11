@@ -1,12 +1,12 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2機能拡張パック - RSS画像キャッシュ
-*/
+/**
+ * rep2expck - RSS画像キャッシュ
+ */
 
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+
+// {{{ rss_get_image()
 
 /**
  * イメージキャッシュのURLと画像サイズを返す
@@ -24,24 +24,28 @@ function rss_get_image($src_url, $memo='')
     return $cache[$key];
 }
 
+// }}}
+// {{{ rss_get_image_ic2()
+
 /**
  * イメージキャッシュのURLと画像サイズを返す (ImageCache2)
  */
 function rss_get_image_ic2($src_url, $memo='')
 {
-    $icdb = &new IC2DB_images;
     static $thumbnailer = NULL;
     static $thumbnailer_k = NULL;
+
     if (is_null($thumbnailer)) {
-        $thumbnailer = &new ThumbNailer(1);
-        $thumbnailer_k = &new ThumbNailer(2);
+        $thumbnailer = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_PC);
+        $thumbnailer_k = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_MOBILE);
     }
 
+    $icdb = new IC2_DataObject_Images;
+
     if ($thumbnailer->ini['General']['automemo'] && $memo !== '') {
-        $img_memo = IC2DB_Images::uniform($memo, 'SJIS-win');
+        $img_memo = $icdb->uniform($memo, 'CP932');
         if ($memo !== '') {
-            $hint = mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win');
-            $img_memo_query = '&amp;_hint=' . rawurlencode($hint);
+            $img_memo_query = '&amp;' . $_conf['detect_hint_q_utf8'];
             $img_memo_query .= '&amp;memo=' . rawurlencode($img_memo);
         } else {
             $img_memo = NULL;
@@ -97,8 +101,8 @@ function rss_get_image_ic2($src_url, $memo='')
         if (file_exists($_thumb_url)) {
             $thumb_url = $_thumb_url;
             // 自動タイトルメモ機能がONでタイトルが記録されていないときはDBを更新
-            if (!is_null($img_memo) && !strstr($icdb->memo, $img_memo)){
-                $update = &new IC2DB_images;
+            if (!is_null($img_memo) && strpos($icdb->memo, $img_memo) === false){
+                $update = new IC2_DataObject_Images;
                 if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                     $update->memo = $img_memo . ' ' . $icdb->memo;
                 } else {
@@ -143,3 +147,16 @@ function rss_get_image_ic2($src_url, $memo='')
 
     return $result;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

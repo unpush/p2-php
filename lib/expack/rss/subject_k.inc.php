@@ -1,15 +1,16 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - 簡易RSSリーダ（記事一覧・携帯用）
+ */
 
 // {{{ ヘッダ
 
 echo <<<EOH
 <html lang="ja">
 <head>
-{$_conf['meta_charset_ht']}
-{$_conf['extra_headers_ht']}
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{$_conf['extra_headers_ht']}
 <title>{$title}</title>
 </head>
 <body{$_conf['k_colors']}>
@@ -50,12 +51,12 @@ $i = 0;
 echo "<ol>\n";
 foreach ($items as $item) {
     $item = array_map('trim', $item);
-    $item_title = P2Util::re_htmlspecialchars($item['title']);
+    $item_title = htmlspecialchars($item['title'], ENT_QUOTES, 'Shift_JIS', false);
     $link_orig = P2Util::throughIme($item['link']);
     // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
     $view_jig = '';
     /*
-    $link_jig = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . urlencode($item['link']);
+    $link_jig = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . rawurlencode($item['link']);
     $view_jig = ' <a href="' . P2Util::throughIme($link_jig) . '">jW</a>';
     */
     if ((isset($item['content:encoded']) && $item['content:encoded'] !== '') ||
@@ -74,10 +75,10 @@ echo "</ol>\n";
 
 echo <<<EOF
 <hr>
-<p>
-<a {$_conf['accesskey']}="9" href="menu_k.php?view=rss">9.RSS</a>
+<div class="center">
+<a href="menu_k.php?view=rss"{$_conf['k_accesskey_at'][9]}>{$_conf['k_accesskey_st'][9]}RSS</a>
 {$_conf['k_to_index_ht']}
-</p>
+</div>
 <hr>
 <form id="urlform" method="post" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
 RSS/Atomを直接指定<br>
@@ -91,3 +92,14 @@ RSS/Atomを直接指定<br>
 EOF;
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

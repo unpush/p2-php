@@ -2,59 +2,9 @@
  * rep2expack - DOMを操作してiPhoneに最適化する
  */
 
-// {{{ GLOBALS
-
-var _IPHONE_JS_OLD_ONLOAD = window.onload;
-
-// }}}
 // {{{ window.onload()
 
-/*
- * iPhone用に要素を調整する
- *
- * @return void
- */
-window.onload = (function(){
-	if (_IPHONE_JS_OLD_ONLOAD) {
-		_IPHONE_JS_OLD_ONLOAD();
-	}
-
-	// accesskey属性とキー番号表示を削除
-	var anchors = document.evaluate('.//a[@accesskey]',
-	                                document.body,
-	                                null,
-	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-	                                null
-	                                );
-	var re = new RegExp('^[0-9#*]\\.');
-
-	for (var i = 0; i < anchors.snapshotLength; i++) {
-		var node = anchors.snapshotItem(i);
-		var txt = node.firstChild;
-
-		if (txt && txt.nodeType == 3 && re.test(txt.nodeValue)) {
-			// TOPへのリンクをボタン化
-			if (txt.nodeValue == '0.TOP') {
-				node.className = 'button';
-				if (node.parentNode.childNodes.length == 1) {
-					node.parentNode.style.textAlign = 'center';
-				} else if (node.parentNode == document.body) {
-					var container = document.createElement('div');
-					container.style.textAlign = 'center';
-					document.body.insertBefore(container, node);
-					document.body.removeChild(node);
-					container.appendChild(node);
-				}
-			}
-
-			// キー番号表示を削除
-			txt.nodeValue = txt.nodeValue.replace(re, '');
-		}
-
-		// accceskey属性を削除
-		node.removeAttribute('accesskey');
-	}
-
+window.addEventListener('load', function(evt){
 	// 外部リンクを書き換える
 	rewrite_external_link(document.body);
 
@@ -62,7 +12,7 @@ window.onload = (function(){
 	adjust_textarea_size();
 
 	// 回転時のイベントハンドラを設定
-	document.body.onorientationchange = (function(){
+	document.body.addEventListener('orientationchange', function(evt){
 		adjust_textarea_size();
 	});
 
@@ -83,7 +33,7 @@ window.onload = (function(){
  */
 function rewrite_external_link(contextNode)
 {
-	var anchors = document.evaluate('.//a[@href and starts-with(@href, "http")]',
+	var anchors = document.evaluate('.//a[starts-with(@href, "http://") or starts-with(@href, "https://")]',
 	                                contextNode,
 	                                null,
 	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
@@ -225,6 +175,26 @@ function make_textarea_larger(id)
 }
 
 // }}}
+// {{{ enable_input_autocorrect()
+
+/*
+ * フォームのautocorrectの有効・無効を切り替える
+ *
+ * @param String id
+ * @param Boolean id
+ * @return void
+ */
+function enable_input_autocorrect(id, onoff)
+{
+	var elem = document.getElementById(id);
+	if (!elem) {
+		return;
+	}
+
+	elem.setAttribute('autocorrect', (onoff ? 'on' : 'off'));
+}
+
+// }}}
 // {{{ change_link_target()
 
 /*
@@ -273,6 +243,22 @@ function change_link_target(expr, toggle)
 			anchors.snapshotItem(i).removeAttribute('target');
 		}
 	}
+}
+
+// }}}
+// {{{ switch_tab_color()
+
+/*
+ * タブの文字色を変更する
+ *
+ * @param Element tab
+ * @param Boolean onoff
+ * @return void
+ */
+function switch_tab_color(tab, onoff)
+{
+	tab.style.color = (onoff) ? '#ff3333' : '#aaaaaa';
+	//tab.style.borderBottomColor = (onoff) ? '#fafafa' : '#808080';
 }
 
 // }}}

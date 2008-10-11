@@ -200,7 +200,7 @@ function ResPopUp(divID) {
 		*/
 	ResPopUp.prototype.showResPopUp = function (x, y) {
 		var x_adjust = 10;	// xО▓И╩ТuТ▓Ро
-		var y_adjust = -68;	// yО▓И╩ТuТ▓Ро
+		var y_adjust = -10;	// yО▓И╩ТuТ▓Ро
 		if (this.divID.indexOf('spm_') == 0) {
 			y_adjust=-10;
 		}

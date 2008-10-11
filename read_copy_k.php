@@ -1,12 +1,10 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2 - 携帯版レスコピー
+ */
 
-// p2 - 携帯版レスコピー
-
-require_once 'conf/conf.inc.php';
-require_once P2_LIB_DIR . '/thread.class.php';
-require_once P2_LIB_DIR . '/threadread.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/ThreadRead.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -20,7 +18,6 @@ $id_ht = '';
 $back_link = '';
 $post_link = '';
 $moto_link = '';
-$form_id = P2_REQUEST_ID;
 
 //=====================================================
 // スレッド情報
@@ -32,13 +29,13 @@ $resid = $_GET['copy'];
 $quote = !empty($_GET['inyou']);
 
 if (isset($_SERVER['HTTP_REFERER'])) {
-    $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="戻る">' . 戻る . '</a>';
+    $back_link = '<a href="' . htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES) . '" title="戻る">' . 戻る . '</a> ';
 }
 
 //=================================================
 // レス読み込み
 //=================================================
-$aThread = &new ThreadRead;
+$aThread = new ThreadRead;
 $aThread->setThreadPathInfo($host, $bbs, $key);
 if (file_exists($aThread->keydat)) {
     // スレッド情報
@@ -58,17 +55,17 @@ if (file_exists($aThread->keydat)) {
     }
     // 投稿フォームへのリンク
     $post_url = "post_form.php?host={$host}&amp;bbs={$bbs}&amp;key={$key}";
-    $post_url .= "&amp;rescount={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;k=1";
-    $post_link = "<a href=\"{$post_url}\">ﾚｽ</a>";
+    $post_url .= "&amp;rescount={$aThread->rescount}&amp;ttitle_en={$ttitle_en}&amp;b=k";
+    $post_link = "<a href=\"{$post_url}\">レス</a> ";
     // 元スレへのリンク
-    $moto_link = '<a href="' . P2Util::throughIme($url_k_txt) . '">元ｽﾚ</a>';
+    $moto_link = '<a href="' . P2Util::throughIme($url_k_txt) . '">元スレ</a> ';
     // 指定番号のレスをパース
     $p = $resid - 1;
     if (isset($aThread->datlines[$p])) {
         $resar = $aThread->explodeDatLine($aThread->datlines[$p]);
         $name_txt = trim(strip_tags($resar[0]));
         $mail_txt = trim(strip_tags($resar[1]));
-        if (strstr($resar[2], 'ID:')) {
+        if (strpos($resar[2], 'ID:') !== false) {
             $date_txt = preg_replace('/ ?ID: ?([0-9A-Za-z\/.+?]+)([.,]|†)?.*$/', '', $resar[2]);
             $id_txt = preg_replace('/^.*ID: ?([0-9A-Za-z\/.+?]+)([.,]|†)?.*$/', 'ID:$1', $resar[2]);
             $id_ht = "<input type=\"text\" name=\"id_txt\" value=\"{$id_txt}\"><br>";
@@ -89,7 +86,7 @@ if (file_exists($aThread->keydat)) {
 }
 
 $msg_len = mb_strlen($msg_txt);
-$len = $GLOBALS['_conf']['k_copy_divide_len'] ? $GLOBALS['_conf']['k_copy_divide_len'] : 10000;
+$len = $GLOBALS['_conf']['mobile.copy_divide_len'] ? $GLOBALS['_conf']['mobile.copy_divide_len'] : 10000;
 $msg_txts = array();
 for ($i = 0; $i < $msg_len; $i += $len) {
     $msg_txts[] = mb_substr($msg_txt, $i, $len);
@@ -106,7 +103,7 @@ JavaScriptにしてしまった方がいいかも？
 javascript:(function(){for (var j=0;j<document.forms.length;j++){for (var i=0;i<document.forms[j].elements.length;i++) {k=document.forms[j].elements[i];if(k.type=="textarea"){k.rows=10;k.cols=34;}}}})(); 
 */
 $kyopon_size = '';
-$mobile = &Net_UserAgent_Mobile::singleton();
+$mobile = Net_UserAgent_Mobile::singleton();
 if ($mobile->isAirHPhone()) {
     $kyopon_size = ' rows="10" cols="34"';
 }
@@ -116,13 +113,51 @@ echo $_conf['doctype'];
 ?>
 <html>
 <head>
-<?php echo $_conf['meta_charset_ht'], $_conf['extra_headers_ht']; ?>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+<?php echo $_conf['extra_headers_ht']; ?>
+<?php if ($_conf['iphone']) {
+echo <<<EOS
+<script type="text/javascript">
+//<![CDATA[
+function read_copy_adjsut_text_width()
+{
+	var texts = document.evaluate('.//input[@type="text"]',
+	                                document.body,
+	                                null,
+	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+	                                null
+	                                );
+
+	for (var i = 0; i < texts.snapshotLength; i++) {
+		var node = texts.snapshotItem(i);
+		var width = node.parentNode.clientWidth;
+		if (width > 100) {
+			width -= 18; // 適当
+			if (width > 480) {
+				width = 480; // maxWidth
+			}
+			node.style.width = width.toString() + 'px';
+		}
+	}
+}
+
+window.addEventListener('load', function(evt){
+	read_copy_adjsut_text_width();
+	document.body.addEventListener('orientationchange', function(evt){
+		read_copy_adjsut_text_width();
+	});
+});
+//]]>
+</script>\n
+EOS;
+} ?>
 <title><?php echo $ttitle_ht; ?>/<?php echo $resid; ?></title>
 </head>
 <body<?php echo $k_color_settings; ?>>
 <?php echo $_info_msg_ht; ?>
-<form id="<?php echo $form_id; ?>" action="<?php echo $action_ht; ?>" method="post">
-ｽﾚ:<br>
+<form action="<?php echo $action_ht; ?>" method="post">
+スレ:<br>
 <input type="text" name="ttitle_txt" value="<?php echo $ttitle_ht; ?>"><br>
 <input type="text" name="url_txt" value="<?php echo $url_txt; ?>"><br>
 <?php echo $url_k_ht; ?>
@@ -134,9 +169,22 @@ echo $_conf['doctype'];
 <?php foreach ($msg_txts as $msg_txt) { ?>
 <textarea<?php echo $kyopon_size; ?>><?php echo $msg_txt; ?></textarea><br>
 <?php } ?>
-ﾌﾘｰ:<br>
+フリー:<br>
 <textarea name="free" rows="2"></textarea>
 </form>
-<?php echo $back_link; ?> <?php echo $post_link; ?> <?php echo $moto_link; ?>
+<div class="center navi">
+<?php echo $back_link, $post_link, $moto_link; ?>
+</div>
 </body>
 </html>
+<?php
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

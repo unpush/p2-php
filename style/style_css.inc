@@ -1,8 +1,8 @@
 <?php
-// p2 ースタイル設定
-// 全般
-// vim: set fileencoding=cp932 ai et ts=4 sw=0 sts=0 fdm=marker:
-// mi: charset=Shift_JIS
+/**
+ * rep2 - スタイル設定
+ * 全般
+ */
 
 $a_underline_none_css = '';
 if ($STYLE['a_underline_none'] == 1) {
@@ -87,14 +87,29 @@ form.inline-form {
 	display: inline;
 }
 
+p.info-msg {
+	margin: 4px 12px;
+	font-size: 12px;
+	line-height: 120%;
+}
+
 EOSTYLE;
 
 // スタイルの上書き
 if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-	include_once (P2_STYLE_DIR . '/mystyle_css.php');
+	require_once P2_STYLE_DIR . '/mystyle_css.php';
 	if (isset($MYSTYLE['style']) || isset($MYSTYLE['base'])) {
 		disp_mystyle('style');
 	}
 }
 
-?>
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

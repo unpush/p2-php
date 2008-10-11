@@ -1,13 +1,17 @@
 <?php
-// p2 スレッドサブジェクト表示関数 携帯用
-// for subject.php
+/**
+ * rep2 スレッドサブジェクト表示関数 携帯用
+ * for subject.php
+ */
+
+// {{{ sb_print_k()
 
 /**
  * sb_print - スレッド一覧を表示する (<tr>～</tr>)
  */
-function sb_print_k(&$aThreadList)
+function sb_print_k($aThreadList)
 {
-    global $_conf, $browser, $_conf, $sb_view, $p2_setting, $STYLE;
+    global $_conf, $sb_view, $p2_setting, $STYLE;
     global $sb_view;
 
     //=================================================
@@ -23,8 +27,14 @@ function sb_print_k(&$aThreadList)
 
     // 変数 ================================================
 
+    $only_one_bool = false;
+    $ita_name_bool = false;
+    $sortq_spmode = '';
+    $sortq_host = '';
+    $sortq_ita = '';
+
     // >>1
-    if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs=="bizplus" || $aThreadList->spmode=="news") {
+    if (strpos($aThreadList->bbs, 'news') !== false || $aThreadList->bbs == 'bizplus') {
         // 倉庫は除く
         if ($aThreadList->spmode != "soko") {
             $only_one_bool = true;
@@ -75,6 +85,7 @@ function sb_print_k(&$aThreadList)
 
         $bbs_q = "&amp;bbs=".$aThread->bbs;
         $key_q = "&amp;key=".$aThread->key;
+        $offline_q = '';
 
         if ($aThreadList->spmode!="taborn") {
             if (!$aThread->torder) {$aThread->torder=$i;}
@@ -143,7 +154,7 @@ function sb_print_k(&$aThreadList)
             $ita_name_hd = htmlspecialchars($ita_name, ENT_QUOTES);
 
             // 全角英数カナスペースを半角に
-            if (!empty($_conf['k_save_packet'])) {
+            if (!empty($_conf['mobile.save_packet'])) {
                 $ita_name_hd = mb_convert_kana($ita_name_hd, 'rnsk');
             }
 
@@ -164,34 +175,35 @@ function sb_print_k(&$aThreadList)
         $torder_ht = $aThread->torder;
 
         // title =================================================
-        $rescount_q = "&amp;rescount=" . $aThread->rescount;
+        $rescount_q = '&amp;rescount=' . $aThread->rescount;
 
         // dat倉庫 or 殿堂なら
-        if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") {
-            $rescount_q = "";
-            $offline_q = "&amp;offline=true";
-            $anum_ht = "";
+        if ($aThreadList->spmode == 'soko' || $aThreadList->spmode == 'palace') {
+            $rescount_q = '';
+            $offline_q = '&amp;offline=true';
+            $anum_ht = '';
         }
 
         // タイトル未取得なら
-        if (!$aThread->ttitle_ht) {
+        $ttitle_ht = $aThread->ttitle_ht;
+        if (strlen($ttitle_ht) == 0) {
             // 見かけ上のタイトルなので携帯対応URLである必要はない
             //if (P2Util::isHost2chs($aThread->host)) {
-            //    $aThread->ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
+            //    $ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
             //}else{
-                $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
+                $ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
             //}
         }
 
         // 全角英数カナスペースを半角に
-        if (!empty($_conf['k_save_packet'])) {
-            $aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
+        if (!empty($_conf['mobile.save_packet'])) {
+            $ttitle_ht = mb_convert_kana($ttitle_ht, 'rnsk');
         }
 
         if ($_conf['iphone']) {
             $htm['rnum'] = "<span class=\"num count\">{$rescount_ht}</span>";
             if ($aThread->similarity) {
-                $htm['sim'] .= sprintf(' <span class=\"num score\">%0.1f%%</span>', $aThread->similarity * 100);
+                $htm['sim'] .= sprintf(' <span class="num score">%0.1f%%</span>', $aThread->similarity * 100);
             }
         } else {
             $htm['rnum'] = "({$rescount_ht})";
@@ -202,14 +214,29 @@ function sb_print_k(&$aThreadList)
 
         $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 
-        // オンリー>>1 =============================================
+        // オンリー>>1
+        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true&amp;k_continue=1{$_conf['k_at_a']}";
         if ($only_one_bool) {
-            $one_ht = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true{$_conf['k_at_a']}\">&gt;&gt;1</a>";
+            $one_ht = "<a href=\"{$onlyone_url}\">&gt;&gt;1</a>";
         }
 
-        //アクセスキー=====
+        // >>1のみ, >>1から
+        if (P2Util::isHost2chs($aThreadList->host) && !$aThread->isKitoku()) {
+            switch ($_conf['mobile.sb_show_first']) {
+            case 1:
+                $thre_url = $onlyone_url;
+                break;
+            case 2:
+                $thre_url .= '&amp;ls=1-';
+                break;
+            default:
+                $thre_url .= '&amp;ls=l' . $_conf['mobile.rnum_range'];
+            }
+        }
+
+        // アクセスキー
         /*
-        $access_ht = "";
+        $access_ht = '';
         if ($aThread->torder >= 1 and $aThread->torder <= 9) {
             $access_ht = " {$_conf['accesskey']}=\"{$aThread->torder}\"";
         }
@@ -221,28 +248,46 @@ function sb_print_k(&$aThreadList)
 
         //ボディ
         if ($_conf['iphone']) {
-            // 勢い
-            if ($_conf['sb_show_ikioi'] && $aThread->dayres > 0) {
-                // 0.0 とならないように小数点第2位で切り上げ
-                $htm['ikioi'] = sprintf(' / <span class="num speed">%01.1f</span>', ceil($aThread->dayres * 10) / 10);
+            // ポップアップ用の隠しスレッド情報。torderの指示子が"%d"でないのはmerge_favitaのため
+            $thre_info = sprintf('[%s] %s (%01.1fレス/日)',
+                                 $aThread->torder,                 // 順序
+                                 date('y/m/d H:i', $aThread->key), // スレ立て日時
+                                 $aThread->dayres                  // 勢い。切り上げなし
+                                 );
+
+            if ($_conf['iphone.subject.indicate-speed']) {
+                // 勢い判定。なぜか不安定になるのでlog10()の結果で分岐はしない
+                $dayres = (int)$aThread->dayres;
+                if ($dayres > 9999) {
+                    $classspeed_at = ' class="dayres-10000"';
+                } elseif ($dayres > 999) {
+                    $classspeed_at = ' class="dayres-1000"';
+                } elseif ($dayres > 99) {
+                    $classspeed_at = ' class="dayres-100"';
+                } elseif ($dayres > 9) {
+                    $classspeed_at = ' class="dayres-10"';
+                } elseif ($dayres > 0) {
+                    $classspeed_at = ' class="dayres-1"';
+                } else {
+                    $classspeed_at = ' class="dayres-0"';
+                }
             } else {
-                $htm['ikioi'] = '';
+                $classspeed_at = '';
             }
 
             if ($htm['ita'] !== '') {
                 $htm['ita'] = "<span class=\"ita\">{$htm['ita']}</span>";
             }
 
-            $htm['birthday'] = date('y/m/d', $aThread->key);
+            $thre_info_at = rawurlencode(base64_encode($aThread->ttitle)) . ','
+                          . $aThread->key . ',' . $aThread->bbs . ',' . $aThread->host;
 
             echo <<<EOP
-<li><a href="{$thre_url}">{$htm['unum']} <span class="{$classtitle}">{$aThread->ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a>
-<div class="bg1"><span class="num order">{$aThread->torder}</span>{$htm['ikioi']}</div>
-<div class="bg2"><span class="date">{$htm['birthday']}</span></div></li>\n
+<li title="{$thre_info_at}"><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
         } else {
             echo <<<EOP
-<div>{$htm['unum']}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</div>\n
+<div>{$htm['unum']}{$aThread->torder}.<a href="{$thre_url}">{$ttitle_ht}</a> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</div>\n
 EOP;
         }
     }
@@ -251,3 +296,16 @@ EOP;
         echo '</ul>';
     }
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

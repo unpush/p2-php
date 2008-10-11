@@ -9,33 +9,47 @@
 
 // 背景
 $conf_user_def['mobile.background_color'] = ""; // ("")
+$conf_user_rules['mobile.background_color'] = array('notHtmlColorToDef');
 
 // 基本文字色
 $conf_user_def['mobile.text_color'] = ""; // ("")
+$conf_user_rules['mobile.text_color'] = array('notHtmlColorToDef');
 
 // リンク
 $conf_user_def['mobile.link_color'] = ""; // ("")
+$conf_user_rules['mobile.link_color'] = array('notHtmlColorToDef');
 
 // 訪問済みリンク
 $conf_user_def['mobile.vlink_color'] = ""; // ("")
+$conf_user_rules['mobile.vlink_color'] = array('notHtmlColorToDef');
 
 // 新着スレッドマーク
 $conf_user_def['mobile.newthre_color'] = "#ff0000"; // ("#ff0000")
+$conf_user_rules['mobile.newthre_color'] = array('notHtmlColorToDef');
 
 // スレッドタイトル
 $conf_user_def['mobile.ttitle_color'] = "#1144aa"; // ("#1144aa")
+$conf_user_rules['mobile.ttitle_color'] = array('notHtmlColorToDef');
 
 // 新着レス番号
 $conf_user_def['mobile.newres_color'] = "#ff6600"; // ("#ff6600")
+$conf_user_rules['mobile.newres_color'] = array('notHtmlColorToDef');
 
 // NGワード
 $conf_user_def['mobile.ngword_color'] = "#bbbbbb"; // ("#bbbbbb")
+$conf_user_rules['mobile.ngword_color'] = array('notHtmlColorToDef');
 
 // オンザフライレス番号
 $conf_user_def['mobile.onthefly_color'] = "#00aa00"; // ("#00aa00")
+$conf_user_rules['mobile.onthefly_color'] = array('notHtmlColorToDef');
 
 // フィルタリングでマッチしたキーワード
 $conf_user_def['mobile.match_color'] = ""; // ("")
+$conf_user_rules['mobile.match_color'] = array('notHtmlColorToDef');
+
+// アクセスキーの番号を表示（しない:0, する:1, 絵文字:2）
+$conf_user_def['mobile.display_accesskey'] = 1; // (1)
+$conf_user_rad['mobile.display_accesskey'] = array('2' => '絵文字', '1' => '表示', '0' => '非表示');
 
 // }}}
 // {{{ tGrep
@@ -100,6 +114,10 @@ $conf_user_rad['expack.am.autodetect'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['expack.am.autong_k'] = 0; // (0)
 $conf_user_rad['expack.am.autong_k'] = array('1' => 'する', '0' => 'しない');
 
+// 自動判定する行数の下限
+$conf_user_def['expack.am.lines_limit'] = 5; // (5)
+$conf_user_rules['expack.am.lines_limit'] = array('notIntExceptMinusToDef');
+
 // }}}
 // {{{ 入力支援
 
@@ -139,6 +157,10 @@ $conf_user_def['expack.rss.desc_target_frame'] = "read"; // ("read")
 // }}}
 // {{{ ImageCache2
 
+// 画像キャッシュ一覧のデフォルト表示モード
+$conf_user_def['expack.ic2.viewer_default_mode'] = 0; // (0)
+$conf_user_sel['expack.ic2.viewer_default_mode'] = array('3' => 'サムネイルだけ', '0' => '一覧', '1' => '一括変更', '2' => '個別管理');
+
 // キャッシュに失敗したときの確認用にime経由でソースへのリンクを作成
 $conf_user_def['expack.ic2.through_ime'] = 0; // (0)
 $conf_user_rad['expack.ic2.through_ime'] = array('1' => 'する', '0' => 'しない');
@@ -153,11 +175,11 @@ $conf_user_rules['expack.ic2.pre_thumb_limit_k'] = array('notIntExceptMinusToDef
 
 // 新着レスの画像は pre_thumb_limit を無視して全て表示する
 $conf_user_def['expack.ic2.newres_ignore_limit'] = 0; // (0)
-$conf_user_rad['expack.ic2.newres_ignore_limit'] = array('1' => 'Yes', '0' => 'No');
+$conf_user_rad['expack.ic2.newres_ignore_limit'] = array('1' => 'する', '0' => 'しない');
 
 // 携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示する
 $conf_user_def['expack.ic2.newres_ignore_limit_k'] = 0; // (0)
-$conf_user_rad['expack.ic2.newres_ignore_limit_k'] = array('1' => 'Yes', '0' => 'No');
+$conf_user_rad['expack.ic2.newres_ignore_limit_k'] = array('1' => 'する', '0' => 'しない');
 
 // }}}
 // {{{ Google検索
@@ -244,3 +266,14 @@ $conf_user_def['expack.aas.inline_fontsize'] = 6; // (6)
 $conf_user_rules['expack.aas.inline_fontsize'] = array('notIntExceptMinusToDef');
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

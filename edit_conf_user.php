@@ -1,16 +1,16 @@
 <?php
-/*
-    p2 - ユーザ設定編集UI
-*/
+/**
+ *  rep2 - ユーザ設定編集UI
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_CONF_DIR . '/conf_user_def.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-        die('p2 error: 不正なポストです');
+        p2die('不正なポストです');
     }
 }
 
@@ -41,40 +41,29 @@ if (!empty($_POST['submit_save'])) {
     // ルールを適用する
     applyRules();
 
-    // 正の実数 or 0 でないもの → デフォルト矯正
-    //notFloatExceptMinusToDef();
-
-    /**
-     * デフォルト値 $conf_user_def と変更値 $_POST['conf_edit'] の両方が存在していて、
-     * デフォルト値と変更値が異なる場合のみ設定保存する（その他のデータは保存されず、破棄される）
-     * ただし、$_POST['conf_keep_old'] == true のときはデータを破棄しない（メモリの少ない携帯対策）
-     */
-    $conf_save = array();
+    // ポストされた値 > 現在の値 > デフォルト値 の順で新しい設定を作成する
+    $conf_save = array('.' => P2_VERSION_ID);
     foreach ($conf_user_def as $k => $v) {
-        if (isset($_POST['conf_edit'][$k])) {
-            if ($v != $_POST['conf_edit'][$k]) {
-                $conf_save[$k] = $_POST['conf_edit'][$k];
-            }
-        } elseif (!empty($_POST['conf_keep_old']) && isset($_conf[$k])) {
-            if ($v != $_conf[$k]) {
-                $conf_save[$k] = $_conf[$k];
-            }
+        if (array_key_exists($k, $_POST['conf_edit'])) {
+            $conf_save[$k] = $_POST['conf_edit'][$k];
+        } elseif (array_key_exists($k, $_conf)) {
+            $conf_save[$k] = $_conf[$k];
+        } else {
+            $conf_save[$k] = $v;
         }
     }
 
     // シリアライズして保存
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
-    if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
+    if (FileCtl::file_write_contents($_conf['conf_user_file'], serialize($conf_save)) === false) {
         $_info_msg_ht .= "<p>×設定を更新保存できませんでした</p>";
-        trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
     } else {
         $_info_msg_ht .= "<p>○設定を更新保存しました</p>";
         // 変更があれば、内部データも更新しておく
-        $_conf = array_merge($_conf, $conf_user_def);
-        if (is_array($conf_save)) {
-            $_conf = array_merge($_conf, $conf_save);
-        }
+        $_conf = array_merge($_conf, $conf_user_def, $conf_save);
     }
+
+    unset($conf_save);
 
 // }}}
 // {{{ デフォルトに戻すボタンが押されていたら
@@ -132,23 +121,23 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/tabber/tabber.js"></script>
-    <script type="text/javascript" src="js/edit_conf_user.js"></script>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="style/tabber/tabber.css" type="text/css">
-    <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/tabber/tabber.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/edit_conf_user.js?{$_conf['p2_version_id']}"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=edit_conf_user&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="style/tabber/tabber.css?{$_conf['p2_version_id']}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
 }
 
@@ -178,8 +167,6 @@ $_info_msg_ht = "";
 
 echo <<<EOP
 <form id="edit_conf_user_form" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['k_input_ht']}
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
 
@@ -249,24 +236,20 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         array('refresh_time', 'スレッド一覧の自動更新間隔 (分指定。0なら自動更新しない)'),
 
-        array('sb_show_motothre', 'スレッド一覧で未取得スレに対して元スレへのリンク（・）を表示 (する, しない)'),
-        array('sb_show_one', 'PC閲覧時、スレッド一覧（板表示）で&gt;&gt;1を表示 (する, しない, ニュース系のみ)'),
-        array('k_sb_show_first', '携帯のスレッド一覧（板表示）から初めてのスレを開く時の表示方法 (ﾌﾟﾚﾋﾞｭｰ&gt;&gt;1, 1からN件表示, 最新N件表示)'),
-        array('sb_show_spd', 'スレッド一覧ですばやさ（レス間隔）を表示 (する, しない)'),
-        array('sb_show_ikioi', 'スレッド一覧で勢い（1日あたりのレス数）を表示 (する, しない)'),
-        array('sb_show_fav', 'スレッド一覧でお気にスレマーク★を表示 (する, しない)'),
+        array('sb_show_motothre', 'スレッド一覧で未取得スレに対して元スレへのリンク（・）を表示'),
+        array('sb_show_one', 'スレッド一覧（板表示）で&gt;&gt;1を表示'),
+        array('sb_show_spd', 'スレッド一覧ですばやさ（レス間隔）を表示'),
+        array('sb_show_ikioi', 'スレッド一覧で勢い（1日あたりのレス数）を表示'),
+        array('sb_show_fav', 'スレッド一覧でお気にスレマーク★を表示'),
         array('sb_sort_ita', '板表示のスレッド一覧でのデフォルトのソート指定'),
-        array('sort_zero_adjust', '新着ソートでの「既得なし」の「新着数ゼロ」に対するソート優先順位 (上位, 混在, 下位)'),
-        array('cmp_dayres_midoku', '勢いソート時に新着レスのあるスレを優先 (する, しない)'),
-        array('k_sb_disp_range', '携帯閲覧時、一度に表示するスレの数'),
-        array('viewall_kitoku', '既得スレは表示件数に関わらず表示 (する, しない)'),
+        array('sort_zero_adjust', '新着ソートでの「既得なし」の「新着数ゼロ」に対するソート優先順位'),
+        array('cmp_dayres_midoku', '勢いソート時に新着レスのあるスレを優先'),
+        array('cmp_title_norm', 'タイトルソート時に全角半角・大文字小文字を無視'),
+        array('viewall_kitoku', '既得スレは表示件数に関わらず表示'),
 
-        array('sb_ttitle_max_len', 'PC閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
-        array('sb_ttitle_trim_len', 'PC閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos', 'PC閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)'),
-        array('sb_ttitle_max_len_k', '携帯閲覧時、スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
-        array('sb_ttitle_trim_len_k', '携帯閲覧時、スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
-        array('sb_ttitle_trim_pos_k', '携帯閲覧時、スレッドタイトルを切り詰める位置 (先頭, 中央, 末尾)'),
+        array('sb_ttitle_max_len', 'スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
+        array('sb_ttitle_trim_len', 'スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
+        array('sb_ttitle_trim_pos', 'スレッドタイトルを切り詰める位置'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -282,35 +265,24 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 } else {
     $conflist = array(
         array('respointer', 'スレ内容表示時、未読の何コ前のレスにポインタを合わせるか'),
-        array('before_respointer', 'PC閲覧時、ポインタの何コ前のレスから表示するか'),
+        array('before_respointer', 'ポインタの何コ前のレスから表示するか'),
         array('before_respointer_new', '新着まとめ読みの時、ポインタの何コ前のレスから表示するか'),
         array('rnum_all_range', '新着まとめ読みで一度に表示するレス数'),
-        array('preview_thumbnail', '画像URLの先読みサムネイルを表示 (する, しない)'),
+        array('preview_thumbnail', '画像URLの先読みサムネイルを表示'),
         array('pre_thumb_limit', '画像URLの先読みサムネイルを一度に表示する制限数 (0で無制限)'),
 //        array('pre_thumb_height', '画像サムネイルの縦の大きさを指定 (ピクセル)'),
 //        array('pre_thumb_width', '画像サムネイルの横の大きさを指定 (ピクセル)'),
-//        array('link_youtube', 'YouTubeのリンクをプレビュー表示（する, しない)'),
-        array('iframe_popup', 'HTMLポップアップ (する, しない, pでする, 画像でする)'),
+        array('link_youtube', 'YouTubeのリンクをプレビュー表示<br>(手動の場合はURLの横の<img src="img/show.png" width="30" height="12" alt="show">をクリックして表示)'),
+        array('link_niconico', 'ニコニコ動画のリンクをプレビュー表示<br>(手動の場合はURLの横の<img src="img/show.png" width="30" height="12" alt="show">をクリックして表示)'),
+        array('iframe_popup', 'HTMLポップアップ'),
+        array('iframe_popup_type', 'HTMLポップアップの種類'),
 //        array('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)'),
-        array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換 (する, しない)'),
-        array('ext_win_target', '外部サイト等へジャンプする時に開くウィンドウのターゲット名 (同窓:&quot;&quot;, 新窓:&quot;_blank&quot;)'),
-        array('bbs_win_target', 'p2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名 (同窓:&quot;&quot;, 新窓:&quot;_blank&quot;)'),
-        array('bottom_res_form', 'スレッド下部に書き込みフォームを表示 (する, しない)'),
-        array('quote_res_view', '引用レスを表示 (する, しない)'),
-
-        array('k_rnum_range', '携帯閲覧時、一度に表示するレスの数'),
-        array('ktai_res_size', '携帯閲覧時、一つのレスの最大表示サイズ'),
-        array('ktai_ryaku_size', '携帯閲覧時、レスを省略したときの表示サイズ'),
-//        array('k_aa_ryaku_size', '携帯閲覧時、AAらしきレスを省略するサイズ (0なら無効)'),
-        array('before_respointer_k', '携帯閲覧時、ポインタの何コ前のレスから表示するか'),
-        array('k_use_tsukin', '携帯閲覧時、外部リンクに通勤ブラウザ(通)を利用 (する, しない)'),
-        array('k_use_picto', '携帯閲覧時、画像リンクにpic.to(ﾋﾟ)を利用 (する, しない)'),
-
-        array('k_bbs_noname_name', '携帯閲覧時、デフォルトの名無し名を表示 (する, しない)'),
-        array('k_clip_unique_id', '携帯閲覧時、重複しないIDは末尾のみの省略表示 (する, しない)'),
-//        array('k_date_zerosuppress', '携帯閲覧時、日付の0を省略表示 (する, しない)'),
-//        array('k_clip_time_sec', '携帯閲覧時、時刻の秒を省略表示 (する, しない)'),
-        array('k_copy_divide_len', '携帯閲覧時、「写」のコピー用テキストボックスを分割する文字数'),
+        array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換'),
+        array('ext_win_target', '外部サイト等へジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
+        array('bbs_win_target', 'rep2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
+        array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
+        array('quote_res_view', '引用レスを表示'),
+        array('strip_linebreaks', '文末の改行と連続する改行を除去'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -325,11 +297,11 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('ngaborn_frequent', '&gt;&gt;1 以外の頻出IDをあぼーんする (する, しない, NGにする)'),
-        array('ngaborn_frequent_one', '&gt;&gt;1 も頻出IDあぼーんの対象外にする (する, しない)'),
+        array('ngaborn_frequent', '&gt;&gt;1 以外の頻出IDをあぼーんする'),
+        array('ngaborn_frequent_one', '&gt;&gt;1 も頻出IDあぼーんの対象外にする'),
         array('ngaborn_frequent_num', '頻出IDあぼーんのしきい値 (出現回数がこれ以上のIDをあぼーん)'),
-        array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない (総レス数/スレ立てからの日数、0なら無効)'),
-        array('ngaborn_chain', '連鎖NGあぼーん (する, しない, あぼーんレスへのレスもNGにする)<br>処理を軽くするため、表示範囲のレスにしか連鎖しない'),
+        array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない<br>(総レス数/スレ立てからの日数、0なら無効)'),
+        array('ngaborn_chain', '連鎖NGあぼーん (処理を軽くするため、表示範囲のレスにしか連鎖しない)<br>「する」ならあぼーんレスへのレスはあぼーん、NGレスへのレスはNG。<br>「すべてNGにする」の場合、あぼーんレスへのレスもNGにする。'),
         array('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す (日数)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
@@ -352,54 +324,29 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('my_FROM', 'レス書き込み時のデフォルトの名前'),
         array('my_mail', 'レス書き込み時のデフォルトのmail'),
 
-        array('editor_srcfix', 'PC閲覧時、ソースコードのコピペに適した補正をするチェックボックスを表示（する, しない, pc鯖のみ）'),
+        array('editor_srcfix', 'PC閲覧時、ソースコードのコピペに適した補正をするチェックボックスを表示'),
 
         array('get_new_res', '新しいスレッドを取得した時に表示するレス数(全て表示する場合:&quot;all&quot;)'),
         array('rct_rec_num', '最近読んだスレの記録数'),
         array('res_hist_rec_num', '書き込み履歴の記録数'),
-        array('res_write_rec', '書き込み内容ログを記録 (する, しない)'),
-        array('through_ime', '外部URLジャンプする際に通すゲート (直接, p2 ime(自動転送), p2 ime(手動転送), p2 ime(pのみ手動転送), r.p(自動転送1秒), r.p(自動転送0秒), r.p(手動転送), r.p(pのみ手動転送))'),
+        array('res_write_rec', '書き込み内容ログを記録'),
+        array('through_ime', '外部URLジャンプする際に通すゲート'),
         array('ime_manual_ext', 'ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）'),
-        array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加 (する, しない)'),
-        array('favita_order_dnd', 'ドラッグ＆ドロップでお気に板を並べ替える (する, しない)'),
-        array('enable_menu_new', '板メニューに新着数を表示 (する, しない, お気に板のみ)'),
-        array('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない。)'),
-        array('menu_hide_brds', '板カテゴリ一覧を閉じた状態にする (する, しない)'),
-//        array('brocra_checker_use', 'ブラクラチェッカ (つける, つけない)'),
-//        array('brocra_checker_url', 'ブラクラチェッカURL'),
-//        array('brocra_checker_query', 'ブラクラチェッカのクエリー'),
-        array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする (off, レスのみ, サブジェクトも)'),
-        array('k_save_packet', '携帯閲覧時、パケット量を減らすため、全角英数・カナ・スペースを半角に変換 (する, しない)'),
-        array('proxy_use', 'プロキシを利用 (する, しない)'), 
-        array('proxy_host', 'プロキシホスト ex)"127.0.0.1", "www.p2proxy.com"'), 
-        array('proxy_port', 'プロキシポート ex)"8080"'), 
-        array('precede_openssl', '●ログインを、まずはopensslで試みる。※PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある。'),
-        array('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか (コマンドライン版, PHP関数版)'),
-    );
-    printEditConfGroupHtml($groupname, $conflist, $flags);
-}
-
-// }}}
-// {{{ Mobile Color
-
-$groupname = 'Mobile';
-$groups[] = $groupname;
-$flags = getGroupShowFlags($groupname);
-if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
-    $keep_old = true;
-} else {
-    $conflist = array(
-        array('mobile.background_color', '背景'),
-        array('mobile.text_color', '基本文字色'),
-        array('mobile.link_color', 'リンク'),
-        array('mobile.vlink_color', '訪問済みリンク'),
-        array('mobile.newthre_color', '新着スレッドマーク'),
-        array('mobile.ttitle_color', 'スレッドタイトル'),
-        array('mobile.newres_color', '新着レス番号'),
-        array('mobile.ngword_color', 'NGワード'),
-        array('mobile.onthefly_color', 'オンザフライレス番号'),
-        array('mobile.match_color', 'フィルタリングでマッチしたキーワード'),
-        array('mobile.id_underline', 'ID末尾の&quot;O&quot;に下線を引く (する, しない)'),
+        array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加'),
+        array('merge_favita', 'お気に板のスレ一覧をまとめて表示 (お気に板の数によっては処理に時間がかかる)'),
+        array('favita_order_dnd', 'ドラッグ＆ドロップでお気に板を並べ替える'),
+        array('enable_menu_new', '板メニューに新着数を表示'),
+        array('menu_refresh_time', '板メニュー部分の自動更新間隔 (分指定。0なら自動更新しない)'),
+        array('menu_hide_brds', '板カテゴリ一覧を閉じた状態にする'),
+        array('brocra_checker_use', 'ブラクラチェッカ (つける, つけない)'),
+        array('brocra_checker_url', 'ブラクラチェッカURL'),
+        array('brocra_checker_query', 'ブラクラチェッカのクエリー (空の場合、PATH_INFOでURLを渡す)'),
+        array('enable_exfilter', 'フィルタリングでAND/OR検索を可能にする'),
+        array('proxy_use', 'プロキシを利用'), 
+        array('proxy_host', 'プロキシホスト ex)&quot;127.0.0.1&quot;, &quot;www.p2proxy.com&quot;'), 
+        array('proxy_port', 'プロキシポート ex)&quot;8080&quot;'), 
+        array('precede_openssl', '●ログインを、まずはopensslで試みる<br>(PHP 4.3.0以降で、OpenSSLが静的にリンクされている必要がある)'),
+        array('precede_phpcurl', 'curlを使う時、コマンドライン版とPHP関数版どちらを優先するか'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -412,6 +359,133 @@ if (!$_conf['ktai']) {
     echo <<<EOP
 </div><!-- end of tab -->
 </div><!-- end of child tabset "rep2基本設定" -->
+
+<div class="tabbertab" title="携帯端末設定">
+<h3>携帯端末設定</h3>
+<div class="tabber">\n
+EOP;
+}
+
+// {{{ 携帯端末設定
+// {{{ Mobile
+
+$groupname = 'mobile';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('mobile.background_color', '背景色'),
+        array('mobile.text_color', '基本文字色'),
+        array('mobile.link_color', 'リンク色'),
+        array('mobile.vlink_color', '訪問済みリンク色'),
+        array('mobile.newthre_color', '新着スレッドマークの色'),
+        array('mobile.ttitle_color', 'スレッドタイトルの色'),
+        array('mobile.newres_color', '新着レス番号の色'),
+        array('mobile.ngword_color', 'NGワードの色'),
+        array('mobile.onthefly_color', 'オンザフライレス番号の色'),
+        array('mobile.match_color', 'フィルタリングでマッチしたキーワードの色'),
+        array('mobile.display_accesskey', 'アクセスキーの番号を表示'),
+        array('mobile.save_packet', 'パケット量を減らすため、全角英数・カナ・スペースを半角に変換'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ Mobile - subject
+
+$groupname = 'subject (mobile)';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('mobile.sb_show_first', 'スレッド一覧（板表示）から初めてのスレを開く時の表示方法'),
+        array('mobile.sb_disp_range', '一度に表示するスレの数'),
+        array('mobile.sb_ttitle_max_len', 'スレッド一覧で表示するタイトルの長さの上限 (0で無制限)'),
+        array('mobile.sb_ttitle_trim_len', 'スレッドタイトルが長さの上限を越えたとき、この長さまで切り詰める'),
+        array('mobile.sb_ttitle_trim_pos', 'スレッドタイトルを切り詰める位置'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ Mobile - read
+
+$groupname = 'read (mobile)';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('mobile.rnum_range', '一度に表示するレスの数'),
+        array('mobile.res_size', '一つのレスの最大表示サイズ'),
+        array('mobile.ryaku_size', 'レスを省略したときの表示サイズ'),
+        array('mobile.aa_ryaku_size', 'AAらしきレスを省略するサイズ (0なら無効)'),
+        array('mobile.before_respointer', 'ポインタの何コ前のレスから表示するか'),
+        array('mobile.use_tsukin', '外部リンクに通勤ブラウザ(通)を利用'),
+        array('mobile.use_picto', '画像リンクにpic.to(ﾋﾟ)を利用'),
+        array('mobile.link_youtube', 'YouTubeのリンクをサムネイル表示'),
+
+        array('mobile.bbs_noname_name', 'デフォルトの名無し名を表示'),
+        array('mobile.date_zerosuppress', '日付の0を省略表示'),
+        array('mobile.clip_time_sec', '時刻の秒を省略表示'),
+        array('mobile.clip_unique_id', '重複しないIDは末尾のみの省略表示'),
+        array('mobile.underline_id', 'ID末尾の&quot;O&quot;に下線を引く'),
+        array('mobile.strip_linebreaks', '文末の改行と連続する改行を除去'),
+
+        array('mobile.copy_divide_len', '「写」のコピー用テキストボックスを分割する文字数'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ iPhone - subject
+
+$groupname = 'subject (iPhone)';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+        array('iphone.subject.indicate-speed', '勢いを示すインジケーターを表示'),
+        array('iphone.subject.speed.width', 'インジケーターの幅 (pixels)'),
+        array('iphone.subject.speed.0rpd', 'インジケーターの色 (1レス/日未満)'),
+        array('iphone.subject.speed.1rpd', 'インジケーターの色 (1レス/日以上)'),
+        array('iphone.subject.speed.10rpd', 'インジケーターの色 (10レス/日以上)'),
+        array('iphone.subject.speed.100rpd', 'インジケーターの色 (100レス/日以上)'),
+        array('iphone.subject.speed.1000rpd', 'インジケーターの色 (1000レス/日以上)'),
+        array('iphone.subject.speed.10000rpd', 'インジケーターの色 (10000レス/日以上)'),
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+
+// }}}
+// {{{ iPhone - read
+/*
+$groupname = 'read (iPhone)';
+$groups[] = $groupname;
+$flags = getGroupShowFlags($groupname);
+if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
+    $keep_old = true;
+} else {
+    $conflist = array(
+    );
+    printEditConfGroupHtml($groupname, $conflist, $flags);
+}
+*/
+// }}}
+// }}}
+
+// PC用表示
+if (!$_conf['ktai']) {
+    echo <<<EOP
+</div><!-- end of tab -->
+</div><!-- end of child tabset "携帯端末設定" -->
 
 <div class="tabbertab" title="拡張パック設定">
 <h3>拡張パック設定</h3>
@@ -429,7 +503,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.tgrep.quicksearch', '一発検索（表示, 非表示）'),
+        array('expack.tgrep.quicksearch', '一発検索'),
         array('expack.tgrep.recent_num', '検索履歴を記録する数（記録しない:0）'),
         array('expack.tgrep.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用（記録しない:0）'),
     );
@@ -475,6 +549,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.am.display', 'スイッチを表示する位置'),
         array('expack.am.autodetect', '自動で判定し、AA用表示をする（PC）'),
         array('expack.am.autong_k', '自動で判定し、NGワードにする。AAS が有効なら AAS のリンクも作成（携帯）'),
+        array('expack.am.lines_limit', '自動判定する行数の下限'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
     if (isset($_conf['expack.am.fontfamily.orig'])) {
@@ -493,10 +568,10 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 } else {
     $conflist = array(
         //array('expack.editor.constant', '定型文 (使う, 使わない)'),
-        array('expack.editor.dpreview', 'リアルタイム・プレビュー (投稿フォームの上に表示, 投稿フォームの下に表示, 非表示)'),
-        array('expack.editor.dpreview_chkaa', 'リアルタイム・プレビューでAA補正用のチェックボックスを表示する (する, しない)'),
-        array('expack.editor.check_message', '本文が空でないかチェック (する, しない)'),
-        array('expack.editor.check_sage', 'sageチェック (する, しない)'),
+        array('expack.editor.dpreview', 'リアルタイム・プレビュー'),
+        array('expack.editor.dpreview_chkaa', 'リアルタイム・プレビューでAA補正用のチェックボックスを表示する'),
+        array('expack.editor.check_message', '本文が空でないかチェック'),
+        array('expack.editor.check_sage', 'sageチェック'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -511,7 +586,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.rss.check_interval', 'RSSが更新されたかどうか確認する間隔（分指定）'),
+        array('expack.rss.check_interval', 'RSSが更新されたかどうか確認する間隔 (分指定)'),
         array('expack.rss.target_frame', 'RSSの外部リンクを開くフレームまたはウインドウ'),
         array('expack.rss.desc_target_frame', '概要を開くフレームまたはウインドウ'),
     );
@@ -528,11 +603,12 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.ic2.through_ime', 'キャッシュに失敗したときの確認用にime経由でソースへのリンクを作成 (する, しない)'),
-        array('expack.ic2.fitimage', 'ポップアップ画像の大きさをウインドウの大きさに合わせる (する, しない, 幅が大きいときだけする, 高さが大きいときだけする, 手動でする)'),
+        array('expack.ic2.viewer_default_mode', '画像キャッシュ一覧のデフォルト表示モード'),
+        array('expack.ic2.through_ime', 'キャッシュに失敗したときの確認用にime経由でソースへのリンクを作成'),
+        array('expack.ic2.fitimage', 'ポップアップ画像の大きさをウインドウの大きさに合わせる'),
         array('expack.ic2.pre_thumb_limit_k', '携帯でインライン・サムネイルが有効のときの表示する制限数 (0で無制限)'),
-        array('expack.ic2.newres_ignore_limit', '新着レスの画像は pre_thumb_limit を無視して全て表示 (する, しない)'),
-        array('expack.ic2.newres_ignore_limit_k', '携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示 (する, しない)'),
+        array('expack.ic2.newres_ignore_limit', '新着レスの画像は pre_thumb_limit を無視して全て表示'),
+        array('expack.ic2.newres_ignore_limit_k', '携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -549,8 +625,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         array('expack.google.key', 'Google Web APIs の登録キー', P2_EDIT_CONF_USER_LONGTEXT),
         //array('expack.google.recent_num', '検索履歴を記録する数（記録しない:0）'),
-        array('expack.google.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用（記録しない:0）'),
-        array('expack.google.force_pear', 'SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う（YES, NO）'),
+        array('expack.google.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用 (記録しない:0)'),
+        array('expack.google.force_pear', 'SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -565,7 +641,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.aas.inline', '携帯で自動 AA 判定と連動し、インライン表示 (する, しない)'),
+        array('expack.aas.inline', '携帯で自動 AA 判定と連動し、インライン表示'),
         array('expack.aas.image_type', '画像形式 (PNG, JPEG, GIF)'),
         array('expack.aas.jpeg_quality', 'JPEGの品質 (0-100)'),
         array('expack.aas.image_width', '携帯用の画像の横幅 (ピクセル)'),
@@ -574,8 +650,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.aas.image_height_pc', 'PC用の画像の高さ (ピクセル)'),
         array('expack.aas.image_width_il', 'インライン画像の横幅 (ピクセル)'),
         array('expack.aas.image_height_il', 'インライン画像の高さ (ピクセル)'),
-        array('expack.aas.trim', '画像の余白をトリミング (する, しない)'),
-        array('expack.aas.bold', '太字 (する, しない)'),
+        array('expack.aas.trim', '画像の余白をトリミング'),
+        array('expack.aas.bold', '太字'),
         array('expack.aas.fgcolor', '文字色 (6桁または3桁の16進数)'),
         array('expack.aas.bgcolor', '背景色 (6桁または3桁の16進数)'),
         array('expack.aas.max_fontsize', '最大の文字サイズ (ポイント)'),
@@ -604,10 +680,10 @@ EOP;
     }
 }
 
-if ($keep_old) {
-    echo '<input type="hidden" name="conf_keep_old" value="true">' . "\n";
-}
-echo '</form>' . "\n";
+echo <<<EOP
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
+</form>\n
+EOP;
 
 
 // 携帯なら
@@ -615,22 +691,37 @@ if ($_conf['ktai']) {
     echo <<<EOP
 <hr>
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}">
-{$_conf['k_input_ht']}
 <select name="edit_conf_user_group_en">
 EOP;
+    if ($_conf['iphone']) {
+        echo '<optgroup label="rep2基本設定">';
+    }
     foreach ($groups as $groupname) {
+        if ($_conf['iphone']) {
+            if ($groupname == 'tGrep') {
+                echo '</optgroup><optgroup label="拡張パック設定">';
+            } elseif ($groupname == 'subject-i') {
+                echo '</optgroup><optgroup label="iPhone設定">';
+            }
+        }
         $group_ht = htmlspecialchars($groupname, ENT_QUOTES);
         $group_en = htmlspecialchars(base64_encode($groupname));
         $selected = ($selected_group == $groupname) ? ' selected' : '';
         echo "<option value=\"{$group_en}\"{$selected}>{$group_ht}</option>";
     }
+    if ($_conf['iphone']) {
+        echo '</optgroup>';
+    }
     echo <<<EOP
 </select>
 <input type="submit" value="の設定を編集">
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>
 <hr>
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="editpref.php{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.設定編集</a>
+<div class="center">
+<a href="editpref.php{$_conf['k_at_q']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}設定編集</a>
 {$_conf['k_to_index_ht']}
+</div>
 EOP;
 }
 
@@ -641,6 +732,8 @@ exit;
 //=====================================================================
 // 関数（このファイル内のみの利用）
 //=====================================================================
+
+// {{{ applyRules()
 
 /**
  * ルール設定（$conf_user_rules）に基づいて、フィルタ処理（デフォルトセット）を行う
@@ -663,19 +756,10 @@ function applyRules()
     }
 }
 
+// }}} 
+// {{{ フィルタ関数
 // emptyToDef() などのフィルタはEditConfFiterクラスなどにまとめる予定
-
-/**
- * CSS値のためのフィルタリングを行う
- *
- * @param   string  $str    入力された値
- * @param   string  $def    デフォルトの値
- * @return  string
- */
-function filterCssValue($str, $def = '')
-{
-    return preg_replace('/[^0-9a-zA-Z-%]/', '', $str);
-}
+// {{{ emptyToDef()
 
 /**
  * emptyの時は、デフォルトセットする
@@ -691,6 +775,9 @@ function emptyToDef($val, $def)
     }
     return $val;
 }
+
+// }}}
+// {{{ notIntExceptMinusToDef()
 
 /**
  * 正の整数化できる時は正の整数化（0を含む）し、
@@ -719,6 +806,9 @@ function notIntExceptMinusToDef($val, $def)
     return $val;
 }
 
+// }}}
+// {{{ notFloatExceptMinusToDef()
+
 /**
  * 正の実数化できる時は正の実数化（0を含む）し、
  * できない時は、デフォルトセットする
@@ -731,20 +821,23 @@ function notFloatExceptMinusToDef($val, $def)
 {
     // 全角→半角 矯正
     $val = mb_convert_kana($val, 'a');
-    // 整数化できるなら
+    // 実数化できるなら
     if (is_numeric($val)) {
-        // 整数化する
+        // 実数化する
         $val = floatval($val);
         // 負の数はデフォルトに
         if ($val < 0.0) {
             $val = floatval($def);
         }
-    // 整数化できないものは、デフォルトに
+    // 実数化できないものは、デフォルトに
     } else {
         $val = floatval($def);
     }
     return $val;
 }
+
+// }}}
+// {{{ notSelToDef()
 
 /**
  * 選択肢にない値はデフォルトセットする
@@ -767,6 +860,334 @@ function notSelToDef()
     }
     return true;
 }
+
+// }}}
+// {{{ invalidUrlToDef()
+
+/**
+ * HTTPまたはHTTPSのURLでない場合はデフォルトセットする
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function invalidUrlToDef($val, $def)
+{
+    $purl = @parse_url($val);
+    if (is_array($purl) && array_key_exists('scheme', $purl) &&
+        ($purl['scheme'] == 'http' || $purl['scheme'] == 'https'))
+    {
+        return $val;
+    }
+    return $def;
+}
+
+// }}}
+// {{{ escapeHtmlExceptEntity()
+
+/**
+ * 既存のエンティティを除いて特殊文字をHTMLエンティティ化する
+ *
+ * htmlspecialchars() の第四引数 $double_encode は PHP 5.2.3 で追加された
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function escapeHtmlExceptEntity($val, $def)
+{
+    return htmlspecialchars($val, ENT_QUOTES, 'Shift_JIS', false);
+}
+
+// }}}
+// {{{ notHtmlColorToDef()
+
+/**
+ * 空の場合とHTMLの色として正しくない場合は、デフォルトセットする
+ * W3Cの仕様で定義されていないが、ブラウザは認識する名前は許可しない
+ * orangeはCSS2.1の色だけど、例外的に許可
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notHtmlColorToDef($val, $def)
+{
+    if (strlen($val) == 0) {
+        return $def;
+    }
+
+    $val = strtolower($val);
+
+    // 色名か16進数
+    if (in_array($val, array('black',   // #000000
+                             'silver',  // #c0c0c0
+                             'gray',    // #808080
+                             'white',   // #ffffff
+                             'maroon',  // #800000
+                             'red',     // #ff0000
+                             'purple',  // #800080
+                             'fuchsia', // #ff00ff
+                             'green',   // #008000
+                             'lime',    // #00ff00
+                             'olive',   // #808000
+                             'yellow',  // #ffff00
+                             'navy',    // #000080
+                             'blue',    // #0000ff
+                             'teal',    // #008080
+                             'aqua',    // #00ffff
+                             'orange',  // #ffa500
+                             )) ||
+        preg_match('/^#[0-9a-f]{6}$/', $val))
+    {
+        return $val;
+    }
+
+    return $def;
+}
+
+// }}}
+// {{{ notCssColorToDef()
+
+/**
+ * 空の場合とCSSの色として正しくない場合は、デフォルトセットする
+ * W3Cの仕様で定義されていないが、ブラウザは認識する名前は許可しない
+ * transparent,inherit,noneは許可
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notCssColorToDef($val, $def)
+{
+    if (strlen($val) == 0) {
+        return $def;
+    }
+
+    $val = strtolower($val);
+
+    // 色名か16進数
+    if (in_array($val, array('black',   // #000000
+                             'silver',  // #c0c0c0
+                             'gray',    // #808080
+                             'white',   // #ffffff
+                             'maroon',  // #800000
+                             'red',     // #ff0000
+                             'purple',  // #800080
+                             'fuchsia', // #ff00ff
+                             'green',   // #008000
+                             'lime',    // #00ff00
+                             'olive',   // #808000
+                             'yellow',  // #ffff00
+                             'navy',    // #000080
+                             'blue',    // #0000ff
+                             'teal',    // #008080
+                             'aqua',    // #00ffff
+                             'orange',  // #ffa500
+                             'transparent',
+                             'inherit',
+                             'none')) ||
+        preg_match('/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/', $val))
+    {
+        return $val;
+    }
+
+    // rgb(d,d,d)
+    if (preg_match('/rgb\\(
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*(0|[1-9][0-9]*)[ ]*
+                    \\)/x', $val, $m))
+    {
+        return sprintf('rgb(%d, %d, %d)',
+                       min(255, (int)$m[1]),
+                       min(255, (int)$m[2]),
+                       min(255, (int)$m[3])
+                       );
+    }
+
+    // rgba(%,%,%)
+    if (preg_match('/rgb\\(
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*(0|[1-9][0-9]*)%[ ]*
+                    \\)/x', $val, $m))
+    {
+        return sprintf('rgb(%d%%, %d%%, %d%%)',
+                       min(100, (int)$m[1]),
+                       min(100, (int)$m[2]),
+                       min(100, (int)$m[3])
+                       );
+    }
+
+    // rgba(d,d,d,f)
+    if (preg_match('/rgba\\(
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*(0|[1-9][0-9]*)[ ]*,
+                    [ ]*([01](?:\\.[0-9]+)?)[ ]*
+                    \\)/x', $val, $m))
+    {
+        return sprintf('rgba(%d, %d, %d, %0.2f)',
+                       min(255, (int)$m[1]),
+                       min(255, (int)$m[2]),
+                       min(255, (int)$m[3]),
+                       min(1.0, (float)$m[4])
+                       );
+    }
+
+    // rgba(%,%,%,f)
+    if (preg_match('/rgba\\(
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*(0|[1-9][0-9]*)%[ ]*,
+                    [ ]*([01](?:\\.[0-9]+)?)[ ]*
+                    \\)/x', $val, $m))
+    {
+        return sprintf('rgba(%d%%, %d%%, %d%%, %0.2f)',
+                       min(100, (int)$m[1]),
+                       min(100, (int)$m[2]),
+                       min(100, (int)$m[3]),
+                       min(1.0, (float)$m[4])
+                       );
+    }
+
+    return $def;
+}
+
+// }}}
+// {{{ notCssFontSizeToDef()
+
+/**
+ * CSSのフォントの大きさとして正しくない場合は、デフォルトセットする
+ * media="screen" を前提に、in,cm,mm,pt,pc等の絶対的な単位はサポートしない
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notCssFontSizeToDef($val, $def)
+{
+    if (strlen($val) == 0) {
+        return $def;
+    }
+
+    $val = strtolower($val);
+
+    // キーワード
+    if (in_array($val, array('xx-large', 'x-large', 'large',
+                             'larger', 'medium', 'smaller',
+                             'small', 'x-small', 'xx-small')))
+    {
+        return $val;
+    }
+
+    // 整数
+    if (preg_match('/^[1-9][0-9]*(?:em|ex|px|%)$/', $val)) {
+        return $val;
+    }
+
+    // 実数 (小数点第3位で四捨五入、余分な0を切り捨て)
+    if (preg_match('/^((?:0|[1-9][0-9]*)\\.[0-9]+)(em|ex|px|%)$/', $val, $m)) {
+        $val = rtrim(sprintf('%0.2f', (float)$m[1]), '.0');
+        if ($val !== '0') {
+            return $val . $m[2];
+        }
+    }
+
+    return $def;
+}
+
+// }}}
+// {{{ notCssSizeToDef()
+
+/**
+ * CSSの大きさとして正しくない場合は、デフォルトセットする
+ * media="screen" を前提に、in,cm,mm,pt,pc等の絶対的な単位はサポートしない
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @param   boolean $allow_zero
+ * @param   boolean $allow_negative
+ * @return  string
+ */
+function notCssSizeToDef($val, $def, $allow_zero = true, $allow_negative = true)
+{
+    if (strlen($val) == 0) {
+        return $def;
+    }
+
+    $val = strtolower($val);
+
+    // 0
+    if ($allow_zero && $val === '0') {
+        return '0';
+    }
+
+    // 整数 (0は単位なしに)
+    if (preg_match('/^(-?(?:0|[1-9][0-9]*))(?:em|ex|px|%)$/', $val, $m)) {
+        $i = (int)$m[1];
+        if ($i > 0 || ($i < 0 && $allow_negative) || $allow_zero) {
+            if ($i === 0) {
+                return '0';
+            } else {
+                return $val;
+            }
+        }
+    }
+
+    // 実数 (小数点第3位で四捨五入、余分な0を切り捨て)
+    if (preg_match('/^(-?(?:0|[1-9][0-9]*)\\.[0-9]+)(em|ex|px|%)$/', $val, $m)) {
+        $f = (float)$m[1];
+        if ($f > 0.0 || ($f < 0.0 && $allow_negative) || $allow_zero) {
+            $val = rtrim(sprintf('%0.2f', $f), '.0');
+            if ($val === '0') {
+                if ($allow_zero) {
+                    return '0';
+                }
+            } else {
+                return $val . $m[2];
+            }
+        }
+    }
+
+    return $def;
+}
+
+// }}}
+// {{{ notCssPositiveSizeToDef()
+
+/**
+ * CSSの大きさとして正しくない場合か、正の値でないときは、デフォルトセットする
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notCssPositiveSizeToDef($val, $def)
+{
+    return notCssSizeToDef($val, $def, false, false);
+}
+
+// }}}
+// {{{ notCssSizeExceptMinusToDef()
+
+/**
+ * CSSの大きさとして正しくない場合か、負の値のときは、デフォルトセットする
+ *
+ * @param   string  $str    入力された値
+ * @param   string  $def    デフォルトの値
+ * @return  string
+ */
+function notCssSizeExceptMinusToDef($val, $def)
+{
+    return notCssSizeToDef($val, $def, true, false);
+}
+
+// }}}
+// }}}
+// {{{ 表示用関数
+// {{{ getGroupShowFlags()
 
 /**
  * グループの表示モードを得る
@@ -799,6 +1220,9 @@ function getGroupShowFlags($group_key, $conf_key = null)
     }
     return $flags;
 }
+
+// }}}
+// {{{ getGroupSepaHtml()
 
 /**
  * グループ分け用のHTMLを得る（関数内でPC、携帯用表示を振り分け）
@@ -850,6 +1274,9 @@ EOP;
     return $ht;
 }
 
+// }}}
+// {{{ getGroupEndHtml()
+
 /**
  * グループ終端のHTMLを得る（携帯では空）
  *
@@ -884,6 +1311,9 @@ EOP;
     }
     return $ht;
 }
+
+// }}}
+// {{{ getEditConfHtml()
 
 /**
  * 編集フォームinput用HTMLを得る（関数内でPC、携帯用表示を振り分け）
@@ -939,7 +1369,7 @@ function getEditConfHtml($name, $description_ht, $flags)
             $input_size_at = '';
         }
         $form_ht = <<<EOP
-<input type="text" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>\n
+<input type="text" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>
 EOP;
         if (is_string($conf_user_def[$name])) {
             $def_views[$name] = htmlspecialchars($conf_user_def[$name], ENT_QUOTES);
@@ -948,27 +1378,28 @@ EOP;
         }
     }
 
+    // iPhone用
+    if ($_conf['iphone']) {
+        return "<fieldset><legend>{$name}</legend>{$description_ht}<br>{$form_ht}</fieldset>\n";
+
+    // 携帯用
+    } elseif ($_conf['ktai']) {
+        return "[{$name}]<br>{$description_ht}<br>{$form_ht}<br><br>\n";
+
     // PC用
-    if (!$_conf['ktai']) {
-        $r = <<<EOP
+    } else {
+        return <<<EOP
     <tr title="デフォルト値: {$def_views[$name]}">
         <td>{$name}</td>
         <td>{$form_ht}</td>
         <td>{$description_ht}</td>
     </tr>\n
 EOP;
-    // 携帯用
-    } else {
-        $r = <<<EOP
-[{$name}]<br>
-{$description_ht}<br>
-{$form_ht}<br>
-<br>\n
-EOP;
     }
-
-    return $r;
 }
+
+// }}}
+// {{{ getEditConfHidHtml()
 
 /**
  * 編集フォームhidden用HTMLを得る
@@ -990,6 +1421,9 @@ function getEditConfHidHtml($name)
 
     return $form_ht;
 }
+
+// }}}
+// {{{ getEditConfSelHtml()
 
 /**
  * 編集フォームselect用HTMLを得る
@@ -1023,6 +1457,9 @@ function getEditConfSelHtml($name)
     return $form_ht;
 }
 
+// }}}
+// {{{ getEditConfRadHtml()
+
 /**
  * 編集フォームradio用HTMLを得る
  *
@@ -1047,11 +1484,18 @@ function getEditConfRadHtml($name)
         }
         $key_ht = htmlspecialchars($key, ENT_QUOTES);
         $value_ht = htmlspecialchars($value, ENT_QUOTES);
-        $form_ht .= "<label><input type=\"radio\" name=\"conf_edit[{$name}]\" value=\"{$key_ht}\"{$checked}>{$value_ht}</label>\n";
+        if ($_conf['iphone']) {
+            $form_ht .= "<input type=\"radio\" name=\"conf_edit[{$name}]\" value=\"{$key_ht}\"{$checked}><span onclick=\"if(!this.previousSibling.checked)this.previousSibling.checked=true;\">{$value_ht}</span>\n";
+        } else {
+            $form_ht .= "<label><input type=\"radio\" name=\"conf_edit[{$name}]\" value=\"{$key_ht}\"{$checked}>{$value_ht}</label>\n";
+        }
     } // foreach
 
     return $form_ht;
 }
+
+// }}}
+// {{{ printEditConfGroupHtml()
 
 /**
  * 編集フォームを表示する
@@ -1073,3 +1517,17 @@ function printEditConfGroupHtml($groupname, $conflist, $flags)
     }
     echo getGroupEndHtml($flags);
 }
+
+// }}}
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
