@@ -26,7 +26,7 @@ if (!empty($_GET['cview'])) {
 }
 
 // +Wiki
-require_once P2_LIBRARY_DIR . '/wiki/read.inc.php';
+require_once P2_LIB_DIR . '/wiki/read.inc.php';
 
 // 省メモリ設定
 // 1 にするとキャッシュをメモリでなく一時ファイルに保持する

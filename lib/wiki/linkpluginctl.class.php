@@ -7,7 +7,7 @@ clear()                     データを削除
 autoLoad()                  loadされていなければ実行
 */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 class LinkPluginCtl
 {

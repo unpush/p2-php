@@ -1687,10 +1687,10 @@ EOP;
 
             // 準備
             $serial++;
-            $thumb_id = 'thumbs' . $serial . '_' . P2_REQUEST_ID;
+            $thumb_id = 'thumbs' . $serial . $this->thumb_id_suffix;
             $tmp_thumb = './img/ic_load.png';
 
-            $icdb = &new IC2DB_Images;
+            $icdb = new IC2_DataObject_Images;
 
             // r=0:リンク;r=1:リダイレクト;r=2:PHPで表示
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
@@ -1716,9 +1716,9 @@ EOP;
                 $_img_url = $this->thumbnailer->srcPath($icdb->size, $icdb->md5, $icdb->mime);
                 if (file_exists($_img_url)) {
                     $img_url = $_img_url;
-                    $cached = TRUE;
+                    $cached = true;
                 } else {
-                    $cached = FALSE;
+                    $cached = false;
                 }
 
                 // サムネイルが作成されていているときは画像を直接読み込む
@@ -1726,8 +1726,8 @@ EOP;
                 if (file_exists($_thumb_url)) {
                     $thumb_url = $_thumb_url;
                     // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
-                    if (!is_null($this->img_memo) && !strstr($icdb->memo, $this->img_memo)){
-                        $update = &new IC2DB_Images;
+                    if (!is_null($this->img_memo) && strpos($icdb->memo, $this->img_memo) === false){
+                        $update = new IC2_DataObject_Images;
                         if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                             $update->memo = $this->img_memo . ' ' . $icdb->memo;
                         } else {
@@ -1750,12 +1750,12 @@ EOP;
             // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
             } else {
                 // 画像がブラックリストorエラーログにあるか確認
-                if (FALSE !== ($errcode = $icdb->ic2_isError($v['url']))) {
+                if (false !== ($errcode = $icdb->ic2_isError($v['url']))) {
                     $result .= "<img class=\"thumbnail\" src=\"./img/{$errcode}.png\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
                     continue;
                 }
 
-                $cached = FALSE;
+                $cached = false;
 
 
                 $orig_img_url   = $img_url;
@@ -1771,13 +1771,13 @@ EOP;
                 // 表示制限を超えていたら、表示しない
                 // 表示制限を超えていなければ、表示制限カウンタを下げる
                 if ($pre_thumb_limit <= 0) {
-                    $show_thumb = FALSE;
+                    $show_thumb = false;
                 } else {
-                    $show_thumb = TRUE;
+                    $show_thumb = true;
                     $pre_thumb_limit--;
                 }
             } else {
-                $show_thumb = TRUE;
+                $show_thumb = true;
             }
 
             // 表示モード
@@ -1789,7 +1789,7 @@ EOP;
                     $view_img = "<a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$img_tag}</a>";
                 }
             } else {
-                $img_tag = "<img id=\"{$thumb_id}\" class=\"thumbnail\" src=\"{$tmp_thumb}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
+                $img_tag = "<img id=\"{$thumb_id}\" class=\"thumbnail\" src=\"{$tmp_thumb}\" width=\"32\" height=\"32\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
                 $view_img = "<a href=\"{$img_url}\" onclick=\"return loadThumb('{$thumb_url}','{$thumb_id}')\"{$_conf['ext_win_target_at']}>{$img_tag}</a><a href=\"{$img_url}\"{$_conf['ext_win_target_at']}></a>";
             }
 

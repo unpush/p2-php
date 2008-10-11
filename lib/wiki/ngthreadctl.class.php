@@ -15,7 +15,7 @@ autoLoad()                  loadÇ≥ÇÍÇƒÇ¢Ç»ÇØÇÍÇŒé¿çs
 word    ignorecase  regex     bbs lasttime    hits
 */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 class NgThreadCtl
 {

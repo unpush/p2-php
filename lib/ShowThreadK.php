@@ -1254,7 +1254,7 @@ EOP;
         global $pre_thumb_unlimited, $pre_thumb_ignore_limit, $pre_thumb_limit_k;
 
         if (P2Util::isUrlWikipediaJa($url)) {
-            return FALSE;
+            return false;
         }
 
         // if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
@@ -1265,26 +1265,27 @@ EOP;
         foreach($replaced as $v) {
             // インラインプレビューの有効判定
             if ($pre_thumb_unlimited || $pre_thumb_ignore_limit || $pre_thumb_limit_k > 0) {
-                $inline_preview_flag = TRUE;
-                $inline_preview_done = FALSE;
+                $inline_preview_flag = true;
+                $inline_preview_done = false;
             } else {
-                $inline_preview_flag = FALSE;
-                $inline_preview_done = FALSE;
+                $inline_preview_flag = false;
+                $inline_preview_done = false;
             }
 
             // +Wiki
             // $url_en = rawurlencode($url);
+            $url_ht = $url;
             $url_en = rawurlencode($v['url']);
             $ref_en = $v['referer'] ? '&amp;ref=' . rawurlencode($v['referer']) : '';
             $img_str = '[IC2:'.$purl['host'].':'.basename($purl['path']).']';
 
-            $icdb = &new IC2DB_Images;
+            $icdb = new IC2_DataObject_Images;
 
             // r=0:リンク;r=1:リダイレクト;r=2:PHPで表示
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
             $img_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en . $ref_en;
             $img_url2 = 'ic2.php?r=0&amp;t=2&amp;id=';
-            $src_exists = FALSE;
+            $src_exists = false;
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {
@@ -1301,36 +1302,45 @@ EOP;
                 // オリジナルの有無を確認
                 $_src_url = $this->thumbnailer->srcPath($icdb->size, $icdb->md5, $icdb->mime);
                 if (file_exists($_src_url)) {
-                    $src_exists = TRUE;
+                    $src_exists = true;
                     $img_url = $img_url2 . $icdb->id;
                 } else {
                     $img_url = $this->thumbnailer->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
                 }
 
                 // インラインプレビューが有効のとき
+                $prv_url = null;
                 if ($this->thumbnailer->ini['General']['inline'] == 1) {
-                    $_prvw_url = $this->inline_prvw->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
-                    $r_type = ($this->thumbnailer->ini['General']['redirect'] == 1) ? 1 : 2;
+                    // PCでread_new_k.phpにアクセスしたとき等
+                    if (!isset($this->inline_prvw) || !is_object($this->inline_prvw)) {
+                        $this->inline_prvw = $this->thumbnailer;
+                    }
+                    $prv_url = $this->inline_prvw->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
+
                     // サムネイル表示制限数以内のとき
                     if ($inline_preview_flag) {
                         // プレビュー画像が作られているかどうかでimg要素の属性を決定
-                        if (file_exists($_prvw_url)) {
+                        if (file_exists($prv_url)) {
                             $prvw_size = explode('x', $this->inline_prvw->calc($icdb->width, $icdb->height));
-                            $img_str = "<img src=\"ic2.php?r={$r_type}&amp;t=1&amp;id={$icdb->id}\" width=\"{$prvw_size[0]}\" height=\"{$prvw_size[1]}\">";
-                        } elseif ($src_exists) {
-                            $img_str = "<img src=\"ic2.php?r={$r_type}&amp;t=1&amp;id={$icdb->id}\">";
+                            $img_str = "<img src=\"{$prv_url}\" width=\"{$prvw_size[0]}\" height=\"{$prvw_size[1]}\">";
                         } else {
-                            $img_str = "<img src=\"ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}\">";
+                            $r_type = ($this->thumbnailer->ini['General']['redirect'] == 1) ? 1 : 2;
+                            if ($src_exists) {
+                                $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;id={$icdb->id}";
+                            } else {
+                                $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}";
+                            }
+                            $img_str = "<img src=\"{$prv_url}\">";
                         }
-                        $inline_preview_done = TRUE;
+                        $inline_preview_done = true;
                     } else {
                         $img_str = '[p2:既得画像(ﾗﾝｸ:' . $icdb->rank . ')]';
                     }
                 }
 
                 // 自動スレタイメモ機能がONでスレタイが記録されていないときはDBを更新
-                if (!is_null($this->img_memo) && !strstr($icdb->memo, $this->img_memo)){
-                    $update = &new IC2DB_Images;
+                if (!is_null($this->img_memo) && strpos($icdb->memo, $this->img_memo) === false){
+                    $update = new IC2_DataObject_Images;
                     if (!is_null($icdb->memo) && strlen($icdb->memo) > 0) {
                         $update->memo = $this->img_memo . ' ' . $icdb->memo;
                     } else {
@@ -1344,14 +1354,14 @@ EOP;
             // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
             } else {
                 // 画像がブラックリストorエラーログにあるか確認
-                if (FALSE !== ($errcode = $icdb->ic2_isError($url))) {
+                if (false !== ($errcode = $icdb->ic2_isError($url))) {
                     return "<s>[IC2:ｴﾗｰ({$errcode})]</s>";
                 }
 
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
                     $img_str = '<img src="ic2.php?r=2&amp;t=1&amp;uri=' . $url_en . $this->img_memo_query . '">';
-                    $inline_preview_done = TRUE;
+                    $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;
                 }
@@ -1367,7 +1377,24 @@ EOP;
             } else {
                 $backto = '';
             }
-            $result .= "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";
+
+            if (is_null($img_str)) {
+                $result .= sprintf('<a href="%s%s">[IC2:%s:%s]</a>',
+                               $img_url,
+                               $backto,
+                               htmlspecialchars($purl['host']),
+                               htmlspecialchars(basename($purl['path']))
+                               );
+            }
+
+            if ($_conf['iphone']) {
+                $result .= "<a href=\"{$img_url}{$backto}\" target=\"_blank\">{$img_str}</a>"
+                   //. ' <img class="ic2-show-info" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
+                     . ' <input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('
+                     . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";
+            } else {
+                $result .= "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";
+            }
         }
         return $result;
     }

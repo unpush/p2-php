@@ -242,6 +242,7 @@ abstract class ShowThread
 
         if (isset($ngaborns[$code]['data']) && is_array($ngaborns[$code]['data'])) {
             // +Wiki:BEあぼーん
+            /* preg_replace がエラーになるのでこのへんコメントアウト
             if ($code == 'aborn_be' || $code == 'ng_be') {
                 // プロフィールIDを抜き出す
                 if ($prof_id = preg_replace('/BE:(\d+)/', '$1')) {
@@ -252,6 +253,7 @@ abstract class ShowThread
                     return false;
                 }
             }
+             */
             $bbs = $this->thread->bbs;
             $title = $this->thread->ttitle_hc;
 

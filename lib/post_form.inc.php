@@ -70,7 +70,7 @@ EOP;
 
 // +Wiki:sambaタイマー
 if ($_conf['wiki.samba_timer']) {
-    require_once P2_LIBRARY_DIR . '/wiki/samba.class.php';
+    require_once P2_LIB_DIR . '/wiki/samba.class.php';
     $samba = &new samba;
     $htm['samba'] .= $samba->createTimer($samba->getSamba($host, $bbs));
 }

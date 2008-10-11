@@ -31,7 +31,7 @@ class Hissi
     function load()
     {
         global $_conf;
-        // include_once P2_LIBRARY_DIR . '/p2util.class.php';
+        // include_once P2_LIB_DIR . '/p2util.class.php';
         $url  = 'http://hissi.dyndns.ws/menu.html';
         $path = P2Util::cacheFileForDL($url);
         P2UtilWiki::cacheDownload($url, $path, $_conf['menu_dl_interval'] * 3600);
@@ -47,7 +47,7 @@ class Hissi
     function isEnable()
     {
         if ($this->host) {
-            require_once P2_LIBRARY_DIR . '/p2util.class.php';
+            require_once P2_LIB_DIR . '/p2util.class.php';
             if (!P2Util::isHost2chs($this->host)) return false;
         }
         
