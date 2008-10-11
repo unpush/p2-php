@@ -275,6 +275,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('link_youtube', 'YouTubeのリンクをプレビュー表示<br>(手動の場合はURLの横の<img src="img/show.png" width="30" height="12" alt="show">をクリックして表示)'),
         array('link_niconico', 'ニコニコ動画のリンクをプレビュー表示<br>(手動の場合はURLの横の<img src="img/show.png" width="30" height="12" alt="show">をクリックして表示)'),
         array('iframe_popup', 'HTMLポップアップ'),
+        array('iframe_popup_type', 'HTMLポップアップの種類'),
 //        array('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)'),
         array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換'),
         array('ext_win_target', '外部サイト等へジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),

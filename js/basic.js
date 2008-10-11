@@ -97,3 +97,25 @@ function escapeHTML(cont)
 {
 	return document.createElement('div').appendChild(document.createTextNode(cont)).parentNode.innerHTML;
 }
+
+/**
+ * @return  object
+ */
+function getDocumentBodyIE()
+{
+	return (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
+}
+
+// @return  void
+function addLoadEvent(func) {
+	var oldonload = window.onload;
+	
+	if (typeof window.onload != 'function') {
+		window.onload = func;
+	} else {
+		window.onload = function() {
+			oldonload();
+			func();
+		}
+	}
+}
