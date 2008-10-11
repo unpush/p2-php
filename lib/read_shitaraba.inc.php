@@ -52,7 +52,7 @@ function shitarabaDownload()
     FileCtl::mkdir_for($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
 
-    if ($machiurl_res->is_error()) {
+    if ($machiurl_res->isError()) {
         $aThread->diedat = true;
         return false;
     }
@@ -148,7 +148,7 @@ function shitarabaDatTo2chDatLines($mlines)
         */
 
         // ƒŠƒ“ƒNŠO‚µ
-        $body = preg_replace('{<a href="(https?://[-_.!~*\'()a-zA-Z0-9;/?:@&=+\$,%#]+)" target="_blank">(https?://[-_.!~*\'()a-zA-Z0-9;/?:@&=+\$,%#]+)</a>}i', '$1', $body);
+        $body = preg_replace('{<a href="(https?://[-_.!~*\'()0-9A-Za-z;/?:@&=+\$,%#]+)" target="_blank">(https?://[-_.!~*\'()0-9A-Za-z;/?:@&=+\$,%#]+)</a>}i', '$1', $body);
 
         if ($order == 1) {
             $datline = $name.'<>'.$mail.'<>'.$date.'<>'.$body.'<>'.$mtitle."\n";

@@ -23,6 +23,7 @@ class ThreadRead extends Thread
     public $diedat; // サーバからdat取得しようとしてできなかった時にtrueがセットされる
     public $onthefly; // ローカルにdat保存しないオンザフライ読み込みならtrue
 
+    public $idp;     // レス番号をキー、IDの前の文字列 ("ID:", " " 等) を値とする連想配列
     public $ids;     // レス番号をキー、IDを値とする連想配列
     public $idcount; // IDをキー、出現回数を値とする連想配列
 
@@ -81,7 +82,7 @@ class ThreadRead extends Thread
                 }
 
                 include $_conf['sid2ch_php'];
-                $this->_downloadDat2chMaru();
+                $this->_downloadDat2chMaru($uaMona, $SID2ch);
 
             // 2chの過去ログ倉庫読み
             } elseif (!empty($_GET['kakolog']) && !empty($_GET['kakoget'])) {
@@ -339,11 +340,15 @@ class ThreadRead extends Thread
 
     /**
      * 2ch●用 DATをダウンロードする
+     *
+     * @param string $uaMona
+     * @param string $SID2ch
+     * @return bool
+     * @see lib/login2ch.inc.php
      */
-    private function _downloadDat2chMaru()
+    private function _downloadDat2chMaru($uaMona, $SID2ch)
     {
-        // $uaMona, $SID2ch → @see lib/login2ch.inc.php
-        global $_conf, $uaMona, $SID2ch, $_info_msg_ht;
+        global $_conf;
 
         if (!($this->host && $this->bbs && $this->key && $this->keydat)) {
             return false;
@@ -398,7 +403,7 @@ class ThreadRead extends Thread
         $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
         if (!$fp) {
             $url_t = P2Util::throughIme($url);
-            $_info_msg_ht .= "<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>";
+            P2Util::pushInfoHtml("<p>サーバ接続エラー: {$errstr} ({$errno})<br>p2 info - <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$url}</a> に接続できませんでした。</p>");
             $this->diedat = true;
             return false;
         }
@@ -772,19 +777,21 @@ class ThreadRead extends Thread
 
         // {{{ read.cgi からHTMLを取得
 
-        $read_response_html = "";
-        require_once P2_LIB_DIR . '/Wap.php';
-        $wap_ua = new UserAgent();
+        $read_response_html = '';
+        if (!class_exists('WapRequest', false)) {
+            require P2_LIB_DIR . '/Wap.php';
+        }
+        $wap_ua = new WapUserAgent();
         $wap_ua->setAgent($_conf['p2ua']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req = new Request();
+        $wap_req = new WapRequest();
         $wap_req->setUrl($read_url);
         if ($_conf['proxy_use']) {
             $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
         }
         $wap_res = $wap_ua->request($wap_req);
 
-        if ($wap_res->is_error()) {
+        if ($wap_res->isError()) {
             $url_t = P2Util::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
@@ -1229,16 +1236,19 @@ class ThreadRead extends Thread
         }
 
         $i = 0;
+        $idp = array_fill(1, $this->rescount, null);
         $ids = array_fill(1, $this->rescount, null);
 
         foreach ($this->datlines as $l) {
             $lar = explode('<>', $l);
             $i++;
-            if (preg_match('<ID: ?([0-9a-zA-Z/.+]{8,11})>', $lar[2], $m)) {
-                $ids[$i] = $m[1];
+            if (preg_match('<(ID: ?| )([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$)>', $lar[2], $m)) {
+                $idp[$i] = $m[1];
+                $ids[$i] = $m[2];
             }
         }
 
+        $this->idp = $idp;
         $this->ids = $ids;
         $this->idcount = array_count_values(array_filter($ids, 'is_string'));
     }

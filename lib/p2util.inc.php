@@ -302,7 +302,7 @@ function p2_realpath($path)
         return realpath($path);
     }
     if (!class_exists('File_Util', false)) {
-        require_once 'File/Util.php';
+        require 'File/Util.php';
     }
     return File_Util::realPath($path);
 }
@@ -422,7 +422,7 @@ function p2_mb_ereg_count($pattern, $string, $option = null)
 function p2_set_filtering_word($word, $method = 'regex')
 {
     if (!class_exists('StrCtl', false)) {
-        require_once P2_LIB_DIR . '/StrCtl.php';
+        require P2_LIB_DIR . '/StrCtl.php';
     }
 
     $word_fm = StrCtl::wordForMatch($word, $method);
@@ -474,7 +474,7 @@ function p2_wakati($str)
 function p2_get_highlighting_regex(array $words)
 {
     if (!class_exists('StrCtl', false)) {
-        require_once P2_LIB_DIR . '/StrCtl.php';
+        require P2_LIB_DIR . '/StrCtl.php';
     }
 
     $featured_words = array_filter($words, '_p2_get_highlighting_regex_filter');

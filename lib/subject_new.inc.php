@@ -157,7 +157,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         if (!isset($subject_txts[$subject_id])) {
             $subject_txts[$subject_id] = array();
             if (!class_exists('SubjectTxt', false)) {
-                require_once P2_LIB_DIR . '/SubjectTxt.php';
+                require P2_LIB_DIR . '/SubjectTxt.php';
             }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 

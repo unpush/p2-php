@@ -72,28 +72,28 @@ class Login
         } else {
             $add_mail = '';
         }
-        if (isset($_REQUEST['form_login_id']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_REQUEST['form_login_id'])) {
+        if (isset($_REQUEST['form_login_id']) && preg_match("/^[0-9A-Za-z_{$add_mail}]+\$/", $_REQUEST['form_login_id'])) {
             $login_user = $this->setdownLoginUserWithRequest();
 
         // GET引数での指定
-        } elseif (isset($_REQUEST['user']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_REQUEST['user'])) {
+        } elseif (isset($_REQUEST['user']) && preg_match("/^[0-9A-Za-z_{$add_mail}]+\$/", $_REQUEST['user'])) {
             $login_user = $_REQUEST['user'];
 
         // Cookieで指定
         } elseif (isset($_COOKIE['cid']) && ($user = $this->getUserFromCid($_COOKIE['cid'])) !== false) {
-            if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $user)) {
+            if (preg_match("/^[0-9A-Za-z_{$add_mail}]+\$/", $user)) {
                 $login_user = $user;
             }
 
         // Sessionで指定
-        } elseif (isset($_SESSION['login_user']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_SESSION['login_user'])) {
+        } elseif (isset($_SESSION['login_user']) && preg_match("/^[0-9A-Za-z_{$add_mail}]+\$/", $_SESSION['login_user'])) {
             $login_user = $_SESSION['login_user'];
 
         /*
         // Basic認証で指定
         } elseif (!empty($_REQUEST['basic'])) {
 
-            if (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_SERVER['PHP_AUTH_USER']))) {
+            if (isset($_SERVER['PHP_AUTH_USER']) && (preg_match("/^[0-9A-Za-z_{$add_mail}]+\$/", $_SERVER['PHP_AUTH_USER']))) {
                 $login_user = $_SERVER['PHP_AUTH_USER'];
 
             } else {
@@ -845,7 +845,7 @@ EOP;
     private function _checkIp($type)
     {
         if (!class_exists('HostCheck', false)) {
-            require_once P2_LIB_DIR . '/HostCheck.php';
+            require P2_LIB_DIR . '/HostCheck.php';
         }
 
         // PHPはクラス・メソッド・関数の大文字小文字を区別しないが...

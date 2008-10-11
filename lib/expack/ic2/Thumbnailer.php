@@ -297,7 +297,10 @@ class IC2_Thumbnailer
             }
         }
 
-        require_once dirname(__FILE__) . '/' . str_replace('_', '/', $convertorClass) . '.php';
+        if (!class_exists($convertorClass, false)) {
+            require dirname(__FILE__) . DIRECTORY_SEPARATOR .
+                    str_replace('_', DIRECTORY_SEPARATOR, $convertorClass) . '.php';
+        }
 
         $convertor = new $convertorClass();
         $convertor->setBgColor($this->bgcolor[0], $this->bgcolor[1], $this->bgcolor[2]);

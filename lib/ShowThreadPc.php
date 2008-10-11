@@ -115,10 +115,14 @@ class ShowThreadPc extends ShowThread
         $resar = $this->thread->explodeDatLine($ares);
         $name = $resar[0];
         $mail = $resar[1];
-        $date_id = $resar[2];
+        if (($id = $this->thread->ids[$i]) !== null) {
+            $idstr = 'ID:' . $id;
+            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $resar[2]);
+        } else {
+            $idstr = null;
+            $date_id = $resar[2];
+        }
         $msg = $resar[3];
-
-        $id = $this->thread->ids[$i];
 
         // {{{ フィルタリング
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
@@ -312,7 +316,7 @@ class ShowThreadPc extends ShowThread
 
         // HTMLポップアップ
         if ($_conf['iframe_popup']) {
-            $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
+            $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()0-9A-Za-z;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframePopupCallback'), $date_id);
         }
 
         // NGメッセージ変換
@@ -403,7 +407,7 @@ EOP;
 
         // IDフィルタ
         if ($_conf['flex_idpopup'] == 1 && $id && $this->thread->idcount[$id] > 1) {
-            $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
+            $date_id = str_replace($idstr, $this->idFilter($idstr, $id), $date_id);
         }
 
         $tores .= $date_id; // 日付とID
@@ -483,12 +487,16 @@ EOJS;
         global $_conf;
 
         $resar = $this->thread->explodeDatLine($ares);
-        $name = $resar[0];
-        $name = $this->transName($name);
-        $msg = $resar[3];
-        $msg = $this->transMsg($msg, $i); // メッセージ変換
+        $name = $this->transName($resar[0]);
         $mail = $resar[1];
-        $date_id = $resar[2];
+        if (($id = $this->thread->ids[$i]) !== null) {
+            $idstr = 'ID:' . $id;
+            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $resar[2]);
+        } else {
+            $idstr = null;
+            $date_id = $resar[2];
+        }
+        $msg = $this->transMsg($resar[3], $i);
 
         $tores = '';
 
@@ -508,18 +516,13 @@ EOJS;
 
         // HTMLポップアップ
         if ($_conf['iframe_popup']) {
-            $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()a-zA-Z0-9;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframe_popup_callback'), $date_id);
+            $date_id = preg_replace_callback("{<a href=\"(http://[-_.!~*()0-9A-Za-z;/?:@&=+\$,%#]+)\"({$_conf['ext_win_target_at']})>((\?#*)|(Lv\.\d+))</a>}", array($this, 'iframePopupCallback'), $date_id);
         }
         //
 
         // IDフィルタ
-        if ($_conf['flex_idpopup'] == 1) {
-            if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,11})|', $date_id, $matches)) {
-                $id = $matches[1];
-                if ($this->thread->idcount[$id] > 1) {
-                    $date_id = preg_replace_callback('|ID: ?([0-9A-Za-z/.+]{8,11})|', array($this, 'idfilter_callback'), $date_id);
-                }
-            }
+        if ($_conf['flex_idpopup'] == 1 && $id && $this->thread->idcount[$id] > 1) {
+            $date_id = str_replace($idstr, $this->idFilter($idstr, $id), $date_id);
         }
 
         $msg_class = 'message';
@@ -578,7 +581,7 @@ EOJS;
         // 数字を引用レスポップアップリンク化
         if ($_conf['quote_res_view']) {
             $name = preg_replace_callback('/^( ?(?:&gt;|＞)* ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                                          array($this, 'quote_res_callback'), $name, 1);
+                                          array($this, 'quoteResCallback'), $name, 1);
         }
 
         if ($trip) {
@@ -669,23 +672,66 @@ EOP;
     }
 
     // }}}
-    // {{{ コールバックメソッド
-    // {{{ quote_res_callback()
+    // {{{ idFilter()
+
+    /**
+     * IDフィルタリングポップアップ変換
+     *
+     * @param   string  $idstr  ID:xxxxxxxxxx
+     * @param   string  $id        xxxxxxxxxx
+     * @return  string
+     */
+    public function idFilter($idstr, $id)
+    {
+        global $_conf;
+
+        // IDは8桁または10桁(+携帯/PC識別子)と仮定して
+        /*
+        if (strlen($id) % 2 == 1) {
+            $id = substr($id, 0, -1);
+        }
+        */
+        $num_ht = '';
+        if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
+            $num = (string) $this->thread->idcount[$id];
+            if ($_conf['iframe_popup'] == 3) {
+                $num_ht = ' <img src="img/ida.png" width="2" height="12" alt="">';
+                $num_ht .= preg_replace('/\\d/', '<img src="img/id\\0.png" height="12" alt="">', $num);
+                $num_ht .= '<img src="img/idz.png" width="2" height="12" alt=""> ';
+            } else {
+                $num_ht = '('.$num.')';
+            }
+        } else {
+            return $idstr;
+        }
+
+        $word = rawurlencode($id);
+        $filter_url = "{$_conf['read_php']}?bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;host={$this->thread->host}&amp;ls=all&amp;field=id&amp;word={$word}&amp;method=just&amp;match=on&amp;idpopup=1&amp;offline=1";
+
+        if ($_conf['iframe_popup']) {
+            return $this->iframePopup($filter_url, $idstr, $_conf['bbs_win_target_at']) . $num_ht;
+        }
+        return "<a href=\"{$filter_url}\"{$_conf['bbs_win_target_at']}>{$idstr}</a>{$num_ht}";
+    }
+
+    // }}}
+    // {{{ quoteRes()
 
     /**
      * 引用変換（単独）
      *
-     * @param array $s
-     * @return string
+     * @param   string  $full           >>1-100
+     * @param   string  $qsign          >>
+     * @param   string  $appointed_num    1-100
+     * @return  string
      */
-    public function quote_res_callback(array $s)
+    public function quoteRes($full, $qsign, $appointed_num)
     {
         global $_conf;
 
-        list($full, $qsign, $appointed_num) = $s;
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum > sizeof($this->thread->datlines)) {
-            return $s[0];
+            return $full;
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
@@ -703,28 +749,29 @@ EOP;
     }
 
     // }}}
-    // {{{ quote_res_range_callback()
+    // {{{ quoteResRange()
 
     /**
      * 引用変換（範囲）
      *
-     * @param array $s
-     * @return string
+     * @param   string  $full           >>1-100
+     * @param   string  $qsign          >>
+     * @param   string  $appointed_num    1-100
+     * @return  string
      */
-    public function quote_res_range_callback(array $s)
+    public function quoteResRange($full, $qsign, $appointed_num)
     {
         global $_conf;
 
-        list($full, $qsign, $appointed_num) = $s;
         if ($appointed_num == '-') {
-            return $s[0];
+            return $full;
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}n";
 
         if ($_conf['iframe_popup']) {
             $pop_url = $read_url . "&amp;renzokupop=true";
-            return $this->iframe_popup(array($read_url, $pop_url), $full, $_conf['bbs_win_target_at'], 1);
+            return $this->iframePopup(array($read_url, $pop_url), $full, $_conf['bbs_win_target_at'], 1);
         }
 
         // 普通にリンク
@@ -733,7 +780,7 @@ EOP;
         // 1つ目を引用レスポップアップ
         /*
         $qnums = explode('-', $appointed_num);
-        $qlink = $this->quote_res_callback(array($qsign.$qnum[0], $qsign, $qnum[0])) . '-';
+        $qlink = $this->quoteRes($qsign . $qnum[0], $qsign, $qnum[0]) . '-';
         if (isset($qnums[1])) {
             $qlink .= $qnums[1];
         }
@@ -742,29 +789,18 @@ EOP;
     }
 
     // }}}
-    // {{{ iframe_popup_callback()
-
-    /**
-     * HTMLポップアップ変換（コールバック用インターフェース）
-     *
-     * @return string
-     */
-    public function iframe_popup_callback($s)
-    {
-        return $this->iframe_popup(htmlspecialchars($s[1], ENT_QUOTES, 'Shift_JIS', false),
-                                   htmlspecialchars($s[3], ENT_QUOTES, 'Shift_JIS', false),
-                                   $s[2]);
-    }
-
-    // }}}
-    // {{{ iframe_popup()
+    // {{{ iframePopup()
 
     /**
      * HTMLポップアップ変換
      *
-     * @return string
+     * @param   string|array    $url
+     * @param   string|array    $str
+     * @param   string          $attr
+     * @param   int|null        $mode
+     * @return  string
      */
-    public function iframe_popup($url, $str, $attr = '', $mode = NULL)
+    public function iframePopup($url, $str, $attr = '', $mode = null)
     {
         global $_conf;
 
@@ -783,7 +819,7 @@ EOP;
             $pop_str = $str[1];
         } else {
             $link_str = $str;
-            $pop_str = NULL;
+            $pop_str = null;
         }
 
         // リンクの属性
@@ -831,64 +867,37 @@ EOP;
 
         // リンク作成
         switch ($mode) {
-            // マーク無し
-            case 1:
-                return "<a href=\"{$link_url}\"{$pop_attr}>{$link_str}</a>";
-            // (p)マーク
-            case 2:
-                return "(<a href=\"{$link_url}\"{$pop_attr}>p</a>)<a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
-            // [p]画像、サムネイルなど
-            case 3:
-                return "<a href=\"{$link_url}\"{$pop_attr}>{$pop_str}</a><a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
-            // ポップアップしない
-            default:
-                return "<a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
+        // マーク無し
+        case 1:
+            return "<a href=\"{$link_url}\"{$pop_attr}>{$link_str}</a>";
+        // (p)マーク
+        case 2:
+            return "(<a href=\"{$link_url}\"{$pop_attr}>p</a>)<a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
+        // [p]画像、サムネイルなど
+        case 3:
+            return "<a href=\"{$link_url}\"{$pop_attr}>{$pop_str}</a><a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
+        // ポップアップしない
+        default:
+            return "<a href=\"{$link_url}\"{$attr}>{$link_str}</a>";
         }
     }
 
     // }}}
-    // {{{ idfilter_callback()
+    // {{{ iframePopupCallback()
 
     /**
-     * IDフィルタリングポップアップ変換
+     * HTMLポップアップ変換（コールバック用インターフェース）
      *
-     * @return string
+     * @param   array   $s  正規表現にマッチした要素の配列
+     * @return  string
      */
-    public function idfilter_callback($s)
+    public function iframePopupCallback($s)
     {
-        global $_conf;
-
-        list($idstr, $id) = $s;
-        // IDは8桁または10桁(+携帯/PC識別子)と仮定して
-        /*
-        if (strlen($id) % 2 == 1) {
-            $id = substr($id, 0, -1);
-        }
-        */
-        $num_ht = '';
-        if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $num = (string) $this->thread->idcount[$id];
-            if ($_conf['iframe_popup'] == 3) {
-                $num_ht = ' <img src="img/ida.png" width="2" height="12" alt="">';
-                $num_ht .= preg_replace('/\\d/', '<img src="img/id\\0.png" height="12" alt="">', $num);
-                $num_ht .= '<img src="img/idz.png" width="2" height="12" alt=""> ';
-            } else {
-                $num_ht = '('.$num.')';
-            }
-        } else {
-            return $idstr;
-        }
-
-        $word = rawurlencode($id);
-        $filter_url = "{$_conf['read_php']}?bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;host={$this->thread->host}&amp;ls=all&amp;field=id&amp;word={$word}&amp;method=just&amp;match=on&amp;idpopup=1&amp;offline=1";
-
-        if ($_conf['iframe_popup']) {
-            return $this->iframe_popup($filter_url, $idstr, $_conf['bbs_win_target_at']) . $num_ht;
-        }
-        return "<a href=\"{$filter_url}\"{$_conf['bbs_win_target_at']}>{$idstr}</a>{$num_ht}";
+        return $this->iframePopup(htmlspecialchars($s[1], ENT_QUOTES, 'Shift_JIS', false),
+                                  htmlspecialchars($s[3], ENT_QUOTES, 'Shift_JIS', false),
+                                  $s[2]);
     }
 
-    // }}}
     // }}}
     // {{{ ユーティリティメソッド
     // {{{ checkQuoteResNums()
@@ -980,12 +989,12 @@ EOP;
     }
 
     // }}}
-    // {{{ imageHtmpPopup()
+    // {{{ imageHtmlPopup()
 
     /**
      * 画像をHTMLポップアップ&ポップアップウインドウサイズに合わせる
      */
-    public function imageHtmpPopup($img_url, $img_tag, $link_str)
+    public function imageHtmlPopup($img_url, $img_tag, $link_str)
     {
         global $_conf;
 
@@ -997,16 +1006,16 @@ EOP;
         }
 
         $pops = ($_conf['iframe_popup'] == 1) ? $img_tag . $link_str : array($link_str, $img_tag);
-        return $this->iframe_popup(array($img_url, $popup_url), $pops, $_conf['ext_win_target_at']);
+        return $this->iframePopup(array($img_url, $popup_url), $pops, $_conf['ext_win_target_at']);
     }
 
     // }}}
-    // {{{ respop_to_async()
+    // {{{ respopToAsync()
 
     /**
      * レスポップアップを非同期モードに加工する
      */
-    public function respop_to_async($str)
+    public function respopToAsync($str)
     {
         $respop_regex = '/(onmouseover)=\"(showResPopUp\(\'(q(\d+)of\d+)\',event\).*?)\"/';
         $respop_replace = '$1="loadResPopUp(' . $this->asyncObjName . ', $4);$2"';
@@ -1121,10 +1130,10 @@ EOJS;
 
     // }}}
     // }}}
-    // {{{ link_callback()から呼び出されるURL書き換えメソッド
+    // {{{ transLinkDo()から呼び出されるURL書き換えメソッド
     /**
      * これらのメソッドは引数が処理対象パターンに合致しないとFALSEを返し、
-     * link_callback()はFALSEが返ってくると$_url_handlersに登録されている次の関数/メソッドに処理させようとする。
+     * transLinkDo()はFALSEが返ってくると$_url_handlersに登録されている次の関数/メソッドに処理させようとする。
      */
     // {{{ plugin_linkURL()
 
@@ -1160,7 +1169,7 @@ EOJS;
                 } else {
                     $pop_url = $link_url;
                 }
-                $link = $this->iframe_popup(array($link_url, $pop_url), $str, $_conf['ext_win_target_at']);
+                $link = $this->iframePopup(array($link_url, $pop_url), $str, $_conf['ext_win_target_at']);
             } else {
                 $link = "<a href=\"{$link_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
             }
@@ -1194,7 +1203,7 @@ EOJS;
                         $check_mark_prefix = '';
                         $check_mark_suffix = '';
                     }
-                    $brocra_checker_link = $this->iframe_popup(array($brocra_checker_url, $brocra_pop_url), $check_mark, $_conf['ext_win_target_at']);
+                    $brocra_checker_link = $this->iframePopup(array($brocra_checker_url, $brocra_pop_url), $check_mark, $_conf['ext_win_target_at']);
                 } else {
                     $brocra_checker_link = "<a href=\"{$brocra_checker_url}\"{$_conf['ext_win_target_at']}>{$check_mark}</a>";
                 }
@@ -1254,7 +1263,7 @@ EOJS;
                 } else {
                     $pop_url = $read_url . '&amp;one=true';
                 }
-                return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
+                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
         }
@@ -1280,7 +1289,7 @@ EOJS;
             $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
             if ($_conf['iframe_popup']) {
                 $pop_url = $read_url . '&amp;one=true';
-                return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
+                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
         }
@@ -1309,7 +1318,7 @@ EOJS;
             }
             if ($_conf['iframe_popup']) {
                 $pop_url = $url;
-                return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
+                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
         }
@@ -1335,7 +1344,7 @@ EOJS;
             $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&amp;bbs={$m[3]}&amp;key={$m[4]}&amp;ls={$m[5]}";
             if ($_conf['iframe_popup']) {
                 $pop_url = $url;
-                return $this->iframe_popup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
+                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
             return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
         }
@@ -1360,7 +1369,7 @@ EOJS;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $url, $m)) {
             // ime
             if ($_conf['through_ime']) {
                 $link_url = P2Util::throughIme($url);
@@ -1370,7 +1379,7 @@ EOJS;
 
             // HTMLポップアップ
             if ($_conf['iframe_popup']) {
-                $link = $this->iframe_popup($link_url, $str, $_conf['ext_win_target_at']);
+                $link = $this->iframePopup($link_url, $str, $_conf['ext_win_target_at']);
             } else {
                 $link = "<a href=\"{$link_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
             }
@@ -1408,7 +1417,7 @@ EOP;
 
         // http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
         // http://www.nicovideo.jp/watch/utvWwAM30N0No
-        if (preg_match('{^http://(?:www\\.)?nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(?:www\\.)?nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9A-Za-z_\\-]+)}', $url, $m)) {
             // ime
             if ($_conf['through_ime']) {
                 $link_url = P2Util::throughIme($url);
@@ -1418,7 +1427,7 @@ EOP;
 
             // HTMLポップアップ
             if ($_conf['iframe_popup']) {
-                $link = $this->iframe_popup($link_url, $str, $_conf['ext_win_target_at']);
+                $link = $this->iframePopup($link_url, $str, $_conf['ext_win_target_at']);
             } else {
                 $link = "<a href=\"{$link_url}\"{$_conf['ext_win_target_at']}>{$str}</a>";
             }
@@ -1468,7 +1477,7 @@ EOP;
             $img_tag = "<img class=\"thumbnail\" src=\"{$url}\" height=\"{$_conf['pre_thumb_height']}\" weight=\"{$_conf['pre_thumb_width']}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
 
             if ($_conf['iframe_popup']) {
-                $view_img = $this->imageHtmpPopup($url, $img_tag, $str);
+                $view_img = $this->imageHtmlPopup($url, $img_tag, $str);
             } else {
                 $view_img = "<a href=\"{$url}\"{$_conf['ext_win_target_at']}>{$img_tag}{$str}</a>";
             }
@@ -1521,7 +1530,7 @@ EOP;
             $thumb_id = 'thumbs' . $serial . $this->thumb_id_suffix;
             $tmp_thumb = './img/ic_load.png';
             $url_ht = $url;
-            $url = str_replace('&amp', '&', $url);
+            $url = str_replace('&amp;', '&', $url);
             $url_en = rawurlencode($url);
 
             $icdb = new IC2_DataObject_Images;
@@ -1614,7 +1623,7 @@ EOP;
             if ($show_thumb) {
                 $img_tag = "<img class=\"thumbnail\" src=\"{$thumb_url}\" {$thumb_size} hspace=\"4\" vspace=\"4\" align=\"middle\">";
                 if ($_conf['iframe_popup']) {
-                    $view_img = $this->imageHtmpPopup($img_url, $img_tag, $str);
+                    $view_img = $this->imageHtmlPopup($img_url, $img_tag, $str);
                 } else {
                     $view_img = "<a href=\"{$img_url}\"{$_conf['ext_win_target_at']}>{$img_tag}{$str}</a>";
                 }

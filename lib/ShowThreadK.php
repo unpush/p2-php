@@ -74,7 +74,7 @@ class ShowThreadK extends ShowThread
         $this->BBS_NONAME_NAME = null;
         if (!$_conf['mobile.bbs_noname_name']) {
             if (!class_exists('SettingTxt', false)) {
-                require_once P2_LIB_DIR . '/SettingTxt.php';
+                require P2_LIB_DIR . '/SettingTxt.php';
             }
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             $st->setSettingArray();
@@ -160,10 +160,14 @@ class ShowThreadK extends ShowThread
         $resar = $this->thread->explodeDatLine($ares);
         $name = $resar[0];
         $mail = $resar[1];
-        $date_id = str_replace('ID: ', 'ID:', $resar[2]);
+        if (($id = $this->thread->ids[$i]) !== null) {
+            $idstr = 'ID:' . $id;
+            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $resar[2]);
+        } else {
+            $idstr = null;
+            $date_id = $resar[2];
+        }
         $msg = $resar[3];
-
-        $id = $this->thread->ids[$i];
 
         // デフォルトの名前と同じなら省略
         if ($name === $this->BBS_NONAME_NAME) {
@@ -344,10 +348,9 @@ class ShowThreadK extends ShowThread
 
         // ID
         if ($id !== null) {
-            $id_id = 'ID:' . $id;
             $id_suffix = substr($id, -1);
 
-            if ($_conf['mobile.underline_id'] && strlen($id) % 2 && $id_suffix == 'O') {
+            if ($_conf['mobile.underline_id'] && $id_suffix == 'O' && strlen($id) % 2) {
                 $do_underline_id_suffix = true;
             } else {
                 $do_underline_id_suffix = false;
@@ -355,21 +358,21 @@ class ShowThreadK extends ShowThread
 
             if ($this->thread->idcount[$id] > 1) {
                 if ($_conf['flex_idpopup'] == 1) {
-                    $date_id = str_replace($id_id, $this->idfilter_callback(array($id_id, $id)), $date_id);
+                    $date_id = str_replace($idstr, $this->idFilter($idstr, $id), $date_id);
                 }
                 if ($do_underline_id_suffix) {
-                    $date_id = str_replace($id_id, substr($id_id, 0, -1) . '<u>O</u>', $date_id);
+                    $date_id = str_replace($idstr, substr($idstr, 0, -1) . '<u>' . $id_suffix . '</u>', $date_id);
                 }
             } else {
                 if ($_conf['mobile.clip_unique_id']) {
                     if ($do_underline_id_suffix) {
-                        $date_id = str_replace($id_id, 'ID:*<u>O</u>', $date_id);
+                        $date_id = str_replace($idstr, 'ID:*<u>' . $id_suffix . '</u>', $date_id);
                     } else {
-                        $date_id = str_replace($id_id, 'ID:*' . $id_suffix, $date_id);
+                        $date_id = str_replace($idstr, 'ID:*' . $id_suffix, $date_id);
                     }
                 } else {
                     if ($do_underline_id_suffix) {
-                        $date_id = str_replace($id_id, substr($id_id, 0, -1) . '<u>O</u>', $date_id);
+                        $date_id = str_replace($idstr, substr($idstr, 0, -1) . '<u>' . $id_suffix . '</u>', $date_id);
                     }
                 }
             }
@@ -547,7 +550,7 @@ EOP;
 
         // 数字を引用レスポップアップリンク化
         $name = preg_replace_callback('/^( ?(?:&gt;|＞)* ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                                      array($this, 'quote_res_callback'), $name, 1);
+                                      array($this, 'quoteResCallback'), $name, 1);
 
         if ($trip) {
             $name .= $trip;
@@ -601,7 +604,7 @@ EOP;
             $msg = preg_replace('/ *<[^>]*$/', '', $msg);
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
-            $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quote_res_callback'), $msg);
+            $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quoteResCallback'), $msg);
 
             $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>略</a>";
             return $msg;
@@ -726,135 +729,20 @@ EOP;
     }
 
     // }}}
-    // {{{ コールバックメソッド
-    // {{{ ktai_exturl_callback()
-
-    /**
-     * ■携帯用外部URL変換
-     */
-    public function ktai_exturl_callback($s)
-    {
-        global $_conf;
-
-        $in_url = $s[1];
-
-        // 通勤ブラウザ
-        $tsukin_link = '';
-        if ($_conf['mobile.use_tsukin']) {
-            $tsukin_url = 'http://www.sjk.co.jp/c/w.exe?y=' . rawurlencode($in_url);
-            if ($_conf['through_ime']) {
-                $tsukin_url = P2Util::throughIme($tsukin_url);
-            }
-            $tsukin_link = '<a href="'.$tsukin_url.'">通</a>';
-        }
-
-        // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
-        $jig_link = '';
-        /*
-        $jig_url = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . rawurlencode($in_url);
-        if ($_conf['through_ime']) {
-            $jig_url = P2Util::throughIme($jig_url);
-        }
-        $jig_link = '<a href="'.$jig_url.'">j</a>';
-        */
-
-        $sepa = '';
-        if ($tsukin_link && $jig_link) {
-            $sepa = '|';
-        }
-
-        $ext_pre = '';
-        if ($tsukin_link || $jig_link) {
-            $ext_pre = '('.$tsukin_link.$sepa.$jig_link.')';
-        }
-
-        if ($_conf['through_ime']) {
-            $in_url = P2Util::throughIme($in_url);
-        }
-        $r = $ext_pre.'<a href="' . $in_url . '">' . $s[2] . '</a>';
-
-        return $r;
-    }
-
-    // }}}
-    // {{{ quote_res_callback()
-
-    /**
-     * 引用変換（単独）
-     *
-     * @param array $s
-     * @return string
-     */
-    public function quote_res_callback(array $s)
-    {
-        global $_conf;
-
-        list($full, $qsign, $appointed_num) = $s;
-        if ($appointed_num == '-') {
-            return $s[0];
-        }
-        $qnum = intval($appointed_num);
-        if ($qnum < 1 || $qnum > $this->thread->rescount) {
-            return $s[0];
-        }
-
-        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$qsign}{$appointed_num}</a>";
-    }
-
-    // }}}
-    // {{{ quote_res_range_callback()
-
-    /**
-     * 引用変換（範囲）
-     *
-     * @param array $s
-     * @return string
-     */
-    public function quote_res_range_callback(array $s)
-    {
-        global $_conf;
-
-        list($full, $qsign, $appointed_num) = $s;
-        if ($appointed_num == '-') {
-            return $s[0];
-        }
-
-        list($from, $to) = explode('-', $appointed_num);
-        if (!$from) {
-            $from = 1;
-        } elseif ($from < 1 || $from > $this->thread->rescount) {
-            return $s[0];
-        }
-        // read.phpで表示範囲を判定するので冗長ではある
-        if (!$to) {
-            $to = min($from + $_conf['mobile.rnum_range'] - 1, $this->thread->rescount);
-        } else {
-            $to = min($to, $from + $_conf['mobile.rnum_range'] - 1, $this->thread->rescount);
-        }
-
-        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$from}-{$to}";
-
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$qsign}{$appointed_num}</a>";
-    }
-
-    // }}}
-    // {{{ idfilter_callback()
+    // {{{ idFilter()
 
     /**
      * IDフィルタリングリンク変換
      *
-     * @param   array   $s  正規表現にマッチした要素の配列
+     * @param   string  $idstr  ID:xxxxxxxxxx
+     * @param   string  $id        xxxxxxxxxx
      * @return  string
-     * @access  public
      */
-    public function idfilter_callback($s)
+    public function idFilter($idstr, $id)
     {
         global $_conf;
 
-        $idstr = $s[0]; // ID:xxxxxxxxxx
-        $id = $s[1];    // xxxxxxxxxx
-        $idflag = '';   // 携帯/PC識別子
+        //$idflag = '';   // 携帯/PC識別子
         // IDは8桁または10桁(+携帯/PC識別子)と仮定して
         /*
         if (strlen($id) % 2 == 1) {
@@ -877,11 +765,135 @@ EOP;
     }
 
     // }}}
+    // {{{ quoteRes()
+
+    /**
+     * 引用変換（単独）
+     *
+     * @param   string  $full           >>1-100
+     * @param   string  $qsign          >>
+     * @param   string  $appointed_num    1-100
+     * @return string
+     */
+    public function quoteRes($full, $qsign, $appointed_num)
+    {
+        global $_conf;
+
+        if ($appointed_num == '-') {
+            return $full;
+        }
+        $qnum = intval($appointed_num);
+        if ($qnum < 1 || $qnum > $this->thread->rescount) {
+            return $full;
+        }
+
+        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$qsign}{$appointed_num}</a>";
+    }
+
     // }}}
-    // {{{ link_callback()から呼び出されるURL書き換えメソッド
+    // {{{ quoteResRange()
+
+    /**
+     * 引用変換（範囲）
+     *
+     * @param   string  $full           >>1-100
+     * @param   string  $qsign          >>
+     * @param   string  $appointed_num    1-100
+     * @return string
+     */
+    public function quoteResRange($full, $qsign, $appointed_num)
+    {
+        global $_conf;
+
+        if ($appointed_num == '-') {
+            return $full;
+        }
+
+        list($from, $to) = explode('-', $appointed_num);
+        if (!$from) {
+            $from = 1;
+        } elseif ($from < 1 || $from > $this->thread->rescount) {
+            return $full;
+        }
+        // read.phpで表示範囲を判定するので冗長ではある
+        if (!$to) {
+            $to = min($from + $_conf['mobile.rnum_range'] - 1, $this->thread->rescount);
+        } else {
+            $to = min($to, $from + $_conf['mobile.rnum_range'] - 1, $this->thread->rescount);
+        }
+
+        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$from}-{$to}";
+
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$qsign}{$appointed_num}</a>";
+    }
+
+    // }}}
+    // {{{ ktaiExtUrl()
+
+    /**
+     * 携帯用外部URL変換
+     *
+     * @param   string  $full
+     * @param   string  $url
+     * @param   string  $str
+     * @return  string
+     */
+    public function ktaiExtUrl($full, $url, $str)
+    {
+        global $_conf;
+
+        // 通勤ブラウザ
+        $tsukin_link = '';
+        if ($_conf['mobile.use_tsukin']) {
+            $tsukin_url = 'http://www.sjk.co.jp/c/w.exe?y=' . rawurlencode($url);
+            if ($_conf['through_ime']) {
+                $tsukin_url = P2Util::throughIme($tsukin_url);
+            }
+            $tsukin_link = '<a href="' . $tsukin_url . '">通</a>';
+        }
+
+        // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
+        $jig_link = '';
+        /*
+        $jig_url = 'http://bwXXXX.jig.jp/fweb/?_jig_=' . rawurlencode($url);
+        if ($_conf['through_ime']) {
+            $jig_url = P2Util::throughIme($jig_url);
+        }
+        $jig_link = '<a href="'.$jig_url.'">j</a>';
+        */
+
+        if ($tsukin_link || $jig_link) {
+            $ext_pre = '(' . $tsukin_link . (($tsukin_link && $jig_link) ? '|' : '') . $jig_link . ')';
+        } else {
+            $ext_pre = '';
+        }
+
+        if ($_conf['through_ime']) {
+            $url = P2Util::throughIme($url);
+        }
+        return $ext_pre . '<a href="' . $url . '">' . $str . '</a>';
+    }
+
+    // }}}
+    // {{{ ktaiExtUrlCallback()
+
+    /**
+     * 携帯用外部URL変換
+     *
+     * @param   array   $s  正規表現にマッチした要素の配列
+     * @return  string
+     */
+    public function ktaiExtUrlCallback(array $s)
+    {
+        return $this->ktaiExtUrl($s[0], $s[1], $s[2]);
+    }
+
+    // }}}
+    // {{{ transLinkDo()から呼び出されるURL書き換えメソッド
     /**
      * これらのメソッドは引数が処理対象パターンに合致しないとFALSEを返し、
-     * link_callback()はFALSEが返ってくると$_url_handlersに登録されている次の関数/メソッドに処理させようとする。
+     * transLinkDo()はFALSEが返ってくると$_url_handlersに登録されている次の関数/メソッドに処理させようとする。
      */
     // {{{ plugin_linkURL()
 
@@ -895,7 +907,7 @@ EOP;
         if (isset($purl['scheme'])) {
             // 携帯用外部URL変換
             if ($_conf['mobile.use_tsukin']) {
-                return $this->ktai_exturl_callback(array('', $url, $str));
+                return $this->ktaiExtUrl('', $url, $str);
             }
             // ime
             if ($_conf['through_ime']) {
@@ -1017,7 +1029,7 @@ EOP;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $url, $m)) {
             $subd = $m[1];
             $id = $m[2];
 
