@@ -51,14 +51,14 @@ function p2GetRSS($remotefile, $atom=0)
     if (!file_exists($localpath) || $refresh ||
         filemtime($localpath) < (time() - $_conf['expack.rss.check_interval'] * 60)
     ) {
-        $dl = &P2Util::fileDownload($remotefile, $localpath);
-        if ($dl->is_success()) {
+        $dl = P2Util::fileDownload($remotefile, $localpath);
+        if ($dl->isSuccess()) {
             chmod($localpath, $_conf['expack.rss.setting_perm']);
         }
     }
 
     // キャッシュが更新されなかったか、ダウンロード成功ならRSSをパース
-    if (file_exists($localpath) && (!isset($dl) || $dl->is_success())) {
+    if (file_exists($localpath) && (!isset($dl) || $dl->isSuccess())) {
         if ($atom) {
             $atom = (isset($dl) && $dl->code == 200) ? 2 : 1;
         }

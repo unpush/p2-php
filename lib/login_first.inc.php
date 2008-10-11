@@ -164,16 +164,16 @@ EOP;
         $add_mail = '';
     }
 
-    if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_login->user_u)) {
+    if (preg_match("/^[0-9A-Za-z_{$add_mail}]+\$/", $_login->user_u)) {
         $hd['form_login_id'] = htmlspecialchars($_login->user_u, ENT_QUOTES);
-    } elseif (!empty($_POST['form_login_id']) && preg_match("/^[0-9a-zA-Z_{$add_mail}]+\$/", $_POST['form_login_id'])) {
+    } elseif (!empty($_POST['form_login_id']) && preg_match("/^[0-9A-Za-z_{$add_mail}]+\$/", $_POST['form_login_id'])) {
         $hd['form_login_id'] = htmlspecialchars($_POST['form_login_id'], ENT_QUOTES);
     } else {
         $hd['form_login_id'] = '';
     }
 
 
-    if (!empty($_POST['form_login_pass']) && preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
+    if (!empty($_POST['form_login_pass']) && preg_match('/^[0-9A-Za-z_]+$/', $_POST['form_login_pass'])) {
         $hd['form_login_pass'] = htmlspecialchars($_POST['form_login_pass'], ENT_QUOTES);
     } else {
         $hd['form_login_pass'] = '';
@@ -258,7 +258,7 @@ EOP;
 
         // {{{ 入力エラーをチェック、判定
 
-        if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
+        if (!preg_match('/^[0-9A-Za-z_]+$/', $_POST['form_login_id']) || !preg_match('/^[0-9A-Za-z_]+$/', $_POST['form_login_pass'])) {
             $_info_msg_ht .= "<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>";
             $show_login_form_flag = true;
 

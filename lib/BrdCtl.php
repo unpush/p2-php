@@ -97,7 +97,7 @@ class BrdCtl
             } else {
                 //echo "DL!<br>";//
                 $brdfile_online_res = P2Util::fileDownload($_conf['brdfile_online'], $cachefile);
-                if ($brdfile_online_res->is_success() && $brdfile_online_res->code != '304') {
+                if ($brdfile_online_res->isSuccess() && $brdfile_online_res->code != 304) {
                     $isNewDL = true;
                 }
             }

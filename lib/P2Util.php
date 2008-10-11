@@ -75,10 +75,12 @@ class P2Util
         }
 
         // DL
-        require_once P2_LIB_DIR . '/Wap.php';
-        $wap_ua = new UserAgent();
+        if (!class_exists('WapRequest', false)) {
+            require P2_LIB_DIR . '/Wap.php';
+        }
+        $wap_ua = new WapUserAgent();
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req = new Request();
+        $wap_req = new WapRequest();
         $wap_req->setUrl($url);
         $wap_req->setModified($modified);
         if ($_conf['proxy_use']) {
@@ -86,14 +88,14 @@ class P2Util
         }
         $wap_res = $wap_ua->request($wap_req);
 
-        if ($wap_res->is_error() && $disp_error) {
+        if ($wap_res->isError() && $disp_error) {
             $url_t = self::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
         }
 
         // 更新されていたら
-        if ($wap_res->is_success() && $wap_res->code != "304") {
+        if ($wap_res->isSuccess() && $wap_res->code != 304) {
             if (FileCtl::file_write_contents($localfile, $wap_res->content) === false) {
                 p2die('cannot write file.');
             }
@@ -1365,7 +1367,7 @@ ERR;
     static public function getWebPage($url, &$error_msg, $timeout = 15)
     {
         if (!class_exists('HTTP_Request', false)) {
-            require_once 'HTTP/Request.php';
+            require 'HTTP/Request.php';
         }
 
         $params = array("timeout" => $timeout);
@@ -1426,6 +1428,68 @@ ERR;
     static public function printSimpleHtml($body)
     {
         echo "<html><body>{$body}</body></html>";
+    }
+
+    // }}}
+    // {{{ pushInfoHtml()
+
+    /**
+     * 2006/11/24 $_info_msg_ht を直接扱うのはやめてこのメソッドを通す方向で
+     *
+     * @return  void
+     */
+    static public function pushInfoHtml($html)
+    {
+        global $_info_msg_ht;
+
+        if (!isset($_info_msg_ht)) {
+            $_info_msg_ht = $html;
+        } else {
+            $_info_msg_ht .= $html;
+        }
+    }
+
+    // }}}
+    // {{{ printInfoHtml()
+
+    /**
+     * @return  void
+     */
+    static public function printInfoHtml()
+    {
+        global $_info_msg_ht, $_conf;
+
+        if (!isset($_info_msg_ht)) {
+            return;
+        }
+
+        if ($_conf['ktai'] && $_conf['k_save_packet']) {
+            echo mb_convert_kana($_info_msg_ht, 'rnsk');
+        } else {
+            echo $_info_msg_ht;
+        }
+
+        $_info_msg_ht = '';
+    }
+
+    // }}}
+    // {{{ getInfoHtml()
+
+    /**
+     * @return  string|null
+     */
+    static public function getInfoHtml()
+    {
+        global $_info_msg_ht;
+
+        if (!isset($_info_msg_ht)) {
+            return null;
+        }
+
+        $info_msg_ht = $_info_msg_ht;
+        $_info_msg_ht = '';
+
+        return $info_msg_ht;
     }
 
     // }}}

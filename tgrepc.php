@@ -10,6 +10,9 @@
 define('P2_OUTPUT_XHTML', 1);
 
 require_once './conf/conf.inc.php';
+require_once 'Cache/Lite.php';
+require_once 'HTTP/Client.php';
+require_once 'Pager/Pager.php';
 
 $_login->authorize();
 
@@ -37,9 +40,6 @@ if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
 
 $query_params = array();
 if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
-    require_once 'Cache/Lite.php';
-    require_once 'HTTP/Client.php';
-
     $query_params['q'] = $_GET['Q'];
     $query_params['n'] = $limit = ($_conf['ktai'] || $_conf['iphone']) ? '25' : '100';
     //$query_keys = array('s', 'b', 'c', 'o', 'n', 'p');
@@ -266,7 +266,6 @@ MOBILE_STYLE;
 
 // ƒy[ƒWƒƒ
 if (!$is_ajax && $subhits && $subhits > $limit) {
-    require_once 'Pager/Pager.php';
     $pager_options = array();
     $pager_options = array(
         'mode'          => 'Sliding',

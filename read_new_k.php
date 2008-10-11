@@ -288,7 +288,7 @@ for ($x = 0; $x < $linesize; $x++) {
         // subject.txt‚ª–¢DL‚È‚ç—Ž‚Æ‚µ‚Äƒf[ƒ^‚ð”z—ñ‚ÉŠi”[
         if (empty($subject_txts[$subject_id])) {
             if (!class_exists('SubjectTxt', false)) {
-                require_once P2_LIB_DIR . '/SubjectTxt.php';
+                require P2_LIB_DIR . '/SubjectTxt.php';
             }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 

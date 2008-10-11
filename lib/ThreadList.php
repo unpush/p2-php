@@ -383,7 +383,7 @@ class ThreadList
 
         if ($cmp) {
             if (!function_exists($cmp)) {
-                require_once P2_LIB_DIR . '/sort_threadlist.inc.php';
+                require P2_LIB_DIR . '/sort_threadlist.inc.php';
             }
             if ($do_benchmark) {
                 $before = microtime(true);

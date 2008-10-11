@@ -42,7 +42,7 @@ $p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_b
 if (isset($_POST['form_login_pass'])) {
 
     // 入力チェック
-    if (!preg_match('/^[0-9a-zA-Z_]+$/', $_POST['form_login_pass'])) {
+    if (!preg_match('/^[0-9A-Za-z_]+$/', $_POST['form_login_pass'])) {
         $_info_msg_ht .= "<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>";
 
     // パスワード変更登録処理を行う

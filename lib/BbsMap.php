@@ -299,7 +299,7 @@ class BbsMap
         // {{{ メニューをダウンロード
 
         if (!class_exists('HTTP_Request', false)) {
-            require_once 'HTTP/Request.php';
+            require 'HTTP/Request.php';
         }
 
         $params = array();

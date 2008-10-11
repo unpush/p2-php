@@ -5,7 +5,7 @@
 
 require_once P2_LIB_DIR . '/ThreadList.php';
 
-// {{{ 新着ソート: cmp_midoku(), multi_cmp_midoku()
+// {{{ 新着ソート
 
 /**
  * 新着ソート (usortのコールバック関数)
@@ -54,7 +54,7 @@ function multi_cmp_midoku(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ レス数ソート: cmp_res(), multi_cmp_res()
+// {{{ レス数ソート
 
 /**
  * レス数ソート (usortのコールバック関数)
@@ -96,7 +96,7 @@ function multi_cmp_res(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ タイトルソート: cmp_title(), multi_cmp_title()
+// {{{ タイトルソート
 
 /**
  * タイトルソート (usortのコールバック関数)
@@ -145,7 +145,7 @@ function multi_cmp_title(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ 板ソート: cmp_ita(), multi_cmp_ita()
+// {{{ 板ソート
 
 /**
  * 板ソート (usortのコールバック関数)
@@ -194,7 +194,7 @@ function multi_cmp_ita(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ お気にソート: cmp_fav(), multi_cmp_fav()
+// {{{ お気にソート
 
 /**
  * お気にソート (usortのコールバック関数)
@@ -236,7 +236,7 @@ function multi_cmp_fav(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ 新着レス優先の勢いソート: cmp_dayres_midoku(), multi_cmp_dayres_midoku()
+// {{{ 新着レス優先の勢いソート
 
 /**
  * 新着レス優先の勢いソート (usortのコールバック関数)
@@ -285,7 +285,7 @@ function multi_cmp_dayres_midoku(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ 勢いソート: cmp_dayres(), multi_cmp_dayres()
+// {{{ 勢いソート
 
 /**
  * 勢いソート (usortのコールバック関数)
@@ -327,7 +327,7 @@ function multi_cmp_dayres(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ cmp_key(), multi_cmp_key()
+// {{{ keyソート
 
 /**
  * keyソート (usortのコールバック関数)
@@ -358,7 +358,7 @@ function multi_cmp_key(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ No.ソート: cmp_no(), multi_cmp_no()
+// {{{ No.ソート
 
 /**
  * No.ソート (usortのコールバック関数)
@@ -389,7 +389,7 @@ function multi_cmp_no(ThreadList $aThreadList, $reverse = false)
 }
 
 // }}}
-// {{{ 類似性ソート: cmp_similarity(), multi_cmp_similarity()
+// {{{ 類似性ソート
 
 /**
  * 類似性ソート (usortのコールバック関数)
