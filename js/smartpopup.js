@@ -110,6 +110,14 @@ SPM.init = function(aThread)
 		container.appendChild(spmFilter);
 	}
 
+	// 表示・非表示メソッドを設定
+	aThread.show = (function(resnum, resid, evt){
+		SPM.show(aThread, resnum, resid, evt);
+	});
+	aThread.hide = (function(evt){
+		SPM.hide(aThread, evt);
+	});
+
 	return false;
 }
 
@@ -120,7 +128,7 @@ SPM.show = function(aThread, resnum, resid, evt)
 {
 	var evt = (evt) ? evt : ((window.event) ? event : null);
 	if (spmResNum != resnum || spmBlockID != resid) {
-		SPM.hide(aThread);
+		SPM.hideImmediately(aThread, evt);
 	}
 	spmResNum  = resnum;
 	spmBlockID = resid;
@@ -139,10 +147,21 @@ SPM.show = function(aThread, resnum, resid, evt)
 }
 
 /**
+ * スマートポップアップメニューを閉じる
+ */
+SPM.hide = function(aThread, evt)
+{
+	var evt = (evt) ? evt : ((window.event) ? event : null);
+	hideResPopUp(aThread.objName + '_spm');
+	return false;
+}
+
+/**
  * スマートポップアップメニューを遅延ゼロで閉じる
  */
-SPM.hide = function(aThread)
+SPM.hideImmediately = function(aThread, evt)
 {
+	var evt = (evt) ? evt : ((window.event) ? event : null);
 	document.getElementById(aThread.objName + '_spm').style.visibility = 'hidden';
 	return false;
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * Thumbnailer_Imlib2
- * PHP Versions 4 and 5
+ * PHP Version 5
  */
 
 require_once dirname(__FILE__) . '/Common.php';
@@ -10,6 +10,8 @@ require_once dirname(__FILE__) . '/Common.php';
 
 /**
  * Image manipulation class which uses imlib2 php extension.
+ *
+ * @deprecated
  */
 class Thumbnailer_Imlib2 extends Thumbnailer_Common
 {
@@ -18,14 +20,13 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
     /**
      * Convert and save.
      *
-     * @access public
      * @param string $source
      * @param string $thumbnail
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function save($source, $thumbnail, $size)
+    public function save($source, $thumbnail, $size)
     {
         $dst = $this->_convert($source, $size);
         $err = 0;
@@ -39,7 +40,7 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
         }
         imlib2_free_image($dst);
         if (!$result) {
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail}:{$err})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail}:{$err})");
         } else {
             $retval = true;
         }
@@ -55,13 +56,12 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
      * imlib2_dump_image() の出力をキャプチャしようとするとうまくいかないので
      * いったん一時ファイルに書き出したデータを読み込む
      *
-     * @access public
      * @param string $source
      * @param array $size
      * @return string
      * @throws PEAR_Error
      */
-    function capture($source, $size)
+    public function capture($source, $size)
     {
         $dst = $this->_convert($source, $size);
         $err = 0;
@@ -76,7 +76,7 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
         }
         imlib2_free_image($dst);
         if (!$result) {
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail}:{$err})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail}:{$err})");
         } else {
             $retval = file_get_contents($tempfile);
         }
@@ -89,14 +89,13 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
     /**
      * Convert and output.
      *
-     * @access public
      * @param string $source
      * @param string $name
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function output($source, $name, $size)
+    public function output($source, $name, $size)
     {
         $dst = $this->_convert($source, $size);
         $err = 0;
@@ -111,7 +110,7 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
         }
         imlib2_free_image($dst);
         if (!$result) {
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$name}:{$err})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$name}:{$err})");
         } else {
             $retval = true;
         }
@@ -124,19 +123,18 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
     /**
      * Image conversion abstraction.
      *
-     * @access protected
      * @param string $source
      * @param array $size
      * @return resource Unknown (imlib2?)
      */
-    function _convert($source, $size)
+    protected function _convert($source, $size)
     {
         extract($size);
         $err = 0;
         // ソースのイメージストリームを取得
         $src = imlib2_load_image($source, $err);
         if ($err) {
-            $error = &PEAR::raiseError("Failed to load the image. ({$source}:{$err})");
+            $error = PEAR::raiseError("Failed to load the image. ({$source}:{$err})");
             return $error;
         }
         // サムネイルのイメージストリームを作成

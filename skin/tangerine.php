@@ -1,59 +1,56 @@
 <?php
-// p2 - ƒfƒUƒCƒ“—p Ý’èƒtƒ@ƒCƒ‹
-
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-/*
-	ƒRƒƒ“ƒg–`“ª‚Ì() “à‚ÍƒfƒtƒHƒ‹ƒg’l
-	Ý’è‚Í style/*_css.inc ‚Æ˜A“®
-*/
- 
-//======================================================================
-// ƒfƒUƒCƒ“ƒJƒXƒ^ƒ}ƒCƒY
-//======================================================================
+/**
+ * rep2 - ƒfƒUƒCƒ“—p Ý’èƒtƒ@ƒCƒ‹
+ *
+ * ‚Ý‚©‚ñFƒXƒLƒ“
+ *
+ * ƒRƒƒ“ƒg–`“ª‚Ì() “à‚ÍƒfƒtƒHƒ‹ƒg’l
+ * Ý’è‚Í style/*_css.inc ‚Æ˜A“®
+ */
 
 $STYLE['a_underline_none'] = "2"; // ("2") ƒŠƒ“ƒN‚É‰ºü‚ði‚Â‚¯‚é:0, ‚Â‚¯‚È‚¢:1, ƒXƒŒƒ^ƒCƒgƒ‹ˆê——‚¾‚¯‚Â‚¯‚È‚¢:2j
 
-// ƒtƒHƒ“ƒg ======================================================
+// {{{ ƒtƒHƒ“ƒg
 
-if(strstr($_SERVER['HTTP_USER_AGENT'], "Mac")){
-	/* Mac—pƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
-	if(strstr($_SERVER['HTTP_USER_AGENT'], "AppleWebKit")){ /* ƒuƒ‰ƒEƒU‚ª Mac‚Å Safari“™‚Ì WebKit‚ðŽg‚Á‚Ä‚¢‚é‚à‚Ì‚È‚ç */
-		$STYLE['fontfamily'] = array("Lucida Grande", "Hiragino Kaku Gothic Pro"); // ("Hiragino Kaku Gothic Pro") Šî–{‚ÌƒtƒHƒ“ƒg for Safari
-		$STYLE['fontfamily_bold'] = ""; // ("") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒg for Safarii•’Ê‚Ì‘¾Žš‚æ‚è‘¾‚­‚µ‚½‚¢ê‡‚Í"Hiragino Kaku Gothic Std"j
-	} else {
-		$STYLE['fontfamily'] = array("Lucida Grande", "ƒqƒ‰ƒMƒmŠpƒS Pro W3"); // ("ƒqƒ‰ƒMƒmŠpƒS Pro W3") Šî–{‚ÌƒtƒHƒ“ƒg
-		$STYLE['fontfamily_bold'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W6"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W6") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒgi•’Ê‚É‘¾Žš‚É‚µ‚½‚¢ê‡‚ÍŽw’è‚µ‚È‚¢("")j
-	}
-	/* Mac—pƒtƒHƒ“ƒgƒTƒCƒY */
-	$STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['menu_fontsize'] = "11px"; // ("11px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['sb_fontsize'] = "11px"; // ("11px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['read_fontsize'] = "12px"; // ("12px") ƒXƒŒƒbƒh“à—e•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['respop_fontsize'] = "11px"; // ("11px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['infowin_fontsize'] = "11px"; // ("11px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³iCamino‚ðœ‚­j
+if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
+    /* Mac—pƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
+    if (P2Util::isBrowserSafariGroup()){ /* SafariŒn‚È‚ç */
+        $STYLE['fontfamily'] = array("Lucida Grande", "Hiragino Kaku Gothic Pro"); // ("Hiragino Kaku Gothic Pro") Šî–{‚ÌƒtƒHƒ“ƒg for Safari
+        $STYLE['fontfamily_bold'] = ""; // ("") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒg for Safarii•’Ê‚Ì‘¾Žš‚æ‚è‘¾‚­‚µ‚½‚¢ê‡‚Í"Hiragino Kaku Gothic Std"j
+    } else {
+        $STYLE['fontfamily'] = array("Lucida Grande", "ƒqƒ‰ƒMƒmŠpƒS Pro W3"); // ("ƒqƒ‰ƒMƒmŠpƒS Pro W3") Šî–{‚ÌƒtƒHƒ“ƒg
+        $STYLE['fontfamily_bold'] = "ƒqƒ‰ƒMƒmŠpƒS Pro W6"; // ("ƒqƒ‰ƒMƒmŠpƒS Pro W6") Šî–{ƒ{[ƒ‹ƒh—pƒtƒHƒ“ƒgi•’Ê‚É‘¾Žš‚É‚µ‚½‚¢ê‡‚ÍŽw’è‚µ‚È‚¢("")j
+    }
+    /* Mac—pƒtƒHƒ“ƒgƒTƒCƒY */
+    $STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['menu_fontsize'] = "11px"; // ("11px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['sb_fontsize'] = "11px"; // ("11px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['read_fontsize'] = "12px"; // ("12px") ƒXƒŒƒbƒh“à—e•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['respop_fontsize'] = "11px"; // ("11px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['infowin_fontsize'] = "11px"; // ("11px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['form_fontsize'] = "11px"; // ("11px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³iCamino‚ðœ‚­j
 }else{
-	/* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
-	$STYLE['fontfamily'] = "‚l‚r ‚oƒSƒVƒbƒN"; // ("‚l‚r ‚oƒSƒVƒbƒN") Šî–{‚ÌƒtƒHƒ“ƒg
-	/* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒTƒCƒY */
-	$STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['menu_fontsize'] = "12px"; // ("12px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['sb_fontsize'] = "12px"; // ("12px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['read_fontsize'] = "13px"; // ("13px") ƒXƒŒƒbƒh“à—e•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['respop_fontsize'] = "11px"; // ("12px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['infowin_fontsize'] = "12px"; // ("12px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
-	$STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    /* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒtƒ@ƒ~ƒŠ[*/
+    $STYLE['fontfamily'] = "‚l‚r ‚oƒSƒVƒbƒN"; // ("‚l‚r ‚oƒSƒVƒbƒN") Šî–{‚ÌƒtƒHƒ“ƒg
+    /* MacˆÈŠO‚ÌƒtƒHƒ“ƒgƒTƒCƒY */
+    $STYLE['fontsize'] = "12px"; // ("12px") Šî–{ƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['menu_fontsize'] = "12px"; // ("12px") ”Âƒƒjƒ…[‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['sb_fontsize'] = "12px"; // ("12px") ƒXƒŒˆê——‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['read_fontsize'] = "13px"; // ("13px") ƒXƒŒƒbƒh“à—e•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['respop_fontsize'] = "11px"; // ("12px") ˆø—pƒŒƒXƒ|ƒbƒvƒAƒbƒv•\Ž¦‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['infowin_fontsize'] = "12px"; // ("12px") î•ñƒEƒBƒ“ƒhƒE‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
+    $STYLE['form_fontsize'] = "12px"; // ("12px") input, option, select ‚ÌƒtƒHƒ“ƒg‚Ì‘å‚«‚³
 }
 
-//======================================================================
-// FÊ‚ÌÝ’è
-//======================================================================
-// –³Žw’è("")‚Íƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgFA‚Ü‚½‚ÍŠî–{Žw’è‚Æ‚È‚è‚Ü‚·B
-// —Dæ“x‚ÍAŒÂ•Êƒy[ƒWŽw’è ¨ Šî–{Žw’è ¨ Žg—pƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgŽw’è ‚Å‚·B
+// }}}
+/**
+ * FÊ‚ÌÝ’è
+ *
+ * –³Žw’è("")‚Íƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgFA‚Ü‚½‚ÍŠî–{Žw’è‚Æ‚È‚è‚Ü‚·B
+ * —Dæ“x‚ÍAŒÂ•Êƒy[ƒWŽw’è ¨ Šî–{Žw’è ¨ Žg—pƒuƒ‰ƒEƒU‚ÌƒfƒtƒHƒ‹ƒgŽw’è ‚Å‚·B
+ */
+// {{{ Šî–{(style)
 
-// Šî–{(style) =======================
 $STYLE['bgcolor'] = "White"; // ("#ffffff") Šî–{ ”wŒiF
 $STYLE['background'] = ""; // ("") Šî–{ ”wŒi‰æ‘œ
 $STYLE['textcolor'] = "Black"; // ("#000") Šî–{ ƒeƒLƒXƒgF
@@ -63,7 +60,9 @@ $STYLE['acolor_h'] = "LimeGreen"; // ("#09c") Šî–{ ƒ}ƒEƒXƒI[ƒo[Žž‚ÌƒŠƒ“ƒNF
 
 $STYLE['fav_color'] = "Goldenrod"; // ("#999") ‚¨‹C‚Éƒ}[ƒN‚ÌF
 
-// ƒƒjƒ…[(menu) ====================
+// }}}
+// {{{ ƒƒjƒ…[(menu)
+
 $STYLE['menu_bgcolor'] = "Moccasin"; //("#fff") ƒƒjƒ…[‚Ì”wŒiF
 $STYLE['menu_color'] = "Black"; //("#000") menu ƒeƒLƒXƒgF
 $STYLE['menu_background'] = ""; //("") ƒƒjƒ…[‚Ì”wŒi‰æ‘œ
@@ -75,10 +74,12 @@ $STYLE['menu_ita_color'] = "DarkRed"; // ("") ƒƒjƒ…[ ”Â ƒŠƒ“ƒNF
 $STYLE['menu_ita_color_v'] = "Brown"; // ("") ƒƒjƒ…[ ”Â –K–âÏ‚ÝƒŠƒ“ƒNF
 $STYLE['menu_ita_color_h'] = "Red"; // ("#09c") ƒƒjƒ…[ ”Â ƒ}ƒEƒXƒI[ƒo[Žž‚ÌƒŠƒ“ƒNF
 
-$STYLE['menu_newthre_color'] = "HotPink";	// ("hotpink") menu V‹KƒXƒŒƒbƒh”‚ÌF
-$STYLE['menu_newres_color'] = "Tomato";	// ("#ff3300") menu V’…ƒŒƒX”‚ÌF
+$STYLE['menu_newthre_color'] = "HotPink";   // ("hotpink") menu V‹KƒXƒŒƒbƒh”‚ÌF
+$STYLE['menu_newres_color'] = "Tomato"; // ("#ff3300") menu V’…ƒŒƒX”‚ÌF
 
-// ƒXƒŒˆê——(subject) ====================
+// }}}
+// {{{ ƒXƒŒˆê——(subject)
+
 $STYLE['sb_bgcolor'] = "Cornsilk"; // ("#fff") subject ”wŒiF
 $STYLE['sb_background'] = ""; // ("") subject ”wŒi‰æ‘œ
 $STYLE['sb_color'] = "Black";  // ("#000") subject ƒeƒLƒXƒgF
@@ -113,14 +114,16 @@ $STYLE['sb_tool_acolor_v'] = "Snow"; // ("#d6e7ff") subject ƒc[ƒ‹ƒo[“à –K–âÏ‚
 $STYLE['sb_tool_acolor_h'] = "Bisque"; // ("#fff") subject ƒc[ƒ‹ƒo[“à ƒ}ƒEƒXƒI[ƒo[Žž‚ÌƒŠƒ“ƒNF
 $STYLE['sb_tool_sepa_color'] = "Black"; // ("#000") subject ƒc[ƒ‹ƒo[“à ƒZƒpƒŒ[ƒ^•¶ŽšF
 
-$STYLE['sb_now_sort_color'] = "Sienna";	// ("#1144aa") subject Œ»Ý‚Ìƒ\[ƒgF
+$STYLE['sb_now_sort_color'] = "Sienna"; // ("#1144aa") subject Œ»Ý‚Ìƒ\[ƒgF
 
-$STYLE['sb_thre_title_new_color'] = "Red";	// ("red") subject V‹KƒXƒŒƒ^ƒCƒgƒ‹‚ÌF
+$STYLE['sb_thre_title_new_color'] = "Red";  // ("red") subject V‹KƒXƒŒƒ^ƒCƒgƒ‹‚ÌF
 
 $STYLE['sb_tool_newres_color'] = "Tomato"; // ("#ff3300") subject ƒc[ƒ‹ƒo[“à V‹KƒŒƒX”‚ÌF
 $STYLE['sb_newres_color'] = "Tomato"; // ("#ff3300") subject V’…ƒŒƒX”‚ÌF
 
-// ƒXƒŒ“à—e(read) ====================
+// }}}
+// {{{ ƒXƒŒ“à—e(read)
+
 $STYLE['read_bgcolor'] = "Cornsilk"; // ("#efefef") ƒXƒŒƒbƒh•\Ž¦‚Ì”wŒiF
 $STYLE['read_background'] = ""; // ("") ƒXƒŒƒbƒh•\Ž¦‚Ì”wŒi‰æ‘œ
 $STYLE['read_color'] = "Black"; // ("#000") ƒXƒŒƒbƒh•\Ž¦‚ÌƒeƒLƒXƒgF
@@ -137,17 +140,23 @@ $STYLE['read_mail_color'] = "IndianRed"; // ("") “ŠeŽÒ‚Ìmail‚ÌF ex)"#a00000"
 $STYLE['read_mail_sage_color'] = "RosyBrown"; // ("") sage‚ÌŽž‚Ì“ŠeŽÒ‚Ìmail‚ÌF ex)"#00b000"
 $STYLE['read_ngword'] = "DimGray"; // ("#bbbbbb") NGƒ[ƒh‚ÌF
 
-// ŽÀ‹µƒ‚[ƒh ================
+// }}}
+// {{{ ŽÀ‹µƒ‚[ƒh
+
 $SYTLE['live_b_width'] = "1px"; // ("1px") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[•
 $SYTLE['live_b_color'] = "OrangeRed"; // ("#888") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[F
 $SYTLE['live_b_style'] = "dashed"; // ("solid") ŽÀ‹µƒ‚[ƒhAƒ{[ƒ_[Œ`Ž®
 
-// ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€ ================
+// }}}
+// {{{ ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€
+
 $STYLE['post_pop_size'] = "610,350"; // ("610,350") ƒŒƒX‘‚«ž‚Ýƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³i‰¡,cj
 $STYLE['post_msg_rows'] = 10; // (10) ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€AƒƒbƒZ[ƒWƒtƒB[ƒ‹ƒh‚Ìs”
 $STYLE['post_msg_cols'] = 70; // (70) ƒŒƒX‘‚«ž‚ÝƒtƒH[ƒ€AƒƒbƒZ[ƒWƒtƒB[ƒ‹ƒh‚ÌŒ…”
 
-// ƒŒƒXƒ|ƒbƒvƒAƒbƒv ====================
+// }}}
+// {{{ ƒŒƒXƒ|ƒbƒvƒAƒbƒv
+
 $STYLE['respop_color'] = "Black"; // ("#000") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚ÌƒeƒLƒXƒgF
 $STYLE['respop_bgcolor'] = "LemonChiffon"; // ("#ffffcc") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ì”wŒiF
 $STYLE['respop_background'] = ""; // ("") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ì”wŒi‰æ‘œ
@@ -156,3 +165,16 @@ $STYLE['respop_b_color'] = "OrangeRed"; // ("black") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ìƒ{[ƒ_[
 $STYLE['respop_b_style'] = "dotted"; // ("solid") ƒŒƒXƒ|ƒbƒvƒAƒbƒv‚Ìƒ{[ƒ_[Œ`Ž®
 
 $STYLE['info_pop_size'] = "600,380"; // ("600,380") î•ñƒ|ƒbƒvƒAƒbƒvƒEƒBƒ“ƒhƒE‚Ì‘å‚«‚³i‰¡,cj
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

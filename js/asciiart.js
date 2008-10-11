@@ -52,10 +52,10 @@ function activeMona(blockId)
 	if (!amTargetObj) {
 		return;
 	}
-	if (amTargetObj.className == "ActiveMona") {
-		amTargetObj.className = (blockId.charAt(0) == "q") ? "NoMonaQ" : "NoMona";
+	if (amTargetObj.className.search(/\bActiveMona\b/) != -1) {
+		amTargetObj.className = amTargetObj.className.replace(/ ?ActiveMona/, '');
 	} else {
-		amTargetObj.className = "ActiveMona";
+		amTargetObj.className += ' ActiveMona';
 	}
 }
 

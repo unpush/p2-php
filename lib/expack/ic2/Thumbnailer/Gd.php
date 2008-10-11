@@ -1,7 +1,7 @@
 <?php
 /**
  * Thumbnailer_Gd
- * PHP Versions 4 and 5
+ * PHP Version 5
  */
 
 require_once dirname(__FILE__) . '/Common.php';
@@ -18,14 +18,13 @@ class Thumbnailer_Gd extends Thumbnailer_Common
     /**
      * Convert and save.
      *
-     * @access public
      * @param string $source
      * @param string $thumbnail
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function save($source, $thumbnail, $size)
+    public function save($source, $thumbnail, $size)
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを保存
@@ -36,7 +35,7 @@ class Thumbnailer_Gd extends Thumbnailer_Common
         }
         imagedestroy($dst);
         if (!$result) {
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail})");
         } else {
             $retval = true;
         }
@@ -46,13 +45,12 @@ class Thumbnailer_Gd extends Thumbnailer_Common
     /**
      * Convert and capture.
      *
-     * @access public
      * @param string $source
      * @param array $size
      * @return string
      * @throws PEAR_Error
      */
-    function capture($source, $size)
+    public function capture($source, $size)
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを作成
@@ -66,7 +64,7 @@ class Thumbnailer_Gd extends Thumbnailer_Common
         imagedestroy($dst);
         if (!$result) {
             unset($retval);
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$thumbnail})");
         }
         return $retval;
     }
@@ -74,14 +72,13 @@ class Thumbnailer_Gd extends Thumbnailer_Common
     /**
      * Convert and output.
      *
-     * @access public
      * @param string $source
      * @param string $name
      * @param array $size
      * @return boolean
      * @throws PEAR_Error
      */
-    function output($source, $name, $size)
+    public function output($source, $name, $size)
     {
         $dst = $this->_convert($source, $size);
         // サムネイルを出力
@@ -93,7 +90,7 @@ class Thumbnailer_Gd extends Thumbnailer_Common
         }
         imagedestroy($dst);
         if (!$result) {
-            $retval = &PEAR::raiseError("Failed to create a thumbnail. ({$name})");
+            $retval = PEAR::raiseError("Failed to create a thumbnail. ({$name})");
         } else {
             $retval = true;
         }
@@ -106,12 +103,11 @@ class Thumbnailer_Gd extends Thumbnailer_Common
     /**
      * Image conversion abstraction.
      *
-     * @access protected
      * @param string $source
      * @param array $size
      * @return resource gd
      */
-    function _convert($source, $size)
+    protected function _convert($source, $size)
     {
         extract($size);
         // ソースのイメージストリームを取得
@@ -122,7 +118,7 @@ class Thumbnailer_Gd extends Thumbnailer_Common
             case '.gif': $src = imagecreatefromgif($source); break;
         }
         if (!is_resource($src)) {
-            $error = &PEAR::raiseError("Failed to load the image. ({$source})");
+            $error = PEAR::raiseError("Failed to load the image. ({$source})");
             return $error;
         }
         // サムネイルのイメージストリームを作成

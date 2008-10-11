@@ -1,11 +1,10 @@
 <?php
-/*
-    p2 - スレッド情報ウィンドウ
-*/
+/**
+ * rep2 - スレッド情報ウィンドウ
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/thread.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/dele.inc.php';
 
 $_login->authorize(); // ユーザ認証
@@ -25,9 +24,15 @@ if (!empty($_GET['popup'])) {
     $popup_q = '';
 }
 
+if ($_conf['iphone']) {
+    $btn_class = ' class="button"';
+} else {
+    $btn_class = '';
+}
+
 // 以下どれか一つがなくてもダメ出し
 if (empty($host) || empty($bbs) || empty($key)) {
-    die('p2 error: 引数が正しくありません。');
+    p2die('引数が正しくありません。');
 }
 
 //================================================================
@@ -70,7 +75,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // {{{ お気に入りスレッド
 
 } elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
-    include_once P2_LIB_DIR . '/setfav.inc.php';
+    require_once P2_LIB_DIR . '/setfav.inc.php';
     if (isset($_GET['setnum'])) {
         setFav($host, $bbs, $key, $_GET['setfav'], $_GET['setnum']);
     } else {
@@ -84,14 +89,14 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // {{{ 殿堂入り
 
 } elseif (isset($_GET['setpal']) && $key && $host && $bbs) {
-    include_once P2_LIB_DIR . '/setpalace.inc.php';
+    require_once P2_LIB_DIR . '/setpalace.inc.php';
     setPal($host, $bbs, $key, $_GET['setpal']);
 
 // }}}
 // {{{ スレッドあぼーん
 
 } elseif (isset($_GET['taborn']) && $key && $host && $bbs) {
-    include_once P2_LIB_DIR . '/settaborn.inc.php';
+    require_once P2_LIB_DIR . '/settaborn.inc.php';
     settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
@@ -100,7 +105,7 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // メイン
 //=================================================================
 
-$aThread =& new Thread();
+$aThread = new Thread();
 
 // hostを分解してidxファイルのパスを求める
 $aThread->setThreadPathInfo($host, $bbs, $key);
@@ -143,9 +148,9 @@ $common_q = "host={$aThread->host}&amp;bbs={$aThread->bbs}&amp;key={$aThread->ke
 
 /*
 // お気にスレリスト 読込
-if ($favlines = @file($_conf['favlist_file'])) {
+if ($favlines = FileCtl::file_read_lines($_conf['favlist_idx'], FILE_IGNORE_NEW_LINES)) {
     foreach ($favlines as $l) {
-        $favarray = explode('<>', rtrim($l));
+        $favarray = explode('<>', $l);
         if ($aThread->key == $favarray[1] && $aThread->bbs == $favarray[11]) {
             $aThread->fav = "1";
             if ($favarray[0]) {
@@ -164,8 +169,15 @@ if ($_conf['expack.misc.multi_favs']) {
     $favmark = $favdo ? '+' : '★';
     $favtitle = ((!isset($favlist_titles[0]) || $favlist_titles[0] == '') ? 'お気にスレ' : $favlist_titles[0]) . ($favdo ? 'に追加' : 'から外す');
     $setnum_q = '&amp;setnum=0';
-    $fav_ht = <<<EOP
-<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
+    if ($_conf['iphone']) {
+        $fav_ht = '<br>';
+        $fav_delim = ' ';
+    } else {
+        $fav_ht = '';
+        $fav_delim = ' | ';
+    }
+    $fav_ht .= <<<EOP
+<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"{$btn_class}><span class="fav" title="{$favtitle}">{$favmark}</span></a>
 EOP;
     for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
         $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
@@ -174,7 +186,7 @@ EOP;
         $favtitle = ((!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') ? 'お気にスレ' . $i : $favlist_titles[$i]) . ($favdo ? 'に追加' : 'から外す');
         $setnum_q = '&amp;setnum=' . $i;
         $fav_ht .= <<<EOP
- | <a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
+{$fav_delim}<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$popup_q}{$_conf['k_at_a']}"{$btn_class}><span class="fav" title="{$favtitle}">{$favmark}</span></a>
 EOP;
     }
 } else {
@@ -183,7 +195,7 @@ EOP;
     $favmark = $favdo ? '+' : '★';
     $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $fav_ht = <<<EOP
-<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$popup_q}{$_conf['k_at_a']}"><span class="fav" title="{$favtitle}">{$favmark}</span></a>
+<a href="info.php?{$common_q}{$ttitle_en_q}{$favdo_q}{$popup_q}{$_conf['k_at_a']}"{$btn_class}><span class="fav" title="{$favtitle}">{$favmark}</span></a>
 EOP;
 }
 
@@ -191,10 +203,9 @@ EOP;
 // {{{ palace チェック
 
 // 殿堂入りスレリスト 読込
-$palace_idx = $_conf['pref_dir']. '/p2_palace.idx';
-if ($pallines = @file($palace_idx)) {
+if ($pallines = FileCtl::file_read_lines($_conf['palace_idx'], FILE_IGNORE_NEW_LINES)) {
     foreach ($pallines as $l) {
-        $palarray = explode('<>', rtrim($l));
+        $palarray = explode('<>', $l);
         if ($aThread->key == $palarray[1]) {
             $isPalace = true;
             if ($palarray[0]) {
@@ -210,20 +221,19 @@ $paldo = $isPalace ? 0 : 1;
 $pal_a_ht = "info.php?{$common_q}&amp;setpal={$paldo}{$popup_q}{$ttitle_en_q}{$_conf['k_at_a']}";
 
 if ($isPalace) {
-    $pal_ht = "<a href=\"{$pal_a_ht}\">★</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\"{$btn_class}>★</a>";
 } else {
-    $pal_ht = "<a href=\"{$pal_a_ht}\">+</a>";
+    $pal_ht = "<a href=\"{$pal_a_ht}\"{$btn_class}>+</a>";
 }
 
 // }}}
 // {{{ スレッドあぼーんチェック
 
 // スレッドあぼーんリスト読込
-$idx_host_dir = P2Util::idxDirOfHost($host);
-$taborn_file = $idx_host_dir . '/' . $bbs . '/p2_threads_aborn.idx';
-if ($tabornlist = @file($taborn_file)) {
+$taborn_file = P2Util::idxDirOfHostBbs($host, $bbs) . 'p2_threads_aborn.idx';
+if ($tabornlist = FileCtl::file_read_lines($taborn_file, FILE_IGNORE_NEW_LINES)) {
     foreach ($tabornlist as $l) {
-        $tarray = explode('<>', rtrim($l));
+        $tarray = explode('<>', $l);
         if ($aThread->key == $tarray[1]) {
             $isTaborn = true;
             break;
@@ -289,28 +299,27 @@ echo $_conf['doctype'];
 echo <<<EOHEADER
 <html>
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$hd['title']}</title>\n
 EOHEADER;
 
+$body_onload = '';
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=info&amp;skin={$skin_en}" type="text/css">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=info&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
-}
-
-if ($_GET['popup'] == 2) {
-    echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/closetimer.js"></script>
+    if ($_GET['popup'] == 2) {
+        echo <<<EOSCRIPT
+    <script type="text/javascript" src="js/closetimer.js?{$_conf['p2_version_id']}"></script>\n
 EOSCRIPT;
-    $body_onload = <<<EOP
- onLoad="startTimer(document.getElementById('timerbutton'))"
-EOP;
+        $body_onload = ' onload="startTimer(document.getElementById(\'timerbutton\'))"';
+    }
 }
 
 $body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
@@ -405,10 +414,10 @@ if ($_conf['ktai']) {
 if (!empty($_GET['popup'])) {
     echo '<div align="center">';
     if ($_GET['popup'] == 1) {
-        echo '<form action=""><input type="button" value="ウィンドウを閉じる" onClick="window.close();"></form>';
+        echo '<form action=""><input type="button" value="ウィンドウを閉じる" onclick="window.close();"></form>';
     } elseif ($_GET['popup'] == 2) {
         echo <<<EOP
-    <form action=""><input id="timerbutton" type="button" value="Close Timer" onClick="stopTimer(document.getElementById('timerbutton'))"></form>
+    <form action=""><input id="timerbutton" type="button" value="Close Timer" onclick="stopTimer(document.getElementById('timerbutton'))"></form>
 EOP;
     }
     echo '</div>' . "\n";
@@ -417,17 +426,19 @@ EOP;
 // }}}
 
 if ($_conf['ktai']) {
-    echo '<hr>' . $_conf['k_to_index_ht'];
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 }
 
 echo '</body></html>';
 
 // 終了
-exit();
+exit;
 
 //=======================================================
 // 関数
 //=======================================================
+// {{{ print_info_line()
+
 /**
  * スレ情報HTMLを表示する
  */
@@ -443,6 +454,9 @@ function print_info_line($s, $c_ht)
         echo "<tr><td class=\"tdleft\" nowrap><b>{$s}</b>&nbsp;</td><td class=\"tdcont\">{$c_ht}</td></tr>\n";
     }
 }
+
+// }}}
+// {{{ getCopypaFormHtml()
 
 /**
  * スレタイとURLのコピペ用のフォームを取得する
@@ -464,3 +478,17 @@ EOP;
 
     return $htm;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
+

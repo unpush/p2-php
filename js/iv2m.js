@@ -1,13 +1,16 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
 /*
-	ImageCache2::Viewer-Manager
-*/
+ * ImageCache2::Viewer-Manager
+ */
+
+// {{{ updateDB()
 
 function updateDB(tgtId)
 {
 	document.getElementById(tgtId+'_change').checked = true;
 }
+
+// }}}
+// {{{ resetRow()
 
 function resetRow(tgtId)
 {
@@ -38,6 +41,9 @@ function resetRow(tgtId)
 	l.disabled = true;
 }
 
+// }}}
+// {{{ prePost()
+
 function prePost()
 {
 	var checkboxes = document.getElementsByName('change[]');
@@ -62,3 +68,16 @@ function prePost()
 	}
 	return true;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

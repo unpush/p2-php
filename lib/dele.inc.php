@@ -1,11 +1,13 @@
 <?php
-/*
-    p2 - スレッドデータ、DATを削除するための関数郡
-*/
+/**
+ * rep2 - スレッドデータ、DATを削除するための関数郡
+ */
 
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/setfav.inc.php';
 require_once P2_LIB_DIR . '/setpalace.inc.php';
+
+// {{{ deleteLogs()
 
 /**
  * ■指定した配列keysのログ（idx, (dat, srd)）を削除して、
@@ -51,6 +53,9 @@ function deleteLogs($host, $bbs, $keys)
     return $r;
 }
 
+// }}}
+// {{{ deleteThisKey()
+
 /**
  * ■指定したキーのスレッドログ（idx (,dat)）を削除する
  *
@@ -63,11 +68,8 @@ function deleteThisKey($host, $bbs, $key)
 {
     global $_conf;
 
-    $dat_host_dir = P2Util::datDirOfHost($host);
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-
-    $anidx = $idx_host_dir . '/'.$bbs.'/'.$key.'.idx';
-    $adat = $dat_host_dir . '/'.$bbs.'/'.$key.'.dat';
+    $anidx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
+    $adat = P2Util::datDirOfHostBbs($host, $bbs) . $key . '.dat';
 
     // Fileの削除処理
     // idx（個人用設定）
@@ -100,6 +102,8 @@ function deleteThisKey($host, $bbs, $key)
     }
 }
 
+// }}}
+// {{{ checkRecent()
 
 /**
  * ■指定したキーが最近読んだスレに入ってるかどうかをチェックする
@@ -110,11 +114,8 @@ function checkRecent($host, $bbs, $key)
 {
     global $_conf;
 
-    $lines = @file($_conf['rct_file']);
-    // あればtrue
-    if (is_array($lines)) {
+    if ($lines = FileCtl::file_read_lines($_conf['recent_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // あったら
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
@@ -124,6 +125,9 @@ function checkRecent($host, $bbs, $key)
     }
     return false;
 }
+
+// }}}
+// {{{ checkResHist()
 
 /**
  * ■指定したキーが書き込み履歴に入ってるかどうかをチェックする
@@ -134,12 +138,8 @@ function checkResHist($host, $bbs, $key)
 {
     global $_conf;
 
-    $rh_idx = $_conf['pref_dir']."/p2_res_hist.idx";
-    $lines = @file($rh_idx);
-    // あればtrue
-    if (is_array($lines)) {
+    if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // あったら
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
@@ -150,6 +150,9 @@ function checkResHist($host, $bbs, $key)
     return false;
 }
 
+// }}}
+// {{{ offRecent()
+
 /**
  * ■指定したキーの履歴（最近読んだスレ）を削除する
  *
@@ -159,75 +162,14 @@ function offRecent($host, $bbs, $key)
 {
     global $_conf;
 
-    $lines = @file($_conf['rct_file']);
-
     $neolines = array();
+
+    $lock = new P2Lock($_conf['recent_idx'], false);
 
     // {{{ あれば削除
 
-    if (is_array($lines)) {
-        foreach ($lines as $line) {
-            $line = rtrim($line);
-            $lar = explode('<>', $line);
-            // 削除（スキップ）
-            if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
-                $done = true;
-                continue;
-            }
-            $neolines[] = $line;
-        }
-    }
-
-    // }}}
-    // {{{ 書き込む
-
-    $temp_file = $_conf['rct_file'] . '.tmp';
-    if (is_array($neolines)) {
-        $cont = '';
-        foreach ($neolines as $l) {
-            $cont .= $l . "\n";
-        }
-
-        // Windows では rename() で上書きできないらしい。http://ns1.php.gr.jp/pipermail/php-users/2005-October/027827.html
-        $write_file = strstr(PHP_OS, 'WIN') ? $_conf['rct_file'] : $temp_file;
-        if (FileCtl::file_write_contents($write_file, $cont) === false) {
-            die("p2 error: " . __FUNCTION__ . "(): cannot write file.");
-        }
-        if (!strstr(PHP_OS, 'WIN')) {
-            if (!rename($write_file, $_conf['rct_file'])) {
-                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
-            }
-        }
-    }
-
-    // }}}
-
-    if (!empty($done)) {
-        return 1;
-    } else {
-        return 2;
-    }
-}
-
-/**
- * ■指定したキーの書き込み履歴を削除する
- *
- * @public
- */
-function offResHist($host, $bbs, $key)
-{
-    global $_conf;
-
-    $rh_idx = $_conf['pref_dir'].'/p2_res_hist.idx';
-    $lines = @file($rh_idx);
-
-    $neolines = array();
-
-    // {{{ あれば削除
-
-    if (is_array($lines)) {
+    if ($lines = FileCtl::file_read_lines($_conf['recent_idx'], FILE_IGNORE_NEW_LINES)) {
         foreach ($lines as $l) {
-            $l = rtrim($l);
             $lar = explode('<>', $l);
             // 削除（スキップ）
             if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
@@ -241,22 +183,14 @@ function offResHist($host, $bbs, $key)
     // }}}
     // {{{ 書き込む
 
-    $temp_file = $rh_idx . '.tmp';
     if (is_array($neolines)) {
         $cont = '';
         foreach ($neolines as $l) {
             $cont .= $l . "\n";
         }
 
-        // Windows では rename() で上書きできないらしい。http://ns1.php.gr.jp/pipermail/php-users/2005-October/027827.html
-        $write_file = strstr(PHP_OS, 'WIN') ? $rh_idx : $temp_file;
-        if (FileCtl::file_write_contents($write_file, $cont) === false) {
-            die("p2 error: " . __FUNCTION__ . "(): cannot write file.");
-        }
-        if (!strstr(PHP_OS, 'WIN')) {
-            if (!rename($write_file, $rh_idx)) {
-                die("p2 error: " . __FUNCTION__ . "(): cannot rename file.");
-            }
+        if (FileCtl::file_write_contents($_conf['recent_idx'], $cont) === false) {
+            p2die('cannot write file.');
         }
     }
 
@@ -268,3 +202,69 @@ function offResHist($host, $bbs, $key)
         return 2;
     }
 }
+
+// }}}
+// {{{ offResHist()
+
+/**
+ * ■指定したキーの書き込み履歴を削除する
+ *
+ * @public
+ */
+function offResHist($host, $bbs, $key)
+{
+    global $_conf;
+
+    $neolines = array();
+
+    $lock = new P2Lock($_conf['res_hist_idx'], false);
+
+    // {{{ あれば削除
+
+    if ($lines = FileCtl::file_read_lines($_conf['res_hist_idx'], FILE_IGNORE_NEW_LINES)) {
+        foreach ($lines as $l) {
+            $lar = explode('<>', $l);
+            // 削除（スキップ）
+            if ($lar[1] == $key && $lar[10] == $host && $lar[11] == $bbs) {
+                $done = true;
+                continue;
+            }
+            $neolines[] = $l;
+        }
+    }
+
+    // }}}
+    // {{{ 書き込む
+
+    if (is_array($neolines)) {
+        $cont = '';
+        foreach ($neolines as $l) {
+            $cont .= $l . "\n";
+        }
+
+        if (FileCtl::file_write_contents($_conf['res_hist_idx'], $cont) === false) {
+            p2die('cannot write file.');
+        }
+    }
+
+    // }}}
+
+    if (!empty($done)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

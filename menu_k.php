@@ -1,11 +1,11 @@
 <?php
-/*
-    p2 -  板メニュー 携帯用
-*/
+/**
+ * rep2 - 板メニュー 携帯用
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/brdctl.class.php';
-require_once P2_LIB_DIR . '/showbrdmenuk.class.php';
+require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/BrdCtl.php';
+require_once P2_LIB_DIR . '/ShowBrdMenuK.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -25,21 +25,13 @@ if (isset($_GET['word'])) {
 }
 
 if (isset($word) && strlen($word) > 0) {
-
-    if (preg_match('/^\.+$/', $word)) {
-        $word = '';
-    }
-
-    // and検索
-    include_once P2_LIB_DIR . '/strctl.class.php';
-    $word_fm = StrCtl::wordForMatch($word, 'and');
-    if (P2_MBREGEX_AVAILABLE == 1) {
-        $GLOBALS['words_fm'] = @mb_split('\s+', $word_fm);
-        $GLOBALS['word_fm'] = @mb_ereg_replace('\s+', '|', $word_fm);
+    if (substr_count($word, '.') == strlen($word)) {
+        $word = null;
     } else {
-        $GLOBALS['words_fm'] = @preg_split('/\s+/', $word_fm);
-        $GLOBALS['word_fm'] = @preg_replace('/\s+/', '|', $word_fm);
+        p2_set_filtering_word($word, 'and');
     }
+} else {
+    $word = null;
 }
 
 // }}}
@@ -49,14 +41,14 @@ if (isset($word) && strlen($word) > 0) {
 //============================================================
 // お気に板の追加・削除
 if (isset($_GET['setfavita'])) {
-    include_once P2_LIB_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
 
 //================================================================
 // メイン
 //================================================================
-$aShowBrdMenuK =& new ShowBrdMenuK();
+$aShowBrdMenuK = new ShowBrdMenuK();
 
 //============================================================
 // ヘッダ
@@ -77,9 +69,9 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
-{$_conf['meta_charset_ht']}
-{$_conf['extra_headers_ht']}
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{$_conf['extra_headers_ht']}
 <title>{$ptitle}</title>
 EOP;
 
@@ -95,15 +87,14 @@ $_info_msg_ht = "";
 // お気に板をプリントする
 //==============================================================
 if($_GET['view']=="favita"){
-    $aShowBrdMenuK->print_favIta();
+    $aShowBrdMenuK->printFavIta();
 
 //RSSリスト読み込み
 } elseif ($_GET['view'] == "rss" && $_conf['expack.rss.enabled']) {
-    //$mobile = &Net_UserAgent_Mobile::singleton();
-    if ($mobile->isNonMobile()) {
-        output_add_rewrite_var('b', 'k');
+    if ($_conf['view_forced_by_query']) {
+        output_add_rewrite_var('b', $_conf['b']);
     }
-    @include_once P2EX_LIB_DIR . '/rss/menu.inc.php';
+    require_once P2EX_LIB_DIR . '/rss/menu.inc.php';
 
 
 // それ以外ならbrd読み込み
@@ -116,11 +107,10 @@ if($_GET['view']=="favita"){
 if ($_GET['view'] != "favita" && $_GET['view'] != "rss" && !$_GET['cateid']) {
     $kensaku_form_ht = <<<EOFORM
 <form method="GET" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="_hint" value="◎◇">
-    {$_conf['k_input_ht']}
     <input type="hidden" name="nr" value="1">
     <input type="text" id="word" name="word" value="{$word}" size="12">
     <input type="submit" name="submit" value="板検索">
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
 EOFORM;
 
@@ -156,7 +146,7 @@ if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
         unset($word);
     }
     $modori_url_ht = <<<EOP
-<div><a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">板ﾘｽﾄ</a></div>
+<a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">板ﾘｽﾄ</a>
 EOP;
 }
 
@@ -184,7 +174,7 @@ if (isset($_GET['cateid'])) {
         }
     }
     $modori_url_ht = <<<EOP
-<a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">板ﾘｽﾄ</a><br>
+<a href="menu_k.php?view=cate&amp;nr=1{$_conf['k_at_a']}">板ﾘｽﾄ</a>
 EOP;
 }
 
@@ -213,6 +203,18 @@ if ($_conf['expack.misc.multi_favs'] && ($_GET['view'] == 'favita' || $_GET['vie
 
 echo '<hr>';
 echo $list_navi_ht;
+echo '<div class="center">';
 echo $modori_url_ht;
 echo $_conf['k_to_index_ht'];
-echo '</body></html>';
+echo '</div></body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

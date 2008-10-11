@@ -1,24 +1,20 @@
 <?php
-/*
-    p2 -  設定管理
-*/
+/**
+ * rep2 - 設定管理
+ */
 
-include_once './conf/conf.inc.php';
-include_once P2_LIB_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
 // {{{ ホストの同期用設定
 
-if (!isset($rh_idx))     { $rh_idx     = $_conf['pref_dir'] . '/p2_res_hist.idx'; }
-if (!isset($palace_idx)) { $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx'; }
-
-$synctitle = array(
-    basename($_conf['favita_path'])  => 'お気に板',
-    basename($_conf['favlist_file']) => 'お気にスレ',
-    basename($_conf['rct_file'])     => '最近読んだスレ',
-    basename($rh_idx)                => '書き込み履歴',
-    basename($palace_idx)            => 'スレの殿堂'
+$synctitles = array(
+    'favita'    => 'お気に板',
+    'fav'       => 'お気にスレ',
+    'recent'    => '最近読んだスレ',
+    'res_hist'  => '書き込み履歴',
+    'palace'    => 'スレの殿堂'
 );
 
 // }}}
@@ -26,15 +22,70 @@ $synctitle = array(
 
 // ホストの同期
 if (isset($_POST['sync'])) {
-    include_once P2_LIB_DIR . '/BbsMap.class.php';
-    $syncfile = $_conf['pref_dir'].'/'.$_POST['sync'];
-    $sync_name = $_POST['sync'];
-    if ($syncfile == $_conf['favita_path']) {
-        BbsMap::syncBrd($syncfile);
-    } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
-        BbsMap::syncIdx($syncfile);
+    require_once P2_LIB_DIR . '/BbsMap.php';
+
+    $sync_boards = array();
+    $sync_indexes = array();
+
+    switch ($_POST['sync']) {
+    case 'favita':
+        if ($_conf['expack.misc.multi_favs']) {
+            $sync_boards[] = $_conf['orig_favita_brd'];
+            for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+                $sync_boards[] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favita%d.brd', $i);
+            }
+        } else {
+            $sync_boards[] = $_conf['favita_brd'];
+        }
+        break;
+    case 'fav':
+        if ($_conf['expack.misc.multi_favs']) {
+            $sync_indexes[] = $_conf['orig_favlist_idx'];
+            for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+                $sync_indexes[] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favlist%d.idx', $i);
+            }
+        } else {
+            $sync_indexes[] = $_conf['favlist_idx'];
+        }
+        break;
+    case 'recent':
+        $sync_indexes[] = $_conf['recent_idx'];
+        break;
+    case 'res_hist':
+        $sync_indexes[] = $_conf['res_hist_idx'];
+        break;
+    case 'palace':
+        $sync_indexes[] = $_conf['palace_idx'];
+        break;
+    case 'all':
+        if ($_conf['expack.misc.multi_favs']) {
+            $sync_boards[] = $_conf['orig_favita_brd'];
+            $sync_indexes[] = $_conf['orig_favlist_idx'];
+            for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+                $sync_boards[] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favita%d.brd', $i);
+                $sync_indexes[] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favlist%d.idx', $i);
+            }
+        } else {
+            $sync_boards[] = $_conf['favita_brd'];
+            $sync_indexes[] = $_conf['favlist_idx'];
+        }
+        $sync_indexes[] = $_conf['recent_idx'];
+        $sync_indexes[] = $_conf['res_hist_idx'];
+        $sync_indexes[] = $_conf['palace_idx'];
+        break;
     }
-    unset($syncfile);
+
+    foreach ($sync_boards as $brd) {
+        if (file_exists($brd)) {
+            BbsMap::syncBrd($brd);
+        }
+    }
+
+    foreach ($sync_indexes as $idx) {
+        if (file_exists($idx)) {
+            BbsMap::syncIdx($idx);
+        }
+    }
 
 // お気に入りセット変更があれば、設定ファイルを書き換える
 } elseif ($_conf['expack.misc.multi_favs'] && isset($_POST['favsetlist'])) {
@@ -74,22 +125,23 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=editpref&amp;skin={$skin_en}" type="text/css">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=editpref&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="top.document.title=self.document.title;"';
 echo <<<EOP
 </head>
 <body{$body_at}>\n
@@ -117,9 +169,9 @@ $ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
 
 echo '<div>';
 echo <<<EOP
-<a href="edit_conf_user.php{$_conf['k_at_q']}">ユーザ設定編集</a>
+<a href="edit_conf_user.php{$_conf['k_at_q']}" class="button">ユーザ設定編集</a>
 EOP;
-if (empty($_conf['ktai']) && $_conf['expack.skin.enabled']) {
+if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
     $skin_options = array('conf_user_style' => '標準');
     $skin_dir = opendir('./skin');
     if ($skin_dir) {
@@ -212,34 +264,21 @@ EOP;
 
     //echo '&nbsp;';
 
-    //echo "</td></tr>\n\n";
-    $htm['sync'] = "<tr><td colspan=\"2\">\n\n";
-
     // {{{ PC - ホストの同期 HTMLのセット
 
-    $htm['sync'] .= <<<EOP
+    echo <<<EOP
+<tr><td colspan="2">
 <fieldset>
 <legend>ホストの同期 （2chの板移転に対応します）</legend>
 EOP;
-    $exist_sync_flag = false;
-    foreach ($synctitle as $syncpath => $syncname) {
-        if (is_writable($_conf['pref_dir'].'/'.$syncpath)) {
-            $exist_sync_flag = true;
-            $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
-        }
+    echo getSyncFavoritesFormHt('all', 'すべて');
+    foreach ($synctitles as $syncmode => $syncname) {
+        echo getSyncFavoritesFormHt($syncmode, $syncname);
     }
-    $htm['sync'] .= <<<EOP
-</fieldset>\n
+    echo <<<EOP
+</fieldset>
+</td></tr>\n
 EOP;
-
-    $htm['sync'] .= "</td></tr>\n\n";
-
-    if ($exist_sync_flag) {
-        echo $htm['sync'];
-    } else {
-        echo "&nbsp;";
-        // echo "<p>ホストの同期は必要ありません</p>";
-    }
 
     // }}}
     // {{{ PC - セット切り替え・名称変更
@@ -249,7 +288,6 @@ EOP;
 
         echo <<<EOP
 <form action="editpref.php" method="post" accept-charset="{$_conf['accept_charset']}" target="_self" style="margin:0">
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="favsetlist" value="1">
     <fieldset>
         <legend>セット切り替え・名称変更（セット名を空にするとデフォルトの名前に戻ります）</legend>
@@ -270,6 +308,7 @@ EOP;
             <input type="submit" value="変更">
         </div>
     </fieldset>
+    {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n\n
 EOP;
 
@@ -305,19 +344,10 @@ if ($_conf['ktai']) {
 <input type="submit" value="ｱﾎﾞﾝﾚｽ編集">
 </form>
 EOP;
-    $htm['sync'] .= "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
-    $exist_sync_flag = false;
-    foreach ($synctitle as $syncpath => $syncname) {
-        if (is_writable($_conf['pref_dir'].'/'.$syncpath)) {
-            $exist_sync_flag = true;
-            $htm['sync'] .= getSyncFavoritesFormHt($syncpath, $syncname);
-        }
-    }
-
-    if ($exist_sync_flag) {
-        echo $htm['sync'];
-    } else {
-        // echo "<p>ﾎｽﾄの同期は必要ありません</p>";
+    echo "<p>ﾎｽﾄの同期（2chの板移転に対応します）</p>\n";
+    echo getSyncFavoritesFormHt('all', 'すべて');
+    foreach ($synctitles as $syncmode => $syncname) {
+        echo getSyncFavoritesFormHt($syncmode, $syncname);
     }
 
     // {{{ 携帯 - セット切り替え
@@ -377,8 +407,7 @@ if (!empty($links)) {
 
 // 携帯用フッタ
 if ($_conf['ktai']) {
-    echo "<hr>\n";
-    echo $_conf['k_to_index_ht'] . "\n";
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 }
 
 echo '</body></html>';
@@ -388,6 +417,8 @@ exit;
 //==============================================================================
 // 関数
 //==============================================================================
+// {{{ printEditFileForm()
+
 /**
  * 設定ファイル編集ウインドウを開くフォームHTMLをプリントする
  *
@@ -431,11 +462,14 @@ function printEditFileForm($path_value, $submit_value)
 </form>\n
 EOFORM;
 
-    if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
         $ht = '&nbsp;' . preg_replace('/>\s+</', '><', $ht);
     }
     echo $ht;
 }
+
+// }}}
+// {{{ getSyncFavoritesFormHt()
 
 /**
  * ホストの同期用フォームのHTMLを取得する
@@ -456,11 +490,14 @@ function getSyncFavoritesFormHt($path_value, $submit_value)
 </form>\n
 EOFORM;
 
-    if (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) {
+    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false) {
         $ht = '&nbsp;' . preg_replace('/>\s+</', '><', $ht);
     }
     return $ht;
 }
+
+// }}}
+// {{{ getFavSetListFormHt()
 
 /**
  * お気に入りセット切り替え・セット名変更用フォームのHTMLを取得する（PC用）
@@ -501,6 +538,9 @@ EOFORM;
     return $ht;
 }
 
+// }}}
+// {{{ getFavSetListFormHtK()
+
 /**
  * お気に入りセット切り替え用フォームのHTMLを取得する（携帯用）
  *
@@ -531,7 +571,7 @@ function getFavSetListFormHtK($set_name, $set_title)
                 $titles[$j] = $set_title . $j;
             }
         }
-        if (!empty($_conf['k_save_packet'])) {
+        if (!empty($_conf['mobile.save_packet'])) {
             $titles[$j] = mb_convert_kana($titles[$j], 'rnsk');
         }
         $ht .= "<option value=\"{$j}\"{$selected[$j]}>{$titles[$j]}</option>";
@@ -540,6 +580,9 @@ function getFavSetListFormHtK($set_name, $set_title)
 
     return $ht;
 }
+
+// }}}
+// {{{ updateFavSetList()
 
 /**
  * お気に入りセットリストを更新する
@@ -584,3 +627,16 @@ function updateFavSetList()
 
     return TRUE;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

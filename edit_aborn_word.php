@@ -1,10 +1,9 @@
 <?php
-/*
-    p2 - あぼーんワード編集インタフェース
-*/
+/**
+ * rep2 - あぼーんワード編集インタフェース
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -13,7 +12,7 @@ $path_ht = htmlspecialchars($path, ENT_QUOTES);
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
     if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
-        die('p2 error: 不正なポストです');
+        p2die('不正なポストです');
     }
 }
 
@@ -32,7 +31,7 @@ if ($writable_files and (!in_array(basename($path), $writable_files))) {
         $files_st .= "「".$afile."」";
         $i++;
     }
-    die("Error: ".basename($_SERVER['SCRIPT_NAME'])." 先生の書き込めるファイルは、".$files_st."だけ！");
+    p2die(basename($_SERVER['SCRIPT_NAME']) . " 先生の書き込めるファイルは、{$files_st}だけ！");
 }
 
 //=====================================================================
@@ -92,11 +91,10 @@ if (!empty($_POST['submit_save'])) {
 // {{{ リスト読み込み
 
 $formdata = array();
-if (file_exists($path)) {
-    $lines = file($path);
+if ($lines = FileCtl::file_read_lines($path, FILE_IGNORE_NEW_LINES)) {
     $i = 0;
-    foreach ($lines as $line) {
-        $lar = explode("\t", rtrim($line, "\r\n"));
+    foreach ($lines as $l) {
+        $lar = explode("\t", $l);
         if (strlen($lar[0]) == 0) {
             continue;
         }
@@ -125,7 +123,7 @@ if (file_exists($path)) {
             $ar['word'] = $m[3];
             $ar['re'] = ' checked';
             // 大文字小文字を無視
-            if ($m[2] && strstr($m[2], 'i')) {
+            if ($m[2] && strpos($m[2], 'i') !== false) {
                 $ar['ic'] = ' checked';
             }
         // 大文字小文字を無視
@@ -160,24 +158,24 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <script type="text/javascript" src="js/basic.js"></script>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=edit_conf_user&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=edit_conf_user&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onLoad="top.document.title=self.document.title;"';
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="top.document.title=self.document.title;"';
 echo <<<EOP
 </head>
 <body{$body_at}>\n
@@ -198,7 +196,7 @@ if (!$_conf['ktai']) {
         <tr class="group">
             <td colspan="6" align="center">
                 <input type="submit" name="submit_save" value="変更を保存する">
-                <input type="submit" name="submit_default" value="リストを空にする" onClick="if (!window.confirm('リストを空にしてもよろしいですか？（やり直しはできません）')) {return false;}"><br>
+                <input type="submit" name="submit_default" value="リストを空にする" onclick="if (!window.confirm('リストを空にしてもよろしいですか？（やり直しはできません）')) {return false;}"><br>
             </td>
         </tr>\n
 EOP;
@@ -230,8 +228,6 @@ if ($_conf['ktai']) {
 echo <<<EOP
 {$usage}
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self" accept-charset="{$_conf['accept_charset']}">
-    {$_conf['k_input_ht']}
-    <input type="hidden" name="_hint" value="◎◇">
     <input type="hidden" name="path" value="{$path_ht}">
     <input type="hidden" name="csrfid" value="{$csrfid}">\n
 EOP;
@@ -268,15 +264,29 @@ EOP;
 // 携帯用表示
 } else {
     echo "新規登録<br>\n";
-    $row_format = <<<EOP
+    if ($_conf['iphone']) {
+        $row_format = <<<EOP
+<fieldset>
+<input type="text" name="nga[%1\$d][word]" value="%2\$s"><br>
+板:<input type="text" name="nga[%1\$d][bbs]" value="%7\$s"><br>
+ｽﾚ:<input type="text" name="nga[%1\$d][tt]" value="%8\$s"><br>
+<input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s>i
+<input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>re
+<input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">
+<input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)
+</fieldset>\n
+EOP;
+    } else {
+        $row_format = <<<EOP
 <input type="text" name="nga[%1\$d][word]" value="%2\$s"><br>
 板:<input type="text" size="5" name="nga[%1\$d][bbs]" value="%7\$s">
 ｽﾚﾀｲ:<input type="text" size="5" name="nga[%1\$d][tt]" value="%8\$s"><br>
 <input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s>i
 <input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>re
 <input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">
-<input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)<br>\n
+<input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)<hr>\n
 EOP;
+    }
 }
 
 printf($row_format, -1, '', '', '', '--', 0, '', '');
@@ -284,6 +294,9 @@ printf($row_format, -1, '', '', '', '--', 0, '', '');
 echo $htm['form_submit'];
 
 if (!empty($formdata)) {
+    if ($_conf['ktai'] && !$_conf['iphone']) {
+        echo "<hr>\n";
+    }
     foreach ($formdata as $k => $v) {
         printf($row_format,
             $k,
@@ -304,15 +317,20 @@ if (!$_conf['ktai']) {
     echo '</table>'."\n";
 }
 
-echo '</form>'."\n";
+echo <<<EOP
+{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
+</form>\n
+EOP;
 
 
 // 携帯なら
 if ($_conf['ktai']) {
     echo <<<EOP
 <hr>
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="editpref.php{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.設定編集</a>
+<div class="center">
+<a href="editpref.php{$_conf['k_at_q']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}設定編集</a>
 {$_conf['k_to_index_ht']}
+</div>
 EOP;
 }
 
@@ -320,3 +338,14 @@ echo '</body></html>';
 
 // ここまで
 exit;
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

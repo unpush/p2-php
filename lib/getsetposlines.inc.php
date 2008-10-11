@@ -1,6 +1,12 @@
 <?php
 /**
- * p2 - ポジションを考慮しながら、ラインデータを追加して、結果を取得する
+ * rep2 - ポジションを考慮しながら、ラインデータを追加して、結果を取得する関数
+ */
+
+// {{{ getSetPosLines()
+
+/**
+ * ポジションを考慮しながら、ラインデータを追加して、結果を取得する
  *
  * @param array     $lines            あらかめじめ重複要素を削除したライン配列
  * @param string    $data             新規ラインデータ
@@ -55,3 +61,16 @@ function getSetPosLines($lines, $data, $before_line_num, $set)
 
     return $reclines;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,8 +1,9 @@
 <?php
-// p2 -  タイトルページ
+/**
+ * rep2 - タイトルページ
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -43,7 +44,7 @@ if (!in_array($_conf['pref_dir'], $checked_dirs)) {
 if ($array = P2Util::readIdPw2ch()) {
     list($login2chID, $login2chPW, $autoLogin2ch) = $array;
     if ($autoLogin2ch) {
-        include_once P2_LIB_DIR . '/login2ch.inc.php';
+        require_once P2_LIB_DIR . '/login2ch.inc.php';
         login2ch();
     }
 }
@@ -52,6 +53,7 @@ if ($array = P2Util::readIdPw2ch()) {
 // プリント設定
 //=========================================================
 // 最新版チェック
+$newversion_found = '';
 if (!empty($_conf['updatan_haahaa'])) {
     $newversion_found = checkUpdatan();
 }
@@ -60,51 +62,36 @@ if (!empty($_conf['updatan_haahaa'])) {
 $htm['auth_user'] = "<p>ログインユーザ: {$_login->user_u} - " . date("Y/m/d (D) G:i") . "</p>\n";
 
 // （携帯）ログイン用URL
-//$user_u_q = empty($_conf['ktai']) ? '' : '?user=' . $_login->user_u;
-//$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/' . $user_u_q . '&amp;b=k';
-$url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=k';
+$url_b = htmlspecialchars(rtrim(dirname(P2Util::getMyUrl()), '/') . '/?b=', ENT_QUOTES);
 
-$htm['ktai_url'] = '<p>携帯ログイン用URL <a href="'.$url.'" target="_blank">'.$url.'</a></p>'."\n";
+$htm['ktai_url'] = <<<EOT
+<table border="0" cellspacing="0" cellpadding="1">
+    <tbody>
+        <tr><th>携帯用URL:</th><td><a href="{$url_b}k" target="_blank">{$url_b}k</a></td></tr>
+        <tr><th>iPhone用URL:</th><td><a href="{$url_b}i" target="_blank">{$url_b}i</a></td></tr>
+    </tbody>
+</table>
+EOT;
 
 // 前回のログイン情報
+$htm['last_login'] = '';
 if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
     if (($log = P2Util::getLastAccessLog($_conf['login_log_file'])) !== false) {
         $htm['log'] = array_map('htmlspecialchars', $log);
-        $htm['last_login'] = <<<EOP
-前回のログイン情報 - {$htm['log']['date']}<br>
-ユーザ:     {$htm['log']['user']}<br>
-IP:         {$htm['log']['ip']}<br>
-HOST:       {$htm['log']['host']}<br>
-UA:         {$htm['log']['ua']}<br>
-REFERER:    {$htm['log']['referer']}
-EOP;
-    }
-/*
-    $htm['last_login'] =<<<EOP
-<table cellspacing="0" cellpadding="2";>
-    <tr>
-        <td colspan="2">前回のログイン情報</td>
-    </tr>
-    <tr>
-        <td align="right">時刻: </td><td>{$alog['date']}</td>
-    </tr>
-    <tr>
-        <td align="right">ユーザ: </td><td>{$alog['user']}</td>
-    </tr>
-    <tr>
-        <td align="right">IP: </td><td>{$alog['ip']}</td>
-    </tr>
-    <tr>
-        <td align="right">HOST: </td><td>{$alog['host']}</td>
-    </tr>
-    <tr>
-        <td align="right">UA: </td><td>{$alog['ua']}</td>
-    </tr>
-    <tr>
-        <td align="right">REFERER: </td><td>{$alog['referer']}</td>
+        $htm['last_login'] = <<<EOT
+<br>
+<table border="0" cellspacing="0" cellpadding="1">
+    <caption>前回のログイン情報 - {$htm['log']['date']}</caption>
+    <tbody>
+        <tr><th>ユーザ:</th><td>{$htm['log']['user']}</td></tr>
+        <tr><th>IP:</th><td>{$htm['log']['ip']}</td></tr>
+        <tr><th>HOST:</th><td>{$htm['log']['host']}</td></tr>
+        <tr><th>UA:</th><td>{$htm['log']['ua']}</td></tr>
+        <tr><th>REFERER:</th><td>{$htm['log']['referer']}</td></tr>
+    </tbody>
 </table>
-EOP;
-*/
+EOT;
+    }
 }
 
 //=========================================================
@@ -116,14 +103,38 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>
     <base target="read">
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <style type="text/css">
+    /* <![CDATA[ */
+    table caption {
+        text-align: left;
+        font-size: {$STYLE['fontsize']};
+    }
+    table th {
+        padding-right: 0.25em;
+        text-align: right;
+        vertical-align: top;
+        white-space: nowrap;
+        line-height: 100%;
+        font-weight: normal;
+        font-size: {$STYLE['fontsize']};
+    }
+    table td {
+        text-align: left;
+        vertical-align: top;
+        line-height: 100%;
+        font-size: {$STYLE['fontsize']};
+    }
+    /* ]]> */
+    </style>
 </head>
 <body>\n
 EOP;
@@ -146,7 +157,7 @@ echo <<<EOP
         <li><a href="viewtxt.php?file=doc/README-EX.txt">README-EX.txt</a></li>
         <li><a href="img/how_to_use.png">ごく簡単な操作法</a></li>
         <li><a href="{$expack_hist_url_r}"{$_conf['ext_win_target_at']}>拡張パック 更新記録</a></li>
-        <li><a href="viewtxt.php?file=doc/ChangeLog.txt">ChangeLog（rep2 更新記録）</a></li>
+        <!-- <li><a href="viewtxt.php?file=doc/ChangeLog.txt">ChangeLog（rep2 更新記録）</a></li> -->
     </ul>
     {$htm['auth_user']}
     {$htm['ktai_url']}
@@ -159,6 +170,8 @@ EOP;
 //==================================================
 // 関数
 //==================================================
+// {{{ checkUpdatan()
+
 /**
  * オンライン上のrep2-expack最新版をチェックする
  *
@@ -176,7 +189,7 @@ function checkUpdatan()
 
     if (file_exists($cachefile)) {
         // キャッシュの更新が指定時間以内なら
-        if (@filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 60) {
+        if (filemtime($cachefile) > time() - $_conf['p2status_dl_interval'] * 86400) {
             $no_p2status_dl_flag = true;
         }
     }
@@ -185,8 +198,8 @@ function checkUpdatan()
         P2Util::fileDownload($ver_txt_url, $cachefile);
     }
 
-    $ver_txt = file($cachefile);
-    $update_ver = rtrim($ver_txt[0]);
+    $ver_txt = FileCtl::file_read_lines($cachefile, FILE_IGNORE_NEW_LINES);
+    $update_ver = $ver_txt[0];
     $kita = 'ｷﾀ━━━━（ﾟ∀ﾟ）━━━━!!!!!!';
     //$kita = 'ｷﾀ*･ﾟﾟ･*:.｡..｡.:*･ﾟ(ﾟ∀ﾟ)ﾟ･*:.｡. .｡.:*･ﾟﾟ･*!!!!!';
 
@@ -203,3 +216,16 @@ EOP;
     }
     return $newversion_found_html;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

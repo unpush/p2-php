@@ -1,8 +1,8 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
 /*
-	ImageCache2::Manager
-*/
+ *ImageCache2::Manager
+ */
+
+// {{{ dropZeroOptions()
 
 function dropZeroOptions(onoff)
 {
@@ -23,6 +23,9 @@ function dropZeroOptions(onoff)
 	}
 }
 
+// }}}
+// {{{ isRadioSelected()
+
 function isRadioSelected()
 {
 	var radios = document.getElementsByName("action");
@@ -34,3 +37,16 @@ function isRadioSelected()
 	alert("ìÆçÏÇ™ëIÇŒÇÍÇƒÇ¢Ç‹ÇπÇÒÅB");
 	return false;
 }
+
+// }}}
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

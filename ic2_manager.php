@@ -1,18 +1,18 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    ImageCache2 - メンテナンス
-*/
+/**
+ * ImageCache2 - メンテナンス
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -28,21 +28,21 @@ require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 $ini = ic2_loadconfig();
 
 // データベースに接続
-$db = &DB::connect($ini['General']['dsn']);
+$db = DB::connect($ini['General']['dsn']);
 if (DB::isError($db)) {
-    die('<html><body><p>'.$result->getMessage().'</p></body></html>');
+    p2die($result->getMessage());
 }
 
 // テンプレートエンジン初期化
 $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'cp932',
-    'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
+    'compileDir' => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'ic2',
     'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+$flexy = new HTML_Template_Flexy($_flexy_options);
 
 // }}}
 // {{{ データベース操作・ファイル削除
@@ -190,3 +190,14 @@ $flexy->compile('ic2mng.tpl.html');
 $flexy->output();
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

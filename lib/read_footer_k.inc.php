@@ -1,9 +1,9 @@
 <?php
-/*
-    p2 -  スレッド表示 -  フッタ部分 -  携帯用 for read.php
-*/
+/**
+ * rep2 - スレッド表示 - フッタ部分 - 携帯用 for read.php
+ */
 
-include_once P2_LIB_DIR . '/spm_k.inc.php';
+require_once P2_LIB_DIR . '/spm_k.inc.php';
 
 //=====================================================================
 // フッタ
@@ -11,13 +11,16 @@ include_once P2_LIB_DIR . '/spm_k.inc.php';
 // 表示範囲
 if ($_conf['filtering'] && $aThread->rescount) {
     $filter_range['end'] = min($filter_range['to'], $filter_hits);
-    $read_range_on = "{$filter_range['start']}-{$filter_range['end']}/{$filter_hits}hit";
+    $read_range_on = "{$filter_range['start']}-{$filter_range['end']}";
+    $rescount_st = "{$filter_hits}hits/{$aThread->rescount}";
 } elseif ($aThread->resrange['start'] == $aThread->resrange['to']) {
     $read_range_on = $aThread->resrange['start'];
+    $rescount_st = (string)$aThread->rescount;
 } else {
     $read_range_on = "{$aThread->resrange['start']}-{$aThread->resrange['to']}";
+    $rescount_st = (string)$aThread->rescount;
 }
-$hd['read_range'] = $read_range_on . '/' . $aThread->rescount;
+$hd['read_range'] = "{$read_range_on}/{$rescount_st}";
 
 // レス番指定移動 etc.
 $htm['goto'] = kspform($aThread, ($_conf['filtering'] ? $last_hit_resnum : $aThread->resrange['to']));
@@ -30,19 +33,33 @@ if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
     if (!$aThread->diedat) {
         if (!empty($_conf['disable_res'])) {
             $dores_ht = <<<EOP
-      | <a href="{$motothre_url}" target="_blank" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+ | <a href="{$motothre_url}"{$_conf['k_accesskey_at']['res']}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
 EOP;
         } else {
             $dores_ht = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['res']}">{$_conf['k_accesskey']['res']}.{$dores_st}</a>
+<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['res']}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
 EOP;
         }
+    } else {
+        $dores_ht = '';
     }
-    if ($res1['body']) {
+
+    if (isset($res1) && isset($res1['body'])) {
         $q_ichi = $res1['body']." | ";
+    } else {
+        $q_ichi = '';
     }
+
+    if (empty($_GET['one'])) {
+        require_once P2_LIB_DIR . '/read_jump_k.inc.php';
+        if ($_conf['iphone']) {
+            echo get_read_jump($aThread, "<span id=\"footer\">{$rescount_st}</span>", true);
+        } else {
+            echo get_read_jump($aThread, "<a id=\"footer\" name=\"footer\">{$hd['read_range']}</a>", false);
+        }
+    }
+
     echo <<<EOP
-<div><a id="footer" name="footer">{$hd['read_range']}</a></div>
 <div class="navi">
 {$read_navi_previous_btm}
 {$read_navi_next_btm}
@@ -53,7 +70,7 @@ EOP;
 </div>
 <div class="toolbar">
 {$toolbar_right_ht}
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['above']}" href="#header">{$_conf['k_accesskey']['above']}.▲</a>
+<a href="#header"{$_conf['k_accesskey_at']['above']}>{$_conf['k_accesskey_st']['above']}▲</a>
 </div>
 {$htm['goto']}\n
 EOP;
@@ -65,17 +82,38 @@ EOP;
         echo '</div>' . "\n";
     }
 }
-echo '<hr>'.$_conf['k_to_index_ht'] . "\n";
+echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 
-// iPhone & ImageCache2
-if ($_conf['iphone'] && $_conf['expack.ic2.enabled']) {
-    require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-    $ic2conf = ic2_loadconfig();
-    if ($ic2conf['Thumb1']['width'] > 80) {
-        include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
-    } else {
-        include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+// iPhone
+if ($_conf['iphone']) {
+    // ImageCache2
+    if ($_conf['expack.ic2.enabled']) {
+        require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+        $ic2conf = ic2_loadconfig();
+        if ($ic2conf['Thumb1']['width'] > 80) {
+            include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
+        } else {
+            include P2EX_LIB_DIR . '/ic2/templates/info-h.tpl.html';
+        }
+    }
+    // SPM
+    if ($_conf['expack.spm.enabled']) {
+        if (!class_exists('ShowThreadK', false)) {
+            require_once P2_LIB_DIR . '/ShowThreadK.php';
+        }
+        echo ShowThreadK::getSpmElementHtml();
     }
 }
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

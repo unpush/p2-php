@@ -1,4 +1,7 @@
 <?php
+/**
+ * rep2expack - tGrep 検索結果のレンダリング for iPhone/Ajax
+ */
 
 if ($htm['query'] === '') {
     echo "<div class=\"panel\" title=\"スレッド検索\">無効なキーワードです。</div>";
@@ -9,8 +12,9 @@ if ($htm['query'] === '') {
     return;
 }
 
-$ix_base_url = sprintf('tgrepc.php?hint=%s&amp;iq=%s&amp;M=%d',
-                       rawurlencode('◎◇'),
+$ix_base_url = sprintf('tgrepc.php?%s%s&amp;iq=%s&amp;M=%d',
+                       $_conf['detect_hint_q'],
+                       $_conf['k_at_a'],
                        $htm['query_en'],
                        time()
                        );
@@ -119,7 +123,7 @@ if (isset($_GET['ic'])) {
                         $_conf['subject_php'],
                         $host_en,
                         $bbs_en,
-                        urlencode(base64_encode($t->ita)),
+                        rawurlencode(base64_encode($t->ita)),
                         $htm['query_en']
                         );
 
@@ -158,3 +162,14 @@ if (isset($_GET['ic'])) {
 }
 
 echo '</ul>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

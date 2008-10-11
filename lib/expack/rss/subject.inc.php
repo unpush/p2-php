@@ -1,6 +1,7 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - 簡易RSSリーダ（記事一覧・PC用）
+ */
 
 // {{{ 表示用変数
 
@@ -42,18 +43,16 @@ EOP;
     $ch_dscr_all = htmlspecialchars($ch_dscr_all, ENT_QUOTES);
     $ch_dscr = htmlspecialchars($ch_dscr, ENT_QUOTES);
     $rss_toolbar_ht = <<<EOP
-            <span class="itatitle"><a class="aitatitle" href="{$ch_link}" title="{$ch_dscr_all}"{$onmouse_popup}><b>{$title}</b></a></span> <span class="time">{$ch_dscr}</span>
-        </td>
-        <td align="left" valign="middle" width="100%" nowrap>
-            <form class="toolbar" method="get" action="subject_rss.php" target="_self">
-                <input type="hidden" name="xml" value="{$xml}">
-                <input type="hidden" name="site_en" value="{$site_en}">
-                <input type="hidden" name="refresh" value="1">{$atom_ht}
-                <input type="submit" name="submit" value="更新">
-            </form>
-        </td>
-        <td align="right" valign="middle" nowrap>
-            {$matomeyomi}<span class="time">{$reloaded_time}</span>
+<span class="itatitle"><a class="aitatitle" href="{$ch_link}" title="{$ch_dscr_all}"{$onmouse_popup}><b>{$title}</b></a></span> <span class="time">{$ch_dscr}</span></td>
+<td class="toolbar-update" width="100%">
+    <form class="toolbar" method="get" action="subject_rss.php" target="_self">
+        <input type="hidden" name="xml" value="{$xml}">
+        <input type="hidden" name="site_en" value="{$site_en}">
+        <input type="hidden" name="refresh" value="1">{$atom_ht}
+        <input type="submit" name="submit" value="更新">
+    </form>
+</td>
+<td class="toolbar-anchor">{$matomeyomi}<span class="time">{$reloaded_time}</span>
 EOP;
 
 }
@@ -68,22 +67,23 @@ echo <<<EOH
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$title}</title>
     <base target="{$_conf['expack.rss.target_frame']}">
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=subject&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-{$popup_header}
-    <script type="text/javascript" src="js/basic.js"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    {$popup_header}
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
-    <!--
+    //<![CDATA[
     function setWinTitle(){
         if (top != self) {top.document.title=self.document.title;}
     }
-    // -->
+    //]]>
     </script>
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" onload="setWinTitle();">
+<body onload="setWinTitle();">
 {$_info_msg_ht}
 
 EOH;
@@ -95,15 +95,10 @@ if (!$rss_parse_success) {
 }
 
 echo <<<EOTB
-<table id="sbtoolbar1" class="toolbar" cellspacing="0" cellpadding="4">
-    <tr>
-        <td align="left" valign="middle" nowrap>
-{$rss_toolbar_ht}
-            <a class="toolanchor" href="#sbtoolbar2" target="_self">▼</a>
-        </td>
-    </tr>
-</table>
-<table cellspacing="0" width="100%">
+<table id="sbtoolbar1" class="toolbar" cellspacing="0"><tbody><tr>
+<td class="toolbar-title">{$rss_toolbar_ht}<a class="toolanchor" href="#sbtoolbar2" target="_self">▼</a></td>
+</tr></tbody></table>
+<table class="threadlist" cellspacing="0">
 
 EOTB;
 
@@ -115,21 +110,22 @@ $subject_column_ht = '';
 $creator_column_ht = '';
 $date_column_ht = '';
 if ($matomeyomi) {
-    $description_column_ht = '<td class="tu">概要</td>';
+    $description_column_ht = '<th class="tu">概要</th>';
 }
 if (rss_item_exists($items, 'dc:subject')) {
-    $subject_column_ht = '<td class="t">トピック</td>';
+    $subject_column_ht = '<th class="t">トピック</th>';
 }
 if (rss_item_exists($items, 'dc:creator')) {
-    $creator_column_ht = '<td class="t">文責</td>';
+    $creator_column_ht = '<th class="t">文責</th>';
 }
 if (rss_item_exists($items, 'dc:date') || rss_item_exists($items, 'dc:pubdate')) {
-    $date_column_ht = '<td class="t">日時</td>';
+    $date_column_ht = '<th class="t">日時</th>';
 }
 echo <<<EOP
-    <tr class="tableheader">
-        {$description_column_ht}<td class="tl">タイトル</td>{$subject_column_ht}{$creator_column_ht}{$date_column_ht}
-    </tr>\n
+<thead><tr class="tableheader">
+{$description_column_ht}<th class="tl">タイトル</th>{$subject_column_ht}{$creator_column_ht}{$date_column_ht}
+</tr></thead>
+<tbody>\n
 EOP;
 
 // 一覧
@@ -145,7 +141,7 @@ foreach ($items as $item) {
     $target_ht = '';
     $preview_one = '';
     // 偶数列か奇数列か
-    $r = ($i % 2) ? 'r1' : 'r2';
+    $r = (++$i % 2) ? 'r1' : 'r2';
     // 概要
     if ($description_column_ht) {
         if (isset($item['content:encoded']) || isset($item['description'])) {
@@ -157,11 +153,11 @@ foreach ($items as $item) {
     }
     // トピック
     if ($subject_column_ht) {
-        $subject_ht = "<td class=\"t\">" . P2Util::re_htmlspecialchars($item['dc:subject']) . "</td>";
+        $subject_ht = "<td class=\"t\">" . htmlspecialchars($item['dc:subject'], ENT_QUOTES, 'Shift_JIS', false) . "</td>";
     }
     // 文責
     if ($creator_column_ht) {
-        $creator_ht = "<td class=\"t\">" . P2Util::re_htmlspecialchars($item['dc:creator']) . "</td>";
+        $creator_ht = "<td class=\"t\">" . htmlspecialchars($item['dc:creator'], ENT_QUOTES, 'Shift_JIS', false) . "</td>";
     }
     // 日時
     if ($date_column_ht) {
@@ -182,24 +178,19 @@ foreach ($items as $item) {
     // 一列表示
     $item_title = $item['title'];
     echo <<<EOP
-<tr class="{$r}">{$description_ht}<td class="tl" nowrap>{$preview_one}<a id="tt{$i}" class="thre_title" href="{$link_orig}">{$item_title}</a></td>{$subject_ht}{$creator_ht}{$date_ht}</tr>
+<tr class="{$r}">{$description_ht}<td class="tl">{$preview_one}<a id="tt{$i}" class="thre_title" href="{$link_orig}">{$item_title}</a></td>{$subject_ht}{$creator_ht}{$date_ht}</tr>\n
 EOP;
-    $i++;
 }
 
 // }}}
 // {{{ フッタ
 
 echo <<<EOF
+</tbody>
 </table>
-<table id="sbtoolbar2" class="toolbar" cellspacing="0" cellpadding="4">
-    <tr>
-        <td align="left" valign="middle" nowrap>
-{$rss_toolbar_ht}
-            <a class="toolanchor" href="#sbtoolbar1" target="_self">▲</a>
-        </td>
-    </tr>
-</table>
+<table id="sbtoolbar2" class="toolbar" cellspacing="0"><tbody><tr>
+<td class="toolbar-title">{$rss_toolbar_ht}<a class="toolanchor" href="#sbtoolbar1" target="_self">▲</a></td>
+</tr></tbody></table>
 <form id="urlform" method="get" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
     RSS/Atomを直接指定
     <input id="url_text" type="text" value="{$xml_ht}" name="xml" size="54">
@@ -211,3 +202,14 @@ echo <<<EOF
 EOF;
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,18 +1,9 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-/*
-    p2 - datをインポートする
+/**
+ * rep2 - datをインポートする
+ */
 
-    TODO: HTMLのインポート対応
-        ただし、ローカルファイルのアップロード（拡張子で判定）の実装のみに留め、
-        にくちゃんねる等のURLを直接指定してダウンロードする機能はつけない。
-        （先方に迷惑がかかる可能性が非常に高いので）
-*/
-
-require_once 'conf/conf.inc.php'; // 基本設定
-require_once P2_LIB_DIR . '/p2util.class.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -55,8 +46,7 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
             $is_error = TRUE;
             $_info_msg_ht .= '<p>Error: スレッドキーの指定が変です。</p>';
         }*/
-        $dat_name = $key . '.dat';
-        $dat_path = P2Util::datDirOfHost($host) . '/' . $bbs . '/' . $dat_name;
+        $dat_path = P2Util::datDirOfHostBbs($host, $bbs) . $key . '.dat';
 
     // アップロード失敗のとき
     } else {
@@ -84,14 +74,16 @@ if (!empty($_POST['host']) && !empty($_POST['bbs']) && !empty($_POST['key']) && 
     // ファイルを保存し、リンクを作成
     if (!$is_error) {
         move_uploaded_file($_FILES['dat_file']['tmp_name'], $dat_path);
-        $datlines = file($dat_path);
-        if (strstr($datlines[0], '<>')) {
-            $one = explode('<>', $datlines[0]);
-        } else {
-            $one = explode(',', $datlines[0]);
+        $ttitle = '???';
+        if ($datlines = FileCtl::file_read_lines($dat_path, FILE_IGNORE_NEW_LINES)) {
+            if (strpos($datlines[0], '<>') !== false) {
+                $one = explode('<>', $datlines[0]);
+            } else {
+                $one = explode(',', $datlines[0]);
+            }
+            $ttitle = array_pop($one);
+            unset($datlines, $one);
         }
-        unset($datlines);
-        $ttitle = array_pop($one);
         $read_url = sprintf('%s?host=%s&bbs=%s&key=%d&offline=true', $_conf['read_php'], rawurlencode($host), rawurlencode($bbs), $key);
         $link_ht = sprintf('<p><a href="%s" target="read"><b>%s</b> を今すぐ読む。</a></p>', $read_url, $ttitle);
     }
@@ -108,14 +100,14 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html lang="ja">
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>p2 - datのインポート</title>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>\n
 EOP;
@@ -163,3 +155,14 @@ EOP;
 // フッタHTML表示
 //================================================================
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

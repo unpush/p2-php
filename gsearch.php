@@ -1,6 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
  * 2chからGoogle APIを使って検索し、p2で読むためのリンクに変換する
  *
@@ -23,30 +21,26 @@
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 // }}}
 
 if ($_conf['expack.google.enabled'] == 0) {
-    exit('<html><body><p>Google検索は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('Google検索は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 if ($_conf['view_forced_by_query']) {
-    if (!$_conf['ktai']) {
-        output_add_rewrite_var('b', 'pc');
-    } else {
-        output_add_rewrite_var('b', 'k');
-    }
+    output_add_rewrite_var('b', $_conf['b']);
 }
 
 // {{{ Init
 
 // ライブラリ読み込み
-require_once P2EX_LIB_DIR . '/google/search.class.php';
-require_once P2EX_LIB_DIR . '/google/converter.class.php';
-require_once P2EX_LIB_DIR . '/google/renderer.class.php';
+require_once P2EX_LIB_DIR . '/google/Search.php';
+require_once P2EX_LIB_DIR . '/google/Converter.php';
+require_once P2EX_LIB_DIR . '/google/Renderer.php';
 
 // Google Search WSDLファイルのパス
 $wsdl = $_conf['expack.google.wsdl'];
@@ -63,7 +57,7 @@ if (isset($_GET['word'])) {
     unset($_GET['word']);
 }
 if (isset($_GET['q'])) {
-    $q = mb_convert_encoding($_GET['q'], 'UTF-8', 'SJIS-win');
+    $q = mb_convert_encoding($_GET['q'], 'UTF-8', 'CP932');
     $word = htmlspecialchars($_GET['q'], ENT_QUOTES);
 } else {
     $word = $q = '';
@@ -88,14 +82,14 @@ if (!empty($q)) {
     $q .= ' site:2ch.net';
 
     // Google検索クラスのインスタンスを生成する
-    $google = &GoogleSearch::factory($wsdl, $key);
+    $google = Google_Search::factory($wsdl, $key);
 
     // インスタンス生成に失敗
     if (PEAR::isError($google)) {
         $result = '<b>Error: ' . $google->getMessage() . '</b>';
     // インスタンス生成に成功
     } else {
-        $resultObj = &$google->doSearch($q, $perPage, $start);
+        $resultObj = $google->doSearch($q, $perPage, $start);
         // エラー発生
         if (PEAR::isError($resultObj)) {
             $result = '<b>Error: ' . $resultObj->getMessage() . '</b>';
@@ -108,7 +102,7 @@ if (!empty($q)) {
             $totalItems = $resultObj->estimatedTotalResultsCount;
             // ヒットあり
             if ($totalItems > 0) {
-                $converter = &new Google_Converter;
+                $converter = new Google_Converter;
                 $result = array();
                 $popups = array();
                 $id = 1;
@@ -134,7 +128,7 @@ if (!empty($q)) {
 // }}}
 // {{{ Display
 
-$renderer = &new Google_Renderer;
+$renderer = new Google_Renderer;
 
 $search_element_type = 'text';
 $search_element_extra_attributes = '';
@@ -147,21 +141,21 @@ if ($_conf['input_type_search']) {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
 <head>
-    <?php echo $_conf['meta_charset_ht']; ?>
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    <?php echo $_conf['extra_headers_ht']; ?>
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    <?php echo $_conf['extra_headers_ht']; ?>
     <title>2ch検索 by Google : <?php echo $word; ?></title>
-    <link rel="stylesheet" href="css.php?css=style&amp;skin=<?php echo $skin_en; ?>" type="text/css">
-    <link rel="stylesheet" href="css.php?css=read&amp;skin=<?php echo $skin_en; ?>" type="text/css">
-    <link rel="stylesheet" href="css.php?css=subject&amp;skin=<?php echo $skin_en; ?>" type="text/css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/basic.js"></script>
-    <script type="text/javascript" src="js/gpopup.js"></script>
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin=<?php echo $skin_en; ?>">
+    <link rel="stylesheet" type="text/css" href="css.php?css=read&amp;skin=<?php echo $skin_en; ?>">
+    <link rel="stylesheet" type="text/css" href="css.php?css=subject&amp;skin=<?php echo $skin_en; ?>">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?<?php echo $_conf['p2_version_id']; ?>"></script>
+    <script type="text/javascript" src="js/gpopup.js?<?php echo $_conf['p2_version_id']; ?>"></script>
 </head>
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
-<table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td align="left">
+<body>
+<table id="sbtoolbar1" class="toolbar" cellspacing="0"><tr><td class="toolbar-title">
     <span class="itatitle"><a class="aitatitle" href="<?php echo $_SERVER['SCRIPT_NAME']; ?>"><b>2ch検索 by Google</b></a></span>
     <form action="<?php echo $_SERVER['SCRIPT_NAME']; ?>" method="get" accept-charset="<?php echo $_conf['accept_charset']; ?>" style="display:inline;">
         <input type="<?php echo $search_element_type; ?>" name="q" value="<?php echo $word; ?>"<?php echo $search_element_extra_attributes; ?>>
@@ -173,3 +167,14 @@ if ($_conf['input_type_search']) {
 <?php $renderer->printPopup($popups); ?>
 </body>
 </html>
+<?php
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

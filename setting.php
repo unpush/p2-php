@@ -1,10 +1,9 @@
 <?php
-/*
-    rep2 -  設定管理ページ
-*/
+/**
+ * rep2 - 設定管理ページ
+ */
 
-include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -29,12 +28,6 @@ if ($_conf['ktai']) {
 
 $autho_user_ht = "{$autho_user_st}: {$_login->user_u}<br>";
 
-
-$body_onload = "";
-if (!$_conf['ktai']) {
-    $body_onload = " onLoad=\"setWinTitle();\"";
-}
-
 // HOSTを取得
 if (!$hc[remoto_host] = $_SERVER['REMOTE_HOST']) {
     $hc[remoto_host] = gethostbyaddr($_SERVER['REMOTE_ADDR']);
@@ -55,23 +48,24 @@ echo $_conf['doctype'];
 echo <<<EOP
 <html>
 <head>
-    {$_conf['meta_charset_ht']}
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <meta http-equiv="Content-Script-Type" content="text/javascript">
-    {$_conf['extra_headers_ht']}
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+    {$_conf['extra_headers_ht']}
     <title>{$ptitle}</title>\n
 EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
-    <link rel="stylesheet" href="css.php?css=style&amp;skin={$skin_en}" type="text/css">
-    <link rel="stylesheet" href="css.php?css=setting&amp;skin={$skin_en}" type="text/css">
-    <script type="text/javascript" src="js/basic.js"></script>\n
+    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
+    <link rel="stylesheet" type="text/css" href="css.php?css=setting&amp;skin={$skin_en}">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : $body_onload;
+$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="setWinTitle();"';
 echo <<<EOP
 </head>
 <body{$body_at}>
@@ -116,7 +110,18 @@ echo "</p>\n";
 
 // フッタプリント===================
 if ($_conf['ktai']) {
-    echo '<hr>'.$_conf['k_to_index_ht']."\n";
+    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 }
 
 echo '</body></html>';
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

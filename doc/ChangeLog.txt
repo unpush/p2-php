@@ -1,3 +1,273 @@
+2007-10-02 aki
+	* rep2 version 1.8.14
+	
+	[新機能]  携帯TOPメニューを並び替え設定可能とした。
+	[新機能]  携帯のHTML基本色を設定で指定できるようにした。
+		背景色（k_bgcolor）、テキスト色（k_color）、リンク色（k_acolor）、訪問済みリンク色（k_acolor_v）
+		携帯 区切り線(<hr>)の色は、基本テキスト色の設定と同じにした。
+	[新機能]  携帯 元スレがc.2chである時、FROM設定を渡すようにした。
+
+	[対応更新]  willcomのIPアドレス帯域を更新した。
+	[対応修正]  YouTubeの jp.youtube.com ドメインに対応した。
+	[対応修正]  2chサーバでread.cgiにアクセスできない時、DAT落ちスレが取得できないサーバがあったのを、取得できるように対応した。
+
+	[バグ修正] ブラウザがIE以外の時、HTMLポップアップ(p)の表示位置がおかしいことがあった不具合を修正した。
+	[バグ修正] 「似スレ」で文字化けが発生することがあったのを修正した。
+	[バグ修正]  スレタイで「&」が「&amp;」、「"」が「&quot;」と表示されることがあった不具合を修正した。
+	[バグ修正]  スレッド一覧画面でのヘッダへのアンカー（▲）が正しくなかったのを修正した。
+		#header > #sbtoolbar1
+
+	[改良]  新着まとめ読みから開いた書き込みのポップアップウィンドウを自動で閉じるようにした。
+	（自動リロードはこれまでと同様に行わない）
+	[改良]  NGワードの表示をマウスオーバーからクリックに変更した。
+	[改良]  NG/あぼーんワード編集のリンクをフォームボタンから、テキストリンクに変更した。
+		（※リンクを新窓で開いたりできるように）
+	[改良] スレ一覧の数が1件以下の場合は、スレッドあぼーんの自動解除を行わないようにした。
+
+	[仕様変更]  速報headline(headline.2ch.net)は最近読んだスレに記録しないようにした。
+	[仕様変更]  PC 左メニューの「お気にスレ」と「最近読んだスレ」の位置が入れ替わった。
+	[仕様変更] PSPを携帯表示としないようにした。
+
+	[内部改良] ヘッドバーのHTMLをJavaScriptで動的にコピー生成するように改良した。
+	
+	付属のPEARを更新した。
+	
+	- 新規追加されたファイル
+		lib/global.funcs.php is new
+	
+	- ファイル名が変更されたファイル
+		lib/SubjectTxt.class.php   > lib/SubjectTxt.php
+		lib/ngabornctl.class.php   > lib/NgAbornCtl.php
+		lib/showthread.class.php   > lib/ShowThread.php
+		lib/showthreadk.class.php  > lib/ShowThreadK.php
+		lib/showthreadpc.class.php > lib/ShowThreadPc.php
+	
+	- 変更のあったファイル
+		たくさん
+
+
+2007-3-14 aki
+	* rep2 version 1.8.13
+	
+	[バグ修正] スレ一覧でスレタイトルの色の指定が新着と既着が逆になることがあったバグを修正した。
+	[バグ修正] スレ一覧ページで▼▲の移動リンク正常に表示されていなかったのを修正した
+	[バグ修正] スレ一覧表示の未読数が0.1などとなることがあったのを修正した。
+	[バグ修正] 携帯でメールのNGワード変換表示が正常になされていなかったのを修正した。
+	[バグ修正] お気に板に、移転反映前の板と、自分で登録した移転後の板の両方がある時、
+	  移転反映前の板が自動更新で移転反映された後（つまり同じアドレスの板がふたつ登録されてる状態）に
+	  片方をお気に板から外す操作をすると、両方とも消えてしまう不具合があったのを修正した。
+
+	[新機能] スマートポップアップメニューをつけた。（拡張パックよりシンプルなもの。これにレス、引用してレス、同じ名前、逆参照）
+
+	[新機能] subject.txtを一度にダウンロードする際の全体的な時間制限を設定できるようになった（デフォルト15秒）
+	  conf_admin.inc.php $_conf['dlSubjectTotalLimitTime']
+
+	[新機能] スレ情報画面から、生DATをダウンロードできるようになった。
+	[新機能] ニコニコ動画のプレビュー表示に対応した
+	  （ユーザ設定 link_niconico）
+
+	[ユーザ設定追加] p2 bottom_res_form 常時するを追加
+	  （しない: 0 マウスオーバー表示:1 常に表示:2）
+
+	[改良] NGあぼーん編集の設定登録UIを強化した（拡張パックより。感謝!）
+	[改良] 携帯のスレ情報画面で、お気にスレの登録削除に、 アクセスキー（9）を付けた。 
+	[改良] 引用先レス表示でもNGあぼーんが適用されるようにした。
+
+	[対応] auのIPアドレス帯域を追加更新した。
+
+	[仕様変更] 携帯トップメニューの「2.最近読んだｽﾚの全て」と「4.お気にｽﾚの全て」のリンクに、
+	  norefresh=1をつけて、subject.txtの更新を行わないようにした。
+	[仕様変更] セッションを強化した。
+	[仕様変更] PSPも携帯向け表示とするようにした。
+
+	- 新しく追加されたファイル
+		dat.php
+		edit_aborn_word.php
+		lib/UA.php
+		read_filter.php
+		
+	- 変更のあったファイル
+		edit_conf_user.php
+		editfavita.php
+		editfile.php
+		editpref.php
+		httpcmd.php
+		index.php
+		info.php
+		login.php
+		menu_k.php
+		post.php
+		read.php
+		read_copy_k.php
+		read_new.php
+		read_new_k.php
+		read_res_hist.php
+		setting.php
+		subject.php
+		subject_new.php
+		title.php
+		conf/conf.inc.php
+		conf/conf_admin.inc.php
+		conf/conf_hostcheck.php
+		conf/conf_user_def.inc.php
+		conf/conf_user_style.inc.php
+		js/respopup.js
+		lib/BbsMap.class.php
+		lib/SettingTxt.php
+		lib/SubjectTxt.class.php
+		lib/brdctl.class.php
+		lib/brdmenu.class.php
+		lib/hostcheck.class.php
+		lib/index_print_k.inc.php
+		lib/login.class.php
+		lib/login2ch.inc.php
+		lib/login_first.inc.php
+		lib/menu.inc.php
+		lib/ngabornctl.class.php
+		lib/p2util.class.php
+		lib/post_form.inc.php
+		lib/post_options_loader.inc.php
+		lib/read_header.inc.php
+		lib/read_header_k.inc.php
+		lib/read_res_hist.inc.php
+		lib/read_shitaraba.inc.php
+		lib/sb_header.inc.php
+		lib/sb_header_k.inc.php
+		lib/sb_print.inc.php
+		lib/sb_toolbar.inc.php
+		lib/sb_toolbar_k.inc.php
+		lib/session.class.php
+		lib/setfavita.inc.php
+		lib/setpalace.inc.php
+		lib/settaborn.inc.php
+		lib/settaborn_off.inc.php
+		lib/showbrdmenuk.class.php
+		lib/showbrdmenupc.class.php
+		lib/showthread.class.php
+		lib/showthreadk.class.php
+		lib/showthreadpc.class.php
+		lib/thread.class.php
+		lib/threadlist.class.php
+		lib/threadread.class.php
+		style/post_css.inc
+		style/read_css.inc
+		style/style_css.inc
+
+2007-1-30 aki
+	* rep2 version 1.8.12
+	
+	[追加修正] 同梱し忘れていた img/kossori.gif を追加した。
+	[変更] 携帯 TOPメニューで「最近読んだスレ」を一番上にした。
+	
+	- 新しく追加されたファイル
+		img/kossori.gif
+		
+	- 変更のあったファイル
+		conf/conf.inc.php
+		info.php
+		lib/index_print_k.inc.php
+
+2007-1-30 aki
+	* rep2 version 1.8.11
+	
+	[追加] 標準でPEARを添付した（includesディレクトリ)
+	  ※サーバーにインストールされたPEARがある場合は、そちらの利用を優先します
+	
+	- 新しく追加されたファイル
+		includes ディレクトリ以下
+	
+	- 変更のあったファイル
+		conf/conf.inc.php
+		lib/ngabornctl.class.php
+		lib/read_res_hist.inc.php
+		lib/sb_toolbar.inc.php
+		read.php
+		read_new.php
+		subject_new.php
+
+2007-1-29 aki
+	* rep2 version 1.8.10
+	
+	[新機能] HTMLポップアップがリサイズ可能になった。
+	[新機能] スレッド表示にヘッドバーが付いた。（ユーザ設定 enable_headbar）
+
+	[改良] レスポップアップを複数開いた時の、重なり順の挙動を改良した。
+	[改良] レスポップアップがほわっと消えるようになった。
+	[改良] お気に板の並び替えで、JavaScript D&D版と非JavaScript版を選択できようにした。
+	[改良] subject.php で、refreshクエリーの指定により、subjext.txtのキャッシュを適用しないようにできるようにした。
+	[改良] post.phpの指定を変数にした。
+	
+	[対応更新] 携帯のIPアドレス帯域を更新した。
+	
+	[修正] read.phpのパスで、$_conf['read_php']が利用されていなかった箇所があったのを修正した。
+	[修正] キャッシュファイルのパスにエンコードを加えた。
+	[修正] PHPのnoticeの発生箇所があったのをずいぶん減らした。
+
+	[仕様変更] DAT倉庫を表示する時の、スレッド情報の取り扱い数を1000件までに制限した。 
+	[仕様変更] 書き込み時の追加ヘッダ p2-Client-IP を X-P2-Client-IP に変更した。
+	[仕様変更] 書き込み時の追加ヘッダ X-P2-Client-Host を加えた。
+	
+	[内部変更] 定数 P2_LIBRARY_DIR を P2_LIB_DIR に変更した。
+	
+	[修正] JavaScript(D&D)によるお気に板の並び替えで、
+	  アドレスに@が含まれている時、正常に処理されていなかったバグを修正した。
+	[修正] Winサーバでの利用時、data/tmp に一時ファイルのゴミが残るおそれがあったのを修正した。
+	[修正] 携帯でレスフィルタした時に、省略前の名前にはマッチしないようにした。
+
+	[感謝] JSライブラリのyui-extを導入しました。http://www.yui-ext.com/
+
+	- 新しく追加されたファイル
+		style/title_css.inc
+		js/yui-extディレクトリ以下
+		js/readheadbar.js
+	
+	- 変更のあったファイルは多数、ほとんど全てのファイル。
+
+2006-11-12 aki
+	* rep2 version 1.8.9
+
+	[新機能] アンカーボムの荒らし対策を拡張し、リンク変換全般において対策を行うようにした。
+	
+	[修正] 携帯で、壊れた名前文字の後の表示が、全て灰色になってしまうことがあったバグを修正した。
+	
+	[修正] いつの頃からか、マルチバイトの正規表現が無効な環境だと、
+	  スレ内容表示で、フィルタ表示が正常にできないバグがあったかもしれないのが直っただろう。
+	  
+	[改良] 書き込みログの表示処理を最適化した。
+	[改良] 携帯TOPメニューの書き込みログにもショートカットキー(#)をつけた。 
+	[改良] 携帯TOPページに板検索と直接スレ指定のフォームを追加した。
+
+	- 変更のあったファイル
+		first_cont.php
+		info.php
+		menu_k.php
+		read.php
+		read_res_hist.php
+		subject.php
+		conf/conf.inc.php
+		lib/BbsMap.class.php
+		lib/StrSjis.php
+		lib/brdctl.class.php
+		lib/index_print_k.inc.php
+		lib/menu.inc.php
+		lib/p2util.class.php
+		lib/read_res_hist.inc.php
+		lib/res_hist.class.php
+		lib/sb_print.inc.php
+		lib/showthread.class.php
+		lib/showthreadk.class.php
+		lib/showthreadpc.class.php
+		lib/strctl.class.php
+		lib/thread.class.php
+
+2006-11-04 aki
+	* rep2 version 1.8.8
+	
+	[対応] ●ログインできない問題に対応した
+
+	- 変更のあったファイル
+		conf/conf.inc.php
+
 2006-10-26 aki
 	* rep2 version 1.8.7
 	

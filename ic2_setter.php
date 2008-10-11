@@ -1,17 +1,18 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-/* ImageCache2 - アップローダ */
+/**
+ * ImageCache2 - アップローダ
+ */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 if (!$_conf['expack.ic2.enabled']) {
-    exit('<html><body><p>ImageCache2は無効です。<br>conf/conf_admin_ex.inc.php の設定を変えてください。</p></body></html>');
+    p2die('ImageCache2は無効です。', 'conf/conf_admin_ex.inc.php の設定を変えてください。');
 }
 
 // }}}
@@ -19,9 +20,9 @@ if (!$_conf['expack.ic2.enabled']) {
 
 require_once 'HTML/Template/Flexy.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/database.class.php';
-require_once P2EX_LIB_DIR . '/ic2/db_images.class.php';
-require_once P2EX_LIB_DIR . '/ic2/thumbnail.class.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
+require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 // }}}
 // {{{ config
@@ -32,14 +33,14 @@ $ini = ic2_loadconfig();
 // 最大ファイルサイズを設定
 $ic2_maxsize = $ini['Source']['maxsize'];
 if (preg_match('/(\d+\.?\d*)([KMG])/i', $ic2_maxsize, $m)) {
-    $ic2_maxsize = si2int($m[1], $m[2]);
+    $ic2_maxsize = p2_si2int($m[1], $m[2]);
 } else {
     $ic2_maxsize = (int)$ic2_maxsize;
 }
 
 $ini_maxsize = ini_get('upload_max_filesize');
 if (preg_match('/(\d+\.?\d*)([KMG])/i', $ini_maxsize, $m)) {
-    $ini_maxsize = si2int($m[1], $m[2]);
+    $ini_maxsize = p2_si2int($m[1], $m[2]);
 } else {
     $ini_maxsize = (int)$ini_maxsize;
 }
@@ -80,17 +81,17 @@ $upfiles = array();
 if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
     $errors = array_count_values($_FILES['upimg']['error']);
     if (!empty($errors[UPLOAD_ERR_NO_TMP_DIR])) {
-        die('<html><body><p>ファイルアップロード用のテンポラリフォルダがありません。</p></body></html>');
+        p2die('ImageCache2 - ファイルアップロード用のテンポラリフォルダがありません。');
     } elseif (count($_FILES['upimg']['error']) == $errors[UPLOAD_ERR_NO_FILE]) {
         $_info_msg_ht .= $err_fmt['none'];
     } else {
         // サムネイル作成クラスのインスタンスを作成
-        $thumbnailer = &new ThumbNailer(IC2_THUMB_SIZE_DEFAULT);
+        $thumbnailer = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_DEFAULT);
 
         // DBに記録する共通データを設定
         $f_host = 'localhost';
         $f_time = time();
-        $f_memo = isset($_POST['memo']) ? IC2DB_Images::uniform($_POST['memo'], 'SJIS-win') : '';
+        $f_memo = isset($_POST['memo']) ? IC2_DataObject_Images::staticUniform($_POST['memo'], 'CP932') : '';
         $f_rank = isset($_POST['rank']) ? intval($_POST['rank']) : 0;
         if ($f_rank > 5) {
             $f_rank = 5;
@@ -127,12 +128,12 @@ if (!empty($_GET['upload']) && !empty($_FILES['upimg'])) {
 $_flexy_options = array(
     'locale' => 'ja',
     'charset' => 'Shift_JIS',
-    'compileDir' => $ini['General']['cachedir'] . '/' . $ini['General']['compiledir'],
+    'compileDir' => $_conf['compile_dir'] . DIRECTORY_SEPARATOR . 'ic2',
     'templateDir' => P2EX_LIB_DIR . '/ic2/templates',
     'numberFormat' => '', // ",0,'.',','" と等価
 );
 
-$flexy = &new HTML_Template_Flexy($_flexy_options);
+$flexy = new HTML_Template_Flexy($_flexy_options);
 $flexy->compile('ic2s.tpl.html');
 
 if (!$isPopUp && (!empty($upfiles) || $_info_msg_ht != '')) {
@@ -160,7 +161,7 @@ if ($showForm) {
 }
 
 // テンプレート変数
-$view = &new stdClass;
+$view = new stdClass;
 $view->php_self = $_SERVER['SCRIPT_NAME'];
 $view->STYLE    = $STYLE;
 $view->skin     = $skin_en;
@@ -180,6 +181,7 @@ $flexy->outputObject($view, $elements);
 
 // }}}
 // {{{ 関数
+// {{{ ic2_check_uploaded_file()
 
 /**
  * アップロードされた各画像ファイルを検証する。
@@ -188,7 +190,7 @@ $flexy->outputObject($view, $elements);
  */
 function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errcode)
 {
-    global $_conf, $_hfs, $ini, $err_fmt;
+    global $_conf, $ini, $err_fmt;
     global $mimemap, $mimeregex, $maxsize, $maxwidth, $maxheight;
 
     $path_ht = htmlspecialchars($path, ENT_QUOTES);
@@ -235,13 +237,13 @@ function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errc
     }
 
     // ファイル名を取得
-    $basename = mb_basename($path);
+    $basename = p2_mb_basename($path);
     if ($basename == '') {
-        if ($_hfs) {
-            $name = combinehfskana($name);
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
+            $name = p2_combine_nfd_kana($name);
         }
-        $name = mb_convert_encoding($name, 'SJIS-win', 'UTF-8,eucJP-win,SJIS-win');
-        $basename = mb_basename($name);
+        $name = mb_convert_encoding($name, 'CP932', 'UTF-8,CP51932,CP932');
+        $basename = p2_mb_basename($name);
         if ($name == '') {
             return sprintf($err_fmt['name'], $path_ht);
         }
@@ -262,6 +264,9 @@ function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errc
     return ic2_register_uploaded_file($file);
 }
 
+// }}}
+// {{{ ic2_register_uploaded_file()
+
 /**
  * アップロードされた画像ファイルをDBに登録する。
  * 成功したときはファイル情報（配列）を、
@@ -269,12 +274,12 @@ function ic2_check_uploaded_file($path, $name, $type, $filesize, $tmpname, $errc
  */
 function ic2_register_uploaded_file($file)
 {
-    global $_conf, $_hfs, $ini, $err_fmt;
+    global $_conf, $ini, $err_fmt;
     global $thumbnailer;
     global $f_host, $f_time, $f_memo, $f_rank;
 
-    $utf8_path = mb_convert_encoding($file['path'], 'UTF-8', 'SJIS-win');
-    $utf8_name = mb_convert_encoding($file['name'], 'UTF-8', 'SJIS-win');
+    $utf8_path = mb_convert_encoding($file['path'], 'UTF-8', 'CP932');
+    $utf8_name = mb_convert_encoding($file['name'], 'UTF-8', 'CP932');
     $file['path'] = htmlspecialchars($file['path'], ENT_QUOTES);
     $file['name'] = htmlspecialchars($file['name'], ENT_QUOTES);
     $file['memo'] = $f_memo;
@@ -290,25 +295,25 @@ function ic2_register_uploaded_file($file)
     }
 
     // 既存の画像か検索
-    $search1 = &new IC2DB_Images;
+    $search1 = new IC2_DataObject_Images;
     $search1->whereAddQuoted('size', '=', $file['size']);
     $search1->whereAddQuoted('md5',  '=', $file['md5']);
     $search1->whereAddQuoted('mime', '=', $file['mime']);
 
-    $search2 = clone($search1);
+    $search2 = clone $search1;
     $search1->whereAddQuoted('uri',  '=', $utf8_path);
 
     // 全く同じ画像が登録されていたとき
     if ($search1->find(TRUE)) {
-        $update = clone($search1);
+        $update = clone $search1;
         $changed = FALSE;
-        if (strlen($f_memo) > 0 && !strstr($search1->memo, $f_memo)){
+        if (strlen($f_memo) > 0 && strpos($search1->memo, $f_memo) === false){
             if (!is_null($search1->memo) && strlen($search1->memo) > 0) {
                 $update->memo = $f_memo . ' ' . $search1->memo;
             } else {
                 $update->memo = $f_memo;
             }
-            $file['memo'] = mb_convert_encoding($update->memo, 'SJIS-win', 'UTF-8');
+            $file['memo'] = mb_convert_encoding($update->memo, 'CP932', 'UTF-8');
             $changed = TRUE;
         }
         if ($search1->rank != $f_rank) {
@@ -325,7 +330,7 @@ function ic2_register_uploaded_file($file)
 
     } else {
 
-        $record = &new IC2DB_Images;
+        $record = new IC2_DataObject_Images;
         $record->uri    = $utf8_path;
         $record->host   = $f_host;
         $record->name   = $utf8_name;
@@ -363,3 +368,15 @@ function ic2_register_uploaded_file($file)
 }
 
 // }}}
+// }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

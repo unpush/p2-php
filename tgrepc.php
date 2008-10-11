@@ -1,20 +1,19 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
 /**
- * スレッドタイトル検索 [tGrep] クライアント
+ * スレッドタイトル検索 tGrep クライアント
  *
- * http://page2.xrea.jp/tgrep/tgrep2-test.cgi を利用
+ * http://page2.xrea.jp/tgrep/ を利用
  */
 
 // {{{ p2基本設定読み込み&認証
 
-require_once 'conf/conf.inc.php';
+define('P2_OUTPUT_XHTML', 1);
+
+require_once './conf/conf.inc.php';
 
 $_login->authorize();
 
 // }}}
-
 // {{{ 準備
 
 if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
@@ -31,11 +30,7 @@ if ($_conf['iphone'] && isset($_REQUEST['iq'])) {
 } else {
     $is_ajax = false;
     if ($_conf['view_forced_by_query']) {
-        if (!$_conf['ktai']) {
-            output_add_rewrite_var('b', 'pc');
-        } else {
-            output_add_rewrite_var('b', 'k');
-        }
+        output_add_rewrite_var('b', $_conf['b']);
     }
 }
 
@@ -60,21 +55,21 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
             }
         }
     }
-    mb_convert_variables('UTF-8', 'SJIS-win', $query_params);
+    mb_convert_variables('UTF-8', 'CP932', $query_params);
 
     ini_set('arg_separator.output', '&'); // ≒ ini_restore('arg_separator.output');
     $query = http_build_query($query_params);
     ini_set('arg_separator.output', '&amp;');
     $cache_options = array(
-        'cacheDir' => $_conf['pref_dir'] . '/p2_cache/',
+        'cacheDir' => $_conf['cache_dir'] . DIRECTORY_SEPARATOR . 'tgrep' . DIRECTORY_SEPARATOR,
         'lifeTime' => 3600,
         'fileNameProtection' => false,
         'automaticSerialization' => true,
     );
     if (!is_dir($cache_options['cacheDir'])) {
-        FileCtl::mkdir_for($cache_options['cacheDir'] . 'dummyFileName');
+        FileCtl::mkdir_for($cache_options['cacheDir'] . '__dummy__');
     }
-    $cache = &new Cache_Lite($cache_options);
+    $cache = new Cache_Lite($cache_options);
     $cache_id_result = md5($query);
     $cache_id_profile = md5($query_params['q']);
     $cache_group_result = 'tgrep2result';
@@ -106,17 +101,17 @@ if ($query) {
         if (isset($search_result['profile'])) {
             $search_profile = array('modified' => $search_result['modified'], 'profile' => $search_result['profile']);
             unset($search_result['profile']);
-            mb_convert_variables('SJIS-win', 'UTF-8', $search_profile);
+            mb_convert_variables('CP932', 'UTF-8', $search_profile);
             $cache->save($search_profile, $cache_id_profile, $cache_group_profile);
         }
-        $regex = mb_convert_encoding($search_profile['profile']['regex'], 'UTF-8', 'SJIS-win');
+        $regex = mb_convert_encoding($search_profile['profile']['regex'], 'UTF-8', 'CP932');
         if (!empty($search_result['threads'])) {
             foreach (array_keys($search_result['threads']) as $order) {
                 $_title = preg_replace($regex, '<b class="filtering">$0</b>', $search_result['threads'][$order]->title);
                 $search_result['threads'][$order]->title = preg_replace('|&(?=[^;]*</?b>)|u', '&amp;', $_title);
             }
         }
-        mb_convert_variables('SJIS-win', 'UTF-8', $search_result);
+        mb_convert_variables('CP932', 'UTF-8', $search_result);
         $cache->save($search_result, $cache_id_result, $cache_group_result);
     }
 
@@ -137,7 +132,10 @@ if ($query) {
         // 検索履歴を更新
         if ($_conf['expack.tgrep.recent_num'] > 0) {
             FileCtl::make_datafile($_conf['expack.tgrep.recent_file'], $_conf['expack.tgrep.file_perm']);
-            $tgrep_recent_list = array_filter(array_map('trim', (array) @file($_conf['expack.tgrep.recent_file'])), 'strlen');
+            $tgrep_recent_list = FileCtl::file_read_lines($_conf['expack.tgrep.recent_file'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            if (!is_array($tgrep_recent_list)) {
+                $tgrep_recent_list = array();
+            }
             array_unshift($tgrep_recent_list, preg_replace('/[\r\n\t]/', ' ', trim($_GET['Q'])));
             $tgrep_recent_list = array_unique($tgrep_recent_list);
             while (count($tgrep_recent_list) > $_conf['expack.tgrep.recent_num']) {
@@ -145,8 +143,9 @@ if ($query) {
             }
             $tgrep_recent_data = implode("\n", $tgrep_recent_list) . "\n";
             if (FileCtl::file_write_contents($_conf['expack.tgrep.recent_file'], $tgrep_recent_data) === false) {
-                die("Error: cannot write file.");
+                p2die('cannot write file.');
             }
+            chmod($_conf['expack.tgrep.recent_file'], $_conf['p2_perm']);
         }
     }
 } else {
@@ -267,20 +266,20 @@ MOBILE_STYLE;
 
 // ページャ
 if (!$is_ajax && $subhits && $subhits > $limit) {
-    include_once 'Pager/Pager.php';
+    require_once 'Pager/Pager.php';
     $pager_options = array();
     $pager_options = array(
         'mode'          => 'Sliding',
         'totalItems'    => $subhits,
         'perPage'       => $limit,
         'urlVar'        => 'P',
-        'extraVars'     => array('_hint' => '◎◇'),
+        'extraVars'     => array('_hint' => $_conf['detect_hint']),
         'importQuery'   => false,
         'curPageSpanPre'    => '<b>',
         'curPageSpanPost'   => '</b>',
     );
     $pager_extra_vars = $query_params;
-    mb_convert_variables('SJIS-win', 'UTF-8', $pager_extra_vars);
+    mb_convert_variables('CP932', 'UTF-8', $pager_extra_vars);
     if (get_magic_quotes_gpc()) {
         $pager_extra_vars = array_map('addslashes', $pager_extra_vars);
     }
@@ -326,7 +325,7 @@ if ($is_ajax) {
     if (!headers_sent()) {
         header('Content-Type: application/xml; charset=UTF-8');
         //header('Content-Type: text/plain; charset=UTF-8');
-        header('Content-Length: ' . strlen($content));
+        //header('Content-Length: ' . strlen($content));
     }
     echo $content;
 } elseif ($_conf['ktai']) {
@@ -337,25 +336,36 @@ if ($is_ajax) {
 exit;
 
 // }}}
-// {{{ 関数
+// {{{ tgrep_search()
 
 function tgrep_search($query)
 {
     global $_conf;
-    $client = &new HTTP_Client;
+    $client = new HTTP_Client;
     $client->setDefaultHeader('User-Agent', 'p2-tgrep-client');
     $code = $client->get($_conf['expack.tgrep_url'] . '?' . $query);
     if (PEAR::isError($code)) {
-        die($code->getMessage());
+        p2die($code->getMessage());
     } elseif ($code != 200) {
-        die("HTTP Error - {$code}");
+        p2die("HTTP Error - {$code}");
     }
-    $response = &$client->currentResponse();
+    $response = $client->currentResponse();
     $result = unserialize($response['body']);
     if (!$result) {
-        die('Error: 検索結果の展開に失敗しました。');
+        p2die('Error: 検索結果の展開に失敗しました。');
     }
     return $result;
 }
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

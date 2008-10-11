@@ -1,9 +1,8 @@
 <?php
-/* vim: set fileencoding=cp932 autoindent noexpandtab ts=4 sw=4 sts=4 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-// p2 ースタイル設定
-// スキン独自スタイルを適用
+/**
+ * rep2 - スタイル設定
+ * スキン独自スタイルを適用
+ */
 
 /*
 conf/conf_user_style.phpもしくはスキンで
@@ -138,3 +137,14 @@ function mystyle_spelement($category, $element)
 }
 
 // }}}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

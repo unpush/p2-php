@@ -1,85 +1,163 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
+/**
+ * ImageCache2::FitImage
+ */
 
-//画像サイズフラグを初期化
-var psize = "auto";
+// {{{ FitImage オブジェクト
 
-//画像をウインドウにフィットさせる関数
-function fitimage(mode)
+/*
+ * コンストラクタ
+ *
+ * @param String id     画像のidまたはDOM要素
+ * @param Number width  画像の幅
+ * @param Number height 画像の高さ
+ */
+function FitImage(id, width, height)
 {
-	var picture = document.getElementById("picture");
-	if (!picture) {
-		return;
-	}
-	if (psize == mode) {
-		psize = "auto";
-		picture.style.width = "auto";
-		picture.style.height = "auto";
-	} else {
-		psize = mode;
-		switch (mode) {
-			case "full":
-				picture.style.width = "100%";
-				picture.style.height = "100%";
-				break;
-			case "width":
-				picture.style.width = "100%";
-				picture.style.height = "auto";
-				break;
-			case "height":
-				picture.style.width = "auto";
-				picture.style.height = "100%";
-				break;
-			default:
-		}
-	}
+	this.picture = (typeof id == 'string') ? document.getElementById(id) : id;
+	this.imgX = width;
+	this.imgY = height;
+	this.ratio = width / height;
+	this.currentMode = 'init';
+	this.defaultMode = (this.getFieldWidth() > width && this.getFieldHeight() > height) ? 'expand' : 'contract';
 }
 
+// }}}
+// {{{ FitImage.getFieldWidth()
 
-//読み込んだときに自動で画像をウインドウにフィットさせる関数
-function autofitimage(mode, imgX, imgY)
+/*
+ * ウインドウの幅を取得する
+ *
+ * @return Number
+ */
+FitImage.prototype.getFieldWidth = function()
 {
 	if (document.all) { //IE用
-		var body = (document.compatMode == 'CSS1Compat') ? document.documentElement : document.body;
-		var winX = body.clientWidth;
-		var winY = body.clientHeight;
-	} else if (document.getElementById) {
-		var winX = window.innerWidth
-		var winY = window.innerHeight;
+		return ((document.compatMode == 'CSS1Compat') ? document.documentElement : document.body).clientWidth;
 	} else {
-		return;
+		return window.innerWidth;
 	}
-	if (!imgX || !imgY) {
-		return;
-	}
-	if (mode == "auto") {
-		if (winX / winY > imgX / imgY) {
-			mode = "height"
-		} else {
-			mode = "width"
-		}
-	}
-	if ((mode == "width" && imgX <= winX) || (mode == "height" && imgY <= winY)) {
-		return;
-	}
-	fitimage(mode);
 }
 
-//ボタンの表示・非表示を切り替える関数
+// }}}
+// {{{ FitImage.getFieldHeight()
+
+/*
+ * ウインドウの高さを取得する
+ *
+ * @return Number
+ */
+FitImage.prototype.getFieldHeight = function()
+{
+	if (document.all) { //IE用
+		return ((document.compatMode == 'CSS1Compat') ? document.documentElement : document.body).clientHeight;
+	} else {
+		return window.innerHeight;
+	}
+}
+
+// }}}
+// {{{ FitImage.fitTo()
+
+/*
+ * 画像をウインドウにフィットさせる
+ *
+ * @param String mode
+ * @return void
+ */
+FitImage.prototype.fitTo = function(mode)
+{
+	if (this.currentMode == mode || (this.currentMode == 'init' && this.defaultMode == 'expand')) {
+		// 元の大きさに戻す
+		this.currentMode = 'auto';
+		this.picture.style.width = 'auto';
+		this.picture.style.height = 'auto';
+	} else {
+		var winX, winY, cssX, cssY;
+
+		winX = this.getFieldWidth();
+		winY = this.getFieldHeight();
+
+		// ウインドウに合わせて拡大・縮小判定
+		switch (mode) {
+		  case 'contract':
+			if (winX / winY > this.ratio) {
+				mode = 'height'
+				this.currentMode = (winY < this.imgY) ? 'height' : 'auto';
+			} else {
+				mode = 'width'
+				this.currentMode = (winX < this.imgX) ? 'width' : 'auto';
+			}
+			cssX = Math.min(winX, this.imgX).toString() + 'px';
+			cssY = Math.min(winY, this.imgY).toString() + 'px';
+			break;
+
+		  case 'expand':
+			if (winX / winY > this.ratio) {
+				mode = 'height'
+				this.currentMode = (winY > this.imgY) ? 'height' : 'auto';
+			} else {
+				mode = 'width'
+				this.currentMode = (winX > this.imgX) ? 'width' : 'auto';
+			}
+			cssX = Math.max(winX, this.imgX).toString() + 'px';
+			cssY = Math.max(winY, this.imgY).toString() + 'px';
+			break;
+
+		  default:
+			this.currentMode = mode;
+			cssX = winX.toString() + 'px';
+			cssY = winY.toString() + 'px';
+		}
+
+		// 実際にリサイズ
+		switch (mode) {
+		  case 'full':
+			this.picture.style.width = cssX;
+			this.picture.style.height = cssY;
+			break;
+
+		  case 'width':
+			this.picture.style.width = cssX;
+			this.picture.style.height = 'auto';
+			break;
+
+		  case 'height':
+			this.picture.style.width = 'auto';
+			this.picture.style.height = cssY;
+			break;
+
+		  default:
+			break;
+		}
+	}
+}
+
+// }}}
+// {{{ fiShowHide()
+
+/*
+ * ボタンの表示・非表示を切り替える
+ */
 function fiShowHide()
 {
-	var sw = document.getElementById("btn");
+	var sw = document.getElementById('btn');
 	if (!sw) {
 		return;
 	}
-	if (sw.style.display == "block") {
-		sw.style.display = "none";
+	if (sw.style.display == 'block') {
+		sw.style.display = 'none';
 	} else {
-		sw.style.display = "block";
+		sw.style.display = 'block';
 	}
 }
 
-//キー操作で他の関数を呼び出す関数
+// }}}
+// {{{ fiTrigger() (disabled)
+
+/*
+ * キー操作で他の関数を呼び出す (封印中)
+ */
+/*
 function fiTrigger(evt)
 {
 	var evt = (evt) ? evt : ((window.event) ? event : null);
@@ -124,7 +202,13 @@ function fiTrigger(evt)
 			//alert(evt.keyCode);
 	}
 }
+*/
+// }}}
+// {{{ fiGetImageInfo()
 
+/*
+ * データベースから画像情報を取得する
+ */
 function fiGetImageInfo(type, value)
 {
 	var info = getImageInfo(type, value);
@@ -153,9 +237,18 @@ function fiGetImageInfo(type, value)
 
 	fiSetRank(rank);
 	document.getElementById('fi_id').value = id.toString();
-	document.getElementById('fi_memo').value = memo;
+	//document.getElementById('fi_memo').value = memo;
 }
 
+// }}}
+// {{{ fiSetRank()
+
+/*
+ * ランク表示を更新する
+ *
+ * @param Number rank
+ * @return void
+ */
 function fiSetRank(rank)
 {
 	var images = document.getElementById('fi_stars').getElementsByTagName('img');
@@ -166,17 +259,27 @@ function fiSetRank(rank)
 	}
 }
 
+// }}}
+// {{{ fiUpdateRank()
+
+/*
+ * データベースに記録されているランクを更新する
+ *
+ * @param Number rank
+ * @return Boolean  always returns false.
+ */
 function fiUpdateRank(rank)
 {
 	var id = document.getElementById('fi_id').value;
 	if (!id) {
 		alert('画像IDが設定されていません');
-		return;
+		return false;
 	}
 
 	var objHTTP = getXmlHttp();
 	if (!objHTTP) {
-		alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
+		alert('Error: XMLHTTP 通信オブジェクトの作成に失敗しました。') ;
+		return false;
 	}
 	var url = 'ic2_setrank.php?id=' + id + '&rank=' + rank.toString();
 	var res = getResponseTextHttp(objHTTP, url, 'nc');
@@ -186,5 +289,18 @@ function fiUpdateRank(rank)
 	return false;
 }
 
-//イベントハンドラを定義
-document.onkeydown = fiTrigger;
+// }}}
+
+//イベントハンドラを設定・・・しない
+//document.onkeydown = fiTrigger;
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */
