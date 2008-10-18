@@ -729,7 +729,7 @@ saveSubjectKeys($subject_keys, $sb_keys_txt, $sb_keys_b_txt);
 $debug && $profiler->leaveSection('FOOT');
 
 // +Wiki:NGƒXƒŒƒbƒh
-if (isset($ngaborns)) $ngaborns->save();
+//if (isset($ngaborns)) $ngaborns->save();
 
 // ‚±‚±‚Ü‚Å
 exit;
