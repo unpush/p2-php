@@ -865,7 +865,7 @@ if (!$spmode) {
 //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('FOOT');
 
 // +Wiki:NGƒXƒŒƒbƒh
-if (isset($ngaborns)) $ngaborns->save();
+//if (isset($ngaborns)) $ngaborns->save();
 
 // ‚±‚±‚Ü‚Å
 exit;
