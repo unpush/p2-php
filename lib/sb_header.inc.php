@@ -230,7 +230,7 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 
 if ($_conf['refresh_time']) {
     $refresh_time_s = $_conf['refresh_time'] * 60;

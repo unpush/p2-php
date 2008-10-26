@@ -51,21 +51,21 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 echo <<<EOP
-    <title>p2 - ‚¨‹C‚É”Â‚Ì•À‚Ñ‘Ö‚¦</title>
+<title>p2 - ‚¨‹C‚É”Â‚Ì•À‚Ñ‘Ö‚¦</title>
 <script type="text/javascript" src="js/yui/YAHOO.js" ></script>
 <script type="text/javascript" src="js/yui/log.js" ></script>
 <script type="text/javascript" src="js/yui/event.js" ></script>
 <script type="text/javascript" src="js/yui/dom.js"></script>
 
 <script type="text/javascript" src="js/yui/dragdrop.js" ></script>
-		<script type="text/javascript" src="js/yui/ygDDOnTop.js" ></script>
-		<script type="text/javascript" src="js/yui/ygDDSwap.js" ></script>
-		<script type="text/javascript" src="js/yui/ygDDMy.js" ></script>
-		<script type="text/javascript" src="js/yui/ygDDMy2.js" ></script>
-		<script type="text/javascript" src="js/yui/ygDDList.js" ></script>
-		<script type="text/javascript" src="js/yui/ygDDPlayer.js" ></script>
+<script type="text/javascript" src="js/yui/ygDDOnTop.js" ></script>
+<script type="text/javascript" src="js/yui/ygDDSwap.js" ></script>
+<script type="text/javascript" src="js/yui/ygDDMy.js" ></script>
+<script type="text/javascript" src="js/yui/ygDDMy2.js" ></script>
+<script type="text/javascript" src="js/yui/ygDDList.js" ></script>
+<script type="text/javascript" src="js/yui/ygDDPlayer.js" ></script>
 EOP;
 
 if (!$_conf['ktai']) {

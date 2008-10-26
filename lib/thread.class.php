@@ -344,7 +344,7 @@ class Thread
         // 2chŒn
         } elseif (P2Util::isHost2chs($this->host)) {
             // PC
-            if (!$_conf['ktai'] || $original) {
+            if (!UA::isK() || UA::isIPhoneGroup() || $original) {
                 $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
                 
             // Œg‘Ñ

@@ -573,6 +573,8 @@ EOMSG;
     {
         global $_conf;
         
+        $this->str_to_link_rest = $this->str_to_link_limit;
+        
         // 2ch旧形式のdat
         if ($this->thread->dat_type == '2ch_old') {
             $msg = str_replace('＠｀', ',', $msg);
@@ -601,7 +603,10 @@ EOMSG;
         
         // 2ch BEアイコン
         if (in_array($_conf['show_be_icon'], array(1, 2))) {
-            $msg = preg_replace('{sssp://(img\\.2ch\\.net/ico/[\\w\\d()\\-]+\\.[a-z]+)}', '<img src="http://$1" border="0">', $msg);
+            $msg = preg_replace(
+                '{sssp://(img\\.2ch\\.net/ico/[\\w\\d()\\-]+\\.[a-z]+)}',
+                '<img src="http://$1" border="0">', $msg
+            );
         }
         
         return $msg;
@@ -645,7 +650,7 @@ EOMSG;
             }
             return preg_replace_callback(
                 '/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                array($this, 'quote_res_callback'), $s['quote']
+                array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
             );
 
         // http or ftp のURL
@@ -699,6 +704,10 @@ EOMSG;
     function quote_res_callback($s)
     {
         global $_conf;
+        
+        if (--$this->str_to_link_rest < 0) {
+            return $s[0];
+        }
         
         list($full, $qsign, $appointed_num) = $s;
         
@@ -1110,15 +1119,18 @@ EOMSG;
         global $_conf;
 
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/([^/]+)/$}', $url, $m)) {
-            $subject_atag = P2View::tagA(
-                $url, $html, array('target' => 'subject')
+
+            return sprintf('%s [%s]',
+                P2View::tagA(
+                    $url, $html, array('target' => 'subject')
+                ),
+                P2View::tagA(
+                    P2Util::buildQueryUri($_conf['subject_php'], array('host' => $m[1], 'bbs' => $m[2])),
+                    hs('板をp2で開く'),
+                    array('target' => 'subject')
+                )
             );
-            $subject_p2_atag = P2View::tagA(
-                P2Util::buildQueryUri($_conf['subject_php'], array('host' => $m[1], 'bbs' => $m[2])),
-                hs('板をp2で開く'),
-                array('target' => 'subject')
-            );
-            return "$subject_atag [{$subject_p2_atag}]";
+            
         }
         return false;
     }

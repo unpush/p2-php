@@ -1,0 +1,605 @@
+/* iui.css (c) 2007 by iUI Project Members, see LICENSE.txt for license */
+
+/* 
+body
+全体のフォント設定
+横ブレ防止、フォームボタン用
+*/
+body {
+    margin: 0;
+    font-family: Helvetica;
+    background: #FFFFFF;
+    color: #000000;
+    overflow-x: hidden;
+    -webkit-user-select: none;
+    -webkit-text-size-adjust: none;
+}
+
+body > *:not(.toolbar) {
+    /*display: none;
+    position: absolute;
+	top: 45px;*/
+    margin: 0;
+    padding: 0;
+    left: 0;
+    width: 100%;
+    min-height: ;
+}
+
+body[orient="landscape"] > *:not(.toolbar) {
+    min-height: 268px;
+}
+
+body > *[selected="true"] {
+    display: block;
+}
+/*
+a[selected], a:active {
+    background-color: #194fdb !important;
+    background-image: url(listArrowSel.png), url(selection.png) !important;
+    background-repeat: no-repeat, repeat-x;
+    background-position: right center, left top;
+    color: #FFFFFF !important;
+}
+
+a[selected="progress"] {
+    background-image: url(loading.gif), url(selection.png) !important;
+}
+*/
+/* ツールバー、上のとこ */
+body > .toolbar {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border-bottom: 1px solid #2d3642;
+    border-top: 1px solid #000000;/*初期値 #6d84a2*/
+    padding: 10px;
+    height: 45px;
+    background: url(toolbar.png) #6d84a2 repeat-x;
+}
+
+/* ツールバーの真ん中の文字 */
+.toolbar > h1 {
+    position: absolute;
+    overflow: hidden;
+    left: 50%;
+    margin: 1px 0 0 -75px;
+    height: 45px;
+    font-size: 20px;
+    width: 150px;
+    font-weight: bold;
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #FFFFFF;
+}
+
+body[orient="landscape"] > .toolbar > h1 {
+    margin-left: -125px;
+    width: 250px;
+}
+
+.button {
+    position: absolute;
+    overflow: hidden;
+    top: 8px;
+    right: 6px;
+    margin: 0;
+    border-width: 0 5px;
+    padding: 0 3px;
+    width: auto;
+    height: 30px;
+    line-height: 30px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-shadow: rgba(0, 0, 0, 0.6) 0px -1px 0;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    white-space: nowrap;
+    background: none;
+    -webkit-border-image: url(toolButton.png) 0 5 0 5;
+}
+
+.blueButton {
+    -webkit-border-image: url(blueButton.png) 0 5 0 5;
+    border-width: 0 5px;
+}
+
+.leftButton {
+    left: 6px;
+    right: auto;
+}
+
+#backButton {
+    /*display: none;*/
+    left: 6px;
+    right: auto;
+    padding: 0;
+    max-width: 55px;
+    border-width: 0 8px 0 14px;
+    -webkit-border-image: url(backButton.png) 0 8 0 14;
+}
+
+.whiteButton,
+.grayButton {
+    display: block;
+    border-width: 0 12px;
+    padding: 10px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: inherit;
+    color: inherit;
+}
+
+.whiteButton {
+    -webkit-border-image: url(whiteButton.png) 0 12 0 12;
+    text-shadow: rgba(255, 255, 255, 0.7) 0 1px 0;
+    -webkit-appearance:none;
+}
+
+.grayButton {
+    -webkit-border-image: url(grayButton.png) 0 12 0 12;
+    color: #FFFFFF;
+}
+
+/************************************************************************************************/
+/*
+リスト関係
+メニューの一覧やスレ一覧など
+文字の大きさ等はここで
+*/
+body > ul > li {
+    position: relative;
+    margin: 0;
+    border-bottom: 1px solid #E0E0E0;
+    padding: 8px 0 8px 10px;
+    font-size: 18px;
+    font-weight: bold;
+    list-style: none; 
+	word-wrap: break-word; 
+}
+
+/*
+一覧のグループ名
+topでは「メニュー」「板検索」と表示されてるところ
+*/
+body > ul > li.group {
+    position: relative;
+    top: -1px;
+    margin-bottom: -2px;
+    border-top: 1px solid #7d7d7d;
+    border-bottom: 1px solid #999999;
+    padding: 1px 10px;
+    background: url(listGroup.png) repeat-x;
+    font-size: 17px;
+    font-weight: bold;
+    text-shadow: rgba(0, 0, 0, 0.4) 0 1px 0;
+    color: #FFFFFF;
+}
+
+body > ul > li.group:first-child {
+    top: 0;
+    border-top: none;
+}
+/*
+一覧のリンク設定
+paddingをいじれば余白の調整可能
+*/
+body > ul > li > a {
+    display: block;
+    margin: -8px 0 -8px -10px;
+    padding: 8px 38px 8px 30px;
+    text-decoration: none;
+    color: inherit;
+    background: url(listArrow.png) no-repeat right center;
+}
+
+/* iphone 080808*/
+body > ul#home > li > a {
+    padding: 8px 32px 8px 10px;
+}
+
+/**************
+ 板一覧専用 
+カテゴリを押すと板一覧を表示
+カテゴリごとにdivでかこって制御
+*/
+
+body > ul > div.ita {
+	height: 38px;
+	overflow: hidden;
+	/* iPhone上のSafariだとカクカク */
+	-webkit-transition: all 0.1s linear; 
+}
+
+body > ul > div > li {
+    position: relative;
+    margin: 0;
+    border-bottom: 1px solid #E0E0E0;
+    padding: 8px 0 8px 10px;
+    font-size: 18px;
+    font-weight: bold;
+    list-style: none; 
+	word-wrap: break-word; 
+}
+body > ul > div > li > a {
+    display: block;
+    margin: -8px 0 -8px -10px;
+    padding: 8px 38px 8px 30px;
+    text-decoration: none;
+    color: inherit;
+    background: url(listArrow.png) no-repeat right center;
+}
+
+body > ul > div> li.cate {
+	background-color: #f6f6f6;
+}
+body > ul > div> li.cate > a {
+    padding: 8px 32px 8px 10px;
+	  background: none;
+}
+/************/
+
+
+/* 板お気に入り追加 */
+li > .plus {
+	display: inline;
+	position: absolute;
+	left: 0px;
+	top: 2px;
+	width: 25px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+	background: none;
+	text-align: center;
+}
+li > .plus > a{
+	padding:0;
+	height: 30px;
+	color: black;
+	text-decoration: none;
+}
+/* 設定ページ用 */
+select {
+	font-size: 16px;
+}
+form {
+    word-wrap: break-word; 
+}
+form > ul {
+	margin-left: 0px;
+	padding: 0px;
+}
+form > ul > li.group {
+    position: relative;
+    top: -1px;
+	margin-left: 0px;
+	padding-left: 0px;
+    margin-bottom: -2px;
+    border-top: 1px solid #7d7d7d;
+    border-bottom: 1px solid #999999;
+    padding: 1px 10px;
+    background: url(listGroup.png) repeat-x;
+    font-size: 17px;
+    font-weight: bold;
+    text-shadow: rgba(0, 0, 0, 0.4) 0 1px 0;
+    color: #FFFFFF;
+}
+
+form > ul > li.group:first-child {
+    top: 0;
+    border-top: none;
+}
+
+
+a[target="_replace"] {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    font-size: 18px;
+    color: cornflowerblue;
+    background-color: #FFFFFF;
+    background-image: none;
+}
+
+/************************************************************************************************/
+    
+body > .dialog {
+    top: 0;
+    width: 100%;
+    min-height: 417px;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 0;
+    text-align: right;
+}
+
+.dialog > fieldset {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    border: none;
+    border-top: 1px solid #6d84a2;
+    padding: 10px 6px;
+    background: url(toolbar.png) #7388a5 repeat-x;
+}
+
+.dialog > fieldset > h1 {
+    margin: 0 10px 0 10px;
+    padding: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0;
+    text-align: center;
+}
+
+.dialog > fieldset > label {
+    position: absolute;
+    margin: 16px 0 0 6px;
+    font-size: 14px;
+    color: #999999;
+}
+
+input {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    width: ;
+    margin: 8px 0 0 0;
+    padding: 6px 6px 6px 4px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+/************************************************************************************************/
+
+body > .panel {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    padding: 10px;
+    background: #c8c8c8 url(pinstripes.png);
+}
+
+.panel > fieldset {
+    position: relative;
+    margin: 0 0 20px 0;
+    padding: 0;
+    background: #FFFFFF;
+    -webkit-border-radius: 10px;
+    border: 1px solid #999999;
+    text-align: right;
+    font-size: 16px;
+}
+
+.row  {
+    position: relative;
+    min-height: 42px;
+    border-bottom: 1px solid #999999;
+    -webkit-border-radius: 0;
+    text-align: right;
+}
+
+fieldset > .row:last-child {
+    border-bottom: none !important;
+}
+/* iPhone スレ情報用に追加 */
+.row > span {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    margin: 0;
+	width: 100%;
+    border: none;
+    padding: 12px 10px 0 100px;
+    height: 42px;
+	font-size: 16px;
+    background: none;
+}
+.row > input {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    margin: 0;
+	width: 100%;
+    border: none;
+    padding: 12px 10px 0 100px;
+    height: 42px;
+	font-size: 16px;
+    background: none;
+}
+.row > textarea {
+	border: none;
+	margin-top: 0px;
+	margin-right: 4px;
+	padding-left: 100px;
+	font-size: 16px;
+	width: 100%;
+}
+.row > label {
+    position: absolute;
+    margin: 0 0 0 14px;
+    line-height: 42px;
+    font-weight: bold;
+}
+
+.row > .toggle {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 100px;
+    height: 28px;
+}
+
+.toggle {
+    border: 1px solid #888888;
+    -webkit-border-radius: 6px;
+    background: #FFFFFF url(toggle.png) repeat-x;
+    font-size: 19px;
+    font-weight: bold;
+    line-height: 30px;
+}
+
+.toggle[toggled="true"] {
+    border: 1px solid #143fae;
+    background: #194fdb url(toggleOn.png) repeat-x;
+}
+
+.toggleOn {
+    display: none;
+    position: absolute;
+    width: 60px;
+    text-align: center;
+    left: 0;
+    top: 0;
+    color: #FFFFFF;
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0;
+}
+
+.toggleOff {
+    position: absolute;
+    width: 60px;
+    text-align: center;
+    right: 0;
+    top: 0;
+    color: #666666;
+}
+
+.toggle[toggled="true"] > .toggleOn {
+    display: block;
+}
+
+.toggle[toggled="true"] > .toggleOff {
+    display: none;
+}
+
+.thumb {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 40px;
+    height: 28px;    
+    border: 1px solid #888888;
+    -webkit-border-radius: 6px;
+    background: #ffffff url(thumb.png) repeat-x;
+}
+
+.toggle[toggled="true"] > .thumb {
+    left: auto;
+    right: -1px;
+}
+
+.panel > h2 {
+    margin: 0 0 8px 14px;
+    font-size: inherit;
+    font-weight: bold;
+    color: #4d4d70;
+    text-shadow: rgba(255, 255, 255, 0.75) 2px 2px 0;
+}
+
+/************************************************************************************************/
+
+#preloader {
+    display: none;
+    background-image: url(loading.gif), url(selection.png),
+        url(blueButton.png), url(listArrowSel.png), url(listGroup.png);
+}
+
+
+/************************************************************************************************/
+/*　スレ一覧のふっとメニュー */
+#foot {
+	background-image: url(footback.png);
+	background-position: top;
+	width:100%;
+	padding: 0;
+	border: 0;
+	margin:0;
+	height: 51px;
+overflow: hidden;
+}
+.foot_sure {
+	padding:0;
+	margin: 0;
+}
+
+.foot_sure>span {
+    width: 80px;
+	height: 50px;
+	overflow: hidden;
+	padding: 0;
+	margin:0;
+	margin-top: 1px;
+	float: left;
+	text-align: center;
+	background-image: url(foottab_sure.png);
+}
+#foot a {
+	display: inline-block;
+	height: 50px;
+	width: 54px;
+	text-indent: -10000px;
+	padding: 0;
+	margin:0;
+ }
+
+.foot_sure>span.soko {background-position: 0 0;}
+.foot_sure>span.soko:hover {background-position:0 -50px;}
+.foot_sure>span.build {background-position: -80px 0;}
+.foot_sure>span.build:hover {background-position: -80px -50px;}
+/*未設定*/
+.foot_sure>span.abon {background-position: 0 0;}
+.foot_sure>span.abon:hover {background-position: 0 -50px;}
+.foot_sure>span.all {background-position: 0 0;}
+.foot_sure>span.all:hover {background-position: 0 -50px;}
+
+.foot_sure>span.mae {background-position: -160px 0;}
+.foot_sure>span.mae:hover {background-position: -160px -50px;}
+.foot_sure>span.tugi {background-position: -240px 0;}
+.foot_sure>span.tugi:hover {background-position: -240px -50px;}
+/*******************************/
+
+/*  お気に入り編集用 */
+th {
+	font-size: 14px;
+	text-align: left;
+	width: 100px;
+}
+td {
+	background-color: rgba(255,255,255,0.2);
+	font-size: 19px;
+	line-height: 1.5em;
+}
+td a {
+	color: #333333;
+	text-decoration: none;
+}
+
+/****************************/
+/*  板一覧 */
+
+/* 新着マーク */
+.unew {
+	padding-right: 3px;
+}
+/* レス数字 */
+.sbnum {
+	color: #999999;
+	font-size: 14px;
+}
+/* 未読数字 */
+.unum {
+	position: absolute;
+	right: 35px;
+	bottom: 5px;
+	color: white;
+	font-weight: normal;
+	font-size: 16px;
+	padding: 2px 6px;
+	background-color: #8C99B4;
+    -webkit-border-radius: 10px;
+}

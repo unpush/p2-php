@@ -92,7 +92,7 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 echo <<<EOP
     <title>{$ptitle}</title>
 EOP;

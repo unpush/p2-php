@@ -88,7 +88,7 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 ?>
 	<title><?php eh($ptitle); ?></title>
 	<base target="read">

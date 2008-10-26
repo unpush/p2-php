@@ -111,7 +111,7 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 echo <<<EOP
     <title>{$ptitle_ht}</title>\n
 EOP;
@@ -234,6 +234,7 @@ for ($x = 0; $x < $linesize; $x++) {
     ob_start();
     
     if (($aThread->readnum < 1) || $aThread->unum) {
+         echo "{$hr}\n";
         _readNew($aThread);
     } elseif ($aThread->diedat) {
         echo $aThread->getdat_error_msg_ht;
@@ -342,9 +343,8 @@ function _readNew(&$aThread)
     }
     
     $read_header_ht = <<<EOP
-        $hr
-        <p id="ntt{$_newthre_num}" name="ntt{$_newthre_num}"><font color="{$STYLE['read_k_thread_title_color']}"><b>{$ttitle_hs}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</p>
-        $hr\n
+	<p id="ntt{$_newthre_num}" name="ntt{$_newthre_num}"><font color="{$STYLE['read_k_thread_title_color']}"><b>{$ttitle_hs}</b></font>{$read_header_itaj_ht} {$next_thre_ht}</p>
+	$hr\n
 EOP;
 
     // {{{ ƒ[ƒJƒ‹Dat‚ğ“Ç‚İ‚ñ‚ÅHTML•\¦

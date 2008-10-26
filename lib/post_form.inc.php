@@ -4,7 +4,7 @@
  */
 
 // Œg‘Ñ
-if ($_conf['ktai']) {
+if (UA::isK()) {
     $htm['k_br'] = '<br>';
     $htm['on_js'] = '';
     $htm['kakiko_on_js'] = '';

@@ -10,6 +10,7 @@ class ShowThread
     
     var $str_to_link_regex; // リンクすべき文字列の正規表現
     var $str_to_link_limit = 30; // 一つのレスにおけるリンク変換の制限回数（荒らし対策）
+    var $str_to_link_rest;  // 上記の残り数カウンター。厳密な適用はしていない。とりあえず>>1,2,3,..対策のために。
     
     // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
     var $url_handlers       = array();
@@ -200,10 +201,10 @@ class ShowThread
             case 'msg':
                 $target = $msg;
                 break;
-            default: // 'hole'
-                // 省略前の文字列が入るので $ares はダメになった
+            default: // 'whole'
+                // 省略前の文字列が入るので $ares の直接利用はダメになった
                 // $target = strval($i) . '<>' . $ares;
-                $target = strval($i) . '<>' . $name . '<>' . $mail . '<>' . $date_id . '<>' . $msg;
+                $target = implode('<>', array(strval($i), $name, $mail, $date_id, $msg));
         }
 
         // '<>' だけ許可

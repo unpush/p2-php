@@ -52,7 +52,7 @@ if ($_conf['ktai']) {
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 ?>
 	<title><?php eh($ptitle); ?></title>
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">

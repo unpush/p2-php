@@ -134,6 +134,7 @@ function p2die($err, $msg = null, $hs = false)
             echo $msg;
         }
     }
+    P2Util::printInfoHtml();
     echo '</body></html>';
     
     exit;

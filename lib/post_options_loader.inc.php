@@ -63,7 +63,6 @@ EOM;
 
 $hs = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $resv);
 
-
 // 表示指定
 // 参考 クラシック COLS='60' ROWS='8'
 $mobile = &Net_UserAgent_Mobile::singleton();
@@ -72,12 +71,12 @@ $name_size_at = '';
 $mail_size_at = '';
 
 // PC
-if (empty($_conf['ktai'])) {
+if (UA::isPC()) {
     $name_size_at = ' size="19"';
     $mail_size_at = ' size="19"';
     $msg_cols_at = sprintf(' cols="%d"', $STYLE['post_msg_cols']);
     $wrap = 'off';
-    
+
 // willcom
 // 通常はPC用設定に準じるが、携帯用設定がセットされていれば、そちらに準じる。
 } elseif($mobile->isWillcom()) {
@@ -129,10 +128,11 @@ if (P2Util::isBbsBe2chNet($host, $bbs)) {
     }
 }
 
+
 // PC用 sage checkbox
 $on_check_sage = '';
 $sage_cb_ht = '';
-if (!$_conf['ktai']) {
+if (UA::isPC()) {
     $on_check_sage = ' onChange="checkSage();"';
     $sage_cb_ht = <<<EOP
 <input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label><br>
@@ -153,7 +153,7 @@ EOP;
 // {{{ソースコード補正用チェックボックス
 
 $htm['src_fix'] = '';
-if (!$_conf['ktai']) {
+if (UA::isPC()) {
     if ($_conf['editor_srcfix'] == 1 ||
         ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d+\.2ch\.net/', $host))
     ) {
@@ -168,7 +168,7 @@ if (!$_conf['ktai']) {
 
 $onsubmit_ht = '';
 
-if (!$_conf['ktai']) {
+if (UA::isPC()) {
     if ($_exconf['editor']['check_message'] || $_exconf['editor']['check_sage']) {
         $_check_message = (int) $_exconf['editor']['check_message'];
         $_check_sage = (int) $_exconf['editor']['check_sage'];

@@ -155,9 +155,10 @@ function printLoginFirst(&$_login)
     }
     $REQUEST_URI_hs = hs($ruri);
     
-    if (file_exists($_conf['auth_user_file'])) {
+    if (!empty($GLOBALS['brazil']) or file_exists($_conf['auth_user_file'])) {
         $submit_ht = '<input type="submit" name="submit_member" value="ユーザログイン">';
     } else {
+        // submit_newuserにnameを変えたい気分
         $submit_ht = '<input type="submit" name="submit_new" value="新規登録">';
     }
     
@@ -178,9 +179,13 @@ EOP;
     //=================================================================
     // 新規ユーザ登録処理 
     //=================================================================
+    $isAllowedNewUser = empty($GLOBALS['brazil']) ? true : false;
     
-    if (!file_exists($_conf['auth_user_file']) && !$_login_failed_flag and !empty($_POST['submit_new']) && $post['form_login_id'] && $post['form_login_pass']) {
-
+    if (
+        $isAllowedNewUser
+        and !file_exists($_conf['auth_user_file']) && !$_login_failed_flag
+        and !empty($_POST['submit_new']) && $post['form_login_id'] && $post['form_login_pass']
+    ) {
         // {{{ 入力エラーをチェック、判定
         
         if (!preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_pass'])) {
@@ -249,7 +254,7 @@ EOP;
 <html lang="ja">
 <head>
 <?php
-    P2View::printHeadMetasHtml();
+    P2View::printExtraHeadersHtml();
     ?>
 	<title><?php echo $ptitle_ht; ?></title>
     <?php

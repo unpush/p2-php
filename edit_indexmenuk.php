@@ -43,7 +43,7 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 ?>
     <title>rep2 - Œg‘ÑTOPÒÆ­°‚Ì•À‚Ñ‘Ö‚¦</title>
 <?php

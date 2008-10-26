@@ -253,7 +253,7 @@ class Login
         // 認証設定 or パスワード記録がなかった場合はここまで
         if (!$this->pass_x) {
 
-            // 新規登録でなければエラー表示
+            // 新規登録時以外はエラーメッセージを表示
             if (empty($_POST['submit_new'])) {
                 P2Util::pushInfoHtml('<p class="infomsg">p2 error: ログインエラー</p>');
             }
@@ -559,14 +559,11 @@ EOP;
         FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']);
         
         if (false === file_put_contents($_conf['auth_user_file'], $auth_user_cont, LOCK_EX)) {
-            p2die(
-                'file_put_contents',
-                sprintf(
-                    '%s を保存できませんでした。認証ユーザ登録失敗。',
-                    hs($_conf['auth_user_file'])
-                )
-            );
-            //return false;
+            P2Util::pushInfoHtml(sprintf(
+                '<p>p2 error: %s を保存できませんでした。認証ユーザ登録失敗。</p>',
+                hs($_conf['auth_user_file'])
+            ));
+            return false;
         }
         
         // セッション変数を書き換え
@@ -606,17 +603,8 @@ EOP;
     {
         global $_conf;
         
-        $crypted_login_pass = sha1($pass);
-        $auth_user_cont = <<<EOP
-<?php
-\$rec_login_user_u = '{$user_u}';
-\$rec_login_pass_x = '{$crypted_login_pass}';
-?>
-EOP;
-        FileCtl::make_datafile($_conf['auth_user_file'], $_conf['pass_perm']);
-        if (false === file_put_contents($_conf['auth_user_file'], $auth_user_cont, LOCK_EX)) {
-            P2Util::printSimpleHtml("p2 error: {$_conf['auth_user_file']} を保存できませんでした。認証{$p_str['user']}登録失敗。");
-            die;
+        if (!$this->savaRegistUserPass($user_u, $pass)) {
+            p2die('ユーザ登録処理を完了できませんでした。');
             return false;
         }
         

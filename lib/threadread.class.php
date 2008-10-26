@@ -94,7 +94,7 @@ class ThreadRead extends Thread
      * HTTPヘッダレスポンスを読み込む
      *
      * @access  private
-     * @parama  resource  $fp  fsockopen で開いたファイルポインタ
+     * @param   resource  $fp  fsockopen で開いたファイルポインタ
      * @return  array|false
      */
     function freadHttpHeader($fp)
@@ -104,22 +104,22 @@ class ThreadRead extends Thread
         while (!feof($fp)) {
             $l = fgets($fp, 8192);
             
-			// ex) HTTP/1.1 304 Not Modified
+            // ex) HTTP/1.1 304 Not Modified
             if (preg_match("|HTTP/1\.\d (\d+) (.+)\r\n|", $l, $matches)) {
-				$h['code']      = $matches[1];
-				$h['message']   = $matches[2];
-				$h['HTTP']      = rtrim($l);
+                $h['code']      = $matches[1];
+                $h['message']   = $matches[2];
+                $h['HTTP']      = rtrim($l);
             }
             
-			if (preg_match('/^(.+?): (.+)\r\n/', $l, $matches)) {
-				$h['headers'][$matches[1]] = $matches[2];
+            if (preg_match('/^(.+?): (.+)\r\n/', $l, $matches)) {
+                $h['headers'][$matches[1]] = $matches[2];
                 
-			} elseif ($l == "\r\n") {
+            } elseif ($l == "\r\n") {
                 if (!isset($h['code'])) {
                     return false;
                 }
-				return $h;
-			}
+                return $h;
+            }
         }
         
         return false;

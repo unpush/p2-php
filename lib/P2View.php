@@ -157,6 +157,16 @@ class P2View
      * @access  public
      * @return  void  HTML出力
      */
+    function printExtraHeadersHtml()
+    {
+        P2View::printHeadMetasHtml();
+    }
+    
+    /**
+     * @static
+     * @access  public
+     * @return  void  HTML出力
+     */
     function printHeadMetasHtml()
     {
         $metas = array(
@@ -184,13 +194,20 @@ class P2View
         */
         
         if (!(basename($_SERVER['SCRIPT_NAME']) == 'index.php' && UA::isPC())) {
-            if (UA::isIPhones()) {
+            if (UA::isIPhoneGroup() || UA::isIPhoneGroup(geti($_SERVER['HTTP_USER_AGENT']))) {
+                ?><link rel="apple-touch-icon" href="img/p2iphone.png"><?php
+                
                 // <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                // initial-scale=1.0, maximum-scale=1.0
+                // initial-scale=1.0 とすると、縦→横と向きを変えた時に、拡大率が大きい状態になってしまう。
                 $metas[] = array(
                     'name'    => 'viewport',
-                    // initial-scale=1.0, maximum-scale=1.0
-                    // initial-scale=1.0 とすると、縦→横と向きを変えた時に、拡大率が大きい状態になってしまう。
                     'content' => 'width=device-width'
+                );
+                // <meta name="format-detection" content="telephone=no">
+                $metas[] = array(
+                    'name'    => 'format-detection',
+                    'content' => 'telephone=no'
                 );
             }
         }
@@ -208,7 +225,7 @@ class P2View
      * [todo] 今はまだ使っていない。$_conf['templateDir'] の設定をしてから。
      * @static
      * @access  public
-     * @return  void
+     * @return  void  HTML出力
      */
     function render($template, $params)
     {

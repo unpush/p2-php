@@ -82,7 +82,7 @@ EOP;
 <html>
 <head>
 <?php
-    P2View::printHeadMetasHtml();
+    P2View::printExtraHeadersHtml();
 echo <<<EOP
     <title>{$ptitle}</title>
 </head>

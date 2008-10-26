@@ -35,11 +35,11 @@ $favmark_accesskey      = '9'; // お気に入り
 $offrecent_accesskey    = '#'; // 履歴解除
 
 $title_msg = '';
+$info_msg = '';
 
 //================================================================
 // 特別な前処理
 //================================================================
-$info_msg = '';
 
 // {{{ 削除
 
@@ -177,12 +177,7 @@ $palUrl = P2Util::buildQueryUri('info.php',
         UA::getQueryKey() => UA::getQueryValue()
     )
 );
-
-if ($isPalace) {
-    $pal_ht = '<a href="' . hs($palUrl) . '" title="DAT落ちしたスレ用のお気に入り">★</a>';
-} else {
-    $pal_ht = '<a href="' . hs($palUrl) . '" title="DAT落ちしたスレ用のお気に入り">+</a>';
-}
+$pal_ht = P2View::tagA($palUrl, hs($isPalace ? '★' : '+'), array('title' => 'DAT落ちしたスレ用のお気に入り'));
 
 // }}}
 // {{{ スレッドあぼーんチェック
@@ -250,9 +245,9 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 ?>
-    <title><?php echo $hs['title']; ?> </title>
+	<title><?php echo $hs['title']; ?> </title>
 <?php
 
 if (UA::isPC()) {
@@ -264,15 +259,10 @@ if (UA::isPC()) {
 <?php
 }
 
+$body_onload = '';
 if (isset($_GET['popup']) and $_GET['popup'] == 2) {
-    echo <<<EOSCRIPT
-    <script type="text/javascript" src="js/closetimer.js"></script>
-EOSCRIPT;
-    $body_onload = <<<EOP
- onLoad="startTimer(document.getElementById('timerbutton'))"
-EOP;
-} else {
-    $body_onload = '';
+    ?><script type="text/javascript" src="js/closetimer.js"></script><?php
+    $body_onload = ' onLoad="startTimer(document.getElementById(\'timerbutton\'))"';
 }
 
 $body_at = P2View::getBodyAttrK();
@@ -300,11 +290,12 @@ if (UA::isK()) {
     $up_pre_ht   = $_conf['k_accesskey']['up']   . '.';
 }
 
-
 $offrecent_ht = '';
-if (checkRecent($aThread->host, $aThread->bbs, $aThread->key) or checkResHist($aThread->host, $aThread->bbs, $aThread->key)) {
-    $atag = _getOffRecentAtag($aThread, $offrecent_accesskey, $ttitle_en);
-    $offrecent_ht = " / [$atag]";
+if (
+    checkRecent($aThread->host, $aThread->bbs, $aThread->key)
+    || checkResHist($aThread->host, $aThread->bbs, $aThread->key)
+) {
+    $offrecent_ht = sprintf(' / [%s]', _getOffRecentAtag($aThread, $offrecent_accesskey, $ttitle_en));
 }
 
 if (UA::isPC()) {
@@ -407,7 +398,7 @@ _printInfoTrHtml("表示", $taborn_ht);
 
 // PC
 if (UA::isPC()) {
-    echo "</table>\n";
+    ?></table><?php
 }
 
 
@@ -489,7 +480,7 @@ function _getCopypaFormHtml($url, $ttitle_name_hs)
     
     $url_hs = htmlspecialchars($url, ENT_QUOTES);
     
-    $me_url = $me_url = P2Util::getMyUrl();
+    $me_url = P2Util::getMyUrl();
     // $_SERVER['REQUEST_URI']
     
     if (UA::isK()) {
@@ -499,9 +490,8 @@ function _getCopypaFormHtml($url, $ttitle_name_hs)
 </form>
 EOP;
     } else {
-    
-    //  onMouseover="select();"
-    $htm = <<<EOP
+        //  onMouseover="select();"
+        $htm = <<<EOP
 <div title="コピペ用フォーム">
 <form action="{$me_url}" style="display:inline">
  <textarea name="copy" cols="56" onMouseover="select();">{$ttitle_name_hs}&#10;{$url_hs}</textarea>

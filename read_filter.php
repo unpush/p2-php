@@ -52,19 +52,19 @@ function _getReadFilterWord($host, $bbs, $key, $resnum, $field)
     $resar = array_map('trim', $resar);
     $resar = array_map('strip_tags', $resar);
     switch ($field) {
-    	case 'name':
-    		$word = $resar[0];
-    		break;
-    	case 'mail':
-    		$word = $resar[1];
-    		break;
-    	case 'date':
-    		$word = preg_replace("/^(.*)ID:([0-9a-zA-Z\/\.\+]+)(.*)$/", "\\1 \\3", $resar[2]);
-    		$word = preg_replace("/^.*(\d{2,4}\/\d{1,2}\/\d{1,2}).*$/", "\\1", $word);
-    		break;
-    	case 'id':
-    		$word = preg_replace("/^.*ID:([0-9a-zA-Z\/\.\+]+).*$/", "\\1", $resar[2]);
-    		break;
+        case 'name':
+            $word = $resar[0];
+            break;
+        case 'mail':
+            $word = $resar[1];
+            break;
+        case 'date':
+            $word = preg_replace("/^(.*)ID:([0-9a-zA-Z\/\.\+]+)(.*)$/", "\\1 \\3", $resar[2]);
+            $word = preg_replace("/^.*(\d{2,4}\/\d{1,2}\/\d{1,2}).*$/", "\\1", $word);
+            break;
+        case 'id':
+            $word = preg_replace("/^.*ID:([0-9a-zA-Z\/\.\+]+).*$/", "\\1", $resar[2]);
+            break;
         case 'rres':
             $_GET['field'] = 'msg';
             $_GET['method'] = 'regex';

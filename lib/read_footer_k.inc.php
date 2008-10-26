@@ -59,12 +59,14 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // 
 <p>
     {$toolbar_right_ht} $above_atag
 </p>
-<p>{$goto_ht}</p>\n
+{$goto_ht}\n
 EOP;
-    if ($diedat_msg) {
-        echo $hr . $diedat_msg;
+    /*
+    if ($diedat_msg_ht) {
+        echo $hr . $diedat_msg_ht;
         ?><p><?php echo $motothre_ht ?></p><?php
     }
+    */
 }
 
 echo $hr . P2View::getBackToIndexKATag() . "\n";

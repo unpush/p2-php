@@ -181,7 +181,7 @@ $mobile =& Net_UserAgent_Mobile::singleton();
 if (PEAR::isError($mobile)) {
     trigger_error($mobile->toString(), E_USER_WARNING);
 
-// 携帯
+// UAが携帯なら
 } elseif ($mobile and !$mobile->isNonMobile()) {
 
     require_once P2_LIB_DIR . '/hostcheck.class.php';
@@ -237,10 +237,14 @@ if (PEAR::isError($mobile)) {
         $_conf['disable_cookie'] = TRUE;
     }
 
-// 携帯表示対象モバイル
-} elseif (UA::isMobile()) {
+// 携帯表示対象
+} elseif (UA::isK()) {
     $_conf['ktai'] = true;
+} elseif (UA::isIPhoneGroup()) {
+    $_conf['ktai'] = true;
+    UA::setForceMode(UA::getMobileQuery());
 }
+
 
 // }}}
 // {{{ クエリーによる強制ビュー指定

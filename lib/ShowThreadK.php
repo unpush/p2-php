@@ -438,7 +438,9 @@ EOP;
     {
         global $_conf;
         global $res_filter, $word_fm;
-
+        
+        $this->str_to_link_rest = $this->str_to_link_limit;
+        
         $ryaku = false;
         
         // 2ch旧形式のdat
@@ -462,7 +464,11 @@ EOP;
             $aa_ryaku_flag = true;
         }
         
-        if (empty($_GET['k_continue']) and $_conf['ktai_res_size'] && strlen($msg) > $_conf['ktai_res_size'] || $aa_ryaku_flag) {
+        if (
+            !(UA::isIPhoneGroup() && !$aa_ryaku_flag)
+            and empty($_GET['k_continue']) 
+            and $_conf['ktai_res_size'] && strlen($msg) > $_conf['ktai_res_size'] || $aa_ryaku_flag
+        ) {
             // <br>以外のタグを除去し、長さを切り詰める
             $msg = strip_tags($msg, '<br>');
             if ($aa_ryaku_flag) {
@@ -476,9 +482,24 @@ EOP;
             $msg = preg_replace('/ *<[^>]*$/i', '', $msg);
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
-            $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quote_res_callback'), $msg, $this->str_to_link_limit);
-
-            $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$resnum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\">{$ryaku_st}</a>";
+            $msg = preg_replace_callback(
+                '/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/',
+                array($this, 'quote_res_callback'), $msg, $this->str_to_link_limit
+            );
+            $msg .= P2View::tagA(
+                P2Util::buildQueryUri($_conf['read_php'],
+                    array(
+                        'host' => $this->thread->host,
+                        'bbs'  => $this->thread->bbs,
+                        'key'  => $this->thread->key,
+                        'ls'   => $resnum,
+                        'k_continue' => '1',
+                        'offline' => '1',
+                        UA::getQueryKey() => UA::getQueryValue()
+                    )
+                ),
+                $ryaku_st
+            );
             return $msg;
         }
         
@@ -489,7 +510,10 @@ EOP;
         
         // 2ch BEアイコン
         if (in_array($_conf['show_be_icon'], array(1, 3))) {
-            $msg = preg_replace('{sssp://(img\\.2ch\\.net/ico/[\\w\\d()\\-]+\\.[a-z]+)}', '<img src="http://$1" border="0">', $msg);
+            $msg = preg_replace(
+                '{sssp://(img\\.2ch\\.net/ico/[\\w\\d()\\-]+\\.[a-z]+)}',
+                '<img src="http://$1" border="0">', $msg
+            );
         }
         
         return $msg;
@@ -584,7 +608,10 @@ EOP;
             if (strstr($s[7], '-')) {
                 return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
             }
-            return preg_replace_callback('/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/', array($this, 'quote_res_callback'), $s['quote']);
+            return preg_replace_callback(
+                '/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
+                array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
+            );
 
         // http or ftp のURL
         } elseif ($s['url']) {
@@ -720,6 +747,10 @@ EOP;
     function quote_res_range_callback($s)
     {
         global $_conf;
+        
+        if (--$this->str_to_link_rest < 0) {
+            return $s[0];
+        }
         
         list($full, $qsign, $appointed_num) = $s;
         

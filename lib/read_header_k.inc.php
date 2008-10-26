@@ -4,8 +4,6 @@
 */
 
 // 変数 =====================================
-$diedat_msg = "";
-
 $info_st        = "情";
 $dele_st        = "削";
 $prev_st        = "前";
@@ -21,7 +19,7 @@ $motothre_url   = $aThread->getMotoThread();
 $ttitle_en      = base64_encode($aThread->ttitle);
 $ttitle_urlen   = rawurlencode($ttitle_en);
 
-// ↓$xxx_q は使わない方がよい
+// ↓$xxx_q は使わない方がよい（廃止したい）
 $ttitle_en_q    = "&amp;ttitle_en=" . $ttitle_urlen;
 $bbs_q          = "&amp;bbs=" . $aThread->bbs;
 $key_q          = "&amp;key=" . $aThread->key;
@@ -289,24 +287,13 @@ $dele_atag     = P2View::tagA(
     array($_conf['accesskey'] => $_conf['k_accesskey']['dele'])
 );
 
-$motothre_atag = P2View::tagA(
-    $motothre_url,
-    hs($moto_thre_st)
-);
+$motothre_atag = P2View::tagA($motothre_url, hs($moto_thre_st));
 
-$toolbar_right_ht = <<<EOTOOLBAR
-    $ita_atag
-    $similar_atag
-    $info_atag
-    $dele_atag
-    $motothre_atag
-EOTOOLBAR;
+$toolbar_right_ht = "$ita_atag $similar_atag $info_atag $dele_atag $motothre_atag";
 
 // }}}
 
 $hr = P2View::getHrHtmlK();
-
-$body_at = P2View::getBodyAttrK();
 
 //====================================================================
 // HTML出力
@@ -318,11 +305,11 @@ P2View::printDoctypeTag();
 <html>
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 ?>
 	<title><?php echo $ptitle_ht ?> </title>
 </head>
-<body<?php echo $body_at ?>>
+<body<?php echo P2View::getBodyAttrK() ?>>
 <?php
 
 P2Util::printInfoHtml();
@@ -330,13 +317,8 @@ P2Util::printInfoHtml();
 // スレが板サーバになければ
 if ($aThread->diedat) { 
 
-    if ($aThread->getdat_error_msg_ht) {
-        $diedat_msg = $aThread->getdat_error_msg_ht;
-    } else {
-        $diedat_msg = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
-    }
-
-    echo "$diedat_msg<p>$motothre_atag</p>$hr";
+    echo _getGetDatErrorMsgHtml($aThread);
+    echo "<p>$motothre_atag</p>$hr";
     
     // 既得レスがなければツールバー表示
     if (!$aThread->rescount) {
@@ -363,7 +345,7 @@ echo $hr;
 ?><h3><font color="<?php eh($STYLE['read_k_thread_title_color']); ?>"><?php eh($aThread->ttitle); ?> </font></h3><?php
 
 $filter_fields = array(
-    'hole'  => '',
+    'whole' => '',
     'msg'   => 'ﾒｯｾｰｼﾞが',
     'name'  => '名前が',
     'mail'  => 'ﾒｰﾙが',
@@ -380,3 +362,24 @@ if (isset($GLOBALS['word']) && strlen($GLOBALS['word'])) {
 }
 
 echo $hr;
+
+
+// このファイルでの処理はここまで
+
+
+//=======================================================================================
+// 関数（このファイル内でのみ利用）
+//=======================================================================================
+/**
+ * @return  string  HTML
+ */
+function _getGetDatErrorMsgHtml($aThread)
+{
+    $diedat_msg_ht = '';
+    if ($aThread->getdat_error_msg_ht) {
+        $diedat_msg_ht = $aThread->getdat_error_msg_ht;
+    } else {
+        $diedat_msg_ht = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
+    }
+    return $diedat_msg_ht;
+}

@@ -4,7 +4,7 @@
 */
 
 // •Ï”
-$diedat_msg = '';
+$diedat_msg_ht = '';
 
 $info_st        = "î•ñ";
 $dele_st        = "íœ";
@@ -184,18 +184,20 @@ $similar_url = P2Util::buildQueryUri($_conf['subject_php'],
 );
 $similar_url_hs = hs($similar_url);
 
+$info_php = UA::isIPhoneGroup() ? 'info_i.php' : 'info.php';
+
 $info_qs = array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en));
-$info_url = P2Util::buildQueryUri('info.php', $info_qs);
+$info_url = P2Util::buildQueryUri($info_php, $info_qs);
 $info_url_hs = hs($info_url);
 
-$favdo_url = P2Util::buildQueryUri('info.php', array_merge($info_qs, array('setfav' => $favdo)));
+$favdo_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('setfav' => $favdo)));
 $favdo_url_hs = hs($favdo_url);
 
 $setFavJs_query = P2Util::buildQuery(array_merge($info_qs, $sid_qs));
 $setFavJs_query_es = str_replace("'", "\\'", $setFavJs_query);
 $setFavJs_query_es_hs = hs($setFavJs_query_es);
 
-$dele_url = P2Util::buildQueryUri('info.php', array_merge($info_qs, array('dele' => 'true')));
+$dele_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('dele' => 'true')));
 $dele_url_hs = hs($dele_url);
 
 $deleLogJs_query = P2Util::buildQuery(array_merge($info_qs, $sid_qs));
@@ -233,24 +235,29 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 ?>
-	<title><?php echo $ptitle_ht;?> </title>
+	<title><?php echo $ptitle_ht; ?> </title>
 <?php
 P2View::printIncludeCssHtml('style');
 P2View::printIncludeCssHtml('read');
 ?>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
 	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
 	<script type="text/javascript" src="js/respopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
 	<script type="text/javascript" src="js/delelog.js?v=20061206"></script>
 	<script type="text/javascript" src="js/showhide.js"></script>
-
+<?php
+if (!UA::isIPhoneGroup()) {
+?>
 	<script type="text/javascript" src="./js/yui-ext/yui.js"></script>
 	<script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
 	<link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css">
 <?php
+}
 
 $onload_script = '';
 if ($_conf['bottom_res_form']) {
@@ -269,7 +276,6 @@ $existWord = strlen($GLOBALS['word']) ? 'true' : 'false';
 	<!--
 	gFade = <?php echo $fade; ?>;
 	gExistWord = <?php echo $existWord; ?>;
-	gShowKossoriHeadbarTimerID = null;
 	gIsPageLoaded = false;
 	addLoadEvent(function() {
 		gIsPageLoaded = true;
@@ -293,7 +299,7 @@ $existWord = strlen($GLOBALS['word']) ? 'true' : 'false';
 */
 
 if ($_conf['enable_spm']) {
-    ?><script type="text/javascript" src="js/smartpopup.js?v=20070308"></script><?php
+    ?><script type="text/javascript" src="js/smartpopup.js?v=20070331"></script><?php
 }
 
 // ƒwƒbƒhƒo[
@@ -325,9 +331,9 @@ if ($_conf['enable_spm']) {
 if ($aThread->diedat) { 
 
     if ($aThread->getdat_error_msg_ht) {
-        $diedat_msg = $aThread->getdat_error_msg_ht;
+        $diedat_msg_ht = $aThread->getdat_error_msg_ht;
     } else {
-        $diedat_msg = "<p><b>p2 info - ”ÂƒT[ƒo‚©‚çÅV‚ÌƒXƒŒƒbƒhî•ñ‚ğæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B</b></p>";
+        $diedat_msg_ht = "<p><b>p2 info - ”ÂƒT[ƒo‚©‚çÅV‚ÌƒXƒŒƒbƒhî•ñ‚ğæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B</b></p>";
     }
 
     $target_attrs = $_conf['bbs_win_target'] ? array('target' => $_conf['bbs_win_target']) : array();
@@ -352,12 +358,12 @@ if ($aThread->diedat) {
         $motothre_ht = P2View::tagA($motothre_url, hs($motothre_url), $target_attrs);
     }
     
-    echo $diedat_msg;
+    echo $diedat_msg_ht;
     ?><p><?php echo $motothre_ht; ?> </p><hr><?php
     
     // Šù“¾ƒŒƒX‚ª‚È‚¯‚ê‚Îƒc[ƒ‹ƒo[‰E‘¤‚¾‚¯HTML•\¦
     if (!$aThread->rescount) {
-?>
+        ?>
 <table width="100%" style="padding:0px 0px 10px 0px;">
 	<tr>
 		<td align="left">
@@ -378,7 +384,7 @@ $p2frame_ht = _getP2FrameHtml($motothre_url); // read_footer.inc.php ‚Å‚àQÆ‚µ‚
 
 $params = array(
     'word'             => $GLOBALS['word'],
-
+    
     'res_filter'       => $res_filter, // from read.php
 
     'all_st'           => $all_st,    // read_footer.inc.php ‚Å‚àQÆ‚µ‚Ä‚¢‚é
@@ -393,7 +399,6 @@ $params = array(
     
     'latest_show_res_num' => $latest_show_res_num // conf‚É‚µ‚½•û‚ª‚æ‚³‚»‚¤
 );
-
 //echo '<div id="kossoriHeadbar">' . _getHeadBarHtml($aThread, $params) . '</div>';
 echo $headbar_htm = _getHeadBarHtml($aThread, $params);
 
@@ -405,7 +410,7 @@ echo $headbar_htm = _getHeadBarHtml($aThread, $params);
 
 ob_flush(); flush();
 
-// ‚±‚Ìƒtƒ@ƒCƒ‹‚Ìˆ—‚Í‚±‚±‚Ü‚Å
+// ‚±‚Ìƒtƒ@ƒCƒ‹‚Å‚Ìˆ—‚Í‚±‚±‚Ü‚Å
 
 
 //=======================================================================================
@@ -428,7 +433,7 @@ function _getHeadBarHtml($aThread, $params)
 
     if ($aThread->rescount and empty($_GET['renzokupop'])) {
 
-        $selected_field = array('hole' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'msg' => '');
+        $selected_field = array('whole' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'msg' => '');
         $selected_field[($res_filter['field'])] = ' selected';
 
         $selected_match = array('on' => '', 'off' => '');
@@ -449,7 +454,7 @@ function _getHeadBarHtml($aThread, $params)
 EOP;
         }
     
-        $word_hs = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+        $word_hs = htmlspecialchars($word, ENT_QUOTES);
     
         $headbar_htm .= <<<EOP
 <form class="toolbar" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
@@ -460,7 +465,7 @@ EOP;
 	<input type="hidden" name="ls" value="all">
 	<input type="hidden" name="offline" value="1">
 	<select id="field" name="field">
-		<option value="hole"{$selected_field['hole']}>‘S‘Ì‚Å</option>
+		<option value="whole"{$selected_field['whole']}>‘S‘Ì‚Å</option>
 		<option value="name"{$selected_field['name']}>–¼‘O‚ª</option>
 		<option value="mail"{$selected_field['mail']}>ƒ[ƒ‹‚ª</option>
 		<option value="date"{$selected_field['date']}>“ú•t‚ª</option>

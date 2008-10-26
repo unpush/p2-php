@@ -37,7 +37,7 @@ if (file_exists($cachefile) and $res_filter_cont = file_get_contents($cachefile)
     $res_filter = unserialize($res_filter_cont);
 }
 
-$field  = array('hole' => '', 'msg' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'beid' => '', 'belv' => '');
+$field  = array('whole' => '', 'msg' => '', 'name' => '', 'mail' => '', 'date' => '', 'id' => '', 'beid' => '', 'belv' => '');
 $match  = array('on' => '', 'off' => '');
 $method = array('and' => '', 'or' => '', 'just' => '', 'regex' => '', 'similar' => '');
 
@@ -50,17 +50,15 @@ $method[$res_filter['method']] = ' selected';
 $hr = P2View::getHrHtmlK();
 $body_at = P2View::getBodyAttrK();
 
-/**
- * 検索フォームページ HTML表示
- * s1, s2と二つ検索 submit name があるけど一緒ぽい。s1, s2 は見ずに wordで判定している
- */
+// 検索フォームページ HTML表示
+
 P2Util::headerNoCache();
 P2View::printDoctypeTag();
 ?>
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 echo <<<EOF
     <title>p2 - ｽﾚ内検索</title>
 </head>
@@ -75,6 +73,7 @@ $hr
 <input type="hidden" name="key" value="{$key}">
 <input type="hidden" name="ls" value="all">
 <input type="hidden" name="offline" value="1">
+
 <div>
 <input id="word" name="word"><br>
 <input type="submit" name="submit_filter" value="検索">
@@ -84,7 +83,7 @@ $hr
 <div>
 検索ｵﾌﾟｼｮﾝ：<br>
 <select id="field" name="field">
- <option value="hole"{$field['hole']}>全体</option>
+ <option value="whole"{$field['whole']}>全体</option>
  <option value="msg"{$field['msg']}>ﾒｯｾｰｼﾞ</option>
  <option value="name"{$field['name']}>名前</option>
  <option value="mail"{$field['mail']}>ﾒｰﾙ</option>

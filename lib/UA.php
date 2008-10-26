@@ -1,6 +1,8 @@
 <?php
-// このクラスでのみ利用するグローバル変数
-// over PHP5に限定できるならクラス変数にしたいところのもの
+// 例えば、クエリーが b=k なら isK() がtrueとなるので、携帯向け表示にしたりする
+
+// {{{ このクラスでのみ利用するグローバル変数（_UA__*）
+// over PHP5に限定できるならプライベートなクラス変数にしたいところのもの
 
 // @see getQueryKey()
 $GLOBALS['_UA__query_key'] = 'b';
@@ -11,14 +13,29 @@ $GLOBALS['_UA__PC_query'] = 'pc';
 // @see setMobileQuery() // b=k
 $GLOBALS['_UA__mobile_query'] = 'k';
 
+// @see setIPhoneGroupQuery() // b=i
+$GLOBALS['_UA__iphonegroup_query'] = 'i';
+
+$GLOBALS['_UA__force_mode'] = null;
+
+// }}}
+
+// [todo] enableJS() や enableAjax() も欲しいかも
+
 /**
  * staticメソッドで利用する
- *
- * @author  aki
- * @created 2007/03/13
  */
 class UA
 {
+    /**
+     * 強制的にモード（pc, k）を指定する
+     * （クエリーをセットするわけではない）
+     */
+    public static function setForceMode($v)
+    {
+        $GLOBALS['_UA__force_mode'] = $v;
+    }
+    
     /**
      * UAがPC（非モバイル）ならtrueを返す
      *
@@ -32,7 +49,11 @@ class UA
     }
     
     /**
-     * isMobile() のエイリアス
+     * isMobile() のエイリアスになっている
+     *
+     * [plan] 携帯isK()と、モバイルisMobile()は、別のものとして区別した方がいいかな。（isMobile()はisK()を含むものとして）
+     * 携帯：画面が小さい。ページの表示容量に制限がある。数字のアクセスキーを使う。
+     * モバイル：携帯と同じく画面が小さめだが、フルブラウザで、JavaScriptが使える。
      */
     function isK($ua = null)
     {
@@ -51,29 +72,28 @@ class UA
     {
         static $cache_;
 
-        $isMobile = false;
+        // 強制指定があれば
+        if (isset($GLOBALS['_UA__force_mode'])) {
+            // ここはキャッシュしない
+            return ($GLOBALS['_UA__force_mode'] == $GLOBALS['_UA__mobile_query']);
+        }
         
-        // UA無指定なら、クエリー指定を参照
+        // 引数のUAが無指定なら、クエリー指定を参照
         if (is_null($ua)) {
-            if (UA::isPCByQuery()) {
-                $cache_ = false;
-                return false;
-            }
-            if ($isMobile = UA::isMobileByQuery()) {
-                $cache_ = true;
-                return true;
+            if (UA::getQueryValue()) {
+                return UA::isMobileByQuery();
             }
         }
         
+        // 引数のUAが無指定なら、キャッシュ有効
         if (is_null($ua) and isset($cache_)) {
             return $cache_;
         }
         
-        if (!$isMobile) {
-            if ($nuam = &UA::getNet_UserAgent_Mobile($ua)) {
-                if (!$nuam->isNonMobile()) {
-                    $isMobile = true;
-                }
+        $isMobile = false;
+        if ($nuam = &UA::getNet_UserAgent_Mobile($ua)) {
+            if (!$nuam->isNonMobile()) {
+                $isMobile = true;
             }
         }
         
@@ -89,6 +109,7 @@ class UA
         }
         */
         
+        // 引数のUAが無指定なら、キャッシュ保存
         if (is_null($ua)) {
             $cache_ = $isMobile;
         }
@@ -105,16 +126,10 @@ class UA
      */
     function isPCByQuery()
     {
-        $key = UA::getQueryKey();
-        if (!$key) {
-            return false;
-        }
-        $pc = UA::getPCQuery();
-        
-        if (isset($_REQUEST[$key]) && $_REQUEST[$key] == $pc) {
+        $qv = UA::getQueryValue();
+        if (isset($qv) && $qv == UA::getPCQuery()) {
             return true;
         }
-        
         return false;
     }
     
@@ -127,16 +142,26 @@ class UA
      */
     function isMobileByQuery()
     {
-        $key = UA::getQueryKey();
-        if (!$key) {
-            return false;
-        }
-        $k = UA::getMobileQuery();
-        
-        if (isset($_REQUEST[$key]) && $_REQUEST[$key] == $k) {
+        $qv = UA::getQueryValue();
+        if (isset($qv) && $qv == UA::getMobileQuery()) {
             return true;
         }
-        
+        return false;
+    }
+    
+    /**
+     * クエリーがIPhoneGroupを指定しているならtrueを返す
+     *
+     * @static
+     * @access  private
+     * @return  boolean
+     */
+    function isIPhoneGroupByQuery()
+    {
+        $qv = UA::getQueryValue();
+        if (isset($qv) && $qv == UA::getIPhoneGroupQuery()) {
+            return true;
+        }
         return false;
     }
     
@@ -145,11 +170,15 @@ class UA
      *
      * @static
      * @access  public
-     * @return  string
+     * @return  string|null
      */
     function getQueryValue($key = null)
     {
-        is_null($key) and $key = UA::getQueryKey();
+        if (is_null($key)) {
+            if (!$key = UA::getQueryKey()) {
+                return null;
+            }
+        }
         
         $r = null;
         if (isset($_REQUEST[$key])) {
@@ -173,7 +202,7 @@ class UA
     /**
      * @static
      * @access  public
-     * @param   string   $pc
+     * @param   string  $pc  default is 'pc'
      * @return  void
      */
     function setPCQuery($pc)
@@ -194,7 +223,7 @@ class UA
     /**
      * @static
      * @access  public
-     * @param   string  $k
+     * @param   string  $k  default is 'k'
      * @return  void
      */
     function setMobileQuery($k)
@@ -210,6 +239,27 @@ class UA
     function getMobileQuery()
     {
         return $GLOBALS['_UA__mobile_query'];
+    }
+    
+    /**
+     * @static
+     * @access  public
+     * @param   string  $i  default is 'i'
+     * @return  void
+     */
+    function setIPhoneGroupQuery($i)
+    {
+        $GLOBALS['_UA__iphonegroup_query'] = $i;
+    }
+    
+    /**
+     * @static
+     * @access  public
+     * @return  string
+     */
+    function getIPhoneGroupQuery()
+    {
+        return $GLOBALS['_UA__iphonegroup_query'];
     }
     
     /**
@@ -321,6 +371,14 @@ class UA
     }
     
     /**
+     * 2008/10/25 isIPhoneGroup()に改名したので廃止予定
+     */
+    function isIPhones($ua = null)
+    {
+        return UA::isIPhoneGroup($ua);
+    }
+    
+    /**
      * UAがiPhone, iPod touchならtrueを返す。
      *
      * @static
@@ -328,10 +386,28 @@ class UA
      * @param   string   $ua  UAを指定するなら
      * @return  boolean
      */
-    function isIPhones($ua = null)
+    function isIPhoneGroup($ua = null)
     {
-        if (is_null($ua) and isset($_SERVER['HTTP_USER_AGENT'])) {
-            $ua = $_SERVER['HTTP_USER_AGENT'];
+        // 強制指定があればチェック
+        if (isset($GLOBALS['_UA__force_mode'])) {
+            if ($GLOBALS['_UA__force_mode'] == $GLOBALS['_UA__iphonegroup_query']) {
+                return true;
+            }
+        }
+        
+        // UAの引数が無指定なら、
+        if (is_null($ua)) {
+            // クエリー指定を参照
+            if (UA::getQueryValue()) {
+                //// 後方互換上、b=kでもiPhoneとみなすことを許す。
+                //if (!UA::isMobileByQuery()) {
+                    return UA::isIPhoneGroupByQuery();
+                //}
+            }
+            // クライアントのUAで判別
+            if (isset($_SERVER['HTTP_USER_AGENT'])) {
+                $ua = $_SERVER['HTTP_USER_AGENT'];
+            }
         }
 
         // iPhone
@@ -346,7 +422,7 @@ class UA
     }
     
     /**
-     * UAがSafari系ならtrueを返す
+     * UAがSafari系なら true を返す
      *
      * @static
      * @access  public

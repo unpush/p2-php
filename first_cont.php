@@ -42,7 +42,7 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 ?>
 	<title>rep2</title>
 <?php
@@ -53,11 +53,11 @@ P2View::printIncludeCssHtml('style');
 <body id="first_cont">
 <br>
 <div class="container">
-    <?php echo $htm['urlform']; ?>
-    <hr>
-    <ul>
-        <li><a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?Bookmarklet" target="_blank">ブックマークレット</a> 「<a href="<?php eh($bookmarkletUrl); ?>">p2で読む</a>」</li>
-    </ul>
+	<?php echo $htm['urlform']; ?>
+	<hr>
+	<ul>
+		<li><a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?Bookmarklet" target="_blank">ブックマークレット</a> 「<a href="<?php eh($bookmarkletUrl); ?>">p2で読む</a>」</li>
+	</ul>
 </div>
 </body>
 </html>

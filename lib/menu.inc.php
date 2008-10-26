@@ -47,7 +47,7 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 
 // 自動更新 meta refreshタグ
 _printMetaRereshHtml()

@@ -63,10 +63,11 @@ function setFav($host, $bbs, $key, $setfav)
         if ($setfav == '0' and (empty($data[3]) && empty($data[4]) && $data[9] <= 1)) {
             @unlink($idxfile);
         } else {
-            $sar = array($data[0], $key, $data[2], $data[3], $data[4],
-                        $data[5], $setfav, $data[7], $data[8], $data[9],
-                        $data[10], $data[11], $data[12]);
-            P2Util::recKeyIdx($idxfile, $sar);
+            P2Util::recKeyIdx($idxfile, array(
+                $data[0], $key, $data[2], $data[3], $data[4],
+                $data[5], $setfav, $data[7], $data[8], $data[9],
+                $data[10], $data[11], $data[12]
+            ));
         }
     }
     
@@ -110,7 +111,10 @@ function setFav($host, $bbs, $key, $setfav)
     
     // 記録データ設定
     if ($setfav) {
-        $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>1<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
+        $newdata = implode('<>', array(
+            geti($data[0]), $key, geti($data[2]), geti($data[3]), geti($data[4]), geti($data[5]),
+            1, geti($data[7]), geti($data[8]), geti($data[9]), $host, $bbs
+        ));
         require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfav);
     } else {
@@ -141,8 +145,10 @@ function setFav($host, $bbs, $key, $setfav)
         }
         if ($act) {
             $itaj = P2Util::getItaName($host, $bbs);
-            $post = array("host" => $host, "bbs" => $bbs, "key" => $key, "ttitle" => $data[0], "ita" => $itaj, "act" => $act);
-            postFavRank($post);
+            postFavRank(array(
+                'host' => $host, 'bbs' => $bbs, 'key' => $key,
+                'ttitle' => $data[0], 'ita' => $itaj, 'act' => $act
+            ));
         }
     }
 

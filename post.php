@@ -7,6 +7,9 @@
 */
 
 require_once './conf/conf.inc.php';
+if (UA::isIPhoneGroup()) {
+    require_once './iphone/conf.inc.php';
+}
 require_once P2_LIB_DIR . '/dataphp.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/P2Validate.php';
@@ -949,7 +952,7 @@ EOJS;
 <html lang="ja">
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 echo $meta_refresh_ht;
 
     if ($is_done) {

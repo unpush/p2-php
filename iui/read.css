@@ -1,0 +1,571 @@
+/* スレ本文用のCSS */
+
+/*  
+表示フォントサイズはここのbodyをいじってください。
+フォントファミリーもここに追加で
+*/
+body{
+margin: 0;
+font-size: 18px;
+font-family: ;
+word-wrap: break-word; 
+overflow-x:hidden;
+-webkit-user-select:none;
+-webkit-text-size-adjust:none;
+}
+
+/* スレタイ */
+/*  色はconf/conf_user_style.inc.php で */
+h3 {
+	text-align: left;
+	width: 95%;
+	margin-left: auto;
+	margin-right: auto;
+}
+/* 本文あたり */
+/*  1レスごとの間隔とか */
+div {
+	padding-right: 5px;
+	padding-left: 5px;
+	/*border-top: 1px solid #999999;*/
+	margin-bottom: 10px;
+	padding-top: 5px;
+}
+/* 本文中のURL */
+/* 対策したからもういらないかも */
+div a { 
+max-width: 300px; 
+display: inline-block; 
+} 
+/***********************************************************/
+/* ヘッダーのツールバー */
+/* とくにいじってましぇん */
+body>.toolbar{
+box-sizing:border-box;
+-moz-box-sizing:border-box;
+-webkit-box-sizing:border-box;
+border-bottom:1px solid #2d3642;
+border-top:1px solid #333333;/*#6d84a2*/
+padding:10px;
+height:45px;
+margin: 0;
+background:url(toolbar.png) #6d84a2 repeat-x;
+}
+
+.toolbar>h1{
+position:absolute;
+overflow:hidden;
+left:50%;
+margin:1px 0 0 -75px;
+height:45px;
+font-size:20px;
+width:150px;
+font-weight:bold;
+text-shadow:rgba(0,0,0,0.4) 0 -1px 0;
+text-align:center;
+text-overflow:ellipsis;
+white-space:nowrap;
+color:#FFF;
+}
+
+.toolbar a {
+color: #FFFFFF;
+text-decoration: none;
+padding: 2px;
+}
+
+.toolbar select {
+margin-left: 90px;
+}
+
+.button{
+position:absolute;
+overflow:hidden;
+top:8px;
+right:6px;
+margin:0;
+border-width:0 5px;
+padding:0 5px;
+width: 30px;
+height:30px;
+text-align: center;
+line-height:30px;
+font-family:inherit;
+font-size:14px;
+font-weight:bold;
+color:#FFF;
+text-shadow:rgba(0,0,0,0.6) 0 -1px 0;
+text-overflow:ellipsis;
+text-decoration:none;
+white-space:nowrap;
+background:none;
+-webkit-border-image:url(toolButton.png) 0 5 0 5;
+}
+
+.favbutton{
+position:absolute;
+overflow:hidden;
+top:8px;
+right:60px;
+margin:0;
+border-width:0 5px;
+padding:0 3px;
+text-align: center;
+width:30px;
+height:30px;
+line-height:30px;
+font-family:inherit;
+font-size:14px;
+font-weight:bold;
+color:#FFF;
+text-shadow:rgba(0,0,0,0.6) 0 -1px 0;
+text-overflow:ellipsis;
+text-decoration:none;
+white-space:nowrap;
+background:none;
+-webkit-border-image:url(toolButton.png) 0 5 0 5;
+}
+
+
+/*  本文フッター用ボタン  */
+.footform select{
+	text-align: center;
+	width: 300px;
+	padding: 0;
+}
+.footform form {
+ margin-bottom: 3px;
+}
+#footbar01 {
+	background-image: url(footback.png);
+	opacity:0.8;
+	width:100%;
+	padding: 0;
+	margin:0;
+	border: 0;
+	height: 50px;
+	overflow: hidden;
+}
+
+.footbar {
+	padding:0;
+	margin: 0;
+	-webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+.footbar>ul {
+display: inline;
+list-style:none
+padding: 0;
+margin: 0;
+}
+.footbar>ul>li {
+    width: 53px;
+	height: 50px;
+	overflow: hidden;
+	padding: 0;
+	float: left;
+	text-align: center;
+	background-image: url(foottool.png);
+}
+.footbar a {
+	width: 48px;
+	height:45px;
+	text-indent: -5000px;
+ }
+
+.footbar>ul>li.home {background-position: 0 0;}
+.footbar>ul>li.home:hover {background-position: 0 -50px;}
+.footbar>ul>li.prev {background-position: -54px 0;}
+.footbar>ul>li.prev:hover {background-position: -54px -50px;}
+.footbar>ul>li.new {background-position: -106px 0;}
+.footbar>ul>li.new:hover {background-position: -106px -50px;}
+.footbar>ul>li.res {background-position: -160px 0;}
+.footbar>ul>li.res:hover {background-position: -160px -50px;}
+.footbar>ul>li.other {background-position: -212px 0;}
+.footbar>ul>li.other:hover {background-position: -212px -50px;}
+.footbar>ul>li.next {background-position: -265px 0;}
+.footbar>ul>li.next:hover {background-position: -265px -50px;}
+.footbar>ul>li#blank {opacity:0.2;}
+.footbar>ul>li#blank:hover {opacity:0;}
+
+.blueButton{
+-webkit-border-image:url(blueButton.png) 0 5 0 5;
+border-width:0 5px;
+padding: 3px;
+}
+
+.leftButton{
+left:6px;
+right:auto;
+}
+#backButton{
+left:6px;
+right:auto;
+padding:0;
+width:55px;
+border-width:0 8px 0 14px;
+-webkit-border-image:url(backButton.png) 0 8 0 14;
+}
+
+.whiteButton,.grayButton{
+display:block;
+border-width:0 12px;
+padding:10px;
+text-align:center;
+font-size:20px;
+font-weight:bold;
+text-decoration:inherit;
+color:inherit;
+}
+
+.whiteButton{
+-webkit-border-image:url(whiteButton.png) 0 12 0 12;
+text-shadow:rgba(255,255,255,0.7) 0 1px 0;
+}
+
+.grayButton{
+-webkit-border-image:url(grayButton.png) 0 12 0 12;
+color:#FFF;
+}
+/* ******************************* */
+/* 本文ではフッタあたりで使用 */
+body>ul {
+ margin: 0;
+ padding: 0;
+}
+
+body>ul>li{
+position:relative;
+margin:0;
+border-bottom:1px solid #E0E0E0;
+padding:8px 0 8px 10px;
+font-size:20px;
+font-weight:bold;
+list-style:none;
+}
+
+body>ul>li.group{
+position:relative;
+top:-1px;
+margin-bottom:-2px;
+border-top:1px solid #7d7d7d;
+border-bottom:1px solid #999;
+padding:1px 10px;
+background:url(listGroup.png) repeat-x;
+font-size:17px;
+font-weight:bold;
+text-shadow:rgba(0,0,0,0.4) 0 1px 0;
+color:#FFF;
+}
+
+body>ul>li.group:first-child{
+top:0;
+border-top:none;
+}
+body>ul>li>a{
+display:block;
+margin:-8px 0 -8px -10px;
+padding:8px 32px 8px 10px;
+text-decoration:none;
+color:inherit;
+background:url(listArrow.png) no-repeat right center;
+}
+
+
+/********************************************/
+/*  スレ内検索 */
+.serch {
+	width: 180px;
+	font-size: 16px;
+}
+/* スレ内日時、名前、めーる */
+div > .tname {
+	font-weight: bold;
+	color: #006600;
+}
+div > .tmail {
+	color: #666666;
+}
+div > .tdate {
+	color: #666666;
+}
+
+/* レスポップアップ */
+dd.respopup{
+margin:8px 8px;
+
+}
+
+/* 引用レスポップアップ */
+/* 080730 配色いじりました */
+.respopup{
+	position:absolute;
+	visibility:hidden; /* 普段は隠しておく*/
+	background-color: rgba(22,22,22,0.5);
+	color: #FFFFFF;
+	border:1px black solid;
+	font-size:14px;
+	padding:2px 3px;
+	line-height:120%;
+	word-break: break-word; 
+	-webkit-border-radius: 5px;
+	-webkit-box-shadow: 2px 2px 2px gray;
+	width: 92%;
+	margin-top: 50px;
+	margin-left: -2px;
+	background-image:url(footformbg.png);
+	-webkit-background-size: 100%;
+}
+/* 閉じるボタン */
+.respopup .close {
+	position: absolute;
+	top: -10px;
+	left: -10px;
+}
+.respopup a {
+	color: cyan;
+}
+.respopup input { 
+	padding: 3px;
+} 
+select {
+	font-size: 14px;
+}
+
+/* フィルタ表示とレス書き込みポップアップ */
+body > .dialog_filter, body > .dialog_write {
+	display: none;
+	position: relative;
+	margin: 0;
+	bottom: 478px;
+	padding: 0;
+	left: 0;
+    width: 100%;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.5);
+    min-height: 430px;
+    padding: 0;
+    overflow: visible;
+}
+
+
+.dialog_filter > fieldset , .dialog_write > fieldset {
+	position: absolute;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    bottom: 1px;
+    border: none;
+    border-top: 1px solid
+    padding: 0px 6px;
+    background: url(footformbg.png) transparent repeat-x;
+    overflow: visible;
+
+}
+
+.dialog_filter fieldset > h1, .dialog_write > fieldset > h5 {
+    margin: 0 10px 0 10px;
+    padding: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0;
+    text-align: center;
+}
+
+.dialog_write > fieldset > h5 {
+text-overflow:ellipsis;
+	position:absolute;
+	width:300px;
+	font-size: 14px;
+	margin: 0 0 0 0;
+	top: 0px;
+}
+
+.dialog_filter > fieldset > label, .dialog_write > fieldset > label {
+    position: absolute;
+    margin: 16px 0 0 6px;
+    font-size: 14px;
+    color: #999999;
+}
+
+.dialog_filter > fieldset > input[type="text"], .dialog_write > fieldset > input[type="text"], textarea {
+	width: 100%;
+	-webkit-border-radius: 10px;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    margin: 8px -100px 0 0;
+    padding: 6px 6px 6px 44px;
+    font-size: 24px;
+    font-weight: normal;
+}
+
+.dialog_filter > fieldset > input[type="submit"], .dialog_write > fieldset > input[type="submit"] {
+	display: inline;
+	font-size: 18px;
+	float: right;
+    margin: 8px 1px 0 0;
+   padding: 6px 6px 6px 4px;
+}
+
+.dialog_write > fieldset {
+	color: white;
+}
+
+.dialog_write > fieldset > span {
+	float: right;
+}
+
+.dialog_write > fieldset > input[type="text"], textarea {
+	padding: 6px 6px 6px 50px;
+	font-size:16px;
+}
+
+.dialog_write > fieldset > input[type="text"] {
+	width: 60%;
+}
+.dialog_write > * input[type="checkbox"] {
+	width: 25px;
+	height:25px;
+}
+
+#footbar02 {
+	visibility:hidden;
+	position: relative;
+	bottom: 48px;
+	left: 0;
+	border:0;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	overflow: visible;
+}
+#footbar02 > filedset {
+	position: absolute;
+    width: 100%;
+    margin: 0;
+    bottom: 1px;
+    border: none;
+	padding: 0;
+	border-top: 170px rgba(0,0,0,0.2) solid;
+    background: rgba(0,0,0,0.5) url(footformbg.png) repeat-x;
+	overflow: visible;
+}
+#footbar02 > filedset > ul {
+	margin: 0;
+	padding: 0;
+	padding-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 85%;
+	text-align: center;
+}
+#footbar02 > filedset >ul>li {
+	margin: 0;
+	margin-bottom: 5px;
+}
+#footbar02 > filedset > ul > li a {
+	width: 100%;
+	text-decoration: none;
+	color: #000000;
+}
+
+/* 画像サムネイル */
+img {
+	max-width: 160px;
+	max-height: 160px;
+}
+
+/*******************************/
+/* スマートポップアップメニュー */
+.spm{
+	position:absolute;
+	visibility:hidden; /* 普段は隠しておく*/
+	font-size:13px;
+	line-height:170%;
+	width:8.5em;
+	margin:0px;
+	padding:2px 4px;
+	border:1px black solid;
+	margin-left: 50px;
+	margin-top: -10px;
+	background-color: rgba(22,22,22,0.5);
+	color: #FFFFFF;
+	-webkit-border-radius: 5px;
+	-webkit-box-shadow: 2px 2px 2px gray;
+	background-image:url(footformbg.png);
+	-webkit-background-size: 100%;
+}
+
+/* スマートポップアップメニュー：ヘッダ */
+.spm p{
+	white-space: nowrap;
+	margin:2px;
+	padding:0px;
+	border-bottom:1px white solid;
+	vertical-align:middle;
+}
+
+/* スマートポップアップメニュー：リンク */
+.spm a{
+	display:block;
+	white-space: nowrap;
+	margin:2px -4px;
+	padding:0px 4px;
+	vertical-align:middle;
+	text-decoration:none;
+	color: white;
+}
+
+/* 閉じるボタン */
+.spm img {
+	position: absolute;
+	top: -10px;
+	left: -10px;
+}
+
+/* スマートポップアップメニュー：レス番号 */
+.spm > span > .numbox {
+	margin:0px;
+	padding:0px;
+	border:none;
+}
+
+
+.spm div.spmMona {
+	white-space: nowrap;
+	margin:2px;
+	padding:0px;
+	vertical-align:middle;
+}
+
+.spm div.spmMona a{
+	display:inline;
+	color:#000;
+	text-decoration:none;
+}
+
+
+.resnum {
+	text-decoration: none;
+	color: inherit;
+}
+
+/* ニコニコサムネイル */
+.nico {
+    margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+
+/*****************/
+/* フッターリンク
+フッタ下に余白がでるときあるので一時的に対策
+ */
+ 
+ #footer {
+ 	position: relative;
+	 bottom: 320px;
+ }

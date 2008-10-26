@@ -76,8 +76,8 @@ if ($spmode) {
 }
 
 // }}}
+// {{{ p2_setting 読み込み、セット
 
-// p2_setting 読み込み、セット
 $p2_setting = $pre_setting = sbLoadP2SettingTxt($p2_setting_txt);
 
 $p2_setting = sbSetP2SettingWithQuery($p2_setting);
@@ -86,6 +86,7 @@ if (isset($_GET['sb_view']))  { $sb_view = $_GET['sb_view']; }
 if (isset($_POST['sb_view'])) { $sb_view = $_POST['sb_view']; }
 if (empty($sb_view)) { $sb_view = "normal"; }
 
+// }}}
 // {{{ ソートの指定
 
 if (!empty($_POST['sort'])) {
@@ -236,7 +237,7 @@ for ($x = 0; $x < $linesize; $x++) {
             $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
             if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
             break;
-        case "res_hist":// 書き込み履歴
+        case "res_hist":    // 書き込み履歴
             $aThread->getThreadInfoFromExtIdxLine($l);
             $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
             if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
@@ -937,7 +938,12 @@ function _matchSbFilter(&$aThread)
         reset($GLOBALS['words_fm']);
         foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
             // 全文検索でdatがあれば、内容を検索
-            if (!empty($_REQUEST['find_cont']) && file_exists($aThread->keydat)) {
+            if (!empty($GLOBALS['brazil'])) {
+                $fileExists = file_exists($aThread->keyidx) && file_exists($aThread->keydat);
+            } else {
+                $fileExists = file_exists($aThread->keydat);
+            }
+            if (!empty($_REQUEST['find_cont']) and $fileExists) {
                 // be.2ch.net はEUC
                 if (P2Util::isHostBe2chNet($aThread->host)) {
                    $target_cont = mb_convert_encoding($word_fm_ao, 'eucJP-win', 'SJIS-win');
@@ -954,7 +960,12 @@ function _matchSbFilter(&$aThread)
         
     } else {
         // 全文検索でdatがあれば、内容を検索
-        if (!empty($_REQUEST['find_cont']) && file_exists($aThread->keydat)) {
+        if (!empty($GLOBALS['brazil'])) {
+            $fileExists = file_exists($aThread->keyidx) && file_exists($aThread->keydat);
+        } else {
+            $fileExists = file_exists($aThread->keydat);
+        }
+        if (!empty($_REQUEST['find_cont']) and $fileExists) {
             $target_cont = $GLOBALS['word_fm'];
             // be.2ch.net はEUC
             if (P2Util::isHostBe2chNet($aThread->host)) {

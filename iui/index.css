@@ -1,0 +1,51 @@
+/*  iPhone のトップ用 */
+/*　ふっとメニュー */
+.hidden {
+	position: absolute;
+	visibility: hidden;
+}
+#foot {
+	position: absolute;
+	top: 365px;
+	background-image: url(footback.png);
+	background-position: top;
+	width:100%;
+	padding: 0;
+	border: 0;
+	margin:0;
+	height: 51px;
+overflow: hidden;
+}
+.foot_index {
+	padding:0;
+	margin: 0;
+}
+
+.foot_index>span {
+    width: 80px;
+	height: 50px;
+	overflow: hidden;
+	padding: 0;
+	margin:0;
+	margin-top: 1px;
+	float: left;
+	text-align: center;
+	background-image: url(foottab_index.png);
+}
+#foot a {
+	display: inline-block;
+	height: 60px;
+	width: 54px;
+	text-indent: -10000px;
+	padding: 0;
+	margin:0;
+ }
+.foot_index>span:hover {-webkit-border-radius: 3px;}
+.foot_index>span.top {background-position: 0 0;}
+.foot_index>span.top:hover {background-position:0 -50px;}
+.foot_index>span.fav {background-position: -80px 0;}
+.foot_index>span.fav:hover {background-position: -80px -50px;}
+.foot_index>span.new {background-position: -160px 0;}
+.foot_index>span.new:hover {background-position: -160px -50px;}
+.foot_index>span.other {background-position: -240px 0;}
+.foot_index>span.other:hover {background-position: -240px -50px;}

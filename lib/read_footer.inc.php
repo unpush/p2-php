@@ -12,7 +12,7 @@ require_once P2_LIB_DIR . '/dataphp.class.php';
 $res_form_html ='';
 $onmouse_showform_attrs = array();
 
-if ($_conf['bottom_res_form'] and empty($diedat_msg)) {
+if ($_conf['bottom_res_form'] and empty($diedat_msg_ht)) {
 
     $bbs        = $aThread->bbs;
     $key        = $aThread->key;
@@ -155,8 +155,8 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
 {$res_form_html_pb}
 EOP;
 
-    if ($diedat_msg) {
-        echo "<hr>$diedat_msg<p>$motothre_ht</p>";
+    if ($diedat_msg_ht) {
+        echo "<hr>$diedat_msg_ht<p>$motothre_ht</p>";
     }
 }
 

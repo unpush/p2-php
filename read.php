@@ -86,7 +86,7 @@ $GLOBALS['word_fm'] = null;
 if (strlen($GLOBALS['word'])) {
 
     // デフォルトオプション
-    if (empty($GLOBALS['res_filter']['field']))  { $GLOBALS['res_filter']['field']  = "hole"; }
+    if (empty($GLOBALS['res_filter']['field']))  { $GLOBALS['res_filter']['field']  = "whole"; }
     if (empty($GLOBALS['res_filter']['match']))  { $GLOBALS['res_filter']['match']  = "on"; }
     if (empty($GLOBALS['res_filter']['method'])) { $GLOBALS['res_filter']['method'] = "or"; }
 

@@ -122,7 +122,7 @@ P2View::printDoctypeTag();
 <html>
 <head>
 <?php
-P2View::printHeadMetasHtml();
+P2View::printExtraHeadersHtml();
 ?>
 	<title><?php eh($aThreadList->ptitle); ?></title>
 </head>
