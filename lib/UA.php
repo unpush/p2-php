@@ -31,7 +31,7 @@ class UA
      * 強制的にモード（pc, k）を指定する
      * （クエリーをセットするわけではない）
      */
-    public static function setForceMode($v)
+    function setForceMode($v)
     {
         $GLOBALS['_UA__force_mode'] = $v;
     }
