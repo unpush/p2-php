@@ -6,6 +6,7 @@
 require_once './conf/conf.inc.php';
 require_once './iphone/conf.inc.php';
 require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/P2Validate.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
@@ -27,7 +28,7 @@ if (!$itaj = P2Util::getItaName($host, $bbs)) {
 }
 
 $ttitle_en  = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
-$ttitle     = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
+$ttitle     = strlen($ttitle_en) ? base64_decode($ttitle_en) : '';
 $ttitle_hs  = htmlspecialchars($ttitle, ENT_QUOTES);
 
 if (P2Validate::host($host) || ($bbs) && P2Validate::bbs($bbs) || ($key) && P2Validate::key($key)) {
