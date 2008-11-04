@@ -691,6 +691,9 @@ EOP;
     
     /**
      * cookieがHttpOnly可能であれば true を返す
+     *
+     * @access  private
+     * @return  boolean
      */
     function isAcceptableCookieHttpOnly()
     {
@@ -725,12 +728,10 @@ EOP;
         
         require_once P2_LIB_DIR . '/md5_crypt.inc.php';
         
-        $idtime = $user_u . ':' . time() . ':';
-        $pw_enc = md5($idtime . $pass_x);
-        $str = $idtime . $pw_enc;
-        $cid = md5_encrypt($str, $this->getMd5CryptPassForCid());
-        
-        return $cid;
+        $user_time  = $user_u . ':' . time() . ':';
+        $md5_utpx = md5($user_time . $pass_x);
+        $cid_src  = $user_time . $md5_utpx;
+        return $cid = md5_encrypt($cid_src, $this->getMd5CryptPassForCid());
     }
 
     /**
@@ -748,17 +749,17 @@ EOP;
         
         $dec = md5_decrypt($cid, Login::getMd5CryptPassForCid());
         
-        $user = $time = $pw_enc = null;
-        list($user, $time, $pw_enc) = split(':', $dec, 3);
-        if (!strlen($user) || !$time || !$pw_enc) {
+        $user = $time = $md5_utpx = null;
+        list($user, $time, $md5_utpx) = split(':', $dec, 3);
+        if (!strlen($user) || !$time || !$md5_utpx) {
             return false;
         }
         
         // 有効期限 日数
-        if (time() > $time + (86400 * $_conf['cid_expire_day'])) {
+        if (time() > $time + (60*60*24 * $_conf['cid_expire_day'])) {
             return false; // 期限切れ
         }
-        return array($user, $time, $pw_enc);
+        return array($user, $time, $md5_utpx);
     }
     
     /**
@@ -795,14 +796,11 @@ EOP;
             return false;
         }
         
-        $time = $ar[1];
-        $pw_enc = $ar[2];
+        $time     = $ar[1];
+        $md5_utpx = $ar[2];
         
-        // PWを照合
-        if ($pw_enc == md5($this->user_u . ':' . $time . ':' . $this->pass_x)) {
-            return true;
-        }
-        return false;
+        
+        return ($md5_utpx == md5($this->user_u . ':' . $time . ':' . $this->pass_x));
     }
     
     /**
@@ -824,7 +822,7 @@ EOP;
         // ローカルチェックをして、HostCheck::isAddrDocomo() などでホスト名を引く機会を減らす
         $notK = (bool)(HostCheck::isAddrLocal() || HostCheck::isAddrPrivate());
         
-        // 携帯判定された場合は、 IPチェックはなし
+        // 携帯判定された場合は、 IPチェックなし
         if (
             !$notK and 
             //!$_conf['cid_seed_ip'] or

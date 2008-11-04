@@ -1,5 +1,7 @@
 <?php
 // p2 - スレッド表示ラッパー
+// ラッパー形式ではなく普通形式に移したい
+
 define('P2_READ_FILTER_WRAPPER', 1);
 
 require_once './conf/conf.inc.php';
@@ -45,7 +47,7 @@ function _getReadFilterWord($host, $bbs, $key, $resnum, $field)
 {
     $word = null;
     
-    $aThread =& new ThreadRead;
+    $aThread = new ThreadRead;
     $aThread->setThreadPathInfo($host, $bbs, $key);
     $aThread->readDat();
     $resar = $aThread->explodeDatLine($aThread->datlines[$resnum - 1]);

@@ -177,7 +177,7 @@ if (UA::isSafariGroup()) {
     $_conf['accept_charset'] = 'Shift_JIS';
 }
 
-$mobile =& Net_UserAgent_Mobile::singleton();
+$mobile = &Net_UserAgent_Mobile::singleton();
 if (PEAR::isError($mobile)) {
     trigger_error($mobile->toString(), E_USER_WARNING);
 
@@ -461,7 +461,7 @@ $_p2session = _startSession();
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
 require_once P2_LIB_DIR . '/login.class.php';
-$_login =& new Login();
+$_login = new Login();
 
 
 $_conf['menuKIni'] = array(
@@ -574,7 +574,7 @@ function _setDebug()
     $GLOBALS['debug'] = isset($_GET['debug']) ? intval($_GET['debug']) : 0;
     if ($GLOBALS['debug']) {
         require_once 'Benchmark/Profiler.php';
-        $GLOBALS['profiler'] = &new Benchmark_Profiler(true);
+        $GLOBALS['profiler'] = new Benchmark_Profiler(true);
         
         // 2007/08/03 Benchmark_Profiler 1.2.7 で _Benchmark_Profiler のPEAR式デストラクタがなくなって、
         // close() の手動メソッドになった？ので、手動で登録してみる。なんか変な気がするけど。
@@ -772,8 +772,8 @@ function _startSession()
             }
         
             // }}}
-
-            return $_p2session = new Session();
+            
+            return new Session;
         }
     //}
     

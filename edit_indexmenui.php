@@ -46,7 +46,7 @@ P2View::printDoctypeTag();
 <?php
 P2View::printExtraHeadersHtml();
 ?>
-    <title>rep2 - Œg‘ÑTOPÒÆ­°‚Ì•À‚Ñ‘Ö‚¦</title>
+    <title><?php eh($_conf['p2name']) ?> - Œg‘ÑTOPÒÆ­°‚Ì•À‚Ñ‘Ö‚¦</title>
 <?php
 
 if (UA::isPC()) {

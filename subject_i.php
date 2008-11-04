@@ -179,7 +179,7 @@ if (!empty($_GET['dele']) or (isset($_POST['submit']) and $_POST['submit'] == $d
 
 $ta_keys = array();
 
-$aThreadList =& new ThreadList;
+$aThreadList = new ThreadList;
 
 // 板とモードのセット
 if ($spmode) {
@@ -223,7 +223,7 @@ for ($x = 0; $x < $linesize; $x++) {
 
     $l = rtrim($lines[$x]);
     
-    $aThread =& new Thread();
+    $aThread = new Thread;
     
     if ($aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') {
         $aThread->torder = $x + 1;
@@ -396,7 +396,7 @@ for ($x = 0; $x < $linesize; $x++) {
         if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
 
             require_once P2_LIB_DIR . '/SubjectTxt.php';
-            $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
+            $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
             
             $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('subthre_read');
             if ($aThreadList->spmode == 'soko' or $aThreadList->spmode == 'taborn') {

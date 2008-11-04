@@ -9,7 +9,7 @@ $GLOBALS['_SecureSession_version_id'] = 1; // セッションのバージョン（全ての稼動
  * ただし、$_SESSION[$this->sess_array]（$_SESSION['_secure_session']） は予約語となっている。
  *
  * ■用例
- * $_session =& new Session(); // ※コンストラクタの時点でPHP標準セッションがスタートする
+ * $_session = new Session(); // ※コンストラクタの時点でPHP標準セッションがスタートする
  * // よりセキュアなセッションチェック
  * if ($error_msg = $_session->getSecureSessionErrorMsg()) {
  *     die('Error: ' . $error_msg);

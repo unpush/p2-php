@@ -1,40 +1,20 @@
 <?php
 /*
-	このファイルの関数は、PHPマニュアルページより拝借したものに、akiが少しだけ手を加えたものです。
-	http://jp.php.net/manual/ja/function.md5.php
-	
-	オリジナル感謝 → Alexander Valyalkin
-	01-Jul-2004 05:41 
-	Below is MD5-based block cypher (MDC-like), which works in 128bit CFB mode.
-	It is very useful to encrypt secret data before transfer it over the network.
-	$iv_len - initialization vector's length.
-	0 <= $iv_len <= 512
+    このファイルの関数は、PHPマニュアルページより拝借したものに、akiが少しだけ手を加えたものです。
+    http://jp.php.net/manual/ja/function.md5.php
+
+    オリジナル感謝 → Alexander Valyalkin
+    01-Jul-2004 05:41 
+    Below is MD5-based block cypher (MDC-like), which works in 128bit CFB mode.
+    It is very useful to encrypt secret data before transfer it over the network.
+    $iv_len - initialization vector's length.
+    0 <= $iv_len <= 512
 */
 
-function get_rnd_iv($iv_len)
-{
-   $iv = '';
-   while ($iv_len-- > 0) {
-       $iv .= chr(mt_rand() & 0xff);
-   }
-   return $iv;
-}
-
 /**
- * $password（salt）の長さが $iv_len を超えていたら md5() した後、カットして収める
- *
- * @author  aki
- * @since   2007/07/02
+ * @access  public
  * @return  string
  */
-function adjustPassword($password, $iv_len)
-{
-    if (strlen($password) > $iv_len) {
-        $password = substr(md5($password), 0, $iv_len);
-    }
-    return $password;
-}
-
 function md5_encrypt($plain_text, $password, $iv_len = 16)
 {
    $password = adjustPassword($password, $iv_len); // added by aki
@@ -54,6 +34,10 @@ function md5_encrypt($plain_text, $password, $iv_len = 16)
    return base64_encode($enc_text);
 }
 
+/**
+ * @access  public
+ * @return  string
+ */
 function md5_decrypt($enc_text, $password, $iv_len = 16)
 {
    $password = adjustPassword($password, $iv_len); // added by aki
@@ -70,6 +54,35 @@ function md5_decrypt($enc_text, $password, $iv_len = 16)
        $i += 16;
    }
    return preg_replace('/\\x13\\x00*$/', '', $plain_text);
+}
+
+/**
+ * @access  private
+ * @return  string
+ */
+function get_rnd_iv($iv_len)
+{
+   $iv = '';
+   while ($iv_len-- > 0) {
+       $iv .= chr(mt_rand() & 0xff);
+   }
+   return $iv;
+}
+
+/**
+ * $password（salt）の長さが $iv_len を超えていたら md5() した後、カットして収める
+ *
+ * @author  aki
+ * @since   2007/07/02
+ * @access  private
+ * @return  string
+ */
+function adjustPassword($password, $iv_len)
+{
+    if (strlen($password) > $iv_len) {
+        $password = substr(md5($password), 0, $iv_len);
+    }
+    return $password;
 }
 
 /******************************************/

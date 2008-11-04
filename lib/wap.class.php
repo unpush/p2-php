@@ -151,7 +151,7 @@ class WapUserAgent
 			$request .= "\r\n";
 		}
 	    
-		$res =& new WapResponse;
+		$res = new WapResponse;
         
 		// WEBƒT[ƒo‚ÖÚ‘±
 		if ($this->timeout) {

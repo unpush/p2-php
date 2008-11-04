@@ -339,10 +339,10 @@ class P2Util
     
         // DL
         require_once P2_LIB_DIR . '/wap.class.php';
-        $wap_ua =& new WapUserAgent;
+        $wap_ua = new WapUserAgent;
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         
-        $wap_req =& new WapRequest;
+        $wap_req = new WapRequest;
         $wap_req->setUrl($url);
         $modified and $wap_req->setModified($modified);
         if ($_conf['proxy_use']) {
@@ -1249,7 +1249,7 @@ EOP;
             $params['proxy_port'] = $GLOBALS['_conf']['proxy_port'];
         }
         
-        $req =& new HTTP_Request($url, $params);
+        $req = new HTTP_Request($url, $params);
         
         // If-Modified-Since => gmdate('D, d M Y H:i:s', time()) . ' GMT';
         

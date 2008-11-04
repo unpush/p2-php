@@ -85,7 +85,7 @@ class SettingTxt
             $params['proxy_host'] = $_conf['proxy_host'];
             $params['proxy_port'] = $_conf['proxy_port'];
         }
-        $req =& new HTTP_Request($this->url, $params);
+        $req = new HTTP_Request($this->url, $params);
         $modified && $req->addHeader('If-Modified-Since', $modified);
         $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
         
@@ -102,7 +102,7 @@ class SettingTxt
                 require_once P2_LIB_DIR . '/BbsMap.class.php';
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
-                    $aNewSettingTxt = &new SettingTxt($new_host, $this->bbs);
+                    $aNewSettingTxt = new SettingTxt($new_host, $this->bbs);
                     $body = $aNewSettingTxt->downloadSettingTxt();
                     return true;
                 }

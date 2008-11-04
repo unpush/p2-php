@@ -69,7 +69,7 @@ P2Util::printInfoHtml();
 
 if (!empty($sidebar)) {
     ?>
-<p><a href="index.php?sidebar=1" target="_content">p2 - 2ペイン表示</a></p>\n
+<p><a href="index.php?sidebar=1" target="_content">p2 - 2ペイン表示</a></p>
 <?php
 }
 

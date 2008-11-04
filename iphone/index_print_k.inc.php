@@ -10,7 +10,8 @@ function index_print_k()
     $menuKLinkHtmls = getMenuKLinkHtmls($_conf['menuKIni']);
     
     $body = '';
-    $ptitle = 'ﾕﾋﾞｷﾀｽrep2';
+    $ptitle = $_conf['p2name'] . 'iPhone';
+    $ptitle_hs = hs($ptitle);
     
     // ログインユーザ情報
     $htm['auth_user']   = '<p>ﾛｸﾞｲﾝﾕｰｻﾞ: ' . hs($_login->user_u) . ' - ' . date('Y/m/d (D) G:i:s') . '</p>' . "\n";
@@ -71,11 +72,11 @@ setTimeout(scrollTo, 100, 0, 1);
 // --> 
 </script> 
 <style type="text/css" media="screen">@import "./iui/iui.css";</style>
-    <title>{$ptitle}</title>
+    <title>{$ptitle_hs}</title>
 </head>
 <body>
     <div class="toolbar">
-<h1 id="pageTitle">{$ptitle}</h1>
+<h1 id="pageTitle">{$ptitle_hs}</h1>
     <a class="button" href="edit_indexmenui.php{$user_at_q}{$_conf['k_at_a']}">並替</a>
     </div>
     <ul id="home">

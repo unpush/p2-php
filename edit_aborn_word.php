@@ -159,11 +159,11 @@ if (file_exists($path)) {
 //=====================================================================
 // プリント設定
 //=====================================================================
-$ptitle_top = sprintf(
+$ptitle_top_ht = sprintf(
     'NG/あぼーんワード編集 &gt; <a href="%s?path=%s">%s</a>',
     hs($_SERVER['SCRIPT_NAME']), rawurlencode(basename($path)), basename($path)
 );
-$ptitle = strip_tags($ptitle_top);
+$ptitle_hs = strip_tags($ptitle_top_ht);
 
 $csrfid = P2Util::getCsrfId();
 
@@ -178,7 +178,7 @@ P2View::printDoctypeTag();
 <?php
 P2View::printExtraHeadersHtml();
 ?>
-	<title><?php eh($ptitle) ?></title>
+	<title><?php echo ptitle_hs; ?></title>
 <?php
 
 if (UA::isPC()) {
@@ -203,7 +203,7 @@ EOP;
 // PC用表示
 if (UA::isPC()) {
     echo <<<EOP
-<p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle_top}</p>\n
+<p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle_top_ht}</p>\n
 EOP;
 } else {
     echo hs(basename($path)) . "<br>";

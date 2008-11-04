@@ -1146,7 +1146,7 @@ function getKeyInSubject()
     global $host, $bbs, $ttitle;
 
     require_once P2_LIB_DIR . '/SubjectTxt.php';
-    $aSubjectTxt =& new SubjectTxt($host, $bbs);
+    $aSubjectTxt = new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {
         if (strstr($l, $ttitle)) {

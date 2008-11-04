@@ -23,7 +23,7 @@ if (empty($host) || !isset($bbs) || !isset($key)) {
 //================================================
 // メイン処理
 //================================================
-$aThread =& new Thread();
+$aThread = new Thread;
 
 // hostを分解してdatファイルのパスを求める
 $aThread->setThreadPathInfo($host, $bbs, $key);

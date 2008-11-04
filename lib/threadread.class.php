@@ -314,7 +314,7 @@ class ThreadRead extends Thread
                     $params['proxy_host'] = $_conf['proxy_host'];
                     $params['proxy_port'] = $_conf['proxy_port'];
                 }
-                $req = &new HTTP_Request($url, $params);
+                $req = new HTTP_Request($url, $params);
                 $req->setMethod('GET');
                 $err = $req->sendRequest(true);
                 
@@ -965,10 +965,10 @@ class ThreadRead extends Thread
         
         if (!$reason) {
             require_once P2_LIB_DIR . '/wap.class.php';
-            $wap_ua =& new WapUserAgent;
+            $wap_ua = new WapUserAgent;
             $wap_ua->setAgent($_conf['p2name'] . '/' . $_conf['p2version']); // ‚±‚±‚ÍA"Monazilla/" ‚ð‚Â‚¯‚é‚ÆNG
             $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-            $wap_req =& new WapRequest;
+            $wap_req = new WapRequest;
             $wap_req->setUrl($read_url);
             if ($_conf['proxy_use']) {
                 $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
@@ -1333,13 +1333,13 @@ class ThreadRead extends Thread
         require_once P2_LIB_DIR . '/ShowThread.php';
         
         // PC
-        if (empty($GLOBALS['_conf']['ktai'])) {
+        if (!$GLOBALS['_conf']['ktai']) {
             require_once P2_LIB_DIR . '/ShowThreadPc.php';
-            $aShowThread =& new ShowThreadPc($this);
+            $aShowThread = new ShowThreadPc($this);
         // Œg‘Ñ
         } else {
             require_once P2_LIB_DIR . '/ShowThreadK.php';
-            $aShowThread =& new ShowThreadK($this);
+            $aShowThread = new ShowThreadK($this);
         }
         
         $body .= $aShowThread->transRes($first_line, 1); // 1‚ð•\Ž¦

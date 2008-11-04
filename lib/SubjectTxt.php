@@ -140,7 +140,7 @@ class SubjectTxt
             $params['proxy_host'] = $_conf['proxy_host'];
             $params['proxy_port'] = $_conf['proxy_port'];
         }
-        $req =& new HTTP_Request($this->subject_url, $params);
+        $req = new HTTP_Request($this->subject_url, $params);
         $modified && $req->addHeader('If-Modified-Since', $modified);
         $req->addHeader('User-Agent', sprintf('Monazilla/1.00 (%s/%s)', $_conf['p2name'], $_conf['p2version']));
         

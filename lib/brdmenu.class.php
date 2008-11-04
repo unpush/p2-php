@@ -77,7 +77,7 @@ class BrdMenu
             
             // ƒJƒeƒSƒŠ‚ð’T‚·
             if (preg_match($this->cate_match, $v, $matches)) {
-                $aBrdMenuCate =& new BrdMenuCate($matches[1]);
+                $aBrdMenuCate = new BrdMenuCate($matches[1]);
                 if ($this->format == 'brd') {
                     $aBrdMenuCate->is_open = (bool) $matches[2];
                 }
@@ -91,7 +91,7 @@ class BrdMenu
                         if ($not_a_bbs == $matches[1]) { continue 2; }
                     }
                 }
-                $aBrdMenuIta =& new BrdMenuIta();
+                $aBrdMenuIta = new BrdMenuIta;
                 // htmlŒ`Ž®
                 if ($this->format == 'html') {
                     $aBrdMenuIta->host = $matches[2];

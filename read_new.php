@@ -66,7 +66,7 @@ register_shutdown_function('saveMatomeCache');
 $GLOBALS['_read_new_html'] = '';
 ob_start();
 
-$aThreadList =& new ThreadList();
+$aThreadList = new ThreadList;
 
 // 板とモードのセット===================================
 $ta_keys = array();
@@ -168,7 +168,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     }
     
     $l = $lines[$x];
-    $aThread =& new ThreadRead();
+    $aThread = new ThreadRead;
     
     $aThread->torder = $x + 1;
 
@@ -233,7 +233,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         if (empty($subject_txts["$aThread->host/$aThread->bbs"])) {
 
             require_once P2_LIB_DIR . '/SubjectTxt.php';
-            $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
+            $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
         }
@@ -280,7 +280,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     unset($aThread);
 }
 
-// $aThread =& new ThreadRead();
+// $aThread = new ThreadRead;
 
 /**
  * スレッドの新着部分を読み込んで表示する

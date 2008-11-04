@@ -41,7 +41,7 @@ class BrdCtl
                 }
                 $filepath = $brd_dir . '/' . $entry;
                 if ($data = file($filepath)) {
-                    $aBrdMenu = new BrdMenu();    // クラス BrdMenu のオブジェクトを生成
+                    $aBrdMenu = new BrdMenu;
                     $aBrdMenu->setBrdMatch($filepath);    // パターンマッチ形式を登録
                     $aBrdMenu->setBrdList($data);    // カテゴリーと板をセット
                     $brd_menus[] = $aBrdMenu;
@@ -126,10 +126,9 @@ class BrdCtl
             if ($isNewDL) {
 
                 //echo "NEW!<br>"; //
-                $aBrdMenu =& new BrdMenu; // クラス BrdMenu のオブジェクトを生成
+                $aBrdMenu = new BrdMenu;
                 $aBrdMenu->makeBrdFile($cachefile); // .p2.brdファイルを生成
                 $brd_menus[] = $aBrdMenu;
-                unset($aBrdMenu);
 
                 $read_html_flag = true;
             }
@@ -146,11 +145,11 @@ class BrdCtl
         
         if (!$read_html_flag) {
             if ($data = file($cache_brd)) {
-                $aBrdMenu =& new BrdMenu();         // クラス BrdMenu のオブジェクトを生成
+                $aBrdMenu = new BrdMenu;
                 $aBrdMenu->setBrdMatch($cache_brd); // パターンマッチ形式を登録
                 $aBrdMenu->setBrdList($data);       // カテゴリーと板をセット
                 if ($aBrdMenu->num) {
-                    $brd_menus[] =& $aBrdMenu;
+                    $brd_menus[] = $aBrdMenu;
                 } else {
                     P2Util::pushInfoHtml(
                         sprintf(
@@ -159,7 +158,6 @@ class BrdCtl
                         )
                     );
                 }
-                unset($data, $aBrdMenu);
             } else {
                 P2Util::pushInfoHtml(sprintf("<p>p2 error: %s は読み込めませんでした。</p>\n", hs($cachefile)));
             }

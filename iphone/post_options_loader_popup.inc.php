@@ -153,7 +153,7 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form_i.php' || !empty($_GET['iny
     if (!empty($_GET['inyou'])) {
         require_once P2_LIB_DIR . '/thread.class.php';
         require_once P2_LIB_DIR . '/threadread.class.php';
-        $aThread = &new ThreadRead;
+        $aThread = new ThreadRead;
         $aThread->setThreadPathInfo($host, $bbs, $key);
         $aThread->readDat($aThread->keydat);
         $q_resar = $aThread->explodeDatLine($aThread->datlines[$q_resnum - 1]);

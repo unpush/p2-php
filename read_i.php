@@ -146,9 +146,7 @@ if (!isset($GLOBALS['word'])) {
 // メイン
 //==================================================================
 
-if (!isset($aThread)) {
-    $aThread =& new ThreadRead();
-}
+$aThread = new ThreadRead;
 
 // lsのセット
 if (!empty($ls)) {
@@ -270,7 +268,7 @@ if ($_conf['ktai']) {
     
     if ($aThread->rescount) {
         require_once P2_IPHONE_LIB_DIR . '/ShowThreadK.php';
-        $aShowThread =& new ShowThreadK($aThread);
+        $aShowThread = new ShowThreadK($aThread);
         $aShowThread->datToHtml();
     }
     
@@ -326,7 +324,7 @@ function filterCount(n){
     if ($aThread->rescount) {
 
         require_once P2_IPHONE_LIB_DIR . '/ShowThreadPc.php';
-        $aShowThread =& new ShowThreadPc($aThread);
+        $aShowThread = new ShowThreadPc($aThread);
         
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
         echo $res1['q'];

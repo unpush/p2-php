@@ -303,30 +303,30 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 		window.onload = function() { 
 		setTimeout(scrollTo, 100, 0, 1); 
 		}
-  
+
 		// ページ読み込み完了時コールバック関数
 		gIsPageLoaded = false;
-	    addLoadEvent(function() {			// basic.jsのメソッド
-	        gIsPageLoaded = true;			// ページロード完了フラグ(trueじゃないとお気に入り変更javascriptが動かない)
-	        {$onload_script}				// ページ読み込み完了時に実行するスクリプト群
-	        
-	    });
-	    
-	    // レス範囲のフォームの内容をリセットしてからページ移行するメソッド
-	    var onArreyt = 2;
-	    function formReset() {
-		    var uriValue = "{$_conf['read_php']}?"
-                          + "offline=1&"
-                          //+ "b=" + document.frmresrange.b.value + "&"
-                         + "b=i&"
-		    			 + "host=" + document.frmresrange.host.value + "&"
-		    			 + "bbs=" + document.frmresrange.bbs.value + "&"
-		    			 + "key=" + document.frmresrange.key.value + "&"
-		    			 + "rescount=" + document.frmresrange.rescount.value + "&"
-		    			 + "ttitle_en=" + document.frmresrange.ttitle_en.value + "&"
-		    			 + "ls=" + document.frmresrange.ls.value + "&";
-		    document.frmresrange.reset();
-		    window.location.assign(uriValue);
+		addLoadEvent(function() {			// basic.jsのメソッド
+			gIsPageLoaded = true;			// ページロード完了フラグ(trueじゃないとお気に入り変更javascriptが動かない)
+			{$onload_script}				// ページ読み込み完了時に実行するスクリプト群
+
+		});
+
+		// レス範囲のフォームの内容をリセットしてからページ移行するメソッド
+		var onArreyt = 2;
+		function formReset() {
+			var uriValue = "{$_conf['read_php']}?"
+						+ "offline=1&"
+						//+ "b=" + document.frmresrange.b.value + "&"
+						+ "b=i&"
+						+ "host=" + document.frmresrange.host.value + "&"
+						+ "bbs=" + document.frmresrange.bbs.value + "&"
+						+ "key=" + document.frmresrange.key.value + "&"
+						+ "rescount=" + document.frmresrange.rescount.value + "&"
+						+ "ttitle_en=" + document.frmresrange.ttitle_en.value + "&"
+						+ "ls=" + document.frmresrange.ls.value + "&";
+			document.frmresrange.reset();
+			window.location.assign(uriValue);
 		}
 		// フッターのレスフィルター表示フォームのポップアップを表示するメソッド
 		// Edit 080727 by 240
@@ -360,7 +360,7 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 	</script> 
 
 	<link rel="stylesheet" type="text/css" href="./iui/read.css">
-    <title>{$ptitle_ht}</title>\n
+	<title>{$ptitle_ht}</title>\n
 EOHEADER;
 
 

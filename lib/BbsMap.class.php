@@ -337,7 +337,7 @@ class BbsMap
             $params['proxy_host'] = $_conf['proxy_host'];
             $params['proxy_port'] = $_conf['proxy_port'];
         }
-        $req = &new HTTP_Request($bbsmenu_url, $params);
+        $req = new HTTP_Request($bbsmenu_url, $params);
         $req->setMethod('GET');
         $err = $req->sendRequest(true);
 

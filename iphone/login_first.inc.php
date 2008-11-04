@@ -37,10 +37,10 @@ function printLoginFirst(&$_login)
     //=========================================================
     // èëÇ´èoÇµópïœêî
     //=========================================================
-    if ($_conf['ktai']) {
-        $ptitle = 'rep2iPhone';
-    }else{
-        $ptitle = 'rep2';
+    if (UA::isIPhoneGroup()) {
+        $ptitle = $_conf['p2name'] . 'iPhone';
+    } else {
+        $ptitle = $_conf['p2name'];
     }
     $myname = basename($_SERVER['SCRIPT_NAME']);
 

@@ -252,7 +252,7 @@ for ($x = 0; $x < $linesize; $x++) {
     }
 
     $l = $lines[$x];
-    $aThread =& new ThreadRead();
+    $aThread = new ThreadRead();
     
     $aThread->torder = $x + 1;
 
@@ -314,7 +314,7 @@ for ($x = 0; $x < $linesize; $x++) {
         if (empty($subject_txts) || !array_key_exists("$aThread->host/$aThread->bbs", $subject_txts)) {
 
             require_once P2_LIB_DIR . '/SubjectTxt.php';
-            $aSubjectTxt =& new SubjectTxt($aThread->host, $aThread->bbs);
+            $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts["$aThread->host/$aThread->bbs"] = $aSubjectTxt->subject_lines;
         }
