@@ -5,13 +5,13 @@
 フォントファミリーもここに追加で
 */
 body{
-margin: 0;
-font-size: 18px;
-font-family: ;
-word-wrap: break-word; 
-overflow-x:hidden;
--webkit-user-select:none;
--webkit-text-size-adjust:none;
+	margin: 0;
+	font-size: 16px;
+	font-family: ;
+	word-wrap: break-word; 
+	overflow-x:hidden;
+	-webkit-user-select:none;
+	-webkit-text-size-adjust:none;
 }
 
 /* スレタイ */
@@ -34,96 +34,96 @@ div {
 /* 本文中のURL */
 /* 対策したからもういらないかも */
 div a { 
-max-width: 300px; 
-display: inline-block; 
+	max-width: 300px; 
+	display: inline-block; 
 } 
 /***********************************************************/
 /* ヘッダーのツールバー */
 /* とくにいじってましぇん */
 body>.toolbar{
-box-sizing:border-box;
--moz-box-sizing:border-box;
--webkit-box-sizing:border-box;
-border-bottom:1px solid #2d3642;
-border-top:1px solid #333333;/*#6d84a2*/
-padding:10px;
-height:45px;
-margin: 0;
-background:url(toolbar.png) #6d84a2 repeat-x;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	border-bottom:1px solid #2d3642;
+	border-top:1px solid #333333;/*#6d84a2*/
+	padding:10px;
+	height:45px;
+	margin: 0;
+	background:url(toolbar.png) #6d84a2 repeat-x;
 }
 
 .toolbar>h1{
-position:absolute;
-overflow:hidden;
-left:50%;
-margin:1px 0 0 -75px;
-height:45px;
-font-size:20px;
-width:150px;
-font-weight:bold;
-text-shadow:rgba(0,0,0,0.4) 0 -1px 0;
-text-align:center;
-text-overflow:ellipsis;
-white-space:nowrap;
-color:#FFF;
+	position:absolute;
+	overflow:hidden;
+	left:50%;
+	margin:1px 0 0 -75px;
+	height:45px;
+	font-size:20px;
+	width:150px;
+	font-weight:bold;
+	text-shadow:rgba(0,0,0,0.4) 0 -1px 0;
+	text-align:center;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	color:#FFF;
 }
 
 .toolbar a {
-color: #FFFFFF;
-text-decoration: none;
-padding: 2px;
+	color: #FFFFFF;
+	text-decoration: none;
+	padding: 2px;
 }
 
 .toolbar select {
-margin-left: 90px;
+	margin-left: 90px;
 }
 
 .button{
-position:absolute;
-overflow:hidden;
-top:8px;
-right:6px;
-margin:0;
-border-width:0 5px;
-padding:0 5px;
-width: 30px;
-height:30px;
-text-align: center;
-line-height:30px;
-font-family:inherit;
-font-size:14px;
-font-weight:bold;
-color:#FFF;
-text-shadow:rgba(0,0,0,0.6) 0 -1px 0;
-text-overflow:ellipsis;
-text-decoration:none;
-white-space:nowrap;
-background:none;
--webkit-border-image:url(toolButton.png) 0 5 0 5;
+	position:absolute;
+	overflow:hidden;
+	top:8px;
+	right:6px;
+	margin:0;
+	border-width:0 5px;
+	padding:0 5px;
+	width: 30px;
+	height:30px;
+	text-align: center;
+	line-height:30px;
+	font-family:inherit;
+	font-size:14px;
+	font-weight:bold;
+	color:#FFF;
+	text-shadow:rgba(0,0,0,0.6) 0 -1px 0;
+	text-overflow:ellipsis;
+	text-decoration:none;
+	white-space:nowrap;
+	background:none;
+	-webkit-border-image:url(toolButton.png) 0 5 0 5;
 }
 
 .favbutton{
-position:absolute;
-overflow:hidden;
-top:8px;
-right:60px;
-margin:0;
-border-width:0 5px;
-padding:0 3px;
-text-align: center;
-width:30px;
-height:30px;
-line-height:30px;
-font-family:inherit;
-font-size:14px;
-font-weight:bold;
-color:#FFF;
-text-shadow:rgba(0,0,0,0.6) 0 -1px 0;
-text-overflow:ellipsis;
-text-decoration:none;
-white-space:nowrap;
-background:none;
--webkit-border-image:url(toolButton.png) 0 5 0 5;
+	position:absolute;
+	overflow:hidden;
+	top:8px;
+	right:60px;
+	margin:0;
+	border-width:0 5px;
+	padding:0 3px;
+	text-align: center;
+	width:30px;
+	height:30px;
+	line-height:30px;
+	font-family:inherit;
+	font-size:14px;
+	font-weight:bold;
+	color:#FFF;
+	text-shadow:rgba(0,0,0,0.6) 0 -1px 0;
+	text-overflow:ellipsis;
+	text-decoration:none;
+	white-space:nowrap;
+	background:none;
+	-webkit-border-image:url(toolButton.png) 0 5 0 5;
 }
 
 
@@ -153,10 +153,10 @@ background:none;
 	-webkit-tap-highlight-color:rgba(0,0,0,0);
 }
 .footbar>ul {
-display: inline;
-list-style:none
-padding: 0;
-margin: 0;
+	display: inline;
+	list-style:none
+	padding: 0;
+	margin: 0;
 }
 .footbar>ul>li {
     width: 53px;
@@ -189,86 +189,86 @@ margin: 0;
 .footbar>ul>li#blank:hover {opacity:0;}
 
 .blueButton{
--webkit-border-image:url(blueButton.png) 0 5 0 5;
-border-width:0 5px;
-padding: 3px;
+	-webkit-border-image:url(blueButton.png) 0 5 0 5;
+	border-width:0 5px;
+	padding: 3px;
 }
 
 .leftButton{
-left:6px;
-right:auto;
+	left:6px;
+	right:auto;
 }
 #backButton{
-left:6px;
-right:auto;
-padding:0;
-width:55px;
-border-width:0 8px 0 14px;
--webkit-border-image:url(backButton.png) 0 8 0 14;
+	left:6px;
+	right:auto;
+	padding:0;
+	width:55px;
+	border-width:0 8px 0 14px;
+	-webkit-border-image:url(backButton.png) 0 8 0 14;
 }
 
 .whiteButton,.grayButton{
-display:block;
-border-width:0 12px;
-padding:10px;
-text-align:center;
-font-size:20px;
-font-weight:bold;
-text-decoration:inherit;
-color:inherit;
+	display:block;
+	border-width:0 12px;
+	padding:10px;
+	text-align:center;
+	font-size:20px;
+	font-weight:bold;
+	text-decoration:inherit;
+	color:inherit;
 }
 
 .whiteButton{
--webkit-border-image:url(whiteButton.png) 0 12 0 12;
-text-shadow:rgba(255,255,255,0.7) 0 1px 0;
+	-webkit-border-image:url(whiteButton.png) 0 12 0 12;
+	text-shadow:rgba(255,255,255,0.7) 0 1px 0;
 }
 
 .grayButton{
--webkit-border-image:url(grayButton.png) 0 12 0 12;
-color:#FFF;
+	-webkit-border-image:url(grayButton.png) 0 12 0 12;
+	color:#FFF;
 }
 /* ******************************* */
 /* 本文ではフッタあたりで使用 */
 body>ul {
- margin: 0;
- padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 body>ul>li{
-position:relative;
-margin:0;
-border-bottom:1px solid #E0E0E0;
-padding:8px 0 8px 10px;
-font-size:20px;
-font-weight:bold;
-list-style:none;
+	position:relative;
+	margin:0;
+	border-bottom:1px solid #E0E0E0;
+	padding:8px 0 8px 10px;
+	font-size:20px;
+	font-weight:bold;
+	list-style:none;
 }
 
 body>ul>li.group{
-position:relative;
-top:-1px;
-margin-bottom:-2px;
-border-top:1px solid #7d7d7d;
-border-bottom:1px solid #999;
-padding:1px 10px;
-background:url(listGroup.png) repeat-x;
-font-size:17px;
-font-weight:bold;
-text-shadow:rgba(0,0,0,0.4) 0 1px 0;
-color:#FFF;
+	position:relative;
+	top:-1px;
+	margin-bottom:-2px;
+	border-top:1px solid #7d7d7d;
+	border-bottom:1px solid #999;
+	padding:1px 10px;
+	background:url(listGroup.png) repeat-x;
+	font-size:17px;
+	font-weight:bold;
+	text-shadow:rgba(0,0,0,0.4) 0 1px 0;
+	color:#FFF;
 }
 
 body>ul>li.group:first-child{
-top:0;
-border-top:none;
+	top:0;
+	border-top:none;
 }
 body>ul>li>a{
-display:block;
-margin:-8px 0 -8px -10px;
-padding:8px 32px 8px 10px;
-text-decoration:none;
-color:inherit;
-background:url(listArrow.png) no-repeat right center;
+	display:block;
+	margin:-8px 0 -8px -10px;
+	padding:8px 32px 8px 10px;
+	text-decoration:none;
+	color:inherit;
+	background:url(listArrow.png) no-repeat right center;
 }
 
 
@@ -292,7 +292,7 @@ div > .tdate {
 
 /* レスポップアップ */
 dd.respopup{
-margin:8px 8px;
+	margin:8px 8px;
 
 }
 
@@ -340,38 +340,37 @@ body > .dialog_filter, body > .dialog_write {
 	bottom: 478px;
 	padding: 0;
 	left: 0;
-    width: 100%;
-    z-index: 2;
-    background: rgba(0, 0, 0, 0.5);
-    min-height: 430px;
-    padding: 0;
-    overflow: visible;
+	width: 100%;
+	z-index: 2;
+	background: rgba(0, 0, 0, 0.5);
+	min-height: 430px;
+	padding: 0;
+	overflow: visible;
 }
 
 
 .dialog_filter > fieldset , .dialog_write > fieldset {
 	position: absolute;
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    width: 100%;
-    margin: 0;
-    bottom: 1px;
-    border: none;
-    border-top: 1px solid
-    padding: 0px 6px;
-    background: url(footformbg.png) transparent repeat-x;
-    overflow: visible;
-
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	width: 100%;
+	margin: 0;
+	bottom: 1px;
+	border: none;
+	border-top: 1px solid
+	padding: 0px 6px;
+	background: url(footformbg.png) transparent repeat-x;
+	overflow: visible;
 }
 
 .dialog_filter fieldset > h1, .dialog_write > fieldset > h5 {
-    margin: 0 10px 0 10px;
-    padding: 0;
-    font-size: 20px;
-    font-weight: bold;
-    color: #FFFFFF;
-    text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0;
-    text-align: center;
+	margin: 0 10px 0 10px;
+	padding: 0;
+	font-size: 20px;
+	font-weight: bold;
+	color: #FFFFFF;
+	text-shadow: rgba(0, 0, 0, 0.4) 0px -1px 0;
+	text-align: center;
 }
 
 .dialog_write > fieldset > h5 {
@@ -384,29 +383,29 @@ text-overflow:ellipsis;
 }
 
 .dialog_filter > fieldset > label, .dialog_write > fieldset > label {
-    position: absolute;
-    margin: 16px 0 0 6px;
-    font-size: 14px;
-    color: #999999;
+	position: absolute;
+	margin: 16px 0 0 6px;
+	font-size: 14px;
+	color: #999999;
 }
 
 .dialog_filter > fieldset > input[type="text"], .dialog_write > fieldset > input[type="text"], textarea {
 	width: 100%;
 	-webkit-border-radius: 10px;
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    margin: 8px -100px 0 0;
-    padding: 6px 6px 6px 44px;
-    font-size: 24px;
-    font-weight: normal;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	margin: 8px -100px 0 0;
+	padding: 6px 6px 6px 44px;
+	font-size: 24px;
+	font-weight: normal;
 }
 
 .dialog_filter > fieldset > input[type="submit"], .dialog_write > fieldset > input[type="submit"] {
 	display: inline;
 	font-size: 18px;
 	float: right;
-    margin: 8px 1px 0 0;
-   padding: 6px 6px 6px 4px;
+	margin: 8px 1px 0 0;
+	padding: 6px 6px 6px 4px;
 }
 
 .dialog_write > fieldset {
@@ -443,13 +442,13 @@ text-overflow:ellipsis;
 }
 #footbar02 > filedset {
 	position: absolute;
-    width: 100%;
-    margin: 0;
-    bottom: 1px;
-    border: none;
+	width: 100%;
+	margin: 0;
+	bottom: 1px;
+	border: none;
 	padding: 0;
 	border-top: 170px rgba(0,0,0,0.2) solid;
-    background: rgba(0,0,0,0.5) url(footformbg.png) repeat-x;
+	background: rgba(0,0,0,0.5) url(footformbg.png) repeat-x;
 	overflow: visible;
 }
 #footbar02 > filedset > ul {
@@ -554,7 +553,7 @@ img {
 
 /* ニコニコサムネイル */
 .nico {
-    margin: 0;
+	margin: 0;
 	padding: 0;
 	border: 0;
 }
@@ -565,7 +564,7 @@ img {
 フッタ下に余白がでるときあるので一時的に対策
  */
  
- #footer {
- 	position: relative;
-	 bottom: 320px;
- }
+#footer {
+	position: relative;
+	bottom: 320px;
+}
