@@ -20,7 +20,7 @@ class ShowBrdMenuPc
      * @access  public
      * @return  void
      */
-    function printBrdMenu(&$categories)
+    function printBrdMenu($categories)
     {
         global $_conf;
 

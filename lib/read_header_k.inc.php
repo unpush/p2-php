@@ -264,9 +264,11 @@ $similar_atag  = P2View::tagA(
     $siml_thre_st
 );
 
+$info_php = UA::isIPhoneGroup() ? 'info_i.php' : 'info.php';
+
 $info_atag     = P2View::tagA(
     P2Util::buildQueryUri(
-        'info.php',
+        $info_php,
         array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en))
     ),
     "{$_conf['k_accesskey']['info']}." . hs($info_st),
@@ -275,7 +277,7 @@ $info_atag     = P2View::tagA(
 
 $dele_atag     = P2View::tagA(
     P2Util::buildQueryUri(
-        'info.php',
+        $info_php,
         array_merge($thread_qs, $b_qs,
             array(
                 'ttitle_en' => $ttitle_en,

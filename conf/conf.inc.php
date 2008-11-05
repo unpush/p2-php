@@ -34,6 +34,7 @@ $_conf['read_new_php']          = 'read_new.php';
 $_conf['read_new_k_php']        = 'read_new_k.php';
 $_conf['post_php']              = 'post.php';
 $_conf['cookie_file_name']      = 'p2_cookie.txt';
+// info.php ‚ÍJavaScriptƒtƒ@ƒCƒ‹’†‚É‘‚©‚ê‚Ä‚¢‚é‚Ì‚ª“ï
 
 // }}}
 

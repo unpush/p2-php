@@ -92,6 +92,7 @@ class BrdMenu
                     }
                 }
                 $aBrdMenuIta = new BrdMenuIta;
+                
                 // htmlŒ`®
                 if ($this->format == 'html') {
                     $aBrdMenuIta->host = $matches[2];
@@ -113,7 +114,7 @@ class BrdMenu
                     $no_match = false;
                     
                     foreach ($GLOBALS['words_fm'] as $word_fm_ao) {
-                        $target = $aBrdMenuIta->itaj."\t".$aBrdMenuIta->bbs;
+                        $target = $aBrdMenuIta->itaj . "\t" . $aBrdMenuIta->bbs;
                         if (false === StrCtl::filterMatch($word_fm_ao, $target)) {
                             $no_match = true;
                         }
@@ -156,7 +157,7 @@ class BrdMenu
                     $this->categories[$this->num-1]->addBrdMenuIta($aBrdMenuIta);
                 }
             }
-        }
+        } // foreach
     }
 
     /**
@@ -237,9 +238,9 @@ class BrdMenuCate
      * @access  public
      * @return  void
      */
-    function addBrdMenuIta(&$aBrdMenuIta)
+    function addBrdMenuIta($aBrdMenuIta)
     {
-        $this->menuitas[] =& $aBrdMenuIta;
+        $this->menuitas[] = $aBrdMenuIta;
         $this->num++;
     }
 }
