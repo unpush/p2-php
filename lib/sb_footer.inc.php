@@ -112,7 +112,8 @@ function _getDatSokoATag($aThreadList)
             ),
             'dat‘qŒÉ',
             array(
-                'target' => '_self'
+                'target' => '_self',
+                'title'  => 'dat—‚¿‚µ‚½ƒXƒŒ'
             )
         );
     }
