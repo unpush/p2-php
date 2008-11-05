@@ -749,6 +749,8 @@ EOID;
         global $_conf;
         global $res_filter, $word_fm;
         
+        $this->str_to_link_rest = $this->str_to_link_limit;
+        
         $ryaku = false;
         
         // 2ch‹ŒŒ`Ž®‚Ìdat
