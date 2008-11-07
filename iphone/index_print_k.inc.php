@@ -17,7 +17,7 @@ function index_print_k()
     $auth_user_ht   = sprintf(
         '<p>Û¸Ş²İÕ°»Ş: %s - %s</p>',
         hs($_login->user_u), date('Y/m/d (D) G:i:s') 
-    )
+    );
     
     // p2ƒƒOƒCƒ“—pURL
     $login_url          = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
