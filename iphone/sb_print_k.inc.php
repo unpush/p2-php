@@ -232,7 +232,7 @@ function sb_print_k(&$aThreadList)
 
         $sid_qs = array();
         $sid_q = '';
-        if (defined('SID')) {
+        if (defined('SID') && strlen(SID)) {
             $sid_qs[session_name()] = session_id();
             $sid_q = hs('&' . session_name() . '=' . session_id());
         }

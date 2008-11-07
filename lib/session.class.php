@@ -49,7 +49,7 @@ class Session
         if ($session_name) { session_name($session_name); }
         if ($session_id)   { session_id($session_id); }
         
-        session_start();
+        !session_id() and session_start();
         
         $this->outputAddRewirteSID();
         
@@ -98,7 +98,11 @@ class Session
         global $_conf;
         
         $session_name = session_name();
-        if (!ini_get('session.use_trans_sid') and !isset($_COOKIE[$session_name]) || !empty($_conf['disable_cookie'])) {
+        if (
+            !ini_get('session.use_trans_sid')
+            and session_id() && !isset($_COOKIE[$session_name])
+            || !empty($_conf['disable_cookie'])
+        ) {
             return output_add_rewrite_var($session_name, session_id());
         }
         return true;
@@ -331,7 +335,7 @@ class Session
         
         // セッションの初期化
         // session_name("something")を使用している場合は特にこれを忘れないように!
-        session_start();
+        !session_id() and session_start();
 
         // セッション変数を全て解除する
         $_SESSION = array();

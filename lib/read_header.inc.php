@@ -148,10 +148,10 @@ GOTO;
 // HTMLプリント
 //====================================================================
 // $xxx_qは使いたくない方向。使うなら $xxx_qs の方
-$sid_q = defined('SID') ? '&amp;' . hs(SID) : '';
+$sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . hs(SID) : '';
 
 $sid_qs = array();
-if (defined('SID')) {
+if (defined('SID') && strlen(SID)) {
     $sid_qs[session_name()] = session_id();
 }
 

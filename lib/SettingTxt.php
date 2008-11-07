@@ -87,7 +87,7 @@ class SettingTxt
         }
         $req = new HTTP_Request($this->url, $params);
         $modified && $req->addHeader('If-Modified-Since', $modified);
-        $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2name'] . '/' . $_conf['p2version'] . ')');
+        $req->addHeader('User-Agent', 'Monazilla/1.00 (' . $_conf['p2uaname'] . '/' . $_conf['p2version'] . ')');
         
         $response = $req->sendRequest();
         

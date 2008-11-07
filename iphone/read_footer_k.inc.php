@@ -134,7 +134,7 @@ EOP;
 EOP;
 
 
-$sid_q = defined('SID') ? '&amp;' . strip_tags(SID) : '';
+$sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . strip_tags(SID) : '';
 
     // ƒvƒŠƒ“ƒg
     echo <<<EOP

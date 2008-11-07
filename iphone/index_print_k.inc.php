@@ -7,14 +7,17 @@ function index_print_k()
 {
     global $_conf, $_login;
 
-    $menuKLinkHtmls = getMenuKLinkHtmls($_conf['menuKIni']);
+    $menuKLinkHtmls = _getMenuKLinkHtmls($_conf['menuKIni']);
     
     $body = '';
     $ptitle = $_conf['p2name'] . 'iPhone';
     $ptitle_hs = hs($ptitle);
     
     // ログインユーザ情報
-    $htm['auth_user']   = '<p>ﾛｸﾞｲﾝﾕｰｻﾞ: ' . hs($_login->user_u) . ' - ' . date('Y/m/d (D) G:i:s') . '</p>' . "\n";
+    $auth_user_ht   = sprintf(
+        '<p>ﾛｸﾞｲﾝﾕｰｻﾞ: %s - %s</p>',
+        hs($_login->user_u), date('Y/m/d (D) G:i:s') 
+    )
     
     // p2ログイン用URL
     $login_url          = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
@@ -102,13 +105,24 @@ EOP;
 /*
 
 {$hr}
-{$htm['auth_user']}
+{$auth_user_ht}
 
 {$hr}
 {$htm['last_login']}
 */
 
-function getMenuKLinkHtmls($menuKIni, $noLink = false)
+
+//============================================================================
+// 関数（このファイル内でのみ利用）
+//============================================================================
+/**
+ * メニュー項目のリンクHTML配列を取得する
+ *
+ * @access  public
+ * @param   array   $menuKIni  メニュー項目 標準設定
+ * @return  array
+ */
+function _getMenuKLinkHtmls($menuKIni, $noLink = false)
 {
     global $_conf;
     
@@ -133,9 +147,6 @@ function getMenuKLinkHtmls($menuKIni, $noLink = false)
     return $menuLinkHtmls;
 }
 
-//============================================================================
-// 関数（このファイル内でのみ利用）
-//============================================================================
 /**
  * メニュー項目のリンクHTMLを取得する
  *
@@ -220,10 +231,3 @@ function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
  * End:
  */
 // vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
-/**
- * メニュー項目のリンクHTML配列を取得する
- *
- * @access  public
- * @param   array   $menuKIni  メニュー項目 標準設定
- * @return  array
- */

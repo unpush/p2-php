@@ -149,7 +149,7 @@ class ResHist
             $info_uri_hs = hs($info_uri);
             
             $sid_qs = array();
-            if (defined('SID')) {
+            if (defined('SID') && strlen(SID)) {
                 $sid_qs[session_name()] = session_id();
             }
             $info_openwin_qs = array_merge($info_qs, array('popup' => '1'), $sid_qs);

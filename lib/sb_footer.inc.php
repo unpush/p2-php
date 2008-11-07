@@ -168,8 +168,8 @@ function _getBuildnewthreadATag($aThreadList)
             'newthread' => '1',
             UA::getQueryKey() => UA::getQueryValue()
         );
-        if ($session_id = session_id()) {
-            $qs[session_name()] = $session_id;
+        if (defined('SID') && strlen(SID)) {
+            $qs[session_name()] = session_id();
         }
         $onClickUri = P2Util::buildQueryUri('post_form.php', array_merge($qs, array('popup' => '1')));
         $buildnewthreadATag = P2View::tagA(

@@ -149,7 +149,7 @@ EOP;
         $spmode_q = '';
     }
     
-    $sid_q = defined('SID') ? '&amp;' . hs(SID) : '';
+    $sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . hs(SID) : '';
     
     $i = 0;
     foreach ($aThreadList->threads as $aThread) {
@@ -215,8 +215,8 @@ EOP;
                 $dele_log_qs = $thread_qs = array(
                     'host' => $aThread->host, 'bbs' => $aThread->bbs, 'key' => $aThread->key
                 );
-                if ($session_id = session_id()) {
-                    $dele_log_qs[session_name()] = $session_id;
+                if (defined('SID') && strlen(SID)) {
+                    $dele_log_qs[session_name()] = session_id();
                 }
                 $dele_log_q = P2Util::buildQuery($dele_log_qs);
 

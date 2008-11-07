@@ -240,7 +240,7 @@ if ($_conf['refresh_time']) {
         'spmode' => $aThreadList->spmode,
         UA::getQueryKey() => UA::getQueryValue()
     );
-    if (defined('SID')) {
+    if (defined('SID') && strlen(SID)) {
         $qs[session_name()] = session_id();
     }
     $refresh_url = $_conf['subject_php'] . '?' . P2Util::buildQuery($qs);

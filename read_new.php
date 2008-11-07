@@ -38,7 +38,7 @@ if (isset($_conf['rnum_all_range']) and $_conf['rnum_all_range'] > 0) {
 $sb_view = "shinchaku";
 $newtime = date("gis");
 
-$sid_q = defined('SID') ? '&amp;' . hs(SID) : '';
+$sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . hs(SID) : '';
 
 $_newthre_num = 0;
 
@@ -422,7 +422,7 @@ EOP;
         UA::getQueryKey() => UA::getQueryValue()
     );
     $sid_qs = array();
-    if (defined('SID')) {
+    if (defined('SID') && strlen(SID)) {
         $sid_qs[session_name()] = session_id();
     }
     

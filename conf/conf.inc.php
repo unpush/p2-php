@@ -8,8 +8,9 @@
 
 $_conf['p2version'] = '1.8.40'; // rep2のバージョン
 
-$_conf['p2name'] = 'r e p 2';    // rep2の名前。
+$_conf['p2name'] = 'rep2';    // rep2の名前。
 
+$_conf['p2uaname'] = 'r e p 2';  // UA用のrep2の名前
 
 //======================================================================
 // 基本設定処理
@@ -394,11 +395,11 @@ if (UA::isK() //&& $mobile && $mobile->isWillcom()
     //&& !ini_get('zlib.output_compression') // サーバーの設定で自動gzip圧縮が有効になっていない
     //&& strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') // ブラウザがgzipをデコードできる
 ) {
-    !defined('SID') and $_conf['output_callback'] = 'ob_gzhandler';
+    !defined('SID') || !strlen(SID) and $_conf['output_callback'] = 'ob_gzhandler';
 }
 
 // gzip圧縮すると逐次出力はできなさそう
-//!defined('SID') and $_conf['output_callback'] = 'ob_gzhandler';
+//!defined('SID') || !strlen(SID) and $_conf['output_callback'] = 'ob_gzhandler';
 
 if ($_conf['output_callback']) {
     ob_start($_conf['output_callback']);

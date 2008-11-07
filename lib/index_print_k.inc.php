@@ -8,7 +8,7 @@ function index_print_k()
 {
     global $_conf, $_login;
 
-    $menuKLinkHtmls = getMenuKLinkHtmls($_conf['menuKIni']);
+    $menuKLinkHtmls = _getMenuKLinkHtmls($_conf['menuKIni']);
     
     $body = '';
     $ptitle = 'ﾕﾋﾞｷﾀｽrep2';
@@ -126,6 +126,9 @@ p2ﾛｸﾞｲﾝ用URL（PC）<br>
 }
 
 
+//============================================================================
+// 関数（このファイル内でのみ利用）
+//============================================================================
 /**
  * メニュー項目のリンクHTML配列を取得する
  *
@@ -133,7 +136,7 @@ p2ﾛｸﾞｲﾝ用URL（PC）<br>
  * @param   array   $menuKIni  メニュー項目 標準設定
  * @return  array
  */
-function getMenuKLinkHtmls($menuKIni, $noLink = false)
+function _getMenuKLinkHtmls($menuKIni, $noLink = false)
 {
     global $_conf;
     
@@ -159,10 +162,6 @@ function getMenuKLinkHtmls($menuKIni, $noLink = false)
     return $menuLinkHtmls;
 }
 
-
-//============================================================================
-// 関数（このファイル内でのみ利用）
-//============================================================================
 /**
  * メニュー項目のリンクHTMLを取得する
  *

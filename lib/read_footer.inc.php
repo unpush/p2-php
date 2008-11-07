@@ -71,8 +71,8 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
             $dores_onclick_qs = array_merge($dores_qs, array(
                 'popup' => '1',
             ));
-            if ($session_id = session_id()) {
-                $dores_onclick_qs[session_name()] = $session_id;
+            if (defined('SID') && strlen(SID)) {
+                $dores_onclick_qs[session_name()] = session_id();
             }
             $dores_onclick_uri = P2Util::buildQueryUri('post_form.php', $dores_onclick_qs);
             

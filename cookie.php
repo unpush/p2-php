@@ -26,8 +26,8 @@ function _getCookieLocationUri()
         'regist_cookie'     => intval(geti($_REQUEST['regist_cookie'])),
         UA::getQueryKey()   => UA::getQueryValue()
     );
-    if ($session_id = session_id()) {
-        $qs[session_name()] = $session_id;
+    if (defined('SID') && strlen(SID)) {
+        $qs[session_name()] = session_id();
     }
     return $next_uri = P2Util::buildQueryUri('login.php', $qs);
 }

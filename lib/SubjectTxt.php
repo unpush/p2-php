@@ -142,7 +142,7 @@ class SubjectTxt
         }
         $req = new HTTP_Request($this->subject_url, $params);
         $modified && $req->addHeader('If-Modified-Since', $modified);
-        $req->addHeader('User-Agent', sprintf('Monazilla/1.00 (%s/%s)', $_conf['p2name'], $_conf['p2version']));
+        $req->addHeader('User-Agent', sprintf('Monazilla/1.00 (%s/%s)', $_conf['p2uaname'], $_conf['p2version']));
         
         $response = $req->sendRequest();
         

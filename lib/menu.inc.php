@@ -317,8 +317,8 @@ function _printMetaRereshHtml()
             'shownew'   => 1,
             UA::getQueryKey() => UA::getQueryValue()
         );
-        if ($session_id = session_id()) {
-            $qs[session_name()] = $session_id;
+        if (defined('SID') && strlen(SID)) {
+            $qs[session_name()] = session_id();
         }
         $refresh_url = P2Util::buildQueryUri(P2Util::getMyUrl(), $qs);
         ?><meta http-equiv="refresh" content="<?php eh($refresh_time_s) ?>;URL=<?php eh($refresh_url); ?>">

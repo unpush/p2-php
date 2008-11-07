@@ -137,12 +137,12 @@ if (!empty($_POST['newthread'])) {
         $post[$dir_k] = $dir;
     }
     $qs_sid = $qs = array(
-            'host' => $host,
-            'bbs'  => $bbs,
-            UA::getQueryKey() => UA::getQueryValue()
+        'host' => $host,
+        'bbs'  => $bbs,
+        UA::getQueryKey() => UA::getQueryValue()
     );
-    if ($session_id = session_id()) {
-        $qs_sid[session_name()] = $session_id;
+    if (defined('SID')) {
+        $qs_sid[session_name()] = session_id();
     }
     
     $location_url     = P2Util::buildQueryUri($_conf['subject_php'], $qs);
@@ -160,16 +160,16 @@ if (!empty($_POST['newthread'])) {
         $post[$dir_k] = $dir;
     }
     $qs_sid = $qs = array(
-            'host' => $host,
-            'bbs'  => $bbs,
-            'key'  => $key,
-            'ls'   => "$rescount-",
-            'refresh' => 1,
-            'nt'   => $newtime,
-            UA::getQueryKey() => UA::getQueryValue()
+        'host' => $host,
+        'bbs'  => $bbs,
+        'key'  => $key,
+        'ls'   => "$rescount-",
+        'refresh' => 1,
+        'nt'   => $newtime,
+        UA::getQueryKey() => UA::getQueryValue()
     );
-    if ($session_id = session_id()) {
-        $qs_sid[session_name()] = $session_id;
+    if (defined('SID') && strlen(SID)) {
+        $qs_sid[session_name()] = session_id();
     }
     
     $location_url     = P2Util::buildQueryUri($_conf['read_php'], $qs) . "#r{$rescount}";
@@ -636,7 +636,7 @@ function _postIt($host, $bbs, $key, $post)
     
     $request .= sprintf(
         'User-Agent: Monazilla/1.00 (%s/%s%s)',
-        $_conf['p2name'], $_conf['p2version'], $add_user_info
+        $_conf['p2uaname'], $_conf['p2version'], $add_user_info
     ) . "\r\n";
     
     $request .= 'Referer: http://' . $purl['host'] . '/' . "\r\n";
