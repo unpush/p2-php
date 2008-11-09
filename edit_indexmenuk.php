@@ -29,7 +29,7 @@ require_once P2_LIB_DIR . '/index_print_k.inc.php';
 
 $setfrom1 = (int) !$_conf['index_menu_k_from1'];
 
-$menuKLinkHtmls = getMenuKLinkHtmls($_conf['menuKIni'], $noLink = true);
+$menuKLinkHtmls = _getMenuKLinkHtmls($_conf['menuKIni'], $noLink = true);
 
 $body_at    = P2View::getBodyAttrK();
 $hr         = P2View::getHrHtmlK();
