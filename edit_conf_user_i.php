@@ -57,10 +57,10 @@ if (!empty($_POST['submit_save'])) {
 
     // シリアライズして保存
     FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
-    if (file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX) === false) {
+    if (false === file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX)) {
         P2Util::pushInfoHtml("<p>×設定を更新保存できませんでした</p>");
         trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
-        
+
     } else {
         P2Util::pushInfoHtml("<p>○設定を更新保存しました</p>");
         // 変更があれば、内部データも更新しておく
@@ -291,6 +291,8 @@ function applyRules()
 
 /**
  * CSS値のためのフィルタリングを行う
+ *
+ * @return  string
  */
 function filterCssValue($str, $def = '')
 {
@@ -298,7 +300,19 @@ function filterCssValue($str, $def = '')
 }
 
 /**
+ * HTMLカラーのためのフィルタリングを行う
+ *
+ * @return  string
+ */
+function filterHtmlColor($str, $def = '')
+{
+    return preg_replace('/[^0-9a-zA-Z#]/', '', $str);
+}
+
+/**
  * emptyの時は、デフォルトセットする
+ *
+ * @return  string
  */
 function emptyToDef($val, $def)
 {
@@ -311,6 +325,8 @@ function emptyToDef($val, $def)
 /**
  * 正の整数化できる時は正の整数化（0を含む）し、
  * できない時は、デフォルトセットする
+ *
+ * @return  integer
  */
 function notIntExceptMinusToDef($val, $def)
 {
@@ -378,6 +394,7 @@ function getEditConfHtml($name, $description_ht)
     if (!isset($conf_user_def[$name])) {
         return '';
     }
+
     // 携帯では編集表示しない項目
     if ($_conf['ktai']) {
         $noKtais = array(
@@ -430,7 +447,7 @@ EOP;
 }
 
 /**
- * 編集フォームselect用HTMLを得る
+ * 編集フォーム 選択用HTMLを得る
  *
  * @return  string
  */
