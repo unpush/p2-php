@@ -23,7 +23,7 @@ $_login->authorize(); // ユーザ認証
 // {{{ 携帯用 特殊リクエスト
 
 if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
-    
+
     switch ($_GET['ktool_name']) {
         case 'goto':
             if (strpos($_GET['ktool_value'], '-') !== false) {
@@ -105,6 +105,7 @@ if (strlen($GLOBALS['word'])) {
             $GLOBALS['word_fm'] = '(?:' . $GLOBALS['word_fm'] . ')';
         }
     }
+    
     if (UA::isK()) {
         $filter_page = isset($_REQUEST['filter_page']) ? max(1, intval($_REQUEST['filter_page'])) : 1;
         $filter_range = array();
@@ -211,10 +212,10 @@ if ($_conf['ktai']) {
 }
 
 // 取得済みなら
-if ($aThread->isKitoku()) { 
+if ($aThread->isKitoku()) {
     
     //「新着レスの表示」の時は特別にちょっと前のレスから表示
-    if (!empty($_GET['nt'])) { 
+    if (!empty($_GET['nt'])) {
         if (substr($aThread->ls, -1) == "-") {
             $n = $aThread->ls - $before_respointer;
             if ($n < 1) { $n = 1; }
@@ -420,8 +421,8 @@ function _detectThread()
     if (($url = geti($_GET['nama_url'])) || ($url = geti($_GET['url']))) { 
         $url = trim($url);
 
-        // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-        if (preg_match('{http://([^/]+\\.(2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)/?([^/]+)?}', $url, $matches)) {
+        // 2ch or pink http://choco.2ch.net/test/read.cgi/event/1027770702/
+        if (preg_match('{http://([^/]+\\.(2ch\\.net|bbspink\\.com|machibbs\\.com|machi\\.to))/test/read\\.cgi/([^/]+)/([0-9]+)/?([^/]+)?}', $url, $matches)) {
             $host = $matches[1];
             $bbs  = $matches[3];
             $key  = $matches[4];
@@ -445,20 +446,28 @@ function _detectThread()
             $kakolog_uri = $matches[1];
             $_GET['kakolog'] = $kakolog_uri;
             
-        // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
+        // 新まちBBS http://tohoku.machi.to/bbs/read.cgi/touhoku/1179407635/l50
+        } elseif (preg_match('{http://([^/]+\\.(2ch\\.net|bbspink\\.com|machibbs\\.com|machi\\.to))/bbs/read\\.cgi/([^/]+)/([0-9]+)/?([^/]+)?}', $url, $matches)) {
+            $host = $matches[1];
+            $bbs  = $matches[3];
+            $key  = $matches[4];
+            $ls   = geti($matches[5]);
+            
+        // （旧）まちBBS http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
         } elseif (preg_match('{http://([^/]+\.machibbs\.com|[^/]+\.machi\.to)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^\"]*}', $url, $matches)) {
             $host = $matches[1];
             $bbs  = $matches[3];
             $key  = $matches[4];
             $ls   = geti($matches[6]) .'-'. geti($matches[8]);
-            
+        
+        // したらばJBBS（旧まちBBSと類似形式）
         } elseif (preg_match('{http://((jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)(/[^/]+)?)/bbs/read\.(pl|cgi)\?BBS=([^&]+)&KEY=([0-9]+)(&START=([0-9]+))?(&END=([0-9]+))?[^"]*}', $url, $matches)) {
             $host = $matches[1];
             $bbs  = $matches[5];
             $key  = $matches[6];
             $ls   = geti($matches[8]) .'-'. geti($matches[10]);
             
-        // したらばJBBS http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100 
+        // したらばJBBS（2ch類似形式） http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100 
         } elseif (preg_match('{http://(jbbs\.livedoor\.jp|jbbs\.livedoor.com|jbbs\.shitaraba\.com)/bbs/read\.cgi/(\w+)/(\d+)/(\d+)/((\d+)?-(\d+)?)?[^"]*}', $url, $matches)){
             $host = $matches[1] . '/' . $matches[2];
             $bbs  = $matches[3];
@@ -554,7 +563,7 @@ function _recRecent($data_ar)
         foreach ($newlines as $l) {
             $cont .= $l . "\n";
         }
-        
+
         if (false === FileCtl::filePutRename($_conf['rct_file'], $cont)) {
             $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
             trigger_error($errmsg, E_USER_WARNING);
