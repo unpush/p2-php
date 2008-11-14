@@ -10,6 +10,7 @@ iphone ‚©‚çƒXƒŒî•ñ‚ğæ“¾‚·‚é‚Æ‚«‚Ísubject_i‚©‚çŒÄ‚Ño‚³‚ê‚éB
 */
 if (_isCalledAsStandAlone()) {
     require_once './conf/conf.inc.php';
+    require_once './iphone/conf.inc.php';
 }
 
 require_once P2_LIB_DIR . '/thread.class.php';
