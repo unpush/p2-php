@@ -1,13 +1,16 @@
 <?php
+require_once P2_LIB_DIR . '/index.funcs.php';
+
 /**
  * p2 - 携帯用インデックスをHTMLプリントする関数
-* @return  void
+ *
+ * @return  void
  */
 function index_print_k()
 {
     global $_conf, $_login;
 
-    $menuKLinkHtmls = _getMenuKLinkHtmls($_conf['menuKIni']);
+    $menuKLinkHtmls = getIndexMenuKLinkHtmls($_conf['menuKIni']);
     
     $body = '';
     $ptitle = $_conf['p2name'] . 'iPhone';
@@ -55,9 +58,8 @@ EOP;
     $hr         = P2View::getHrHtmlK();
 
     //=========================================================
-    // 携帯用 HTML プリント
+    // 携帯用 HTML出力
     //=========================================================
-    // P2Util::headerNoCache();
     P2Util::headerNoCache();
     P2View::printDoctypeTag();
     ?>
@@ -65,7 +67,6 @@ EOP;
 <head>
 <?php
     P2View::printExtraHeadersHtml();
-
 echo <<<EOP
 <script type="text/javascript"> 
 <!-- 
@@ -111,42 +112,9 @@ EOP;
 {$htm['last_login']}
 */
 
-
 //============================================================================
 // 関数（このファイル内でのみ利用）
 //============================================================================
-/**
- * メニュー項目のリンクHTML配列を取得する
- *
- * @access  public
- * @param   array   $menuKIni  メニュー項目 標準設定
- * @return  array
- */
-function _getMenuKLinkHtmls($menuKIni, $noLink = false)
-{
-    global $_conf;
-    
-    $menuLinkHtmls = array();
-    // ユーザ設定順序でメニューHTMLを取得
-    foreach ($_conf['index_menu_k'] as $code) {
-        if (isset($menuKIni[$code])) {
-            if ($html = _getMenuKLinkHtml($code, $menuKIni, $noLink)) {
-                $menuLinkHtmls[$code] = $html;
-                unset($menuKIni[$code]);
-            }
-        }
-    }
-    if ($menuKIni) {
-        foreach ($menuKIni as $code => $menu) {
-            if ($html = _getMenuKLinkHtml($code, $menuKIni, $noLink)) {
-                $menuLinkHtmls[$code] = $html;
-                unset($menuKIni[$code]);
-            }
-        }
-    }
-    return $menuLinkHtmls;
-}
-
 /**
  * メニュー項目のリンクHTMLを取得する
  *
@@ -203,8 +171,7 @@ function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
         } else {
             $newtime = date('gis');
             $logHt = P2View::tagA(
-                P2Util::buildQueryUri(
-                    'read_res_hist.php',
+                P2Util::buildQueryUri('read_res_hist.php',
                     array(
                         'nt' => $newtime,
                         UA::getQueryKey() => UA::getQueryValue()
@@ -219,7 +186,6 @@ function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
     
     return $linkHtml;
 }
-
 
 /*
  * Local Variables:

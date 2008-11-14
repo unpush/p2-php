@@ -18,7 +18,7 @@ $sb_tool_i = updateSbToolI(); // int
 			<?php echo $ptitle_ht; ?>
 		</td>
 		<td align="left" valign="middle" nowrap>
-			<form class="toolbar" method="GET" action="subject.php" accept-charset="<?php eh($_conf['accept_charset']); ?>" target="_self">
+			<form class="toolbar" method="GET" action="<?php eh($_conf['subject_php']) ?>" accept-charset="<?php eh($_conf['accept_charset']); ?>" target="_self">
 				<?php echo $sb_form_hidden_ht; ?>
 				<input type="submit" name="submit_refresh" value="XV">
 				<?php echo $sb_disp_num_ht; ?>

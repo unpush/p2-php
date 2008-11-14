@@ -815,7 +815,8 @@ EOP;
     {
         //return md5($_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE']);
         
-        $seed = $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        //$seed = $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        $seed = $_SERVER['SERVER_SOFTWARE'];
         
         require_once P2_LIB_DIR . '/hostcheck.class.php';
         

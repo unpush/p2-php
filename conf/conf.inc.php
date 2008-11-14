@@ -29,12 +29,15 @@ $_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
 $_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.phtml';
 $_conf['favrank_url']           = 'http://akid.s17.xrea.com/favrank/favrank.php';
 $_conf['menu_php']              = 'menu.php';
-$_conf['subject_php']           = 'subject.php';
+$_conf['subject_php']           = 'subject.php'; // subject_i.php
 $_conf['read_php']              = 'read.php';
 $_conf['read_new_php']          = 'read_new.php';
 $_conf['read_new_k_php']        = 'read_new_k.php';
 $_conf['post_php']              = 'post.php';
 $_conf['cookie_file_name']      = 'p2_cookie.txt';
+$_conf['menu_k_php']            = 'menu_k.php'; // menu_i.php
+$_conf['editpref_php']          = 'editpref.php'; // editpref_i.php
+
 // info.php はJavaScriptファイル中に書かれているのが難
 
 // }}}
@@ -464,50 +467,6 @@ $_p2session = _startSession();
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
 require_once P2_LIB_DIR . '/login.class.php';
 $_login = new Login();
-
-
-$_conf['menuKIni'] = array(
-    'recent_shinchaku'  => array(
-        'subject.php?spmode=recent&sb_view=shinchaku',
-        '最近読んだｽﾚの新着'
-    ),
-    'recent'            => array(
-        'subject.php?spmode=recent&norefresh=1',
-        '最近読んだｽﾚの全て'
-    ),
-    'fav_shinchaku'     => array(
-        'subject.php?spmode=fav&sb_view=shinchaku',
-        'お気にｽﾚの新着'
-    ),
-    'fav'               => array(
-        'subject.php?spmode=fav&norefresh=1',
-        'お気にｽﾚの全て'
-    ),
-    'favita'            => array(
-        'menu_k.php?view=favita',
-        'お気に板'
-    ),
-    'cate'              => array(
-        'menu_k.php?view=cate',
-        '板ﾘｽﾄ'
-    ),
-    'res_hist'          => array(
-        'subject.php?spmode=res_hist',
-        '書込履歴'
-    ),
-    'palace'            => array(
-        'subject.php?spmode=palace&norefresh=1',
-        'ｽﾚの殿堂'
-    ),
-    'setting'           => array(
-        'setting.php?dummy=1',
-        'ﾛｸﾞｲﾝ管理'
-    ),
-    'editpref'          => array(
-        'editpref.php?dummy=1',
-        '設定管理'
-    )
-);
 
 
 //=============================================================================

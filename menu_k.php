@@ -106,7 +106,7 @@ if (strlen($GLOBALS['word']) > 0) {
         P2Util::pushInfoHtml(sprintf('<p>"%s"‚ğŠÜ‚Ş”Â‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B</p>', hs($GLOBALS['word'])));
     }
     $atag = P2View::tagA(
-        P2Util::buildQueryUri('menu_k.php',
+        P2Util::buildQueryUri($_conf['menu_k_php'],
             array(
                 'view' => 'cate',
                 'nr'   => '1',
@@ -138,7 +138,7 @@ if (isset($_GET['cateid'])) {
         }
     }
     $modori_url_ht = P2View::tagA(
-        P2Util::buildQueryUri('menu_k.php',
+        P2Util::buildQueryUri($_conf['menu_k_php'],
             array('view' => 'cate', 'nr' => '1', UA::getQueryKey() => UA::getQueryValue())
         ),
         '”ÂØ½Ä'

@@ -112,7 +112,7 @@ class SubjectTxt
                 
                 // 条件によって、キャッシュを適用する
                 // subject.php でrefresh指定がある時は、キャッシュを適用しない
-                if (!(basename($_SERVER['SCRIPT_NAME']) == 'subject.php' && !empty($_REQUEST['refresh']))) {
+                if (!(basename($_SERVER['SCRIPT_NAME']) == $_conf['subject_php'] && !empty($_REQUEST['refresh']))) {
                     
                     // キャッシュ適用指定時は、その場で抜ける
                     if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {

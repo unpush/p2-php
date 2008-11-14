@@ -191,7 +191,7 @@ $input_find_cont_ht = <<<EOP
 EOP;
 
 $filter_form_ht = <<<EOP
-		<form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
+		<form class="toolbar" method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}" target="_self">
 			{$sb_form_hidden_ht}
 			<input type="text" id="word" name="word" value="{$word_hs}" size="16">{$sb_form_method_ht}
 			{$input_find_cont_ht}

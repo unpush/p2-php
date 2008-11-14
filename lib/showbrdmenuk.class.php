@@ -38,7 +38,7 @@ class ShowBrdMenuK
     
         if ($disp_navi['from'] > 1) {
             $mae_ht = <<<EOP
-<a href="menu_k.php?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
+<a href="{$_conf['menu_k_php']}?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
         } else {
             $mae_ht = '';
@@ -46,7 +46,7 @@ EOP;
         
         if ($disp_navi['end'] < $list_disp_all_num) {
             $tugi_ht = <<<EOP
-<a href="menu_k.php?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
+<a href="{$_conf['menu_k_php']}?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
         } else {
             $tugi_ht = '';
@@ -62,7 +62,7 @@ EOP;
         
         foreach ($categories as $cate) {
             if ($this->cate_id >= $disp_navi['from'] and $this->cate_id <= $disp_navi['end']) {
-                echo "<a href=\"menu_k.php?cateid={$this->cate_id}&amp;nr=1{$_conf['k_at_a']}\">{$cate->name}</a>($cate->num)<br>\n"; // $this->cate_id
+                echo "<a href=\"{$_conf['menu_k_php']}?cateid={$this->cate_id}&amp;nr=1{$_conf['k_at_a']}\">{$cate->name}</a>($cate->num)<br>\n"; // $this->cate_id
             }
             $this->cate_id++;
         }
@@ -104,7 +104,7 @@ EOP;
                 
                 if ($disp_navi['from'] > 1) {
                     $mae_ht = <<<EOP
-<a href="menu_k.php?cateid={$this->cate_id}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a>
+<a href="{$_conf['menu_k_php']}?cateid={$this->cate_id}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a>
 EOP;
                 } else {
                     $mae_ht = '';
@@ -112,7 +112,7 @@ EOP;
                 
                 if ($disp_navi['end'] < $list_disp_all_num) {
                     $tugi_ht = <<<EOP
-<a href="menu_k.php?cateid={$this->cate_id}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a>
+<a href="{$_conf['menu_k_php']}?cateid={$this->cate_id}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a>
 EOP;
                 } else {
                     $tugi_ht = '';
@@ -194,7 +194,7 @@ EOP;
         
         if ($disp_navi['from'] > 1) {
             $mae_ht = <<<EOP
-<a href="menu_k.php?w{$detect_hint_q}{$word_q}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a>
+<a href="{$_conf['menu_k_php']}?w{$detect_hint_q}{$word_q}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a>
 EOP;
         } else {
             $mae_ht = '';
@@ -202,7 +202,7 @@ EOP;
         
         if ($disp_navi['end'] < $list_disp_all_num) {
             $tugi_ht = <<<EOP
-<a href="menu_k.php?{$detect_hint_q}{$word_q}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a>
+<a href="{$_conf['menu_k_php']}?{$detect_hint_q}{$word_q}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a>
 EOP;
         } else {
             $tugi_ht = '';

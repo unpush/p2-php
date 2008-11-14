@@ -93,7 +93,7 @@ if (
     or in_array($aThreadList->spmode, array('fav', 'recent')) && geti($_REQUEST['norefresh'])
 ) {
     $filter_form_ht = <<<EOP
-<form method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}">
+<form method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}">
     {$sb_form_hidden_ht}
     <input type="text" id="word" name="word" value="{$word_hs}" size="12">
     <input type="submit" name="submit_kensaku" value="ŒŸõ">

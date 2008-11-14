@@ -1,4 +1,6 @@
 <?php
+require_once P2_LIB_DIR . '/index.funcs.php';
+
 /**
  * p2 - 携帯用インデックスをHTMLプリントする関数
  *
@@ -8,7 +10,7 @@ function index_print_k()
 {
     global $_conf, $_login;
 
-    $menuKLinkHtmls = _getMenuKLinkHtmls($_conf['menuKIni']);
+    $menuKLinkHtmls = getIndexMenuKLinkHtmls($_conf['menuKIni']);
     
     $body = '';
     $ptitle = 'ﾕﾋﾞｷﾀｽrep2';
@@ -55,7 +57,7 @@ EOP;
     $rss_k_atag = '';
     if ($_conf['enable_rss']) {
         $rss_k_atag = P2View::tagA(
-            P2Util::buildQueryUri('menu_k.php',
+            P2Util::buildQueryUri($_conf['menu_k_php'],
                 array(
                     'view' => 'rss',
                     'user' => $_login->user_u,
@@ -68,7 +70,7 @@ EOP;
     */
     
     require_once P2_LIB_DIR . '/brdctl.class.php';
-    $search_form_htm = BrdCtl::getMenuKSearchFormHtml('menu_k.php');
+    $search_form_htm = BrdCtl::getMenuKSearchFormHtml($_conf['menu_k_php']);
     
     $body_at    = P2View::getBodyAttrK();
     $hr         = P2View::getHrHtmlK();
@@ -129,39 +131,6 @@ p2ﾛｸﾞｲﾝ用URL（PC）<br>
 //============================================================================
 // 関数（このファイル内でのみ利用）
 //============================================================================
-/**
- * メニュー項目のリンクHTML配列を取得する
- *
- * @access  public
- * @param   array   $menuKIni  メニュー項目 標準設定
- * @return  array
- */
-function _getMenuKLinkHtmls($menuKIni, $noLink = false)
-{
-    global $_conf;
-    
-    $menuLinkHtmls = array();
-    
-    // ユーザ設定順序でメニューHTMLを取得
-    foreach ($_conf['index_menu_k'] as $code) {
-        if (isset($menuKIni[$code])) {
-            if ($html = _getMenuKLinkHtml($code, $menuKIni, $noLink)) {
-                $menuLinkHtmls[$code] = $html;
-                unset($menuKIni[$code]);
-            }
-        }
-    }
-    if ($menuKIni) {
-        foreach ($menuKIni as $code => $menu) {
-            if ($html = _getMenuKLinkHtml($code, $menuKIni, $noLink)) {
-                $menuLinkHtmls[$code] = $html;
-                unset($menuKIni[$code]);
-            }
-        }
-    }
-    return $menuLinkHtmls;
-}
-
 /**
  * メニュー項目のリンクHTMLを取得する
  *

@@ -203,7 +203,7 @@ EOP;
 // PC用表示
 if (UA::isPC()) {
     echo <<<EOP
-<p id="pan_menu"><a href="editpref.php">設定管理</a> &gt; {$ptitle_top_ht}</p>\n
+<p id="pan_menu"><a href="{$_conf['editpref_php']}">設定管理</a> &gt; {$ptitle_top_ht}</p>\n
 EOP;
 } else {
     echo hs(basename($path)) . "<br>";
@@ -336,7 +336,7 @@ if ($_conf['ktai']) {
     $hr = P2View::getHrHtmlK();
     echo <<<EOP
 $hr
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="editpref.php{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.設定編集</a>
+<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['editpref_php']}{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.設定編集</a>
 EOP;
     echo P2View::getBackToIndexKATag();
 }

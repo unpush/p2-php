@@ -159,7 +159,7 @@ if (!$_conf['ktai']) {
     
 // Œg‘Ñ—p
 } else {
-    $menu_href = 'menu_k.php?view=favita&amp;nr=1' . $_conf['k_at_a'] . '&amp;nt=' . time();
+    $menu_href = $_conf['menu_k_php'] . '?view=favita&amp;nr=1' . $_conf['k_at_a'] . '&amp;nt=' . time();
     $onclick = '';
 }
 

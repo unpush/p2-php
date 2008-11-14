@@ -129,7 +129,7 @@ EOP;
 ?>
     　<a href="<?php eh($_conf['subject_php']); ?>?spmode=palace&amp;norefresh=1" title="DAT落ちしたスレ用のお気に入り">スレの殿堂</a><br>
     　<a href="setting.php">ログイン管理</a><br>
-    　<a href="editpref.php">設定管理</a><br>
+    　<a href="<?php eh($_conf['editpref_php']) ?>">設定管理</a><br>
     　<a href="http://find.2ch.net/" target="_blank" title="find.2ch.net">2ch検索</a>
     </div>
 </div>

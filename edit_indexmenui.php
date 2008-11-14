@@ -4,7 +4,6 @@
 require_once './conf/conf.inc.php';
 require_once './iphone/conf.inc.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
-
 require_once P2_LIB_DIR . '/UA.php';
 
 $_login->authorize(); // ÉÜÅ[ÉUîFèÿ
@@ -30,7 +29,8 @@ require_once P2_LIB_DIR . '/index_print_k.inc.php';
 
 $setfrom1 = (int) !$_conf['index_menu_k_from1'];
 
-$menuKLinkHtmls = _getMenuKLinkHtmls($_conf['menuKIni'], $noLink = true);
+require_once P2_LIB_DIR . '/index.funcs.php';
+$menuKLinkHtmls = getIndexMenuKLinkHtmls($_conf['menuKIni'], $noLink = true);
 
 $body_at    = P2View::getBodyAttrK();
 $hr         = P2View::getHrHtmlK();

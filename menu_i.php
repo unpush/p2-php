@@ -148,7 +148,7 @@ if (isset($_GET['cateid'])) {
         }
     }
     $modori_url_ht = P2View::tagA(
-        P2Util::buildQueryUri('menu_k.php',
+        P2Util::buildQueryUri($_conf['menu_k_php'],
             array('view' => 'cate', 'nr' => '1', UA::getQueryKey() => UA::getQueryValue())
         ),
         '”ÂØ½Ä'

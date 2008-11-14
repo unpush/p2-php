@@ -463,7 +463,7 @@ function _getSyncFavoritesFormHtml($path_value, $submit_value)
     global $_conf;
     
     $ht = <<<EOFORM
-<form action="editpref.php" method="POST" target="_self" class="inline-form">
+<form action="{$_conf['editpref_php']}" method="POST" target="_self" class="inline-form">
     {$_conf['k_input_ht']}
     <input type="hidden" name="sync" value="{$path_value}">
     <input type="submit" value="{$submit_value}">
