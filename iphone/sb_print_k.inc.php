@@ -91,8 +91,10 @@ function sb_print_k(&$aThreadList)
             if (!$aThread->torder) {$aThread->torder=$i;}
         }
 
-        // 新着レス数 =============================================
-        $unum_ht = "";
+        // {{{ 新着レス数
+        
+        $unum_ht = '';
+        
         // 既得済み
         if ($aThread->isKitoku()) { 
             $unum_ht="{$aThread->unum}";
@@ -111,24 +113,24 @@ function sb_print_k(&$aThreadList)
             if (!$aThread->isonline) {
                 // 誤動作防止のためログ削除操作をロック
                 $unum_ht = "-"; 
-            }    
+            }
 
             $unum_ht = '<font class="unum">' . $unum_ht . '</font>';
         }
         
+        // }}}
+        
         // 新規スレ
         if ($aThread->new) { 
-            //$unum_ht = "<font color=\"#0000ff\">●</font>";
-            $unum_new_ht = "<img class=\"unew\" src=\"iui/icon_new.png\">";
-            $unum_ht = "";
-         }else{
-            $unum_new_ht = "";
+            // $unum_ht = '<font color="#0000ff">●</font>';
+            $unum_new_ht = '<img class="unew" src="iui/icon_new.png">';
+            $unum_ht = '';
+        } else {
+            $unum_new_ht = '';
         }
-                
-        // 総レス数
-        $rescount_ht = "{$aThread->rescount}";
 
-        // 板名
+        // {{{ 板名
+        
         $ita_name_ht = '';
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
@@ -138,12 +140,25 @@ function sb_print_k(&$aThreadList)
                 $ita_name = mb_convert_kana($ita_name, 'rnsk');
             }
             
-            $ita_name_hs = htmlspecialchars($ita_name, ENT_QUOTES);
-            
-            // $ita_name_ht = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hs}</a>)";
-            $ita_name_ht = "({$ita_name_hs})";
+            /*
+            $ita_name_ht = sprintf('(%s)',
+                P2View::tagA(
+                    P2Util::buildQueryUri($_conf['subject_php'],
+                        array(
+                            'host' => $aThread->host,
+                            'bbs'  => $aThread->bbs,
+                            UA::getQueryKey() => UA::getQueryValue()
+                        )
+                    ),
+                    hs($ita_name)
+                )
+            );
+            */
+            $ita_name_ht = sprintf(' <span class="ita">(%s)</span>', hs($ita_name));
         }
-
+        
+        // }}}
+        
         // torder(info) =================================================
         /*
         if ($aThread->fav) { //お気にスレ
@@ -155,8 +170,8 @@ function sb_print_k(&$aThreadList)
         */
         $torder_ht = $aThread->torder;
         
-        // title =================================================        
-        $rescount_q = "&amp;rc=".$aThread->rescount;
+        // title =================================================
+        $rescount_q = "&amp;rc=" . $aThread->rescount;
         
         // dat倉庫 or 殿堂なら
         if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") { 
@@ -172,26 +187,29 @@ function sb_print_k(&$aThreadList)
             // 見かけ上のタイトルなので携帯対応URLである必要はない
             //if (P2Util::isHost2chs($aThread->host)) {
             //    $aThread->ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
-            //}else{
-                $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";        
+            //} else {
+                $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
             //}
-        }    
+        }
 
         // 全角英数カナスペースを半角に
         if ($_conf['k_save_packet']) {
             $aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
         }
         
-        $aThread->ttitle_ht = $aThread->ttitle_ht . ' <font class="sbnum">' . $rescount_ht . "</font>";
+        // 総レス数
+        $rescount_ht = '<font class="sbnum"> ' . $aThread->rescount . "</font>";
+        
+        $similarity_ht = '';
         if ($aThread->similarity) {
-            $aThread->ttitle_ht .= sprintf(' %0.1f%%', $aThread->similarity * 100);
+            $similarity_ht = sprintf(' %0.1f%%', $aThread->similarity * 100);
         }
         
         // 新規スレ
         if ($aThread->new) { 
-            $classtitle_q = " class=\"thre_title_new\"";
+            $classtitle_q = ' class="thre_title_new"';
         } else {
-            $classtitle_q = " class=\"thre_title\"";
+            $classtitle_q = ' class="thre_title"';
         }
 
         $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
@@ -255,7 +273,7 @@ function sb_print_k(&$aThreadList)
 
         // ボディ
         echo <<<EOP
- <a href="{$thre_url}">{$unum_new_ht}{$aThread->ttitle_ht}</a>{$ita_name_ht}{$unum_ht}</li>
+ <a href="{$thre_url}" class="ttitle">{$unum_new_ht}{$aThread->ttitle_ht}{$ita_name_ht}{$rescount_ht}{$similarity_ht}</a>{$unum_ht}</li>
 EOP;
     }
 }
