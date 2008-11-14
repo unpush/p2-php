@@ -27,6 +27,7 @@ function sb_print_k(&$aThreadList)
     $onlyone_bool = false;
     
     /*
+    // ニュース系の板なら適用
     if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus" || $aThreadList->spmode == "news") {
         // 倉庫は除く
         if ($aThreadList->spmode != "soko") {
@@ -92,8 +93,10 @@ function sb_print_k(&$aThreadList)
             if (!$aThread->torder) {$aThread->torder=$i;}
         }
 
-        // 新着レス数 =============================================
-        $unum_ht = "";
+        // {{{ 新着レス数
+        
+        $unum_ht = '';
+        
         // 既得済み
         if ($aThread->isKitoku()) {
             $unum_ht = "{$aThread->unum}";
@@ -117,13 +120,12 @@ function sb_print_k(&$aThreadList)
             $unum_ht = "[" . $unum_ht . "]";
         }
         
+        // }}}
+        
         // 新規スレ
         if ($aThread->new) { 
             $unum_ht = "<font color=\"#ff0000\">新</font>";
         }
-                
-        // 総レス数
-        $rescount_ht = "{$aThread->rescount}";
 
         // 板名
         $ita_name_ht = '';
@@ -135,11 +137,21 @@ function sb_print_k(&$aThreadList)
                 $ita_name = mb_convert_kana($ita_name, 'rnsk');
             }
             
-            $ita_name_hs = htmlspecialchars($ita_name, ENT_QUOTES);
-            
-            // $ita_name_ht = "(<a href=\"{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$_conf['k_at_a']}\">{$ita_name_hs}</a>)";
-            
-            $ita_name_ht = "({$ita_name_hs})";
+            /*
+            $ita_name_ht = sprintf('(%s)',
+                P2View::tagA(
+                    P2Util::buildQueryUri($_conf['subject_php'],
+                        array(
+                            'host' => $aThread->host,
+                            'bbs'  => $aThread->bbs,
+                            UA::getQueryKey() => UA::getQueryValue()
+                        )
+                    ),
+                    hs($ita_name)
+                )
+            );
+            */
+            $ita_name_ht = sprintf('(%s)', hs($ita_name));
             
         }
         
@@ -171,9 +183,9 @@ function sb_print_k(&$aThreadList)
         if (!$aThread->ttitle_ht) {
             // 見かけ上のタイトルなので携帯対応URLである必要はない
             //if (P2Util::isHost2chs($aThread->host)) {
-            //    $aThread->ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";    
+            //    $aThread->ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
             //} else {
-                $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";        
+                $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
             //}
         }
         
@@ -182,9 +194,12 @@ function sb_print_k(&$aThreadList)
             $aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
         }
         
-        $aThread->ttitle_ht = $aThread->ttitle_ht . " (" . $rescount_ht . ")";
+        // 総レス数
+        $rescount_ht = ' (' . $aThread->rescount . ")";
+        
+        $similarity_ht = '';
         if ($aThread->similarity) {
-            $aThread->ttitle_ht .= sprintf(' %0.1f%%', $aThread->similarity * 100);
+            $similarity_ht = sprintf(' %0.1f%%', $aThread->similarity * 100);
         }
         
         // 新規スレ
@@ -225,7 +240,7 @@ function sb_print_k(&$aThreadList)
         // ボディ
         echo <<<EOP
 <div>
-	{$unum_ht}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}</a>{$ita_name_ht}
+	{$unum_ht}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}{$rescount_ht}{$similarity_ht}</a>{$ita_name_ht}
 </div>
 EOP;
     }

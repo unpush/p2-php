@@ -256,7 +256,8 @@ EOP;
         // ‘ƒŒƒX”
         $rescount_ht = "<td{$class_tn}>{$aThread->rescount}</td>";
 
-        // ”Â–¼
+        // {{{ ”Â–¼
+        
         $ita_td_ht = '';
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
@@ -274,6 +275,7 @@ EOP;
             $ita_td_ht = "<td{$class_t} nowrap>{$ita_atag}</td>";
         }
         
+        // }}}
         
         // ‚¨‹C‚É“ü‚è
         if ($_conf['sb_show_fav']) {
