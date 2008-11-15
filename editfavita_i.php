@@ -27,7 +27,7 @@ if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['sub
 }
 // お気に板のホストを同期
 if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
-    require_once P2_LIB_DIR . '/BbsMap.class.php';
+    require_once P2_LIB_DIR . '/BbsMap.php';
     BbsMap::syncBrd($_conf['favita_path']);
 }
 

@@ -39,7 +39,7 @@ $synctitle = array(
 
 // ƒzƒXƒg‚ð“¯Šú‚·‚é
 if (isset($_POST['sync'])) {
-    require_once P2_LIB_DIR . '/BbsMap.class.php';
+    require_once P2_LIB_DIR . '/BbsMap.php';
     $syncfile = $_conf['pref_dir'] . '/' . $_POST['sync'];
     $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {

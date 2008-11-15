@@ -497,7 +497,7 @@ class P2Util
 
         // ”Â–¼Long‚ÌŽæ“¾
         if (!isset($p2_setting['itaj'])) {
-            require_once P2_LIB_DIR . '/BbsMap.class.php';
+            require_once P2_LIB_DIR . '/BbsMap.php';
             $itaj = BbsMap::getBbsName($host, $bbs);
             if ($itaj != $bbs) {
                 $ita_names[$id] = $p2_setting['itaj'] = $itaj;

@@ -428,7 +428,7 @@ function _detectThread()
         
         // c-docomo c-au c-other http://c-au.2ch.net/test/--3!mail=sage/operate/1159594301/519-n
         } elseif (preg_match('{http://((c-docomo|c-au|c-other)\\.2ch\\.net)/test/([^/]+)/([^/]+)/([0-9]+)/?([^/]+)?}', $url, $m)) {
-            require_once P2_LIB_DIR . '/BbsMap.class.php';
+            require_once P2_LIB_DIR . '/BbsMap.php';
             if ($mapped_host = BbsMap::get2chHostByBbs($m[4])) {
                 $host = $mapped_host;
                 $bbs = $m[4];
