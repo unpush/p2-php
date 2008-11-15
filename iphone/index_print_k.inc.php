@@ -51,7 +51,7 @@ EOP;
     $user_at_a = '&amp;user=' . $_login->user_u;
     $user_at_q = '?user=' . $_login->user_u;
     
-    require_once P2_LIB_DIR . '/brdctl.class.php';
+    require_once P2_LIB_DIR . '/BrdCtl.php';
     $search_form_htm = BrdCtl::getMenuKSearchFormHtml('menu_i.php');
 
     $body_at    = P2View::getBodyAttrK();

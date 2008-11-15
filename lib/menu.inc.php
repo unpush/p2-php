@@ -6,7 +6,7 @@
     menu.php, menu_side.php ‚æ‚è“Ç‚İ‚Ü‚ê‚é
 */
 
-require_once P2_LIB_DIR . '/brdctl.class.php';
+require_once P2_LIB_DIR . '/BrdCtl.php';
 require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ

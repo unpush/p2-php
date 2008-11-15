@@ -69,7 +69,7 @@ EOP;
     }
     */
     
-    require_once P2_LIB_DIR . '/brdctl.class.php';
+    require_once P2_LIB_DIR . '/BrdCtl.php';
     $search_form_htm = BrdCtl::getMenuKSearchFormHtml($_conf['menu_k_php']);
     
     $body_at    = P2View::getBodyAttrK();

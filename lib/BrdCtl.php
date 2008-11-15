@@ -6,7 +6,7 @@ require_once P2_LIB_DIR . '/brdmenu.class.php';
  * p2 - 板リストコントロールクラス for menu.php
  * スタティックメソッドで利用している
  *
- * 2007/03/20 BrdUtil に改名して、ファイル名を BrdUtil.php としたい予定
+ * BrdUtil に改名したい気分
  */
 class BrdCtl
 {
