@@ -165,7 +165,7 @@ function submitApply()
 
     $menu_href = 'menu_i.php?view=favita&amp;nr=1' . $_conf['k_at_a'] . '&amp;nt=' . time();
     $onclick = '';
-}
+
 
 
 

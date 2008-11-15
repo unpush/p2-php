@@ -94,7 +94,7 @@ EOP;
         } else {
             $list_disp_from = 1;
         }
-
+        
         foreach ($categories as $cate) {
             if ($cate->num and $this->cate_id == $_GET['cateid']) {
                 
@@ -207,12 +207,12 @@ EOP;
         foreach ($categories as $cate) {
             
             if ($cate->num > 0) {
-
                 $t = false;
                 foreach ($cate->menuitas as $mita) {
                     
                     $GLOBALS['menu_show_ita_num']++;
                     if ($GLOBALS['menu_show_ita_num'] >= $disp_navi['from'] and $GLOBALS['menu_show_ita_num'] <= $disp_navi['end']) {
+
                         if (!$t) {
                             echo "<li class=\"group\">{$cate->name}</li>\n";
                         }
@@ -241,36 +241,41 @@ EOP;
         
         $show_flag = false;
         
-    if (file_exists($_conf['favita_path']) and $lines = file($_conf['favita_path'])) {
+        if (file_exists($_conf['favita_path']) and $lines = file($_conf['favita_path'])) {
             echo '<ul id="home"><li class="group">お気に入り一覧</li>';
-        /*echo '<ul><li><a href="editfavita.php?k=1">編集</a></li><li class="group">お気に入り一覧</li>';*/
+            echo '<a class="button" href="editfavita_i.php?b=i">編集</a>';
+            /*echo '<ul><li><a href="editfavita.php?k=1">編集</a></li><li class="group">お気に入り一覧</li>';*/
             $i = 0;
             foreach ($lines as $l) {
                 $i++;
                 $l = rtrim($l);
                 if (preg_match("/^\t?(.+)\t(.+)\t(.+)$/", $l, $matches)) {
                     $itaj = rtrim($matches[3]);
-                    $itaj_hs = htmlspecialchars($itaj, ENT_QUOTES);
-                    $itaj_en = rawurlencode(base64_encode($itaj));
-                    if ($i <= 9) {
-                        $access_at = " {$_conf['accesskey']}={$i}";
-                        $key_num_st = "$i.";
-                    } else {
-                        $access_at = "";
-                        $key_num_st = "";
-                    }
-                    echo <<<EOP
-    <li><a href="{$_conf['subject_php']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;itaj_en={$itaj_en}{$_conf['k_at_a']}">{$itaj_hs}</a></li>
-EOP;
-        echo '<a class="button" href="editfavita_i.php?k=1">編集</a>';
+                    $attr = array();
+                    $key_num_st = '';
 
-//  [<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;view=favita{$_conf['k_at_a']}">削</a>]
+                    if ($i <= 9) {
+                        $attr[$_conf['accesskey']] = $i;
+                        $key_num_st = "$i.";
+                    }
+
+                    $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+                        'host' => $matches[1],
+                        'bbs'  => $matches[2],
+                        'itaj_en' => base64_encode($itaj),
+                        UA::getQueryKey() => UA::getQueryValue()
+                    ));
+                    $atag = P2View::tagA($uri, hs($itaj), $attr);
+
+                    echo '<li>' . $atag . '</li>';
+
+                    //  [<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;csrfid={$csrfid}&amp;view=favita{$_conf['k_at_a']}">削</a>]
                     $show_flag = true;
                 }
-           }echo '</ul>';
+            }echo '</ul>';
         }
         
-        if (empty($show_flag)) {
+        if (!$show_flag) {
             echo "<p>お気に板はまだないようだ</p>";
         }
     }
