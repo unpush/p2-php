@@ -13,11 +13,15 @@ require_once P2_LIB_DIR . '/UA.php';
 
 $_login->authorize(); // ユーザ認証
 
-
 // {{{ 特殊な前処理
 
 // お気に板の追加・削除、並び替え
 if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['submit_listfavita'])) {
+
+    if (!isset($_REQUEST['csrfid']) or $_REQUEST['csrfid'] != P2Util::getCsrfId()) {
+        p2die('不正なクエリーです（CSRF対策）');
+    }
+    
     require_once P2_LIB_DIR . '/setfavita.inc.php';
     setFavIta();
 }
@@ -36,6 +40,7 @@ if ($_conf['ktai'] or UA::isNetFront() or !empty($_POST['sortNoJs']) || !empty($
     $sortNoJs = false;
 }
 
+$csrfid = P2Util::getCsrfId();
 //================================================================
 // ヘッダHTML表示
 //================================================================
@@ -45,7 +50,7 @@ P2View::printDoctypeTag();
 <html lang="ja">
 <head>
 <?php
-    P2View::printExtraHeadersHtml();
+P2View::printExtraHeadersHtml();
 echo <<<EOP
     <style type="text/css" media="screen">@import "./iui/iui.css";</style>
     <title>p2 - お気に板の並び替え</title>
@@ -80,6 +85,7 @@ echo <<<EOP
 <a class="button" id="backbutton" href="iphone.php">TOP</a>
 </div>
 EOP;
+
 P2Util::printInfoHtml();
 
 //=====================================================================
@@ -89,7 +95,7 @@ P2Util::printInfoHtml();
 // お気に板情報を取得
 FileCtl::make_datafile($_conf['favita_path'], $_conf['favita_perm']);
 $lines = file($_conf['favita_path']);
-$okini_itas = getOkiniItasFromLines($lines);
+$okini_itas = _getOkiniItasFromLines($lines);
 
 
 if (!$sortNoJs and !empty($lines)) {
@@ -159,6 +165,7 @@ function submitApply()
 
     $menu_href = 'menu_i.php?view=favita&amp;nr=1' . $_conf['k_at_a'] . '&amp;nt=' . time();
     $onclick = '';
+}
 
 
 
@@ -217,7 +224,7 @@ EOP;
 </table>
 
 <input type="hidden" name="list">
-
+<input type="hidden" name="csrfid" value="{$csrfid}">
 <input type="submit" value="元に戻す">
 <input type="submit" name="submit_listfavita" value="変更を適用する" onClick="submitApply();">
 
@@ -244,7 +251,7 @@ if ($lines) {
 
     // JavaScriptソートなら <noscript>
     if (!$sortNoJs) {
-        echo '<noscript>';
+        ?><noscript><?php
     }
     
     // PC（NetFront以外）なら
@@ -276,15 +283,16 @@ if ($lines) {
 EOP;
         }
     }
-    echo "</table>";
+    ?></table><?php
     
     // JavaScriptソートなら <noscript>
     if (!$sortNoJs) {
-        echo '</noscript>';
+        ?></noscript><?php
     }
 }
 
 // }}}
+
 
 /*
 // PC用 お気に板同期フォーム HTML表示
@@ -323,7 +331,7 @@ exit;
  * @param   array  $lines
  * @return  array  assoc
  */
-function getOkiniItasFromLines($lines)
+function _getOkiniItasFromLines($lines)
 {
     $okini_itas = array();
     $i = 0;

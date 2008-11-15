@@ -140,9 +140,7 @@ P2Util::printInfoHtml();
 echo $filter_form_ht;
 echo $hit_ht;
 
-require_once P2_IPHONE_LIB_DIR . '/sb_toolbar_k.inc.php'; // getShinchakuMatomeATag()
-/*
+require_once P2_LIB_DIR . '/sb_toolbar_k.funcs.php'; // getShinchakuMatomeATag()
 ?>
 <p><?php echo getShinchakuMatomeATag($aThreadList, $shinchaku_num); ?></p>
 <?php
-*/

@@ -130,7 +130,7 @@ P2View::printExtraHeadersHtml();
 <?php
 P2Util::printInfoHtml();
 
-require_once P2_LIB_DIR . '/sb_toolbar_k.inc.php'; // getShinchakuMatomeATag()
+require_once P2_LIB_DIR . '/sb_toolbar_k.funcs.php'; // getShinchakuMatomeATag()
 ?>
 <p><?php echo $ptitle_ht; ?> <?php echo getShinchakuMatomeATag($aThreadList, $shinchaku_num); ?></p>
 <?php

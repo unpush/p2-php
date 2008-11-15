@@ -161,7 +161,8 @@ $htm['change_sort'] .= '<input type="submit" value="•ÏX"></form>';
 /*
 echo "<hr>";
 echo $k_sb_navi_ht;
-include P2_LIB_DIR . '/sb_toolbar_k.inc.php';
+require_once P2_LIB_DIR . '/sb_toolbar_k.funcs.php'; // getShinchakuMatomeATag()
+echo getShinchakuMatomeATag();
 echo $allfav_ht;
 echo "<p>";
 echo $dat_soko_ht;

@@ -192,7 +192,8 @@ $hr = P2View::getHrHtmlK();
 
 echo $hr;
 echo $k_sb_navi_ht;
-require_once P2_LIB_DIR . '/sb_toolbar_k.inc.php'; // getShinchakuMatomeATag()
+
+require_once P2_LIB_DIR . '/sb_toolbar_k.funcs.php'; // getShinchakuMatomeATag()
 ?>
 <p><?php echo $ptitle_ht; ?> <?php echo getShinchakuMatomeATag($aThreadList, $shinchaku_num); ?></p>
 <?php
