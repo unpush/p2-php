@@ -46,4 +46,3 @@ function _makeDenyHtaccess($dir)
         file_put_contents($hta, $data, LOCK_EX);
     }
 }
-?>

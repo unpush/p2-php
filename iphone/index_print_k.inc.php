@@ -10,7 +10,7 @@ function index_print_k()
 {
     global $_conf, $_login;
 
-    $menuKLinkHtmls = getIndexMenuKLinkHtmls($_conf['menuKIni']);
+    $menuKLinkHtmls = getIndexMenuKLinkHtmls(getIndexMenuKIni());
     
     $body = '';
     $ptitle = $_conf['p2name'] . 'iPhone';
