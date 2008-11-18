@@ -302,6 +302,7 @@ dd.respopup{
 /* 080730 ”zF‚¢‚¶‚è‚Ü‚µ‚½ */
 .respopup{
 	position:absolute;
+	top:0;
 	visibility:hidden; /* •’i‚Í‰B‚µ‚Ä‚¨‚­*/
 	background-color: rgba(22,22,22,0.5);
 	color: #FFFFFF;

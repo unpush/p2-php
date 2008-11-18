@@ -161,20 +161,6 @@ class ShowThreadK extends ShowThread
         $date_id    = $resar[2];
         $msg        = $resar[3];
 
-        //iphone 引用してレス
-        //できれば埋め込みしないでアクションがあったときに呼び出したい
-		/* -- 追加ここから -- */
-		$quoteMsg = $msg;
-
-        $matches = null;
-		if(preg_match("/(.*)<a href\=\".+\" target=\"_blank\">(\&gt;)*([0-9]{1,4})<\/a>([\\x00-\\xff]+)/im",$msg,$matches)){
-			$quoteMsg = $matches[1]."&gt;&gt;".$matches[3].$matches[4];
-		}
-
-		// タグ化＆改行にマークしとく
-		$quoteMsg = "\r\n<span class=\"respopup\" id=\"quote_msg".$i."\">".str_replace("<br>","___[br]___&gt;",nl2br($quoteMsg))."</span>\r\n";
-		/* -- 追加 いったんここまで 次 return句まで移動 -- */
-
 		if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
             $name = '';
         }
@@ -333,7 +319,8 @@ EOP;
         }else{
             $is = $i;
         }
-
+        // レスポップアップ用引用
+        $tores .= $rpop; 
         // 番号（オンザフライ時）
         if ($this->thread->onthefly) {
             $GLOBALS['newres_to_show_flag'] = true;
@@ -412,7 +399,7 @@ EOP;
         }
         
         $tores .="<br>\n"; // 日付とID
-        $tores .= $rpop; // レスポップアップ用引用
+        
         $tores .= "{$msg}</div>$hr\n"; // 内容  // iPhone用にhr削除
         
         // まとめてフィルタ色分け
@@ -430,8 +417,22 @@ EOP;
         }
         //080809 スマートポップアップの背景色削除 iPhone用
         $STYLE['respop_bgcolor'] = ""; 
-		/* -- 追加 -- */
-        return $tores.$quoteMsg;
+        /* -- 追加 -- */
+        
+         //iphone 引用してレス
+        //できれば埋め込みしないでアクションがあったときに呼び出したい
+		/* -- 追加ここから -- */
+		$quoteMsg = $msg;
+
+        $matches = null;
+		if(preg_match("/(.*)<a href\=\".+\" target=\"_blank\">(\&gt;)*([0-9]{1,4})<\/a>([\\x00-\\xff]+)/im",$msg,$matches)){
+			$quoteMsg = $matches[1]."&gt;&gt;".$matches[3].$matches[4];
+		}
+
+		// タグ化＆改行にマークしとく
+		$quoteMsg = "\r\n<span class=\"respopup\" id=\"quote_msg".$i."\">".str_replace("<br>","___[br]___&gt;",nl2br($quoteMsg))."</span>\r\n";
+		/* -- 追加 いったんここまで 次 return句まで移動 -- */
+        return $quoteMsg.$tores;
       
     }
     
