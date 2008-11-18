@@ -24,12 +24,16 @@ function getShinchakuMatomeATag($aThreadList, $shinchaku_num)
     
     $attrs = array();
     
+    if (UA::isIPhoneGroup()) {
+        $attrs['class'] = 'button';
+    }
+    
     // 上下あるツールバーの下だけにアクセスキーをつける
     if (!empty($upper_toolbar_done_)) {
         $attrs[$_conf['accesskey']] = $_conf['k_accesskey']['matome'];
     }
     $upper_toolbar_done_ = true;
-
+    
     $qs = array(
         'host'   => $aThreadList->host,
         'bbs'    => $aThreadList->bbs,

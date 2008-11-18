@@ -114,7 +114,7 @@ P2View::printDoctypeTag();
 <head>
 <?php
 P2View::printExtraHeadersHtml();
-echo <<<EOP
+?>
 <style type="text/css" media="screen">@import "./iui/iui.css";</style>
 <script type="text/javascript" src="iphone/js/setfavjs.iphone.js?v=20061206"></script>
 	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
@@ -126,14 +126,13 @@ setTimeout(scrollTo, 100, 0, 1);
 } 
 // --> 
 </script> 
-<title>{$ptitle_hs}</title>
+<title><?php eh($aThreadList->ptitle) ?></title>
 </head>
 <body>
 <div class="toolbar">
-<h1 id="pageTitle">{$ptitle_hs}</h1>
-    </div>
-    
-EOP;
+<h1 id="pageTitle"><?php eh($aThreadList->ptitle) ?></h1>
+</div>
+<?php
 
 P2Util::printInfoHtml();
 
