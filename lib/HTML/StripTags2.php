@@ -89,7 +89,7 @@ class HTML_StripTags2
      *
      * @return  string  HTML
      */
-    public function stripAttributes(array $matches)
+    public function stripAttributes($matches)
     {
         $tag_name = $matches[1];
 
