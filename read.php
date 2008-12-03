@@ -632,16 +632,16 @@ function _printPreview1Html(&$aThread, $params)
     $body = $aThread->previewOne();
     $ptitle_ht = hs($aThread->itaj) . ' / ' . hs($aThread->ttitle_hc);
 
-  	if (UA::isIPhoneGroup()) {
+    if (UA::isIPhoneGroup()) {
         $read_header_inc_php = P2_IPHONE_LIB_DIR . '/read_header_k.inc.php';
         $read_footer_inc_php = P2_IPHONE_LIB_DIR . '/read_footer_k.inc.php';
-	} (UA::isK()) {
+    } elseif (UA::isK()) {
         $read_header_inc_php = P2_LIB_DIR . '/read_header_k.inc.php';
         $read_footer_inc_php = P2_LIB_DIR . '/read_footer_k.inc.php';
-	} else {
+    } else {
         $read_header_inc_php = P2_LIB_DIR . '/read_header.inc.php';
         $read_footer_inc_php = P2_LIB_DIR . '/read_footer.inc.php';
-	}
+    }
     require_once $read_header_inc_php;
 
     echo $body;
