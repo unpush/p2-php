@@ -129,7 +129,7 @@ _includePears(); // void|die
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'P2Util.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'DataPhp.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'session.class.php';
-require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'login.class.php';
+require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'Login.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'UA.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'P2View.php';
 
@@ -465,8 +465,7 @@ if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
 $_p2session = _startSession();
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
-require_once P2_LIB_DIR . '/login.class.php';
-$_login = new Login();
+$_login = new Login;
 
 
 //=============================================================================
