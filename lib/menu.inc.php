@@ -7,7 +7,7 @@
 */
 
 require_once P2_LIB_DIR . '/BrdCtl.php';
-require_once P2_LIB_DIR . '/showbrdmenupc.class.php';
+require_once P2_LIB_DIR . '/ShowBrdMenuPc.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 

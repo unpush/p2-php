@@ -344,7 +344,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     } elseif ($aThread->fav) { // お気にスレ
         ;
     } elseif ($aThread->new) { // 新規スレ
-        $_newthre_num++; // ※showbrdmenupc.class.php
+        $_newthre_num++; // ※ShowBrdMenuPc.php
     } else {
         // 携帯とニュースチェック以外で
         if ($_conf['ktai'] or $spmode != "news") {
