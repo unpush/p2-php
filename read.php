@@ -12,7 +12,7 @@ if (UA::isIPhoneGroup()) {
 
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/ThreadRead.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/NgAbornCtl.php';
 require_once P2_LIB_DIR . '/ShowThread.php';
 require_once P2_LIB_DIR . '/P2Validate.php';

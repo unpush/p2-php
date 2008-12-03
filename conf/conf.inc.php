@@ -715,7 +715,7 @@ function _startSession()
             if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
         
                 if (!is_dir($_conf['session_dir'])) {
-                    require_once P2_LIB_DIR . '/filectl.class.php';
+                    require_once P2_LIB_DIR . '/FileCtl.php';
                     FileCtl::mkdirFor($_conf['session_dir'] . '/dummy_filename');
                 } elseif (!is_writable($_conf['session_dir'])) {
                     die(sprintf(

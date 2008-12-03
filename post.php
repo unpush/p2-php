@@ -11,7 +11,7 @@ if (UA::isIPhoneGroup()) {
     require_once './iphone/conf.inc.php';
 }
 require_once P2_LIB_DIR . '/DataPhp.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/P2Validate.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ

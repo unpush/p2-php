@@ -11,7 +11,7 @@ require_once './iphone/conf.inc.php';
 
 require_once P2_LIB_DIR . '/ThreadList.php';
 require_once P2_LIB_DIR . '/Thread.php';
-require_once P2_LIB_DIR . '/filectl.class.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/P2Validate.php';
 
 require_once P2_LIB_DIR . '/subject.funcs.php';
