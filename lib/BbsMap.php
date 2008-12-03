@@ -1,5 +1,4 @@
 <?php
-require_once P2_LIB_DIR . '/p2util.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
 // {{{ class BbsMap
