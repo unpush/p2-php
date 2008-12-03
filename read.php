@@ -6,6 +6,10 @@
 
 require_once './conf/conf.inc.php';
 
+if (UA::isIPhoneGroup()) {
+    require_once './iphone/conf.inc.php';
+}
+
 require_once P2_LIB_DIR . '/thread.class.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
@@ -178,6 +182,21 @@ $aThread->getThreadInfoFromIdx();
 
 // }}}
 
+/*
+// favlist読み込み
+if ($favlines = @file($_conf['favlist_file'])) {
+    foreach ($favlines as $aline) {
+        $aline = rtrim($aline);
+        $data = explode('<>', $aline);
+        //if ($data[1] == $aThread->key && $data[10] == $aThread->host && $data[11] == $aThread->bbs && $data[6]) {
+        if ($data[1] == $aThread->key && $data[10] == $aThread->host && $data[11] == $aThread->bbs) {
+            $aThread->fav = true;
+            break;
+        }
+    }
+}
+*/
+
 // preview >>1
 if (!empty($_GET['onlyone'])) {
     $params = array('res_filter' => $res_filter);
@@ -264,10 +283,18 @@ if ($_conf['ktai']) {
     }
     
     // ヘッダプリント
-    require_once P2_LIB_DIR . '/read_header_k.inc.php';
+	if (UA::isIPhoneGroup()) {
+    	require_once P2_IPHONE_LIB_DIR . '/read_header_k.inc.php';
+	} else {
+		require_once P2_LIB_DIR . '/read_header_k.inc.php';
+	}
 
     if ($aThread->rescount) {
-        require_once P2_LIB_DIR . '/ShowThreadK.php';
+		if (UA::isIPhoneGroup()) {
+        	require_once P2_IPHONE_LIB_DIR . '/ShowThreadK.php';
+		} else {
+			require_once P2_LIB_DIR . '/ShowThreadK.php';
+		}
         $aShowThread = new ShowThreadK($aThread);
         $aShowThread->datToHtml();
     }
@@ -285,9 +312,11 @@ if ($_conf['ktai']) {
         $ar = getResetReadNaviFooterK($aThread, $params);
         extract($ar); // $read_navi_previous_btm, $read_navi_next_btm, $read_footer_navi_new_btm
     }
-    
-    require_once P2_LIB_DIR . '/read_footer_k.inc.php';
-    
+    if (UA::isIPhoneGroup()) {
+    	require_once P2_IPHONE_LIB_DIR . '/read_footer_k.inc.php';
+	} else {
+		require_once P2_LIB_DIR . '/read_footer_k.inc.php';
+	}
 } else {
 
     // ヘッダ 表示
@@ -322,7 +351,11 @@ function filterCount(n){
     $debug && $profiler->enterSection('datToHtml');
     
     if ($aThread->rescount) {
-        require_once P2_LIB_DIR . '/ShowThreadPc.php';
+		if (UA::isIPhoneGroup()) {
+        	require_once P2_IPHONE_LIB_DIR . '/ShowThreadPc.php';
+		} else {
+			require_once P2_LIB_DIR . '/ShowThreadPc.php';
+		}
         $aShowThread = new ShowThreadPc($aThread);
         
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
@@ -354,8 +387,11 @@ if (filerstart) {
     }
     
     // フッタHTML 表示
-    require_once P2_LIB_DIR . '/read_footer.inc.php';
-
+	if (UA::isIPhoneGroup()) {
+    	require_once P2_IPHONE_LIB_DIR . '/read_footer.inc.php';
+	} else {
+		require_once P2_LIB_DIR . '/read_footer.inc.php';
+	}
 }
 
 //=================================
@@ -596,15 +632,16 @@ function _printPreview1Html(&$aThread, $params)
     $body = $aThread->previewOne();
     $ptitle_ht = hs($aThread->itaj) . ' / ' . hs($aThread->ttitle_hc);
 
-    // PC
-    if (empty($GLOBALS['_conf']['ktai'])) {
-        $read_header_inc_php = P2_LIB_DIR . '/read_header.inc.php';
-        $read_footer_inc_php = P2_LIB_DIR . '/read_footer.inc.php';
-    // 携帯
-    } else {
+  	if (UA::isIPhoneGroup()) {
+        $read_header_inc_php = P2_IPHONE_LIB_DIR . '/read_header_k.inc.php';
+        $read_footer_inc_php = P2_IPHONE_LIB_DIR . '/read_footer_k.inc.php';
+	} (UA::isK()) {
         $read_header_inc_php = P2_LIB_DIR . '/read_header_k.inc.php';
         $read_footer_inc_php = P2_LIB_DIR . '/read_footer_k.inc.php';
-    }
+	} else {
+        $read_header_inc_php = P2_LIB_DIR . '/read_header.inc.php';
+        $read_footer_inc_php = P2_LIB_DIR . '/read_footer.inc.php';
+	}
     require_once $read_header_inc_php;
 
     echo $body;

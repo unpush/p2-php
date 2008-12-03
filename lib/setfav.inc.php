@@ -17,7 +17,7 @@ require_once P2_LIB_DIR . '/P2Validate.php';
 /**
  * お気にスレをセットする関数
  *
- * $setfav は、0(解除), 1(追加), top, up, down, bottom
+ * $setfav は、'0'(解除), '1'(追加), 'top', 'up', 'down', 'bottom'
  *
  * @access  public
  * @return  boolean
@@ -30,13 +30,11 @@ function setFav($host, $bbs, $key, $setfav)
         return false;
     }
     
-    // idxfileのパスを求めて
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
-
+    $idxfile = P2Util::getKeyIdxFilePath($host, $bbs, $key);
+    
     // 板ディレクトリが無ければ作る
     // FileCtl::mkdirFor($idxfile);
-    
+
     $data = array();
     
     // 既にidxデータがあるなら読み込む
@@ -57,7 +55,7 @@ function setFav($host, $bbs, $key, $setfav)
     
     // {{{ スレッド.idx 記録
     
-    if ($setfav == '0' or $setfav == '1') {
+    if ($setfav == '0' || $setfav == '1') {
     
         // お気にスレから外した結果、idxの意味がなくなれば削除する
         if ($setfav == '0' and (empty($data[3]) && empty($data[4]) && $data[9] <= 1)) {
@@ -121,38 +119,53 @@ function setFav($host, $bbs, $key, $setfav)
         $rec_lines = $neolines;
     }
     
-    $cont = '';
-    if (!empty($rec_lines)) {
-        foreach ($rec_lines as $l) {
-            $cont .= $l . "\n";
-        }
-    }
-    
-    // 書き込む
-    if (file_put_contents($_conf['favlist_file'], $cont, LOCK_EX) === false) {
-        trigger_error("file_put_contents(" . $_conf['favlist_file'] . ")", E_USER_WARNING);
+    if (false === file_put_contents(
+            $_conf['favlist_file'],
+            $rec_lines ? implode("\n", $rec_lines) . "\n" : '',
+            LOCK_EX
+        )
+    ) {
+        trigger_error(
+            sprintf('file_put_contents(%s)', $_conf['favlist_file']),
+            E_USER_WARNING
+        );
         die('Error: cannot write file.');
         return false;
     }
 
     // お気にスレ共有
-    if ($_conf['join_favrank']) {
-        $act = '';
-        if ($setfav == "0") {
-            $act = "out";
-        } elseif ($setfav == "1") {
-            $act = "add";
-        }
-        if ($act) {
-            $itaj = P2Util::getItaName($host, $bbs);
-            postFavRank(array(
-                'host' => $host, 'bbs' => $bbs, 'key' => $key,
-                'ttitle' => $data[0], 'ita' => $itaj, 'act' => $act
-            ));
-        }
-    }
-
+    _setFavRank($host, $bbs, $key, $setfav, $data[0]);
+    
     return true;
+}
+
+/**
+ * お気にスレ共有
+ *
+ * @return  boolean|null
+ */
+function _setFavRank($host, $bbs, $key, $setfav, $ttitle)
+{
+    global $_conf;
+    
+    if (!$_conf['join_favrank']) {
+        return null;
+    }
+    
+    if ($setfav == '0') {
+        $act = 'out';
+    } elseif ($setfav == '1') {
+        $act = 'add';
+    } else {
+        return null;
+    }
+    
+    return _postFavRank(array(
+        'host' => $host, 'bbs' => $bbs, 'key' => $key,
+        'ttitle' => $ttitle,
+        'ita' => P2Util::getItaName($host, $bbs),
+        'act' => $act
+    ));
 }
 
 /**
@@ -160,7 +173,7 @@ function setFav($host, $bbs, $key, $setfav)
  *
  * @return  boolean
  */
-function postFavRank($post)
+function _postFavRank($post)
 {
     global $_conf;
 
@@ -185,7 +198,7 @@ function postFavRank($post)
         $send_path = $URL['path'].$URL['query'];
     }
     
-    if (!$send_port) {$send_port = 80;}
+    if (!$send_port) { $send_port = 80; }
     
     $request = "$method $send_path HTTP/1.0" . "\r\n";
     $request .= "Host: " . $URL['host'] . "\r\n";
@@ -220,4 +233,3 @@ function postFavRank($post)
     return true;
     //return $body;
 }
-

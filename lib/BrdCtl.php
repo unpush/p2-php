@@ -114,7 +114,7 @@ class BrdCtl
                 $_conf['brdfile_online'], $cachefile,
                 array('disp_error' => true, 'use_tmp_file' => true)
             );
-            if ($brdfile_online_res->is_success() && $brdfile_online_res->code != '304') {
+            if ($brdfile_online_res and $brdfile_online_res->is_success() && $brdfile_online_res->code != '304') {
                 $isNewDL = true;
             }
         }

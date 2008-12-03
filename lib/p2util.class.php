@@ -562,9 +562,18 @@ class P2Util
      * @access  public
      * @return  string
      */
+    function getKeyIdxFilePath($host, $bbs, $key)
+    {
+        return P2Util::idxDirOfHost($host) . '/' . $bbs . '/' . $key . '.idx';
+    }
+    
+    /**
+     * @access  public
+     * @return  string
+     */
     function escapeDirPath($dir_path)
     {
-        // 本当はrawurlencodeしたいが、後方互換性を残すため控えている
+        // 本当はrawurlencode()にしたいが、後方互換性を残すため控えている
         //$dir_path = str_replace('%2F', '/', rawurlencode($dir_path));
         $dir_path = preg_replace('|\.+/|', '', $dir_path);
         $dir_path = preg_replace('|:+//|', '', $dir_path); // mkdir()が「://」をカレントディレクトリであるとみなす？
