@@ -11,7 +11,7 @@ if (UA::isIPhoneGroup()) {
 }
 
 require_once P2_LIB_DIR . '/Thread.php';
-require_once P2_LIB_DIR . '/threadread.class.php';
+require_once P2_LIB_DIR . '/ThreadRead.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/NgAbornCtl.php';
 require_once P2_LIB_DIR . '/ShowThread.php';
