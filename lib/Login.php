@@ -1,6 +1,6 @@
 <?php
 require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/session.class.php';
+require_once P2_LIB_DIR . '/Session.php';
 
 /**
  * p2 - ログイン認証を扱うクラス
