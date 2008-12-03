@@ -14,7 +14,7 @@ $shinchaku_num = 0;
 $_newthre_num  = 0;
 
 //require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/threadlist.class.php';
+require_once P2_LIB_DIR . '/ThreadList.php';
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
