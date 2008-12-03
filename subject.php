@@ -870,7 +870,7 @@ function _setFilterWord()
             if (!$GLOBALS['wakati_words']) {
                 unset($GLOBALS['wakati_word'], $GLOBALS['wakati_words']);
             } else {
-                require_once P2_LIB_DIR . '/strctl.class.php';
+                require_once P2_LIB_DIR . '/StrCtl.php';
                 $wakati_words2 = array_filter($GLOBALS['wakati_words'], '_wakatiFilter');
             
                 if (!$wakati_words2) {
@@ -907,7 +907,7 @@ function _setFilterWord()
             // デフォルトオプション
             if (!$sb_filter['method']) { $sb_filter['method'] = "or"; } // $sb_filter は global @see sb_print.icn.php
         
-            require_once P2_LIB_DIR . '/strctl.class.php';
+            require_once P2_LIB_DIR . '/StrCtl.php';
             $GLOBALS['word_fm'] = StrCtl::wordForMatch($GLOBALS['word'], $sb_filter['method']);
             if ($sb_filter['method'] != 'just') {
                 if (P2_MBREGEX_AVAILABLE == 1) {

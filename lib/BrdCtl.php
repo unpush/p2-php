@@ -198,7 +198,7 @@ class BrdCtl
         }
         */
         
-        require_once P2_LIB_DIR . '/strctl.class.php';
+        require_once P2_LIB_DIR . '/StrCtl.php';
         // andåüçıÇ≈ÇÊÇÎÇµÇ≠Åiê≥ãKï\åªÇ≈ÇÕÇ»Ç¢Åj
         $word_fm = StrCtl::wordForMatch($word, 'and');
         if (P2_MBREGEX_AVAILABLE == 1) {

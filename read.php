@@ -95,7 +95,7 @@ if (strlen($GLOBALS['word'])) {
     if (empty($GLOBALS['res_filter']['method'])) { $GLOBALS['res_filter']['method'] = "or"; }
 
     if (!($GLOBALS['res_filter']['method'] == 'regex' && preg_match('/^\.+$/', $GLOBALS['word']))) {
-        require_once P2_LIB_DIR . '/strctl.class.php';
+        require_once P2_LIB_DIR . '/StrCtl.php';
         $GLOBALS['word_fm'] = StrCtl::wordForMatch($GLOBALS['word'], $GLOBALS['res_filter']['method']);
         if ($GLOBALS['res_filter']['method'] != 'just') {
             if (P2_MBREGEX_AVAILABLE == 1) {
