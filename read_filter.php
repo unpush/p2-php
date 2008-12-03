@@ -5,7 +5,7 @@
 define('P2_READ_FILTER_WRAPPER', 1);
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ

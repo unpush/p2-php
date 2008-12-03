@@ -27,7 +27,7 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
         $resv['MESSAGE'] = '>>' . $q_resnum . "\r\n";
     }
     if (!empty($_GET['inyou'])) {
-        require_once P2_LIB_DIR . '/thread.class.php';
+        require_once P2_LIB_DIR . '/Thread.php';
         require_once P2_LIB_DIR . '/threadread.class.php';
         $aThread = new ThreadRead;
         $aThread->setThreadPathInfo($host, $bbs, $key);

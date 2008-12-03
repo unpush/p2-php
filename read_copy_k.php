@@ -5,7 +5,7 @@
 // p2 - 携帯版レスコピペ用フォーム
 
 require_once 'conf/conf.inc.php';
-require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 
 $_login->authorize(); // ユーザ認証

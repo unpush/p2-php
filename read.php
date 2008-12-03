@@ -10,7 +10,7 @@ if (UA::isIPhoneGroup()) {
     require_once './iphone/conf.inc.php';
 }
 
-require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 require_once P2_LIB_DIR . '/NgAbornCtl.php';

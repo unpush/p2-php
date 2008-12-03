@@ -8,7 +8,7 @@ require_once './conf/conf.inc.php';
 require_once './iphone/conf.inc.php';
 
 require_once P2_LIB_DIR . '/threadlist.class.php';
-require_once P2_LIB_DIR . '/thread.class.php';
+require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/threadread.class.php';
 require_once P2_LIB_DIR . '/NgAbornCtl.php';
 require_once P2_LIB_DIR . '/read_new.inc.php';
