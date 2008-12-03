@@ -1,10 +1,10 @@
 <?php
 require_once P2_LIB_DIR . '/filectl.class.php';
-require_once P2_LIB_DIR . '/brdmenu.class.php';
+require_once P2_LIB_DIR . '/BrdMenu.php';
 
 /**
  * p2 - 板リストコントロールクラス for menu.php
- * スタティックメソッドで利用している
+ * staticメソッドで利用している
  *
  * BrdUtil に改名したい気分
  */
