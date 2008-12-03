@@ -3,7 +3,7 @@
     p2 -  スレッド表示 -  フッタ部分 -  for read.php
 */
 
-require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/DataPhp.php';
 
 //=====================================================================
 // フッタ

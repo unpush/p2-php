@@ -1,5 +1,5 @@
 <?php
-require_once P2_LIB_DIR . '/dataphp.class.php';
+require_once P2_LIB_DIR . '/DataPhp.php';
 require_once P2_LIB_DIR . '/filectl.class.php';
 
 /**
@@ -894,7 +894,7 @@ class P2Util
         }
 
         if (is_readable($_conf['p2_res_hist_dat_php'])) {
-            require_once P2_LIB_DIR . '/dataphp.class.php';
+            require_once P2_LIB_DIR . '/DataPhp.php';
             if ($cont = DataPhp::getDataPhpCont($_conf['p2_res_hist_dat_php'])) {
                 // ƒ^ƒu‹æØ‚è‚©‚ç<>‹æØ‚è‚É•ÏX‚·‚é
                 $cont = str_replace("\t", "<>", $cont);

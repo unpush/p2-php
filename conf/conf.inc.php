@@ -127,7 +127,7 @@ _iniSetIncludePath(); // void
 _includePears(); // void|die
 
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'p2util.class.php';
-require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'dataphp.class.php';
+require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'DataPhp.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'session.class.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'login.class.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'UA.php';
