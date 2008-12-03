@@ -1554,7 +1554,7 @@ EOP;
         }
         
         if (!isset($gethostbyaddr_)) {
-            require_once P2_LIB_DIR . '/hostcheck.class.php';
+            require_once P2_LIB_DIR . '/HostCheck.php';
             $gethostbyaddr_ = HostCheck::cachedGetHostByAddr($_SERVER['REMOTE_ADDR']);
         }
         

@@ -60,7 +60,7 @@ function printLoginFirst(&$_login)
     // {{{ ï‚èïîFèÿ
     
     $mobile = &Net_UserAgent_Mobile::singleton();
-    require_once P2_LIB_DIR . '/hostcheck.class.php';
+    require_once P2_LIB_DIR . '/HostCheck.php';
     
     // EZîFèÿ
     if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {

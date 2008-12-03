@@ -189,7 +189,7 @@ if (PEAR::isError($mobile)) {
 // UAが携帯なら
 } elseif ($mobile and !$mobile->isNonMobile()) {
 
-    require_once P2_LIB_DIR . '/hostcheck.class.php';
+    require_once P2_LIB_DIR . '/HostCheck.php';
     
     $_conf['ktai'] = true;
     $_conf['accept_charset'] = 'Shift_JIS';
@@ -451,7 +451,7 @@ if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
 // {{{ ホストチェック
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once P2_LIB_DIR . '/hostcheck.class.php';
+    require_once P2_LIB_DIR . '/HostCheck.php';
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == FALSE) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == TRUE)
     ) {

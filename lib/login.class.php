@@ -818,7 +818,7 @@ EOP;
         //$seed = $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
         $seed = $_SERVER['SERVER_SOFTWARE'];
         
-        require_once P2_LIB_DIR . '/hostcheck.class.php';
+        require_once P2_LIB_DIR . '/HostCheck.php';
         
         // ローカルチェックをして、HostCheck::isAddrDocomo() などでホスト名を引く機会を減らす
         $notK = (bool)(HostCheck::isAddrLocal() || HostCheck::isAddrPrivate());
