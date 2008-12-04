@@ -76,8 +76,6 @@ function getMatomeCache($num = '')
     
     if (strlen($cont) > 0) {
         return $cont;
-    } else {
-        return false;
     }
+    return false;
 }
-

@@ -3,52 +3,45 @@
 // 全般
 
 if ($STYLE['a_underline_none'] == 1) {
-    $a_underline_none_css = 'a{ text-decoration:none; }';
+	$a_underline_none_css = 'a{ text-decoration:none; }';
 } else {
     $a_underline_none_css = '';
 }
 
-echo <<<EOP
-<style type="text/css" media="all">
-<!--
-EOP;
-
-// ブラウザが Camino なら
-if (strstr($_SERVER['HTTP_USER_AGENT'], "Camino") || strstr($_SERVER['HTTP_USER_AGENT'], "Chimera")) {
+/* ブラウザが Camino なら */
+if (strstr($_SERVER['HTTP_USER_AGENT'], 'Camino') || strstr($_SERVER['HTTP_USER_AGENT'], 'Chimera')) { 
 	echo <<<EOP
 	input,option,select{
 		font-size:10px;
 		font-family:"Osaka"; /*  Camino ではフォームのフォントにヒラギノを指定するとline-heightが崩れる */
-	}
+	}\n
 EOP;
 } else {
 	echo <<<EOP
 	input,option,select{
 		font-size:{$STYLE['form_fontsize']};
-	}
+	}\n
 EOP;
 }
 
 if (isset($STYLE['fontfamily_bold'])) {
 	echo <<<EOP
-	b{
-        font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}";
-    }
+	b, strong{
+        font-weight:normal;font-family:"{$STYLE['fontfamily_bold']}";
+    }\n
 EOP;
 }
 
 $STYLE['background'] = isset($STYLE['background']) ? $STYLE['background'] : '';
 $STYLE['fontfamily'] = isset($STYLE['fontfamily']) ? $STYLE['fontfamily'] : '';
 
-
 echo <<<EOP
 
 body{
-	background:{$STYLE['bgcolor']};
+	background:{$STYLE['bgcolor']} {$STYLE['background']};
 }
 body,td{
-	line-height:135%;
-	font-size:{$STYLE['fontsize']};
+	line-height:130%;
 	color:{$STYLE['textcolor']};
 	font-family:"{$STYLE['fontfamily']}";
 }
@@ -79,14 +72,22 @@ div.container{
 	border:solid 1px #999;
 }
 
-.filtering{ background-color:yellow; } /* フィルタのワード色分け */
+.filtering{background-color:yellow;} /* フィルタのワード色分け */
 
 form.inline-form {
 	display: inline;
 }
 
--->
-</style>
-
 EOP;
-?>
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -71,7 +71,7 @@ function sb_print_k(&$aThreadList)
 
     // }}}
     */
-    
+
     //=====================================================
     // ボディ
     //=====================================================
@@ -115,7 +115,7 @@ function sb_print_k(&$aThreadList)
             if (!$aThread->isonline) {
                 // 誤動作防止のためログ削除操作をロック
                 $unum_ht = "-"; 
-            }    
+            }
 
             $unum_ht = "[" . $unum_ht . "]";
         }
@@ -127,7 +127,8 @@ function sb_print_k(&$aThreadList)
             $unum_ht = "<font color=\"#ff0000\">新</font>";
         }
 
-        // 板名
+        // {{{ 板名
+        
         $ita_name_ht = '';
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
@@ -155,6 +156,8 @@ function sb_print_k(&$aThreadList)
             
         }
         
+        // }}}
+        
         // torder(info) =================================================
         /*
         // お気にスレ
@@ -167,16 +170,15 @@ function sb_print_k(&$aThreadList)
         */
         $torder_ht = $aThread->torder;
         
-        // title =================================================        
-        $rescount_q = "&amp;rc=" . $aThread->rescount;
+        // title =========================================================
+        $rescount_qs = array('rc' => $aThread->rescount);
+        $offline_qs  = array();
         
         // dat倉庫 or 殿堂なら
         if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") { 
-            $rescount_q = "";
-            $offline_q = "&amp;offline=true";
-            $anum_ht = "";
-        } else {
-            $offline_q = '';
+            $rescount_qs = array();
+            $offline_qs  = array('offline' => '1');
+            $anum_ht = '';
         }
         
         // タイトル未取得なら
@@ -188,7 +190,7 @@ function sb_print_k(&$aThreadList)
                 $aThread->ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
             //}
         }
-        
+
         // 全角英数カナスペースを半角に
         if ($_conf['k_save_packet']) {
             $aThread->ttitle_ht = mb_convert_kana($aThread->ttitle_ht, 'rnsk');
@@ -203,16 +205,33 @@ function sb_print_k(&$aThreadList)
         }
         
         // 新規スレ
-        if ($aThread->new) {
-            $classtitle_q = " class=\"thre_title_new\"";
+        if ($aThread->new) { 
+            $classtitle_q = ' class="thre_title_new"';
         } else {
-            $classtitle_q = " class=\"thre_title\"";
+            $classtitle_q = ' class="thre_title"';
         }
 
-        $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
-    
+        $thre_url = P2Util::buildQueryUri($_conf['read_php'],
+            array_merge(array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
+                UA::getQueryKey() => UA::getQueryValue()
+            ), $rescount_qs, $offline_qs)
+        ) . $anum_ht;
+        
         // オンリー>>1
-        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true&amp;k_continue=1{$_conf['k_at_a']}";
+        $onlyone_url = P2Util::buildQueryUri($_conf['read_php'],
+            array_merge(array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
+                'onlyone' => '1',
+                'k_continue' => '1',
+                UA::getQueryKey() => UA::getQueryValue()
+            ), $rescount_qs)
+        );
+        
         if ($onlyone_bool) {
             $one_ht = "<a href=\"{$onlyone_url}\">&gt;&gt;1</a>";
         }

@@ -89,6 +89,7 @@ _setOSDefine();
 
 // }}}
 
+
 // 文字コードの指定
 _setEncodings();
 
@@ -210,16 +211,16 @@ if (PEAR::isError($mobile)) {
             P2Util::printSimpleHtml("p2 error: UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
             die;
         }
-        $_conf['disable_cookie'] = FALSE;
+        $_conf['disable_cookie'] = false;
         
     // SoftBank(旧Vodafone Live!)
     } elseif ($mobile->isSoftBank()) {
         //$_conf['accesskey'] = 'DIRECTKEY';
         // W型端末と3GC型端末はCookieが使える
         if ($mobile->isTypeW() || $mobile->isType3GC()) {
-            $_conf['disable_cookie'] = FALSE;
+            $_conf['disable_cookie'] = false;
         } else {
-            $_conf['disable_cookie'] = TRUE;
+            $_conf['disable_cookie'] = true;
         }
         if ($_conf['login_check_ip'] && !HostCheck::isAddrSoftBank()) {
             P2Util::printSimpleHtml("p2 error: UAがSoftBankですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
@@ -235,26 +236,32 @@ if (PEAR::isError($mobile)) {
             die;
         }
         */
-        $_conf['disable_cookie'] = FALSE;
+        $_conf['disable_cookie'] = false;
         
     // その他
     } else {
-        $_conf['disable_cookie'] = TRUE;
+        $_conf['disable_cookie'] = true;
     }
-
-// 携帯表示対象
-} elseif (UA::isK()) {
-    $_conf['ktai'] = true;
-} elseif (UA::isIPhoneGroup()) {
-    $_conf['ktai'] = true;
-    UA::setForceMode(UA::getMobileQuery());
 }
 
+// IPhone指定
+if (UA::isIPhoneGroup()) {
+    $_conf['ktai'] = true;
+    UA::setForceMode(UA::getMobileQuery());
+
+    define('P2_IPHONE_LIB_DIR', './iphone');
+
+    $_conf['ktai']           = true;
+    $_conf['subject_php']    = 'subject_i.php';
+    $_conf['read_new_k_php'] = 'read_new_i.php';
+    $_conf['menu_k_php']     = 'menu_i.php';
+    $_conf['editpref_php']   = 'editpref_i.php';
+}
 
 // }}}
 // {{{ クエリーによる強制ビュー指定
 
-// b=pc はまだリンク先が完全でない
+// b=pc はまだ全てのリンクに追加されておらず、機能しない場合がある。地道に整備していきたい。
 // output_add_rewrite_var() は便利だが、出力がバッファされて体感速度が落ちるのが難点。。
 // 体感速度を落とさない良い方法ないかな？
 
@@ -313,7 +320,7 @@ $_conf = array_merge($_conf, $conf_user_def);
 // ユーザ設定があれば読み込む
 $_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.srd.cgi';
 
-// 旧形式ファイルをコピー
+// 2006-02-27 旧形式ファイルをコピー
 $conf_user_file_old = $_conf['pref_dir'] . '/conf_user.inc.php';
 if (!file_exists($_conf['conf_user_file']) && file_exists($conf_user_file_old)) {
     $old_cont = DataPhp::getDataPhpCont($conf_user_file_old);
@@ -331,9 +338,14 @@ if (file_exists($_conf['conf_user_file'])) {
 
 // }}}
 
-if (file_exists("./conf/conf_user_style.inc.php")) {
-    include_once "./conf/conf_user_style.inc.php"; // デザイン設定 読込
-}
+$_conf['conf_user_style_inc_php']    = "./conf/conf_user_style.inc.php";
+
+// デザイン設定（$STYLE）読み込み
+
+$_conf['skin_setting_path'] = $_conf['pref_dir'] . '/' . 'p2_user_skin.txt';
+$_conf['skin_setting_perm'] = 0606;
+
+_setStyle(); // $STYLE
 
 // {{{ デフォルト設定
 
@@ -383,7 +395,7 @@ if ($_conf['get_new_res']) {
 // }}}
 
 if ($_conf['mobile.match_color']) {
-    $_conf['k_filter_marker'] = "<font color=\"" . htmlspecialchars($_conf['mobile.match_color'], ENT_QUOTES) . "\">\\0</font>";
+    $_conf['k_filter_marker'] = "<font color=\"" . htmlspecialchars($_conf['mobile.match_color'], ENT_QUOTES) . '">\\0</font>';
 } else {
     $_conf['k_filter_marker'] = null;
 }
@@ -411,6 +423,7 @@ if ($_conf['output_callback']) {
 // ob_gzhandler 利用時、バッファがある状態で、flush()してしまうとgzip転送にならなくなる。直前にob_flush()を入れるとOK。
 //ob_flush();
 //print_r(ob_list_handlers());
+//print_r(getallheaders());
 
 //======================================================================
 // 変数設定
@@ -516,7 +529,7 @@ function nullfilterR($var, $r = 0)
 /**
  * メモリの使用量を表示する
  *
- * @return void
+ * @return  void
  */
 function printMemoryUsage()
 {
@@ -665,6 +678,37 @@ function _setOSDefine()
 }
 
 /**
+ * @return  void
+ */
+function _setStyle()
+{
+    global $_conf, $STYLE;
+    
+    // デフォルトCSS設定（$STYLE）を読み込む
+    include_once $_conf['conf_user_style_inc_php'];
+
+    if ($_conf['skin'] = P2Util::getSkinSetting()) {
+        // スキンで$STYLEを上書き
+        include_once P2Util::getSkinFilePathBySkinName($_conf['skin']);
+    }
+
+    // $STYLE設定の調整処理
+    //if ($_SERVER['SCRIPT_NAME'] == 'css.php') {
+        foreach ($STYLE as $k => $v) {
+            if (empty($v)) {
+                $STYLE[$k] = '';
+            } elseif (strpos($k, 'fontfamily') !== false) {
+                $STYLE[$k] = p2_correct_css_fontfamily($v);
+            } elseif (strpos($k, 'color') !== false) {
+                $STYLE[$k] = p2_correct_css_color($v);
+            } elseif (strpos($k, 'background') !== false) {
+                $STYLE[$k] = 'url("' . addslashes($v) . '")';
+            }
+        }
+    //}
+}
+
+/**
  * フォームからの入力を一括でクォート除去＆文字コード変換
  * フォームのaccept-encoding属性をUTF-8(Safari系) or Shift_JIS(その他)にし、
  * さらにhidden要素で美乳テーブルの文字を仕込むことで誤判定を減らす
@@ -705,7 +749,6 @@ function _startSession()
         $_conf['session_dir'] = P2_DATA_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'session';
     }
 
-
     // css.php は特別にセッションから外す。
     //if (basename($_SERVER['SCRIPT_NAME']) != 'css.php') {
         if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && empty($_COOKIE['cid']))) { 
@@ -713,7 +756,7 @@ function _startSession()
             // {{{ セッションデータ保存ディレクトリを設定
         
             if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
-        
+
                 if (!is_dir($_conf['session_dir'])) {
                     require_once P2_LIB_DIR . '/FileCtl.php';
                     FileCtl::mkdirFor($_conf['session_dir'] . '/dummy_filename');
@@ -732,7 +775,7 @@ function _startSession()
             }
         
             // }}}
-            
+
             return new Session;
         }
     //}

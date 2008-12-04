@@ -17,7 +17,6 @@ if (!empty($_GET['dl_res_hist_log'])) {
     exit;
 }
 
-
 // 書き込んだレスのログ削除
 _clearResHistLogByQuery();
 
@@ -37,8 +36,12 @@ $synctitle = array(
 // }}}
 // {{{ 設定変更処理
 
+// スキン変更があれば、設定ファイルを書き換えてリロード
+if (isset($_POST['skin'])) {
+    _updateSkinSetting($_POST['skin']);
+
 // ホストを同期する
-if (isset($_POST['sync'])) {
+} elseif (isset($_POST['sync'])) {
     require_once P2_LIB_DIR . '/BbsMap.php';
     $syncfile = $_conf['pref_dir'] . '/' . $_POST['sync'];
     $sync_name = $_POST['sync'];
@@ -102,7 +105,6 @@ P2View::printExtraHeadersHtml();
 ?>
 <title><?php eh($ptitle); ?></title>
 <?php
-
 if (!$_conf['ktai']) {
     P2View::printIncludeCssHtml('style');
     P2View::printIncludeCssHtml('editpref');
@@ -117,7 +119,6 @@ if (!$_conf['ktai']) {
 //<p id="pan_menu"><a href="setting.php">設定</a> &gt; {$ptitle}</p>
     ?><p id="pan_menu"><?php eh($ptitle); ?></p><?php
 }
-
 
 P2Util::printInfoHtml();
 
@@ -187,9 +188,19 @@ EOP;
 </fieldset>\n
 EOP;
 
-    echo "</td></tr>";
+    ?></td></tr><?php
     
     // }}}
+
+    ?><tr><td colspan="2"><?php
+    echo <<<EOP
+<fieldset>
+<legend>スキン</legend>\n
+EOP;
+    _printSkinSelectFormHtml($_conf['skin_setting_path'], '変更');
+
+    ?></fieldset><?php
+
     // {{{ PC - その他 の設定
     
     /*
@@ -205,10 +216,11 @@ EOP;
 </fieldset>\n
 EOP;
     */
-    
+    ?></td></tr><?php
+
     // }}}
     
-    echo "</table>\n";
+    ?></table><?php
 }
 
 // 携帯用表示 NG/ｱﾎﾞﾝﾜｰﾄﾞ
@@ -221,6 +233,7 @@ if ($_conf['ktai']) {
     $aborn_mail_txt_bn  = basename($aborn_mail_txt);
     $aborn_msg_txt_bn   = basename($aborn_msg_txt);
     $aborn_id_txt_bn    = basename($aborn_id_txt);
+
     echo <<<EOP
 <p>NG/ｱﾎﾞﾝﾜｰﾄﾞ編集</p>
 <form method="GET" action="edit_aborn_word.php">
@@ -403,7 +416,10 @@ function _printEditFileHtml($path_value, $submit_value)
     global $_conf;
     
     // アクティブ
-    if ((file_exists($path_value) && is_writable($path_value)) || (!file_exists($path_value) && is_writable(dirname($path_value)))) {
+    if (
+        (file_exists($path_value) && is_writable($path_value))
+        || (!file_exists($path_value) && is_writable(dirname($path_value)))
+    ) {
         $onsubmit = '';
         $disabled = '';
     
@@ -444,13 +460,62 @@ function _printEditFileHtml($path_value, $submit_value)
 	<input type="submit" value="{$submit_value}"{$disabled}>
 </form>\n
 EOFORM;
-        // IE用にform内のタグ間の空白を除去　する
+        // IE用にform HTML内のタグ間の空白を除去整形する
         if (strstr(geti($_SERVER['HTTP_USER_AGENT']), 'MSIE')) {
             $html = '&nbsp;' . preg_replace('{>\s+<}', '><', $html);
         }
     }
     
     echo $html;
+}
+
+/**
+ * スキンの選択用フォームHTMLを表示する
+ *
+ * @return  void
+ */
+function _printSkinSelectFormHtml($path_value, $submit_value)
+{
+    global $_conf;
+    
+    $onsubmit = '';
+    $disabled = '';
+    if (
+        !$_conf['enable_skin']
+    ) {
+        $onsubmit = ' onsubmit="return false;"';
+        $disabled = ' disabled';
+    }
+    
+    $skindir = dir(P2_SKIN_DIR);
+    $skins = array();
+    
+    while (false !== $ent = $skindir->read()) {
+        if (preg_match('/^(\w+)\.php/', $ent, $name)) {
+            $skins[$name[1]] = $name[1];
+        }
+    }
+    
+    echo <<<EOFORM
+<form action="{$_conf['editpref_php']}" method="POST" target="_self" class="inline-form"{$onsubmit}>
+    {$_conf['k_input_ht']}
+    <input type="hidden" name="path" value="{$path_value}"{$disabled}>
+    <select name="skin"{$disabled}>\n
+EOFORM;
+
+    $default = '';
+    $selected = ($_conf['skin'] == $default) ? ' selected' : '';
+    echo "\t\t<option value=\"{$default}\"{$selected}>標準</option>\n";
+
+    foreach ($skins as $name => $path) {
+        $selected = ($_conf['skin'] == $path) ? ' selected' : '';
+        echo "\t\t<option value=\"{$path}\"{$selected}>{$name}</option>\n";
+    }
+    echo <<<EOFORM
+    </select>
+    <input type="submit" value="{$submit_value}"{$disabled}>
+</form>\n
+EOFORM;
 }
 
 /**
@@ -475,6 +540,38 @@ EOFORM;
         $ht = '&nbsp;' . preg_replace('/>\s+</', '><', $ht);
     }
     return $ht;
+}
+
+/**
+ * スキン設定を更新し、ページをリロードする
+ *
+ * @return  false  成功すれば、そのままページリダイレクトされる
+ */
+function _updateSkinSetting($newskin)
+{
+    global $_conf;
+    
+    if ($newskin !== '') {
+        if (!preg_match('/^\w+$/', $newskin)) {
+            P2Util::pushInfoHtml(sprintf("<p>p2 error: 不正なスキン (%s) が指定されました。</p>", hs($newskin)));
+            return false;
+        }
+        
+        $skinFilePath = P2Util::getSkinFilePathBySkinName($newskin);
+        if (!file_exists($skinFilePath)) {
+            P2Util::pushInfoHtml(sprintf("<p>p2 error: 不正なスキン (%s) が指定されました。</p>", hs($newskin)));
+            return false;
+        }
+    }
+    FileCtl::make_datafile($_conf['skin_setting_path'], $_conf['skin_setting_perm']);
+    if (false === file_put_contents($_conf['skin_setting_path'], $newskin, LOCK_EX)) {
+        P2Util::pushInfoHtml("<p>p2 error: スキン設定を書き込めませんでした。</p>");
+        return false;
+    }
+    
+    $sid_q = (defined('SID') && strlen(SID)) ? '&' . SID : '';
+    header("Location: {$_SERVER['SCRIPT_NAME']}?reload_skin=1" . $sid_q);
+    exit;
 }
 
 /**

@@ -145,11 +145,16 @@ class P2View
      */
     function printIncludeCssHtml($css)
     {
-        global $STYLE, $_conf;
-        
-        $dir = './style';
-        $file = $dir . '/' . $css . '_css.inc';
-        include_once $file;
+        global $_conf, $_login;
+
+        $href = P2Util::buildQueryUri('css.php',
+            array(
+                'css'  => $css,
+                'user' => $_login->user_u,
+                'skin' => $_conf['skin']
+            )
+        );
+        ?><link rel="stylesheet" type="text/css" href="<?php eh($href); ?>"><?php
     }
     
     /**

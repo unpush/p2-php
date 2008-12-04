@@ -29,51 +29,10 @@ function setFav($host, $bbs, $key, $setfav)
     if (P2Validate::host($host) || P2Validate::bbs($bbs) || P2Validate::key($key)) {
         return false;
     }
-    
-    $idxfile = P2Util::getKeyIdxFilePath($host, $bbs, $key);
-    
-    // 板ディレクトリが無ければ作る
-    // FileCtl::mkdirFor($idxfile);
 
-    $data = array();
-    
-    // 既にidxデータがあるなら読み込む
-    if (file_exists($idxfile) and $lines = file($idxfile)) {
-        $l = rtrim($lines[0]);
-        $data = explode('<>', $l);
-    }
+    // スレッド.idx 記録
+    $data = _setFavToKeyIdx($host, $bbs, $key, $setfav);
 
-    /*
-    // readnum
-    if (!isset($data[4])) {
-        $data[4] = 0;
-    }
-    if (!isset($data[9])) {
-        $data[9] = $data[4] + 1; // $newlineは廃止予定だが、後方互換用に念のため
-    }
-    */
-    
-    // {{{ スレッド.idx 記録
-    
-    if ($setfav == '0' || $setfav == '1') {
-    
-        // お気にスレから外した結果、idxの意味がなくなれば削除する
-        if ($setfav == '0' and (empty($data[3]) && empty($data[4]) && $data[9] <= 1)) {
-            @unlink($idxfile);
-        } else {
-            P2Util::recKeyIdx($idxfile, array(
-                $data[0], $key, $data[2], $data[3], $data[4],
-                $data[5], $setfav, $data[7], $data[8], $data[9],
-                $data[10], $data[11], $data[12]
-            ));
-        }
-    }
-    
-    // }}}
-
-    //================================================
-    // 処理
-    //================================================
     $neolines = array();
     $before_line_num = 0;
 
@@ -134,9 +93,56 @@ function setFav($host, $bbs, $key, $setfav)
     }
 
     // お気にスレ共有
-    _setFavRank($host, $bbs, $key, $setfav, $data[0]);
+    _setFavRank($host, $bbs, $key, $setfav, geti($data[0]));
     
     return true;
+}
+
+/**
+ * @return  array  読み込んだkeyデータ
+ */
+function _setFavToKeyIdx($host, $bbs, $key, $setfav)
+{
+    $idxfile = P2Util::getKeyIdxFilePath($host, $bbs, $key);
+    
+    // FileCtl::mkdirFor($idxfile);
+
+    $data = array();
+    
+    // 既にidxデータがあるなら読み込む
+    if (file_exists($idxfile) and $lines = file($idxfile)) {
+        $l = rtrim($lines[0]);
+        $data = explode('<>', $l);
+    }
+
+    /*
+    // readnum
+    if (!isset($data[4])) {
+        $data[4] = 0;
+    }
+    if (!isset($data[9])) {
+        $data[9] = $data[4] + 1; // $newlineは廃止予定だが、後方互換用に念のため
+    }
+    */
+    
+    // {{{ スレッド.idx 記録
+    
+    if ($setfav == '0' || $setfav == '1') {
+    
+        // お気にスレから外した結果、idxの意味がなくなれば削除する
+        if ($setfav == '0' and (empty($data[3]) && empty($data[4]) && $data[9] <= 1)) {
+            @unlink($idxfile);
+        } else {
+            P2Util::recKeyIdx($idxfile, array(
+                $data[0], $key, $data[2], $data[3], $data[4],
+                $data[5], $setfav, $data[7], $data[8], $data[9],
+                $data[10], $data[11], $data[12]
+            ));
+        }
+    }
+    // }}}
+    
+    return $data;
 }
 
 /**
@@ -219,7 +225,6 @@ function _postFavRank($post)
         $request .= "\r\n";
     }
 
-    // WEBサーバへ接続
     $fp = fsockopen($send_host, $send_port, $errno, $errstr, 3);
     if (!$fp) {
         //echo "サーバ接続エラー: $errstr ($errno)<br>\n";

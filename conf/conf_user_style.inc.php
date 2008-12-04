@@ -28,25 +28,35 @@ if (strstr(geti($_SERVER['HTTP_USER_AGENT']), 'Mac')) {
 	}
 
 	// Mac用フォントサイズ
-	$STYLE['fontsize']			= "12px";	// ("") 基本フォントの大きさ
-	$STYLE['menu_fontsize'] 	= "11px"; 	// ("10pt") 板メニューのフォントの大きさ
-	$STYLE['sb_fontsize'] 		= "11px"; 	// ("10pt") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] 	= "12px"; 	// ("") スレッド内容表示のフォントの大きさ
-	$STYLE['respop_fontsize'] 	= "11px"; 	// ("10pt") 引用レスポップアップ表示のフォントの大きさ
-	$STYLE['infowin_fontsize'] 	= "11px"; 	// ("10pt") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] 	= "11px"; 	// ("10pt") input, option, select のフォントの大きさ（Caminoを除く）
+	$STYLE['fontsize']			= "92%";    // ("12px") 基本フォントの大きさ
+	$STYLE['menu_fontsize'] 	= "83%";	// ("11px") 板メニューのフォントの大きさ
+	$STYLE['sb_fontsize'] 		= "83%";	// ("11px") スレ一覧のフォントの大きさ
+	$STYLE['read_fontsize'] 	= "";		// ("12px") スレッド内容表示のフォントの大きさ
+	$STYLE['respop_fontsize'] 	= "83%";	// ("11px") 引用レスポップアップ表示のフォントの大きさ
+	$STYLE['infowin_fontsize'] 	= "83%";	// ("11px") 情報ウィンドウのフォントの大きさ
+	$STYLE['form_fontsize'] 	= "";		// ("11px") input, option, select のフォントの大きさ（Caminoを除く）
+	
+	$MYSTYLE['read']['.thread_title']['font-size'] = "14pt";	// ("14pt") スレッドタイトルのフォントの大きさ
 
 } else {
 
 	// Mac以外のフォントサイズ
-	$STYLE['fontsize']			= "12px"; 	// ("") 基本フォントの大きさ
-	$STYLE['menu_fontsize'] 	= "12px"; 	// ("10pt") 板メニューのフォントの大きさ
-	$STYLE['sb_fontsize'] 		= "12px"; 	// ("10pt") スレ一覧のフォントの大きさ
-	$STYLE['read_fontsize'] 	= "13px"; 	// ("") スレッド内容表示のフォントの大きさ
-	$STYLE['respop_fontsize'] 	= "12px"; 	// ("10pt") 引用レスポップアップ表示のフォントの大きさ
-	$STYLE['infowin_fontsize'] 	= "12px"; 	// ("10pt") 情報ウィンドウのフォントの大きさ
-	$STYLE['form_fontsize'] 	= "12px";	// ("10pt") input, option, select のフォントの大きさ
+	$STYLE['fontsize']			= "92%";    // ("") 基本フォントの大きさ
+	$STYLE['menu_fontsize'] 	= "83%";    // ("12px") 板メニューのフォントの大きさ
+	$STYLE['sb_fontsize'] 		= "83%"; 	// ("12px") スレ一覧のフォントの大きさ
+	$STYLE['read_fontsize'] 	= ""; 		// ("") スレッド内容表示のフォントの大きさ
+	$STYLE['respop_fontsize'] 	= "83%"; 	// ("12px") 引用レスポップアップ表示のフォントの大きさ
+	$STYLE['infowin_fontsize'] 	= "83%"; 	// ("12px") 情報ウィンドウのフォントの大きさ
+	$STYLE['form_fontsize'] 	= ""; 		// ("12px") input, option, select のフォントの大きさ
+	
+	$MYSTYLE['read']['.thread_title']['font-size'] = "";	// ("") スレッドタイトルのフォントの大きさ
 }
+
+$_conf['fontsize']      and $STYLE['fontsize']      = strip_tags($_conf['fontsize']); // strip_tags()は念のため
+$_conf['menu_fontsize'] and $STYLE['menu_fontsize'] = strip_tags($_conf['menu_fontsize']);
+$_conf['sb_fontsize']   and $STYLE['sb_fontsize']   = strip_tags($_conf['sb_fontsize']);
+$_conf['read_fontsize'] and $STYLE['read_fontsize'] = strip_tags($_conf['read_fontsize']);
+
 
 //======================================================================
 // 色彩の設定
@@ -54,30 +64,30 @@ if (strstr(geti($_SERVER['HTTP_USER_AGENT']), 'Mac')) {
 // 無指定("")はブラウザのデフォルト色、または基本指定となります。
 // 優先度は、個別ページ指定 → 基本指定 → 使用ブラウザのデフォルト指定 です。
 
-// 基本(style)=======================
-$STYLE['bgcolor'] = "#ffffff"; // ("#ffffff") 基本 背景色
-$STYLE['textcolor'] = "#000"; // ("#000") 基本 テキスト色
-$STYLE['acolor'] = ""; // ("") 基本 リンク色
-$STYLE['acolor_v'] = ""; // ("") 基本 訪問済みリンク色。
-$STYLE['acolor_h'] = "#09c"; // ("#09c") 基本 マウスオーバー時のリンク色
+// 基本(style) =======================
+$STYLE['bgcolor'] = "#ffffff";	// ("#ffffff") 基本 背景色
+$STYLE['textcolor'] = "#000";	// ("#000") 基本 テキスト色
+$STYLE['acolor'] = "";	// ("") 基本 リンク色
+$STYLE['acolor_v'] = "";	// ("") 基本 訪問済みリンク色。
+$STYLE['acolor_h'] = "#09c";	// ("#09c") 基本 マウスオーバー時のリンク色
 
-$STYLE['fav_color'] = "#999"; // ("#999") お気にマークの色
+$STYLE['fav_color'] = "#999";	// ("#999") お気にマークの色
 
-// メニュー(menu)====================
-$STYLE['menu_bgcolor'] = "#fff"; //("#fff") menu 背景色
-$STYLE['menu_color'] = "#000"; //("#000") menu テキスト色
-$STYLE['menu_cate_color'] = "#333"; // ("#333") menu カテゴリーの色
+// メニュー(menu) ====================
+$STYLE['menu_bgcolor'] = "#fff";	// ("#fff") menu 背景色
+$STYLE['menu_color'] = "#000";	// ("#000") menu テキスト色
+$STYLE['menu_cate_color'] = "#333";	// ("#333") menu カテゴリーの色
 
-$STYLE['menu_acolor_h'] = "#09c"; // ("#09c") menu マウスオーバー時のリンク色
+$STYLE['menu_acolor_h'] = "#09c";	// ("#09c") menu マウスオーバー時のリンク色
 
-$STYLE['menu_ita_color'] = ""; // ("") menu 板 リンク色
-$STYLE['menu_ita_color_v'] = ""; // ("") menu 板 訪問済みリンク色
-$STYLE['menu_ita_color_h'] = "#09c"; // ("#09c") menu 板 マウスオーバー時のリンク色
+$STYLE['menu_ita_color'] = "";	// ("") menu 板 リンク色
+$STYLE['menu_ita_color_v'] = "";	// ("") menu 板 訪問済みリンク色
+$STYLE['menu_ita_color_h'] = "#09c";	// ("#09c") menu 板 マウスオーバー時のリンク色
 
 $STYLE['menu_newthre_color'] = "hotpink";	// ("hotpink") menu 新規スレッド数の色
 $STYLE['menu_newres_color'] = "#ff3300";	// ("#ff3300") menu 新着レス数の色
 
-// スレ一覧(subject)====================
+// スレ一覧(subject) ====================
 $STYLE['sb_bgcolor'] = "#fff"; // ("#fff") subject 背景色
 $STYLE['sb_color'] = "#000";  // ("#000") subject テキスト色
 
@@ -114,7 +124,8 @@ $STYLE['sb_thre_title_new_color'] = "red";	// ("red") subject 新規スレタイトルの
 $STYLE['sb_tool_newres_color'] = "#ff3300"; // ("#ff3300") subject ツールバー内 新規レス数の色
 $STYLE['sb_newres_color'] = "#ff3300"; // ("#ff3300") subject 新着レス数の色
 
-// スレ内容(read)====================
+
+// スレ内容(read) ====================
 $STYLE['read_bgcolor'] = "#efefef"; // ("#efefef") スレッド表示の背景色
 $STYLE['read_color'] = "#000"; // ("#000") スレッド表示のテキスト色
 

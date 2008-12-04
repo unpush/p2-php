@@ -243,8 +243,8 @@ EOP;
         
         if (file_exists($_conf['favita_path']) and $lines = file($_conf['favita_path'])) {
             echo '<ul id="home"><li class="group">お気に入り一覧</li>';
-            echo '<a class="button" href="editfavita_i.php?b=i">編集</a>';
-            /*echo '<ul><li><a href="editfavita.php?k=1">編集</a></li><li class="group">お気に入り一覧</li>';*/
+            echo '<a class="button" href="editfavita_i.php">編集</a>';
+            // echo '<ul><li><a href="editfavita.php?b=k">編集</a></li><li class="group">お気に入り一覧</li>';
             $i = 0;
             foreach ($lines as $l) {
                 $i++;

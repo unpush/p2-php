@@ -56,7 +56,7 @@ if (false === $datlines = file($_conf['p2_res_hist_dat'])) {
 
 $datlines = array_map('rtrim', $datlines);
 
-// ファイルの下に記録されているものが新しい
+// ファイルの下に記録されているものが新しいので反転させる
 $datlines = array_reverse($datlines);
 $datlines_num = count($datlines);
 

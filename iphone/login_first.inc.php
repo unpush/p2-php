@@ -253,10 +253,10 @@ EOP;
     } else {
         echo '<style type="text/css" media="screen">@import "./iui/iui.css";</style>';
     }
-    echo "</head><body>\n";
+    ?></head><body><?php
 
     echo "<div class=\"toolbar\"><h1 id=\"pageTitle\">{$ptitle}</h1></div>\n";
-    if ($_conf['ktai']) { // iPhone—p
+    if (UA::isIPhoneGroup()) {
         echo '<div id="usage" class="panel"><filedset>';
     }
     P2Util::printInfoHtml();
@@ -266,9 +266,9 @@ EOP;
     if ($show_login_form_flag) {
         echo $login_form_ht;
     }
-    if ($_conf['ktai']) { // iPhone—p
+    if (UA::isIPhoneGroup()) {
     echo "<br><br><br><br><br><br><br>\n</filedset></div>\n";
     }
 
-    echo '</body></html>';
+    ?></body></html><?php
 }

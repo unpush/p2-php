@@ -1,12 +1,14 @@
 <?php
-// rep2 -  インデックスページ
+// p2 -  インデックスページ
 
 require_once './conf/conf.inc.php';
+if (UA::isIPhoneGroup()) {
+    require_once './iphone/conf.inc.php';
+}
 require_once P2_LIB_DIR . '/FileCtl.php';
 
 $_login->authorize(); // ユーザ認証
 
-// 前処理
 // アクセス拒否用の.htaccessをデータディレクトリに作成する
 _makeDenyHtaccess($_conf['pref_dir']);
 _makeDenyHtaccess($_conf['dat_dir']);
@@ -16,19 +18,19 @@ _makeDenyHtaccess($_conf['idx_dir']);
 $me_url = P2Util::getMyUrl();
 $me_dir_url = dirname($me_url);
 
-if ($_conf['ktai']) {
-
-    // {{{ 携帯用 インデックス
+if (UA::isK() || UA::isIPhoneGroup()) {
 
     // url指定があれば、そのままスレッド読みへ飛ばす
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
         header('Location: ' . $me_dir_url . '/' . $_conf['read_php'] . '?' . $_SERVER['QUERY_STRING']);
         exit;
     }
-    require_once P2_LIB_DIR . '/index_print_k.inc.php';
+    if (UA::isIPhoneGroup()) {
+        require_once P2_IPHONE_LIB_DIR . '/index_print_k.inc.php';
+    } else {
+        require_once P2_LIB_DIR . '/index_print_k.inc.php';
+    }
     index_print_k();
-    
-    // }}}
     
 } else {
 

@@ -259,15 +259,17 @@ EOP;
 	<title><?php echo $ptitle_ht; ?></title>
     <?php
     if (UA::isPC()) {
-        P2View::printIncludeCssHtml('style');
-        P2View::printIncludeCssHtml('login_first');
+        // ƒ†[ƒU‚Í–¢Œˆ’è
+        //P2View::printIncludeCssHtml('style');
+        //P2View::printIncludeCssHtml('login_first');
         ?>
+	<link rel="stylesheet" href="style/login_first.css" type="text/css">
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <?php
+	<?php
     }
-    ?>
-    </head><body>
-    <h3><?php echo $ptitle_ht; ?></h3><?php
+	?>
+	</head><body>
+	<h3><?php echo $ptitle_ht; ?></h3><?php
 
     P2Util::printInfoHtml();
     

@@ -21,10 +21,10 @@ if (!empty($_GET['cview'])) {
     $cnum = isset($_GET['cnum']) ? intval($_GET['cnum']) : NULL;
     if ($cont = getMatomeCache($cnum)) {
         echo $cont;
-        exit;
     } else {
-        p2die('新着まとめ読みのキャッシュがないよ');
+        echo 'p2 error: 新着まとめ読みのキャッシュがないよ';
     }
+    exit;
 }
 
 //==================================================================
@@ -594,7 +594,7 @@ EOP;
 $_newthre_num++;
 
 if (!$aThreadList->num) {
-    $GLOBALS['matome_naipo'] = TRUE;
+    $GLOBALS['_is_matome_shinchaku_naipo'] = true;
     echo "新着レスはないぽ";
 }
 

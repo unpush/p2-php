@@ -266,7 +266,7 @@ EOP;
         $show_flag = false;
         
         if (file_exists($_conf['favita_path']) and $lines = file($_conf['favita_path'])) {
-            echo 'お気に板 [<a href="editfavita.php?k=1">編集</a>]' . $hr;
+            echo 'お気に板 [<a href="editfavita.php?b=k">編集</a>]' . $hr;
             $i = 0;
             foreach ($lines as $l) {
                 $i++;

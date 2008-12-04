@@ -1333,7 +1333,7 @@ class ThreadRead extends Thread
         require_once P2_LIB_DIR . '/ShowThread.php';
         
         // PC
-        if (!$GLOBALS['_conf']['ktai']) {
+        if (UA::isPC()) {
             require_once P2_LIB_DIR . '/ShowThreadPc.php';
             $aShowThread = new ShowThreadPc($this);
         // Œg‘Ñ

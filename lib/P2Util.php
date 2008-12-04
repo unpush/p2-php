@@ -11,6 +11,30 @@ require_once P2_LIB_DIR . '/FileCtl.php';
 class P2Util
 {
     /**
+     * @return  string|null
+     */
+    function getSkinSetting()
+    {
+        global $_conf;
+        
+        if (UA::isK() || !$_conf['enable_skin']) {
+            return null;
+        }
+        if (file_exists($_conf['skin_setting_path'])) {
+            return rtrim(file_get_contents($_conf['skin_setting_path']));
+        }
+        return null;
+    }
+    
+    /**
+     * @return  string
+     */
+    function getSkinFilePathBySkinName($skinname)
+    {
+        return P2_SKIN_DIR . '/' . rawurlencode($skinname) . '.php';
+    }
+    
+    /**
      * 2ch‚ÌƒgƒŠƒbƒv‚ğ¶¬‚·‚é
      *
      * @return  string

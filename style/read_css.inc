@@ -5,30 +5,29 @@
 $STYLE['fontfamily_bold'] = isset($STYLE['fontfamily_bold']) ? $STYLE['fontfamily_bold'] : null;
 $STYLE['read_background'] = isset($STYLE['read_background']) ? $STYLE['read_background'] : null;
 
+$_conf['am_auto_fontsize'] = isset($_conf['am_auto_fontsize']) ? $_conf['am_auto_fontsize'] : null;
+$_conf['am_aafont'] = isset($_conf['am_aafont']) ? $_conf['am_aafont'] : null;
+$_conf['am_aafont'] = "'" . str_replace(",", "','", $_conf['am_aafont']) . "'";
+
 if ($_conf['bottom_res_form'] == 2) {
     $kakiko_display = 'block';
 } else {
     $kakiko_display = 'none';
 }
 
-echo <<<EOP
-<style type="text/css" media="all">
-<!--
-EOP;
-
 if ($STYLE['fontfamily_bold']) {
 	echo <<<EOP
-/* スレッドタイトル */
-h3{ font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}"; }
+    /* スレッドタイトル */
+	h3{ font-weight:normal; font-family:"{$STYLE['fontfamily_bold']}"; }\n
 EOP;
 }
 
-if (isset($_conf['spm_before']) && $_conf['spm_before'] != "") {
+if ($_conf['spm_before'] != "") {
 	$spm_before = "\n\t.spm a:hover:before{ content:\"{$_conf['spm_before']}\"; }";
 } else {
 	$spm_before = "";
 }
-if (isset($_conf['spm_before']) && $_conf['spm_after'] != "") {
+if ($_conf['spm_after'] != "") {
 	$spm_after = "\n\t.spm a:hover:after{ content:\"{$_conf['spm_after']}\"; }";
 } else {
 	$spm_after = "";
@@ -36,7 +35,7 @@ if (isset($_conf['spm_before']) && $_conf['spm_after'] != "") {
 
 echo <<<EOP
 body{
-	background:{$STYLE['read_bgcolor']};
+	background:{$STYLE['read_bgcolor']} {$STYLE['read_background']};
 	line-height:130%;
 	color:{$STYLE['read_color']};
 	/* font-family:"モナー"; */
@@ -45,57 +44,56 @@ body, td{
 	font-size:{$STYLE['read_fontsize']};
 }
 
+/* 2006/09/15 add */
+.toolbar{
+    font-size:83%;
+}
+
 a:link{color:{$STYLE['read_acolor']};}
 a:visited{color:{$STYLE['read_acolor_v']};}
 a:hover{color:{$STYLE['read_acolor_h']};}
 
+dd {line-height: normal;}
+
 /* 引用レス */
-i{font-style:normal;}
+i{ font-style:normal; }
 
 /* レスポップアップ */
-dd.respopup{margin:8px 8px;}
-
-div#header form.toolbar{
-	margin:0px 0px 8px 0px;
-}
+dd.respopup{ margin:8px 8px; }
 
 div#kossoriHeadbar{
     position:absolute;
-	display: none;
+    display: none;
     padding:4px 0px;
     background-color:{$STYLE['read_bgcolor']};
-    background-image:url("img/kossori.gif");
+    /* background-image:url("img/kossori.gif"); */
     background-repeat: no-repeat;
     background-position: right top;
     border-bottom:solid 1px #ccc;
 }
 
+div#header form.toolbar{
+    margin:0px 0px 8px 0px;
+}
+
 /* 大きいのと小さいの（レスフォーム） */
 .thread_title, .thre_title{
 	color:{$STYLE['read_thread_title_color']};
-
-	width:100%;
-	filter: shadow(color=#e5e5e5,direction=135);
-	text-shadow: 2px 2px 2px #e5e5e5;
+    
+    width:100%;
+    filter: shadow(color=#e5e5e5,direction=135);
+    text-shadow: 2px 2px 2px #e5e5e5;
 }
 .thread_title{
-    margin:6px 0; line-height:120%; font-size:14pt;
+	margin:6px 0;
+	line-height:120%;
 }
 
-.name{color:{$STYLE['read_name_color']};} /* 投稿者の名前 */
-.mail{color:{$STYLE['read_mail_color']};} /* 投稿者のmail */
-.sage{color:{$STYLE['read_mail_sage_color']};} /* 投稿者のmail(sage) */
-img.thumbnail{border:solid 1px;} /* 画像URLの先読みサムネイル*/
+.name{ color:{$STYLE['read_name_color']}; } /* 投稿者の名前 */
+.mail{ color:{$STYLE['read_mail_color']}; } /* 投稿者のmail */
+.sage{ color:{$STYLE['read_mail_sage_color']}; } /* 投稿者のmail(sage) */
+img.thumbnail{ border:solid 1px; } /* 画像URLの先読みサムネイル*/
 
-/* レス番号 */
-a.resnum:link, a.resnum:visited, a.resnum:hover, a.resnum:active{
-	color:{$STYLE['read_color']};
-	text-decoration:none;
-}
-
-/* 新着レス番号（ここではカラーが新着確認の機能を持っているので特別にfontで
-カラー指定をしている。thread_class.inc - transRes を参照)	*/
-/* .newres{color:{$newres_color};} ← よって現在は無効の設定 */
 
 .onthefly{
 	color:#0a0;
@@ -117,11 +115,12 @@ a.resnum:link, a.resnum:visited, a.resnum:hover, a.resnum:active{
 .respopup{
 	position:absolute;
 	visibility:hidden; /* 普段は隠しておく*/
-	background-color:#ffffcc;
-	border:1px black solid;
+	color:{$STYLE['respop_color']};
 	font-size:{$STYLE['respop_fontsize']};
-	padding:8px;
 	line-height:120%;
+	padding:8px;
+	background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};
+	border:{$STYLE['respop_b_width']} {$STYLE['respop_b_color']} {$STYLE['respop_b_style']};
 }
 
 /* スマートポップアップメニュー */
@@ -206,12 +205,64 @@ div#kakiko{
     padding-bottom:8px;
 }
 
+table#readhere{
+	margin: 2em auto 0px auto;
+	background:{$STYLE['respop_bgcolor']} {$STYLE['respop_background']};
+	border-width:{$STYLE['respop_b_width']};
+	border-color:{$STYLE['respop_b_color']};
+	border-style:{$STYLE['respop_b_style']};
+}
+table#readhere td{
+	padding: 0.5em;
+	text-align: center;
+}
+
+/* レス番号 */
+a.resnum:link, a.resnum:visited, a.resnum:hover, a.resnum:active{
+	color:{$STYLE['read_color']};
+	text-decoration:none;
+}
+
+/* 新着レス番号（ここではカラーが新着確認の機能を持っているので特別にfontでも
+カラー指定をしている。CSS非対応に対応。ShowThreadPc.php - transRes を参照)	*/
+.newres{
+	color:{$STYLE['read_newres_color']};
+}
+
+/* 新着レス */
+a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{
+	color:{$STYLE['read_newres_color']};
+	text-decoration:none;
+}
+
+span.Mona a{ /* アクティブモナー */
+	color: {$STYLE['read_color']};
+	text-decoration: none;
+}
+
+div.AutoMona { /* 自動アクティブモナー */
+	font-family: {$_conf['am_aafont']};
+	font-size: {$_conf['am_auto_fontsize']};
+	line-height: 100%;
+	white-space: pre;
+}
+
 /* レスのすばやさ */
 span.spd{
 	font-size:8pt;
 	color:#777;
 }
--->
-</style>
 
 EOP;
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

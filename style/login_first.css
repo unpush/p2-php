@@ -1,0 +1,22 @@
+/*
+	p2 - ÉXÉ^ÉCÉãê›íË
+	for printLoginFirst()
+*/
+
+body{
+	line-height:135%;
+	font-size:10pt;
+}
+a:hover{ color: #09c; }
+
+body{
+	background-image: url('../img/rep2_loginbg.gif');
+	background-repeat: no-repeat;
+	background-color: #ccc;
+	padding: 24px;
+	color: #333;
+}
+
+p.infomsg{
+	color: #369;
+}

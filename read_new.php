@@ -126,7 +126,7 @@ P2View::printIncludeCssHtml('read');
 	
 	<script type="text/javascript" src="./js/yui-ext/yui.js"></script>
 	<script type="text/javascript" src="./js/yui-ext/yui-ext-nogrid.js"></script>
-	<link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css" />
+	<link rel="stylesheet" type="text/css" href="./js/yui-ext/resources/css/resizable.css">
 
 	<script type="text/javascript">
 	<!--

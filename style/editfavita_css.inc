@@ -3,28 +3,34 @@
 // for editfavita.php
 
 echo <<<EOSTYLE
-<style type="text/css" media="all">
-<!--
 
-	body, td{
-		line-height:120%;
-		background-color:{$STYLE['menu_bgcolor']};
-		font-size:{$STYLE['menu_fontsize']};
-	}
-	
-	a:link.te{ color:#999; } /* •À‚Ñ‘Ö‚¦ */
-	a:visited.te{ color:#999; }
-	a:hover.te{color:{$STYLE['menu_ita_color_h']};}
+body, td{
+	line-height:120%;
+	background:{$STYLE['menu_bgcolor']} {$STYLE['menu_background']};
+	font-size:{$STYLE['menu_fontsize']};
+}
 
-	td.italist {
-		border:1px solid #dddddd;
-	}
-	.sortList {
-		cursor:move; width:500px; padding:4px 16px 0 0;
-	}
+a:link.te{color:#999;} /* •À‚Ñ‘Ö‚¦ */
+a:visited.te{color:#999;}
+a:hover.te{color:{$STYLE['menu_ita_color_h']};}
 
--->
-</style>
+td.italist {
+	border:1px solid #dddddd;
+}
+
+.sortList {
+	cursor:move; width:500px; padding:4px 16px 0 0;
+}
 
 EOSTYLE;
-?>
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -7,35 +7,47 @@ if ($STYLE['a_underline_none'] == 2) {
 }
 
 echo <<<EOSTYLE
-<style type="text/css" media="all">
-<!--
-	
-	.thre_title{
-		color:{$STYLE['read_thread_title_color']};
-	}
-	{$thre_title_underline_css}
 
-	.infomsg{
-		font-size:{$STYLE['infowin_fontsize']};
-	}
+body,td{
+	font-size:{$STYLE['infowin_fontsize']};
+}
 
-	table{
-		border:solid #999;
-		border-width:1px 0px;
-		padding:12px;
-	}
-	td{
-		line-height:100%;
-		padding:3px;
-		font-size:{$STYLE['infowin_fontsize']};
-	}
-	td.tdleft{
-		text-align:right;
-		color:#14a;
-	}
+/*
+.infomsg{
+	font-size:{$STYLE['infowin_fontsize']};
+}
+*/
 
--->
-</style>
+.thre_title{
+	color:{$STYLE['read_thread_title_color']};
+}
+{$thre_title_underline_css}
+
+
+table{
+	border:solid #999;
+	border-width:1px 0px;
+	padding:12px;
+}
+td{
+	line-height:100%;
+	padding:3px;
+}
+td.tdleft{
+	text-align:right;
+	color:#14a;
+}
 
 EOSTYLE;
-?>
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

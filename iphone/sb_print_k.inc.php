@@ -23,9 +23,11 @@ function sb_print_k(&$aThreadList)
     
     // 変数 ================================================
     
-    // >>1
+    // >>1 表示
     $onlyone_bool = false;
+    
     /*
+    // ニュース系の板なら適用
     if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus" || $aThreadList->spmode == "news") {
         // 倉庫は除く
         if ($aThreadList->spmode != "soko") {
@@ -87,7 +89,7 @@ function sb_print_k(&$aThreadList)
         $bbs_q = "&amp;bbs=" . $aThread->bbs;
         $key_q = "&amp;key=" . $aThread->key;
 
-        if ($aThreadList->spmode!="taborn") {
+        if ($aThreadList->spmode != "taborn") {
             if (!$aThread->torder) {$aThread->torder=$i;}
         }
 
@@ -96,10 +98,10 @@ function sb_print_k(&$aThreadList)
         $unum_ht = '';
         
         // 既得済み
-        if ($aThread->isKitoku()) { 
-            $unum_ht="{$aThread->unum}";
+        if ($aThread->isKitoku()) {
+            $unum_ht = "{$aThread->unum}";
         
-            $anum = $aThread->rescount - $aThread->unum +1 - $_conf['respointer'];
+            $anum = $aThread->rescount - $aThread->unum + 1 - $_conf['respointer'];
             if ($anum > $aThread->rescount) { $anum = $aThread->rescount; }
             $anum_ht = "#r{$anum}";
             
@@ -161,7 +163,8 @@ function sb_print_k(&$aThreadList)
         
         // torder(info) =================================================
         /*
-        if ($aThread->fav) { //お気にスレ
+        // お気にスレ
+        if ($aThread->fav) { 
             $torder_st = "<b>{$aThread->torder}</b>";
         } else {
             $torder_st = $aThread->torder;
@@ -170,16 +173,15 @@ function sb_print_k(&$aThreadList)
         */
         $torder_ht = $aThread->torder;
         
-        // title =================================================
-        $rescount_q = "&amp;rc=" . $aThread->rescount;
+        // title =========================================================
+        $rescount_qs = array('rc' => $aThread->rescount);
+        $offline_qs  = array();
         
         // dat倉庫 or 殿堂なら
         if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") { 
-            $rescount_q = "";
-            $offline_q = "&amp;offline=true";
-            $anum_ht = "";
-        } else {
-            $offline_q = '';
+            $rescount_qs = array();
+            $offline_qs  = array('offline' => '1');
+            $anum_ht = '';
         }
         
         // タイトル未取得なら
@@ -212,10 +214,27 @@ function sb_print_k(&$aThreadList)
             $classtitle_q = ' class="thre_title"';
         }
 
-        $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
-    
+        $thre_url = P2Util::buildQueryUri($_conf['read_php'],
+            array_merge(array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
+                UA::getQueryKey() => UA::getQueryValue()
+            ), $rescount_qs, $offline_qs)
+        ) . $anum_ht;
+        
         // オンリー>>1
-        $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}&amp;onlyone=true&amp;k_continue=1{$_conf['k_at_a']}";
+        $onlyone_url = P2Util::buildQueryUri($_conf['read_php'],
+            array_merge(array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
+                'onlyone' => '1',
+                'k_continue' => '1',
+                UA::getQueryKey() => UA::getQueryValue()
+            ), $rescount_qs)
+        );
+        
         if ($onlyone_bool) {
             $one_ht = "<a href=\"{$onlyone_url}\">&gt;&gt;1</a>";
         }
@@ -276,6 +295,7 @@ function sb_print_k(&$aThreadList)
  <a href="{$thre_url}" class="ttitle">{$unum_new_ht}{$aThread->ttitle_ht}{$ita_name_ht}{$rescount_ht}{$similarity_ht}</a>{$unum_ht}</li>
 EOP;
     }
+
 }
 
 /*

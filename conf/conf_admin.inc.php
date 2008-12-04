@@ -81,6 +81,8 @@ $_conf['cid_expire_day'] = 30;      // (30) Cookie IDの有効期限日数
 
 $_conf['ngaborn_data_limit'] = 0;  // (0) NGあぼーんに登録できる数（0なら制限なし）
 
+$_conf['enable_skin'] = 1;
+
 // {{{ 携帯アクセスキー
 
 $_conf['k_accesskey']['matome'] = '3'; // 新まとめ
@@ -113,3 +115,14 @@ $_conf['conf_user_perm'] =  0606;   // ユーザ設定ファイル
 
 // }}}
 
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
