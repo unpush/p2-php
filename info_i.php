@@ -10,7 +10,6 @@ iphone からスレ情報を取得するときはsubject_iから呼び出される。
 */
 if (_isCalledAsStandAlone()) {
     require_once './conf/conf.inc.php';
-    require_once './iphone/conf.inc.php';
 }
 
 require_once P2_LIB_DIR . '/Thread.php';
@@ -299,7 +298,7 @@ P2Util::printInfoHtml();
 <?php
 
 // 携帯なら冒頭で情報メッセージ表示
-if (UA::isK()) {
+if (UA::isK() || UA::isIPhoneGroup()) {
     if (strlen($info_msg)) {
         printf('<p>%s</p>', hs($info_msg));
     }

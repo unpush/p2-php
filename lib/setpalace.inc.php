@@ -62,22 +62,21 @@ function setPal($host, $bbs, $key, $set)
     
     // 新規データ設定
     if ($set) {
-        $newdata = "$data[0]<>{$key}<>$data[2]<>$data[3]<>$data[4]<>$data[5]<>$data[6]<>$data[7]<>$data[8]<>$data[9]<>{$host}<>{$bbs}";
+        $newdata = implode('<>', array(
+            $data[0], $key, $data[2], $data[3], $data[4], $data[5],
+            $data[6], $data[7], $data[8], $data[9], $host, $bbs
+        ));
         require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $set);
     } else {
         $rec_lines = $neolines;
     }
     
-    $cont = '';
-    if (!empty($rec_lines)) {
-        foreach ($rec_lines as $l) {
-            $cont .= $l . "\n";
-        }
-    }
-    
-    // 書き込む
-    if (false === FileCtl::filePutRename($palace_idx, $cont)) {
+    if (false === FileCtl::filePutRename(
+            $palace_idx,
+            $rec_lines ? implode("\n", $rec_lines) . "\n" : ''
+        )
+    ) {
         $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
         trigger_error($errmsg, E_USER_WARNING);
         return false;

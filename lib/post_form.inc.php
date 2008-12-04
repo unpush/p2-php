@@ -6,7 +6,6 @@
 // Œg‘Ñ
 if (UA::isK()) {
     $htm['k_br'] = '<br>';
-    $htm['on_js'] = '';
     $htm['kakiko_on_js'] = '';
 // PC
 } else {

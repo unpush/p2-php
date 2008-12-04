@@ -6,10 +6,6 @@
 
 require_once './conf/conf.inc.php';
 
-if (UA::isIPhoneGroup()) {
-    require_once './iphone/conf.inc.php';
-}
-
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/ThreadRead.php';
 require_once P2_LIB_DIR . '/FileCtl.php';
@@ -109,7 +105,7 @@ if (strlen($GLOBALS['word'])) {
         }
     }
     
-    if (UA::isK()) {
+    if (UA::isK() || UA::isIPhoneGroup()) {
         $filter_page = isset($_REQUEST['filter_page']) ? max(1, intval($_REQUEST['filter_page'])) : 1;
         $filter_range = array();
         $filter_range['start'] = ($filter_page - 1) * $_conf['k_rnum_range'] + 1;

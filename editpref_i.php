@@ -5,7 +5,6 @@
 /* 2008/7/25 iPhone専用にカスタマイズ*/
 
 require_once './conf/conf.inc.php';
-require_once './iphone/conf.inc.php';
 
 require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/P2View.php';

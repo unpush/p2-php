@@ -14,7 +14,7 @@ $STYLE['a_underline_none'] = "2"; // ("2") リンクに下線を（つける:0, つけない:1,
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
     /* Mac用フォントファミリー*/
-    if (P2Util::isBrowserSafariGroup()){ /* Safari系なら */
+    if (UA::isSafariGroup()){ /* Safari系なら */
         $STYLE['fontfamily'] = array("Lucida Grande", "Hiragino Kaku Gothic Pro"); // ("Hiragino Kaku Gothic Pro") 基本のフォント for Safari
         $STYLE['fontfamily_bold'] = ""; // ("") 基本ボールド用フォント for Safari（普通の太字より太くしたい場合は"Hiragino Kaku Gothic Std"）
     } else {
@@ -154,7 +154,7 @@ $MYSTYLE['subject']['sb_td']['border-bottom'] = "1px dotted #ffa147";
 $MYSTYLE['subject']['sb_td1']['border-bottom'] = "1px dotted #ffa147";
 
 $MYSTYLE['base']['.filtering']['background-color'] = "transparent"; 
-$MYSTYLE['base']['.filtering']['font-family'] = $STYLE['fontfamily']; 
+$MYSTYLE['base']['.filtering']['font-family'] = geti($STYLE['fontfamily']); 
 $MYSTYLE['base']['.filtering']['font-weight'] = 'normal'; 
 $MYSTYLE['base']['.filtering']['border-top'] = "1px #258aff solid"; 
 $MYSTYLE['base']['.filtering']['border-right'] = "2px #258aff dashed"; 

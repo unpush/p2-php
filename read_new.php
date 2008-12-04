@@ -53,7 +53,11 @@ if ((!$host || !isset($bbs)) && !isset($spmode)) {
     p2die('必要な引数が指定されていません');
 }
 
-if (($host) && P2Validate::host($host) || ($bbs) && P2Validate::bbs($bbs) || ($spmode) && P2Validate::spmode($spmode)) {
+if (
+    ($host) && P2Validate::host($host) 
+    || ($bbs) && P2Validate::bbs($bbs) 
+    || ($spmode) && P2Validate::spmode($spmode)
+) {
     p2die('不正な引数です');
 }
 

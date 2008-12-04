@@ -2,8 +2,6 @@
 // index—pŠÖ”
 
 /**
- * iphone/conf.inc.php‚Ì“Ç‚İ‚İŒã‚É
- *
  * @access  public
  * @return  array
  */

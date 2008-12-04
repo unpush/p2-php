@@ -5,7 +5,6 @@
 
 //080825iphone—pƒ‰ƒCƒuƒ‰ƒŠ’Ç‰Á
 require_once './conf/conf.inc.php';
-require_once './iphone/conf.inc.php';
 require_once P2_LIB_DIR . '/BrdCtl.php';
 require_once P2_IPHONE_LIB_DIR . '/ShowBrdMenuK.php';
 

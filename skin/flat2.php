@@ -14,7 +14,7 @@ $STYLE['a_underline_none'] = "1"; // ("2") リンクに下線を（つける:0, つけない:1,
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], 'Mac') !== false) {
     /* Mac用フォントファミリー*/
-    if (P2Util::isBrowserSafariGroup()){ /* Safari系なら */
+    if (UA::isSafariGroup()){ /* Safari系なら */
         $STYLE['fontfamily'] = array("Myriad Pro", "Lucida Grande", "Hiragino Maru Gothic Pro");
         $STYLE['fontfamily_bold'] = array("Myriad Pro", "Lucida Grande", "Hiragino Kaku Gothic Pro");
         $STYLE['fontweight_bold'] = "bold";

@@ -589,7 +589,7 @@ _sortThreads($aThreadList);
 // HTMLプリント
 //===============================================================
 // 携帯
-if (UA::isK()) {
+if (UA::isK() || UA::isIPhoneGroup()) {
     
     // {{{ 倉庫にtorder付与
     

@@ -33,7 +33,7 @@ function setFav($host, $bbs, $key, $setfav)
     // スレッド.idx 記録
     $data = _setFavToKeyIdx($host, $bbs, $key, $setfav);
 
-    $neolines = array();
+    $newlines = array();
     $before_line_num = 0;
 
     if (false === FileCtl::make_datafile($_conf['favlist_file'], $_conf['favlist_perm'])) {
@@ -61,9 +61,13 @@ function setFav($host, $bbs, $key, $setfav)
             } elseif (P2Validate::host($lar[10]) || P2Validate::bbs($lar[11]) || P2Validate::key($lar[1])) {
                 continue;
             } else {
-                $neolines[] = $line;
+                $newlines[] = $line;
             }
         }
+    }
+
+    if (!empty($GLOBALS['brazil'])) {
+        _removeLargeFavlistData($newlines);
     }
     
     // 記録データ設定
@@ -73,9 +77,9 @@ function setFav($host, $bbs, $key, $setfav)
             1, geti($data[7]), geti($data[8]), geti($data[9]), $host, $bbs
         ));
         require_once P2_LIB_DIR . '/getsetposlines.inc.php';
-        $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfav);
+        $rec_lines = getSetPosLines($newlines, $newdata, $before_line_num, $setfav);
     } else {
-        $rec_lines = $neolines;
+        $rec_lines = $newlines;
     }
     
     if (false === file_put_contents(
@@ -96,6 +100,22 @@ function setFav($host, $bbs, $key, $setfav)
     _setFavRank($host, $bbs, $key, $setfav, geti($data[0]));
     
     return true;
+}
+
+/**
+ * お気にスレの登録数超過データを削除
+ */
+function _removeLargeFavlistData(&$newlines, $max = 500)
+{
+    $count = count($newlines);
+    for ($i = 0; $i < $count; $i++) {
+        if ($i >= $max) {
+            $d = explode('<>', $newlines[$i]);
+            _setFavToKeyIdx($d[10], $d[11], $d[1], '0');
+            unset($newlines[$i]);
+            //trigger_error("_removeLargeFavlistData() x$i", E_USER_WARNING);
+        }
+    }
 }
 
 /**
@@ -130,13 +150,13 @@ function _setFavToKeyIdx($host, $bbs, $key, $setfav)
     if ($setfav == '0' || $setfav == '1') {
     
         // お気にスレから外した結果、idxの意味がなくなれば削除する
-        if ($setfav == '0' and (empty($data[3]) && empty($data[4]) && $data[9] <= 1)) {
+        if ($setfav == '0' and (empty($data[3]) && empty($data[4]) && geti($data[9]) <= 1)) {
             @unlink($idxfile);
         } else {
             P2Util::recKeyIdx($idxfile, array(
-                $data[0], $key, $data[2], $data[3], $data[4],
-                $data[5], $setfav, $data[7], $data[8], $data[9],
-                $data[10], $data[11], $data[12]
+                geti($data[0]), $key, geti($data[2]), geti($data[3]), geti($data[4]),
+                geti($data[5]), $setfav, geti($data[7]), geti($data[8]), geti($data[9]),
+                $host, $bbs, geti($data[12])
             ));
         }
     }

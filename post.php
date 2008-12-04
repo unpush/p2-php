@@ -7,9 +7,7 @@
 */
 
 require_once './conf/conf.inc.php';
-if (UA::isIPhoneGroup()) {
-    require_once './iphone/conf.inc.php';
-}
+
 require_once P2_LIB_DIR . '/DataPhp.php';
 require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/P2Validate.php';
