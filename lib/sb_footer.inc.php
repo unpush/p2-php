@@ -129,9 +129,9 @@ function _getTabornATag($aThreadList)
 {
     global $_conf, $ta_num;
     
-    $taborn_link_ht = '';
+    $taborn_link_atag = '';
     if (!empty($ta_num)) {
-        $taborn_link_ht = P2View::tagA(
+        $taborn_link_atag = P2View::tagA(
             P2Util::buildQueryUri(
                 $_conf['subject_php'],
                 array(
@@ -148,7 +148,7 @@ function _getTabornATag($aThreadList)
             )
         );
     }
-    return $taborn_link_ht;
+    return $taborn_link_atag;
 }
 
 /**

@@ -111,7 +111,7 @@ $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{
 
 if ($aThread->resrange['to'] == $aThread->rescount) {
 
-    $q_ar = array(
+    $qs = array(
         'host'      => $aThread->host,
         'bbs'       => $aThread->bbs,
         'key'       => $aThread->key,
@@ -119,7 +119,7 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
         'nt'        => $newtime,
         UA::getQueryKey() => UA::getQueryValue()
     );
-    $url = $_conf['read_php'] . '?' . P2Util::buildQuery($q_ar) . "#r{$aThread->rescount}";
+    $url = $_conf['read_php'] . '?' . P2Util::buildQuery($qs) . "#r{$aThread->rescount}";
     $attr = array(
         'style'     => 'white-space: nowrap;',
         'accesskey' => 'r',
@@ -133,16 +133,7 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
 
 
 // レス番指定移動
-$goto_ht = <<<GOTO
-<form method="get" action="{$_conf['read_php']}" class="inline-form">
-	<input type="hidden" name="host" value="{$aThread->host}">
-	<input type="hidden" name="bbs" value="{$aThread->bbs}">
-	<input type="hidden" name="key" value="{$aThread->key}">
-	<input type="text" size="7" name="ls" value="{$aThread->ls}">
-	{$_conf['k_input_ht']}
-	<input type="submit" value="go">
-</form>
-GOTO;
+$goto_ht = _getGoToFormHtml($aThread);
 
 //====================================================================
 // HTMLプリント
@@ -581,4 +572,32 @@ function _getReadNaviRangeHtml($aThread, $rnum_range)
     }
     
     return $cache_["$aThread->host/$aThread->bbs/$aThread->key"] = $read_navi_range_ht;
+}
+
+/**
+ * @return  string  HTML
+ */
+function _getGoToFormHtml($aThread)
+{
+    ob_start();
+    _printGoToFormHtml($aThread);
+    return ob_get_clean();
+}
+
+/**
+ * @return  void  HTML出力
+ */
+function _printGoToFormHtml($aThread)
+{
+    global $_conf;
+    ?>
+<form method="get" action="<?php eh($_conf['read_php']) ?>" class="inline-form">
+	<input type="hidden" name="host" value="<?php eh($aThread->host) ?>">
+	<input type="hidden" name="bbs" value="<?php eh($aThread->bbs) ?>">
+	<input type="hidden" name="key" value="<?php eh($aThread->key) ?>">
+	<input type="text" size="7" name="ls" value="<?php eh($aThread->ls) ?>">
+	<?php echo $_conf['k_input_ht']; ?>
+	<input type="submit" value="go">
+</form>
+<?php
 }

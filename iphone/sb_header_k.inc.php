@@ -6,11 +6,16 @@
 // HTML表示用変数
 //===============================================================
 $newtime = date("gis");
-$norefresh_q = "&amp;norefresh=1";
 
 // {{{ ページタイトル部分URL設定
 
-$p2_subject_url = "{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}";
+$p2_subject_url = P2Util::buildQueryUri($_conf['subject_php'],
+    array(
+        'host' => $aThreadList->host,
+        'bbs'  => $aThreadList->bbs,
+        UA::getQueryKey() => UA::getQueryValue()
+    )
+);
 
 // あぼーん or 倉庫
 if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {

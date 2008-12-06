@@ -2,19 +2,9 @@
 // p2 - サブジェクト - フッタHTMLを表示する 携帯
 // for subject.php
 
-
 $word_qs = _getWordQs();
 
-$allfav_ht = '';
-if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
-    $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
-        'spmode' => 'fav',
-        'norefresh' => '1',
-        UA::getQueryKey() => UA::getQueryValue()
-    ));
-    $atag = P2View::tagA($uri, hs("全てのお気にｽﾚを表示"));
-    $allfav_ht = "<p>$atag</p>";
-}
+$allfav_ht = '<p>' . _getAllFavAtag($aThreadList, $sb_view) . '</p>';
 
 // {{{ ページタイトル部分HTML設定
 
@@ -41,13 +31,13 @@ EOP;
 $mae_ht = '';
 if ($disp_navi['from'] > 1) {
     $qs = array(
-            'host'    => $aThreadList->host,
-            'bbs'     => $aThreadList->bbs,
-            'spmode'  => $aThreadList->spmode,
-            'norefresh' => '1',
-            'from'    => $disp_navi['mae_from'],
-            'sb_view' => geti($_REQUEST['sb_view']),
-            UA::getQueryKey() => UA::getQueryValue()
+        'host'    => $aThreadList->host,
+        'bbs'     => $aThreadList->bbs,
+        'spmode'  => $aThreadList->spmode,
+        'norefresh' => '1',
+        'from'    => $disp_navi['mae_from'],
+        'sb_view' => geti($_REQUEST['sb_view']),
+        UA::getQueryKey() => UA::getQueryValue()
     );
     $qs = array_merge($word_qs, $qs);
     $mae_ht = P2View::tagA(
@@ -60,13 +50,13 @@ if ($disp_navi['from'] > 1) {
 $tugi_ht = '';
 if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
     $qs = array(
-            'host'    => $aThreadList->host,
-            'bbs'     => $aThreadList->bbs,
-            'spmode'  => $aThreadList->spmode,
-            'norefresh' => '1',
-            'from'    => $disp_navi['tugi_from'],
-            'sb_view' => geti($_REQUEST['sb_view']),
-            UA::getQueryKey() => UA::getQueryValue()
+        'host'    => $aThreadList->host,
+        'bbs'     => $aThreadList->bbs,
+        'spmode'  => $aThreadList->spmode,
+        'norefresh' => '1',
+        'from'    => $disp_navi['tugi_from'],
+        'sb_view' => geti($_REQUEST['sb_view']),
+        UA::getQueryKey() => UA::getQueryValue()
     );
     $qs = array_merge($word_qs, $qs);
     $tugi_ht = P2View::tagA(
@@ -83,55 +73,22 @@ if ($disp_navi['from'] == $disp_navi['end']) {
 }
 $sb_range_st = "{$sb_range_on}/{$sb_disp_all_num} ";
 
+$k_sb_navi_ht = '';
 if (!$disp_navi['all_once']) {
-	$k_sb_navi_ht = <<<EOP
-<p>{$sb_range_st}{$mae_ht} {$tugi_ht}</p>
-EOP;
-} else {
-    $k_sb_navi_ht = '';
+    $k_sb_navi_ht = "<p>{$sb_range_st}{$mae_ht} {$tugi_ht}</p>";
 }
 
 // }}}
 
 // dat倉庫
 // スペシャルモードでなければ、またはあぼーんリストなら
-$dat_soko_ht = '';
-if (!$aThreadList->spmode or $aThreadList->spmode == "taborn") {
-    $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
-        'host'   => $aThreadList->host,
-        'bbs'    => $aThreadList->bbs,
-        'norefresh' => '1',
-        'spmode' => 'soko',
-        UA::getQueryKey() => UA::getQueryValue()
-    ));
-    $dat_soko_ht = P2View::tagA($uri, hs('dat倉庫'));
-}
+$dat_soko_ht = _getDatSokoAtag($aThreadList);
 
 // あぼーん中のスレッド
-$taborn_link_ht = '';
-if (!empty($ta_num)) {
-    $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
-        'host'   => $aThreadList->host,
-        'bbs'    => $aThreadList->bbs,
-        'norefresh' => '1',
-        'spmode' => 'taborn',
-        UA::getQueryKey() => UA::getQueryValue()
-    ));
-    $taborn_link_ht = P2View::tagA($uri, hs("ｱﾎﾞﾝ中({$ta_num})"));
-}
+$taborn_link_atag = _getTabornLinkAtag($aThreadList, $ta_num);
 
 // 新規スレッド作成
-$buildnewthread_ht = '';
-if (!$aThreadList->spmode and !P2Util::isHostKossoriEnq($aThreadList->host)) {
-    $uri = P2Util::buildQueryUri('post_form.php', array(
-        'host'   => $aThreadList->host,
-        'bbs'    => $aThreadList->bbs,
-        'newthread' => '1',
-        UA::getQueryKey() => UA::getQueryValue()
-    ));
-    $buildnewthread_ht = P2View::tagA($uri, hs("ｽﾚ立て"));
-}
-
+$buildnewthread_ht = _getBuildNewThreadAtag($aThreadList);
 
 // {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
 
@@ -200,7 +157,7 @@ require_once P2_LIB_DIR . '/sb_toolbar_k.funcs.php'; // getShinchakuMatomeATag()
 echo $allfav_ht;
 echo "<p>";
 echo $dat_soko_ht;
-echo ' ' . $taborn_link_ht;
+echo ' ' . $taborn_link_atag;
 echo ' ' . $buildnewthread_ht;
 echo "</p>";
 echo '<p>'. $htm['change_sort'] . '</p>';
@@ -237,4 +194,86 @@ function _getWordQs()
         );
     }
     return $word_qs;
+}
+
+/**
+ * @return  string  <a>
+ */
+function _getAllFavAtag($aThreadList, $sb_view)
+{
+    global $_conf;
+    
+    $allfav_atag = '';
+    if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
+        $uri = P2Util::buildQueryUri($_conf['subject_php'],
+            array(
+                'spmode' => 'fav',
+                'norefresh' => '1',
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        );
+        $allfav_atag = P2View::tagA($uri, hs("全てのお気にｽﾚを表示"));
+    }
+    return $allfav_atag;
+}
+
+/**
+ * @return  string  <a>
+ */
+function _getTabornLinkAtag($aThreadList, $ta_num)
+{
+    global $_conf;
+    
+    $taborn_link_atag = '';
+    if (!empty($ta_num)) {
+        $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+            'host'   => $aThreadList->host,
+            'bbs'    => $aThreadList->bbs,
+            'norefresh' => '1',
+            'spmode' => 'taborn',
+            UA::getQueryKey() => UA::getQueryValue()
+        ));
+        $taborn_link_atag = P2View::tagA($uri, hs("ｱﾎﾞﾝ中({$ta_num})"));
+    }
+    return $taborn_link_atag;
+}
+
+/**
+ * @return  string  <a>
+ */
+function _getBuildNewThreadAtag($aThreadList)
+{
+    $buildnewthread_ht = '';
+    if (!$aThreadList->spmode and !P2Util::isHostKossoriEnq($aThreadList->host)) {
+        $uri = P2Util::buildQueryUri('post_form.php', array(
+            'host'   => $aThreadList->host,
+            'bbs'    => $aThreadList->bbs,
+            'newthread' => '1',
+            UA::getQueryKey() => UA::getQueryValue()
+        ));
+        $buildnewthread_ht = P2View::tagA($uri, hs("ｽﾚ立て"));
+    }
+}
+
+/**
+ * @return  string  <a>
+ */
+function _getDatSokoAtag($aThreadList)
+{
+    global $_conf;
+    
+    $data_doko_atag = '';
+    if (!$aThreadList->spmode or $aThreadList->spmode == 'taborn') {
+        $uri = P2Util::buildQueryUri($_conf['subject_php'],
+            array(
+                'host'   => $aThreadList->host,
+                'bbs'    => $aThreadList->bbs,
+                'norefresh' => '1',
+                'spmode' => 'soko',
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        );
+        $data_doko_atag = P2View::tagA($uri, hs('dat倉庫'));
+    }
+    return $data_doko_atag;
 }

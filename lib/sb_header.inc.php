@@ -130,7 +130,6 @@ $sb_form_hidden_ht = <<<EOP
 			<input type="hidden" name="host" value="{$aThreadList->host}">
 			<input type="hidden" name="spmode" value="{$aThreadList->spmode}">
 			{$_conf['k_input_ht']}
-
 EOP;
 
 // {{{ 表示件数 フォームHTMLをセット
@@ -148,16 +147,16 @@ if (!$aThreadList->spmode || $aThreadList->spmode == "news") {
     $vn_selecteds[$viewnum] = 'selected';
     
     $sb_disp_num_ht = <<<EOP
-				<select name="viewnum" title="スレッド表示件数">
-					<option value="100"{$vn_selecteds[100]}>100件</option>
-					<option value="150"{$vn_selecteds[150]}>150件</option>
-					<option value="200"{$vn_selecteds[200]}>200件</option>
-					<option value="250"{$vn_selecteds[250]}>250件</option>
-					<option value="300"{$vn_selecteds[300]}>300件</option>
-					<option value="400"{$vn_selecteds[400]}>400件</option>
-					<option value="500"{$vn_selecteds[500]}>500件</option>
-					<option value="all"{$vn_selecteds['all']}>全て</option>
-				</select>
+			<select name="viewnum" title="スレッド表示件数">
+				<option value="100"{$vn_selecteds[100]}>100件</option>
+				<option value="150"{$vn_selecteds[150]}>150件</option>
+				<option value="200"{$vn_selecteds[200]}>200件</option>
+				<option value="250"{$vn_selecteds[250]}>250件</option>
+				<option value="300"{$vn_selecteds[300]}>300件</option>
+				<option value="400"{$vn_selecteds[400]}>400件</option>
+				<option value="500"{$vn_selecteds[500]}>500件</option>
+				<option value="all"{$vn_selecteds['all']}>全て</option>
+			</select>
 
 EOP;
 }

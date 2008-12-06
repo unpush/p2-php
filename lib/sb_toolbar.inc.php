@@ -4,7 +4,7 @@
 
 require_once P2_LIB_DIR . '/sb_toolbar.funcs.php';
 
-// 主なHTML表示用変数は sb_header.inc.php にて設定
+// 主なHTML表示用変数は sb_header.inc.php で設定されている
 
 $sb_tool_i = updateSbToolI(); // int
 

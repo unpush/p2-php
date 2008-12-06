@@ -64,7 +64,7 @@ EOP;
     /*
     if ($diedat_msg_ht) {
         echo $hr . $diedat_msg_ht;
-        ?><p><?php echo $motothre_ht ?></p><?php
+        ?><p><?php echo $motothre_atag ?></p><?php
     }
     */
 }

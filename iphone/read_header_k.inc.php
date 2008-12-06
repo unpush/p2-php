@@ -3,8 +3,8 @@
     p2 -  スレッド表示 -  ヘッダ部分 -  携帯用 for read.php
 */
 
-// 変数 =====================================
-$diedat_msg_ht = "";
+// 変数
+$diedat_msg_ht = '';
 
 $info_st        = "スレ情報表示";
 $delete_st      = "ログ削除";
@@ -21,7 +21,7 @@ $motothre_url   = $aThread->getMotoThread();
 $ttitle_en      = base64_encode($aThread->ttitle);
 $ttitle_urlen   = rawurlencode($ttitle_en);
 
-// ↓$xxx_q は使わない方がよい（廃止したい）
+// ↓$xxx_q は使わない方向（廃止したい）
 $ttitle_en_q    = "&amp;ttitle_en=" . $ttitle_urlen;
 $bbs_q          = "&amp;bbs=" . $aThread->bbs;
 $key_q          = "&amp;key=" . $aThread->key;
@@ -239,17 +239,18 @@ EOP;
 // {{{ 検索時の特別な処理
 
 if ($_filter_hits !== NULL) {
-    include P2_LIB_DIR . '/read_filter_k.inc.php';
+    require_once P2_LIB_DIR . '/read_filter_k.inc.php';
     resetReadNaviHeaderK();
 }
 
 // }}}
 
 //====================================================================
-// HTMLプリント
+// HTML出力
 //====================================================================
 
 // {{{ ツールバー部分HTML
+
 // お気にマーク設定
 $favmark    = !empty($aThread->fav) ? '★' : '+';
 $favdo      = !empty($aThread->fav) ? 0 : 1;
@@ -296,7 +297,7 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
 	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20061206"></script>
 	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20061206"></script>
-	<script type="text/javascript" src="js/post_form.js?v=20061209"></script>
+	<script type="text/javascript" src="js/post_form.js?v=20081205"></script>
     <script type="text/javascript"> 
 	<!-- 
 		// iPhoneのURL編集部分を表示しないようスクロールする
@@ -368,7 +369,7 @@ EOHEADER;
 $onload_script = "";
 
 if ($_conf['bottom_res_form']) {
-    echo '<script type="text/javascript" src="js/post_form.js?v=20061209"></script>' . "\n";
+    echo '<script type="text/javascript" src="js/post_form.js?v=20081205"></script>' . "\n";
     $onload_script .= "checkSage();";
 }
 
@@ -415,15 +416,10 @@ if ($_conf['enable_spm']) {
 // スレが板サーバになければ
 if ($aThread->diedat) { 
 
-    if ($aThread->getdat_error_msg_ht) {
-        $diedat_msg_ht = $aThread->getdat_error_msg_ht;
-    } else {
-        $diedat_msg_ht = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
-    }
-
-    $motothre_ht = "<a href=\"{$motothre_url}\">{$motothre_url}</a>";
-
-    echo "$diedat_msg_ht<p>$motothre_atag</p>";
+    $motothre_atag = P2View::tagA($motothre_url, hs($moto_thre_st));
+    
+    echo $diedat_msg_ht = _getGetDatErrorMsgHtml($aThread);
+    echo "<p>$motothre_atag</p>";
     
     // 既得レスがなければツールバー表示
     if (!$aThread->rescount) {
@@ -464,7 +460,7 @@ $filter_fields = array(
     'belv'  => 'ﾎﾟｲﾝﾄが'
 );
 
-if ($word) {
+if (isset($GLOBALS['word']) && strlen($GLOBALS['word'])) {
     echo "検索結果: ";
     echo "{$filter_fields[$res_filter['field']]}";
     echo "&quot;{$word_hs}&quot;を";
@@ -535,4 +531,21 @@ function csrangeform($default = '', &$aThread)
     $form .= '</form>';
 
     return $form;
+}
+
+//=======================================================================================
+// 関数（このファイル内でのみ利用）
+//=======================================================================================
+/**
+ * @return  string  HTML
+ */
+function _getGetDatErrorMsgHtml($aThread)
+{
+    $diedat_msg_ht = '';
+    if ($aThread->getdat_error_msg_ht) {
+        $diedat_msg_ht = $aThread->getdat_error_msg_ht;
+    } else {
+        $diedat_msg_ht = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
+    }
+    return $diedat_msg_ht;
 }

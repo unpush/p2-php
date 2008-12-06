@@ -3,7 +3,9 @@
     p2 -  スレッド表示 -  ヘッダ部分 -  携帯用 for read.php
 */
 
-// 変数 =====================================
+// 変数
+$diedat_msg_ht = '';
+
 $info_st        = "情";
 $dele_st        = "削";
 $prev_st        = "前";
@@ -319,7 +321,7 @@ P2Util::printInfoHtml();
 // スレが板サーバになければ
 if ($aThread->diedat) { 
 
-    echo _getGetDatErrorMsgHtml($aThread);
+    echo $diedat_msg_ht = _getGetDatErrorMsgHtml($aThread);
     echo "<p>$motothre_atag</p>$hr";
     
     // 既得レスがなければツールバー表示
