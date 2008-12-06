@@ -21,7 +21,7 @@ class Login
         $login_user = $this->setdownLoginUser();
     
         // ƒ†[ƒU–¼‚ªw’è‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î
-        if (strlen($login_user) == 0) {
+        if (!strlen($login_user)) {
 
             // ƒƒOƒCƒ“‚É¸”s‚µ‚½‚çAƒƒOƒCƒ“‰æ–Ê‚ğ•\¦‚µ‚ÄI—¹‚·‚é
             require_once P2_LIB_DIR . '/login_first.inc.php';
@@ -647,8 +647,8 @@ EOP;
      {
         $r = setcookie('cid', '', time() - 3600);
         
-        setcookie('p2_user', '', time() - 3600);    //  ”p~—v‘f 2005/6/13
-        setcookie('p2_pass', '', time() - 3600);    //  ”p~—v‘f 2005/6/13
+        setcookie('p2_user',   '', time() - 3600);    //  ”p~—v‘f 2005/6/13
+        setcookie('p2_pass',   '', time() - 3600);    //  ”p~—v‘f 2005/6/13
         setcookie('p2_pass_x', '', time() - 3600);  //  ”p~—v‘f 2005/6/13
         
         $_COOKIE = array();

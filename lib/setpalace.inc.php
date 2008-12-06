@@ -13,28 +13,23 @@ function setPal($host, $bbs, $key, $set)
 {
     global $_conf;
 
-    // key.idx のパスを求めて
-    $idx_host_dir   = P2Util::idxDirOfHost($host);
-    $idxfile        = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
-
+    $idxfile = P2Util::getKeyIdxFilePath($host, $bbs, $key);
+    
     // 既に key.idx データがあるなら読み込む
     if (file_exists($idxfile) and $lines = file($idxfile)) {
         $l = rtrim($lines[0]);
         $data = explode('<>', $l);
     }
 
-    // p2_palace.idxに書き込む
-    $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx';
-
-    if (false === FileCtl::make_datafile($palace_idx, $_conf['palace_perm'])) {
+    if (false === FileCtl::make_datafile($_conf['palace_file'], $_conf['palace_perm'])) {
         return false;
     }
 
-    if (false === $pallines = file($palace_idx)) {
+    if (false === $pallines = file($_conf['palace_file'])) {
         return false;
     }
     
-    $neolines = array();
+    $newlines = array();
     $before_line_num = 0;
     
     // {{{ 最初に重複要素を削除しておく
@@ -53,34 +48,60 @@ function setPal($host, $bbs, $key, $set)
             } elseif (!$lar[1]) {
                 continue;
             } else {
-                $neolines[] = $l;
+                $newlines[] = $l;
             }
         }
     }
     
     // }}}
     
+    if (!empty($GLOBALS['brazil'])) {
+        //$newlines = _removeLargePallistData($newlines);
+    }
+    
     // 新規データ設定
     if ($set) {
         $newdata = implode('<>', array(
-            $data[0], $key, $data[2], $data[3], $data[4], $data[5],
-            $data[6], $data[7], $data[8], $data[9], $host, $bbs
+            geti($data[0]), $key, geti($data[2]), geti($data[3]), geti($data[4]), geti($data[5]),
+            geti($data[6]), geti($data[7]), geti($data[8]), geti($data[9]), $host, $bbs
         ));
         require_once P2_LIB_DIR . '/getsetposlines.inc.php';
-        $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $set);
+        $rec_lines = getSetPosLines($newlines, $newdata, $before_line_num, $set);
     } else {
-        $rec_lines = $neolines;
+        $rec_lines = $newlines;
     }
     
     if (false === FileCtl::filePutRename(
-            $palace_idx,
+            $_conf['palace_file'],
             $rec_lines ? implode("\n", $rec_lines) . "\n" : ''
         )
     ) {
-        $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
-        trigger_error($errmsg, E_USER_WARNING);
+        trigger_error(
+            sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__),
+            E_USER_WARNING
+        );
         return false;
     }
     
     return true;
+}
+
+/**
+ * 登録数超過データを削除
+ *
+ * @return  void
+ */
+function _removeLargePallistData($newlines, $max = 1000)
+{
+    if ($removelines = array_slice($newlines, $max)) {
+        // 調査ログ用
+        if (count($removelines) > 1) {
+            trigger_error(
+                sprintf("%s() %d", __FUNCTION__, count($newlines)),
+                E_USER_WARNING
+            );
+        }
+    }
+    
+    return array_slice($newlines, 0, $max);
 }

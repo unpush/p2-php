@@ -6,6 +6,9 @@
 
 require_once './conf/conf.inc.php';
 
+require_once P2_LIB_DIR . '/P2Validate.php';
+
+
 $_login->authorize(); // ユーザ認証
 
 // {{{ スレッド情報
@@ -110,6 +113,7 @@ echo <<<EOF
 
 </filedset>
 </div>
+?>
 </body>
 </html>
-EOF;
+<?php

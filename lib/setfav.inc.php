@@ -67,7 +67,7 @@ function setFav($host, $bbs, $key, $setfav)
     }
 
     if (!empty($GLOBALS['brazil'])) {
-        _removeLargeFavlistData($newlines);
+        //$newlines = _removeLargeFavlistData($newlines);
     }
     
     // 記録データ設定
@@ -92,7 +92,6 @@ function setFav($host, $bbs, $key, $setfav)
             sprintf('file_put_contents(%s)', $_conf['favlist_file']),
             E_USER_WARNING
         );
-        die('Error: cannot write file.');
         return false;
     }
 
@@ -104,18 +103,27 @@ function setFav($host, $bbs, $key, $setfav)
 
 /**
  * お気にスレの登録数超過データを削除
+ *
+ * @return  void
  */
-function _removeLargeFavlistData(&$newlines, $max = 500)
+function _removeLargeFavlistData($newlines, $max = 500)
 {
-    $count = count($newlines);
-    for ($i = 0; $i < $count; $i++) {
-        if ($i >= $max) {
-            $d = explode('<>', $newlines[$i]);
+    if ($removelines = array_slice($newlines, $max)) {
+        for ($i = 0; $i < count($removelines); $i++) {
+            $d = explode('<>', $removelines[$i]);
             _setFavToKeyIdx($d[10], $d[11], $d[1], '0');
-            unset($newlines[$i]);
-            //trigger_error("_removeLargeFavlistData() x$i", E_USER_WARNING);
+        }
+        
+        // 調査ログ用
+        if (count($removelines) > 1) {
+            trigger_error(
+                sprintf("%s() %d", __FUNCTION__, count($newlines)),
+                E_USER_WARNING
+            );
         }
     }
+    
+    return array_slice($newlines, 0, $max);
 }
 
 /**
@@ -135,18 +143,7 @@ function _setFavToKeyIdx($host, $bbs, $key, $setfav)
         $data = explode('<>', $l);
     }
 
-    /*
-    // readnum
-    if (!isset($data[4])) {
-        $data[4] = 0;
-    }
-    if (!isset($data[9])) {
-        $data[9] = $data[4] + 1; // $newlineは廃止予定だが、後方互換用に念のため
-    }
-    */
-    
-    // {{{ スレッド.idx 記録
-    
+    // スレッド.idx 記録
     if ($setfav == '0' || $setfav == '1') {
     
         // お気にスレから外した結果、idxの意味がなくなれば削除する
@@ -160,7 +157,6 @@ function _setFavToKeyIdx($host, $bbs, $key, $setfav)
             ));
         }
     }
-    // }}}
     
     return $data;
 }

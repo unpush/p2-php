@@ -814,7 +814,9 @@ function _postIt($host, $bbs, $key, $post)
     if (preg_match($kakikonda_match, $response, $matches) or $post_seikou) {
         
         // クッキーの書き込み自動保存を消去する
-        isset($_COOKIE['post_msg']) and setcookie('post_msg', '', time() - 3600);
+        if (isset($_COOKIE['post_msg'])) {
+            setcookie('post_msg', '', time() - 3600);
+        }
         
         $reload = empty($_POST['from_read_new']);
         _showPostMsg(true, '書きこみが終わりました。', $reload);

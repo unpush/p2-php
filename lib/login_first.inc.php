@@ -7,7 +7,7 @@
  */
 function printLoginFirst(&$_login)
 {
-    global $_info_msg_ht, $STYLE, $_conf;
+    global $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
     
     // {{{ データ保存ディレクトリに書き込み権限がなければ注意を表示セットする
@@ -33,7 +33,7 @@ function printLoginFirst(&$_login)
     // 外部からの変数
     $post['form_login_id']   = isset($_POST['form_login_id'])   ? $_POST['form_login_id']   : null;
     $post['form_login_pass'] = isset($_POST['form_login_pass']) ? $_POST['form_login_pass'] : null;
-    
+
     //=========================================================
     // 書き出し用変数
     //=========================================================
@@ -49,6 +49,10 @@ function printLoginFirst(&$_login)
         'user'      => 'ユーザ',
         'password'  => 'パスワード'
     );
+    
+    if (!empty($GLOBALS['brazil'])) {
+        $p_str['user'] = 'メール';
+    }
     
     // 携帯用表示文字列全角→半角変換
     if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
@@ -122,7 +126,6 @@ function printLoginFirst(&$_login)
         $form_login_id_hs = hs($post['form_login_id']);
     }
     
-    
     if (preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_pass'])) {
         $form_login_pass_hs = hs($post['form_login_pass']);
     } else {
@@ -189,7 +192,7 @@ EOP;
         // {{{ 入力エラーをチェック、判定
         
         if (!preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_pass'])) {
-            $_info_msg_ht .= "<p class=\"infomsg\">rep2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>";
+            P2Util::pushInfoHtml("<p class=\"infomsg\">p2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>");
             $show_login_form_flag = true;
         
         // }}}
@@ -210,7 +213,7 @@ EOP;
             // セッションが利用されているなら、セッションを更新
             if (isset($_p2session)) {
                 // ユーザ名とパスXを更新
-                $_SESSION['login_user'] = $_login->user_u;
+                $_SESSION['login_user']   = $_login->user_u;
                 $_SESSION['login_pass_x'] = $_login->pass_x;
             }
             
@@ -224,9 +227,9 @@ EOP;
     // {{{ ログインエラーがある
     
     } else {
-    
-        if (isset($post['form_login_id']) || isset($post['form_login_pass'])) {
-            $msg_ht .= '<p class="infomsg">';
+
+        if (isset($_POST['submit_new']) || isset($_POST['submit_member'])) {
+            $msg_ht = '<p class="infomsg">';
             if (!$post['form_login_id']) {
                 $msg_ht .= "p2 error: 「{$p_str['user']}」が入力されていません。" . "<br>";
             } elseif (!$_login->validLoginId($post['form_login_id'])) {
@@ -240,7 +243,6 @@ EOP;
         }
 
         $show_login_form_flag = true;
-
     }
     
     // }}}
@@ -272,12 +274,12 @@ EOP;
 	<h3><?php echo $ptitle_ht; ?></h3><?php
 
     P2Util::printInfoHtml();
-    
+
     echo $body_ht;
 
     if ($show_login_form_flag) {
         echo $login_form_ht;
-        if (!(HostCheck::isAddrLocal() || HostCheck::isAddrPrivate())) {
+        if (empty($GLOBALS['brazil']) and !(HostCheck::isAddrLocal() || HostCheck::isAddrPrivate())) {
         ?><p>
 	<font style="font-size:9pt" color="gray">※プライベート利用のためのシステムです。<br>
 	このページへのアクセスURLを部外者が<br>

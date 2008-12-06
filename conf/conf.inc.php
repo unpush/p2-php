@@ -428,21 +428,28 @@ if ($_conf['output_callback']) {
 //======================================================================
 // 変数設定
 //======================================================================
-$_conf['rct_file'] =            $_conf['pref_dir'] . '/p2_recent.idx';
-$_conf['p2_res_hist_dat'] =     $_conf['pref_dir'] . '/p2_res_hist.dat'; // 書き込みログファイル（dat）
-$_conf['p2_res_hist_dat_php'] = $_conf['pref_dir'] . '/p2_res_hist.dat.php'; // 書き込みログファイル（データPHP）旧
+$_conf['rct_file']              = $_conf['pref_dir'] . '/p2_recent.idx';
+
+// 書き込みログファイル（dat）
+$_conf['p2_res_hist_dat']       = $_conf['pref_dir'] . '/p2_res_hist.dat';
+
+// 書き込みログファイル（データPHP）旧
+$_conf['p2_res_hist_dat_php']   = $_conf['pref_dir'] . '/p2_res_hist.dat.php';
+
 // 書き込みログファイル（dat） セキュリティ通報用
-$_conf['p2_res_hist_dat_secu'] = $_conf['pref_dir'] . '/p2_res_hist.secu.cgi';
-$_conf['cookie_dir'] =          $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
-$_conf['favlist_file'] =        $_conf['pref_dir'] . '/p2_favlist.idx';
-$_conf['favita_path'] =         $_conf['pref_dir'] . '/p2_favita.brd';
-$_conf['idpw2ch_php'] =         $_conf['pref_dir'] . '/p2_idpw2ch.php';
-$_conf['sid2ch_php'] =          $_conf['pref_dir'] . '/p2_sid2ch.php';
-$_conf['auth_user_file'] =      $_conf['pref_dir'] . '/p2_auth_user.php';
-$_conf['auth_ez_file'] =        $_conf['pref_dir'] . '/p2_auth_ez.php';
-$_conf['auth_jp_file'] =        $_conf['pref_dir'] . '/p2_auth_jp.php';
-$_conf['auth_docomo_file'] =    $_conf['pref_dir'] . '/p2_auth_docomo.php';
-$_conf['login_log_file'] =      $_conf['pref_dir'] . '/p2_login.log.php';
+$_conf['p2_res_hist_dat_secu']  = $_conf['pref_dir'] . '/p2_res_hist.secu.cgi';
+
+$_conf['cookie_dir']            = $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
+$_conf['favlist_file']          = $_conf['pref_dir'] . '/p2_favlist.idx';
+$_conf['palace_file']           = $_conf['pref_dir'] . '/p2_palace.idx';
+$_conf['favita_path']           = $_conf['pref_dir'] . '/p2_favita.brd';
+$_conf['idpw2ch_php']           = $_conf['pref_dir'] . '/p2_idpw2ch.php';
+$_conf['sid2ch_php']            = $_conf['pref_dir'] . '/p2_sid2ch.php';
+$_conf['auth_user_file']        = $_conf['pref_dir'] . '/p2_auth_user.php';
+$_conf['auth_ez_file']          = $_conf['pref_dir'] . '/p2_auth_ez.php';
+$_conf['auth_jp_file']          = $_conf['pref_dir'] . '/p2_auth_jp.php';
+$_conf['auth_docomo_file']      = $_conf['pref_dir'] . '/p2_auth_docomo.php';
+$_conf['login_log_file']        = $_conf['pref_dir'] . '/p2_login.log.php';
 $_conf['login_failed_log_file'] = $_conf['pref_dir'] . '/p2_login_failed.dat.php';
 
 // saveMatomeCache() のために $_conf['pref_dir'] を絶対パスに変換する
@@ -542,9 +549,13 @@ function printMemoryUsage()
 /**
  * @return  void  $GLOBALS['debug'], $GLOBALS['profiler']
  */
-function _setDebug()
+function _setDebug($debug = null)
 {
-    $GLOBALS['debug'] = isset($_GET['debug']) ? intval($_GET['debug']) : 0;
+    if (is_null($debug)) {
+        $GLOBALS['debug'] = isset($_GET['debug']) ? intval($_GET['debug']) : 0;
+    } else {
+        $GLOBALS['debug'] = $debug;
+    }
     if ($GLOBALS['debug']) {
         require_once 'Benchmark/Profiler.php';
         $GLOBALS['profiler'] = new Benchmark_Profiler(true);

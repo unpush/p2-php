@@ -11,10 +11,17 @@ $_login->authorize(); // ユーザ認証
 
 // 書き込んだレスのログをダウンロード
 if (!empty($_GET['dl_res_hist_log'])) {
-    header('Content-Type: text/plain; name=' . basename($_conf['p2_res_hist_dat']));
-    header("Content-Disposition: attachment; filename=" . basename($_conf['p2_res_hist_dat']));
-    readfile($_conf['p2_res_hist_dat']);
-    exit;
+    _dlDataFile($_conf['p2_res_hist_dat']); // exit
+}
+
+// お気にスレリスト 生データ DL
+if (!empty($_GET['dl_favlist_file'])) {
+    _dlDataFile($_conf['favlist_file']); // exit
+}
+
+// スレの殿堂 生データ DL
+if (!empty($_GET['dl_palace_file'])) {
+    _dlDataFile($_conf['palace_file']); // exit
 }
 
 // 書き込んだレスのログ削除
@@ -317,7 +324,7 @@ if (!$_conf['ktai']) {
                 UA::getQueryKey() => UA::getQueryValue()
             )
         ),
-        hs('書き込んだレスの生ログを一括ダウンロードする')
+        hs('書き込んだレスの生ログを一括ダウンロード')
     );
 ?>
 <p>[<?php echo $dl_res_hist_log_atag; ?>]</p>
@@ -342,6 +349,38 @@ $clear_res_hist_log_atag = P2View::tagA(
 <p>[<?php echo $clear_res_hist_log_atag; ?>]</p>
 <?php
 
+if (!$_conf['ktai']) {
+    $dl_favlist_atag = P2View::tagA(
+        P2Util::buildQueryUri(
+            basename($_SERVER['SCRIPT_NAME']),
+            array(
+                'dl_favlist_file' => 1,
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs('お気にスレリストの生データをダウンロード')
+    );
+?>
+<p>[<?php echo $dl_favlist_atag; ?>]</p>
+<?php
+}
+
+if (!$_conf['ktai']) {
+    $dl_palace_atag = P2View::tagA(
+        P2Util::buildQueryUri(
+            basename($_SERVER['SCRIPT_NAME']),
+            array(
+                'dl_palace_file' => 1,
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs('スレの殿堂リストの生データをダウンロード')
+    );
+?>
+<p>[<?php echo $dl_palace_atag; ?>]</p>
+<?php
+}
+
 // 携帯用フッタHTML
 if (UA::isK()) {
     echo $hr . "\n";
@@ -357,6 +396,20 @@ exit;
 //==================================================================================
 // 関数（このファイル内のみで利用）
 //==================================================================================
+/**
+ * @return  void  exit
+ */
+function _dlDataFile($file)
+{
+    if (!file_exists($file)) {
+        P2Util::printSimpleHtml('データファイルが存在しないよ。');
+        exit;
+    }
+    header('Content-Type: text/plain; name=' . basename($file));
+    header("Content-Disposition: attachment; filename=" . basename($file));
+    readfile($file);
+    exit;
+}
 
 /**
  * 書き込んだレスの削除
@@ -477,7 +530,7 @@ EOFORM;
 function _printSkinSelectFormHtml($path_value, $submit_value)
 {
     global $_conf;
-    
+
     $onsubmit = '';
     $disabled = '';
     if (

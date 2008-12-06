@@ -2,26 +2,32 @@
 /*
     p2 -  設定管理
 */
-/* 2008/7/25 iPhone専用にカスタマイズ*/
+/* 2008/7/25 iPhone専用にカスタマイズ */
 
 require_once './conf/conf.inc.php';
 
 require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/P2View.php';
+
 $_login->authorize(); // ユーザ認証
 
 // 書き込んだレスのログをダウンロード
 if (!empty($_GET['dl_res_hist_log'])) {
-    header('Content-Type: text/plain; name=' . basename($_conf['p2_res_hist_dat']));
-    header("Content-Disposition: attachment; filename=" . basename($_conf['p2_res_hist_dat']));
-    readfile($_conf['p2_res_hist_dat']);
-    exit;
+    _dlDataFile($_conf['p2_res_hist_dat']); // exit
 }
 
+// お気にスレリスト 生データ DL
+if (!empty($_GET['dl_favlist_file'])) {
+    _dlDataFile($_conf['favlist_file']); // exit
+}
+
+// スレの殿堂 生データ DL
+if (!empty($_GET['dl_palace_file'])) {
+    _dlDataFile($_conf['palace_file']); // exit
+}
 
 // 書き込んだレスのログ削除
 _clearResHistLogByQuery();
-
 
 // {{{ ホストの同期用設定
 
@@ -206,7 +212,9 @@ $clear_res_hist_log_atag = P2View::tagA(
     ),
     hs('書き込んだレスのログを全て削除する')
 );
+
 echo $clear_res_hist_log_atag;
+
 echo '</filedset><div>';
 echo '</body></html>';
 
@@ -214,10 +222,23 @@ echo '</body></html>';
 exit;
 
 
-//==============================================================================
-// 関数
-//==============================================================================
-
+//==================================================================================
+// 関数（このファイル内のみで利用）
+//==================================================================================
+/**
+ * @return  void  exit
+ */
+function _dlDataFile($file)
+{
+    if (!file_exists($file)) {
+        P2Util::printSimpleHtml('データファイルが存在しないよ。');
+        exit;
+    }
+    header('Content-Type: text/plain; name=' . basename($file));
+    header("Content-Disposition: attachment; filename=" . basename($file));
+    readfile($file);
+    exit;
+}
 
 /**
  * 書き込んだレスの削除
@@ -277,7 +298,10 @@ function _printEditFileHtml($path_value, $submit_value)
     global $_conf;
     
     // アクティブ
-    if ((file_exists($path_value) && is_writable($path_value)) || (!file_exists($path_value) && is_writable(dirname($path_value)))) {
+    if (
+        (file_exists($path_value) && is_writable($path_value))
+        || (!file_exists($path_value) && is_writable(dirname($path_value)))
+    ) {
         $onsubmit = '';
         $disabled = '';
     
@@ -318,7 +342,7 @@ function _printEditFileHtml($path_value, $submit_value)
 	<input type="submit" value="{$submit_value}"{$disabled}>
 </form>\n
 EOFORM;
-        // IE用にform内のタグ間の空白を除去　する
+        // IE用にform HTML内のタグ間の空白を除去整形する
         if (strstr(geti($_SERVER['HTTP_USER_AGENT']), 'MSIE')) {
             $html = '&nbsp;' . preg_replace('{>\s+<}', '><', $html);
         }
