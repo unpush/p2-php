@@ -4,6 +4,7 @@
 */
 
 require_once './conf/conf.inc.php';
+
 require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/P2View.php';
 
@@ -12,6 +13,11 @@ $_login->authorize(); // ユーザ認証
 // 書き込んだレスのログをダウンロード
 if (!empty($_GET['dl_res_hist_log'])) {
     _dlDataFile($_conf['p2_res_hist_dat']); // exit
+}
+
+// 最近読んだスレリスト 生データ DL
+if (!empty($_GET['dl_recent_file'])) {
+    _dlDataFile($_conf['recent_file']); // exit
 }
 
 // お気にスレリスト 生データ DL
@@ -35,7 +41,7 @@ if (!isset($palace_idx)) { $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx'; 
 $synctitle = array(
     basename($_conf['favita_path'])  => 'お気に板',
     basename($_conf['favlist_file']) => 'お気にスレ',
-    basename($_conf['rct_file'])     => '最近読んだスレ',
+    basename($_conf['recent_file'])  => '最近読んだスレ',
     basename($rh_idx)                => '書き込み履歴',
     basename($palace_idx)            => 'スレの殿堂'
 );
@@ -54,7 +60,7 @@ if (isset($_POST['skin'])) {
     $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {
         BbsMap::syncBrd($syncfile);
-    } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
+    } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['recent_file'], $rh_idx, $palace_idx))) {
         BbsMap::syncIdx($syncfile);
     }
 }
@@ -348,6 +354,22 @@ $clear_res_hist_log_atag = P2View::tagA(
 ?>
 <p>[<?php echo $clear_res_hist_log_atag; ?>]</p>
 <?php
+
+if (!$_conf['ktai']) {
+    $dl_recent_file_atag = P2View::tagA(
+        P2Util::buildQueryUri(
+            basename($_SERVER['SCRIPT_NAME']),
+            array(
+                'dl_recent_file' => 1,
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs('最近読んだスレリストの生データをダウンロード')
+    );
+?>
+<p>[<?php echo $dl_recent_file_atag; ?>]</p>
+<?php
+}
 
 if (!$_conf['ktai']) {
     $dl_favlist_atag = P2View::tagA(

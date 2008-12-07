@@ -562,11 +562,11 @@ function _recRecent($data_ar)
         return true;
     }
 
-    if (false === FileCtl::make_datafile($_conf['rct_file'], $_conf['rct_perm'])) {
+    if (false === FileCtl::make_datafile($_conf['recent_file'], $_conf['rct_perm'])) {
         return false;
     }
     
-    $lines = file($_conf['rct_file']);
+    $lines = file($_conf['recent_file']);
     $newlines = array();
     
     // ç≈èâÇ…èdï°óvëfÇçÌèúÇµÇƒÇ®Ç≠
@@ -594,7 +594,7 @@ function _recRecent($data_ar)
             $cont .= $l . "\n";
         }
 
-        if (false === FileCtl::filePutRename($_conf['rct_file'], $cont)) {
+        if (false === FileCtl::filePutRename($_conf['recent_file'], $cont)) {
             $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
             trigger_error($errmsg, E_USER_WARNING);
             return false;

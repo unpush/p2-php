@@ -37,7 +37,7 @@ if (!isset($palace_idx)) { $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx'; 
 $synctitle = array(
     basename($_conf['favita_path'])  => 'お気に板',
     basename($_conf['favlist_file']) => 'お気にスレ',
-    basename($_conf['rct_file'])     => '最近読んだスレ',
+    basename($_conf['recent_file'])  => '最近読んだスレ',
     basename($rh_idx)                => '書き込み履歴',
     basename($palace_idx)            => 'スレの殿堂'
 );
@@ -52,7 +52,7 @@ if (isset($_POST['sync'])) {
     $sync_name = $_POST['sync'];
     if ($syncfile == $_conf['favita_path']) {
         BbsMap::syncBrd($syncfile);
-    } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['rct_file'], $rh_idx, $palace_idx))) {
+    } elseif (in_array($syncfile, array($_conf['favlist_file'], $_conf['recent_file'], $rh_idx, $palace_idx))) {
         BbsMap::syncIdx($syncfile);
     }
 }

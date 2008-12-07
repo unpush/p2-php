@@ -278,7 +278,7 @@ class BbsMap
         
         BbsMap::syncBrd($_conf['favita_path'], $noMsg);
         BbsMap::syncIdx($_conf['favlist_file'], $noMsg);
-        BbsMap::syncIdx($_conf['rct_file'], $noMsg);
+        BbsMap::syncIdx($_conf['recent_file'], $noMsg);
     }
 
     // }}}

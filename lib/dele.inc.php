@@ -109,11 +109,11 @@ function checkRecent($host, $bbs, $key)
 {
     global $_conf;
 
-    if (!file_exists($_conf['rct_file'])) {
+    if (!file_exists($_conf['recent_file'])) {
         return false;
     }
     
-    $lines = file($_conf['rct_file']);
+    $lines = file($_conf['recent_file']);
     if (is_array($lines)) {
         foreach ($lines as $l) {
             $l = rtrim($l);
@@ -167,11 +167,11 @@ function offRecent($host, $bbs, $key)
 {
     global $_conf;
     
-    if (!file_exists($_conf['rct_file'])) {
+    if (!file_exists($_conf['recent_file'])) {
         return 2;
     }
     
-    if (false === $lines = file($_conf['rct_file'])) {
+    if (false === $lines = file($_conf['recent_file'])) {
         return false;
     }
     
@@ -201,7 +201,7 @@ function offRecent($host, $bbs, $key)
             $cont .= $l . "\n";
         }
         
-        if (false === FileCtl::filePutRename($_conf['rct_file'], $cont)) {
+        if (false === FileCtl::filePutRename($_conf['recent_file'], $cont)) {
             $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
             trigger_error($errmsg, E_USER_WARNING);
             return false;

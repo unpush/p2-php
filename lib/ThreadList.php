@@ -112,7 +112,7 @@ class ThreadList
         
             // ローカルの履歴ファイル 読み込み
             if ($this->spmode == "recent") {
-                file_exists($_conf['rct_file']) and $lines = file($_conf['rct_file']);
+                file_exists($_conf['recent_file']) and $lines = file($_conf['recent_file']);
             
             // ローカルの書き込み履歴ファイル 読み込み
             } elseif ($this->spmode == "res_hist") {

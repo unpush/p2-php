@@ -428,7 +428,8 @@ if ($_conf['output_callback']) {
 //======================================================================
 // 変数設定
 //======================================================================
-$_conf['rct_file']              = $_conf['pref_dir'] . '/p2_recent.idx';
+// 最近読んだスレ
+$_conf['recent_file']           = $_conf['pref_dir'] . '/p2_recent.idx';
 
 // 書き込みログファイル（dat）
 $_conf['p2_res_hist_dat']       = $_conf['pref_dir'] . '/p2_res_hist.dat';

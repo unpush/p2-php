@@ -1320,6 +1320,7 @@ EOID;
         }
         return FALSE;
     }
+    
     /**
      * YouTubeリンク変換プラグイン
      * [wish] YouTube APIを利用して、画像サムネイルのみにしたい
