@@ -578,6 +578,8 @@ EOP;
             return $idstr;
         }
 
+        $idstr = $this->coloredIdStr($idstr, $id);
+
         $word = rawurlencode($id);
         $filter_url = "{$_conf['read_php']}?bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;host={$this->thread->host}&amp;ls=all&amp;field=id&amp;word={$word}&amp;method=just&amp;match=on&amp;idpopup=1&amp;offline=1";
 
@@ -762,6 +764,59 @@ EOP;
         return $this->iframePopup(htmlspecialchars($s[1], ENT_QUOTES, 'Shift_JIS', false),
                                   htmlspecialchars($s[3], ENT_QUOTES, 'Shift_JIS', false),
                                   $s[2]);
+    }
+
+    /**
+     * marged from http://jiyuwiki.com/index.php?cmd=read&page=rep2%A4%C7%A3%C9%A3%C4%A4%CE%C7%D8%B7%CA%BF%A7%CA%D1%B9%B9&alias%5B%5D=pukiwiki%B4%D8%CF%A2
+     *
+     * @access  private
+     * @return  string
+     */
+    function coloredIdStr($idstr, $id)
+    {
+        global $STYLE;
+        
+        // [$id] >= 2　ココの数字でスレに何個以上同じＩＤが出た時に背景色を変えるか決まる
+        if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] < 2) {
+            return $idstr;
+        }
+        $raw = base64_decode(substr($id, 0, 8));
+
+        $arr = unpack('V', substr($raw, 0, 4));
+        
+        // 色相：値域0～360角度で表す。色相を環状に配置して30分割で使用。
+        // 似通った色が判別しやすいように隣合う色の彩度を変えてある。
+        $h = ($arr[1] & 0x3f)*360/30;
+        $s = ($arr[1] & 0x03) *1; //　彩度：値域0（淡い）～1（濃い)
+        $v = 0.5; // 明度：値域0（暗い）～1（明るい）
+        // 色相　彩度　明度に関しては以下参考の事　http://konicaminolta.jp/instruments/colorknowledge/part1/05.html
+
+        // 別の、色決定パラメータ
+        //$arr = unpack('V*',substr($id, 0, 8));
+        //$h = floor(($arr[1] % 36)*360/36); // 色相：36分割
+        //$s = ($arr[1] % 3)>=1 ? 0.1 : 0.3; // 彩度：3の剰余が1,2のときは淡く,0のときは少し濃くする
+        //$v =($arr[1] % 3)<=1 ? 1 : 0.8;    // 明度：3の剰余が0,1のときは明るさ最大,2の時はちょっと暗くする
+
+        $hi = floor($h/60) % 6;
+        $f = $h/60-$hi;
+        $p = $v*(1-$s);
+        $q = $v*(1-$f*$s);
+        $t = $v*(1-(1-$f)*$s);
+
+        switch ($hi) {
+            case 0: $R=$v; $G=$t; $B=$p; break;
+            case 1: $R=$q; $G=$v; $B=$p; break;
+            case 2: $R=$p; $G=$v; $B=$t; break;
+            case 3: $R=$p; $G=$q; $B=$v; break;
+            case 4: $R=$t; $G=$p; $B=$v; break;
+            case 5: $R=$v; $G=$p; $B=$q; break;
+        }
+        $R = floor($R*255);
+        $G = floor($G*255);
+        $B = floor($B*255);
+
+        $uline = $STYLE['a_underline_none'] == 1 ? '' : "text-decoration:underline";
+        return $idstr = "<span style=\"background-color:rgb({$R},{$G},{$B});{$uline}\">{$idstr}</span>";
     }
 
     // }}}
