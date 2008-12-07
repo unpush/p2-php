@@ -1000,7 +1000,11 @@ EOID;
         // iPhone用　別窓変換。通勤ブラウザを書き換え
         $tsukin_link_ht = '';
         if ($_conf['k_use_tsukin']) {
-            $tsukin_link_ht = '<a href="' . hs($url) . '" target="_blank">窓</a>';
+            $tsukin_link_ht = P2Util::tagA(
+                $_conf['through_ime'] ? P2Util::throughIme($url) : $url,
+                hs('窓'),
+                array('target' => '_blank')
+            );
         }
 
         // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
