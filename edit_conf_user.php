@@ -4,6 +4,7 @@
 */
 
 require_once './conf/conf.inc.php';
+
 require_once P2_LIB_DIR . '/DataPhp.php';
 
 $_login->authorize(); // ユーザ認証
@@ -57,7 +58,7 @@ if (!empty($_POST['submit_save'])) {
     if (false === file_put_contents($_conf['conf_user_file'], serialize($conf_save), LOCK_EX)) {
         P2Util::pushInfoHtml("<p>×設定を更新保存できませんでした</p>");
         trigger_error("file_put_contents(" . $_conf['conf_user_file'] . ")", E_USER_WARNING);
-        
+
     } else {
         P2Util::pushInfoHtml("<p>○設定を更新保存しました</p>");
         // 変更があれば、内部データも更新しておく
@@ -138,7 +139,6 @@ EOP;
 }
 
 P2Util::printInfoHtml();
-
 ?>
 <form method="POST" action="<?php eh($_SERVER['SCRIPT_NAME']); ?>" target="_self">
     <input type="hidden" name="csrfid" value="<?php eh($csrfid); ?>">
@@ -149,7 +149,6 @@ P2Util::printInfoHtml();
 if (UA::isPC()) {
     ?><table id="edit_conf_user" cellspacing="0"><?php
 }
-
 
 echo $htm['form_submit'];
 
@@ -457,7 +456,7 @@ function getEditConfHtml($name, $description_ht)
             );
         }
     }
-
+    
     $name_view_hs = hs($_conf[$name]);
     
     if (empty($_conf['ktai'])) {
@@ -490,8 +489,8 @@ EOP;
 EOP;
     // 携帯用
     } else {
+        // [{$name}]<br>
         $r = <<<EOP
-[{$name}]<br>
 {$description_ht}<br>
 {$form_ht}<br>
 <br>\n

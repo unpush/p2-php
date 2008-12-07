@@ -259,6 +259,7 @@ echo $htm['form_submit'];
 </body>
 </html>
 <?php
+
 exit;
 
 
@@ -407,10 +408,10 @@ function getEditConfHtml($name, $description_ht)
             );
         }
     }
-
-    $name_view = $_conf[$name];
     
-    if (empty($_conf['ktai'])) {
+    $name_view_hs = hs($_conf[$name]);
+    
+    if (!$_conf['ktai']) {
         $input_size_at = ' size="38"';
     } else {
         $input_size_at = '';
@@ -424,13 +425,9 @@ function getEditConfHtml($name, $description_ht)
     // input “ü—ÍŽ®‚È‚ç
     } else {
         $form_ht = <<<EOP
-<input type="text" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>\n
+<input type="text" name="conf_edit[{$name}]" value="{$name_view_hs}"{$input_size_at}>\n
 EOP;
-        if (is_string($conf_user_def[$name])) {
-            $def_views[$name] = htmlspecialchars($conf_user_def[$name], ENT_QUOTES);
-        } else {
-            $def_views[$name] = $conf_user_def[$name];
-        }
+        $def_views[$name] = htmlspecialchars($conf_user_def[$name], ENT_QUOTES);
     }
     
     

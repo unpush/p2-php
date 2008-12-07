@@ -965,6 +965,7 @@ EOMSG;
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] < 2) {
             return $idstr;
         }
+        
         $raw = base64_decode(substr($id, 0, 8));
 
         $arr = unpack('V', substr($raw, 0, 4));
