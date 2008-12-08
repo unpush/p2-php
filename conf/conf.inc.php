@@ -694,9 +694,9 @@ function _setOSDefine()
  */
 function _setStyle()
 {
-    global $_conf, $STYLE;
+    global $_conf, $STYLE, $MYSTYLE;
     
-    // デフォルトCSS設定（$STYLE）を読み込む
+    // デフォルトCSS設定（$STYLE, $MYSTYLE）を読み込む
     include_once $_conf['conf_user_style_inc_php'];
 
     if ($_conf['skin'] = P2Util::getSkinSetting()) {
