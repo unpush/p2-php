@@ -168,8 +168,8 @@ class ThreadList
                 $dat_host_dir = P2Util::datDirOfHost($this->host);
                 $idx_host_dir = P2Util::idxDirOfHost($this->host);
             
-                $dat_bbs_dir = $dat_host_dir . PATH_SEPARATOR . $this->bbs;
-                $idx_bbs_dir = $idx_host_dir . PATH_SEPARATOR . $this->bbs;
+                $dat_bbs_dir = $dat_host_dir . DIRECTORY_SEPARATOR . $this->bbs;
+                $idx_bbs_dir = $idx_host_dir . DIRECTORY_SEPARATOR . $this->bbs;
                 
                 $dat_pattern = '/([0-9]+)\.dat$/';
                 $idx_pattern = '/([0-9]+)\.idx$/';
@@ -181,9 +181,9 @@ class ThreadList
                 if ($cdir = dir($dat_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     while ($entry = $cdir->read()) {
                         if (preg_match($dat_pattern, $entry, $matches)) {
-                            $theidx = $idx_bbs_dir . PATH_SEPARATOR . $matches[1] . '.idx';
+                            $theidx = $idx_bbs_dir . DIRECTORY_SEPARATOR . $matches[1] . '.idx';
                             if (!file_exists($theidx)) {
-                                if ($datlines = file($dat_bbs_dir . PATH_SEPARATOR . $entry)) {
+                                if ($datlines = file($dat_bbs_dir . DIRECTORY_SEPARATOR . $entry)) {
                                     $firstdatline = rtrim($datlines[0]);
                                     if (strstr($firstdatline, '<>')) {
                                         $datline_sepa = '<>';
@@ -221,12 +221,13 @@ class ThreadList
                     $i = 0;
                     while ($entry = $cdir->read()) {
                         if (preg_match($idx_pattern, $entry)) {
-                            $idl = file($idx_bbs_dir . PATH_SEPARATOR . $entry);
-                            array_push($lines, $idl[0]);
-                            $i++;
-                            if ($i >= $limit) {
-                                P2Util::pushInfoHtml("<p>p2 info: idxログ数が、表示処理可能数である{$limit}件をオーバーしています。</p>");
-                                break;
+                            if ($idl = file($idx_bbs_dir . DIRECTORY_SEPARATOR . $entry)) {
+                                array_push($lines, $idl[0]);
+                                $i++;
+                                if ($i >= $limit) {
+                                    P2Util::pushInfoHtml("<p>p2 info: idxログ数が、表示処理可能数である{$limit}件をオーバーしています。</p>");
+                                    break;
+                                }
                             }
                         }
                     }
