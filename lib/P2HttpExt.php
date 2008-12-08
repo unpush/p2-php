@@ -14,17 +14,37 @@ define('P2HTTPEXT_DEBUG', 0);
 // {{{ P2HttpCallback
 
 /**
- * コールバック用インターフェース
+ * コールバック用抽象クラス
  */
-interface P2HttpCallback
+abstract class P2HttpCallback
 {
+    // {{{ invoke()
+
     /**
      * コールバックメソッド
      *
      * @param P2HttpGet $req
      * @return void
      */
-    public function execute(P2HttpGet $req);
+    abstract public function invoke(P2HttpGet $req);
+
+    // }}}
+    // {{{ __invoke()
+
+    /**
+     * PHP version >= 5.3 用メソッド
+     *
+     * $instance($req); としてインスタンスを関数のように使える
+     *
+     * @param P2HttpGet $req
+     * @return void
+     */
+    final public function __invoke(P2HttpGet $req)
+    {
+        $this->invoke($req);
+    }
+
+    // }}}
 }
 
 // }}}
@@ -33,9 +53,9 @@ interface P2HttpCallback
 /**
  * EUC-JPのレスポンスボディをShift_JISに変換してファイルに保存する
  */
-class P2HttpCallback_SaveEucjpAsSjis implements P2HttpCallback
+class P2HttpCallback_SaveEucjpAsSjis extends P2HttpCallback
 {
-    // {{{ execute()
+    // {{{ invoke()
 
     /**
      * EUC-JPのレスポンスボディをShift_JISに変換してファイルに保存する
@@ -45,14 +65,14 @@ class P2HttpCallback_SaveEucjpAsSjis implements P2HttpCallback
      * @param P2HttpGet $req
      * @return void
      */
-    public function execute(P2HttpGet $req)
+    public function invoke(P2HttpGet $req)
     {
-        $save_path = $req->getSavePath();
-        file_put_contents($save_path,
+        $destination = $req->getFileDestination();
+        file_put_contents($destination,
                           mb_convert_encoding($req->getResponseBody(), 'CP932', 'CP51932'),
                           LOCK_EX
                           );
-        chmod($save_path, $req->getSavePermission());
+        chmod($destination, $req->getFilePermission());
     }
 
     // }}}
@@ -64,9 +84,9 @@ class P2HttpCallback_SaveEucjpAsSjis implements P2HttpCallback
 /**
  * UTF-8のレスポンスボディをShift_JISに変換してファイルに保存する
  */
-class P2HttpCallback_SaveUtf8AsSjis implements P2HttpCallback
+class P2HttpCallback_SaveUtf8AsSjis extends P2HttpCallback
 {
-    // {{{ execute()
+    // {{{ invoke()
 
     /**
      * UTF-8のレスポンスボディをShift_JISに変換してファイルに保存する
@@ -74,14 +94,14 @@ class P2HttpCallback_SaveUtf8AsSjis implements P2HttpCallback
      * @param P2HttpGet $req
      * @return void
      */
-    public function execute(P2HttpGet $req)
+    public function invoke(P2HttpGet $req)
     {
-        $save_path = $req->getSavePath();
-        file_put_contents($save_path,
+        $destination = $req->getFileDestination();
+        file_put_contents($destination,
                           mb_convert_encoding($req->getResponseBody(), 'CP932', 'UTF-8'),
                           LOCK_EX
                           );
-        chmod($save_path, $req->getSavePermission());
+        chmod($destination, $req->getFilePermission());
     }
 
     // }}}
@@ -130,14 +150,14 @@ class P2HttpGet extends HttpRequest
      *
      * @var string
      */
-    private $_savePath;
+    private $_destination;
 
     /**
      * ダウンロードしたデータを保存する際のパーミッション
      *
      * @var int
      */
-    private $_savePerm;
+    private $_permission;
 
     /**
      * エラーコード
@@ -181,16 +201,16 @@ class P2HttpGet extends HttpRequest
      * コンストラクタ
      *
      * @param string $url
-     * @param string $save_path
+     * @param string $destination
      * @param array $options
-     * @param P2HttpCallback $on_success
-     * @param P2HttpCallback $on_failure
+     * @param P2HttpCallback $onSuccess
+     * @param P2HttpCallback $onFailure
      */
     public function __construct($url,
-                                $save_path,
+                                $destination,
                                 array $options = null,
-                                P2HttpCallback $on_success = null,
-                                P2HttpCallback $on_failure = null
+                                P2HttpCallback $onSuccess = null,
+                                P2HttpCallback $onFailure = null
                                 )
     {
         global $_conf;
@@ -256,18 +276,18 @@ class P2HttpGet extends HttpRequest
             */
         }
 
-        if (!isset($options['lastmodified']) && file_exists($save_path)) {
-            $options['lastmodified'] = filemtime($save_path);
+        if (!isset($options['lastmodified']) && file_exists($destination)) {
+            $options['lastmodified'] = filemtime($destination);
         } else {
-            FileCtl::mkdir_for($save_path);
+            FileCtl::mkdir_for($destination);
         }
 
-        $this->_savePath = $save_path;
-        $this->_savePerm = !empty($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
+        $this->_destination = $destination;
+        $this->_permission = !empty($_conf['dl_perm']) ? $_conf['dl_perm'] : 0666;
         $this->_errorCode = self::E_NONE;
         $this->_errorInfo = '';
-        $this->_onSuccess = $on_success;
-        $this->_onFailure = $on_failure;
+        $this->_onSuccess = $onSuccess;
+        $this->_onFailure = $onFailure;
         $this->_next = null;
 
         parent::__construct($url, HttpRequest::METH_GET, $options);
@@ -283,7 +303,7 @@ class P2HttpGet extends HttpRequest
      */
     public function __toString()
     {
-        return sprintf('%s: %s => %s', get_class($this), $this->getUrl(), $this->_savePath);
+        return sprintf('%s: %s => %s', get_class($this), $this->getUrl(), $this->_destination);
     }
 
     // }}}
@@ -328,16 +348,18 @@ class P2HttpGet extends HttpRequest
         if ($success) {
             if (($code = $this->getResponseCode()) == 200) {
                 if ($this->_onSuccess) {
-                    $this->_onSuccess->execute($this);
+                    //$this->_onSuccess($this);
+                    $this->_onSuccess->invoke($this);
                 } else {
-                    file_put_contents($this->_savePath, $this->getResponseBody(), LOCK_EX);
-                    chmod($this->_savePath, $this->_savePerm);
+                    file_put_contents($this->_destination, $this->getResponseBody(), LOCK_EX);
+                    chmod($this->_destination, $this->_permission);
                 }
             } else {
                 if ($this->_onFailure) {
-                    $this->_onFailure->execute($this);
+                    //$this->_onFailure($this);
+                    $this->_onFailure->invoke($this);
                 } elseif ($code == 304) {
-                    //touch($this->_savePath);
+                    //touch($this->_destination);
                 } else {
                     $this->setError(sprintf('HTTP %d %s', $code, $this->getResponseStatus()),
                                     self::E_HTTP
@@ -356,57 +378,57 @@ class P2HttpGet extends HttpRequest
     }
 
     // }}}
-    // {{{ getSavePath()
+    // {{{ getFileDestination()
 
     /**
      * ダウンロードしたデータを保存する際のパスを取得する
      *
      * @return string
      */
-    public function getSavePath()
+    public function getFileDestination()
     {
-        return $this->_savePath;
+        return $this->_destination;
     }
 
     // }}}
-    // {{{ getSavePermission()
+    // {{{ getFilePermission()
 
     /**
      * ダウンロードしたデータを保存する際のパーミッションを取得する
      *
      * @return int
      */
-    public function getSavePermission()
+    public function getFilePermission()
     {
-        return $this->_savePerm;
+        return $this->_permission;
     }
 
     // }}}
-    // {{{ setSavePath()
+    // {{{ setFileDestination()
 
     /**
      * ダウンロードしたデータを保存する際のパスを設定する
      *
-     * @param string $path
+     * @param string $destination
      * @return void
      */
-    public function setSavePath($path)
+    public function setFileDestination($destination)
     {
-        $this->_savePath = $path;
+        $this->_destination = $destination;
     }
 
     // }}}
-    // {{{ setSavePermission()
+    // {{{ setFilePermission()
 
     /**
      * ダウンロードしたデータを保存する際のパーミッションを設定する
      *
-     * @param int $perm
+     * @param int $permission
      * @return void
      */
-    public function setSavePermission($perm)
+    public function setFilePermission($permission)
     {
-        $this->_savePerm = $perm;
+        $this->_permission = $permission;
     }
 
     // }}}
@@ -511,20 +533,20 @@ class P2HttpGet extends HttpRequest
      * 静的呼び出し用メソッド
      *
      * @param string $url
-     * @param string $save_path
+     * @param string $destination
      * @param array $options
-     * @param P2HttpCallback $on_success
-     * @param P2HttpCallback $on_failure
+     * @param P2HttpCallback $onSuccess
+     * @param P2HttpCallback $onFailure
      * @return array(P2HttpGet, HttpMessage)
      */
     static public function fetch($url,
-                                 $save_path,
+                                 $destination,
                                  array $options = null,
-                                 P2HttpCallback $on_success = null,
-                                 P2HttpCallback $on_failure = null
+                                 P2HttpCallback $onSuccess = null,
+                                 P2HttpCallback $onFailure = null
                                  )
     {
-        $req = new P2HttpGet($url, $save_path, $options, $on_success, $on_failure);
+        $req = new P2HttpGet($url, $destination, $options, $onSuccess, $onFailure);
         $res = $req->send();
         return array($req, $res);
     }
@@ -817,7 +839,7 @@ class P2HttpRequestPool
             if ($ph = http_persistent_handles_count()) {
                 $ph_dump = str_replace('  ', ' ', print_r($ph, true));
                 $ph_dump = preg_replace('/[\\r\\n]+/', "\n", $ph_dump);
-                $ph_dump = preg_replace('/(Array|Object)\\n *\(/', '\\1(', $ph_dump);
+                $ph_dump = preg_replace('/(Array|Object)\\n *\(/', '$1(', $ph_dump);
                 $GLOBALS['_info_msg_ht'] .= "<pre>Persistent Handles:\n";
                 $GLOBALS['_info_msg_ht'] .= htmlspecialchars($ph_dump, ENT_QUOTES);
                 $GLOBALS['_info_msg_ht'] .= "</pre>\n";
