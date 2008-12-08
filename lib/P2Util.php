@@ -21,12 +21,7 @@ class P2Util
             return null;
         }
         if (file_exists($_conf['skin_setting_path'])) {
-            $skin = rtrim(file_get_contents($_conf['skin_setting_path']));
-            // 2008/12/08 データ形式が古い場合や拡張版データを考慮して
-            if ($skin == 'conf_user_style') {
-                return null;
-            }
-            return $skin;
+            return $skinname = rtrim(file_get_contents($_conf['skin_setting_path']));
         }
         return null;
     }

@@ -701,7 +701,10 @@ function _setStyle()
 
     if ($_conf['skin'] = P2Util::getSkinSetting()) {
         // ƒXƒLƒ“‚Å$STYLE‚ğã‘‚«
-        include_once P2Util::getSkinFilePathBySkinName($_conf['skin']);
+        $skinfile = P2Util::getSkinFilePathBySkinName($_conf['skin']);
+        if (file_exists($skinfile)) {
+            include_once $skinfile;
+        }
     }
 
     // $STYLEİ’è‚Ì’²®ˆ—
