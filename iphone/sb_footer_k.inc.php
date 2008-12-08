@@ -87,7 +87,7 @@ $dat_soko_ht = _getDatSokoAtag($aThreadList);
 $taborn_link_atag = _getTabornLinkAtag($aThreadList, $ta_num);
 
 // 新規スレッド作成
-$buildnewthread_ht = _getBuildNewThreadAtag($aThreadList);
+$buildnewthread_atag = _getBuildNewThreadAtag($aThreadList);
 
 // {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
 
@@ -148,7 +148,7 @@ echo $allfav_ht;
 echo "<p>";
 echo $dat_soko_ht;
 echo $taborn_link_atag;
-echo $buildnewthread_ht;
+echo $buildnewthread_atag;
 echo "</p>";
 echo '<p>'. $htm['change_sort'] . '</p>';
 //echo "<hr>";
@@ -161,7 +161,7 @@ $k_sb_navi_ht は下の３と同じ
 */
 $foot_sure = ""; 
 if ($dat_soko_ht) $foot_sure .= "<span class=\"soko\">{$dat_soko_ht}</span>";
-if ($buildnewthread_ht) $foot_sure .= "<span class=\"build\">{$buildnewthread_ht}</span>";
+if ($buildnewthread_atag) $foot_sure .= "<span class=\"build\">{$buildnewthread_atag}</span>";
 if ($allfav_ht) $foot_sure .= "<span class=\"all\">{$allfav_ht}</span>";
 if ($taborn_link_atag) $foot_sure .= "<span class=\"abon\">{$taborn_link_atag}</span>";
 if ($mae_ht) $foot_sure .= "<span class=\"mae\">{$mae_ht}</span>";
@@ -252,7 +252,7 @@ function _getTabornLinkAtag($aThreadList, $ta_num)
  */
 function _getBuildNewThreadAtag($aThreadList)
 {
-    $buildnewthread_ht = '';
+    $buildnewthread_atag = '';
     if (!$aThreadList->spmode and !P2Util::isHostKossoriEnq($aThreadList->host)) {
         $uri = P2Util::buildQueryUri('post_form_i.php', array(
             'host'   => $aThreadList->host,
@@ -260,9 +260,9 @@ function _getBuildNewThreadAtag($aThreadList)
             'newthread' => '1',
             UA::getQueryKey() => UA::getQueryValue()
         ));
-        $buildnewthread_ht = P2View::tagA($uri, hs("ｽﾚ立て"));
+        $buildnewthread_atag = P2View::tagA($uri, hs("ｽﾚ立て"));
     }
-    return $buildnewthread_ht;
+    return $buildnewthread_atag;
 }
 
 /**

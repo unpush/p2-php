@@ -163,13 +163,13 @@ class ThreadList
             
             // {{{ spmodeがdat倉庫の場合 @todo ページング用に数を制限できるしたい
             
-            } elseif ($this->spmode == "soko") {
+            } elseif ($this->spmode == 'soko') {
 
                 $dat_host_dir = P2Util::datDirOfHost($this->host);
                 $idx_host_dir = P2Util::idxDirOfHost($this->host);
             
-                $dat_bbs_dir = $dat_host_dir."/".$this->bbs;
-                $idx_bbs_dir = $idx_host_dir."/".$this->bbs;
+                $dat_bbs_dir = $dat_host_dir . PATH_SEPARATOR . $this->bbs;
+                $idx_bbs_dir = $idx_host_dir . PATH_SEPARATOR . $this->bbs;
                 
                 $dat_pattern = '/([0-9]+)\.dat$/';
                 $idx_pattern = '/([0-9]+)\.idx$/';
@@ -181,14 +181,14 @@ class ThreadList
                 if ($cdir = dir($dat_bbs_dir)) { // or die ("ログディレクトリがないよ！");
                     while ($entry = $cdir->read()) {
                         if (preg_match($dat_pattern, $entry, $matches)) {
-                            $theidx = $idx_bbs_dir . "/" . $matches[1] . ".idx";
+                            $theidx = $idx_bbs_dir . PATH_SEPARATOR . $matches[1] . '.idx';
                             if (!file_exists($theidx)) {
-                                if ($datlines = file($dat_bbs_dir . "/" . $entry)) {
+                                if ($datlines = file($dat_bbs_dir . PATH_SEPARATOR . $entry)) {
                                     $firstdatline = rtrim($datlines[0]);
-                                    if (strstr($firstdatline, "<>")) {
-                                        $datline_sepa = "<>";
+                                    if (strstr($firstdatline, '<>')) {
+                                        $datline_sepa = '<>';
                                     } else {
-                                        $datline_sepa = ",";
+                                        $datline_sepa = ',';
                                     }
                                     $d = explode($datline_sepa, $firstdatline);
                                     $atitle = $d[4];
@@ -221,7 +221,7 @@ class ThreadList
                     $i = 0;
                     while ($entry = $cdir->read()) {
                         if (preg_match($idx_pattern, $entry)) {
-                            $idl = file($idx_bbs_dir . "/" . $entry);
+                            $idl = file($idx_bbs_dir . PATH_SEPARATOR . $entry);
                             array_push($lines, $idl[0]);
                             $i++;
                             if ($i >= $limit) {
