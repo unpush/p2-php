@@ -290,7 +290,11 @@ class FileCtl
         if (!is_readable($filename)) {
             return false;
         }
-        return file($filename, $flags, $context);
+        $lines = file($filename, $flags, $context);
+        if (($flags & FILE_IGNORE_NEW_LINES) && count($lines) && substr($lines[0], -1) == "\r") {
+            return array_map(create_function('$l', 'return rtrim($l, "\\r");'), $lines);
+        }
+        return $lines;
     }
 
     // }}}
