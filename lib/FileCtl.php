@@ -291,8 +291,13 @@ class FileCtl
             return false;
         }
         $lines = file($filename, $flags, $context);
-        if (($flags & FILE_IGNORE_NEW_LINES) && count($lines) && substr($lines[0], -1) == "\r") {
-            return array_map(create_function('$l', 'return rtrim($l, "\\r");'), $lines);
+        if (($flags & FILE_IGNORE_NEW_LINES) && $lines &&
+            strlen($lines[0]) && substr($lines[0], -1) == "\r")
+        {
+            $lines = array_map(create_function('$l', 'return rtrim($l, "\\r");'), $lines);
+            if ($flags & FILE_SKIP_EMPTY_LINES) {
+                $lines = array_filter($lines, 'strlen');
+            }
         }
         return $lines;
     }
