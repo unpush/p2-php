@@ -340,7 +340,7 @@ EOP;
 		<input type="hidden" name="host" value="{$aThread->host}">
 		<input type="hidden" name="ls" value="all">
 		<input type="hidden" name="offline" value="1">
-		<input type="hidden" name="b" value="k">
+		<input type="hidden" name="b" value="i">
 
 	</fieldset>
 
