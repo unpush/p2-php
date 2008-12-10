@@ -345,7 +345,7 @@ $_conf['conf_user_style_inc_php']    = "./conf/conf_user_style.inc.php";
 $_conf['skin_setting_path'] = $_conf['pref_dir'] . '/' . 'p2_user_skin.txt';
 $_conf['skin_setting_perm'] = 0606;
 
-_setStyle(); // $STYLE
+_setStyle(); // $STYLE, $MYSTYLE
 
 // {{{ デフォルト設定
 

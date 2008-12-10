@@ -46,15 +46,32 @@ if (!file_exists($_conf['p2_res_hist_dat'])) {
     P2Util::printSimpleHtml($karappoMsg);
     exit;
 }
+
+$res_hist_dat_size = filesize($_conf['p2_res_hist_dat']);
+$logSizeSt = _getReadableSize($res_hist_dat_size);
+$maxLogSize = 0;//1024*1024*10;
+$maxLogSizeSt = _getReadableSize($maxLogSize);
+if ($maxLogSize and $res_hist_dat_size > $maxLogSize) {
+    P2Util::printSimpleHtml(
+        sprintf(
+            '書き込みログ容量（%s/%s）が大き過ぎるため、表示できません。<br>
+            %sのページより、書き込みログの一括削除を行って下さい。',
+            hs($logSizeSt), hs($maxLogSizeSt),
+            P2View::tagA($_conf['editpref_php'], hs('設定管理'), array('target' => 'subject'))
+        )
+    );
+    exit;
+}
+
 if (false === $datlines = file($_conf['p2_res_hist_dat'])) {
     p2die('書き込み履歴ログファイルを読み込めませんでした');
 
 } elseif (!$datlines) {
-    P2Util::printSimpleHtml($karappoMsg);
+    P2Util::printSimpleHtml(hs($karappoMsg));
     exit;
 }
 
-$datlines = array_map('rtrim', $datlines);
+// [more] ここで表示範囲に合わせて、array_slice()しておいた方が処理負担が少ない
 
 // ファイルの下に記録されているものが新しいので反転させる
 $datlines = array_reverse($datlines);
@@ -148,6 +165,7 @@ if (UA::isK()) {
 		<td>
 			<h3 class="thread_title"><?php eh($ptitle); ?></h3>
 		</td>
+		<td><span style="font-size:small">容量 <?php eh($logSizeSt) ?><?php if ($maxLogSize) {?>（最大<?php eh($maxLogSizeSt) ?>）<?php } ?></span></td>
 		<td align="right"><?php echo $toolbar_ht; ?></td>
 		<td align="right" style="padding-left:12px;"><a href="#footer">▼</a></td>
 	</tr>
@@ -205,6 +223,31 @@ if (UA::isPC()) {
 <?php
 
 exit;
+
+
+//===================================================================
+// 関数（このファイル内でのみ利用）
+//===================================================================
+/**
+ * 容量の単位をバイト表示から変換して表示する
+ *
+ * @param   integer  $size
+ * @return  string
+ */
+function _getReadableSize($size)
+{
+   $units = array('B', 'KB', 'MB', 'GB', 'TB');
+   $k = 1024;
+   foreach ($units as $u) {
+       $unit = $u;
+       if ($size < $k) {
+           break;
+       }
+       $size = $size / $k;
+   }
+   return ceil($size) . '' . $unit;
+}
+
 
 /*
  * Local Variables:

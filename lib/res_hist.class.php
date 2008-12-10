@@ -133,7 +133,9 @@ class ResHist
         $n = ($pageID - 1) * $perPage;
         foreach ($data as $aline) {
             $n++;
-
+            
+            $aline = rtrim($aline);
+            
             $ResArticle = $this->lineToRes($aline, $n);
             
             $daytime_hs = hs($ResArticle->daytime);
@@ -350,6 +352,8 @@ class ResHist
             if ($n < $this->resrange['start'] or $n > $this->resrange['to']) {
                 continue;
             }
+            
+            $aline = rtrim($aline);
             
             $ResArticle = $this->lineToRes($aline, $n);
             
