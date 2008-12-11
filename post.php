@@ -516,10 +516,9 @@ function formatCodeToPost($MESSAGE)
 /**
  * ホスト名からクッキーファイルパスを返す
  *
- * @access  public
  * @return  string
  */
-function cachePathForCookie($host)
+function _cachePathForCookie($host)
 {
     global $_conf;
 
@@ -536,7 +535,7 @@ function cachePathForCookie($host)
  * @param   string  $cookie_file
  * @return  array
  */
-function readCookieFile($cookie_file)
+function _readCookieFile($cookie_file)
 {
     if (!file_exists($cookie_file)) {
         return array();
@@ -570,7 +569,7 @@ function readCookieFile($cookie_file)
  * @param   string  $cookie_file
  * @return  boolean
  */
-function saveCookieFile($p2cookies, $cookie_file)
+function _saveCookieFile($p2cookies, $cookie_file)
 {
     global $_conf;
     
@@ -647,8 +646,8 @@ function _postIt($host, $bbs, $key, $post)
     $cookies_to_send = '';
 
     // クッキーの読み込み
-    $cookie_file = cachePathForCookie($host);
-    $p2cookies = readCookieFile($cookie_file);
+    $cookie_file = _cachePathForCookie($host);
+    $p2cookies = _readCookieFile($cookie_file);
     
     if ($p2cookies) {
         foreach ($p2cookies as $cname => $cvalue) {
@@ -785,7 +784,7 @@ function _postIt($host, $bbs, $key, $post)
     }
     
     // クッキーをファイルに保存する
-    saveCookieFile($p2cookies, $cookie_file);
+    _saveCookieFile($p2cookies, $cookie_file);
     
     // body
     $response = '';

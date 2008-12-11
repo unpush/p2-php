@@ -79,7 +79,7 @@ if (false === $datlines = file($_conf['p2_res_hist_dat'])) {
     p2die('書き込み履歴ログファイルを読み込めませんでした');
 
 } elseif (!$datlines) {
-    P2Util::printSimpleHtml(hs($karappoMsgHtml));
+    P2Util::printSimpleHtml($karappoMsgHtml);
     exit;
 }
 
