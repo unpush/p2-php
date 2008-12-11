@@ -39,11 +39,23 @@ P2Util::transResHistLogPhpToDat();
 // メイン
 //======================================================================
 
-$karappoMsg = 'p2 - 書き込み履歴内容は空っぽのようです';
+$karappoMsgHtml = 'p2 - 書き込み履歴内容は空っぽのようです。';
+if (!$_conf['res_write_rec']) {
+    $karappoMsgHtml .= sprintf(
+        '<p>現在、書き込み内容ログは記録しない設定になっています。<br>設定は、%sのページで変更可能です。</p>',
+        P2View::tagA(
+            P2Util::buildQueryUri('edit_conf_user.php',
+                array(UA::getQueryKey() => UA::getQueryValue())
+            ),
+            hs('設定編集'),
+            array('target' => 'subject')
+        )
+    );
+}
 
 // 特殊DAT読み
 if (!file_exists($_conf['p2_res_hist_dat'])) {
-    P2Util::printSimpleHtml($karappoMsg);
+    P2Util::printSimpleHtml($karappoMsgHtml);
     exit;
 }
 
@@ -67,7 +79,7 @@ if (false === $datlines = file($_conf['p2_res_hist_dat'])) {
     p2die('書き込み履歴ログファイルを読み込めませんでした');
 
 } elseif (!$datlines) {
-    P2Util::printSimpleHtml(hs($karappoMsg));
+    P2Util::printSimpleHtml(hs($karappoMsgHtml));
     exit;
 }
 
@@ -247,7 +259,6 @@ function _getReadableSize($size)
    }
    return ceil($size) . '' . $unit;
 }
-
 
 /*
  * Local Variables:

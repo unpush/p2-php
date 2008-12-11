@@ -300,6 +300,7 @@ $conf_user_def['res_hist_rec_num'] = 20; // (20)
 $conf_user_rules['res_hist_rec_num'] = array('notIntExceptMinusToDef');
 
 // 書き込み内容ログを記録(する, しない)
+// rec_res_log などに名前を変えたいところだ
 $conf_user_def['res_write_rec'] = 1; // (1)
 $conf_user_sel['res_write_rec'] = array('1' => 'する', '0' => 'しない');
 

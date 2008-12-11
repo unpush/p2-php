@@ -4,7 +4,7 @@
 
 $word_qs = _getWordQs();
 
-$allfav_ht = '<p>' . _getAllFavAtag($aThreadList, $sb_view) . '</p>';
+$allfav_atag = _getAllFavAtag($aThreadList, $sb_view);
 
 // {{{ ページタイトル部分HTML設定
 
@@ -154,7 +154,7 @@ require_once P2_LIB_DIR . '/sb_toolbar_k.funcs.php'; // getShinchakuMatomeATag()
 ?>
 <p><?php echo $ptitle_ht; ?> <?php echo getShinchakuMatomeATag($aThreadList, $shinchaku_num); ?></p>
 <?php
-echo $allfav_ht;
+echo '<p>' . $allfav_atag . '<p>';
 echo "<p>";
 echo $dat_soko_ht;
 echo ' ' . $taborn_link_atag;

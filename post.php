@@ -125,11 +125,11 @@ $submit = '書き込む';
 
 if (!empty($_POST['newthread'])) {
     $post = array(
-        $submit_k => $submit,
-        $bbs_k  => $bbs,
         $subject_k => $subject,
-        $time_k => $time,
-        $FROM_k => $FROM, $mail_k => $mail, $MESSAGE_k => $MESSAGE
+        $FROM_k => $FROM, $mail_k => $mail, $MESSAGE_k => $MESSAGE,
+        $bbs_k  => $bbs,
+        $submit_k => $submit,
+        $time_k => $time
     );
     if (P2Util::isHostJbbsShitaraba($host)) {
         $post[$dir_k] = $dir;
@@ -139,7 +139,7 @@ if (!empty($_POST['newthread'])) {
         'bbs'  => $bbs,
         UA::getQueryKey() => UA::getQueryValue()
     );
-    if (defined('SID')) {
+    if (defined('SID') && strlen(SID)) {
         $qs_sid[session_name()] = session_id();
     }
     
@@ -148,11 +148,11 @@ if (!empty($_POST['newthread'])) {
     
 } else {
     $post = array(
-        $submit_k => $submit,
+        $FROM_k => $FROM, $mail_k => $mail, $MESSAGE_k => $MESSAGE,
         $bbs_k  => $bbs,
         $key_k  => $key,
-        $time_k => $time,
-        $FROM_k => $FROM, $mail_k => $mail, $MESSAGE_k => $MESSAGE
+        $submit_k => $submit,
+        $time_k => $time
     );
     if (P2Util::isHostJbbsShitaraba($host)) {
         $post[$dir_k] = $dir;
@@ -217,15 +217,15 @@ if (!empty($_POST['newthread'])) {
 //================================================================
 
 // ポスト実行
-$posted = _postIt($host, $bbs, $key, $post);
+$posted = _postIt($host, $bbs, $key, $post); // @return  boolean|string
 
 // 最終投稿時間を記録する 確認処理
 if ($posted === true) {
-    recLastPostTime("SUCCESS");
+    recLastPostTime('SUCCESS');
 
 // クッキーなら試行時間を戻す
 } elseif ($posted === 'Cookie') {
-    recLastPostTime("FAULT");
+    recLastPostTime('FAULT');
 
 // その他のエラーは連打で抜けられるケースがあるので戻さない
 } else {
