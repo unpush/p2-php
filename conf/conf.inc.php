@@ -634,9 +634,10 @@ function _checkPHPInstalled()
         $errmsgs[] = 'PHPのインストールが不十分です。PHPのmbstring拡張モジュールがロードされていません。';
     }
     if ($errmsgs) {
+        $errmsgHtmls = array_map('htmlspecialchars', $errmsgs);
         die(sprintf(
             '<html><body><h3>p2 install error</h3><p>%s</p></body></html>',
-            implode('<br>', hs($errmsgs))
+            implode('<br>', $errmsgHtmls)
         ));
     }
 }
