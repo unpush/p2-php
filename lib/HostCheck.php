@@ -784,7 +784,7 @@ EOF;
         if (is_null($addr)) {
             $addr = $_SERVER['REMOTE_ADDR'];
         }
-        $emHost = '/^e(?:mnet|-?mobile)\\.ne\\.jp$/';
+        $emHost = '/\\.pool\\.e(?:mnet|-?mobile)\\.ne\\.jp$/';
         $emBand = array(
             '117.55.1.224/27',
         );
