@@ -446,9 +446,8 @@ EOF;
         if (!$address) {
             return false;
         }
-        $binary = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', array_map('hexdec', explode(':', $address)));
+        $address = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', array_map('hexdec', explode(':', $address)));
 
-        $prefix = substr($address, 20);
         $band = (array)$band;
         foreach ($band as $target) {
             if (strpos($target, '/') !== false) {
@@ -468,7 +467,7 @@ EOF;
                 continue;
             }
             $target = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', array_map('hexdec', explode(':', $target)));
-            if (!strncmp($binary, $target, $mask)) {
+            if (!strncmp($address, $target, $mask)) {
                 return true;
             }
         }
