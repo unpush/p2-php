@@ -214,18 +214,34 @@ EOF;
      */
     static private function _length2subnet($length)
     {
-        $subnet = array();
-        for ($i = 0; $i < 4; $i++) {
-            if ($length >= 8) {
-                $subnet[] = '255';
-            } elseif ($length > 0) {
-                $subnet[] = strval(255 & ~bindec(str_repeat('1', 8 - $length)));
-            } else {
-                $subnet[] = '0';
-            }
-            $length -= 8;
+        if ($length <= 0) {
+            return '0.0.0.0';
         }
-        return implode('.', $subnet);
+        if ($length >= 32) {
+            return '255.255.255.255';
+        }
+        $bin = str_pad(str_repeat('1', $length), 32, '0');
+        if (PHP_INT_SIZE == 4) {
+            return implode('.', array_map('bindec', str_split($bin, 8)));
+        }
+        return long2ip(bindec($bin));
+    }
+
+    // }}}
+    // {{{ compareAsUnsigned()
+
+    /**
+     * 符号付き整数を符号なし整数のように比較する
+     */
+    static public function compareAsUnsigned($a, $b)
+    {
+        if ($a < 0) {
+            $a = (float)sprintf('%u', $a);
+        }
+        if ($b < 0) {
+            $b = (float)sprintf('%u', $b);
+        }
+        return $a - $b;
     }
 
     // }}}
@@ -329,7 +345,7 @@ EOF;
             $cache_id = preg_replace('/\\W/', '_', $cache_id);
         }
         $cache_file = $_conf['cache_dir'] . '/hostcheck_isaddrinband_' . $cache_id;
-        if (PHP_INT_MAX == 2147483647) {
+        if (PHP_INT_SIZE == 4) {
             $cache_file .= '.scache.inc';
         } else {
             $cache_file .= '.ucache.inc';
@@ -365,12 +381,27 @@ EOF;
                 }
                 $tmp[$target] = $mask;
             }
+            if (PHP_INT_SIZE == 4) {
+                uksort($tmp, array('HostCheck', 'compareAsUnsigned'));
+            } else {
+                ksort($tmp, SORT_NUMERIC);
+            }
             $band = $tmp;
-            ksort($band, SORT_NUMERIC);
             if (!file_exists($cache_file)) {
                 FileCtl::make_datafile($cache_file);
             }
-            file_put_contents($cache_file, '<?php $band = ' . var_export($band, true) . ';');
+            $cache_data = "<?php\n\$band = array(\n";
+            foreach ($band as $target => $mask) {
+                if (preg_match('/^(1+)0*$/', base_convert(sprintf('%u', $mask), 10, 2), $matches)) {
+                    $cache_data .= sprintf("%12d =>%12d, // %s/%d\n",
+                                           $target, $mask, long2ip($target), strlen($matches[1]));
+                } else {
+                    $cache_data .= sprintf("%12d =>%12d, // %s/%s\n",
+                                           $target, $mask, long2ip($target), long2ip($mask));
+                } 
+            }
+            $cache_data .= ");\n";
+            file_put_contents($cache_file, $cache_data);
         }
 
         // IPアドレス帯域を検証
@@ -442,9 +473,36 @@ EOF;
      */
     static public function isAddrIPv6($addr)
     {
-        $addr = preg_replace('/::/', ':0:', strtolower($addr), 1);
-        if (preg_match('/^[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}:[0-9a-f]{1,4}$/', $addr)) {
-            return implode(':', array_map(create_function('$v', 'return str_pad($v, 4, "0", STR_PAD_LEFT);'), explode(':', $addr)));
+        $addr = strtolower($addr);
+        if (!preg_match('/^[0-9a-f:]+$/', $addr)) {
+            return false;
+        }
+        if (substr_count($addr, ':::')) {
+            return false;
+        }
+        switch (substr_count($addr, '::')) {
+            case 1:
+                $nsecs = substr_count($addr, ':') - 2;
+                if ($nsecs >= 6) {
+                    return false;
+                }
+                $zeros = ':' . str_repeat('0:', 6 - $nsecs);
+                $pos = strpos($addr, '::');
+                if ($pos == 0) {
+                    $zeros = '0' . $zeros;
+                }
+                if ($pos == strlen($addr) - 2) {
+                    $zeros .= '0';
+                }
+                $addr = str_replace('::', $zeros, $addr);
+            case 0:
+                break;
+            default:
+                return false;
+        }
+        if (preg_match('/^([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4})$/', $addr, $matches)) {
+            array_shift($matches);
+            return vsprintf('%04s:%04s:%04s:%04s:%04s:%04s:%04s:%04s', $matches);
         }
         return false;
     }
