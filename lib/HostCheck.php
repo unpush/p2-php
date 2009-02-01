@@ -124,7 +124,7 @@ EOF;
      * アクセスが許可されたIPアドレス帯域なら true を返す
      * (false = アク禁)
      */
-    static public function getHostAuth($addr = null)
+    static public function getHostAuth($address = null)
     {
         global $_conf, $_HOSTCHKCONF;
 
@@ -147,34 +147,34 @@ EOF;
                 return true;
         }
 
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
 
         $types = $_HOSTCHKCONF['host_type'];
 
-        if (self::isAddrIPv6($addr) !== false) {
-            if (($flag == $types['localhost'] && self::isAddrLocal($addr)) ||
+        if (self::normalizeIPv6Address($address) !== false) {
+            if (($flag == $types['localhost'] && self::isAddressLocal($address)) ||
                 ($flag == $types['custom_v6'] &&
                     !empty($custom_v6) &&
-                    self::isAddrInBand6($addr, $custom_v6)
+                    self::isAddressInBand6($address, $custom_v6)
                  )
                 )
             {
                 return $ret;
             }
         } else {
-            if (($flag == $types['localhost'] && self::isAddrLocal($addr))    ||
-                ($flag == $types['private']   && self::isAddrPrivate($addr))  ||
-                ($flag == $types['docomo']    && self::isAddrDocomo($addr))   ||
-                ($flag == $types['au']        && self::isAddrAu($addr))       ||
-                ($flag == $types['softbank']  && self::isAddrSoftbank($addr)) ||
-                ($flag == $types['willcom']   && self::isAddrWillcom($addr))  ||
-                ($flag == $types['emobile']   && self::isAddrEmobile($addr))  ||
-                ($flag == $types['iphone']    && self::isAddrIphone($addr))   ||
+            if (($flag == $types['localhost'] && self::isAddressLocal($address))    ||
+                ($flag == $types['private']   && self::isAddressPrivate($address))  ||
+                ($flag == $types['docomo']    && self::isAddressDocomo($address))   ||
+                ($flag == $types['au']        && self::isAddressAu($address))       ||
+                ($flag == $types['softbank']  && self::isAddressSoftbank($address)) ||
+                ($flag == $types['willcom']   && self::isAddressWillcom($address))  ||
+                ($flag == $types['emobile']   && self::isAddressEmobile($address))  ||
+                ($flag == $types['iphone']    && self::isAddressIphone($address))   ||
                 ($flag == $types['custom'] && (!empty($custom) || !empty($custom_re)) &&
-                    self::isAddrInBand($addr, $custom, $custom_re,
-                                       'custom' . date('YmdHis', filemtime(P2_CONF_DIR . '/conf_hostcheck.php')))
+                    self::isAddressInBand($address, $custom, $custom_re,
+                        'custom' . date('YmdHis', filemtime(P2_CONF_DIR . '/conf_hostcheck.php')))
                  )
                 )
             {
@@ -195,11 +195,11 @@ EOF;
     {
         global $_conf;
 
-        if (!$_conf['secure']['auth_bbq'] || self::isAddrLocal() || self::isAddrPrivate()) {
+        if (!$_conf['secure']['auth_bbq'] || self::isAddressLocal() || self::isAddressPrivate()) {
             return false;
         }
 
-        if (self::isAddrBurned()) {
+        if (self::isAddressBurned()) {
             return true;
         }
 
@@ -245,17 +245,17 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddrLocal()
+    // {{{ isAddressLocal()
 
     /**
      * ローカルホスト?
      */
-    static public function isAddrLocal($addr = null)
+    static public function isAddressLocal($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
-        if ($addr == '127.0.0.1' || $addr == '::1') {
+        if ($address == '127.0.0.1' || $address == '::1') {
             return true;
         } else {
             return false;
@@ -263,23 +263,23 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddrBurned()
+    // {{{ isAddressBurned()
 
     /**
      * ホストがBBQに焼かれているか?
      *
      * @link http://bbq.uso800.net/
      */
-    static public function isAddrBurned($addr = null)
+    static public function isAddressBurned($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
         $ip_regex = '/^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$/';
-        $errmsg = "\n<br><b>NOTICE: Wrong IP Address given.</b> ($addr)<br>\n";
+        $errmsg = "\n<br><b>NOTICE: Wrong IP Address given.</b> ($address)<br>\n";
 
         // IPアドレスを検証
-        if (!preg_match($ip_regex, $addr, $ipv4)) {
+        if (!preg_match($ip_regex, $address, $ipv4)) {
             trigger_error($errmsg, E_USER_NOTICE);
             return false; // IPアドレスの書式に合致しない
         }
@@ -305,7 +305,7 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddrInBand()
+    // {{{ isAddressInBand()
 
     /**
      * 任意のIPアドレス(IPv4)帯域内からのアクセスか?
@@ -320,18 +320,17 @@ EOF;
      * 2. (1)の配列
      * 3. IPアドレスをキーとし、マスク長もしくはサブネットマスクを値にとる連想配列
      */
-    static public function isAddrInBand($addr, $band = null, $regex = null, $cache_id = null)
+    static public function isAddressInBand($address, $band = null, $regex = null, $cache_id = null)
     {
         global $_conf;
 
         if (is_null($band)) {
-            $regex = null;
-            $band = $addr;
-            $addr = $_SERVER['REMOTE_ADDR'];
+            $band = $address;
+            $address = $_SERVER['REMOTE_ADDR'];
         }
 
         // IPアドレスを検証
-        if (($addr = ip2long($addr)) === false) {
+        if (($address = ip2long($address)) === false) {
             return false;
         }
 
@@ -358,9 +357,9 @@ EOF;
             foreach ($band as $target => $mask) {
                 if (is_int($target) && is_string($mask)) {
                     if (strpos($mask, '/') !== false) {
-                        list($target, $mask) = explode('/', $mask);
+                        list($target, $mask) = explode('/', $mask, 2);
                         if (strpos($mask, '.') === false) {
-                            $mask = intval($mask);
+                            $mask = (int)$mask;
                         }
                     } else {
                         $target = $mask;
@@ -398,7 +397,7 @@ EOF;
                 } else {
                     $cache_data .= sprintf("%12d =>%12d, // %s/%s\n",
                                            $target, $mask, long2ip($target), long2ip($mask));
-                } 
+                }
             }
             $cache_data .= ");\n";
             file_put_contents($cache_file, $cache_data);
@@ -406,17 +405,17 @@ EOF;
 
         // IPアドレス帯域を検証
         foreach ($band as $target => $mask) {
-            if (($addr & $mask) == ($target & $mask)) {
+            if (($address & $mask) == ($target & $mask)) {
                 return true;
             }
         }
 
         // 帯域がマッチせず、正規表現が指定されているとき
         if ($regex) {
-            if ($addr == $_SERVER['REMOTE_ADDR'] && isset($_SERVER['REMOTE_HOST'])) {
+            if ($address == $_SERVER['REMOTE_ADDR'] && isset($_SERVER['REMOTE_HOST'])) {
                 $remote_host = $_SERVER['REMOTE_HOST'];
             } else {
-                $remote_host = self::cachedGetHostByAddr(long2ip($addr));
+                $remote_host = self::cachedGetHostByAddr(long2ip($address));
             }
             if (@preg_match($regex, strtolower($remote_host))) {
                 return true;
@@ -427,37 +426,49 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddrInBand6()
+    // {{{ isAddressInBand6()
 
     /**
-     * 任意のIPアドレス(IPv6/グローバルユニキャストアドレス)からのアクセスか?
+     * 任意のIPv6アドレスからのアクセスか?
      *
-     * 製作者(rsk)がIPv6をよくわかっていないため、
-     * とりあえず先頭の64ビットが等しければ真を返す仕様となっている。
-     *
-     * 帯域指定は各要素がIPv6アドレス(XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX)形式
+     * 帯域はIPv6アドレス+マスク長(xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx/n)形式
      * の文字列またはその配列で指定する
+     * マスク長が省略された場合は上位64bitを比較する
      */
-    static public function isAddrInBand6($addr, $band = null)
+    static public function isAddressInBand6($address, $band = null)
     {
         if (is_null($band)) {
-            $band = $addr;
-            $addr = $_SERVER['REMOTE_ADDR'];
+            $band = $address;
+            $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        $addr = self::isAddrIPv6($addr);
-        if (!$addr) {
+        $address = self::normalizeIPv6Address($address);
+        if (!$address) {
             return false;
         }
+        $binary = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', array_map('hexdec', explode(':', $address)));
 
-        $prefix = substr($addr, 20);
+        $prefix = substr($address, 20);
         $band = (array)$band;
-        foreach ($band as $elem) {
-            $elem = self::isAddrIPv6($elem);
-            if (!$elem) {
+        foreach ($band as $target) {
+            if (strpos($target, '/') !== false) {
+                list($target, $mask) = explode('/', $target, 2);
+                $mask = (int)$mask;
+                if ($mask <= 0) {
+                    continue;
+                }
+                if ($mask >= 128) {
+                    $mask = 128;
+                }
+            } else {
+                $mask = 64;
+            }
+            $target = self::normalizeIPv6Address($target);
+            if (!$target) {
                 continue;
             }
-            if (substr($elem, 20) == $prefix) {
+            $target = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', array_map('hexdec', explode(':', $target)));
+            if (!strncmp($binary, $target, $mask)) {
                 return true;
             }
         }
@@ -466,180 +477,213 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddrIPv6()
+    // {{{ normalizeIPv6Address()
 
     /**
      * IPv6形式のアドレスなら正規化して返し、そうでなければfalseを返す
      */
-    static public function isAddrIPv6($addr)
+    static public function normalizeIPv6Address($address)
     {
-        $addr = strtolower($addr);
-        if (!preg_match('/^[0-9a-f:]+$/', $addr)) {
+        // 使用可能な文字だけで構成されているか?
+        $address = strtolower($address);
+        if (preg_match('/[^0-9a-f:.]/', $address)) {
             return false;
         }
-        if (substr_count($addr, ':::')) {
+        if (strpos($address, ':::') !== false) {
             return false;
         }
-        switch (substr_count($addr, '::')) {
+
+        // 下位32bitがIPv4形式の場合
+        if (preg_match('/:(([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3}))$/', $address, $matches)) {
+            if (ip2long($matches[1]) === false) {
+                return false;
+            }
+            $address = substr($address, 0, -strlen($matches[1])) . sprintf('%04x:%04x', ($matches[2] << 8) | $matches[3], ($matches[4] << 8) | $matches[5]);
+        }
+
+        // "::" を展開
+        switch (substr_count($address, '::')) {
             case 1:
-                $nsecs = substr_count($addr, ':') - 2;
+                $nsecs = substr_count($address, ':') - 2;
                 if ($nsecs >= 6) {
                     return false;
                 }
                 $zeros = ':' . str_repeat('0:', 6 - $nsecs);
-                $pos = strpos($addr, '::');
+                $pos = strpos($address, '::');
                 if ($pos == 0) {
                     $zeros = '0' . $zeros;
                 }
-                if ($pos == strlen($addr) - 2) {
+                if ($pos == strlen($address) - 2) {
                     $zeros .= '0';
                 }
-                $addr = str_replace('::', $zeros, $addr);
+                $address = str_replace('::', $zeros, $address);
             case 0:
                 break;
             default:
                 return false;
         }
-        if (preg_match('/^([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4})$/', $addr, $matches)) {
+
+        // 最終チェック
+        if (preg_match('/^([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4})$/', $address, $matches)) {
             array_shift($matches);
             return vsprintf('%04s:%04s:%04s:%04s:%04s:%04s:%04s:%04s', $matches);
         }
+
         return false;
     }
 
     // }}}
-    // {{{ isAddrPrivate()
+    // {{{ isAddressPrivate()
 
     /**
      * プライベートアドレス?
      *
      * @see RFC1918
      */
-    static public function isAddrPrivate($addr = '', $class = '')
+    static public function isAddressPrivate($address = '', $class = '')
     {
-        if (!$addr) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (!$address) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
         $class = ($class) ? strtoupper($class) : 'ABC';
         $private = array();
+        $cache_id = 'private_';
         if (strpos($class, 'A') !== false) {
             $private[] = '10.0.0.0/8';
+            $cache_id .= 'a';
         }
         if (strpos($class, 'B') !== false) {
             $private[] = '172.16.0.0/12';
+            $cache_id .= 'b';
         }
         if (strpos($class, 'C') !== false) {
             $private[] = '192.168.0.0/16';
+            $cache_id .= 'c';
         }
-        return self::isAddrInBand($addr, $private, null, 'private_' . $class);
+        return self::isAddressInBand($address, $private, null, $cache_id);
     }
 
     // }}}
-    // {{{ isAddrDocomo()
+    // {{{ isAddressDocomo()
 
     /**
      * DoCoMo?
      *
      * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html
      */
-    static public function isAddrDocomo($addr = null)
+    static public function isAddressDocomo($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
-        $iHost = '/^proxy[0-9a-f]\\d\\d\\.docomo\\.ne\\.jp$/';
-        $iBand = array(
+
+        $band = array(
             '210.153.84.0/24',
             '210.136.161.0/24',
             '210.153.86.0/24',
             '124.146.174.0/24',
             '124.146.175.0/24',
-            '210.153.87.0/24', // フルブラウザ
+            // フルブラウザ
+            '210.153.87.0/24',
         );
-        return self::isAddrInBand($addr, $iBand, $iHost, 'docomo');
+
+        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $regex = '/^proxy[0-9a-f]\\d\\d\\.docomo\\.ne\\.jp$/';
+        } else {
+            $regex = null;
+        }
+
+        return self::isAddressInBand($address, $band, $host, 'docomo');
     }
 
     // }}}
-    // {{{ isAddrAu()
+    // {{{ isAddressAu()
 
     /**
      * au?
      *
      * @link http://www.au.kddi.com/ezfactory/tec/spec/ezsava_ip.html
      */
-    static public function isAddrAu($addr = null)
+    static public function isAddressAu($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
-        $ezHost = '/^w[ab](\\d\\dproxy\\d\\d|cc\\d\\d?s\\d\\d?)\\.ezweb\\.ne\\.jp$/';
-        $ezBand = array(
-            '210.230.128.224/28',
+
+        $band = array(
+            '59.135.38.128/25',
             '61.117.0.128/25',
-            '61.117.1.128/25',
-            '218.222.1.0/25',
-            '121.111.227.160/27',
-            '218.222.1.128/28',
-            '218.222.1.144/28',
-            '218.222.1.160/28',
-            '61.202.3.64/28',
             '61.117.1.0/28',
-            '219.108.158.0/27',
-            '219.125.146.0/28',
+            '61.117.1.128/25',
             '61.117.2.32/29',
             '61.117.2.40/29',
-            '219.108.158.40/29',
-            '219.125.148.0/25',
-            '222.5.63.0/25',
-            '222.5.63.128/25',
-            '222.5.62.128/25',
-            '59.135.38.128/25',
-            '219.108.157.0/25',
-            '219.125.145.0/25',
-            '121.111.231.0/25',
-            '121.111.227.0/25',
+            '61.202.3.64/28',
             '118.152.214.192/26',
             '118.159.131.0/25',
             '118.159.133.0/25',
+            '121.111.227.0/25',
+            '121.111.227.160/27',
+            '121.111.231.0/25',
+            '121.111.231.160/27',
+            '210.230.128.224/28',
+            '218.222.1.0/25',
+            '218.222.1.128/28',
+            '218.222.1.144/28',
+            '218.222.1.160/28',
+            '219.108.157.0/25',
+            '219.108.158.0/27',
+            '219.108.158.40/29',
+            '219.125.145.0/25',
+            '219.125.146.0/28',
+            '219.125.148.0/25',
             '219.125.148.160/27',
             '219.125.148.192/27',
+            '219.125.151.128/27',
+            '219.125.151.160/27',
+            '219.125.151.192/27',
+            '222.5.62.128/25',
+            '222.5.63.0/25',
+            '222.5.63.128/25',
             '222.7.56.0/27',
             '222.7.56.32/27',
             '222.7.56.96/27',
             '222.7.56.128/27',
             '222.7.56.192/27',
             '222.7.56.224/27',
+            '222.7.57.32/27',
             '222.7.57.64/27',
             '222.7.57.96/27',
             '222.7.57.128/27',
             '222.7.57.160/27',
             '222.7.57.192/27',
             '222.7.57.224/27',
-            '219.125.151.128/27',
-            '219.125.151.160/27',
-            '219.125.151.192/27',
-            '222.7.57.32/27',
-            '121.111.231.160/27',
         );
-        return self::isAddrInBand($addr, $ezBand, $ezHost, 'au');
+
+        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $regex = '/^w[ab](\\d\\dproxy\\d\\d|cc\\d\\d?s\\d\\d?)\\.ezweb\\.ne\\.jp$/';
+        } else {
+            $regex = null;
+        }
+
+        return self::isAddressInBand($address, $band, $regex, 'au');
     }
 
     // }}}
-    // {{{ isAddrVodafone()
+    // {{{ isAddressVodafone()
 
     /**
      * SoftBank? (old name)
      *
      * @deprecated  06-11-30
-     * @see isAddrSoftbank()
+     * @see isAddressSoftbank()
      */
-    static public function isAddrVodafone($addr = null)
+    static public function isAddressVodafone($address = null)
     {
-        return self::isAddrSoftbank($addr);
+        return self::isAddressSoftbank($address);
     }
 
     // }}}
-    // {{{ isAddrSoftbank()
+    // {{{ isAddressSoftbank()
 
     /**
      * SoftBank?
@@ -647,13 +691,13 @@ EOF;
      * @link http://creation.mb.softbank.jp/web/web_ip.html
      * @link http://creation.mb.softbank.jp/xseries/xseries_ip.html
      */
-    static public function isAddrSoftbank($addr = null)
+    static public function isAddressSoftbank($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
-        $yHost = '/\\.(?:jp-[a-z]|[a-z]\\.vodafone|softbank|openmobile|pcsitebrowser)\\.ne\\.jp$/';
-        $yBand = array(
+
+        $band = array(
             // Yahoo!ケータイ
             '123.108.236.0/24',
             '123.108.237.0/27',
@@ -676,39 +720,45 @@ EOF;
             '219.73.128.0/17',
             '117.46.128.0/17',
         );
-        return self::isAddrInBand($addr, $yBand, $yHost, 'softbank');
+
+        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $regex = '/\\.(?:jp-[a-z]|[a-z]\\.vodafone|softbank|openmobile|pcsitebrowser)\\.ne\\.jp$/';
+        } else {
+            $regex = null;
+        }
+
+        return self::isAddressInBand($address, $band, $regex, 'softbank');
     }
 
     // }}}
-    // {{{ isAddrAirh()
+    // {{{ isAddressAirh()
 
     /**
      * WILLCOM? (old name)
      *
      * @deprecated  06-02-17
-     * @see isAddrWillcom()
+     * @see isAddressWillcom()
      */
-    static public function isAddrAirh($addr = null)
+    static public function isAddressAirh($address = null)
     {
-        return self::isAddrWillcom($addr);
+        return self::isAddressWillcom($address);
     }
 
     // }}}
-    // {{{ isAddrWillcom()
+    // {{{ isAddressWillcom()
 
     /**
      * WILLCOM?
      *
      * @link http://www.willcom-inc.com/ja/service/contents_service/create/center_info/index.html
      */
-    static public function isAddrWillcom($addr = null)
+    static public function isAddressWillcom($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
-        //$wHost = '/^p\\d{12}\\.ppp\\.prin\\.ne\\.jp$/';
-        $wHost = '/\\.ppp\\.prin\\.ne\\.jp$/';
-        $wBand = array(
+
+        $band = array(
             '61.198.128.0/24',
             '61.198.129.0/24',
             '61.198.130.0/24',
@@ -826,45 +876,67 @@ EOF;
             '221.119.8.0/24',
             '221.119.9.0/24',
         );
-        return self::isAddrInBand($addr, $wBand, $wHost, 'willcom');
+
+        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            //$regex = '/^p\\d{12}\\.ppp\\.prin\\.ne\\.jp$/';
+            $regex = '/\\.ppp\\.prin\\.ne\\.jp$/';
+        } else {
+            $regex = null;
+        }
+
+        return self::isAddressInBand($address, $band, $regex, 'willcom');
     }
 
     // }}}
-    // {{{ isAddrEmobile()
+    // {{{ isAddressEmobile()
 
     /**
      * EMOBILE?
      *
      * @link http://developer.emnet.ne.jp/ipaddress.html
      */
-    static public function isAddrEmobile($addr = null)
+    static public function isAddressEmobile($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
-        $emHost = '/\\.pool\\.e(?:mnet|-?mobile)\\.ne\\.jp$/';
-        $emBand = array(
+
+        $band = array(
             '117.55.1.224/27',
         );
-        return self::isAddrInBand($addr, $emBand, $emHost, 'emobile');
+
+        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $regex = '/\\.pool\\.e(?:mnet|-?mobile)\\.ne\\.jp$/';
+        } else {
+            $regex = null;
+        }
+
+        return self::isAddressInBand($address, $band, $regex, 'emobile');
     }
 
     // }}}
-    // {{{ isAddrIphone()
+    // {{{ isAddressIphone()
 
     /**
      * iPhone 3G (SoftBank)?
      */
-    static public function isAddrIphone($addr = null)
+    static public function isAddressIphone($address = null)
     {
-        if (is_null($addr)) {
-            $addr = $_SERVER['REMOTE_ADDR'];
+        if (is_null($address)) {
+            $address = $_SERVER['REMOTE_ADDR'];
         }
-        $iHost = '/\\.(?:[0-9]|1[0-5])\\.tik\\.panda-world\\.ne\\.jp$/';
-        $iBand = array(
+
+        $band = array(
             '126.240.0.0/12',
         );
-        return self::isAddrInBand($addr, $iBand, $iHost, 'iphone');
+
+        if ($GLOBALS['_HOSTCHKCONF']['mobile_use_regex']) {
+            $regex = '/\\.(?:[0-9]|1[0-5])\\.tik\\.panda-world\\.ne\\.jp$/';
+        } else {
+            $regex = null;
+        }
+
+        return self::isAddressInBand($address, $band, $regex, 'iphone');
     }
 
     // }}}

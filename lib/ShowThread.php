@@ -576,8 +576,8 @@ EOP;
         if (!$purl || !array_key_exists('host', $purl) ||
             strpos($purl['host'], '.') === false ||
             $purl['host'] == '127.0.0.1' ||
-            //HostCheck::isAddrLocal($purl['host']) ||
-            //HostCheck::isAddrPrivate($purl['host']) ||
+            //HostCheck::isAddressLocal($purl['host']) ||
+            //HostCheck::isAddressPrivate($purl['host']) ||
             P2Util::isHostExample($purl['host']))
         {
             return $orig;

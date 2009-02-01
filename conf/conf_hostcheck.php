@@ -34,6 +34,10 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     'custom_v6' => 0,
 );
 
+// 各携帯キャリアのIPアドレス帯域検証に失敗した際、
+// 正規表現でリモートホストの検証をする。
+$GLOBALS['_HOSTCHKCONF']['mobile_use_regex'] = false;
+
 // アクセスを許可するIPアドレス帯域
 // “IPアドレス => マスク”形式の連想配列
 // $_conf['secure']['auth_host'] == 1 かつ
