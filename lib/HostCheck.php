@@ -442,11 +442,10 @@ EOF;
             $address = $_SERVER['REMOTE_ADDR'];
         }
 
-        $address = self::normalizeIPv6Address($address);
+        $address = self::normalizeIPv6Address($address, true);
         if (!$address) {
             return false;
         }
-        $address = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', array_map('hexdec', explode(':', $address)));
 
         $band = (array)$band;
         foreach ($band as $target) {
@@ -462,11 +461,10 @@ EOF;
             } else {
                 $mask = 64;
             }
-            $target = self::normalizeIPv6Address($target);
+            $target = self::normalizeIPv6Address($target, true);
             if (!$target) {
                 continue;
             }
-            $target = vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', array_map('hexdec', explode(':', $target)));
             if (!strncmp($address, $target, $mask)) {
                 return true;
             }
@@ -481,7 +479,7 @@ EOF;
     /**
      * IPv6形式のアドレスなら正規化して返し、そうでなければfalseを返す
      */
-    static public function normalizeIPv6Address($address)
+    static public function normalizeIPv6Address($address, $binary = false)
     {
         // 使用可能な文字だけで構成されているか?
         $address = strtolower($address);
@@ -525,6 +523,9 @@ EOF;
         // 最終チェック
         if (preg_match('/^([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4}):([0-9a-f]{1,4})$/', $address, $matches)) {
             array_shift($matches);
+            if ($binary) {
+                return vsprintf('%016b%016b%016b%016b%016b%016b%016b%016b', array_map('hexdec', $matches));
+            }
             return vsprintf('%04s:%04s:%04s:%04s:%04s:%04s:%04s:%04s', $matches);
         }
 
