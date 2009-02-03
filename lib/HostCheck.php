@@ -174,7 +174,8 @@ EOF;
                 ($flag == $types['iphone']    && self::isAddressIphone($address))   ||
                 ($flag == $types['custom'] && (!empty($custom) || !empty($custom_re)) &&
                     self::isAddressInBand($address, $custom, $custom_re,
-                        'custom' . date('YmdHis', filemtime(P2_CONF_DIR . '/conf_hostcheck.php')))
+                        'custom' . date('YmdHis', filemtime(P2_CONF_DIR . '/conf_hostcheck.php'))
+                    )
                  )
                 )
             {
@@ -204,44 +205,6 @@ EOF;
         }
 
         return false;
-    }
-
-    // }}}
-    // {{{ _length2subnet()
-
-    /**
-     * マスク長をサブネットマスクに変換
-     */
-    static private function _length2subnet($length)
-    {
-        if ($length <= 0) {
-            return '0.0.0.0';
-        }
-        if ($length >= 32) {
-            return '255.255.255.255';
-        }
-        $bin = str_pad(str_repeat('1', $length), 32, '0');
-        if (PHP_INT_SIZE == 4) {
-            return implode('.', array_map('bindec', str_split($bin, 8)));
-        }
-        return long2ip(bindec($bin));
-    }
-
-    // }}}
-    // {{{ compareAsUnsigned()
-
-    /**
-     * 符号付き整数を符号なし整数のように比較する
-     */
-    static public function compareAsUnsigned($a, $b)
-    {
-        if ($a < 0) {
-            $a = (float)sprintf('%u', $a);
-        }
-        if ($b < 0) {
-            $b = (float)sprintf('%u', $b);
-        }
-        return $a - $b;
     }
 
     // }}}
@@ -363,27 +326,34 @@ EOF;
                         }
                     } else {
                         $target = $mask;
-                        $mask = '255.255.255.255';
+                        $mask = 32;
                     }
                 }
                 if (($target = ip2long($target)) === false) {
                     continue;
                 }
                 if (is_int($mask)) {
-                    if ($mask == 0) {
+                    if ($mask <= 0) {
                         continue;
                     }
-                    $mask = self::_length2subnet($mask);
-                }
-                if (!($mask = ip2long($mask))) {
-                    continue;
+                    if ($mask >= 32) {
+                        $mask = 32;
+                    }
+                    $binary = str_pad(str_repeat('1', $mask), 32, '0');
+                    if (PHP_INT_SIZE == 4) {
+                        $mask = ip2long(implode('.', array_map('bindec', str_split($binary, 8))));
+                    } else {
+                        $mask = bindec($binary);
+                    }
+                } else {
+                    if (!($mask = ip2long($mask))) {
+                        continue;
+                    }
+                    if (!preg_match('/^1+0*$/', base_convert(sprintf('%u', $mask), 10, 2))) {
+                        continue;
+                    }
                 }
                 $tmp[$target] = $mask;
-            }
-            if (PHP_INT_SIZE == 4) {
-                uksort($tmp, array('HostCheck', 'compareAsUnsigned'));
-            } else {
-                ksort($tmp, SORT_NUMERIC);
             }
             $band = $tmp;
             if (!file_exists($cache_file)) {
@@ -391,13 +361,7 @@ EOF;
             }
             $cache_data = "<?php\n\$band = array(\n";
             foreach ($band as $target => $mask) {
-                if (preg_match('/^(1+)0*$/', base_convert(sprintf('%u', $mask), 10, 2), $matches)) {
-                    $cache_data .= sprintf("%12d =>%12d, // %s/%d\n",
-                                           $target, $mask, long2ip($target), strlen($matches[1]));
-                } else {
-                    $cache_data .= sprintf("%12d =>%12d, // %s/%s\n",
-                                           $target, $mask, long2ip($target), long2ip($mask));
-                }
+                $cache_data .= sprintf("%12d => %d,\n", $target, $mask);
             }
             $cache_data .= ");\n";
             file_put_contents($cache_file, $cache_data);
