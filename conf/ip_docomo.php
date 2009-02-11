@@ -1,7 +1,7 @@
 <?php
 
 /**
- * NTTドコモ iモード端末のリモートホスト正規表現とIPアドレス帯域
+ * NTTドコモ iモード端末のリモートホスト正規表現とIPアドレス帯域 (2008/09 時点)
  *
  * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html
  */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * イーモバイル端末のリモートホスト正規表現とIPアドレス帯域
+ * イーモバイル端末のリモートホスト正規表現とIPアドレス帯域 (2008/02/26 時点)
  *
  * @link http://developer.emnet.ne.jp/ipaddress.html
  */

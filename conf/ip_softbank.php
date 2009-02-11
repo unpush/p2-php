@@ -2,6 +2,7 @@
 
 /**
  * ソフトバンク端末のリモートホスト正規表現とIPアドレス帯域
+ * (Yahoo!ケータイ・PCサイトブラウザは 2008/02/29 時点、Xシリーズは 2008/09/19 時点)
  *
  * @link http://creation.mb.softbank.jp/web/web_ip.html
  * @link http://creation.mb.softbank.jp/xseries/xseries_ip.html

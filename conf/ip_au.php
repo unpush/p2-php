@@ -1,7 +1,7 @@
 <?php
 
 /**
- * KDDI au EZweb端末のリモートホスト正規表現とIPアドレス帯域
+ * KDDI au EZweb端末のリモートホスト正規表現とIPアドレス帯域 (2008/12/11 時点)
  *
  * @link http://www.au.kddi.com/ezfactory/tec/spec/ezsava_ip.html
  */

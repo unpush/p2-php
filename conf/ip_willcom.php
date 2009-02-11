@@ -1,7 +1,7 @@
 <?php
 
 /**
- * WILLCOM端末のリモートホスト正規表現とIPアドレス帯域
+ * WILLCOM端末のリモートホスト正規表現とIPアドレス帯域 (2009/02/01 時点)
  *
  * @link http://www.willcom-inc.com/ja/service/contents_service/create/center_info/index.html
  */
