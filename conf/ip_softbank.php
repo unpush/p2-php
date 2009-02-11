@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * ソフトバンク端末のリモートホスト正規表現とIPアドレス帯域
+ *
+ * @link http://creation.mb.softbank.jp/web/web_ip.html
+ * @link http://creation.mb.softbank.jp/xseries/xseries_ip.html
+ */
+
 $host = '/\\.(?:jp-[a-z]|[a-z]\\.vodafone|softbank|openmobile|pcsitebrowser)\\.ne\\.jp$/';
 
 $band = array(

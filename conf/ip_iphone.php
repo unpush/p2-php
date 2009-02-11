@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * iPhoneのリモートホスト正規表現とIPアドレス帯域
+ */
+
 $host = '/\\.(?:[0-9]|1[0-5])\\.tik\\.panda-world\\.ne\\.jp$/';
 
 $band = array(

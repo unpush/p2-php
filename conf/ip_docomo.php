@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * NTTドコモ iモード端末のリモートホスト正規表現とIPアドレス帯域
+ *
+ * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html
+ */
+
 $host = '/^proxy[0-9a-f]\\d\\d\\.docomo\\.ne\\.jp$/';
 
 $band = array(

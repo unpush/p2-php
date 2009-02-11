@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * WILLCOM端末のリモートホスト正規表現とIPアドレス帯域
+ *
+ * @link http://www.willcom-inc.com/ja/service/contents_service/create/center_info/index.html
+ */
+
 $host = '/\\.ppp\\.prin\\.ne\\.jp$/';
 
 $band = array(

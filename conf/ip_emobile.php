@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * イーモバイル端末のリモートホスト正規表現とIPアドレス帯域
+ *
+ * @link http://developer.emnet.ne.jp/ipaddress.html
+ */
+
 $host = '/\\.pool\\.e(?:mnet|-?mobile)\\.ne\\.jp$/';
 
 $band = array(

@@ -532,8 +532,6 @@ EOF;
 
     /**
      * DoCoMo?
-     *
-     * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html
      */
     static public function isAddressDocomo($address = null)
     {
@@ -557,8 +555,6 @@ EOF;
 
     /**
      * au?
-     *
-     * @link http://www.au.kddi.com/ezfactory/tec/spec/ezsava_ip.html
      */
     static public function isAddressAu($address = null)
     {
@@ -578,27 +574,10 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddressVodafone()
-
-    /**
-     * SoftBank? (old name)
-     *
-     * @deprecated  06-11-30
-     * @see isAddressSoftbank()
-     */
-    static public function isAddressVodafone($address = null)
-    {
-        return self::isAddressSoftbank($address);
-    }
-
-    // }}}
     // {{{ isAddressSoftbank()
 
     /**
      * SoftBank?
-     *
-     * @link http://creation.mb.softbank.jp/web/web_ip.html
-     * @link http://creation.mb.softbank.jp/xseries/xseries_ip.html
      */
     static public function isAddressSoftbank($address = null)
     {
@@ -618,26 +597,10 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddressAirh()
-
-    /**
-     * WILLCOM? (old name)
-     *
-     * @deprecated  06-02-17
-     * @see isAddressWillcom()
-     */
-    static public function isAddressAirh($address = null)
-    {
-        return self::isAddressWillcom($address);
-    }
-
-    // }}}
     // {{{ isAddressWillcom()
 
     /**
      * WILLCOM?
-     *
-     * @link http://www.willcom-inc.com/ja/service/contents_service/create/center_info/index.html
      */
     static public function isAddressWillcom($address = null)
     {
@@ -661,8 +624,6 @@ EOF;
 
     /**
      * EMOBILE?
-     *
-     * @link http://developer.emnet.ne.jp/ipaddress.html
      */
     static public function isAddressEmobile($address = null)
     {

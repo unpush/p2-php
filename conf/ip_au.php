@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * KDDI au EZweb端末のリモートホスト正規表現とIPアドレス帯域
+ *
+ * @link http://www.au.kddi.com/ezfactory/tec/spec/ezsava_ip.html
+ */
+
 $host = '/^w[ab](\\d\\dproxy\\d\\d|cc\\d\\d?s\\d\\d?)\\.ezweb\\.ne\\.jp$/';
 
 $band = array(
