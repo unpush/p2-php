@@ -37,7 +37,7 @@ function getCookie(cn) {
 function setCookie(cn, val, sec) {
 	
 	// クッキーの有効時間
-	if (!sec) {
+	if (sec == undefined) {
 		sec = 1000*60*60*24*30; // 30日間
 	}
 	

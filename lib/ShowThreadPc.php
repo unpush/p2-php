@@ -55,8 +55,7 @@ class ShowThreadPc extends ShowThread
 
         $status_title_hs = hs($this->thread->itaj) . ' / ' . hs($this->thread->ttitle_hc);
         $status_title_hs = str_replace("&#039;", "\&#039;", $status_title_hs);
-        //$status_title_hs = str_replace("'", "\\'", $status_title_hs);
-        //$status_title_hs = str_replace('"', "\\'\\'", $status_title_hs);
+        //$status_title_hs = str_replace(array("\\", "'"), array("\\\\", "\\'"), $status_title_hs);
         echo "<dl onMouseover=\"window.top.status='{$status_title_hs} ';\">";
 
         // 1を表示（範囲外のケースもあるのでここで）

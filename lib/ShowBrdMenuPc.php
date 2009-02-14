@@ -113,7 +113,7 @@ EOP;
                 $star_atag = P2View::tagA($uri, '★', array(
                     'target' => '_self', 'class' => 'fav',
                     'title'  => "「{$itaj}」をお気に板から外す",
-                    'onClick' => "return confirmSetFavIta('" . str_replace("'", "\\'", $itaj) . "');"
+                    'onClick' => "return confirmSetFavIta('" . str_replace(array("\\", "'"), array("\\\\", "\\'"), $itaj) . "');"
                 ));
 
                 // 新着数を表示する場合

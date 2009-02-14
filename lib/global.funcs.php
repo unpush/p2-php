@@ -48,6 +48,9 @@ function ehi(&$str, $alt = '', $quoteStyle = ENT_QUOTES)
 /**
  * 存在しない変数の notice を出すことなく、変数の値を取得する
  *
+ * この関数で配列の中身を取得しようとすると、配列そのものを作成してしまうことがあるのに注意。
+ * つまり $hoge が存在しない時に、geti($hoge['huga']) とすると、 $hoge は array('huga' => null) となってしまう。
+ *
  * @return  mixed
  */
 function geti(&$var, $alt = null)

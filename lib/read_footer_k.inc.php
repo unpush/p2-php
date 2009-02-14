@@ -47,7 +47,7 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // 
     );
     
     echo <<<EOP
-<p>
+<div>
     <a id="footer" name="footer">{$read_range_hs}</a><br>
     {$read_navi_previous_btm} 
     {$read_navi_next_btm} 
@@ -55,10 +55,9 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // 
     {$read_footer_navi_new_btm} 
     {$dores_atag}
     {$read_navi_filter_btm}<br>
-</p>
-<p>
     {$toolbar_right_ht} $above_atag
-</p>
+</div>
+<br>
 {$goto_ht}\n
 EOP;
     /*

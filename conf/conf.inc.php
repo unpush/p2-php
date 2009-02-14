@@ -244,7 +244,7 @@ if (PEAR::isError($mobile)) {
     }
 }
 
-// IPhoneŽw’è
+// iPhoneŽw’è
 if (UA::isIPhoneGroup()) {
     $_conf['ktai'] = true;
     UA::setForceMode(UA::getMobileQuery());

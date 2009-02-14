@@ -188,7 +188,7 @@ $isTaborn = empty($ta_keys[$aThread->key]) ? false : true;
 
 
 $taborndo_title_attrs = array();
-if (UA::isPC() and !$isTaborn) {
+if (UA::isPC() || UA::isIPhoneGroup() and !$isTaborn) {
     $taborndo_title_attrs = array('title' => 'スレッド一覧で非表示にします');
 }
 $atag = P2View::tagA(

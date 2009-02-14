@@ -1,22 +1,22 @@
 <?php
 // 例えば、クエリーが b=k なら isK() がtrueとなるので、携帯向け表示にしたりする
 
-// {{{ このクラスでのみ利用するグローバル変数（_UA__*）
+// {{{ このクラスでのみ利用するグローバル変数（_UA_*）
 // over PHP5に限定できるならプライベートなクラス変数にしたいところのもの
 
 // @see getQueryKey()
-$GLOBALS['_UA__query_key'] = 'b';
+$GLOBALS['_UA_query_key'] = 'b';
 
 // @see setPCQuery() // b=pc
-$GLOBALS['_UA__PC_query'] = 'pc';
+$GLOBALS['_UA_PC_query'] = 'pc';
 
 // @see setMobileQuery() // b=k
-$GLOBALS['_UA__mobile_query'] = 'k';
+$GLOBALS['_UA_mobile_query'] = 'k';
 
 // @see setIPhoneGroupQuery() // b=i
-$GLOBALS['_UA__iphonegroup_query'] = 'i';
+$GLOBALS['_UA_iphonegroup_query'] = 'i';
 
-$GLOBALS['_UA__force_mode'] = null;
+$GLOBALS['_UA_force_mode'] = null;
 
 // }}}
 
@@ -33,11 +33,13 @@ class UA
      */
     function setForceMode($v)
     {
-        $GLOBALS['_UA__force_mode'] = $v;
+        $GLOBALS['_UA_force_mode'] = $v;
     }
     
     /**
      * UAがPC（非モバイル）ならtrueを返す
+     * iPhoneも含んでいるが、いずれ含まなくなる可能性があることに注意。
+     * 現在、iPhoneはsetForceMode()でisMobileByQuery()扱いしている。（効力弱めで）
      *
      * @static
      * @access  public
@@ -62,6 +64,9 @@ class UA
     
     /**
      * UAが携帯表示対象ならtrueを返す
+     * isK()と意味を区別する予定があるので、それまでの間は使わないでおく（現時点、使っていない）
+     * （isMobileByQuery()などは使われているが）
+     * isM()にしたい気も。
      *
      * @static
      * @access  public
@@ -73,9 +78,9 @@ class UA
         static $cache_;
 
         // 強制指定があれば
-        if (isset($GLOBALS['_UA__force_mode'])) {
+        if (isset($GLOBALS['_UA_force_mode'])) {
             // ここはキャッシュしない
-            return ($GLOBALS['_UA__force_mode'] == $GLOBALS['_UA__mobile_query']);
+            return ($GLOBALS['_UA_force_mode'] == $GLOBALS['_UA_mobile_query']);
         }
         
         // 引数のUAが無指定なら、クエリー指定を参照
@@ -196,7 +201,7 @@ class UA
      */
     function getQueryKey()
     {
-        return $GLOBALS['_UA__query_key'];
+        return $GLOBALS['_UA_query_key'];
     }
     
     /**
@@ -207,7 +212,7 @@ class UA
      */
     function setPCQuery($pc)
     {
-        $GLOBALS['_UA__PC_query'] = $pc;
+        $GLOBALS['_UA_PC_query'] = $pc;
     }
     
     /**
@@ -217,7 +222,7 @@ class UA
      */
     function getPCQuery()
     {
-        return $GLOBALS['_UA__PC_query'];
+        return $GLOBALS['_UA_PC_query'];
     }
     
     /**
@@ -228,7 +233,7 @@ class UA
      */
     function setMobileQuery($k)
     {
-        $GLOBALS['_UA__mobile_query'] = $k;
+        $GLOBALS['_UA_mobile_query'] = $k;
     }
     
     /**
@@ -238,7 +243,7 @@ class UA
      */
     function getMobileQuery()
     {
-        return $GLOBALS['_UA__mobile_query'];
+        return $GLOBALS['_UA_mobile_query'];
     }
     
     /**
@@ -249,7 +254,7 @@ class UA
      */
     function setIPhoneGroupQuery($i)
     {
-        $GLOBALS['_UA__iphonegroup_query'] = $i;
+        $GLOBALS['_UA_iphonegroup_query'] = $i;
     }
     
     /**
@@ -259,7 +264,7 @@ class UA
      */
     function getIPhoneGroupQuery()
     {
-        return $GLOBALS['_UA__iphonegroup_query'];
+        return $GLOBALS['_UA_iphonegroup_query'];
     }
     
     /**
@@ -389,8 +394,10 @@ class UA
     function isIPhoneGroup($ua = null)
     {
         // 強制指定があればチェック
-        if (isset($GLOBALS['_UA__force_mode'])) {
-            if ($GLOBALS['_UA__force_mode'] == $GLOBALS['_UA__iphonegroup_query']) {
+        if (isset($GLOBALS['_UA_force_mode'])) {
+            // 移行の便宜上、効力を弱めている
+            // return ($GLOBALS['_UA_force_mode'] == $GLOBALS['_UA_iphonegroup_query']);
+            if ($GLOBALS['_UA_force_mode'] == $GLOBALS['_UA_iphonegroup_query']) {
                 return true;
             }
         }

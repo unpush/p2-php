@@ -260,7 +260,7 @@ EOP;
     ?>
 	<title><?php echo $ptitle_ht; ?></title>
     <?php
-    if (UA::isPC()) {
+    if (UA::isPC() || UA::isIPhoneGroup()) {
         // ƒ†[ƒU‚Í–¢Œˆ’è
         //P2View::printIncludeCssHtml('style');
         //P2View::printIncludeCssHtml('login_first');

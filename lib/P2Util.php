@@ -90,7 +90,7 @@ class P2Util
         }
         return $ta_keys;
     }
-    
+
     /**
      * お気にスレのリストデータを取得する
      *
@@ -122,7 +122,7 @@ class P2Util
         return $fav_keys;
     }
     */
-
+    
     /**
      * html_entity_decode() は結構重いので代替、、こっちだと半分くらいの処理時間
      * html_entity_decode($str, ENT_COMPAT, 'Shift_JIS')
@@ -207,7 +207,7 @@ class P2Util
     function buildQuery($array, $opts = array())
     {
         $encode    = array_key_exists('encode', $opts)    ? $opts['encode']    : 'rawurlencode';
-        $separator = array_key_exists('separator', $opts) ? $opts['separator'] : '&';
+        $separator = empty($opts['separator']) ? '&' : $opts['separator'];
         
         $newar = array();
         foreach ($array as $k => $v) {
@@ -230,7 +230,9 @@ class P2Util
     function buildQueryUri($uri, $qs, $opts = array())
     {
         if ($q = P2Util::buildQuery($qs, $opts)) {
-            $uri .= '?' . $q;
+            $separator = empty($opts['separator']) ? '&' : $opts['separator'];
+            $mark = (strpos($uri, '?') === false) ? '?': $separator;
+            $uri .= $mark . $q;
         }
         return $uri;
     }
@@ -293,7 +295,7 @@ class P2Util
         );
         return $cache_[$ckey];
     }
-
+    
     /**
      * conf_user にデータをセット記録する
      * k_use_aas, maru_kakiko
@@ -342,7 +344,7 @@ class P2Util
         }
         
         $perm = isset($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
-    
+        
         // {{{ modifiedの指定
         
         // 指定なし（null）なら、ファイルの更新時間
@@ -360,7 +362,7 @@ class P2Util
         }
         
         // }}}
-    
+        
         // DL
         require_once P2_LIB_DIR . '/wap.class.php';
         $wap_ua = new WapUserAgent;
@@ -471,17 +473,17 @@ class P2Util
         }
 
         $save_uri = $parsed['host'];
-        $save_uri .= isset($parsed['port']) ? ':'. $parsed['port'] : ''; 
+        $save_uri .= isset($parsed['port']) ? ':' . $parsed['port'] : ''; 
         $save_uri .= $parsed['path'] ? $parsed['path'] : ''; 
-        $save_uri .= isset($parsed['query']) ? '?'. $parsed['query'] : '';
+        $save_uri .= isset($parsed['query']) ? '?' . $parsed['query'] : '';
         
         $save_uri = str_replace('%2F', '/', rawurlencode($save_uri));
         $save_uri = preg_replace('|\.+/|', '', $save_uri);
         
         $save_uri = rtrim($save_uri, '/');
         
-        $cachefile = $_conf['cache_dir'] . "/" . $save_uri;
-        
+        $cachefile = $_conf['cache_dir'] . '/' . $save_uri;
+
         FileCtl::mkdirFor($cachefile);
         
         return $cachefile;
@@ -578,6 +580,7 @@ class P2Util
             $idx_host_dir = $_conf['idx_dir'] . '/machibbs.com';
         } else {
             $idx_host_dir = $_conf['idx_dir'] . '/' . P2Util::escapeDirPath($host);
+
         }
         return $idx_host_dir;
     }
@@ -603,7 +606,7 @@ class P2Util
         $dir_path = preg_replace('|:+//|', '', $dir_path); // mkdir()が「://」をカレントディレクトリであるとみなす？
         return $dir_path;
     }
-    
+
     /**
      * failed_post_file のパスを取得する
      *
@@ -749,6 +752,7 @@ class P2Util
         if (preg_match('{^find\\.2ch\\.net/enq}', $host)) {
             return true;
         }
+        
         return false;
     }
     
@@ -777,7 +781,7 @@ class P2Util
     function isHost2chs($host)
     {
         // find.2ch.net（こっそりアンケート）は除く
-        if (preg_match("{^find\.2ch\.net}", $host)) {
+        if (preg_match('{^find\\.2ch\\.net}', $host)) {
             return false;
         }
         return (bool)preg_match('/\\.(2ch\\.net|bbspink\\.com)$/', $host);
@@ -872,7 +876,7 @@ class P2Util
      */
     function adjustHostJbbs($str)
     {
-        return preg_replace('/jbbs\\.shitaraba\.com|jbbs\\.livedoor\\.com/', 'jbbs.livedoor.jp', $str, 1);
+        return preg_replace('/jbbs\\.shitaraba\\.com|jbbs\\.livedoor\\.com/', 'jbbs.livedoor.jp', $str, 1);
     }
 
     /**
@@ -1183,7 +1187,9 @@ EOP;
     {
         global $_login;
         
-        return md5($_login->user . $_login->pass_x . $_SERVER['HTTP_USER_AGENT']);
+        // DoCoMoはutfでUAが変わっちゃうので、UAは外してしまおう
+        // return md5($_login->user . $_login->pass_x . geti($_SERVER['HTTP_USER_AGENT']));
+        return md5($_login->user . $_login->pass_x);
     }
     
     /**
@@ -1310,7 +1316,7 @@ EOP;
                 $error_msg = $code;
             }
         }
-    
+        
         return false;
     }
 
@@ -1358,6 +1364,7 @@ EOP;
      *
      * @static
      * @access  private
+     * @param   string  $kid  携帯固有端末ID
      * @return  string
      */
     function getKidForBBM($kid)
@@ -1457,7 +1464,7 @@ EOP;
         }
         return true;
     }
-
+    
     /**
      * 2006/11/24 $_info_msg_ht を直接参照するのはやめてこのメソッドを通す
      *
@@ -1518,7 +1525,7 @@ EOP;
     }
 
     /**
-     * 外部からの変数（GET, POST, COOKIE）を取得する
+     * 外部からの変数（GET, POST, [COOKIE]）を取得する
      *
      * @static
      * @access  public

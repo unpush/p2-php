@@ -115,7 +115,7 @@ if (UA::isPC()) {
 <?php
 
 // PC用表示
-if (UA::isPC()) {
+if (UA::isPC() || UA::isIPhoneGroup()) {
     ?>
 <p id="pan_menu"><a href="<?php eh($_conf['editpref_php']) ?>">設定管理</a> &gt; <?php eh($ptitle); ?> （<a href="<?php eh(P2Util::getMyUrl()); ?>">リロード</a>）</p>
 <?php

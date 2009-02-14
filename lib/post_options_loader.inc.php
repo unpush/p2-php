@@ -132,7 +132,7 @@ if (P2Util::isBbsBe2chNet($host, $bbs)) {
 // PC用 sage checkbox
 $on_check_sage = '';
 $sage_cb_ht = '';
-if (UA::isPC()) {
+if (UA::isPC() || UA::isIPhoneGroup()) {
     $on_check_sage = ' onChange="checkSage();"';
     $sage_cb_ht = <<<EOP
 <input id="sage" type="checkbox" onClick="mailSage();"><label for="sage">sage</label><br>
@@ -153,7 +153,7 @@ EOP;
 // {{{ソースコード補正用チェックボックス
 
 $htm['src_fix'] = '';
-if (UA::isPC()) {
+if (UA::isPC() || UA::isIPhoneGroup()) {
     if ($_conf['editor_srcfix'] == 1 ||
         ($_conf['editor_srcfix'] == 2 && preg_match('/pc\d+\.2ch\.net/', $host))
     ) {
@@ -168,7 +168,7 @@ if (UA::isPC()) {
 
 $onsubmit_ht = '';
 
-if (UA::isPC()) {
+if (UA::isPC() || UA::isIPhoneGroup()) {
     if ($_exconf['editor']['check_message'] || $_exconf['editor']['check_sage']) {
         $_check_message = (int) $_exconf['editor']['check_message'];
         $_check_sage = (int) $_exconf['editor']['check_sage'];

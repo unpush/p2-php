@@ -74,7 +74,7 @@ class P2View
     function printDoctypeTag()
     {
         $ie_strict = false;
-        if (UA::isPC()) {
+        if (UA::isPC() || UA::isIPhoneGroup()) {
             if ($ie_strict) {
             ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -186,7 +186,7 @@ class P2View
         );
         /*
         // 省略
-        if (UA::isPC()) {
+        if (UA::isPC() || UA::isIPhoneGroup()) {
             $metas[] = array(
                 'http-equiv' => 'Content-Style-Type',
                 'content'    => 'text/css'
@@ -198,7 +198,7 @@ class P2View
         }
         */
         
-        if (!(basename($_SERVER['SCRIPT_NAME']) == 'index.php' && UA::isPC())) {
+        if (!(basename($_SERVER['SCRIPT_NAME']) == 'index.php')) {
             if (UA::isIPhoneGroup() || UA::isIPhoneGroup(geti($_SERVER['HTTP_USER_AGENT']))) {
                 ?><link rel="apple-touch-icon" href="img/p2iphone.png"><?php
                 

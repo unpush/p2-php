@@ -524,17 +524,19 @@ function _getP2FrameHtml($motothre_url)
         hs('3ペインで開く'),
         array('title' => 'p2フレーム 3ペインで開く')
     );
+    // Chromeで動作が変なので、とりあえず条件から外しておく。
+    // もうちょっとまっとうなJavaScript処理に変えたいところ。
     return $p2frame_ht = <<<EOP
+<span class="open">
 <script type="text/javascript">
 <!--
-if (top == self) {
+if (top == self && !navigator.userAgent.match(/Chrome/)) {
 	document.writeln('{$atag} | ');
 }
 //-->
 </script>\n
 EOP;
 }
-
 /**
  * 1- 101- 201- のリンクHTMLを取得する
  * _getHeadBarHtml() から呼ばれる

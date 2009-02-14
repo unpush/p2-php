@@ -266,12 +266,11 @@ EOP;
     ?>
 	<title><?php eh($ptitle); ?></title>
     <?php
-    if (UA::isPC()) {
+    if (UA::isIPhoneGroup()) {
+        ?><style type="text/css" media="screen">@import "./iui/iui.css";</style><?php
+    } elseif (!UA::isK()) {
         include_once "./style/style_css.inc";
         include_once "./style/login_first_css.inc";
-    // iPhone—p
-    } else {
-        echo '<style type="text/css" media="screen">@import "./iui/iui.css";</style>';
     }
     ?></head><body><?php
 

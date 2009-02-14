@@ -224,8 +224,8 @@ if ($posted === true) {
     recLastPostTime('SUCCESS');
 
 // クッキーなら試行時間を戻す
-} elseif ($posted === 'Cookie') {
-    recLastPostTime('FAULT');
+} elseif ($posted === 'COOKIE') {
+    recLastPostTime('COOKIE');
 
 // その他のエラーは連打で抜けられるケースがあるので戻さない
 } else {
@@ -725,7 +725,8 @@ function _postIt($host, $bbs, $key, $post)
             }
         }
     }
-    if (_isSambaDeny($kisei_second)) {
+    //if (_isSambaDeny($kisei_second)) { // 確認時間でチェックする場合
+    if (isDenyWithUpdateLastPostTime($kisei_second)) { // 試行時間でチェックする場合
         $samba24_msg = $samba24 ? '2chのsamba24設定 ' : '';
         $msg_ht = sprintf('p2 samba規制: 連続投稿はできません。（%s%d秒）', hs($samba24_msg), $kisei_second);
         _showPostMsg(false, $msg_ht, false);
@@ -892,7 +893,7 @@ EOSCRIPT;
         echo $h_b[1];
         
         //return false;
-        return 'Cookie';
+        return 'COOKIE';
         
     // その他はレスポンスをそのまま表示（結果はエラーとしてfalseを返す）
     } else {
@@ -1040,9 +1041,9 @@ function isDenyWithUpdateLastPostTime($kisei_second)
         }
     }
     
-    $last_confirm_time = empty($last_post_times[1]) ? '' : $last_post_times[1];
+    $last_confirmed_time = empty($last_post_times[1]) ? '' : $last_post_times[1];
     // 試行時間 : 実行確認時間
-    $cont = time() . "\n" . $last_confirm_time . "\n";
+    $cont = time() . "\n" . $last_confirmed_time . "\n";
 
     rewind($fp);    // これいる http://jp.php.net/manual/ja/function.ftruncate.php#44702
     ftruncate($fp, 0);
@@ -1091,38 +1092,41 @@ function getLastPostTime()
 /**
  * 最終投稿時間を記録する
  *
- *   -試行処理
+ *   -投稿試行処理
  *   --試行時間で連投チェック。
  *   ---OKなら確認時間はそのままに、試行時間を更新して続行（デフォルト動作）
  *   ---NGならSamba発動（試行時間の更新は行わないでおこうか）
  *
- *   -確認処理
- *   --成功なら試行/確認時間更新（$confirm = "SUCCESS"）
- *   --失敗なら試行時間を前回の確認時間に戻す（$confirm = "FAULT"）
+ *   -投稿確認処理
+ *   --成功なら試行/確認時間更新（$confirmed = 'SUCCESS'）
+ *   --Cookie確認なら試行時間を前回の確認時間に戻す（$confirmed = 'COOKIE'）
  *
- * @param   $confirm  確認処理の場合、"SUCCESS" or "FAULT" を指定する
+ * @param   $confirmed  投稿確認処理の場合、'SUCCESS' or 'COOKIE' を指定する
  * @return  boolean
  */
-function recLastPostTime($confirm = "")
+function recLastPostTime($confirmed = '')
 {
     global $_conf;
     
-    // 確認処理 成功なら
-    if ($confirm == 'SUCCESS') {
+    // 投稿試行時間\n投稿確認時間\n
+    
+    // 投稿確認処理 成功なら
+    if ($confirmed == 'SUCCESS') {
         // 試行時間 : （投稿成功の）確認時間
         $cont = time() . "\n" . time() . "\n";
     
-    // 確認処理 失敗なら
-    } elseif ($confirm == 'FAULT') {
+    // 投稿確認処理 Cookie確認なら試行時間を戻す
+    } elseif ($confirmed == 'COOKIE') {
         $last_post_times = getLastPostTime();
-        $last_confirm_time = empty($last_post_times[1]) ? '' : $last_post_times[1];
-        $cont = $last_confirm_time . "\n" . $last_confirm_time . "\n";
+        $last_confirmed_time = empty($last_post_times[1]) ? '' : $last_post_times[1];
+        $cont = $last_confirmed_time . "\n" . $last_confirmed_time . "\n";
         
-    // 試行処理 試行時間更新
+    // 投稿試行処理 投稿試行時間更新
     } else {
+        // 投稿前に試行確認している場合、ここの処理はいらないかも
         $last_post_times = getLastPostTime();
-        $last_confirm_time = empty($last_post_times[1]) ? '' : $last_post_times[1];
-        $cont = time() . "\n" . $last_confirm_time . "\n";
+        $last_confirmed_time = empty($last_post_times[1]) ? '' : $last_post_times[1];
+        $cont = time() . "\n" . $last_confirmed_time . "\n";
     }
     
     FileCtl::make_datafile($_conf['last_post_time_file'], $_conf['res_write_perm']);

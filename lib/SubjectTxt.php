@@ -1,12 +1,12 @@
 <?php
 /*
 $GLOBALS['_SubjectTxt_STORAGE'] = 'apc';      // 要APC
-$GLOBALS['_SubjectTxt_STORAGE'] = 'eashm';    // 要eAccelerator
+$GLOBALS['_SubjectTxt_STORAGE'] = 'eaccelerator';    // 要eAccelerator
 
-[仕様] eashm, apc だと長期キャッシュしない
-[仕様] eashm, apc だとmodifiedをつけない
+[仕様] eaccelerator, apc だと長期キャッシュしない
+[仕様] eaccelerator, apc だとmodifiedをつけない
 
-eashm, apc にしてもパフォーマンスはたいして変わらないようだ
+eaccelerator, apc にしてもパフォーマンスはたいして変わらないようだ
 */
 class SubjectTxt
 {
@@ -15,7 +15,9 @@ class SubjectTxt
     var $subject_url;
     var $subject_file;
     var $subject_lines;
-    var $storage; // file, eashm(eAccelerator shm), apc // 2006/02/27 aki eashm, apc は非推奨
+    
+    // 2006/02/27 aki eaccelerator, apc は非推奨
+    var $storage; // file, eaccelerator(eAccelerator shm), apc
     
     /**
      * @constructor
@@ -26,14 +28,14 @@ class SubjectTxt
         $this->bbs =  $bbs;
         
         if (isset($GLOBALS['_SubjectTxt_STORAGE'])) {
-            if (in_array($GLOBALS['_SubjectTxt_STORAGE'], array('eashm', 'apc'))) {
+            if (in_array($GLOBALS['_SubjectTxt_STORAGE'], array('eaccelerator', 'apc'))) {
                 $this->storage = $GLOBALS['_SubjectTxt_STORAGE'];
             }
         }
         if (!isset($this->storage)) {
             $this->storage = 'file';
         }
-
+        
         $this->setSubjectFile($this->host, $this->bbs);
         $this->setSubjectUrl($this->host, $this->bbs);
         
@@ -71,7 +73,7 @@ class SubjectTxt
     function dlAndSetSubject()
     {
         $lines = array();
-        if ($this->storage == 'eashm') {
+        if ($this->storage == 'eaccelerator') {
             $lines = eaccelerator_get("$this->host/$this->bbs");
         } elseif ($this->storage == 'apc') {
             $lines = apc_fetch("$this->host/$this->bbs");
@@ -88,7 +90,8 @@ class SubjectTxt
      * subject.txtをダウンロードする
      *
      * @access  public
-     * @return  array|null|false  subject.txtの配列データ(eashm, apc用)、またはnullを返す。失敗した場合はfalseを返す。
+     * @return  array|null|false  subject.txtの配列データ(eaccelerator, apc用)、またはnullを返す。
+     *                            失敗した場合はfalseを返す。
      */
     function downloadSubject()
     {
@@ -199,12 +202,12 @@ class SubjectTxt
                 $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
             }
             
-            // eashm or apcに保存する場合
-            if ($this->storage == 'eashm' || $this->storage == 'apc') {
+            // eaccelerator or apcに保存する場合
+            if ($this->storage == 'eaccelerator' || $this->storage == 'apc') {
                 $cache_key = "$this->host/$this->bbs";
                 $cont = rtrim($body);
                 $lines = explode("\n", $cont);
-                if ($this->storage == 'eashm') {
+                if ($this->storage == 'eaccelerator') {
                     eaccelerator_lock($cache_key); 
                     eaccelerator_put($cache_key, $lines, $_conf['sb_dl_interval']);
                     eaccelerator_unlock($cache_key);
@@ -266,13 +269,13 @@ class SubjectTxt
      * 成功すれば、$this->subject_lines がセットされる
      *
      * @access  private
-     * @param   string   $lines    eashm, apc用
+     * @param   string   $lines    eaccelerator, apc用
      * @return  boolean  実行成否
      */
     function loadSubjectLines($lines = null)
     {
         if (!$lines) {
-            if ($this->storage == 'eashm') {
+            if ($this->storage == 'eaccelerator') {
                 $this->subject_lines = eaccelerator_get("$this->host/$this->bbs");
             } elseif ($this->storage == 'apc') {
                 $this->subject_lines = apc_fetch("$this->host/$this->bbs");
