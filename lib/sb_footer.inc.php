@@ -50,7 +50,7 @@ if (!$aThreadList->spmode) {
 		$ini_url_text = "http://{$aThreadList->host}/bbs/read.cgi?BBS={$aThreadList->bbs}&KEY=";
     // ‚Ü‚¿BBS
 	} elseif (P2Util::isHostMachiBbs($aThreadList->host)) {
-		$ini_url_text = "http://{$aThreadList->host}/bbs/read.pl?BBS={$aThreadList->bbs}&KEY=";
+		$ini_url_text = "http://{$aThreadList->host}/bbs/read.cgi?BBS={$aThreadList->bbs}&KEY=";
     // ‚Ü‚¿ƒr‚Ë‚Á‚Æ
 	} elseif (P2Util::isHostMachiBbsNet($aThreadList->host)) {
 		$ini_url_text = "http://{$aThreadList->host}/test/read.cgi?bbs={$aThreadList->bbs}&key=";

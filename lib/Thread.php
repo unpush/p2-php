@@ -315,14 +315,14 @@ class Thread
             // PC
             if (!$_conf['ktai'] || $original) {
                 $motothre_url = sprintf(
-                    'http://%s/bbs/read.pl?BBS=%s&KEY=%s',
+                    'http://%s/bbs/read.cgi?BBS=%s&KEY=%s',
                     $this->host, rawurlencode($this->bbs), rawurlencode($this->key)
                 );
                 
             // Œg‘Ñ
             } else {
                 $motothre_url = sprintf(
-                    'http://%s/bbs/read.pl?IMODE=TRUE&BBS=%s&KEY=%s',
+                    'http://%s/bbs/read.cgi?IMODE=TRUE&BBS=%s&KEY=%s',
                     $this->host, rawurlencode($this->bbs), rawurlencode($this->key)
                 );
             }

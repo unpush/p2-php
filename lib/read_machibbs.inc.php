@@ -8,7 +8,7 @@
 require_once P2_LIB_DIR . '/FileCtl.php';
 
 /**
- * ‚Ü‚¿BBS‚Ì read.pl ‚ğ“Ç‚ñ‚Å dat‚É•Û‘¶‚·‚éŠÖ”
+ * ‚Ü‚¿BBS‚Ì read.cgi ‚ğ“Ç‚ñ‚Å dat‚É•Û‘¶‚·‚éŠÖ”
  *
  * @access  public
  * @return  boolean
@@ -43,7 +43,7 @@ function machiDownload()
     }
 
     // ‚Ü‚¿BBS
-    $machiurl = "http://{$aThread->host}/bbs/read.pl?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
+    $machiurl = "http://{$aThread->host}/bbs/read.cgi?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
 
     $tempfile = $aThread->keydat . '.html.temp';
     
@@ -96,7 +96,7 @@ function machiDownload()
 
 
 /**
- * ‚Ü‚¿BBS‚Ìread.pl‚Å“Ç‚İ‚ñ‚¾HTML‚ğdat‚É•ÏŠ·‚·‚é
+ * ‚Ü‚¿BBS‚Ìread.cgi‚Å“Ç‚İ‚ñ‚¾HTML‚ğdat‚É•ÏŠ·‚·‚é
  *
  * @see machiDownload()
  * @return  array|false
