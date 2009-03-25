@@ -332,7 +332,7 @@ EOP;
 		<label>Word:</label>
 		<input id="word" name="word" type="text" value="">
 		<br>
-		<input type="submit" class="whitebutton" id="s2" name="s2" value="フィルタ表示" onclick="footbarFormPopUp(0, 1)"><br><br>
+		<input type="submit" id="s2" name="s2" value="フィルタ表示" onclick="footbarFormPopUp(0, 1)"><br><br>
 
 		<input type="hidden" name="detect_hint" value="◎◇">
 		<input type="hidden" name="bbs" value="{$aThread->bbs}">

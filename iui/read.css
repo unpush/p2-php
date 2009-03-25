@@ -335,18 +335,22 @@ select {
 	font-size: 14px;
 }
 
-/* フィルタ表示とレス書き込みポップアップ */
+/*
+フィルタ表示とレス書き込みポップアップ
+http://pc11.2ch.net/test/read.cgi/iPhone/1225958706/202
+*/
 body > .dialog_filter, body > .dialog_write {
 	display: none;
 	position: relative;
 	margin: 0;
-	bottom: 478px;
+	/* bottom: 478px; */
+	bottom: 48px;
 	padding: 0;
 	left: 0;
 	width: 100%;
 	z-index: 2;
 	background: rgba(0, 0, 0, 0.5);
-	min-height: 430px;
+	/* min-height: 430px; */
 	padding: 0;
 	overflow: visible;
 }
@@ -360,9 +364,15 @@ body > .dialog_filter, body > .dialog_write {
 	margin: 0;
 	bottom: 1px;
 	border: none;
+
+	border-top: 480px rgba(0, 0, 0, 0.2) solid;
+	padding: 5px 6px 6px 0;
+	background: rgba(0, 0, 0, 0.5) url(footformbg.png) repeat-x;
+	/*
 	border-top: 1px solid
 	padding: 0px 6px;
 	background: url(footformbg.png) transparent repeat-x;
+	*/
 	overflow: visible;
 }
 
