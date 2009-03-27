@@ -113,6 +113,7 @@ echo <<<EOF
 
 </filedset>
 </div>
+EOF;
 ?>
 </body>
 </html>

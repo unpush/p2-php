@@ -121,7 +121,7 @@ echo <<<EOP
 <body{$body_at}>\n
 EOP;
 
-echo "<p>{$ptitle_atag}‚ÌV‚Ü‚Æ‚ß</p>\n";
+echo "<div>{$ptitle_atag}‚ÌV‚Ü‚Æ‚ß</div>\n";
 
 P2Util::printInfoHtml();
 
@@ -470,6 +470,7 @@ $_newthre_num++;
 
 if (!$aThreadList->num) {
     $GLOBALS['_is_matome_shinchaku_naipo'] = true;
+    echo $hr;
     echo "V’…Ú½‚Í‚È‚¢‚Û";
     echo $hr;
 }

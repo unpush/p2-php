@@ -75,7 +75,7 @@ $sb_range_st = "{$sb_range_on}/{$sb_disp_all_num} ";
 
 $k_sb_navi_ht = '';
 if (!$disp_navi['all_once']) {
-    $k_sb_navi_ht = "<p>{$sb_range_st}{$mae_ht} {$tugi_ht}</p>";
+    $k_sb_navi_ht = "<div>{$sb_range_st}{$mae_ht} {$tugi_ht}</div>";
 }
 
 // }}}
@@ -164,7 +164,7 @@ echo '<p>'. $htm['change_sort'] . '</p>';
 echo $hr;
 
 ?>
-<p><?php echo $topATag; ?></p>
+<div><?php echo $topATag; ?></div>
 
 </body></html>
 <?php

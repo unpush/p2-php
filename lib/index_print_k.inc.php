@@ -16,7 +16,7 @@ function index_print_k()
     $ptitle = 'ﾕﾋﾞｷﾀｽrep2';
     
     // ログインユーザ情報
-    $htm['auth_user']   = '<p>ﾛｸﾞｲﾝﾕｰｻﾞ: ' . hs($_login->user_u) . ' - ' . date('Y/m/d (D) G:i:s') . '</p>' . "\n";
+    $htm['auth_user']   = '<div>ﾛｸﾞｲﾝﾕｰｻﾞ: ' . hs($_login->user_u) . ' - ' . date('Y/m/d (D) G:i:s') . '</div>' . "\n";
     
     // p2ログイン用URL
     $login_url          = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
@@ -112,13 +112,14 @@ EOP;
 
 <?php echo $hr; ?>
 <?php echo $htm['auth_user']; ?>
+<br>
 
-<p>
+<div>
 p2ﾛｸﾞｲﾝ用URL（携帯）<br>
 <a href="<?php eh($login_url_k); ?>"><?php eh($login_url_k); ?></a><br>
 p2ﾛｸﾞｲﾝ用URL（PC）<br>
 <a href="<?php eh($login_url_pc); ?>"><?php eh($login_url_pc); ?></a>
-</p>
+</div>
 
 <?php echo $hr; ?>
 <?php echo $htm['last_login']; ?>

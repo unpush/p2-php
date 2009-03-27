@@ -892,7 +892,7 @@ function _setFilterWord()
             $GLOBALS['word'] = '';
         }
     
-        if (strlen($GLOBALS['word']) > 0)  {
+        if (strlen($GLOBALS['word']))  {
         
             // デフォルトオプション
             if (!$sb_filter['method']) { $sb_filter['method'] = "or"; } // $sb_filter は global @see sb_print.icn.php

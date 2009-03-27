@@ -470,6 +470,7 @@ function getEditConfHtml($name, $description_ht)
         $form_ht = getEditConfSelHtml($name);
         $key = $conf_user_def[$name];
         $def_views[$name] = htmlspecialchars($conf_user_sel[$name][$key], ENT_QUOTES);
+        
     // input “ü—ÍŽ®‚È‚ç
     } else {
         $form_ht = <<<EOP
@@ -515,7 +516,7 @@ function getEditConfSelHtml($name)
         //    continue;
         //}
         $selected = '';
-        if ($_conf[$name] == $key) {
+        if ($_conf[$name] == (string)$key) {
             $selected = ' checked';
         }
         $key_ht = htmlspecialchars($key, ENT_QUOTES);

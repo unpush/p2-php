@@ -235,7 +235,7 @@ P2View::printIncludeCssHtml('read');
 ?>
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
+	<script type="text/javascript" src="js/basic.js?v=20090227"></script>
 	<script type="text/javascript" src="js/respopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
@@ -524,17 +524,20 @@ function _getP2FrameHtml($motothre_url)
         hs('3ペインで開く'),
         array('title' => 'p2フレーム 3ペインで開く')
     );
-    // Chromeで動作が変なので、とりあえず条件から外しておく。
+    // Chrome, Safariで動作が変？なので、とりあえず条件から外しておく。
     // もうちょっとまっとうなJavaScript処理に変えたいところ。
     return $p2frame_ht = <<<EOP
 <span class="open">
 <script type="text/javascript">
 <!--
-if (top == self && !navigator.userAgent.match(/Chrome/)) {
+//if (top == self && !isChrome() && !isSafari()) {
+if (top == self) {
 	document.writeln('{$atag} | ');
 }
 //-->
-</script>\n
+</script>
+</span>
+\n
 EOP;
 }
 /**

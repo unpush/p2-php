@@ -19,7 +19,7 @@ class ShowBrdMenuK
      * @access  public
      * @return  void
      */
-    function printCate(&$categories)
+    function printCate($categories)
     {
         global $_conf, $list_navi_ht;
 
@@ -190,7 +190,7 @@ EOP;
         $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
         
         $detect_hint_q = 'detect_hint=' . urlencode('ž');
-        $word_q = '&amp;word=' . rawurlencode($_REQUEST['word']);
+        $word_q = '&amp;word=' . rawurlencode($GLOBALS['word']);
         
         if ($disp_navi['from'] > 1) {
             $mae_ht = <<<EOP

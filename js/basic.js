@@ -83,7 +83,7 @@ function getResponseTextHttp(xmlHttpObj, url, nc)
 	return '';
 }
 
-// isSafari?
+// Browser isSafari?
 // @return  boolean
 function isSafari() {
 	var ua = navigator.userAgent;
@@ -92,6 +92,12 @@ function isSafari() {
 	} else {
 		return false;
 	}
+}
+
+// Browser isChrome?
+// @return  boolean
+function isChrome() {
+	return (navigator.userAgent.indexOf('Chrome') != -1);
 }
 
 /**

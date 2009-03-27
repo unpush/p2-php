@@ -101,9 +101,9 @@ if (strlen($GLOBALS['word']) > 0) {
     ?><div class="panel"><h2>
     <?php
     if ($GLOBALS['ita_mikke']['num']) {
-        printf('"%s" %dhit!</h2>', hs($GLOBALS['word']), $GLOBALS['ita_mikke']['num']);
-        echo '</div>';
+        printf('"%s" %dhit!', hs($GLOBALS['word']), $GLOBALS['ita_mikke']['num']);
     }
+    ?></h2></div><?
     
     // 板名を検索して表示する
     if ($brd_menus) {
@@ -129,8 +129,9 @@ if (strlen($GLOBALS['word']) > 0) {
 }
 
 // }}}
+
 // カテゴリをHTML表示
-if ($get['view'] == 'cate' or isset($_REQUEST['word']) && strlen($GLOBALS['word']) == 0) {
+if ($get['view'] == 'cate' or isset($_REQUEST['word']) && !strlen($GLOBALS['word'])) {
     //echo "板ﾘｽﾄ{$hr}";
     if ($brd_menus) {
         foreach ($brd_menus as $a_brd_menu) {

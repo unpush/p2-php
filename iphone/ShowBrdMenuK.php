@@ -175,7 +175,7 @@ echo  "<li><a class=\"plus\"href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&
         $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
         
         $detect_hint_q = 'detect_hint=' . urlencode('ž');
-        $word_q = '&amp;word=' . rawurlencode($_REQUEST['word']);
+        $word_q = '&amp;word=' . rawurlencode($GLOBALS['word']);
         
         if ($disp_navi['from'] > 1) {
             $mae_ht = <<<EOP
@@ -202,7 +202,8 @@ EOP;
         }
         
         // }}}
-        echo '<ul>';        
+        
+        echo '<ul>';
         $i = 0;
         foreach ($categories as $cate) {
             
