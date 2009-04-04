@@ -530,8 +530,8 @@ function _getP2FrameHtml($motothre_url)
 <span class="open">
 <script type="text/javascript">
 <!--
-//if (top == self && !isChrome() && !isSafari()) {
-if (top == self) {
+if (top == self && !isChrome() && !isSafari()) {
+//if (top == self) {
 	document.writeln('{$atag} | ');
 }
 //-->
