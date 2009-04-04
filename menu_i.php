@@ -103,7 +103,7 @@ if (strlen($GLOBALS['word']) > 0) {
     if ($GLOBALS['ita_mikke']['num']) {
         printf('"%s" %dhit!', hs($GLOBALS['word']), $GLOBALS['ita_mikke']['num']);
     }
-    ?></h2></div><?
+    ?></h2></div><?php
     
     // ”Â–¼‚ðŒŸõ‚µ‚Ä•\Ž¦‚·‚é
     if ($brd_menus) {
