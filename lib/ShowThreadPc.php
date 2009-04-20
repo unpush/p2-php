@@ -102,10 +102,10 @@ class ShowThreadPc extends ShowThread
     {
         global $_conf, $STYLE, $mae_msg;
         
-        global $ngaborns_head_hits, $ngaborns_body_hits;
+        global $_ngaborns_head_hits;
         
-        $tores      = "";
-        $rpop       = "";
+        $tores      = '';
+        $rpop       = '';
 
         $resar      = $this->thread->explodeDatLine($ares);
         $name       = $resar[0];
@@ -145,6 +145,23 @@ class ShowThreadPc extends ShowThread
         }
         
         // }}}
+        // {{{ レスをポップアップ表示
+        // （$_ngaborns_head_hits がずれないように、NGチェックよりも前に）
+        
+        if ($_conf['quote_res_view']) {
+            $quote_res_nums = $this->checkQuoteResNums($i, $name, $msg);
+
+            foreach ($quote_res_nums as $rnv) {
+                if (empty($this->quote_res_nums_done[$rnv]) and $rnv < count($this->thread->datlines)) {
+                    $ds = $this->qRes($this->thread->datlines[$rnv - 1], $rnv);
+                    $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event,true)\"";
+                    $rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></dd>\n";
+                    $this->quote_res_nums_done[$rnv] = true;
+                }
+            }
+        }
+        
+        // }}}
         // {{{ NGチェック（名前、メール、ID、メッセージ）
         
         $isNgName = false;
@@ -163,22 +180,6 @@ class ShowThreadPc extends ShowThread
         }
         if (false !== ($a_ng_msg = $this->ngAbornCheck('ng_msg', $msg))) {
             $isNgMsg = true;
-        }
-        
-        // }}}
-        // {{{ レスをポップアップ表示
-        
-        if ($_conf['quote_res_view']) {
-            $quote_res_nums = $this->checkQuoteResNums($i, $name, $msg);
-
-            foreach ($quote_res_nums as $rnv) {
-                if (empty($this->quote_res_nums_done[$rnv]) and $rnv < count($this->thread->datlines)) {
-                    $ds = $this->qRes($this->thread->datlines[$rnv - 1], $rnv);
-                    $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event,true)\"";
-                    $rpop .= "<dd id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}><i>" . $ds . "</i></dd>\n";
-                    $this->quote_res_nums_done[$rnv] = true;
-                }
-            }
         }
         
         // }}}
@@ -210,41 +211,40 @@ class ShowThreadPc extends ShowThread
         // NGメッセージ変換
         if ($isNgMsg) {
             $msg_ht = <<<EOMSG
-<s class="ngword" onClick="showHide('ngm{$ngaborns_body_hits}', 'ngword_cont');"{$atTitle}>NG：{$a_ng_msg_hs}</s>
-<div id="ngm{$ngaborns_body_hits}" class="ngword_cont">$msg_ht</div>
+<s class="ngword" onClick="showHide(this.nextSibling, 'ngword_cont');"{$atTitle}>NG：{$a_ng_msg_hs}</s><div class="ngword_cont">$msg_ht</div>
 EOMSG;
         }
 
         // NGネーム変換
         if ($isNgName) {
             $name_ht = <<<EONAME
-<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$name_ht</s>
+<s class="ngword" onClick="showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$name_ht</s>
 EONAME;
             $msg_ht = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
+<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
 EOMSG;
 
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
-<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$mail</s>
+<s class="ngword" onClick="showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$mail</s>
 EOMAIL;
             $msg_ht = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
+<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
 EOMSG;
 
         // NGID変換
         } elseif ($isNgId) {
-            $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onClick=\"showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');\"{$atTitle}>NG：\\0</s>", $date_id);
+            $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onClick=\"showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');\"{$atTitle}>NG：\\0</s>", $date_id);
             
             /*
             $date_id = <<<EOID
-<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');">$date_id</s>
+<s class="ngword" onClick="showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');">$date_id</s>
 EOID;
             */
             
             $msg_ht = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
+<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
 EOMSG;
         }
 
@@ -378,7 +378,7 @@ EOP;
     function qRes($resline, $i)
     {
         global $_conf;
-        global $ngaborns_head_hits, $ngaborns_body_hits;
+        global $_ngaborns_head_hits;
         
         $resar      = $this->thread->explodeDatLine($resline);
         $name       = isset($resar[0]) ? $resar[0] : '';
@@ -433,45 +433,44 @@ EOP;
             // NGメッセージ変換
             if ($isNgMsg) {
                 $msg = <<<EOMSG
-<s class="ngword" onClick="showHide('ngm{$ngaborns_body_hits}', 'ngword_cont');"{$atTitle}>NG：{$a_ng_msg_hs}</s>
-<div id="ngm{$ngaborns_body_hits}" class="ngword_cont">$msg</div>
+<s class="ngword" onClick="showHide(this.nextSibling, 'ngword_cont');"{$atTitle}>NG：{$a_ng_msg_hs}</s><div  class="ngword_cont">$msg</div>
 EOMSG;
             }
 
             // NGネーム変換
             if ($isNgName) {
                 $name = <<<EONAME
-<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$name</s>
+<s class="ngword" onClick="showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$name</s>
 EONAME;
                 $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
+<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
 
             // NGメール変換
             } elseif ($isNgMail) {
                 $mail = <<<EOMAIL
-<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$mail</s>
+<s class="ngword" onClick="showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$mail</s>
 EOMAIL;
                 $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
+<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
 
             // NGID変換
             } elseif ($isNgId) {
                 $date_id = preg_replace(
                     '|ID: ?([0-9A-Za-z/.+]{8,11})|',
-                    "<s class=\"ngword\" onClick=\"showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');\"{$atTitle}>NG：\\0</s>",
+                    "<s class=\"ngword\" onClick=\"showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');\"{$atTitle}>NG：\\0</s>",
                     $date_id
                 );
                 
                 /*
                 $date_id = <<<EOID
-<s class="ngword" onClick="showHide('ngn{$ngaborns_head_hits}', 'ngword_cont');">$date_id</s>
+<s class="ngword" onClick="showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');">$date_id</s>
 EOID;
                 */
                 
                 $msg = <<<EOMSG
-<div id="ngn{$ngaborns_head_hits}" class="ngword_cont">$msg</div>
+<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg</div>
 EOMSG;
             }
             

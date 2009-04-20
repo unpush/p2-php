@@ -240,7 +240,7 @@ P2View::printIncludeCssHtml('read');
 	<script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
 	<script type="text/javascript" src="js/delelog.js?v=20061206"></script>
-	<script type="text/javascript" src="js/showhide.js"></script>
+	<script type="text/javascript" src="js/showhide.js?v=20090416"></script>
 <?php
 if (!UA::isIPhoneGroup()) {
 ?>

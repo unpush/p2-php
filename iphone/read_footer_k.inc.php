@@ -134,12 +134,11 @@ EOP;
 EOP;
 
 
-$sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . strip_tags(SID) : '';
+$sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . hs(SID) : '';
 
     // ƒvƒŠƒ“ƒg
-    echo <<<EOP
-{$res_form_ht}
-EOP;
+    echo $res_form_ht;
+    
 /* ------------------------------------------------------------ */
     if ($diedat_msg_ht) {
         //echo '<hr>';

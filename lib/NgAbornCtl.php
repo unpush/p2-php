@@ -1,6 +1,5 @@
 <?php
-$GLOBALS['ngaborns_head_hits'] = 0;
-$GLOBALS['ngaborns_body_hits'] = 0;
+$GLOBALS['_ngaborns_head_hits'] = 0;
 
 /*
     p2 - NGあぼーんを操作するクラス
@@ -273,7 +272,7 @@ class NgAbornCtl
     
     /**
      * $GLOBALS['ngaborn_hits'] （HITの更新チェックに用意した） と、
-     * $GLOBALS['ngaborns_head_hits'], $GLOBALS['ngaborns_body_hits']（read_new のHTML id用に用意した）をカウント更新する
+     * $GLOBALS['_ngaborns_head_hits']（read_new のHTML id用に用意した）をカウント更新する
      *
      * @static
      * @public
@@ -295,10 +294,8 @@ class NgAbornCtl
             );
         }
         
-        if ($ngcode == 'ng_msg') {
-            $GLOBALS['ngaborns_body_hits']++;
-        } else {
-            $GLOBALS['ngaborns_head_hits']++;
+        if ($ngcode != 'ng_msg') {
+            $GLOBALS['_ngaborns_head_hits']++;
         }
         
         return ++$GLOBALS['ngaborns_hits'][$ngcode];

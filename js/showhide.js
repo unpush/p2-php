@@ -3,9 +3,10 @@
 // @param  string  hiddenClassName  Œ³X‰B‚³‚ê‚Ä‚¢‚éê‡‚Ì‘ÎÛƒNƒ‰ƒX–¼
 function showHide(id, hiddenClassName)
 {
-	var obj = document.getElementById(id);
-	if (!obj) {
-		return false;
+	if (typeof(id) == 'string') {
+		var obj = document.getElementById(id)
+	} else {
+		var obj = id;
 	}
 
 	if (obj.style.display == 'block') {

@@ -69,7 +69,7 @@ if (!isset($ttitle)) {
 }
 
 // （設定に応じて）ソースコードがHTML上でもきれいに再現されるように、POSTメッセージを変換する
-$MESSAGE = formatCodeToPost($MESSAGE);
+$MESSAGE = _formatCodeToPost($MESSAGE);
 
 // したらばのlivedoor移転に対応。post先をlivedoorとする。
 $host = P2Util::adjustHostJbbs($host);
@@ -191,13 +191,6 @@ if (!empty($_POST['maru_kakiko']) and P2Util::isHost2chs($host) && file_exists($
 
 // }}}
 
-/*
-// 2006/05/27 新仕様？
-$post['hana'] = 'mogera';
-
-// 2008/09/15 新仕様？
-$post['kiri'] = 'tanpo';
-*/
 // for hana mogera。クッキー確認画面ではpost、その後はcookieという仕様らしい。
 foreach ($_POST as $k => $v) {
     if (!isset($post[$k]) and !in_array($k, $post_keys)) {
@@ -221,25 +214,23 @@ $posted = _postIt($host, $bbs, $key, $post); // @return  boolean|string
 
 // 最終投稿時間を記録する 確認処理
 if ($posted === true) {
-    recLastPostTime('SUCCESS');
+    _recLastPostTime('SUCCESS');
 
 // クッキーなら試行時間を戻す
 } elseif ($posted === 'COOKIE') {
-    recLastPostTime('COOKIE');
+    _recLastPostTime('COOKIE');
 
 // その他のエラーは連打で抜けられるケースがあるので戻さない
 } else {
-    recLastPostTime();
+    _recLastPostTime();
 }
 
 // スレ立て成功なら、subjectからkeyを取得
 if (!empty($_POST['newthread']) && $posted === true) {
     sleep(1);
-    $key = getKeyInSubject();
+    $key = _getKeyInSubject();
 }
 
-
-// {{{ key.idx 保存
 
 $tagCsv = array();
 
@@ -251,12 +242,54 @@ $tagCsv['mail'] = str_replace('<>', '', $mail);
 $tagCsvF['FROM'] = ($tagCsv['FROM'] == '') ? 'P2NULL' : $tagCsv['FROM'];
 $tagCsvF['mail'] = ($tagCsv['mail'] == '') ? 'P2NULL' : $tagCsv['mail'];
 
+// key.idxに名前とメールを保存する
 if ($host && $bbs && $key) {
+    _recKeyIdx($host, $bbs, $key, $tagCsvF);
+}
+
+
+if ($posted !== true) {
+    exit;
+}
+
+// 書き込み履歴を記録する
+if ($host && $bbs && $key) {
+    _recResHist($host, $bbs, $key, $tagCsv, $ttitle);
+}
+
+// 書き込みログ記録
+
+$tagCsv['message'] = _formatMessageTagCvs($MESSAGE);
+
+if ($_conf['res_write_rec']) {
+    _recResLog($tagCsv['FROM'], $tagCsv['mail'], $tagCsv['message'], $ttitle, $host, $bbs, $key, $rescount);
+}
+
+_recResLogSecu($tagCsv['FROM'], $tagCsv['mail'], $tagCsv['message'], $ttitle, $host, $bbs, $key, $rescount);
+
+exit;
+
+
+//=============================================================================
+// 関数 （このファイル内でのみ利用）
+//=============================================================================
+
+/**
+ * key.idxに名前とメールを保存する
+ *
+ * @return  void
+ */
+function _recKeyIdx($host, $bbs, $key, $tagCsvF)
+{
+    if (!($host && $bbs && $key)) {
+        return;
+    }
+    
     $idx_host_dir = P2Util::idxDirOfHost($host);
     $keyidx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
     
     $akeyline = array();
-    if ($keylines = @file($keyidx)) {
+    if (file_exists($keyidx) and $keylines = file($keyidx)) {
         $akeyline = explode('<>', rtrim($keylines[0]));
     }
     $sar = array(
@@ -267,15 +300,18 @@ if ($host && $bbs && $key) {
     P2Util::recKeyIdx($keyidx, $sar);
 }
 
-// }}}
-
-if ($posted !== true) {
-    exit;
-}
-
-// {{{ 書き込み履歴
-
-if ($host && $bbs && $key) {
+/**
+ * 書き込み履歴を記録する
+ *
+ * @return  void
+ */
+function _recResHist($host, $bbs, $key, $tagCsv, $ttitle)
+{
+    global $_conf;
+    
+    if (!($host && $bbs && $key)) {
+        return;
+    }
     
     $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
     FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']);
@@ -316,31 +352,12 @@ if ($host && $bbs && $key) {
     }
 }
 
-// }}}
-
-// 書き込みログ記録
-
-$tagCsv['message'] = formatMessageTagCvs($MESSAGE);
-
-if ($_conf['res_write_rec']) {
-    recResLog($tagCsv['FROM'], $tagCsv['mail'], $tagCsv['message'], $ttitle, $host, $bbs, $key, $rescount);
-}
-
-recResLogSecu($tagCsv['FROM'], $tagCsv['mail'], $tagCsv['message'], $ttitle, $host, $bbs, $key, $rescount);
-
-exit;
-
-
-//=======================================================================
-// 関数 （このファイル内でのみ利用）
-//=======================================================================
-
 /**
  * タグCSV記録のためにメッセージをフォーマット変換する
  *
  * @return  string
  */
-function formatMessageTagCvs($message)
+function _formatMessageTagCvs($message)
 {
     $message = htmlspecialchars($message, ENT_NOQUOTES);
     return preg_replace("/\r?\n/", "<br>", $message);
@@ -355,7 +372,7 @@ function formatMessageTagCvs($message)
  * @param   string   $ttitle   同上（元々フォーマットの必要なし）
  * @return  boolean
  */
-function recResLog($from, $mail, $message, $ttitle, $host, $bbs, $key, $rescount)
+function _recResLog($from, $mail, $message, $ttitle, $host, $bbs, $key, $rescount)
 {
     global $_conf;
     
@@ -401,7 +418,7 @@ function recResLog($from, $mail, $message, $ttitle, $host, $bbs, $key, $rescount
  * @param   string   $ttitle   同上（元々フォーマットの必要なし）
  * @return  boolean|null
  */
-function recResLogSecu($from, $mail, $message, $ttitle, $host, $bbs, $key, $rescount)
+function _recResLogSecu($from, $mail, $message, $ttitle, $host, $bbs, $key, $rescount)
 {
     global $_conf;
     
@@ -493,11 +510,11 @@ function _isThreTateSugi()
  * @param   string  $MESSAGE
  * @return  string
  */
-function formatCodeToPost($MESSAGE)
+function _formatCodeToPost($MESSAGE)
 {
     if (!empty($_POST['fix_source'])) {
         // タブをスペースに
-        $MESSAGE = tab2space($MESSAGE);
+        $MESSAGE = _tab2space($MESSAGE);
         // 特殊文字を実体参照に
         $MESSAGE = htmlspecialchars($MESSAGE, ENT_QUOTES);
         // 自動URLリンク回避
@@ -518,7 +535,7 @@ function formatCodeToPost($MESSAGE)
  *
  * @return  string
  */
-function _cachePathForCookie($host)
+function _cachePathForCookieByHost($host)
 {
     global $_conf;
 
@@ -589,25 +606,17 @@ function _saveCookieFile($p2cookies, $cookie_file)
 }
 
 /**
- * レスを書き込む or 新規スレッドを立てる
- * スレ立ての場合は、$key は空 '' でよい
- *
- * @return  boolean|string  書き込み成功なら true、失敗なら false または失敗理由文字列
+ * @return  array  array($request, $send_host, $send_port)
  */
-function _postIt($host, $bbs, $key, $post)
+function _buildRequestForPost($host, $bbs, $key, $post, $bbs_cgi)
 {
-    global $_conf, $post_result, $post_error2ch, $popup, $rescount, $ttitle_en, $STYLE;
-    global $bbs_cgi, $post_cache;
+    global $_conf, $_login;
     
-    $method = "POST";
-    $bbs_cgi_url = "http://" . $host . $bbs_cgi;
+    $method = 'POST';
+    $bbs_cgi_url = 'http://' . $host . $bbs_cgi;
     
     $purl = parse_url($bbs_cgi_url);
-    if (isset($purl['query'])) {
-        $purl['query'] = "?" . $purl['query'];
-    } else {
-        $purl['query'] = "";
-    }
+    $purl['query'] = isset($purl['query']) ? '?' . $purl['query'] : '';
 
     // プロキシ
     if ($_conf['proxy_use']) {
@@ -622,8 +631,8 @@ function _postIt($host, $bbs, $key, $post)
 
     !$send_port and $send_port = 80;
     
-    $request = $method . " " . $send_path . " HTTP/1.0" . "\r\n";
-    $request .= "Host: " . $purl['host'] . "\r\n";
+    $request = $method . ' ' . $send_path . " HTTP/1.0" . "\r\n";
+    $request .= 'Host: ' . $purl['host'] . "\r\n";
     
     $remote_host = P2Util::getRemoteHost($_SERVER['REMOTE_ADDR']);
     
@@ -644,10 +653,7 @@ function _postIt($host, $bbs, $key, $post)
     
     // クッキー
     $cookies_to_send = '';
-
-    // クッキーの読み込み
-    $cookie_file = _cachePathForCookie($host);
-    $p2cookies = _readCookieFile($cookie_file);
+    $p2cookies = _readCookieFile(_cachePathForCookieByHost($host));
     
     if ($p2cookies) {
         foreach ($p2cookies as $cname => $cvalue) {
@@ -700,7 +706,20 @@ function _postIt($host, $bbs, $key, $post)
         $request .= "\r\n";
     }
     
-    // }}}
+    return array($request, $send_host, $send_port);
+}
+
+/**
+ * レスを書き込む or 新規スレッドを立てる
+ * スレ立ての場合は、$key は空 '' でよい
+ *
+ * @return  boolean|string  書き込み成功なら true、失敗なら false または失敗理由文字列
+ */
+function _postIt($host, $bbs, $key, $post, $bbs_cgi)
+{
+    global $_conf, $popup, $rescount, $ttitle_en, $STYLE, $post_cache;
+
+    list($request, $send_host, $send_port) = _buildRequestForPost($host, $bbs, $key, $post, $bbs_cgi);
 
     $maru_kakiko = empty($_POST['maru_kakiko']) ? 0 : 1;
     P2Util::setConfUser('maru_kakiko', $maru_kakiko);
@@ -712,24 +731,9 @@ function _postIt($host, $bbs, $key, $post)
         p2die('ファイルの書き込みエラー');
     }
     
-    // p2 samba
-    $kisei_second = 10;
-    $samba24 = null;
-    if (P2Util::isHost2chs($host)) {
-        if (!empty($_POST['maru_kakiko']) and file_exists($_conf['sid2ch_php'])) {
-            // samba24スルー
-        } else {
-            if ($r = P2Util::getSamba24TimeCache($host, $bbs)) {
-                $kisei_second = $r;
-                $samba24 = true;
-            }
-        }
-    }
-    //if (_isSambaDeny($kisei_second)) { // 確認時間でチェックする場合
-    if (isDenyWithUpdateLastPostTime($kisei_second)) { // 試行時間でチェックする場合
-        $samba24_msg = $samba24 ? '2chのsamba24設定 ' : '';
-        $msg_ht = sprintf('p2 samba規制: 連続投稿はできません。（%s%d秒）', hs($samba24_msg), $kisei_second);
-        _showPostMsg(false, $msg_ht, false);
+    // p2 sambaのチェック
+    if ($p2SambaErrorMsgHtml = _getP2SambaErrorMsgHtml($host, $bbs)) {
+        _showPostMsg(false, $p2SambaErrorMsgHtml, false);
         return false;
     }
     
@@ -744,6 +748,8 @@ function _postIt($host, $bbs, $key, $post)
     fwrite($fp, $request, strlen($request));
     
     $post_seikou = false;
+    
+    $p2cookies = _readCookieFile(_cachePathForCookieByHost($host));
     
     // header
     while (!feof($fp)) {
@@ -763,17 +769,6 @@ function _postIt($host, $bbs, $key, $post)
                     }
                 }
             }
-            if ($p2cookies) {
-                $cookies_to_send = '';
-                foreach ($p2cookies as $cname => $cvalue) {
-                    if ($cname != "expires") {
-                        $cookies_to_send .= " {$cname}={$cvalue};";
-                    }
-                }
-                $newcokkies = "Cookie:{$cookies_to_send}\r\n";
-                // 2008/09/15 ここで書き換えている理由が今となってはよくわからない
-                $request = preg_replace("/Cookie: .*?\r\n/", $newcokkies, $request);
-            }
 
         // 転送は書き込み成功と判断
         } elseif (preg_match("/^Location: /", $l, $matches)) {
@@ -785,7 +780,7 @@ function _postIt($host, $bbs, $key, $post)
     }
     
     // クッキーをファイルに保存する
-    _saveCookieFile($p2cookies, $cookie_file);
+    _saveCookieFile($p2cookies, _cachePathForCookieByHost($host));
     
     // body
     $response = '';
@@ -904,6 +899,36 @@ EOSCRIPT;
 }
 
 /**
+ * p2 sambaに引っかかっていたら、エラーメッセージHTMLを返す
+ *
+ * @return  string|null
+ */
+function _getP2SambaErrorMsgHtml($host, $bbs)
+{
+    global $_conf;
+    
+    $kisei_second = 10;
+    $samba24 = null;
+    if (P2Util::isHost2chs($host)) {
+        if (!empty($_POST['maru_kakiko']) and file_exists($_conf['sid2ch_php'])) {
+            // samba24スルー
+        } else {
+            if ($r = P2Util::getSamba24TimeCache($host, $bbs)) {
+                $kisei_second = $r;
+                $samba24 = true;
+            }
+        }
+    }
+    //if (_isSambaDeny($kisei_second)) { // 確認時間でチェックする場合
+    if (_isDenyWithUpdateLastPostTime($kisei_second)) { // 試行時間でチェックする場合
+        $samba24_msg = $samba24 ? '2chのsamba24設定 ' : '';
+        return sprintf('p2 samba規制: 連続投稿はできません。（%s%d秒）', hs($samba24_msg), $kisei_second);
+    }
+    
+    return null;
+}
+
+/**
  * 書き込み処理結果をHTML表示する
  *
  * @param   boolean  $is_done       書き込み完了したならtrue
@@ -996,7 +1021,7 @@ EOP;
  */
 function _isSambaDeny($sambatime)
 {
-    if (!$times = getLastPostTime()) {
+    if (!$times = _getLastPostTime()) {
         return false;
     }
     $last_try_time = $times[0];
@@ -1011,7 +1036,7 @@ function _isSambaDeny($sambatime)
  *
  * @return  boolean  弾くならtrue
  */
-function isDenyWithUpdateLastPostTime($kisei_second)
+function _isDenyWithUpdateLastPostTime($kisei_second)
 {
     global $_conf;
     
@@ -1063,7 +1088,7 @@ function isDenyWithUpdateLastPostTime($kisei_second)
  *
  * @return array|false [0]に試行時間、[1]に成功確認時間を格納した配列
  */
-function getLastPostTime()
+function _getLastPostTime()
 {
     global $_conf;
     
@@ -1104,7 +1129,7 @@ function getLastPostTime()
  * @param   $confirmed  投稿確認処理の場合、'SUCCESS' or 'COOKIE' を指定する
  * @return  boolean
  */
-function recLastPostTime($confirmed = '')
+function _recLastPostTime($confirmed = '')
 {
     global $_conf;
     
@@ -1117,14 +1142,14 @@ function recLastPostTime($confirmed = '')
     
     // 投稿確認処理 Cookie確認なら試行時間を戻す
     } elseif ($confirmed == 'COOKIE') {
-        $last_post_times = getLastPostTime();
+        $last_post_times = _getLastPostTime();
         $last_confirmed_time = empty($last_post_times[1]) ? '' : $last_post_times[1];
         $cont = $last_confirmed_time . "\n" . $last_confirmed_time . "\n";
         
     // 投稿試行処理 投稿試行時間更新
     } else {
         // 投稿前に試行確認している場合、ここの処理はいらないかも
-        $last_post_times = getLastPostTime();
+        $last_post_times = _getLastPostTime();
         $last_confirmed_time = empty($last_post_times[1]) ? '' : $last_post_times[1];
         $cont = time() . "\n" . $last_confirmed_time . "\n";
     }
@@ -1144,7 +1169,7 @@ function recLastPostTime($confirmed = '')
  *
  * @return  string|false
  */
-function getKeyInSubject()
+function _getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
@@ -1166,7 +1191,7 @@ function getKeyInSubject()
  *
  * @return  string
  */
-function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
+function _tab2space($in_str, $tabwidth = 4, $crlf = "\n")
 {
     $out_str = '';
     $lines = preg_split('/\r\n|\r|\n/', $in_str);
