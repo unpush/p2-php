@@ -7,88 +7,22 @@
 //===================================================================
 // 変数
 //===================================================================
-$newtime = date("gis");
-$reloaded_time = date("m/d G:i:s"); // 更新時刻
+$newtime = date('gis');
+$reloaded_time = date('m/d G:i:s'); // 更新時刻
 
-// {{{ スレあぼーんチェック、倉庫
-
-$taborn_check_ht = '';
-
-if ($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko' and $aThreadList->threads) {
-    $offline_num = $aThreadList->num - $online_num;
-    $taborn_check_ht = sprintf(
-        '<form class="check" method="POST" action="%s" target="_self">',
-        hs($_SERVER['SCRIPT_NAME'])
-    );
-    if ($offline_num > 0) {
-        if ($aThreadList->spmode == 'taborn') {
-            $taborn_check_ht = sprintf(
-                '<p>%s件中、%s件のスレッドが既に板サーバのスレッド一覧から外れているようです（自動でチェックがつきます）</p>',
-                hs($aThreadList->num), hs($offline_num)
-            );
-        }
-        /*
-        elseif ($aThreadList->spmode == 'soko') {
-            $taborn_check_ht .= sprintf('<p>%s件のdat落ちスレッドが保管されています。</p>', $aThreadList->num);
-        }*/
-    }
-}
-
-// }}}
+// あぼーん解除のメッセージHTMLを取得する。スレあぼーん中、倉庫。
+$taborn_check_msg_html = _getTabornCheckMsgHtml($aThreadList, $online_num);
 
 //===============================================================
 // HTML表示用変数 for ツールバー(sb_toolbar.inc.php) 
 //===============================================================
 
-// {{{ ページタイトル部分URL設定
+// ページタイトル部分URL
+$ptitle_url = _getPageTitleUrl($aThreadList);
 
-$ptitle_url = '';
+// ページタイトル部分HTML
+$ptitle_ht = _getPageTitleHtml($aThreadList, $ptitle_url);
 
-if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
-    $ptitle_url = P2Util::buildQueryUri($_conf['subject_php'], array(
-        'host' => $aThreadList->host,
-        'bbs'  => $aThreadList->bbs,
-        UA::getQueryKey() => UA::getQueryValue()
-    ));
-
-} elseif ($aThreadList->spmode == "res_hist") {
-    $ptitle_url = "read_res_hist.php#footer";
-
-} elseif (!$aThreadList->spmode) {
-    $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/";
-    if (preg_match('/www\\.onpuch\\.jp/', $aThreadList->host)) {
-        $ptitle_url = $ptitle_url . 'index2.html';
-    }
-    if (preg_match('/livesoccer\\.net/', $aThreadList->host)) {
-        $ptitle_url = $ptitle_url . 'index2.html';
-    }
-    // match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
-}
-
-$ptitle_url_hs = hs($ptitle_url);
-
-// }}}
-
-// ページタイトル部分HTML設定 ====================================
-$ptitle_hs = hs($aThreadList->ptitle);
-
-if ($aThreadList->spmode == "taborn") {
-    $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url_hs}" target="_self"><b>{$aThreadList->itaj_hs}</b></a>（あぼーん中）</span>
-EOP;
-} elseif ($aThreadList->spmode == "soko") {
-    $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url_hs}" target="_self"><b>{$aThreadList->itaj_hs}</b></a>（dat倉庫）</span>
-EOP;
-} elseif ($ptitle_url) {
-    $ptitle_ht = <<<EOP
-    <span class="itatitle"><a class="aitatitle" href="{$ptitle_url_hs}"><b>{$ptitle_hs}</b></a></span>
-EOP;
-} else {
-    $ptitle_ht = <<<EOP
-    <span class="itatitle"><b>{$ptitle_hs}</b></span>
-EOP;
-}
 
 // ビュー部分設定 ==============================================
 
@@ -200,26 +134,9 @@ $filter_form_ht = <<<EOP
 EOP;
 
 // }}}
-// {{{ チェック実行 フォームHTMLをセット
 
-$abornoff_ht = '';
-$check_form_ht = '';
-
-if ($aThreadList->spmode == "taborn") {
-    $abornoff_ht = sprintf('<input type="submit" name="submit" value="%s">', hs($abornoff_st));
-}
-if ($aThreadList->spmode == "taborn" || $aThreadList->spmode == "soko" and $aThreadList->threads) {
-    $check_form_ht = <<<EOP
-	<p>
-		チェックした項目の
-		<input type="submit" name="submit" value="{$deletelog_st}">
-		{$abornoff_ht}
-	</p>
-
-EOP;
-}
-
-// }}}
+// チェックした項目の ログを削除, あぼーんを解除 フォームHTMLのヘッダ部分を取得する
+$check_form_ht = _getCheckFormHeaderHtml($aThreadList, $deletelog_st, $abornoff_st);
 
 //===================================================================
 // HTMLプリント
@@ -353,7 +270,7 @@ require P2_LIB_DIR . '/sb_toolbar.inc.php';
 
 P2Util::printInfoHtml();
 
-echo $taborn_check_ht;
+echo $taborn_check_msg_html;
 echo $check_form_ht;
 ?>
     <table cellspacing="0" width="100%">
@@ -363,6 +280,128 @@ echo $check_form_ht;
 //============================================================================
 // 関数（このファイル内のみで利用）
 //============================================================================
+
+/**
+ * あぼーん解除チェックのメッセージHTMLを取得する。スレあぼーん中、倉庫。
+ *
+ * @return  string  HTML
+ */
+function _getTabornCheckMsgHtml($aThreadList, $online_num)
+{
+    $taborn_check_msg_html = '';
+
+    if ($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko' and $aThreadList->threads) {
+        $offline_num = $aThreadList->num - $online_num;
+        if ($offline_num > 0) {
+            if ($aThreadList->spmode == 'taborn') {
+                $taborn_check_msg_html = sprintf(
+                    '<p>%s件中、%s件のスレッドが既に板サーバのスレッド一覧から外れているようです（自動でチェックがつきます）</p>',
+                    hs($aThreadList->num), hs($offline_num)
+                );
+            }
+            /*
+            elseif ($aThreadList->spmode == 'soko') {
+                $taborn_check_msg_html .= sprintf('<p>%s件のdat落ちスレッドが保管されています。</p>', $aThreadList->num);
+            }*/
+        }
+    }
+    return $taborn_check_msg_html;
+}
+
+
+/**
+ * チェックした項目の ログを削除, あぼーんを解除 フォームHTMLのヘッダ部分を取得する
+ *
+ * @return  string  HTML
+ */
+function _getCheckFormHeaderHtml($aThreadList, $deletelog_st, $abornoff_st)
+{
+    $check_form_ht = '';
+    if ($aThreadList->spmode == 'taborn' || $aThreadList->spmode == 'soko' and $aThreadList->threads) {
+        $check_form_ht = sprintf(
+            '<form class="check" method="POST" action="%s" target="_self">
+			<p>チェックした項目の
+			<input type="submit" name="submit" value="%s"> %s
+			</p>',
+            hs($_SERVER['SCRIPT_NAME']),
+            hs($deletelog_st),
+            ($aThreadList->spmode == 'taborn')
+                ? sprintf('<input type="submit" name="submit" value="%s">', hs($abornoff_st)) : ''
+        );
+    }
+    return $check_form_ht;
+}
+
+/**
+ * ページタイトル部分のURLを取得する
+ *
+ * @return  string  URL
+ */
+function _getPageTitleUrl($aThreadList)
+{
+    global $_conf;
+    
+    $ptitle_url = '';
+
+    if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
+        $ptitle_url = P2Util::buildQueryUri($_conf['subject_php'], array(
+            'host' => $aThreadList->host,
+            'bbs'  => $aThreadList->bbs,
+            UA::getQueryKey() => UA::getQueryValue()
+        ));
+
+    } elseif ($aThreadList->spmode == "res_hist") {
+        $ptitle_url = "read_res_hist.php#footer";
+
+    } elseif (!$aThreadList->spmode) {
+        $ptitle_url = "http://{$aThreadList->host}/{$aThreadList->bbs}/";
+        if (preg_match('/www\\.onpuch\\.jp/', $aThreadList->host)) {
+            $ptitle_url = $ptitle_url . 'index2.html';
+        }
+        if (preg_match('/livesoccer\\.net/', $aThreadList->host)) {
+            $ptitle_url = $ptitle_url . 'index2.html';
+        }
+        // match登録よりheadなげて聞いたほうがよさそうだが、ワンレスポンス増えるのが困る
+    }
+    
+    return $ptitle_url;
+}
+
+/**
+ * ページタイトル部分HTMLを取得する
+ *
+ * @return  string  HTML
+ */
+function _getPageTitleHtml($aThreadList, $ptitle_url)
+{
+    $ptitle_ht = '';
+    
+    $ptitle_url_hs = hs($ptitle_url);
+    $ptitle_hs = hs($aThreadList->ptitle);
+    
+    if ($aThreadList->spmode == 'taborn') {
+        $ptitle_ht = <<<EOP
+        <span class="itatitle"><a class="aitatitle" href="{$ptitle_url_hs}" target="_self"><b>{$aThreadList->itaj_hs}</b></a>（あぼーん中）</span>
+EOP;
+
+    } elseif ($aThreadList->spmode == 'soko') {
+        $ptitle_ht = <<<EOP
+        <span class="itatitle"><a class="aitatitle" href="{$ptitle_url_hs}" target="_self"><b>{$aThreadList->itaj_hs}</b></a>（dat倉庫）</span>
+EOP;
+
+    } elseif ($ptitle_url) {
+        $ptitle_ht = <<<EOP
+        <span class="itatitle"><a class="aitatitle" href="{$ptitle_url_hs}"><b>{$ptitle_hs}</b></a></span>
+EOP;
+
+    } else {
+        $ptitle_ht = <<<EOP
+        <span class="itatitle"><b>{$ptitle_hs}</b></span>
+EOP;
+    }
+    return $ptitle_ht;
+}
+
 /**
  * @param   string  $jsstr
  * @return  string
@@ -372,3 +411,15 @@ function _addslashesJS($jsstr)
     // 不完全なJSコードでscriptタグを閉じられるのを防ぐため > もエスケープする必要がある
     return str_replace(array('"', '>'), array('\"', '\>'), $jsstr); 
 }
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

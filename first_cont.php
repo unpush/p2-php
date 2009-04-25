@@ -25,7 +25,7 @@ EOP;
 $htm['urlform'] = <<<EOP
 	<form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
 			2ch‚ÌƒXƒŒURL‚ğ’¼Úw’è
-			<input id="url_text" type="text" value="{$defurl}" name="url" size="62">
+			<input id="url_text" type="text" value="{$defurl}" name="url" size="62" onFocus="this.select()">
 			<input type="submit" name="btnG" value="•\¦" onClick='{$onClick_ht}'>
 	</form>\n
 EOP;

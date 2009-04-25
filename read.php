@@ -306,7 +306,7 @@ if ($_conf['ktai']) {
             'res_filter'   => $res_filter
         );
         $ar = getResetReadNaviFooterK($aThread, $params);
-        extract($ar); // $read_navi_previous_btm, $read_navi_next_btm, $read_footer_navi_new_btm
+        extract($ar); // $read_navi_previous_btm, $read_navi_next_btm, $read_footer_navi_new_btm_ht
     }
     if (UA::isIPhoneGroup()) {
     	require_once P2_IPHONE_LIB_DIR . '/read_footer_k.inc.php';
@@ -644,3 +644,15 @@ function _printPreview1Html(&$aThread, $params)
     
     require_once $read_footer_inc_php;
 }
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

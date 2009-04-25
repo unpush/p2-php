@@ -726,7 +726,7 @@ EOP;
             return false;
         }
         
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.funcs.php';
         
         $user_time  = $user_u . ':' . time() . ':';
         $md5_utpx = md5($user_time . $pass_x);
@@ -745,7 +745,7 @@ EOP;
     {
         global $_conf;
         
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.funcs.php';
         
         $dec = md5_decrypt($cid, Login::getMd5CryptPassForCid());
         

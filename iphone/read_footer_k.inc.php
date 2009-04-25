@@ -49,24 +49,26 @@ EOP;
 EOP;
         }
     }
-//iPhone 表示用フッタ 080725
-//　前、次、新着 無い時は黒
-if($read_navi_latest_btm){
-   $new_btm = "<li class=\"new\">{$read_navi_latest_btm}</li>";
-}
-if($read_footer_navi_new_btm){
-    $new_btm = "<li class=\"new\">{$read_footer_navi_new_btm}</li>"; 
-}
-if($read_navi_previous){ 
-    $read_navi_previous_tab = "<li class=\"prev\">{$read_navi_previous} </li>";
-}else{
-    $read_navi_previous_tab = "<li id=\"blank\" class=\"prev\"></li>";
-}
-    if($read_navi_next_btm){
-    $read_navi_next_btm_tab = "<li class=\"next\">{$read_navi_next_btm}</li>";
-}else{
-    $read_navi_next_btm_tab = "<li id=\"blank\" class=\"next\"></li>";
-}
+    
+    //iPhone 表示用フッタ 080725
+    //　前、次、新着 無い時は黒
+    if ($read_navi_latest_btm) {
+       $new_btm = "<li class=\"new\">{$read_navi_latest_btm}</li>";
+    }
+    if ($read_footer_navi_new_btm_ht) {
+        $new_btm = "<li class=\"new\">{$read_footer_navi_new_btm_ht}</li>"; 
+    }
+    if ($read_navi_previous) { 
+        $read_navi_previous_tab = "<li class=\"prev\">{$read_navi_previous} </li>";
+    } else {
+        $read_navi_previous_tab = "<li id=\"blank\" class=\"prev\"></li>";
+    }
+    if ($read_navi_next_btm) {
+        $read_navi_next_btm_tab = "<li class=\"next\">{$read_navi_next_btm}</li>";
+    } else {
+        $read_navi_next_btm_tab = "<li id=\"blank\" class=\"next\"></li>";
+    }
+    
     echo <<<EOP
 {$toolbar_back_board}
 <div class="footform">

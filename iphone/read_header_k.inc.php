@@ -50,13 +50,12 @@ $favdo = $aThread->fav ? 0 : 1;
 $rnum_range = $_conf['k_rnum_range'];
 $latest_show_res_num = $_conf['k_rnum_range']; // 最新XX
 
-$read_navi_range        = "";
 $read_navi_previous     = "";
 $read_navi_previous_btm = "";
 $read_navi_next         = "";
 $read_navi_next_btm     = "";
-$read_footer_navi_new   = "";
-$read_footer_navi_new_btm = "";
+$read_footer_navi_new_ht   = "";
+$read_footer_navi_new_btm_ht = "";
 $read_navi_latest       = "";
 $read_navi_latest_btm   = "";
 $read_navi_filter       = '';
@@ -186,32 +185,8 @@ if (!$read_navi_next_isInvisible) {
 }
 
 //----------------------------------------------
-// $read_footer_navi_new  続きを読む 新着レスの表示
-
-if ($aThread->resrange['to'] == $aThread->rescount) {
-    
-    // 新着レスの表示 <a>
-    $read_footer_navi_new_uri = P2Util::buildQueryUri(
-        $_conf['read_php'],
-        array(
-            'host' => $aThread->host,
-            'bbs'  => $aThread->bbs,
-            'key'  => $aThread->key,
-            'ls'   => "{$aThread->rescount}-n",
-            'nt'   => $newtime,
-            UA::getQueryKey() => UA::getQueryValue()
-        )
-    ) . '#r' . rawurlencode($aThread->rescount);
-    
-    $read_footer_navi_new = P2View::tagA(
-        $read_footer_navi_new_uri,
-        "{$shinchaku_st}"
-    );
-    $read_footer_navi_new_btm = P2View::tagA(
-        $read_footer_navi_new_uri,
-        "{$shinchaku_st}"
-    );
-}
+// $read_footer_navi_new_ht  続きを読む 新着レスの表示
+list($read_footer_navi_new_ht, $read_footer_navi_new_btm_ht) = _getReadFooterNaviNewHtmls($aThread, $shinchaku_st);
 
 
 if (!$read_navi_next_isInvisible || $GLOBALS['_filter_hits'] !== null) {
@@ -236,14 +211,12 @@ $read_navi_filter_btm = <<<EOP
 EOP;
 
 // }}}
-// {{{ 検索時の特別な処理
 
+// 検索時の特別な処理
 if ($_filter_hits !== NULL) {
-    require_once P2_LIB_DIR . '/read_filter_k.inc.php';
+    require_once P2_LIB_DIR . '/read_filter_k.funcs.php';
     resetReadNaviHeaderK();
 }
-
-// }}}
 
 //====================================================================
 // HTML出力
@@ -257,19 +230,22 @@ $favdo      = !empty($aThread->fav) ? 0 : 1;
 $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
 $favtitle   .= '（アクセスキー[f]）';
 $favdo_q    = '&amp;setfav=' . $favdo;
-$similar_q = '&amp;itaj_en=' . rawurlencode(base64_encode($aThread->itaj)) . '&amp;method=similar&amp;word=' . rawurlencode($aThread->ttitle_hc);// . '&amp;refresh=1';
-$itaj_hs = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
-//iPhone用に書き換え
-$toolbar_right_ht = <<<EOTOOLBAR
-    <li class="whiteButton"><a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}{$_conf['k_at_a']}&amp;refresh=1">スレ情報/類似</a></li>
-    <li class="whiteButton"><a href="{$motothre_url}">{$moto_thre_st}</a></li>
-EOTOOLBAR;
+$toolbar_right_ht = _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $moto_thre_st);
 
 //iPhone 用　板戻りボタン
-$toolbar_back_board =  <<<BAAACK
-<p><a class="button" id="backButton" href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}">{$itaj_hs}</a></p>
-BAAACK;
+$b_qs = array(
+    UA::getQueryKey() => UA::getQueryValue()
+);
+$atag = P2View::tagA(
+    P2Util::buildQueryUri(
+        $_conf['subject_php'],
+        array_merge($thread_qs, $b_qs)
+    ),
+    hs($aThread->itaj),
+    array('class' => 'button', 'id' => 'backButton')
+);
+$toolbar_back_board = "<p>$atag</p>";
     
 // }}}
 
@@ -469,12 +445,14 @@ if (isset($GLOBALS['word']) && strlen($GLOBALS['word'])) {
 
 echo P2View::getHrHtmlK();
 
-//=====================================================================
-// 関数
-//=====================================================================
-// iPhone用に追加 
+
+//=======================================================================================
+// 関数（このファイル内でのみ利用）
+//=======================================================================================
+
 /**
  * 1- のみ表示をselectフォームで表示する
+ * （iPhone用に追加）
  *
  * @return string
  */
@@ -533,9 +511,84 @@ function csrangeform($default = '', &$aThread)
     return $form;
 }
 
-//=======================================================================================
-// 関数（このファイル内でのみ利用）
-//=======================================================================================
+/**
+ * 新着レスの表示 <a>
+ *
+ * @return  array
+ */
+function _getReadFooterNaviNewHtmls($aThread, $shinchaku_st)
+{
+    global $_conf;
+    
+    $read_footer_navi_new_ht = '';
+    $read_footer_navi_new_btm_ht = '';
+    
+    if ($aThread->resrange['to'] == $aThread->rescount) {
+    
+        // 新着レスの表示 <a>
+        $read_footer_navi_new_uri = P2Util::buildQueryUri(
+            $_conf['read_php'],
+            array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
+                'ls'   => "{$aThread->rescount}-n",
+                'nt'   => date('gis'), // キャッシュ回避のダミークエリー
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ) . '#r' . rawurlencode($aThread->rescount);
+    
+        $read_footer_navi_new_ht = P2View::tagA(
+            $read_footer_navi_new_uri,
+            "{$shinchaku_st}"
+        );
+        $read_footer_navi_new_btm_ht = P2View::tagA(
+            $read_footer_navi_new_uri,
+            "{$shinchaku_st}"
+        );
+    }
+    return array($read_footer_navi_new_ht, $read_footer_navi_new_btm_ht);
+}
+
+/**
+ * ツールバー部分HTML
+ *
+ * @return  string  HTML
+ */
+function _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $moto_thre_st)
+{
+    global $_conf, $motothre_url;
+    
+    $thread_qs = array(
+        'host' => $aThread->host,
+        'bbs'  => $aThread->bbs,
+        'key'  => $aThread->key
+    );
+    $b_qs = array(
+        UA::getQueryKey() => UA::getQueryValue()
+    );
+    $similar_qs = array(
+        'detect_hint' => '◎◇',
+        'itaj_en'     => base64_encode($aThread->itaj),
+        'method'      => 'similar',
+        'word'        => $aThread->ttitle_hc
+        // 'refresh' => 1
+    );
+
+    $atag = P2View::tagA(
+        P2Util::buildQueryUri(
+            $_conf['subject_php'],
+            array_merge($thread_qs, $b_qs, $similar_qs, array('refresh' => '1'))
+        ),
+        hs('スレ情報/類似')
+    );
+    
+    return $toolbar_right_ht = <<<EOTOOLBAR
+    <li class="whiteButton">$atag</li>
+    <li class="whiteButton"><a href="{$motothre_url}">{$moto_thre_st}</a></li>
+EOTOOLBAR;
+}
+
 /**
  * @return  string  HTML
  */
@@ -549,3 +602,15 @@ function _getGetDatErrorMsgHtml($aThread)
     }
     return $diedat_msg_ht;
 }
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

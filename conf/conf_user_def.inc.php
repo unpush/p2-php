@@ -270,13 +270,13 @@ $conf_user_rules['k_post_msg_rows'] = array('emptyToDef', 'notIntExceptMinusToDe
 // {{{ ■ETC
 
 // フレーム左 板メニュー の表示幅
-$conf_user_def['frame_menu_width'] = "162"; // ("162")
+$conf_user_def['frame_menu_width'] = "164"; // ("164")
 
 // フレーム右上 スレ一覧 の表示幅
 $conf_user_def['frame_subject_width'] = "40%"; // ("40%")
 
 // フレーム右下 スレ本文 の表示幅
-$conf_user_def['frame_read_width'] = "60%"; // ("40%") 
+$conf_user_def['frame_read_width'] = "60%"; // ("40%")
 
 // レス書き込み時のデフォルトの名前
 $conf_user_def['my_FROM'] = ""; // ("")

@@ -54,8 +54,8 @@ $read_navi_previous     = "";
 $read_navi_previous_btm = "";
 $read_navi_next         = "";
 $read_navi_next_btm     = "";
-$read_footer_navi_new   = "";
-$read_footer_navi_new_btm = "";
+$read_footer_navi_new_ht   = "";
+$read_footer_navi_new_btm_ht = "";
 $read_navi_latest       = "";
 $read_navi_latest_btm   = "";
 $read_navi_filter       = '';
@@ -178,33 +178,9 @@ if (!$read_navi_next_isInvisible) {
 }
 
 //----------------------------------------------
-// $read_footer_navi_new  続きを読む 新着レスの表示
+// $read_footer_navi_new_ht  続きを読む 新着レスの表示
+list($read_footer_navi_new_ht, $read_footer_navi_new_btm_ht) = _getReadFooterNaviNewHtmls($aThread, $shinchaku_st);
 
-if ($aThread->resrange['to'] == $aThread->rescount) {
-    
-    // 新着レスの表示 <a>
-    $read_footer_navi_new_uri = P2Util::buildQueryUri(
-        $_conf['read_php'],
-        array(
-            'host' => $aThread->host,
-            'bbs'  => $aThread->bbs,
-            'key'  => $aThread->key,
-            'ls'   => "{$aThread->rescount}-n",
-            'nt'   => $newtime,
-            UA::getQueryKey() => UA::getQueryValue()
-        )
-    ) . '#r' . rawurlencode($aThread->rescount);
-    
-    $read_footer_navi_new = P2View::tagA(
-        $read_footer_navi_new_uri,
-        "{$_conf['k_accesskey']['next']}.{$shinchaku_st}"
-    );
-    $read_footer_navi_new_btm = P2View::tagA(
-        $read_footer_navi_new_uri,
-        "{$_conf['k_accesskey']['next']}.{$shinchaku_st}",
-        array($_conf['accesskey'] => $_conf['k_accesskey']['next'])
-    );
-}
 
 if (!$read_navi_next_isInvisible || $GLOBALS['_filter_hits'] !== null) {
 
@@ -228,74 +204,16 @@ $read_navi_filter_btm = <<<EOP
 EOP;
 
 // }}}
-// {{{ 検索時の特別な処理
 
+// 検索時の特別な処理
 if ($_filter_hits !== NULL) {
-    require_once P2_LIB_DIR . '/read_filter_k.inc.php';
+    require_once P2_LIB_DIR . '/read_filter_k.funcs.php';
     resetReadNaviHeaderK();
 }
 
-// }}}
-// {{{ ツールバー部分HTML
+// ツールバー部分HTML
+$toolbar_right_ht = _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $dele_st, $moto_thre_st);
 
-$b_qs = array(
-    UA::getQueryKey() => UA::getQueryValue()
-);
-$similar_qs = array(
-    'detect_hint' => '◎◇',
-    'itaj_en'     => base64_encode($aThread->itaj),
-    'method'      => 'similar',
-    'word'        => $aThread->ttitle_hc
-    // 'refresh' => 1
-);
-
-$ita_atag      = P2View::tagA(
-    P2Util::buildQueryUri(
-        $_conf['subject_php'],
-        array_merge($thread_qs, $b_qs)
-    ),
-    "{$_conf['k_accesskey']['up']}." . hs($aThread->itaj),
-    array($_conf['accesskey'] => $_conf['k_accesskey']['up'])
-);
-
-$similar_atag  = P2View::tagA(
-    P2Util::buildQueryUri(
-        $_conf['subject_php'],
-        array_merge($similar_qs, $thread_qs, $b_qs, array('refresh' => '1'))
-    ),
-    $siml_thre_st
-);
-
-$info_php = UA::isIPhoneGroup() ? 'info_i.php' : 'info.php';
-
-$info_atag     = P2View::tagA(
-    P2Util::buildQueryUri(
-        $info_php,
-        array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en))
-    ),
-    "{$_conf['k_accesskey']['info']}." . hs($info_st),
-    array($_conf['accesskey'] => $_conf['k_accesskey']['info'])
-);
-
-$dele_atag     = P2View::tagA(
-    P2Util::buildQueryUri(
-        $info_php,
-        array_merge($thread_qs, $b_qs,
-            array(
-                'ttitle_en' => $ttitle_en,
-                'dele'      => 1
-            )
-        )
-    ),
-    "{$_conf['k_accesskey']['dele']}." . hs($dele_st),
-    array($_conf['accesskey'] => $_conf['k_accesskey']['dele'])
-);
-
-$motothre_atag = P2View::tagA($motothre_url, hs($moto_thre_st));
-
-$toolbar_right_ht = "$ita_atag $similar_atag $info_atag $dele_atag $motothre_atag";
-
-// }}}
 
 $hr = P2View::getHrHtmlK();
 
@@ -374,6 +292,120 @@ echo $hr;
 //=======================================================================================
 // 関数（このファイル内でのみ利用）
 //=======================================================================================
+
+/**
+ * 新着レスの表示 <a>
+ *
+ * @return  array
+ */
+function _getReadFooterNaviNewHtmls($aThread, $shinchaku_st)
+{
+    global $_conf;
+    
+    $read_footer_navi_new_ht = '';
+    $read_footer_navi_new_btm_ht = '';
+    
+    if ($aThread->resrange['to'] == $aThread->rescount) {
+    
+        // 新着レスの表示 <a>
+        $read_footer_navi_new_uri = P2Util::buildQueryUri(
+            $_conf['read_php'],
+            array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
+                'ls'   => "{$aThread->rescount}-n",
+                'nt'   => date('gis'), // キャッシュ回避のダミークエリー
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ) . '#r' . rawurlencode($aThread->rescount);
+    
+        $read_footer_navi_new_ht = P2View::tagA(
+            $read_footer_navi_new_uri,
+            "{$_conf['k_accesskey']['next']}.{$shinchaku_st}"
+        );
+        $read_footer_navi_new_btm_ht = P2View::tagA(
+            $read_footer_navi_new_uri,
+            "{$_conf['k_accesskey']['next']}.{$shinchaku_st}",
+            array($_conf['accesskey'] => $_conf['k_accesskey']['next'])
+        );
+    }
+    return array($read_footer_navi_new_ht, $read_footer_navi_new_btm_ht);
+}
+
+/**
+ * ツールバー部分HTML
+ *
+ * @return  string  HTML
+ */
+function _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $dele_st, $moto_thre_st)
+{
+    global $_conf, $motothre_url;
+    
+    $thread_qs = array(
+        'host' => $aThread->host,
+        'bbs'  => $aThread->bbs,
+        'key'  => $aThread->key
+    );
+
+    $b_qs = array(
+        UA::getQueryKey() => UA::getQueryValue()
+    );
+    $similar_qs = array(
+        'detect_hint' => '◎◇',
+        'itaj_en'     => base64_encode($aThread->itaj),
+        'method'      => 'similar',
+        'word'        => $aThread->ttitle_hc
+        // 'refresh' => 1
+    );
+
+    $ita_atag      = P2View::tagA(
+        P2Util::buildQueryUri(
+            $_conf['subject_php'],
+            array_merge($thread_qs, $b_qs)
+        ),
+        "{$_conf['k_accesskey']['up']}." . hs($aThread->itaj),
+        array($_conf['accesskey'] => $_conf['k_accesskey']['up'])
+    );
+
+    $similar_atag  = P2View::tagA(
+        P2Util::buildQueryUri(
+            $_conf['subject_php'],
+            array_merge($similar_qs, $thread_qs, $b_qs, array('refresh' => '1'))
+        ),
+        $siml_thre_st
+    );
+
+    $info_php = UA::isIPhoneGroup() ? 'info_i.php' : 'info.php';
+
+    $info_atag     = P2View::tagA(
+        P2Util::buildQueryUri(
+            $info_php,
+            array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en))
+        ),
+        "{$_conf['k_accesskey']['info']}." . hs($info_st),
+        array($_conf['accesskey'] => $_conf['k_accesskey']['info'])
+    );
+
+    $dele_atag     = P2View::tagA(
+        P2Util::buildQueryUri(
+            $info_php,
+            array_merge($thread_qs, $b_qs,
+                array(
+                    'ttitle_en' => $ttitle_en,
+                    'dele'      => 1
+                )
+            )
+        ),
+        "{$_conf['k_accesskey']['dele']}." . hs($dele_st),
+        array($_conf['accesskey'] => $_conf['k_accesskey']['dele'])
+    );
+
+    $motothre_atag = P2View::tagA($motothre_url, hs($moto_thre_st));
+
+    return $toolbar_right_ht = "$ita_atag $similar_atag $info_atag $dele_atag $motothre_atag";
+}
+
 /**
  * @return  string  HTML
  */
@@ -387,3 +419,15 @@ function _getGetDatErrorMsgHtml($aThread)
     }
     return $diedat_msg_ht;
 }
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -1,7 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
 /**
  * フィルタ用にヘッダ変数を書き換える
  *
@@ -77,18 +74,30 @@ function getResetReadNaviFooterK($aThread, $params)
         );
     }
 
-    $read_footer_navi_new_btm = '';
+    $read_footer_navi_new_btm_ht = '';
     /*
     // ※メモ：「6.新着」（新着レスの表示）と「3.新20」（最新N件）は異なる。
-    $read_footer_navi_new_btm = str_replace(
-        " {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\"", '', $read_footer_navi_new_btm
+    $read_footer_navi_new_btm_ht = str_replace(
+        " {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\"", '', $read_footer_navi_new_btm_ht
     );
-    $read_footer_navi_new_btm = str_replace(">{$_conf['k_accesskey']['next']}.", '>', $read_footer_navi_new_btm);
+    $read_footer_navi_new_btm_ht = str_replace(">{$_conf['k_accesskey']['next']}.", '>', $read_footer_navi_new_btm_ht);
     */
     
     return array(
         'read_navi_previous_btm'   => $read_navi_previous_btm,
         'read_navi_next_btm'       => $read_navi_next_btm,
-        'read_footer_navi_new_btm' => $read_footer_navi_new_btm
+        'read_footer_navi_new_btm' => $read_footer_navi_new_btm_ht
     );
 }
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -495,7 +495,7 @@ EOP;
     // require_once P2_LIB_DIR . '/read_footer.inc.php';
     
     //----------------------------------------------
-    // $read_footer_navi_new  続きを読む 新着レスの表示
+    // $read_footer_navi_new_ht  続きを読む 新着レスの表示
     $newtime = date("gis");  // リンクをクリックしても再読込しない仕様に対抗するダミークエリー
     
     $info_st = "情";
@@ -512,7 +512,7 @@ EOP;
     $read_range_ht = "{$read_range_on}/{$aThread->rescount}<br>";
 
     /*
-    $read_footer_navi_new = P2View::tagA(
+    $read_footer_navi_new_ht = P2View::tagA(
         P2Util::buildQueryUri(
             $_conf['read_php'],
             array(

@@ -1095,7 +1095,7 @@ class P2Util
     {
         global $_conf;
         
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.funcs.php';
         
         // îOÇÃÇΩÇﬂÅAÇ±Ç±Ç≈Ç‡ïsê≥Ç»ï∂éöóÒÇÕíeÇ¢ÇƒÇ®Ç≠
         require_once P2_LIB_DIR . '/P2Validate.php';
@@ -1143,7 +1143,7 @@ EOP;
     {
         global $_conf;
         
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        require_once P2_LIB_DIR . '/md5_crypt.funcs.php';
         
         if (!file_exists($_conf['idpw2ch_php'])) {
             return false;

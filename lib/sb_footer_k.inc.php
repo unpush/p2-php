@@ -8,6 +8,8 @@ $allfav_atag = _getAllFavAtag($aThreadList, $sb_view);
 
 // {{{ ページタイトル部分HTML設定
 
+$ptitle_url_hs = hs($ptitle_url);
+
 if ($aThreadList->spmode == "taborn") {
 	$ptitle_ht = <<<EOP
 	<a href="{$ptitle_url_hs}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj_hs}</b></a>（ｱﾎﾞﾝ中）

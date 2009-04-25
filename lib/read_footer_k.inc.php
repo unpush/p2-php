@@ -52,7 +52,7 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // 
     {$read_navi_previous_btm} 
     {$read_navi_next_btm} 
     {$read_navi_latest_btm}
-    {$read_footer_navi_new_btm} 
+    {$read_footer_navi_new_btm_ht} 
     {$dores_atag}
     {$read_navi_filter_btm}<br>
     {$toolbar_right_ht} $above_atag

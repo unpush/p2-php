@@ -107,7 +107,7 @@ $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{
 //}
 
 //----------------------------------------------
-// $read_footer_navi_new  続きを読む 新着レスの表示
+// $read_footer_navi_new_ht  続きを読む 新着レスの表示
 
 if ($aThread->resrange['to'] == $aThread->rescount) {
 
@@ -125,10 +125,10 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
         'accesskey' => 'r',
         'title'     => 'アクセスキー[r]'
     );
-    $read_footer_navi_new = P2View::tagA($url, hs($shinchaku_st), $attr);
+    $read_footer_navi_new_ht = P2View::tagA($url, hs($shinchaku_st), $attr);
 
 } else {
-    $read_footer_navi_new = "<a style=\"white-space: nowrap;\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\" title=\"アクセスキー[r]\">{$tuduki_st}</a>";
+    $read_footer_navi_new_ht = "<a style=\"white-space: nowrap;\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\" title=\"アクセスキー[r]\">{$tuduki_st}</a>";
 }
 
 
@@ -606,3 +606,15 @@ function _printGoToFormHtml($aThread)
 </form>
 <?php
 }
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -24,17 +24,19 @@ $buildnewthreadATag and $aTags[] = $buildnewthreadATag;
 
 ?></table><?php
 
-// チェックフォーム
-echo $check_form_ht;
+if ($check_form_ht) {
+    // チェックフォーム
+    echo $check_form_ht;
 
-// フォームフッタ
-?>
+    // フォームフッタ
+    ?>
 		<input type="hidden" name="host" value="<?php eh($aThreadList->host); ?>">
 		<input type="hidden" name="bbs" value="<?php eh($aThreadList->bbs); ?>">
 		<input type="hidden" name="spmode" value="<?php eh($aThreadList->spmode); ?>">
 	</form>
 <?php
-	
+}
+
 // sbject ツールバー
 include P2_LIB_DIR . '/sb_toolbar.inc.php';
 
@@ -72,7 +74,7 @@ EOP;
 echo <<<EOP
 	<form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
 			2chのスレURLを直接指定
-			<input id="url_text" type="text" value="{$ini_url_text}" name="url" size="62">
+			<input id="url_text" type="text" value="{$ini_url_text}" name="url" size="62" onFocus="this.select()">
 			<input type="submit" name="btnG" value="表示" onClick='{$onClick_ht}'>
 	</form>\n
 EOP;
@@ -186,3 +188,15 @@ function _getBuildnewthreadATag($aThreadList)
     }
     return $buildnewthreadATag;
 }
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

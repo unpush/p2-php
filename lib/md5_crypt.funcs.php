@@ -1,6 +1,6 @@
 <?php
 /*
-    このファイルの関数は、PHPマニュアルページより拝借したものに、akiが少しだけ手を加えたものです。
+    このファイルの関数は、PHPマニュアルページに投稿されているコードに、akiが少しだけ手を加えたものです。
     http://jp.php.net/manual/ja/function.md5.php
 
     オリジナル感謝 → Alexander Valyalkin

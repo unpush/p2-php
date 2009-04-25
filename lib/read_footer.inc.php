@@ -119,7 +119,7 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
         $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
 
         // u‘±‚«‚ð“Ç‚Þv
-        $read_footer_navi_new = _getTudukiATag($aThread, $tuduki_st);
+        $read_footer_navi_new_ht = _getTudukiATag($aThread, $tuduki_st);
     }
     // }}}
     
@@ -139,7 +139,7 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
             {$read_navi_next} 
             $latest_atag
             {$goto_ht}
-            | {$read_footer_navi_new}
+            | {$read_footer_navi_new_ht}
             | {$dores_html}
             {$htm['spd']}
         </td>
