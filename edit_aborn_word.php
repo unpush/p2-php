@@ -336,7 +336,7 @@ if ($_conf['ktai']) {
     $hr = P2View::getHrHtmlK();
     echo <<<EOP
 $hr
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}" href="{$_conf['editpref_php']}{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.İ’è•ÒW</a>
+<a {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['up']}" href="{$_conf['editpref_php']}{$_conf['k_at_q']}">{$_conf['k_accesskey']['up']}.İ’è•ÒW</a>
 EOP;
     echo P2View::getBackToIndexKATag();
 }

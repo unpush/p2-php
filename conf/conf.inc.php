@@ -167,7 +167,7 @@ $_conf['cache_dir'] = $_conf['data_dir'] . '/cache'; // 2005/6/29 $_conf['pref_d
 // テンポラリディレクトリ (パーミッションは707)
 $_conf['tmp_dir'] = $_conf['data_dir'] . '/tmp';
 
-$_conf['accesskey'] = 'accesskey';
+$_conf['accesskey_for_k'] = 'accesskey';
 
 // {{{ 端末判定
 
@@ -215,7 +215,7 @@ if (PEAR::isError($mobile)) {
         
     // SoftBank(旧Vodafone Live!)
     } elseif ($mobile->isSoftBank()) {
-        //$_conf['accesskey'] = 'DIRECTKEY';
+        //$_conf['accesskey_for_k'] = 'DIRECTKEY';
         // W型端末と3GC型端末はCookieが使える
         if ($mobile->isTypeW() || $mobile->isType3GC()) {
             $_conf['disable_cookie'] = false;
@@ -306,7 +306,7 @@ if ($_conf[$b]) {
 // }}}
 
 // 2008/09/28 $_conf['k_to_index_ht'] は廃止して、P2View::getBackToIndexKATag() を利用
-// $_conf['k_to_index_ht'] = sprintf('<a %s="0" href="index.php%s">0.TOP</a>', $_conf['accesskey'], $_conf['k_at_q']);
+// $_conf['k_to_index_ht'] = sprintf('<a %s="0" href="index.php%s">0.TOP</a>', $_conf['accesskey_for_k'], $_conf['k_at_q']);
 
 
 //======================================================================

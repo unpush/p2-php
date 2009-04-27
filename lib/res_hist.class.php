@@ -287,7 +287,7 @@ class ResHist
         $mae_ht = '';
         if ($disp_navi['from'] > 1) {
             if ($position == 'footer') {
-                $attrs = array($_conf['accesskey'] => $_conf['k_accesskey']['prev']);
+                $attrs = array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev']);
                 $str = "{$_conf['k_accesskey']['prev']}.‘O";
             } else {
                 $attrs = array();
@@ -308,7 +308,7 @@ class ResHist
         $tugi_ht = '';
         if ($disp_navi['end'] < $list_disp_all_num) {
             if ($position == 'footer') {
-                $attrs = array($_conf['accesskey'] => $_conf['k_accesskey']['next']);
+                $attrs = array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next']);
                 $str = "{$_conf['k_accesskey']['next']}.ŽŸ";
             } else {
                 $attrs = array();

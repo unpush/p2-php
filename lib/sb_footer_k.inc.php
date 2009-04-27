@@ -12,12 +12,12 @@ $ptitle_url_hs = hs($ptitle_url);
 
 if ($aThreadList->spmode == "taborn") {
 	$ptitle_ht = <<<EOP
-	<a href="{$ptitle_url_hs}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj_hs}</b></a>（ｱﾎﾞﾝ中）
+	<a href="{$ptitle_url_hs}" {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj_hs}</b></a>（ｱﾎﾞﾝ中）
 EOP;
 
 } elseif ($aThreadList->spmode == "soko") {
 	$ptitle_ht = <<<EOP
-	<a href="{$ptitle_url_hs}" {$_conf['accesskey']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj_hs}</b></a>（dat倉庫）
+	<a href="{$ptitle_url_hs}" {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj_hs}</b></a>（dat倉庫）
 EOP;
 
 } elseif (!empty($ptitle_url)) {
@@ -45,7 +45,7 @@ if ($disp_navi['from'] > 1) {
     $mae_ht = P2View::tagA(
         P2Util::buildQueryUri($_conf['subject_php'], $qs),
         hs("{$_conf['k_accesskey']['prev']}.前"),
-        array($_conf['accesskey'] => $_conf['k_accesskey']['prev'])
+        array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev'])
     );
 }
 
@@ -64,7 +64,7 @@ if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
     $tugi_ht = P2View::tagA(
         P2Util::buildQueryUri($_conf['subject_php'], $qs),
         hs("{$_conf['k_accesskey']['next']}.次"),
-        array($_conf['accesskey'] => $_conf['k_accesskey']['next'])
+        array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next'])
     );
 }
 
@@ -142,7 +142,7 @@ $htm['change_sort'] .= '<input type="submit" value="変更"></form>';
 $topATag = P2View::tagA(
     P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue())),
     hs('0.TOP'),
-    array($_conf['accesskey'] => '0')
+    array($_conf['accesskey_for_k'] => '0')
 );
 
 $hr = P2View::getHrHtmlK();

@@ -71,7 +71,7 @@ for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
     $offline_range_q = "";
     $accesskey_at = "";
     if ($i == 1) {
-        $accesskey_at = " {$_conf['accesskey']}=\"1\"";
+        $accesskey_at = " {$_conf['accesskey_for_k']}=\"1\"";
     }
     $ito = $i + $rnum_range -1;
     if ($ito <= $aThread->gotnum) {
@@ -123,7 +123,7 @@ if (!$read_navi_prev_isInvisible) {
     }
     
     $read_navi_previous = P2View::tagA($url, $html);
-    $read_navi_previous_btm = P2View::tagA($url, $html, array($_conf['accesskey'] => $_conf['k_accesskey']['prev']));
+    $read_navi_previous_btm = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev']));
 }
 
 //----------------------------------------------
@@ -174,7 +174,7 @@ if (!$read_navi_next_isInvisible) {
     }
     
     $read_navi_next = P2View::tagA($url, $html);
-    $read_navi_next_btm = P2View::tagA($url, $html, array($_conf['accesskey'] => $_conf['k_accesskey']['next']));
+    $read_navi_next_btm = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next']));
 }
 
 //----------------------------------------------
@@ -190,7 +190,7 @@ if (!$read_navi_next_isInvisible || $GLOBALS['_filter_hits'] !== null) {
 EOP;
     $time = time();
     $read_navi_latest_btm = <<<EOP
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['latest']}" href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}&amp;dummy={$time}{$_conf['k_at_a']}">{$_conf['k_accesskey']['latest']}.{$latest_st}{$latest_show_res_num}</a> 
+<a {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['latest']}" href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}&amp;dummy={$time}{$_conf['k_at_a']}">{$_conf['k_accesskey']['latest']}.{$latest_st}{$latest_show_res_num}</a> 
 EOP;
 }
 
@@ -200,7 +200,7 @@ $read_navi_filter = <<<EOP
 <a href="read_filter_k.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$find_st}</a>
 EOP;
 $read_navi_filter_btm = <<<EOP
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['filter']}" href="read_filter_k.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$_conf['k_accesskey']['filter']}.{$find_st}</a>
+<a {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['filter']}" href="read_filter_k.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$_conf['k_accesskey']['filter']}.{$find_st}</a>
 EOP;
 
 // }}}
@@ -257,7 +257,7 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and em
 {$read_navi_previous}
 <!-- {$read_navi_next} -->
 {$read_navi_latest}
-<a {$_conf['accesskey']}="{$_conf['k_accesskey']['bottom']}" href="#footer">{$_conf['k_accesskey']['bottom']}.Бе</a>
+<a {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['bottom']}" href="#footer">{$_conf['k_accesskey']['bottom']}.Бе</a>
 </p>\n
 EOP;
 
@@ -327,7 +327,7 @@ function _getReadFooterNaviNewHtmls($aThread, $shinchaku_st)
         $read_footer_navi_new_btm_ht = P2View::tagA(
             $read_footer_navi_new_uri,
             "{$_conf['k_accesskey']['next']}.{$shinchaku_st}",
-            array($_conf['accesskey'] => $_conf['k_accesskey']['next'])
+            array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next'])
         );
     }
     return array($read_footer_navi_new_ht, $read_footer_navi_new_btm_ht);
@@ -365,7 +365,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $de
             array_merge($thread_qs, $b_qs)
         ),
         "{$_conf['k_accesskey']['up']}." . hs($aThread->itaj),
-        array($_conf['accesskey'] => $_conf['k_accesskey']['up'])
+        array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['up'])
     );
 
     $similar_atag  = P2View::tagA(
@@ -384,7 +384,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $de
             array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en))
         ),
         "{$_conf['k_accesskey']['info']}." . hs($info_st),
-        array($_conf['accesskey'] => $_conf['k_accesskey']['info'])
+        array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['info'])
     );
 
     $dele_atag     = P2View::tagA(
@@ -398,7 +398,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $siml_thre_st, $info_st, $de
             )
         ),
         "{$_conf['k_accesskey']['dele']}." . hs($dele_st),
-        array($_conf['accesskey'] => $_conf['k_accesskey']['dele'])
+        array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['dele'])
     );
 
     $motothre_atag = P2View::tagA($motothre_url, hs($moto_thre_st));

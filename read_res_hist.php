@@ -159,7 +159,7 @@ if (UA::isK()) {
         '#footer',
         hs($_conf['k_accesskey']['bottom'] . '.¥'),
         array(
-            $_conf['accesskey'] => $_conf['k_accesskey']['bottom']
+            $_conf['accesskey_for_k'] => $_conf['k_accesskey']['bottom']
         )
     );
     echo " $atag<br>";
@@ -206,7 +206,7 @@ if (UA::isK()) {
         '#header',
         hs($_conf['k_accesskey']['above'] . '.£'),
         array(
-            $_conf['accesskey'] => $_conf['k_accesskey']['above']
+            $_conf['accesskey_for_k'] => $_conf['k_accesskey']['above']
         )
     );
     echo " $atag<br>";

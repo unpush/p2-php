@@ -77,7 +77,7 @@ for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
     $offline_range_q = "";
     $accesskey_at = "";
     if ($i == 1) {
-        $accesskey_at = " {$_conf['accesskey']}=\"1\"";
+        $accesskey_at = " {$_conf['accesskey_for_k']}=\"1\"";
     }
     $ito = $i + $rnum_range -1;
     if ($ito <= $aThread->gotnum) {
@@ -129,7 +129,7 @@ if (!$read_navi_prev_isInvisible) {
     }
     
     $read_navi_previous = P2View::tagA($url, $html);
-    $read_navi_previous_btm = P2View::tagA($url, $html, array($_conf['accesskey'] => $_conf['k_accesskey']['prev']));
+    $read_navi_previous_btm = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev']));
 }
 
 //----------------------------------------------
@@ -181,7 +181,7 @@ if (!$read_navi_next_isInvisible) {
     }
     
     $read_navi_next = P2View::tagA($url, $html);
-    $read_navi_next_btm = P2View::tagA($url, $html, array($_conf['accesskey'] => $_conf['k_accesskey']['next']));
+    $read_navi_next_btm = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next']));
 }
 
 //----------------------------------------------
@@ -487,7 +487,7 @@ function csrangeform($default = '', &$aThread)
 	    $offline_range_q = "";
 	    $accesskey_at = "";
 	    if ($i == 1) {
-	        $accesskey_at = " {$_conf['accesskey']}=\"1\"";
+	        $accesskey_at = " {$_conf['accesskey_for_k']}=\"1\"";
 	    }
 	    $ito = $i + $_conf['k_rnum_range'] -1;
 	    if ($ito <= $aThread->gotnum) {

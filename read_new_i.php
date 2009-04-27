@@ -98,7 +98,7 @@ $ptitle_btm_atag = P2View::tagA(
     $ptitle_uri,
     hs("{$_conf['k_accesskey']['up']}.$aThreadList->ptitle"),
     array(
-        $_conf['accesskey'] => $_conf['k_accesskey']['up']
+        $_conf['accesskey_for_k'] => $_conf['k_accesskey']['up']
     )
 );
 

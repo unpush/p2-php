@@ -176,7 +176,7 @@ function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
     if ($noLink) {
         $linkHtml = hs($name);
     } else {
-        $accesskeyAt = is_null($accesskey) ? '' : " {$_conf['accesskey']}=\"{$accesskey}\"";
+        $accesskeyAt = is_null($accesskey) ? '' : " {$_conf['accesskey_for_k']}=\"{$accesskey}\"";
         $linkHtml = "<a $accesskeyAt href=\"" . hs($href) . '">' . hs($name) . "</a>";
     }
     
@@ -195,7 +195,7 @@ function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
                     )
                 ),
                 hs($name),
-                array($_conf['accesskey'] => '#')
+                array($_conf['accesskey_for_k'] => '#')
             );
         }
         $linkHtml .= ' ' . $logHt;

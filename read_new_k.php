@@ -97,7 +97,7 @@ $ptitle_btm_atag = P2View::tagA(
     $ptitle_uri,
     hs("{$_conf['k_accesskey']['up']}.$aThreadList->ptitle"),
     array(
-        $_conf['accesskey'] => $_conf['k_accesskey']['up']
+        $_conf['accesskey_for_k'] => $_conf['k_accesskey']['up']
     )
 );
 
@@ -483,7 +483,7 @@ $read_new_qs = array(
     'nt'     => $newtime,
     UA::getQueryKey() => UA::getQueryValue()
 );
-$read_new_attrs = array($_conf['accesskey'] => $_conf['k_accesskey']['next']);
+$read_new_attrs = array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next']);
 
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['_is_eq_limit_to_and_to'])) {
     if (!empty($GLOBALS['_is_eq_limit_to_and_to'])) {

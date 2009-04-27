@@ -43,7 +43,7 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // 
     $above_atag = P2View::tagA(
         '#header',
         "{$_conf['k_accesskey']['above']}.£",
-        array($_conf['accesskey'] => $_conf['k_accesskey']['above'])
+        array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['above'])
     );
     
     echo <<<EOP
@@ -151,7 +151,7 @@ function _getDoResATag($aThread, $dores_st, $motothre_url)
             hs("{$_conf['k_accesskey']['res']}.{$dores_st}"),
             array(
                 'target' => '_blank',
-                $_conf['accesskey'] => $_conf['k_accesskey']['res']
+                $_conf['accesskey_for_k'] => $_conf['k_accesskey']['res']
             )
         );
 
@@ -170,7 +170,7 @@ function _getDoResATag($aThread, $dores_st, $motothre_url)
             ),
             hs("{$_conf['k_accesskey']['res']}.{$dores_st}"),
             array(
-                $_conf['accesskey'] => $_conf['k_accesskey']['res']
+                $_conf['accesskey_for_k'] => $_conf['k_accesskey']['res']
             )
         );
     }

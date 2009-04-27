@@ -38,7 +38,7 @@ class ShowBrdMenuK
     
         if ($disp_navi['from'] > 1) {
             $mae_ht = <<<EOP
-<a href="{$_conf['menu_k_php']}?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
+<a href="{$_conf['menu_k_php']}?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['prev']}">{$_conf['k_accesskey']['prev']}.前</a>
 EOP;
         } else {
             $mae_ht = '';
@@ -46,7 +46,7 @@ EOP;
         
         if ($disp_navi['end'] < $list_disp_all_num) {
             $tugi_ht = <<<EOP
-<a href="{$_conf['menu_k_php']}?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
+<a href="{$_conf['menu_k_php']}?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}" {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['next']}">{$_conf['k_accesskey']['next']}.次</a>
 EOP;
         } else {
             $tugi_ht = '';
@@ -133,7 +133,7 @@ EOP;
                     
                     if ($i <= 9) {
                         $access_num_st = "$i.";
-                        $subject_attr[$_conf['accesskey']] = $i;
+                        $subject_attr[$_conf['accesskey_for_k']] = $i;
                     }
                     
                     // 板名プリント
@@ -277,7 +277,7 @@ EOP;
                     $key_num_st = '';
                     
                     if ($i <= 9) {
-                        $attr[$_conf['accesskey']] = $i;
+                        $attr[$_conf['accesskey_for_k']] = $i;
                         $key_num_st = "$i.";
                     }
                     

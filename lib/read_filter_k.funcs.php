@@ -52,7 +52,7 @@ function getResetReadNaviFooterK($aThread, $params)
         $read_navi_previous_url = P2Util::buildQueryUri($_conf['read_php'], $qs);
         $read_navi_previous_btm = sprintf(
             '<a %1$s="%2$s" href="%3$s">%2$s.%4$s</a>',
-            hs($_conf['accesskey']),
+            hs($_conf['accesskey_for_k']),
             hs($_conf['k_accesskey']['prev']),
             hs($read_navi_previous_url),
             hs($prev_st)
@@ -67,7 +67,7 @@ function getResetReadNaviFooterK($aThread, $params)
         $read_navi_next_url = P2Util::buildQueryUri($_conf['read_php'], $qs);
         $read_navi_next_btm = sprintf(
             '<a %1$s="%2$s" href="%3$s">%2$s.%4$s</a>',
-            hs($_conf['accesskey']),
+            hs($_conf['accesskey_for_k']),
             hs($_conf['k_accesskey']['next']),
             hs($read_navi_next_url),
             hs($next_st)
@@ -78,7 +78,7 @@ function getResetReadNaviFooterK($aThread, $params)
     /*
     // ※メモ：「6.新着」（新着レスの表示）と「3.新20」（最新N件）は異なる。
     $read_footer_navi_new_btm_ht = str_replace(
-        " {$_conf['accesskey']}=\"{$_conf['k_accesskey']['next']}\"", '', $read_footer_navi_new_btm_ht
+        " {$_conf['accesskey_for_k']}=\"{$_conf['k_accesskey']['next']}\"", '', $read_footer_navi_new_btm_ht
     );
     $read_footer_navi_new_btm_ht = str_replace(">{$_conf['k_accesskey']['next']}.", '>', $read_footer_navi_new_btm_ht);
     */

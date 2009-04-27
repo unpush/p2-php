@@ -22,7 +22,7 @@ class P2View
                 array(UA::getQueryKey() => UA::getQueryValue())
             ),
             hs($accessKeyValue . '.TOP'),
-            array($_conf['accesskey'] => $accessKeyValue)
+            array($_conf['accesskey_for_k'] => $accessKeyValue)
         );
     }
     

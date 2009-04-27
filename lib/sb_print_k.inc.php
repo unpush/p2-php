@@ -248,7 +248,7 @@ function sb_print_k(&$aThreadList)
         /*
         $access_ht = "";
         if ($aThread->torder >= 1 and $aThread->torder <= 9) {
-            $access_ht = " {$_conf['accesskey']}=\"{$aThread->torder}\"";
+            $access_ht = " {$_conf['accesskey_for_k']}=\"{$aThread->torder}\"";
         }
         */
         

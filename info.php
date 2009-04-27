@@ -324,7 +324,7 @@ $ita_uri = P2Util::buildQueryUri(
         UA::getQueryKey() => UA::getQueryValue()
     )
 );
-$attrs =  array($_conf['accesskey'] => $_conf['k_accesskey']['up']);
+$attrs =  array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['up']);
 UA::isPC() and $attrs['target'] = 'subject';
 $ita_atag = P2View::tagA(
     $ita_uri,
@@ -352,7 +352,7 @@ if ($existLog) {
             )
         ),
         "{$dele_pre_ht}çÌèúÇ∑ÇÈ",
-        array($_conf['accesskey'] => $_conf['k_accesskey']['dele'])
+        array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['dele'])
     );
     _printInfoTrHtml("ÉçÉO", "Ç†ÇË [$atag]{$offrecent_ht}");
 

@@ -135,7 +135,7 @@ echo '<li class="group">�ꗗ</li>';
                     
                     if ($i <= 9) {
                         $access_num_st = "$i.";
-                        $akey_at = " {$_conf['accesskey']}=\"{$i}\"";
+                        $akey_at = " {$_conf['accesskey_for_k']}=\"{$i}\"";
                     } else {
                         $access_num_st = "";
                         $akey_at = "";
@@ -256,7 +256,7 @@ EOP;
                     $key_num_st = '';
 
                     if ($i <= 9) {
-                        $attr[$_conf['accesskey']] = $i;
+                        $attr[$_conf['accesskey_for_k']] = $i;
                         $key_num_st = "$i.";
                     }
 
