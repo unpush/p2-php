@@ -148,26 +148,26 @@ for ($x = 0; $x < $linesize; $x++) {
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
         case "recent": // 履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "res_hist": // 書き込み履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "fav": // お気に
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "taborn": // スレッドあぼーん
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             $aThread->host = $aThreadList->host;
             $aThread->bbs = $aThreadList->bbs;
             break;
         case "palace": // 殿堂入り
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         }
     // subject (not spmode)
     } else {
-        $aThread->getThreadInfoFromSubjectTxtLine($l);
+        $aThread->setThreadInfoFromSubjectTxtLine($l);
         $aThread->host = $aThreadList->host;
         $aThread->bbs = $aThreadList->bbs;
     }
@@ -211,7 +211,7 @@ for ($x = 0; $x < $linesize; $x++) {
         if ($subject_txts["$aThread->host/$aThread->bbs"]) {
             foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
                 if (@preg_match("/^{$aThread->key}/", $l)) {
-                    $aThread->getThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
+                    $aThread->setThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
                     break;
                 }
             }

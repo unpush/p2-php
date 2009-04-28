@@ -68,10 +68,13 @@ $threads_num_max = 2000;
 
 if (!$spmode || $spmode=="news") {
     $threads_num = $p2_setting['viewnum'];
+    
 } elseif ($spmode == "recent") {
     $threads_num = $_conf['rct_rec_num'];
+    
 } elseif ($spmode == "res_hist") {
     $threads_num = $_conf['res_hist_rec_num'];
+    
 } else {
     $threads_num = 2000;
 }
@@ -81,9 +84,6 @@ elseif ($sb_view == "shinchaku") { $threads_num = $threads_num_max; }
 elseif ($sb_view == "edit") { $threads_num = $threads_num_max; }
 elseif (isset($_GET['word'])) { $threads_num = $threads_num_max; }
 elseif ($_conf['ktai']) { $threads_num = $threads_num_max; }
-
-
-$nowtime = time();
 
 //============================================================
 // メイン
@@ -125,6 +125,7 @@ if (file_exists($_conf['favlist_file'])) {
 // それぞれの行解析
 //============================================================
 
+$nowtime  = time();
 $linesize = sizeof($lines);
 
 for ($x = 0; $x < $linesize ; $x++) {
@@ -137,59 +138,8 @@ for ($x = 0; $x < $linesize ; $x++) {
         $aThread->torder = $x + 1;
     }
 
-    // ■データ読み込み
-    if ($aThreadList->spmode) {
-        switch ($aThreadList->spmode) {
-        case "recent": // 履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
-            break;
-        case "res_hist": // 書き込み履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
-            break;
-        case "fav": // お気に
-            $aThread->getThreadInfoFromExtIdxLine($l);
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
-            break;
-        case "taborn":    // スレッドあぼーん
-            $la = explode("<>", $l);
-            $aThread->key = $la[1];
-            $aThread->host = $aThreadList->host;
-            $aThread->bbs = $aThreadList->bbs;
-            break;
-        case "soko":    // dat倉庫
-            $la = explode("<>", $l);
-            $aThread->key = $la[1];
-            $aThread->host = $aThreadList->host;
-            $aThread->bbs = $aThreadList->bbs;
-            break;
-        case "palace":    // スレの殿堂
-            $aThread->getThreadInfoFromExtIdxLine($l);
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
-            break;
-        case "news": // ニュースの勢い
-            $aThread->isonline = true;
-            $aThread->key = $l['key'];
-            $aThread->setTtitle($l['ttitle']);
-            $aThread->rescount = $l['rescount'];
-            $aThread->host = $l['host'];
-            $aThread->bbs = $l['bbs'];
-
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj=$aThread->bbs;}
-            break;
-        }
-    // subject (not spmode)
-    } else {
-        $aThread->getThreadInfoFromSubjectTxtLine($l);
-        $aThread->host = $aThreadList->host;
-        $aThread->bbs = $aThreadList->bbs;
-    }
+    // ラインからスレッドデータを読み込んでセット
+    $aThread->setThreadInfoFromLineWithThreadList($l, $aThreadList);
 
     // hostかbbsかkeyが不明ならスキップ
     if (!($aThread->host && $aThread->bbs && $aThread->key)) {
@@ -285,7 +235,7 @@ for ($x = 0; $x < $linesize ; $x++) {
                     continue;
                 } elseif ($aThreadList->spmode == "taborn") {
                     // subject.txt からスレ情報取得
-                    // $aThread->getThreadInfoFromSubjectTxtLine($l);
+                    // $aThread->setThreadInfoFromSubjectTxtLine($l);
                     $aThread->isonline = true;
                     $ttitle = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['ttitle'];
                     $aThread->setTtitle($ttitle);
@@ -307,7 +257,7 @@ for ($x = 0; $x < $linesize ; $x++) {
                 foreach ($subject_txts[$aThread->host.'/'.$aThread->bbs] as $l) {
                     if (@preg_match("/^{$aThread->key}/", $l)) {
                         // subject.txt からスレ情報取得
-                        $aThread->getThreadInfoFromSubjectTxtLine($l);
+                        $aThread->setThreadInfoFromSubjectTxtLine($l);
                         break;
                     }
                     $it++;
@@ -383,3 +333,14 @@ for ($x = 0; $x < $linesize ; $x++) {
 
 // $shinchaku_num
 
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

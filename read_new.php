@@ -124,7 +124,7 @@ P2View::printIncludeCssHtml('read');
 	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
 	<script type="text/javascript" src="js/respopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
-	<script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
+	<script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>
 	<script type="text/javascript" src="js/delelog.js?v=20061206"></script>
 	<script type="text/javascript" src="js/showhide.js?v=20090416"></script>
 	
@@ -181,26 +181,26 @@ for ($x = 0; $x < $linesize ; $x++) {
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
         case "recent": // 履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "res_hist": // 書き込み履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "fav": // お気に
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "taborn": // スレッドあぼーん
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             $aThread->host = $aThreadList->host;
             $aThread->bbs = $aThreadList->bbs;
             break;
         case "palace": // スレの殿堂
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         }
     // subject (not spmode)の場合
     } else {
-        $aThread->getThreadInfoFromSubjectTxtLine($l);
+        $aThread->setThreadInfoFromSubjectTxtLine($l);
         $aThread->host = $aThreadList->host;
         $aThread->bbs = $aThreadList->bbs;
     }
@@ -246,7 +246,7 @@ for ($x = 0; $x < $linesize ; $x++) {
         if ($subject_txts["$aThread->host/$aThread->bbs"]) {
             foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
                 if (@preg_match("/^{$aThread->key}/", $l)) {
-                    $aThread->getThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
+                    $aThread->setThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
                     break;
                 }
             }
@@ -473,9 +473,9 @@ EOP;
     
     // お気にマーク設定
     $favmark    = !empty($aThread->fav) ? '★' : '+';
-    $favdo      = !empty($aThread->fav) ? 0 : 1;
-    $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-    $favdo_q    = '&amp;setfav=' . $favdo;
+    $favvalue      = !empty($aThread->fav) ? 0 : 1;
+    $favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
+    $setfav_q    = '&amp;setfav=' . $favvalue;
     
     $itaj_hs    = hs($aThread->itaj);
     
@@ -527,7 +527,7 @@ EOP;
 
 		<a style="white-space: nowrap;" href="{$info_url_hs}" target="info" onClick="return !openSubWin('{$info_url_hs}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_hs}</a>
 
-		<span class="favdo" style="white-space: nowrap;"><a href="{$info_url_hs}{$favdo_q}{$sid_q}" target="info" onClick="return setFavJs('{$js_q_hs}', '{$favdo}', {$STYLE['info_pop_size']}, 'read_new', this);" title="{$favtitle}">お気に{$favmark}</a></span>
+		<span class="setfav" style="white-space: nowrap;"><a href="{$info_url_hs}{$setfav_q}{$sid_q}" target="info" onClick="return setFavJs('{$js_q_hs}', '{$favvalue}', {$STYLE['info_pop_size']}, 'read_new', this);" title="{$favtitle}">お気に{$favmark}</a></span>
 
 		<span style="white-space: nowrap;"><a href="{$info_url_hs}&amp;dele=1" target="info" onClick="return deleLog('{$js_q_hs}', {$STYLE['info_pop_size']}, 'read_new',  this);" title="ログを削除する。自動で「お気にスレ」「殿堂」からも外れます。">{$dele_st}</a></span>
 
@@ -614,10 +614,9 @@ $shinmatome_qs =  array(
     'nt'     => $newtime,
     UA::getQueryKey() => UA::getQueryValue()
 );
-$shinmatome_accesskey = 'r';
 $shinmatome_accesskey_attrs = array(
-    'accesskey' => $shinmatome_accesskey,
-    'title' => sprintf('アクセスキー[%s]', $shinmatome_accesskey)
+    'accesskey' => $_conf['pc_accesskey']['tuduki'],
+    'title' => sprintf('アクセスキー[%s]', $_conf['pc_accesskey']['tuduki'])
 );
 
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['_is_eq_limit_to_and_to'])) {

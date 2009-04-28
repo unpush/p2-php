@@ -1,7 +1,7 @@
 // --------------------------------------------------------------
 // "お気に" の文字列無しの ＋か★のみ版
 //-------------------------------------------------------------------
-function setFavJsNoStr(tquery, favdo, info_pop_width, info_pop_height, page, obj,numb)
+function setFavJsNoStr(tquery, favvalue, info_pop_width, info_pop_height, page, obj,numb)
 {
 	// read.phpでは、ページの読み込みが完了していなければ、なにもしない
 	// （read.php は読み込み完了時にidx記録が生成されるため）
@@ -13,11 +13,11 @@ function setFavJsNoStr(tquery, favdo, info_pop_width, info_pop_height, page, obj
 	if (!objHTTP) {
 		// alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
 		// XMLHTTP（とinnerHTML） に未対応なら小窓で
-		infourl = 'info_i.php?' + tquery + '&setfav=' + favdo + '&popup=2';
+		infourl = 'info_i.php?' + tquery + '&setfav=' + favvalue + '&popup=2';
 		return !openSubWin(infourl,info_pop_width,info_pop_height,0,0);
 	}
 
-	url = 'httpcmd.php?' + tquery + '&setfav=' + favdo + '&cmd=setfav'; // スクリプトと、コマンド指定
+	url = 'httpcmd.php?' + tquery + '&setfav=' + favvalue + '&cmd=setfav'; // スクリプトと、コマンド指定
 
 	var res = getResponseTextHttp(objHTTP, url, 'nc');
 	var rmsg = "";
@@ -26,7 +26,7 @@ function setFavJsNoStr(tquery, favdo, info_pop_width, info_pop_height, page, obj
 			rmsg = '完了';
 		}
 		if (rmsg) {
-			if (favdo == '1') {
+			if (favvalue == '1') {
 				nextset = '0';
 				favmark = '<img src="iui/icon_del.png">';
 				favtitle = 'お気にスレから外す';

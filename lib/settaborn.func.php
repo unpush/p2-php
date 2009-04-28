@@ -40,7 +40,7 @@ function settaborn($host, $bbs, $key, $set)
         return false;
     }
     
-    $neolines = array();
+    $newlines = array();
     
     $aborn_attayo = false;
     $title_msg_pre = '';
@@ -59,22 +59,22 @@ function settaborn($host, $bbs, $key, $set)
                 continue;
             }
             if (!$lar[1]) { continue; } // keyのないものは不正データ
-            $neolines[] = $line;
+            $newlines[] = $line;
         }
     }
     
     // 新規データ追加
     if ($set == 1 or !$aborn_attayo && $set == 2) {
         $newdata = "$data[0]<>{$key}<><><><><><><><>";
-        $neolines ? array_unshift($neolines, $newdata) : $neolines = array($newdata);
+        $newlines ? array_unshift($newlines, $newdata) : $newlines = array($newdata);
         $title_msg_pre = "○ あぼーん しますた";
         $info_msg_pre = "○ あぼーん しますた";
     }
     
     // 書き込む
     $cont = '';
-    if ($neolines) {
-        foreach ($neolines as $l) {
+    if ($newlines) {
+        foreach ($newlines as $l) {
             $cont .= $l . "\n";
         }
     }
@@ -89,3 +89,13 @@ function settaborn($host, $bbs, $key, $set)
     return true;
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

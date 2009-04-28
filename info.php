@@ -6,7 +6,7 @@
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/FileCtl.php';
-require_once P2_LIB_DIR . '/dele.inc.php'; // 削除処理用の関数郡
+require_once P2_LIB_DIR . '/dele.funcs.php'; // 削除処理用の関数郡
 
 $_login->authorize(); // ユーザ認証
 
@@ -88,7 +88,7 @@ if (!empty($_GET['offrecent'])) {
 
 // スレッドあぼーん
 } elseif (isset($_GET['taborn'])) {
-    require_once P2_LIB_DIR . '/settaborn.inc.php';
+    require_once P2_LIB_DIR . '/settaborn.func.php';
     settaborn($host, $bbs, $key, $_GET['taborn']);
 }
 
@@ -147,7 +147,7 @@ if ($favlines = @file($_conf['favlist_file'])) {
 */
 
 // お気にスレ
-$fav_atag = _getFavAtag($aThread, $favmark_accesskey, $ttitle_en);
+$fav_atag = _getFavATag($aThread, $favmark_accesskey, $ttitle_en);
 
 // }}}
 // {{{ palace チェック
@@ -191,30 +191,29 @@ $taborndo_title_attrs = array();
 if (UA::isPC() || UA::isIPhoneGroup() and !$isTaborn) {
     $taborndo_title_attrs = array('title' => 'スレッド一覧で非表示にします');
 }
-$atag = P2View::tagA(
-    P2Util::buildQueryUri('info.php',
-        array(
-            'host' => $aThread->host,
-            'bbs'  => $aThread->bbs,
-            'key'  => $aThread->key,
-            'taborn' => $isTaborn ? 0 : 1,
-            'popup' => (int)(bool)geti($_GET['popup']),
-            'ttitle_en' => $ttitle_en,
-            UA::getQueryKey() => UA::getQueryValue()
-        )
-    ),
-    sprintf(
-        '%s%s',
-        hs(UA::isK() ? $taborn_accesskey . '.' : ''),
-        hs($isTaborn ? 'あぼーん解除する' : 'あぼーんする')
-    ),
-    array_merge($taborndo_title_attrs, array('accesskey' => $taborn_accesskey))
-);
 
 $taborn_ht = sprintf(
     '%s [%s]', 
     hs($isTaborn ? 'あぼーん中' : '通常'),
-    $atag
+    P2View::tagA(
+        P2Util::buildQueryUri('info.php',
+            array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
+                'taborn' => $isTaborn ? 0 : 1,
+                'popup' => (int)(bool)geti($_GET['popup']),
+                'ttitle_en' => $ttitle_en,
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        sprintf(
+            '%s%s',
+            hs(UA::isK() ? $taborn_accesskey . '.' : ''),
+            hs($isTaborn ? 'あぼーん解除する' : 'あぼーんする')
+        ),
+        array_merge($taborndo_title_attrs, array('accesskey' => $taborn_accesskey))
+    )
 );
 
 // }}}
@@ -274,7 +273,7 @@ EOP;
 
 P2Util::printInfoHtml();
 
-?><p><b><?php echo _getTtitleNameAtag($aThread, $hc['ttitle_name']); ?></b></p><?php
+?><p><b><?php echo _getTtitleNameATag($aThread, $hc['ttitle_name']); ?></b></p><?php
 
 // 携帯なら冒頭で情報メッセージ表示
 if (UA::isK()) {
@@ -295,7 +294,7 @@ if (
     checkRecent($aThread->host, $aThread->bbs, $aThread->key)
     || checkResHist($aThread->host, $aThread->bbs, $aThread->key)
 ) {
-    $offrecent_ht = sprintf(' / [%s]', _getOffRecentAtag($aThread, $offrecent_accesskey, $ttitle_en));
+    $offrecent_ht = sprintf(' / [%s]', _getOffRecentATag($aThread, $offrecent_accesskey, $ttitle_en));
 }
 
 if (UA::isPC()) {
@@ -509,7 +508,7 @@ EOP;
 /**
  * @return  string  HTML
  */
-function _getFavAtag($aThread, $favmark_accesskey, $ttitle_en)
+function _getFavATag($aThread, $favmark_accesskey, $ttitle_en)
 {
     global $_conf;
     
@@ -537,7 +536,7 @@ function _getFavAtag($aThread, $favmark_accesskey, $ttitle_en)
 /**
  * @return  string  HTML
  */
-function _getTtitleNameAtag($aThread, $ttitle_name)
+function _getTtitleNameATag($aThread, $ttitle_name)
 {
     global $_conf;
     
@@ -563,7 +562,7 @@ function _getTtitleNameAtag($aThread, $ttitle_name)
 /**
  * @return  string  HTML
  */
-function _getOffRecentAtag($aThread, $offrecent_accesskey, $ttitle_en)
+function _getOffRecentATag($aThread, $offrecent_accesskey, $ttitle_en)
 {
     global $_conf;
     
@@ -586,3 +585,14 @@ function _getOffRecentAtag($aThread, $offrecent_accesskey, $ttitle_en)
         )
     );
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

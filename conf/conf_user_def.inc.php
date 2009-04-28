@@ -269,14 +269,18 @@ $conf_user_rules['k_post_msg_rows'] = array('emptyToDef', 'notIntExceptMinusToDe
 // }}}
 // {{{ ■ETC
 
-// フレーム左 板メニュー の表示幅
+// 板メニュー（フレーム左）menu の表示幅
 $conf_user_def['frame_menu_width'] = "164"; // ("164")
 
-// フレーム右上 スレ一覧 の表示幅
+// スレ一覧（フレーム右上）subject の表示幅
 $conf_user_def['frame_subject_width'] = "40%"; // ("40%")
 
-// フレーム右下 スレ本文 の表示幅
+// スレ本文（フレーム右下）read の表示幅
 $conf_user_def['frame_read_width'] = "60%"; // ("40%")
+
+// 3ペインの並べ方（標準, 横一列）
+$conf_user_def['pain_mode'] = 0; // (0)
+$conf_user_sel['pain_mode'] = array('0' => '標準（に形）', '1' => '横一列（川形）');
 
 // レス書き込み時のデフォルトの名前
 $conf_user_def['my_FROM'] = ""; // ("")

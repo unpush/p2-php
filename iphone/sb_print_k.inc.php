@@ -256,8 +256,8 @@ function sb_print_k(&$aThreadList)
         */
 
         // お気にマーク設定
-        $favdo      = !empty($aThread->fav) ? 0 : 1;
-        $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
+        $favvalue      = !empty($aThread->fav) ? 0 : 1;
+        $favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
         $itaj_hs = htmlspecialchars($aThread->itaj, ENT_QUOTES);
 
         $favmark    = !empty($aThread->fav) ? '★' : '+';
@@ -280,7 +280,7 @@ function sb_print_k(&$aThreadList)
                 'bbs'  => $aThread->bbs,
                 'key'  => $aThread->key,
                 'ttitle_en' => base64_encode($aThread->ttitle),
-                'setfav' => $favdo
+                'setfav' => $favvalue
             ), $sid_qs)
         );
         $setFavUri_hs = hs($setFavUri);
@@ -288,7 +288,7 @@ function sb_print_k(&$aThreadList)
         //====================================================================================
         // スレッド一覧 table ボディ HTMLプリント <tr></tr> 
         //====================================================================================
-        echo "<span class=\"plus\" id=\"{$aThread->torder}\" ><a href=\"{$setFavUri_hs}\" target=\"info\" onClick=\"return setFavJsNoStr('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', 'this',{$aThread->torder});\" title=\"{$favtitle}\">{$favmark}</a></span>";
+        echo "<span class=\"plus\" id=\"{$aThread->torder}\" ><a href=\"{$setFavUri_hs}\" target=\"info\" onClick=\"return setFavJsNoStr('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favvalue}', {$STYLE['info_pop_size']}, 'read', 'this',{$aThread->torder});\" title=\"{$favtitle}\">{$favmark}</a></span>";
 
         // ボディ
         echo <<<EOP

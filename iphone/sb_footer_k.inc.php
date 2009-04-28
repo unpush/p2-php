@@ -4,47 +4,14 @@
 
 $word_qs = _getWordQs();
 
-$allfav_atag = _getAllFavAtag($aThreadList, $sb_view);
+$allfav_atag = _getAllFavATag($aThreadList, $sb_view);
 
-// {{{ ページタイトル部分HTML設定
+// ページタイトル部分HTML設定
+$ptitle_ht = _getPtitleHtml($aThreadList, $ptitle_url);
 
-if ($aThreadList->spmode == 'taborn') {
-	$ptitle_ht = <<<EOP
-	<a href="{$ptitle_url}" {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（ｱﾎﾞﾝ中）
-EOP;
-} elseif ($aThreadList->spmode == 'soko') {
-	$ptitle_ht = <<<EOP
-	<a href="{$ptitle_url}" {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['up']}">{$_conf['k_accesskey']['up']}.<b>{$aThreadList->itaj}</b></a>（dat倉庫）
-EOP;
-} elseif (!empty($ptitle_url)) {
-	$ptitle_ht = <<<EOP
-	<a href="{$ptitle_url}"><b>{$ptitle_hs}</b></a>
-EOP;
-} else {
-	$ptitle_ht = "<b>{$ptitle_hs}</b>";
-}
-
-// }}}
 // {{{ ナビ HTML設定
 
-$mae_ht = '';
-if ($disp_navi['from'] > 1) {
-    $qs = array(
-        'host'    => $aThreadList->host,
-        'bbs'     => $aThreadList->bbs,
-        'spmode'  => $aThreadList->spmode,
-        'norefresh' => '1',
-        'from'    => $disp_navi['mae_from'],
-        'sb_view' => geti($_REQUEST['sb_view']),
-        UA::getQueryKey() => UA::getQueryValue()
-    );
-    $qs = array_merge($word_qs, $qs);
-    $mae_ht = P2View::tagA(
-        P2Util::buildQueryUri($_conf['subject_php'], $qs),
-        hs("前") // {$_conf['k_accesskey']['prev']}.前
-        //,array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev'])
-    );
-}
+$mae_ht = _getMaeATag($aThreadList, $disp_navi, $word_qs);
 
 $tugi_ht = '';
 if ($disp_navi['tugi_from'] <= $sb_disp_all_num) {
@@ -74,20 +41,20 @@ $sb_range_st = "{$sb_range_on}/{$sb_disp_all_num} ";
 
 $k_sb_navi_ht = '';
 if (!$disp_navi['all_once']) {
-	$k_sb_navi_ht = "{$sb_range_st}{$mae_ht} {$tugi_ht}";
+    $k_sb_navi_ht = "<div>{$sb_range_st}{$mae_ht} {$tugi_ht}</div>";
 }
 
 // }}}
 
 // dat倉庫
 // スペシャルモードでなければ、またはあぼーんリストなら
-$dat_soko_ht = _getDatSokoAtag($aThreadList);
+$dat_soko_ht = _getDatSokoATag($aThreadList);
 
 // あぼーん中のスレッド
-$taborn_link_atag = _getTabornLinkAtag($aThreadList, $ta_num);
+$taborn_link_atag = _getTabornLinkATag($aThreadList, $ta_num);
 
 // 新規スレッド作成
-$buildnewthread_atag = _getBuildNewThreadAtag($aThreadList);
+$buildnewthread_atag = _getBuildNewThreadATag($aThreadList);
 
 // {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
 
@@ -181,6 +148,9 @@ IUI;
 // }}}
 
 
+// このファイルでの処理はここまで
+
+
 //================================================================================
 // 関数（このファイル内でのみ利用）
 //================================================================================
@@ -208,7 +178,7 @@ function _getWordQs()
 /**
  * @return  string  <a>
  */
-function _getAllFavAtag($aThreadList, $sb_view)
+function _getAllFavATag($aThreadList, $sb_view)
 {
     global $_conf;
     
@@ -227,9 +197,48 @@ function _getAllFavAtag($aThreadList, $sb_view)
 }
 
 /**
+ * ページタイトル部分HTML
+ *
+ * @return  string  HTML
+ */
+function _getPtitleHtml($aThreadList, $ptitle_url)
+{
+    global $_conf;
+    
+    $ptitle_ht = '';
+    
+    if ($aThreadList->spmode == 'taborn') {
+        $ptitle_ht = P2View::tagA(
+            $ptitle_url,
+            sprintf('%s.<b>%s</b>',
+                hs($_conf['k_accesskey']['up']), hs($aThreadList->itaj)
+            ),
+            array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['up'])
+        ) . '（ｱﾎﾞﾝ中）';
+
+    } elseif ($aThreadList->spmode == 'soko') {
+        $ptitle_ht = P2View::tagA(
+            $ptitle_url,
+            sprintf('%s.<b>%s</b>',
+                hs($_conf['k_accesskey']['up']), hs($aThreadList->itaj)
+            ),
+            array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['up'])
+        ) . '（dat倉庫）';
+
+    } elseif (!empty($ptitle_url)) {
+        $ptitle_ht = P2View::tagA($ptitle_url, sprintf('<b>%s</b>', hs($aThreadList->ptitle)));
+
+    } else {
+        $ptitle_ht = '<b>' . hs($aThreadList->ptitle) . '</b>';
+    }
+    
+    return $ptitle_ht;
+}
+
+/**
  * @return  string  <a>
  */
-function _getTabornLinkAtag($aThreadList, $ta_num)
+function _getTabornLinkATag($aThreadList, $ta_num)
 {
     global $_conf;
     
@@ -250,7 +259,7 @@ function _getTabornLinkAtag($aThreadList, $ta_num)
 /**
  * @return  string  <a>
  */
-function _getBuildNewThreadAtag($aThreadList)
+function _getBuildNewThreadATag($aThreadList)
 {
     $buildnewthread_atag = '';
     if (!$aThreadList->spmode and !P2Util::isHostKossoriEnq($aThreadList->host)) {
@@ -260,20 +269,51 @@ function _getBuildNewThreadAtag($aThreadList)
             'newthread' => '1',
             UA::getQueryKey() => UA::getQueryValue()
         ));
-        $buildnewthread_atag = P2View::tagA($uri, hs("ｽﾚ立て"));
+        $buildnewthread_atag = P2View::tagA($uri, hs('ｽﾚ立て'));
     }
     return $buildnewthread_atag;
 }
 
 /**
+ * ナビ 前
+ *
+ * @return  string  HTML
+ */
+function _getMaeATag($aThreadList, $disp_navi, $word_qs)
+{
+    global $_conf;
+    
+    $mae_atag = '';
+    
+    if ($disp_navi['from'] > 1) {
+        $qs = array(
+            'host'    => $aThreadList->host,
+            'bbs'     => $aThreadList->bbs,
+            'spmode'  => $aThreadList->spmode,
+            'norefresh' => '1',
+            'from'    => $disp_navi['mae_from'],
+            'sb_view' => geti($_REQUEST['sb_view']),
+            UA::getQueryKey() => UA::getQueryValue()
+        );
+        $qs = array_merge($word_qs, $qs);
+        $mae_atag = P2View::tagA(
+            P2Util::buildQueryUri($_conf['subject_php'], $qs),
+            hs('前') // {$_conf['k_accesskey']['prev']}.前
+            //,array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev'])
+        );
+    }
+    return $mae_atag;
+}
+
+/**
  * @return  string  <a>
  */
-function _getDatSokoAtag($aThreadList)
+function _getDatSokoATag($aThreadList)
 {
     global $_conf;
     
     $dat_soko_atag = '';
-    if (!$aThreadList->spmode or $aThreadList->spmode == "taborn") {
+    if (!$aThreadList->spmode or $aThreadList->spmode == 'taborn') {
         $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
             'host'   => $aThreadList->host,
             'bbs'    => $aThreadList->bbs,
@@ -285,3 +325,14 @@ function _getDatSokoAtag($aThreadList)
     }
     return $dat_soko_atag;
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

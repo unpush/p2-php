@@ -1,6 +1,6 @@
 ////
 // íœŠÖ”
-// deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);
+// deleLog('host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);
 //
 function deleLog(tquery, info_pop_width, info_pop_height, page, obj)
 {

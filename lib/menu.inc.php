@@ -106,7 +106,7 @@ if ($_conf['enable_menu_new'] == 1 and !empty($_GET['shownew'])) {
     list($matome_i, $shinchaku_num) = _initMenuNewSp('fav');    // 新着数を初期化取得
     $id = 'sp' . $matome_i;
     echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=fav&amp;norefresh=1" onClick="chMenuColor('{$id}');" accesskey="f">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$id}" onClick="chUnColor('{$id}');"{$class_newres_num}>{$shinchaku_num}</a>)<br>
+    　<a href="{$_conf['subject_php']}?spmode=fav&amp;norefresh=1" onClick="chMenuColor('{$id}');" accesskey="{$_conf['pc_accesskey']['setfav']}">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$id}" onClick="chUnColor('{$id}');"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     ob_flush(); flush();
 
@@ -120,8 +120,8 @@ EOP;
 // 新着数を表示しない場合
 } else {
     echo <<<EOP
-    　<a href="{$_conf['subject_php']}?spmode=recent&amp;norefresh=1" accesskey="h">最近読んだスレ</a><br>
-    　<a href="{$_conf['subject_php']}?spmode=fav&amp;norefresh=1" accesskey="f">お気にスレ</a><br>
+    　<a href="{$_conf['subject_php']}?spmode=recent&amp;norefresh=1" accesskey="{$_conf['pc_accesskey']['recent']}">最近読んだスレ</a><br>
+    　<a href="{$_conf['subject_php']}?spmode=fav&amp;norefresh=1" accesskey="{$_conf['pc_accesskey']['setfav']}">お気にスレ</a><br>
     　<a href="{$_conf['subject_php']}?spmode=res_hist&amp;norefresh=1">書込履歴</a> (<a href="./read_res_hist.php" target="read">ログ</a>)<br>
 EOP;
 }
@@ -277,7 +277,7 @@ function _getRecentNewLinkHtml()
         '最近読んだスレ',
         array(
             'onClick' => "chMenuColor('{$id}');",
-            'accesskey' => 'h'
+            'accesskey' => $_conf['pc_accesskey']['recent']
         )
     );
 

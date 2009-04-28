@@ -149,7 +149,7 @@ EOHEADER;
 /*
     <script type="text/javascript" src="js/basic.js?v=20061209"></script>
     <script type="text/javascript" src="js/respopup.js?v=20061206"></script>
-    <script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
+    <script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>
     <script type="text/javascript" src="js/delelog.js?v=20061206"></script>
 */
 
@@ -158,7 +158,7 @@ $onload_script = '';
 echo <<<EOHEADER
 	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
 	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20061206"></script>
-	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20061206"></script>
+	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20090428"></script>
 	<script type="text/javascript" src="js/post_form.js?v=20061209"></script>
 	<script type="text/javascript" src="iphone/js/smartpopup.iPhone.js?v=20070308"></script>
 	<script type="text/javascript"> 
@@ -259,26 +259,26 @@ for ($x = 0; $x < $linesize; $x++) {
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
         case "recent": // 履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "res_hist": // 書き込み履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "fav": // お気に
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         case "taborn": // スレッドあぼーん
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             $aThread->host = $aThreadList->host;
             $aThread->bbs = $aThreadList->bbs;
             break;
         case "palace": // 殿堂入り
-            $aThread->getThreadInfoFromExtIdxLine($l);
+            $aThread->setThreadInfoFromExtIdxLine($l);
             break;
         }
     // subject (not spmode)
     } else {
-        $aThread->getThreadInfoFromSubjectTxtLine($l);
+        $aThread->setThreadInfoFromSubjectTxtLine($l);
         $aThread->host = $aThreadList->host;
         $aThread->bbs = $aThreadList->bbs;
     }
@@ -322,7 +322,7 @@ for ($x = 0; $x < $linesize; $x++) {
         if ($subject_txts["$aThread->host/$aThread->bbs"]) {
             foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
                 if (@preg_match("/^{$aThread->key}/", $l)) {
-                    $aThread->getThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
+                    $aThread->setThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
                     break;
                 }
             }

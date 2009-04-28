@@ -55,7 +55,11 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
             $dores_atag = P2View::tagA(
                 $motothre_url,
                 hs($dores_st),
-                array('target' => '_blank', 'accesskey' => 'p', 'title' => 'アクセスキー[p]')
+                array(
+                    'accesskey' => $_conf['pc_accesskey']['dores'],
+                    'title' => 'アクセスキー[' . $_conf['pc_accesskey']['dores'] . ']',
+                    'target' => '_blank'
+                )
             );
             
         } else {
@@ -81,8 +85,8 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
                 hs($dores_st),
                 array_merge(
                     array(
-                        'accesskey' => 'p',
-                        'title'     => 'アクセスキー[p]',
+                        'accesskey' => $_conf['pc_accesskey']['dores'],
+                        'title'     => 'アクセスキー[' . $_conf['pc_accesskey']['dores'] . ']',
                         'target'    => '_self',
                         'onClick'   => sprintf(
                             "return !openSubWin('%s',%s,1,0)",
@@ -116,8 +120,19 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
             $read_navi_next_anchor = "#r{$aThread->rescount}";
         }
         $after_rnum = $GLOBALS['last_hit_resnum'] + $rnum_range;
-        $read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$GLOBALS['last_hit_resnum']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
-
+        $read_navi_next = P2View::tagA(
+            P2Util::buildQueryUri($_conf['read_php'],
+                array_merge(array(
+                    'host' => $aThread->host,
+                    'bbs'  => $aThread->bbs,
+                    'key'  => $aThread->key,
+                    'ls' => "{$GLOBALS['last_hit_resnum']}-{$after_rnum}",
+                    'nt' => date('gis') // 再読込用のダミークエリー
+                ), $offline_range_qs)
+            ) . $read_navi_next_anchor,
+            hs("{$next_st}{$rnum_range}")
+        );
+        
         // 「続きを読む」
         $read_footer_navi_new_ht = _getTudukiATag($aThread, $tuduki_st);
     }
@@ -197,7 +212,7 @@ function _getAllATag($aThread, $all_st)
             )
         ),
         hs($all_st),
-        array('title' => 'アクセスキー[a]')
+        array('title' => sprintf('アクセスキー[%s]', $_conf['pc_accesskey']['all']))
     );
 }
 
@@ -246,8 +261,8 @@ function _getTudukiATag($aThread, $tuduki_st)
         ),
         hs($tuduki_st),
         array(
-            'accesskey' => 'r',
-            'title' => 'アクセスキー[r]',
+            'accesskey' => $_conf['pc_accesskey']['tuduki'],
+            'title' => sprintf('アクセスキー[%s]', $_conf['pc_accesskey']['tuduki']),
             'style' => 'white-space: nowrap;'
         )
     );

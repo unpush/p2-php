@@ -23,7 +23,6 @@ $_login->authorize(); // ユーザ認証
 // 変数設定
 //============================================================
 $newtime = date('gis');
-$nowtime = time();
 
 $abornoff_st = 'あぼーん解除';
 $deletelog_st = 'ログを削除';
@@ -88,46 +87,12 @@ if (isset($_POST['sb_view'])) { $sb_view = $_POST['sb_view']; }
 if (empty($sb_view)) { $sb_view = "normal"; }
 
 // }}}
-// {{{ ソートの指定
 
-if (!empty($_POST['sort'])) {
-    $GLOBALS['now_sort'] = $_POST['sort'];
-} elseif (!empty($_GET['sort'])) {
-    $GLOBALS['now_sort'] = $_GET['sort'];
-}
+// 現在のソート指定を取得する
+$GLOBALS['now_sort'] = _getNowSort($p2_setting);
 
-if (empty($GLOBALS['now_sort'])) {
-    if (!empty($p2_setting['sort'])) {
-        $GLOBALS['now_sort'] = $p2_setting['sort'];
-    } else {
-        if (empty($spmode)) {
-            $GLOBALS['now_sort'] = $_conf['sb_sort_ita'] ? $_conf['sb_sort_ita'] : 'ikioi'; // 勢い
-        } else {
-            $GLOBALS['now_sort'] = 'midoku'; // 新着
-        }
-    }
-}
-
-// }}}
-// {{{ 表示スレッド数設定
-
-$threads_num_max = 2000;
-
-if (empty($spmode) || $spmode == 'news') {
-    $threads_num = $p2_setting['viewnum'];
-} elseif ($spmode == 'recent') {
-    $threads_num = $_conf['rct_rec_num'];
-} elseif ($spmode == 'res_hist') {
-    $threads_num = $_conf['res_hist_rec_num'];
-} else {
-    $threads_num = 2000;
-}
-
-if ($p2_setting['viewnum'] == 'all' or $sb_view == 'shinchaku' or $sb_view == 'edit' or isset($_GET['word']) or $_conf['ktai']) {
-    $threads_num = $threads_num_max;
-}
-
-// }}}
+// 表示スレッド数設定
+$threads_num = _getThreadsNum($spmode, $p2_setting, $sb_view);
 
 // クエリーからフィルタワードをセットする
 _setFilterWord();
@@ -136,11 +101,10 @@ _setFilterWord();
 //============================================================
 // 特殊な前処理
 //============================================================
-// {{{ 削除
-
+// 削除
 if (!empty($_GET['dele']) or (isset($_POST['submit']) and $_POST['submit'] == $deletelog_st)) {
     if ($host && $bbs) {
-        require_once P2_LIB_DIR . '/dele.inc.php';
+        require_once P2_LIB_DIR . '/dele.funcs.php';
         if ($_POST['checkedkeys']) {
             $dele_keys = $_POST['checkedkeys'];
         } else {
@@ -148,8 +112,6 @@ if (!empty($_GET['dele']) or (isset($_POST['submit']) and $_POST['submit'] == $d
         }
         deleteLogs($host, $bbs, $dele_keys);
     }
-    
-// }}}
 
 // お気に入りスレッド
 } elseif (isset($_GET['setfav']) && $_GET['key'] && $host && $bbs) {
@@ -168,7 +130,7 @@ if (!empty($_GET['dele']) or (isset($_POST['submit']) and $_POST['submit'] == $d
 
 // スレッドあぼーん
 } elseif (isset($_GET['taborn']) && !is_null($_GET['key']) && $host && $bbs) {
-    require_once P2_LIB_DIR . '/settaborn.inc.php';
+    require_once P2_LIB_DIR . '/settaborn.func.php';
     settaborn($host, $bbs, $_GET['key'], $_GET['taborn']);
 }
 
@@ -228,65 +190,8 @@ for ($x = 0; $x < $linesize; $x++) {
         $aThread->torder = $x + 1;
     }
 
-    // {{{ データ読み込み
-    
-    // spmode
-    if ($aThreadList->spmode) {
-        switch ($aThreadList->spmode) {
-        case "recent":  // 履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
-            break;
-        case "res_hist":    // 書き込み履歴
-            $aThread->getThreadInfoFromExtIdxLine($l);
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
-            break;
-        case "fav":     // お気に
-            $aThread->getThreadInfoFromExtIdxLine($l);
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
-            break;
-        case "taborn":  // スレッドあぼーん
-            $la = explode('<>', $l);
-            $aThread->key = $la[1];
-            $aThread->host = $aThreadList->host;
-            $aThread->bbs = $aThreadList->bbs;
-            break;
-        case "soko":    // dat倉庫
-            $la = explode('<>', $l);
-            $aThread->key = $la[1];
-            $aThread->host = $aThreadList->host;
-            $aThread->bbs = $aThreadList->bbs;
-            break;
-        case "palace":  // スレの殿堂
-            $aThread->getThreadInfoFromExtIdxLine($l);
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
-            break;
-        case "news":    // ニュースの勢い
-            $aThread->isonline = true;
-            $aThread->key = $l['key'];
-            $aThread->setTtitle($l['ttitle']);
-            $aThread->rescount = $l['rescount'];
-            $aThread->host = $l['host'];
-            $aThread->bbs = $l['bbs'];
-
-            $aThread->itaj = P2Util::getItaName($aThread->host, $aThread->bbs);
-            if (!$aThread->itaj) {$aThread->itaj = $aThread->bbs;}
-            break;
-        }
-        
-    // subject (not spmode つまり普通の板)
-    } else {
-        $aThread->getThreadInfoFromSubjectTxtLine($l);
-
-        $aThread->host = $aThreadList->host;
-        $aThread->bbs = $aThreadList->bbs;
-    }
-
-    // }}}
+    // ラインからスレッドデータを読み込んでセット
+    $aThread->setThreadInfoFromLineWithThreadList($l, $aThreadList);
     
     // hostかbbsかkeyが不明ならスキップ
     if (!($aThread->host && $aThread->bbs && $aThread->key)) {
@@ -436,7 +341,7 @@ for ($x = 0; $x < $linesize; $x++) {
                     continue;
                     
                 } elseif ($aThreadList->spmode == 'taborn') {
-                    // $aThread->getThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
+                    // $aThread->setThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
                     $aThread->isonline = true;
                     $ttitle = $subject_txts["$aThread->host/$aThread->bbs"][$aThread->key]['ttitle'];
                     $aThread->setTtitle($ttitle);
@@ -458,7 +363,7 @@ for ($x = 0; $x < $linesize; $x++) {
                 foreach ($subject_txts[$aThread->host . '/' . $aThread->bbs] as $l) {
                     if (preg_match('/^' . preg_quote($aThread->key, '/') . '/', $l)) {
                         // subject.txt からスレ情報取得
-                        $aThread->getThreadInfoFromSubjectTxtLine($l);
+                        $aThread->setThreadInfoFromSubjectTxtLine($l);
                         break;
                     }
                     $it++;
@@ -554,7 +459,7 @@ for ($x = 0; $x < $linesize; $x++) {
     // }}}
     
     // 勢いのセット
-    $aThread->setDayRes($nowtime);
+    $aThread->setDayRes();
     
     // 生存数set
     if ($aThread->isonline) {
@@ -661,9 +566,9 @@ $debug && $profiler->leaveSection('FOOT');
 exit;
 
 
-//========================================================================
+//==============================================================================
 // 関数（このファイル内でのみ利用）
-//========================================================================
+//==============================================================================
 /**
  * 既にdat落ちしているスレは自動的にあぼーんを解除する
  * $ta_keys はあぼーんリストに入っていたけれど、あぼーんされずに残ったスレたち
@@ -714,34 +619,42 @@ function _sortThreads(&$aThreadList)
     if ($aThreadList->threads) {
         if (!empty($GLOBALS['wakati_words'])) {
             $GLOBALS['now_sort'] = 'title';
-            usort($aThreadList->threads, "cmp_similarity");
-        } elseif ($GLOBALS['now_sort'] == "midoku") {
-            if ($aThreadList->spmode == "soko") {
-                usort($aThreadList->threads, "cmp_key");
+            usort($aThreadList->threads, 'cmp_similarity');
+            
+        } elseif ($GLOBALS['now_sort'] == 'midoku') {
+            if ($aThreadList->spmode == 'soko') {
+                usort($aThreadList->threads, 'cmp_key');
             } else {
-                usort($aThreadList->threads, "cmp_midoku");
+                usort($aThreadList->threads, 'cmp_midoku');
             }
-        } elseif ($GLOBALS['now_sort'] == "res") {
-            usort($aThreadList->threads, "cmp_res");
-        } elseif ($GLOBALS['now_sort'] == "title") {
-            usort($aThreadList->threads, "cmp_title");
-        } elseif ($GLOBALS['now_sort'] == "ita") {
-            usort($aThreadList->threads, "cmp_ita");
-        } elseif ($GLOBALS['now_sort'] == "ikioi" || $GLOBALS['now_sort'] == "spd") {
+            
+        } elseif ($GLOBALS['now_sort'] == 'res') {
+            usort($aThreadList->threads, 'cmp_res');
+            
+        } elseif ($GLOBALS['now_sort'] == 'title') {
+            usort($aThreadList->threads, 'cmp_title');
+            
+        } elseif ($GLOBALS['now_sort'] == 'ita') {
+            usort($aThreadList->threads, 'cmp_ita');
+            
+        } elseif ($GLOBALS['now_sort'] == 'ikioi' || $GLOBALS['now_sort'] == 'spd') {
             if ($_conf['cmp_dayres_midoku']) {
-                usort($aThreadList->threads, "cmp_dayres_midoku");
+                usort($aThreadList->threads, 'cmp_dayres_midoku');
             } else {
-                usort($aThreadList->threads, "cmp_dayres");
+                usort($aThreadList->threads, 'cmp_dayres');
             }
-        } elseif ($GLOBALS['now_sort'] == "bd") {
-            usort($aThreadList->threads, "cmp_key");
-        } elseif ($GLOBALS['now_sort'] == "fav") {
-            usort($aThreadList->threads, "cmp_fav");
-        } if ($GLOBALS['now_sort'] == "no") {
-            if ($aThreadList->spmode == "soko") {
-                usort($aThreadList->threads, "cmp_key");
+            
+        } elseif ($GLOBALS['now_sort'] == 'bd') {
+            usort($aThreadList->threads, 'cmp_key');
+            
+        } elseif ($GLOBALS['now_sort'] == 'fav') {
+            usort($aThreadList->threads, 'cmp_fav');
+            
+        } if ($GLOBALS['now_sort'] == 'no') {
+            if ($aThreadList->spmode == 'soko') {
+                usort($aThreadList->threads, 'cmp_key');
             } else {
-                usort($aThreadList->threads, "cmp_no");
+                usort($aThreadList->threads, 'cmp_no');
             }
         }
     }
@@ -820,6 +733,72 @@ function _saveSubjectKeys($subject_keys, $sb_keys_txt, $sb_keys_b_txt)
     }
     
     return true;
+}
+
+/**
+ * 現在のソート指定を取得する
+ *
+ * @return  string
+ */
+function _getNowSort($p2_setting)
+{
+    global $_conf;
+    
+    if (!empty($_POST['sort'])) {
+        $now_sort = $_POST['sort'];
+    } elseif (!empty($_GET['sort'])) {
+        $now_sort = $_GET['sort'];
+    }
+
+    if (empty($now_sort)) {
+        if (!empty($p2_setting['sort'])) {
+            $now_sort = $p2_setting['sort'];
+        } else {
+            if (empty($spmode)) {
+                $now_sort = $_conf['sb_sort_ita'] ? $_conf['sb_sort_ita'] : 'ikioi'; // 勢い
+            } else {
+                $now_sort = 'midoku'; // 新着
+            }
+        }
+    }
+    return $now_sort;
+}
+
+/**
+ * 表示スレッド数
+ *
+ * @return  integer
+ */
+function _getThreadsNum($spmode, $p2_setting, $sb_view)
+{
+    global $_conf;
+    
+    $threads_num_max = 2000;
+
+    if (empty($spmode) || $spmode == 'news') {
+        $threads_num = $p2_setting['viewnum'];
+        
+    } elseif ($spmode == 'recent') {
+        $threads_num = $_conf['rct_rec_num'];
+        
+    } elseif ($spmode == 'res_hist') {
+        $threads_num = $_conf['res_hist_rec_num'];
+        
+    } else {
+        $threads_num = $threads_num_max;
+    }
+
+    if (
+        $p2_setting['viewnum'] == 'all'
+        || $sb_view == 'shinchaku'
+        || $sb_view == 'edit'
+        || isset($_GET['word'])
+        || $_conf['ktai']
+    ) {
+        $threads_num = $threads_num_max;
+    }
+    
+    return $threads_num;
 }
 
 /**

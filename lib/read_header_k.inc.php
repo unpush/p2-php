@@ -43,7 +43,7 @@ $newtime = date('gis');  // 同じリンクをクリックしても再読込しない仕様に対抗する
 
 // お気にマーク設定
 $favmark = $aThread->fav ? '<span class="fav">★</span>' : '<span class="fav">+</span>';
-$favdo = $aThread->fav ? 0 : 1;
+$favvalue = $aThread->fav ? 0 : 1;
 
 // レスナビ設定 =====================================================
 

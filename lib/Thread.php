@@ -74,12 +74,12 @@ class Thread
     }
     
     /**
-     * fav, recent用の拡張idxリストからラインデータを取得する
+     * fav, recent用の拡張idxリストからラインデータを取得セットする
      *
      * @access  public
      * @return  void
      */
-    function getThreadInfoFromExtIdxLine($l)
+    function setThreadInfoFromExtIdxLine($l)
     {
         $la = explode('<>', rtrim($l));
         $this->host = $la[10];
@@ -97,6 +97,75 @@ class Thread
             $this->fav = $la[6];
         }
         */
+    }
+
+    /**
+     * ThreadListの情報に応じて、ラインデータを取得セットする
+     *
+     * @return  void
+     */
+    function setThreadInfoFromLineWithThreadList($l, $aThreadList)
+    {
+        // spmode
+        if ($aThreadList->spmode) {
+            switch ($aThreadList->spmode) {
+                case 'recent':  // 履歴
+                    $this->setThreadInfoFromExtIdxLine($l);
+                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
+                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    break;
+                
+                case 'res_hist':    // 書き込み履歴
+                    $this->setThreadInfoFromExtIdxLine($l);
+                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
+                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    break;
+                
+                case 'fav':     // お気に
+                    $this->setThreadInfoFromExtIdxLine($l);
+                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
+                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    break;
+                
+                case 'taborn':  // スレッドあぼーん
+                    $la = explode('<>', $l);
+                    $this->key  = $la[1];
+                    $this->host = $aThreadList->host;
+                    $this->bbs  = $aThreadList->bbs;
+                    break;
+                
+                case 'soko':    // dat倉庫
+                    $la = explode('<>', $l);
+                    $this->key  = $la[1];
+                    $this->host = $aThreadList->host;
+                    $this->bbs  = $aThreadList->bbs;
+                    break;
+                
+                case 'palace':  // スレの殿堂
+                    $this->setThreadInfoFromExtIdxLine($l);
+                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
+                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    break;
+                
+                case 'news':    // ニュースの勢い
+                    $this->isonline = true;
+                    $this->key = $l['key'];
+                    $this->setTtitle($l['ttitle']);
+                    $this->rescount = $l['rescount'];
+                    $this->host = $l['host'];
+                    $this->bbs = $l['bbs'];
+
+                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
+                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    break;
+            }
+        
+        // subject (not spmode つまり普通の板)
+        } else {
+            $this->setThreadInfoFromSubjectTxtLine($l);
+            $this->host = $aThreadList->host;
+            $this->bbs  = $aThreadList->bbs;
+        }
     }
 
     /**
@@ -221,12 +290,11 @@ class Thread
     
     /**
      * subject.txt の一行からスレ情報を取得してセットする
-     * 2006/09/18 setThreadInfoFromSubjectTxtLine() という名前にしておけばよかった。いずれ変更するかも。
      *
      * @access  public
      * @return  boolean
      */
-    function getThreadInfoFromSubjectTxtLine($l)
+    function setThreadInfoFromSubjectTxtLine($l)
     {
         $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection(__FUNCTION__ . '()');
         
@@ -471,14 +539,12 @@ class Thread
      * 勢い（レス/日）をセットする
      *
      * @access  public
+     * @param   integer  $nowtime  UNIX TIMESTAMP
      * @return  boolean
      */
-    function setDayRes($nowtime = false)
+    function setDayRes($nowtime = null)
     {
-        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('setDayRes()');
-        
         if (!isset($this->key) || !isset($this->rescount)) {
-            $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setDayRes()');
             return false;
         }
         
@@ -486,13 +552,15 @@ class Thread
             $nowtime = time();
         }
         //if (preg_match('/^\d{9,10}$/', $this->key) {
-        if (631119600 < $this->key && $this->key < time() + 1000 and $pastsc = $nowtime - $this->key) { // 1990年-
+        // 1990年-
+        if (
+            631119600 < $this->key && $this->key < time() + 1000
+            and $pastsc = $nowtime - $this->key
+        ) {
             $this->dayres = $this->rescount / $pastsc * 60 * 60 * 24;
-            $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setDayRes()');
             return true;
         }
         
-        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setDayRes()');
         return false;
     }
 
@@ -504,10 +572,10 @@ class Thread
      */
     function getTimePerRes()
     {
-        $noresult_st = "-";
+        $noresult_st = '-';
     
         if (!isset($this->dayres)) {
-            if (!$this->setDayRes(time())) {
+            if (!$this->setDayRes()) {
                 return $noresult_st;
             }
         }
@@ -538,9 +606,9 @@ class Thread
             $spd_suffix = "秒以下";
         }
         if ($spd > 0) {
-            $spd_st = sprintf("%01.1f", @round($spd, 2)) . $spd_suffix;
+            $spd_st = sprintf('%01.1f', round($spd, 2)) . $spd_suffix;
         } else {
-            $spd_st = "-";
+            $spd_st = $noresult_st;
         }
         return $spd_st;
     }
@@ -632,4 +700,3 @@ EOJS;
  * End:
  */
 // vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
-

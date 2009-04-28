@@ -98,6 +98,22 @@ $_conf['k_accesskey']['dele'] =   '*'; // 削
 $_conf['k_accesskey']['filter'] = '#'; // 索
 
 // }}}
+// {{{ PCアクセスキー
+
+// menu
+$_conf['pc_accesskey']['setfav'] = 'f'; // お気にスレに追加/外す
+$_conf['pc_accesskey']['recent'] = 'h'; // 最近読んだスレ
+
+// read
+$_conf['pc_accesskey']['dores']  = 'p'; // レスする
+$_conf['pc_accesskey']['tuduki'] = 'r'; // 新着レスの表示/続きを読む/新着まとめ読みの更新
+$_conf['pc_accesskey']['midoku'] = 'u'; // 未読レスの表示
+$_conf['pc_accesskey']['motothre'] = 'o'; // 元スレ
+$_conf['pc_accesskey']['info']   = 'i'; // 情報
+$_conf['pc_accesskey']['dele']   = 'd'; // 削除
+$_conf['pc_accesskey']['all']    = 'a';  // 全部表示
+
+// }}}
 // {{{ パーミッションの設定
 
 $_conf['data_dir_perm'] =   0707;   // データ保存用ディレクトリ

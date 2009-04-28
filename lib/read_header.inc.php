@@ -24,12 +24,6 @@ $motothre_url   = $aThread->getMotoThread();
 $ttitle_en      = base64_encode($aThread->ttitle);
 $ttitle_urlen   = rawurlencode($ttitle_en);
 
-// ↓$xxx_qは使いたくない方向。使うなら $xxx_qs の方
-$bbs_q          = "&amp;bbs=" . $aThread->bbs;
-$key_q          = "&amp;key=" . $aThread->key;
-$popup_q        = "&amp;popup=1";
-$offline_q      = "&amp;offline=1";
-
 $thread_qs = array(
     'host' => $aThread->host,
     'bbs'  => $aThread->bbs,
@@ -64,15 +58,16 @@ $read_navi_prev_anchor = '';
 
 $read_navi_prev_header = '';
 if (!$read_navi_prev_isInvisible) {
-    $qs = array(
-        'host'      => $aThread->host,
-        'bbs'       => $aThread->bbs,
-        'key'       => $aThread->key,
-        'ls'        => "{$before_rnum}-{$aThread->resrange['start']}",
-        'offline'   => '1',
-        UA::getQueryKey() => UA::getQueryValue()
+    $url = P2Util::buildQueryUri($_conf['read_php'],
+        array(
+            'host'      => $aThread->host,
+            'bbs'       => $aThread->bbs,
+            'key'       => $aThread->key,
+            'ls'        => "{$before_rnum}-{$aThread->resrange['start']}",
+            'offline'   => '1',
+            UA::getQueryKey() => UA::getQueryValue()
+        )
     );
-    $url = P2Util::buildQueryUri($_conf['read_php'], $qs);
     $read_navi_previous_url = $url . $read_navi_prev_anchor;
     $read_navi_prev_header_url = $url . "#r{$aThread->resrange['start']}";
     $html = "{$prev_st}{$rnum_range}";
@@ -97,40 +92,32 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
 
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
-$offline_range_q = "";
+$offline_range_qs = array();
 if ($after_rnum <= $aThread->gotnum) {
-    $offline_range_q = $offline_q;
+    $offline_range_qs = array('offline' => '1');
 }
 
 //if (!$read_navi_next_isInvisible) {
-$read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
+$read_navi_next = P2View::tagA(
+    P2Util::buildQueryUri($_conf['read_php'],
+        array_merge(
+            array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
+                'ls'   => "{$aThread->resrange['to']}-{$after_rnum}",
+                'nt'   => $newtime,
+                UA::getQueryKey() => UA::getQueryValue()
+            ),
+            $offline_range_qs
+        )
+    ) . $read_navi_next_anchor,
+    hs($next_st . $rnum_range)
+);
 //}
 
-//----------------------------------------------
-// $read_footer_navi_new_ht  続きを読む 新着レスの表示
-
-if ($aThread->resrange['to'] == $aThread->rescount) {
-
-    $qs = array(
-        'host'      => $aThread->host,
-        'bbs'       => $aThread->bbs,
-        'key'       => $aThread->key,
-        'ls'        => "{$aThread->rescount}-",
-        'nt'        => $newtime,
-        UA::getQueryKey() => UA::getQueryValue()
-    );
-    $url = $_conf['read_php'] . '?' . P2Util::buildQuery($qs) . "#r{$aThread->rescount}";
-    $attr = array(
-        'style'     => 'white-space: nowrap;',
-        'accesskey' => 'r',
-        'title'     => 'アクセスキー[r]'
-    );
-    $read_footer_navi_new_ht = P2View::tagA($url, hs($shinchaku_st), $attr);
-
-} else {
-    $read_footer_navi_new_ht = "<a style=\"white-space: nowrap;\" href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\" title=\"アクセスキー[r]\">{$tuduki_st}</a>";
-}
-
+// 続きを読む 新着レスの表示
+$read_footer_navi_new_ht = _getReadFooterNaviNewHtml($aThread, $shinchaku_st, $tuduki_st, $midoku_st);
 
 // レス番指定移動
 $goto_ht = _getGoToFormHtml($aThread);
@@ -150,10 +137,10 @@ if (defined('SID') && strlen(SID)) {
 
 // お気にマーク設定
 $favmark    = !empty($aThread->fav) ? '★' : '+';
-$favdo      = !empty($aThread->fav) ? 0 : 1;
-$favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
+$favvalue      = !empty($aThread->fav) ? 0 : 1;
+$favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
 $favtitle   .= '（アクセスキー[f]）';
-$favdo_q    = '&amp;setfav=' . $favdo;
+$setfav_q    = '&amp;setfav=' . $favvalue;
 
 $itaj_hs    = hs($aThread->itaj);
 
@@ -181,41 +168,107 @@ $info_qs = array_merge($thread_qs, $b_qs, array('ttitle_en' => $ttitle_en));
 $info_url = P2Util::buildQueryUri($info_php, $info_qs);
 $info_url_hs = hs($info_url);
 
-$favdo_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('setfav' => $favdo)));
-$favdo_url_hs = hs($favdo_url);
+$info_js_url = P2Util::buildQueryUri($info_php,
+    array_merge($info_qs, array('popup' => '1'), $sid_qs)
+);
+$info_js_url_es = str_replace("'", "\\'", $info_js_url);
+
+$info_atag = P2View::tagA(
+    $info_url,
+    hs($info_st),
+    array(
+        'style'     => 'white-space: nowrap;',
+        'accesskey' => $_conf['pc_accesskey']['info'],
+        'title'     => sprintf(
+            'スレッド情報を表示（アクセスキー[%s]）',
+            $_conf['pc_accesskey']['info']
+        ),
+        'onclick' => "return !openSubWin('{$info_js_url_es}',{$STYLE['info_pop_size']},0,0)"
+    )
+);
+
+$setfav_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('setfav' => $favvalue)));
 
 $setFavJs_query = P2Util::buildQuery(array_merge($info_qs, $sid_qs));
 $setFavJs_query_es = str_replace("'", "\\'", $setFavJs_query);
-$setFavJs_query_es_hs = hs($setFavJs_query_es);
+
+$setFavATag = P2View::tagA(
+    $setfav_url,
+    hs("お気に{$favmark}"),
+    array(
+        'accesskey' => $_conf['pc_accesskey']['setfav'],
+        'title'     => $favtitle,
+        'target'    => 'info',
+        'onclick'   => "return setFavJs('{$setFavJs_query_es}', '{$favvalue}', {$STYLE['info_pop_size']}, 'read', this);"
+    )
+);
 
 $dele_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('dele' => 'true')));
-$dele_url_hs = hs($dele_url);
 
 $deleLogJs_query = P2Util::buildQuery(array_merge($info_qs, $sid_qs));
 $deleLogJs_query_es = str_replace("'", "\\'", $deleLogJs_query);
-$deleLogJs_query_es_hs = hs($deleLogJs_query_es);
+
+$deleLogATag = P2View::tagA(
+    $dele_url,
+    hs($dele_st),
+    array(
+        'accesskey' => $_conf['pc_accesskey']['dele'],
+        'title'     => sprintf(
+            "ログを削除する。自動で「お気にスレ」「殿堂」からも外れます。（アクセスキー[%s]）",
+            $_conf['pc_accesskey']['dele']
+        ),
+        'target'    => 'info',
+        'onclick'   => "return deleLog('{$deleLogJs_query_es}', {$STYLE['info_pop_size']}, 'read', this);"
+    )
+);
+
+$tabornATag = '';
+/*
+$taborn_url = P2Util::buildQueryUri($info_php, array_merge($info_qs, array('taborn' => '2')));
+
+$taborn_js_url = P2Util::buildQueryUri($info_php,
+    array_merge($info_qs, array('taborn' => '2'), array('popup' => '2'), $sid_qs)
+);
+$taborn_js_url_es = str_replace("'", "\\'", $taborn_js_url);
+
+$tabornATag = P2View::tagA(
+    $taborn_url,
+    hs($aborn_st),
+    array(
+        'style'     => 'white-space: nowrap;',
+        'title'     => 'スレッドのあぼーん状態をトグルする',
+        'target'    => 'info',
+        'onclick'   => "return !openSubWin('{$taborn_js_url_es}',{$STYLE['info_pop_size']},0,0)"
+    )
+);
+*/
 
 $motothre_atag = P2View::tagA(
     $motothre_url,
     hs($moto_thre_st),
     array(
-        'style' => 'white-space: nowrap;', 'accesskey' => 'o',
-        'title' => '板サーバ上のオリジナルスレを表示（アクセスキー[o]）'
+        'style'     => 'white-space: nowrap;',
+        'accesskey' => $_conf['pc_accesskey']['motothre'],
+        'title'     => sprintf(
+            '板サーバ上のオリジナルスレを表示（アクセスキー[%s]）',
+            $_conf['pc_accesskey']['motothre']
+        )
     )
 );
+
 
 $toolbar_right_ht = <<<EOTOOLBAR
 	<a style="white-space: nowrap;" href="{$ita_url_hs}" target="subject" title="板を開く">{$itaj_hs}</a>
 
 	<a style="white-space: nowrap;" href="{$similar_url_hs}" target="subject" title="同じ板からタイトルが似ているスレッドを検索する">{$siml_thre_st}</a>
 
-	<a style="white-space: nowrap;" href="{$info_url_hs}" target="info" onClick="return !openSubWin('{$info_url_hs}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" accesskey="i" title="スレッド情報を表示（アクセスキー[i]）">{$info_st}</a> 
+	$info_atag 
 
-	<span class="favdo" style="white-space: nowrap;"><a href="{$favdo_url_hs}" target="info" onClick="return setFavJs('{$setFavJs_query_es_hs}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" accesskey="f" title="{$favtitle}">お気に{$favmark}</a></span> 
+	<span class="setfav" style="white-space: nowrap;">{$setFavATag}</span> 
 
-	<span style="white-space: nowrap;"><a href="{$dele_url_hs}" target="info" onClick="return deleLog('{$deleLogJs_query_es_hs}', {$STYLE['info_pop_size']}, 'read', this);" accesskey="d" title="ログを削除する。自動で「お気にスレ」「殿堂」からも外れます。（アクセスキー[d]）">{$dele_st}</a></span> 
+	<span style="white-space: nowrap;">{$deleLogATag}</span> 
 
-<!--	<a style="white-space: nowrap;" href="{$info_url_hs}&amp;taborn=2" target="info" onClick="return !openSubWin('{$info_url_hs}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
+	<!-- $tabornATag -->
 
 	$motothre_atag
 EOTOOLBAR;
@@ -238,7 +291,7 @@ P2View::printIncludeCssHtml('read');
 	<script type="text/javascript" src="js/basic.js?v=20090227"></script>
 	<script type="text/javascript" src="js/respopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
-	<script type="text/javascript" src="js/setfavjs.js?v=20061206"></script>
+	<script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>
 	<script type="text/javascript" src="js/delelog.js?v=20061206"></script>
 	<script type="text/javascript" src="js/showhide.js?v=20090416"></script>
 <?php
@@ -407,6 +460,64 @@ ob_flush(); flush();
 //=======================================================================================
 // 関数（このファイル内でのみ利用）
 //=======================================================================================
+
+/**
+ * 続きを読む 新着レスの表示
+ *
+ * @return  string  HTML
+ */
+function _getReadFooterNaviNewHtml($aThread, $shinchaku_st, $tuduki_st, $midoku_st)
+{
+    global $_conf;
+    
+    $read_footer_navi_new_ht = '';
+    
+    if ($aThread->resrange['to'] == $aThread->rescount) {
+
+        $read_footer_navi_new_ht = P2View::tagA(
+            P2Util::buildQueryUri($_conf['read_php'],
+                array(
+                    'host'      => $aThread->host,
+                    'bbs'       => $aThread->bbs,
+                    'key'       => $aThread->key,
+                    'ls'        => "{$aThread->rescount}-",
+                    // 同じリンクをクリックしても再読込しない仕様に対抗するダミークエリー
+                    'nt'        => date('gis'),
+                    UA::getQueryKey() => UA::getQueryValue()
+                )
+            ) . "#r{$aThread->rescount}",
+            hs($shinchaku_st),
+            array(
+                'style'     => 'white-space: nowrap;',
+                'accesskey' => $_conf['pc_accesskey']['tuduki'],
+                'title'     => sprintf('アクセスキー[%s]', $_conf['pc_accesskey']['tuduki'])
+            )
+        );
+
+    } else {
+        $read_footer_navi_new_ht = P2View::tagA(
+            P2Util::buildQueryUri($_conf['read_php'],
+                array(
+                    'host'      => $aThread->host,
+                    'bbs'       => $aThread->bbs,
+                    'key'       => $aThread->key,
+                    'ls'        => "{$aThread->resrange['to']}-",
+                    'offline'   => '1',
+                    UA::getQueryKey() => UA::getQueryValue()
+                )
+            ),
+            hs($tuduki_st),
+            array(
+                'style'     => 'white-space: nowrap;',
+                'accesskey' => $_conf['pc_accesskey']['tuduki'],
+                'title'     => sprintf('アクセスキー[%s]', $_conf['pc_accesskey']['tuduki'])
+            )
+        );
+    }
+    
+    return $read_footer_navi_new_ht;
+}
+
 /**
  * headbar HTMLを取得する
  *
@@ -483,17 +594,42 @@ EOP;
         // 1- 101- 201-
         $read_navi_range_ht = _getReadNaviRangeHtml($aThread, $rnum_range);
 
-        $bbs_q = "&amp;bbs=" . hs($aThread->bbs);
-        $key_q = "&amp;key=" . hs($aThread->key);
-
+        $all_atag = P2View::tagA(
+            P2Util::buildQueryUri($_conf['read_php'],
+                array(
+                    'host' => $aThread->host,
+                    'bbs'  => $aThread->bbs,
+                    'key'  => $aThread->key,
+                    'ls'   => 'all'
+                )
+            ),
+            hs($all_st),
+            array(
+                'accesskey' => $_conf['pc_accesskey']['all'],
+                'title' => "アクセスキー[{$_conf['pc_accesskey']['all']}]"
+            )
+        );
+        
+        $latest_atag = P2View::tagA(
+            P2Util::buildQueryUri($_conf['read_php'],
+                array(
+                    'host' => $aThread->host,
+                    'bbs'  => $aThread->bbs,
+                    'key'  => $aThread->key,
+                    'ls'   => "l{$latest_show_res_num}"
+                )
+            ),
+            hs("{$latest_st}{$latest_show_res_num}")
+        );
+        
         $headbar_htm .= <<<EOP
 <table class="toolbar" width="100%" style="padding:0px 0px 0px 0px;">
 	<tr>
 		<td align="left">
-			<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all" accesskey="a" title="アクセスキー[a]">{$all_st}</a>
+			{$all_atag}
 			{$read_navi_range_ht}
 			{$read_navi_prev_header}
-			<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a>
+			{$latest_atag}
 			{$goto_ht}
 		</td>
 		<td align="right">

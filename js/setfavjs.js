@@ -1,8 +1,8 @@
 ////
 // お気にセット関数
-// setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}',{$STYLE['info_pop_size']}, this);
+// setFavJs('host={$aThread->host}&bbs={$aThread->bbs}&key={$aThread->key}{$ttitle_en_q}{$sid_q}', '{$favvalue}',{$STYLE['info_pop_size']}, this);
 //
-function setFavJs(tquery, favdo, info_pop_width, info_pop_height, page, obj)
+function setFavJs(tquery, favvalue, info_pop_width, info_pop_height, page, obj)
 {
 	// read.phpでは、ページの読み込みが完了していなければ、なにもしない
 	// （read.php は読み込み完了時にidx記録が生成されるため）
@@ -14,11 +14,11 @@ function setFavJs(tquery, favdo, info_pop_width, info_pop_height, page, obj)
 	if (!xmlHttpObj) {
 		// alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
 		// XMLHTTP（とinnerHTML） に未対応なら小窓で
-		infourl = 'info.php?' + tquery + '&setfav=' + favdo + '&popup=2';
+		infourl = 'info.php?' + tquery + '&setfav=' + favvalue + '&popup=2';
 		return !openSubWin(infourl,info_pop_width,info_pop_height,0,0);
 	}
 
-	url = 'httpcmd.php?' + tquery + '&setfav=' + favdo + '&cmd=setfav'; // スクリプトと、コマンド指定
+	url = 'httpcmd.php?' + tquery + '&setfav=' + favvalue + '&cmd=setfav'; // スクリプトと、コマンド指定
 
 	var res = getResponseTextHttp(xmlHttpObj, url, 'nc');
 	var rmsg = "";
@@ -27,7 +27,7 @@ function setFavJs(tquery, favdo, info_pop_width, info_pop_height, page, obj)
 			rmsg = '完了';
 		}
 		if (rmsg) {
-			if (favdo == '1') {
+			if (favvalue == '1') {
 				nextset = '0';
 				favmark = '★';
 				favtitle = 'お気にスレから外す';
@@ -52,7 +52,7 @@ function setFavJs(tquery, favdo, info_pop_width, info_pop_height, page, obj)
 			} else {
 				var span = document.getElementsByTagName('span');
 				for (var i = 0; i < span.length; i++) {
-					if (span[i].className == 'favdo') {
+					if (span[i].className == 'setfav') {
 						span[i].innerHTML = favhtm;
 					}
 				}

@@ -43,7 +43,7 @@ $newtime = date('gis');  // 同じリンクをクリックしても再読込しない仕様に対抗する
 
 // お気にマーク設定
 $favmark = $aThread->fav ? '<span class="fav">★</span>' : '<span class="fav">+</span>';
-$favdo = $aThread->fav ? 0 : 1;
+$favvalue = $aThread->fav ? 0 : 1;
 
 // レスナビ設定 =====================================================
 
@@ -226,10 +226,10 @@ if ($_filter_hits !== NULL) {
 
 // お気にマーク設定
 $favmark    = !empty($aThread->fav) ? '★' : '+';
-$favdo      = !empty($aThread->fav) ? 0 : 1;
-$favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
+$favvalue      = !empty($aThread->fav) ? 0 : 1;
+$favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
 $favtitle   .= '（アクセスキー[f]）';
-$favdo_q    = '&amp;setfav=' . $favdo;
+$setfav_q    = '&amp;setfav=' . $favvalue;
 
 $toolbar_right_ht = _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $moto_thre_st);
 
@@ -269,24 +269,25 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 <head>
 <?php
     P2View::printExtraHeadersHtml();
-    echo <<<EOHEADER
+    ?>
 	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
 	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20061206"></script>
-	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20061206"></script>
+	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20090428"></script>
 	<script type="text/javascript" src="js/post_form.js?v=20081205"></script>
     <script type="text/javascript"> 
 	<!-- 
 		// iPhoneのURL編集部分を表示しないようスクロールする
 		window.onload = function() { 
-		setTimeout(scrollTo, 100, 0, 1); 
+			setTimeout(scrollTo, 100, 0, 1); 
 		}
 
 		// ページ読み込み完了時コールバック関数
 		gIsPageLoaded = false;
-		addLoadEvent(function() {			// basic.jsのメソッド
-			gIsPageLoaded = true;			// ページロード完了フラグ(trueじゃないとお気に入り変更javascriptが動かない)
-			{$onload_script}				// ページ読み込み完了時に実行するスクリプト群
-
+		addLoadEvent(function() {	// basic.jsのメソッド
+			// ページロード完了フラグ(trueじゃないとお気に入り変更javascriptが動かない)
+			gIsPageLoaded = true;
+			// ページ読み込み完了時に実行するスクリプト群
+			<?php echo $onload_script; ?>
 		});
 
 		// レス範囲のフォームの内容をリセットしてからページ移行するメソッド
@@ -332,13 +333,12 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 			formStyles[arrayNum].display = 'block';
 		}
 		
-
 	// --> 
-	</script> 
+	</script>
 
 	<link rel="stylesheet" type="text/css" href="./iui/read.css">
-	<title>{$ptitle_ht}</title>\n
-EOHEADER;
+	<title><?php echo $ptitle_ht; ?></title>
+<?php
 
 
 //iPhone SMP
@@ -410,7 +410,8 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and em
 <div class="toolbar">
 {$htm['read_navi_range']}
 EOP;
-	echo "<span class=\"favdo\" style=\"white-space: nowrap;\"><a class=\"favbutton\" href=\"info_i.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}\" target=\"info\" onClick=\"return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);\" accesskey=\"f\" title=\"{$favtitle}\">{$favmark}</a></span>";
+    // お気にスレに追加/外す
+	echo "<span class=\"setfav\" style=\"white-space: nowrap;\"><a class=\"favbutton\" href=\"info_i.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$setfav_q}{$sid_q}\" target=\"info\" onClick=\"return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favvalue}', {$STYLE['info_pop_size']}, 'read', this);\" accesskey=\"f\" title=\"{$favtitle}\">{$favmark}</a></span>";
 	echo <<< EOP
 <a class="button"  href="javascript:window.scrollBy(0, document.height)" target="_self">▼</a>
 </div>

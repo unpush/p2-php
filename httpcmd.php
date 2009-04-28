@@ -43,7 +43,7 @@ if (isset($_GET['cmd'])) {
 
 if ($cmd == 'delelog') { 
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
-        require_once P2_LIB_DIR . '/dele.inc.php';
+        require_once P2_LIB_DIR . '/dele.funcs.php';
         $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
         if ($r == 1) {
             $r_msg_ht = '1'; // Š®—¹

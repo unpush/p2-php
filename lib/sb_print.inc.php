@@ -282,13 +282,13 @@ EOP;
             if ($aThreadList->spmode != "taborn") {
             
                 $favmark    = !empty($aThread->fav) ? '★' : '+';
-                $favdo      = !empty($aThread->fav) ? 0 : 1;
-                $favtitle   = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
-                $favdo_q    = '&amp;setfav=' . $favdo;
+                $favvalue      = !empty($aThread->fav) ? 0 : 1;
+                $favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
+                $setfav_q    = '&amp;setfav=' . $favvalue;
 
                 // $ttitle_en_q も付けた方がいいが、節約のため省略する
                 $fav_ht = <<<EOP
-<td{$class_t}><a class="fav" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$favdo_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'subject', this);" title="{$favtitle}">{$favmark}</a></td>
+<td{$class_t}><a class="fav" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$setfav_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}', '{$favvalue}', {$STYLE['info_pop_size']}, 'subject', this);" title="{$favtitle}">{$favmark}</a></td>
 EOP;
             }
         }
