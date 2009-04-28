@@ -293,7 +293,7 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 		// レス範囲のフォームの内容をリセットしてからページ移行するメソッド
 		var onArreyt = 2;
 		function formReset() {
-			var uriValue = "{$_conf['read_php']}?"
+			var uriValue = "<?php echo $_conf['read_php']; ?>?"
 						+ "offline=1&"
 						//+ "b=" + document.frmresrange.b.value + "&"
 						+ "b=i&"
