@@ -146,7 +146,7 @@ $sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . hs(SID) : '';
         //echo '<hr>';
         echo $diedat_msg_ht;
         echo '<p>';
-        echo  $motothre_ht;
+        echo  $motothre_atag;
         echo '</p>' . "\n";
     }
 }
