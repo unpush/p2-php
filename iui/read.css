@@ -5,6 +5,7 @@
 フォントファミリーもここに追加で
 */
 body{
+	background-color:#fafafa;
 	margin: 0;
 	/*
 	font-size: 16px;
@@ -135,8 +136,23 @@ body>.toolbar{
 	width: 300px;
 	padding: 0;
 }
+#frmresrange select{
+	margin: 0px;
+	width: 150px;
+}
+#large_next{
+	font-size:14px;
+	font-weight: bold;
+	text-align: center;
+	width: 150px;
+	height: 26px;
+	color:white;
+	-webkit-border-image: url(toolButton.png) 0 5 0 5;
+	border-width: 0 5px;
+}
 .footform form {
- margin-bottom: 3px;
+ /*margin-bottom: 3px;*/
+ margin: 0px;
 }
 #footbar01 {
 	background-image: url(footback.png);
@@ -275,23 +291,39 @@ body>ul>li>a{
 
 
 /********************************************/
+.thread_title{
+	color: #f40;
+}
+
 /*  スレ内検索 */
 .serch {
 	width: 180px;
 	font-size: 16px;
 }
+.tname {
+	font-weight: bold;
+	font-size: 14px;
+}
 /* スレ内日時、名前、めーる */
 div > .tname {
-	font-weight: bold;
 	/* color: #006600; */
 	color: #1144aa;
-	font-size: 14px;
 }
 div > .tmail {
 	color: #666666;
+	font-size:12px;
 }
 div > .tdate {
 	color: #666666;
+	line-height:140%;
+	font-size:12px;
+}
+
+hr {
+	margin:1px;
+	border:none;
+	border-top:1px solid  #999;
+	height:1px;
 }
 
 /* レスポップアップ */
@@ -332,10 +364,6 @@ dd.respopup{
 }
 .respopup input { 
 	padding: 3px;
-}
-.respopup > .tname {
-	font-weight: bold;
-	font-size: 14px;
 }
 
 select {

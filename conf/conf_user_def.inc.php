@@ -391,3 +391,15 @@ $conf_user_def['index_menu_k'] = array(
 
 // 携帯TOPメニューのアクセスキーを1からの連番とする
 $conf_user_def['index_menu_k_from1'] = 0; // (0)
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

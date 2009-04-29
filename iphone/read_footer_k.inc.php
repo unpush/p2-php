@@ -30,7 +30,7 @@ if (!empty($_GET['onlyone'])) {
 //$goto_ht = _kspform($aThread, isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to']);
 
 // フィルター表示 Edit 080727 by 240
-$seafrm_ht =  CreateFilterForm(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
+$seafrm_ht = _createFilterForm(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
 $hr = P2View::getHrHtmlK();
 
 //=====================================================================
@@ -275,7 +275,7 @@ function _getDoResATag($aThread, $dores_st, $motothre_url)
  * Edit 080727 by 240
  * @return string
  */
-function CreateFilterForm($default = '', &$aThread)
+function _createFilterForm($default = '', &$aThread)
 {
 	global $_conf;
     global $res_filter, $read_navi_prev_header; // read only
@@ -352,3 +352,14 @@ EOP;
 
 	return $headbar_htm;
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

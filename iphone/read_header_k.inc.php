@@ -64,7 +64,7 @@ $read_navi_filter_btm   = '';
 $pointer_header_at = ' id="header" name="header"';
 
 // レス範囲セレクトフォーム
-$goto_select_ht = csrangeform(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
+$goto_select_ht = _csrangeform(isset($GLOBALS['word']) ? $last_hit_resnum : $aThread->resrange['to'], $aThread);
 
 //----------------------------------------------
 // $htm['read_navi_range'] -- 1- 101- 201-
@@ -166,23 +166,51 @@ if (!$read_navi_next_isInvisible) {
         )
     );
     
-    $html = "{$next_st}";
+    // 大きな次>ボタン
+    // disabledの場合、なぜか間を開けられない
+    $goto_select_ht .= sprintf('<form style="margin-left: 1px; display:inline;" action="%s">', hs($_conf['read_php']));
+    if (!$read_navi_next_isInvisible) {
+        $goto_select_ht .= sprintf('<input type="hidden" name="host" value="%s">', hs($aThread->host));
+        $goto_select_ht .= sprintf('<input type="hidden" name="bbs" value="%s">', hs($aThread->bbs));
+        $goto_select_ht .= sprintf('<input type="hidden" name="key" value="%s">', hs($aThread->key));
+        $goto_select_ht .= sprintf('<input type="hidden" name="offline" value="%s">', 1);
+        $goto_select_ht .= sprintf('<input type="hidden" name="nt" value="%s">', $newtime);
+        $goto_select_ht .= P2View::getInputHiddenKTag();
+    }
+
+    $st = "{$next_st}";
     //$url = $_conf['read_php'] . '?' . $q;
 
     // $aThread->resrange['to'] > $aThread->resrange_readnum
     if ($aThread->resrange_multi and !empty($aThread->resrange_multi_exists_next)) {
-        $html = $html . '*';
-       $url .= '&ls=' . $aThread->ls; // http_build_query() を通して urlencode を掛けたくない？
+        $st = $st . '*';
+        $url .= '&ls=' . $aThread->ls; // http_build_query() を通して urlencode を掛けたくない？
+        
         $page = isset($_REQUEST['page']) ? max(1, intval($_REQUEST['page'])) : 1;
         $next_page = $page + 1;
         $url .= '&page=' . $next_page;
+        
+        $goto_select_ht .= sprintf('<input type="hidden" name="ls" value="%s">', hs($aThread->ls));
+        $goto_select_ht .= sprintf('<input type="hidden" name="page" value="%s">', hs($next_page));
+        
     } else {
-        $url .= '&ls=' . "{$aThread->resrange['to']}-{$after_rnum}n" . $read_navi_next_anchor;
+        $als = "{$aThread->resrange['to']}-{$after_rnum}n" . $read_navi_next_anchor;
+        $url .= '&ls=' . $als;
+        
+        $goto_select_ht .= sprintf('<input type="hidden" name="ls" value="%s">', hs($als));
     }
     
-    $read_navi_next = P2View::tagA($url, $html);
-    $read_navi_next_btm = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next']));
+    $read_navi_next = P2View::tagA($url, hs($st));
+    $read_navi_next_btm = P2View::tagA($url, hs($st), array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next']));
 }
+
+
+$goto_select_ht .= sprintf(
+    '<input id="large_next" type="submit" value="%s"%s />',
+    $read_navi_next_isInvisible ? hs($next_st) . $rnum_range : hs($st) . $rnum_range,
+    $read_navi_next_isInvisible ? ' disabled' : ''
+);
+$goto_select_ht .= '</form>';
 
 //----------------------------------------------
 // $read_footer_navi_new_ht  続きを読む 新着レスの表示
@@ -409,7 +437,7 @@ EOP;
     // お気にスレに追加/外す
 	echo "<span class=\"setfav\" style=\"white-space: nowrap;\"><a class=\"favbutton\" href=\"info_i.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$setfav_q}{$sid_q}\" target=\"info\" onClick=\"return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favvalue}', {$STYLE['info_pop_size']}, 'read', this);\" accesskey=\"f\" title=\"{$favtitle}\">{$favmark}</a></span>";
 	echo <<< EOP
-<a class="button"  href="javascript:window.scrollBy(0, document.height)" target="_self">▼</a>
+<a class="button" href="javascript:window.scrollBy(0, document.height)" target="_self">▼</a>
 </div>
 EOP;
 /* iPhone 用に除外↑
@@ -456,32 +484,33 @@ echo P2View::getHrHtmlK();
  *
  * @return string
  */
- 
-function csrangeform($default = '', &$aThread)
+function _csrangeform($default = '', &$aThread)
 {
     global $_conf;
 
     //$numonly_at = 'maxlength="4" istyle="4" format="*N" mode="numeric"';
     $numonly_at = 'maxlength="4" istyle="4" format="4N" mode="numeric"';
-
-    $form = "<form method=\"get\" name=\"frmresrange\" id=\"frmresrange\">";
+    
+    $form = '<form method="get" name="frmresrange" id="frmresrange" style="display:inline;">';
     $form .= '<input type="hidden" name="offline" value="1">';
-    $form .= $_conf['k_input_ht'];
+    $form .= P2View::getInputHiddenKTag();
     
     $required_params = array('host', 'bbs', 'key');
     foreach ($required_params as $k) {
         if (!empty($_REQUEST[$k])) {
-            $v = htmlspecialchars($_REQUEST[$k], ENT_QUOTES);
-            $form .= "<input type=\"hidden\" name=\"{$k}\" value=\"{$v}\">";
+            $form .= sprintf(
+                '<input type="hidden" name="%s" value="%s">',
+                htmlspecialchars($k), htmlspecialchars($_REQUEST[$k], ENT_QUOTES)
+            );
         } else {
             return '';
         }
     }
 
-    $form .= '<input type="hidden" name="rescount" value="' . $aThread->rescount . '">';
-    $form .= '<input type="hidden" name="ttitle_en" value="' . base64_encode($aThread->ttitle) . '">';
+    $form .= '<input type="hidden" name="rescount" value="' . hs($aThread->rescount) . '">';
+    $form .= '<input type="hidden" name="ttitle_en" value="' . hs(base64_encode($aThread->ttitle)) . '">';
 
-    $form .= "<select name=\"ls\" action=\"{$_conf['read_php']}\" onChange=\"formReset()\">";
+    $form .= sprintf('<select name="ls" action="%s" onChange="formReset()">', hs($_conf['read_php']));
     $form .= "<option disabled>スレ内移動($aThread->rescount)</option>";
     for ($i = 1; $i <= $aThread->rescount; $i = $i + $_conf['k_rnum_range']) {
 	    $offline_range_q = "";
@@ -494,7 +523,6 @@ function csrangeform($default = '', &$aThread)
 	        $offline_range_q = $offline_q;
 	    }
 	    $form .= "<option value=\"{$i}-{$ito}\">{$i}-</option>";
-
 	}
     /*
     2006/03/06 aki ノーマルp2では未対応
@@ -505,7 +533,6 @@ function csrangeform($default = '', &$aThread)
     */
     $form .= '</select>';
     
-
     $form .= '</form>';
 
     return $form;
