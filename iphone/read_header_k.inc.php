@@ -7,7 +7,7 @@
 $diedat_msg_ht = '';
 
 $info_st        = "スレ情報表示";
-$delete_st      = "ログ削除";
+$dele_st        = "ログ削除";
 $prev_st        = "前";
 $next_st        = "次";
 $shinchaku_st   = "新着";
@@ -231,7 +231,7 @@ $favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
 $favtitle   .= '（アクセスキー[f]）';
 $setfav_q    = '&amp;setfav=' . $favvalue;
 
-$toolbar_right_ht = _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $moto_thre_st);
+$toolbar_right_ht = _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $dele_st, $moto_thre_st);
 
 //iPhone 用　板戻りボタン
 $b_qs = array(
@@ -421,6 +421,7 @@ EOP;
 }
 
 //echo "<hr>";
+/*
 ?><h3><font color="<?php eh($STYLE['read_k_thread_title_color']); ?>"><?php eh($aThread->ttitle); ?></font></h3><?php
 */
 ?><h4 class="thread_title"><?php eh($aThread->ttitle); ?></h4><?php
@@ -554,7 +555,7 @@ function _getReadFooterNaviNewHtmls($aThread, $shinchaku_st)
  *
  * @return  string  HTML
  */
-function _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $moto_thre_st)
+function _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $dele_st, $moto_thre_st)
 {
     global $_conf, $motothre_url;
     
@@ -574,7 +575,7 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $moto_thre_st)
         // 'refresh' => 1
     );
 
-    $atag = P2View::tagA(
+    $info_atag = P2View::tagA(
         P2Util::buildQueryUri(
             $_conf['subject_php'],
             array_merge($thread_qs, $b_qs, $similar_qs, array('refresh' => '1'))
@@ -582,8 +583,22 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $moto_thre_st)
         hs('スレ情報/類似')
     );
     
+    $dele_atag     = P2View::tagA(
+        P2Util::buildQueryUri(
+            'info_i.php',
+            array_merge($thread_qs, $b_qs,
+                array(
+                    'ttitle_en' => $ttitle_en,
+                    'dele'      => 1
+                )
+            )
+        ),
+        hs($dele_st)
+    );
+    
     return $toolbar_right_ht = <<<EOTOOLBAR
-    <li class="whiteButton">$atag</li>
+    <li class="whiteButton">$info_atag</li>
+    <li class="whiteButton">$dele_atag</li>
     <li class="whiteButton"><a href="{$motothre_url}">{$moto_thre_st}</a></li>
 EOTOOLBAR;
 }
