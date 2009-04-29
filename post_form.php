@@ -142,7 +142,7 @@ if (!$_conf['ktai']) {
     P2View::printIncludeCssHtml('post');
 ?>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <script type="text/javascript" src="js/basic.js?v=20061206"></script>
+    <script type="text/javascript" src="js/basic.js?v=20090429"></script>
     <script type="text/javascript" src="js/post_form.js?v=20061209"></script>
 <?php
 }

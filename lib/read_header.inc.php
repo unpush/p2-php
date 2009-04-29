@@ -288,7 +288,7 @@ P2View::printIncludeCssHtml('read');
 ?>
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-	<script type="text/javascript" src="js/basic.js?v=20090227"></script>
+	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
 	<script type="text/javascript" src="js/respopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>

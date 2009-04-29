@@ -89,9 +89,19 @@ function isSafari() {
 	var ua = navigator.userAgent;
 	if (ua.indexOf("Safari") != -1 || ua.indexOf("AppleWebKit") != -1 || ua.indexOf("Konqueror") != -1) {
 		return true;
-	} else {
-		return false;
 	}
+	return false;
+}
+
+// Browser isIPhoneGroup?
+// @return  boolean
+function isIPhoneGroup()
+{
+	var ua = navigator.userAgent;
+	if (ua.indexOf('iPhone') != -1 || ua.indexOf('iPod') != -1) {
+		return true;
+	}
+	return false;
 }
 
 // Browser isChrome?

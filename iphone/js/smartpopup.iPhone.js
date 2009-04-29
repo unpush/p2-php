@@ -22,6 +22,8 @@ function makeSPM(aThread)
 	//ポップアップメニューを生成
 
 	document.writeln("<div id=\"" + thread_id + "_spm\" class=\"spm\"" + makeOnPopUp(thread_id+"_spm", false) + ">");
+	//document.writeln("<div id=\"" + thread_id + "_spm\" class=\"spm\"" + ">");
+	
 	//閉じるボタン
 	document.writeln("<img src=\"iui/icon_close.png\" onClick=\"doHideResPopUp('" + thread_id + "_spm')\">");
 	

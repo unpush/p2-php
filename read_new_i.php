@@ -102,7 +102,9 @@ $ptitle_btm_atag = P2View::tagA(
     )
 );
 
-$body_at = P2View::getBodyAttrK();
+$body_at = '';
+//$body_at = P2View::getBodyAttrK();
+
 /*
 // ページヘッダ表示 ===================================
 $ptitle_hs = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
@@ -124,14 +126,7 @@ EOP;
         <a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hs}</a>
 EOP;
 }
-
-$body_at = '';
-if (!empty($STYLE['read_k_bgcolor'])) {
-    $body_at .= " bgcolor=\"{$STYLE['read_k_bgcolor']}\"";
-}
-if (!empty($STYLE['read_k_color'])) {
-    $body_at .= " text=\"{$STYLE['read_k_color']}\"";
-}*/
+*/
 
 // ========================================================
 // require_once P2_LIB_DIR . '/read_header.inc.php';
@@ -147,7 +142,7 @@ echo <<<EOHEADER
 EOHEADER;
 
 /*
-    <script type="text/javascript" src="js/basic.js?v=20061209"></script>
+    <script type="text/javascript" src="js/basic.js?v=20090429"></script>
     <script type="text/javascript" src="js/respopup.js?v=20061206"></script>
     <script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>
     <script type="text/javascript" src="js/delelog.js?v=20061206"></script>
@@ -156,7 +151,7 @@ EOHEADER;
 $onload_script = '';
 
 echo <<<EOHEADER
-	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
+	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
 	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20061206"></script>
 	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20090428"></script>
 	<script type="text/javascript" src="js/post_form.js?v=20061209"></script>

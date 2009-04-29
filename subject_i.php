@@ -89,7 +89,7 @@ if (empty($sb_view)) { $sb_view = "normal"; }
 // }}}
 
 // 現在のソート指定を取得する
-$GLOBALS['now_sort'] = _getNowSort($p2_setting);
+$GLOBALS['now_sort'] = _getNowSort($p2_setting, $spmode);
 
 // 表示スレッド数設定
 $threads_num = _getThreadsNum($spmode, $p2_setting, $sb_view);
@@ -740,7 +740,7 @@ function _saveSubjectKeys($subject_keys, $sb_keys_txt, $sb_keys_b_txt)
  *
  * @return  string
  */
-function _getNowSort($p2_setting)
+function _getNowSort($p2_setting, $spmode)
 {
     global $_conf;
     
@@ -754,7 +754,7 @@ function _getNowSort($p2_setting)
         if (!empty($p2_setting['sort'])) {
             $now_sort = $p2_setting['sort'];
         } else {
-            if (empty($spmode)) {
+            if (!$spmode) {
                 $now_sort = $_conf['sb_sort_ita'] ? $_conf['sb_sort_ita'] : 'ikioi'; // 勢い
             } else {
                 $now_sort = 'midoku'; // 新着

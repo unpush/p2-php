@@ -359,6 +359,8 @@ function doShowResPopUp(popId)
  * レスポップアップを非表示タイマーする
  *
  * 引用レス番から onMouseout で呼び出される
+ *
+ * @access  public
  */
 function hideResPopUp(popId)
 {

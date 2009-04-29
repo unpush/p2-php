@@ -175,7 +175,7 @@ if ($_conf['refresh_time']) {
     ?>
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	
-	<script type="text/javascript" src="js/basic.js?v=20061206"></script>
+	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
 	<script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>
 	<script type="text/javascript" src="js/delelog.js?v=20061206"></script>
 	<script language="JavaScript">

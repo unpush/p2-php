@@ -107,7 +107,7 @@ ResPopUp.prototype = {
 		if (document.all) { // IE用
 			var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
 			//x = body.scrollLeft + event.clientX; // 現在のマウス位置のX座標
-			//y = body.scrollTop + event.clientY; // 現在のマウス位置のY座標
+			//y = body.scrollTop + event.clientY;  // 現在のマウス位置のY座標
 			this.popOBJ.style.pixelLeft  = x + x_adjust; //ポップアップ位置
 			this.popOBJ.style.pixelTop  = y + y_adjust;
 		
@@ -162,6 +162,10 @@ ResPopUp.prototype = {
 		}
 		*/
 		this.popOBJ.onmouseout = function () {
+			//hideResPopUp(this.id)
+		}
+		// 本当は枠外のタッチで消したいが、うまくできないので枠内のタッチで消す
+		this.popOBJ.onclick = function () {
 			hideResPopUp(this.id)
 		}
 	
@@ -298,7 +302,7 @@ function showResPopUp(popId, ev, onPopSpace)
 		
 		if (!onPopSpace) {
 			// Safariでは高速でマウスオーバー、マウスアウトが発生してマウスについてきてしまう（嫌な仕様だ）
-			if (!isSafari()) {
+			if (!isSafari() || isIPhoneGroup()) {
 				aResPopUp.setPosResPopUp(x,y);
 			}
 		}
@@ -326,6 +330,7 @@ function doShowResPopUp(popId)
 {
 	var x = gShowTimerIds[popId].x;
 	var y = gShowTimerIds[popId].y;
+	
 	var aResPopUp = ResPopUpManager.getResPopUp(popId);
 	if (aResPopUp) {
 		if (aResPopUp.hideTimerID) { clearTimeout(aResPopUp.hideTimerID); } // 非表示タイマーを解除
@@ -342,6 +347,7 @@ function doShowResPopUp(popId)
 	zNum++;
 	aResPopUp = ResPopUpManager.addResPopUp(popId); // 新しいポップアップを追加
 
+
 	aResPopUp.showResPopUp(x, y);
 }
 
@@ -349,16 +355,32 @@ function doShowResPopUp(popId)
  * レスポップアップを非表示タイマーする
  *
  * 引用レス番から onMouseout で呼び出される
+ *
+ * @access  public
  */
 function hideResPopUp(popId)
 {
+	/*
+	if (!popId) {
+		for (i = 0; i < gPOPS.length; i++) {
+			if (gPOPS[i]) {
+				if (gShowTimerIds[gPOPS[i].popId].timerID) { clearTimeout(gShowTimerIds[gPOPS[i].popId].timerID); }
+				gPOPS[i].hideResPopUp();
+			}
+		}
+		return;
+	}
+	*/
+	
 	if (popId.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
 	
 	if (gShowTimerIds[popId].timerID) { clearTimeout(gShowTimerIds[popId].timerID); } // 表示タイマーを解除
-	
-	var aResPopUp = ResPopUpManager.getResPopUp(popId);
-	if (aResPopUp) {
-		aResPopUp.hideResPopUp();
+
+	if (popId) {
+		var aResPopUp = ResPopUpManager.getResPopUp(popId);
+		if (aResPopUp) {
+			aResPopUp.hideResPopUp();
+		}
 	}
 }
 
@@ -372,5 +394,3 @@ function doHideResPopUp(popId)
 		aResPopUp.doHideResPopUp();
 	}
 }
-
-

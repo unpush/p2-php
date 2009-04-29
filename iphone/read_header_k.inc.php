@@ -250,12 +250,8 @@ $toolbar_back_board = "<p>$atag</p>";
 // }}}
 
 $body_at = '';
-if (!empty($STYLE['read_k_bgcolor'])) {
-    $body_at .= " bgcolor=\"{$STYLE['read_k_bgcolor']}\"";
-}
-if (!empty($STYLE['read_k_color'])) {
-    $body_at .= " text=\"{$STYLE['read_k_color']}\"";
-}
+//$body_at = P2View::getBodyAttrK();
+
     //$body_at .= " onunload=\"document.frmresrange.reset()\"";
     /* iPhone キャッシュ問題のため削除 2008/7/24 */
 //=====================================
@@ -270,8 +266,8 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 <?php
     P2View::printExtraHeadersHtml();
     ?>
-	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
-	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20061206"></script>
+	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
+	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20090429"></script>
 	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20090428"></script>
 	<script type="text/javascript" src="js/post_form.js?v=20081205"></script>
     <script type="text/javascript"> 
@@ -426,6 +422,8 @@ EOP;
 
 //echo "<hr>";
 ?><h3><font color="<?php eh($STYLE['read_k_thread_title_color']); ?>"><?php eh($aThread->ttitle); ?></font></h3><?php
+*/
+?><h4 class="thread_title"><?php eh($aThread->ttitle); ?></h4><?php
 
 $filter_fields = array(
     'whole' => '',

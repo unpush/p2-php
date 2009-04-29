@@ -103,7 +103,7 @@ P2View::printExtraHeadersHtml();
 
 if (UA::isPC()) {
     ?>
-	<script type="text/javascript" src="js/basic.js?v=20061206"></script>
+	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <?php
     P2View::printIncludeCssHtml('style');

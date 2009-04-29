@@ -283,7 +283,9 @@ body>ul>li>a{
 /* スレ内日時、名前、めーる */
 div > .tname {
 	font-weight: bold;
-	color: #006600;
+	/* color: #006600; */
+	color: #1144aa;
+	font-size: 14px;
 }
 div > .tmail {
 	color: #666666;
@@ -304,10 +306,10 @@ dd.respopup{
 	position:absolute;
 	top:0;
 	visibility:hidden; /* 普段は隠しておく*/
-	background-color: rgba(22,22,22,0.5);
+	background-color: rgba(22,22,22,0.7);
 	color: #FFFFFF;
 	border:1px black solid;
-	font-size:14px;
+	font-size:16px;
 	padding:2px 3px;
 	line-height:120%;
 	word-break: break-word; 
@@ -330,7 +332,12 @@ dd.respopup{
 }
 .respopup input { 
 	padding: 3px;
-} 
+}
+.respopup > .tname {
+	font-weight: bold;
+	font-size: 14px;
+}
+
 select {
 	font-size: 14px;
 }
@@ -494,7 +501,7 @@ img {
 .spm{
 	position:absolute;
 	visibility:hidden; /* 普段は隠しておく*/
-	font-size:13px;
+	font-size:16px;
 	line-height:170%;
 	width:8.5em;
 	margin:0px;

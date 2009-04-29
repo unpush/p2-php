@@ -314,7 +314,9 @@ EOP;
         // iphone用
         // スマートポップアップメニュー
         if ($_conf['enable_spm']) {
-            $onPopUp_at = " onmouseover=\"showSPM({$this->thread->spmObjName},{$i},'{$id}',event,this)\" onmouseout=\"hideResPopUp('{$this->thread->spmObjName}_spm')\"";
+            //$onPopUp_at = " onmouseover=\"showSPM({$this->thread->spmObjName},{$i},'{$id}',event,this)\" onmouseout=\"hideResPopUp('{$this->thread->spmObjName}_spm')\"";
+            // onmouseout="hideResPopUp()" は外す必要がある
+            $onPopUp_at = " onmouseover=\"showSPM({$this->thread->spmObjName},{$i},'{$id}',event,this)\"";
             $is = "<a href=\"javascript:void(0);\" class=\"resnum\"{$onPopUp_at}>{$i}</a>";
         }else{
             $is = $i;
@@ -332,12 +334,14 @@ EOP;
         // 番号
         } else {
             $tores .= "<div class=\"thread\" id=\"r{$i}\" name=\"r{$i}\">[{$is}]";
-        }//iPhone用にクラス追加  thread 以下も同様
+        } // iPhone用にクラス追加  thread 以下も同様
+        // ↑このclass thread がどこで利用されているのかわからない。使われいないような気がする。
+        // ここでclass名にthreadを使うのはふさわしくないので、外したいところ。
         
         //$tores .= " ";
         
         // 名前
-        (strlen($name) > 0) and $tores .= '<span class="tname">'.$name.'</span>';
+        (strlen($name) > 0) and $tores .= '<span class="tname">' . $name . '</span>';
         
         // メール
         $is_sage = false;
@@ -653,7 +657,11 @@ EOID;
         $tores = "<img class=\"close\" src=\"iui/icon_close.png\" onClick=\"hideResPopUp('{$hideid}')\">\n";
 
         $tores .= "　$i ："; // 番号
-        $tores .= "<b>$name</b> ："; // 名前
+        
+        // 名前
+        //$tores .= "<b>$name</b> ：";
+        (strlen($name) > 0) and $tores .= '<span class="tname">' . $name . '</span> ：';
+        
         if ($mail) { $tores .= $mail . " ："; } // メール
         
        if ($_conf['mobile.id_underline']) {
@@ -1054,12 +1062,26 @@ EOID;
         if ($qnum < 1 || $qnum > $this->thread->rescount) {
             return $s[0];
         }
-
-        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&offline=1&ls={$appointed_num}&b={$_conf['b']}";
-        $read_url_hs = hs($read_url);
-        //iPhone　レスポップアップ用に追加
-        $read_on_rpop = " onmouseover=\"showResPopUp('q{$qnum}of{$this->thread->key}',event)\"";
-        return "<a href=\"{$read_url_hs}\"{$read_on_rpop}>{$qsign}{$appointed_num}</a>";
+        
+        $read_url = P2Util::buildQueryUri($_conf['read_php'],
+            array(
+                'host' => $this->thread->host,
+                'bbs'  => $this->thread->bbs,
+                'key'  => $this->thread->key,
+                'offline' => '1',
+                'ls'   => $appointed_num, // "{$appointed_num}n"
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        );
+        
+        $attributes = array();
+        if ($_conf['quote_res_view']) {
+            $attributes = array(
+                'onmouseover' => "showResPopUp('q{$qnum}of{$this->thread->key}',event)",
+                //'onmouseout'  => "hideResPopUp('q{$qnum}of{$this->thread->key}')"
+            );
+        }
+        return P2View::tagA($read_url, "{$qsign}{$appointed_num}", $attributes);
     }
 
     /**

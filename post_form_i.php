@@ -120,7 +120,7 @@ if (!$_conf['ktai']) {
     include_once './style/style_css.inc';
     include_once './style/post_css.inc';
     ?>
-    <script type="text/javascript" src="js/basic.js?v=20061206"></script>
+    <script type="text/javascript" src="js/basic.js?v=20090429"></script>
     <script type="text/javascript" src="js/post_form.js?v=20061209"></script>
     <?php
 }

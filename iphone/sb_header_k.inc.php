@@ -122,7 +122,7 @@ P2View::printExtraHeadersHtml();
 ?>
 <style type="text/css" media="screen">@import "./iui/iui.css";</style>
 <script type="text/javascript" src="iphone/js/setfavjs.iphone.js?v=20061206"></script>
-	<script type="text/javascript" src="js/basic.js?v=20061209"></script>
+	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
 
 <script type="text/javascript"> 
 <!-- 
