@@ -124,30 +124,19 @@ EOP;
 <p><b class="thre_title">{$aThread->ttitle_hs}</b></p>
 EOP;
 
-// フォームの作成
-   require_once P2_IPHONE_LIB_DIR . '/post_form_popup.inc.php';
+    // フォームの作成
+    require_once P2_IPHONE_LIB_DIR . '/post_form_popup.inc.php';
 
-    $res_form_ht = <<<EOP
-{$htm['post_form']}
-EOP;
-
-    $onmouse_showform_ht = <<<EOP
- onMouseover="document.getElementById('kakiko').style.display = 'block';"
-EOP;
-
-
-$sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . hs(SID) : '';
+    $sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . hs(SID) : '';
 
     // プリント
-    echo $res_form_ht;
+    echo $htm['post_form'];
     
 /* ------------------------------------------------------------ */
     if ($diedat_msg_ht) {
         //echo '<hr>';
         echo $diedat_msg_ht;
-        echo '<p>';
-        echo  $motothre_atag;
-        echo '</p>' . "\n";
+        echo "<p>$motothre_atag</p>";
     }
 }
 //echo "<hr>" . $_conf['k_to_index_ht'] . "\n";
@@ -162,7 +151,10 @@ $sid_q = (defined('SID') && strlen(SID)) ? '&amp;' . hs(SID) : '';
 </div>
 */
 
-echo '</body></html>';
+?></body></html><?php
+
+
+// このファイルでの処理はここまで
 
 
 //==================================================================================
@@ -267,9 +259,7 @@ function _getDoResATag($aThread, $dores_st, $motothre_url)
     
     return $dores_atag;
 }
-//=====================================================================
-// 関数
-//=====================================================================
+
 /**
  * フィルター表示フォームを作成する
  * Edit 080727 by 240

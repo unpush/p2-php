@@ -258,7 +258,7 @@ echo getEditConfHtml('frame_menu_width', '板メニュー（フレーム左）の表示幅');
 echo getEditConfHtml('frame_subject_width', 'スレ一覧（フレーム右上）の表示幅');
 echo getEditConfHtml('frame_read_width', 'スレ本文（フレーム右下）の表示幅');
 
-echo getEditConfHtml('pain_mode', '3ペイン画面のフレームの並べ方');
+echo getEditConfHtml('pane_mode', '3ペイン画面のフレームの並べ方');
 
 echo getEditConfHtml('my_FROM', 'レス書き込み時のデフォルトの名前');
 echo getEditConfHtml('my_mail', 'レス書き込み時のデフォルトのmail');

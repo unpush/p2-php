@@ -58,18 +58,18 @@ P2View::printExtraHeadersHtml();
 </head>
 	<?php if (!$sidebar) { ?>
 	<frameset cols="
-		<?php if (!$_conf['pain_mode']) { ?><?php eh($_conf['frame_menu_width']); ?>,*
+		<?php if (!$_conf['pane_mode']) { ?><?php eh($_conf['frame_menu_width']); ?>,*
 		<?php } else { ?><?php eh($_conf['frame_menu_width']); ?>,<?php eh($_conf['frame_subject_width']); ?>,<?php eh($_conf['frame_read_width']); ?><?php } ?>
 	" frameborder="1" border="1">
 		<frame src="<?php eh($_conf['menu_php']); ?>" name="menu" scrolling="auto">
 	<?php } ?>
 
-		<?php if (!$_conf['pain_mode']) { ?>
+		<?php if (!$_conf['pane_mode']) { ?>
 		<frameset id="fsright" name="fsright" rows="<?php eh($_conf['frame_subject_width']); ?>,<?php eh($_conf['frame_read_width']); ?>" frameborder="1" border="2">
 		<?php } ?>
 			<frame id="subject" name="subject" src="<?php eh($title_page); ?>" scrolling="auto">
 			<frame id="read" name="read" src="<?php eh($read_page); ?>" scrolling="auto">
-		<?php if (!$_conf['pain_mode']) { ?>
+		<?php if (!$_conf['pane_mode']) { ?>
 		</frameset>
 		<?php } ?>
 	

@@ -279,8 +279,8 @@ $conf_user_def['frame_subject_width'] = "40%"; // ("40%")
 $conf_user_def['frame_read_width'] = "60%"; // ("40%")
 
 // 3ペインの並べ方（標準, 横一列）
-$conf_user_def['pain_mode'] = 0; // (0)
-$conf_user_sel['pain_mode'] = array('0' => '標準（に形）', '1' => '横一列（川形）');
+$conf_user_def['pane_mode'] = 0; // (0)
+$conf_user_sel['pane_mode'] = array('0' => '標準（に形）', '1' => '横一列（川形）');
 
 // レス書き込み時のデフォルトの名前
 $conf_user_def['my_FROM'] = ""; // ("")
