@@ -348,7 +348,7 @@ class P2HttpGet extends HttpRequest
         if ($success) {
             if (($code = $this->getResponseCode()) == 200) {
                 if ($this->_onSuccess) {
-                    //$this->_onSuccess($this);
+                    //$this->_onSuccess($this); // PHP >= 5.3
                     $this->_onSuccess->invoke($this);
                 } else {
                     file_put_contents($this->_destination, $this->getResponseBody(), LOCK_EX);
@@ -356,7 +356,7 @@ class P2HttpGet extends HttpRequest
                 }
             } else {
                 if ($this->_onFailure) {
-                    //$this->_onFailure($this);
+                    //$this->_onFailure($this); // PHP >= 5.3
                     $this->_onFailure->invoke($this);
                 } elseif ($code == 304) {
                     //touch($this->_destination);
