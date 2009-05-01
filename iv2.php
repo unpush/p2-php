@@ -22,11 +22,13 @@ if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOP
 <link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
 EOP;
     $_conf['extra_headers_xht'] .= <<<EOP
 <link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}" />
+<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
 EOP;
 }
@@ -956,10 +958,13 @@ $flexy->setData('lightbox', $lightbox);
 P2Util::header_nocache();
 $flexy->compile($list_template);
 if ($list_template == 'iv2ip.tpl.html') {
-    $flexy->setData('thumb_width', (int)$ini['Thumb1']['width']);
-    $flexy->setData('thumb_height', (int)$ini['Thumb1']['height']);
-    $flexy->setData('title_width_v', 320 - (10 * 2) - (int)$ini['Thumb1']['width']);
-    $flexy->setData('title_width_h', 480 - (10 * 2) - (int)$ini['Thumb1']['width']);
+    $thumb_width = (int)$ini['Thumb1']['width'];
+    $thumb_height = (int)$ini['Thumb1']['height'];
+    $flexy->setData('thumb_width', $thumb_width);
+    $flexy->setData('thumb_height', $thumb_height);
+    $flexy->setData('title_width_v', 320 - (10 * 2) - $thumb_width);
+    $flexy->setData('title_width_h', 480 - (10 * 2) - $thumb_width);
+    $flexy->setData('info_vertical', $thumb_width > 80);
     $flexy->output();
 } elseif ($list_template == 'iv2i.tpl.html') {
     $mobile = Net_UserAgent_Mobile::singleton();

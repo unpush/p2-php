@@ -51,6 +51,7 @@ div.iv2-image-title {
 			<td class="iv2-image-thumb"><a href="{item[thumb_k]}"><img src="{item[thumb]}" width="{item[t_width]:h}" height="{item[t_height]:h}"></a></td>
 			<td class="iv2-image-info">
 				<div class="iv2-image-title" onclick="void(0)">{if:item[memo]}{item[memo]}{else:}{item[name]}{end:}</div>
+				<input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('{item[uri]}', '{item[thumb_k]}', '{item[thumb]}', event)" />
 				{item[f_change]:h}<span class="iv2-image-size" onclick="check_prev(this);">{item[width]:h}&times;{item[height]:h}</span>{item[rank_i]:h}
 			</td>
 		</tr>
@@ -68,6 +69,8 @@ div.iv2-image-title {
 		<h3>チェックした画像を削除</h3>
 		<div>{editFormRemove:h}{editFormBlackList:h}<span onclick="check_prev(this);">ブラックリストに登録</span></div>
 	</div>
+
+	{if:info_vertical}<flexy:include src="info-v.tpl.html" />{else:}<flexy:include src="info-h.tpl.html" />{end:}
 
 	</form>
 </div>
