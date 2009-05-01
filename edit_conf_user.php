@@ -218,7 +218,7 @@ echo getEditConfHtml('flex_idpopup', 'ƒXƒŒ“à‚Å“¯‚¶ ID:xxxxxxxx ‚ª‚ ‚ê‚ÎAIDƒtƒBƒ
 echo getEditConfHtml('ext_win_target', 'ŠO•”ƒTƒCƒg“™‚ÖƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼');
 echo getEditConfHtml('bbs_win_target', 'p2‘Î‰BBSƒTƒCƒg“à‚ÅƒWƒƒƒ“ƒv‚·‚é‚ÉŠJ‚­ƒEƒBƒ“ƒhƒE‚Ìƒ^[ƒQƒbƒg–¼');
 echo getEditConfHtml('bottom_res_form', 'ƒXƒŒƒbƒh‰º•”‚É‘‚«‚İƒtƒH[ƒ€‚ğ•\¦');
-echo getEditConfHtml('quote_res_view', 'ˆø—pƒŒƒX‚ğ•\¦');
+echo getEditConfHtml('quote_res_view', 'ˆø—pƒŒƒX‚ğiƒ|ƒbƒvƒAƒbƒvj•\¦');
 
 
 echo getEditConfHtml('enable_headbar', 'PC ƒwƒbƒhƒo[‚ğ•\¦');

@@ -161,7 +161,7 @@ $conf_user_def['bbs_win_target'] = ""; // ("")
 $conf_user_def['bottom_res_form'] = 1; // (1)
 $conf_user_sel['bottom_res_form'] = array('1' => 'マウスオーバーでする', '2' => '常にする', '0' => 'しない');
 
-// 引用レスを表示 (する, しない)
+// 引用レスを（ポップアップ）表示 (する, しない)
 $conf_user_def['quote_res_view'] = 1; // (1)
 $conf_user_sel['quote_res_view'] = array('1' => 'する', '0' => 'しない');
 
