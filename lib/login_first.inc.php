@@ -126,7 +126,7 @@ function printLoginFirst(&$_login)
         $form_login_id_hs = hs($post['form_login_id']);
     }
     
-    if (preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_pass'])) {
+    if ($_login->validLoginPass($post['form_login_pass'])) {
         $form_login_pass_hs = hs($post['form_login_pass']);
     } else {
         $form_login_pass_hs = '';
@@ -191,8 +191,13 @@ EOP;
     ) {
         // {{{ 入力エラーをチェック、判定
         
-        if (!preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_id']) || !preg_match('/^[0-9a-zA-Z_]+$/', $post['form_login_pass'])) {
-            P2Util::pushInfoHtml("<p class=\"infomsg\">p2 error: 「{$p_str['user']}」名と「{$p_str['password']}」は半角英数字で入力して下さい。</p>");
+        if (!$_login->validLoginId($post['form_login_id']) || !$_login->validLoginPass($post['form_login_pass'])) {
+            P2Util::pushInfoHtml(
+                sprintf(
+                    '<p class="infomsg">p2 error: 「%s」名と「%s」は半角英数字で入力して下さい。</p>',
+                    hs($p_str['user']), hs($p_str['password'])
+                )
+            );
             $show_login_form_flag = true;
         
         // }}}
@@ -291,3 +296,14 @@ EOP;
 
     ?></body></html><?php
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

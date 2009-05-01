@@ -552,8 +552,8 @@ overflow: hidden;
 .foot_sure>span.build {background-position: -80px 0;}
 .foot_sure>span.build:hover {background-position: -80px -50px;}
 /*–¢Ý’è*/
-.foot_sure>span.abon {background-position: 0 0;}
-.foot_sure>span.abon:hover {background-position: 0 -50px;}
+.foot_sure>span.abon {background-position: -320px 0;}
+.foot_sure>span.abon:hover {background-position: -320px -50px;}
 .foot_sure>span.all {background-position: 0 0;}
 .foot_sure>span.all:hover {background-position: 0 -50px;}
 

@@ -50,7 +50,7 @@ class Login
      */
     function validLoginId($login_id)
     {
-        $add_mail = empty($GLOBALS['brazil']) ? '' : '.,@+-';
+        $add_mail = empty($GLOBALS['brazil']) ? '' : '.@?!#%&`+*^{}$\\/\\-';
         
         if (preg_match("/^[0-9a-zA-Z_{$add_mail}]+$/", $login_id)) {
             return true;
@@ -59,9 +59,21 @@ class Login
     }
     
     /**
+     * @return  boolean
+     */
+    function validLoginPass($login_pass)
+    {
+        //$add_brazil = empty($GLOBALS['brazil']) ? '' : '.@?!#%&`+*^{}$\\/\\-';
+        
+        if (preg_match("/^[0-9a-zA-Z_]+$/", $login_pass)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * ログインユーザ名の指定を得る
      *
-     * @static
      * @access  public
      * @return  string|null
      */
