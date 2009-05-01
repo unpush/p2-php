@@ -9,13 +9,33 @@ gkakikoWidth = 598;
 
 gFadeoutResBarTimerId = null
 
+// @accsess private
+// @return integer
+function getClientY(ev) {
+	var clientY = false;
+	
+	// Safariのバージョン3未満は特殊
+	var safariVer = isSafari(true);
+	if (typeof safariVer == 'string') {
+		if (res = safariVer.match("[0-9]")) {
+			if (res < 3) {
+				var clientY = ev.clientY - document.body.scrollTop;
+			}
+		}
+	}
+	if (!clientY) {
+		clientY = ev.clientY;
+	}
+	return clientY;
+}
+
 // @access  public
 // @return  void
 function showHeadBar(ev) {
 	var pageXY = getPageXY(ev);
 	
-	var clientY = isSafari() ? ev.clientY - document.body.scrollTop : ev.clientY;
-
+	var clientY = getClientY(ev);
+	
 	// id kossoriHeadbar
 	// alert(kossoriElm.offsetHeight);
 	// 通常 67 過去ログ 183
@@ -67,7 +87,7 @@ function showKossoriHeadbarDo()
 	if (gPOPS.length) {
 		return;
 	}
-	
+
 	var kossoriElm = document.getElementById("kossoriHeadbar");
 	if (!kossoriElm) {
 		var header = document.getElementById("header");
@@ -75,7 +95,7 @@ function showKossoriHeadbarDo()
 		kossoriElm.id = 'kossoriHeadbar';
 		header.appendChild(kossoriElm);
 	}
-	
+
 	if (document.all) {
 		var body = getDocumentBodyIE();
 		kossoriElm.style.pixelTop  = body.scrollTop;
@@ -116,7 +136,7 @@ function clearKossoriHeadbarTimerId() {
 // @return  void
 function showResbar(ev, fromRes) {
 	
-	var clientY = isSafari() ? ev.clientY - document.body.scrollTop : ev.clientY;
+	var clientY = getClientY(ev);
 	
 	var kakikoElm = document.getElementById('kakiko');
 	if (!kakikoElm) {
@@ -178,7 +198,7 @@ function showResbar(ev, fromRes) {
 		// DD有効にするとFirefoxでテキストエリア入力ができない？
 		// IEではDD不安定…
 		if (document.all) {
-		gKakikoDD = new YAHOO.util.DD("kakiko");
+			gKakikoDD = new YAHOO.util.DD("kakiko");
 		}
 	}
 	

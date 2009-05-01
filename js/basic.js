@@ -62,8 +62,8 @@ function getXmlHttp()
 	return xmlHttpObj;
 }
 
-// xmlHttpObj とurlを渡して、結果テキストを取得する
-// @param nc string|null 指定するとこれをキーとしたキャッシュ回避のためのダミークエリーが追加される
+// xmlHttpObj とurlを渡して、結果テキストを取得する。同期。
+// @param nc string|false 指定するとこれをキーとしたキャッシュ回避のためのダミークエリーが追加される
 function getResponseTextHttp(xmlHttpObj, url, nc)
 {
 	if (nc) {
@@ -80,14 +80,19 @@ function getResponseTextHttp(xmlHttpObj, url, nc)
 			// rt = '<em>HTTP Error:<br />' + req.status + ' ' + req.statusText + '</em>';
 		}
 	}
-	return '';
+	return false;
 }
 
 // Browser isSafari?
 // @return  boolean
-function isSafari() {
+function isSafari(getVersion) {
 	var ua = navigator.userAgent;
-	if (ua.indexOf("Safari") != -1 || ua.indexOf("AppleWebKit") != -1 || ua.indexOf("Konqueror") != -1) {
+	if (ua.indexOf('Safari') != -1 || ua.indexOf('AppleWebKit') != -1 || ua.indexOf('Konqueror') != -1) {
+		if (getVersion) {
+			if (ua.match("Version/([0-9.]+)")) {
+				return RegExp.$1;
+			}
+		}
 		return true;
 	}
 	return false;

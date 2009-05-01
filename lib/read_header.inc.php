@@ -288,7 +288,7 @@ P2View::printIncludeCssHtml('read');
 ?>
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
-	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
+	<script type="text/javascript" src="js/basic.js?v=20090502"></script>
 	<script type="text/javascript" src="js/respopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/htmlpopup.js?v=20061206"></script>
 	<script type="text/javascript" src="js/setfavjs.js?v=20090428"></script>
@@ -350,7 +350,7 @@ if ($_conf['enable_spm']) {
 $body_onmousemove_at = '';
 $body_onmouseout_at  = '';
 if ($_conf['enable_headbar']) {
-    ?><script type="text/javascript" src="js/readheadbar.js?v=20070331"></script><?php
+    ?><script type="text/javascript" src="js/readheadbar.js?v=20090502"></script><?php
     $body_onmousemove_at = ' onmousemove="showHeadBar(event);"';
     $body_onmouseout_at = ' onmouseout="clearKossoriHeadbarTimerId();"';
 }
