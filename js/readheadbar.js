@@ -19,7 +19,7 @@ function getClientY(ev) {
 	if (typeof safariVer == 'string') {
 		if (res = safariVer.match("[0-9]+")) {
 			if (res < 3) {
-				var clientY = ev.clientY - document.body.scrollTop;
+				clientY = ev.clientY - document.body.scrollTop;
 			}
 		}
 	}
