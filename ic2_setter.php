@@ -151,7 +151,6 @@ if ($showForm) {
     );
     $elements['fileupload']->setAttributes($form_attr);
     $elements['MAX_FILE_SIZE']->setValue($maxsize);
-    $elements['fix_hfs']->setValue((int)P2Util::isBrowserSafariGroup());
     $elements['popup']->setValue($isPopUp);
     if ($isPopUp) {
         $elements['fileupload']->setAttributes('target="_self"');

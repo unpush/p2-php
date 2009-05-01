@@ -291,7 +291,7 @@ if ($_conf['res_write_rec']) {
 
     $date_and_id = date('y/m/d H:i');
     $message = htmlspecialchars($MESSAGE, ENT_NOQUOTES);
-    $message = preg_replace('/\\r?\\n/', '<br>', $message);
+    $message = preg_replace('/\\r\\n|\\r|\\n/', '<br>', $message);
 
     FileCtl::make_datafile($_conf['res_hist_dat'], $_conf['res_write_perm']); // なければ生成
 
@@ -483,18 +483,21 @@ function postIt($host, $bbs, $key, $post)
         $response = mb_convert_encoding($response, 'CP932', 'CP51932');
 
         //<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">
-        $response = preg_replace("{(<head>.*<META http-equiv=\"Content-Type\" content=\"text/html; charset=)EUC-JP(\">.*</head>)}is", "$1Shift_JIS$2", $response);
+        $response = preg_replace(
+            '{(<head>(.*?)<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">(.*)</head>}is',
+            '<head><meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">$1$2</head>',
+            $response);
     }
 
-    $kakikonda_match = "/<title>.*(書きこみました|■ 書き込みました ■|書き込み終了 - SubAll BBS).*<\/title>/is";
-    $cookie_kakunin_match = "/<!-- 2ch_X:cookie -->|<title>■ 書き込み確認 ■<\/title>|>書き込み確認。</";
+    $kakikonda_match = '{<title>.*(?:書きこみました|■ 書き込みました ■|書き込み終了 - SubAll BBS).*</title>}is';
+    $cookie_kakunin_match = '{<!-- 2ch_X:cookie -->|<title>■ 書き込み確認 ■</title>|>書き込み確認。<}';
 
     if (preg_match('/<.+>/s', $response, $matches)) {
         $response = $matches[0];
     }
 
     // カキコミ成功
-    if (preg_match($kakikonda_match, $response) or $post_seikou) {
+    if ($post_seikou || preg_match($kakikonda_match, $response)) {
         $reload = empty($_POST['from_read_new']);
         showPostMsg(true, '書きこみが終わりました。', $reload);
 
@@ -540,7 +543,7 @@ function showPostMsg($isDone, $result_msg, $reload)
     $ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
     // 2005/03/01 aki: jigブラウザに対応するため、&amp; ではなく & で
     // 2005/04/25 rsk: <script>タグ内もCDATAとして扱われるため、&amp;にしてはいけない
-    $location_noenc = preg_replace("/&amp;/", "&", $location_ht);
+    $location_noenc = str_replace('&amp;', '&', $location_ht);
     if ($popup) {
         $popup_ht = <<<EOJS
 <script type="text/javascript">
@@ -634,7 +637,7 @@ function showCookieConfirmation($host, $response)
     // charsetを指定するmeta要素がnon-ascii文字より前に存在しないと
     // 正しく解析されないので、レスポンスボディを修正する。x-sjisもNG
     $response4dom = preg_replace(
-        '{<head>(.*?)(?:<meta http-equiv="Content-Type" content="text/html(?:; ?charset=(?:x-sjis|Shift_JIS))?">)(.*?)</head>}si',
+        '{<head>(.*?)(?:<meta http-equiv="Content-Type" content="text/html(?:; ?charset=(?:x-sjis|Shift_JIS))?">)(.*)</head>}is',
         '<head><meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">$1$2</head>',
         $response, -1, $count);
     if ($count == 0) {
@@ -843,15 +846,19 @@ function getKeyInSubject()
 /**
  * 整形を維持しながら、タブをスペースに置き換える
  *
- * @return string
+ * @param   string $in_str      対象文字列
+ * @param   int $tabwidth       タブ幅
+ * @param   string $linebreak   改行文字(列)
+ * @return  string
  */
-function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
+function tab2space($in_str, $tabwidth = 4, $linebreak = "\n")
 {
     $out_str = '';
-    $lines = preg_split('/\r\n|\r|\n/', $in_str);
+    $lines = preg_split('/\\r\n|\\r|\\n/', $in_str);
     $ln = count($lines);
+    $i = 0;
 
-    for ($i = 0; $i < $ln; $i++) {
+    while ($i < $ln) {
         $parts = explode("\t", rtrim($lines[$i]));
         $pn = count($parts);
 
@@ -869,8 +876,8 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
         }
 
         $out_str .= $l;
-        if ($i + 1 < $ln) {
-            $out_str .= $crlf;
+        if (++$i < $ln) {
+            $out_str .= $linebreak;
         }
     }
 
