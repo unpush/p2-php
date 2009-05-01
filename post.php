@@ -630,7 +630,7 @@ EOP;
  */
 function showCookieConfirmation($host, $response)
 {
-    global $_conf, $post_optional_keys;
+    global $_conf, $post_param_keys, $post_send_keys, $post_optional_keys;
     global $popup, $rescount, $ttitle_en;
     global $STYLE, $skin_en;
 
@@ -704,6 +704,16 @@ function showCookieConfirmation($host, $response)
     }
     $form->setAttribute('accept-charset', $_conf['accept_charset']);
 
+    // POSTする値を再設定
+    foreach (array_combine($post_send_keys, $post_param_keys) as $key => $name) {
+        $nodes = $xpath->query("./input[@type = 'hidden' and @name = '{$key}']");
+        if ($nodes->length && array_key_exists($name, $_POST)) {
+            $elem = $nodes->item(0);
+            $elem->setAttribute('name', $name);
+            $elem->setAttribute('value', mb_convert_encoding($_POST[$name], 'UTF-8', 'CP932'));
+        }
+    }
+
     // 各種隠しパラメータを追加
     $hidden = $doc->createElement('input');
     $hidden->setAttribute('type', 'hidden');
@@ -731,6 +741,14 @@ function showCookieConfirmation($host, $response)
         $elem = $hidden->cloneNode();
         $elem->setAttribute('name', 'sub');
         $elem->setAttribute('value', $matches[1]);
+        $form->appendChild($elem);
+    }
+
+    // ソースコード補正
+    if (!empty($_POST['fix_source'])) {
+        $elem = $hidden->cloneNode();
+        $elem->setAttribute('name', 'fix_source');
+        $elem->setAttribute('value', '1');
         $form->appendChild($elem);
     }
 
