@@ -43,7 +43,7 @@
 {end:}
 		<td align="center" valign="middle">
 {if:item}
-			<a href="{item[src]}" target="_blank" flexy:raw="{item[lightbox_attr]:h}"><img src="{item[thumb]}" id="img{item[id]}" width="{item[t_width]:h}" height="{item[t_height]:h}" alt="{item[name]}" border="0" /></a>
+			<a href="{item[src]}" target="_blank" flexy:raw="{item[lightbox_attrs]:h}"><img id="img{item[id]}" src="{item[thumb]}" id="img{item[id]}" width="{item[t_width]:h}" height="{item[t_height]:h}" alt="{item[name]}" border="0" /></a>
 			<div class="imginfo" flexy:if="popup">
 				<img src="img/ic_info.gif" width="30" height="15" class="button" alt="Info" onclick="showResPopUp('info{item[id]:h}', event)" onmouseout="hideResPopUp('info{item[id]:h}')" />
 				<img src="img/ic_exif.gif" width="30" height="15" class="button" alt="Exif" onclick="showResPopUp('exif{item[id]:h}', event)" onmouseout="hideResPopUp('exif{item[id]:h}')" flexy:if="item[exif]" />

@@ -137,6 +137,9 @@ LightBox.prototype = {
 			if (!anchor.getAttribute("href") || !rel.match('lightbox')) continue;
 			// initialize item
 			self._imgs[num] = {
+				/* rep2-expack: 画像ID */
+				id:null,
+				/* end */
 				src:anchor.getAttribute("href"),
 				w:-1,
 				h:-1,
@@ -150,6 +153,11 @@ LightBox.prototype = {
 			       && anchor.firstChild.getAttribute 
 			       && anchor.firstChild.getAttribute("title"))
 				self._imgs[num].title = anchor.firstChild.getAttribute("title");
+			/* rep2-expack: 画像IDを取得 */
+			if (anchor.firstChild && anchor.firstChild.id && anchor.firstChild.id.indexOf("img") == 0) {
+				self._imgs[num].id = anchor.firstChild.id.substring(3);
+			}
+			/* end */
 			anchor.onclick = self._genOpener(num); // set closure to onclick event
 			if (rel != 'lightbox')
 			{
@@ -169,9 +177,11 @@ LightBox.prototype = {
 		var self = this;
 		return function(evt) {
 			evt = Event.getEvent(evt);
+			/* rep2-expack: Shiftキー同時押しでLightBox表示を無効にする */
 			if (evt.shiftKey) {
 				return true;
 			}
+			/* end */
 			self._show(num);
 			return false;
 		}
@@ -335,6 +345,41 @@ LightBox.prototype = {
 			indicator.style.zIndex = '80';
 			self._indicator = indicator;
 		}
+		/* rep2-expack: ランク */
+		if (self._ic2_show_rank)
+		{
+			var rankbox = document.createElement('span');
+			rankbox.id = 'lightboxIC2Rank';
+			rankbox.style.display = 'none';
+			rankbox.style.position = 'absolute';
+			rankbox.style.zIndex = '70';
+			var ngimg = document.createElement('img');
+			ngimg.setAttribute('src', 'img/sn0.png');
+			ngimg.setAttribute('width', '16');
+			ngimg.setAttribute('height', '16');
+			ngimg.setAttribute('alt', '-1');
+			ngimg.onclick = self._ic2GenRanker(-1);
+			rankbox.appendChild(ngimg);
+			var zeroimg = document.createElement('img');
+			zeroimg.setAttribute('src', 'img/sz1.png');
+			zeroimg.setAttribute('width', '10');
+			zeroimg.setAttribute('height', '16');
+			zeroimg.setAttribute('alt', '0');
+			zeroimg.onclick = self._ic2GenRanker(0);
+			rankbox.appendChild(zeroimg);
+			for (var i = 1; i <= 5; i++) {
+				var rankimg = document.createElement('img');
+				rankimg.setAttribute('src', 'img/s0.png');
+				rankimg.setAttribute('width', '16');
+				rankimg.setAttribute('height', '16');
+				rankimg.setAttribute('alt', String(i));
+				rankimg.onclick = self._ic2GenRanker(i);
+				rankbox.appendChild(rankimg);
+			}
+			box.appendChild(rankbox);
+			Event.register(rankbox,'mouseover',function() { self._show_action(); });
+		}
+		/* end */
 		return box;
 	},
 	_set_photo_size : function()
@@ -507,6 +552,9 @@ LightBox.prototype = {
 			if (check > 0) self._prev.style.display = 'inline';
 			if (check < self._get_setlength() - 1) self._next.style.display = 'inline';
 		}
+		/* rep2-expack: ランクを表示 */
+		if (self._ic2_show_rank) self._ic2_show_rank(true);
+		/* end */
 	},
 	_hide_action : function()
 	{
@@ -515,6 +563,9 @@ LightBox.prototype = {
 		if (self._open > -1 && self._expanded) self._dragstop(null);
 		if (self._prev) self._prev.style.display = 'none';
 		if (self._next) self._next.style.display = 'none';
+		/* rep2-expack: ランクを隠す */
+		if (self._ic2_show_rank) self._ic2_show_rank(false);
+		/* end */
 	},
 	_zoom : function()
 	{
@@ -750,3 +801,14 @@ Event.register(window,"load",function() {
 		resizable:true
 	});
 });
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

@@ -880,10 +880,10 @@ if ($all == 0) {
 
         // Lightbox Plus 用パラメータを設定
         if ($lightbox) {
-            $item['lightbox_attr'] = ' rel="lightbox[iv2]" class="ineffectable"';
-            $item['lightbox_attr'] .= ' title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
+            $item['lightbox_attrs'] = ' rel="lightbox[iv2]" class="ineffectable"';
+            $item['lightbox_attrs'] .= ' title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
         } else {
-            $item['lightbox_attr'] = '';
+            $item['lightbox_attrs'] = '';
         }
 
         $items[] = $item;

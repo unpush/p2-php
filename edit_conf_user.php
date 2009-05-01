@@ -136,7 +136,7 @@ if (!$_conf['ktai']) {
     <script type="text/javascript" src="js/edit_conf_user.js?{$_conf['p2_version_id']}"></script>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="stylesheet" type="text/css" href="css.php?css=edit_conf_user&amp;skin={$skin_en}">
-    <link rel="stylesheet" type="text/css" href="style/tabber/tabber.css?{$_conf['p2_version_id']}">
+    <link rel="stylesheet" type="text/css" href="css/tabber/tabber.css?{$_conf['p2_version_id']}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
 }
