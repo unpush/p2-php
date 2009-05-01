@@ -1,6 +1,6 @@
 <?php
 /*
-    p2 - for read_new.php, read_new_k.php
+    p2 - for read_new.php, read_new_k.php, read_new_i.php
 */
 
 require_once P2_LIB_DIR . '/FileCtl.php';
@@ -79,3 +79,15 @@ function getMatomeCache($num = '')
     }
     return false;
 }
+
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

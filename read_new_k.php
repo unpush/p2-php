@@ -9,7 +9,7 @@ require_once P2_LIB_DIR . '/ThreadList.php';
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/ThreadRead.php';
 require_once P2_LIB_DIR . '/NgAbornCtl.php';
-require_once P2_LIB_DIR . '/read_new.inc.php';
+require_once P2_LIB_DIR . '/read_new.funcs.php';
 require_once P2_LIB_DIR . '/P2Validate.php';
 
 $_login->authorize(); // ユーザ認証
@@ -147,23 +147,27 @@ for ($x = 0; $x < $linesize; $x++) {
     // データ読み込み
     if ($aThreadList->spmode) {
         switch ($aThreadList->spmode) {
-        case "recent": // 履歴
-            $aThread->setThreadInfoFromExtIdxLine($l);
-            break;
-        case "res_hist": // 書き込み履歴
-            $aThread->setThreadInfoFromExtIdxLine($l);
-            break;
-        case "fav": // お気に
-            $aThread->setThreadInfoFromExtIdxLine($l);
-            break;
-        case "taborn": // スレッドあぼーん
-            $aThread->setThreadInfoFromExtIdxLine($l);
-            $aThread->host = $aThreadList->host;
-            $aThread->bbs = $aThreadList->bbs;
-            break;
-        case "palace": // 殿堂入り
-            $aThread->setThreadInfoFromExtIdxLine($l);
-            break;
+            case "recent": // 履歴
+                $aThread->setThreadInfoFromExtIdxLine($l);
+                break;
+                
+            case "res_hist": // 書き込み履歴
+                $aThread->setThreadInfoFromExtIdxLine($l);
+                break;
+                
+            case "fav": // お気に
+                $aThread->setThreadInfoFromExtIdxLine($l);
+                break;
+                
+            case "taborn": // スレッドあぼーん
+                $aThread->setThreadInfoFromExtIdxLine($l);
+                $aThread->host = $aThreadList->host;
+                $aThread->bbs = $aThreadList->bbs;
+                break;
+                
+            case "palace": // 殿堂入り
+                $aThread->setThreadInfoFromExtIdxLine($l);
+                break;
         }
     // subject (not spmode)
     } else {

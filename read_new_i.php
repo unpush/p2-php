@@ -10,7 +10,7 @@ require_once P2_LIB_DIR . '/ThreadList.php';
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/ThreadRead.php';
 require_once P2_LIB_DIR . '/NgAbornCtl.php';
-require_once P2_LIB_DIR . '/read_new.inc.php';
+require_once P2_LIB_DIR . '/read_new.funcs.php';
 require_once P2_LIB_DIR . '/P2Validate.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
