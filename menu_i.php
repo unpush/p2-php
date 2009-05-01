@@ -169,7 +169,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
     <li><a href="#rss">RSS</a></li>
 <?php } ?>
 <?php if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) { ?>
-    <li><a href="iv2.php" target="_self">画像キャッシュ一覧</a></li>
+    <li><a href="iv2.php?reset_filter=1" target="_self">画像キャッシュ一覧</a></li>
 <?php } ?>
     <li><a href="#tgrep">スレッド検索</a></li>
 

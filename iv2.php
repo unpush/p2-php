@@ -382,17 +382,16 @@ if ($_conf['ktai']) {
         $flexy->output();
         exit;
     }
-    // セッション変数を操作
+    // フィルタをリセット
+    elseif (!empty($_GET['reset_filter'])) {
+        unset($_SESSION['iv2i_filter']);
+        session_write_close();
+    }
+    // フィルタを設定
     elseif (!empty($_GET['session_no_close'])) {
-        // フィルタをリセット
-        if (!empty($_GET['reset_filter'])) {
-            unset($_SESSION['iv2i_filter']);
-        // フィルタを設定
-        } else {
-            foreach ($overwritable_params as $ow_key) {
-                if (isset($$ow_key)) {
-                    $_SESSION['iv2i_filter'][$ow_key] = $$ow_key;
-                }
+        foreach ($overwritable_params as $ow_key) {
+            if (isset($$ow_key)) {
+                $_SESSION['iv2i_filter'][$ow_key] = $$ow_key;
             }
         }
         session_write_close();

@@ -854,7 +854,7 @@ function getKeyInSubject()
 function tab2space($in_str, $tabwidth = 4, $linebreak = "\n")
 {
     $out_str = '';
-    $lines = preg_split('/\\r\n|\\r|\\n/', $in_str);
+    $lines = preg_split('/\\r\\n|\\r|\\n/', $in_str);
     $ln = count($lines);
     $i = 0;
 
