@@ -17,7 +17,7 @@ function getClientY(ev) {
 	// Safari‚Ìƒo[ƒWƒ‡ƒ“3–¢–‚Í“Áê
 	var safariVer = isSafari(true);
 	if (typeof safariVer == 'string') {
-		if (res = safariVer.match("[0-9]")) {
+		if (res = safariVer.match("[0-9]+")) {
 			if (res < 3) {
 				var clientY = ev.clientY - document.body.scrollTop;
 			}
