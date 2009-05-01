@@ -36,9 +36,8 @@
 	padding: 2px;
 	background-color: #fff;
 	text-align: center;
-	border-bottom: 1px solid #eee;
+	border-top: 1px solid #eee;
 	border-right: 1px solid #eee;
-	border-left: 1px solid #eee;
 }
 #lightboxIC2Rank img {
 	cursor: pointer;
