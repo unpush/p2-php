@@ -542,7 +542,7 @@ if ($_conf['ktai']) {
     
     // メインHTMLプリント
     echo '<ul><li class="group">スレ一覧</li>';
-    require_once P2_LIB_DIR . '/sb_print_k.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
+    require_once P2_LIB_DIR . '/sb_print_k.func.php'; // スレッドサブジェクトメイン部分HTML表示関数
     sb_print_k($aThreadList);
     echo '</ul>';
     // フッタHTMLプリント

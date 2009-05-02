@@ -536,7 +536,7 @@ if (UA::isK() || UA::isIPhoneGroup()) {
     require_once P2_LIB_DIR . '/sb_header_k.inc.php';
     
     // メインHTMLプリント
-    require_once P2_LIB_DIR . '/sb_print_k.inc.php'; // スレッドサブジェクトメイン部分HTML表示関数
+    require_once P2_LIB_DIR . '/sb_print_k.func.php'; // スレッドサブジェクトメイン部分HTML表示関数
     sb_print_k($aThreadList);
     
     // フッタHTMLプリント
