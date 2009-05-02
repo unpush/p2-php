@@ -48,8 +48,8 @@ class ThreadRead extends Thread
             
         // JBBS@ÇµÇΩÇÁÇŒ
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
-            require_once P2_LIB_DIR . '/read_shitaraba.inc.php';
-            shitarabaDownload();
+            require_once P2_LIB_DIR . '/downloadDatShitaraba.func.php';
+            downloadDatShitaraba($this);
         
         // 2chån
         } else {
