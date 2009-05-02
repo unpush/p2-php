@@ -104,6 +104,7 @@ function setFav($host, $bbs, $key, $setfav)
 /**
  * お気にスレの登録数超過データを削除
  *
+ * @access  private
  * @return  void
  */
 function _removeLargeFavlistData($newlines, $max = 500)
@@ -127,6 +128,7 @@ function _removeLargeFavlistData($newlines, $max = 500)
 }
 
 /**
+ * @access  private
  * @return  array  読み込んだkeyデータ
  */
 function _setFavToKeyIdx($host, $bbs, $key, $setfav)
@@ -164,6 +166,7 @@ function _setFavToKeyIdx($host, $bbs, $key, $setfav)
 /**
  * お気にスレ共有
  *
+ * @access  private
  * @return  boolean|null
  */
 function _setFavRank($host, $bbs, $key, $setfav, $ttitle)
@@ -193,6 +196,7 @@ function _setFavRank($host, $bbs, $key, $setfav, $ttitle)
 /**
  * お気にスレ共有でポストする関数
  *
+ * @access  private
  * @return  boolean
  */
 function _postFavRank($post)
@@ -254,3 +258,14 @@ function _postFavRank($post)
     return true;
     //return $body;
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -59,7 +59,7 @@ if ($cmd == 'delelog') {
 
 } elseif ($cmd == 'setfav') {
     if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
-        require_once P2_LIB_DIR . '/setfav.inc.php';
+        require_once P2_LIB_DIR . '/setFav.func.php';
         $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav']);
         if (empty($r)) {
             $r_msg_ht = '0'; // Ž¸”s

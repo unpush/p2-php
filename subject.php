@@ -114,7 +114,7 @@ if (!empty($_GET['dele']) or (isset($_POST['submit']) and $_POST['submit'] == $d
 
 // お気に入りスレッド
 } elseif (isset($_GET['setfav']) && $_GET['key'] && $host && $bbs) {
-    require_once P2_LIB_DIR . '/setfav.inc.php';
+    require_once P2_LIB_DIR . '/setFav.func.php';
     setFav($host, $bbs, $_GET['key'], $_GET['setfav']);
 
 // 殿堂入り

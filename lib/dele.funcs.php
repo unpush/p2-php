@@ -4,7 +4,7 @@
 */
 
 require_once P2_LIB_DIR . '/FileCtl.php';
-require_once P2_LIB_DIR . '/setfav.inc.php';
+require_once P2_LIB_DIR . '/setFav.func.php';
 require_once P2_LIB_DIR . '/setpalace.inc.php';
 
 /**

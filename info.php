@@ -78,7 +78,7 @@ if (!empty($_GET['offrecent'])) {
 
 // お気に入りスレッド
 } elseif (isset($_GET['setfav'])) {
-    require_once P2_LIB_DIR . '/setfav.inc.php';
+    require_once P2_LIB_DIR . '/setFav.func.php';
     setFav($host, $bbs, $key, $_GET['setfav']);
 
 // 殿堂入り
