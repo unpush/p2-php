@@ -9,7 +9,7 @@ require_once P2_LIB_DIR . '/FileCtl.php';
  * @access  public
  * @return  boolean
  */
-function setPal($host, $bbs, $key, $set)
+function setPalace($host, $bbs, $key, $set)
 {
     global $_conf;
 
@@ -89,6 +89,7 @@ function setPal($host, $bbs, $key, $set)
 /**
  * “o˜^”’´‰ßƒf[ƒ^‚ğíœ
  *
+ * @access  private
  * @return  void
  */
 function _removeLargePallistData($newlines, $max = 1000)

@@ -89,7 +89,7 @@ if (!empty($_GET['offrec'])) {
 // 殿堂入り
 } elseif (isset($_GET['setpal'])) {
     require_once P2_LIB_DIR . '/setpalace.inc.php';
-    setPal($host, $bbs, $key, $_GET['setpal']);
+    setPalace($host, $bbs, $key, $_GET['setpal']);
 
 // スレッドあぼーん
 } elseif (isset($_GET['taborn'])) {

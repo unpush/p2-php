@@ -25,7 +25,7 @@ function deleteLogs($host, $bbs, $keys)
         offRecent($host, $bbs, $akey);
         offResHist($host, $bbs, $akey);
         setFav($host, $bbs, $akey, 0);
-        setPal($host, $bbs, $akey, 0);
+        setPalace($host, $bbs, $akey, 0);
         $r = deleteThisKey($host, $bbs, $akey);
     
     // éwíËkeyîzóÒÇÃÉçÉOÇçÌèú
@@ -35,7 +35,7 @@ function deleteLogs($host, $bbs, $keys)
             offRecent($host, $bbs, $akey);
             offResHist($host, $bbs, $akey);
             setFav($host, $bbs, $akey, 0);
-            setPal($host, $bbs, $akey, 0);
+            setPalace($host, $bbs, $akey, 0);
             $rs[] = deleteThisKey($host, $bbs, $akey);
         }
         if (array_search(1, $rs) !== false) {
