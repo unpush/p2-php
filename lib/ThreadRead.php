@@ -43,8 +43,8 @@ class ThreadRead extends Thread
         
         // ‚Ü‚¿BBS
         if (P2Util::isHostMachiBbs($this->host)) {
-            require_once P2_LIB_DIR . '/downloadMachiBbsDat.func.php';
-            downloadMachiBbsDat($this);
+            require_once P2_LIB_DIR . '/downloadDatMachiBbs.func.php';
+            downloadDatMachiBbs($this);
             
         // JBBS@‚µ‚½‚ç‚Î
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {

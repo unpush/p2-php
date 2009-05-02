@@ -13,7 +13,7 @@ require_once P2_LIB_DIR . '/FileCtl.php';
  * @access  public
  * @return  boolean
  */
-function downloadMachiBbsDat(&$aThread)
+function downloadDatMachiBbs(&$aThread)
 {
     $GLOBALS['machi_latest_num'] = 0;
 
