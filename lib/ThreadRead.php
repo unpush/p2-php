@@ -43,8 +43,8 @@ class ThreadRead extends Thread
         
         // ‚Ü‚¿BBS
         if (P2Util::isHostMachiBbs($this->host)) {
-            require_once P2_LIB_DIR . '/read_machibbs.inc.php';
-            machiDownload();
+            require_once P2_LIB_DIR . '/downloadMachiBbsDat.func.php';
+            downloadMachiBbsDat($this);
             
         // JBBS@‚µ‚½‚ç‚Î
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
@@ -1768,3 +1768,14 @@ class ThreadRead extends Thread
         return $parts;
     }
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

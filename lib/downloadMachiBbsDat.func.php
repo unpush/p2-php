@@ -13,10 +13,8 @@ require_once P2_LIB_DIR . '/FileCtl.php';
  * @access  public
  * @return  boolean
  */
-function machiDownload()
+function downloadMachiBbsDat(&$aThread)
 {
-    global $aThread;
-
     $GLOBALS['machi_latest_num'] = 0;
 
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
@@ -69,7 +67,7 @@ function machiDownload()
     
     // {{{ DATを書き込む
     
-    if ($mdatlines = machiHtmltoDatLines($mlines)) {
+    if ($mdatlines = _machiHtmltoDatLines($mlines)) {
 
         $rsc = $file_append ? (FILE_APPEND | LOCK_EX) : LOCK_EX;
 
@@ -98,10 +96,10 @@ function machiDownload()
 /**
  * まちBBSのread.cgiで読み込んだHTMLをdatに変換する
  *
- * @see machiDownload()
+ * @access  private
  * @return  array|false
  */
-function machiHtmltoDatLines($mlines)
+function _machiHtmltoDatLines($mlines)
 {
     if (!$mlines) {
         return false;
@@ -180,3 +178,14 @@ function machiHtmltoDatLines($mlines)
     return $mdatlines;
 }
 
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
