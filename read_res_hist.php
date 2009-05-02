@@ -4,7 +4,7 @@
 
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/res_hist.class.php';
-require_once P2_LIB_DIR . '/read_res_hist.inc.php';
+require_once P2_LIB_DIR . '/read_res_hist.funcs.php';
 require_once P2_LIB_DIR . '/P2View.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ

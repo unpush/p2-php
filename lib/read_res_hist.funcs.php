@@ -49,8 +49,8 @@ function deleMsg($checked_hists)
     
     // チェックして整えて
     if ($reslines) {
-        $rmnums = getRmNums($checked_hists, $reslines);
-        $neolines = rmLine($rmnums, $reslines);
+        $rmnums = _getRmNums($checked_hists, $reslines);
+        $neolines = _rmLine($rmnums, $reslines);
         
         P2Util::pushInfoHtml("<p>p2 info: " . count($rmnums) . "件のレス記事を削除しました</p>");
     }
@@ -77,9 +77,10 @@ function deleMsg($checked_hists)
 /**
  * 削除対象の番号を配列で取得する
  *
+ * @access  private
  * @return  array
  */
-function getRmNums($checked_hists, $reslines)
+function _getRmNums($checked_hists, $reslines)
 {
     $order = 1;
     $rmnums = array();
@@ -87,7 +88,7 @@ function getRmNums($checked_hists, $reslines)
         $rar = explode("<>", $ares);
         
         // 番号と日付が一致するかをチェックする
-        if (checkMsgID($checked_hists, $order, $rar[2])) {
+        if (_checkMsgID($checked_hists, $order, $rar[2])) {
             $rmnums[] = $order; // 削除する番号を登録
         }
         // 全部見つかったら抜ける
@@ -102,10 +103,11 @@ function getRmNums($checked_hists, $reslines)
 /**
  * 番号と日付が一致するかをチェックする
  *
+ * @access  private
  * @param   array  $checked_hists
  * @return  boolean  一致したらtrue
  */
-function checkMsgID($checked_hists, $order, $date)
+function _checkMsgID($checked_hists, $order, $date)
 {
     if ($checked_hists) {
         foreach ($checked_hists as $v) {
@@ -121,6 +123,7 @@ function checkMsgID($checked_hists, $order, $date)
 /**
  * 指定した行番号（配列に格納）を行リストから削除する
  *
+ * @access  private
  * @param   array  $rmnums  指定番号を格納した配列
  * @return  array|false  削除した結果の行リストを返す
  */
@@ -140,3 +143,14 @@ function rmLine($rmnums, $lines)
     }
     return false;
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

@@ -278,7 +278,7 @@ function _clearResHistLogByQuery()
         if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
             P2Util::pushInfoHtml('p2 error: 不正なクエリーです（CSRF対策）');
         } else {
-            require_once P2_LIB_DIR . '/' . 'read_res_hist.inc.php';
+            require_once P2_LIB_DIR . '/' . 'read_res_hist.funcs.php';
             if (deleteResHistDat()) {
                 P2Util::pushInfoHtml('<p>p2 info: ○書き込んだレスのログを削除しました</p>');
             } else {
