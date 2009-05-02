@@ -51,7 +51,7 @@ if (UA::isK() || UA::isIPhoneGroup()) {
 <html lang="ja">
 <head>
 <?php
-P2View::printExtraHeadersHtml();
+P2View::printExtraHeadersHtml($frameset = true);
 ?>
 	<title><?php eh($ptitle); ?></title>
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">

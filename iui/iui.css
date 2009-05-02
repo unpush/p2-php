@@ -75,6 +75,10 @@ body > .toolbar {
 	color: #FFFFFF;
 }
 
+.toolbar > h1 > a {
+	color:white;
+}
+
 body[orient="landscape"] > .toolbar > h1 {
 	margin-left: -125px;
 	width: 250px;

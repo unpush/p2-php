@@ -26,9 +26,9 @@ function saveMatomeCache()
     $i = $max;
     while ($i >= 0) {
         $di = ($i == 0) ? '' : '.' . $i;
-        $tfile = $_conf['matome_cache_path'] . $di.$_conf['matome_cache_ext'];
+        $tfile = $_conf['matome_cache_path'] . $di . $_conf['matome_cache_ext'];
         $next = $i + 1;
-        $nfile = $_conf['matome_cache_path'] . '.' . $next.$_conf['matome_cache_ext'];
+        $nfile = $_conf['matome_cache_path'] . '.' . $next . $_conf['matome_cache_ext'];
         if (file_exists($tfile)) {
             if ($i == $max) {
                 unlink($tfile);

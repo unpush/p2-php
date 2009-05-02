@@ -10,22 +10,9 @@ function printLoginFirst(&$_login)
     global $STYLE, $_conf;
     global $_login_failed_flag, $_p2session;
     
-    // {{{ データ保存ディレクトリに書き込み権限がなければ注意を表示セットする
-    
-    P2Util::checkDirWritable($_conf['dat_dir']);
-    $checked_dirs[] = $_conf['dat_dir']; // チェック済みのディレクトリを格納する配列に
-    
-    if (!in_array($_conf['idx_dir'], $checked_dirs)) {
-        P2Util::checkDirWritable($_conf['idx_dir']);
-        $checked_dirs[] = $_conf['idx_dir'];
-    }
-    if (!in_array($_conf['pref_dir'], $checked_dirs)) {
-        P2Util::checkDirWritable($_conf['pref_dir']);
-        $checked_dirs[] = $_conf['pref_dir'];
-    }
-    
-    // }}}
-    
+    // データ保存ディレクトリに書き込み権限がなければ注意を表示セットする
+    P2Util::checkDirsWritable(array($_conf['dat_dir'], $_conf['idx_dir'], $_conf['pref_dir']));
+
     // 前処理
     $_login->cleanInvalidAuthUserFile();
     clearstatcache();
@@ -37,12 +24,23 @@ function printLoginFirst(&$_login)
     //=========================================================
     // 書き出し用変数
     //=========================================================
-    $ptitle_ht = 'rep2';
+    if (UA::isIPhoneGroup()) {
+        $ptitle = $_conf['p2name'] . 'iPhone';
+    } else {
+        $ptitle = $_conf['p2name'];
+    }
+    $ptitle_ht = hs($ptitle);
+    if (!empty($GLOBALS['brazil'])) {
+        $ptitle_ht = 'p2.2ch.net';
+        if (!(UA::isK() || UA::isIPhoneGroup())) {
+            $ptitle_ht = '<a href="http://p2.2ch.net/">' . $ptitle_ht . '</a>';
+        }
+    }
     
     $myname = basename($_SERVER['SCRIPT_NAME']);
 
-    $auth_sub_input_ht = "";
-    $body_ht = "";
+    $auth_sub_input_ht = '';
+    $body_ht = '';
     $show_login_form_flag = false;
     
     $p_str = array(
@@ -55,7 +53,7 @@ function printLoginFirst(&$_login)
     }
     
     // 携帯用表示文字列全角→半角変換
-    if ($_conf['ktai'] && function_exists('mb_convert_kana')) {
+    if (!UA::isIPhoneGroup() && UA::isK() && function_exists('mb_convert_kana')) {
         foreach ($p_str as $k => $v) {
             $p_str[$k] = mb_convert_kana($v, 'rnsk');
         }
@@ -210,8 +208,8 @@ EOP;
             // 新規登録成功
             $form_login_id_hs = hs($post['form_login_id']);
             $body_ht .= "<p class=\"infomsg\">○ 認証{$p_str['user']}「{$form_login_id_hs}」を登録しました</p>";
-            $body_ht .= "<p><a href=\"{$myname}?form_login_id={$form_login_id_hs}{$_conf['k_at_a']}\">rep2 start</a></p>";
-        
+            $body_ht .= "<p><a href=\"{$myname}?form_login_id={$form_login_id_hs}{$_conf['k_at_a']}\">{$_conf['p2name']} start</a></p>";
+            
             $_login->setUser($post['form_login_id']);
             $_login->pass_x = sha1($post['form_login_pass']);
             
@@ -263,9 +261,12 @@ EOP;
 <?php
     P2View::printExtraHeadersHtml();
     ?>
-	<title><?php echo $ptitle_ht; ?></title>
+	<title><?php eh($ptitle); ?></title>
     <?php
-    if (UA::isPC() || UA::isIPhoneGroup()) {
+    if (UA::isIPhoneGroup()) {
+        ?><style type="text/css" media="screen">@import "./iui/iui.css";</style><?php
+    }
+    if (UA::isPC() && !UA::isIPhoneGroup()) {
         // ユーザは未決定
         //P2View::printIncludeCssHtml('style');
         //P2View::printIncludeCssHtml('login_first');
@@ -275,8 +276,14 @@ EOP;
 	<?php
     }
 	?>
-	</head><body>
-	<h3><?php echo $ptitle_ht; ?></h3><?php
+	</head><body><?php
+
+    if (UA::isIPhoneGroup()) {
+        ?><div class="toolbar"><h1 id="pageTitle"><?php echo $ptitle_ht; ?></h1></div><?php
+        ?><div id="usage" class="panel"><filedset><?php
+    } else {
+        ?><h3><?php echo $ptitle_ht; ?></h3><?php
+    }
 
     P2Util::printInfoHtml();
 
@@ -294,6 +301,14 @@ EOP;
         }
     }
 
+    if (!empty($GLOBALS['brazil']) and UA::isK() || UA::isIPhoneGroup()) {
+        ?><br><hr size="1"><div align="center"><a href="http://p2.2ch.net/">p2.2ch.net</a></div><?php
+    }
+
+    if (UA::isIPhoneGroup()) {
+        ?><br><br><br><br><br><br></filedset></div><?php
+    }
+    
     ?></body></html><?php
 }
 

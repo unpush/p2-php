@@ -144,37 +144,8 @@ for ($x = 0; $x < $linesize; $x++) {
     
     $aThread->torder = $x + 1;
 
-    // データ読み込み
-    if ($aThreadList->spmode) {
-        switch ($aThreadList->spmode) {
-            case "recent": // 履歴
-                $aThread->setThreadInfoFromExtIdxLine($l);
-                break;
-                
-            case "res_hist": // 書き込み履歴
-                $aThread->setThreadInfoFromExtIdxLine($l);
-                break;
-                
-            case "fav": // お気に
-                $aThread->setThreadInfoFromExtIdxLine($l);
-                break;
-                
-            case "taborn": // スレッドあぼーん
-                $aThread->setThreadInfoFromExtIdxLine($l);
-                $aThread->host = $aThreadList->host;
-                $aThread->bbs = $aThreadList->bbs;
-                break;
-                
-            case "palace": // 殿堂入り
-                $aThread->setThreadInfoFromExtIdxLine($l);
-                break;
-        }
-    // subject (not spmode)
-    } else {
-        $aThread->setThreadInfoFromSubjectTxtLine($l);
-        $aThread->host = $aThreadList->host;
-        $aThread->bbs = $aThreadList->bbs;
-    }
+    // ラインデータ読み込み
+    $aThread->setThreadInfoFromLineWithThreadList($l, $aThreadList, $setItaj = false);
     
     // hostもbbsも不明ならスキップ
     if (!($aThread->host && $aThread->bbs)) {
@@ -214,7 +185,7 @@ for ($x = 0; $x < $linesize; $x++) {
         // スレ情報取得
         if ($subject_txts["$aThread->host/$aThread->bbs"]) {
             foreach ($subject_txts["$aThread->host/$aThread->bbs"] as $l) {
-                if (@preg_match("/^{$aThread->key}/", $l)) {
+                if (preg_match("/^{$aThread->key}/", $l)) {
                     $aThread->setThreadInfoFromSubjectTxtLine($l); // subject.txt からスレ情報取得
                     break;
                 }

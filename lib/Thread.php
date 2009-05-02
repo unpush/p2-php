@@ -14,8 +14,8 @@ class Thread
     var $modified;  // datのLast-Modified // idxline[4]
     var $readnum;   // 既読レス数 // idxline[5] // MacMoeではレス表示位置だったと思う（last res）
     var $fav;       // お気に入り(bool的に) // idxline[6] favlist.idxも参照
-    // name         // ここでは利用せず idxline[7]（他所で利用）
-    // mail         // ここでは利用せず idxline[8]（他所で利用）
+    // name         // idxline[7] ここでは利用せず（他所で利用）
+    // mail         // idxline[8] ここでは利用せず（他所で利用）
     // var $newline; // 次の新規取得レス番号 // idxline[9] 廃止予定。後方互換のため残してはいる。
     
     // ※hostとはいうものの、2ch外の場合は、host以下のディレクトリまで含まれていたりする。
@@ -70,9 +70,10 @@ class Thread
         
         // HTML表示用に htmlspecialchars() したもの
         $this->ttitle_hs = htmlspecialchars($this->ttitle_hc, ENT_QUOTES);
+        
         $this->ttitle_ht = $this->ttitle_hs;
     }
-    
+
     /**
      * fav, recent用の拡張idxリストからラインデータを取得セットする
      *
@@ -104,47 +105,61 @@ class Thread
      *
      * @return  void
      */
-    function setThreadInfoFromLineWithThreadList($l, $aThreadList)
+    function setThreadInfoFromLineWithThreadList($l, $aThreadList, $setItaj = true)
     {
         // spmode
         if ($aThreadList->spmode) {
             switch ($aThreadList->spmode) {
                 case 'recent':  // 履歴
                     $this->setThreadInfoFromExtIdxLine($l);
-                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
-                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    if ($setItaj) {
+                        if (!$this->itaj = P2Util::getItaName($this->host, $this->bbs)) {
+                            $this->itaj = $this->bbs;
+                        }
+                    }
                     break;
                 
-                case 'res_hist':    // 書き込み履歴
+                case 'res_hist':// 書き込み履歴
                     $this->setThreadInfoFromExtIdxLine($l);
-                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
-                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    if ($setItaj) {
+                        if (!$this->itaj = P2Util::getItaName($this->host, $this->bbs)) {
+                            $this->itaj = $this->bbs;
+                        }
+                    }
                     break;
                 
                 case 'fav':     // お気に
                     $this->setThreadInfoFromExtIdxLine($l);
-                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
-                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    if ($setItaj) {
+                        if (!$this->itaj = P2Util::getItaName($this->host, $this->bbs)) {
+                            $this->itaj = $this->bbs;
+                        }
+                    }
                     break;
                 
+                case 'palace':  // スレの殿堂
+                    $this->setThreadInfoFromExtIdxLine($l);
+                    if ($setItaj) {
+                        if (!$this->itaj = P2Util::getItaName($this->host, $this->bbs)) {
+                            $this->itaj = $this->bbs;
+                        }
+                    }
+                    break;
+                    
+                // read_new*では必要ないところ
                 case 'taborn':  // スレッドあぼーん
                     $la = explode('<>', $l);
                     $this->key  = $la[1];
                     $this->host = $aThreadList->host;
                     $this->bbs  = $aThreadList->bbs;
                     break;
-                
+                    
+                // read_new*では必要ないところ
                 case 'soko':    // dat倉庫
                     $la = explode('<>', $l);
                     $this->key  = $la[1];
                     $this->host = $aThreadList->host;
                     $this->bbs  = $aThreadList->bbs;
-                    break;
-                
-                case 'palace':  // スレの殿堂
-                    $this->setThreadInfoFromExtIdxLine($l);
-                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
-                    if (!$this->itaj) { $this->itaj = $this->bbs; }
                     break;
                 
                 case 'news':    // ニュースの勢い
@@ -153,10 +168,13 @@ class Thread
                     $this->setTtitle($l['ttitle']);
                     $this->rescount = $l['rescount'];
                     $this->host = $l['host'];
-                    $this->bbs = $l['bbs'];
+                    $this->bbs  = $l['bbs'];
 
-                    $this->itaj = P2Util::getItaName($this->host, $this->bbs);
-                    if (!$this->itaj) { $this->itaj = $this->bbs; }
+                    if ($setItaj) {
+                        if (!$this->itaj = P2Util::getItaName($this->host, $this->bbs)) {
+                            $this->itaj = $this->bbs;
+                        }
+                    }
                     break;
             }
         
@@ -165,6 +183,7 @@ class Thread
             $this->setThreadInfoFromSubjectTxtLine($l);
             $this->host = $aThreadList->host;
             $this->bbs  = $aThreadList->bbs;
+            // itaj は省略している
         }
     }
 
@@ -273,7 +292,7 @@ class Thread
         
         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromIdx');
         
-        return $key_line; 
+        return $key_line;
     }
     
     /**
@@ -359,7 +378,7 @@ class Thread
                 $this->setTtitle($ttitle);
             }
         }
-
+        
         return $this->ttitle;
     }
 

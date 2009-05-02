@@ -162,9 +162,9 @@ class P2View
      * @access  public
      * @return  void  HTML出力
      */
-    function printExtraHeadersHtml()
+    function printExtraHeadersHtml($frameset = false)
     {
-        P2View::printHeadMetasHtml();
+        P2View::printHeadMetasHtml($frameset);
     }
     
     /**
@@ -172,7 +172,7 @@ class P2View
      * @access  public
      * @return  void  HTML出力
      */
-    function printHeadMetasHtml()
+    function printHeadMetasHtml($frameset = false)
     {
         $metas = array(
             array(
@@ -198,7 +198,7 @@ class P2View
         }
         */
         
-        if (!(basename($_SERVER['SCRIPT_NAME']) == 'index.php')) {
+        if (!$frameset) {
             if (UA::isIPhoneGroup() || UA::isIPhoneGroup(geti($_SERVER['HTTP_USER_AGENT']))) {
                 ?><link rel="apple-touch-icon" href="img/p2iphone.png"><?php
                 

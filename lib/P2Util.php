@@ -459,6 +459,21 @@ class P2Util
     }
 
     /**
+     * @access  public
+     * @return  void    P2Util::pushInfoHtml()
+     */
+    function checkDirsWritable($dirs)
+    {
+        $checked_dirs = array();
+        foreach ($dirs as $dir) {
+            if (!in_array($dir, $checked_dirs)) {
+                P2Util::checkDirWritable($dir);
+                $checked_dirs[] = $dir;
+            }
+        }
+    }
+    
+    /**
      * ダウンロードURLからキャッシュファイルパスを返す
      *
      * @access  public
