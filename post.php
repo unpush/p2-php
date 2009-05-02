@@ -180,7 +180,7 @@ if (!empty($_POST['maru_kakiko']) and P2Util::isHost2chs($host) && file_exists($
     
     // ログイン後、24時間以上経過していたら自動再ログイン
     if (file_exists($_conf['idpw2ch_php']) and filemtime($_conf['sid2ch_php']) < time() - 60*60*24) {
-        require_once P2_LIB_DIR . '/login2ch.inc.php';
+        require_once P2_LIB_DIR . '/login2ch.func.php';
         login2ch();
     }
     

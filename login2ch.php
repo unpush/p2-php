@@ -35,7 +35,7 @@ if ($login2chID && $login2chPW) {
 
     P2Util::saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch);
 
-    require_once P2_LIB_DIR . '/login2ch.inc.php';
+    require_once P2_LIB_DIR . '/login2ch.func.php';
     login2ch();
 }
 
@@ -48,7 +48,7 @@ if ($array = P2Util::readIdPw2ch()) {
 
 if (isset($_GET['login2ch'])) {
     if ($_GET['login2ch'] == "in") {
-        require_once P2_LIB_DIR . '/login2ch.inc.php';
+        require_once P2_LIB_DIR . '/login2ch.func.php';
         login2ch();
     } elseif ($_GET['login2ch'] == "out") {
         if (file_exists($_conf['sid2ch_php'])) {

@@ -4,6 +4,7 @@ require_once P2_LIB_DIR . '/index.funcs.php';
 /**
  * p2 - 携帯用インデックスをHTMLプリントする関数
  *
+ * @access  public
  * @return  void
  */
 function index_print_k()
@@ -118,6 +119,7 @@ EOP;
 /**
  * メニュー項目のリンクHTMLを取得する
  *
+ * @access  private
  * @param   array   $menuKIni  メニュー項目 標準設定
  * @param   boolean $noLink    リンクをつけないのならtrue
  * @return  string  HTML

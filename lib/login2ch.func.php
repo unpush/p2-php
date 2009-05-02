@@ -6,6 +6,7 @@ require_once P2_LIB_DIR . '/wap.class.php';
 /**
  * 2ch IDにログインする
  *
+ * @access  public
  * @return  string|false  成功したら2ch SIDを返す
  */
 function login2ch()
@@ -41,7 +42,7 @@ function login2ch()
     if ($_conf['precede_openssl']) {
         if (!extension_loaded('openssl')) {
             $curl_msg .= "「PHPのopenssl」は使えないようです";
-        } elseif (!$r = getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua, $dolib2ch)) {
+        } elseif (!$r = _getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua, $dolib2ch)) {
             $curl_msg .= "「PHPのopenssl」で実行失敗。";
         }
     }
@@ -50,11 +51,11 @@ function login2ch()
     
         // コマンドCURL優先
         if (empty($_conf['precede_phpcurl'])) {
-            if (!$r = getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)) {
+            if (!$r = _getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)) {
                 $curl_msg .= "「systemのcurlコマンド」で実行失敗。";
                 if (!extension_loaded('curl')) {
                     $curl_msg .= "「PHPのcurl」は使えないようです";
-                } elseif (!$r = getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)) {
+                } elseif (!$r = _getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)) {
                     $curl_msg .= "「PHPのcurl」で実行失敗。";
                 }
             }
@@ -63,12 +64,12 @@ function login2ch()
         } else {
             if (!extension_loaded('curl')) {
                 $curl_msg .= "「PHPのcurl」は使えないようです";
-            } elseif (!$r = getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)) {
+            } elseif (!$r = _getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)) {
                 $curl_msg .= "「PHPのcurl」で実行失敗。";
             }
 
             if (empty($r)) {
-                if (!$r = getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)) {
+                if (!$r = _getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)) {
                     $curl_msg .= "「systemのcurlコマンド」で実行失敗。";
                 }
             }
@@ -100,6 +101,7 @@ function login2ch()
         $uaMona = $matches[1];
         $SID2ch = $matches[1] . ':' . $matches[2];
     } else {
+        //error_log($r);
         if (file_exists($_conf['sid2ch_php'])) { unlink($_conf['sid2ch_php']); }
         P2Util::pushInfoHtml("<p>p2 error: 2ch●ログイン接続に失敗しました。</p>");
         return false;
@@ -132,12 +134,16 @@ EOP;
 }
 
 
+//==============================================================================
+// 関数（このファイル内でのみ利用）
+//==============================================================================
 /**
  * systemコマンドでcurlを実行して、2chログインのSIDを得る
  *
+ * @access  private
  * @return  string|false
  */
-function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)
+function _getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch)
 {
     global $_conf;
 
@@ -172,20 +178,21 @@ function getAuth2chWithCommandCurl($login2chID, $login2chPW, $tempfile, $auth2ch
 /**
  * PHPのcurlで2chログインのSIDを得る
  *
+ * @access  private
  * @return  string|false
  */
-function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)
+function _getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf)
 {
     global $_conf;
     
     // PHPのCURLが使えるなら、それでチャレンジ
     if (extension_loaded('curl')) {
         // 「PHPのcurl」（証明書検証あり）で実行
-        execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, true);
+        _execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, true);
         // 「PHPのcurl」（証明書検証あり）で無理なら、「PHPのcurl」（証明書検証なし）で再チャレンジ
         clearstatcache();
         if (!file_exists($tempfile) || !filesize($tempfile)) {
-            execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, false);
+            _execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, false);
         }
         if ($r = file_get_contents($tempfile)) {
             return $r;
@@ -199,9 +206,10 @@ function getAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $p
 /**
  * PHPのcurlを実行して、ファイルにデータを保存する
  *
+ * @access  private
  * @return  boolean
  */
-function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, $withk = false)
+function _execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $postf, $withk = false)
 {
     global $_conf;
     
@@ -238,9 +246,10 @@ function execAuth2chWithPhpCurl($tempfile, $auth2ch_url, $x_2ch_ua, $dolib2ch, $
 /**
  * fsockopenでSSL接続して2chログインのSIDを得る（証明書検証なし）
  *
+ * @access  private
  * @return  string|false
  */
-function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua, $dolib2ch)
+function _getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua, $dolib2ch)
 {
     global $_conf;
 
@@ -273,3 +282,13 @@ function getAuth2chWithOpenSSL($login2chID, $login2chPW, $auth2ch_url, $x_2ch_ua
     return $wap_res->content;
 }
 
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

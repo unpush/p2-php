@@ -15,9 +15,11 @@ if (UA::isK()) {
 }
 
 $htm['subject']         = isset($htm['subject'])        ? $htm['subject'] : '';
-$popup                  = isset($popup)                 ? $popup : '';
+$popup_hs               = isset($popup)                 ? hs($popup) : '';
 $newthread_hidden_ht    = isset($newthread_hidden_ht)   ? $newthread_hidden_ht : '';
 $readnew_hidden_ht      = isset($readnew_hidden_ht)     ? $readnew_hidden_ht : '';
+
+$ttitle_en_hs = hs($ttitle_en);
 
 // 文字コード判定用文字列を先頭に仕込むことでmb_convert_variables()の自動判定を助ける
 $htm['post_form'] = <<<EOP
@@ -52,9 +54,9 @@ $htm['post_form'] = <<<EOP
     <input type="hidden" name="time" value="{$time}">
     
     <input type="hidden" name="host" value="{$host}">
-    <input type="hidden" name="popup" value="{$popup}">
+    <input type="hidden" name="popup" value="{$popup_hs}">
     <input type="hidden" name="rescount" value="{$rescount}">
-    <input type="hidden" name="ttitle_en" value="{$ttitle_en}">
+    <input type="hidden" name="ttitle_en" value="{$ttitle_en_hs}">
     <input type="hidden" name="csrfid" value="{$csrfid}">
     {$newthread_hidden_ht}{$readnew_hidden_ht}
     {$_conf['k_input_ht']}
@@ -76,3 +78,14 @@ if (!messageObj.value) {
 </script>\n
 EOP;
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
