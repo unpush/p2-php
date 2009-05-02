@@ -65,7 +65,7 @@ function setPal($host, $bbs, $key, $set)
             geti($data[0]), $key, geti($data[2]), geti($data[3]), geti($data[4]), geti($data[5]),
             geti($data[6]), geti($data[7]), geti($data[8]), geti($data[9]), $host, $bbs
         ));
-        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
+        require_once P2_LIB_DIR . '/getSetPosLines.func.php';
         $rec_lines = getSetPosLines($newlines, $newdata, $before_line_num, $set);
     } else {
         $rec_lines = $newlines;

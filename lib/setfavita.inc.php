@@ -129,7 +129,7 @@ function setFavIta()
     // 一つのデータを指定して操作
     } elseif ($setfavita and $host && $bbs && $itaj) {
         $newdata = "\t{$host}\t{$bbs}\t{$itaj}";
-        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
+        require_once P2_LIB_DIR . '/getSetPosLines.func.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfavita);
     
     // 解除

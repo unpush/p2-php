@@ -76,7 +76,7 @@ function setFav($host, $bbs, $key, $setfav)
             geti($data[0]), $key, geti($data[2]), geti($data[3]), geti($data[4]), geti($data[5]),
             1, geti($data[7]), geti($data[8]), geti($data[9]), $host, $bbs
         ));
-        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
+        require_once P2_LIB_DIR . '/getSetPosLines.func.php';
         $rec_lines = getSetPosLines($newlines, $newdata, $before_line_num, $setfav);
     } else {
         $rec_lines = $newlines;
