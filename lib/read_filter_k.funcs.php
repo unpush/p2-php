@@ -2,6 +2,7 @@
 /**
  * フィルタ用にヘッダ変数を書き換える
  *
+ * @access  public
  * @return  void
  */
 function resetReadNaviHeaderK()
@@ -15,6 +16,7 @@ function resetReadNaviHeaderK()
 /**
  * フィルタ用に書き換えたフッタ変数を取得する
  * 
+ * @access  public
  * @return  array  array(read_navi_previous_btm, read_navi_next_btm, read_footer_navi_new_btm)
  */
 function getResetReadNaviFooterK($aThread, $params)

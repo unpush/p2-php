@@ -878,43 +878,18 @@
 	* rep2 version 1.7.12
 	
 	- [修正] ログイン画面でDoCoMoの端末認証用のURLが表示されないことがあったバグを修正
-	  
-	- 変更のあったファイル
-		conf/conf.inc.php
-		lib/login_first.inc.php
-		login.php
-		title.php
-		
+
 2006-02-16 aki
 	* rep2 version 1.7.11
 	
 	- [修正] 書き込み履歴を解除できないバグを修正した。
 	- [変更] 403でHTML文を出力した時に、出力したHTML文を表示しない携帯があるそうなので、一部、403で出力しないようにした。
 	- [変更] 新着まとめ読みの続きがあるかどうかが分からない場合は、「更新/続き」と併記するようにした。
-
-	- 変更のあったファイル
-		conf/conf.inc.php
-		post.php
-		read_new.php
-		read_new_k.php
-		lib/dele.inc.php
-		lib/p2util.class.php
-		
+	
 2006-02-16 aki
 	* rep2 version 1.7.10
 	
 	- [修正] Windowsサーバで利用している場合、rename() でファイルを上書きできないそうなので、これに対応修正した。
-
-	- 変更のあったファイル
-		conf/conf.inc.php
-		lib/dele.inc.php
-		lib/p2util.class.php
-		lib/read_new.inc.php
-		lib/read_res_hist.inc.php
-		lib/setpalace.inc.php
-		lib/threadread.class.php
-		post.php
-		read.php
 
 2006-02-15 aki
 	* rep2 version 1.7.9
@@ -958,25 +933,10 @@
 	- [仕様変更] VodafoneのIP帯域を追加した
 	- [仕様変更] 携帯の元スレリンクを微調整
 
-	- 変更のあったファイル
-		info.php
-		login.php
-		title.php
-		conf/conf.inc.php
-		lib/hostcheck.class.php
-		lib/index_print_k.inc.php
-		lib/login.class.php
-		lib/thread.class.php
-
 2005-07-01 aki
 	* rep2 version 1.7.6
 	
 	- [バグ修正] $_conf['disable_res'] が二つあったのを修正（conf_admin.inc.php）
-	
-	- 変更のあったファイル
-		post.php
-		conf/conf.inc.php
-		conf/conf_admin.inc.php
 
 2005-06-29 aki
 	* rep2 version 1.7.5
@@ -1001,38 +961,11 @@
 	  $_conf['pref_dir'] から $_conf['admin_dir'] に変更。
 
 	- 他こまごま
-	
-	- 変更のあったファイル
-		httpcmd.php
-		info.php
-		post.php
-		read_new.php
-		read_new_k.php
-		subject.php
-		subject_new.php
-		conf/conf.inc.php
-		conf/conf_admin.inc.php
-		lib/filectl.class.php
-		lib/hostcheck.class.php
-		lib/index_print_k.inc.php
-		lib/p2util.class.php
-		lib/res_hist.class.php
-		lib/sb_header.inc.php
-		lib/sb_header_k.inc.php
-		lib/session.class.php
 
 2005-06-24 aki
 	* rep2 version 1.7.4
 	
 	[バグ修正] 携帯用表示で、正しく表示されないことがあったのを修正
-	
-	- 変更のあったファイル
-		login.php
-		conf/conf.inc.php
-		lib/hostcheck.class.php
-		lib/login_first.inc.php
-		lib/sb_print_k.inc.php
-		lib/showthreadk.class.php
 
 2005-06-24 aki
 	* rep2 version 1.7.3
@@ -1040,28 +973,11 @@
 	- [新機能] (p)を画像で表示できるようになった。ユーザ設定で。（拡張パックより。感謝）
 	- [改良] 携帯のIPチェックで、jigを通すようにした。
 
-	* edit_conf_user.php
-	* conf/conf.inc.php
-	* conf/conf_admin.inc.php
-	* conf/conf_user_def.inc.php
-	* img/pop.png is new
-	* lib/hostcheck.class.php
-	* lib/showthreadpc.class.php
-
 2005-06-23 aki
 	* rep2 version 1.7.2
 	
 	[修正] ●ログインできるようにした
 	[バグ修正] precede_phpcurl の設定表示が、逆になっていたのを修正
-	
-	- 変更のあったファイル
-		login2ch.php
-		conf/conf.inc.php
-		conf/conf_admin.inc.php
-		conf/conf_user_def.inc.php
-		lib/filectl.class.php
-		lib/login2ch.inc.php
-		lib/p2util.class.php
 	
 2005-06-22 aki
 	* rep2 version 1.7.1
@@ -1072,14 +988,6 @@
 	- [修正更新] IP帯域の設定をアップデートした（拡張パックより。感謝）
 	- [仕様変更] Air H"はUA⇔IPチェックの対象から外してみた
 	- [仕様変更] 携帯のスレ一覧でのソート変更のUIを変更（拡張パックより。感謝）
-
-	- 変更のあったファイル
-		edit_conf_user.php
-		editpref.php
-		conf/conf.inc.php
-		lib/hostcheck.class.php
-		lib/login.class.php
-		lib/sb_footer_k.inc.php
 
 2005-06-22 aki
 	* rep2 version 1.7.0
@@ -1143,26 +1051,6 @@
 
 	- 新規ファイル
 		lib/SubjectTxt.class.php
-
-	* menu_k.php
-	* post.php
-	* read_new.php
-	* read_new_k.php
-	* subject.php
-	* subject_new.php
-	* conf/conf.inc.php
-	* doc/README.txt
-	* lib/SubjectTxt.class.php is new
-	* lib/brdmenu.class.php
-	* lib/menu.inc.php
-	* lib/p2util.class.php
-	* lib/sb_header_k.inc.php
-	* lib/sb_print.inc.php
-	* lib/showthread.class.php
-	* lib/showthreadk.class.php
-	* lib/showthreadpc.class.php
-	* lib/thread.class.php
-	* lib/threadlist.class.php
 
 2005-06-04 aki
 	* p2 version 1.6.5
@@ -1231,11 +1119,6 @@
 	- [バグ修正] dat保存ディレクトリと初期設定保存ディレクトリを別々に設定していると
 	  エラーが出ていたのを修正
 	- [バグ修正] loginfirst.inc.php でエラーが出るのを修正できたかもしれない
-
-	- 変更のあったファイル
-		login.php
-		conf/conf.inc.php
-		lib/login_first.inc.php
 
 2005-05-29 aki
 	* p2 version 1.6.0
@@ -1307,13 +1190,6 @@
 	- [改良] スレ一覧からのログ削除もAjaxで行えるようにした
 	- [仕様変更] >>a-b のリンクは(p)表示をしないようにした
 	- 拡張パックさんのコードをちょこちょこ入れてます。THX!
-	
-	- 変更のあったファイル
-		sb_header.inc.php
-		sb_print.inc.php
-		showthreadpc.class.php
-		conf/conf.inc.php
-		js/delelog.js
 
 2005-05-26 aki
 	* p2 version 1.5.26
@@ -1329,26 +1205,6 @@
 	- 新規ファイル
 		js/setfavjs.js
 		js/delelog.js
-
-	* dele.inc.php
-	* editpref.php
-	* httpcmd.php
-	* post_form.inc.php
-	* post_form.php
-	* post_options_loader.inc.php
-	* read_footer.inc.php
-	* read_header.inc.php
-	* read_new.php
-	* read_new_k.php
-	* sb_header.inc.php
-	* sb_print.inc.php
-	* settaborn_off.inc.php
-	* threadread.class.php
-	* conf/conf.inc.php
-	* conf/conf_user.inc.php
-	* js/basic.js
-	* js/delelog.js is new
-	* js/setfavjs.js is new
 
 2005-05-21 aki
 	* p2 version 1.5.25
@@ -1371,48 +1227,6 @@
 
 	- 新規ファイル
 		getsetposlines.inc.php
-
-	* cookie.php
-	* dataphp.class.php
-	* dele.inc.php
-	* editfavita.php
-	* filectl.class.php
-	* getsetposlines.inc.php is new
-	* httpcmd.php
-	* info.php
-	* login.inc.php
-	* login.php
-	* login_first.inc.php
-	* menu.inc.php
-	* menu_k.php
-	* p2util.class.php
-	* post.php
-	* read.php
-	* read_machibbs.inc.php
-	* read_new.inc.php
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.inc.php
-	* read_res_hist.php
-	* read_shitaraba.inc.php
-	* sb_footer.inc.php
-	* setfav.inc.php
-	* setfavita.inc.php
-	* setpalace.inc.php
-	* settaborn.inc.php
-	* settaborn_off.inc.php
-	* showbrdmenuk.class.php
-	* showthread.class.php
-	* showthreadk.class.php
-	* subject.php
-	* subject_new.php
-	* syncfavita.inc.php
-	* syncindex.inc.php
-	* thread.class.php
-	* threadlist.class.php
-	* threadread.class.php
-	* conf/conf.inc.php
-	* doc/ChangeLog.txt
 
 2005-05-09 aki
 	* p2 version 1.5.23
@@ -1470,20 +1284,6 @@
 	- 新規ファイル
 		post_form.inc.php
 
-	* cookie.php
-	* login.inc is removed
-	* login.inc.php is new
-	* login.php
-	* login_first.inc is removed
-	* login_first.inc.php is new
-	* post.php
-	* post_form.inc.php is new
-	* post_form.php
-	* post_options_loader.inc.php
-	* read_footer.inc.php
-	* conf/conf.inc.php
-	* conf/conf_user.inc.php
-
 2005-04-28 aki
 	* p2 version 1.5.17
 	
@@ -1511,21 +1311,6 @@
 
 	- ファイル名の変更
 		test_first.php → phpinfo.php
-
-	* brdmenu.class.php
-	* filectl.class.php
-	* ngabornctl.class.php
-	* p2util.class.php
-	* phpinfo.php is new
-	* read_new.php
-	* read_res_hist.php
-	* sb_header_k.inc.php
-	* showthreadk.class.php
-	* subject.php
-	* subject_new.php
-	* test_first.php is removed
-	* conf/conf.inc.php
-	* doc/README.txt 
 
 2005-04-21 aki
 	* p2 version 1.5.15
@@ -1591,46 +1376,6 @@
 
 	- 削除されたファイル
 		jcode ディレクトリ以下
-
-	* conf.inc.php is removed
-	* conf_user.inc.php is removed
-	* conf_user_style.inc.php is removed
-	* cookie.php
-	* editfavita.php
-	* editfile.php
-	* editpref.php
-	* filectl.class.php
-	* first_cont.php
-	* httpcmd.php
-	* index.php
-	* index_print_k.inc.php
-	* info.php
-	* login.php
-	* login2ch.inc.php
-	* login2ch.php
-	* menu.inc.php
-	* menu_k.php
-	* post.php
-	* post_form.php
-	* read.php
-	* read_footer_k.inc.php
-	* read_header_k.inc.php
-	* read_new.inc.php is new
-	* read_new.php
-	* read_new_k.php
-	* read_res_hist.php
-	* sb_print_k.inc.php
-	* setting.php
-	* showthreadk.class.php
-	* showthreadpc.class.php
-	* strctl.class.php
-	* subject.php
-	* subject_new.php
-	* title.php
-	* viewtxt.php
-	* conf/conf.inc.php is new
-	* conf/conf_user.inc.php is new
-	* conf/conf_user_style.inc.php is new
 	
 2005-04-12 aki
 	* p2 version 1.5.9

@@ -5,12 +5,10 @@
 
 require_once P2_LIB_DIR . '/FileCtl.php';
 
-//===============================================
-// 関数
-//===============================================
 /**
  * 新着まとめ読みのキャッシュを残す
  *
+ * @access  public
  * register_shutdown_function() から呼ばれる。（相対パスのファイルは扱えない？）
  */
 function saveMatomeCache()
@@ -59,7 +57,8 @@ function saveMatomeCache()
 /**
  * 新着まとめ読みのキャッシュを取得する
  *
- * @return string|null|false
+ * @access  public
+ * @return  string|null|false
  */
 function getMatomeCache($num = '')
 {

@@ -5,6 +5,7 @@
 /**
  * スレッド一覧をHTML表示する (PC用 <tr>～</tr>)
  *
+ * @access  public
  * @return  void
  */
 function sb_print($aThreadList)
