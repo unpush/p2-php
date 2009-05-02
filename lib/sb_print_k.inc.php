@@ -3,8 +3,9 @@
 // for subject.php
 
 /**
- * sb_print - スレッド一覧を表示する (<tr>～</tr>)
+ * スレッド一覧を表示する (<tr>～</tr>)
  *
+ * @access  public
  * @return  void
  */
 function sb_print_k(&$aThreadList)
@@ -13,10 +14,18 @@ function sb_print_k(&$aThreadList)
     global $sb_view;
     
     if (!$aThreadList->threads) {
-        if ($aThreadList->spmode == "fav" && $sb_view == "shinchaku") {
-            echo "<p>お気にｽﾚに新着なかったぽ</p>";
+        if ($aThreadList->spmode == 'fav' && $sb_view == 'shinchaku') {
+            if (UA::isIPhoneGroup()) {
+                ?><p>お気にスレに新着なかったぽ</p><?php
+            } else {
+                ?><p>お気にｽﾚに新着なかったぽ</p><?php
+            }
         } else {
-            echo "<p>該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p>";
+            if (UA::isIPhoneGroup()) {
+                ?><p>該当サブジェクトはなかったぽ</p><?php
+            } else {
+                ?><p>該当ｻﾌﾞｼﾞｪｸﾄはなかったぽ</p><?php
+            }
         }
         return;
     }
@@ -28,7 +37,7 @@ function sb_print_k(&$aThreadList)
     
     /*
     // ニュース系の板なら適用
-    if (ereg("news", $aThreadList->bbs) || $aThreadList->bbs == "bizplus" || $aThreadList->spmode == "news") {
+    if (ereg('news', $aThreadList->bbs) || $aThreadList->bbs == 'bizplus' || $aThreadList->spmode == 'news') {
         // 倉庫は除く
         if ($aThreadList->spmode != "soko") {
             $onlyone_bool = true;
@@ -84,13 +93,13 @@ function sb_print_k(&$aThreadList)
     
         $i++;
         $midoku_ari = "";
-        $anum_ht = ""; //#r1
-        
+        $anum_ht = ""; // #r1
+
         $bbs_q = "&amp;bbs=" . $aThread->bbs;
         $key_q = "&amp;key=" . $aThread->key;
 
         if ($aThreadList->spmode != "taborn") {
-            if (!$aThread->torder) {$aThread->torder=$i;}
+            if (!$aThread->torder) { $aThread->torder = $i; }
         }
 
         // {{{ 新着レス数
@@ -108,7 +117,11 @@ function sb_print_k(&$aThreadList)
             // 新着あり
             if ($aThread->unum > 0) { 
                 $midoku_ari = true;
-                $unum_ht = "<font color=\"#ff6600\">{$aThread->unum}</font>";
+                if (UA::isIPhoneGroup()) {
+                    $unum_ht = "{$aThread->unum}";
+                } else {
+                    $unum_ht = "<font color=\"#ff6600\">{$aThread->unum}</font>";
+                }
             }
         
             // subject.txtにない時
@@ -116,15 +129,26 @@ function sb_print_k(&$aThreadList)
                 // 誤動作防止のためログ削除操作をロック
                 $unum_ht = "-"; 
             }
-
-            $unum_ht = "[" . $unum_ht . "]";
+            
+            if (UA::isIPhoneGroup()) {
+                $unum_ht = '<font class="unum">' . $unum_ht . '</font>';
+            } else {
+                $unum_ht = '[' . $unum_ht . ']';
+            }
         }
         
         // }}}
         
         // 新規スレ
+        $unum_new_ht = '';
         if ($aThread->new) { 
-            $unum_ht = "<font color=\"#ff0000\">新</font>";
+            if (UA::isIPhoneGroup()) {
+                // $unum_ht = '<font color="#0000ff">●</font>';
+                $unum_ht = '';
+                $unum_new_ht = '<img class="unew" src="iui/icon_new.png">';
+            } else {
+                $unum_ht = '<font color="#ff0000">新</font>';
+            }
         }
 
         // {{{ 板名
@@ -152,8 +176,11 @@ function sb_print_k(&$aThreadList)
                 )
             );
             */
-            $ita_name_ht = sprintf('(%s)', hs($ita_name));
-            
+            if (UA::isIPhoneGroup()) {
+                $ita_name_ht = sprintf(' <span class="ita">(%s)</span>', hs($ita_name));
+            } else {
+                $ita_name_ht = sprintf('(%s)', hs($ita_name));
+            }
         }
         
         // }}}
@@ -175,7 +202,7 @@ function sb_print_k(&$aThreadList)
         $offline_qs  = array();
         
         // dat倉庫 or 殿堂なら
-        if ($aThreadList->spmode == "soko" || $aThreadList->spmode == "palace") { 
+        if ($aThreadList->spmode == 'soko' || $aThreadList->spmode == 'palace') { 
             $rescount_qs = array();
             $offline_qs  = array('offline' => '1');
             $anum_ht = '';
@@ -197,8 +224,12 @@ function sb_print_k(&$aThreadList)
         }
         
         // 総レス数
-        $rescount_ht = ' (' . $aThread->rescount . ")";
-        
+        if (UA::isIPhoneGroup()) {
+            $rescount_ht = '<font class="sbnum"> ' . $aThread->rescount . '</font>';
+        } else {
+            $rescount_ht = ' (' . $aThread->rescount . ')';
+        }
+
         $similarity_ht = '';
         if ($aThread->similarity) {
             $similarity_ht = sprintf(' %0.1f%%', $aThread->similarity * 100);
@@ -251,17 +282,58 @@ function sb_print_k(&$aThreadList)
             $access_ht = " {$_conf['accesskey_for_k']}=\"{$aThread->torder}\"";
         }
         */
-        
+
+        if (UA::isIPhoneGroup()) {
+            // お気にマーク設定
+            $favvalue      = !empty($aThread->fav) ? 0 : 1;
+            $favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
+            $itaj_hs = htmlspecialchars($aThread->itaj, ENT_QUOTES);
+    
+            $favmark    = !empty($aThread->fav) ? '★' : '+';
+            if ($favmark  == '★') {
+                $favmark = '<img src="iui/icon_del.png">';
+            } else {
+                $favmark = '<img src="iui/icon_add.png">';
+            }
+    
+            $sid_qs = array();
+            $sid_q = '';
+            if (defined('SID') && strlen(SID)) {
+                $sid_qs[session_name()] = session_id();
+                $sid_q = hs('&' . session_name() . '=' . session_id());
+            }
+            
+            $setFavUri = P2Util::buildQueryUri('info_i.php',
+                array_merge(array(
+                    'host' => $aThread->host,
+                    'bbs'  => $aThread->bbs,
+                    'key'  => $aThread->key,
+                    'ttitle_en' => base64_encode($aThread->ttitle),
+                    'setfav' => $favvalue
+                ), $sid_qs)
+            );
+            $setFavUri_hs = hs($setFavUri);
+        }
+
         //====================================================================================
         // スレッド一覧 table ボディ HTMLプリント <tr></tr> 
         //====================================================================================
+        if (UA::isIPhoneGroup()) {
+            ?><li><?php
 
-        // ボディ
-        echo <<<EOP
+            echo "<span class=\"plus\" id=\"{$aThread->torder}\" ><a href=\"{$setFavUri_hs}\" target=\"info\" onClick=\"return setFavJsNoStr('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favvalue}', {$STYLE['info_pop_size']}, 'read', 'this',{$aThread->torder});\" title=\"{$favtitle}\">{$favmark}</a></span>";
+
+            // ボディ
+            echo <<<EOP
+ <a href="{$thre_url}" class="ttitle">{$unum_new_ht}{$aThread->ttitle_ht}{$ita_name_ht}{$rescount_ht}{$similarity_ht}</a>{$unum_ht}</li>
+EOP;
+        } else {
+            echo <<<EOP
 <div>
-	{$unum_ht}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}{$rescount_ht}{$similarity_ht}</a>{$ita_name_ht}
+    {$unum_ht}{$aThread->torder}.<a href="{$thre_url}">{$aThread->ttitle_ht}{$rescount_ht}{$similarity_ht}</a>{$ita_name_ht}
 </div>
 EOP;
+        }
     }
 
 }
