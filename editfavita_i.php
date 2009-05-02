@@ -20,7 +20,7 @@ if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['sub
         p2die('不正なクエリーです（CSRF対策）');
     }
     
-    require_once P2_LIB_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setFavIta.func.php';
     setFavIta();
 }
 // お気に板のホストを同期

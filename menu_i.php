@@ -24,7 +24,7 @@ BrdCtl::parseWord(); // set $GLOBALS['word']
 //============================================================
 // ‚¨‹C‚É”Â‚Ì’Ç‰ÁEíœ
 if (isset($_GET['setfavita'])) {
-    require_once P2_LIB_DIR . '/setfavita.inc.php';
+    require_once P2_LIB_DIR . '/setFavIta.func.php';
     setFavIta();
 }
 

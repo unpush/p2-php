@@ -47,7 +47,7 @@ function getSetPosLines($lines, $data, $before_line_num, $set)
         if ($after_line_num === 'bottom') {
             $reclines[] = $data;
         }
-        //「$after_line_num == "bottom"」だと誤動作する。
+        //「$after_line_num == 'bottom'」だと誤動作する。
     } else {
         $reclines[] = $data;
     }
