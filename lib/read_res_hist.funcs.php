@@ -127,7 +127,7 @@ function _checkMsgID($checked_hists, $order, $date)
  * @param   array  $rmnums  指定番号を格納した配列
  * @return  array|false  削除した結果の行リストを返す
  */
-function rmLine($rmnums, $lines)
+function _rmLine($rmnums, $lines)
 {
     if ($lines) {
         $neolines = array();
