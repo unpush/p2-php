@@ -1065,6 +1065,10 @@ EOID;
     {
         global $_conf;
         
+        if (--$this->str_to_link_rest < 0) {
+            return $s[0];
+        }
+        
         list($full, $qsign, $appointed_num) = $s;
         
         if ($appointed_num == '-') {

@@ -50,6 +50,7 @@ if ($get['view'] == "favita") {
     $ptitle = "ÕËŞ·À½p2";
 }
 
+
 P2View::printDoctypeTag();
 ?>
 <html lang="ja">
@@ -94,7 +95,7 @@ if (strlen($GLOBALS['word']) > 0) {
         printf('<br>"%s" %dhit!', hs($GLOBALS['word']), $GLOBALS['ita_mikke']['num']);
         echo $hr;
     }
-    
+
     // ”Â–¼‚ğŒŸõ‚µ‚Ä•\¦‚·‚é
     if ($brd_menus) {
         foreach ($brd_menus as $a_brd_menu) {
@@ -144,7 +145,6 @@ if (isset($_GET['cateid'])) {
         '”ÂØ½Ä'
     ) . '<br>';
 }
-
 
 P2Util::printInfoHtml();
 

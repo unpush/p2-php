@@ -111,7 +111,7 @@ $_conf['pc_accesskey']['midoku'] = 'u'; // 未読レスの表示
 $_conf['pc_accesskey']['motothre'] = 'o'; // 元スレ
 $_conf['pc_accesskey']['info']   = 'i'; // 情報
 $_conf['pc_accesskey']['dele']   = 'd'; // 削除
-$_conf['pc_accesskey']['all']    = 'a';  // 全部表示
+$_conf['pc_accesskey']['all']    = 'a'; // 全部表示
 
 // }}}
 // {{{ パーミッションの設定

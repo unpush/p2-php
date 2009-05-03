@@ -90,13 +90,12 @@ if ($get['view'] != 'favita' && $get['view'] != 'rss' && empty($_GET['cateid']))
 //===========================================================
 // 検索結果をHTML表示
 //===========================================================
-// {{{ 検索ワードがあれば
 
 $modori_url_ht = '';
 
 // {{{ 検索ワードがあれば
 
-if (strlen($GLOBALS['word']) > 0) {
+if (strlen($GLOBALS['word'])) {
 
     ?><div class="panel"><h2>
     <?php
@@ -116,7 +115,7 @@ if (strlen($GLOBALS['word']) > 0) {
         P2Util::pushInfoHtml(sprintf('"%s"を含む板は見つかりませんでした。', hs($GLOBALS['word'])));
     }
     $atag = P2View::tagA(
-        P2Util::buildQueryUri('menu_i.php',
+        P2Util::buildQueryUri($_conf['menu_k_php'],
             array(
                 'view' => 'cate',
                 'nr'   => '1',
@@ -155,9 +154,7 @@ if (isset($_GET['cateid'])) {
     ) . '<br>';
 }
 
-
 P2Util::printInfoHtml();
-
 
 // フッタをHTML表示
 echo geti($GLOBALS['list_navi_ht']);

@@ -60,11 +60,17 @@ EOP;
             $list_navi_ht = '';
         }
         
+        if (UA::isIPhoneGroup()) {
+            ?><ul id="home"><li class="group">î¬àÍóó</li><?php
+        }
         foreach ($categories as $cate) {
             if ($this->cate_id >= $disp_navi['from'] and $this->cate_id <= $disp_navi['end']) {
                 echo "<a href=\"{$_conf['menu_k_php']}?cateid={$this->cate_id}&amp;nr=1{$_conf['k_at_a']}\">{$cate->name}</a>($cate->num)<br>\n"; // $this->cate_id
             }
             $this->cate_id++;
+        }
+        if (UA::isIPhoneGroup()) {
+            ?></ul><?php
         }
     }
 
@@ -93,11 +99,13 @@ EOP;
         } else {
             $list_disp_from = 1;
         }
-
+        
         foreach ($categories as $cate) {
             if ($cate->num and $this->cate_id == $_GET['cateid']) {
                 
-                echo "{$cate->name}$hr\n";
+                if (!UA::isIPhoneGroup()) {
+                    echo "{$cate->name}<hr>\n";
+                }
 
                 $list_disp_all_num = $cate->num;
                 $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
@@ -124,6 +132,11 @@ EOP;
 EOP;
                 }
 
+                if (UA::isIPhoneGroup()) {
+                    echo '<ul>';
+                    echo '<li class="group">î¬àÍóó</li>';
+                }
+                
                 $i = 0;
                 foreach ($cate->menuitas as $mita) {
                     $i++;
@@ -164,6 +177,9 @@ EOP;
             
             }
             $this->cate_id++;
+        }
+        if (UA::isIPhoneGroup()) {
+            ?></ul><?php
         }
     }
 
@@ -218,16 +234,18 @@ EOP;
         
         // }}}
         
-        $i = 0;
+        if (UA::isIPhoneGroup()) {
+            ?><ul><?php
+        }
         foreach ($categories as $cate) {
             
             if ($cate->num > 0) {
-
                 $t = false;
                 foreach ($cate->menuitas as $mita) {
                     
                     $GLOBALS['menu_show_ita_num']++;
                     if ($GLOBALS['menu_show_ita_num'] >= $disp_navi['from'] and $GLOBALS['menu_show_ita_num'] <= $disp_navi['end']) {
+
                         if (!$t) {
                             echo "<b>{$cate->name}</b><br>\n";
                         }
@@ -241,12 +259,19 @@ EOP;
                         ));
                         $atag = P2View::tagA($uri, $mita->itaj_ht);
                         
-                        echo '&nbsp;' . $atag . "<br>\n";
+                        if (UA::isIPhoneGroup()) {
+                            echo "<li>{$atag}</li>\n";
+                        } else {
+                            echo '&nbsp;' . $atag . "<br>\n";
+                        }
                     }
                 }
 
             }
             $this->cate_id++;
+        }
+        if (UA::isIPhoneGroup()) {
+            ?></ul><?php
         }
     }
 
@@ -275,30 +300,53 @@ EOP;
                     $itaj = rtrim($matches[3]);
                     $attr = array();
                     $key_num_st = '';
-                    
+
                     if ($i <= 9) {
                         $attr[$_conf['accesskey_for_k']] = $i;
                         $key_num_st = "$i.";
                     }
-                    
-                    $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
-                        'host' => $matches[1],
-                        'bbs'  => $matches[2],
-                        'itaj_en' => base64_encode($itaj),
-                        UA::getQueryKey() => UA::getQueryValue()
-                    ));
-                    $atag = P2View::tagA($uri, hs($key_num_st . $itaj), $attr);
-                    
-                    echo $atag . '<br>';
+
+                    $atag = P2View::tagA(
+                        P2Util::buildQueryUri($_conf['subject_php'],
+                            array(
+                                'host' => $matches[1],
+                                'bbs'  => $matches[2],
+                                'itaj_en' => base64_encode($itaj),
+                                UA::getQueryKey() => UA::getQueryValue()
+                            )
+                        ),
+                        hs($itaj),
+                        $attr
+                    );
+
+                    if (UA::isIPhoneGroup()) {
+                        echo '<li>' . $atag . '</li>';
+                    } else {
+                        echo $atag . '<br>';
+                    }
 
                     //  [<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;csrfid={$csrfid}&amp;view=favita{$_conf['k_at_a']}">çÌ</a>]
                     $show_flag = true;
                 }
             }
+            if (UA::isIPhoneGroup()) {
+                ?></ul><?php
+            }
         }
         
-        if (empty($show_flag)) {
-            echo "<p>Ç®ãCÇ…î¬ÇÕÇ‹ÇæÇ»Ç¢ÇÊÇ§Çæ</p>";
+        if (!$show_flag) {
+            ?><p>Ç®ãCÇ…î¬ÇÕÇ‹ÇæÇ»Ç¢ÇÊÇ§Çæ</p><?php
         }
     }
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

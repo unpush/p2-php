@@ -153,8 +153,7 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
 if (!$read_navi_next_isInvisible) {
-    $url = P2Util::buildQueryUri(
-        $_conf['read_php'],
+    $url = P2Util::buildQueryUri($_conf['read_php'],
         array_merge(
             $thread_qs,
             array(
@@ -254,10 +253,10 @@ if ($_filter_hits !== NULL) {
 
 // お気にマーク設定
 $favmark    = !empty($aThread->fav) ? '★' : '+';
-$favvalue      = !empty($aThread->fav) ? 0 : 1;
+$favvalue   = !empty($aThread->fav) ? 0 : 1;
 $favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
 $favtitle   .= '（アクセスキー[f]）';
-$setfav_q    = '&amp;setfav=' . $favvalue;
+$setfav_q   = '&amp;setfav=' . $favvalue;
 
 $toolbar_right_ht = _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $dele_st, $moto_thre_st);
 
@@ -266,8 +265,7 @@ $b_qs = array(
     UA::getQueryKey() => UA::getQueryValue()
 );
 $atag = P2View::tagA(
-    P2Util::buildQueryUri(
-        $_conf['subject_php'],
+    P2Util::buildQueryUri($_conf['subject_php'],
         array_merge($thread_qs, $b_qs)
     ),
     hs($aThread->itaj),
@@ -300,63 +298,62 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 	<script type="text/javascript" src="js/post_form.js?v=20081205"></script>
     <script type="text/javascript"> 
 	<!-- 
-		// iPhoneのURL編集部分を表示しないようスクロールする
-		window.onload = function() { 
-			setTimeout(scrollTo, 100, 0, 1); 
+	// iPhoneのURL編集部分を表示しないようスクロールする
+	window.onload = function() { 
+		setTimeout(scrollTo, 100, 0, 1); 
+	}
+
+	// ページ読み込み完了時コールバック関数
+	gIsPageLoaded = false;
+	addLoadEvent(function() {	// basic.jsのメソッド
+		// ページロード完了フラグ(trueじゃないとお気に入り変更javascriptが動かない)
+		gIsPageLoaded = true;
+		// ページ読み込み完了時に実行するスクリプト群
+		<?php echo $onload_script; ?>
+	});
+
+	// レス範囲のフォームの内容をリセットしてからページ移行するメソッド
+	var onArreyt = 2;
+	function formReset() {
+		var uriValue = "<?php echo $_conf['read_php']; ?>?"
+					+ "offline=1&"
+					//+ "b=" + document.frmresrange.b.value + "&"
+					+ "b=i&"
+					+ "host=" + document.frmresrange.host.value + "&"
+					+ "bbs=" + document.frmresrange.bbs.value + "&"
+					+ "key=" + document.frmresrange.key.value + "&"
+					+ "rescount=" + document.frmresrange.rescount.value + "&"
+					+ "ttitle_en=" + document.frmresrange.ttitle_en.value + "&"
+					+ "ls=" + document.frmresrange.ls.value + "&";
+		document.frmresrange.reset();
+		window.location.assign(uriValue);
+	}
+	// フッターのレスフィルター表示フォームのポップアップを表示するメソッド
+	// Edit 080727 by 240
+	function footbarFormPopUp(arrayNum, resetFlag) {
+		var formStyles = new Array(2);
+		var liElement = new Array(2);
+		formStyles[0] = document.getElementById('searchForm').style;
+		formStyles[1] = document.getElementById('writeForm').style;
+		liElement[0]  = document.getElementById('serchId');
+		liElement[1]  = document.getElementById('writeId');
+
+		for (var i = 0; i < 2; i++) {
+			if (i != arrayNum)
+				liElement[i].setAttribute('title', 'off');
+			liElement[i].style.backgroundPositionY = '0';
+			formStyles[i].display = 'none';
+		}
+		if (liElement[arrayNum].getAttribute('title') == 'on' || resetFlag) {
+			liElement[arrayNum].setAttribute('title', 'off');
+			return;
 		}
 
-		// ページ読み込み完了時コールバック関数
-		gIsPageLoaded = false;
-		addLoadEvent(function() {	// basic.jsのメソッド
-			// ページロード完了フラグ(trueじゃないとお気に入り変更javascriptが動かない)
-			gIsPageLoaded = true;
-			// ページ読み込み完了時に実行するスクリプト群
-			<?php echo $onload_script; ?>
-		});
-
-		// レス範囲のフォームの内容をリセットしてからページ移行するメソッド
-		var onArreyt = 2;
-		function formReset() {
-			var uriValue = "<?php echo $_conf['read_php']; ?>?"
-						+ "offline=1&"
-						//+ "b=" + document.frmresrange.b.value + "&"
-						+ "b=i&"
-						+ "host=" + document.frmresrange.host.value + "&"
-						+ "bbs=" + document.frmresrange.bbs.value + "&"
-						+ "key=" + document.frmresrange.key.value + "&"
-						+ "rescount=" + document.frmresrange.rescount.value + "&"
-						+ "ttitle_en=" + document.frmresrange.ttitle_en.value + "&"
-						+ "ls=" + document.frmresrange.ls.value + "&";
-			document.frmresrange.reset();
-			window.location.assign(uriValue);
-		}
-		// フッターのレスフィルター表示フォームのポップアップを表示するメソッド
-		// Edit 080727 by 240
-		function footbarFormPopUp(arrayNum, resetFlag) {
-			var formStyles = new Array(2);
-			var liElement = new Array(2);
-			formStyles[0] = document.getElementById('searchForm').style;
-			formStyles[1] = document.getElementById('writeForm').style;
-			liElement[0]  = document.getElementById('serchId');
-			liElement[1]  = document.getElementById('writeId');
-
-			for (var i = 0; i < 2; i++) {
-				if (i != arrayNum)
-					liElement[i].setAttribute('title', 'off');
-				liElement[i].style.backgroundPositionY = '0';
-				formStyles[i].display = 'none';
-			}
-			if (liElement[arrayNum].getAttribute('title') == 'on' || resetFlag) {
-				liElement[arrayNum].setAttribute('title', 'off');
-				return;
-			}
-
-			liElement[arrayNum].setAttribute('title', 'on');
-			liElement[arrayNum].style.backgroundPositionY = '-50px';
+		liElement[arrayNum].setAttribute('title', 'on');
+		liElement[arrayNum].style.backgroundPositionY = '-50px';
 //			formStyles[arrayNum].top = (document.height - 480).toString(); + "px"
-			formStyles[arrayNum].display = 'block';
-		}
-		
+		formStyles[arrayNum].display = 'block';
+	}
 	// --> 
 	</script>
 
@@ -369,7 +366,8 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 $onload_script = "";
 
 if ($_conf['bottom_res_form']) {
-    echo '<script type="text/javascript" src="js/post_form.js?v=20081205"></script>' . "\n";
+    ?><script type="text/javascript" src="js/post_form.js?v=20081205"></script>
+<?php
     $onload_script .= "checkSage();";
 }
 
@@ -382,21 +380,22 @@ $existWord = (strlen($GLOBALS['word']) > 0) ? 'true' : 'false';
 
 
 if ($_conf['enable_spm']) {
-    echo "\t<script type=\"text/javascript\" src=\"iphone/js/smartpopup.iPhone.js?v=20070308\"></script>\n";
+    ?><script type="text/javascript" src="iphone/js/smartpopup.iPhone.js?v=20070308"></script>
+<?php
 }
 ///////
 echo <<<EOP
 <script type="text/javascript">
-    <!--
-    gFade = {$fade};
-    gExistWord = {$existWord};
-    gIsPageLoaded = false;
-    addLoadEvent(function() {
-        gIsPageLoaded = true;
-        {$onload_script}
-    });
-    //-->
-    </script>\n
+	<!--
+	gFade = {$fade};
+	gExistWord = {$existWord};
+	gIsPageLoaded = false;
+	addLoadEvent(function() {
+		gIsPageLoaded = true;
+		{$onload_script}
+	});
+	//-->
+	</script>\n
 </head>
 <body{$body_at} >\n
 EOP;
@@ -434,18 +433,20 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and em
 <div class="toolbar">
 {$htm['read_navi_range']}
 EOP;
+
     // お気にスレに追加/外す
 	echo "<span class=\"setfav\" style=\"white-space: nowrap;\"><a class=\"favbutton\" href=\"info_i.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$setfav_q}{$sid_q}\" target=\"info\" onClick=\"return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favvalue}', {$STYLE['info_pop_size']}, 'read', this);\" accesskey=\"f\" title=\"{$favtitle}\">{$favmark}</a></span>";
+
 	echo <<< EOP
 <a class="button" href="javascript:window.scrollBy(0, document.height)" target="_self">▼</a>
 </div>
 EOP;
+
 /* iPhone 用に除外↑
 {$read_navi_previous}
 <!-- {$read_navi_next} -->
 {$read_navi_latest}
-   
-    */
+*/
 }
 
 //echo "<hr>";

@@ -19,7 +19,7 @@ class ShowBrdMenuK
      * @access  public
      * @return  void
      */
-    function printCate(&$categories)
+    function printCate($categories)
     {
         global $_conf, $list_navi_ht;
 
@@ -38,7 +38,7 @@ class ShowBrdMenuK
     
         if ($disp_navi['from'] > 1) {
             $mae_ht = <<<EOP
-<span class="mae"><a href="menu_i.php?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a></span>
+<span class="mae"><a href="{$_conf['menu_k_php']}?view=cate&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a></span>
 EOP;
         } else {
             $mae_ht = '';
@@ -46,7 +46,7 @@ EOP;
         
         if ($disp_navi['end'] < $list_disp_all_num) {
             $tugi_ht = <<<EOP
-<span class="tugi"><a href="menu_i.php?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a></span>
+<span class="tugi"><a href="{$_conf['menu_k_php']}?view=cate&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a></span>
 EOP;
         } else {
             $tugi_ht = '';
@@ -60,13 +60,18 @@ EOP;
             $list_navi_ht = '';
         }
         
-    echo '<ul id="home"><li class="group">板一覧</li>';
+        if (UA::isIPhoneGroup()) {
+            ?><ul id="home"><li class="group">板一覧</li><?php
+        }
         foreach ($categories as $cate) {
             if ($this->cate_id >= $disp_navi['from'] and $this->cate_id <= $disp_navi['end']) {
-                echo "<li><a href=\"menu_i.php?cateid={$this->cate_id}&amp;nr=1{$_conf['k_at_a']}\">{$cate->name}($cate->num)</a></li>\n"; // $this->cate_id
+                echo "<li><a href=\"{$_conf['menu_k_php']}?cateid={$this->cate_id}&amp;nr=1{$_conf['k_at_a']}\">{$cate->name}($cate->num)</a></li>\n"; // $this->cate_id
             }
             $this->cate_id++;
-        }    echo '</ul>';
+        }
+        if (UA::isIPhoneGroup()) {
+            ?></ul><?php
+        }
     }
 
     /**
@@ -98,14 +103,16 @@ EOP;
         foreach ($categories as $cate) {
             if ($cate->num and $this->cate_id == $_GET['cateid']) {
                 
-                //echo "{$cate->name}<hr>\n";
+                if (!UA::isIPhoneGroup()) {
+                    echo "{$cate->name}<hr>\n";
+                }
 
                 $list_disp_all_num = $cate->num;
                 $disp_navi = P2Util::getListNaviRange($list_disp_from, $_conf['k_sb_disp_range'], $list_disp_all_num);
                 
                 if ($disp_navi['from'] > 1) {
                     $mae_ht = <<<EOP
-<span class="mae"><a href="menu_i.php?cateid={$this->cate_id}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a></span>
+<span class="mae"><a href="{$_conf['menu_k_php']}?cateid={$this->cate_id}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a></span>
 EOP;
                 } else {
                     $mae_ht = '';
@@ -113,7 +120,7 @@ EOP;
                 
                 if ($disp_navi['end'] < $list_disp_all_num) {
                     $tugi_ht = <<<EOP
-<span class="tugi"><a href="menu_i.php?cateid={$this->cate_id}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a><span>
+<span class="tugi"><a href="{$_conf['menu_k_php']}?cateid={$this->cate_id}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a><span>
 EOP;
                 } else {
                     $tugi_ht = '';
@@ -124,8 +131,12 @@ EOP;
 <div id="foot" class="foot_sure">{$mae_ht} {$tugi_ht}</div>
 EOP;
                 }
-echo '<ul>';
-echo '<li class="group">板一覧</li>';
+                
+                if (UA::isIPhoneGroup()) {
+                    echo '<ul>';
+                    echo '<li class="group">板一覧</li>';
+                }
+                
                 $i = 0;
                 foreach ($cate->menuitas as $mita) {
                     $i++;
@@ -149,7 +160,10 @@ echo  "<li><a class=\"plus\"href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&
             
             }
             $this->cate_id++;
-        }echo'</ul>';
+        }
+        if (UA::isIPhoneGroup()) {
+            ?></ul><?php
+        }
     }
 
     /**
@@ -179,7 +193,7 @@ echo  "<li><a class=\"plus\"href=\"{$_SERVER['SCRIPT_NAME']}?host={$mita->host}&
         
         if ($disp_navi['from'] > 1) {
             $mae_ht = <<<EOP
-<span class="mae"><a href="menu_i.php?w{$detect_hint_q}{$word_q}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a> </span>
+<span class="mae"><a href="{$_conf['menu_k_php']}?{$detect_hint_q}{$word_q}&amp;from={$disp_navi['mae_from']}&amp;nr=1{$_conf['k_at_a']}">前</a> </span>
 EOP;
         } else {
             $mae_ht = '';
@@ -187,7 +201,7 @@ EOP;
         
         if ($disp_navi['end'] < $list_disp_all_num) {
             $tugi_ht = <<<EOP
-<span class="tugi"><a href="menu_i.php?{$detect_hint_q}{$word_q}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a> </span>
+<span class="tugi"><a href="{$_conf['menu_k_php']}?{$detect_hint_q}{$word_q}&amp;from={$disp_navi['tugi_from']}&amp;nr=1{$_conf['k_at_a']}">次</a> </span>
 EOP;
         } else {
             $tugi_ht = '';
@@ -203,8 +217,9 @@ EOP;
         
         // }}}
         
-        echo '<ul>';
-        $i = 0;
+        if (UA::isIPhoneGroup()) {
+            ?><ul><?php
+        }
         foreach ($categories as $cate) {
             
             if ($cate->num > 0) {
@@ -218,13 +233,29 @@ EOP;
                             echo "<li class=\"group\">{$cate->name}</li>\n";
                         }
                         $t = true;
-                        echo "<li><a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}&amp;itaj_en={$mita->itaj_en}{$_conf['k_at_a']}\">{$mita->itaj_ht}</a></li>\n";
+                        
+                        $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
+                            'host' => $mita->host,
+                            'bbs'  => $mita->bbs,
+                            'itaj_en' => $mita->itaj_en,
+                            UA::getQueryKey() => UA::getQueryValue()
+                        ));
+                        $atag = P2View::tagA($uri, $mita->itaj_ht);
+                        
+                        if (UA::isIPhoneGroup()) {
+                            echo "<li>{$atag}{$threti_num_ht}</li>\n";
+                        } else {
+                            echo '&nbsp;' . $atag . "{$threti_num_ht}<br>\n";
+                        }
                     }
                 }
 
             }
             $this->cate_id++;
-        }echo '</ul>';
+        }
+        if (UA::isIPhoneGroup()) {
+            ?></ul><?php
+        }
     }
 
     /**
@@ -260,24 +291,36 @@ EOP;
                         $key_num_st = "$i.";
                     }
 
-                    $uri = P2Util::buildQueryUri($_conf['subject_php'], array(
-                        'host' => $matches[1],
-                        'bbs'  => $matches[2],
-                        'itaj_en' => base64_encode($itaj),
-                        UA::getQueryKey() => UA::getQueryValue()
-                    ));
-                    $atag = P2View::tagA($uri, hs($itaj), $attr);
+                    $atag = P2View::tagA(
+                        P2Util::buildQueryUri($_conf['subject_php'],
+                            array(
+                                'host' => $matches[1],
+                                'bbs'  => $matches[2],
+                                'itaj_en' => base64_encode($itaj),
+                                UA::getQueryKey() => UA::getQueryValue()
+                            )
+                        ),
+                        hs($itaj),
+                        $attr
+                    );
 
-                    echo '<li>' . $atag . '</li>';
+                    if (UA::isIPhoneGroup()) {
+                        echo '<li>' . $atag . '</li>';
+                    } else {
+                        echo $atag . '<br>';
+                    }
 
                     //  [<a href="{$_SERVER['SCRIPT_NAME']}?host={$matches[1]}&amp;bbs={$matches[2]}&amp;setfavita=0&amp;csrfid={$csrfid}&amp;view=favita{$_conf['k_at_a']}">削</a>]
                     $show_flag = true;
                 }
-            }echo '</ul>';
+            }
+            if (UA::isIPhoneGroup()) {
+                ?></ul><?php
+            }
         }
         
         if (!$show_flag) {
-            echo "<p>お気に板はまだないようだ</p>";
+            ?><p>お気に板はまだないようだ</p><?php
         }
     }
 }

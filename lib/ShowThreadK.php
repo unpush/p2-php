@@ -350,7 +350,7 @@ EOP;
         if ($_conf['mobile.id_underline']) {
             $date_id = preg_replace('!((?:ID: ?)| )([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?O(?=[^0-9A-Za-z/.+]|$)!', '$1$2<u>O</u>', $date_id);
         }
-
+        
         if ($_conf['k_clip_unique_id']) {
             $date_id = str_replace('???', '?', $date_id);
         }
@@ -442,7 +442,7 @@ EOP;
         $this->str_to_link_rest = $this->str_to_link_limit;
         
         $ryaku = false;
-        
+
         // 2ch‹ŒŒ`®‚Ìdat
         if ($this->thread->dat_type == "2ch_old") {
             $msg = str_replace('—M', ',', $msg);
@@ -515,7 +515,6 @@ EOP;
                 '<img src="http://$1" border="0">', $msg
             );
         }
-        
         return $msg;
     }
 
@@ -723,6 +722,10 @@ EOP;
     {
         global $_conf;
         
+        if (--$this->str_to_link_rest < 0) {
+            return $s[0];
+        }
+        
         list($full, $qsign, $appointed_num) = $s;
         
         if ($appointed_num == '-') {
@@ -733,7 +736,17 @@ EOP;
             return $s[0];
         }
 
-        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&offline=1&ls={$appointed_num}&b={$_conf['b']}";
+
+        $read_url = P2Util::buildQueryUri($_conf['read_php'],
+            array(
+                'host' => $this->thread->host,
+                'bbs'  => $this->thread->bbs,
+                'key'  => $this->thread->key,
+                'offline' => '1',
+                'ls'   => $appointed_num, // "{$appointed_num}n"
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        );
         $read_url_hs = hs($read_url);
         return "<a href=\"{$read_url_hs}\">{$qsign}{$appointed_num}</a>";
     }
@@ -747,10 +760,6 @@ EOP;
     function quote_res_range_callback($s)
     {
         global $_conf;
-        
-        if (--$this->str_to_link_rest < 0) {
-            return $s[0];
-        }
         
         list($full, $qsign, $appointed_num) = $s;
         
