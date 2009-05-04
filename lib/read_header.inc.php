@@ -157,10 +157,17 @@ $similar_qs = array(
 $ita_url = P2Util::buildQueryUri($_conf['subject_php'], array_merge($thread_qs, $b_qs));
 $ita_url_hs = hs($ita_url);
 
-$similar_url = P2Util::buildQueryUri($_conf['subject_php'],
-    array_merge($similar_qs, $thread_qs, $b_qs, array('refresh' => 1))
+$similar_atag  = P2View::tagA(
+    P2Util::buildQueryUri($_conf['subject_php'],
+        array_merge($similar_qs, $thread_qs, $b_qs, array('refresh' => 1))
+    ),
+    hs($siml_thre_st),
+    array(
+        'style' => 'white-space: nowrap;',
+        'target' => 'subject',
+        'title' => '同じ板からタイトルが似ているスレッドを検索する'
+    )
 );
-$similar_url_hs = hs($similar_url);
 
 $info_php = UA::isIPhoneGroup() ? 'info_i.php' : 'info.php';
 
@@ -260,9 +267,8 @@ $motothre_atag = P2View::tagA(
 $toolbar_right_ht = <<<EOTOOLBAR
 	<a style="white-space: nowrap;" href="{$ita_url_hs}" target="subject" title="板を開く">{$itaj_hs}</a>
 
-	<a style="white-space: nowrap;" href="{$similar_url_hs}" target="subject" title="同じ板からタイトルが似ているスレッドを検索する">{$siml_thre_st}</a>
-
-	$info_atag 
+	$similar_atag
+	$info_atag
 
 	<span class="setfav" style="white-space: nowrap;">{$setFavATag}</span> 
 

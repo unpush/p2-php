@@ -5,7 +5,7 @@
 
 require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/setFav.func.php';
-require_once P2_LIB_DIR . '/setpalace.inc.php';
+require_once P2_LIB_DIR . '/setPalace.func.php';
 
 /**
  * 指定した配列keysのログ（idx, (dat, srd)）を削除して、

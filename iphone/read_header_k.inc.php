@@ -6,15 +6,15 @@
 // 変数
 $diedat_msg_ht = '';
 
-$info_st        = "スレ情報表示";
-$dele_st        = "ログ削除";
-$prev_st        = "前";
-$next_st        = "次";
-$shinchaku_st   = "新着";
-$moto_thre_st   = "元スレ";
-$siml_thre_st   = "類似スレ";
-$latest_st      = "新着";
-$dores_st       = "レス";
+$info_st        = 'スレ情報表示';
+$dele_st        = 'ログ削除';
+$prev_st        = '前';
+$next_st        = '次';
+$shinchaku_st   = '新着';
+$moto_thre_st   = '元スレ';
+$siml_thre_st   = '類似スレ';
+$latest_st      = '新着';
+$dores_st       = 'レス';
 $find_st        = '検索';
 
 $motothre_url   = $aThread->getMotoThread();

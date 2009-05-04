@@ -203,7 +203,7 @@ function _postFavRank($post)
 {
     global $_conf;
 
-    $method = "POST";
+    $method = 'POST';
     $httpua = "Monazilla/1.00 (" . $_conf['p2uaname'] . "/" . $_conf['p2version'] . ")";
     
     $URL = parse_url($_conf['favrank_url']);

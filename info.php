@@ -83,7 +83,7 @@ if (!empty($_GET['offrecent'])) {
 
 // 殿堂入り
 } elseif (isset($_GET['setpal'])) {
-    require_once P2_LIB_DIR . '/setpalace.inc.php';
+    require_once P2_LIB_DIR . '/setPalace.func.php';
     setPalace($host, $bbs, $key, $_GET['setpal']);
 
 // スレッドあぼーん
@@ -330,7 +330,31 @@ $ita_atag = P2View::tagA(
     "{$up_pre_ht}{$hs['itaj']}",
     $attrs
 );
-_printInfoTrHtml('板', $ita_atag);
+
+// 似スレ
+$similar_qs = array(
+    'detect_hint' => '◎◇',
+    'itaj_en'     => base64_encode($aThread->itaj),
+    'method'      => 'similar',
+    'word'        => $aThread->ttitle_hc
+    // 'refresh' => 1
+);
+$similar_atag  = P2View::tagA(
+    P2Util::buildQueryUri($_conf['subject_php'],
+        array_merge($similar_qs,
+            array(
+                'host' => $aThread->host,
+                'bbs'  => $aThread->bbs,
+                UA::getQueryKey() => UA::getQueryValue(),
+                'refresh' => '1'
+            )
+        )
+    ),
+    hs(UA::isK() ? '似ｽﾚ' : '似スレ'),
+    array('target' => 'subject')
+);
+
+_printInfoTrHtml('板', "$ita_atag ($similar_atag)");
 
 // PC用表示
 if (UA::isPC()) {

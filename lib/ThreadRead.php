@@ -737,10 +737,8 @@ class ThreadRead extends Thread
 
         $url = $uri . $ext;
     
-        $method = "GET";
-        if (!$httpua) {
-            $httpua = "Monazilla/1.00 (" . $_conf['p2uaname'] . "/" . $_conf['p2version'] . ")";
-        }
+        $method = 'GET';
+        $httpua = 'Monazilla/1.00 (' . $_conf['p2uaname'] . '/' . $_conf['p2version'] . ')';
         
         $purl = parse_url($url);
         
@@ -758,7 +756,7 @@ class ThreadRead extends Thread
             $send_path = $url;
         } else {
             $send_host = $purl['host'];
-            $send_port = $purl['port'];
+            $send_port = isset($purl['port']) ? $purl['port'] : null;
             $send_path = $purl['path'] . $purl['query'];
         }
         
@@ -838,6 +836,7 @@ class ThreadRead extends Thread
                 $onbytes = $h['headers']['Content-Length'];
             }
         }
+        $isGzip = false;
         if (isset($h['headers']['Content-Encoding'])) {
             if (preg_match("/^(x-)?gzip/", $h['headers']['Content-Encoding'], $matches)) {
                 $isGzip = true;
@@ -1220,7 +1219,7 @@ class ThreadRead extends Thread
                 $send_path = $url;
             } else {
                 $send_host = $purl['host'];
-                $send_port = geti($purl['port']);
+                $send_port = isset($purl['port']) ? $purl['port'] : null;
                 $send_path = $purl['path'] . $purl['query'];
             }
             

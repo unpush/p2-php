@@ -4,6 +4,7 @@
 // @created 2008/09/28
 
 /**
+ * @access  public
  * @return  integer
  */
 function updateSbToolI()
@@ -16,6 +17,7 @@ function updateSbToolI()
 }
 
 /**
+ * @access  public
  * @return  string  HTML
  */
 function getSbToolbarShinchakuMatomeHtml($aThreadList, $shinchaku_num)
@@ -62,6 +64,7 @@ function getSbToolbarShinchakuMatomeHtml($aThreadList, $shinchaku_num)
 }
 
 /**
+ * @access  public
  * @return  string  HTML
  */
 function getSbToolAnchorHtml($sb_tool_i)

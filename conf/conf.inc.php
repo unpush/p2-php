@@ -6,7 +6,7 @@
     ユーザ設定は、ブラウザから「ユーザ設定編集」で。管理者向け設定は、conf_admin.inc.phpで行う。
 */
 
-$_conf['p2version'] = '1.8.43'; // rep2のバージョン
+$_conf['p2version'] = '1.8.44'; // rep2のバージョン
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 

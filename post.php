@@ -210,7 +210,7 @@ if (!empty($_POST['newthread'])) {
 //================================================================
 
 // ポスト実行
-$posted = _postIt($host, $bbs, $key, $post); // @return  boolean|string
+$posted = _postIt($host, $bbs, $key, $post, $bbs_cgi); // @return  boolean|string
 
 // 最終投稿時間を記録する 確認処理
 if ($posted === true) {

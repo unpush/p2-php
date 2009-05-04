@@ -120,7 +120,7 @@ if (!empty($_GET['dele']) or (isset($_POST['submit']) and $_POST['submit'] == $d
 
 // 殿堂入り
 } elseif (isset($_GET['setpal']) && $_GET['key'] && $host && $bbs) {
-    require_once P2_LIB_DIR . '/setpalace.inc.php';
+    require_once P2_LIB_DIR . '/setPalace.func.php';
     setPalace($host, $bbs, $_GET['key'], $_GET['setpal']);
 
 // あぼーんスレッド解除

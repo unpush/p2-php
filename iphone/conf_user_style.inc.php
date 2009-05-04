@@ -65,6 +65,7 @@ $STYLE['fav_color'] = "#999"; // ("#999") お気にマークの色
 
 // メニュー(menu)====================
 $STYLE['menu_bgcolor'] = "#fff"; //("#fff") menu 背景色
+$STYLE['menu_background'] = ''; // ('') menu 背景画像
 $STYLE['menu_color'] = "#000"; //("#000") menu テキスト色
 $STYLE['menu_cate_color'] = "#333"; // ("#333") menu カテゴリーの色
 
