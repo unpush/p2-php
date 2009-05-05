@@ -803,7 +803,7 @@ function ic2_display($path, $params)
                 $stars[$i] = $img_dir . (($rank >= $i) ? 's1' : 's0') . '.png';
             }
 
-            $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0";
+            $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0" . str_replace('&amp;', '&', $_conf['k_at_a']);
 
             $flexy->setData('stars', $stars);
             $flexy->setData('params', $params);

@@ -15,16 +15,16 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
   sort_order INTEGER NOT NULL DEFAULT 0
 )';
     const Q_COUNT   = 'SELECT COUNT(*) FROM kvp LIMIT 1';
-    const Q_EXSITS1 = 'SELECT 1 FROM kvp WHERE id = :id LIMIT 1';
-    const Q_EXSITS2 = 'SELECT 1 FROM kvp WHERE id = :id AND mtime >= :expireTime LIMIT 1';
-    const Q_GET     = 'SELECT value FROM kvp WHERE id = :id LIMIT 1';
+    const Q_EXSITS1 = 'SELECT 1 FROM kvp WHERE id = :key LIMIT 1';
+    const Q_EXSITS2 = 'SELECT 1 FROM kvp WHERE id = :key AND mtime >= :expires LIMIT 1';
+    const Q_GET     = 'SELECT value FROM kvp WHERE id = :key LIMIT 1';
     const Q_GETALL  = 'SELECT * FROM kvp';
-    const Q_SAVE    = 'INSERT INTO kvp (id, value, sort_order) VALUES (:id, :value, :order)';
-    const Q_UPDATE0 = 'UPDATE kvp SET sort_order = :order WHERE id = :id';
-    const Q_UPDATE1 = 'UPDATE kvp SET value = :value, mtime = strftime(\'%s\',\'now\'), sort_order = :order WHERE id = :id';
-    const Q_REMOVE  = 'DELETE FROM kvp WHERE id = :id';
+    const Q_SAVE    = 'INSERT INTO kvp (id, value, sort_order) VALUES (:key, :value, :order)';
+    const Q_UPDATE0 = 'UPDATE kvp SET sort_order = :order WHERE id = :key';
+    const Q_UPDATE1 = 'UPDATE kvp SET value = :value, mtime = strftime(\'%s\',\'now\'), sort_order = :order WHERE id = :key';
+    const Q_REMOVE  = 'DELETE FROM kvp WHERE id = :key';
     const Q_CLEAN   = 'DELETE FROM kvp';
-    const Q_GC      = 'DELETE FROM kvp WHERE mtime < :expireTime';
+    const Q_GC      = 'DELETE FROM kvp WHERE mtime < :expires';
 
     // }}}
     // {{{ staric private properties
@@ -157,6 +157,34 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     }
 
     // }}}
+    // {{{ _encodeKey()
+
+    /**
+     * キーをUTF-8 or US-ASCII文字列にエンコードする
+     *
+     * @param string $key
+     * @return string
+     */
+    protected function _encodeKey($key)
+    {
+        return (string)$key;
+    }
+
+    // }}}
+    // {{{ _decodeKey()
+
+    /**
+     * キーをデコードする
+     *
+     * @param string $key
+     * @return string
+     */
+    protected function _decodeKey($key)
+    {
+        return $key;
+    }
+
+    // }}}
     // {{{ _encodeValue()
 
     /**
@@ -167,7 +195,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     protected function _encodeValue($value)
     {
-        return $value;
+        return (string)$value;
     }
 
     // }}}
@@ -198,11 +226,11 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     {
         if ($lifeTime == -1) {
             $sth = $this->_getStatement(self::Q_EXSITS1);
-            $sth->bindValue(':id', $key, PDO::PARAM_STR);
+            $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
         } else {
             $sth = $this->_getStatement(self::Q_EXSITS2);
-            $sth->bindValue(':id', $key, PDO::PARAM_STR);
-            $sth->bindValue(':expireTime', time() - $lifeTime, PDO::PARAM_INT);
+            $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+            $sth->bindValue(':expires', time() - $lifeTime, PDO::PARAM_INT);
         }
         $sth->execute();
         $ret = (bool)$sth->fetchColumn();
@@ -229,38 +257,19 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
         if ($orders) {
             $terms = array();
             foreach ($orders as $column => $ascending) {
+                $direction = $ascending ? 'ASC' : 'DESC';
                 switch ($column) {
-                    case 'id':
-                    case 'key': // 'id'のエイリアス
-                        if ($ascending) {
-                            $terms[] = 'id ASC';
-                        } else {
-                            $terms[] = 'id DESC';
-                        }
+                    case 'key':
+                        $terms[] = 'id ' . $direction;
                         break;
                     case 'value':
-                    case 'data': // 'value'のエイリアス
-                        if ($ascending) {
-                            $terms[] = 'value ASC';
-                        } else {
-                            $terms[] = 'value DESC';
-                        }
+                        $terms[] = 'value ' . $direction;
                         break;
                     case 'mtime':
-                    case 'time': // 'mtime'のエイリアス
-                        if ($ascending) {
-                            $terms[] = 'mtime ASC';
-                        } else {
-                            $terms[] = 'mtime DESC';
-                        }
+                        $terms[] = 'mtime ' . $direction;
                         break;
-                    case 'sort_order':
-                    case 'order': // 'sort_order'のエイリアス
-                        if ($ascending) {
-                            $terms[] = 'sort_order ASC';
-                        } else {
-                            $terms[] = 'sort_order DESC';
-                        }
+                    case 'order':
+                        $terms[] = 'sort_order ' . $direction;
                         break;
                 }
             }
@@ -283,8 +292,9 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
         $values = array();
         if ($whole) {
             while ($row = $sth->fetch()) {
-                $values[$row['id']] = array(
-                    'key' => $row['id'],
+                $key = $this->_decodeKey($row['id']);
+                $values[$key] = array(
+                    'key' => $key,
                     'value' => $this->_decodeValue($row['value']),
                     'mtime' => (int)$row['mtime'],
                     'order' => (int)$row['sort_order']
@@ -292,7 +302,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
             }
         } else {
             while ($row = $sth->fetch()) {
-                $values[$row['id']] = $this->_decodeValue($row['value']);
+                $values[$this->_decodeKey($row['id'])] = $this->_decodeValue($row['value']);
             }
         }
         $sth->closeCursor();
@@ -311,7 +321,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     public function get($key)
     {
         $sth = $this->_getStatement(self::Q_GET);
-        $sth->bindValue(':id', $key, PDO::PARAM_STR);
+        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
         $sth->execute();
         $value = $sth->fetchColumn();
         $sth->closeCursor();
@@ -335,12 +345,10 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function save($key, $value, $order = 0)
     {
-        $value = $this->_encodeValue($value);
-        $order = (int)$order;
         $sth = $this->_getStatement(self::Q_SAVE);
-        $sth->bindValue(':id', $key, PDO::PARAM_STR);
-        $sth->bindValue(':value', $value, PDO::PARAM_STR);
-        $sth->bindValue(':order', $order, PDO::PARAM_INT);
+        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $sth->bindValue(':value', $this->_encodeValue($value), PDO::PARAM_STR);
+        $sth->bindValue(':order', (int)$order, PDO::PARAM_INT);
         $sth->execute();
     }
 
@@ -357,12 +365,10 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function update($key, $value, $order = 0)
     {
-        $value = $this->_encodeValue($value);
-        $order = (int)$order;
         $sth = $this->_getStatement(self::Q_UPDATE1);
-        $sth->bindValue(':id', $key, PDO::PARAM_STR);
-        $sth->bindValue(':value', $value, PDO::PARAM_STR);
-        $sth->bindValue(':order', $order, PDO::PARAM_INT);
+        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $sth->bindValue(':value', $this->_encodeValue($value), PDO::PARAM_STR);
+        $sth->bindValue(':order', (int)$order, PDO::PARAM_INT);
         $sth->execute();
     }
 
@@ -378,10 +384,9 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function setOrder($key, $order)
     {
-        $order = (int)$order;
         $sth = $this->_getStatement(self::Q_UPDATE0);
-        $sth->bindValue(':id', $key, PDO::PARAM_STR);
-        $sth->bindValue(':order', $order, PDO::PARAM_INT);
+        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $sth->bindValue(':order', (int)$order, PDO::PARAM_INT);
         $sth->execute();
     }
 
@@ -397,7 +402,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     public function remove($key)
     {
         $sth = $this->_getStatement(self::Q_REMOVE);
-        $sth->bindValue(':id', $key, PDO::PARAM_STR);
+        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
         $sth->execute();
     }
 
@@ -405,24 +410,21 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     // {{{ clean()
 
     /**
-     * すべてのレコードを削除し、VACUUMを実行する
+     * すべてのレコードを削除する
      *
      * @param void
      * @return void
      */
     public function clean()
     {
-        if ($this->count() > 0) {
-            $this->_dbh->exec(self::Q_CLEAN);
-            $this->vacuum();
-        }
+        $this->_dbh->exec(self::Q_CLEAN);
     }
 
     // }}}
     // {{{ gc()
 
     /**
-     * 期限切れのレコードを削除し、VACUUMを実行する
+     * 期限切れのレコードを削除する
      *
      * @param int $lifeTime
      * @return void
@@ -430,11 +432,8 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     public function gc($lifeTime)
     {
         $sth = $this->_dbh->prepare(self::Q_GC);
-        $sth->bindValue(':expireTime', time() - $lifeTime, PDO::PARAM_INT);
-        if ($sth->execute() && $sth->rowCount() > 0) {
-            unset($sth);
-            $this->vacuum();
-        }
+        $sth->bindValue(':expires', time() - $lifeTime, PDO::PARAM_INT);
+        $sth->execute();
     }
 
     // }}}
@@ -442,6 +441,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * 作成済みステートメントをクリアし、VACUUMを発行する
+     * 他のプロセスが同じデータベースを開いているときに実行すべきではない
      *
      * @param void
      * @return void

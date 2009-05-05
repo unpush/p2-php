@@ -346,8 +346,7 @@ LightBox.prototype = {
 			self._indicator = indicator;
 		}
 		/* rep2-expack: ƒ‰ƒ“ƒN */
-		if (self._ic2_show_rank)
-		{
+		if (self._ic2_show_rank) {
 			var rankbox = document.createElement('span');
 			rankbox.id = 'lightboxIC2Rank';
 			rankbox.style.display = 'none';
@@ -564,7 +563,9 @@ LightBox.prototype = {
 		if (self._prev) self._prev.style.display = 'none';
 		if (self._next) self._next.style.display = 'none';
 		/* rep2-expack: ƒ‰ƒ“ƒN‚ð‰B‚· */
-		if (self._ic2_show_rank) self._ic2_show_rank(false);
+		if (self._ic2_show_rank) {
+			self._ic2_show_rank(false);
+		}
 		/* end */
 	},
 	_zoom : function()

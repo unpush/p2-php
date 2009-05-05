@@ -56,14 +56,6 @@ if ($_conf['ktai']) {
 
     $sidebar = !empty($_GET['sidebar']);
 
-    if (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 8') !== false) {
-        $htm['border_style_h'] = '';
-        $htm['border_style_v'] = '';
-    } else {
-        $htm['border_style_h'] = 'border="2"';
-        $htm['border_style_v'] = 'border="1"';
-    }
-
     $ptitle = "rep2";
     //======================================================
     // PC—p HTMLƒvƒŠƒ“ƒg
@@ -88,15 +80,15 @@ EOHEADER;
 
     if (!$sidebar) {
         echo <<<EOMENUFRAME
-<frameset id="menuframe" cols="{$_conf['frame_menu_width']},*" {$htm['border_style_v']}>
-    <frame src="menu.php" id="menu" name="menu" scrolling="auto">\n
+<frameset id="menuframe" cols="{$_conf['frame_menu_width']},*" border="1">
+    <frame src="menu.php" id="menu" name="menu" scrolling="auto" frameborder="1">\n
 EOMENUFRAME;
     }
 
     echo <<<EOMAINFRAME
-    <frameset id="mainframe" rows="{$_conf['frame_subject_width']},{$_conf['frame_read_width']}" {$htm['border_style_h']}>
-        <frame src="{$title_page}" id="subject" name="subject" scrolling="auto">
-        <frame src="{$htm['read_page']}" id="read" name="read" scrolling="auto">
+    <frameset id="mainframe" rows="{$_conf['frame_subject_width']},{$_conf['frame_read_width']}" border="2">
+        <frame src="{$title_page}" id="subject" name="subject" scrolling="auto" frameborder="1">
+        <frame src="{$htm['read_page']}" id="read" name="read" scrolling="auto" frameborder="1">
     </frameset>\n
 EOMAINFRAME;
 

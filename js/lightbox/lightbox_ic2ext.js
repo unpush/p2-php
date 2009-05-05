@@ -9,13 +9,14 @@ LightBox.prototype._ic2_show_rank = function(enable)
 {
 	var self = this;
 	var rankbox = document.getElementById('lightboxIC2Rank');
-	if (!rankbox) return;
-	if (rankbox.childNodes.length == 0 || !enable)
-	{
-		rankbox.style.display = 'none';
+	if (!rankbox) {
+		return;
 	}
-	else
-	{ // now display rankbox
+
+	if (!enable || rankbox.childNodes.length == 0) {
+		rankbox.style.display = 'none';
+	} else {
+		// now display rankbox
 		rankbox.style.top = [10 + self._img.height - (16 + 2 * 2 + 1), 'px'].join('');
 		rankbox.style.left = '10px';
 		rankbox.style.width = [16 + 10 + 16 * 5, 'px'].join('');
@@ -39,7 +40,9 @@ LightBox.prototype._ic2_draw_rank = function(rank)
 {
 	var rankbox = document.getElementById('lightboxIC2Rank');
 	var pos = rank + 1;
-	if (!rankbox) return;
+	if (!rankbox) {
+		return;
+	}
 
 	var rankimgs = rankbox.getElementsByTagName('img');
 	rankimgs[0].setAttribute('src', 'img/sn' + ((rank == -1) ? '1' : '0') + '.png');
@@ -62,7 +65,7 @@ LightBox.prototype._ic2_get_rank = function(id)
 	var info_array = info.split(',');
 	if (info_array.length < 6) {
 		alert('‰æ‘œî•ñ‚ðŽæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½');
-		return;
+		return 0;
 	}
 
 	return parseInt(info_array[4]);
@@ -74,7 +77,9 @@ LightBox.prototype._ic2_get_rank = function(id)
 LightBox.prototype._ic2_set_rank = function(rank)
 {
 	var self = this;
-	if (self._open == -1 || !self._imgs[self._open].id) return;
+	if (self._open == -1 || !self._imgs[self._open].id) {
+		return;
+	}
 
 	var objHTTP = getXmlHttp();
 	if (!objHTTP) {

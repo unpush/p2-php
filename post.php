@@ -683,6 +683,12 @@ function showCookieConfirmation($host, $response)
         return;
     }
 
+    if (array_key_exists(1, $matches) && strlen($matches[1])) {
+        $subbbs = $matches[1];
+    } else {
+        $subbbs = false;
+    }
+
     // form要素の属性値を書き換える
     // method属性とaction属性以外の属性は削除し、accept-charset属性を追加する
     // DOMNamedNodeMapのイテレーションと、それに含まれるノードの削除は別に行う
@@ -706,11 +712,15 @@ function showCookieConfirmation($host, $response)
 
     // POSTする値を再設定
     foreach (array_combine($post_send_keys, $post_param_keys) as $key => $name) {
-        $nodes = $xpath->query("./input[@type = 'hidden' and @name = '{$key}']");
-        if ($nodes->length && array_key_exists($name, $_POST)) {
-            $elem = $nodes->item(0);
-            $elem->setAttribute('name', $name);
-            $elem->setAttribute('value', mb_convert_encoding($_POST[$name], 'UTF-8', 'CP932'));
+        if (array_key_exists($name, $_POST)) {
+            $nodes = $xpath->query("./input[@type = 'hidden' and @name = '{$key}']");
+            if ($nodes->length) {
+                $elem = $nodes->item(0);
+                if ($key != $name) {
+                    $elem->setAttribute('name', $name);
+                }
+                $elem->setAttribute('value', mb_convert_encoding($_POST[$name], 'UTF-8', 'CP932'));
+            }
         }
     }
 
@@ -737,10 +747,10 @@ function showCookieConfirmation($host, $response)
     }
 
     // POST先がsubbbs.cgi
-    if (array_key_exists(1, $matches) && strlen($matches[1])) {
+    if ($subbbs !== false) {
         $elem = $hidden->cloneNode();
         $elem->setAttribute('name', 'sub');
-        $elem->setAttribute('value', $matches[1]);
+        $elem->setAttribute('value', $subbbs);
         $form->appendChild($elem);
     }
 
@@ -781,14 +791,15 @@ function showCookieConfirmation($host, $response)
         $link = $head->appendChild($link)->cloneNode();
         $link->setAttribute('href', "css.php?css=post&skin={$skin_q}");
         $head->appendChild($link);
-    }
-    if ($popup) {
-        $mado_okisa = explode(',', $STYLE['post_pop_size']);
-        $script = $doc->createElement('script');
-        $script->setAttribute('type', 'text/javascript');
-        $head->appendChild($script)->appendChild($doc->createCDATASection(
-            sprintf('resizeTo(%d,%d);', $mado_okisa[0], $mado_okisa[1] + 200)
-        ));
+
+        if ($popup) {
+            $mado_okisa = explode(',', $STYLE['post_pop_size']);
+            $script = $doc->createElement('script');
+            $script->setAttribute('type', 'text/javascript');
+            $head->appendChild($script)->appendChild($doc->createCDATASection(
+                sprintf('resizeTo(%d,%d);', $mado_okisa[0], $mado_okisa[1] + 200)
+            ));
+        }
     }
 
     // 構文修正
