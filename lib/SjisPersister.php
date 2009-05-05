@@ -11,7 +11,7 @@ class SjisPersister extends KeyValuePersister
     // {{{ _encodeValue()
 
     /**
-     * ’l‚ðUTF-8‚É•ÏŠ·‚·‚é
+     * Shift_JIS (CP932) ‚Ì•¶Žš—ñ‚ðUTF-8‚É•ÏŠ·‚·‚é
      *
      * @param string $value
      * @return string
@@ -25,7 +25,7 @@ class SjisPersister extends KeyValuePersister
     // {{{ _decodeValue()
 
     /**
-     * ’l‚ðShift_JIS (CP932) ‚É•ÏŠ·‚·‚é
+     * UTF-8‚Ì•¶Žš—ñ‚ðShift_JIS (CP932) ‚É•ÏŠ·‚·‚é
      *
      * @param string $value
      * @return string

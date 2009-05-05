@@ -1,38 +1,38 @@
 <?php
-require_once dirname(__FILE__) . '/KeyValuePersister.php';
+require_once dirname(__FILE__) . '/BinaryPersister.php';
 
-// {{{ HugeDataPersister
+// {{{ CompressingPersister
 
 /**
- * サイズの大きい文字列を圧縮して永続化する
+ * サイズの大きいデータを圧縮して永続化する
  */
-class HugeDataPersister extends KeyValuePersister
+class CompressingPersister extends BinaryPersister
 {
     // {{{ _encodeValue()
 
     /**
-     * 値をgzip+Base64エンコードする
+     * データを圧縮する
      *
      * @param string $value
      * @return string
      */
     protected function _encodeValue($value)
     {
-        return base64_encode(gzdeflate($value, 6));
+        return parent::_encodeValue(gzdeflate($value, 6));
     }
 
     // }}}
     // {{{ _decodeValue()
 
     /**
-     * 値をgzip+Base64デコードする
+     * データを展開する
      *
      * @param string $value
      * @return string
      */
     protected function _decodeValue($value)
     {
-        return gzinflate(base64_decode($value));
+        return gzinflate(parent::_decodeValue($value));
     }
 
     // }}}
