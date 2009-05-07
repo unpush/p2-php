@@ -39,7 +39,7 @@ class SjisPersister extends KeyValuePersister
     // {{{ _encodeKey()
 
     /**
-     * キーを変換する
+     * キーをエンコードする
      *
      * @param string $key
      * @return string
@@ -53,7 +53,7 @@ class SjisPersister extends KeyValuePersister
     // {{{ _decodeKey()
 
     /**
-     * キーを変換する
+     * キーをデコードする
      *
      * @param string $key
      * @return string
@@ -67,7 +67,7 @@ class SjisPersister extends KeyValuePersister
     // {{{ _encodeValue()
 
     /**
-     * 値を変換する
+     * 値をエンコードする
      *
      * @param string $value
      * @return string
@@ -81,7 +81,7 @@ class SjisPersister extends KeyValuePersister
     // {{{ _decodeValue()
 
     /**
-     * 値を変換する
+     * 値をデコードする
      *
      * @param string $value
      * @return string

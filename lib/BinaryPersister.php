@@ -18,7 +18,7 @@ class BinaryPersister extends KeyValuePersister
      */
     protected function _encodeValue($value)
     {
-        return base64_encode($value, 6);
+        return base64_encode($value);
     }
 
     // }}}
