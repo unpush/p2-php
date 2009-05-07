@@ -408,9 +408,19 @@ EOP;
         
         // 数字を引用レスポップアップリンク化
         // </b>～<b> は、ホスト（やトリップ）なのでマッチしないようにしたい
-        $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-        $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
-        
+        /*
+        if ($name) {
+            $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
+            $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+        }
+        */
+        if ($name) {
+            $name = preg_replace_callback(
+                "/(?:^|{$this->anchor_regex['prefix']}){$this->anchor_regex['a_num']}(?:{$this->anchor_regex['delimiter']}{$this->anchor_regex['a_num']})*(?=\\D|$)/",
+                array($this, 'quote_name_callback'), $name
+            );
+        }
+
         // ふしあなさんとか？
         $name = preg_replace('~</b>(.+?)<b>~', '<font color="#777777">$1</font>', $name);
         
@@ -423,7 +433,18 @@ EOP;
         
         return $name;
     }
-
+    
+    /**
+     * @access  private
+     * @return  string  HTML
+     */
+    function quote_name_callback($s)
+    {
+        return preg_replace_callback(
+            "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_num']})(?=\\D|$)/",
+            array($this, 'quote_res_callback'), $s[0]
+        );
+    }
     
     /**
      * datのレスメッセージをHTML表示用メッセージに変換して返す
@@ -444,14 +465,17 @@ EOP;
         $ryaku = false;
 
         // 2ch旧形式のdat
-        if ($this->thread->dat_type == "2ch_old") {
+        if ($this->thread->dat_type == '2ch_old') {
             $msg = str_replace('＠｀', ',', $msg);
             $msg = preg_replace('/&amp([^;])/', '&$1', $msg);
         }
 
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
+        /*
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
+        */
+        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[\\d\\-]+)</[Aa]>}', '$1', $msg);
         
         // AAチェック
         $has_aa = $this->detectAA($msg);
@@ -483,7 +507,8 @@ EOP;
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
             $msg = preg_replace_callback(
-                '/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/',
+                //'/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/',
+                "/{$this->anchor_regex['full']}/",
                 array($this, 'quote_res_callback'), $msg, $this->str_to_link_limit
             );
             $msg .= P2View::tagA(
@@ -604,6 +629,7 @@ EOP;
 
         // 引用
         } elseif ($s['quote']) {
+            /*
             if (strstr($s[7], '-')) {
                 return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
             }
@@ -611,7 +637,11 @@ EOP;
                 '/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
                 array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
             );
-
+            */
+            return preg_replace_callback(
+                "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_range']})/",
+                array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
+            );
         // http or ftp のURL
         } elseif ($s['url']) {
             if ($s[9] == 'ftp') {
@@ -713,7 +743,7 @@ EOP;
     }
 
     /**
-     * 引用変換
+     * 引用変換（単独）（2009/05/06 範囲もこちらから）
      *
      * @access  private
      * @return  string  HTML
@@ -728,11 +758,17 @@ EOP;
         
         list($full, $qsign, $appointed_num) = $s;
         
-        if ($appointed_num == '-') {
+        $appointed_num = mb_convert_kana($appointed_num, 'n'); // 全角数字を半角数字に変換
+        if (preg_match('/\\D/', $appointed_num)) {
+            $appointed_num = preg_replace('/\\D+/', '-', $appointed_num);
+            return $this->quote_res_range_callback(array($full, $qsign, $appointed_num));
+        }
+        if (preg_match('/^0/', $appointed_num)) {
             return $s[0];
         }
+
         $qnum = intval($appointed_num);
-        if ($qnum < 1 || $qnum > $this->thread->rescount) {
+        if ($qnum < 1 || $qnum >= $this->thread->rescount) {
             return $s[0];
         }
 
@@ -748,7 +784,7 @@ EOP;
             )
         );
         $read_url_hs = hs($read_url);
-        return "<a href=\"{$read_url_hs}\">{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url_hs}\">{$full}</a>";
     }
 
     /**
@@ -782,7 +818,7 @@ EOP;
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&offline=1&ls={$from}-{$to}&b={$_conf['b']}";
         $read_url_hs = hs($read_url);
-        return "<a href=\"{$read_url_hs}\">{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url_hs}\">{$full}</a>";
     }
 
     /**

@@ -25,7 +25,7 @@ if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value']))
 
     switch ($_GET['ktool_name']) {
         case 'goto':
-            if (strpos($_GET['ktool_value'], '-') !== false) {
+            if (preg_match('/(-|,)/', $_GET['ktool_value'])) {
                 $_REQUEST['ls'] = $_GET['ls'] = $_GET['ktool_value'];
             } else {
                 $ktv = intval($_GET['ktool_value']);

@@ -18,7 +18,7 @@ class ThreadRead extends Thread
     var $onthefly;  // ローカルにdat保存しないオンザフライ読み込みならtrue
 
     var $idcount;   // 配列。key は ID記号, value は ID出現回数
-    var $rrescount; // arary key は 参照先レス番号, value は参照元のレス
+    var $backword_reses; // arary key は 参照先レス番号, value は参照元のレスの配列
     
     var $getdat_error_msg_ht = ''; // dat取得に失敗した時に表示されるメッセージ（HTML）
     
@@ -1620,114 +1620,13 @@ class ThreadRead extends Thread
             }
 
             if (!strstr($this->datlines[0], '<>')) {
-                $this->dat_type = "2ch_old";
+                $this->dat_type = '2ch_old';
             }
         }
         
         $this->rescount = sizeof($this->datlines);
         
-        if ($_conf['flex_idpopup']) {
-            $this->setIdCount($this->datlines);
-        }
-        
         return true;
-    }
-
-    /**
-     * 一つのスレ内でのID出現数をセットする
-     *
-     * @access  private
-     * @param   array    $lines
-     * @return  void
-     */
-    function setIdCount($lines)
-    {
-        if (!is_array($lines)) {
-            return;
-        }
-        foreach ($lines as $k => $line) {
-            $lar = explode('<>', $line);
-            if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,10})|', $lar[2], $matches)) {
-                $id = $matches[1];
-                if (isset($this->idcount[$id])) {
-                    $this->idcount[$id]++;
-                } else {
-                    $this->idcount[$id] = 1;
-                }
-            }
-            
-            /*
-            $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('set_rrescount');
-            
-            // 逆参照のための引用レス番号取得（処理速度が2,3割増になる…）
-            if ($n = $this->getQuoteResNumName($lar[0])) {
-                if (isset($this->rrescount[$k])) {
-                    $this->rrescount[$k][] = $n;
-                } else {
-                    $this->rrescount[$k] = array($n);
-                }
-            }
-            
-            if ($nums = $this->getQuoteResNumsMsg($lar[3])) {
-                if (isset($this->rrescount[$k])) {
-                    $this->rrescount[$k] = $nums;
-                } else {
-                    $this->rrescount[$k] = $nums;
-                }
-            }
-            
-            $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('set_rrescount');
-            */
-        }
-    }
-    
-    /**
-     * 名前にある引用レス番号を取得する
-     *
-     * @access  private
-     * @param   string  $name（未フォーマット）
-     * @return  integer|false
-     */
-    function getQuoteResNumName($name)
-    {
-        // トリップを除去
-        $name = preg_replace("/(◆.*)/", "", $name, 1);
-        
-        if (preg_match("/[0-9]+/", $name, $m)) {
-            return (int) $m[0];
-        }
-        return false;
-    }
-    
-    /**
-     * メッセージにある引用レス番号を取得する
-     *
-     * @access  private
-     * @param   string  $msg（未フォーマット）
-     * @return  array|false
-     */
-    function getQuoteResNumsMsg($msg)
-    {
-        $quote_res_nums = array();
-        
-        // >>1のリンクを除去
-        // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
-        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
-
-        if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
-
-            foreach ($out[1] as $numberq) {
-                
-                if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
-                    
-                    // $matches[0] はパターン全体にマッチした文字列の配列
-                    foreach ($matches[0] as $a_quote_res_num) {
-                        $quote_res_nums[] = $a_quote_res_num;
-                     }
-                }
-            }
-        }
-        return array_unique($quote_res_nums);
     }
     
     /**

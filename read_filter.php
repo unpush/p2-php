@@ -68,9 +68,10 @@ function _getReadFilterWord($host, $bbs, $key, $resnum, $field)
             $word = preg_replace("/^.*ID:([0-9a-zA-Z\/\.\+]+).*$/", "\\1", $resar[2]);
             break;
         case 'rres':
-            $_GET['field'] = 'msg';
+            $_GET['field']  = 'msg';
             $_GET['method'] = 'regex';
-            $word = '>' . $resnum . '[^\d]'; // [^\d-]
+            //$word = '>' . $resnum . '[^\d]'; // [^\d-]
+            $word = "(&gt;|„|&lt;|ƒ|j|r|t|â){1,2}\s*\.?(\d+,)*" . $resnum . "\D";
     }
     return $word;
 }

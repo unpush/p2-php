@@ -171,7 +171,7 @@ function _kspform($aThread, $default = '')
     global $_conf;
 
     // auはistyleも受け付ける。format="4N" で指定するとユーザによる入力モードの変更が不可能となって、"-"が入力できなくなってしまう。
-    $numonly_at = ' maxlength="7" istyle="4" mode="numeric"';
+    $numonly_at = ' istyle="4" mode="numeric"'; // maxlength="7"
 
     $form = sprintf('<form method="get" action="%s">', hs($_conf['read_php']));
     $form .= P2View::getInputHiddenKTag();

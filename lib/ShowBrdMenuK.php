@@ -244,7 +244,10 @@ EOP;
                 foreach ($cate->menuitas as $mita) {
                     
                     $GLOBALS['menu_show_ita_num']++;
-                    if ($GLOBALS['menu_show_ita_num'] >= $disp_navi['from'] and $GLOBALS['menu_show_ita_num'] <= $disp_navi['end']) {
+                    if (
+                        $GLOBALS['menu_show_ita_num'] >= $disp_navi['from']
+                        and $GLOBALS['menu_show_ita_num'] <= $disp_navi['end']
+                    ) {
 
                         if (!$t) {
                             echo "<b>{$cate->name}</b><br>\n";
@@ -315,7 +318,7 @@ EOP;
                                 UA::getQueryKey() => UA::getQueryValue()
                             )
                         ),
-                        hs($itaj),
+                        UA::isIPhoneGroup() ? hs($itaj) : hs("$key_num_st$itaj"),
                         $attr
                     );
 

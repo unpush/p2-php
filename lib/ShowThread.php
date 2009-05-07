@@ -8,9 +8,14 @@ class ShowThread
 {
     var $thread; // スレッドオブジェクトの参照
     
-    var $str_to_link_regex; // リンクすべき文字列の正規表現
-    var $str_to_link_limit = 30; // 一つのレスにおけるリンク変換の制限回数（荒らし対策）
-    var $str_to_link_rest;  // 上記の残り数カウンター。厳密な適用はしていない。とりあえず>>1,2,3,..対策のために。
+    // リンクすべき文字列の正規表現
+    var $str_to_link_regex;
+    
+    // 一つのレスにおけるリンク変換の制限回数（荒らし対策）
+    var $str_to_link_limit = 30;
+    
+    // 上記の残り数カウンター。厳密な適用はしていない。とりあえず>>1,2,3,..対策のために。
+    var $str_to_link_rest;
     
     // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
     var $url_handlers       = array();
@@ -18,19 +23,78 @@ class ShowThread
     // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
     var $user_url_handlers  = array();
     
+    var $anchor_regex; // @access  protected
+    
     /**
      * @constructor
      */
-    function ShowThread(&$aThread)
+    function ShowThread(&$Thread)
     {
-        // スレッドオブジェクトの参照を登録
-        $this->thread = &$aThread;
+        global $_conf;
         
+        $this->initAnchorRegex();       // set $this->anchor_regex
+        $this->initStrToLinkRegex();    // set $this->str_to_link_regex
+        
+        $this->thread = &$Thread;
+        
+        if ($_conf['flex_idpopup']) {
+            $this->setIdCountToThread();
+            // $this->setBackwordResesToThread();
+        }
+
+        if (empty($GLOBALS['_P2_NGABORN_LOADED'])) {
+            NgAbornCtl::loadNgAborns();
+        }
+    }
+    
+    /**
+     * @access  private
+     * @return  void    set $this->anchor_regex
+     */
+    function initAnchorRegex()
+    {
+        $anchor = array();
+        
+        // アンカー用空白文字の正規表現
+        $anchor_space = '(?:[ ]|　)';
+        
+        // アンカー引用子の正規表現
+        $anchor['prefix'] = "(?:&gt;|＞|&lt;|＜|〉|》|≫){1,2}{$anchor_space}*\.?";
+        
+        // あぼーん用アンカー引用子の正規表現
+        $anchor['prefix_abon'] = "&gt;{1,2}{$anchor_space}?";
+
+        // アンカー先の正規表現
+        // $anchor['a_num']='(?:[1-9]|１|２|３|４|５|６|７|８|９)(?:\\d|０|１|２|３|４|５|６|７|８|９){0,3}';
+        
+        // アンカー先の正規表現
+        $anchor['a_digit'] = '(?:\\d|０|１|２|３|４|５|６|７|８|９)';
+        
+        // アンカー先の正規表現
+        $anchor['a_num'] = "{$anchor['a_digit']}{1,4}";
+
+        $anchor['range_delimiter'] = "(?:-|‐|\x81\\x5b)"; // ー
+        $anchor['a_range']   = "{$anchor['a_num']}(?:{$anchor['range_delimiter']}{$anchor['a_num']})?";
+        $anchor['delimiter'] = "{$anchor_space}?(?:[,=+]|、|・|＝|，){$anchor_space}?";
+
+        $anchor['ranges'] = "{$anchor['a_range']}(?:{$anchor['delimiter']}{$anchor['a_range']})*";
+        $anchor['full']   = "{$anchor['prefix']}{$anchor['ranges']}";
+        
+        $this->anchor_regex = $anchor;
+    }
+    
+    /**
+     * @access  private
+     * @return  void     set $this->str_to_link_regex
+     */
+    function initStrToLinkRegex()
+    {
         $this->str_to_link_regex = '{'
             . '(?P<link>(<[Aa] .+?>)(.*?)(</[Aa]>))' // リンク（PCREの特性上、必ずこのパターンを最初に試行する）
             . '|'
             . '(?:'
             .   '(?P<quote>' // 引用
+            /*
             .       '((?:&gt;|＞){1,2} ?)' // 引用符
             .       '('
             .           '(?:[1-9]\\d{0,3})' // 1つ目の番号
@@ -40,6 +104,9 @@ class ShowThread
             .               '-(?:[1-9]\\d{0,3})?' // 範囲
             .           ')?'
             .       ')'
+            */
+            .       '(' . $this->anchor_regex['prefix'] . ')'  // 引用符
+            .       '(' . $this->anchor_regex['ranges'] . ')'  // 番号範囲の併記[7]
             .       '(?=\\D|$)'
             .   ')' // 引用ここまで
             . '|'
@@ -50,10 +117,6 @@ class ShowThread
             .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
             . ')'
             . '}';
-
-        if (empty($GLOBALS['_P2_NGABORN_LOADED'])) {
-            NgAbornCtl::loadNgAborns();
-        }
     }
     
     /**
@@ -272,6 +335,147 @@ EOP;
         }
 
         return $failed ? !(bool)$match : $match;
+    }
+    
+    /**
+     * 一つのスレ内でのID出現数をThreadにセットする
+     *
+     * @access  private
+     * @return  void
+     */
+    function setIdCountToThread()
+    {
+        $lines = $this->thread->datlines;
+        
+        if (!is_array($lines)) {
+            //trigger_error('no $this->thread->datlines', E_USER_WARNING);
+            return;
+        }
+        foreach ($lines as $k => $line) {
+            $lar = explode('<>', $line);
+            if (preg_match('|ID: ?([0-9a-zA-Z/.+]{8,10})|', $lar[2], $matches)) {
+                $id = $matches[1];
+                if (isset($this->thread->idcount[$id])) {
+                    $this->thread->idcount[$id]++;
+                } else {
+                    $this->thread->idcount[$id] = 1;
+                }
+            }
+        }
+    }
+    
+    /**
+     * 逆参照をThreadにセットする
+     *
+     * @access  private
+     * @return  void
+     */
+    function setBackwordResesToThread()
+    {
+        $lines = $this->thread->datlines;
+        
+        if (!is_array($lines)) {
+            //trigger_error('no $this->thread->datlines', E_USER_WARNING);
+            return;
+        }
+
+        $GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('set_backword_reses');
+        
+        foreach ($lines as $k => $line) {
+        
+            // 逆参照のための引用レス番号取得（処理速度が2,3割増になる…）
+            if ($nums = $this->getQuoteResNumsName($lar[0])) {
+                if (isset($this->thread->backword_reses[$k])) {
+                    array_merge($this->thread->backword_reses[$k], $nums);
+                } else {
+                    $this->thread->backword_reses[$k] = $nums;
+                }
+            }
+            
+            if ($nums = $this->getQuoteResNumsMsg($lar[3])) {
+                if (isset($this->thread->backword_reses[$k])) {
+                    array_merge($this->thread->backword_reses[$k], $nums);
+                } else {
+                    $this->thread->backword_reses[$k] = $nums;
+                }
+            }
+        }
+        $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('set_backword_reses');
+    }
+    
+    /**
+     * 名前にある引用レス番号を取得する
+     *
+     * @access  private
+     * @param   string  $name（未フォーマット）
+     * @return  array|false
+     */
+    function getQuoteResNumsName($name)
+    {
+        $pattern = "/(?:^|{$this->anchor_regex['prefix']}|{$this->anchor_regex['delimiter']})({$this->anchor_regex['a_num']}+)/";
+        
+        // トリップを除去
+        $name = preg_replace('/(◆.*)/', '', $name, 1);
+
+        /*
+        //if (preg_match('/[0-9]+/', $name, $m)) {
+             return (int)$m[0];
+        }
+        */
+        
+        if (preg_match_all($pattern, $name, $matches)) {
+            foreach ($matches[1] as $a_quote_res_num) {
+                $quote_res_nums[] = (int)mb_convert_kana($a_quote_res_num, 'n');
+            }
+            return array_unique($quote_res_nums);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * メッセージにある引用レス番号を取得する
+     *
+     * @access  private
+     * @param   string  $msg（未フォーマット）
+     * @return  array|false
+     */
+    function getQuoteResNumsMsg($msg)
+    {
+        $pattern_anchor = "/{$this->anchor_regex['prefix']}({$this->anchor_regex['ranges']})/";
+        $pattern_num = "/({$this->anchor_regex['a_num']})/";
+        
+        $quote_res_nums = array();
+        
+        // >>1のリンクを除去
+        // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
+        /*
+        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
+        */
+        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[\\d\\-]+)</[Aa]>}', '$1', $msg);
+        
+        //if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
+        if (preg_match_all($pattern_anchor, $msg, $out, PREG_PATTERN_ORDER)) {
+
+            // $out[1] は第 1 のキャプチャ用サブパターンにマッチした文字列の配列
+            foreach ($out[1] as $numberq) {
+                //if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
+                /*
+                if (preg_match_all($pattern_num, $numberq, $matches, PREG_PATTERN_ORDER)) {
+                    // $matches[0] はパターン全体にマッチした文字列の配列
+                    foreach ($matches[1] as $a_quote_res_num) {
+                */
+                if ($matches = preg_split("/{$this->anchor_regex['delimiter']}/", $numberq)) { 
+                    foreach ($matches as $a_quote_res_num) { 
+                        if (preg_match("/{$this->anchor_regex['range_delimiter']}/", $a_quote_res_num)) {
+                            continue;
+                        }
+                        $quote_res_nums[] = (int)mb_convert_kana($a_quote_res_num, 'n');
+                    }
+                }
+            }
+        }
+        return array_unique($quote_res_nums);
     }
 }
 

@@ -548,8 +548,18 @@ EOMSG;
             
             // 数字を引用レスポップアップリンク化
             // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
-            $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-            $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+            /*
+            if ($name) {
+                $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
+                $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+            }
+            */
+            if ($name) {
+                $name = preg_replace_callback(
+                    "/(?:^|{$this->anchor_regex['prefix']}){$this->anchor_regex['a_num']}(?:{$this->anchor_regex['delimiter']}{$this->anchor_regex['a_num']})*(?=\\D|$)/",
+                    array($this, 'quote_name_callback'), $name
+                );
+            }
         }
         
         if ($nameID) { $name = $name . $nameID; }
@@ -557,6 +567,18 @@ EOMSG;
         $name = $name . " "; // 簡易的に文字化け回避
 
         return $name;
+    }
+    
+    /**
+     * @access  private
+     * @return  string  HTML
+     */
+    function quote_name_callback($s)
+    {
+        return preg_replace_callback(
+            "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_num']})(?=\\D|$)/",
+            array($this, 'quote_res_callback'), $s[0]
+        );
     }
     
     /**
@@ -584,7 +606,10 @@ EOMSG;
         
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
+        /*
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
+        */
+        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[\\d\\-]+)</[Aa]>}', '$1', $msg);
         
         // 2chではなされていないエスケープ（ノートンの誤反応対策を含む）
         // 本来は2chのDAT化時点でなされていないとエスケープの整合性が取れない気がする。
@@ -643,6 +668,7 @@ EOMSG;
 
         // 引用
         } elseif ($s['quote']) {
+            /*
             if (strstr($s[7], '-')) {
                 return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
             }
@@ -650,7 +676,11 @@ EOMSG;
                 '/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
                 array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
             );
-
+            */
+            return preg_replace_callback(
+                "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_range']})(?=\\D|$)/",
+                array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
+            );
         // http or ftp のURL
         } elseif ($s['url']) {
             $url  = preg_replace('/^t?(tps?)$/', 'ht$1', $s[9]) . '://' . $s[10];
@@ -709,11 +739,23 @@ EOMSG;
         
         list($full, $qsign, $appointed_num) = $s;
         
-        $qnum = intval($appointed_num);
-        if ($qnum < 1 || $qnum > sizeof($this->thread->datlines)) {
+        $appointed_num = mb_convert_kana($appointed_num, 'n'); // 全角数字を半角数字に変換
+        if (preg_match('/\\D/', $appointed_num)) {
+            $appointed_num = preg_replace('/\\D+/', '-', $appointed_num);
+            return $this->quote_res_range_callback(array($full, $qsign, $appointed_num));
+        }
+        if (preg_match('/^0/', $appointed_num)) {
             return $s[0];
         }
 
+        $qnum = intval($appointed_num);
+        if ($qnum < 1 || $qnum >= sizeof($this->thread->datlines)) {
+            return $s[0];
+        }
+
+        // 自分自身の番号も変換せずに戻したいところだが
+        
+        
         $read_url = P2Util::buildQueryUri($_conf['read_php'],
             array(
                 'host' => $this->thread->host,
@@ -732,11 +774,11 @@ EOMSG;
                 'onmouseout'  => "hideResPopUp('q{$qnum}of{$this->thread->key}')"
             ));
         }
-        return P2View::tagA($read_url, "{$qsign}{$appointed_num}", $attributes);
+        return P2View::tagA($read_url, "{$full}", $attributes);
     }
 
     /**
-     * 引用変換（範囲）
+     * 引用変換（範囲）（2009/05/06 範囲もこちらから）
      *
      * @access  private
      * @return  string
@@ -763,11 +805,14 @@ EOMSG;
         
         if ($_conf['iframe_popup']) {
             $pop_url = $read_url . "&renzokupop=true";
-            return $this->iframePopup(array($read_url, $pop_url), $full, array('target' => $_conf['bbs_win_target']), 1);
+            return $this->iframePopup(
+                array($read_url, $pop_url), $full,
+                array('target' => $_conf['bbs_win_target']), 1
+            );
         }
 
         // 普通にリンク
-        return  P2View::tagA($read_url, "{$qsign}{$appointed_num}", array('target' => $_conf['bbs_win_target']));
+        return  P2View::tagA($read_url, "{$full}", array('target' => $_conf['bbs_win_target']));
 
         // 1つ目を引用レスポップアップ
         /*
@@ -1050,23 +1095,27 @@ EOMSG;
         
         // {{{ 名前をチェックする
         
-        if ($a_quote_res_num = $this->thread->getQuoteResNumName($name)) {
-            $quote_res_nums[] = $a_quote_res_num;
+        if ($matches = $this->getQuoteResNumsName($name)) {
 
-            // 自分自身の番号と同一でなければ
-            if ($a_quote_res_num != $res_num) {
-                // チェックしていない番号を再帰チェック
-                if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
-                    $this->quote_res_nums_checked[$a_quote_res_num] = true;
-                    $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1));
-                 }
+            foreach ($matches as $a_quote_res_num) {
+
+                $quote_res_nums[] = $a_quote_res_num;
+
+                // 自分自身の番号と同一でなければ
+                if ($a_quote_res_num != $res_num) {
+                    // チェックしていない番号を再帰チェック
+                    if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
+                        $this->quote_res_nums_checked[$a_quote_res_num] = true;
+                        $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1));
+                    }
+                }
             }
         }
         
         // }}}
         // {{{ メッセージをチェックする
         
-        $quote_res_nums_msg = $this->thread->getQuoteResNumsMsg($msg);
+        $quote_res_nums_msg = $this->getQuoteResNumsMsg($msg);
 
         foreach ($quote_res_nums_msg as $a_quote_res_num) {
 

@@ -487,7 +487,7 @@ EOP;
         
         // {{{ 名前をチェックする
         
-        if ($a_quote_res_num = $this->thread->getQuoteResNumName($name)) {
+        if ($matches = $this->getQuoteResNumsName($name)) {
             $quote_res_nums[] = $a_quote_res_num;
 
             // 自分自身の番号と同一でなければ
@@ -503,7 +503,7 @@ EOP;
         // }}}
         // {{{ メッセージをチェックする
         
-        $quote_res_nums_msg = $this->thread->getQuoteResNumsMsg($msg);
+        $quote_res_nums_msg = $this->getQuoteResNumsMsg($msg);
 
         foreach ($quote_res_nums_msg as $a_quote_res_num) {
 
@@ -727,8 +727,18 @@ EOID;
         // 数字を引用レスポップアップリンク化
         if ($_conf['quote_res_view']) {
         // </b>～<b> は、ホスト（やトリップ）なのでマッチしないようにしたい
-        $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-        $name && $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+        /*
+        if ($name) {
+            $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
+            $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
+        }
+        */
+        if ($name) {
+            $name = preg_replace_callback(
+                "/(?:^|{$this->anchor_regex['prefix']}){$this->anchor_regex['a_num']}(?:{$this->anchor_regex['delimiter']}{$this->anchor_regex['a_num']})*(?=\\D|$)/",
+                array($this, 'quote_name_callback'), $name
+            );
+        }
         }
         
         // ふしあなさんとか？
@@ -743,7 +753,18 @@ EOID;
         
         return $name;
     }
-
+    
+    /**
+     * @access  private
+     * @return  string  HTML
+     */
+    function quote_name_callback($s)
+    {
+        return preg_replace_callback(
+            "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_num']})(?=\\D|$)/",
+            array($this, 'quote_res_callback'), $s[0]
+        );
+    }
     
     /**
      * datのレスメッセージをHTML表示用メッセージに変換して返す
@@ -806,7 +827,8 @@ EOID;
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
             $msg = preg_replace_callback(
-                '/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/',
+                //'/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/',
+                "/{$this->anchor_regex['full']}/",
                 array($this, 'quote_res_callback'), $msg, $this->str_to_link_limit
             );
             */
@@ -936,11 +958,17 @@ EOID;
 
         // 引用
         } elseif ($s['quote']) {
+            /*
             if (strstr($s[7], '-')) {
                 return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
             }
             return preg_replace_callback(
                 '/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
+                array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
+            );
+            */
+            return preg_replace_callback(
+                "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_range']})/",
                 array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
             );
 
@@ -1075,7 +1103,7 @@ EOID;
             return $s[0];
         }
         $qnum = intval($appointed_num);
-        if ($qnum < 1 || $qnum > $this->thread->rescount) {
+        if ($qnum < 1 || $qnum >= $this->thread->rescount) {
             return $s[0];
         }
         
@@ -1097,7 +1125,7 @@ EOID;
                 //'onmouseout'  => "hideResPopUp('q{$qnum}of{$this->thread->key}')"
             );
         }
-        return P2View::tagA($read_url, "{$qsign}{$appointed_num}", $attributes);
+        return P2View::tagA($read_url, "{$full}", $attributes);
     }
 
     /**
@@ -1131,7 +1159,7 @@ EOID;
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&offline=1&ls={$from}-{$to}&b={$_conf['b']}";
         $read_url_hs = hs($read_url);
-        return "<a href=\"{$read_url_hs}\">{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url_hs}\">{$full}</a>";
     }
 
     /**
