@@ -199,7 +199,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
         $query = str_replace('$__table', $this->_tableName, $query);
 
         if (!$isTemporary && array_key_exists($query, self::$_objects[$this->_path]['statements'])) {
-            $sth = self::$_objects[$this->_path]['statements'];
+            $sth = self::$_objects[$this->_path]['statements'][$query];
         } else {
             if (strncmp($query, 'SELECT ', 7) == 0) {
                 $sth = $this->_dbh->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
@@ -207,7 +207,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
                 $sth = $this->_dbh->prepare($query);
             }
             if (!$isTemporary) {
-                self::$_objects[$this->_path]['statements'] = $sth;
+                self::$_objects[$this->_path]['statements'][$query] = $sth;
             }
         }
 
