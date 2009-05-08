@@ -192,7 +192,7 @@ LightBox.prototype._keydown = function(evt, num, len)
 			break;
 
 		// ‰º
-		case 40: // LEFT
+		case 40: // DOWN
 		case 74: // 'J'
 		case 88: // 'X'
 			forward = true;
@@ -215,7 +215,7 @@ LightBox.prototype._keydown = function(evt, num, len)
 		var last = len - 1;
 		var direction = 0;
 		if (vertical) {
-			var x, y, z, arr, key, rows;
+			var x, y, z, arr, pos, rows;
 			arr = [];
 			rows = Math.ceil(len / ic2cols);
 			for (x = 0; x < ic2cols; x++) {
@@ -223,16 +223,16 @@ LightBox.prototype._keydown = function(evt, num, len)
 					z = x + y * ic2cols;
 					if (z < len) {
 						if (z == num) {
-							key = arr.length;
+							pos = arr.length;
 						}
 						arr.push(z);
 					}
 				}
 			}
 			if (forward) {
-				direction = (key == last) ? arr[0] : arr[key+1];
+				direction = (pos == last) ? arr[0] : arr[pos+1];
 			} else {
-				direction = (key == 0) ? arr[last] : arr[key-1];
+				direction = (pos == 0) ? arr[last] : arr[pos-1];
 			}
 			direction -= num;
 		} else {
