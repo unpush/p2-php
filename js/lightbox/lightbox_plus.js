@@ -346,37 +346,9 @@ LightBox.prototype = {
 			self._indicator = indicator;
 		}
 		/* rep2-expack: ランク */
-		if (self._ic2_show_rank) {
-			var rankbox = document.createElement('span');
-			rankbox.id = 'lightboxIC2Rank';
-			rankbox.style.display = 'none';
-			rankbox.style.position = 'absolute';
-			rankbox.style.zIndex = '70';
-			var ngimg = document.createElement('img');
-			ngimg.setAttribute('src', 'img/sn0.png');
-			ngimg.setAttribute('width', '16');
-			ngimg.setAttribute('height', '16');
-			ngimg.setAttribute('alt', '-1');
-			ngimg.onclick = self._ic2GenRanker(-1);
-			rankbox.appendChild(ngimg);
-			var zeroimg = document.createElement('img');
-			zeroimg.setAttribute('src', 'img/sz1.png');
-			zeroimg.setAttribute('width', '10');
-			zeroimg.setAttribute('height', '16');
-			zeroimg.setAttribute('alt', '0');
-			zeroimg.onclick = self._ic2GenRanker(0);
-			rankbox.appendChild(zeroimg);
-			for (var i = 1; i <= 5; i++) {
-				var rankimg = document.createElement('img');
-				rankimg.setAttribute('src', 'img/s0.png');
-				rankimg.setAttribute('width', '16');
-				rankimg.setAttribute('height', '16');
-				rankimg.setAttribute('alt', String(i));
-				rankimg.onclick = self._ic2GenRanker(i);
-				rankbox.appendChild(rankimg);
-			}
-			box.appendChild(rankbox);
-			Event.register(rankbox,'mouseover',function() { self._show_action(); });
+		if (self._ic2_create_elements) {
+			var rankbox = box.appendChild(self._ic2_create_elements());
+			Event.register(rankbox, 'mouseover', function() { self._show_action(); });
 		}
 		/* end */
 		return box;
@@ -632,106 +604,6 @@ LightBox.prototype = {
 		self._set_photo_size();
 		return Event.stop(evt);
 	},
-	/* rep2-expack: カーソルキー + ESDX + HJKL */
-	_keydown : function(evt, num, len)
-	{
-		var self = this;
-		var stop = true;
-		var follows = len - num - 1;
-
-		if (typeof ic2cols !== 'number' || ic2cols < 1 || len == 0) {
-			return true;
-		}
-		if (evt.altKey || evt.ctrlKey || evt.metaKey) {
-			return true;
-		}
-
-		switch (evt.keyCode) {
-			// 左
-			case 37: // '←'
-			case 72: // 'H'
-			case 83: // 'S'
-				if (num > 0) {
-					if (evt.shiftKey) {
-						if (num < ic2cols) {
-							self._show_next(-num);
-						} else {
-							var lshift = num % ic2cols;
-							self._show_next(-((lshift) ? lshift : num));
-						}
-					} else {
-						self._show_next(-1);
-					}
-				}
-				break;
-
-			// 上
-			case 38: // '↑'
-			case 75: // 'K'
-			case 69: // 'E'
-				if (num > 0) {
-					if (evt.shiftKey) {
-						if (num < ic2cols) {
-							self._show_next(-num);
-						} else {
-							self._show_next(-ic2cols * Math.floor(num / ic2cols));
-						}
-					} else if (num < ic2cols) {
-						self._show_next(ic2cols * Math.floor(follows / ic2cols) - 1);
-					} else {
-						self._show_next(-ic2cols);
-					}
-				}
-				break;
-
-			// 右
-			case 39: // '→'
-			case 76: // 'L'
-			case 68: // 'D'
-				if (follows > 0) {
-					if (evt.shiftKey) {
-						if (follows < ic2cols) {
-							self._show_next(follows);
-						} else {
-							var rshift = follows % ic2cols;
-							self._show_next((rshift) ? rshift : follows);
-						}
-					} else {
-						self._show_next(1);
-					}
-				}
-				break;
-
-			// 下
-			case 40: // '↓'
-			case 74: // 'J'
-			case 88: // 'X'
-				if (follows > 0) {
-					if (evt.shiftKey) {
-						var follows = len - num - 1;
-						if (follows < ic2cols) {
-							self._show_next(follows);
-						} else {
-							self._show_next(ic2cols * Math.floor(follows / ic2cols));
-						}
-					} else if (follows < ic2cols) {
-						self._show_next(1 - ic2cols * Math.floor(num / ic2cols));
-					} else {
-						self._show_next(ic2cols);
-					}
-				}
-				break;
-			// Lightboxを閉じる
-			case 27: // ESC
-				self._close(null);
-				break;
-			// 何もしない
-			default:
-				stop = false;
-		}
-		return (stop) ? Event.stop(evt) : true;
-	},
-	/* end */
 	_dragstart : function(evt)
 	{
 		var self = this;
@@ -855,11 +727,13 @@ LightBox.prototype = {
 		self._expanded = false;
 		imag.src = self._imgs[self._open].src;
 		/* rep2-expack: キー入力イベントハンドラを登録 */
-		if (self._funcs.keydown != null) {
-			Event.deregister(document, 'keydown', self._funcs.keydown);
+		if (self._keydown) {
+			if (self._funcs.keydown != null) {
+				Event.deregister(document, 'keydown', self._funcs.keydown);
+			}
+			self._funcs.keydown = function(evt) { return self._keydown(evt, num, self._imgs.length); };
+			Event.register(document, 'keydown', self._funcs.keydown);
 		}
-		self._funcs.keydown = function(evt) { return self._keydown(evt, num, self._imgs.length); };
-		Event.register(document, 'keydown', self._funcs.keydown);
 		/* end */
 	},
 	_close_box : function()

@@ -3,6 +3,48 @@
  */
 
 /**
+ * ランク表示用コンテナを作成する
+ */
+LightBox.prototype._ic2_create_elements = function()
+{
+	var self = this;
+
+	var rankbox = document.createElement('span');
+	rankbox.id = 'lightboxIC2Rank';
+	rankbox.style.display = 'none';
+	rankbox.style.position = 'absolute';
+	rankbox.style.zIndex = '70';
+
+	var ngimg = document.createElement('img');
+	ngimg.setAttribute('src', 'img/sn0.png');
+	ngimg.setAttribute('width', '16');
+	ngimg.setAttribute('height', '16');
+	ngimg.setAttribute('alt', '-1');
+	ngimg.onclick = self._ic2GenRanker(-1);
+	rankbox.appendChild(ngimg);
+
+	var zeroimg = document.createElement('img');
+	zeroimg.setAttribute('src', 'img/sz1.png');
+	zeroimg.setAttribute('width', '10');
+	zeroimg.setAttribute('height', '16');
+	zeroimg.setAttribute('alt', '0');
+	zeroimg.onclick = self._ic2GenRanker(0);
+	rankbox.appendChild(zeroimg);
+
+	for (var i = 1; i <= 5; i++) {
+		var rankimg = document.createElement('img');
+		rankimg.setAttribute('src', 'img/s0.png');
+		rankimg.setAttribute('width', '16');
+		rankimg.setAttribute('height', '16');
+		rankimg.setAttribute('alt', String(i));
+		rankimg.onclick = self._ic2GenRanker(i);
+		rankbox.appendChild(rankimg);
+	}
+
+	return rankbox;
+};
+
+/**
  * ランク表示をトグルする
  */
 LightBox.prototype._ic2_show_rank = function(enable)
@@ -105,6 +147,107 @@ LightBox.prototype._ic2GenRanker = function(rank)
 		self._ic2_set_rank(rank);
 		return false;
 	});
+};
+
+/**
+ * カーソルキー, ESDX, HJKL で上下左右の画像に切り替える
+ */
+LightBox.prototype._keydown = function(evt, num, len)
+{
+	var self = this;
+	var show = true;
+	var forward = true;
+	var vertical = false;
+
+	if (typeof ic2cols !== 'number' || ic2cols < 1 || len == 0) {
+		return true;
+	}
+	if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
+		return true;
+	}
+
+	switch (evt.keyCode) {
+		// 左
+		case 37: // LEFT
+		case 72: // 'H'
+		case 83: // 'S'
+			forward = false;
+			vertical = false;
+			break;
+
+		// 上
+		case 38: // UP
+		case 75: // 'K'
+		case 69: // 'E'
+			forward = false;
+			vertical = true;
+			break;
+
+		// 右
+		case 39: // RIGHT
+		case 76: // 'L'
+		case 68: // 'D'
+			forward = true;
+			vertical = false;
+			break;
+
+		// 下
+		case 40: // LEFT
+		case 74: // 'J'
+		case 88: // 'X'
+			forward = true;
+			vertical = true;
+			break;
+
+		// Lightboxを閉じる
+		case 27: // ESC
+			self._close(null);
+			show = false;
+			break;
+
+		// 何もしない
+		default:
+			show = false;
+	}
+
+	// 別の画像を表示
+	if (show) {
+		var last = len - 1;
+		var direction = 0;
+		if (vertical) {
+			var x, y, z, arr, key, rows;
+			arr = [];
+			rows = Math.ceil(len / ic2cols);
+			for (x = 0; x < ic2cols; x++) {
+				for (y = 0; y < rows; y++) {
+					z = x + y * ic2cols;
+					if (z < len) {
+						if (z == num) {
+							key = arr.length;
+						}
+						arr.push(z);
+					}
+				}
+			}
+			if (forward) {
+				direction = (key == last) ? arr[0] : arr[key+1];
+			} else {
+				direction = (key == 0) ? arr[last] : arr[key-1];
+			}
+			direction -= num;
+		} else {
+			if (forward) {
+				direction = (num == last) ? -last : 1;
+			} else {
+				direction = (num == 0) ? last : -1;
+			}
+		}
+		if (direction) {
+			self._show_next(direction);
+		}
+	}
+
+	return Event.stop(evt);
 };
 
 /*
