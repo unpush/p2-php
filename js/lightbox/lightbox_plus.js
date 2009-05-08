@@ -103,7 +103,7 @@ function LightBox(option)
 	self._zoomimg = null;
 	self._expandable = false;
 	self._expanded = false;
-	self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keyup':null};
+	self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keydown':null};
 	self._level = 1;
 	self._curpos = {x:0,y:0};
 	self._imgpos = {x:0,y:0};
@@ -609,9 +609,9 @@ LightBox.prototype = {
 		if (self._funcs.drag  != null) Event.deregister(self._img,'mousedown',self._funcs.drag);
 		if (self._funcs.dbl   != null) Event.deregister(self._img,'dblclick',self._funcs.dbl);
 		/* rep2-expack: キー入力イベントハンドラを解除 */
-		if (self._funcs.keyup != null) Event.deregister(document.body,'keyup',self._funcs.keyup);
+		if (self._funcs.keydown != null) Event.deregister(document,'keydown',self._funcs.keydown);
 		/* end */
-		self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keyup':null};
+		self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keydown':null};
 	},
 	_onwheel : function(evt)
 	{
@@ -633,51 +633,103 @@ LightBox.prototype = {
 		return Event.stop(evt);
 	},
 	/* rep2-expack: カーソルキー + ESDX + HJKL */
-	_onkeyup : function(evt, num, len)
+	_keydown : function(evt, num, len)
 	{
 		var self = this;
-		if (typeof ic2cols !== 'number' || ic2cols < 1) {
+		var stop = true;
+		var follows = len - num - 1;
+
+		if (typeof ic2cols !== 'number' || ic2cols < 1 || len == 0) {
 			return true;
 		}
+		if (evt.altKey || evt.ctrlKey || evt.metaKey) {
+			return true;
+		}
+
 		switch (evt.keyCode) {
-			// 前の画像を表示
+			// 左
 			case 37: // '←'
 			case 72: // 'H'
 			case 83: // 'S'
 				if (num > 0) {
-					self._show_next(-1);
+					if (evt.shiftKey) {
+						if (num < ic2cols) {
+							self._show_next(-num);
+						} else {
+							var lshift = num % ic2cols;
+							self._show_next(-((lshift) ? lshift : num));
+						}
+					} else {
+						self._show_next(-1);
+					}
 				}
 				break;
-			// 真上の画像を表示
+
+			// 上
 			case 38: // '↑'
 			case 75: // 'K'
 			case 69: // 'E'
-				if (num >= ic2cols) {
-					self._show_next(-ic2cols);
+				if (num > 0) {
+					if (evt.shiftKey) {
+						if (num < ic2cols) {
+							self._show_next(-num);
+						} else {
+							self._show_next(-ic2cols * Math.floor(num / ic2cols));
+						}
+					} else if (num < ic2cols) {
+						self._show_next(ic2cols * Math.floor(follows / ic2cols) - 1);
+					} else {
+						self._show_next(-ic2cols);
+					}
 				}
 				break;
-			// 次の画像を表示
+
+			// 右
 			case 39: // '→'
 			case 76: // 'L'
 			case 68: // 'D'
-				if (num + 1 < len) {
-					self._show_next(1);
+				if (follows > 0) {
+					if (evt.shiftKey) {
+						if (follows < ic2cols) {
+							self._show_next(follows);
+						} else {
+							var rshift = follows % ic2cols;
+							self._show_next((rshift) ? rshift : follows);
+						}
+					} else {
+						self._show_next(1);
+					}
 				}
 				break;
-			// 真下の画像を表示
+
+			// 下
 			case 40: // '↓'
 			case 74: // 'J'
 			case 88: // 'X'
-				if (num + ic2cols < len) {
-					self._show_next(ic2cols);
+				if (follows > 0) {
+					if (evt.shiftKey) {
+						var follows = len - num - 1;
+						if (follows < ic2cols) {
+							self._show_next(follows);
+						} else {
+							self._show_next(ic2cols * Math.floor(follows / ic2cols));
+						}
+					} else if (follows < ic2cols) {
+						self._show_next(1 - ic2cols * Math.floor(num / ic2cols));
+					} else {
+						self._show_next(ic2cols);
+					}
 				}
 				break;
 			// Lightboxを閉じる
 			case 27: // ESC
 				self._close(null);
 				break;
+			// 何もしない
+			default:
+				stop = false;
 		}
-		return Event.stop(evt);
+		return (stop) ? Event.stop(evt) : true;
 	},
 	/* end */
 	_dragstart : function(evt)
@@ -803,11 +855,11 @@ LightBox.prototype = {
 		self._expanded = false;
 		imag.src = self._imgs[self._open].src;
 		/* rep2-expack: キー入力イベントハンドラを登録 */
-		if (self._funcs.keyup != null) {
-			Event.deregister(document.body, 'keyup', self._funcs.keyup);
+		if (self._funcs.keydown != null) {
+			Event.deregister(document, 'keydown', self._funcs.keydown);
 		}
-		self._funcs.keyup = function(evt) { return self._onkeyup(evt, num, self._imgs.length); };
-		Event.register(document.body, 'keyup', self._funcs.keyup);
+		self._funcs.keydown = function(evt) { return self._keydown(evt, num, self._imgs.length); };
+		Event.register(document, 'keydown', self._funcs.keydown);
 		/* end */
 	},
 	_close_box : function()
