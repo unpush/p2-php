@@ -103,7 +103,7 @@ function LightBox(option)
 	self._zoomimg = null;
 	self._expandable = false;
 	self._expanded = false;
-	self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null};
+	self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keyup':null};
 	self._level = 1;
 	self._curpos = {x:0,y:0};
 	self._imgpos = {x:0,y:0};
@@ -552,7 +552,9 @@ LightBox.prototype = {
 			if (check < self._get_setlength() - 1) self._next.style.display = 'inline';
 		}
 		/* rep2-expack: ランクを表示 */
-		if (self._ic2_show_rank) self._ic2_show_rank(true);
+		if (self._ic2_show_rank) {
+			self._ic2_show_rank(true);
+		}
 		/* end */
 	},
 	_hide_action : function()
@@ -606,7 +608,10 @@ LightBox.prototype = {
 		if (self._funcs.up    != null) Event.deregister(self._img,'mouseup',self._funcs.up);
 		if (self._funcs.drag  != null) Event.deregister(self._img,'mousedown',self._funcs.drag);
 		if (self._funcs.dbl   != null) Event.deregister(self._img,'dblclick',self._funcs.dbl);
-		self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null};
+		/* rep2-expack: キー入力イベントハンドラを解除 */
+		if (self._funcs.keyup != null) Event.deregister(window,'keyup',self._funcs.keyup);
+		/* end */
+		self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keyup':null};
 	},
 	_onwheel : function(evt)
 	{
@@ -627,6 +632,48 @@ LightBox.prototype = {
 		self._set_photo_size();
 		return Event.stop(evt);
 	},
+	/* rep2-expack: カーソルキー + ESDX + HJKL */
+	_onkeyup : function(evt, num, len)
+	{
+		var self = this;
+		if (typeof ic2cols !== 'number' || ic2cols < 1) {
+			return;
+		}
+		switch (evt.keyCode) {
+			case 37: // '←'
+			case 72: // 'H'
+			case 83: // 'S'
+				if (num > 0) {
+					self._show_next(-1);
+				}
+				break;
+			case 38: // '↑'
+			case 75: // 'K'
+			case 69: // 'E'
+				if (num >= ic2cols) {
+					self._show_next(-ic2cols);
+				}
+				break;
+			case 39: // '→'
+			case 76: // 'L'
+			case 68: // 'D'
+				if (num + 1 < len) {
+					self._show_next(1);
+				}
+				break;
+			case 40: // '↓'
+			case 74: // 'J'
+			case 88: // 'X'
+				if (num + ic2cols < len) {
+					self._show_next(ic2cols);
+				}
+				break;
+			case 27: // ESC
+				self._close(null);
+				break;
+		}
+	},
+	/* end */
 	_dragstart : function(evt)
 	{
 		var self = this;
@@ -749,6 +796,13 @@ LightBox.prototype = {
 		self._expandable = false;
 		self._expanded = false;
 		imag.src = self._imgs[self._open].src;
+		/* rep2-expack: キー入力イベントハンドラを登録 */
+		if (self._funcs.keyup != null) {
+			Event.deregister(window, 'keyup', self._funcs.keyup);
+		}
+		self._funcs.keyup = function(evt) { self._onkeyup(evt, num, self._imgs.length); };
+		Event.register(window, 'keyup', self._funcs.keyup);
+		/* end */
 	},
 	_close_box : function()
 	{

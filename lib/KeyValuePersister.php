@@ -10,21 +10,24 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
 
     const Q_TABLEEXISTS = 'SELECT 1 FROM sqlite_master WHERE type = \'table\' AND name = :table LIMIT 1';
     const Q_CREATETABLE = 'CREATE TABLE $__table (
-  id TEXT PRIMARY KEY ON CONFLICT REPLACE,
-  value TEXT,
-  mtime INTEGER NOT NULL DEFAULT (strftime(\'%s\',\'now\')),
-  sort_order INTEGER NOT NULL DEFAULT 0
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  arkey TEXT NOT NULL ON CONFLICT FAIL UNIQUE ON CONFLICT REPLACE,
+  value TEXT NOT NULL,
+  mtime INTEGER DEFAULT (strftime(\'%s\',\'now\')),
+  sort_order INTEGER DEFAULT 0
 )';
     const Q_COUNT       = 'SELECT COUNT(*) FROM $__table LIMIT 1';
-    const Q_EXSITS      = 'SELECT 1 FROM $__table WHERE id = :key AND (:expires IS NULL OR mtime >= :expires) LIMIT 1';
-    const Q_GET         = 'SELECT * FROM $__table WHERE id = :key LIMIT 1';
+    const Q_EXSITS      = 'SELECT 1 FROM $__table WHERE arkey = :key AND (:expires IS NULL OR mtime >= :expires) LIMIT 1';
+    const Q_FINDBYID    = 'SELECT arkey, value FROM $__table WHERE id = :id LIMIT 1';
+    const Q_GET         = 'SELECT * FROM $__table WHERE arkey = :key LIMIT 1';
     const Q_GETALL      = 'SELECT * FROM $__table';
-    const Q_GETKEYS     = 'SELECT id FROM $__table';
-    const Q_SAVE        = 'INSERT INTO $__table (id, value, sort_order) VALUES (:key, :value, :order)';
-    const Q_UPDATE      = 'UPDATE $__table SET value = :value, mtime = strftime(\'%s\',\'now\'), sort_order = :order WHERE id = :key';
-    const Q_TOUCH       = 'UPDATE $__table SET mtime = :time WHERE id = :key';
-    const Q_SETORDER    = 'UPDATE $__table SET sort_order = :order WHERE id = :key';
-    const Q_DELETE      = 'DELETE FROM $__table WHERE id = :key';
+    const Q_GETIDS      = 'SELECT id FROM $__table';
+    const Q_GETKEYS     = 'SELECT arkey FROM $__table';
+    const Q_SAVE        = 'INSERT INTO $__table (arkey, value, sort_order) VALUES (:key, :value, :order)';
+    const Q_UPDATE      = 'UPDATE $__table SET value = :value, mtime = strftime(\'%s\',\'now\'), sort_order = :order WHERE arkey = :key';
+    const Q_TOUCH       = 'UPDATE $__table SET mtime = (CASE WHEN :mtime IS NULL THEN strftime(\'%s\',\'now\') ELSE :mtime END) WHERE arkey = :key';
+    const Q_SETORDER    = 'UPDATE $__table SET sort_order = :order WHERE arkey = :key';
+    const Q_DELETE      = 'DELETE FROM $__table WHERE arkey = :key';
     const Q_CLEAN       = 'DELETE FROM $__table';
     const Q_GC          = 'DELETE FROM $__table WHERE mtime < :expires';
 
@@ -46,7 +49,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      *
      * @var PDO
      */
-    private $_dbh;
+    private $_conn;
 
     /**
      * SQLite3データベースのパス
@@ -56,11 +59,11 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     private $_path;
 
     /**
-     * テーブル名
+     * 識別子としてクォート済みのテーブル名
      *
      * @var string
      */
-    private $_tableName;
+    private $_quotedTableName;
 
     // }}}
     // {{{ getPersister()
@@ -134,24 +137,24 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
         // インスタンスを作成し、静的変数に保持
         if (array_key_exists($path, self::$_objects)) {
             if (array_key_exists($lcname, self::$_objects[$path]['persisters'])) {
-                $persister = self::$_objects[$path]['persisters'][$lcname];
+                $kvp = self::$_objects[$path]['persisters'][$lcname];
             } else {
-                $dbh = self::$_objects[$path]['connection'];
-                $persister = new $className($dbh, $path, $tableName);
-                self::$_objects[$path]['persisters'][$lcname] = $persister;
+                $conn = self::$_objects[$path]['connection'];
+                $kvp = new $className($conn, $path, $tableName);
+                self::$_objects[$path]['persisters'][$lcname] = $kvp;
             }
         } else {
-            $dbh = new PDO('sqlite:' . $path);
-            $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $persister = new $className($dbh, $path, $tableName);
+            $conn = new PDO('sqlite:' . $path);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $kvp = new $className($conn, $path, $tableName);
             self::$_objects[$path] = array(
-                'connection' => $dbh,
+                'connection' => $conn,
                 'statements' => array(),
-                'persisters' => array($lcname => $persister),
+                'persisters' => array($lcname => $kvp),
             );
         }
 
-        return $persister;
+        return $kvp;
     }
 
     // }}}
@@ -161,25 +164,28 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      * コンストラクタ
      * getPersister()から呼び出される
      *
-     * @param PDO $dbh
+     * @param PDO $conn
      * @param string $path
      * @param string $tableName
      * @throws PDOException
      */
-    private function __construct(PDO $dbh, $path, $tableName)
+    private function __construct(PDO $conn, $path, $tableName)
     {
-        $this->_dbh = $dbh;
+        $this->_conn = $conn;
         $this->_path = $path;
-        $this->_tableName = '"' . str_replace('"', '""', $tableName) . '"';
+        $this->_quotedTableName = '"' . str_replace('"', '""', $tableName) . '"';
 
-        $sth = $dbh->prepare(self::Q_TABLEEXISTS);
-        $sth->bindValue(':table', $tableName, PDO::PARAM_STR);
-        $sth->execute();
-        $exists = $sth->fetchColumn();
-        $sth->closeCursor();
-        unset($sth);
+        // テーブルが存在するかを調べ
+        $stmt = $conn->prepare(self::Q_TABLEEXISTS);
+        $stmt->bindValue(':table', $tableName, PDO::PARAM_STR);
+        $stmt->execute();
+        $exists = $stmt->fetchColumn();
+        $stmt->closeCursor();
+        unset($stmt);
+
+        // 無ければ作る
         if (!$exists) {
-            $dbh->exec(str_replace('$__table', $this->_tableName, self::Q_CREATETABLE));
+            $conn->exec(str_replace('$__table', $this->_quotedTableName, self::Q_CREATETABLE));
         }
     }
 
@@ -196,72 +202,87 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     private function _prepare($query, $isTemporary = false)
     {
-        $query = str_replace('$__table', $this->_tableName, $query);
+        $query = str_replace('$__table', $this->_quotedTableName, $query);
 
         if (!$isTemporary && array_key_exists($query, self::$_objects[$this->_path]['statements'])) {
-            $sth = self::$_objects[$this->_path]['statements'][$query];
+            $stmt = self::$_objects[$this->_path]['statements'][$query];
         } else {
             if (strncmp($query, 'SELECT ', 7) == 0) {
-                $sth = $this->_dbh->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+                $stmt = $this->_conn->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
             } else {
-                $sth = $this->_dbh->prepare($query);
+                $stmt = $this->_conn->prepare($query);
             }
             if (!$isTemporary) {
-                self::$_objects[$this->_path]['statements'][$query] = $sth;
+                self::$_objects[$this->_path]['statements'][$query] = $stmt;
             }
         }
 
-        return $sth;
+        return $stmt;
     }
 
     // }}}
-    // {{{ _generateOrderByAndLimitOffset()
+    // {{{ _buildOrderBy()
 
     /**
-     * レコードをまとめて取得する際のOREDER BY句とLIMIT句を生成する
+     * レコードをまとめて取得する際のOREDER BY句を生成する
      *
-     * @param array $orders
+     * @param array $orderBy
+     * @return string
+     */
+    private function _buildOrderBy(array $orderBy = null)
+    {
+        if ($orderBy == null) {
+            return ' ORDER BY sort_order ASC, arkey ASC';
+        }
+
+        $terms = array();
+        foreach ($orderBy as $column => $ascending) {
+            $direction = $ascending ? 'ASC' : 'DESC';
+            switch ($column) {
+                case 'id':
+                    $terms[] = 'id ' . $direction;
+                    break;
+                case 'key':
+                    $terms[] = 'arkey ' . $direction;
+                    break;
+                case 'value':
+                    $terms[] = 'value ' . $direction;
+                    break;
+                case 'mtime':
+                    $terms[] = 'mtime ' . $direction;
+                    break;
+                case 'order':
+                    $terms[] = 'sort_order ' . $direction;
+                    break;
+            }
+        }
+
+        if (count($terms)) {
+            return ' ORDER BY ' . implode(', ', $terms);
+        } else {
+            return '';
+        }
+    }
+
+    // }}}
+    // {{{ _buildLimit()
+
+    /**
+     * レコードをまとめて取得する際のLIMIT句とOFFSET句を生成する
+     *
      * @param int $limit
      * @param int $offset
      * @return string
      */
-    private function _generateOrderByAndLimitOffset(array $orders = null, $limit = null, $offset = null)
+    private function _buildLimit($limit = null, $offset = null)
     {
-        $orderBy = 'sort_order ASC, id ASC';
-        $limitOffset = '';
-
-        if ($orders) {
-            $terms = array();
-            foreach ($orders as $column => $ascending) {
-                $direction = $ascending ? 'ASC' : 'DESC';
-                switch ($column) {
-                    case 'key':
-                        $terms[] = 'id ' . $direction;
-                        break;
-                    case 'value':
-                        $terms[] = 'value ' . $direction;
-                        break;
-                    case 'mtime':
-                        $terms[] = 'mtime ' . $direction;
-                        break;
-                    case 'order':
-                        $terms[] = 'sort_order ' . $direction;
-                        break;
-                }
-            }
-            if (count($terms)) {
-                $orderBy = implode(', ', $terms);
-            }
+        if ($limit === null) {
+            return '';
+        } elseif ($offset === null) {
+            return sprintf(' LIMIT %d', $limit);
+        } else {
+            return sprintf(' LIMIT %d OFFSET %d', $limit, $offset);
         }
-
-        if ($limit !== null) {
-            $limitOffset = sprintf(' LIMIT %d', $limit);
-            if ($offset !== null) {
-                $limitOffset .= sprintf(' OFFSET %d', $offset);
-            }
-        }
-
-        return ' ORDER BY ' . $orderBy . $limitOffset;
     }
 
     // }}}
@@ -332,17 +353,45 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function exists($key, $lifeTime = null)
     {
-        $sth = $this->_prepare(self::Q_EXSITS);
-        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $stmt = $this->_prepare(self::Q_EXSITS);
+        $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
         if ($lifeTime === null) {
-            $sth->bindValue(':expires', null, PDO::PARAM_NULL);
+            $stmt->bindValue(':expires', null, PDO::PARAM_NULL);
         } else {
-            $sth->bindValue(':expires', time() - $lifeTime, PDO::PARAM_INT);
+            $stmt->bindValue(':expires', time() - $lifeTime, PDO::PARAM_INT);
         }
-        $sth->execute();
-        $ret = (bool)$sth->fetchColumn();
-        $sth->closeCursor();
+        $stmt->execute();
+        $ret = (bool)$stmt->fetchColumn();
+        $stmt->closeCursor();
         return $ret;
+    }
+
+    // }}}
+    // {{{ findById()
+
+    /**
+     * IDに対応するキーと値のペアを取得する
+     * 主としてKeyValuePersisterIteratorで使う
+     *
+     * @param int $id
+     * @return array
+     */
+    public function findById($id)
+    {
+        $stmt = $this->_prepare(self::Q_FINDBYID);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $stmt->bindValue(':id', (int)$id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $stmt->closeCursor();
+        if ($row === false) {
+            return null;
+        } else {
+            return array(
+                'key' => $this->_decodeKey($row['arkey']),
+                'value' => $this->_decodeValue($row['value']),
+            );
+        }
     }
 
     // }}}
@@ -356,12 +405,12 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function get($key)
     {
-        $sth = $this->_prepare(self::Q_GET);
-        $sth->setFetchMode(PDO::FETCH_ASSOC);
-        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
-        $sth->execute();
-        $row = $sth->fetch();
-        $sth->closeCursor();
+        $stmt = $this->_prepare(self::Q_GET);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $stmt->closeCursor();
         if ($row === false) {
             return null;
         } else {
@@ -380,20 +429,21 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function getDetail($key)
     {
-        $sth = $this->_prepare(self::Q_GET);
-        $sth->setFetchMode(PDO::FETCH_ASSOC);
-        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
-        $sth->execute();
-        $row = $sth->fetch();
-        $sth->closeCursor();
+        $stmt = $this->_prepare(self::Q_GET);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $stmt->closeCursor();
         if ($row === false) {
             return null;
         } else {
             return array(
-                'key' => $this->_decodeKey($row['id']),
+                'id' => (int)$row['id'],
+                'key' => $this->_decodeKey($row['arkey']),
                 'value' => $this->_decodeValue($row['value']),
                 'mtime' => (int)$row['mtime'],
-                'order' => (int)$row['sort_order']
+                'order' => (int)$row['sort_order'],
             );
         }
     }
@@ -404,36 +454,67 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     /**
      * 全てのレコードを連想配列として返す
      *
-     * @param array $orders
+     * @param array $orderBy
      * @param int $limit
      * @param int $offset
      * @param bool $getDetails
      * @return array
      */
-    public function getAll(array $orders = null, $limit = null, $offset = null, $getDetails = false)
+    public function getAll(array $orderBy = null, $limit = null, $offset = null, $getDetails = false)
     {
-        $query = self::Q_GETALL . $this->_generateOrderByAndLimitOffset($orders, $limit, $offset);
-        $sth = $this->_prepare($query, true);
-        $sth->setFetchMode(PDO::FETCH_ASSOC);
-        $sth->execute();
+        $query = self::Q_GETALL
+               . $this->_buildOrderBy($orderBy)
+               . $this->_buildLimit($limit, $offset);
+        $stmt = $this->_prepare($query, true);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $stmt->execute();
         $values = array();
-        if ($getDetail) {
-            while ($row = $sth->fetch()) {
-                $key = $this->_decodeKey($row['id']);
+        if ($getDetails) {
+            while ($row = $stmt->fetch()) {
+                $key = $this->_decodeKey($row['arkey']);
                 $values[$key] = array(
+                    'id' => (int)$row['id'],
                     'key' => $key,
                     'value' => $this->_decodeValue($row['value']),
                     'mtime' => (int)$row['mtime'],
-                    'order' => (int)$row['sort_order']
+                    'order' => (int)$row['sort_order'],
                 );
             }
         } else {
-            while ($row = $sth->fetch()) {
-                $values[$this->_decodeKey($row['id'])] = $this->_decodeValue($row['value']);
+            while ($row = $stmt->fetch()) {
+                $values[$this->_decodeKey($row['arkey'])] = $this->_decodeValue($row['value']);
             }
         }
-        $sth->closeCursor();
+        $stmt->closeCursor();
         return $values;
+    }
+
+    // }}}
+    // {{{ getIds()
+
+    /**
+     * 全てのIDの配列を返す
+     * 主としてKeyValuePersisterIteratorで使う
+     *
+     * @param array $orderBy
+     * @param int $limit
+     * @param int $offset
+     * @return array
+     */
+    public function getIds(array $orderBy = null, $limit = null, $offset = null)
+    {
+        $query = self::Q_GETIDS
+               . $this->_buildOrderBy($orderBy)
+               . $this->_buildLimit($limit, $offset);
+        $stmt = $this->_prepare($query, true);
+        $stmt->setFetchMode(PDO::FETCH_COLUMN, 0);
+        $stmt->execute();
+        $ids = array();
+        while (($id = $stmt->fetch()) !== false) {
+            $ids[] = (int)$id;
+        }
+        $stmt->closeCursor();
+        return $ids;
     }
 
     // }}}
@@ -442,22 +523,24 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     /**
      * 全てのキーの配列を返す
      *
-     * @param array $orders
+     * @param array $orderBy
      * @param int $limit
      * @param int $offset
      * @return array
      */
-    public function getKeys(array $orders = null, $limit = null, $offset = null)
+    public function getKeys(array $orderBy = null, $limit = null, $offset = null)
     {
-        $query = self::Q_GETKEYS . $this->_generateOrderByAndLimitOffset($orders, $limit, $offset);
-        $sth = $this->_prepare($query, true);
-        $sth->setFetchMode(PDO::FETCH_COLUMN, 0);
-        $sth->execute();
+        $query = self::Q_GETKEYS
+               . $this->_buildOrderBy($orderBy)
+               . $this->_buildLimit($limit, $offset);
+        $stmt = $this->_prepare($query, true);
+        $stmt->setFetchMode(PDO::FETCH_COLUMN, 0);
+        $stmt->execute();
         $keys = array();
-        while (($key = $sth->fetch()) !== false) {
+        while (($key = $stmt->fetch()) !== false) {
             $keys[] = $this->_decodeKey($key);
         }
-        $sth->closeCursor();
+        $stmt->closeCursor();
         return $keys;
     }
 
@@ -474,12 +557,12 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function save($key, $value, $order = 0)
     {
-        $sth = $this->_prepare(self::Q_SAVE);
-        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
-        $sth->bindValue(':value', $this->_encodeValue($value), PDO::PARAM_STR);
-        $sth->bindValue(':order', (int)$order, PDO::PARAM_INT);
-        if ($sth->execute()) {
-            return $sth->rowCount() == 1;
+        $stmt = $this->_prepare(self::Q_SAVE);
+        $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $stmt->bindValue(':value', $this->_encodeValue($value), PDO::PARAM_STR);
+        $stmt->bindValue(':order', (int)$order, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            return $stmt->rowCount() == 1;
         } else {
             return false;
         }
@@ -498,12 +581,12 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function update($key, $value, $order = 0)
     {
-        $sth = $this->_prepare(self::Q_UPDATE);
-        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
-        $sth->bindValue(':value', $this->_encodeValue($value), PDO::PARAM_STR);
-        $sth->bindValue(':order', (int)$order, PDO::PARAM_INT);
-        if ($sth->execute()) {
-            return $sth->rowCount() == 1;
+        $stmt = $this->_prepare(self::Q_UPDATE);
+        $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $stmt->bindValue(':value', $this->_encodeValue($value), PDO::PARAM_STR);
+        $stmt->bindValue(':order', (int)$order, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            return $stmt->rowCount() == 1;
         } else {
             return false;
         }
@@ -521,11 +604,15 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function touch($key, $time = null)
     {
-        $sth = $this->_prepare(self::Q_TOUCH);
-        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
-        $sth->bindValue(':time', is_numeric($time) ? (int)$time : time(), PDO::PARAM_INT);
-        if ($sth->execute()) {
-            return $sth->rowCount() == 1;
+        $stmt = $this->_prepare(self::Q_TOUCH);
+        $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        if ($time === null) {
+            $stmt->bindValue(':mtime', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(':mtime', (int)$time, PDO::PARAM_INT);
+        }
+        if ($stmt->execute()) {
+            return $stmt->rowCount() == 1;
         } else {
             return false;
         }
@@ -543,11 +630,11 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function setOrder($key, $order)
     {
-        $sth = $this->_prepare(self::Q_SETORDER);
-        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
-        $sth->bindValue(':order', (int)$order, PDO::PARAM_INT);
-        if ($sth->execute()) {
-            return $sth->rowCount() == 1;
+        $stmt = $this->_prepare(self::Q_SETORDER);
+        $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        $stmt->bindValue(':order', (int)$order, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            return $stmt->rowCount() == 1;
         } else {
             return false;
         }
@@ -564,11 +651,10 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function delete($key)
     {
-        $sth = $this->_prepare(self::Q_DELETE);
-        $sth->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
-        $sth->execute();
-        if ($sth->execute()) {
-            return $sth->rowCount() == 1;
+        $stmt = $this->_prepare(self::Q_DELETE);
+        $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        if ($stmt->execute()) {
+            return $stmt->rowCount() == 1;
         } else {
             return false;
         }
@@ -585,9 +671,9 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function clean()
     {
-        $sth = $this->_prepare(self::Q_CLEAN, true);
-        if ($sth->execute()) {
-            return $sth->rowCount();
+        $stmt = $this->_prepare(self::Q_CLEAN, true);
+        if ($stmt->execute()) {
+            return $stmt->rowCount();
         } else {
             return false;
         }
@@ -604,10 +690,10 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      */
     public function gc($lifeTime)
     {
-        $sth = $this->_prepare(self::Q_GC, true);
-        $sth->bindValue(':expires', time() - $lifeTime, PDO::PARAM_INT);
-        if ($sth->execute()) {
-            return $sth->rowCount();
+        $stmt = $this->_prepare(self::Q_GC, true);
+        $stmt->bindValue(':expires', time() - $lifeTime, PDO::PARAM_INT);
+        if ($stmt->execute()) {
+            return $stmt->rowCount();
         } else {
             return false;
         }
@@ -626,25 +712,26 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     public function vacuum()
     {
         self::$_objects[$this->_path]['statements'] = array();
-        $this->_dbh->exec('VACUUM');
+        $this->_conn->exec('VACUUM');
     }
 
     // }}}
     // {{{ count()
 
     /**
-     * 全レコード数を取得する
      * Countable::count()
+     *
+     * レコードの総数を返す
      *
      * @param void
      * @return int
      */
     public function count()
     {
-        $sth = $this->_prepare(self::Q_COUNT);
-        $sth->execute();
-        $ret = (int)$sth->fetchColumn();
-        $sth->closeCursor();
+        $stmt = $this->_prepare(self::Q_COUNT);
+        $stmt->execute();
+        $ret = (int)$stmt->fetchColumn();
+        $stmt->closeCursor();
         return $ret;
     }
 
@@ -711,12 +798,18 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     /**
      * IteratorAggregate::getIterator()
      *
+     * 反復中にget系メソッドを呼ばれても大丈夫なように
+     * 予め取得したIDのリストを使うイテレータを返す
+     *
      * @param void
-     * @return ArrayObject
+     * @return KeyValuePersisterIterator
      */
     public function getIterator()
     {
-        return new ArrayObject($this->getAll());
+        if (!class_exists('KeyValuePersisterIterator', false)) {
+            include dirname(__FILE__) . '/KeyValuePersisterIterator.php';
+        }
+        return new KeyValuePersisterIterator($this);
     }
 
     // }}}

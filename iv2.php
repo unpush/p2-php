@@ -947,9 +947,17 @@ $qf->accept($r);
 $qfObj = $r->toObject();
 
 // •Ï”‚ðAssign
+$js = $qf->getValidationScript() . <<<EOJS
+\n<script type="text/javascript">
+// <![CDATA[
+var ic2cols = {$cols};
+var ic2rows = {$rows};
+// ]]>
+</script>\n
+EOJS;
 $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
-$flexy->setData('js', $qf->getValidationScript());
+$flexy->setData('js', $js);
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
 $flexy->setData('lightbox', $lightbox);

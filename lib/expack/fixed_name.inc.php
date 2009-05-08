@@ -36,7 +36,7 @@ function fixed_name_get_select_element($name = 'fixed_name', $onchange = null)
     $name_ht = htmlspecialchars($name, ENT_QUOTES, 'Shift_JIS');
     if ($onchange !== null) {
         $onchange_ht = htmlspecialchars($onchange, ENT_QUOTES, 'Shift_JIS');
-        $select = "<select id=\"{$name_ht}\" name=\"{$name_ht}\" onchange=\"{$select}\">\n";
+        $select = "<select id=\"{$name_ht}\" name=\"{$name_ht}\" onchange=\"{$onchange_ht}\">\n";
     } else {
         $select = "<select id=\"{$name_ht}\" name=\"{$name_ht}\">\n";
     }
