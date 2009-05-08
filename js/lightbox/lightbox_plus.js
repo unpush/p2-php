@@ -609,7 +609,7 @@ LightBox.prototype = {
 		if (self._funcs.drag  != null) Event.deregister(self._img,'mousedown',self._funcs.drag);
 		if (self._funcs.dbl   != null) Event.deregister(self._img,'dblclick',self._funcs.dbl);
 		/* rep2-expack: キー入力イベントハンドラを解除 */
-		if (self._funcs.keyup != null) Event.deregister(window,'keyup',self._funcs.keyup);
+		if (self._funcs.keyup != null) Event.deregister(document.body,'keyup',self._funcs.keyup);
 		/* end */
 		self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keyup':null};
 	},
@@ -637,9 +637,10 @@ LightBox.prototype = {
 	{
 		var self = this;
 		if (typeof ic2cols !== 'number' || ic2cols < 1) {
-			return;
+			return true;
 		}
 		switch (evt.keyCode) {
+			// 前の画像を表示
 			case 37: // '←'
 			case 72: // 'H'
 			case 83: // 'S'
@@ -647,6 +648,7 @@ LightBox.prototype = {
 					self._show_next(-1);
 				}
 				break;
+			// 真上の画像を表示
 			case 38: // '↑'
 			case 75: // 'K'
 			case 69: // 'E'
@@ -654,6 +656,7 @@ LightBox.prototype = {
 					self._show_next(-ic2cols);
 				}
 				break;
+			// 次の画像を表示
 			case 39: // '→'
 			case 76: // 'L'
 			case 68: // 'D'
@@ -661,6 +664,7 @@ LightBox.prototype = {
 					self._show_next(1);
 				}
 				break;
+			// 真下の画像を表示
 			case 40: // '↓'
 			case 74: // 'J'
 			case 88: // 'X'
@@ -668,10 +672,12 @@ LightBox.prototype = {
 					self._show_next(ic2cols);
 				}
 				break;
+			// Lightboxを閉じる
 			case 27: // ESC
 				self._close(null);
 				break;
 		}
+		return Event.stop(evt);
 	},
 	/* end */
 	_dragstart : function(evt)
@@ -798,10 +804,10 @@ LightBox.prototype = {
 		imag.src = self._imgs[self._open].src;
 		/* rep2-expack: キー入力イベントハンドラを登録 */
 		if (self._funcs.keyup != null) {
-			Event.deregister(window, 'keyup', self._funcs.keyup);
+			Event.deregister(document.body, 'keyup', self._funcs.keyup);
 		}
-		self._funcs.keyup = function(evt) { self._onkeyup(evt, num, self._imgs.length); };
-		Event.register(window, 'keyup', self._funcs.keyup);
+		self._funcs.keyup = function(evt) { return self._onkeyup(evt, num, self._imgs.length); };
+		Event.register(document.body, 'keyup', self._funcs.keyup);
 		/* end */
 	},
 	_close_box : function()
