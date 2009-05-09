@@ -52,9 +52,9 @@ class ShowThread
      */
     function getAnchorRegex($pattern)
     {
-        static $caches_;
+        static $caches_ = array();
 
-        if (!isset($caches_[$pattern])) {
+        if (!array_key_exists($pattern, $caches_)) {
             $caches_[$pattern] = strtr($pattern, ShowThread::getAnchorRegexParts());
             // ëÂç∑ÇÕÇ»Ç¢Ç™ compileMobile2chUriCallBack() ÇÃÇÊÇ§Ç… preg_relplace_callback()ÇµÇƒÇ‡Ç¢Ç¢Ç©Ç‡ÅB
         }
