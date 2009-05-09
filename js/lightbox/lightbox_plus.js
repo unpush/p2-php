@@ -580,7 +580,7 @@ LightBox.prototype = {
 		if (self._funcs.up    != null) Event.deregister(self._img,'mouseup',self._funcs.up);
 		if (self._funcs.drag  != null) Event.deregister(self._img,'mousedown',self._funcs.drag);
 		if (self._funcs.dbl   != null) Event.deregister(self._img,'dblclick',self._funcs.dbl);
-		/* rep2-expack: キー入力イベントハンドラを解除 */
+		/* rep2-expack: キー押下イベントハンドラを解除 */
 		if (self._funcs.keydown != null) Event.deregister(document,'keydown',self._funcs.keydown);
 		/* end */
 		self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keydown':null};
@@ -726,13 +726,13 @@ LightBox.prototype = {
 		self._expandable = false;
 		self._expanded = false;
 		imag.src = self._imgs[self._open].src;
-		/* rep2-expack: キー入力イベントハンドラを登録 */
-		if (self._ic2_keydown_chimg) {
+		/* rep2-expack: キー押下イベントハンドラを登録 */
+		if (self._ic2_keydown_handler) {
 			if (self._funcs.keydown != null) {
 				Event.deregister(document, 'keydown', self._funcs.keydown);
 			}
 			self._funcs.keydown = function(evt) {
-				return self._ic2_keydown_chimg(evt, num, self._imgs.length);
+				return self._ic2_keydown_handler(evt, num, self._imgs.length);
 			};
 			Event.register(document, 'keydown', self._funcs.keydown);
 		}

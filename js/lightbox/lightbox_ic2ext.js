@@ -150,13 +150,20 @@ LightBox.prototype._ic2_generate_setrank = function(rank)
 };
 
 /**
- * カーソルキー, ESDX (emacs風), HJKL (vi風) で上下左右の画像に切り替える
+ * キー押下イベントハンドラ
+ *
+ * カーソルキー, ESDX (emacs風), HJKL (vi風) で上下左右の画像に切り替えたり
+ * 0～5でランクを変更したりする
  */
-LightBox.prototype._ic2_keydown_chimg = function(evt, num, len)
+LightBox.prototype._ic2_keydown_handler = function(evt, num, len)
 {
 	var self = this;
-	var change_img  = true;
-	var is_forward  = true;
+	var rank = 0;
+	var set_rank    = false;
+	var change_img  = false;
+	var go_first    = false;
+	var go_last     = false;
+	var is_forward  = false;
 	var is_vertical = false;
 	var no_loop     = false;
 	var no_updown   = false;
@@ -177,59 +184,105 @@ LightBox.prototype._ic2_keydown_chimg = function(evt, num, len)
 	}
 
 	switch (evt.keyCode) {
-		// 左
-		case 37: // LEFT
-		case 72: // 'H'
-		case 83: // 'S'
-			is_forward  = false;
-			is_vertical = false;
-			break;
-
 		// 上
 		case 38: // UP
 		case 75: // 'K'
 		case 69: // 'E'
+			change_img  = true;
 			is_forward  = false;
 			is_vertical = true;
-			break;
-
-		// 右
-		case 39: // RIGHT
-		case 76: // 'L'
-		case 68: // 'D'
-			is_forward  = true;
-			is_vertical = false;
 			break;
 
 		// 下
 		case 40: // DOWN
 		case 74: // 'J'
 		case 88: // 'X'
+			change_img  = true;
 			is_forward  = true;
 			is_vertical = true;
 			break;
 
-		// キーバインドを表示
-		case 191: // '/' ('?')
-			change_img = false;
-			if (evt.shiftKey) {
-				alert("[画像切替キー]\n"
-					+ " 上: ↑, E, K \n"
-					+ " 下: ↓, X, J \n"
-					+ " 左: ←, S, H \n"
-					+ " 右: →, D, L ");
-			}
+		// 左
+		case 37: // LEFT
+		case 72: // 'H'
+		case 83: // 'S'
+			change_img  = true;
+			is_forward  = false;
+			is_vertical = false;
+			break;
+
+		// 右
+		case 39: // RIGHT
+		case 76: // 'L'
+		case 68: // 'D'
+			change_img  = true;
+			is_forward  = true;
+			is_vertical = false;
+			break;
+
+		// 最初
+		case 36: // HOME
+			change_img  = true;
+			is_forward  = false;
+			go_first    = true;
+			break;
+
+		// 最後
+		case 35: // END
+			change_img  = true;
+			is_forward  = true;
+			go_last     = true;
+			break;
+
+		// ランクを変更
+		case 48: // '0'
+		case 49: // '1'
+		case 50: // '2'
+		case 51: // '3'
+		case 52: // '4'
+		case 53: // '5'
+			set_rank = true;
+			rank = evt.keyCode - 48;
+			break;
+
+		// ランクを変更 (テンキー)
+		case  96: // '0'
+		case  97: // '1'
+		case  98: // '2'
+		case  99: // '3'
+		case 100: // '4'
+		case 101: // '5'
+			set_rank = true;
+			rank = evt.keyCode - 96;
+			break;
+
+		// あぼーん
+		case   8: // BS
+		case 127: // DEL
+			set_rank = true;
+			rank = -1;
 			break;
 
 		// Lightboxを閉じる
 		case 27: // ESC
-			change_img = false;
 			self._close(null);
 			break;
 
-		// 何もしない
-		default:
-			change_img = false;
+		// キーバインドを表示
+		case 191: // '/' ('?')
+			if (evt.shiftKey) {
+				alert(" 上: ↑, E, K \n"
+					+ " 下: ↓, X, J \n"
+					+ " 左: ←, S, H \n"
+					+ " 右: →, D, L \n"
+					+ " 最初: HOME \n"
+					+ " 最後: END \n"
+					+ " ☆: 0～5 \n"
+					+ " あぼーん: BS, DEL \n"
+					+ " 閉じる: ESC \n"
+					+ " ヘルプ: ? ");
+			}
+			break;
 	}
 
 	// 別の画像を表示
@@ -239,7 +292,11 @@ LightBox.prototype._ic2_keydown_chimg = function(evt, num, len)
 		var end = len - 1;
 		var direction;
 
-		if (is_vertical && cols > 1 && rows > 1) {
+		if (go_first) {
+			direction = -num;
+		} else if (go_last) {
+			direction = end - num;
+		} else if (is_vertical && cols > 1 && rows > 1) {
 			var x, y, z, pos;
 
 			// 左上角を0とした横(Z字)方向の通し番号(num)を
@@ -281,6 +338,12 @@ LightBox.prototype._ic2_keydown_chimg = function(evt, num, len)
 		if (direction) {
 			self._show_next(direction);
 		}
+	}
+
+	// ランクを変更
+	if (set_rank) {
+		self._ic2_set_rank(rank);
+		self._ic2_show_rank(true);
 	}
 
 	return Event.stop(evt);

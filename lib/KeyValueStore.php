@@ -231,7 +231,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     private function _buildOrderBy(array $orderBy = null)
     {
-        if ($orderBy == null) {
+        if ($orderBy === null) {
             return ' ORDER BY sort_order ASC, arkey ASC';
         }
 
