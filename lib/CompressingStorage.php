@@ -1,12 +1,12 @@
 <?php
-require_once dirname(__FILE__) . '/BinaryPersister.php';
+require_once dirname(__FILE__) . '/BinaryStorage.php';
 
-// {{{ CompressingPersister
+// {{{ CompressingStorage
 
 /**
  * サイズの大きいデータを圧縮して永続化する
  */
-class CompressingPersister extends BinaryPersister
+class CompressingStorage extends BinaryStorage
 {
     // {{{ _encodeValue()
 

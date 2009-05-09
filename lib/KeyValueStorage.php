@@ -1,10 +1,10 @@
 <?php
-// {{{ KeyValuePersister
+// {{{ KeyValueStorage
 
 /**
  * キー/値のペアをSQLite3のデータベースに保存する
  */
-class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
+class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
 {
     // {{{ constants
 
@@ -35,7 +35,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     // {{{ staric private properties
 
     /**
-     * データベース毎に一意なPDO,PDOStatement,KeyValuePersisterのインスタンスを保持する配列
+     * データベース毎に一意なPDO,PDOStatement,KeyValueStorageのインスタンスを保持する配列
      *
      * @var array
      */
@@ -66,7 +66,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
     private $_quotedTableName;
 
     // }}}
-    // {{{ getPersister()
+    // {{{ getStorage()
 
     /**
      * シングルトンメソッド
@@ -74,10 +74,10 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      * @param string $fileName
      * @param string $className
      * @param string &$openedPath
-     * @return KeyValuePersister
+     * @return KeyValueStorage
      * @throws InvalidArgumentException, UnexpectedValueException, RuntimeException, PDOException
      */
-    static public function getPersister($fileName, $className = 'KeyValuePersister', &$openedPath = null)
+    static public function getStorage($fileName, $className = 'KeyValueStorage', &$openedPath = null)
     {
         // 引数の型をチェック
         if (!is_string($fileName)) {
@@ -88,12 +88,12 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
         }
 
         // クラス名をチェック
-        if (strcasecmp($className, 'KeyValuePersister') != 0) {
+        if (strcasecmp($className, 'KeyValueStorage') != 0) {
             if (!class_exists($className, false)) {
                 throw new UnexpectedValueException("Class '{$className}' is not declared");
             }
-            if (!is_subclass_of($className, 'KeyValuePersister')) {
-                throw new UnexpectedValueException("Class '{$className}' is not a subclass of KeyValuePersister");
+            if (!is_subclass_of($className, 'KeyValueStorage')) {
+                throw new UnexpectedValueException("Class '{$className}' is not a subclass of KeyValueStorage");
             }
         }
 
@@ -162,7 +162,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * コンストラクタ
-     * getPersister()から呼び出される
+     * getStorage()から呼び出される
      *
      * @param PDO $conn
      * @param string $path
@@ -371,7 +371,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * IDに対応するキーと値のペアを取得する
-     * 主としてKeyValuePersisterIteratorで使う
+     * 主としてKeyValueStorageIteratorで使う
      *
      * @param int $id
      * @return array
@@ -494,7 +494,7 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * 全てのIDの配列を返す
-     * 主としてKeyValuePersisterIteratorで使う
+     * 主としてKeyValueStorageIteratorで使う
      *
      * @param array $orderBy
      * @param int $limit
@@ -802,14 +802,14 @@ class KeyValuePersister implements ArrayAccess, Countable, IteratorAggregate
      * 予め取得したIDのリストを使うイテレータを返す
      *
      * @param void
-     * @return KeyValuePersisterIterator
+     * @return KeyValueStorageIterator
      */
     public function getIterator()
     {
-        if (!class_exists('KeyValuePersisterIterator', false)) {
-            include dirname(__FILE__) . '/KeyValuePersisterIterator.php';
+        if (!class_exists('KeyValueStorageIterator', false)) {
+            include dirname(__FILE__) . '/KeyValueStorageIterator.php';
         }
-        return new KeyValuePersisterIterator($this);
+        return new KeyValueStorageIterator($this);
     }
 
     // }}}

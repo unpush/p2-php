@@ -1,38 +1,38 @@
 <?php
-require_once dirname(__FILE__) . '/CompressingPersister.php';
+require_once dirname(__FILE__) . '/KeyValueStorage.php';
 
-// {{{ SerializingPersister
+// {{{ BinaryStorage
 
 /**
- * 値をシリアライズして永続化する
+ * バイナリデータを永続化する
  */
-class SerializingPersister extends CompressingPersister
+class BinaryStorage extends KeyValueStorage
 {
     // {{{ _encodeValue()
 
     /**
-     * 値をシリアライズする
+     * データをBase64エンコードする
      *
-     * @param mixed $value
+     * @param string $value
      * @return string
      */
     protected function _encodeValue($value)
     {
-        return parent::_encodeValue(serialize($value));
+        return base64_encode($value);
     }
 
     // }}}
     // {{{ _decodeValue()
 
     /**
-     * 値をアンシリアライズする
+     * データをBase64デコードする
      *
      * @param string $value
-     * @return mixed
+     * @return string
      */
     protected function _decodeValue($value)
     {
-        return unserialize(parent::_decodeValue($value));
+        return base64_decode($value);
     }
 
     // }}}

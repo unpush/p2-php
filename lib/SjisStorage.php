@@ -1,12 +1,12 @@
 <?php
-require_once dirname(__FILE__) . '/KeyValuePersister.php';
+require_once dirname(__FILE__) . '/KeyValueStorage.php';
 
-// {{{ SjisPersister
+// {{{ SjisStorage
 
 /**
  * Shift_JIS‚Ì•¶Žš—ñ‚ðUTF-8‚É•ÏŠ·‚µ‚Ä‰i‘±‰»‚·‚é
  */
-class SjisPersister extends KeyValuePersister
+class SjisStorage extends KeyValueStorage
 {
     // {{{ _encode()
 
