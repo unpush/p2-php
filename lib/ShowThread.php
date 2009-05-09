@@ -54,7 +54,7 @@ class ShowThread
     {
         static $caches_;
 
-        if (!isset($cache_[$pattern])) {
+        if (!isset($caches_[$pattern])) {
             $caches_[$pattern] = strtr($pattern, ShowThread::getAnchorRegexParts());
             // ëÂç∑ÇÕÇ»Ç¢Ç™ compileMobile2chUriCallBack() ÇÃÇÊÇ§Ç… preg_relplace_callback()ÇµÇƒÇ‡Ç¢Ç¢Ç©Ç‡ÅB
         }
