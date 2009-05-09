@@ -548,15 +548,9 @@ EOMSG;
             
             // 数字を引用レスポップアップリンク化
             // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
-            /*
-            if ($name) {
-                $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-                $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
-            }
-            */
             if ($name) {
                 $name = preg_replace_callback(
-                    "/(?:^|{$this->anchor_regex['prefix']}){$this->anchor_regex['a_num']}(?:{$this->anchor_regex['delimiter']}{$this->anchor_regex['a_num']})*(?=\\D|$)/",
+                    $this->getAnchorRegex('/(?:^|%prefix%)%nums%/'),
                     array($this, 'quote_name_callback'), $name
                 );
             }
@@ -567,18 +561,6 @@ EOMSG;
         $name = $name . " "; // 簡易的に文字化け回避
 
         return $name;
-    }
-    
-    /**
-     * @access  private
-     * @return  string  HTML
-     */
-    function quote_name_callback($s)
-    {
-        return preg_replace_callback(
-            "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_num']})(?=\\D|$)/",
-            array($this, 'quote_res_callback'), $s[0]
-        );
     }
     
     /**
@@ -604,12 +586,8 @@ EOMSG;
         // Safariから投稿されたリンク中チルダの文字化け補正
         //$msg = preg_replace('{(h?t?tp://[\w\.\-]+/)～([\w\.\-%]+/?)}', '$1~$2', $msg);
         
-        // >>1のリンクをいったん外す
-        // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
-        /*
-        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
-        */
-        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[\\d\\-]+)</[Aa]>}', '$1', $msg);
+        // DAT中にある>>1のリンクHTMLを取り除く
+        $msg = $this->removeResAnchorTagInDat($msg);
         
         // 2chではなされていないエスケープ（ノートンの誤反応対策を含む）
         // 本来は2chのDAT化時点でなされていないとエスケープの整合性が取れない気がする。
@@ -668,17 +646,8 @@ EOMSG;
 
         // 引用
         } elseif ($s['quote']) {
-            /*
-            if (strstr($s[7], '-')) {
-                return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
-            }
             return preg_replace_callback(
-                '/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
-            );
-            */
-            return preg_replace_callback(
-                "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_range']})(?=\\D|$)/",
+                $this->getAnchorRegex('/(%prefix%)?(%a_range%)/'),
                 array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
             );
         // http or ftp のURL
@@ -1537,7 +1506,6 @@ EOP;
     }
 
     // }}}
-
 }
 
 /*

@@ -53,6 +53,7 @@ function _getReadFilterWord($host, $bbs, $key, $resnum, $field)
     $resar = $aThread->explodeDatLine($aThread->datlines[$resnum - 1]);
     $resar = array_map('trim', $resar);
     $resar = array_map('strip_tags', $resar);
+    
     switch ($field) {
         case 'name':
             $word = $resar[0];
@@ -71,7 +72,11 @@ function _getReadFilterWord($host, $bbs, $key, $resnum, $field)
             $_GET['field']  = 'msg';
             $_GET['method'] = 'regex';
             //$word = '>' . $resnum . '[^\d]'; // [^\d-]
-            $word = "(&gt;|＞|&lt;|＜|）|〉|》|≫){1,2}\s*\.?(\d+,)*" . $resnum . "\D";
+            //$word = "(&gt;|＞|&lt;|＜|）|〉|》|≫){1,2}\s*\.?(\d+,)*" . $resnum . "\D";
+            require_once P2_LIB_DIR . '/ShowThread.php';
+            $word = ShowThread::getAnchorRegex(
+                '%prefix%(.+%delimiter%)?' . $resnum . '(?!\\d|%range_delimiter%)'
+            );
     }
     return $word;
 }

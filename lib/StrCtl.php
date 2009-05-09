@@ -223,6 +223,7 @@ class StrCtl
 
     /**
      * 全角/半角を（ある程度）区別なくパッチするための正規表現パターンを得る
+     * （注意：正規表現の特殊文字も一緒くたに処理してしまうという欠点が解消されていない。\d \ｄ）
      *
      * @static
      * @access  private
@@ -358,3 +359,14 @@ class StrCtl
         return $kigou;
     }
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

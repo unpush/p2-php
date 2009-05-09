@@ -727,15 +727,9 @@ EOID;
         // 数字を引用レスポップアップリンク化
         if ($_conf['quote_res_view']) {
         // </b>～<b> は、ホスト（やトリップ）なのでマッチしないようにしたい
-        /*
-        if ($name) {
-            $pettern = '/^( ?(?:&gt;|＞)* ?)?([1-9]\d{0,3})(?=\\D|$)/';
-            $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
-        }
-        */
         if ($name) {
             $name = preg_replace_callback(
-                "/(?:^|{$this->anchor_regex['prefix']}){$this->anchor_regex['a_num']}(?:{$this->anchor_regex['delimiter']}{$this->anchor_regex['a_num']})*(?=\\D|$)/",
+                $this->getAnchorRegex('/(?:^|%prefix%)%nums%/'),
                 array($this, 'quote_name_callback'), $name
             );
         }
@@ -753,19 +747,19 @@ EOID;
         
         return $name;
     }
-    
+
     /**
      * @access  private
      * @return  string  HTML
      */
-    function quote_name_callback($s)
+    function quote_msg_callback($s)
     {
         return preg_replace_callback(
-            "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_num']})(?=\\D|$)/",
-            array($this, 'quote_res_callback'), $s[0]
+            $this->getAnchorRegex('/(%prefix%)?(%a_range%)/'),
+            array($this, 'quote_res_callback'), $s[0], $this->str_to_link_limit
         );
     }
-    
+
     /**
      * datのレスメッセージをHTML表示用メッセージに変換して返す
      *
@@ -790,9 +784,8 @@ EOID;
             $msg = preg_replace('/&amp([^;])/', '&$1', $msg);
         }
 
-        // >>1のリンクをいったん外す
-        // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
-        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
+        // DAT中にある>>1のリンクHTMLを取り除く
+        $msg = $this->removeResAnchorTagInDat($msg);
         
         // AAチェック
         $has_aa = $this->detectAA($msg);
@@ -827,9 +820,8 @@ EOID;
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
             $msg = preg_replace_callback(
-                //'/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/',
-                "/{$this->anchor_regex['full']}/",
-                array($this, 'quote_res_callback'), $msg, $this->str_to_link_limit
+                $this->getAnchorRegex('/%full%/'), 
+                array($this, 'quote_msg_callback'), $msg
             );
             */
             $ryaku_ht = P2View::tagA(
@@ -871,59 +863,6 @@ EOID;
         
         return $msg;
     }
-
-    /**
-     * AA判定
-     *
-     * @return  integer  0:反応なし, 1:弱反応, 2:強反応（AA略）
-     */
-    function detectAA($s)
-    {
-        global $_conf;
-        
-        // AA によく使われるパディング
-        $regexA = '　{3}|(?: 　){2}';
-
-        // 罫線
-        // [\u2500-\u257F]
-        //var $regexB = '[\\x{849F}-\\x{84BE}]{5}';
-        $regexB = '[─-╂■]{4}';
-
-        // Latin-1,全角スペースと句読点,ひらがな,カタカナ,半角・全角形 以外の同じ文字が3つ連続するパターン
-        // Unicode の [^\x00-\x7F\x{2010}-\x{203B}\x{3000}-\x{3002}\x{3040}-\x{309F}\x{30A0}-\x{30FF}\x{FF00}-\x{FFEF}]
-        // をベースに SJIS に作り直してあるが、若干の違いがある。
-        //$regexC = '([^\\x00-\\x7F\\xA1-\\xDF　、。，．：；０-ヶー～・…※！？＃＄％＆＊＋／＝])\\1\\1';
-        $regexC = '([^\\x00-\\x7F\\xA1-\\xDF　、。，．：；０-ヶー～・…※！？＃＄％＆＊＋／＝]|[_,:;\'])\\1\\1';
-        
-        //$re = '(?:' . $this->regexA . '|' . $this->regexB . '|' . $this->regexC . ')';
-        
-        $level = 0;
-        
-        // AA略の対象とする最低行数（3行を超えるもののみ省略する）
-        $aa_ryaku = false;
-        if (preg_match("/^(.+<br>){3}./", $s)) {
-            $aa_ryaku = true;
-        }
-        
-        if (mb_ereg($regexA, $s)) {
-            $level = 1;
-        }
-        
-        // AA略しないならここまで
-        if (!$_conf['k_aa_ryaku_size'] or !$aa_ryaku) {
-            return $level;
-        }
-        
-        if ($level && mb_ereg($regexC, $s)) {
-            return 2;
-        }
-
-        if (mb_ereg($regexB, $s)) {
-            return 2;
-        }
-
-        return $level;
-    }
     
     // {{{ コールバックメソッド
 
@@ -958,19 +897,7 @@ EOID;
 
         // 引用
         } elseif ($s['quote']) {
-            /*
-            if (strstr($s[7], '-')) {
-                return $this->quote_res_range_callback(array($s['quote'], $s[6], $s[7]));
-            }
-            return preg_replace_callback(
-                '/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
-            );
-            */
-            return preg_replace_callback(
-                "/({$this->anchor_regex['prefix']})?({$this->anchor_regex['a_range']})/",
-                array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
-            );
+            return $this->quote_msg_callback(array($s['quote']));
 
         // http or ftp のURL
         } elseif ($s['url']) {

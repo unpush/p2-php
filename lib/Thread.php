@@ -540,13 +540,7 @@ class Thread
     function compileMobile2chUriCallBack($m)
     {
         $replaces = $this->getMobile2chUriValues();
-        /*
-        foreach ($replaces as $k => $v) {
-            if ($m[1] == $k) {
-                return $v;
-            }
-        }
-        */
+
         $key = $m[1];
         if (isset($replaces[$key])) {
             return $replaces[$key];
