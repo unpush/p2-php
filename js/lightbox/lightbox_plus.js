@@ -727,11 +727,13 @@ LightBox.prototype = {
 		self._expanded = false;
 		imag.src = self._imgs[self._open].src;
 		/* rep2-expack: キー入力イベントハンドラを登録 */
-		if (self._keydown) {
+		if (self._ic2_keydown_chimg) {
 			if (self._funcs.keydown != null) {
 				Event.deregister(document, 'keydown', self._funcs.keydown);
 			}
-			self._funcs.keydown = function(evt) { return self._keydown(evt, num, self._imgs.length); };
+			self._funcs.keydown = function(evt) {
+				return self._ic2_keydown_chimg(evt, num, self._imgs.length);
+			};
 			Event.register(document, 'keydown', self._funcs.keydown);
 		}
 		/* end */

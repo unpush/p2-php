@@ -950,8 +950,12 @@ $qfObj = $r->toObject();
 $js = $qf->getValidationScript() . <<<EOJS
 \n<script type="text/javascript">
 // <![CDATA[
-var ic2cols = {$cols};
-var ic2rows = {$rows};
+var ic2_cols = {$cols};
+var ic2_rows = {$rows};
+var ic2_lightbox_options = {
+    no_loop: false,
+    no_updown: false
+};
 // ]]>
 </script>\n
 EOJS;
