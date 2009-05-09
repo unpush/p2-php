@@ -991,7 +991,7 @@ function p2checkenv($check_recommended)
     }
 
     // 必須拡張モジュール
-    foreach (array('mbstring', 'pcre', 'session', 'zlib') as $ext) {
+    foreach (array('mbstring', 'pcre', 'pdo_sqlite', 'session', 'zlib') as $ext) {
         if (!extension_loaded($ext)) {
             p2die("{$ext} 拡張モジュールがロードされていません。");
         }
