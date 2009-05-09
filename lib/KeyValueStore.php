@@ -1,10 +1,10 @@
 <?php
-// {{{ KeyValueStorage
+// {{{ KeyValueStore
 
 /**
- * キー/値のペアをSQLite3のデータベースに保存する
+ * キー/値のペアをSQLite3のデータベースに保存する Key-Value Store
  */
-class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
+class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 {
     // {{{ constants
 
@@ -35,7 +35,7 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
     // {{{ staric private properties
 
     /**
-     * データベース毎に一意なPDO,PDOStatement,KeyValueStorageのインスタンスを保持する配列
+     * データベース毎に一意なPDO,PDOStatement,KeyValueStoreのインスタンスを保持する配列
      *
      * @var array
      */
@@ -66,7 +66,7 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
     private $_quotedTableName;
 
     // }}}
-    // {{{ getStorage()
+    // {{{ getStore()
 
     /**
      * シングルトンメソッド
@@ -74,10 +74,10 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
      * @param string $fileName
      * @param string $className
      * @param string &$openedPath
-     * @return KeyValueStorage
+     * @return KeyValueStore
      * @throws InvalidArgumentException, UnexpectedValueException, RuntimeException, PDOException
      */
-    static public function getStorage($fileName, $className = 'KeyValueStorage', &$openedPath = null)
+    static public function getStore($fileName, $className = 'KeyValueStore', &$openedPath = null)
     {
         // 引数の型をチェック
         if (!is_string($fileName)) {
@@ -88,12 +88,12 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
         }
 
         // クラス名をチェック
-        if (strcasecmp($className, 'KeyValueStorage') != 0) {
+        if (strcasecmp($className, 'KeyValueStore') != 0) {
             if (!class_exists($className, false)) {
                 throw new UnexpectedValueException("Class '{$className}' is not declared");
             }
-            if (!is_subclass_of($className, 'KeyValueStorage')) {
-                throw new UnexpectedValueException("Class '{$className}' is not a subclass of KeyValueStorage");
+            if (!is_subclass_of($className, 'KeyValueStore')) {
+                throw new UnexpectedValueException("Class '{$className}' is not a subclass of KeyValueStore");
             }
         }
 
@@ -131,30 +131,30 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
         }
 
         $lcname = strtolower($className);
-        $tableName = 'kvp_' . $lcname;
+        $tableName = 'kvs_' . $lcname;
         $openedPath = $path;
 
         // インスタンスを作成し、静的変数に保持
         if (array_key_exists($path, self::$_objects)) {
             if (array_key_exists($lcname, self::$_objects[$path]['persisters'])) {
-                $kvp = self::$_objects[$path]['persisters'][$lcname];
+                $kvs = self::$_objects[$path]['persisters'][$lcname];
             } else {
                 $conn = self::$_objects[$path]['connection'];
-                $kvp = new $className($conn, $path, $tableName);
-                self::$_objects[$path]['persisters'][$lcname] = $kvp;
+                $kvs = new $className($conn, $path, $tableName);
+                self::$_objects[$path]['persisters'][$lcname] = $kvs;
             }
         } else {
             $conn = new PDO('sqlite:' . $path);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $kvp = new $className($conn, $path, $tableName);
+            $kvs = new $className($conn, $path, $tableName);
             self::$_objects[$path] = array(
                 'connection' => $conn,
                 'statements' => array(),
-                'persisters' => array($lcname => $kvp),
+                'persisters' => array($lcname => $kvs),
             );
         }
 
-        return $kvp;
+        return $kvs;
     }
 
     // }}}
@@ -162,7 +162,7 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * コンストラクタ
-     * getStorage()から呼び出される
+     * getStore()から呼び出される
      *
      * @param PDO $conn
      * @param string $path
@@ -371,7 +371,7 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * IDに対応するキーと値のペアを取得する
-     * 主としてKeyValueStorageIteratorで使う
+     * 主としてKeyValueStoreIteratorで使う
      *
      * @param int $id
      * @return array
@@ -494,7 +494,7 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * 全てのIDの配列を返す
-     * 主としてKeyValueStorageIteratorで使う
+     * 主としてKeyValueStoreIteratorで使う
      *
      * @param array $orderBy
      * @param int $limit
@@ -802,14 +802,14 @@ class KeyValueStorage implements ArrayAccess, Countable, IteratorAggregate
      * 予め取得したIDのリストを使うイテレータを返す
      *
      * @param void
-     * @return KeyValueStorageIterator
+     * @return KeyValueStoreIterator
      */
     public function getIterator()
     {
-        if (!class_exists('KeyValueStorageIterator', false)) {
-            include dirname(__FILE__) . '/KeyValueStorageIterator.php';
+        if (!class_exists('KeyValueStoreIterator', false)) {
+            include dirname(__FILE__) . '/KeyValueStoreIterator.php';
         }
-        return new KeyValueStorageIterator($this);
+        return new KeyValueStoreIterator($this);
     }
 
     // }}}

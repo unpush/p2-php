@@ -1,12 +1,12 @@
 <?php
-require_once dirname(__FILE__) . '/KeyValueStorage.php';
+require_once dirname(__FILE__) . '/KeyValueStore.php';
 
-// {{{ BinaryStorage
+// {{{ BinaryStore
 
 /**
  * バイナリデータを永続化する
  */
-class BinaryStorage extends KeyValueStorage
+class BinaryStore extends KeyValueStore
 {
     // {{{ _encodeValue()
 

@@ -1,24 +1,24 @@
 <?php
-require_once dirname(__FILE__) . '/KeyValuePersister.php';
+require_once dirname(__FILE__) . '/KeyValueStore.php';
 
-// {{{ KeyValuePersisterIterator
+// {{{ KeyValueStoreIterator
 
 /**
- * KeyValuePersister用イテレータ
+ * KeyValueStore用イテレータ
  */
-class KeyValuePersisterIterator implements Iterator
+class KeyValueStoreIterator implements Iterator
 {
     // {{{ private properties
 
     /**
-     * KeyValuePersisterのインスタンス
+     * KeyValueStoreのインスタンス
      *
-     * @var KeyValuePersister
+     * @var KeyValueStore
      */
-    private $_kvp;
+    private $_kvs;
 
     /**
-     * KeyValuePersister::getIds()が返すIDのリスト
+     * KeyValueStore::getIds()が返すIDのリスト
      *
      * @var array
      */
@@ -57,7 +57,7 @@ class KeyValuePersisterIterator implements Iterator
     private function _fetchCurrent()
     {
         if ($this->_currentId === false ||
-            ($pair = $this->_kvp->findById($this->_currentId)) === null)
+            ($pair = $this->_kvs->findById($this->_currentId)) === null)
         {
             $this->_currentKey = $this->_currentValue = null;
         } else {
@@ -72,12 +72,12 @@ class KeyValuePersisterIterator implements Iterator
     /**
      * コンストラクタ
      *
-     * @param KeyValuePersister $kvp
+     * @param KeyValueStore $kvs
      */
-    public function __construct(KeyValuePersister $kvp)
+    public function __construct(KeyValueStore $kvs)
     {
-        $this->_kvp = $kvp;
-        $this->_ids = $kvp->getIds();
+        $this->_kvs = $kvs;
+        $this->_ids = $kvs->getIds();
         $this->_currentId = false;
     }
 

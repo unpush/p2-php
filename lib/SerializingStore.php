@@ -1,38 +1,38 @@
 <?php
-require_once dirname(__FILE__) . '/BinaryStorage.php';
+require_once dirname(__FILE__) . '/CompressingStore.php';
 
-// {{{ CompressingStorage
+// {{{ SerializingStore
 
 /**
- * サイズの大きいデータを圧縮して永続化する
+ * 値をシリアライズして永続化する
  */
-class CompressingStorage extends BinaryStorage
+class SerializingStore extends CompressingStore
 {
     // {{{ _encodeValue()
 
     /**
-     * データを圧縮する
+     * 値をシリアライズする
      *
-     * @param string $value
+     * @param mixed $value
      * @return string
      */
     protected function _encodeValue($value)
     {
-        return parent::_encodeValue(gzdeflate($value, 6));
+        return parent::_encodeValue(serialize($value));
     }
 
     // }}}
     // {{{ _decodeValue()
 
     /**
-     * データを展開する
+     * 値をアンシリアライズする
      *
      * @param string $value
-     * @return string
+     * @return mixed
      */
     protected function _decodeValue($value)
     {
-        return gzinflate(parent::_decodeValue($value));
+        return unserialize(parent::_decodeValue($value));
     }
 
     // }}}

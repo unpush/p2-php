@@ -1,12 +1,12 @@
 <?php
-require_once dirname(__FILE__) . '/KeyValueStorage.php';
+require_once dirname(__FILE__) . '/KeyValueStore.php';
 
-// {{{ SjisStorage
+// {{{ SjisStore
 
 /**
  * Shift_JIS‚Ì•¶Žš—ñ‚ðUTF-8‚É•ÏŠ·‚µ‚Ä‰i‘±‰»‚·‚é
  */
-class SjisStorage extends KeyValueStorage
+class SjisStore extends KeyValueStore
 {
     // {{{ _encode()
 
