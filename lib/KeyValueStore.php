@@ -545,7 +545,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     }
 
     // }}}
-    // {{{ save()
+    // {{{ set()
 
     /**
      * ƒf[ƒ^‚ð•Û‘¶‚·‚é
@@ -555,7 +555,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * @param int $order
      * @return bool
      */
-    public function save($key, $value, $order = 0)
+    public function set($key, $value, $order = 0)
     {
         $stmt = $this->_prepare(self::Q_SAVE);
         $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
@@ -775,7 +775,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function offsetSet($offset, $value)
     {
-        $this->save($offset, $value);
+        $this->set($offset, $value);
     }
 
     // }}}

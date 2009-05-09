@@ -2,6 +2,7 @@
 // アクセス元ホストをチェックする関数群クラス
 
 require_once P2_CONF_DIR . '/conf_hostcheck.php';
+require_once P2_LIB_DIR . '/FileCtl.php';
 
 // {{{ HostCheck
 
@@ -40,12 +41,7 @@ EOF;
      */
     static public function cachedGetHostByAddr($remote_addr)
     {
-        global $_conf;
-
-        $function = 'gethostbyaddr';
-        $cache_file = $_conf['cache_dir'] . '/hostcheck_gethostbyaddr.cache';
-
-        return self::_cachedGetHost($remote_addr, $function, $cache_file);
+        return self::_cachedGetHost($remote_addr, 'gethostbyaddr');
     }
 
     // }}}
@@ -56,12 +52,7 @@ EOF;
      */
     static public function cachedGetHostByName($remote_host)
     {
-        global $_conf;
-
-        $function = 'gethostbyname';
-        $cache_file = $_conf['cache_dir'] . '/hostcheck_gethostbyname.cache';
-
-        return self::_cachedGetHost($remote_host, $function, $cache_file);
+        return self::_cachedGetHost($remote_host, 'gethostbyname');
     }
 
     // }}}
@@ -70,50 +61,35 @@ EOF;
     /**
      * cachedGetHostByAddr/cachedGetHostByName のキャッシュエンジン
      */
-    static private function _cachedGetHost($remote, $function, $cache_file)
+    static private function _cachedGetHost($remote, $function)
     {
-        $ttl = $GLOBALS['_HOSTCHKCONF']['gethostby_expires'];
+        global $_conf;
+
+        $lifeTime = (int)$GLOBALS['_HOSTCHKCONF']['gethostby_lifetime'];
 
         // キャッシュしない設定のとき
-        if ($ttl <= 0) {
+        if ($lifeTime <= 0) {
             return $function($remote);
         }
 
         // キャッシュ有効のとき
-        $now  = time();
-        $list = array();
-
-        // キャッシュファイルが無ければ作成する
-        if (!file_exists($cache_file)) {
-            FileCtl::make_datafile($cache_file);
+        if (!class_exists('KeyValueStore', false)) {
+            include P2_LIB_DIR . '/KeyValueStore.php';
         }
-
-        // キャッシュを読み込む
-        if ($lines = FileCtl::file_read_lines($cache_file, FILE_IGNORE_NEW_LINES)) {
-            foreach ($lines as $l) {
-                list($query, $result, $expires) = explode("\t", $l);
-                if ($expires > $now) {
-                    $list[$query] = array($result, $expires);
-                }
-            }
+        $cache_db = $_conf['cache_dir'] . '/hostcheck_gethostby.sq3';
+        if (!file_exists($cache_db)) {
+            FileCtl::mkdir_for($cache_db);
         }
+        $kvs = KeyValueStore::getStore($cache_db);
 
         // キャッシュされているとき
-        if (isset($list[$remote])) {
-            return $list[$remote][0];
+        if ($kvs->exists($remote, $lifeTime)) {
+            return $kvs->get($remote);
         }
 
         // キャッシュされていないとき
         $result = $function($remote);
-        $list[$remote] = array($result, $ttl + $now);
-
-        // キャッシュを保存する
-        $content = '';
-        foreach ($list as $query => $item) {
-            $content .= $query . "\t" . $item[0] . "\t" . $item[1] . "\n";
-        }
-        FileCtl::filePutRename($cache_file, $content);
-
+        $kvs->set($remote, $result);
         return $result;
     }
 
