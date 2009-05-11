@@ -161,7 +161,7 @@ class ShowThreadK extends ShowThread
         $date_id    = $resar[2];
         $msg        = $resar[3];
 
-		if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
+        if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
             $name = '';
         }
 
@@ -700,7 +700,7 @@ EOID;
         if ($_conf['k_save_packet']) {
             $tores = mb_convert_kana($tores, 'rnsk'); // SJIS-win だと ask で ＜ を < に変換してしまうようだ
         }
-
+        
         return $tores;
     }
     
@@ -747,7 +747,7 @@ EOID;
         
         return $name;
     }
-
+    
     /**
      * @access  private
      * @return  string  HTML
@@ -759,7 +759,7 @@ EOID;
             array($this, 'quote_res_callback'), $s[0], $this->str_to_link_limit
         );
     }
-
+    
     /**
      * datのレスメッセージをHTML表示用メッセージに変換して返す
      *
@@ -777,7 +777,7 @@ EOID;
         $this->str_to_link_rest = $this->str_to_link_limit;
         
         $ryaku = false;
-        
+
         // 2ch旧形式のdat
         if ($this->thread->dat_type == "2ch_old") {
             $msg = str_replace('＠｀', ',', $msg);
@@ -863,7 +863,7 @@ EOID;
         
         return $msg;
     }
-    
+
     // {{{ コールバックメソッド
 
     /**
@@ -1011,7 +1011,7 @@ EOID;
     }
 
     /**
-     * 引用変換
+     * 引用変換（単独）（2009/05/06 範囲もこちらから）
      *
      * @access  private
      * @return  string  HTML
@@ -1026,9 +1026,15 @@ EOID;
         
         list($full, $qsign, $appointed_num) = $s;
         
-        if ($appointed_num == '-') {
+        $appointed_num = mb_convert_kana($appointed_num, 'n'); // 全角数字を半角数字に変換
+        if (preg_match('/\\D/', $appointed_num)) {
+            $appointed_num = preg_replace('/\\D+/', '-', $appointed_num);
+            return $this->quote_res_range_callback(array($full, $qsign, $appointed_num));
+        }
+        if (preg_match('/^0/', $appointed_num)) {
             return $s[0];
         }
+        
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum >= $this->thread->rescount) {
             return $s[0];
@@ -1059,7 +1065,7 @@ EOID;
      * 引用変換（範囲）
      *
      * @access  private
-     * @return  string
+     * @return  string  HTML
      */
     function quote_res_range_callback($s)
     {
@@ -1286,8 +1292,8 @@ EOID;
      * @access  private
      * @return  string|false  HTML
      */
-/*iPhone用にサムネイルにしてみる*/
-    function plugin_viewImage($url, $purl, $str)
+    //iPhone用にサムネイルにしてみる
+    function plugin_viewImage($url, $purl, $html)
     {
         global $_conf;
         
@@ -1309,7 +1315,7 @@ EOID;
             } else {
                 $link_url = $url;
             }
-            return "{$picto_tag}<a href=\"{$link_url}\">{$str}</a>";// {$str}　→ URL
+            return "{$picto_tag}<a href=\"{$link_url}\">{$html}</a>";// {$html}　→ URL
         }
         return FALSE;
     }
@@ -1320,20 +1326,24 @@ EOID;
      *
      * @access  private
      * @return  string|false
-*/
-   //iPhone用にサムネイル表示
-    function plugin_linkYouTube($url, $purl, $str)
+     */
+    function plugin_linkYouTube($url, $purl, $html)
     {
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://jp\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)||preg_match('{^http://jp\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
+        // http://m.youtube.com/watch?v=OhcX0xJsDK8&client=mv-google&gl=JP&hl=ja&guid=ON&warned=True
+        if (preg_match('{^http://(www|jp|m)\\.youtube\\.com/watch\\?(?:.+&amp;)?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+            if ($m[1] == 'm') {
+                $url = "http://www.youtube.com/watch?v={$m[2]}";
+            }
             $url = P2Util::throughIme($url);
-            return <<<EOP
-<a href="youtube:{$m[1]}"><img src="http://i.ytimg.com/vi/{$m[1]}/default.jpg">{$str}</a><br>
-EOP;
+            return sprintf(
+                '<a href="youtube:%s"><img src="http://i.ytimg.com/vi/%s/default.jpg">%s</a><br>',
+                $m[1], $m[1], $html
+            );
         }
-        return FALSE;
+        return false;
     }
     // }}}
 
@@ -1342,11 +1352,11 @@ EOP;
      *
      * @access  private
      * @return  string|false
-    */
-//iPhone用に改造
-// iflame でも表示できるがフッタと重なった時に不具合あり
-//画像サムネイルのみ表示
-    function plugin_linkNicoNico($url, $purl, $str)
+     */
+    // iPhone用に改造
+    // iflame でも表示できるがフッタと重なった時に不具合あり
+    // 画像サムネイルのみ表示
+    function plugin_linkNicoNico($url, $purl, $html)
     {
         global $_conf;
 
@@ -1362,8 +1372,8 @@ EOP;
             $ids = str_replace( 'sm', '',$id);
             $ids = str_replace( 'nm', '',$ids);
 return <<<EOP
-<a href="mailto:?subject=rep2iPhone からニコニコ&body=http:%2F%2Fwww.nicovideo.jp%2Fwatch%2F{$id}"><img class="nico" src="http://tn-skr.smilevideo.jp/smile?i={$ids}"></a>
-<a href="$url" target="_blank">{$str}</a>
+<a href="mailto:?subject=rp2iPhone からニコニコ&body=http:%2F%2Fwww.nicovideo.jp%2Fwatch%2F{$id}"><img class="nico" src="http://tn-skr.smilevideo.jp/smile?i={$ids}"></a>
+<a href="$url" target="_blank">{$html}</a>
 EOP;
         }
         return FALSE;

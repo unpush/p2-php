@@ -390,7 +390,8 @@ EOP;
         if (false !== $this->checkAborns($name, $mail, $date_id, $msg)) {
             $name = $date_id = $msg = 'あぼーん';
             $mail = '';
-        
+            // "$i ：あぼーん ：あぼーん<br>あぼーん<br>\n"
+            
         } else {
         
             $isNgName = false;
@@ -558,7 +559,7 @@ EOMSG;
         
         if ($nameID) { $name = $name . $nameID; }
 
-        $name = $name . " "; // 簡易的に文字化け回避
+        $name = $name . ' '; // 簡易的に文字化け回避
 
         return $name;
     }
@@ -650,6 +651,7 @@ EOMSG;
                 $this->getAnchorRegex('/(%prefix%)?(%a_range%)/'),
                 array($this, 'quote_res_callback'), $s['quote'], $this->str_to_link_rest
             );
+
         // http or ftp のURL
         } elseif ($s['url']) {
             $url  = preg_replace('/^t?(tps?)$/', 'ht$1', $s[9]) . '://' . $s[10];
@@ -693,7 +695,7 @@ EOMSG;
     }
 
     /**
-     * 引用変換（単独）
+     * 引用変換（単独）（2009/05/06 範囲もこちらから）
      *
      * @access  private
      * @return  string  HTML
@@ -716,12 +718,12 @@ EOMSG;
         if (preg_match('/^0/', $appointed_num)) {
             return $s[0];
         }
-
+        
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum >= sizeof($this->thread->datlines)) {
             return $s[0];
         }
-
+        
         // 自分自身の番号も変換せずに戻したいところだが
         
         
@@ -747,7 +749,7 @@ EOMSG;
     }
 
     /**
-     * 引用変換（範囲）（2009/05/06 範囲もこちらから）
+     * 引用変換（範囲）
      *
      * @access  private
      * @return  string
@@ -964,7 +966,7 @@ EOMSG;
     // }}}
 
     /**
-     * marged from http://jiyuwiki.com/index.php?cmd=read&page=rep2%A4%C7%A3%C9%A3%C4%A4%CE%C7%D8%B7%CA%BF%A7%CA%D1%B9%B9&alias%5B%5D=pukiwiki%B4%D8%CF%A2
+     * Merged from http://jiyuwiki.com/index.php?cmd=read&page=rep2%A4%C7%A3%C9%A3%C4%A4%CE%C7%D8%B7%CA%BF%A7%CA%D1%B9%B9&alias%5B%5D=pukiwiki%B4%D8%CF%A2
      *
      * @access  private
      * @return  string
@@ -1065,9 +1067,9 @@ EOMSG;
         // {{{ 名前をチェックする
         
         if ($matches = $this->getQuoteResNumsName($name)) {
-
+            
             foreach ($matches as $a_quote_res_num) {
-
+            
                 $quote_res_nums[] = $a_quote_res_num;
 
                 // 自分自身の番号と同一でなければ
@@ -1267,7 +1269,10 @@ EOMSG;
     {
         global $_conf;
 
-        if (preg_match('{^http://((\\w+\\.machibbs\\.com|\\w+\\.machi\\.to|jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)(/\\w+)?)/bbs/read\\.(?:pl|cgi)\\?BBS=(\\w+)(?:&amp;|&)KEY=([0-9]+)(?:(?:&amp;|&)START=([0-9]+))?(?:(?:&amp;|&)END=([0-9]+))?(?=&|$)}', $url, $m)) {
+        if (preg_match(
+            '{^http://((\\w+\\.machibbs\\.com|\\w+\\.machi\\.to|jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)(/\\w+)?)/bbs/read\\.(?:pl|cgi)\\?BBS=(\\w+)(?:&amp;|&)KEY=([0-9]+)(?:(?:&amp;|&)START=([0-9]+))?(?:(?:&amp;|&)END=([0-9]+))?(?=&|$)}',
+            $url, $m
+        )) {
             $start = isset($m[6]) ? $m[6] : null;
             $end   = isset($m[7]) ? $m[7] : null;
             $read_url = "{$_conf['read_php']}?host={$m[1]}&bbs={$m[4]}&key={$m[5]}";
@@ -1293,7 +1298,10 @@ EOMSG;
     {
         global $_conf;
 
-        if (preg_match('{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}', $url, $m)) {
+        if (preg_match(
+            '{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}',
+            $url, $m
+        )) {
             $ls = isset($m[5]) ? $m[5] : null;
             $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&bbs={$m[3]}&key={$m[4]}&ls={$ls}";
             if ($_conf['iframe_popup']) {
@@ -1353,12 +1361,16 @@ EOMSG;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9a-zA-Z_-]+)}', $url, $m)) {
-            $url = P2Util::throughIme($url);
+        // http://m.youtube.com/watch?v=OhcX0xJsDK8&client=mv-google&gl=JP&hl=ja&guid=ON&warned=True
+        if (preg_match('{^http://(www|jp|m)\\.youtube\\.com/watch\\?(?:.+&amp;)?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+            if ($m[1] == 'm') {
+                $url = "http://www.youtube.com/watch?v={$m[2]}";
+            }
+            $url    = P2Util::throughIme($url);
             $url_hs = hs($url);
-            $subd = $m[1];
-            $id = $m[2];
-            $atag = P2View::tagA($url, $html, array('target' => $_conf['ext_win_target']));
+            $subd   = $m[1];
+            $id     = $m[2];
+            $atag   = P2View::tagA($url, $html, array('target' => $_conf['ext_win_target']));
             return <<<EOP
 $atag<br>
 <object width="425" height="350"><param name="movie" value="http://www.youtube.com/v/{$id}"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/{$id}" type="application/x-shockwave-flash" wmode="transparent" width="425" height="350"></embed></object>\n
@@ -1380,7 +1392,7 @@ EOP;
         // http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
         // http://www.nicovideo.jp/watch/utvWwAM30N0No
 /*
-<div style="width:318px; border:solid 1px #CCCCCC;"><iframe src="http://www.nicovideo.jp/thumb/=utvWwAM30N0No" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
+<div style="width:318px; border:solid 1px #CCCCCC;"><iframe src="http://www.nicovideo.jp/thumb/utvWwAM30N0No" width="100%" height="198" scrolling="no" border="0" frameborder="0"></iframe></div>
 */
         if (preg_match('{^http://www\\.nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9a-zA-Z_-]+)}', $url, $m)) {
             //$url = P2Util::throughIme($url);
