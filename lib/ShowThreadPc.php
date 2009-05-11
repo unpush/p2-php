@@ -1077,7 +1077,9 @@ EOMSG;
                     // チェックしていない番号を再帰チェック
                     if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
                         $this->quote_res_nums_checked[$a_quote_res_num] = true;
-                        $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1));
+                        $quote_res_nums = array_merge($quote_res_nums,
+                            $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1)
+                        );
                     }
                 }
             }
@@ -1097,7 +1099,9 @@ EOMSG;
                 // チェックしていない番号を再帰チェック
                 if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
                     $this->quote_res_nums_checked[$a_quote_res_num] = true;
-                    $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1));
+                    $quote_res_nums = array_merge($quote_res_nums,
+                        $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1)
+                    );
                  }
              }
 
@@ -1127,11 +1131,7 @@ EOMSG;
 
         if (isset($purl['scheme'])) {
             // ime
-            if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
-            } else {
-                $link_url = $url;
-            }
+            $link_url = $_conf['through_ime'] ? P2Util::throughIme($url) : $url;
 
             // HTMLポップアップ
             // wikipedia.org は、フレームを解除してしまうので、対象外とする
@@ -1220,21 +1220,34 @@ EOMSG;
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            $ls = isset($m[4]) ? $m[4] : '';
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&bbs={$m[2]}&key={$m[3]}&ls={$ls}";
-            
-            if ($_conf['iframe_popup']) {
-                if (preg_match('/^[0-9\\-n]+$/', $ls)) {
-                    $pop_url = $url;
-                } else {
-                    $pop_url = $read_url . '&onlyone=true';
+        // http://anchorage.2ch.net/test/read.cgi/occult/1238339367/
+        // http://orz.2ch.io/p/-/tsushima.2ch.net/newsplus/1240991583/
+        // http://c.2ch.net/test/-/occult/1229761545/i (未対応)
+
+        if (preg_match('{^http://(orz\.2ch\.io/p/-/)?(\\w+\\.(?:2ch\\.net|bbspink\\.com))/(test/read\\.cgi/)?([^/]+)/([1-9]\\d+)(?:/([^/]+)?)?$}', $url, $m)) {
+        
+            if ($m[1] != '' xor $m[3] != '') {
+
+                $ls = (!isset($m[6]) || $m[6] == 'i') ? '' : $m[6];
+                $host = $m[2];
+                $bbs  = $m[4];
+                $key  = $m[5];
+                $read_url = "{$_conf['read_php']}?host={$host}&bbs={$bbs}&key={$key}&ls={$ls}";
+                
+                if ($_conf['iframe_popup']) {
+                    if (preg_match('/^[0-9\\-n]+$/', $ls)) {
+                        $pop_url = $url;
+                    } else {
+                        $pop_url = $read_url . '&onlyone=true';
+                    }
+                    return $this->iframePopup(
+                        array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target'])
+                    );
                 }
-                return $this->iframePopup(array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target']));
+                return P2View::tagA($read_url, $html, array('target' => $_conf['bbs_win_target']));
             }
-            return P2View::tagA($read_url, $html, array('target' => $_conf['bbs_win_target']));
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1252,7 +1265,9 @@ EOMSG;
             
             if ($_conf['iframe_popup']) {
                 $pop_url = $read_url . '&onlyone=true';
-                return $this->iframePopup(array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target']));
+                return $this->iframePopup(
+                    array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target'])
+                );
             }
             return P2View::tagA($read_url, $html, array('target' => $_conf['bbs_win_target']));
         }
@@ -1281,7 +1296,9 @@ EOMSG;
             }
             if ($_conf['iframe_popup']) {
                 $pop_url = $url;
-                return $this->iframePopup(array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target']));
+                return $this->iframePopup(
+                    array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target'])
+                );
             }
             return P2View::tagA($read_url, $html, array('target' => $_conf['bbs_win_target']));
         }
@@ -1306,7 +1323,9 @@ EOMSG;
             $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&bbs={$m[3]}&key={$m[4]}&ls={$ls}";
             if ($_conf['iframe_popup']) {
                 $pop_url = $url;
-                return $this->iframePopup(array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target']));
+                return $this->iframePopup(
+                    array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target'])
+                );
             }
             return P2View::tagA($read_url, $html, array('target' => $_conf['bbs_win_target']));
         }
@@ -1337,7 +1356,9 @@ EOMSG;
                 } else {
                     $pop_url = $read_url . '&onlyone=true';
                 }
-                return $this->iframePopup(array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target']));
+                return $this->iframePopup(
+                    array($read_url, $pop_url), $html, array('target' => $_conf['bbs_win_target'])
+                );
             }
             return P2View::tagA($read_url, $html, array('target' => $_conf['bbs_win_target']));
         }
@@ -1421,12 +1442,7 @@ EOP;
 
         // http://www.yourfilehost.com/media.php?cat=video&file=hogehoge.wmv
         if (preg_match('{^http://www\\.yourfilehost\\.com/media\\.php\\?cat=video&file=([0-9A-Za-z_\\-\\.]+)}', $url, $m)) {
-        
-            if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
-            } else {
-                $link_url = $url;
-            }
+            $link_url = $_conf['through_ime'] ? P2Util::throughIme($url) : $url;
 
             if ($_conf['iframe_popup']) {
                 $linkHtml = $this->iframePopup($link_url, $html, array('target' => $_conf['bbs_win_target']));
@@ -1435,16 +1451,22 @@ EOP;
                 $linkHtml = P2View::tagA($link_url, $html, array('target' => $_conf['ext_win_target']));
             }
 
-            $dl_link1 = "http://getyourfile.dyndns.tv/video?url=" . rawurlencode($url);
-            $dl_link2 = "http://yourfilehostwmv.com/video?url=" . rawurlencode($url);
+            $dl_url1 = "http://getyourfile.dyndns.tv/video?url=" . rawurlencode($url);
+            $dl_url2 = "http://yourfilehostwmv.com/video?url=" . rawurlencode($url);
             if ($_conf['through_ime']) {
-                $dl_link1 = P2Util::throughIme($dl_link1);
-                $dl_link2 = P2Util::throughIme($dl_link2);
+                $dl_url1 = P2Util::throughIme($dl_url1);
+                $dl_url2 = P2Util::throughIme($dl_url2);
             }
-            $dl_link1_atag = P2View::tagA($dl_link1, hs('GetYourFile'), array('target' => $_conf['ext_win_target']));
-            $dl_link2_atag = P2View::tagA($dl_link2, hs('GetWMV'), array('target' => $_conf['ext_win_target']));
+            $dl_url1_atag = P2View::tagA($dl_url1,
+                hs('GetYourFile'),
+                array('target' => $_conf['ext_win_target'])
+            );
+            $dl_url2_atag = P2View::tagA($dl_url2,
+                hs('GetWMV'),
+                array('target' => $_conf['ext_win_target'])
+            );
             
-            return "{$linkHtml} [$dl_link1_atag][$dl_link2_atag]";
+            return "{$linkHtml} [$dl_url1_atag][$dl_url2_atag]";
         }
         return FALSE;
     }

@@ -1005,9 +1005,7 @@ EOID;
         if ($_conf['through_ime']) {
             $url = P2Util::throughIme($url);
         }
-        $r = $ext_pre_ht . '<a href="' . hs($url) . '">' . $s[2] . '</a>';
-
-        return $r;
+        return $ext_pre_ht . '<a href="' . hs($url) . '">' . $s[2] . '</a>';
     }
 
     /**
@@ -1152,17 +1150,14 @@ EOID;
                 return $this->ktai_exturl_callback(array('', $url, $html));
             }
             // ime
-            if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
-            } else {
-                $link_url = $url;
-            }
+            $link_url = $_conf['through_ime'] ? P2Util::throughIme($url) : $url;
+
             return sprintf(
                 '<a href="%s">%s</a>',
                 hs($link_url), $html
             );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1182,7 +1177,7 @@ EOID;
                 hs($url), $html, hs($subject_url)
             );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1195,13 +1190,25 @@ EOID;
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            $ls = isset($m[4]) ? $m[4] : null;
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&bbs={$m[2]}&key={$m[3]}&ls={$ls}";
-            $read_url_hs = hs($read_url);
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+        // http://anchorage.2ch.net/test/read.cgi/occult/1238339367/
+        // http://orz.2ch.io/p/-/tsushima.2ch.net/newsplus/1240991583/
+        // http://c.2ch.net/test/-/occult/1229761545/i (未対応)
+        
+        if (preg_match('{^http://(orz\.2ch\.io/p/-/)?(\\w+\\.(?:2ch\\.net|bbspink\\.com))/(test/read\\.cgi/)?([^/]+)/([1-9]\\d+)(?:/([^/]+)?)?$}', $url, $m)) {
+        
+            if ($m[1] != '' xor $m[3] != '') {
+                $ls = (!isset($m[6]) || $m[6] == 'i') ? '' : $m[6];
+                $host = $m[2];
+                $bbs  = $m[4];
+                $key  = $m[5];
+                $read_url = "{$_conf['read_php']}?host={$host}&bbs={$bbs}&key={$key}&ls={$ls}";
+
+                return sprintf('<a href="%s%s">%s</a>',
+                    hs($read_url), $_conf['k_at_a'], $html
+                );
+            }
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1216,10 +1223,11 @@ EOID;
 
         if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&bbs={$m[2]}&key={$m[3]}&kakolog=" . rawurlencode($url);
-            $read_url_hs = hs($read_url);
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1237,10 +1245,11 @@ EOID;
             if ($m[6] || $m[7]) {
                 $read_url .= "&ls={$m[6]}-{$m[7]}";
             }
-            $read_url_hs = hs($read_url);
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -1255,10 +1264,11 @@ EOID;
 
         if (preg_match('{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&bbs={$m[3]}&key={$m[4]}&ls={$m[5]}";
-            $read_url_hs = hs($read_url);
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
     
     /**
@@ -1274,16 +1284,16 @@ EOID;
         // 外部板 read.cgi 形式 http://ex14.vip2ch.com/test/read.cgi/operate/1161701941/ 
         if (preg_match('{http://([^/]+)/test/read\\.cgi/(\\w+)/(\\d+)/?([^/]+)?}', $url, $matches)) {
             $host = $matches[1];
-            $bbs = $matches[2];
-            $key = $matches[3];
-            $ls = $matches[4];
+            $bbs  = $matches[2];
+            $key  = $matches[3];
+            $ls   = $matches[4];
             
             $read_url = "{$_conf['read_php']}?host={$host}&bbs={$bbs}&key={$key}&ls={$ls}";
-            $read_url_hs = hs($read_url);
-            
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
     
     /**
@@ -1292,7 +1302,7 @@ EOID;
      * @access  private
      * @return  string|false  HTML
      */
-    //iPhone用にサムネイルにしてみる
+    // iPhone用にサムネイルにしてみる
     function plugin_viewImage($url, $purl, $html)
     {
         global $_conf;
@@ -1305,19 +1315,25 @@ EOID;
             return false;
         }
         if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
-            //$picto_url = 'http://pic.to/'.$purl['host'].$purl['path'];
-            $picto_url = 'http://'.$purl['host'].$purl['path'];
+            
+            //$picto_url = 'http://pic.to/' . $purl['host'] . $purl['path'];
+            $picto_url = 'http://' . $purl['host'] . $purl['path'];
+            
             //書き換えどころ　080728
-            $picto_tag = '<a href="'.$picto_url.'" target="_blank"><img src="'.$url.'"></a> ';
+            $picto_tag = '<a href="' . hs($picto_url) . '" target="_blank"><img src="' . hs($url) . '"></a> ';
+            
             if ($_conf['through_ime']) {
                 $link_url  = P2Util::throughIme($url);
                 $picto_url = P2Util::throughIme($picto_url);
             } else {
                 $link_url = $url;
             }
-            return "{$picto_tag}<a href=\"{$link_url}\">{$html}</a>";// {$html}　→ URL
+            // $html は URLを表現しているが、hが欠けていたりする
+            return sprintf('%s<a href="%s">%s</a>',
+                $picto_tag, hs($link_url), $html
+            );
         }
-        return FALSE;
+        return false;
     }
     
     /**
@@ -1376,7 +1392,7 @@ return <<<EOP
 <a href="$url" target="_blank">{$html}</a>
 EOP;
         }
-        return FALSE;
+        return false;
     }
 }
 

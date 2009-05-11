@@ -668,9 +668,9 @@ EOP;
         if ($_conf['through_ime']) {
             $url = P2Util::throughIme($url);
         }
-        $r = $ext_pre_ht . '<a href="' . hs($url) . '">' . $s[2] . '</a>';
-        
-        return $r;
+        return sprintf('<a href="%s">%s</a>',
+            hs($url), $s[2]
+        );
     }
 
     /**
@@ -714,8 +714,9 @@ EOP;
                 UA::getQueryKey() => UA::getQueryValue()
             )
         );
-        $read_url_hs = hs($read_url);
-        return "<a href=\"{$read_url_hs}\">{$full}</a>";
+        return sprintf('<a href="%s">%s</a>',
+            hs($read_url), $full
+        );
     }
 
     /**
@@ -748,8 +749,9 @@ EOP;
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&offline=1&ls={$from}-{$to}&b={$_conf['b']}";
-        $read_url_hs = hs($read_url);
-        return "<a href=\"{$read_url_hs}\">{$full}</a>";
+        return sprintf('<a href="%s">%s</a>',
+            hs($read_url), $full
+        );
     }
 
     /**
@@ -819,7 +821,7 @@ EOP;
                 hs($link_url), $html
             );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -839,7 +841,7 @@ EOP;
                 hs($url), $html, hs($subject_url)
             );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -855,10 +857,11 @@ EOP;
         if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
             $ls = isset($m[4]) ? $m[4] : null;
             $read_url = "{$_conf['read_php']}?host={$m[1]}&bbs={$m[2]}&key={$m[3]}&ls={$ls}";
-            $read_url_hs = hs($read_url);
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -873,10 +876,11 @@ EOP;
 
         if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}&bbs={$m[2]}&key={$m[3]}&kakolog=" . rawurlencode($url);
-            $read_url_hs = hs($read_url);
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -894,10 +898,11 @@ EOP;
             if ($m[6] || $m[7]) {
                 $read_url .= "&ls={$m[6]}-{$m[7]}";
             }
-            $read_url_hs = hs($read_url);
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -912,10 +917,11 @@ EOP;
 
         if (preg_match('{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}', $url, $m)) {
             $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&bbs={$m[3]}&key={$m[4]}&ls={$m[5]}";
-            $read_url_hs = hs($read_url);
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
     
     /**
@@ -931,16 +937,16 @@ EOP;
         // ŠO•””Â read.cgi Œ`Ž® http://ex14.vip2ch.com/test/read.cgi/operate/1161701941/ 
         if (preg_match('{http://([^/]+)/test/read\\.cgi/(\\w+)/(\\d+)/?([^/]+)?}', $url, $matches)) {
             $host = $matches[1];
-            $bbs = $matches[2];
-            $key = $matches[3];
-            $ls = $matches[4];
+            $bbs  = $matches[2];
+            $key  = $matches[3];
+            $ls   = $matches[4];
             
             $read_url = "{$_conf['read_php']}?host={$host}&bbs={$bbs}&key={$key}&ls={$ls}";
-            $read_url_hs = hs($read_url);
-            
-            return "<a href=\"{$read_url_hs}{$_conf['k_at_a']}\">{$html}</a>";
+            return sprintf('<a href="%s%s">%s</a>',
+                hs($read_url), $_conf['k_at_a'], $html
+            );
         }
-        return FALSE;
+        return false;
     }
     
     /**
@@ -964,7 +970,7 @@ EOP;
             $picto_tag = '<a href="' . hs($picto_url) . '">(Ëß)</a> ';
             return "{$picto_tag}<a href=\"" . hs($link_url) . "\">{$html}</a>";
         }
-        return FALSE;
+        return false;
     }
 
     // }}}
