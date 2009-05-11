@@ -123,7 +123,7 @@ class BbsMap
 
         // {{{ “Ç
 
-        if (isset($done[$brd_path])) {
+        if (array_key_exists($brd_path, $done)) {
             return;
         }
         $lines = BbsMap::_readData($brd_path);

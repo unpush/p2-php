@@ -244,12 +244,12 @@ class P2Util
      */
     function getDefaultResValues($host, $bbs, $key)
     {
-        static $cache_;
+        static $cache_ = array();
         global $_conf;
         
         // メモリキャッシュ（するほどでもないけど）
         $ckey = md5(serialize(array($host, $bbs, $key)));
-        if (isset($cache_[$ckey])) {
+        if (array_key_exists($key, $cache_)) {
             return $cache_[$ckey];
         }
         
@@ -745,14 +745,18 @@ class P2Util
         
         if ($_conf['through_ime'] == '2ch') {
             $purl = parse_url($url);
-            $url_r = $purl['scheme'] . "://ime.nu/" . $purl['host'] . $purl['path'];
-        } elseif ($_conf['through_ime'] == "p2" || $_conf['through_ime'] == "p2pm") {
-            $url_r = $_conf['p2ime_url'] . "?enc=1&url=" . rawurlencode($url);
-        } elseif ($_conf['through_ime'] == "p2m") {
-            $url_r = $_conf['p2ime_url'] . "?enc=1&m=1&url=" . rawurlencode($url);
+            $url_r = $purl['scheme'] . '://ime.nu/' . $purl['host'] . $purl['path'];
+            
+        } elseif ($_conf['through_ime'] == 'p2' || $_conf['through_ime'] == 'p2pm') {
+            $url_r = $_conf['p2ime_url'] . '?enc=1&url=' . rawurlencode($url);
+            
+        } elseif ($_conf['through_ime'] == 'p2m') {
+            $url_r = $_conf['p2ime_url'] . '?enc=1&m=1&url=' . rawurlencode($url);
+            
         } else {
             $url_r = $url;
         }
+        
         return $url_r;
     }
 
@@ -1589,7 +1593,7 @@ EOP;
     function getRemoteHost($empty = '')
     {
         // gethostbyaddr() は、同じ実行スクリプト内でもキャッシュしないようなのでキャッシュする
-        static $gethostbyaddr_;
+        static $gethostbyaddr_ = null;
         
         if (isset($_SERVER['REMOTE_HOST'])) {
             return $_SERVER['REMOTE_HOST'];
@@ -1599,7 +1603,7 @@ EOP;
             return 'cli';
         }
         
-        if (!isset($gethostbyaddr_)) {
+        if (!is_null($gethostbyaddr_)) {
             require_once P2_LIB_DIR . '/HostCheck.php';
             $gethostbyaddr_ = HostCheck::cachedGetHostByAddr($_SERVER['REMOTE_ADDR']);
         }

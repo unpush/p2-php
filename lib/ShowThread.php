@@ -68,9 +68,9 @@ class ShowThread
      */
     function getAnchorRegexParts()
     {
-        static $cache_;
+        static $cache_ = null;
         
-        if (isset($cache_)) {
+        if (!is_null($cache_)) {
             return $cache_;
         }
         

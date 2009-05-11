@@ -692,9 +692,9 @@ function _getReadNaviRangeHtml($aThread, $rnum_range)
 {
     global $_conf;
     
-    static $cache_;
+    static $cache_ = array();
     
-    if (isset($cache_["$aThread->host/$aThread->bbs/$aThread->key"])) {
+    if (array_key_exists("$aThread->host/$aThread->bbs/$aThread->key", $cache_)) {
         return $cache_["$aThread->host/$aThread->bbs/$aThread->key"];
     }
     

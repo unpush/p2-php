@@ -13,7 +13,7 @@
 function getShinchakuMatomeATag($aThreadList, $shinchaku_num)
 {
     global $_conf;
-    static $upper_toolbar_done_;
+    static $upper_toolbar_done_ = false;
     
     $shinchaku_matome_atag = '';
     
@@ -29,7 +29,7 @@ function getShinchakuMatomeATag($aThreadList, $shinchaku_num)
     }
     
     // 上下あるツールバーの下だけにアクセスキーをつける
-    if (!empty($upper_toolbar_done_)) {
+    if ($upper_toolbar_done_) {
         $attrs[$_conf['accesskey_for_k']] = $_conf['k_accesskey']['matome'];
     }
     $upper_toolbar_done_ = true;

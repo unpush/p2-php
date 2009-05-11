@@ -75,7 +75,7 @@ class UA
      */
     function isMobile($ua = null)
     {
-        static $cache_;
+        static $cache_ = null;
 
         // 強制指定があれば
         if (isset($GLOBALS['_UA_force_mode'])) {
@@ -91,7 +91,7 @@ class UA
         }
         
         // 引数のUAが無指定なら、キャッシュ有効
-        if (is_null($ua) and isset($cache_)) {
+        if (is_null($ua) and !is_null($cache_)) {
             return $cache_;
         }
         
@@ -278,9 +278,9 @@ class UA
      */
     function getNet_UserAgent_Mobile($ua = null)
     {
-        static $cache_;
+        static $cache_ = null;
         
-        if (is_null($ua) and isset($cache_)) {
+        if (is_null($ua) and !is_null($cache_)) {
             return $cache_;
         }
         

@@ -59,7 +59,10 @@ class ThreadRead extends Thread
             if (P2Util::isHost2chs($this->host) && !empty($_GET['maru'])) {
                 
                 // ログインしてなければ or ログイン後、24時間以上経過していたら自動再ログイン
-                if ((!file_exists($_conf['sid2ch_php']) or !empty($_REQUEST['relogin2ch'])) or (filemtime($_conf['sid2ch_php']) < time() - 60*60*24)) {
+                if (
+                    (!file_exists($_conf['sid2ch_php']) || !empty($_REQUEST['relogin2ch'])) 
+                    or (filemtime($_conf['sid2ch_php']) < time() - 60*60*24)
+                ) {
                     require_once P2_LIB_DIR . '/login2ch.func.php';
                     if (!login2ch()) {
                         $this->getdat_error_msg_ht .= $this->get2chDatError();

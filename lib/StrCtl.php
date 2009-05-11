@@ -166,10 +166,10 @@ class StrCtl
      */
     function replaceRegexAnyChar($regex, $replace = '[^<>]')
     {
-        static $cache_;
+        static $cache_ = array();
         
         // ˆê‰žƒLƒƒƒbƒVƒ…‚µ‚Ä‚¨‚­
-        if (isset($cache_[$regex])) {
+        if (array_key_exists($regex, $cache_)) {
             return $cache_[$regex];
         }
         

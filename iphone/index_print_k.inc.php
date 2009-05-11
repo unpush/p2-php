@@ -128,19 +128,13 @@ function _getMenuKLinkHtml($code, $menuKIni, $noLink = false)
 {
     global $_conf, $_login;
     
-    static $accesskey_;
+    static $accesskey_ = 0;
     
     // 無効なコード指定なら
     if (!isset($menuKIni[$code][0]) || !isset($menuKIni[$code][1])) {
         return false;
     }
-    
-    if (!isset($accesskey_)) {
-        $accesskey_ = 0;
-    } else {
-        $accesskey_++;
-    }
-    $accesskey = $accesskey_;
+    $accesskey = ++$accesskey_;
     
     if ($_conf['index_menu_k_from1']) {
         $accesskey = $accesskey + 1;

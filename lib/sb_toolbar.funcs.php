@@ -23,13 +23,9 @@ function updateSbToolI()
 function getSbToolbarShinchakuMatomeHtml($aThreadList, $shinchaku_num)
 {
     global $_conf;
-    static $new_matome_i_;
+    static $new_matome_i_ = 0;
     
-    if (isset($new_matome_i_)) {
-        $new_matome_i_++;
-    } else {
-        $new_matome_i_ = 0;
-    }
+    $new_matome_i_++;
 
     $shinchaku_matome_ht = '';
 
