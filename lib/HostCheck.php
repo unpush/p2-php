@@ -66,13 +66,10 @@ EOF;
         global $_conf;
 
         $lifeTime = (int)$GLOBALS['_HOSTCHKCONF']['gethostby_lifetime'];
-
-        // キャッシュしない設定のとき
         if ($lifeTime <= 0) {
             return $function($remote);
         }
 
-        // キャッシュ有効のとき
         if (!class_exists('KeyValueStore', false)) {
             include P2_LIB_DIR . '/KeyValueStore.php';
         }
@@ -82,12 +79,10 @@ EOF;
         }
         $kvs = KeyValueStore::getStore($cache_db);
 
-        // キャッシュされているとき
-        if ($kvs->exists($remote, $lifeTime)) {
-            return $kvs->get($remote);
+        $result = $kvs->get($remote, $lifeTime);
+        if ($result !== null) {
+            return $result;
         }
-
-        // キャッシュされていないとき
         $result = $function($remote);
         $kvs->set($remote, $result);
         return $result;

@@ -17,8 +17,8 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
   sort_order INTEGER DEFAULT 0
 )';
     const Q_COUNT       = 'SELECT COUNT(*) FROM $__table LIMIT 1';
-    const Q_EXSITS      = 'SELECT 1 FROM $__table WHERE arkey = :key AND (:expires IS NULL OR mtime >= :expires) LIMIT 1';
-    const Q_FINDBYID    = 'SELECT arkey, value FROM $__table WHERE id = :id LIMIT 1';
+    const Q_EXSITS      = 'SELECT id, mtime FROM $__table WHERE arkey = :key LIMIT 1';
+    const Q_FINDBYID    = 'SELECT * FROM $__table WHERE id = :id LIMIT 1';
     const Q_GET         = 'SELECT * FROM $__table WHERE arkey = :key LIMIT 1';
     const Q_GETALL      = 'SELECT * FROM $__table';
     const Q_GETIDS      = 'SELECT id FROM $__table';
@@ -28,6 +28,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     const Q_TOUCH       = 'UPDATE $__table SET mtime = (CASE WHEN :mtime IS NULL THEN strftime(\'%s\',\'now\') ELSE :mtime END) WHERE arkey = :key';
     const Q_SETORDER    = 'UPDATE $__table SET sort_order = :order WHERE arkey = :key';
     const Q_DELETE      = 'DELETE FROM $__table WHERE arkey = :key';
+    const Q_DELETEBYID  = 'DELETE FROM $__table WHERE id = :id';
     const Q_CLEAN       = 'DELETE FROM $__table';
     const Q_GC          = 'DELETE FROM $__table WHERE mtime < :expires';
 
@@ -354,16 +355,19 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     public function exists($key, $lifeTime = null)
     {
         $stmt = $this->_prepare(self::Q_EXSITS);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
         $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
-        if ($lifeTime === null) {
-            $stmt->bindValue(':expires', null, PDO::PARAM_NULL);
-        } else {
-            $stmt->bindValue(':expires', time() - $lifeTime, PDO::PARAM_INT);
-        }
         $stmt->execute();
-        $ret = (bool)$stmt->fetchColumn();
+        $row = $stmt->fetch();
         $stmt->closeCursor();
-        return $ret;
+        if ($row === false) {
+            return false;
+        } elseif ($lifeTime !== null && $row['mtime'] < time() - $lifeTime) {
+            $this->deleteById($row['id']);
+            return false;
+        } else {
+            return true;
+        }
     }
 
     // }}}
@@ -374,9 +378,10 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * 主としてKeyValueStoreIteratorで使う
      *
      * @param int $id
+     * @param int $lifeTime
      * @return array
      */
-    public function findById($id)
+    public function findById($id, $lifeTime = null)
     {
         $stmt = $this->_prepare(self::Q_FINDBYID);
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -385,6 +390,9 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         $row = $stmt->fetch();
         $stmt->closeCursor();
         if ($row === false) {
+            return null;
+        } elseif ($lifeTime !== null && $row['mtime'] < time() - $lifeTime) {
+            $this->deleteById($id);
             return null;
         } else {
             return array(
@@ -401,9 +409,10 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * キーに対応する値を取得する
      *
      * @param string $key
+     * @param int $lifeTime
      * @return string
      */
-    public function get($key)
+    public function get($key, $lifeTime = null)
     {
         $stmt = $this->_prepare(self::Q_GET);
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -412,6 +421,9 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         $row = $stmt->fetch();
         $stmt->closeCursor();
         if ($row === false) {
+            return null;
+        } elseif ($lifeTime !== null && $row['mtime'] < time() - $lifeTime) {
+            $this->deleteById($row['id']);
             return null;
         } else {
             return $this->_decodeValue($row['value']);
@@ -425,9 +437,10 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * キーに対応するレコードを取得する
      *
      * @param string $key
+     * @param int $lifeTime
      * @return array
      */
-    public function getDetail($key)
+    public function getDetail($key, $lifeTime = null)
     {
         $stmt = $this->_prepare(self::Q_GET);
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -436,6 +449,9 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         $row = $stmt->fetch();
         $stmt->closeCursor();
         if ($row === false) {
+            return null;
+        } elseif ($lifeTime !== null && $row['mtime'] < time() - $lifeTime) {
+            $this->deleteById($row['id']);
             return null;
         } else {
             return array(
@@ -453,6 +469,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * 全てのレコードを連想配列として返す
+     * 有効期限切れのレコードを除外したい場合は事前にgc()しておくこと
      *
      * @param array $orderBy
      * @param int $limit
@@ -495,6 +512,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     /**
      * 全てのIDの配列を返す
      * 主としてKeyValueStoreIteratorで使う
+     * 有効期限切れのレコードを除外したい場合は事前にgc()しておくこと
      *
      * @param array $orderBy
      * @param int $limit
@@ -522,6 +540,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * 全てのキーの配列を返す
+     * 有効期限切れのレコードを除外したい場合は事前にgc()しておくこと
      *
      * @param array $orderBy
      * @param int $limit
@@ -653,6 +672,26 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     {
         $stmt = $this->_prepare(self::Q_DELETE);
         $stmt->bindValue(':key', $this->_encodeKey($key), PDO::PARAM_STR);
+        if ($stmt->execute()) {
+            return $stmt->rowCount() == 1;
+        } else {
+            return false;
+        }
+    }
+
+    // }}}
+    // {{{ deleteById()
+
+    /**
+     * IDに対応するレコードを削除する
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function deleteById($id)
+    {
+        $stmt = $this->_prepare(self::Q_DELETEBYID);
+        $stmt->bindValue(':id', (int)$id, PDO::PARAM_INT);
         if ($stmt->execute()) {
             return $stmt->rowCount() == 1;
         } else {

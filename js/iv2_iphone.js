@@ -6,6 +6,7 @@
 
 window.addEventListener('load', function(evt){
 	// サムネイルをタップしたとき、新しいタブで開くようにする
+	/*
 	var anchors = document.evaluate('.//td[@class="iv2-image-thumb"]/a[@href]',
 	                                document.body,
 	                                null,
@@ -16,6 +17,7 @@ window.addEventListener('load', function(evt){
 	for (var i = 0; i < anchors.snapshotLength; i++) {
 		anchors.snapshotItem(i).setAttribute('target', '_blank');
 	}
+	*/
 
 	if (typeof window.orientation != 'undefined') {
 		// テーブルの大きさを調整

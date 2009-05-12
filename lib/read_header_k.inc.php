@@ -154,6 +154,30 @@ EOS;
 <script type="text/javascript" src="js/spm_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     }
+    // Limelight
+    if ($_conf['expack.aas.enabled'] || $_conf['expack.ic2.enabled']) {
+        $_conf['extra_headers_ht'] .= <<<EOS
+<link rel="stylesheet" type="text/css" href="css/limelight.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript">
+// <![CDATA[
+var limelight = null;
+window.addEventListener('load', function() {
+    limelight = new Limelight();
+    limelight.init();
+}, false);
+var llView = function(uri) {
+    if (limelight) {
+        limelight.activate(uri);
+        return false;
+    } else {
+        return true;
+    }
+};
+// ]]>
+</script>
+EOS;
+    }
 }
 
 //====================================================================

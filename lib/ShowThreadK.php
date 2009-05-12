@@ -51,7 +51,7 @@ class ShowThreadK extends ShowThread
         if ($_conf['iphone']) {
             $this->respopup_at = ' onclick="return iResPopUp(this, event);"';
             $this->target_at = ' target="_blank"';
-            $this->check_st = '&#x2620;';
+            $this->check_st = 'check';
         }
 
         $this->_url_handlers = array(
@@ -404,14 +404,18 @@ class ShowThreadK extends ShowThread
 EOMSG;
             // AAS
             if ($isAA && P2_AAS_AVAILABLE) {
-                $aas_url = "aas.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;resnum={$i}{$_conf['k_at_a']}";
+                $aas_url = "aas.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;resnum={$i}";
                 if (P2_AAS_AVAILABLE == 2) {
-                    $aas_txt = "<img src=\"{$aas_url}&amp;inline=1\">";
+                    $aas_txt = "<img src=\"{$aas_url}{$_conf['k_at_a']}&amp;inline=1\">";
                 } else {
                     $aas_txt = "AAS";
                 }
-                $msg .= " <a class=\"aas\" href=\"{$aas_url}\"{$this->target_at}>{$aas_txt}</a>";
-                $msg .= " <a class=\"button\" href=\"{$aas_url}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
+                if ($_conf['iphone']) {
+                    $msg .= " <a class=\"aas\" href=\"{$aas_url}{$_conf['k_at_a']}\"{$this->target_at} onclick=\"return llView('{$aas_url}&amp;b=pc');\">{$aas_txt}</a>";
+                } else {
+                    $msg .= " <a class=\"aas\" href=\"{$aas_url}{$_conf['k_at_a']}\"{$this->target_at}>{$aas_txt}</a>";
+                    $msg .= " <a class=\"button\" href=\"{$aas_url}{$_conf['k_at_a']}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
+                }
             }
         }
 
@@ -1120,6 +1124,7 @@ EOP;
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
             $img_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en;
             $img_url2 = 'ic2.php?r=0&amp;t=2&amp;id=';
+            $src_url = 'ic2.php?r=0&amp;t=0&amp;id=';
             $src_exists = false;
 
             // DBに画像情報が登録されていたとき
@@ -1139,8 +1144,10 @@ EOP;
                 if (file_exists($_src_url)) {
                     $src_exists = true;
                     $img_url = $img_url2 . $icdb->id;
+                    $src_url = $_src_url;
                 } else {
                     $img_url = $this->thumbnailer->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
+                    $src_url .= $icdb->id;
                 }
 
                 // インラインプレビューが有効のとき
@@ -1223,7 +1230,7 @@ EOP;
             }
 
             if ($_conf['iphone']) {
-                return "<a href=\"{$img_url}{$backto}\" target=\"_blank\">{$img_str}</a>"
+                return "<a href=\"{$img_url}{$backto}\" target=\"_blank\" onclick=\"return llView('{$src_url}');\">{$img_str}</a>"
                    //. ' <img class="ic2-show-info" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
                      . ' <input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('
                      . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";

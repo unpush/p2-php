@@ -138,71 +138,27 @@ FitImage.prototype.fitTo = function(mode)
 /*
  * ボタンの表示・非表示を切り替える
  */
-function fiShowHide()
+function fiShowHide(display)
 {
 	var sw = document.getElementById('btn');
 	if (!sw) {
 		return;
 	}
-	if (sw.style.display == 'block') {
-		sw.style.display = 'none';
+	if (typeof display == 'undefined') {
+		if (sw.style.display == 'block') {
+			sw.style.display = 'none';
+		} else {
+			sw.style.display = 'block';
+		}
 	} else {
-		sw.style.display = 'block';
+		if (display) {
+			sw.style.display = 'block';
+		} else {
+			sw.style.display = 'none';
+		}
 	}
 }
 
-// }}}
-// {{{ fiTrigger() (disabled)
-
-/*
- * キー操作で他の関数を呼び出す (封印中)
- */
-/*
-function fiTrigger(evt)
-{
-	var evt = (evt) ? evt : ((window.event) ? event : null);
-	if (!evt || !evt.keyCode) {
-		return;
-	}
-	focus();
-	switch (evt.keyCode) {
-		case 16: // Shift
-		case 73: // I
-			fiShowHide(); // スイッチ表示をOn/Off
-			break;
-		case 65: // A
-			fitimage(psize); // 元のサイズで表示
-			break;
-		case 70: // F
-			fitimage("full"); // 画像サイズをウインドウサイズにフィット
-			break;
-		case 87: // W
-			fitimage("width"); // 画像サイズをウインドウ幅にフィット
-			break;
-		case 72: // H
-			fitimage("height"); // 画像サイズをウインドウ高さにフィット
-			break;
-		case 82: // R
-			switch (psize) { // 画像サイズを順番に切り替え
-				case "auto":
-				case "full":
-					fitimage("width");
-					break;
-				case "width":
-					fitimage("height");
-					break;
-				case "height":
-					fitimage("full");
-					break;
-				default:
-					fitimage(psize);
-			}
-			break;
-		default:
-			//alert(evt.keyCode);
-	}
-}
-*/
 // }}}
 // {{{ fiGetImageInfo()
 
@@ -290,9 +246,83 @@ function fiUpdateRank(rank)
 }
 
 // }}}
+// {{{ fiOnKeyDown()
 
-//イベントハンドラを設定・・・しない
-//document.onkeydown = fiTrigger;
+/*
+ * キー操作でランクを変更
+ *
+ * @param Event evt
+ * @return Boolean
+ */
+function fiOnKeyDown(evt)
+{
+	var evt = (evt) ? evt : ((window.event) ? window.event : null);
+	var rank = null;
+	if (evt === null || typeof evt.keyCode == 'undefined') {
+		return true;
+	}
+	if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
+		return true;
+	}
+	window.focus();
+
+	switch (evt.keyCode) {
+		// ランクを変更
+		case 48: // '0'
+		case 49: // '1'
+		case 50: // '2'
+		case 51: // '3'
+		case 52: // '4'
+		case 53: // '5'
+			rank = evt.keyCode - 48;
+			break;
+
+		// ランクを変更 (テンキー)
+		case  96: // '0'
+		case  97: // '1'
+		case  98: // '2'
+		case  99: // '3'
+		case 100: // '4'
+		case 101: // '5'
+			rank = evt.keyCode - 96;
+			break;
+
+		// あぼーん
+		case   8: // BS
+		case 127: // DEL
+			rank = -1;
+			break;
+	}
+
+	if (rank !== null) {
+		fiUpdateRank(rank);
+		fiShowHide(true);
+	}
+
+	if (typeof evt.stopPropagation != 'undefined') {
+		evt.stopPropagation();
+	} else {
+		evt.cancelBubble = true;
+	}
+	if (typeof evt.preventDefault != 'undefined') {
+		evt.preventDefault();
+	} else {
+		evt.returnValue = false;
+	}
+
+	return false;
+};
+
+// キー押下イベントに登録
+if (typeof document.addEventListener != 'undefined') {
+	document.addEventListener('keydown', fiOnKeyDown, false);
+} else if (typeof document.attachEvent != 'undefined') {
+	document.attachEvent('onkeydown', fiOnKeyDown);
+} else {
+	document.onkeydown = fiOnKeyDown;
+}
+
+// }}}
 
 /*
  * Local Variables:

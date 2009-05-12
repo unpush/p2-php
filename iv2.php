@@ -19,17 +19,39 @@ if (!$_conf['expack.ic2.enabled']) {
 }
 
 if ($_conf['iphone']) {
-    $_conf['extra_headers_ht'] .= <<<EOP
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
-<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}">
+    $iv2_iphone_js = <<<EOP
 <script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript">
+// <![CDATA[
+var limelight = null;
+window.addEventListener('load', function() {
+    limelight = new Limelight();
+    limelight.init();
+}, false);
+var llView = function(uri) {
+    if (limelight) {
+        limelight.activate(uri);
+        return false;
+    } else {
+        return true;
+    }
+};
+// ]]>\n
+</script>
+EOP;
+    $_conf['extra_headers_ht'] .= <<<EOP
+\n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+<link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}">
+<link rel="stylesheet" type="text/css" href="css/limelight.css?{$_conf['p2_version_id']}">
+{$iv2_iphone_js}
 EOP;
     $_conf['extra_headers_xht'] .= <<<EOP
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
+\n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}" />
-<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
-<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
+<link rel="stylesheet" type="text/css" href="css/limelight.css?{$_conf['p2_version_id']}" />
+{$iv2_iphone_js}
 EOP;
 }
 

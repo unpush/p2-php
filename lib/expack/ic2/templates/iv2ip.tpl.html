@@ -48,7 +48,7 @@ div.iv2-image-title {
 	<table id="iv2-images">
 		<tbody>
 		<tr class="iv2-image" flexy:foreach="items,i,item">
-			<td class="iv2-image-thumb"><a href="{item[thumb_k]}"><img src="{item[thumb]}" width="{item[t_width]:h}" height="{item[t_height]:h}"></a></td>
+			<td class="iv2-image-thumb"><a href="{item[thumb_k]}" target="_blank" onclick="return llView('{item[src]}');"><img src="{item[thumb]}" width="{item[t_width]:h}" height="{item[t_height]:h}"></a></td>
 			<td class="iv2-image-info">
 				<div class="iv2-image-title" onclick="void(0)">{if:item[memo]}{item[memo]}{else:}{item[name]}{end:}</div>
 				<input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('{item[uri]}', '{item[thumb_k]}', '{item[thumb]}', event)" />
