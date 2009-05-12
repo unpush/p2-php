@@ -121,10 +121,26 @@ Limelight.prototype = {
 	fullSizeFunc: null,
 
 	/**
+	 * The movable area.
+	 *
+	 * @type {Limelight.Rect}
+	 */
+	movableArea: null,
+
+	/**
+	 * The click determination rect.
+	 *
+	 * @type {Limelight.Rect}
+	 */
+	clickRect: null,
+
+	/**
 	 * Parameters
 	 *
 	 * @type {Number}
 	 */
+	blockWidth: 0,
+	blockHeight: 0,
 	startX: 0,
 	startY: 0,
 	endX: 0,
@@ -299,6 +315,8 @@ Limelight.prototype.init = function() {
 		return;
 	}
 
+	this.clickRect = new Limelight.Rect(new Limelight.Point(-5, -5), new Limelight.Point(5, 5));
+
 	this.handlers = {
 		'orientationchange': function() { self.onOrientationChange(); },
 		'touchstart':     function(evt) { self.onTouchStart(evt); },
@@ -306,7 +324,7 @@ Limelight.prototype.init = function() {
 		'touchend':       function(evt) { self.onTouchEnd(evt); },
 		'gesturechange':  function(evt) { self.onGestureChange(evt); },
 		'gestureend':     function(evt) { self.onGestureEnd(evt); },
-		'imageload': function() { self.reset(); self.toggleImageLoading(false); }
+		'imageload': function() { self.resetTransformation(); self.toggleImageLoading(false); }
 	}
 
 	var block = document.createElement('div');
@@ -634,7 +652,7 @@ Limelight.prototype.deactivate = function() {
 };
 
 // }}}
-// {{{ Limelight.reset()
+// {{{ Limelight.resetTransformation()
 
 /**
  * Set the image transformation state to the default.
@@ -642,13 +660,12 @@ Limelight.prototype.deactivate = function() {
  * @param void
  * @return void
  */
-Limelight.prototype.reset = function() {
+Limelight.prototype.resetTransformation = function() {
 	if (this.initialScale == 0) {
-		var style, x, y, width, height, origWidth, origHeight;
+		var x, y, width, height, origWidth, origHeight;
 
-		style = Limelight.util.getComputedStyle(this.block);
-		x = style.width.toInteger();
-		y = style.height.toInteger();
+		x = this.blockWidth;
+		y = this.blockHeight;
 		width = origWidth = this.targetImage.width;
 		height = origHeight = this.targetImage.height;
 
@@ -780,6 +797,11 @@ Limelight.prototype.onOrientationChange = function() {
 		height = 320 - 20 - 32;
 	}
 
+	this.blockWidth = width;
+	this.blockHeight = height;
+	this.movableArea = new Limelight.Rect(new Limelight.Point(-width, -height),
+	                                      new Limelight.Point(width, height));
+
 	this.block.setStyles({
 		'left': x + 'px',
 		'top': y + 'px',
@@ -793,7 +815,7 @@ Limelight.prototype.onOrientationChange = function() {
 	this.initialScale = 0;
 
 	if (this.targetImage) {
-		this.reset();
+		this.resetTransformation();
 	}
 
 	this.focus();
@@ -809,7 +831,7 @@ Limelight.prototype.onOrientationChange = function() {
  * @return void
  */
 Limelight.prototype.onTouchStart = function(evt) {
-	//if (evt.touches[0].screenX > window.innerWidth - 20) {
+	//if (evt.touches[0].screenX > this.blockWidth - 20) {
 	//	return;
 	//}
 	Limelight.util.stopEvent(evt);
@@ -831,7 +853,7 @@ Limelight.prototype.onTouchStart = function(evt) {
  * @return void
  */
 Limelight.prototype.onTouchMove = function(evt) {
-	//if (evt.touches[0].screenX > window.innerWidth - 20) {
+	//if (evt.touches[0].screenX > this.blockWidth - 20) {
 	//	return;
 	//}
 	Limelight.util.stopEvent(evt);
@@ -841,10 +863,10 @@ Limelight.prototype.onTouchMove = function(evt) {
 
 	this.endX = evt.touches[0].pageX;
 	this.endY = evt.touches[0].pageY;
-	if (this.startX != this.endX || this.startY != this.endX) {
-		var x = this.translateX + this.endX - this.startX;
-		var y = this.translateY + this.endY - this.startY;
-		this.transform(x, y);
+	var deltaX = this.endX - this.startX;
+	var deltaY = this.endY - this.startY;
+	if (this.movableArea.contains(new Limelight.Point(deltaX, deltaY))) {
+		this.transform(this.translateX + deltaX, this.translateY + deltaY);
 	}
 };
 
@@ -863,12 +885,16 @@ Limelight.prototype.onTouchEnd = function(evt) {
 		return;
 	}
 
-	var moveX = this.endX - this.startX;
-	var moveY = this.endY - this.startY;
-	this.translateX += moveX;
-	this.translateY += moveY;
+	var deltaX = this.endX - this.startX;
+	var deltaY = this.endY - this.startY;
+	var delta = new Limelight.Point(deltaX, deltaY);
 
-	if (Math.abs(moveX) < 5 && Math.abs(moveY) < 5) {
+	if (this.movableArea.contains(delta)) {
+		this.translateX += deltaX;
+		this.translateY += deltaY;
+	}
+
+	if (this.clickRect.contains(delta)) {
 		if (this.closeButton.isTargetOf(evt)) {
 			this.deactivate();
 		} else if (this.fitSizeButton.isTargetOf(evt)) {
@@ -883,7 +909,7 @@ Limelight.prototype.onTouchEnd = function(evt) {
 				var now = (new Date()).getTime();
 				if (now - this.previousClick < 250) {
 					var isDefault = !this.hasChanged();
-					this.reset();
+					this.resetTransformation();
 					if (isDefault) {
 						this.scale = 1;
 						this.transform();
