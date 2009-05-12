@@ -663,12 +663,28 @@ function ic2_display($path, $params)
 {
     global $_conf, $ini, $thumb, $redirect, $id, $uri, $file, $thumbnailer;
 
+    if (P2_OS_WINDOWS) {
+        $path = str_replace('\\', '/', $path);
+    }
+    if (strncmp($path, '/', 1) == 0) {
+        $s = empty($_SERVER['HTTPS']) ? '' : 's';
+        $to = 'http' . $s . '://' . $_SERVER['HTTP_HOST'] . $path;
+    } else {
+        $dir = dirname(P2Util::getMyUrl());
+        if (strncasecmp($path, './', 2) == 0) {
+            $to = $dir . substr($path, 1);
+        } elseif (strncasecmp($path, '../', 3) == 0) {
+            $to = dirname($dir) . substr($path, 2);
+        } else {
+            $to = $dir . '/' . $path;
+        }
+    }
     $name = basename($path);
     $ext = strrchr($name, '.');
 
     switch ($redirect) {
         case 1:
-            header("Location: {$path}");
+            header("Location: {$to}");
             exit;
         case 2:
             switch ($ext) {
@@ -794,13 +810,19 @@ function ic2_display($path, $params)
             }
 
             $rank = isset($params['rank']) ? $params['rank'] : 0;
-            $img_dir = $_conf['iphone'] ? 'img/iphone/' : 'img/';
+            if ($_conf['iphone']) {
+                $img_dir = 'img/iphone/';
+                $img_ext = '.png';
+            } else {
+                $img_dir = 'img/';
+                $img_ext = $_conf['ktai'] ? '.gif' : '.png';
+            }
             $stars = array();
-            $stars[-1] = $img_dir . (($rank == -1) ? 'sn1' : 'sn0') . '.png';
-            //$stars[0] = $img_dir . (($rank ==  0) ? 'sz1' : 'sz0') . '.png';
-            $stars[0] = $img_dir . ($_conf['iphone'] ? 'sz0' : 'sz1') . '.png';
+            $stars[-1] = $img_dir . (($rank == -1) ? 'sn1' : 'sn0') . $img_ext;
+            //$stars[0] = $img_dir . (($rank ==  0) ? 'sz1' : 'sz0') . $img_ext;
+            $stars[0] = $img_dir . ($_conf['iphone'] ? 'sz0' : 'sz1') . $img_ext;
             for ($i = 1; $i <= 5; $i++) {
-                $stars[$i] = $img_dir . (($rank >= $i) ? 's1' : 's0') . '.png';
+                $stars[$i] = $img_dir . (($rank >= $i) ? 's1' : 's0') . $img_ext;
             }
 
             $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0" . str_replace('&amp;', '&', $_conf['k_at_a']);
