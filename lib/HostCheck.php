@@ -506,7 +506,6 @@ class HostCheck
             '118.152.214.192/26',
             '118.159.131.0/25',
             '118.159.133.0/25',
-            '121.111.227.0/25',
             '118.159.132.160/27',
         );
         return HostCheck::isAddrInBand($addr, $bands, $regHost);
