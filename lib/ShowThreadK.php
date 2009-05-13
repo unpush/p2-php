@@ -406,12 +406,12 @@ EOMSG;
             if ($isAA && P2_AAS_AVAILABLE) {
                 $aas_url = "aas.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;resnum={$i}";
                 if (P2_AAS_AVAILABLE == 2) {
-                    $aas_txt = "<img src=\"{$aas_url}{$_conf['k_at_a']}&amp;inline=1\">";
+                    $aas_txt = "<img src=\"{$aas_url}{$_conf['k_at_a']}&amp;inline=1{$_conf['sid_at_a']}\">";
                 } else {
                     $aas_txt = "AAS";
                 }
                 if ($_conf['iphone']) {
-                    $msg .= " <a class=\"aas\" href=\"{$aas_url}{$_conf['k_at_a']}\"{$this->target_at} onclick=\"return llView('{$aas_url}&amp;b=pc');\">{$aas_txt}</a>";
+                    $msg .= " <a class=\"aas limelight\" href=\"{$aas_url}&amp;b=pc\"{$this->target_at}>{$aas_txt}</a>";
                 } else {
                     $msg .= " <a class=\"aas\" href=\"{$aas_url}{$_conf['k_at_a']}\"{$this->target_at}>{$aas_txt}</a>";
                     $msg .= " <a class=\"button\" href=\"{$aas_url}{$_conf['k_at_a']}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
@@ -1124,7 +1124,8 @@ EOP;
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
             $img_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en;
             $img_url2 = 'ic2.php?r=0&amp;t=2&amp;id=';
-            $src_url = 'ic2.php?r=0&amp;t=0&amp;id=';
+            $src_url = 'ic2.php?r=1&amp;t=0&amp;uri=' . $url_en;
+            $src_url2 = 'ic2.php?r=1&amp;t=0&amp;id=';
             $src_exists = false;
 
             // DBに画像情報が登録されていたとき
@@ -1147,7 +1148,7 @@ EOP;
                     $src_url = $_src_url;
                 } else {
                     $img_url = $this->thumbnailer->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
-                    $src_url .= $icdb->id;
+                    $src_url = $src_url2 . $icdb->id;
                 }
 
                 // インラインプレビューが有効のとき
@@ -1172,7 +1173,7 @@ EOP;
                             } else {
                                 $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}";
                             }
-                            $img_str = "<img src=\"{$prv_url}\">";
+                            $img_str = "<img src=\"{$prv_url}{$_conf['sid_at_a']}\">";
                         }
                         $inline_preview_done = true;
                     } else {
@@ -1202,7 +1203,7 @@ EOP;
 
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
-                    $img_str = '<img src="ic2.php?r=2&amp;t=1&amp;uri=' . $url_en . $this->img_memo_query . '">';
+                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}\">";
                     $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;
@@ -1230,7 +1231,7 @@ EOP;
             }
 
             if ($_conf['iphone']) {
-                return "<a href=\"{$img_url}{$backto}\" target=\"_blank\" onclick=\"return llView('{$src_url}');\">{$img_str}</a>"
+                return "<a class=\"limelight\" href=\"{$src_url}\" target=\"_blank\">{$img_str}</a>"
                    //. ' <img class="ic2-show-info" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
                      . ' <input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('
                      . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";

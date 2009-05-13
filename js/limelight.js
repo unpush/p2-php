@@ -25,13 +25,13 @@ if (typeof Element.setStyles == 'undefined') {
 if (typeof Number.toInteger == 'undefined') {
 	Number.prototype.toInteger = function() {
 		return Math.floor(this);
-	}
+	};
 }
 
 if (typeof Number.toFloat == 'undefined') {
-	Number.prototype.toInteger = function() {
+	Number.prototype.toFloat = function() {
 		return this;
-	}
+	};
 }
 
 if (typeof String.toInteger == 'undefined') {
@@ -60,108 +60,34 @@ if (typeof String.toFloat == 'undefined') {
  * @param void
  */
 var Limelight = function() {
-}
+};
 
-Limelight.prototype = {
-	/**
-	 * Flags
-	 *
-	 * @type {Boolean}
-	 */
-	isActive: false,
-	imageLoaded: false,
-	showState: true,
-	enableScaling: true,
-	enableRotation: true,
-	enableDobuleTap: false,
+// }}}
+// {{{ Limelight.Exception
 
-	/**
-	 * The Limelight block
-	 *
-	 * @type {Element}
-	 */
-	block: null,
+/**
+ * The object for exception.
+ *
+ * @constructor
+ * @param {String} name
+ * @param {String} message
+ */
+Limelight.Exception = function(name, message) {
+	this.name = name;
+	this.message = message;
+};
 
-	/**
-	 * The target image
-	 *
-	 * @type {Element}
-	 */
-	targetImage: null,
+// }}}
+// {{{ Limelight.Exception.toString()
 
-	/**
-	 * The loading image
-	 *
-	 * @type {Element}
-	 */
-	loadingImage: null,
-
-	/**
-	 * The close button
-	 *
-	 * @type {Limelight.Button}
-	 */
-	closeButton: null,
-
-	/**
-	 * The resizing buttons
-	 *
-	 * @type {Limelight.Button}
-	 */
-	fitSizeButton: null,
-	fullSizeButton: null,
-	dotByDotButton: null,
-
-	/**
-	 * Resizing callbacks
-	 *
-	 * @type {Function}
-	 */
-	fitSizeFunc: null,
-	fullSizeFunc: null,
-
-	/**
-	 * The movable area.
-	 *
-	 * @type {Limelight.Rect}
-	 */
-	movableArea: null,
-
-	/**
-	 * The click determination rect.
-	 *
-	 * @type {Limelight.Rect}
-	 */
-	clickRect: null,
-
-	/**
-	 * Parameters
-	 *
-	 * @type {Number}
-	 */
-	blockWidth: 0,
-	blockHeight: 0,
-	startX: 0,
-	startY: 0,
-	endX: 0,
-	endY: 0,
-	initialTranslateX: 0,
-	initialTranslateY: 0,
-	translateX: 0,
-	translateY: 0,
-	initialScale: 0,
-	fitToWidthScale: 0,
-	fitToHeightScale: 0,
-	scale: 0,
-	rotation: 0,
-	previousClick: 0,
-
-	/**
-	 * Event handlers
-	 *
-	 * @type {Object}
-	 */
-	handlers: null,
+/**
+ *
+ *
+ * @param void
+ * @return {String}
+ */
+Limelight.Exception.prototype.toString = function() {
+	return 'Limelight Exception (' + this.name + ') ' + this.message;
 };
 
 // }}}
@@ -170,10 +96,9 @@ Limelight.prototype = {
 /**
  * The object for point.
  *
- * @class Limelight.Point
+ * @constructor
  * @param {Number} x
  * @param {Number} y
- * @return void
  */
 Limelight.Point = function(x, y) {
 	this.x = x;
@@ -300,19 +225,146 @@ Limelight.util.stopEvent = function(evt) {
 };
 
 // }}}
+// {{{ Limelight.prototype
+
+Limelight.prototype = {
+	/**
+	 * Flags
+	 *
+	 * @type {Boolean}
+	 */
+	isActive: false,
+	imageLoaded: false,
+	enableScaling: true,
+	enableRotation: true,
+	enableIndicator: false,
+	enableDobuleTap: false,
+
+	/**
+	 * The Limelight block
+	 *
+	 * @type {Element}
+	 */
+	block: null,
+
+	/**
+	 * The indicator
+	 *
+	 * @type {Object}
+	 */
+	indicator: null,
+
+	/**
+	 * The target image
+	 *
+	 * @type {Element}
+	 */
+	targetImage: null,
+
+	/**
+	 * The loading image
+	 *
+	 * @type {Element}
+	 */
+	loadingImage: null,
+
+	/**
+	 * The close button
+	 *
+	 * @type {Limelight.Button}
+	 */
+	closeButton: null,
+
+	/**
+	 * The resizing buttons
+	 *
+	 * @type {Limelight.Button}
+	 */
+	fitSizeButton: null,
+	fullSizeButton: null,
+	dotByDotButton: null,
+
+	/**
+	 * Resizing callbacks
+	 *
+	 * @type {Function}
+	 */
+	fitSizeFunc: null,
+	fullSizeFunc: null,
+
+	/**
+	 * The movable area.
+	 *
+	 * @type {Limelight.Rect}
+	 */
+	movableArea: null,
+
+	/**
+	 * The click determination rect.
+	 *
+	 * @type {Limelight.Rect}
+	 */
+	clickRect: null,
+
+	/**
+	 * Parameters
+	 *
+	 * @type {Number}
+	 */
+	blockX: 0,
+	blockY: 0,
+	blockWidth: 0,
+	blockHeight: 0,
+	startX: 0,
+	startY: 0,
+	endX: 0,
+	endY: 0,
+	initialTranslateX: 0,
+	initialTranslateY: 0,
+	translateX: 0,
+	translateY: 0,
+	initialScale: 0,
+	fitToWidthScale: 0,
+	fitToHeightScale: 0,
+	scale: 0,
+	rotation: 0,
+	previousClick: 0,
+
+	/**
+	 * Event handlers
+	 *
+	 * @type {Object}
+	 */
+	handlers: null
+};
+
+// }}}
 // {{{ Limelight.init()
 
 /**
  * Initilalize Limelight.
  * Create new Limelight elements and add them to the document body.
  *
- * @param void
+ * @param {Object} options
  * @return void
  */
-Limelight.prototype.init = function() {
+Limelight.prototype.init = function(options) {
 	var self = this;
 	if (this.block) {
-		return;
+		return this;
+	}
+
+	if (typeof options == 'object') {
+		for (var opt in options) {
+			switch (opt) {
+				case 'enableScaling':
+				case 'enableRotation':
+				case 'enableIndicator':
+				case 'enableDobuleTap':
+					this[opt] = options[opt];
+					break;
+			}
+		}
 	}
 
 	this.clickRect = new Limelight.Rect(new Limelight.Point(-5, -5), new Limelight.Point(5, 5));
@@ -322,14 +374,60 @@ Limelight.prototype.init = function() {
 		'touchstart':     function(evt) { self.onTouchStart(evt); },
 		'touchmove':      function(evt) { self.onTouchMove(evt); },
 		'touchend':       function(evt) { self.onTouchEnd(evt); },
+		'gesturestart':   function(evt) { self.onGestureStart(evt); },
 		'gesturechange':  function(evt) { self.onGestureChange(evt); },
 		'gestureend':     function(evt) { self.onGestureEnd(evt); },
-		'imageload': function() { self.resetTransformation(); self.toggleImageLoading(false); }
+		'imageload': function() { self.toggleImageLoading(false); self.resetTransformation(); }
 	}
 
 	var block = document.createElement('div');
 	block.className = 'limelight-block';
 	document.body.appendChild(block);
+
+	if (this.enableIndicator) {
+		var indicator = document.createElement('div');
+		indicator.className = 'limelight-indicator';
+		block.appendChild(indicator);
+
+		indicator.appendChild(document.createTextNode('('));
+		var xIndicator = indicator.appendChild(document.createElement('span'))
+		                          .appendChild(document.createTextNode('-'));
+		indicator.appendChild(document.createTextNode(','));
+		var yIndicator = indicator.appendChild(document.createElement('span'))
+		                          .appendChild(document.createTextNode('-'));
+		indicator.appendChild(document.createTextNode(')'));
+		indicator.appendChild(document.createElement('br'));
+		var sIndicator = indicator.appendChild(document.createElement('span'))
+		                          .appendChild(document.createTextNode('-'));
+		indicator.appendChild(document.createTextNode('%'));
+		indicator.appendChild(document.createElement('br'));
+		var rIndicator = indicator.appendChild(document.createElement('span'))
+		                          .appendChild(document.createTextNode('-'));
+		indicator.appendChild(document.createTextNode('\xb0'));
+
+		this.indicator = {
+			'container': indicator,
+			'x': xIndicator,
+			'y': yIndicator,
+			's': sIndicator,
+			'r': rIndicator,
+			'show': function() {
+				indicator.style.visibility = 'visible';
+				indicator.style.webkitOpacity = '1';
+				indicator.style.webkitAnimationName = '';
+			},
+			'hide': function() {
+				indicator.style.webkitAnimationName = 'limelight-fadeout';
+				indicator.style.webkitOpacity = '0';
+			},
+			'update': function(x, y, scale, rotation) {
+				xIndicator.nodeValue = x;
+				yIndicator.nodeValue = y;
+				sIndicator.nodeValue = scale;
+				rIndicator.nodeValue = rotation;
+			}
+		};
+	}
 
 	var loadingImage = document.createElement('img');
 	loadingImage.className = 'limelight-loading';
@@ -400,7 +498,9 @@ Limelight.prototype.init = function() {
 	this.fitSizeButton = new Limelight.Button(fitSizeButton);
 	this.fullSizeButton = new Limelight.Button(fullSizeButton);
 	this.dotByDotButton = new Limelight.Button(dotByDotButton);
-}
+
+	return this;
+};
 
 // }}}
 // {{{ Limelight.focus()
@@ -412,9 +512,8 @@ Limelight.prototype.init = function() {
  * @return void
  */
 Limelight.prototype.focus = function() {
-	window.scrollTo(0, Limelight.util.getComputedStyle(this.block).top.toInteger());
-	this.block.focus();
-}
+	window.scrollTo(this.blockX, this.blockY);
+};
 
 // }}}
 // {{{ Limelight.toggleImageLoading()
@@ -438,10 +537,10 @@ Limelight.prototype.toggleImageLoading = function(isLoading) {
 		this.loadingImage.style.visibility = 'hidden';
 		if (this.targetImage) {
 			this.targetImage.style.visibility = 'visible';
-			this.targetImage.style.webkitAnimationName = 'fadein';
+			this.targetImage.style.webkitAnimationName = 'limelight-fadein';
 		}
 	}
-}
+};
 
 // }}}
 // {{{ Limelight.getScale()
@@ -499,6 +598,10 @@ Limelight.prototype.getRotation = function(evt) {
  * @return void
  */
 Limelight.prototype.transform = function() {
+	if (!this.imageLoaded) {
+		return;
+	}
+
 	var x = this.translateX;
 	var y = this.translateY;
 	var scale = this.scale;
@@ -522,7 +625,14 @@ Limelight.prototype.transform = function() {
 	this.targetImage.style.webkitTransform = 'translate(' + x + 'px, ' + y + 'px)'
 	                                       + ' scale(' + scale + ')'
 	                                       + ' rotate(' + rotation + 'deg)';
-}
+
+	if (this.enableIndicator) {
+		this.indicator.update(x - this.initialTranslateX,
+		                      y - this.initialTranslateY,
+		                      Math.floor(scale * 100),
+		                      (rotation > 180) ? rotation - 360 : rotation);
+	}
+};
 
 // }}}
 // {{{ Limelight.hasChanged()
@@ -612,6 +722,7 @@ Limelight.prototype.activate = function(src) {
 	this.attachEvent(this.block, 'touchstart');
 	this.attachEvent(this.block, 'touchmove');
 	this.attachEvent(this.block, 'touchend');
+	this.attachEvent(this.block, 'gesturestart');
 	this.attachEvent(this.block, 'gesturechange');
 	this.attachEvent(this.block, 'gestureend');
 
@@ -645,6 +756,7 @@ Limelight.prototype.deactivate = function() {
 	this.detachEvent(this.block, 'touchstart');
 	this.detachEvent(this.block, 'touchmove');
 	this.detachEvent(this.block, 'touchend');
+	this.detachEvent(this.block, 'gesturestart');
 	this.detachEvent(this.block, 'gesturechange');
 	this.detachEvent(this.block, 'gestureend');
 
@@ -760,7 +872,7 @@ Limelight.prototype.fitToWidth = function() {
  */
 Limelight.prototype.fitToHeight = function() {
 	this.scaleTo(this.fitToHeightScale);
-}
+};
 
 // }}}
 // {{{ Limelight.initialSize()
@@ -787,8 +899,8 @@ Limelight.prototype.initialSize = function() {
 Limelight.prototype.onOrientationChange = function() {
 	var x, y, width, height;
 
-	x = 0;
-	y = window.scrollY;
+	x = this.blockX = 0;
+	y = this.blockY = window.scrollY;
 	if (typeof window.orientation != 'number' || window.orientation % 180 == 0) {
 		width = 320;
 		height = 480 - 20 - 44;
@@ -809,7 +921,6 @@ Limelight.prototype.onOrientationChange = function() {
 		'height': height + 'px'
 	});
 
-	//this.loadingImage.style.marginTop = Math.floor((height - self.loadingImage.height) / 2) + 'px';
 	this.loadingImage.style.marginTop = Math.floor((height - 32) / 2) + 'px';
 
 	this.initialScale = 0;
@@ -831,16 +942,17 @@ Limelight.prototype.onOrientationChange = function() {
  * @return void
  */
 Limelight.prototype.onTouchStart = function(evt) {
-	//if (evt.touches[0].screenX > this.blockWidth - 20) {
-	//	return;
-	//}
 	Limelight.util.stopEvent(evt);
-	if (!this.imageLoaded || evt.touches.length != 1) {
+	if (evt.touches.length != 1) {
 		return;
 	}
 
-	this.startX = this.endX = evt.touches[0].pageX;
-	this.startY = this.endY = evt.touches[0].pageY;
+	this.startX = this.endX = evt.touches[0].screenX;
+	this.startY = this.endY = evt.touches[0].screenY;
+
+	if (this.enableIndicator) {
+		this.indicator.show();
+	}
 };
 
 // }}}
@@ -853,16 +965,13 @@ Limelight.prototype.onTouchStart = function(evt) {
  * @return void
  */
 Limelight.prototype.onTouchMove = function(evt) {
-	//if (evt.touches[0].screenX > this.blockWidth - 20) {
-	//	return;
-	//}
 	Limelight.util.stopEvent(evt);
-	if (!this.imageLoaded || evt.touches.length != 1) {
+	if (evt.touches.length != 1) {
 		return;
 	}
 
-	this.endX = evt.touches[0].pageX;
-	this.endY = evt.touches[0].pageY;
+	this.endX = evt.touches[0].screenX;
+	this.endY = evt.touches[0].screenY;
 	var deltaX = this.endX - this.startX;
 	var deltaY = this.endY - this.startY;
 	if (this.movableArea.contains(new Limelight.Point(deltaX, deltaY))) {
@@ -881,9 +990,6 @@ Limelight.prototype.onTouchMove = function(evt) {
  */
 Limelight.prototype.onTouchEnd = function(evt) {
 	Limelight.util.stopEvent(evt);
-	if (!this.imageLoaded) {
-		return;
-	}
 
 	var deltaX = this.endX - this.startX;
 	var deltaY = this.endY - this.startY;
@@ -908,11 +1014,10 @@ Limelight.prototype.onTouchEnd = function(evt) {
 			if (this.enableDobuleTap) {
 				var now = (new Date()).getTime();
 				if (now - this.previousClick < 250) {
-					var isDefault = !this.hasChanged();
-					this.resetTransformation();
-					if (isDefault) {
-						this.scale = 1;
-						this.transform();
+					if (this.hasChanged()) {
+						this.initialSize();
+					} else {
+						this.dotByDot();
 					}
 				}
 				this.previousClick = now;
@@ -920,8 +1025,25 @@ Limelight.prototype.onTouchEnd = function(evt) {
 		}
 	}
 
-	this.startX = this.endX = 0;
-	this.startY = this.endY = 0;
+	if (this.enableIndicator) {
+		this.indicator.hide();
+	}
+};
+
+// }}}
+// {{{ Limelight.onGestureStart()
+
+/**
+ * The 'gesturestart' event handler.
+ *
+ * @param {Event} evt
+ * @return void
+ */
+Limelight.prototype.onGestureStart = function(evt) {
+	Limelight.util.stopEvent(evt);
+	if (this.enableIndicator) {
+		this.indicator.show();
+	}
 };
 
 // }}}
@@ -935,12 +1057,7 @@ Limelight.prototype.onTouchEnd = function(evt) {
  */
 Limelight.prototype.onGestureChange = function(evt) {
 	Limelight.util.stopEvent(evt);
-	if (!this.imageLoaded) {
-		return;
-	}
-	if (evt.scale != 1 || evt.rotation != 0) {
-		this.transform(evt);
-	}
+	this.transform(evt);
 };
 
 // }}}
@@ -956,6 +1073,59 @@ Limelight.prototype.onGestureEnd = function(evt) {
 	Limelight.util.stopEvent(evt);
 	this.scale = this.getScale(evt);
 	this.rotation = this.getRotation(evt);
+
+	if (this.enableIndicator) {
+		this.indicator.hide();
+	}
+};
+
+// }}}
+// {{{ Limelight.inject()
+
+/**
+ *
+ *
+ * @param {String} className
+ * @param {Node} contextNode
+ * @return void
+ */
+Limelight.prototype.inject = function() {
+	var self = this;
+	var className = 'limelight';
+	var contextNode = document.body;
+
+	if (arguments.length > 0) {
+		className = arguments[0];
+		if (className.length == 0 || className.charCodeAt(0) < 0x41 ||
+			className.search(/[^-0-9A-Z_a-z\u0080-\uffff]/) != -1)
+		{
+			throw new Limelight.Exception('UnexpectedValue', 'Invalid class name specified');
+		}
+		if (arguments.length > 1) {
+			contextNode = arguments[1];
+		}
+	}
+
+	var result = document.evaluate('.//a[@href and contains('
+	                               + ["concat(' ', normalize-space(@class), ' ')",
+	                                  "' " + className + " '"].join(', ')
+	                               + ')]',
+	                               contextNode,
+	                               null,
+	                               XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+	                               null);
+	var l = result.snapshotLength;
+	if (l > 0) {
+		var callback = function(evt) {
+			Limelight.util.stopEvent(evt);
+			self.activate(this.href);
+			return false;
+		};
+
+		for (var i = 0; i < l; i++) {
+			result.snapshotItem(i).addEventListener('click', callback, false);
+		}
+	}
 };
 
 // }}}

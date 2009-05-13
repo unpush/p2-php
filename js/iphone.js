@@ -2,9 +2,9 @@
  * rep2expack - DOMを操作してiPhoneに最適化する
  */
 
-// {{{ window.onload()
+// {{{ DOMContentLoaded
 
-window.addEventListener('load', function(evt){
+window.addEventListener('DOMContentLoaded', function(evt){
 	// 外部リンクを書き換える
 	rewrite_external_link(document.body);
 
@@ -14,13 +14,13 @@ window.addEventListener('load', function(evt){
 	// 回転時のイベントハンドラを設定
 	document.body.addEventListener('orientationchange', function(evt){
 		adjust_textarea_size();
-	});
+	}, false);
 
 	// ロケーションバーを隠す
 	if (!location.hash) {
-		scrollTo(0, 0);
+		window.setTimeout(scrollTo, 100, 0, 1);
 	}
-});
+}, false);
 
 // }}}
 // {{{ rewrite_external_link()

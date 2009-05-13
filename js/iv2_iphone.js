@@ -1,24 +1,10 @@
 /*
- * IC2::Viewer - DOMを操作してiPhoneに最適化する
+ * ImageCache2::Viewer - DOMを操作してiPhoneに最適化する
  */
 
-// {{{ window.onload()
+// {{{ DOMContentLoaded
 
-window.addEventListener('load', function(evt){
-	// サムネイルをタップしたとき、新しいタブで開くようにする
-	/*
-	var anchors = document.evaluate('.//td[@class="iv2-image-thumb"]/a[@href]',
-	                                document.body,
-	                                null,
-	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-	                                null
-	                                );
-
-	for (var i = 0; i < anchors.snapshotLength; i++) {
-		anchors.snapshotItem(i).setAttribute('target', '_blank');
-	}
-	*/
-
+window.addEventListener('DOMContentLoaded', function(evt){
 	if (typeof window.orientation != 'undefined') {
 		// テーブルの大きさを調整
 		resize_image_table();
@@ -26,7 +12,7 @@ window.addEventListener('load', function(evt){
 		// 回転時のイベントハンドラを追加
 		document.body.addEventListener('orientationchange', function(evt){
 			resize_image_table();
-		});
+		}, false);
 	} else {
 		// 回転をサポートしないブラウザ
 		var table = document.getElementById('iv2-images');
@@ -45,7 +31,7 @@ window.addEventListener('load', function(evt){
 		document.styleSheets[document.styleSheets.length - 2].disabled = true;
 		document.styleSheets[document.styleSheets.length - 1].disabled = true;
 	}
-});
+}, false);
 
 // }}}
 // {{{ resize_image_table()

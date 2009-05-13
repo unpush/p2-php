@@ -8,6 +8,8 @@ div.limelight-block {
 	top: 0px;
 	left: 0px;
 	z-index: 100;
+	margin: 0;
+	padding: 0;
 	overflow: hidden;
 	background-color: rgba(0, 0, 0, 0.5);
 	text-align: center;
@@ -23,13 +25,24 @@ img.limelight-image {
 	-webkit-animation-duration: 1s;
 }
 
-@-webkit-keyframes 'fadein' {
-	from {
-		-webkit-opacity: 0;
-	}
-	to {
-		-webkit-opacity: 1;
-	}
+div.limelight-indicator {
+	position: absolute;
+	top: 0;
+	right: 5px;
+	z-index: 120;
+	width: 240px;
+	height: 160px;
+	margin: 0;
+	padding: 0;
+	visibility: hidden;
+	color: #fff;
+	text-shadow: #000 1px 1px 3px;
+	font-family: monospace;
+	font-size: 24px;
+	font-weight: bold;
+	text-align: right;
+	line-height: 150%;
+	-webkit-animation-duration: 0.5s;
 }
 
 table.limelight-toolbar {
@@ -37,13 +50,14 @@ table.limelight-toolbar {
 	bottom: 5px;
 	left: 0px;
 	z-index: 120;
+	margin: 0;
+	padding: 0;
 	width: 100%;
 }
 
 table.limelight-toolbar td {
 	margin: 0;
 	padding: 0;
-	width: 25%;
 	text-align: center;
 	vertical-align: middle;
 }
@@ -52,7 +66,7 @@ span.limelight-button {
 	display: inline-block;
 	width: 45px;
 	height: 15px;
-	margin: 0px;
+	margin: 0;
 	padding: 5px 10px;
 	background-color: rgba(0, 0, 0, 0.5);
 	border: rgba(255, 255, 255, 0.75) solid 1px;
@@ -64,6 +78,24 @@ span.limelight-button {
 	text-align: center;
 	line-height: 100%;
 	cursor: pointer;
+}
+
+@-webkit-keyframes 'limelight-fadein' {
+	from {
+		-webkit-opacity: 0;
+	}
+	to {
+		-webkit-opacity: 1;
+	}
+}
+
+@-webkit-keyframes 'limelight-fadeout' {
+	from {
+		-webkit-opacity: 1;
+	}
+	to {
+		-webkit-opacity: 0;
+	}
 }
 
 /*

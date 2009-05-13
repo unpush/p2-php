@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.14', // rep2のバージョン
-    'p2expack'  => '090513.0245',   // 拡張パックのバージョン
+    'p2expack'  => '090514.0040',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -884,6 +884,8 @@ if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
     $_conf['use_session'] = 1;
 }
 
+$_conf['sid_at_a'] = '';
+
 if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) {
     require_once $P2_LIB_DIR_S . 'Session.php';
 
@@ -913,6 +915,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
         }
         if (!ini_get('session.use_trans_sid')) {
             output_add_rewrite_var(session_name(), session_id());
+            $_conf['sid_at_a'] = '&amp;' . rawurldecode(session_name()) . '=' . rawurldecode(session_id());
         }
     }
 }

@@ -25,19 +25,9 @@ if ($_conf['iphone']) {
 <script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript">
 // <![CDATA[
-var limelight = null;
-window.addEventListener('load', function() {
-    limelight = new Limelight();
-    limelight.init();
+window.addEventListener('DOMContentLoaded', function() {
+    (new Limelight()).init().inject();
 }, false);
-var llView = function(uri) {
-    if (limelight) {
-        limelight.activate(uri);
-        return false;
-    } else {
-        return true;
-    }
-};
 // ]]>\n
 </script>
 EOP;
@@ -824,6 +814,7 @@ if ($all == 0) {
     } else {
         $k_backto = '';
     }
+    $sid_at_a = str_replace('&amp;', '&', $_conf['sid_at_a']);
     while ($icdb->fetch()) {
         // 検索結果を配列にし、レンダリング用の要素を付加
         // 配列どうしなら+演算子で要素を追加できる
@@ -880,6 +871,7 @@ if ($all == 0) {
                 } else {
                     $add['thumb'] .= '&uri=' . rawurlencode($img['uri']);
                 }
+                $add['thumb'] .= $sid_at_a;
             }
             if ($_conf['ktai']) {
                 $add['thumb_k'] = 'ic2.php?r=0&t=2';
@@ -888,7 +880,7 @@ if ($all == 0) {
                 } else {
                     $add['thumb_k'] .= '&uri=' . rawurlencode($img['uri']);
                 }
-                $add['thumb_k'] .= $k_backto;
+                $add['thumb_k'] .= $k_backto . $sid_at_a;
             }
         }
         $item = array_merge($img, $add, $status);

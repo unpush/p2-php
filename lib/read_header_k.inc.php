@@ -161,19 +161,9 @@ EOS;
 <script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript">
 // <![CDATA[
-var limelight = null;
-window.addEventListener('load', function() {
-    limelight = new Limelight();
-    limelight.init();
+window.addEventListener('DOMContentLoaded', function() {
+	(new Limelight()).init().inject();
 }, false);
-var llView = function(uri) {
-    if (limelight) {
-        limelight.activate(uri);
-        return false;
-    } else {
-        return true;
-    }
-};
 // ]]>
 </script>
 EOS;

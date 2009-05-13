@@ -825,7 +825,9 @@ function ic2_display($path, $params)
                 $stars[$i] = $img_dir . (($rank >= $i) ? 's1' : 's0') . $img_ext;
             }
 
-            $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0" . str_replace('&amp;', '&', $_conf['k_at_a']);
+            $k_at_a = str_replace('&amp;', '&', $_conf['k_at_a']);
+            $sid_at_a = str_replace('&amp;', '&', $_conf['sid_at_a']);
+            $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0{$k_at_a}";
 
             $flexy->setData('stars', $stars);
             $flexy->setData('params', $params);
@@ -839,7 +841,7 @@ function ic2_display($path, $params)
                     $link = $path;
                 }
                 $r = ($ini['General']['redirect'] == 1) ? 1 : 2;
-                $preview = $_SERVER['SCRIPT_NAME'] . '?o=1&r=' . $r . '&t=' . $t . '&' . $img_q;
+                $preview = "{$_SERVER['SCRIPT_NAME']}?o=1&r={$r}&t={$t}&{$img_q}{$k_at_a}{$sid_at_a}";
                 $flexy->setData('preview', $preview);
                 $flexy->setData('link', $link);
                 $flexy->setData('info', null);
@@ -890,7 +892,7 @@ EOP;
 
 function ic2_error($code, $optmsg = '', $write_log = true)
 {
-    global $id, $uri, $file, $redirect;
+    global $_conf, $id, $uri, $file, $redirect;
 
     $map = array(
         100 => 'Continue',
@@ -963,9 +965,15 @@ function ic2_error($code, $optmsg = '', $write_log = true)
     }*/
 
     if ($redirect) {
-        $path = './img/' . strval($code) . '.png';
-        $name = 'filename="' . strval($code) . '.png"';
-        header('Content-Type: image/png; ' . $name);
+        if ($_conf['ktai'] && !$_conf['iphone']) {
+            $type = 'gif';
+        } else {
+            $type = 'png';
+        }
+        $img = strval($code) . '.' . $type;
+        $path = './img/' . $img;
+        $name = 'filename="' . $img . '"';
+        header('Content-Type: image/' . $type . '; ' . $name);
         header('Content-Disposition: inline; ' . $name);
         readfile($path);
         exit;

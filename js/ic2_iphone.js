@@ -7,9 +7,9 @@
 var ic2info = null;
 
 // }}}
-// {{{ window.onload()
+// {{{ DOMContentLoaded
 
-window.addEventListener('load', function(evt){
+window.addEventListener('DOMContentLoaded', function(evt){
 	// {{{ initiaize
 
 	var self = ic2info = new Object();
@@ -211,7 +211,7 @@ window.addEventListener('load', function(evt){
 			return function(){ self.updateRank(n); };
 		})(i - 1);
 	}
-});
+}, false);
 
 // }}}
 
