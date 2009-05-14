@@ -55,10 +55,7 @@ class ShowThreadK extends ShowThread
         }
 
         $this->_url_handlers = array(
-            'plugin_link2ch',
-            'plugin_linkMachi',
-            'plugin_linkJBBS',
-            'plugin_link2chKako',
+            'plugin_linkThread',
             'plugin_link2chSubject',
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
@@ -911,11 +908,11 @@ EOP;
         if (isset($purl['scheme'])) {
             // 携帯用外部URL変換
             if ($_conf['mobile.use_tsukin']) {
-                return $this->ktaiExtUrl('', $url, $str);
+                return $this->ktaiExtUrl('', $purl[0], $str);
             }
             // ime
             if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
+                $link_url = P2Util::throughIme($purl[0]);
             } else {
                 $link_url = $url;
             }
@@ -934,7 +931,7 @@ EOP;
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/([^/]+)/$}', $url, $m)) {
+        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/(\\w+)/$}', $purl[0], $m)) {
             $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
             return "<a href=\"{$url}\">{$str}</a> [<a href=\"{$subject_url}{$_conf['k_at_a']}\">板をp2で開く</a>]";
         }
@@ -942,77 +939,22 @@ EOP;
     }
 
     // }}}
-    // {{{ plugin_link2ch()
+    // {{{ plugin_linkThread()
 
     /**
-     * 2ch bbspink スレッドリンク
+     * スレッドリンク
      */
-    public function plugin_link2ch($url, $purl, $str)
+    public function plugin_linkThread($url, $purl, $str)
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([1-9][0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            if (!isset($m[4])) {
-                $m[4] = '';
-            }
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
+        list($nama_url, $host, $bbs, $key, $ls) = P2Util::detectThread($purl[0]);
+        if ($host && $bbs && $key) {
+            $read_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$ls}";
             return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
         }
-        return FALSE;
-    }
 
-    // }}}
-    // {{{ plugin_link2chKako()
-
-    /**
-     * 2ch過去ログhtml
-     */
-    public function plugin_link2chKako($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
-            return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    // }}}
-    // {{{ plugin_linkMachi()
-
-    /**
-     * まちBBS / JBBS＠したらば  内リンク
-     */
-    public function plugin_linkMachi($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://((\\w+\\.machibbs\\.com|\\w+\\.machi\\.to|jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)(/\\w+)?)/bbs/read\\.(?:pl|cgi)\\?BBS=(\\w+)(?:&amp;|&)KEY=([0-9]+)(?:(?:&amp;|&)START=([0-9]+))?(?:(?:&amp;|&)END=([0-9]+))?(?=&|$)}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[4]}&amp;key={$m[5]}";
-            if ($m[6] || $m[7]) {
-                $read_url .= "&amp;ls={$m[6]}-{$m[7]}";
-            }
-            return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    // }}}
-    // {{{ plugin_linkJBBS()
-
-    /**
-     * JBBS＠したらば  内リンク
-     */
-    public function plugin_linkJBBS($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&amp;bbs={$m[3]}&amp;key={$m[4]}&amp;ls={$m[5]}";
-            return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
-        }
-        return FALSE;
+        return false;
     }
 
     // }}}
@@ -1033,7 +975,7 @@ EOP;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $purl[0], $m)) {
             $subd = $m[1];
             $id = $m[2];
 
@@ -1044,7 +986,7 @@ EOP;
                 if ($link === false) {
                     // plugin_linkURL()がちゃんと機能している限りここには来ない
                     if ($_conf['through_ime']) {
-                        $link_url = P2Util::throughIme($url);
+                        $link_url = P2Util::throughIme($purl[0]);
                     } else {
                         $link_url = $url;
                     }
@@ -1077,7 +1019,7 @@ EOP;
             $picto_url = 'http://pic.to/'.$purl['host'].$purl['path'];
             $picto_tag = '<a href="'.$picto_url.'">(ﾋﾟ)</a> ';
             if ($_conf['through_ime']) {
-                $link_url  = P2Util::throughIme($url);
+                $link_url  = P2Util::throughIme($purl[0]);
                 $picto_url = P2Util::throughIme($picto_url);
             } else {
                 $link_url = $url;
@@ -1103,7 +1045,7 @@ EOP;
             return false;
         }
 
-        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $purl[0]) && empty($purl['query'])) {
             // インラインプレビューの有効判定
             if ($pre_thumb_unlimited || $pre_thumb_ignore_limit || $pre_thumb_limit_k > 0) {
                 $inline_preview_flag = true;
@@ -1114,7 +1056,7 @@ EOP;
             }
 
             $url_ht = $url;
-            $url = str_replace('&amp;', '&', $url);
+            $url = $purl[0];
             $url_en = rawurlencode($url);
             $img_str = null;
 

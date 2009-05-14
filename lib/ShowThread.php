@@ -36,6 +36,11 @@ abstract class ShowThread
 )
 }x';
 
+    const IME_NU_NONE = 0;
+    const IME_NU_2CHANNEL = 1;
+    const IME_NU_BBSPINK = 2;
+    const IME_NU_MACHIBBS = 3;
+
     // }}}
     // {{{ properties
 
@@ -52,6 +57,8 @@ abstract class ShowThread
 
     protected $_aborn_nums; // あぼーんレス番号を格納する配列
     protected $_ng_nums; // NGレス番号を格納する配列
+
+    protected $_ime_nu_type; // ime.nuの種類
 
     public $thread; // スレッドオブジェクト
 
@@ -92,6 +99,16 @@ abstract class ShowThread
 
         $this->_aborn_nums = array();
         $this->_ng_nums = array();
+
+        if (P2Util::isHostBbsPink($this->thread->host)) {
+            $this->_ime_nu_type = self::IME_NU_BBSPINK;
+        } elseif (P2Util::isHost2chs($this->thread->host)) {
+            $this->_ime_nu_type = self::IME_NU_2CHANNEL;
+        } elseif (P2Util::isHostMachiBbs($this->thread->host)) {
+            $this->_ime_nu_type = self::IME_NU_MACHIBBS;
+        } else {
+            $this->_ime_nu_type = self::IME_NU_NONE;
+        }
     }
 
     // }}}
@@ -565,14 +582,28 @@ EOP;
         }
 
         // ime.nuを外す
-        $url = preg_replace('|^([a-z]+://)ime\\.nu/|', '$1', $url);
+        switch ($this->_ime_nu_type) {
+            case self::IME_NU_2CHANNEL:
+                $url = preg_replace('{^([a-z]+://)ime\\.nu/}', '$1', $url);
+                break;
+            case self::IME_NU_BBSPINK:
+                $url = preg_replace('{^([a-z]+://)pinktower\\.com/}', '$1', $url);
+                break;
+            case self::IME_NU_MACHIBBS:
+                $url = preg_replace('{^[a-z]+://machi(?:bbs\\.com|\\.to)/bbs/link\\.cgi\\?URL=}', '', $url);
+                break;
+        }
 
         // エスケープされていない特殊文字をエスケープ
         $url = htmlspecialchars($url, ENT_QUOTES, 'Shift_JIS', false);
         $str = htmlspecialchars($str, ENT_QUOTES, 'Shift_JIS', false);
+        // 実態参照・数値参照を完全にデコードしようとすると負荷が大きいし、
+        // "&"以外の特殊文字はほとんどの場合URLエンコードされているはずなので
+        // 中途半端に凝った処理はせず、"&amp;"→"&"のみ再変換する。
+        $raw_url = str_replace('&amp;', '&', $url);
 
         // URLをパース・ホストを検証
-        $purl = @parse_url($url);
+        $purl = @parse_url($raw_url);
         if (!$purl || !array_key_exists('host', $purl) ||
             strpos($purl['host'], '.') === false ||
             $purl['host'] == '127.0.0.1' ||
@@ -582,6 +613,8 @@ EOP;
         {
             return $orig;
         }
+        // URLのマッチングで"&amp;"を考慮しなくて済むように、生のURLを登録しておく
+        $purl[0] = $raw_url;
 
         // URLを処理
         foreach ($this->_user_url_handlers as $handler) {

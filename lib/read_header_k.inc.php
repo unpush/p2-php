@@ -162,7 +162,13 @@ EOS;
 <script type="text/javascript">
 // <![CDATA[
 window.addEventListener('DOMContentLoaded', function() {
-	(new Limelight()).init().inject();
+    var limelight = new Limelight();
+    limelight.init().bind();
+    if (typeof window._RESPOSUP_IPHONE_JS_CALLBACKS != 'undefined') {
+        window._RESPOSUP_IPHONE_JS_CALLBACKS.push(function(container) {
+            limelight.bind('limelight', container);
+        });
+    }
 }, false);
 // ]]>
 </script>

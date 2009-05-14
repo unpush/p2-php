@@ -187,6 +187,21 @@ if (!function_exists('http_date')) {
 }
 
 // }}}
+// {{{ ctype
+
+/**
+ * ctypeŠg’£ƒ‚ƒWƒ…[ƒ‹ŠÖ”‚ÌPure PHP”Å (cntrl,graph,print,punct,space‚ÍŠ„ˆ¤)
+ */
+if (!extension_loaded('ctype')) {
+    function ctype_alnum($str) { return (bool)preg_match('/^[0-9A-Za-z]+$/', $str); }
+    function ctype_alpha($str) { return (bool)preg_match('/^[A-Za-z]+$/', $str); }
+    function ctype_digit($str) { return (bool)preg_match('/^[0-9]+$/', $str); }
+    function ctype_lower($str) { return (bool)preg_match('/^[a-z]+$/', $str); }
+    function ctype_upper($str) { return (bool)preg_match('/^[A-Z]+$/', $str); }
+    function ctype_xdigit($str) { return (bool)preg_match('/^[0-9A-Fa-f]+$/', $str); }
+}
+
+// }}}
 // {{{ stripslashes_r()
 
 /**

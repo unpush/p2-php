@@ -4,10 +4,11 @@
 
 // {{{ globals
 
-var _RESPOPUP_IPHONE_JS_HASH = new Object();
+var _RESPOPUP_IPHONE_JS_HASH = {};
 var _RESPOPUP_IPHONE_JS_INDEX = 0;
 var _RESPOPUP_IPHONE_JS_XPATH = './/div[@class="res"]' +
 	'//a[starts-with(@href, "read.php?") or starts-with(@href, "subject.php?")]';
+var _RESPOSUP_IPHONE_JS_CALLBACKS = [];
 
 // }}}
 // {{{ _irespopup_get_z_index()
@@ -19,8 +20,8 @@ var _RESPOPUP_IPHONE_JS_XPATH = './/div[@class="res"]' +
  * 固定されているのでポップアップを繰り返すと不具合がある。
  * ポップアップオブジェクトの z-index を集中管理する必要あり。
  *
- * @param Element obj
- * @return String
+ * @param {Element} obj
+ * @return {String}
  */
 function _irespopup_get_z_index(obj)
 {
@@ -33,7 +34,7 @@ function _irespopup_get_z_index(obj)
 /*
  * オブジェクトを最前面に移動する関数を返す
  *
- * @param Element obj
+ * @param {Element} obj
  * @return void
  */
 function _irespopup_make_activate(obj)
@@ -50,8 +51,8 @@ function _irespopup_make_activate(obj)
 /*
  * DOMツリーからオブジェクトを取り除く関数を返す
  *
- * @param Element obj
- * @param Strin key 
+ * @param {Element} obj
+ * @param {String} key 
  * @return void
  */
 function _irespopup_make_deactivate(obj, key)
@@ -69,9 +70,9 @@ function _irespopup_make_deactivate(obj, key)
 /*
  * iPhone用レスポップアップ
  *
- * @param String url
- * @param Event evt
- * @return Boolean
+ * @param {String} url
+ * @param {Event} evt
+ * @return {Boolean}
  * @todo use asynchronous request
  */
 function iResPopUp(url, evt)
@@ -142,9 +143,13 @@ function iResPopUp(url, evt)
 					scrollTo(0, yOffset - 10);
 					return false;
 				});
-				anchor.innerText = '▲';
+				anchor.appendChild(document.createTextNode('▲'));
 				back.appendChild(anchor);
 				lastres.appendChild(back);
+			}
+
+			for (var i = 0; i < _RESPOSUP_IPHONE_JS_CALLBACKS.length; i++) {
+				_RESPOSUP_IPHONE_JS_CALLBACKS[i](container);
 			}
 
 			return false;

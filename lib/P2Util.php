@@ -535,7 +535,7 @@ class P2Util
             }
         }
 
-        $url_en = rawurlencode(str_replace('&amp;', '&', $url));
+        $url_en = rawurlencode($url);
 
         $gate = $_conf['through_ime'];
         if ($manual_exts &&
@@ -619,7 +619,7 @@ class P2Util
     static public function isHost2chs($host)
     {
         if (!array_key_exists($host, self::$_hostIs2chs)) {
-            self::$_hostIs2chs[$host] = (bool)preg_match('<^[^/]+\\.(?:2ch\\.net|bbspink\\.com)$>', $host);
+            self::$_hostIs2chs[$host] = (bool)preg_match('<^\\w+\\.(?:2ch\\.net|bbspink\\.com)$>', $host);
         }
         return self::$_hostIs2chs[$host];
     }
@@ -656,7 +656,7 @@ class P2Util
     static public function isHostBbsPink($host)
     {
         if (!array_key_exists($host, self::$_hostIsBbsPink)) {
-            self::$_hostIsBbsPink[$host] = (bool)preg_match('<^[^/]+\\.bbspink\\.com$>', $host);
+            self::$_hostIsBbsPink[$host] = (bool)preg_match('<^\\w+\\.bbspink\\.com$>', $host);
         }
         return self::$_hostIsBbsPink[$host];
     }
@@ -673,7 +673,7 @@ class P2Util
     static public function isHostMachiBbs($host)
     {
         if (!array_key_exists($host, self::$_hostIsMachiBbs)) {
-            self::$_hostIsMachiBbs[$host] = (bool)preg_match('<^[^/]+\\.(?:machibbs\\.com|machi\\.to)$>', $host);
+            self::$_hostIsMachiBbs[$host] = (bool)preg_match('<^\\w+\\.machi(?:bbs\\.com|\\.to)$>', $host);
         }
         return self::$_hostIsMachiBbs[$host];
     }
@@ -690,7 +690,7 @@ class P2Util
     static public function isHostMachiBbsNet($host)
     {
         if (!array_key_exists($host, self::$_hostIsMachiBbsNet)) {
-            self::$_hostIsMachiBbsNet[$host] = (bool)preg_match('<^[^/]+\\.machibbs\\.net$>', $host);
+            self::$_hostIsMachiBbsNet[$host] = (bool)preg_match('<^\\w+\\.machibbs\\.net$>', $host);
         }
         return self::$_hostIsMachiBbsNet[$host];
     }
@@ -1565,9 +1565,9 @@ EOP;
         if ($url) {
             $nama_url = $url;
         } elseif (isset($_GET['nama_url'])) {
-            $name_url = $_GET['nama_url'];
+            $nama_url = trim($_GET['nama_url']);
         } elseif (isset($_GET['url'])) {
-            $nama_url = $_GET['url'];
+            $nama_url = trim($_GET['url']);
         } else {
             $nama_url = null;
         }
@@ -1576,8 +1576,8 @@ EOP;
         if ($nama_url) {
 
             // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            if (preg_match('<http://([^/]+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi
-                    /([^/]+)/([0-9]+)(?:/([^/]*))?>x', $nama_url, $matches))
+            if (preg_match('<^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi
+                    /(\\w+)/([0-9]+)(?:/([^/]*))?>x', $nama_url, $matches))
             {
                 $host = $matches[1];
                 $bbs = $matches[2];
@@ -1585,7 +1585,7 @@ EOP;
                 $ls = (isset($matches[4]) && strlen($matches[4])) ? $matches[4] : '';
 
             // 2ch or pink 過去ログhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
-            } elseif (preg_match('<(http://([^/]+\\.(?:2ch\\.net|bbspink\\.com))(?:/[^/]+)?/([^/]+)
+            } elseif (preg_match('<^(http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))(?:/[^/]+)?/(\\w+)
                     /kako/\\d+(?:/\\d+)?/(\\d+)).html>x', $nama_url, $matches))
             {
                 $host = $matches[2];
@@ -1595,35 +1595,42 @@ EOP;
                 $kakolog_url = $matches[1];
                 $_GET['kakolog'] = rawurlencode($kakolog_url);
 
-            // まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
-            } elseif (preg_match('<http://([^/]+\\.machibbs\\.com|[^/]+\\.machi\\.to)/bbs/read\\.(?:pl|cgi)
-                    \\?BBS=([^&]+)&KEY=(\\d+)(?:&START=(\\d+))?(?:&END=(\\d+))?[^\\"]*>x', $nama_url, $matches))
+            // まちBBS - http://kanto.machi.to/bbs/read.cgi/kanto/1241815559/
+            } elseif (preg_match('<^http://(\\w+\\.machi(?:bbs\\.com|\\.to))/bbs/read\\.cgi
+                    /(\\w+)/([0-9]+)(?:/([^/]*))?>x', $nama_url, $matches))
             {
                 $host = $matches[1];
                 $bbs = $matches[2];
                 $key = $matches[3];
-                $ls = isset($matches[4]) ? $matches[4] : '';
-                $ls .= '-';
-                $ls .= isset($matches[5]) ? $matches[5] : '';
+                $ls = (isset($matches[4]) && strlen($matches[4])) ? $matches[4] : '';
 
-            } elseif (preg_match('<http://((jbbs\\.(?:livedoor\\.(?:jp|com)|shitaraba\\.com))(?:/([^/]+))?)/bbs/read\\.(?:pl|cgi)
-                    \\?BBS=([^&]+)&KEY=(\\d+)(?:&START=(\\d+))?(?:&END=(\\d+))?[^"]*>x', $nama_url, $matches))
-            {
-                $host = $matches[1];
-                $bbs = $matches[4];
-                $key = $matches[5];
-                $ls = isset($matches[6]) ? $matches[6] : '';
-                $ls .= '-';
-                $ls .= isset($matches[7]) ? $matches[7] : '';
-
-            // したらばJBBS http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100
-            } elseif (preg_match('<http://(jbbs\\.(?:livedoor\\.(?:jp|com)|shitaraba\\.com))/bbs/read\\.cgi
+            // したらばJBBS - http://jbbs.livedoor.com/bbs/read.cgi/computer/2999/1081177036/-100
+            } elseif (preg_match('<^http://(jbbs\\.(?:livedoor\\.(?:jp|com)|shitaraba\\.com))/bbs/read\\.cgi
                     /(\\w+)/(\\d+)/(\\d+)/((?:\\d+)?-(?:\\d+)?)?[^"]*>x', $nama_url, $matches))
             {
                 $host = $matches[1] . '/' . $matches[2];
                 $bbs = $matches[3];
                 $key = $matches[4];
                 $ls = isset($matches[5]) ? $matches[5] : '';
+
+            // 旧式まち＆したらばJBBS - http://kanto.machibbs.com/bbs/read.pl?BBS=kana&KEY=1034515019
+            } elseif (preg_match('<^http://(\\w+\\.machi(?:bbs\\.com|\\.to))/bbs/read\\.(?:pl|cgi)\\?(.+)>' ,
+                    $nama_url, $matches))
+            {
+                $host = $matches[1];
+                list($bbs, $key, $ls) = self::parseMatchiQuery($matches[2]);
+
+            } elseif (preg_match('<^http://((jbbs\\.(?:livedoor\\.(?:jp|com)|shitaraba\\.com))(?:/(\\w+))?)/bbs/read\\.(?:pl|cgi)\\?(.+)>',
+                    $nama_url, $matches))
+            {
+                $host = $matches[1];
+                list($bbs, $key, $ls) = self::parseMatchiQuery($matches[4]);
+
+            } else {
+                $host = null;
+                $bbs = null;
+                $key = null;
+                $ls = null;
             }
 
             // 補正
@@ -1639,6 +1646,47 @@ EOP;
         }
 
         return array($nama_url, $host, $bbs, $key, $ls);
+    }
+
+    // }}}
+    // {{{ parseMatchiQuery()
+
+    /**
+     * 旧式まち＆したらばJBBSのスレッドを指定するQUERY_STRINGを解析する
+     *
+     * @param   string  $query
+     * @return  array
+     */
+    static public function parseMatchiQuery($query)
+    {
+        parse_str($query, $params);
+
+        if (array_key_exists('BBS', $params) && ctype_alnum($params['BBS'])) {
+            $bbs = $params['BBS'];
+        } else {
+            $bbs = null;
+        }
+
+        if (array_key_exists('KEY', $params) && ctype_digit($params['KEY'])) {
+            $key = $params['KEY'];
+        } else {
+            $key = null;
+        }
+
+        if (array_key_exists('LAST', $params) && ctype_digit($params['LAST'])) {
+            $ls = 'l' . $params['LAST'];
+        } else {
+            $ls = '';
+            if (array_key_exists('START', $params) && ctype_digit($params['START'])) {
+                $ls = $params['START'];
+            }
+            $ls .= '-';
+            if (array_key_exists('END', $params) && ctype_digit($params['END'])) {
+                $ls .= $params['END'];
+            }
+        }
+
+        return array($bbs, $key, $ls);
     }
 
     // }}}

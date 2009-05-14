@@ -81,7 +81,7 @@ Limelight.Exception = function(name, message) {
 // {{{ Limelight.Exception.toString()
 
 /**
- *
+ * Returns the string representation of the exception.
  *
  * @param void
  * @return {String}
@@ -124,7 +124,7 @@ Limelight.Rect = function(topLeft, bottomRight) {
 // {{{ Limelight.Rect.contains()
 
 /**
- * Determine whether contains a given point.
+ * Determines whether contains a given point.
  *
  * @param {Limelight.Point} point
  * @return {Boolean}
@@ -156,7 +156,7 @@ Limelight.Button = function(elem) {
 // {{{ Limelight.Button.isTargetOf()
 
 /**
- * Determine whether the target of a given event is the receiver.
+ * Determines whether the target of a given event is the receiver.
  *
  * @param {Event} evt
  * @return {Boolean}
@@ -173,7 +173,7 @@ Limelight.Button.prototype.isTargetOf = function(evt) {
 // {{{ Limelight.Button.setLabel()
 
 /**
- * Set the button text.
+ * Sets the button text.
  *
  * @param {String} str
  * @return void
@@ -213,7 +213,7 @@ Limelight.util.getComputedStyle = function(elem) {
 // {{{ Limelight.util.stopEvent()
 
 /**
- * Prevent the default event and stop the event propagation.
+ * Prevents the default event and stop the event propagation.
  *
  * @static
  * @param {Event} evt
@@ -342,17 +342,19 @@ Limelight.prototype = {
 // {{{ Limelight.init()
 
 /**
- * Initilalize Limelight.
+ * Initilalizes Limelight.
  * Create new Limelight elements and add them to the document body.
  *
  * @param {Object} options
- * @return void
+ * @return {Limelight}
  */
 Limelight.prototype.init = function(options) {
 	var self = this;
 	if (this.block) {
 		return this;
 	}
+
+	var isIphone = navigator.userAgent.search(/iP(hone|od)/) != -1;
 
 	if (typeof options == 'object') {
 		for (var opt in options) {
@@ -450,47 +452,50 @@ Limelight.prototype.init = function(options) {
 
 	var closeButton = document.createElement('span');
 	closeButton.className = 'limelight-button';
-	closeButton.addEventListener('click', function(evt) {
-		Limelight.util.stopEvent(evt);
-		self.deactivate();
-		return false;
-	}, false);
 	row.appendChild(document.createElement('td'))
 	   .appendChild(closeButton)
 	   .appendChild(document.createTextNode('close'));
 
 	var fitSizeButton = document.createElement('span');
 	fitSizeButton.className = 'limelight-button';
-	fitSizeButton.addEventListener('click', function(evt) {
-		Limelight.util.stopEvent(evt);
-		self.fitSizeFunc();
-		return false;
-	}, false);
 	row.appendChild(document.createElement('td'))
 	   .appendChild(fitSizeButton)
 	   .appendChild(document.createTextNode('fit'));
 
 	var fullSizeButton = document.createElement('span');
 	fullSizeButton.className = 'limelight-button';
-	fullSizeButton.addEventListener('click', function(evt) {
-		Limelight.util.stopEvent(evt);
-		self.fullSizeFunc();
-		return false;
-	}, false);
 	row.appendChild(document.createElement('td'))
 	   .appendChild(fullSizeButton)
 	   .appendChild(document.createTextNode('full'));
 
 	var dotByDotButton = document.createElement('span');
 	dotByDotButton.className = 'limelight-button';
-	dotByDotButton.addEventListener('click', function(evt) {
-		Limelight.util.stopEvent(evt);
-		self.dotByDot();
-		return false;
-	}, false);
 	row.appendChild(document.createElement('td'))
 	   .appendChild(dotByDotButton)
 	   .appendChild(document.createTextNode('1:1'))
+
+	if (!isIphone) {
+		closeButton.addEventListener('click', function(evt) {
+			Limelight.util.stopEvent(evt);
+			self.deactivate();
+			return false;
+		}, false);
+		fitSizeButton.addEventListener('click', function(evt) {
+			Limelight.util.stopEvent(evt);
+			self.fitSizeFunc();
+			return false;
+		}, false);
+		fullSizeButton.addEventListener('click', function(evt) {
+			Limelight.util.stopEvent(evt);
+			self.fullSizeFunc();
+			return false;
+		}, false);
+		dotByDotButton.addEventListener('click', function(evt) {
+			Limelight.util.stopEvent(evt);
+			self.dotByDot();
+			return false;
+		}, false);
+	}
 
 	this.block = block;
 	this.loadingImage = loadingImage;
@@ -503,10 +508,110 @@ Limelight.prototype.init = function(options) {
 };
 
 // }}}
+// {{{ Limelight.isPortrait()
+/**
+ * Determines whether the device is portrait.
+ *
+ * @param void
+ * @return {Boolean}
+ */
+Limelight.prototype.isPortrait = function()
+{
+	if (typeof window.orientation != 'number' || window.orientation % 180 == 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+// }}}
+// {{{ Limelight.getViewportSize()
+
+/**
+ * Gets the size of the viewport.
+ * For non-iPhone devices, override this method.
+ *
+ * @param void
+ * @return {Array<Number>}
+ */
+Limelight.prototype.getViewportSize = function() {
+	if (this.isPortrait()) {
+		return [320, 480];
+	} else {
+		return [480, 320];
+	}
+};
+
+// }}}
+// {{{ Limelight.getScrollbarWidth()
+
+/**
+ * Gets the width of the scrollbar.
+ * For non-Safari browsers, override this method.
+ *
+ * @param void
+ * @return <Number>
+ */
+Limelight.prototype.getScrollbarWidth = function() {
+	return 0;
+};
+
+// }}}
+// {{{ Limelight.getToolbarHeight()
+
+/**
+ * Gets the height of the toolbar.
+ * For non-Safari browsers, override this method.
+ *
+ * @param void
+ * @return <Number>
+ */
+Limelight.prototype.getToolbarHeight = function() {
+	if (this.isPortrait()) {
+		return 20 + 44;
+	} else {
+		return 20 + 32;
+	}
+};
+
+// }}}
+// {{{ Limelight.calcScale()
+
+/**
+ * Calculates a scale factor.
+ *
+ * @param {Number} scale
+ * @return {Number}
+ */
+Limelight.prototype.calcScale = function(scale) {
+	if (this.enableScaling) {
+		return this.scale * scale;
+	} else {
+		return this.scale;
+	}
+};
+
+// }}}
+// {{{ Limelight.calcRotation()
+
+/**
+ * Calculates a rotation angle in degrees.
+ *
+ * @param {Number} rotation
+ * @return {Number}
+ */
+Limelight.prototype.calcRotation = function(rotation) {
+	if (this.enableRotation) {
+		return Math.round(this.rotation + rotation + 360) % 360;
+	} else {
+		return this.rotation;
+	}
+};
+
+// }}}
 // {{{ Limelight.focus()
 
 /**
- * Focus to the Limelight block.
+ * Focuses to the Limelight block.
  *
  * @param void
  * @return void
@@ -516,71 +621,10 @@ Limelight.prototype.focus = function() {
 };
 
 // }}}
-// {{{ Limelight.toggleImageLoading()
-
-/**
- * Toggle visibilities of the target image and the loading image.
- *
- * @param {Boolean} isLoading
- * @return void
- */
-Limelight.prototype.toggleImageLoading = function(isLoading) {
-	if (isLoading) {
-		this.imageLoaded = false;
-		this.loadingImage.style.visibility = 'visible';
-		if (this.targetImage) {
-			this.targetImage.style.visibility = 'hidden';
-			this.targetImage.style.webkitAnimationName = '';
-		}
-	} else {
-		this.imageLoaded = true;
-		this.loadingImage.style.visibility = 'hidden';
-		if (this.targetImage) {
-			this.targetImage.style.visibility = 'visible';
-			this.targetImage.style.webkitAnimationName = 'limelight-fadein';
-		}
-	}
-};
-
-// }}}
-// {{{ Limelight.getScale()
-
-/**
- * Get a scale factor.
- *
- * @param {Event} evt
- * @return {Number}
- */
-Limelight.prototype.getScale = function(evt) {
-	if (typeof evt.scale != 'number' || !this.enableScaling) {
-		return this.scale;
-	} else {
-		return this.scale * evt.scale;
-	}
-};
-
-// }}}
-// {{{ Limelight.getRotation()
-
-/**
- * Get a rotation angle in degrees.
- *
- * @param {Event} evt
- * @return {Number}
- */
-Limelight.prototype.getRotation = function(evt) {
-	if (typeof evt.rotation != 'number' || !this.enableRotation) {
-		return 0;
-	} else {
-		return Math.round(this.rotation + evt.rotation + 360) % 360;
-	}
-};
-
-// }}}
 // {{{ Limelight.transform()
 
 /**
- * Transform the image.
+ * Transforms the image.
  *
  * @param void
  * or
@@ -609,8 +653,8 @@ Limelight.prototype.transform = function() {
 
 	if (arguments.length == 1) {
 		var evt = arguments[0];
-		scale = this.getScale(evt);
-		rotation = this.getRotation(evt);
+		scale = this.calcScale(evt.scale);
+		rotation = this.calcRotation(evt.rotation);
 	} else if (arguments.length > 1) {
 		x = arguments[0];
 		y = arguments[1];
@@ -635,15 +679,15 @@ Limelight.prototype.transform = function() {
 };
 
 // }}}
-// {{{ Limelight.hasChanged()
+// {{{ Limelight.hasTransformed()
 
 /**
- * Determine whether the image transformation state is default.
+ * Determines whether the image transformation state is the initial state.
  *
  * @param void
  * @return void
  */
-Limelight.prototype.hasChanged = function() {
+Limelight.prototype.hasTransformed = function() {
 	if (this.translateX != this.initialTranslateX) {
 		return true;
 	}
@@ -660,114 +704,10 @@ Limelight.prototype.hasChanged = function() {
 };
 
 // }}}
-// {{{ Limelight.attachEvent()
-
-/**
- * Attach the Limelight event handler to the given element.
- *
- * @param {Node} node
- * @param {String} eventName
- * @return void
- */
-Limelight.prototype.attachEvent = function(node, eventName) {
-	node.addEventListener(eventName, this.handlers[eventName], false);
-};
-
-// }}}
-// {{{ Limelight.detachEvent()
-
-/**
- * Detach the Limelight event handler from the given element.
- *
- * @param {Node} node
- * @param {String} eventName
- * @return void
- */
-Limelight.prototype.detachEvent = function(node, eventName) {
-	node.removeEventListener(eventName, this.handlers[eventName], false);
-};
-
-// }}}
-// {{{ Limelight.activate()
-
-/**
- * Activete Limelight with the given image.
- *
- * @param {String} src
- * @return void
- */
-Limelight.prototype.activate = function(src) {
-	if (this.isActive) {
-		this.focus();
-		return;
-	}
-
-	if (this.targetImage) {
-		this.block.removeChild(this.targetImage);
-		this.targetImage = null;
-	}
-
-	this.toggleImageLoading(true);
-	this.onOrientationChange();
-
-	this.targetImage = document.createElement('img');
-	this.targetImage.className = 'limelight-image';
-	this.targetImage.setAttributes({ 'src': src, 'alt': '' });
-	this.targetImage.style.visibility = 'hidden';
-	this.targetImage.addEventListener('load', this.handlers.imageload, false);
-	this.block.appendChild(this.targetImage);
-	this.block.style.display = 'block';
-
-	this.attachEvent(document.body, 'orientationchange')
-	this.attachEvent(this.block, 'touchstart');
-	this.attachEvent(this.block, 'touchmove');
-	this.attachEvent(this.block, 'touchend');
-	this.attachEvent(this.block, 'gesturestart');
-	this.attachEvent(this.block, 'gesturechange');
-	this.attachEvent(this.block, 'gestureend');
-
-	this.isActive = true;
-};
-
-// }}}
-// {{{ Limelight.deactivate()
-
-/**
- * Deactivate Limelight.
- *
- * @param void
- * @return void
- */
-Limelight.prototype.deactivate = function() {
-	if (!this.isActive) {
-		return;
-	}
-
-	this.block.style.display = 'none';
-
-	if (this.targetImage) {
-		this.block.removeChild(this.targetImage);
-		this.targetImage = null;
-	}
-
-	this.initialScale = 0;
-
-	this.detachEvent(document.body, 'orientationchange')
-	this.detachEvent(this.block, 'touchstart');
-	this.detachEvent(this.block, 'touchmove');
-	this.detachEvent(this.block, 'touchend');
-	this.detachEvent(this.block, 'gesturestart');
-	this.detachEvent(this.block, 'gesturechange');
-	this.detachEvent(this.block, 'gestureend');
-
-	this.isActive = false;
-};
-
-// }}}
 // {{{ Limelight.resetTransformation()
 
 /**
- * Set the image transformation state to the default.
+ * Sets the image transformation state to the initial state.
  *
  * @param void
  * @return void
@@ -822,7 +762,7 @@ Limelight.prototype.resetTransformation = function() {
 // {{{ Limelight.scaleTo()
 
 /**
- * Show the target image by the given scale factor.
+ * Shows the target image by the given scale factor.
  *
  * @param {Number} scale
  * @return void
@@ -839,7 +779,7 @@ Limelight.prototype.scaleTo = function(scale) {
 // {{{ Limelight.dotByDot()
 
 /**
- * Show the target image in its original size.
+ * Shows the target image in its original size.
  *
  * @param void
  * @return void
@@ -852,7 +792,7 @@ Limelight.prototype.dotByDot = function() {
 // {{{ Limelight.fitToWidth()
 
 /**
- * Fit the target image to the block width.
+ * Fits the target image to the block width.
  *
  * @param void
  * @return void
@@ -865,7 +805,7 @@ Limelight.prototype.fitToWidth = function() {
 // {{{ Limelight.fitToHeight()
 
 /**
- * Fit the target image to the block height.
+ * Fits the target image to the block height.
  *
  * @param void
  * @return void
@@ -878,13 +818,144 @@ Limelight.prototype.fitToHeight = function() {
 // {{{ Limelight.initialSize()
 
 /**
- * Show the target image in its initial size.
+ * Shows the target image in its initial size.
  *
  * @param void
  * @return void
  */
 Limelight.prototype.initialSize = function() {
 	this.scaleTo(this.initialScale);
+};
+
+// }}}
+// {{{ Limelight.attachEvent()
+
+/**
+ * Attaches the Limelight event handler to the given element.
+ *
+ * @param {Node} node
+ * @param {String} eventName
+ * @return void
+ */
+Limelight.prototype.attachEvent = function(node, eventName) {
+	node.addEventListener(eventName, this.handlers[eventName], false);
+};
+
+// }}}
+// {{{ Limelight.detachEvent()
+
+/**
+ * Detaches the Limelight event handler from the given element.
+ *
+ * @param {Node} node
+ * @param {String} eventName
+ * @return void
+ */
+Limelight.prototype.detachEvent = function(node, eventName) {
+	node.removeEventListener(eventName, this.handlers[eventName], false);
+};
+
+// }}}
+// {{{ Limelight.activate()
+
+/**
+ * Activetes Limelight with the given image.
+ *
+ * @param {String} src
+ * @return void
+ */
+Limelight.prototype.activate = function(src) {
+	if (this.isActive) {
+		this.focus();
+		return;
+	}
+
+	if (this.targetImage) {
+		this.block.removeChild(this.targetImage);
+		this.targetImage = null;
+	}
+
+	this.toggleImageLoading(true);
+	this.onOrientationChange();
+
+	this.targetImage = document.createElement('img');
+	this.targetImage.className = 'limelight-image';
+	this.targetImage.setAttributes({ 'src': src, 'alt': '' });
+	this.targetImage.style.visibility = 'hidden';
+	this.targetImage.addEventListener('load', this.handlers.imageload, false);
+	this.block.appendChild(this.targetImage);
+	this.block.style.display = 'block';
+
+	this.attachEvent(document.body, 'orientationchange')
+	this.attachEvent(this.block, 'touchstart');
+	this.attachEvent(this.block, 'touchmove');
+	this.attachEvent(this.block, 'touchend');
+	this.attachEvent(this.block, 'gesturestart');
+	this.attachEvent(this.block, 'gesturechange');
+	this.attachEvent(this.block, 'gestureend');
+
+	this.isActive = true;
+};
+
+// }}}
+// {{{ Limelight.deactivate()
+
+/**
+ * Deactivates Limelight.
+ *
+ * @param void
+ * @return void
+ */
+Limelight.prototype.deactivate = function() {
+	if (!this.isActive) {
+		return;
+	}
+
+	this.block.style.display = 'none';
+
+	if (this.targetImage) {
+		this.block.removeChild(this.targetImage);
+		this.targetImage = null;
+	}
+
+	this.initialScale = 0;
+
+	this.detachEvent(document.body, 'orientationchange')
+	this.detachEvent(this.block, 'touchstart');
+	this.detachEvent(this.block, 'touchmove');
+	this.detachEvent(this.block, 'touchend');
+	this.detachEvent(this.block, 'gesturestart');
+	this.detachEvent(this.block, 'gesturechange');
+	this.detachEvent(this.block, 'gestureend');
+
+	this.isActive = false;
+};
+
+// }}}
+// {{{ Limelight.toggleImageLoading()
+
+/**
+ * Toggles visibilities of the target image and the loading image.
+ *
+ * @param {Boolean} isLoading
+ * @return void
+ */
+Limelight.prototype.toggleImageLoading = function(isLoading) {
+	if (isLoading) {
+		this.imageLoaded = false;
+		this.loadingImage.style.visibility = 'visible';
+		if (this.targetImage) {
+			this.targetImage.style.visibility = 'hidden';
+			this.targetImage.style.webkitAnimationName = '';
+		}
+	} else {
+		this.imageLoaded = true;
+		this.loadingImage.style.visibility = 'hidden';
+		if (this.targetImage) {
+			this.targetImage.style.visibility = 'visible';
+			this.targetImage.style.webkitAnimationName = 'limelight-fadein';
+		}
+	}
 };
 
 // }}}
@@ -897,20 +968,13 @@ Limelight.prototype.initialSize = function() {
  * @return void
  */
 Limelight.prototype.onOrientationChange = function() {
-	var x, y, width, height;
+	var x, y, width, height, viewportSize;
 
-	x = this.blockX = 0;
-	y = this.blockY = window.scrollY;
-	if (typeof window.orientation != 'number' || window.orientation % 180 == 0) {
-		width = 320;
-		height = 480 - 20 - 44;
-	} else {
-		width = 480;
-		height = 320 - 20 - 32;
-	}
-
-	this.blockWidth = width;
-	this.blockHeight = height;
+	viewportSize = this.getViewportSize();
+	this.blockX = x = 0;
+	this.blockY = y = window.scrollY;
+	this.blockWidth = width = viewportSize[0] - this.getScrollbarWidth();
+	this.blockHeight = height = viewportSize[1] - this.getToolbarHeight();
 	this.movableArea = new Limelight.Rect(new Limelight.Point(-width, -height),
 	                                      new Limelight.Point(width, height));
 
@@ -1014,7 +1078,7 @@ Limelight.prototype.onTouchEnd = function(evt) {
 			if (this.enableDobuleTap) {
 				var now = (new Date()).getTime();
 				if (now - this.previousClick < 250) {
-					if (this.hasChanged()) {
+					if (this.hasTransformed()) {
 						this.initialSize();
 					} else {
 						this.dotByDot();
@@ -1041,6 +1105,9 @@ Limelight.prototype.onTouchEnd = function(evt) {
  */
 Limelight.prototype.onGestureStart = function(evt) {
 	Limelight.util.stopEvent(evt);
+	this.startX = this.endX = 0;
+	this.startY = this.endY = 0;
+
 	if (this.enableIndicator) {
 		this.indicator.show();
 	}
@@ -1071,8 +1138,8 @@ Limelight.prototype.onGestureChange = function(evt) {
  */
 Limelight.prototype.onGestureEnd = function(evt) {
 	Limelight.util.stopEvent(evt);
-	this.scale = this.getScale(evt);
-	this.rotation = this.getRotation(evt);
+	this.scale = this.calcScale(evt.scale);
+	this.rotation = this.calcRotation(evt.rotation);
 
 	if (this.enableIndicator) {
 		this.indicator.hide();
@@ -1080,16 +1147,16 @@ Limelight.prototype.onGestureEnd = function(evt) {
 };
 
 // }}}
-// {{{ Limelight.inject()
+// {{{ Limelight.bind()
 
 /**
- *
+ * Binds the activator function to anchors.
  *
  * @param {String} className
  * @param {Node} contextNode
  * @return void
  */
-Limelight.prototype.inject = function() {
+Limelight.prototype.bind = function() {
 	var self = this;
 	var className = 'limelight';
 	var contextNode = document.body;

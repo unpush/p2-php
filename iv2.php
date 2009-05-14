@@ -26,10 +26,10 @@ if ($_conf['iphone']) {
 <script type="text/javascript">
 // <![CDATA[
 window.addEventListener('DOMContentLoaded', function() {
-    (new Limelight()).init().inject();
+    (new Limelight()).init().bind();
 }, false);
-// ]]>\n
-</script>
+// ]]>
+</script>\n
 EOP;
     $_conf['extra_headers_ht'] .= <<<EOP
 \n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">

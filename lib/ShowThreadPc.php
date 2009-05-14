@@ -43,10 +43,7 @@ class ShowThreadPc extends ShowThread
         global $_conf;
 
         $this->_url_handlers = array(
-            'plugin_link2ch',
-            'plugin_linkMachi',
-            'plugin_linkJBBS',
-            'plugin_link2chKako',
+            'plugin_linkThread',
             'plugin_link2chSubject',
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
@@ -219,7 +216,7 @@ class ShowThreadPc extends ShowThread
 
         // あぼーんメール
         if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
-            $ngaborns_hits['aborn_mal']++;
+            $ngaborns_hits['aborn_mail']++;
             $this->_aborn_nums[] = $i;
             return $this->_abornedRes($res_id);
         }
@@ -990,8 +987,7 @@ EOP;
         global $_conf;
 
         if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.fitimage']) {
-            $fimg_url = str_replace('&amp;', '&', $img_url);
-            $popup_url = "ic2_fitimage.php?url=" . rawurlencode($fimg_url);
+            $popup_url = 'ic2_fitimage.php?url=' . rawurlencode(str_replace('&amp;', '&', $img_url));
         } else {
             $popup_url = $img_url;
         }
@@ -1143,7 +1139,7 @@ EOJS;
         if (isset($purl['scheme'])) {
             // ime
             if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
+                $link_url = P2Util::throughIme($purl[0]);
             } else {
                 $link_url = $url;
             }
@@ -1168,7 +1164,7 @@ EOJS;
             // ブラクラチェッカ
             if ($_conf['brocra_checker_use'] && $_conf['brocra_checker_url'] && $is_http) {
                 if (strlen($_conf['brocra_checker_query'])) {
-                    $brocra_checker_url = $_conf['brocra_checker_url'] . '?' . $_conf['brocra_checker_query'] . '=' . rawurlencode($url);
+                    $brocra_checker_url = $_conf['brocra_checker_url'] . '?' . $_conf['brocra_checker_query'] . '=' . rawurlencode($purl[0]);
                 } else {
                     $brocra_checker_url = rtrim($_conf['brocra_checker_url'], '/') . '/' . $url;
                 }
@@ -1221,7 +1217,7 @@ EOJS;
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/([^/]+)/$}', $url, $m)) {
+        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/(\\w+)/$}', $purl[0], $m)) {
             $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
             return "<a href=\"{$url}\" target=\"subject\">{$str}</a> [<a href=\"{$subject_url}\" target=\"subject\">板をp2で開く</a>]";
         }
@@ -1229,117 +1225,31 @@ EOJS;
     }
 
     // }}}
-    // {{{ plugin_link2ch()
+    // {{{ plugin_linkThread()
 
     /**
-     * 2ch bbspink    スレッドリンク
+     * スレッドリンク
      *
      * @param   string $url
      * @param   array $purl
      * @param   string $str
      * @return  string|false
      */
-    public function plugin_link2ch($url, $purl, $str)
+    public function plugin_linkThread($url, $purl, $str)
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([1-9][0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            if (!isset($m[4])) {
-                $m[4] = '';
-            }
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
-            if ($_conf['iframe_popup']) {
-                if (preg_match('/^[0-9\\-n]+$/', $m[4])) {
-                    $pop_url = $url;
-                } else {
-                    $pop_url = $read_url . '&amp;one=true';
-                }
-                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
-            }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    // }}}
-    // {{{ plugin_link2chKako()
-
-    /**
-     * 2ch過去ログhtml
-     *
-     * @param   string $url
-     * @param   array $purl
-     * @param   string $str
-     * @return  string|false
-     */
-    public function plugin_link2chKako($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
+        list($nama_url, $host, $bbs, $key, $ls) = P2Util::detectThread($purl[0]);
+        if ($host && $bbs && $key) {
+            $read_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$ls}";
             if ($_conf['iframe_popup']) {
                 $pop_url = $read_url . '&amp;one=true';
                 return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
+            return "<a href=\"{$read_url}{$_conf['bbs_win_target_at']}\">{$str}</a>";
         }
-        return FALSE;
-    }
 
-    // }}}
-    // {{{ plugin_linkMachi()
-
-    /**
-     * まちBBS / JBBS＠したらば  内リンク
-     *
-     * @param   string $url
-     * @param   array $purl
-     * @param   string $str
-     * @return  string|false
-     */
-    public function plugin_linkMachi($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://((\\w+\\.machibbs\\.com|\\w+\\.machi\\.to|jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)(/\\w+)?)/bbs/read\\.(?:pl|cgi)\\?BBS=(\\w+)(?:&amp;|&)KEY=([0-9]+)(?:(?:&amp;|&)START=([0-9]+))?(?:(?:&amp;|&)END=([0-9]+))?(?=&|$)}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[4]}&amp;key={$m[5]}";
-            if ($m[5] || $m[6]) {
-                $read_url .= "&amp;ls={$m[6]}-{$m[7]}";
-            }
-            if ($_conf['iframe_popup']) {
-                $pop_url = $url;
-                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
-            }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    // }}}
-    // {{{ plugin_linkJBBS()
-
-    /**
-     * JBBS＠したらば  内リンク
-     *
-     * @param   string $url
-     * @param   array $purl
-     * @param   string $str
-     * @return  string|false
-     */
-    public function plugin_linkJBBS($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&amp;bbs={$m[3]}&amp;key={$m[4]}&amp;ls={$m[5]}";
-            if ($_conf['iframe_popup']) {
-                $pop_url = $url;
-                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
-            }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
-        }
-        return FALSE;
+        return false;
     }
 
     // }}}
@@ -1360,7 +1270,7 @@ EOJS;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $purl[0], $m)) {
             // ime
             if ($_conf['through_ime']) {
                 $link_url = P2Util::throughIme($url);
@@ -1408,10 +1318,10 @@ EOP;
 
         // http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
         // http://www.nicovideo.jp/watch/utvWwAM30N0No
-        if (preg_match('{^http://(?:www\\.)?nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9A-Za-z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(?:www\\.)?nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9A-Za-z_\\-]+)}', $purl[0], $m)) {
             // ime
             if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
+                $link_url = P2Util::throughIme($purl[0]);
             } else {
                 $link_url = $url;
             }
@@ -1463,7 +1373,7 @@ EOP;
             return false;
         }
 
-        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $purl[0]) && empty($purl['query'])) {
             $pre_thumb_limit--; // 表示制限カウンタを下げる
             $img_tag = "<img class=\"thumbnail\" src=\"{$url}\" height=\"{$_conf['pre_thumb_height']}\" weight=\"{$_conf['pre_thumb_width']}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
 
@@ -1515,13 +1425,13 @@ EOP;
             return false;
         }
 
-        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $purl[0]) && empty($purl['query'])) {
             // 準備
             $serial++;
             $thumb_id = 'thumbs' . $serial . $this->thumb_id_suffix;
             $tmp_thumb = './img/ic_load.png';
             $url_ht = $url;
-            $url = str_replace('&amp;', '&', $url);
+            $url = $purl[0];
             $url_en = rawurlencode($url);
 
             $icdb = new IC2_DataObject_Images;
