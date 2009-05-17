@@ -11,17 +11,12 @@ _makeDenyHtaccess($_conf['pref_dir']);
 _makeDenyHtaccess($_conf['dat_dir']);
 _makeDenyHtaccess($_conf['idx_dir']);
 
-// 変数設定
-$me_url = P2Util::getMyUrl();
-$me_dir_url = dirname($me_url);
 
 if (UA::isK() || UA::isIPhoneGroup()) {
 
-    // url指定があれば、そのままスレッド読みへ飛ばす
-    if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
-        header('Location: ' . $me_dir_url . '/' . $_conf['read_php'] . '?' . $_SERVER['QUERY_STRING']);
-        exit;
-    }
+    // GETクエリーでurlの指定があれば、そのままスレッド読みへ飛ばす
+    _locationReadPhpIfGetUrl(); // void|exit
+    
     if (UA::isIPhoneGroup()) {
         require_once P2_IPHONE_LIB_DIR . '/index_print_k.inc.php';
     } else {
@@ -99,6 +94,23 @@ function _makeDenyHtaccess($dir)
         $data = 'Order allow,deny' . "\n"
               . 'Deny from all' . "\n";
         file_put_contents($hta, $data, LOCK_EX);
+    }
+}
+
+/**
+ * GETクエリーでurlの指定があれば、そのままスレッド読みへ飛ばす
+ *
+ * @return  void|exit
+ */
+function _locationReadPhpIfGetUrl()
+{
+    global $_conf;
+
+    if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
+        header(sprintf('Location: %s/%s?%s',
+            dirname(P2Util::getMyUrl()), $_conf['read_php'], $_SERVER['QUERY_STRING'])
+        );
+        exit;
     }
 }
 
