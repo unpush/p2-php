@@ -401,8 +401,8 @@ EOP;
         // ID付なら名前は "aki </b>◆...p2/2... <b>" といった感じでくる。（通常は普通に名前のみ）
         
         // ID付なら分解する
-        if (preg_match("~(.*)( </b>◆.*)~", $name, $matches)) {
-            $name = rtrim($matches[1]);
+        if (preg_match('~(.*)( </b>◆.*)~', $name, $matches)) {
+            $name   = rtrim($matches[1]);
             $nameID = trim(strip_tags($matches[2]));
         }
         
@@ -428,7 +428,7 @@ EOP;
         $name = StrSjis::fixSjis($name);
         
         if ($nameID) {
-            $name = $name . $nameID;
+            $name .= $nameID;
         }
         
         return $name;
@@ -657,7 +657,7 @@ EOP;
 
         $ext_pre_ht = '';
         if ($ext_pre_hts) {
-            $ext_pre_ht = '(' . implode('|', $ext_pre_hts . ')');
+            $ext_pre_ht = '(' . implode('|', $ext_pre_hts) . ')';
         }
         
         if ($_conf['through_ime']) {
@@ -697,7 +697,6 @@ EOP;
         if ($qnum < 1 || $qnum >= $this->thread->rescount) {
             return $s[0];
         }
-
 
         $read_url = P2Util::buildQueryUri($_conf['read_php'],
             array(
@@ -743,7 +742,17 @@ EOP;
             $to = min($to, $from + $_conf['k_rnum_range'] - 1, $this->thread->rescount);
         }
 
-        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&offline=1&ls={$from}-{$to}&b={$_conf['b']}";
+        $read_url = P2Util::buildQueryUri($_conf['read_php'],
+            array(
+                'host' => $this->thread->host,
+                'bbs'  => $this->thread->bbs,
+                'key'  => $this->thread->key,
+                'offline' => '1',
+                'ls'   => "{$from}-{$to}",
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        );
+
         return sprintf('<a href="%s">%s</a>',
             hs($read_url), $full
         );
@@ -759,9 +768,10 @@ EOP;
     {
         global $_conf;
 
-        $idstr = $s[0]; // ID:xxxxxxxxxx
-        $id = $s[1];    // xxxxxxxxxx
-        $idflag = '';   // 携帯/PC識別子
+        $idstr  = $s[0]; // ID:xxxxxxxxxx
+        $id     = $s[1]; // xxxxxxxxxx
+        $idflag = '';    // 携帯/PC識別子
+        
         // IDは8桁または10桁(+携帯/PC識別子)と仮定して
         /*
         if (strlen($id) % 2 == 1) {
@@ -772,11 +782,25 @@ EOP;
         }
         */
         
-        $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&ls=all&offline=1&idpopup=1&field=id&method=just&match=on&word=" . rawurlencode($id) . '&b=' . $_conf['b'];
-        $filter_url_hs = hs($filter_url);
-        
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $num_ht = '(' . "<a href=\"{$filter_url_hs}\">" . $this->thread->idcount[$id] . '</a>)';
+            $filter_url = P2Util::buildQueryUri($_conf['read_php'],
+                array(
+                    'host' => $this->thread->host,
+                    'bbs'  => $this->thread->bbs,
+                    'key'  => $this->thread->key,
+                    'ls'   => 'all',
+                    'offline' => '1',
+                    'idpopup' => '1',
+                    'field'   => 'id',
+                    'method'  => 'just',
+                    'match'   => 'on',
+                    'word'    => $id,
+                    UA::getQueryKey() => UA::getQueryValue()
+                )
+            );
+            $num_ht = sprintf('(<a href="%s">%s</a>)',
+                hs($filter_url), $this->thread->idcount[$id]
+            );
         } else {
             return $idstr;
         }

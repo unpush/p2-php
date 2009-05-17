@@ -960,46 +960,19 @@ EOID;
         global $_conf;
         
         $url = $s[1];
-        /*
-        // 通勤ブラウザ
-        $tsukin_link_ht = '';
-        if ($_conf['k_use_tsukin']) {
-            $tsukin_url = 'http://www.sjk.co.jp/c/w.exe?y=' . urlencode($url);
-            if ($_conf['through_ime']) {
-                $tsukin_url = P2Util::throughIme($tsukin_url);
-            }
-            $tsukin_link_ht = '<a href="' . hs($tsukin_url) . '">通</a>';
-        }
-        */
         
-        // iPhone用　別窓変換。通勤ブラウザを書き換え
-        $tsukin_link_ht = '';
-        if ($_conf['k_use_tsukin']) {
-            $tsukin_link_ht = P2View::tagA(
-                $_conf['through_ime'] ? P2Util::throughIme($url) : $url,
-                hs('窓'),
-                array('target' => '_blank')
-            );
-        }
+        $ext_pre_hts = array();
 
-        // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
-        $jig_link_ht = '';
-        /*
-        $jig_url = 'http://bw5032.jig.jp/fweb/?_jig_=' . urlencode($url);
-        if ($_conf['through_ime']) {
-            $jig_url = P2Util::throughIme($jig_url);
-        }
-        $jig_link_ht = '<a href="' . hs($jig_url) . '">j</a>';
-        */
-        
-        $sepa = '';
-        if ($tsukin_link_ht && $jig_link_ht) {
-            $sepa = '|';
-        }
+        // iPhone用　別窓変換
+        $ext_pre_hts[] = P2View::tagA(
+            $_conf['through_ime'] ? P2Util::throughIme($url) : $url,
+            hs('窓'),
+            array('target' => '_blank')
+        );
         
         $ext_pre_ht = '';
-        if ($tsukin_link_ht || $jig_link_ht) {
-            $ext_pre_ht = '(' . $tsukin_link_ht . $sepa . $jig_link_ht . ')';
+        if ($ext_pre_hts) {
+            $ext_pre_ht = '(' . implode('|', $ext_pre_hts) . ')';
         }
         
         if ($_conf['through_ime']) {
@@ -1088,9 +1061,20 @@ EOID;
             $to = min($to, $from + $_conf['k_rnum_range'] - 1, $this->thread->rescount);
         }
 
-        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&offline=1&ls={$from}-{$to}&b={$_conf['b']}";
-        $read_url_hs = hs($read_url);
-        return "<a href=\"{$read_url_hs}\">{$full}</a>";
+        $read_url = P2Util::buildQueryUri($_conf['read_php'],
+            array(
+                'host' => $this->thread->host,
+                'bbs'  => $this->thread->bbs,
+                'key'  => $this->thread->key,
+                'offline' => '1',
+                'ls'   => "{$from}-{$to}",
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        );
+
+        return sprintf('<a href="%s">%s</a>',
+            hs($read_url), $full
+        );
     }
 
     /**
@@ -1103,9 +1087,10 @@ EOID;
     {
         global $_conf;
 
-        $idstr = $s[0]; // ID:xxxxxxxxxx
-        $id = $s[1];    // xxxxxxxxxx
-        $idflag = '';   // 携帯/PC識別子
+        $idstr  = $s[0]; // ID:xxxxxxxxxx
+        $id     = $s[1]; // xxxxxxxxxx
+        $idflag = '';    // 携帯/PC識別子
+        
         // IDは8桁または10桁(+携帯/PC識別子)と仮定して
         /*
         if (strlen($id) % 2 == 1) {
@@ -1116,11 +1101,25 @@ EOID;
         }
         */
         
-        $filter_url = "{$_conf['read_php']}?host={$this->thread->host}&bbs={$this->thread->bbs}&key={$this->thread->key}&ls=all&offline=1&idpopup=1&field=id&method=just&match=on&word=" . rawurlencode($id) . '&b=' . $_conf['b'];
-        $filter_url_hs = hs($filter_url);
-        
         if (isset($this->thread->idcount[$id]) && $this->thread->idcount[$id] > 0) {
-            $num_ht = '(' . "<a href=\"{$filter_url_hs}\">" . $this->thread->idcount[$id] . '</a>)';
+            $filter_url = P2Util::buildQueryUri($_conf['read_php'],
+                array(
+                    'host' => $this->thread->host,
+                    'bbs'  => $this->thread->bbs,
+                    'key'  => $this->thread->key,
+                    'ls'   => 'all',
+                    'offline' => '1',
+                    'idpopup' => '1',
+                    'field'   => 'id',
+                    'method'  => 'just',
+                    'match'   => 'on',
+                    'word'    => $id,
+                    UA::getQueryKey() => UA::getQueryValue()
+                )
+            );
+            $num_ht = sprintf('(<a href="%s">%s</a>)',
+                hs($filter_url), $this->thread->idcount[$id]
+            );
         } else {
             return $idstr;
         }
@@ -1145,13 +1144,13 @@ EOID;
         global $_conf;
 
         if (isset($purl['scheme'])) {
+            
             // 携帯用外部URL変換
-            if ($_conf['k_use_tsukin']) {
-                return $this->ktai_exturl_callback(array('', $url, $html));
-            }
+            return $this->ktai_exturl_callback(array('', $url, $html));
+            
             // ime
             $link_url = $_conf['through_ime'] ? P2Util::throughIme($url) : $url;
-
+            
             return sprintf(
                 '<a href="%s">%s</a>',
                 hs($link_url), $html
