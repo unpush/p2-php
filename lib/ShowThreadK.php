@@ -635,40 +635,35 @@ EOP;
         
         $url = $s[1];
         
+        $ext_pre_hts = array();
+        
         // 通勤ブラウザ
-        $tsukin_link_ht = '';
         if ($_conf['k_use_tsukin']) {
             $tsukin_url = 'http://www.sjk.co.jp/c/w.exe?y=' . urlencode($url);
             if ($_conf['through_ime']) {
                 $tsukin_url = P2Util::throughIme($tsukin_url);
             }
-            $tsukin_link_ht = '<a href="' . hs($tsukin_url) . '">通</a>';
+            $ext_pre_hts[] = '<a href="' . hs($tsukin_url) . '">通</a>';
         }
         
         // jigブラウザWEB http://bwXXXX.jig.jp/fweb/?_jig_=
-        $jig_link_ht = '';
         /*
         $jig_url = 'http://bw5032.jig.jp/fweb/?_jig_=' . urlencode($url);
         if ($_conf['through_ime']) {
             $jig_url = P2Util::throughIme($jig_url);
         }
-        $jig_link_ht = '<a href="' . hs($jig_url) . '">j</a>';
+        $ext_pre_hts[] = '<a href="' . hs($jig_url) . '">j</a>';
         */
-        
-        $sepa = '';
-        if ($tsukin_link_ht && $jig_link_ht) {
-            $sepa = '|';
-        }
-        
+
         $ext_pre_ht = '';
-        if ($tsukin_link_ht || $jig_link_ht) {
-            $ext_pre_ht = '('.$tsukin_link_ht . $sepa . $jig_link_ht.')';
+        if ($ext_pre_hts) {
+            $ext_pre_ht = '(' . implode('|', $ext_pre_hts . ')');
         }
         
         if ($_conf['through_ime']) {
             $url = P2Util::throughIme($url);
         }
-        return sprintf('<a href="%s">%s</a>',
+        return $ext_pre_ht . sprintf('<a href="%s">%s</a>',
             hs($url), $s[2]
         );
     }
