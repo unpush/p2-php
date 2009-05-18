@@ -27,8 +27,7 @@ isset($_GET['key'])     and $key  = $_GET['key'];   // "1022999539"
 
 $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : null;
 
-// popup 0(false), 1(true), 2(true, クローズタイマー付)
-!empty($_GET['popup']) and $popup_ht = "&amp;popup=1";
+// $_GET['popup'] 0(false), 1(true), 2(true, クローズタイマー付)
 
 // 以下どれか一つがなくてもダメ出し
 if (!$host || !isset($bbs) || !isset($key)) {
@@ -264,7 +263,7 @@ echo <<<EOHEADER
 	<title>{$hs['title']}</title>\n
 EOHEADER;
 
-}
+} // if (_isCalledAsStandAlone())
 
 $body_onload = '';
 if (isset($_GET['popup']) and $_GET['popup'] == 2) {
@@ -284,7 +283,7 @@ echo <<<EOP
 	</div>
 EOP;
 
-}
+} // if (_isCalledAsStandAlone())
 
 ?><ul><li class="group">スレ情報</li></ul><div id="usage" class="panel"><?php
 

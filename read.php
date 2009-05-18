@@ -21,6 +21,8 @@ $_login->authorize(); // ユーザ認証
 
 // {{{ 携帯用 特殊リクエスト
 
+// [wish] require ではなく、header()で転送したい
+
 if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
 
     switch ($_GET['ktool_name']) {
@@ -399,7 +401,7 @@ if (filerstart) {
 if ($aThread->rescount) {
 
     // 検索の時は、既読数を更新しない
-    if (isset($GLOBALS['word']) and strlen($GLOBALS['word']) > 0) {
+    if (strlen($GLOBALS['word'])) {
         $aThread->readnum = $idx_data[5];
     } else {
         $aThread->readnum = min($aThread->rescount, max(0, $idx_data[5], $aThread->resrange_readnum)); 

@@ -80,7 +80,10 @@ class ShowThreadPc extends ShowThread
             }
             echo $this->transRes($this->thread->datlines[$i - 1], $i);
             
-            !isset($GLOBALS['_read_new_html']) && ob_flush() && flush();
+            if (!isset($GLOBALS['_read_new_html'])) {
+                ob_flush();
+                flush();
+            }
         }
 
         echo "</dl>\n";
@@ -104,7 +107,7 @@ class ShowThreadPc extends ShowThread
         
         global $_ngaborns_head_hits;
         
-        $tores      = '';
+        $tores      = ''; // 返却するレスHTML全体
         $rpop       = '';
 
         $resar      = $this->thread->explodeDatLine($ares);
@@ -115,17 +118,17 @@ class ShowThreadPc extends ShowThread
 
         // {{{ フィルタリングカット
         
-        if (isset($GLOBALS['word']) && strlen($GLOBALS['word'])) {
-            if (strlen($GLOBALS['word_fm']) <= 0) {
+        if (strlen($GLOBALS['word'])) {
+            if (!strlen($GLOBALS['word_fm'])) {
                 return '';
+                
             // ターゲット設定
             } elseif (!$target = $this->getFilterTarget($i, $name, $mail, $date_id, $msg)) {
                 return '';
+                
             // マッチング
             } else {
-                $match = $this->filterMatch($target, $i);
-                // strlen(true) は1、strlen(false)は0を返す。
-                if (false === (bool)strlen($match)) {
+                if (false === $this->filterMatch($target, $i)) {
                     return '';
                 }
             }
@@ -220,22 +223,28 @@ EOMSG;
             $name_ht = <<<EONAME
 <s class="ngword" onClick="showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$name_ht</s>
 EONAME;
-            $msg_ht = <<<EOMSG
-<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
-EOMSG;
+            $msg_ht = sprintf(
+                '<div id="ngn%s" class="ngword_cont">%s</div>',
+                $_ngaborns_head_hits, $msg_ht
+            );
 
         // NGメール変換
         } elseif ($isNgMail) {
             $mail = <<<EOMAIL
 <s class="ngword" onClick="showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');"{$atTitle}>$mail</s>
 EOMAIL;
-            $msg_ht = <<<EOMSG
-<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
-EOMSG;
+            $msg_ht = sprintf(
+                '<div id="ngn%s" class="ngword_cont">%s</div>',
+                $_ngaborns_head_hits, $msg_ht
+            );
 
         // NGID変換
         } elseif ($isNgId) {
-            $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s class=\"ngword\" onClick=\"showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');\"{$atTitle}>NG：\\0</s>", $date_id);
+            $date_id = preg_replace(
+                '|ID: ?([0-9A-Za-z/.+]{8,11})|',
+                "<s class=\"ngword\" onClick=\"showHide('ngn{$_ngaborns_head_hits}', 'ngword_cont');\"{$atTitle}>NG：\\0</s>",
+                $date_id
+            );
             
             /*
             $date_id = <<<EOID
@@ -243,25 +252,23 @@ EOMSG;
 EOID;
             */
             
-            $msg_ht = <<<EOMSG
-<div id="ngn{$_ngaborns_head_hits}" class="ngword_cont">$msg_ht</div>
-EOMSG;
+            $msg_ht = sprintf(
+                '<div id="ngn%s" class="ngword_cont">%s</div>',
+                $_ngaborns_head_hits, $msg_ht
+            );
         }
 
         /*
         //「ここから新着」画像を挿入
         if ($i == $this->thread->readnum +1) {
-            $tores .= <<<EOP
-                <div><img src="img/image.png" alt="新着レス" border="0" vspace="4"></div>
-EOP;
+            $tores .= "\n" . '<div><img src="img/image.png" alt="新着レス" border="0" vspace="4"></div>' . "\n";
         }
         */
         
         // スマートポップアップメニュー
+        $onPopUp_at = '';
         if ($_conf['enable_spm']) {
             $onPopUp_at = " onmouseover=\"showSPM({$this->thread->spmObjName},{$i},'{$id}',event,this)\" onmouseout=\"hideResPopUp('{$this->thread->spmObjName}_spm')\"";
-        } else {
-            $onPopUp_at = "";
         }
 
         if ($this->thread->onthefly) {
@@ -322,7 +329,10 @@ EOP;
         $tores .= "<dd>{$msg_ht}<br><br></dd>\n"; // 内容
         
         // まとめてフィルタ色分け
-        if (isset($GLOBALS['word_fm']) && strlen($GLOBALS['word_fm']) && $GLOBALS['res_filter']['match'] != 'off') {
+        if (
+            isset($GLOBALS['word_fm']) && strlen($GLOBALS['word_fm'])
+            and $GLOBALS['res_filter']['match'] != 'off'
+        ) {
             $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
         }
 
@@ -950,7 +960,9 @@ EOMSG;
         //$idstr = $this->coloredIdStr($idstr, $id);
         
         if ($_conf['iframe_popup']) {
-            return $this->iframePopup($filter_url, $idstr, array('target' => $_conf['bbs_win_target'])) . $num_ht;
+            return $this->iframePopup(
+                $filter_url, $idstr, array('target' => $_conf['bbs_win_target'])
+            ) . $num_ht;
         }
         
         $attrs = array();

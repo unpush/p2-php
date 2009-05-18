@@ -30,6 +30,8 @@ if (!empty($_GET['cview'])) {
 //==================================================================
 $GLOBALS['rnum_all_range'] = $_conf['k_rnum_range'];
 
+$GLOBALS['word'] = null;
+
 $sb_view = "shinchaku";
 $newtime = date("gis");
 
@@ -37,11 +39,15 @@ $host   = geti($_GET['host'],   geti($_POST['host']));
 $bbs    = geti($_GET['bbs'],    geti($_POST['bbs']));
 $spmode = geti($_GET['spmode'], geti($_POST['spmode']));
 
-if ((empty($host) || !isset($bbs)) && !isset($spmode)) {
+if ((!$host || !isset($bbs)) && !isset($spmode)) {
     p2die('必要な引数が指定されていません');
 }
 
-if (($host) && P2Validate::host($host) || ($bbs) && P2Validate::bbs($bbs) || ($spmode) && P2Validate::spmode($spmode)) {
+if (
+    $host && P2Validate::host($host)
+    || $bbs && P2Validate::bbs($bbs)
+    || $spmode && P2Validate::spmode($spmode)
+) {
     p2die('不正な引数です');
 }
 

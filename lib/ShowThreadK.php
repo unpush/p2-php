@@ -66,7 +66,9 @@ class ShowThreadK extends ShowThread
             $this->thread->resrange_readnum = 0;
         }
 
-        !isset($GLOBALS['_shown_resnum']) and $GLOBALS['_shown_resnum'] = 0;
+        if (!isset($GLOBALS['_shown_resnum'])) {
+            $GLOBALS['_shown_resnum'] = 0;
+        }
         
         // 1を表示（範囲外のケースもあるのでここで）
         if (!$nofirst) {
@@ -116,9 +118,12 @@ class ShowThreadK extends ShowThread
             $res = $this->transRes($this->thread->datlines[$i - 1], $i);
             echo $res;
             
-            !isset($GLOBALS['_read_new_html']) && ob_flush() && flush();
+            if (!isset($GLOBALS['_read_new_html'])) {
+                ob_flush();
+                flush();
+            }
             
-            if (strlen($res) > 0) {
+            if (strlen($res)) {
                 $GLOBALS['_shown_resnum']++;
             }
             
@@ -150,8 +155,8 @@ class ShowThreadK extends ShowThread
         
         $hr = P2View::getHrHtmlK();
         
-        $tores      = "";
-        $rpop       = "";
+        $tores      = ''; // 返却するレスHTML全体
+        $rpop       = '';
         
         $resar      = $this->thread->explodeDatLine($ares);
         $name       = $resar[0];
@@ -180,12 +185,14 @@ class ShowThreadK extends ShowThread
 
         // {{{ フィルタリング
         
-        if (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0) {
-            if (strlen($GLOBALS['word_fm']) <= 0) {
+        if (strlen($GLOBALS['word'])) {
+            if (!strlen($GLOBALS['word_fm'])) {
                 return '';
+                
             // ターゲット設定
             } elseif (!$target = $this->getFilterTarget($i, $name, $mail, $date_id, $msg)) {
                 return '';
+                
             // マッチング
             } elseif (false === $this->filterMatch($target, $i)) {
                 return '';
@@ -242,42 +249,46 @@ class ShowThreadK extends ShowThread
         // BEプロファイルリンク変換
         $date_id = $this->replaceBeId($date_id, $i);
         
-        $a_ng_msg_hs = htmlspecialchars($a_ng_msg, ENT_QUOTES);
-        
         // NG変換
-        $kakunin_msg_ht = <<<EOP
-<a href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}">確</a>
-EOP;
+        $kakunin_msg_ht = P2View::tagA(
+            P2Util::buildQueryUri($_conf['read_php'],
+                array(
+                    'host' => $this->thread->host,
+                    'bbs'  => $this->thread->bbs,
+                    'key'  => $this->thread->key,
+                    'ls'   => $i,
+                    'k_continue' => '1',
+                    'nong' => '1',
+                    UA::getQueryKey() => UA::getQueryValue()
+                )
+            ),
+            '確'
+        );
         
         // NGメッセージ変換
         if ($isNgMsg) {
-            $msg = <<<EOMSG
-<s><font color="{$STYLE['read_ngword']}">NG:{$a_ng_msg_hs}</font></s> $kakunin_msg_ht
-EOMSG;
+            $msg = sprintf('<s><font color="%s">NG:%s</font></s>', hs($a_ng_msg));
+            $msg .= ' ' . $kakunin_msg_ht;
         }
         
         // NGネーム変換
         if ($isNgName) {
-            $name = <<<EONAME
-<s><font color="{$STYLE['read_ngword']}">$name</font></s>
-EONAME;
+            $name = sprintf('<s><font color="%s">%s</font></s>', $STYLE['read_ngword'], $name);
             $msg = $kakunin_msg_ht;
         
         // NGメール変換
         } elseif ($isNgMail) {
-            $mail = <<<EOMAIL
-<s><font color="{$STYLE['read_ngword']}">$mail</font></s>
-EOMAIL;
+            $mail = sprintf('<s><font color="%s">%s</font></s>', $STYLE['read_ngword'], $mail);
             $msg = $kakunin_msg_ht;
 
         // NGID変換
         } elseif ($isNgId) {
-            $date_id = preg_replace('|ID: ?([0-9A-Za-z/.+]{8,11})|', "<s><font color=\"{$STYLE['read_ngword']}\">\\0</font></s>", $date_id);
-            /*
-            $date_id = <<<EOID
-<s><font color="{$STYLE['read_ngword']}">$date_id</font></s>
-EOID;
-            */
+            $date_id = preg_replace(
+                '|ID: ?([0-9A-Za-z/.+]{8,11})|',
+                "<s><font color=\"{$STYLE['read_ngword']}\">\\0</font></s>",
+                $date_id
+            );
+            // $date_id = sprintf('<s><font color="%s">%s</font></s>', $STYLE['read_ngword'], $date_id);
             
             $msg = $kakunin_msg_ht;
         }
@@ -285,9 +296,7 @@ EOID;
         /*
         //「ここから新着」画像を挿入
         if ($i == $this->thread->readnum +1) {
-            $tores .= <<<EOP
-                <div><img src="img/image.png" alt="新着レス" border="0" vspace="4"></div>
-EOP;
+            $tores .= "\n" . '<div><img src="img/image.png" alt="新着レス" border="0" vspace="4"></div>' . "\n";
         }
         */
 
@@ -304,14 +313,16 @@ EOP;
             $tores .= "<div id=\"r{$i}\" name=\"r{$i}\">[{$i}]";
         }
         
-        //$tores .= " ";
+        //$tores .= ' ';
         
         // 名前
-        (strlen($name) > 0) and $tores .= $name;
+        if (strlen($name)) {
+            $tores .= $name;
+        }
         
         // メール
         $is_sage = false;
-        if (strlen($mail) > 0) {
+        if (strlen($mail)) {
             if ($mail == 'sage') {
                 $is_sage = true;
             } else {
@@ -320,7 +331,7 @@ EOP;
             }
         }
         
-        if (strlen($name) > 0 or strlen($mail) > 0 && !$is_sage) {
+        if (strlen($name) or strlen($mail) && !$is_sage) {
             $tores .= ' ';
         }
         
@@ -348,7 +359,10 @@ EOP;
         // }}}
         
         if ($_conf['mobile.id_underline']) {
-            $date_id = preg_replace('!((?:ID: ?)| )([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?O(?=[^0-9A-Za-z/.+]|$)!', '$1$2<u>O</u>', $date_id);
+            $date_id = preg_replace(
+                '!((?:ID: ?)| )([0-9A-Za-z/.+]{10}|[0-9A-Za-z/.+]{8}|\\?\\?\\?)?O(?=[^0-9A-Za-z/.+]|$)!',
+                '$1$2<u>O</u>', $date_id
+            );
         }
         
         if ($_conf['k_clip_unique_id']) {
@@ -424,7 +438,6 @@ EOP;
         // ふしあなさんとか？
         $name = preg_replace('~</b>(.+?)<b>~', '<font color="#777777">$1</font>', $name);
         
-        //(strlen($name) > 0) and $name = $name . " "; // 文字化け回避
         $name = StrSjis::fixSjis($name);
         
         if ($nameID) {
@@ -526,7 +539,9 @@ EOP;
         // }}}
         
         // 引用やURLなどをリンク
-        $msg = preg_replace_callback($this->str_to_link_regex, array($this, 'link_callback'), $msg, $this->str_to_link_limit);
+        $msg = preg_replace_callback(
+            $this->str_to_link_regex, array($this, 'link_callback'), $msg, $this->str_to_link_limit
+        );
         
         // 2ch BEアイコン
         if (in_array($_conf['show_be_icon'], array(1, 3))) {
@@ -801,11 +816,9 @@ EOP;
             $num_ht = sprintf('(<a href="%s">%s</a>)',
                 hs($filter_url), $this->thread->idcount[$id]
             );
-        } else {
-            return $idstr;
+            return "{$idstr}{$num_ht}";
         }
-
-        return "{$idstr}{$num_ht}";
+        return $idstr;
     }
 
     // }}}
@@ -986,8 +999,10 @@ EOP;
             } else {
                 $link_url = $url;
             }
-            $picto_tag = '<a href="' . hs($picto_url) . '">(ﾋﾟ)</a> ';
-            return "{$picto_tag}<a href=\"" . hs($link_url) . "\">{$html}</a>";
+            $picto_tag = sprintf('<a href="%s">(ﾋﾟ)</a> ', hs($picto_url));
+            return $picto_tag . sprintf('<a href="%s">%s</a>',
+                hs($link_url), $html
+            );
         }
         return false;
     }

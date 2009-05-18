@@ -35,6 +35,8 @@ if (isset($_conf['rnum_all_range']) and $_conf['rnum_all_range'] > 0) {
     $GLOBALS['rnum_all_range'] = $_conf['rnum_all_range'];
 }
 
+$GLOBALS['word'] = null;
+
 $sb_view = "shinchaku";
 $newtime = date("gis");
 
@@ -54,9 +56,9 @@ if ((!$host || !isset($bbs)) && !isset($spmode)) {
 }
 
 if (
-    ($host) && P2Validate::host($host) 
-    || ($bbs) && P2Validate::bbs($bbs) 
-    || ($spmode) && P2Validate::spmode($spmode)
+    $host && P2Validate::host($host) 
+    || $bbs && P2Validate::bbs($bbs) 
+    || $spmode && P2Validate::spmode($spmode)
 ) {
     p2die('ïsê≥Ç»à¯êîÇ≈Ç∑');
 }
