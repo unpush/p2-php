@@ -267,7 +267,7 @@ class ShowThreadK extends ShowThread
         
         // NGメッセージ変換
         if ($isNgMsg) {
-            $msg = sprintf('<s><font color="%s">NG:%s</font></s>', hs($a_ng_msg));
+            $msg = sprintf('<s><font color="%s">NG:%s</font></s>', $STYLE['read_ngword'], hs($a_ng_msg));
             $msg .= ' ' . $kakunin_msg_ht;
         }
         

@@ -284,7 +284,7 @@ class ShowThreadK extends ShowThread
         
         // NGメッセージ変換
         if ($isNgMsg) {
-            $msg = sprintf('<s><font color="%s">NG:%s</font></s>', hs($a_ng_msg));
+            $msg = sprintf('<s><font color="%s">NG:%s</font></s>', $STYLE['read_ngword'], hs($a_ng_msg));
             $msg .= ' ' . $kakunin_msg_ht;
         }
         
@@ -634,7 +634,7 @@ class ShowThreadK extends ShowThread
 
             // NGメッセージ変換
             if ($isNgMsg) {
-                $msg = sprintf('<s><font color="%s">NG:%s</font></s>', hs($a_ng_msg));
+                $msg = sprintf('<s><font color="%s">NG:%s</font></s>', $STYLE['read_ngword'], hs($a_ng_msg));
                 $msg .= ' ' . $kakunin_msg_ht;
 			}
 
@@ -1050,7 +1050,7 @@ class ShowThreadK extends ShowThread
         $attributes = array();
         if ($_conf['quote_res_view']) {
             $attributes = array(
-                'onmouseover' => "showResPopUp('q{$qnum}of{$this->thread->key}',event)",
+                'onmouseover' => "showResPopUp('q{$qnum}of{$this->thread->key}',event); return false;",
                 //'onmouseout'  => "hideResPopUp('q{$qnum}of{$this->thread->key}')"
             );
         }
