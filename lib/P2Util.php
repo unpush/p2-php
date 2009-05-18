@@ -1603,7 +1603,7 @@ EOP;
             return 'cli';
         }
         
-        if (!is_null($gethostbyaddr_)) {
+        if (is_null($gethostbyaddr_)) {
             require_once P2_LIB_DIR . '/HostCheck.php';
             $gethostbyaddr_ = HostCheck::cachedGetHostByAddr($_SERVER['REMOTE_ADDR']);
         }
