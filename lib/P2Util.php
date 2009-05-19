@@ -1618,13 +1618,13 @@ EOP;
                     $nama_url, $matches))
             {
                 $host = $matches[1];
-                list($bbs, $key, $ls) = self::parseMatchiQuery($matches[2]);
+                list($bbs, $key, $ls) = self::parseMachiQuery($matches[2]);
 
             } elseif (preg_match('<^http://((jbbs\\.(?:livedoor\\.(?:jp|com)|shitaraba\\.com))(?:/(\\w+))?)/bbs/read\\.(?:pl|cgi)\\?(.+)>',
                     $nama_url, $matches))
             {
                 $host = $matches[1];
-                list($bbs, $key, $ls) = self::parseMatchiQuery($matches[4]);
+                list($bbs, $key, $ls) = self::parseMachiQuery($matches[4]);
 
             } else {
                 $host = null;
@@ -1649,7 +1649,7 @@ EOP;
     }
 
     // }}}
-    // {{{ parseMatchiQuery()
+    // {{{ parseMachiQuery()
 
     /**
      * 旧式まち＆したらばJBBSのスレッドを指定するQUERY_STRINGを解析する
@@ -1657,7 +1657,7 @@ EOP;
      * @param   string  $query
      * @return  array
      */
-    static public function parseMatchiQuery($query)
+    static public function parseMachiQuery($query)
     {
         parse_str($query, $params);
 

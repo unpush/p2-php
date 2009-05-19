@@ -300,7 +300,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('ngaborn_frequent_one', '&gt;&gt;1 も頻出IDあぼーんの対象外にする'),
         array('ngaborn_frequent_num', '頻出IDあぼーんのしきい値 (出現回数がこれ以上のIDをあぼーん)'),
         array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない<br>(総レス数/スレ立てからの日数、0なら無効)'),
-        array('ngaborn_chain', '連鎖NGあぼーん (処理を軽くするため、表示範囲のレスにしか連鎖しない)<br>「する」ならあぼーんレスへのレスはあぼーん、NGレスへのレスはNG。<br>「すべてNGにする」の場合、あぼーんレスへのレスもNGにする。'),
+        array('ngaborn_chain', '連鎖NGあぼーん<br>「する」ならあぼーんレスへのレスはあぼーん、NGレスへのレスはNG。<br>「すべてNGにする」の場合、あぼーんレスへのレスもNGにする。'),
+        array('ngaborn_chain_all', '表示範囲外のレスも連鎖NGあぼーんの対象にする<br>(処理を軽くするため、デフォルトではしない)'),
         array('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す (日数)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);

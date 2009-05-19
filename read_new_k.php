@@ -175,11 +175,11 @@ EOS;
 <script type="text/javascript">
 // <![CDATA[
 window.addEventListener('DOMContentLoaded', function() {
-    var limelight = new Limelight();
-    limelight.init().bind();
+    var limelight = new Limelight({ 'title': true });
+    limelight.bind();
     if (typeof window._RESPOSUP_IPHONE_JS_CALLBACKS != 'undefined') {
         window._RESPOSUP_IPHONE_JS_CALLBACKS.push(function(container) {
-            limelight.bind('limelight', container);
+            limelight.bind(null, container, true);
         });
     }
 }, false);

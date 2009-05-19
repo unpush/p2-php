@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.14', // rep2のバージョン
-    'p2expack'  => '090514.2200',   // 拡張パックのバージョン
+    'p2expack'  => '090519.2230',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -651,7 +651,7 @@ foreach ($STYLE as $K => $V) {
     } elseif (strpos($K, 'color') !== false) {
         $STYLE[$K] = p2_correct_css_color($V);
     } elseif (strpos($K, 'background') !== false) {
-        $STYLE[$K] = 'url("' . addslashes($V) . '")';
+        $STYLE[$K] = "url('" . str_replace("'", "''", $V) . "')";
     }
 }
 

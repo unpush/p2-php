@@ -19,29 +19,17 @@ if (!$_conf['expack.ic2.enabled']) {
 }
 
 if ($_conf['iphone']) {
-    $iv2_iphone_js = <<<EOP
-<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
-<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
-<script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
-<script type="text/javascript">
-// <![CDATA[
-window.addEventListener('DOMContentLoaded', function() {
-    (new Limelight()).init().bind();
-}, false);
-// ]]>
-</script>\n
-EOP;
     $_conf['extra_headers_ht'] .= <<<EOP
 \n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}">
-<link rel="stylesheet" type="text/css" href="css/limelight.css?{$_conf['p2_version_id']}">
-{$iv2_iphone_js}
+<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
     $_conf['extra_headers_xht'] .= <<<EOP
 \n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}" />
-<link rel="stylesheet" type="text/css" href="css/limelight.css?{$_conf['p2_version_id']}" />
-{$iv2_iphone_js}
+<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 }
 
@@ -984,6 +972,42 @@ $flexy->setData('lightbox', $lightbox);
 P2Util::header_nocache();
 $flexy->compile($list_template);
 if ($list_template == 'iv2ip.tpl.html') {
+    if (!isset($prev_page)) {
+        $prev_page = $page;
+    }
+    if (!isset($next_page)) {
+        $next_page = $page;
+    }
+    $ll_autoactivate = empty($_GET['ll_autoactivate']) ? 'false' : 'true';
+    $limelight_header = <<<EOP
+<link rel="stylesheet" type="text/css" href="css/limelight.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript">
+// <![CDATA[
+window.addEventListener('DOMContentLoaded', function() {
+    var limelight = new Limelight();
+    var slide = limelight.bind();
+    if ({$page} != {$prev_page}) {
+        slide.onNoPrev = function(limelight, slide) {
+            limelight.deactivate();
+            window.location.href = 'iv2.php?page={$prev_page}&ll_autoactivate=1#bottom';
+       };
+    }
+    if ({$page} != {$next_page}) {
+        slide.onNoNext = function(limelight, slide) {
+            limelight.deactivate();
+            window.location.href = 'iv2.php?page={$next_page}&ll_autoactivate=1#top';
+       };
+    }
+    if ({$ll_autoactivate}) {
+        window.setTimeout(function(cursor) {
+            limelight.activateWithSlide(slide, cursor);
+        }, 100, (window.location.hash == '#bottom') ? -1 : 0);
+    }
+}, false);
+// ]]>
+</script>\n
+EOP;
     $thumb_width = (int)$ini['Thumb1']['width'];
     $thumb_height = (int)$ini['Thumb1']['height'];
     $flexy->setData('thumb_width', $thumb_width);
@@ -991,6 +1015,7 @@ if ($list_template == 'iv2ip.tpl.html') {
     $flexy->setData('title_width_v', 320 - (10 * 2) - $thumb_width);
     $flexy->setData('title_width_h', 480 - (10 * 2) - $thumb_width);
     $flexy->setData('info_vertical', $thumb_width > 80);
+    $flexy->setData('limelight_header', $limelight_header);
     $flexy->output();
 } elseif ($list_template == 'iv2i.tpl.html') {
     $mobile = Net_UserAgent_Mobile::singleton();

@@ -29,7 +29,7 @@ function _irespopup_get_z_index(obj)
 }
 
 // }}}
-// {{{ _irespopup_make_activate()
+// {{{ _irespopup_make_active()
 
 /*
  * オブジェクトを最前面に移動する関数を返す
@@ -37,7 +37,7 @@ function _irespopup_get_z_index(obj)
  * @param {Element} obj
  * @return void
  */
-function _irespopup_make_activate(obj)
+function _irespopup_make_active(obj)
 {
 	return (function(){
 		_RESPOPUP_IPHONE_JS_INDEX++;
@@ -90,27 +90,29 @@ function iResPopUp(url, evt)
 		return false;
 	}
 
+	var popnum = ++_RESPOPUP_IPHONE_JS_INDEX;
+	var popid = '_respop' + popnum;
 	var req = new XMLHttpRequest();
-	req.open('GET', url + '&ajax=true', false);
+	req.open('GET', url + '&ajax=true&respop_id=' + popnum, false);
 	req.send(null);
 
 	if (req.readyState == 4) {
 		if (req.status == 200) {
-			_RESPOPUP_IPHONE_JS_INDEX++;
-
 			var container = document.createElement('div');
 			var closer = document.createElement('img');
-			var popid = '_respop' + _RESPOPUP_IPHONE_JS_INDEX.toString();
 
 			container.id = popid;
 			container.className = 'respop';
-			container.innerHTML = req.responseText
-				.replace(/^<div class="thread">/, '')
-				.replace(/<\/div>\s*$/, '')
-				.replace(/<[^<>]+? id="/, '$0' + popid + '_'); //"
+			container.innerHTML = req.responseText;
+			/*
+			var rx = req.responseXML;
+			while (rx.hasChildNodes()) {
+				container.appendChild(document.importNode(rx.removeChild(rx.firstChild), true));
+			}
+			*/
 			container.style.top = yOffset.toString() + 'px';
 			container.style.zIndex = _irespopup_get_z_index();
-			//container.onclick = _irespopup_make_activate(container);
+			//container.onclick = _irespopup_make_active(container);
 
 			closer.className = 'close-button';
 			closer.setAttribute('src', 'img/iphone/close.png');

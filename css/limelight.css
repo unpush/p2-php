@@ -1,12 +1,12 @@
 /**
- * Limelight
+ * LIMELIGHT: it will move you to love, laughter and tears.
  */
 
-div.limelight-block {
+div.limelight-box {
 	display: none;
 	position: absolute;
-	top: 0px;
-	left: 0px;
+	top: 0;
+	left: 0;
 	z-index: 100;
 	margin: 0;
 	padding: 0;
@@ -16,13 +16,43 @@ div.limelight-block {
 	vertical-align: middle;
 }
 
+div.limelight-box.limelight-box-locked {
+	background-color: #fff;
+}
+
 img.limelight-image {
 	position: absolute;
-	top: 0px;
-	left: 0px;
+	top: 0;
+	left: 0;
 	z-index: 110;
 	visibility: hidden;
 	-webkit-animation-duration: 1s;
+}
+
+div.limelight-title {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 130;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	visibility: hidden;
+	background-color: rgba(0, 0, 0, 0.5);
+	-webkit-animation-duration: 2.5s;
+}
+
+div.limelight-title p {
+	margin: 5px;
+	padding: 0;
+	color: #fff;
+	text-shadow: #000 1px 1px 3px;
+	font-family: sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+	line-height: 120%;
+	white-space: pre;
 }
 
 div.limelight-indicator {
@@ -30,8 +60,8 @@ div.limelight-indicator {
 	top: 0;
 	right: 5px;
 	z-index: 120;
-	width: 240px;
-	height: 160px;
+	width: 100%;
+	height: 80px;
 	margin: 0;
 	padding: 0;
 	visibility: hidden;
@@ -48,7 +78,7 @@ div.limelight-indicator {
 table.limelight-toolbar {
 	position: absolute;
 	bottom: 5px;
-	left: 0px;
+	left: 0;
 	z-index: 120;
 	margin: 0;
 	padding: 0;
@@ -72,12 +102,18 @@ span.limelight-button {
 	border: rgba(255, 255, 255, 0.75) solid 1px;
 	-webkit-border-radius: 12px;
 	color: #fff;
+	text-shadow: #000 1px 1px 1px;
 	font-family: sans-serif;
 	font-size: 15px;
 	font-weight: bold;
 	text-align: center;
 	line-height: 100%;
 	cursor: pointer;
+}
+
+span.limelight-button.limelight-button-locked {
+	color: #99f;
+	border-color: rgba(153, 153, 255, 0.75);
 }
 
 @-webkit-keyframes 'limelight-fadein' {
@@ -96,6 +132,44 @@ span.limelight-button {
 	to {
 		-webkit-opacity: 0;
 	}
+}
+
+@-webkit-keyframes 'limelight-fadein-fadeout' {
+	from {
+		-webkit-opacity: 0;
+		-webkit-animation-timing-function: ease-in;
+	}
+	30% {
+		-webkit-opacity: 1;
+		-webkit-animation-timing-function: linear;
+	}
+	70% {
+		-webkit-opacity: 1;
+		-webkit-animation-timing-function: ease-out;
+	}
+	to {
+		-webkit-opacity: 0;
+	}
+}
+
+@-webkit-keyframes 'limelight-shake-l' {
+	from { left:  0; }
+	  5% { left: -8px; }
+	 15% { left:  7px; }
+	 25% { left: -6px; }
+	 35% { left:  5px; }
+	 40% { left:  0; }
+	  to { left:  0; }
+}
+
+@-webkit-keyframes 'limelight-shake-r' {
+	from { left:  0; }
+	  5% { left:  8px; }
+	 15% { left: -7px; }
+	 25% { left:  6px; }
+	 35% { left: -5px; }
+	 40% { left:  0; }
+	  to { left:  0; }
 }
 
 /*

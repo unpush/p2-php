@@ -460,8 +460,13 @@ class Thread
 
     /**
      * 元スレURLを返す
+     *
+     * @param   bool    $force_pc   trueなら携帯モードでもPC用の元スレURLを返す
+     * @param   string  $ls         レス表示番号or範囲。nullならlsプロパティを使う
+     *                              掲示板によっては無視される場合もある
+     * @return  string  元スレURL
      */
-    public function getMotoThread($force_pc = false)
+    public function getMotoThread($force_pc = false, $ls = null)
     {
         global $_conf;
 
@@ -475,28 +480,35 @@ class Thread
             $mobile = false;
         }
 
+        if ($ls === null) {
+            $ls = $this->ls;
+        }
+
         // 2ch系
         if (P2Util::isHost2chs($this->host)) {
             // PC
             if (!$mobile) {
-                $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
+                $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$ls}";
             // 携帯
             } else {
                 if (P2Util::isHostBbsPink($this->host)) {
-                    //$motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
-                    $motothre_url = "http://speedo.ula.cc/test/r.so/{$this->host}/{$this->bbs}/{$this->key}/{$this->ls}"; 
+                    //$motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$ls}";
+                    $motothre_url = "http://speedo.ula.cc/test/r.so/{$this->host}/{$this->bbs}/{$this->key}/{$ls}"; 
                 } else {
                     $mail = rawurlencode($_conf['my_mail']);
                     // c.2chはl指定に非対応なので、代わりにn
-                    $ls = (substr($this->ls, 0, 1) == 'l') ? 'n' : $this->ls;
+                    $ls = (substr($ls, 0, 1) == 'l') ? 'n' : $ls;
                     $motothre_url = "http://c.2ch.net/test/--3!mail={$mail}/{$this->bbs}/{$this->key}/{$ls}";
                 }
             }
 
         // まちBBS
         } elseif (P2Util::isHostMachiBbs($this->host)) {
-            $motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";
-            if ($mobile) { $motothre_url .= '&IMODE=TRUE'; }
+            if ($mobile) {
+                $motothre_url = "http://{$this->host}/bbs/read.pl?IMODE=TRUE&BBS={$this->bbs}&KEY={$this->key}";
+            } else {
+                $motothre_url = "http://{$this->host}/bbs/read.cgi/{$this->bbs}/{$this->key}/{$ls}";
+            }
 
         // まちびねっと
         } elseif (P2Util::isHostMachiBbsNet($this->host)) {
@@ -507,11 +519,11 @@ class Thread
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
             list($host, $category) = explode('/', P2Util::adjustHostJbbs($this->host), 2);
             $bbs_cgi = ($mobile) ? 'i.cgi' : 'read.cgi';
-            $motothre_url = "http://{$host}/bbs/{$bbs_cgi}/{$category}/{$this->bbs}/{$this->key}/{$this->ls}";
+            $motothre_url = "http://{$host}/bbs/{$bbs_cgi}/{$category}/{$this->bbs}/{$this->key}/{$ls}";
 
         // その他
         } else {
-            $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
+            $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$ls}";
         }
 
         return $motothre_url;

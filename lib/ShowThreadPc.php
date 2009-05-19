@@ -105,21 +105,14 @@ class ShowThreadPc extends ShowThread
     public function transRes($ares, $i)
     {
         global $_conf, $STYLE, $mae_msg, $res_filter;
-        global $ngaborns_hits;
-        static $ngaborns_head_hits = 0;
-        static $ngaborns_body_hits = 0;
 
-        $resar = $this->thread->explodeDatLine($ares);
-        $name = $resar[0];
-        $mail = $resar[1];
+        list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($ares);
         if (($id = $this->thread->ids[$i]) !== null) {
             $idstr = 'ID:' . $id;
-            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $resar[2]);
+            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $date_id);
         } else {
             $idstr = null;
-            $date_id = $resar[2];
         }
-        $msg = $resar[3];
 
         // {{{ フィルタリング
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
@@ -146,135 +139,20 @@ class ShowThreadPc extends ShowThread
         }
         $msg_class = 'message';
 
-        $isNgName = false;
-        $isNgMail = false;
-        $isNgId = false;
-        $isNgMsg = false;
-        $isFreq = false;
-        $isChain = false;
-
-        // {{{ あぼーんチェック
-
-        $ng_msg_info = array();
-
-        // 頻出IDあぼーん
-        if ($this->_ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
-            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->ids[1]) {
-                // >>1 はそのまま表示
-            } elseif ($this->_ngaborn_frequent == 1) {
-                $ngaborns_hits['aborn_freq']++;
-                $this->_aborn_nums[] = $i;
-                return $this->_abornedRes($res_id);
-            } elseif (!$_GET['nong']) {
-                $ngaborns_hits['ng_freq']++;
-                $ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $isFreq = true;
-                $ng_msg_info[] = sprintf('頻出ID：%s(%d)', $id, $this->thread->idcount[$id]);
-            }
-        }
-
-        // 連鎖あぼーん
-        if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
-            $chain_nums = array_unique(array_map('intval', split('[-,]+', trim(implode(',', $matches[1]), '-,'))));
-            if (array_intersect($chain_nums, $this->_aborn_nums)) {
-                if ($_conf['ngaborn_chain'] == 1) {
-                    $ngaborns_hits['aborn_chain']++;
-                    $this->_aborn_nums[] = $i;
-                    return $this->_abornedRes($res_id);
-                } else {
-                    $a_chain_num = array_shift($chain_nums);
-                    $ngaborns_hits['ng_chain']++;
-                    $this->_ng_nums[] = $i;
-                    $ngaborns_body_hits++;
-                    $isChain = true;
-                    $ng_msg_info[] = sprintf('連鎖NG：&gt;&gt;%d(あぼーん)', $a_chain_num);
-                }
-            } elseif (array_intersect($chain_nums, $this->_ng_nums)) {
-                $a_chain_num = array_shift($chain_nums);
-                $ngaborns_hits['ng_chain']++;
-                $ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $isChain = true;
-                $ng_msg_info[] = sprintf('連鎖NG：&gt;&gt;%d', $a_chain_num);
-            }
-        }
-
-        // あぼーんレス
-        if ($this->abornResCheck($i) !== false) {
-            $ngaborns_hits['aborn_res']++;
-            $this->_aborn_nums[] = $i;
+        // NGあぼーんチェック
+        $ng_type = $this->_ngAbornCheck($i, strip_tags($name), $mail, $date_id, $id, $msg, false, $ng_info);
+        if ($ng_type == self::ABORN) {
             return $this->_abornedRes($res_id);
         }
-
-        // あぼーんネーム
-        if ($this->ngAbornCheck('aborn_name', strip_tags($name)) !== false) {
-            $ngaborns_hits['aborn_name']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
+        if ($ng_type != self::NG_NONE) {
+            $ngaborns_head_hits = self::$_ngaborns_head_hits;
+            $ngaborns_body_hits = self::$_ngaborns_body_hits;
         }
 
-        // あぼーんメール
-        if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
-            $ngaborns_hits['aborn_mail']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // あぼーんID
-        if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
-            $ngaborns_hits['aborn_id']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // あぼーんメッセージ
-        if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
-            $ngaborns_hits['aborn_msg']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // NGネームチェック
-        if ($this->ngAbornCheck('ng_name', $name) !== false) {
-            $ngaborns_hits['ng_name']++;
-            $ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $isNgName = true;
-        }
-
-        // NGメールチェック
-        if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
-            $ngaborns_hits['ng_mail']++;
-            $ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $isNgMail = true;
-        }
-
-        // NGIDチェック
-        if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
-            $ngaborns_hits['ng_id']++;
-            $ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $isNgId = true;
-        }
-
-        // NGメッセージチェック
-        $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
-        if ($a_ng_msg !== false) {
-            $ngaborns_hits['ng_msg']++;
-            $ngaborns_body_hits++;
-            $this->_ng_nums[] = $i;
-            $isNgMsg = true;
-            $ng_msg_info[] = sprintf('NGワード：%s', htmlspecialchars($a_ng_msg, ENT_QUOTES));
-        }
-
-        // AA 判定
+        // AA判定
         if ($this->am_autodetect && $this->activeMona->detectAA($msg)) {
             $msg_class .= ' ActiveMona';
         }
-
-        // }}}
 
         //=============================================================
         // レスをポップアップ表示
@@ -317,16 +195,16 @@ class ShowThreadPc extends ShowThread
         }
 
         // NGメッセージ変換
-        if ($ng_msg_info) {
-            $ng_type = implode(', ', $ng_msg_info);
+        if ($ng_type != self::NG_NONE && count($ng_info)) {
+            $ng_info = implode(', ', $ng_info);
             $msg = <<<EOMSG
-<span class="ngword" onclick="show_ng_message('ngm{$ngaborns_body_hits}', this);">{$ng_type}</span>
+<span class="ngword" onclick="show_ng_message('ngm{$ngaborns_body_hits}', this);">{$ng_info}</span>
 <div id="ngm{$ngaborns_body_hits}" class="ngmsg ngmsg-by-msg">{$msg}</div>
 EOMSG;
         }
 
         // NGネーム変換
-        if ($isNgName) {
+        if ($ng_type & self::NG_NAME) {
             $name = <<<EONAME
 <span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$name}</span>
 EONAME;
@@ -335,7 +213,7 @@ EONAME;
 EOMSG;
 
         // NGメール変換
-        } elseif ($isNgMail) {
+        } elseif ($ng_type & self::NG_MAIL) {
             $mail = <<<EOMAIL
 <span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$mail}</span>
 EOMAIL;
@@ -344,7 +222,7 @@ EOMAIL;
 EOMSG;
 
         // NGID変換
-        } elseif ($isNgId) {
+        } elseif ($ng_type & self::NG_ID) {
             $date_id = <<<EOID
 <span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$date_id}</span>
 EOID;

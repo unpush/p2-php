@@ -36,15 +36,28 @@ abstract class ShowThread
 )
 }x';
 
-    const IME_NU_NONE = 0;
-    const IME_NU_2CHANNEL = 1;
-    const IME_NU_BBSPINK = 2;
-    const IME_NU_MACHIBBS = 3;
+    const REDIRECTOR_NONE = 0;
+    const REDIRECTOR_IMENU = 1;
+    const REDIRECTOR_PINKTOWER = 2;
+    const REDIRECTOR_MACHIBBS = 3;
+
+    const ABORN = -1;
+    const NG_NONE = 0;
+    const NG_NAME = 1;
+    const NG_MAIL = 2;
+    const NG_ID = 4;
+    const NG_MSG = 8;
+    const NG_FREQ = 16;
+    const NG_CHAIN = 32;
+    const NG_AA = 64;
 
     // }}}
     // {{{ properties
 
     static private $_matome_count = 0;
+
+    static protected $_ngaborns_head_hits = 0;
+    static protected $_ngaborns_body_hits = 0;
 
     protected $_matome; // まとめ読みモード時のスレッド番号
 
@@ -58,7 +71,7 @@ abstract class ShowThread
     protected $_aborn_nums; // あぼーんレス番号を格納する配列
     protected $_ng_nums; // NGレス番号を格納する配列
 
-    protected $_ime_nu_type; // ime.nuの種類
+    protected $_redirector; // リダイレクタの種類
 
     public $thread; // スレッドオブジェクト
 
@@ -101,13 +114,13 @@ abstract class ShowThread
         $this->_ng_nums = array();
 
         if (P2Util::isHostBbsPink($this->thread->host)) {
-            $this->_ime_nu_type = self::IME_NU_BBSPINK;
+            $this->_redirector = self::REDIRECTOR_PINKTOWER;
         } elseif (P2Util::isHost2chs($this->thread->host)) {
-            $this->_ime_nu_type = self::IME_NU_2CHANNEL;
+            $this->_redirector = self::REDIRECTOR_IMENU;
         } elseif (P2Util::isHostMachiBbs($this->thread->host)) {
-            $this->_ime_nu_type = self::IME_NU_MACHIBBS;
+            $this->_redirector = self::REDIRECTOR_MACHIBBS;
         } else {
-            $this->_ime_nu_type = self::IME_NU_NONE;
+            $this->_redirector = self::REDIRECTOR_NONE;
         }
     }
 
@@ -117,11 +130,12 @@ abstract class ShowThread
     /**
      * DatをHTML変換したものを取得する
      *
+     * @param   bool $is_fragment
      * @return  bool|string
      */
-    public function getDatToHtml()
+    public function getDatToHtml($is_fragment = false)
     {
-        return $this->datToHtml(true);
+        return $this->datToHtml(true, $is_fragment);
     }
 
     // }}}
@@ -130,15 +144,18 @@ abstract class ShowThread
     /**
      * DatをHTMLに変換して表示する
      *
-     * @param   bool $return    trueなら変換結果を出力せずに返す
+     * @param   bool $capture       trueなら変換結果を出力せずに返す
+     * @param   bool $is_fragment   trueなら<div class="thread"></div>で囲まない
      * @return  bool|string
      */
-    public function datToHtml($return = false)
+    public function datToHtml($capture = false, $is_fragment = false)
     {
+        global $_conf;
+
         // 表示レス範囲が指定されていなければ
         if (!$this->thread->resrange) {
             $error = '<p><b>p2 error: {$this->resrange} is FALSE at datToHtml()</b></p>';
-            if ($return) {
+            if ($capture) {
                 return $error;
             } else {
                 echo $error;
@@ -150,13 +167,25 @@ abstract class ShowThread
         $to = $this->thread->resrange['to'];
         $nofirst = $this->thread->resrange['nofirst'];
 
-        $buf = "<div class=\"thread\">\n";
+        $buf = $is_fragment ? '' : "<div class=\"thread\">\n";
 
         // まず 1 を表示
         if (!$nofirst) {
             $buf .= $this->transRes($this->thread->datlines[0], 1);
         }
 
+        // 連鎖のため、範囲外のNGあぼーんチェック
+        if ($_conf['ngaborn_chain_all'] && empty($_GET['nong'])) {
+            for ($i = ($nofirst) ? 0 : 1; $i < $start; $i++) {
+                list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($this->thread->datlines[$i]);
+                if (($id = $this->thread->ids[$i]) !== null) {
+                    $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $date_id);
+                }
+                $this->_ngAbornCheck($i + 1, strip_tags($name), $mail, $date_id, $id, $msg);
+            }
+        }
+
+        // 指定範囲を表示
         for ($i = $start - 1; $i < $to; $i++) {
             if (!$nofirst and $i == 0) {
                 continue;
@@ -166,16 +195,18 @@ abstract class ShowThread
                 break;
             }
             $buf .= $this->transRes($this->thread->datlines[$i], $i + 1);
-            if (!$return && $i % 10 == 0) {
+            if (!$capture && $i % 10 == 0) {
                 echo $buf;
                 flush();
                 $buf = '';
             }
         }
 
-        $buf .= "</div>\n";
+        if (!$is_fragment) {
+            $buf .= "</div>\n";
+        }
 
-        if ($return) {
+        if ($capture) {
             return $buf;
         } else {
             echo $buf;
@@ -243,6 +274,164 @@ abstract class ShowThread
         }
 
         return $date_id;
+    }
+
+    // }}}
+    // {{{ _ngAbornCheck()
+
+    /**
+     * NGあぼーんチェック
+     *
+     * @param   int     $i          レス番号
+     * @param   string  $name       名前欄
+     * @param   string  $mail       メール欄
+     * @param   string  $date_id    日付・ID欄
+     * @param   string  $id         ID
+     * @param   string  $msg        レス本文
+     * @param   bool    $nong       NGチェックをするかどうか
+     * @param   array  &$info       NGの理由が格納される変数の参照
+     * @return  int NGタイプ。ShowThread::NG_XXX のビット和か ShowThread::ABORN
+     */
+    protected function _ngAbornCheck($i, $name, $mail, $date_id, $id, $msg, $nong = false, &$info = null)
+    {
+        global $_conf, $ngaborns_hits;
+
+        $info = array();
+        $type = self::NG_NONE;
+
+        // {{{ 頻出IDチェック
+
+        if ($this->_ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
+            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->ids[1]) {
+                // >>1 はそのまま表示
+            } elseif ($this->_ngaborn_frequent == 1) {
+                $ngaborns_hits['aborn_freq']++;
+                $this->_aborn_nums[] = $i;
+                return self::ABORN;
+            } elseif (!$nong) {
+                $ngaborns_hits['ng_freq']++;
+                self::$_ngaborns_body_hits++;
+                $this->_ng_nums[] = $i;
+                $type |= self::NG_FREQ;
+                $info[] = sprintf('頻出ID:%s(%d)', $id, $this->thread->idcount[$id]);
+            }
+        }
+
+        // }}}
+        // {{{ 連鎖チェック
+
+        if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
+            $chain_nums = array_unique(array_map('intval', split('[-,]+', trim(implode(',', $matches[1]), '-,'))));
+            if (array_intersect($chain_nums, $this->_aborn_nums)) {
+                if ($_conf['ngaborn_chain'] == 1) {
+                    $ngaborns_hits['aborn_chain']++;
+                    $this->_aborn_nums[] = $i;
+                    return $this->_abornedRes($res_id);
+                } elseif (!$nong) {
+                    $a_chain_num = array_shift($chain_nums);
+                    $ngaborns_hits['ng_chain']++;
+                    $this->_ng_nums[] = $i;
+                    self::$_ngaborns_body_hits++;
+                    $type |= self::NG_CHAIN;
+                    $info[] = sprintf('連鎖NG:&gt;&gt;%d(%s)',
+                                      $a_chain_num,
+                                      ($_conf['ktai']) ? 'ｱﾎﾞﾝ' : 'あぼーん');
+                }
+            } elseif (!$nong && array_intersect($chain_nums, $this->_ng_nums)) {
+                $a_chain_num = array_shift($chain_nums);
+                $ngaborns_hits['ng_chain']++;
+                self::$_ngaborns_body_hits++;
+                $this->_ng_nums[] = $i;
+                $type |= self::NG_CHAIN;
+                $info[] = sprintf('連鎖NG:&gt;&gt;%d', $a_chain_num);
+            }
+        }
+
+        // }}}
+        // {{{ あぼーんチェック
+
+        // あぼーんレス
+        if ($this->abornResCheck($i) !== false) {
+            $ngaborns_hits['aborn_res']++;
+            $this->_aborn_nums[] = $i;
+            return self::ABORN;
+        }
+
+        // あぼーんネーム
+        if ($this->ngAbornCheck('aborn_name', $name) !== false) {
+            $ngaborns_hits['aborn_name']++;
+            $this->_aborn_nums[] = $i;
+            return self::ABORN;
+        }
+
+        // あぼーんメール
+        if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
+            $ngaborns_hits['aborn_mail']++;
+            $this->_aborn_nums[] = $i;
+            return self::ABORN;
+        }
+
+        // あぼーんID
+        if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
+            $ngaborns_hits['aborn_id']++;
+            $this->_aborn_nums[] = $i;
+            return self::ABORN;
+        }
+
+        // あぼーんメッセージ
+        if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
+            $ngaborns_hits['aborn_msg']++;
+            $this->_aborn_nums[] = $i;
+            return self::ABORN;
+        }
+
+        // }}}
+
+        if ($nong) {
+            return $type;
+        }
+
+        // {{{ NGチェック
+
+        // NGネームチェック
+        if ($this->ngAbornCheck('ng_name', $name) !== false) {
+            $ngaborns_hits['ng_name']++;
+            self::$_ngaborns_head_hits++;
+            $this->_ng_nums[] = $i;
+            $type |= self::NG_NAME;
+        }
+
+        // NGメールチェック
+        if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
+            $ngaborns_hits['ng_mail']++;
+            self::$_ngaborns_head_hits++;
+            $this->_ng_nums[] = $i;
+            $type |= self::NG_MAIL;
+        }
+
+        // NGIDチェック
+        if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
+            $ngaborns_hits['ng_id']++;
+            self::$_ngaborns_head_hits++;
+            $this->_ng_nums[] = $i;
+            $type |= self::NG_ID;
+        }
+
+        // NGメッセージチェック
+        $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
+        if ($a_ng_msg !== false) {
+            $ngaborns_hits['ng_msg']++;
+            self::$_ngaborns_body_hits++;
+            $this->_ng_nums[] = $i;
+            $type |= self::NG_MSG;
+            $info[] = sprintf('NG%s:%s',
+                              ($_conf['ktai']) ? 'ﾜｰﾄﾞ' : 'ワード',
+                              htmlspecialchars($a_ng_msg, ENT_QUOTES));
+        }
+
+        // }}}
+
+        return $type;
     }
 
     // }}}
@@ -581,15 +770,15 @@ EOP;
             return strip_tags($orig);
         }
 
-        // ime.nuを外す
-        switch ($this->_ime_nu_type) {
-            case self::IME_NU_2CHANNEL:
+        // リダイレクタを外す
+        switch ($this->_redirector) {
+            case self::REDIRECTOR_IMENU:
                 $url = preg_replace('{^([a-z]+://)ime\\.nu/}', '$1', $url);
                 break;
-            case self::IME_NU_BBSPINK:
+            case self::REDIRECTOR_PINKTOWER:
                 $url = preg_replace('{^([a-z]+://)pinktower\\.com/}', '$1', $url);
                 break;
-            case self::IME_NU_MACHIBBS:
+            case self::REDIRECTOR_MACHIBBS:
                 $url = preg_replace('{^[a-z]+://machi(?:bbs\\.com|\\.to)/bbs/link\\.cgi\\?URL=}', '', $url);
                 break;
         }

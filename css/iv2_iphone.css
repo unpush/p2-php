@@ -28,12 +28,7 @@ div.navi {
 /* }}} */
 /* {{{ Edit */
 
-div#iv2-edit-form {
-	margin: 0 -10px;
-	padding: 0;
-}
-
-div#iv2-remove-form {
+div#iv2-edit-form, div#iv2-remove-form {
 	margin: 0 -10px;
 	padding: 0;
 	border-bottom: #cccccc solid 1px;
@@ -48,6 +43,7 @@ div#iv2-edit-form > h3, div#iv2-remove-form > h3 {
 }
 
 div#iv2-edit-form > div, div#iv2-remove-form > div {
+	display: none;
 	margin: 0;
 	padding: 5px 10px;
 	background-color: #ffffff;

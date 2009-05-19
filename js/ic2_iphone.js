@@ -15,7 +15,10 @@ window.addEventListener('DOMContentLoaded', function(evt){
 	var self = ic2info = new Object();
 	self._targetId = null;
 
-	var _infoContainer    = document.getElementById('ic2-info');
+	var _infoContainer = document.getElementById('ic2-info');
+	if (!_infoContainer) {
+		return;
+	}
 	var _messageContainer = document.getElementById('ic2-info-message');
 	var _previewContainer = document.getElementById('ic2-info-preview');
 	var _ratingContainer  = document.getElementById('ic2-info-rating');

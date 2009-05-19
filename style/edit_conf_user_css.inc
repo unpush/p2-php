@@ -12,7 +12,7 @@ if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = 'black'; }
 if (!isset($STYLE['conf_btn_bgcolor']))	{ $STYLE['conf_btn_bgcolor'] = $STYLE['respop_bgcolor']; }
 if (!isset($STYLE['conf_btn_background'])) { $STYLE['conf_btn_background'] = $STYLE['respop_background']; }
 if (!isset($STYLE['conf_b_style'])) { $STYLE['conf_b_style'] = $STYLE['respop_b_style']; }
-if (!isset($STYLE['conf_b_width'])) { $STYLE['conf_b_width'] = $STYLE['respop_b_width'];   }
+if (!isset($STYLE['conf_b_width'])) { $STYLE['conf_b_width'] = $STYLE['respop_b_width']; }
 if (!isset($STYLE['conf_b_color'])) { $STYLE['conf_b_color'] = $STYLE['respop_b_color']; }
 
 $conf_border = "{$STYLE['conf_b_style']} {$STYLE['conf_b_width']} {$STYLE['conf_b_color']}";
@@ -23,7 +23,7 @@ p#pan_menu{
 	border-bottom: {$conf_border};
 }
 
-table.edit_conf_user, table.edit_font, fieldset{
+table.edit_conf_user, table.edit_font, fieldset {
 	background: {$STYLE['bgcolor']} {$STYLE['background']};
 	border-top: {$conf_border};
 	border-left: {$conf_border};
@@ -44,37 +44,34 @@ tr.group td{
 }
 
 ul.tabbernav {
-	border-bottom: 1px solid {$STYLE['sb_tool_border_color']};
-	font-size: {$STYLE['fontsize']};
+	border-bottom: 1px solid {$STYLE['sb_tool_border_color']} !important;
+	font-size: {$STYLE['fontsize']} !important;
 }
 
-ul.tabbernav li a
-{
-	border: 1px solid {$STYLE['sb_tool_border_color']};
+ul.tabbernav li a {
+	border: 1px solid {$STYLE['sb_tool_border_color']} !important;
 	border-bottom: none;
 	color: {$STYLE['sb_tool_acolor']} !important;
-	background: {$STYLE['sb_tool_bgcolor']} {$STYLE['sb_tool_background']};
+	background: {$STYLE['sb_tool_bgcolor']} {$STYLE['sb_tool_background']} !important;
 	vertical-align: bottom;
 }
-ul.tabbernav li a:hover
-{
+
+ul.tabbernav li a:hover {
 	color: {$STYLE['sb_tool_acolor_h']} !important;
-	background: {$STYLE['sb_tool_bgcolor']} {$STYLE['sb_tool_background']};
-	border-color: {$STYLE['respop_b_color']};
+	background: {$STYLE['sb_tool_bgcolor']} {$STYLE['sb_tool_background']} !important;
+	border-color: {$STYLE['respop_b_color']} !important;
 }
 
-ul.tabbernav li.tabberactive a
-{
+ul.tabbernav li.tabberactive a {
 	color: {$STYLE['textcolor']} !important;
-	background: {$STYLE['bgcolor']} {$STYLE['background']};
-	border-bottom: 1px solid {$STYLE['bgcolor']};
+	background: {$STYLE['bgcolor']} {$STYLE['background']} !important;
+	border-bottom: 1px solid {$STYLE['bgcolor']} !important;
 }
 
-ul.tabbernav li.tabberactive a:hover
-{
+ul.tabbernav li.tabberactive a:hover {
 	color: {$STYLE['respop_color']} !important;
-	background: {$STYLE['respop_bgcolor']} {$STYLE['respop_background']};
-	border-bottom: 1px solid {$STYLE['bgcolor']};
+	background: {$STYLE['respop_bgcolor']} {$STYLE['respop_background']} !important;
+	border-bottom: 1px solid {$STYLE['bgcolor']} !important;
 }
 
 .tabberlive .tabbertab {

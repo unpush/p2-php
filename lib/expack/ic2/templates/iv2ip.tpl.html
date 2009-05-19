@@ -5,6 +5,7 @@
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 	{extra_headers:h}
 	<title>{title}</title>
+	{limelight_header:h}
 	<style type="text/css">
 	/* <![CDATA[ */
 tr.iv2-image {
@@ -61,13 +62,11 @@ div.iv2-image-title {
 	<div class="pager" id="bottom">{pager:h} <a href="#top">{e[ut1]:h}</a></div>
 
 	<div id="iv2-edit-form">
-		<h3>チェックした画像を編集</h3>
-		<div>ランク:{editFormSelect:h}<br>メモを追加:{editFormText:h}<br>{editFormSubmit:h}</div>
+		<h3 onclick="this.nextSibling.style.display='block';">チェックした画像を編集</h3><div>ランク:{editFormSelect:h}<br>メモを追加:{editFormText:h}<br>{editFormSubmit:h}</div>
 	</div>
 
 	<div id="iv2-remove-form">
-		<h3>チェックした画像を削除</h3>
-		<div>{editFormRemove:h}{editFormBlackList:h}<span onclick="check_prev(this);">ブラックリストに登録</span></div>
+		<h3 onclick="this.nextSibling.style.display='block';">チェックした画像を削除</h3><div>{editFormRemove:h}{editFormBlackList:h}<span onclick="check_prev(this);">ブラックリストに登録</span></div>
 	</div>
 
 	{if:info_vertical}<flexy:include src="info-v.tpl.html" />{else:}<flexy:include src="info-h.tpl.html" />{end:}
