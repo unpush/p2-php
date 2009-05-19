@@ -176,18 +176,18 @@ class HostCheck
         global $_conf, $_HOSTCHKCONF;
 
         switch ($_conf['secure']['auth_host']) {
-        case 1:
-            $flag = 1;
-            $ret  = true;
-            $custom = $_HOSTCHKCONF['custom_allowed_host'];
-            break;
-        case 2:
-            $flag = 0;
-            $ret  = false;
-            $custom = $_HOSTCHKCONF['custom_denied_host'];
-            break;
-        default:
-            return true;
+            case 1:
+                $flag = 1;
+                $ret  = true;
+                $custom = $_HOSTCHKCONF['custom_allowed_host'];
+                break;
+            case 2:
+                $flag = 0;
+                $ret  = false;
+                $custom = $_HOSTCHKCONF['custom_denied_host'];
+                break;
+            default:
+                return true;
         }
 
         if (

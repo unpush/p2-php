@@ -47,6 +47,7 @@ $MYSTYLE = parse_mystyle($MYSTYLE);
 /**
  * 旧形式の$MYSTYLEを多次元配列に変換する
  *
+ * @access  private
  * @param   array   $MYSTYLE
  * @return  array
  */
@@ -128,6 +129,7 @@ function printMyStyleCssByCategory($category)
 // {{{ getMyStyleCss() - $MYSTYLEをCSSの書式に変換
 
 /**
+ * @access  private
  * @return  string
  */
 function getMyStyleCss($category)
@@ -180,8 +182,9 @@ function getMyStyleCss($category)
 // {{{ mystyle_extract()
 
 /**
- *スタイルシートの値を展開する
+ * スタイルシートの値を展開する
  *
+ * @access  private
  * @param   array   $style
  * @param   bool    $important
  */
@@ -233,6 +236,7 @@ function mystyle_extract($style, $important = false)
 /**
  * 特殊なセレクタをチェック
  *
+ * @access  private
  * @param   string  $selector
  * @return  string
  */

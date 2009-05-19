@@ -1050,7 +1050,9 @@ class ShowThreadK extends ShowThread
         $attributes = array();
         if ($_conf['quote_res_view']) {
             $attributes = array(
-                'onmouseover' => "showResPopUp('q{$qnum}of{$this->thread->key}',event); return false;",
+                'onmouseover' => "showResPopUp('q{$qnum}of{$this->thread->key}',event)",
+                // d=1はダミー。なぜかreturn falseだけだと効果がないようので。
+                'onclick' => 'var dummy=1; return false;'
                 //'onmouseout'  => "hideResPopUp('q{$qnum}of{$this->thread->key}')"
             );
         }
