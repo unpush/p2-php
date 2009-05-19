@@ -150,16 +150,18 @@ $STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの
 // }}}
 // {{{ style/*_css.inc で定義されていない設定
 
-$MYSTYLE['subject']['sb_td']['border-bottom'] = "1px dotted #ffa147";
-$MYSTYLE['subject']['sb_td1']['border-bottom'] = "1px dotted #ffa147";
+$MYSTYLE['subject']['sb_td']['border-top'] = "1px dotted #ffa147";
+$MYSTYLE['subject']['sb_td1']['border-top'] = "1px dotted #ffa147";
 
-$MYSTYLE['base']['.filtering']['background-color'] = "transparent"; 
-$MYSTYLE['base']['.filtering']['font-family'] = geti($STYLE['fontfamily']); 
-$MYSTYLE['base']['.filtering']['font-weight'] = 'normal'; 
-$MYSTYLE['base']['.filtering']['border-top'] = "1px #258aff solid"; 
-$MYSTYLE['base']['.filtering']['border-right'] = "2px #258aff dashed"; 
-$MYSTYLE['base']['.filtering']['border-bottom'] = "1px #258aff solid"; 
-$MYSTYLE['base']['.filtering']['border-left'] = "2px #258aff dashed"; 
+$MYSTYLE['base!']['#filterstart, .filtering'] = array(
+    'background-color' => "transparent", 
+    /* 'font-family' => $STYLE['fontfamily'], */
+    'font-weight' => 'normal', 
+    'border-top' => "1px #258aff solid", 
+    'border-right' => "2px #258aff dashed", 
+    'border-bottom' => "1px #258aff solid", 
+    'border-left' => "2px #258aff dashed", 
+);
 
 $MYSTYLE['read']['#iframespace']['border'] = "2px #ddb258 solid";
 $MYSTYLE['read']['#closebox']['border'] = "2px #ddb258 solid";

@@ -6,10 +6,12 @@
 
 /*
 conf/conf_user_style.phpもしくはスキンで
-$MYSTYLE['カテゴリ<>要素<>プロパティ'] = "値";
+$MYSTYLE['カテゴリ<>セレクタ<>プロパティ'] = "値";
 もしくは
-$MYSTYLE['カテゴリ']['要素']['プロパティ'] = "値";
+$MYSTYLE['カテゴリ']['セレクタ']['プロパティ'] = "値";
 の書式で設定を変えたい項目を指定する。
+
+カテゴリ名の末尾に'!'をつけると、値に !important がつく。
 
 前者の書式はmystyle_cssがincludeされたときに多次元配列に変換されるので
 始めから後者の書式で書いたほうが効率が良い。
@@ -24,8 +26,9 @@ $MYSTYLE['カテゴリ']['要素']['プロパティ'] = "値";
 'カテゴリ'='*' → すべての *_css.php で !important つきで読み込まれる
 'カテゴリ'='all' → すべての *_css.php で読み込まれる
 'カテゴリ'='base' → style_css.php に読み込まれる
-'カテゴリ'='subject', '要素'='sb_td' → subjectテーブル（偶数列）をまとめて設定
-'カテゴリ'='subject', '要素'='sb_td1' → subjectテーブル（奇数列）をまとめて設定
+'セレクタ'='sb_td' → subjectテーブル（偶数列）をまとめて設定
+'セレクタ'='sb_td1' → subjectテーブル（奇数列）をまとめて設定
+'セレクタ'='@import' → 値をURLとみなし、@import url('値'); とする
 がある。
 
 スタイル設定の優先順位は
@@ -37,28 +40,58 @@ $MYSTYLE['*'] および !important つきの値はJavaScriptでの変更が効かないので注意！
 // {{{ 初期化
 
 $MYSTYLE = parse_mystyle($MYSTYLE);
-$MYSTYLE_DONE = array();
-if (!isset($MYSTYLE['*'])) {
-    $MYSTYLE_DONE['*'] = TRUE;
-}
-if (!isset($MYSTYLE['all'])) {
-    $MYSTYLE_DONE['all'] = TRUE;
-}
 
 // }}}
-// {{{ parse_mystyle() - $MYSTYLEを多次元配列に変換
+// {{{ parse_mystyle()
 
+/**
+ * 旧形式の$MYSTYLEを多次元配列に変換する
+ *
+ * @param   array   $MYSTYLE
+ * @return  array
+ */
 function parse_mystyle($MYSTYLE)
 {
-    if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-        foreach ($MYSTYLE as $key => $value) {
-            if (is_string($value) && strstr($key, '<>')) {
-                list($category, $element, $property) = explode('<>', $key);
-                $MYSTYLE[$category][$element][$property] = $value;
-                unset($MYSTYLE[$key]);
+    $unused = array();
+
+    foreach ($MYSTYLE as $key => $value) {
+        if (is_string($value) && strstr($key, '<>')) {
+            list($category, $selector, $property) = explode('<>', $key);
+            if ($category == '*') {
+                $category = 'all!';
+            }
+            $MYSTYLE[$category][$selector][$property] = $value;
+            if (substr($category, -1) == '!') {
+                $category = substr($category, 0, -1);
+                if (!isset($MYSTYLE[$category])) {
+                    $MYSTYLE[$category] = array();
+                }
+            }
+            $unused[] = $key;
+
+        } elseif ($key == '*') {
+            if (isset($MYSTYLE['all!']) && is_array($MYSTYLE['all!'])) {
+                $MYSTYLE['all!'] = array_merge_recursive($MYSTYLE['all!'], $value);
+            } else {
+                $MYSTYLE['all!'] = $value;
+            }
+            if (!isset($MYSTYLE['all'])) {
+                $MYSTYLE['all'] = array();
+            }
+            $unused[] = '*';
+
+        } elseif (substr($key, -1) == '!') {
+            $category = substr($key, 0, -1);
+            if (!isset($MYSTYLE[$category])) {
+                $MYSTYLE[$category] = array();
             }
         }
     }
+
+    foreach ($unused as $key) {
+        unset($MYSTYLE[$key]);
+    }
+
     return $MYSTYLE;
 }
 
@@ -99,70 +132,118 @@ function printMyStyleCssByCategory($category)
  */
 function getMyStyleCss($category)
 {
-    global $MYSTYLE, $MYSTYLE_DONE;
-    
-    $stylesheet = "\n";
-    $suffix = '';
-    
+    global $MYSTYLE;
+    static $done = array();
+
+    $css = '';
+
     if (is_array($category)) {
         // {{{ $category が配列のとき
+
         foreach ($category as $acat) {
-            $stylesheet .= getMyStyleCss($acat, $important);
+            $css .= getMyStyleCss($acat);
         }
+
         // }}}
     } elseif (is_string($category)) {
         // {{{ $category が文字列のとき
-        
+
         // 検証
         if ($category == 'style') {
-            $stylesheet .= getMyStyleCss('base');
+            $css .= getMyStyleCss('base');
         }
-        if (!empty($MYSTYLE_DONE[$category])) {
+        if (!empty($done[$category])) {
             return '';
         }
-        $MYSTYLE_DONE[$category] = TRUE;
-        
-        // 特別な$MYSTYLEの処理
-        if ($category == '*') {
-            $suffix = ' !important';
-        } else {
-            if ($category != 'all') {
-                $stylesheet .= getMyStyleCss('all');
-            }
-            $stylesheet .= getMyStyleCss('*');
-            $suffix = '';
+        $done[$category] = true;
+
+        if ($category != 'all') {
+            $css .= getMyStyleCss('all');
         }
-        
+
         // スタイルシートに変換
         if (isset($MYSTYLE[$category]) && is_array($MYSTYLE[$category])) {
-            foreach ($MYSTYLE[$category] as $element => $properties) {
-                $element = mystyle_spelement($category, $element);
-                $stylesheet .= $element . " {\n";
-                foreach ($properties as $property => $value) {
-                    $stylesheet .= "\t" . $property . ": " . $value . $suffix . ";\n";
-                }
-                $stylesheet .= "}\n";
-            }
+            $css .= mystyle_extract($MYSTYLE[$category], false);
         }
+        $category .= '!';
+        if (isset($MYSTYLE[$category]) && is_array($MYSTYLE[$category])) {
+            $css .= mystyle_extract($MYSTYLE[$category], true);
+        }
+
         // }}}
     }
-    return $stylesheet;
+
+    return $css;
 }
 
 // }}}
-// {{{ mystyle_spelement() - 特殊な要素のキーをチェック
+// {{{ mystyle_extract()
 
 /**
+ *スタイルシートの値を展開する
+ *
+ * @param   array   $style
+ * @param   bool    $important
+ */
+function mystyle_extract($style, $important = false)
+{
+    $css = "\n";
+
+    foreach ($style as $selector => $properties) {
+        if (is_int($selector)) {
+            $styles = (is_array($properties)) ? $properties : array($properties);
+            foreach ($styles as $style) {
+                $css .= $styles . "\n";
+            }
+        } elseif($selector == '@import') {
+            $urls = (is_array($properties)) ? $properties : array($properties);
+            foreach ($urls as $url) {
+                if (strpos($url, 'http://') === false &&
+                    strpos($url, 'https://') === false &&
+                    strpos($url, '?') === false)
+                {
+                    $url .= '?' . $GLOBALS['_conf']['p2_version_id'];
+                }
+                $css .= "@import url('" . str_replace("'", "''", $url) . "');\n";
+            }
+        } else {
+            $suffix = ($important) ? " !important;\n" : ";\n";
+            $selector = mystyle_selector($selector);
+            $css .= $selector . " {\n";
+            foreach ($properties as $property => $value) {
+                if (strpos($property, 'font-family') !== false) {
+                    $value = '"' . p2_correct_css_fontfamily($value) . '"';
+                } elseif (strpos($property, 'color') !== false) {
+                    $value = p2_correct_css_color($value);
+                } elseif (strpos($property, 'background') !== false) {
+                    $value = "url('" . str_replace("'", "''", $value) . "')";
+                }
+                $css .= $property . ': ' . $value . $suffix;
+            }
+            $css .= "}\n";
+        }
+    }
+
+    return $css;
+}
+
+// }}}
+// {{{ mystyle_selector()
+
+/**
+ * 特殊なセレクタをチェック
+ *
+ * @param   string  $selector
  * @return  string
  */
-function mystyle_spelement($category, $element)
+function mystyle_selector($selector)
 {
-    if ($category == 'subject' && $element == 'sb_td') {
-        $element = 'td.t, td.te, td.tu, td.tn, td.tc, td.to, td.tl, td.ti, td.ts';
-    } elseif ($category == 'subject' && $element == 'sb_td1') {
-        $element = 'td.t2, td.te2, td.tu2, td.tn2, td.tc2, td.to2, td.tl2, td.ti2, td.ts2';
+    if ($selector == 'sb_td') {
+        return 'td.t, td.te, td.tu, td.tn, td.tc, td.to, td.tl, td.ti, td.ts';
+    } elseif ($selector == 'sb_td1') {
+        return 'td.t2, td.te2, td.tu2, td.tn2, td.tc2, td.to2, td.tl2, td.ti2, td.ts2';
     }
-    return $element;
+    return $selector;
 }
 
 // }}}
