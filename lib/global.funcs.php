@@ -117,6 +117,28 @@ function p2_correct_css_color($color)
 }
 
 // }}}
+// {{{ p2_escape_css_url()
+
+/**
+ * スタイルシートのURLをエスケープする
+ *
+ * CSSで特に意味のあるトークンである空白文字、シングルクォート、
+ * ダブルクォート、括弧、バックスラッシュをURLエンコードする
+ *
+ * @param   string $url
+ * @return  string
+ */
+function p2_escape_css_url($url)
+{
+    if (strpos($url, chr(0)) !== false) {
+        return '';
+    }
+    return str_replace(array( "\t",  "\n",  "\r",   ' ',   '"',   "'",   '(',   ')',  '\\'),
+                       array('%09', '%0A', '%0D', '%20', '%22', '%27', '%28', '%29', '%5C'),
+                       $url);
+}
+
+// }}}
 
 /**
  * p2 error メッセージを表示して終了

@@ -216,7 +216,7 @@ function mystyle_extract($style, $important = false)
                 } elseif (strpos($property, 'color') !== false) {
                     $value = p2_correct_css_color($value);
                 } elseif (strpos($property, 'background') !== false) {
-                    $value = "url('" . str_replace("'", "''", $value) . "')";
+                    $value = "url('" . p2_escape_css_url($value) . "')";
                 }
                 $css .= $property . ': ' . $value . $suffix;
             }

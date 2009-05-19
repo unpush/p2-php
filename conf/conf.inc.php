@@ -718,7 +718,7 @@ function _setStyle()
             } elseif (strpos($k, 'color') !== false) {
                 $STYLE[$k] = p2_correct_css_color($v);
             } elseif (strpos($k, 'background') !== false) {
-                $STYLE[$k] = 'url("' . addslashes($v) . '")';
+                $STYLE[$k] = 'url("' . p2_escape_css_url($v) . '")';
             }
         }
     //}
