@@ -1001,7 +1001,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     if ({$ll_autoactivate}) {
         window.setTimeout(function(cursor) {
-            limelight.activateWithSlide(slide, cursor);
+            limelight.activateSlide(slide, cursor);
         }, 100, (window.location.hash == '#bottom') ? -1 : 0);
     }
 }, false);
