@@ -1,5 +1,9 @@
 <?php
 // p2 - スタイルシートを外部スタイルシートとして出力する
+/*
+<link rel="stylesheet" type="text/css" href="css.php?css=style&user=nanashi&skin=">
+<link rel="stylesheet" type="text/css" href="css.php?css=read&user=nanashi&skin=">
+*/
 
 require_once './conf/conf.inc.php' ;
 
@@ -11,9 +15,10 @@ if (!isset($_GET['css']) or !$cssFilePath = _getValidCssFilePath($_GET['css'])) 
 }
 
 // CSS出力
-_printCss($cssFilePath);
+_printCss($cssFilePath, geti($_GET['skin']));
 
 exit;
+
 
 //===============================================================================
 // 関数（このファイル内でのみ利用）
@@ -21,7 +26,7 @@ exit;
 /**
  * @return  void  CSS出力
  */
-function _printCss($cssFilePath)
+function _printCss($cssFilePath, $skin = null)
 {
     global $_conf, $STYLE, $MYSTYLE;
     
@@ -35,7 +40,7 @@ header('Pragma: cache');
 header('Content-Type: text/css; charset=Shift_JIS');
 */
 
-    $mtime = max(filemtime($cssFilePath), filemtime(_getSkinFilePath()));
+    $mtime = max(filemtime($cssFilePath), filemtime(_getSkinFilePath($skin)));
 
     if (file_exists($_conf['conf_user_file'])) {
         $mtime = max($mtime, filemtime($_conf['conf_user_file']));
@@ -83,23 +88,39 @@ function _getValidCssFilePath($cssname)
 /**
  * @return  string
  */
-function _getSkinFilePath()
+function _getSkinFilePath($skin = null)
 {
     global $_conf;
     
     $skinFilePath = '';
     
-    if (isset($_GET['skin'])) {
-        $skinFilePath = P2Util::getSkinFilePathBySkinName($_GET['skin']);
-    } elseif (file_exists($_conf['skin_setting_path'])) {
-        $skinFilePath = P2Util::getSkinFilePathBySkinName(
-            rtrim(file_get_contents($_conf['skin_setting_path']))
-        );
+    if ($skin) {
+        $skinFilePath = P2Util::getSkinFilePathBySkinName($skin);
+        
+    } elseif ($skin_setting_path = _getSkinSettingPath()) {
+        $skinFilePath = P2Util::getSkinFilePathBySkinName($skin_setting_path);
     }
+    
     if (!$skinFilePath || !is_file($skinFilePath)) {
         $skinFilePath = $_conf['conf_user_style_inc_php'];
     }
     return $skinFilePath;
+}
+
+/**
+ * @return  string|null|false
+ */
+function _getSkinSettingPath()
+{
+    global $_conf;
+    
+    if (file_exists($_conf['skin_setting_path'])) {
+        if (false === $cont = file_get_contents($_conf['skin_setting_path'])) {
+            return false;
+        }
+        return rtrim($cont);
+    }
+    return null;
 }
 
 /*
