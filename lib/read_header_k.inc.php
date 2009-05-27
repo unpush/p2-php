@@ -50,14 +50,14 @@ $favvalue = $aThread->fav ? 0 : 1;
 $rnum_range = $_conf['k_rnum_range'];
 $latest_show_res_num = $_conf['k_rnum_range']; // ÅVXX
 
-$read_navi_previous     = "";
-$read_navi_previous_btm = "";
-$read_navi_next         = "";
-$read_navi_next_btm     = "";
-$read_footer_navi_new_ht   = "";
-$read_footer_navi_new_btm_ht = "";
-$read_navi_latest       = "";
-$read_navi_latest_btm   = "";
+$read_navi_previous     = '';
+$read_navi_previous_btm = '';
+$read_navi_next         = '';
+$read_navi_next_btm     = '';
+$read_footer_navi_new_ht   = '';
+$read_footer_navi_new_btm_ht = '';
+$read_navi_latest       = '';
+$read_navi_latest_btm   = '';
 $read_navi_filter       = '';
 $read_navi_filter_btm   = '';
 
@@ -265,7 +265,7 @@ EOP;
 }
 
 echo $hr;
-?><h3><font color="<?php eh($STYLE['read_k_thread_title_color']); ?>"><?php eh($aThread->ttitle); ?> </font></h3><?php
+?><h3><font color="<?php eh($STYLE['read_k_thread_title_color']); ?>"><?php eh($aThread->ttitle_hc); ?> </font></h3><?php
 
 $filter_fields = array(
     'whole' => '',
