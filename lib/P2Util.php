@@ -807,6 +807,33 @@ class P2Util
     }
     
     /**
+     * host が 2ch なら true を返す（bbspink, find.2chは含まない）
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function isHost2ch($host)
+    {
+        // find.2ch.net（こっそりアンケート）は除く
+        if (P2Util::isHostFind2ch($host)) {
+            return false;
+        }
+        return (bool)preg_match('/\\.(2ch\\.net)$/', $host);
+    }
+    
+    /**
+     * host が find.2ch.net（こっそりアンケート） なら true を返す
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function isHostFind2ch($host)
+    {
+        // find.2ch.net（こっそりアンケート）は除く
+        return (bool)preg_match('{^find\\.2ch\\.net}', $host);
+    }
+    
+    /**
      * host が be.2ch.net なら true を返す
      *
      * 2006/07/27 これはもう古いメソッド。
@@ -836,7 +863,7 @@ class P2Util
         }
         // [todo] bbs名で判断しているが、SETTING.TXT の BBS_BE_ID=1 で判断したほうがよいだろう
         $be_bbs = array('be', 'nandemo', 'argue');
-        if (P2Util::isHost2chs($host) && in_array($bbs, $be_bbs)) {
+        if (P2Util::isHost2ch($host) && in_array($bbs, $be_bbs)) {
             return true;
         }
         return false;
@@ -1206,7 +1233,7 @@ EOP;
     {
         global $_login;
         
-        // DoCoMoはutfでUAが変わっちゃうので、UAは外してしまおう
+        // docomoはutfでUAが変わっちゃうので、UAは外してしまおう
         // return md5($_login->user . $_login->pass_x . geti($_SERVER['HTTP_USER_AGENT']));
         return md5($_login->user . $_login->pass_x);
     }

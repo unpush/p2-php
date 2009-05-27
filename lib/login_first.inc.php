@@ -81,12 +81,12 @@ function printLoginFirst(&$_login)
                 '<input type="checkbox" name="regist_jp" value="1" checked>SoftBank端末IDで認証を登録<br>';
         }
 
-    // DoCoMo認証
+    // docomo認証
     } elseif ($mobile->isDoCoMo()) {
         if (file_exists($_conf['auth_docomo_file'])) {
         } else {
             $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_docomo" value="1">' . "\n" .
-                '<input type="checkbox" name="regist_docomo" value="1" checked>DoCoMo端末IDで認証を登録<br>';
+                '<input type="checkbox" name="regist_docomo" value="1" checked>docomo端末IDで認証を登録<br>';
         }
 
     // Cookie認証
@@ -130,17 +130,17 @@ function printLoginFirst(&$_login)
         $form_login_pass_hs = '';
     }
 
-    // DoCoMoの固有端末認証（セッション利用時のみ有効）
+    // docomoの固有端末認証（セッション利用時のみ有効）
     $docomo_utn_ht = '';
     
     //if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
     if ($_conf['use_session'] && $mobile->isDoCoMo()) {
         $uri = $myname . '?guid=ON&user=' . urlencode($_login->user_u);
-        $docomo_utn_ht = '<p><a href="' . hs($uri) . '" utn>DoCoMo固有端末認証</a></p>';
+        $docomo_utn_ht = '<p><a href="' . hs($uri) . '" utn>docomo固有端末認証</a></p>';
     }
 
-    // DoCoMoならリトライ時にパスワード入力を password → text とする
-    // （DoCoMoはpassword入力が完全マスクされるUIで、入力エラーがわかりにく過ぎる）
+    // docomoならリトライ時にパスワード入力を password → text とする
+    // （docomoはpassword入力が完全マスクされるUIで、入力エラーがわかりにく過ぎる）
     if (isset($post['form_login_pass']) and $mobile->isDoCoMo()) {
         $type = "text";
     } else {

@@ -29,7 +29,7 @@ class SettingTxt
         $this->setting_txt = $dat_bbs_dir . '/SETTING.TXT';
         $this->setting_cache = $dat_bbs_dir . '/p2_kb_setting.srd';
         
-        $this->url = "http://" . $this->host . '/' . $this->bbs . "/SETTING.TXT";
+        $this->url = 'http://' . $this->host . '/' . $this->bbs . '/SETTING.TXT';
         //$this->url = P2Util::adjustHostJbbs($this->url); // したらばのlivedoor移転に対応。読込先をlivedoorとする。
         
         // SETTING.TXT をダウンロード＆セットする

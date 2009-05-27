@@ -18,7 +18,7 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     // クラスA~Cのプライベートアドレス
         'private'   => 1,
     // iモード
-        'DoCoMo'    => 1,
+        'docomo'    => 1,
     // ezWEB
         'au'        => 1,
     // SoftBank(Vodafone Live!)

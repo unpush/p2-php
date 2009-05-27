@@ -150,13 +150,12 @@ class ShowThreadK extends ShowThread
     function transRes($ares, $i)
     {
         global $STYLE, $mae_msg, $res_filter, $word_fm;
-        global $ngaborns_hits;
         global $_conf;
         
         $hr = P2View::getHrHtmlK();
         
         $tores      = ''; // 返却するレスHTML全体
-        $rpop       = '';
+        $rpop       = ''; // レスポップアップ用引用
         
         $resar      = $this->thread->explodeDatLine($ares);
         $name       = $resar[0];
@@ -164,7 +163,7 @@ class ShowThreadK extends ShowThread
         $date_id    = $resar[2];
         $msg        = $resar[3];
 
-        if (!empty($this->BBS_NONAME_NAME) and $this->BBS_NONAME_NAME == $name) {
+        if ($this->BBS_NONAME_NAME and $this->BBS_NONAME_NAME == $name) {
             $name = '';
         }
 

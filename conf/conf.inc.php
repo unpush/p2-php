@@ -197,10 +197,10 @@ if (PEAR::isError($mobile)) {
 
     // ベンダ判定
     // 2007/11/11 IPチェックは認証時に行った方がよさそうな
-    // DoCoMo i-Mode
+    // docomo i-Mode
     if ($mobile->isDoCoMo()) {
         if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
-            P2Util::printSimpleHtml("p2 error: UAがDoCoMoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+            P2Util::printSimpleHtml("p2 error: UAがdocomoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
             die;
         }
         $_conf['disable_cookie'] = true;

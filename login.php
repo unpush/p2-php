@@ -126,7 +126,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
         }
     }
     
-// DoCoMo認証
+// docomo認証
 } elseif ($mobile->isDoCoMo()) {
     if (file_exists($_conf['auth_docomo_file'])) {
         $atag = P2View::tagA(
@@ -138,7 +138,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
             ),
             '解除'
         );
-        $auth_ctl_html = sprintf('DoCoMo端末ID認証登録済[%s]<br>', $atag);
+        $auth_ctl_html = sprintf('docomo端末ID認証登録済[%s]<br>', $atag);
 
     } else {
         if ($_login->pass_x) {
@@ -150,7 +150,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
                     UA::getQueryKey() => UA::getQueryValue()
                 )
             );
-            $atag = sprintf('<a href="%s" utn>%s</a>', $uri, 'DoCoMo端末IDで認証を登録');
+            $atag = sprintf('<a href="%s" utn>%s</a>', $uri, 'docomo端末IDで認証を登録');
             $auth_ctl_html = sprintf('[%s]<br>', $atag);
         }
     }

@@ -191,14 +191,14 @@ class HostCheck
         }
 
         if (
-            ( $flag == $_HOSTCHKCONF['host_type']['localhost'] && HostCheck::isAddrLocal() ) 
-            || ( $flag == $_HOSTCHKCONF['host_type']['private'] && HostCheck::isAddrPrivate() ) 
-            || ( $flag == $_HOSTCHKCONF['host_type']['custom'] && $custom && HostCheck::isAddrInBand($custom) ) 
-            || ( $flag == $_HOSTCHKCONF['host_type']['DoCoMo'] && HostCheck::isAddrDocomo() ) 
-            || ( $flag == $_HOSTCHKCONF['host_type']['au'] && HostCheck::isAddrAu() ) 
+            ( $flag == $_HOSTCHKCONF['host_type']['localhost']   && HostCheck::isAddrLocal() ) 
+            || ( $flag == $_HOSTCHKCONF['host_type']['private']  && HostCheck::isAddrPrivate() ) 
+            || ( $flag == $_HOSTCHKCONF['host_type']['custom']   && $custom && HostCheck::isAddrInBand($custom) ) 
+            || ( $flag == $_HOSTCHKCONF['host_type']['docomo']   && HostCheck::isAddrDocomo() ) 
+            || ( $flag == $_HOSTCHKCONF['host_type']['au']       && HostCheck::isAddrAu() ) 
             || ( $flag == $_HOSTCHKCONF['host_type']['SoftBank'] && HostCheck::isAddrSoftBank() ) 
-            || ( $flag == $_HOSTCHKCONF['host_type']['AirH'] && HostCheck::isAddrWillcom() ) 
-            || ( $flag == $_HOSTCHKCONF['host_type']['iPhone'] && HostCheck::isAddrIPhone() )
+            || ( $flag == $_HOSTCHKCONF['host_type']['AirH']     && HostCheck::isAddrWillcom() ) 
+            || ( $flag == $_HOSTCHKCONF['host_type']['iPhone']   && HostCheck::isAddrIPhone() )
         ) {
             return $ret;
         }
@@ -434,7 +434,7 @@ class HostCheck
     }
 
     /**
-     * IP‚Í DoCoMo?
+     * IP‚Í docomo?
      *
      * @link  http://www.nttdocomo.co.jp/service/imode/make/content/ip/about/
      * @return  boolean

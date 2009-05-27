@@ -268,7 +268,7 @@ class Session
      */
     function checkIP()
     {
-        $check_level = 1; // 0～4 IPがころころ変わるDoCoMoを考慮すると、1まで
+        $check_level = 1; // 0～4 IPがころころ変わるdocomoを考慮すると、1まで
         
         $ses_ips = explode('.', $_SESSION[$this->sess_array]['ip']);
         $now_ips = explode('.', $_SERVER['REMOTE_ADDR']);
@@ -296,7 +296,7 @@ class Session
             return true;
         }
         
-        // {{{ DoCoMoはUTN時にUA後部が変わるので機種名で検証する
+        // {{{ docomoはUTN時にUA後部が変わるので機種名で検証する
         
         $mobile = &Net_UserAgent_Mobile::singleton();
         if ($mobile->isDoCoMo()) {

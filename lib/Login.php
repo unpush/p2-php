@@ -172,7 +172,7 @@ class Login
             } elseif ($mobile->isSoftBank()) {
                 file_exists($_conf['auth_jp_file']) && unlink($_conf['auth_jp_file']);
             
-            /* DoCoMoはログイン画面が表示されるので、補助認証情報を自動破棄しない
+            /* docomoはログイン画面が表示されるので、補助認証情報を自動破棄しない
             } elseif ($mobile->isDoCoMo()) {
                 file_exists($_conf['auth_docomo_file']) && unlink($_conf['auth_docomo_file']);
             */
@@ -325,7 +325,7 @@ class Login
                 }
             }
         
-            // ■DoCoMo UTN認証
+            // ■docomo UTN認証
             // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
             if (empty($_POST['form_login_id'])) {
 
@@ -334,7 +334,7 @@ class Login
                         include $_conf['auth_docomo_file'];
                         if ($sn == $registed_docomo) {
                             if (isset($_p2session)) {
-                                // DoCoMoで書き込んだ後に戻ったりすると再認証になって不便
+                                // docomoで書き込んだ後に戻ったりすると再認証になって不便
                                 //$_p2session->regenerateId();
                                 $_p2session->updateSecure();
                             }
@@ -508,7 +508,7 @@ class Login
             }
         
         // }}}
-        // {{{ 認証登録処理 DoCoMo
+        // {{{ 認証登録処理 docomo
         
         } elseif (!empty($_REQUEST['ctl_regist_docomo'])) {
             if ($_REQUEST['regist_docomo'] == '1') {
@@ -516,7 +516,7 @@ class Login
                 if ($mobile->isDoCoMo() && ($sn = $mobile->getSerialNumber()) !== NULL) {
                     $this->registAuth('registed_docomo', $sn, $_conf['auth_docomo_file']);
                 } else {
-                    P2Util::pushInfoHtml('<p class="infomsg">×DoCoMo用固有IDでの認証登録はできませんでした</p>');
+                    P2Util::pushInfoHtml('<p class="infomsg">×docomo用固有IDでの認証登録はできませんでした</p>');
                 }
             } else {
                 $this->registAuthOff($_conf['auth_docomo_file']);

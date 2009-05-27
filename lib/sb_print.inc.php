@@ -263,8 +263,7 @@ EOP;
         if ($ita_name_bool) {
             $ita_name = $aThread->itaj ? $aThread->itaj : $aThread->bbs;
             $ita_atag = P2View::tagA(
-                P2Util::buildQueryUri(
-                    $_conf['subject_php'],
+                P2Util::buildQueryUri($_conf['subject_php'],
                     array(
                         'host' => $aThread->host,
                         'bbs'  => $aThread->bbs
@@ -279,19 +278,17 @@ EOP;
         // }}}
         
         // お気に入り
-        if ($_conf['sb_show_fav']) {
-            if ($aThreadList->spmode != "taborn") {
+        if ($_conf['sb_show_fav'] and $aThreadList->spmode != 'taborn') {
             
-                $favmark    = !empty($aThread->fav) ? '★' : '+';
-                $favvalue      = !empty($aThread->fav) ? 0 : 1;
-                $favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
-                $setfav_q    = '&amp;setfav=' . $favvalue;
+            $favmark    = !empty($aThread->fav) ? '★' : '+';
+            $favvalue   = !empty($aThread->fav) ? 0 : 1;
+            $favtitle   = $favvalue ? 'お気にスレに追加' : 'お気にスレから外す';
+            $setfav_q   = '&amp;setfav=' . $favvalue;
 
-                // $ttitle_en_q も付けた方がいいが、節約のため省略する
-                $fav_ht = <<<EOP
+            // $ttitle_en_q も付けた方がいいが、節約のため省略する
+            $fav_ht = <<<EOP
 <td{$class_t}><a class="fav" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$setfav_q}" target="info" onClick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}', '{$favvalue}', {$STYLE['info_pop_size']}, 'subject', this);" title="{$favtitle}">{$favmark}</a></td>
 EOP;
-            }
         }
         
         // torder(info) =================================================
@@ -340,7 +337,7 @@ EOP;
         }
         
         // スレリンク
-        if (!empty($_REQUEST['find_cont']) && strlen($GLOBALS['word_fm']) > 0) {
+        if (!empty($_REQUEST['find_cont']) && strlen($GLOBALS['word_fm'])) {
             $word_q = "&amp;word=" . urlencode($GLOBALS['word']) . "&amp;method=" . urlencode($GLOBALS['sb_filter']['method']);
             $rescount_q = '';
             $offline_q  = '&amp;offline=1';

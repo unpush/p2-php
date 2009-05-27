@@ -1374,13 +1374,15 @@ class ShowThreadK extends ShowThread
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
         // http://m.youtube.com/watch?v=OhcX0xJsDK8&client=mv-google&gl=JP&hl=ja&guid=ON&warned=True
         if (preg_match('{^http://(www|jp|m)\\.youtube\\.com/watch\\?(?:.+&amp;)?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+            /*
             if ($m[1] == 'm') {
                 $url = "http://www.youtube.com/watch?v={$m[2]}";
             }
             $url = P2Util::throughIme($url);
+            */
             return sprintf(
                 '<a href="youtube:%s"><img src="http://i.ytimg.com/vi/%s/default.jpg">%s</a><br>',
-                $m[1], $m[1], $html
+                hs($m[2]), hs($m[2]), $html
             );
         }
         return false;
@@ -1393,7 +1395,6 @@ class ShowThreadK extends ShowThread
      * @access  private
      * @return  string|false
      */
-    // iPhone用に改造
     // iflame でも表示できるがフッタと重なった時に不具合あり
     // 画像サムネイルのみ表示
     function plugin_linkNicoNico($url, $purl, $html)
@@ -1407,13 +1408,15 @@ class ShowThreadK extends ShowThread
 */
         if (preg_match('{^http://www\\.nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9a-zA-Z_-]+)}', $url, $m)) {
             //$url = P2Util::throughIme($url);
-            //$url_hs = hs($url);
+            $url_hs = hs($url);
             $id = $m[1];
-            $ids = str_replace( 'sm', '',$id);
-            $ids = str_replace( 'nm', '',$ids);
+            $ids = str_replace( 'sm', '', $id);
+            $ids = str_replace( 'nm', '', $ids);
+            $id_hs  = hs($id);
+            $ids_hs = hs($ids);
 return <<<EOP
-<a href="mailto:?subject=rp2iPhone からニコニコ&body=http:%2F%2Fwww.nicovideo.jp%2Fwatch%2F{$id}"><img class="nico" src="http://tn-skr.smilevideo.jp/smile?i={$ids}"></a>
-<a href="$url" target="_blank">{$html}</a>
+<a href="mailto:?subject=rep2iPhone からニコニコ&body=http:%2F%2Fwww.nicovideo.jp%2Fwatch%2F{$id_hs}"><img class="nico" src="http://tn-skr.smilevideo.jp/smile?i={$ids_hs}"></a>
+<a href="$url_hs" target="_blank">{$html}</a>
 EOP;
         }
         return false;
