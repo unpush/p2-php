@@ -33,7 +33,7 @@
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2008-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    CVS: $Id: ScreenInfo.php,v 1.6 2009/05/10 17:28:47 kuboa Exp $
+ * @version    CVS: $Id: ScreenInfo.php,v 1.7 2009/05/22 18:47:40 kuboa Exp $
  * @link       http://www.nttdocomo.co.jp/service/imode/make/content/spec/screen_area/index.html
  * @since      File available since Release 1.0.0RC1
  */
@@ -53,7 +53,7 @@ $GLOBALS['NET_USERAGENT_MOBILE_DoCoMo_ScreenInfo_Instance'] = null;
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2008-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    Release: 1.0.0RC2
+ * @version    Release: 1.0.0RC3
  * @link       http://www.nttdocomo.co.jp/service/imode/make/content/spec/screen_area/index.html
  * @since      Class available since Release 1.0.0RC1
  */
@@ -1986,6 +1986,26 @@ class Net_UserAgent_Mobile_DoCoMo_ScreenInfo
                        'N04A' => array(
                                        'width'  => 240,
                                        'height' => 320,
+                                       'depth'  => 262144,
+                                       'color'  => 1
+                                       ),
+
+                       // i-mode browser 2.0
+                       'P07A' => array(
+                                       'width'  => 480,
+                                       'height' => 662,
+                                       'depth'  => 262144,
+                                       'color'  => 1
+                                       ),
+                       'N06A' => array(
+                                       'width'  => 480,
+                                       'height' => 640,
+                                       'depth'  => 262144,
+                                       'color'  => 1
+                                       ),
+                       'N08A' => array(
+                                       'width'  => 480,
+                                       'height' => 640,
                                        'depth'  => 262144,
                                        'color'  => 1
                                        )

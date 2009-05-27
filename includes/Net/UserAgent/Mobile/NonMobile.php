@@ -62,7 +62,7 @@ require_once 'Net/UserAgent/Mobile/Display.php';
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    Release: 1.0.0RC2
+ * @version    Release: 1.0.0RC3
  * @since      Class available since Release 0.1.0
  */
 class Net_UserAgent_Mobile_NonMobile extends Net_UserAgent_Mobile_Common

@@ -33,23 +33,13 @@
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    CVS: $Id: Mobile.php,v 1.43 2009/05/10 17:28:47 kuboa Exp $
+ * @version    CVS: $Id: Mobile.php,v 1.45 2009/05/12 17:48:51 kuboa Exp $
  * @since      File available since Release 0.1
  */
 
+require_once 'Net/UserAgent/Mobile/Error.php';
 require_once 'PEAR.php';
 
-// {{{ constants
-
-/**
- * Constants for error handling.
- */
-define('NET_USERAGENT_MOBILE_OK',               1);
-define('NET_USERAGENT_MOBILE_ERROR',           -1);
-define('NET_USERAGENT_MOBILE_ERROR_NOMATCH',   -2);
-define('NET_USERAGENT_MOBILE_ERROR_NOT_FOUND', -3);
-
-// }}}
 // {{{ GLOBALS
 
 /**
@@ -104,7 +94,7 @@ $GLOBALS['NET_USERAGENT_MOBILE_FallbackOnNomatch'] = false;
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    Release: 1.0.0RC2
+ * @version    Release: 1.0.0RC3
  * @since      Class available since Release 0.1
  */
 class Net_UserAgent_Mobile
@@ -189,7 +179,7 @@ class Net_UserAgent_Mobile
                 return $instance;
             }
 
-            return $instance->raiseError($error);
+            return PEAR::raiseError($error);
         }
 
         return $instance;
@@ -415,23 +405,6 @@ class Net_UserAgent_Mobile
 
     // }}}
 }
-
-// }}}
-// {{{ Net_UserAgent_Mobile_Error
-
-/**
- * Net_UserAgent_Mobile_Error implements a class for reporting user agent error
- * messages
- *
- * @category   Networking
- * @package    Net_UserAgent_Mobile
- * @author     KUBO Atsuhiro <kubo@iteman.jp>
- * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
- * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    Release: 1.0.0RC2
- * @since      Class available since Release 0.1
- */
-class Net_UserAgent_Mobile_Error extends PEAR_Error {}
 
 // }}}
 

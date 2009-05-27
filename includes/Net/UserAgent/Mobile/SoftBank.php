@@ -33,13 +33,14 @@
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    CVS: $Id: SoftBank.php,v 1.15 2009/05/10 17:28:47 kuboa Exp $
+ * @version    CVS: $Id: SoftBank.php,v 1.16 2009/05/22 18:49:04 kuboa Exp $
  * @link       http://creation.mb.softbank.jp/
  * @since      File available since Release 0.20.0
  */
 
 require_once 'Net/UserAgent/Mobile/Common.php';
 require_once 'Net/UserAgent/Mobile/Display.php';
+require_once 'Net/UserAgent/Mobile.php';
 
 // {{{ Net_UserAgent_Mobile_SoftBank
 
@@ -80,7 +81,7 @@ require_once 'Net/UserAgent/Mobile/Display.php';
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    Release: 1.0.0RC2
+ * @version    Release: 1.0.0RC3
  * @link       http://creation.mb.softbank.jp/
  * @since      Class available since Release 0.20.0
  */

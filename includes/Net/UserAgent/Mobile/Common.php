@@ -33,11 +33,12 @@
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    CVS: $Id: Common.php,v 1.31 2009/05/10 17:28:47 kuboa Exp $
+ * @version    CVS: $Id: Common.php,v 1.33 2009/05/12 17:48:51 kuboa Exp $
  * @since      File available since Release 0.1
  */
 
-require_once 'Net/UserAgent/Mobile.php';
+require_once 'Net/UserAgent/Mobile/Error.php';
+require_once 'PEAR.php';
 
 // {{{ Net_UserAgent_Mobile_Common
 
@@ -52,10 +53,10 @@ require_once 'Net/UserAgent/Mobile.php';
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    Release: 1.0.0RC2
+ * @version    Release: 1.0.0RC3
  * @since      Class available since Release 0.1
  */
-class Net_UserAgent_Mobile_Common extends PEAR
+class Net_UserAgent_Mobile_Common
 {
 
     // {{{ properties
@@ -133,12 +134,10 @@ class Net_UserAgent_Mobile_Common extends PEAR
      */
     function Net_UserAgent_Mobile_Common($userAgent)
     {
-        parent::PEAR('Net_UserAgent_Mobile_Error');
-
         $this->_userAgent = $userAgent;
 
         $result = $this->parse($userAgent);
-        if (Net_UserAgent_Mobile::isError($result)) {
+        if (PEAR::isError($result)) {
             $this->_error = &$result;
         }
     }
@@ -243,9 +242,13 @@ class Net_UserAgent_Mobile_Common extends PEAR
      */
     function noMatch()
     {
-        return $this->raiseError($this->getUserAgent() . ': might be new variants. Please contact the author of Net_UserAgent_Mobile!',
-                                 NET_USERAGENT_MOBILE_ERROR_NOMATCH
-                                 );
+        return PEAR::raiseError($this->getUserAgent() . ': might be new variants. Please contact the author of Net_UserAgent_Mobile!',
+                                NET_USERAGENT_MOBILE_ERROR_NOMATCH,
+                                null,
+                                null,
+                                null,
+                                'Net_UserAgent_Mobile_Error'
+                                );
     }
 
     // }}}
