@@ -561,7 +561,7 @@ EOMSG;
             
             // 数字を引用レスポップアップリンク化
             // </b>～<b> は、ホストやトリップなのでマッチしないようにしたい
-            if ($name) {
+            if (strlen($name) && $name != $this->BBS_NONAME_NAME) {
                 $name = preg_replace_callback(
                     $this->getAnchorRegex('/(?:^|%prefix%)%nums%/'),
                     array($this, 'quote_name_callback'), $name

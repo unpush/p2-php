@@ -155,8 +155,10 @@ class ShowThreadK extends ShowThread
         $date_id    = $resar[2];
         $msg        = $resar[3];
 
-        if ($this->BBS_NONAME_NAME and $this->BBS_NONAME_NAME == $name) {
-            $name = '';
+        if (!$_conf['k_bbs_noname_name']) {
+            if ($this->BBS_NONAME_NAME && $this->BBS_NONAME_NAME == $name) {
+                $name = '';
+            }
         }
 
         // 現在の年号は省略カットする。（設定で）月日の先頭0もカット。
@@ -419,13 +421,13 @@ class ShowThreadK extends ShowThread
             $name = preg_replace_callback($pettern, array($this, 'quote_res_callback'), $name, 1);
         }
         */
-        if ($name) {
+        if (strlen($name) && $name != $this->BBS_NONAME_NAME) {
             $name = preg_replace_callback(
                 $this->getAnchorRegex('/(?:^|%prefix%)%nums%/'),
                 array($this, 'quote_name_callback'), $name
             );
         }
-
+        
         // ふしあなさんとか？
         $name = preg_replace('~</b>(.+?)<b>~', '<font color="#777777">$1</font>', $name);
         
