@@ -51,7 +51,7 @@ class SettingTxt
     function dlAndSetData()
     {
         $this->downloadSettingTxt();
-        
+
         return $this->setSettingArray();
     }
 
@@ -82,8 +82,10 @@ class SettingTxt
         }
 
         // DL
-        require_once 'HTTP/Request.php';
-        
+        if (!class_exists('HTTP_Request', false)) {
+            require 'HTTP/Request.php';
+        }
+
         $params = array();
         $params['timeout'] = $_conf['fsockopen_time_limit'];
         if ($_conf['proxy_use']) {
@@ -101,7 +103,7 @@ class SettingTxt
             $error_msg = $response->getMessage();
         } else {
             $code = $req->getResponseCode();
-            
+
             if ($code == 302) {
                 // ホストの移転を追跡
                 require_once P2_LIB_DIR . '/BbsMap.php';
@@ -112,13 +114,13 @@ class SettingTxt
                     return true;
                 }
             }
-            
+
             if (!($code == 200 || $code == 206 || $code == 304)) {
                 //var_dump($req->getResponseHeader());
                 $error_msg = $code;
             }
         }
-        
+
         // DLエラー
         if (strlen($error_msg)) {
             P2Util::pushInfoHtml(
@@ -131,12 +133,12 @@ class SettingTxt
             touch($this->setting_txt); // DL失敗した場合も touch
             return false;
         }
-        
+
         $body = $req->getResponseBody();
-        
+
         // DL成功して かつ 更新されていたら保存
         if ($body && $code != 304) {
-        
+
             // したらば or be.2ch.net ならEUCをSJISに変換
             if (P2Util::isHostJbbsShitaraba($this->host) || P2Util::isHostBe2chNet($this->host)) {
                 $body = mb_convert_encoding($body, 'SJIS-win', 'eucJP-win');
@@ -156,10 +158,10 @@ class SettingTxt
             // touchすることで更新インターバルが効くので、しばらく再チェックされなくなる
             touch($this->setting_txt);
             // 同時にキャッシュもtouchしないと、setting_txtとsetting_srdで更新時間がずれて、
-            // 連続してここまで処理が来る（サーバへのヘッダリクエストが飛ぶ）場合がある。
+            // 毎回ここまで処理が来る（サーバへのヘッダリクエストが飛ぶ）場合がある。
             touch($this->setting_srd);
         }
-        
+
         return true;
     }
     
@@ -179,7 +181,7 @@ class SettingTxt
                 return true;
             }
         }
-        
+
         return false;
     }
     
@@ -194,15 +196,15 @@ class SettingTxt
     function cacheParsedSettingTxt()
     {
         global $_conf;
-        
+
         $this->setting_array = array();
-        
+
         if (!$lines = file($this->setting_txt)) {
             return false;
         }
-        
+
         foreach ($lines as $line) {
-            if (strstr($line, '=')) {
+            if (strpos($line, '=') !== false) {
                 list($key, $value) = explode('=', $line, 2);
                 $key = trim($key);
                 $value = trim($value);
@@ -257,5 +259,4 @@ class SettingTxt
  * indent-tabs-mode: nil
  * End:
  */
-
 // vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:
