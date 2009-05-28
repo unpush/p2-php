@@ -23,6 +23,8 @@ class ShowThread
     // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
     var $user_url_handlers  = array();
 
+    var $BBS_NONAME_NAME = '';
+    
     /**
      * @constructor
      */
@@ -41,6 +43,21 @@ class ShowThread
         
         if (empty($GLOBALS['_P2_NGABORN_LOADED'])) {
             NgAbornCtl::loadNgAborns();
+        }
+    }
+    
+    /**
+     * @access  protected
+     * @return  void
+     */
+    function setBbsNonameName()
+    {
+        if (P2Util::isHost2chs($this->thread->host)) {
+            require_once P2_LIB_DIR . '/SettingTxt.php';
+            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
+            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
+                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+            }
         }
     }
     

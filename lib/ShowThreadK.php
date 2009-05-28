@@ -7,8 +7,6 @@ require_once P2_LIB_DIR . '/StrSjis.php';
  */
 class ShowThreadK extends ShowThread
 {
-    var $BBS_NONAME_NAME = '';
-    
     /**
      * @constructor
      */
@@ -31,13 +29,7 @@ class ShowThreadK extends ShowThread
         }
         $this->url_handlers[] = array('this' => 'plugin_linkURL');
         
-        if (!$_conf['k_bbs_noname_name'] and P2Util::isHost2chs($this->thread->host)) {
-            require_once P2_LIB_DIR . '/SettingTxt.php';
-            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
-            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
-                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
-            }
-        }
+        $this->setBbsNonameName();
     }
 
     /**

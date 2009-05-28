@@ -33,6 +33,8 @@ class ShowThreadPc extends ShowThread
         $_conf['link_niconico'] and $this->url_handlers[] = 'plugin_linkNicoNico';
         $_conf['link_yourfilehost'] and $this->url_handlers[] = 'plugin_linkYourFileHost';
         $this->url_handlers[] = 'plugin_linkURL';
+
+        $this->setBbsNonameName();
     }
 
     /**
