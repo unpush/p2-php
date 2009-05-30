@@ -443,8 +443,8 @@ class ThreadRead extends Thread
      */
     function downloadDat2chNotFound($reason = null)
     {
-        // 2ch, bbspink ならread.cgiで確認
-        if (P2Util::isHost2chs($this->host)) {
+        // 2ch, bbspink, vip2ch.com ならread.cgiで確認
+        if (P2Util::isHost2chs($this->host) || P2Util::isHostVip2ch($this->host)) {
             $this->getdat_error_msg_ht .= $this->get2chDatError($reason);
         }
         $this->diedat = true;
@@ -999,8 +999,9 @@ class ThreadRead extends Thread
         $dat_response_status = '';
         $dat_response_msg_ht = '';
 
-        $kakosoko_match = "/このスレッドは過去ログ倉庫に格.{1,2}されています/";
-        
+        $kakosoko_match = '/このスレッドは過去ログ倉庫に格.{1,2}されています/';
+        $vip2ch_kakosoko_match = '/過去ログ倉庫に格.{1,2}されています/';
+
         $naidesu_match = "{<title>そんな板orスレッドないです。</title>}";
         $error3939_match = "{<title>２ちゃんねる error 3939</title>}"; // 過去ログ倉庫でhtml化の時（他にもあるかも、よく知らない）
         
@@ -1042,8 +1043,11 @@ class ThreadRead extends Thread
         //    
         // <title>がそんな板orスレッドないです。or error 3939
         //
-        } elseif (preg_match($naidesu_match, $read_response_html, $matches) || preg_match($error3939_match, $read_response_html, $matches)) {
-        
+        } elseif (
+            preg_match($naidesu_match, $read_response_html, $matches) 
+            || preg_match($error3939_match, $read_response_html, $matches)
+            || preg_match($vip2ch_kakosoko_match, $read_response_html, $matches)
+        ) {
             if (preg_match($kakohtml_match, $read_response_html, $matches)) {
                 $dat_response_status = "隊長! 過去ログ倉庫で、html化されたスレッドを発見しました。";
                 $kakolog_uri = "http://{$this->host}/{$matches[1]}";

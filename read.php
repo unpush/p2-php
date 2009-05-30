@@ -470,8 +470,8 @@ function _detectThread()
                 $ls  = geti($m[6]);
             }
             
-        // 2ch or pink âﬂãéÉçÉOhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
-        } elseif (preg_match("{(http://([^/]+\.(2ch\.net|bbspink\.com))(/[^/]+)?/([^/]+)/kako/\d+(/\d+)?/(\d+)).html}", $url, $matches)) {
+        // 2ch, pink, vip2ch.com âﬂãéÉçÉOhtml - http://pc.2ch.net/mac/kako/1015/10153/1015358199.html
+        } elseif (preg_match('{(http://([^/]+\.(2ch\.net|bbspink\.com|vip2ch\.com))(/[^/]+)?/([^/]+)/kako/\d+(/\d+)?/(\d+)).html}', $url, $matches)) {
             $host = $matches[2];
             $bbs  = $matches[5];
             $key  = $matches[7];

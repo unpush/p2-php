@@ -881,6 +881,17 @@ class P2Util
     }
     
     /**
+     * host ‚ª vip2ch.com ‚È‚ç true ‚ð•Ô‚·
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function isHostVip2ch($host)
+    {
+        return (bool)preg_match('/\\.(vip2ch\\.com)$/', $host);
+    }
+
+    /**
      * host ‚ª machibbs ‚È‚ç true ‚ð•Ô‚·
      *
      * @access  public
