@@ -1,4 +1,6 @@
 <?php
+// {{{ SettingTxt
+
 /**
  * p2 - 2ch の SETTING.TXT を扱うクラス
  * http://news19.2ch.net/newsplus/SETTING.TXT
@@ -7,17 +9,26 @@
  */
 class SettingTxt
 {
+    // {{{ properties
+    
+    // @access  public
+    var $setting_array = array(); // SETTING.TXTをパースした連想配列
+    
+    /**#@+
+     * @access  private
+     */
     var $host;
     var $bbs;
     var $url;           // SETTING.TXT のURL
     var $setting_txt;   // SETTING.TXT ローカル保存ファイルパス
     
-    // p2_kb_setting.srd $this->setting_array を serialize() したデータファイル
-    // @access  private
+    // p2_kb_setting.srd $this->setting_array を serialize() したキャッシュデータファイルパス
     var $setting_srd;
-    
-    var $setting_array = array(); // SETTING.TXTをパースした連想配列
+
     var $cache_interval;
+    /**#@-*/
+
+    // }}}
     
     /**
      * @constructor
@@ -78,14 +89,18 @@ class SettingTxt
             } elseif ($this->isCacheFresh()) {
                 return true;
             }
-            $modified = gmdate('D, d M Y H:i:s', filemtime($this->setting_txt)) . " GMT";
+            $modified = gmdate('D, d M Y H:i:s', filemtime($this->setting_txt)) . ' GMT';
         }
 
         // DL
+        /*
+        // PHP5
         if (!class_exists('HTTP_Request', false)) {
             require 'HTTP/Request.php';
         }
-
+        */
+        require_once 'HTTP/Request.php';
+        
         $params = array();
         $params['timeout'] = $_conf['fsockopen_time_limit'];
         if ($_conf['proxy_use']) {
@@ -249,6 +264,8 @@ class SettingTxt
     }
 
 }
+
+// }}}
 
 /*
  * Local Variables:
