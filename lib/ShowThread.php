@@ -130,8 +130,13 @@ class ShowThread
         $anchor['a_num'] = sprintf('%s{1,4}', $anchor['a_digit']);
         
         // ƒŒƒX”ÍˆÍ
+        /*
         $anchor['a_range'] = sprintf("%s(?:%s%s)?",
             $anchor['a_num'], $anchor['range_delimiter'], $anchor['a_num']
+        );
+        */
+        $anchor['a_range'] = sprintf("%s(?:%s(?:%s)?%s)?", 
+            $anchor['a_num'], $anchor['range_delimiter'], $anchor['prefix'], $anchor['a_num'] 
         );
         
         // ƒŒƒX”ÍˆÍ‚Ì—ñ‹“
