@@ -963,7 +963,7 @@ window.addEventListener('DOMContentLoaded', function(event) {
 
 // }}}
 
-/**
+/*
  * Local Variables:
  * mode: javascript
  * coding: cp932

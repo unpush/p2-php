@@ -186,7 +186,7 @@ function mystyle_extract($style, $important = false)
         } elseif ($selector == '@import') {
             $urls = (is_array($properties)) ? $properties : array($properties);
             foreach ($urls as $url) {
-                if (strpos($value, 'url(' == 0)) {
+                if (strpos($value, 'url(' === 0)) {
                     $css .= "@import {$url};\n";
                 } else {
                     if (strpos($url, 'http://') === false &&
