@@ -633,7 +633,7 @@ abstract class ShowThread
             }
         }
 
-        $GLOBALS['filter_hits']++;
+        $filter_hits++;
 
         if ($_conf['filtering'] && !empty($filter_range) &&
             ($filter_hits < $filter_range['start'] || $filter_hits > $filter_range['to'])
@@ -647,7 +647,7 @@ abstract class ShowThread
             echo <<<EOP
 <script type="text/javascript">
 //<![CDATA[
-filterCount({$GLOBALS['filter_hits']});
+filterCount({$filter_hits});
 //]]>
 </script>\n
 EOP;

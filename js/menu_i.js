@@ -543,10 +543,12 @@
 			// ‚¨‹C‚É”Â‚Ì“o˜^ó‹µ‚ğæ“¾
 			table = pop.childNodes[1];
 			table.style.display = 'none';
-			req = new XMLHttpRequest();
-			req.open('GET', 'info_js.php?' + hold.query, true);
-			req.onreadystatechange = generateOnBoardInfoGet(req, JSON.parse, pop, table);
-			req.send(null);
+			if (anchor.href.indexOf('?spmode=merge_favita') !== -1) {
+				req = new XMLHttpRequest();
+				req.open('GET', 'info_js.php?' + hold.query, true);
+				req.onreadystatechange = generateOnBoardInfoGet(req, JSON.parse, pop, table);
+				req.send(null);
+			}
 
 			// —v‘f‚ğƒz[ƒ‹ƒh‚³‚ê‚½ƒŠƒ“ƒN‚ÌŒã‚É‘}“ü
 			li = anchor.parentNode;

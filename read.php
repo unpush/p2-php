@@ -270,13 +270,15 @@ if ($_conf['ktai']) {
             echo $response;
         //}
     } else {
+        $content = $aShowThread->getDatToHtml();
+
         require_once P2_LIB_DIR . '/read_header_k.inc.php';
 
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
         }
 
-        $aShowThread->datToHtml();
+        echo $content;
 
         require_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
