@@ -543,7 +543,7 @@
 			// ‚¨‹C‚É”Â‚Ì“o˜^ó‹µ‚ğæ“¾
 			table = pop.childNodes[1];
 			table.style.display = 'none';
-			if (anchor.href.indexOf('?spmode=merge_favita') !== -1) {
+			if (anchor.href.indexOf('?spmode=merge_favita') === -1) {
 				req = new XMLHttpRequest();
 				req.open('GET', 'info_js.php?' + hold.query, true);
 				req.onreadystatechange = generateOnBoardInfoGet(req, JSON.parse, pop, table);
