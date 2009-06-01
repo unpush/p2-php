@@ -3,8 +3,8 @@
 /* {{{ General */
 
 body > h1:first-child {
-	margin: -10px -10px 5px -10px;
-	padding: 5px;
+	margin: -10px -10px 5px -10px !important;
+	padding: 5px !important;
 	text-align: center;
 	font-size: x-large;
 	color: #ffffff;

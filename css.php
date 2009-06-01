@@ -7,13 +7,15 @@
 
 require_once './conf/conf.inc.php';
 $_login->authorize();
+require_once P2_STYLE_DIR . '/mystyle_css.php';
 
 // }}}
 // {{{ 妥当なファイルか検証
 
 if (isset($_GET['css']) && preg_match('/^\\w+$/', $_GET['css'])) {
-    $css = P2_STYLE_DIR . DIRECTORY_SEPARATOR . $_GET['css'] . '_css.inc';
-    if (!file_exists($css)) {
+    $cssName =  $_GET['css'];
+    $cssFilePath = P2_STYLE_DIR . DIRECTORY_SEPARATOR . $cssName . '_css.inc';
+    if (!file_exists($cssFilePath)) {
         exit;
     }
 } else {
@@ -31,7 +33,8 @@ header('Pragma: cache');
 header('Content-Type: text/css; charset=Shift_JIS');
 echo "@charset \"Shift_JIS\";\n\n";
 ob_start();
-include $css;
+include $cssFilePath;
+disp_mystyle($cssName);
 // 空スタイルを除去
 echo preg_replace('/[a-z\\-]+[ \\t]*:[ \\t]*;/', '', ob_get_clean());
 

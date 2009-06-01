@@ -232,7 +232,7 @@ EOP;
             $delelog_js = "return wrapDeleLog('{$base_q}{$sid_q}',this);";
             $title_at = ' title="クリックするとログ削除"';
 
-            $anum_ht = '#r' . min($aThread->rescount, $aThread->rescount - $aThread->unum + 1 - $_conf['respointer']);
+            $anum_ht = sprintf('#r%d', min($aThread->rescount, $aThread->rescount - $aThread->nunum + 1 - $_conf['respointer']));
 
             // subject.txtにない時
             if (!$aThread->isonline) {
@@ -305,6 +305,9 @@ EOP;
             $rescount_q = '';
             $offline_q = '&amp;offline=true';
             $anum_ht = '';
+        // subject.txt にない場合
+        } elseif (!$aThread->isonline) {
+            $offline_q = '&amp;offline=true';
         } else {
             $offline_q = '';
         }
@@ -394,7 +397,7 @@ EOP;
         // 最近読んだスレの解除
         if ($aThreadList->spmode == 'recent') {
             $td['offrec'] = <<<EOP
-<td{$class_tc}><a href="info.php?{$base_q}&amp;offrec=true" target="_self" onclick="return offrec_ajax(this.href.toString(),this.parentNode.parentNode);">×</a></td>\n
+<td{$class_tc}><a href="info.php?{$base_q}&amp;offrec=true" target="_self" onclick="return offrec_ajax(this);">×</a></td>\n
 EOP;
         }
 

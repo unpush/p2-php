@@ -3,6 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
 	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<script type="text/javascript">var iphone_js_no_modification = true;</script>
 	{extra_headers:h}
 	<title>{title}</title>
 	{limelight_header:h}
@@ -52,8 +53,8 @@ div.iv2-image-title {
 			<td class="iv2-image-thumb"><a class="limelight" href="{item[src]}" target="_blank"><img src="{item[thumb]}" width="{item[t_width]:h}" height="{item[t_height]:h}"></a></td>
 			<td class="iv2-image-info">
 				<div class="iv2-image-title" onclick="void(0)">{if:item[memo]}{item[memo]}{else:}{item[name]}{end:}</div>
-				<input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('{item[uri]}', '{item[thumb_k]}', '{item[thumb]}', event)" />
-				{item[f_change]:h}<span class="iv2-image-size" onclick="check_prev(this);">{item[width]:h}&times;{item[height]:h}</span>{item[rank_i]:h}
+				<input type="button" class="ic2-show-info" value="i" onclick="ic2info.show({item[id]}, event)" />
+				{item[f_change]:h}<span class="iv2-image-size" onclick="iutil.checkPrev(this);">{item[width]:h}&times;{item[height]:h}</span>{item[rank_i]:h}
 			</td>
 		</tr>
 		</tbody>
@@ -62,11 +63,20 @@ div.iv2-image-title {
 	<div class="pager" id="bottom">{pager:h} <a href="#top">{e[ut1]:h}</a></div>
 
 	<div id="iv2-edit-form">
-		<h3 onclick="this.nextSibling.style.display='block';">チェックした画像を編集</h3><div>ランク:{editFormSelect:h}<br>メモを追加:{editFormText:h}<br>{editFormSubmit:h}</div>
+		<h3 onclick="this.nextSibling.style.display='block';">チェックした画像を編集</h3><div class="center">
+			<table cellspacing="0"><tbody>
+				<tr><td class="right">ランク</td><td class="left">{editFormSelect:h}</td></tr>
+				<tr><td class="right">メモを追加</td><td class="left">{editFormText:h}</td></tr>
+			</tbody></table>
+			{editFormSubmit:h}
+		</div>
 	</div>
 
 	<div id="iv2-remove-form">
-		<h3 onclick="this.nextSibling.style.display='block';">チェックした画像を削除</h3><div>{editFormRemove:h}{editFormBlackList:h}<span onclick="check_prev(this);">ブラックリストに登録</span></div>
+		<h3 onclick="this.nextSibling.style.display='block';">チェックした画像を削除</h3><div class="center">
+			{editFormBlackList:h}<span onclick="iutil.checkPrev(this);">ブラックリストに登録</span><br>
+			{editFormRemove:h}
+		</div>
 	</div>
 
 	{if:info_vertical}<flexy:include src="info-v.tpl.html" />{else:}<flexy:include src="info-h.tpl.html" />{end:}

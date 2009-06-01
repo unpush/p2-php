@@ -15,7 +15,7 @@ class FavSetManager
     // {{{ loadAllFavSet()
 
     /**
-     * すべてのお気にスレを読み込む
+     * すべてのお気にスレ・お気に板を読み込む
      *
      * @param bool $force
      * @return void
@@ -29,13 +29,57 @@ class FavSetManager
             return;
         }
 
-        $_conf['favlists'] = array();
-        $favlist_indexes = array($_conf['orig_favlist_idx']);
-        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
-            $favlist_indexes[$i] = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favlist%d.idx', $i);
+        // キャッシュの有無をチェック
+        $cache_file = $_conf['cache_dir'] . DIRECTORY_SEPARATOR . 'favset_cache.txt';
+        if ($force || !file_exists($cache_file)) {
+            $use_cache = false;
+        } else {
+            $cache_mtime = filemtime($cache_file);
+            if (filemtime(__FILE__) > $cache_mtime) {
+                $use_cache = false;
+            } else {
+                $use_cache = true;
+            }
         }
 
-        foreach ($favlist_indexes as $i => $favlist_idx) {
+        // キャッシュが有効かどうかをチェック
+        if ($use_cache && file_exists($_conf['orig_favlist_idx']) && filemtime($_conf['orig_favlist_idx']) > $cache_mtime) {
+            $use_cache = false;
+        }
+        if ($use_cache && file_exists($_conf['orig_favita_brd']) && filemtime($_conf['orig_favita_brd']) > $cache_mtime) {
+            $use_cache = false;
+        }
+
+        // 読み込み対象ファイルのリストを作成すると同時にキャッシュが有効かどうかをチェック
+        $favlist_idxes = array($_conf['orig_favlist_idx']);
+        $favita_brds = array($_conf['orig_favita_brd']);
+        for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
+            $favlist_idx = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favlist%d.idx', $i);
+            if ($use_cache && file_exists($favlist_idx) && filemtime($favlist_idx) > $cache_mtime) {
+                $use_cache = false;
+            }
+            $favlist_idxes[$i] = $favlist_idx;
+
+            $favita_brd = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . sprintf('p2_favita%d.brd', $i);
+            if ($use_cache && file_exists($favita_brd) && filemtime($favita_brd) > $cache_mtime) {
+                $use_cache = false;
+            }
+            $favita_brds[$i] = $favita_brd;
+        }
+
+        // キャッシュが有効なら、それを使う
+        if ($use_cache) {
+            $cache = unserialize(file_get_contents($cache_file));
+            if (is_array($cache)) {
+                list($_conf['favlists'], $_conf['favitas']) = $cache;
+                $done = true;
+                return;
+            }
+        }
+
+        // すべてのお気にスレを読み込む
+        $_conf['favlists'] = array();
+        foreach ($favlist_idxes as $i => $favlist_idx) {
             $_conf['favlists'][$i] = array();
             if ($favlines = FileCtl::file_read_lines($favlist_idx, FILE_IGNORE_NEW_LINES)) {
                 foreach ($favlines as $l) {
@@ -44,15 +88,36 @@ class FavSetManager
                     if (!isset($lar[11])) {
                         continue;
                     }
-                    $bbs = $lar[11];
-                    if (!isset($_conf['favlists'][$i][$bbs])) {
-                        $_conf['favlists'][$i][$bbs] = array($lar[1]);
-                    } else {
-                        $_conf['favlists'][$i][$bbs][] = $lar[1];
-                    }
+                    $key   = $lar[1];
+                    $host  = $lar[10];
+                    $bbs   = $lar[11];
+                    $group = P2Util::getHostGroupName($host);
+                    $_conf['favlists'][$i][] = array('group' => $group, 'host' => $host, 'bbs' => $bbs, 'key' => $key);
                 }
             }
         }
+
+        // すべてのお気に板を読み込む
+        $_conf['favitas'] = array();
+        foreach ($favita_brds as $i => $favita_brd) {
+            $_conf['favitas'][$i] = array();
+            if ($favlines = FileCtl::file_read_lines($favita_brd, FILE_IGNORE_NEW_LINES)) {
+                foreach ($favlines as $l) {
+                    $lar = explode("\t", $l);
+                    $host  = $lar[1];
+                    $bbs   = $lar[2];
+                    $itaj  = $lar[3];
+                    $group = P2Util::getHostGroupName($host);
+                    $_conf['favitas'][$i][] = array('group' => $group, 'host' => $host, 'bbs' => $bbs, 'itaj' => $itaj);
+                }
+            }
+        }
+
+        //キャッシュに保存する
+        if (!is_dir($_conf['pref_dir'])) {
+            FileCtl::mkdir_for($cache_file);
+        }
+        file_put_contents($cache_file, serialize(array($_conf['favlists'], $_conf['favitas'])));
 
         $done = true;
     }

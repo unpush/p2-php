@@ -461,9 +461,9 @@ function postIt($host, $bbs, $key, $post)
                             $cookies_to_send .= " {$cname}={$cvalue};";
                         }
                     }
-                    $newcokkies = "Cookie:{$cookies_to_send}\r\n";
+                    $newcookies = "Cookie:{$cookies_to_send}\r\n";
 
-                    $request = preg_replace("/Cookie: .*?\r\n/", $newcokkies, $request);
+                    $request = preg_replace("/Cookie: .*?\r\n/", $newcookies, $request);
                 }
 
             // 転送は書き込み成功と判断
@@ -484,7 +484,7 @@ function postIt($host, $bbs, $key, $post)
 
         //<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">
         $response = preg_replace(
-            '{(<head>(.*?)<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">(.*)</head>}is',
+            '{<head>(.*?)<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">(.*)</head>}is',
             '<head><meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">$1$2</head>',
             $response);
     }
@@ -634,28 +634,12 @@ function showCookieConfirmation($host, $response)
     global $popup, $rescount, $ttitle_en;
     global $STYLE, $skin_en;
 
-    // charsetを指定するmeta要素がnon-ascii文字より前に存在しないと
-    // 正しく解析されないので、レスポンスボディを修正する。x-sjisもNG
-    $response4dom = preg_replace(
-        '{<head>(.*?)(?:<meta http-equiv="Content-Type" content="text/html(?:; ?charset=(?:x-sjis|Shift_JIS))?">)(.*)</head>}is',
-        '<head><meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">$1$2</head>',
-        $response, -1, $count);
-    if ($count == 0) {
-        $response4dom = str_replace('<head>',
-            '<head><meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">',
-            $response, $count);
-    }
-    if ($count != 1) {
+    // HTMLをDOMで解析
+    $doc = P2Util::getHtmlDom($response, 'Shift_JIS', false);
+    if (!$doc) {
         showUnexpectedResponse($response);
         return;
     }
-
-    // HTMLをDOMで解析
-    // 不正な文字があった場合の警告を抑制するためエラー報告レベルを一時的に変更
-    $doc = new DOMDocument();
-    $erl = error_reporting(E_ALL & ~E_WARNING);
-    $doc->loadHTML($response4dom);
-    error_reporting($erl);
 
     $xpath = new DOMXPath($doc);
     $heads = $doc->getElementsByTagName('head');

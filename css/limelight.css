@@ -16,7 +16,7 @@ div.limelight-box {
 	vertical-align: middle;
 }
 
-div.limelight-box.limelight-box-locked {
+div.limelight-box.limelight-locked {
 	background-color: #fff;
 }
 
@@ -25,11 +25,14 @@ img.limelight-image {
 	top: 0;
 	left: 0;
 	z-index: 110;
-	visibility: hidden;
-	-webkit-animation-duration: 1s;
+	opacity: 0;
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 1s;
+	-webkit-animation-duration: 0.5s;
 }
 
 div.limelight-title {
+	display: none;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -37,9 +40,11 @@ div.limelight-title {
 	width: 100%;
 	margin: 0;
 	padding: 0;
-	visibility: hidden;
 	background-color: rgba(0, 0, 0, 0.5);
-	-webkit-animation-duration: 2.5s;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: 2;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-timing-function: linear;
 }
 
 div.limelight-title p {
@@ -53,9 +58,12 @@ div.limelight-title p {
 	text-align: center;
 	line-height: 120%;
 	white-space: pre;
+	word-break: break-all;
+	word-wrap: break-word;
 }
 
 div.limelight-indicator {
+	display: none;
 	position: absolute;
 	top: 0;
 	right: 5px;
@@ -64,7 +72,6 @@ div.limelight-indicator {
 	height: 80px;
 	margin: 0;
 	padding: 0;
-	visibility: hidden;
 	color: #fff;
 	text-shadow: #000 1px 1px 3px;
 	font-family: monospace;
@@ -72,7 +79,9 @@ div.limelight-indicator {
 	font-weight: bold;
 	text-align: right;
 	line-height: 150%;
-	-webkit-animation-duration: 0.5s;
+	opacity: 0;
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 0.5s;
 }
 
 table.limelight-toolbar {
@@ -111,64 +120,64 @@ span.limelight-button {
 	cursor: pointer;
 }
 
-span.limelight-button.limelight-button-locked {
+span.limelight-button.limelight-locked {
 	color: #99f;
 	border-color: rgba(153, 153, 255, 0.75);
 }
 
-@-webkit-keyframes 'limelight-fadein' {
-	from {
-		-webkit-opacity: 0;
-	}
-	to {
-		-webkit-opacity: 1;
-	}
+@-webkit-keyframes 'limelight-pop' {
+	from { opacity: 0; }
+	 50% { opacity: 1; }
+	  to { opacity: 1; }
 }
 
-@-webkit-keyframes 'limelight-fadeout' {
-	from {
-		-webkit-opacity: 1;
-	}
-	to {
-		-webkit-opacity: 0;
-	}
+@-webkit-keyframes 'limelight-pop1' {
+	from { top: -31px; }
+	 50% { top: 0; }
+	  to { top: 0; }
 }
 
-@-webkit-keyframes 'limelight-fadein-fadeout' {
-	from {
-		-webkit-opacity: 0;
-		-webkit-animation-timing-function: ease-in;
-	}
-	30% {
-		-webkit-opacity: 1;
-		-webkit-animation-timing-function: linear;
-	}
-	70% {
-		-webkit-opacity: 1;
-		-webkit-animation-timing-function: ease-out;
-	}
-	to {
-		-webkit-opacity: 0;
-	}
+@-webkit-keyframes 'limelight-pop2' {
+	from { top: -52px; }
+	 50% { top: 0; }
+	  to { top: 0; }
+}
+
+@-webkit-keyframes 'limelight-pop3' {
+	from { top: -73px; }
+	 50% { top: 0; }
+	  to { top: 0; }
+}
+
+@-webkit-keyframes 'limelight-pop4' {
+	from { top: -94px; }
+	 50% { top: 0; }
+	  to { top: 0; }
+}
+
+@-webkit-keyframes 'limelight-pop5' {
+	from { top: -115px; }
+	 50% { top: 0; }
+	  to { top: 0; }
 }
 
 @-webkit-keyframes 'limelight-shake-l' {
 	from { left:  0; }
-	  5% { left: -8px; }
-	 15% { left:  7px; }
-	 25% { left: -6px; }
-	 35% { left:  5px; }
-	 40% { left:  0; }
+	 10% { left: -8px; }
+	 30% { left:  7px; }
+	 50% { left: -6px; }
+	 70% { left:  5px; }
+	 90% { left: -3px; }
 	  to { left:  0; }
 }
 
 @-webkit-keyframes 'limelight-shake-r' {
 	from { left:  0; }
-	  5% { left:  8px; }
-	 15% { left: -7px; }
-	 25% { left:  6px; }
-	 35% { left: -5px; }
-	 40% { left:  0; }
+	 10% { left:  8px; }
+	 30% { left: -7px; }
+	 50% { left:  6px; }
+	 70% { left: -5px; }
+	 90% { left:  3px; }
 	  to { left:  0; }
 }
 

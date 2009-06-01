@@ -1,19 +1,23 @@
-/*
-	rep2expack - iPhone用レスポップアップ
-*/
+/**
+ * rep2expack - iPhone用レスポップアップ
+ *
+ * iphone.jsの後に読み込む
+ */
 
 // {{{ globals
 
-var _RESPOPUP_IPHONE_JS_HASH = {};
-var _RESPOPUP_IPHONE_JS_INDEX = 0;
-var _RESPOPUP_IPHONE_JS_XPATH = './/div[@class="res"]' +
-	'//a[starts-with(@href, "read.php?") or starts-with(@href, "subject.php?")]';
-var _RESPOSUP_IPHONE_JS_CALLBACKS = [];
+var _IRESPOPG = {
+	'hash': {},
+	'serial': 0,
+	'callbacks': []
+};
+
+var ipoputil = {};
 
 // }}}
-// {{{ _irespopup_get_z_index()
+// {{{ ipoputil.getZ()
 
-/*
+/**
  * z-indexに設定する値を返す
  *
  * css/ic2_iphone.css で div#ic2-info の z-index が 999 で
@@ -23,51 +27,48 @@ var _RESPOSUP_IPHONE_JS_CALLBACKS = [];
  * @param {Element} obj
  * @return {String}
  */
-function _irespopup_get_z_index(obj)
-{
-	return (10 + _RESPOPUP_IPHONE_JS_INDEX).toString();
-}
+ipoputil.getZ = function(obj) {
+	return (10 + _IRESPOPG.serial).toString();
+};
 
 // }}}
-// {{{ _irespopup_make_active()
+// {{{ getActivator()
 
-/*
+/**
  * オブジェクトを最前面に移動する関数を返す
  *
  * @param {Element} obj
  * @return void
  */
-function _irespopup_make_active(obj)
-{
+ipoputil.getActivator = function(obj) {
 	return (function(){
-		_RESPOPUP_IPHONE_JS_INDEX++;
-		obj.style.zIndex = _irespopup_get_z_index();
+		_IRESPOPG.serial++;
+		obj.style.zIndex = ipoputil.getZ();
 	});
-}
+};
 
 // }}}
-// {{{ _irespopup_make_deactivate()
+// {{{ getDeactivator()
 
-/*
+/**
  * DOMツリーからオブジェクトを取り除く関数を返す
  *
  * @param {Element} obj
- * @param {String} key 
+ * @param {String} key
  * @return void
  */
-function _irespopup_make_deactivate(obj, key)
-{
+ipoputil.getDeactivator = function(obj, key) {
 	return (function(){
-		delete _RESPOPUP_IPHONE_JS_HASH[key];
+		delete _IRESPOPG.hash[key];
 		obj.parentNode.removeChild(obj);
 		delete obj;
 	});
-}
+};
 
 // }}}
 // {{{ iResPopUp()
 
-/*
+/**
  * iPhone用レスポップアップ
  *
  * @param {String} url
@@ -75,22 +76,18 @@ function _irespopup_make_deactivate(obj, key)
  * @return {Boolean}
  * @todo use asynchronous request
  */
-function iResPopUp(url, evt)
-{
-	var yOffset = Math.max(10, evt.getOffsetY() - 20);
-	var cbox = document.getElementById('open-in-tab-cbox');
+var iResPopUp = function(url, evt) {
+	var yOffset = Math.max(10, iutil.getPageY(evt) - 20);
 
-	if (_RESPOPUP_IPHONE_JS_HASH[url]) {
-		_RESPOPUP_IPHONE_JS_INDEX++;
-		_RESPOPUP_IPHONE_JS_HASH[url].style.top = yOffset.toString() + 'px';
-		_RESPOPUP_IPHONE_JS_HASH[url].style.zIndex = _irespopup_get_z_index();
-		if (cbox && cbox.checked) {
-			change_link_target(_RESPOPUP_IPHONE_JS_XPATH, true, _RESPOPUP_IPHONE_JS_HASH[url]);
-		}
+	if (_IRESPOPG.hash[url]) {
+		_IRESPOPG.serial++;
+		_IRESPOPG.hash[url].style.top = yOffset.toString() + 'px';
+		_IRESPOPG.hash[url].style.zIndex = ipoputil.getZ();
 		return false;
 	}
 
-	var popnum = ++_RESPOPUP_IPHONE_JS_INDEX;
+	_IRESPOPG.serial++
+	var popnum = _IRESPOPG.serial;
 	var popid = '_respop' + popnum;
 	var req = new XMLHttpRequest();
 	req.open('GET', url + '&ajax=true&respop_id=' + popnum, false);
@@ -111,23 +108,20 @@ function iResPopUp(url, evt)
 			}
 			*/
 			container.style.top = yOffset.toString() + 'px';
-			container.style.zIndex = _irespopup_get_z_index();
-			//container.onclick = _irespopup_make_active(container);
+			container.style.zIndex = ipoputil.getZ();
+			//container.onclick = ipoputil.getActivator(container);
 
 			closer.className = 'close-button';
 			closer.setAttribute('src', 'img/iphone/close.png');
-			closer.onclick = _irespopup_make_deactivate(container, url);
+			closer.onclick = ipoputil.getDeactivator(container, url);
 
 			container.appendChild(closer);
 			document.body.appendChild(container);
 
-			rewrite_external_link(container);
+			//iutil.modifyInternalLink(container);
+			iutil.modifyExternalLink(container);
 
-			_RESPOPUP_IPHONE_JS_HASH[url] = container;
-
-			if (cbox && cbox.checked) {
-				change_link_target(_RESPOPUP_IPHONE_JS_XPATH, true, container);
-			}
+			_IRESPOPG.hash[url] = container;
 
 			var lastres = document.evaluate('./div[@class="res" and position() = last()]',
 			                                container,
@@ -150,8 +144,8 @@ function iResPopUp(url, evt)
 				lastres.appendChild(back);
 			}
 
-			for (var i = 0; i < _RESPOSUP_IPHONE_JS_CALLBACKS.length; i++) {
-				_RESPOSUP_IPHONE_JS_CALLBACKS[i](container);
+			for (var i = 0; i < _IRESPOPG.callbacks.length; i++) {
+				_IRESPOPG.callbacks[i](container);
 			}
 
 			return false;
@@ -159,7 +153,7 @@ function iResPopUp(url, evt)
 	}
 
 	return true;
-}
+};
 
 // }}}
 

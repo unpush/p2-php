@@ -22,7 +22,6 @@ function loadThumb(thumb_url, thumb_id)
 	}
 
 	var thumb = document.createElement('img');
-	// IEでCSSを適用させるにはsetAttribute()せずにclassNameプロパティを設定しないといけない
 	thumb.className = 'thumbnail';
 	thumb.setAttribute('src', thumb_url);
 	thumb.setAttribute('hspace', 4);

@@ -13,6 +13,16 @@ body {
 	-webkit-text-size-adjust: none;
 }
 
+body > *:first-child {
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+}
+
+body > *:last-child {
+	margin-bottom: 0 !important;
+	padding-bottom: 0 !important;
+}
+
 div, h1, h2, h3, h4, h5, h6, li, p {
 	word-break: normal;
 	word-wrap: break-word;
@@ -20,14 +30,6 @@ div, h1, h2, h3, h4, h5, h6, li, p {
 
 h1, h2, h3, h4, h5, h6, p, form, fieldset {
 	margin: 8px 0;
-}
-
-body > h1:first-child, body > h2:first-child,
-body > h3:first-child, body > h4:first-child,
-body > h5:first-child, body > h6:first-child,
-body > p:first-child, body > form:first-child
-{
-	margin-top: 0;
 }
 
 a {
@@ -54,8 +56,16 @@ span.label {
 	cursor: pointer;
 }
 
-div.center {
+div.left, td.left {
+	text-align: left;
+}
+
+div.center, td.center {
 	text-align: center;
+}
+
+div.right, td.right {
+	text-align: right;
 }
 
 /* }}} *
@@ -129,47 +139,6 @@ div.read_new_toolbar {
 }
 
 /* }}} *
-/* {{{ Open in New Tab */
-
-body > div#open-in-tab {
-	margin: -10px -10px 5px -10px;
-	padding: 5px 10px;
-	color: #808080;
-	background-color: #eeeeee;
-	font-size: medium;
-	font-weight: bold;
-	line-height: 100%;
-	text-align: right;
-	border-bottom: #808080 solid 1px;
-}
-
-body > div#open-in-tab > input[type="checkbox"] {
-	visibility: hidden;
-	margin: 0;
-	padding: 0;
-	width: 10px;
-	height: 10px;
-	vertical-align: bottom;
-}
-
-body > div#open-in-tab > span {
-	display: inline-block;
-	margin: 0 0 -6px 0;
-	padding: 4px 6px 1px 6px;
-	text-align: center;
-	vertical-align: bottom;
-	color: #aaaaaa;
-	background-color: #fafafa;
-	border: #808080 solid 1px;
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-top-right-radius: 5px;
-}
-
-body > div#open-in-tab > span.active-label {
-	border-bottom-color: #fafafa;
-}
-
-/* }}} */
 /* {{{ SPM */
 
 div#spm {
@@ -223,6 +192,7 @@ div#spm > div#spm-action > select {
 }
 
 div#spm > img#spm-closer {
+	cursor: pointer;
 	position: absolute;
 	top: -12px;
 	left: -12px;
@@ -468,6 +438,122 @@ ul.subject > li > a > span.count:after {
 }
 
 ul.subject > li > a > span.score {
+}
+
+/* }}} */
+/* {{{ Pop-up dialog */
+
+div.popup-dialog {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 10px;
+	z-index: 1001;
+	margin: 5px 0 0 5px;
+	padding 0;
+	max-width: 300px;
+	color: #ffffff;
+	background-color: rgba(0, 0, 0, 0.8);
+	-webkit-box-shadow: rgba(0, 0, 0, 0.7) 0 2px 5px;
+	-webkit-border-radius: 8px;
+}
+
+div.popup-dialog > img.close-button {
+	cursor: pointer;
+	position: absolute;
+	top: -12px;
+	left: -12px;
+}
+
+div.popup-dialog > div {
+	margin: 0;
+	font-weight: normal;
+}
+
+div.popup-dialog > div.popup-dialog-text {
+	padding: 8px 12px;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 14px !important;
+	line-height: 14px !important;
+}
+
+div.popup-dialog > div.popup-dialog-buttons {
+	padding: 0 12px 8px 12px;
+	text-align: center;
+	font-size: 14px !important;
+	line-height: 14px !important;
+}
+
+div.popup-dialog > div.popup-dialog-buttons > input[type="button"] {
+	margin: 0;
+	padding: 0;
+	width: auto;
+	height: auto;
+	font-size: 14px !important;
+	color: #000000;
+}
+
+/* }}} */
+/* {{{ Pop-in information */
+
+ul.subject > li.info-pop {
+	margin: 0;
+	padding: 10px 5px;
+	background-color: #333333;
+	color: #ffffff;
+	font-size: 16px !important;
+	font-weight: bold;
+	line-heihgt: 100%;
+}
+
+ul.subject > li.info-pop > div.info-pop-buttons {
+	margin: 0;
+	padding: 0;
+	width: auto;
+	text-align: center;
+	font-size: 14px !important;
+	line-height: 14px !important;
+}
+
+ul.subject > li.info-pop > div.info-pop-buttons:not(:first-child) {
+	margin-top: 10px;
+}
+
+ul.subject > li.info-pop > div.info-pop-buttons input[type="button"] {
+	margin: 0;
+	padding: 0;
+	width: auto;
+	height: auto;
+	font-size: 14px !important;
+	font-weight: normal;
+	color: #000000;
+}
+
+ul.subject > li.info-pop > table.info-pop-fav {
+	margin: 10px auto 0 auto;
+	padding: 0;
+	width: auto;
+}
+
+ul.subject > li.info-pop > table.info-pop-fav tbody,
+ul.subject > li.info-pop > table.info-pop-fav tr {
+	margin: 0;
+	padding: 0;
+}
+
+ul.subject > li.info-pop > table.info-pop-fav td {
+	margin: 0;
+	padding: 2px;
+	line-height: 100%;
+	text-align: left;
+	vertical-align: middle;
+}
+
+ul.subject > li.info-pop > table.info-pop-fav td:first-child {
+	padding-right: 8px;
 }
 
 /* }}} */

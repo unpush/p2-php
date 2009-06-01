@@ -73,6 +73,11 @@ class SettingTxt
     {
         global $_conf, $_info_msg_ht;
 
+        // まちBBS・したらば は SETTING.TXT が存在しないものとする
+        if (P2Util::isHostMachiBbs($this->_host) || P2Util::isHostJbbsShitaraba($this->_host)) {
+            return false;
+        }
+
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
         FileCtl::mkdir_for($this->_setting_txt); // 板ディレクトリが無ければ作る

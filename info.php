@@ -75,11 +75,14 @@ if (!empty($_GET['offrec']) && $key && $host && $bbs) {
 // {{{ お気に入りスレッド
 
 } elseif (isset($_GET['setfav']) && $key && $host && $bbs) {
-    require_once P2_LIB_DIR . '/setfav.inc.php';
+    if (!function_exists('setFav')) {
+        include P2_LIB_DIR . '/setfav.inc.php';
+    }
+    $ttitle = is_string($ttitle_en) ? base64_decode($ttitle_en) : null;
     if (isset($_GET['setnum'])) {
-        setFav($host, $bbs, $key, $_GET['setfav'], $_GET['setnum']);
+        setFav($host, $bbs, $key, $_GET['setfav'], $ttitle, $_GET['setnum']);
     } else {
-        setFav($host, $bbs, $key, $_GET['setfav']);
+        setFav($host, $bbs, $key, $_GET['setfav'], $ttitle);
     }
     if ($_conf['expack.misc.multi_favs']) {
         FavSetManager::loadAllFavSet(true);

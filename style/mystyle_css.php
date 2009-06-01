@@ -183,28 +183,30 @@ function mystyle_extract($style, $important = false)
             foreach ($styles as $style) {
                 $css .= $styles . "\n";
             }
-        } elseif($selector == '@import') {
+        } elseif ($selector == '@import') {
             $urls = (is_array($properties)) ? $properties : array($properties);
             foreach ($urls as $url) {
-                if (strpos($url, 'http://') === false &&
-                    strpos($url, 'https://') === false &&
-                    strpos($url, '?') === false)
-                {
-                    $url .= '?' . $GLOBALS['_conf']['p2_version_id'];
+                if (strpos($value, 'url(' == 0)) {
+                    $css .= "@import {$url};\n";
+                } else {
+                    if (strpos($url, 'http://') === false &&
+                        strpos($url, 'https://') === false &&
+                        strpos($url, '?') === false)
+                    {
+                        $url .= '?' . $GLOBALS['_conf']['p2_version_id'];
+                    }
+                    $css .= "@import url('" . p2_escape_css_url($url) . "');\n";
                 }
-                $css .= "@import url('" . str_replace("'", "''", $url) . "');\n";
             }
         } else {
             $suffix = ($important) ? " !important;\n" : ";\n";
             $selector = mystyle_selector($selector);
             $css .= $selector . " {\n";
             foreach ($properties as $property => $value) {
-                if (strpos($property, 'font-family') !== false) {
+                if ($property == 'font-family') {
                     $value = '"' . p2_correct_css_fontfamily($value) . '"';
-                } elseif (strpos($property, 'color') !== false) {
-                    $value = p2_correct_css_color($value);
-                } elseif (strpos($property, 'background') !== false) {
-                    $value = "url('" . str_replace("'", "''", $value) . "')";
+                } elseif ($property == 'background-image' && strpos($value, 'url(') !== 0) {
+                    $value = "url('" . p2_escape_css_url($value) . "')";
                 }
                 $css .= $property . ': ' . $value . $suffix;
             }

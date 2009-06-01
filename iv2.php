@@ -22,12 +22,14 @@ if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOP
 \n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
     $_conf['extra_headers_xht'] .= <<<EOP
 \n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}" />
+<script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
@@ -984,21 +986,26 @@ if ($list_template == 'iv2ip.tpl.html') {
 <script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript">
 // <![CDATA[
-window.addEventListener('DOMContentLoaded', function() {
-    var limelight = new Limelight();
+window.addEventListener('DOMContentLoaded', function(event) {
+    this.removeEventListener(event.type, arguments.callee, false);
+
+    var limelight = new Limelight({ 'savable': true });
     var slide = limelight.bind();
+
     if ({$page} != {$prev_page}) {
         slide.onNoPrev = function(limelight, slide) {
             limelight.deactivate();
             window.location.href = 'iv2.php?page={$prev_page}&ll_autoactivate=1#bottom';
        };
     }
+
     if ({$page} != {$next_page}) {
         slide.onNoNext = function(limelight, slide) {
             limelight.deactivate();
             window.location.href = 'iv2.php?page={$next_page}&ll_autoactivate=1#top';
        };
     }
+
     if ({$ll_autoactivate}) {
         window.setTimeout(function(cursor) {
             limelight.activateSlide(slide, cursor);

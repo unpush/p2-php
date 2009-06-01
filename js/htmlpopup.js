@@ -11,14 +11,14 @@ tUrl = ""; // URLテンポラリ変数
 gUrl = ""; // URLグローバル変数
 gX = 0;
 gY = 0;
-ecX = 0;
-ecY = 0;
 
 /**
  * クローズボタンもしくはポップアップ外部をクリックして閉じるための関数
  */
 function hideHtmlPopUpCallback(evt)
 {
+	evt = evt || window.event;
+
 	hideHtmlPopUp();
 
 	// イベントリスナを削除
@@ -26,10 +26,12 @@ function hideHtmlPopUpCallback(evt)
 		// W3C  DOM
 		document.body.removeEventListener('click', hideHtmlPopUpCallback, false);
 		evt.preventDefault();
+		evt.stopPropagation();
 	} else if (window.detachEvent) {
 		// IE
 		document.body.detachEvent('onclick', hideHtmlPopUpCallback);
-		window.event.returnValue = false;
+		evt.returnValue = false;
+		evt.cancelBubble = true;
 	}
 }
 
@@ -51,12 +53,8 @@ function showHtmlPopUp(url,ev,showHtmlDelaySec)
 
 	if (!node_div || url != gUrl) {
 		tUrl = url;
-		gX = ev.pageX;
-		gY = ev.pageY;
-		if (document.all) { // IE
-			ecX = event.clientX;
-			ecY = event.clientY;
-		}
+		gX = getPageX(ev);
+		gY = getPageY(ev);
 		showHtmlTimerID = setTimeout("showHtmlPopUpDo()", showHtmlDelaySec); // HTML表示ディレイタイマー
 	}
 }
@@ -83,40 +81,22 @@ function showHtmlPopUpDo()
 			node_close.setAttribute('id', "closebox");
 		}
 
-		// IE用
-		if (document.all) {
-			var body = (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
-			gX = body.scrollLeft + ecX; // 現在のマウス位置のX座標
-			gY = body.scrollTop + ecY; // 現在のマウス位置のY座標
-			node_div.style.pixelLeft  = gX + x_adjust; //ポップアップ位置
-			node_div.style.pixelTop  = body.scrollTop; //gY + y_adjust;
-			var cX = gX + x_adjust - closebox_width;
-			if (node_close) {
-				node_close.style.pixelLeft  = cX; //ポップアップ位置
-				node_close.style.pixelTop  = body.scrollTop; //gY + y_adjust;
-			}
-			var yokohaba = body.clientWidth - node_div.style.pixelLeft -20; //微調整付
-			var tatehaba = body.clientHeight -20;
-
-		// DOM対応用（Mozilla）
-		} else {
-			node_div.style.left = gX + x_adjust + "px"; //ポップアップ位置
-			node_div.style.top = window.pageYOffset + "px"; //gY + y_adjust + "px";
-			var cX = gX + x_adjust - closebox_width;
-			if (node_close) {
-				node_close.style.left = cX + "px"; // ポップアップ位置
-				node_close.style.top = window.pageYOffset + "px"; // gY + y_adjust + "px";
-			}
-			var yokohaba = window.innerWidth - gX - x_adjust -20; // 微調整付
-			var tatehaba = window.innerHeight - 20;
+		node_div.style.left = gX + x_adjust + "px"; //ポップアップ位置
+		node_div.style.top = getScrollY() + "px"; //gY + y_adjust + "px";
+		if (node_close) {
+			node_close.style.left = (gX + x_adjust - closebox_width) + "px"; // ポップアップ位置
+			node_close.style.top = node_div.style.top;
 		}
+		var b_adjust = 4; // iframeの(frameborder+border)*2
+		var yokohaba = getWindowWidth() - b_adjust - gX - x_adjust;
+		var tatehaba = getWindowHeight() - b_adjust;
 
 		pageMargin = "";
 		// 画像の場合はマージンをゼロに
-		if (gUrl.match(/(jpg|jpeg|gif|png)$/)) {
-			pageMargin = " marginheight=\"0\" marginwidth=\"0\" hspace=\"0\" vspace=\"0\"";
+		if (gUrl.search(/\.(jpe?g|gif|png)$/) !== -1) {
+			pageMargin = ' marginheight="0" marginwidth="0" hspace="0" vspace="0"';
 		}
-		node_div.innerHTML = "<iframe src=\""+gUrl+"\" frameborder=\"1\" border=\"1\" style=\"background-color:#fff;\" width=" + yokohaba + " height=" + tatehaba + pageMargin +">&nbsp;</iframe>";
+		node_div.innerHTML = '<iframe src="' + gUrl + '" frameborder="1" border="1" style="background-color:#fff;" width="' + yokohaba + '" height="' + tatehaba + '"' + pageMargin + '>&nbsp;</iframe>';
 
 		if (node_close) {
 			node_close.innerHTML = '<b onclick="hideHtmlPopUpCallback(event)" style="cursor:pointer;">×</b>';
@@ -173,3 +153,14 @@ function offHtmlPopUp()
 		clearTimeout(showHtmlTimerID);
 	}
 }
+
+/**
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

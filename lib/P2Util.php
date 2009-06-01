@@ -1525,33 +1525,6 @@ ERR;
     }
 
     // }}}
-    // {{{ printOpenInTab()
-
-    /**
-     * リンクを新しいタブで開くスイッチを出力する (iPhone用UI)
-     *
-     * @param string|array $expr XPath式またはXPath式の配列
-     * @param string $extra_switches
-     * @return  void
-     */
-    static public function printOpenInTab($expr, $extra_switches = '')
-    {
-        if (is_array($expr)) {
-            $expr = "['" . implode("','", array_map(create_function(
-                        '$s', 'return str_replace("\'", "\\\\\'", $s);'
-                    ), $expr)) . "']";
-        } else {
-            $expr = "'" . str_replace("'", "\\'", $expr) . "'";
-        }
-
-        echo <<<EOP
-<div id="open-in-tab">{$extra_switches}<input type="checkbox" id="open-in-tab-cbox"
- onclick="change_link_target({$expr}, this.checked); switch_tab_color(this.nextSibling, this.checked);
-"><span class="active-label" onclick="check_prev(this);">新しいタブで開く</span></div>
-EOP;
-    }
-
-    // }}}
     // {{{ detectThread()
 
     /**
@@ -1687,6 +1660,70 @@ EOP;
         }
 
         return array($bbs, $key, $ls);
+    }
+
+    // }}}
+    // {{{ getHtmlDom()
+
+    /**
+     * HTMLからDOMDocumentを生成する
+     *
+     * @param   string  $html
+     * @param   string  $charset
+     * @param   bool    $report_error
+     * @return  DOMDocument
+     */
+    static public function getHtmlDom($html, $charset = null, $report_error = true)
+    {
+        if ($charset) {
+            $charset = str_replace(array('$', '\\'), array('\\$', '\\\\'), $charset);
+            $html = preg_replace(
+                '{<head>(.*?)(?:<meta http-equiv="Content-Type" content="text/html(?:; ?charset=.+?)?">)(.*)</head>}is',
+                '<head><meta http-equiv="Content-Type" content="text/html; charset=' . $charset . '">$1$2</head>',
+                $html, 1, $count);
+            if (!$count) {
+                $html = preg_replace(
+                    '{<head>}i',
+                    '<head><meta http-equiv="Content-Type" content="text/html; charset=' . $charset . '">',
+                    $html, 1);
+            }
+        }
+
+        $erl = error_reporting(E_ALL & ~E_WARNING);
+        try {
+            $doc = new DOMDocument();
+            $doc->loadHTML($html);
+            error_reporting($erl);
+            return $doc;
+        } catch (DOMException $e) {
+            error_reporting($erl);
+            if ($report_error) {
+                trigger_error($e->getMessage(), E_USER_WARNING);
+            }
+            return null;
+        }
+    }
+
+    // }}}
+    // {{{ getHostGroupName()
+
+    /**
+     * ホストに対応するお気に板・お気にスレグループ名を取得する
+     *
+     * @param string $host
+     * @return void
+     */
+    static public function getHostGroupName($host)
+    {
+        if (self::isHost2chs($host)) {
+            return '2channel';
+        } elseif (self::isHostMachiBbs($host)) {
+            return 'machibbs';
+        } elseif (self::isHostJbbsShitaraba($host)) {
+            return 'shitaraba';
+        } else {
+            return $host;
+        }
     }
 
     // }}}

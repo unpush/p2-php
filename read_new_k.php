@@ -132,20 +132,34 @@ if ($spmode == 'merge_favita') {
 $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 $ptitle_ht = "{$ptitle_hd} の 新着まとめ読み";
 
+if ($_conf['iphone']) {
+    if ($_conf['client_type'] == 'i') {
+        $holdhandlers_at = ' ontouchstart="iutil.hold.onTouchStart(event, this)"'
+                         . ' ontouchmove="iutil.hold.onTouchMove(event)"'
+                         . ' onclick="iutil.hold.onClick(event)"';
+    } else {
+        $holdhandlers_at = ' onmousedown="iutil.hold.onTouchStart(event, this)"'
+                         . ' ondrag="iutil.hold.onTouchMove(event)"'
+                         . ' onclick="iutil.hold.onClick(event)"';
+    }
+} else {
+    $holdhandlers_at = '';
+}
+
 // &amp;sb_view={$sb_view}
 if ($aThreadList->spmode) {
     $sb_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}">{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}"{$holdhandlers_at}>{$ptitle_hd}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}{$holdhandlers_at}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
 EOP;
 } else {
     $sb_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}">{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}"{$holdhandlers_at}>{$ptitle_hd}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}{$holdhandlers_at}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
 EOP;
 }
 
@@ -158,6 +172,7 @@ EOS;
     if ($_conf['expack.ic2.enabled']) {
         $_conf['extra_headers_ht'] .= <<<EOS
 <link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
     }
@@ -174,14 +189,13 @@ EOS;
 <script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
 <script type="text/javascript">
 // <![CDATA[
-window.addEventListener('DOMContentLoaded', function() {
-    var limelight = new Limelight({ 'title': true });
+window.addEventListener('DOMContentLoaded', function(event) {
+    this.removeEventListener(event.type, arguments.callee, false);
+    var limelight = new Limelight({ 'savable': true, 'title': true });
     limelight.bind();
-    if (typeof window._RESPOSUP_IPHONE_JS_CALLBACKS != 'undefined') {
-        window._RESPOSUP_IPHONE_JS_CALLBACKS.push(function(container) {
-            limelight.bind(null, container, true);
-        });
-    }
+    window._IRESPOPG.callbacks.push(function(container) {
+        limelight.bind(null, container, true);
+    });
 }, false);
 // ]]>
 </script>
@@ -203,13 +217,6 @@ echo <<<EOHEADER
 EOHEADER;
 
 echo "</head><body{$_conf['k_colors']}>";
-
-if ($_conf['iphone']) {
-    P2Util::printOpenInTab(array(
-        ".//div[@class=&quot;res&quot;]//a[starts-with(@href, &quot;{$_conf['read_php']}?&quot;) or starts-with(@href, &quot;{$_conf['subject_php']}?&quot;)]",
-        ".//div[@id=&quot;read_new_header&quot; or @id=&quot;read_new_footer&quot; or @class=&quot;read_new_toolbar&quot;]//a[not(starts-with(@href, &quot;#&quot;) or starts-with(@href, &quot;http://&quot;) or starts-with(@href, &quot;https://&quot;))]"
-    ));
-}
 
 echo <<<EOP
 <div id="read_new_header">{$sb_ht}の新まとめ
@@ -383,6 +390,7 @@ function readNew($aThread)
 {
     global $_conf, $newthre_num, $STYLE;
     global $_info_msg_ht, $spmode, $word;
+    global $holdhandlers_at;
 
     $newthre_num++;
 
@@ -431,7 +439,7 @@ function readNew($aThread)
         }
 
         //if (!$aThread->ls) {
-            $aThread->ls = "$from_num-";
+            $aThread->ls = "{$from_num}-";
         //}
     }
 
@@ -443,10 +451,10 @@ function readNew($aThread)
     $motothre_url = $aThread->getMotoThread();
 
     $ttitle_en = rawurlencode(base64_encode($aThread->ttitle));
-    $ttitle_en_q = "&amp;ttitle_en=".$ttitle_en;
-    $bbs_q = "&amp;bbs=".$aThread->bbs;
-    $key_q = "&amp;key=".$aThread->key;
-    $popup_q = "&amp;popup=1";
+    $ttitle_en_q = '&amp;ttitle_en=' . $ttitle_en;
+    $bbs_q = '&amp;bbs=' . $aThread->bbs;
+    $key_q = '&amp;key=' . $aThread->key;
+    $popup_q = '&amp;popup=1';
 
     // require_once P2_LIB_DIR . '/read_header.inc.php';
 
@@ -458,7 +466,7 @@ function readNew($aThread)
     //$next_thre_ht = "<a href=\"#ntt{$next_thre_num}\">▼</a> ";
     $next_thre_ht = "<a class=\"button\" href=\"#ntt_bt{$newthre_num}\">▼</a> ";
 
-    $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES);
+    $itaj_hd = htmlspecialchars($aThread->itaj, ENT_QUOTES, 'Shift_JIS');
 
     if ($spmode) {
         $read_header_itaj_ht = " ({$itaj_hd})";
@@ -496,12 +504,12 @@ EOP;
     // フッタ 表示
     //==================================================================
     // $read_footer_navi_new  続きを読む 新着レスの表示
-    $newtime = date("gis");  // リンクをクリックしても再読込しない仕様に対抗するダミークエリー
+    $newtime = date('gis');  // リンクをクリックしても再読込しない仕様に対抗するダミークエリー
 
-    $info_st = "情";
-    $delete_st = "削";
-    $prev_st = "前";
-    $next_st = "次";
+    $info_st = '情';
+    $delete_st = '削';
+    $prev_st = '前';
+    $next_st = '次';
 
     // 表示範囲
     if ($aThread->resrange['start'] == $aThread->resrange['to']) {
@@ -511,7 +519,7 @@ EOP;
     }
     $read_range_ht = "{$read_range_on}/{$aThread->rescount}";
 
-    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\">新着ﾚｽの表示</a>";
+    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\" target=\"_blank\">新着ﾚｽの表示</a>";
 
     /*
     if (!empty($_conf['disable_res'])) {
@@ -528,7 +536,7 @@ EOP;
     // ツールバー部分HTML =======
     if ($spmode) {
         $toolbar_itaj_ht = <<<EOP
- (<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}">{$itaj_hd}</a>)
+ (<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}" target="_blank">{$itaj_hd}</a>)
 EOP;
     } else {
         $toolbar_itaj_ht = '';
@@ -545,10 +553,10 @@ EOTOOLBAR;
     $read_footer_ht = <<<EOP
 <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_toolbar">
 {$read_range_ht}
-<a class="button" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
-<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}">特</a>
+<a class="button" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}"{$holdhandlers_at}>{$info_st}</a>
+<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}"{$holdhandlers_at}>特</a>
 <br>
-<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
+<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}" target="_blank">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
 <a class="button" href="#ntt{$newthre_num}">▲</a>
 </div>
 <hr>\n

@@ -98,19 +98,13 @@ LightBox.prototype._ic2_draw_rank = function(rank)
  */
 LightBox.prototype._ic2_get_rank = function(id)
 {
-	var info  = getImageInfo('id', id);
+	var info = ic2_getinfo('id', id);
 	if (!info) {
 		alert('‰æ‘œî•ñ‚ğæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½');
 		return 0;
 	}
 
-	var info_array = info.split(',');
-	if (info_array.length < 6) {
-		alert('‰æ‘œî•ñ‚ğæ“¾‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½');
-		return 0;
-	}
-
-	return parseInt(info_array[4]);
+	return info.rank;
 };
 
 /**

@@ -76,7 +76,8 @@ echo <<<EOF
     <link rel="stylesheet" type="text/css" href="css.php?css=fitimage&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
-    <script type="text/javascript" src="js/iv2.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/ic2_getinfo.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/fitimage.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
     //<![CDATA[

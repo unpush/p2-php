@@ -37,6 +37,7 @@ class Thread
 
     public $torder;     // スレッド新しい順番号
     public $unum;       // 未読（新着レス）数
+    public $nunum;      // ソートのための調節なしの未読数
 
     public $keyidx;     // idxファイルパス
     public $keydat;     // ローカルdatファイルパス
@@ -74,6 +75,7 @@ class Thread
         $this->_ttitle_hc = null;
         $this->_ttitle_hd = null;
         $this->_ttitle_ht = null;
+        $this->nunum = 0;
     }
 
     // }}}
@@ -341,6 +343,7 @@ class Thread
                 if ($this->unum < 0) {
                     $this->unum = 0;
                 }
+                $this->nunum = $this->unum;
             }
         } else {
             $this->gotnum = 0;
@@ -403,6 +406,7 @@ class Thread
                 if ($this->unum < 0) {
                     $this->unum = 0;
                 }
+                $this->nunum = $this->unum;
             }
 
             //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromSubjectTxtLine()');
@@ -621,9 +625,13 @@ class Thread
                 $this->_favs = array($this->fav);
             } else {
                 $this->_favs = array_fill(0, $_conf['expack.misc.favset_num'] + 1, false);
+                $group = P2Util::getHostGroupName($this->host);
                 foreach ($_conf['favlists'] as $num => $favlist) {
-                    if (isset($favlist[$this->bbs])) {
-                        $this->_favs[$num] = in_array($this->key, $favlist[$this->bbs]);
+                    foreach ($favlist as $fav) {
+                        if ($this->key == $fav['key'] && $this->bbs == $fav['bbs'] && $group == $fav['group']) {
+                            $this->_favs[$num] = true;
+                            break;
+                        }
                     }
                 }
             }

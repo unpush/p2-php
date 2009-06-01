@@ -195,10 +195,12 @@ class ShowThreadK extends ShowThread
             return $this->_abornedRes($res_id);
         }
         if (!$nong && $this->am_autong && $this->activeMona->detectAA($msg)) {
-            $this->_ng_nums[] = $i;
+            if ($_conf['expack.am.autong_k'] != 2) {
+                $this->_ng_nums[] = $i;
+            }
             self::$_ngaborns_body_hits++;
             $ng_type |= self::NG_AA;
-            $ng_info[] = '&lt;AA略&gt;';
+            $ng_info[] = 'AA略';
         }
         if ($ng_type != self::NG_NONE) {
             $ngaborns_head_hits = self::$_ngaborns_head_hits;
@@ -271,9 +273,16 @@ class ShowThreadK extends ShowThread
         // NGメッセージ変換
         if ($ng_type != self::NG_NONE && count($ng_info)) {
             $ng_info = implode(', ', $ng_info);
-            $msg = <<<EOMSG
+            if ($ng_type == self::NG_AA && $_conf['iphone']) {
+                $msg = <<<EOMSG
+<a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$ng_info}</a>
+EOMSG;
+            } else {
+                $msg = <<<EOMSG
 <s><font color="{$STYLE['mobile_read_ngword_color']}">{$ng_info}</font></s> <a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$this->check_st}</a>
 EOMSG;
+            }
+
             // AAS
             if (($ng_type & self::NG_AA) && P2_AAS_AVAILABLE) {
                 $aas_url = "aas.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;resnum={$i}";
@@ -937,6 +946,7 @@ EOP;
             $url = $purl[0];
             $url_en = rawurlencode($url);
             $img_str = null;
+            $img_id = null;
 
             $icdb = new IC2_DataObject_Images;
 
@@ -950,6 +960,7 @@ EOP;
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {
+                $img_id = $icdb->id;
 
                 // ウィルスに感染していたファイルのとき
                 if ($icdb->mime == 'clamscan/infected') {
@@ -1057,7 +1068,7 @@ EOP;
                 return "<a class=\"limelight\" href=\"{$src_url}\" title=\"{$img_title}\" target=\"_blank\">{$img_str}</a>"
                    //. ' <img class="ic2-show-info" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
                      . ' <input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('
-                     . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";
+                     . (($img_id) ? $img_id : "'{$url_ht}'") . ', event)">';
             } else {
                 return "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";
             }

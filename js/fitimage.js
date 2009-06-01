@@ -18,41 +18,7 @@ function FitImage(id, width, height)
 	this.imgY = height;
 	this.ratio = width / height;
 	this.currentMode = 'init';
-	this.defaultMode = (this.getFieldWidth() > width && this.getFieldHeight() > height) ? 'expand' : 'contract';
-}
-
-// }}}
-// {{{ FitImage.getFieldWidth()
-
-/*
- * ウインドウの幅を取得する
- *
- * @return Number
- */
-FitImage.prototype.getFieldWidth = function()
-{
-	if (document.all) { //IE用
-		return ((document.compatMode == 'CSS1Compat') ? document.documentElement : document.body).clientWidth;
-	} else {
-		return window.innerWidth;
-	}
-}
-
-// }}}
-// {{{ FitImage.getFieldHeight()
-
-/*
- * ウインドウの高さを取得する
- *
- * @return Number
- */
-FitImage.prototype.getFieldHeight = function()
-{
-	if (document.all) { //IE用
-		return ((document.compatMode == 'CSS1Compat') ? document.documentElement : document.body).clientHeight;
-	} else {
-		return window.innerHeight;
-	}
+	this.defaultMode = (getWindowWidth() > width && getWindowHeight() > height) ? 'expand' : 'contract';
 }
 
 // }}}
@@ -74,8 +40,8 @@ FitImage.prototype.fitTo = function(mode)
 	} else {
 		var winX, winY, cssX, cssY;
 
-		winX = this.getFieldWidth();
-		winY = this.getFieldHeight();
+		winX = getWindowWidth();
+		winY = getWindowHeight();
 
 		// ウインドウに合わせて拡大・縮小判定
 		switch (mode) {
@@ -167,33 +133,15 @@ function fiShowHide(display)
  */
 function fiGetImageInfo(type, value)
 {
-	var info = getImageInfo(type, value);
+	var info = ic2_getinfo(type, value);
 	if (!info) {
 		alert('画像情報を取得できませんでした');
 		return;
 	}
 
-	var info_array = info.split(',');
-
-	if (info_array.length < 6) {
-		alert('画像情報を取得できませんでした');
-		return;
-	}
-
-	var id     = parseInt(info_array[0]);
-	var width  = parseInt(info_array[1]);
-	var height = parseInt(info_array[2]);
-	var size   = parseInt(info_array[3]);
-	var rank   = parseInt(info_array[4]);
-	var memo   = info_array[5];
-
-	for (var i = 6; i < info_array.length; i++) {
-		memo += ',' + info_array[i];
-	}
-
-	fiSetRank(rank);
-	document.getElementById('fi_id').value = id.toString();
-	//document.getElementById('fi_memo').value = memo;
+	fiSetRank(info.rank);
+	document.getElementById('fi_id').value = info.id.toString();
+	//document.getElementById('fi_memo').value = info.memo;
 }
 
 // }}}

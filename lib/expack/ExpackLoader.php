@@ -104,7 +104,7 @@ class ExpackLoader
         }
 
         if ($_conf['expack.aas.enabled']) {
-            if ($_conf['expack.aas.inline']) {
+            if ($_conf['expack.aas.inline_enabled']) {
                 define('P2_AAS_AVAILABLE', 2);
             } else {
                 define('P2_AAS_AVAILABLE', 1);

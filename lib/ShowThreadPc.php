@@ -965,8 +965,8 @@ EOJS;
         if (!count(self::$_spm_objects)) {
             $code .= sprintf("spmFlexTarget = '%s';\n", StrCtl::toJavaScript($_conf['expack.spm.filter_target']));
             if ($_conf['expack.aas.enabled']) {
-                $code .= sprintf("var aas_popup_width = %d;\n", $_conf['expack.aas.image_width_pc'] + 10);
-                $code .= sprintf("var aas_popup_height = %d;\n", $_conf['expack.aas.image_height_pc'] + 10);
+                $code .= sprintf("var aas_popup_width = %d;\n", $_conf['expack.aas.default.width'] + 10);
+                $code .= sprintf("var aas_popup_height = %d;\n", $_conf['expack.aas.default.height'] + 10);
             }
         }
 
@@ -1121,7 +1121,11 @@ EOJS;
         if ($host && $bbs && $key) {
             $read_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$ls}";
             if ($_conf['iframe_popup']) {
-                $pop_url = $read_url . '&amp;one=true';
+                if ($ls && preg_match('/^[0-9\\-n]+$/', $ls)) {
+                    $pop_url = $read_url;
+                } else {
+                    $pop_url = $read_url . '&amp;one=true';
+                }
                 return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
             return "<a href=\"{$read_url}{$_conf['bbs_win_target_at']}\">{$str}</a>";
@@ -1311,6 +1315,7 @@ EOP;
             $url_ht = $url;
             $url = $purl[0];
             $url_en = rawurlencode($url);
+            $img_id = null;
 
             $icdb = new IC2_DataObject_Images;
 
@@ -1321,6 +1326,7 @@ EOP;
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {
+                $img_id = $icdb->id;
 
                 // ウィルスに感染していたファイルのとき
                 if ($icdb->mime == 'clamscan/infected') {
@@ -1423,8 +1429,7 @@ EOP;
             }
 
             $view_img .= '<img class="ic2-info-opener" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
-                    //. "'{$url_ht}', '{$orig_img_url}', '{$_conf['ext_win_target']}', '{$orig_thumb_url}', event)\">";
-                      . "'{$url_ht}', event)\">";
+                       . (($img_id) ? $img_id : "'{$url_ht}'") . ', event)">';
 
             return $view_img;
         }
