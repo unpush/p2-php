@@ -505,7 +505,14 @@ function _detectThread()
             $bbs  = $matches[3];
             $key  = $matches[4];
             $ls   = geti($matches[5]);
-        
+
+        // チャットちゃんねる http://cha2.net/cgi-bin/test/read.cgi/anitoku/1241688251/l50
+        } elseif (preg_match('{http://(cha2\\.net)/cgi-bin/test/read\\.cgi/(\\w+)/(\\d+)/?([^/]+)?}', $url, $matches)) {
+            $host = $matches[1];
+            $bbs  = $matches[2];
+            $key  = $matches[3];
+            $ls   = geti($matches[4]);
+
         // 外部板 read.cgi 形式 http://ex14.vip2ch.com/test/read.cgi/operate/1161701941/ 
         } elseif (preg_match('{http://([^/]+)/test/read\\.cgi/(\\w+)/(\\d+)/?([^/]+)?}', $url, $matches)) {
             $host = $matches[1];

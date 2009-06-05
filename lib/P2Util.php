@@ -931,9 +931,20 @@ class P2Util
      * @param   string    $str    ƒzƒXƒg–¼‚Å‚àURL‚Å‚à‚È‚ñ‚Å‚à—Ç‚¢
      * @return  string
      */
-    function adjustHostJbbs($str)
+    function adjustHostJbbsShitaraba($str)
     {
         return preg_replace('/jbbs\\.shitaraba\\.com|jbbs\\.livedoor\\.com/', 'jbbs.livedoor.jp', $str, 1);
+    }
+
+    /**
+     * host ‚ª cha2.com ‚È‚ç true ‚ð•Ô‚·
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function isHostCha2($host)
+    {
+        return (bool)preg_match('/^(cha2\\.net)$/', $host);
     }
 
     /**

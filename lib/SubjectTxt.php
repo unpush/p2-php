@@ -58,10 +58,18 @@ class SubjectTxt
      */
     function setSubjectUrl($host, $bbs)
     {
-        $this->subject_url = 'http://' . $host . '/' . $bbs . '/subject.txt';
-
+        //$subject_url = 'http://' . $host . '/' . $bbs . '/subject.txt';
+        $subject_url = sprintf(
+            'http://%s/%s%s/subject.txt',
+            $host,
+            P2Util::isHostCha2($host) ? 'cgi-bin/' : '',
+            $bbs
+        );
+        
         // ‚µ‚½‚ç‚Î‚ÌlivedoorˆÚ“]‚É‘Î‰B“Çæ‚ğlivedoor‚Æ‚·‚éB
-        $this->subject_url = P2Util::adjustHostJbbs($this->subject_url);
+        $subject_url = P2Util::adjustHostJbbsShitaraba($subject_url);
+        
+        $this->subject_url = $subject_url;
     }
     
     /**

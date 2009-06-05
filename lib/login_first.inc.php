@@ -167,8 +167,8 @@ function printLoginFirst(&$_login)
 {$docomo_utn_ht}
 <form id="login" method="POST" action="{$REQUEST_URI_hs}" target="_self" utn>
     {$_conf['k_input_ht']}
-    {$p_str['user']}: <input type="text" name="form_login_id" value="{$form_login_id_hs}" istyle="3" size="32"><br>
-    {$p_str['password']}: <input type="{$type}" name="form_login_pass" value="{$form_login_pass_hs}" istyle="3"><br>
+    {$p_str['user']}: <input type="text" name="form_login_id" value="{$form_login_id_hs}" istyle="3" size="32" autocorrect="off" autocapitalize="off"><br>
+    {$p_str['password']}: <input type="{$type}" name="form_login_pass" value="{$form_login_pass_hs}" istyle="3" autocorrect="off" autocapitalize="off"><br>
     {$auth_sub_input_ht}
     <br>
     {$submit_ht}

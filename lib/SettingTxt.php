@@ -47,7 +47,7 @@ class SettingTxt
         $this->url = 'http://' . $this->host . '/' . $this->bbs . '/SETTING.TXT';
         
         // したらばのlivedoor移転に対応。読込先をlivedoorとする。
-        //$this->url = P2Util::adjustHostJbbs($this->url);
+        //$this->url = P2Util::adjustHostJbbsShitaraba($this->url);
         
         // SETTING.TXT をダウンロード＆セットする
         $this->dlAndSetData();
@@ -57,20 +57,20 @@ class SettingTxt
      * SETTING.TXT をダウンロード＆セットする
      *
      * @access  private
-     * @return  boolean  セットできれば true
+     * @return  void
      */
     function dlAndSetData()
     {
         $this->downloadSettingTxt();
 
-        return $this->setSettingArray();
+        $this->setting_array = $this->readSettingArrayFromSettingSrd();
     }
 
     /**
      * SETTING.TXT をダウンロードして、パースして、キャッシュする
      *
      * @access  public
-     * @return  boolean  実行成否
+     * @return  true|null|false  成功|更新なし（キャッシュ）|失敗
      */
     function downloadSettingTxt()
     {
@@ -82,13 +82,16 @@ class SettingTxt
         
         $modified = null;
         if (file_exists($this->setting_srd) && file_exists($this->setting_txt)) {
+        
             // 更新しない場合は、その場で抜けてしまう
             if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
-                return true;
+                return null;
+                
             // キャッシュが新しい場合も抜ける
-            } elseif ($this->isCacheFresh()) {
-                return true;
+            } elseif ($this->isSettingSrdCacheFresh()) {
+                return null;
             }
+            
             $modified = gmdate('D, d M Y H:i:s', filemtime($this->setting_txt)) . ' GMT';
         }
 
@@ -125,8 +128,7 @@ class SettingTxt
                 $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                 if ($new_host != $this->host) {
                     $aNewSettingTxt = new SettingTxt($new_host, $this->bbs);
-                    $body = $aNewSettingTxt->downloadSettingTxt();
-                    return true;
+                    return $aNewSettingTxt->downloadSettingTxt();
                 }
             }
 
@@ -142,10 +144,15 @@ class SettingTxt
                 sprintf(
                     '<div>Error: %s<br>p2 info - %s に接続できませんでした。</div>',
                     hs($error_msg),
-                    P2View::tagA(P2Util::throughIme($this->url), hs($this->url), array('target' => $_conf['ext_win_target']))
+                    P2View::tagA(
+                        P2Util::throughIme($this->url),
+                        hs($this->url),
+                        array('target' => $_conf['ext_win_target'])
+                    )
                 )
             );
-            touch($this->setting_txt); // DL失敗した場合も touch
+            touch($this->setting_txt); // DL失敗した場合(404)も touch する
+            touch($this->setting_srd);
             return false;
         }
 
@@ -160,12 +167,16 @@ class SettingTxt
             }
             
             if (false === FileCtl::filePutRename($this->setting_txt, $body)) {
-                die("Error: cannot write file");
+                die('Error: cannot write file');
             }
             chmod($this->setting_txt, $perm);
             
-            // パースしてキャッシュを保存する
-            if (!$this->cacheParsedSettingTxt()) {
+            // パースして
+            if (!$this->setSettingArrayFromSettingTxt()) {
+                return false;
+            }
+            // srd保存する
+            if (!$this->saveSettingSrd($this->setting_array)) {
                 return false;
             }
             
@@ -187,7 +198,7 @@ class SettingTxt
      * @acccess  private
      * @return   boolean
      */
-    function isCacheFresh()
+    function isSettingSrdCacheFresh()
     {
         if (file_exists($this->setting_srd)) {
             // キャッシュの更新が指定時間以内なら
@@ -208,7 +219,7 @@ class SettingTxt
      * @acccess  private
      * @return   boolean  実行成否
      */
-    function cacheParsedSettingTxt()
+    function setSettingArrayFromSettingTxt()
     {
         global $_conf;
 
@@ -227,31 +238,41 @@ class SettingTxt
             }
         }
         $this->setting_array['p2version'] = $_conf['p2version'];
-        
-        if (false === FileCtl::filePutRename($this->setting_srd, serialize($this->setting_array))) {
+
+        return true;
+    }
+    
+    /**
+     * @access  private
+     * @return  boolean
+     */
+    function saveSettingSrd($setting_array)
+    {
+        if (false === FileCtl::filePutRename($this->setting_srd, serialize($setting_array))) {
             return false;
         }
-        
         return true;
     }
     
     /**
      * SETTING.TXT のパースデータを読み込む
      *
-     * 成功すれば、$this->setting_array がセットされる
-     *
      * @access  private
-     * @return  boolean  実行成否
+     * @return  array
      */
-    function setSettingArray()
+    function readSettingArrayFromSettingSrd()
     {
         global $_conf;
-
+        
         if (!file_exists($this->setting_srd)) {
-            return false;
+            //return false;
+            return array();
         }
 
-        $this->setting_array = unserialize(file_get_contents($this->setting_srd));
+        $setting_array = array();
+        if ($cont = file_get_contents($this->setting_srd)) {
+            $setting_array = unserialize($cont);
+        }
         
         /*
         if ($this->setting_array['p2version'] != $_conf['p2version']) {
@@ -260,7 +281,7 @@ class SettingTxt
         }
         */
         
-        return (bool)$this->setting_array;
+        return $setting_array;
     }
 
 }

@@ -72,7 +72,7 @@ if (!isset($ttitle)) {
 $MESSAGE = _formatCodeToPost($MESSAGE);
 
 // ÇµÇΩÇÁÇŒÇÃlivedoorà⁄ì]Ç…ëŒâûÅBpostêÊÇlivedoorÇ∆Ç∑ÇÈÅB
-$host = P2Util::adjustHostJbbs($host);
+$host = P2Util::adjustHostJbbsShitaraba($host);
 
 // machibbsÅAJBBS@ÇµÇΩÇÁÇŒ Ç»ÇÁ
 if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
@@ -80,36 +80,49 @@ if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
     
     // JBBS@ÇµÇΩÇÁÇŒ Ç»ÇÁ
     if (P2Util::isHostJbbsShitaraba($host)) {
-        $bbs_cgi = "/../bbs/write.cgi";
-        preg_match("/(\w+)$/", $host, $ar);
+        $bbs_cgi = '/../bbs/write.cgi';
+        preg_match('/(\w+)$/', $host, $ar);
         $dir = $ar[1];
-        $dir_k = "DIR";
+        $dir_k = 'DIR';
     }
     
-    $submit_k  = "submit";
-    $bbs_k     = "BBS";
-    $key_k     = "KEY";
-    $time_k    = "TIME";
-    $FROM_k    = "NAME";
-    $mail_k    = "MAIL";
-    $MESSAGE_k = "MESSAGE";
-    $subject_k = "SUBJECT";
-    
+    $submit_k  = 'submit';
+    $bbs_k     = 'BBS';
+    $key_k     = 'KEY';
+    $time_k    = 'TIME';
+    $FROM_k    = 'NAME';
+    $mail_k    = 'MAIL';
+    $MESSAGE_k = 'MESSAGE';
+    $subject_k = 'SUBJECT';
+
+// cha2Ç»ÇÁ
+} elseif (P2Util::isHostCha2($host)) {
+    $bbs_cgi = '/cgi-bin/test/bbs.cgi';
+
+    $submit_k  = 'submit';
+    $bbs_k     = 'bbs';
+    $key_k     = 'key';
+    $time_k    = 'time';
+    $FROM_k    = 'FROM';
+    $mail_k    = 'mail';
+    $MESSAGE_k = 'MESSAGE';
+    $subject_k = 'SUBJECT';
+
 // 2chånÇ»ÇÁ
 } else { 
     if ($sub) {
         $bbs_cgi = "/test/{$sub}bbs.cgi";
     } else {
-        $bbs_cgi = "/test/bbs.cgi";
+        $bbs_cgi = '/test/bbs.cgi';
     }
-    $submit_k  = "submit";
-    $bbs_k     = "bbs";
-    $key_k     = "key";
-    $time_k    = "time";
-    $FROM_k    = "FROM";
-    $mail_k    = "mail";
-    $MESSAGE_k = "MESSAGE";
-    $subject_k = "subject";
+    $submit_k  = 'submit';
+    $bbs_k     = 'bbs';
+    $key_k     = 'key';
+    $time_k    = 'time';
+    $FROM_k    = 'FROM';
+    $mail_k    = 'mail';
+    $MESSAGE_k = 'MESSAGE';
+    $subject_k = 'subject';
 
 }
 

@@ -10,53 +10,51 @@ require_once P2_LIB_DIR . '/FileCtl.php';
  * @access  public
  * @return  boolean
  */
-function downloadDatShitaraba(&$aThread)
+function downloadDatShitaraba(&$ThreadRead)
 {
-    $GLOBALS['machi_latest_num'] = 0;
-
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
     
-    if (file_exists($aThread->keydat)) {
-        $dls = file($aThread->keydat);
-        if (sizeof($dls) != $aThread->gotnum) {
+    if (file_exists($ThreadRead->keydat)) {
+        $dls = file($ThreadRead->keydat);
+        if (sizeof($dls) != $ThreadRead->gotnum) {
             // echo 'bad size!<br>';
-            unlink($aThread->keydat);
-            $aThread->gotnum = 0;
+            unlink($ThreadRead->keydat);
+            $ThreadRead->gotnum = 0;
         }
     } else {
-        $aThread->gotnum = 0;
+        $ThreadRead->gotnum = 0;
     }
     
     // }}}
     
-    if ($aThread->gotnum == 0) {
+    if ($ThreadRead->gotnum == 0) {
         $file_append = false;
         $START = 1;
     } else {
         $file_append = true;
-        $START = $aThread->gotnum + 1;
+        $START = $ThreadRead->gotnum + 1;
     }
 
     // JBBS@したらば
-    if (P2Util::isHostJbbsShitaraba($aThread->host)) {
+    if (P2Util::isHostJbbsShitaraba($ThreadRead->host)) {
         // したらばのlivedoor移転に対応。読込先をlivedoorとする。
-        $host = P2Util::adjustHostJbbs($aThread->host);
+        $host = P2Util::adjustHostJbbsShitaraba($ThreadRead->host);
         list($host, $category, ) = explode('/', $host);
-        $machiurl = "http://{$host}/bbs/rawmode.cgi/{$category}/{$aThread->bbs}/{$aThread->key}/{$START}-";
+        $machiurl = "http://{$host}/bbs/rawmode.cgi/{$category}/{$ThreadRead->bbs}/{$ThreadRead->key}/{$START}-";
     }
 
-    $tempfile = $aThread->keydat . '.dat.temp';
+    $tempfile = $ThreadRead->keydat . '.dat.temp';
     
     FileCtl::mkdirFor($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
     
     if (!$machiurl_res or !$machiurl_res->is_success()) {
-        $aThread->diedat = true;
+        $ThreadRead->diedat = true;
         return false;
     }
     
     // したらばならEUCをSJISに変換
-    if (P2Util::isHostJbbsShitaraba($aThread->host)) {
+    if (P2Util::isHostJbbsShitaraba($ThreadRead->host)) {
         $temp_data = file_get_contents($tempfile);
         $temp_data = mb_convert_encoding($temp_data, 'SJIS-win', 'eucJP-win');
         if (false === FileCtl::filePutRename($tempfile, $temp_data)) {
@@ -73,28 +71,29 @@ function downloadDatShitaraba(&$aThread)
     /*
     // （JBBS）ERROR!: スレッドがありません。過去ログ倉庫にもありません。
     if (preg_match("/^ERROR.*$/i", $mlines[0], $matches)) {
-        $aThread->getdat_error_msg_ht .= $matches[0];
-        $aThread->diedat = true;
+        $ThreadRead->getdat_error_msg_ht .= $matches[0];
+        $ThreadRead->diedat = true;
         return false;
     }
     */
-    
+
     // {{{ DATを書き込む
     
-    if ($mdatlines = _shitarabaDatTo2chDatLines($mlines)) {
+    $latest_num = 0;
+    if ($mdatlines = _shitarabaDatTo2chDatLines($mlines, $latest_num)) {
 
         $rsc = $file_append ? (FILE_APPEND | LOCK_EX) : LOCK_EX;
 
         $cont = '';
-        for ($i = $START; $i <= $GLOBALS['machi_latest_num']; $i++) {
+        for ($i = $START; $i <= $latest_num; $i++) {
             if ($mdatlines[$i]) {
                 $cont .= $mdatlines[$i];
             } else {
                 $cont .= "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n";
             }
         }
-        if (false === file_put_contents($aThread->keydat, $cont, $rsc)) {
-            trigger_error("file_put_contents(" . $aThread->keydat . ")", E_USER_WARNING);
+        if (false === file_put_contents($ThreadRead->keydat, $cont, $rsc)) {
+            trigger_error("file_put_contents(" . $ThreadRead->keydat . ")", E_USER_WARNING);
             die('Error: cannot write file.');
             return false;
         }
@@ -102,7 +101,7 @@ function downloadDatShitaraba(&$aThread)
     
     // }}}
     
-    $aThread->isonline = true;
+    $ThreadRead->isonline = true;
     
     return true;
 }
@@ -114,7 +113,7 @@ function downloadDatShitaraba(&$aThread)
  * @access  private
  * @return  array|false
  */
-function _shitarabaDatTo2chDatLines($mlines)
+function _shitarabaDatTo2chDatLines($mlines, &$latest_num)
 {
     if (!$mlines) {
         return false;
@@ -130,10 +129,10 @@ function _shitarabaDatTo2chDatLines($mlines)
         $data = explode('<>', $ml);
         
         $order = $data[0];
-        $name = $data[1];
-        $mail = $data[2];
-        $date = $data[3];
-        $body = $data[4];
+        $name  = $data[1];
+        $mail  = $data[2];
+        $date  = $data[3];
+        $body  = $data[4];
         if ($order == 1) {
             $mtitle = $data[5];
         }
@@ -153,13 +152,13 @@ function _shitarabaDatTo2chDatLines($mlines)
         $b = "\n";
         $s = '<>';
         if ($order == 1) {
-            $datline = $name . $s . $mail . $s . $date . $s . $body . $s . $mtitle . $b;
+            $datline = implode($s, array($name, $mail, $date, $body, $mtitle)) . $b;
         } else {
-            $datline = $name . $s . $mail . $s . $date . $s . $body . $s . $b;
+            $datline = implode($s, array($name, $mail, $date, $body, '')) . $b;
         }
         $mdatlines[$order] = $datline;
-        if ($order > $GLOBALS['machi_latest_num']) {
-            $GLOBALS['machi_latest_num'] = $order;
+        if ($order > $latest_num) {
+            $latest_num = $order;
         }
     }
     

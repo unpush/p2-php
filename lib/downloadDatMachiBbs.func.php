@@ -13,43 +13,41 @@ require_once P2_LIB_DIR . '/FileCtl.php';
  * @access  public
  * @return  boolean
  */
-function downloadDatMachiBbs(&$aThread)
+function downloadDatMachiBbs(&$ThreadRead)
 {
-    $GLOBALS['machi_latest_num'] = 0;
-
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
     
-    if (file_exists($aThread->keydat)) {
-        $dls = file($aThread->keydat);
-        if (sizeof($dls) != $aThread->gotnum) {
+    if (file_exists($ThreadRead->keydat)) {
+        $dls = file($ThreadRead->keydat);
+        if (sizeof($dls) != $ThreadRead->gotnum) {
             // echo 'bad size!<br>';
-            unlink($aThread->keydat);
-            $aThread->gotnum = 0;
+            unlink($ThreadRead->keydat);
+            $ThreadRead->gotnum = 0;
         }
     } else {
-        $aThread->gotnum = 0;
+        $ThreadRead->gotnum = 0;
     }
     
     // }}}
     
-    if ($aThread->gotnum == 0) {
+    if ($ThreadRead->gotnum == 0) {
         $file_append = false;
         $START = 1;
     } else {
         $file_append = true;
-        $START = $aThread->gotnum + 1;
+        $START = $ThreadRead->gotnum + 1;
     }
 
     // まちBBS
-    $machiurl = "http://{$aThread->host}/bbs/read.cgi?BBS={$aThread->bbs}&KEY={$aThread->key}&START={$START}";
+    $machiurl = "http://{$ThreadRead->host}/bbs/read.cgi?BBS={$ThreadRead->bbs}&KEY={$ThreadRead->key}&START={$START}";
 
-    $tempfile = $aThread->keydat . '.html.temp';
+    $tempfile = $ThreadRead->keydat . '.html.temp';
     
     FileCtl::mkdirFor($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);
     
     if (!$machiurl_res or !$machiurl_res->is_success()) {
-        $aThread->diedat = true;
+        $ThreadRead->diedat = true;
         return false;
     }
     
@@ -60,34 +58,35 @@ function downloadDatMachiBbs(&$aThread)
 
     // （まちBBS）<html>error</html>
     if (trim($mlines[0]) == '<html>error</html>') {
-        $aThread->getdat_error_msg_ht .= 'error';
-        $aThread->diedat = true;
+        $ThreadRead->getdat_error_msg_ht .= 'error';
+        $ThreadRead->diedat = true;
         return false;
     }
     
     // {{{ DATを書き込む
     
-    if ($mdatlines = _machiHtmltoDatLines($mlines)) {
+    $latest_num = 0;
+    if ($mdatlines = _machiHtmltoDatLines($mlines, $latest_num)) {
 
         $rsc = $file_append ? (FILE_APPEND | LOCK_EX) : LOCK_EX;
 
         $cont = '';
-        for ($i = $START; $i <= $GLOBALS['machi_latest_num']; $i++) {
+        for ($i = $START; $i <= $latest_num; $i++) {
             if (isset($mdatlines[$i])) {
                 $cont .= $mdatlines[$i];
             } else {
                 $cont .= "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n";
             }
         }
-        if (false === file_put_contents($aThread->keydat, $cont, $rsc)) {
-            trigger_error("file_put_contents(" . $aThread->keydat . ")", E_USER_WARNING);
+        if (false === file_put_contents($ThreadRead->keydat, $cont, $rsc)) {
+            trigger_error("file_put_contents(" . $ThreadRead->keydat . ")", E_USER_WARNING);
             die('Error: cannot write file.');
         }
     }
     
     // }}}
     
-    $aThread->isonline = true;
+    $ThreadRead->isonline = true;
     
     return true;
 }
@@ -99,7 +98,7 @@ function downloadDatMachiBbs(&$aThread)
  * @access  private
  * @return  array|false
  */
-function _machiHtmltoDatLines($mlines)
+function _machiHtmltoDatLines($mlines, &$latest_num)
 {
     if (!$mlines) {
         return false;
@@ -162,13 +161,13 @@ function _machiHtmltoDatLines($mlines)
             $b = "\n";
             $s = '<>';
             if ($order == 1) {
-                $datline = $name . $s . $mail . $s . $date . $s . $body . $s . $mtitle . $b;
+                $datline = implode($s, array($name, $mail, $date, $body, $mtitle)) . $b;
             } else {
-                $datline = $name . $s . $mail . $s . $date . $s . $body . $s . $b;
+                $datline = implode($s, array($name, $mail, $date, $body, '')) . $b;
             }
             $mdatlines[$order] = $datline;
-            if ($order > $GLOBALS['machi_latest_num']) {
-                $GLOBALS['machi_latest_num'] = $order;
+            if ($order > $latest_num) {
+                $latest_num = $order;
             }
         }
         
