@@ -51,7 +51,7 @@ header('Content-Type: text/css; charset=Shift_JIS');
     
     echo "@charset \"Shift_JIS\";\n\n";
     ob_start();
-    include_once $cssFilePath;
+    include_once $cssFilePath; // $STYLEÇä‹Çﬁ
     
     // $MYSTYLEÇ≈CSSÇè„èëÇ´ï\é¶
     require_once P2_LIB_DIR . '/mystyle_css.funcs.php';
@@ -65,9 +65,9 @@ header('Content-Type: text/css; charset=Shift_JIS');
 /**
  * @return  string
  */
-function _getCssFilePath($cssname)
+function _getCssFilePath($cssName)
 {
-    return P2_STYLE_DIR . DIRECTORY_SEPARATOR . rawurlencode($cssname) . '_css.inc';;
+    return P2_STYLE_DIR . DIRECTORY_SEPARATOR . rawurlencode($cssName) . '_css.inc';
 }
 
 /**
@@ -75,10 +75,10 @@ function _getCssFilePath($cssname)
  *
  * @return  string|false
  */
-function _getValidCssFilePath($cssname)
+function _getValidCssFilePath($cssName)
 {
-    if (preg_match('/^\\w+$/', $cssname)) {
-        $cssFilePath = _getCssFilePath($cssname);
+    if (preg_match('/^\\w+$/', $cssName)) {
+        $cssFilePath = _getCssFilePath($cssName);
         if (file_exists($cssFilePath)) {
             return $cssFilePath;
         }
