@@ -39,7 +39,7 @@ $MYSTYLE['*'] ‚¨‚æ‚Ñ !important ‚Â‚«‚Ì’l‚ÍJavaScript‚Å‚Ì•ÏX‚ªŒø‚©‚È‚¢‚Ì‚Å’ˆÓI
 
 // {{{ ‰Šú‰»
 
-$MYSTYLE = parse_mystyle($MYSTYLE);
+//$MYSTYLE = parse_mystyle($MYSTYLE);
 
 // }}}
 // {{{ parse_mystyle()

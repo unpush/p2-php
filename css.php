@@ -54,7 +54,8 @@ header('Content-Type: text/css; charset=Shift_JIS');
     include_once $cssFilePath;
     
     // $MYSTYLEでCSSを上書き表示
-    require_once P2_LIB_DIR . '/mystyle_css.inc.php';
+    require_once P2_LIB_DIR . '/mystyle_css.funcs.php';
+    $MYSTYLE = parse_mystyle($MYSTYLE);
     printMystyleCssByFileName($cssFilePath);
 
     // 空スタイルを除去
