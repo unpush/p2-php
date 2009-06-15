@@ -187,6 +187,21 @@ if (!function_exists('http_date')) {
 }
 
 // }}}
+// {{{ ctype
+
+/**
+ * ctype拡張モジュール関数のPure PHP版 (cntrl,graph,print,punct,spaceは割愛)
+ */
+if (!extension_loaded('ctype')) {
+    function ctype_alnum($str) { return (bool)preg_match('/^[0-9A-Za-z]+$/', $str); }
+    function ctype_alpha($str) { return (bool)preg_match('/^[A-Za-z]+$/', $str); }
+    function ctype_digit($str) { return (bool)preg_match('/^[0-9]+$/', $str); }
+    function ctype_lower($str) { return (bool)preg_match('/^[a-z]+$/', $str); }
+    function ctype_upper($str) { return (bool)preg_match('/^[A-Z]+$/', $str); }
+    function ctype_xdigit($str) { return (bool)preg_match('/^[0-9A-Fa-f]+$/', $str); }
+}
+
+// }}}
 // {{{ stripslashes_r()
 
 /**
@@ -581,6 +596,47 @@ function p2_correct_css_fontfamily($fonts)
 function p2_correct_css_color($color)
 {
     return preg_replace('/^#([0-9A-F])([0-9A-F])([0-9A-F])$/i', '#\\1\\1\\2\\2\\3\\3', $color);
+}
+
+// }}}
+// {{{ p2_escape_css_url()
+
+/**
+ * スタイルシートのURLをエスケープする
+ *
+ * CSSで特に意味のあるトークンである空白文字、シングルクォート、
+ * ダブルクォート、括弧、バックスラッシュをURLエンコードする
+ *
+ * @param   string $url
+ * @return  string
+ */
+function p2_escape_css_url($url)
+{
+    if (strpos($url, chr(0)) !== false) {
+        return '';
+    }
+    return str_replace(array( "\t",  "\n",  "\r",   ' ',   '"',   "'",   '(',   ')',  '\\'),
+                       array('%09', '%0A', '%0D', '%20', '%22', '%27', '%28', '%29', '%5C'),
+                       $url);
+}
+
+// }}}
+// {{{ json_encode()
+
+if (!extension_loaded('json')) {
+    /**
+     * jsonエクステンションのjson_encode()関数をPEARのServices_JSONで代替する
+     *
+     * @param   mixed $value
+     * @return  string
+     */
+    function json_encode($value) {
+        if (!class_exists('Services_JSON', false)) {
+            include 'Services/JSON.php';
+        }
+        $json = new Services_JSON();
+        return $json->encodeUnsafe($value);
+    }
 }
 
 // }}}

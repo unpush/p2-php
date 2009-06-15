@@ -4,8 +4,10 @@
 
 // {{{ GLOBALS
 
-var _SPM_IPHONE_JS_ACTIVE_THREAD, _SPM_IPHONE_JS_ACTIVE_NUMBER;
-var SPM = new Object();
+var SPM = {
+	'activeThread': null,
+	'activeNumber': null
+};
 
 // }}}
 // {{{ SPM.show()
@@ -26,19 +28,25 @@ SPM.show = (function(thread, no, id, evt)
 		return;
 	}
 
-	_SPM_IPHONE_JS_ACTIVE_THREAD = thread;
-	_SPM_IPHONE_JS_ACTIVE_NUMBER = no;
+	SPM.activeThread = thread;
+	SPM.activeNumber = no;
 
 	var num = document.getElementById('spm-num');
 	if (num) {
-		while (num.childNodes.length) {
-			num.removeChild(num.firstChild);
+		if (num.childNodes.length === 0) {
+			num.appendChild(document.createTextNode(no));
+		} else if (num.childNodes.length === 1 && num.firstChild.nodeType === 3) {
+			num.firstChild.nodeValue = no;
+		} else {
+			while (num.childNodes.length) {
+				num.removeChild(num.childNodes[num.childNodes.length - 1]);
+			}
+			num.appendChild(document.createTextNode(no));
 		}
-		num.appendChild(document.createTextNode(no.toString()));
 	}
 
 	spm.style.display = 'block';
-	spm.style.top = (evt.getOffsetY() + 10).toString() + 'px';
+	spm.style.top = (iutil.getPageY(evt) + 10) + 'px';
 
 	//document.body.addEventListener('touchmove', this.hide, true);
 });
@@ -75,14 +83,13 @@ SPM.hide = (function(evt)
  */
 SPM.replyTo = (function(quote)
 {
-	var url = 'spm_k.php?ktool_name=res';
+	var uri = 'spm_k.php?ktool_name=res';
 	if (quote) {
-		url += '_quote';
+		uri += '_quote';
 	}
-	url += '&ktool_value=' + _SPM_IPHONE_JS_ACTIVE_NUMBER.toString();
-	url += _SPM_IPHONE_JS_ACTIVE_THREAD.query;
+	uri += '&ktool_value=' + SPM.activeNumber + SPM.activeThread.query;
 
-	window.open(url);
+	window.open(uri);
 });
 
 // }}}
@@ -97,12 +104,12 @@ SPM.doAction = (function()
 {
 	var action = document.getElementById('spm-select-action');
 	var target = document.getElementById('spm-select-target');
-	var url = 'spm_k.php?ktool_name=';
+	var uri = 'spm_k.php?ktool_name=';
 
 	switch (action.options[action.selectedIndex].value) {
 	  case 'aborn':
 	  case 'ng':
-		url += action.options[action.selectedIndex].value + '_';
+		uri += action.options[action.selectedIndex].value + '_';
 		break;
 	  default:
 		alert('SPM: Invalid Action!');
@@ -114,17 +121,16 @@ SPM.doAction = (function()
 	  case 'mail':
 	  case 'id':
 	  case 'msg':
-		url += target.options[target.selectedIndex].value;
+		uri += target.options[target.selectedIndex].value;
 		break;
 	  default:
 		alert('SPM: Invalid Target!');
 		return;
 	}
 
-	url += '&ktool_value=' + _SPM_IPHONE_JS_ACTIVE_NUMBER.toString();
-	url += _SPM_IPHONE_JS_ACTIVE_THREAD.query;
+	uri += '&ktool_value=' + SPM.activeNumber + SPM.activeThread.query;
 
-	window.open(url);
+	window.open(uri);
 });
 
 // }}}

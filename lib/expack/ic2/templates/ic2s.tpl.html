@@ -59,8 +59,8 @@
 <div flexy:if="showForm">
 
 <form id="fileupload" name="fileupload" method="post" enctype="multipart/form-data" onsubmit="return cntl.preSubmit()">
+	<input type="hidden" name="_hint" value="{hint:h}" flexy:ignore="yes" />
 	<input type="hidden" name="MAX_FILE_SIZE" value="10000000" />
-	<input type="hidden" name="fix_hfs" value="0" />
 	<input type="hidden" name="popup" value="0" />
 	<fieldset id="upload_files">
 		<legend>
@@ -86,7 +86,6 @@
 		<input type="reset" value="リセット" onclick="cntl.resetFile()" />
 		<input type="button" value="閉じる" onclick="window.close()" flexy:if="isPopUp" />
 	</div>
-	<input type="hidden" name="_hint" value="{hint:h}" />
 </form>
 
 <p id="notice_maxsize">※ アップロード可能な画像サイズの上限は、1枚あたり {maxfilesize}B、全体で {maxpostsize}B です。</p>

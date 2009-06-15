@@ -291,7 +291,7 @@ if ($_conf['res_write_rec']) {
 
     $date_and_id = date('y/m/d H:i');
     $message = htmlspecialchars($MESSAGE, ENT_NOQUOTES);
-    $message = preg_replace('/\\r?\\n/', '<br>', $message);
+    $message = preg_replace('/\\r\\n|\\r|\\n/', '<br>', $message);
 
     FileCtl::make_datafile($_conf['res_hist_dat'], $_conf['res_write_perm']); // なければ生成
 
@@ -335,7 +335,6 @@ if ($_conf['res_write_rec']) {
 function postIt($host, $bbs, $key, $post)
 {
     global $_conf, $post_result, $post_error2ch, $p2cookies, $popup, $rescount, $ttitle_en;
-    global $STYLE, $skin_en;
     global $bbs_cgi, $post_cache;
 
     $method = 'POST';
@@ -462,9 +461,9 @@ function postIt($host, $bbs, $key, $post)
                             $cookies_to_send .= " {$cname}={$cvalue};";
                         }
                     }
-                    $newcokkies = "Cookie:{$cookies_to_send}\r\n";
+                    $newcookies = "Cookie:{$cookies_to_send}\r\n";
 
-                    $request = preg_replace("/Cookie: .*?\r\n/", $newcokkies, $request);
+                    $request = preg_replace("/Cookie: .*?\r\n/", $newcookies, $request);
                 }
 
             // 転送は書き込み成功と判断
@@ -484,18 +483,21 @@ function postIt($host, $bbs, $key, $post)
         $response = mb_convert_encoding($response, 'CP932', 'CP51932');
 
         //<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">
-        $response = preg_replace("{(<head>.*<META http-equiv=\"Content-Type\" content=\"text/html; charset=)EUC-JP(\">.*</head>)}is", "$1Shift_JIS$2", $response);
+        $response = preg_replace(
+            '{<head>(.*?)<META http-equiv="Content-Type" content="text/html; charset=EUC-JP">(.*)</head>}is',
+            '<head><meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">$1$2</head>',
+            $response);
     }
 
-    $kakikonda_match = "/<title>.*(書きこみました|■ 書き込みました ■|書き込み終了 - SubAll BBS).*<\/title>/is";
-    $cookie_kakunin_match = "/<!-- 2ch_X:cookie -->|<title>■ 書き込み確認 ■<\/title>|>書き込み確認。</";
+    $kakikonda_match = '{<title>.*(?:書きこみました|■ 書き込みました ■|書き込み終了 - SubAll BBS).*</title>}is';
+    $cookie_kakunin_match = '{<!-- 2ch_X:cookie -->|<title>■ 書き込み確認 ■</title>|>書き込み確認。<}';
 
-    if (eregi("(<.+>)", $response, $matches)) {
-        $response = $matches[1];
+    if (preg_match('/<.+>/s', $response, $matches)) {
+        $response = $matches[0];
     }
 
     // カキコミ成功
-    if (preg_match($kakikonda_match, $response, $matches) or $post_seikou) {
+    if ($post_seikou || preg_match($kakikonda_match, $response)) {
         $reload = empty($_POST['from_read_new']);
         showPostMsg(true, '書きこみが終わりました。', $reload);
 
@@ -509,58 +511,8 @@ function postIt($host, $bbs, $key, $post)
         //echo "<pre>{$response_ht}</pre>";
 
     // cookie確認（post再チャレンジ）
-    } elseif (preg_match($cookie_kakunin_match, $response, $matches)) {
-
-        $GLOBALS['_post_form_hidden_values'] = <<<EOFORM
-<input type="hidden" name="host" value="{$host}">
-<input type="hidden" name="popup" value="{$popup}">
-<input type="hidden" name="rescount" value="{$rescount}">
-<input type="hidden" name="ttitle_en" value="{$ttitle_en}">
-EOFORM;
-
-        foreach ($GLOBALS['post_optional_keys'] as $hk) {
-            if (isset($_POST[$hk])) {
-                $value_hd = htmlspecialchars($_POST[$hk], ENT_QUOTES);
-                $GLOBALS['_post_form_hidden_values'] .= "\n<input type=\"hidden\" name=\"{$hk}\" value=\"{$value_hd}\">";
-            }
-        }
-
-        $replaced = preg_replace_callback('{<form method="?POST"? action="?\\.\\./test/(sub)?bbs\\.cgi(?:\\?guid=ON)?"?>(.+?)</form>}i', 'replacePostFormCb', $response, -1, $count);
-
-        if ($count != 1) {
-            echo '<html><head><title>p2 ERROR</title></head><body>';
-            echo '<h1>p2 ERROR</h1><p>サーバからのレスポンスが変です。</p><pre>';
-            echo htmlspecialchars($response, ENT_QUOTES);
-            echo '</pre></body></html>';
-            return false;
-        }
-
-        $h_b = explode('</head>', $replaced, 2);
-
-        // HTMLプリント
-        echo $h_b[0];
-        if (!$_conf['ktai']) {
-            echo <<<EOP
-    <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
-    <link rel="stylesheet" type="text/css" href="css.php?css=post&amp;skin={$skin_en}">\n
-EOP;
-        }
-        if ($popup) {
-            $mado_okisa = explode(',', $STYLE['post_pop_size']);
-            $mado_okisa_x = $mado_okisa[0];
-            $mado_okisa_y = $mado_okisa[1] + 200;
-            echo <<<EOSCRIPT
-            <script type="text/javascript">
-            //<![CDATA[
-                resizeTo({$mado_okisa_x},{$mado_okisa_y});
-            //]]>
-            </script>
-EOSCRIPT;
-        }
-
-        echo "</head>";
-        echo $h_b[1];
-
+    } elseif (preg_match($cookie_kakunin_match, $response)) {
+        showCookieConfirmation($host, $response);
         return false;
 
     // その他はレスポンスをそのまま表示
@@ -591,7 +543,7 @@ function showPostMsg($isDone, $result_msg, $reload)
     $ttitle_ht = "<b{$class_ttitle}>{$ttitle}</b>";
     // 2005/03/01 aki: jigブラウザに対応するため、&amp; ではなく & で
     // 2005/04/25 rsk: <script>タグ内もCDATAとして扱われるため、&amp;にしてはいけない
-    $location_noenc = preg_replace("/&amp;/", "&", $location_ht);
+    $location_noenc = str_replace('&amp;', '&', $location_ht);
     if ($popup) {
         $popup_ht = <<<EOJS
 <script type="text/javascript">
@@ -667,6 +619,216 @@ EOP;
 }
 
 // }}}
+// {{{ showCookieConfirmation()
+
+/**
+ * Cookie確認HTMLを表示する
+ *
+ * @param   string $host        ホスト名
+ * @param   string $response    レスポンスボディ
+ * @return  void
+ */
+function showCookieConfirmation($host, $response)
+{
+    global $_conf, $post_param_keys, $post_send_keys, $post_optional_keys;
+    global $popup, $rescount, $ttitle_en;
+    global $STYLE, $skin_en;
+
+    // HTMLをDOMで解析
+    $doc = P2Util::getHtmlDom($response, 'Shift_JIS', false);
+    if (!$doc) {
+        showUnexpectedResponse($response);
+        return;
+    }
+
+    $xpath = new DOMXPath($doc);
+    $heads = $doc->getElementsByTagName('head');
+    $bodies = $doc->getElementsByTagName('body');
+    if ($heads->length != 1 || $bodies->length != 1) {
+        showUnexpectedResponse($response);
+        return;
+    }
+
+    $head = $heads->item(0);
+    $body = $bodies->item(0);
+    $xpath = new DOMXPath($doc);
+
+    // フォームを探索
+    $forms = $xpath->query(".//form[(@method = 'POST' or @method = 'post')
+            and (starts-with(@action, '../test/bbs.cgi') or starts-with(@action, '../test/subbbs.cgi'))]", $body);
+    if ($forms->length != 1) {
+        showUnexpectedResponse($response);
+        return;
+    }
+    $form = $forms->item(0);
+
+    if (!preg_match('{^\\.\\./test/(sub)?bbs\\.cgi(?:\\?guid=ON)?$}', $form->getAttribute('action'), $matches)) {
+        showUnexpectedResponse($response);
+        return;
+    }
+
+    if (array_key_exists(1, $matches) && strlen($matches[1])) {
+        $subbbs = $matches[1];
+    } else {
+        $subbbs = false;
+    }
+
+    // form要素の属性値を書き換える
+    // method属性とaction属性以外の属性は削除し、accept-charset属性を追加する
+    // DOMNamedNodeMapのイテレーションと、それに含まれるノードの削除は別に行う
+    $rmattrs = array();
+    foreach ($form->attributes as $name => $node) {
+        switch ($name) {
+            case 'method':
+                //$node->value = 'POST';
+                break;
+            case 'action':
+                $node->value = './post.php';
+                break;
+            default:
+                $rmattrs[] = $name;
+        }
+    }
+    foreach ($rmattrs as $name) {
+        $form->removeAttribute($name);
+    }
+    $form->setAttribute('accept-charset', $_conf['accept_charset']);
+
+    // POSTする値を再設定
+    foreach (array_combine($post_send_keys, $post_param_keys) as $key => $name) {
+        if (array_key_exists($name, $_POST)) {
+            $nodes = $xpath->query("./input[@type = 'hidden' and @name = '{$key}']");
+            if ($nodes->length) {
+                $elem = $nodes->item(0);
+                if ($key != $name) {
+                    $elem->setAttribute('name', $name);
+                }
+                $elem->setAttribute('value', mb_convert_encoding($_POST[$name], 'UTF-8', 'CP932'));
+            }
+        }
+    }
+
+    // 各種隠しパラメータを追加
+    $hidden = $doc->createElement('input');
+    $hidden->setAttribute('type', 'hidden');
+
+    // rep2が使用する変数その1
+    foreach (array('host', 'popup', 'rescount', 'ttitle_en') as $name) {
+        $elem = $hidden->cloneNode();
+        $elem->setAttribute('name', $name);
+        $elem->setAttribute('value', $$name);
+        $form->appendChild($elem);
+    }
+
+    // rep2が使用する変数その2
+    foreach ($post_optional_keys as $name) {
+        if (array_key_exists($name, $_POST)) {
+            $elem = $hidden->cloneNode();
+            $elem->setAttribute('name', $name);
+            $elem->setAttribute('value', mb_convert_encoding($_POST[$name], 'UTF-8', 'CP932'));
+            $form->appendChild($elem);
+        }
+    }
+
+    // POST先がsubbbs.cgi
+    if ($subbbs !== false) {
+        $elem = $hidden->cloneNode();
+        $elem->setAttribute('name', 'sub');
+        $elem->setAttribute('value', $subbbs);
+        $form->appendChild($elem);
+    }
+
+    // ソースコード補正
+    if (!empty($_POST['fix_source'])) {
+        $elem = $hidden->cloneNode();
+        $elem->setAttribute('name', 'fix_source');
+        $elem->setAttribute('value', '1');
+        $form->appendChild($elem);
+    }
+
+    // 強制ビュー指定
+    if ($_conf['b'] != $_conf['client_type']) {
+        $elem = $hidden->cloneNode();
+        $elem->setAttribute('name', 'b');
+        $elem->setAttribute('value', $_conf['b']);
+        $form->appendChild($elem);
+    }
+
+    // Cookie確認フラグ
+    $elem = $hidden->cloneNode();
+    $elem->setAttribute('name', 'p2_post_confirm_cookie');
+    $elem->setAttribute('value', '1');
+    $form->appendChild($elem);
+
+    // エンコーディング判定のヒント
+    $hidden->setAttribute('name', '_hint');
+    $hidden->setAttribute('value', mb_convert_encoding($_conf['detect_hint'], 'UTF-8', 'CP932'));
+    $form->insertBefore($hidden, $form->firstChild);
+
+    // ヘッダに要素を追加
+    if (!$_conf['ktai']) {
+        $skin_q = str_replace('&amp;', '&', $skin_en);
+        $link = $doc->createElement('link');
+        $link->setAttribute('rel', 'stylesheet');
+        $link->setAttribute('type', 'text/css');
+        $link->setAttribute('href', "css.php?css=style&skin={$skin_q}");
+        $link = $head->appendChild($link)->cloneNode();
+        $link->setAttribute('href', "css.php?css=post&skin={$skin_q}");
+        $head->appendChild($link);
+
+        if ($popup) {
+            $mado_okisa = explode(',', $STYLE['post_pop_size']);
+            $script = $doc->createElement('script');
+            $script->setAttribute('type', 'text/javascript');
+            $head->appendChild($script)->appendChild($doc->createCDATASection(
+                sprintf('resizeTo(%d,%d);', $mado_okisa[0], $mado_okisa[1] + 200)
+            ));
+        }
+    }
+
+    // 構文修正
+    // li要素を直接の子要素として含まないul要素をblockquote要素で置換
+    // DOMNodeListのイテレーションと、それに含まれるノードの削除は別に行う
+    $nodes = array();
+    foreach ($xpath->query('.//ul[count(./li)=0]', $body) as $node) {
+        $nodes[] = $node;
+    }
+    foreach ($nodes as $node) {
+        $children = array();
+        foreach ($node->childNodes as $child) {
+            $children[] = $child;
+        }
+        $elem = $doc->createElement('blockquote');
+        foreach ($children as $child) {
+            $elem->appendChild($node->removeChild($child));
+        }
+        $node->parentNode->replaceChild($elem, $node);
+    }
+
+    // libxml2内部の文字列エンコーディングはUTF-8であるが、saveHTML()等の
+    // メソッドでは読み込んだ文書のエンコーディングに再変換して出力される
+    // (DOMDocumentのencodingプロパティを変更することで変られる)
+    echo $doc->saveHTML();
+}
+
+// }}}
+// {{{ showUnexpectedResponse()
+
+/**
+ * サーバから予期しないレスポンスが返ってきた旨を表示する
+ *
+ * @param   string $response    レスポンスボディ
+ * @return  void
+ */
+function showUnexpectedResponse($response)
+{
+    echo '<html><head><title>p2 ERROR</title></head><body>';
+    echo '<h1>p2 ERROR</h1><p>サーバからのレスポンスが変です。</p><pre>';
+    echo htmlspecialchars($response, ENT_QUOTES);
+    echo '</pre></body></html>';
+}
+
+// }}}
 // {{{ getKeyInSubject()
 
 /**
@@ -697,15 +859,19 @@ function getKeyInSubject()
 /**
  * 整形を維持しながら、タブをスペースに置き換える
  *
- * @return string
+ * @param   string $in_str      対象文字列
+ * @param   int $tabwidth       タブ幅
+ * @param   string $linebreak   改行文字(列)
+ * @return  string
  */
-function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
+function tab2space($in_str, $tabwidth = 4, $linebreak = "\n")
 {
     $out_str = '';
-    $lines = preg_split('/\r\n|\r|\n/', $in_str);
+    $lines = preg_split('/\\r\\n|\\r|\\n/', $in_str);
     $ln = count($lines);
+    $i = 0;
 
-    for ($i = 0; $i < $ln; $i++) {
+    while ($i < $ln) {
         $parts = explode("\t", rtrim($lines[$i]));
         $pn = count($parts);
 
@@ -723,34 +889,12 @@ function tab2space($in_str, $tabwidth = 4, $crlf = "\n")
         }
 
         $out_str .= $l;
-        if ($i + 1 < $ln) {
-            $out_str .= $crlf;
+        if (++$i < $ln) {
+            $out_str .= $linebreak;
         }
     }
 
     return $out_str;
-}
-
-// }}}
-// {{{ replacePostFormCb()
-
-/**
- * COOKIEの確認フォームを書き換えるコールバック関数
- *
- * @param array $m
- * @return string
- */
-function replacePostFormCb($m)
-{
-    global $_conf, $_post_form_hidden_values;
-
-    return <<<EOFORM
-<form method="POST" action="./post.php" accept-charset="{$_conf['accept_charset']}">
-{$m[2]}<input type="hidden" name="sub" value="{$m[1]}">
-{$_post_form_hidden_values}{$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
-<input type="hidden" name="p2_post_confirm_cookie" value="1">
-</form>
-EOFORM;
 }
 
 // }}}

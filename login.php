@@ -85,7 +85,7 @@ EOP;
     }
     if (file_exists($_conf['auth_docomo_file'])) {
         $p_htm['auth_ctl'] .= <<<EOP
-DoCoMo’[––ID”FØ“o˜^Ï[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1{$_conf['k_at_a']}">‰ğœ</a>]<br>
+’[––ID”FØ“o˜^Ï[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1{$_conf['k_at_a']}">‰ğœ</a>]<br>
 EOP;
     }
 
@@ -96,7 +96,7 @@ EOP;
 EOP;
         } else {
             $p_htm['auth_ctl'] = <<<EOP
-[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1&amp;regist_docomo=1{$_conf['k_at_a']}" utn>DoCoMo’[––ID‚Å”FØ‚ğ“o˜^</a>]<br>
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_docomo=1&amp;regist_docomo=1{$_conf['k_at_a']}" utn>’[––ID‚Å”FØ‚ğ“o˜^</a>]<br>
 EOP;
         }
     }
@@ -105,12 +105,12 @@ EOP;
 } elseif ($mobile->isEZweb()) {
     if (file_exists($_conf['auth_ez_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
-EZ’[––ID”FØ“o˜^Ï[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1{$_conf['k_at_a']}">‰ğœ</a>]<br>
+’[––ID”FØ“o˜^Ï[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1{$_conf['k_at_a']}">‰ğœ</a>]<br>
 EOP;
     } elseif ($mobile->getUID() !== null) {
         if ($_login->pass_x) {
             $p_htm['auth_ctl'] = <<<EOP
-[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1&amp;regist_ez=1{$_conf['k_at_a']}">EZ’[––ID‚Å”FØ‚ğ“o˜^</a>]<br>
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_ez=1&amp;regist_ez=1{$_conf['k_at_a']}">’[––ID‚Å”FØ‚ğ“o˜^</a>]<br>
 EOP;
         }
     }
@@ -119,12 +119,12 @@ EOP;
 } elseif ($mobile->isSoftBank()) {
     if (file_exists($_conf['auth_jp_file'])) {
         $p_htm['auth_ctl'] = <<<EOP
-Y!’[––ID”FØ“o˜^Ï[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1{$_conf['k_at_a']}">‰ğœ</a>]<br>
+’[––ID”FØ“o˜^Ï[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1{$_conf['k_at_a']}">‰ğœ</a>]<br>
 EOP;
     } elseif ($mobile->getSerialNumber() !== null) {
         if ($_login->pass_x) {
             $p_htm['auth_ctl'] = <<<EOP
-[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1&amp;regist_jp=1{$_conf['k_at_a']}">Y!’[––ID‚Å”FØ‚ğ“o˜^</a>]<br>
+[<a href="{$_SERVER['SCRIPT_NAME']}?ctl_regist_jp=1&amp;regist_jp=1{$_conf['k_at_a']}">’[––ID‚Å”FØ‚ğ“o˜^</a>]<br>
 EOP;
         }
     }

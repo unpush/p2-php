@@ -6,8 +6,8 @@
 
 // バージョン情報
 $_conf = array(
-    'p2version' => '1.7.29+1.8.14', // rep2のバージョン
-    'p2expack'  => '080927.2300',   // 拡張パックのバージョン
+    'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
+    'p2expack'  => '090601.1845',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -660,7 +660,7 @@ foreach ($STYLE as $K => $V) {
     } elseif (strpos($K, 'color') !== false) {
         $STYLE[$K] = p2_correct_css_color($V);
     } elseif (strpos($K, 'background') !== false) {
-        $STYLE[$K] = 'url("' . addslashes($V) . '")';
+        $STYLE[$K] = "url('" . p2_escape_css_url($V) . "')";
     }
 }
 
@@ -686,7 +686,7 @@ if ($_conf['client_type'] == 'i') {
 
     // 強制PCビュー時
     case 'pc':
-        $_conf['extra_headers_ht'] = <<<EOS
+        $_conf['extra_headers_ht'] .= <<<EOS
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png">
 <style type="text/css">body { -webkit-text-size-adjust: none; }</style>
@@ -695,7 +695,7 @@ EOS;
 
     // 強制携帯ビュー時
     case 'k':
-        $_conf['extra_headers_ht'] = <<<EOS
+        $_conf['extra_headers_ht'] .= <<<EOS
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png">
@@ -712,7 +712,7 @@ EOS;
     // 純正iPhoneビュー
     case 'i':
     default:
-        $_conf['extra_headers_ht'] = <<<EOS
+        $_conf['extra_headers_ht'] .= <<<EOS
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png">
@@ -724,10 +724,23 @@ EOS;
 
 // 強制iPhoneビュー時
 } elseif ($_conf['iphone']) {
-    $_conf['extra_headers_ht'] = <<<EOS
+    $_conf['extra_headers_ht'] .= <<<EOS
 <link rel="stylesheet" type="text/css" media="screen" href="css/iphone.css?{$_conf['p2_version_id']}">
 <script type="text/javascript" src="js/iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
+}
+
+// iPhone用スキン
+if ($_conf['iphone'] && isset($_conf['expack.iphone.skin'])) {
+    if (strpos($_conf['expack.iphone.skin'], DIRECTORY_SEPARATOR) === false) {
+        $iskin = 'skin/iphone/' . $iskin . '.css';
+        if (file_exists($iskin)) {
+            $iskin_mtime = filemtime($iskin);
+            $_conf['extra_headers_ht'] .= <<<EOS
+<link rel="stylesheet" type="text/css" media="screen" href="{$iskin}?{$iskin_mtime}">
+EOS;
+        }
+    }
 }
 
 // 携帯用「トップに戻る」リンクとaccesskey
@@ -900,6 +913,8 @@ if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
     $_conf['use_session'] = 1;
 }
 
+$_conf['sid_at_a'] = '';
+
 if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) {
     require_once $P2_LIB_DIR_S . 'Session.php';
 
@@ -929,6 +944,7 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
         }
         if (!ini_get('session.use_trans_sid')) {
             output_add_rewrite_var(session_name(), session_id());
+            $_conf['sid_at_a'] = '&amp;' . rawurldecode(session_name()) . '=' . rawurldecode(session_id());
         }
     }
 }
@@ -938,8 +954,10 @@ if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'
 
 // 複数のお気にセットを使うとき
 if ($_conf['expack.misc.multi_favs']) {
-    require_once $P2_LIB_DIR_S . 'FavSetManager.php';
-    // 切り替え表示用に全てのお気に板を読み込んでおく
+    if (!class_exists('FavSetManager', false)) {
+        include $P2_LIB_DIR_S . 'FavSetManager.php';
+    }
+    // 切り替え表示用に全てのお気にスレ・お気に板を読み込んでおく
     FavSetManager::loadAllFavSet();
     // お気にセットを切り替える
     FavSetManager::switchFavSet();
@@ -999,7 +1017,7 @@ function p2checkenv($check_recommended)
 
     $php_version = phpversion();
     $required_version = '5.2.3';
-    $recommended_version = '5.2.6';
+    $recommended_version = '5.2.9';
 
     // PHPのバージョン
     if (version_compare($php_version, $required_version, '<')) {
@@ -1007,7 +1025,7 @@ function p2checkenv($check_recommended)
     }
 
     // 必須拡張モジュール
-    foreach (array('mbstring', 'pcre', 'session', 'zlib') as $ext) {
+    foreach (array('json', 'mbstring', 'pcre', 'pdo', 'pdo_sqlite', 'session', 'zlib') as $ext) {
         if (!extension_loaded($ext)) {
             p2die("{$ext} 拡張モジュールがロードされていません。");
         }

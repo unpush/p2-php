@@ -37,6 +37,7 @@ class Thread
 
     public $torder;     // スレッド新しい順番号
     public $unum;       // 未読（新着レス）数
+    public $nunum;      // ソートのための調節なしの未読数
 
     public $keyidx;     // idxファイルパス
     public $keydat;     // ローカルdatファイルパス
@@ -74,6 +75,7 @@ class Thread
         $this->_ttitle_hc = null;
         $this->_ttitle_hd = null;
         $this->_ttitle_ht = null;
+        $this->nunum = 0;
     }
 
     // }}}
@@ -341,6 +343,7 @@ class Thread
                 if ($this->unum < 0) {
                     $this->unum = 0;
                 }
+                $this->nunum = $this->unum;
             }
         } else {
             $this->gotnum = 0;
@@ -403,6 +406,7 @@ class Thread
                 if ($this->unum < 0) {
                     $this->unum = 0;
                 }
+                $this->nunum = $this->unum;
             }
 
             //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('getThreadInfoFromSubjectTxtLine()');
@@ -460,8 +464,13 @@ class Thread
 
     /**
      * 元スレURLを返す
+     *
+     * @param   bool    $force_pc   trueなら携帯モードでもPC用の元スレURLを返す
+     * @param   string  $ls         レス表示番号or範囲。nullならlsプロパティを使う
+     *                              掲示板によっては無視される場合もある
+     * @return  string  元スレURL
      */
-    public function getMotoThread($force_pc = false)
+    public function getMotoThread($force_pc = false, $ls = null)
     {
         global $_conf;
 
@@ -475,28 +484,35 @@ class Thread
             $mobile = false;
         }
 
+        if ($ls === null) {
+            $ls = $this->ls;
+        }
+
         // 2ch系
         if (P2Util::isHost2chs($this->host)) {
             // PC
             if (!$mobile) {
-                $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
+                $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$ls}";
             // 携帯
             } else {
                 if (P2Util::isHostBbsPink($this->host)) {
-                    //$motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$this->ls}";
-                    $motothre_url = "http://speedo.ula.cc/test/r.so/{$this->host}/{$this->bbs}/{$this->key}/{$this->ls}"; 
+                    //$motothre_url = "http://{$this->host}/test/r.i/{$this->bbs}/{$this->key}/{$ls}";
+                    $motothre_url = "http://speedo.ula.cc/test/r.so/{$this->host}/{$this->bbs}/{$this->key}/{$ls}"; 
                 } else {
                     $mail = rawurlencode($_conf['my_mail']);
                     // c.2chはl指定に非対応なので、代わりにn
-                    $ls = (substr($this->ls, 0, 1) == 'l') ? 'n' : $this->ls;
+                    $ls = (substr($ls, 0, 1) == 'l') ? 'n' : $ls;
                     $motothre_url = "http://c.2ch.net/test/--3!mail={$mail}/{$this->bbs}/{$this->key}/{$ls}";
                 }
             }
 
         // まちBBS
         } elseif (P2Util::isHostMachiBbs($this->host)) {
-            $motothre_url = "http://{$this->host}/bbs/read.pl?BBS={$this->bbs}&KEY={$this->key}";
-            if ($mobile) { $motothre_url .= '&IMODE=TRUE'; }
+            if ($mobile) {
+                $motothre_url = "http://{$this->host}/bbs/read.pl?IMODE=TRUE&BBS={$this->bbs}&KEY={$this->key}";
+            } else {
+                $motothre_url = "http://{$this->host}/bbs/read.cgi/{$this->bbs}/{$this->key}/{$ls}";
+            }
 
         // まちびねっと
         } elseif (P2Util::isHostMachiBbsNet($this->host)) {
@@ -507,11 +523,11 @@ class Thread
         } elseif (P2Util::isHostJbbsShitaraba($this->host)) {
             list($host, $category) = explode('/', P2Util::adjustHostJbbs($this->host), 2);
             $bbs_cgi = ($mobile) ? 'i.cgi' : 'read.cgi';
-            $motothre_url = "http://{$host}/bbs/{$bbs_cgi}/{$category}/{$this->bbs}/{$this->key}/{$this->ls}";
+            $motothre_url = "http://{$host}/bbs/{$bbs_cgi}/{$category}/{$this->bbs}/{$this->key}/{$ls}";
 
         // その他
         } else {
-            $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
+            $motothre_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/{$ls}";
         }
 
         return $motothre_url;
@@ -609,9 +625,13 @@ class Thread
                 $this->_favs = array($this->fav);
             } else {
                 $this->_favs = array_fill(0, $_conf['expack.misc.favset_num'] + 1, false);
+                $group = P2Util::getHostGroupName($this->host);
                 foreach ($_conf['favlists'] as $num => $favlist) {
-                    if (isset($favlist[$this->bbs])) {
-                        $this->_favs[$num] = in_array($this->key, $favlist[$this->bbs]);
+                    foreach ($favlist as $fav) {
+                        if ($this->key == $fav['key'] && $this->bbs == $fav['bbs'] && $group == $fav['group']) {
+                            $this->_favs[$num] = true;
+                            break;
+                        }
                     }
                 }
             }

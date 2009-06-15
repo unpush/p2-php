@@ -34,6 +34,10 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     'custom_v6' => 0,
 );
 
+// 各携帯キャリアのIPアドレス帯域検証に失敗した際、
+// 正規表現でリモートホストの検証をする。
+$GLOBALS['_HOSTCHKCONF']['mobile_use_regex'] = false;
+
 // アクセスを許可するIPアドレス帯域
 // “IPアドレス => マスク”形式の連想配列
 // $_conf['secure']['auth_host'] == 1 かつ
@@ -70,11 +74,8 @@ $GLOBALS['_HOSTCHKCONF']['custom_denied_host_v6'] = null;
 // $GLOBALS['_HOSTCHKCONF']['host_type']['custom'] = 0 のとき使われる
 $GLOBALS['_HOSTCHKCONF']['custom_denied_host_regex'] = null;
 
-// BBQキャッシュの有効期限 (秒数で指定、0なら永久焼き)
-$GLOBALS['_HOSTCHKCONF']['auth_bbq_burned_expire'] = 0;
-
-// 一度BBQチェックを回避できたホストに対するBBQ認証パススルーの有効期限 (秒数で指定、0なら毎回確認)
-$GLOBALS['_HOSTCHKCONF']['auth_bbq_passed_expire'] = 3600;
+// gethostbyaddr(), gethostbyname() キャッシュの有効期限 (秒数で指定、0なら毎回確認)
+$GLOBALS['_HOSTCHKCONF']['gethostby_lifetime'] = 3600;
 
 /*
  * Local Variables:

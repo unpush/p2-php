@@ -1,22 +1,12 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
+/**
+ * rep2expack - ユーザ設定管理のUIをタブ化する
+ */
 
-/* expack - ユーザ設定管理でタブを追加するためのJavaScript */
-/* 必ずtabber.jsの後に読み込む */
+// {{{ _edit_conf_user_js_onload()
 
-var oldonload = window.onload;
-window.onload = (function()
-{
+var _edit_conf_user_js_onload = function() {
 	// ウインドウのタイトルを設定
 	setWinTitle();
-	if (!document.getElementsByTagName) {
-		return;
-	}
-
-	// 古い onload イベントハンドラ (=タブ生成) を実行
-	if (typeof oldonload == 'function') {
-		oldonload();
-	}
 
 	// タブ用要素生成関数
 	var getTab = function() {
@@ -80,4 +70,30 @@ window.onload = (function()
 		tabs[i].appendChild(document.createElement('li')).appendChild(defaultTab);
 		return;
 	}
-});
+};
+
+// }}}
+
+(function(){
+	if (typeof window.onload == 'function') {
+		var oldonload = window.onload;
+		window.onload = function(event) {
+			oldonload(event);
+			_edit_conf_user_js_onload();
+		};
+	} else {
+		window.onload = _edit_conf_user_js_onload;
+	}
+})();
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */
+

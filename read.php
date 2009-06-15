@@ -244,16 +244,41 @@ if ($_conf['ktai']) {
     $aShowThread = new ShowThreadK($aThread);
 
     if ($is_ajax) {
-        header('Content-Type: text/html; charset=UTF-8');
-        echo mb_convert_encoding($aShowThread->getDatToHtml(), 'UTF-8', 'CP932');
+        $response = trim(mb_convert_encoding($aShowThread->getDatToHtml(true), 'UTF-8', 'CP932'));
+        if (isset($_GET['respop_id'])) {
+            $response = preg_replace('/<[^<>]+? id="/u', sprintf('$0_respop%d_', $_GET['respop_id']), $response);
+        }
+        /*if ($_conf['iphone']) {
+            // HTMLの断片をXMLとして渡してもDOMでidやclassが期待通りに反映されない
+            header('Content-Type: application/xml; charset=UTF-8');
+            //$responseId = 'ajaxResponse' . time();
+            $doc = new DOMDocument();
+            $err = error_reporting(E_ALL & ~E_WARNING);
+            $html = '<html><head>'
+                  . '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'
+                  . '</head><body>'
+                  . $response
+                  . '</body></html>';
+            $doc->loadHTML($html);
+            error_reporting($err);
+            echo '<?xml version="1.0" encoding="utf-8" ?>';
+            echo $doc->saveXML($doc->getElementsByTagName('div')->item(0));
+        } else {*/
+            // よって、HTMLの断片をそのまま返してinnterHTMLに代入しないといけない。
+            // (根本的にレスポンスのフォーマットとクライアント側での処理を変えない限りは)
+            header('Content-Type: text/html; charset=UTF-8');
+            echo $response;
+        //}
     } else {
+        $content = $aShowThread->getDatToHtml();
+
         require_once P2_LIB_DIR . '/read_header_k.inc.php';
 
         if ($_conf['iphone'] && $_conf['expack.spm.enabled']) {
             echo $aShowThread->getSpmObjJs();
         }
 
-        $aShowThread->datToHtml();
+        echo $content;
 
         require_once P2_LIB_DIR . '/read_footer_k.inc.php';
     }
@@ -274,7 +299,7 @@ if ($_conf['ktai']) {
 
         $GLOBALS['filter_hits'] = 0;
 
-        echo "<p><b id=\"filerstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>\n";
+        echo "<p><b id=\"filterstart\">{$all}レス中 <span id=\"searching\">{$GLOBALS['filter_hits']}</span>レスがヒット</b></p>\n";
         echo <<<EOP
 <script type="text/javascript">
 //<![CDATA[
@@ -312,10 +337,10 @@ EOP;
         echo <<<EOP
 <script type="text/javascript">
 //<![CDATA[
-var filerstart = document.getElementById('filerstart');
-if (filerstart) {
-    filerstart.style.backgroundColor = 'yellow';
-    filerstart.style.fontWeight = 'bold';
+var filterstart = document.getElementById('filterstart');
+if (filterstart) {
+    filterstart.style.backgroundColor = 'yellow';
+    filterstart.style.fontWeight = 'bold';
 }
 //]]>
 </script>\n

@@ -89,7 +89,7 @@ function printLoginFirst(Login $_login)
 <input type="hidden" name="ctl_regist_imodeid" value="1">
 <input type="hidden" name="ctl_regist_docomo" value="1">
 <input type="checkbox" name="regist_imodeid" value="1"{$regist_imodeid_chedked}>iモードIDで認証を登録<br>
-<input type="checkbox" name="regist_docomo" value="1"{$regist_docomo_chedked}>DoCoMo端末IDで認証を登録<br>
+<input type="checkbox" name="regist_docomo" value="1"{$regist_docomo_chedked}>端末IDで認証を登録<br>
 EOP;
         }
 
@@ -112,7 +112,7 @@ EOP;
         if ($auth_sub_input_ht == '') {
             $auth_sub_input_ht = <<<EOP
 <input type="hidden" name="ctl_regist_ez" value="1">
-<input type="checkbox" name="regist_ez" value="1" checked>EZ端末IDで認証を登録<br>
+<input type="checkbox" name="regist_ez" value="1" checked>端末IDで認証を登録<br>
 EOP;
         }
 
@@ -136,7 +136,7 @@ EOP;
         if ($auth_sub_input_ht == '') {
             $auth_sub_input_ht = <<<EOP
 <input type="hidden" name="ctl_regist_jp" value="1">
-<input type="checkbox" name="regist_jp" value="1" checked>Y!端末IDで認証を登録<br>
+<input type="checkbox" name="regist_jp" value="1" checked>端末IDで認証を登録<br>
 EOP;
         }
 
@@ -192,7 +192,7 @@ EOP;
                                            );
             }
             if (file_exists($_conf['auth_docomo_file'])) {
-                $docomo_auth_ht .= sprintf('<p><a href="%s?auth_type=utn&amp;user=%s" utn>DoCoMo端末ID認証</a></p>',
+                $docomo_auth_ht .= sprintf('<p><a href="%s?auth_type=utn&amp;user=%s" utn>端末ID認証</a></p>',
                                            $myname,
                                            rawurldecode($_login->user_u)
                                            );

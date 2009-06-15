@@ -196,9 +196,10 @@ if (!empty($_GET['dele']) || (isset($_POST['submit']) && $_POST['submit'] == $de
 // }}}
 
 // お気に入りスレッド
-} elseif (isset($_GET['setfav']) && $_GET['key'] && $host && $bbs) {
+} elseif (isset($_GET['setfav']) && !empty($_GET['key']) && $host && $bbs) {
     require_once P2_LIB_DIR . '/setfav.inc.php';
-    setFav($host, $bbs, $_GET['key'], $_GET['setfav']);
+    setFav($host, $bbs, $_GET['key'], $_GET['setfav'],
+           isset($_GET['ttitle_en']) ? base64_decode($_GET['ttitle_en']) : null);
 
 // 殿堂入り
 } elseif (isset($_GET['setpal']) && $_GET['key'] && $host && $bbs) {
@@ -581,6 +582,7 @@ for ($x = 0; $x < $linesize; $x++) {
                         $aThread->unum = $aThread->rescount - $aThread->readnum;
                         // machi bbs はsageでsubjectの更新が行われないそうなので調整しておく
                         if ($aThread->unum < 0) { $aThread->unum = 0; }
+                        $aThread->nunum = $aThread->unum;
                     }
                     $aThread->torder = $subject_txts[$subject_id][$aThread->key]['torder'];
                 }

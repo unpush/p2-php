@@ -10,9 +10,14 @@ require_once P2_LIB_DIR . '/FileCtl.php';
 /**
  * スレを殿堂入りにセットする
  *
- * $set は、0(解除), 1(追加), top, up, down, bottom
+ * @param   string      $host
+ * @param   string      $bbs
+ * @param   string      $key
+ * @param   int|string  $setpal  0(解除), 1(追加), top, up, down, bottom
+ * @param   string      $ttitle
+ * @return  bool
  */
-function setPal($host, $bbs, $key, $setpal)
+function setPal($host, $bbs, $key, $setpal, $ttitle = null)
 {
     global $_conf;
 
@@ -24,6 +29,9 @@ function setPal($host, $bbs, $key, $setpal)
         $data = explode('<>', $lines[0]);
     } else {
         $data = array_fill(0, 12, '');
+        if (is_string($ttitle) && strlen($ttitle)) {
+            $data[0] = htmlspecialchars($ttitle, ENT_QUOTES, 'Shift_JIS', false);
+        }
     }
 
     //==================================================================

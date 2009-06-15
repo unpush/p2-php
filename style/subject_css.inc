@@ -261,15 +261,6 @@ table.threadlist td.ti, table.threadlist th.ti {
 
 EOSTYLE;
 
-// ƒXƒ^ƒCƒ‹‚Ìã‘‚«
-if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-	require_once P2_STYLE_DIR . '/mystyle_css.php';
-	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-	if (isset($MYSTYLE[$_mystylename])) {
-		disp_mystyle($_mystylename);
-	}
-}
-
 /*
  * Local Variables:
  * mode: php

@@ -14,17 +14,17 @@ if (!$_conf['expack.ic2.enabled']) {
 }
 
 // }}}
-// {{{ HTTPヘッダとXML宣言
+// {{{ HTTPヘッダ
 
 P2Util::header_nocache();
-header('Content-Type: text/html; charset=UTF-8');
+header('Content-Type: application/json; charset=UTF-8');
 
 // }}}
 // {{{ 初期化
 
 // パラメータを検証
 if (!isset($_GET['id']) && !isset($_GET['url']) && !isset($_GET['md5'])) {
-    echo '-1';
+    echo 'null';
     exit;
 }
 
@@ -35,26 +35,56 @@ require_once 'DB/DataObject.php';
 require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
 require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
 require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
+require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 // }}}
 // {{{ execute
 
-$finder = new IC2_DataObject_Images;
+$icdb = new IC2_DataObject_Images;
 if (isset($_GET['id'])) {
-    $finder->whereAdd(sprintf('id=%d', (int)$_GET['id']));
+    $icdb->whereAdd(sprintf('id=%d', (int)$_GET['id']));
 } elseif (isset($_GET['url'])) {
-    $finder->whereAddQuoted('uri', '=', (string)$_GET['url']);
+    $icdb->whereAddQuoted('uri', '=', (string)$_GET['url']);
 } else {
-    $finder->whereAddQuoted('md5', '=', (string)$_GET['md5']);
+    $icdb->whereAddQuoted('md5', '=', (string)$_GET['md5']);
 }
-if ($finder->find(1)) {
-    printf('%d,%d,%d,%d,%d,%s',
-           $finder->id, $finder->width, $finder->height,
-           $finder->size, $finder->rank, $finder->memo
-           );
-} else {
-    echo '-1';
+
+if (!$icdb->find(1)) {
+    echo 'null';
+    exit;
 }
+
+$thumb_type = isset($_GET['t']) ? $_GET['t'] : IC2_Thumbnailer::SIZE_DEFAULT;
+switch ($thumb_type) {
+    case IC2_Thumbnailer::SIZE_PC:
+    case IC2_Thumbnailer::SIZE_MOBILE:
+    case IC2_Thumbnailer::SIZE_INTERMD:
+        $thumbnailer = new IC2_Thumbnailer($thumb_type);
+        break;
+    default:
+        $thumbnailer = new IC2_Thumbnailer();
+}
+
+$src = $thumbnailer->srcPath($icdb->size, $icdb->md5, $icdb->mime);
+$thumb = $thumbnailer->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
+
+echo json_encode(array(
+    'id'     => (int)$icdb->id,
+    'uri'    => $icdb->uri,
+    'host'   => $icdb->host,
+    'name'   => $icdb->name,
+    'size'   => (int)$icdb->size,
+    'md5'    => $icdb->md5,
+    'width'  => (int)$icdb->width,
+    'height' => (int)$icdb->height,
+    'mime'   => $icdb->mime,
+    'rank'   => (int)$icdb->rank,
+    'time'   => (int)$icdb->time,
+    'memo'   => $icdb->memo,
+    'url'    => $icdb->uri,
+    'src'    => ($src && file_exists($src)) ? $src : null,
+    'thumb'  => ($thumb && file_exists($thumb)) ? $thumb : null,
+));
 exit;
 
 // }}}

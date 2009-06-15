@@ -1,6 +1,19 @@
-REL-0.13 (in process)
+REL-0.20 2009-05-08
 
+* Use onorientationchange event for orientation with fallback to use of window.innerWidth. (Issue 84)
+* Change value of orient attribute on body element for portrait mode from profile to portrait. (Issue 85)
+* Add support for radio buttons and checkboxes (Issue 9)
+* Add support for textarea in forms (Issue 11)
+* Add support for static text in a panel using span tags (Issue 52)
+* More release notes TBD
+
+REL-0.13 2007-11-04
+
+* Add Joe's examples directory to SVN
+* Add -webkit-box-sizing to CSS
+* Generate compressed CSS as part of Ant build
 * Changed releaseNotes.txt to reverse chronological order
+* See Google code issues: http://code.google.com/p/iui/issues/list?can=1&q=milestone:REL-0.13
 
 REL-0.12 2007-10-19
 

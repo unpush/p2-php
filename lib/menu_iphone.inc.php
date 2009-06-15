@@ -134,7 +134,6 @@ function menu_iphone_show_board_menu($cateid = 0)
         foreach ($a_brd_menu->categories as $category) {
             if (++$i == $cateid) {
                 echo "<ul id=\"cate{$cateid}\" title=\"{$category->name}\">";
-                echo menu_iphone_open_in_tab();
                 foreach ($category->menuitas as $mita) {
                     echo "<li><a href=\"{$_conf['subject_php']}?host={$mita->host}&amp;bbs={$mita->bbs}",
                             "&amp;itaj_en={$mita->itaj_en}\" target=\"_self\">{$mita->itaj_ht}</a></li>";
@@ -181,9 +180,7 @@ function menu_iphone_show_matched_boards($word)
         return;
     }
 
-    echo "<ul title=\"{$title}\">";
-
-    echo menu_iphone_open_in_tab();
+    printf('<ul id="foundbrd%u" title="%s">', crc32($word . microtime()), $title);
 
     foreach ($brd_menus as $a_brd_menu) {
         foreach ($a_brd_menu->categories as $category) {
@@ -226,8 +223,6 @@ function menu_iphone_show_favorite_boards($title, $no = null)
 
     echo "<ul id=\"favita{$no}\" title=\"{$title}\">";
 
-    echo menu_iphone_open_in_tab();
-
     if ($_conf['merge_favita']) {
         echo "<li><a href=\"{$_conf['subject_php']}?spmode=merge_favita{$favset_q_a}\" target=\"_self\">{$title} (まとめ)</a></li>";
     }
@@ -267,8 +262,6 @@ function menu_iphone_show_feed_list($title, $no = null)
     require_once P2EX_LIB_DIR . '/rss/common.inc.php';
 
     echo "<ul id=\"rss{$no}\" title=\"{$title}\">";
-
-    echo menu_iphone_open_in_tab();
 
     $errors = array();
 
@@ -315,22 +308,6 @@ function menu_iphone_show_feed_list($title, $no = null)
     echo '" class="align-r" target="_self">編集</a></li>';
 
     echo "</ul>\n";
-}
-
-// }}}
-// {{{ menu_iphone_open_in_tab()
-
-/**
- * リンクを新しいタブで開くように変更するチェックボックスを生成する
- *
- * @return string
- */
-function menu_iphone_open_in_tab()
-{
-    return '<li class="open-in-tab" onclick="check_prev(this.childNodes[1]);">' .
-           '<input type="checkbox" onclick="toggle_open_in_tab(this);" />' .
-           '<span>新しいタブで開く</span>' .
-           '</li>';
 }
 
 // }}}

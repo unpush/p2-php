@@ -112,7 +112,7 @@ $conf_user_rad['expack.am.autodetect'] = array('1' => 'する', '0' => 'しない');
 
 // 自動判定 & NG ワード化、AAS が有効なら AAS のリンクも作成 (携帯)
 $conf_user_def['expack.am.autong_k'] = 0; // (0)
-$conf_user_rad['expack.am.autong_k'] = array('1' => 'する', '0' => 'しない');
+$conf_user_rad['expack.am.autong_k'] = array('1' => 'する', '0' => 'しない', '2' => 'する (連鎖NGはしない)');
 
 // 自動判定する行数の下限
 $conf_user_def['expack.am.lines_limit'] = 5; // (5)
@@ -203,67 +203,122 @@ $conf_user_rad['expack.google.force_pear'] = array('1' => 'PEAR', '0' => 'SOAPエ
 // {{{ AAS
 
 // 携帯で AA と自動判定されたときインライン AAS 表示する（0:しない; 1:する;）
-$conf_user_def['expack.aas.inline'] = 0; // (0)
-$conf_user_rad['expack.aas.inline'] = array('1' => 'する', '0' => 'しない');
+$conf_user_def['expack.aas.inline_enabled'] = 0; // (0)
+$conf_user_rad['expack.aas.inline_enabled'] = array('1' => 'する', '0' => 'しない');
 
-// 画像形式（0:PNG; 1:JPEG; 2:GIF;）
-$conf_user_def['expack.aas.image_type'] = 0; // (0)
-$conf_user_sel['expack.aas.image_type'] = array('0' => 'PNG', '1' => 'JPEG', '2' => 'GIF');
+// PC用の画像形式（0:PNG; 1:JPEG; 2:GIF;）
+$conf_user_def['expack.aas.default.type'] = 0; // (0)
+$conf_user_sel['expack.aas.default.type'] = array('0' => 'PNG', '1' => 'JPEG', '2' => 'GIF');
 
 // JPEGの品質（0-100）
-$conf_user_def['expack.aas.jpeg_quality'] = 80; // (80)
-$conf_user_rules['expack.aas.jpeg_quality'] = array('emptyToDef', 'notIntExceptMinusToDef');
-
-// 携帯用の画像の横幅 (ピクセル)
-$conf_user_def['expack.aas.image_width'] = 230; // (230)
-$conf_user_rules['expack.aas.image_width'] = array('emptyToDef', 'notIntExceptMinusToDef');
-
-// 携帯用の画像の高さ (ピクセル)
-$conf_user_def['expack.aas.image_height'] = 450; // (450)
-$conf_user_rules['expack.aas.image_height'] = array('emptyToDef', 'notIntExceptMinusToDef');
+$conf_user_def['expack.aas.default.quality'] = 80; // (80)
+$conf_user_rules['expack.aas.default.quality'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // PC用の画像の横幅 (ピクセル)
-$conf_user_def['expack.aas.image_width_pc'] = 640; // (640)
-$conf_user_rules['expack.aas.image_width_pc'] = array('emptyToDef', 'notIntExceptMinusToDef');
+$conf_user_def['expack.aas.default.width'] = 640; // (640)
+$conf_user_rules['expack.aas.default.width'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
 // PC用の画像の高さ (ピクセル)
-$conf_user_def['expack.aas.image_height_pc'] = 480; // (480)
-$conf_user_rules['expack.aas.image_height_pc'] = array('emptyToDef', 'notIntExceptMinusToDef');
+$conf_user_def['expack.aas.default.height'] = 480; // (480)
+$conf_user_rules['expack.aas.default.height'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
-// インライン表示の横幅 (ピクセル)
-$conf_user_def['expack.aas.image_width_il'] = 64; // (64)
-$conf_user_rules['expack.aas.image_width_il'] = array('emptyToDef', 'notIntExceptMinusToDef');
+// PC用の画像のマージン (ピクセル)
+$conf_user_def['expack.aas.default.margin'] = 5; // (5)
+$conf_user_rules['expack.aas.default.margin'] = array('notIntExceptMinusToDef');
 
-// インライン表示の高さ (ピクセル)
-$conf_user_def['expack.aas.image_height_il'] = 64; // (64)
-$conf_user_rules['expack.aas.image_height_il'] = array('emptyToDef', 'notIntExceptMinusToDef');
+// 文字サイズ (ポイント)
+$conf_user_def['expack.aas.default.fontsize'] = 16; // (16)
+$conf_user_rules['expack.aas.default.fontsize'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
-// 画像の余白をトリミングする (0:しない; 1:する)
-$conf_user_def['expack.aas.trim'] = 1; // (1)
-$conf_user_rad['expack.aas.trim'] = array('1' => 'する', '0' => 'しない');
+// 文字が画像からはみ出る場合、リサイズして納める (0:リサイズ; 1:非表示)
+$conf_user_def['expack.aas.default.overflow'] = 0; // (0)
+$conf_user_rad['expack.aas.default.overflow'] = array('1' => '非表示', '0' => 'リサイズ');
 
 // 太字にする (0:しない; 1:する)
-$conf_user_def['expack.aas.bold'] = 0; // (0)
-$conf_user_rad['expack.aas.bold'] = array('1' => 'する', '0' => 'しない');
+$conf_user_def['expack.aas.default.bold'] = 0; // (0)
+$conf_user_rad['expack.aas.default.bold'] = array('1' => 'する', '0' => 'しない');
 
 // 文字色 (6桁または3桁の16進数)
-$conf_user_def['expack.aas.fgcolor'] = '000000'; // ('000000')
+$conf_user_def['expack.aas.default.fgcolor'] = '000000'; // ('000000')
 
 // 背景色 (6桁または3桁の16進数)
-$conf_user_def['expack.aas.bgcolor'] = 'ffffff'; // ('ffffff')
+$conf_user_def['expack.aas.default.bgcolor'] = 'ffffff'; // ('ffffff')
 
-// 最大の文字サイズ (ポイント)
-$conf_user_def['expack.aas.max_fontsize'] = 36; // (36)
-$conf_user_rules['expack.aas.max_fontsize'] = array('emptyToDef', 'notIntExceptMinusToDef');
+// 携帯用の画像形式（0:PNG; 1:JPEG; 2:GIF;）
+$conf_user_def['expack.aas.mobile.type'] = 2; // (2)
+$conf_user_sel['expack.aas.mobile.type'] = array('0' => 'PNG', '1' => 'JPEG', '2' => 'GIF');
 
-// 最小の文字サイズ (ポイント)
-$conf_user_def['expack.aas.min_fontsize'] = 6; // (6)
-$conf_user_rules['expack.aas.min_fontsize'] = array('emptyToDef', 'notIntExceptMinusToDef');
+// JPEGの品質（0-100）
+$conf_user_def['expack.aas.mobile.quality'] = 80; // (80)
+$conf_user_rules['expack.aas.mobile.quality'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
-// インライン表示の文字サイズ (ポイント)
-// 0のときは通常のAASと同じように最適なサイズを計算する
-$conf_user_def['expack.aas.inline_fontsize'] = 6; // (6)
-$conf_user_rules['expack.aas.inline_fontsize'] = array('notIntExceptMinusToDef');
+// 携帯用の画像の横幅 (ピクセル)
+$conf_user_def['expack.aas.mobile.width'] = 230; // (230)
+$conf_user_rules['expack.aas.mobile.width'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// 携帯用の画像の高さ (ピクセル)
+$conf_user_def['expack.aas.mobile.height'] = 450; // (450)
+$conf_user_rules['expack.aas.mobile.height'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// 携帯用の画像のマージン (ピクセル)
+$conf_user_def['expack.aas.mobile.margin'] = 2; // (2)
+$conf_user_rules['expack.aas.mobile.margin'] = array('notIntExceptMinusToDef');
+
+// 文字サイズ (ポイント)
+$conf_user_def['expack.aas.mobile.fontsize'] = 16; // (16)
+$conf_user_rules['expack.aas.mobile.fontsize'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// 文字が画像からはみ出る場合、リサイズして納める (0:リサイズ; 1:非表示)
+$conf_user_def['expack.aas.mobile.overflow'] = 0; // (0)
+$conf_user_rad['expack.aas.mobile.overflow'] = array('1' => '非表示', '0' => 'リサイズ');
+
+// 太字にする (0:しない; 1:する)
+$conf_user_def['expack.aas.mobile.bold'] = 0; // (0)
+$conf_user_rad['expack.aas.mobile.bold'] = array('1' => 'する', '0' => 'しない');
+
+// 文字色 (6桁または3桁の16進数)
+$conf_user_def['expack.aas.mobile.fgcolor'] = '000000'; // ('000000')
+
+// 背景色 (6桁または3桁の16進数)
+$conf_user_def['expack.aas.mobile.bgcolor'] = 'ffffff'; // ('ffffff')
+
+// インライン表示の画像形式（0:PNG; 1:JPEG; 2:GIF;）
+$conf_user_def['expack.aas.inline.type'] = 2; // (2)
+$conf_user_sel['expack.aas.inline.type'] = array('0' => 'PNG', '1' => 'JPEG', '2' => 'GIF');
+
+// JPEGの品質（0-100）
+$conf_user_def['expack.aas.inline.quality'] = 80; // (80)
+$conf_user_rules['expack.aas.inline.quality'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// インライン表示の横幅 (ピクセル)
+$conf_user_def['expack.aas.inline.width'] = 64; // (64)
+$conf_user_rules['expack.aas.inline.width'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// インライン表示の高さ (ピクセル)
+$conf_user_def['expack.aas.inline.height'] = 64; // (64)
+$conf_user_rules['expack.aas.inline.height'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// インライン表示のマージン (ピクセル)
+$conf_user_def['expack.aas.inline.margin'] = 0; // (0)
+$conf_user_rules['expack.aas.inline.margin'] = array('notIntExceptMinusToDef');
+
+// 文字サイズ (ポイント)
+$conf_user_def['expack.aas.inline.fontsize'] = 6; // (6)
+$conf_user_rules['expack.aas.inline.fontsize'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// 文字が画像からはみ出る場合、リサイズして納める (0:リサイズ; 1:非表示)
+$conf_user_def['expack.aas.inline.overflow'] = 1; // (1)
+$conf_user_rad['expack.aas.inline.overflow'] = array('1' => '非表示', '0' => 'リサイズ');
+
+// 太字にする (0:しない; 1:する)
+$conf_user_def['expack.aas.inline.bold'] = 0; // (0)
+$conf_user_rad['expack.aas.inline.bold'] = array('1' => 'する', '0' => 'しない');
+
+// 文字色 (6桁または3桁の16進数)
+$conf_user_def['expack.aas.inline.fgcolor'] = '000000'; // ('000000')
+
+// 背景色 (6桁または3桁の16進数)
+$conf_user_def['expack.aas.inline.bgcolor'] = 'ffffff'; // ('ffffff')
 
 // }}}
 

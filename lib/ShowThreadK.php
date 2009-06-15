@@ -51,14 +51,11 @@ class ShowThreadK extends ShowThread
         if ($_conf['iphone']) {
             $this->respopup_at = ' onclick="return iResPopUp(this, event);"';
             $this->target_at = ' target="_blank"';
-            $this->check_st = '&#x2620;';
+            $this->check_st = 'check';
         }
 
         $this->_url_handlers = array(
-            'plugin_link2ch',
-            'plugin_linkMachi',
-            'plugin_linkJBBS',
-            'plugin_link2chKako',
+            'plugin_linkThread',
             'plugin_link2chSubject',
         );
         if (P2_IMAGECACHE_AVAILABLE == 2) {
@@ -153,21 +150,14 @@ class ShowThreadK extends ShowThread
     public function transRes($ares, $i)
     {
         global $_conf, $STYLE, $mae_msg, $res_filter;
-        global $ngaborns_hits;
-        static $ngaborns_head_hits = 0;
-        static $ngaborns_body_hits = 0;
 
-        $resar = $this->thread->explodeDatLine($ares);
-        $name = $resar[0];
-        $mail = $resar[1];
+        list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($ares);
         if (($id = $this->thread->ids[$i]) !== null) {
             $idstr = 'ID:' . $id;
-            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $resar[2]);
+            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $date_id);
         } else {
             $idstr = null;
-            $date_id = $resar[2];
         }
-        $msg = $resar[3];
 
         // デフォルトの名前と同じなら省略
         if ($name === $this->BBS_NONAME_NAME) {
@@ -197,142 +187,26 @@ class ShowThreadK extends ShowThread
             $res_id = "r{$i}";
         }
 
-        $isNgName = false;
-        $isNgMail = false;
-        $isNgId = false;
-        $isNgMsg = false;
-        $isFreq = false;
-        $isChain = false;
-        $isAA = false;
 
-        // {{{ あぼーんチェック
-
-        $ng_msg_info = array();
-
-        // 頻出IDあぼーん
-        if ($this->_ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
-            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->ids[1]) {
-                // >>1 はそのまま表示
-            } elseif ($this->_ngaborn_frequent == 1) {
-                $ngaborns_hits['aborn_freq']++;
-                $this->_aborn_nums[] = $i;
-                return $this->_abornedRes($res_id);
-            } elseif (!$nong) {
-                $ngaborns_hits['ng_freq']++;
-                $ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $isFreq = true;
-                $ng_msg_info[] = sprintf('頻出ID:%s(%d)', $id, $this->thread->idcount[$id]);
-            }
-        }
-
-        // 連鎖あぼーん
-        if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
-            $chain_nums = array_unique(array_map('intval', split('[-,]+', trim(implode(',', $matches[1]), '-,'))));
-            if (array_intersect($chain_nums, $this->_aborn_nums)) {
-                if ($_conf['ngaborn_chain'] == 1) {
-                    $ngaborns_hits['aborn_chain']++;
-                    $this->_aborn_nums[] = $i;
-                    return $this->_abornedRes($res_id);
-                } else {
-                    $a_chain_num = array_shift($chain_nums);
-                    $ngaborns_hits['ng_chain']++;
-                    $this->_ng_nums[] = $i;
-                    $ngaborns_body_hits++;
-                    $isChain = true;
-                    $ng_msg_info[] = sprintf('連鎖NG:&gt;&gt;%d(ｱﾎﾞﾝ)', $a_chain_num);
-                }
-            } elseif (array_intersect($chain_nums, $this->_ng_nums)) {
-                $a_chain_num = array_shift($chain_nums);
-                $ngaborns_hits['ng_chain']++;
-                $ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $isChain = true;
-                $ng_msg_info[] = sprintf('連鎖NG:&gt;&gt;%d', $a_chain_num);
-            }
-        }
-
-        // あぼーんレス
-        if ($this->abornResCheck($i) !== false) {
-            $ngaborns_hits['aborn_res']++;
-            $this->_aborn_nums[] = $i;
+        // NGあぼーんチェック
+        $nong = !empty($_GET['nong']);
+        $ng_type = $this->_ngAbornCheck($i, strip_tags($name), $mail, $date_id, $id, $msg, $nong, $ng_info);
+        if ($ng_type == self::ABORN) {
             return $this->_abornedRes($res_id);
         }
-
-        // あぼーんネーム
-        if ($this->ngAbornCheck('aborn_name', $name) !== false) {
-            $ngaborns_hits['aborn_name']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
+        if (!$nong && $this->am_autong && $this->activeMona->detectAA($msg)) {
+            if ($_conf['expack.am.autong_k'] != 2) {
+                $this->_ng_nums[] = $i;
+            }
+            self::$_ngaborns_body_hits++;
+            $ng_type |= self::NG_AA;
+            $ng_info[] = 'AA略';
+        }
+        if ($ng_type != self::NG_NONE) {
+            $ngaborns_head_hits = self::$_ngaborns_head_hits;
+            $ngaborns_body_hits = self::$_ngaborns_body_hits;
         }
 
-        // あぼーんメール
-        if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
-            $ngaborns_hits['aborn_mail']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // あぼーんID
-        if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
-            $ngaborns_hits['aborn_id']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // あぼーんメッセージ
-        if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
-            $ngaborns_hits['aborn_msg']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // NGチェック ========
-        if (empty($_GET['nong'])) {
-            // NGネームチェック
-            if ($this->ngAbornCheck('ng_name', $name) !== false) {
-                $ngaborns_hits['ng_name']++;
-                $ngaborns_head_hits++;
-                $this->_ng_nums[] = $i;
-                $isNgName = true;
-            }
-
-            // NGメールチェック
-            if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
-                $ngaborns_hits['ng_mail']++;
-                $ngaborns_head_hits++;
-                $this->_ng_nums[] = $i;
-                $isNgMail = true;
-            }
-
-            // NGIDチェック
-            if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
-                $ngaborns_hits['ng_id']++;
-                $ngaborns_head_hits++;
-                $this->_ng_nums[] = $i;
-                $isNgId = true;
-            }
-
-            // NGメッセージチェック
-            $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
-            if ($a_ng_msg !== false) {
-                $ngaborns_hits['ng_msg']++;
-                $ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $isNgMsg = true;
-                $ng_msg_info[] = sprintf('NGﾜｰﾄﾞ:%s', htmlspecialchars($a_ng_msg, ENT_QUOTES));
-            }
-
-            // AAチェック
-            if ($this->am_autong && $this->activeMona->detectAA($msg)) {
-                $this->_ng_nums[] = $i;
-                $ngaborns_body_hits++;
-                $isAA = true;
-                $ng_msg_info[] = '&lt;AA略&gt;';
-            }
-        }
-
-        // }}}
         // {{{ 日付・IDを調整
 
         // 現在の年号は省略カットする。月日の先頭0もカット。
@@ -397,26 +271,40 @@ class ShowThreadK extends ShowThread
         $date_id = $this->replaceBeId($date_id, $i);
 
         // NGメッセージ変換
-        if ($ng_msg_info) {
-            $ng_type = implode(', ', $ng_msg_info);
-            $msg = <<<EOMSG
-<s><font color="{$STYLE['mobile_read_ngword_color']}">$ng_type</font></s> <a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$this->check_st}</a>
+        if ($ng_type != self::NG_NONE && count($ng_info)) {
+            $ng_info = implode(', ', $ng_info);
+            if ($ng_type == self::NG_AA && $_conf['iphone']) {
+                $msg = <<<EOMSG
+<a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$ng_info}</a>
 EOMSG;
+            } else {
+                $msg = <<<EOMSG
+<s><font color="{$STYLE['mobile_read_ngword_color']}">{$ng_info}</font></s> <a class="button" href="{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$i}&amp;k_continue=1&amp;nong=1{$_conf['k_at_a']}"{$this->respopup_at}{$this->target_at}>{$this->check_st}</a>
+EOMSG;
+            }
+
             // AAS
-            if ($isAA && P2_AAS_AVAILABLE) {
-                $aas_url = "aas.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;resnum={$i}{$_conf['k_at_a']}";
+            if (($ng_type & self::NG_AA) && P2_AAS_AVAILABLE) {
+                $aas_url = "aas.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;resnum={$i}";
                 if (P2_AAS_AVAILABLE == 2) {
-                    $aas_txt = "<img src=\"{$aas_url}&amp;inline=1\">";
+                    $aas_txt = "<img src=\"{$aas_url}{$_conf['k_at_a']}&amp;inline=1{$_conf['sid_at_a']}\">";
                 } else {
                     $aas_txt = "AAS";
                 }
-                $msg .= " <a class=\"aas\" href=\"{$aas_url}\"{$this->target_at}>{$aas_txt}</a>";
-                $msg .= " <a class=\"button\" href=\"{$aas_url}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
+                if ($_conf['iphone']) {
+                    //$img_title = htmlspecialchars($this->thread->getMotoThread(true, $i), ENT_QUOTES);
+                    //$img_title = "{$this->thread->bbs}/{$this->thread->key}/{$i}";
+                    //$img_title = "{$this->thread->ttitle_hd}&#10;&gt;&gt;{$i}";
+                    $msg .= " <a class=\"aas limelight\" href=\"{$aas_url}&amp;b=pc\" title=\"&gt;&gt;{$i}\"{$this->target_at}>{$aas_txt}</a>";
+                } else {
+                    $msg .= " <a class=\"aas\" href=\"{$aas_url}{$_conf['k_at_a']}\"{$this->target_at}>{$aas_txt}</a>";
+                    $msg .= " <a class=\"button\" href=\"{$aas_url}{$_conf['k_at_a']}&amp;rotate=1\"{$this->target_at}>{$this->aas_rotate}</a>";
+                }
             }
         }
 
         // NGネーム変換
-        if ($isNgName) {
+        if ($ng_type & self::NG_NAME) {
             $name = <<<EONAME
 <s><font color="{$STYLE['mobile_read_ngword_color']}">{$name}</font></s>
 EONAME;
@@ -425,7 +313,7 @@ EONAME;
 EOMSG;
 
         // NGメール変換
-        } elseif ($isNgMail) {
+        } elseif ($ng_type & self::NG_MAIL) {
             $mail = <<<EOMAIL
 <s class="ngword" onmouseover="document.getElementById('ngn{$ngaborns_head_hits}').style.display = 'block';">{$mail}</s>
 EOMAIL;
@@ -434,7 +322,7 @@ EOMAIL;
 EOMSG;
 
         // NGID変換
-        } elseif ($isNgId) {
+        } elseif ($ng_type & self::NG_ID) {
             $date_id = <<<EOID
 <s><font color="{$STYLE['mobile_read_ngword_color']}">{$date_id}</font></s>
 EOID;
@@ -594,7 +482,7 @@ EOP;
 
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
-        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
+        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;\\d[\\d\\-]*)</[Aa]>}', '$1', $msg);
 
         // 大きさ制限
         if (empty($_GET['k_continue']) && strlen($msg) > $_conf['mobile.res_size']) {
@@ -907,11 +795,11 @@ EOP;
         if (isset($purl['scheme'])) {
             // 携帯用外部URL変換
             if ($_conf['mobile.use_tsukin']) {
-                return $this->ktaiExtUrl('', $url, $str);
+                return $this->ktaiExtUrl('', $purl[0], $str);
             }
             // ime
             if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
+                $link_url = P2Util::throughIme($purl[0]);
             } else {
                 $link_url = $url;
             }
@@ -930,7 +818,7 @@ EOP;
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/([^/]+)/$}', $url, $m)) {
+        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/(\\w+)/$}', $purl[0], $m)) {
             $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
             return "<a href=\"{$url}\">{$str}</a> [<a href=\"{$subject_url}{$_conf['k_at_a']}\">板をp2で開く</a>]";
         }
@@ -938,77 +826,22 @@ EOP;
     }
 
     // }}}
-    // {{{ plugin_link2ch()
+    // {{{ plugin_linkThread()
 
     /**
-     * 2ch bbspink スレッドリンク
+     * スレッドリンク
      */
-    public function plugin_link2ch($url, $purl, $str)
+    public function plugin_linkThread($url, $purl, $str)
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            if (!isset($m[4])) {
-                $m[4] = '';
-            }
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
+        list($nama_url, $host, $bbs, $key, $ls) = P2Util::detectThread($purl[0]);
+        if ($host && $bbs && $key) {
+            $read_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$ls}";
             return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
         }
-        return FALSE;
-    }
 
-    // }}}
-    // {{{ plugin_link2chKako()
-
-    /**
-     * 2ch過去ログhtml
-     */
-    public function plugin_link2chKako($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
-            return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    // }}}
-    // {{{ plugin_linkMachi()
-
-    /**
-     * まちBBS / JBBS＠したらば  内リンク
-     */
-    public function plugin_linkMachi($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://((\\w+\\.machibbs\\.com|\\w+\\.machi\\.to|jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)(/\\w+)?)/bbs/read\\.(?:pl|cgi)\\?BBS=(\\w+)(?:&amp;|&)KEY=([0-9]+)(?:(?:&amp;|&)START=([0-9]+))?(?:(?:&amp;|&)END=([0-9]+))?(?=&|$)}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[4]}&amp;key={$m[5]}";
-            if ($m[6] || $m[7]) {
-                $read_url .= "&amp;ls={$m[6]}-{$m[7]}";
-            }
-            return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    // }}}
-    // {{{ plugin_linkJBBS()
-
-    /**
-     * JBBS＠したらば  内リンク
-     */
-    public function plugin_linkJBBS($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&amp;bbs={$m[3]}&amp;key={$m[4]}&amp;ls={$m[5]}";
-            return "<a href=\"{$read_url}{$_conf['k_at_a']}\">{$str}</a>";
-        }
-        return FALSE;
+        return false;
     }
 
     // }}}
@@ -1029,7 +862,7 @@ EOP;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $purl[0], $m)) {
             $subd = $m[1];
             $id = $m[2];
 
@@ -1040,7 +873,7 @@ EOP;
                 if ($link === false) {
                     // plugin_linkURL()がちゃんと機能している限りここには来ない
                     if ($_conf['through_ime']) {
-                        $link_url = P2Util::throughIme($url);
+                        $link_url = P2Util::throughIme($purl[0]);
                     } else {
                         $link_url = $url;
                     }
@@ -1073,7 +906,7 @@ EOP;
             $picto_url = 'http://pic.to/'.$purl['host'].$purl['path'];
             $picto_tag = '<a href="'.$picto_url.'">(ﾋﾟ)</a> ';
             if ($_conf['through_ime']) {
-                $link_url  = P2Util::throughIme($url);
+                $link_url  = P2Util::throughIme($purl[0]);
                 $picto_url = P2Util::throughIme($picto_url);
             } else {
                 $link_url = $url;
@@ -1099,7 +932,7 @@ EOP;
             return false;
         }
 
-        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $purl[0]) && empty($purl['query'])) {
             // インラインプレビューの有効判定
             if ($pre_thumb_unlimited || $pre_thumb_ignore_limit || $pre_thumb_limit_k > 0) {
                 $inline_preview_flag = true;
@@ -1110,9 +943,10 @@ EOP;
             }
 
             $url_ht = $url;
-            $url = str_replace('&amp;', '&', $url);
+            $url = $purl[0];
             $url_en = rawurlencode($url);
             $img_str = null;
+            $img_id = null;
 
             $icdb = new IC2_DataObject_Images;
 
@@ -1120,10 +954,13 @@ EOP;
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
             $img_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en;
             $img_url2 = 'ic2.php?r=0&amp;t=2&amp;id=';
+            $src_url = 'ic2.php?r=1&amp;t=0&amp;uri=' . $url_en;
+            $src_url2 = 'ic2.php?r=1&amp;t=0&amp;id=';
             $src_exists = false;
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {
+                $img_id = $icdb->id;
 
                 // ウィルスに感染していたファイルのとき
                 if ($icdb->mime == 'clamscan/infected') {
@@ -1139,8 +976,10 @@ EOP;
                 if (file_exists($_src_url)) {
                     $src_exists = true;
                     $img_url = $img_url2 . $icdb->id;
+                    $src_url = $_src_url;
                 } else {
                     $img_url = $this->thumbnailer->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
+                    $src_url = $src_url2 . $icdb->id;
                 }
 
                 // インラインプレビューが有効のとき
@@ -1165,7 +1004,7 @@ EOP;
                             } else {
                                 $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}";
                             }
-                            $img_str = "<img src=\"{$prv_url}\">";
+                            $img_str = "<img src=\"{$prv_url}{$_conf['sid_at_a']}\">";
                         }
                         $inline_preview_done = true;
                     } else {
@@ -1195,7 +1034,7 @@ EOP;
 
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
-                    $img_str = '<img src="ic2.php?r=2&amp;t=1&amp;uri=' . $url_en . $this->img_memo_query . '">';
+                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}\">";
                     $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;
@@ -1217,16 +1056,19 @@ EOP;
                 return sprintf('<a href="%s%s">[IC2:%s:%s]</a>',
                                $img_url,
                                $backto,
-                               htmlspecialchars($purl['host']),
-                               htmlspecialchars(basename($purl['path']))
+                               htmlspecialchars($purl['host'], ENT_QUOTES),
+                               htmlspecialchars(basename($purl['path']), ENT_QUOTES)
                                );
             }
 
             if ($_conf['iphone']) {
-                return "<a href=\"{$img_url}{$backto}\" target=\"_blank\">{$img_str}</a>"
+                $img_title = htmlspecialchars($purl['host'], ENT_QUOTES)
+                           . '&#10;'
+                           . htmlspecialchars(basename($purl['path']), ENT_QUOTES);
+                return "<a class=\"limelight\" href=\"{$src_url}\" title=\"{$img_title}\" target=\"_blank\">{$img_str}</a>"
                    //. ' <img class="ic2-show-info" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
                      . ' <input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('
-                     . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";
+                     . (($img_id) ? $img_id : "'{$url_ht}'") . ', event)">';
             } else {
                 return "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";
             }

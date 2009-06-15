@@ -849,7 +849,7 @@ EOP;
         }
 
         // PHPはクラス・メソッド・関数の大文字小文字を区別しないが...
-        $method = 'isAddr' . ucfirst(strtolower($type));
+        $method = 'isAddress' . ucfirst(strtolower($type));
         if (method_exists('HostCheck', $method)) {
             return HostCheck::$method();
         }

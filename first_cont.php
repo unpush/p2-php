@@ -27,7 +27,7 @@ $onclick_ht = htmlspecialchars($onclick_ht, ENT_QUOTES);
 $htm['urlform'] = <<<EOP
     <form id="urlform" method="GET" action="{$_conf['read_php']}" target="read">
         ƒXƒŒURL‚ğ’¼Úw’è
-        <input id="url_text" type="text" value="{$defurl}" name="url" size="62">
+        <input id="url_text" type="text" value="{$defurl}" name="url" size="60">
         <input type="submit" name="btnG" value="•\¦" onclick="{$onclick_ht}">
     </form>\n
 EOP;
@@ -46,13 +46,30 @@ echo <<<EOP
     <title>rep2</title>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <style type="text/css">
+    h1#rep2logo, #urlform {
+        line-height: 100%;
+        margin: 10px 0;
+        padding: 0;
+    }
+    h1#rep2logo span {
+        display: inline-block;
+        height: 63px;
+        background-color: #fff;
+        padding: 10px 15px;
+        border-radius: 12px;
+        -moz-border-radius: 12px;
+        -opera-border-radius: 12px;
+        -webkit-border-radius: 12px;
+    }
+    </style>
 </head>
 <body>
 <br>
 <div class="container">
     {$htm['urlform']}
     <hr>
-    <h1><img src="img/rep2.gif" alt="rep2" width="131" height="63"></h1>
+    <h1 id="rep2logo"><span><img src="img/rep2.gif" alt="rep2" title="rep2" width="131" height="63"></span></h1>
 </div>
 </body>
 </html>

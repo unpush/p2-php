@@ -106,19 +106,20 @@ if (isset($_GET['ic'])) {
     // •\Ž¦”ÍˆÍ
     echo $disp_range;
 
-    echo menu_iphone_open_in_tab();
-
     foreach ($threads as $o => $t) {
+        $ttitle_ht = strip_tags($t->title);
         $host_en = rawurlencode($t->host);
         $bbs_en = rawurlencode($t->bbs);
 
-        $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d',
+        $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d&amp;ttitle_en=%s',
                         $_conf['read_php'],
                         $host_en,
                         $bbs_en,
-                        $t->tkey
+                        $t->tkey,
+                        base64_encode($ttitle_ht)
                         );
 
+        /*
         $burl = sprintf('%s?host=%s&amp;bbs=%s&amp;itaj_en=%s&amp;word=%s',
                         $_conf['subject_php'],
                         $host_en,
@@ -126,11 +127,12 @@ if (isset($_GET['ic'])) {
                         rawurlencode(base64_encode($t->ita)),
                         $htm['query_en']
                         );
+        */
 
         printf('<li><a href="%s" target="_self">%s<br />' .
                     '<span class="size-m weight-n">%s %s</span></a></li>',
                $turl,
-               strip_tags($t->title),
+               $ttitle_ht,
                date('y/m/d ', $t->tkey),
                $t->ita
                );

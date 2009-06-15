@@ -52,6 +52,7 @@ function kspform($aThread, $default = '', $params = null)
     $form .= sprintf($hidden, 'host', htmlspecialchars($aThread->host, ENT_QUOTES));
     $form .= sprintf($hidden, 'bbs', htmlspecialchars($aThread->bbs, ENT_QUOTES));
     $form .= sprintf($hidden, 'key', htmlspecialchars($aThread->key, ENT_QUOTES));
+    $form .= sprintf($hidden, 'rescount', $aThread->rescount);
     $form .= sprintf($hidden, 'offline', '1');
 
     // ’Ç‰Á‚Ì‰B‚µƒpƒ‰ƒ[ƒ^

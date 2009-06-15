@@ -210,21 +210,34 @@ EOP;
 }
 
 if ($_conf['link_youtube'] == 2 || $_conf['link_niconico'] == 2) {
-    echo "\t<script type=\"text/javascript\" src=\"js/preview_video.js?{$_conf['p2_version_id']}\"></script>\n";
+    echo <<<EOP
+    <script type="text/javascript" src="js/preview_video.js?{$_conf['p2_version_id']}"></script>\n
+EOP;
 }
 if ($_conf['expack.am.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/asciiart.js?{$_conf['p2_version_id']}\"></script>\n";
+    echo <<<EOP
+    <script type="text/javascript" src="js/asciiart.js?{$_conf['p2_version_id']}"></script>\n
+EOP;
 }
 /*if ($_conf['expack.misc.async_respop']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/async.js?{$_conf['p2_version_id']}\"></script>\n";
+    echo <<<EOP
+    <script type="text/javascript" src="js/async.js?{$_conf['p2_version_id']}"></script>\n
+EOP;
 }*/
 if ($_conf['expack.spm.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/invite.js?{$_conf['p2_version_id']}\"></script>\n";
-    echo "\t<script type=\"text/javascript\" src=\"js/smartpopup.js?{$_conf['p2_version_id']}\"></script>\n";
+    echo <<<EOP
+    <script type="text/javascript" src="js/invite.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/smartpopup.js?{$_conf['p2_version_id']}"></script>\n
+EOP;
 }
 if ($_conf['expack.ic2.enabled']) {
-    echo "\t<script type=\"text/javascript\" src=\"js/loadthumb.js?{$_conf['p2_version_id']}\"></script>\n";
-    echo "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"css/ic2_popinfo.css?{$_conf['p2_version_id']}\">\n";
+    echo <<<EOP
+    <script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/loadthumb.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/ic2_getinfo.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/ic2_popinfo.js?{$_conf['p2_version_id']}"></script>
+    <link rel="stylesheet" type="text/css" href="css/ic2_popinfo.css?{$_conf['p2_version_id']}">\n
+EOP;
 }
 
 $onload_script = '';
@@ -273,14 +286,21 @@ EOP;
         gIsPageLoaded = true;
         {$onload_script}
     }
+
+    (function(){
+        if (typeof window.p2BindReady == 'undefined') {
+            window.setTimeout(arguments.callee, 100);
+        } else {
+            window.p2BindReady(pageLoaded, 'js/defer/pageLoaded.js');
+        }
+    })();
     //]]>
     </script>\n
 EOHEADER;
 
     echo <<<EOP
 </head>
-<body onload="pageLoaded();">
-<div id="popUpContainer"></div>\n
+<body><div id="popUpContainer"></div>\n
 EOP;
 }
 

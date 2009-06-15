@@ -208,6 +208,7 @@ for ($x = 0; $x < $linesize ; $x++) {
                         $aThread->unum = $aThread->rescount - $aThread->readnum;
                         // machi bbs ‚Ísage‚Åsubject‚ÌXV‚ªs‚í‚ê‚È‚¢‚»‚¤‚È‚Ì‚Å’²®‚µ‚Ä‚¨‚­
                         if ($aThread->unum < 0) { $aThread->unum = 0; }
+                        $aThread->nunum = $aThread->unum;
                     }
                     //$aThread->torder = $subject_txts[$subject_id][$aThread->key]['torder'];
                 }

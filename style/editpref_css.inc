@@ -6,7 +6,7 @@
 
 echo <<<EOSTYLE
 
-p#pan_menu{
+p#pan_menu {
 	border-bottom: solid 1px #ccc;
 }
 
@@ -15,26 +15,21 @@ table#editpref td {
 	vertical-align: top;
 }
 
-fieldset{
-	padding:6px;
-	border:solid 1px #ccc;
+fieldset {
+	padding: 6px;
+	border: solid 1px #ccc;
 }
 
-fieldset table{
-	margin-left:auto;
-	margin-right:auto;
+fieldset legend {
+	color: {$STYLE['textcolor']};
+}
+
+fieldset table {
+	margin-left: auto;
+	margin-right: auto;
 }
 
 EOSTYLE;
-
-// ƒXƒ^ƒCƒ‹‚Ìã‘‚«
-if (isset($MYSTYLE) && is_array($MYSTYLE)) {
-	require_once P2_STYLE_DIR . '/mystyle_css.php';
-	$_mystylename = str_replace('_css.inc', '', basename(__FILE__));
-	if (isset($MYSTYLE[$_mystylename])) {
-		disp_mystyle($_mystylename);
-	}
-}
 
 /*
  * Local Variables:
