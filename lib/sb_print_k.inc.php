@@ -96,9 +96,7 @@ function sb_print_k($aThreadList)
         if ($aThread->isKitoku()) {
             $htm['unum'] = "{$aThread->unum}";
 
-            $anum = $aThread->rescount - $aThread->unum +1 - $_conf['respointer'];
-            if ($anum > $aThread->rescount) { $anum = $aThread->rescount; }
-            $anum_ht = "#r{$anum}";
+            $anum_ht = sprintf('#r%d', min($aThread->rescount, $aThread->rescount - $aThread->nunum + 1 - $_conf['respointer']));
 
             // iPhone用
             if ($_conf['iphone']) {
@@ -182,17 +180,16 @@ function sb_print_k($aThreadList)
             $rescount_q = '';
             $offline_q = '&amp;offline=true';
             $anum_ht = '';
+        // subject.txt にない場合
+        } elseif (!$aThread->isonline) {
+            $offline_q = '&amp;offline=true';
         }
 
         // タイトル未取得なら
         $ttitle_ht = $aThread->ttitle_ht;
         if (strlen($ttitle_ht) == 0) {
             // 見かけ上のタイトルなので携帯対応URLである必要はない
-            //if (P2Util::isHost2chs($aThread->host)) {
-            //    $ttitle_ht = "http://c.2ch.net/z/-/{$aThread->bbs}/{$aThread->key}/";
-            //}else{
-                $ttitle_ht = "http://{$aThread->host}/test/read.cgi/{$aThread->bbs}/{$aThread->key}/";
-            //}
+            $ttitle_ht = htmlspecialchars($aThread->getMotoThread(true, ''));
         }
 
         // 全角英数カナスペースを半角に
@@ -212,7 +209,11 @@ function sb_print_k($aThreadList)
             }
         }
 
-        $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
+        $thre_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}";
+        if ($_conf['iphone']) {
+            $thre_url .= '&amp;ttitle_en=' . rawurlencode(base64_encode($aThread->ttitle));
+        }
+        $thre_url .= "{$rescount_q}{$offline_q}{$_conf['k_at_a']}{$anum_ht}";
 
         // オンリー>>1
         $onlyone_url = "{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;one=true&amp;k_continue=1{$_conf['k_at_a']}";
@@ -248,7 +249,8 @@ function sb_print_k($aThreadList)
 
         //ボディ
         if ($_conf['iphone']) {
-            // ポップアップ用の隠しスレッド情報。torderの指示子が"%d"でないのはmerge_favitaのため
+            // information bubble用の隠しスレッド情報。
+            // torderの指示子が"%d"でないのはmerge_favitaのため
             $thre_info = sprintf('[%s] %s (%01.1fレス/日)',
                                  $aThread->torder,                 // 順序
                                  date('y/m/d H:i', $aThread->key), // スレ立て日時
@@ -279,11 +281,8 @@ function sb_print_k($aThreadList)
                 $htm['ita'] = "<span class=\"ita\">{$htm['ita']}</span>";
             }
 
-            $thre_info_at = rawurlencode(base64_encode($aThread->ttitle)) . ','
-                          . $aThread->key . ',' . $aThread->bbs . ',' . $aThread->host;
-
             echo <<<EOP
-<li title="{$thre_info_at}"><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
+<li><a href="{$thre_url}"{$classspeed_at}><span class="info">{$thre_info}</span> {$htm['unum']} <span class="{$classtitle}">{$ttitle_ht}</span> {$htm['rnum']} {$htm['sim']} {$htm['ita']}</a></li>\n
 EOP;
         } else {
             echo <<<EOP

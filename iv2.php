@@ -20,14 +20,18 @@ if (!$_conf['expack.ic2.enabled']) {
 
 if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOP
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
+\n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}">
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}">
-<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
     $_conf['extra_headers_xht'] .= <<<EOP
-<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
+\n<link rel="stylesheet" type="text/css" href="css/ic2_iphone.css?{$_conf['p2_version_id']}" />
 <link rel="stylesheet" type="text/css" href="css/iv2_iphone.css?{$_conf['p2_version_id']}" />
-<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/ic2_iphone.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/iv2_iphone.js?{$_conf['p2_version_id']}"></script>\n
 EOP;
 }
 
@@ -393,17 +397,16 @@ if ($_conf['ktai']) {
         $flexy->output();
         exit;
     }
-    // セッション変数を操作
+    // フィルタをリセット
+    elseif (!empty($_GET['reset_filter'])) {
+        unset($_SESSION['iv2i_filter']);
+        session_write_close();
+    }
+    // フィルタを設定
     elseif (!empty($_GET['session_no_close'])) {
-        // フィルタをリセット
-        if (!empty($_GET['reset_filter'])) {
-            unset($_SESSION['iv2i_filter']);
-        // フィルタを設定
-        } else {
-            foreach ($overwritable_params as $ow_key) {
-                if (isset($$ow_key)) {
-                    $_SESSION['iv2i_filter'][$ow_key] = $$ow_key;
-                }
+        foreach ($overwritable_params as $ow_key) {
+            if (isset($$ow_key)) {
+                $_SESSION['iv2i_filter'][$ow_key] = $$ow_key;
             }
         }
         session_write_close();
@@ -813,6 +816,7 @@ if ($all == 0) {
     } else {
         $k_backto = '';
     }
+    $sid_at_a = str_replace('&amp;', '&', $_conf['sid_at_a']);
     while ($icdb->fetch()) {
         // 検索結果を配列にし、レンダリング用の要素を付加
         // 配列どうしなら+演算子で要素を追加できる
@@ -869,6 +873,7 @@ if ($all == 0) {
                 } else {
                     $add['thumb'] .= '&uri=' . rawurlencode($img['uri']);
                 }
+                $add['thumb'] .= $sid_at_a;
             }
             if ($_conf['ktai']) {
                 $add['thumb_k'] = 'ic2.php?r=0&t=2';
@@ -877,7 +882,7 @@ if ($all == 0) {
                 } else {
                     $add['thumb_k'] .= '&uri=' . rawurlencode($img['uri']);
                 }
-                $add['thumb_k'] .= $k_backto;
+                $add['thumb_k'] .= $k_backto . $sid_at_a;
             }
         }
         $item = array_merge($img, $add, $status);
@@ -891,10 +896,10 @@ if ($all == 0) {
 
         // Lightbox Plus 用パラメータを設定
         if ($lightbox) {
-            $item['lightbox_attr'] = ' rel="lightbox[iv2]" class="ineffectable"';
-            $item['lightbox_attr'] .= ' title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
+            $item['lightbox_attrs'] = ' rel="lightbox[iv2]" class="ineffectable"';
+            $item['lightbox_attrs'] .= ' title="' . htmlspecialchars($item['memo'], ENT_QUOTES) . '"';
         } else {
-            $item['lightbox_attr'] = '';
+            $item['lightbox_attrs'] = '';
         }
 
         $items[] = $item;
@@ -958,9 +963,21 @@ $qf->accept($r);
 $qfObj = $r->toObject();
 
 // 変数をAssign
+$js = $qf->getValidationScript() . <<<EOJS
+\n<script type="text/javascript">
+// <![CDATA[
+var ic2_cols = {$cols};
+var ic2_rows = {$rows};
+var ic2_lightbox_options = {
+    no_loop: false,
+    no_updown: false
+};
+// ]]>
+</script>\n
+EOJS;
 $flexy->setData('title', $title);
 $flexy->setData('mode', $mode);
-$flexy->setData('js', $qf->getValidationScript());
+$flexy->setData('js', $js);
 $flexy->setData('page', $page);
 $flexy->setData('move', $qfObj);
 $flexy->setData('lightbox', $lightbox);
@@ -969,10 +986,55 @@ $flexy->setData('lightbox', $lightbox);
 P2Util::header_nocache();
 $flexy->compile($list_template);
 if ($list_template == 'iv2ip.tpl.html') {
-    $flexy->setData('thumb_width', (int)$ini['Thumb1']['width']);
-    $flexy->setData('thumb_height', (int)$ini['Thumb1']['height']);
-    $flexy->setData('title_width_v', 320 - (10 * 2) - (int)$ini['Thumb1']['width']);
-    $flexy->setData('title_width_h', 480 - (10 * 2) - (int)$ini['Thumb1']['width']);
+    if (!isset($prev_page)) {
+        $prev_page = $page;
+    }
+    if (!isset($next_page)) {
+        $next_page = $page;
+    }
+    $ll_autoactivate = empty($_GET['ll_autoactivate']) ? 'false' : 'true';
+    $limelight_header = <<<EOP
+<link rel="stylesheet" type="text/css" href="css/limelight.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/limelight.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript">
+// <![CDATA[
+window.addEventListener('DOMContentLoaded', function(event) {
+    this.removeEventListener(event.type, arguments.callee, false);
+
+    var limelight = new Limelight({ 'savable': true });
+    var slide = limelight.bind();
+
+    if ({$page} != {$prev_page}) {
+        slide.onNoPrev = function(limelight, slide) {
+            limelight.deactivate();
+            window.location.href = 'iv2.php?page={$prev_page}&ll_autoactivate=1#bottom';
+       };
+    }
+
+    if ({$page} != {$next_page}) {
+        slide.onNoNext = function(limelight, slide) {
+            limelight.deactivate();
+            window.location.href = 'iv2.php?page={$next_page}&ll_autoactivate=1#top';
+       };
+    }
+
+    if ({$ll_autoactivate}) {
+        window.setTimeout(function(cursor) {
+            limelight.activateSlide(slide, cursor);
+        }, 100, (window.location.hash == '#bottom') ? -1 : 0);
+    }
+}, false);
+// ]]>
+</script>\n
+EOP;
+    $thumb_width = (int)$ini['Thumb1']['width'];
+    $thumb_height = (int)$ini['Thumb1']['height'];
+    $flexy->setData('thumb_width', $thumb_width);
+    $flexy->setData('thumb_height', $thumb_height);
+    $flexy->setData('title_width_v', 320 - (10 * 2) - $thumb_width);
+    $flexy->setData('title_width_h', 480 - (10 * 2) - $thumb_width);
+    $flexy->setData('info_vertical', $thumb_width > 80);
+    $flexy->setData('limelight_header', $limelight_header);
     $flexy->output();
 } elseif ($list_template == 'iv2i.tpl.html') {
     $mobile = Net_UserAgent_Mobile::singleton();

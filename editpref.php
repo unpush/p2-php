@@ -135,13 +135,18 @@ EOP;
 
 if (!$_conf['ktai']) {
     echo <<<EOP
+    <script type="text/javascript" src="js/changeskin.js?{$_conf['p2_version_id']}"></script>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="stylesheet" type="text/css" href="css.php?css=editpref&amp;skin={$skin_en}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
+    $body_at = ' onload="window.top.document.title=window.self.document.title;"';
+} elseif (!$_conf['iphone']) {
+    $body_at = $_conf['k_colors'];
+} else {
+    $body_at = '';
 }
 
-$body_at = ($_conf['ktai']) ? $_conf['k_colors'] : ' onload="top.document.title=self.document.title;"';
 echo <<<EOP
 </head>
 <body{$body_at}>\n
@@ -176,27 +181,25 @@ echo <<<EOP
 EOP;
 if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
     $skin_options = array('conf_user_style' => '標準');
-    $skin_dir = opendir('./skin');
-    if ($skin_dir) {
-        while (($skin_file = readdir($skin_dir)) !== FALSE) {
-            if (is_file("./skin/{$skin_file}") && preg_match('/^(\w+)\.php$/', $skin_file, $skin_matches)) {
-                $_name = $skin_matches[1];
+    if (is_dir('./skin')) {
+        foreach (glob('./skin/*.php') as $skin_file) {
+            $_name = basename($skin_file, '.php');
+            if (is_file($skin_file) && preg_match('/^\\w+$/', $_name)) {
                 $skin_options[$_name] = $_name;
             }
         }
     }
     $skin_options_ht = '';
     foreach ($skin_options as $_name => $_title) {
-        if ($_name == $skin_name) {
-            $_format = '<option value="%s" selected>%s</option>';
-        } else {
-            $_format = '<option value="%s">%s</option>';
-        }
-        $skin_options_ht .= sprintf($_format, htmlspecialchars($_name, ENT_QUOTES), htmlspecialchars($_title, ENT_QUOTES));
+        $skin_options_ht .= sprintf('<option value="%s"%s>%s</option>',
+                                    htmlspecialchars($_name, ENT_QUOTES),
+                                    ($_name == $skin_name) ? ' selected' : '',
+                                    htmlspecialchars($_title, ENT_QUOTES));
     }
     echo <<<EOP
  ｜ <a href="edit_user_font.php">フォント設定編集</a>
- ｜ スキン:<form class="inline-form" method="get" action="{$_SERVER['SCRIPT_NAME']}">
+ ｜ スキン:<form class="inline-form" method="get" action="{$_SERVER['SCRIPT_NAME']}"
+ onsubmit="changeSkinAll(this.skin.options[this.skin.selectedIndex].value, '{$_conf['p2_version_id']}'); return false;">
 <select name="skin">{$skin_options_ht}</select><input type="submit" value="変更">
 </form>
 EOP;

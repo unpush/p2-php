@@ -103,7 +103,7 @@ function LightBox(option)
 	self._zoomimg = null;
 	self._expandable = false;
 	self._expanded = false;
-	self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null};
+	self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keydown':null};
 	self._level = 1;
 	self._curpos = {x:0,y:0};
 	self._imgpos = {x:0,y:0};
@@ -137,6 +137,9 @@ LightBox.prototype = {
 			if (!anchor.getAttribute("href") || !rel.match('lightbox')) continue;
 			// initialize item
 			self._imgs[num] = {
+				/* rep2-expack: 画像ID */
+				id:null,
+				/* end */
 				src:anchor.getAttribute("href"),
 				w:-1,
 				h:-1,
@@ -150,6 +153,11 @@ LightBox.prototype = {
 			       && anchor.firstChild.getAttribute 
 			       && anchor.firstChild.getAttribute("title"))
 				self._imgs[num].title = anchor.firstChild.getAttribute("title");
+			/* rep2-expack: 画像IDを取得 */
+			if (anchor.firstChild && anchor.firstChild.id && anchor.firstChild.id.indexOf("img") == 0) {
+				self._imgs[num].id = anchor.firstChild.id.substring(3);
+			}
+			/* end */
 			anchor.onclick = self._genOpener(num); // set closure to onclick event
 			if (rel != 'lightbox')
 			{
@@ -169,9 +177,11 @@ LightBox.prototype = {
 		var self = this;
 		return function(evt) {
 			evt = Event.getEvent(evt);
+			/* rep2-expack: Shiftキー同時押しでLightBox表示を無効にする */
 			if (evt.shiftKey) {
 				return true;
 			}
+			/* end */
 			self._show(num);
 			return false;
 		}
@@ -335,6 +345,12 @@ LightBox.prototype = {
 			indicator.style.zIndex = '80';
 			self._indicator = indicator;
 		}
+		/* rep2-expack: ランク */
+		if (self._ic2_create_elements) {
+			var rankbox = box.appendChild(self._ic2_create_elements());
+			Event.register(rankbox, 'mouseover', function() { self._show_action(); });
+		}
+		/* end */
 		return box;
 	},
 	_set_photo_size : function()
@@ -507,6 +523,11 @@ LightBox.prototype = {
 			if (check > 0) self._prev.style.display = 'inline';
 			if (check < self._get_setlength() - 1) self._next.style.display = 'inline';
 		}
+		/* rep2-expack: ランクを表示 */
+		if (self._ic2_show_rank) {
+			self._ic2_show_rank(true);
+		}
+		/* end */
 	},
 	_hide_action : function()
 	{
@@ -515,6 +536,11 @@ LightBox.prototype = {
 		if (self._open > -1 && self._expanded) self._dragstop(null);
 		if (self._prev) self._prev.style.display = 'none';
 		if (self._next) self._next.style.display = 'none';
+		/* rep2-expack: ランクを隠す */
+		if (self._ic2_show_rank) {
+			self._ic2_show_rank(false);
+		}
+		/* end */
 	},
 	_zoom : function()
 	{
@@ -554,7 +580,10 @@ LightBox.prototype = {
 		if (self._funcs.up    != null) Event.deregister(self._img,'mouseup',self._funcs.up);
 		if (self._funcs.drag  != null) Event.deregister(self._img,'mousedown',self._funcs.drag);
 		if (self._funcs.dbl   != null) Event.deregister(self._img,'dblclick',self._funcs.dbl);
-		self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null};
+		/* rep2-expack: キー押下イベントハンドラを解除 */
+		if (self._funcs.keydown != null) Event.deregister(document,'keydown',self._funcs.keydown);
+		/* end */
+		self._funcs = {'move':null,'up':null,'drag':null,'wheel':null,'dbl':null,'keydown':null};
 	},
 	_onwheel : function(evt)
 	{
@@ -697,6 +726,17 @@ LightBox.prototype = {
 		self._expandable = false;
 		self._expanded = false;
 		imag.src = self._imgs[self._open].src;
+		/* rep2-expack: キー押下イベントハンドラを登録 */
+		if (self._ic2_keydown_handler) {
+			if (self._funcs.keydown != null) {
+				Event.deregister(document, 'keydown', self._funcs.keydown);
+			}
+			self._funcs.keydown = function(evt) {
+				return self._ic2_keydown_handler(evt, num, self._imgs.length);
+			};
+			Event.register(document, 'keydown', self._funcs.keydown);
+		}
+		/* end */
 	},
 	_close_box : function()
 	{
@@ -750,3 +790,14 @@ Event.register(window,"load",function() {
 		resizable:true
 	});
 });
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

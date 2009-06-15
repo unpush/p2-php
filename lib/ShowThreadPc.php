@@ -43,10 +43,7 @@ class ShowThreadPc extends ShowThread
         global $_conf;
 
         $this->_url_handlers = array(
-            'plugin_link2ch',
-            'plugin_linkMachi',
-            'plugin_linkJBBS',
-            'plugin_link2chKako',
+            'plugin_linkThread',
             'plugin_link2chSubject',
         );
         // +Wiki
@@ -111,21 +108,14 @@ class ShowThreadPc extends ShowThread
     public function transRes($ares, $i)
     {
         global $_conf, $STYLE, $mae_msg, $res_filter;
-        global $ngaborns_hits;
-        static $ngaborns_head_hits = 0;
-        static $ngaborns_body_hits = 0;
 
-        $resar = $this->thread->explodeDatLine($ares);
-        $name = $resar[0];
-        $mail = $resar[1];
+        list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($ares);
         if (($id = $this->thread->ids[$i]) !== null) {
             $idstr = 'ID:' . $id;
-            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $resar[2]);
+            $date_id = str_replace($this->thread->idp[$i] . $id, $idstr, $date_id);
         } else {
             $idstr = null;
-            $date_id = $resar[2];
         }
-        $msg = $resar[3];
 
         // +Wiki:置換ワード
         global $replaceword;
@@ -160,64 +150,9 @@ class ShowThreadPc extends ShowThread
         }
         $msg_class = 'message';
 
-        $isNgName = false;
-        $isNgMail = false;
-        $isNgId = false;
-        $isNgMsg = false;
-        $isFreq = false;
-        $isChain = false;
-
-        // {{{ あぼーんチェック
-
-        $ng_msg_info = array();
-
-        // 頻出IDあぼーん
-        if ($this->_ngaborn_frequent && $id && $this->thread->idcount[$id] >= $_conf['ngaborn_frequent_num']) {
-            if (!$_conf['ngaborn_frequent_one'] && $id == $this->thread->ids[1]) {
-                // >>1 はそのまま表示
-            } elseif ($this->_ngaborn_frequent == 1) {
-                $ngaborns_hits['aborn_freq']++;
-                $this->_aborn_nums[] = $i;
-                return $this->_abornedRes($res_id);
-            } elseif (!$_GET['nong']) {
-                $ngaborns_hits['ng_freq']++;
-                $ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $isFreq = true;
-                $ng_msg_info[] = sprintf('頻出ID：%s(%d)', $id, $this->thread->idcount[$id]);
-            }
-        }
-
-        // 連鎖あぼーん
-        if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
-            $chain_nums = array_unique(array_map('intval', split('[-,]+', trim(implode(',', $matches[1]), '-,'))));
-            if (array_intersect($chain_nums, $this->_aborn_nums)) {
-                if ($_conf['ngaborn_chain'] == 1) {
-                    $ngaborns_hits['aborn_chain']++;
-                    $this->_aborn_nums[] = $i;
-                    return $this->_abornedRes($res_id);
-                } else {
-                    $a_chain_num = array_shift($chain_nums);
-                    $ngaborns_hits['ng_chain']++;
-                    $this->_ng_nums[] = $i;
-                    $ngaborns_body_hits++;
-                    $isChain = true;
-                    $ng_msg_info[] = sprintf('連鎖NG：&gt;&gt;%d(あぼーん)', $a_chain_num);
-                }
-            } elseif (array_intersect($chain_nums, $this->_ng_nums)) {
-                $a_chain_num = array_shift($chain_nums);
-                $ngaborns_hits['ng_chain']++;
-                $ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $isChain = true;
-                $ng_msg_info[] = sprintf('連鎖NG：&gt;&gt;%d', $a_chain_num);
-            }
-        }
-
-        // あぼーんレス
-        if ($this->abornResCheck($i) !== false) {
-            $ngaborns_hits['aborn_res']++;
-            $this->_aborn_nums[] = $i;
+        // NGあぼーんチェック
+        $ng_type = $this->_ngAbornCheck($i, strip_tags($name), $mail, $date_id, $id, $msg, false, $ng_info);
+        if ($ng_type == self::ABORN) {
             return $this->_abornedRes($res_id);
         }
 
@@ -291,14 +226,17 @@ class ShowThreadPc extends ShowThread
             $isNgMsg = true;
             $ng_msg_info[] = sprintf('NGワード：%s', htmlspecialchars($a_ng_msg, ENT_QUOTES));
         }
+        if ($ng_type != self::NG_NONE) {
+            $ngaborns_head_hits = self::$_ngaborns_head_hits;
+            $ngaborns_body_hits = self::$_ngaborns_body_hits;
+        }
+
 
         // AA 判定
         // +Wiki:置換ワード対策
         if ($this->am_autodetect && $this->activeMona->detectAA($resar[3])) {
             $msg_class .= ' ActiveMona';
         }
-
-        // }}}
 
         //=============================================================
         // レスをポップアップ表示
@@ -341,16 +279,16 @@ class ShowThreadPc extends ShowThread
         }
 
         // NGメッセージ変換
-        if ($ng_msg_info) {
-            $ng_type = implode(', ', $ng_msg_info);
+        if ($ng_type != self::NG_NONE && count($ng_info)) {
+            $ng_info = implode(', ', $ng_info);
             $msg = <<<EOMSG
-<span class="ngword" onclick="show_ng_message('ngm{$ngaborns_body_hits}', this);">{$ng_type}</span>
+<span class="ngword" onclick="show_ng_message('ngm{$ngaborns_body_hits}', this);">{$ng_info}</span>
 <div id="ngm{$ngaborns_body_hits}" class="ngmsg ngmsg-by-msg">{$msg}</div>
 EOMSG;
         }
 
         // NGネーム変換
-        if ($isNgName) {
+        if ($ng_type & self::NG_NAME) {
             $name = <<<EONAME
 <span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$name}</span>
 EONAME;
@@ -359,7 +297,7 @@ EONAME;
 EOMSG;
 
         // NGメール変換
-        } elseif ($isNgMail) {
+        } elseif ($ng_type & self::NG_MAIL) {
             $mail = <<<EOMAIL
 <span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$mail}</span>
 EOMAIL;
@@ -368,7 +306,7 @@ EOMAIL;
 EOMSG;
 
         // NGID変換
-        } elseif ($isNgId) {
+        } elseif ($ng_type & self::NG_ID) {
             $date_id = <<<EOID
 <span class="ngword" onclick="show_ng_message('ngn{$ngaborns_head_hits}', this);">{$date_id}</span>
 EOID;
@@ -647,7 +585,7 @@ EOJS;
 
         // >>1のリンクをいったん外す
         // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
-        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
+        $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;\\d[\\d\\-]*)</[Aa]>}', '$1', $msg);
 
         // 本来は2chのDAT時点でなされていないとエスケープの整合性が取れない気がする。（URLリンクのマッチで副作用が出てしまう）
         //$msg = str_replace(array('"', "'"), array('&quot;', '&#039;'), $msg);
@@ -1020,8 +958,7 @@ EOP;
         global $_conf;
 
         if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.fitimage']) {
-            $fimg_url = str_replace('&amp;', '&', $img_url);
-            $popup_url = "ic2_fitimage.php?url=" . rawurlencode($fimg_url);
+            $popup_url = 'ic2_fitimage.php?url=' . rawurlencode(str_replace('&amp;', '&', $img_url));
         } else {
             $popup_url = $img_url;
         }
@@ -1121,8 +1058,8 @@ EOJS;
         if (!count(self::$_spm_objects)) {
             $code .= sprintf("spmFlexTarget = '%s';\n", StrCtl::toJavaScript($_conf['expack.spm.filter_target']));
             if ($_conf['expack.aas.enabled']) {
-                $code .= sprintf("var aas_popup_width = %d;\n", $_conf['expack.aas.image_width_pc'] + 10);
-                $code .= sprintf("var aas_popup_height = %d;\n", $_conf['expack.aas.image_height_pc'] + 10);
+                $code .= sprintf("var aas_popup_width = %d;\n", $_conf['expack.aas.default.width'] + 10);
+                $code .= sprintf("var aas_popup_height = %d;\n", $_conf['expack.aas.default.height'] + 10);
             }
         }
 
@@ -1173,7 +1110,7 @@ EOJS;
         if (isset($purl['scheme'])) {
             // ime
             if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
+                $link_url = P2Util::throughIme($purl[0]);
             } else {
                 $link_url = $url;
             }
@@ -1198,7 +1135,7 @@ EOJS;
             // ブラクラチェッカ
             if ($_conf['brocra_checker_use'] && $_conf['brocra_checker_url'] && $is_http) {
                 if (strlen($_conf['brocra_checker_query'])) {
-                    $brocra_checker_url = $_conf['brocra_checker_url'] . '?' . $_conf['brocra_checker_query'] . '=' . rawurlencode($url);
+                    $brocra_checker_url = $_conf['brocra_checker_url'] . '?' . $_conf['brocra_checker_query'] . '=' . rawurlencode($purl[0]);
                 } else {
                     $brocra_checker_url = rtrim($_conf['brocra_checker_url'], '/') . '/' . $url;
                 }
@@ -1251,7 +1188,7 @@ EOJS;
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/([^/]+)/$}', $url, $m)) {
+        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/(\\w+)/$}', $purl[0], $m)) {
             $subject_url = "{$_conf['subject_php']}?host={$m[1]}&amp;bbs={$m[2]}";
             return "<a href=\"{$url}\" target=\"subject\">{$str}</a> [<a href=\"{$subject_url}\" target=\"subject\">板をp2で開く</a>]";
         }
@@ -1259,117 +1196,35 @@ EOJS;
     }
 
     // }}}
-    // {{{ plugin_link2ch()
+    // {{{ plugin_linkThread()
 
     /**
-     * 2ch bbspink    スレッドリンク
+     * スレッドリンク
      *
      * @param   string $url
      * @param   array $purl
      * @param   string $str
      * @return  string|false
      */
-    public function plugin_link2ch($url, $purl, $str)
+    public function plugin_linkThread($url, $purl, $str)
     {
         global $_conf;
 
-        if (preg_match('{^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi/([^/]+)/([0-9]+)(?:/([^/]+)?)?$}', $url, $m)) {
-            if (!isset($m[4])) {
-                $m[4] = '';
-            }
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;ls={$m[4]}";
+        list($nama_url, $host, $bbs, $key, $ls) = P2Util::detectThread($purl[0]);
+        if ($host && $bbs && $key) {
+            $read_url = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$ls}";
             if ($_conf['iframe_popup']) {
-                if (preg_match('/^[0-9\\-n]+$/', $m[4])) {
-                    $pop_url = $url;
+                if ($ls && preg_match('/^[0-9\\-n]+$/', $ls)) {
+                    $pop_url = $read_url;
                 } else {
                     $pop_url = $read_url . '&amp;one=true';
                 }
                 return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
             }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
+            return "<a href=\"{$read_url}{$_conf['bbs_win_target_at']}\">{$str}</a>";
         }
-        return FALSE;
-    }
 
-    // }}}
-    // {{{ plugin_link2chKako()
-
-    /**
-     * 2ch過去ログhtml
-     *
-     * @param   string $url
-     * @param   array $purl
-     * @param   string $str
-     * @return  string|false
-     */
-    public function plugin_link2chKako($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://(\\w+(?:\\.2ch\\.net|\\.bbspink\\.com))(?:/[^/]+/)?/([^/]+)/kako/\\d+(?:/\\d+)?/(\\d+)\\.html$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[2]}&amp;key={$m[3]}&amp;kakolog=" . rawurlencode($url);
-            if ($_conf['iframe_popup']) {
-                $pop_url = $read_url . '&amp;one=true';
-                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
-            }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    // }}}
-    // {{{ plugin_linkMachi()
-
-    /**
-     * まちBBS / JBBS＠したらば  内リンク
-     *
-     * @param   string $url
-     * @param   array $purl
-     * @param   string $str
-     * @return  string|false
-     */
-    public function plugin_linkMachi($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://((\\w+\\.machibbs\\.com|\\w+\\.machi\\.to|jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)(/\\w+)?)/bbs/read\\.(?:pl|cgi)\\?BBS=(\\w+)(?:&amp;|&)KEY=([0-9]+)(?:(?:&amp;|&)START=([0-9]+))?(?:(?:&amp;|&)END=([0-9]+))?(?=&|$)}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}&amp;bbs={$m[4]}&amp;key={$m[5]}";
-            if ($m[5] || $m[6]) {
-                $read_url .= "&amp;ls={$m[6]}-{$m[7]}";
-            }
-            if ($_conf['iframe_popup']) {
-                $pop_url = $url;
-                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
-            }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
-        }
-        return FALSE;
-    }
-
-    // }}}
-    // {{{ plugin_linkJBBS()
-
-    /**
-     * JBBS＠したらば  内リンク
-     *
-     * @param   string $url
-     * @param   array $purl
-     * @param   string $str
-     * @return  string|false
-     */
-    public function plugin_linkJBBS($url, $purl, $str)
-    {
-        global $_conf;
-
-        if (preg_match('{^http://(jbbs\\.livedoor\\.(?:jp|com)|jbbs\\.shitaraba\\.com)/bbs/read\\.cgi/(\\w+)/(\\d+)/(\\d+)(?:/((\\d+)?-(\\d+)?|[^/]+)|/?)$}', $url, $m)) {
-            $read_url = "{$_conf['read_php']}?host={$m[1]}/{$m[2]}&amp;bbs={$m[3]}&amp;key={$m[4]}&amp;ls={$m[5]}";
-            if ($_conf['iframe_popup']) {
-                $pop_url = $url;
-                return $this->iframePopup(array($read_url, $pop_url), $str, $_conf['bbs_win_target_at']);
-            }
-            return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$str}</a>";
-        }
-        return FALSE;
+        return false;
     }
 
     // }}}
@@ -1390,7 +1245,7 @@ EOJS;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $purl[0], $m)) {
             // ime
             if ($_conf['through_ime']) {
                 $link_url = P2Util::throughIme($url);
@@ -1438,10 +1293,10 @@ EOP;
 
         // http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
         // http://www.nicovideo.jp/watch/utvWwAM30N0No
-        if (preg_match('{^http://(?:www\\.)?nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9A-Za-z_\\-]+)}', $url, $m)) {
+        if (preg_match('{^http://(?:www\\.)?nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9A-Za-z_\\-]+)}', $purl[0], $m)) {
             // ime
             if ($_conf['through_ime']) {
-                $link_url = P2Util::throughIme($url);
+                $link_url = P2Util::throughIme($purl[0]);
             } else {
                 $link_url = $url;
             }
@@ -1493,7 +1348,7 @@ EOP;
             return false;
         }
 
-        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $purl[0]) && empty($purl['query'])) {
             $pre_thumb_limit--; // 表示制限カウンタを下げる
             $img_tag = "<img class=\"thumbnail\" src=\"{$url}\" height=\"{$_conf['pre_thumb_height']}\" weight=\"{$_conf['pre_thumb_width']}\" hspace=\"4\" vspace=\"4\" align=\"middle\">";
 
@@ -1545,14 +1400,15 @@ EOP;
             return false;
         }
 
-        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
+        if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $purl[0]) && empty($purl['query'])) {
             // 準備
             $serial++;
             $thumb_id = 'thumbs' . $serial . $this->thumb_id_suffix;
             $tmp_thumb = './img/ic_load.png';
             $url_ht = $url;
-            $url = str_replace('&amp;', '&', $url);
+            $url = $purl[0];
             $url_en = rawurlencode($url);
+            $img_id = null;
 
             $icdb = new IC2_DataObject_Images;
 
@@ -1563,6 +1419,7 @@ EOP;
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {
+                $img_id = $icdb->id;
 
                 // ウィルスに感染していたファイルのとき
                 if ($icdb->mime == 'clamscan/infected') {
@@ -1665,8 +1522,7 @@ EOP;
             }
 
             $view_img .= '<img class="ic2-info-opener" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
-                    //. "'{$url_ht}', '{$orig_img_url}', '{$_conf['ext_win_target']}', '{$orig_thumb_url}', event)\">";
-                      . "'{$url_ht}', event)\">";
+                       . (($img_id) ? $img_id : "'{$url_ht}'") . ', event)">';
 
             return $view_img;
         }

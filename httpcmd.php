@@ -9,10 +9,10 @@ require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ÉÜÅ[ÉUîFèÿ
 
-// {{{ HTTPÉwÉbÉ_Ç∆XMLêÈåæ
+// {{{ HTTPÉwÉbÉ_
 
 P2Util::header_nocache();
-header('Content-Type: text/html; charset=Shift_JIS');
+header('Content-Type: text/plain; charset=Shift_JIS');
 
 // }}}
 
@@ -25,19 +25,73 @@ if (!isset($_REQUEST['cmd'])) {
     $cmd = $_REQUEST['cmd'];
 }
 
+$host = isset($_REQUEST['host']) ? $_REQUEST['host'] : null;
+$bbs  = isset($_REQUEST['bbs'])  ? $_REQUEST['bbs']  : null;
+$key  = isset($_REQUEST['key'])  ? $_REQUEST['key']  : null;
+
 switch ($cmd) {
 // {{{ ÉçÉOçÌèú
 
 case 'delelog':
-    if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key'])) {
-        require_once P2_LIB_DIR . '/dele.inc.php';
-        $r = deleteLogs($_REQUEST['host'], $_REQUEST['bbs'], array($_REQUEST['key']));
+    if (isset($host) && isset($bbs) && isset($key)) {
+        if (!function_exists('deleteLogs')) {
+            include P2_LIB_DIR . '/dele.inc.php';
+        }
+        $r = deleteLogs($host, $bbs, array($key));
         if (empty($r)) {
-            $r_msg = "0"; // é∏îs
+            $r_msg = '0'; // é∏îs
         } elseif ($r == 1) {
-            $r_msg = "1"; // äÆóπ
+            $r_msg = '1'; // äÆóπ
         } elseif ($r == 2) {
-            $r_msg = "2"; // Ç»Çµ
+            $r_msg = '2'; // Ç»Çµ
+        }
+    }
+    break;
+
+// }}}
+// {{{ óöóçÌèú
+
+case 'offrec':
+    if (isset($host) && isset($bbs) && isset($key)) {
+        if (!function_exists('offRecent')) {
+            include P2_LIB_DIR . '/dele.inc.php';
+        }
+        $r1 = offRecent($host, $bbs, $key);
+        $r2 = offResHist($host, $bbs, $key);
+        if (empty($r1) || empty($r2)) {
+            $r_msg = '0'; // é∏îs
+        } elseif ($r1 == 1 || $r2 == 1) {
+            $r_msg = '1'; // äÆóπ
+        } elseif ($r1 == 2 && $r2 == 2) {
+            $r_msg = '2'; // Ç»Çµ
+        }
+    }
+    break;
+
+// }}}
+// {{{ Ç®ãCÇ…î¬
+
+case 'setfavita':
+    if (isset($host) && isset($bbs) && isset($_REQUEST['setfavita'])) {
+        if (!function_exists('setFavItaByHostBbs')) {
+            include P2_LIB_DIR . '/setfavita.inc.php';
+        }
+        if (isset($_REQUEST['itaj_en'])) {
+            $itaj = base64_decode($_REQUEST['itaj_en']);
+        } elseif (isset($_REQUEST['itaj'])) {
+            $itaj = $_REQUEST['itaj'];
+        } else {
+            $itaj = null;
+        }
+        if (isset($_REQUEST['setnum'])) {
+            $r = setFavItaByHostBbs($host, $bbs, $_REQUEST['setfavita'], $itaj, $_REQUEST['setnum']);
+        } else {
+            $r = setFavItaByHostBbs($host, $bbs, $_REQUEST['setfavita'], $itaj);
+        }
+        if (empty($r)) {
+            $r_msg = '0'; // é∏îs
+        } elseif ($r == 1) {
+            $r_msg = '1'; // äÆóπ
         }
     }
     break;
@@ -46,17 +100,50 @@ case 'delelog':
 // {{{ Ç®ãCÇ…ÉXÉå
 
 case 'setfav':
-    if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['setfav'])) {
-        require_once P2_LIB_DIR . '/setfav.inc.php';
-        if (isset($_REQUEST['setnum'])) {
-            $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav'], $_REQUEST['setnum']);
+    if (isset($host) && isset($bbs) && isset($key) && isset($_REQUEST['setfav'])) {
+        if (!function_exists('setFav')) {
+            include P2_LIB_DIR . '/setfav.inc.php';
+        }
+        if (isset($_REQUEST['ttitle_en'])) {
+            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+        } elseif (isset($_REQUEST['ttitle'])) {
+            $ttitle = $_REQUEST['ttitle'];
         } else {
-            $r = setFav($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['setfav']);
+            $ttitle = null;
+        }
+        if (isset($_REQUEST['setnum'])) {
+            $r = setFav($host, $bbs, $key, $_REQUEST['setfav'], $ttitle, $_REQUEST['setnum']);
+        } else {
+            $r = setFav($host, $bbs, $key, $_REQUEST['setfav'], $ttitle);
         }
         if (empty($r)) {
-            $r_msg = "0"; // é∏îs
+            $r_msg = '0'; // é∏îs
         } elseif ($r == 1) {
-            $r_msg = "1"; // äÆóπ
+            $r_msg = '1'; // äÆóπ
+        }
+    }
+    break;
+
+// }}}
+// {{{ ìaì∞ì¸ÇË
+
+case 'setpal':
+    if (isset($host) && isset($bbs) && isset($key) && isset($_REQUEST['setpal'])) {
+        if (!function_exists('setPal')) {
+            include P2_LIB_DIR . '/setpalace.inc.php';
+        }
+        if (isset($_REQUEST['ttitle_en'])) {
+            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+        } elseif (isset($_REQUEST['ttitle'])) {
+            $ttitle = $_REQUEST['ttitle'];
+        } else {
+            $ttitle = null;
+        }
+        $r = setPal($host, $bbs, $key, $_REQUEST['setpal'], $ttitle);
+        if (empty($r)) {
+            $r_msg = '0'; // é∏îs
+        } elseif ($r == 1) {
+            $r_msg = '1'; // äÆóπ
         }
     }
     break;
@@ -65,13 +152,13 @@ case 'setfav':
 // {{{ ÉXÉåÉbÉhÇ†Ç⁄Å[ÇÒ
 
 case 'taborn':
-    if (isset($_REQUEST['host']) && isset($_REQUEST['bbs']) && isset($_REQUEST['key']) && isset($_REQUEST['taborn'])) {
+    if (isset($host) && isset($bbs) && isset($key) && isset($_REQUEST['taborn'])) {
         require_once P2_LIB_DIR . '/settaborn.inc.php';
-        $r = settaborn($_REQUEST['host'], $_REQUEST['bbs'], $_REQUEST['key'], $_REQUEST['taborn']);
+        $r = settaborn($host, $bbs, $key, $_REQUEST['taborn']);
         if (empty($r)) {
-            $r_msg = "0"; // é∏îs
+            $r_msg = '0'; // é∏îs
         } elseif ($r == 1) {
-            $r_msg = "1"; // äÆóπ
+            $r_msg = '1'; // äÆóπ
         }
     }
     break;
@@ -99,9 +186,6 @@ case 'ic2':
 }
 // {{{ åãâ èoóÕ
 
-if (P2Util::isBrowserSafariGroup()) {
-    $r_msg = P2Util::encodeResponseTextForSafari($r_msg);
-}
 echo $r_msg;
 
 // }}}

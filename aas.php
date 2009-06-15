@@ -13,14 +13,13 @@
  * <ins>IPA モナーフォント 1.0.3 で動作確認、行間をチューニングしている。</ins>
  *
  * Dependencies:
- * - PHP Version: 4.2.0 or newer (rep2-expack requires 4.4.1 or newer)
+ * - PHP Version: 4.2.0 or newer (rep2-expack requires 5.2.3 or newer)
  * - PHP Extension: gd (with FreeType 2)
  * - PHP Extension: mbstring
  * - PHP Extension: pcre
  *
  * TODO:
  * - ページ遷移と画像の部分拡大リンク付きHTML生成
- * - フォントサイズ決め打ちで描画して、あとから縮小する..かも?
  *
  * NOTICE:
  *  PHP (or PHP GDモジュール) をコンパイルするときの configure のオプションに
@@ -197,7 +196,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     $inline = false;
     $rotate = !empty($_POST['aas_rotate']);
-    $bold   = ($_conf['expack.aas.bold'] || !empty($_POST['aas_bold']));
 } else {
     $params = array('host' => 'string', 'bbs' => 'string', 'key' => 'int', 'resnum' => 'int');
     foreach ($params as $name => $type) {
@@ -211,7 +209,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     $inline = !empty($_GET['inline']);
     $rotate = !empty($_GET['rotate']);
-    $bold   = ($_conf['expack.aas.bold'] || !empty($_GET['bold']));
 }
 
 // レス読み込み
@@ -287,7 +284,7 @@ $lc = count($lines);
 $c = 0;
 foreach ($lines as $line) {
     if (strlen($line) > 0) {
-        $b = imagettfbbox(12, 0, $font, $line);
+        $b = imagettfbbox(16, 0, $font, $line);
         if (!$c) {
             $c = $b[2];
             $hint = $line;
@@ -301,82 +298,81 @@ foreach ($lines as $line) {
     }
 }
 
-// 画像サイズを決定
+// 画像サイズ等を決定
 if ($inline) {
-    $default_width  = $_conf['expack.aas.image_width_il'];
-    $default_height = $_conf['expack.aas.image_height_il'];
-} elseif (!$_conf['ktai']) {
-    $default_width  = $_conf['expack.aas.image_width_pc'];
-    $default_height = $_conf['expack.aas.image_height_pc'];
+    $mode = 'inline';
+} elseif ($_conf['ktai']) {
+    $mode = 'mobile';
 } else {
-    $default_width  = $_conf['expack.aas.image_width'];
-    $default_height = $_conf['expack.aas.image_height'];
+    $mode = 'default';
 }
+$image_type = $_conf["expack.aas.{$mode}.type"];
+$quality    = $_conf["expack.aas.{$mode}.quality"];
+$width      = $_conf["expack.aas.{$mode}.width"];
+$height     = $_conf["expack.aas.{$mode}.height"];
+$margin     = $_conf["expack.aas.{$mode}.margin"];
+$fontsize   = $_conf["expack.aas.{$mode}.fontsize"];
+$overflow   = $_conf["expack.aas.{$mode}.overflow"];
+$bold       = $_conf["expack.aas.{$mode}.bold"];
+$fgcolor    = $_conf["expack.aas.{$mode}.fgcolor"];
+$bgcolor    = $_conf["expack.aas.{$mode}.bgcolor"];
 if ($rotate) {
-    list($default_width, $default_height) = array($default_height, $default_width);
-}
-
-// 画像サイズに合わせてフォントサイズを調節
-if ($inline && $_conf['expack.aas.inline_fontsize']) {
-    $size = $_conf['expack.aas.inline_fontsize'];
-} else {
-    $size = $_conf['expack.aas.max_fontsize'];
-    list($width, $height) = aas_getTextBoxSize($size, $font, $hint, $lc);
-    $max_width = $default_width - 2;
-    $max_height = $default_height - 2;
-    $ratio = max($width / $max_width, $height / $max_height);
-    if ($ratio > 1.0) {
-        $size = max(intval($_conf['expack.aas.max_fontsize'] / $ratio), $_conf['expack.aas.min_fontsize']);
-        while ($size > $_conf['expack.aas.min_fontsize'] &&
-            !aas_isTextInPicture($size, $font, $hint, $lc, $max_width, $max_height))
-        {
-            $size--;
-        }
-    }
+    list($width, $height) = array($height, $width);
 }
 
 // イメージ作成
-if ($_conf['expack.aas.trim']) {
-    list($width, $height) = aas_getTextBoxSize($size, $font, $hint, $lc);
-    $width = min($default_width, $width + 5);
-    $height = min($default_height, $height + 5);
-} else {
-    $width = $default_width;
-    $height = $default_height;
+list($image_width, $image_height) = aas_getTextBoxSize($fontsize, $font, $hint, $lc, $margin);
+if ($overflow) {
+    $image_width = min($width, $image_width);
+    $image_height = min($height, $image_height);
 }
-
-$image = imagecreate($width, $height);
-if (isset($_conf['expack.aas.fgcolor']) &&
-    false !== ($c = aas_parseColor($_conf['expack.aas.fgcolor'])))
-{
-    $fgcolor = imagecolorallocate($image, $c[0], $c[1], $c[2]);
-} else {
-    $fgcolor = imagecolorallocate($image, 0, 0, 0);
-}
-if (isset($_conf['expack.aas.bgcolor']) &&
-    false !== ($c = aas_parseColor($_conf['expack.aas.bgcolor'])))
-{
+$image = imagecreatetruecolor($image_width, $image_height);
+if ($bgcolor && false !== ($c = aas_parseColor($bgcolor))) {
     $bgcolor = imagecolorallocate($image, $c[0], $c[1], $c[2]);
 } else {
     $bgcolor = imagecolorallocate($image, 255, 255, 255);
+}
+if ($fgcolor && false !== ($c = aas_parseColor($fgcolor))) {
+    $fgcolor = imagecolorallocate($image, $c[0], $c[1], $c[2]);
+} else {
+    $fgcolor = imagecolorallocate($image, 0, 0, 0);
 }
 imagefill($image, 0, 0, $bgcolor);
 
 // テキスト描画
 $x_adjust = 1;
-$y_adjust = $size + floor($size / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2;
-$x_pos = $x_adjust;
-$y_pos = $y_adjust;
+$y_adjust = $fontsize + floor($fontsize / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2;
+$x_pos = $margin + $x_adjust;
+$y_pos = $margin + $y_adjust;
 // まとめて描画しようとすると長い文字列でエラーが出るので
-//imagettftext($image, $size, 0, $x_pos, $y_pos, $fgcolor, $font, $text);
+//imagettftext($image, $fontsize, 0, $x_pos, $y_pos, $fgcolor, $font, $text);
 // 一行ずつ描画する
 foreach ($lines as $line) {
-    imagettftext($image, $size, 0, $x_pos, $y_pos, $fgcolor, $font, $line);
+    imagettftext($image, $fontsize, 0, $x_pos, $y_pos, $fgcolor, $font, $line);
     // 太字は1ピクセル右に重ねて描画
     if ($bold) {
-        imagettftext($image, $size, 0, $x_pos + 1, $y_pos, $fgcolor, $font, $line);
+        imagettftext($image, $fontsize, 0, $x_pos + 1, $y_pos, $fgcolor, $font, $line);
     }
     $y_pos += $y_adjust;
+    if (!$overflow && $y_pos >= $height) {
+        break;
+    }
+}
+
+// リサイズ
+if (!$overflow && ($image_width > $width || $image_height > $height)) {
+    if ($image_width > $width) {
+        $height = $image_height * ($width / $image_width);
+    }
+    if ($image_height > $height) {
+        $width = $image_width * ($height / $image_height);
+    }
+    $width = (int)floor($width);
+    $height = (int)floor($height);
+    $new_image = imagecreatetruecolor($width, $height);
+    imagecopyresampled($new_image, $image, 0, 0, 0, 0, $width, $height, $image_width, $image_height);
+    imagedestroy($image);
+    $image = $new_image;
 }
 
 // 回転
@@ -393,10 +389,10 @@ if ($rotate) {
 
 // 画像を出力
 if (!headers_sent()) {
-    switch ($_conf['expack.aas.image_type']) {
+    switch ($image_type) {
         case 1:
             header('Content-Type: image/jpeg');
-            imagejpeg($image, '', $_conf['expack.aas.jpeg_quality']);
+            imagejpeg($image, '', $quality);
             break;
         case 2:
             header('Content-Type: image/gif');
@@ -506,29 +502,14 @@ function aas_decodeHTMLEntity($e)
 /**
  * テキストボックスの大きさを計算する
  */
-function aas_getTextBoxSize($size, $font, $hint, $lines)
+function aas_getTextBoxSize($size, $font, $hint, $lines, $margin)
 {
-    $x_adjust = 5;
-    $y_adjust = ($size + floor($size / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2) * ($lines - 1);
+    $x_adjust = ($margin * 2) + 5;
+    $y_adjust = ($margin * 2) + (($size + floor($size / AAS_Y_ADJUST_P1) + AAS_Y_ADJUST_P2) * ($lines - 1));
     $box = imagettfbbox($size, 0, $font, $hint);
     $box_width = max($box[0], $box[2], $box[4], $box[6]) - min($box[0], $box[2], $box[4], $box[6]) + $x_adjust;
     $box_height = max($box[1], $box[3], $box[5], $box[7]) - min($box[1], $box[3], $box[5], $box[7]) + $y_adjust;
-    return array($box_width, $box_height);
-}
-
-// }}}
-// {{{ aas_isTextInPicture()
-
-/**
- * テキストが画像に収まり切るかチェックする
- */
-function aas_isTextInPicture($size, $font, $hint, $lines, $max_width, $max_height)
-{
-    list($box_width, $box_height) = aas_getTextBoxSize($size, $font, $hint, $lines);
-    if ($box_width > $max_width || $box_height > $max_height) {
-        return false;
-    }
-    return true;
+    return array((int)$box_width, (int)$box_height);
 }
 
 // }}}

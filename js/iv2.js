@@ -177,28 +177,6 @@ function setRank(itemId, rank)
 }
 
 // }}}
-// {{{ getImageInfo()
-
-function getImageInfo(type, value)
-{
-	var objHTTP = getXmlHttp();
-	if (!objHTTP) {
-		alert("Error: XMLHTTP 通信オブジェクトの作成に失敗しました。") ;
-	}
-	var url = 'ic2_getinfo.php?';
-	if (type == 'id') {
-		url += 'id=' + parseInt(value).toString();
-	} else {
-		url += encodeURIComponent(type) + '=' + encodeURIComponent(value);
-	}
-	var res = getResponseTextHttp(objHTTP, url, 'nc');
-	if (res == '-1') {
-		return false;
-	}
-	return res;
-}
-
-// }}}
 
 /*
  * Local Variables:

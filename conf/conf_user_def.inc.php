@@ -273,9 +273,13 @@ $conf_user_def['ngaborn_frequent_dayres'] = 0; // (0)
 $conf_user_rules['ngaborn_frequent_dayres'] = array('notIntExceptMinusToDef');
 
 // 連鎖NGあぼーん(する:1, しない:0, あぼーんレスへのレスもNGにする:2)
-// 処理を軽くするため、表示範囲のレスにしか連鎖しない
 $conf_user_def['ngaborn_chain'] = 0; // (0)
 $conf_user_rad['ngaborn_chain'] = array('1' => 'する', '0' => 'しない', '2' => 'すべてNGにする');
+
+// 表示範囲外のレスも連鎖NGあぼーんの対象にする(する:1, しない:0)
+// 処理を軽くするため、デフォルトではしない
+$conf_user_def['ngaborn_chain_all'] = 0; // (0)
+$conf_user_rad['ngaborn_chain_all'] = array('1' => 'する', '0' => 'しない');
 
 // この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）
 $conf_user_def['ngaborn_daylimit'] = 180; // (180)

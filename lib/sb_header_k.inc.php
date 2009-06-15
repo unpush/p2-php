@@ -101,7 +101,7 @@ if ($_conf['iphone']) {
 
 if (!$spmode_without_palace_or_favita) {
     if ($_conf['iphone']) {
-        $hd['label_for_method_open'] = '<span onclick="check_prev(this);">';
+        $hd['label_for_method_open'] = '<span onclick="iutil.checkPrev(this);">';
         $hd['label_for_method_close'] = '</span>';
     } else {
         $hd['label_for_method_open'] = '<label for="method">';
@@ -124,11 +124,14 @@ if ($GLOBALS['sb_mikke_num']) {
     $hit_ht = "<div>&quot;{$word}&quot; {$GLOBALS['sb_mikke_num']}hit!</div>";
 }
 
-// スレの勢いを示すためのCSS
+// iPhone用ヘッダ要素
 if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOS
-<script type="text/javascript" src="js/sb_iphone.js"></script>
+<link rel="stylesheet" type="text/css" href="iui/toggle-only.css?{$_conf['p2_version_id']}">
+<script type="text/javascript" src="js/json2.js?{$_conf['p2_version_id']}"></script>
+<script type="text/javascript" src="js/sb_iphone.js?{$_conf['p2_version_id']}"></script>
 EOS;
+    // スレの勢いを示すためのスタイルシート
     if ($_conf['iphone.subject.indicate-speed']) {
         $_conf['extra_headers_ht'] .= <<<EOS
 <style type="text/css">
@@ -170,42 +173,6 @@ echo <<<EOP
 </head>
 <body{$_conf['k_colors']}>
 EOP;
-
-// タブで開くetc.
-if ($_conf['iphone']) {
-    /*
-    if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) {
-        require_once P2EX_LIB_DIR . '/ic2/Switch.php';
-        if (IC2_Switch::get(false)) {
-            $ic2_switch_checked = ' checked';
-            $ic2_switch_color = '#ff3333';
-        } else {
-            $ic2_switch_checked = '';
-            $ic2_switch_color = '#aaaaaa';
-        }
-        $extra_switches = <<<EOP
-<input type="checkbox" id="sb-switch-ic2-cbox" onclick="ic2_mobile_switch(this.checked);
- switch_tab_color(this.nextSibling, this.checked);
-"{$ic2_switch_checked}><span onclick="check_prev(this);" style="color:{$ic2_switch_color};">IC2</span>
-EOP;
-    } else {
-        $extra_switches = '';
-    }
-
-    $extra_switches .= <<<EOP
-    */
-    $extra_switches = <<<EOP
-<input type="checkbox" id="sb-show-info-cbox" onclick="toggle_sb_show_info(this.checked);
- switch_tab_color(this.nextSibling, this.checked);
-"><span onclick="check_prev(this);">スレッド情報</span>
-EOP;
-
-    P2Util::printOpenInTab(array(
-        ".//a[starts-with(@href, &quot;{$_conf['read_new_k_php']}?&quot;)]",
-        ".//form[@action=&quot;{$_conf['read_new_k_php']}&quot; or @action=&quot;{$_conf['subject_php']}&quot;]",
-        ".//ul[@class=&quot;subject&quot;]/li/a[@href]"
-    ), $extra_switches);
-}
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";

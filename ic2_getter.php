@@ -101,7 +101,7 @@ $qf->setConstants($qf_constants);
 $qfe = array();
 
 // ‰B‚µ—v‘f
-$qfe['detect_hint'] = $qf->addElement('hidden', 'detect_hint');
+$qfe['detect_hint'] = $qf->addElement('hidden', '_hint');
 $qfe['popup'] = $qf->addElement('hidden', 'popup');
 
 // URL‚Æ˜A”Ôİ’è

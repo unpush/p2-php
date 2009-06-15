@@ -30,28 +30,66 @@ ul.tgrep-result > li > a, div#tgrep_info > ul > li > a {
 	word-break: break-all;
 }
 
-li.open-in-tab {
+li.info-pop {
 	margin: 0;
-	padding: 5px 10px;
-	color: #aaaaaa;
-	background-color: #eeeeee;
-	font-size: medium;
-	font-weight: bold;
-	line-height: 100%;
-	text-align: right;
+	padding: 10px 5px;
+	background-color: #333333;
+	color: #ffffff;
+	font-size: 16px;
+	line-heihgt: 100%;
 }
 
-li.open-in-tab > input[type="checkbox"] {
-	visibility: hidden;
+div.info-pop-buttons {
 	margin: 0;
 	padding: 0;
-	width: 16px;
-	height: 16px;
+	width: auto;
+	text-align: center;
+	font-size: 14px;
+	line-height: 14px;
+}
+
+div.info-pop-buttons input[type="button"] {
+	margin: 0;
+	padding: 0;
+	width: auto;
+	height: auto;
+	font-size: 14px;
+	color: #000000;
+}
+
+table.info-pop-fav {
+	margin: 10px auto 0 auto;
+	padding: 0;
+	width: auto;
+}
+
+table.info-pop-fav tbody,
+table.info-pop-fav tr {
+	margin: 0;
+	padding: 0;
+}
+
+table.info-pop-fav td {
+	margin: 0;
+	padding: 2px;
+	line-height: 100%;
+	text-align: left;
 	vertical-align: middle;
 }
 
-li.open-in-tab > span {
-	cursor: pointer;
+table.info-pop-fav td:first-child {
+	padding-right: 8px;
+}
+
+table.info-pop-fav div.toggle {
+	position: relative;
+	width: 80px;
+	height: 28px;
+}
+
+table.info-pop-fav div.toggle > span.toggleOn,
+table.info-pop-fav div.toggle > span.toggleOff {
+	width: 45px;
 }
 
 /* }}} */

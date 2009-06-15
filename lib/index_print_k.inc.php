@@ -46,7 +46,7 @@ EOP;
         $rss_k_ht = "<a href=\"menu_k.php?view=rss{$m_rss_set_a}{$_conf['k_at_a']}\">RSS</a><br>";
     }
     if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) {
-        $iv2_k_ht = "<a href=\"iv2.php{$_conf['k_at_q']}\">‰æ‘œ·¬¯¼­ˆê——</a><br>";
+        $iv2_k_ht = "<a href=\"iv2.php?reset_filter=1{$_conf['k_at_a']}\">‰æ‘œ·¬¯¼­ˆê——</a><br>";
     }
 
     //=========================================================

@@ -119,36 +119,36 @@ echo $_conf['doctype'];
 <?php if ($_conf['iphone']) {
 echo <<<EOS
 <script type="text/javascript">
-//<![CDATA[
-function read_copy_adjsut_text_width()
-{
-	var texts = document.evaluate('.//input[@type="text"]',
-	                                document.body,
-	                                null,
-	                                XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-	                                null
-	                                );
+// <![CDATA[
+window.addEventListener('load', function(event) {
+    var read_copy_adjsut_text_width = function() {
+        var texts, i, l, node, width;
 
-	for (var i = 0; i < texts.snapshotLength; i++) {
-		var node = texts.snapshotItem(i);
-		var width = node.parentNode.clientWidth;
-		if (width > 100) {
-			width -= 18; // “K“–
-			if (width > 480) {
-				width = 480; // maxWidth
-			}
-			node.style.width = width.toString() + 'px';
-		}
-	}
-}
+        texts = document.evaluate('.//input[@type="text"]',
+                                  document.body,
+                                  null,
+                                  XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+                                  null);
+        l = texts.snapshotLength;
 
-window.addEventListener('load', function(evt){
-	read_copy_adjsut_text_width();
-	document.body.addEventListener('orientationchange', function(evt){
-		read_copy_adjsut_text_width();
-	});
+        for (i = 0; i < l; i++) {
+            node = texts.snapshotItem(i);
+            width = node.parentNode.clientWidth;
+            if (width > 100) {
+                width -= 18; // “K“–
+                if (width > 480) {
+                    width = 480; // maxWidth
+                }
+                node.style.width = width + 'px';
+            }
+        }
+    };
+
+    read_copy_adjsut_text_width();
+
+    document.body.addEventListener('orientationchange', read_copy_adjsut_text_width, false);
 });
-//]]>
+// ]]>
 </script>\n
 EOS;
 } ?>

@@ -51,14 +51,16 @@ if (isset($_POST['word'])) {
     <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
     <title>rep2</title>
-    <link rel="stylesheet" type="text/css" href="iui/iui.css" />
-    <link rel="stylesheet" type="text/css" href="css/menu_i.css" />
+    <link rel="stylesheet" type="text/css" href="iui/iui.css?<?php echo $_conf['p2_version_id']; ?>" />
+    <link rel="stylesheet" type="text/css" href="css/menu_i.css?<?php echo $_conf['p2_version_id']; ?>" />
     <link rel="apple-touch-icon" type="image/png" href="img/touch-icon/p2-serif.png" />
-    <script type="application/x-javascript" src="iui/iui.js"></script>
-    <script type="application/x-javascript" src="js/menu_i.js"></script>
+    <script type="text/javascript" src="iui/iui.js?<?php echo $_conf['p2_version_id']; ?>"></script>
+    <script type="text/javascript" src="js/json2.js?<?php echo $_conf['p2_version_id']; ?>"></script>
+    <script type="text/javascript" src="js/iphone.js?<?php echo $_conf['p2_version_id']; ?>"></script>
+    <script type="text/javascript" src="js/menu_i.js?<?php echo $_conf['p2_version_id']; ?>"></script>
 <?php
 // {{{ 指定サブメニューへ自動で移動
-// $hashesの取得は未実装。現状では戻るボタンが効かなくなるので封印。
+// $hashesの取得が未実装なので封印。
 /*
 if (isset($hashes) && is_array($hashes) && count($hashes)) {
     require_once P2_LIB_DIR . '/StrCtl.php';
@@ -79,40 +81,42 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
         $js .= "'_'";
     }
 ?>
-    <script type="application/x-javascript">
-    //<![CDATA[
-    window.addEventListener('load', function(evt){
-        var subMenus = [<?php echo $js; ?>];
-        var delayMsec = 200;
-        var contextNode = document.getElementById('top');
-        function p2SelectChild()
-        {
-            var id = subMenus.shift();
-            var anchor = document.evaluate('./li/a[@href="#' + id + '"]',
-                                           contextNode,
-                                           null,
-                                           XPathResult.ANY_UNORDERED_NODE_TYPE,
-                                           null
-                                           ).singleNodeValue;
-            var child = document.getElementById(id);
+    <script type="text/javascript">
+    // <![CDATA[
+    window.addEventListener('load', function(event) {
+        window.removeEventListener(event.type, arguments.callee, false);
+
+        window.setTimeout(function(subMenus, contextNode, delayMsec) {
+            var id, anchor, child, evt;
+
+            if (!subMenus.length || !contextNode) {
+                return;
+            }
+
+            id = subMenus.shift();
+            anchor = document.evaluate('./li/a[@href="#' + id + '"]',
+                                       contextNode,
+                                       null,
+                                       XPathResult.FIRST_ORDERED_NODE_TYPE,
+                                       null).singleNodeValue;
+            child = document.getElementById(id);
+
             if (anchor && child) {
-                var evt = document.createEvent('MouseEvents');
+                evt = document.createEvent('MouseEvents');
                 evt.initMouseEvent('click', true, true, window,
                                    0, 0, 0, 0, 0,
-                                   false, false, false, false, 0, null
-                                   );
+                                   false, false, false, false, 0, null);
                 anchor.dispatchEvent(evt);
+
                 if (subMenus.length) {
                     contextNode = child;
-                    setTimeout(p2SelectChild, delayMsec);
+                    window.setTimeout(arguments.callee, delayMsec,
+                                      subMenus, child, delayMsec);
                 }
             }
-        }
-        if (subMenus.length) {
-            setTimeout(p2SelectChild, delayMsec);
-        }
+        }, 200, [<?php echo $js; ?>], document.getElementById('top'), 200);
     });
-    //]]>
+    // ]]>
     </script>
 <?php
 }*/
@@ -142,8 +146,6 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
 <?php if ($_info_msg_ht) { ?>
     <li><a href="#info_msg" class="color-r">エラー</a></li>
 <?php } ?>
-    <?php echo menu_iphone_open_in_tab(); ?>
-
     <li class="group">リスト</li>
 <?php if ($_conf['expack.misc.multi_favs']) { ?>
     <li><a href="#fav">お気にスレ</a></li>
@@ -169,7 +171,7 @@ if (isset($hashes) && is_array($hashes) && count($hashes)) {
     <li><a href="#rss">RSS</a></li>
 <?php } ?>
 <?php if ($_conf['expack.ic2.enabled'] == 2 || $_conf['expack.ic2.enabled'] == 3) { ?>
-    <li><a href="iv2.php" target="_self">画像キャッシュ一覧</a></li>
+    <li><a href="iv2.php?reset_filter=1" target="_self">画像キャッシュ一覧</a></li>
 <?php } ?>
     <li><a href="#tgrep">スレッド検索</a></li>
 
@@ -213,7 +215,6 @@ if ($_conf['expack.misc.multi_favs']) {
     }
 
     echo '<ul id="fav" title="お気にスレ">';
-    echo menu_iphone_open_in_tab();
     //echo '<li class="group">新着</li>';
     //echo $fav_new_elems;
     //echo '<li class="group">全て</li>';

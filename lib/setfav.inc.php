@@ -21,9 +21,15 @@ require_once P2_LIB_DIR . '/FileCtl.php';
 /**
  * お気にスレをセットする
  *
- * $set は、0(解除), 1(追加), top, up, down, bottom
+ * @param   string      $host
+ * @param   string      $bbs
+ * @param   string      $key
+ * @param   int|string  $setfavita  0(解除), 1(追加), top, up, down, bottom
+ * @param   string      $ttitle
+ * @param   int|null    $setnum
+ * @return  bool
  */
-function setFav($host, $bbs, $key, $setfav, $setnum = null)
+function setFav($host, $bbs, $key, $setfav, $ttitle = null, $setnum = null)
 {
     global $_conf;
 
@@ -41,6 +47,9 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
         $data = explode('<>', $lines[0]);
     } else {
         $data = array_fill(0, 12, '');
+        if (is_string($ttitle) && strlen($ttitle)) {
+            $data[0] = htmlspecialchars($ttitle, ENT_QUOTES, 'Shift_JIS', false);
+        }
     }
 
     // {{{ スレッド.idx 記録
@@ -50,8 +59,8 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
             @unlink($idxfile);
         } else {
             $sar = array($data[0], $key, $data[2], $data[3], $data[4],
-                        $data[5], $setfav, $data[7], $data[8], $data[9],
-                        $data[10], $data[11], $data[12]);
+                         $data[5], $setfav, $data[7], $data[8], $data[9],
+                         $data[10], $data[11], $data[12]);
             P2Util::recKeyIdx($idxfile, $sar);
         }
     }
@@ -104,8 +113,10 @@ function setFav($host, $bbs, $key, $setfav, $setnum = null)
 
     // 記録データ設定
     if ($setfav) {
+        if (!function_exists('getSetPosLines')) {
+            include P2_LIB_DIR . '/getsetposlines.inc.php';
+        }
         $newdata = "{$data[0]}<>{$key}<>{$data[2]}<>{$data[3]}<>{$data[4]}<>{$data[5]}<>1<>{$data[7]}<>{$data[8]}<>{$data[9]}<>{$host}<>{$bbs}";
-        require_once P2_LIB_DIR . '/getsetposlines.inc.php';
         $rec_lines = getSetPosLines($neolines, $newdata, $before_line_num, $setfav);
     } else {
         $rec_lines = $neolines;

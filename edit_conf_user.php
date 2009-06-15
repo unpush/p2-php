@@ -136,7 +136,7 @@ if (!$_conf['ktai']) {
     <script type="text/javascript" src="js/edit_conf_user.js?{$_conf['p2_version_id']}"></script>
     <link rel="stylesheet" type="text/css" href="css.php?css=style&amp;skin={$skin_en}">
     <link rel="stylesheet" type="text/css" href="css.php?css=edit_conf_user&amp;skin={$skin_en}">
-    <link rel="stylesheet" type="text/css" href="style/tabber/tabber.css?{$_conf['p2_version_id']}">
+    <link rel="stylesheet" type="text/css" href="css/tabber/tabber.css?{$_conf['p2_version_id']}">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">\n
 EOP;
 }
@@ -301,7 +301,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('ngaborn_frequent_one', '&gt;&gt;1 も頻出IDあぼーんの対象外にする'),
         array('ngaborn_frequent_num', '頻出IDあぼーんのしきい値 (出現回数がこれ以上のIDをあぼーん)'),
         array('ngaborn_frequent_dayres', '勢いの速いスレでは頻出IDあぼーんしない<br>(総レス数/スレ立てからの日数、0なら無効)'),
-        array('ngaborn_chain', '連鎖NGあぼーん (処理を軽くするため、表示範囲のレスにしか連鎖しない)<br>「する」ならあぼーんレスへのレスはあぼーん、NGレスへのレスはNG。<br>「すべてNGにする」の場合、あぼーんレスへのレスもNGにする。'),
+        array('ngaborn_chain', '連鎖NGあぼーん<br>「する」ならあぼーんレスへのレスはあぼーん、NGレスへのレスはNG。<br>「すべてNGにする」の場合、あぼーんレスへのレスもNGにする。'),
+        array('ngaborn_chain_all', '表示範囲外のレスも連鎖NGあぼーんの対象にする<br>(処理を軽くするため、デフォルトではしない)'),
         array('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す (日数)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
@@ -641,22 +642,40 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $keep_old = true;
 } else {
     $conflist = array(
-        array('expack.aas.inline', '携帯で自動 AA 判定と連動し、インライン表示'),
-        array('expack.aas.image_type', '画像形式 (PNG, JPEG, GIF)'),
-        array('expack.aas.jpeg_quality', 'JPEGの品質 (0-100)'),
-        array('expack.aas.image_width', '携帯用の画像の横幅 (ピクセル)'),
-        array('expack.aas.image_height', '携帯用の画像の高さ (ピクセル)'),
-        array('expack.aas.image_width_pc', 'PC用の画像の横幅 (ピクセル)'),
-        array('expack.aas.image_height_pc', 'PC用の画像の高さ (ピクセル)'),
-        array('expack.aas.image_width_il', 'インライン画像の横幅 (ピクセル)'),
-        array('expack.aas.image_height_il', 'インライン画像の高さ (ピクセル)'),
-        array('expack.aas.trim', '画像の余白をトリミング'),
-        array('expack.aas.bold', '太字'),
-        array('expack.aas.fgcolor', '文字色 (6桁または3桁の16進数)'),
-        array('expack.aas.bgcolor', '背景色 (6桁または3桁の16進数)'),
-        array('expack.aas.max_fontsize', '最大の文字サイズ (ポイント)'),
-        array('expack.aas.min_fontsize', '最小の文字サイズ (ポイント)'),
-        array('expack.aas.inline_fontsize', 'インライン表示の文字サイズ (ポイント)'),
+        array('expack.aas.inline_enabled', '携帯で自動 AA 判定と連動し、インライン表示する'),
+        'PC用',
+        array('expack.aas.default.type', '画像形式 (PNG, JPEG, GIF)'),
+        array('expack.aas.default.quality', 'JPEGの品質 (0-100)'),
+        array('expack.aas.default.width', '画像の横幅 (ピクセル)'),
+        array('expack.aas.default.height', '画像の高さ (ピクセル)'),
+        array('expack.aas.default.margin', '画像のマージン (ピクセル)'),
+        array('expack.aas.default.fontsize', '文字サイズ (ポイント)'),
+        array('expack.aas.default.overflow', '文字が画像からはみ出る場合、リサイズして納める (非表示, リサイズ)'),
+        array('expack.aas.default.bold', '太字にする'),
+        array('expack.aas.default.fgcolor', '文字色 (6桁または3桁の16進数)'),
+        array('expack.aas.default.bgcolor', '背景色 (6桁または3桁の16進数)'),
+        '携帯用',
+        array('expack.aas.mobile.type', '画像形式 (PNG, JPEG, GIF)'),
+        array('expack.aas.mobile.quality', 'JPEGの品質 (0-100)'),
+        array('expack.aas.mobile.width', '画像の横幅 (ピクセル)'),
+        array('expack.aas.mobile.height', '画像の高さ (ピクセル)'),
+        array('expack.aas.mobile.margin', '画像のマージン (ピクセル)'),
+        array('expack.aas.mobile.fontsize', '文字サイズ (ポイント)'),
+        array('expack.aas.mobile.overflow', '文字が画像からはみ出る場合、リサイズして納める (非表示, リサイズ)'),
+        array('expack.aas.mobile.bold', '太字にする'),
+        array('expack.aas.mobile.fgcolor', '文字色 (6桁または3桁の16進数)'),
+        array('expack.aas.mobile.bgcolor', '背景色 (6桁または3桁の16進数)'),
+        'インライン表示',
+        array('expack.aas.inline.type', '画像形式 (PNG, JPEG, GIF)'),
+        array('expack.aas.inline.quality', 'JPEGの品質 (0-100)'),
+        array('expack.aas.inline.width', '画像の横幅 (ピクセル)'),
+        array('expack.aas.inline.height', '画像の高さ (ピクセル)'),
+        array('expack.aas.inline.margin', 'マージン (ピクセル)'),
+        array('expack.aas.inline.fontsize', '文字サイズ (ポイント)'),
+        array('expack.aas.inline.overflow', '文字が画像からはみ出る場合、リサイズして納める (非表示, リサイズ)'),
+        array('expack.aas.inline.bold', '太字にする'),
+        array('expack.aas.inline.fgcolor', '文字色 (6桁または3桁の16進数)'),
+        array('expack.aas.inline.bgcolor', '背景色 (6桁または3桁の16進数)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -1275,6 +1294,28 @@ EOP;
 }
 
 // }}}
+// {{{ getConfBorderHtml()
+
+/**
+ * グループ終端のHTMLを得る（携帯では空）
+ *
+ * @param   string  $label  ラベル
+ * @return  string
+ */
+function getConfBorderHtml($label)
+{
+    global $_conf;
+
+    if ($_conf['ktai']) {
+        $format = '<p>[%s]</p>';
+    } else {
+        $format = '<tr class="group"><td colspan="3" align="center">%s</td></tr>';
+    }
+
+    return sprintf($format, htmlspecialchars($label, ENT_QUOTES, 'Shift_JIS'));
+}
+
+// }}}
 // {{{ getGroupEndHtml()
 
 /**
@@ -1509,7 +1550,9 @@ function printEditConfGroupHtml($groupname, $conflist, $flags)
 {
     echo getGroupSepaHtml($groupname, $flags);
     foreach ($conflist as $c) {
-        if (isset($c[2]) && is_integer($c[2]) && $c[2] > 0) {
+        if (!is_array($c)) {
+            echo getConfBorderHtml($c);
+        } elseif (isset($c[2]) && is_integer($c[2]) && $c[2] > 0) {
             echo getEditConfHtml($c[0], $c[1], $c[2] | $flags);
         } else {
             echo getEditConfHtml($c[0], $c[1], $flags);

@@ -2,7 +2,8 @@
 // {{{ SettingTxt
 
 /**
- * SettingTxtクラス
+ * p2 - 2ch の SETTING.TXT を扱うクラス
+ * http://news19.2ch.net/newsplus/SETTING.TXT
  *
  * @since 2006/02/27
  */
@@ -16,7 +17,7 @@ class SettingTxt
     private $_bbs;
     private $_url;           // SETTING.TXT のURL
     private $_setting_txt;   // SETTING.TXT ローカル保存ファイルパス
-    private $_setting_cache; // p2_kb_setting.srd $this->setting_array を serialize() したデータファイル
+    private $_setting_srd;   // p2_kb_setting.srd $this->setting_array を serialize() したデータファイルパス
     private $_cache_interval;
 
     // }}}
@@ -34,7 +35,7 @@ class SettingTxt
 
         $dat_host_bbs_dir_s = P2Util::datDirOfHostBbs($host, $bbs);
         $this->_setting_txt = $dat_host_bbs_dir_s . 'SETTING.TXT';
-        $this->_setting_cache = $dat_host_bbs_dir_s . 'p2_kb_setting.srd';
+        $this->_setting_srd = $dat_host_bbs_dir_s . 'p2_kb_setting.srd';
 
         $this->_url = 'http://' . $host . '/' . $bbs . '/SETTING.TXT';
         //$this->_url = P2Util::adjustHostJbbs($this->_url); // したらばのlivedoor移転に対応。読込先をlivedoorとする。
@@ -57,11 +58,7 @@ class SettingTxt
     {
         $this->downloadSettingTxt();
 
-        if ($this->setSettingArray()) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->setSettingArray();
     }
 
     // }}}
@@ -76,11 +73,16 @@ class SettingTxt
     {
         global $_conf, $_info_msg_ht;
 
+        // まちBBS・したらば は SETTING.TXT が存在しないものとする
+        if (P2Util::isHostMachiBbs($this->_host) || P2Util::isHostJbbsShitaraba($this->_host)) {
+            return false;
+        }
+
         $perm = (isset($_conf['dl_perm'])) ? $_conf['dl_perm'] : 0606;
 
         FileCtl::mkdir_for($this->_setting_txt); // 板ディレクトリが無ければ作る
 
-        if (file_exists($this->_setting_cache) && file_exists($this->_setting_txt)) {
+        if (file_exists($this->_setting_srd) && file_exists($this->_setting_txt)) {
             // 更新しない場合は、その場で抜けてしまう
             if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
                 return true;
@@ -105,7 +107,7 @@ class SettingTxt
             $params['proxy_port'] = $_conf['proxy_port'];
         }
         $req = new HTTP_Request($this->_url, $params);
-        $modified && $req->addHeader("If-Modified-Since", $modified);
+        $modified && $req->addHeader('If-Modified-Since', $modified);
         $req->addHeader('User-Agent', "Monazilla/1.00 ({$_conf['p2ua']})");
 
         $response = $req->sendRequest();
@@ -165,6 +167,9 @@ class SettingTxt
         } else {
             // touchすることで更新インターバルが効くので、しばらく再チェックされなくなる
             touch($this->_setting_txt);
+            // 同時にキャッシュもtouchしないと、_setting_txtと_setting_srdで更新時間がずれ、
+            // 毎回ここまで処理が来る（サーバへのヘッダリクエストが飛ぶ）場合がある。
+            touch($this->_setting_srd);
         }
 
         return true;
@@ -181,10 +186,10 @@ class SettingTxt
     public function isCacheFresh()
     {
         // キャッシュがある場合
-        if (file_exists($this->_setting_cache)) {
+        if (file_exists($this->_setting_srd)) {
             // キャッシュの更新が指定時間以内なら
             // clearstatcache();
-            if (filemtime($this->_setting_cache) > time() - $this->_cache_interval) {
+            if (filemtime($this->_setting_srd) > time() - $this->_cache_interval) {
                 return true;
             }
         }
@@ -223,7 +228,7 @@ class SettingTxt
         $this->setting_array['p2version'] = $_conf['p2version'];
 
         // パースキャッシュファイルを保存する
-        if (FileCtl::file_write_contents($this->_setting_cache, serialize($this->setting_array)) === false) {
+        if (FileCtl::file_write_contents($this->_setting_srd, serialize($this->setting_array)) === false) {
             return false;
         }
 
@@ -244,24 +249,20 @@ class SettingTxt
     {
         global $_conf;
 
-        if (!file_exists($this->_setting_cache)) {
+        if (!file_exists($this->_setting_srd)) {
             return false;
         }
 
-        $this->setting_array = unserialize(file_get_contents($this->_setting_cache));
+        $this->setting_array = unserialize(file_get_contents($this->_setting_srd));
 
         /*
         if ($this->setting_array['p2version'] != $_conf['p2version']) {
-            unlink($this->_setting_cache);
+            unlink($this->_setting_srd);
             unlink($this->_setting_txt);
         }
         */
 
-        if (!empty($this->setting_array)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (bool)$this->setting_array;
     }
 
     // }}}

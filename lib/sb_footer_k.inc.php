@@ -108,7 +108,7 @@ if (!$disp_navi['all_once']) {
 
         /*$k_sb_navi_select_optgroup = $_conf['mobile.sb_disp_range'] * 5;
         if ($k_sb_navi_select_optgroup >= $sb_disp_all_num) {
-            $k_sb_navi_select_optgroup = 0; 
+            $k_sb_navi_select_optgroup = 0;
         }*/
 
         for ($i = 0; $i < $sb_disp_all_num; $i += $_conf['mobile.sb_disp_range']) {
@@ -256,7 +256,7 @@ if (!empty($_REQUEST['sb_view'])) {
 if ($_conf['iphone']) {
     // iPhone (2.0.1) ÇÃSafariÇ≈ÇÕlabelóvëfÇ™å¯Ç©Ç»Ç¢ (É^ÉOÇ≈àÕÇﬁÅAforëÆê´Ç∆Ç‡Ç…) ÇÃÇ≈onclickÇ≈ë„ópÇ∑ÇÈ
     $htm['change_sort'] .= ' <input type="checkbox" name="rsort" value="1">';
-    $htm['change_sort'] .= '<span onclick="check_prev(this);">ãtèá</span>';
+    $htm['change_sort'] .= '<span onclick="iutil.checkPrev(this);">ãtèá</span>';
 } else {
     $htm['change_sort'] .= ' <label><input type="checkbox" name="rsort" value="1">ãtèá</label>';
 }

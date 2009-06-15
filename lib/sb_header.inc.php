@@ -295,14 +295,16 @@ EOJS;
     echo <<<EOJS
     <script type="text/javascript">
     //<![CDATA[
-    function offrec_ajax(url, row)
+    function offrec_ajax(anchor)
     {
-        \$.get(url, null, function(html, status){
+        var url = anchor.href.replace('info.php?', 'httpcmd.php?cmd=offrec&');
+        \$.get(url, null, function(text, status){
             if (status == 'error') {
                 window.alert('Async error!');
-            } else if (html.indexOf('—š—ð‰ðœŽ¸”s') != -1) {
+            } else if (text === '0' || text === '') {
                 window.alert('—š—ð‰ðœŽ¸”s!');
             } else {
+                var row = anchor.parentNode.parentNode;
                 row.parentNode.removeChild(row);
             }
         });

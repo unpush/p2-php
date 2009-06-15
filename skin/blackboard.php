@@ -169,11 +169,11 @@ $STYLE['info_pop_size'] = "600,380"; // ("600,380") 情報ポップアップウィンドウの
 // }}}
 // {{{ style/*_css.inc で定義されていない設定
 
-$MYSTYLE['subject']['sb_td']['border-bottom'] = "1px dashed #fff";
-$MYSTYLE['subject']['sb_td1']['border-bottom'] = "1px dashed #fff";
+$MYSTYLE['subject']['sb_td']['border-top'] = "1px dashed #fff";
+$MYSTYLE['subject']['sb_td1']['border-top'] = "1px dashed #fff";
 
-$MYSTYLE['base']['.filtering']['background-color'] = "transparent";
-$MYSTYLE['base']['.filtering']['border-bottom'] = "3px #fff double";
+$MYSTYLE['base!']['#filterstart, .filtering']['background-color'] = "transparent";
+$MYSTYLE['base!']['#filterstart, .filtering']['border-bottom'] = "3px #fff double";
 
 $MYSTYLE['read']['#iframespace']['border'] = "2px #fff inset";
 $MYSTYLE['read']['#closebox']['border'] = "2px #fff outset";
