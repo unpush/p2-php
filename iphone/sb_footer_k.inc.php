@@ -129,7 +129,7 @@ $k_sb_navi_ht ‚Í‰º‚Ì‚R‚Æ“¯‚¶
 $foot_sure = ""; 
 if ($dat_soko_ht) $foot_sure .= "<span class=\"soko\">{$dat_soko_ht}</span>";
 if ($buildnewthread_atag) $foot_sure .= "<span class=\"build\">{$buildnewthread_atag}</span>";
-if ($allfav_ht) $foot_sure .= "<span class=\"all\">{$allfav_ht}</span>";
+if ($allfav_atag) $foot_sure .= "<span class=\"all\">{$allfav_atag}</span>";
 if ($taborn_link_atag) $foot_sure .= "<span class=\"abon\">{$taborn_link_atag}</span>";
 if ($mae_ht) $foot_sure .= "<span class=\"mae\">{$mae_ht}</span>";
 if ($tugi_ht) $foot_sure .= "<span class=\"tugi\">{$tugi_ht}</span>";

@@ -17,6 +17,8 @@ $p2_subject_url = P2Util::buildQueryUri($_conf['subject_php'],
     )
 );
 
+$ptitle_url = null;
+
 // ‚ ‚Ú[‚ñ or ‘qŒÉ
 if ($aThreadList->spmode == 'taborn' or $aThreadList->spmode == 'soko') {
     $ptitle_url = $p2_subject_url;

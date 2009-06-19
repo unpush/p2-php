@@ -99,18 +99,44 @@ $aShowBrdMenuPc->printFavItaHtml();
 // 新着数を表示する場合
 if ($_conf['enable_menu_new'] == 1 and !empty($_GET['shownew'])) {
     
-    ?>　<?php echo _getRecentNewLinkHtml();?><br><?php
+    // 並列ダウンロードの設定
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        require_once P2_LIB_DIR . '/P2HttpExt.php';
+        $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+    }
     
+    // 最近読んだスレ
+    
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['recent_file']);
+    }
+    ?>　<?php echo _getRecentNewLinkHtml();?><br><?php
     ob_flush(); flush();
     
-    list($matome_i, $shinchaku_num) = _initMenuNewSp('fav');    // 新着数を初期化取得
+    // お気にスレ
+    
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_file']);
+    }
+    // 新着数を初期化取得
+    list($matome_i, $shinchaku_num) = _initMenuNewSp('fav');
     $id = 'sp' . $matome_i;
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=fav&amp;norefresh=1" onClick="chMenuColor('{$id}');" accesskey="{$_conf['pc_accesskey']['setfav']}">お気にスレ</a> (<a href="{$_conf['read_new_php']}?spmode=fav" target="read" id="un{$id}" onClick="chUnColor('{$id}');"{$class_newres_num}>{$shinchaku_num}</a>)<br>
 EOP;
     ob_flush(); flush();
 
-    list($matome_i, $shinchaku_num) = _initMenuNewSp('res_hist');    // 新着数を初期化取得
+    // 書込履歴
+
+    // ダウンロード
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        P2HttpRequestPool::fetchSubjectTxt($_conf['res_hist_idx']);
+    }
+    
+    // 新着数を初期化取得
+    list($matome_i, $shinchaku_num) = _initMenuNewSp('res_hist');
     $id = 'sp' . $matome_i;
     echo <<<EOP
     　<a href="{$_conf['subject_php']}?spmode=res_hist&amp;norefresh=1" onClick="chMenuColor('{$id}');">書込履歴</a> <a href="read_res_hist.php" target="read">ログ</a> (<a href="{$_conf['read_new_php']}?spmode=res_hist" target="read" id="un{$id}" onClick="chUnColor('{$id}');"{$class_newres_num}>{$shinchaku_num}</a>)<br>

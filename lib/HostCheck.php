@@ -436,7 +436,7 @@ class HostCheck
     /**
      * IPは docomo?
      *
-     * @link  http://www.nttdocomo.co.jp/service/imode/make/content/ip/about/
+     * @link  http://www.nttdocomo.co.jp/service/imode/make/content/ip/
      * @return  boolean
      * @access  public
      * @static
@@ -459,10 +459,10 @@ class HostCheck
             '202.229.176.0/24',
             '202.229.177.0/24',
             '202.229.178.0/24',
-            '210.153.87.0/24',
             '203.138.180.0/24',
             '203.138.181.0/24',
             '203.138.203.0/24',
+            '210.153.87.0/24', // WEBアクセス時（フルブラウザ）
         );
         return HostCheck::isAddrInBand($addr, $bands, $regHost);
     }
@@ -549,6 +549,34 @@ class HostCheck
             '202.253.96.0/28',
 
             //'210.146.60.128/25', // 非公式ながら追加
+        );
+        return HostCheck::isAddrInBand($addr, $bands, $regHost);
+    }
+    
+    /**
+     * IPは SoftBankのpcsitebrowser?
+     *
+     * @link http://creation.mb.softbank.jp/web/web_ip.html
+     * @link http://qb5.2ch.net/test/read.cgi/operate/1116860379/100-125
+     * @return  boolean
+     * @access  public
+     * @static
+     */
+    function isAddrSoftBankPcSiteBrowser($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+
+        // ml7ts005v11c.pcsitebrowser.ne.jp
+        $regHost = '/\.(pcsitebrowser)\.ne\.jp$/';
+        
+        // @update 2009/01/18
+        // 2008年2月29日現在
+        $bands = array(
+            // PCサイトブラウザ
+            '123.108.237.240/28',
+            '202.253.96.0/28',
         );
         return HostCheck::isAddrInBand($addr, $bands, $regHost);
     }

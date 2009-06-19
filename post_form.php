@@ -27,7 +27,7 @@ if (!$itaj = P2Util::getItaName($host, $bbs)) {
 }
 
 $ttitle_en  = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
-$ttitle     = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
+$ttitle_hc  = (strlen($ttitle_en) > 0) ? P2Util::htmlEntityDecodeLite(base64_decode($ttitle_en)) : '';
 
 if (P2Validate::host($host) || ($bbs) && P2Validate::bbs($bbs) || ($key) && P2Validate::key($key)) {
     p2die('不正な引数です');
@@ -37,15 +37,6 @@ if (P2Validate::host($host) || ($bbs) && P2Validate::bbs($bbs) || ($key) && P2Va
 require_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
 // 表示指定
-$class_ttitle = '';
-$target_read = '';
-$sub_size_at = '';
-
-if (!$_conf['ktai']) {
-    $class_ttitle = ' class="thre_title"';
-    $target_read = ' target="read"';
-    $sub_size_at = ' size="40"';
-}
 
 $htm['resform_ttitle'] = '';
 
@@ -62,6 +53,14 @@ if (!empty($_GET['newthread'])) {
         $submit_value = "新規スレッド作成";
     }
     
+    $class_ttitle = '';
+    $sub_size_at = '';
+
+    if (!$_conf['ktai']) {
+        $class_ttitle = ' class="thre_title"';
+        $sub_size_at = ' size="40"';
+    }
+
     $htm['subject'] = <<<EOP
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" id="subject" name="subject"{$sub_size_at} value="{$hs['subject']}"><br>
 EOP;
@@ -102,7 +101,7 @@ EOP;
                 UA::getQueryKey() => UA::getQueryValue()
             )
         ),
-        hs($ttitle) . ' ',
+        hs($ttitle_hc) . ' ',
         $attrs
     );
     
@@ -113,7 +112,6 @@ EOP;
 // }}}
 
 $readnew_hidden_ht = !empty($_GET['from_read_new']) ? '<input type="hidden" name="from_read_new" value="1">' : '';
-
 
 //==========================================================
 // HTML 表示出力
@@ -146,6 +144,7 @@ if (!$_conf['ktai']) {
     <script type="text/javascript" src="js/post_form.js?v=20061209"></script>
 <?php
 }
+
 echo <<<EOP
 </head>
 <body{$body_at}{$body_on_load}>\n

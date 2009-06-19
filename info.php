@@ -23,11 +23,11 @@ $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : null;
 
 // 以下どれか一つがなくてもダメ出し
 if (!$host || !isset($bbs) || !isset($key)) {
-    p2die('引数が正しくありません。');
+    p2die('引数が正しくありません。(host or bbs or key)');
 }
 
 if (P2Validate::host($host) || P2Validate::bbs($bbs) || P2Validate::key($key)) {
-    p2die('不正な引数です');
+    p2die('不正な引数です。(host or bbs or key)');
 }
 
 $taborn_accesskey       = '7'; // スレッドあぼーん

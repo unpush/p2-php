@@ -31,11 +31,11 @@ $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : null;
 
 // 以下どれか一つがなくてもダメ出し
 if (!$host || !isset($bbs) || !isset($key)) {
-    p2die('引数が正しくありません。');
+    p2die('引数が正しくありません。(host or bbs or key)');
 }
 
 if (P2Validate::host($host) || P2Validate::bbs($bbs) || P2Validate::key($key)) {
-    p2die('不正な引数です');
+    p2die('不正な引数です。(host or bbs or key)');
 }
 $title_msg = '';
 $info_msg  = '';
@@ -359,13 +359,14 @@ $similar_atag  = P2View::tagA(
             array(
                 'host' => $aThread->host,
                 'bbs'  => $aThread->bbs,
+                'key'  => $aThread->key,
                 UA::getQueryKey() => UA::getQueryValue(),
                 'refresh' => '1'
             )
         )
     ),
-    hs('似スレ'),
-    array('target' => 'subject')
+    hs('似スレ')
+    //, array('target' => 'subject')
 );
 
 _printInfoTrHtml('板', "$ita_atag ($similar_atag)");

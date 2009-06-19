@@ -134,6 +134,30 @@ if (!empty($_GET['dele']) or (isset($_POST['submit']) and $_POST['submit'] == $d
 }
 
 //============================================================
+// 更新する場合、前もって一括＆並列ダウンロード (要pecl_http)
+//============================================================
+
+if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
+    if ($_conf['expack.use_pecl_http'] == 1) {
+        require_once P2_LIB_DIR . '/P2HttpExt.php';
+        switch ($spmode) {
+        case 'fav':
+            P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_idx']);
+            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+            break;
+        case 'recent':
+            P2HttpRequestPool::fetchSubjectTxt($_conf['recent_idx']);
+            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+            break;
+        case 'res_hist':
+            P2HttpRequestPool::fetchSubjectTxt($_conf['res_hist_idx']);
+            $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
+            break;
+        }
+    }
+}
+
+//============================================================
 // メイン
 //============================================================
 

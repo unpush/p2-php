@@ -116,8 +116,7 @@ class ThreadList
             
             // ローカルの書き込み履歴ファイル 読み込み
             } elseif ($this->spmode == "res_hist") {
-                $rh_idx = $_conf['pref_dir'] . "/p2_res_hist.idx";
-                file_exists($rh_idx) and $lines = file($rh_idx);
+                file_exists($_conf['res_hist_idx']) and $lines = file($_conf['res_hist_idx']);
             
             // ローカルのお気にファイル 読み込み
             } elseif ($this->spmode == "fav") {

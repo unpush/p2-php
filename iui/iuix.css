@@ -4,7 +4,7 @@ font-family:Helvetica;
 background:#FFF;
 color:#000;
 overflow-x:hidden;
--webkit-user-select:none;
+/* -webkit-user-select:none; */
 -webkit-text-size-adjust:none;
 }
 

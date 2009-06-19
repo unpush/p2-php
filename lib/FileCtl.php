@@ -142,6 +142,35 @@ class FileCtl
         return FileCtl::mkdirR(dirname($apath));
     }
     
+    // {{{ file_read_lines()
+
+    /**
+     * ファイル全体を読み込んで配列に格納する
+     * エラー抑制付きの @file() の代用
+     *
+     * @param string $filename
+     * @param int $flags
+     * @param resource $context
+     */
+    static public function file_read_lines($filename, $flags = 0, $context = null)
+    {
+        if (!is_readable($filename)) {
+            return false;
+        }
+        $lines = file($filename, $flags, $context);
+        if (($flags & FILE_IGNORE_NEW_LINES) && $lines &&
+            strlen($lines[0]) && substr($lines[0], -1) == "\r")
+        {
+            $lines = array_map(create_function('$l', 'return rtrim($l, "\\r");'), $lines);
+            if ($flags & FILE_SKIP_EMPTY_LINES) {
+                $lines = array_filter($lines, 'strlen');
+            }
+        }
+        return $lines;
+    }
+
+    // }}}
+    
     /**
      * gzファイルの中身を取得する
      *

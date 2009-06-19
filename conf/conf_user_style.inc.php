@@ -5,15 +5,18 @@
     コメント冒頭の() 内はデフォルト値
     設定は style/*_css.inc と連動
     
-    このファイルの設定は、お好みに応じて変更してください
+    このファイル内での設定は、お好みに応じて変更してください
 */
 
 // _setStyle()
 // global $_conf, $STYLE, $MYSTYLE
 
-$STYLE['a_underline_none'] = "2"; // ("2") リンクに下線を（つける:0, つけない:1, スレタイトル一覧だけつけない:2）
+// リンクに下線を（つける:0, つけない:1, スレタイトル一覧だけつけない:2）
+$STYLE['a_underline_none'] = '2'; // ('2')
 
-// フォント ======================================================
+// {{{ フォント
+
+// 一部の項目は、「ユーザ設定編集」で設定されていれば、そちらの値が優先される
 
 if (strstr(geti($_SERVER['HTTP_USER_AGENT']), 'Mac')) {
 
@@ -51,11 +54,14 @@ if (strstr(geti($_SERVER['HTTP_USER_AGENT']), 'Mac')) {
 	$MYSTYLE['read']['.thread_title']['font-size'] = "";	// ("") スレッドタイトルのフォントの大きさ
 }
 
-$_conf['fontsize']      and $STYLE['fontsize']      = strip_tags($_conf['fontsize']); // strip_tags()は念のため
+// 以下の項目は、「ユーザ設定編集」で設定されていれば、そちらを優先して上書きする
+// strip_tags()は念のため入れている
+$_conf['fontsize']      and $STYLE['fontsize']      = strip_tags($_conf['fontsize']);
 $_conf['menu_fontsize'] and $STYLE['menu_fontsize'] = strip_tags($_conf['menu_fontsize']);
 $_conf['sb_fontsize']   and $STYLE['sb_fontsize']   = strip_tags($_conf['sb_fontsize']);
 $_conf['read_fontsize'] and $STYLE['read_fontsize'] = strip_tags($_conf['read_fontsize']);
 
+// }}}
 
 //======================================================================
 // 色彩の設定
@@ -142,12 +148,20 @@ $STYLE['read_mail_sage_color'] = ""; // ("") sageの時の投稿者のmailの色 ex)"#00b
 $STYLE['read_ngword'] = "#bbbbbb"; // ("#bbbbbb") NGワードの色
 
 // 携帯用
-// ("#1144aa") スレッドタイトル色
-$STYLE['read_k_thread_title_color'] = isset($_conf['read_k_thread_title_color']) ? $_conf['read_k_thread_title_color'] : "#1144aa";
-$STYLE['k_bgcolor'] = isset($_conf['k_bgcolor']) ? $_conf['k_bgcolor'] : ''; // 携帯、基本背景色
-$STYLE['k_color'] = isset($_conf['k_color']) ? $_conf['k_color'] : "";   // 携帯、基本テキスト色
-$STYLE['k_acolor'] = isset($_conf['k_acolor']) ? $_conf['k_acolor'] : "";   // 携帯、基本リンク色
-$STYLE['k_acolor_v'] = isset($_conf['k_acolor_v']) ? $_conf['k_acolor_v'] : "";   // 携帯、基本訪問済みリンク色
+// 「ユーザ設定編集」で設定されていれば、そちらの値が優先される
+$STYLE['read_k_thread_title_color'] = '#1144aa'; // ('#1144aa') スレッドタイトル色
+$STYLE['k_bgcolor']  = ''; // ('') 携帯、基本背景色
+$STYLE['k_color']    = ''; // ('') 携帯、基本テキスト色
+$STYLE['k_acolor']   = ''; // ('') 携帯、基本リンク色
+$STYLE['k_acolor_v'] = ''; // ('') 携帯、基本訪問済みリンク色
+
+// 以下の項目は、「ユーザ設定編集」で設定されていれば、そちらを優先して上書きする
+// strip_tags()は念のため入れている
+$_conf['read_k_thread_title_color'] and $STYLE['read_k_thread_title_color'] = strip_tags($_conf['read_k_thread_title_color']); 
+$_conf['k_bgcolor']  and $STYLE['k_bgcolor']  = strip_tags($_conf['k_bgcolor']);
+$_conf['k_color']    and $STYLE['k_color']    = strip_tags($_conf['k_color']);
+$_conf['k_acolor']   and $STYLE['k_acolor']   = strip_tags($_conf['k_acolor']);
+$_conf['k_acolor_v'] and $STYLE['k_acolor_v'] = strip_tags($_conf[k_acolor_v]);
 
 // レス書き込みフォーム
 $STYLE['post_pop_size'] = "620,360"; // ("620,360") レス書き込みポップアップウィンドウの大きさ（横,縦）

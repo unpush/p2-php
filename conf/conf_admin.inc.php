@@ -60,7 +60,16 @@ $_conf['use_session'] = 2;          // (2) セッションを利用（する:1, しない:0, c
 $_conf['session_save'] = 'p2';      // ('p2') sessionデータの保存管理 (PHPデフォルト:'', p2でファイル管理:'p2')
 
 $_conf['fsockopen_time_limit'] = 6; // (6) ネットワーク接続タイムアウト時間 (秒)
+
 $_conf['dlSubjectTotalLimitTime'] = 15; // (15) subject.txtのダウンロードに費やす合計制限時間（秒）
+
+// （モバイル表示時）subject.txtのダウンロードに費やす合計制限時間（秒）
+$_conf['dlSubjectTotalLimitTimeM'] = 8; // (8) 
+
+// pecl_http が利用できる場合、HttpRequestPool による並列ダウロードを有効にする（※PHP5以上のみ可）
+// この設定を有効にした場合は、$_conf['dlSubjectTotalLimitTime*'] の設定が無効となる。
+// (off:0, on:1, モバイル時のみon:3) // cli:2 は未対応
+$_conf['expack.use_pecl_http'] = 0; // (0)
 
 $_conf['updatan_haahaa'] = 1;       // (1) p2の最新バージョンを自動チェック(する:1, しない:0)
 
@@ -68,6 +77,7 @@ $_conf['display_threads_num'] = 150; // (150) スレッドサブジェクト一覧のデフォル
 $_conf['rec_res_log_secu_num'] = 0; // (0) 管理用に記録する書き込みログの数（最大記録レス数。0なら記録しない）
 //$_conf['posted_rec_num'] = 1000;    // (1000) 書き込んだレスの最大記録数 // この設定は現在は機能していない
 $_conf['menu_dl_interval'] = 1;     // (1) 板 menu のキャッシュを更新せずに保持する時間 (hour)
+
 $_conf['sb_dl_interval'] = 180;     // (180) subject.txt のキャッシュを更新せずに保持する時間 (秒)
 
 // $_conf['dat_dl_interval'] = 20;  // (20) dat のキャッシュを更新せずに保持する時間 (秒) // この設定は現在は機能していない
@@ -87,14 +97,14 @@ $_conf['enable_skin'] = 1;
 
 $_conf['k_accesskey']['matome'] = '3'; // 新まとめ
 $_conf['k_accesskey']['latest'] = '3'; // 新
-$_conf['k_accesskey']['res'] =    '7'; // 書
-$_conf['k_accesskey']['above'] =  '2'; // 上
-$_conf['k_accesskey']['up'] =     '5'; // （板）
-$_conf['k_accesskey']['prev'] =   '4'; // 前
+$_conf['k_accesskey']['res']    = '7'; // 書
+$_conf['k_accesskey']['above']  = '2'; // 上
+$_conf['k_accesskey']['up']     = '5'; // （板）
+$_conf['k_accesskey']['prev']   = '4'; // 前
 $_conf['k_accesskey']['bottom'] = '8'; // 下
-$_conf['k_accesskey']['next'] =   '6'; // 次
-$_conf['k_accesskey']['info'] =   '9'; // 情
-$_conf['k_accesskey']['dele'] =   '*'; // 削
+$_conf['k_accesskey']['next']   = '6'; // 次
+$_conf['k_accesskey']['info']   = '9'; // 情
+$_conf['k_accesskey']['dele']   = '*'; // 削
 $_conf['k_accesskey']['filter'] = '#'; // 索
 
 // }}}
@@ -116,18 +126,18 @@ $_conf['pc_accesskey']['all']    = 'a'; // 全部表示
 // }}}
 // {{{ パーミッションの設定
 
-$_conf['data_dir_perm'] =   0707;   // データ保存用ディレクトリ
-$_conf['dat_perm'] =        0606;   // datファイル
-$_conf['key_perm'] =        0606;   // key.idx ファイル
-$_conf['dl_perm'] =         0606;   // その他のp2が内部的にDL保存するファイル（キャッシュ等）
-$_conf['pass_perm'] =       0604;   // パスワードファイル
-$_conf['p2_perm'] =         0606;   // その他のp2の内部保存データファイル
-$_conf['palace_perm'] =     0606;   // 殿堂入り記録ファイル
-$_conf['favita_perm'] =     0606;   // お気に板記録ファイル
-$_conf['favlist_perm'] =    0606;   // お気にスレ記録ファイル
-$_conf['rct_perm'] =        0606;   // 最近読んだスレ記録ファイル
-$_conf['res_write_perm'] =  0606;   // 書き込み履歴記録ファイル
-$_conf['conf_user_perm'] =  0606;   // ユーザ設定ファイル
+$_conf['data_dir_perm']   = 0707;   // データ保存用ディレクトリ
+$_conf['dat_perm']        = 0606;   // datファイル
+$_conf['key_perm']        = 0606;   // key.idx ファイル
+$_conf['dl_perm']         = 0606;   // その他のp2が内部的にDL保存するファイル（キャッシュ等）
+$_conf['pass_perm']       = 0604;   // パスワードファイル
+$_conf['p2_perm']         = 0606;   // その他のp2の内部保存データファイル
+$_conf['palace_perm']     = 0606;   // 殿堂入り記録ファイル
+$_conf['favita_perm']     = 0606;   // お気に板記録ファイル
+$_conf['favlist_perm']    = 0606;   // お気にスレ記録ファイル
+$_conf['rct_perm']        = 0606;   // 最近読んだスレ記録ファイル
+$_conf['res_write_perm']  = 0606;   // 書き込み履歴記録ファイル
+$_conf['conf_user_perm']  = 0606;   // ユーザ設定ファイル
 
 // }}}
 

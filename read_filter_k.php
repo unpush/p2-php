@@ -16,10 +16,10 @@ $_login->authorize(); // ユーザ認証
 $host = geti($_GET['host']);
 $bbs  = geti($_GET['bbs']);
 $key  = geti($_GET['key']);
-$ttitle = base64_decode(geti($_GET['ttitle_en']));
+$ttitle_hc = P2Util::htmlEntityDecodeLite(base64_decode(geti($_GET['ttitle_en'])));
 $ttitle_back_ht = isset($_SERVER['HTTP_REFERER'])
-    ? '<a href="' . hs($_SERVER['HTTP_REFERER']) . '" title="戻る">' . hs($ttitle) . '</a>'
-    : hs($ttitle);
+    ? '<a href="' . hs($_SERVER['HTTP_REFERER']) . '" title="戻る">' . hs($ttitle_hc) . '</a>'
+    : hs($ttitle_hc);
 
 if (P2Validate::host($host) || P2Validate::bbs($bbs) || P2Validate::key($key)) {
     p2die('不正な引数です');

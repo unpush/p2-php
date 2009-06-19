@@ -196,21 +196,6 @@ class ThreadRead extends Thread
     }
     
     /**
-     * @access  private
-     * @return  string
-     */
-    function getP2UA($withMonazilla = true)
-    {
-        global $_conf;
-        
-        $p2ua = $_conf['p2uaname'] . '/' . $_conf['p2version'];
-        if ($withMonazilla) {
-            $p2ua = 'Monazilla/1.00' . ' (' . $p2ua . ')';
-        }
-        return $p2ua;
-    }
-    
-    /**
      * 標準方法で 2ch互換 DAT を差分ダウンロードする
      *
      * @access  private
@@ -260,7 +245,7 @@ class ThreadRead extends Thread
         //$request .= "Accept-Charset: Shift_JIS\r\n";
         //$request .= "Accept-Encoding: gzip, deflate\r\n";
         $request .= "Accept-Language: ja, en\r\n";
-        $request .= "User-Agent: " . $this->getP2UA($withMonazilla = true) . "\r\n";
+        $request .= "User-Agent: " . P2Util::getP2UA($withMonazilla = true) . "\r\n";
         if (!$zero_read) {
             $request .= "Range: bytes={$from_bytes}-\r\n";
         }
@@ -496,7 +481,7 @@ class ThreadRead extends Thread
             return false;
         }
         
-        $p2ua = sprintf('%s (%s)', $uaMona, $this->getP2UA($withMonazilla = false));
+        $p2ua = sprintf('%s (%s)', $uaMona, P2Util::getP2UA($withMonazilla = false));
         
         //  GET /test/offlaw.cgi?bbs=板名&key=スレッド番号&sid=セッションID HTTP/1.1
         $SID2ch = urlencode($SID2ch);
@@ -524,7 +509,7 @@ class ThreadRead extends Thread
         $request .= "Accept-Encoding: gzip, deflate" . "\r\n";
         //$request .= "Accept-Language: ja, en" . "\r\n";
         $request .= "User-Agent: " . $p2ua . "\r\n";
-        //$request .= 'X-2ch-UA: ' . $this->getP2UA($withMonazilla = false) . "\r\n";
+        //$request .= 'X-2ch-UA: ' . P2Util::getP2UA($withMonazilla = false) . "\r\n";
         //$request .= "Range: bytes={$from_bytes}-" . "\r\n";
         $request .= "Connection: Close" . "\r\n";
         /*
@@ -785,7 +770,7 @@ class ThreadRead extends Thread
     
         $request = 'GET ' . $send_path . " HTTP/1.0\r\n";
         $request .= "Host: " . $purl['host'] . "\r\n";
-        $request .= "User-Agent: " . $this->getP2UA($withMonazilla = true) . "\r\n";
+        $request .= "User-Agent: " . P2Util::getP2UA($withMonazilla = true) . "\r\n";
         $request .= "Connection: Close\r\n";
         //$request .= "Accept-Encoding: gzip\r\n";
         /*
@@ -984,7 +969,7 @@ class ThreadRead extends Thread
             require_once P2_LIB_DIR . '/wap.class.php';
             $wap_ua = new WapUserAgent;
             // ここは、"Monazilla/" をつけるとNG
-            $wap_ua->setAgent($this->getP2UA($withMonazilla = false));
+            $wap_ua->setAgent(P2Util::getP2UA($withMonazilla = false));
             $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
             $wap_req = new WapRequest;
             $wap_req->setUrl($read_url);
@@ -1246,7 +1231,7 @@ class ThreadRead extends Thread
     
             $request = 'GET ' . $send_path . " HTTP/1.0\r\n";
             $request .= "Host: " . $purl['host'] . "\r\n";
-            $request .= 'User-Agent: ' . $this->getP2UA($withMonazilla = true) . "\r\n";
+            $request .= 'User-Agent: ' . P2Util::getP2UA($withMonazilla = true) . "\r\n";
             // $request .= "Range: bytes={$from_bytes}-\r\n";
     
             // Basic認証用のヘッダ

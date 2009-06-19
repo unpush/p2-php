@@ -105,7 +105,7 @@ class SubjectTxt
     {
         global $_conf;
 
-        static $spendDlTime_ = 0; // DL所要合計時間
+        static $spentDlTime_ = 0; // DL所要合計時間
         
         $perm = isset($_conf['dl_perm']) ? $_conf['dl_perm'] : 0606;
 
@@ -117,7 +117,12 @@ class SubjectTxt
             if (file_exists($this->subject_file)) {
             
                 // ファイルキャッシュがあれば、DL制限時間をかける
-                if ($_conf['dlSubjectTotalLimitTime'] and $spendDlTime_ > $_conf['dlSubjectTotalLimitTime']) {
+                if (UA::isK()) {
+                    $dlSubjectTotalLimitTime = $_conf['dlSubjectTotalLimitTimeM'];
+                } else {
+                    $dlSubjectTotalLimitTime = $_conf['dlSubjectTotalLimitTime'];
+                }
+                if ($dlSubjectTotalLimitTime and $spentDlTime_ > $dlSubjectTotalLimitTime) {
                     return null;
                 }
                 
@@ -127,6 +132,10 @@ class SubjectTxt
                     
                     // キャッシュ適用指定時は、その場で抜ける
                     if (!empty($_GET['norefresh']) || isset($_REQUEST['word'])) {
+                        return null;
+                        
+                    // 並列ダウンロード済の場合も抜ける
+                    } elseif (!empty($GLOBALS['expack.subject.multi-threaded-download.done'])) {
                         return null;
                         
                     // 新規スレ立て時以外で、キャッシュが新鮮な場合も抜ける
@@ -200,7 +209,7 @@ class SubjectTxt
 
         $dlEndTime = $this->microtimeFloat();
         $dlTime = $dlEndTime - $dlStartTime;
-        $spendDlTime_ += $dlTime;
+        $spentDlTime_ += $dlTime;
 
         // DL成功して かつ 更新されていたら
         if ($body && $code != '304') {
@@ -316,3 +325,14 @@ class SubjectTxt
        return ((float)$usec + (float)$sec);
     }
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

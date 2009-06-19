@@ -521,7 +521,7 @@ function _csrangeform($default = '', &$aThread)
 	    }
 	    $ito = $i + $_conf['k_rnum_range'] -1;
 	    if ($ito <= $aThread->gotnum) {
-	        $offline_range_q = $offline_q;
+	        $offline_range_q = '&amp;offline=1';
 	    }
 	    $form .= "<option value=\"{$i}-{$ito}\">{$i}-</option>";
 	}

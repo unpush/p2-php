@@ -35,7 +35,7 @@ _clearResHistLogByQuery();
 
 // {{{ ホストの同期用設定
 
-if (!isset($rh_idx))     { $rh_idx     = $_conf['pref_dir'] . '/p2_res_hist.idx'; }
+if (!isset($rh_idx))     { $rh_idx     = $_conf['res_hist_idx']; }
 if (!isset($palace_idx)) { $palace_idx = $_conf['pref_dir'] . '/p2_palace.idx'; }
 
 $synctitle = array(

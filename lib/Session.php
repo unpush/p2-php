@@ -40,14 +40,17 @@ class Session
      *
      * コンストラクタの時点で、PHPの標準セッションがスタートする
      */
-    function Session($session_name = NULL, $session_id = NULL)
+    function Session()
     {
         $this->setCookieHttpOnly();
         
         session_cache_limiter('none'); // キャッシュ制御なし
         
+        /*
+        引数として $session_name = null, $session_id = null
         if ($session_name) { session_name($session_name); }
         if ($session_id)   { session_id($session_id); }
+        */
         
         !session_id() and session_start();
         
@@ -96,16 +99,20 @@ class Session
     function outputAddRewirteSID()
     {
         global $_conf;
-        
+
         $session_name = session_name();
+        
+        $r = true;
+        
         if (
             !ini_get('session.use_trans_sid')
             and session_id() && !isset($_COOKIE[$session_name])
             || !empty($_conf['disable_cookie'])
         ) {
-            return output_add_rewrite_var($session_name, session_id());
+            $r = output_add_rewrite_var($session_name, session_id());
         }
-        return true;
+
+        return $r;
     }
     
     /**

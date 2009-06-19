@@ -326,10 +326,9 @@ function _recResHist($host, $bbs, $key, $tagCsv, $ttitle)
         return;
     }
     
-    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
-    FileCtl::make_datafile($rh_idx, $_conf['res_write_perm']);
+    FileCtl::make_datafile($_conf['res_hist_idx'], $_conf['res_write_perm']);
     
-    $lines = file($rh_idx);
+    $lines = file($_conf['res_hist_idx']);
     $neolines = array();
     
     // ç≈èâÇ…èdï°óvëfÇçÌèúÇµÇƒÇ®Ç≠
@@ -357,7 +356,7 @@ function _recResHist($host, $bbs, $key, $tagCsv, $ttitle)
             $cont .= $l . "\n";
         }
         
-        if (false === FileCtl::filePutRename($rh_idx, $cont)) {
+        if (false === FileCtl::filePutRename($_conf['res_hist_idx'], $cont)) {
             $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
             trigger_error($errmsg, E_USER_WARNING);
             //return false;
@@ -552,7 +551,9 @@ function _cachePathForCookieByHost($host)
 {
     global $_conf;
 
-    $cachefile = $_conf['cookie_dir'] . "/" . P2Util::escapeDirPath($host) . "/" . $_conf['cookie_file_name'];
+    $cachefile = $_conf['cookie_dir'] 
+               . DIRECTORY_SEPARATOR . P2Util::escapeDirPath($host) 
+               . DIRECTORY_SEPARATOR . $_conf['cookie_file_name'];
 
     FileCtl::mkdirFor($cachefile);
     

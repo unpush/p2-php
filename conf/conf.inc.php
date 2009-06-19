@@ -6,7 +6,7 @@
     ユーザ設定は、ブラウザから「ユーザ設定編集」で。管理者向け設定は、conf_admin.inc.phpで行う。
 */
 
-$_conf['p2version'] = '1.8.52'; // rep2のバージョン
+$_conf['p2version'] = '1.8.53'; // rep2のバージョン
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 
@@ -57,19 +57,13 @@ if (function_exists('date_default_timezone_set')) {
     @putenv('TZ=JST-9'); 
 }
 
-// メモリ制限値の下限設定値(M)
-$least_memory_limit_m = 32;
-if (preg_match('/^(\\d+)M$/', ini_get('memory_limit'), $m)) {
-    if ($m[1] < $least_memory_limit_m) {
-        ini_set('memory_limit', $least_memory_limit_m . 'M');
-    }
-}
+// メモリ制限値の下限設定(M)
+// 設定値が指定値未満なら指定値に引き上げて設定する
+_setMemoryLimit(32);
 
-// スクリプトの実行時間制限の下限設定値(秒)
-$least_time_limit = 60;
-if ($t = ini_get('max_execution_time') and 0 < $t && $t < $least_time_limit) {
-    !ini_get('safe_mode') and set_time_limit($least_time_limit);
-}
+// スクリプトの実行時間制限の下限設定(秒)
+// 設定値が指定秒未満なら指定秒に引き上げて設定する
+_setTimeLimit(60);
 
 // 自動フラッシュをオフにする
 ob_implicit_flush(0);
@@ -320,13 +314,8 @@ $_conf = array_merge($_conf, $conf_user_def);
 // ユーザ設定があれば読み込む
 $_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.srd.cgi';
 
-// 2006-02-27 旧形式ファイルをコピー
-$conf_user_file_old = $_conf['pref_dir'] . '/conf_user.inc.php';
-if (!file_exists($_conf['conf_user_file']) && file_exists($conf_user_file_old)) {
-    $old_cont = DataPhp::getDataPhpCont($conf_user_file_old);
-    FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
-    file_put_contents($_conf['conf_user_file'], $old_cont);
-}
+// 2006-02-27 旧形式ファイルがあれば変換してコピー
+_copyOldConfUserFileIfExists();
 
 $conf_user = array();
 if (file_exists($_conf['conf_user_file'])) {
@@ -430,6 +419,10 @@ if ($_conf['output_callback']) {
 //======================================================================
 // 最近読んだスレ
 $_conf['recent_file']           = $_conf['pref_dir'] . '/p2_recent.idx';
+// 互換用
+$_conf['recent_idx'] = $_conf['recent_file'];
+
+$_conf['res_hist_idx']      = $_conf['pref_dir'] . '/p2_res_hist.idx';      // 書き込みログ (idx)
 
 // 書き込みログファイル（dat）
 $_conf['p2_res_hist_dat']       = $_conf['pref_dir'] . '/p2_res_hist.dat';
@@ -441,7 +434,11 @@ $_conf['p2_res_hist_dat_php']   = $_conf['pref_dir'] . '/p2_res_hist.dat.php';
 $_conf['p2_res_hist_dat_secu']  = $_conf['pref_dir'] . '/p2_res_hist.secu.cgi';
 
 $_conf['cookie_dir']            = $_conf['pref_dir'] . '/p2_cookie'; // cookie 保存ディレクトリ
+
 $_conf['favlist_file']          = $_conf['pref_dir'] . '/p2_favlist.idx';
+// 互換用
+$_conf['favlist_idx'] = $_conf['favlist_file'];
+
 $_conf['palace_file']           = $_conf['pref_dir'] . '/p2_palace.idx';
 $_conf['favita_path']           = $_conf['pref_dir'] . '/p2_favita.brd';
 $_conf['idpw2ch_php']           = $_conf['pref_dir'] . '/p2_idpw2ch.php';
@@ -459,6 +456,19 @@ define('P2_PREF_DIR_REAL_PATH', File_Util::realPath($_conf['pref_dir']));
 $_conf['matome_cache_path'] = P2_PREF_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'matome_cache';
 $_conf['matome_cache_ext'] = '.htm';
 $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
+
+// 補正
+if (
+    version_compare(phpversion(), '5.0.0', '<')
+    or $_conf['expack.use_pecl_http'] && !extension_loaded('http')
+) {
+    //if (!($_conf['expack.use_pecl_http'] == 2 && $_conf['expack.dl_pecl_http'])) {
+        $_conf['expack.use_pecl_http'] = 0;
+    //}
+} elseif ($_conf['expack.use_pecl_http'] == 3 && UA::isK()) {
+    $_conf['expack.use_pecl_http'] = 1;
+}
+
 
 // {{{ ありえない引数のエラー
 
@@ -545,6 +555,36 @@ function printMemoryUsage()
     $kb = number_format($kb, 2, '.', '');
     
     echo 'Memory Usage: ' . $kb . 'KB';
+}
+
+/**
+ * メモリ制限値の下限設定(M)
+ * 設定値が指定値未満なら指定値に引き上げて設定する
+ *
+ * @return  void
+ */
+function _setMemoryLimit($least_memory_limit_m = 32)
+{
+    if (preg_match('/^(\\d+)M$/', ini_get('memory_limit'), $m)) {
+        if ($m[1] < $least_memory_limit_m) {
+            ini_set('memory_limit', $least_memory_limit_m . 'M');
+        }
+    }
+}
+
+/**
+ * スクリプトの実行時間制限の下限設定(秒)
+ * 設定値が指定秒未満なら指定秒に引き上げて設定する
+ *
+ * @return  void
+ */
+function _setTimeLimit($least_time_limit = 60)
+{
+    if ($t = ini_get('max_execution_time') and 0 < $t && $t < $least_time_limit) {
+        if (!ini_get('safe_mode')) {
+            set_time_limit($least_time_limit);
+        }
+    }
 }
 
 /**
@@ -745,6 +785,23 @@ function _convertEncodingAndSanitizePostGet()
         }
         mb_convert_variables('SJIS-win', 'UTF-8,eucJP-win,SJIS-win', $_GET);
         $_GET = array_map('nullfilterR', $_GET);
+    }
+}
+
+/**
+ * 2006-02-27 旧形式ファイルがあれば変換してコピー
+ *
+ * @return  void
+ */
+function _copyOldConfUserFileIfExists()
+{
+    global $_conf;
+    
+    $conf_user_file_old = $_conf['pref_dir'] . '/conf_user.inc.php';
+    if (!file_exists($_conf['conf_user_file']) && file_exists($conf_user_file_old)) {
+        $old_cont = DataPhp::getDataPhpCont($conf_user_file_old);
+        FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
+        file_put_contents($_conf['conf_user_file'], $old_cont);
     }
 }
 

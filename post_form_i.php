@@ -28,8 +28,11 @@ if (!$itaj = P2Util::getItaName($host, $bbs)) {
 }
 
 $ttitle_en  = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
-$ttitle     = strlen($ttitle_en) ? base64_decode($ttitle_en) : '';
-$ttitle_hs  = htmlspecialchars($ttitle, ENT_QUOTES);
+$ttitle_hs  = null;
+if (strlen($ttitle_en)) {
+    $ttitle_hs = hs(P2Util::htmlEntityDecodeLite(base64_decode($ttitle_en)));
+}
+
 
 if (P2Validate::host($host) || ($bbs) && P2Validate::bbs($bbs) || ($key) && P2Validate::key($key)) {
     p2die('不正な引数です');
@@ -42,6 +45,9 @@ $key_idx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
 require_once P2_LIB_DIR . '/post_options_loader.inc.php';
 
 // 表示指定
+$class_ttitle = '';
+$target_read  = '';
+$sub_size_at  = '';
 if (!$_conf['ktai']) {
     $class_ttitle = ' class="thre_title"';
     $target_read = ' target="read"';
@@ -78,8 +84,17 @@ EOP;
     $ptitle = "レス書き込み";
     $submit_value = "書き込む";
 
+    $uri = P2Util::buildQueryUri($_conf['read_php'],
+        array(
+            'host' => $host,
+            'bbs'  => $bbs,
+            'key'  => $key,
+            UA::getQueryKey() => UA::getQueryValue()
+        )
+    );
+    $html = $ttitle_hs ? $ttitle_hs : hs($uri);
     $htm['resform_ttitle'] = <<<EOP
-<p><a id="backButton" class="button" href="{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}{$_conf['k_at_a']}"{$target_read}>{$ttitle_hs}</a></p>
+<p><a id="backButton" class="button" href="{$uri_hs}"{$target_read}>{$html}</a></p>
 EOP;
     $newthread_hidden_ht = '';
 }
@@ -121,7 +136,7 @@ if (!$_conf['ktai']) {
     include_once './style/post_css.inc';
     ?>
     <script type="text/javascript" src="js/basic.js?v=20090429"></script>
-    <script type="text/javascript" src="js/post_form.js?v=20061209"></script>
+    <script type="text/javascript" src="js/post_form.js?v=20081205"></script>
     <?php
 }
 echo <<<EOP

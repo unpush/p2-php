@@ -5,15 +5,14 @@ require_once P2_LIB_DIR . '/FileCtl.php';
 
 /**
  * チャットちゃんねる cha2.net の dat を読んで保存する関数
- * ※差分取得には未対応。2ch互換として読み込んでいるので現在この関数は利用はしていない。
+ * （差分取得には未対応）
+ * ※2ch互換として読み込んでいるので現在この関数は利用はしていない。@see TreadRead->downloadDat()
  *
  * @access  public
  * @return  boolean
  */
 function downloadDatCha2(&$ThreadRead)
 {
-    //$GLOBALS['cha2_latest_num'] = 0;
-
     // {{{ 既得datの取得レス数が適性かどうかを念のためチェック
     
     if (file_exists($ThreadRead->keydat)) {

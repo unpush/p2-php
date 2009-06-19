@@ -137,13 +137,11 @@ function checkResHist($host, $bbs, $key)
 {
     global $_conf;
     
-    $rh_idx = $_conf['pref_dir'] . "/p2_res_hist.idx";
-    
-    if (!file_exists($rh_idx)) {
+    if (!file_exists($_conf['res_hist_idx'])) {
         return false;
     }
     
-    $lines = file($rh_idx);
+    $lines = file($_conf['res_hist_idx']);
     if (is_array($lines)) {
         foreach ($lines as $l) {
             $l = rtrim($l);
@@ -228,13 +226,11 @@ function offResHist($host, $bbs, $key)
 {
     global $_conf;
     
-    $rh_idx = $_conf['pref_dir'] . '/p2_res_hist.idx';
-    
-    if (!file_exists($rh_idx)) {
+    if (!file_exists($_conf['res_hist_idx'])) {
         return 2;
     }
     
-    $lines = file($rh_idx);
+    $lines = file($_conf['res_hist_idx']);
     if ($lines === false) {
         return false;
     }
@@ -265,7 +261,7 @@ function offResHist($host, $bbs, $key)
             $cont .= $l . "\n";
         }
         
-        if (false === FileCtl::filePutRename($rh_idx, $cont)) {
+        if (false === FileCtl::filePutRename($_conf['res_hist_idx'], $cont)) {
             $errmsg = sprintf('p2 error: %s(), FileCtl::filePutRename() failed.', __FUNCTION__);
             trigger_error($errmsg, E_USER_WARNING);
             return false;

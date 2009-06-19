@@ -11,6 +11,21 @@ require_once P2_LIB_DIR . '/FileCtl.php';
 class P2Util
 {
     /**
+     * @access  public
+     * @return  string
+     */
+    function getP2UA($withMonazilla = true)
+    {
+        global $_conf;
+        
+        $p2ua = $_conf['p2uaname'] . '/' . $_conf['p2version'];
+        if ($withMonazilla) {
+            $p2ua = 'Monazilla/1.00' . ' (' . $p2ua . ')';
+        }
+        return $p2ua;
+    }
+    
+    /**
      * @return  string|null
      */
     function getSkinSetting()
@@ -56,6 +71,25 @@ class P2Util
     {
         if (array_key_exists('HTTP_X_JPHONE_UID', $_SERVER)) {
             return $_SERVER['HTTP_X_JPHONE_UID'];
+        }
+        return null;
+    }
+    
+    /**
+     * @access  public
+     * @return  string|null
+     */
+    function getSoftBankPcSiteBrowserSN()
+    {
+        // 2009/06/20 Net_UserAgent_Mobileはpcsitebrowserを検知しない
+        // Mozilla/4.08 (911T;SoftBank;SN354018011067091) NetFront/3.3
+        // http://creation.mb.softbank.jp/terminal/index.html
+        if (!isset($_SERVER['HTTP_USER_AGENT'])) {
+            return null;
+        }
+        // SNに使われる文字は未確認だけど
+        if (preg_match('{SoftBank;SN([0-9a-zA-Z]+)}', $_SERVER['HTTP_USER_AGENT'], $m)) {
+            return $m[1];
         }
         return null;
     }
@@ -420,7 +454,7 @@ class P2Util
      * ディレクトリに書き込み権限がなければ注意を表示セットする
      *
      * @access  public
-     * @return  void
+     * @return  void    P2Util::pushInfoHtml()
      */
     function checkDirWritable($aDir)
     {
@@ -561,20 +595,9 @@ class P2Util
      * @access  public
      * @return  string
      */
-    function datDirOfHost($host)
+    function datDirOfHost($host, $dir_sep = false)
     {
-        global $_conf;
-
-        // 2channel or bbspink
-        if (P2Util::isHost2chs($host)) {
-            $dat_host_dir = $_conf['dat_dir'] . '/2channel';
-        // machibbs.com
-        } elseif (P2Util::isHostMachiBbs($host)) {
-            $dat_host_dir = $_conf['dat_dir'] . '/machibbs.com';
-        } else {
-            $dat_host_dir = $_conf['dat_dir'] . '/' . P2Util::escapeDirPath($host);
-        }
-        return $dat_host_dir;
+        return self::_p2DirOfHost($GLOBALS['_conf']['dat_dir'], $host, $dir_sep);
     }
     
     /**
@@ -583,22 +606,132 @@ class P2Util
      * @access  public
      * @return  string
      */
-    function idxDirOfHost($host)
+    function idxDirOfHost($host, $dir_sep = false)
     {
-        global $_conf;
+        return self::_p2DirOfHost($GLOBALS['_conf']['idx_dir'], $host, $dir_sep);
+    }
+    
+    // {{{ _p2DirOfHost()
+
+    /**
+     * hostからrep2の各種データ保存ディレクトリを返す
+     *
+     * @access  private
+     * @param   string  $base_dir
+     * @param   string  $host
+     * @param   bool    $dir_sep
+     * @return  string
+     */
+    function _p2DirOfHost($base_dir, $host, $dir_sep = true)
+    {
+        static $hostDirs_ = array();
+        
+        $key = $base_dir . DIRECTORY_SEPARATOR . $host;
+        if (array_key_exists($key, $hostDirs_)) {
+            if ($dir_sep) {
+                return $hostDirs_[$key] . DIRECTORY_SEPARATOR;
+            }
+            return $hostDirs_[$key];
+        }
+
+        $host = P2Util::normalizeHostName($host);
 
         // 2channel or bbspink
         if (P2Util::isHost2chs($host)) {
-            $idx_host_dir = $_conf['idx_dir'] . '/2channel';
-        // machibbs.com
-        } elseif (P2Util::isHostMachiBbs($host)){
-            $idx_host_dir = $_conf['idx_dir'] . '/machibbs.com';
-        } else {
-            $idx_host_dir = $_conf['idx_dir'] . '/' . P2Util::escapeDirPath($host);
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . '2channel';
 
+        // machibbs.com
+        } elseif (P2Util::isHostMachiBbs($host)) {
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . 'machibbs.com';
+
+        // jbbs.livedoor.jp (livedoor レンタル掲示板)
+        } elseif (P2Util::isHostJbbsShitaraba($host)) {
+            /*
+            if (DIRECTORY_SEPARATOR == '/') {
+                $host_dir = $base_dir . DIRECTORY_SEPARATOR . $host;
+            } else {
+                $host_dir = $base_dir . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
+            }
+            */
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . P2Util::escapeDirPath($host);
+
+        // livedoor レンタル掲示板以外でスラッシュ等の文字を含むとき
+        } elseif (preg_match('/[^0-9A-Za-z.\\-_]/', $host)) {
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . P2Util::escapeDirPath($host);
+            /*
+            if (DIRECTORY_SEPARATOR == '/') {
+                $old_host_dir = $base_dir . DIRECTORY_SEPARATOR . $host;
+            } else {
+                $old_host_dir = $base_dir . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
+            }
+            if (is_dir($old_host_dir)) {
+                rename($old_host_dir, $host_dir);
+                clearstatcache();
+            }
+            */
+
+        // その他
+        } else {
+            $host_dir = $base_dir . DIRECTORY_SEPARATOR . P2Util::escapeDirPath($host);
         }
-        return $idx_host_dir;
+
+        // キャッシュする
+        $hostDirs_[$key] = $host_dir;
+
+        // ディレクトリ区切り文字を追加
+        if ($dir_sep) {
+            $host_dir .= DIRECTORY_SEPARATOR;
+        }
+
+        return $host_dir;
     }
+
+    // }}}
+    // {{{ datDirOfHostBbs()
+
+    /**
+     * host,bbsからdatの保存ディレクトリを返す
+     * デフォルトでディレクトリ区切り文字を追加する
+     *
+     * @access  public
+     * @param string $host
+     * @param string $bbs
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::_p2DirOfHost()
+     */
+    function datDirOfHostBbs($host, $bbs, $dir_sep = true)
+    {
+        $dir = P2Util::_p2DirOfHost($GLOBALS['_conf']['dat_dir'], $host) . $bbs;
+        if ($dir_sep) {
+            $dir .= DIRECTORY_SEPARATOR;
+        }
+        return $dir;
+    }
+
+    // {{{ idxDirOfHostBbs()
+
+    /**
+     * host,bbsからidxの保存ディレクトリを返す
+     * デフォルトでディレクトリ区切り文字を追加する
+     *
+     * @access  public
+     * @param string $host
+     * @param string $bbs
+     * @param bool $dir_sep
+     * @return string
+     * @see P2Util::_p2DirOfHost()
+     */
+    function idxDirOfHostBbs($host, $bbs, $dir_sep = true)
+    {
+        $dir = P2Util::_p2DirOfHost($GLOBALS['_conf']['idx_dir'], $host) . $bbs;
+        if ($dir_sep) {
+            $dir .= DIRECTORY_SEPARATOR;
+        }
+        return $dir;
+    }
+
+    // }}}
     
     /**
      * @access  public
@@ -606,7 +739,18 @@ class P2Util
      */
     function getKeyIdxFilePath($host, $bbs, $key)
     {
-        return P2Util::idxDirOfHost($host) . '/' . $bbs . '/' . $key . '.idx';
+        return P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
+    }
+    
+    /**
+     * hostからsrdの保存ディレクトリを返す
+     *
+     * @access  public
+     * @return  string
+     */
+    function srdDirOfHost($host)
+    {
+		return self::_p2DirOfHost($GLOBALS['_conf']['srd_dir'], $host, $dir_sep);
     }
     
     /**
@@ -759,7 +903,27 @@ class P2Util
         
         return $url_r;
     }
+    
+    // {{{ normalizeHostName()
 
+    /**
+     * hostを正規化する
+     *
+     * @access  public
+     * @param   string  $host
+     * @return  string
+     */
+    function normalizeHostName($host)
+    {
+        $host = trim($host, '/');
+        if (false !== $sp = strpos($host, '/')) {
+            return strtolower(substr($host, 0, $sp)) . substr($host, $sp);
+        }
+        return strtolower($host);
+    }
+
+    // }}}
+    
     /**
      * host が こっそりアンケート http://find.2ch.net/enq/ なら true を返す
      *
@@ -800,7 +964,7 @@ class P2Util
     function isHost2chs($host)
     {
         // find.2ch.net（こっそりアンケート）は除く
-        if (preg_match('{^find\\.2ch\\.net}', $host)) {
+        if (P2Util::isHostFind2ch($host)) {
             return false;
         }
         return (bool)preg_match('/\\.(2ch\\.net|bbspink\\.com)$/', $host);
@@ -1159,7 +1323,7 @@ class P2Util
      * @access  public
      * @return  boolean
      */
-    function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = '')
+    function saveIdPw2ch($login2chID, $login2chPW, $autoLogin2ch = 0)
     {
         global $_conf;
         
