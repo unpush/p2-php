@@ -44,20 +44,22 @@ class ShowBrdMenuPc
                 foreach ($cate->menuitas as $mita) {
                     
                     $add_uri = P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'], array(
-                        'host'    => $mita->host,
-                        'bbs'     => $mita->bbs,
-                        'itaj_en' => $mita->itaj_en,
-                        'setfavita'  => '1',
-                        'csrfid'  => $csrfid
+                        'host'      => $mita->host,
+                        'bbs'       => $mita->bbs,
+                        'itaj_en'   => $mita->itaj_en,
+                        'setfavita' => '1',
+                        'csrfid'    => $csrfid
                     ));
-                    $add_atag = P2View::tagA($add_uri, '+', array('target' => '_self', 'class' => 'fav'));
+                    $add_atag = P2View::tagA($add_uri, '+', array(
+                        'target' => '_self', 'class' => 'fav', 'title' => '‚¨‹C‚É”Â‚É’Ç‰Á'
+                    ));
                     
                     $subject_uri = P2Util::buildQueryUri($_conf['subject_php'], array(
                         'host'    => $mita->host,
                         'bbs'     => $mita->bbs,
                         'itaj_en' => $mita->itaj_en
                     ));
-                    $subject_atag = P2View::tagA($subject_uri, $mita->itaj_ht);
+                    $subject_atag = P2View::tagA($subject_uri, $mita->itaj_ht, array('title' => '”Â‚ðŠJ‚­'));
                     
                     echo "        $add_atag $subject_atag<br>\n";
                 }
@@ -122,9 +124,6 @@ EOP;
         foreach ($favitas as $favita) {
             extract($favita); // $host, $bbs, $itaj
 
-            $host = $matches[1];
-            $bbs  = $matches[2];
-            $itaj = rtrim($matches[3]);
             $itaj_en = base64_encode($itaj);
             
             $uri = P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'], array(
