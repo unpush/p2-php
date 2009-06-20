@@ -154,7 +154,7 @@ function offHtmlPopUp()
 	}
 }
 
-/**
+/*
  * Local Variables:
  * mode: javascript
  * coding: cp932

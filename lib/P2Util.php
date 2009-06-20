@@ -1343,13 +1343,59 @@ ERR;
     /**
      * トリップを生成する
      */
-    static public function mkTrip($key, $length = 10)
+    static public function mkTrip($key)
     {
-        $salt = substr($key . 'H.', 1, 2);
+        if (strlen($key) < 12) {
+            //if (strlen($key) > 8) {
+            //    return self::mkTrip1(substr($key, 0, 8));
+            //} else {
+                return self::mkTrip1($key);
+            //}
+        }
+
+        switch (substr($key, 0, 1)) {
+            case '$';
+                return '???';
+
+            case '#':
+                if (preg_match('|^#([0-9A-Fa-f]{16})([./0-9A-Za-z]{0,2})$|', $key, $matches)) {
+                    return self::mkTrip1(pack('H*', $matches[1]), $matches[2]);
+                } else {
+                    return '???';
+                }
+
+            default:
+                return self::mkTrip2($key);
+        }
+    }
+
+    // }}}
+    // {{{ mkTrip1()
+
+    /**
+     * 旧方式トリップを生成する
+     */
+    static public function mkTrip1($key, $length = 10, $salt = null)
+    {
+        if (is_null($salt)) {
+            $salt = substr($key . 'H.', 1, 2);
+        } else {
+            $salt = substr($salt . '..', 0, 2);
+        }
         $salt = preg_replace('/[^\.-z]/', '.', $salt);
         $salt = strtr($salt, ':;<=>?@[\\]^_`', 'ABCDEFGabcdef');
-
         return substr(crypt($key, $salt), -$length);
+    }
+
+    // }}}
+    // {{{ mkTrip2()
+
+    /**
+     * 新方式トリップを生成する
+     */
+    static public function mkTrip2($key)
+    {
+        return str_replace('+', '.', substr(base64_encode(sha1($key, true)), 0, 12));
     }
 
     // }}}

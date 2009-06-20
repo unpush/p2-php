@@ -387,7 +387,7 @@ function escapeHTML(cont)
 	return document.createElement('div').appendChild(document.createTextNode(cont)).parentNode.innerHTML;
 }
 
-/**
+/*
  * Local Variables:
  * mode: javascript
  * coding: cp932

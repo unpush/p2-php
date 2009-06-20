@@ -132,34 +132,20 @@ if ($spmode == 'merge_favita') {
 $ptitle_hd = htmlspecialchars($aThreadList->ptitle, ENT_QUOTES);
 $ptitle_ht = "{$ptitle_hd} ÇÃ êVíÖÇ‹Ç∆Çﬂì«Ç›";
 
-if ($_conf['iphone']) {
-    if ($_conf['client_type'] == 'i') {
-        $holdhandlers_at = ' ontouchstart="iutil.hold.onTouchStart(event, this)"'
-                         . ' ontouchmove="iutil.hold.onTouchMove(event)"'
-                         . ' onclick="iutil.hold.onClick(event)"';
-    } else {
-        $holdhandlers_at = ' onmousedown="iutil.hold.onTouchStart(event, this)"'
-                         . ' ondrag="iutil.hold.onTouchMove(event)"'
-                         . ' onclick="iutil.hold.onClick(event)"';
-    }
-} else {
-    $holdhandlers_at = '';
-}
-
 // &amp;sb_view={$sb_view}
 if ($aThreadList->spmode) {
     $sb_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}"{$holdhandlers_at}>{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}" target="_blank">{$ptitle_hd}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}{$holdhandlers_at}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}&amp;spmode={$aThreadList->spmode}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']} target="_blank">{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
 EOP;
 } else {
     $sb_ht = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}"{$holdhandlers_at}>{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}" target="_blank">{$ptitle_hd}</a>
 EOP;
     $sb_ht_btm = <<<EOP
-<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']}{$holdhandlers_at}>{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
+<a href="{$_conf['subject_php']}?host={$aThreadList->host}&amp;bbs={$aThreadList->bbs}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['up']} target="_blank">{$_conf['k_accesskey_st']['up']}{$ptitle_hd}</a>
 EOP;
 }
 
@@ -390,7 +376,6 @@ function readNew($aThread)
 {
     global $_conf, $newthre_num, $STYLE;
     global $_info_msg_ht, $spmode, $word;
-    global $holdhandlers_at;
 
     $newthre_num++;
 
@@ -553,8 +538,8 @@ EOTOOLBAR;
     $read_footer_ht = <<<EOP
 <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_toolbar">
 {$read_range_ht}
-<a class="button" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}"{$holdhandlers_at}>{$info_st}</a>
-<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}"{$holdhandlers_at}>ì¡</a>
+<a class="button" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}" target="_blank">{$info_st}</a>
+<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}" target="_blank">ì¡</a>
 <br>
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}" target="_blank">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
 <a class="button" href="#ntt{$newthre_num}">Å£</a>
