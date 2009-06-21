@@ -35,11 +35,11 @@ $_conf['expack.ic2.general.error_log_num'] = 100;
 // 画像のURLが貼られたスレッドのタイトルを自動で記録する (off:0;on:1)
 $_conf['expack.ic2.general.automemo'] = 1;
 
-// 画像を処理するプログラム (gd | imlib2 | imagick | ImageMagick | ImageMagick6)
-// gd, imlib2, imagick は PHP の拡張モジュールを利用、ImageMagick(6) は外部コマンドを利用
-// TODO:
-// - magickwand をサポートする
-//   http://www.imagemagick.org/download/php/
+// 画像を処理するプログラム (gd | imagick | ImageMagick)
+// gd, imagick は PHP の拡張モジュールを利用、ImageMagick は外部コマンドを利用
+// ImageMagickのバージョンを自動判定するようになったので
+// 明示的に"ImageMagick6"を指定しなくてもよい
+// imlib2, magickwand は非推奨
 $_conf['expack.ic2.general.driver'] = "gd";
 
 // JPEG to JPEG 変換に Epeg エクステンションを使う (off:0;on:1)
