@@ -33,7 +33,7 @@
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    CVS: $Id: Common.php,v 1.33 2009/05/12 17:48:51 kuboa Exp $
+ * @version    CVS: $Id: Common.php,v 1.1 2009/05/26 08:48:16 kuboa Exp $
  * @since      File available since Release 0.1
  */
 
@@ -53,7 +53,7 @@ require_once 'PEAR.php';
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2003-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    Release: 1.0.0RC3
+ * @version    Release: 1.0.0
  * @since      Class available since Release 0.1
  */
 class Net_UserAgent_Mobile_Common

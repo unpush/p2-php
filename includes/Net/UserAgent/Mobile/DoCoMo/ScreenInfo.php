@@ -33,7 +33,7 @@
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2008-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    CVS: $Id: ScreenInfo.php,v 1.7 2009/05/22 18:47:40 kuboa Exp $
+ * @version    CVS: $Id: ScreenInfo.php,v 1.2 2009/06/23 08:06:58 kuboa Exp $
  * @link       http://www.nttdocomo.co.jp/service/imode/make/content/spec/screen_area/index.html
  * @since      File available since Release 1.0.0RC1
  */
@@ -53,7 +53,7 @@ $GLOBALS['NET_USERAGENT_MOBILE_DoCoMo_ScreenInfo_Instance'] = null;
  * @author     KUBO Atsuhiro <kubo@iteman.jp>
  * @copyright  2008-2009 KUBO Atsuhiro <kubo@iteman.jp>
  * @license    http://www.opensource.org/licenses/bsd-license.php  New BSD License
- * @version    Release: 1.0.0RC3
+ * @version    Release: 1.0.0
  * @link       http://www.nttdocomo.co.jp/service/imode/make/content/spec/screen_area/index.html
  * @since      Class available since Release 1.0.0RC1
  */
@@ -1947,6 +1947,12 @@ class Net_UserAgent_Mobile_DoCoMo_ScreenInfo
                                        'depth'  => 262144,
                                        'color'  => 1
                                        ),
+                       'P10A' => array(
+                                       'width'  => 240,
+                                       'height' => 350,
+                                       'depth'  => 262144,
+                                       'color'  => 1
+                                       ),
                        'SH01A' => array(
                                         'width'  => 240,
                                         'height' => 320,
@@ -1991,24 +1997,72 @@ class Net_UserAgent_Mobile_DoCoMo_ScreenInfo
                                        ),
 
                        // i-mode browser 2.0
-                       'P07A' => array(
-                                       'width'  => 480,
-                                       'height' => 662,
-                                       'depth'  => 262144,
-                                       'color'  => 1
-                                       ),
-                       'N06A' => array(
-                                       'width'  => 480,
-                                       'height' => 640,
-                                       'depth'  => 262144,
-                                       'color'  => 1
-                                       ),
-                       'N08A' => array(
-                                       'width'  => 480,
-                                       'height' => 640,
-                                       'depth'  => 262144,
-                                       'color'  => 1
-                                       )
+                       'P07A3' => array(
+                                        'width'  => 480,
+                                        'height' => 662,
+                                        'depth'  => 262144,
+                                        'color'  => 1
+                                        ),
+                       'P08A3' => array(
+                                        'width'  => 480,
+                                        'height' => 662,
+                                        'depth'  => 262144,
+                                        'color'  => 1
+                                        ),
+                       'P09A3' => array(
+                                        'width'  => 480,
+                                        'height' => 662,
+                                        'depth'  => 262144,
+                                        'color'  => 1
+                                        ),
+                       'N06A3' => array(
+                                        'width'  => 480,
+                                        'height' => 640,
+                                        'depth'  => 262144,
+                                        'color'  => 1
+                                        ),
+                       'N08A3' => array(
+                                        'width'  => 480,
+                                        'height' => 640,
+                                        'depth'  => 262144,
+                                        'color'  => 1
+                                        ),
+                       'N09A3' => array(
+                                        'width'  => 480,
+                                        'height' => 640,
+                                        'depth'  => 262144,
+                                        'color'  => 1
+                                        ),
+                       'F08A3' => array(
+                                        'width'  => 480,
+                                        'height' => 648,
+                                        'depth'  => 262144,
+                                        'color'  => 1
+                                        ),
+                       'F09A3' => array(
+                                        'width'  => 480,
+                                        'height' => 648,
+                                        'depth'  => 16777216,
+                                        'color'  => 1
+                                        ),
+                       'SH05A3' => array(
+                                         'width'  => 480,
+                                         'height' => 592,
+                                         'depth'  => 16777216,
+                                         'color'  => 1
+                                         ),
+                       'SH06A3' => array(
+                                         'width'  => 480,
+                                         'height' => 592,
+                                         'depth'  => 16777216,
+                                         'color'  => 1
+                                         ),
+                       'SH07A3' => array(
+                                         'width'  => 480,
+                                         'height' => 592,
+                                         'depth'  => 16777216,
+                                         'color'  => 1
+                                         )
                        );
 
     /**#@-*/
