@@ -148,11 +148,13 @@ class FileCtl
      * ファイル全体を読み込んで配列に格納する
      * エラー抑制付きの @file() の代用
      *
+     * @static
+     * @access  public
      * @param string $filename
      * @param int $flags
      * @param resource $context
      */
-    static public function file_read_lines($filename, $flags = 0, $context = null)
+    function file_read_lines($filename, $flags = 0, $context = null)
     {
         if (!is_readable($filename)) {
             return false;
