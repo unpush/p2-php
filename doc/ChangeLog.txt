@@ -1,3 +1,10 @@
+2009/06/28
+	* rep2 version 1.8.55
+	
+	[修正] PHP4で動作しなかったのを修正した。（FileCtl.php）
+	[改良] スレッド内容表示下部にDAT容量の表示を追加した。
+	[更新] 同梱PEARのNet_UserAgent_Mobileを更新した。
+
 2009/06/20
 	* rep2 version 1.8.54
 
