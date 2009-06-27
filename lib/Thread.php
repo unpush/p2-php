@@ -301,8 +301,11 @@ class Thread
      * @access  public
      * @return  integer
      */
-    function getDatBytesFromLocalDat()
+    function getDatBytesFromLocalDat($update = true)
     {
+        if (!$update && $this->length) {
+            return $this->length;
+        }
         clearstatcache();
         return $this->length = intval(@filesize($this->keydat));
     }

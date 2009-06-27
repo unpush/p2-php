@@ -253,6 +253,12 @@ span.spd{
 	color:#777;
 }
 
+/* DAT—e—Ê */
+span.datsize{
+	font-size:8pt;
+	color:#777;
+}
+
 EOP;
 
 

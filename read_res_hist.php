@@ -60,9 +60,9 @@ if (!file_exists($_conf['p2_res_hist_dat'])) {
 }
 
 $res_hist_dat_size = filesize($_conf['p2_res_hist_dat']);
-$logSizeSt = _getReadableSize($res_hist_dat_size);
+$logSizeSt = P2Util::getTranslatedUnitFileSize($res_hist_dat_size);
 $maxLogSize = 0;//1024*1024*10;
-$maxLogSizeSt = _getReadableSize($maxLogSize);
+$maxLogSizeSt = P2Util::getTranslatedUnitFileSize($maxLogSize);
 if ($maxLogSize and $res_hist_dat_size > $maxLogSize) {
     P2Util::printSimpleHtml(
         sprintf(
@@ -240,25 +240,6 @@ exit;
 //===================================================================
 // 関数（このファイル内でのみ利用）
 //===================================================================
-/**
- * 容量の単位をバイト表示から変換して表示する
- *
- * @param   integer  $size
- * @return  string
- */
-function _getReadableSize($size)
-{
-   $units = array('B', 'KB', 'MB', 'GB', 'TB');
-   $k = 1024;
-   foreach ($units as $u) {
-       $unit = $u;
-       if ($size < $k) {
-           break;
-       }
-       $size = $size / $k;
-   }
-   return ceil($size) . '' . $unit;
-}
 
 /*
  * Local Variables:

@@ -11,6 +11,29 @@ require_once P2_LIB_DIR . '/FileCtl.php';
 class P2Util
 {
     /**
+     * 容量の単位をバイト表示から適宜変換して表示する
+     *
+     * @param   integer  $size  bytes
+     * @return  string
+     */
+    function getTranslatedUnitFileSize($size, $unit = null)
+    {
+        $units = array('B', 'KB', 'MB', 'GB', 'TB');
+        $k = 1024;
+        foreach ($units as $u) {
+            $reUnit = $u;
+            if ($reUnit == $unit) {
+                break;
+            }
+            if ($size < $k) {
+                break;
+            }
+            $size = $size / $k;
+        }
+        return ceil($size) . '' . $reUnit;
+    }
+    
+    /**
      * @access  public
      * @return  string
      */

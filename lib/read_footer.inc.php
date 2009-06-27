@@ -107,11 +107,14 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
     }
     
     // レスのすばやさ
-    $htm['spd'] = '';
+    $spd_ht = '';
     if ($spd_st = $aThread->getTimePerRes() and $spd_st != '-') {
-        $htm['spd'] = '<span class="spd" style="white-space: nowrap;" title="すばやさ＝時間/レス">' . "" . $spd_st."".'</span>';
+        $spd_ht = '<span class="spd" style="white-space: nowrap;" title="すばやさ＝時間/レス">' . $spd_st . '</span>';
     }
 
+    // DAT容量
+    $datsize_ht = sprintf('<span class="datsize" style="white-space: nowrap;" title="DAT容量">%s</span>', P2Util::getTranslatedUnitFileSize($aThread->getDatBytesFromLocalDat(false), 'KB'));
+    
     // {{{ フィルタヒットがあった場合、次Xと続きを読むを更新する
     
     if (!empty($GLOBALS['last_hit_resnum'])) {
@@ -156,7 +159,8 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
             {$goto_ht}
             | {$read_footer_navi_new_ht}
             | {$dores_html}
-            {$htm['spd']}
+            {$spd_ht}
+            {$datsize_ht}
         </td>
         <td align="right">
             {$p2frame_ht}
