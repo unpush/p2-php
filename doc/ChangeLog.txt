@@ -1,4 +1,9 @@
 2009/06/28
+	* rep2 version 1.8.56
+	
+	[修正] PHP4で動作しなかったのを修正した。（P2Util.php）
+
+2009/06/28
 	* rep2 version 1.8.55
 	
 	[修正] PHP4で動作しなかったのを修正した。（FileCtl.php）
