@@ -620,7 +620,7 @@ class P2Util
      */
     function datDirOfHost($host, $dir_sep = false)
     {
-        return self::_p2DirOfHost($GLOBALS['_conf']['dat_dir'], $host, $dir_sep);
+        return P2Util::_p2DirOfHost($GLOBALS['_conf']['dat_dir'], $host, $dir_sep);
     }
     
     /**
@@ -631,7 +631,7 @@ class P2Util
      */
     function idxDirOfHost($host, $dir_sep = false)
     {
-        return self::_p2DirOfHost($GLOBALS['_conf']['idx_dir'], $host, $dir_sep);
+        return P2Util::_p2DirOfHost($GLOBALS['_conf']['idx_dir'], $host, $dir_sep);
     }
     
     // {{{ _p2DirOfHost()
@@ -773,7 +773,7 @@ class P2Util
      */
     function srdDirOfHost($host)
     {
-		return self::_p2DirOfHost($GLOBALS['_conf']['srd_dir'], $host, $dir_sep);
+		return P2Util::_p2DirOfHost($GLOBALS['_conf']['srd_dir'], $host, $dir_sep);
     }
     
     /**
