@@ -117,14 +117,6 @@ class ShowThreadPc extends ShowThread
             $idstr = null;
         }
 
-        // +Wiki:置換ワード
-        global $replaceword;
-        if (isset($replaceword)) {
-            $name    = $replaceword->replace('name', $this->thread, $ares, $i);
-            $mail    = $replaceword->replace('mail', $this->thread, $ares, $i);
-            $date_id = $replaceword->replace('date', $this->thread, $ares, $i);
-            $msg     = $replaceword->replace('msg',  $this->thread, $ares, $i);
-        }
         // {{{ フィルタリング
         if (isset($_REQUEST['word']) && strlen($_REQUEST['word']) > 0) {
             if (strlen($GLOBALS['word_fm']) <= 0) {
@@ -155,86 +147,13 @@ class ShowThreadPc extends ShowThread
         if ($ng_type == self::ABORN) {
             return $this->_abornedRes($res_id);
         }
-
-        // あぼーんネーム
-        // +Wiki:置換ワード対策
-        if ($this->ngAbornCheck('aborn_name', strip_tags($resar[0])) !== false) {
-            $ngaborns_hits['aborn_name']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // あぼーんメール
-        // +Wiki:置換ワード対策
-        if ($this->ngAbornCheck('aborn_mail', $resar[1]) !== false) {
-            $ngaborns_hits['aborn_mal']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // あぼーんID
-        // +Wiki:置換ワード対策
-        if ($this->ngAbornCheck('aborn_id', $resar[2]) !== false) {
-            $ngaborns_hits['aborn_id']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // あぼーんメッセージ
-        // +Wiki:置換ワード対策
-        if ($this->ngAbornCheck('aborn_msg', $resar[3]) !== false) {
-            $ngaborns_hits['aborn_msg']++;
-            $this->_aborn_nums[] = $i;
-            return $this->_abornedRes($res_id);
-        }
-
-        // NGネームチェック
-        // +Wiki:strip_tagsが抜けている
-        // +Wiki:置換ワード対策
-        if ($this->ngAbornCheck('ng_name', strip_tags($resar[0])) !== false) {
-            $ngaborns_hits['ng_name']++;
-            $ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $isNgName = true;
-        }
-
-        // NGメールチェック
-        // +Wiki:置換ワード対策
-        if ($this->ngAbornCheck('ng_mail', $resar[1]) !== false) {
-            $ngaborns_hits['ng_mail']++;
-            $ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $isNgMail = true;
-        }
-
-        // NGIDチェック
-        // +Wiki:置換ワード対策
-        if ($this->ngAbornCheck('ng_id', $resar[2]) !== false) {
-            $ngaborns_hits['ng_id']++;
-            $ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $isNgId = true;
-        }
-
-        // NGメッセージチェック
-        // +Wiki:置換ワード対策
-        $a_ng_msg = $this->ngAbornCheck('ng_msg', $resar[3]);
-        if ($a_ng_msg !== false) {
-            $ngaborns_hits['ng_msg']++;
-            $ngaborns_body_hits++;
-            $this->_ng_nums[] = $i;
-            $isNgMsg = true;
-            $ng_msg_info[] = sprintf('NGワード：%s', htmlspecialchars($a_ng_msg, ENT_QUOTES));
-        }
         if ($ng_type != self::NG_NONE) {
             $ngaborns_head_hits = self::$_ngaborns_head_hits;
             $ngaborns_body_hits = self::$_ngaborns_body_hits;
         }
 
-
-        // AA 判定
-        // +Wiki:置換ワード対策
-        if ($this->am_autodetect && $this->activeMona->detectAA($resar[3])) {
+        // AA判定
+        if ($this->am_autodetect && $this->activeMona->detectAA($msg)) {
             $msg_class .= ' ActiveMona';
         }
 
