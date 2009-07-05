@@ -133,7 +133,7 @@ function DPSetName()
 		var tp = formval.indexOf('#');
 		if (tp != -1) {
 			newname = formval.substr(0, tp);
-			DBSetTrip(formval.substr(tp + 1, 8));
+			DPSetTrip(formval.substr(tp + 1));
 		} else {
 			newname = formval;
 			DPReplaceInnerText('dp_trip', '');
@@ -200,7 +200,7 @@ function DPSetDate()
 
 
 // XMLHttpRequestを用いてトリップを設定する
-function DBSetTrip(tk)
+function DPSetTrip(tk)
 {
 	if (!dpreview_on) {
 		return;
@@ -222,7 +222,7 @@ function DBSetTrip(tk)
 
 
 // XMLHttpRequestを用いてトリップを取得する
-function DBGetTrip(tk)
+function DPGetTrip(tk)
 {
 	var objHTTP = getXmlHttp();
 	if (!objHTTP) {

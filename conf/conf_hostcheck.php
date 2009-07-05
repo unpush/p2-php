@@ -16,7 +16,7 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     'localhost' => 1,
     // クラスA-Cのプライベートアドレス
     'private'   => 1,
-    // NTT DoCoMo iモード
+    // NTT docomo iモード
     'docomo'    => 0,
     // au EZweb
     'au'        => 0,

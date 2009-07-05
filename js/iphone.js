@@ -38,52 +38,6 @@ var iutil = {
 };
 
 // }}}
-// {{{ modifyInternalLink()
-
-/**
- * 内部リンクを長押しでアクションを選択するダイアログを開くように変更する
- *
- * 現在のところhold.bind()したリンクの挙動に不安定な点がある
- * (一定の条件を満たす(?)リンクが効かなくなる) ので未使用
- * ポップアップブロックの誤検出が原因か?
- *
- * @param {Node|String} contextNode
- * @return void
- */
-iutil.modifyInternalLink = function(contextNode) {
-	var anchors, anchor, re, i, l;
-
-	switch (typeof contextNode) {
-		case 'string':
-			contextNode = document.getElementById(contextNode);
-			break;
-		case 'undefined':
-			contextNode = document.body;
-			break;
-	}
-	if (!contextNode) {
-		return;
-	}
-
-	anchors = document.evaluate('.//a[@href and not(starts-with(@href, "#")'
-	                                         + ' or starts-with(@href, "https://")'
-	                                         + ' or starts-with(@href, "https://"))]',
-	                            contextNode, null,
-	                            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-	l = anchors.snapshotLength;
-	re = iutil.internalLinkPattern;
-
-	for (i = 0; i < l; i++) {
-		anchor = anchors.snapshotItem(i);
-		if (typeof anchor.onclick !== 'function') {
-			if (re.test(anchor.getAttribute('href'))) {
-				iutil.hold.bind(anchor);
-			}
-		}
-	}
-};
-
-// }}}
 // {{{ modifyExternalLink()
 
 /**
@@ -943,9 +897,8 @@ if (window.opera) {
 window.addEventListener('DOMContentLoaded', function(event) {
 	window.removeEventListener('DOMContentLoaded', arguments.callee, false);
 
-	if (typeof window.iphone_js_no_modification == 'undefined' || !window.iphone_js_no_modification) {
+	if (typeof window.iphone_js_no_modification === 'undefined' || !window.iphone_js_no_modification) {
 		// リンクにイベントハンドラを登録する
-		//iutil.modifyInternalLink(document.body);
 		iutil.modifyExternalLink(document.body);
 
 		// textareaの幅を調整
@@ -956,8 +909,10 @@ window.addEventListener('DOMContentLoaded', function(event) {
 	}
 
 	// ロケーションバーを隠す
-	if (typeof window.iui == 'undefined' && !window.location.hash.length) {
-		window.setTimeout(scrollTo, 50, 0, 1);
+	if (typeof window.iui !== 'undefined') {
+		window.scrollTo(0, 1);
+	} else if (!window.location.hash.length && iutil.getScrollX() < 1) {
+		window.scrollTo(0, 1);
 	}
 }, false);
 

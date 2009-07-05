@@ -16,7 +16,8 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     // {{{ properties
 
     protected $_imagemagick_convert = 'convert';
-    protected $_imagemagick_version6 = true;
+    protected $_imagemagick_version_gte6 = true;
+    protected $_imagemagick_have_flatten = true;
 
     // }}}
     // {{{ setImageMagickConvertPath()
@@ -30,22 +31,19 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     public function setImageMagickConvertPath($path)
     {
         if (is_file($path) && is_executable($path)) {
-            $this->_imagemagick_convert = escapeshellarg($path);
+            $convert = escapeshellarg($path);
+            $this->_imagemagick_convert = $convert;
+
+            $output = null;
+            @exec("$convert --version 2>&1", $output);
+            if ($output && preg_match('/Version: ImageMagick (([0-9.]+)-[0-9]+)/', $output[0], $v)) {
+                $this->_imagemagick_version_gte6 = version_compare($v[2], '6.0.0',   'ge');
+                $this->_imagemagick_have_flatten = version_compare($v[1], '6.3.6-2', 'ge');
+            } else {
+                $this->_imagemagick_version_gte6 = false;
+                $this->_imagemagick_have_flatten = false;
+            }
         }
-    }
-
-    // }}}
-    // {{{ setImageMagick6()
-
-    /**
-     * Sets wheter the avaliable ImageMagick's version is greater than 6.0 or not.
-     *
-     * @param bool $version6
-     * @return void
-     */
-    public function setImageMagick6($version6)
-    {
-        $this->_imagemagick_version6 = $version6;
     }
 
     // }}}
@@ -147,7 +145,9 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
         $command .= sprintf(' -size %dx%d', $w, $h);
 
         // 複数フレームからなる画像かもしれないとき
-        if (preg_match('/\.gif$/', $source)) {
+        if ($this->_imagemagick_have_flatten) {
+            $command .= ' -flatten';
+        } elseif (preg_match('/\\.gif$/', $source)) {
             $command .= ' +adjoin';
             $source .= '[0]';
         }
@@ -176,7 +176,7 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
         }
 
         // サムネイルのサイズを指定・メタデータは除去
-        if ($this->_imagemagick_version6) {
+        if ($this->_imagemagick_version_gte6) {
             if ($this->doesResampling()) {
                 $command .= sprintf(' -thumbnail %dx%d!', $tw, $th);
             } else {

@@ -33,7 +33,6 @@ class IC2_Thumbnailer
     public $driver;        // @var string  イメージドライバの種類
     public $epeg;          // @var bool    Epegが利用可能か否か
     public $magick;        // @var string  ImageMagickのパス
-    public $magick6;       // @var bool    ImageMagick6以上か否か
     public $max_width;     // @var int     サムネイルの最大幅
     public $max_height;    // @var int     サムネイルの最大高さ
     public $type;          // @var string  サムネイルの画像形式（JPEGかPNG）
@@ -112,11 +111,9 @@ class IC2_Thumbnailer
         // イメージドライバ判定
         $driver = strtolower($this->ini['General']['driver']);
         $this->driver = $driver;
-        $this->magick6 = false;
         switch ($driver) {
             case 'imagemagick6': // ImageMagick6 の convert コマンド
                 $this->driver = 'imagemagick';
-                $this->magick6 = true;
             case 'imagemagick': // ImageMagick の convert コマンド
                 $searchpath = $this->ini['General']['magick'];
                 if (!findexec('convert', $searchpath)) {
@@ -315,7 +312,6 @@ class IC2_Thumbnailer
         $convertor->setTrimming($this->trim);
         if ($this->driver == 'imagemagick') {
             $convertor->setImageMagickConvertPath($this->magick);
-            $convertor->setImageMagick6($this->magick6);
         }
 
         if ($this->dynamic) {

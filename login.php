@@ -74,7 +74,7 @@ EOP;
 //====================================================
 $mobile = Net_UserAgent_Mobile::singleton();
 
-// DoCoMo”FØ
+// docomo”FØ
 if ($mobile->isDoCoMo()) {
     $p_htm['auth_ctl'] = '';
 

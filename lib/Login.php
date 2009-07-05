@@ -161,7 +161,7 @@ class Login
             } elseif ($mobile->isSoftBank()) {
                 $this->_registAuthOff($_conf['auth_jp_file']);
 
-            /* DoCoMoはログイン画面が表示されるので、補助認証情報を自動破棄しない
+            /* docomoはログイン画面が表示されるので、補助認証情報を自動破棄しない
             } elseif ($mobile->isDoCoMo()) {
                 $this->_registAuthOff($_conf['auth_imodeid_file']);
                 $this->_registAuthOff($_conf['auth_docomo_file']);
@@ -316,7 +316,7 @@ class Login
 
         $mobile = Net_UserAgent_Mobile::singleton();
 
-        // {{{ DoCoMo iモードID認証
+        // {{{ docomo iモードID認証
 
         /**
          * @link http://www.nttdocomo.co.jp/service/imode/make/content/ip/index.html#imodeid
@@ -328,7 +328,7 @@ class Login
                     if (isset($registed_imodeid) && $registed_imodeid == $UID) {
                         if (!$this->_checkIp('docomo')) {
                             p2die('端末ID認証エラー',
-                                  "UAがDoCoMo端末ですが、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                                  "UAがdocomo端末ですが、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
                         }
                         return true;
                     }
@@ -337,7 +337,7 @@ class Login
         }
 
         // }}}
-        // {{{ DoCoMo 端末製造番号認証
+        // {{{ docomo 端末製造番号認証
 
         /**
          * ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
@@ -350,7 +350,7 @@ class Login
                     if (isset($registed_docomo) && $registed_docomo == $SN) {
                         if (!$this->_checkIp('docomo')) {
                             p2die('端末ID認証エラー',
-                                  "UAがDoCoMo端末ですが、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                                  "UAがdocomo端末ですが、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
                         }
                         return true;
                     }
@@ -507,7 +507,7 @@ class Login
 
         $mobile = Net_UserAgent_Mobile::singleton();
 
-        // {{{ 認証登録処理 DoCoMo iモードID & 端末製造番号
+        // {{{ 認証登録処理 docomo iモードID & 端末製造番号
 
         if (!empty($_REQUEST['ctl_regist_imodeid']) || !empty($_REQUEST['ctl_regist_docomo'])) {
             // {{{ iモードID
@@ -516,12 +516,12 @@ class Login
                 if (isset($_REQUEST['regist_imodeid']) && $_REQUEST['regist_imodeid'] == '1') {
                     if (!$mobile->isDoCoMo() || !$this->_checkIp('docomo')) {
                         p2die('端末ID登録エラー',
-                              "UAがDoCoMo端末でないか、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                              "UAがdocomo端末でないか、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
                     }
                     if (($UID = $mobile->getUID()) !== null) {
                         $this->_registAuth('registed_imodeid', $UID, $_conf['auth_imodeid_file']);
                     } else {
-                        $_info_msg_ht .= '<p class="infomsg">×DoCoMo iモードIDでの認証登録はできませんでした</p>'."\n";
+                        $_info_msg_ht .= '<p class="infomsg">×docomo iモードIDでの認証登録はできませんでした</p>'."\n";
                     }
                 } else {
                     $this->_registAuthOff($_conf['auth_imodeid_file']);
@@ -535,12 +535,12 @@ class Login
                 if (isset($_REQUEST['regist_docomo']) && $_REQUEST['regist_docomo'] == '1') {
                     if (!$mobile->isDoCoMo() || !$this->_checkIp('docomo')) {
                         p2die('端末ID登録エラー',
-                              "UAがDoCoMo端末でないか、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                              "UAがdocomo端末でないか、iモードのIPアドレス帯域とマッチしません。({$_SERVER['REMOTE_ADDR']})");
                     }
                     if (($SN = $mobile->getSerialNumber()) !== null) {
                         $this->_registAuth('registed_docomo', $SN, $_conf['auth_docomo_file']);
                     } else {
-                        $_info_msg_ht .= '<p class="infomsg">×DoCoMo 端末製造番号での認証登録はできませんでした</p>'."\n";
+                        $_info_msg_ht .= '<p class="infomsg">×docomo 端末製造番号での認証登録はできませんでした</p>'."\n";
                     }
                 } else {
                     $this->_registAuthOff($_conf['auth_docomo_file']);

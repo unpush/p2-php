@@ -61,7 +61,7 @@ function printLoginFirst(Login $_login)
     //==============================================
     $mobile = Net_UserAgent_Mobile::singleton();
 
-    // {{{ DoCoMo iモードID認証
+    // {{{ docomo iモードID認証
 
     if ($mobile->isDoCoMo()) {
         /**
@@ -179,7 +179,7 @@ EOP;
         $hd['form_login_pass'] = '';
     }
 
-    // DoCoMoの固有端末認証（セッション利用時のみ有効）
+    // docomoの固有端末認証（セッション利用時のみ有効）
     $docomo_auth_ht = '';
 
     //if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
@@ -202,7 +202,7 @@ EOP;
         }
     }
 
-    // DoCoMoならpasswordにしない
+    // docomoならpasswordにしない
     if ($mobile->isDoCoMo()) {
         $type = 'text';
         $utn = ' utn';
