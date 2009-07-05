@@ -110,6 +110,7 @@ class Thumbnailer_Gd extends Thumbnailer_Common
     protected function _convert($source, $size)
     {
         extract($size);
+
         // ソースのイメージストリームを取得
         $ext = strrchr($source, '.');
         switch ($ext) {
@@ -121,11 +122,24 @@ class Thumbnailer_Gd extends Thumbnailer_Common
             $error = PEAR::raiseError("Failed to load the image. ({$source})");
             return $error;
         }
-        // サムネイルのイメージストリームを作成
+
+        // サムネイルのイメージストリームを作成し、背景を塗りつぶす
         $dst = imagecreatetruecolor($tw, $th);
         $bgcolor = $this->getBgColor();
+        if (!imageistruecolor($src)) {
+            $t_index = imagecolortransparent($src);
+            if ($t_index > -1) {
+                $t_colors = @imagecolorsforindex($src, $t_index);
+                if ($t_colors) {
+                    $bgcolor[0] = $t_colors['red'];
+                    $bgcolor[1] = $t_colors['green'];
+                    $bgcolor[2] = $t_colors['blue'];
+                }
+            }
+        }
         $bg = imagecolorallocate($dst, $bgcolor[0], $bgcolor[1], $bgcolor[2]);
         imagefill($dst, 0, 0, $bg);
+
         // ソースをサムネイルにコピー
         if ($this->doesResampling()) {
             imagecopyresampled($dst, $src, 0, 0, $sx, $sy, $tw, $th, $sw, $sh);
@@ -133,6 +147,7 @@ class Thumbnailer_Gd extends Thumbnailer_Common
             imagecopy($dst, $src, 0, 0, $sx, $sy, $sw, $sh);
         }
         imagedestroy($src);
+
         // 回転
         if ($degrees = $this->getRotation()) {
             $degrees = ($degrees == 90) ? -90 : (($degrees == 270) ? 90: $degrees);
@@ -140,6 +155,7 @@ class Thumbnailer_Gd extends Thumbnailer_Common
             imagedestroy($dst);
             return $tmp;
         }
+
         return $dst;
     }
 

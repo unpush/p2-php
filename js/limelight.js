@@ -1325,8 +1325,8 @@ Limelight.prototype.initTitlebar = function() {
 	titlebar = document.createElement('div');
 	titlebar.className = 'limelight-title';
 	titlebar.addEventListener('webkitAnimationEnd', function() {
-		this.style.webkitAnimationName = 'none';
 		this.style.display = 'none';
+		this.style.webkitAnimationName = 'none';
 	}, false);
 
 	text = titlebar.appendChild(document.createElement('p'))
@@ -1342,6 +1342,7 @@ Limelight.prototype.initTitlebar = function() {
 		},
 		'hide': function() {
 			titlebar.style.display = 'none';
+			titlebar.style.opacity = 0;
 		},
 		'update': function(title) {
 			text.nodeValue = title;
@@ -1459,7 +1460,7 @@ Limelight.prototype.focus = function() {
  * @return void
  */
 Limelight.prototype.transform = function() {
-	var x, y, scale, rotation;
+	var x, y, transform, scale, rotation;
 
 	if (!this.loaded) {
 		return;
@@ -1484,9 +1485,12 @@ Limelight.prototype.transform = function() {
 		}
 	}
 
-	this.image.style.webkitTransform = 'translate(' + x + 'px, ' + y + 'px)'
-	                                       + ' scale(' + scale + ')'
-	                                       + ' rotate(' + rotation + 'deg)';
+	this.image.style.top = y + 'px';
+	this.image.style.left = x + 'px';
+	transform = 'scale(' + scale + ') rotate(' + rotation + 'deg)';
+	if (this.image.style.webkitTransform != transform) {
+		this.image.style.webkitTransform = transform;
+	}
 
 	if (this.indicator && !this.locked) {
 		this.indicator.update(x - this.initialTranslateX,

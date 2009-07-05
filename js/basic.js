@@ -409,7 +409,7 @@ function addLoadEvent(func) {
 	}
 }
 
-/**
+/*
  * Local Variables:
  * mode: javascript
  * coding: cp932

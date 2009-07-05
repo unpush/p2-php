@@ -89,6 +89,8 @@ $_conf['read_new_k_php']        = 'read_new_k.php';
 // ƒfƒoƒbƒO
 //$debug = !empty($_GET['debug']);
 
+putenv('LC_CTYPE=C');
+
 // ƒ^ƒCƒ€ƒ][ƒ“‚ðƒZƒbƒg
 date_default_timezone_set('Asia/Tokyo');
 
@@ -298,8 +300,8 @@ $_conf['res_hist_dat_php']  = $pref_dir_s . 'p2_res_hist.dat.php';  // ‘‚«ž‚Ýƒ
 $_conf['idpw2ch_php']       = $pref_dir_s . 'p2_idpw2ch.php';       // 2ch ID”FØÝ’èƒtƒ@ƒCƒ‹ (ƒf[ƒ^PHP)
 $_conf['sid2ch_php']        = $pref_dir_s . 'p2_sid2ch.php';        // 2ch ID”FØƒZƒbƒVƒ‡ƒ“ID‹L˜^ƒtƒ@ƒCƒ‹ (ƒf[ƒ^PHP)
 $_conf['auth_user_file']    = $pref_dir_s . 'p2_auth_user.php';     // ”FØƒ†[ƒUÝ’èƒtƒ@ƒCƒ‹(ƒf[ƒ^PHP)
-$_conf['auth_imodeid_file'] = $pref_dir_s . 'p2_auth_imodeid.php';  // DoCoMo iƒ‚[ƒhID”FØƒtƒ@ƒCƒ‹ (ƒf[ƒ^PHP)
-$_conf['auth_docomo_file']  = $pref_dir_s . 'p2_auth_docomo.php';   // DoCoMo ’[––»‘¢”Ô†”FØƒtƒ@ƒCƒ‹ (ƒf[ƒ^PHP)
+$_conf['auth_imodeid_file'] = $pref_dir_s . 'p2_auth_imodeid.php';  // docomo iƒ‚[ƒhID”FØƒtƒ@ƒCƒ‹ (ƒf[ƒ^PHP)
+$_conf['auth_docomo_file']  = $pref_dir_s . 'p2_auth_docomo.php';   // docomo ’[––»‘¢”Ô†”FØƒtƒ@ƒCƒ‹ (ƒf[ƒ^PHP)
 $_conf['auth_ez_file']      = $pref_dir_s . 'p2_auth_ez.php';       // EZweb ƒTƒuƒXƒNƒ‰ƒCƒoID”FØƒtƒ@ƒCƒ‹ (ƒf[ƒ^PHP)
 $_conf['auth_jp_file']      = $pref_dir_s . 'p2_auth_jp.php';       // SoftBank ’[––ƒVƒŠƒAƒ‹”Ô†”FØƒtƒ@ƒCƒ‹ (ƒf[ƒ^PHP)
 $_conf['login_log_file']    = $pref_dir_s . 'p2_login.log.php';     // ƒƒOƒCƒ“—š—ð (ƒf[ƒ^PHP)
@@ -431,7 +433,7 @@ if (P2Util::isBrowserIphone()) {
 } else {
     $_conf['ktai'] = true;
 
-    // NTT DoCoMo iƒ‚[ƒh
+    // NTT docomo iƒ‚[ƒh
     if ($mobile->isDoCoMo()) {
         $support_cookies = false;
 
