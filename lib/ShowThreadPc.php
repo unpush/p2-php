@@ -1487,7 +1487,12 @@ EOP;
                     if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
                         if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
                             for ($i = $matches[1]; $i <= $matches[2]; $i++) {
-                                $this->_quote_from[$i][] = $num + 1;
+                                if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
+                                    $this->_quote_from[$i] = array();
+                                }
+                                if (!in_array($num + 1, $this->_quote_from[$i])) {
+                                    $this->_quote_from[$i][] = $num + 1;
+                                }
                             }
                         }
                     } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
