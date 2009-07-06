@@ -613,7 +613,7 @@ EOP;
      * @param   string  $appointed_num    1-100
      * @return  string
      */
-    public function quoteRes($full, $qsign, $appointed_num)
+    public function quoteRes($full, $qsign, $appointed_num, $anchor_jump = false)
     {
         global $_conf;
 
@@ -622,7 +622,11 @@ EOP;
             return $full;
         }
 
-        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
+        if ($anchor_jump && $qnum >= $this->thread->resrange['start'] && $qnum <= $this->thread->resrange['to']) {
+            $read_url = '#' . ($this->_matome ? "t{$this->_matome}" : '') . "r{$qnum}";
+        } else {
+            $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
+        }
         $attributes = $_conf['bbs_win_target_at'];
         if ($_conf['quote_res_view']) {
             if ($this->_matome) {
@@ -1647,7 +1651,12 @@ EOP;
                     if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
                         if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
                             for ($i = $matches[1]; $i <= $matches[2]; $i++) {
-                                $this->_quote_from[$i][] = $num + 1;
+                                if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
+                                    $this->_quote_from[$i] = array();
+                                }
+                                if (!in_array($num + 1, $this->_quote_from[$i])) {
+                                    $this->_quote_from[$i][] = $num + 1;
+                                }
                             }
                         }
                     } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
@@ -1684,12 +1693,7 @@ EOP;
             } else {
                 $ret .= '<li>„¤';
             }
-            if ($anchor >= $this->thread->resrange['start'] && $anchor <= $this->thread->resrange['to']) {
-                $read_url = "#r{$anchor}";
-            } else {
-                $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$anchor}";
-            }
-            $ret .= "<a href=\"{$read_url}\" onmouseover=\"showResPopUp('qr{$anchor}',event)\" onmouseout=\"hideResPopUp('qr{$anchor}')\">{$anchor}</a></li>";
+            $ret .= $this->quoteRes($anchor, '', $anchor, true);
             $anchor_cnt++;
         }
         $ret .= '</ul></div>';
