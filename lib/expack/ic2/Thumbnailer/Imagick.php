@@ -98,10 +98,12 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
         $im = new Imagick();
         $im->readImage($source);
 
+        if (method_exists($im, 'rewind')) {
+            $im->rewind();
+        }
         if (method_exists($im, 'flattenImages')) {
             $im->flattenImages();
         }
-
         if (method_exists($im, 'getImageMatte') && method_exists($im, 'setImageMatte')) {
             if ($im->getImageMatte()) {
                 $im->setImageMatte(false);

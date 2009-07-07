@@ -1003,7 +1003,7 @@ function p2checkenv($check_recommended)
 
     $php_version = phpversion();
     $required_version = '5.2.3';
-    $recommended_version = '5.2.9';
+    $recommended_version = '5.2.10';
 
     // PHP‚Ìƒo[ƒWƒ‡ƒ“
     if (version_compare($php_version, $required_version, '<')) {

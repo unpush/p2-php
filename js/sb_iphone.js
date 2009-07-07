@@ -7,7 +7,7 @@
 	// {{{ createPop()
 
 	/**
-	 * リンクホールド時にリンクの下に表示される要素を生成する
+	 * リンクスライド時にリンクの下に表示される要素を生成する
 	 *
 	 * @param {String} type
 	 * @return {Element}
@@ -25,21 +25,21 @@
 		button = div.appendChild(document.createElement('input'));
 		button.setAttribute('type', 'button');
 		button.value = type + 'を開く';
-		button.onclick = window.iutil.hold.openUri;
+		button.onclick = window.iutil.sliding.openUri;
 
 		div.appendChild(document.createTextNode('\u3000'));
 
 		button = div.appendChild(document.createElement('input'));
 		button.setAttribute('type', 'button');
 		button.value = 'タブで開く';
-		button.onclick = window.iutil.hold.openUriInTab;
+		button.onclick = window.iutil.sliding.openUriInTab;
 
 		div.appendChild(document.createTextNode('\u3000'));
 
 		button = div.appendChild(document.createElement('input'));
 		button.setAttribute('type', 'button');
 		button.value = '閉じる';
-		button.onclick = window.iutil.hold.hideDialog;
+		button.onclick = window.iutil.sliding.hideDialog;
 
 		// お気に入りの登録・解除
 		table = pop.appendChild(document.createElement('table'));
@@ -134,7 +134,7 @@
 
 		toggled = div.getAttribute('toggled') === 'true';
 		setnum = parseInt(div.className.substring(div.className.indexOf('fav') + 3));
-		uri = 'httpcmd.php?cmd=setfav&' + window.iutil.hold.query + '&setnum=' + setnum;
+		uri = 'httpcmd.php?cmd=setfav&' + window.iutil.sliding.query + '&setnum=' + setnum;
 		// menu_i.jsと逆
 		if (!toggled) {
 			uri += '&setfav=1';
@@ -161,7 +161,7 @@
 		var toggled, req, uri;
 
 		toggled = div.getAttribute('toggled') === 'true';
-		uri = 'httpcmd.php?cmd=setpal&' + window.iutil.hold.query;
+		uri = 'httpcmd.php?cmd=setpal&' + window.iutil.sliding.query;
 		// menu_i.jsと逆
 		if (!toggled) {
 			uri += '&setpal=1';
@@ -328,19 +328,19 @@
 	// {{{ setup()
 
 	/**
-	 * スレッドリンクホールド時のアクションを設定する
+	 * スレッドリンクスライド時のアクションを設定する
 	 *
 	 * @param {Object} iutil
 	 * @param {Object} JSON
 	 * @return void
 	 */
 	var setup = function(iutil, JSON) {
-		var hold, i, l, s;
+		var sliding, i, l, s;
 
-		hold = iutil.hold;
+		sliding = iutil.sliding;
 
 		// 現在、iphone.jsで自動iutil.modifyInternalLink()を無効にしているので
-		// ここでiutil.hold.bind()する。
+		// ここでiutil.sliding.bind()する。
 		s = document.evaluate('.//ul[@class = "subject"]/li/a[starts-with(@href, "read.php?")]',
 							  document.body,
 							  null,
@@ -348,25 +348,25 @@
 							  null);
 		l = s.snapshotLength;
 		for (i = 0; i < l; i++) {
-			hold.bind(s.snapshotItem(i));
+			sliding.bind(s.snapshotItem(i));
 		}
 
 		delete i, l, s;
 
-		// {{{ override hold.callbacks.read()
+		// {{{ override sliding.callbacks.read()
 
 		/**
-		 * スレッドリンクホールド時に実行される関数
+		 * スレッドリンクスライド時に実行される関数
 		 *
 		 * @param {Element} anchor
 		 * @param {Event} event
 		 * @return void
 		 */
-		hold.callbacks.read = function(anchor, event) {
+		sliding.callbacks.read = function(anchor, event) {
 			var pop, div, ul, li, m, req, table;
 
 			// 要素を取得
-			if (typeof hold.dialogs.menuRead === 'undefined') {
+			if (typeof sliding.dialogs.menuRead === 'undefined') {
 				pop = createPop('スレ');
 
 				div = pop.appendChild(document.createElement('div'));
@@ -376,24 +376,24 @@
 				button.setAttribute('type', 'button');
 				button.value = 'スレッド情報';
 				button.onclick = function() {
-					window.open('info.php?' + hold.query, null);
+					window.open('info.php?' + sliding.query, null);
 				};
 			} else {
-				pop = hold.dialogs.menuRead;
+				pop = sliding.dialogs.menuRead;
 				pop = pop.parentNode.removeChild(pop);
 			}
-			hold.dialogs.menuRead = pop;
-			hold.setActiveDialog(pop);
+			sliding.dialogs.menuRead = pop;
+			sliding.setActiveDialog(pop);
 
 			// お気にスレの登録状況を取得
 			table = pop.childNodes[1];
 			table.style.display = 'none';
 			req = new XMLHttpRequest();
-			req.open('GET', 'info_js.php?' + hold.query, true);
+			req.open('GET', 'info_js.php?' + sliding.query, true);
 			req.onreadystatechange = generateOnThreadInfoGet(req, JSON.parse, pop, table);
 			req.send(null);
 
-			// 要素をホールドされたリンクの後に挿入
+			// 要素をスライドされたリンクの後に挿入
 			li = anchor.parentNode;
 			ul = li.parentNode;
 			if (li.nextSibling) {

@@ -1382,7 +1382,7 @@ ERR;
         } else {
             $salt = substr($salt . '..', 0, 2);
         }
-        $salt = preg_replace('/[^\.-z]/', '.', $salt);
+        $salt = preg_replace('/[^.-z]/', '.', $salt);
         $salt = strtr($salt, ':;<=>?@[\\]^_`', 'ABCDEFGabcdef');
         return substr(crypt($key, $salt), -$length);
     }
