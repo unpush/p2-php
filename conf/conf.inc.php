@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
-    'p2expack'  => '090601.1845',   // 拡張パックのバージョン
+    'p2expack'  => '090710.0800',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -63,9 +63,11 @@ function p2configure()
     global $conf_user_def, $conf_user_rules, $conf_user_rad, $conf_user_sel;
 
 // エラー出力設定
-//error_reporting(E_ALL & ~E_STRICT);
-error_reporting(E_ALL & ~(E_NOTICE | E_STRICT));
-//error_reporting(E_ALL & ~(E_NOTICE | E_STRICT | E_DEPRECATED));
+if (defined(E_DEPRECATED)) {
+    error_reporting(E_ALL & ~(E_NOTICE | E_STRICT | E_DEPRECATED));
+} else {
+    error_reporting(E_ALL & ~(E_NOTICE | E_STRICT));
+}
 
 // {{{ 基本変数
 
@@ -1002,7 +1004,7 @@ function p2checkenv($check_recommended)
     global $_info_msg_ht;
 
     $php_version = phpversion();
-    $required_version = '5.2.3';
+    $required_version = '5.2.8';
     $recommended_version = '5.2.10';
 
     // PHPのバージョン

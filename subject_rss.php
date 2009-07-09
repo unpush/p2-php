@@ -39,9 +39,9 @@ $xml_ht = htmlspecialchars($xml, ENT_QUOTES, 'Shift_JIS', false);
 if ($xml) {
     require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
     $rss = p2GetRSS($xml, $atom);
-    if (is_a($rss, 'XML_Parser')) {
+    if ($rss instanceof XML_Parser) {
         clearstatcache();
-        $rss_parse_success = TRUE;
+        $rss_parse_success = true;
         $xml_path = rss_get_save_path($xml);
         $mtime    = filemtime($xml_path);
         $channel  = $rss->getChannelInfo();
@@ -57,10 +57,10 @@ if ($xml) {
         }
         mb_convert_variables('CP932', $encoding, $channel, $items);
     } else {
-        $rss_parse_success = FALSE;
+        $rss_parse_success = false;
     }
 } else {
-    $rss_parse_success = FALSE;
+    $rss_parse_success = false;
 }
 
 
