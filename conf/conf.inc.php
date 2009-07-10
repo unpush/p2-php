@@ -63,7 +63,7 @@ function p2configure()
     global $conf_user_def, $conf_user_rules, $conf_user_rad, $conf_user_sel;
 
 // ÉGÉâÅ[èoóÕê›íË
-if (defined(E_DEPRECATED)) {
+if (defined('E_DEPRECATED')) {
     error_reporting(E_ALL & ~(E_NOTICE | E_STRICT | E_DEPRECATED));
 } else {
     error_reporting(E_ALL & ~(E_NOTICE | E_STRICT));
