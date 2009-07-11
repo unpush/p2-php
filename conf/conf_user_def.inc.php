@@ -253,6 +253,10 @@ $conf_user_rad['mobile.underline_id'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['mobile.copy_divide_len'] = 0; // (0)
 $conf_user_rules['mobile.copy_divide_len'] = array('notIntExceptMinusToDef');
 
+// 逆参照リストの表示
+$conf_user_def['backlink_list'] = 1;
+$conf_user_rad['backlink_list'] = array('1' => 'する', '0' => 'しない');
+
 // }}}
 // {{{ NG/あぼーん
 
