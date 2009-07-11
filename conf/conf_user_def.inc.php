@@ -253,6 +253,12 @@ $conf_user_rules['mobile.copy_divide_len'] = array('notIntExceptMinusToDef');
 $conf_user_def['backlink_list'] = 1;
 $conf_user_rad['backlink_list'] = array('1' => 'する', '0' => 'しない');
 
+// 本文をダブルクリックしてレス追跡カラーリング
+$conf_user_def['backlink_coloring_track'] = 1;
+$conf_user_rad['backlink_coloring_track'] = array('1' => 'する', '0' => 'しない');
+// 本文をダブルクリックしてレス追跡カラーリングの色リスト(カンマ区切り)
+$conf_user_def['backlink_coloring_track_colors'] = '#479e01,#0033ff,#0099cc,#9900ff,#ff5599,#ff9900,#993333,#ff6600,#0066cf,#ff3300';
+
 // }}}
 // {{{ NG/あぼーん
 
