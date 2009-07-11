@@ -294,7 +294,9 @@ EOP;
         $tores .= "</div>\n";
 
         // 被レスリスト
-        $tores .= $this->_quoteback_list_html($i);
+        if ($_conf['backlink_list'] == 1) {
+            $tores .= $this->_quoteback_list_html($i);
+        }
 
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
         $tores .= "</div>\n";
@@ -435,7 +437,9 @@ EOJS;
         $tores .= "</div>\n";
 
         // 被レスリスト
-        $tores .= $this->_quoteback_list_html($i);
+        if ($_conf['backlink_list'] == 1) {
+            $tores .= $this->_quoteback_list_html($i);
+        }
 
         $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
 
@@ -787,7 +791,9 @@ EOP;
      */
     public function checkQuoteResNums($res_num, $name, $msg)
     {
-        if ($this->_quote_from === null) {
+        global $_conf;
+
+        if ($_conf['backlink_list'] == 1 && $this->_quote_from === null) {
             $this->_make_quote_from();  // 被レスデータ集計
         }
         // 再帰リミッタ
@@ -868,18 +874,20 @@ EOP;
 
         }
 
-        // レスが付いている場合はそれも対象にする
-        if (array_key_exists($res_num, $this->_quote_from)) {
-            foreach ($this->_quote_from[$res_num] as $quote_from_num) {
-                $quote_res_nums[] = $quote_from_num;
-                if ($quote_from_num != $res_num) {
-                    if (!isset($this->_quote_res_nums_checked[$quote_from_num])) {
-                        $this->_quote_res_nums_checked[$quote_from_num] = true;
-                        if (isset($this->thread->datlines[$quote_from_num - 1])) {
-                            $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$quote_from_num - 1]);
-                            $quote_name = $datalinear[0];
-                            $quote_msg = $this->thread->datlines[$quote_from_num - 1];
-                            $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($quote_from_num, $quote_name, $quote_msg));
+        if ($_conf['backlink_list'] == 1) {
+            // レスが付いている場合はそれも対象にする
+            if (array_key_exists($res_num, $this->_quote_from)) {
+                foreach ($this->_quote_from[$res_num] as $quote_from_num) {
+                    $quote_res_nums[] = $quote_from_num;
+                    if ($quote_from_num != $res_num) {
+                        if (!isset($this->_quote_res_nums_checked[$quote_from_num])) {
+                            $this->_quote_res_nums_checked[$quote_from_num] = true;
+                            if (isset($this->thread->datlines[$quote_from_num - 1])) {
+                                $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$quote_from_num - 1]);
+                                $quote_name = $datalinear[0];
+                                $quote_msg = $this->thread->datlines[$quote_from_num - 1];
+                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($quote_from_num, $quote_name, $quote_msg));
+                            }
                         }
                     }
                 }
