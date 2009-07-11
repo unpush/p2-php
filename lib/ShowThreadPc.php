@@ -298,7 +298,25 @@ EOP;
             $tores .= $this->_quoteback_list_html($i);
         }
 
-        $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // レス追跡カラー
+        $onclick = '';
+        if ($_conf['backlink_coloring_track'] == 1) {
+            if ($this->_quote_from === null) {
+                $this->_make_quote_from();  // 被レスデータ集計
+            }
+            if (array_key_exists($i, $this->_quote_from) &&
+                count($this->_quote_from[$i]) > 0 &&
+                !(count($this->_quote_from[$i]) == 1 && $this->_quote_from[$i][0] == $i)) {
+                foreach($this->_quote_from[$i] as $quote) {
+                    if ($quote >= $this->thread->resrange['start'] && $quote <= $this->thread->resrange['to']) {
+                        $onclick = ' onClick="' . $this->getResColorObjName() . '.click(this, event)"';
+                        break;
+                    }
+                }
+            }
+        }
+
+        $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\"{$onclick}>{$msg}</div>\n"; // 内容
         $tores .= "</div>\n";
         $tores .= $rpop; // レスポップアップ用引用
         /*if ($_conf['expack.am.enabled'] == 2) {
@@ -441,7 +459,26 @@ EOJS;
             $tores .= $this->_quoteback_list_html($i);
         }
 
-        $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // レス追跡カラー
+        $onclick = '';
+        if ($_conf['backlink_coloring_track'] == 1) {
+            if ($i >= $this->thread->resrange['start'] && $i <= $this->thread->resrange['to']) {
+                if ($this->_quote_from === null) {
+                    $this->_make_quote_from();  // 被レスデータ集計
+                }
+                if (array_key_exists($i, $this->_quote_from) &&
+                    count($this->_quote_from[$i]) > 0 &&
+                    !(count($this->_quote_from[$i]) == 1 && $this->_quote_from[$i][0] == $i)) {
+                    foreach($this->_quote_from[$i] as $quote) {
+                        if ($quote >= $this->thread->resrange['start'] && $quote <= $this->thread->resrange['to']) {
+                            $onclick = ' onClick="' . $this->getResColorObjName() . '.click(this, event)"';
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\"{$onclick}>{$msg}</div>\n"; // 内容
 
         return $tores;
     }
@@ -1555,6 +1592,51 @@ EOP;
         }
         $ret .= '</ul></div>';
         return $ret;
+    }
+
+    public function get_quotebacks_json() {
+        if ($this->_quote_from === null) {
+            $this->_make_quote_from();  // 被レスデータ集計
+        }
+        $ret = array();
+        foreach ($this->_quote_from as $resnum => $quote_from) {
+            if (!$quote_from) continue;
+            if ($resnum != 1 && ($resnum < $this->thread->resrange['start'] || $resnum > $this->thread->resrange['to'])) continue;
+            $tmp = array();
+            foreach ($quote_from as $quote) {
+                if ($quote != 1 && ($quote < $this->thread->resrange['start'] || $quote > $this->thread->resrange['to'])) continue;
+                $tmp[] = $quote;
+            }
+            if ($tmp) $ret[] = "{$resnum}:[" . join(',', $tmp) . "]";
+        }
+        return '{' . join(',', $ret) . '}';
+    }
+
+    public function getResColorJs() {
+        global $_conf, $STYLE;
+        $fontstyle_bold = empty($STYLE['fontstyle_bold']) ? 'normal' : $STYLE['fontstyle_bold'];
+        $fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
+        $fontfamily_bold = $STYLE['fontfamily_bold'];
+        $backlinks = $this->get_quotebacks_json();
+        $colors = array();
+        $backlink_colors = join(',',
+            array_map(create_function('$x', 'return "\'{$x}\'";'),
+                explode(',', $_conf['backlink_coloring_track_colors']))
+        );
+        $objName = $this->getResColorObjName();
+        $prefix = $this->_matome ? "t{$this->_matome}" : '';
+        return <<<EOJS
+<script type="text/javascript">
+var {$objName} = new BacklinkColor('{$prefix}');
+{$objName}.colors = [{$backlink_colors}];
+{$objName}.highlightStyle = {fontStyle :'{$fontstyle_bold}', fontWeight : '{$fontweight_bold}', fontFamily : '{$fontfamily_bold}'};
+{$objName}.backlinks = {$backlinks};
+</script>
+EOJS;
+    }
+
+    protected function getResColorObjName() {
+        return ($this->_matome) ? "t{$this->_matome}rescol" : "rescol";
     }
 }
 

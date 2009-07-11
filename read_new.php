@@ -220,6 +220,12 @@ if ($_conf['iframe_popup_type'] == 1) {
     </script>\n
 EOHEADER;
 
+if ($_conf['backlink_coloring_track']) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/backlink_color.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
+
     echo <<<EOP
 </head>
 <body id="read" onclick="hideHtmlPopUp(event);">
@@ -545,6 +551,11 @@ EOP;
         $res1 = $aShowThread->quoteOne();
         $read_cont_ht = $res1['q'];
         $read_cont_ht .= $aShowThread->getDatToHtml();
+
+        // ƒŒƒX’ÇÕƒJƒ‰[
+        if ($_conf['backlink_coloring_track']) {
+            $read_cont_ht .= $aShowThread->getResColorJs();
+        }
 
         unset($aShowThread);
     }
