@@ -331,6 +331,11 @@ EOP;
         echo $res1['q'];
 
         $aShowThread->datToHtml();
+
+        // ƒŒƒX’ÇÕƒJƒ‰[
+        if ($_conf['backlink_coloring_track']) {
+            echo $aShowThread->getResColorJs();
+        }
     }
 
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("datToHtml");

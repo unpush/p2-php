@@ -282,6 +282,9 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('bbs_win_target', 'rep2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
         array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
         array('quote_res_view', '引用レスを表示'),
+        array('backlink_list', '逆参照ポップアップリストの表示'),
+        array('backlink_coloring_track', '本文をダブルクリックすると着色してレス追跡'),
+        array('backlink_coloring_track_colors', '本文をダブルクリックてレス追跡時の色リスト(カンマ区切り)'),
         array('strip_linebreaks', '文末の改行と連続する改行を除去'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
