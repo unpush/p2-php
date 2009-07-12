@@ -29,24 +29,36 @@ BacklinkColor.prototype = {
         this.useColors = tmp;
     },
     click : function(res, evt) {
-        if (evt.detail < 2) return;
-        var resnum = this._getResnumFromIdstr(res.id);
-        // 't1qm100' -> '100' -> 't1m100'
-        var target = document.getElementById(
-                this.prefix + 'm' + this._getResnumFromIdstr(res.id));
-        if (evt.detail == 2) {
+        if (evt.type == 'dblclick') {
+            // 't1qm100' -> '100' -> 't1m100'
+            var target = document.getElementById(
+                    this.prefix + 'm' + this._getResnumFromIdstr(res.id));
             var _this = this;
-            target.backlinktimer = setTimeout(function() {
+            res.backlinktimer = setTimeout(function() {
                 _this.mark(target);
-                target.backlinktimer = null;
+                res.backlinktimer = null;
             }, 250);
-        } else
-        if (evt.detail > 2) {
-            if (target.backlinktimer) {
-                clearTimeout(target.backlinktimer);
-                target.backlinktimer = null;
+            if (res.addEventListener) {
+                res.addEventListener('click', function(event) {
+                            _this.click(res, event);
+                            res.removeEventListener('click', arguments.callee, false);
+                        }, false);
+            } else {
+                res.attachEvent('onclick', function(event) {
+                            _this.click(res, event);
+                            res.detachEvent('onclick', arguments.callee, false);
+                        }, false);
             }
-            this.unmark(target, target.colorBl);
+        } else
+        if (evt.type == 'click') {
+            if (res.backlinktimer) {
+                clearTimeout(res.backlinktimer);
+                res.backlinktimer = null;
+                // 't1qm100' -> '100' -> 't1m100'
+                var target = document.getElementById(
+                        this.prefix + 'm' + this._getResnumFromIdstr(res.id));
+                this.unmark(target, target.colorBl);
+            }
         }
     },
 
