@@ -309,7 +309,7 @@ EOP;
                 !(count($this->_quote_from[$i]) == 1 && $this->_quote_from[$i][0] == $i)) {
                 foreach($this->_quote_from[$i] as $quote) {
                     if ($quote >= $this->thread->resrange['start'] && $quote <= $this->thread->resrange['to']) {
-                        $onclick = ' onClick="' . $this->getResColorObjName() . '.click(this, event)"';
+                        $onclick = ' onDblClick="' . $this->getResColorObjName() . '.click(this, event)"';
                         break;
                     }
                 }
@@ -471,7 +471,7 @@ EOJS;
                     !(count($this->_quote_from[$i]) == 1 && $this->_quote_from[$i][0] == $i)) {
                     foreach($this->_quote_from[$i] as $quote) {
                         if ($quote >= $this->thread->resrange['start'] && $quote <= $this->thread->resrange['to']) {
-                            $onclick = ' onClick="' . $this->getResColorObjName() . '.click(this, event)"';
+                            $onclick = ' onDblClick="' . $this->getResColorObjName() . '.click(this, event)"';
                             break;
                         }
                     }
