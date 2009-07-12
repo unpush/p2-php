@@ -204,6 +204,10 @@ if ($_conf['expack.ic2.enabled']) {
 EOP;
 }
 
+if ($_conf['backlink_coloring_track']) {
+    $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
+}
+
 if ($_conf['iframe_popup_type'] == 1) {
     $fade = empty($_GET['fade']) ? 'false' : 'true';
     echo <<<EOHEADER
@@ -215,6 +219,7 @@ if ($_conf['iframe_popup_type'] == 1) {
     addLoadEvent(function() {
         gIsPageLoaded = true;
         setWinTitle();
+        {$onload_script}
     });
     //]]>
     </script>\n
@@ -245,6 +250,7 @@ echo <<<EOHEADER
     {
         gIsPageLoaded = true;
         setWinTitle();
+        {$onload_script}
     }
 
     (function(){

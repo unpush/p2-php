@@ -298,25 +298,7 @@ EOP;
             $tores .= $this->_quoteback_list_html($i);
         }
 
-        // レス追跡カラー
-        $onclick = '';
-        if ($_conf['backlink_coloring_track'] == 1) {
-            if ($this->_quote_from === null) {
-                $this->_make_quote_from();  // 被レスデータ集計
-            }
-            if (array_key_exists($i, $this->_quote_from) &&
-                count($this->_quote_from[$i]) > 0 &&
-                !(count($this->_quote_from[$i]) == 1 && $this->_quote_from[$i][0] == $i)) {
-                foreach($this->_quote_from[$i] as $quote) {
-                    if ($quote >= $this->thread->resrange['start'] && $quote <= $this->thread->resrange['to']) {
-                        $onclick = ' onDblClick="' . $this->getResColorObjName() . '.click(this, event)"';
-                        break;
-                    }
-                }
-            }
-        }
-
-        $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\"{$onclick}>{$msg}</div>\n"; // 内容
+        $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
         $tores .= "</div>\n";
         $tores .= $rpop; // レスポップアップ用引用
         /*if ($_conf['expack.am.enabled'] == 2) {
@@ -459,26 +441,7 @@ EOJS;
             $tores .= $this->_quoteback_list_html($i);
         }
 
-        // レス追跡カラー
-        $onclick = '';
-        if ($_conf['backlink_coloring_track'] == 1) {
-            if ($i >= $this->thread->resrange['start'] && $i <= $this->thread->resrange['to']) {
-                if ($this->_quote_from === null) {
-                    $this->_make_quote_from();  // 被レスデータ集計
-                }
-                if (array_key_exists($i, $this->_quote_from) &&
-                    count($this->_quote_from[$i]) > 0 &&
-                    !(count($this->_quote_from[$i]) == 1 && $this->_quote_from[$i][0] == $i)) {
-                    foreach($this->_quote_from[$i] as $quote) {
-                        if ($quote >= $this->thread->resrange['start'] && $quote <= $this->thread->resrange['to']) {
-                            $onclick = ' onDblClick="' . $this->getResColorObjName() . '.click(this, event)"';
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\"{$onclick}>{$msg}</div>\n"; // 内容
+        $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
 
         return $tores;
     }
@@ -1623,21 +1586,21 @@ EOP;
             array_map(create_function('$x', 'return "\'{$x}\'";'),
                 explode(',', $_conf['backlink_coloring_track_colors']))
         );
-        $objName = $this->getResColorObjName();
         $prefix = $this->_matome ? "t{$this->_matome}" : '';
         return <<<EOJS
 <script type="text/javascript">
-var {$objName} = new BacklinkColor('{$prefix}');
-{$objName}.colors = [{$backlink_colors}];
-{$objName}.highlightStyle = {fontStyle :'{$fontstyle_bold}', fontWeight : '{$fontweight_bold}', fontFamily : '{$fontfamily_bold}'};
-{$objName}.backlinks = {$backlinks};
+if (typeof rescolObjs == 'undefined') rescolObjs = [];
+rescolObjs.push((function() {
+    var obj = new BacklinkColor('{$prefix}');
+    obj.colors = [{$backlink_colors}];
+    obj.highlightStyle = {fontStyle :'{$fontstyle_bold}', fontWeight : '{$fontweight_bold}', fontFamily : '{$fontfamily_bold}'};
+    obj.backlinks = {$backlinks};
+    return obj;
+})());
 </script>
 EOJS;
     }
 
-    protected function getResColorObjName() {
-        return ($this->_matome) ? "t{$this->_matome}rescol" : "rescol";
-    }
 }
 
 // }}}

@@ -47,7 +47,7 @@ BacklinkColor.prototype = {
                 res.attachEvent('onclick', function(event) {
                             _this.click(res, event);
                             res.detachEvent('onclick', arguments.callee, false);
-                        }, false);
+                        });
             }
         } else
         if (evt.type == 'click') {
@@ -65,7 +65,7 @@ BacklinkColor.prototype = {
     mark : function(res, style) {
         if (!res) return false;
         if (!res.styleBefore) {
-            res.styleBefore = {color : res.style.color, fontStyle : res.style['fontStyle'], fontWeight : res.style['fontWeight'], fontFamily : 'fontFamily'};
+            res.styleBefore = {color : res.style.color, fontStyle : res.style['fontStyle'], fontWeight : res.style['fontWeight'], fontFamily : res.style['fontFamily']};
         }
         if (style == null) {
             style = {color : this.getColor()};
@@ -111,6 +111,26 @@ BacklinkColor.prototype = {
         }
         if (style.color) {
             res.colorBl = style.color;
+        }
+    },
+    setUp : function() {
+        var _this = this;
+        for (var i in this.backlinks) {
+            if (this.backlinks[i].length < 1) continue;
+            if (this.backlinks[i].length == 1 && this.backlinks[i][0] == i) continue;
+            var m = document.getElementById(this.prefix + 'm' + i);
+            if (m) this.observe(m, 'dblclick', function(e) { _this.click(this, e); });
+            var qm = document.getElementById(this.prefix + 'qm' + i);
+            if (qm) this.observe(qm, 'dblclick', function(e) { _this.click(this, e); });
+        }
+    },
+    observe : function(target, type, listener) {
+        if (target.addEventListener) {
+            target.addEventListener(type, listener, false);
+        } else {
+            target.attachEvent('on' + type, function() {
+                    listener.call(target, window.event);
+                });
         }
     },
     _getResnumFromIdstr : function(idstr) {
