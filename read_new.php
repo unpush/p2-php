@@ -192,6 +192,7 @@ EOP;
 }
 
 if ($_conf['backlink_coloring_track']) {
+    $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
     echo <<<EOP
     <script type="text/javascript" src="js/backlink_color.js?{$_conf['p2_version_id']}"></script>
 EOP;
@@ -208,6 +209,7 @@ echo <<<EOHEADER
     {
         gIsPageLoaded = true;
         setWinTitle();
+        {$onload_script}
     }
 
     (function(){

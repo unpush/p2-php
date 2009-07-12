@@ -246,6 +246,9 @@ if (empty($_GET['one'])) {
     $onload_script .= 'setWinTitle();';
 }
 
+if ($_conf['backlink_coloring_track']) {
+    $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
+}
 echo <<<EOHEADER
     <script type="text/javascript">
     //<![CDATA[
