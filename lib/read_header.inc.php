@@ -226,6 +226,11 @@ if ($_conf['expack.ic2.enabled']) {
     <link rel="stylesheet" type="text/css" href="css/ic2_popinfo.css?{$_conf['p2_version_id']}">\n
 EOP;
 }
+if ($_conf['backlink_coloring_track']) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/backlink_color.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
 
 $onload_script = '';
 
@@ -239,6 +244,10 @@ if ($_conf['bottom_res_form']) {
 
 if (empty($_GET['one'])) {
     $onload_script .= 'setWinTitle();';
+}
+
+if ($_conf['backlink_coloring_track']) {
+    $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
 }
 
 echo <<<EOHEADER

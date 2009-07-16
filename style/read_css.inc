@@ -85,6 +85,18 @@ div.thread {
 div.res {
 	margin: 0 0 2.0em 0;
 	padding: 0;
+    width: 100%;
+    /*\*//*/
+    overflow: hidden;
+    /**/
+
+}
+div.res:after {
+    height: 0;
+    visibility: hidden;
+    content: ".";
+    display: block;
+    clear: both;
 }
 
 /* 引用レスポップアップ */
@@ -120,14 +132,14 @@ div.res-header {
 
 /* レスボディ (通常) */
 div.res div.message {
-	margin: 0;
-	padding: 2px 0 0 2.5em;
+	margin: 0 0 0 2.5em;
+	padding: 2px 0 0 0;
 }
 
 /* レスボディ (引用レスポップアップ) */
 div.respopup div.message {
-	margin: 0;
-	padding: 2px 0 0 1.0em;
+	margin: 0 0 0 2.5em;
+	padding: 2px 0 0 0;
 }
 
 /* レスボディ内リンクの折り返し */
@@ -282,6 +294,42 @@ a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* 新着レス */
 }
 
 /* }}} */
+
+/* 逆参照リスト(通常) */
+div.res div.reslist {
+    float: left;
+    width: 3.5em;
+    font-size:70%;
+    padding: 0.2em 0 0 0;
+    margin: 0;
+}
+div.res div.reslist ul {
+    list-style-type: none;
+    line-height: 0.75;
+    margin: 0;
+    padding: 0;
+}
+div.res div.reslist ul li:first-letter {
+    color: #777;
+}
+
+/* 逆参照リスト(引用レスポップアップ) */
+div.respopup div.reslist {
+    float: left;
+    width: 3.5em;
+    font-size:70%;
+    padding: 0.2em 0 0 0;
+    margin: 0;
+}
+div.respopup div.reslist ul {
+    list-style-type: none;
+    line-height: 0.75;
+    margin: 0;
+    padding: 0;
+}
+div.respopup div.reslist ul li:first-letter {
+    color: #777;
+}
 
 .preview-video-switch {
 	cursor: pointer;
