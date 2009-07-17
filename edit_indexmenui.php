@@ -73,7 +73,7 @@ if (UA::isK() && !UA::isIPhoneGroup()) {
 ?>
 <div class="toolbar">
 <h1 id="pageTitle">ƒƒjƒ…[•À‘Ö</h1>
-<a id="backButton" class="button" href="./iphone.php">TOP</a>
+<a id="backButton" class="button" href="./index.php?b=i">TOP</a>
 </div>
 <div id="usage" class="panel"><filedset>
 <table>

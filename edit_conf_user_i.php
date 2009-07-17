@@ -110,7 +110,7 @@ echo <<<EOP
 <body onLoad="top.document.title=self.document.title;">\n
 <div class="toolbar">
 <h1 id="pageTitle">{$ptitle}</h1>
-<a name="top" id="backButton" class="button" href="./iphone.php">TOP</a>
+<a name="top" id="backButton" class="button" href="./index.php?b=i">TOP</a>
 </div>
 
 EOP;

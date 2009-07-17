@@ -279,7 +279,7 @@ echo <<<EOP
 	<body{$body_onload}>
 	<div class="toolbar">
 	<h1 id="pageTitle">ƒXƒŒî•ñ</h1>
-	<a id="backButton" class="button" href="./iphone.php">TOP</a>
+	<a id="backButton" class="button" href="./index.php?b=i">TOP</a>
 	</div>
 EOP;
 

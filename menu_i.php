@@ -158,7 +158,7 @@ P2Util::printInfoHtml();
 
 // フッタをHTML表示
 echo geti($GLOBALS['list_navi_ht']);
-echo '<p><a id="backButton"class="button" href="iphone.php">TOP</a></p>';
+echo '<p><a id="backButton"class="button" href="index.php?b=i">TOP</a></p>';
 ?>
 </body></html>
 <?php

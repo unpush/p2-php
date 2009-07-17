@@ -66,7 +66,7 @@ echo <<<EOF
 <body{$body_at}>
 <div class="toolbar">
 <h1>{$ttitle_back_ht}</h1>
-<a id="backButton" class="button" href="iphone.php">TOP</a>
+<a id="backButton" class="button" href="index.php?b=i">TOP</a>
 </div>
 
 

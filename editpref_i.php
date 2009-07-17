@@ -129,7 +129,7 @@ $ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
 <div class="toolbar">
 <h1 id="pageTitle"><?php eh($ptitle); ?></h1>
 <a class="button" href="edit_conf_user_i.php?b=i">ƒ†[ƒUİ’è</a>
-<a id="backButton" class="button" href="./iphone.php">TOP</a>
+<a id="backButton" class="button" href="./index.php?b=i">TOP</a>
 </div>
 <?php
 

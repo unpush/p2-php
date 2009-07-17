@@ -141,7 +141,7 @@ echo <<<IUI
     {$foot_sure}
   </div>
 </div>
-<p><a id="backButton"class="button" href="iphone.php">TOP</a></p>
+<p><a id="backButton"class="button" href="index.php?b=i">TOP</a></p>
 </body></html>
 IUI;
 

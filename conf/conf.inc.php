@@ -6,7 +6,7 @@
     ユーザ設定は、ブラウザから「ユーザ設定編集」で。管理者向け設定は、conf_admin.inc.phpで行う。
 */
 
-$_conf['p2version'] = '1.8.56'; // rep2のバージョン
+$_conf['p2version'] = '1.8.57'; // rep2のバージョン
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 
@@ -15,14 +15,18 @@ $_conf['p2uaname'] = 'r e p 2';  // UA用のrep2の名前
 //======================================================================
 // 基本設定処理
 //======================================================================
-// エラー出力設定（NOTICE削減中。まだ残っていると思う）
-if (defined('E_STRICT')) {
-    error_reporting(E_ALL & ~(E_NOTICE | E_STRICT));
-} else {
-    error_reporting(E_ALL ^ E_NOTICE);
-}
-//error_reporting(E_ALL & ~(E_NOTICE | E_STRICT | E_DEPRECATED));
+// {{{ エラー出力設定（NOTICEは削減中だが、まだ残っていると思う）
 
+$except = E_NOTICE;
+if (defined('E_STRICT')) {
+    $except = $except | E_STRICT;
+}
+if (defined('E_DEPRECATED')) {
+    $except = $except | E_DEPRECATED;
+}
+error_reporting(E_ALL & ~$except);
+
+// }}}
 // {{{ 基本変数
 
 $_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
@@ -163,96 +167,9 @@ $_conf['tmp_dir'] = $_conf['data_dir'] . '/tmp';
 
 $_conf['accesskey_for_k'] = 'accesskey';
 
-// {{{ 端末判定
+// 端末判定
+_checkBrowser(); // $_conf
 
-$_conf['login_check_ip']  = 1; // 携帯ログイン時にIPアドレスを検証する
-
-// 基本（PC）
-$_conf['ktai'] = false;
-$_conf['disable_cookie'] = false;
-
-if (UA::isSafariGroup()) {
-    $_conf['accept_charset'] = 'UTF-8';
-} else {
-    $_conf['accept_charset'] = 'Shift_JIS';
-}
-
-$mobile = &Net_UserAgent_Mobile::singleton();
-if (PEAR::isError($mobile)) {
-    trigger_error($mobile->toString(), E_USER_WARNING);
-
-// UAが携帯なら
-} elseif ($mobile and !$mobile->isNonMobile()) {
-
-    require_once P2_LIB_DIR . '/HostCheck.php';
-    
-    $_conf['ktai'] = true;
-    $_conf['accept_charset'] = 'Shift_JIS';
-
-    // ベンダ判定
-    // 2007/11/11 IPチェックは認証時に行った方がよさそうな
-    // docomo i-Mode
-    if ($mobile->isDoCoMo()) {
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
-            P2Util::printSimpleHtml("p2 error: UAがdocomoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-            die;
-        }
-        $_conf['disable_cookie'] = true;
-        
-    // EZweb (au or Tu-Ka)
-    } elseif ($mobile->isEZweb()) {
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
-            P2Util::printSimpleHtml("p2 error: UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-            die;
-        }
-        $_conf['disable_cookie'] = false;
-        
-    // SoftBank(旧Vodafone Live!)
-    } elseif ($mobile->isSoftBank()) {
-        //$_conf['accesskey_for_k'] = 'DIRECTKEY';
-        // W型端末と3GC型端末はCookieが使える
-        if ($mobile->isTypeW() || $mobile->isType3GC()) {
-            $_conf['disable_cookie'] = false;
-        } else {
-            $_conf['disable_cookie'] = true;
-        }
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrSoftBank()) {
-            P2Util::printSimpleHtml("p2 error: UAがSoftBankですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-            die;
-        }
-
-    // WILLCOM（旧AirH"Phone）
-    } elseif ($mobile->isWillcom()) {
-        /*
-        // WILLCOMでは端末ID認証を行わないので、コメントアウト
-        if ($_conf['login_check_ip'] && !HostCheck::isAddrWillcom()) {
-            P2Util::printSimpleHtml("p2 error: UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-            die;
-        }
-        */
-        $_conf['disable_cookie'] = false;
-        
-    // その他
-    } else {
-        $_conf['disable_cookie'] = true;
-    }
-}
-
-// iPhone指定
-if (UA::isIPhoneGroup()) {
-    $_conf['ktai'] = true;
-    UA::setForceMode(UA::getMobileQuery());
-
-    define('P2_IPHONE_LIB_DIR', './iphone');
-
-    $_conf['ktai']           = true;
-    $_conf['subject_php']    = 'subject_i.php';
-    $_conf['read_new_k_php'] = 'read_new_i.php';
-    $_conf['menu_k_php']     = 'menu_i.php';
-    $_conf['editpref_php']   = 'editpref_i.php';
-}
-
-// }}}
 // {{{ クエリーによる強制ビュー指定
 
 // b=pc はまだ全てのリンクに追加されておらず、機能しない場合がある。地道に整備していきたい。
@@ -802,6 +719,103 @@ function _copyOldConfUserFileIfExists()
         $old_cont = DataPhp::getDataPhpCont($conf_user_file_old);
         FileCtl::make_datafile($_conf['conf_user_file'], $_conf['conf_user_perm']);
         file_put_contents($_conf['conf_user_file'], $old_cont);
+    }
+}
+
+/**
+ * 端末判定
+ *
+ * @return  void
+ */
+function _checkBrowser()
+{
+    global $_conf;
+    
+    $_conf['login_check_ip']  = 1; // 携帯ログイン時にIPアドレスを検証する
+
+    // 基本（PC）
+    $_conf['ktai'] = false;
+    $_conf['disable_cookie'] = false;
+
+    if (UA::isSafariGroup()) {
+        $_conf['accept_charset'] = 'UTF-8';
+    } else {
+        $_conf['accept_charset'] = 'Shift_JIS';
+    }
+
+    $mobile = &Net_UserAgent_Mobile::singleton();
+    if (PEAR::isError($mobile)) {
+        trigger_error($mobile->toString(), E_USER_WARNING);
+
+    // UAが携帯なら
+    } elseif ($mobile and !$mobile->isNonMobile()) {
+
+        require_once P2_LIB_DIR . '/HostCheck.php';
+    
+        $_conf['ktai'] = true;
+        $_conf['accept_charset'] = 'Shift_JIS';
+
+        // ベンダ判定
+        // 2007/11/11 IPチェックは認証時に行った方がよさそうな
+        // docomo i-Mode
+        if ($mobile->isDoCoMo()) {
+            if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
+                P2Util::printSimpleHtml("p2 error: UAがdocomoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                die;
+            }
+            $_conf['disable_cookie'] = true;
+        
+        // EZweb (au or Tu-Ka)
+        } elseif ($mobile->isEZweb()) {
+            if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
+                P2Util::printSimpleHtml("p2 error: UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                die;
+            }
+            $_conf['disable_cookie'] = false;
+        
+        // SoftBank(旧Vodafone Live!)
+        } elseif ($mobile->isSoftBank()) {
+            //$_conf['accesskey_for_k'] = 'DIRECTKEY';
+            // W型端末と3GC型端末はCookieが使える
+            if ($mobile->isTypeW() || $mobile->isType3GC()) {
+                $_conf['disable_cookie'] = false;
+            } else {
+                $_conf['disable_cookie'] = true;
+            }
+            if ($_conf['login_check_ip'] && !HostCheck::isAddrSoftBank()) {
+                P2Util::printSimpleHtml("p2 error: UAがSoftBankですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                die;
+            }
+
+        // WILLCOM（旧AirH"Phone）
+        } elseif ($mobile->isWillcom()) {
+            /*
+            // WILLCOMでは端末ID認証を行わないので、コメントアウト
+            if ($_conf['login_check_ip'] && !HostCheck::isAddrWillcom()) {
+                P2Util::printSimpleHtml("p2 error: UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
+                die;
+            }
+            */
+            $_conf['disable_cookie'] = false;
+        
+        // その他
+        } else {
+            $_conf['disable_cookie'] = true;
+        }
+    }
+
+    // iPhone指定
+    if (UA::isIPhoneGroup()) {
+        $_conf['ktai'] = true;
+        UA::setForceMode(UA::getMobileQuery());
+
+        define('P2_IPHONE_LIB_DIR', './iphone');
+
+        $_conf['ktai']           = true;
+        $_conf['subject_php']    = 'subject_i.php';
+        $_conf['read_new_k_php'] = 'read_new_i.php';
+        $_conf['menu_k_php']     = 'menu_i.php';
+        $_conf['editpref_php']   = 'editpref_i.php';
     }
 }
 

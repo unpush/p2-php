@@ -120,7 +120,7 @@ $word_hs = hsi($GLOBALS['wakati_word'], hsi($GLOBALS['word']));
 $checked_ht['find_cont'] = !empty($_REQUEST['find_cont']) ? 'checked' : '';
 
 $input_find_cont_ht = <<<EOP
-<span title="スレ本文を検索対象に含める（DAT取得済みスレッドのみ）"><input type="checkbox" name="find_cont" value="1"{$checked_ht['find_cont']}>本文</span>
+<span title="レスを検索対象に含める（DAT取得済みスレッドのみ）"><input type="checkbox" name="find_cont" value="1"{$checked_ht['find_cont']}>レス</span>
 EOP;
 
 $filter_form_ht = <<<EOP

@@ -355,15 +355,20 @@ class Session
         }
         
         // 最終的に、セッションを破壊する
-        if (isset($_conf['session_dir'])) {
-            $session_file = $_conf['session_dir'] . '/sess_' . session_id();
+        $session_file = null;
+        
+        if ('files' == ini_get('session.save_handler')) {
+            if (isset($_conf['session_dir'])) {
+                $session_file = $_conf['session_dir'] . '/sess_' . session_id();
             
-        } else {
-            $session_file = session_save_path() . '/sess_' . session_id();
+            } else {
+                $session_file = session_save_path() . '/sess_' . session_id();
+            }
         }
         
         session_destroy();
-        file_exists($session_file) and unlink($session_file);
+        
+        $session_file and file_exists($session_file) and unlink($session_file);
     }
 
     /**

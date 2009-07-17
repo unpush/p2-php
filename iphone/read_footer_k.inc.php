@@ -78,7 +78,7 @@ EOP;
 <div id="footbar01">
   <div class="footbar">
     <ul>
-    <li class="home"><a href="iphone.php">TOP</a></li>
+    <li class="home"><a href="index.php?b=i">TOP</a></li>
     {$read_navi_previous_tab} 
     {$new_btm}
     <li class="res" id="writeId" title="off"><a onclick="footbarFormPopUp(1);all.item('footbar02').style.visibility='hidden';">‘‚«‚İ</a></li>

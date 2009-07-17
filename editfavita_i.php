@@ -80,7 +80,7 @@ echo <<<EOP
 <body>
 <div class="toolbar">
 <h1>‚¨‹C‚É”Â•ÒW</h1>
-<a class="button" id="backbutton" href="iphone.php">TOP</a>
+<a class="button" id="backbutton" href="index.php?b=i">TOP</a>
 </div>
 EOP;
 

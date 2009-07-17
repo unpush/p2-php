@@ -294,10 +294,10 @@ EOP;
         if (empty($GLOBALS['brazil']) and !(HostCheck::isAddrLocal() || HostCheck::isAddrPrivate())) {
         ?><p>
 	<font style="font-size:9pt" color="gray">※プライベート利用のためのシステムです。<br>
-	このページへのアクセスURLを部外者が<br>
-	不特定多数に公知することを禁止します。<br>
 	部外者によるログイン試行は、<br>
-	不正アクセスとして記録されます。</font></p><?php
+	不正アクセスとして記録されます。<br>
+	このページへのアクセスURLを部外者が<br>
+	不特定多数に公知することを禁止します。</font></p><?php
         }
     }
 

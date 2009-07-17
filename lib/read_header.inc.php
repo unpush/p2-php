@@ -574,11 +574,11 @@ EOP;
 	<input type="hidden" name="offline" value="1">
 	<select id="field" name="field">
 		<option value="whole"{$selected_field['whole']}>全体で</option>
-		<option value="name"{$selected_field['name']}>名前が</option>
-		<option value="mail"{$selected_field['mail']}>メールが</option>
-		<option value="date"{$selected_field['date']}>日付が</option>
-		<option value="id"{$selected_field['id']}>IDが</option>
-		<option value="msg"{$selected_field['msg']}>メッセージが</option>
+		<option value="name"{$selected_field['name']}>名前に</option>
+		<option value="mail"{$selected_field['mail']}>メールに</option>
+		<option value="date"{$selected_field['date']}>日付に</option>
+		<option value="id"{$selected_field['id']}>IDに</option>
+		<option value="msg"{$selected_field['msg']}>本文に</option>
 	</select>
 	<input id="word" name="word" value="{$word_hs}" size="24">{$select_method_ht}
 	を

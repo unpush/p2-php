@@ -578,7 +578,7 @@ echo <<<EOP
 <div id="footbar01">
 <div class="footbar">
 <ul>
-<li class="home"><a name="ntt_bt1" href="iphone.php">TOP</a></li>
+<li class="home"><a name="ntt_bt1" href="index.php?b=i">TOP</a></li>
 <li class="other"><a onclick="all.item('footbar02').style.visibility='visible';">‚»‚Ì‘¼</a></li>
 EOP;
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
