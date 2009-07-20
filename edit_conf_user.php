@@ -282,6 +282,12 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
         array('quote_res_view', '引用レスを表示'),
         array('strip_linebreaks', '文末の改行と連続する改行を除去'),
+        array('coloredid.enable', 'IDに色を付ける'),
+        array('coloredid.rate.type', '画面表示時にIDに着色しておく条件'),
+        array('coloredid.rate.times', '条件が出現数の場合の数(n以上)'),
+        array('coloredid.rate.hissi.times', '必死判定(IDブリンク)の出現数(0で無効。IE/Safariはblink非対応)'),
+        array('coloredid.click', 'ID出現数をクリックすると着色をトグル(「しない」にするとJavascriptではなくPHPで着色)'),
+        array('coloredid.marking.colors', 'ID出現数をダブルクリックしてマーキングの色リスト(カンマ区切り)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

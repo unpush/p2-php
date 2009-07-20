@@ -249,6 +249,24 @@ $conf_user_rad['mobile.underline_id'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['mobile.copy_divide_len'] = 0; // (0)
 $conf_user_rules['mobile.copy_divide_len'] = array('notIntExceptMinusToDef');
 
+// IDに色を付ける
+$conf_user_def['coloredid.enable'] = 1;
+$conf_user_rad['coloredid.enable'] = array('1' => 'する', '0' => 'しない');
+// 画面表示時にIDに着色しておく条件
+$conf_user_def['coloredid.rate.type'] = 3;
+$conf_user_rad['coloredid.rate.type'] = array('0' => 'しない', '1' => '出現数', '2' => 'スレ内トップ10', '3' => 'スレ内平均以上');
+// 条件が出現数の場合の数(n以上)
+$conf_user_def['coloredid.rate.times'] = 2;
+$conf_user_rules['coloredid.rate.times'] = array('notIntExceptMinusToDef');
+// 必死判定(IDブリンク)の出現数(0で無効。IE/Safariはblink非対応)
+$conf_user_def['coloredid.rate.hissi.times'] = 25;
+$conf_user_rules['coloredid.rate.hissi.times'] = array('notIntExceptMinusToDef');
+// ID出現数をクリックすると着色をトグル(「しない」にするとJavascriptではなくPHPで着色)
+$conf_user_def['coloredid.click'] = 1;
+$conf_user_rad['coloredid.click'] = array('1' => 'する', '0' => 'しない');
+// ID出現数をダブルクリックしてマーキングする色リスト(カンマ区切り)
+$conf_user_def['coloredid.marking.colors'] = '#f00,#0f0,#00f,#f90,#f0f,#ff0,#90f,#0ff,#9f0';
+
 // }}}
 // {{{ NG/あぼーん
 

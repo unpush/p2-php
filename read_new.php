@@ -190,6 +190,12 @@ if ($_conf['expack.ic2.enabled']) {
     <link rel="stylesheet" type="text/css" href="css/ic2_popinfo.css?{$_conf['p2_version_id']}">\n
 EOP;
 }
+if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/colorLib.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/coloredId.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
 
 // pageLoaded()が他のJavaScriptでも定義されたロード時のイベントハンドラとかぶらないようにする。
 // 古いブラウザでDOMContentLoadedと同等のタイミングにはこだわらない。
@@ -508,6 +514,11 @@ EOP;
         $res1 = $aShowThread->quoteOne();
         $read_cont_ht = $res1['q'];
         $read_cont_ht .= $aShowThread->getDatToHtml();
+
+        // IDカラーリング
+        if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0) {
+            $read_header_ht .= $aShowThread->getIdColorJs();
+        }
 
         unset($aShowThread);
     }
