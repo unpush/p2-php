@@ -104,7 +104,7 @@ class ReplaceImageURLCtl
                 // $EXTRACT={URL}‚ÌÀ‘•‚Í—eˆÕ
                 if (strstr($v['extract'], '$EXTRACT')){
                     $v['source'] =  @preg_replace ('{'.$v['match'].'}', $v['source'], $url);
-                    preg_match_all('{' . $v['source'] . '}', P2Util::getWebPage($url, $errmsg), $extracted, PREG_SET_ORDER);
+                    preg_match_all('{' . $v['source'] . '}i', P2Util::getWebPage($url, $errmsg), $extracted, PREG_SET_ORDER);
                     foreach ($extracted as $i => $extract) {
                         $_url = $replaced; $_referer = $referer;
                         foreach ($extract as $j => $part) {
