@@ -241,3 +241,4 @@ http://\w+\.wikipedia\.org/wiki/.+:([^/]+\.svg)	$EXTRACT	$&	$EXTRACT	(http://upl
 http://map\.yahoo\.co\.jp/pl\?(.+)	http://img.map.yahoo.co.jp/ymap/mk_map?$1&a.gif			
 http://srd\.yahoo\.co\.jp/IMG/.*/\*-(?:http(?::|%3A)(?:/|%2F){2}(.+\.(?:jpe?g|png|gif|bmp)).*)	http://$1			
 https?://(?:megalodon\.jp/\?url=http://)?((.+)(?:\.|%2E)(jpe?g|png|gif|bmp)(?:(?:\?|%3F|&).*|(?:\.|%2E)s?html?)?)$	http://$2.$3	http://$1		
+http://(?:www\.)?(picasaweb\.google\.co(?:m|\.jp)/[.\w\-]+/(?:[.\w\-]+/)*\w+#)s?(\d+)	http://$EXTRACT1/$EXTRACT2/$EXTRACT3/$EXTRACT4/$EXTRACT5/$EXTRACT6	http://$1$2	$EXTRACT	(?:id:["']$2|photoid/$2).+?http(?::|\\x3A)(?:\\x2F|/){2}(\w+\.ggpht\.com)(?:\\x2F|/)([.\w\-]+)(?:\\x2F|/)([.\w\-]+)(?:\\x2F|/)([.\w\-]+)(?:\\x2F|/)([.\w\-]+)(?:\\x2F|/)([^/"'\\\s]+\.(?:jpe?g|png|gif|bmp))

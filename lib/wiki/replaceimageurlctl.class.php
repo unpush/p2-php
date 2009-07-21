@@ -104,10 +104,20 @@ class ReplaceImageURLCtl
                 // $EXTRACT={URL}‚ÌÀ‘•‚Í—eˆÕ
                 if (strstr($v['extract'], '$EXTRACT')){
                     $v['source'] =  @preg_replace ('{'.$v['match'].'}', $v['source'], $url);
-                    preg_match_all('{' . $v['source'] . '}', P2Util::getWebPage($url, $errmsg), $extracted);
-                    foreach ($extracted[1] as $i => $extract) {
-                        $return[$i]['url']     = str_replace('$EXTRACT', $extract, $replaced);
-                        $return[$i]['referer'] = str_replace('$EXTRACT', $extract, $referer);
+                    preg_match_all('{' . $v['source'] . '}i', P2Util::getWebPage($url, $errmsg), $extracted, PREG_SET_ORDER);
+                    foreach ($extracted as $i => $extract) {
+                        $_url = $replaced; $_referer = $referer;
+                        foreach ($extract as $j => $part) {
+                            if ($j < 1) continue;
+                            $_url       = str_replace('$EXTRACT'.$j, $part, $_url);
+                            $_referer   = str_replace('$EXTRACT'.$j, $part, $_referer);
+                        }
+                        if ($extract[1]) {
+                            $_url       = str_replace('$EXTRACT', $part, $_url);
+                            $_referer   = str_replace('$EXTRACT', $part, $_referer);
+                        }
+                        $return[$i]['url']      = $_url;
+                        $return[$i]['referer']  = $_referer;
                     }
                 } else {
                     $return[0]['url']     = $replaced;
