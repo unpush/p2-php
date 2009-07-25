@@ -15,6 +15,16 @@ class ReplaceImageURLCtl
     var $data = array();
     var $isLoaded = false;
 
+    // replaceの結果を外部ファイルにキャッシュする
+    // とりあえず外部リクエストの発生する$EXTRACT入りの場合のみ対象
+    // 500系のエラーだった場合は、キャッシュしない
+    var $cacheFilename = "p2_replace_imageurl_cache.txt";
+    var $cacheData = array();
+    var $cacheIsLoaded = false;
+
+    // 全エラーをキャッシュして無視する(永続化はしないので今回リクエストのみ）
+    var $extractErrors = array();
+
     function clear() {
         global $_conf;
         $path = $_conf['pref_dir'] . '/' . $this->filename;
@@ -24,6 +34,7 @@ class ReplaceImageURLCtl
 
     function autoLoad() {
         if (!$this->isLoaded) $this->load();
+        if (!$this->cacheIsLoaded) $this->load_cache();
     }
 
     function load() {
@@ -80,6 +91,50 @@ class ReplaceImageURLCtl
         return FileCtl::file_write_contents($path, $newdata);
     }
 
+
+    function load_cache() {
+        global $_conf;
+        $lines = array();
+        $path = $_conf['pref_dir'].'/'.$this->cacheFilename;
+        FileCtl::make_datafile($path);
+        if ($lines = @file($path)) {
+            foreach ($lines as $l) {
+                list($key, $data) = explode("\t", trim($l));
+                if (strlen($key) == 0 || strlen($data) == 0) continue;
+                $this->cacheData[$key] = unserialize($data);
+            }
+        }
+        $this->cacheIsLoaded = true;
+        return $this->cacheData;
+    }
+
+    function addCache($key, $data) {
+        global $_conf;
+
+        if ($this->cacheData[$key]) {
+            return false;   // ここはあまり通過しないでしょう
+        }
+        $this->cacheData[$key] = $data;
+        return FileCtl::file_write_contents(
+            $_conf['pref_dir'] . '/' . $this->cacheFilename,
+            implode("\t", array($key,
+                serialize(ReplaceImageURLCtl::sanitizeForCache($data)))
+            ) . "\n",
+            FILE_APPEND
+        );
+    }
+
+    static function sanitizeForCache($data) {
+        if (is_array($data)) {
+            foreach(array_keys($data) as $k) {
+                $data[$k] = ReplaceImageURLCtl::sanitizeForCache($data[$k]);
+            }
+            return $data;
+        } else {
+            return str_replace(array("\t", "\r", "\n"), '', $data);
+        }
+    }
+
     /**
      * replaceImageURL
      * リンクプラグインを実行
@@ -92,6 +147,10 @@ class ReplaceImageURLCtl
         $this->autoLoad();
         $src = FALSE;
 
+        if ($this->cacheData[$url]) {
+            // キャッシュがあればそれを返す
+            return $this->cacheData[$url]['data'];
+        }
         foreach ($this->data as $v) {
             if (preg_match('{^'.$v['match'].'$}', $url)) {
                 $v['replace'] = str_replace('$&', '$0', $v['replace']);
@@ -104,7 +163,22 @@ class ReplaceImageURLCtl
                 // $EXTRACT={URL}の実装は容易
                 if (strstr($v['extract'], '$EXTRACT')){
                     $v['source'] =  @preg_replace ('{'.$v['match'].'}', $v['source'], $url);
-                    preg_match_all('{' . $v['source'] . '}i', P2Util::getWebPage($url, $errmsg), $extracted, PREG_SET_ORDER);
+                    $get_url = $referer;
+                    if ($this->extractErrors[$get_url]) {
+                        break;  // 今回リクエストでエラーだった場合スキップ
+                    }
+                    $page = P2Util::getWebPage($get_url, $errmsg);
+                    if ($errmsg) {
+                        // 今回リクエストでのエラーを一時キャッシュ
+                        $this->extractErrors[$get_url] = $errmsg;
+                        if ($errmsg < 500) {
+                            // サーバエラー以外なら永続キャッシュに保存
+                            $this->addCache($url,
+                                array('code' => $errmsg, 'data' => array()));
+                        }
+                        break;
+                    }
+                    preg_match_all('{' . $v['source'] . '}i', $page, $extracted, PREG_SET_ORDER);
                     foreach ($extracted as $i => $extract) {
                         $_url = $replaced; $_referer = $referer;
                         foreach ($extract as $j => $part) {
@@ -119,6 +193,8 @@ class ReplaceImageURLCtl
                         $return[$i]['url']      = $_url;
                         $return[$i]['referer']  = $_referer;
                     }
+                    // 結果を永続キャッシュに保存
+                    $this->addCache($url, array('code' => $errmsg, 'data' => $return));
                 } else {
                     $return[0]['url']     = $replaced;
                     $return[0]['referer'] = $referer;
