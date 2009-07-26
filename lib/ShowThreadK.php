@@ -677,6 +677,15 @@ EOP;
         if ($appointed_num == '-') {
             return $full;
         }
+
+        $appointed_num = mb_convert_kana($appointed_num, 'n');   // ‘SŠp”Žš‚ð”¼Šp”Žš‚É•ÏŠ·
+        if (preg_match("/\D/",$appointed_num)) {
+            $appointed_num = preg_replace('/\D+/', '-', $appointed_num);
+            return $this->quoteResRange($full, $qsign, $appointed_num);
+        }
+        if (preg_match("/^0/", $appointed_num)) {
+            return $full;
+        }
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum > $this->thread->rescount) {
             return $full;
