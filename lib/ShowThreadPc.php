@@ -250,21 +250,22 @@ EOP;
         }
 
         $tores .= "<div id=\"{$res_id}\" class=\"res\">\n";
+        $tores .= "<div class=\"res-header\">";
 
         if ($this->thread->onthefly) {
             $GLOBALS['newres_to_show_flag'] = true;
             //番号（オンザフライ時）
-            $tores .= "<div class=\"res-header\"><span class=\"ontheflyresorder spmSW\"{$spmeh}>{$i}</span> : ";
+            $tores .= "<span class=\"ontheflyresorder spmSW\"{$spmeh}>{$i}</span> : ";
         } elseif ($i > $this->thread->readnum) {
             $GLOBALS['newres_to_show_flag'] = true;
             // 番号（新着レス時）
-            $tores .= "<div class=\"res-header\"><span style=\"color:{$STYLE['read_newres_color']}\" class=\"spmSW\"{$spmeh}>{$i}</span> : ";
+            $tores .= "<span style=\"color:{$STYLE['read_newres_color']}\" class=\"spmSW\"{$spmeh}>{$i}</span> : ";
         } elseif ($_conf['expack.spm.enabled']) {
             // 番号（SPM）
-            $tores .= "<div class=\"res-header\"><span class=\"spmSW\"{$spmeh}>{$i}</span> : ";
+            $tores .= "<span class=\"spmSW\"{$spmeh}>{$i}</span> : ";
         } else {
             // 番号
-            $tores .= "<div class=\"res-header\">{$i} : ";
+            $tores .= "{$i} : ";
         }
         // 名前
         $tores .= preg_replace('{<b>[ ]*</b>}i', '', "<span class=\"name\"><b>{$name}</b></span> : ");
@@ -289,10 +290,11 @@ EOP;
         if ($this->am_side_of_id) {
             $tores .= ' ' . $this->activeMona->getMona($msg_id);
         }
-        $tores .= "</div>\n";
+        $tores .= "</div>\n"; // res-headerを閉じる
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
         $tores .= "</div>\n";
-        $tores .= $rpop; // レスポップアップ用引用
+
+//        $tores .= $rpop; // レスポップアップ用引用
         /*if ($_conf['expack.am.enabled'] == 2) {
             $tores .= <<<EOJS
 <script type="text/javascript">
@@ -308,7 +310,9 @@ EOJS;
             $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
         }
 
-        return $tores;
+        $res1['q'] = $rpop;
+        $res1['body'] = $tores;
+        return $res1; //$tores;
     }
 
     // }}}

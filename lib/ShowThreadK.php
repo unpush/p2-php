@@ -412,7 +412,7 @@ EOP;
             $tores = mb_convert_kana($tores, 'rnsk'); // CP932 ‚¾‚Æ ask ‚Å ƒ ‚ğ < ‚É•ÏŠ·‚µ‚Ä‚µ‚Ü‚¤‚æ‚¤‚¾
         }
 
-        return $tores;
+        return array('body'=>$tores,'q'=>'');
     }
 
     // }}}

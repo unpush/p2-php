@@ -167,11 +167,15 @@ abstract class ShowThread
         $to = $this->thread->resrange['to'];
         $nofirst = $this->thread->resrange['nofirst'];
 
-        $buf = $is_fragment ? '' : "<div class=\"thread\">\n";
+        $buf['body'] = $is_fragment ? '' : "<div class=\"thread\">\n";
 
         // まず 1 を表示
         if (!$nofirst) {
-            $buf .= $this->transRes($this->thread->datlines[0], 1);
+            $res = $this->transRes($this->thread->datlines[0], 1);
+            $buf['body'] .= $res['body'];
+            if ($res['q']) {
+                $buf['q'] .= $res['q'];
+            }
         }
 
         // 連鎖のため、範囲外のNGあぼーんチェック
@@ -194,22 +198,25 @@ abstract class ShowThread
                 $this->thread->readnum = $i;
                 break;
             }
-            $buf .= $this->transRes($this->thread->datlines[$i], $i + 1);
+            $res = $this->transRes($this->thread->datlines[$i], $i + 1);
+            $buf['body'] .= $res['body'];
+            $buf['q'] .= $res['q'];
             if (!$capture && $i % 10 == 0) {
-                echo $buf;
+                echo $buf['body'];
                 flush();
-                $buf = '';
+                $buf['body'] = '';
             }
         }
 
         if (!$is_fragment) {
-            $buf .= "</div>\n";
+            $buf['body'] .= "</div>\n";
         }
 
         if ($capture) {
-            return $buf;
+            return $buf['body'] . $buf['q'];
         } else {
-            echo $buf;
+            echo $buf['body'];
+            echo $buf['q'];
             flush();
             return true;
         }
