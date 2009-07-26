@@ -168,13 +168,16 @@ abstract class ShowThread
         $nofirst = $this->thread->resrange['nofirst'];
 
         $buf['body'] = $is_fragment ? '' : "<div class=\"thread\">\n";
+        $buf['q'] = '';
 
         // ‚Ü‚¸ 1 ‚ð•\Ž¦
         if (!$nofirst) {
             $res = $this->transRes($this->thread->datlines[0], 1);
-            $buf['body'] .= $res['body'];
-            if ($res['q']) {
-                $buf['q'] .= $res['q'];
+            if (is_array($res)) {
+                $buf['body'] .= $res['body'];
+                $buf['q'] .= $res['q'] ? $res['q'] : '';
+            } else {
+                $buf['body'] .= $res;
             }
         }
 
@@ -199,8 +202,12 @@ abstract class ShowThread
                 break;
             }
             $res = $this->transRes($this->thread->datlines[$i], $i + 1);
-            $buf['body'] .= $res['body'];
-            $buf['q'] .= $res['q'];
+            if (is_array($res)) {
+                $buf['body'] .= $res['body'];
+                $buf['q'] .= $res['q'] ? $res['q'] : '';
+            } else {
+                $buf['body'] .= $res;
+            }
             if (!$capture && $i % 10 == 0) {
                 echo $buf['body'];
                 flush();

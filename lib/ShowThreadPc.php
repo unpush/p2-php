@@ -310,9 +310,7 @@ EOJS;
             $tores = StrCtl::filterMarking($GLOBALS['word_fm'], $tores);
         }
 
-        $res1['q'] = $rpop;
-        $res1['body'] = $tores;
-        return $res1; //$tores;
+        return array('body' => $tores, 'q' => $rpop);
     }
 
     // }}}
