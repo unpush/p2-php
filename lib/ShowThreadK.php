@@ -437,8 +437,12 @@ EOP;
         }
 
         // 数字を引用レスポップアップリンク化
-        $name = preg_replace_callback('/^( ?(?:&gt;|＞)* ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                                      array($this, 'quoteResCallback'), $name, 1);
+        if (strlen($name) && $name != $this->BBS_NONAME_NAME) {
+            $name = preg_replace_callback(
+                $this->getAnchorRegex('/(?:^|%prefix%)%nums%/'),
+                array($this, 'quote_name_callback'), $name
+            );
+        }
 
         if ($trip) {
             $name .= $trip;
@@ -492,7 +496,10 @@ EOP;
             $msg = preg_replace('/ *<[^>]*$/', '', $msg);
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
-            $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quoteResCallback'), $msg);
+            $msg = preg_replace_callback(
+                $this->getAnchorRegex('/%full%/'),
+                array($this, 'quoteResCallback'), $msg
+            );
 
             $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>略</a>";
             return $msg;
