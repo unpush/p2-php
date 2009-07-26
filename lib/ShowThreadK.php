@@ -692,7 +692,7 @@ EOP;
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$full}</a>";
     }
 
     // }}}
@@ -729,7 +729,7 @@ EOP;
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$from}-{$to}";
 
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$full}</a>";
     }
 
     // }}}

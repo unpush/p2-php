@@ -631,7 +631,7 @@ EOP;
             $attributes .= " onmouseover=\"showResPopUp('{$qres_id}',event)\"";
             $attributes .= " onmouseout=\"hideResPopUp('{$qres_id}')\"";
         }
-        return "<a href=\"{$read_url}\"{$attributes}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}\"{$attributes}>{$full}</a>";
     }
 
     // }}}
@@ -661,7 +661,7 @@ EOP;
         }
 
         // 普通にリンク
-        return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$full}</a>";
 
         // 1つ目を引用レスポップアップ
         /*
