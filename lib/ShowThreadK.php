@@ -19,8 +19,6 @@ class ShowThreadK extends ShowThread
 
     static private $_spm_objects = array();
 
-    public $BBS_NONAME_NAME = '';
-
     public $am_autong = false; // Ž©“®AA—ª‚ð‚·‚é‚©”Û‚©
 
     public $aas_rotate = '90‹‰ñ“]'; // AAS ‰ñ“]ƒŠƒ“ƒN•¶Žš—ñ
@@ -70,14 +68,7 @@ class ShowThreadK extends ShowThread
 
         $this->BBS_NONAME_NAME = null;
         if (!$_conf['mobile.bbs_noname_name']) {
-            if (!class_exists('SettingTxt', false)) {
-                require P2_LIB_DIR . '/SettingTxt.php';
-            }
-            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
-            $st->setSettingArray();
-            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
-                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
-            }
+            $this->setBbsNonameName();
         }
 
         if ($_conf['mobile.date_zerosuppress']) {

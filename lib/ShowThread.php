@@ -78,6 +78,8 @@ abstract class ShowThread
     public $activeMona; // アクティブモナー・オブジェクト
     public $am_enabled = false; // アクティブモナーが有効か否か
 
+    public $BBS_NONAME_NAME = '';
+
     // }}}
     // {{{ constructor
 
@@ -126,6 +128,23 @@ abstract class ShowThread
     }
 
     // }}}
+
+    /**
+     * @access  protected
+     * @return  void
+     */
+    function setBbsNonameName()
+    {
+        if (P2Util::isHost2chs($this->thread->host)) {
+            if (!class_exists('SettingTxt', false)) {
+                require P2_LIB_DIR . '/SettingTxt.php';
+            }
+            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
+            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
+                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+            }
+        }
+    }
 
     /**
      * static

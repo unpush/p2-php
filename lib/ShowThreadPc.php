@@ -90,6 +90,9 @@ class ShowThreadPc extends ShowThread
             $this->asyncObjName = "asp{$js_id}";
             $this->spmObjName = "spm{$js_id}";
         }
+
+        // –¼–³‚µ‰Šú‰»
+        $this->setBbsNonameName();
     }
 
     // }}}
