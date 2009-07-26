@@ -612,7 +612,7 @@ EOP;
             return $this->quoteResRange($full, $qsign, $appointed_num);
         }
         if (preg_match("/^0/", $appointed_num)) {
-            return $s[0];
+            return $full;
         }
 
         $qnum = intval($appointed_num);
