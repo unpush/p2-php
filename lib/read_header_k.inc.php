@@ -30,6 +30,7 @@ if ($do_filtering) {
     $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
     $hd['field'] = $res_filter['field'];
     $hd['method'] = $res_filter['method'];
+    $hd['match'] = $res_filter['match'];
 }
 
 //=================================================================
