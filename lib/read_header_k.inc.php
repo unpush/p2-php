@@ -28,6 +28,8 @@ $do_filtering = (isset($GLOBALS['word']) && strlen($GLOBALS['word']) > 0);
 
 if ($do_filtering) {
     $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
+    $hd['field'] = $res_filter['field'];
+    $hd['method'] = $res_filter['method'];
 }
 
 //=================================================================

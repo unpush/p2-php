@@ -192,6 +192,8 @@ function _get_read_jump_filter_form(ThreadRead $aThread, $options)
 <input type="hidden" name="bbs" value="{$aThread->bbs}">
 <input type="hidden" name="key" value="{$aThread->key}">
 <input type="hidden" name="word" value="{$hd['word']}">
+<input type="hidden" name="method" value="{$hd['method']}">
+<input type="hidden" name="field" value="{$hd['field']}">
 <select name="page">{$options}</select><input type="submit" value="GO">
 <input type="hidden" name="offline" value="1">
 {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
