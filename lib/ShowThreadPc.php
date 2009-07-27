@@ -23,8 +23,6 @@ class ShowThreadPc extends ShowThread
     private $_quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
     private $_quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
 
-    private $_quote_from; // 被アンカーを集計した配列 // [被参照レス番 : [参照レス番, ...], ...)
-
     public $am_autodetect = false; // AA自動判定をするか否か
     public $am_side_of_id = false; // AAスイッチをIDの横に表示する
     public $am_on_spm = false; // AAスイッチをSPMに表示する
@@ -293,12 +291,16 @@ EOP;
         }
         $tores .= "</div>\n";
 
-        // 被レスリスト
+        // 被レスリスト(縦形式)
         if ($_conf['backlink_list'] == 1) {
-            $tores .= $this->_quoteback_list_html($i);
+            $tores .= $this->quoteback_list_html($i, 1);
         }
 
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // 被レスリスト(横形式)
+        if ($_conf['backlink_list'] == 2) {
+            $tores .= $this->quoteback_list_html($i, 2);
+        }
         $tores .= "</div>\n";
         $tores .= $rpop; // レスポップアップ用引用
         /*if ($_conf['expack.am.enabled'] == 2) {
@@ -436,12 +438,16 @@ EOJS;
         }
         $tores .= "</div>\n";
 
-        // 被レスリスト
+        // 被レスリスト(縦形式)
         if ($_conf['backlink_list'] == 1) {
-            $tores .= $this->_quoteback_list_html($i);
+            $tores .= $this->quoteback_list_html($i, 1);
         }
 
         $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // 被レスリスト(横形式)
+        if ($_conf['backlink_list'] == 2) {
+            $tores .= $this->quoteback_list_html($i, 2);
+        }
 
         return $tores;
     }
@@ -793,9 +799,6 @@ EOP;
     {
         global $_conf;
 
-        if ($_conf['backlink_list'] == 1 && $this->_quote_from === null) {
-            $this->_make_quote_from();  // 被レスデータ集計
-        }
         // 再帰リミッタ
         if ($this->_quote_check_depth > 30) {
             return array();
@@ -874,10 +877,11 @@ EOP;
 
         }
 
-        if ($_conf['backlink_list'] == 1) {
+        if ($_conf['backlink_list'] > 0) {
             // レスが付いている場合はそれも対象にする
-            if (array_key_exists($res_num, $this->_quote_from)) {
-                foreach ($this->_quote_from[$res_num] as $quote_from_num) {
+            $quote_from = $this->get_quote_from();
+            if (array_key_exists($res_num, $quote_from)) {
+                foreach ($quote_from[$res_num] as $quote_from_num) {
                     $quote_res_nums[] = $quote_from_num;
                     if ($quote_from_num != $res_num) {
                         if (!isset($this->_quote_res_nums_checked[$quote_from_num])) {
@@ -1482,71 +1486,6 @@ EOP;
 
     // }}}
     // }}}
-
-    /**
-     * 被レスデータを集計して$this->_quote_fromに保存.
-     */
-    private function _make_quote_from()
-    {
-        global $_conf;
-        $this->_quote_from = array();
-        if (!$this->thread->datlines) return;
-
-        foreach($this->thread->datlines as $num => $line) {
-            list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
-            if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
-                foreach ($out[1] as $numberq) {
-                    if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
-                        if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
-                            for ($i = $matches[1]; $i <= $matches[2]; $i++) {
-                                if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
-                                    $this->_quote_from[$i] = array();
-                                }
-                                if (!in_array($num + 1, $this->_quote_from[$i])) {
-                                    $this->_quote_from[$i][] = $num + 1;
-                                }
-                            }
-                        }
-                    } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
-                        foreach ($matches[0] as $quote_num) {
-                            if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
-                                $this->_quote_from[$quote_num] = array();
-                            }
-                            if (!in_array($num + 1, $this->_quote_from[$quote_num])) {
-                                $this->_quote_from[$quote_num][] = $num + 1;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * 被レスリストをHTMLで整形して返す.
-     */
-    private function _quoteback_list_html($resnum)
-    {
-        $ret = '';
-        if (!array_key_exists($resnum, $this->_quote_from)) return $ret;
-
-        $ret .= '<div class="reslist"><ul>';
-        $anchors = $this->_quote_from[$resnum];
-        sort($anchors);
-        $anchor_cnt = 1;
-        foreach($anchors as $anchor) {
-            if ($anchor_cnt > 1) $ret .= '<li>│</li>';
-            if ($anchor_cnt < count($anchors)) {
-                $ret .= '<li>├';
-            } else {
-                $ret .= '<li>└';
-            }
-            $ret .= $this->quoteRes($anchor, '', $anchor, true);
-            $anchor_cnt++;
-        }
-        $ret .= '</ul></div>';
-        return $ret;
-    }
 }
 
 // }}}
