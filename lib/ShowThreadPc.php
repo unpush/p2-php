@@ -358,8 +358,8 @@ EOID;
 
         $ds = '';
         $rpop = '';
-        $dummy_msg = "";
-        $quote_res_nums = $this->checkQuoteResNums(0, "1", $dummy_msg);
+        $dummy_msg = '';
+        $quote_res_nums = $this->checkQuoteResNums(0, '1', $dummy_msg);
         foreach ($quote_res_nums as $rnv) {
             if (empty($this->quote_res_nums_done[$rnv])) {
                 if ($this->thread->ttitle_hs) {
@@ -374,7 +374,7 @@ EOID;
         }
         $res1['q'] = $rpop;
 
-        $m1 = "&gt;&gt;1";
+        $m1 = '&gt;&gt;1';
         $res1['body'] = $this->transMsg($m1, 1);
         
         return $res1;
@@ -1033,100 +1033,6 @@ EOMSG;
         return $idstr = "<span style=\"background-color:rgb({$R},{$G},{$B});{$uline}\">{$idstr}</span>";
     }
 
-    // {{{ ユーティリティメソッド
-
-    /**
-     * HTMLメッセージ中の引用レス番号を再帰チェックし、見つかった番号の配列を返す
-     *
-     * @access  private
-     * @param   integer     $res_num       チェック対象レスの番号
-     * @param   string|null $name          チェック対象レスの名前（未フォーマットのもの）
-     * @param   string|null $msg           チェック対象レスのメッセージ（未フォーマットのもの）
-     * @param   integer     $callLimit     再帰での呼び出し数制限
-     * @param   integer     $nowDepth      現在の再帰の深さ（マニュアル指定はしない）
-     * @return  array    見つかった引用レス番号の配列
-     */
-    function checkQuoteResNums($res_num, $name, $msg, $callLimit = 20, $nowDepth = 0)
-    {
-        static $callTimes_ = 0;
-        
-        if (!$nowDepth) {
-            $callTimes_ = 0;
-        } else {
-            $callTimes_++;
-        }
-        
-        // 再帰での呼び出し数制限
-        if ($callTimes_ >= $callLimit) {
-            return array();
-        }
-        
-        if ($res_num > count($this->thread->datlines)) {
-            return array();
-        }
-        
-        $quote_res_nums = array();
-        
-        // name, msg が null指定なら datlines, res_num から取得する
-        if (is_null($name) || is_null($msg)) {
-            $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$res_num - 1]);
-            if (is_null($name)) {
-                $name = $datalinear[0];
-            }
-            if (is_null($msg)) {
-                $msg = $datalinear[3];
-            }
-        }
-        
-        // {{{ 名前をチェックする
-        
-        if ($matches = $this->getQuoteResNumsName($name)) {
-            
-            foreach ($matches as $a_quote_res_num) {
-            
-                $quote_res_nums[] = $a_quote_res_num;
-
-                // 自分自身の番号と同一でなければ
-                if ($a_quote_res_num != $res_num) {
-                    // チェックしていない番号を再帰チェック
-                    if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
-                        $this->quote_res_nums_checked[$a_quote_res_num] = true;
-                        $quote_res_nums = array_merge($quote_res_nums,
-                            $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1)
-                        );
-                    }
-                }
-            }
-        }
-        
-        // }}}
-        // {{{ メッセージをチェックする
-        
-        $quote_res_nums_msg = $this->getQuoteResNumsMsg($msg);
-
-        foreach ($quote_res_nums_msg as $a_quote_res_num) {
-
-            $quote_res_nums[] = $a_quote_res_num;
-
-            // 自分自身の番号と同一でなければ、
-            if ($a_quote_res_num != $res_num) {
-                // チェックしていない番号を再帰チェック
-                if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
-                    $this->quote_res_nums_checked[$a_quote_res_num] = true;
-                    $quote_res_nums = array_merge($quote_res_nums,
-                        $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1)
-                    );
-                 }
-             }
-
-        }
-
-        // }}}
-        
-        return array_unique($quote_res_nums);
-    }
-    
-    // }}}
     // {{{ link_callback()から呼び出されるURL書き換えメソッド
 
     // これらのメソッドは引数が処理対象パターンに合致しないとFALSEを返し、

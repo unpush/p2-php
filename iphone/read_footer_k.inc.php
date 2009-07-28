@@ -81,8 +81,8 @@ EOP;
     <li class="home"><a href="index.php?b=i">TOP</a></li>
     {$read_navi_previous_tab} 
     {$new_btm}
-    <li class="res" id="writeId" title="off"><a onclick="footbarFormPopUp(1);all.item('footbar02').style.visibility='hidden';">書き込み</a></li>
-    <li class="other"><a onclick="all.item('footbar02').style.visibility='visible';footbarFormPopUp(0, 1);footbarFormPopUp(1, 1);">その他</a></li>
+    <li class="res" id="writeId" title="off"><a onclick="popUpFootbarFormIPhone(1);all.item('footbar02').style.visibility='hidden';">書き込み</a></li>
+    <li class="other"><a onclick="all.item('footbar02').style.visibility='visible';popUpFootbarFormIPhone(0, 1);popUpFootbarFormIPhone(1, 1);">その他</a></li>
     {$read_navi_next_btm_tab}
     </ul>
   </div>
@@ -90,7 +90,7 @@ EOP;
 <div id="footbar02" class="dialog_other">
 <filedset>
 <ul>
-    <li class="whiteButton" id="serchId" title="off" onclick="footbarFormPopUp(0);all.item('footbar02').style.visibility='hidden'">フィルタ検索</li>
+    <li class="whiteButton" id="serchId" title="off" onclick="popUpFootbarFormIPhone(0);all.item('footbar02').style.visibility='hidden'">フィルタ検索</li>
     {$toolbar_right_ht} 
     <li class="grayButton" onclick="all.item('footbar02').style.visibility='hidden'">キャンセル</li>
 </ul>
@@ -323,7 +323,7 @@ EOP;
 		<label>Word:</label>
 		<input id="word" name="word" type="text" value="">
 		<br>
-		<input type="submit" id="s2" name="s2" value="フィルタ表示" onclick="footbarFormPopUp(0, 1)"><br><br>
+		<input type="submit" id="s2" name="s2" value="フィルタ表示" onclick="popUpFootbarFormIPhone(0, 1)"><br><br>
 
 		<input type="hidden" name="detect_hint" value="◎◇">
 		<input type="hidden" name="bbs" value="{$aThread->bbs}">

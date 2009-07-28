@@ -68,7 +68,7 @@ require_once P2_LIB_DIR . '/HostCheck.php';
 
 // EZ”FØ
 if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
-    if (file_exists($_conf['auth_ez_file'])) {
+    if ($_login->hasRegistedAuthCarrier('EZWEB')) {
         $atag = P2View::tagA(
             P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
                 array(
@@ -98,7 +98,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
 
 // SoftBank”FØ
 } elseif (HostCheck::isAddrSoftBank() && P2Util::getSoftBankID()) {
-    if (file_exists($_conf['auth_jp_file'])) {
+    if ($_login->hasRegistedAuthCarrier('SOFTBANK')) {
         $atag = P2View::tagA(
             P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
                 array(
@@ -128,7 +128,7 @@ if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
     
 // docomo”FØ
 } elseif ($mobile->isDoCoMo()) {
-    if (file_exists($_conf['auth_docomo_file'])) {
+    if ($_login->hasRegistedAuthCarrier('DOCOMO')) {
         $atag = P2View::tagA(
             P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
                 array(

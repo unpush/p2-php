@@ -295,7 +295,7 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
 	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20090429"></script>
 	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20090428"></script>
-	<script type="text/javascript" src="js/post_form.js?v=20081205"></script>
+	<script type="text/javascript" src="js/post_form.js?v=20090724"></script>
     <script type="text/javascript"> 
 	<!-- 
 	// iPhoneのURL編集部分を表示しないようスクロールする
@@ -328,32 +328,6 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 		document.frmresrange.reset();
 		window.location.assign(uriValue);
 	}
-	// フッターのレスフィルター表示フォームのポップアップを表示するメソッド
-	// Edit 080727 by 240
-	function footbarFormPopUp(arrayNum, resetFlag) {
-		var formStyles = new Array(2);
-		var liElement = new Array(2);
-		formStyles[0] = document.getElementById('searchForm').style;
-		formStyles[1] = document.getElementById('writeForm').style;
-		liElement[0]  = document.getElementById('serchId');
-		liElement[1]  = document.getElementById('writeId');
-
-		for (var i = 0; i < 2; i++) {
-			if (i != arrayNum)
-				liElement[i].setAttribute('title', 'off');
-			liElement[i].style.backgroundPositionY = '0';
-			formStyles[i].display = 'none';
-		}
-		if (liElement[arrayNum].getAttribute('title') == 'on' || resetFlag) {
-			liElement[arrayNum].setAttribute('title', 'off');
-			return;
-		}
-
-		liElement[arrayNum].setAttribute('title', 'on');
-		liElement[arrayNum].style.backgroundPositionY = '-50px';
-//			formStyles[arrayNum].top = (document.height - 480).toString(); + "px"
-		formStyles[arrayNum].display = 'block';
-	}
 	// --> 
 	</script>
 
@@ -366,7 +340,7 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 $onload_script = "";
 
 if ($_conf['bottom_res_form']) {
-    ?><script type="text/javascript" src="js/post_form.js?v=20081205"></script>
+    ?><script type="text/javascript" src="js/post_form.js?v=20090724"></script>
 <?php
     $onload_script .= "checkSage();";
 }
@@ -378,39 +352,38 @@ if (empty($_GET['onlyone'])) {
 $fade = empty($_GET['fade']) ? 'false' : 'true';
 $existWord = (strlen($GLOBALS['word']) > 0) ? 'true' : 'false';
 
-
-if ($_conf['enable_spm']) {
-    ?><script type="text/javascript" src="iphone/js/smartpopup.iPhone.js?v=20070308"></script>
-<?php
-}
-///////
 echo <<<EOP
 <script type="text/javascript">
-	<!--
-	gFade = {$fade};
-	gExistWord = {$existWord};
-	gIsPageLoaded = false;
-	addLoadEvent(function() {
-		gIsPageLoaded = true;
-		{$onload_script}
-	});
-	//-->
-	</script>\n
-</head>
-<body{$body_at} >\n
+<!--
+gFade = {$fade};
+gExistWord = {$existWord};
+gIsPageLoaded = false;
+addLoadEvent(function() {
+	gIsPageLoaded = true;
+	{$onload_script}
+});
+//-->
+</script>\n
 EOP;
 
-P2Util::printInfoHtml();
-
-
 // スマートポップアップメニュー JavaScriptコード
-//フォントサイズ等 conf_user_style.inc.php  をいじるとPCも変わるのでここで書き換え
 if ($_conf['enable_spm']) {
+    // smartpopup.iPhone.js needs post_form.js's popUpFootbarFormIPhone().
+    ?><script type="text/javascript" src="iphone/js/smartpopup.iPhone.js?v=20070308"></script><?php
+    
+    // フォントサイズ等 conf_user_style.inc.php  をいじるとPCも変わるのでここで書き換え
     $STYLE['respop_color'] = "#FFFFFF"; // ("#000") レスポップアップのテキスト色
     $STYLE['respop_bgcolor'] = ""; // ("#ffffcc") レスポップアップの背景色
     $STYLE['respop_fontsize'] = '13px';
     $aThread->showSmartPopUpMenuJs();
 }
+
+echo <<<EOP
+</head>
+<body{$body_at} >\n
+EOP;
+
+P2Util::printInfoHtml();
 
 // スレが板サーバになければ
 if ($aThread->diedat) { 

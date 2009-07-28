@@ -731,8 +731,6 @@ function _checkBrowser()
 {
     global $_conf;
     
-    $_conf['login_check_ip']  = 1; // 携帯ログイン時にIPアドレスを検証する
-
     // 基本（PC）
     $_conf['ktai'] = false;
     $_conf['disable_cookie'] = false;
@@ -750,27 +748,18 @@ function _checkBrowser()
     // UAが携帯なら
     } elseif ($mobile and !$mobile->isNonMobile()) {
 
-        require_once P2_LIB_DIR . '/HostCheck.php';
-    
         $_conf['ktai'] = true;
+        $_conf['disable_cookie'] = false;
         $_conf['accept_charset'] = 'Shift_JIS';
 
         // ベンダ判定
-        // 2007/11/11 IPチェックは認証時に行った方がよさそうな
         // docomo i-Mode
         if ($mobile->isDoCoMo()) {
-            if ($_conf['login_check_ip'] && !HostCheck::isAddrDocomo()) {
-                P2Util::printSimpleHtml("p2 error: UAがdocomoですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-                die;
-            }
+            // [todo] docomoの新しいのはCookieも使える…
             $_conf['disable_cookie'] = true;
         
         // EZweb (au or Tu-Ka)
         } elseif ($mobile->isEZweb()) {
-            if ($_conf['login_check_ip'] && !HostCheck::isAddrAu()) {
-                P2Util::printSimpleHtml("p2 error: UAがEZwebですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-                die;
-            }
             $_conf['disable_cookie'] = false;
         
         // SoftBank(旧Vodafone Live!)
@@ -782,25 +771,10 @@ function _checkBrowser()
             } else {
                 $_conf['disable_cookie'] = true;
             }
-            if ($_conf['login_check_ip'] && !HostCheck::isAddrSoftBank()) {
-                P2Util::printSimpleHtml("p2 error: UAがSoftBankですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-                die;
-            }
 
         // WILLCOM（旧AirH"Phone）
         } elseif ($mobile->isWillcom()) {
-            /*
-            // WILLCOMでは端末ID認証を行わないので、コメントアウト
-            if ($_conf['login_check_ip'] && !HostCheck::isAddrWillcom()) {
-                P2Util::printSimpleHtml("p2 error: UAがAirH&quot;ですが、IPアドレス帯域がマッチしません。({$_SERVER['REMOTE_ADDR']})");
-                die;
-            }
-            */
             $_conf['disable_cookie'] = false;
-        
-        // その他
-        } else {
-            $_conf['disable_cookie'] = true;
         }
     }
 

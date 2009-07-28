@@ -123,6 +123,69 @@ class UA
     }
     
     /**
+     * UAがiPhone, iPod touchならtrueを返す。
+     *
+     * @static
+     * @access  public
+     * @param   string   $aua  UAを指定するなら
+     * @return  boolean
+     */
+    function isIPhoneGroup($aua = null)
+    {
+        static $cache_ = null;
+        
+        // 強制指定があればチェック
+        if (isset($GLOBALS['_UA_force_mode'])) {
+            // 移行の便宜上、効力を弱めている
+            // return ($GLOBALS['_UA_force_mode'] == $GLOBALS['_UA_iphonegroup_query']);
+            if ($GLOBALS['_UA_force_mode'] == $GLOBALS['_UA_iphonegroup_query']) {
+                return true;
+            }
+        }
+        
+        $ua = $aua;
+        
+        // UAの引数が無指定なら、
+        if (is_null($aua)) {
+            // クエリー指定を参照
+            if (UA::getQueryValue()) {
+                //// 後方互換上、b=kでもiPhoneとみなすことを許す。
+                //if (!UA::isMobileByQuery()) {
+                    return UA::isIPhoneGroupByQuery();
+                //}
+            }
+            
+            // （キャッシュするほどではないかも）
+            // 引数のUAが無指定なら、キャッシュ有効
+            if (!is_null($cache_)) {
+                return $cache_;
+            }
+            
+            // クライアントのUAで判別
+            if (isset($_SERVER['HTTP_USER_AGENT'])) {
+                $ua = $_SERVER['HTTP_USER_AGENT'];
+            }
+        }
+        
+        $isiPhoneGroup = false;
+        
+        // iPhone
+        // Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543a Safari/419.3
+
+        // iPod touch
+        // Mozilla/5.0 (iPod; U; CPU like Mac OS X; ja-jp) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/3A110a Safari/419.3
+        if (preg_match('/(iPhone|iPod)/', $ua) || UA::isAndroidWebKit($ua)) {
+            $isiPhoneGroup = true;
+        }
+
+        // UAの引数が無指定なら、キャッシュ保存
+        if (is_null($aua)) {
+            $cache_ = $isiPhoneGroup;
+        }
+        return $isiPhoneGroup;
+    }
+    
+    /**
      * クエリーがPCを指定しているならtrueを返す
      *
      * @static
@@ -376,53 +439,25 @@ class UA
     }
     
     /**
-     * 2008/10/25 isIPhoneGroup()に改名したので廃止予定
-     */
-    function isIPhones($ua = null)
-    {
-        return UA::isIPhoneGroup($ua);
-    }
-    
-    /**
-     * UAがiPhone, iPod touchならtrueを返す。
+     * UAがAndroid（でWebkit）ならtrueを返す。
      *
      * @static
      * @access  public
      * @param   string   $ua  UAを指定するなら
      * @return  boolean
      */
-    function isIPhoneGroup($ua = null)
+    function isAndroidWebKit($ua = null)
     {
-        // 強制指定があればチェック
-        if (isset($GLOBALS['_UA_force_mode'])) {
-            // 移行の便宜上、効力を弱めている
-            // return ($GLOBALS['_UA_force_mode'] == $GLOBALS['_UA_iphonegroup_query']);
-            if ($GLOBALS['_UA_force_mode'] == $GLOBALS['_UA_iphonegroup_query']) {
-                return true;
-            }
+        if (is_null($ua) and isset($_SERVER['HTTP_USER_AGENT'])) {
+            $ua = $_SERVER['HTTP_USER_AGENT'];
         }
         
-        // UAの引数が無指定なら、
-        if (is_null($ua)) {
-            // クエリー指定を参照
-            if (UA::getQueryValue()) {
-                //// 後方互換上、b=kでもiPhoneとみなすことを許す。
-                //if (!UA::isMobileByQuery()) {
-                    return UA::isIPhoneGroupByQuery();
-                //}
-            }
-            // クライアントのUAで判別
-            if (isset($_SERVER['HTTP_USER_AGENT'])) {
-                $ua = $_SERVER['HTTP_USER_AGENT'];
-            }
-        }
-
-        // iPhone
-        // Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543a Safari/419.3
-
-        // iPod touch
-        // Mozilla/5.0 (iPod; U; CPU like Mac OS X; ja-jp) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/3A110a Safari/419.3
-        if (preg_match('/(iPhone|iPod)/', $ua)) {
+        // シミュレータ
+        // Mozilla/5.0 (Linux; U; Android 1.0; en-us; generic) AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2
+        // T-mobile G1
+        // Mozilla/5.0 (Linux; U; Android 1.0; en-us; dream) AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2
+        // genericとdreamが異なる
+        if (false !== strpos('Android', $ua) && false !== strpos('WebKit', $ua)) {
             return true;
         }
         return false;

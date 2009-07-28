@@ -152,7 +152,7 @@ class Login
         }
 
         
-        // ログインOKなら
+        // 以下、ログインOKなら
         
         // {{{ ログアウトの指定があれば
         
@@ -167,14 +167,14 @@ class Login
             $mobile = &Net_UserAgent_Mobile::singleton();
             
             if (isset($_SERVER['HTTP_X_UP_SUBNO'])) {
-                file_exists($_conf['auth_ez_file']) && unlink($_conf['auth_ez_file']);
+                $this->removeRegistedAuthCarrier('EZWEB');
                 
             } elseif ($mobile->isSoftBank()) {
-                file_exists($_conf['auth_jp_file']) && unlink($_conf['auth_jp_file']);
+                $this->removeRegistedAuthCarrier('SOFTBANK');
             
             /* docomoはログイン画面が表示されるので、補助認証情報を自動破棄しない
             } elseif ($mobile->isDoCoMo()) {
-                file_exists($_conf['auth_docomo_file']) && unlink($_conf['auth_docomo_file']);
+                $this->removeRegistedAuthCarrier('DOCOMO');
             */
             }
             
@@ -287,31 +287,34 @@ class Login
         }
         
         // }}}
+        // {{{ 携帯固有端末ID認証
         
         $mobile = &Net_UserAgent_Mobile::singleton();
         if (PEAR::isError($mobile)) {
             trigger_error($mobile->toString(), E_USER_WARNING);
         
         } elseif ($mobile and !$mobile->isNonMobile()) {
-        
+            
+            require_once P2_LIB_DIR . '/HostCheck.php';
+            
             // ■EZweb認証スルーパス サブスクライバID
-            if ($mobile->isEZweb() && isset($_SERVER['HTTP_X_UP_SUBNO']) && file_exists($_conf['auth_ez_file'])) {
-                include $_conf['auth_ez_file'];
-                if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
-                    if (isset($_p2session)) {
-                        //$_p2session->regenerateId();
-                        $_p2session->updateSecure();
+            if ($mobile->isEZweb() && isset($_SERVER['HTTP_X_UP_SUBNO']) and HostCheck::isAddrAu()) {
+                if ($registed_ez = $this->getRegistedAuthCarrier('EZWEB')) {
+                    if ($_SERVER['HTTP_X_UP_SUBNO'] == $registed_ez) {
+                        if (isset($_p2session)) {
+                            //$_p2session->regenerateId();
+                            $_p2session->updateSecure();
+                        }
+                        return true;
                     }
-                    return true;
                 }
             }
         
             // ■SoftBank(J-PHONE)認証スルーパス
             // パケット対応機 要ユーザID通知ONの設定 端末シリアル番号
             // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
-            if (HostCheck::isAddrSoftBank() and $sn = P2Util::getSoftBankID()) {
-                if (file_exists($_conf['auth_jp_file'])) {
-                    include $_conf['auth_jp_file'];
+            if (HostCheck::isAddrSoftBank() and $sn = P2Util::getSoftBankID() and HostCheck::isAddrSoftBank()) {
+                if ($registed_jp = $this->getRegistedAuthCarrier('SOFTBANK')) {
                     if ($sn == $registed_jp) {
                         if (isset($_p2session)) {
                             // ここで session_regenerate_id(true) すると接続が途切れた時にログイン画面に戻されるらしい。
@@ -321,7 +324,7 @@ class Login
                         }
                         return true;
                     }
-                    $this->registAuthOff($_conf['auth_jp_file']);
+                    //$this->removeRegistedAuthCarrier('SOFTBANK');
                 }
             }
         
@@ -329,9 +332,8 @@ class Login
             // ログインフォーム入力からは利用せず、専用認証リンクからのみ利用
             if (empty($_POST['form_login_id'])) {
 
-                if ($mobile->isDoCoMo() && ($sn = $mobile->getSerialNumber()) !== NULL) {
-                    if (file_exists($_conf['auth_docomo_file'])) {
-                        include $_conf['auth_docomo_file'];
+                if ($mobile->isDoCoMo() && $sn = $mobile->getSerialNumber() and HostCheck::isAddrDocomo()) {
+                    if ($registed_docomo = $this->getRegistedAuthCarrier('DOCOMO')) {
                         if ($sn == $registed_docomo) {
                             if (isset($_p2session)) {
                                 // docomoで書き込んだ後に戻ったりすると再認証になって不便
@@ -343,8 +345,11 @@ class Login
                     }
                 }
             }
+            
+            // WILLCOMでは端末ID認証を行わない
         }
         
+        // }}}
         // {{{ すでにセッションが登録されていたら、セッションで認証
         
         if (isset($_SESSION['login_user']) && isset($_SESSION['login_pass_x'])) {
@@ -478,19 +483,17 @@ class Login
     {
         global $_conf;
         
-        $mobile = &Net_UserAgent_Mobile::singleton();
-        
         // {{{ 認証登録処理 EZweb
         
         if (!empty($_REQUEST['ctl_regist_ez'])) {
             if ($_REQUEST['regist_ez'] == '1') {
                 if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
-                    $this->registAuth('registed_ez', $_SERVER['HTTP_X_UP_SUBNO'], $_conf['auth_ez_file']);
+                    $this->registAuthCarrier('EZWEB', $_SERVER['HTTP_X_UP_SUBNO']);
                 } else {
                     P2Util::pushInfoHtml('<p class="infomsg">×EZweb用サブスクライバIDでの認証登録はできませんでした</p>');
                 }
             } else {
-                $this->registAuthOff($_conf['auth_ez_file']);
+                $this->removeRegistedAuthCarrier('EZWEB');
             }
     
         // }}}
@@ -498,13 +501,13 @@ class Login
         
         } elseif (!empty($_REQUEST['ctl_regist_jp'])) {
             if ($_REQUEST['regist_jp'] == '1') {
-                if (HostCheck::isAddrSoftBank() and $sn = P2Util::getSoftBankID()) {
-                    $this->registAuth('registed_jp', $sn, $_conf['auth_jp_file']);
+                if (HostCheck::isAddrSoftBank() && $sn = P2Util::getSoftBankID()) {
+                    $this->registAuthCarrier('SOFTBANK', $sn);
                 } else {
                     P2Util::pushInfoHtml('<p class="infomsg">×SoftBank用固有IDでの認証登録はできませんでした</p>');
                 }
             } else {
-                $this->registAuthOff($_conf['auth_jp_file']);
+                $this->removeRegistedAuthCarrier('SOFTBANK');
             }
         
         // }}}
@@ -513,13 +516,14 @@ class Login
         } elseif (!empty($_REQUEST['ctl_regist_docomo'])) {
             if ($_REQUEST['regist_docomo'] == '1') {
                 // UAに含まれるシリアルIDを取得
-                if ($mobile->isDoCoMo() && ($sn = $mobile->getSerialNumber()) !== NULL) {
-                    $this->registAuth('registed_docomo', $sn, $_conf['auth_docomo_file']);
+                $mobile = &Net_UserAgent_Mobile::singleton();
+                if ($mobile->isDoCoMo() && $sn = $mobile->getSerialNumber()) {
+                    $this->registAuthCarrier('DOCOMO', $sn);
                 } else {
                     P2Util::pushInfoHtml('<p class="infomsg">×docomo用固有IDでの認証登録はできませんでした</p>');
                 }
             } else {
-                $this->registAuthOff($_conf['auth_docomo_file']);
+                $this->removeRegistedAuthCarrier('DOCOMO');
             }
         }
         
@@ -527,20 +531,73 @@ class Login
     }
 
     /**
+     * 認証登録済みの端末固有IDを取得する
+     *
+     * @return  string|null|false  固有ID|登録なし|エラー
+     */
+    function getRegistedAuthCarrier($carrier)
+    {
+        if (!$auth_file = $this->getAuthCarrierFile($carrier)) {
+            return false;
+        }
+        if (!$key = $this->getRegistedCarrierKey($carrier)) {
+            return false;
+        }
+        if (!file_exists($auth_file)) {
+            return null;
+        }
+        include $auth_file; // registAuthCarrier()
+        return $$key;
+    }
+    
+    /**
+     * 2009/07/24 キャリア毎に$keyを変える必要はないのだが、後方互換のため。
+     * @see  registAuthCarrier(), getRegistedAuthCarrier()
+     * @access  private
+     * @return  string|false
+     */
+    function getRegistedCarrierKey($carrier)
+    {
+        $carrier = strtoupper($carrier);
+        switch ($carrier) {
+            case 'DOCOMO':
+                $key = 'registed_docomo';
+                break;
+            case 'EZWEB':
+                $key = 'registed_ez';
+                break;
+            case 'SOFTBANK':
+                $key = 'registed_jp';
+                break;
+            default:
+                trigger_error('invalid $carrier', E_USER_WARNING);
+                return false;
+        }
+        return $key;
+    }
+    
+    /**
      * 端末IDを認証ファイル登録する
      *
      * @access  private
      * @return  boolean
      */
-    function registAuth($key, $sub_id, $auth_file)
+    function registAuthCarrier($carrier, $sub_id)
     {
         global $_conf;
-    
+        
+        if (!$key = $this->getRegistedCarrierKey($carrier)) {
+            return false;
+        }
+        
         $cont = <<<EOP
 <?php
 \${$key}='{$sub_id}';
 ?>
 EOP;
+        if (!$auth_file = $this->getAuthCarrierFile($carrier)) {
+            return false;
+        }
         FileCtl::make_datafile($auth_file, $_conf['pass_perm']);
 
         if (false === file_put_contents($auth_file, $cont, LOCK_EX)) {
@@ -548,6 +605,68 @@ EOP;
             return false;
         }
         
+        return true;
+    }
+    
+    /**
+     * @access  private
+     * @param   string  $carrier  'DOCOMO', 'EZWEB', 'SOFTBANK'
+     * @return  string|false
+     */
+    function getAuthCarrierFile($carrier)
+    {
+        global $_conf;
+        
+        $carrier = strtoupper($carrier);
+        switch ($carrier) {
+            case 'DOCOMO':
+                $auth_carrier_file = $_conf['auth_docomo_file'];
+                break;
+            case 'EZWEB':
+                $auth_carrier_file = $_conf['auth_ez_file'];
+                break;
+            case 'SOFTBANK':
+                $auth_carrier_file = $_conf['auth_jp_file'];
+                break;
+            default:
+                trigger_error('invalid $carrier', E_USER_WARNING);
+                return false;
+        }
+        return $auth_carrier_file;
+    }
+    
+    /**
+     * @access  public
+     * @return  boolean
+     */
+    function hasRegistedAuthCarrier($carrier)
+    {
+        return file_exists($this->getAuthCarrierFile($carrier));
+    }
+    
+    /**
+     * 端末IDの認証ファイル登録を外す
+     *
+     * @access  private
+     * @return  boolean
+     */
+    function removeRegistedAuthCarrier($carrier)
+    {
+        return $this->removeRegistedAuthCarrierFile($carrier);
+    }
+    
+    /**
+     * @access  private
+     * @return  boolean
+     */
+    function removeRegistedAuthCarrierFile($carrier)
+    {
+        if (!$auth_file = $this->getAuthCarrierFile($carrier)) {
+            return false;
+        }
+        if (file_exists($auth_file)) {
+            return unlink($auth_file);
+        }
         return true;
     }
     
@@ -591,20 +710,6 @@ EOP;
         return true;
     }
     
-    /**
-     * 端末IDの認証ファイル登録を外す
-     *
-     * @access  private
-     * @return  boolean
-     */
-    function registAuthOff($auth_file)
-    {
-        if (file_exists($auth_file)) {
-            return unlink($auth_file);
-        }
-        return true;
-    }
-
     /**
      * 新規ユーザを作成する
      *

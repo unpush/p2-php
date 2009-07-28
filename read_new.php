@@ -147,6 +147,7 @@ P2View::printIncludeCssHtml('read');
 	-->
 	</script>
 <?php
+// スマートポップアップメニュー
 if ($_conf['enable_spm']) {
     ?><script type="text/javascript" src="js/smartpopup.js?v=20070308"></script><?php
 }
@@ -341,6 +342,11 @@ function _readNew(&$aThread)
     }
     $next_thre_ht = "<a href=\"#ntt{$next_thre_num}\">▼</a> ";
     
+    // スマートポップアップメニュー
+    if ($_conf['enable_spm']) {
+        $aThread->showSmartPopUpMenuJs();
+    }
+
     P2Util::printInfoHtml();
     
     // ヘッダ部分HTML
@@ -357,12 +363,7 @@ function _readNew(&$aThread)
 		</tr>
 	</table>\n
 EOP;
-    
-    // スマートポップアップメニュー
-    if ($_conf['enable_spm']) {
-        $aThread->showSmartPopUpMenuJs();
-    }
-    
+
     //==================================================================
     // ローカルDatを読み込んでHTML表示
     //==================================================================

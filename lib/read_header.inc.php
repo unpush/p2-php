@@ -311,7 +311,7 @@ if (!UA::isIPhoneGroup()) {
 
 $onload_script = '';
 if ($_conf['bottom_res_form']) {
-    ?><script type="text/javascript" src="js/post_form.js?v=20061209"></script><?php
+    ?><script type="text/javascript" src="js/post_form.js?v=20090724"></script><?php
     $onload_script .= "checkSage();";
 }
 if (empty($_GET['onlyone'])) {
@@ -348,8 +348,10 @@ $existWord = strlen($GLOBALS['word']) ? 'true' : 'false';
     }
 */
 
+// スマートポップアップメニュー JavaScriptコード
 if ($_conf['enable_spm']) {
     ?><script type="text/javascript" src="js/smartpopup.js?v=20070331"></script><?php
+    $aThread->showSmartPopUpMenuJs();
 }
 
 // ヘッドバー
@@ -368,11 +370,6 @@ echo <<<EOP
 EOP;
 
 P2Util::printInfoHtml();
-
-// スマートポップアップメニュー JavaScriptコード
-if ($_conf['enable_spm']) {
-    $aThread->showSmartPopUpMenuJs();
-}
 
 ?><div id="header"><?php
 

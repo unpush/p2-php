@@ -10,7 +10,6 @@ var spmTarget   = new String(); // フィルタリング結果を開くウインドウ
 // @return  void
 function makeSPM(aThread)
 {
-
 	var thread_id = aThread.objName;
 	var a_tag    = "<a href=\"#\" onclick=\"return !spmOpenSubWin(" + thread_id + ",";
 	var numbox   = "";
@@ -320,7 +319,7 @@ function getSpmFilterUrl(aThread, field, match)
 // @return  string
 function getSpmResPhone()
 {
-	var onc = "onclick=\"resMessage('>>" + spmResNum + "');footbarFormPopUp(1);\"";
+	var onc = "onclick=\"resMessage('>>" + spmResNum + "'); popUpFootbarFormIPhone(1);\"";
 	var har = "href=\"#footer\"";
 	var url = "<a " + har + " " + onc + ">これにレス</a>";
 	return url;
@@ -475,7 +474,7 @@ function resQuoteMessage(resNum) {
 	}
 	var msg = p2GetElementById('MESSAGE')
 	// 改行マークを改行に戻しつつ、msgボックスに値をセット
-	msg.value = ">>" + resNum + "\r\n>" + quoteMsg.replace(/___\[br\]___/g,"\r\n");
-	footbarFormPopUp(1);
+	msg.value = ">>" + resNum + "\r\n>" + quoteMsg.replace(/___\[br\]___/g, "\r\n");
+	popUpFootbarFormIPhone(1);
 }
 

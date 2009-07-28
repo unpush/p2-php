@@ -156,17 +156,20 @@ EOHEADER;
 
 $onload_script = '';
 
-echo <<<EOHEADER
+?>
 	<script type="text/javascript" src="js/basic.js?v=20090429"></script>
 	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20061206"></script>
 	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20090428"></script>
-	<script type="text/javascript" src="js/post_form.js?v=20061209"></script>
-	<script type="text/javascript" src="iphone/js/smartpopup.iPhone.js?v=20070308"></script>
+	<script type="text/javascript" src="js/post_form.js?v=20090724"></script>
+	<?php // smartpopup.iPhone.js needs post_form.js's popUpFootbarFormIPhone(). ?>
+	<script type="text/javascript" src="iphone/js/smartpopup.iPhone.js?v=20090724"></script>
 	<script type="text/javascript"> 
 	<!-- 
+		gExistWord = false;
+
 		// iPhoneのURL編集部分を表示しないようスクロールする
 		window.onload = function() { 
-		setTimeout(scrollTo, 100, 0, 1); 
+			setTimeout(scrollTo, 100, 0, 1); 
 		}
 		
 		// ページ読み込み完了時コールバック関数
@@ -180,7 +183,7 @@ echo <<<EOHEADER
 	    // レス範囲のフォームの内容をリセットしてからページ移行するメソッド
 	    var onArreyt = 2;
 	    function formReset() {
-		    var uriValue = "{$_conf['read_php']}?"
+		    var uriValue = "<?php echo $_conf['read_php']; ?>?"
 		    			 + "offline=1&"
 		    			 + "b=i&"
 		    			 + "host=" + document.frmresrange.host.value + "&"
@@ -192,49 +195,21 @@ echo <<<EOHEADER
 		    document.frmresrange.reset();
 		    window.location.assign(uriValue);
 		}
-		// フッターのレスフィルター表示フォームのポップアップを表示するメソッド
-		// Edit 080727 by 240
-		function footbarFormPopUp(arrayNum, resetFlag) {
-			var formStyles = new Array(2);
-			var liElement = new Array(2);
-			formStyles[0] = document.getElementById('searchForm').style;
-			formStyles[1] = document.getElementById('writeForm').style;
-			liElement[0]  = document.getElementById('serchId');
-			liElement[1]  = document.getElementById('writeId');
-
-			for (var i = 0; i < 2; i++) {
-				if (i != arrayNum)
-					liElement[i].setAttribute('title', 'off');
-				liElement[i].style.backgroundPositionY = '0';
-				formStyles[i].display = 'none';
-			}
-			if (liElement[arrayNum].getAttribute('title') == 'on' || resetFlag) {
-				liElement[arrayNum].setAttribute('title', 'off');
-				return;
-			}
-
-			liElement[arrayNum].setAttribute('title', 'on');
-			liElement[arrayNum].style.backgroundPositionY = '-50px';
-//			formStyles[arrayNum].top = (document.height - 480).toString(); + "px"
-			formStyles[arrayNum].display = 'block';
-		}
-		
-
 	// --> 
 	</script> 
 <link rel="stylesheet" type="text/css" href="./iui/read.css"> 
-EOHEADER;
+<?php
 
 echo <<<EOP
 </head>
 <body{$body_at}>\n
 EOP;
 
-echo <<<EOP
+?>
 <div class="toolbar">
-    <h1>{$ptitle_atag}の新まとめ</h1>
+    <h1><?php echo $ptitle_atag; ?>の新まとめ</h1>
 </div>
-EOP;
+<?php
 P2Util::printInfoHtml();
 
 //==============================================================
@@ -436,6 +411,15 @@ function _readNew(&$aThread)
         }
     }
     
+    // スマートポップアップメニュー JavaScriptコード
+    if ($_conf['enable_spm']) {
+        // フォントサイズ等 conf_user_style.inc.php  をいじるとPCも変わるのでここで書き換え
+        $STYLE['respop_color'] = "#FFFFFF"; // ("#000") レスポップアップのテキスト色
+        $STYLE['respop_bgcolor'] = ""; // ("#ffffcc") レスポップアップの背景色
+        $STYLE['respop_fontsize'] = '13px';
+        $aThread->showSmartPopUpMenuJs();
+    }
+
     P2Util::printInfoHtml();
     
     $ttitle_hs = hs($aThread->ttitle_hc);
@@ -570,17 +554,16 @@ $_newthre_num++;
 
 if (!$aThreadList->num) {
     $GLOBALS['_is_matome_shinchaku_naipo'] = true;
-    echo "新着レスはないぽ";
+    ?>新着レスはないぽ<?php
 }
 
-
-echo <<<EOP
+?>
 <div id="footbar01">
 <div class="footbar">
 <ul>
 <li class="home"><a name="ntt_bt1" href="index.php?b=i">TOP</a></li>
 <li class="other"><a onclick="all.item('footbar02').style.visibility='visible';">その他</a></li>
-EOP;
+<?php
 if (!isset($GLOBALS['rnum_all_range']) or $GLOBALS['rnum_all_range'] > 0 or !empty($GLOBALS['limit_to_eq_to'])) {
     if (!empty($GLOBALS['limit_to_eq_to'])) {
         $str = '新着まとめの更新or続き';
@@ -604,19 +587,19 @@ EOP;
 //{$sb_ht_btm}の
 //echo '<hr>' . $_conf['k_to_index_ht'] . "\n";
 //iphone 080801
-echo <<<EOP
+?>
  </ul>
 </div></div>
 <div id="footbar02" class="dialog_other">
 <filedset>
  <ul>
- <li class="whiteButton">{$ptitle_btm_atag}</li> 
+ <li class="whiteButton"><?php echo $ptitle_btm_atag; ?></li> 
  <li class="grayButton" onclick="all.item('footbar02').style.visibility='hidden'">キャンセル</li>
  </ul>
  </filedset>
 </div>
 </body></html>
-EOP;
+<?php
 $GLOBALS['_read_new_html'] .= ob_get_flush();
 
 // 後処理

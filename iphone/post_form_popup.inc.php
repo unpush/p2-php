@@ -42,7 +42,7 @@ $htm['post_form'] = <<<EOP
     <textarea id="MESSAGE" name="MESSAGE" rows="{$STYLE['post_msg_rows']}"{$msg_cols_at} wrap="{$wrap}"{$htm['kakiko_on_js']}>{$MESSAGE_hs}</textarea>
     <br>
 
-    <input id="submit" type="submit" name="submit" value="{$submit_value}"{$htm['res_disabled']}{$htm['title_need_be']} onClick="setHiddenValue(this); footbarFormPopUp(1, 1);">
+    <input id="submit" type="submit" name="submit" value="{$submit_value}"{$htm['res_disabled']}{$htm['title_need_be']} onClick="setHiddenValue(this); popUpFootbarFormIPhone(1, 1);">
     {$htm['be2ch']}
    {$htm['src_fix']}
     </fieldset>

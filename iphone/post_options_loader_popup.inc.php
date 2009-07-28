@@ -74,7 +74,7 @@ if (empty($_conf['ktai'])) {
 
 // Be‘‚«‚İ
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-    $htm['be2ch'] = '<input id="submit_beres" type="submit" name="submit_beres" value="BE‚Å‘‚«‚Ş" onClick="setHiddenValue(this); footbarFormPopUp(1, 1);"><br>';
+    $htm['be2ch'] = '<input id="submit_beres" type="submit" name="submit_beres" value="BE‚Å‘‚«‚Ş" onClick="setHiddenValue(this); popUpFootbarFormIPhone(1, 1);"><br>';
 } else {
     $htm['be2ch'] = '';
 }

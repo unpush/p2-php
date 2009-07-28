@@ -66,28 +66,25 @@ function printLoginFirst(&$_login)
     
     // EZ認証
     if (!empty($_SERVER['HTTP_X_UP_SUBNO'])) {
-        if (file_exists($_conf['auth_ez_file'])) {
-        } else {
+        //if (!$_login->hasRegistedAuthCarrier('EZWEB')) {
             $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_ez" value="1">' . "\n" .
                 '<input type="checkbox" name="regist_ez" value="1" checked>EZ端末IDで認証を登録<br>';
-        }
+        //}
 
     // SoftBank認証
     // http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
     } elseif (HostCheck::isAddrSoftBank() and P2Util::getSoftBankID()) {
-        if (file_exists($_conf['auth_jp_file'])) {
-        } else {
+        //if (!$_login->hasRegistedAuthCarrier('SOFTBANK')) {
             $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_jp" value="1">' . "\n" .
                 '<input type="checkbox" name="regist_jp" value="1" checked>SoftBank端末IDで認証を登録<br>';
-        }
+        //}
 
     // docomo認証
     } elseif ($mobile->isDoCoMo()) {
-        if (file_exists($_conf['auth_docomo_file'])) {
-        } else {
+        //if (!$_login->hasRegistedAuthCarrier('DOCOMO')) {
             $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_docomo" value="1">' . "\n" .
                 '<input type="checkbox" name="regist_docomo" value="1" checked>docomo端末IDで認証を登録<br>';
-        }
+        //}
 
     // Cookie認証
     } else {

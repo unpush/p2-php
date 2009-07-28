@@ -136,7 +136,7 @@ if (!$_conf['ktai']) {
     include_once './style/post_css.inc';
     ?>
     <script type="text/javascript" src="js/basic.js?v=20090429"></script>
-    <script type="text/javascript" src="js/post_form.js?v=20081205"></script>
+    <script type="text/javascript" src="js/post_form.js?v=20090724"></script>
     <?php
 }
 echo <<<EOP

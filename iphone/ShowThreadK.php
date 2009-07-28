@@ -246,7 +246,7 @@ class ShowThreadK extends ShowThread
 
             foreach ($quote_res_nums as $rnv) {
                 if (empty($this->quote_res_nums_done[$rnv]) and $rnv < count($this->thread->datlines)) {
-                    $ds = $this->qRes($this->thread->datlines[$rnv-1], $rnv, 'q' . $rnv . 'of' .$this->thread->key);
+                    $ds = $this->qRes($this->thread->datlines[$rnv-1], $rnv, 'q' . $rnv . 'of' . $this->thread->key);
                     $onPopUp_at = " onMouseover=\"showResPopUp('q{$rnv}of{$this->thread->key}',event,true)\"";
                     $rpop .= "<span id=\"q{$rnv}of{$this->thread->key}\" class=\"respopup\"{$onPopUp_at}>" . $ds . "</span>\n";
                     $this->quote_res_nums_done[$rnv] = true;
@@ -320,10 +320,11 @@ class ShowThreadK extends ShowThread
         $id = "qr{$i}of{$this->thread->key}";
         
         // iphone用
-        // スマートポップアップメニュー
-        if ($_conf['enable_spm']) {
+        // スマートポップアップメニュー（read_new中は未対応とする）
+        if ($_conf['enable_spm'] and empty($GLOBALS['_read_new_html'])) {
             //$onPopUp_at = " onmouseover=\"showSPM({$this->thread->spmObjName},{$i},'{$id}',event,this)\" onmouseout=\"hideResPopUp('{$this->thread->spmObjName}_spm')\"";
             // onmouseout="hideResPopUp()" は外す必要がある
+            
             $onPopUp_at = " onmouseover=\"showSPM({$this->thread->spmObjName},{$i},'{$id}',event,this)\"";
             $is = "<a href=\"javascript:void(0);\" class=\"resnum\"{$onPopUp_at}>{$i}</a>";
         } else {
@@ -407,7 +408,7 @@ class ShowThreadK extends ShowThread
             $date_id = preg_replace('/ID: ?/', '', $date_id);
         }
         
-        $tores .= '<span class="tdate">'.$date_id. '</span>';
+        $tores .= '<span class="tdate">' . $date_id . '</span>';
         
         if ($is_sage) {
             $tores .= '<font color="#aaaaaa">↓</font>';
@@ -459,90 +460,6 @@ class ShowThreadK extends ShowThread
         
         return $tores;
       
-    }
-    
-    
-    /**
-     * HTMLメッセージ中の引用レス番号を再帰チェックし、見つかった番号の配列を返す
-     *
-     * @access  private
-     * @param   integer     $res_num       チェック対象レスの番号
-     * @param   string|null $name          チェック対象レスの名前（未フォーマットのもの）
-     * @param   string|null $msg           チェック対象レスのメッセージ（未フォーマットのもの）
-     * @param   integer     $callLimit     再帰での呼び出し数制限
-     * @param   integer     $nowDepth      現在の再帰の深さ（マニュアル指定はしない）
-     * @return  array    見つかった引用レス番号の配列
-     */
-    function checkQuoteResNums($res_num, $name, $msg, $callLimit = 20, $nowDepth = 0)
-    {
-        static $callTimes_ = 0;
-        
-        if (!$nowDepth) {
-            $callTimes_ = 0;
-        } else {
-            $callTimes_++;
-        }
-        
-        // 再帰での呼び出し数制限
-        if ($callTimes_ >= $callLimit) {
-            return array();
-        }
-        
-        if ($res_num > count($this->thread->datlines)) {
-            return array();
-        }
-        
-        $quote_res_nums = array();
-        
-        // name, msg が null指定なら datlines, res_num から取得する
-        if (is_null($name) || is_null($msg)) {
-            $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$res_num - 1]);
-            if (is_null($name)) {
-                $name = $datalinear[0];
-            }
-            if (is_null($msg)) {
-                $msg = $datalinear[3];
-            }
-        }
-        
-        // {{{ 名前をチェックする
-        
-        if ($matches = $this->getQuoteResNumsName($name)) {
-            $quote_res_nums[] = $a_quote_res_num;
-
-            // 自分自身の番号と同一でなければ
-            if ($a_quote_res_num != $res_num) {
-                // チェックしていない番号を再帰チェック
-                if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
-                    $this->quote_res_nums_checked[$a_quote_res_num] = true;
-                    $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1));
-                 }
-            }
-        }
-        
-        // }}}
-        // {{{ メッセージをチェックする
-        
-        $quote_res_nums_msg = $this->getQuoteResNumsMsg($msg);
-
-        foreach ($quote_res_nums_msg as $a_quote_res_num) {
-
-            $quote_res_nums[] = $a_quote_res_num;
-
-            // 自分自身の番号と同一でなければ、
-            if ($a_quote_res_num != $res_num) {
-                // チェックしていない番号を再帰チェック
-                if (empty($this->quote_res_nums_checked[$a_quote_res_num])) {
-                    $this->quote_res_nums_checked[$a_quote_res_num] = true;
-                    $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, null, null, $callLimit, $nowDepth + 1));
-                 }
-             }
-
-        }
-
-        // }}}
-        
-        return array_unique($quote_res_nums);
     }
     
     /**

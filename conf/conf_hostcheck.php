@@ -15,7 +15,7 @@ $GLOBALS['_HOSTCHKCONF'] = array();
 $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     // p2が動作しているマシン
         'localhost' => 1,
-    // クラスA~Cのプライベートアドレス
+    // クラスA～Cのプライベートアドレス
         'private'   => 1,
     // iモード
         'docomo'    => 1,

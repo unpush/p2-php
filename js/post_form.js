@@ -411,3 +411,30 @@ function setHiddenValue(button)
     button.form.appendChild(q);
   }
 }
+
+// iPhone フッターのレスフィルター表示フォームのポップアップを表示するメソッド
+// Edit 080727 by 240
+function popUpFootbarFormIPhone(arrayNum, resetFlag) {
+	var formStyles = new Array(2);
+	var liElement = new Array(2);
+	formStyles[0] = document.getElementById('searchForm').style;
+	formStyles[1] = document.getElementById('writeForm').style;
+	liElement[0]  = document.getElementById('serchId');
+	liElement[1]  = document.getElementById('writeId');
+
+	for (var i = 0; i < 2; i++) {
+		if (i != arrayNum)
+			liElement[i].setAttribute('title', 'off');
+		liElement[i].style.backgroundPositionY = '0';
+		formStyles[i].display = 'none';
+	}
+	if (liElement[arrayNum].getAttribute('title') == 'on' || resetFlag) {
+		liElement[arrayNum].setAttribute('title', 'off');
+		return;
+	}
+
+	liElement[arrayNum].setAttribute('title', 'on');
+	liElement[arrayNum].style.backgroundPositionY = '-50px';
+//			formStyles[arrayNum].top = (document.height - 480).toString(); + "px"
+	formStyles[arrayNum].display = 'block';
+}

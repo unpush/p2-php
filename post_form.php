@@ -141,7 +141,7 @@ if (!$_conf['ktai']) {
 ?>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <script type="text/javascript" src="js/basic.js?v=20090429"></script>
-    <script type="text/javascript" src="js/post_form.js?v=20061209"></script>
+    <script type="text/javascript" src="js/post_form.js?v=20090724"></script>
 <?php
 }
 
