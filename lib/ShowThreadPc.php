@@ -794,7 +794,7 @@ EOP;
 
         // ID‚©‚çF‚ÌŒ³‚ð’Šo
         $coldiv=12; // F‘ŠŠÂ‚Ì•ªŠ„”
-        $raw = base64_decode(substr($id, 0, 8));
+        $raw = base64_decode(str_replace('.', '+', substr($id, 0, 8)));
         $arr = unpack('v', substr($raw, 0, 4));
         $color=$arr[1] % $coldiv;
         $color2=(2+$color+($arr[1] >> 4) % ($coldiv-4)) % $coldiv;
