@@ -1595,7 +1595,7 @@ ERR;
         if ($nama_url) {
 
             // 2ch or pink - http://choco.2ch.net/test/read.cgi/event/1027770702/
-            if (preg_match('<^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.cgi
+            if (preg_match('<^http://(\\w+\\.(?:2ch\\.net|bbspink\\.com))/test/read\\.(?:cgi|html)
                     /(\\w+)/([0-9]+)(?:/([^/]*))?>x', $nama_url, $matches))
             {
                 $host = $matches[1];
