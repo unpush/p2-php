@@ -1152,7 +1152,11 @@ EOJS;
         global $_conf;
 
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
-        if (preg_match('{^http://(www|jp)\\.youtube\\.com/watch\\?v=([0-9A-Za-z_\\-]+)}', $purl[0], $m)) {
+        // http://m.youtube.com/watch?v=OhcX0xJsDK8&client=mv-google&gl=JP&hl=ja&guid=ON&warned=True
+        if (preg_match('{^http://(www|jp|m)\\.youtube\\.com/watch\\?(?:.+&amp;)?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
+            if ($m[1]=="m") {
+                $url="http://www.youtube.com/watch?v={$m[2]}";
+            }
             // ime
             if ($_conf['through_ime']) {
                 $link_url = P2Util::throughIme($url);
