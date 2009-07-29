@@ -171,6 +171,10 @@ $conf_user_rad['iframe_popup_event'] = array('1' => 'クリック', '0' => 'マウスオ
 $conf_user_def['iframe_popup_delay'] = 0.2; // (0.2)
 //$conf_user_rules['iframe_popup_delay'] = array('FloatExceptMinus');
 
+// HTMLポップアップの種類
+$conf_user_def['iframe_popup_type'] = 1;
+$conf_user_rad['iframe_popup_type'] = array('0' => '通常', '1' => '可変');
+
 // ID:xxxxxxxxをIDフィルタリングのリンクに変換（する:1, しない:0）
 $conf_user_def['flex_idpopup'] = 1; // (1)
 $conf_user_rad['flex_idpopup'] = array('1' => 'する', '0' => 'しない');

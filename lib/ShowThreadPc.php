@@ -728,7 +728,7 @@ EOP;
         // リンクの属性にHTMLポップアップ用のイベントハンドラを加える
         $pop_attr = $attr;
         if ($_conf['iframe_popup_event'] == 1) {
-            $pop_attr .= " onClick=\"showHtmlPopUp('{$pop_url}',event,0); return false;\"";
+            $pop_attr .= " onClick=\"stophide=true; showHtmlPopUp('{$pop_url}',event,0); return false;\"";
         } else {
             $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
         }
