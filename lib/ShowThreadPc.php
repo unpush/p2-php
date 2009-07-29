@@ -522,6 +522,11 @@ EOJS;
         // 引用やURLなどをリンク
         $msg = $this->transLink($msg);
 
+        // Wikipedia記法への自動リンク
+        if ($_conf['link_wikipedia']) {
+            $msg = $this->wikipediaFilter($msg);
+        }
+
         return $msg;
     }
 
@@ -585,6 +590,20 @@ EOP;
             return $this->iframePopup($filter_url, $idstr, $_conf['bbs_win_target_at']) . $num_ht;
         }
         return "<a href=\"{$filter_url}\"{$_conf['bbs_win_target_at']}>{$idstr}</a>{$num_ht}";
+    }
+
+    // }}}
+    // {{{ link_wikipedia()
+
+    /**
+     * @see ShowThread
+     */
+    function link_wikipedia($word) {
+        global $_conf;
+        $link = 'http://ja.wikipedia.org/wiki/' . rawurlencode($word);
+        return  '<a href="' . ($_conf['through_ime'] ?
+            P2Util::throughIme($link) : $link) .
+            "\"{$_conf['ext_win_target_at']}>{$word}</a>";
     }
 
     // }}}

@@ -903,6 +903,43 @@ EOP;
     }
 
     // }}}
+    // {{{ wikipediaFilter()
+
+    /**
+     * [[語句]]があった時にWikipediaへ自動リンク
+     *
+     * @param   string  $msg            メッセージ
+     * @return  string
+     *
+     * original code:
+     *  http://akid.s17.xrea.com/p2puki/index.phtml?%A5%E6%A1%BC%A5%B6%A1%BC%A5%AB%A5%B9%A5%BF%A5%DE%A5%A4%A5%BA%28rep2%20Ver%201.7.0%A1%C1%29#led2c85d
+     */
+    protected function wikipediaFilter($msg) {
+        $msg = mb_convert_encoding($msg, "UTF-8", "SJIS-win"); // SJISはうざいからUTF-8に変換するんだぜ？
+        $wikipedia = "http://ja.wikipedia.org/wiki/"; // WikipediaのURLなんだぜ？
+        $search = "/\[\[([^\[\]\n<>]+)\]\]+/"; // 目印となる正規表現なんだぜ？
+        preg_match_all($search, $msg, $matches); // [[語句]]を探すんだぜ？
+        foreach ($matches[1] as $value) { // リンクに変換するんだぜ？
+            $replaced = $this->link_wikipedia($value);
+            $msg = str_replace("[[$value]]", "[[$replaced]]", $msg); // 変換後の本文を戻すんだぜ？
+        }
+        $msg = mb_convert_encoding($msg, "SJIS-win", "UTF-8"); // UTF-8からSJISに戻すんだぜ？
+        return $msg;
+    }
+
+    // }}}
+    // {{{ link_wikipedia()
+
+    /**
+     * Wikipediaの語句をリンクに変換して返す.
+     *
+     * @param   string  $word   語句
+     * @return  string
+     */
+    abstract protected function link_wikipedia($word);
+
+    // }}}
+
 }
 
 // }}}
