@@ -1154,9 +1154,6 @@ EOJS;
         // http://www.youtube.com/watch?v=Mn8tiFnAUAI
         // http://m.youtube.com/watch?v=OhcX0xJsDK8&client=mv-google&gl=JP&hl=ja&guid=ON&warned=True
         if (preg_match('{^http://(www|jp|m)\\.youtube\\.com/watch\\?(?:.+&amp;)?v=([0-9a-zA-Z_\\-]+)}', $url, $m)) {
-            if ($m[1]=="m") {
-                $url="http://www.youtube.com/watch?v={$m[2]}";
-            }
             // ime
             if ($_conf['through_ime']) {
                 $link_url = P2Util::throughIme($url);
