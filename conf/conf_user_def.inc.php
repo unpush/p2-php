@@ -163,6 +163,10 @@ $conf_user_rad['link_niconico'] = array('1' => 'する', '0' => 'しない', '2' => '
 $conf_user_def['iframe_popup'] = 2; // (2)
 $conf_user_sel['iframe_popup'] = array('1' => 'する', '0' => 'しない', '2' => 'pでする', '3' => '画像でする');
 
+// HTMLポップアップをする場合のイベント（クリック:1, マウスオーバー:0）
+$conf_user_def['iframe_popup_event'] = 1; // (1)
+$conf_user_rad['iframe_popup_event'] = array('1' => 'クリック', '0' => 'マウスオーバー');
+
 // HTMLポップアップの表示遅延時間（秒）
 $conf_user_def['iframe_popup_delay'] = 0.2; // (0.2)
 //$conf_user_rules['iframe_popup_delay'] = array('FloatExceptMinus');
