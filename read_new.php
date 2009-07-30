@@ -204,39 +204,21 @@ if ($_conf['expack.ic2.enabled']) {
 EOP;
 }
 
-if ($_conf['backlink_coloring_track']) {
-    $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
-}
+$onload_script = '';
 
 if ($_conf['iframe_popup_type'] == 1) {
     $fade = empty($_GET['fade']) ? 'false' : 'true';
-    echo <<<EOHEADER
-    <script type="text/javascript">
-    //<![CDATA[
-    gFade = {$fade};
-    gIsPageLoaded = false;
-
-    addLoadEvent(function() {
-        gIsPageLoaded = true;
-        setWinTitle();
-        {$onload_script}
-    });
-    //]]>
-    </script>\n
-EOHEADER;
+    $onload_script .= "gFade = {$fade};";
+    $bodyadd = ' onclick="hideHtmlPopUp(event);"';
+EOP;
+}
 
 if ($_conf['backlink_coloring_track']) {
+    $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
     echo <<<EOP
     <script type="text/javascript" src="js/backlink_color.js?{$_conf['p2_version_id']}"></script>
 EOP;
 }
-
-    echo <<<EOP
-</head>
-<body id="read" onclick="hideHtmlPopUp(event);">
-<div id="popUpContainer"></div>\n
-EOP;
-} else {
 
 // pageLoaded()が他のJavaScriptでも定義されたロード時のイベントハンドラとかぶらないようにする。
 // 古いブラウザでDOMContentLoadedと同等のタイミングにはこだわらない。
@@ -249,8 +231,8 @@ echo <<<EOHEADER
     function pageLoaded()
     {
         gIsPageLoaded = true;
-        setWinTitle();
         {$onload_script}
+        setWinTitle();
     }
 
     (function(){
@@ -264,11 +246,10 @@ echo <<<EOHEADER
     </script>\n
 EOHEADER;
 
-    echo <<<EOP
+echo <<<EOP
 </head>
-<body><div id="popUpContainer"></div>\n
+<body{$bodyadd}><div id="popUpContainer"></div>\n
 EOP;
-}
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";

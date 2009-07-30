@@ -370,7 +370,15 @@ EOP;
             // 日付とID
             $tores .= " <span class=\"date-id\">{$date_id}</span></div>\n";
             // 内容
-            $tores .= "<div class=\"message\">{$msg}</div></div>\n";
+            $tores .= "<div class=\"message\">{$msg}</div>";
+            // 被レスリスト
+            if ($_conf['mobile.backlink_list'] == 1) {
+                $linkstr = $this->quoteback_list_html($i, 2);
+                if (strlen($linkstr)) {
+                    $tores .= '<br>' . $linkstr;
+                }
+            }
+            $tores .= "</div>\n"; // 内容を閉じる
         } else {
             // 番号（オンザフライ時）
             if ($this->thread->onthefly) {
@@ -395,7 +403,15 @@ EOP;
             // 日付とID
             $tores .= "{$date_id}<br>\n";
             // 内容
-            $tores .= "{$msg}</div><hr>\n";
+            $tores .= "{$msg}</div>\n";
+            // 被レスリスト
+            if ($_conf['mobile.backlink_list'] == 1) {
+                $linkstr = $this->quoteback_list_html($i, 2);
+                if (strlen($linkstr)) {
+                    $tores .= '<br>' . $linkstr;
+                }
+            }
+            $tores .= "<hr>\n";
         }
 
         // まとめてフィルタ色分け
@@ -510,6 +526,11 @@ EOP;
 
         // 引用やURLなどをリンク
         $msg = $this->transLink($msg);
+
+        // Wikipedia記法への自動リンク
+        if ($_conf['mobile.link_wikipedia']) {
+            $msg = $this->wikipediaFilter($msg);
+        }
 
         return $msg;
     }
@@ -650,6 +671,19 @@ EOP;
         }
 
         return "{$idstr}{$num_ht}";
+    }
+
+    // }}}
+    // {{{ link_wikipedia()
+
+    /**
+     * @see ShowThread
+     */
+    function link_wikipedia($word) {
+        global $_conf;
+        $link = 'http://ja.wapedia.org/' . rawurlencode($word);
+        return  '<a href="' . ($_conf['through_ime'] ?
+            P2Util::throughIme($link) : $link) .  "\">{$word}</a>";
     }
 
     // }}}
@@ -1079,6 +1113,7 @@ EOP;
 
     // }}}
     // }}}
+
 }
 
 // }}}

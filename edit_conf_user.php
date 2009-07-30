@@ -275,6 +275,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('link_youtube', 'YouTubeのリンクをプレビュー表示<br>(手動の場合はURLの横の<img src="img/show.png" width="30" height="12" alt="show">をクリックして表示)'),
         array('link_niconico', 'ニコニコ動画のリンクをプレビュー表示<br>(手動の場合はURLの横の<img src="img/show.png" width="30" height="12" alt="show">をクリックして表示)'),
         array('iframe_popup', 'HTMLポップアップ'),
+        array('iframe_popup_event', 'HTMLポップアップをする場合のイベント'),
         array('iframe_popup_type', 'HTMLポップアップの種類'),
 //        array('iframe_popup_delay', 'HTMLポップアップの表示遅延時間 (秒)'),
         array('flex_idpopup', 'ID:xxxxxxxxをIDフィルタリングのリンクに変換'),
@@ -282,10 +283,11 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('bbs_win_target', 'rep2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
         array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
         array('quote_res_view', '引用レスを表示'),
+        array('strip_linebreaks', '文末の改行と連続する改行を除去'),
+        array('link_wikipedia', '[[単語]]をWikipediaへのリンクにする'),
         array('backlink_list', '逆参照ポップアップリストの表示'),
         array('backlink_coloring_track', '本文をダブルクリックすると着色してレス追跡'),
         array('backlink_coloring_track_colors', '本文をダブルクリックてレス追跡時の色リスト(カンマ区切り)'),
-        array('strip_linebreaks', '文末の改行と連続する改行を除去'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -442,6 +444,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('mobile.strip_linebreaks', '文末の改行と連続する改行を除去'),
 
         array('mobile.copy_divide_len', '「写」のコピー用テキストボックスを分割する文字数'),
+        array('mobile.link_wikipedia', '[[単語]]をWikipediaへのリンクにする'),
+        array('mobile.backlink_list', '逆参照リストの表示'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

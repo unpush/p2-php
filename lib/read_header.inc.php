@@ -259,33 +259,17 @@ if (empty($_GET['one'])) {
     $onload_script .= 'setWinTitle();';
 }
 
+if ($_conf['iframe_popup_type'] == 1) {
+    $fade = empty($_GET['fade']) ? 'false' : 'true';
+    $onload_script .= "gFade = {$fade};";
+    $bodyadd = ' onclick="hideHtmlPopUp(event);"';
+}
+
 if ($_conf['backlink_coloring_track']) {
     $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
 }
 
-if ($_conf['iframe_popup_type'] == 1) {
-    $fade = empty($_GET['fade']) ? 'false' : 'true';
-    echo <<<EOHEADER
-    <script type="text/javascript">
-    //<![CDATA[
-    gFade = {$fade};
-    gIsPageLoaded = false;
-
-    addLoadEvent(function() {
-        gIsPageLoaded = true;
-        {$onload_script}
-    });
-    //]]>
-    </script>\n
-EOHEADER;
-
-    echo <<<EOP
-</head>
-<body id="read" onclick="hideHtmlPopUp(event);">
-<div id="popUpContainer"></div>\n
-EOP;
-} else {
-    echo <<<EOHEADER
+echo <<<EOHEADER
     <script type="text/javascript">
     //<![CDATA[
     gIsPageLoaded = false;
@@ -307,11 +291,10 @@ EOP;
     </script>\n
 EOHEADER;
 
-    echo <<<EOP
+echo <<<EOP
 </head>
-<body><div id="popUpContainer"></div>\n
+<body{$bodyadd}><div id="popUpContainer"></div>\n
 EOP;
-}
 
 echo $_info_msg_ht;
 $_info_msg_ht = "";
