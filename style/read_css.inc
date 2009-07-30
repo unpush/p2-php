@@ -295,40 +295,52 @@ a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* 新着レス */
 
 /* }}} */
 
-/* 逆参照リスト(通常) */
-div.res div.reslist {
+/* 逆参照リスト 縦配置 (通常) */
+div.res div.v_reslist {
     float: left;
     width: 3.5em;
     font-size:70%;
     padding: 0.2em 0 0 0;
     margin: 0;
 }
-div.res div.reslist ul {
+div.res div.v_reslist ul {
     list-style-type: none;
     line-height: 0.75;
     margin: 0;
     padding: 0;
 }
-div.res div.reslist ul li:first-letter {
+div.res div.v_reslist ul li:first-letter {
     color: #777;
 }
 
-/* 逆参照リスト(引用レスポップアップ) */
-div.respopup div.reslist {
+/* 逆参照リスト 縦配置 (引用レスポップアップ) */
+div.respopup div.v_reslist {
     float: left;
     width: 3.5em;
     font-size:70%;
     padding: 0.2em 0 0 0;
     margin: 0;
 }
-div.respopup div.reslist ul {
+div.respopup div.v_reslist ul {
     list-style-type: none;
     line-height: 0.75;
     margin: 0;
     padding: 0;
 }
-div.respopup div.reslist ul li:first-letter {
+div.respopup div.v_reslist ul li:first-letter {
     color: #777;
+}
+
+/* 逆参照リスト 水平配置(通常) */
+div.res div.reslist {
+    font-size:80%;
+    margin : 1em 0 0 3em;
+}
+
+/* 逆参照リスト 水平配置(引用レスポップアップ)  */
+div.respopup div.reslist {
+    font-size:90%;
+    margin : 1em 0 0 3em;
 }
 
 .preview-video-switch {

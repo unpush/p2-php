@@ -78,6 +78,8 @@ abstract class ShowThread
     public $activeMona; // アクティブモナー・オブジェクト
     public $am_enabled = false; // アクティブモナーが有効か否か
 
+    protected $_quote_from; // 被アンカーを集計した配列 // [被参照レス番 : [参照レス番, ...], ...)
+
     // }}}
     // {{{ constructor
 
@@ -842,24 +844,6 @@ EOP;
         return $orig;
     }
 
-    function wikipedia($msg) { // [[語句]]があった時にWikipediaへ自動リンクするんだぜ？
-        global $_conf;
-        $msg = mb_convert_encoding($msg, "UTF-8", "SJIS-win"); // SJISはうざいからUTF-8に変換するんだぜ？
-        if($_conf['ktai']){
-            $wikipedia = "http://ja.wapedia.org/"; // WapediaのURLなんだぜ？
-        }else{
-            $wikipedia = "http://ja.wikipedia.org/wiki/"; // WikipediaのURLなんだぜ？
-        }
-        $search = "/\[\[([^\[\]\n<>]+)\]\]+/"; // 目印となる正規表現なんだぜ？
-        preg_match_all($search, $msg, $matches); // [[語句]]を探すんだぜ？
-        foreach ($matches[1] as $value) { // リンクに変換するんだぜ？
-            $replaced = "<a href=\"" . P2Util::throughIme($wikipedia . rawurlencode($value)) . "\"" . $_conf['ext_win_target_at'] . ">$value</a>"; // しっかりimeを通すんだぜ？
-            $msg = str_replace("[[$value]]", "[[$replaced]]", $msg); // 変換後の本文を戻すんだぜ？
-        }
-        $msg = mb_convert_encoding($msg, "SJIS-win", "UTF-8"); // UTF-8からSJISに戻すんだぜ？
-        return $msg;
-    }
-
     // }}}
     // {{{ idFilter()
 
@@ -941,6 +925,152 @@ EOP;
     }
 
     // }}}
+    // {{{ wikipediaFilter()
+
+    /**
+     * [[語句]]があった時にWikipediaへ自動リンク
+     *
+     * @param   string  $msg            メッセージ
+     * @return  string
+     *
+     * original code:
+     *  http://akid.s17.xrea.com/p2puki/index.phtml?%A5%E6%A1%BC%A5%B6%A1%BC%A5%AB%A5%B9%A5%BF%A5%DE%A5%A4%A5%BA%28rep2%20Ver%201.7.0%A1%C1%29#led2c85d
+     */
+    protected function wikipediaFilter($msg) {
+        $msg = mb_convert_encoding($msg, "UTF-8", "SJIS-win"); // SJISはうざいからUTF-8に変換するんだぜ？
+        $wikipedia = "http://ja.wikipedia.org/wiki/"; // WikipediaのURLなんだぜ？
+        $search = "/\[\[([^\[\]\n<>]+)\]\]+/"; // 目印となる正規表現なんだぜ？
+        preg_match_all($search, $msg, $matches); // [[語句]]を探すんだぜ？
+        foreach ($matches[1] as $value) { // リンクに変換するんだぜ？
+            $replaced = $this->link_wikipedia($value);
+            $msg = str_replace("[[$value]]", "[[$replaced]]", $msg); // 変換後の本文を戻すんだぜ？
+        }
+        $msg = mb_convert_encoding($msg, "SJIS-win", "UTF-8"); // UTF-8からSJISに戻すんだぜ？
+        return $msg;
+    }
+
+    // }}}
+    // {{{ link_wikipedia()
+
+    /**
+     * Wikipediaの語句をリンクに変換して返す.
+     *
+     * @param   string  $word   語句
+     * @return  string
+     */
+    abstract protected function link_wikipedia($word);
+
+    // {{{ _make_quote_from()
+
+    /**
+     * 被レスデータを集計して$this->_quote_fromに保存.
+     */
+    protected function _make_quote_from()
+    {
+        global $_conf;
+        $this->_quote_from = array();
+        if (!$this->thread->datlines) return;
+
+        foreach($this->thread->datlines as $num => $line) {
+            list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
+            if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
+                foreach ($out[1] as $numberq) {
+                    if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
+                        if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
+                            for ($i = $matches[1]; $i <= $matches[2]; $i++) {
+                                if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
+                                    $this->_quote_from[$i] = array();
+                                }
+                                if (!in_array($num + 1, $this->_quote_from[$i])) {
+                                    $this->_quote_from[$i][] = $num + 1;
+                                }
+                            }
+                        }
+                    } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
+                        foreach ($matches[0] as $quote_num) {
+                            if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
+                                $this->_quote_from[$quote_num] = array();
+                            }
+                            if (!in_array($num + 1, $this->_quote_from[$quote_num])) {
+                                $this->_quote_from[$quote_num][] = $num + 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // }}}
+    // {{{ _get_quote_from()
+
+    /**
+     * 被レスリストを返す.
+     *
+     * @return  array
+     */
+    public function get_quote_from()
+    {
+        if ($this->_quote_from === null) {
+            $this->_make_quote_from();  // 被レスデータ集計
+        }
+        return $this->_quote_from;
+    }
+
+    // }}}
+    // {{{ _quoteback_list_html()
+
+    /**
+     * 被レスリストをHTMLで整形して返す.
+     *
+     * @param   int     $resnum レス番号
+     * @param   int     $type   1:縦形式 2:横形式
+     * @return  string
+     */
+    protected function quoteback_list_html($resnum, $type)
+    {
+        $quote_from = $this->get_quote_from();
+        if (!array_key_exists($resnum, $quote_from)) return $ret;
+
+        $anchors = $quote_from[$resnum];
+        sort($anchors);
+
+        if ($type == 1) {
+            return $this->_quoteback_vertical_list_html($anchors);
+        } else if ($type == 2) {
+            return $this->_quoteback_horizontal_list_html($anchors);
+        }
+    }
+    protected function _quoteback_vertical_list_html($anchors)
+    {
+        $ret = '<div class="v_reslist"><ul>';
+        $anchor_cnt = 1;
+        foreach($anchors as $anchor) {
+            if ($anchor_cnt > 1) $ret .= '<li>│</li>';
+            if ($anchor_cnt < count($anchors)) {
+                $ret .= '<li>├';
+            } else {
+                $ret .= '<li>└';
+            }
+            $ret .= $this->quoteRes($anchor, '', $anchor, true);
+            $anchor_cnt++;
+        }
+        $ret .= '</ul></div>';
+        return $ret;
+    }
+    protected function _quoteback_horizontal_list_html($anchors)
+    {
+        $ret = '<div class="reslist">';
+        foreach($anchors as $idx=>$anchor) {
+            $anchors[$idx]= $this->quoteRes($anchor, '', $anchor);
+        }
+        $ret.="【参照レス：".join("/",$anchors)."】";
+        $ret.='</div>';
+        return $ret;
+    }
+
+    // }}}
+
 }
 
 // }}}

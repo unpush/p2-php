@@ -114,6 +114,9 @@ ini_set('auto_detect_line_endings', 1);
 // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
 ini_set('arg_separator.output', '&amp;');
 
+// リクエストIDを設定 (コストが大きい割に使っていないので廃止)
+//define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
+
 // セッションIDの 付加機能が有効となった場合に、セッションIDを含めるために書き換 えられるHTMLタグにimg=srcを追加
 $temp_rewriter_tags = explode(',', ini_get('url_rewriter.tags'));
 if (is_array($temp_rewriter_tags)) {
@@ -122,9 +125,6 @@ if (is_array($temp_rewriter_tags)) {
         ini_set('url_rewriter.tags', implode(',', $temp_rewriter_tags));
     }
 }
-
-// リクエストIDを設定 (コストが大きい割に使っていないので廃止)
-//define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
 
 // Windows なら
 if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
