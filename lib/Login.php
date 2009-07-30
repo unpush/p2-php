@@ -761,7 +761,7 @@ EOP;
         $key = $this->getMd5CryptKey();
 
         $dec = md5_decrypt($cid, $key, 32);
-        list($user, $time, $pw_enc) = split(':', $dec, 3);
+        list($user, $time, $pw_enc) = explode(':', $dec, 3);
 
         // —LŒøŠúŒÀ “ú”
         if (time() > $time + (86400 * $_conf['cid_expire_day'])) {

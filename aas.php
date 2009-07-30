@@ -353,10 +353,10 @@ foreach ($lines as $line) {
     if ($bold) {
         imagettftext($image, $fontsize, 0, $x_pos + 1, $y_pos, $fgcolor, $font, $line);
     }
-    $y_pos += $y_adjust;
-    if (!$overflow && $y_pos >= $height) {
+    if ($overflow && $y_pos >= $height) {
         break;
     }
+    $y_pos += $y_adjust;
 }
 
 // ƒŠƒTƒCƒY

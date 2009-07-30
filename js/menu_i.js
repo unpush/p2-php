@@ -6,7 +6,7 @@
 	// {{{ createPop()
 
 	/**
-	 * リンクホールド時にリンクの下に表示される要素を生成する
+	 * リンクスライド時にリンクの下に表示される要素を生成する
 	 *
 	 * @param {String} type
 	 * @return {Element}
@@ -24,21 +24,21 @@
 		button = div.appendChild(document.createElement('input'));
 		button.setAttribute('type', 'button');
 		button.value = type + 'を開く';
-		button.onclick = window.iutil.hold.openUri;
+		button.onclick = window.iutil.sliding.openUri;
 
 		div.appendChild(document.createTextNode('\u3000'));
 
 		button = div.appendChild(document.createElement('input'));
 		button.setAttribute('type', 'button');
 		button.value = 'タブで開く';
-		button.onclick = window.iutil.hold.openUriInTab;
+		button.onclick = window.iutil.sliding.openUriInTab;
 
 		div.appendChild(document.createTextNode('\u3000'));
 
 		button = div.appendChild(document.createElement('input'));
 		button.setAttribute('type', 'button');
 		button.value = '閉じる';
-		button.onclick = window.iutil.hold.hideDialog;
+		button.onclick = window.iutil.sliding.hideDialog;
 
 		// お気に入りの登録・解除
 		table = pop.appendChild(document.createElement('table'));
@@ -132,7 +132,7 @@
 		var toggled, req, uri, setnum;
 
 		setnum = parseInt(div.className.substring(div.className.indexOf('favita') + 6));
-		uri = 'httpcmd.php?cmd=setfavita&' + window.iutil.hold.query + '&setnum=' + setnum;
+		uri = 'httpcmd.php?cmd=setfavita&' + window.iutil.sliding.query + '&setnum=' + setnum;
 		if (toggled) {
 			uri += '&setfavita=1';
 		} else {
@@ -159,7 +159,7 @@
 		var toggled, req, uri, setnum;
 
 		setnum = parseInt(div.className.substring(div.className.indexOf('fav') + 3));
-		uri = 'httpcmd.php?cmd=setfav&' + window.iutil.hold.query + '&setnum=' + setnum;
+		uri = 'httpcmd.php?cmd=setfav&' + window.iutil.sliding.query + '&setnum=' + setnum;
 		if (toggled) {
 			uri += '&setfav=1';
 		} else {
@@ -186,7 +186,7 @@
 		var toggled, req, uri;
 
 		toggled = div.getAttribute('toggled') === 'true';
-		uri = 'httpcmd.php?cmd=setpal&' + window.iutil.hold.query;
+		uri = 'httpcmd.php?cmd=setpal&' + window.iutil.sliding.query;
 		if (toggled) {
 			uri += '&setpal=1';
 		} else {
@@ -443,7 +443,7 @@
 	// {{{ setup()
 
 	/**
-	 * リンクホールド時のアクション等を設定する
+	 * リンクスライド時のアクション等を設定する
 	 *
 	 * @param {Object} iui
 	 * @param {Object} iutil
@@ -451,14 +451,14 @@
 	 * @return void
 	 */
 	var setup = function(iui, iutil, JSON) {
-		var i, bind, hold, list, insertPages;
+		var i, bind, sliding, list, insertPages;
 
-		hold = iutil.hold;
+		sliding = iutil.sliding;
 
 		// {{{ bind()
 
 		/**
-		 * 与えられたノード(ul要素)直下のリンクにホールド時のイベントハンドラを登録する
+		 * 与えられたノード(ul要素)直下のリンクにスライド時のイベントハンドラを登録する
 		 *
 		 * @param {Node} node
 		 * @return void
@@ -466,7 +466,7 @@
 		bind = function(node) {
 			var b, i, l, s;
 
-			b = hold.bind;
+			b = sliding.bind;
 			s = document.evaluate('./li/a[@target = "_self" and'
 			                      + ' (starts-with(@href, "read.php?")'
 			                      + ' or starts-with(@href, "subject.php?"))]',
@@ -518,39 +518,39 @@
 		};
 
 		// }}}
-		// {{{ override hold.callbacks.subject()
+		// {{{ override sliding.callbacks.subject()
 
 		/**
-		 * 板リンクホールド時に実行される関数
+		 * 板リンクスライド時に実行される関数
 		 *
 		 * @param {Element} anchor
 		 * @param {Event} event
 		 * @return void
 		 */
-		hold.callbacks.subject = function(anchor, event) {
+		sliding.callbacks.subject = function(anchor, event) {
 			var pop, ul, li, m, req, table;
 
 			// 要素を取得
-			if (typeof hold.dialogs.menuSubject === 'undefined') {
+			if (typeof sliding.dialogs.menuSubject === 'undefined') {
 				pop = createPop('板');
 			} else {
-				pop = hold.dialogs.menuSubject;
+				pop = sliding.dialogs.menuSubject;
 				pop = pop.parentNode.removeChild(pop);
 			}
-			hold.dialogs.menuSubject = pop;
-			hold.setActiveDialog(pop);
+			sliding.dialogs.menuSubject = pop;
+			sliding.setActiveDialog(pop);
 
 			// お気に板の登録状況を取得
 			table = pop.childNodes[1];
 			table.style.display = 'none';
 			if (anchor.href.indexOf('?spmode=merge_favita') === -1) {
 				req = new XMLHttpRequest();
-				req.open('GET', 'info_js.php?' + hold.query, true);
+				req.open('GET', 'info_js.php?' + sliding.query, true);
 				req.onreadystatechange = generateOnBoardInfoGet(req, JSON.parse, pop, table);
 				req.send(null);
 			}
 
-			// 要素をホールドされたリンクの後に挿入
+			// 要素をスライドされたリンクの後に挿入
 			li = anchor.parentNode;
 			ul = li.parentNode;
 			if (li.nextSibling) {
@@ -562,37 +562,37 @@
 		};
 
 		// }}}
-		// {{{ override hold.callbacks.read()
+		// {{{ override sliding.callbacks.read()
 
 		/**
-		 * スレッドリンクホールド時に実行される関数
+		 * スレッドリンクスライド時に実行される関数
 		 *
 		 * @param {Element} anchor
 		 * @param {Event} event
 		 * @return void
 		 */
-		hold.callbacks.read = function(anchor, event) {
+		sliding.callbacks.read = function(anchor, event) {
 			var pop, ul, li, m, req, table;
 
 			// 要素を取得
-			if (typeof hold.dialogs.menuRead === 'undefined') {
+			if (typeof sliding.dialogs.menuRead === 'undefined') {
 				pop = createPop('スレ');
 			} else {
-				pop = hold.dialogs.menuRead;
+				pop = sliding.dialogs.menuRead;
 				pop = pop.parentNode.removeChild(pop);
 			}
-			hold.dialogs.menuRead = pop;
-			hold.setActiveDialog(pop);
+			sliding.dialogs.menuRead = pop;
+			sliding.setActiveDialog(pop);
 
 			// お気にスレの登録状況を取得
 			table = pop.childNodes[1];
 			table.style.display = 'none';
 			req = new XMLHttpRequest();
-			req.open('GET', 'info_js.php?' + hold.query, true);
+			req.open('GET', 'info_js.php?' + sliding.query, true);
 			req.onreadystatechange = generateOnThreadInfoGet(req, JSON.parse, pop, table);
 			req.send(null);
 
-			// 要素をホールドされたリンクの後に挿入
+			// 要素をスライドされたリンクの後に挿入
 			li = anchor.parentNode;
 			ul = li.parentNode;
 			if (li.nextSibling) {

@@ -321,7 +321,7 @@ abstract class ShowThread
         // {{{ 連鎖チェック
 
         if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
-            $chain_nums = array_unique(array_map('intval', split('[-,]+', trim(implode(',', $matches[1]), '-,'))));
+            $chain_nums = array_unique(array_map('intval', preg_split('/[-,]+/', trim(implode(',', $matches[1]), '-,'))));
             if (array_intersect($chain_nums, $this->_aborn_nums)) {
                 if ($_conf['ngaborn_chain'] == 1) {
                     $ngaborns_hits['aborn_chain']++;
@@ -732,12 +732,14 @@ EOP;
         $following = '';
 
         // PHP 5.2.7 未満の preg_replace_callback() では名前付き捕獲式集合が使えないので
+        /*
         if (!array_key_exists('link', $s)) {
             $s['link']  = $s[1];
             $s['quote'] = $s[5];
             $s['url']   = $s[8];
             $s['id']    = $s[12];
         }
+        */
 
         // マッチしたサブパターンに応じて分岐
         // リンク

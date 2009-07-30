@@ -21,12 +21,16 @@ var iutil = {
 	 */
 	'externalLinkPattern': /^https?:\/\/([^\/]+?@)?([^:\/]+)/,
 	/**
-	 * リンクホールドのための変数コンテナ
+	 * リンクスライディングのための変数コンテナ
 	 * @type {Object}
 	 */
-	'hold': {
-		'duration': 1000,
-		'timeoutId': -1,
+	'sliding': {
+		'start': -1,
+		'startX': -1,
+		'startY': -1,
+		'endX': -1,
+		'endY': -1,
+		'target': null,
 		'callbacks': {},
 		'dialogs': {},
 		'dialog': null,
@@ -406,17 +410,17 @@ iutil.stopEvent = function(event) {
 };
 
 // }}}
-// {{{ hold.onTouchStart()
+// {{{ sliding.onTouchStart()
 
 /**
- * リンクホールド・タッチ/マウス押し下げ時のイベントハンドラ
+ * リンクスライド・タッチ/マウス押し下げ時のイベントハンドラ
  * ダイアログ表示タイマーをセットする
  *
  * @param {Event} event
  * @param {Element} target
  * @return void
  */
-iutil.hold.onTouchStart = function(event, target) {
+iutil.sliding.onTouchStart = function(event, target) {
 	var x, y;
 
 	event = event || window.event;
@@ -450,55 +454,71 @@ iutil.hold.onTouchStart = function(event, target) {
 		}
 	}
 
-	if (iutil.hold.timeoutId != -1) {
-		window.clearTimeout(iutil.hold.timeoutId);
-	}
-
-	iutil.hold.timeoutId = window.setTimeout(iutil.hold.showDialog,
-	                                         iutil.hold.duration,
-	                                         target, x, y);
+	iutil.sliding.start = event.timeStamp;
+	iutil.sliding.startX = x;
+	iutil.sliding.startY = y;
+	iutil.sliding.target = target;
 };
 
 // }}}
-// {{{ hold.onTouchMove()
+// {{{ sliding.onTouchMove()
 
 /**
- * リンクホールド・ムーブ/ドラッグ時のイベントハンドラ
+ * リンクスライド・ムーブ/ドラッグ時のイベントハンドラ
  * タッチ/カーソルが移動したならダイアログ表示タイマーをキャンセルする
  *
  * @param {Event} event
  * @return void
  */
-iutil.hold.onTouchMove = function(event) {
-	if (iutil.hold.timeoutId != -1) {
-		window.clearTimeout(iutil.hold.timeoutId);
-		iutil.hold.timeoutId = -1;
+iutil.sliding.onTouchMove = function(event) {
+	var x, y;
+
+	event = event || window.event;
+
+	//iutil.stopEvent(event);
+
+	if (event.targetTouches) {
+		if (!event.targetTouches.length) {
+			return;
+		}
+		x = event.targetTouches[0].pageX;
+		y = event.targetTouches[0].pageY;
+	} else {
+		x = iutil.getPageX(event);
+		y = iutil.getPageY(event);
 	}
+
+	iutil.sliding.endX = x;
+	iutil.sliding.endY = y;
 };
 
 // }}}
-// {{{ hold.onClick()
+// {{{ sliding.onTouchEnd()
 
 /**
- * リンクホールド・クリック時のイベントハンドラ
+ * リンクスライド・リリース時のイベントハンドラ
  * ダイアログが表示されたならクリックをキャンセルする
  *
  * @param {Event} event
  * @return void
  */
-iutil.hold.onClick = function(event) {
-	if (iutil.hold.timeoutId != -1) {
-		window.clearTimeout(iutil.hold.timeoutId);
-		iutil.hold.timeoutId = -1;
-		return true;
-	} else {
-		iutil.stopEvent(event || window.event);
+iutil.sliding.onTouchEnd = function(event) {
+	event = event || window.event;
+
+	if (Math.abs(iutil.sliding.endX - iutil.sliding.startX) > 160 &&
+		Math.abs(iutil.sliding.endY - iutil.sliding.startY) < 16 &&
+		event.timeStamp < iutil.sliding.start + 1000)
+	{
+		iutil.sliding.showDialog(iutil.sliding.target, iutil.sliding.startX, iutil.sliding.startY);
+		iutil.stopEvent(event);
 		return false;
+	} else {
+		return true;
 	}
 };
 
 // }}}
-// {{{ hold.showDialog()
+// {{{ sliding.showDialog()
 
 /**
  * ダイアログを表示する
@@ -508,36 +528,36 @@ iutil.hold.onClick = function(event) {
  * @param {Number} y
  * @return void
  */
-iutil.hold.showDialog = function(anchor, x, y) {
-	var hold, dialog, div, text, button, m, p, left;
+iutil.sliding.showDialog = function(anchor, x, y) {
+	var sliding, dialog, div, text, button, m, p, left;
 
-	hold = iutil.hold;
-	hold.timeoutId = -1;
-	hold.anchor = anchor;
-	hold.href = anchor.getAttribute('href');
-	hold.uri = anchor.href;
+	sliding = iutil.sliding;
+	sliding.timeoutId = -1;
+	sliding.anchor = anchor;
+	sliding.href = anchor.getAttribute('href');
+	sliding.uri = anchor.href;
 
-	hold.hideDialog();
+	sliding.hideDialog();
 
 	m = iutil.internalLinkPattern.exec(anchor.getAttribute('href'));
 	if (m === null) {
 		return;
 	}
 
-	hold.query = hold.href.substring(m[0].length);
-	p = hold.query.indexOf('#');
+	sliding.query = sliding.href.substring(m[0].length);
+	p = sliding.query.indexOf('#');
 	if (p !== -1) {
-		hold.query = hold.query.substring(0, p);
+		sliding.query = sliding.query.substring(0, p);
 	}
 
 	// 特定のコールバック関数があるとき
-	if (typeof hold.callbacks[m[1]] === 'function') {
-		hold.callbacks[m[1]](anchor, event);
+	if (typeof sliding.callbacks[m[1]] === 'function') {
+		sliding.callbacks[m[1]](anchor, event);
 		return;
 	}
 
 	// デフォルトのダイアログを表示する
-	if (typeof hold.dialogs._default === 'undefined') {
+	if (typeof sliding.dialogs._default === 'undefined') {
 		dialog = document.createElement('div');
 		dialog.className = 'popup-dialog';
 
@@ -553,26 +573,26 @@ iutil.hold.showDialog = function(anchor, x, y) {
 		button = div.appendChild(document.createElement('input'));
 		button.setAttribute('type', 'button');
 		button.value = 'リンクを開く';
-		button.onclick = hold.openUri;
+		button.onclick = sliding.openUri;
 
 		div.appendChild(document.createTextNode('\u3000'));
 
 		button = div.appendChild(document.createElement('input'));
 		button.setAttribute('type', 'button');
 		button.value = 'タブで開く';
-		button.onclick = hold.openUriInTab;
+		button.onclick = sliding.openUriInTab;
 
 		// 「閉じる」ボタン
 		button = dialog.appendChild(document.createElement('img'));
 		button.className = 'close-button';
 		button.setAttribute('src', 'img/iphone/close.png');
-		button.onclick = hold.hideDialog;
+		button.onclick = sliding.hideDialog;
 
-		hold.dialogs._default = document.body.appendChild(dialog);
+		sliding.dialogs._default = document.body.appendChild(dialog);
 	} else {
-		dialog = hold.dialogs._default;
+		dialog = sliding.dialogs._default;
 	}
-	hold.setActiveDialog(dialog);
+	sliding.setActiveDialog(dialog);
 
 	text = dialog.firstChild.firstChild;
 	text.nodeValue = iutil.getTextNodes(anchor, true).join('').replace(/\s+/g, ' ')
@@ -585,7 +605,7 @@ iutil.hold.showDialog = function(anchor, x, y) {
 };
 
 // }}}
-// {{{ hold.hideDialog()
+// {{{ sliding.hideDialog()
 
 /**
  * アクティブなダイアログを隠す
@@ -593,15 +613,15 @@ iutil.hold.showDialog = function(anchor, x, y) {
  * @param void
  * @return void
  */
-iutil.hold.hideDialog = function() {
-	if (iutil.hold.dialog) {
-		iutil.hold.dialog.style.display = 'none';
-		iutil.hold.setActiveDialog(null);
+iutil.sliding.hideDialog = function() {
+	if (iutil.sliding.dialog) {
+		iutil.sliding.dialog.style.display = 'none';
+		iutil.sliding.setActiveDialog(null);
 	}
 };
 
 // }}}
-// {{{ hold.setActiveDialog()
+// {{{ sliding.setActiveDialog()
 
 /**
  * アクティブなダイアログを設定する
@@ -609,12 +629,12 @@ iutil.hold.hideDialog = function() {
  * @param {Element|null} element
  * @return void
  */
-iutil.hold.setActiveDialog = function(element) {
-	iutil.hold.dialog = element;
+iutil.sliding.setActiveDialog = function(element) {
+	iutil.sliding.dialog = element;
 };
 
 // }}}
-// {{{ hold.openUri()
+// {{{ sliding.openUri()
 
 /**
  * リンクを開く
@@ -622,12 +642,12 @@ iutil.hold.setActiveDialog = function(element) {
  * @param void
  * @return void
  */
-iutil.hold.openUri = function() {
-	window.location.href = iutil.hold.uri;
+iutil.sliding.openUri = function() {
+	window.location.href = iutil.sliding.uri;
 };
 
 // }}}
-// {{{ hold.openUriInTab()
+// {{{ sliding.openUriInTab()
 
 /**
  * 新しいタブでリンクを開く
@@ -635,30 +655,31 @@ iutil.hold.openUri = function() {
  * @param void
  * @return void
  */
-iutil.hold.openUriInTab = function() {
-	window.open(iutil.hold.uri, null);
+iutil.sliding.openUriInTab = function() {
+	window.open(iutil.sliding.uri, null);
 };
 
 // }}}
-// {{{ hold.bind()
+// {{{ sliding.bind()
 
 /**
- * リンクにホールドイベントハンドラを登録する
+ * リンクにスライドイベントハンドラを登録する
  *
  * @param {Element} anchor
  * @return void
  */
 if (iutil.iphone) {
-	iutil.hold.bind = function(anchor) {
-		anchor.addEventListener('touchstart', iutil.hold.onTouchStart, false);
-		anchor.addEventListener('touchmove',  iutil.hold.onTouchMove, false);
-		anchor.addEventListener('click',      iutil.hold.onClick, false);
+	iutil.sliding.bind = function(anchor) {
+		anchor.addEventListener('touchstart',   iutil.sliding.onTouchStart, false);
+		anchor.addEventListener('touchmove',    iutil.sliding.onTouchMove, false);
+		anchor.addEventListener('touchend',     iutil.sliding.onTouchEnd, false);
+		anchor.addEventListener('touchcancel',  iutil.sliding.onTouchEnd, false);
 	};
 } else {
-	iutil.hold.bind = function(anchor) {
-		anchor.addEventListener('mousedown', iutil.hold.onTouchStart, false);
-		anchor.addEventListener('drag',      iutil.hold.onTouchMove, false);
-		anchor.addEventListener('click',     iutil.hold.onClick, false);
+	iutil.sliding.bind = function(anchor) {
+		anchor.addEventListener('mousedown',    iutil.sliding.onTouchStart, false);
+		anchor.addEventListener('drag',         iutil.sliding.onTouchMove, false);
+		anchor.addEventListener('mosueup',      iutil.sliding.onTouchEnd, false);
 	};
 }
 

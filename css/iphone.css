@@ -381,6 +381,7 @@ ul.subject > li > a:visited {
 ul.subject > li > a:active {
 	color: #ffffff;
 	background-color: #194fdb;
+	-webkit-tap-highlight-color: transparent;
 }
 
 ul.subject > li > a:link > span.new {

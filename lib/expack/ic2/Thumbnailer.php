@@ -57,6 +57,7 @@ class IC2_Thumbnailer
     );
     // @var array $mimemap, MIMEタイプと拡張子の対応表
     public $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
+    public $windows;        // @var bool    サーバOSがWindowsか否か
 
     // }}}
     // {{{ constructor
@@ -78,6 +79,8 @@ class IC2_Thumbnailer
             $this->dynamic = false;
             $this->intermd = false;
         }
+
+        $this->windows = (bool)P2_OS_WINDOWS;
 
         // 設定
         $this->ini = ic2_loadconfig();
