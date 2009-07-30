@@ -90,8 +90,9 @@ $_defaults = array(
     'field' => $ini['Viewer']['field'],
     'key'   => '',
     'threshold' => $ini['Viewer']['threshold'],
-    'compare' => '>=',
+    'compare' => $ini['Viewer']['compare'],
     'mode' => $_default_mode,
+    'thumbtype' => IC2_Thumbnailer::SIZE_DEFAULT,
 );
 
 // フォームの固定値
@@ -159,6 +160,13 @@ $_mode = array(
     '2' => '個別管理',
 );
 
+// サムネイルタイプ
+$_thumbtype = array(
+    '1' => 'ﾃﾞﾌｫ',
+    '2' => '携帯',
+    '3' => '中間',
+);
+
 // 携帯用に変換（フォームをパケット節約の対象外とするため）
 if ($_conf['ktai']) {
     foreach ($_order as $_k => $_v) {
@@ -176,9 +184,6 @@ if ($_conf['ktai']) {
 $icdb = new IC2_DataObject_Images;
 $db = $icdb->getDatabaseConnection();
 $db_class = strtolower(get_class($db));
-
-// サムネイル作成クラス
-$thumb = new IC2_Thumbnailer(IC2_Thumbnailer::SIZE_DEFAULT);
 
 if ($ini['Viewer']['cache']) {
     // データキャッシュにはCache_Container_db(Cache 1.5.4)をハックしてMySQL以外にも対応させ、
@@ -277,6 +282,7 @@ $qfe['field']     = $qf->addElement('select', 'field', 'フィールド', $_field);
 $qfe['key']       = $qf->addElement('text', 'key', 'キーワード', array('size' => 20));
 $qfe['compare']   = $qf->addElement('select', 'compare', '比較方法', $_compare);
 $qfe['threshold'] = $qf->addElement('select', 'threshold', 'しきい値', $_threshold);
+$qfe['thumbtype'] = $qf->addElement('select', 'thumbtype', 'サムネイルタイプ', $_thumbtype);
 
 // 文字コード判定のヒントにする隠し要素
 $qfe['_hint'] = $qf->addElement('hidden', '_hint');
@@ -299,6 +305,7 @@ $qf->addRule('field', 'invalid field.', 'arrayKeyExists', $_field);
 $qf->addRule('threshold', '-1 to 5', 'numberInRange', array('min' => -1, 'max' => 5));
 $qf->addRule('compare', 'invalid compare.', 'arrayKeyExists', $_compare);
 $qf->addRule('mode', 'invalid mode.', 'arrayKeyExists', $_mode);
+$qf->addRule('thumbtype', 'invalid thumbtype.', 'arrayKeyExists', $_thumbtype);
 
 // Flexy
 $_flexy_options = array(
@@ -356,6 +363,10 @@ $key       = getValidValue('key',    $_defaults['key']);
 $threshold = getValidValue('threshold', $_defaults['threshold'], 'intval');
 $compare   = getValidValue('compare',   $_defaults['compare']);
 $mode      = getValidValue('mode',      $_defaults['mode'], 'intval');
+$thumbtype = getValidValue('thumbtype', $_defaults['thumbtype'], 'intval');
+
+// サムネイル作成クラス
+$thumb = new IC2_Thumbnailer($thumbtype);
 
 // 携帯用に調整
 if ($_conf['ktai']) {
@@ -680,7 +691,8 @@ if ($all == 0) {
             'page' => $page, 'cols' => $cols, 'rows' => $rows,
             'order' => $order, 'sort' => $sort,
             'field' => $field, 'key' => $key,
-            'compare' => $compare, 'threshold' => $threshold
+            'compare' => $compare, 'threshold' => $threshold,
+            'thumbtype' => $thumbtype
         );
         $pager_q = $mf_hiddens;
         mb_convert_variables('UTF-8', 'CP932', $pager_q);
@@ -855,7 +867,7 @@ if ($all == 0) {
         } else {
             if (!file_exists($add['thumb'])) {
                 // レンダリング時に自動でhtmlspecialchars()されるので&amp;にしない
-                $add['thumb'] = 'ic2.php?r=' . $r_type . '&t=1';
+                $add['thumb'] = 'ic2.php?r=' . $r_type . "&t={$thumb->mode}";
                 if (file_exists($add['src'])) {
                     $add['thumb'] .= '&id=' . $img['id'];
                 } else {
