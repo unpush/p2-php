@@ -90,7 +90,7 @@ $_defaults = array(
     'field' => $ini['Viewer']['field'],
     'key'   => '',
     'threshold' => $ini['Viewer']['threshold'],
-    'compare' => '>=',
+    'compare' => $ini['Viewer']['compare'],
     'mode' => $_default_mode,
     'thumbtype' => IC2_Thumbnailer::SIZE_DEFAULT,
 );
