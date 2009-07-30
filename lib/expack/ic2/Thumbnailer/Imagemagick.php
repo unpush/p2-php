@@ -147,7 +147,8 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
         // •¡”ƒtƒŒ[ƒ€‚©‚ç‚È‚é‰æ‘œ‚©‚à‚µ‚ê‚È‚¢‚Æ‚«
         if ($this->_imagemagick_have_flatten) {
             $command .= ' -flatten';
-        } elseif (preg_match('/\\.gif$/', $source)) {
+        }
+        if (!$this->windows && preg_match('/\\.gif$/', $source)) {
             $command .= ' +adjoin';
             $source .= '[0]';
         }

@@ -26,6 +26,10 @@ body > div > ul {
 	padding-left: 1.5em;
 }
 
+ul > li > a[target="_self"] {
+	-webkit-tap-highlight-color: transparent;
+}
+
 ul.tgrep-result > li > a, div#tgrep_info > ul > li > a {
 	word-break: break-all;
 }

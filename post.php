@@ -637,7 +637,7 @@ function showCookieConfirmation($host, $response)
     // HTMLをDOMで解析
     $doc = P2Util::getHtmlDom($response, 'Shift_JIS', false);
     if (!$doc) {
-        showUnexpectedResponse($response);
+        showUnexpectedResponse($response, __LINE__);
         return;
     }
 
@@ -645,7 +645,7 @@ function showCookieConfirmation($host, $response)
     $heads = $doc->getElementsByTagName('head');
     $bodies = $doc->getElementsByTagName('body');
     if ($heads->length != 1 || $bodies->length != 1) {
-        showUnexpectedResponse($response);
+        showUnexpectedResponse($response, __LINE__);
         return;
     }
 
@@ -657,13 +657,13 @@ function showCookieConfirmation($host, $response)
     $forms = $xpath->query(".//form[(@method = 'POST' or @method = 'post')
             and (starts-with(@action, '../test/bbs.cgi') or starts-with(@action, '../test/subbbs.cgi'))]", $body);
     if ($forms->length != 1) {
-        showUnexpectedResponse($response);
+        showUnexpectedResponse($response, __LINE__);
         return;
     }
     $form = $forms->item(0);
 
     if (!preg_match('{^\\.\\./test/(sub)?bbs\\.cgi(?:\\?guid=ON)?$}', $form->getAttribute('action'), $matches)) {
-        showUnexpectedResponse($response);
+        showUnexpectedResponse($response, __LINE__);
         return;
     }
 
@@ -818,12 +818,17 @@ function showCookieConfirmation($host, $response)
  * サーバから予期しないレスポンスが返ってきた旨を表示する
  *
  * @param   string $response    レスポンスボディ
+ * @param   int $line   行番号
  * @return  void
  */
-function showUnexpectedResponse($response)
+function showUnexpectedResponse($response, $line = null)
 {
     echo '<html><head><title>p2 ERROR</title></head><body>';
-    echo '<h1>p2 ERROR</h1><p>サーバからのレスポンスが変です。</p><pre>';
+    echo '<h1>p2 ERROR</h1><p>サーバからのレスポンスが変です。';
+    if (is_numeric($line)) {
+        echo "({$line})";
+    }
+    echo '</p><pre>';
     echo htmlspecialchars($response, ENT_QUOTES);
     echo '</pre></body></html>';
 }
