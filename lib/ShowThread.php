@@ -78,6 +78,8 @@ abstract class ShowThread
     public $activeMona; // アクティブモナー・オブジェクト
     public $am_enabled = false; // アクティブモナーが有効か否か
 
+    protected $_quote_from; // 被アンカーを集計した配列 // [被参照レス番 : [参照レス番, ...], ...)
+
     // }}}
     // {{{ constructor
 
@@ -937,6 +939,115 @@ EOP;
      * @return  string
      */
     abstract protected function link_wikipedia($word);
+
+    // {{{ _make_quote_from()
+
+    /**
+     * 被レスデータを集計して$this->_quote_fromに保存.
+     */
+    protected function _make_quote_from()
+    {
+        global $_conf;
+        $this->_quote_from = array();
+        if (!$this->thread->datlines) return;
+
+        foreach($this->thread->datlines as $num => $line) {
+            list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
+            if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
+                foreach ($out[1] as $numberq) {
+                    if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
+                        if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
+                            for ($i = $matches[1]; $i <= $matches[2]; $i++) {
+                                if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
+                                    $this->_quote_from[$i] = array();
+                                }
+                                if (!in_array($num + 1, $this->_quote_from[$i])) {
+                                    $this->_quote_from[$i][] = $num + 1;
+                                }
+                            }
+                        }
+                    } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
+                        foreach ($matches[0] as $quote_num) {
+                            if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
+                                $this->_quote_from[$quote_num] = array();
+                            }
+                            if (!in_array($num + 1, $this->_quote_from[$quote_num])) {
+                                $this->_quote_from[$quote_num][] = $num + 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // }}}
+    // {{{ _get_quote_from()
+
+    /**
+     * 被レスリストを返す.
+     *
+     * @return  array
+     */
+    public function get_quote_from()
+    {
+        if ($this->_quote_from === null) {
+            $this->_make_quote_from();  // 被レスデータ集計
+        }
+        return $this->_quote_from;
+    }
+
+    // }}}
+    // {{{ _quoteback_list_html()
+
+    /**
+     * 被レスリストをHTMLで整形して返す.
+     *
+     * @param   int     $resnum レス番号
+     * @param   int     $type   1:縦形式 2:横形式
+     * @return  string
+     */
+    protected function quoteback_list_html($resnum, $type)
+    {
+        $quote_from = $this->get_quote_from();
+        if (!array_key_exists($resnum, $quote_from)) return $ret;
+
+        $anchors = $quote_from[$resnum];
+        sort($anchors);
+
+        if ($type == 1) {
+            return $this->_quoteback_vertical_list_html($anchors);
+        } else if ($type == 2) {
+            return $this->_quoteback_horizontal_list_html($anchors);
+        }
+    }
+    protected function _quoteback_vertical_list_html($anchors)
+    {
+        $ret = '<div class="v_reslist"><ul>';
+        $anchor_cnt = 1;
+        foreach($anchors as $anchor) {
+            if ($anchor_cnt > 1) $ret .= '<li>│</li>';
+            if ($anchor_cnt < count($anchors)) {
+                $ret .= '<li>├';
+            } else {
+                $ret .= '<li>└';
+            }
+            $ret .= $this->quoteRes($anchor, '', $anchor, true);
+            $anchor_cnt++;
+        }
+        $ret .= '</ul></div>';
+        return $ret;
+    }
+    protected function _quoteback_horizontal_list_html($anchors)
+    {
+        $ret = '<div class="reslist">';
+        foreach($anchors as $idx=>$anchor) {
+            $anchors[$idx]= $this->quoteRes($anchor, '', $anchor);
+        }
+        $ret.="【参照レス：".join("/",$anchors)."】";
+        $ret.='</div>';
+        return $ret;
+    }
 
     // }}}
 

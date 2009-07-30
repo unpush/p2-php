@@ -370,7 +370,15 @@ EOP;
             // 日付とID
             $tores .= " <span class=\"date-id\">{$date_id}</span></div>\n";
             // 内容
-            $tores .= "<div class=\"message\">{$msg}</div></div>\n";
+            $tores .= "<div class=\"message\">{$msg}</div>";
+            // 被レスリスト
+            if ($_conf['mobile.backlink_list'] == 1) {
+                $linkstr = $this->quoteback_list_html($i, 2);
+                if (strlen($linkstr)) {
+                    $tores .= '<br>' . $linkstr;
+                }
+            }
+            $tores .= "</div>\n"; // 内容を閉じる
         } else {
             // 番号（オンザフライ時）
             if ($this->thread->onthefly) {
@@ -395,7 +403,15 @@ EOP;
             // 日付とID
             $tores .= "{$date_id}<br>\n";
             // 内容
-            $tores .= "{$msg}</div><hr>\n";
+            $tores .= "{$msg}</div>\n";
+            // 被レスリスト
+            if ($_conf['mobile.backlink_list'] == 1) {
+                $linkstr = $this->quoteback_list_html($i, 2);
+                if (strlen($linkstr)) {
+                    $tores .= '<br>' . $linkstr;
+                }
+            }
+            $tores .= "<hr>\n";
         }
 
         // まとめてフィルタ色分け
@@ -1097,6 +1113,7 @@ EOP;
 
     // }}}
     // }}}
+
 }
 
 // }}}

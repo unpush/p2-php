@@ -290,7 +290,17 @@ EOP;
             $tores .= ' ' . $this->activeMona->getMona($msg_id);
         }
         $tores .= "</div>\n";
+
+        // 被レスリスト(縦形式)
+        if ($_conf['backlink_list'] == 1) {
+            $tores .= $this->quoteback_list_html($i, 1);
+        }
+
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // 被レスリスト(横形式)
+        if ($_conf['backlink_list'] == 2) {
+            $tores .= $this->quoteback_list_html($i, 2);
+        }
         $tores .= "</div>\n";
         $tores .= $rpop; // レスポップアップ用引用
         /*if ($_conf['expack.am.enabled'] == 2) {
@@ -427,7 +437,17 @@ EOJS;
             $tores .= ' ' . $this->activeMona->getMona($qmsg_id);
         }
         $tores .= "</div>\n";
+
+        // 被レスリスト(縦形式)
+        if ($_conf['backlink_list'] == 1) {
+            $tores .= $this->quoteback_list_html($i, 1);
+        }
+
         $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // 被レスリスト(横形式)
+        if ($_conf['backlink_list'] == 2) {
+            $tores .= $this->quoteback_list_html($i, 2);
+        }
 
         return $tores;
     }
@@ -617,7 +637,7 @@ EOP;
      * @param   string  $appointed_num    1-100
      * @return  string
      */
-    public function quoteRes($full, $qsign, $appointed_num)
+    public function quoteRes($full, $qsign, $appointed_num, $anchor_jump = false)
     {
         global $_conf;
 
@@ -626,7 +646,11 @@ EOP;
             return $full;
         }
 
-        $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
+        if ($anchor_jump && $qnum >= $this->thread->resrange['start'] && $qnum <= $this->thread->resrange['to']) {
+            $read_url = '#' . ($this->_matome ? "t{$this->_matome}" : '') . "r{$qnum}";
+        } else {
+            $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
+        }
         $attributes = $_conf['bbs_win_target_at'];
         if ($_conf['quote_res_view']) {
             if ($this->_matome) {
@@ -796,6 +820,8 @@ EOP;
      */
     public function checkQuoteResNums($res_num, $name, $msg)
     {
+        global $_conf;
+
         // 再帰リミッタ
         if ($this->_quote_check_depth > 30) {
             return array();
@@ -872,6 +898,27 @@ EOP;
 
             }
 
+        }
+
+        if ($_conf['backlink_list'] > 0) {
+            // レスが付いている場合はそれも対象にする
+            $quote_from = $this->get_quote_from();
+            if (array_key_exists($res_num, $quote_from)) {
+                foreach ($quote_from[$res_num] as $quote_from_num) {
+                    $quote_res_nums[] = $quote_from_num;
+                    if ($quote_from_num != $res_num) {
+                        if (!isset($this->_quote_res_nums_checked[$quote_from_num])) {
+                            $this->_quote_res_nums_checked[$quote_from_num] = true;
+                            if (isset($this->thread->datlines[$quote_from_num - 1])) {
+                                $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$quote_from_num - 1]);
+                                $quote_name = $datalinear[0];
+                                $quote_msg = $this->thread->datlines[$quote_from_num - 1];
+                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($quote_from_num, $quote_name, $quote_msg));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return $quote_res_nums;
