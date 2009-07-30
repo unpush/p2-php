@@ -1509,6 +1509,51 @@ EOP;
 
     // }}}
     // }}}
+
+    public function get_quotebacks_json() {
+        if ($this->_quote_from === null) {
+            $this->_make_quote_from();  // 被レスデータ集計
+        }
+        $ret = array();
+        foreach ($this->_quote_from as $resnum => $quote_from) {
+            if (!$quote_from) continue;
+            if ($resnum != 1 && ($resnum < $this->thread->resrange['start'] || $resnum > $this->thread->resrange['to'])) continue;
+            $tmp = array();
+            foreach ($quote_from as $quote) {
+                if ($quote != 1 && ($quote < $this->thread->resrange['start'] || $quote > $this->thread->resrange['to'])) continue;
+                $tmp[] = $quote;
+            }
+            if ($tmp) $ret[] = "{$resnum}:[" . join(',', $tmp) . "]";
+        }
+        return '{' . join(',', $ret) . '}';
+    }
+
+    public function getResColorJs() {
+        global $_conf, $STYLE;
+        $fontstyle_bold = empty($STYLE['fontstyle_bold']) ? 'normal' : $STYLE['fontstyle_bold'];
+        $fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
+        $fontfamily_bold = $STYLE['fontfamily_bold'];
+        $backlinks = $this->get_quotebacks_json();
+        $colors = array();
+        $backlink_colors = join(',',
+            array_map(create_function('$x', 'return "\'{$x}\'";'),
+                explode(',', $_conf['backlink_coloring_track_colors']))
+        );
+        $prefix = $this->_matome ? "t{$this->_matome}" : '';
+        return <<<EOJS
+<script type="text/javascript">
+if (typeof rescolObjs == 'undefined') rescolObjs = [];
+rescolObjs.push((function() {
+    var obj = new BacklinkColor('{$prefix}');
+    obj.colors = [{$backlink_colors}];
+    obj.highlightStyle = {fontStyle :'{$fontstyle_bold}', fontWeight : '{$fontweight_bold}', fontFamily : '{$fontfamily_bold}'};
+    obj.backlinks = {$backlinks};
+    return obj;
+})());
+</script>
+EOJS;
+    }
+
 }
 
 // }}}

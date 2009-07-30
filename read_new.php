@@ -213,6 +213,13 @@ if ($_conf['iframe_popup_type'] == 1) {
 EOP;
 }
 
+if ($_conf['backlink_coloring_track']) {
+    $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
+    echo <<<EOP
+    <script type="text/javascript" src="js/backlink_color.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
+
 // pageLoaded()が他のJavaScriptでも定義されたロード時のイベントハンドラとかぶらないようにする。
 // 古いブラウザでDOMContentLoadedと同等のタイミングにはこだわらない。
 // rep2はフレーム前提なのでjQuery.bindReady()のような技は使えない（ぽい）。
@@ -531,6 +538,11 @@ EOP;
         $res1 = $aShowThread->quoteOne();
         $read_cont_ht = $res1['q'];
         $read_cont_ht .= $aShowThread->getDatToHtml();
+
+        // レス追跡カラー
+        if ($_conf['backlink_coloring_track']) {
+            $read_cont_ht .= $aShowThread->getResColorJs();
+        }
 
         unset($aShowThread);
     }

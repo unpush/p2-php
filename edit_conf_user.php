@@ -286,6 +286,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('strip_linebreaks', '文末の改行と連続する改行を除去'),
         array('link_wikipedia', '[[単語]]をWikipediaへのリンクにする'),
         array('backlink_list', '逆参照ポップアップリストの表示'),
+        array('backlink_coloring_track', '本文をダブルクリックすると着色してレス追跡'),
+        array('backlink_coloring_track_colors', '本文をダブルクリックてレス追跡時の色リスト(カンマ区切り)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
