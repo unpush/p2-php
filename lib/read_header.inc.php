@@ -244,6 +244,12 @@ if ($_conf['backlink_coloring_track']) {
     <script type="text/javascript" src="js/backlink_color.js?{$_conf['p2_version_id']}"></script>
 EOP;
 }
+if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/colorLib.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/coloredId.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
 
 $onload_script = '';
 

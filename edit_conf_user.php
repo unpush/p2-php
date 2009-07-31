@@ -288,6 +288,12 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('backlink_list', '逆参照ポップアップリストの表示'),
         array('backlink_coloring_track', '本文をダブルクリックすると着色してレス追跡'),
         array('backlink_coloring_track_colors', '本文をダブルクリックてレス追跡時の色リスト(カンマ区切り)'),
+        array('coloredid.enable', 'IDに色を付ける'),
+        array('coloredid.rate.type', '画面表示時にIDに着色しておく条件'),
+        array('coloredid.rate.times', '条件が出現数の場合の数(n以上)'),
+        array('coloredid.rate.hissi.times', '必死判定(IDブリンク)の出現数(0で無効。IE/Safariはblink非対応)'),
+        array('coloredid.click', 'ID出現数をクリックすると着色をトグル(「しない」にするとJavascriptではなくPHPで着色)'),
+        array('coloredid.marking.colors', 'ID出現数をダブルクリックしてマーキングの色リスト(カンマ区切り)'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

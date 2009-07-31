@@ -23,6 +23,10 @@ class ShowThreadPc extends ShowThread
     private $_quote_res_nums_done; // ポップアップ表示される記録済みレス番号を登録した配列
     private $_quote_check_depth; // レス番号チェックの再帰の深さ checkQuoteResNums()
 
+    private $_ids_for_render;   // 出力予定のID(重複のみ)のリスト(8桁)
+    private $_idcount_average;  // ID重複数の平均値
+    private $_idcount_tops;     // ID重複数のトップ入賞までの重複数値
+
     public $am_autodetect = false; // AA自動判定をするか否か
     public $am_side_of_id = false; // AAスイッチをIDの横に表示する
     public $am_on_spm = false; // AAスイッチをSPMに表示する
@@ -615,6 +619,16 @@ EOP;
             return $idstr;
         }
 
+        if ($_conf['coloredid.enable'] > 0) {
+            if ($this->_ids_for_render === null) $this->_ids_for_render = array();
+            $this->_ids_for_render[substr($id, 0, 8)] = $this->thread->idcount[$id];
+            if ($_conf['coloredid.click'] > 0) {
+                $num_ht = '<a href="javascript:void(0);" class="' . ShowThreadPc::cssClassedId($id) . '" onClick="idCol.click(\'' . substr($id, 0, 8) . '\', event); return false;" onDblClick="this.onclick(event); return false;">' . $num_ht . '</a>';
+            }
+            $idstr = $this->coloredIdStr(
+                $idstr, $id, $_conf['coloredid.click'] > 0 ? true : false);
+        }
+
         $word = rawurlencode($id);
         $filter_url = "{$_conf['read_php']}?bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;host={$this->thread->host}&amp;ls=all&amp;field=id&amp;word={$word}&amp;method=just&amp;match=on&amp;idpopup=1&amp;offline=1";
 
@@ -830,6 +844,246 @@ EOP;
         return $this->iframePopup(htmlspecialchars($s[1], ENT_QUOTES, 'Shift_JIS', false),
                                   htmlspecialchars($s[3], ENT_QUOTES, 'Shift_JIS', false),
                                   $s[2]);
+    }
+
+    // }}}
+    // {{{ coloredIdStr()
+
+    /**
+     * Merged from http://jiyuwiki.com/index.php?cmd=read&page=rep2%A4%C7%A3%C9%A3%C4%A4%CE%C7%D8%B7%CA%BF%A7%CA%D1%B9%B9&alias%5B%5D=pukiwiki%B4%D8%CF%A2
+     *
+     * @access  private
+     * @return  string
+     */
+    function coloredIdStr($idstr, $id, $classed = false)
+    {
+        global $_conf;
+
+        if (!(isset($this->thread->idcount[$id])
+                && $this->thread->idcount[$id] > 1)) return $idstr;
+
+        $colored = array();
+        if (!$classed) {
+            switch ($_conf['coloredid.rate.type']) {
+            case 1:
+                $rate = $_conf['coloredid.rate.times'];
+                break;
+            case 2:
+                $rate = $this->getIdCountRank(10);
+                break;
+            case 3:
+                $rate = $this->getIdCountAverage();
+                break;
+            default:
+                return $idstr;
+            }
+            if ($rate > 1 && $this->thread->idcount[$id] >= $rate)
+                $colored = $this->coloredIdStyle($id);
+        }
+
+        $ret = ''; $i = 0;
+        foreach ($arr = explode(':', $idstr) as $str) {   // コロンでID文字列を分割
+            if (isset($arr[$i + 1])) $str .= ':';
+            if ($classed) {
+                $ret .= '<span class="' . ShowThreadPc::cssClassedId($id)
+                    . ($i == 0 ? '-l' : '-b') . '">' . $str . '</span>';
+            } else {
+                if ($colored[$i]) {
+                    $ret .= "<span style=\"{$colored[$i]}\">{$str}</span>";
+                } else {
+                    $ret .= $str;
+                }
+            }
+            $i++;
+        }
+        return $ret;
+    }
+
+    // }}}
+    // {{{ cssClassedId()
+
+    static public function cssClassedId($id) {
+        return 'idcss-' . bin2hex(
+            base64_decode(str_replace('.', '+', substr($id, 0, 8))));
+    }
+
+    // }}}
+    // {{{ coloredIdStyle()
+
+    /**
+     * @param   string  $id        xxxxxxxxxx
+     * @return  array(style1, style2 [, debug])
+     */
+    function coloredIdStyle($id)
+    {
+        global $_conf, $STYLE;
+
+        // Version.20081215
+        //   ID本体とは別に、ID:の部分に別の背景色を適用
+        //   色変換処理をcolorchange.phpにまとめた。
+        //   その他、こまごまとした修正
+        // Version.20081216
+        //   HSV,HLSに加え、L*C*h表色系にも対応（ライブラリも修正）
+        // Version.20081224 設定で変換前と変換後のカラーコードを表示できるようにした（デバッグ用？）
+        // Version.20081228 色パラメータ設定を色空間別に個別化
+        require_once P2_LIB_DIR . '/colorchange.php';
+
+        if (!(isset($this->thread->idcount[$id]))) return null;
+        if (isset($this->idstyles[$id])) return $this->idstyles[$id];
+
+        // IDから色の元を抽出
+        $coldiv=360; // 色相環の分割数
+        $arr1 = unpack('N', pack('H', 0) .
+            base64_decode(str_replace('.', '+', substr($id, 0, 4))));
+        $arr2 = unpack('N', pack('H', 0) .
+            base64_decode(str_replace('.', '+', substr($id, 4, 4))));
+        $color=$arr1[1] % $coldiv;
+        $color2=$arr2[1] % $coldiv;
+
+
+        // HSV（またはHLS）パラメータ設定
+        // レス数が増えるほど、色が濃く、暗くなる
+
+        // 色相H：値域0～360（角度）
+        $h= $color*360/$coldiv;
+        $h2=$color2*360/$coldiv;
+
+        $colorMode=2;       // 0:HSV,1:HSL,2:L*C*h
+        switch ($colorMode) {
+        case 0:     // HSV色空間
+            // 彩度S(HSV)：値域0（淡い）～1（濃い)
+            $S=$this->thread->idcount[$id]*0.05;
+            if ($S>1) {$S=1;}
+
+            // 明度V(HSV)：値域0（暗い）～1（明るい）
+            $V=1   -$this->thread->idcount[$id]*0.025;
+            if ($L<0.1) {$L=0.1;}
+
+            $color_param=array(
+                array($h,$S,$V,$colorMode), // 背景色（ID本体）
+                array($h2,1,0.6,$colorMode)  // 背景色（ID:部分）
+            );
+            break;
+        case 1:  // HLS色空間
+            // 輝度L(HLS)：値域0（黒）～0.5（純色）～1（白）
+            $L=0.95   -$this->thread->idcount[$id]*0.025;
+            if ($L<0.1) {$L=0.1;}
+
+            // 彩度S(HLS)：値域0（灰色）～1（純色）
+            $S=$this->thread->idcount[$id]*0.05;
+            if ($S>1) {$S=1;}
+
+            $color_param=array(
+                array($h,$L,$S,$colorMode), // 背景色（ID本体）
+                array($h2,0.6,0.5,$colorMode)  // 背景色（ID:部分）
+            );
+            break;
+        case 2:  // L*C*h色空間
+            // 明度L*(L*C*h)：値域0（黒）～50（純色）～100（白）
+            $L=100   -$this->thread->idcount[$id]*2.5;
+            if ($L<10) {$L=10;}
+
+            // 彩度C*(L*C*h)：値域0（灰色）～100（純色）
+            $C=floor(40*sin(deg2rad($this->thread->idcount[$id]*180/50)) + 8);
+            if ($C<0) {$C=0;}
+            $C += (30 - $L > 0) ? 30 - $L : 0;
+
+            $color_param=array(
+                array($L,$C,$h,$colorMode), // 背景色（ID本体）
+                array(50,60,$h2,$colorMode)  // 背景色（ID:部分）
+            );
+            break;
+        }
+
+        // 色空間に関する参考資料
+        // HSV,HLS色空間 http://tt.sakura.ne.jp/~hiropon/lecture/color.html
+        // L*C*h表色系 http://konicaminolta.jp/instruments/colorknowledge/part1/08.html
+        // L*a*b*表色系 http://konicaminolta.jp/instruments/colorknowledge/part1/07.html
+        // RGBに変換
+        $rgb=array();
+        for($key=0;$key<count($color_param);$key++) {
+            $colorMode=$color_param[$key][3];
+            if ($colorMode==2) {
+                array_push($rgb,LCh2RGB($color_param[$key]));
+            } else {
+                array_push($rgb,$colorMode 
+                    ? HLS2RGB($color_param[$key])
+                    : HSV2RGB($color_param[$key])
+                );
+                //  unset($color_param[$key]);
+            }
+        }
+
+        // CSSで色をつける
+        $idstr2=preg_split('/:/',$idstr,2); // コロンでID文字列を分割
+        $idstr2[0].=':';
+        $uline=$STYLE['a_underline_none']==1 ? '' : "text-decoration:underline;";
+        $bcolor=array();
+        $LCh=array();
+        for ($i=0;$i<count($rgb);$i++) {
+            if ($rgb['type']=='L*C*h') {
+                $LCh[$i]=$color_param[$i];
+            } else {
+                $LCh[$i]=RGB2LCh($rgb[$i]);
+               /*  if ($LCh[$i][0]<70 && $LCh[$i][0]>40) {
+                  $LCh[$i][0]-=30;
+                  $rgb[$i]=LCh2RGB($LCh[$i]);
+               }*/
+            }
+            $colorcode=$rgb[$i]['color'];
+            $bcolor[$i]="background-color:{$colorcode};";
+            //    $border="border-width:thin;border-style:solid;";
+
+            if      ($LCh[$i][0]>60) {$bcolor[$i].="color:#000;";}
+            else //if ($LCh[$i][0]<40) 
+            {$bcolor[$i].="color:#fff;";}
+        }
+
+        if ($_conf['coloredid.rate.hissi.times'] > 0 && $this->thread->idcount[$id]>=$_conf['coloredid.rate.hissi.times']) {     // 必死チェッカー発動
+            $uline.="text-decoration:blink;";
+        }
+
+        //       $colorprint=1;      // 1にすると、色の変換結果が表示される
+        if ($colorprint) {
+            $debug = '';
+            for ($i=0;$i<1;$i++) {
+                switch ($rgb[$i]['type']) {
+                case 'L*C*h' :
+                    $debug.= "(L*={$rgb[$i][9]},C*={$rgb[$i][10]},h={$rgb[$i][11]})";
+                    $X=$rgb[$i][3];
+                    $Y=$rgb[$i][4];
+                    $Z=$rgb[$i][5];
+                    if ($X>0.9504 || $X<0) {$X="<span style=\"color:#F00\">{$X}</span>";}
+                    if ($Y>1 || $Y<0) {$Y="<span style=\"color:#F00\">{$Y}</span>";}
+                    if ($Z>1.0889 || $Z<0) {$Z="<span style=\"color:#F00\">{$Z}</span>";}
+                    $debug.= ",(X={$X},Y={$Y},Z={$Z})";
+
+                    break;
+                case 'HSV' :$debug.= "(H={$rgb[$i][3]},S={$rgb[$i][4]},V={$rgb[$i][5]})";
+                    break;
+                case 'HLS' :$debug.= "(H={$rgb[$i][3]},L={$rgb[$i][4]},S={$rgb[$i][5]})";
+                    break;
+                }
+
+                $R=$rgb[$i][0];
+                $G=$rgb[$i][1];
+                $B=$rgb[$i][2];
+                if ($R>255 || $R<0) {$R="<span style=\"color:#F00\">{$R}</span>";}
+                if ($G>255 || $G<0) {$G="<span style=\"color:#F00\">{$G}</span>";}
+                if ($B>255 || $B<0) {$B="<span style=\"color:#F00\">{$B}</span>";}
+                $debug.= ",(R={$R},G={$G},B={$B}),{$rgb[$i]['color']}";
+            }
+            //  $idstr2[1].= join(",",$rgb[0]);
+            $this->idstyles[$id] = array(
+                (isset($rgb[1]) ? "{$bcolor[1]}{$border}{$uline}" : ''),
+                "{$bcolor[0]}{$border}{$uline}",
+                $debug);
+        } else {
+            $this->idstyles[$id] = array(
+                (isset($rgb[1]) ? "{$bcolor[1]}{$border}{$uline}" : ''),
+                "{$bcolor[0]}{$border}{$uline}");
+        }
+        return $this->idstyles[$id];
     }
 
     // }}}
@@ -1600,6 +1854,98 @@ rescolObjs.push((function() {
 EOJS;
     }
 
+    public function get_ids_for_render_json() {
+        $ret = array();
+        if ($this->_ids_for_render) {
+            foreach ($this->_ids_for_render as $id => $count) {
+                $ret[] = "'{$id}':{$count}";
+            }
+        }
+        return '{' . join(',', $ret) . '}';
+    }
+
+    public function getIdColorJs() {
+        global $_conf, $STYLE;
+        if ($_conf['coloredid.enable'] < 1 || $_conf['coloredid.click'] < 1)
+            return '';
+        if (count($this->thread->idcount) < 1) return;
+
+        $idslist = $this->get_ids_for_render_json();
+
+        $rate = $_conf['coloredid.rate.times'];
+        $tops = $this->getIdCountRank(10);
+        $average = $this->getIdCountAverage();
+        $color_init = '';
+        if ($_conf['coloredid.rate.type'] > 0) {
+            switch($_conf['coloredid.rate.type']) {
+            case 2:
+                $init_rate = $tops;
+                break;
+            case 3:
+                $init_rate = $average;
+                break;
+            case 1:
+                $init_rate = $rate;
+            default:
+            }
+            if ($init_rate > 1)
+                $color_init .= 'idCol.initColor(' . $init_rate . ', idslist);';
+        }
+        $color_init .= "idCol.rate = {$rate};";
+        if (!$this->_matome) {
+            $color_init .= "idCol.tops = {$tops};";
+            $color_init .= "idCol.average = {$average};";
+        }
+        $hissiCount = $_conf['coloredid.rate.hissi.times'];
+        $mark_colors = join(',',
+            array_map(create_function('$x', 'return "\'{$x}\'";'),
+                explode(',', $_conf['coloredid.marking.colors']))
+        );
+        $fontstyle_bold = empty($STYLE['fontstyle_bold']) ? 'normal' : $STYLE['fontstyle_bold'];
+        $fontweight_bold = empty($STYLE['fontweight_bold']) ? 'normal' : $STYLE['fontweight_bold'];
+        $fontfamily_bold = $STYLE['fontfamily_bold'];
+        $uline = $STYLE['a_underline_none'] != 1
+            ? 'idCol.colorStyle["textDecoration"] = "underline"' : '';
+        return <<<EOJS
+<script>
+(function() {
+var idslist = {$idslist};
+if (typeof idCol == 'undefined') {
+    idCol = new IDColorChanger(idslist, {$hissiCount});
+    idCol.colors = [{$mark_colors}];
+{$uline};
+    idCol.highlightStyle = {fontStyle :'{$fontstyle_bold}', fontWeight : '{$fontweight_bold}', fontFamily : '{$fontfamily_bold}', fontSize : '104%'};
+} else idCol.addIdlist(idslist);
+{$color_init}
+idCol.setupSPM('{$this->spmObjName}');
+})();
+</script>
+EOJS;
+    }
+
+    public function getIdCountAverage() {
+        if ($this->_idcount_average !== null) return $this->_idcount_average;
+        $sum = 0; $param = 0;
+        foreach ($this->thread->idcount as $count) {
+            if ($count > 1) {
+                $sum += $count;
+                $param++;
+            }
+        }
+        return $this->_idcount_average = $param < 1 ? 0 : ceil($sum / $param);
+    }
+
+    public function getIdCountRank($rank) {
+        if ($this->_idcount_tops !== null) return $this->_idcount_tops;
+        $ranking = array();
+        foreach ($this->thread->idcount as $count) {
+            if ($count > 1) $ranking[] = $count;
+        }
+        if (count($ranking) == 0) return 0;
+        rsort($ranking);
+        $result = count($ranking) >= $rank ? $ranking[$rank - 1] : $ranking[count($ranking) - 1];
+        return $this->_idcount_tops = $result;
+    }
 }
 
 // }}}

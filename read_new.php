@@ -203,6 +203,12 @@ if ($_conf['expack.ic2.enabled']) {
     <link rel="stylesheet" type="text/css" href="css/ic2_popinfo.css?{$_conf['p2_version_id']}">\n
 EOP;
 }
+if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/colorLib.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/coloredId.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
 
 $onload_script = '';
 
@@ -542,6 +548,11 @@ EOP;
         // レス追跡カラー
         if ($_conf['backlink_coloring_track']) {
             $read_cont_ht .= $aShowThread->getResColorJs();
+        }
+
+        // IDカラーリング
+        if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0) {
+            $read_header_ht .= $aShowThread->getIdColorJs();
         }
 
         unset($aShowThread);

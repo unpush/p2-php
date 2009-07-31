@@ -317,6 +317,7 @@ EOP;
     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("datToHtml");
 
     if ($aThread->rescount) {
+        $mainhtml = '';
         require_once P2_LIB_DIR . '/ShowThreadPc.php';
         $aShowThread = new ShowThreadPc($aThread);
 
@@ -325,13 +326,27 @@ EOP;
         }
 
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
-        echo $res1['q'];
+        if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0 &&
+            $_conf['coloredid.rate.type'] > 0) {
+            $mainhtml .= $res1['q'];
+            $mainhtml .= $aShowThread->datToHtml(true);
+        } else {
+            echo $res1['q'];
+            $aShowThread->datToHtml();
+        }
 
-        $aShowThread->datToHtml();
 
         // レス追跡カラー
         if ($_conf['backlink_coloring_track']) {
             echo $aShowThread->getResColorJs();
+        }
+
+        // IDカラーリング
+        if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0) {
+            echo $aShowThread->getIdColorJs();
+            // ブラウザ負荷軽減のため、CSS書き換えスクリプトの後でコンテンツを
+            // レンダリングさせる
+            echo $mainhtml;
         }
     }
 
