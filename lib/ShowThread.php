@@ -1145,27 +1145,32 @@ EOP;
 
         foreach($this->thread->datlines as $num => $line) {
             list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
-            if (preg_match_all('/(?:&gt;|ÅÑ)+ ?([1-9](?:[0-9\\- ,=.]|ÅA)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
-                foreach ($out[1] as $numberq) {
-                    if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
-                        if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
-                            for ($i = $matches[1]; $i <= $matches[2]; $i++) {
-                                if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
-                                    $this->_quote_from[$i] = array();
-                                }
-                                if (!in_array($num + 1, $this->_quote_from[$i])) {
-                                    $this->_quote_from[$i][] = $num + 1;
-                                }
+            if (!preg_match_all($this->getAnchorRegex('/%full%/'), $msg, $out, PREG_PATTERN_ORDER)) continue;
+            foreach ($out[2] as $numberq) {
+                if (!preg_match_all($this->getAnchorRegex('/(?:%prefix%)?(%a_range%)/'), $numberq, $anchors, PREG_PATTERN_ORDER)) continue;
+                foreach ($anchors[1] as $anchor) {
+                    if (preg_match($this->getAnchorRegex('/(%a_num%)%range_delimiter%(?:%prefix%)?(%a_num%)/'), $anchor, $matches)) {
+                        $from = intval(mb_convert_kana($matches[1], 'n'));
+                        $to = intval(mb_convert_kana($matches[2], 'n'));
+                        if ($from < 1 || $to < 1 || $from > $to
+                            || ($to - $from + 1) > sizeof($this->thread->datlines))
+                                continue;
+                        for ($i = $from; $i <= $to; $i++) {
+                            if ($i > sizeof($this->thread->datlines)) break;
+                            if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
+                                $this->_quote_from[$i] = array();
+                            }
+                            if (!in_array($num + 1, $this->_quote_from[$i])) {
+                                $this->_quote_from[$i][] = $num + 1;
                             }
                         }
-                    } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
-                        foreach ($matches[0] as $quote_num) {
-                            if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
-                                $this->_quote_from[$quote_num] = array();
-                            }
-                            if (!in_array($num + 1, $this->_quote_from[$quote_num])) {
-                                $this->_quote_from[$quote_num][] = $num + 1;
-                            }
+                    } else if (preg_match($this->getAnchorRegex('/(%a_num%)/'), $anchor, $matches)) {
+                        $quote_num = intval(mb_convert_kana($matches[1], 'n'));
+                        if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
+                            $this->_quote_from[$quote_num] = array();
+                        }
+                        if (!in_array($num + 1, $this->_quote_from[$quote_num])) {
+                            $this->_quote_from[$quote_num][] = $num + 1;
                         }
                     }
                 }
