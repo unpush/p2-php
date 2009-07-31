@@ -19,8 +19,6 @@ class ShowThreadK extends ShowThread
 
     static private $_spm_objects = array();
 
-    public $BBS_NONAME_NAME = '';
-
     public $am_autong = false; // 自動AA略をするか否か
 
     public $aas_rotate = '90°回転'; // AAS 回転リンク文字列
@@ -72,14 +70,7 @@ class ShowThreadK extends ShowThread
 
         $this->BBS_NONAME_NAME = null;
         if (!$_conf['mobile.bbs_noname_name']) {
-            if (!class_exists('SettingTxt', false)) {
-                require P2_LIB_DIR . '/SettingTxt.php';
-            }
-            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
-            $st->setSettingArray();
-            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
-                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
-            }
+            $this->setBbsNonameName();
         }
 
         if ($_conf['mobile.date_zerosuppress']) {
@@ -430,7 +421,7 @@ EOP;
             $tores = mb_convert_kana($tores, 'rnsk'); // CP932 だと ask で ＜ を < に変換してしまうようだ
         }
 
-        return $tores;
+        return array('body'=>$tores,'q'=>'');
     }
 
     // }}}
@@ -455,8 +446,12 @@ EOP;
         }
 
         // 数字を引用レスポップアップリンク化
-        $name = preg_replace_callback('/^( ?(?:&gt;|＞)* ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                                      array($this, 'quoteResCallback'), $name, 1);
+        if (strlen($name) && $name != $this->BBS_NONAME_NAME) {
+            $name = preg_replace_callback(
+                $this->getAnchorRegex('/(?:^|%prefix%)%nums%/'),
+                array($this, 'quote_name_callback'), $name
+            );
+        }
 
         if ($trip) {
             $name .= $trip;
@@ -510,7 +505,10 @@ EOP;
             $msg = preg_replace('/ *<[^>]*$/', '', $msg);
 
             // >>1, >1, ＞1, ＞＞1を引用レスポップアップリンク化
-            $msg = preg_replace_callback('/((?:&gt;|＞){1,2})([1-9](?:[0-9\\-,])*)+/', array($this, 'quoteResCallback'), $msg);
+            $msg = preg_replace_callback(
+                $this->getAnchorRegex('/%full%/'),
+                array($this, 'quoteResCallback'), $msg
+            );
 
             $msg .= "<a href=\"{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;ls={$mynum}&amp;k_continue=1&amp;offline=1{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>略</a>";
             return $msg;
@@ -706,13 +704,22 @@ EOP;
         if ($appointed_num == '-') {
             return $full;
         }
+
+        $appointed_num = mb_convert_kana($appointed_num, 'n');   // 全角数字を半角数字に変換
+        if (preg_match("/\D/",$appointed_num)) {
+            $appointed_num = preg_replace('/\D+/', '-', $appointed_num);
+            return $this->quoteResRange($full, $qsign, $appointed_num);
+        }
+        if (preg_match("/^0/", $appointed_num)) {
+            return $full;
+        }
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum > $this->thread->rescount) {
             return $full;
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$full}</a>";
     }
 
     // }}}
@@ -749,7 +756,7 @@ EOP;
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$from}-{$to}";
 
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->target_at}>{$full}</a>";
     }
 
     // }}}

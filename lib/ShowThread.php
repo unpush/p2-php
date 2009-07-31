@@ -80,6 +80,8 @@ abstract class ShowThread
 
     protected $_quote_from; // 被アンカーを集計した配列 // [被参照レス番 : [参照レス番, ...], ...)
 
+    public $BBS_NONAME_NAME = '';
+
     // }}}
     // {{{ constructor
 
@@ -92,6 +94,7 @@ abstract class ShowThread
 
         // スレッドオブジェクトを登録
         $this->thread = $aThread;
+        $this->str_to_link_regex = $this->buildStrToLinkRegex();
 
         // まとめ読みモードか否か
         if ($matome) {
@@ -127,6 +130,146 @@ abstract class ShowThread
     }
 
     // }}}
+
+    /**
+     * @access  protected
+     * @return  void
+     */
+    function setBbsNonameName()
+    {
+        if (P2Util::isHost2chs($this->thread->host)) {
+            if (!class_exists('SettingTxt', false)) {
+                require P2_LIB_DIR . '/SettingTxt.php';
+            }
+            $st = new SettingTxt($this->thread->host, $this->thread->bbs);
+            if (!empty($st->setting_array['BBS_NONAME_NAME'])) {
+                $this->BBS_NONAME_NAME = $st->setting_array['BBS_NONAME_NAME'];
+            }
+        }
+    }
+
+    /**
+     * static
+     * @access  public
+     * @param   string  $pattern  ex)'/%full%/'
+     * @return  string
+     */
+    function getAnchorRegex($pattern)
+    {
+        static $caches_ = array();
+
+        if (!array_key_exists($pattern, $caches_)) {
+            $caches_[$pattern] = strtr($pattern, ShowThread::getAnchorRegexParts());
+            // 大差はないが compileMobile2chUriCallBack() のように preg_relplace_callback()してもいいかも。
+        }
+        return $caches_[$pattern];
+    }
+
+    /**
+     * static
+     * @access  private
+     * @return  string
+     */
+    function getAnchorRegexParts()
+    {
+        static $cache_ = null;
+
+        if (!is_null($cache_)) {
+            return $cache_;
+        }
+
+        $anchor = array();
+
+        // アンカーの構成要素（正規表現パーツの配列）
+
+        // 空白文字
+        $anchor_space = '(?:[ ]|　)';
+        //$anchor[' '] = '';
+
+        // アンカー引用子 >>
+        $anchor['prefix'] = "(?:&gt;|＞|&lt;|＜|〉|》|≫){1,2}{$anchor_space}*[\W\s]?";
+
+        // 数字
+        $anchor['a_digit'] = '(?:\\d|０|１|２|３|４|５|６|７|８|９)';
+        /*
+        $anchor[0] = '(?:0|０)';
+        $anchor[1] = '(?:1|１)';
+        $anchor[2] = '(?:2|２)';
+        $anchor[3] = '(?:3|３)';
+        $anchor[4] = '(?:4|４)';
+        $anchor[5] = '(?:5|５)';
+        $anchor[6] = '(?:6|６)';
+        $anchor[7] = '(?:7|７)';
+        $anchor[8] = '(?:8|８)';
+        $anchor[9] = '(?:9|９)';
+        */
+
+        // 範囲指定子
+        $anchor['range_delimiter'] = "(?:-|‐|\x81\\x5b)"; // ー
+
+        // 列挙指定子
+        $anchor['delimiter'] = "{$anchor_space}?(?:[,=+]|、|・|＝|，){$anchor_space}?";
+
+        // あぼーん用アンカー引用子
+        $anchor['prefix_abon'] = "&gt;{1,2}{$anchor_space}?";
+
+        // レス番号
+        $anchor['a_num'] = sprintf('%s{1,4}', $anchor['a_digit']);
+
+        // レス範囲
+        $anchor['a_range'] = sprintf("%s(?:%s(?:%s)?%s)?",
+            $anchor['a_num'], $anchor['range_delimiter'], $anchor['prefix'],$anchor['a_num']
+        );
+
+        // レス範囲の列挙
+        $anchor['ranges'] = sprintf('%s(?:%s%s)*(?!%s)',
+            $anchor['a_range'], $anchor['delimiter'], $anchor['a_range'], $anchor['a_digit']
+        );
+
+        // レス番号の列挙
+        $anchor['nums'] = sprintf("%s(?:%s%s)*(?!%s)",
+            $anchor['a_num'], $anchor['delimiter'], $anchor['a_num'], $anchor['a_digit']
+        );
+
+        // アンカー全体（メッセージ欄用）
+        $anchor['full'] = sprintf('(%s)(%s)', $anchor['prefix'], $anchor['ranges']);
+
+        // getAnchorRegex() の strtr() 置換用にkeyを '%key%' に変換する
+        foreach ($anchor as $k => $v) {
+            $anchor['%' . $k . '%'] = $v;
+            unset($anchor[$k]);
+        }
+
+        $cache_ = $anchor;
+
+        return $cache_;
+    }
+
+    /**
+     * @access  private
+     * @return  string
+     */
+    function buildStrToLinkRegex()
+    {
+        return $str_to_link_regex = '{'
+            . '(?P<link>(<[Aa] .+?>)(.*?)(</[Aa]>))' // リンク（PCREの特性上、必ずこのパターンを最初に試行する）
+            . '|'
+            . '(?:'
+            .   '(?P<quote>' // 引用
+            .       $this->getAnchorRegex('%full%')
+            .   ')'
+            . '|'
+            .   '(?P<url>'
+            .       '(ftp|h?ttps?|tps?)://([0-9A-Za-z][\\w!#%&+*,\\-./:;=?@\\[\\]^~]+)' // URL
+            .   ')'
+            . '|'
+            .   '(?P<id>ID: ?([0-9A-Za-z/.+]{8,11})(?=[^0-9A-Za-z/.+]|$))' // ID（8,10桁 +PC/携帯識別フラグ）
+//            . '|'
+//            .   '(?P<ip>発信元: ?((?:[1-2]?\\d{2}|\\d)(?:\\.[1-2]?\\d{2}|\\d){3})(?=[^0-9A-Za-z/.+]|$))'
+            . ')'
+            . '}';
+    }
+
     // {{{ getDatToHtml()
 
     /**
@@ -169,11 +312,18 @@ abstract class ShowThread
         $to = $this->thread->resrange['to'];
         $nofirst = $this->thread->resrange['nofirst'];
 
-        $buf = $is_fragment ? '' : "<div class=\"thread\">\n";
+        $buf['body'] = $is_fragment ? '' : "<div class=\"thread\">\n";
+        $buf['q'] = '';
 
         // まず 1 を表示
         if (!$nofirst) {
-            $buf .= $this->transRes($this->thread->datlines[0], 1);
+            $res = $this->transRes($this->thread->datlines[0], 1);
+            if (is_array($res)) {
+                $buf['body'] .= $res['body'];
+                $buf['q'] .= $res['q'] ? $res['q'] : '';
+            } else {
+                $buf['body'] .= $res;
+            }
         }
 
         // 連鎖のため、範囲外のNGあぼーんチェック
@@ -196,22 +346,29 @@ abstract class ShowThread
                 $this->thread->readnum = $i;
                 break;
             }
-            $buf .= $this->transRes($this->thread->datlines[$i], $i + 1);
+            $res = $this->transRes($this->thread->datlines[$i], $i + 1);
+            if (is_array($res)) {
+                $buf['body'] .= $res['body'];
+                $buf['q'] .= $res['q'] ? $res['q'] : '';
+            } else {
+                $buf['body'] .= $res;
+            }
             if (!$capture && $i % 10 == 0) {
-                echo $buf;
+                echo $buf['body'];
                 flush();
-                $buf = '';
+                $buf['body'] = '';
             }
         }
 
         if (!$is_fragment) {
-            $buf .= "</div>\n";
+            $buf['body'] .= "</div>\n";
         }
 
         if ($capture) {
-            return $buf;
+            return $buf['body'] . $buf['q'];
         } else {
-            echo $buf;
+            echo $buf['body'];
+            echo $buf['q'];
             flush();
             return true;
         }
@@ -714,7 +871,7 @@ EOP;
      */
     public function transLink($str)
     {
-        return preg_replace_callback(self::LINK_REGEX, array($this, 'transLinkDo'), $str);
+        return preg_replace_callback($this->str_to_link_regex, array($this, 'transLinkDo'), $str);
     }
 
     // }}}
@@ -739,7 +896,7 @@ EOP;
             $s['link']  = $s[1];
             $s['quote'] = $s[5];
             $s['url']   = $s[8];
-            $s['id']    = $s[12];
+            $s['id']    = $s[11];
         }
         */
 
@@ -755,11 +912,9 @@ EOP;
 
         // 引用
         } elseif ($s['quote']) {
-            if (strpos($s[7], '-') !== false) {
-                return $this->quoteResRange($s['quote'], $s[6], $s[7]);
-            }
-            return preg_replace_callback('/((?:&gt;|＞)+ ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                                         array($this, 'quoteResCallback'), $s['quote']);
+            return  preg_replace_callback(
+                $this->getAnchorRegex('/(%prefix%)?(%a_range%)/'),
+                array($this, 'quoteResCallback'), $s['quote']);
 
         // http or ftp のURL
         } elseif ($s['url']) {
@@ -787,7 +942,7 @@ EOP;
 
         // ID
         } elseif ($s['id'] && $_conf['flex_idpopup']) { // && $_conf['flex_idlink_k']
-            return $this->idFilter($s['id'], $s[13]);
+            return $this->idFilter($s['id'], $s[12]);
 
         // その他（予備）
         } else {
@@ -871,6 +1026,19 @@ EOP;
     }
 
     // }}}
+
+    /**
+     * @access  protected
+     * @return  string  HTML
+     */
+    function quote_name_callback($s)
+    {
+        return preg_replace_callback(
+            $this->getAnchorRegex('/(%prefix%)?(%a_num%)/'),
+            array($this, 'quoteResCallback'), $s[0]
+        );
+    }
+
     // {{{ quoteRes()
 
     /**
@@ -925,6 +1093,30 @@ EOP;
     }
 
     // }}}
+    // {{{ getQuoteResNumsName()
+
+    function getQuoteResNumsName($name)
+    {
+        // トリップを除去
+        $name = preg_replace('/(◆.*)/', '', $name, 1);
+
+        /*
+        //if (preg_match('/[0-9]+/', $name, $m)) {
+             return (int)$m[0];
+        }
+         */
+
+        if (preg_match_all($this->getAnchorRegex('/(?:^|%prefix%|%delimiter%)(%a_num%)/'), $name, $matches)) {
+            foreach ($matches[1] as $a_quote_res_num) {
+                $quote_res_nums[] = (int)mb_convert_kana($a_quote_res_num, 'n');
+            }
+            return array_unique($quote_res_nums);
+        }
+
+        return false;
+    }
+
+    // }}}
     // {{{ wikipediaFilter()
 
     /**
@@ -973,27 +1165,32 @@ EOP;
 
         foreach($this->thread->datlines as $num => $line) {
             list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
-            if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
-                foreach ($out[1] as $numberq) {
-                    if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
-                        if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
-                            for ($i = $matches[1]; $i <= $matches[2]; $i++) {
-                                if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
-                                    $this->_quote_from[$i] = array();
-                                }
-                                if (!in_array($num + 1, $this->_quote_from[$i])) {
-                                    $this->_quote_from[$i][] = $num + 1;
-                                }
+            if (!preg_match_all($this->getAnchorRegex('/%full%/'), $msg, $out, PREG_PATTERN_ORDER)) continue;
+            foreach ($out[2] as $numberq) {
+                if (!preg_match_all($this->getAnchorRegex('/(?:%prefix%)?(%a_range%)/'), $numberq, $anchors, PREG_PATTERN_ORDER)) continue;
+                foreach ($anchors[1] as $anchor) {
+                    if (preg_match($this->getAnchorRegex('/(%a_num%)%range_delimiter%(?:%prefix%)?(%a_num%)/'), $anchor, $matches)) {
+                        $from = intval(mb_convert_kana($matches[1], 'n'));
+                        $to = intval(mb_convert_kana($matches[2], 'n'));
+                        if ($from < 1 || $to < 1 || $from > $to
+                            || ($to - $from + 1) > sizeof($this->thread->datlines))
+                                continue;
+                        for ($i = $from; $i <= $to; $i++) {
+                            if ($i > sizeof($this->thread->datlines)) break;
+                            if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
+                                $this->_quote_from[$i] = array();
+                            }
+                            if (!in_array($num + 1, $this->_quote_from[$i])) {
+                                $this->_quote_from[$i][] = $num + 1;
                             }
                         }
-                    } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
-                        foreach ($matches[0] as $quote_num) {
-                            if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
-                                $this->_quote_from[$quote_num] = array();
-                            }
-                            if (!in_array($num + 1, $this->_quote_from[$quote_num])) {
-                                $this->_quote_from[$quote_num][] = $num + 1;
-                            }
+                    } else if (preg_match($this->getAnchorRegex('/(%a_num%)/'), $anchor, $matches)) {
+                        $quote_num = intval(mb_convert_kana($matches[1], 'n'));
+                        if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
+                            $this->_quote_from[$quote_num] = array();
+                        }
+                        if (!in_array($num + 1, $this->_quote_from[$quote_num])) {
+                            $this->_quote_from[$quote_num][] = $num + 1;
                         }
                     }
                 }
