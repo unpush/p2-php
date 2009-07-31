@@ -835,7 +835,7 @@ EOP;
                 if ($matches=preg_split($this->getAnchorRegex('/%delimiter%/'), $numberq)) {
                     foreach ($matches as $a_quote_res_num) {
                         if (preg_match($this->getAnchorRegex('/%range_delimiter%/'),$a_quote_res_num)) { continue;}
-                        $a_quote_res_num = (int)$a_quote_res_num;
+                        $a_quote_res_num = (int) (mb_convert_kana($a_quote_res_num, 'n'));
                         $a_quote_res_idx = $a_quote_res_num - 1;
 
                         //echo $a_quote_res_num;
