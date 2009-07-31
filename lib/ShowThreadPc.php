@@ -93,6 +93,9 @@ class ShowThreadPc extends ShowThread
             $this->asyncObjName = "asp{$js_id}";
             $this->spmObjName = "spm{$js_id}";
         }
+
+        // 名無し初期化
+        $this->setBbsNonameName();
     }
 
     // }}}
@@ -480,8 +483,12 @@ EOJS;
 
         // 数字を引用レスポップアップリンク化
         if ($_conf['quote_res_view']) {
-            $name = preg_replace_callback('/^( ?(?:&gt;|＞)* ?)?([1-9]\\d{0,3})(?=\\D|$)/',
-                                          array($this, 'quoteResCallback'), $name, 1);
+            if (strlen($name) && $name != $this->BBS_NONAME_NAME) {
+                $name = preg_replace_callback(
+                    $this->getAnchorRegex('/(?:^|%prefix%)(%nums%)/'),
+                    array($this, 'quote_name_callback'), $name
+                );
+            }
         }
 
         if ($trip) {
@@ -646,6 +653,15 @@ EOP;
     {
         global $_conf;
 
+        $appointed_num = mb_convert_kana($appointed_num, 'n');   // 全角数字を半角数字に変換
+        if (preg_match("/\D/",$appointed_num)) {
+            $appointed_num = preg_replace('/\D+/', '-', $appointed_num);
+            return $this->quoteResRange($full, $qsign, $appointed_num);
+        }
+        if (preg_match("/^0/", $appointed_num)) {
+            return $full;
+        }
+
         $qnum = intval($appointed_num);
         if ($qnum < 1 || $qnum > sizeof($this->thread->datlines)) {
             return $full;
@@ -666,7 +682,7 @@ EOP;
             $attributes .= " onmouseover=\"showResPopUp('{$qres_id}',event)\"";
             $attributes .= " onmouseout=\"hideResPopUp('{$qres_id}')\"";
         }
-        return "<a href=\"{$read_url}\"{$attributes}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}\"{$attributes}>{$full}</a>";
     }
 
     // }}}
@@ -696,7 +712,7 @@ EOP;
         }
 
         // 普通にリンク
-        return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}\"{$_conf['bbs_win_target_at']}>{$full}</a>";
 
         // 1つ目を引用レスポップアップ
         /*
@@ -839,28 +855,28 @@ EOP;
         $name = preg_replace('/(◆.*)/', '', $name, 1);
 
         // 名前
-        if (preg_match('/[1-9]\\d*/', $name, $matches)) {
-            $a_quote_res_num = (int)$matches[0];
-            $a_quote_res_idx = $a_quote_res_num - 1;
+        if ($matches = $this->getQuoteResNumsName($name)) {
+            foreach ($matches as $a_quote_res_num) {
+                if ($a_quote_res_num) {
+                    $quote_res_nums[] = $a_quote_res_num;
+                    $a_quote_res_idx = $a_quote_res_num - 1;
 
-            if ($a_quote_res_num) {
-                $quote_res_nums[] = $a_quote_res_num;
-
-                // 自分自身の番号と同一でなければ、
-                if ($a_quote_res_num != $res_num) {
-                    // チェックしていない番号を再帰チェック
-                    if (!isset($this->_quote_res_nums_checked[$a_quote_res_num])) {
-                        $this->_quote_res_nums_checked[$a_quote_res_num] = true;
-                        if (isset($this->thread->datlines[$a_quote_res_idx])) {
-                            $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_idx]);
-                            $quote_name = $datalinear[0];
-                            $quote_msg = $this->thread->datlines[$a_quote_res_idx];
-                            $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
-                        }
+                    // 自分自身の番号と同一でなければ、
+                    if ($a_quote_res_num != $res_num) {
+                        // チェックしていない番号を再帰チェック
+                        if (!isset($this->_quote_res_nums_checked[$a_quote_res_num])) {
+                            $this->_quote_res_nums_checked[$a_quote_res_num] = true;
+                            if (isset($this->thread->datlines[$a_quote_res_idx])) {
+                                $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$a_quote_res_idx]);
+                                $quote_name = $datalinear[0];
+                                $quote_msg = $this->thread->datlines[$a_quote_res_idx];
+                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($a_quote_res_num, $quote_name, $quote_msg));
+                            }
+                         }
                      }
-                 }
-             }
-            // $name=preg_replace("/([0-9]+)/", "", $name, 1);
+                }
+                // $name=preg_replace("/([0-9]+)/", "", $name, 1);
+            }
         }
 
         // >>1のリンクをいったん外す
@@ -868,14 +884,12 @@ EOP;
         $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
 
         //echo $msg;
-        if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
-
-            foreach ($out[1] as $numberq) {
-                //echo $numberq;
-                if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
-
-                    foreach ($matches[0] as $a_quote_res_num) {
-                        $a_quote_res_num = (int)$a_quote_res_num;
+        if (preg_match_all($this->getAnchorRegex('/%full%/'), $msg, $out, PREG_PATTERN_ORDER)) {
+            foreach ($out[2] as $numberq) {
+                if ($matches=preg_split($this->getAnchorRegex('/%delimiter%/'), $numberq)) {
+                    foreach ($matches as $a_quote_res_num) {
+                        if (preg_match($this->getAnchorRegex('/%range_delimiter%/'),$a_quote_res_num)) { continue;}
+                        $a_quote_res_num = (int) (mb_convert_kana($a_quote_res_num, 'n'));
                         $a_quote_res_idx = $a_quote_res_num - 1;
 
                         //echo $a_quote_res_num;
