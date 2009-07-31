@@ -1270,7 +1270,8 @@ EOP;
 
         // http://www.nicovideo.jp/watch?v=utbrYUJt9CSl0
         // http://www.nicovideo.jp/watch/utvWwAM30N0No
-        if (preg_match('{^http://(?:www\\.)?nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9A-Za-z_\\-]+)}', $purl[0], $m)) {
+        // http://m.nicovideo.jp/watch/sm7044684
+        if (preg_match('{^http://(?:www|m)\\.nicovideo\\.jp/watch(?:/|(?:\\?v=))([0-9a-zA-Z_-]+)}', $url, $m)) {
             // ime
             if ($_conf['through_ime']) {
                 $link_url = P2Util::throughIme($purl[0]);
