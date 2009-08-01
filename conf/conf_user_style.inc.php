@@ -85,6 +85,7 @@ $STYLE['sb_acolor_h'] = "#09c"; // ("#09c") subject マウスオーバー時のリンク色
 $STYLE['sb_th_bgcolor'] = "#d6e7ff"; // ("#d6e7ff") subject テーブルヘッダ背景色
 $STYLE['sb_tbgcolor'] = "#fff"; // ("#fff") subject テーブル内背景色0
 $STYLE['sb_tbgcolor1'] = "#eef"; // ("#eef") subject テーブル内背景色1
+$STYLE['sb_tbgcolor_nosubject'] = "#ddd"; // ("#ddd") subject テーブル内背景色(subject.txtに無いとき)
 
 $STYLE['sb_ttcolor'] = "#333"; // ("#333") subject テーブル内 テキスト色
 $STYLE['sb_tacolor'] = "#000"; // ("#000") subject テーブル内 リンク色
