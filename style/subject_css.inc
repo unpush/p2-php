@@ -210,6 +210,9 @@ table.threadlist tr.r1{
 table.threadlist tr.r2 {
 	background: {$STYLE['sb_tbgcolor']} {$STYLE['sb_tbackground']};
 }
+table.threadlist tr.nosubject {
+	background: {$STYLE['sb_tbgcolor_nosubject']} {$STYLE['sb_tbackground']};
+}
 
 /* t スレッドリスト テーブル欄 基本 */
 table.threadlist td.t , table.threadlist th.t {
