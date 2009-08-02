@@ -64,7 +64,9 @@ class ShowThreadPc extends ShowThread
         $this->_url_handlers[] = 'plugin_linkURL';
 
         // imepitaのURLを加工してImageCache2させるプラグインを登録
-        $this->addURLHandler(array($this, 'plugin_imepita_to_imageCache2'));
+        if (P2_IMAGECACHE_AVAILABLE == 2) {
+            $this->addURLHandler(array($this, 'plugin_imepita_to_imageCache2'));
+        }
 
         // サムネイル表示制限数を設定
         if (!isset($GLOBALS['pre_thumb_unlimited']) || !isset($GLOBALS['pre_thumb_limit'])) {
