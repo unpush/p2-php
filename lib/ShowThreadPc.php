@@ -806,9 +806,10 @@ EOP;
             default:
                 return $idstr;
             }
-            if ($rate > 1 && $this->thread->idcount[$id] >= $rate)
+            if ($rate > 1 && $this->thread->idcount[$id] >= $rate) {
                 require_once P2_LIB_DIR . '/ColoredIDStr.php';
                 $colored = coloredIdStyle($idstr,$id,$this->thread->idcount[$id]);
+            }
         }
 
         $ret = ''; $i = 0;
