@@ -14,51 +14,51 @@
     static $id_color_used= array() ;
 
 if ($count >= 2) {
-        //[$id] >= 2ã€€ã‚³ã‚³ã®æ•°å­—ã§ã‚¹ãƒ¬ã«ä½•å€‹ä»¥ä¸ŠåŒã˜ï¼©ï¼¤ãŒå‡ºãŸæ™‚ã«èƒŒæ™¯è‰²ã‚’å¤‰ãˆã‚‹ã‹æ±ºã¾ã‚‹
+        //[$id] >= 2@ƒRƒR‚Ì”š‚ÅƒXƒŒ‚É‰½ŒÂˆÈã“¯‚¶‚h‚c‚ªo‚½‚É”wŒiF‚ğ•Ï‚¦‚é‚©Œˆ‚Ü‚é
         if (isset($idstyles[$id])) {
             return $idstyles[$id];
         } else {
-            //	    	$alpha=0.8;	// ã‚¢ãƒ«ãƒ•ã‚¡ãƒãƒ£ãƒãƒ«
-            // IDã‹ã‚‰è‰²ã®å…ƒã‚’æŠ½å‡º
+            //	    	$alpha=0.8;	// ƒAƒ‹ƒtƒ@ƒ`ƒƒƒlƒ‹
+            // ID‚©‚çF‚ÌŒ³‚ğ’Šo
 
-            $coldiv=64; // è‰²ç›¸ç’°ã®åˆ†å‰²æ•°
-            if (preg_match('/ID:/',$idstr)) { // IDãŒä½¿ãˆã‚‹
+            $coldiv=64; // F‘ŠŠÂ‚Ì•ªŠ„”
+            if (preg_match('/ID:/',$idstr)) { // ID‚ªg‚¦‚é
                 $rev_id=strrev(substr($id, 0, 8));
-                $raw = base64_decode($rev_id);		// 8æ–‡å­—ã‚’ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿6æ–‡å­—åˆ†ã«å¤‰æ›
-                $id_hex = unpack('H12', substr($raw, 0, 6));	// ãƒã‚¤ãƒŠãƒªãƒ‡ãƒ¼ã‚¿ã‚’16é€²æ–‡å­—åˆ—ã«å¤‰æ›
-                $id_bin=base_convert($id_hex[1],16,2);	// ã•ã‚‰ã«2é€²æ–‡å­—åˆ—ã«å¤‰æ›
+                $raw = base64_decode($rev_id);		// 8•¶š‚ğƒoƒCƒiƒŠƒf[ƒ^6•¶š•ª‚É•ÏŠ·
+                $id_hex = unpack('H12', substr($raw, 0, 6));	// ƒoƒCƒiƒŠƒf[ƒ^‚ğ16i•¶š—ñ‚É•ÏŠ·
+                $id_bin=base_convert($id_hex[1],16,2);	// ‚³‚ç‚É2i•¶š—ñ‚É•ÏŠ·
                 while ($id_bin) {
                     $arr[]=base_convert(substr($id_bin,-6),2,10);
                     $id_bin=substr($id_bin,0,-6);
                 }
 
                 $colors[0]=$arr[0];// % $coldiv;
-                $idstr2=preg_split('/:/',$idstr,2); // ã‚³ãƒ­ãƒ³ã§IDæ–‡å­—åˆ—ã‚’åˆ†å‰²
+                $idstr2=preg_split('/:/',$idstr,2); // ƒRƒƒ“‚ÅID•¶š—ñ‚ğ•ªŠ„
                 array_shift($idstr2);
 
                 if ($id_color_used[$colors[0]]++) {
                     $colors[1]=$colors[0]+($id_color_used[$colors[0]]-1)+1;
                     $idstr2[1]=substr($idstr2[0],4);
-                    $idstr2[0]=substr($idstr2[0],0,4); // ã‚³ãƒ­ãƒ³ã§IDæ–‡å­—åˆ—ã‚’åˆ†å‰²
+                    $idstr2[0]=substr($idstr2[0],0,4); // ƒRƒƒ“‚ÅID•¶š—ñ‚ğ•ªŠ„
                 }
-            } else { //ã‚·ãƒ™ãƒªã‚¢æ¿ã‚¿ã‚¤ãƒ—
+            } else { //ƒVƒxƒŠƒA”Âƒ^ƒCƒv
                 $ip_hex=preg_split('/\\./',$id);
                 //var_dump($ip_hex);echo "<br>";
                 $colors[1]=$ip_hex[1] % $coldiv;
-                $idstr2=preg_split('/:/',$idstr,2); // ã‚³ãƒ­ãƒ³ã§IDæ–‡å­—åˆ—ã‚’åˆ†å‰²
+                $idstr2=preg_split('/:/',$idstr,2); // ƒRƒƒ“‚ÅID•¶š—ñ‚ğ•ªŠ„
                 $idstr2[0].=':';
 
                 if ($id_color_used[$colors[1]]++) {
                     $colors[2]=$colors[1]+($id_color_used[$colors[1]]-1)+1;
                     $idstr2[2]=".{$ip_hex[2]}.{$ip_hex[3]}";
-                    $idstr2[1]="{$ip_hex[0]}.{$ip_hex[1]}"; // ã‚³ãƒ­ãƒ³ã§IDæ–‡å­—åˆ—ã‚’åˆ†å‰²
+                    $idstr2[1]="{$ip_hex[0]}.{$ip_hex[1]}"; // ƒRƒƒ“‚ÅID•¶š—ñ‚ğ•ªŠ„
                 }
             }
             $color_param=array();
-            // HLSè‰²ç©ºé–“
-            // è‰²ç›¸Hï¼šå€¤åŸŸ0ï½360ï¼ˆè§’åº¦ï¼‰
-            // è¼åº¦L(HLS)ï¼šå€¤åŸŸ0ï¼ˆé»’ï¼‰ï½0.5ï¼ˆç´”è‰²ï¼‰ï½1ï¼ˆç™½ï¼‰
-            // å½©åº¦S(HLS)ï¼šå€¤åŸŸ0ï¼ˆç°è‰²ï¼‰ï½1ï¼ˆç´”è‰²ï¼‰
+            // HLSF‹óŠÔ
+            // F‘ŠHF’lˆæ0`360iŠp“xj
+            // ‹P“xL(HLS)F’lˆæ0i•j`0.5iƒFj`1i”’j
+            // Ê“xS(HLS)F’lˆæ0iŠDFj`1iƒFj
             foreach ($colors as $key => $color) {
                 //		    		var_dump(array(/*$raw,$id_hex,$arr,$col,*/$id_top,$c1,$c2));echo "<br>";
                 $color_param[$key]=array();
@@ -70,7 +70,7 @@ if ($count >= 2) {
                 $color_param[$key]['L']=0.22+sin($angle)*0.08;
                 $color_param[$key]['S']=0.4+sin($angle)*0.1;	    
 
-                // RGBã«å¤‰æ›
+                // RGB‚É•ÏŠ·
                 $color_param[$key]=HLS2RGB($color_param[$key]);
                 $color_param[$key]['Y']=(
                                          $color_param[$key]['R']*299+
@@ -80,9 +80,9 @@ if ($count >= 2) {
  
             }
 
-            // CSSã§è‰²ã‚’ã¤ã‘ã‚‹
+            // CSS‚ÅF‚ğ‚Â‚¯‚é
             $uline=$STYLE['a_underline_none']==1 ? '' : "text-decoration:underline;";
-            if ($count[$id]>=25 ) {     // å¿…æ­»ãƒã‚§ãƒƒã‚«ãƒ¼ç™ºå‹•
+            if ($count[$id]>=25 ) {     // •K€ƒ`ƒFƒbƒJ[”­“®
                 $uline.="text-decoration:blink;";
             }
             $opacity=''; // "opacity:{$alpha};";
@@ -96,7 +96,7 @@ if ($count >= 2) {
                     $bcolor[$area]="background-color:rgba({$r},{$g},{$b},{$alpha});";
                 }
 
-                // èƒŒæ™¯è‰²ã«ã‚ˆã£ã¦æ–‡å­—è‰²ã‚’å¤‰ãˆã‚‹
+                // ”wŒiF‚É‚æ‚Á‚Ä•¶šF‚ğ•Ï‚¦‚é
               $y1=158;
               $y2=185; 
                 if ($param['Y']>=$y1) {
@@ -138,15 +138,15 @@ if ($count >= 2) {
 
 
 /**
- * è‰²å¤‰æ›ã‚µãƒ–ãƒ«ãƒ¼ãƒãƒ³
+ * F•ÏŠ·ƒTƒuƒ‹[ƒ`ƒ“
  */
-// å¤‰æ›å¼å‚è€ƒè³‡æ–™ã€€http://image-d.isp.jp/commentary/color_cformula/index.html
-// Version.20081215 åˆç‰ˆ
-// Version.20081216 L*C*hè¡¨è‰²ç³»ã®å¤‰æ›é–¢æ•°ã‚’è¿½åŠ 
-// Version.20081216.1 ãƒã‚°ãƒ•ã‚£ãƒƒã‚¯ã‚¹ã€‚
-//   HSV2RGB,HSL2RGB,LCh2RGB,RGB2LChã®æˆ»ã‚Šå€¤ã«å¤‰æ›å‰ãŠã‚ˆã³å¤‰æ›é€”ä¸­ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’è¿½åŠ ã€‚
-// Version.20081224 Lab2RGB,RGB2Labè¿½åŠ 
-// Version.20081226 16é€²ã§ã‚«ãƒ©ãƒ¼ã‚³ãƒ¼ãƒ‰ã‚’ç”Ÿæˆ
+// •ÏŠ·®Ql‘—¿@http://image-d.isp.jp/commentary/color_cformula/index.html
+// Version.20081215 ‰”Å
+// Version.20081216 L*C*h•\FŒn‚Ì•ÏŠ·ŠÖ”‚ğ’Ç‰Á
+// Version.20081216.1 ƒoƒOƒtƒBƒbƒNƒXB
+//   HSV2RGB,HSL2RGB,LCh2RGB,RGB2LCh‚Ì–ß‚è’l‚É•ÏŠ·‘O‚¨‚æ‚Ñ•ÏŠ·“r’†‚Ìƒpƒ‰ƒ[ƒ^‚ğ’Ç‰ÁB
+// Version.20081224 Lab2RGB,RGB2Lab’Ç‰Á
+// Version.20081226 16i‚ÅƒJƒ‰[ƒR[ƒh‚ğ¶¬
  
 function RGB2ColorCode ($r,$g,$b) {
     if ($r>255) {$r=255;}
@@ -163,7 +163,7 @@ function RGB2ColorCode ($r,$g,$b) {
        substr("0".dechex($b),-2,2);*/
 }
 function HLS2RGB ($hls) {
-    // HLSâ†’RGBå¤‰æ›
+    // HLS¨RGB•ÏŠ·
     $h=$hls['H'];
     $l=$hls['L'];
     $s=$hls['S'];
@@ -210,7 +210,7 @@ function HLS2RGB ($hls) {
 }
  
 function HSV2RGB ($hsv) {
-    // HSVâ†’RGBå¤‰æ›
+    // HSV¨RGB•ÏŠ·
     $h=$hsv['H'];
     $s=$hsv['S'];
     $v=$hsv['V'];
@@ -295,7 +295,7 @@ function RGB2XYZ ($rgb) {
 }
   
 function XYZ2Lab ($xyz) {
-    // D65å…‰æºè£œæ­£
+    // D65ŒõŒ¹•â³
     $xyz['X']/=0.95045;
     $xyz['Z']/=1.08892;
  
@@ -347,7 +347,7 @@ function Lab2XYZ ($Lab) {
         $z=(116*$fz-16)/903.3;
     }
     $xyz=array('X'=>$x,'Y'=>$y,'Z'=>$z);
-    // D65å…‰æºè£œæ­£
+    // D65ŒõŒ¹•â³
     $xyz['X']*=0.95045;
     $xyz['Z']*=1.08892;
     /*     foreach ($xyz as $key => $val) {
