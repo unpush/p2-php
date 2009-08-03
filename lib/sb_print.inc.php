@@ -351,7 +351,7 @@ EOP;
 
 
         $chUnColor_js = ($midoku_ari) ? "chUnColor('{$i}');" : '';
-        $change_color = "";
+        $change_color = " onclick=\"chTtColor('{$i}');{$chUnColor_js}\"";
 
         // ƒIƒ“ƒŠ[>>1
         if ($only_one_bool) {
