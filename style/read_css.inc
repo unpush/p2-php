@@ -98,6 +98,7 @@ div.respopup {
 	margin: 0;
 	padding: 8px;
 	line-height: 120%;
+	top: 0px;
 }
 
 /* ‚ ‚Ú[‚ñƒŒƒX */
