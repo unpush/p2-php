@@ -778,6 +778,9 @@ EOP;
                                   $s[2]);
     }
 
+    // }}}
+    // {{{ coloredIdStr()
+
     /**
      * Merged from http://jiyuwiki.com/index.php?cmd=read&page=rep2%A4%C7%A3%C9%A3%C4%A4%CE%C7%D8%B7%CA%BF%A7%CA%D1%B9%B9&alias%5B%5D=pukiwiki%B4%D8%CF%A2
      *
@@ -790,54 +793,108 @@ EOP;
 
         if (!(isset($this->thread->idcount[$id])
                 && $this->thread->idcount[$id] > 1)) return $idstr;
+        if ($classed) return $this->_coloredIdStrClassed($idstr, $id);
 
-        $colored = array();
-        if (!$classed) {
-            switch ($_conf['coloredid.rate.type']) {
+        switch ($_conf['coloredid.rate.type']) {
+        case 1:
+            $rate = $_conf['coloredid.rate.times'];
+            break;
+        case 2:
+            $rate = $this->getIdCountRank(10);
+            break;
+        case 3:
+            $rate = $this->getIdCountAverage();
+            break;
+        default:
+            return $idstr;
+        }
+        if ($rate > 1 && $this->thread->idcount[$id] >= $rate) {
+            switch ($_conf['coloredid.coloring.type']) {
+            case 0:
+                return $this->_coloredIdStr0($idstr, $id);
+                break;
             case 1:
-                $rate = $_conf['coloredid.rate.times'];
-                break;
-            case 2:
-                $rate = $this->getIdCountRank(10);
-                break;
-            case 3:
-                $rate = $this->getIdCountAverage();
+                return $this->_coloredIdStr1($idstr, $id);
                 break;
             default:
                 return $idstr;
             }
-            if ($rate > 1 && $this->thread->idcount[$id] >= $rate) {
-                require_once P2_LIB_DIR . '/ColoredIDStr.php';
-                $colored = coloredIdStyle($idstr,$id,$this->thread->idcount[$id]);
-            }
         }
+        return $idstr;
+    }
 
-        $ret = ''; $i = 0;
-        $idstr2=preg_split('/:/',$idstr,2); // コロンでID文字列を分割
-        $ret=array_shift($idstr2).':';
+    // }}}
+    // {{{ _coloredIdStrClassed()
 
-        if ($colored[1]) {
-                    $idstr2[1]=substr($idstr2[0],4);
-                    $idstr2[0]=substr($idstr2[0],0,4); // コロンでID文字列を分割
-        }
-
-        foreach ($arr = $idstr2 as $str) {   // コロンでID文字列を分割
-            if (isset($arr[$i + 1])) $str .= ':';
-            if ($classed) {
-                $ret .= '<span class="' . ShowThreadPc::cssClassedId($id)
+    function _coloredIdStrClassed($idstr, $id) {
+        $ret = array();
+        foreach ($arr = explode(':', $idstr) as $i => $str) {
+            if ($i == 0 || $i == 1) {
+                $ret[] = '<span class="' . ShowThreadPc::cssClassedId($id)
                     . ($i == 0 ? '-l' : '-b') . '">' . $str . '</span>';
             } else {
-                if ($colored[$i]) {
-                    $ret .= "<span style=\"{$colored[$i]}\">{$str}</span>";
-                } else {
-                    $ret .= $str;
-                }
+                $ret[] = $str;
             }
-            $i++;
+        }
+        return implode(':', $ret);
+    }
+
+    // }}}
+    // {{{ _coloredIdStr0()
+
+    /**
+     * IDカラー オリジナル着色用
+     */
+    function _coloredIdStr0($idstr, $id) {
+        if (isset($this->idstyles[$id])) {
+            $colored = $this->idstyles[$id];
+        } else {
+            require_once P2_LIB_DIR . '/ColoredIDStr0.php';
+            $colored = coloredIdStyle($id, $this->thread->idcount[$id]);
+            $this->idstyles[$id] = $colored;
+        }
+        $ret = array();
+        foreach ($arr = explode(':', $idstr) as $i => $str) {
+            if ($colored[$i]) {
+                $ret[] = "<span style=\"{$colored[$i]}\">{$str}</span>";
+            } else {
+                $ret[] = $str;
+            }
+        }
+        return implode(':', $ret);
+    }
+
+    // }}}
+    // {{{ _coloredIdStr1()
+
+    /**
+     * IDカラー thermon版用
+     */
+    function _coloredIdStr1($idstr, $id) {
+        require_once P2_LIB_DIR . '/ColoredIDStr.php';
+        $colored = coloredIdStyle($idstr,$id,$this->thread->idcount[$id]);
+        $idstr2=preg_split('/:/',$idstr,2); // コロンでID文字列を分割
+        $ret=array_shift($idstr2).':';
+        if ($colored[1]) {
+                    $idstr2[1]=substr($idstr2[0],4);
+                    $idstr2[0]=substr($idstr2[0],0,4);
+        }
+        foreach ($idstr2 as $i=>$str) {
+            if ($colored[$i]) {
+                $ret .= "<span style=\"{$colored[$i]}\">{$str}</span>";
+            } else {
+                $ret .= $str;
+            }
         }
         return $ret;
     }
 
+    // }}}
+    // {{{ cssClassedId()
+
+    /**
+     * IDカラーに使用するCSSクラス名をID文字列から算出して返す.
+     */
     static public function cssClassedId($id) {
         return 'idcss-' . bin2hex(
             base64_decode(str_replace('.', '+', substr($id, 0, 8))));

@@ -266,6 +266,9 @@ $conf_user_def['coloredid.click'] = 1;
 $conf_user_rad['coloredid.click'] = array('1' => 'する', '0' => 'しない');
 // ID出現数をダブルクリックしてマーキングする色リスト(カンマ区切り)
 $conf_user_def['coloredid.marking.colors'] = '#f00,#0f0,#00f,#f90,#f0f,#ff0,#90f,#0ff,#9f0';
+// カラーリングのタイプ
+$conf_user_def['coloredid.coloring.type'] = 0;
+$conf_user_rad['coloredid.coloring.type'] = array('0' => 'オリジナル', '1' => 'thermon版');
 
 // }}}
 // {{{ NG/あぼーん
