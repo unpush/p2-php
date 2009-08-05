@@ -903,6 +903,29 @@ EOP;
     }
 
     // }}}
+    // {{{ getDatochiResiduums()
+
+    /**
+     * DAT—‚¿‚ÌÛ‚Éæ“¾‚Å‚«‚½>>1‚ÆÅŒã‚ÌƒŒƒX‚ğHTML‚Å•Ô‚·.
+     *
+     * @return  string|false
+     */
+    public function getDatochiResiduums()
+    {
+        $ret = '';
+        $elines = $this->thread->datochi_residuums;
+        if (!count($elines)) return $ret;
+
+        $this->thread->onthefly = true;
+        $ret = "<div><span class=\"onthefly\">on the fly</span></div>\n";
+        $ret .= "<div class=\"thread\">\n";
+        foreach($elines as $num => $line) {
+            $ret .= $this->transRes($line, $num);
+        }
+        $ret .= "</div>\n";
+        return $ret;
+    }
+    // }}}
 }
 
 // }}}

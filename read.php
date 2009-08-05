@@ -270,7 +270,11 @@ if ($_conf['ktai']) {
             echo $response;
         //}
     } else {
-        $content = $aShowThread->getDatToHtml();
+        if ($aThread->rescount) {
+            $content = $aShowThread->getDatToHtml();
+        } else if ($aThread->diedat && count($aThread->datochi_residuums) > 0) {
+            $content = $aShowThread->getDatochiResiduums();
+        }
 
         require_once P2_LIB_DIR . '/read_header_k.inc.php';
 
@@ -328,6 +332,10 @@ EOP;
         echo $res1['q'];
 
         $aShowThread->datToHtml();
+    } else if ($aThread->diedat && count($aThread->datochi_residuums) > 0) {
+        require_once P2_LIB_DIR . '/ShowThreadPc.php';
+        $aShowThread = new ShowThreadPc($aThread);
+        echo $aShowThread->getDatochiResiduums();
     }
 
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("datToHtml");

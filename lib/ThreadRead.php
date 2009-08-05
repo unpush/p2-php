@@ -31,6 +31,9 @@ class ThreadRead extends Thread
 
     public $old_host;  // ホスト移転検出時、移転前のホストを保持する
 
+    private $getdat_error_body; // dat取得に失敗した時に203で取得できたBODY
+    public $datochi_residuums; // dat取得に失敗した時に203で取得できたdatlineの配列（レス番=>datline）
+
     // }}}
     // {{{ constructor
 
@@ -777,7 +780,13 @@ class ThreadRead extends Thread
         if ($code == '302') {
             $body203 = $this->_get2ch203Body();
             if ($body203 !== false && preg_match('/過去ログ ★/', $body203)) {
-                $reason = 'datochi';
+                $this->getdat_error_body = $body203;
+                if (preg_match('/このスレッドは過去ログ倉庫に格.{1,2}されています/', $body203)) {
+                    $reason = 'datochi';
+                    $this->setDatochiResiduums();
+                } else if (preg_match('{http://[^/]+/[^/]+/kako/\d+(/\d+)?/(\d+)\.html}', $body203, $matches)) {
+                    $reason = 'kakohtml';
+                }
             }
         }
 
@@ -843,9 +852,12 @@ class ThreadRead extends Thread
         //
         // <title>がそんな板orスレッドないです。or error 3939
         //
-        } elseif (preg_match($naidesu_match, $read_response_html, $matches) || preg_match($error3939_match, $read_response_html, $matches)) {
+        } elseif ($reason == 'kakohtml' or preg_match($naidesu_match, $read_response_html, $matches) || preg_match($error3939_match, $read_response_html, $matches)) {
 
-            if (preg_match($kakohtml_match, $read_response_html, $matches)) {
+            if ($reason == 'kakohtml' or preg_match($kakohtml_match, $read_response_html, $matches)) {
+                if ($reason == 'kakohtml') {
+                    preg_match('{/([^/]+/kako/\d+(/\d+)?/(\d+)).html}', $this->getdat_error_body, $matches);
+                }
                 $dat_response_status = "隊長! 過去ログ倉庫で、html化されたスレッドを発見しました。";
                 $kakolog_uri = "http://{$this->host}/{$matches[1]}";
                 $kakolog_url_en = rawurlencode($kakolog_uri);
@@ -1055,11 +1067,29 @@ class ThreadRead extends Thread
      */
     public function previewOneNotFound($code = null)
     {
+        global $_conf;
+
+        $this->diedat = true;
         // 2ch, bbspink ならread.cgiで確認
         if (P2Util::isHost2chs($this->host)) {
             $this->getdat_error_msg_ht = $this->get2chDatError($code);
+            if (count($this->datochi_residuums)) {
+                if ($_conf['ktai']) {
+                    require_once P2_LIB_DIR . '/ShowThreadK.php';
+                    $aShowThread = new ShowThreadK($this);
+                    $aShowThread->am_autong = false;
+                } else {
+                    require_once P2_LIB_DIR . '/ShowThreadPc.php';
+                    $aShowThread = new ShowThreadPc($this);
+                }
+                $this->onthefly = true;
+                $body = "<div><span class=\"onthefly\">on the fly</span></div>\n";
+                $body .= "<div class=\"thread\">\n";
+                $body .= $aShowThread->transRes($this->datochi_residuums[1], 1);
+                $body .= "</div>\n";
+                return $body;
+            }
         }
-        $this->diedat = true;
         return false;
     }
 
@@ -1330,6 +1360,46 @@ class ThreadRead extends Thread
     }
 
     // }}}
+    // {{{ setDatochiResiduums()
+
+    /**
+     * DAT取得エラー時の>>1と最終レスをDATの形式で$this->datochi_residuumsに
+     * 保存する（レス番 => datline の配列）
+     * $this->getdat_error_bodyの内容から構築.
+     *
+     * @return boolean  正常に終了した場合はtrue
+     */
+    private function setDatochiResiduums() {
+        $this->datochi_residuums = array();
+        if (!$this->getdat_error_body || strlen($this->getdat_error_body) == 0)
+            return false;
+
+        $lines = explode("\n", $this->getdat_error_body);
+        if (count($lines) < 3) return false;
+        $first_line = $lines[0];
+        $first_datline = rtrim($first_line);
+        if (strpos($first_datline, '<>') !== false) {
+            $datline_sepa = "<>";
+        } else {
+            $datline_sepa = ",";
+            $this->dat_type = "2ch_old";
+        }
+        $d = explode($datline_sepa, $first_datline);
+        $this->setTtitle($d[4]);
+
+        $this->datochi_residuums[1] = $first_line;
+
+        $second_line = $lines[1];
+        if (strpos($second_line, '<>') == false) return false;
+        $d = explode('<>', $second_line);
+        if (count($d) < 1) return false;
+        list($lastn, $size) = explode(',', $d[0]);
+        $lastn = intval(trim($lastn));
+        if (!$lastn) return false;
+
+        $this->datochi_residuums[$lastn] = $lines[2];
+        return true;
+    }
 }
 
 // }}}
