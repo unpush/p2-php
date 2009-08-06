@@ -1160,7 +1160,7 @@ EOP;
             $src_exists = false;
 
             // DBに画像情報が登録されていたとき
-            if ($icdb->get($url)) {
+            if ($icdb->get($v['url'])) {
 
                 // ウィルスに感染していたファイルのとき
                 if ($icdb->mime == 'clamscan/infected') {
@@ -1218,7 +1218,7 @@ EOP;
                     } else {
                         $update->memo = $this->img_memo;
                     }
-                    $update->whereAddQuoted('uri', '=', $url);
+                    $update->whereAddQuoted('uri', '=', $v['url']);
                     $update->update();
                 }
 
@@ -1226,13 +1226,13 @@ EOP;
             // 自動スレタイメモ機能がONならクエリにUTF-8エンコードしたスレタイを含める
             } else {
                 // 画像がブラックリストorエラーログにあるか確認
-                if (false !== ($errcode = $icdb->ic2_isError($url))) {
+                if (false !== ($errcode = $icdb->ic2_isError($v['url']))) {
                     return "<s>[IC2:ｴﾗｰ({$errcode})]</s>";
                 }
 
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
-                    $img_str = '<img src="ic2.php?r=2&amp;t=1&amp;uri=' . $url_en . $this->img_memo_query . '">';
+                    $img_str = '<img src="ic2.php?r=2&amp;t=1&amp;uri=' . $url_en . $this->img_memo_query . $ref_en . '">';
                     $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;
