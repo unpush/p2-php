@@ -1149,7 +1149,8 @@ EOP;
             $url_ht = $url;
             $url_en = rawurlencode($v['url']);
             $ref_en = $v['referer'] ? '&amp;ref=' . rawurlencode($v['referer']) : '';
-            $img_str = '[IC2:'.$purl['host'].':'.basename($purl['path']).']';
+            $img_str = null;
+            $img_id = null;
 
             $icdb = new IC2_DataObject_Images;
 
@@ -1157,10 +1158,13 @@ EOP;
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
             $img_url = 'ic2.php?r=0&amp;t=2&amp;uri=' . $url_en . $ref_en;
             $img_url2 = 'ic2.php?r=0&amp;t=2&amp;id=';
+            $src_url = 'ic2.php?r=1&amp;t=0&amp;uri=' . $url_en . $ref_en;
+            $src_url2 = 'ic2.php?r=1&amp;t=0&amp;id=';
             $src_exists = false;
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($v['url'])) {
+                $img_id = $icdb->id;
 
                 // ウィルスに感染していたファイルのとき
                 if ($icdb->mime == 'clamscan/infected') {
@@ -1176,8 +1180,10 @@ EOP;
                 if (file_exists($_src_url)) {
                     $src_exists = true;
                     $img_url = $img_url2 . $icdb->id;
+                    $src_url = $_src_url;
                 } else {
                     $img_url = $this->thumbnailer->thumbPath($icdb->size, $icdb->md5, $icdb->mime);
+                    $src_url = $src_url2 . $icdb->id;
                 }
 
                 // インラインプレビューが有効のとき
@@ -1202,7 +1208,7 @@ EOP;
                             } else {
                                 $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}";
                             }
-                            $img_str = "<img src=\"{$prv_url}\">";
+                            $img_str = "<img src=\"{$prv_url}{$_conf['sid_at_a']}\">";
                         }
                         $inline_preview_done = true;
                     } else {
@@ -1232,7 +1238,7 @@ EOP;
 
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
-                    $img_str = '<img src="ic2.php?r=2&amp;t=1&amp;uri=' . $url_en . $this->img_memo_query . $ref_en . '">';
+                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}{$ref_en}\">";
                     $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;
@@ -1254,16 +1260,19 @@ EOP;
                 $result .= sprintf('<a href="%s%s">[IC2:%s:%s]</a>',
                                $img_url,
                                $backto,
-                               htmlspecialchars($purl['host']),
-                               htmlspecialchars(basename($purl['path']))
+                               htmlspecialchars($purl['host'], ENT_QUOTES),
+                               htmlspecialchars(basename($purl['path']), ENT_QUOTES)
                                );
             }
 
             if ($_conf['iphone']) {
-                $result .= "<a href=\"{$img_url}{$backto}\" target=\"_blank\">{$img_str}</a>"
+                $img_title = htmlspecialchars($purl['host'], ENT_QUOTES)
+                           . '&#10;'
+                           . htmlspecialchars(basename($purl['path']), ENT_QUOTES);
+                $result .= "<a class=\"limelight\" href=\"{$src_url}\" title=\"{$img_title}\" target=\"_blank\">{$img_str}</a>"
                    //. ' <img class="ic2-show-info" src="img/s2a.png" width="16" height="16" onclick="ic2info.show('
                      . ' <input type="button" class="ic2-show-info" value="i" onclick="ic2info.show('
-                     . "'{$url_ht}', '{$img_url}', '{$prv_url}', event)\">";
+                     . (($img_id) ? $img_id : "'{$v['url']}'") . ', event)">';
             } else {
                 $result .= "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";
             }
