@@ -33,6 +33,9 @@ class ThreadRead extends Thread
 
     public $old_host;  // ホスト移転検出時、移転前のホストを保持する
 
+    private $getdat_error_body; // dat取得に失敗した時に203で取得できたBODY
+    public $datochi_residuums; // dat取得に失敗した時に203で取得できたdatlineの配列（レス番=>datline）
+
     // }}}
     // {{{ constructor
 
@@ -272,7 +275,7 @@ class ThreadRead extends Thread
                             return $this->_downloadDat2ch($from_bytes);
                         } else {
                             fclose($fp);
-                            $this->_downloadDat2chNotFound();
+                            $this->_downloadDat2chNotFound($code);
                             return false;
                         }
 
@@ -327,11 +330,11 @@ class ThreadRead extends Thread
     /**
      * 2ch DATをダウンロードできなかったときに呼び出される
      */
-    private function _downloadDat2chNotFound()
+    private function _downloadDat2chNotFound($code = null)
     {
         // 2ch, bbspink ならread.cgiで確認
         if (P2Util::isHost2chs($this->host)) {
-            $this->getdat_error_msg_ht .= $this->get2chDatError();
+            $this->getdat_error_msg_ht .= $this->get2chDatError($code);
         }
         $this->diedat = true;
         return false;
@@ -765,7 +768,7 @@ class ThreadRead extends Thread
      *
      * @return  string エラーメッセージ（原因がわからない場合は空で返す）
      */
-    public function get2chDatError()
+    public function get2chDatError($code = null)
     {
         global $_conf, $_info_msg_ht;
 
@@ -775,32 +778,49 @@ class ThreadRead extends Thread
             $this->old_host = null;
         }
 
+        $reason = null;
+        if ($code == '302') {
+            $body203 = $this->_get2ch203Body();
+            if ($body203 !== false && preg_match('/過去ログ ★/', $body203)) {
+                $this->getdat_error_body = $body203;
+                if (preg_match('/このスレッドは過去ログ倉庫に格.{1,2}されています/', $body203)) {
+                    $reason = 'datochi';
+                    $this->setDatochiResiduums();
+                } else if (preg_match('{http://[^/]+/[^/]+/kako/\d+(/\d+)?/(\d+)\.html}', $body203, $matches)) {
+                    $reason = 'kakohtml';
+                }
+            }
+        }
+
         $read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/";
 
         // {{{ read.cgi からHTMLを取得
 
         $read_response_html = '';
-        if (!class_exists('WapRequest', false)) {
-            require P2_LIB_DIR . '/Wap.php';
-        }
-        $wap_ua = new WapUserAgent();
-        $wap_ua->setAgent($_conf['p2ua']); // ここは、"Monazilla/" をつけるとNG
-        $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
-        $wap_req = new WapRequest();
-        $wap_req->setUrl($read_url);
-        if ($_conf['proxy_use']) {
-            $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
-        }
-        $wap_res = $wap_ua->request($wap_req);
 
-        if ($wap_res->isError()) {
-            $url_t = P2Util::throughIme($wap_req->url);
-            $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
-            $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
-        } else {
-            $read_response_html = $wap_res->content;
+        if (!$reason) {
+            if (!class_exists('WapRequest', false)) {
+                require P2_LIB_DIR . '/Wap.php';
+            }
+            $wap_ua = new WapUserAgent();
+            $wap_ua->setAgent($_conf['p2ua']); // ここは、"Monazilla/" をつけるとNG
+            $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
+            $wap_req = new WapRequest();
+            $wap_req->setUrl($read_url);
+            if ($_conf['proxy_use']) {
+                $wap_req->setProxy($_conf['proxy_host'], $_conf['proxy_port']);
+            }
+            $wap_res = $wap_ua->request($wap_req);
+
+            if ($wap_res->isError()) {
+                $url_t = P2Util::throughIme($wap_req->url);
+                $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
+                $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
+            } else {
+                $read_response_html = $wap_res->content;
+            }
+            unset($wap_ua, $wap_req, $wap_res);
         }
-        unset($wap_ua, $wap_req, $wap_res);
 
         // }}}
         // {{{ 取得したHTML（$read_response_html）を解析して、原因を見つける
@@ -822,7 +842,7 @@ class ThreadRead extends Thread
         //
         // <title>がこのスレッドは過去ログ倉庫に
         //
-        if (preg_match($kakosoko_match, $read_response_html, $matches)) {
+        if ($reason == 'datochi' or preg_match($kakosoko_match, $read_response_html, $matches)) {
             $dat_response_status = "このスレッドは過去ログ倉庫に格納されています。";
             //if (file_exists($_conf['idpw2ch_php']) || file_exists($_conf['sid2ch_php'])) {
                 // $marutori_ht = "<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>";
@@ -873,9 +893,12 @@ EOP;
         //
         // <title>がそんな板orスレッドないです。or error 3939
         //
-        } elseif (preg_match($naidesu_match, $read_response_html, $matches) || preg_match($error3939_match, $read_response_html, $matches)) {
+        } elseif ($reason == 'kakohtml' or preg_match($naidesu_match, $read_response_html, $matches) || preg_match($error3939_match, $read_response_html, $matches)) {
 
-            if (preg_match($kakohtml_match, $read_response_html, $matches)) {
+            if ($reason == 'kakohtml' or preg_match($kakohtml_match, $read_response_html, $matches)) {
+                if ($reason == 'kakohtml') {
+                    preg_match('{/([^/]+/kako/\d+(/\d+)?/(\d+)).html}', $this->getdat_error_body, $matches);
+                }
                 $dat_response_status = "隊長! 過去ログ倉庫で、html化されたスレッドを発見しました。";
                 $kakolog_uri = "http://{$this->host}/{$matches[1]}";
                 $kakolog_url_en = rawurlencode($kakolog_uri);
@@ -1007,7 +1030,7 @@ EOP;
                         break;
                     } else {
                         fclose($fp);
-                        return $this->previewOneNotFound();
+                        return $this->previewOneNotFound($code);
                     }
                 } else {
                     $l = fgets($fp,32800);
@@ -1019,7 +1042,7 @@ EOP;
                             ;
                         } else {
                             fclose($fp);
-                            return $this->previewOneNotFound();
+                            return $this->previewOneNotFound($code);
                         }
 
                     } elseif (preg_match("/^Content-Length: ([0-9]+)/", $l, $matches)) {
@@ -1084,13 +1107,32 @@ EOP;
     /**
      * >>1をプレビューでスレッドデータが見つからなかったときに呼び出される
      */
-    public function previewOneNotFound()
+    public function previewOneNotFound($code = null)
     {
+        global $_conf;
+
+        $this->diedat = true;
         // 2ch, bbspink ならread.cgiで確認
         if (P2Util::isHost2chs($this->host)) {
-            $this->getdat_error_msg_ht = $this->get2chDatError();
+            $this->getdat_error_msg_ht = $this->get2chDatError($code);
+            if (count($this->datochi_residuums)) {
+                if ($_conf['ktai']) {
+                    require_once P2_LIB_DIR . '/ShowThreadK.php';
+                    $aShowThread = new ShowThreadK($this);
+                    $aShowThread->am_autong = false;
+                } else {
+                    require_once P2_LIB_DIR . '/ShowThreadPc.php';
+                    $aShowThread = new ShowThreadPc($this);
+                }
+                $this->onthefly = true;
+                $body = "<div><span class=\"onthefly\">on the fly</span></div>\n";
+                $body .= "<div class=\"thread\">\n";
+                $res = $aShowThread->transRes($this->datochi_residuums[1], 1);
+                $body .= is_array($res) ? $res['body'] . $res['q'] : $res;
+                $body .= "</div>\n";
+                return $body;
+            }
         }
-        $this->diedat = true;
         return false;
     }
 
@@ -1318,6 +1360,89 @@ EOP;
     }
 
     // }}}
+    // {{{ _get2ch203Body()
+
+    /**
+     * 2chのDATにUAをMonazillaにしないでアクセスして、bodyを得て返す.
+     *
+     * @return 取得したbody（正常に取得できなかった場合はfalse)
+     */
+    private function _get2ch203Body() {
+        // 2007/06/11 302の時に、UAをMonazillaにしないでDATアクセスを試みると203が帰ってきて、
+        // body中に'過去ログ ★'とあれば、●落ち中とみなすことにする。
+        // 仕様の確証が取れていないので、このような判断でよいのかはっきりしない。
+        // 203 Non-Authoritative Information
+        // 過去ログ ★
+                            /*
+            名無し募集中。。。<><>2007/06/10(日) 13:29:51.68 0<> http://mlb.yahoo.co.jp/headlines/?a=2279 <br> くわわ＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞＞井川 <>★くわわメジャー昇格おめ 売上議論14001★
+            1001, 131428 (総レス数, サイズ)<><>1181480550000000 (最終更新)<><div style="color:navy;font-size:smaller;">|<br />| 中略<br />|</div><>
+            １００１<><>Over 1000 Thread<> このスレッドは１０００を超えました。 <br> もう書けないので、新しいスレッドを立ててくださいです。。。  <>
+            過去ログ ★<><>[過去ログ]<><div style="color:red;text-align:center;">■ このスレッドは過去ログ倉庫に格納されています</div><hr /><br />IE等普通のブラウザで見る場合 http://tubo.80.kg/tubo_and_maru.html<br />専用のブラウザで見る場合 http://www.monazilla.org/<br /><br />２ちゃんねる Viewer を使うと、すぐに読めます。 http://2ch.tora3.net/<br /><div style="color:navy;">この Viewer(通称●) の売上で、２ちゃんねるは設備を増強しています。<br />●が売れたら、新しいサーバを投入できるという事です。</div><br />よくわからない場合はソフトウェア板へGo http://pc11.2ch.net/software/<br /><br />モリタポ ( http://find.2ch.net/faq/faq2.php#c1 ) を持っていれば、50モリタポで表示できます。<br />　　　　こちらから → http://find.2ch.net/index.php?STR=dat:http://ex23.2ch.net/test/read.cgi/morningcoffee/1181449791/<br /><br /><hr /><>
+                             */
+        $params = array();
+        $params['timeout'] = $_conf['fsockopen_time_limit'];
+        if ($_conf['proxy_use']) {
+            $params['proxy_host'] = $_conf['proxy_host'];
+            $params['proxy_port'] = $_conf['proxy_port'];
+        }
+        if (!class_exists('HTTP_Request', false)) {
+            require 'HTTP/Request.php';
+        }
+        $url = "http://{$this->host}/{$this->bbs}/dat/{$this->key}.dat";
+        $req = new HTTP_Request($url, $params);
+        $req->setMethod('GET');
+        $err = $req->sendRequest(true);
+
+        if (!PEAR::isError($err)) {
+            // レスポンスコードを検証
+            if ('203' == $req->getResponseCode()) {
+                return $req->getResponseBody();
+            }
+        }
+        return false;
+    }
+
+    // }}}
+    // {{{ setDatochiResiduums()
+
+    /**
+     * DAT取得エラー時の>>1と最終レスをDATの形式で$this->datochi_residuumsに
+     * 保存する（レス番 => datline の配列）
+     * $this->getdat_error_bodyの内容から構築.
+     *
+     * @return boolean  正常に終了した場合はtrue
+     */
+    private function setDatochiResiduums() {
+        $this->datochi_residuums = array();
+        if (!$this->getdat_error_body || strlen($this->getdat_error_body) == 0)
+            return false;
+
+        $lines = explode("\n", $this->getdat_error_body);
+        if (count($lines) < 3) return false;
+        $first_line = $lines[0];
+        $first_datline = rtrim($first_line);
+        if (strpos($first_datline, '<>') !== false) {
+            $datline_sepa = "<>";
+        } else {
+            $datline_sepa = ",";
+            $this->dat_type = "2ch_old";
+        }
+        $d = explode($datline_sepa, $first_datline);
+        $this->setTtitle($d[4]);
+
+        $this->datochi_residuums[1] = $first_line;
+
+        $second_line = $lines[1];
+        if (strpos($second_line, '<>') == false) return false;
+        $d = explode('<>', $second_line);
+        if (count($d) < 1) return false;
+        list($lastn, $size) = explode(',', $d[0]);
+        $lastn = intval(trim($lastn));
+        if (!$lastn) return false;
+
+        $this->datochi_residuums[$lastn] = $lines[2];
+        return true;
+    }
 }
 
 // }}}
