@@ -1277,6 +1277,7 @@ EOP;
                 $result .= "<a href=\"{$img_url}{$backto}\">{$img_str}</a>";
             }
         }
+        $result .= $this->plugin_linkURL($url, $purl, $str);
         return $result;
     }
 
