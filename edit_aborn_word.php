@@ -278,7 +278,7 @@ EOP;
 Ω⁄¿≤:<input type="text" size="5" name="nga[%1\$d][tt]" value="%8\$s"><br>
 <input type="checkbox" name="nga[%1\$d][ic]" value="1"%3\$s>i
 <input type="checkbox" name="nga[%1\$d][re]" value="1"%4\$s>re
-<input type="text" name="nga[%1\$d][del]" value="1">Å~<br>
+<input type="checkbox" name="nga[%1\$d][del]" value="1">Å~<br>
 <input type="hidden" name="nga[%1\$d][ht]" value="%5\$s">
 <input type="hidden" name="nga[%1\$d][hn]" value="%6\$d">(%6\$d)<br>\n
 EOP;
