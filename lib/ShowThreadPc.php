@@ -1682,6 +1682,7 @@ EOP;
 
         // +Wiki
         global $replaceimageurl;
+        $url = $purl[0];
         $replaced = $replaceimageurl->replaceImageURL($url);
         if (!$replaced[0]) return FALSE;
 

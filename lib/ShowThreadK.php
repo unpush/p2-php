@@ -1132,6 +1132,7 @@ EOP;
         // if (preg_match('{^https?://.+?\\.(jpe?g|gif|png)$}i', $url) && empty($purl['query'])) {
         // +Wiki
         global $replaceimageurl;
+        $url = $purl[0];
         $replaced = $replaceimageurl->replaceImageURL($url);
         if (!$replaced[0]) return FALSE;
         foreach($replaced as $v) {
