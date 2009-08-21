@@ -222,6 +222,21 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
     }
 
     // }}}
+    // {{{ _decorateGifCaution()
+
+    /**
+     * stamp gif caution mark.
+     *
+     * @param resource $thumb
+     * @return resource
+     */
+    protected function _decorateGifCaution($thumb)
+    {
+        return (strlen($thumb) ? $thumb . ' ' : '') .
+            escapeshellarg($this->getDecorateGifCautionFilePath());
+    }
+
+    // }}}
 }
 
 // }}}

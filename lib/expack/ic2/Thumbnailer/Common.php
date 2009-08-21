@@ -41,6 +41,8 @@ abstract class Thumbnailer_Common
     protected $_trimming = false;
     protected $_decorate_anigif = false;
     protected $_decorate_anigif_filepath = '';
+    protected $_decorate_gifcaution = false;
+    protected $_decorate_gifcaution_filepath = '';
 
     // }}}
     // {{{ getBgColor()
@@ -318,6 +320,60 @@ abstract class Thumbnailer_Common
     }
 
     // }}}
+    // {{{ isDecorateGifCaution()
+
+    /**
+     * Gets whether to decorate when gif caution.
+     *
+     * @return bool
+     */
+    public function isDecorateGifCaution()
+    {
+        return $this->_decorate_gifcaution;
+    }
+
+    // }}}
+    // {{{ setDecorateGifCaution()
+
+    /**
+     * Sets whether to decorate when gif caution.
+     *
+     * @param bool $decorate_gifcaution
+     * @return void
+     */
+    public function setDecorateGifCaution($decorate_gifcaution)
+    {
+        $this->_decorate_gifcaution = $decorate_gifcaution;
+    }
+
+    // }}}
+    // {{{ getDecorateGifCautionFilePath()
+
+    /**
+     * Gets overlay filepath when gif caution.
+     *
+     * @return string
+     */
+    public function getDecorateGifCautionFilePath()
+    {
+        return $this->_decorate_gifcaution_filepath;
+    }
+
+    // }}}
+    // {{{ setDecorateGifCautionFilePath()
+
+    /**
+     * Sets overlay filepath when gif caution.
+     *
+     * @param bool $decorate_gifcaution_filepath
+     * @return void
+     */
+    public function setDecorateGifCautionFilePath($decorate_gifcaution_filepath)
+    {
+        $this->_decorate_gifcaution_filepath = $decorate_gifcaution_filepath;
+    }
+
+    // }}}
     // {{{ save()
 
     /**
@@ -423,6 +479,10 @@ abstract class Thumbnailer_Common
         if ($this->isDecorateAnigif()) {
             $thumb = $this->_decorateAnimationGif($thumb);
         }
+        // decorate for gif caution
+        if ($this->isDecorateGifCaution()) {
+            $thumb = $this->_decorateGifCaution($thumb);
+        }
         return $thumb;
     }
 
@@ -436,6 +496,17 @@ abstract class Thumbnailer_Common
      * @return mixed
      */
     abstract protected function _decorateAnimationGif($thumb);
+
+    // }}}
+    // {{{ _decorateGifCaution()
+
+    /**
+     * stamp gif caution mark.
+     *
+     * @param mixed $thumb
+     * @return mixed
+     */
+    abstract protected function _decorateGifCaution($thumb);
 
     // }}}
 }

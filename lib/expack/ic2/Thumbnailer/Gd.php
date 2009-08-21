@@ -180,6 +180,26 @@ class Thumbnailer_Gd extends Thumbnailer_Common
     }
 
     // }}}
+    // {{{ _decorateGifCaution()
+
+    /**
+     * stamp gif caution mark.
+     *
+     * @param resource $thumb
+     * @return resource
+     */
+    protected function _decorateGifCaution($thumb)
+    {
+        $deco = imagecreatefrompng($this->getDecorateGifCautionFilePath());
+        $deco_w = imagesx($deco);
+        $deco_h = imagesy($deco);
+        // put to the center
+        imagecopy($thumb, $deco, (imagesx($thumb) - $deco_w) / 2, (imagesy($thumb) - $deco_h) / 2, 0, 0, $deco_w, $deco_h);
+        imagedestroy($deco);
+        return $thumb;
+    }
+
+    // }}}
 }
 
 // }}}

@@ -220,7 +220,7 @@ class IC2_Thumbnailer
      *          テンポラリ・サムネイルの生成に成功したとき、true
      *          失敗したとき PEAR_Error
      */
-    public function convert($size, $md5, $mime, $width, $height, $force = false, $anigif = false)
+    public function convert($size, $md5, $mime, $width, $height, $force = false, $anigif = false, $gifcaution = false)
     {
         // 画像
         if (!empty($this->intermd) && file_exists($this->intermd)) {
@@ -319,6 +319,10 @@ class IC2_Thumbnailer
         if ($anigif) {
             $convertor->setDecorateAnigif($anigif);
             $convertor->setDecorateAnigifFilePath($this->ini['Thumbdeco']['anigif_path']);
+        }
+        if ($gifcaution) {
+            $convertor->setDecorateGifCaution($gifcaution);
+            $convertor->setDecorateGifCautionFilePath($this->ini['Thumbdeco']['gifcaution_path']);
         }
 
         if ($this->dynamic) {

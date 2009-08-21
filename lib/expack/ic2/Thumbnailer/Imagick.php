@@ -161,6 +161,26 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
     }
 
     // }}}
+    // {{{ _decorateGifCaution()
+
+    /**
+     * stamp gif caution mark.
+     *
+     * @param resource $thumb
+     * @return resource
+     */
+    protected function _decorateGifCaution($thumb)
+    {
+        $deco = new Imagick();
+        $deco->readImage($this->getDecorateGifCautionFilePath());
+        $thumb->compositeImage($deco, Imagick::COMPOSITE_OVER,
+            ($thumb->getImageWidth() - $deco->getImageWidth())/2,
+            ($thumb->getImageHeight() - $deco->getImageHeight())/2);
+        $deco->destroy();
+        return $thumb;
+    }
+
+    // }}}
 }
 
 // }}}

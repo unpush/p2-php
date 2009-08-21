@@ -192,6 +192,34 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
     }
 
     // }}}
+    // {{{ _decorateGifCaution()
+
+    /**
+     * stamp gif caution mark.
+     *
+     * @param resource $thumb
+     * @return resource
+     */
+    protected function _decorateGifCaution($thumb)
+    {
+        $deco = imagick_readimage($this->getDecorateGifCautionFilePath());
+        if (!is_resource($deco) || imagick_iserror($deco)) {
+            if (is_resource($deco)) {
+                $reason = imagick_failedreason($deco);
+                $detail = imagick_faileddescription($deco);
+                imagick_destroyhandle($deco);
+            }
+            $error = PEAR::raiseError("Failed to load the image. (" . $this->getDecorateGifCautionFilePath() . ":{$reason}:{$detail})");
+            return $error;
+        }
+        imagick_composite($thumb, IMAGICK_COMPOSITE_OP_ATOP, $deco,
+            (imagick_getwidth($thumb) - imagick_getwidth($deco))/2,
+            (imagick_getheight($thumb) - imagick_getheight($deco))/2);
+        imagick_destroyhandle($deco);
+        return $thumb;
+    }
+
+    // }}}
 }
 
 // }}}
