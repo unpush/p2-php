@@ -171,6 +171,36 @@ class Thumbnailer_Magickwand extends Thumbnailer_Common
     }
 
     // }}}
+    // {{{ _decorateAnimationGif()
+
+    /**
+     * stamp animation gif mark.
+     *
+     * @param mixed $thumb
+     * @return mixed
+     */
+    protected function _decorateAnimationGif($thumb)
+    {
+        // TODO (not implemented)
+        return $thumb;
+    }
+
+    // }}}
+    // {{{ _decorateGifCaution()
+
+    /**
+     * stamp gif caution mark.
+     *
+     * @param mixed $thumb
+     * @return mixed
+     */
+    protected function _decorateGifCaution($thumb)
+    {
+        // TODO (not implemented)
+        return $thumb;
+    }
+
+    // }}}
 }
 
 // }}}

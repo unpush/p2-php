@@ -60,7 +60,7 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
      */
     public function save($source, $thumbnail, $size)
     {
-        $command = $this->_convert($source, $size) . ' ' . escapeshellarg($thumbnail);
+        $command = $this->_convert($source, $size) . ' ' . $this->decorate($source, '') . ' ' . escapeshellarg($thumbnail);
         @exec($command, $results, $status);
         if ($status != 0) {
             $errmsg = "convert failed. ( $command . )\n";
@@ -204,6 +204,36 @@ class Thumbnailer_Imagemagick extends Thumbnailer_Common
         $command .= ' ' . $source;
 
         return $command;
+    }
+
+    // }}}
+    // {{{ _decorateAnimationGif()
+
+    /**
+     * stamp animation gif mark.
+     *
+     * @param mixed $thumb
+     * @return mixed
+     */
+    protected function _decorateAnimationGif($thumb)
+    {
+        return (strlen($thumb) ? $thumb . ' ' : '') .
+            escapeshellarg($this->getDecorateAnigifFilePath());
+    }
+
+    // }}}
+    // {{{ _decorateGifCaution()
+
+    /**
+     * stamp gif caution mark.
+     *
+     * @param resource $thumb
+     * @return resource
+     */
+    protected function _decorateGifCaution($thumb)
+    {
+        return (strlen($thumb) ? $thumb . ' ' : '') .
+            escapeshellarg($this->getDecorateGifCautionFilePath());
     }
 
     // }}}

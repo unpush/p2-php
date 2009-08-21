@@ -27,7 +27,7 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
     public function save($source, $thumbnail, $size)
     {
         try {
-            return $this->_convert($source, $size)->writeImage($thumbnail);
+            return $this->decorate($source, $this->_convert($source, $size))->writeImage($thumbnail);
         } catch (Exception $e) {
             return PEAR::raiseError(get_class($e) . '::' . $e->getMessage());
         }
@@ -138,6 +138,46 @@ class Thumbnailer_Imagick extends Thumbnailer_Common
         $im->setImageColorSpace(Imagick::COLORSPACE_RGB);
 
         return $im;
+    }
+
+    // }}}
+    // {{{ _decorateAnimationGif()
+
+    /**
+     * stamp animation gif mark.
+     *
+     * @param resource $thumb
+     * @return resource
+     */
+    protected function _decorateAnimationGif($thumb)
+    {
+        $deco = new Imagick();
+        $deco->readImage($this->getDecorateAnigifFilePath());
+        $deco->resizeImage($thumb->getImageWidth(), $thumb->getImageHeight(),
+            Imagick::FILTER_UNDEFINED, 1);
+        $thumb->compositeImage($deco, Imagick::COMPOSITE_OVER, 0, 0);
+        $deco->destroy();
+        return $thumb;
+    }
+
+    // }}}
+    // {{{ _decorateGifCaution()
+
+    /**
+     * stamp gif caution mark.
+     *
+     * @param resource $thumb
+     * @return resource
+     */
+    protected function _decorateGifCaution($thumb)
+    {
+        $deco = new Imagick();
+        $deco->readImage($this->getDecorateGifCautionFilePath());
+        $thumb->compositeImage($deco, Imagick::COMPOSITE_OVER,
+            ($thumb->getImageWidth() - $deco->getImageWidth())/2,
+            ($thumb->getImageHeight() - $deco->getImageHeight())/2);
+        $deco->destroy();
+        return $thumb;
     }
 
     // }}}

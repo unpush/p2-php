@@ -408,6 +408,9 @@ if (PEAR::isError($code)) {
 }
 
 $response = $client->currentResponse();
+if (isset($response['headers']['content-type'])) {
+    $serv_mime = $response['headers']['content-type'];
+}
 
 // 一時ファイルに保存
 $tmpfile = tempnam($_conf['tmp_dir'], 'ic2_get_');
@@ -535,8 +538,15 @@ if ($retry && $size == $_size && $md5 == $_md5 && $mime == $_mime) {
     $record->insert();
 }
 
+$is_anigif = false; $is_gif_caution == false;
+if (($ini['Thumbdeco']['anigif'] || $ini['Thumbdeco']['gifcaution']) && $params['mime'] == 'image/gif') {
+    $is_anigif = check_anigif($newfile);
+    if ($ini['Thumbdeco']['gifcaution']) {
+        $is_gif_caution = $is_anigif && check_mime_caution($serv_mime, $mime, $mimemap, $name);
+    }
+}
 // 画像を表示
-ic2_finish($newfile, $thumb, $params, $force);
+ic2_finish($newfile, $thumb, $params, $force, $ini['Thumbdeco']['anigif'] ? $is_anigif : false, $is_gif_caution);
 
 // }}}
 // {{{ 関数
@@ -1003,7 +1013,7 @@ EOF;
 // }}}
 // {{{ ic2_finish()
 
-function ic2_finish($filepath, $thumb, $params, $force)
+function ic2_finish($filepath, $thumb, $params, $force, $anigif = false, $gif_caution = false)
 {
     global $thumbnailer;
 
@@ -1012,12 +1022,33 @@ function ic2_finish($filepath, $thumb, $params, $force)
     if ($thumb == 0) {
         ic2_display($filepath, $params);
     } else {
-        $thumbpath = $thumbnailer->convert($size, $md5, $mime, $width, $height, $force);
+        $thumbpath = $thumbnailer->convert($size, $md5, $mime, $width, $height, $force, $anigif, $gif_caution);
         if (PEAR::isError($thumbpath)) {
             ic2_error('x02', $thumbpath->getMessage());
         }
         ic2_display($thumbpath, $params);
     }
+}
+
+// }}}
+// {{{ check_anigif()
+
+function check_anigif($path) {
+    require_once P2EX_LIB_DIR . '/ic2/GifAnimationDetector.php';
+    return GifAnimationDetector::isAnimated($path);
+}
+// }}}
+// {{{ check_mime_caution()
+
+function check_mime_caution($serv_mime, $file_mime, $mimemap, $name) {
+    // サーバーの送ってきたcontent-typeが実際のファイルと異なっているか
+    if (strlen($serv_mime) && strtolower($serv_mime) != strtolower($file_mime)) return true;
+    // 念のため拡張子でもチェック
+    $ext = strrchr($name, '.');
+    if (strlen($ext) && $ext_mime = array_search($ext, $mimemap)) {
+        if (strtolower($ext_mime) != strtolower($file_mime)) return true;
+    }
+    return false;
 }
 
 // }}}
