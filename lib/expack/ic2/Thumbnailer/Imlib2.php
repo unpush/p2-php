@@ -154,6 +154,21 @@ class Thumbnailer_Imlib2 extends Thumbnailer_Common
     }
 
     // }}}
+    // {{{ _decorateAnimationGif()
+
+    /**
+     * stamp animation gif mark.
+     *
+     * @param mixed $thumb
+     * @return mixed
+     */
+    protected function _decorateAnimationGif($thumb)
+    {
+        // TODO (not implemented)
+        return $thumb;
+    }
+
+    // }}}
 }
 
 // }}}

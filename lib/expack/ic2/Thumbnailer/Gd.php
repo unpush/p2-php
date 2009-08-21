@@ -27,6 +27,7 @@ class Thumbnailer_Gd extends Thumbnailer_Common
     public function save($source, $thumbnail, $size)
     {
         $dst = $this->_convert($source, $size);
+        $dst = $this->decorate($source, $dst);  // デコレーション
         // サムネイルを保存
         if ($this->isPng()) {
             $result = imagepng($dst, $thumbnail);
@@ -157,6 +158,25 @@ class Thumbnailer_Gd extends Thumbnailer_Common
         }
 
         return $dst;
+    }
+
+    // }}}
+    // {{{ _decorateAnimationGif()
+
+    /**
+     * stamp animation gif mark.
+     *
+     * @param mixed $thumb
+     * @return resource
+     */
+    protected function _decorateAnimationGif($thumb)
+    {
+        $deco = imagecreatefrompng($this->getDecorateAnigifFilePath());
+        $deco_w = imagesx($deco);
+        $deco_h = imagesy($deco);
+        imagecopyresampled($thumb, $deco, 0, 0, 0, 0, imagesx($thumb), imagesy($thumb), imagesx($deco), imagesy($deco));
+        imagedestroy($deco);
+        return $thumb;
     }
 
     // }}}

@@ -39,6 +39,8 @@ abstract class Thumbnailer_Common
     protected $_rotation = 0;
     protected $_tempDir = '/tmp';
     protected $_trimming = false;
+    protected $_decorate_anigif = false;
+    protected $_decorate_anigif_filepath = '';
 
     // }}}
     // {{{ getBgColor()
@@ -262,6 +264,60 @@ abstract class Thumbnailer_Common
     }
 
     // }}}
+    // {{{ isDecorateAnigif()
+
+    /**
+     * Gets whether to decorate when animated gif.
+     *
+     * @return bool
+     */
+    public function isDecorateAnigif()
+    {
+        return $this->_decorate_anigif;
+    }
+
+    // }}}
+    // {{{ setDecorateAnigif()
+
+    /**
+     * Sets whether to decorate when animated gif.
+     *
+     * @param bool $decorate_anigif
+     * @return void
+     */
+    public function setDecorateAnigif($decorate_anigif)
+    {
+        $this->_decorate_anigif = $decorate_anigif;
+    }
+
+    // }}}
+    // {{{ getDecorateAnigifFilePath()
+
+    /**
+     * Gets overlay filepath when animated gif.
+     *
+     * @return string
+     */
+    public function getDecorateAnigifFilePath()
+    {
+        return $this->_decorate_anigif_filepath;
+    }
+
+    // }}}
+    // {{{ setDecorateAnigifFilePath()
+
+    /**
+     * Sets overlay filepath when animated gif.
+     *
+     * @param bool $decorate_anigif_filepath
+     * @return void
+     */
+    public function setDecorateAnigifFilePath($decorate_anigif_filepath)
+    {
+        $this->_decorate_anigif_filepath = $decorate_anigif_filepath;
+    }
+
+    // }}}
     // {{{ save()
 
     /**
@@ -350,6 +406,36 @@ abstract class Thumbnailer_Common
             }
         }
     }
+
+    // }}}
+    // {{{ decorate()
+
+    /**
+     * process of decorates thumbnail.
+     *
+     * @param string $source
+     * @param mixed $thumb
+     * @return mixed
+     */
+    protected function decorate($source, $thumb)
+    {
+        // decorate for animation GIF
+        if ($this->isDecorateAnigif()) {
+            $thumb = $this->_decorateAnimationGif($thumb);
+        }
+        return $thumb;
+    }
+
+    // }}}
+    // {{{ _decorateAnimationGif()
+
+    /**
+     * stamp animation gif mark.
+     *
+     * @param mixed $thumb
+     * @return mixed
+     */
+    abstract protected function _decorateAnimationGif($thumb);
 
     // }}}
 }

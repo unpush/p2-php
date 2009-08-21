@@ -29,6 +29,7 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
     public function save($source, $thumbnail, $size)
     {
         $dst = $this->_convert($source, $size);
+        $dst = $this->decorate($source, $dst);  // デコレーション
         // サムネイルを保存
         if ($this->getQuality() > 0) {
             imagick_setcompressionquality($dst, $this->getQuality());
@@ -161,6 +162,33 @@ class Thumbnailer_Imagick09 extends Thumbnailer_Common
             imagick_rotate($dst, $degrees);
         }
         return $dst;
+    }
+
+    // }}}
+    // {{{ _decorateAnimationGif()
+
+    /**
+     * stamp animation gif mark.
+     *
+     * @param resource $thumb
+     * @return resource
+     */
+    protected function _decorateAnimationGif($thumb)
+    {
+        $deco = imagick_readimage($this->getDecorateAnigifFilePath());
+        if (!is_resource($deco) || imagick_iserror($deco)) {
+            if (is_resource($deco)) {
+                $reason = imagick_failedreason($deco);
+                $detail = imagick_faileddescription($deco);
+                imagick_destroyhandle($deco);
+            }
+            $error = PEAR::raiseError("Failed to load the image. (" . $this->getDecorateAnigifFilePath() . ":{$reason}:{$detail})");
+            return $error;
+        }
+        imagick_scale($deco, imagick_getwidth($thumb), imagick_getheight($thumb), '!');
+        imagick_composite($thumb, IMAGICK_COMPOSITE_OP_ATOP, $deco, 0, 0);
+        imagick_destroyhandle($deco);
+        return $thumb;
     }
 
     // }}}

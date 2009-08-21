@@ -264,6 +264,14 @@ $_conf['expack.ic2.thumb3.height'] = 480;
 $_conf['expack.ic2.thumb3.quality'] = 80;
 
 // }}}
+// {{{ サムネイルの装飾
+
+// アニメーションGIFを検出した場合に装飾を加える (off:0;on:1)
+$_conf['expack.ic2.thumbdeco.anigif'] = 1;
+// アニメーションGIFを検出した場合に加える装飾ファイルのパス
+$_conf['expack.ic2.thumbdeco.anigif_path'] = './img/thumb-deco/pera2-3.png';
+
+// }}}
 // {{{ 生成した画像をキャッシュしない動的生成のプリセット値
 
 // "設定名" => arrray(width, height, quality) の連想配列

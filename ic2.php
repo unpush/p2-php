@@ -524,8 +524,12 @@ if ($retry && $size == $_size && $md5 == $_md5 && $mime == $_mime) {
     $record->insert();
 }
 
+$is_anigif = false;
+if ($ini['Thumbdeco']['anigif'] && $params['mime'] == 'image/gif') {
+    $is_anigif = check_anigif($newfile);
+}
 // ‰æ‘œ‚ð•\Ž¦
-ic2_finish($newfile, $thumb, $params, $force);
+ic2_finish($newfile, $thumb, $params, $force, $is_anigif);
 
 // }}}
 // {{{ ŠÖ”
@@ -992,7 +996,7 @@ EOF;
 // }}}
 // {{{ ic2_finish()
 
-function ic2_finish($filepath, $thumb, $params, $force)
+function ic2_finish($filepath, $thumb, $params, $force, $anigif = false)
 {
     global $thumbnailer;
 
@@ -1001,7 +1005,7 @@ function ic2_finish($filepath, $thumb, $params, $force)
     if ($thumb == 0) {
         ic2_display($filepath, $params);
     } else {
-        $thumbpath = $thumbnailer->convert($size, $md5, $mime, $width, $height, $force);
+        $thumbpath = $thumbnailer->convert($size, $md5, $mime, $width, $height, $force, $anigif);
         if (PEAR::isError($thumbpath)) {
             ic2_error('x02', $thumbpath->getMessage());
         }
@@ -1010,6 +1014,12 @@ function ic2_finish($filepath, $thumb, $params, $force)
 }
 
 // }}}
+// {{{ check_anigif()
+
+function check_anigif($path) {
+    require_once P2EX_LIB_DIR . '/ic2/GifAnimationDetector.php';
+    return GifAnimationDetector::isAnimated($path);
+}
 // }}}
 
 /*
