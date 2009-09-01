@@ -9,7 +9,9 @@
 $host = '/\\.pool\\.e(?:mnet|-?mobile)\\.ne\\.jp$/';
 
 $band = array(
-    '117.55.1.224/27',
+    '60.254.192.0/18',      // JPNIC Whois Gateway
+    '117.55.0.0/17',        // JPNIC Whois Gateway
+    //'117.55.1.224/27',    // http://developer.emnet.ne.jp/ipaddress.html
 );
 
 /*
