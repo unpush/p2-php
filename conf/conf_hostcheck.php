@@ -25,7 +25,7 @@ $GLOBALS['_HOSTCHKCONF']['host_type'] = array(
     // WILLCOM AIR-EDGE
     'willcom'   => 0,
     // EMOBILE
-    'emobile'   => 1,
+    'emobile'   => 0,
     // iPhone 3G
     'iphone'    => 0,
     // ƒ†[ƒU[Ý’è
