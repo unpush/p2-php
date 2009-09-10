@@ -582,7 +582,7 @@ EOP;
             return $idstr;
         }
 
-        if ($_conf['coloredid.enable'] > 0) {
+        if ($_conf['coloredid.enable'] > 0 && preg_match("/^ID:[0-9a-zA-Z+\/]{8,11}/",$idstr)) {
             if ($this->_ids_for_render === null) $this->_ids_for_render = array();
             $this->_ids_for_render[substr($id, 0, 8)] = $this->thread->idcount[$id];
             if ($_conf['coloredid.click'] > 0) {
