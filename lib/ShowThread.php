@@ -918,6 +918,11 @@ EOP;
 
         foreach($this->thread->datlines as $num => $line) {
             list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
+
+           // NGあぼーんチェック
+            $ng_type = $this->_ngAbornCheck($i, strip_tags($name), $mail, $date_id, $id, $msg, true);
+            if ($ng_type == self::ABORN) {continue;}
+
             // >>1のリンクをいったん外す
             // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
             $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
