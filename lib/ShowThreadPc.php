@@ -556,12 +556,12 @@ EOJS;
      */
     protected function _abornedRes($res_id)
     {
-        return <<<EOP
+        return; /*<<<EOP
 <div id="{$res_id}" class="res aborned">
 <div class="res-header">&nbsp;</div>
 <div class="message">&nbsp;</div>
 </div>\n
-EOP;
++EOP;*/
     }
 
     // }}}
