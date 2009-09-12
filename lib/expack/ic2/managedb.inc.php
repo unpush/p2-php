@@ -134,7 +134,7 @@ function manageDB_remove($target, $to_blacklist = false)
 
             // ブラックリスト送りの準備
             if ($to_blacklist) {
-                $_blacklist = new IC2_DataObject__BlackList;
+                $_blacklist = new IC2_DataObject_BlackList;
                 $_blacklist->size = $icdb->size;
                 $_blacklist->md5  = $icdb->md5;
                 if ($icdb->mime == 'clamscan/infected' || $icdb->rank == -4) {
