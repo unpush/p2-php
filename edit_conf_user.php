@@ -192,9 +192,9 @@ echo getEditConfHtml('k_sb_show_first', 'Œg‘Ñ‚ÌƒXƒŒƒbƒhˆê——i”Â•\Ž¦j‚©‚ç‰‚ß‚Ä‚
 echo getEditConfHtml('sb_show_spd', 'ƒXƒŒƒbƒhˆê——‚Å‚·‚Î‚â‚³iƒŒƒXŠÔŠuj‚ð•\Ž¦');
 echo getEditConfHtml('sb_show_ikioi', 'ƒXƒŒƒbƒhˆê——‚Å¨‚¢i1“ú‚ ‚½‚è‚ÌƒŒƒX”j‚ð•\Ž¦');
 echo getEditConfHtml('sb_show_fav', 'ƒXƒŒƒbƒhˆê——‚Å‚¨‹C‚ÉƒXƒŒƒ}[ƒNš‚ð•\Ž¦');
-echo getEditConfHtml('sb_sort_ita', '”Â•\Ž¦‚ÌƒXƒŒƒbƒhˆê——‚Å‚ÌƒfƒtƒHƒ‹ƒg‚Ìƒ\[ƒgŽw’è');
-echo getEditConfHtml('sort_zero_adjust', 'V’…ƒ\[ƒg‚Å‚ÌuŠù“¾‚È‚µv‚ÌuV’…”ƒ[ƒv‚É‘Î‚·‚éƒ\[ƒg—Dæ‡ˆÊ');
-echo getEditConfHtml('cmp_dayres_midoku', '¨‚¢ƒ\[ƒgŽž‚ÉV’…ƒŒƒX‚Ì‚ ‚éƒXƒŒ‚ð—Dæ');
+echo getEditConfHtml('sb_sort_ita', '”Â•\Ž¦‚ÌƒXƒŒƒbƒhˆê——‚Å‚ÌƒfƒtƒHƒ‹ƒg‚Ì•À‚Ñ‡‚ÌŽw’è');
+echo getEditConfHtml('sort_zero_adjust', '•À‚Ñ‡‚ªV’…‚ÌŽž‚ÌuŠù“¾‚È‚µv‚ÌuV’…”ƒ[ƒv‚É‘Î‚·‚é•À‚Ñ‡‚Ì—Dæ‡ˆÊ');
+echo getEditConfHtml('cmp_dayres_midoku', '•À‚Ñ‡‚ª¨‚¢‚ÌŽž‚ÉV’…ƒŒƒX‚Ì‚ ‚éƒXƒŒ‚ð—Dæ');
 echo getEditConfHtml('k_sb_disp_range', 'Œg‘Ñ‰{——ŽžAˆê“x‚É•\Ž¦‚·‚éƒXƒŒ‚Ì”');
 echo getEditConfHtml('viewall_kitoku', 'Šù“¾ƒXƒŒ‚Í•\Ž¦Œ”‚ÉŠÖ‚í‚ç‚¸•\Ž¦');
 

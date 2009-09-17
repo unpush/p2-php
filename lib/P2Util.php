@@ -88,6 +88,19 @@ class P2Util
     
     /**
      * @access  public
+     * @see http://developer.emnet.ne.jp/useragent.html
+     * @return  string|null
+     */
+    function getEMnetID()
+    {
+        if (array_key_exists('HTTP_X_EM_UID', $_SERVER)) {
+            return $_SERVER['HTTP_X_EM_UID'];
+        }
+        return null;
+    }
+    
+    /**
+     * @access  public
      * @return  string|null
      */
     function getSoftBankID()
@@ -910,6 +923,9 @@ class P2Util
         
         // p2imeは、enc, m, url の引数順序が固定されているので注意
         
+        // [wish] 2chに限らず、
+        // http://machi.to/bbs/link.cgi?URL=http://hokkaido.machibbs.com/bbs/read.cgi/hokkaidou/1244990327/
+        // のようなそれぞれのBBSでのimeに対応したいところ。あらかじめ引数でbbs種別を受け取る必要がある。
         if ($_conf['through_ime'] == '2ch') {
             $purl = parse_url($url);
             $url_r = $purl['scheme'] . '://ime.nu/' . $purl['host'] . $purl['path'];

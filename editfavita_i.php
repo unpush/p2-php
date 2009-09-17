@@ -39,6 +39,10 @@ if ($_conf['ktai'] or UA::isNetFront() or !empty($_POST['sortNoJs']) || !empty($
 }
 
 $csrfid = P2Util::getCsrfId();
+
+$body_at    = P2View::getBodyAttrK();
+$hr         = P2View::getHrHtmlK();
+
 //================================================================
 // ヘッダHTML表示
 //================================================================
@@ -264,21 +268,10 @@ if ($lines) {
     foreach ($lines as $l) {
         if (preg_match('/^\t?(.+?)\t(.+?)\t(.+?)$/', rtrim($l), $matches)) {
             $itaj       = rtrim($matches[3]);
-            $itaj_en    = rawurlencode(base64_encode($itaj));
             $host       = $matches[1];
             $bbs        = $matches[2];
-            $itaj_hs    = htmlspecialchars($itaj, ENT_QUOTES);
-            $itaj_q     = '&amp;itaj_en=' . $itaj_en;
-            echo <<<EOP
-            <tr>
-            <th><a href="{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}" title="{$host}/{$bbs}">{$itaj_hs}</a></th>
-            <td>[ <a class="te" href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=top{$_conf['k_at_a']}" title="一番上に移動">▲</a></td>
-            <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=up{$_conf['k_at_a']}" title="一つ上に移動">↑</a></td>
-            <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=down{$_conf['k_at_a']}" title="一つ下に移動">↓</a></td>
-            <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}{$itaj_q}&amp;setfavita=bottom{$_conf['k_at_a']}" title="一番下に移動">▼</a> ]</td>
-            <td width="10px"><a href="{$_SERVER['SCRIPT_NAME']}?host={$host}&amp;bbs={$bbs}&amp;setfavita=0{$_conf['k_at_a']}">削</a></td>
-            </tr>
-EOP;
+
+            _printEditSortTrHtml($host, $bbs, $itaj);
         }
     }
     ?></table><?php
@@ -295,7 +288,7 @@ EOP;
 /*
 // PC用 お気に板同期フォーム HTML表示
 if (!$_conf['ktai']) {
-    echo '<hr>';
+    echo $hr;
 
     echo <<<EOFORM
 <form method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
@@ -350,3 +343,130 @@ function _getOkiniItasFromLines($lines)
     }
     return $okini_itas;
 }
+
+/**
+ * @return  void  HTML出力
+ */
+function _printEditSortTrHtml($host, $bbs, $itaj)
+{
+    global $_conf;
+    
+    $itaj_en    = base64_encode($itaj);
+    ?>
+    <tr>
+    <td>
+    <?php
+    echo P2View::tagA(
+        P2Util::buildQueryUri($_conf['subject_php'],
+            array(
+                'host' => $host,
+                'bbs'  => $bbs,
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs($itaj),
+        array('title' => "{$host}/{$bbs}")
+    );
+    ?>
+    </td>
+    <td>[ 
+    <?php
+    echo P2View::tagA(
+        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            array(
+                'host'      => $host,
+                'bbs'       => $bbs,
+                'itaj_en'   => $itaj_en,
+                'setfavita' => 'top',
+                'csrfid'    => P2Util::getCsrfId(),
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs('▲'),
+        array('class' => 'te', 'title' => '一番上に移動')
+    );
+    ?>
+    </td>
+    <td>
+    <?php
+    echo P2View::tagA(
+        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            array(
+                'host'      => $host,
+                'bbs'       => $bbs,
+                'itaj_en'   => $itaj_en,
+                'setfavita' => 'up',
+                'csrfid'    => P2Util::getCsrfId(),
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs('↑'),
+        array('class' => 'te', 'title' => '一つ上に移動')
+    );
+    ?>
+    </td>
+    <td>
+    <?php
+    echo P2View::tagA(
+        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            array(
+                'host'      => $host,
+                'bbs'       => $bbs,
+                'itaj_en'   => $itaj_en,
+                'setfavita' => 'down',
+                'csrfid'    => P2Util::getCsrfId(),
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs('↓'),
+        array('class' => 'te', 'title' => '一つ下に移動')
+    );
+    ?>
+    </td>
+    <td>
+    <?php
+    echo P2View::tagA(
+        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            array(
+                'host'      => $host,
+                'bbs'       => $bbs,
+                'itaj_en'   => $itaj_en,
+                'setfavita' => 'bottom',
+                'csrfid'    => P2Util::getCsrfId(),
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs('▼'),
+        array('class' => 'te', 'title' => '一番下に移動')
+    );
+    ?>
+     ]</td>
+    <td>[<?php
+    echo P2View::tagA(
+        P2Util::buildQueryUri($_SERVER['SCRIPT_NAME'],
+            array(
+                'host'      => $host,
+                'bbs'       => $bbs,
+                'setfavita' => '0',
+                'csrfid'    => P2Util::getCsrfId(),
+                UA::getQueryKey() => UA::getQueryValue()
+            )
+        ),
+        hs('削除'),
+        array('title' => '削除')
+    );
+    ?>]</td>
+    </tr>
+    <?php
+}
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

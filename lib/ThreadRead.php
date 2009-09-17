@@ -949,7 +949,7 @@ class ThreadRead extends Thread
      * @param   string|null  $reason
      * @return  string  エラーメッセージHTML（原因がわからない場合は空で返す）
      */
-    function get2chDatError($reason = null)
+    function get2chDatError($reason = null, $read_cgi = 'read.cgi')
     {
         global $_conf;
         
@@ -959,7 +959,7 @@ class ThreadRead extends Thread
             $this->old_host = null;
         }
         
-        $read_url = "http://{$this->host}/test/read.cgi/{$this->bbs}/{$this->key}/";
+        $read_url = "http://{$this->host}/test/{$read_cgi}/{$this->bbs}/{$this->key}/";
         
         // {{{ read.cgi からHTMLを取得
         
@@ -992,6 +992,15 @@ class ThreadRead extends Thread
                 $read_response_html = $wap_res->content;
             }
             unset($wap_ua, $wap_req, $wap_res);
+        }
+        
+        // read.htmlの場合はread.soで再試行する
+        // http://sports11.2ch.net/test/read.cgi/bicycle/1206427705/
+        // 　(正常に表示されない場合は、URL 中の read.cgi を read.so に変えて下さい。
+        // 　あるいは、掲示板トップにある「read.cgi モード切替」のリンクから「CGI モード」に設定して下さい)
+        // 　JavaScript が有効でないと見られません。。。
+        if (preg_match('/read.cgi を read.so/', $read_response_html)) {
+            return $this->get2chDatError($reason, $read_cgi = 'read.so');
         }
         
         // }}}

@@ -72,7 +72,7 @@ $conf_user_sel['sb_show_fav'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['sb_sort_ita'] = 'ikioi'; // ('ikioi')
 $conf_user_sel['sb_sort_ita'] = array(
     'midoku' => '新着', 'res' => 'レス', 'no' => 'No.', 'title' => 'タイトル', // 'spd' => 'すばやさ', 
-    'ikioi' => '勢い', 'bd' => 'Birthday' // , 'fav' => 'お気にスレ'
+    'ikioi' => '勢い', 'bd' => 'スレ立て日' // , 'fav' => 'お気にスレ'
 );
 
 // 新着ソートでの「既得なし」の「新着数ゼロ」に対するソート優先順位 (上位, 混在, 下位)

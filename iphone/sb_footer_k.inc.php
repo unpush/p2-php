@@ -56,7 +56,7 @@ $taborn_link_atag = _getTabornLinkATag($aThreadList, $ta_num);
 // 新規スレッド作成
 $buildnewthread_atag = _getBuildNewThreadATag($aThreadList);
 
-// {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い Birthday ☆）
+// {{{ ソート変更 （新着 レス No. タイトル 板 すばやさ 勢い スレ立て日 ☆）
 
 $sorts = array('midoku' => '新着', 'res' => 'ﾚｽ', 'no' => 'No.', 'title' => 'ﾀｲﾄﾙ');
 if ($aThreadList->spmode and $aThreadList->spmode != 'taborn' and $aThreadList->spmode != 'soko') {
@@ -68,7 +68,7 @@ if ($_conf['sb_show_spd']) {
 if ($_conf['sb_show_ikioi']) {
     $sorts['ikioi'] = '勢い';
 }
-$sorts['bd'] = 'Birthday';
+$sorts['bd'] = 'スレ立て日';
 if ($_conf['sb_show_fav'] and $aThreadList->spmode != 'taborn') {
     $sorts['fav'] = '☆';
 }

@@ -13,9 +13,7 @@ function index_print_k()
 
     $menuKLinkHtmls = getIndexMenuKLinkHtmls(getIndexMenuKIni());
     
-    $body = '';
     $ptitle = $_conf['p2name'] . 'iPhone';
-    $ptitle_hs = hs($ptitle);
     
     // ログインユーザ情報
     $auth_user_ht   = sprintf(
@@ -24,12 +22,19 @@ function index_print_k()
     );
     
     // p2ログイン用URL
-    $login_url          = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
-    $login_url_pc       = $login_url . '?b=pc';
-    $login_url_pc_hs    = hs($login_url_pc);
-    $login_url_k        = $login_url . '?b=k&user=' . $_login->user_u;
-    $login_url_k_hs     = hs($login_url_k);
-    
+    $login_url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
+    $login_url_pc = P2Util::buildQueryUri($login_url,
+        array(
+            UA::getQueryKey() => 'pc'
+        )
+    );
+    $login_url_k = P2Util::buildQueryUri($login_url,
+        array(
+            UA::getQueryKey() => 'k',
+            'user' => $_login->user_u
+        )
+    );
+
     // 前回のログイン情報
     if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
         if (false !== $log = P2Util::getLastAccessLog($_conf['login_log_file'])) {
@@ -49,8 +54,12 @@ EOP;
     
     // 古いセッションIDがキャッシュされていることを考慮して、ユーザ情報を付加しておく
     // （リファラを考慮して、つけないほうがいい場合もあるので注意）
-    $user_at_a = '&amp;user=' . $_login->user_u;
-    $user_at_q = '?user=' . $_login->user_u;
+    $narabikae_uri = P2Util::buildQueryUri('edit_indexmenui.php',
+        array(
+            'user' => $_login->user_u,
+            UA::getQueryKey() => UA::getQueryValue()
+        )
+    );
     
     require_once P2_LIB_DIR . '/BrdCtl.php';
     $search_form_htm = BrdCtl::getMenuKSearchFormHtml('menu_i.php');
@@ -68,7 +77,7 @@ EOP;
 <head>
 <?php
     P2View::printExtraHeadersHtml();
-echo <<<EOP
+?>
 <script type="text/javascript"> 
 <!-- 
 window.onload = function() { 
@@ -77,32 +86,31 @@ setTimeout(scrollTo, 100, 0, 1);
 // --> 
 </script> 
 <style type="text/css" media="screen">@import "./iui/iui.css";</style>
-    <title>{$ptitle_hs}</title>
+    <title><?php eh($ptitle); ?></title>
 </head>
 <body>
     <div class="toolbar">
-<h1 id="pageTitle">{$ptitle_hs}</h1>
-    <a class="button" href="edit_indexmenui.php{$user_at_q}{$_conf['k_at_a']}">並替</a>
+<h1 id="pageTitle"><?php eh($ptitle); ?></h1>
+    <a class="button" href="<?php eh($narabikae_uri); ?>">並替</a>
     </div>
     <ul id="home">
     <li class="group">メニュー</li>
-EOP;
+<?php
 
 P2Util::printInfoHtml();
 
 foreach ($menuKLinkHtmls as $v) {
-    echo "<li>" . $v . "</li>\n";
+    ?><li><?php echo $v; ?></li><?php
 }
 
-echo <<<EOP
+?>
 <li class="group">検索</li>
-{$search_form_htm}
+<?php echo $search_form_htm; ?>
 </ul>
 <br>
 </body>
 </html>
-EOP;
-
+<?php
 }
 /*
 

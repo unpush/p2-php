@@ -404,10 +404,13 @@ class Thread
         } elseif (P2Util::isHostMachiBbs($this->host)) {
             // PC
             if (!$_conf['ktai'] || $original) {
+                /*
                 $motothre_url = sprintf(
                     'http://%s/bbs/read.cgi?BBS=%s&KEY=%s',
                     $this->host, rawurlencode($this->bbs), rawurlencode($this->key)
                 );
+                */
+                $motothre_url = "http://{$this->host}/bbs/read.cgi/{$this->bbs}/{$this->key}/{$this->ls}";
                 
             // Œg‘Ñ
             } else {

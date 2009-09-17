@@ -172,9 +172,10 @@ class Session
         return isset($_SESSION[$this->sess_array]['actime']);
     }
     
-    // 旧互換用（getSessionErrorMsg() は getSecureSessionErrorMsg() に名称変更している）
+    // 後方互換用（getSessionErrorMsg() は getSecureSessionErrorMsg() に名称変更している）
     function getSessionErrorMsg()
     {
+        trigger_error('getSessionErrorMsg() is depricated. Use getSecureSessionErrorMsg().', E_USER_WARNING);
         return $this->getSecureSessionErrorMsg();
     }
     

@@ -12,16 +12,26 @@ function index_print_k()
 
     $menuKLinkHtmls = getIndexMenuKLinkHtmls(getIndexMenuKIni());
     
-    $body = '';
     $ptitle = 'ﾕﾋﾞｷﾀｽrep2';
     
     // ログインユーザ情報
-    $htm['auth_user']   = '<div>ﾛｸﾞｲﾝﾕｰｻﾞ: ' . hs($_login->user_u) . ' - ' . date('Y/m/d (D) G:i:s') . '</div>' . "\n";
+    $htm['auth_user'] = sprintf("<div>ﾛｸﾞｲﾝﾕｰｻﾞ: %s - %s</div>\n",
+        hs($_login->user_u), date('Y/m/d (D) G:i:s')
+    );
     
     // p2ログイン用URL
-    $login_url          = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
-    $login_url_pc       = $login_url . '?b=pc';
-    $login_url_k        = $login_url . '?b=k&user=' . $_login->user_u;
+    $login_url = rtrim(dirname(P2Util::getMyUrl()), '/') . '/';
+    $login_url_pc = P2Util::buildQueryUri($login_url,
+        array(
+            UA::getQueryKey() => 'pc'
+        )
+    );
+    $login_url_k = P2Util::buildQueryUri($login_url,
+        array(
+            UA::getQueryKey() => 'k',
+            'user' => $_login->user_u
+        )
+    );
     
     // 前回のログイン情報
     if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) {
@@ -85,12 +95,12 @@ EOP;
 <head>
 <?php
     P2View::printExtraHeadersHtml();
-echo <<<EOP
-    <title>{$ptitle}</title>
+?>
+	<title><?php eh($ptitle); ?></title>
 </head>
-<body{$body_at}>
-<h1>{$ptitle}</h1>
-EOP;
+<body<?php echo $body_at; ?>>
+<h1><?php eh($ptitle); ?></h1>
+<?php
     P2Util::printInfoHtml();
     
     foreach ($menuKLinkHtmls as $v) {

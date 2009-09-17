@@ -1223,7 +1223,8 @@ class ShowThreadK extends ShowThread
         global $_conf;
 
         // 外部板 read.cgi 形式 http://ex14.vip2ch.com/test/read.cgi/operate/1161701941/ 
-        if (preg_match('{http://([^/]+)/test/read\\.cgi/(\\w+)/(\\d+)/?([^/]+)?}', $url, $matches)) {
+        // 2009/09/15 新まちBBSのbbs形式ももここに入れとこか http://www.machi.to/bbs/read.cgi/tawara/1180236579/137 
+        if (preg_match('{http://([^/]+)/(?:test|bbs)/read\\.cgi/(\\w+)/(\\d+)/?([^/]+)?}', $url, $matches)) {
             $host = $matches[1];
             $bbs  = $matches[2];
             $key  = $matches[3];

@@ -451,7 +451,9 @@ class UA
         if (is_null($ua) and isset($_SERVER['HTTP_USER_AGENT'])) {
             $ua = $_SERVER['HTTP_USER_AGENT'];
         }
-        
+        if (!$ua) {
+            return false;
+        }
         // シミュレータ
         // Mozilla/5.0 (Linux; U; Android 1.0; en-us; generic) AppleWebKit/525.10+ (KHTML, like Gecko) Version/3.0.4 Mobile Safari/523.12.2
         // T-mobile G1

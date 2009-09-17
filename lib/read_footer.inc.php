@@ -114,6 +114,10 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
 
     // DAT容量
     $datsize_ht = sprintf('<span class="datsize" style="white-space: nowrap;" title="DAT容量">%s</span>', P2Util::getTranslatedUnitFileSize($aThread->getDatBytesFromLocalDat(false), 'KB'));
+    // 500KB以上で強調表示
+    if ($datsize / 1024 >= 500) {
+        $datsize_ht = '<b>' . $datsize_ht . '</b>';
+    }
     
     // {{{ フィルタヒットがあった場合、次Xと続きを読むを更新する
     

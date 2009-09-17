@@ -6,7 +6,7 @@
     ユーザ設定は、ブラウザから「ユーザ設定編集」で。管理者向け設定は、conf_admin.inc.phpで行う。
 */
 
-$_conf['p2version'] = '1.8.58'; // rep2のバージョン
+$_conf['p2version'] = '1.8.59'; // rep2のバージョン
 
 $_conf['p2name'] = 'rep2';    // rep2の名前。
 
@@ -794,7 +794,7 @@ function _checkBrowser()
 }
 
 /**
- * @return  Session|null
+ * @return  Session|null|die
  */
 function _startSession()
 {
@@ -811,35 +811,38 @@ function _startSession()
     }
 
     // css.php は特別にセッションから外す。
-    //if (basename($_SERVER['SCRIPT_NAME']) != 'css.php') {
-        if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && empty($_COOKIE['cid']))) { 
-    
-            // {{{ セッションデータ保存ディレクトリを設定
-        
-            if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
-
-                if (!is_dir($_conf['session_dir'])) {
-                    require_once P2_LIB_DIR . '/FileCtl.php';
-                    FileCtl::mkdirFor($_conf['session_dir'] . '/dummy_filename');
-                } elseif (!is_writable($_conf['session_dir'])) {
-                    die(sprintf(
-                        'p2 error: セッションデータ保存ディレクトリ (%s) に書き込み権限がありません。',
-                        hs($_conf['session_dir'])
-                    ));
-                }
-
-                session_save_path($_conf['session_dir']);
-
-                // session.save_path のパスの深さが2より大きいとガーベッジコレクションが行われないので
-                // 自前でガーベッジコレクションする
-                P2Util::session_gc();
-            }
-        
-            // }}}
-
-            return new Session;
-        }
+    //if (basename($_SERVER['SCRIPT_NAME']) == 'css.php') {
+    //    return null;
     //}
+    
+    if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && empty($_COOKIE['cid']))) { 
+
+        // {{{ セッションデータ保存ディレクトリを設定
+    
+        if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
+
+            if (!is_dir($_conf['session_dir'])) {
+                require_once P2_LIB_DIR . '/FileCtl.php';
+                FileCtl::mkdirFor($_conf['session_dir'] . '/dummy_filename');
+            }
+            if (!is_writable($_conf['session_dir'])) {
+                die(sprintf(
+                    'p2 error: セッションデータ保存ディレクトリ (%s) に書き込み権限がありません。',
+                    hs($_conf['session_dir'])
+                ));
+            }
+
+            session_save_path($_conf['session_dir']);
+
+            // session.save_path のパスの深さが2より大きいとガーベッジコレクションが行われないので
+            // 自前でガーベッジコレクションする
+            P2Util::session_gc();
+        }
+    
+        // }}}
+
+        return new Session;
+    }
     
     return null;
 }

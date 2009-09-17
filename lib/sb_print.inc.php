@@ -57,7 +57,7 @@ function sb_print($aThreadList)
     $class_sort_ita     = '';   // 板
     $class_sort_spd     = '';   // すばやさ
     $class_sort_ikioi   = '';   // 勢い
-    $class_sort_bd      = '';   // Birthday
+    $class_sort_bd      = '';   // スレ立て日
     $class_sort_fav     = '';   // お気に入り
     if ($GLOBALS['now_sort']) {
         $nowsort_code = <<<EOP
@@ -129,8 +129,8 @@ EOP;
         echo "<td class=\"ti\"><a{$class_sort_ikioi} href=\"{$_conf['subject_php']}?sort=ikioi{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\" title=\"一日あたりのレス数\">勢い</a></td>";
     }
     
-    // Birthday
-    echo "<td class=\"t\"><a{$class_sort_bd} href=\"{$_conf['subject_php']}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">Birthday</a></td>";
+    // スレ立て日
+    echo "<td class=\"t\"><a{$class_sort_bd} href=\"{$_conf['subject_php']}?sort=bd{$sortq_spmode}{$sortq_host}{$sortq_ita}{$norefresh_q}\" target=\"_self\">スレ立て日</a></td>";
     
     // お気に入り
     if ($_conf['sb_show_fav'] and $aThreadList->spmode != "taborn") {
@@ -423,7 +423,7 @@ EOP;
             $ikioi_ht = "<td{$class_ti}>" . hs($dayres_st) . "</td>";
         }
         
-        // Birthday
+        // スレ立て日
         //if (preg_match('/^\d{9,10}$/', $aThread->key) {
         if (631119600 < $aThread->key && $aThread->key < time() + 1000) { // 1990年-
             $birthday = date("y/m/d", $aThread->key); // (y/m/d H:i)

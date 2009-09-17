@@ -859,6 +859,29 @@ class HostCheck
         );
         return HostCheck::isAddrInBand($addr, $bands);
     }
+
+    /**
+     * IP‚Í emobile.ad.jp?
+     * http://qb5.2ch.net/test/read.cgi/operate/1247654838/399
+     *
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isAddrEmobileAdJp($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+        
+        // http://qb5.2ch.net/test/read.cgi/operate/1235553306/974
+        // http://developer.emnet.ne.jp/ipaddress.html
+        $bands = array(
+            '60.254.209.99/32',
+            '117.55.1.224/27'
+        );
+        return HostCheck::isAddrInBand($addr, $bands);
+    }
 }
 
 /*
