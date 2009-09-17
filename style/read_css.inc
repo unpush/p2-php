@@ -333,19 +333,32 @@ div.respopup div.v_reslist ul li:first-letter {
 
 /* 逆参照リスト 水平配置(通常) */
 div.res div.reslist {
-    font-size:80%;
-    margin : 1em 0 0 3em;
+	position:relative;
+    margin : 0 0 0 2em;
 }
 
 /* 逆参照リスト 水平配置(引用レスポップアップ)  */
 div.respopup div.reslist {
-    font-size:90%;
-    margin : 1em 0 0 3em;
 }
 
 .preview-video-switch {
 	cursor: pointer;
 }
+
+div.reslist_inner {
+	position:relative;
+//	margin:0 0 0 17px;
+	
+}
+
+blockquote.folding_container{
+	margin:2px ;
+	position:relative;
+	left: 0em;
+    border-width: 2px;
+    border-style: solid;
+    }
+
 
 EOSTYLE;
 

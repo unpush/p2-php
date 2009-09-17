@@ -987,9 +987,10 @@ EOP;
      *
      * @param   int     $resnum レス番号
      * @param   int     $type   1:縦形式 2:横形式
+     * @param   bool    $popup  横形式でのポップアップ処理(true:ポップアップする、false:挿入する)
      * @return  string
      */
-    protected function quoteback_list_html($resnum, $type)
+    protected function quoteback_list_html($resnum, $type,$popup=true)
     {
         $quote_from = $this->get_quote_from();
         if (!array_key_exists($resnum, $quote_from)) return $ret;
@@ -1000,7 +1001,7 @@ EOP;
         if ($type == 1) {
             return $this->_quoteback_vertical_list_html($anchors);
         } else if ($type == 2) {
-            return $this->_quoteback_horizontal_list_html($anchors);
+            return $this->_quoteback_horizontal_list_html($resnum,$anchors,$popup);
         }
     }
     protected function _quoteback_vertical_list_html($anchors)
@@ -1020,20 +1021,38 @@ EOP;
         $ret .= '</ul></div>';
         return $ret;
     }
-    protected function _quoteback_horizontal_list_html($anchors)
+    protected function _quoteback_horizontal_list_html($resnum,$anchors,$popup)
     {
-        $ret = '<div class="reslist">';
-        $em=0.6;
-        $count=count($anchors)*$em;
-        foreach($anchors as $idx=>$anchor) {
-            $count-=$em;
-            $anchors[$idx]= $this->quoteRes('>>'.$anchor, '>>', $anchor);
-            $ret.=sprintf(
-                '<span class="reslist" style="margin-left:%fem;">【参照レス：%s】</span><br>',
-                $count,$anchors[$idx]
-                );
+		$ret="";
+		$UouterContainerId=sprintf('reslist%s',$resnum);
 
-        }
+	foreach($anchors as $idx=>$anchor) {
+		$anchors2[]=($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
+	}
+
+		$insert=sprintf('<img src="img/btn_plus.gif" width="15" height="15" onclick="insertRes(\'%s\',\'%s\',this)" align="left">',$UouterContainerId,join('/',$anchors2));
+		if ($popup) {
+			$insert="<!--%%%".$insert."%%%-->";
+		}
+		$ret.=$insert;
+        $ret.= sprintf('<div class="reslist" id="%s">',$UouterContainerId);
+		$count=0;
+
+        foreach($anchors as $idx=>$anchor) {
+//            $count-=$em;
+            $anchor_link= $this->quoteRes('>>'.$anchor, '>>', $anchor);
+			$outerContainerId=sprintf('%s_%d',$UouterContainerId,$count);
+            $qres_id = ($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
+            $ret.='<div id="%s" class="reslist_inner" >';
+/*			$insert=sprintf('<img src="img/btn_plus.gif" width="15" height="15" alt="レス内容を下に表示する" onclick="insertResPopUp(\'%s\',\'%s\',this)">',$qres_id,$outerContainerId);
+            if ($popup) {
+				$insert="<!--%%%".$insert."%%%-->";
+			}*/
+//			$ret.=$insert;
+			$ret.=sprintf('<div>【参照レス：%s】</div>',$anchor_link);
+			$ret.='</div>';
+			$count++;
+		}
         $ret.='</div>';
         return $ret;
     }

@@ -24,6 +24,128 @@ gResPopCtl = new ResPopCtl();
 
 gShowTimerIds = new Object();
 
+isIE = /*@cc_on!@*/false;
+
+function getElement(id) {
+//	// alert(id);
+	if (typeof(id) == "string") {
+		if (isIE) { // IE用
+			return document.all[id];
+		} else if (document.getElementById) { // DOM対応用（Mozilla）
+			return document.getElementById(id);
+		}
+	} else {
+		return id;
+	}
+}
+
+function insertRes(outerContainerId,anchors,button) {
+	// 参照元の設定
+	button.onclick=function () {removeRes(outerContainerId,anchors,button)};
+	button.src=button.src.replace(/plus/,'minus');
+//	var outerContainer=getElement(outerContainerId);
+	var outerContainer=button.parentNode.lastChild; //.lastChild;
+	while(outerContainer && outerContainer.className!="reslist") {
+		outerContainer=outerContainer.previousSibling;
+	}
+	// alert(outerContainer.className);
+	
+	var children=anchors.split("/");
+	// alert(children.length);
+	for (i=0;i<children.length;i++) {
+		var childDiv=outerContainer.childNodes[i];
+		// alert(childDiv.className);
+		var importId=children[i];
+		var importElement=copyHTML(""+importId);
+		importElement=importElement.replace(/<!--%%%(.+)%%%-->/,'$1');
+
+		//参照先レス情報をコピー
+		var resdiv=document.createElement('blockquote');
+		resdiv.innerHTML=importElement; //.replace(/id=\".*?q[rm]\d+?\"/g,"");
+		// // alert(resdiv.innerHTML);
+		
+		resdiv.className='folding_container';
+		childDiv.appendChild(resdiv);
+		childDiv.lastChild.previousSibling.style.display='none';
+	}
+
+}
+
+function removeRes(outerContainerId,anchors,button) {
+	// 参照元の設定
+	button.onclick=function () {insertRes(outerContainerId,anchors,button)};
+	button.src=button.src.replace(/minus/,'plus');
+	// // alert(typeof(outerContainerId));
+	var outerContainer=getElement(outerContainerId);
+
+	var children=anchors.split("/");
+	// alert(children.length);
+	for (i=0;i<children.length;i++) {
+		var childDiv=outerContainer.childNodes[i];
+		childDiv.removeChild(childDiv.lastChild);
+		childDiv.firstChild.style.display='block';
+	}
+
+
+}
+
+function copyHTML(qresID) {
+	if (qresID.indexOf("-") != -1) { return null; } // 連番 (>>1-100) は非対応なので抜ける
+	
+	if (document.all) { // IE用
+		aResPopUp = document.all[qresID];
+	} else if (document.getElementById) { // DOM対応用（Mozilla）
+		aResPopUp = document.getElementById(qresID);
+	}
+
+	if (aResPopUp) {
+		return aResPopUp.innerHTML;
+	} else {
+		return null;
+	}
+}
+
+function insertResPopUp(qresID,outer_containerID,button) {
+	insertRes(outer_containerID,button);
+//	linktext=container.firstChild;
+	if (qresID.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
+	outer_container=document.getElementById(outer_containerID);
+	
+	if (document.all) { // IE用
+		aResPopUp = document.all[qresID];
+	} else if (document.getElementById) { // DOM対応用（Mozilla）
+		aResPopUp = document.getElementById(qresID);
+	}
+
+	if (aResPopUp) {
+
+		//参照先レス情報をコピー
+		resdiv=document.createElement('blockquote');
+		resdiv.innerHTML=aResPopUp.innerHTML.replace(/id=\".*?q[rm]\d+\"/g,"");
+
+		resdiv.className='folding_container';
+		outer_container.appendChild(resdiv);
+		reslist=resdiv.lastChild.childNodes;
+		
+//		// alert(reslist.length);
+		for(i=0;i<reslist.length;i++){  //各要素ループ
+			if ((reslist_inner=reslist[i]).className != "reslist_inner") {continue;};
+			reslist_inner.innerHTML=reslist_inner.innerHTML.replace(/<!--%%%(.+)%%%-->/,'$1');
+		}
+
+		// 参照元の設定
+		button.onclick=function () {removeResPopUp(qresID, outer_containerID,button)};
+		button.src=button.src.replace(/plus/,'minus');
+	}
+}
+
+function removeResPopUp(qresID,outer_containerID,button) {
+	outer_container=document.getElementById(outer_containerID);
+	outer_container.removeChild(outer_container.lastChild);
+	button.onclick=function () {insertResPopUp(qresID,outer_containerID,button)};
+			button.src=button.src.replace(/minus/,'plus');
+}
+
 /**
  * レスポップアップを表示タイマーする
  *
@@ -48,9 +170,8 @@ function showResPopUp(divID, ev) {
 		aShowTimer.y = y;
 
 		gShowTimerIds[divID] = aShowTimer;
-		//alert(gShowTimerIds[divID].timerID);
+		//// alert(gShowTimerIds[divID].timerID);
 	}
-
 }
 
 /**
@@ -202,8 +323,8 @@ function ResPopUp(divID) {
 			//y = getPageX(ev); // 現在のマウス位置のY座標
 			this.popOBJ.style.left = x + x_adjust + "px"; //ポップアップ位置
 			this.popOBJ.style.top = y + y_adjust + "px";
-			//alert(window.pageYOffset);
-			//alert(this.popOBJ.offsetTop);
+			//// alert(window.pageYOffset);
+			//// alert(this.popOBJ.offsetTop);
 
 			var scrollY = getScrollY();
 			var windowHeight = getWindowHeight();
