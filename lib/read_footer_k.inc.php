@@ -75,14 +75,18 @@ EOP;
 {$htm['goto']}\n
 EOP;
     if ($diedat_msg) {
-        echo '<hr>';
-        echo $diedat_msg;
-        echo '<div>';
-        echo  $motothre_ht;
-        echo '</div>' . "\n";
+        echo "<hr>\n{$diedat_msg}<div>{$motothre_ht}</div>\n";
     }
 }
-echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
+
+echo "<hr>\n<div class=\"center\">{$_conf['k_to_index_ht']}";
+if ($_conf['iphone'] && $_conf['expack.misc.use_bb2c']) {
+    $bb2c_open_uri = str_replace('http://', 'beebee2seeopen://', $aThread->getMotoThread(true, ''));
+    echo ' <a class="button" href="javascript:location.replace(\'';
+    echo htmlspecialchars($bb2c_open_uri, ENT_QUOTES);
+    echo '\');">BB2C</a>';
+}
+echo "</div>\n";
 
 // iPhone
 if ($_conf['iphone']) {

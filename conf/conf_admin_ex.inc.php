@@ -146,6 +146,9 @@ $_conf['expack.misc.favset_num'] = 5; // (5)
 // お気にセット名情報を記録するファイルのパス
 $_conf['expack.misc.favset_file'] = $_conf['pref_dir'] . '/p2_favset.txt';
 
+// iPhoneで板/スレをBB2Cで開くボタンを表示 (off:0, on:1)
+$_conf['expack.misc.use_bb2c'] = 0; // (0)
+
 // }}}
 
 /*

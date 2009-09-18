@@ -124,6 +124,13 @@ abstract class ShowThread
     protected $_ngaborn_frequent;
 
     /**
+     * NG or あぼーんレスがあるかどうか
+     *
+     * @type bool
+     */
+    protected $_has_ngaborns;
+
+    /**
      * あぼーんレス番号およびNGレス番号を格納する配列
      * array_intersect()を効率よく行うため、該当するレス番号は文字列にキャストして格納する
      *
@@ -192,6 +199,7 @@ abstract class ShowThread
             }
         }
 
+        $this->_has_ngaborns = false;
         $this->_aborn_nums = array();
         $this->_ng_nums = array();
 
@@ -399,7 +407,9 @@ abstract class ShowThread
         // }}}
         // {{{ 連鎖チェック
 
-        if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
+        if ($_conf['ngaborn_chain'] && $this->_has_ngaborns &&
+            preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)
+        ) {
             $references = array_unique(preg_split('/[-,]+/',
                                                   trim(implode(',', $matches[1]), '-,'),
                                                   -1,
@@ -424,7 +434,7 @@ abstract class ShowThread
             if ($intersections) {
                 $ngaborns_hits['ng_chain']++;
                 $type |= $this->_markNgAborn($i, self::NG_CHAIN, true);
-                $info[] = sprintf('連鎖NG:&gt;&gt;%d%s', array_shift($intersections), $info_suffix);
+                $info[] = sprintf('連鎖NG:&gt;&gt;%d%s', current($intersections), $info_suffix);
             }
         }
 
@@ -529,6 +539,8 @@ abstract class ShowThread
             } else {
                 $this->_ng_nums[$num] = $str;
             }
+
+            $this->_has_ngaborns = true;
         }
 
         return $type;
@@ -563,7 +575,7 @@ abstract class ShowThread
 
                 // ワードチェック
                 // 正規表現
-                if (!empty($v['regex'])) {
+                if ($v['regex']) {
                     $re_method = $v['regex'];
                     /*if ($re_method($v['word'], $resfield, $matches)) {
                         $this->ngAbornUpdate($code, $k);
@@ -576,7 +588,7 @@ abstract class ShowThread
                         return $v['cond'];
                     }
                // 大文字小文字を無視
-                } elseif ($ic || !empty($v['ignorecase'])) {
+                } elseif ($ic || $v['ignorecase']) {
                     if (stripos($resfield, $v['word']) !== false) {
                         $this->ngAbornUpdate($code, $k);
                         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ngAbornCheck()');

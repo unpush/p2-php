@@ -149,25 +149,26 @@ class NgAbornCtl
     {
         global $_conf;
 
-        $array = array(
-            'file' => $_conf['pref_dir'] . '/' . $filename,
-            'data' => array(),
-        );
+        $file = $_conf['pref_dir'] . '/' . $filename;
+        $data = array();
 
-        if ($lines = FileCtl::file_read_lines($array['file'])) {
+        if ($lines = FileCtl::file_read_lines($file)) {
             foreach ($lines as $l) {
                 $lar = explode("\t", trim($l));
                 if (strlen($lar[0]) == 0) {
                     continue;
                 }
                 $ar = array(
-                    'cond' => $lar[0], // 検索条件
-                    'word' => $lar[0], // 対象文字列
-                    'lasttime' => null, // 最後にHITした時間
-                    'hits' => 0, // HIT回数
+                    'cond' => $lar[0],      // 検索条件
+                    'word' => $lar[0],      // 対象文字列
+                    'lasttime' => null,     // 最後にHITした時間
+                    'hits' => 0,            // HIT回数
+                    'regex' => false,       // パターンマッチ関数
+                    'ignorecase' => false,  // 大文字小文字を無視
                 );
                 isset($lar[1]) && $ar['lasttime'] = $lar[1];
                 isset($lar[2]) && $ar['hits'] = (int) $lar[2];
+
                 if ($filename == 'p2_aborn_res.txt') {
                     continue;
                 }
@@ -213,11 +214,20 @@ class NgAbornCtl
                     $ar['ignorecase'] = true;
                 }
 
-                $array['data'][] = $ar;
-            }
+                // 正規表現でないなら、エスケープされていない特殊文字をエスケープ
+                /*if (!$ar['regex']) {
+                    $ar['word'] = htmlspecialchars($ar['word'], ENT_COMPAT, 'Shift_JIS', false);
+                }*/
+                // 2chの仕様上、↑は期待通りの結果が得られないことが多いので、<>だけ実体参照にする
+                if (!$ar['regex']) {
+                    $ar['word'] = str_replace(array('<', '>'), array('&lt;', '&gt;'), $ar['word']);
+                }
 
+                $data[] = $ar;
+            }
         }
-        return $array;
+
+        return array('file' => $file, 'data' => $data);
     }
 
     // }}}

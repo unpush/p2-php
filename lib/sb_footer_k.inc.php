@@ -278,8 +278,15 @@ echo $taborn_link_ht;
 echo $buildnewthread_ht;
 echo '</div>';
 echo $htm['change_sort'];
-echo '<hr>';
-echo "<div class=\"center\">{$_conf['k_to_index_ht']}</div>";
+
+echo "<hr>\n<div class=\"center\">{$_conf['k_to_index_ht']}";
+if (!$aThreadList->spmode && $_conf['iphone'] && $_conf['expack.misc.use_bb2c']) {
+    $bb2c_open_uri = "beebee2seeopen://{$aThreadList->host}/{$aThreadList->bbs}/";
+    echo ' <a class="button" href="javascript:location.replace(\'';
+    echo htmlspecialchars($bb2c_open_uri, ENT_QUOTES);
+    echo '\');">BB2C</a>';
+}
+echo "</div>\n";
 
 echo '</body></html>';
 

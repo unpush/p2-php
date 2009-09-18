@@ -2,11 +2,16 @@
  * rep2expack - レス番号ポップアップメニュー
  */
 
-var SPM = new Object();
-var spmResNum     = new Number(); // ポップアップで参照するレス番号
-var spmBlockID    = new String(); // フォント変更で参照するID
-var spmSelected   = new String(); // 選択文字列を一時的に保存
-var spmFlexTarget = new String(); // フィルタリング結果を開くウインドウ
+var SPM = {};
+var spmResNum     = -1; // ポップアップで参照するレス番号
+var spmBlockID    = ''; // フォント変更で参照するID
+var spmSelected   = ''; // 選択文字列を一時的に保存
+var spmFlexTarget = ''; // フィルタリング結果を開くウインドウ
+
+/**
+ * コールバック関数コンテナ
+ */
+SPM.callbacks = {};
 
 /**
  * スマートポップアップメニューを生成する
@@ -26,11 +31,13 @@ SPM.init = function(aThread)
 	spm.appendItem = function()
 	{
 		this.appendChild(SPM.createMenuItem.apply(this, arguments));
-	}
+	};
 	SPM.setOnPopUp(spm, spm.id, false);
 
 	// コピペ用フォーム
-	spm.appendItem('レスコピー', (function(){SPM.invite(aThread)}));
+	spm.appendItem('レスコピー', (function(){
+		SPM.invite(aThread);
+	}));
 
 	// これにレス
 	if (opt[1] == 1 || opt[1] == 2) {
@@ -40,15 +47,7 @@ SPM.init = function(aThread)
 
 	// ここまで読んだ
 	spm.appendItem('ここまで読んだ', (function(){
-		SPM.httpcmd('setreadnum', aThread, (function(result, cmd, aThread, num, url){
-			var msg = 'スレッド“' + aThread.title + '”の既読数を';
-			if (result == '1') {
-				msg += ' ' + num + ' にセットしました。';
-			} else {
-				msg += 'セットできませんでした。';
-			}
-			window.alert(msg);
-		}));
+		SPM.httpcmd('setreadnum', aThread, SPM.callbacks.setreadnum);
 	}));
 
 	// ブックマーク (未実装)
@@ -79,7 +78,9 @@ SPM.init = function(aThread)
 
 	// アクティブモナー
 	if (opt[4] == 1) {
-		spm.appendItem('AA用フォント', (function(){activeMona(SPM.getBlockID())}));
+		spm.appendItem('AA用フォント', (function(){
+			activeMona(SPM.getBlockID());
+		}));
 	}
 
 	// AAS
@@ -131,7 +132,7 @@ SPM.init = function(aThread)
 	});
 
 	return false;
-}
+};
 
 /**
  * スマートポップアップメニューをポップアップ表示する
@@ -151,7 +152,7 @@ SPM.show = function(aThread, resnum, resid, evt)
 	}
 	showResPopUp(aThread.objName + '_spm' ,evt);
 	return false;
-}
+};
 
 /**
  * スマートポップアップメニューを閉じる
@@ -161,7 +162,7 @@ SPM.hide = function(aThread, evt)
 	var evt = (evt) ? evt : ((window.event) ? event : null);
 	hideResPopUp(aThread.objName + '_spm');
 	return false;
-}
+};
 
 /**
  * スマートポップアップメニューを遅延ゼロで閉じる
@@ -171,7 +172,7 @@ SPM.hideImmediately = function(aThread, evt)
 	var evt = (evt) ? evt : ((window.event) ? event : null);
 	document.getElementById(aThread.objName + '_spm').style.visibility = 'hidden';
 	return false;
-}
+};
 
 /**
  * クロージャからグローバル変数 spmBlockID を取得するための関数
@@ -179,7 +180,7 @@ SPM.hideImmediately = function(aThread, evt)
 SPM.getBlockID = function()
 {
 	return spmBlockID;
-}
+};
 
 /**
  * クリック時に実行される関数 (ポップアップウインドウを開く) を設定する
@@ -194,8 +195,8 @@ SPM.setOnClick = function(obj, aThread, inUrl)
 			return SPM.openSubWin(aThread, inUrl, option);
 		}
 		return false;
-	}
-}
+	};
+};
 
 /**
  * マウスオーバー/アウト時に実行される関数 (メニューの表示/非表示) を設定する
@@ -209,7 +210,7 @@ SPM.setOnPopUp = function(obj, targetId, isSubMenu)
 		if (evt) {
 			showResPopUp(targetId, evt);
 		}
-	}
+	};
 	// ロールアウト
 	obj.onmouseout = function(evt)
 	{
@@ -218,7 +219,7 @@ SPM.setOnPopUp = function(obj, targetId, isSubMenu)
 			hideResPopUp(targetId);
 		}
 	}
-}
+};
 
 /**
  * アンカーを生成する
@@ -227,7 +228,7 @@ SPM.createMenuItem = function(txt)
 {
 	var anchor = document.createElement('a');
 	anchor.href = 'javascript:void(null)';
-	anchor.onclick = function() { return false; }
+	anchor.onclick = function() { return false; };
 	anchor.appendChild(document.createTextNode(txt));
 
 	// クリックされたときのイベントハンドラを設定
@@ -248,7 +249,7 @@ SPM.createMenuItem = function(txt)
 	}
 
 	return anchor;
-}
+};
 
 /**
  * あぼーん/NGサブメニューを生成する
@@ -261,7 +262,7 @@ SPM.createNgAbornSubMenu = function(menuId, aThread, mode)
 	amenu.appendItem = function()
 	{
 		this.appendChild(SPM.createMenuItem.apply(this, arguments));
-	}
+	};
 	SPM.setOnPopUp(amenu, amenu.id, true);
 
 	amenu.appendItem('名前', [aThread, 'info_sp.php', 'mode=' + mode + '_name']);
@@ -270,7 +271,7 @@ SPM.createNgAbornSubMenu = function(menuId, aThread, mode)
 	amenu.appendItem('ID', [aThread, 'info_sp.php', 'mode=' + mode + '_id']);
 
 	return amenu;
-}
+};
 
 /**
  * フィルタリングサブメニューを生成する
@@ -281,7 +282,9 @@ SPM.createFilterSubMenu = function(menuId, aThread)
 	{
 		return (function(evt){
 			evt = (evt) ? evt : ((window.event) ? window.event : null);
-			if (evt) { SPM.openFilter(aThread, field, match); }
+			if (evt) {
+				SPM.openFilter(aThread, field, match);
+			}
 		});
 	}
 
@@ -291,7 +294,7 @@ SPM.createFilterSubMenu = function(menuId, aThread)
 	fmenu.appendItem = function()
 	{
 		this.appendChild(SPM.createMenuItem.apply(this, arguments));
-	}
+	};
 	SPM.setOnPopUp(fmenu, fmenu.id, true);
 
 	fmenu.appendItem('同じ名前', this.getOnClick('name', 'on'));
@@ -304,7 +307,7 @@ SPM.createFilterSubMenu = function(menuId, aThread)
 	fmenu.appendItem('異なるID', this.getOnClick('id', 'off'));
 
 	return fmenu;
-}
+};
 
 /* ==================== 覚え書き ====================
  * <a href="javascript:void(0);" onclick="foo()">は
@@ -359,7 +362,7 @@ SPM.openSubWin = function(aThread, inUrl, option)
 	}
 	OpenSubWin(inUrl, inWidth, inHeight, boolS, boolR);
 	return true;
-}
+};
 
 /**
  * URIの処理をし、フィルタリング結果を表示する
@@ -392,7 +395,7 @@ SPM.openFilter = function(aThread, field, match)
 	}
 
 	return true;
-}
+};
 
 /**
  * コピペ用にスレ情報をポップアップする (for SPM)
@@ -400,7 +403,7 @@ SPM.openFilter = function(aThread, field, match)
 SPM.invite = function(aThread)
 {
 	Invite(aThread.title, aThread.url, aThread.host, aThread.bbs, aThread.key, spmResNum);
-}
+};
 
 /**
  * httpcmd.phpのラッパー
@@ -414,12 +417,21 @@ SPM.httpcmd = function(cmd, aThread, callback)
 	if (typeof callback === 'function') {
 		callback(result, cmd, aThread, num, url);
 	}
-}
+};
 
-// 後方互換のため、一応
-makeSPM = SPM.init;
-showSPM = SPM.show;
-closeSPM = SPM.hide;
+/**
+ * 「ここまで読んだ」リクエスト後に実行するコールバック関数
+ */
+SPM.callbacks.setreadnum = function(result, cmd, aThread, num, url)
+{
+	var msg = 'スレッド“' + aThread.title + '”の既読数を';
+	if (result == '1') {
+		msg += ' ' + num + ' にセットしました。';
+	} else {
+		msg += 'セットできませんでした。';
+	}
+	window.alert(msg);
+};
 
 /*
  * Local Variables:
