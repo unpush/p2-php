@@ -185,7 +185,7 @@ abstract class ShowThread
         //$anchor[' '] = '';
 
         // ÉAÉìÉJÅ[à¯ópéq >>
-        $anchor['prefix'] = "(?:&gt;|ÅÑ|&lt;|ÅÉ|År|Åt|Å‚){1,2}{$anchor_space}*\.?";
+        $anchor['prefix'] = "(?:(?:&gt;|ÅÑ|&lt;|ÅÉ|År){1,2}|(?:\)){2}|Åt|Å‚){$anchor_space}*\.?";
 
         // êîéö
         $anchor['a_digit'] = '(?:\\d|ÇO|ÇP|ÇQ|ÇR|ÇS|ÇT|ÇU|ÇV|ÇW|ÇX)';
