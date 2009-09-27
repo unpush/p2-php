@@ -324,10 +324,10 @@ EOP;
             echo $aShowThread->getSpmObjJs();
         }
 
+        $aShowThread->datToHtml();
+
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
         echo $res1['q'];
-
-        $aShowThread->datToHtml();
     }
 
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection("datToHtml");
