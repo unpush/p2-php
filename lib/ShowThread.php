@@ -918,6 +918,9 @@ EOP;
 
         foreach($this->thread->datlines as $num => $line) {
             list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
+            // >>1‚ÌƒŠƒ“ƒN‚ğ‚¢‚Á‚½‚ñŠO‚·
+            // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
+            $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
             if (preg_match_all('/(?:&gt;|„)+ ?([1-9](?:[0-9\\- ,=.]|A)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
                 foreach ($out[1] as $numberq) {
                     if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
