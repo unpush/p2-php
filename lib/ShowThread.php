@@ -1010,9 +1010,11 @@ EOP;
     {
         $ret = '<div class="reslist">';
         foreach($anchors as $idx=>$anchor) {
-            $anchors[$idx]= $this->quoteRes($anchor, '', $anchor);
+            $anchors[$idx]= $this->quoteRes('>>'.$anchor, '>>', $anchor);
+            $ret.= '<span class="reslist">';
+            $ret.="【参照レス：".$anchors[$idx]."】";
+            $ret.='</span><br>';
         }
-        $ret.="【参照レス：".join("/",$anchors)."】";
         $ret.='</div>';
         return $ret;
     }
