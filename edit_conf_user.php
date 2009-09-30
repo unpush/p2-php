@@ -283,6 +283,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('quote_res_view', '引用レスを表示'),
         array('strip_linebreaks', '文末の改行と連続する改行を除去'),
         array('backlink_list', '逆参照ポップアップリストの表示'),
+        array('backlink_list_future_anchor', '逆参照リストで未来アンカーを有効にするか'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

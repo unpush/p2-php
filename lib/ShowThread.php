@@ -926,6 +926,9 @@ EOP;
                     if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
                         if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
                             for ($i = $matches[1]; $i <= $matches[2]; $i++) {
+                                if ($_conf['backlink_list_future_anchor'] == 0) {
+                                    if ($i >= $num+1) {continue;}   // レス番号以降のアンカーは無視する
+                                }
                                 if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
                                     $this->_quote_from[$i] = array();
                                 }
@@ -936,6 +939,9 @@ EOP;
                         }
                     } else if (preg_match_all('/[1-9]\\d*/', $numberq, $matches, PREG_PATTERN_ORDER)) {
                         foreach ($matches[0] as $quote_num) {
+                            if ($_conf['backlink_list_future_anchor'] == 0) {
+                                if ($quote_num >= $num+1) {continue;}   // レス番号以降のアンカーは無視する
+                            }
                             if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
                                 $this->_quote_from[$quote_num] = array();
                             }

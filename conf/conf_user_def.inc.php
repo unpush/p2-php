@@ -193,6 +193,10 @@ $conf_user_rad['strip_linebreaks'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['backlink_list'] = 1;
 $conf_user_rad['backlink_list'] = array('1' => 'ツリーぽく表示', '2' => '横表示', '0' => 'しない');
 
+// 逆参照リストで未来アンカーを有効にするか
+$conf_user_def['backlink_list_future_anchor'] = 1;
+$conf_user_rad['backlink_list_future_anchor'] = array('1' => '有効', '0' => '無効');
+
 // 携帯閲覧時、文末の改行と連続する改行を除去（する:1, しない:0）
 $conf_user_def['mobile.strip_linebreaks'] = 0; // (0)
 $conf_user_rad['mobile.strip_linebreaks'] = array('1' => 'する', '0' => 'しない');
