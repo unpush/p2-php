@@ -62,7 +62,7 @@ function insertRes(anchors,button) {
 
 		//参照先レス情報をコピー
 		var resdiv=document.createElement('blockquote');
-		resdiv.innerHTML=importElement; //.replace(/id=\".*?q[rm]\d+?\"/g,"");
+		resdiv.innerHTML=importElement.replace(/id=\".+?\"/g,"");
 
 		resdiv.className='folding_container';
 		outerContainer.appendChild(resdiv);
@@ -103,47 +103,6 @@ function copyHTML(qresID) {
 	} else {
 		return null;
 	}
-}
-
-function insertResPopUp(qresID,outer_containerID,button) {
-	insertRes(outer_containerID,button);
-//	linktext=container.firstChild;
-	if (qresID.indexOf("-") != -1) { return; } // 連番 (>>1-100) は非対応なので抜ける
-	outer_container=document.getElementById(outer_containerID);
-	
-	if (document.all) { // IE用
-		aResPopUp = document.all[qresID];
-	} else if (document.getElementById) { // DOM対応用（Mozilla）
-		aResPopUp = document.getElementById(qresID);
-	}
-
-	if (aResPopUp) {
-
-		//参照先レス情報をコピー
-		resdiv=document.createElement('blockquote');
-		resdiv.innerHTML=aResPopUp.innerHTML.replace(/id=\".*?q[rm]\d+\"/g,"");
-
-		resdiv.className='folding_container';
-		outer_container.appendChild(resdiv);
-		reslist=resdiv.lastChild.childNodes;
-		
-//		// alert(reslist.length);
-		for(i=0;i<reslist.length;i++){  //各要素ループ
-			if ((reslist_inner=reslist[i]).className != "reslist_inner") {continue;};
-			reslist_inner.innerHTML=reslist_inner.innerHTML.replace(/<!--%%%(.+)%%%-->/,'$1');
-		}
-
-		// 参照元の設定
-		button.onclick=function () {removeResPopUp(qresID, outer_containerID,button)};
-		button.src=button.src.replace(/plus/,'minus');
-	}
-}
-
-function removeResPopUp(qresID,outer_containerID,button) {
-	outer_container=document.getElementById(outer_containerID);
-	outer_container.removeChild(outer_container.lastChild);
-	button.onclick=function () {insertResPopUp(qresID,outer_containerID,button)};
-			button.src=button.src.replace(/minus/,'plus');
 }
 
 /**
