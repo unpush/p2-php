@@ -920,7 +920,10 @@ EOP;
             list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
 
            // NGあぼーんチェック
-            $ng_type = $this->_ngAbornCheck($i, strip_tags($name), $mail, $date_id, $id, $msg, true);
+            if (($id = $this->thread->ids[$num + 1]) !== null) {
+                $date_id = str_replace($this->thread->idp[$i] . $id, 'ID:' . $id, $date_id);
+            }
+            $ng_type = $this->_ngAbornCheck($num + 1, strip_tags($name), $mail, $date_id, $id, $msg, true);
             if ($ng_type == self::ABORN) {continue;}
 
             // >>1のリンクをいったん外す
