@@ -556,12 +556,14 @@ EOJS;
      */
     protected function _abornedRes($res_id)
     {
-        return; /*<<<EOP
+        global $_conf;
+        if ($_conf['ngaborn_purge_aborn']) return '';
+        return <<<EOP
 <div id="{$res_id}" class="res aborned">
 <div class="res-header">&nbsp;</div>
 <div class="message">&nbsp;</div>
 </div>\n
-+EOP;*/
+EOP;
     }
 
     // }}}

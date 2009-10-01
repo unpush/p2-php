@@ -541,6 +541,8 @@ EOP;
      */
     protected function _abornedRes($res_id)
     {
+        global $_conf;
+        if ($_conf['ngaborn_purge_aborn']) return '';
         return <<<EOP
 <div id="{$res_id}" name="{$res_id}" class="res aborned">&nbsp;</div>\n
 EOP;

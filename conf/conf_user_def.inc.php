@@ -293,6 +293,10 @@ $conf_user_rad['ngaborn_chain_all'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['ngaborn_daylimit'] = 180; // (180)
 $conf_user_rules['ngaborn_daylimit'] = array('emptyToDef', 'notIntExceptMinusToDef');
 
+// あぼーんレスは不可視divブロックも描画しない
+$conf_user_def['ngaborn_purge_aborn'] = 0;  // (0)
+$conf_user_rad['ngaborn_purge_aborn'] = array('1' => 'はい', '0' => 'いいえ');
+
 // }}}
 // {{{ ETC
 
