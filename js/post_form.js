@@ -18,14 +18,14 @@ function hukkatuPostForm(host, bbs, key) {
 
 // @return  string
 function getCookie(cn) {
-   get_data = document.cookie;
-   cv = new Array();
-   gd = get_data.split(";");
-   for (i in gd) {
-      a = gd[i].split("=");
-      a[0] = a[0].replace(" ","");
-      cv[a[0]] = a[1];
-   }
+	get_data = document.cookie;
+	cv = new Array();
+	gd = get_data.split(";");
+	for (i in gd) {
+		a = gd[i].split("=");
+		a[0] = a[0].replace(" ","");
+		cv[a[0]] = a[1];
+	}
 	if (cv[cn]) {
 		return unescape(cv[cn]);
 	} else {
@@ -138,13 +138,13 @@ function autoSavePostFormAjax(host, bbs, key)
 	//url = url + '&' + 'nc' + '=' + now.getTime(); // キャッシュ回避用
 	xmlHttpObj.open('POST', url, true);
 	if (isSafari()) {
-	    xmlHttpObj.onload = function(){ checkResultAutoSavePostForm(xmlHttpObj); }
+		xmlHttpObj.onload = function(){ checkResultAutoSavePostForm(xmlHttpObj); }
 	} else {
-	    xmlHttpObj.onreadystatechange = function() {
-	        if (xmlHttpObj.readyState == 4 && xmlHttpObj.status == 200) {
-	            checkResultAutoSavePostForm(xmlHttpObj);
-	        }
-	    }
+		xmlHttpObj.onreadystatechange = function() {
+			if (xmlHttpObj.readyState == 4 && xmlHttpObj.status == 200) {
+				checkResultAutoSavePostForm(xmlHttpObj);
+			}
+		}
 	}
 	xmlHttpObj.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 	xmlHttpObj.send(postdata);
@@ -348,7 +348,7 @@ function loadLastPosted(from, mail, message) {
 	if (mailObj) {
 		mailObj.value = mail;
 	}
-    var messageObj = document.getElementById('MESSAGE');
+	var messageObj = document.getElementById('MESSAGE');
 	if (messageObj) {
 		messageObj.value = message;
 	}
@@ -370,46 +370,46 @@ function inputConstant(obj) {
 
 // return  boolean
 function isNetFront() {
-  var ua = navigator.userAgent;
-  if (ua.indexOf("NetFront") != -1 || ua.indexOf("AVEFront/") != -1 || ua.indexOf("AVE-Front/") != -1) {
-    return true;
-  } else {
-    return false;
-  }
+	var ua = navigator.userAgent;
+	if (ua.indexOf("NetFront") != -1 || ua.indexOf("AVEFront/") != -1 || ua.indexOf("AVE-Front/") != -1) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // @thanks  naoya <http://d.hatena.ne.jp/naoya/20050804/1123152230>
 // @return  void
 function disableSubmit(form)
 {
-  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
-  if (isNetFront()) {
-    return;
-  }
+	// 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
+	if (isNetFront()) {
+		return;
+	}
 
-  var elements = form.elements;
-  for (var i = 0; i < elements.length; i++) {
-    if (elements[i].type == 'submit') {
-      elements[i].disabled = true;
-    }
-  }
+	var elements = form.elements;
+	for (var i = 0; i < elements.length; i++) {
+		if (elements[i].type == 'submit') {
+			elements[i].disabled = true;
+		}
+	}
 }
 
 // @return  void
 function setHiddenValue(button)
 {
-  // 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
-  if (isNetFront()) {
-    return;
-  }
+	// 2006/02/15 NetFrontとは相性が悪く固まるらしいので抜ける
+	if (isNetFront()) {
+		return;
+	}
 
-  if (button.name) {
-    var q = document.createElement('input');
-    q.type = 'hidden';
-    q.name = button.name;
-    q.value = button.value;
-    button.form.appendChild(q);
-  }
+	if (button.name) {
+		var q = document.createElement('input');
+		q.type = 'hidden';
+		q.name = button.name;
+		q.value = button.value;
+		button.form.appendChild(q);
+	}
 }
 
 // iPhone フッターのレスフィルター表示フォームのポップアップを表示するメソッド
