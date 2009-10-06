@@ -292,13 +292,13 @@ EOP;
         $tores .= "</div>\n";
 
         // 被レスリスト(縦形式)
-        if ($_conf['backlink_list'] == 1) {
+        if ($_conf['backlink_list'] == 1 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 1);
         }
 
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
         // 被レスリスト(横形式)
-        if ($_conf['backlink_list'] == 2) {
+        if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 2,false);
         }
         $tores .= "</div>\n";
@@ -439,13 +439,13 @@ EOJS;
         $tores .= "</div>\n";
 
         // 被レスリスト(縦形式)
-        if ($_conf['backlink_list'] == 1) {
+        if ($_conf['backlink_list'] == 1 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 1);
         }
 
         $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
         // 被レスリスト(横形式)
-        if ($_conf['backlink_list'] == 2) {
+        if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 2);
         }
 

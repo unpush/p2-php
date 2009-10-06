@@ -191,7 +191,7 @@ $conf_user_rad['strip_linebreaks'] = array('1' => 'する', '0' => 'しない');
 
 // 逆参照リストの表示
 $conf_user_def['backlink_list'] = 1;
-$conf_user_rad['backlink_list'] = array('1' => 'ツリーぽく表示', '2' => '横表示', '0' => 'しない');
+$conf_user_rad['backlink_list'] = array('1' => 'ツリーぽく表示', '2' => '横表示', '3' => '両方', '0' => 'しない');
 
 // 逆参照リストで未来アンカーを有効にするか
 $conf_user_def['backlink_list_future_anchor'] = 1;
