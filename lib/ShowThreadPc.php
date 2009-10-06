@@ -802,7 +802,7 @@ EOP;
         global $_conf;
 
         // 再帰リミッタ
-        if ($this->_quote_check_depth > 30) {
+        if ($this->_quote_check_depth > ($_conf['backlink_list'] > 0 ? 3000 : 30)) {
             return array();
         } else {
             $this->_quote_check_depth++;
@@ -882,26 +882,22 @@ EOP;
         if ($_conf['backlink_list'] > 0) {
             // レスが付いている場合はそれも対象にする
             $quote_from = $this->get_quote_from();
-			$quote_saiki=array($res_num);
-			for ($saiki=0;$saiki<count($quote_saiki);$saiki++) {
-	            if (array_key_exists($quote_saiki[$saiki], $quote_from)) {
-    	            foreach ($quote_from[$quote_saiki[$saiki]] as $quote_from_num) {
-						$quote_saiki[]=$quote_from_num;
-	                    $quote_res_nums[] = $quote_from_num;
-	                    if ($quote_from_num != $quote_saiki[$saiki]) {
-	                        if (!isset($this->_quote_res_nums_checked[$quote_from_num])) {
-	                            $this->_quote_res_nums_checked[$quote_from_num] = true;
-	                            if (isset($this->thread->datlines[$quote_from_num - 1])) {
-	                                $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$quote_from_num - 1]);
-	                                $quote_name = $datalinear[0];
-	                                $quote_msg = $this->thread->datlines[$quote_from_num - 1];
-	                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($quote_from_num, $quote_name, $quote_msg));
-	                            }
-	                        }
-	                    }
-	                }
-	            }
-			}
+            if (array_key_exists($res_num, $quote_from)) {
+                foreach ($quote_from[$res_num] as $quote_from_num) {
+                    $quote_res_nums[] = $quote_from_num;
+                    if ($quote_from_num != $res_num) {
+                        if (!isset($this->_quote_res_nums_checked[$quote_from_num])) {
+                            $this->_quote_res_nums_checked[$quote_from_num] = true;
+                            if (isset($this->thread->datlines[$quote_from_num - 1])) {
+                                $datalinear = $this->thread->explodeDatLine($this->thread->datlines[$quote_from_num - 1]);
+                                $quote_name = $datalinear[0];
+                                $quote_msg = $this->thread->datlines[$quote_from_num - 1];
+                                $quote_res_nums = array_merge($quote_res_nums, $this->checkQuoteResNums($quote_from_num, $quote_name, $quote_msg));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return $quote_res_nums;
