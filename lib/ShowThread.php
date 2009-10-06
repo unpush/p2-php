@@ -1040,7 +1040,7 @@ EOP;
         foreach($anchors as $idx=>$anchor) {
             $anchor_link= $this->quoteRes('>>'.$anchor, '>>', $anchor);
             $qres_id = ($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
-            $ret.='<div id="%s" class="reslist_inner" >';
+            $ret.='<div class="reslist_inner" >';
             $ret.=sprintf('<div>yQÆƒŒƒXF%sz</div>',$anchor_link);
             $ret.='</div>';
             $count++;
