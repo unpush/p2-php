@@ -1001,7 +1001,7 @@ EOP;
         if ($type == 1) {
             return $this->_quoteback_vertical_list_html($anchors);
         } else if ($type == 2) {
-            return $this->_quoteback_horizontal_list_html($resnum,$anchors,$popup);
+            return $this->_quoteback_horizontal_list_html($anchors,$popup);
         }
     }
     protected function _quoteback_vertical_list_html($anchors)
@@ -1021,34 +1021,26 @@ EOP;
         $ret .= '</ul></div>';
         return $ret;
     }
-    protected function _quoteback_horizontal_list_html($resnum,$anchors,$popup)
+    protected function _quoteback_horizontal_list_html($anchors,$popup)
     {
         $ret="";
-        $UouterContainerId=sprintf('reslist%s',$resnum);
 
         foreach($anchors as $idx=>$anchor) {
             $anchors2[]=($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
         }
 
-        $insert=sprintf('<img src="img/btn_plus.gif" width="15" height="15" onclick="insertRes(\'%s\',\'%s\',this)" align="left">',$UouterContainerId,join('/',$anchors2));
+        $insert=sprintf('<img src="img/btn_plus.gif" width="15" height="15" onclick="insertRes(\'%s\',this)" align="left">',join('/',$anchors2));
         if ($popup) {
             $insert="<!--%%%".$insert."%%%-->";
         }
         $ret.=$insert;
-        $ret.= sprintf('<div class="reslist" id="%s">',$UouterContainerId);
+        $ret.= '<div class="reslist">';
         $count=0;
 
         foreach($anchors as $idx=>$anchor) {
-//            $count-=$em;
             $anchor_link= $this->quoteRes('>>'.$anchor, '>>', $anchor);
-            $outerContainerId=sprintf('%s_%d',$UouterContainerId,$count);
             $qres_id = ($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
             $ret.='<div id="%s" class="reslist_inner" >';
-/*            $insert=sprintf('<img src="img/btn_plus.gif" width="15" height="15" alt="レス内容を下に表示する" onclick="insertResPopUp(\'%s\',\'%s\',this)">',$qres_id,$outerContainerId);
-            if ($popup) {
-                $insert="<!--%%%".$insert."%%%-->";
-}*/
-//            $ret.=$insert;
             $ret.=sprintf('<div>【参照レス：%s】</div>',$anchor_link);
             $ret.='</div>';
             $count++;

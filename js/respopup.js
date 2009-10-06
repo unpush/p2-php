@@ -39,11 +39,10 @@ function getElement(id) {
 	}
 }
 
-function insertRes(outerContainerId,anchors,button) {
+function insertRes(anchors,button) {
 	// éQè∆å≥ÇÃê›íË
-	button.onclick=function () {removeRes(outerContainerId,anchors,button)};
+	button.onclick=function () {removeRes(anchors,button)};
 	button.src=button.src.replace(/plus/,'minus');
-//	var outerContainer=getElement(outerContainerId);
 	var outerContainer=button.parentNode.lastChild; //.lastChild;
 	while(outerContainer && outerContainer.className!="reslist") {
 		outerContainer=outerContainer.previousSibling;
@@ -71,12 +70,11 @@ function insertRes(outerContainerId,anchors,button) {
 
 }
 
-function removeRes(outerContainerId,anchors,button) {
+function removeRes(anchors,button) {
 	// éQè∆å≥ÇÃê›íË
-	button.onclick=function () {insertRes(outerContainerId,anchors,button)};
+	button.onclick=function () {insertRes(anchors,button)};
 	button.src=button.src.replace(/minus/,'plus');
-	// // alert(typeof(outerContainerId));
-	var outerContainer=getElement(outerContainerId);
+	var outerContainer=button.parentNode.lastChild;
 
 	var children=anchors.split("/");
 	// alert(children.length);
