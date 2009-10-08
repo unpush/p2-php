@@ -43,17 +43,19 @@ function insertRes(anchors,button) {
 	// 参照元の設定
 	button.onclick=function () {removeRes(anchors,button)};
 	button.src=button.src.replace(/plus/,'minus');
-	var outerContainer=button.parentNode.lastChild; //.lastChild;
-	while(outerContainer && outerContainer.className!="reslist") {
-		outerContainer=outerContainer.previousSibling;
-	}
-	// alert(outerContainer.className);
-	
+
+	// reslistがあれば非表示に
+	(function (msgroot) {
+		for (var i=0;i<msgroot.childNodes.length;i++) {
+			if (msgroot.childNodes[i].className=='reslist') {
+				msgroot.childNodes[i].style.display='none';
+			}
+		}
+	})(button.parentNode.parentNode);
+
+	var outerContainer = document.createElement('div');
 	var children=anchors.split("/");
-	// alert(children.length);
 	for (i=0;i<children.length;i++) {
-		var childDiv=outerContainer.childNodes[i];
-		// alert(childDiv.className);
 		var importId=children[i];
 		var importElement=copyHTML(""+importId);
 		importElement=importElement.replace(/<!--%%%(.+)%%%-->/,'$1');
@@ -61,12 +63,12 @@ function insertRes(anchors,button) {
 		//参照先レス情報をコピー
 		var resdiv=document.createElement('blockquote');
 		resdiv.innerHTML=importElement; //.replace(/id=\".*?q[rm]\d+?\"/g,"");
-		// // alert(resdiv.innerHTML);
-		
+
 		resdiv.className='folding_container';
-		childDiv.appendChild(resdiv);
-		childDiv.lastChild.previousSibling.style.display='none';
+		outerContainer.appendChild(resdiv);
 	}
+	outerContainer.className='resblock_inner';
+	button.parentNode.appendChild(outerContainer);
 
 }
 
@@ -74,16 +76,16 @@ function removeRes(anchors,button) {
 	// 参照元の設定
 	button.onclick=function () {insertRes(anchors,button)};
 	button.src=button.src.replace(/minus/,'plus');
-	var outerContainer=button.parentNode.lastChild;
+	button.parentNode.removeChild(button.parentNode.lastChild);
 
-	var children=anchors.split("/");
-	// alert(children.length);
-	for (i=0;i<children.length;i++) {
-		var childDiv=outerContainer.childNodes[i];
-		childDiv.removeChild(childDiv.lastChild);
-		childDiv.firstChild.style.display='block';
-	}
-
+	// reslistがあれば表示
+	(function (msgroot) {
+		for (var i=0;i<msgroot.childNodes.length;i++) {
+			if (msgroot.childNodes[i].className=='reslist') {
+				msgroot.childNodes[i].style.display='block';
+			}
+		}
+	})(button.parentNode.parentNode);
 
 }
 

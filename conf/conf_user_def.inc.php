@@ -197,6 +197,10 @@ $conf_user_rad['backlink_list'] = array('1' => 'ツリーぽく表示', '2' => '横表示'
 $conf_user_def['backlink_list_future_anchor'] = 1;
 $conf_user_rad['backlink_list_future_anchor'] = array('1' => '有効', '0' => '無効');
 
+// 逆参照ブロックを展開できるようにするか
+$conf_user_def['backlink_block'] = 1;
+$conf_user_rad['backlink_block'] = array('1' => 'する', '0' => 'しない');
+
 // 携帯閲覧時、文末の改行と連続する改行を除去（する:1, しない:0）
 $conf_user_def['mobile.strip_linebreaks'] = 0; // (0)
 $conf_user_rad['mobile.strip_linebreaks'] = array('1' => 'する', '0' => 'しない');

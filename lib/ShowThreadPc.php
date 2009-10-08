@@ -297,6 +297,10 @@ EOP;
         }
 
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // 被レス展開用ブロック
+        if ($_conf['backlink_block'] > 0) {
+            $tores .= $this->quoteback_list_html($i, 3, false);
+        }
         // 被レスリスト(横形式)
         if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 2,false);
@@ -444,6 +448,10 @@ EOJS;
         }
 
         $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // 被レス展開用ブロック
+        if ($_conf['backlink_block'] > 0) {
+            $tores .= $this->quoteback_list_html($i, 3);
+        }
         // 被レスリスト(横形式)
         if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 2);
@@ -802,7 +810,7 @@ EOP;
         global $_conf;
 
         // 再帰リミッタ
-        if ($this->_quote_check_depth > ($_conf['backlink_list'] > 0 ? 3000 : 30)) {
+        if ($this->_quote_check_depth > (($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) ? 3000 : 30)) {
             return array();
         } else {
             $this->_quote_check_depth++;
@@ -879,7 +887,7 @@ EOP;
 
         }
 
-        if ($_conf['backlink_list'] > 0) {
+        if ($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) {
             // レスが付いている場合はそれも対象にする
             $quote_from = $this->get_quote_from();
             if (array_key_exists($res_num, $quote_from)) {
