@@ -611,6 +611,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.ic2.newres_ignore_limit_k', '携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示'),
         array('expack.ic2.thread_imagelink', 'スレ表示時に画像キャッシュ一覧へのスレタイ検索リンクを表示する'),
         array('expack.ic2.thread_imagecount', 'スレ表示時にスレタイで検索した時の画像数を表示する'),
+        array('expack.ic2.fav_auto_rank', 'お気にスレに登録されているスレの画像に自動ランクを設定する'),
+        array('expack.ic2.fav_auto_rank_setting', 'お気にスレの画像を自動ランク設定する場合の設定値(カンマ区切り)[お気に0のランク値,お気に1のランク値, , ,]'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

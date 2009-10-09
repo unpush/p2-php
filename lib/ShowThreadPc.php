@@ -1323,6 +1323,11 @@ EOP;
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
             $img_url = 'ic2.php?r=1&amp;uri=' . $url_en;
             $thumb_url = 'ic2.php?r=1&amp;t=1&amp;uri=' . $url_en;
+            // お気にスレ自動画像ランク
+            if ($_conf['expack.ic2.fav_auto_rank']) {
+                $rank = $this->getAutoFavRank();
+                if ($rank !== null) $thumb_url .= '&rank=' . $rank;
+            }
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {

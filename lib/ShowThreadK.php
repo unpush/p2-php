@@ -1034,7 +1034,12 @@ EOP;
 
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
-                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}\">";
+                    // お気にスレ自動画像ランク
+                    if ($_conf['expack.ic2.fav_auto_rank']) {
+                        $rank = $this->getAutoFavRank();
+                        if ($rank !== null) $rank_str = '&rank=' . $rank;
+                    }
+                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}{$rank_str}\">";
                     $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;

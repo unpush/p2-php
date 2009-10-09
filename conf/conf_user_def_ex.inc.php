@@ -189,6 +189,13 @@ $conf_user_rad['expack.ic2.thread_imagelink'] = array('1' => '‚·‚é', '0' => '‚µ‚
 $conf_user_def['expack.ic2.thread_imagecount'] = 1; // (1)
 $conf_user_rad['expack.ic2.thread_imagecount'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');
 
+// ‚¨‹C‚ÉƒXƒŒ‚É“o˜^‚³‚ê‚Ä‚¢‚éƒXƒŒ‚Ì‰æ‘œ‚É©“®ƒ‰ƒ“ƒN‚ğİ’è‚·‚é
+$conf_user_def['expack.ic2.fav_auto_rank'] = 0; // (0)
+$conf_user_rad['expack.ic2.fav_auto_rank'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');
+
+// ‚¨‹C‚ÉƒXƒŒ‚Ì‰æ‘œ‚ğ©“®ƒ‰ƒ“ƒNİ’è‚·‚éê‡‚Ìİ’è’l(ƒJƒ“ƒ}‹æØ‚è)[‚¨‹C‚É0‚Ìƒ‰ƒ“ƒN’l,‚¨‹C‚É1‚Ìƒ‰ƒ“ƒN’l, , ,]
+$conf_user_def['expack.ic2.fav_auto_rank_setting'] = '1,1,2,3,4,5';
+
 // }}}
 // {{{ GoogleŒŸõ
 

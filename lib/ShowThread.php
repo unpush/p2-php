@@ -78,6 +78,8 @@ abstract class ShowThread
     public $activeMona; // アクティブモナー・オブジェクト
     public $am_enabled = false; // アクティブモナーが有効か否か
 
+    private $_auto_fav_rank = false; // お気に自動ランク
+
     // }}}
     // {{{ constructor
 
@@ -900,6 +902,43 @@ EOP;
     final public function quoteResRangeCallback(array $s)
     {
         return $this->quoteResRange($s[0], $s[1], $s[2]);
+    }
+
+    // }}}
+    // {{{ getAutoFavRanks()
+
+    /**
+     * 自動ランク設定を返す.
+     *
+     * @return  array
+     */
+    public function getAutoFavRank()
+    {
+        if ($this->_auto_fav_rank !== false) return $this->_auto_fav_rank;
+        global $_conf;
+
+        $ranks = explode(',', strtr($_conf['expack.ic2.fav_auto_rank_setting'], ' ', ''));
+        $ret = null;
+        if ($_conf['expack.misc.multi_favs']) {
+            $idx = 0;
+            if (!is_array($this->thread->favs)) return null;
+            foreach ($this->thread->favs as $fav) {
+                if ($fav) {
+                    $rank = $ranks[$idx];
+                    if (is_numeric($rank)) {
+                        $rank = intval($rank);
+                        $ret = $ret === null ? $rank
+                            : ($ret < $rank ? $rank : $ret);
+                    }
+                }
+                $idx++;
+            }
+        } else {
+            if ($this->thread->fav && is_numeric($ranks[0])) {
+                $ret = intval($ranks[0]);
+            }
+        }
+        return $this->_auto_fav_rank = $ret;
     }
 
     // }}}
