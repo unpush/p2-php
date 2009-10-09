@@ -609,6 +609,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.ic2.pre_thumb_limit_k', '携帯でインライン・サムネイルが有効のときの表示する制限数 (0で無制限)'),
         array('expack.ic2.newres_ignore_limit', '新着レスの画像は pre_thumb_limit を無視して全て表示'),
         array('expack.ic2.newres_ignore_limit_k', '携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示'),
+        array('expack.ic2.thread_imagelink', 'スレ表示時に画像キャッシュ一覧へのスレタイ検索リンクを表示する'),
+        array('expack.ic2.thread_imagecount', 'スレ表示時にスレタイで検索した時の画像数を表示する'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

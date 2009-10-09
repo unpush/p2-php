@@ -535,11 +535,28 @@ EOP;
 EOTOOLBAR;
     */
 
+    // IC2ÉäÉìÉNÅAåèêî
+    if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink']) {
+        $cnt = '';
+        if ($_conf['expack.ic2.thread_imagecount']) {
+            require_once P2EX_LIB_DIR . '/ic2_getcount.inc.php';
+            $cnt = getIC2ImageCount($aThread->ttitle);
+        }
+        if ($cnt === '' || $cnt > 0) {
+            $ic2navi = '<a class="button" href="iv2.php?field=memo&amp;key=' .
+                rawurlencode($aThread->ttitle) .
+                '&amp;session_no_close=1' .
+                '&amp;b=' . ($_conf['iphone'] ? 'i' : 'k') .
+                '">IC2(' . $cnt . ')</a>';
+        }
+    }
+
     $read_footer_ht = <<<EOP
 <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_toolbar">
 {$read_range_ht}
 <a class="button" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}" target="_blank">{$info_st}</a>
 <a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}" target="_blank">ì¡</a>
+{$ic2navi}
 <br>
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}" target="_blank">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
 <a class="button" href="#ntt{$newthre_num}">Å£</a>

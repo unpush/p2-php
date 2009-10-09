@@ -136,6 +136,22 @@ EOP;
 
 // }}}
 
+// IC2ÉäÉìÉN
+if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink']) {
+    $cnt = '';
+    if ($_conf['expack.ic2.thread_imagecount']) {
+        require_once P2EX_LIB_DIR . '/ic2_getcount.inc.php';
+        $cnt = getIC2ImageCount($aThread->ttitle);
+    }
+    if ($cnt === '' || $cnt > 0) {
+        $htm['ic2navi'] = '<a href="iv2.php?field=memo&amp;key=' .
+            rawurlencode($aThread->ttitle) .
+            '&amp;session_no_close=1' .
+            '&amp;b=' . ($_conf['iphone'] ? 'i' : 'k') .
+            '">IC2(' . $cnt . ')</a>';
+    }
+}
+
 // iPhone
 if ($_conf['iphone']) {
     $_conf['extra_headers_ht'] .= <<<EOS
@@ -252,6 +268,7 @@ if (($aThread->rescount or $_GET['one'] && !$aThread->diedat) && empty($_GET['re
 {$read_navi_previous}
 {$read_navi_next}
 {$read_navi_latest}
+{$htm['ic2navi']}
 <a href="#footer"{$_conf['k_accesskey_at']['bottom']}>{$_conf['k_accesskey_st']['bottom']}Å•</a></div>\n
 EOP;
 

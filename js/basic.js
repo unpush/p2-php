@@ -387,6 +387,19 @@ function escapeHTML(cont)
 	return document.createElement('div').appendChild(document.createTextNode(cont)).parentNode.innerHTML;
 }
 
+function setWindowOnLoad(callback)
+{
+	if (typeof window.onload == 'function') {
+		var oldonload = window.onload;
+		window.onload = function() {
+			oldonload();
+			callback();
+		};
+	} else {
+		window.onload = callback;
+	}
+}
+
 /*
  * Local Variables:
  * mode: javascript

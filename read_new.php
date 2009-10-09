@@ -190,6 +190,14 @@ if ($_conf['expack.ic2.enabled']) {
     <link rel="stylesheet" type="text/css" href="css/ic2_popinfo.css?{$_conf['p2_version_id']}">\n
 EOP;
 }
+if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink'] && $_conf['expack.ic2.thread_imagecount']) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/ic2_getcount.js?{$_conf['p2_version_id']}"></script>
+EOP;
+    $onload_script .= <<<EOHEADER
+window.setWindowOnLoad(ic2_setcount_new);
+EOHEADER;
+}
 
 // pageLoaded()が他のJavaScriptでも定義されたロード時のイベントハンドラとかぶらないようにする。
 // 古いブラウザでDOMContentLoadedと同等のタイミングにはこだわらない。
@@ -203,6 +211,7 @@ echo <<<EOHEADER
     {
         gIsPageLoaded = true;
         setWinTitle();
+        {$onload_script}
     }
 
     (function(){
@@ -359,6 +368,9 @@ for ($x = 0; $x < $linesize ; $x++) {
     ob_start();
 
     if (($aThread->readnum < 1) || $aThread->unum) {
+        if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink'] && $_conf['expack.ic2.thread_imagecount']) {
+            $threads[] = array($aThread->ttitle, $aThread->keydat);
+        }
         readNew($aThread);
     } elseif ($aThread->diedat) {
         echo $aThread->getdat_error_msg_ht;
@@ -376,6 +388,27 @@ for ($x = 0; $x < $linesize ; $x++) {
     // $aThreadList->addThread($aThread);
     $aThreadList->num++;
     unset($aThread);
+}
+
+// IC2画像数をセットするJS
+if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink'] && $_conf['expack.ic2.thread_imagecount']) {
+    $ic2_count_js = '';
+    if (is_array($threads)) {
+        foreach ($threads as $_ttitle) {
+            list($_ttl, $_kdat) = $_ttitle;
+            $spanid = 'ic2_count_' . sprintf('%u', crc32($_kdat));
+            $ic2_count_js .= "ic2_setcount('" . rawurlencode($_ttl) .
+                "', '{$spanid}');";
+        }
+    }
+    echo <<<EOP
+<script type="text/javascript">
+function ic2_setcount_new() {
+{$ic2_count_js}
+return;
+}
+</script>
+EOP;
 }
 
 // $aThread = new ThreadRead();
@@ -595,6 +628,19 @@ EOTOOLBAR;
         $dsize_ht = '';
     }
 
+    // IC2リンク、件数
+    if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink']) {
+        $spanid = 'ic2_count_' . sprintf('%u', crc32($aThread->keydat));
+        $ic2navi = '<a href="iv2.php?field=memo&amp;key=' .
+            rawurlencode($aThread->ttitle) .
+            '" target="_blank">キャッシュ画像' .
+            ($_conf['expack.ic2.thread_imagecount'] ?
+                '<span id="ic2_count_' .
+                sprintf('%u', crc32($aThread->keydat)) .
+                '"></span>' : '') .
+            '</a>';
+    }
+
     // フッタ部分HTML
     $read_footer_ht = <<<EOP
         <table width="100%" style="padding:0px 10px 0px 0px;">
@@ -603,7 +649,7 @@ EOTOOLBAR;
                     {$res1['body']} | <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> | {$dores_ht} {$dsize_ht} {$spd_ht}
                 </td>
                 <td align="right">
-                    {$toolbar_right_ht}
+                    {$ic2navi}{$toolbar_right_ht}
                 </td>
                 <td align="right">
                     <a href="#ntt{$newthre_num}">▲</a>

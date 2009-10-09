@@ -181,6 +181,14 @@ $conf_user_rad['expack.ic2.newres_ignore_limit'] = array('1' => 'する', '0' => '
 $conf_user_def['expack.ic2.newres_ignore_limit_k'] = 0; // (0)
 $conf_user_rad['expack.ic2.newres_ignore_limit_k'] = array('1' => 'する', '0' => 'しない');
 
+// スレ表示時に画像キャッシュ一覧へのスレタイ検索リンクを表示する
+$conf_user_def['expack.ic2.thread_imagelink'] = 1; // (1)
+$conf_user_rad['expack.ic2.thread_imagelink'] = array('1' => 'する', '0' => 'しない');
+
+// スレ表示時にスレタイで検索した時の画像数を表示する
+$conf_user_def['expack.ic2.thread_imagecount'] = 1; // (1)
+$conf_user_rad['expack.ic2.thread_imagecount'] = array('1' => 'する', '0' => 'しない');
+
 // }}}
 // {{{ Google検索
 
