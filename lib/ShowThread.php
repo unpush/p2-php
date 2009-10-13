@@ -187,7 +187,7 @@ abstract class ShowThread
         //$anchor[' '] = '';
 
         // アンカー引用子 >>
-        $anchor['prefix'] = "(?:&gt;|＞|&lt;|＜|〉|》|≫){1,2}{$anchor_space}*\.?";
+        $anchor['prefix'] = "(?:(?:&gt;|＞|&lt;|＜|〉){1,2}|(?:\)){2}|》|≫){$anchor_space}*\.?";
 
         // 数字
         $anchor['a_digit'] = '(?:\\d|０|１|２|３|４|５|６|７|８|９)';
@@ -208,7 +208,7 @@ abstract class ShowThread
         $anchor['range_delimiter'] = "(?:-|‐|\x81\\x5b)"; // ー
 
         // 列挙指定子
-        $anchor['delimiter'] = "{$anchor_space}?(?:[,=+]|、|・|＝|，){$anchor_space}?";
+        $anchor['delimiter'] = "{$anchor_space}?(?:[\.,=+]|、|・|＝|，){$anchor_space}?";
 
         // あぼーん用アンカー引用子
         $anchor['prefix_abon'] = "&gt;{1,2}{$anchor_space}?";
