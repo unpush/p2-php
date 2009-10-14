@@ -353,10 +353,8 @@ div.reslist_inner {
 
 blockquote.folding_container{
 	margin:0;
-	position:relative;
-	left: 0em;
 	padding: 8px;
-    }
+}
 
 blockquote.folding_container:after {
 	height: 0;
