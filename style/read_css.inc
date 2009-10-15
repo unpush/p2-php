@@ -355,8 +355,6 @@ blockquote.folding_container{
 	margin:0 0 2em 1em;
 	position:relative;
 	left: 0em;
-    border-width: 2px;
-    clear: both;
     }
 
 div.resblock {
