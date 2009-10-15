@@ -197,6 +197,10 @@ $conf_user_rad['backlink_list'] = array('1' => 'ツリーぽく表示', '2' => '横表示'
 $conf_user_def['backlink_list_future_anchor'] = 1;
 $conf_user_rad['backlink_list_future_anchor'] = array('1' => '有効', '0' => '無効');
 
+// 逆参照リストでこの値より広い範囲レスを対象外にする(0で制限なし)
+$conf_user_def['backlink_list_range_anchor_limit'] = 0;
+$conf_user_rules['backlink_list_range_anchor_limit'] = array('notIntExceptMinusToDef');
+
 // 逆参照ブロックを展開できるようにするか
 $conf_user_def['backlink_block'] = 1;
 $conf_user_rad['backlink_block'] = array('1' => 'する', '0' => 'しない');

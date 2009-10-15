@@ -932,7 +932,10 @@ EOP;
             if (preg_match_all('/(?:&gt;|＞)+ ?([1-9](?:[0-9\\- ,=.]|、)*)/', $msg, $out, PREG_PATTERN_ORDER)) {
                 foreach ($out[1] as $numberq) {
                     if (preg_match('/([1-9]\\d*)-([1-9]\\d*)/', $numberq, $matches)) {
-                        if ($matches[1] < $matches[2] && $matches[2] - $matches[1] < 1000) {
+                        if ($matches[1] < $matches[2] &&
+                            $matches[2] - $matches[1] < 1000 &&
+                            ($_conf['backlink_list_range_anchor_limit'] == 0 ||
+                             $matches[2] - $matches[1] < $_conf['backlink_list_range_anchor_limit'])) {
                             for ($i = $matches[1]; $i <= $matches[2]; $i++) {
                                 if ($_conf['backlink_list_future_anchor'] == 0) {
                                     if ($i >= $num+1) {continue;}   // レス番号以降のアンカーは無視する

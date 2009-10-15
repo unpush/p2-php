@@ -284,6 +284,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('strip_linebreaks', '文末の改行と連続する改行を除去'),
         array('backlink_list', '逆参照ポップアップリストの表示'),
         array('backlink_list_future_anchor', '逆参照リストで未来アンカーを有効にするか'),
+        array('backlink_list_range_anchor_limit', '逆参照リストでこの値より広い範囲レスを対象外にする(0で制限なし)'),
         array('backlink_block', '逆参照ブロックを展開できるようにするか'),
         array('backlink_block_readmark', '逆参照ブロックで展開されているレスの本体に装飾するか'),
     );
