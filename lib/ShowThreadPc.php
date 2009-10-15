@@ -618,7 +618,10 @@ EOP;
             $attributes .= " onmouseover=\"showResPopUp('{$qres_id}',event)\"";
             $attributes .= " onmouseout=\"hideResPopUp('{$qres_id}')\"";
         }
-        return "<a href=\"{$read_url}\"{$attributes}>{$qsign}{$appointed_num}</a>";
+        return "<a href=\"{$read_url}\"{$attributes}"
+            . (in_array($qnum, $this->_aborn_nums) ? ' class="abornanchor"' :
+                (in_array($qnum, $this->_ng_nums) ? ' class="nganchor"' : ''))
+            . ">{$qsign}{$appointed_num}</a>";
     }
 
     // }}}

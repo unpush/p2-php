@@ -164,6 +164,15 @@ div.ngmsg {
 	display: none;
 }
 
+.nganchor {
+	text-decoration: line-through;
+}
+
+.abornanchor {
+	text-decoration: line-through;
+	color: {$STYLE['read_ngword']};
+}
+
 #iframespace{ /* HTMLポップアップスペース */
 	position:absolute;
 	z-index:100;
