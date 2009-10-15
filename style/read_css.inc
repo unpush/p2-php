@@ -99,6 +99,9 @@ div.respopup {
 	padding: 8px;
 	line-height: 120%;
 	top: 0px;
+	-moz-box-shadow: 4px 4px 16px #555;
+	-webkit-box-shadow: 4px 4px 16px #555;
+	box-shadow: 4px 4px 16px #555;
 }
 
 /* あぼーんレス */
@@ -259,6 +262,9 @@ a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* 新着レス */
 	width: 8.5em;
 	margin: 0px;
 	padding: 2px 4px;
+	-moz-box-shadow: 4px 4px 16px #555;
+	-webkit-box-shadow: 4px 4px 16px #555;
+	box-shadow: 4px 4px 16px #555;
 }
 
 .spm p {	/* スマートポップアップメニュー：ヘッダ */
