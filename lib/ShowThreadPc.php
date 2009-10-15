@@ -261,7 +261,12 @@ EOP;
             $spmeh = '';
         }
 
-        $tores .= "<div id=\"{$res_id}\" class=\"res\">\n";
+        if ($_conf['backlink_block'] > 0) {
+            // 被参照ブロック表示用にonclickを設定
+            $tores .= "<div id=\"{$res_id}\" class=\"res\" onclick=\"toggleResBlk(event, this, " . $_conf['backlink_block_readmark'] . ")\">\n";
+        } else {
+            $tores .= "<div id=\"{$res_id}\" class=\"res\">\n";
+        }
         $tores .= "<div class=\"res-header\">";
 
         if ($this->thread->onthefly) {
@@ -305,14 +310,22 @@ EOP;
         $tores .= "</div>\n"; // res-headerを閉じる
 
         // 被レスリスト(縦形式)
-        if ($_conf['backlink_list'] == 1) {
+        if ($_conf['backlink_list'] == 1 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 1);
         }
 
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // 被レス展開用ブロック
+        if ($_conf['backlink_block'] > 0) {
+            $backlinks = $this->backlink_comment($i);
+            if (strlen($backlinks)) {
+                $tores .= '<div class="resblock"><img src="img/btn_plus.gif" width="15" height="15" align="left"></div>';
+                $tores .= $backlinks;
+            }
+        }
         // 被レスリスト(横形式)
-        if ($_conf['backlink_list'] == 2) {
-            $tores .= $this->quoteback_list_html($i, 2);
+        if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
+            $tores .= $this->quoteback_list_html($i, 2,false);
         }
         $tores .= "</div>\n";
 
@@ -453,17 +466,31 @@ EOJS;
         $tores .= "</div>\n";
 
         // 被レスリスト(縦形式)
-        if ($_conf['backlink_list'] == 1) {
+        if ($_conf['backlink_list'] == 1 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 1);
         }
 
         $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
         // 被レスリスト(横形式)
-        if ($_conf['backlink_list'] == 2) {
+        if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 2);
         }
 
+        // 被参照ブロック用データ
+        if ($_conf['backlink_block'] > 0) {
+            $tores .= $this->backlink_comment($i);
+        }
+
         return $tores;
+    }
+
+    public function backlink_comment($i)
+    {
+        $backlinks = $this->quoteback_list_html($i, 3);
+        if (strlen($backlinks)) {
+            return '<!-- backlinks:' . $backlinks . ' -->';
+        }
+        return '';
     }
 
     // }}}
@@ -579,6 +606,8 @@ EOJS;
      */
     protected function _abornedRes($res_id)
     {
+        global $_conf;
+        if ($_conf['ngaborn_purge_aborn']) return '';
         return <<<EOP
 <div id="{$res_id}" class="res aborned">
 <div class="res-header">&nbsp;</div>
@@ -982,7 +1011,7 @@ EOP;
         global $_conf;
 
         // 再帰リミッタ
-        if ($this->_quote_check_depth > 30) {
+        if ($this->_quote_check_depth > (($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) ? 3000 : 30)) {
             return array();
         } else {
             $this->_quote_check_depth++;
@@ -1057,7 +1086,7 @@ EOP;
 
         }
 
-        if ($_conf['backlink_list'] > 0) {
+        if ($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) {
             // レスが付いている場合はそれも対象にする
             $quote_from = $this->get_quote_from();
             if (array_key_exists($res_num, $quote_from)) {

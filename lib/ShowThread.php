@@ -1145,6 +1145,17 @@ EOP;
 
         foreach($this->thread->datlines as $num => $line) {
             list($name, $mail, $date_id, $msg) = $this->thread->explodeDatLine($line);
+
+           // NGあぼーんチェック
+            if (($id = $this->thread->ids[$num + 1]) !== null) {
+                $date_id = str_replace($this->thread->idp[$i] . $id, 'ID:' . $id, $date_id);
+            }
+            $ng_type = $this->_ngAbornCheck($num + 1, strip_tags($name), $mail, $date_id, $id, $msg, true);
+            if ($ng_type == self::ABORN) {continue;}
+
+            // >>1のリンクをいったん外す
+            // <a href="../test/read.cgi/accuse/1001506967/1" target="_blank">&gt;&gt;1</a>
+            $msg = preg_replace('{<[Aa] .+?>(&gt;&gt;[1-9][\\d\\-]*)</[Aa]>}', '$1', $msg);
             if (!preg_match_all($this->getAnchorRegex('/%full%/'), $msg, $out, PREG_PATTERN_ORDER)) continue;
             foreach ($out[2] as $numberq) {
                 if (!preg_match_all($this->getAnchorRegex('/(?:%prefix%)?(%a_range%)/'), $numberq, $anchors, PREG_PATTERN_ORDER)) continue;
@@ -1155,8 +1166,15 @@ EOP;
                         if ($from < 1 || $to < 1 || $from > $to
                             || ($to - $from + 1) > sizeof($this->thread->datlines))
                                 continue;
+                        if ($_conf['backlink_list_range_anchor_limit'] != 0) {
+                            if ($to - $from >= $_conf['backlink_list_range_anchor_limit'])
+                                continue;
+                        }
                         for ($i = $from; $i <= $to; $i++) {
                             if ($i > sizeof($this->thread->datlines)) break;
+                            if ($_conf['backlink_list_future_anchor'] == 0) {
+                                if ($i >= $num+1) {continue;}   // レス番号以降のアンカーは無視する
+                            }
                             if (!array_key_exists($i, $this->_quote_from) || $this->_quote_from[$i] === null) {
                                 $this->_quote_from[$i] = array();
                             }
@@ -1166,6 +1184,9 @@ EOP;
                         }
                     } else if (preg_match($this->getAnchorRegex('/(%a_num%)/'), $anchor, $matches)) {
                         $quote_num = intval(mb_convert_kana($matches[1], 'n'));
+                        if ($_conf['backlink_list_future_anchor'] == 0) {
+                            if ($quote_num >= $num+1) {continue;}   // レス番号以降のアンカーは無視する
+                        }
                         if (!array_key_exists($quote_num, $this->_quote_from) || $this->_quote_from[$quote_num] === null) {
                             $this->_quote_from[$quote_num] = array();
                         }
@@ -1201,10 +1222,11 @@ EOP;
      * 被レスリストをHTMLで整形して返す.
      *
      * @param   int     $resnum レス番号
-     * @param   int     $type   1:縦形式 2:横形式
+     * @param   int     $type   1:縦形式 2:横形式 3:展開用ブロック用文字列
+     * @param   bool    $popup  横形式でのポップアップ処理(true:ポップアップする、false:挿入する)
      * @return  string
      */
-    protected function quoteback_list_html($resnum, $type)
+    protected function quoteback_list_html($resnum, $type,$popup=true)
     {
         $quote_from = $this->get_quote_from();
         if (!array_key_exists($resnum, $quote_from)) return $ret;
@@ -1215,7 +1237,9 @@ EOP;
         if ($type == 1) {
             return $this->_quoteback_vertical_list_html($anchors);
         } else if ($type == 2) {
-            return $this->_quoteback_horizontal_list_html($anchors);
+            return $this->_quoteback_horizontal_list_html($anchors,$popup);
+        } else if ($type == 3) {
+            return $this->_quoteback_res_data($anchors);
         }
     }
     protected function _quoteback_vertical_list_html($anchors)
@@ -1235,15 +1259,30 @@ EOP;
         $ret .= '</ul></div>';
         return $ret;
     }
-    protected function _quoteback_horizontal_list_html($anchors)
+    protected function _quoteback_horizontal_list_html($anchors,$popup)
     {
-        $ret = '<div class="reslist">';
+        $ret="";
+        $ret.= '<div class="reslist">';
+        $count=0;
+
         foreach($anchors as $idx=>$anchor) {
-            $anchors[$idx]= $this->quoteRes($anchor, '', $anchor);
+            $anchor_link= $this->quoteRes('>>'.$anchor, '>>', $anchor);
+            $qres_id = ($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
+            $ret.='<div class="reslist_inner" >';
+            $ret.=sprintf('<div>【参照レス：%s】</div>',$anchor_link);
+            $ret.='</div>';
+            $count++;
         }
-        $ret.="【参照レス：".join("/",$anchors)."】";
         $ret.='</div>';
         return $ret;
+    }
+    protected function _quoteback_res_data($anchors)
+    {
+        foreach($anchors as $idx=>$anchor) {
+            $anchors2[]=($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
+        }
+
+        return join('/',$anchors2);
     }
 
     // }}}

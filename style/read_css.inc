@@ -334,18 +334,53 @@ div.respopup div.v_reslist ul li:first-letter {
 
 /* 逆参照リスト 水平配置(通常) */
 div.res div.reslist {
-    font-size:80%;
-    margin : 1em 0 0 3em;
+	position:relative;
+    margin : 0 0 0 1.5em;
 }
 
 /* 逆参照リスト 水平配置(引用レスポップアップ)  */
 div.respopup div.reslist {
-    font-size:90%;
-    margin : 1em 0 0 3em;
 }
 
 .preview-video-switch {
 	cursor: pointer;
+}
+
+div.reslist_inner {
+	position:relative;
+//	margin:0 0 0 17px;
+	
+}
+
+blockquote.folding_container{
+	margin:0;
+	padding: 8px;
+}
+
+blockquote.folding_container:after {
+	height: 0;
+	visibility: hidden;
+	content: ".";
+	display: block;
+	clear: both;
+}
+
+div.resblock {
+    margin: 0.5em 0 0 0;
+}
+
+div.resblock div.resblock_inner {
+	margin: 0 0 0 2em;
+	line-height: 120%;
+	{$respop_background}
+	{$respop_border}
+	{$respop_color}
+	font-size:{$STYLE['respop_fontsize']};
+}
+
+.readmessage {
+	color: #606060;
+	font-style: italic;
 }
 
 EOSTYLE;
