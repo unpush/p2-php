@@ -942,6 +942,39 @@ EOP;
     }
 
     // }}}
+    // {{{ isAutoFavRankOverride()
+
+    /**
+     * 自動ランク設定でランクを上書きすべきか返す.
+     *
+     * @param   int $now    現在のランク
+     * @param   int $new    自動ランク
+     * @return  bool
+     */
+    static public function isAutoFavRankOverride($now, $new)
+    {
+        global $_conf;
+
+        switch ($_conf['expack.ic2.fav_auto_rank_override']) {
+        case 0:
+            return false;
+            break;
+        case 1:
+            return $now != $new;
+            break;
+        case 2:
+            return $now == 0 && $now != $new;
+            break;
+        case 3:
+            return $now < $new;
+            break;
+        default:
+            return false;
+        }
+        return false;
+    }
+
+    // }}}
 }
 
 // }}}
