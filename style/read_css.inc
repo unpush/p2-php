@@ -379,6 +379,11 @@ div.resblock div.resblock_inner {
 	font-size:{$STYLE['respop_fontsize']};
 }
 
+.readmessage {
+	color: #606060;
+	font-style: italic;
+}
+
 EOSTYLE;
 
 /*

@@ -201,6 +201,10 @@ $conf_user_rad['backlink_list_future_anchor'] = array('1' => '—LŒø', '0' => '–³Œ
 $conf_user_def['backlink_block'] = 1;
 $conf_user_rad['backlink_block'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');
 
+// ‹tŽQÆƒuƒƒbƒN‚Å“WŠJ‚³‚ê‚Ä‚¢‚éƒŒƒX‚Ì–{‘Ì‚É‘•ü‚·‚é‚©
+$conf_user_def['backlink_block_readmark'] = 1;
+$conf_user_rad['backlink_block_readmark'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');
+
 // Œg‘Ñ‰{——ŽžA•¶––‚Ì‰üs‚Æ˜A‘±‚·‚é‰üs‚ðœ‹Ži‚·‚é:1, ‚µ‚È‚¢:0j
 $conf_user_def['mobile.strip_linebreaks'] = 0; // (0)
 $conf_user_rad['mobile.strip_linebreaks'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');

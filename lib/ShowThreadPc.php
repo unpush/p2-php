@@ -251,7 +251,7 @@ EOP;
 
         if ($_conf['backlink_block'] > 0) {
             // 被参照ブロック表示用にonclickを設定
-            $tores .= "<div id=\"{$res_id}\" class=\"res\" onclick=\"toggleResBlk(event, this)\">\n";
+            $tores .= "<div id=\"{$res_id}\" class=\"res\" onclick=\"toggleResBlk(event, this, " . $_conf['backlink_block_readmark'] . ")\">\n";
         } else {
             $tores .= "<div id=\"{$res_id}\" class=\"res\">\n";
         }

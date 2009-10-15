@@ -39,7 +39,7 @@ function getElement(id) {
 	}
 }
 
-function toggleResBlk(evt, res) {
+function toggleResBlk(evt, res, mark) {
 	var evt = (evt) ? evt : ((window.event) ? window.event : null);
 	var target = evt.target ? evt.target :
 		(evt.srcElement ? evt.srcElement : null);
@@ -73,13 +73,14 @@ function toggleResBlk(evt, res) {
 
 	if (_findChildByClassName(resblock, 'resblock_inner') !== null &&
 			evt.type != 'dblclick') {
+		if (mark) resetReaded(res, anchors);
 		removeRes(res, button);
 	} else {
-		insertRes(evt, res, anchors);
+		insertRes(evt, res, anchors, mark);
 	}
 }
 
-function insertRes(evt, res, anchors) {
+function insertRes(evt, res, anchors, mark) {
 
 	var resblock = _findChildByClassName(res, 'resblock');
 	if (!resblock) return;
@@ -95,7 +96,7 @@ function insertRes(evt, res, anchors) {
 				var anchor = _findAnchorComment(nodes[i]);
 				if (anchor != null)
 					insertRes(evt, nodes[i],
-						_findAnchorComment(nodes[i]));
+						_findAnchorComment(nodes[i]), mark);
 			}
 		 })(resblock_inner.childNodes);
 		 return;
@@ -111,6 +112,18 @@ function insertRes(evt, res, anchors) {
 		var importId=children[i];
 		var importElement=getElementForCopy(""+importId);
 
+		// オリジナルのレスがあれば見た目変更
+		if (mark) (function(origId) {
+			var orig = (document.all) ?  document.all[origId]
+				: ((document.getElementById) ? document.getElementById(origId)
+						: null);
+			if (orig) {
+				var kls = orig.className.split(' ');
+				kls.push('readmessage');
+				orig.className = kls.join(' ');
+			}
+		})('m' + importId.substr(2));
+
 		//参照先レス情報をコピー
 		var container=document.createElement('blockquote');
 		container.innerHTML=importElement.innerHTML.replace(/id=\".+?\"/g,"");
@@ -118,7 +131,7 @@ function insertRes(evt, res, anchors) {
 		var anchor = _findAnchorComment(importElement);
 		if (anchor) {
 			container.onclick = function (evt) {
-				toggleResBlk(evt, this);
+				toggleResBlk(evt, this, mark);
 			};
 			var c_resblock=document.createElement('div');
 			c_resblock.className = 'resblock';
@@ -133,7 +146,7 @@ function insertRes(evt, res, anchors) {
 			}
 			// ダブルクリックならカスケード
 			if (evt.type == 'dblclick') {
-				insertRes(evt, container, anchor);
+				insertRes(evt, container, anchor, mark);
 			}
 		}
 		container.className='folding_container';
@@ -155,6 +168,38 @@ function removeRes(res, button) {
 	// reslistがあれば表示
 	var reslist = _findChildByClassName(res, 'reslist');
 	if (reslist) reslist.style.display = 'block';
+}
+
+function resetReaded(res, anchors) {
+	var resblock = _findChildByClassName(res, 'resblock');
+	if (resblock == null) return;
+	var resblock_inner = _findChildByClassName(resblock, 'resblock_inner');
+	if (resblock_inner == null) return;
+
+	var children=anchors.split("/");
+	for (var i=0;i<children.length;i++) {
+		// オリジナルのレスがあれば見た目変更
+
+		var origId = 'm' + children[i].substr(2);
+		var orig = (document.all) ?  document.all[origId]
+			: ((document.getElementById) ? document.getElementById(origId)
+					: null);
+		if (orig) {
+			var kls = orig.className.split(' ');
+			for (var j=0;j<kls.length;j++) {
+				if (kls[j] == 'readmessage') {
+					kls.splice(j, 1);
+					orig.className = kls.join(' ');
+					break;
+				}
+			}
+		}
+	}
+
+	for (var i=0;i<resblock_inner.childNodes.length;i++) {
+		resetReaded(resblock_inner.childNodes[i],
+			_findAnchorComment(resblock_inner.childNodes[i]));
+	}
 }
 
 function getElementForCopy(qresID) {

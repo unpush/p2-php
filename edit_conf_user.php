@@ -285,6 +285,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('backlink_list', '逆参照ポップアップリストの表示'),
         array('backlink_list_future_anchor', '逆参照リストで未来アンカーを有効にするか'),
         array('backlink_block', '逆参照ブロックを展開できるようにするか'),
+        array('backlink_block_readmark', '逆参照ブロックで展開されているレスの本体に装飾するか'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
