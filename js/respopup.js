@@ -170,8 +170,9 @@ function showResPopUp(divID, ev) {
 		aShowTimer.y = y;
 
 		gShowTimerIds[divID] = aShowTimer;
-		//// alert(gShowTimerIds[divID].timerID);
+		//alert(gShowTimerIds[divID].timerID);
 	}
+
 }
 
 /**
@@ -323,8 +324,8 @@ function ResPopUp(divID) {
 			//y = getPageX(ev); // 現在のマウス位置のY座標
 			this.popOBJ.style.left = x + x_adjust + "px"; //ポップアップ位置
 			this.popOBJ.style.top = y + y_adjust + "px";
-			//// alert(window.pageYOffset);
-			//// alert(this.popOBJ.offsetTop);
+			//alert(window.pageYOffset);
+			//alert(this.popOBJ.offsetTop);
 
 			var scrollY = getScrollY();
 			var windowHeight = getWindowHeight();
