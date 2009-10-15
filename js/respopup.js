@@ -55,7 +55,7 @@ function insertRes(anchors,button) {
 
 	var outerContainer = document.createElement('div');
 	var children=anchors.split("/");
-	for (i=0;i<children.length;i++) {
+	for (var i=0;i<children.length;i++) {
 		var importId=children[i];
 		var importElement=copyHTML(""+importId);
 		importElement=importElement.replace(/<!--%%%(.+)%%%-->/,'$1');
