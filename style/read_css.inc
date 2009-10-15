@@ -334,7 +334,7 @@ div.respopup div.v_reslist ul li:first-letter {
 /* 逆参照リスト 水平配置(通常) */
 div.res div.reslist {
 	position:relative;
-    margin : 0 0 0 3.5em;
+    margin : 0 0 0 1.5em;
 }
 
 /* 逆参照リスト 水平配置(引用レスポップアップ)  */
@@ -352,18 +352,26 @@ div.reslist_inner {
 }
 
 blockquote.folding_container{
-	margin:0 0 2em 1em;
+	margin:0;
 	position:relative;
 	left: 0em;
+	padding: 8px;
     }
 
+blockquote.folding_container:after {
+	height: 0;
+	visibility: hidden;
+	content: ".";
+	display: block;
+	clear: both;
+}
+
 div.resblock {
-    margin: 0.5em 0 0 2em;
+    margin: 0.5em 0 0 0;
 }
 
 div.resblock div.resblock_inner {
-	margin: 0;
-	padding: 8px;
+	margin: 0 0 0 2em;
 	line-height: 120%;
 	{$respop_background}
 	{$respop_border}

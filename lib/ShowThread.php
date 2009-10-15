@@ -986,7 +986,7 @@ EOP;
      * 被レスリストをHTMLで整形して返す.
      *
      * @param   int     $resnum レス番号
-     * @param   int     $type   1:縦形式 2:横形式 3:展開用ブロック
+     * @param   int     $type   1:縦形式 2:横形式 3:展開用ブロック用文字列
      * @param   bool    $popup  横形式でのポップアップ処理(true:ポップアップする、false:挿入する)
      * @return  string
      */
@@ -1003,7 +1003,7 @@ EOP;
         } else if ($type == 2) {
             return $this->_quoteback_horizontal_list_html($anchors,$popup);
         } else if ($type == 3) {
-            return $this->_quoteback_res_block($anchors, $popup);
+            return $this->_quoteback_res_data($anchors);
         }
     }
     protected function _quoteback_vertical_list_html($anchors)
@@ -1040,20 +1040,13 @@ EOP;
         $ret.='</div>';
         return $ret;
     }
-    protected function _quoteback_res_block($anchors, $popup)
+    protected function _quoteback_res_data($anchors)
     {
-        $ret="";
-
         foreach($anchors as $idx=>$anchor) {
             $anchors2[]=($this->_matome ? "t{$this->_matome}" : "" ) ."qr{$anchor}";
         }
 
-        $insert=sprintf('<img src="img/btn_plus.gif" width="15" height="15" onclick="insertRes(\'%s\',this)" align="left">',join('/',$anchors2));
-        if ($popup) {
-            $insert="<!--%%%".$insert."%%%-->";
-        }
-        $ret.= "<div class=\"resblock\">{$insert}</div>";
-        return $ret;
+        return join('/',$anchors2);
     }
 
     // }}}

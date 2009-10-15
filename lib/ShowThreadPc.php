@@ -249,7 +249,12 @@ EOP;
             $spmeh = '';
         }
 
-        $tores .= "<div id=\"{$res_id}\" class=\"res\">\n";
+        if ($_conf['backlink_block'] > 0) {
+            // 被参照ブロック表示用にonclickを設定
+            $tores .= "<div id=\"{$res_id}\" class=\"res\" onclick=\"toggleResBlk(event, this)\">\n";
+        } else {
+            $tores .= "<div id=\"{$res_id}\" class=\"res\">\n";
+        }
 
         if ($this->thread->onthefly) {
             $GLOBALS['newres_to_show_flag'] = true;
@@ -299,7 +304,11 @@ EOP;
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
         // 被レス展開用ブロック
         if ($_conf['backlink_block'] > 0) {
-            $tores .= $this->quoteback_list_html($i, 3, false);
+            $backlinks = $this->backlink_comment($i);
+            if (strlen($backlinks)) {
+                $tores .= '<div class="resblock"><img src="img/btn_plus.gif" width="15" height="15" align="left"></div>';
+                $tores .= $backlinks;
+            }
         }
         // 被レスリスト(横形式)
         if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
@@ -448,16 +457,26 @@ EOJS;
         }
 
         $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
-        // 被レス展開用ブロック
-        if ($_conf['backlink_block'] > 0) {
-            $tores .= $this->quoteback_list_html($i, 3);
-        }
         // 被レスリスト(横形式)
         if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 2);
         }
 
+        // 被参照ブロック用データ
+        if ($_conf['backlink_block'] > 0) {
+            $tores .= $this->backlink_comment($i);
+        }
+
         return $tores;
+    }
+
+    public function backlink_comment($i)
+    {
+        $backlinks = $this->quoteback_list_html($i, 3);
+        if (strlen($backlinks)) {
+            return '<!-- backlinks:' . $backlinks . ' -->';
+        }
+        return '';
     }
 
     // }}}
