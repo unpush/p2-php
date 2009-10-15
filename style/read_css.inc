@@ -173,6 +173,10 @@ div.ngmsg {
 	color: {$STYLE['read_ngword']};
 }
 
+span.abornanchor {
+	cursor: pointer;
+}
+
 #iframespace{ /* HTMLポップアップスペース */
 	position:absolute;
 	z-index:100;

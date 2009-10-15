@@ -607,9 +607,16 @@ EOP;
             return $full;
         }
 
+        // あぼーんレスへのアンカー
+        if ($_conf['quote_res_view_aborn'] == 0 &&
+                in_array($qnum, $this->_aborn_nums)) {
+            return '<span class="abornanchor" title="あぼーん">' . "{$qsign}{$appointed_num}</span>";
+        }
+
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
         $attributes = $_conf['bbs_win_target_at'];
-        if ($_conf['quote_res_view']) {
+        if ($_conf['quote_res_view'] && ($_conf['quote_res_view_ng'] != 0 ||
+                !in_array($qnum, $this->_ng_nums))) {
             if ($this->_matome) {
                 $qres_id = "t{$this->_matome}qr{$qnum}";
             } else {
