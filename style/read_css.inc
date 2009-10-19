@@ -301,6 +301,10 @@ a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* V’…ƒŒƒX */
 	border: {$STYLE['respop_b_style']} 1px {$STYLE['respop_b_color']};
 }
 
+.highlight {
+    background-color: {$STYLE['respop_bgcolor']};
+}
+
 /* }}} */
 
 .preview-video-switch {
