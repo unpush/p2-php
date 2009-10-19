@@ -10,7 +10,7 @@ $respop_background = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_back
 
 if (!isset($STYLE['respop_b_style'])) { $STYLE['respop_b_style'] = 'solid'; }
 if (!isset($STYLE['respop_b_width'])) { $STYLE['respop_b_width'] = '1px';   }
-if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = 'black'; }
+if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = '#aa7'; }
 $respop_border = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {$STYLE['respop_b_color']};";
 
 $respop_color = '';
