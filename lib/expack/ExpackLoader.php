@@ -8,6 +8,40 @@
  */
 class ExpackLoader
 {
+    // {{{ loadFunction()
+
+    /**
+     * 関数をロードする
+     *
+     * @param   string  $funcName   関数名
+     * @param   string  $fileName   関数が定義されているファイル名
+     * @return  void
+     */
+    static public function loadFunction($funcName, $fileName)
+    {
+        if (!function_exists($funcName)) {
+            include P2EX_LIB_DIR . '/' . $fileName;
+        }
+    }
+
+    // }}}
+    // {{{ loadClass()
+
+    /**
+     * クラスをロードする
+     *
+     * @param   string  $className  クラス名
+     * @param   string  $fileName   クラスが定義されているファイル名
+     * @return  void
+     */
+    static public function loadClass($className, $fileName)
+    {
+        if (!class_exists($className, false)) {
+            include P2EX_LIB_DIR . '/' . $fileName;
+        }
+    }
+
+    // }}}
     // {{{ loadActiveMona()
 
     /**
@@ -24,7 +58,7 @@ class ExpackLoader
         if ((!$_conf['ktai'] && $_conf['expack.am.enabled']) ||
             ($_conf['ktai'] && $_conf['expack.am.enabled'] && $_conf['expack.am.autong_k'])
         ) {
-            require_once P2EX_LIB_DIR . '/ActiveMona.php';
+            self::loadClass('ActiveMona', 'ActiveMona.php');
             define('P2_ACTIVEMONA_AVAILABLE', 1);
         } else {
             define('P2_ACTIVEMONA_AVAILABLE', 0);
@@ -78,11 +112,11 @@ class ExpackLoader
         if ((!$_conf['ktai'] && $_conf['expack.ic2.enabled'] % 2 == 1) ||
             ($_conf['ktai'] && $_conf['expack.ic2.enabled'] >= 2))
         {
-            require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-            require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-            require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
-            require_once P2EX_LIB_DIR . '/ic2/DataObject/Errors.php';
-            require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+            self::loadFunction('ic2_loadconfig',        'ic2/loadconfig.inc.php');
+            self::loadClass('IC2_DataObject_Images',    'ic2/DataObject/Images.php');
+            self::loadClass('IC2_DataObject_BlackList', 'ic2/DataObject/BlackList.php');
+            self::loadClass('IC2_DataObject_Errors',    'ic2/DataObject/Errors.php');
+            self::loadClass('IC2_Thumbnailer',          'ic2/Thumbnailer.php');
             define('P2_IMAGECACHE_AVAILABLE', 2);
         } else {
             define('P2_IMAGECACHE_AVAILABLE', 0);
@@ -141,7 +175,7 @@ class ExpackLoader
             $aShowThread->img_memo_query = '';
         }
 
-        require_once P2EX_LIB_DIR . '/ic2/Switch.php';
+        self::loadClass('IC2_Switch', 'ic2/Switch.php');
         if (!IC2_Switch::get($_conf['ktai'])) {
             $GLOBALS['pre_thumb_limit'] = 0;
             $GLOBALS['pre_thumb_limit_k'] = 0;

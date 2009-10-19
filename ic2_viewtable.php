@@ -46,7 +46,7 @@ switch ($mode) {
         break;
     case 'blacklist':
         require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
-        $table = new IC2_DataObject__BlackList;
+        $table = new IC2_DataObject_BlackList;
         $table->orderBy('uri ASC');
         $title = 'ブラックリスト';
         break;

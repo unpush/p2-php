@@ -251,7 +251,7 @@ if ($result) {
 
 // 画像がブラックリストにあるか確認
 require_once P2EX_LIB_DIR . '/ic2/DataObject/BlackList.php';
-$blacklist = new IC2_DataObject__BlackList;
+$blacklist = new IC2_DataObject_BlackList;
 if ($blacklist->get($uri)) {
     switch ($blacklist->type) {
         case 0:
@@ -583,7 +583,7 @@ function ic2_checkAbornedFile($tmpfile, $params)
     extract($params);
 
     // ブラックリスト検索
-    $bl_check = new IC2_DataObject__BlackList;
+    $bl_check = new IC2_DataObject_BlackList;
     $bl_check->whereAddQuoted('size', '=', $size);
     $bl_check->whereAddQuoted('md5',  '=', $md5);
     if ($bl_check->find(true)) {

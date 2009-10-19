@@ -25,8 +25,8 @@ class HostCheck
 </head>
 <body>
 <h1>アク禁。</h1>
-<p>{$_SERVER['REMOTE_ADDR']}からp2へのアクセスは許可されていません。<br>
-もしあなたがこのp2のオーナーなら、conf_hostcheck.phpの設定を見直してください。</p>
+<p>{$_SERVER['REMOTE_ADDR']}からrep2へのアクセスは許可されていません。<br>
+もしあなたがこのrep2のオーナーなら、conf_hostcheck.phpの設定を見直してください。</p>
 </body>
 </html>
 EOF;
@@ -145,7 +145,7 @@ EOF;
                 ($flag == $types['iphone']    && self::isAddressIphone($address))   ||
                 ($flag == $types['custom'] && (!empty($custom) || !empty($custom_re)) &&
                     self::isAddressInBand($address, $custom, $custom_re,
-                        'custom' . date('YmdHis', filemtime(P2_CONF_DIR . '/conf_hostcheck.php'))
+                            'custom', filemtime(P2_CONF_DIR . '/conf_hostcheck.php')
                     )
                  )
                 )
@@ -254,7 +254,8 @@ EOF;
      * 2. (1)の配列
      * 3. IPアドレスをキーとし、マスク長もしくはサブネットマスクを値にとる連想配列
      */
-    static public function isAddressInBand($address, $band = null, $regex = null, $cache_id = null)
+    static public function isAddressInBand($address, $band = null, $regex = null,
+                                           $cache_id = null, $data_mtime = 0)
     {
         global $_conf;
 
@@ -284,7 +285,13 @@ EOF;
             $cache_file .= '.ucache.inc';
         }
 
-        if (file_exists($cache_file) && filemtime($cache_file) > filemtime(__FILE__)) {
+        if (file_exists($cache_file)) {
+            $cache_mtime = filemtime($cache_file);
+        } else {
+            $cache_mtime = 0;
+        }
+
+        if ($cache_mtime && $cache_mtime > filemtime(__FILE__) && $cache_mtime > $data_mtime) {
             include $cache_file;
         } else {
             $tmp = array();
@@ -518,7 +525,8 @@ EOF;
             $regex = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex, 'docomo');
+        return self::isAddressInBand($address, $band, $regex,
+                'docomo', filemtime(P2_CONF_DIR . '/ip_docomo.php'));
     }
 
     // }}}
@@ -541,7 +549,8 @@ EOF;
             $regex = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex, 'au');
+        return self::isAddressInBand($address, $band, $regex,
+                'au', filemtime(P2_CONF_DIR . '/ip_au.php'));
     }
 
     // }}}
@@ -564,7 +573,8 @@ EOF;
             $regex = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex, 'softbank');
+        return self::isAddressInBand($address, $band, $regex,
+                'softbank', filemtime(P2_CONF_DIR . '/ip_softbank.php'));
     }
 
     // }}}
@@ -587,7 +597,8 @@ EOF;
             $regex = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex, 'willcom');
+        return self::isAddressInBand($address, $band, $regex,
+                'willcom', filemtime(P2_CONF_DIR . '/ip_willcom.php'));
     }
 
     // }}}
@@ -610,7 +621,8 @@ EOF;
             $regex = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex, 'emobile');
+        return self::isAddressInBand($address, $band, $regex,
+                'emobile', filemtime(P2_CONF_DIR . '/ip_emobile.php'));
     }
 
     // }}}
@@ -633,7 +645,8 @@ EOF;
             $regex = null;
         }
 
-        return self::isAddressInBand($address, $band, $regex, 'iphone');
+        return self::isAddressInBand($address, $band, $regex,
+                'iphone', filemtime(P2_CONF_DIR . '/ip_iphone.php'));
     }
 
     // }}}
