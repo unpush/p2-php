@@ -1150,7 +1150,7 @@ EOP;
             if (($id = $this->thread->ids[$num + 1]) !== null) {
                 $date_id = str_replace($this->thread->idp[$i] . $id, 'ID:' . $id, $date_id);
             }
-            $ng_type = $this->_ngAbornCheck($num + 1, strip_tags($name), $mail, $date_id, $id, $msg, true);
+            $ng_type = $this->_ngAbornCheck($num + 1, strip_tags($name), $mail, $date_id, $id, $msg);
             if ($ng_type == self::ABORN) {continue;}
 
             // >>1‚ÌƒŠƒ“ƒN‚ð‚¢‚Á‚½‚ñŠO‚·
