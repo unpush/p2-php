@@ -399,6 +399,9 @@ div.resblock div.resblock_inner {
 	{$respop_border}
 	{$respop_color}
 	font-size:{$STYLE['respop_fontsize']};
+	-moz-box-shadow: 2px 2px 2px #999;
+	-webkit-box-shadow: 2px 2px 2px #999;
+	box-shadow: 2px 2px 2px #999;
 }
 
 .readmessage {
