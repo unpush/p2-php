@@ -193,6 +193,14 @@ $conf_user_rad['bottom_res_form'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['quote_res_view'] = 1; // (1)
 $conf_user_rad['quote_res_view'] = array('1' => 'する', '0' => 'しない');
 
+// NGレスを引用レス表示するか（する:1, しない:0）
+$conf_user_def['quote_res_view_ng'] = 0; // (0)
+$conf_user_rad['quote_res_view_ng'] = array('1' => 'する', '0' => 'しない');
+
+// あぼーんレスを引用レス表示するか（する:1, しない:0）
+$conf_user_def['quote_res_view_aborn'] = 0; // (0)
+$conf_user_rad['quote_res_view_aborn'] = array('1' => 'する', '0' => 'しない');
+
 // PC閲覧時、文末の改行と連続する改行を除去（する:1, しない:0）
 $conf_user_def['strip_linebreaks'] = 0; // (0)
 $conf_user_rad['strip_linebreaks'] = array('1' => 'する', '0' => 'しない');

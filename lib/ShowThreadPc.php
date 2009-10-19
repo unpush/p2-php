@@ -712,13 +712,20 @@ EOP;
             return $full;
         }
 
+        // あぼーんレスへのアンカー
+        if ($_conf['quote_res_view_aborn'] == 0 &&
+                in_array($qnum, $this->_aborn_nums)) {
+            return '<span class="abornanchor" title="あぼーん">' . "{$full}</span>";
+        }
+
         if ($anchor_jump && $qnum >= $this->thread->resrange['start'] && $qnum <= $this->thread->resrange['to']) {
             $read_url = '#' . ($this->_matome ? "t{$this->_matome}" : '') . "r{$qnum}";
         } else {
             $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
         }
         $attributes = $_conf['bbs_win_target_at'];
-        if ($_conf['quote_res_view']) {
+        if ($_conf['quote_res_view'] && ($_conf['quote_res_view_ng'] != 0 ||
+                !in_array($qnum, $this->_ng_nums))) {
             if ($this->_matome) {
                 $qres_id = "t{$this->_matome}qr{$qnum}";
             } else {
@@ -727,7 +734,10 @@ EOP;
             $attributes .= " onmouseover=\"showResPopUp('{$qres_id}',event)\"";
             $attributes .= " onmouseout=\"hideResPopUp('{$qres_id}')\"";
         }
-        return "<a href=\"{$read_url}\"{$attributes}>{$full}</a>";
+        return "<a href=\"{$read_url}\"{$attributes}"
+            . (in_array($qnum, $this->_aborn_nums) ? ' class="abornanchor"' :
+                (in_array($qnum, $this->_ng_nums) ? ' class="nganchor"' : ''))
+            . ">{$full}</a>";
     }
 
     // }}}

@@ -294,6 +294,19 @@ function doShowResPopUp(divID) {
 	}
 
 	aResPopUp.showResPopUp(x, y);
+
+	(function (divid) {	// ポップアップの元があればハイライト
+		if (document.all) { // IE用
+			var orig = document.all['r' + divID.substr(2)];
+		} else if (document.getElementById) { // DOM対応用（Mozilla）
+			var orig = document.getElementById('r' + divID.substr(2));
+		}
+		 if (orig) {
+			var kls = orig.className.split(' ');
+			kls.push('highlight');
+			orig.className = kls.join(' ');
+		}
+	})(divID);
 }
 
 /**
@@ -323,6 +336,24 @@ function doHideResPopUp(divID) {
 	if (aResPopUp) {
 		aResPopUp.doHideResPopUp();
 	}
+
+	(function (divid) {	// ポップアップ元のハイライトを戻し
+		if (document.all) { // IE用
+			 var orig = document.all['r' + divID.substr(2)];
+		} else if (document.getElementById) { // DOM対応用（Mozilla）
+			 var orig = document.getElementById('r' + divID.substr(2));
+		}
+		 if (orig) {
+			var kls = orig.className.split(' ');
+			for (var j=0;j<kls.length;j++) {
+				if (kls[j] == 'highlight') {
+					kls.splice(j, 1);
+					orig.className = kls.join(' ');
+					break;
+				}
+			}
+		}
+	})(divID);
 }
 
 

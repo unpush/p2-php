@@ -10,7 +10,7 @@ $respop_background = "background:{$STYLE['respop_bgcolor']} {$STYLE['respop_back
 
 if (!isset($STYLE['respop_b_style'])) { $STYLE['respop_b_style'] = 'solid'; }
 if (!isset($STYLE['respop_b_width'])) { $STYLE['respop_b_width'] = '1px';   }
-if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = 'black'; }
+if (!isset($STYLE['respop_b_color'])) { $STYLE['respop_b_color'] = '#aa7'; }
 $respop_border = "border:{$STYLE['respop_b_style']} {$STYLE['respop_b_width']} {$STYLE['respop_b_color']};";
 
 $respop_color = '';
@@ -111,6 +111,9 @@ div.respopup {
 	padding: 8px;
 	line-height: 120%;
 	top: 0px;
+	-moz-box-shadow: 4px 4px 16px #555;
+	-webkit-box-shadow: 4px 4px 16px #555;
+	box-shadow: 4px 4px 16px #555;
 }
 
 /* あぼーんレス */
@@ -174,6 +177,19 @@ span.ngword {
 
 div.ngmsg {
 	display: none;
+}
+
+.nganchor {
+	text-decoration: line-through;
+}
+
+.abornanchor {
+	text-decoration: line-through;
+	color: {$STYLE['read_ngword']};
+}
+
+span.abornanchor {
+	cursor: pointer;
 }
 
 #iframespace{ /* HTMLポップアップスペース */
@@ -258,6 +274,9 @@ a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* 新着レス */
 	width: 8.5em;
 	margin: 0px;
 	padding: 2px 4px;
+	-moz-box-shadow: 4px 4px 16px #555;
+	-webkit-box-shadow: 4px 4px 16px #555;
+	box-shadow: 4px 4px 16px #555;
 }
 
 .spm p {	/* スマートポップアップメニュー：ヘッダ */
@@ -292,6 +311,10 @@ a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* 新着レス */
 	margin: {$STYLE['respop_b_width']};
 	padding: 1px;
 	border: {$STYLE['respop_b_style']} 1px {$STYLE['respop_b_color']};
+}
+
+.highlight {
+    background-color: {$STYLE['respop_bgcolor']};
 }
 
 /* }}} */
