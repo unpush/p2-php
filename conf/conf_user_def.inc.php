@@ -193,6 +193,14 @@ $conf_user_rad['bottom_res_form'] = array('1' => 'する', '0' => 'しない');
 $conf_user_def['quote_res_view'] = 1; // (1)
 $conf_user_rad['quote_res_view'] = array('1' => 'する', '0' => 'しない');
 
+// NGレスを引用レス表示するか（する:1, しない:0）
+$conf_user_def['quote_res_view_ng'] = 0; // (0)
+$conf_user_rad['quote_res_view_ng'] = array('1' => 'する', '0' => 'しない');
+
+// あぼーんレスを引用レス表示するか（する:1, しない:0）
+$conf_user_def['quote_res_view_aborn'] = 0; // (0)
+$conf_user_rad['quote_res_view_aborn'] = array('1' => 'する', '0' => 'しない');
+
 // PC閲覧時、文末の改行と連続する改行を除去（する:1, しない:0）
 $conf_user_def['strip_linebreaks'] = 0; // (0)
 $conf_user_rad['strip_linebreaks'] = array('1' => 'する', '0' => 'しない');
@@ -203,7 +211,23 @@ $conf_user_rad['link_wikipedia'] = array('1' => 'する', '0' => 'しない');
 
 // 逆参照リストの表示
 $conf_user_def['backlink_list'] = 1;
-$conf_user_rad['backlink_list'] = array('1' => 'ツリーぽく表示', '2' => '横表示', '0' => 'しない');
+$conf_user_rad['backlink_list'] = array('1' => 'ツリーぽく表示', '2' => '横表示', '3' => '両方', '0' => 'しない');
+
+// 逆参照リストで未来アンカーを有効にするか
+$conf_user_def['backlink_list_future_anchor'] = 1;
+$conf_user_rad['backlink_list_future_anchor'] = array('1' => '有効', '0' => '無効');
+
+// 逆参照リストでこの値より広い範囲レスを対象外にする(0で制限なし)
+$conf_user_def['backlink_list_range_anchor_limit'] = 0;
+$conf_user_rules['backlink_list_range_anchor_limit'] = array('notIntExceptMinusToDef');
+
+// 逆参照ブロックを展開できるようにするか
+$conf_user_def['backlink_block'] = 1;
+$conf_user_rad['backlink_block'] = array('1' => 'する', '0' => 'しない');
+
+// 逆参照ブロックで展開されているレスの本体に装飾するか
+$conf_user_def['backlink_block_readmark'] = 1;
+$conf_user_rad['backlink_block_readmark'] = array('1' => 'する', '0' => 'しない');
 
 // 携帯閲覧時、文末の改行と連続する改行を除去（する:1, しない:0）
 $conf_user_def['mobile.strip_linebreaks'] = 0; // (0)
@@ -331,6 +355,10 @@ $conf_user_rad['ngaborn_chain_all'] = array('1' => 'する', '0' => 'しない');
 // この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す（日数）
 $conf_user_def['ngaborn_daylimit'] = 180; // (180)
 $conf_user_rules['ngaborn_daylimit'] = array('emptyToDef', 'notIntExceptMinusToDef');
+
+// あぼーんレスは不可視divブロックも描画しない
+$conf_user_def['ngaborn_purge_aborn'] = 0;  // (0)
+$conf_user_rad['ngaborn_purge_aborn'] = array('1' => 'はい', '0' => 'いいえ');
 
 // }}}
 // {{{ ETC

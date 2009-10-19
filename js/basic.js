@@ -395,6 +395,19 @@ function getDocumentBodyIE()
 	return (document.compatMode=='CSS1Compat') ? document.documentElement : document.body;
 }
 
+function setWindowOnLoad(callback)
+{
+	if (typeof window.onload == 'function') {
+		var oldonload = window.onload;
+		window.onload = function() {
+			oldonload();
+			callback();
+		};
+	} else {
+		window.onload = callback;
+	}
+}
+
 /*
  * Local Variables:
  * mode: javascript

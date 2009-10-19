@@ -335,11 +335,11 @@ EOP;
         $res1 = $aShowThread->quoteOne(); // >>1ポップアップ用
         if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0 &&
             $_conf['coloredid.rate.type'] > 0) {
-            $mainhtml .= $res1['q'];
             $mainhtml .= $aShowThread->datToHtml(true);
+            $mainhtml .= $res1['q'];
         } else {
-            echo $res1['q'];
             $aShowThread->datToHtml();
+            echo $res1['q'];
         }
 
 

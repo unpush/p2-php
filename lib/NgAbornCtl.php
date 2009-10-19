@@ -172,6 +172,7 @@ class NgAbornCtl
                 isset($lar[1]) && $ar['lasttime'] = $lar[1];
                 isset($lar[2]) && $ar['hits'] = (int) $lar[2];
                 if ($filename == 'p2_aborn_res.txt') {
+                    $array['data'][] = $ar;
                     continue;
                 }
 

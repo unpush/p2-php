@@ -283,9 +283,15 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('bbs_win_target', 'rep2対応BBSサイト内でジャンプする時に開くウィンドウのターゲット名<br>(空なら同じウインドウ、_blank で新しいウインドウ)'),
         array('bottom_res_form', 'スレッド下部に書き込みフォームを表示'),
         array('quote_res_view', '引用レスを表示'),
+        array('quote_res_view_ng', 'NGレスを引用レス表示するか'),
+        array('quote_res_view_aborn', 'あぼーんレスを引用レス表示するか'),
         array('strip_linebreaks', '文末の改行と連続する改行を除去'),
         array('link_wikipedia', '[[単語]]をWikipediaへのリンクにする'),
         array('backlink_list', '逆参照ポップアップリストの表示'),
+        array('backlink_list_future_anchor', '逆参照リストで未来アンカーを有効にするか'),
+        array('backlink_list_range_anchor_limit', '逆参照リストでこの値より広い範囲レスを対象外にする(0で制限なし)'),
+        array('backlink_block', '逆参照ブロックを展開できるようにするか'),
+        array('backlink_block_readmark', '逆参照ブロックで展開されているレスの本体に装飾するか'),
         array('backlink_coloring_track', '本文をダブルクリックすると着色してレス追跡'),
         array('backlink_coloring_track_colors', '本文をダブルクリックてレス追跡時の色リスト(カンマ区切り)'),
         array('coloredid.enable', 'IDに色を付ける'),
@@ -316,6 +322,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('ngaborn_chain', '連鎖NGあぼーん<br>「する」ならあぼーんレスへのレスはあぼーん、NGレスへのレスはNG。<br>「すべてNGにする」の場合、あぼーんレスへのレスもNGにする。'),
         array('ngaborn_chain_all', '表示範囲外のレスも連鎖NGあぼーんの対象にする<br>(処理を軽くするため、デフォルトではしない)'),
         array('ngaborn_daylimit', 'この期間、NGあぼーんにHITしなければ、登録ワードを自動的に外す (日数)'),
+        array('ngaborn_purge_aborn', 'あぼーんレスは不可視divブロックも描画しない'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -624,6 +631,11 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.ic2.pre_thumb_limit_k', '携帯でインライン・サムネイルが有効のときの表示する制限数 (0で無制限)'),
         array('expack.ic2.newres_ignore_limit', '新着レスの画像は pre_thumb_limit を無視して全て表示'),
         array('expack.ic2.newres_ignore_limit_k', '携帯で新着レスの画像は pre_thumb_limit_k を無視して全て表示'),
+        array('expack.ic2.thread_imagelink', 'スレ表示時に画像キャッシュ一覧へのスレタイ検索リンクを表示する'),
+        array('expack.ic2.thread_imagecount', 'スレ表示時にスレタイで検索した時の画像数を表示する'),
+        array('expack.ic2.fav_auto_rank', 'お気にスレに登録されているスレの画像に自動ランクを設定する'),
+        array('expack.ic2.fav_auto_rank_setting', 'お気にスレの画像を自動ランク設定する場合の設定値(カンマ区切り)[お気に0のランク値,お気に1のランク値, , ,]'),
+        array('expack.ic2.fav_auto_rank_override', 'お気にスレの画像を自動ランク設定する場合に、キャッシュ済み画像に自動ランクを上書きするか'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

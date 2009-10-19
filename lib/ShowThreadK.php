@@ -546,6 +546,8 @@ EOP;
      */
     protected function _abornedRes($res_id)
     {
+        global $_conf;
+        if ($_conf['ngaborn_purge_aborn']) return '';
         return <<<EOP
 <div id="{$res_id}" name="{$res_id}" class="res aborned">&nbsp;</div>\n
 EOP;
@@ -699,7 +701,7 @@ EOP;
      */
     public function quoteRes($full, $qsign, $appointed_num)
     {
-        global $_conf;
+        global $_conf, $STYLE;
 
         if ($appointed_num == '-') {
             return $full;
@@ -719,7 +721,9 @@ EOP;
         }
 
         $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
-        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>{$full}</a>";
+        return "<a href=\"{$read_url}{$_conf['k_at_a']}\"{$this->respopup_at}{$this->target_at}>"
+            . (in_array($qnum, $this->_aborn_nums) ? "<s><font color=\"{$STYLE['mobile_read_ngword_color']}\">{$full}</font></s>" :
+                (in_array($qnum, $this->_ng_nums) ? "<s>{$full}</s>" : "{$full}")) . "</a>";
     }
 
     // }}}
@@ -1001,6 +1005,12 @@ EOP;
             $src_url2 = 'ic2.php?r=1&amp;t=0&amp;id=';
             $src_exists = false;
 
+            // お気にスレ自動画像ランク
+            $rank = null;
+            if ($_conf['expack.ic2.fav_auto_rank']) {
+                $rank = $this->getAutoFavRank();
+            }
+
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {
                 $img_id = $icdb->id;
@@ -1064,6 +1074,20 @@ EOP;
                         $update->memo = $this->img_memo;
                     }
                     $update->whereAddQuoted('uri', '=', $url);
+                }
+
+                // expack.ic2.fav_auto_rank_override の設定とランク条件がOKなら
+                // お気にスレ自動画像ランクを上書き更新
+                if ($rank !== null &&
+                        self::isAutoFavRankOverride($icdb->rank, $rank)) {
+                    if ($update === null) {
+                        $update = new IC2_DataObject_Images;
+                        $update->whereAddQuoted('uri', '=', $url);
+                    }
+                    $update->rank = $rank;
+
+                }
+                if ($update !== null) {
                     $update->update();
                 }
 
@@ -1077,7 +1101,8 @@ EOP;
 
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
-                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}\">";
+                    $rank_str = ($rank !== null) ? '&rank=' . $rank : '';
+                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}{$rank_str}\">";
                     $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;

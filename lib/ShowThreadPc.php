@@ -264,7 +264,12 @@ EOP;
             $spmeh = '';
         }
 
-        $tores .= "<div id=\"{$res_id}\" class=\"res\">\n";
+        if ($_conf['backlink_block'] > 0) {
+            // 被参照ブロック表示用にonclickを設定
+            $tores .= "<div id=\"{$res_id}\" class=\"res\" onclick=\"toggleResBlk(event, this, " . $_conf['backlink_block_readmark'] . ")\">\n";
+        } else {
+            $tores .= "<div id=\"{$res_id}\" class=\"res\">\n";
+        }
         $tores .= "<div class=\"res-header\">";
 
         if ($this->thread->onthefly) {
@@ -308,14 +313,22 @@ EOP;
         $tores .= "</div>\n"; // res-headerを閉じる
 
         // 被レスリスト(縦形式)
-        if ($_conf['backlink_list'] == 1) {
+        if ($_conf['backlink_list'] == 1 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 1);
         }
 
         $tores .= "<div id=\"{$msg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
+        // 被レス展開用ブロック
+        if ($_conf['backlink_block'] > 0) {
+            $backlinks = $this->backlink_comment($i);
+            if (strlen($backlinks)) {
+                $tores .= '<div class="resblock"><img src="img/btn_plus.gif" width="15" height="15" align="left"></div>';
+                $tores .= $backlinks;
+            }
+        }
         // 被レスリスト(横形式)
-        if ($_conf['backlink_list'] == 2) {
-            $tores .= $this->quoteback_list_html($i, 2);
+        if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
+            $tores .= $this->quoteback_list_html($i, 2,false);
         }
         $tores .= "</div>\n";
 
@@ -456,17 +469,31 @@ EOJS;
         $tores .= "</div>\n";
 
         // 被レスリスト(縦形式)
-        if ($_conf['backlink_list'] == 1) {
+        if ($_conf['backlink_list'] == 1 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 1);
         }
 
         $tores .= "<div id=\"{$qmsg_id}\" class=\"{$msg_class}\">{$msg}</div>\n"; // 内容
         // 被レスリスト(横形式)
-        if ($_conf['backlink_list'] == 2) {
+        if ($_conf['backlink_list'] == 2 || $_conf['backlink_list'] > 2) {
             $tores .= $this->quoteback_list_html($i, 2);
         }
 
+        // 被参照ブロック用データ
+        if ($_conf['backlink_block'] > 0) {
+            $tores .= $this->backlink_comment($i);
+        }
+
         return $tores;
+    }
+
+    public function backlink_comment($i)
+    {
+        $backlinks = $this->quoteback_list_html($i, 3);
+        if (strlen($backlinks)) {
+            return '<!-- backlinks:' . $backlinks . ' -->';
+        }
+        return '';
     }
 
     // }}}
@@ -582,6 +609,8 @@ EOJS;
      */
     protected function _abornedRes($res_id)
     {
+        global $_conf;
+        if ($_conf['ngaborn_purge_aborn']) return '';
         return <<<EOP
 <div id="{$res_id}" class="res aborned">
 <div class="res-header">&nbsp;</div>
@@ -624,7 +653,7 @@ EOP;
             return $idstr;
         }
 
-        if ($_conf['coloredid.enable'] > 0) {
+        if ($_conf['coloredid.enable'] > 0 && preg_match("|^ID:[ ]?[0-9A-Za-z/.+]{8,11}|",$idstr)) {
             if ($this->_ids_for_render === null) $this->_ids_for_render = array();
             $this->_ids_for_render[substr($id, 0, 8)] = $this->thread->idcount[$id];
             if ($_conf['coloredid.click'] > 0) {
@@ -686,13 +715,20 @@ EOP;
             return $full;
         }
 
+        // あぼーんレスへのアンカー
+        if ($_conf['quote_res_view_aborn'] == 0 &&
+                in_array($qnum, $this->_aborn_nums)) {
+            return '<span class="abornanchor" title="あぼーん">' . "{$full}</span>";
+        }
+
         if ($anchor_jump && $qnum >= $this->thread->resrange['start'] && $qnum <= $this->thread->resrange['to']) {
             $read_url = '#' . ($this->_matome ? "t{$this->_matome}" : '') . "r{$qnum}";
         } else {
             $read_url = "{$_conf['read_php']}?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;offline=1&amp;ls={$appointed_num}";
         }
         $attributes = $_conf['bbs_win_target_at'];
-        if ($_conf['quote_res_view']) {
+        if ($_conf['quote_res_view'] && ($_conf['quote_res_view_ng'] != 0 ||
+                !in_array($qnum, $this->_ng_nums))) {
             if ($this->_matome) {
                 $qres_id = "t{$this->_matome}qr{$qnum}";
             } else {
@@ -701,7 +737,10 @@ EOP;
             $attributes .= " onmouseover=\"showResPopUp('{$qres_id}',event)\"";
             $attributes .= " onmouseout=\"hideResPopUp('{$qres_id}')\"";
         }
-        return "<a href=\"{$read_url}\"{$attributes}>{$full}</a>";
+        return "<a href=\"{$read_url}\"{$attributes}"
+            . (in_array($qnum, $this->_aborn_nums) ? ' class="abornanchor"' :
+                (in_array($qnum, $this->_ng_nums) ? ' class="nganchor"' : ''))
+            . ">{$full}</a>";
     }
 
     // }}}
@@ -985,7 +1024,7 @@ EOP;
         global $_conf;
 
         // 再帰リミッタ
-        if ($this->_quote_check_depth > 30) {
+        if ($this->_quote_check_depth > (($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) ? 3000 : 30)) {
             return array();
         } else {
             $this->_quote_check_depth++;
@@ -1060,7 +1099,7 @@ EOP;
 
         }
 
-        if ($_conf['backlink_list'] > 0) {
+        if ($_conf['backlink_list'] > 0 || $_conf['backlink_block'] > 0) {
             // レスが付いている場合はそれも対象にする
             $quote_from = $this->get_quote_from();
             if (array_key_exists($res_num, $quote_from)) {
@@ -1557,6 +1596,12 @@ EOP;
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
             $img_url = 'ic2.php?r=1&amp;uri=' . $url_en;
             $thumb_url = 'ic2.php?r=1&amp;t=1&amp;uri=' . $url_en;
+            // お気にスレ自動画像ランク
+            $rank = null;
+            if ($_conf['expack.ic2.fav_auto_rank']) {
+                $rank = $this->getAutoFavRank();
+                if ($rank !== null) $thumb_url .= '&rank=' . $rank;
+            }
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {
@@ -1593,6 +1638,20 @@ EOP;
                             $update->memo = $this->img_memo;
                         }
                         $update->whereAddQuoted('uri', '=', $url);
+                    }
+
+                    // expack.ic2.fav_auto_rank_override の設定とランク条件がOKなら
+                    // お気にスレ自動画像ランクを上書き更新
+                    if ($rank !== null &&
+                            self::isAutoFavRankOverride($icdb->rank, $rank)) {
+                        if ($update === null) {
+                            $update = new IC2_DataObject_Images;
+                            $update->whereAddQuoted('uri', '=', $url);
+                        }
+                        $update->rank = $rank;
+
+                    }
+                    if ($update !== null) {
                         $update->update();
                     }
                 }
