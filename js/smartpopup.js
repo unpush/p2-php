@@ -1,7 +1,6 @@
-/* vim: set fileencoding=cp932 ai noet ts=4 sw=4 sts=4: */
-/* mi: charset=Shift_JIS */
-
-/* rep2expack - スマートポップアップメニュー  */
+/*
+ * rep2expack - レス番号ポップアップメニュー
+ */
 
 var SPM = new Object();
 var spmResNum     = new Number(); // ポップアップで参照するレス番号
@@ -40,6 +39,21 @@ SPM.init = function(aThread)
 		spm.appendItem('これにレス', [aThread, 'post_form.php', 'inyou=' + (2 & opt[1]).toString()]);
 		spm.appendItem('引用してレス', [aThread, 'post_form.php', 'inyou=' + ((2 & opt[1]) + 1).toString()]);
 	}
+
+	// ここまで読んだ
+	spm.appendItem('ここまで読んだ', (function(){
+		SPM.httpcmd('setreadnum', aThread, (function(result, cmd, aThread, num, url){
+			var msg = 'スレッド“' + aThread.title + '”の既読数を';
+			if (result == '1') {
+				msg += ' ' + num + ' にセットしました。';
+			} else {
+				msg += 'セットできませんでした。';
+			}
+			window.alert(msg);
+		}));
+	}));
+
+	// ブックマーク (未実装)
 
 	// あぼーんワード・NGワード
 	if (opt[2] == 1 || opt[2] == 2) {
@@ -395,7 +409,32 @@ SPM.invite = function(aThread)
 	Invite(aThread.title, aThread.url, aThread.host, aThread.bbs, aThread.key, spmResNum);
 }
 
+/**
+ * httpcmd.phpのラッパー
+ */
+SPM.httpcmd = function(cmd, aThread, callback)
+{
+	var num = spmResNum;
+	var url = 'httpcmd.php?host=' + aThread.host + '&bbs=' + aThread.bbs + '&key=' + aThread.key
+	        + '&cmd=' + cmd + '&' + cmd + '=' + num;
+	var result = getResponseTextHttp(getXmlHttp(), url, true);
+	if (typeof callback === 'function') {
+		callback(result, cmd, aThread, num, url);
+	}
+}
+
 // 後方互換のため、一応
 makeSPM = SPM.init;
 showSPM = SPM.show;
 closeSPM = SPM.hide;
+
+/*
+ * Local Variables:
+ * mode: javascript
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: t
+ * End:
+ */
+/* vim: set syn=javascript fenc=cp932 ai noet ts=4 sw=4 sts=4 fdm=marker: */

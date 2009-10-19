@@ -9,9 +9,9 @@ define('P2_IMAGECACHE_BLACKLIST_ABORN', 1);
 define('P2_IMAGECACHE_BLACKLIST_VIRUS', 2);
 
 // }}}
-// {{{ IC2_DataObject__BlackList
+// {{{ IC2_DataObject_BlackList
 
-class IC2_DataObject__BlackList extends IC2_DataObject_Common
+class IC2_DataObject_BlackList extends IC2_DataObject_Common
 {
     // {{{ constants
 

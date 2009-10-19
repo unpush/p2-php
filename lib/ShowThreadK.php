@@ -186,12 +186,13 @@ class ShowThreadK extends ShowThread
             return $this->_abornedRes($res_id);
         }
         if (!$nong && $this->am_autong && $this->activeMona->detectAA($msg)) {
-            if ($_conf['expack.am.autong_k'] != 2) {
-                $this->_ng_nums[] = $i;
-            }
-            self::$_ngaborns_body_hits++;
-            $ng_type |= self::NG_AA;
+            $is_ng = array_key_exists($i, $this->_ng_nums);
+            $ng_type |= $this->_markNgAborn($i, self::NG_AA, true);
             $ng_info[] = 'AA—ª';
+            // AA‚ð˜A½NG‘ÎÛ‚©‚çŠO‚·ê‡
+            if (!$is_ng && $_conf['expack.am.autong_k'] == 2) {
+                unset($this->_ng_nums[$i]);
+            }
         }
         if ($ng_type != self::NG_NONE) {
             $ngaborns_head_hits = self::$_ngaborns_head_hits;

@@ -83,7 +83,7 @@ class IC2_DataObject_Images extends IC2_DataObject_Common
     public function ic2_isError($url)
     {
         // ブラックリストをチェック
-        $blacklist = new IC2_DataObject__BlackList;
+        $blacklist = new IC2_DataObject_BlackList;
         if ($blacklist->get($url)) {
             switch ($blacklist->type) {
                 case 0:

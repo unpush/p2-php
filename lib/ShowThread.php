@@ -12,6 +12,11 @@ abstract class ShowThread
 {
     // {{{ constants
 
+    /**
+     * リンクとして扱うパターン
+     *
+     * @type string
+     */
     const LINK_REGEX = '{
 (?P<link>(<[Aa][ ].+?>)(.*?)(</[Aa]>)) # リンク（PCREの特性上、必ずこのパターンを最初に試行する）
 |
@@ -36,11 +41,21 @@ abstract class ShowThread
 )
 }x';
 
+    /**
+     * リダイレクタの種類
+     *
+     * @type int
+     */
     const REDIRECTOR_NONE = 0;
     const REDIRECTOR_IMENU = 1;
     const REDIRECTOR_PINKTOWER = 2;
     const REDIRECTOR_MACHIBBS = 3;
 
+    /**
+     * NGあぼーんの種類
+     *
+     * @type int
+     */
     const ABORN = -1;
     const NG_NONE = 0;
     const NG_NAME = 1;
@@ -52,31 +67,98 @@ abstract class ShowThread
     const NG_AA = 64;
 
     // }}}
-    // {{{ properties
+    // {{{ static properties
 
+    /**
+     * まとめ読みモード時のスレッド数
+     *
+     * @type int
+     */
     static private $_matome_count = 0;
 
+    /**
+     * 本文以外がNGあぼーんにヒットした総数
+     *
+     * @type int
+     */
     static protected $_ngaborns_head_hits = 0;
+
+    /**
+     * 本文がNGあぼーんにヒットした総数
+     *
+     * @type int
+     */
     static protected $_ngaborns_body_hits = 0;
 
-    protected $_matome; // まとめ読みモード時のスレッド番号
+    // }}}
+    // {{{ properties
 
-    protected $_str_to_link_regex; // リンクすべき文字列の正規表現
+    /**
+     * まとめ読みモード時のスレッド番号
+     *
+     * @type int
+     */
+    protected $_matome;
 
-    protected $_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（デフォルト）
-    protected $_user_url_handlers; // URLを処理する関数・メソッド名などを格納する配列（ユーザ定義、デフォルトのものより優先）
+    /**
+     * URLを処理する関数・メソッド名などを格納する配列
+     * (組み込み)
+     *
+     * @type array
+     */
+    protected $_url_handlers;
 
-    protected $_ngaborn_frequent; // 頻出IDをあぼーんする
+    /**
+     * URLを処理する関数・メソッド名などを格納する配列
+     * (ユーザ定義、組み込みのものより優先)
+     *
+     * @type array
+     */
+    protected $_user_url_handlers;
 
-    protected $_aborn_nums; // あぼーんレス番号を格納する配列
-    protected $_ng_nums; // NGレス番号を格納する配列
+    /**
+     * 頻出IDをあぼーんする
+     *
+     * @type bool
+     */
+    protected $_ngaborn_frequent;
 
-    protected $_redirector; // リダイレクタの種類
+    /**
+     * あぼーんレス番号およびNGレス番号を格納する配列
+     * array_intersect()を効率よく行うため、該当するレス番号は文字列にキャストして格納する
+     *
+     * @type array
+     */
+    protected $_aborn_nums;
+    protected $_ng_nums;
 
-    public $thread; // スレッドオブジェクト
+    /**
+     * リダイレクタの種類
+     *
+     * @type int
+     */
+    protected $_redirector;
 
-    public $activeMona; // アクティブモナー・オブジェクト
-    public $am_enabled = false; // アクティブモナーが有効か否か
+    /**
+     * スレッドオブジェクト
+     *
+     * @type ThreadRead
+     */
+    public $thread;
+
+    /**
+     * アクティブモナー・オブジェクト
+     *
+     * @type ActiveMona
+     */
+    public $activeMona;
+
+    /**
+     * アクティブモナーが有効か否か
+     *
+     * @type bool
+     */
+    public $am_enabled = false;
 
     protected $_quote_from; // 被アンカーを集計した配列 // [被参照レス番 : [参照レス番, ...], ...)
 
@@ -467,13 +549,10 @@ abstract class ShowThread
                 // >>1 はそのまま表示
             } elseif ($this->_ngaborn_frequent == 1) {
                 $ngaborns_hits['aborn_freq']++;
-                $this->_aborn_nums[] = $i;
-                return self::ABORN;
+                return $this->_markNgAborn($i, self::ABORN, false);
             } elseif (!$nong) {
                 $ngaborns_hits['ng_freq']++;
-                self::$_ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $type |= self::NG_FREQ;
+                $type |= $this->_markNgAborn($i, self::NG_FREQ, false);
                 $info[] = sprintf('頻出ID:%s(%d)', $id, $this->thread->idcount[$id]);
             }
         }
@@ -482,29 +561,31 @@ abstract class ShowThread
         // {{{ 連鎖チェック
 
         if ($_conf['ngaborn_chain'] && preg_match_all('/(?:&gt;|＞)([1-9][0-9\\-,]*)/', $msg, $matches)) {
-            $chain_nums = array_unique(array_map('intval', preg_split('/[-,]+/', trim(implode(',', $matches[1]), '-,'))));
-            if (array_intersect($chain_nums, $this->_aborn_nums)) {
+            $references = array_unique(preg_split('/[-,]+/',
+                                                  trim(implode(',', $matches[1]), '-,'),
+                                                  -1,
+                                                  PREG_SPLIT_NO_EMPTY));
+            $intersections = array_intersect($references, $this->_aborn_nums);
+            $info_suffix = '';
+
+            if ($intersections) {
                 if ($_conf['ngaborn_chain'] == 1) {
                     $ngaborns_hits['aborn_chain']++;
-                    $this->_aborn_nums[] = $i;
-                    return $this->_abornedRes($res_id);
-                } elseif (!$nong) {
-                    $a_chain_num = array_shift($chain_nums);
-                    $ngaborns_hits['ng_chain']++;
-                    $this->_ng_nums[] = $i;
-                    self::$_ngaborns_body_hits++;
-                    $type |= self::NG_CHAIN;
-                    $info[] = sprintf('連鎖NG:&gt;&gt;%d(%s)',
-                                      $a_chain_num,
-                                      ($_conf['ktai']) ? 'ｱﾎﾞﾝ' : 'あぼーん');
+                    return $this->_markNgAborn($i, self::ABORN, true);
                 }
-            } elseif (!$nong && array_intersect($chain_nums, $this->_ng_nums)) {
-                $a_chain_num = array_shift($chain_nums);
+                if ($nong) {
+                    $intersections = null;
+                } else {
+                    $info_suffix = '(' . (($_conf['ktai']) ? 'ｱﾎﾞﾝ' : 'あぼーん') . ')';
+                }
+            } elseif (!$nong) {
+                $intersections = array_intersect($references, $this->_ng_nums);
+            }
+
+            if ($intersections) {
                 $ngaborns_hits['ng_chain']++;
-                self::$_ngaborns_body_hits++;
-                $this->_ng_nums[] = $i;
-                $type |= self::NG_CHAIN;
-                $info[] = sprintf('連鎖NG:&gt;&gt;%d', $a_chain_num);
+                $type |= $this->_markNgAborn($i, self::NG_CHAIN, true);
+                $info[] = sprintf('連鎖NG:&gt;&gt;%d%s', array_shift($intersections), $info_suffix);
             }
         }
 
@@ -514,36 +595,31 @@ abstract class ShowThread
         // あぼーんレス
         if ($this->abornResCheck($i) !== false) {
             $ngaborns_hits['aborn_res']++;
-            $this->_aborn_nums[] = $i;
-            return self::ABORN;
+            return $this->_markNgAborn($i, self::ABORN, false);
         }
 
         // あぼーんネーム
         if ($this->ngAbornCheck('aborn_name', $name) !== false) {
             $ngaborns_hits['aborn_name']++;
-            $this->_aborn_nums[] = $i;
-            return self::ABORN;
+            return $this->_markNgAborn($i, self::ABORN, false);
         }
 
         // あぼーんメール
         if ($this->ngAbornCheck('aborn_mail', $mail) !== false) {
             $ngaborns_hits['aborn_mail']++;
-            $this->_aborn_nums[] = $i;
-            return self::ABORN;
+            return $this->_markNgAborn($i, self::ABORN, false);
         }
 
         // あぼーんID
         if ($this->ngAbornCheck('aborn_id', $date_id) !== false) {
             $ngaborns_hits['aborn_id']++;
-            $this->_aborn_nums[] = $i;
-            return self::ABORN;
+            return $this->_markNgAborn($i, self::ABORN, false);
         }
 
         // あぼーんメッセージ
         if ($this->ngAbornCheck('aborn_msg', $msg) !== false) {
             $ngaborns_hits['aborn_msg']++;
-            $this->_aborn_nums[] = $i;
-            return self::ABORN;
+            return $this->_markNgAborn($i, self::ABORN, true);
         }
 
         // }}}
@@ -557,40 +633,64 @@ abstract class ShowThread
         // NGネームチェック
         if ($this->ngAbornCheck('ng_name', $name) !== false) {
             $ngaborns_hits['ng_name']++;
-            self::$_ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $type |= self::NG_NAME;
+            $type |= $this->_markNgAborn($i, self::NG_NAME, false);
         }
 
         // NGメールチェック
         if ($this->ngAbornCheck('ng_mail', $mail) !== false) {
             $ngaborns_hits['ng_mail']++;
-            self::$_ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $type |= self::NG_MAIL;
+            $type |= $this->_markNgAborn($i, self::NG_MAIL, false);
         }
 
         // NGIDチェック
         if ($this->ngAbornCheck('ng_id', $date_id) !== false) {
             $ngaborns_hits['ng_id']++;
-            self::$_ngaborns_head_hits++;
-            $this->_ng_nums[] = $i;
-            $type |= self::NG_ID;
+            $type |= $this->_markNgAborn($i, self::NG_ID, false);
         }
 
         // NGメッセージチェック
         $a_ng_msg = $this->ngAbornCheck('ng_msg', $msg);
         if ($a_ng_msg !== false) {
             $ngaborns_hits['ng_msg']++;
-            self::$_ngaborns_body_hits++;
-            $this->_ng_nums[] = $i;
-            $type |= self::NG_MSG;
+            $type |= $this->_markNgAborn($i, self::NG_MSG, true);
             $info[] = sprintf('NG%s:%s',
                               ($_conf['ktai']) ? 'ﾜｰﾄﾞ' : 'ワード',
                               htmlspecialchars($a_ng_msg, ENT_QUOTES));
         }
 
         // }}}
+
+        return $type;
+    }
+
+    // }}}
+    // {{{ _markNgAborn()
+
+    /**
+     * NGあぼーんにヒットしたレス番号を記録する
+     *
+     * @param   int $num        レス番号
+     * @param   int $type       NGあぼーんの種類
+     * @param   bool $isBody    本文にヒットしたかどうか
+     * @return  int $typeと同じ値
+     */
+    protected function _markNgAborn($num, $type, $isBody)
+    {
+        if ($type) {
+            if ($isBody) {
+                self::$_ngaborns_body_hits++;
+            } else {
+                self::$_ngaborns_head_hits++;
+            }
+
+            // array_intersect()を効率よく行うため、レス番号を文字列型にキャストする
+            $str = (string)$num;
+            if ($type == self::ABORN) {
+                $this->_aborn_nums[$num] = $str;
+            } else {
+                $this->_ng_nums[$num] = $str;
+            }
+        }
 
         return $type;
     }
