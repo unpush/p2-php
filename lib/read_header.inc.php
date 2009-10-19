@@ -250,6 +250,11 @@ if ($_conf['coloredid.enable'] > 0 && $_conf['coloredid.click'] > 0) {
     <script type="text/javascript" src="js/coloredId.js?{$_conf['p2_version_id']}"></script>
 EOP;
 }
+if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagecount']) {
+    echo <<<EOP
+    <script type="text/javascript" src="js/ic2_getcount.js?{$_conf['p2_version_id']}"></script>
+EOP;
+}
 
 $onload_script = '';
 
@@ -273,6 +278,13 @@ if ($_conf['iframe_popup_type'] == 1) {
 
 if ($_conf['backlink_coloring_track']) {
     $onload_script .= '(function() { for(var i=0; i<rescolObjs.length; i++) {rescolObjs[i].setUp(); }})();';
+}
+
+if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagecount']) {
+    $_ic2_get_key = rawurlencode($aThread->ttitle);
+    $onload_script .= <<<EOHEADER
+window.setWindowOnLoad(function() {ic2_setcount('{$_ic2_get_key}', ['ic2_count_h','ic2_count_f'])});
+EOHEADER;
 }
 
 echo <<<EOHEADER
@@ -414,6 +426,13 @@ EOP;
 
 // }}}
 
+// IC2リンク、件数
+if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink']) {
+    $htm['ic2navi'] = '<a href="iv2.php?field=memo&amp;key=' . rawurlencode($aThread->ttitle) . '" target="_blank">キャッシュ画像' .
+    ($_conf['expack.ic2.thread_imagecount'] ? '<span id="ic2_count_h"></span>' : '') .
+    '</a>';
+}
+
 if (empty($_GET['renzokupop']) && ($aThread->rescount || (!empty($_GET['one']) && !$aThread->diedat))) {
 
     if (!empty($_GET['one'])) {
@@ -431,6 +450,7 @@ if (empty($_GET['renzokupop']) && ($aThread->rescount || (!empty($_GET['one']) &
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a> {$htm['goto']}
         </td>
         <td align="right">
+            {$htm['ic2navi']}
             {$htm['p2frame']}
             {$toolbar_right_ht}
         </td>

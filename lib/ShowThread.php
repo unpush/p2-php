@@ -82,6 +82,8 @@ abstract class ShowThread
 
     public $BBS_NONAME_NAME = '';
 
+    private $_auto_fav_rank = false; // お気に自動ランク
+
     // }}}
     // {{{ constructor
 
@@ -1310,7 +1312,76 @@ EOP;
         return $ret;
     }
     // }}}
+    // {{{ getAutoFavRanks()
 
+    /**
+     * 自動ランク設定を返す.
+     *
+     * @return  array
+     */
+    public function getAutoFavRank()
+    {
+        if ($this->_auto_fav_rank !== false) return $this->_auto_fav_rank;
+        global $_conf;
+
+        $ranks = explode(',', strtr($_conf['expack.ic2.fav_auto_rank_setting'], ' ', ''));
+        $ret = null;
+        if ($_conf['expack.misc.multi_favs']) {
+            $idx = 0;
+            if (!is_array($this->thread->favs)) return null;
+            foreach ($this->thread->favs as $fav) {
+                if ($fav) {
+                    $rank = $ranks[$idx];
+                    if (is_numeric($rank)) {
+                        $rank = intval($rank);
+                        $ret = $ret === null ? $rank
+                            : ($ret < $rank ? $rank : $ret);
+                    }
+                }
+                $idx++;
+            }
+        } else {
+            if ($this->thread->fav && is_numeric($ranks[0])) {
+                $ret = intval($ranks[0]);
+            }
+        }
+        return $this->_auto_fav_rank = $ret;
+    }
+
+    // }}}
+    // {{{ isAutoFavRankOverride()
+
+    /**
+     * 自動ランク設定でランクを上書きすべきか返す.
+     *
+     * @param   int $now    現在のランク
+     * @param   int $new    自動ランク
+     * @return  bool
+     */
+    static public function isAutoFavRankOverride($now, $new)
+    {
+        global $_conf;
+
+        switch ($_conf['expack.ic2.fav_auto_rank_override']) {
+        case 0:
+            return false;
+            break;
+        case 1:
+            return $now != $new;
+            break;
+        case 2:
+            return $now == 0 && $now != $new;
+            break;
+        case 3:
+            return $now < $new;
+            break;
+        default:
+            return false;
+        }
+        return false;
+    }
+
+    // }}}
 }
 
 // }}}

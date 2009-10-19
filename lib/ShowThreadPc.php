@@ -1593,6 +1593,12 @@ EOP;
             // t=0:オリジナル;t=1:PC用サムネイル;t=2:携帯用サムネイル;t=3:中間イメージ
             $img_url = 'ic2.php?r=1&amp;uri=' . $url_en;
             $thumb_url = 'ic2.php?r=1&amp;t=1&amp;uri=' . $url_en;
+            // お気にスレ自動画像ランク
+            $rank = null;
+            if ($_conf['expack.ic2.fav_auto_rank']) {
+                $rank = $this->getAutoFavRank();
+                if ($rank !== null) $thumb_url .= '&rank=' . $rank;
+            }
 
             // DBに画像情報が登録されていたとき
             if ($icdb->get($url)) {
@@ -1629,6 +1635,20 @@ EOP;
                             $update->memo = $this->img_memo;
                         }
                         $update->whereAddQuoted('uri', '=', $url);
+                    }
+
+                    // expack.ic2.fav_auto_rank_override の設定とランク条件がOKなら
+                    // お気にスレ自動画像ランクを上書き更新
+                    if ($rank !== null &&
+                            self::isAutoFavRankOverride($icdb->rank, $rank)) {
+                        if ($update === null) {
+                            $update = new IC2_DataObject_Images;
+                            $update->whereAddQuoted('uri', '=', $url);
+                        }
+                        $update->rank = $rank;
+
+                    }
+                    if ($update !== null) {
                         $update->update();
                     }
                 }

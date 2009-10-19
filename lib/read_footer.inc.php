@@ -45,6 +45,13 @@ EOP;
 
 }
 
+// IC2リンク、件数
+if ($_conf['expack.ic2.enabled'] && $_conf['expack.ic2.thread_imagelink']) {
+    $htm['ic2navi'] = '<a href="iv2.php?field=memo&amp;key=' . rawurlencode($aThread->ttitle) . '" target="_blank">キャッシュ画像' .
+    ($_conf['expack.ic2.thread_imagecount'] ? '<span id="ic2_count_f"></span>' : '') .
+    '</a>';
+}
+
 // ============================================================
 $sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
 
@@ -131,6 +138,7 @@ GOTO;
             {$htm['spd']}
         </td>
         <td align="right">
+            {$htm['ic2navi']}
             {$htm['p2frame']}
             {$toolbar_right_ht}
         </td>
