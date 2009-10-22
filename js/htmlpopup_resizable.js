@@ -26,7 +26,7 @@ stophide = false;
  *
  * @access public
  */
-function showHtmlPopUp(url, ev, showHtmlDelaySec)
+function showHtmlPopUp(url, ev, showHtmlDelaySec, marker)
 {
 	if (!document.createElement) { return; } // DOM非対応なら抜ける
 	
@@ -45,7 +45,7 @@ function showHtmlPopUp(url, ev, showHtmlDelaySec)
 		gMouseY = pointer[1];
 		
 		// HTML表示ディレイタイマー
-		gShowHtmlTimerID = setTimeout("showHtmlPopUpDo()", showHtmlDelaySec);
+		gShowHtmlTimerID = setTimeout(function() {showHtmlPopUpDo(marker);}, showHtmlDelaySec);
 	}
 }
 
@@ -68,8 +68,11 @@ function getCloseTop(win_bottom)
 /**
  * HTMLポップアップの実行
  */
-function showHtmlPopUpDo()
+function showHtmlPopUpDo(marker)
 {
+	if (marker && marker.firstChild) marker = marker.firstChild;
+	var gMouseX = marker && marker.offsetLeft && marker.width ?
+		(marker.offsetLeft + marker.width) : window.gMouseX;
 	
 	// あらかじめ既存のHTMLポップアップを閉じておく
 	hideHtmlPopUp(null, true);

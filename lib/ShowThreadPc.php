@@ -790,9 +790,10 @@ EOP;
      * @param   string|array    $str
      * @param   string          $attr
      * @param   int|null        $mode
+     * @param   bool            $marker
      * @return  string
      */
-    public function iframePopup($url, $str, $attr = '', $mode = null)
+    public function iframePopup($url, $str, $attr = '', $mode = null, $marker = false)
     {
         global $_conf;
 
@@ -828,9 +829,9 @@ EOP;
         // リンクの属性にHTMLポップアップ用のイベントハンドラを加える
         $pop_attr = $attr;
         if ($_conf['iframe_popup_event'] == 1) {
-            $pop_attr .= " onClick=\"stophide=true; showHtmlPopUp('{$pop_url}',event,0); return false;\"";
+            $pop_attr .= " onClick=\"stophide=true; showHtmlPopUp('{$pop_url}',event,0" . ($marker ? ' ,this' : '') . "); return false;\"";
         } else {
-            $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']})\"";
+            $pop_attr .= " onmouseover=\"showHtmlPopUp('{$pop_url}',event,{$_conf['iframe_popup_delay']}" . ($marker ? ' ,this' : '') . ")\"";
         }
         $pop_attr .= " onmouseout=\"offHtmlPopUp()\"";
 
@@ -1137,7 +1138,7 @@ EOP;
         }
 
         $pops = ($_conf['iframe_popup'] == 1) ? $img_tag . $link_str : array($link_str, $img_tag);
-        return $this->iframePopup(array($img_url, $popup_url), $pops, $_conf['ext_win_target_at']);
+        return $this->iframePopup(array($img_url, $popup_url), $pops, $_conf['ext_win_target_at'], null, true);
     }
 
     // }}}

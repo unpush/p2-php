@@ -40,7 +40,7 @@ function hideHtmlPopUpCallback(evt)
  *
  * 複数の引用レス番や(p)の onMouseover で呼び出される
  */
-function showHtmlPopUp(url,ev,showHtmlDelaySec)
+function showHtmlPopUp(url,ev,showHtmlDelaySec, marker)
 {
 	if (!document.createElement) { return; } // DOM非対応
 
@@ -55,15 +55,18 @@ function showHtmlPopUp(url,ev,showHtmlDelaySec)
 		tUrl = url;
 		gX = getPageX(ev);
 		gY = getPageY(ev);
-		showHtmlTimerID = setTimeout("showHtmlPopUpDo()", showHtmlDelaySec); // HTML表示ディレイタイマー
+		showHtmlTimerID = setTimeout(function() {showHtmlPopUpDo(marker);}, showHtmlDelaySec); // HTML表示ディレイタイマー
 	}
 }
 
 /**
  * HTMLポップアップの実行
  */
-function showHtmlPopUpDo()
+function showHtmlPopUpDo(marker)
 {
+	if (marker && marker.firstChild) marker = marker.firstChild;
+	var gX = marker && marker.offsetLeft && marker.width ?
+		(marker.offsetLeft + marker.width) : window.gX;
 	// あらかじめ既存のHTMLポップアップを閉じておく
 	hideHtmlPopUp();
 
