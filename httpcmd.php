@@ -153,12 +153,79 @@ case 'setpal':
 
 case 'taborn':
     if (isset($host) && isset($bbs) && isset($key) && isset($_REQUEST['taborn'])) {
-        require_once P2_LIB_DIR . '/settaborn.inc.php';
+        if (!function_exists('settaborn')) {
+            include P2_LIB_DIR . '/settaborn.inc.php';
+        }
         $r = settaborn($host, $bbs, $key, $_REQUEST['taborn']);
         if (empty($r)) {
             $r_msg = '0'; // 失敗
         } elseif ($r == 1) {
             $r_msg = '1'; // 完了
+        }
+    }
+    break;
+
+// }}}
+// {{{ 既読数セット
+
+case 'setreadnum':
+    if (isset($host) && isset($bbs) && isset($key) && isset($_REQUEST['setreadnum'])) {
+        if (!httpcmd_set_readnum($host, $bbs, $key, $_REQUEST['setreadnum'])) {
+            $r_msg = '0'; // 失敗
+        } else {
+            $r_msg = '1'; // 成功
+        }
+    }
+    break;
+
+// }}}
+// {{{ ブックマーク
+
+case 'bookmark':
+    if (isset($host) && isset($bbs) && isset($key) && isset($_REQUEST['resnum']) && isset($_REQUEST['bookmark'])) {
+        
+        if (!function_exists('setbookmark')) {
+            include P2_LIB_DIR . '/setbookmark.inc.php';
+        }
+
+        if (is_numeric($_REQUEST['resnum'])) {
+            $resnum = intval($_REQUEST['resnum']);
+        } else {
+            $resnum = null;
+        }
+        $set = (bool)$_REQUEST['bookmark'];
+        if (isset($_REQUEST['ttitle_en'])) {
+            $ttitle = base64_decode($_REQUEST['ttitle_en']);
+        } elseif (isset($_REQUEST['ttitle'])) {
+            $ttitle = $_REQUEST['ttitle'];
+        } else {
+            $ttitle = null;
+        }
+        if (isset($_REQUEST['memo'])) {
+            $memo = $_REQUEST['memo'];
+        } else {
+            $memo = null;
+        }
+
+        $r = setbookmark($host, $bbs, $key, $resnum, $set, $ttitle, $memo);
+        if (empty($r)) {
+            $r_msg = '0'; // 失敗
+        } elseif ($r == 1) {
+            $r_msg = '1'; // 完了
+        }
+    }
+    break;
+
+// }}}
+// {{{ オフライン購読用にJSONエンコード
+
+case 'offline':
+    if (isset($host) && isset($bbs) && isset($key) && isset($_REQUEST['offline'])) {
+        $result = httpcmd_make_offline_data($host, $bbs, $key, $_REQUEST['offline']);
+        if (!is_array($result)) {
+            $r_msg = 'null'; // 失敗
+        } else {
+            $r_msg = json_encode($result); // 成功
         }
     }
     break;
@@ -187,6 +254,76 @@ case 'ic2':
 // {{{ 結果出力
 
 echo $r_msg;
+
+// }}}
+// {{{ httpcmd_set_readnum()
+
+/**
+ * 既読数をセットする
+ *
+ * @param   string  $host;
+ * @param   string  $bbs;
+ * @param   int     $key
+ * @param   int     $readnum
+ * @return  bool
+ */
+function httpcmd_set_readnum($host, $bbs, $key, $readnum)
+{
+    if (!is_numeric($readnum) || ($readnum = intval($readnum)) < 0) {
+        return false;
+    }
+
+    if (!class_exists('Thread', false)) {
+        include P2_LIB_DIR . '/Thread.php';
+    }
+
+    $aThread = new Thread();
+    $aThread->setThreadPathInfo($host, $bbs, $key);
+    $lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES);
+    if (!$lines) {
+        return false;
+    }
+
+    $idx_data = explode('<>', $lines[0]);
+    if (count($idx_data) < 12) {
+        return false;
+    }
+    $idx_data[5] = $readnum;
+    $idx_data[9] = ($readnum > 0) ? $readnum - 1 : 0;
+    P2Util::recKeyIdx($aThread->keyidx, $idx_data);
+
+    return true;
+}
+
+// }}}
+// {{{ httpcmd_make_offline_data()
+
+/**
+ * オフライン購読用データを生成する
+ *
+ * @param   string  $host;
+ * @param   string  $bbs;
+ * @param   int     $key
+ * @param   int     $from
+ * @return  bool
+ */
+function httpcmd_make_offline_data($host, $bbs, $key, $from)
+{
+    if (!is_numeric($from) || ($from = intval($from)) < 1) {
+        return false;
+    }
+
+    if (!class_exists('ThreadRead', false)) {
+        include P2_LIB_DIR . '/ThreadRead.php';
+    }
+
+    $data = array();
+
+    $aThread = new ThreadRead();
+    $aThread->setThreadPathInfo($host, $bbs, $key);
+
+    return false;
+}
 
 // }}}
 

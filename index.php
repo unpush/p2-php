@@ -55,6 +55,7 @@ if ($_conf['ktai']) {
     }
 
     $sidebar = !empty($_GET['sidebar']);
+    $v3pane  = !empty($_GET['v3pane']);
 
     $ptitle = "rep2";
     //======================================================
@@ -85,8 +86,9 @@ EOHEADER;
 EOMENUFRAME;
     }
 
+    $direction = ($v3pane) ? 'cols' : 'rows';
     echo <<<EOMAINFRAME
-    <frameset id="mainframe" rows="{$_conf['frame_subject_width']},{$_conf['frame_read_width']}" border="2">
+    <frameset id="mainframe" {$direction}="{$_conf['frame_subject_width']},{$_conf['frame_read_width']}" border="2">
         <frame src="{$title_page}" id="subject" name="subject" scrolling="auto" frameborder="1">
         <frame src="{$htm['read_page']}" id="read" name="read" scrolling="auto" frameborder="1">
     </frameset>\n
