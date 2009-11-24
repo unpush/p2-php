@@ -72,9 +72,9 @@ class IC2_DataObject_Images extends IC2_DataObject_Common
     // {{{ uniform()
 
     // 検索用に文字列をフォーマットする
-    public function uniform($str, $enc)
+    public function uniform($str, $enc, $convert_case = true)
     {
-        return self::staticUniform($str, $enc);
+        return self::staticUniform($str, $enc, $convert_case);
     }
 
     // }}}
@@ -114,7 +114,7 @@ class IC2_DataObject_Images extends IC2_DataObject_Common
     /**
      * 検索用に文字列をフォーマットする
      */
-    static public function staticUniform($str, $enc)
+    static public function staticUniform($str, $enc, $convert_case = true)
     {
         // 内部エンコーディングを保存
         $incode = mb_internal_encoding();
@@ -130,7 +130,7 @@ class IC2_DataObject_Images extends IC2_DataObject_Common
             $str = mb_convert_encoding($str, 'UTF-8', $enc);
         }
         $str = mb_convert_kana($str, 'KVas');
-        $str = mb_convert_case($str, MB_CASE_LOWER);
+        if ($convert_case !== false) $str = mb_convert_case($str, MB_CASE_LOWER);
         $str = trim($str);
         $str = preg_replace('/\s+/u', ' ', $str);
 

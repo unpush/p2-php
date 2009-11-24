@@ -437,7 +437,7 @@ if (!($threshold == -1 && $compate == '>=')) {
 
 // キーワード検索をするとき
 if ($key !== '') {
-    $keys = explode(' ', $icdb->uniform($key, 'CP932'));
+    $keys = explode(' ', $icdb->uniform($key, 'CP932', $field == 'memo'));
     foreach ($keys as $k) {
         $operator = 'LIKE';
         $wildcard = '%';
