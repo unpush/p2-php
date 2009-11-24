@@ -347,6 +347,7 @@ if ($execDL) {
         $img->thumb_x   = $thumb_x;
         $img->thumb_y   = $thumb_y;
         $img->memo      = mb_convert_encoding($img_memo, 'CP932', 'UTF-8');
+        $img->url       = $url;
         $images[] = $img;
     }
 
