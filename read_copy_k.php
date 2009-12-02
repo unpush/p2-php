@@ -52,10 +52,7 @@ $ttitle     = trim($first[4]);
 $ttitle_en  = base64_encode($ttitle);
 $moto_url   = $aThread->getMotoThread(true);
 $moto_url_k = $aThread->getMotoThread();
-if ($quote) {
-    $moto_url .= $resid;
-    $moto_url_k .= $resid;
-}
+
 if ($moto_url != $moto_url_k) {
     $moto_url_k_ht = sprintf('<input type="text" name="dummy_moto_url_k" value="%s"><br>', hs($moto_url_k));
 }
