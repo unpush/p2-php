@@ -128,11 +128,11 @@ $k_sb_navi_ht ‚Í‰º‚Ì‚R‚Æ“¯‚¶
 */
 $foot_sure_ht = ""; 
 if ($dat_soko_ht) $foot_sure_ht .= "<span class=\"soko\">{$dat_soko_ht}</span>";
-if ($buildnewthread_atag) $$foot_sure_ht .= "<span class=\"build\">{$buildnewthread_atag}</span>";
-if ($allfav_atag) $$foot_sure_ht .= "<span class=\"all\">{$allfav_atag}</span>";
-if ($taborn_link_atag) $$foot_sure_ht .= "<span class=\"abon\">{$taborn_link_atag}</span>";
-if ($mae_ht) $$foot_sure_ht .= "<span class=\"mae\">{$mae_ht}</span>";
-if ($tugi_ht) $$foot_sure_ht .= "<span class=\"tugi\">{$tugi_ht}</span>";
+if ($buildnewthread_atag) $foot_sure_ht .= "<span class=\"build\">{$buildnewthread_atag}</span>";
+if ($allfav_atag) $foot_sure_ht .= "<span class=\"all\">{$allfav_atag}</span>";
+if ($taborn_link_atag) $foot_sure_ht .= "<span class=\"abon\">{$taborn_link_atag}</span>";
+if ($mae_ht) $foot_sure_ht .= "<span class=\"mae\">{$mae_ht}</span>";
+if ($tugi_ht) $foot_sure_ht .= "<span class=\"tugi\">{$tugi_ht}</span>";
 
 $index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 ?>
