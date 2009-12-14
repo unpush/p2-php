@@ -15,8 +15,7 @@ function settaborn($host, $bbs, $key, $set)
 
     // {{{ key.idx ì«Ç›çûÇﬁ
     
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idxfile = "{$idx_host_dir}/{$bbs}/{$key}.idx";
+    $idxfile = P2Util::getKeyIdxFilePath($host, $bbs, $key);
     
     $data[0] = null;
     

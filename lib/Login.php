@@ -762,12 +762,8 @@ EOP;
      */
      function clearCookieAuth()
      {
-        $r = setcookie('cid', '', time() - 3600);
-        
-        setcookie('p2_user',   '', time() - 3600);    //  ”pŽ~—v‘f 2005/6/13
-        setcookie('p2_pass',   '', time() - 3600);    //  ”pŽ~—v‘f 2005/6/13
-        setcookie('p2_pass_x', '', time() - 3600);  //  ”pŽ~—v‘f 2005/6/13
-        
+        $r = P2Util::unsetCookie('cid');
+
         $_COOKIE = array();
         
         return $r;
@@ -787,21 +783,16 @@ EOP;
         
         if (!is_null($ignore_cip)) {
             if ($ignore_cip) {
-                setcookie('ignore_cip', '1', $time);
+                P2Util::setCookie('ignore_cip', '1', $time);
                 $_COOKIE['ignore_cip'] = '1';
             } else {
-                setcookie('ignore_cip', '', time() - 3600);
+                P2Util::unsetCookie('ignore_cip');
                 unset($_COOKIE['ignore_cip']);
             }
         }
         
         if ($cid = $this->makeCid($user_u, $pass_x)) {
-            // httponly‚Ì‘Î‰ž‚ÍPHP5.2.0‚©‚ç
-            if (version_compare(phpversion(), '5.2.0', '<')) {
-                return setcookie('cid', $cid, $time, $path = '', $domain = '', $secure = 0);
-            } else {
-                return setcookie('cid', $cid, $time, $path = '', $domain = '', $secure = 0, $this->isAcceptableCookieHttpOnly());
-            }
+            return P2Util::setCookie('cid', $cid, $time);
         }
         return false;
     }

@@ -40,9 +40,9 @@ class SettingTxt
         $this->host = $host;
         $this->bbs =  $bbs;
         
-        $dat_bbs_dir = P2Util::datDirOfHost($this->host) . '/' . $this->bbs;
-        $this->setting_txt = $dat_bbs_dir . '/SETTING.TXT';
-        $this->setting_srd = $dat_bbs_dir . '/p2_kb_setting.srd';
+        $dat_bbs_dir_s = P2Util::datDirOfHostBbs($this->host, $this->bbs);
+        $this->setting_txt = $dat_bbs_dir_s . 'SETTING.TXT';
+        $this->setting_srd = $dat_bbs_dir_s . 'p2_kb_setting.srd';
         
         $this->url = 'http://' . $this->host . '/' . $this->bbs . '/SETTING.TXT';
         

@@ -11,6 +11,149 @@ require_once P2_LIB_DIR . '/FileCtl.php';
 class P2Util
 {
     /**
+     * ポート番号を削ったホスト名を取得する
+     *
+     * @return  string|null
+     */
+    function getMyHost()
+    {
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            return null;
+        }
+        return preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
+    }
+    
+    /**
+     * @access  public
+     * @return  string
+     */
+    function getCookieDomain()
+    {
+        return '';
+    }
+
+    /**
+     * @access  private
+     * @return  string
+     */
+    function encodeCookieName($key)
+    {
+        // 配列指定用に、[]だけそのまま残して、URLエンコードをかける
+        return $key_urlen = preg_replace_callback(
+            '/[^\\[\\]]+/',
+            create_function('$m', 'return rawurlencode($m[0]);'),
+            $key
+        );
+    }
+    
+    /**
+     * setcookie() では、auで必要なmax ageが設定されないので、こちらを利用する
+     *
+     * @access  public
+     * @return  boolean
+     */
+    function setCookie($key, $value = '', $expires = null, $path = '', $domain = null, $secure = false, $httponly = true)
+    {
+        if (is_null($domain)) {
+            $domain = P2Util::getCookieDomain();
+        }
+        is_null($expires) and $expires = time() + 60 * 60 * 24 * 365;
+        
+        
+        if (headers_sent()) {
+            return false;
+        }
+        
+
+        // Mac IEは、動作不良を起こすらしいっぽいので、httponlyの対象から外す。（そもそも対応もしていない）
+        // MAC IE5.1  Mozilla/4.0 (compatible; MSIE 5.16; Mac_PowerPC)
+        if (preg_match('/MSIE \d\\.\d+; Mac/', geti($_SERVER['HTTP_USER_AGENT']))) {
+            $httponly = false;
+        }
+        
+        // setcookie($key, $value, $expires, $path, $domain, $secure = false, $httponly = true);
+        /*
+        if (is_array($name)) { 
+            list($k, $v) = each($name); 
+            $name = $k . '[' . $v . ']'; 
+        }
+        */
+        if ($expires) {
+            $maxage = $expires - time();
+        }
+        
+        header(
+            'Set-Cookie: '. P2Util::encodeCookieName($key) . '=' . rawurlencode($value) 
+                 . (empty($domain) ? '' : '; Domain=' . $domain) 
+                 . (empty($expires) ? '' : '; expires=' . gmdate('D, d-M-Y H:i:s', $expires) . ' GMT')
+                 . (empty($maxage) ? '' : '; Max-Age=' . $maxage) 
+                 . (empty($path) ? '' : '; Path=' . $path) 
+                 . (!$secure ? '' : '; Secure') 
+                 . (!$httponly ? '' : '; HttpOnly'),
+             $replace = false
+        );
+        
+        return true;
+    }
+    
+    /**
+     * クッキーを消去する。変数 $_COOKIE も。
+     *
+     * @access  public
+     * @param   string  $key  key, k1[k2]
+     * @return  boolean
+     */
+    function unsetCookie($key, $path = '', $domain = null)
+    {
+        if (is_null($domain)) {
+            $domain = P2Util::getCookieDomain();
+        }
+        
+        
+        // 配列をsetcookie()する時は、キー文字列をPHPの配列の場合のように、'' や "" でクォートしない。
+        // それらはキー文字列として認識されてしまう。['hoge']ではなく、[hoge]と指定する。
+        // setcookie()で、一時キーは[]で囲まないようにする。（無効な処理となる。） k1[k2] という表記で指定する。
+        // setcookie()では配列をまとめて削除することはできない。 
+        // k1 の指定で k1[k2] は消えないので、このメソッドで対応している。
+        
+        // $keyが配列として指定されていたなら
+        $ckey = null; // $_COOKIE用のキー
+        if (preg_match('/\]$/', $key)) {
+            // 最初のキーを[]で囲む
+            $ckey = preg_replace('/^([^\[]+)/', '[$1]', $key);
+            // []のキーを''で囲む
+            $ckey = preg_replace('/\[([^\[\]]+)\]/', "['$1']", $ckey);
+            //var_dump($ckey);
+        }
+        
+        // 対象Cookie値が配列であれば再帰処理を行う
+        $cArray = null;
+        if ($ckey) {
+            eval("isset(\$_COOKIE{$ckey}) && is_array(\$_COOKIE{$ckey}) and \$cArray = \$_COOKIE{$ckey};");
+        } else {
+            isset($_COOKIE[$key]) && is_array($_COOKIE[$key]) and $cArray = $_COOKIE[$key];
+        }
+        if (is_array($cArray)) {
+            foreach ($cArray as $k => $v) {
+                $keyr = "{$key}[{$k}]";
+                if (!P2Util::unsetCookie($keyr, $path, $domain)) {
+                    return false;
+                }
+            }
+        }
+        
+        if (is_array($cArray) or setcookie("$key", '', time() - 3600, $path, $domain)) {
+            if ($ckey) {
+                eval("unset(\$_COOKIE{$ckey});");
+            } else {
+                unset($_COOKIE[$key]);
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * 容量の単位をバイト表示から適宜変換して表示する
      *
      * @param   integer  $size  bytes
@@ -136,7 +279,7 @@ class P2Util
      */
     function getThreadAbornFile($host, $bbs)
     {
-        return $taborn_file = P2Util::idxDirOfHost($host) . '/' . rawurlencode($bbs) . '/p2_threads_aborn.idx';
+        return $taborn_file = P2Util::idxDirOfHostBbs($host, $bbs) . 'p2_threads_aborn.idx';
     }
     
     /**
@@ -215,7 +358,7 @@ class P2Util
      */
     function getSamba24CacheFile($host, $bbs)
     {
-        return P2Util::datDirOfHost($host) . '/' . rawurlencode($bbs) . '/samba24.txt';
+        return P2Util::datDirOfHostBbs($host, $bbs) . 'samba24.txt';
     }
     
     /**
@@ -322,10 +465,9 @@ class P2Util
         if (array_key_exists($key, $cache_)) {
             return $cache_[$ckey];
         }
-        
-        $idx_host_dir = P2Util::idxDirOfHost($host);
-        $key_idx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
 
+        $key_idx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
+        
         // key.idxから名前とメールを読込み
         $FROM = null;
         $mail = null;
@@ -590,8 +732,7 @@ class P2Util
             return $ita_names[$id];
         }
 
-        $idx_host_dir = P2Util::idxDirOfHost($host);
-        $p2_setting_txt = $idx_host_dir . "/" . $bbs . "/p2_setting.txt";
+        $p2_setting_txt = P2Util::idxDirOfHostBbs($host, $bbs) . 'p2_setting.txt';
         
         if (file_exists($p2_setting_txt)) {
 
@@ -633,6 +774,12 @@ class P2Util
      */
     function datDirOfHost($host, $dir_sep = false)
     {
+        // 念のために引数の型をチェック
+        if (!is_bool($dir_sep)) {
+            $emsg = sprintf('Error: %s - invalid $dir_sep', __FUNCTION__);
+            trigger_error($emsg, E_USER_WARNING);
+            die($emsg);
+        }
         return P2Util::_p2DirOfHost($GLOBALS['_conf']['dat_dir'], $host, $dir_sep);
     }
     
@@ -644,6 +791,12 @@ class P2Util
      */
     function idxDirOfHost($host, $dir_sep = false)
     {
+        // 念のために引数の型をチェック
+        if (!is_bool($dir_sep)) {
+            $emsg = sprintf('Error: %s - invalid $dir_sep', __FUNCTION__);
+            trigger_error($emsg, E_USER_WARNING);
+            die($emsg);
+        }
         return P2Util::_p2DirOfHost($GLOBALS['_conf']['idx_dir'], $host, $dir_sep);
     }
     
@@ -734,17 +887,17 @@ class P2Util
      * @param string $bbs
      * @param bool $dir_sep
      * @return string
-     * @see P2Util::_p2DirOfHost()
      */
     function datDirOfHostBbs($host, $bbs, $dir_sep = true)
     {
-        $dir = P2Util::_p2DirOfHost($GLOBALS['_conf']['dat_dir'], $host) . $bbs;
+        $dir = P2Util::datDirOfHost($host, true) . $bbs;
         if ($dir_sep) {
             $dir .= DIRECTORY_SEPARATOR;
         }
         return $dir;
     }
 
+    // }}}
     // {{{ idxDirOfHostBbs()
 
     /**
@@ -760,7 +913,7 @@ class P2Util
      */
     function idxDirOfHostBbs($host, $bbs, $dir_sep = true)
     {
-        $dir = P2Util::_p2DirOfHost($GLOBALS['_conf']['idx_dir'], $host) . $bbs;
+        $dir = P2Util::idxDirOfHost($host, true) . $bbs;
         if ($dir_sep) {
             $dir .= DIRECTORY_SEPARATOR;
         }
@@ -817,7 +970,7 @@ class P2Util
         } else {
             $filename = 'failed.data.php';
         }
-        return $failed_post_file = P2Util::idxDirOfHost($host) . '/' . $bbs . '/' . $filename;
+        return $failed_post_file = P2Util::idxDirOfHostBbs($host, $bbs) . $filename;
     }
 
     /**

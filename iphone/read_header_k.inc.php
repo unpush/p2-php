@@ -50,14 +50,14 @@ $favvalue = $aThread->fav ? 0 : 1;
 $rnum_range = $_conf['k_rnum_range'];
 $latest_show_res_num = $_conf['k_rnum_range']; // 最新XX
 
-$read_navi_previous     = "";
-$read_navi_previous_btm = "";
-$read_navi_next         = "";
-$read_navi_next_btm     = "";
-$read_footer_navi_new_ht   = "";
-$read_footer_navi_new_btm_ht = "";
-$read_navi_latest       = "";
-$read_navi_latest_btm   = "";
+$read_navi_previous     = '';
+$read_navi_previous_btm = '';
+$read_navi_next         = '';
+$read_navi_next_btm     = '';
+$read_footer_navi_new_ht   = '';
+$read_footer_navi_new_btm_ht = '';
+$read_navi_latest       = '';
+$read_navi_latest_btm   = '';
 $read_navi_filter       = '';
 $read_navi_filter_btm   = '';
 
@@ -230,12 +230,18 @@ EOP;
 
 // {{{ 検索
 
-$read_navi_filter = <<<EOP
-<a href="read_filter_i.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$find_st}</a>
-EOP;
-$read_navi_filter_btm = <<<EOP
-<a href="read_filter_i.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$find_st}</a>
-EOP;
+$read_navi_filter = $read_navi_filter_btm = P2View::tagA(
+    P2Util::buildQueryUri('read_filter_i.php',
+        array(
+            'host' => $aThread->host,
+            'bbs'  => $aThread->bbs,
+            'key'  => $aThread->key,
+            'ttitle_en' => $ttitle_en,
+            UA::getQueryKey() => UA::getQueryValue()
+        )
+    ),
+    hs($find_st)
+);
 
 // }}}
 
@@ -296,7 +302,7 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 	<script type="text/javascript" src="iphone/js/respopup.iPhone.js?v=20090429"></script>
 	<script type="text/javascript" src="iphone/js/setfavjs.js?v=20090428"></script>
 	<script type="text/javascript" src="js/post_form.js?v=20090724"></script>
-    <script type="text/javascript"> 
+	<script type="text/javascript"> 
 	<!-- 
 	// iPhoneのURL編集部分を表示しないようスクロールする
 	window.onload = function() { 
@@ -350,7 +356,7 @@ if (empty($_GET['onlyone'])) {
 }
 
 $fade = empty($_GET['fade']) ? 'false' : 'true';
-$existWord = (strlen($GLOBALS['word']) > 0) ? 'true' : 'false';
+$existWord = strlen($GLOBALS['word']) ? 'true' : 'false';
 
 echo <<<EOP
 <script type="text/javascript">
@@ -439,13 +445,17 @@ $filter_fields = array(
 );
 
 if (isset($GLOBALS['word']) && strlen($GLOBALS['word'])) {
-    echo "検索結果: ";
-    echo "{$filter_fields[$res_filter['field']]}";
-    echo "&quot;{$word_hs}&quot;を";
-    echo ($res_filter['match'] == 'on') ? '含む' : '含まない';
+    echo hs(sprintf(
+        '検索結果: %s"%s"を%s',
+        $filter_fields[$res_filter['field']],
+        $GLOBALS['word'],
+        ($res_filter['match'] == 'on') ? '含む' : '含まない'
+    ));
 }
 
 echo P2View::getHrHtmlK();
+
+// このファイル内での処理はここまで
 
 
 //=======================================================================================
@@ -474,7 +484,7 @@ function _csrangeform($default = '', &$aThread)
         if (!empty($_REQUEST[$k])) {
             $form .= sprintf(
                 '<input type="hidden" name="%s" value="%s">',
-                htmlspecialchars($k), htmlspecialchars($_REQUEST[$k], ENT_QUOTES)
+                htmlspecialchars($k, ENT_QUOTES), htmlspecialchars($_REQUEST[$k], ENT_QUOTES)
             );
         } else {
             return '';
@@ -598,9 +608,9 @@ function _getToolbarRightHtml($aThread, $ttitle_en, $info_st, $dele_st, $moto_th
     );
     
     return $toolbar_right_ht = <<<EOTOOLBAR
-    <li class="whiteButton">$info_atag</li>
-    <li class="whiteButton">$dele_atag</li>
-    <li class="whiteButton"><a href="{$motothre_url}">{$moto_thre_st}</a></li>
+	<li class="whiteButton">$info_atag</li>
+	<li class="whiteButton">$dele_atag</li>
+	<li class="whiteButton"><a href="{$motothre_url}">{$moto_thre_st}</a></li>
 EOTOOLBAR;
 }
 
@@ -609,13 +619,8 @@ EOTOOLBAR;
  */
 function _getGetDatErrorMsgHtml($aThread)
 {
-    $diedat_msg_ht = '';
-    if ($aThread->getdat_error_msg_ht) {
-        $diedat_msg_ht = $aThread->getdat_error_msg_ht;
-    } else {
-        $diedat_msg_ht = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
-    }
-    return $diedat_msg_ht;
+    $diedat_msg_ini_ht = '<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>';
+    return strlen($aThread->getdat_error_msg_ht) ? $aThread->getdat_error_msg_ht : $diedat_msg_ini_ht;
 }
 
 

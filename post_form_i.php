@@ -38,8 +38,7 @@ if (P2Validate::host($host) || ($bbs) && P2Validate::bbs($bbs) || ($key) && P2Va
     p2die('不正な引数です');
 }
 
-$idx_host_dir = P2Util::idxDirOfHost($host);
-$key_idx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
+$keyidx = P2Util::getKeyIdxFilePath($host, $bbs, $key);
 
 // フォームのオプション読み込み
 require_once P2_LIB_DIR . '/post_options_loader.inc.php';

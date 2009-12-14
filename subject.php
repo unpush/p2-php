@@ -55,8 +55,7 @@ if ($spmode) {
     $sb_keys_txt = null;
     
 } else {
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idx_bbs_dir_s = $idx_host_dir . '/' . $bbs . '/';
+    $idx_bbs_dir_s = P2Util::idxDirOfHostBbs($host, $bbs);
     
     $p2_setting_txt = $idx_bbs_dir_s . 'p2_setting.txt';
     $sb_keys_b_txt =  $idx_bbs_dir_s . 'p2_sb_keys_b.txt';

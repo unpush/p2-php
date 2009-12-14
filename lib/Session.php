@@ -351,8 +351,9 @@ class Session
         // セッションを切断するにはセッションクッキーも削除する。
         $session_name = session_name();
         if (isset($_COOKIE[$session_name])) {
+           //setcookie($session_name, '', time() - 42000);
+           P2Util::unsetCookie($session_name);
            unset($_COOKIE[$session_name]);
-           setcookie($session_name, '', time() - 42000);
         }
         
         // 最終的に、セッションを破壊する

@@ -55,7 +55,7 @@ if ($bbs and _isThreTateSugi()) {
 $_conf['last_post_time_file'] = $_conf['pref_dir'] . '/last_post_time.txt';
 if (P2Util::isHost2chs($host)) {
     $server_id = preg_replace('{\.2ch\.net$}', '', $host);
-    $_conf['last_post_time_file'] = P2Util::idxDirOfHost($host) . '/' . rawurlencode($server_id) . '_' . 'last_post_time.txt';
+    $_conf['last_post_time_file'] = P2Util::idxDirOfHost($host, true) . rawurlencode($server_id) . '_' . 'last_post_time.txt';
 }
 
 if (!isset($ttitle)) {
@@ -298,8 +298,7 @@ function _recKeyIdx($host, $bbs, $key, $tagCsvF)
         return;
     }
     
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $keyidx = $idx_host_dir . '/' . $bbs . '/' . $key . '.idx';
+    $keyidx = P2Util::getKeyIdxFilePath($host, $bbs, $key);
     
     $akeyline = array();
     if (file_exists($keyidx) and $keylines = file($keyidx)) {
@@ -392,8 +391,6 @@ function _recResLog($from, $mail, $message, $ttitle, $host, $bbs, $key, $rescoun
     // データPHP形式（p2_res_hist.dat.php, タブ区切り）の書き込み履歴を、dat形式（p2_res_hist.dat, <>区切り）に変換する
     P2Util::transResHistLogPhpToDat();
 
-    $date_and_id = date("y/m/d H:i");
-
     FileCtl::make_datafile($_conf['p2_res_hist_dat'], $_conf['res_write_perm']);
     
     $resnum = '';
@@ -405,19 +402,30 @@ function _recResLog($from, $mail, $message, $ttitle, $host, $bbs, $key, $rescoun
         }
     }
     
-    $newdata = $from . '<>' . $mail . "<>$date_and_id<>$message<>$ttitle<>$host<>$bbs<>$key<>$resnum";
+    $newdata_ar = array(
+        $from, $mail, date("y/m/d H:i"), $message, $ttitle, $host, $bbs, $key, $resnum
+    );
+    $newdata = implode('<>', $newdata_ar) . "\n";
 
     // まずタブを全て外して（2chの書き込みではタブは削除される 2004/12/13）
     $newdata = str_replace("\t", '', $newdata);
     // <>をタブに変換して
     //$newdata = str_replace('<>', "\t", $newdata);
-    
-    $cont = $newdata . "\n";
-    
-    if (false === file_put_contents($_conf['p2_res_hist_dat'], $cont, FILE_APPEND | LOCK_EX)) {
+
+    $done = false;
+    if ($fp = fopen($_conf['p2_res_hist_dat'], 'ab+')) {
+        flock($fp, LOCK_EX);
+        if (false !== fwrite($fp, $newdata)) {
+            $done = true;
+        }
+        flock($fp, LOCK_UN);
+        fclose($fp);
+    }
+    if (!$done) {
         trigger_error('p2 error: 書き込みログの保存に失敗しました', E_USER_WARNING);
         return false;
     }
+    
     return true;
 }
 

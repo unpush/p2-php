@@ -164,11 +164,8 @@ class ThreadList
             
             } elseif ($this->spmode == 'soko') {
 
-                $dat_host_dir = P2Util::datDirOfHost($this->host);
-                $idx_host_dir = P2Util::idxDirOfHost($this->host);
-            
-                $dat_bbs_dir = $dat_host_dir . DIRECTORY_SEPARATOR . $this->bbs;
-                $idx_bbs_dir = $idx_host_dir . DIRECTORY_SEPARATOR . $this->bbs;
+                $dat_bbs_dir = P2Util::datDirOfHostBbs($this->host, $this->bbs, false);
+                $idx_bbs_dir = P2Util::idxDirOfHostBbs($this->host, $this->bbs, false);
                 
                 $dat_pattern = '/([0-9]+)\.dat$/';
                 $idx_pattern = '/([0-9]+)\.idx$/';

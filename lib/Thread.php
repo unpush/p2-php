@@ -202,15 +202,12 @@ class Thread
             die('Error: ' . __FUNCTION__);
         }
         
-        $this->host =   $host;
-        $this->bbs =    $bbs;
-        $this->key =    $key;
-        
-        $dat_host_dir = P2Util::datDirOfHost($this->host);
-        $idx_host_dir = P2Util::idxDirOfHost($this->host);
+        $this->host = $host;
+        $this->bbs  = $bbs;
+        $this->key  = $key;
 
-        $this->keydat = $dat_host_dir . '/' . $this->bbs . '/' . $this->key . '.dat';
-        $this->keyidx = $idx_host_dir . '/' . $this->bbs . '/' . $this->key . '.idx';
+        $this->keydat = P2Util::datDirOfHostBbs($this->host, $this->bbs) . $this->key . '.dat';
+        $this->keyidx = P2Util::getKeyIdxFilePath($this->host, $this->bbs, $this->key);
         
         $GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('setThreadPathInfo()');
     }

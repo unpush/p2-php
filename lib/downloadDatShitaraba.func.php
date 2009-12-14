@@ -82,8 +82,6 @@ function downloadDatShitaraba(&$ThreadRead)
     $latest_num = 0;
     if ($mdatlines = _shitarabaDatTo2chDatLines($mlines, $latest_num)) {
 
-        $rsc = $file_append ? (FILE_APPEND | LOCK_EX) : LOCK_EX;
-
         $cont = '';
         for ($i = $START; $i <= $latest_num; $i++) {
             if ($mdatlines[$i]) {
@@ -92,10 +90,19 @@ function downloadDatShitaraba(&$ThreadRead)
                 $cont .= "あぼーん<>あぼーん<>あぼーん<>あぼーん<>\n";
             }
         }
-        if (false === file_put_contents($ThreadRead->keydat, $cont, $rsc)) {
-            trigger_error("file_put_contents(" . $ThreadRead->keydat . ")", E_USER_WARNING);
+        
+        $done = false;
+        if ($fp = fopen($ThreadRead->keydat, 'ab+')) {
+            flock($fp, LOCK_EX);
+            if (false !== fwrite($fp, $cont)) {
+                $done = true;
+            }
+            flock($fp, LOCK_UN);
+            fclose($fp);
+        }
+        if (!$done) {
+            trigger_error('cannot write file (' . $ThreadRead->keydat . ')', E_USER_WARNING);
             die('Error: cannot write file.');
-            return false;
         }
     }
     

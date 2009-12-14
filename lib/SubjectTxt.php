@@ -49,7 +49,7 @@ class SubjectTxt
      */
     function setSubjectFile($host, $bbs)
     {
-        $this->subject_file = P2Util::datDirOfHost($host) . '/' . rawurlencode($bbs) . '/subject.txt';
+        $this->subject_file = P2Util::datDirOfHostBbs($host, $bbs) . 'subject.txt';
     }
     
     /**

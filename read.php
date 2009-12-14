@@ -26,6 +26,7 @@ $_login->authorize(); // ƒ†[ƒU”FØ
 if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value'])) {
 
     switch ($_GET['ktool_name']) {
+        // GO
         case 'goto':
             if (preg_match('/(-|,)/', $_GET['ktool_value'])) {
                 $_REQUEST['ls'] = $_GET['ls'] = $_GET['ktool_value'];
@@ -35,15 +36,18 @@ if ($_conf['ktai'] && isset($_GET['ktool_name']) && isset($_GET['ktool_value']))
             }
             break;
             
+        // >Ú½
         case 'res_quote':
             $_GET['resnum'] = (int)$_GET['ktool_value'];
             $_GET['inyou'] = 1;
             require './post_form.php';
             exit;
             
+        // >ŽÊ
         case 'copy_quote':
             $_GET['inyou'] = 1;
             
+        // ŽÊ
         case 'copy':
             $GLOBALS['_read_copy_resnum'] = (int)$_GET['ktool_value'];
             require './read_copy_k.php';

@@ -36,12 +36,11 @@ if (!isset($sb_disp_from)) { $sb_disp_from = 1; }
 if ($spmode) {
     $p2_setting_txt = $_conf['pref_dir'] . "/p2_setting_" . $spmode . ".txt";
 } else {
-    $idx_host_dir = P2Util::idxDirOfHost($host);
-    $idx_bbs_dir_s = $idx_host_dir . '/' . $bbs . '/';
+    $idx_bbs_dir_s = P2Util::idxDirOfHostBbs($host, $bbs);
 
     $p2_setting_txt = $idx_bbs_dir_s . "p2_setting.txt";
-    $sb_keys_b_txt = $idx_bbs_dir_s . "p2_sb_keys_b.txt";
-    $sb_keys_txt = $idx_bbs_dir_s . "p2_sb_keys.txt";
+    $sb_keys_b_txt  = $idx_bbs_dir_s . "p2_sb_keys_b.txt";
+    $sb_keys_txt    = $idx_bbs_dir_s . "p2_sb_keys.txt";
 
     if (!empty($_REQUEST['norefresh']) || !empty($_REQUEST['word'])) {
         if ($prepre_sb_cont = @file_get_contents($sb_keys_b_txt)) {

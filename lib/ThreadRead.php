@@ -210,13 +210,13 @@ class ThreadRead extends Thread
             return false;
         }
 
-        $from_bytes = intval($from_bytes);
+        $range_bytes = intval($from_bytes);
         
-        if ($from_bytes == 0) {
+        if ($range_bytes == 0) {
             $zero_read = true;
         } else {
             $zero_read = false;
-            $from_bytes = $from_bytes - 1;
+            $range_bytes = $from_bytes - 1;
         }
 
         //$url = 'http://' . $this->host . '/' . $this->bbs . '/dat/' . $this->key . '.dat';
@@ -247,7 +247,7 @@ class ThreadRead extends Thread
         $request .= "Accept-Language: ja, en\r\n";
         $request .= "User-Agent: " . P2Util::getP2UA($withMonazilla = true) . "\r\n";
         if (!$zero_read) {
-            $request .= "Range: bytes={$from_bytes}-\r\n";
+            $request .= "Range: bytes={$range_bytes}-\r\n";
         }
         $request .= "Referer: http://{$purl['host']}/{$this->bbs}/\r\n";
         if ($this->modified) {
@@ -354,17 +354,16 @@ class ThreadRead extends Thread
             }
         
         // Not Modified
-        } elseif ($code == "304") {
+        } elseif ($code == '304') {
             fclose($fp);
             $this->isonline = true;
-            return "304 Not Modified";
+            return '304 Not Modified';
         
         // Requested Range Not Satisfiable
-        } elseif ($code == "416") {
+        } elseif ($code == '416') {
             //echo "あぼーん検出";
             fclose($fp);
-            unset($this->onbytes);
-            unset($this->modified);
+            $this->clearOnbytesModified();
             return $this->downloadDat2ch(0); // あぼーんを検出したので全部取り直し。
             
         // 予期しないHTTPコード。スレッドがないと判断
@@ -396,8 +395,7 @@ class ThreadRead extends Thread
         if (!$zero_read) {
             if (substr($body, 0, 1) != "\n") {
                 //echo "あぼーん検出";
-                unset($this->onbytes);
-                unset($this->modified);
+                $this->clearOnbytesModified();
                 return $this->downloadDat2ch(0); // あぼーんを検出したので全部取り直し。
             }
             $body = substr($body, 1);
@@ -405,10 +403,20 @@ class ThreadRead extends Thread
         
         FileCtl::make_datafile($this->keydat, $_conf['dat_perm']);
 
-        $rsc = $zero_read ? LOCK_EX : FILE_APPEND | LOCK_EX;
-        
-        if (false === file_put_contents($this->keydat, $body, $rsc)) {
-            trigger_error("file_put_contents(" . $this->keydat . ")", E_USER_WARNING);
+        $done = false;
+        if ($fp = fopen($this->keydat, 'rb+')) {
+            flock($fp, LOCK_EX);
+            if (0 === fseek($fp, $from_bytes)) {
+                if (false !== fwrite($fp, $body)) {
+                    ftruncate($fp, $from_bytes + strlen($body));
+                    $done = true;
+                }
+            }
+            flock($fp, LOCK_UN);
+            fclose($fp);
+        }
+        if (!$done) {
+            trigger_error('cannot write file (' . $this->keydat . ')', E_USER_WARNING);
             die('Error: cannot write file. downloadDat2ch()');
             return false;
         }
@@ -420,8 +428,7 @@ class ThreadRead extends Thread
             $this->getDatBytesFromLocalDat(); // $aThread->length をset
             if ($this->onbytes != $this->length) {
                 $onbytes = $this->onbytes;
-                unset($this->onbytes);
-                unset($this->modified);
+                $this->clearOnbytesModified();
                 P2Util::pushInfoHtml("p2 info: $onbytes/$this->length ファイルサイズが変なので、datを再取得しました<br>");
                 $debug && $GLOBALS['profiler']->leaveSection('dat_size_check');
                 return $this->downloadDat2ch(0); // datサイズは不正。全部取り直し。
@@ -444,6 +451,16 @@ class ThreadRead extends Thread
 
         0-1-2-3が、完全に連続した時にあぼーん検出漏れはありうる。 
         */
+    }
+    
+    /**
+     * @access  private
+     * @return  void
+     */
+    function clearOnbytesModified()
+    {
+        unset($this->onbytes);
+        unset($this->modified);
     }
     
     /**

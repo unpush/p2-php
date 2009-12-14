@@ -6,7 +6,7 @@ require_once P2_LIB_DIR . '/FileCtl.php';
 
 $_login->authorize(); // ユーザ認証
 
-// アクセス拒否用の.htaccessをデータディレクトリに作成する
+// アクセス拒否用の.htaccessをデータディレクトリに自動作成する
 _makeDenyHtaccess($_conf['pref_dir']);
 _makeDenyHtaccess($_conf['dat_dir']);
 _makeDenyHtaccess($_conf['idx_dir']);

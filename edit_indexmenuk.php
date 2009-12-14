@@ -54,7 +54,7 @@ if (!$_conf['ktai']) {
 }
 
 echo <<<EOP
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body{$body_at}>\n
 EOP;
@@ -75,13 +75,13 @@ if (UA::isK()) {
 <?php
 foreach ($menuKLinkHtmls as $code => $html) {
     echo <<<EOP
-    <tr>
-        <td>$html</td>
-        <td>[ <a class="te" href="{$_SERVER['SCRIPT_NAME']}?code={$code}&amp;set=top{$_conf['k_at_a']}" title="ˆê”Ôã‚ÉˆÚ“®">£</a></td>
-        <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?code={$code}&amp;set=up{$_conf['k_at_a']}" title="ˆê‚Âã‚ÉˆÚ“®">ª</a></td>
-        <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?code={$code}&amp;set=down{$_conf['k_at_a']}" title="ˆê‚Â‰º‚ÉˆÚ“®">«</a></td>
-        <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?code={$code}&amp;set=bottom{$_conf['k_at_a']}" title="ˆê”Ô‰º‚ÉˆÚ“®">¥</a> ]</td>
-    </tr>
+	<tr>
+		<td>$html</td>
+		<td>[ <a class="te" href="{$_SERVER['SCRIPT_NAME']}?code={$code}&amp;set=top{$_conf['k_at_a']}" title="ˆê”Ôã‚ÉˆÚ“®">£</a></td>
+		<td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?code={$code}&amp;set=up{$_conf['k_at_a']}" title="ˆê‚Âã‚ÉˆÚ“®">ª</a></td>
+		<td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?code={$code}&amp;set=down{$_conf['k_at_a']}" title="ˆê‚Â‰º‚ÉˆÚ“®">«</a></td>
+		<td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?code={$code}&amp;set=bottom{$_conf['k_at_a']}" title="ˆê”Ô‰º‚ÉˆÚ“®">¥</a> ]</td>
+	</tr>
 EOP;
 }
 ?></table>
@@ -215,3 +215,14 @@ function _getArrayMovedIndex($array, $from, $to)
     $newArray = array_unique($newArray);
     return $newArray;
 }
+
+/*
+ * Local Variables:
+ * mode: php
+ * coding: cp932
+ * tab-width: 4
+ * c-basic-offset: 4
+ * indent-tabs-mode: nil
+ * End:
+ */
+// vim: set syn=php fenc=cp932 ai et ts=4 sw=4 sts=4 fdm=marker:

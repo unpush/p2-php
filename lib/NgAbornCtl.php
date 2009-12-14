@@ -281,17 +281,7 @@ class NgAbornCtl
     function countNgAbornsHits($ngcode)
     {
         if (!isset($GLOBALS['ngaborns_hits'])) {
-            $GLOBALS['ngaborns_hits'] = array(
-                'aborn_res'  => 0,
-                'aborn_name' => 0,
-                'aborn_mail' => 0,
-                'aborn_msg'  => 0,
-                'aborn_id'   => 0,
-                'ng_name'    => 0,
-                'ng_mail'    => 0,
-                'ng_msg'     => 0,
-                'ng_id'      => 0
-            );
+            NgAbornCtl::initNgAbornsHits();
         }
         
         if ($ngcode != 'ng_msg') {
@@ -299,6 +289,25 @@ class NgAbornCtl
         }
         
         return ++$GLOBALS['ngaborns_hits'][$ngcode];
+    }
+    
+    /**
+     * @access  private
+     * @return  void
+     */
+    function initNgAbornsHits()
+    {
+        $GLOBALS['ngaborns_hits'] = array(
+            'aborn_res'  => 0,
+            'aborn_name' => 0,
+            'aborn_mail' => 0,
+            'aborn_msg'  => 0,
+            'aborn_id'   => 0,
+            'ng_name'    => 0,
+            'ng_mail'    => 0,
+            'ng_msg'     => 0,
+            'ng_id'      => 0
+        );
     }
     
     /**
