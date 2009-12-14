@@ -49,12 +49,12 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat)) { // 
     echo <<<EOP
 <div>
     <a id="footer" name="footer">{$read_range_hs}</a><br>
-    {$read_navi_previous_btm} 
-    {$read_navi_next_btm} 
-    {$read_navi_latest_btm}
+    {$read_navi_previous_btm_ht} 
+    {$read_navi_next_btm_ht} 
+    {$read_navi_latest_btm_ht}
     {$read_footer_navi_new_btm_ht} 
     {$dores_atag}
-    {$read_navi_filter_btm}<br>
+    {$read_navi_filter_btm_ht}<br>
     {$toolbar_right_ht} $above_atag
 </div>
 <br>

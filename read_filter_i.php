@@ -47,6 +47,8 @@ $method[$res_filter['method']] = ' selected';
 
 // }}}
 
+$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+
 $hr = P2View::getHrHtmlK();
 $body_at = P2View::getBodyAttrK();
 
@@ -59,17 +61,17 @@ P2View::printDoctypeTag();
 <head>
 <?php
 P2View::printExtraHeadersHtml();
-echo <<<EOF
-    <link rel="stylesheet" type="text/css" href="./iui/read.css">
-    <title>スレ内検索</title>
+?>
+	<link rel="stylesheet" type="text/css" href="./iui/read.css">
+	<title>スレ内検索</title>
 </head>
-<body{$body_at}>
+<body<?php echo $body_at; ?>>
 <div class="toolbar">
-<h1>{$ttitle_back_ht}</h1>
-<a id="backButton" class="button" href="index.php?b=i">TOP</a>
+<h1><?php echo $ttitle_back_ht; ?></h1>
+<a id="backButton" class="button" href="<?php eh($index_uri); ?>">TOP</a>
 </div>
-
-
+<?php
+echo <<<EOF
 <form class="panel" id="header" method="get" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}">
 <h2>検索ワード</h2>
 <filedset>

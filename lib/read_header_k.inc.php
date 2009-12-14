@@ -50,16 +50,16 @@ $favvalue = $aThread->fav ? 0 : 1;
 $rnum_range = $_conf['k_rnum_range'];
 $latest_show_res_num = $_conf['k_rnum_range']; // 最新XX
 
-$read_navi_previous     = '';
-$read_navi_previous_btm = '';
-$read_navi_next         = '';
-$read_navi_next_btm     = '';
+$read_navi_previous_ht     = '';
+$read_navi_previous_btm_ht = '';
+$read_navi_next_ht         = '';
+$read_navi_next_btm_ht  = '';
 $read_footer_navi_new_ht   = '';
 $read_footer_navi_new_btm_ht = '';
-$read_navi_latest       = '';
-$read_navi_latest_btm   = '';
-$read_navi_filter       = '';
-$read_navi_filter_btm   = '';
+$read_navi_latest_ht       = '';
+$read_navi_latest_btm_ht   = '';
+$read_navi_filter_ht       = '';
+$read_navi_filter_btm_ht   = '';
 
 $pointer_header_at = ' id="header" name="header"';
 
@@ -83,7 +83,7 @@ for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
 
 
 //----------------------------------------------
-// $read_navi_previous -- 前
+// $read_navi_previous_ht -- 前
 $before_rnum = $aThread->resrange['start'] - $rnum_range;
 if ($before_rnum < 1) {
     $before_rnum = 1;
@@ -122,12 +122,12 @@ if (!$read_navi_prev_isInvisible) {
         $url .= '&ls=' . "{$before_rnum}-{$aThread->resrange['start']}n";
     }
     
-    $read_navi_previous = P2View::tagA($url, $html);
-    $read_navi_previous_btm = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev']));
+    $read_navi_previous_ht = P2View::tagA($url, $html);
+    $read_navi_previous_btm_ht = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev']));
 }
 
 //----------------------------------------------
-// $read_navi_next -- 次
+// $read_navi_next_ht -- 次
 $read_navi_next_isInvisible = false;
 if ($aThread->resrange['to'] >= $aThread->rescount and empty($_GET['onlyone'])) {
     $aThread->resrange['to'] = $aThread->rescount;
@@ -172,8 +172,8 @@ if (!$read_navi_next_isInvisible) {
         $url .= '&ls=' . "{$aThread->resrange['to']}-{$after_rnum}n" . $read_navi_next_anchor;
     }
     
-    $read_navi_next = P2View::tagA($url, $html);
-    $read_navi_next_btm = P2View::tagA($url, $html,
+    $read_navi_next_ht = P2View::tagA($url, $html);
+    $read_navi_next_btm_ht = P2View::tagA($url, $html,
         array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next'])
     );
 }
@@ -186,21 +186,21 @@ list($read_footer_navi_new_ht, $read_footer_navi_new_btm_ht) = _getReadFooterNav
 if (!$read_navi_next_isInvisible || $GLOBALS['_filter_hits'] !== null) {
 
     // 最新N件
-    $read_navi_latest = <<<EOP
+    $read_navi_latest_ht = <<<EOP
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}{$_conf['k_at_a']}">{$_conf['k_accesskey']['latest']}.{$latest_st}{$latest_show_res_num}</a> 
 EOP;
     $time = time();
-    $read_navi_latest_btm = <<<EOP
+    $read_navi_latest_btm_ht = <<<EOP
 <a {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['latest']}" href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}&amp;dummy={$time}{$_conf['k_at_a']}">{$_conf['k_accesskey']['latest']}.{$latest_st}{$latest_show_res_num}</a> 
 EOP;
 }
 
 // {{{ 検索
 
-$read_navi_filter = <<<EOP
+$read_navi_filter_ht = <<<EOP
 <a href="read_filter_k.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$find_st}</a>
 EOP;
-$read_navi_filter_btm = <<<EOP
+$read_navi_filter_btm_ht = <<<EOP
 <a {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['filter']}" href="read_filter_k.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$_conf['k_accesskey']['filter']}.{$find_st}</a>
 EOP;
 
@@ -255,9 +255,9 @@ if (($aThread->rescount or !empty($_GET['onlyone']) && !$aThread->diedat) and em
     echo <<<EOP
 <p>
 {$htm['read_navi_range']}
-{$read_navi_previous}
-<!-- {$read_navi_next} -->
-{$read_navi_latest}
+{$read_navi_previous_ht}
+<!-- {$read_navi_next_ht} -->
+{$read_navi_latest_ht}
 <a {$_conf['accesskey_for_k']}="{$_conf['k_accesskey']['bottom']}" href="#footer">{$_conf['k_accesskey']['bottom']}.▼</a>
 </p>\n
 EOP;

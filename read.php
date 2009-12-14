@@ -312,7 +312,7 @@ if ($_conf['ktai']) {
             'res_filter'   => $res_filter
         );
         $ar = getResetReadNaviFooterK($aThread, $params);
-        extract($ar); // $read_navi_previous_btm, $read_navi_next_btm, $read_footer_navi_new_btm_ht
+        extract($ar); // $read_navi_previous_btm_ht, $read_navi_next_btm_ht, $read_footer_navi_new_btm_ht
     }
     if (UA::isIPhoneGroup()) {
     	require_once P2_IPHONE_LIB_DIR . '/read_footer_k.inc.php';

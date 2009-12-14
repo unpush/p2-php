@@ -34,6 +34,8 @@ $menuKLinkHtmls = getIndexMenuKLinkHtmls(getIndexMenuKIni(), $noLink = true);
 $body_at    = P2View::getBodyAttrK();
 $hr         = P2View::getHrHtmlK();
 
+$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+
 //================================================================
 // ヘッダHTML表示
 //================================================================
@@ -53,12 +55,12 @@ if (UA::isPC()) {
     P2View::printIncludeCssHtml('editfavita');
 }
 
-echo <<<EOP
+?>
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <style type="text/css" media="screen">@import "./iui/iui.css";</style>
 </head>
-<body{$body_at}>\n
-EOP;
+<body<?php echo $body_at; ?>>
+<?php
 
 P2Util::printInfoHtml();
 
@@ -73,7 +75,7 @@ if (UA::isK() && !UA::isIPhoneGroup()) {
 ?>
 <div class="toolbar">
 <h1 id="pageTitle">メニュー並替</h1>
-<a id="backButton" class="button" href="./index.php?b=i">TOP</a>
+<a id="backButton" class="button" href="<?php eh($index_uri); ?>">TOP</a>
 </div>
 <div id="usage" class="panel"><filedset>
 <table>

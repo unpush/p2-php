@@ -43,7 +43,7 @@ function downloadDatShitaraba(&$ThreadRead)
         $machiurl = "http://{$host}/bbs/rawmode.cgi/{$category}/{$ThreadRead->bbs}/{$ThreadRead->key}/{$START}-";
     }
 
-    $tempfile = $ThreadRead->keydat . '.dat.temp';
+    $tempfile = $ThreadRead->keydat . '.dat.temp'; // dat‚ª2d‚É‚È‚Á‚Ä‚é‚¯‚Ç‚¢‚¢‚©
     
     FileCtl::mkdirFor($tempfile);
     $machiurl_res = P2Util::fileDownload($machiurl, $tempfile);

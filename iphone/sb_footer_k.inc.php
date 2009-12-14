@@ -126,24 +126,25 @@ echo '</body></html>';
 $k_sb_navi_ht ‚Í‰º‚Ì‚R‚Æ“¯‚¶
 {$sb_range_st}
 */
-$foot_sure = ""; 
-if ($dat_soko_ht) $foot_sure .= "<span class=\"soko\">{$dat_soko_ht}</span>";
-if ($buildnewthread_atag) $foot_sure .= "<span class=\"build\">{$buildnewthread_atag}</span>";
-if ($allfav_atag) $foot_sure .= "<span class=\"all\">{$allfav_atag}</span>";
-if ($taborn_link_atag) $foot_sure .= "<span class=\"abon\">{$taborn_link_atag}</span>";
-if ($mae_ht) $foot_sure .= "<span class=\"mae\">{$mae_ht}</span>";
-if ($tugi_ht) $foot_sure .= "<span class=\"tugi\">{$tugi_ht}</span>";
+$foot_sure_ht = ""; 
+if ($dat_soko_ht) $foot_sure_ht .= "<span class=\"soko\">{$dat_soko_ht}</span>";
+if ($buildnewthread_atag) $$foot_sure_ht .= "<span class=\"build\">{$buildnewthread_atag}</span>";
+if ($allfav_atag) $$foot_sure_ht .= "<span class=\"all\">{$allfav_atag}</span>";
+if ($taborn_link_atag) $$foot_sure_ht .= "<span class=\"abon\">{$taborn_link_atag}</span>";
+if ($mae_ht) $$foot_sure_ht .= "<span class=\"mae\">{$mae_ht}</span>";
+if ($tugi_ht) $$foot_sure_ht .= "<span class=\"tugi\">{$tugi_ht}</span>";
 
-echo <<<IUI
-{$htm['change_sort']} 
+$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+?>
+<?php echo $htm['change_sort']; ?> 
 <div id="foot">
-  <div class="foot_sure">
-    {$foot_sure}
-  </div>
+	<div class="foot_sure">
+		<?php echo $foot_sure_ht; ?>
+	</div>
 </div>
-<p><a id="backButton"class="button" href="index.php?b=i">TOP</a></p>
+<p><a id="backButton"class="button" href="<?php eh($index_uri); ?>">TOP</a></p>
 </body></html>
-IUI;
+<?php
 
 // }}}
 

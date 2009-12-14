@@ -82,11 +82,14 @@ $hr = P2View::getHrHtmlK();
 
 $edit_conf_user_atag = P2View::tagA(
     P2Util::buildQueryUri(
-        'edit_conf_user.php',
+        'edit_conf_user_i.php',
         array(UA::getQueryKey() => UA::getQueryValue())
     ),
-    hs('ユーザ設定編集')
+    hs('ユーザ設定'), // ユーザ設定編集
+    array('class' => 'button')
 );
+
+$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 // }}}
 
@@ -128,8 +131,8 @@ $ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
 ?>
 <div class="toolbar">
 <h1 id="pageTitle"><?php eh($ptitle); ?></h1>
-<a class="button" href="edit_conf_user_i.php?b=i">ユーザ設定</a>
-<a id="backButton" class="button" href="./index.php?b=i">TOP</a>
+<?php echo $edit_conf_user_atag; ?>
+<a id="backButton" class="button" href="<?php eh($index_uri); ?>">TOP</a>
 </div>
 <?php
 

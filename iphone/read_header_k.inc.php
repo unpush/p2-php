@@ -50,16 +50,16 @@ $favvalue = $aThread->fav ? 0 : 1;
 $rnum_range = $_conf['k_rnum_range'];
 $latest_show_res_num = $_conf['k_rnum_range']; // 最新XX
 
-$read_navi_previous     = '';
-$read_navi_previous_btm = '';
-$read_navi_next         = '';
-$read_navi_next_btm     = '';
+$read_navi_previous_ht     = '';
+$read_navi_previous_btm_ht = '';
+$read_navi_next_ht         = '';
+$read_navi_next_btm_ht     = '';
 $read_footer_navi_new_ht   = '';
 $read_footer_navi_new_btm_ht = '';
-$read_navi_latest       = '';
-$read_navi_latest_btm   = '';
-$read_navi_filter       = '';
-$read_navi_filter_btm   = '';
+$read_navi_latest_ht       = '';
+$read_navi_latest_btm_ht   = '';
+$read_navi_filter_ht       = '';
+$read_navi_filter_btm_ht   = '';
 
 $pointer_header_at = ' id="header" name="header"';
 
@@ -89,7 +89,7 @@ for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
 */
 
 //----------------------------------------------
-// $read_navi_previous -- 前
+// $read_navi_previous_ht -- 前
 $before_rnum = $aThread->resrange['start'] - $rnum_range;
 if ($before_rnum < 1) {
     $before_rnum = 1;
@@ -128,12 +128,12 @@ if (!$read_navi_prev_isInvisible) {
         $url .= '&ls=' . "{$before_rnum}-{$aThread->resrange['start']}n";
     }
     
-    $read_navi_previous = P2View::tagA($url, $html);
-    $read_navi_previous_btm = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev']));
+    $read_navi_previous_ht = P2View::tagA($url, $html);
+    $read_navi_previous_btm_ht = P2View::tagA($url, $html, array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['prev']));
 }
 
 //----------------------------------------------
-// $read_navi_next -- 次
+// $read_navi_next_ht -- 次
 $read_navi_next_isInvisible = false;
 if ($aThread->resrange['to'] >= $aThread->rescount and empty($_GET['onlyone'])) {
     $aThread->resrange['to'] = $aThread->rescount;
@@ -199,8 +199,8 @@ if (!$read_navi_next_isInvisible) {
         $goto_select_ht .= sprintf('<input type="hidden" name="ls" value="%s">', hs($als));
     }
     
-    $read_navi_next = P2View::tagA($url, hs($st));
-    $read_navi_next_btm = P2View::tagA($url, hs($st), array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next']));
+    $read_navi_next_ht = P2View::tagA($url, hs($st));
+    $read_navi_next_btm_ht = P2View::tagA($url, hs($st), array($_conf['accesskey_for_k'] => $_conf['k_accesskey']['next']));
 }
 
 
@@ -219,18 +219,18 @@ list($read_footer_navi_new_ht, $read_footer_navi_new_btm_ht) = _getReadFooterNav
 if (!$read_navi_next_isInvisible || $GLOBALS['_filter_hits'] !== null) {
 
     // 最新N件
-    $read_navi_latest = <<<EOP
+    $read_navi_latest_ht = <<<EOP
 <a class="blueButton" href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}{$_conf['k_at_a']}">{$latest_st}{$latest_show_res_num}</a> 
 EOP;
     $time = time();
-    $read_navi_latest_btm = <<<EOP
+    $read_navi_latest_btm_ht = <<<EOP
 <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}&amp;dummy={$time}{$_conf['k_at_a']}">{$latest_st}{$latest_show_res_num}</a> 
 EOP;
 }
 
 // {{{ 検索
 
-$read_navi_filter = $read_navi_filter_btm = P2View::tagA(
+$read_navi_filter_ht = $read_navi_filter_btm_ht = P2View::tagA(
     P2Util::buildQueryUri('read_filter_i.php',
         array(
             'host' => $aThread->host,
@@ -277,7 +277,7 @@ $atag = P2View::tagA(
     hs($aThread->itaj),
     array('class' => 'button', 'id' => 'backButton')
 );
-$toolbar_back_board = "<p>$atag</p>";
+$toolbar_back_board_ht = "<p>$atag</p>";
     
 // }}}
 
@@ -324,7 +324,9 @@ $onload_script .= "checkSage();"; // 書き込みフォームのsageにチェックを入れる
 		var uriValue = "<?php echo $_conf['read_php']; ?>?"
 					+ "offline=1&"
 					//+ "b=" + document.frmresrange.b.value + "&"
-					+ "b=i&"
+					<?php if (UA::getQueryValue()) { ?>
+					+ "<?php echo UA::getQueryKey(); ?>=<?php echo UA::getQueryValue(); ?>&"
+					<?php } ?>
 					+ "host=" + document.frmresrange.host.value + "&"
 					+ "bbs=" + document.frmresrange.bbs.value + "&"
 					+ "key=" + document.frmresrange.key.value + "&"
@@ -422,9 +424,9 @@ EOP;
 EOP;
 
 /* iPhone 用に除外↑
-{$read_navi_previous}
-<!-- {$read_navi_next} -->
-{$read_navi_latest}
+{$read_navi_previous_ht}
+<!-- {$read_navi_next_ht} -->
+{$read_navi_latest_ht}
 */
 }
 

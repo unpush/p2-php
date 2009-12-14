@@ -53,7 +53,7 @@ P2View::printDoctypeTag();
 <head>
 <?php
 P2View::printExtraHeadersHtml();
-echo <<<EOP
+?>
     <style type="text/css" media="screen">@import "./iui/iui.css";</style>
     <title>p2 - ‚¨‹C‚É”Â‚Ì•À‚Ñ‘Ö‚¦</title>
 <script type="text/javascript" src="js/yui/YAHOO.js" ></script>
@@ -74,19 +74,19 @@ setTimeout(scrollTo, 100, 0, 1);
 <script type="text/javascript" src="js/yui/ygDDMy2.js" ></script>
 <script type="text/javascript" src="js/yui/ygDDList.js" ></script>
 <script type="text/javascript" src="js/yui/ygDDPlayer.js" ></script>
-EOP;
+<?php
 
 //include_once './style/style_css.inc';
 //include_once './style/editfavita_css.inc';
 
-echo <<<EOP
+?>
 </head>
 <body>
 <div class="toolbar">
 <h1>‚¨‹C‚É”Â•ÒW</h1>
-<a class="button" id="backbutton" href="index.php?b=i">TOP</a>
+<a class="button" id="backbutton" href="<?php eh($index_uri); ?>">TOP</a>
 </div>
-EOP;
+<?php
 
 P2Util::printInfoHtml();
 

@@ -240,6 +240,8 @@ $aThread->ls = 'l50';
 $motothre_url = $aThread->getMotoThread();
 $motothre_org_url = $aThread->getMotoThread(true);
 
+$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+
 if ($title_msg) {
     $hc['title'] = $title_msg;
 } else {
@@ -274,14 +276,14 @@ if (isset($_GET['popup']) and $_GET['popup'] == 2) {
 if (_isCalledAsStandAlone()) {
 
 // html プリントヘッド iPhone用
-echo <<<EOP
+?>
 	</head>
-	<body{$body_onload}>
+	<body<?php echo $body_onload; ?>>
 	<div class="toolbar">
 	<h1 id="pageTitle">スレ情報</h1>
-	<a id="backButton" class="button" href="./index.php?b=i">TOP</a>
+	<a id="backButton" class="button" href="<?php eh($index_uri); ?>">TOP</a>
 	</div>
-EOP;
+<?php
 
 } // if (_isCalledAsStandAlone())
 

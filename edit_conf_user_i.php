@@ -87,6 +87,7 @@ $ptitle = 'ユーザ設定編集';
 
 $csrfid = P2Util::getCsrfId();
 
+$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
 
 //=====================================================================
 // プリント
@@ -103,18 +104,14 @@ P2View::printDoctypeTag();
 body{background:url(iui/pinstripes.png)}input,select {float: right;}
 </style>
     <title><?php eh($ptitle); ?></title>
-<?php
 
-echo <<<EOP
 </head>
-<body onLoad="top.document.title=self.document.title;">\n
+<body onLoad="top.document.title=self.document.title;">
 <div class="toolbar">
-<h1 id="pageTitle">{$ptitle}</h1>
-<a name="top" id="backButton" class="button" href="./index.php?b=i">TOP</a>
+<h1 id="pageTitle"><?php eh($ptitle); ?></h1>
+<a name="top" id="backButton" class="button" href="<?php eh($index_uri); ?>">TOP</a>
 </div>
-
-EOP;
-
+<?php
 
 $htm['form_submit'] = <<<EOP
 <input class="whiteButton" type="submit" name="submit_save" value="変更を保存する">\n<br clear="right">

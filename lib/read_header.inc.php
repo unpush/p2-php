@@ -41,7 +41,7 @@ $rnum_range = 100;
 $latest_show_res_num = 50; // ÅVXX
 
 //----------------------------------------------
-// $read_navi_previous -- ‘O100
+// $read_navi_previous_ht -- ‘O100
 $before_rnum = $aThread->resrange['start'] - $rnum_range;
 if ($before_rnum < 1) { $before_rnum = 1; }
 if ($aThread->resrange['start'] == 1 or !empty($_GET['onlyone'])) {
@@ -50,7 +50,7 @@ if ($aThread->resrange['start'] == 1 or !empty($_GET['onlyone'])) {
     $read_navi_prev_isInvisible = false;
 }
 
-$read_navi_previous = '';
+$read_navi_previous_ht = '';
 $read_navi_prev_anchor = '';
 //if ($before_rnum != 1) {
 //    $read_navi_prev_anchor = "#r{$before_rnum}";
@@ -76,7 +76,7 @@ if (!$read_navi_prev_isInvisible) {
 }
 
 //----------------------------------------------
-//$read_navi_next -- ŽŸ100
+//$read_navi_next_ht -- ŽŸ100
 if ($aThread->resrange['to'] > $aThread->rescount) {
     $aThread->resrange['to'] = $aThread->rescount;
     //$read_navi_next_anchor = "#r{$aThread->rescount}";
@@ -98,7 +98,7 @@ if ($after_rnum <= $aThread->gotnum) {
 }
 
 //if (!$read_navi_next_isInvisible) {
-$read_navi_next = P2View::tagA(
+$read_navi_next_ht = P2View::tagA(
     P2Util::buildQueryUri($_conf['read_php'],
         array_merge(
             array(

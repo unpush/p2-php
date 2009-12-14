@@ -52,52 +52,53 @@ EOP;
     
     //iPhone 表示用フッタ 080725
     //　前、次、新着 無い時は黒
-    if ($read_navi_latest_btm) {
-       $new_btm = "<li class=\"new\">{$read_navi_latest_btm}</li>";
+    if ($read_navi_latest_btm_ht) {
+       $new_btm_ht = "<li class=\"new\">{$read_navi_latest_btm_ht}</li>";
     }
     if ($read_footer_navi_new_btm_ht) {
-        $new_btm = "<li class=\"new\">{$read_footer_navi_new_btm_ht}</li>"; 
+        $new_btm_ht = "<li class=\"new\">{$read_footer_navi_new_btm_ht}</li>"; 
     }
-    if ($read_navi_previous) { 
-        $read_navi_previous_tab = "<li class=\"prev\">{$read_navi_previous} </li>";
+    if ($read_navi_previous_ht) { 
+        $read_navi_previous_tab_ht = "<li class=\"prev\">{$read_navi_previous_ht} </li>";
     } else {
-        $read_navi_previous_tab = "<li id=\"blank\" class=\"prev\"></li>";
+        $read_navi_previous_tab_ht = "<li id=\"blank\" class=\"prev\"></li>";
     }
-    if ($read_navi_next_btm) {
-        $read_navi_next_btm_tab = "<li class=\"next\">{$read_navi_next_btm}</li>";
+    if ($read_navi_next_btm_ht) {
+        $read_navi_next_btm_tab_ht = "<li class=\"next\">{$read_navi_next_btm_ht}</li>";
     } else {
-        $read_navi_next_btm_tab = "<li id=\"blank\" class=\"next\"></li>";
+        $read_navi_next_btm_tab_ht = "<li id=\"blank\" class=\"next\"></li>";
     }
     
-    echo <<<EOP
-{$toolbar_back_board}
+    $index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+    ?>
+<?php echo $toolbar_back_board_ht; ?>
 <div class="footform">
 <a id="footer" name="footer"></a>
-{$goto_select_ht}
+<?php echo $goto_select_ht; ?>
 </div>
 <div id="footbar01">
-  <div class="footbar">
-    <ul>
-    <li class="home"><a href="index.php?b=i">TOP</a></li>
-    {$read_navi_previous_tab} 
-    {$new_btm}
-    <li class="res" id="writeId" title="off"><a onclick="popUpFootbarFormIPhone(1);all.item('footbar02').style.visibility='hidden';">書き込み</a></li>
-    <li class="other"><a onclick="all.item('footbar02').style.visibility='visible';popUpFootbarFormIPhone(0, 1);popUpFootbarFormIPhone(1, 1);">その他</a></li>
-    {$read_navi_next_btm_tab}
-    </ul>
-  </div>
+	<div class="footbar">
+		<ul>
+		<li class="home"><a href="<?php eh($index_uri); ?>">TOP</a></li>
+		<?php echo $read_navi_previous_tab_ht; ?> 
+		<?php echo $new_btm_ht; ?>
+		<li class="res" id="writeId" title="off"><a onclick="popUpFootbarFormIPhone(1);all.item('footbar02').style.visibility='hidden';">書き込み</a></li>
+		<li class="other"><a onclick="all.item('footbar02').style.visibility='visible';popUpFootbarFormIPhone(0, 1);popUpFootbarFormIPhone(1, 1);">その他</a></li>
+		<?php echo $read_navi_next_btm_tab_ht; ?>
+		</ul>
+	</div>
 </div>
 <div id="footbar02" class="dialog_other">
 <filedset>
 <ul>
-    <li class="whiteButton" id="serchId" title="off" onclick="popUpFootbarFormIPhone(0);all.item('footbar02').style.visibility='hidden'">フィルタ検索</li>
-    {$toolbar_right_ht} 
-    <li class="grayButton" onclick="all.item('footbar02').style.visibility='hidden'">キャンセル</li>
+	<li class="whiteButton" id="serchId" title="off" onclick="popUpFootbarFormIPhone(0);all.item('footbar02').style.visibility='hidden'">フィルタ検索</li>
+	<?php echo $toolbar_right_ht; ?> 
+	<li class="grayButton" onclick="all.item('footbar02').style.visibility='hidden'">キャンセル</li>
 </ul>
 </filedset>
 </div>
-{$seafrm_ht}
-EOP;
+<?php echo $seafrm_ht; ?>
+<?
 
 /* 書き込みフォーム------------------------------------ */
     $bbs        = $aThread->bbs;

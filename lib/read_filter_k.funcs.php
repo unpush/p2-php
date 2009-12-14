@@ -9,15 +9,15 @@ function resetReadNaviHeaderK()
 {
     $GLOBALS['prev_st'] = '前*';
     $GLOBALS['next_st'] = '次*';
-    $GLOBALS['read_navi_previous'] = '';
-    $GLOBALS['read_navi_next'] = '';
+    $GLOBALS['read_navi_previous_ht'] = '';
+    $GLOBALS['read_navi_next_ht'] = '';
 }
 
 /**
  * フィルタ用に書き換えたフッタ変数を取得する
  * 
  * @access  public
- * @return  array  array(read_navi_previous_btm, read_navi_next_btm, read_footer_navi_new_btm)
+ * @return  array  array(read_navi_previous_btm_ht, read_navi_next_btm_ht, read_footer_navi_new_btm_ht)
  */
 function getResetReadNaviFooterK($aThread, $params)
 {
@@ -52,7 +52,7 @@ function getResetReadNaviFooterK($aThread, $params)
             array('filter_page' => $filter_page - 1)
         );
         $read_navi_previous_url = P2Util::buildQueryUri($_conf['read_php'], $qs);
-        $read_navi_previous_btm = sprintf(
+        $read_navi_previous_btm_ht = sprintf(
             '<a %1$s="%2$s" href="%3$s">%2$s.%4$s</a>',
             hs($_conf['accesskey_for_k']),
             hs($_conf['k_accesskey']['prev']),
@@ -67,7 +67,7 @@ function getResetReadNaviFooterK($aThread, $params)
             array('filter_page' => $filter_page + 1)
         );
         $read_navi_next_url = P2Util::buildQueryUri($_conf['read_php'], $qs);
-        $read_navi_next_btm = sprintf(
+        $read_navi_next_btm_ht = sprintf(
             '<a %1$s="%2$s" href="%3$s">%2$s.%4$s</a>',
             hs($_conf['accesskey_for_k']),
             hs($_conf['k_accesskey']['next']),
@@ -86,9 +86,9 @@ function getResetReadNaviFooterK($aThread, $params)
     */
     
     return array(
-        'read_navi_previous_btm'   => $read_navi_previous_btm,
-        'read_navi_next_btm'       => $read_navi_next_btm,
-        'read_footer_navi_new_btm' => $read_footer_navi_new_btm_ht
+        'read_navi_previous_btm_ht'   => $rread_navi_previous_btm_ht,
+        'read_navi_next_btm_ht'       => $read_navi_next_btm_ht,
+        'read_footer_navi_new_btm_ht' => $read_footer_navi_new_btm_ht
     );
 }
 

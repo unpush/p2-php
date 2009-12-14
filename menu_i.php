@@ -91,6 +91,8 @@ if ($get['view'] != 'favita' && $get['view'] != 'rss' && empty($_GET['cateid']))
 // 検索結果をHTML表示
 //===========================================================
 
+$index_uri = P2Util::buildQueryUri('index.php', array(UA::getQueryKey() => UA::getQueryValue()));
+
 $modori_url_ht = '';
 
 // {{{ 検索ワードがあれば
@@ -158,8 +160,8 @@ P2Util::printInfoHtml();
 
 // フッタをHTML表示
 echo geti($GLOBALS['list_navi_ht']);
-echo '<p><a id="backButton"class="button" href="index.php?b=i">TOP</a></p>';
 ?>
+<p><a id="backButton"class="button" href="<?php eh($index_uri); ?>">TOP</a></p>
 </body></html>
 <?php
 

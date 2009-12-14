@@ -127,7 +127,7 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
             $read_navi_next_anchor = "#r{$aThread->rescount}";
         }
         $after_rnum = $GLOBALS['last_hit_resnum'] + $rnum_range;
-        $read_navi_next = P2View::tagA(
+        $read_navi_next_ht = P2View::tagA(
             P2Util::buildQueryUri($_conf['read_php'],
                 array_merge(array(
                     'host' => $aThread->host,
@@ -157,8 +157,8 @@ if ($aThread->rescount or (!empty($_GET['onlyone']) && !$aThread->diedat)) { // 
         <td align="left">
             {$q_ichi_ht}
             $all_atag 
-            {$read_navi_previous} 
-            {$read_navi_next} 
+            {$read_navi_previous_ht} 
+            {$read_navi_next_ht} 
             $latest_atag
             {$goto_ht}
             | {$read_footer_navi_new_ht}
