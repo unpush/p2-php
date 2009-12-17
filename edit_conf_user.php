@@ -594,6 +594,10 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('expack.editor.dpreview_chkaa', 'リアルタイム・プレビューでAA補正用のチェックボックスを表示する'),
         array('expack.editor.check_message', '本文が空でないかチェック'),
         array('expack.editor.check_sage', 'sageチェック'),
+        array('expack.editor.savedraft', '下書き保存'),
+        array('expack.editor.savedraft.interval', '下書きを自動保存する間隔(秒)（0で無効）'),
+        array('expack.editor.mobile.savedraft', '下書き保存(携帯)'),
+        array('expack.editor.mobile.savedraft.interval', '下書きを自動保存する間隔(秒)(iphone)（0で無効）'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

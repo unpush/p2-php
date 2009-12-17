@@ -137,6 +137,15 @@ if (!empty($_POST['newthread'])) {
     $location_ht = "{$_conf['read_php']}?host={$host}&amp;bbs={$bbs}&amp;key={$key}&amp;ls={$rescount}-&amp;refresh=1&amp;nt={$newtime}{$_conf['k_at_a']}#r{$rescount}";
 }
 
+if ($_POST['savedraft']) {
+    // ‘‚«‚İ‚ğˆê“I‚É•Û‘¶
+    $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
+    $cont = serialize($post_cache);
+    DataPhp::writeDataPhp($failed_post_file, $cont, $_conf['res_write_perm']);
+    showPostMsg(false, '‰º‘‚«‚ğ•Û‘¶‚µ‚Ü‚µ‚½', $reload);
+    exit;
+}
+
 if (P2Util::isHostJbbsShitaraba($host)) {
     $post[$dir_k] = $dir;
 }
