@@ -116,9 +116,9 @@ GOTO;
     // Å°ÉvÉäÉìÉg
     echo <<<EOP
 <hr>
-<table id="footer" width="100%" style="padding:0px 10px 0px 0px;">
+<table id="footer" class="toolbar">
     <tr>
-        <td align="left">
+        <td class="lblock">
             {$q_ichi}
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>
             {$read_navi_previous}
@@ -130,13 +130,8 @@ GOTO;
             {$htm['dsize']}
             {$htm['spd']}
         </td>
-        <td align="right">
-            {$htm['p2frame']}
-            {$toolbar_right_ht}
-        </td>
-        <td align="right">
-            <a href="#header">Å£</a>
-        </td>
+        <td class="rblock">{$htm['p2frame']} {$toolbar_right_ht}</td>
+        <td class="rblock"><a href="#header">Å£</a></td>
     </tr>
 </table>
 {$res_form_ht_pb}

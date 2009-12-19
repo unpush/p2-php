@@ -216,6 +216,12 @@ echo <<<EOHEADER
     </script>\n
 EOHEADER;
 
+if (!empty($_SESSION['use_narrow_toolbars'])) {
+    echo <<<EOP
+    <link rel="stylesheet" type="text/css" href="css.php?css=narrow_toolbar&amp;skin={$skin_en}">\n
+EOP;
+}
+
 echo <<<EOP
 </head>
 <body><div id="popUpContainer"></div>\n
@@ -485,10 +491,10 @@ function readNew($aThread)
 
     // ヘッダ部分HTML
     $read_header_ht = <<<EOP
-<table id="ntt{$newthre_num}" width="100%" style="padding:0px 10px 0px 0px;">
+<table id="ntt{$newthre_num}" class="toolbar">
     <tr>
-        <td align="left"><h3 class="thread_title">{$aThread->ttitle_hd}</h3></td>
-        <td align="right">{$prev_thre_ht} {$next_thre_ht}</td>
+        <td class="lblock"><h3 class="thread_title">{$aThread->ttitle_hd}</h3></td>
+        <td class="rblock">{$prev_thre_ht} {$next_thre_ht}</td>
     </tr>
 </table>\n
 EOP;
@@ -597,19 +603,13 @@ EOTOOLBAR;
 
     // フッタ部分HTML
     $read_footer_ht = <<<EOP
-        <table width="100%" style="padding:0px 10px 0px 0px;">
-            <tr>
-                <td align="left">
-                    {$res1['body']} | <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> | {$dores_ht} {$dsize_ht} {$spd_ht}
-                </td>
-                <td align="right">
-                    {$toolbar_right_ht}
-                </td>
-                <td align="right">
-                    <a href="#ntt{$newthre_num}">▲</a>
-                </td>
-            </tr>
-        </table>\n
+<table class="toolbar">
+    <tr>
+        <td class="lblock">{$res1['body']} | <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}#r{$aThread->rescount}">{$aThread->ttitle_hd}</a> | {$dores_ht} {$dsize_ht} {$spd_ht}</td>
+        <td class="rblock">{$toolbar_right_ht}</td>
+        <td class="rblock"><a href="#ntt{$newthre_num}">▲</a></td>
+    </tr>
+</table>\n
 EOP;
 
     // 透明あぼーんで表示がない場合はスキップ

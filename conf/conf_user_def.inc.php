@@ -312,10 +312,17 @@ $conf_user_rad['res_write_rec'] = array('1' => 'する', '0' => 'しない');
 // 外部URLジャンプする際に通すゲート。
 // （直接:"", p2 ime(自動転送):"p2", p2 ime(手動転送):"p2m", p2 ime(pのみ手動転送):"p2pm",
 //   r.p(自動転送1秒):"ex", r.p(自動転送0秒):"exq", r.p(手動転送):"exm", r.p(pのみ手動転送):"expm"）
-$conf_user_def['through_ime'] = "expm"; // ("expm") 
+$conf_user_def['through_ime'] = "google"; // ("google") 
 $conf_user_sel['through_ime'] = array(
-    '' => '直接', 'p2' => 'p2 ime(自動転送)', 'p2m' => 'p2 ime(手動転送)', 'p2pm' => 'p2 ime(pのみ手動転送)',
-    'ex' => 'r.p(自動転送1秒)', 'exq' => 'r.p(自動転送0秒)', 'exm' => 'r.p(手動転送)', 'expm' => 'r.p(pのみ手動転送)'
+    ''       => '直接',
+    'p2'     => 'p2 ime(自動転送)',
+    'p2m'    => 'p2 ime(手動転送)',
+    'p2pm'   => 'p2 ime(pのみ手動転送)',
+    'ex'     => 'r.p(自動転送1秒)',
+    'exq'    => 'r.p(自動転送0秒)',
+    'exm'    => 'r.p(手動転送)',
+    'expm'   => 'r.p(pのみ手動転送)',
+    'google' => 'Google',
 );
 
 // ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）

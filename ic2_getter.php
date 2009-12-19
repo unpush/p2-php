@@ -36,8 +36,25 @@ require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
 require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
 
 // ポップアップウインドウ？
-$isPopUp = empty($_GET['popup']) ? 0 : 1;
-
+if (empty($_GET['popup'])) {
+    $isPopUp = 0;
+    $autoClose = -1;
+} else {
+    $isPopUp = 1;
+    if (array_key_exists('close', $_GET) && is_numeric($_GET['close'])) {
+        $autoClose = (float)$_GET['close'] * 1000.0;
+        if ($autoClose > 0.0) {
+            $autoClose = (int)$autoClose;
+            if ($autoClose == 0) {
+                $autoClose = 1;
+            }
+        } else {
+            $autoClose = -1;
+        }
+    } else {
+        $autoClose = -1;
+    }
+}
 
 // }}}
 // {{{ config
@@ -55,6 +72,7 @@ $qf_defaults = array(
     'to'    => 'to',
     'padding' => '',
     'popup'   => $isPopUp,
+    'close'   => $autoClose,
 );
 
 // フォームの固定値
@@ -103,6 +121,7 @@ $qfe = array();
 // 隠し要素
 $qfe['detect_hint'] = $qf->addElement('hidden', '_hint');
 $qfe['popup'] = $qf->addElement('hidden', 'popup');
+$qfe['close'] = $qf->addElement('hidden', 'close');
 
 // URLと連番設定
 $qfe['uri']     = $qf->addElement('text', 'uri', 'URL', $_attr_uri);
@@ -371,10 +390,28 @@ $r = new HTML_QuickForm_Renderer_ObjectFlexy($flexy);
 $qf->accept($r);
 $qfObj = $r->toObject();
 
+// 動的JavaScript
+$js = $qf->getValidationScript();
+$js .= <<<EOS
+<script type="text/javascript">
+// <![CDATA[
+function ic2g_onload()
+{
+\tsetWinTitle();\n
+EOS;
+if ($execDL && $autoClose > 0) {
+    $js .= "\twindow.setTimeout('window.close();', $autoClose);\n";
+}
+$js .= <<<EOS
+}
+// ]]>
+</script>
+EOS;
+
 // 変数をAssign
 $flexy->setData('info_msg', $_info_msg_ht);
 $flexy->setData('STYLE', $STYLE);
-$flexy->setData('js', $qf->getValidationScript());
+$flexy->setData('js', $js);
 $flexy->setData('get', $qfObj);
 
 // ページを表示

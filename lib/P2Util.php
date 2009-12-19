@@ -568,6 +568,15 @@ class P2Util
         case 'exm':
             $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=-1';
             break;
+        case 'google':
+            $url_r = 'http://www.google.co.jp/';
+            if ($_conf['ktai'] && !$_conf['iphone']) {
+                $url_r .= 'gwt/x?u=';
+            } else {
+                $url_r .= 'url?q=';
+            }
+            $url_r .= $url_en;
+            break;
         default:
             $url_r = $url;
         }

@@ -287,6 +287,25 @@ a.newres:link, a.newres:visited, a.newres:hover, a.newres:active{ /* 新着レス */
 	cursor: pointer;
 }
 
+/* ツールバー */
+table.toolbar {
+	width: 100%;
+	margin: 0;
+	padding: 0 10px 0 0;
+}
+
+table.toolbar td.lblock {
+	text-align: left;
+} 
+
+table.toolbar td.cblock {
+	text-align: center;
+} 
+
+table.toolbar td.rblock {
+	text-align: right;
+} 
+
 EOSTYLE;
 
 /*

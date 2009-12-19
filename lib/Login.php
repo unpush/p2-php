@@ -194,8 +194,8 @@ class Login
 
         // }}}
 
-        // 認証後はセッションを閉じる
-        if (!defined('P2_SESSION_NO_CLOSE')) {
+        // セッションを認証以外に使わない場合は閉じる
+        if (P2_SESSION_CLOSE_AFTER_AUTHENTICATION) {
             session_write_close();
         }
 

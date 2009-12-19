@@ -15,6 +15,18 @@ $_conf['p2ua'] = "{$_conf['p2name']}/{$_conf['p2version']}+{$_conf['p2expack']}"
 
 define('P2_VERSION_ID', sprintf('%u', crc32($_conf['p2ua'])));
 
+/*
+ * 通常はセッションファイルのロック待ちを極力短くするため
+ * ユーザー認証後すぐにセッション変数の変更をコミットする。
+ * 認証後もセッション変数を変更するスクリプトでは
+ * このファイルを読み込む前に
+ *  define('P2_SESSION_CLOSE_AFTER_AUTHENTICATION', 0);
+ * とする。
+ */
+if (!defined('P2_SESSION_CLOSE_AFTER_AUTHENTICATION')) {
+    define('P2_SESSION_CLOSE_AFTER_AUTHENTICATION', 1);
+}
+
 // {{{ グローバル変数を初期化
 
 $_info_msg_ht = ''; // ユーザ通知用 情報メッセージHTML
@@ -897,43 +909,33 @@ if ($_conf['ktai']) {
 // 名前は、セッションクッキーを破棄するときのために、セッション利用の有無に関わらず設定する
 session_name('PS');
 
-if (defined('P2_FORCE_USE_SESSION') || $_conf['expack.misc.multi_favs']) {
-    $_conf['use_session'] = 1;
-}
-
 $_conf['sid_at_a'] = '';
 
-if ($_conf['use_session'] == 1 or ($_conf['use_session'] == 2 && !$_COOKIE['cid'])) {
-    require_once $P2_LIB_DIR_S . 'Session.php';
+require_once $P2_LIB_DIR_S . 'Session.php';
 
-    // {{{ セッションデータ保存ディレクトリをチェック
+// {{{ セッションデータ保存ディレクトリをチェック
 
-    if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
-        if (!is_dir($_conf['session_dir'])) {
-            FileCtl::mkdir_for($_conf['session_dir'] . '/dummy_filename');
-        } elseif (!is_writable($_conf['session_dir'])) {
-            p2die("セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
-        }
-
-        session_save_path($_conf['session_dir']);
-
-        // session.save_path のパスの深さが2より大きいとガーベッジコレクションが行われないので
-        // 自前でガーベッジコレクションする
-        P2Util::session_gc();
+if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
+    if (!is_dir($_conf['session_dir'])) {
+        FileCtl::mkdir_for($_conf['session_dir'] . '/dummy_filename');
+    } elseif (!is_writable($_conf['session_dir'])) {
+        p2die("セッションデータ保存ディレクトリ ({$_conf['session_dir']}) に書き込み権限がありません。");
     }
 
-    // }}}
+    session_save_path($_conf['session_dir']);
+}
 
-    $_p2session = new Session();
+// }}}
 
-    if (!$support_cookies) {
-        if (ini_get('session.use_only_cookies')) {
-            p2die('Session unavailable', 'php.ini で session.use_only_cookies が On になっています。');
-        }
-        if (!ini_get('session.use_trans_sid')) {
-            output_add_rewrite_var(session_name(), session_id());
-            $_conf['sid_at_a'] = '&amp;' . rawurldecode(session_name()) . '=' . rawurldecode(session_id());
-        }
+$_p2session = new Session();
+
+if (!$support_cookies) {
+    if (ini_get('session.use_only_cookies')) {
+        p2die('Session unavailable', 'php.ini で session.use_only_cookies が On になっています。');
+    }
+    if (!ini_get('session.use_trans_sid')) {
+        output_add_rewrite_var(session_name(), session_id());
+        $_conf['sid_at_a'] = '&amp;' . rawurldecode(session_name()) . '=' . rawurldecode(session_id());
     }
 }
 

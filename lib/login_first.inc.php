@@ -179,26 +179,21 @@ EOP;
         $hd['form_login_pass'] = '';
     }
 
-    // docomoの固有端末認証（セッション利用時のみ有効）
+    // docomoの固有端末認証
     $docomo_auth_ht = '';
 
-    //if ($_conf['use_session'] && $_login->user_u && $mobile->isDoCoMo()) {
     if ($mobile->isDoCoMo()) {
-        if ($_conf['use_session']) {
-            if (file_exists($_conf['auth_imodeid_file']) && empty($_SERVER['HTTPS'])) {
-                $docomo_auth_ht .= sprintf('<p><a href="%s?auth_type=imodeid&amp;user=%s&amp;guid=ON">iモードID認証</a></p>',
-                                           $myname,
-                                           rawurldecode($_login->user_u)
-                                           );
-            }
-            if (file_exists($_conf['auth_docomo_file'])) {
-                $docomo_auth_ht .= sprintf('<p><a href="%s?auth_type=utn&amp;user=%s" utn>端末ID認証</a></p>',
-                                           $myname,
-                                           rawurldecode($_login->user_u)
-                                           );
-            }
-        } else {
-            $docomo_auth_ht = '<p>conf/conf_admin.inc.php でｾｯｼｮﾝを利用するように設定変更してください｡</p>';
+        if (file_exists($_conf['auth_imodeid_file']) && empty($_SERVER['HTTPS'])) {
+            $docomo_auth_ht .= sprintf('<p><a href="%s?auth_type=imodeid&amp;user=%s&amp;guid=ON">iモードID認証</a></p>',
+                                       $myname,
+                                       rawurldecode($_login->user_u)
+                                       );
+        }
+        if (file_exists($_conf['auth_docomo_file'])) {
+            $docomo_auth_ht .= sprintf('<p><a href="%s?auth_type=utn&amp;user=%s" utn>端末ID認証</a></p>',
+                                       $myname,
+                                       rawurldecode($_login->user_u)
+                                       );
         }
     }
 

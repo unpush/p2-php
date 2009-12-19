@@ -263,6 +263,12 @@ echo <<<EOHEADER
     </script>\n
 EOHEADER;
 
+if (!empty($_SESSION['use_narrow_toolbars'])) {
+    echo <<<EOP
+    <link rel="stylesheet" type="text/css" href="css.php?css=narrow_toolbar&amp;skin={$skin_en}">\n
+EOP;
+}
+
 echo <<<EOP
 </head>
 <body><div id="popUpContainer"></div>\n
@@ -298,14 +304,10 @@ if ($aThread->diedat) {
     // 既得レスがなければツールバー表示
     if (!$aThread->rescount) {
         echo <<<EOP
-<table width="100%" style="padding:0px 0px 10px 0px;">
+<table class="toolbar">
     <tr>
-        <td align="left">
-            &nbsp;
-        </td>
-        <td align="right">
-            {$toolbar_right_ht}
-        </td>
+        <td class="lblock">&nbsp;</td>
+        <td class="rblock">{$toolbar_right_ht}</td>
     </tr>
 </table>
 EOP;
@@ -390,19 +392,14 @@ if (empty($_GET['renzokupop']) && ($aThread->rescount || (!empty($_GET['one']) &
     echo <<<EOP
 <table{$id_header} width="100%" style="padding:0px 0px 10px 0px;">
     <tr>
-        <td align="left">
+        <td class="lblock">
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>
             {$read_navi_range}
             {$read_navi_previous_header}
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a> {$htm['goto']}
         </td>
-        <td align="right">
-            {$htm['p2frame']}
-            {$toolbar_right_ht}
-        </td>
-        <td align="right">
-            <a href="#footer">▼</a>
-        </td>
+        <td class="rblock">{$htm['p2frame']} {$toolbar_right_ht}</td>
+        <td class="rblock"><a href="#footer">▼</a></td>
     </tr>
 </table>\n
 EOP;

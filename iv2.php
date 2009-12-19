@@ -5,8 +5,7 @@
 
 // {{{ p2äÓñ{ê›íËì«Ç›çûÇ›&îFèÿ
 
-define('P2_FORCE_USE_SESSION', 1);
-define('P2_SESSION_NO_CLOSE', 1);
+define('P2_SESSION_CLOSE_AFTER_AUTHENTICATION', 0);
 define('P2_OUTPUT_XHTML', 1);
 define('P2_USE_PEAR_HACK', 1);
 

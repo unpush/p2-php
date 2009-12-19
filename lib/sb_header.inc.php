@@ -315,6 +315,11 @@ EOJS;
 EOJS;
 }
 
+if (!empty($_SESSION['use_narrow_toolbars'])) {
+    echo <<<EOP
+    <link rel="stylesheet" type="text/css" href="css.php?css=narrow_toolbar&amp;skin={$skin_en}">\n
+EOP;
+}
 
 echo <<<EOP
 </head>

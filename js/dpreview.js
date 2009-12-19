@@ -59,7 +59,7 @@ function DPInit()
 	f_mail.onkeyup = DPSetMail;
 	f_mail.onchange = DPSetMail;
 	// sageチェックボックスの更新イベントハンドラを設定
-	f_sage.onclick = DPSetMail;
+	f_sage.onclick = DPSetSage;
 	// メッセージ欄の更新イベントハンドラを設定
 	//f_msg.onkeyup = DPSetMsg;
 	f_msg.onchange = DPSetMsg;
@@ -83,9 +83,9 @@ function DPShowHide(boolOnOff)
 	}
 	if (boolOnOff) {
 		dpreview_on = true;
-		DPSetName(f_name.value);
-		DPSetMail(f_mail.value);
-		DPSetMsg(f_msg.value);
+		DPSetName();
+		DPSetMail();
+		DPSetMsg();
 		DPSetDate();
 		if (dp_mona) {
 			dp_mona.disabled = false;
@@ -147,6 +147,7 @@ function DPSetName()
 // メール欄を更新する
 function DPSetMail()
 {
+	checkSage();
 	if (!dpreview_on) {
 		return;
 	}
@@ -154,6 +155,17 @@ function DPSetMail()
 	DPSetDate();
 }
 
+
+// sageチェック
+function DPSetSage()
+{
+	mailSage();
+	if (!dpreview_on) {
+		return;
+	}
+	DPReplaceInnerText('dp_mail', f_mail.value);
+	DPSetDate();
+}
 
 // 本文を更新する
 function DPSetMsg()

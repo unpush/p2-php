@@ -3,6 +3,8 @@
  * rep2 - インデックスページ
  */
 
+define('P2_SESSION_CLOSE_AFTER_AUTHENTICATION', 0);
+
 require_once './conf/conf.inc.php';
 
 $_login->authorize(); //ユーザ認証
@@ -55,7 +57,16 @@ if ($_conf['ktai']) {
     }
 
     $sidebar = !empty($_GET['sidebar']);
-    $v3pane  = !empty($_GET['v3pane']);
+
+    if (empty($_GET['v3pane'])) {
+        $v3pane = false;
+        $direction = 'rows';
+        $_SESSION['use_narrow_toolbars'] = false;
+    } else {
+        $v3pane = true;
+        $direction = 'cols';
+        $_SESSION['use_narrow_toolbars'] = true;
+    }
 
     $ptitle = "rep2";
     //======================================================

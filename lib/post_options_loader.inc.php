@@ -138,10 +138,12 @@ if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']
 
 // PC—p sage checkbox
 if (!$_conf['ktai']) {
-    $on_check_sage = 'onChange="checkSage();"';
+    $on_check_sage = ' onchange="checkSage();"';
     $htm['sage_cb'] = <<<EOP
 <input id="sage" type="checkbox" onclick="mailSage()"><label for="sage">sage</label>
 EOP;
+} else {
+    $on_check_sage = '';
 }
 
 // {{{ 2chœ‘‚«‚İ
