@@ -30,7 +30,15 @@ class Login
         }
 
         $this->setUser($login_user);
-        $this->pass_x = NULL;
+    }
+
+    /**
+     * @access  public
+     * @return  void
+     */
+    function setPassX($pass_x)
+    {
+        $this->pass_x = $pass_x;
     }
 
     /**
@@ -92,7 +100,7 @@ class Login
             $login_user = $_REQUEST['user'];
 
         // Cookieで指定
-        } elseif (isset($_COOKIE['cid']) and ($user = Login::getUserFromCid($_COOKIE['cid'])) !== false) {
+        } elseif (isset($_COOKIE['cid']) and (false !== $user = Login::getUserFromCid($_COOKIE['cid']))) {
             if ($this->validLoginId($user)) {
                 $login_user = $user;
             }
@@ -257,16 +265,17 @@ class Login
             }
             
             // パスワード設定があれば、セットする
-            if (isset($rec_login_pass_x) && strlen($rec_login_pass_x) > 0) {
-                $this->pass_x = $rec_login_pass_x;
+            if (isset($rec_login_pass_x) && strlen($rec_login_pass_x)) {
+                // $this->pass_x をセットする
+                $this->setPassX($rec_login_pass_x);
             }
         }
         
-        // 認証設定 or パスワード記録がなかった場合はここまで
+        // 認証ユーザ設定 or パスワード記録がなければここまで
         if (!$this->pass_x) {
 
             // 新規登録時以外はエラーメッセージを表示
-            if (empty($_POST['submit_new'])) {
+            if (empty($_POST['submit_newuser'])) {
                 P2Util::pushInfoHtml('<p class="infomsg">p2 error: ログインエラー</p>');
             }
             return false;
@@ -378,7 +387,7 @@ class Login
         // }}}
         
         // ■フォームからログインした時
-        if (!empty($_POST['submit_member'])) {
+        if (!empty($_POST['submit_userlogin'])) {
 
             // フォームログイン成功なら
             if ($_POST['form_login_id'] == $this->user_u and sha1($_POST['form_login_pass']) == $this->pass_x) {
@@ -787,7 +796,8 @@ EOP;
                 $_COOKIE['ignore_cip'] = '1';
             } else {
                 P2Util::unsetCookie('ignore_cip');
-                unset($_COOKIE['ignore_cip']);
+                // 念のためドメイン指定なしも
+                setcookie('ignore_cip', '', time() - 3600);
             }
         }
         

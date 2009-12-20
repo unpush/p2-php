@@ -2,8 +2,9 @@
 /*
     rep2 - 基本設定ファイル
 
-    このファイルは、システム内部設定なので、特に理由の無い限り変更しないこと
-    ユーザ設定は、ブラウザから「ユーザ設定編集」で。管理者向け設定は、conf_admin.inc.phpで行う。
+    このファイルは、システム内部設定なので、特に理由の無い限り変更しないで下さい。
+    ユーザ設定はブラウザから「ユーザ設定編集」で変更可能です。
+    管理者向け設定は conf/conf_admin.inc.php を直接書き換えて下さい。
 */
 
 $_conf['p2version'] = '1.8.59'; // rep2のバージョン
@@ -390,7 +391,7 @@ if (
 // {{{ ありえない引数のエラー
 
 // 新規ログインとメンバーログインの同時指定はありえないので、エラー出す
-if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
+if (isset($_POST['submit_newuser']) && isset($_POST['submit_userlogin'])) {
     P2Util::printSimpleHtml("p2 Error: 無効なURLです。");
     die;
 }

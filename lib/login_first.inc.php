@@ -90,13 +90,13 @@ function printLoginFirst(&$_login)
     } else {
 
         $regist_cookie_checked = ' checked';
-        if (isset($_POST['submit_new']) || isset($_POST['submit_member'])) {
+        if (isset($_POST['submit_newuser']) || isset($_POST['submit_userlogin'])) {
             if (empty($_POST['regist_cookie'])) {
                 $regist_cookie_checked = '';
             }
         }
         $ignore_cip_checked = '';
-        if (isset($_POST['submit_new']) || isset($_POST['submit_member'])) {
+        if (isset($_POST['submit_newuser']) || isset($_POST['submit_userlogin'])) {
             if (geti($_POST['ignore_cip']) == '1') {
                 $ignore_cip_checked = ' checked';
             }
@@ -154,10 +154,9 @@ function printLoginFirst(&$_login)
     $REQUEST_URI_hs = hs($ruri);
     
     if (!empty($GLOBALS['brazil']) or file_exists($_conf['auth_user_file'])) {
-        $submit_ht = '<input type="submit" name="submit_member" value="ユーザログイン">';
+        $submit_ht = '<input type="submit" name="submit_userlogin" value="ユーザログイン">';
     } else {
-        // submit_newuserにnameを変えたい気分
-        $submit_ht = '<input type="submit" name="submit_new" value="新規登録">';
+        $submit_ht = '<input type="submit" name="submit_newuser" value="新規登録">';
     }
     
     $login_form_ht = <<<EOP
@@ -182,7 +181,7 @@ EOP;
     if (
         $isAllowedNewUser
         and !file_exists($_conf['auth_user_file']) && !$_login_failed_flag
-        and !empty($_POST['submit_new']) && $post['form_login_id'] && $post['form_login_pass']
+        and !empty($_POST['submit_newuser']) && $post['form_login_id'] && $post['form_login_pass']
     ) {
         // {{{ 入力エラーをチェック、判定
         
@@ -208,7 +207,7 @@ EOP;
             $body_ht .= "<p><a href=\"{$myname}?form_login_id={$form_login_id_hs}{$_conf['k_at_a']}\">{$_conf['p2name']} start</a></p>";
             
             $_login->setUser($post['form_login_id']);
-            $_login->pass_x = sha1($post['form_login_pass']);
+            $_login->setPassX(sha1($post['form_login_pass']));
             
             // セッションが利用されているなら、セッションを更新
             if (isset($_p2session)) {
@@ -228,7 +227,7 @@ EOP;
     
     } else {
 
-        if (isset($_POST['submit_new']) || isset($_POST['submit_member'])) {
+        if (isset($_POST['submit_newuser']) || isset($_POST['submit_userlogin'])) {
             $msg_ht = '<p class="infomsg">';
             if (!$post['form_login_id']) {
                 $msg_ht .= "p2 error: 「{$p_str['user']}」が入力されていません。" . "<br>";
