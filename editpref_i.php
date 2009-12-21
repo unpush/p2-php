@@ -155,7 +155,7 @@ echo <<<EOP
 <select name="path">
 	<option value="{$ng_name_txt_bn}">NG:名前</option>
 	<option value="{$ng_mail_txt_bn}">NG:メール</option>
-	<option value="{$ng_msg_txt_bn}">NG:メール</option>
+	<option value="{$ng_msg_txt_bn}">NG:メッセージ</option>
 	<option value="{$ng_id_txt_bn}">NG:ID</option>
 	<option value="{$aborn_name_txt_bn}">アボン:名前</option>
 	<option value="{$aborn_mail_txt_bn}">アボン:メール</option>
