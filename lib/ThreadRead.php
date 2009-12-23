@@ -72,7 +72,7 @@ class ThreadRead extends Thread
                 ) {
                     require_once P2_LIB_DIR . '/login2ch.func.php';
                     if (!login2ch()) {
-                        $this->getdat_error_msg_ht .= $this->get2chDatError();
+                        $this->pushDownloadDatErrorMsgHtml($this->get2chDatError());
                         $this->diedat = true;
                         return false;
                     }
@@ -98,6 +98,14 @@ class ThreadRead extends Thread
         }
         
         return true;
+    }
+    
+    /**
+     * @return  void
+     */
+    function pushDownloadDatErrorMsgHtml($getdat_error_msg_ht)
+    {
+        $this->getdat_error_msg_ht .= $getdat_error_msg_ht;
     }
     
     /**
@@ -474,7 +482,7 @@ class ThreadRead extends Thread
     {
         // 2ch, bbspink, vip2ch.com ならread.cgiで確認
         if (P2Util::isHost2chs($this->host) || P2Util::isHostVip2ch($this->host)) {
-            $this->getdat_error_msg_ht .= $this->get2chDatError($reason);
+            $this->pushDownloadDatErrorMsgHtml($this->get2chDatError($reason));
         }
         $this->diedat = true;
     }
@@ -647,7 +655,7 @@ class ThreadRead extends Thread
                         file_exists($this->keydat) and unlink($this->keydat);
                         rename($this->keydat . ".bak", $this->keydat);
                     }
-                    $this->getdat_error_msg_ht .= "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>";
+                    $this->pushDownloadDatErrorMsgHtml("<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>");
                     // gztempファイルを捨てる
                     file_exists($gztempfile) and unlink($gztempfile);
                     
@@ -747,7 +755,7 @@ class ThreadRead extends Thread
             ),
             '再取得を試みる'
         );
-        $this->getdat_error_msg_ht .= "<p>p2 info - ●IDでのスレッド取得に失敗しました。[{$remarutori_atag}]</p>";
+        $this->pushDownloadDatErrorMsgHtml("<p>p2 info - ●IDでのスレッド取得に失敗しました。[{$remarutori_atag}]</p>");
         $this->diedat = true;
         return false;
     }
@@ -900,7 +908,7 @@ class ThreadRead extends Thread
                         // 失敗ならバックアップ戻す
                         rename($this->keydat . ".bak", $this->keydat);
                     }
-                    $this->getdat_error_msg_ht .= "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>";
+                    $this->pushDownloadDatErrorMsgHtml("<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みは、PHPの<a href=\"http://www.php.net/manual/ja/ref.zlib.php\">zlib拡張モジュール</a>がないか、systemでgzipコマンドが使用可能でなければできません。</p>");
                     // gztempファイルを捨てる
                     file_exists($gztempfile) and unlink($gztempfile);
                     $this->diedat = true;
@@ -954,8 +962,8 @@ class ThreadRead extends Thread
             );
             $kakolog_ht = "<p>{$atag}</p>";
         }
-        $this->getdat_error_msg_ht .= "<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みに失敗しました。</p>";
-        $this->getdat_error_msg_ht .= $kakolog_ht;
+        $this->pushDownloadDatErrorMsgHtml("<p>p2 info - 2ちゃんねる過去ログ倉庫からのスレッド取り込みに失敗しました。</p>");
+        $this->pushDownloadDatErrorMsgHtml($kakolog_ht);
         $this->diedat = true;
     }
     
@@ -1388,7 +1396,7 @@ class ThreadRead extends Thread
     {
         // 2ch, bbspink ならread.cgiで確認
         if (P2Util::isHost2chs($this->host)) {
-            $this->getdat_error_msg_ht .= $this->get2chDatError();
+            $this->pushDownloadDatErrorMsgHtml($this->get2chDatError());
         }
         $this->diedat = true;
     }

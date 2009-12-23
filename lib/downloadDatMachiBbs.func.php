@@ -58,7 +58,7 @@ function downloadDatMachiBbs(&$ThreadRead)
 
     // ÅiÇ‹ÇøBBSÅj<html>error</html>
     if (trim($mlines[0]) == '<html>error</html>') {
-        $ThreadRead->getdat_error_msg_ht .= 'error';
+        $ThreadRead->pushDownloadDatErrorMsgHtml('error' . '<br>');
         $ThreadRead->diedat = true;
         return false;
     }

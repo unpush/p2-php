@@ -71,7 +71,7 @@ function downloadDatShitaraba(&$ThreadRead)
     /*
     // （JBBS）ERROR!: スレッドがありません。過去ログ倉庫にもありません。
     if (preg_match("/^ERROR.*$/i", $mlines[0], $matches)) {
-        $ThreadRead->getdat_error_msg_ht .= $matches[0];
+        $ThreadRead->pushDownloadDatErrorMsgHtml($matches[0]);
         $ThreadRead->diedat = true;
         return false;
     }

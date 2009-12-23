@@ -126,7 +126,7 @@ echo '</body></html>';
 $k_sb_navi_ht ‚Í‰º‚Ì‚R‚Æ“¯‚¶
 {$sb_range_st}
 */
-$foot_sure_ht = ""; 
+$foot_sure_ht = ''; 
 if ($dat_soko_ht) $foot_sure_ht .= "<span class=\"soko\">{$dat_soko_ht}</span>";
 if ($buildnewthread_atag) $foot_sure_ht .= "<span class=\"build\">{$buildnewthread_atag}</span>";
 if ($allfav_atag) $foot_sure_ht .= "<span class=\"all\">{$allfav_atag}</span>";
