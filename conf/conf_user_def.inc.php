@@ -311,17 +311,17 @@ $conf_user_rad['res_write_rec'] = array('1' => '‚·‚é', '0' => '‚µ‚È‚¢');
 
 // ŠO•”URLƒWƒƒƒ“ƒv‚·‚éÛ‚É’Ê‚·ƒQ[ƒgB
 // i’¼Ú:"", p2 ime(Ž©“®“]‘—):"p2", p2 ime(Žè“®“]‘—):"p2m", p2 ime(p‚Ì‚ÝŽè“®“]‘—):"p2pm",
-//   r.p(Ž©“®“]‘—1•b):"ex", r.p(Ž©“®“]‘—0•b):"exq", r.p(Žè“®“]‘—):"exm", r.p(p‚Ì‚ÝŽè“®“]‘—):"expm"j
-$conf_user_def['through_ime'] = "google"; // ("google") 
+//   gate.php(Ž©“®“]‘—1•b):"ex", gate.php(Ž©“®“]‘—0•b):"exq", gate.php(Žè“®“]‘—):"exm", gate.php(p‚Ì‚ÝŽè“®“]‘—):"expm", Google:"google"j
+$conf_user_def['through_ime'] = "exm"; // ("exm") 
 $conf_user_sel['through_ime'] = array(
     ''       => '’¼Ú',
-    'p2'     => 'p2 ime(Ž©“®“]‘—)',
-    'p2m'    => 'p2 ime(Žè“®“]‘—)',
-    'p2pm'   => 'p2 ime(p‚Ì‚ÝŽè“®“]‘—)',
-    'ex'     => 'r.p(Ž©“®“]‘—1•b)',
-    'exq'    => 'r.p(Ž©“®“]‘—0•b)',
-    'exm'    => 'r.p(Žè“®“]‘—)',
-    'expm'   => 'r.p(p‚Ì‚ÝŽè“®“]‘—)',
+    'p2'     => 'p2 ime (Ž©“®“]‘—)',
+    'p2m'    => 'p2 ime (Žè“®“]‘—)',
+    'p2pm'   => 'p2 ime (p‚Ì‚ÝŽè“®“]‘—)',
+    'ex'     => 'gate.php (Ž©“®“]‘—1•b)',
+    'exq'    => 'gate.php (Ž©“®“]‘—0•b)',
+    'exm'    => 'gate.php (Žè“®“]‘—)',
+    'expm'   => 'gate.php (p‚Ì‚ÝŽè“®“]‘—)',
     'google' => 'Google',
 );
 

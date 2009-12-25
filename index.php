@@ -56,16 +56,30 @@ if ($_conf['ktai']) {
         }
     }
 
-    $sidebar = !empty($_GET['sidebar']);
+    // デフォルトのペイン分割
+    $panes = 'default';
+    $direction = 'rows';
+    $_SESSION['use_narrow_toolbars'] = false;
 
-    if (empty($_GET['v3pane'])) {
-        $v3pane = false;
-        $direction = 'rows';
-        $_SESSION['use_narrow_toolbars'] = false;
-    } else {
-        $v3pane = true;
-        $direction = 'cols';
-        $_SESSION['use_narrow_toolbars'] = true;
+    // index.php?panes={v3,v2,h2} or index.php?sidebar=1 でペイン指定
+    if (array_key_exists('panes', $_GET) && is_string($_GET['panes'])) {
+        switch ($_GET['panes']) {
+        case 'v3':
+            $panes = 'v3';
+            $direction = 'cols';
+            $_SESSION['use_narrow_toolbars'] = true;
+            break;
+        case 'v2':
+            $panes = 'v2';
+            $direction = 'cols';
+            $_SESSION['use_narrow_toolbars'] = true;
+            break;
+        case 'h2':
+            $panes = 'h2';
+            break;
+        }
+    } elseif (!empty($_GET['sidebar'])) {
+        $panes = 'h2';
     }
 
     $ptitle = "rep2";
@@ -90,14 +104,13 @@ if ($_conf['ktai']) {
 </head>\n
 EOHEADER;
 
-    if (!$sidebar) {
+    if ($panes === 'default' || $panes === 'v3') {
         echo <<<EOMENUFRAME
 <frameset id="menuframe" cols="{$_conf['frame_menu_width']},*" border="1">
     <frame src="menu.php" id="menu" name="menu" scrolling="auto" frameborder="1">\n
 EOMENUFRAME;
     }
 
-    $direction = ($v3pane) ? 'cols' : 'rows';
     echo <<<EOMAINFRAME
     <frameset id="mainframe" {$direction}="{$_conf['frame_subject_width']},{$_conf['frame_read_width']}" border="2">
         <frame src="{$title_page}" id="subject" name="subject" scrolling="auto" frameborder="1">
@@ -105,9 +118,11 @@ EOMENUFRAME;
     </frameset>\n
 EOMAINFRAME;
 
-    if (!$sidebar) {
-        echo <<<EONOFRAMES
-</frameset>
+    if ($panes === 'default' || $panes === 'v3') {
+        echo "</frameset>\n";
+    }
+
+    echo <<<EONOFRAMES
 <noframes>
     <body>
         <h1>{$ptitle}</h1>
@@ -118,7 +133,6 @@ EOMAINFRAME;
     </body>
 </noframes>\n
 EONOFRAMES;
-    }
 
     echo '</html>';
 }

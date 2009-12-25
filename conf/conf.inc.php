@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
-    'p2expack'  => '090912.1710',   // 拡張パックのバージョン
+    'p2expack'  => '091225.1800',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -86,11 +86,11 @@ if (defined('E_DEPRECATED')) {
 $_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
 $_conf['p2ime_url']             = 'http://akid.s17.xrea.com/p2ime.php';
 $_conf['favrank_url']           = 'http://akid.s17.xrea.com/favrank/favrank.php';
-$_conf['expack.web_url']        = 'http://page2.xrea.jp/expack/';
-$_conf['expack.download_url']   = 'http://page2.xrea.jp/expack/index.php/download';
-$_conf['expack.history_url']    = 'http://page2.xrea.jp/expack/index.php/history';
+$_conf['expack.web_url']        = 'http://page2.skr.jp/rep2/';
+$_conf['expack.download_url']   = 'http://page2.skr.jp/rep2/downloads.html';
+$_conf['expack.history_url']    = 'http://page2.skr.jp/rep2/history.html';
 $_conf['expack.tgrep_url']      = 'http://page2.xrea.jp/tgrep/search';
-$_conf['expack.ime_url']        = 'http://page2.xrea.jp/r.p';
+$_conf['expack.ime_url']        = 'http://page2.skr.jp/gate.php';
 $_conf['menu_php']              = 'menu.php';
 $_conf['subject_php']           = 'subject.php';
 $_conf['read_php']              = 'read.php';

@@ -183,7 +183,7 @@ function checkUpdatan()
 
     $no_p2status_dl_flag  = false;
 
-    $ver_txt_url = $_conf['expack.web_url'] . 'expack-status2.txt';
+    $ver_txt_url = $_conf['expack.web_url'] . 'version.txt';
     $cachefile = P2Util::cacheFileForDL($ver_txt_url);
     FileCtl::mkdir_for($cachefile);
 
