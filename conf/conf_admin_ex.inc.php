@@ -108,15 +108,6 @@ $_conf['expack.ic2.enabled'] = 0; // (0)
 $_conf['expack.ic2.switch_path'] = $_conf['pref_dir'] . '/ic2_switch.txt';
 
 // }}}
-// {{{ Google検索
-
-// Google検索（off:0, on:1）
-$_conf['expack.google.enabled'] = 0; // (0)
-
-// WSDL のパス（例：/path/to/googleapi/GoogleSearch.wsdl）
-$_conf['expack.google.wsdl'] = "./conf/GoogleSearch.wsdl"; // ("./conf/GoogleSearch.wsdl")
-
-// }}}
 // {{{ AAS
 
 // AAS（off:0, on:1）

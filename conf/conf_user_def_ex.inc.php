@@ -182,24 +182,6 @@ $conf_user_def['expack.ic2.newres_ignore_limit_k'] = 0; // (0)
 $conf_user_rad['expack.ic2.newres_ignore_limit_k'] = array('1' => 'する', '0' => 'しない');
 
 // }}}
-// {{{ Google検索
-
-// Google Web APIs の登録キー
-$conf_user_def['expack.google.key'] = ""; // ("")
-
-// 検索履歴を記録する数（off:0）
-//$conf_user_def['expack.google.recent_num'] = 10; // (10)
-//$conf_user_rules['expack.google.recent_num'] = array('notIntExceptMinusToDef');
-
-// サーチボックスに検索履歴を記録する数、Safari専用（off:0）
-$conf_user_def['expack.google.recent2_num'] = 10; // (10)
-$conf_user_rules['expack.google.recent2_num'] = array('notIntExceptMinusToDef');
-
-// SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う（0:no; 1:yes;）
-$conf_user_def['expack.google.force_pear'] = 0; // (0)
-$conf_user_rad['expack.google.force_pear'] = array('1' => 'PEAR', '0' => 'SOAPエクステンション');
-
-// }}}
 // {{{ AAS
 
 // 携帯で AA と自動判定されたときインライン AAS 表示する（0:しない; 1:する;）

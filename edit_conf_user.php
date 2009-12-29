@@ -614,24 +614,6 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
 }
 
 // }}}
-// {{{ expack - Google検索
-
-$groupname = 'Google検索';
-$groups[] = $groupname;
-$flags = getGroupShowFlags($groupname, 'expack.google.enabled');
-if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
-    $keep_old = true;
-} else {
-    $conflist = array(
-        array('expack.google.key', 'Google Web APIs の登録キー', P2_EDIT_CONF_USER_LONGTEXT),
-        //array('expack.google.recent_num', '検索履歴を記録する数（記録しない:0）'),
-        array('expack.google.recent2_num', 'サーチボックスに検索履歴を記録する数、Safari専用 (記録しない:0)'),
-        array('expack.google.force_pear', 'SOAP エクステンション が利用可能なときも PEAR の SOAP パッケージを使う'),
-    );
-    printEditConfGroupHtml($groupname, $conflist, $flags);
-}
-
-// }}}
 // {{{ expack - AAS
 
 $groupname = 'AAS';

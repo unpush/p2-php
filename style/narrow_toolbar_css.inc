@@ -22,6 +22,10 @@ table.toolbar > tbody > tr > td, table.toolbar > tr > td {
 	display: inline-block;
 }
 
+span.param {
+	display: inline-block;
+}
+
 EOSTYLE;
 
 /*

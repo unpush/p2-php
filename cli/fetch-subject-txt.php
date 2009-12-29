@@ -15,8 +15,8 @@ if (!extension_loaded('http')) {
 }
 
 define('P2_CLI_RUN', 1);
-define('P2_FTS_DEBUG', 0);
-define('P2_FTS_DEBUG_OUTPUT_FILE', '/tmp/p2_fetch_subject_txt.log');
+define('P2_FETCH_SUBJECT_TXT_DEBUG', 0);
+define('P2_FETCH_SUBJECT_TXT_DEBUG_OUTPUT_FILE', '/tmp/p2_fetch_subject_txt.log');
 
 $P2_CONF_DIR = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'conf';
 
@@ -154,7 +154,7 @@ if ($_info_msg_ht !== '') {
 }
 
 // デバッグ用ログファイルに書き込む
-if (P2_FTS_DEBUG) {
+if (P2_FETCH_SUBJECT_TXT_DEBUG) {
     $debug_output = '====================' . PHP_EOL;
     $debug_output .= __FILE__ . PHP_EOL;
     $debug_output .= 'date: ' . date('Y-m-d H:i:s') . PHP_EOL;
@@ -185,9 +185,9 @@ if (P2_FTS_DEBUG) {
         $debug_output = mb_convert_encoding($debug_output, 'UTF-8', 'SJIS-win');
     }
 
-    if (file_put_contents(P2_FTS_DEBUG_OUTPUT_FILE, $debug_output, LOCK_EX | FILE_APPEND) === false) {
+    if (file_put_contents(P2_FETCH_SUBJECT_TXT_DEBUG_OUTPUT_FILE, $debug_output, LOCK_EX | FILE_APPEND) === false) {
         $errmsg .= sprintf("<p><b>cannot write to `%s'.</b></p>\n",
-                           htmlspecialchars(P2_FTS_DEBUG_OUTPUT_FILE, ENT_QUOTES)
+                           htmlspecialchars(P2_FETCH_SUBJECT_TXT_DEBUG_OUTPUT_FILE, ENT_QUOTES)
                            );
     }
 }

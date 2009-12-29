@@ -329,6 +329,8 @@ if ($aThread->rescount && empty($_GET['renzokupop'])) {
         $selected_method[($res_filter['method'])] = ' selected';
         $select_method_ht = <<<EOP
     の
+    </span>
+    <span class="param">
     <select id="method" name="method">
         <option value="or"{$selected_method['or']}>いずれか</option>
         <option value="and"{$selected_method['and']}>すべて</option>
@@ -340,8 +342,14 @@ EOP;
 
     $hd['word'] = htmlspecialchars($GLOBALS['word'], ENT_QUOTES);
 
+    if (empty($_SESSION['use_narrow_toolbars'])) {
+        $header_style = 'style="white-space:nowrap"';
+    } else {
+        $header_style = '';
+    }
+
     echo <<<EOP
-<form id="header" method="GET" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" style="white-space:nowrap">
+<form id="header" method="get" action="{$_conf['read_php']}" accept-charset="{$_conf['accept_charset']}" {$header_style}>
     <input type="hidden" name="bbs" value="{$aThread->bbs}">
     <input type="hidden" name="key" value="{$aThread->key}">
     <input type="hidden" name="host" value="{$aThread->host}">
@@ -355,13 +363,17 @@ EOP;
         <option value="id"{$selected_field['id']}>IDが</option>
         <option value="msg"{$selected_field['msg']}>メッセージが</option>
     </select>
+    <span class="param">
     <input id="word" name="word" value="{$hd['word']}" size="24">{$select_method_ht}
     を
+    </span>
+    <span class="param">
     <select id="match" name="match">
         <option value="on"{$selected_match['on']}>含む</option>
         <option value="off"{$selected_match['off']}>含まない</option>
     </select>
     レスを
+    </span>
     <input type="submit" name="submit_filter" value="フィルタ表示">
     {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
 </form>\n
@@ -390,7 +402,7 @@ if (empty($_GET['renzokupop']) && ($aThread->rescount || (!empty($_GET['one']) &
         $id_header = '';
     }
     echo <<<EOP
-<table{$id_header} width="100%" style="padding:0px 0px 10px 0px;">
+<table{$id_header} class="toolbar">
     <tr>
         <td class="lblock">
             <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>

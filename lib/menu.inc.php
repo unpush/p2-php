@@ -156,13 +156,6 @@ EOP;
 <div id="c_search">\n
 EOP;
 
-if ($_conf['expack.google.enabled'] && $_conf['expack.google.key'] && file_exists($_conf['expack.google.wsdl'])) {
-    $google_search_enabled = TRUE;
-} else {
-    $google_search_enabled = FALSE;
-}
-
-
 if ($_conf['input_type_search']) {
 // {{{ <input type="search">ÇégÇ§
 
@@ -180,15 +173,6 @@ EOP;
         {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
-    // Googleåüçı
-    if ($google_search_enabled) {
-        echo <<<EOP
-    <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form">
-        <input type="search" name="q" value="" size="16" autosave="rep2.expack.search.google" results="{$_conf['expack.google.recent2_num']}" placeholder="Googleåüçı">
-        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
-    </form><br>\n
-EOP;
-    }
 
 // }}}
 } else {
@@ -208,15 +192,6 @@ EOP;
         {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
     </form><br>\n
 EOP;
-    // Googleåüçı
-    if ($google_search_enabled) {
-        echo <<<EOP
-    <form method="GET" action="gsearch.php" accept-charset="{$_conf['accept_charset']}" target="subject" class="inline-form" style="white-space:nowrap">
-        <input type="text" name="q" value="" size="12"><input type="submit" value="G">
-        {$_conf['detect_hint_input_ht']}{$_conf['k_input_ht']}
-    </form><br>\n
-EOP;
-    }
 
 // }}}
 }

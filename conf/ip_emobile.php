@@ -1,9 +1,13 @@
 <?php
 
 /**
- * イーモバイル端末のリモートホスト正規表現とIPアドレス帯域 (2008/02/26 時点)
+ * イー・モバイル端末のリモートホスト正規表現とIPアドレス帯域 (2008/02/26 時点)
+ *
+ * JPNIC Whois Gatewayで調べたIPアドレス帯域はイー・モバイルに割り当てられている
+ * 帯域すべてで、ネットワーク「EM-INFRA」「EM-USER」以外も含む。
  *
  * @link http://developer.emnet.ne.jp/ipaddress.html
+ * @link http://whois.nic.ad.jp/cgi-bin/whois_gw
  */
 
 $host = '/\\.pool\\.e(?:mnet|-?mobile)\\.ne\\.jp$/';

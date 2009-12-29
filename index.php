@@ -65,12 +65,8 @@ if ($_conf['ktai']) {
     if (array_key_exists('panes', $_GET) && is_string($_GET['panes'])) {
         switch ($_GET['panes']) {
         case 'v3':
-            $panes = 'v3';
-            $direction = 'cols';
-            $_SESSION['use_narrow_toolbars'] = true;
-            break;
         case 'v2':
-            $panes = 'v2';
+            $panes = $_GET['panes'];
             $direction = 'cols';
             $_SESSION['use_narrow_toolbars'] = true;
             break;
