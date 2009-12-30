@@ -14,6 +14,15 @@ $conf_user_def['be_2ch_code'] = ""; // ("")
 $conf_user_def['be_2ch_mail'] = ""; // ("")
 
 // }}}
+// {{{ p2.2ch.netアカウント
+
+// p2.2ch.netの登録メールアドレス
+$conf_user_def['p2_2ch_mail'] = ""; // ("")
+
+// p2.2ch.netのログインパスワード
+$conf_user_def['p2_2ch_pass'] = ""; // ("")
+
+// }}}
 // {{{ PATH
 
 // 右下部分に最初に表示されるページ。オンラインURLも可。

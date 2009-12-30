@@ -86,7 +86,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         if (!is_string($fileName)) {
             throw new InvalidArgumentException('Parameter #1 \'$fileName\' should be a string value');
         }
-        if (!is_string($className)) {
+        if (!is_string($type)) {
             throw new InvalidArgumentException('Parameter #2 \'$className\' should be a string value');
         }
 

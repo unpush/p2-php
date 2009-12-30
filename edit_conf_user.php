@@ -19,6 +19,7 @@ define('P2_EDIT_CONF_USER_LONGTEXT',    1);
 define('P2_EDIT_CONF_USER_HIDDEN',      2);
 define('P2_EDIT_CONF_USER_DISABLED',    4);
 define('P2_EDIT_CONF_USER_SKIPPED',     8);
+define('P2_EDIT_CONF_USER_PASSWORD',   16);
 define('P2_EDIT_CONF_FILE_ADMIN',    1024);
 define('P2_EDIT_CONF_FILE_ADMIN_EX', 2048);
 
@@ -186,9 +187,9 @@ EOP;
 }
 
 // {{{ rep2基本設定
-// {{{ be.2ch.net アカウント
+// {{{ 'be/p2'
 
-$groupname = 'be.2ch.net アカウント';
+$groupname = 'be/p2';
 $groups[] = $groupname;
 $flags = getGroupShowFlags($groupname);
 if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
@@ -197,6 +198,8 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
     $conflist = array(
         array('be_2ch_code', '<a href="http://be.2ch.net/" target="_blank">be.2ch.net</a>の認証コード(パスワードではない)', P2_EDIT_CONF_USER_LONGTEXT),
         array('be_2ch_mail', 'be.2ch.netの登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
+        array('p2_2ch_mail', '<a href="http://p2.2ch.net/" target="_blank">p2.2ch.net</a>の登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
+        array('p2_2ch_pass', 'p2.2ch.netのログインパスワード', P2_EDIT_CONF_USER_LONGTEXT | P2_EDIT_CONF_USER_PASSWORD),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }
@@ -1390,8 +1393,9 @@ function getEditConfHtml($name, $description_ht, $flags)
         } else {
             $input_size_at = '';
         }
+        $input_type = ($flags & P2_EDIT_CONF_USER_PASSWORD) ? 'password' : 'text';
         $form_ht = <<<EOP
-<input type="text" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>
+<input type="{$input_type}" name="conf_edit[{$name}]" value="{$name_view}"{$input_size_at}>
 EOP;
         if (is_string($conf_user_def[$name])) {
             $def_views[$name] = htmlspecialchars($conf_user_def[$name], ENT_QUOTES);

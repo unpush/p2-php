@@ -19,7 +19,8 @@ $hd['mail'] = '';
 $hd['MESSAGE'] = '';
 $hd['subject'] = '';
 
-$htm['be2ch'] = '';
+$htm['beres'] = '';
+$htm['p2res'] = '';
 $htm['sage_cb'] = '';
 $htm['maru_post'] = '';
 $htm['block_submit'] = '';
@@ -133,7 +134,12 @@ if (!$_conf['ktai']) {
 
 // Be.2ch
 if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-    $htm['be2ch'] = '<input type="submit" id="submit_beres" name="submit_beres" value="BE‚Å‘‚«‚Ş" onclick="setHiddenValue(this);">';
+    $htm['beres'] = '<input type="checkbox" id="beres" name="beres" value="1"><label for="beres">BE‚Å‘‚«‚Ş</label>';
+}
+
+// Œö®p2
+if ((P2Util::isHost2chs($host) || P2Util::isHostMachiBbs($host)) && $_conf['p2_2ch_mail'] && $_conf['p2_2ch_pass']) {
+    $htm['p2res'] = '<input type="checkbox" id="p2res" name="p2res" value="1"><label for="p2res">Œö®p2‚Å‘‚«‚Ş</label>';
 }
 
 // PC—p sage checkbox

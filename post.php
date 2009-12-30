@@ -32,7 +32,7 @@ $newtime = date('gis');
 
 $post_param_keys    = array('bbs', 'key', 'time', 'FROM', 'mail', 'MESSAGE', 'subject', 'submit');
 $post_internal_keys = array('host', 'sub', 'popup', 'rescount', 'ttitle_en');
-$post_optional_keys = array('newthread', 'submit_beres', 'from_read_new', 'maru', 'csrfid');
+$post_optional_keys = array('newthread', 'beres', 'p2res', 'from_read_new', 'maru', 'csrfid');
 $post_p2_flag_keys  = array('b', 'p2_post_confirm_cookie');
 
 foreach ($post_param_keys as $pk) {
@@ -176,20 +176,59 @@ if (!empty($_POST['newthread'])) {
 // 書き込み処理
 //================================================================
 
-//=============================================
-// ポスト実行
-//=============================================
-$posted = postIt($host, $bbs, $key, $post);
+// 書き込みを一時的に保存
+$failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
+$cont = serialize($post_cache);
+DataPhp::writeDataPhp($failed_post_file, $cont, $_conf['res_write_perm']);
 
-//=============================================
-// cookie 保存
-//=============================================
-FileCtl::make_datafile($cookie_file, $_conf['p2_perm']); // なければ生成
-if ($p2cookies) {$cookie_cont = serialize($p2cookies);}
-if ($cookie_cont) {
-    if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
-        p2die('cannot write file.');
+// ポスト実行
+if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
+    // 公式p2でポスト
+    if (!class_exists('P2Client', false)) {
+        include P2_LIB_DIR . '/P2Client.php';
     }
+    if (!is_dir($_conf['cookie_dir'])) {
+        FileCtl::mkdir_for($_conf['cookie_dir'] . '/dummy_filename');
+    }
+    if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['beres'])) {
+        $beres = true;
+    } else {
+        $beres = false;
+    }
+
+    try {
+        $client = new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'], $_conf['cookie_dir']);
+        $posted = $client->post($host, $bbs, $key, $FROM, $mail, $MESSAGE, $beres, $response);
+    } catch (P2Exception $e) {
+        p2die('公式p2ポスト失敗', $e->getMessage());
+    }
+
+    if ($posted) {
+        $reload = empty($_POST['from_read_new']);
+        showPostMsg(true, '書きこみが終わりました。', $reload);
+    } else {
+        $result_msg = '公式p2ポスト失敗</p>'
+                    . '<pre>' . htmlspecialchars($response['body'], ENT_QUOTES, 'Shift_JIS') . '</pre>'
+                    . '<p>-';
+        showPostMsg(false, $result_msg, false);
+    }
+} else {
+    // 通常ポスト
+    $posted = postIt($host, $bbs, $key, $post);
+
+    // cookie 保存
+    FileCtl::make_datafile($cookie_file, $_conf['p2_perm']); // なければ生成
+    if ($p2cookies) {$cookie_cont = serialize($p2cookies);}
+    if ($cookie_cont) {
+        if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
+            p2die('cannot write file.');
+        }
+    }
+}
+
+// 投稿失敗記録を削除
+if ($posted && file_exists($failed_post_file)) {
+    unlink($failed_post_file);
 }
 
 //=============================================
@@ -335,7 +374,7 @@ if ($_conf['res_write_rec']) {
 function postIt($host, $bbs, $key, $post)
 {
     global $_conf, $post_result, $post_error2ch, $p2cookies, $popup, $rescount, $ttitle_en;
-    global $bbs_cgi, $post_cache;
+    global $bbs_cgi;
 
     $method = 'POST';
     $bbs_cgi_url = 'http://' . $host . $bbs_cgi;
@@ -376,7 +415,7 @@ function postIt($host, $bbs, $key, $post)
     }
 
     // be.2ch.net 認証クッキー
-    if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['submit_beres'])) {
+    if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['beres'])) {
         $cookies_to_send .= ' MDMD='.$_conf['be_2ch_code'].';';    // be.2ch.netの認証コード(パスワードではない)
         $cookies_to_send .= ' DMDM='.$_conf['be_2ch_mail'].';';    // be.2ch.netの登録メールアドレス
     }
@@ -410,11 +449,6 @@ function postIt($host, $bbs, $key, $post)
         $request .= "\r\n";
     }
     // }}}
-
-    // 書き込みを一時的に保存
-    $failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
-    $cont = serialize($post_cache);
-    DataPhp::writeDataPhp($failed_post_file, $cont, $_conf['res_write_perm']);
 
     // WEBサーバへ接続
     $fp = fsockopen($send_host, $send_port, $errno, $errstr, $_conf['fsockopen_time_limit']);
@@ -501,11 +535,6 @@ function postIt($host, $bbs, $key, $post)
         $reload = empty($_POST['from_read_new']);
         showPostMsg(true, '書きこみが終わりました。', $reload);
 
-        // 投稿失敗記録を削除
-        if (file_exists($failed_post_file)) {
-            unlink($failed_post_file);
-        }
-
         return true;
         //$response_ht = htmlspecialchars($response, ENT_QUOTES);
         //echo "<pre>{$response_ht}</pre>";
@@ -532,7 +561,7 @@ function postIt($host, $bbs, $key, $post)
  */
 function showPostMsg($isDone, $result_msg, $reload)
 {
-    global $_conf, $location_ht, $popup, $ttitle;
+    global $_conf, $location_ht, $popup, $ttitle, $ptitle;
     global $STYLE, $skin_en;
     global $_info_msg_ht;
 
@@ -574,7 +603,7 @@ EOP;
 EOHEADER;
 
     if ($isDone) {
-        echo "    <title>p2 - 書きこみました。</title>";
+        echo "    <title>rep2 - 書きこみました。</title>";
     } else {
         echo "    <title>{$ptitle}</title>";
     }

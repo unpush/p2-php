@@ -13,6 +13,10 @@ if (!isset($readnew_hidden_ht)) {
     $readnew_hidden_ht = '';
 }
 
+// Œö®p2‚ğg‚Á‚½ƒXƒŒ—§‚Ä‚Í–¢À‘• (P2Client.php)
+if ($newthread_hidden_ht !== '') {
+    $htm['p2res'] = '';
+}
 
 if ($_conf['ktai']) {
     $htm['k_br'] = '<br>';
@@ -89,6 +93,7 @@ $htm['post_form'] = <<<EOP
 {$htm['table_break2']}
 <input id="kakiko_submit" type="submit" name="submit" value="{$submit_value}"{$htm['kaiko_set_hidden_js']}{$htm['submit_extra_at']}>
 {$htm['be2ch']}
+{$htm['p2res']}
 {$htm['table_end']}
 
 <input type="hidden" name="bbs" value="{$bbs}">
