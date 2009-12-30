@@ -272,8 +272,7 @@ class P2Client
                 }
             }
 
-            $body = mb_convert_encoding($response['body'], 'SJIS-win', 'CP51932,SJIS-win,UTF-8');
-            return (bool)preg_match(self::REGEX_SUCCESS, $body);
+            return (bool)preg_match(self::REGEX_SUCCESS, $response['body']);
         } else {
             throw new P2Exception('Post form not found.');
         }
