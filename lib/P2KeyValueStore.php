@@ -1,10 +1,12 @@
 <?php
-// {{{ KeyValueStore
+require_once dirname(__FILE__) . '/P2KeyValueStore/Iterator.php';
+
+// {{{ P2KeyValueStore
 
 /**
  * キー/値のペアをSQLite3のデータベースに保存する Key-Value Store
  */
-class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
+class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 {
     // {{{ constants
 
@@ -36,7 +38,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     // {{{ staric private properties
 
     /**
-     * データベース毎に一意なPDO,PDOStatement,KeyValueStoreのインスタンスを保持する配列
+     * データベース毎に一意なPDO,PDOStatement,P2KeyValueStoreのインスタンスを保持する配列
      *
      * @var array
      */
@@ -73,12 +75,12 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * シングルトンメソッド
      *
      * @param string $fileName
-     * @param string $className
+     * @param string $type
      * @param string &$openedPath
-     * @return KeyValueStore
+     * @return P2KeyValueStore
      * @throws InvalidArgumentException, UnexpectedValueException, RuntimeException, PDOException
      */
-    static public function getStore($fileName, $className = 'KeyValueStore', &$openedPath = null)
+    static public function getStore($fileName, $type = 'default', &$openedPath = null)
     {
         // 引数の型をチェック
         if (!is_string($fileName)) {
@@ -89,12 +91,20 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         }
 
         // クラス名をチェック
-        if (strcasecmp($className, 'KeyValueStore') != 0) {
+        if ($type == 'default') {
+            $className = 'P2KeyValueStore';
+        } else {
+            $className = 'P2KeyValueStore_' . $type;
+        }
+        if (strcasecmp($className, 'P2KeyValueStore') != 0) {
             if (!class_exists($className, false)) {
-                throw new UnexpectedValueException("Class '{$className}' is not declared");
+                include dirname(__FILE__) . '/P2KeyValueStore/' . $type . '.php';
+                if (!class_exists($className, false)) {
+                    throw new UnexpectedValueException("Class '{$className}' is not declared");
+                }
             }
-            if (!is_subclass_of($className, 'KeyValueStore')) {
-                throw new UnexpectedValueException("Class '{$className}' is not a subclass of KeyValueStore");
+            if (!is_subclass_of($className, 'P2KeyValueStore')) {
+                throw new UnexpectedValueException("Class '{$className}' is not a subclass of P2KeyValueStore");
             }
         }
 
@@ -375,7 +385,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * IDに対応するキーと値のペアを取得する
-     * 主としてKeyValueStoreIteratorで使う
+     * 主としてP2KeyValueStore_Iteratorで使う
      *
      * @param int $id
      * @param int $lifeTime
@@ -511,7 +521,7 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * 全てのIDの配列を返す
-     * 主としてKeyValueStoreIteratorで使う
+     * 主としてP2KeyValueStore_Iteratorで使う
      * 有効期限切れのレコードを除外したい場合は事前にgc()しておくこと
      *
      * @param array $orderBy
@@ -841,14 +851,11 @@ class KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * 予め取得したIDのリストを使うイテレータを返す
      *
      * @param void
-     * @return KeyValueStoreIterator
+     * @return P2KeyValueStore_Iterator
      */
     public function getIterator()
     {
-        if (!class_exists('KeyValueStoreIterator', false)) {
-            include dirname(__FILE__) . '/KeyValueStoreIterator.php';
-        }
-        return new KeyValueStoreIterator($this);
+        return new P2KeyValueStore_Iterator($this);
     }
 
     // }}}

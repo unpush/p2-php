@@ -1,12 +1,12 @@
 <?php
-require_once dirname(__FILE__) . '/BinaryStore.php';
+require_once dirname(__FILE__) . '/Binary.php';
 
-// {{{ CompressingStore
+// {{{ P2KeyValueStore_Compressing
 
 /**
  * サイズの大きいデータを圧縮して永続化する
  */
-class CompressingStore extends BinaryStore
+class P2KeyValueStore_Compressing extends P2KeyValueStore_Binary
 {
     // {{{ _encodeValue()
 

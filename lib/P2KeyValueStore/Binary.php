@@ -1,12 +1,12 @@
 <?php
-require_once dirname(__FILE__) . '/KeyValueStore.php';
+require_once dirname(__FILE__) . '/../P2KeyValueStore.php';
 
-// {{{ BinaryStore
+// {{{ P2KeyValueStore_Binary
 
 /**
  * バイナリデータを永続化する
  */
-class BinaryStore extends KeyValueStore
+class P2KeyValueStore_Binary extends P2KeyValueStore
 {
     // {{{ _encodeValue()
 

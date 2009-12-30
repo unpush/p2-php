@@ -3,6 +3,7 @@
 
 require_once P2_CONF_DIR . '/conf_hostcheck.php';
 require_once P2_LIB_DIR . '/FileCtl.php';
+require_once P2_LIB_DIR . '/P2KeyValueStore.php';
 
 // {{{ HostCheck
 
@@ -70,14 +71,11 @@ EOF;
             return $function($remote);
         }
 
-        if (!class_exists('KeyValueStore', false)) {
-            include P2_LIB_DIR . '/KeyValueStore.php';
-        }
         $cache_db = $_conf['cache_dir'] . '/hostcheck_gethostby.sq3';
         if (!file_exists($cache_db)) {
             FileCtl::mkdir_for($cache_db);
         }
-        $kvs = KeyValueStore::getStore($cache_db);
+        $kvs = P2KeyValueStore::getStore($cache_db);
 
         $result = $kvs->get($remote, $lifeTime);
         if ($result !== null) {

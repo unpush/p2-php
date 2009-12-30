@@ -1,24 +1,24 @@
 <?php
-require_once dirname(__FILE__) . '/KeyValueStore.php';
+require_once dirname(__FILE__) . '/../P2KeyValueStore.php';
 
-// {{{ KeyValueStoreIterator
+// {{{ P2KeyValueStore_Iterator
 
 /**
- * KeyValueStore用イテレータ
+ * P2KeyValueStore用イテレータ
  */
-class KeyValueStoreIterator implements Iterator
+class P2KeyValueStore_Iterator implements Iterator
 {
     // {{{ private properties
 
     /**
-     * KeyValueStoreのインスタンス
+     * P2KeyValueStoreのインスタンス
      *
-     * @var KeyValueStore
+     * @var P2KeyValueStore
      */
     private $_kvs;
 
     /**
-     * KeyValueStore::getIds()が返すIDのリスト
+     * P2KeyValueStore::getIds()が返すIDのリスト
      *
      * @var array
      */
@@ -72,9 +72,9 @@ class KeyValueStoreIterator implements Iterator
     /**
      * コンストラクタ
      *
-     * @param KeyValueStore $kvs
+     * @param P2KeyValueStore $kvs
      */
-    public function __construct(KeyValueStore $kvs)
+    public function __construct(P2KeyValueStore $kvs)
     {
         $this->_kvs = $kvs;
         $this->_ids = $kvs->getIds();

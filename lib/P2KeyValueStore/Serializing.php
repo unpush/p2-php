@@ -1,12 +1,12 @@
 <?php
-require_once dirname(__FILE__) . '/CompressingStore.php';
+require_once dirname(__FILE__) . '/Compressing.php';
 
-// {{{ SerializingStore
+// {{{ P2KeyValueStore_Serializing
 
 /**
  * 値をシリアライズして永続化する
  */
-class SerializingStore extends CompressingStore
+class P2KeyValueStore_Serializing extends P2KeyValueStore_Compressing
 {
     // {{{ _encodeValue()
 
