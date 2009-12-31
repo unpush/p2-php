@@ -67,7 +67,7 @@ if (isset($_GET['Q']) && is_string($_GET['Q']) && strlen($_GET['Q']) > 0) {
         'automaticSerialization' => true,
     );
     if (!is_dir($cache_options['cacheDir'])) {
-        FileCtl::mkdir_for($cache_options['cacheDir'] . '__dummy__');
+        FileCtl::mkdir_r($cache_options['cacheDir']);
     }
     $cache = new Cache_Lite($cache_options);
     $cache_id_result = md5($query);

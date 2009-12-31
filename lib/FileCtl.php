@@ -112,6 +112,21 @@ class FileCtl
     }
 
     // }}}
+    // {{{ mkdir_r()
+
+    /**
+     * ディレクトリがなければ生成してパーミッションを調整する
+     *
+     * @param string $apath
+     * @param int $perm
+     * @return bool
+     */
+    static public function mkdir_r($apath, $perm = null)
+    {
+        return self::mkdir_for($apath . DIRECTORY_SEPARATOR . '_', $perm);
+    }
+
+    // }}}
     // {{{ get_gzfile_contents()
 
     /**

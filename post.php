@@ -60,7 +60,7 @@ if (!empty($_POST['fix_source'])) {
     // タブをスペースに
     $MESSAGE = tab2space($MESSAGE);
     // 特殊文字を実体参照に
-    $MESSAGE = htmlspecialchars($MESSAGE, ENT_QUOTES);
+    $MESSAGE = htmlspecialchars($MESSAGE, ENT_QUOTES, 'Shift_JIS');
     // 自動URLリンク回避
     $MESSAGE = str_replace('tp://', 't&#112;://', $MESSAGE);
     // 行頭のスペースを実体参照に
@@ -183,42 +183,17 @@ DataPhp::writeDataPhp($failed_post_file, $cont, $_conf['res_write_perm']);
 
 // ポスト実行
 if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
-    // 公式p2でポスト
-    if (!class_exists('P2Client', false)) {
-        include P2_LIB_DIR . '/P2Client.php';
-    }
-    if (!is_dir($_conf['cookie_dir'])) {
-        FileCtl::mkdir_for($_conf['cookie_dir'] . '/dummy_filename');
-    }
-    if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['beres'])) {
-        $beres = true;
-    } else {
-        $beres = false;
-    }
-
-    try {
-        $client = new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'], $_conf['cookie_dir']);
-        $posted = $client->post($host, $bbs, $key, $FROM, $mail, $MESSAGE, $beres, $response);
-    } catch (P2Exception $e) {
-        p2die('公式p2ポスト失敗', $e->getMessage());
-    }
-
-    if ($posted) {
-        $reload = empty($_POST['from_read_new']);
-        showPostMsg(true, '書きこみが終わりました。', $reload);
-    } else {
-        $result_msg = '公式p2ポスト失敗</p>'
-                    . '<pre>' . htmlspecialchars($response['body'], ENT_QUOTES, 'Shift_JIS') . '</pre>'
-                    . '<p>-';
-        showPostMsg(false, $result_msg, false);
-    }
+    // 公式p2で書き込み
+    $posted = postIt2($host, $bbs, $key, $FROM, $mail, $MESSAGE);
 } else {
-    // 通常ポスト
+    // 直接書き込み
     $posted = postIt($host, $bbs, $key, $post);
 
     // cookie 保存
     FileCtl::make_datafile($cookie_file, $_conf['p2_perm']); // なければ生成
-    if ($p2cookies) {$cookie_cont = serialize($p2cookies);}
+    if ($p2cookies) {
+        $cookie_cont = serialize($p2cookies);
+    }
     if ($cookie_cont) {
         if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
             p2die('cannot write file.');
@@ -549,6 +524,51 @@ function postIt($host, $bbs, $key, $post)
         echo preg_replace('@こちらでリロードしてください。<a href="\\.\\./[a-z]+/index\\.html"> GO! </a><br>@', '', $response);
         return false;
     }
+}
+
+// }}}
+// {{{ postIt2()
+
+/**
+ * 公式p2でレスを書き込む
+ *
+ * @return boolean 書き込み成功なら true、失敗なら false
+ */
+function postIt2($host, $bbs, $key, $FROM, $mail, $MESSAGE)
+{
+    global $_conf;
+
+    if (!class_exists('P2Client', false)) {
+        include P2_LIB_DIR . '/P2Client.php';
+    }
+    if (!is_dir($_conf['cookie_dir'])) {
+        FileCtl::mkdir_r($_conf['cookie_dir']);
+    }
+
+    if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['beres'])) {
+        $beRes = true;
+    } else {
+        $beRes = false;
+    }
+
+    try {
+        $client = new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'], $_conf['cookie_dir']);
+        $posted = $client->post($host, $bbs, $key, $FROM, $mail, $MESSAGE, $beRes, $response);
+    } catch (P2Exception $e) {
+        p2die('公式p2ポスト失敗', $e->getMessage());
+    }
+
+    if ($posted) {
+        $reload = empty($_POST['from_read_new']);
+        showPostMsg(true, '書きこみが終わりました。', $reload);
+    } else {
+        $result_msg = '公式p2ポスト失敗</p>'
+                    . '<pre>' . htmlspecialchars($response['body'], ENT_QUOTES, 'Shift_JIS') . '</pre>'
+                    . '<p>-';
+        showPostMsg(false, $result_msg, false);
+    }
+
+    return $posted;
 }
 
 // }}}

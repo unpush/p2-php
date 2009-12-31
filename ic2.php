@@ -56,7 +56,7 @@ if (empty($id) && empty($uri) && empty($file)) {
 }
 
 if (!is_dir($_conf['tmp_dir'])) {
-    FileCtl::mkdir_for($_conf['tmp_dir'] . '/__dummy__');
+    FileCtl::mkdir_r($_conf['tmp_dir']);
 }
 
 if (!empty($uri)) {
