@@ -227,7 +227,8 @@ class P2Client
     /**
      * スレッドに書き込む
      *
-     * csrfIdを取得し、かつ公式p2の既読を最新するため、まず read.php を叩く。
+     * csrfIdを取得し、かつ公式p2の既読を最新の状態にするため、
+     * まず read.php を叩く。
      * 通信量を節約できるように ls=l1n としている。
      * popup=1 は書き込み後のページにリダイレクトさせないため。
      *
@@ -237,13 +238,13 @@ class P2Client
      * @param string $from
      * @param string $mail
      * @param string $message
-     * @param bool $beres
+     * @param bool $beRes
      * @param mixed &$response
      * @return bool
      * @throws P2Exception
      */
     public function post($host, $bbs, $key, $from, $mail, $message,
-                         $beres, &$response = null)
+                         $beRes = false, &$response = null)
     {
         $dom = new P2DOM($this->readThread($host, $bbs, $key, 'l1n', $response));
         if ($form = $this->getPostForm($dom)) {
@@ -254,7 +255,7 @@ class P2Client
             $postData[self::FIELD_NAME_FROM]    = rawurlencode($from);
             $postData[self::FIELD_NAME_MAIL]    = rawurlencode($mail);
             $postData[self::FIELD_NAME_MESSAGE] = rawurlencode($message);
-            if ($beres) {
+            if ($beRes) {
                 $postData[self::FIELD_NAME_BERES] = '1';
             } elseif (array_key_exists(self::FIELD_NAME_BERES, $postData)) {
                 unset($postData[self::FIELD_NAME_BERES]);
