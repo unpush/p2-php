@@ -260,6 +260,7 @@ class P2Client
 
         // 「モリタポでp2に取り込む」リンクの有無を調べる。
         // 無い場合はdat取得権限があるものとする。
+        // dat取得権限がない場合やモリタポ通帳の残高が足りない場合の処理は端折る。
         $dom = new P2DOM($html);
         $expression = './/a[contains(@href, "' . self::SCRIPT_NAME_READ . '")'
                     . ' and contains(@href, "&moritapodat=")]';
@@ -272,7 +273,6 @@ class P2Client
         }
 
         // datを取得する。
-        // dat取得権限がない場合やモリタポ通帳の残高が足りない場合の処理は端折る。
         $getData = array(
             self::REQUEST_PARAMETER_HOST => (string)$host,
             self::REQUEST_PARAMETER_BBS  => (string)$bbs,

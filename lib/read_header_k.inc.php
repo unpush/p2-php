@@ -225,7 +225,7 @@ if ($aThread->diedat) {
     if ($aThread->getdat_error_msg_ht) {
         $diedat_msg = $aThread->getdat_error_msg_ht;
     } else {
-        $diedat_msg = "<p><b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b></p>";
+        $diedat_msg = $aThread->getDefaultGetDatErrorMessageHTML();
     }
 
     $motothre_ht = "<a href=\"{$motothre_url}\" target=\"_blank\">{$motothre_url}</a>";

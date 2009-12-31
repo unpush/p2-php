@@ -1782,6 +1782,30 @@ ERR;
     }
 
     // }}}
+    // {{{ getP2Client()
+
+    /**
+     * P2Clientクラスのインスタンスを生成する
+     *
+     * @param void
+     * @return P2Client
+     */
+    static public function getP2Client()
+    {
+        global $_conf;
+
+        if (!class_exists('P2Client', false)) {
+            require P2_LIB_DIR . '/P2Client.php';
+        }
+
+        try {
+            return new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'], $_conf['cookie_dir']);
+        } catch (P2Exception $e) {
+            p2die($e->getMessage());
+        }
+    }
+
+    // }}}
     // {{{ debug()
     /*
     static public function debug()

@@ -538,9 +538,6 @@ function postIt2($host, $bbs, $key, $FROM, $mail, $MESSAGE)
 {
     global $_conf;
 
-    if (!class_exists('P2Client', false)) {
-        include P2_LIB_DIR . '/P2Client.php';
-    }
     if (!is_dir($_conf['cookie_dir'])) {
         FileCtl::mkdir_r($_conf['cookie_dir']);
     }
@@ -552,8 +549,9 @@ function postIt2($host, $bbs, $key, $FROM, $mail, $MESSAGE)
     }
 
     try {
-        $client = new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'], $_conf['cookie_dir']);
-        $posted = $client->post($host, $bbs, $key, $FROM, $mail, $MESSAGE, $beRes, $response);
+        $posted = P2Util::getP2Client()->post($host, $bbs, $key,
+                                              $FROM, $mail, $MESSAGE,
+                                              $beRes, $response);
     } catch (P2Exception $e) {
         p2die('Œö®p2ƒ|ƒXƒg¸”s', $e->getMessage());
     }
