@@ -7,10 +7,6 @@ require_once dirname(__FILE__) . '/P2KeyValueStore/Serializing.php';
 
 /**
  * p2.2ch.net クライアント
- *
- * プロバイダ規制時に書き込むために設計した。
- * モリタポを消費してdat取得権限の無いdat落ちスレッドの
- * 生datを取得できるようになったなら、即対応する。
  */
 class P2Client
 {
@@ -27,6 +23,8 @@ class P2Client
     const P2_ROOT_URI = 'http://p2.2ch.net/p2/';
     const SCRIPT_NAME_READ = 'read.php';
     const SCRIPT_NAME_POST = 'post.php';
+    const SCRIPT_NAME_INFO = 'info.php';
+    const SCRIPT_NAME_DAT  = 'dat.php';
 
     /**
      * User-Agent
@@ -34,21 +32,31 @@ class P2Client
     const HTTP_USER_AGENT = 'Monazilla/1.0 (rep2-expack-p2client)';
 
     /**
-     * フォームのパラメータ名
+     * HTTPリクエストのパラメータ名
      */
-    const FIELD_NAME_LOGIN_ID   = 'form_login_id';
-    const FIELD_NAME_LOGIN_PASS = 'form_login_pass';
-    const FIELD_NAME_POPUP      = 'popup';
-    const FIELD_NAME_FROM       = 'FROM';
-    const FIELD_NAME_MAIL       = 'mail';
-    const FIELD_NAME_MESSAGE    = 'MESSAGE';
-    const FIELD_NAME_BERES      = 'submit_beres';
+    const REQUEST_PARAMETER_LOGIN_ID    = 'form_login_id';
+    const REQUEST_PARAMETER_LOGIN_PASS  = 'form_login_pass';
+    const REQUEST_PARAMETER_HOST    = 'host';
+    const REQUEST_PARAMETER_BBS     = 'bbs';
+    const REQUEST_PARAMETER_KEY     = 'key';
+    const REQUEST_PARAMETER_LS      = 'ls';
+    const REQUEST_PARAMETER_FROM    = 'FROM';
+    const REQUEST_PARAMETER_MAIL    = 'mail';
+    const REQUEST_PARAMETER_MESSAGE = 'MESSAGE';
+    const REQUEST_PARAMETER_POPUP   = 'popup';
+    const REQUEST_PARAMETER_BERES   = 'submit_beres';
+
+    /**
+     * 読み込み正否判定のための文字列
+     */
+    const NEEDLE_READ_NO_THREAD = '<b>p2 info - 板サーバから最新のスレッド情報を取得できませんでした。</b>';
+    const NEEDLE_DAT_NO_DAT = '<h4>p2 error: ご指定のDATはありませんでした</h4>';
 
     /**
      * 書き込み正否判定のための正規表現
      */
-    const REGEX_SUCCESS = '{<title>.*(?:書き(?:込|こ)みました|書き込み終了 - SubAll BBS).*</title>}is';
-    const REGEX_COOKIE  = '{<!-- 2ch_X:cookie -->|<title>■ 書き込み確認 ■</title>|>書き込み確認。<}';
+    const REGEX_POST_SUCCESS = '{<title>.*(?:書き(?:込|こ)みました|書き込み終了 - SubAll BBS).*</title>}is';
+    const REGEX_POST_COOKIE  = '{<!-- 2ch_X:cookie -->|<title>■ 書き込み確認 ■</title>|>書き込み確認。<}';
 
     // }}}
     // {{{ properties
@@ -177,8 +185,8 @@ class P2Client
             $postData[$name] = rawurlencode($value);
         }
         $postData = $this->getFormValues($dom, $form, $postData);
-        $postData[self::FIELD_NAME_LOGIN_ID] = rawurlencode($this->_loginId);
-        $postData[self::FIELD_NAME_LOGIN_PASS] = rawurlencode($this->_loginPass);
+        $postData[self::REQUEST_PARAMETER_LOGIN_ID] = rawurlencode($this->_loginId);
+        $postData[self::REQUEST_PARAMETER_LOGIN_PASS] = rawurlencode($this->_loginPass);
 
         return $this->httpPost($uri, $postData, true);
     }
@@ -192,20 +200,19 @@ class P2Client
      * @param string $host
      * @param string $bbs
      * @param string $key
-     * @param string|integer $ls
+     * @param string $ls
      * @param mixed &$response
      * @return string HTTPレスポンスボディ
      * @throws P2Exception
      */
-    public function readThread($host, $bbs, $key, $ls = 1, &$response = null)
+    public function readThread($host, $bbs, $key, $ls = '1', &$response = null)
     {
         $getData = array(
-            'host'  => (string)$host,
-            'bbs'   => (string)$bbs,
-            'key'   => (string)$key,
-            'ls'    => (string)$ls,
+            self::REQUEST_PARAMETER_HOST => (string)$host,
+            self::REQUEST_PARAMETER_BBS  => (string)$bbs,
+            self::REQUEST_PARAMETER_KEY  => (string)$key,
+            self::REQUEST_PARAMETER_LS   => (string)$ls,
         );
-
         $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_READ;
         $response = $this->httpGet($uri, $getData);
         $dom = new P2DOM($response['body']);
@@ -218,6 +225,66 @@ class P2Client
             }
         }
 
+        if (strpos($response['body'], self::NEEDLE_READ_NO_THREAD) !== false) {
+            return null;
+        }
+
+        return $response['body'];
+    }
+
+    // }}}
+    // {{{ downloadDat()
+
+    /**
+     * datを取り込む
+     *
+     * dat取得権限が無い場合は自動でモリタポを消費してdatを取得する。
+     * 失敗しても泣かない。
+     *
+     * @param string $host
+     * @param string $bbs
+     * @param string $key
+     * @param mixed &$response
+     * @return string 生dat
+     * @throws P2Exception
+     */
+    public function downloadDat($host, $bbs, $key, &$response = null)
+    {
+        // スレッドの有無を確かめるため、まず read.php を叩く。
+        // dat落ち後にホストが移転した場合、移転後のホスト名でアクセスしても
+        // スレッド情報を取得できなかったとのメッセージが表示される。
+        $html = $this->readThread($host, $bbs, $key, 'l1n', $response);
+        if ($html === null) {
+            return null;
+        }
+
+        // 「モリタポでp2に取り込む」リンクの有無を調べる。
+        // 無い場合はdat取得権限があるものとする。
+        $dom = new P2DOM($html);
+        $expression = './/a[contains(@href, "' . self::SCRIPT_NAME_READ . '")'
+                    . ' and contains(@href, "&moritapodat=")]';
+        $result = $dom->query($expression);
+        if ($result instanceof DOMNodeList && $result->length > 0) {
+            $anchor = $result->item(0);
+            $uri = self::P2_ROOT_URI
+                 . substr($anchor->getAttribute('href'), self::SCRIPT_NAME_READ);
+            $response = $this->httpGet($uri);
+        }
+
+        // datを取得する。
+        // dat取得権限がない場合やモリタポ通帳の残高が足りない場合の処理は端折る。
+        $getData = array(
+            self::REQUEST_PARAMETER_HOST => (string)$host,
+            self::REQUEST_PARAMETER_BBS  => (string)$bbs,
+            self::REQUEST_PARAMETER_KEY  => (string)$key,
+        );
+        $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_DAT;
+        $response = $this->httpGet($uri, $getData);
+
+        if (strpos($response['body'], self::NEEDLE_DAT_NO_DAT) !== false) {
+            return null;
+        }
+
         return $response['body'];
     }
 
@@ -226,11 +293,6 @@ class P2Client
 
     /**
      * スレッドに書き込む
-     *
-     * csrfIdを取得し、かつ公式p2の既読を最新の状態にするため、
-     * まず read.php を叩く。
-     * 通信量を節約できるように ls=l1n としている。
-     * popup=1 は書き込み後のページにリダイレクトさせないため。
      *
      * @param string $host
      * @param string $bbs
@@ -246,24 +308,32 @@ class P2Client
     public function post($host, $bbs, $key, $from, $mail, $message,
                          $beRes = false, &$response = null)
     {
-        $dom = new P2DOM($this->readThread($host, $bbs, $key, 'l1n', $response));
+        // csrfIdを取得し、かつ公式p2の既読を最新の状態にするため、まず read.php を叩く。
+        // 通信量を節約できるように ls=l1n としている。
+        // popup=1 は書き込み後のページにリダイレクトさせないため。
+        $html = $this->readThread($host, $bbs, $key, 'l1n', $response);
+        if ($html === null) {
+            return false;
+        }
+
+        $dom = new P2DOM($html);
         if ($form = $this->getPostForm($dom)) {
             $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_POST;
 
             $postData = $this->getFormValues($dom, $form);
-            $postData[self::FIELD_NAME_POPUP]   = '1';
-            $postData[self::FIELD_NAME_FROM]    = rawurlencode($from);
-            $postData[self::FIELD_NAME_MAIL]    = rawurlencode($mail);
-            $postData[self::FIELD_NAME_MESSAGE] = rawurlencode($message);
+            $postData[self::REQUEST_PARAMETER_POPUP]   = '1';
+            $postData[self::REQUEST_PARAMETER_FROM]    = rawurlencode($from);
+            $postData[self::REQUEST_PARAMETER_MAIL]    = rawurlencode($mail);
+            $postData[self::REQUEST_PARAMETER_MESSAGE] = rawurlencode($message);
             if ($beRes) {
-                $postData[self::FIELD_NAME_BERES] = '1';
-            } elseif (array_key_exists(self::FIELD_NAME_BERES, $postData)) {
-                unset($postData[self::FIELD_NAME_BERES]);
+                $postData[self::REQUEST_PARAMETER_BERES] = '1';
+            } elseif (array_key_exists(self::REQUEST_PARAMETER_BERES, $postData)) {
+                unset($postData[self::REQUEST_PARAMETER_BERES]);
             }
 
             $response = $this->httpPost($uri, $postData, true);
 
-            if (preg_match(self::REGEX_COOKIE, $response['body'])) {
+            if (preg_match(self::REGEX_POST_COOKIE, $response['body'])) {
                 $dom = new P2DOM($response['body']);
                 $expression = './/form[contains(@action, "' . self::SCRIPT_NAME_POST . '")]';
                 $result = $dom->query($expression);
@@ -273,7 +343,7 @@ class P2Client
                 }
             }
 
-            return (bool)preg_match(self::REGEX_SUCCESS, $response['body']);
+            return (bool)preg_match(self::REGEX_POST_SUCCESS, $response['body']);
         } else {
             throw new P2Exception('Post form not found.');
         }
