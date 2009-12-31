@@ -22,7 +22,7 @@ if ($_conf['bottom_res_form']) {
     $key_idx = $aThread->keyidx;
 
     // フォームのオプション読み込み
-    require_once P2_LIB_DIR . '/post_options_loader.inc.php';
+    require_once P2_LIB_DIR . '/post_form_options.inc.php';
 
     $htm['resform_ttitle'] = <<<EOP
 <p><b class="thre_title">{$aThread->ttitle_hd}</b></p>

@@ -33,7 +33,7 @@ $ttitle_hd = htmlspecialchars($ttitle, ENT_QUOTES);
 $key_idx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
 
 // フォームのオプション読み込み
-require_once P2_LIB_DIR . '/post_options_loader.inc.php';
+require_once P2_LIB_DIR . '/post_form_options.inc.php';
 
 // 表示指定
 if (!$_conf['ktai']) {
