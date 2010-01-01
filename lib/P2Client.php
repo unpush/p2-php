@@ -40,7 +40,7 @@ class P2Client
     const REQUEST_PARAMETER_BBS     = 'bbs';
     const REQUEST_PARAMETER_KEY     = 'key';
     const REQUEST_PARAMETER_LS      = 'ls';
-    const REQUEST_PARAMETER_FROM    = 'FROM';
+    const REQUEST_PARAMETER_NAME    = 'FROM';
     const REQUEST_PARAMETER_MAIL    = 'mail';
     const REQUEST_PARAMETER_MESSAGE = 'MESSAGE';
     const REQUEST_PARAMETER_POPUP   = 'popup';
@@ -208,13 +208,13 @@ class P2Client
     public function readThread($host, $bbs, $key, $ls = '1', &$response = null)
     {
         $getData = array(
-            self::REQUEST_PARAMETER_HOST => (string)$host,
-            self::REQUEST_PARAMETER_BBS  => (string)$bbs,
-            self::REQUEST_PARAMETER_KEY  => (string)$key,
-            self::REQUEST_PARAMETER_LS   => (string)$ls,
+            self::REQUEST_PARAMETER_HOST => rawurlencode($host),
+            self::REQUEST_PARAMETER_BBS  => rawurlencode($bbs),
+            self::REQUEST_PARAMETER_KEY  => rawurlencode($key),
+            self::REQUEST_PARAMETER_LS   => rawurlencode($ls),
         );
         $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_READ;
-        $response = $this->httpGet($uri, $getData);
+        $response = $this->httpGet($uri, $getData, true);
         $dom = new P2DOM($response['body']);
 
         if ($form = $this->getLoginForm($dom)) {
@@ -262,24 +262,24 @@ class P2Client
         // 無い場合はdat取得権限があるものとする。
         // dat取得権限がない場合やモリタポ通帳の残高が足りない場合の処理は端折る。
         $dom = new P2DOM($html);
-        $expression = './/a[contains(@href, "' . self::SCRIPT_NAME_READ . '")'
+        $expression = './/a[contains(@href, "' . self::SCRIPT_NAME_READ . '?")'
                     . ' and contains(@href, "&moritapodat=")]';
         $result = $dom->query($expression);
         if ($result instanceof DOMNodeList && $result->length > 0) {
             $anchor = $result->item(0);
             $uri = self::P2_ROOT_URI
-                 . substr($anchor->getAttribute('href'), self::SCRIPT_NAME_READ);
+                 . strstr($anchor->getAttribute('href'), self::SCRIPT_NAME_READ);
             $response = $this->httpGet($uri);
         }
 
         // datを取得する。
         $getData = array(
-            self::REQUEST_PARAMETER_HOST => (string)$host,
-            self::REQUEST_PARAMETER_BBS  => (string)$bbs,
-            self::REQUEST_PARAMETER_KEY  => (string)$key,
+            self::REQUEST_PARAMETER_HOST => rawurlencode($host),
+            self::REQUEST_PARAMETER_BBS  => rawurlencode($bbs),
+            self::REQUEST_PARAMETER_KEY  => rawurlencode($key),
         );
         $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_DAT;
-        $response = $this->httpGet($uri, $getData);
+        $response = $this->httpGet($uri, $getData, true);
 
         if (strpos($response['body'], self::NEEDLE_DAT_NO_DAT) !== false) {
             return null;
@@ -297,7 +297,7 @@ class P2Client
      * @param string $host
      * @param string $bbs
      * @param string $key
-     * @param string $from
+     * @param string $name
      * @param string $mail
      * @param string $message
      * @param bool $beRes
@@ -305,7 +305,7 @@ class P2Client
      * @return bool
      * @throws P2Exception
      */
-    public function post($host, $bbs, $key, $from, $mail, $message,
+    public function post($host, $bbs, $key, $name, $mail, $message,
                          $beRes = false, &$response = null)
     {
         // csrfIdを取得し、かつ公式p2の既読を最新の状態にするため、まず read.php を叩く。
@@ -317,36 +317,49 @@ class P2Client
         }
 
         $dom = new P2DOM($html);
-        if ($form = $this->getPostForm($dom)) {
-            $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_POST;
-
-            $postData = $this->getFormValues($dom, $form);
-            $postData[self::REQUEST_PARAMETER_POPUP]   = '1';
-            $postData[self::REQUEST_PARAMETER_FROM]    = rawurlencode($from);
-            $postData[self::REQUEST_PARAMETER_MAIL]    = rawurlencode($mail);
-            $postData[self::REQUEST_PARAMETER_MESSAGE] = rawurlencode($message);
-            if ($beRes) {
-                $postData[self::REQUEST_PARAMETER_BERES] = '1';
-            } elseif (array_key_exists(self::REQUEST_PARAMETER_BERES, $postData)) {
-                unset($postData[self::REQUEST_PARAMETER_BERES]);
-            }
-
-            $response = $this->httpPost($uri, $postData, true);
-
-            if (preg_match(self::REGEX_POST_COOKIE, $response['body'])) {
-                $dom = new P2DOM($response['body']);
-                $expression = './/form[contains(@action, "' . self::SCRIPT_NAME_POST . '")]';
-                $result = $dom->query($expression);
-                if ($result instanceof DOMNodeList && $result->length > 0) {
-                    $postData = $this->getFormValues($dom, $result->item(0));
-                    $response = $this->httpPost($uri, $postData, true);
-                }
-            }
-
-            return (bool)preg_match(self::REGEX_POST_SUCCESS, $response['body']);
-        } else {
+        $form = $this->getPostForm($dom);
+        if ($form === null) {
             throw new P2Exception('Post form not found.');
         }
+
+        $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_POST;
+
+        // Cookie確認後のPOSTでの文字化け予防のため
+        // URLエンコード済みの値を用意しておいて再代入する。
+        $nameEncoded = rawurlencode($name);
+        $mailEncoded = rawurlencode($mail);
+        $messageEncoded = rawurlencode($message);
+
+        // POSTするデータを用意。
+        $postData = $this->getFormValues($dom, $form);
+        $postData[self::REQUEST_PARAMETER_POPUP] = '1';
+        $postData[self::REQUEST_PARAMETER_NAME] = $nameEncoded;
+        $postData[self::REQUEST_PARAMETER_MAIL] = $mailEncoded;
+        $postData[self::REQUEST_PARAMETER_MESSAGE] = $messageEncoded;
+        if ($beRes) {
+            $postData[self::REQUEST_PARAMETER_BERES] = '1';
+        } elseif (array_key_exists(self::REQUEST_PARAMETER_BERES, $postData)) {
+            unset($postData[self::REQUEST_PARAMETER_BERES]);
+        }
+
+        // POST実行。
+        $response = $this->httpPost($uri, $postData, true);
+
+        // Cookie確認の場合は再POST。
+        if (preg_match(self::REGEX_POST_COOKIE, $response['body'])) {
+            $dom = new P2DOM($response['body']);
+            $expression = './/form[contains(@action, "' . self::SCRIPT_NAME_POST . '")]';
+            $result = $dom->query($expression);
+            if ($result instanceof DOMNodeList && $result->length > 0) {
+                $postData = $this->getFormValues($dom, $result->item(0));
+                $postData[self::REQUEST_PARAMETER_NAME] = $nameEncoded;
+                $postData[self::REQUEST_PARAMETER_MAIL] = $mailEncoded;
+                $postData[self::REQUEST_PARAMETER_MESSAGE] = $messageEncoded;
+                $response = $this->httpPost($uri, $postData, true);
+            }
+        }
+
+        return (bool)preg_match(self::REGEX_POST_SUCCESS, $response['body']);
     }
 
     // }}}
@@ -448,16 +461,19 @@ class P2Client
      * @param P2DOM $dom
      * @param DOMElement $form
      * @param array $data
+     * @param bool $raw
      * @return array
      */
     protected function getFormValues(P2DOM $dom, DOMElement $form,
-                                     array $data = array())
+                                     array $data = array(), $raw = false)
     {
         $fields = $dom->query('.//input[@name and @value]', $form);
         foreach ($fields as $field) {
             $name = $field->getAttribute('name');
             $value = $field->getAttribute('value');
-            $value = rawurlencode(mb_convert_encoding($value, 'SJIS-win', 'UTF-8'));
+            if (!$raw) {
+                $value = rawurlencode(mb_convert_encoding($value, 'SJIS-win', 'UTF-8'));
+            }
             $data[$name] = $value;
         }
 

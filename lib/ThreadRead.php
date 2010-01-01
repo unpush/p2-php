@@ -1290,9 +1290,13 @@ class ThreadRead extends Thread
      */
     public function scanOriginalHosts()
     {
-        if (file_exists($this->keydat) && $dat = file_get_contents($this->keydat)) {
+        if (P2Util::isHost2chs($this->host) &&
+            file_exists($this->keydat) &&
+            ($dat = file_get_contents($this->keydat)))
+        {
             $bbs_re = preg_quote($this->bbs, '@');
-            if (preg_match_all("@/(\\w+\\.(?:2ch\\.net|bbspink\\.com))(?:/test/read\\.cgi)?/{$bbs_re}\\b@", $dat, $matches, PREG_PATTERN_ORDER)) {
+            $pattern = "@/(\\w+\\.(?:2ch\\.net|bbspink\\.com))(?:/test/read\\.cgi)?/{$bbs_re}\\b@";
+            if (preg_match_all($pattern, $dat, $matches, PREG_PATTERN_ORDER)) {
                 $hosts = array_unique($matches[1]);
                 $arKey = array_search($this->host, $hosts);
                 if ($arKey !== false && array_key_exists($arKey, $hosts)) {
