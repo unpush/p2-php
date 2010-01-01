@@ -111,7 +111,8 @@ class P2Client
     {
         try {
             $cookieSavePath = $cookieSaveDir . DIRECTORY_SEPARATOR . self::COOKIE_STORE_NAME;
-            $cookieStore = P2KeyValueStore::getStore($cookieSavePath, 'Serializing');
+            $cookieStore = P2KeyValueStore::getStore($cookieSavePath,
+                                                     P2KeyValueStore::KVS_SERIALIZING);
         } catch (Exception $e) {
             throw new P2Exception(get_class($e) . ': ' . $e->getMessage());
         }

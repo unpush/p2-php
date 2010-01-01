@@ -1,12 +1,12 @@
 <?php
 require_once dirname(__FILE__) . '/../P2KeyValueStore.php';
 
-// {{{ P2KeyValueStore_SJIS
+// {{{ P2KeyValueStore_ShiftJIS
 
 /**
  * Shift_JIS‚Ì•¶Žš—ñ‚ðUTF-8‚É•ÏŠ·‚µ‚Ä‰i‘±‰»‚·‚é
  */
-class P2KeyValueStore_SJIS extends P2KeyValueStore
+class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
 {
     // {{{ _encode()
 

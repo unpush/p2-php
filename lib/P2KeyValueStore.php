@@ -34,6 +34,12 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     const Q_CLEAN       = 'DELETE FROM $__table';
     const Q_GC          = 'DELETE FROM $__table WHERE mtime < :expires';
 
+    const KVS_DEFAULT       = 'default';
+    const KVS_BINARY        = 'Binary';
+    const KVS_COMPRESSING   = 'Compressing';
+    const KVS_SHIFTJS       = 'ShiftJIS';
+    const KVS_SERIALIZING   = 'Serializing';
+
     // }}}
     // {{{ staric private properties
 
@@ -80,7 +86,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * @return P2KeyValueStore
      * @throws InvalidArgumentException, UnexpectedValueException, RuntimeException, PDOException
      */
-    static public function getStore($fileName, $type = 'default', &$openedPath = null)
+    static public function getStore($fileName, $type = self::KVS_DEFAULT, &$openedPath = null)
     {
         // 引数の型をチェック
         if (!is_string($fileName)) {
@@ -91,7 +97,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         }
 
         // クラス名をチェック
-        if ($type == 'default') {
+        if ($type == self::KVS_DEFAULT) {
             $className = 'P2KeyValueStore';
         } else {
             $className = 'P2KeyValueStore_' . $type;
