@@ -38,7 +38,12 @@ var iutil = {
 		'query': null,
 		'href': null,
 		'uri': null
-	}
+	},
+	/**
+	 * ラベルクリックのコールバック関数コンテナ
+	 * @type {Object}
+	 */
+	'labelActions': {}
 };
 
 // }}}
@@ -51,7 +56,7 @@ var iutil = {
  * @return void
  */
 iutil.modifyExternalLink = function(contextNode) {
-	var anchors, node, re, i, l, m;
+	var anchors, anchor, re, i, l, m;
 
 	switch (typeof contextNode) {
 		case 'string':
@@ -178,6 +183,71 @@ iutil.checkPrev = function(elem, evt) {
 iutil.checkNext = function(elem, evt) {
 	elem = (typeof elem == 'string') ? document.getElementById(elem) : elem;
 	iutil.toggleChekcbox(elem.nextSibling, evt);
+};
+
+// }}}
+// {{{ setLabelAction()
+
+/**
+ * for属性つきのlabel要素にクリック時のイベントハンドラを登録する
+ *
+ * iPhoneのSafariがlabel要素をサポートすればこの関数は不要になる
+ *
+ * @param {Node|String} contextNode
+ * @return void
+ */
+iutil.setLabelAction = function(contextNode) {
+	var labels, label, targetId, targetElement, i, l;
+
+	switch (typeof contextNode) {
+		case 'string':
+			contextNode = document.getElementById(contextNode);
+			break;
+		case 'undefined':
+			contextNode = document.body;
+			break;
+	}
+	if (!contextNode) {
+		return;
+	}
+
+	labels = document.evaluate('.//label[@for]',
+	                           contextNode, null,
+	                           XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	l = labels.snapshotLength;
+
+	for (i = 0; i < l; i++) {
+		label = labels.snapshotItem(i);
+		targetId = label.getAttribute('for');
+		targetElement = document.getElementById(targetId);
+		if (!targetElement) {
+			continue;
+		}
+
+		if (typeof iutil.labelActions[targetId] != 'function') {
+			if (targetElement.nodeName.toLowerCase() == 'input' &&
+				targetElement.hasAttribute('type') &&
+				targetElement.getAttribute('type').toLowerCase() == 'checkbox')
+			{
+				iutil.labelActions[targetId] = (function(element) {
+					return function(event){
+						event = event || window.event;
+						iutil.toggleChekcbox(element, event);
+						return false;
+					};
+				})(targetElement);
+			} else {
+				iutil.labelActions[targetId] = (function(element) {
+					return function(){
+						element.forcus();
+						return false;
+					};
+				})(targetElement);
+			}
+		}
+
+		label.onclick = iutil.labelActions[targetId];
+	}
 };
 
 // }}}
@@ -921,6 +991,11 @@ window.addEventListener('DOMContentLoaded', function(event) {
 	if (typeof window.iphone_js_no_modification === 'undefined' || !window.iphone_js_no_modification) {
 		// リンクにイベントハンドラを登録する
 		iutil.modifyExternalLink(document.body);
+
+		// labelにイベントハンドラを登録する
+		if (iutil.iphone) {
+			iutil.setLabelAction(document.body);
+		}
 
 		// textareaの幅を調整
 		iutil.adjustTextareaSize();

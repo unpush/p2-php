@@ -29,7 +29,7 @@ class P2Client
     /**
      * User-Agent
      */
-    const HTTP_USER_AGENT = 'Monazilla/1.0 (rep2-expack-p2client)';
+    const HTTP_USER_AGENT = 'PHP P2Client class';
 
     /**
      * HTTPリクエストのパラメータ名

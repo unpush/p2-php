@@ -29,7 +29,7 @@ if ($_conf['ktai']) {
     if ($_conf['iphone']) {
         $htm['options'] .= <<<EOP
 <div style="text-align:right;">
-<!-- <input type="checkbox" onclick="iutil.toggleAutocorrect('MESSAGE', this.checked);"><span onclick="iutil.checkPrev(this);">autocorrect</span> -->
+<!-- <input type="checkbox" id="autocorrect" onclick="iutil.toggleAutocorrect('MESSAGE', this.checked);"><label for="autocorrect">autocorrect</label> -->
 <input type="button" onclick="iutil.shrinkTextarea('MESSAGE');iutil.shrinkTextarea('MESSAGE');" value="|">
 <input type="button" onclick="iutil.expandTextarea('MESSAGE');" value="{">
 </div>

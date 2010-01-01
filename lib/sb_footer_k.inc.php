@@ -242,24 +242,26 @@ if (!$aThreadList->spmode || $aThreadList->spmode == "taborn" || $aThreadList->s
 $htm['change_sort'] .= '<select name="sort">';
 foreach ($sorts as $k => $v) {
     if ($GLOBALS['now_sort'] == $k) {
-        $selected = ' selected';
+        $sb_sort_selected_at = ' selected';
     } else {
-        $selected = '';
+        $sb_sort_selected_at = '';
     }
-    $htm['change_sort'] .= "<option value=\"{$k}\"{$selected}>{$v}</option>";
+    $htm['change_sort'] .= "<option value=\"{$k}\"{$sb_sort_selected_at}>{$v}</option>";
 }
 $htm['change_sort'] .= '</select>';
 
 if (!empty($_REQUEST['sb_view'])) {
-    $htm['change_sort'] .= "<input type=\"hidden\" name=\"sb_view\" value=\"" . htmlspecialchars($_REQUEST['sb_view']) . "\">";
+    $htm['change_sort'] .= '<input type="hidden" name="sb_view" value="'
+                        . htmlspecialchars($_REQUEST['sb_view']) . '">';
 }
-if ($_conf['iphone']) {
-    // iPhone (2.0.1) ÇÃSafariÇ≈ÇÕlabelóvëfÇ™å¯Ç©Ç»Ç¢ (É^ÉOÇ≈àÕÇﬁÅAforëÆê´Ç∆Ç‡Ç…) ÇÃÇ≈onclickÇ≈ë„ópÇ∑ÇÈ
-    $htm['change_sort'] .= ' <input type="checkbox" name="rsort" value="1">';
-    $htm['change_sort'] .= '<span onclick="iutil.checkPrev(this);">ãtèá</span>';
+
+if (!empty($_REQUEST['rsort'])) {
+    $sb_rsort_checked_at = ' checked';
 } else {
-    $htm['change_sort'] .= ' <label><input type="checkbox" name="rsort" value="1">ãtèá</label>';
+    $sb_rsort_checked_at = '';
 }
+$htm['change_sort'] .= ' <input type="checkbox" id="sb_rsort" name="rsort" value="1"'
+                    . $sb_rsort_checked_at . '><label for="sb_rsort">ãtèá</label>';
 $htm['change_sort'] .= ' <input type="submit" value="ï¿Ç—ë÷Ç¶"></form>';
 
 // }}}
