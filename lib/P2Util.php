@@ -62,7 +62,7 @@ class P2Util
     /**
      *  ファイルをダウンロード保存する
      */
-    static public function fileDownload($url, $localfile, $disp_error = 1)
+    static public function fileDownload($url, $localfile, $disp_error = true)
     {
         global $_conf, $_info_msg_ht;
 
@@ -91,6 +91,12 @@ class P2Util
         if ($wap_res->isError() && $disp_error) {
             $url_t = self::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
+            if ($wap_res->isRedirect() && array_key_exists('Location', $wap_res->headers)) {
+                $location = $wap_res->headers['Location'];
+                $location_ht = htmlspecialchars($location, ENT_QUOTES);
+                $location_t = P2Util::throughIme($location);
+                $_info_msg_ht .= "Location: <a href=\"{$location_t}\"{$_conf['ext_win_target_at']}>{$location_ht}</a><br>";
+            }
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
         }
 

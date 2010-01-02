@@ -6,6 +6,7 @@
 // {{{ p2Šî–{Ý’è“Ç‚Ýž‚Ý&”FØ
 
 require_once './conf/conf.inc.php';
+require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
 
 $_login->authorize();
 
@@ -40,7 +41,6 @@ $xml_ht = htmlspecialchars($xml, ENT_QUOTES, 'Shift_JIS', false);
 //============================================================
 
 if ($xml) {
-    require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
     $rss = p2GetRSS($xml, $atom);
     if ($rss instanceof XML_Parser) {
         clearstatcache();

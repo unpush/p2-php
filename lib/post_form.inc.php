@@ -92,7 +92,7 @@ $htm['post_form'] = <<<EOP
 {$htm['block_submit']}
 {$htm['table_break2']}
 <input id="kakiko_submit" type="submit" name="submit" value="{$submit_value}"{$htm['kaiko_set_hidden_js']}{$htm['submit_extra_at']}>
-{$htm['be2ch']}
+{$htm['beres']}
 {$htm['p2res']}
 {$htm['table_end']}
 

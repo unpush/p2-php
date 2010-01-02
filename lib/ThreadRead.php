@@ -88,6 +88,9 @@ class ThreadRead extends Thread
             } elseif (P2Util::isHost2chs($this->host) && !empty($_GET['moritapodat']) &&
                       $_conf['p2_2ch_mail'] && $_conf['p2_2ch_pass'])
             {
+                if (!array_key_exists('csrfid', $_GET) || P2Util::getCsrfId() != $_GET['csrfid']) {
+                    p2die('不正なリクエストです');
+                }
                 $this->_downloadDat2chMoritapo();
 
             // 2chの過去ログ倉庫読み
@@ -1352,7 +1355,12 @@ class ThreadRead extends Thread
         global $_conf;
 
         if ($_conf['p2_2ch_mail'] && $_conf['p2_2ch_pass']) {
-            return " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;moritapodat=true\">モリタポでp2に取り込む</a>]";
+            $query = htmlspecialchars('host=' . rawurldecode($this->host)
+                                    . '&bbs=' . rawurldecode($this->bbs)
+                                    . '&key=' . rawurldecode($this->key)
+                                    . '&ls=' . rawurldecode($this->ls)
+                                    . '&moritapodat=true&csrfid=' . P2Util::getCsrfId(), ENT_QUOTES);
+            return " [<a href=\"{$_conf['read_php']}?{$query}\">モリタポでp2に取り込む</a>]";
         } else {
             return '';
         }
@@ -1440,6 +1448,8 @@ class ThreadRead extends Thread
     {
         global $_conf;
 
+        $csrfid = P2Util::getCsrfId();
+
         $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>]";
 
         if ($hosts = $this->scanOriginalHosts()) {
@@ -1461,6 +1471,7 @@ class ThreadRead extends Thread
     <input type="hidden" name="ls" value="{$this->ls}">
     に変えて
     <input type="submit" name="moritapodat" value="モリタポでp2に取り込んでみる">
+    <input type="hidden" name="csrfid" value="{$csrfid}">
     {$hosts_ht}
 </form>\n
 EOF;

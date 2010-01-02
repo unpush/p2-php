@@ -14,19 +14,19 @@ require_once 'PEAR.php';
 function rss_get_save_path($remotefile)
 {
     global $_conf, $_info_msg_ht;
-    static $done = array();
+    static $finished = array();
 
     $remotefile = preg_replace('|^feed://|', 'http://', $remotefile);
 
-    if (isset($done[$remotefile])) {
-        return $done[$remotefile];
+    if (array_key_exists($remotefile, $finished)) {
+        return $finished[$remotefile];
     }
 
     $pURL = @parse_url($remotefile);
     if (!$pURL || !isset($pURL['scheme']) || $pURL['scheme'] != 'http' || !isset($pURL['host'])) {
         $errmsg = 'p2 error: ïsê≥Ç»RSSÇÃURL (' . htmlspecialchars($remotefile, ENT_QUOTES) . ')';
-        $error = &PEAR::raiseError($errmsg);
-        return ($done[$remotefile] = $error);
+        $error = PEAR::raiseError($errmsg);
+        return ($finished[$remotefile] = $error);
     }
 
     $localname = '';
@@ -53,7 +53,7 @@ function rss_get_save_path($remotefile)
 
     $localpath = $_conf['dat_dir'] . '/p2_rss/' . $pURL['host'] . '/' . $localname;
 
-    return ($done[$remotefile] = $localpath);
+    return ($finished[$remotefile] = $localpath);
 }
 
 // }}}

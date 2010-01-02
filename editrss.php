@@ -10,6 +10,7 @@ $_login->authorize(); // ユーザ認証
 
 // 変数 =============
 $_info_msg_ht = '';
+$editrss_php_ht = htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES);
 
 //================================================================
 //特殊な前置処理
@@ -25,7 +26,7 @@ if (isset($_GET['setrss']) || isset($_POST['setrss']) || isset($_POST['submit_se
 // RSS追加フォーム
 $add_rss_form_ht = <<<EOFORM
 <hr>
-<form method="POST" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+<form method="POST" action="{$editrss_php_ht}" accept-charset="{$_conf['accept_charset']}" target="_self">
     <input type="hidden" id="setrss" name="setrss" value="1">
     <table border="0" cellspacing="1" cellpadding="0">
         <tr>
@@ -239,7 +240,7 @@ if (!$_conf['ktai'] && $_conf['favita_order_dnd'] && !P2Util::isNetFront()) {
         $script_enable_html .= <<<EOP
 RSSの並び替え（ドラッグアンドドロップ）
 <div class="itas">
-<form id="form" name="form" method="post" action="{$_SERVER['SCRIPT_NAME']}" accept-charset="{$_conf['accept_charset']}" target="_self">
+<form id="form" name="form" method="post" action="{$editrss_php_ht}" accept-charset="{$_conf['accept_charset']}" target="_self">
 
 <table border="0">
 <tr>
@@ -299,6 +300,7 @@ if ($lines) {
         if (count($p) > 1) {
             $site = $p[0];
             $xml = $p[1];
+            $xml_en = rawurlencode($xml);
             if (isset($p[2]) && $p[2] == 1) {
                 $atom = 1;
                 $atom_ht = '&amp;atom=1';
@@ -310,18 +312,16 @@ if ($lines) {
                 $type_ht = 'RSS';
                 $cngtype_ht = '&amp;setrss=atom';
             }
-            $site_en = rawurlencode(base64_encode($site));
-            $site_ht = "&amp;site_en=".$site_en;
-            $xml_en = rawurlencode($xml);
+            $site_ht = '&amp;site_en=' . rawurlencode(base64_encode($site));
             echo <<<EOP
     <tr>
-        <td><a href="{$_SERVER['SCRIPT_NAME']}?xml={$xml_en}&amp;setrss=0" class="fav">★</a></td>
+        <td><a href="{$editrss_php_ht}?xml={$xml_en}&amp;setrss=0" class="fav">★</a></td>
         <td><a href="subject_rss.php?xml={$xml_en}{$site_ht}{$atom_ht}">{$site}</a></td>
-        <td>(<a class="te" href="{$_SERVER['SCRIPT_NAME']}?xml={$xml_en}{$site_ht}{$cngtype_ht}">{$type_ht}</a>)</td>
-        <td>[ <a class="te" href="{$_SERVER['SCRIPT_NAME']}?xml={$xml_en}{$site_ht}{$atom_ht}&amp;setrss=top">▲</a></td>
-        <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?xml={$xml_en}{$site_ht}{$atom_ht}&amp;setrss=up">↑</a></td>
-        <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?xml={$xml_en}{$site_ht}{$atom_ht}&amp;setrss=down">↓</a></td>
-        <td><a class="te" href="{$_SERVER['SCRIPT_NAME']}?xml={$xml_en}{$site_ht}{$atom_ht}&amp;setrss=bottom">▼</a> ]</td>
+        <td>(<a class="te" href="{$editrss_php_ht}?xml={$xml_en}{$site_ht}{$cngtype_ht}">{$type_ht}</a>)</td>
+        <td>[ <a class="te" href="{$editrss_php_ht}?xml={$xml_en}{$site_ht}{$atom_ht}&amp;setrss=top">▲</a></td>
+        <td><a class="te" href="{$editrss_php_ht}?xml={$xml_en}{$site_ht}{$atom_ht}&amp;setrss=up">↑</a></td>
+        <td><a class="te" href="{$editrss_php_ht}?xml={$xml_en}{$site_ht}{$atom_ht}&amp;setrss=down">↓</a></td>
+        <td><a class="te" href="{$editrss_php_ht}?xml={$xml_en}{$site_ht}{$atom_ht}&amp;setrss=bottom">▼</a> ]</td>
     </tr>\n
 EOP;
         }

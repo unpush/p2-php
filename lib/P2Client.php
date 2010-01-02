@@ -45,6 +45,12 @@ class P2Client
     const REQUEST_PARAMETER_MESSAGE = 'MESSAGE';
     const REQUEST_PARAMETER_POPUP   = 'popup';
     const REQUEST_PARAMETER_BERES   = 'submit_beres';
+    const REQUEST_PARAMETER_CHARACTER_SET_DETECTION_HINT = 'detect_hint';
+
+    /**
+     * HTTPリクエストの固定パラメータ
+     */
+    const REQUEST_DATA_CHARACTER_SET_DETECTION_HINT = '◎◇';
 
     /**
      * 読み込み正否判定のための文字列
@@ -159,11 +165,13 @@ class P2Client
      * @param array $data
      * @param P2DOM $dom
      * @param DOMElement $form
-     * @return array HTTPレスポンス
+     * @param mixed &$response
+     * @return bool
      * @throws P2Exception
      */
     public function login($uri = null, array $data = array(),
-                          P2DOM $dom = null, DOMElement $form = null)
+                          P2DOM $dom = null, DOMElement $form = null,
+                          &$response = null)
     {
         if ($uri === null) {
             $uri = self::P2_ROOT_URI;
@@ -172,6 +180,7 @@ class P2Client
         if ($dom === null) {
             $response = $this->httpGet($uri);
             $dom = new P2DOM($response['body']);
+            $form = null;
         }
 
         if ($form === null) {
@@ -189,7 +198,9 @@ class P2Client
         $postData[self::REQUEST_PARAMETER_LOGIN_ID] = rawurlencode($this->_loginId);
         $postData[self::REQUEST_PARAMETER_LOGIN_PASS] = rawurlencode($this->_loginPass);
 
-        return $this->httpPost($uri, $postData, true);
+        $response = $this->httpPost($uri, $postData, true);
+
+        return $this->getLoginForm(new P2DOM($response['body'])) === null;
     }
 
     // }}}
@@ -219,9 +230,7 @@ class P2Client
         $dom = new P2DOM($response['body']);
 
         if ($form = $this->getLoginForm($dom)) {
-            $response = $this->login($uri, $getData, $dom, $form);
-            $dom = new P2DOM($response['body']);
-            if ($this->getLoginForm($dom)) {
+            if (!$this->login($uri, $getData, $dom, $form, $response)) {
                 throw new P2Exception('Login failed.');
             }
         }
@@ -327,16 +336,18 @@ class P2Client
 
         // Cookie確認後のPOSTでの文字化け予防のため
         // URLエンコード済みの値を用意しておいて再代入する。
+        $hintEncoded = rawurlencode(self::REQUEST_DATA_CHARACTER_SET_DETECTION_HINT);
         $nameEncoded = rawurlencode($name);
         $mailEncoded = rawurlencode($mail);
         $messageEncoded = rawurlencode($message);
 
         // POSTするデータを用意。
         $postData = $this->getFormValues($dom, $form);
-        $postData[self::REQUEST_PARAMETER_POPUP] = '1';
+        $postData[self::REQUEST_PARAMETER_CHARACTER_SET_DETECTION_HINT] = $hintEncoded;
         $postData[self::REQUEST_PARAMETER_NAME] = $nameEncoded;
         $postData[self::REQUEST_PARAMETER_MAIL] = $mailEncoded;
         $postData[self::REQUEST_PARAMETER_MESSAGE] = $messageEncoded;
+        $postData[self::REQUEST_PARAMETER_POPUP] = '1';
         if ($beRes) {
             $postData[self::REQUEST_PARAMETER_BERES] = '1';
         } elseif (array_key_exists(self::REQUEST_PARAMETER_BERES, $postData)) {
@@ -348,15 +359,21 @@ class P2Client
 
         // Cookie確認の場合は再POST。
         if (preg_match(self::REGEX_POST_COOKIE, $response['body'])) {
-            $dom = new P2DOM($response['body']);
+            $html = str_replace('<META http-equiv="Content-Type" content="text/html; charset=x-sjis">',
+                                '<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">',
+                                $response['body']);
+            $dom = new P2DOM($html);
             $expression = './/form[contains(@action, "' . self::SCRIPT_NAME_POST . '")]';
             $result = $dom->query($expression);
             if ($result instanceof DOMNodeList && $result->length > 0) {
                 $postData = $this->getFormValues($dom, $result->item(0));
+                $postData[self::REQUEST_PARAMETER_CHARACTER_SET_DETECTION_HINT] = $hintEncoded;
                 $postData[self::REQUEST_PARAMETER_NAME] = $nameEncoded;
                 $postData[self::REQUEST_PARAMETER_MAIL] = $mailEncoded;
                 $postData[self::REQUEST_PARAMETER_MESSAGE] = $messageEncoded;
                 $response = $this->httpPost($uri, $postData, true);
+            } else {
+                return false;
             }
         }
 
@@ -381,8 +398,8 @@ class P2Client
     {
         $code = $this->_httpClient->get($uri, $data, $preEncoded, $headers);
         P2Exception::pearErrorToP2Exception($code);
-        if ($code < 200 || $code >= 300) {
-            throw new P2Exception('HTTP Error: '. $code);
+        if ($code != 200) {
+            throw new P2Exception('HTTP '. $code);
         }
         return $this->_httpClient->currentResponse();
     }
@@ -406,8 +423,8 @@ class P2Client
     {
         $code = $this->_httpClient->post($uri, $data, $preEncoded, $files, $headers);
         P2Exception::pearErrorToP2Exception($code);
-        if ($code < 200 || $code >= 300) {
-            throw new P2Exception('HTTP Error: '. $code);
+        if ($code != 200) {
+            throw new P2Exception('HTTP '. $code);
         }
         return $this->_httpClient->currentResponse();
     }

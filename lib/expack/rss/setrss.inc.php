@@ -50,19 +50,14 @@ EOJS;
         unset($site, $xml, $atom, $m, $matches, $fp);
         return;
     }
-
-    $setrss  = isset($_POST['setrss'])  ? trim($_POST['setrss'])  : '';
-    $xml     = isset($_POST['xml'])     ? trim($_POST['xml'])     : '';
-    $site    = isset($_POST['site'])    ? trim($_POST['site'])    : '';
-    $site_en = isset($_POST['site_en']) ? trim($_POST['site_en']) : '';
-    $atom    = empty($_POST['atom']) ? 0 : 1;
-} else {
-    $setrss  = isset($_POST['setrss'])  ? trim($_GET['setrss'])  : '';
-    $xml     = isset($_POST['xml'])     ? trim($_GET['xml'])     : '';
-    $site    = isset($_POST['site'])    ? trim($_GET['site'])    : '';
-    $site_en = isset($_POST['site_en']) ? trim($_GET['site_en']) : '';
-    $atom    = empty($_GET['atom']) ? 0 : 1;
 }
+
+$setrss  = isset($_REQUEST['setrss'])  ? trim($_REQUEST['setrss'])  : '';
+$xml     = isset($_REQUEST['xml'])     ? trim($_REQUEST['xml'])     : '';
+$site    = isset($_REQUEST['site'])    ? trim($_REQUEST['site'])    : '';
+$site_en = isset($_REQUEST['site_en']) ? trim($_REQUEST['site_en']) : '';
+$atom    = empty($_REQUEST['atom'])    ? 0 : 1;
+
 // RSSのタイトル設定
 if ($site === '') {
     if ($site_en !== '') {
@@ -71,6 +66,9 @@ if ($site === '') {
         $site = basename($xml);
     }
 }
+
+// feedスキームをhttpスキームで置換
+$xml = preg_replace('|^feed://|', 'http://', $xml);
 
 // ログに記録する変数を最低限のサニタイズ
 $xml = preg_replace_callback('/\\s/', 'rawurlencode', $xml);
