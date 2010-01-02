@@ -309,10 +309,9 @@ $conf_user_def['res_write_rec'] = 1; // (1)
 $conf_user_sel['res_write_rec'] = array('1' => 'する', '0' => 'しない');
 
 // 外部URLジャンプする際に通すゲート。
-// （直接:"", p2 ime(自動転送):"p2", p2 ime(手動転送):"p2m", p2 ime(pのみ手動転送):"p2pm"）
 $conf_user_def['through_ime'] = "p2pm"; // ("p2pm") 
 $conf_user_sel['through_ime'] = array(
-    '' => '直接', 'p2' => 'p2 ime(自動転送)', 'p2m' => 'p2 ime(手動転送)', 'p2pm' => 'p2 ime(pのみ手動転送)'
+    '' => '直接', 'p2' => 'p2 ime(自動転送)', 'p2m' => 'p2 ime(手動転送)', 'p2pm' => 'p2 ime(pのみ手動転送)', '2ch' => '2ch ime'
 );
 
 // お気にスレ共有に参加（する, しない）
@@ -331,7 +330,7 @@ $conf_user_def['brocra_checker_use'] = 0; // (0)
 $conf_user_sel['brocra_checker_use'] = array('1' => 'つける', '0' => 'つけない');
 
 // ブラクラチェッカURL
-$conf_user_def['brocra_checker_url'] = "http://so.7walker.net/";
+$conf_user_def['brocra_checker_url'] = "http://so.7walker.net/"; // 2009.12.20 閉鎖
 
 // ブラクラチェッカのクエリー
 $conf_user_def['brocra_checker_query'] = "site";
