@@ -2,8 +2,8 @@
 /*
     rep2 - 基本設定ファイル
 
-    このファイルは、システム内部設定なので、特に理由の無い限り変更しないで下さい。
-    ユーザ設定はブラウザから「ユーザ設定編集」で変更可能です。
+    このファイルはシステム内部設定用です。特に理由の無い限り変更しないで下さい。
+    ユーザ設定は、ブラウザ上から「ユーザ設定編集」で変更可能です。
     管理者向け設定は conf/conf_admin.inc.php を直接書き換えて下さい。
 */
 
@@ -16,18 +16,9 @@ $_conf['p2uaname'] = 'r e p 2';  // UA用のrep2の名前
 //======================================================================
 // 基本設定処理
 //======================================================================
-// {{{ エラー出力設定（NOTICEは削減中だが、まだ残っていると思う）
+// エラー出力設定
+_setErrorReporting(); // error_reporting()
 
-$except = E_NOTICE;
-if (defined('E_STRICT')) {
-    $except = $except | E_STRICT;
-}
-if (defined('E_DEPRECATED')) {
-    $except = $except | E_DEPRECATED;
-}
-error_reporting(E_ALL & ~$except);
-
-// }}}
 // {{{ 基本変数
 
 $_conf['p2web_url']             = 'http://akid.s17.xrea.com/';
@@ -47,76 +38,17 @@ $_conf['editpref_php']          = 'editpref.php'; // editpref_i.php
 
 // }}}
 
-// デバッグ
+// デバッグ用変数を設定
 _setDebug(); // void  $GLOBALS['debug'], $GLOBALS['profiler']
 
 // PHPの動作環境を確認
 _checkPHPInstalled(); // void|die
 
-// {{{ 環境設定
+// PHPの環境設定
+_setPHPEnvironments();
 
-// タイムゾーンをセット
-if (function_exists('date_default_timezone_set')) { 
-    date_default_timezone_set('Asia/Tokyo'); 
-} else { 
-    @putenv('TZ=JST-9'); 
-}
-
-// メモリ制限値の下限設定(M)
-// 設定値が指定値未満なら指定値に引き上げて設定する
-_setMemoryLimit(32);
-
-// スクリプトの実行時間制限の下限設定(秒)
-// 設定値が指定秒未満なら指定秒に引き上げて設定する
-_setTimeLimit(60);
-
-// 自動フラッシュをオフにする
-ob_implicit_flush(0);
-
-// クライアントから接続を切られても処理を続行する
-// ignore_user_abort(1);
-
-// session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
-// URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
-ini_set('arg_separator.output', '&amp;');
-
-// リクエストIDを設定
-define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
-
-// OS別の定数をセットする。PATH_SEPARATOR, DIRECTORY_SEPARATOR
-_setOSDefine();
-
-// }}}
-
-
-// 文字コードの指定
-_setEncodings();
-
-// {{{ ライブラリ類のパス設定
-
-define('P2_CONF_DIR', dirname(__FILE__)); // __DIR__ @php-5.3
-
-define('P2_BASE_DIR', dirname(P2_CONF_DIR));
-
-// 基本的な機能を提供するライブラリ
-define('P2_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib');
-
-// おまけ的な機能を提供するライブラリ
-define('P2EX_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'expack');
-
-// スタイルシート
-define('P2_STYLE_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'style');
-
-// スキン
-define('P2_SKIN_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'skin');
-
-// PEARインストールディレクトリ、検索パスに追加される
-define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
-
-// PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
-// Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
-define('P2_PEAR_HACK_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'pear_hack');
-
+// p2のディレクトリパス定数を設定する
+_setP2DirConstants(); // P2_LIB_DIR 等
 
 require_once P2_LIB_DIR . '/global.funcs.php';
 
@@ -126,23 +58,15 @@ _iniSetIncludePath(); // void
 // PEARライブラリを読み込む
 _includePears(); // void|die
 
+// PEAR::PHP_CompatでPHP5互換の関数を読み込む
+_loadPHPCompat();
+
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'P2Util.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'DataPhp.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'Session.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'Login.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'UA.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'P2View.php';
-
-// }}}
-// {{{ PEAR::PHP_CompatでPHP5互換の関数を読み込む
-
-if (version_compare(phpversion(), '5.0.0', '<')) {
-    PHP_Compat::loadFunction('file_put_contents');
-    //PHP_Compat::loadFunction('clone');
-    PHP_Compat::loadFunction('scandir');
-    //PHP_Compat::loadFunction('http_build_query'); // 第3引数に対応するまでは使えない
-    //PHP_Compat::loadFunction('array_walk_recursive');
-}
 
 // }}}
 
@@ -169,71 +93,30 @@ $_conf['tmp_dir'] = $_conf['data_dir'] . '/tmp';
 $_conf['accesskey_for_k'] = 'accesskey';
 
 // 端末判定
-_checkBrowser(); // $_conf
+_checkBrowser(); // $_conf, UA::setForceMode()
 
-// {{{ クエリーによる強制ビュー指定
-
-// b=pc はまだ全てのリンクに追加されておらず、機能しない場合がある。地道に整備していきたい。
+// b=pc はまだ全てのリンクへの追加が完了しておらず、機能していない箇所がある。地道に整備していきたい。
 // output_add_rewrite_var() は便利だが、出力がバッファされて体感速度が落ちるのが難点。。
 // 体感速度を落とさない良い方法ないかな？
+_setOldStyleKtaiQuery(); // $_conf['ktai'] 等をセット
 
-$b = UA::getQueryKey();
-
-// ?k=1は旧仕様。?b=kが新しい。
-
-// 後方互換用
-if (!empty($_GET['k']) || !empty($_POST['k'])) {
-    $_REQUEST[$b] = $_GET[$b] = 'k';
-}
-
-// $_conf[$b]（$_conf['b']） も使わないようにして、UA::getQueryValue()を利用する方向。
-$_conf[$b] = UA::getQueryValue();
-
-// $_conf['ktai'] は使わない方向。
-// UA::isK(), UA::isPC() を利用する。
-
-// 強制PCビュー指定（b=pc）
-if (UA::isPCByQuery()) {
-    $_conf['ktai'] = false;
-
-// 強制携帯ビュー指定（b=k）
-} elseif (UA::isMobileByQuery()) {
-    $_conf['ktai'] = true;
-}
-
-// ↓k_at_a, k_at_q, k_input_ht は使わない方向。
-// UA::getQueryKey(), UA::getQueryValue(), P2View::getInputHiddenKTag() を利用する。
-$_conf['k_at_a'] = '';
-$_conf['k_at_q'] = '';
-$_conf['k_input_ht'] = '';
-if ($_conf[$b]) {
-    //output_add_rewrite_var($b, htmlspecialchars($_conf[$b], ENT_QUOTES));
-
-    $b_hs = hs($_conf[$b]);
-    $_conf['k_at_a'] = "&amp;{$b}={$b_hs}";
-    $_conf['k_at_q'] = "?{$b}={$b_hs}";
-    $_conf['k_input_ht'] = P2View::getInputHiddenKTag();
-}
-
-// }}}
-
-// 2008/09/28 $_conf['k_to_index_ht'] は廃止して、P2View::getBackToIndexKATag() を利用
-// $_conf['k_to_index_ht'] = sprintf('<a %s="0" href="index.php%s">0.TOP</a>', $_conf['accesskey_for_k'], $_conf['k_at_q']);
-
+// $_conf['expack.use_pecl_http'] の調整
+_adjustConfUsePeclHttp(); // UA::isK()
 
 //======================================================================
+// [todo]システム設定部分とユーザに関わる部分の設定はファイル分離したい
 
 // {{{ ユーザ設定 読込
 
 // デフォルト設定（conf_user_def.inc.php）を読み込む
-require_once './conf/conf_user_def.inc.php';
+require_once P2_CONF_DIR . DIRECTORY_SEPARATOR . 'conf_user_def.inc.php';
 $_conf = array_merge($_conf, $conf_user_def);
 
 // ユーザ設定があれば読み込む
 $_conf['conf_user_file'] = $_conf['pref_dir'] . '/conf_user.srd.cgi';
 
 // 2006-02-27 旧形式ファイルがあれば変換してコピー
-_copyOldConfUserFileIfExists();
+//_copyOldConfUserFileIfExists();
 
 $conf_user = array();
 if (file_exists($_conf['conf_user_file'])) {
@@ -375,18 +258,6 @@ $_conf['matome_cache_path'] = P2_PREF_DIR_REAL_PATH . DIRECTORY_SEPARATOR . 'mat
 $_conf['matome_cache_ext'] = '.htm';
 $_conf['matome_cache_max'] = 3; // 予備キャッシュの数
 
-// 補正
-if (
-    version_compare(phpversion(), '5.0.0', '<')
-    or $_conf['expack.use_pecl_http'] && !extension_loaded('http')
-) {
-    //if (!($_conf['expack.use_pecl_http'] == 2 && $_conf['expack.dl_pecl_http'])) {
-        $_conf['expack.use_pecl_http'] = 0;
-    //}
-} elseif ($_conf['expack.use_pecl_http'] == 3 && UA::isK()) {
-    $_conf['expack.use_pecl_http'] = 1;
-}
-
 
 // {{{ ありえない引数のエラー
 
@@ -415,6 +286,8 @@ $_p2session = _startSession();
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
 $_login = new Login;
+
+// このファイル内での処理はここまで
 
 
 //=============================================================================
@@ -473,6 +346,24 @@ function printMemoryUsage()
     $kb = number_format($kb, 2, '.', '');
     
     echo 'Memory Usage: ' . $kb . 'KB';
+}
+
+/**
+ * エラー出力設定。error_reporting()
+ * （NOTICEは削減中だが、まだ残っていると思う）
+ *
+ * @return  void
+ */
+function _setErrorReporting()
+{
+    $except = E_NOTICE;
+    if (defined('E_STRICT')) {
+        $except = $except | E_STRICT;
+    }
+    if (defined('E_DEPRECATED')) {
+        $except = $except | E_DEPRECATED;
+    }
+    error_reporting(E_ALL & ~$except);
 }
 
 /**
@@ -601,6 +492,87 @@ function _checkPHPInstalled()
 }
 
 /**
+ * PHPの環境設定
+ *
+ * @return  void
+ */
+function _setPHPEnvironments()
+{
+    // タイムゾーンをセット
+    _setTimezone();
+
+    // メモリ制限値の下限設定(M)
+    // 設定値が指定値未満なら指定値に引き上げて設定する
+    _setMemoryLimit(32);
+
+    // スクリプトの実行時間制限の下限設定(秒)
+    // 設定値が指定秒未満なら指定秒に引き上げて設定する
+    _setTimeLimit(60);
+
+    // 自動フラッシュをオフにする
+    ob_implicit_flush(0);
+
+    // クライアントから接続を切られても処理を続行する
+    // ignore_user_abort(1);
+
+    // session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
+    // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
+    ini_set('arg_separator.output', '&amp;');
+
+    // リクエストIDを設定
+    define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
+
+    // OS別の定数を補完セットする。PATH_SEPARATOR, DIRECTORY_SEPARATOR
+    _setOSDefine();
+
+    // 文字コードの指定
+    _setEncodings();
+}
+
+/**
+ * p2のディレクトリパス定数を設定する
+ *
+ * @return  void
+ */
+function _setP2DirConstants()
+{
+    define('P2_CONF_DIR', dirname(__FILE__)); // __DIR__ @php-5.3
+
+    define('P2_BASE_DIR', dirname(P2_CONF_DIR));
+
+    // 基本的な機能を提供するライブラリ
+    define('P2_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib');
+
+    // おまけ的な機能を提供するライブラリ
+    define('P2EX_LIB_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'expack');
+
+    // スタイルシート
+    define('P2_STYLE_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'style');
+
+    // スキン
+    define('P2_SKIN_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'skin');
+
+    // PEARインストールディレクトリ、検索パスに追加される
+    define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
+
+    // PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
+    // Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
+    define('P2_PEAR_HACK_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'pear_hack');
+}
+
+/**
+ * @return  void
+ */
+function _setTimezone()
+{
+    if (function_exists('date_default_timezone_set')) { 
+        date_default_timezone_set('Asia/Tokyo'); 
+    } else { 
+        @putenv('TZ=JST-9'); 
+    }
+}
+
+/**
  * PEARライブラリを読み込む
  *
  * @return  void|die
@@ -631,7 +603,21 @@ function _includePears()
 }
 
 /**
- * OS別の定数をセットする
+ * @return  void
+ */
+function _loadPHPCompat()
+{
+    if (version_compare(phpversion(), '5.0.0', '<')) {
+        PHP_Compat::loadFunction('file_put_contents');
+        //PHP_Compat::loadFunction('clone');
+        PHP_Compat::loadFunction('scandir');
+        //PHP_Compat::loadFunction('http_build_query'); // 第3引数に対応するまでは使えない
+        //PHP_Compat::loadFunction('array_walk_recursive');
+    }
+}
+
+/**
+ * OS別の定数を補完セットする
  *
  * @return  void
  */
@@ -786,11 +772,78 @@ function _checkBrowser()
 
         define('P2_IPHONE_LIB_DIR', './iphone');
 
-        $_conf['ktai']           = true;
         $_conf['subject_php']    = 'subject_i.php';
         $_conf['read_new_k_php'] = 'read_new_i.php';
         $_conf['menu_k_php']     = 'menu_i.php';
         $_conf['editpref_php']   = 'editpref_i.php';
+    }
+}
+
+/**
+ * 旧スタイルの携帯ビュー変数 $_conf['ktai'] 等をセット
+ *
+ * @return  void
+ */
+function _setOldStyleKtaiQuery()
+{
+    global $_conf;
+    
+    $b = UA::getQueryKey();
+
+    // ?k=1は旧仕様。?b=kが新しい。
+    // 後方互換用措置
+    if (!empty($_GET['k']) || !empty($_POST['k'])) {
+        $_REQUEST[$b] = $_GET[$b] = 'k';
+    }
+
+    // $_conf[$b]（$_conf['b']） も使わないようにして、UA::getQueryValue()を利用する方向。
+    $_conf[$b] = UA::getQueryValue();
+
+    // $_conf['ktai'] は使わない方向。
+    // UA::isK(), UA::isPC() を利用する。
+
+    // 強制PCビュー指定（b=pc）
+    if (UA::isPCByQuery()) {
+        $_conf['ktai'] = false;
+
+    // 強制携帯ビュー指定（b=k）
+    } elseif (UA::isMobileByQuery()) {
+        $_conf['ktai'] = true;
+    }
+
+    // ↓k_at_a, k_at_q, k_input_ht は使わない方向。
+    // UA::getQueryKey(), UA::getQueryValue(), P2View::getInputHiddenKTag() を利用する。
+    $_conf['k_at_a'] = '';
+    $_conf['k_at_q'] = '';
+    $_conf['k_input_ht'] = '';
+    if ($_conf[$b]) {
+        //output_add_rewrite_var($b, htmlspecialchars($_conf[$b], ENT_QUOTES));
+
+        $b_hs = hs($_conf[$b]);
+        $_conf['k_at_a'] = "&amp;{$b}={$b_hs}";
+        $_conf['k_at_q'] = "?{$b}={$b_hs}";
+        $_conf['k_input_ht'] = P2View::getInputHiddenKTag();
+    }
+}
+
+/**
+ * $_conf['expack.use_pecl_http'] の調整
+ *
+ * @return  void
+ */
+function _adjustConfUsePeclHttp()
+{
+    global $_conf;
+    
+    if (
+        version_compare(phpversion(), '5.0.0', '<')
+        or $_conf['expack.use_pecl_http'] && !extension_loaded('http')
+    ) {
+        //if (!($_conf['expack.use_pecl_http'] == 2 && $_conf['expack.dl_pecl_http'])) {
+            $_conf['expack.use_pecl_http'] = 0;
+        //}
+    } elseif ($_conf['expack.use_pecl_http'] == 3 && UA::isK()) {
+        $_conf['expack.use_pecl_http'] = 1;
     }
 }
 
