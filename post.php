@@ -16,7 +16,11 @@ if (empty($_POST['host'])) {
     p2die('引数の指定が変です');
 }
 
-if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
+$el = error_reporting(E_ALL & ~E_NOTICE);
+$salt = 'post' . $_POST['host'] . $_POST['bbs'] . $_POST['key'];
+error_reporting($el);
+
+if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId($salt)) {
     p2die('不正なポストです');
 }
 

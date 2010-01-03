@@ -1115,11 +1115,16 @@ EOP;
     /**
      * getCsrfId
      */
-    static public function getCsrfId()
+    static public function getCsrfId($salt = '')
     {
         global $_login;
 
-        return md5($_login->user . $_login->pass_x . $_SERVER['HTTP_USER_AGENT']);
+        $key = $_login->user . $_login->pass_x . $_SERVER['HTTP_USER_AGENT'] . $salt;
+        if (array_key_exists('login_microtime', $_SESSION)) {
+            $key .= $_SESSION['login_microtime'];
+        }
+
+        return strtr(rtrim(base64_encode(sha1($key, true)), '='), '+/', '-_');
     }
 
     // }}}

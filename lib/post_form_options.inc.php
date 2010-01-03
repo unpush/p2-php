@@ -12,7 +12,7 @@ $fake_time = -10; // time ‚ð10•ª‘O‚É‹U‘•
 $time = time() - 9*60*60;
 $time = $time + $fake_time * 60;
 
-$csrfid = P2Util::getCsrfId();
+$csrfid = P2Util::getCsrfId('post' . $host . $bbs . $key);
 
 $hd['FROM'] = '';
 $hd['mail'] = '';

@@ -7,11 +7,13 @@ require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
+define('P2_SALT_EDIT_ABORN_WORD', basename(__FILE__));
+
 $path = isset($_REQUEST['path']) ? $_REQUEST['path'] : '';
 $path_ht = htmlspecialchars($path, ENT_QUOTES);
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
-    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
+    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId(P2_SALT_EDIT_ABORN_WORD)) {
         p2die('不正なポストです');
     }
 }
@@ -147,7 +149,7 @@ $ptitle_top = sprintf('あぼーん/NGワード編集 &gt; <a href="%s?path=%s">%s</a>',
     $_SERVER['SCRIPT_NAME'], rawurlencode($path), basename($path));
 $ptitle = strip_tags($ptitle_top);
 
-$csrfid = P2Util::getCsrfId();
+$csrfid = P2Util::getCsrfId(P2_SALT_EDIT_ABORN_WORD);
 
 //=====================================================================
 // プリント

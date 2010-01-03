@@ -88,7 +88,9 @@ class ThreadRead extends Thread
             } elseif (P2Util::isHost2chs($this->host) && !empty($_GET['moritapodat']) &&
                       $_conf['p2_2ch_mail'] && $_conf['p2_2ch_pass'])
             {
-                if (!array_key_exists('csrfid', $_GET) || P2Util::getCsrfId() != $_GET['csrfid']) {
+                if (!array_key_exists('csrfid', $_GET) ||
+                    $this->_getCsrfIdForMoritapoDat() != $_GET['csrfid'])
+                {
                     p2die('不正なリクエストです');
                 }
                 $this->_downloadDat2chMoritapo();
@@ -1355,11 +1357,12 @@ class ThreadRead extends Thread
         global $_conf;
 
         if ($_conf['p2_2ch_mail'] && $_conf['p2_2ch_pass']) {
+            $csrfid = $this->_getCsrfIdForMoritapoDat();
             $query = htmlspecialchars('host=' . rawurldecode($this->host)
                                     . '&bbs=' . rawurldecode($this->bbs)
                                     . '&key=' . rawurldecode($this->key)
                                     . '&ls=' . rawurldecode($this->ls)
-                                    . '&moritapodat=true&csrfid=' . P2Util::getCsrfId(), ENT_QUOTES);
+                                    . '&moritapodat=true&csrfid=' . $csrfid, ENT_QUOTES);
             return " [<a href=\"{$_conf['read_php']}?{$query}\">モリタポでp2に取り込む</a>]";
         } else {
             return '';
@@ -1448,7 +1451,7 @@ class ThreadRead extends Thread
     {
         global $_conf;
 
-        $csrfid = P2Util::getCsrfId();
+        $csrfid = $this->_getCsrfIdForMoritapoDat();
 
         $marutori_ht = " [<a href=\"{$_conf['read_php']}?host={$this->host}&amp;bbs={$this->bbs}&amp;key={$this->key}&amp;ls={$this->ls}&amp;maru=true\">●IDでp2に取り込む</a>]";
 
@@ -1478,6 +1481,20 @@ EOF;
         $this->diedat = true;
 
         return false;
+    }
+
+    // }}}
+    // {{{ _getCsrfIdForMoritapoDat()
+
+    /**
+     * 公式p2からdatを取得する際に使うCSRF防止トークンを生成する
+     *
+     * @param void
+     * @return string
+     */
+    protected function _getCsrfIdForMoritapoDat()
+    {
+        return P2Util::getCsrfId('moritapodat' . $this->host . $this->bbs . $this->key);
     }
 
     // }}}

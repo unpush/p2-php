@@ -8,8 +8,10 @@ require_once P2_CONF_DIR . '/conf_user_def.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
+define('P2_SALT_EDIT_CONF_USER', basename(__FILE__));
+
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
-    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId()) {
+    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId(P2_SALT_EDIT_CONF_USER)) {
         p2die('不正なポストです');
     }
 }
@@ -109,7 +111,7 @@ $keep_old = false;
 //=====================================================================
 $ptitle = 'ユーザ設定編集';
 
-$csrfid = P2Util::getCsrfId();
+$csrfid = P2Util::getCsrfId(P2_SALT_EDIT_CONF_USER);
 
 $me = P2Util::getMyUrl();
 

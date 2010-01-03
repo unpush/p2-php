@@ -184,6 +184,9 @@ class Login
             // ユーザ名とパスXを更新
             $_SESSION['login_user']   = $this->user_u;
             $_SESSION['login_pass_x'] = $this->pass_x;
+            if (!array_key_exists('login_microtime', $_SESSION)) {
+                $_SESSION['login_microtime'] = microtime();
+            }
         }
 
         // }}}
