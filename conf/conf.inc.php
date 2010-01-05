@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
-    'p2expack'  => '100103.1800',   // 拡張パックのバージョン
+    'p2expack'  => '100105.2130',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -168,6 +168,7 @@ define('P2_STYLE_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'style');
 
 // スキン
 define('P2_SKIN_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'skin');
+define('P2_USER_SKIN_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'user_skin');
 
 // PEARインストールディレクトリ、検索パスに追加される
 define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
@@ -623,21 +624,60 @@ if ($_conf['expack.user_agent']) {
 // }}}
 // {{{ デザイン設定 読込
 
-$skin_name = 'conf_user_style';
+$skin_name = $default_skin_name = 'conf_user_style';
 $skin = $P2_CONF_DIR_S . 'conf_user_style.inc.php';
 if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
+    // 保存されているスキン名
+    $saved_skin_name = null;
     if (file_exists($_conf['expack.skin.setting_path'])) {
-        $skin_name = rtrim(file_get_contents($_conf['expack.skin.setting_path']));
-        $skin = P2_SKIN_DIR . DIRECTORY_SEPARATOR . $skin_name . '.php';
+        $saved_skin_name = rtrim(file_get_contents($_conf['expack.skin.setting_path']));
+        if (!preg_match('/^[0-9A-Za-z_\\-]+$/', $saved_skin_name)) {
+            $saved_skin_name = null;
+        }
     } else {
         FileCtl::make_datafile($_conf['expack.skin.setting_path'], $_conf['expack.skin.setting_perm']);
     }
-    if (isset($_REQUEST['skin']) && preg_match('/^\\w+$/', $_REQUEST['skin']) && $skin_name != $_REQUEST['skin']) {
-        $skin_name = $_REQUEST['skin'];
-        $skin = P2_SKIN_DIR . DIRECTORY_SEPARATOR . $skin_name . '.php';
-        FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $skin_name);
+
+    // リクエストで指定されたスキン名
+    $new_skin_name = null;
+    if (array_key_exists('skin', $_REQUEST) && is_string($_REQUEST['skin'])) {
+        $new_skin_name = $_REQUEST['skin'];
+        if (!preg_match('/^[0-9A-Za-z_\\-]+$/', $new_skin_name)) {
+            $new_skin_name = null;
+        } elseif ($new_skin_name != $saved_skin_name) {
+            FileCtl::file_write_contents($_conf['expack.skin.setting_path'], $new_skin_name);
+        }
+    }
+
+    // リクエストで指定された一時スキン名
+    $tmp_skin_name = null;
+    if (array_key_exists('tmp_skin', $_REQUEST) && is_string($_REQUEST['tmp_skin'])) {
+        $tmp_skin_name = $_REQUEST['tmp_skin'];
+        if (!preg_match('/^[0-9A-Za-z_\\-]+$/', $tmp_skin_name)) {
+            $tmp_skin_name = null;
+        }
+    }
+
+    // スキン検索
+    foreach (array($tmp_skin_name, $new_skin_name, $saved_skin_name, $default_skin_name) as $skin_name) {
+        if ($skin_name !== null) {
+            if ($skin_name == $default_skin_name) {
+                break;
+            }
+            $user_skin_path = P2_USER_SKIN_DIR . DIRECTORY_SEPARATOR . $skin_name . '.php';
+            if (file_exists($user_skin_path)) {
+                $skin = $user_skin_path;
+                break;
+            }
+            $bundled_skin_path = P2_SKIN_DIR . DIRECTORY_SEPARATOR . $skin_name . '.php';
+            if (file_exists($bundled_skin_path)) {
+                $skin = $bundled_skin_path;
+                break;
+            }
+        }
     }
 }
+
 if (!file_exists($skin)) {
     $skin_name = 'conf_user_style';
     $skin = $P2_CONF_DIR_S . 'conf_user_style.inc.php';
@@ -927,17 +967,7 @@ if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
 
 // }}}
 
-$_p2session = new Session();
-
-if (!$support_cookies) {
-    if (ini_get('session.use_only_cookies')) {
-        p2die('Session unavailable', 'php.ini で session.use_only_cookies が On になっています。');
-    }
-    if (!ini_get('session.use_trans_sid')) {
-        output_add_rewrite_var(session_name(), session_id());
-        $_conf['sid_at_a'] = '&amp;' . rawurldecode(session_name()) . '=' . rawurldecode(session_id());
-    }
-}
+$_p2session = new Session(null, null, $support_cookies);
 
 // }}}
 // {{{ お気にセット
@@ -1007,7 +1037,8 @@ function p2checkenv($check_recommended)
 
     $php_version = phpversion();
     $required_version = '5.2.8';
-    $recommended_version = '5.2.10';
+    $recommended_version52 = '5.2.12';
+    $recommended_version53 = '5.3.1';
 
     // PHPのバージョン
     if (version_compare($php_version, $required_version, '<')) {
@@ -1048,15 +1079,24 @@ EOP;
     }
 
     // 推奨バージョン
-    if ($check_recommended && version_compare($php_version, $recommended_version, '<')) {
-        $conf_php = htmlspecialchars(__FILE__, ENT_QUOTES);
-        $_info_msg_ht .= <<<EOP
+    if ($check_recommended) {
+        if (version_compare($php_version, '5.3.0-dev', '>=')) {
+            $recommended_version = $recommended_version53;
+        } else {
+            $recommended_version = $recommended_version52;
+        }
+        if (version_compare($php_version, $recommended_version, '<')) {
+            // title.php のみメッセージを表示
+            if (basename($_SERVER['PHP_SELF'], '.php') == 'title') {
+                $_info_msg_ht .= <<<EOP
 <p><strong>推奨バージョンより古いPHPで動作しています。</strong><em>(PHP {$php_version})</em><br>
-PHP {$recommended_version} 以降にアップデートすることをおすすめします。<br>
-<small>（このメッセージを表示しないようにするには {$conf_php} の {$check_recommended} 行目の
-&quot;p2checkenv(__LINE__);&quot; を quot;p2checkenv(false);&quot; に書き換えてください）</small></p>
+PHP {$recommended_version} 以降にアップデートすることをおすすめします。</p>
+<p style="font-size:smaller">このメッセージを表示しないようにするには <em>{\$rep2_directory}</em>/conf/conf.inc.php の {$check_recommended} 行目、<br>
+<samp>p2checkenv(__LINE__);</samp> を <samp>p2checkenv(false);</samp> に書き換えてください。</p>
 EOP;
-        return false;
+            }
+            return false;
+        }
     }
 
     return true;

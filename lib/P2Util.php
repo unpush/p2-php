@@ -1124,7 +1124,7 @@ EOP;
             $key .= $_SESSION['login_microtime'];
         }
 
-        return strtr(rtrim(base64_encode(sha1($key, true)), '='), '+/', '-_');
+        return self::urlSafeBase64Encode(sha1($key, true));
     }
 
     // }}}
@@ -1810,10 +1810,43 @@ ERR;
         }
 
         try {
-            return new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'], $_conf['cookie_dir']);
+            return new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'],
+                                $_conf['cookie_dir'], (bool)$_conf['p2_2ch_ignore_cip']);
         } catch (P2Exception $e) {
             p2die($e->getMessage());
         }
+    }
+
+    // }}}
+    // {{{ urlSafeBase64Decode()
+
+    /**
+     * URL-safe Base64 デコード
+     *
+     * @param string $str
+     * @return string
+     */
+    static public function urlSafeBase64Decode($str)
+    {
+        $mod = strlen($str) % 4;
+        if ($mod) {
+            $str .= str_repeat('=', 4 - $mod);
+        }
+        return base64_decode(strtr($str, '-_', '+/'), true);
+    }
+
+    // }}}
+    // {{{ urlSafeBase64Encode()
+
+    /**
+     * URL-safe Base64 エンコード
+     *
+     * @param string $str
+     * @return string
+     */
+    static public function urlSafeBase64Encode($str)
+    {
+        return strtr(rtrim(base64_encode($str), '='), '+/', '-_');
     }
 
     // }}}

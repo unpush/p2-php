@@ -8,10 +8,10 @@ require_once P2_CONF_DIR . '/conf_user_def.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
-define('P2_SALT_EDIT_CONF_USER', basename(__FILE__));
+$csrfid = P2Util::getCsrfId(__FILE__);
 
 if (!empty($_POST['submit_save']) || !empty($_POST['submit_default'])) {
-    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != P2Util::getCsrfId(P2_SALT_EDIT_CONF_USER)) {
+    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != $csrfid) {
         p2die('不正なポストです');
     }
 }
@@ -111,8 +111,6 @@ $keep_old = false;
 //=====================================================================
 $ptitle = 'ユーザ設定編集';
 
-$csrfid = P2Util::getCsrfId(P2_SALT_EDIT_CONF_USER);
-
 $me = P2Util::getMyUrl();
 
 //=====================================================================
@@ -202,6 +200,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('be_2ch_mail', 'be.2ch.netの登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
         array('p2_2ch_mail', '<a href="http://p2.2ch.net/" target="_blank">p2.2ch.net</a>の登録メールアドレス', P2_EDIT_CONF_USER_LONGTEXT),
         array('p2_2ch_pass', 'p2.2ch.netのログインパスワード', P2_EDIT_CONF_USER_LONGTEXT | P2_EDIT_CONF_USER_PASSWORD),
+        array('p2_2ch_ignore_cip', ' p2.2ch.net Cookie認証時にIPアドレスの同一性をチェック'),
     );
     printEditConfGroupHtml($groupname, $conflist, $flags);
 }

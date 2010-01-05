@@ -48,13 +48,38 @@ class Session
      *
      * ここでPHPの標準セッションがスタートする
      */
-    public function __construct($session_name = NULL, $session_id = NULL)
+    public function __construct($session_name = null, $session_id = null, $use_cookies = true)
     {
-        session_cache_limiter('none'); // キャッシュ制御なし
+        // キャッシュ制御なし
+        session_cache_limiter('none');
 
-        if ($session_name) { session_name($session_name); }
-        if ($session_id)   { session_id($session_id); }
+        // セッション名およびセッションIDを設定
+        if ($session_name) {
+            session_name($session_name);
+        }
+        if ($session_id) {
+            session_id($session_id);
+        }
+
+        // Cookie使用の可否に応じてiniディレクティブを変更
+        if ($use_cookies) {
+            ini_set('session.use_cookies', 1);
+            ini_set('session.use_only_cookies', 1);
+        } else {
+            ini_set('session.use_cookies', 0);
+            ini_set('session.use_only_cookies', 0);
+        }
+
+        // セッションデータを初期化する
         session_start();
+
+        // Cookieが使用できず、session.use_trans_sidがOffの場合
+        if (!$use_cookies && !ini_get('session.use_trans_sid')) {
+            $snm = session_name();
+            $sid = session_id();
+            output_add_rewrite_var($snm, $sid);
+            $GLOBALS['_conf']['sid_at_a'] = '&amp;' . rawurlencode($snm) . '=' . rawurlencode($sid);
+        }
 
         /*
         Expires: Thu, 19 Nov 1981 08:52:00 GMT

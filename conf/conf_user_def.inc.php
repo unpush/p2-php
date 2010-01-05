@@ -22,6 +22,10 @@ $conf_user_def['p2_2ch_mail'] = ""; // ("")
 // p2.2ch.netのログインパスワード
 $conf_user_def['p2_2ch_pass'] = ""; // ("")
 
+// p2.2ch.net Cookie認証時にIPアドレスの同一性をチェック
+$conf_user_def['p2_2ch_ignore_cip'] = 0; // (0)
+$conf_user_rad['p2_2ch_ignore_cip'] = array('0' => 'チェックする', '1' => 'チェックしない');
+
 // }}}
 // {{{ PATH
 

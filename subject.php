@@ -9,6 +9,7 @@
 require_once './conf/conf.inc.php';
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/ThreadList.php';
+require_once P2_LIB_DIR . '/NgAbornCtl.php';
 
 //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 
@@ -38,6 +39,19 @@ $spmode = isset($_REQUEST['spmode']) ? $_REQUEST['spmode'] : null;
 
 if (!($host && $bbs) && !$spmode) {
     p2die('必要な引数が指定されていません');
+}
+
+if ($spmode) {
+    $aborn_threads = null;
+} else {
+    $aborn_threads = NgAbornCtl::loadAbornThreads();
+    if (!is_array($aborn_threads) ||
+        !array_key_exists('data', $aborn_threads) ||
+        !is_array($aborn_threads['data']) ||
+        count($aborn_threads['data']) == 0)
+    {
+        $aborn_threads = null;
+    }
 }
 
 // }}}
@@ -489,15 +503,23 @@ for ($x = 0; $x < $linesize; $x++) {
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('word_filter_for_sb');
 
     // }}}
-    // {{{ ■スレッドあぼーんチェック
+    // {{{ スレッドあぼーんチェック
 
     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('taborn_check_continue');
-    if ($aThreadList->spmode != "taborn" && !empty($ta_keys[$aThread->key])) {
+    if ($aThreadList->spmode != 'taborn' && !empty($ta_keys[$aThread->key])) {
         unset($ta_keys[$aThread->key]);
         //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('taborn_check_continue');
-        continue; // あぼーんスレはスキップ
+        continue; // 個別あぼーんスレッドはスキップ
     }
     //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('taborn_check_continue');
+    //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('ttitle_aborn_check_continue');
+    if ($aborn_threads !== null && checkThreadTitleAborn($aborn_threads, $aThread)) {
+        unset($ta_keys[$aThread->key]);
+        $GLOBALS['ngaborns_hits']['aborn_thread']++;
+        //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ttitle_aborn_check_continue');
+        continue; // タイトルがあぼーんワードにマッチしたスレッドもスキップ
+    }
+    //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('ttitle_aborn_check_continue');
 
     // }}}
 
@@ -858,6 +880,11 @@ if (!$spmode) {
     }
 }
 
+// スレッドタイトルあぼーん記録
+if ($aborn_threads !== null) {
+    NgAbornCtl::saveAbornThreads($aborn_threads);
+}
+
 //$GLOBALS['debug'] && $GLOBALS['profiler']->leaveSection('FOOT');
 
 // ここまで
@@ -1071,6 +1098,79 @@ function setSbSimilarity($aThread)
     // debug (title 属性)
     //$aThread->ttitle_hd = mb_convert_encoding(htmlspecialchars(implode(' ', $common_words)), 'CP932', 'UTF-8');
     return true;
+}
+
+// }}}
+// {{{ checkThreadTitleAborn()
+
+/**
+ * スレッドタイトルあぼーんの検証をする
+ *
+ * @param array &$aborn_threads
+ * @param Thread $aThread
+ * @return bool
+ */
+function checkThreadTitleAborn(array &$aborn_threads, Thread $aThread)
+{
+    $bbs = $aThread->bbs;
+    $subject = $aThread->ttitle;
+
+    foreach ($aborn_threads['data'] as $k => $v) {
+        // 板チェック
+        if (isset($v['bbs']) && in_array($bbs, $v['bbs']) == false) {
+            continue;
+        }
+
+        // ワードチェック
+        // 正規表現
+        if ($v['regex']) {
+            $re_method = $v['regex'];
+            /*if ($re_method($v['word'], $subject, $matches)) {
+                updateThreadTitleAborn($aborn_threads, $k);
+                return true;
+            }*/
+             if ($re_method($v['word'], $subject)) {
+                updateThreadTitleAborn($aborn_threads, $k);
+                return true;
+            }
+       // 大文字小文字を無視
+        } elseif ($v['ignorecase']) {
+            if (stripos($subject, $v['word']) !== false) {
+                updateThreadTitleAborn($aborn_threads, $k);
+                return true;
+            }
+        // 単純に文字列が含まれるかどうかをチェック
+        } else {
+            if (strpos($subject, $v['word']) !== false) {
+                updateThreadTitleAborn($aborn_threads, $k);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+// }}}
+// {{{ updateThreadTitleAborn()
+
+/**
+ * スレッドタイトルあぼーん最終ヒット日時と回数を更新
+ *
+ * @param array &$aborn_threads
+ * @param int $idx
+ * @return void
+ */
+function updateThreadTitleAborn(array &$aborn_threads, $idx)
+{
+    if (array_key_exists($idx, $aborn_threads['data'])) {
+        $aborn_threads['data'][$idx]['lasttime'] = date('Y/m/d G:i'); // HIT時間を更新
+        if (empty($aborn_threads['data'][$idx]['hits'])) {
+            $aborn_threads['data'][$idx]['hits'] = 1; // 初HIT
+        } else {
+            $aborn_threads['data'][$idx]['hits']++; // HIT回数を更新
+        }
+    }
 }
 
 // }}}

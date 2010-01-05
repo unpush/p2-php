@@ -162,15 +162,16 @@ echo $_info_msg_ht;
 $_info_msg_ht = '';
 
 // 設定プリント
-$aborn_res_txt  = $_conf['pref_dir'] . '/p2_aborn_res.txt';
-$aborn_name_txt = $_conf['pref_dir'] . '/p2_aborn_name.txt';
-$aborn_mail_txt = $_conf['pref_dir'] . '/p2_aborn_mail.txt';
-$aborn_msg_txt  = $_conf['pref_dir'] . '/p2_aborn_msg.txt';
-$aborn_id_txt   = $_conf['pref_dir'] . '/p2_aborn_id.txt';
-$ng_name_txt    = $_conf['pref_dir'] . '/p2_ng_name.txt';
-$ng_mail_txt    = $_conf['pref_dir'] . '/p2_ng_mail.txt';
-$ng_msg_txt     = $_conf['pref_dir'] . '/p2_ng_msg.txt';
-$ng_id_txt      = $_conf['pref_dir'] . '/p2_ng_id.txt';
+$aborn_thread_txt   = 'p2_aborn_thread.txt';
+$aborn_res_txt      = 'p2_aborn_res.txt';
+$aborn_name_txt     = 'p2_aborn_name.txt';
+$aborn_mail_txt     = 'p2_aborn_mail.txt';
+$aborn_msg_txt      = 'p2_aborn_msg.txt';
+$aborn_id_txt       = 'p2_aborn_id.txt';
+$ng_name_txt        = 'p2_ng_name.txt';
+$ng_mail_txt        = 'p2_ng_mail.txt';
+$ng_msg_txt         = 'p2_ng_msg.txt';
+$ng_id_txt          = 'p2_ng_id.txt';
 
 echo '<div>';
 echo <<<EOP
@@ -178,14 +179,20 @@ echo <<<EOP
 EOP;
 if (!$_conf['ktai'] && $_conf['expack.skin.enabled']) {
     $skin_options = array('conf_user_style' => '標準');
-    if (is_dir('./skin')) {
-        foreach (glob('./skin/*.php') as $skin_file) {
-            $_name = basename($skin_file, '.php');
-            if (is_file($skin_file) && preg_match('/^\\w+$/', $_name)) {
-                $skin_options[$_name] = $_name;
+    foreach (array('./skin', './user_skin') as $skin_dir) {
+        if (is_dir($skin_dir)) {
+            foreach (glob("{$skin_dir}/*.php") as $skin_file) {
+                $_name = basename($skin_file, '.php');
+                if (!array_key_exists($_name, $skin_options) &&
+                    is_file($skin_file) &&
+                    preg_match('/^[0-9A-Za-z_\\-]+$/', $_name))
+                {
+                    $skin_options[$_name] = $_name;
+                }
             }
         }
     }
+    uksort($skin_options, 'compareSkinNames');
     $skin_options_ht = '';
     foreach ($skin_options as $_name => $_title) {
         $skin_options_ht .= sprintf('<option value="%s"%s>%s</option>',
@@ -215,10 +222,10 @@ if (!$_conf['ktai']) {
 <fieldset>
 <legend><a href="http://akid.s17.xrea.com/p2puki/pukiwiki.php?%5B%5BNG%A5%EF%A1%BC%A5%C9%A4%CE%C0%DF%C4%EA%CA%FD%CB%A1%5D%5D" target="read">NGワード</a>編集</legend>
 EOP;
-    printEditFileForm($ng_name_txt, "名前");
-    printEditFileForm($ng_mail_txt, "メール");
-    printEditFileForm($ng_msg_txt, "メッセージ");
-    printEditFileForm($ng_id_txt, "ＩＤ");
+    printEditFileForm($ng_name_txt, '名前');
+    printEditFileForm($ng_mail_txt, 'メール');
+    printEditFileForm($ng_msg_txt, '本文');
+    printEditFileForm($ng_id_txt, 'ID');
     echo <<<EOP
 </fieldset>\n\n
 EOP;
@@ -234,11 +241,12 @@ EOP;
 <fieldset>
 <legend>あぼーんワード編集</legend>\n
 EOP;
-    printEditFileForm($aborn_res_txt, "レス");
-    printEditFileForm($aborn_name_txt, "名前");
-    printEditFileForm($aborn_mail_txt, "メール");
-    printEditFileForm($aborn_msg_txt, "メッセージ");
-    printEditFileForm($aborn_id_txt, "ＩＤ");
+    printEditFileForm($aborn_res_txt, 'レス');
+    printEditFileForm($aborn_name_txt, '名前');
+    printEditFileForm($aborn_mail_txt, 'メール');
+    printEditFileForm($aborn_msg_txt, '本文');
+    printEditFileForm($aborn_id_txt, 'ID');
+    printEditFileForm($aborn_thread_txt, 'スレッド');
     echo <<<EOP
 </fieldset>\n
 EOP;
@@ -246,27 +254,6 @@ EOP;
     echo "</td></tr>";
 
     // }}}
-    // {{{ PC - その他 の設定
-
-    //echo "<td>\n\n";
-    /*
-    php は editfile しない
-
-    echo <<<EOP
-<fieldset>
-<legend>その他</legend>
-EOP;
-    printEditFileForm("conf/conf_user_style.inc.php", 'デザイン設定');
-    printEditFileForm("conf/conf.inc.php", '基本設定');
-    echo <<<EOP
-</fieldset>\n
-EOP;
-    */
-
-    // }}}
-
-    //echo '&nbsp;';
-
     // {{{ PC - ホストの同期 HTMLのセット
 
     echo <<<EOP
@@ -329,21 +316,22 @@ if ($_conf['ktai']) {
 <p>ｱﾎﾞﾝ/NGﾜｰﾄﾞ編集</p>
 <form method="GET" action="edit_aborn_word.php">
 {$_conf['k_input_ht']}
-<select name="path">
+<select name="file">
+<option value="{$aborn_thread_txt}">ｱﾎﾞﾝ:ｽﾚ</option>
 <option value="{$aborn_name_txt}">ｱﾎﾞﾝ:名前</option>
 <option value="{$aborn_mail_txt}">ｱﾎﾞﾝ:ﾒｰﾙ</option>
-<option value="{$aborn_msg_txt}">ｱﾎﾞﾝ:ﾒｯｾｰｼﾞ</option>
+<option value="{$aborn_msg_txt}">ｱﾎﾞﾝ:本文</option>
 <option value="{$aborn_id_txt}">ｱﾎﾞﾝ:ID</option>
 <option value="{$ng_name_txt}">NG:名前</option>
 <option value="{$ng_mail_txt}">NG:ﾒｰﾙ</option>
-<option value="{$ng_msg_txt}">NG:ﾒｯｾｰｼﾞ</option>
+<option value="{$ng_msg_txt}">NG:本文</option>
 <option value="{$ng_id_txt}">NG:ID</option>
 </select>
 <input type="submit" value="編集">
 </form>
 <form method="GET" action="editfile.php">
 {$_conf['k_input_ht']}
-<input type="hidden" name="path" value="{$aborn_res_txt}">
+<input type="hidden" name="file" value="{$aborn_res_txt}">
 <input type="submit" value="ｱﾎﾞﾝﾚｽ編集">
 </form>
 EOP;
@@ -425,16 +413,18 @@ exit;
 /**
  * 設定ファイル編集ウインドウを開くフォームHTMLをプリントする
  *
- * @param   string  $path_value     編集するファイルのパス
+ * @param   string  $filename       編集するファイル名
  * @param   string  $submit_value   submitボタンの値
  * @return  void
  */
-function printEditFileForm($path_value, $submit_value)
+function printEditFileForm($filename, $submit_value)
 {
     global $_conf;
 
-    if ((file_exists($path_value) && is_writable($path_value)) ||
-        (!file_exists($path_value) && is_writable(dirname($path_value)))
+    $path = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . $filename;
+
+    if ((file_exists($path) && is_writable($path)) ||
+        (!file_exists($path) && is_writable(dirname($path)))
     ) {
         $onsubmit = '';
         $disabled = '';
@@ -446,18 +436,21 @@ function printEditFileForm($path_value, $submit_value)
     $rows = 36; // 18
     $cols = 92; // 90
 
-    if (preg_match('/^p2_(aborn|ng)_(name|mail|id|msg)\.txt$/', basename($path_value))) {
+    if ($filename == 'p2_aborn_thread.txt' ||
+        preg_match('/^p2_(aborn|ng)_(name|mail|id|msg)\\.txt$/', $filename))
+    {
         $edit_php = 'edit_aborn_word.php';
         $target = '_self';
     } else {
         $edit_php = 'editfile.php';
         $target = 'editfile';
     }
+    $filename_ht = htmlspecialchars($filename, ENT_QUOTES);
 
     $ht = <<<EOFORM
 <form action="{$edit_php}" method="GET" target="{$target}" class="inline-form"{$onsubmit}>
     {$_conf['k_input_ht']}
-    <input type="hidden" name="path" value="{$path_value}">
+    <input type="hidden" name="file" value="{$filename_ht}">
     <input type="hidden" name="encode" value="Shift_JIS">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
@@ -629,6 +622,27 @@ function updateFavSetList()
     }
 
     return TRUE;
+}
+
+// }}}
+// {{{ compareSkinNames()
+
+/**
+ * スキンのリストをソートするためのコールバック関数
+ *
+ * @param string $a
+ * @param string $b
+ * @return int
+ */
+function compareSkinNames($a, $b)
+{
+    if ($a == 'conf_user_style') {
+        return -1;
+    }
+    if ($b == 'conf_user_style') {
+        return 1;
+    }
+    return strcmp($a, $b);
 }
 
 // }}}

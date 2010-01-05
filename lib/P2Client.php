@@ -36,6 +36,8 @@ class P2Client
      */
     const REQUEST_PARAMETER_LOGIN_ID    = 'form_login_id';
     const REQUEST_PARAMETER_LOGIN_PASS  = 'form_login_pass';
+    const REQUEST_PARAMETER_LOGIN_REGIST_COOKIE = 'regist_cookie';
+    const REQUEST_PARAMETER_LOGIN_IGNORE_COOKIE_ADDR = 'ignore_cip';
     const REQUEST_PARAMETER_HOST    = 'host';
     const REQUEST_PARAMETER_BBS     = 'bbs';
     const REQUEST_PARAMETER_KEY     = 'key';
@@ -82,6 +84,13 @@ class P2Client
     private $_loginPass;
 
     /**
+     * p2.2ch.net Cookie認証時にIPアドレスの同一性をチェックしない
+     *
+     * @var bool
+     */
+    private $_ignoreCookieAddr;
+
+    /**
      * Cookieを保存するKey-Value Storeオブジェクト
      *
      * @var P2KeyValueStore_Serializing
@@ -111,9 +120,10 @@ class P2Client
      * @param string $loginId
      * @param string $loginPass
      * @param string $cookieSaveDir
+     * @param bool $ignoreCookieAddr
      * @throws P2Exception
      */
-    public function __construct($loginId, $loginPass, $cookieSaveDir)
+    public function __construct($loginId, $loginPass, $cookieSaveDir, $ignoreCookieAddr = false)
     {
         try {
             $cookieSavePath = $cookieSaveDir . DIRECTORY_SEPARATOR . self::COOKIE_STORE_NAME;
@@ -135,6 +145,7 @@ class P2Client
         $this->_loginPass = $loginPass;
         $this->_cookieStore = $cookieStore;
         $this->_cookieManager = $cookieManager;
+        $this->_ignoreCookieAddr = $ignoreCookieAddr;
 
         $defaultHeaders = array(
             'User-Agent' => self::HTTP_USER_AGENT,
@@ -197,6 +208,12 @@ class P2Client
         $postData = $this->getFormValues($dom, $form, $postData);
         $postData[self::REQUEST_PARAMETER_LOGIN_ID] = rawurlencode($this->_loginId);
         $postData[self::REQUEST_PARAMETER_LOGIN_PASS] = rawurlencode($this->_loginPass);
+        $postData[self::REQUEST_PARAMETER_LOGIN_REGIST_COOKIE] = '1';
+        if ($this->_ignoreCookieAddr) {
+            $postData[self::REQUEST_PARAMETER_LOGIN_IGNORE_COOKIE_ADDR] = '1';
+        } elseif (array_key_exists(self::REQUEST_PARAMETER_LOGIN_IGNORE_COOKIE_ADDR, $postData)) {
+            unset($postData[self::REQUEST_PARAMETER_LOGIN_IGNORE_COOKIE_ADDR]);
+        }
 
         $response = $this->httpPost($uri, $postData, true);
 

@@ -7,45 +7,40 @@ require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
-// 引数エラー
-if (!isset($_REQUEST['path'])) {
-    p2die('path が指定されていません');
-}
-
 // 変数 ==================================
-$path       = isset($_REQUEST['path'])       ? $_REQUEST['path']       : null;
+$filename   = isset($_REQUEST['file'])       ? $_REQUEST['file']       : null;
 $modori_url = isset($_REQUEST['modori_url']) ? $_REQUEST['modori_url'] : null;
 $encode     = isset($_REQUEST['encode'])     ? $_REQUEST['encode']     : null;
 
 $rows = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : ($_conf['ktai'] ? 5 : 36);
 $cols = isset($_REQUEST['cols']) ? intval($_REQUEST['cols']) : ($_conf['ktai'] ? 0 : 128);
 
-isset($_POST['filecont']) and $filecont = $_POST['filecont'];
+$csrfid = P2Util::getCsrfId(__FILE__ . $filename);
 
 //=========================================================
 // 前処理
 //=========================================================
+
+// 不正ポストチェック
+if (isset($_POST['filecont'])) {
+    if (!isset($_POST['csrfid']) || $_POST['csrfid'] != $csrfid) {
+        p2die('不正なポストです');
+    } else {
+        $filecont = $_POST['filecont'];
+    }
+}
+
 // 書き込めるファイルを限定する
 $writable_files = array(
-                        //"conf.inc.php", "conf_user_style.inc.php",
-                        //"p2_aborn_name.txt", "p2_aborn_mail.txt", "p2_aborn_msg.txt", "p2_aborn_id.txt",
-                        //"p2_ng_name.txt", "p2_ng_mail.txt", "p2_ng_msg.txt", "p2_ng_id.txt",
-                        "p2_aborn_res.txt",
-                        //"conf_user_ex.php", "conf_constant.inc",
-                        //"conf_user_ex.inc.php", "conf_user_constant.inc.php"
-                    );
+    'p2_aborn_res.txt'  => 'あぼーんレス',
+);
 
-if ($writable_files and (!in_array(basename($path), $writable_files))) {
-    $i = 0;
-    foreach ($writable_files as $afile) {
-        if ($i != 0) {
-            $files_st .= "と";
-        }
-        $files_st .= "「".$afile."」";
-        $i++;
-    }
+if (!array_key_exists($filename, $writable_files)) {
+    $files_st = implode(', ', array_keys($writable_files));
     p2die(basename($_SERVER['SCRIPT_NAME']) . " 先生の書き込めるファイルは、{$files_st}だけ！");
 }
+
+$path = $_conf['pref_dir'] . DIRECTORY_SEPARATOR . $filename;
 
 //=========================================================
 // メイン
@@ -56,7 +51,7 @@ if (isset($filecont)) {
     }
 }
 
-editFile($path, $encode);
+editFile($path, $encode, $writable_files[$filename]);
 
 exit;
 
@@ -92,16 +87,17 @@ function setFile($path, $cont, $encode)
 /**
  * ファイル内容を読み込んで編集する関数
  */
-function editFile($path, $encode)
+function editFile($path, $encode, $title)
 {
-    global $_conf, $modori_url, $_info_msg_ht, $rows, $cols;
+    global $_conf, $modori_url, $_info_msg_ht, $rows, $cols, $csrfid;
 
     if ($path == '') {
         p2die('path が指定されていません');
     }
 
     $filename = basename($path);
-    $ptitle = "Edit: ".$filename;
+    $ptitle = 'Edit: ' . htmlspecialchars($title, ENT_QUOTES, 'Shift_JIS')
+            . ' (' . $filename . ')';
 
     //ファイル内容読み込み
     FileCtl::make_datafile($path) or p2die("cannot make file. ({$path})");
@@ -136,15 +132,15 @@ function editFile($path, $encode)
 EOHEADER;
 
     echo $modori_url_ht;
-
-    echo "Edit: ".$path;
+    echo $ptitle;
     echo <<<EOFORM
 <form action="{$_SERVER['SCRIPT_NAME']}" method="post" accept-charset="{$_conf['accept_charset']}">
-    <input type="hidden" name="path" value="{$path}">
+    <input type="hidden" name="file" value="{$filename}">
     <input type="hidden" name="modori_url" value="{$modori_url}">
     <input type="hidden" name="encode" value="{$encode}">
     <input type="hidden" name="rows" value="{$rows}">
     <input type="hidden" name="cols" value="{$cols}">
+    <input type="hidden" name="csrfid" value="{$csrfid}">
     <input type="submit" name="submit" value="Save">
     {$_info_msg_ht}<br>
     <textarea style="font-size:9pt;" id="filecont" name="filecont" wrap="off"{$rows_at}{$cols_at}>{$cont_area}</textarea>
