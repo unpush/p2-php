@@ -39,7 +39,7 @@ $xml_ht = htmlspecialchars($xml, ENT_QUOTES, 'Shift_JIS', false);
 
 if ($xml) {
     $rss = p2GetRSS($xml, $atom);
-    if ($rss instanceof XML_Parser) {
+    if ($rss instanceof XML_RSS) {
         clearstatcache();
         $rss_parse_success = true;
         $xml_path = rss_get_save_path($xml);

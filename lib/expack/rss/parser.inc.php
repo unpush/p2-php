@@ -34,7 +34,7 @@ if ($GLOBALS['_conf']['expack.rss.with_imgcache'] &&
 /**
  * RSSをダウンロードし、パース結果を返す
  */
-function p2GetRSS($remotefile, $atom=0)
+function p2GetRSS($remotefile, $atom = 0)
 {
     global $_conf, $_info_msg_ht;
 
@@ -55,7 +55,7 @@ function p2GetRSS($remotefile, $atom=0)
     if (!file_exists($localpath) || $refresh ||
         filemtime($localpath) < (time() - $_conf['expack.rss.check_interval'] * 60)
     ) {
-        $dl = P2Util::fileDownload($remotefile, $localpath);
+        $dl = P2Util::fileDownload($remotefile, $localpath, true, 301);
         if ($dl->isSuccess()) {
             chmod($localpath, $_conf['expack.rss.setting_perm']);
         }

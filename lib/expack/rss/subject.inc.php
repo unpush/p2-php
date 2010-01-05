@@ -141,7 +141,7 @@ foreach ($items as $item) {
     $target_ht = '';
     $preview_one = '';
     // ‹ô”—ñ‚©Šï”—ñ‚©
-    $r = (++$i % 2) ? 'r1' : 'r2';
+    $r = ($i % 2) ? 'r2' : 'r1';
     // ŠT—v
     if ($description_column_ht) {
         if (isset($item['content:encoded']) || isset($item['description'])) {
@@ -180,6 +180,7 @@ foreach ($items as $item) {
     echo <<<EOP
 <tr class="{$r}">{$description_ht}<td class="tl">{$preview_one}<a id="tt{$i}" class="thre_title" href="{$link_orig}">{$item_title}</a></td>{$subject_ht}{$creator_ht}{$date_ht}</tr>\n
 EOP;
+    $i++;
 }
 
 // }}}

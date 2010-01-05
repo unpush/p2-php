@@ -4,6 +4,7 @@
  */
 
 require_once P2_LIB_DIR . '/FileCtl.php';
+require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
 
 // {{{ 変数
 
@@ -58,21 +59,41 @@ $site    = isset($_REQUEST['site'])    ? trim($_REQUEST['site'])    : '';
 $site_en = isset($_REQUEST['site_en']) ? trim($_REQUEST['site_en']) : '';
 $atom    = empty($_REQUEST['atom'])    ? 0 : 1;
 
+// feedスキームをhttpスキームで置換
+$xml = preg_replace('|^feed://|', 'http://', $xml);
+
 // RSSのタイトル設定
 if ($site === '') {
     if ($site_en !== '') {
         $site = base64_decode($site_en);
     } else {
+        $purl = @parse_url($xml);
+        if (is_array($purl)) {
+            if (array_key_exists('host', $purl)) {
+                $site .= $purl['host'];
+            }
+            if (array_key_exists('path', $purl)) {
+                $site .= '.' . basename($purl['path']);
+            }
+            if (array_key_exists('query', $purl)) {
+                $site .= '?' . $purl['query'];
+            }
+        }
         $site = basename($xml);
+
+        $rss = p2GetRSS($xml);
+        if ($rss instanceof XML_RSS) {
+            $channelInfo = $rss->getChannelInfo();
+            if (is_array($channelInfo) && array_key_exists('title', $channelInfo)) {
+                $site = mb_convert_encoding($channelInfo['title'], 'CP932', 'UTF-8,CP51932,CP932,ASCII');
+            }
+        }
     }
 }
 
-// feedスキームをhttpスキームで置換
-$xml = preg_replace('|^feed://|', 'http://', $xml);
-
 // ログに記録する変数を最低限のサニタイズ
 $xml = preg_replace_callback('/\\s/', 'rawurlencode', $xml);
-$site = preg_replace('/\\s/', ' ', $site);
+$site = preg_replace('/\\s+/', ' ', $site);
 $site = htmlspecialchars($site, ENT_QUOTES);
 
 // }}}

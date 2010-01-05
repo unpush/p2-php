@@ -62,7 +62,9 @@ class P2Util
     /**
      *  ファイルをダウンロード保存する
      */
-    static public function fileDownload($url, $localfile, $disp_error = true)
+    static public function fileDownload($url, $localfile,
+                                        $disp_error = true,
+                                        $trace_redirection = false)
     {
         global $_conf, $_info_msg_ht;
 
@@ -88,6 +90,15 @@ class P2Util
         }
         $wap_res = $wap_ua->request($wap_req);
 
+        // 1段階だけリダイレクトを追跡
+        if ($wap_res->isRedirect() && array_key_exists('Location', $wap_res->headers) &&
+            ($trace_redirection === true || $trace_redirection == $wap_res->code))
+        {
+            $wap_req->setUrl($wap_res->headers['Location']);
+            $wap_res = $wap_ua->request($wap_req);
+        }
+
+        // エラーメッセージを設定
         if ($wap_res->isError() && $disp_error) {
             $url_t = self::throughIme($wap_req->url);
             $_info_msg_ht .= "<div>Error: {$wap_res->code} {$wap_res->message}<br>";
