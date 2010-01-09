@@ -3,8 +3,6 @@
  * rep2 - スレッドあぼーん複数一括解除処理
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ settaborn_off()
 
 /**

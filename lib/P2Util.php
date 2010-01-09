@@ -56,6 +56,13 @@ class P2Util
      */
     static private $_hostIsJbbsShitaraba = array();
 
+    /**
+     * 板ごとの書き込み設定およびスレッドごとの書き込みデータを保存するデータベース
+     *
+     * @var P2KeyValueStore
+     */
+    static private $_postDataStore = null;
+
     // }}}
     // {{{ fileDownload()
 
@@ -382,19 +389,86 @@ class P2Util
     }
 
     // }}}
-    // {{{ getFailedPostFilePath()
+    // {{{ pathForHost()
 
     /**
-     *  failed_post_file のパスを得る関数
+     * hostに対応する汎用のパスを返す
+     *
+     * @param string $host
+     * @param bool $with_slashes
+     * @return string
+     * @see P2Util::_p2DirOfHost()
      */
-    static public function getFailedPostFilePath($host, $bbs, $key = false)
+    static public function pathForHost($host, $with_slashes = true)
     {
-        if ($key) {
-            $filename = $key.'.failed.data.php';
-        } else {
-            $filename = 'failed.data.php';
+        $path = self::_p2DirOfHost('', $host, $with_slashes);
+        if (DIRECTORY_SEPARATOR != '/') {
+            $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
         }
-        return $failed_post_file = self::idxDirOfHostBbs($host, $bbs) . $filename;
+        if (!$with_slashes) {
+            $path = trim($path, '/');
+        }
+        return $path;
+    }
+
+    // }}}
+    // {{{ pathForHostBbs()
+
+    /**
+     * host,bbsに対応する汎用のパスを返す
+     *
+     * @param string $host
+     * @param string $bbs
+     * @param bool $with_slash
+     * @return string
+     * @see P2Util::_p2DirOfHost()
+     */
+    static public function pathForHostBbs($host, $bbs, $with_slashes = true)
+    {
+        $path = self::_p2DirOfHost('', $host, true) . $bbs;
+        if (DIRECTORY_SEPARATOR != '/') {
+            $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
+        }
+        if (!$with_slashes) {
+            $path = trim($path, '/');
+        }
+        return $path;
+    }
+
+    // }}}
+    // {{{ getPostDataStore()
+
+    /**
+     * 板ごとの書き込み設定およびスレッドごとの書き込みデータを保存するデータベースを返す
+     *
+     * @param void
+     * @return P2KeyValueStore
+     */
+    static public function getPostDataStore()
+    {
+        global $_conf;
+
+        if (self::$_postDataStore !== null) {
+            return self::$_postDataStore;
+        }
+
+        if (!class_exists('P2KeyValueStore', false)) {
+            require P2_LIB_DIR . '/P2KeyValueStore.php';
+        }
+
+        if (!is_dir($_conf['cookie_dir'])) {
+            FileCtl::mkdir_r($_conf['cookie_dir']);
+        }
+
+        try {
+            $databasePath = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . 'p2_post_data.sqlite3';
+            self::$_postDataStore = P2KeyValueStore::getStore($databasePath,
+                                                              P2KeyValueStore::KVS_SERIALIZING);
+        } catch (Exception $e) {
+            p2die($e->getMessage());
+        }
+
+        return self::$_postDataStore;
     }
 
     // }}}
@@ -488,49 +562,6 @@ class P2Util
         }
 
         return true;
-    }
-
-    // }}}
-    // {{{ cachePathForCookie()
-
-    /**
-     * ホストからクッキーファイルパスを返す
-     */
-    static public function cachePathForCookie($host)
-    {
-        global $_conf;
-
-        $host = self::normalizeHostName($host);
-
-        if (preg_match('/[^.0-9A-Za-z.\\-_]/', $host)) {
-            if (self::isHostJbbsShitaraba($host)) {
-                if (DIRECTORY_SEPARATOR == '/') {
-                    $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
-                } else {
-                    $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
-                }
-            } else {
-                $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . rawurlencode($host);
-                /*
-                if (DIRECTORY_SEPARATOR == '/') {
-                    $old_cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
-                } else {
-                    $old_cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $host);
-                }
-                if (is_dir($old_cookie_host_dir)) {
-                    rename($old_cookie_host_dir, $cookie_host_dir);
-                    clearstatcache();
-                }
-                */
-            }
-        } else {
-            $cookie_host_dir = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . $host;
-        }
-        $cachefile = $cookie_host_dir . DIRECTORY_SEPARATOR . $_conf['cookie_file_name'];
-
-        FileCtl::mkdir_for($cachefile);
-
-        return $cachefile;
     }
 
     // }}}
@@ -1117,7 +1148,7 @@ EOP;
     {
         global $_login;
 
-        return $_login->user . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        return $_login->user_u . $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
     }
 
     // }}}
@@ -1130,7 +1161,7 @@ EOP;
     {
         global $_login;
 
-        $key = $_login->user . $_login->pass_x . $_SERVER['HTTP_USER_AGENT'] . $salt;
+        $key = $_login->user_u . $_login->pass_x . $_SERVER['HTTP_USER_AGENT'] . $salt;
         if (array_key_exists('login_microtime', $_SESSION)) {
             $key .= $_SESSION['login_microtime'];
         }
@@ -1818,6 +1849,10 @@ ERR;
 
         if (!class_exists('P2Client', false)) {
             require P2_LIB_DIR . '/P2Client.php';
+        }
+
+        if (!is_dir($_conf['cookie_dir'])) {
+            FileCtl::mkdir_r($_conf['cookie_dir']);
         }
 
         try {

@@ -3,7 +3,6 @@
  * rep2expack - RSSƒŠƒXƒg‚Ìˆ—
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2EX_LIB_DIR . '/rss/parser.inc.php';
 
 // {{{ •Ï”

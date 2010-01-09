@@ -4,7 +4,6 @@
  */
 
 require_once P2_LIB_DIR . '/SjisPersister.php';
-require_once P2_LIB_DIR . '/P2Util.php';
 
 // {{{ fixed_name_get_persister()
 

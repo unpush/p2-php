@@ -3,8 +3,6 @@
  * rep2 - スレッドあぼーんの関数
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ settaborn()
 
 /**

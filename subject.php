@@ -1129,11 +1129,11 @@ function checkThreadTitleAborn(array &$aborn_threads, Thread $aThread)
                 updateThreadTitleAborn($aborn_threads, $k);
                 return true;
             }*/
-             if ($re_method($v['word'], $subject)) {
+            if ($re_method($v['word'], $subject)) {
                 updateThreadTitleAborn($aborn_threads, $k);
                 return true;
             }
-       // ‘å•¶š¬•¶š‚ğ–³‹
+        // ‘å•¶š¬•¶š‚ğ–³‹
         } elseif ($v['ignorecase']) {
             if (stripos($subject, $v['word']) !== false) {
                 updateThreadTitleAborn($aborn_threads, $k);

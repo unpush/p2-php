@@ -4,6 +4,7 @@
  */
 
 require_once './conf/conf.inc.php';
+require_once P2_LIB_DIR . '/P2KeyValueStore.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -73,21 +74,6 @@ if (!empty($_POST['fix_source'])) {
     $MESSAGE = preg_replace('/(?<!&nbsp;)  /', '&nbsp; ', $MESSAGE);
     // 奇数回スペースがくり返すときの仕上げ
     $MESSAGE = preg_replace('/(?<=&nbsp;)  /', ' &nbsp;', $MESSAGE);
-}
-
-// }}}
-// {{{ クッキーの読み込み
-
-$cookie_file = P2Util::cachePathForCookie($host);
-if ($cookie_cont = FileCtl::file_read_contents($cookie_file)) {
-    $p2cookies = unserialize($cookie_cont);
-    if ($p2cookies['expires']) {
-        if (time() > strtotime($p2cookies['expires'])) { // 期限切れなら破棄
-            // echo "<p>期限切れのクッキーを削除しました</p>";
-            unlink($cookie_file);
-            unset($cookie_cont, $p2cookies);
-        }
-    }
 }
 
 // }}}
@@ -170,44 +156,80 @@ if (!empty($_POST['p2_post_confirm_cookie'])) {
     }
 }
 
+$post_id_suffix = $_login->user_u . P2Util::pathForHostBbs($host, $bbs);
+$post_backup_id = 'backup:' . $post_id_suffix;
+$post_config_id = 'config:' . $post_id_suffix;
 if (!empty($_POST['newthread'])) {
+    $post_backup_id .= 'new';
     $ptitle = 'rep2 - 新規スレッド作成';
 } else {
+    $post_backup_id .= $key;
     $ptitle = 'rep2 - レス書き込み';
 }
+
+// 設定を保存
+$post_store = P2Util::getPostDataStore();
+$post_store->set($post_config_id, array(
+    'beres' => !empty($_REQUEST['beres']),
+    'p2res' => !empty($_REQUEST['p2res']),
+));
 
 //================================================================
 // 書き込み処理
 //================================================================
 
 // 書き込みを一時的に保存
-$failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
-$cont = serialize($post_cache);
-DataPhp::writeDataPhp($failed_post_file, $cont, $_conf['res_write_perm']);
+$post_store->set($post_backup_id, $post_cache);
 
 // ポスト実行
 if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
     // 公式p2で書き込み
     $posted = postIt2($host, $bbs, $key, $FROM, $mail, $MESSAGE);
 } else {
+    // cookie 読み込み
+    if (!file_exists($_conf['cookie_file_path']) &&
+        dirname($_conf['cookie_file_path']) != $_conf['cookie_dir'])
+    {
+        FileCtl::mkdir_for($_conf['cookie_file_path']);
+    }
+
+    try {
+        $cookie_store = P2KeyValueStore::getStore($_conf['cookie_file_path'],
+                                                  P2KeyValueStore::KVS_SERIALIZING);
+    } catch (Exception $e) {
+        p2die(get_class($e) . ': ' . $e->getMessage());
+    }
+
+    $cookie_key = $_login->user_u . '/' . P2Util::normalizeHostName($host);
+    if ($p2cookies = $cookie_store->get($cookie_key)) {
+        if (is_array($p2cookies)) {
+            if (array_key_exists('expires', $p2cookies)) {
+                // 期限切れなら破棄
+                if (time() > strtotime($p2cookies['expires'])) {
+                    $cookie_store->delete($cookie_key);
+                    $p2cookies = null;
+                }
+            }
+        } else {
+            $cookie_store->delete($cookie_key);
+            $p2cookies = null;
+        }
+    } else {
+        $p2cookies = null;
+    }
+
     // 直接書き込み
     $posted = postIt($host, $bbs, $key, $post);
 
     // cookie 保存
-    FileCtl::make_datafile($cookie_file, $_conf['p2_perm']); // なければ生成
     if ($p2cookies) {
-        $cookie_cont = serialize($p2cookies);
-    }
-    if ($cookie_cont) {
-        if (FileCtl::file_write_contents($cookie_file, $cookie_cont) === false) {
-            p2die('cannot write file.');
-        }
+        $cookie_store->set($cookie_key, $p2cookies);
     }
 }
 
 // 投稿失敗記録を削除
-if ($posted && file_exists($failed_post_file)) {
-    unlink($failed_post_file);
+if ($posted) {
+    $post_store->delete($post_backup_id);
 }
 
 //=============================================
@@ -451,17 +473,20 @@ function postIt($host, $bbs, $key, $post)
 
         } else {
             $l = fgets($fp, 164000);
-            //echo $l ."<br>"; // for debug
-            $response_header_ht .= $l."<br>";
+            //echo $l .'<br>'; // for debug
+            $response_header_ht .= $l . '<br>';
             // クッキーキタ
-            if (preg_match("/Set-Cookie: (.+?)\r\n/", $l, $matches)) {
-                //echo "<p>".$matches[0]."</p>"; //
-                $cgroups = explode(";", $matches[1]);
+            if (preg_match('/Set-Cookie: (.+?)\\r\\n/', $l, $matches)) {
+                //echo '<p>' . $matches[0] . '</p>'; //
+                $cgroups = explode(';', $matches[1]);
                 if ($cgroups) {
                     foreach ($cgroups as $v) {
-                        if (preg_match("/(.+)=(.*)/", $v, $m)) {
+                        if (preg_match('/(.+)=(.*)/', $v, $m)) {
                             $k = ltrim($m[1]);
-                            if ($k != "path") {
+                            if ($k != 'path') {
+                                if (!$p2cookies) {
+                                    $p2cookies = array();
+                                }
                                 $p2cookies[$k] = $m[2];
                             }
                         }
@@ -470,17 +495,17 @@ function postIt($host, $bbs, $key, $post)
                 if ($p2cookies) {
                     unset($cookies_to_send);
                     foreach ($p2cookies as $cname => $cvalue) {
-                        if ($cname != "expires") {
+                        if ($cname != 'expires') {
                             $cookies_to_send .= " {$cname}={$cvalue};";
                         }
                     }
                     $newcookies = "Cookie:{$cookies_to_send}\r\n";
 
-                    $request = preg_replace("/Cookie: .*?\r\n/", $newcookies, $request);
+                    $request = preg_replace('/Cookie: .*?\\r\\n/', $newcookies, $request);
                 }
 
             // 転送は書き込み成功と判断
-            } elseif (preg_match("/^Location: /", $l, $matches)) {
+            } elseif (preg_match('/^Location: /', $l, $matches)) {
                 $post_seikou = true;
             }
             if ($l == "\r\n") {
@@ -540,12 +565,6 @@ function postIt($host, $bbs, $key, $post)
  */
 function postIt2($host, $bbs, $key, $FROM, $mail, $MESSAGE)
 {
-    global $_conf;
-
-    if (!is_dir($_conf['cookie_dir'])) {
-        FileCtl::mkdir_r($_conf['cookie_dir']);
-    }
-
     if (P2Util::isHostBe2chNet($host) || !empty($_REQUEST['beres'])) {
         $beRes = true;
     } else {

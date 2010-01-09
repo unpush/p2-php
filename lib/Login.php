@@ -1,6 +1,5 @@
 <?php
 
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/Session.php';
 
 // {{{ Login

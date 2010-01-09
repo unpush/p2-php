@@ -24,7 +24,10 @@ $rescount = isset($_GET['rescount']) ? intval($_GET['rescount']) : 1;
 $popup = isset($_GET['popup']) ? intval($_GET['popup']) : 0;
 
 $itaj = P2Util::getItaName($host, $bbs);
-if (!$itaj) { $itaj = $bbs; }
+if (!$itaj) {
+    $itaj = $bbs;
+}
+$itaj_hd = htmlspecialchars($itaj, ENT_QUOTES, 'Shift_JIS', false);
 
 $ttitle_en = isset($_GET['ttitle_en']) ? $_GET['ttitle_en'] : '';
 $ttitle = (strlen($ttitle_en) > 0) ? base64_decode($ttitle_en) : '';
@@ -33,7 +36,7 @@ $ttitle_hd = htmlspecialchars($ttitle, ENT_QUOTES);
 $key_idx = P2Util::idxDirOfHostBbs($host, $bbs) . $key . '.idx';
 
 // フォームのオプション読み込み
-require_once P2_LIB_DIR . '/post_form_options.inc.php';
+include P2_LIB_DIR . '/post_form_options.inc.php';
 
 // 表示指定
 if (!$_conf['ktai']) {
@@ -44,28 +47,28 @@ if (!$_conf['ktai']) {
 
 // {{{ スレ立てなら
 if (!empty($_GET['newthread'])) {
-    $ptitle = "{$itaj} - 新規スレッド作成";
+    $ptitle = "{$itaj_hd} - 新規スレッド作成";
 
     // machibbs、JBBS@したらば なら
     if (P2Util::isHostMachiBbs($host) or P2Util::isHostJbbsShitaraba($host)) {
-        $submit_value = "新規書き込み";
+        $submit_value = '新規書き込み';
     // 2chなら
     } else {
-        $submit_value = "新規スレッド作成";
+        $submit_value = '新規スレッド作成';
     }
 
     $htm['subject'] = <<<EOP
 <b><span{$class_ttitle}>タイトル</span></b>：<input type="text" name="subject"{$sub_size_at} value="{$hd['subject']}"><br>
 EOP;
     if ($_conf['ktai']) {
-        $htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj}</a><br>".$htm['subject'];
+        $htm['subject'] = "<a href=\"{$_conf['subject_php']}?host={$host}&amp;bbs={$bbs}{$_conf['k_at_a']}\">{$itaj_hd}</a><br>".$htm['subject'];
     }
-    $newthread_hidden_ht = "<input type=\"hidden\" name=\"newthread\" value=\"1\">";
+    $newthread_hidden_ht = '<input type="hidden" name="newthread" value="1">';
 // }}}
 
 // {{{ 書き込みなら
 } else {
-    $ptitle = "{$itaj} - レス書き込み";
+    $ptitle = "{$itaj_hd} - レス書き込み";
 
     $submit_value = "書き込む";
 

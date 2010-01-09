@@ -3,7 +3,6 @@
  * rep2 - スレッド リード クラス
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/Thread.php';
 
 // {{{ ThreadRead

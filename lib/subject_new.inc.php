@@ -8,7 +8,6 @@
 
 require_once P2_LIB_DIR . '/ThreadList.php';
 require_once P2_LIB_DIR . '/Thread.php';
-require_once P2_LIB_DIR . '/FileCtl.php';
 
 $_newthre_num = 0;
 $shinchaku_num = 0;

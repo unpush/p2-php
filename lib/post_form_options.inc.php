@@ -18,6 +18,8 @@ $hd['FROM'] = '';
 $hd['mail'] = '';
 $hd['MESSAGE'] = '';
 $hd['subject'] = '';
+$hd['beres_checked'] = '';
+$hd['p2res_checked'] = '';
 
 $htm['beres'] = '';
 $htm['p2res'] = '';
@@ -88,31 +90,61 @@ if ($lines = FileCtl::file_read_lines($key_idx, FILE_IGNORE_NEW_LINES)) {
 }
 
 // }}}
+// {{{ データベースから前回のPOST失敗データとberes/p2resの設定を読込み
 
-// 前回のPOST失敗があれば呼び出し
-$failed_post_file = P2Util::getFailedPostFilePath($host, $bbs, $key);
-if ($cont_srd = DataPhp::getDataPhpCont($failed_post_file)) {
-    $last_posted = unserialize($cont_srd);
-
-    // まとめてサニタイズ
-    $last_posted = array_map(create_function('$n', 'return htmlspecialchars($n, ENT_QUOTES);'), $last_posted);
-    //$addslashesS = create_function('$str', 'return str_replace("\'", "\\\'", $str);');
-    //$last_posted = array_map($addslashesS, $last_posted);
-
-    $hd['FROM'] = $last_posted['FROM'];
-    $hd['mail'] = $last_posted['mail'];
-    $hd['MESSAGE'] = $last_posted['MESSAGE'];
-    $hd['subject'] = $last_posted['subject'];
+if (!isset($_login)) {
+    $_login = $GLOBALS['_login'];
+}
+$post_id_suffix = $_login->user_u . P2Util::pathForHostBbs($host, $bbs);
+$post_backup_id = 'backup:' . $post_id_suffix;
+$post_config_id = 'config:' . $post_id_suffix;
+if (!empty($_REQUEST['newthread'])) {
+    $post_backup_id .= 'new';
+} else {
+    $post_backup_id .= $key;
 }
 
+$post_store = P2Util::getPostDataStore();
+
+// 前回のPOST失敗データ
+if ($post_backup = $post_store->get($post_backup_id)) {
+    $hd['FROM'] = htmlspecialchars($post_backup['FROM'], ENT_QUOTES, 'Shift_JIS');
+    $hd['mail'] = htmlspecialchars($post_backup['mail'], ENT_QUOTES, 'Shift_JIS');
+    $hd['MESSAGE'] = htmlspecialchars($post_backup['MESSAGE'], ENT_QUOTES, 'Shift_JIS');
+    $hd['subject'] = htmlspecialchars($post_backup['subject'], ENT_QUOTES, 'Shift_JIS');
+}
+
+// beres/p2res
+if ($post_config = $post_store->get($post_config_id)) {
+    if ($post_config['beres']) {
+        $hd['beres_checked'] = ' checked';
+    }
+    if ($post_config['p2res']) {
+        $hd['p2res_checked'] = ' checked';
+    }
+}
+
+// }}}
+// {{{ 名前とメールの最終調整
+
 // 空白はユーザ設定値に変換
-$hd['FROM'] = ($hd['FROM'] == '') ? htmlspecialchars($_conf['my_FROM'], ENT_QUOTES) : $hd['FROM'];
-$hd['mail'] = ($hd['mail'] == '') ? htmlspecialchars($_conf['my_mail'], ENT_QUOTES) : $hd['mail'];
+if ($hd['FROM'] === '') {
+    $hd['FROM'] = htmlspecialchars($_conf['my_FROM'], ENT_QUOTES, 'Shift_JIS');
+}
+if ($hd['mail'] === '') {
+    $hd['mail'] = htmlspecialchars($_conf['my_mail'], ENT_QUOTES, 'Shift_JIS');
+}
 
 // P2NULLは空白に変換
-$hd['FROM'] = ($hd['FROM'] == 'P2NULL') ? '' : $hd['FROM'];
-$hd['mail'] = ($hd['mail'] == 'P2NULL') ? '' : $hd['mail'];
+if ($hd['FROM'] === 'P2NULL') {
+    $hd['FROM'] = '';
+}
+if ($hd['mail'] === 'P2NULL') {
+    $hd['mail'] = '';
+}
 
+// }}}
+// {{{ textareaの属性
 
 // 参考 クラシック COLS='60' ROWS='8'
 $mobile = Net_UserAgent_Mobile::singleton();
@@ -132,17 +164,8 @@ if (!$_conf['ktai']) {
     $wrap_at = ' wrap="soft"';
 }
 
-// Be.2ch
-if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
-    $htm['beres'] = '<input type="checkbox" id="beres" name="beres" value="1"><label for="beres">BEで書き込む</label>';
-}
+// {{{ PC用 sage チェックボックス
 
-// 公式p2
-if ((P2Util::isHost2chs($host) || P2Util::isHostMachiBbs($host)) && $_conf['p2_2ch_mail'] && $_conf['p2_2ch_pass']) {
-    $htm['p2res'] = '<input type="checkbox" id="p2res" name="p2res" value="1"><label for="p2res">公式p2で書き込む</label>';
-}
-
-// PC用 sage checkbox
 if (!$_conf['ktai']) {
     $on_check_sage = ' onchange="checkSage();"';
     $htm['sage_cb'] = <<<EOP
@@ -152,12 +175,27 @@ EOP;
     $on_check_sage = '';
 }
 
-// {{{ 2ch●書き込み
+// }}}
+// {{{ ●/Be/公式p2 書き込み チェックボックス
 
+//  2ch●書き込み
 if (P2Util::isHost2chs($host) and file_exists($_conf['sid2ch_php'])) {
-    $htm['maru_post'] = <<<EOP
-<span title="2ch●IDの使用"><input id="maru" name="maru" type="checkbox" value="1"><label for="maru">●</label></span>
-EOP;
+    $htm['maru_post'] = '<span title="2ch●IDの使用"><input type="checkbox" id="maru" name="maru" value="1">'
+                      . '<label for="maru">●</label></span>';
+}
+
+// Be
+if (P2Util::isHost2chs($host) and $_conf['be_2ch_code'] && $_conf['be_2ch_mail']) {
+    $htm['beres'] = '<input type="checkbox" id="beres" name="beres" value="1"'. $hd['beres_checked'] . '>'
+                  . '<label for="beres">Beで書き込む</label>';
+}
+
+// 公式p2
+if ((P2Util::isHost2chs($host) || P2Util::isHostMachiBbs($host)) &&
+    $_conf['p2_2ch_mail'] && $_conf['p2_2ch_pass'])
+{
+    $htm['p2res'] = '<input type="checkbox" id="p2res" name="p2res" value="1"'. $hd['p2res_checked'] . '>'
+                  . '<label for="p2res">公式p2で書き込む</label>';
 }
 
 // }}}

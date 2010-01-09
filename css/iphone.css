@@ -223,7 +223,7 @@ div.res:not(.aborned) {
 div.res.aborned {
 	margin: 0;
 	padding: 0;
-	fonr-size: xx-small;
+	font-size: xx-small;
 	line-height: 100%;
 }
 

@@ -15,7 +15,7 @@ class P2Client
     /**
      * Cookieを保存するSQLite3データベースのファイル名
      */
-    const COOKIE_STORE_NAME = 'p2_2ch_net_cookie.sq3';
+    const COOKIE_STORE_NAME = 'p2_2ch_net_cookies.sqlite3';
 
     /**
      * 公式P2のURIと各エントリポイント
@@ -53,6 +53,7 @@ class P2Client
      * HTTPリクエストの固定パラメータ
      */
     const REQUEST_DATA_CHARACTER_SET_DETECTION_HINT = '◎◇';
+    const REQUEST_DATA_LS_LAST1_NO_FIRST = 'l1n';
 
     /**
      * 読み込み正否判定のための文字列
@@ -135,6 +136,7 @@ class P2Client
 
         if ($cookieManager = $cookieStore->get($loginId)) {
             if (!$cookieManager instanceof HTTP_Client_CookieManager) {
+                $cookieStore->delete($loginId);
                 throw new Exception('Cannot restore the cookie manager.');
             }
         } else {
@@ -236,12 +238,7 @@ class P2Client
      */
     public function readThread($host, $bbs, $key, $ls = '1', &$response = null)
     {
-        $getData = array(
-            self::REQUEST_PARAMETER_HOST => rawurlencode($host),
-            self::REQUEST_PARAMETER_BBS  => rawurlencode($bbs),
-            self::REQUEST_PARAMETER_KEY  => rawurlencode($key),
-            self::REQUEST_PARAMETER_LS   => rawurlencode($ls),
-        );
+        $getData = $this->setupGetData($host, $bbs, $key, $ls);
         $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_READ;
         $response = $this->httpGet($uri, $getData, true);
         $dom = new P2DOM($response['body']);
@@ -280,7 +277,9 @@ class P2Client
         // スレッドの有無を確かめるため、まず read.php を叩く。
         // dat落ち後にホストが移転した場合、移転後のホスト名でアクセスしても
         // スレッド情報を取得できなかったとのメッセージが表示される。
-        $html = $this->readThread($host, $bbs, $key, 'l1n', $response);
+        $html = $this->readThread($host, $bbs, $key,
+                                  self::REQUEST_DATA_LS_LAST1_NO_FIRST,
+                                  $response);
         if ($html === null) {
             return null;
         }
@@ -300,11 +299,7 @@ class P2Client
         }
 
         // datを取得する。
-        $getData = array(
-            self::REQUEST_PARAMETER_HOST => rawurlencode($host),
-            self::REQUEST_PARAMETER_BBS  => rawurlencode($bbs),
-            self::REQUEST_PARAMETER_KEY  => rawurlencode($key),
-        );
+        $getData = $this->setupGetData($host, $bbs, $key);
         $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_DAT;
         $response = $this->httpGet($uri, $getData, true);
 
@@ -338,7 +333,9 @@ class P2Client
         // csrfIdを取得し、かつ公式p2の既読を最新の状態にするため、まず read.php を叩く。
         // 通信量を節約できるように ls=l1n としている。
         // popup=1 は書き込み後のページにリダイレクトさせないため。
-        $html = $this->readThread($host, $bbs, $key, 'l1n', $response);
+        $html = $this->readThread($host, $bbs, $key,
+                                  self::REQUEST_DATA_LS_LAST1_NO_FIRST,
+                                  $response);
         if ($html === null) {
             return false;
         }
@@ -349,21 +346,8 @@ class P2Client
             throw new P2Exception('Post form not found.');
         }
 
-        $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_POST;
-
-        // Cookie確認後のPOSTでの文字化け予防のため
-        // URLエンコード済みの値を用意しておいて再代入する。
-        $hintEncoded = rawurlencode(self::REQUEST_DATA_CHARACTER_SET_DETECTION_HINT);
-        $nameEncoded = rawurlencode($name);
-        $mailEncoded = rawurlencode($mail);
-        $messageEncoded = rawurlencode($message);
-
         // POSTするデータを用意。
-        $postData = $this->getFormValues($dom, $form);
-        $postData[self::REQUEST_PARAMETER_CHARACTER_SET_DETECTION_HINT] = $hintEncoded;
-        $postData[self::REQUEST_PARAMETER_NAME] = $nameEncoded;
-        $postData[self::REQUEST_PARAMETER_MAIL] = $mailEncoded;
-        $postData[self::REQUEST_PARAMETER_MESSAGE] = $messageEncoded;
+        $postData = $this->setupPostData($dom, $form, $name, $mail, $message);
         $postData[self::REQUEST_PARAMETER_POPUP] = '1';
         if ($beRes) {
             $postData[self::REQUEST_PARAMETER_BERES] = '1';
@@ -372,6 +356,7 @@ class P2Client
         }
 
         // POST実行。
+        $uri = self::P2_ROOT_URI . self::SCRIPT_NAME_POST;
         $response = $this->httpPost($uri, $postData, true);
 
         // Cookie確認の場合は再POST。
@@ -383,11 +368,7 @@ class P2Client
             $expression = './/form[contains(@action, "' . self::SCRIPT_NAME_POST . '")]';
             $result = $dom->query($expression);
             if ($result instanceof DOMNodeList && $result->length > 0) {
-                $postData = $this->getFormValues($dom, $result->item(0));
-                $postData[self::REQUEST_PARAMETER_CHARACTER_SET_DETECTION_HINT] = $hintEncoded;
-                $postData[self::REQUEST_PARAMETER_NAME] = $nameEncoded;
-                $postData[self::REQUEST_PARAMETER_MAIL] = $mailEncoded;
-                $postData[self::REQUEST_PARAMETER_MESSAGE] = $messageEncoded;
+                $postData = $this->setupPostData($dom, $result->item(0), $name, $mail, $message);
                 $response = $this->httpPost($uri, $postData, true);
             } else {
                 return false;
@@ -511,6 +492,58 @@ class P2Client
             }
             $data[$name] = $value;
         }
+
+        return $data;
+    }
+
+    // }}}
+    // {{{ setupGetData()
+
+    /**
+     * スレッドを読むための共通パラメータの配列を生成する
+     *
+     * @param string $host
+     * @param string $bbs
+     * @param string $key
+     * @return array
+     */
+    protected function setupGetData($host, $bbs, $key, $ls = null)
+    {
+        $data = array(
+            self::REQUEST_PARAMETER_HOST => rawurlencode($host),
+            self::REQUEST_PARAMETER_BBS => rawurlencode($bbs),
+            self::REQUEST_PARAMETER_KEY => rawurlencode($key),
+        );
+        if ($ls !== null) {
+            $data[self::REQUEST_PARAMETER_LS] = rawurlencode($ls);
+        }
+
+        return $data;
+    }
+
+    // }}}
+    // {{{ setupPostData()
+
+    /**
+     * スレッドに書き込むための共通パラメータの配列を生成する
+     *
+     * @param P2DOM $dom
+     * @param DOMElement $form
+     * @param string $key
+     * @param string $name
+     * @param string $mail
+     * @param string $message
+     * @return array
+     */
+    protected function setupPostData(P2DOM $dom, DOMElement $form,
+                                     $name, $mail, $message)
+    {
+        $data = $this->getFormValues($dom, $form);
+        $data[self::REQUEST_PARAMETER_CHARACTER_SET_DETECTION_HINT] =
+            rawurlencode(self::REQUEST_DATA_CHARACTER_SET_DETECTION_HINT);
+        $data[self::REQUEST_PARAMETER_NAME] = rawurlencode($name);
+        $data[self::REQUEST_PARAMETER_MAIL] = rawurlencode($mail);
+        $data[self::REQUEST_PARAMETER_MESSAGE] = rawurlencode($message);
 
         return $data;
     }

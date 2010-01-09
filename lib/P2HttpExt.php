@@ -3,9 +3,6 @@
  * rep2expack feat. pecl_http
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-require_once P2_LIB_DIR . '/P2Util.php';
-
 // {{{ CONSTANTS
 
 define('P2HTTPEXT_DEBUG', 0);

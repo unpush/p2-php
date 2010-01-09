@@ -5,8 +5,6 @@
  * 各種BBSに対応できるプロファイルクラスみたいなのを作りたいものだ。。 aki
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ shitarabaDownload()
 
 /**

@@ -300,7 +300,7 @@ if ($_conf['expack.misc.multi_favs']) {
 
 <div id="login_info" class="panel" title="ログイン情報">
 <h2>認証ユーザ</h2>
-<p><strong><?php echo $_login->user; ?></strong> - <?php echo date('Y/m/d (D) G:i:s'); ?></p>
+<p><strong><?php echo $_login->user_u; ?></strong> - <?php echo date('Y/m/d (D) G:i:s'); ?></p>
 <?php if ($_conf['login_log_rec'] && $_conf['last_login_log_show']) { ?>
 <h2>前回のログイン</h2>
 <pre style="word-wrap:break-word;word-break:break-all"><?php

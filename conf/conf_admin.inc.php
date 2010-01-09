@@ -135,7 +135,7 @@ $_conf['k_accesskey'] = array(
 // ----------------------------------------------------------------------
 // {{{ Šg’£ƒpƒbƒN
 
-require_once P2_CONF_DIR . '/conf_admin_ex.inc.php';
+include P2_CONF_DIR . '/conf_admin_ex.inc.php';
 
 // }}}
 

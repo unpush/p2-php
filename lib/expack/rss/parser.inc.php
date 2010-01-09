@@ -3,7 +3,6 @@
  * rep2expack - RSS Parser
  */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2EX_LIB_DIR . '/rss/common.inc.php';
 require_once 'XML/RSS.php';
 
