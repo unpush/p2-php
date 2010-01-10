@@ -218,15 +218,16 @@ EOP;
 
         // tr欄 cssクラス
         if ($i % 2) {
-            $class_r = ' class="r1"';   // 奇数行
+            $row_class = 'r1 r_odd';
         } else {
-            $class_r = ' class="r2"';   // 偶数行
+            $row_class = 'r2 r_even';
         }
 
         //新着レス数 =============================================
         $unum_ht_c = '&nbsp;';
         // 既得済み
         if ($aThread->isKitoku()) {
+            $row_class .= ' r_read'; // readは過去分詞
 
             // $ttitle_en_q は節減省略
             $delelog_js = "return wrapDeleLog('{$base_q}{$sid_q}',this);";
@@ -236,6 +237,7 @@ EOP;
 
             // subject.txtにない時
             if (!$aThread->isonline) {
+                $row_class .= ' r_offline';
                 // JavaScriptでの確認ダイアログあり
                 $unum_ht_c = <<<EOP
 <a class="un_n" href="{$_conf['subject_php']}?{$base_q}{$spmode_q}&amp;dele=true" target="_self" onclick="if (!window.confirm('ログを削除しますか？')) {return false;} {$delelog_js}"{$title_at}>-</a>
@@ -243,6 +245,7 @@ EOP;
 
             // 新着あり
             } elseif ($aThread->unum > 0) {
+                $row_class .= ' r_new';
                 $midoku_ari = true;
                 $unum_ht_c = <<<EOP
 <a id="un{$i}" class="un_a" href="{$_conf['subject_php']}?{$base_q}{$spmode_q}&amp;dele=true" target="_self" onclick="{$delelog_js}"{$title_at}>{$aThread->unum}</a>
@@ -332,6 +335,7 @@ EOP;
 
         // 新規スレ
         if ($aThread->new) {
+            $row_class .= ' r_brand_new';
             $classtitle_q = ' class="thre_title_new"';
         } else {
             $classtitle_q = ' class="thre_title"';
@@ -430,7 +434,7 @@ EOP;
 
         // ボディ
         echo <<<EOR
-<tr{$class_r}>
+<tr class="{$row_class}">
 {$td['edit']}{$td['offrec']}{$td['unum']}{$td['rescount']}{$td['one']}{$td['checkbox']}<td{$class_to}>{$torder_ht}</td>
 <td{$class_tl}>{$moto_thre_ht}<a id="tt{$i}" href="{$thre_url}" title="{$aThread->ttitle_hd}"{$classtitle_q}{$change_color}>{$ttitle_ht}</a></td>
 {$td['ita']}{$td['spd']}{$td['ikioi']}{$td['birth']}{$td['fav']}</tr>\n

@@ -6,14 +6,15 @@
 // {{{ CONSTANTS
 
 /**
- * 整数の最小値
+ * 整数の最大値と最小値
  */
+define('P2_INT_MAX', PHP_INT_MAX);
 define('P2_INT_MIN', - PHP_INT_MAX - 1);
 
 /**
  * 漢字にマッチする正規表現
  */
-//define('P2_REGEX_KANJI', mb_convert_encoding('/[一-龠]/u', 'UTF-8', 'CP932'));
+//define('P2_REGEX_KANJI', mb_convert_encoding('/[一-龠]/u', 'UTF-8', 'SJIS-win'));
 define('P2_REGEX_KANJI', '/[\\x{4e00}-\\x{9fa0}]/u');
 
 /**
@@ -30,7 +31,7 @@ define('P2_REGEX_WAKATI', mb_convert_encoding('/(' . implode('|', array(
     //'[a-z][a-z_\\-]*',
     //'[0-9][0-9.]*',
     '[0-9a-z][0-9a-z_\\-]*',
-)) . ')/u', 'UTF-8', 'CP932'));
+)) . ')/u', 'UTF-8', 'SJIS-win'));
 */
 define('P2_REGEX_WAKATI', '/(
 #[\\x{4e00}-\\x{9fa0}]+[\\x{3041}-\\x{3093}]*|
@@ -54,7 +55,7 @@ define('P2_REGEX_NFD_KANA',
         mb_convert_encoding(
             '/([うか-こさ-そた-とは-ほウカ-コサ-ソタ-トハ-ホゝヽ])%u3099%|([は-ほハ-ホ])%u309A%/u',
             'UTF-8',
-            'CP932'
+            'SJIS-win'
         )
     )
 );
@@ -68,11 +69,13 @@ define('P2_REGEX_NFD_KANA', '/([\\x{3046}\\x{304b}-\\x{3053}\\x{3055}-\\x{305d}\
 * htmlspecialchars($value, ENT_QUOTES) のショートカット
 *
 * @param    string $str
+* @param    string $charset
+* @param    bool   $double_encode
 * @return   string
 */
-function p2h($str)
+function p2h($str, $charset = 'Shift_JIS', $double_encode = true)
 {
-    return htmlspecialchars($str, ENT_QUOTES);
+    return htmlspecialchars($str, ENT_QUOTES, $charset, $double_encode);
 }
 
 // }}}
@@ -261,7 +264,7 @@ function p2_print_memory_usage()
     $kb = $usage / 1024;
     $kb = number_format($kb, 2, '.', '');
 
-    echo 'Memory Usage: ' . $kb . 'KB';
+    echo 'Memory Usage: ' . $kb . 'KiB';
 }
 
 // }}}
@@ -288,7 +291,7 @@ function p2_realpath($path)
 // {{{ p2_si2int()
 
 /**
- * SI単位系の値を整数に変換する
+ * SI接頭辞つきの数値を整数に変換する
  *
  * @param   numeric $num
  * @param   string  $kmg
@@ -313,7 +316,7 @@ function p2_si2int($num, $kmg)
 // {{{ p2_si2real()
 
 /**
- * SI単位系の値を実数に変換する
+ * SI接頭辞つきの数値を実数に変換する
  * 厳密には1000倍するのが正しいが、あえて1024倍する
  *
  * @param   numeric $num
@@ -341,7 +344,7 @@ function p2_si2real($num, $kmg)
  * @param   string $encoding
  * @return  string
  */
-function p2_mb_basename($path, $encoding = 'CP932')
+function p2_mb_basename($path, $encoding = 'SJIS-win')
 {
     if (DIRECTORY_SEPARATOR != '/') {
         $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
@@ -423,20 +426,47 @@ function p2_set_filtering_word($word, $method = 'regex')
 }
 
 // }}}
+// {{{ p2_normalize()
+
+if (extension_loaded('intl')) {
+    /**
+     * Normalizerクラスを使った正規化関数
+     *
+     * @param   string $str
+     * @return  string
+     */
+    function p2_normalize($str)
+    {
+        return strtolower(Normalizer::normalize(mb_convert_encoding(
+                $str, 'UTF-8', 'SJIS-win'), Normalizer::NFKC));
+    }
+} else {
+    /**
+     * すごく適当な正規化関数
+     *
+     * @param   string $str
+     * @return  string
+     */
+    function p2_normalize($str)
+    {
+        return mb_strtolower(mb_convert_kana(mb_convert_encoding(
+                $str, 'UTF-8', 'SJIS-win'), 'KVas', 'UTF-8'), 'UTF-8');
+    }
+}
+
+// }}}
 // {{{ p2_wakati()
 
 /**
- * すごく適当な正規化&分かち書き関数
+ * すごく適当な分かち書き関数
  *
  * @param   string $str
  * @return  array
  */
 function p2_wakati($str)
 {
-    return array_filter(array_map('trim', preg_split(P2_REGEX_WAKATI,
-        mb_strtolower(mb_convert_kana(mb_convert_encoding(
-            $str, 'UTF-8', 'CP932'), 'KVas', 'UTF-8'), 'UTF-8'),
-        -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY)), 'strlen');
+    $str = preg_replace(P2_REGEX_WAKATI, '$0 ', p2_normalize($str));
+    return preg_split('/\\s+/u', $str, -1, PREG_SPLIT_NO_EMPTY);
 }
 
 // }}}
@@ -460,7 +490,7 @@ function p2_get_highlighting_regex(array $words)
     }
     //rsort($featured_words, SORT_STRING);
 
-    $pattern = mb_convert_encoding(implode(' ', $featured_words), 'CP932', 'UTF-8');
+    $pattern = mb_convert_encoding(implode(' ', $featured_words), 'SJIS-win', 'UTF-8');
     return str_replace(' ', '|', StrCtl::wordForMatch($pattern, 'or'));
 
 }
@@ -498,6 +528,9 @@ function _p2_get_highlighting_regex_filter($str)
  */
 function p2_combine_nfd_kana($str)
 {
+    if (extension_loaded('intl')) {
+        return Normalizer::normalize($str, Normalizer::NFC);
+    }
     return preg_replace_callback(P2_REGEX_NFD_KANA, '_p2_combine_nfd_kana', $str);
 }
 
@@ -557,7 +590,7 @@ function p2_correct_css_fontfamily($fonts)
  */
 function p2_correct_css_color($color)
 {
-    return preg_replace('/^#([0-9A-F])([0-9A-F])([0-9A-F])$/i', '#\\1\\1\\2\\2\\3\\3', $color);
+    return preg_replace('/^#([0-9A-F])([0-9A-F])([0-9A-F])$/i', '#$1$1$2$2$3$3', $color);
 }
 
 // }}}
