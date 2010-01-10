@@ -185,12 +185,6 @@ if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
     $posted = postIt2($host, $bbs, $key, $FROM, $mail, $MESSAGE);
 } else {
     // cookie “Ç‚Ýž‚Ý
-    if (!file_exists($_conf['cookie_file_path']) &&
-        dirname($_conf['cookie_file_path']) != $_conf['cookie_dir'])
-    {
-        FileCtl::mkdir_for($_conf['cookie_file_path']);
-    }
-
     $cookie_key = $_login->user_u . '/' . P2Util::normalizeHostName($host);
     if ($p2cookies = CookieStore::get($cookie_key)) {
         if (is_array($p2cookies)) {
