@@ -8,7 +8,7 @@ require_once dirname(__FILE__) . '/../P2KeyValueStore.php';
  */
 class P2KeyValueStore_Binary extends P2KeyValueStore
 {
-    // {{{ _encodeValue()
+    // {{{ encodeValue()
 
     /**
      * データをBase64エンコードする
@@ -16,13 +16,13 @@ class P2KeyValueStore_Binary extends P2KeyValueStore
      * @param string $value
      * @return string
      */
-    protected function _encodeValue($value)
+    public function encodeValue($value)
     {
         return base64_encode($value);
     }
 
     // }}}
-    // {{{ _decodeValue()
+    // {{{ decodeValue()
 
     /**
      * データをBase64デコードする
@@ -30,7 +30,7 @@ class P2KeyValueStore_Binary extends P2KeyValueStore
      * @param string $value
      * @return string
      */
-    protected function _decodeValue($value)
+    public function decodeValue($value)
     {
         return base64_decode($value);
     }

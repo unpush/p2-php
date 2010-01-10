@@ -8,7 +8,7 @@ require_once dirname(__FILE__) . '/Binary.php';
  */
 class P2KeyValueStore_Compressing extends P2KeyValueStore_Binary
 {
-    // {{{ _encodeValue()
+    // {{{ encodeValue()
 
     /**
      * データを圧縮する
@@ -16,13 +16,13 @@ class P2KeyValueStore_Compressing extends P2KeyValueStore_Binary
      * @param string $value
      * @return string
      */
-    protected function _encodeValue($value)
+    public function encodeValue($value)
     {
-        return parent::_encodeValue(gzdeflate($value, 6));
+        return parent::encodeValue(gzdeflate($value, 6));
     }
 
     // }}}
-    // {{{ _decodeValue()
+    // {{{ decodeValue()
 
     /**
      * データを展開する
@@ -30,9 +30,9 @@ class P2KeyValueStore_Compressing extends P2KeyValueStore_Binary
      * @param string $value
      * @return string
      */
-    protected function _decodeValue($value)
+    public function decodeValue($value)
     {
-        return gzinflate(parent::_decodeValue($value));
+        return gzinflate(parent::decodeValue($value));
     }
 
     // }}}

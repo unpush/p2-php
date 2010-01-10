@@ -429,46 +429,12 @@ class P2Util
         if (DIRECTORY_SEPARATOR != '/') {
             $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
         }
-        if (!$with_slashes) {
+        if ($with_slashes) {
+            $path .= '/';
+        } else {
             $path = trim($path, '/');
         }
         return $path;
-    }
-
-    // }}}
-    // {{{ getPostDataStore()
-
-    /**
-     * 板ごとの書き込み設定およびスレッドごとの書き込みデータを保存するデータベースを返す
-     *
-     * @param void
-     * @return P2KeyValueStore
-     */
-    static public function getPostDataStore()
-    {
-        global $_conf;
-
-        if (self::$_postDataStore !== null) {
-            return self::$_postDataStore;
-        }
-
-        if (!class_exists('P2KeyValueStore', false)) {
-            require P2_LIB_DIR . '/P2KeyValueStore.php';
-        }
-
-        if (!is_dir($_conf['cookie_dir'])) {
-            FileCtl::mkdir_r($_conf['cookie_dir']);
-        }
-
-        try {
-            $databasePath = $_conf['cookie_dir'] . DIRECTORY_SEPARATOR . 'p2_post_data.sqlite3';
-            self::$_postDataStore = P2KeyValueStore::getStore($databasePath,
-                                                              P2KeyValueStore::KVS_SERIALIZING);
-        } catch (Exception $e) {
-            p2die($e->getMessage());
-        }
-
-        return self::$_postDataStore;
     }
 
     // }}}

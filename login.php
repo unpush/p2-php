@@ -7,6 +7,8 @@ require_once './conf/conf.inc.php';
 
 $_login->authorize(); // ユーザ認証
 
+$csrfid = P2Util::getCsrfId(__FILE__);
+
 //=========================================================
 // 書き出し用変数
 //=========================================================
@@ -39,15 +41,22 @@ $p_htm['ktai_url'] = '携帯'.$p_str['login'].'用URL <a href="'.$url.'" target="_b
 //====================================================
 // ユーザ登録処理
 //====================================================
-if (isset($_POST['form_login_pass'])) {
+if (isset($_POST['form_new_login_pass'])) {
+    if (!isset($_POST['csrfid']) or $_POST['csrfid'] != $csrfid) {
+        p2die('不正なポストです');
+    }
+
+    $new_login_pass = $_POST['form_new_login_pass'];
 
     // 入力チェック
-    if (!preg_match('/^[0-9A-Za-z_]+$/', $_POST['form_login_pass'])) {
+    if (!preg_match('/^[0-9A-Za-z_]+$/', $new_login_pass)) {
         $_info_msg_ht .= "<p>rep2 error: {$p_str['password']}を半角英数字で入力して下さい。</p>";
+    } elseif ($new_login_pass != $_POST['form_new_login_pass2']) {
+        $_info_msg_ht .= "<p>rep2 error: {$p_str['password']} と {$p_str['password']} (確認) が一致しませんでした。</p>";
 
     // パスワード変更登録処理を行う
     } else {
-        $crypted_login_pass = sha1($_POST['form_login_pass']);
+        $crypted_login_pass = sha1($new_login_pass);
         $auth_user_cont = <<<EOP
 <?php
 \$rec_login_user_u = '{$_login->user_u}';
@@ -168,18 +177,41 @@ if (!empty($_REQUEST['check_regist_cookie'])) {
 //====================================================
 // 認証ユーザ登録フォーム
 //====================================================
-$login_form_ht = <<<EOP
+if ($_conf['ktai']) {
+    $login_form_ht = <<<EOP
+<hr>
 <form id="login_change" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
     {$p_str['password']}の変更<br>
     {$_conf['k_input_ht']}
-    新しい{$p_str['password']}: <input type="password" name="form_login_pass">
-    <br>
+    <input type="hidden" name="csrfid" value="{$csrfid}">
+    新しい{$p_str['password']}:<br>
+    <input type="password" name="form_new_login_pass"><br>
+    新しい{$p_str['password']} (確認):<br>
+    <input type="password" name="form_new_login_pass2"><br>
     <input type="submit" name="submit" value="変更登録">
-</form>\n
+</form>
+<hr>
+<div class="center">{$_conf['k_to_index_ht']}</div>
 EOP;
-
-if ($_conf['ktai']) {
-    $login_form_ht = '<hr>'.$login_form_ht;
+} else {
+    $login_form_ht = <<<EOP
+<form id="login_change" method="POST" action="{$_SERVER['SCRIPT_NAME']}" target="_self">
+    {$p_str['password']}の変更<br>
+    {$_conf['k_input_ht']}
+    <input type="hidden" name="csrfid" value="{$csrfid}">
+    <table border="0">
+        <tr>
+            <td>新しい{$p_str['password']}</td>
+            <td><input type="password" name="form_new_login_pass"></td>
+        </tr>
+        <tr>
+            <td>新しい{$p_str['password']} (確認)</td>
+            <td><input type="password" name="form_new_login_pass2"></td>
+        </tr>
+    </table>
+    <input type="submit" name="submit" value="変更登録">
+</form>
+EOP;
 }
 
 //=========================================================
@@ -236,10 +268,6 @@ EOP;
 echo '</p>';
 
 echo $login_form_ht;
-
-if ($_conf['ktai']) {
-    echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
-}
 
 echo '</body></html>';
 

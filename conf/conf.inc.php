@@ -319,7 +319,8 @@ function p2configure()
     $_conf['orig_favita_brd']   = $_conf['favita_brd'];
     $_conf['orig_favlist_idx']  = $_conf['favlist_idx'];
 
-    $_conf['cookie_file_path']  = $_conf['cookie_dir'] . $DIR_SEP . 'p2_cookies.sqlite3';
+    $_conf['cookie_db_path']    = $_conf['cookie_dir'] . $DIR_SEP . 'p2_cookies.sqlite3';
+    $_conf['post_db_path']      = $_conf['cookie_dir'] . $DIR_SEP . 'p2_post_data.sqlite3';
 
     // ï‚ê≥
     if ($_conf['expack.use_pecl_http'] && !extension_loaded('http')) {

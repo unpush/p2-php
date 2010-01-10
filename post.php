@@ -4,7 +4,8 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/P2KeyValueStore.php';
+require_once P2_LIB_DIR . '/P2DataStore/CookieStore.php';
+require_once P2_LIB_DIR . '/P2DataStore/PostDataStore.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -156,20 +157,17 @@ if (!empty($_POST['p2_post_confirm_cookie'])) {
     }
 }
 
-$post_id_suffix = $_login->user_u . P2Util::pathForHostBbs($host, $bbs);
-$post_backup_id = 'backup:' . $post_id_suffix;
-$post_config_id = 'config:' . $post_id_suffix;
 if (!empty($_POST['newthread'])) {
-    $post_backup_id .= 'new';
     $ptitle = 'rep2 - 新規スレッド作成';
 } else {
-    $post_backup_id .= $key;
     $ptitle = 'rep2 - レス書き込み';
 }
 
+$post_backup_key = PostDataStore::getKeyForBackup($host, $bbs, $key, !empty($_REQUEST['newthread']));
+$post_config_key = PostDataStore::getKeyForConfig($host, $bbs);
+
 // 設定を保存
-$post_store = P2Util::getPostDataStore();
-$post_store->set($post_config_id, array(
+PostDataStore::set($post_config_key, array(
     'beres' => !empty($_REQUEST['beres']),
     'p2res' => !empty($_REQUEST['p2res']),
 ));
@@ -179,7 +177,7 @@ $post_store->set($post_config_id, array(
 //================================================================
 
 // 書き込みを一時的に保存
-$post_store->set($post_backup_id, $post_cache);
+PostDataStore::set($post_backup_key, $post_cache);
 
 // ポスト実行
 if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
@@ -193,25 +191,18 @@ if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
         FileCtl::mkdir_for($_conf['cookie_file_path']);
     }
 
-    try {
-        $cookie_store = P2KeyValueStore::getStore($_conf['cookie_file_path'],
-                                                  P2KeyValueStore::KVS_SERIALIZING);
-    } catch (Exception $e) {
-        p2die(get_class($e) . ': ' . $e->getMessage());
-    }
-
     $cookie_key = $_login->user_u . '/' . P2Util::normalizeHostName($host);
-    if ($p2cookies = $cookie_store->get($cookie_key)) {
+    if ($p2cookies = CookieStore::get($cookie_key)) {
         if (is_array($p2cookies)) {
             if (array_key_exists('expires', $p2cookies)) {
                 // 期限切れなら破棄
                 if (time() > strtotime($p2cookies['expires'])) {
-                    $cookie_store->delete($cookie_key);
+                    CookieStore::delete($cookie_key);
                     $p2cookies = null;
                 }
             }
         } else {
-            $cookie_store->delete($cookie_key);
+            CookieStore::delete($cookie_key);
             $p2cookies = null;
         }
     } else {
@@ -223,13 +214,13 @@ if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
 
     // cookie 保存
     if ($p2cookies) {
-        $cookie_store->set($cookie_key, $p2cookies);
+        CookieStore::set($cookie_key, $p2cookies);
     }
 }
 
 // 投稿失敗記録を削除
 if ($posted) {
-    $post_store->delete($post_backup_id);
+    PostDataStore::delete($post_backup_key);
 }
 
 //=============================================

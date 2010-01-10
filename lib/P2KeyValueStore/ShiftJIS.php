@@ -11,14 +11,14 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
     // {{{ _encode()
 
     /**
-     * Shift_JIS (CP932) の文字列をUTF-8に変換する
+     * Shift_JIS (SJIS-win=CP932) の文字列をUTF-8に変換する
      *
      * @param string $str
      * @return string
      */
     private function _encode($str)
     {
-        return mb_convert_encoding($str, 'UTF-8', 'CP932');
+        return mb_convert_encoding($str, 'UTF-8', 'SJIS-win');
     }
 
     // }}}
@@ -32,11 +32,11 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      */
     private function _decode($str)
     {
-        return mb_convert_encoding($str, 'CP932', 'UTF-8');
+        return mb_convert_encoding($str, 'SJIS-win', 'UTF-8');
     }
 
     // }}}
-    // {{{ _encodeKey()
+    // {{{ encodeKey()
 
     /**
      * キーをエンコードする
@@ -44,13 +44,13 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      * @param string $key
      * @return string
      */
-    protected function _encodeKey($key)
+    public function encodeKey($key)
     {
         return $this->_encode($key);
     }
 
     // }}}
-    // {{{ _decodeKey()
+    // {{{ decodeKey()
 
     /**
      * キーをデコードする
@@ -58,13 +58,13 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      * @param string $key
      * @return string
      */
-    protected function _decodeKey($key)
+    public function decodeKey($key)
     {
         return $this->_decode($key);
     }
 
     // }}}
-    // {{{ _encodeValue()
+    // {{{ encodeValue()
 
     /**
      * 値をエンコードする
@@ -72,13 +72,13 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      * @param string $value
      * @return string
      */
-    protected function _encodeValue($value)
+    public function encodeValue($value)
     {
         return $this->_encode($value);
     }
 
     // }}}
-    // {{{ _decodeValue()
+    // {{{ decodeValue()
 
     /**
      * 値をデコードする
@@ -86,7 +86,7 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      * @param string $value
      * @return string
      */
-    protected function _decodeValue($value)
+    public function decodeValue($value)
     {
         return $this->_decode($value);
     }

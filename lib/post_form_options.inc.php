@@ -5,6 +5,7 @@
 
 require_once P2_LIB_DIR . '/SettingTxt.php';
 require_once P2_LIB_DIR . '/StrCtl.php';
+require_once P2_LIB_DIR . '/P2DataStore/PostDataStore.php';
 
 $js = array();
 
@@ -92,22 +93,11 @@ if ($lines = FileCtl::file_read_lines($key_idx, FILE_IGNORE_NEW_LINES)) {
 // }}}
 // {{{ データベースから前回のPOST失敗データとberes/p2resの設定を読込み
 
-if (!isset($_login)) {
-    $_login = $GLOBALS['_login'];
-}
-$post_id_suffix = $_login->user_u . P2Util::pathForHostBbs($host, $bbs);
-$post_backup_id = 'backup:' . $post_id_suffix;
-$post_config_id = 'config:' . $post_id_suffix;
-if (!empty($_REQUEST['newthread'])) {
-    $post_backup_id .= 'new';
-} else {
-    $post_backup_id .= $key;
-}
-
-$post_store = P2Util::getPostDataStore();
+$post_backup_key = PostDataStore::getKeyForBackup($host, $bbs, $key, !empty($_REQUEST['newthread']));
+$post_config_key = PostDataStore::getKeyForConfig($host, $bbs);
 
 // 前回のPOST失敗データ
-if ($post_backup = $post_store->get($post_backup_id)) {
+if ($post_backup = PostDataStore::get($post_backup_key)) {
     $hd['FROM'] = htmlspecialchars($post_backup['FROM'], ENT_QUOTES, 'Shift_JIS');
     $hd['mail'] = htmlspecialchars($post_backup['mail'], ENT_QUOTES, 'Shift_JIS');
     $hd['MESSAGE'] = htmlspecialchars($post_backup['MESSAGE'], ENT_QUOTES, 'Shift_JIS');
@@ -115,7 +105,7 @@ if ($post_backup = $post_store->get($post_backup_id)) {
 }
 
 // beres/p2res
-if ($post_config = $post_store->get($post_config_id)) {
+if ($post_config = PostDataStore::get($post_config_key)) {
     if ($post_config['beres']) {
         $hd['beres_checked'] = ' checked';
     }

@@ -8,7 +8,7 @@ require_once dirname(__FILE__) . '/Compressing.php';
  */
 class P2KeyValueStore_Serializing extends P2KeyValueStore_Compressing
 {
-    // {{{ _encodeValue()
+    // {{{ encodeValue()
 
     /**
      * 値をシリアライズする
@@ -16,13 +16,13 @@ class P2KeyValueStore_Serializing extends P2KeyValueStore_Compressing
      * @param mixed $value
      * @return string
      */
-    protected function _encodeValue($value)
+    public function encodeValue($value)
     {
-        return parent::_encodeValue(serialize($value));
+        return parent::encodeValue(serialize($value));
     }
 
     // }}}
-    // {{{ _decodeValue()
+    // {{{ decodeValue()
 
     /**
      * 値をアンシリアライズする
@@ -30,9 +30,9 @@ class P2KeyValueStore_Serializing extends P2KeyValueStore_Compressing
      * @param string $value
      * @return mixed
      */
-    protected function _decodeValue($value)
+    public function decodeValue($value)
     {
-        return unserialize(parent::_decodeValue($value));
+        return unserialize(parent::decodeValue($value));
     }
 
     // }}}
