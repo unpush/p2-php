@@ -715,14 +715,6 @@ function ic2_display($path, $params)
                 require 'HTML/QuickForm/Renderer/ObjectFlexy.php';
             }
 
-            // conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
-            // バグの温床となる可能性も否定できない・・・
-            if (get_magic_quotes_gpc()) {
-                $_GET = array_map('addslashes_r', $_GET);
-                $_POST = array_map('addslashes_r', $_POST);
-                $_REQUEST = array_map('addslashes_r', $_REQUEST);
-            }
-
             if (isset($uri)) {
                 $img_o = 'uri';
                 $img_p = $uri;

@@ -236,14 +236,6 @@ if ($ini['Viewer']['cache']) {
 // }}}
 // {{{ prepare (Form & Template)
 
-// conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
-// バグの温床となる可能性も否定できない・・・
-if (get_magic_quotes_gpc()) {
-    $_GET = array_map('addslashes_r', $_GET);
-    $_POST = array_map('addslashes_r', $_POST);
-    $_REQUEST = array_map('addslashes_r', $_REQUEST);
-}
-
 // ページ遷移用フォームを設定
 // ページ遷移はGETで行うが、画像情報の更新はPOSTで行うのでどちらでも受け入れるようにする
 // （レンダリング前に $qf->updateAttributes(array('method' => 'get')); とする）

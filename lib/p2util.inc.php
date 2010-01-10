@@ -202,92 +202,54 @@ if (!extension_loaded('ctype')) {
 }
 
 // }}}
-// {{{ stripslashes_r()
+// {{{ p2_scan_nullbyte()
 
 /**
- * 再帰的にstripslashesをかける
- * GET/POST/COOKIE変数用なのでオブジェクトのプロパティには対応しない
+ * リクエストパラメータからNULLバイトを検出したら終了する
+ * array_walk_recursive() 用コールバック関数
  *
- * @param   array|string $var
- * @param   int $r
- * @return  array|string
+ * @param   mixed   $value 
+ * @param   mixed   $key
+ * @return  void
  */
-function stripslashes_r($var, $r = 0)
+function p2_scan_nullbyte($value, $key)
 {
-    if (is_array($var)) {
-        if ($r < 3) {
-            $r++;
-            foreach ($var as $key => $value) {
-                $var[$key] = stripslashes_r($value, $r);
-            }
-        } /* else { p2die("too deep multi dimentional array given."); } */
-    } elseif (is_string($var)) {
-        $var = stripslashes($var);
+    if (is_string($value) && strpos($value, P2_NULLBYTE) !== false) {
+        p2die('リクエストパラメータにNULLバイトが含まれています。');
     }
-    return $var;
 }
 
 // }}}
-// {{{ addslashes_r()
+// {{{ p2_scan_script_injection()
 
 /**
- * 再帰的にaddslashesをかける
+ * 生のままHTMLに埋め込まれる host, bbs, key, ls に
+ * HTMLの特殊文字が含まれていたら終了する
  *
- * @param   array|string $var
- * @param   int $r
- * @return  array|string
+ * @param   array   $request
+ * @return  void
  */
-function addslashes_r($var, $r = 0)
+function p2_scan_script_injection($request)
 {
-    if (is_array($var)) {
-        if ($r < 3) {
-            $r++;
-            foreach ($var as $key => $value) {
-                $var[$key] = addslashes_r($value, $r);
+    foreach (array('host', 'bbs', 'key', 'ls') as $key) {
+        if (array_key_exists($key, $request)) {
+            $value = $request[$key];
+            if (htmlspecialchars($value, ENT_QUOTES) != $value) {
+                p2die('リクエストパラメータに不正な文字があります。');
             }
-        } /* else { p2die("too deep multi dimentional array given."); } */
-    } elseif (is_string($var)) {
-        $var = addslashes($var);
+        }
     }
-    return $var;
 }
 
 // }}}
-// {{{ nullfilter_r()
-
-/**
- * 再帰的にヌル文字を削除する
- *
- * NULLバイトアタック対策
- *
- * @param   array|string $var
- * @param   int $r
- * @return  array|string
- */
-function nullfilter_r($var, $r = 0)
-{
-    if (is_array($var)) {
-        if ($r < 3) {
-            $r++;
-            foreach ($var as $key => $value) {
-                $var[$key] = nullfilter_r($value, $r);
-            }
-        } /* else { p2die("too deep multi dimentional array given."); } */
-    } elseif (is_string($var)) {
-        $var = str_replace(P2_NULLBYTE, '', $var);
-    }
-    return $var;
-}
-
-// }}}
-// {{{ print_memory_usage()
+// {{{ p2_print_memory_usage()
 
 /**
  * メモリの使用量を表示する
  *
  * @return  void
  */
-function print_memory_usage()
+function p2_print_memory_usage()
 {
     if (function_exists('memory_get_usage')) {
         $usage = memory_get_usage();
@@ -618,25 +580,6 @@ function p2_escape_css_url($url)
     return str_replace(array( "\t",  "\n",  "\r",   ' ',   '"',   "'",   '(',   ')',  '\\'),
                        array('%09', '%0A', '%0D', '%20', '%22', '%27', '%28', '%29', '%5C'),
                        $url);
-}
-
-// }}}
-// {{{ json_encode()
-
-if (!extension_loaded('json')) {
-    /**
-     * jsonエクステンションのjson_encode()関数をPEARのServices_JSONで代替する
-     *
-     * @param   mixed $value
-     * @return  string
-     */
-    function json_encode($value) {
-        if (!class_exists('Services_JSON', false)) {
-            include 'Services/JSON.php';
-        }
-        $json = new Services_JSON();
-        return $json->encodeUnsafe($value);
-    }
 }
 
 // }}}

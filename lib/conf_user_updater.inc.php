@@ -3,7 +3,7 @@
  * rep2expack - ユーザ設定移行支援
  */
 
-// {{{ conf_user_update_080908()
+// {{{ p2_conf_user_update_080908()
 
 /**
  * 080908で携帯用の設定キーを変更したので、旧設定から移行する
@@ -11,7 +11,7 @@
  * @param array $old 旧設定
  * @return array 新しいキーに書き換えられた設定
  */
-function conf_user_update_080908(array $old)
+function p2_conf_user_update_080908(array $old)
 {
     $map = array(
         'k_sb_show_first'       => 'mobile.sb_show_first',

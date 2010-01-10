@@ -4,10 +4,16 @@
  * conf/conf.inc.php の p2configure() から読み込まれる。
  */
 
+require_once 'Net/UserAgent/Mobile.php';
+require_once $P2_LIB_DIR_S . 'Session.php';
+require_once $P2_LIB_DIR_S . 'Login.php';
+
 // {{{ ホストチェック
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    require_once $P2_LIB_DIR_S . 'HostCheck.php';
+    if (!class_exists('HostCheck', false)) {
+        include $P2_LIB_DIR_S . 'HostCheck.php';
+    }
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
     ) {
@@ -24,7 +30,7 @@ if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
 }
 
 /**
- * リクエスト変数を一括でクォート除去＆文字コード変換
+ * リクエスト変数の検証と文字コード変換
  *
  * 日本語を入力する可能性のあるフォームには隠し要素で
  * エンコーディング判定用の文字列を仕込んでいる
@@ -32,47 +38,45 @@ if (isset($_POST['submit_new']) && isset($_POST['submit_member'])) {
  * $_COOKIE は $_REQUEST に含めない
  */
 if (!empty($_GET) || !empty($_POST)) {
-    if (isset($_REQUEST['_hint'])) {
-        // "CP932" は "SJIS-win" のエイリアスで、"SJIS-win" と "SJIS" は別物
-        // "CP51932", "eucJP-win", "EUC-JP" はそれぞれ別物 (libmbfl的な意味で)
-        $request_encoding = mb_detect_encoding($_REQUEST['_hint'], 'UTF-8,CP51932,CP932');
-        if ($request_encoding == 'SJIS-win') {
-            $request_encoding = false;
+    $hint = null;
+
+    // NULLバイトアタックとスクリプトインジェクションの検証、
+    // エンコーディング判定用文字列の取得
+    if (!empty($_GET)) {
+        array_walk_recursive($_GET, 'p2_scan_nullbyte');
+        p2_scan_script_injection($_GET);
+        if (array_key_exists('_hint', $_GET)) {
+            $hint = $_GET['_hint'];
+        }
+    }
+    if (!empty($_POST)) {
+        array_walk_recursive($_POST, 'p2_scan_nullbyte');
+        p2_scan_script_injection($_POST);
+        if (array_key_exists('_hint', $_POST)) {
+            $hint = $_POST['_hint'];
+        }
+    }
+
+    // エンコーディング判定
+    if ($hint) {
+        $request_encoding = mb_detect_encoding($hint, 'ASCII,UTF-8,SJIS-win');
+        if (!strcasecmp($request_encoding, 'ASCII')) {
+            p2die('不正なエンコーディング判定ヒントです。');
         }
     } else {
-        $request_encoding = 'UTF-8,CP51932,CP932';
+        $request_encoding = 'ASCII,UTF-8,SJIS-win';
     }
 
-    if (get_magic_quotes_gpc()) {
-        $_GET = array_map('stripslashes_r', $_GET);
-        $_POST = array_map('stripslashes_r', $_POST);
+    // UTF-8ならShift_JISに変換
+    if (!strcasecmp($request_encoding, 'UTF-8')) {
+        mb_convert_variables('SJIS-win', 'UTF-8', $_GET, $_POST);
     }
 
-    if ($request_encoding) {
-        mb_convert_variables('CP932', $request_encoding, $_GET, $_POST);
-    }
-
+    // $_REQUEST を再構成
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $_POST = array_map('nullfilter_r', $_POST);
-        if (count($_GET)) {
-            $_GET = array_map('nullfilter_r', $_GET);
-            $_REQUEST = array_merge($_GET, $_POST);
-        } else {
-            $_REQUEST = $_POST;
-        }
+        $_REQUEST = array_merge($_GET, $_POST);
     } else {
-        $_GET = array_map('nullfilter_r', $_GET);
         $_REQUEST = $_GET;
-    }
-
-    // 簡易スクリプトインジェクション対策
-    foreach (array('host', 'bbs', 'key', 'ls') as $_k) {
-        if (array_key_exists($_k, $_REQUEST)) {
-            $_v = $_REQUEST[$_k];
-            if (htmlspecialchars($_v, ENT_QUOTES) != $_v) {
-                p2die('リクエストパラメータに不正な文字があります。');
-            }
-        }
     }
 } else {
     $_REQUEST = array();
@@ -80,8 +84,6 @@ if (!empty($_GET) || !empty($_POST)) {
 
 // }}}
 // {{{ 端末判定
-
-require_once 'Net/UserAgent/Mobile.php';
 
 $_conf['ktai'] = false;
 $_conf['iphone'] = false;
@@ -249,12 +251,14 @@ if (file_exists($_conf['conf_user_file'])) {
         filemtime($P2_CONF_DIR_S . 'conf_user_def_i.inc.php')  > $conf_user_mtime)
     {
         // デフォルト設定を読み込む
-        require_once $P2_CONF_DIR_S . 'conf_user_def.inc.php';
+        include $P2_CONF_DIR_S . 'conf_user_def.inc.php';
 
         // 設定の更新
         if (!array_key_exists('mobile.link_youtube', $conf_user)) {
-            require_once $P2_LIB_DIR_S . 'conf_user_updater.inc.php';
-            $conf_user = conf_user_update_080908($conf_user);
+            if (!function_exists('p2_conf_user_update_080908')) {
+                include $P2_LIB_DIR_S . 'conf_user_updater.inc.php';
+            }
+            $conf_user = p2_conf_user_update_080908($conf_user);
         }
 
         $_conf = array_merge($_conf, $conf_user_def, $conf_user);
@@ -276,7 +280,7 @@ if (file_exists($_conf['conf_user_file'])) {
     unset($cont, $conf_user);
 } else {
     // デフォルト設定を読み込む
-    require_once $P2_CONF_DIR_S . 'conf_user_def.inc.php';
+    include $P2_CONF_DIR_S . 'conf_user_def.inc.php';
     $_conf = array_merge($_conf, $conf_user_def);
 }
 
@@ -391,7 +395,9 @@ foreach ($STYLE as $K => $V) {
 }
 
 if (!$_conf['ktai']) {
-    require_once $P2_LIB_DIR_S . 'fontconfig.inc.php';
+    if (!function_exists('p2_fontconfig_apply_custom')) {
+        include $P2_LIB_DIR_S . 'fontconfig.inc.php';
+    }
 
     if ($_conf['expack.am.enabled']) {
         $_conf['expack.am.fontfamily'] = p2_correct_css_fontfamily($_conf['expack.am.fontfamily']);
@@ -400,7 +406,7 @@ if (!$_conf['ktai']) {
         }
     }
 
-    fontconfig_apply_custom();
+    p2_fontconfig_apply_custom();
 }
 
 // }}}
@@ -525,7 +531,9 @@ EOP;
 
         switch ($_conf['mobile.display_accesskey']) {
         case 2:
-            require_once $P2_LIB_DIR_S . 'emoji.inc.php';
+            if (!function_exists('p2_get_emoji')) {
+                include $P2_LIB_DIR_S . 'emoji.inc.php';
+            }
             $emoji = p2_get_emoji($mobile);
             //$emoji = p2_get_emoji(Net_UserAgent_Mobile::factory('KDDI-SA31 UP.Browser/6.2.0.7.3.129 (GUI) MMP/2.0'));
             $_conf['k_accesskey_st'] = array(
@@ -630,8 +638,6 @@ session_name('PS');
 
 $_conf['sid_at_a'] = '';
 
-require_once $P2_LIB_DIR_S . 'Session.php';
-
 // {{{ セッションデータ保存ディレクトリをチェック
 
 if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
@@ -691,7 +697,6 @@ if (defined('P2_OUTPUT_XHTML')) {
 }
 
 // ログインクラスのインスタンス生成（ログインユーザが指定されていなければ、この時点でログインフォーム表示に）
-require_once $P2_LIB_DIR_S . 'Login.php';
 $_login = new Login();
 
 // }}}

@@ -18,14 +18,6 @@ if (!$_conf['expack.ic2.enabled']) {
 // }}}
 // {{{ 初期化
 
-// conf.inc.phpで一括stripslashes()しているけど、HTML_QuickFormでも独自にstripslashes()するので。
-// バグの温床となる可能性も否定できない・・・
-if (get_magic_quotes_gpc()) {
-    $_GET = array_map('addslashes_r', $_GET);
-    $_POST = array_map('addslashes_r', $_POST);
-    $_REQUEST = array_map('addslashes_r', $_REQUEST);
-}
-
 // ライブラリ読み込み
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';

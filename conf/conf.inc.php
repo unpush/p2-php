@@ -116,18 +116,13 @@ function p2configure()
     // 自動フラッシュをオフにする
     ob_implicit_flush(0);
 
-    // クライアントから接続を切られても処理を続行する
-    // ignore_user_abort(1);
-
     // file($filename, FILE_IGNORE_NEW_LINES) で CR/LF/CR+LF のいずれも行末として扱う
     ini_set('auto_detect_line_endings', 1);
 
-    // session.trans_sid有効時 や output_add_rewrite_var(), http_build_query() 等で生成・変更される
+    // session.trans_sid有効時 や output_add_rewrite_var(),
+    // http_build_query() 等で生成・変更される
     // URLのGETパラメータ区切り文字(列)を"&amp;"にする。（デフォルトは"&"）
     ini_set('arg_separator.output', '&amp;');
-
-    // リクエストIDを設定 (コストが大きい割に使っていないので廃止)
-    //define('P2_REQUEST_ID', substr($_SERVER['REQUEST_METHOD'], 0, 1) . md5(serialize($_REQUEST)));
 
     // Windows なら
     if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
@@ -144,7 +139,9 @@ function p2configure()
     $DIR_SEP = DIRECTORY_SEPARATOR;
     $PATH_SEP = PATH_SEPARATOR;
 
-    // mbstring.script_encoding = SJIS-win だと "\0", "\x00" 以降がカットされるので
+    // ヌルバイト定数
+    // mbstring.script_encoding = SJIS-win だと
+    // "\0", "\x00" 以降がカットされるので、chr()関数を使う
     define('P2_NULLBYTE', chr(0));
 
     // }}}
@@ -229,8 +226,8 @@ function p2configure()
             require 'Benchmark/Profiler.php';
         }
         $profiler = new Benchmark_Profiler(true);
-        // print_memory_usage();
-        register_shutdown_function('print_memory_usage');
+        // p2_print_memory_usage();
+        register_shutdown_function('p2_print_memory_usage');
     }
 
     // }}}
@@ -388,13 +385,17 @@ function p2checkenv($check_recommended)
         p2die('セーフモードで動作するPHPでは使えません。');
     }
 
-    // register_globals
-    if (ini_get('register_globals')) {
-        $msg = <<<EOP
-予期しない動作を避けるために php.ini で register_globals を Off にしてください。
-magic_quotes_gpc や mbstring.encoding_translation も Off にされることをおすすめします。
-EOP;
-        p2die('register_globals が On です。', $msg);
+    // register_globals, magic_quotes_gpc, mbstring.encoding_translation
+    $directives = array(
+        'register_globals',
+        'magic_quotes_gpc',
+        'mbstring.encoding_translation',
+    );
+    foreach ($directives as $directive) {
+        if (ini_get($directive)) {
+            p2die("{$directive} が On です。",
+                  "php.ini で {$directive} を Off にしてください。");
+        }
     }
 
     // eAccelerator

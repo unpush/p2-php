@@ -37,7 +37,7 @@ $fontconfig_sizes = array('' => '', '6px', '8px', '9px', '10px', '11px', '12px',
 $controllerObject = (object)array(
     'fontconfig_types' => $fontconfig_types,
     'fontconfig_params' => $fontconfig_params,
-    'skindata' => fontconfig_load_skin_setting(),
+    'skindata' => p2_fontconfig_load_skin_setting(),
     'safari' => 0,
     'mac' => false,
 );
@@ -57,7 +57,7 @@ $updated_fontconfig = array('enabled' => false, 'custom' => array());
 // Mac はブラウザによって文字のレンダリング結果が大きく変わり
 // その種類もそこそこ多いので現在のブラウザにマッチしないものを隠す
 $ft = &$controllerObject->fontconfig_types;
-$type = fontconfig_detect_agent();
+$type = p2_fontconfig_detect_agent();
 switch ($type) {
     case 'safari3':
         $controllerObject->safari = 3;
@@ -182,7 +182,7 @@ foreach ($STYLE as $K => $V) {
     }
 }
 if ($updated_fontconfig['enabled']) {
-    fontconfig_apply_custom();
+    p2_fontconfig_apply_custom();
 } else {
     $skin_en = preg_replace('/&amp;_=[^&]*/', '', $skin_en) . '&amp;_=' . rawurlencode($skin_uniq);
 }
@@ -193,12 +193,12 @@ $controllerObject->p2vid = P2_VERSION_ID;
 // 出力
 $flexy->outputObject($controllerObject, $elements);
 
-// {{{ fontconfig_load_skin_setting()
+// {{{ p2_fontconfig_load_skin_setting()
 
 /**
  * カスタム設定で上書きされていないスキン設定を読み込む
  */
-function fontconfig_load_skin_setting()
+function p2_fontconfig_load_skin_setting()
 {
     global $_conf, $STYLE;
 
@@ -207,17 +207,17 @@ function fontconfig_load_skin_setting()
     $fontfamily = (isset($STYLE['fontfamily.orig']))
         ? $STYLE['fontfamily.orig']
         : ((isset($STYLE['fontfamily'])) ? $STYLE['fontfamily'] : '');
-    $skindata['fontfamily'] = fontconfig_implode_fonts($fontfamily);
+    $skindata['fontfamily'] = p2_fontconfig_implode_fonts($fontfamily);
 
     $fontfamily_bold = (isset($STYLE['fontfamily_bold.orig']))
         ? $STYLE['fontfamily_bold.orig']
         : ((isset($STYLE['fontfamily_bold'])) ? $STYLE['fontfamily_bold'] : '');
-    $skindata['fontfamily_bold'] = fontconfig_implode_fonts($fontfamily_bold);
+    $skindata['fontfamily_bold'] = p2_fontconfig_implode_fonts($fontfamily_bold);
 
     $fontfamily_aa = (isset($_conf['expack.am.fontfamily.orig']))
         ? $_conf['expack.am.fontfamily.orig']
         : ((isset($_conf['expack.am.fontfamily'])) ? $_conf['expack.am.fontfamily'] : '');
-    $skindata['fontfamily_aa'] = fontconfig_implode_fonts($fontfamily_aa);
+    $skindata['fontfamily_aa'] = p2_fontconfig_implode_fonts($fontfamily_aa);
 
     $normal = ($skindata['fontfamily_bold'] == '') ? '' : 'normal';
 
@@ -235,20 +235,20 @@ function fontconfig_load_skin_setting()
 }
 
 // }}}
-// {{{ fontconfig_implode_fonts()
+// {{{ p2_fontconfig_implode_fonts()
 
-function fontconfig_implode_fonts($fonts)
+function p2_fontconfig_implode_fonts($fonts)
 {
     if (!is_array($fonts)) {
         $fonts = explode(',', (string)$fonts);
     }
-    return '"' . implode('","', array_map('fontconfig_trim', $fonts)) . '"';
+    return '"' . implode('","', array_map('p2_fontconfig_trim', $fonts)) . '"';
 }
 
 // }}}
-// {{{ fontconfig_trim()
+// {{{ p2_fontconfig_trim()
 
-function fontconfig_trim($str)
+function p2_fontconfig_trim($str)
 {
     return trim($str, " \r\n\t\x0B\"'" . P2_NULLBYTE);
 }
