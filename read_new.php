@@ -354,6 +354,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     } else {
         $read_new_html .= ob_get_flush();
     }
+    flush();
     ob_start();
 
     if (($aThread->readnum < 1) || $aThread->unum) {
@@ -368,6 +369,7 @@ for ($x = 0; $x < $linesize ; $x++) {
     } else {
         $read_new_html .= ob_get_flush();
     }
+    flush();
     ob_start();
 
     // ƒŠƒXƒg‚É’Ç‰Á ========================================

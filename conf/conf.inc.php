@@ -501,16 +501,10 @@ function p2migrate(array $user_conf, array $migrators)
  */
 function p2autoload($name)
 {
-    if (strncmp($name, 'Wap', 3) === 0) {
-        include P2_LIB_DIR . '/Wap.php';
-    }
-    if (strncmp($name, 'P2Http', 6) === 0) {
-        include P2_LIB_DIR . '/P2HttpExt.php';
-    }
     if (preg_match('/^(?:
             BbsMap |
             BrdCtl |
-            BrdMenu |
+            BrdMenu\\w* |
             DataPhp |
             FavSetManager |
             FileCtl |
@@ -527,12 +521,24 @@ function p2autoload($name)
             StrCtl |
             StrSjis |
             SubjectTxt |
-            Thread\\w*
+            Thread\\w* |
+            Wap\\w+
         )$/x', $name))
     {
-        include P2_LIB_DIR . '/' . $name . '.php';
-    }
-    if (preg_match('/^\\w+DataStore$/', $name)) {
+        if ($name == 'P2Lock') {
+            include P2_LIB_DIR . '/FileCtl.php';
+        } elseif ($name == 'ResArticle') {
+            include P2_LIB_DIR . '/ResHist.php';
+        } elseif (strncmp($name, 'Wap', 3) === 0) {
+            include P2_LIB_DIR . '/Wap.php';
+        } elseif (strncmp($name, 'P2Http', 6) === 0) {
+            include P2_LIB_DIR . '/P2HttpExt.php';
+        } elseif (strncmp($name, 'BrdMenu', 7) === 0) {
+            include P2_LIB_DIR . '/BrdMenu.php';
+        } else {
+            include P2_LIB_DIR . '/' . $name . '.php';
+        }
+    } elseif (preg_match('/^\\w+DataStore$/', $name)) {
         include P2_LIB_DIR . '/P2DataStore/' . $name . '.php';
     }
 }
