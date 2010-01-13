@@ -39,7 +39,6 @@ $_conf['expack.ic2.general.automemo'] = 1;
 // gd, imagick は PHP の拡張モジュールを利用、ImageMagick は外部コマンドを利用
 // ImageMagickのバージョンを自動判定するようになったので
 // 明示的に"ImageMagick6"を指定しなくてもよい
-// imlib2, magickwand は非推奨
 $_conf['expack.ic2.general.driver'] = "gd";
 
 // JPEG to JPEG 変換に Epeg エクステンションを使う (off:0;on:1)
