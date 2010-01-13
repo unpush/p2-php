@@ -4,30 +4,31 @@
  */
 
 // 変数
-$diedat_msg = "";
+$diedat_msg = '';
 
-$info_st        = "情報";
-$delete_st      = "削除";
-$all_st         = "全部";
-$prev_st        = "前";
-$next_st        = "次";
-$shinchaku_st   = "新着レスの表示";
-$midoku_st      = "未読レスの表示";
-$tuduki_st      = "続きを読む";
-$moto_thre_st   = "元スレ";
-$siml_thre_st   = "似スレ"; // "類似スレ"
-$latest_st      = "最新";
-$dores_st       = "レス";
-$aborn_st       = "あぼん";
+$info_st        = '情報';
+$delete_st      = '削除';
+$all_st         = '全部';
+$prev_st        = '前';
+$next_st        = '次';
+$shinchaku_st   = '新着レスの表示';
+$midoku_st      = '未読レスの表示';
+$tuduki_st      = '続きを読む';
+$moto_thre_st   = '元スレ';
+$siml_thre_st   = '似スレ'; // '類似スレ'
+$latest_st      = '最新';
+$dores_st       = '書込'; // 'レス';
+$aborn_st       = 'あぼん';
 
-$motothre_url = $aThread->getMotoThread();
+$motothre_url = $aThread->getMotoThread(false, '');
 $ttitle_en = base64_encode($aThread->ttitle);
 $ttitle_urlen = rawurlencode($ttitle_en);
-$ttitle_en_q = "&amp;ttitle_en=" . $ttitle_urlen;
-$bbs_q = "&amp;bbs=" . $aThread->bbs;
-$key_q = "&amp;key=" . $aThread->key;
-$popup_q = "&amp;popup=1";
-$offline_q = "&amp;offline=1";
+$ttitle_en_q = '&amp;ttitle_en=' . $ttitle_urlen;
+$bbs_q = '&amp;bbs=' . $aThread->bbs;
+$key_q = '&amp;key=' . $aThread->key;
+$host_bbs_key_q = 'host=' . $aThread->host . $bbs_q . $key_q;
+$popup_q = '&amp;popup=1';
+$offline_q = '&amp;offline=1';
 
 //=================================================================
 // ヘッダ
@@ -37,17 +38,17 @@ $offline_q = "&amp;offline=1";
 $rnum_range = 100;
 $latest_show_res_num = 50; // 最新XX
 
-$read_navi_range = "";
+$read_navi_range = '';
 
 //----------------------------------------------
 // $read_navi_range -- 1- 101- 201-
 for ($i = 1; $i <= $aThread->rescount; $i = $i + $rnum_range) {
-    $offline_range_q = "";
+    $offline_range_q = '';
     $ito = $i + $rnum_range - 1;
     if ($ito <= $aThread->gotnum) {
         $offline_range_q = $offline_q;
     }
-    $read_navi_range = $read_navi_range . "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$i}-{$ito}{$offline_range_q}\">{$i}-</a>\n";
+    $read_navi_range = $read_navi_range . "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$i}-{$ito}{$offline_range_q}\">{$i}-</a>\n";
 
 }
 
@@ -67,8 +68,8 @@ if ($aThread->resrange['start'] == 1) {
 //}
 
 if (!$read_navi_previous_isInvisible) {
-    $read_navi_previous = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}{$offline_q}{$read_navi_previous_anchor}\">{$prev_st}{$rnum_range}</a>";
-    $read_navi_previous_header = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}{$offline_q}#r{$aThread->resrange['start']}\">{$prev_st}{$rnum_range}</a>";
+    $read_navi_previous = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}{$offline_q}{$read_navi_previous_anchor}\">{$prev_st}{$rnum_range}</a>";
+    $read_navi_previous_header = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$before_rnum}-{$aThread->resrange['start']}{$offline_q}#r{$aThread->resrange['start']}\">{$prev_st}{$rnum_range}</a>";
 } else {
     $read_navi_previous = '';
     $read_navi_previous_header = '';
@@ -90,22 +91,22 @@ if ($aThread->resrange['to'] == $aThread->rescount) {
 }
 $after_rnum = $aThread->resrange['to'] + $rnum_range;
 
-$offline_range_q = "";
+$offline_range_q = '';
 if ($after_rnum <= $aThread->gotnum) {
     $offline_range_q = $offline_q;
 }
 
 //if (!$read_navi_next_isInvisible) {
-$read_navi_next = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
+$read_navi_next = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->resrange['to']}-{$after_rnum}{$offline_range_q}&amp;nt={$newtime}{$read_navi_next_anchor}\">{$next_st}{$rnum_range}</a>";
 //}
 
 //----------------------------------------------
 // $read_footer_navi_new  続きを読む 新着レスの表示
 
 if ($aThread->resrange['to'] == $aThread->rescount) {
-    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}#r{$aThread->rescount}\" accesskey=\"r\">{$shinchaku_st}</a>";
+    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}#r{$aThread->rescount}\" accesskey=\"r\">{$shinchaku_st}</a>";
 } else {
-    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
+    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->resrange['to']}-{$offline_q}\" accesskey=\"r\">{$tuduki_st}</a>";
 }
 
 
@@ -124,8 +125,6 @@ GOTO;
 //====================================================================
 // HTMLプリント
 //====================================================================
-$sid_q = (defined('SID')) ? '&amp;'.strip_tags(SID) : '';
-
 // ツールバー部分HTML =======
 
 // お気にマーク設定
@@ -141,7 +140,7 @@ if ($_conf['expack.misc.multi_favs']) {
     $favtitle = ((!isset($favlist_titles[0]) || $favlist_titles[0] == '') ? 'お気にスレ' : $favlist_titles[0]) . ($favdo ? 'に追加' : 'から外す');
     $setnum_q = '&amp;setnum=0';
     $toolbar_setfav_ht .= <<<EOP
-<span class="favdo set0"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onclick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '0');" title="{$favtitle}">{$favmark}</a></span>
+<span class="favdo set0"><a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}" target="info" onclick="return setFavJs('{$host_bbs_key_q}{$ttitle_en_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '0');" title="{$favtitle}">{$favmark}</a></span>
 EOP;
     for ($i = 1; $i <= $_conf['expack.misc.favset_num']; $i++) {
         $favdo = (!empty($aThread->favs[$i])) ? 0 : 1;
@@ -150,7 +149,7 @@ EOP;
         $favtitle = ((!isset($favlist_titles[$i]) || $favlist_titles[$i] == '') ? 'お気にスレ' . $i : $favlist_titles[$i]) . ($favdo ? 'に追加' : 'から外す');
         $setnum_q = '&amp;setnum=' . $i;
         $toolbar_setfav_ht .= <<<EOP
-|<span class="favdo set{$i}"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}{$sid_q}" target="info" onclick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '{$i}');" title="{$favtitle}">{$favmark}</a></span>
+|<span class="favdo set{$i}"><a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}{$favdo_q}{$setnum_q}" target="info" onclick="return setFavJs('{$host_bbs_key_q}{$ttitle_en_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this, '{$i}');" title="{$favtitle}">{$favmark}</a></span>
 EOP;
     }
     $toolbar_setfav_ht .= ']';
@@ -160,18 +159,18 @@ EOP;
     $favmark = $favdo ? '+' : '★';
     $favtitle = $favdo ? 'お気にスレに追加' : 'お気にスレから外す';
     $toolbar_setfav_ht = <<<EOP
-<span class="favdo"><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$favdo_q}{$sid_q}" target="info" onclick="return setFavJs('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span>
+<span class="favdo"><a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}{$favdo_q}" target="info" onclick="return setFavJs('{$host_bbs_key_q}{$ttitle_en_q}', '{$favdo}', {$STYLE['info_pop_size']}, 'read', this);" title="{$favtitle}">お気に{$favmark}</a></span>
 EOP;
 }
 
 $toolbar_right_ht = <<<EOTOOLBAR
-            <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
-            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}" target="info" onclick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$popup_q}{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a>
+            <a href="{$_conf['subject_php']}?{$host_bbs_key_q}" target="subject" title="板を開く">{$itaj_hd}</a>
+            <a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}" target="info" onclick="return OpenSubWin('info.php?{$host_bbs_key_q}{$ttitle_en_q}{$popup_q}',{$STYLE['info_pop_size']},0,0)" title="スレッド情報を表示">{$info_st}</a>
             {$toolbar_setfav_ht}
-            <span><a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true" target="info" onclick="return deleLog('host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$sid_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span>
-<!--            <a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onclick="return OpenSubWin('info.php?host={$aThread->host}{$bbs_q}&amp;key={$aThread->key}{$ttitle_en_q}&amp;popup=2&amp;taborn=2{$sid_q}',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
-            <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示">{$moto_thre_st}</a>
-            <a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$similar_q}" target="subject" title="タイトルが似ているスレッドを検索">{$siml_thre_st}</a>
+            <span><a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}&amp;dele=true" target="info" onclick="return deleLog('{$host_bbs_key_q}{$ttitle_en_q}', {$STYLE['info_pop_size']}, 'read', this);" title="ログを削除する">{$delete_st}</a></span>
+<!--            <a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}&amp;taborn=2" target="info" onclick="return OpenSubWin('info.php?{$host_bbs_key_q}{$ttitle_en_q}&amp;popup=2&amp;taborn=2',{$STYLE['info_pop_size']},0,0)" title="スレッドのあぼーん状態をトグルする">{$aborn_st}</a> -->
+            <a href="{$motothre_url}" title="板サーバ上のオリジナルスレを表示" onmouseover="showMotoLsPopUp(event, this)" onmouseout="hideMotoLsPopUp()">{$moto_thre_st}</a>
+            <a href="{$_conf['subject_php']}?{$host_bbs_key_q}{$similar_q}" target="subject" title="タイトルが似ているスレッドを検索">{$siml_thre_st}</a>
 EOTOOLBAR;
 
 //=====================================
@@ -191,6 +190,7 @@ echo <<<EOP
     <script type="text/javascript" src="js/basic.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/htmlpopup.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/motolspopup.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/ngabornctl.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>\n
@@ -275,7 +275,7 @@ echo <<<EOP
 EOP;
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 // スレが板サーバになければ ============================
 if ($aThread->diedat) {
@@ -405,10 +405,10 @@ if (empty($_GET['renzokupop']) && ($aThread->rescount || (!empty($_GET['one']) &
 <table{$id_header} class="toolbar">
     <tr>
         <td class="lblock">
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=all">{$all_st}</a>
+            <a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls=all">{$all_st}</a>
             {$read_navi_range}
             {$read_navi_previous_header}
-            <a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a> {$htm['goto']}
+            <a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls=l{$latest_show_res_num}">{$latest_st}{$latest_show_res_num}</a> {$htm['goto']}
         </td>
         <td class="rblock">{$htm['p2frame']} {$toolbar_right_ht}</td>
         <td class="rblock"><a href="#footer">▼</a></td>

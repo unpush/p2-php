@@ -439,6 +439,7 @@ function readNew($aThread)
     $ttitle_en_q = '&amp;ttitle_en=' . $ttitle_en;
     $bbs_q = '&amp;bbs=' . $aThread->bbs;
     $key_q = '&amp;key=' . $aThread->key;
+    $host_bbs_key_q = 'host=' . $aThread->host . $bbs_q . $key_q;
     $popup_q = '&amp;popup=1';
 
     // require_once P2_LIB_DIR . '/read_header.inc.php';
@@ -495,6 +496,7 @@ EOP;
     $delete_st = '削';
     $prev_st = '前';
     $next_st = '次';
+    //$dores_st = 'ﾚｽ';
 
     // 表示範囲
     if ($aThread->resrange['start'] == $aThread->resrange['to']) {
@@ -504,16 +506,16 @@ EOP;
     }
     $read_range_ht = "{$read_range_on}/{$aThread->rescount}";
 
-    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\" target=\"_blank\">新着ﾚｽの表示</a>";
+    $read_footer_navi_new = "<a href=\"{$_conf['read_php']}?{$host_bbs_key_q}&amp;ls={$aThread->rescount}-&amp;nt={$newtime}{$_conf['k_at_a']}#r{$aThread->rescount}\" target=\"_blank\">新着ﾚｽの表示</a>";
 
     /*
     if (!empty($_conf['disable_res'])) {
         $dores_ht = <<<EOP
-<a href="{$motothre_url}" target="_blank">ﾚｽ</a>
+<a href="{$motothre_url}" target="_blank">{$dores_st}</a>
 EOP;
     } else {
         $dores_ht = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">ﾚｽ</a>
+<a href="post_form.php?{$host_bbs_key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}">{$dores_st}</a>
 EOP;
     }
     */
@@ -521,7 +523,7 @@ EOP;
     // ツールバー部分HTML =======
     if ($spmode) {
         $toolbar_itaj_ht = <<<EOP
- (<a href="{$_conf['subject_php']}?host={$aThread->host}{$bbs_q}{$key_q}{$_conf['k_at_a']}" target="_blank">{$itaj_hd}</a>)
+ (<a href="{$_conf['subject_php']}?{$host_bbs_key_q}{$_conf['k_at_a']}" target="_blank">{$itaj_hd}</a>)
 EOP;
     } else {
         $toolbar_itaj_ht = '';
@@ -529,8 +531,8 @@ EOP;
 
     /*
     $toolbar_right_ht .= <<<EOTOOLBAR
-<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
-<a href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a>
+<a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}">{$info_st}</a>
+<a href="info.php?{$host_bbs_key_q}{$ttitle_en_q}&amp;dele=true{$_conf['k_at_a']}">{$delete_st}</a>
 <a href="{$motothre_url}" target="_blank">元ｽﾚ</a>\n
 EOTOOLBAR;
     */
@@ -538,10 +540,10 @@ EOTOOLBAR;
     $read_footer_ht = <<<EOP
 <div id="ntt_bt{$newthre_num}" name="ntt_bt{$newthre_num}" class="read_new_toolbar">
 {$read_range_ht}
-<a class="button" href="info.php?host={$aThread->host}{$bbs_q}{$key_q}{$ttitle_en_q}{$_conf['k_at_a']}" target="_blank">{$info_st}</a>
-<a class="button" href="spm_k.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}" target="_blank">特</a>
+<a class="button" href="info.php?{$host_bbs_key_q}{$ttitle_en_q}{$_conf['k_at_a']}" target="_blank">{$info_st}</a>
+<a class="button" href="spm_k.php?{$host_bbs_key_q}&amp;ls={$aThread->ls}&amp;spm_default={$aThread->resrange['to']}&amp;from_read_new=1{$_conf['k_at_a']}" target="_blank">特</a>
 <br>
-<a href="{$_conf['read_php']}?host={$aThread->host}{$bbs_q}{$key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}" target="_blank">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
+<a href="{$_conf['read_php']}?{$host_bbs_key_q}&amp;offline=1&amp;rescount={$aThread->rescount}{$_conf['k_at_a']}#r{$aThread->rescount}" target="_blank">{$aThread->ttitle_hd}</a>{$toolbar_itaj_ht}
 <a class="button" href="#ntt{$newthre_num}">▲</a>
 </div>
 <hr>\n
@@ -617,7 +619,9 @@ echo "<hr><div class=\"center\">{$_conf['k_to_index_ht']}</div>";
 if ($_conf['iphone']) {
     // ImageCache2
     if ($_conf['expack.ic2.enabled']) {
-        require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+        if (!function_exists('ic2_loadconfig')) {
+            include P2EX_LIB_DIR . '/ic2/bootstrap.php';
+        }
         $ic2conf = ic2_loadconfig();
         if ($ic2conf['Thumb1']['width'] > 80) {
             include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';

@@ -156,7 +156,7 @@ $input_find_cont_ht = <<<EOP
 EOP;
 
 $filter_form_ht = <<<EOP
-        <form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
+        <form class="toolbar" method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}" target="_self">
             {$sb_form_hidden_ht}
             <input type="text" name="word" value="{$hd['word']}" size="16">{$sb_form_method_ht}
             {$input_find_cont_ht}
@@ -212,6 +212,8 @@ echo <<<EOP
     <script type="text/javascript" src="js/setfavjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/settabornjs.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/delelog.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/respopup.js?{$_conf['p2_version_id']}"></script>
+    <script type="text/javascript" src="js/motolspopup.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript" src="js/jquery.pack.js?{$_conf['p2_version_id']}"></script>
     <script type="text/javascript">
     //<![CDATA[
@@ -329,7 +331,7 @@ EOP;
 include P2_LIB_DIR . '/sb_toolbar.inc.php';
 
 echo $_info_msg_ht;
-$_info_msg_ht = "";
+$_info_msg_ht = '';
 
 echo <<<EOP
 {$taborn_check_ht}{$check_form_ht}

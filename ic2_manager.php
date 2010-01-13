@@ -19,10 +19,8 @@ if (!$_conf['expack.ic2.enabled']) {
 // {{{ ‰Šú‰»
 
 // ƒ‰ƒCƒuƒ‰ƒŠ“Ç‚Ýž‚Ý
-require_once 'PEAR.php';
-require_once 'DB.php';
 require_once 'HTML/Template/Flexy.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // Ý’è“Ç‚Ýž‚Ý
 $ini = ic2_loadconfig();
@@ -52,8 +50,6 @@ if (isset($_POST['action'])) {
 
         case 'dropZero':
         case 'dropAborn':
-            require_once P2EX_LIB_DIR . '/ic2/managedb.inc.php';
-
             if ($_POST['action'] == 'dropZero') {
                 $where = $db->quoteIdentifier('rank') . ' = 0';
                 if (isset($_POST['dropZeroLimit'])) {
@@ -89,7 +85,7 @@ if (isset($_POST['action'])) {
                 break;
             }
             $target = $result[0];
-            $removed_files = manageDB_remove($target, $to_blacklist);
+            $removed_files = IC2_DatabaseManager::remove($target, $to_blacklist);
             $flexy->setData('toBlackList', $to_blacklist);
             break;
 

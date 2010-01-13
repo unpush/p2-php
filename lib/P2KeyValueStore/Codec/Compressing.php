@@ -1,12 +1,11 @@
 <?php
-require_once dirname(__FILE__) . '/Binary.php';
 
-// {{{ P2KeyValueStore_Compressing
+// {{{ P2KeyValueStore_Codec_Compressing
 
 /**
- * サイズの大きいデータを圧縮して永続化する
+ * サイズの大きいデータを圧縮するCodec
  */
-class P2KeyValueStore_Compressing extends P2KeyValueStore_Binary
+class P2KeyValueStore_Codec_Compressing extends P2KeyValueStore_Codec_Binary
 {
     // {{{ encodeValue()
 

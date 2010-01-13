@@ -1029,6 +1029,18 @@ class P2Util
     }
 
     // }}}
+    // }}}
+    // {{{ isBrowserAndroid()
+
+    /**
+     * ƒuƒ‰ƒEƒU‚ªAndroidh‚È‚çtrue‚ğ•Ô‚·
+     */
+    static public function isBrowserAndroid()
+    {
+        return (strpos($_SERVER['HTTP_USER_AGENT'], 'Android') !== false);
+    }
+
+    // }}}
     // {{{ isUrlWikipediaJa()
 
     /**
@@ -1817,13 +1829,13 @@ ERR;
             require P2_LIB_DIR . '/P2Client.php';
         }
 
-        if (!is_dir($_conf['cookie_dir'])) {
-            FileCtl::mkdir_r($_conf['cookie_dir']);
+        if (!is_dir($_conf['db_dir'])) {
+            FileCtl::mkdir_r($_conf['db_dir']);
         }
 
         try {
             return new P2Client($_conf['p2_2ch_mail'], $_conf['p2_2ch_pass'],
-                                $_conf['cookie_dir'], (bool)$_conf['p2_2ch_ignore_cip']);
+                                $_conf['db_dir'], (bool)$_conf['p2_2ch_ignore_cip']);
         } catch (P2Exception $e) {
             p2die($e->getMessage());
         }

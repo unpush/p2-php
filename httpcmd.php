@@ -235,7 +235,9 @@ case 'offline':
 
 case 'ic2':
     if (isset($_REQUEST['switch'])) {
-        require_once P2EX_LIB_DIR . '/ic2/Switch.php';
+        if (!class_exists('IC2_Switch', false)) {
+            include P2EX_LIB_DIR . '/ic2/Switch.php';
+        }
         $switch = (bool)$_REQUEST['switch'];
         if (IC2_Switch::set($switch, !empty($_REQUEST['mobile']))) {
             if ($switch) {

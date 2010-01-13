@@ -112,11 +112,7 @@ class ExpackLoader
         if ((!$_conf['ktai'] && $_conf['expack.ic2.enabled'] % 2 == 1) ||
             ($_conf['ktai'] && $_conf['expack.ic2.enabled'] >= 2))
         {
-            self::loadFunction('ic2_loadconfig',        'ic2/loadconfig.inc.php');
-            self::loadClass('IC2_DataObject_Images',    'ic2/DataObject/Images.php');
-            self::loadClass('IC2_DataObject_BlackList', 'ic2/DataObject/BlackList.php');
-            self::loadClass('IC2_DataObject_Errors',    'ic2/DataObject/Errors.php');
-            self::loadClass('IC2_Thumbnailer',          'ic2/Thumbnailer.php');
+            self::loadFunction('ic2_loadconfig', 'ic2/bootstrap.php');
             define('P2_IMAGECACHE_AVAILABLE', 2);
         } else {
             define('P2_IMAGECACHE_AVAILABLE', 0);
@@ -199,7 +195,7 @@ class ExpackLoader
         if ($_conf['iphone']) {
             $aShowThread->aas_rotate = '&#x21BB;';
         } elseif ($_conf['ktai']) {
-            $mobile = &Net_UserAgent_Mobile::singleton();
+            $mobile = Net_UserAgent_Mobile::singleton();
             /**
              * @link http://www.nttdocomo.co.jp/service/imode/make/content/pictograph/
              * @link http://www.au.kddi.com/ezfactory/tec/spec/3.html

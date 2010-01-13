@@ -2,6 +2,9 @@
 /**
  * rep2expack - P2KeyValueStoreをラップする
  * ユーティリティクラスのための基底抽象クラス
+ *
+ * P2KeyValueStoreはrep2に依存せず単体で使えるが、
+ * P2DataStoreはrep2で使うために設計されている。
  */
 
 require_once P2_LIB_DIR . '/P2KeyValueStore.php';
@@ -12,6 +15,11 @@ abstract class AbstractDataStore
 {
     // {{{ properties
 
+    /**
+     * P2KeyValueStoreオブジェクトを保持する連想配列
+     *
+     * @var array
+     */
     static private $_kvs = array();
 
     // }}}
@@ -25,12 +33,14 @@ abstract class AbstractDataStore
      * @return P2KeyValueStore
      */
     static protected function _getKVS($databasePath,
-                                      $type = P2KeyValueStore::KVS_SERIALIZING)
+                                      $type = P2KeyValueStore::CODEC_SERIALIZING)
     {
         global $_conf;
 
-        if (array_key_exists($databasePath, self::$_kvs)) {
-            return self::$_kvs[$databasePath];
+        $id = $type . ':' . $databasePath;
+
+        if (array_key_exists($id, self::$_kvs)) {
+            return self::$_kvs[$id];
         }
 
         if (!file_exists($databasePath) && !is_dir(dirname($databasePath))) {
@@ -39,7 +49,7 @@ abstract class AbstractDataStore
 
         try {
             $kvs = P2KeyValueStore::getStore($databasePath, $type);
-            self::$_kvs[$databasePath] = $kvs;
+            self::$_kvs[$id] = $kvs;
         } catch (Exception $e) {
             p2die(get_class($e) . ': ' . $e->getMessage());
         }
@@ -133,8 +143,11 @@ abstract class AbstractDataStore
             return $kvs->clear();
         }
 
-        $pattern = str_replace(array('%', '_'), array('\\%', '\\_'), $kvs->encodeKey($prefix));
-        $stmt = $kvs->prepare('DELETE FROM $__table WHERE arkey LIKE :pattern ESCAPE :escape', true);
+        $pattern = str_replace(array(  '%',   '_',   '\\'),
+                               array('\\%', '\\_', '\\\\'),
+                               $kvs->encodeKey($prefix));
+        $query = 'DELETE FROM $__table WHERE $__key LIKE :pattern ESCAPE :escape';
+        $stmt = $kvs->prepare($query);
         $stmt->bindValue(':pattern', $pattern);
         $stmt->bindValue(':escape', '\\');
 

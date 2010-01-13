@@ -30,7 +30,7 @@ if ($_conf['ktai']) {
     //=========================================================
     // url指定があれば、そのままスレッド読みへ飛ばす
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
-        header('Location: '.$me_dir_url.'/read.php?'.$_SERVER['QUERY_STRING']);
+        header('Location: '.$me_dir_url . '/read.php?' . $_SERVER['QUERY_STRING']);
         exit;
     }
     if ($_conf['iphone']) {
@@ -47,7 +47,7 @@ if ($_conf['ktai']) {
     $title_page = "title.php";
 
     if (!empty($_GET['url']) || !empty($_GET['nama_url'])) {
-        $htm['read_page'] = "read.php?".$_SERVER['QUERY_STRING'];
+        $htm['read_page'] = 'read.php?' . $_SERVER['QUERY_STRING'];
     } else {
         if (!empty($_conf['first_page'])) {
             $htm['read_page'] = $_conf['first_page'];

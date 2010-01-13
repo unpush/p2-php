@@ -1,38 +1,37 @@
 <?php
-require_once dirname(__FILE__) . '/../P2KeyValueStore.php';
 
-// {{{ P2KeyValueStore_Binary
+// {{{ P2KeyValueStore_Codec_Serializing
 
 /**
- * バイナリデータを永続化する
+ * 値をシリアライズ・アンシリアライズするCodec
  */
-class P2KeyValueStore_Binary extends P2KeyValueStore
+class P2KeyValueStore_Codec_Serializing extends P2KeyValueStore_Codec_Compressing
 {
     // {{{ encodeValue()
 
     /**
-     * データをBase64エンコードする
+     * 値をシリアライズする
      *
-     * @param string $value
+     * @param mixed $value
      * @return string
      */
     public function encodeValue($value)
     {
-        return base64_encode($value);
+        return parent::encodeValue(serialize($value));
     }
 
     // }}}
     // {{{ decodeValue()
 
     /**
-     * データをBase64デコードする
+     * 値をアンシリアライズする
      *
      * @param string $value
-     * @return string
+     * @return mixed
      */
     public function decodeValue($value)
     {
-        return base64_decode($value);
+        return unserialize(parent::decodeValue($value));
     }
 
     // }}}

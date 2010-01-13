@@ -22,6 +22,8 @@ $_conf['idx_dir'] = "./data";       // ("./data")
 // 初期設定データ保存ディレクトリ
 $_conf['pref_dir'] = "./data";      // ("./data")
 
+// SQLite3データベース保存ディレクトリ
+$_conf['db_dir'] = "./data/db";     // ("./data/db")
 
 // 将来的には以下のようにしたい予定
 // $_conf['dat_dir']  = $_conf['data_dir'] . '/dat';

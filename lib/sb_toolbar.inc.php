@@ -53,7 +53,7 @@ echo <<<EOP
     <tr>
         <td class="toolbar-title">{$ptitle_ht}</td>
         <td class="toolbar-update">
-            <form class="toolbar" method="GET" action="subject.php" accept-charset="{$_conf['accept_charset']}" target="_self">
+            <form class="toolbar" method="GET" action="{$_conf['subject_php']}" accept-charset="{$_conf['accept_charset']}" target="_self">
                 {$sb_form_hidden_ht}
                 {$sb_disp_num_ht}
                 <input type="hidden" name="submit_refresh" value="1">

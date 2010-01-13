@@ -7,7 +7,7 @@
 // バージョン情報
 $_conf = array(
     'p2version' => '1.7.29+1.8.x',  // rep2のバージョン
-    'p2expack'  => '100105.2345',   // 拡張パックのバージョン
+    'p2expack'  => '100113.1300',   // 拡張パックのバージョン
     'p2name'    => 'expack',        // rep2の名前
 );
 
@@ -136,9 +136,6 @@ function p2configure()
         define('P2_OS_WINDOWS', 0);
     }
 
-    $DIR_SEP = DIRECTORY_SEPARATOR;
-    $PATH_SEP = PATH_SEPARATOR;
-
     // ヌルバイト定数
     // mbstring.script_encoding = SJIS-win だと
     // "\0", "\x00" 以降がカットされるので、chr()関数を使う
@@ -156,44 +153,43 @@ function p2configure()
     define('P2_CONF_DIR', dirname(__FILE__)); // __DIR__ @php-5.3
 
     define('P2_BASE_DIR', dirname(P2_CONF_DIR));
-    $P2_BASE_DIR_S = P2_BASE_DIR . $DIR_SEP;
 
     // 基本的な機能を提供するするライブラリ
-    define('P2_LIB_DIR', $P2_BASE_DIR_S . 'lib');
+    define('P2_LIB_DIR', P2_BASE_DIR . '/lib');
 
     // おまけ的な機能を提供するするライブラリ
-    define('P2EX_LIB_DIR', $P2_BASE_DIR_S . 'lib' . $DIR_SEP . 'expack');
+    define('P2EX_LIB_DIR', P2_BASE_DIR . '/lib/expack');
 
     // スタイルシート
-    define('P2_STYLE_DIR', $P2_BASE_DIR_S . 'style');
+    define('P2_STYLE_DIR', P2_BASE_DIR . '/style');
 
     // スキン
-    define('P2_SKIN_DIR', $P2_BASE_DIR_S . 'skin');
-    define('P2_USER_SKIN_DIR', $P2_BASE_DIR_S . 'user_skin');
+    define('P2_SKIN_DIR', P2_BASE_DIR . '/skin');
+    define('P2_USER_SKIN_DIR', P2_BASE_DIR . '/user_skin');
 
     // PEARインストールディレクトリ、検索パスに追加される
-    define('P2_PEAR_DIR', P2_BASE_DIR . DIRECTORY_SEPARATOR . 'includes');
+    define('P2_PEAR_DIR', P2_BASE_DIR . '/includes');
 
     // PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
     // Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
     // include_pathを追加するのはパフォーマンスに影響を及ぼすため、本当に必要な場合のみ定義
     if (defined('P2_USE_PEAR_HACK')) {
-        define('P2_PEAR_HACK_DIR', $P2_BASE_DIR_S . 'lib' . $DIR_SEP . 'pear_hack');
+        define('P2_PEAR_HACK_DIR', P2_BASE_DIR . '/lib/pear_hack');
     }
 
     // コマンドラインツール
-    define('P2_CLI_DIR', $P2_BASE_DIR_S . 'cli');
+    define('P2_CLI_DIR', P2_BASE_DIR . '/cli');
 
     // 検索パスをセット
     $include_path = '';
     if (defined('P2_PEAR_HACK_DIR')) {
-        $include_path .= P2_PEAR_HACK_DIR . $PATH_SEP;
+        $include_path .= P2_PEAR_HACK_DIR . PATH_SEPARATOR;
     }
     if (is_dir(P2_PEAR_DIR)) {
-        $include_path .= P2_PEAR_DIR . $PATH_SEP;
+        $include_path .= P2_PEAR_DIR . PATH_SEPARATOR;
     } else {
         $paths = array();
-        foreach (explode($PATH_SEP, get_include_path()) as $dir) {
+        foreach (explode(PATH_SEPARATOR, get_include_path()) as $dir) {
             if (is_dir($dir)) {
                 $dir = realpath($dir);
                 if ($dir != P2_BASE_DIR) {
@@ -202,21 +198,18 @@ function p2configure()
             }
         }
         if (count($paths)) {
-            $include_path .= implode($PATH_SEP, array_unique($paths)) . $PATH_SEP;
+            $include_path .= implode(PATH_SEPARATOR, array_unique($paths)) . PATH_SEPARATOR;
         }
     }
     $include_path .= P2_BASE_DIR; // fallback
     set_include_path($include_path);
 
-    $P2_CONF_DIR_S = P2_CONF_DIR . $DIR_SEP;
-    $P2_LIB_DIR_S = P2_LIB_DIR . $DIR_SEP;
-
     // }}}
     // {{{ 環境チェックとデバッグ
 
     // ユーティリティを読み込む
-    include $P2_LIB_DIR_S . 'P2Util.php';
-    include $P2_LIB_DIR_S . 'p2util.inc.php';
+    include P2_LIB_DIR . '/P2Util.php';
+    include P2_LIB_DIR . '/p2util.inc.php';
 
     // 動作環境を確認 (要件を満たしているならコメントアウト可)
     p2checkenv(__LINE__);
@@ -251,7 +244,7 @@ function p2configure()
     // {{{ 管理者用設定etc.
 
     // 管理者用設定を読み込み
-    include $P2_CONF_DIR_S . 'conf_admin.inc.php';
+    include P2_CONF_DIR . '/conf_admin.inc.php';
 
     // ディレクトリの絶対パス化
     $_conf['data_dir'] = p2_realpath($_conf['data_dir']);
@@ -260,24 +253,24 @@ function p2configure()
     $_conf['pref_dir'] = p2_realpath($_conf['pref_dir']);
 
     // 管理用保存ディレクトリ
-    $_conf['admin_dir'] = $_conf['data_dir'] . $DIR_SEP . 'admin';
+    $_conf['admin_dir'] = $_conf['data_dir'] . '/admin';
 
     // cache 保存ディレクトリ
     // 2005/06/29 $_conf['pref_dir'] . '/p2_cache' より変更
-    $_conf['cache_dir'] = $_conf['data_dir'] . $DIR_SEP . 'cache';
+    $_conf['cache_dir'] = $_conf['data_dir'] . '/cache';
 
     // Cookie 保存ディレクトリ
     // 2008/09/09 $_conf['pref_dir'] . '/p2_cookie' より変更
-    $_conf['cookie_dir'] = $_conf['data_dir'] . $DIR_SEP . 'cookie';
+    $_conf['cookie_dir'] = $_conf['data_dir'] . '/cookie';
 
     // コンパイルされたテンプレートの保存ディレクトリ
-    $_conf['compile_dir'] = $_conf['data_dir'] . $DIR_SEP . 'compile';
+    $_conf['compile_dir'] = $_conf['data_dir'] . '/compile';
 
     // セッションデータ保存ディレクトリ
-    $_conf['session_dir'] = $_conf['data_dir'] . $DIR_SEP . 'session';
+    $_conf['session_dir'] = $_conf['data_dir'] . '/session';
 
     // テンポラリディレクトリ
-    $_conf['tmp_dir'] = $_conf['data_dir'] . $DIR_SEP . 'tmp';
+    $_conf['tmp_dir'] = $_conf['data_dir'] . '/tmp';
 
     // バージョンIDを二重引用符やヒアドキュメント内に埋め込むための変数
     $_conf['p2_version_id'] = P2_VERSION_ID;
@@ -293,34 +286,38 @@ function p2configure()
     // }}}
     // {{{ 変数設定
 
-    $pref_dir_s = $_conf['pref_dir'] . $DIR_SEP;
+    $preferences = array(
+        'favita_brd'        => 'p2_favita.brd',         // お気に板 (brd)
+        'favlist_idx'       => 'p2_favlist.idx',        // お気にスレ (idx)
+        'recent_idx'        => 'p2_recent.idx',         // 最近読んだスレ (idx)
+        'palace_idx'        => 'p2_palace.idx',         // スレの殿堂 (idx)
+        'res_hist_idx'      => 'p2_res_hist.idx',       // 書き込みログ (idx)
+        'res_hist_dat'      => 'p2_res_hist.dat',       // 書き込みログファイル (dat)
+        'res_hist_dat_php'  => 'p2_res_hist.dat.php',   // 書き込みログファイル (データPHP)
+        'idpw2ch_php'       => 'p2_idpw2ch.php',        // 2ch ID認証設定ファイル (データPHP)
+        'sid2ch_php'        => 'p2_sid2ch.php',         // 2ch ID認証セッションID記録ファイル (データPHP)
+        'auth_user_file'    => 'p2_auth_user.php',      // 認証ユーザ設定ファイル(データPHP)
+        'auth_imodeid_file' => 'p2_auth_imodeid.php',   // docomo iモードID認証ファイル (データPHP)
+        'auth_docomo_file'  => 'p2_auth_docomo.php',    // docomo 端末製造番号認証ファイル (データPHP)
+        'auth_ez_file'      => 'p2_auth_ez.php',        // EZweb サブスクライバID認証ファイル (データPHP)
+        'auth_jp_file'      => 'p2_auth_jp.php',        // SoftBank 端末シリアル番号認証ファイル (データPHP)
+        'login_log_file'    => 'p2_login.log.php',      // ログイン履歴 (データPHP)
+        'login_failed_log_file' => 'p2_login_failed.dat.php',   // ログイン失敗履歴 (データPHP)
+    );
+    foreach ($preferences as $k => $v) {
+        $_conf[$k] = $_conf['pref_dir'] . '/' . $v;
+    }
 
-    $_conf['favita_brd']        = $pref_dir_s . 'p2_favita.brd';        // お気に板 (brd)
-    $_conf['favlist_idx']       = $pref_dir_s . 'p2_favlist.idx';       // お気にスレ (idx)
-    $_conf['recent_idx']        = $pref_dir_s . 'p2_recent.idx';        // 最近読んだスレ (idx)
-    $_conf['palace_idx']        = $pref_dir_s . 'p2_palace.idx';        // スレの殿堂 (idx)
-    $_conf['res_hist_idx']      = $pref_dir_s . 'p2_res_hist.idx';      // 書き込みログ (idx)
-    $_conf['res_hist_dat']      = $pref_dir_s . 'p2_res_hist.dat';      // 書き込みログファイル (dat)
-    $_conf['res_hist_dat_php']  = $pref_dir_s . 'p2_res_hist.dat.php';  // 書き込みログファイル (データPHP)
-    $_conf['idpw2ch_php']       = $pref_dir_s . 'p2_idpw2ch.php';       // 2ch ID認証設定ファイル (データPHP)
-    $_conf['sid2ch_php']        = $pref_dir_s . 'p2_sid2ch.php';        // 2ch ID認証セッションID記録ファイル (データPHP)
-    $_conf['auth_user_file']    = $pref_dir_s . 'p2_auth_user.php';     // 認証ユーザ設定ファイル(データPHP)
-    $_conf['auth_imodeid_file'] = $pref_dir_s . 'p2_auth_imodeid.php';  // docomo iモードID認証ファイル (データPHP)
-    $_conf['auth_docomo_file']  = $pref_dir_s . 'p2_auth_docomo.php';   // docomo 端末製造番号認証ファイル (データPHP)
-    $_conf['auth_ez_file']      = $pref_dir_s . 'p2_auth_ez.php';       // EZweb サブスクライバID認証ファイル (データPHP)
-    $_conf['auth_jp_file']      = $pref_dir_s . 'p2_auth_jp.php';       // SoftBank 端末シリアル番号認証ファイル (データPHP)
-    $_conf['login_log_file']    = $pref_dir_s . 'p2_login.log.php';     // ログイン履歴 (データPHP)
-    $_conf['login_failed_log_file'] = $pref_dir_s . 'p2_login_failed.dat.php';  // ログイン失敗履歴 (データPHP)
-
-    $_conf['matome_cache_path'] = $pref_dir_s . 'matome_cache';
+    $_conf['matome_cache_path'] = $_conf['pref_dir'] . '/matome_cache';
     $_conf['matome_cache_ext']  = '.htm';
     $_conf['matome_cache_max']  = 3; // 予備キャッシュの数
 
     $_conf['orig_favita_brd']   = $_conf['favita_brd'];
     $_conf['orig_favlist_idx']  = $_conf['favlist_idx'];
 
-    $_conf['cookie_db_path']    = $_conf['cookie_dir'] . $DIR_SEP . 'p2_cookies.sqlite3';
-    $_conf['post_db_path']      = $_conf['cookie_dir'] . $DIR_SEP . 'p2_post_data.sqlite3';
+    $_conf['cookie_db_path']    = $_conf['db_dir'] . '/p2_cookies.sqlite3';
+    $_conf['post_db_path']      = $_conf['db_dir'] . '/p2_post_data.sqlite3';
+    $_conf['hostcheck_db_path'] = $_conf['db_dir'] . '/p2_hostcheck_cache.sqlite3';
 
     // 補正
     if ($_conf['expack.use_pecl_http'] && !extension_loaded('http')) {
@@ -336,7 +333,7 @@ function p2configure()
 
     // }}}
 
-    include $P2_LIB_DIR_S . 'bootstrap.php';
+    include P2_LIB_DIR . '/bootstrap.php';
 }
 
 // }}}
@@ -381,16 +378,13 @@ function p2checkenv($check_recommended)
         }
     }
 
-    // セーフモード
-    if (ini_get('safe_mode')) {
-        p2die('セーフモードで動作するPHPでは使えません。');
-    }
-
-    // register_globals, magic_quotes_gpc, mbstring.encoding_translation
+    // 有効だと動作しないphp.iniディレクティブ
     $directives = array(
+        'safe_mode',
         'register_globals',
         'magic_quotes_gpc',
         'mbstring.encoding_translation',
+        'session.cookie_httponly',
     );
     foreach ($directives as $directive) {
         if (ini_get($directive)) {
@@ -435,6 +429,65 @@ EOP;
     }
 
     return true;
+}
+
+// }}}
+// {{{ p2checkmigration()
+
+/**
+ * マイグレーションの必要があるかどうかをチェック
+ *
+ * @param   string  $config_version
+ * @return  array
+ */
+function p2checkmigration($config_version)
+{
+    // "yymmdd.hhmm" 形式のマイグレーションが必要な変更のあったバージョン番号の配列
+    // 値はユニークかつ昇順にソートされていなければならない
+    $versions = array(
+        '100113.1300',
+    );
+
+    $migrators = array();
+    $found = false;
+
+    foreach ($versions as $version) {
+        if ($found || version_compare($config_version, $version, '<')) {
+            $found = true;
+            $migrator_name = str_replace('.', '_', $version);
+            $migrator_func = 'p2_migrate_' . $migrator_name;
+            $migrator_file = '/migrators/' . $migrator_name . '.php';
+            $migrators[$migrator_func] = $migrator_file;
+        }
+    }
+
+    if ($found) {
+        return $migrators;
+    } else {
+        return null;
+    }
+}
+
+// }}}
+// {{{ p2migrate()
+
+/**
+ * マイグレーションを実行
+ *
+ * @param array $user_conf 古いユーザー設定
+ * @param array $migrators マイグレーション関数のリスト
+ * @return array 新しいユーザー設定
+ */
+function p2migrate(array $user_conf, array $migrators)
+{
+    global $_conf;
+
+    foreach ($migrators as $migrator_func => $migrator_file) {
+        include P2_LIB_DIR . $migrator_file;
+        $user_conf = $migrator_func($_conf, $user_conf);
+    }
+
+    return $user_conf;
 }
 
 // }}}

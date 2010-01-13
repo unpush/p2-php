@@ -1,14 +1,5 @@
 <?php
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
 
-// {{{ constants
-
-define('P2_IMAGECACHE_BLACKLIST_NOMORE', 0);
-define('P2_IMAGECACHE_BLACKLIST_ABORN', 1);
-define('P2_IMAGECACHE_BLACKLIST_VIRUS', 2);
-
-// }}}
 // {{{ IC2_DataObject_BlackList
 
 class IC2_DataObject_BlackList extends IC2_DataObject_Common

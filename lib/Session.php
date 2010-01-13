@@ -78,7 +78,6 @@ class Session
             $snm = session_name();
             $sid = session_id();
             output_add_rewrite_var($snm, $sid);
-            $GLOBALS['_conf']['sid_at_a'] = '&amp;' . rawurlencode($snm) . '=' . rawurlencode($sid);
         }
 
         /*

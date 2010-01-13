@@ -44,25 +44,14 @@ if ($_conf['view_forced_by_query']) {
 // {{{ 初期化
 
 // ライブラリ読み込み
-require_once 'PEAR.php';
 require_once 'Cache.php';
 require_once 'Cache/Function.php';
-require_once 'DB.php';
-require_once 'DB/DataObject.php';
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/Renderer/ObjectFlexy.php';
 require_once 'HTML/Template/Flexy.php';
 require_once 'HTML/Template/Flexy/Element.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 require_once P2EX_LIB_DIR . '/ic2/QuickForm/Rules.php';
-require_once P2EX_LIB_DIR . '/ic2/EditForm.php';
-require_once P2EX_LIB_DIR . '/ic2/managedb.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/getvalidvalue.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/buildimgcell.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/Matrix.php';
 
 // }}}
 // {{{ config
@@ -337,16 +326,16 @@ $flexy->setData('extra_headers_x', $_conf['extra_headers_xht']);
 // 検証
 $qf->validate();
 $sv = $qf->getSubmitValues();
-$page      = getValidValue('page',   $_defaults['page'], 'intval');
-$cols      = getValidValue('cols',   $_defaults['cols'], 'intval');
-$rows      = getValidValue('rows',   $_defaults['rows'], 'intval');
-$order     = getValidValue('order',  $_defaults['order']);
-$sort      = getValidValue('sort',   $_defaults['sort'] );
-$field     = getValidValue('field',  $_defaults['field']);
-$key       = getValidValue('key',    $_defaults['key']);
-$threshold = getValidValue('threshold', $_defaults['threshold'], 'intval');
-$compare   = getValidValue('compare',   $_defaults['compare']);
-$mode      = getValidValue('mode',      $_defaults['mode'], 'intval');
+$page      = IC2_ParameterUtility::getValidValue('page',   $_defaults['page'], 'intval');
+$cols      = IC2_ParameterUtility::getValidValue('cols',   $_defaults['cols'], 'intval');
+$rows      = IC2_ParameterUtility::getValidValue('rows',   $_defaults['rows'], 'intval');
+$order     = IC2_ParameterUtility::getValidValue('order',  $_defaults['order']);
+$sort      = IC2_ParameterUtility::getValidValue('sort',   $_defaults['sort'] );
+$field     = IC2_ParameterUtility::getValidValue('field',  $_defaults['field']);
+$key       = IC2_ParameterUtility::getValidValue('key',    $_defaults['key']);
+$threshold = IC2_ParameterUtility::getValidValue('threshold', $_defaults['threshold'], 'intval');
+$compare   = IC2_ParameterUtility::getValidValue('compare',   $_defaults['compare']);
+$mode      = IC2_ParameterUtility::getValidValue('mode',      $_defaults['mode'], 'intval');
 
 // 携帯用に調整
 if ($_conf['ktai']) {
@@ -477,14 +466,14 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
     // 一括でパラメータ変更
     case 1:
         // ランクを変更
-        $newrank = intoRange($_POST['setrank'], -1, 5);
-        manageDB_setRank($target, $newrank);
+        $newrank = IC2_ParameterUtility::intoRange($_POST['setrank'], -1, 5);
+        IC2_DatabaseManager::setRank($target, $newrank);
         // メモを追加
         if (!empty($_POST['addmemo'])) {
             $newmemo = get_magic_quotes_gpc() ? stripslashes($_POST['addmemo']) : $_POST['addmemo'];
             $newmemo = $icdb->uniform($newmemo, 'CP932');
             if ($newmemo !== '') {
-                 manageDB_addMemo($target, $newmemo);
+                 IC2_DatabaseManager::addMemo($target, $newmemo);
             }
         }
         break;
@@ -520,13 +509,14 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
 
         // 情報を更新
         if (count($updated) > 0) {
-            manageDB_update($updated);
+            IC2_DatabaseManager::update($updated);
         }
 
         // 削除（＆ブラックリスト送り）
         if (count($removed) > 0) {
             foreach ($removed as $id => $to_blacklist) {
-                $removed_files = array_merge($removed_files, manageDB_remove(array($id), $to_blacklist));
+                $removed_files = array_merge($removed_files,
+                                             IC2_DatabaseManager::remove(array($id), $to_blacklist));
             }
             if ($to_blacklist) {
                 if ($no_blacklist) {
@@ -549,7 +539,8 @@ if (isset($_POST['edit_submit']) && !empty($_POST['change'])) {
 } elseif ($mode == 1 && isset($_POST['edit_remove']) && !empty($_POST['change'])) {
     $target = array_unique(array_map('intval', $_POST['change']));
     $to_blacklist = !empty($_POST['edit_toblack']);
-    $removed_files = array_merge($removed_files, manageDB_remove($target, $to_blacklist));
+    $removed_files = array_merge($removed_files,
+                                 IC2_DatabaseManager::remove($target, $to_blacklist));
     $flexy->setData('toBlackList', $to_blacklist);
 }
 
@@ -795,7 +786,7 @@ if ($all == 0) {
     } else {
         $k_backto = '';
     }
-    $sid_at_a = str_replace('&amp;', '&', $_conf['sid_at_a']);
+
     while ($icdb->fetch()) {
         // 検索結果を配列にし、レンダリング用の要素を付加
         // 配列どうしなら+演算子で要素を追加できる
@@ -818,7 +809,7 @@ if ($all == 0) {
 
         // 表示用変数を設定
         if ($enable_cache) {
-            $add = $cache->call('ic2_image_extra_info', $img);
+            $add = $cache->call('IC2_ImageInfo::getExtraInfo', $img);
             if ($mode == 1) {
                 $chk = IC2_EditForm::imgChecker($img); // 比較的軽いのでキャッシュしない
                 $add += $chk;
@@ -827,7 +818,7 @@ if ($all == 0) {
                 $add += $mng;
             }
         } else {
-            $add = ic2_image_extra_info($img);
+            $add = IC2_ImageInfo::getExtraInfo($img);
             if ($mode == 1) {
                 $chk = IC2_EditForm::imgChecker($img);
                 $add += $chk;
@@ -841,7 +832,8 @@ if ($all == 0) {
             $add['thumb_k'] = $add['thumb'] = 'img/ic_removed.png';
             $add['t_width'] = $add['t_height'] = 32;
             $to_blacklist = false;
-            $removed_files = array_merge($removed_files, manageDB_remove(array($img['id'], $to_blacklist)));
+            $removed_files = array_merge($removed_files,
+                                         IC2_DatabaseManager::remove(array($img['id'], $to_blacklist)));
             $flexy->setData('toBlackList', $to_blacklist);
         } else {
             if (!file_exists($add['thumb'])) {
@@ -852,7 +844,6 @@ if ($all == 0) {
                 } else {
                     $add['thumb'] .= '&uri=' . rawurlencode($img['uri']);
                 }
-                $add['thumb'] .= $sid_at_a;
             }
             if ($_conf['ktai']) {
                 $add['thumb_k'] = 'ic2.php?r=0&t=2';
@@ -861,14 +852,14 @@ if ($all == 0) {
                 } else {
                     $add['thumb_k'] .= '&uri=' . rawurlencode($img['uri']);
                 }
-                $add['thumb_k'] .= $k_backto . $sid_at_a;
+                $add['thumb_k'] .= $k_backto;
             }
         }
         $item = array_merge($img, $add, $status);
 
         // Exif情報を取得
         if ($show_exif && file_exists($add['src']) && $img['mime'] == 'image/jpeg') {
-            $item['exif'] = $enable_cache ? $cache->call('ic2_read_exif', $add['src']) : ic2_read_exif($add['src']);
+            $item['exif'] = $enable_cache ? $cache->call('IC2_ImageInfo::getExifData', $add['src']) : IC2_ImageInfo::getExifData($add['src']);
         } else {
             $item['exif'] = null;
         }

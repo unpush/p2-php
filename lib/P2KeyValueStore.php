@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__) . '/P2KeyValueStore/Iterator.php';
+require_once dirname(__FILE__) . '/P2KeyValueStore/Codec/Interface.php';
 
 // {{{ P2KeyValueStore
 
@@ -34,21 +34,26 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     const Q_CLEAR       = 'DELETE FROM $__table';
     const Q_GC          = 'DELETE FROM $__table WHERE mtime < :expires';
 
-    const KVS_DEFAULT       = 'default';
-    const KVS_BINARY        = 'Binary';
-    const KVS_COMPRESSING   = 'Compressing';
-    const KVS_SHIFTJS       = 'ShiftJIS';
-    const KVS_SERIALIZING   = 'Serializing';
+    const CODEC_DEFAULT     = 'P2KeyValueStore_Codec_Default';
+    const CODEC_BINARY      = 'P2KeyValueStore_Codec_Binary';
+    const CODEC_COMPRESSING = 'P2KeyValueStore_Codec_Compressing';
+    const CODEC_SHIFTJIS    = 'P2KeyValueStore_Codec_ShiftJIS';
+    const CODEC_SERIALIZING = 'P2KeyValueStore_Codec_Serializing';
+
+    const MEMORY_DATABASE   = ':memory:';
 
     // }}}
-    // {{{ staric private properties
+    // {{{ static private properties
 
     /**
-     * データベース毎に一意なPDO,PDOStatement,P2KeyValueStoreのインスタンスを保持する配列
+     * 各種オブジェクトを保持する配列群
      *
      * @var array
      */
-    static private $_objects = array();
+    static private $_pdoCache   = array();
+    static private $_stmtCache  = array();
+    static private $_kvsCache   = array();
+    static private $_codecCache = array();
 
     // }}}
     // {{{ private properties
@@ -61,11 +66,18 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     private $_pdo;
 
     /**
-     * SQLite3データベースのパス
+     * PDOのインスタンスに対応する一意な値
      *
      * @var string
      */
-    private $_path;
+    private $_pdoId;
+
+    /**
+     * Codecのインスタンス
+     *
+     * @var P2KeyValueStore_Codec_Interface
+     */
+    private $_codec;
 
     /**
      * 識別子としてクォート済みのテーブル名
@@ -74,6 +86,13 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     private $_quotedTableName;
 
+    /**
+     * 使い回し用の結果セットオブジェクト
+     *
+     * @var P2KeyValueStore_Result
+     */
+    private $_sharedResult;
+
     // }}}
     // {{{ getStore()
 
@@ -81,95 +100,53 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * シングルトンメソッド
      *
      * @param string $fileName
-     * @param string $type
-     * @param string &$openedPath
+     * @param string $codec
      * @return P2KeyValueStore
-     * @throws InvalidArgumentException, UnexpectedValueException, RuntimeException, PDOException
+     * @throws PDOException
      */
-    static public function getStore($fileName, $type = self::KVS_DEFAULT, &$openedPath = null)
+    static public function getStore($fileName, $codec = self::CODEC_DEFAULT)
     {
-        // 引数の型をチェック
-        if (!is_string($fileName)) {
-            throw new InvalidArgumentException('Parameter #1 \'$fileName\' should be a string value');
+        // オブジェクトIDとテーブル名を決定
+        if (is_object($codec)) {
+            $className = get_class($codec);
+        } else {
+            $className = $codec;
         }
-        if (!is_string($type)) {
-            throw new InvalidArgumentException('Parameter #2 \'$className\' should be a string value');
+        $lcName = strtolower($className);
+        if (strpos($lcName, 'p2keyvaluestore_codec_') === 0) {
+            $codecId = substr($lcName, 22);
+        } else {
+            $codecId = 'user_' . $lcName;
+        }
+        $kvsId = $lcName . ':' . $fileName;
+        $tableName = 'kvs_' . $codecId;
+
+        // P2KeyValueStoreのキャッシュを確認
+        if (array_key_exists($kvsId, self::$_kvsCache)) {
+            return self::$_kvsCache[$kvsId];
         }
 
-        // クラス名をチェック
-        if ($type == self::KVS_DEFAULT) {
-            $className = 'P2KeyValueStore';
+        // PDOのキャッシュを確認
+        if (array_key_exists($fileName, self::$_pdoCache)) {
+            $pdo = self::$_pdoCache[$fileName];
         } else {
-            $className = 'P2KeyValueStore_' . $type;
-        }
-        if (strcasecmp($className, 'P2KeyValueStore') != 0) {
-            if (!class_exists($className, false)) {
-                include dirname(__FILE__) . '/P2KeyValueStore/' . $type . '.php';
-                if (!class_exists($className, false)) {
-                    throw new UnexpectedValueException("Class '{$className}' is not declared");
-                }
-            }
-            if (!is_subclass_of($className, 'P2KeyValueStore')) {
-                throw new UnexpectedValueException("Class '{$className}' is not a subclass of P2KeyValueStore");
-            }
+            $pdo = new PDO('sqlite:' . $fileName);
+            self::$_pdoCache[$fileName] = $pdo;
         }
 
-        // データベースファイルをチェック
-        if ($fileName == ':memory:') {
-            $path = $fileName;
-            $createTable = true;
-        } elseif (file_exists($fileName)) {
-            if (!is_file($fileName)) {
-                throw new RuntimeException("'{$fileName}' is not a standard file");
-            }
-            if (!is_writable($fileName)) {
-                throw new RuntimeException("File '{$fileName}' is not writable");
-            }
-            $path = realpath($fileName);
-            $createTable = false;
-        } else {
-            if (strpos($fileName, '/') !== false ||
-                (strncasecmp(PHP_OS, 'WIN', 3) == 0 && strpos($fileName, '\\') !== false))
-            {
-                $dirName = dirname($fileName);
-                $baseName = basename($fileName);
+        // Codecのキャッシュを確認
+        if (!is_object($codec)) {
+            if (array_key_exists($codecId, self::$_codecCache)) {
+                $codec = self::$_codecCache[$codecId];
             } else {
-                $dirName = getcwd();
-                $baseName = $fileName;
+                $codec = new $className;
+                self::$_codecCache[$codecId] = $codec;
             }
-            if (!is_string($dirName) || !is_dir($dirName)) {
-                throw new RuntimeException("No directory for '{$fileName}'");
-            }
-            if (!is_writable($dirName)) {
-                throw new RuntimeException("Directory '{$dirName}' is not writable");
-            }
-            $path = realpath($dirName) . DIRECTORY_SEPARATOR . $baseName;
-            $createTable = true;
         }
 
-        $lcname = strtolower($className);
-        $tableName = 'kvs_' . $lcname;
-        $openedPath = $path;
-
-        // インスタンスを作成し、静的変数に保持
-        if (array_key_exists($path, self::$_objects)) {
-            if (array_key_exists($lcname, self::$_objects[$path]['persisters'])) {
-                $kvs = self::$_objects[$path]['persisters'][$lcname];
-            } else {
-                $pdo = self::$_objects[$path]['connection'];
-                $kvs = new $className($pdo, $path, $tableName);
-                self::$_objects[$path]['persisters'][$lcname] = $kvs;
-            }
-        } else {
-            $pdo = new PDO('sqlite:' . $path);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $kvs = new $className($pdo, $path, $tableName);
-            self::$_objects[$path] = array(
-                'connection' => $pdo,
-                'statements' => array(),
-                'persisters' => array($lcname => $kvs),
-            );
-        }
+        // P2KeyValueStoreのインスタンスを作成
+        $kvs = new P2KeyValueStore($pdo, $codec, $tableName);
+        self::$_kvsCache[$kvsId] = $kvs;
 
         return $kvs;
     }
@@ -182,19 +159,27 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * getStore()から呼び出される
      *
      * @param PDO $pdo
-     * @param string $path
+     * @param P2KeyValueStore_Codec_Interface $codec
      * @param string $tableName
      * @throws PDOException
      */
-    private function __construct(PDO $pdo, $path, $tableName)
+    public function __construct(PDO $pdo,
+                                P2KeyValueStore_Codec_Interface $codec,
+                                $tableName)
     {
         $this->_pdo = $pdo;
-        $this->_path = $path;
+        $this->_pdoId = spl_object_hash($pdo);
+        $this->_codec = $codec;
         $this->_quotedTableName = '"' . str_replace('"', '""', $tableName) . '"';
+        $this->_sharedResult = new P2KeyValueStore_Result;
+
+        if (!array_key_exists($this->_pdoId, self::$_stmtCache)) {
+            self::$_stmtCache[$this->_pdoId] = array();
+        }
 
         // テーブルが存在するかを調べ
         $stmt = $pdo->prepare(self::Q_TABLEEXISTS);
-        $stmt->bindValue(':table', $tableName, PDO::PARAM_STR);
+        $stmt->bindValue(':table', $tableName);
         $stmt->execute();
         $exists = $stmt->fetchColumn();
         $stmt->closeCursor();
@@ -207,34 +192,56 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     }
 
     // }}}
+    // {{{ _prepare()
+
+    /**
+     * プリペアードステートメントを作成する (内部用)
+     *
+     * @param string $query
+     * @param bool $isTemporary
+     * @param bool $forwardOnly
+     * @return PDOStatement
+     * @throws PDOException
+     */
+    protected function _prepare($query, $isTemporary = false, $forwardOnly = true)
+    {
+        $query = str_replace('$__table', $this->_quotedTableName, $query);
+
+        if (!$isTemporary && array_key_exists($query, self::$_stmtCache[$this->_pdoId])) {
+            $stmt = self::$_stmtCache[$this->_pdoId][$query];
+        } else {
+            if ($forwardOnly && strncmp($query, 'SELECT ', 7) == 0) {
+                $stmt = $this->_pdo->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
+            } else {
+                $stmt = $this->_pdo->prepare($query);
+            }
+            if (!$isTemporary) {
+                self::$_stmtCache[$this->_pdoId][$query] = $stmt;
+            }
+        }
+
+        return $stmt;
+    }
+
+    // }}}
     // {{{ prepare()
 
     /**
      * プリペアードステートメントを作成する
      *
      * @param string $query
-     * @param bool $isTemporary
+     * @param bool $forwardOnly
      * @return PDOStatement
      * @throws PDOException
+     * @see P2KeyValueStore::_prepare()
      */
-    public function prepare($query, $isTemporary = false)
+    public function prepare($query, $forwardOnly = true)
     {
-        $query = str_replace('$__table', $this->_quotedTableName, $query);
-
-        if (!$isTemporary && array_key_exists($query, self::$_objects[$this->_path]['statements'])) {
-            $stmt = self::$_objects[$this->_path]['statements'][$query];
-        } else {
-            if (strncmp($query, 'SELECT ', 7) == 0) {
-                $stmt = $this->_pdo->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY));
-            } else {
-                $stmt = $this->_pdo->prepare($query);
-            }
-            if (!$isTemporary) {
-                self::$_objects[$this->_path]['statements'][$query] = $stmt;
-            }
-        }
-
-        return $stmt;
+        return $this->_prepare(str_replace(array('$__key', '$__value'),
+                                           array( 'arkey',    'value'),
+                                           $query),
+                               true,
+                               $forwardOnly);
     }
 
     // }}}
@@ -253,25 +260,31 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         }
 
         $terms = array();
-        foreach ($orderBy as $column => $ascending) {
-            $direction = $ascending ? 'ASC' : 'DESC';
-            switch ($column) {
-                case 'id':
-                    $terms[] = 'id ' . $direction;
-                    break;
-                case 'key':
-                    $terms[] = 'arkey ' . $direction;
-                    break;
-                case 'value':
-                    $terms[] = 'value ' . $direction;
-                    break;
-                case 'mtime':
-                    $terms[] = 'mtime ' . $direction;
-                    break;
-                case 'order':
-                    $terms[] = 'sort_order ' . $direction;
-                    break;
+        $mapping = array(
+            'id' => 'id',
+            'key' => 'arkey',
+            'arkey' => 'arkey',
+            'value' => 'value',
+            'mtime' => 'mtime',
+            'order' => 'sort_order',
+            'sort_order' => 'sort_order',
+        );
+
+        foreach ($orderBy as $column => $direction) {
+            $column = strtolower($column);
+            if (array_key_exists($column, $mapping)) {
+                $condition = $mapping[$column] . ' ';
+                if (strcasecmp($direction, 'ASC') == 0) {
+                    $condition .= 'ASC';
+                } elseif (strcasecmp($direction, 'DESC') == 0) {
+                    $condition .= 'DESC';
+                } elseif (0 < (int)$direction) {
+                    $condition .= 'ASC';
+                } else {
+                    $condition .= 'DESC';
+                }
             }
+            $terms[] = $condition;
         }
 
         if (count($terms)) {
@@ -303,62 +316,6 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     }
 
     // }}}
-    // {{{ encodeKey()
-
-    /**
-     * キーをUTF-8 or US-ASCII文字列にエンコードする
-     *
-     * @param string $key
-     * @return string
-     */
-    public function encodeKey($key)
-    {
-        return (string)$key;
-    }
-
-    // }}}
-    // {{{ decodeKey()
-
-    /**
-     * キーをデコードする
-     *
-     * @param string $key
-     * @return string
-     */
-    public function decodeKey($key)
-    {
-        return $key;
-    }
-
-    // }}}
-    // {{{ encodeValue()
-
-    /**
-     * 値をUTF-8 or US-ASCII文字列にエンコードする
-     *
-     * @param string $value
-     * @return string
-     */
-    public function encodeValue($value)
-    {
-        return (string)$value;
-    }
-
-    // }}}
-    // {{{ decodeValue()
-
-    /**
-     * 値をデコードする
-     *
-     * @param string $value
-     * @return string
-     */
-    public function decodeValue($value)
-    {
-        return $value;
-    }
-
-    // }}}
     // {{{ exists()
 
     /**
@@ -368,18 +325,19 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * @param int $lifeTime
      * @return bool
      */
-    public function exists($key, $lifeTime = null)
+    public function exists($key, $lifeTime = -1)
     {
-        $stmt = $this->prepare(self::Q_EXSITS);
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
-        $stmt->bindValue(':key', $this->encodeKey($key), PDO::PARAM_STR);
+        $stmt = $this->_prepare(self::Q_EXSITS);
+        $stmt->setFetchMode(PDO::FETCH_INTO, $this->_sharedResult);
+        $stmt->bindValue(':key', $this->_codec->encodeKey($key));
         $stmt->execute();
         $row = $stmt->fetch();
         $stmt->closeCursor();
+
         if ($row === false) {
             return false;
-        } elseif ($lifeTime !== null && $row['mtime'] < time() - $lifeTime) {
-            $this->deleteById($row['id']);
+        } elseif ($row->isExpired()) {
+            $this->deleteById($row->id);
             return false;
         } else {
             return true;
@@ -397,23 +355,24 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * @param int $lifeTime
      * @return array
      */
-    public function findById($id, $lifeTime = null)
+    public function findById($id, $lifeTime = -1)
     {
-        $stmt = $this->prepare(self::Q_FINDBYID);
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
-        $stmt->bindValue(':id', (int)$id, PDO::PARAM_INT);
+        $stmt = $this->_prepare(self::Q_FINDBYID);
+        $stmt->setFetchMode(PDO::FETCH_INTO, $this->_sharedResult);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         $row = $stmt->fetch();
         $stmt->closeCursor();
+
         if ($row === false) {
             return null;
-        } elseif ($lifeTime !== null && $row['mtime'] < time() - $lifeTime) {
+        } elseif ($row->isExpired()) {
             $this->deleteById($id);
             return null;
         } else {
             return array(
-                'key' => $this->decodeKey($row['arkey']),
-                'value' => $this->decodeValue($row['value']),
+                'key' => $this->_codec->decodeKey($row->key),
+                'value' => $this->_codec->decodeValue($row->value),
             );
         }
     }
@@ -428,55 +387,47 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * @param int $lifeTime
      * @return string
      */
-    public function get($key, $lifeTime = null)
+    public function get($key, $lifeTime = -1)
     {
-        $stmt = $this->prepare(self::Q_GET);
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
-        $stmt->bindValue(':key', $this->encodeKey($key), PDO::PARAM_STR);
+        $stmt = $this->_prepare(self::Q_GET);
+        $stmt->setFetchMode(PDO::FETCH_INTO, $this->_sharedResult);
+        $stmt->bindValue(':key', $this->_codec->encodeKey($key));
         $stmt->execute();
         $row = $stmt->fetch();
         $stmt->closeCursor();
+
         if ($row === false) {
             return null;
-        } elseif ($lifeTime !== null && $row['mtime'] < time() - $lifeTime) {
-            $this->deleteById($row['id']);
+        } elseif ($row->isExpired()) {
+            $this->deleteById($row->id);
             return null;
         } else {
-            return $this->decodeValue($row['value']);
+            return $this->_codec->decodeValue($row->value);
         }
     }
 
     // }}}
-    // {{{ getDetail()
+    // {{{ getRaw()
 
     /**
-     * キーに対応するレコードを取得する
+     * キーに対応する結果セットオブジェクトを取得する
      *
      * @param string $key
-     * @param int $lifeTime
-     * @return array
+     * @return P2KeyValueStore_Result
      */
-    public function getDetail($key, $lifeTime = null)
+    public function getRaw($key)
     {
-        $stmt = $this->prepare(self::Q_GET);
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
-        $stmt->bindValue(':key', $this->encodeKey($key), PDO::PARAM_STR);
+        $stmt = $this->_prepare(self::Q_GET);
+        $stmt->setFetchMode(PDO::FETCH_CLASS, 'P2KeyValueStore_Result');
+        $stmt->bindValue(':key', $this->_codec->encodeKey($key));
         $stmt->execute();
         $row = $stmt->fetch();
         $stmt->closeCursor();
+
         if ($row === false) {
             return null;
-        } elseif ($lifeTime !== null && $row['mtime'] < time() - $lifeTime) {
-            $this->deleteById($row['id']);
-            return null;
         } else {
-            return array(
-                'id' => (int)$row['id'],
-                'key' => $this->decodeKey($row['arkey']),
-                'value' => $this->decodeValue($row['value']),
-                'mtime' => (int)$row['mtime'],
-                'order' => (int)$row['sort_order'],
-            );
+            return $row;
         }
     }
 
@@ -490,35 +441,33 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      * @param array $orderBy
      * @param int $limit
      * @param int $offset
-     * @param bool $getDetails
+     * @param bool $getRaw
      * @return array
      */
-    public function getAll(array $orderBy = null, $limit = null, $offset = null, $getDetails = false)
+    public function getAll(array $orderBy = null,
+                           $limit = null, $offset = null,
+                           $getRaw = false)
     {
         $query = self::Q_GETALL
                . $this->buildOrderBy($orderBy)
                . $this->buildLimit($limit, $offset);
-        $stmt = $this->prepare($query, true);
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $stmt = $this->_prepare($query, true);
         $stmt->execute();
+
         $values = array();
-        if ($getDetails) {
+        if ($getRaw) {
+            $stmt->setFetchMode(PDO::FETCH_CLASS, 'P2KeyValueStore_Result');
             while ($row = $stmt->fetch()) {
-                $key = $this->decodeKey($row['arkey']);
-                $values[$key] = array(
-                    'id' => (int)$row['id'],
-                    'key' => $key,
-                    'value' => $this->decodeValue($row['value']),
-                    'mtime' => (int)$row['mtime'],
-                    'order' => (int)$row['sort_order'],
-                );
+                $values[$this->_codec->decodeKey($row->key)] = $row;
             }
         } else {
+            $stmt->setFetchMode(PDO::FETCH_INTO, $this->_sharedResult);
             while ($row = $stmt->fetch()) {
-                $values[$this->decodeKey($row['arkey'])] = $this->decodeValue($row['value']);
+                $value = $this->_codec->decodeValue($row->value);
+                $values[$this->_codec->decodeKey($row->key)] = $value;
             }
         }
-        $stmt->closeCursor();
+
         return $values;
     }
 
@@ -540,15 +489,10 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         $query = self::Q_GETIDS
                . $this->buildOrderBy($orderBy)
                . $this->buildLimit($limit, $offset);
-        $stmt = $this->prepare($query, true);
-        $stmt->setFetchMode(PDO::FETCH_COLUMN, 0);
+        $stmt = $this->_prepare($query, true);
         $stmt->execute();
-        $ids = array();
-        while (($id = $stmt->fetch()) !== false) {
-            $ids[] = (int)$id;
-        }
-        $stmt->closeCursor();
-        return $ids;
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     }
 
     // }}}
@@ -568,14 +512,15 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
         $query = self::Q_GETKEYS
                . $this->buildOrderBy($orderBy)
                . $this->buildLimit($limit, $offset);
-        $stmt = $this->prepare($query, true);
+        $stmt = $this->_prepare($query, true);
         $stmt->setFetchMode(PDO::FETCH_COLUMN, 0);
         $stmt->execute();
+
         $keys = array();
         while (($key = $stmt->fetch()) !== false) {
-            $keys[] = $this->decodeKey($key);
+            $keys[] = $this->_codec->decodeKey($key);
         }
-        $stmt->closeCursor();
+
         return $keys;
     }
 
@@ -592,10 +537,10 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function set($key, $value, $order = 0)
     {
-        $stmt = $this->prepare(self::Q_SET);
-        $stmt->bindValue(':key', $this->encodeKey($key), PDO::PARAM_STR);
-        $stmt->bindValue(':value', $this->encodeValue($value), PDO::PARAM_STR);
-        $stmt->bindValue(':order', (int)$order, PDO::PARAM_INT);
+        $stmt = $this->_prepare(self::Q_SET);
+        $stmt->bindValue(':key', $this->_codec->encodeKey($key));
+        $stmt->bindValue(':value', $this->_codec->encodeValue($value));
+        $stmt->bindValue(':order', $order, PDO::PARAM_INT);
         if ($stmt->execute()) {
             return $stmt->rowCount() == 1;
         } else {
@@ -616,10 +561,10 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function update($key, $value, $order = 0)
     {
-        $stmt = $this->prepare(self::Q_UPDATE);
-        $stmt->bindValue(':key', $this->encodeKey($key), PDO::PARAM_STR);
-        $stmt->bindValue(':value', $this->encodeValue($value), PDO::PARAM_STR);
-        $stmt->bindValue(':order', (int)$order, PDO::PARAM_INT);
+        $stmt = $this->_prepare(self::Q_UPDATE);
+        $stmt->bindValue(':key', $this->_codec->encodeKey($key));
+        $stmt->bindValue(':value', $this->_codec->encodeValue($value));
+        $stmt->bindValue(':order', $order, PDO::PARAM_INT);
         if ($stmt->execute()) {
             return $stmt->rowCount() == 1;
         } else {
@@ -639,12 +584,12 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function touch($key, $time = null)
     {
-        $stmt = $this->prepare(self::Q_TOUCH);
-        $stmt->bindValue(':key', $this->encodeKey($key), PDO::PARAM_STR);
+        $stmt = $this->_prepare(self::Q_TOUCH);
+        $stmt->bindValue(':key', $this->_codec->encodeKey($key));
         if ($time === null) {
             $stmt->bindValue(':mtime', null, PDO::PARAM_NULL);
         } else {
-            $stmt->bindValue(':mtime', (int)$time, PDO::PARAM_INT);
+            $stmt->bindValue(':mtime', $time, PDO::PARAM_INT);
         }
         if ($stmt->execute()) {
             return $stmt->rowCount() == 1;
@@ -665,9 +610,9 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function setOrder($key, $order)
     {
-        $stmt = $this->prepare(self::Q_SETORDER);
-        $stmt->bindValue(':key', $this->encodeKey($key), PDO::PARAM_STR);
-        $stmt->bindValue(':order', (int)$order, PDO::PARAM_INT);
+        $stmt = $this->_prepare(self::Q_SETORDER);
+        $stmt->bindValue(':key', $this->_codec->encodeKey($key));
+        $stmt->bindValue(':order', $order, PDO::PARAM_INT);
         if ($stmt->execute()) {
             return $stmt->rowCount() == 1;
         } else {
@@ -686,8 +631,8 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function delete($key)
     {
-        $stmt = $this->prepare(self::Q_DELETE);
-        $stmt->bindValue(':key', $this->encodeKey($key), PDO::PARAM_STR);
+        $stmt = $this->_prepare(self::Q_DELETE);
+        $stmt->bindValue(':key', $this->_codec->encodeKey($key));
         if ($stmt->execute()) {
             return $stmt->rowCount() == 1;
         } else {
@@ -706,8 +651,8 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function deleteById($id)
     {
-        $stmt = $this->prepare(self::Q_DELETEBYID);
-        $stmt->bindValue(':id', (int)$id, PDO::PARAM_INT);
+        $stmt = $this->_prepare(self::Q_DELETEBYID);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         if ($stmt->execute()) {
             return $stmt->rowCount() == 1;
         } else {
@@ -726,7 +671,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function clear()
     {
-        $stmt = $this->prepare(self::Q_CLEAR, true);
+        $stmt = $this->_prepare(self::Q_CLEAR, true);
         if ($stmt->execute()) {
             return $stmt->rowCount();
         } else {
@@ -745,7 +690,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function gc($lifeTime)
     {
-        $stmt = $this->prepare(self::Q_GC, true);
+        $stmt = $this->_prepare(self::Q_GC, true);
         $stmt->bindValue(':expires', time() - $lifeTime, PDO::PARAM_INT);
         if ($stmt->execute()) {
             return $stmt->rowCount();
@@ -766,7 +711,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function vacuum()
     {
-        self::$_objects[$this->_path]['statements'] = array();
+        self::$_stmtCache[$this->_pdoId] = array();
         $this->_pdo->exec('VACUUM');
     }
 
@@ -783,10 +728,11 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
      */
     public function count()
     {
-        $stmt = $this->prepare(self::Q_COUNT);
+        $stmt = $this->_prepare(self::Q_COUNT);
         $stmt->execute();
         $ret = (int)$stmt->fetchColumn();
         $stmt->closeCursor();
+
         return $ret;
     }
 
@@ -870,19 +816,64 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
     /**
      * 使用しているPDOオブジェクトを返す
      *
-     * @param &$quotedTableName
+     * @param void
      * @return PDO
      */
-    public function getPDO(&$quotedTableName = null)
+    public function getPDO()
     {
-        $quotedTableName = $this->_quotedTableName;
         return $this->_pdo;
+    }
+
+    // }}}
+    // {{{ getCodec()
+
+    /**
+     * 使用しているCodecオブジェクトを返す
+     *
+     * @param void
+     * @return P2KeyValueStore_Codec_Interface
+     */
+    public function getCodec()
+    {
+        return $this->_codec;
+    }
+
+    // }}}
+    // {{{ getTableName()
+
+    /**
+     * クォート済みのテーブル名を返す
+     *
+     * @param void
+     * @return string
+     */
+    public function getTableName()
+    {
+        return $this->_quotedTableName;
+    }
+
+    // }}}
+    // {{{ loadClass()
+
+    /**
+     * クラスローダー
+     *
+     * @string $name
+     * @return void
+     */
+    static public function loadClass($name)
+    {
+        if (strncmp($name, 'P2KeyValueStore_', 16) === 0) {
+            include dirname(__FILE__) . '/' . str_replace('_', '/', $name) . '.php';
+        }
     }
 
     // }}}
 }
 
 // }}}
+
+spl_autoload_register('P2KeyValueStore::loadClass');
 
 /*
  * Local Variables:

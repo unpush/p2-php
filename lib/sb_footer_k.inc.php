@@ -7,9 +7,10 @@
 //=================================================
 //フッタプリント
 //=================================================
-$mae_ht = "";
-$tugi_ht = "";
-$bbs_q = "&amp;bbs=".$aThreadList->bbs;
+$mae_ht = '';
+$tugi_ht = '';
+$bbs_q = '&amp;bbs=' . $aThreadList->bbs;
+$host_bbs_q = 'host=' . $aThreadList->host . $bbs_q;
 
 if (!empty($GLOBALS['wakati_words'])) {
     $word_at = '&amp;method=similar&amp;word=' . rawurlencode($GLOBALS['wakati_word']);
@@ -166,7 +167,7 @@ EOP;
 // スペシャルモードでなければ、またはあぼーんリストなら
 if (!$aThreadList->spmode or $aThreadList->spmode == "taborn") {
     $dat_soko_ht = <<<EOP
- <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=soko{$_conf['k_at_a']}">dat倉庫</a>
+ <a href="{$_conf['subject_php']}?{$host_bbs_q}{$norefresh_q}&amp;spmode=soko{$_conf['k_at_a']}">dat倉庫</a>
 EOP;
 } else {
     $dat_soko_ht = '';
@@ -177,7 +178,7 @@ EOP;
 
 if ($ta_num) {
     $taborn_link_ht = <<<EOP
- <a href="{$_conf['subject_php']}?host={$aThreadList->host}{$bbs_q}{$norefresh_q}&amp;spmode=taborn{$_conf['k_at_a']}">ｱﾎﾞﾝ中({$ta_num})</a>
+ <a href="{$_conf['subject_php']}?{$host_bbs_q}{$norefresh_q}&amp;spmode=taborn{$_conf['k_at_a']}">ｱﾎﾞﾝ中({$ta_num})</a>
 EOP;
 } else {
     $taborn_link_ht = '';
@@ -188,7 +189,7 @@ EOP;
 
 if (!$aThreadList->spmode) {
     $buildnewthread_ht = <<<EOP
- <a href="post_form.php?host={$aThreadList->host}{$bbs_q}&amp;newthread=1{$_conf['k_at_a']}">ｽﾚ立て</a>
+ <a href="post_form.php?{$host_bbs_q}&amp;newthread=1{$_conf['k_at_a']}">ｽﾚ立て</a>
 EOP;
 } else {
     $buildnewthread_ht = '';

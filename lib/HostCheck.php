@@ -70,11 +70,10 @@ EOF;
             return $function($remote);
         }
 
-        $cache_db = $_conf['cache_dir'] . '/hostcheck_gethostby.sq3';
-        if (!file_exists($cache_db)) {
-            FileCtl::mkdir_for($cache_db);
+        if (!file_exists($_conf['hostcheck_db_path'])) {
+            FileCtl::mkdir_for($_conf['hostcheck_db_path']);
         }
-        $kvs = P2KeyValueStore::getStore($cache_db);
+        $kvs = P2KeyValueStore::getStore($_conf['hostcheck_db_path']);
 
         $result = $kvs->get($remote, $lifeTime);
         if ($result !== null) {

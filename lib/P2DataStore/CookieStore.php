@@ -94,8 +94,11 @@ class CookieStore extends AbstractDataStore
             return $kvs->clear();
         }
 
-        $pattern = str_replace(array('%', '_'), array('\\%', '\\_'), $kvs->encodeKey($prefix));
-        $stmt = $kvs->prepare('DELETE FROM $__table WHERE arkey LIKE :pattern ESCAPE :escape', true);
+        $pattern = str_replace(array(  '%',   '_',   '\\'),
+                               array('\\%', '\\_', '\\\\'),
+                               $kvs->encodeKey($prefix));
+        $query = 'DELETE FROM $__table WHERE $__key LIKE :pattern ESCAPE :escape';
+        $stmt = $kvs->prepare($query);
         $stmt->bindValue(':pattern', $pattern);
         $stmt->bindValue(':escape', '\\');
 

@@ -1,22 +1,21 @@
 <?php
-require_once dirname(__FILE__) . '/../P2KeyValueStore.php';
 
-// {{{ P2KeyValueStore_ShiftJIS
+// {{{ P2KeyValueStore_Codec_ShiftJIS
 
 /**
- * Shift_JIS‚Ì•¶Žš—ñ‚ðUTF-8‚É•ÏŠ·‚µ‚Ä‰i‘±‰»‚·‚é
+ * Shift_JIS (SJIS-win=CP932) ‚Ì•¶Žš—ñ‚ðUTF-8‚É•ÏŠ·E•œŒ³‚·‚éCodec
  */
-class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
+class P2KeyValueStore_Codec_ShiftJIS implements P2KeyValueStore_Codec_Interface
 {
     // {{{ _encode()
 
     /**
-     * Shift_JIS (SJIS-win=CP932) ‚Ì•¶Žš—ñ‚ðUTF-8‚É•ÏŠ·‚·‚é
+     * Shift_JIS‚Ì•¶Žš—ñ‚ðUTF-8‚É•ÏŠ·‚·‚é
      *
      * @param string $str
      * @return string
      */
-    private function _encode($str)
+    static private function _encode($str)
     {
         return mb_convert_encoding($str, 'UTF-8', 'SJIS-win');
     }
@@ -25,12 +24,12 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
     // {{{ _decode()
 
     /**
-     * UTF-8‚Ì•¶Žš—ñ‚ðShift_JIS (CP932) ‚É•ÏŠ·‚·‚é
+     * UTF-8‚Ì•¶Žš—ñ‚ðShift_JIS‚É•ÏŠ·‚·‚é
      *
      * @param string $str
      * @return string
      */
-    private function _decode($str)
+    static private function _decode($str)
     {
         return mb_convert_encoding($str, 'SJIS-win', 'UTF-8');
     }
@@ -46,7 +45,7 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      */
     public function encodeKey($key)
     {
-        return $this->_encode($key);
+        return self::_encode($key);
     }
 
     // }}}
@@ -60,7 +59,7 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      */
     public function decodeKey($key)
     {
-        return $this->_decode($key);
+        return self::_decode($key);
     }
 
     // }}}
@@ -74,7 +73,7 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      */
     public function encodeValue($value)
     {
-        return $this->_encode($value);
+        return self::_encode($value);
     }
 
     // }}}
@@ -88,7 +87,7 @@ class P2KeyValueStore_ShiftJIS extends P2KeyValueStore
      */
     public function decodeValue($value)
     {
-        return $this->_decode($value);
+        return self::_decode($value);
     }
 
     // }}}

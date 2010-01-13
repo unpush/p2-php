@@ -288,7 +288,7 @@ EOMSG;
             if (($ng_type & self::NG_AA) && P2_AAS_AVAILABLE) {
                 $aas_url = "aas.php?host={$this->thread->host}&amp;bbs={$this->thread->bbs}&amp;key={$this->thread->key}&amp;resnum={$i}";
                 if (P2_AAS_AVAILABLE == 2) {
-                    $aas_txt = "<img src=\"{$aas_url}{$_conf['k_at_a']}&amp;inline=1{$_conf['sid_at_a']}\">";
+                    $aas_txt = "<img src=\"{$aas_url}{$_conf['k_at_a']}&amp;inline=1\">";
                 } else {
                     $aas_txt = "AAS";
                 }
@@ -1005,7 +1005,7 @@ EOP;
                             } else {
                                 $prv_url = "ic2.php?r={$r_type}&amp;t=1&amp;uri={$url_en}";
                             }
-                            $img_str = "<img src=\"{$prv_url}{$_conf['sid_at_a']}\">";
+                            $img_str = "<img src=\"{$prv_url}\">";
                         }
                         $inline_preview_done = true;
                     } else {
@@ -1035,7 +1035,7 @@ EOP;
 
                 // インラインプレビューが有効で、サムネイル表示制限数以内なら
                 if ($this->thumbnailer->ini['General']['inline'] == 1 && $inline_preview_flag) {
-                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}{$_conf['sid_at_a']}\">";
+                    $img_str = "<img src=\"ic2.php?r=2&amp;t=1&amp;uri={$url_en}{$this->img_memo_query}\">";
                     $inline_preview_done = true;
                 } else {
                     $img_url .= $this->img_memo_query;

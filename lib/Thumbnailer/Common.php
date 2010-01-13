@@ -6,22 +6,6 @@
 
 require_once 'PEAR.php';
 
-// {{{ _thumbnailer_common_unlink_tempfile()
-
-/**
- * Remove the temporary file.
- *
- * @param string $file
- * @return void
- */
-function _thumbnailer_common_unlink_tempfile($file)
-{
-    if (file_exists($file)) {
-        @unlink($file);
-    }
-}
-
-// }}}
 // {{{ Thumbnailer_Common
 
 /**
@@ -319,7 +303,7 @@ abstract class Thumbnailer_Common
     protected function _tempnam()
     {
         $tmp = tempnam($this->_tempDir, 'thumb_temp_');
-        register_shutdown_function('_thumbnailer_common_unlink_tempfile', $tmp);
+        register_shutdown_function('Thumbnailer_Common::removeTemporaryFile', $tmp);
         return $tmp;
     }
 
@@ -352,6 +336,22 @@ abstract class Thumbnailer_Common
     }
 
     // }}}
+    // {{{ removeTemporaryFile()
+
+    /**
+     * Removes the temporary file.
+     *
+     * @param string $filename
+     * @return void
+     */
+    static public function removeTemporaryFile($filename)
+    {
+        if (file_exists($filename)) {
+            @unlink($filename);
+        }
+    }
+
+    // }}
 }
 
 // }}}

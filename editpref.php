@@ -381,10 +381,9 @@ for ($i = 0; $i <= $max; $i++) {
     if (file_exists($file)) {
         $filemtime = filemtime($file);
         $date = date('Y/m/d G:i:s', $filemtime);
-        $b = filesize($file)/1024;
-        $kb = round($b, 0);
+        $kib = round(filesize($file) / 1024, 0);
         $url = 'read_new.php?cview=1' . $ai . '&amp;filemtime=' . $filemtime . $_conf['k_at_a'];
-        $links[] = '<a href="'.$url.'" target="read">'.$date.'</a> '.$kb.'KB';
+        $links[] = '<a href="' . $url . '" target="read">' . $date . '</a> ' . $kib . 'KiB';
     }
 }
 if (!empty($links)) {

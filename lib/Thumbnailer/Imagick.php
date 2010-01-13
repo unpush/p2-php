@@ -4,8 +4,6 @@
  * PHP Version 5
  */
 
-require_once dirname(__FILE__) . '/Common.php';
-
 // {{{ Thumbnailer_Imagick
 
 /**

@@ -183,6 +183,9 @@ a.thre_title_fav:hover   { color: {$STYLE['thre_title_color_h']}; }
 
 {$thre_title_underline_css}
 
+/* Œ³ƒXƒŒƒŠƒ“ƒN */
+a.moto_thre { margin-right: 0.5em; }
+
 /* ƒXƒŒˆê——‚Ì”Ô† */
 a.info { color: {$STYLE['sb_order_color']}; }
 a.info:hover { color: {$STYLE['sb_tacolor_h']}; }

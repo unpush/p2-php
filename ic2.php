@@ -19,14 +19,8 @@ if (!$_conf['expack.ic2.enabled']) {
 // {{{ 初期化
 
 // ライブラリ読み込み
-require_once 'PEAR.php';
-require_once 'DB/DataObject.php';
 require_once 'HTTP/Client.php';
-require_once P2EX_LIB_DIR . '/ic2/findexec.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Common.php';
-require_once P2EX_LIB_DIR . '/ic2/DataObject/Images.php';
-require_once P2EX_LIB_DIR . '/ic2/Thumbnailer.php';
+require_once P2EX_LIB_DIR . '/ic2/bootstrap.php';
 
 // 受け付けるMIMEタイプ
 $mimemap = array('image/jpeg' => '.jpg', 'image/png' => '.png', 'image/gif' => '.gif');
@@ -419,10 +413,7 @@ if ($ini['Getter']['virusscan']) {
     } else {
         $clamscan = 'clamscan';
     }
-    if (findexec($clamscan, $searchpath)) {
-        if ($searchpath) {
-            $clamscan = $searchpath . DIRECTORY_SEPARATOR . $clamscan;
-        }
+    if ($clamscan = ic2_findexec($clamscan, $searchpath)) {
         $scan_command = $clamscan . ' --stdout ' . escapeshellarg(realpath($tmpfile));
         $scan_result  = @exec($scan_command, $scan_stdout, $scan_result);
         if ($scan_result == 1) {
@@ -818,7 +809,6 @@ function ic2_display($path, $params)
             }
 
             $k_at_a = str_replace('&amp;', '&', $_conf['k_at_a']);
-            $sid_at_a = str_replace('&amp;', '&', $_conf['sid_at_a']);
             $setrank_url = "ic2.php?{$img_q}&t={$thumb}&r=0{$k_at_a}";
 
             $flexy->setData('stars', $stars);
@@ -833,7 +823,7 @@ function ic2_display($path, $params)
                     $link = $path;
                 }
                 $r = ($ini['General']['redirect'] == 1) ? 1 : 2;
-                $preview = "{$_SERVER['SCRIPT_NAME']}?o=1&r={$r}&t={$t}&{$img_q}{$k_at_a}{$sid_at_a}";
+                $preview = "{$_SERVER['SCRIPT_NAME']}?o=1&r={$r}&t={$t}&{$img_q}{$k_at_a}";
                 $flexy->setData('preview', $preview);
                 $flexy->setData('link', $link);
                 $flexy->setData('info', null);

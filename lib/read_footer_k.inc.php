@@ -37,7 +37,7 @@ if (($aThread->rescount or $_GET['one'] && !$aThread->diedat)) { // and (!$_GET[
 EOP;
         } else {
             $dores_ht = <<<EOP
-<a href="post_form.php?host={$aThread->host}{$bbs_q}{$key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['res']}{$holdhandlers_at}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
+<a href="post_form.php?{$host_bbs_key_q}&amp;rescount={$aThread->rescount}{$ttitle_en_q}{$_conf['k_at_a']}"{$_conf['k_accesskey_at']['res']}{$holdhandlers_at}>{$_conf['k_accesskey_st']['res']}{$dores_st}</a>
 EOP;
         }
     } else {
@@ -92,7 +92,9 @@ echo "</div>\n";
 if ($_conf['iphone']) {
     // ImageCache2
     if ($_conf['expack.ic2.enabled']) {
-        require_once P2EX_LIB_DIR . '/ic2/loadconfig.inc.php';
+        if (!function_exists('ic2_loadconfig')) {
+            include P2EX_LIB_DIR . '/ic2/bootstrap.php';
+        }
         $ic2conf = ic2_loadconfig();
         if ($ic2conf['Thumb1']['width'] > 80) {
             include P2EX_LIB_DIR . '/ic2/templates/info-v.tpl.html';
