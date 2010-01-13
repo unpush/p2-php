@@ -8,21 +8,21 @@
 /**
  * rev.100113.1300
  *
- * @param array $core_conf rep2コアの設定
- * @param array $user_conf 古いユーザー設定
+ * @param array $core_config rep2コアの設定
+ * @param array $user_config 古いユーザー設定
  * @return array 新しいユーザー設定
  */
-function p2_migrate_100113_1300(array $core_conf, array $user_conf)
+function p2_migrate_100113_1300(array $core_config, array $user_config)
 {
-    $data_dir   = $core_conf['data_dir'];
-    $db_dir     = $core_conf['db_dir'];
-    $cache_dir  = $core_conf['cache_dir'];
-    $cookie_dir = $core_conf['cookie_dir'];
+    $data_dir   = $core_config['data_dir'];
+    $db_dir     = $core_config['db_dir'];
+    $cache_dir  = $core_config['cache_dir'];
+    $cookie_dir = $core_config['cookie_dir'];
 
     // {{{ ホストチェックのgethostbyaddr()キャッシュ
 
     $old_hostcheck_db = $cache_dir . '/hostcheck_gethostby.sq3';
-    $new_hostcheck_db = $core_conf['hostcheck_db_path'];
+    $new_hostcheck_db = $core_config['hostcheck_db_path'];
 
     _100113_1300_rename_db($old_hostcheck_db, $new_hostcheck_db);
     _100113_1300_rename_table($new_hostcheck_db, 'kvs_p2keyvaluestore', 'kvs_default');
@@ -43,7 +43,7 @@ function p2_migrate_100113_1300(array $core_conf, array $user_conf)
     // {{{ 投稿用Cookieストレージ
 
     $old_cookie_db = $cookie_dir . '/p2_cookies.sqlite3';
-    $new_cookie_db = $core_conf['cookie_db_path'];
+    $new_cookie_db = $core_config['cookie_db_path'];
 
     _100113_1300_rename_db($old_cookie_db, $new_cookie_db);
     _100113_1300_rename_table($new_cookie_db, 'kvs_p2keyvaluestore_serializing', 'kvs_serializing');
@@ -52,14 +52,14 @@ function p2_migrate_100113_1300(array $core_conf, array $user_conf)
     // {{{ 書き込みデータのバックアップストレージ
 
     $old_post_db = $cookie_dir . '/p2_post_data.sqlite3';
-    $new_post_db = $core_conf['post_db_path'];
+    $new_post_db = $core_config['post_db_path'];
 
     _100113_1300_rename_db($old_post_db, $new_post_db);
     _100113_1300_rename_table($new_post_db, 'kvs_p2keyvaluestore_serializing', 'kvs_serializing');
 
     // }}}
 
-    return $user_conf;
+    return $user_config;
 }
 
 // }}}

@@ -1,7 +1,7 @@
 <?php
 /**
  * rep2expack - 初期化スクリプト
- * conf/conf.inc.php の p2configure() から読み込まれる。
+ * conf/conf.inc.php の p2_init() から読み込まれる。
  */
 
 require_once 'Net/UserAgent/Mobile.php';
@@ -41,8 +41,8 @@ if (file_exists($_conf['conf_user_file'])) {
 
     if ($config_version !== $_conf['p2expack']) {
         // 設定の更新
-        if ($migrators = p2checkmigration($config_version)) {
-            $conf_user = p2migrate($conf_user, $migrators);
+        if ($migrators = p2_check_migration($config_version)) {
+            $conf_user = p2_invoke_migrators($migrators, $conf_user);
         }
 
         // デフォルト設定を読み込み、ユーザー設定とともにマージ

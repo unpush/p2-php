@@ -8,13 +8,13 @@
 /**
  * yymmdd_hhmm を実際のバージョン番号に置換して関数の中身を記述する
  *
- * @param array $core_conf rep2コアの設定
- * @param array $user_conf 古いユーザー設定
+ * @param array $core_config rep2コアの設定
+ * @param array $user_config 古いユーザー設定
  * @return array 新しいユーザー設定
  */
-function p2_migrate_yymmdd_hhmm(array $core_conf, array $user_conf)
+function p2_migrate_yymmdd_hhmm(array $core_config, array $user_config)
 {
-    return $user_conf;
+    return $user_config;
 }
 
 // }}}

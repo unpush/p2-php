@@ -49,7 +49,7 @@ $conf_user_sel   = array();
 // }}}
 
 // 基本設定処理を実行
-p2configure();
+p2_init();
 
 // クリーンアップ
 if (basename($_SERVER['SCRIPT_NAME']) != 'edit_conf_user.php') {
@@ -62,12 +62,12 @@ $hd = array('word' => null);
 $htm = array();
 $word = null;
 
-// {{{ p2configure()
+// {{{ p2_init()
 
 /**
  * 一時変数でグローバル変数を汚染しないように設定処理を関数化
  */
-function p2configure()
+function p2_init()
 {
     global $MYSTYLE, $STYLE, $debug;
     global $skin, $skin_en, $skin_name, $skin_uniq;
@@ -183,36 +183,23 @@ function p2configure()
     // 検索パスをセット
     $include_path = '';
     if (defined('P2_PEAR_HACK_DIR')) {
-        $include_path .= P2_PEAR_HACK_DIR . PATH_SEPARATOR;
+        $include_path = P2_PEAR_HACK_DIR . PATH_SEPARATOR;
     }
     if (is_dir(P2_PEAR_DIR)) {
         $include_path .= P2_PEAR_DIR . PATH_SEPARATOR;
-    } else {
-        $paths = array();
-        foreach (explode(PATH_SEPARATOR, get_include_path()) as $dir) {
-            if (is_dir($dir)) {
-                $dir = realpath($dir);
-                if ($dir != P2_BASE_DIR) {
-                    $paths[] = $dir;
-                }
-            }
-        }
-        if (count($paths)) {
-            $include_path .= implode(PATH_SEPARATOR, array_unique($paths)) . PATH_SEPARATOR;
-        }
     }
-    $include_path .= P2_BASE_DIR; // fallback
-    set_include_path($include_path);
-    spl_autoload_register('p2autoload');
+    set_include_path($include_path . get_include_path());
 
     // }}}
     // {{{ 環境チェックとデバッグ
 
     // ユーティリティを読み込む
-    include P2_LIB_DIR . '/p2util.inc.php';
+    include P2_LIB_DIR . '/global.funcs.php';
+    include P2_LIB_DIR . '/setup.funcs.php';
+    spl_autoload_register('p2_load_class');
 
     // 動作環境を確認 (要件を満たしているならコメントアウト可)
-    p2checkenv(__LINE__);
+    p2_check_environment(__LINE__);
 
     if ($debug) {
         if (!class_exists('Benchmark_Profiler', false)) {
@@ -226,8 +213,7 @@ function p2configure()
     // }}}
     // {{{ 文字コードの指定
 
-    //mb_detect_order("CP932,CP51932,ASCII");
-    mb_internal_encoding('CP932');
+    mb_internal_encoding('SJIS-win');
     mb_http_output('pass');
     mb_substitute_character(63); // 文字コード変換に失敗した文字が "?" になる
     //mb_substitute_character(0x3013); // 〓
@@ -235,7 +221,7 @@ function p2configure()
 
     if (function_exists('mb_ereg_replace')) {
         define('P2_MBREGEX_AVAILABLE', 1);
-        mb_regex_encoding('CP932');
+        mb_regex_encoding('SJIS-win');
     } else {
         define('P2_MBREGEX_AVAILABLE', 0);
     }
@@ -279,7 +265,7 @@ function p2configure()
     $_conf['detect_hint'] = '◎◇';
     $_conf['detect_hint_input_ht'] = '<input type="hidden" name="_hint" value="◎◇">';
     $_conf['detect_hint_input_xht'] = '<input type="hidden" name="_hint" value="◎◇" />';
-    //$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'CP932');
+    //$_conf['detect_hint_utf8'] = mb_convert_encoding('◎◇', 'UTF-8', 'SJIS-win');
     $_conf['detect_hint_q'] = '_hint=%81%9D%81%9E'; // rawurlencode($_conf['detect_hint'])
     $_conf['detect_hint_q_utf8'] = '_hint=%E2%97%8E%E2%97%87'; // rawurlencode($_conf['detect_hint_utf8'])
 
@@ -334,213 +320,6 @@ function p2configure()
     // }}}
 
     include P2_LIB_DIR . '/bootstrap.php';
-}
-
-// }}}
-// {{{ p2checkenv()
-
-/**
- * 動作環境を確認する
- *
- * @return bool
- */
-function p2checkenv($check_recommended)
-{
-    global $_info_msg_ht;
-
-    $php_version = phpversion();
-    $required_version = '5.2.8';
-    $recommended_version52 = '5.2.12';
-    $recommended_version53 = '5.3.1';
-    $required_extensions = array(
-        'dom',
-        'json',
-        'libxml',
-        'mbstring',
-        'pcre',
-        'pdo',
-        'pdo_sqlite',
-        'session',
-        'spl',
-        //'xsl',
-        'zlib',
-    );
-
-    // PHPのバージョン
-    if (version_compare($php_version, $required_version, '<')) {
-        p2die("PHP {$required_version} 未満では使えません。");
-    }
-
-    // 必須拡張モジュール
-    foreach ($required_extensions as $ext) {
-        if (!extension_loaded($ext)) {
-            p2die("{$ext} 拡張モジュールがロードされていません。");
-        }
-    }
-
-    // 有効だと動作しないphp.iniディレクティブ
-    $directives = array(
-        'safe_mode',
-        'register_globals',
-        'magic_quotes_gpc',
-        'mbstring.encoding_translation',
-        'session.cookie_httponly',
-    );
-    foreach ($directives as $directive) {
-        if (ini_get($directive)) {
-            p2die("{$directive} が On です。",
-                  "php.ini で {$directive} を Off にしてください。");
-        }
-    }
-
-    // eAccelerator
-    if (extension_loaded('eaccelerator') &&
-        version_compare(EACCELERATOR_VERSION, '0.9.5.2', '<'))
-    {
-        $err = 'eAcceleratorを更新してください。';
-        $ev = EACCELERATOR_VERSION;
-        $msg = <<<EOP
-<p>PHP 5.2で例外を捕捉できない問題のあるeAccelerator ({$ev})がインストールされています。<br>
-eAcceleratorを無効にするか、この問題が修正されたeAccelerator 0.9.5.2以降を使用してください。<br>
-<a href="http://eaccelerator.net/">http://eaccelerator.net/</a></p>
-EOP;
-        p2die($err, $msg, true);
-    }
-
-    // 推奨バージョン
-    if ($check_recommended) {
-        if (version_compare($php_version, '5.3.0-dev', '>=')) {
-            $recommended_version = $recommended_version53;
-        } else {
-            $recommended_version = $recommended_version52;
-        }
-        if (version_compare($php_version, $recommended_version, '<')) {
-            // title.php のみメッセージを表示
-            if (basename($_SERVER['PHP_SELF'], '.php') == 'title') {
-                $_info_msg_ht .= <<<EOP
-<p><strong>推奨バージョンより古いPHPで動作しています。</strong><em>(PHP {$php_version})</em><br>
-PHP {$recommended_version} 以降にアップデートすることをおすすめします。</p>
-<p style="font-size:smaller">このメッセージを表示しないようにするには <em>{\$rep2_directory}</em>/conf/conf.inc.php の {$check_recommended} 行目、<br>
-<samp>p2checkenv(__LINE__);</samp> を <samp>p2checkenv(false);</samp> に書き換えてください。</p>
-EOP;
-            }
-            return false;
-        }
-    }
-
-    return true;
-}
-
-// }}}
-// {{{ p2checkmigration()
-
-/**
- * マイグレーションの必要があるかどうかをチェック
- *
- * @param   string  $config_version
- * @return  array
- */
-function p2checkmigration($config_version)
-{
-    // "yymmdd.hhmm" 形式のマイグレーションが必要な変更のあったバージョン番号の配列
-    // 値はユニークかつ昇順にソートされていなければならない
-    $versions = array(
-        '100113.1300',
-    );
-
-    $migrators = array();
-    $found = false;
-
-    foreach ($versions as $version) {
-        if ($found || version_compare($config_version, $version, '<')) {
-            $found = true;
-            $migrator_name = str_replace('.', '_', $version);
-            $migrator_func = 'p2_migrate_' . $migrator_name;
-            $migrator_file = '/migrators/' . $migrator_name . '.php';
-            $migrators[$migrator_func] = $migrator_file;
-        }
-    }
-
-    if ($found) {
-        return $migrators;
-    } else {
-        return null;
-    }
-}
-
-// }}}
-// {{{ p2migrate()
-
-/**
- * マイグレーションを実行
- *
- * @param array $user_conf 古いユーザー設定
- * @param array $migrators マイグレーション関数のリスト
- * @return array 新しいユーザー設定
- */
-function p2migrate(array $user_conf, array $migrators)
-{
-    global $_conf;
-
-    foreach ($migrators as $migrator_func => $migrator_file) {
-        include P2_LIB_DIR . $migrator_file;
-        $user_conf = $migrator_func($_conf, $user_conf);
-    }
-
-    return $user_conf;
-}
-
-// }}}
-// {{{ p2autoload()
-
-/**
- * クラスローダー
- *
- * @string $name
- * @return void
- */
-function p2autoload($name)
-{
-    if (preg_match('/^(?:
-            BbsMap |
-            BrdCtl |
-            BrdMenu\\w* |
-            DataPhp |
-            FavSetManager |
-            FileCtl |
-            HostCheck |
-            Login |
-            NgAbornCtl |
-            P2\\w+ |
-            PresetManager |
-            ResHist |
-            Session |
-            SettingTxt |
-            ShowBrdMenu\\w* |
-            ShowThread\\w* |
-            StrCtl |
-            StrSjis |
-            SubjectTxt |
-            Thread\\w* |
-            Wap\\w+
-        )$/x', $name))
-    {
-        if ($name == 'P2Lock') {
-            include P2_LIB_DIR . '/FileCtl.php';
-        } elseif ($name == 'ResArticle') {
-            include P2_LIB_DIR . '/ResHist.php';
-        } elseif (strncmp($name, 'Wap', 3) === 0) {
-            include P2_LIB_DIR . '/Wap.php';
-        } elseif (strncmp($name, 'P2Http', 6) === 0) {
-            include P2_LIB_DIR . '/P2HttpExt.php';
-        } elseif (strncmp($name, 'BrdMenu', 7) === 0) {
-            include P2_LIB_DIR . '/BrdMenu.php';
-        } else {
-            include P2_LIB_DIR . '/' . $name . '.php';
-        }
-    } elseif (preg_match('/^\\w+DataStore$/', $name)) {
-        include P2_LIB_DIR . '/P2DataStore/' . $name . '.php';
-    }
 }
 
 // }}}

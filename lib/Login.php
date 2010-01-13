@@ -732,7 +732,9 @@ EOP;
             return false;
         }
 
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        if (!function_exists('md5_encrypt')) {
+            include P2_LIB_DIR . '/md5_crypt.funcs.php';
+        }
 
         $key = $this->getMd5CryptKey();
 
@@ -756,7 +758,9 @@ EOP;
     {
         global $_conf;
 
-        require_once P2_LIB_DIR . '/md5_crypt.inc.php';
+        if (!function_exists('md5_decrypt')) {
+            include P2_LIB_DIR . '/md5_crypt.funcs.php';
+        }
 
         $key = $this->getMd5CryptKey();
 
