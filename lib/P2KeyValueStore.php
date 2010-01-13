@@ -336,7 +336,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
         if ($row === false) {
             return false;
-        } elseif ($row->isExpired()) {
+        } elseif ($row->isExpired($lifeTime)) {
             $this->deleteById($row->id);
             return false;
         } else {
@@ -366,7 +366,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
         if ($row === false) {
             return null;
-        } elseif ($row->isExpired()) {
+        } elseif ($row->isExpired($lifeTime)) {
             $this->deleteById($id);
             return null;
         } else {
@@ -398,7 +398,7 @@ class P2KeyValueStore implements ArrayAccess, Countable, IteratorAggregate
 
         if ($row === false) {
             return null;
-        } elseif ($row->isExpired()) {
+        } elseif ($row->isExpired($lifeTime)) {
             $this->deleteById($row->id);
             return null;
         } else {

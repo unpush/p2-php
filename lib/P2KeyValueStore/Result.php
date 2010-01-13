@@ -50,9 +50,9 @@ class P2KeyValueStore_Result implements ArrayAccess
     public function isExpired($lifeTime)
     {
         if ($lifeTime > -1 && $this->mtime < time() - $lifeTime) {
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
 
