@@ -4,8 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/P2DataStore/CookieStore.php';
-require_once P2_LIB_DIR . '/P2DataStore/PostDataStore.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
@@ -186,17 +184,17 @@ if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
 } else {
     // cookie “Ç‚Ýž‚Ý
     $cookie_key = $_login->user_u . '/' . P2Util::normalizeHostName($host);
-    if ($p2cookies = CookieStore::get($cookie_key)) {
+    if ($p2cookies = CookieDataStore::get($cookie_key)) {
         if (is_array($p2cookies)) {
             if (array_key_exists('expires', $p2cookies)) {
                 // ŠúŒÀØ‚ê‚È‚ç”jŠü
                 if (time() > strtotime($p2cookies['expires'])) {
-                    CookieStore::delete($cookie_key);
+                    CookieDataStore::delete($cookie_key);
                     $p2cookies = null;
                 }
             }
         } else {
-            CookieStore::delete($cookie_key);
+            CookieDataStore::delete($cookie_key);
             $p2cookies = null;
         }
     } else {
@@ -208,7 +206,7 @@ if (!empty($_POST['p2res']) && empty($_POST['newthread'])) {
 
     // cookie •Û‘¶
     if ($p2cookies) {
-        CookieStore::set($cookie_key, $p2cookies);
+        CookieDataStore::set($cookie_key, $p2cookies);
     }
 }
 
@@ -900,7 +898,6 @@ function getKeyInSubject()
 {
     global $host, $bbs, $ttitle;
 
-    require_once P2_LIB_DIR . '/SubjectTxt.php';
     $aSubjectTxt = new SubjectTxt($host, $bbs);
 
     foreach ($aSubjectTxt->subject_lines as $l) {
@@ -910,6 +907,7 @@ function getKeyInSubject()
             }
         }
     }
+
     return false;
 }
 

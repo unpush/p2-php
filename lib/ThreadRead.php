@@ -3,8 +3,6 @@
  * rep2 - スレッド リード クラス
  */
 
-require_once P2_LIB_DIR . '/Thread.php';
-
 // {{{ ThreadRead
 
 /**
@@ -270,7 +268,6 @@ class ThreadRead extends Thread
                     } elseif ($code == "302") { // Found
 
                         // ホストの移転を追跡
-                        require_once P2_LIB_DIR . '/BbsMap.php';
                         $new_host = BbsMap::getCurrentHost($this->host, $this->bbs);
                         if ($new_host != $this->host) {
                             fclose($fp);
@@ -784,9 +781,6 @@ class ThreadRead extends Thread
         // {{{ read.cgi からHTMLを取得
 
         $read_response_html = '';
-        if (!class_exists('WapRequest', false)) {
-            require P2_LIB_DIR . '/Wap.php';
-        }
         $wap_ua = new WapUserAgent();
         $wap_ua->setAgent($_conf['p2ua']); // ここは、"Monazilla/" をつけるとNG
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
@@ -1025,11 +1019,9 @@ class ThreadRead extends Thread
         }
 
         if ($_conf['ktai']) {
-            require_once P2_LIB_DIR . '/ShowThreadK.php';
             $aShowThread = new ShowThreadK($this);
             $aShowThread->am_autong = false;
         } else {
-            require_once P2_LIB_DIR . '/ShowThreadPc.php';
             $aShowThread = new ShowThreadPc($this);
         }
 

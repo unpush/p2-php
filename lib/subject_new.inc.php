@@ -6,9 +6,6 @@
  * subject.php と兄弟なので一緒に面倒をみる
  */
 
-require_once P2_LIB_DIR . '/ThreadList.php';
-require_once P2_LIB_DIR . '/Thread.php';
-
 $_newthre_num = 0;
 $shinchaku_num = 0;
 $ta_num = 0;
@@ -155,9 +152,6 @@ for ($x = 0; $x < $linesize ; $x++) {
         //  subject.txtが未DLなら落としてデータを配列に格納
         if (!isset($subject_txts[$subject_id])) {
             $subject_txts[$subject_id] = array();
-            if (!class_exists('SubjectTxt', false)) {
-                require P2_LIB_DIR . '/SubjectTxt.php';
-            }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('subthre_read'); //

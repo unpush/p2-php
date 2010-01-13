@@ -63,8 +63,6 @@ if (isset($_POST['word'])) {
 // $hashes‚Ìæ“¾‚ª–¢À‘•‚È‚Ì‚Å••ˆóB
 /*
 if (isset($hashes) && is_array($hashes) && count($hashes)) {
-    require_once P2_LIB_DIR . '/StrCtl.php';
-
     $js = '';
     $last = array_pop($hashes);
     while (($hash = array_shift($hashes)) !== null) {

@@ -203,12 +203,12 @@ function p2configure()
     }
     $include_path .= P2_BASE_DIR; // fallback
     set_include_path($include_path);
+    spl_autoload_register('p2autoload');
 
     // }}}
     // {{{ 環境チェックとデバッグ
 
     // ユーティリティを読み込む
-    include P2_LIB_DIR . '/P2Util.php';
     include P2_LIB_DIR . '/p2util.inc.php';
 
     // 動作環境を確認 (要件を満たしているならコメントアウト可)
@@ -488,6 +488,53 @@ function p2migrate(array $user_conf, array $migrators)
     }
 
     return $user_conf;
+}
+
+// }}}
+// {{{ p2autoload()
+
+/**
+ * クラスローダー
+ *
+ * @string $name
+ * @return void
+ */
+function p2autoload($name)
+{
+    if (strncmp($name, 'Wap', 3) === 0) {
+        include P2_LIB_DIR . '/Wap.php';
+    }
+    if (strncmp($name, 'P2Http', 6) === 0) {
+        include P2_LIB_DIR . '/P2HttpExt.php';
+    }
+    if (preg_match('/^(?:
+            BbsMap |
+            BrdCtl |
+            BrdMenu |
+            DataPhp |
+            FavSetManager |
+            FileCtl |
+            HostCheck |
+            Login |
+            NgAbornCtl |
+            P2\\w+ |
+            PresetManager |
+            ResHist |
+            Session |
+            SettingTxt |
+            ShowBrdMenu\\w* |
+            ShowThread\\w* |
+            StrCtl |
+            StrSjis |
+            SubjectTxt |
+            Thread\\w*
+        )$/x', $name))
+    {
+        include P2_LIB_DIR . '/' . $name . '.php';
+    }
+    if (preg_match('/^\\w+DataStore$/', $name)) {
+        include P2_LIB_DIR . '/P2DataStore/' . $name . '.php';
+    }
 }
 
 // }}}

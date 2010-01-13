@@ -3,9 +3,6 @@
  * rep2- スレッドを表示する クラス
  */
 
-require_once P2_LIB_DIR . '/HostCheck.php';
-require_once P2_LIB_DIR . '/ThreadRead.php';
-
 // {{{ ShowThread
 
 abstract class ShowThread

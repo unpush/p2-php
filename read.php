@@ -5,8 +5,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/NgAbornCtl.php';
-require_once P2_LIB_DIR . '/ThreadRead.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 
@@ -240,7 +238,6 @@ if ($_conf['ktai']) {
         $GLOBALS['filter_hits'] = NULL;
     }
 
-    require_once P2_LIB_DIR . '/ShowThreadK.php';
     $aShowThread = new ShowThreadK($aThread);
 
     if ($is_ajax) {
@@ -317,7 +314,6 @@ EOP;
     //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection("datToHtml");
 
     if ($aThread->rescount) {
-        require_once P2_LIB_DIR . '/ShowThreadPc.php';
         $aShowThread = new ShowThreadPc($aThread);
 
         if ($_conf['expack.spm.enabled']) {

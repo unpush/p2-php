@@ -73,7 +73,6 @@ if ($_conf['expack.tgrep.recent_num'] > 0) {
 <!-- ThreadList and Pager -->
 <div><a href="#bottom" align="right" title="‰º‚Ö"<?php echo $_conf['k_accesskey_at']['bottom']; ?>><?php echo $_conf['k_accesskey_st']['bottom']; ?>¥</a></div>
 <?php
-require_once P2_LIB_DIR . '/Thread.php';
 foreach ($threads as $o => $t) {
     $new = '';
     $turl = sprintf('%s?host=%s&amp;bbs=%s&amp;key=%d', $_conf['read_php'], $t->host, $t->bbs, $t->tkey);

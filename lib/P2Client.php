@@ -1,7 +1,5 @@
 <?php
 require_once 'HTTP/Client.php';
-require_once dirname(__FILE__) . '/P2DOM.php';
-require_once dirname(__FILE__) . '/P2KeyValueStore.php';
 
 // {{{ P2Client
 

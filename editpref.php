@@ -22,8 +22,6 @@ $synctitles = array(
 
 // ƒzƒXƒg‚Ì“¯Šú
 if (isset($_POST['sync'])) {
-    require_once P2_LIB_DIR . '/BbsMap.php';
-
     $sync_boards = array();
     $sync_indexes = array();
 

@@ -1,7 +1,5 @@
 <?php
 
-require_once P2_LIB_DIR . '/BrdMenu.php';
-
 // {{{ BrdCtl
 
 /**

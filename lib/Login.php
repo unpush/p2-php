@@ -1,7 +1,5 @@
 <?php
 
-require_once P2_LIB_DIR . '/Session.php';
-
 // {{{ Login
 
 /**
@@ -846,11 +844,6 @@ EOP;
      */
     private function _checkIp($type)
     {
-        if (!class_exists('HostCheck', false)) {
-            require P2_LIB_DIR . '/HostCheck.php';
-        }
-
-        // PHPはクラス・メソッド・関数の大文字小文字を区別しないが...
         $method = 'isAddress' . ucfirst(strtolower($type));
         if (method_exists('HostCheck', $method)) {
             return HostCheck::$method();

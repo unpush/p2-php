@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname(__FILE__) . '/P2Exception.php';
-
 // {{{ P2DOM
 
 /**

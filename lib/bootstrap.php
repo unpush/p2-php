@@ -5,8 +5,6 @@
  */
 
 require_once 'Net/UserAgent/Mobile.php';
-require_once P2_LIB_DIR . '/Session.php';
-require_once P2_LIB_DIR . '/Login.php';
 
 // {{{ ユーザー設定 読込
 
@@ -80,9 +78,6 @@ if ($creae_config_cache) {
 // {{{ ホストチェック
 
 if ($_conf['secure']['auth_host'] || $_conf['secure']['auth_bbq']) {
-    if (!class_exists('HostCheck', false)) {
-        include P2_LIB_DIR . '/HostCheck.php';
-    }
     if (($_conf['secure']['auth_host'] && HostCheck::getHostAuth() == false) ||
         ($_conf['secure']['auth_bbq'] && HostCheck::getHostBurned() == true)
     ) {
@@ -160,7 +155,7 @@ $_conf['accesskey'] = 'accesskey';
 $_conf['accept_charset'] = 'Shift_JIS';
 $_conf['extra_headers_ht'] = '';
 
-$support_cookies = true;
+$_conf['use_cookies'] = true;
 
 $mobile = Net_UserAgent_Mobile::singleton();
 
@@ -193,11 +188,11 @@ if (P2Util::isBrowserIphone() || P2Util::isBrowserAndroid()) {
 
     // NTT docomo iモード
     if ($mobile->isDoCoMo()) {
-        $support_cookies = false;
+        $_conf['use_cookies'] = false;
 
     // au EZweb
     //} elseif ($mobile->isEZweb()) {
-    //    $support_cookies = true;
+    //    $_conf['use_cookies'] = true;
 
     // SoftBank Mobile
     } elseif ($mobile->isSoftBank()) {
@@ -206,17 +201,17 @@ if (P2Util::isBrowserIphone() || P2Util::isBrowserAndroid()) {
             $_conf['accesskey'] = 'DIRECTKEY';
             // 3GC型端末とW型端末以外はCookieをサポートしない
             if (!$mobile->isTypeW()) {
-                $support_cookies = false;
+                $_conf['use_cookies'] = false;
             }
         }
 
     // WILLCOM AIR-EDGE
     //} elseif ($mobile->isWillcom()) {
-    //    $support_cookies = true;
+    //    $_conf['use_cookies'] = true;
 
     // その他
     //} else {
-    //    $support_cookies = true;
+    //    $_conf['use_cookies'] = true;
     }
 }
 
@@ -640,16 +635,13 @@ if ($_conf['session_save'] == 'p2' and session_module_name() == 'files') {
 
 // }}}
 
-$_p2session = new Session(null, null, $support_cookies);
+$_p2session = new Session(null, null, $_conf['use_cookies']);
 
 // }}}
 // {{{ お気にセット
 
 // 複数のお気にセットを使うとき
 if ($_conf['expack.misc.multi_favs']) {
-    if (!class_exists('FavSetManager', false)) {
-        include P2_LIB_DIR . '/FavSetManager.php';
-    }
     // 切り替え表示用に全てのお気にスレ・お気に板を読み込んでおく
     FavSetManager::loadAllFavSet();
     // お気にセットを切り替える

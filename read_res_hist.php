@@ -5,7 +5,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/ResHist.php';
 require_once P2_LIB_DIR . '/read_res_hist.inc.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ

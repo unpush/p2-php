@@ -7,8 +7,6 @@
  * P2DataStore‚Írep2‚Åg‚¤‚½‚ß‚ÉİŒv‚³‚ê‚Ä‚¢‚éB
  */
 
-require_once P2_LIB_DIR . '/P2KeyValueStore.php';
-
 // {{{ AbstractDataStore
 
 abstract class AbstractDataStore

@@ -3,8 +3,6 @@
  * rep2expack - 書き込みデータ管理クラス
  */
 
-require_once P2_LIB_DIR . '/P2DataStore/AbstractDataStore.php';
-
 // {{{ PostDataStore
 
 class PostDataStore extends AbstractDataStore

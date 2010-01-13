@@ -3,8 +3,6 @@
  * rep2 - 携帯用でスレッドを表示する クラス
  */
 
-require_once P2_LIB_DIR . '/ShowThread.php';
-require_once P2_LIB_DIR . '/StrCtl.php';
 require_once P2EX_LIB_DIR . '/ExpackLoader.php';
 
 ExpackLoader::loadAAS();
@@ -70,9 +68,6 @@ class ShowThreadK extends ShowThread
 
         $this->BBS_NONAME_NAME = null;
         if (!$_conf['mobile.bbs_noname_name']) {
-            if (!class_exists('SettingTxt', false)) {
-                require P2_LIB_DIR . '/SettingTxt.php';
-            }
             $st = new SettingTxt($this->thread->host, $this->thread->bbs);
             $st->setSettingArray();
             if (!empty($st->setting_array['BBS_NONAME_NAME'])) {

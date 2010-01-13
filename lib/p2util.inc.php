@@ -401,10 +401,6 @@ function p2_mb_ereg_count($pattern, $string, $option = null)
  */
 function p2_set_filtering_word($word, $method = 'regex')
 {
-    if (!class_exists('StrCtl', false)) {
-        require P2_LIB_DIR . '/StrCtl.php';
-    }
-
     $word_fm = StrCtl::wordForMatch($word, $method);
 
     if (strlen($word_fm) == 0) {
@@ -480,10 +476,6 @@ function p2_wakati($str)
  */
 function p2_get_highlighting_regex(array $words)
 {
-    if (!class_exists('StrCtl', false)) {
-        require P2_LIB_DIR . '/StrCtl.php';
-    }
-
     $featured_words = array_filter($words, '_p2_get_highlighting_regex_filter');
     if (count($featured_words) == 0) {
         $featured_words = $words;

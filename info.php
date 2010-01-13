@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/dele.inc.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ

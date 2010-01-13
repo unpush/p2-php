@@ -6,7 +6,7 @@
 // {{{ CONSTANTS
 
 if (!defined('P2_CLI_DIR')) {
-    define('P2_CLI_DIR', dirname(__FILE__));
+    define('P2_CLI_DIR', realpath(dirname(__FILE__) . '/../cli'));
 }
 
 // }}}

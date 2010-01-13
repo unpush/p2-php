@@ -3,8 +3,6 @@
  * rep2 - スレッドを表示する クラス PC用
  */
 
-require_once P2_LIB_DIR . '/ShowThread.php';
-require_once P2_LIB_DIR . '/StrCtl.php';
 require_once P2EX_LIB_DIR . '/ExpackLoader.php';
 
 ExpackLoader::loadAAS();

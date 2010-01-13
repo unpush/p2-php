@@ -3,9 +3,6 @@
  * rep2 - 2chÉçÉOÉCÉì
  */
 
-require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/Wap.php';
-
 // {{{ login2ch()
 
 /**

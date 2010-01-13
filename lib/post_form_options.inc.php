@@ -3,10 +3,6 @@
  * rep2 - レス書き込みフォームの機能読み込み
  */
 
-require_once P2_LIB_DIR . '/SettingTxt.php';
-require_once P2_LIB_DIR . '/StrCtl.php';
-require_once P2_LIB_DIR . '/P2DataStore/PostDataStore.php';
-
 $js = array();
 
 $fake_time = -10; // time を10分前に偽装
@@ -275,8 +271,6 @@ if ((basename($_SERVER['SCRIPT_NAME']) == 'post_form.php' || !empty($_GET['inyou
     $q_resnum = $_GET['resnum'];
     $hd['MESSAGE'] = "&gt;&gt;" . $q_resnum . "\r\n";
     if (!empty($_GET['inyou'])) {
-        require_once P2_LIB_DIR . '/Thread.php';
-        require_once P2_LIB_DIR . '/ThreadRead.php';
         $aThread = new ThreadRead;
         $aThread->setThreadPathInfo($host, $bbs, $key);
         $aThread->readDat($aThread->keydat);

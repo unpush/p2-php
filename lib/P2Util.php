@@ -1,8 +1,5 @@
 <?php
 
-require_once P2_LIB_DIR . '/DataPhp.php';
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 // {{{ P2Util
 
 /**
@@ -84,9 +81,6 @@ class P2Util
         }
 
         // DL
-        if (!class_exists('WapRequest', false)) {
-            require P2_LIB_DIR . '/Wap.php';
-        }
         $wap_ua = new WapUserAgent();
         $wap_ua->setTimeout($_conf['fsockopen_time_limit']);
         $wap_req = new WapRequest();
@@ -223,7 +217,6 @@ class P2Util
 
         // ”Â–¼Long‚Ìæ“¾
         if (!isset($p2_setting['itaj'])) {
-            require_once P2_LIB_DIR . '/BbsMap.php';
             $itaj = BbsMap::getBbsName($host, $bbs);
             if ($itaj != $bbs) {
                 self::$_itaNames[$id] = $p2_setting['itaj'] = $itaj;
@@ -562,25 +555,27 @@ class P2Util
 
         // p2ime‚ÍAenc, m, url ‚Ìˆø”‡˜‚ªŒÅ’è‚³‚ê‚Ä‚¢‚é‚Ì‚Å’ˆÓ
         switch ($gate) {
-        case '2ch':
+        /*
+        case '2ch': // ime.nu
             $url_r = preg_replace('|^(\w+)://(.+)$|', '$1://ime.nu/$2', $url);
             break;
-        case 'p2':
-        case 'p2pm':
-            $url_r = $_conf['p2ime_url'].'?enc=1&amp;url='.$url_en;
+        */
+        case 'p2': // ©“®“]‘—
+        case 'p2pm': // p‚Ì‚İè“®“]‘—
+            $url_r = $_conf['p2ime_url'] . '?enc=1&amp;url=' . $url_en;
             break;
-        case 'p2m':
-            $url_r = $_conf['p2ime_url'].'?enc=1&amp;m=1&amp;url='.$url_en;
+        case 'p2m': // è“®“]‘—
+            $url_r = $_conf['p2ime_url'] . '?enc=1&amp;m=1&amp;url=' . $url_en;
             break;
-        case 'ex':
-        case 'expm':
-            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=1';
+        case 'ex': // ©“®“]‘—1•b
+        case 'expm': // p‚Ì‚İè“®“]‘—
+            $url_r = $_conf['expack.ime_url'] . '?u=' . $url_en . '&amp;d=1';
             break;
-        case 'exq':
-            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=0';
+        case 'exq': // ©“®“]‘—0•b
+            $url_r = $_conf['expack.ime_url'] . '?u=' . $url_en . '&amp;d=0';
             break;
-        case 'exm':
-            $url_r = $_conf['expack.ime_url'].'?u='.$url_en.'&amp;d=-1';
+        case 'exm': // è“®“]‘—
+            $url_r = $_conf['expack.ime_url'] . '?u=' . $url_en;
             break;
         case 'google':
             $url_r = 'http://www.google.co.jp/';
@@ -592,7 +587,11 @@ class P2Util
             $url_r .= $url_en;
             break;
         default:
-            $url_r = $url;
+            if ($_conf['use_cookies']) {
+                $url_r = $url;
+            } else {
+                $url_r = $_conf['expack.ime_url'] . '?u=' . $url_en;
+            }
         }
 
         return $url_r;
@@ -1824,10 +1823,6 @@ ERR;
     static public function getP2Client()
     {
         global $_conf;
-
-        if (!class_exists('P2Client', false)) {
-            require P2_LIB_DIR . '/P2Client.php';
-        }
 
         if (!is_dir($_conf['db_dir'])) {
             FileCtl::mkdir_r($_conf['db_dir']);

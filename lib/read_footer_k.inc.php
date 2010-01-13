@@ -104,9 +104,6 @@ if ($_conf['iphone']) {
     }
     // SPM
     if ($_conf['expack.spm.enabled']) {
-        if (!class_exists('ShowThreadK', false)) {
-            require P2_LIB_DIR . '/ShowThreadK.php';
-        }
         echo ShowThreadK::getSpmElementHtml();
     }
 }

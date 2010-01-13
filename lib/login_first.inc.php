@@ -3,8 +3,6 @@
  * rep2 - Å‰‚ÌƒƒOƒCƒ“‰æ–Ê‚ğ•\¦‚·‚é
  */
 
-require_once P2_LIB_DIR . '/Login.php';
-
 // {{{ printLoginFirst()
 
 /**

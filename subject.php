@@ -7,9 +7,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/Thread.php';
-require_once P2_LIB_DIR . '/ThreadList.php';
-require_once P2_LIB_DIR . '/NgAbornCtl.php';
 
 //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('HEAD');
 
@@ -272,7 +269,6 @@ if ($spmode == 'merge_favita') {
 
 if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
     if ($_conf['expack.use_pecl_http'] == 1) {
-        require_once P2_LIB_DIR . '/P2HttpExt.php';
         switch ($spmode) {
         case 'fav':
             P2HttpRequestPool::fetchSubjectTxt($_conf['favlist_idx']);
@@ -292,7 +288,6 @@ if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_RE
             break;
         }
     } elseif ($_conf['expack.use_pecl_http'] == 2) {
-        require_once P2_CLI_DIR . '/P2CommandRunner.php';
         if (P2CommandRunner::fetchSubjectTxt($spmode, $_conf)) {
             $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
         }
@@ -556,7 +551,6 @@ for ($x = 0; $x < $linesize; $x++) {
         if (!isset($subject_txts[$subject_id])) {
             $subject_txts[$subject_id] = array();
 
-            require_once P2_LIB_DIR . '/SubjectTxt.php';
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             //$GLOBALS['debug'] && $GLOBALS['profiler']->enterSection('subthre_read');

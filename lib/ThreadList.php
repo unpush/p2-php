@@ -1,5 +1,5 @@
 <?php
-require_once P2_LIB_DIR . '/Thread.php';
+require_once P2_LIB_DIR . '/sort_threadlist.inc.php';
 
 // {{{ ThreadList
 
@@ -156,8 +156,6 @@ class ThreadList
 
         // お気に板をまとめて読み込み
         case 'merge_favita':
-            require_once P2_LIB_DIR . '/SubjectTxt.php';
-
             $favitas = array();
 
             if (file_exists($_conf['favita_brd'])) {
@@ -170,11 +168,9 @@ class ThreadList
 
             if (empty($_REQUEST['norefresh']) && !(empty($_REQUEST['refresh']) && isset($_REQUEST['word']))) {
                 if ($_conf['expack.use_pecl_http'] == 1) {
-                    require_once P2_LIB_DIR . '/P2HttpExt.php';
                     P2HttpRequestPool::fetchSubjectTxt($favitas);
                     $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
                 } elseif ($_conf['expack.use_pecl_http'] == 2) {
-                    require_once P2_CLI_DIR . '/P2CommandRunner.php';
                     if (P2CommandRunner::fetchSubjectTxt('merge_favita', $_conf)) {
                         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
                     }
@@ -284,7 +280,6 @@ class ThreadList
         // オンライン上の subject.txt を読み込む（spmodeでない場合）
         default:
             if (!$this->spmode) {
-                require_once P2_LIB_DIR . '/SubjectTxt.php';
                 $aSubjectTxt = new SubjectTxt($this->host, $this->bbs);
                 $lines = $aSubjectTxt->subject_lines;
             }
@@ -382,16 +377,14 @@ class ThreadList
         }
 
         if ($cmp) {
-            if (!function_exists($cmp)) {
-                require P2_LIB_DIR . '/sort_threadlist.inc.php';
-            }
             if ($do_benchmark) {
                 $before = microtime(true);
             }
             if ($use_multisort) {
-                $cmp = 'multi_' . $cmp;
+                $cmp = 'p2_multi_' . $cmp;
                 $cmp($this, $reverse);
             } else {
+                $cmp = 'p2_' . $cmp;
                 usort($this->threads, $cmp);
             }
         }

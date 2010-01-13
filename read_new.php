@@ -5,10 +5,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/NgAbornCtl.php';
-require_once P2_LIB_DIR . '/ThreadList.php';
-require_once P2_LIB_DIR . '/ThreadRead.php';
-require_once P2_LIB_DIR . '/ShowThreadPc.php';
 require_once P2_LIB_DIR . '/read_new.inc.php';
 
 $_login->authorize(); // ユーザ認証
@@ -322,9 +318,6 @@ for ($x = 0; $x < $linesize ; $x++) {
 
         // subject.txt が未DLなら落としてデータを配列に格納
         if (empty($subject_txts[$subject_id])) {
-            if (!class_exists('SubjectTxt', false)) {
-                require P2_LIB_DIR . '/SubjectTxt.php';
-            }
             $aSubjectTxt = new SubjectTxt($aThread->host, $aThread->bbs);
 
             $subject_txts[$subject_id] = $aSubjectTxt->subject_lines;

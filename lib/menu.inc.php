@@ -6,9 +6,6 @@
  * menu.php, menu_side.php より読み込まれる
  */
 
-require_once P2_LIB_DIR . '/BrdCtl.php';
-require_once P2_LIB_DIR . '/ShowBrdMenuPc.php';
-
 $_login->authorize(); //ユーザ認証
 
 //==============================================================
@@ -251,10 +248,8 @@ EOP;
 if ($_conf['enable_menu_new'] == 1 && $_GET['new']) {
     // 並列ダウンロードの設定
     if ($_conf['expack.use_pecl_http'] == 1) {
-        require_once P2_LIB_DIR . '/P2HttpExt.php';
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
     } elseif ($_conf['expack.use_pecl_http'] == 2) {
-        require_once P2_CLI_DIR . '/P2CommandRunner.php';
         $GLOBALS['expack.subject.multi-threaded-download.done'] = true;
     }
 

@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/StrCtl.php';
 
 $_login->authorize(); // ユーザ認証
 
@@ -19,7 +18,6 @@ if (isset($_GET['setfavita']) or isset($_POST['setfavita']) or isset($_POST['sub
 }
 // お気に板のホストを同期
 if (isset($_GET['syncfavita']) or isset($_POST['syncfavita'])) {
-    require_once P2_LIB_DIR . '/BbsMap.php';
     BbsMap::syncBrd($_conf['favita_brd']);
 }
 

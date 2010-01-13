@@ -3,11 +3,9 @@
  * rep2expack - Cookieä«óùÉNÉâÉX
  */
 
-require_once P2_LIB_DIR . '/P2DataStore/AbstractDataStore.php';
+// {{{ CookieDataStore
 
-// {{{ CookieStore
-
-class CookieStore extends AbstractDataStore
+class CookieDataStore extends AbstractDataStore
 {
     // {{{ getKVS()
 

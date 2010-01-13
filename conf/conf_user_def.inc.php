@@ -322,9 +322,8 @@ $conf_user_rules['res_hist_rec_num'] = array('notIntExceptMinusToDef');
 $conf_user_def['res_write_rec'] = 1; // (1)
 $conf_user_rad['res_write_rec'] = array('1' => 'する', '0' => 'しない');
 
-// 外部URLジャンプする際に通すゲート。
-// （直接:"", p2 ime(自動転送):"p2", p2 ime(手動転送):"p2m", p2 ime(pのみ手動転送):"p2pm",
-//   gate.php(自動転送1秒):"ex", gate.php(自動転送0秒):"exq", gate.php(手動転送):"exm", gate.php(pのみ手動転送):"expm", Google:"google"）
+// 外部URLジャンプする際に通すゲート
+// 「直接」でもCookieが使えない端末では gate.php を通す
 $conf_user_def['through_ime'] = "exm"; // ("exm") 
 $conf_user_sel['through_ime'] = array(
     ''       => '直接',

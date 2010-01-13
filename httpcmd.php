@@ -275,10 +275,6 @@ function httpcmd_set_readnum($host, $bbs, $key, $readnum)
         return false;
     }
 
-    if (!class_exists('Thread', false)) {
-        include P2_LIB_DIR . '/Thread.php';
-    }
-
     $aThread = new Thread();
     $aThread->setThreadPathInfo($host, $bbs, $key);
     $lines = FileCtl::file_read_lines($aThread->keyidx, FILE_IGNORE_NEW_LINES);
@@ -313,10 +309,6 @@ function httpcmd_make_offline_data($host, $bbs, $key, $from)
 {
     if (!is_numeric($from) || ($from = intval($from)) < 1) {
         return false;
-    }
-
-    if (!class_exists('ThreadRead', false)) {
-        include P2_LIB_DIR . '/ThreadRead.php';
     }
 
     $data = array();

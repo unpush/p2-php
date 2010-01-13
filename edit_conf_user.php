@@ -334,7 +334,7 @@ if ($flags & P2_EDIT_CONF_USER_SKIPPED) {
         array('rct_rec_num', '最近読んだスレの記録数'),
         array('res_hist_rec_num', '書き込み履歴の記録数'),
         array('res_write_rec', '書き込み内容ログを記録'),
-        array('through_ime', '外部URLジャンプする際に通すゲート'),
+        array('through_ime', '外部URLジャンプする際に通すゲート<br>「直接」でもCookieが使えない端末では gate.php を通す'),
         array('ime_manual_ext', 'ゲートで自動転送しない拡張子（カンマ区切りで、拡張子の前のピリオドは不要）'),
         array('join_favrank', '<a href="http://akid.s17.xrea.com/favrank/favrank.html" target="_blank">お気にスレ共有</a>に参加'),
         array('merge_favita', 'お気に板のスレ一覧をまとめて表示 (お気に板の数によっては処理に時間がかかる)'),
