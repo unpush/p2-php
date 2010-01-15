@@ -665,17 +665,28 @@ EOP;
 
     /**
      * cookie認証を登録/解除する
+     *
+     * @param void
+     * @return boolean
      */
     public function registCookie()
     {
+        $r = true;
+
         if (!empty($_REQUEST['ctl_regist_cookie'])) {
             if ($_REQUEST['regist_cookie'] == '1') {
-                $this->setCookieCid($this->user_u, $this->pass_x);
+                $ignore_cip = false;
+                if (!empty($_POST['ignore_cip'])) {
+                    $ignore_cip = true;
+                }
+                $r = $this->setCookieCid($this->user_u, $this->pass_x, $ignore_cip);
             } else {
                 // クッキーをクリア
-                $this->clearCookieAuth();
+                $r = $this->clearCookieAuth();
             }
         }
+
+        return $r;
     }
 
     // }}}
@@ -703,19 +714,32 @@ EOP;
     /**
      * CIDをcookieにセットする
      *
+     * @param string $user_u
+     * @param string $pass_x
+     * @param boolean|null $ignore_cip
      * @return boolean
      */
-    public function setCookieCid($user_u, $pass_x)
+    protected function setCookieCid($user_u, $pass_x, $ignore_cip = null)
     {
         global $_conf;
 
-        if ($cid = $this->makeCid($user_u, $pass_x)) {
-            $time = time() + 60*60*24 * $_conf['cid_expire_day'];
-            setcookie('cid', $cid, $time);
-            return true;
-        } else {
-            return false;
+        $time = time() + 60*60*24 * $_conf['cid_expire_day'];
+
+        if (!is_null($ignore_cip)) {
+            if ($ignore_cip) {
+                P2Util::setCookie('ignore_cip', '1', $time);
+                $_COOKIE['ignore_cip'] = '1';
+            } else {
+                P2Util::unsetCookie('ignore_cip');
+                // 念のためドメイン指定なしも
+                setcookie('ignore_cip', '', time() - 3600);
+            }
         }
+
+        if ($cid = $this->makeCid($user_u, $pass_x)) {
+            return P2Util::setCookie('cid', $cid, $time);
+        }
+        return false;
     }
 
     // }}}
@@ -732,14 +756,10 @@ EOP;
             return false;
         }
 
-        $key = $this->getMd5CryptKey();
-
-        $idtime = $user_u. ':'. time(). ':';
-        $pw_enc = md5($idtime . $pass_x);
-        $str = $idtime . $pw_enc;
-        $cid = MD5Crypt::encrypt($str, $key, 32);
-
-        return $cid;
+        $user_time  = $user_u . ':' . time() . ':';
+        $md5_utpx = md5($user_time . $pass_x);
+        $cid_src  = $user_time . $md5_utpx;
+        return $cid = MD5Crypt::encrypt($cid_src, self::getMd5CryptPassForCid());
     }
 
     // }}}
@@ -754,17 +774,19 @@ EOP;
     {
         global $_conf;
 
-        $key = $this->getMd5CryptKey();
+        $dec = MD5Crypt::decrypt($cid, self::getMd5CryptPassForCid());
 
-        $dec = MD5Crypt::decrypt($cid, $key, 32);
-        list($user, $time, $pw_enc) = explode(':', $dec, 3);
+        $user = $time = $md5_utpx = null;
+        list($user, $time, $md5_utpx) = explode(':', $dec, 3);
+        if (!strlen($user) || !$time || !$md5_utpx) {
+            return false;
+        }
 
         // 有効期限 日数
-        if (time() > $time + (86400 * $_conf['cid_expire_day'])) {
+        if (time() > $time + (60*60*24 * $_conf['cid_expire_day'])) {
             return false; // 期限切れ
-        } else {
-            return array($user, $time, $pw_enc);
         }
+        return array($user, $time, $md5_utpx);
     }
 
     // }}}
@@ -816,17 +838,45 @@ EOP;
     }
 
     // }}}
-    // {{{ getMd5CryptKey()
+    // {{{ getMd5CryptPassForCid()
 
     /**
-     * MD5Crypt::encrypt, MD5Crypt::decrypt のためにクリプトキーを得る
+     * MD5Crypt::encrypt, MD5Crypt::decrypt のための password(salt) を得る
+     * （クッキーのcidの生成に利用している）
      *
-     * @return string
+     * @param   void
+     * @access  private
+     * @return  string
      */
-    public function getMd5CryptKey()
+    static private function getMd5CryptPassForCid()
     {
-        //return $_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE'];
-        return $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        //return md5($_SERVER['SERVER_NAME'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SERVER_SOFTWARE']);
+
+        //$seed = $_SERVER['SERVER_NAME'] . $_SERVER['SERVER_SOFTWARE'];
+        $seed = $_SERVER['SERVER_SOFTWARE'];
+
+        // ローカルチェックをして、HostCheck::isAddressDocomo() などでホスト名を引く機会を減らす
+        $notK = (bool)(HostCheck::isAddressLocal() || HostCheck::isAddressPrivate());
+
+        // 携帯判定された場合は、 IPチェックなし
+        if (
+            !$notK and
+            //!$_conf['cid_seed_ip'] or
+            UA::isK(geti($_SERVER['HTTP_USER_AGENT']))
+            || HostCheck::isAddressDocomo() || HostCheck::isAddressAu() || HostCheck::isAddressSoftBank()
+            || HostCheck::isAddressWillcom()
+            || HostCheck::isAddressJigWeb() || HostCheck::isAddressJig()
+            || HostCheck::isAddressIbis()
+        ) {
+            ;
+        } elseif (!empty($_COOKIE['ignore_cip'])) {
+            ;
+        } else {
+            $now_ips = explode('.', $_SERVER['REMOTE_ADDR']);
+            $seed .= $now_ips[0];
+        }
+
+        return md5($seed, true);
     }
 
     // }}}

@@ -3,6 +3,86 @@
  * rep2expack - ユーティリティ関数群
  */
 
+// {{{ rep2 1.8.x lib/global.funcs.php より
+
+/**
+ * htmlspecialchars() の別名みたいなもの
+ *
+ * @param   string  $alt  値が空のときの代替文字列
+ * @return  string|null
+ */
+function hs($str, $alt = '', $quoteStyle = ENT_QUOTES)
+{
+    return (isset($str) && strlen($str) > 0) ? htmlspecialchars($str, $quoteStyle) : $alt;
+}
+
+/**
+ * notice の抑制もしてくれる hs()
+ * 参照で値を受け取るのはイマイチだが、そうしなければnoticeの抑制ができない
+ *
+ * @param   &string  $str  文字列変数の参照
+ * @return  string|null
+ */
+function hsi(&$str, $alt = '', $quoteStyle = ENT_QUOTES)
+{
+    return (isset($str) && strlen($str) > 0) ? htmlspecialchars($str, $quoteStyle) : $alt;
+}
+
+/**
+ * echo hs()
+ *
+ * @return  void
+ */
+function eh($str, $alt = '', $quoteStyle = ENT_QUOTES)
+{
+    echo hs($str, $alt, $quoteStyle);
+}
+
+/**
+ * echo hs() （noticeを抑制する）
+ *
+ * @param   &string  $str  文字列変数の参照
+ * @return  void
+ */
+function ehi(&$str, $alt = '', $quoteStyle = ENT_QUOTES)
+{
+    echo hs($str, $alt, $quoteStyle);
+}
+
+/**
+ * 存在しない変数の notice を出すことなく、変数の値を取得する
+ *
+ * この関数で配列の中身を取得しようとすると、配列そのものを作成してしまうことがあるのに注意。
+ * つまり $hoge が存在しない時に、geti($hoge['huga']) とすると、 $hoge は array('huga' => null) となってしまう。
+ *
+ * @return  mixed
+ */
+function geti(&$var, $alt = null)
+{
+    return isset($var) ? $var : $alt;
+}
+
+/**
+ * 改行を付けて文字列を出力する。cli(\n)とweb(<br>)で出力が変化する。
+ * 引数の文字列は複数取ることが可能。引数がなければ改行だけを出力する。
+ *
+ * @return  void
+ */
+function echoln()
+{
+    $n = (php_sapi_name() == 'cli') ? "\n" : '<br>';
+    
+    if ($args = func_get_args()) {
+        foreach ($args as $v) {
+            echo $v . $n;
+        }
+    } else {
+        echo $n;
+    }
+}
+
+// }}}
+
 // {{{ CONSTANTS
 
 /**

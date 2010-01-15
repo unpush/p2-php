@@ -149,8 +149,19 @@ EOP;
                 $regist_cookie_checked = '';
             }
         }
-        $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_cookie" value="1">'."\n".
-            '<input type="checkbox" id="regist_cookie" name="regist_cookie" value="1"'.$regist_cookie_checked.'><label for="regist_cookie">cookieに保存する（推奨）</label><br>';
+        $ignore_cip_checked = '';
+        if (isset($_POST['submit_newuser']) || isset($_POST['submit_userlogin'])) {
+            if (geti($_POST['ignore_cip']) == '1') {
+                $ignore_cip_checked = ' checked';
+            }
+        } else {
+            if (geti($_COOKIE['ignore_cip']) == '1') {
+                $ignore_cip_checked = ' checked';
+            }
+        }
+        $auth_sub_input_ht = '<input type="hidden" name="ctl_regist_cookie" value="1">'
+          . sprintf('<input type="checkbox" id="regist_cookie" name="regist_cookie" value="1"%s><label for="regist_cookie">ログイン情報をCookieに保存する（推奨）</label><br>', $regist_cookie_checked)
+          . sprintf('<input type="checkbox" id="ignore_cip" name="ignore_cip" value="1"%s><label for="ignore_cip">Cookie認証時にIPの同一性をチェックしない</label><br>', $ignore_cip_checked);
     }
 
     // }}}

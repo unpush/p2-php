@@ -32,7 +32,7 @@ $p2_incompatible_ini_directives = array(
     'register_globals',
     'magic_quotes_gpc',
     'mbstring.encoding_translation',
-    'session.cookie_httponly',
+    'session.auto_start',
 );
 
 // 移行スクリプトの実行が必要な変更のあったバージョン番号の配列

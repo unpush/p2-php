@@ -50,6 +50,8 @@ class Session
      */
     public function __construct($session_name = null, $session_id = null, $use_cookies = true)
     {
+        $this->setCookieHttpOnly();
+
         // キャッシュ制御なし
         session_cache_limiter('none');
 
@@ -308,10 +310,11 @@ class Session
         $_SESSION = array();
 
         // セッションを切断するにはセッションクッキーも削除する。
-        // Note: セッション情報だけでなくセッションを破壊する。
-        if (isset($_COOKIE[session_name()])) {
-           unset($_COOKIE[session_name()]);
-           setcookie(session_name(), '', time() - 42000);
+        $session_name = session_name();
+        if (isset($_COOKIE[$session_name])) {
+           //setcookie($session_name, '', time() - 42000);
+           P2Util::unsetCookie($session_name);
+           unset($_COOKIE[$session_name]);
         }
 
         // 最終的に、セッションを破壊する
@@ -326,6 +329,29 @@ class Session
         if (file_exists($session_file)) {
             unlink($session_file);
         }
+    }
+
+    // }}}
+    // {{{ setCookieHttpOnly()
+
+    /**
+     * セッションのsetcookieにHttpOnlyを指定する
+     * http://msdn2.microsoft.com/ja-jp/library/system.web.httpcookie.httponly(VS.80).aspx
+     *
+     * @param   void
+     * @return  void
+     */
+    private function setCookieHttpOnly()
+    {
+        $ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null;
+
+        // Mac IEは、動作不良を起こすらしいっぽいので対象から外す。（そもそも対応もしていない）
+        // Mozilla/4.0 (compatible; MSIE 5.16; Mac_PowerPC)
+        if (preg_match('/MSIE \d\\.\d+; Mac/', $ua)) {
+            return;
+        }
+
+        ini_set('session.cookie_httponly', true);
     }
 
     // }}}

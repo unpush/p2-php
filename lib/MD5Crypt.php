@@ -32,6 +32,8 @@ class MD5Crypt
 
     static public function encrypt($plain_text, $password, $iv_len = 16)
     {
+        $password = self::adjustPassword($password, $iv_len); // added by aki
+
         $plain_text .= "\x13";
         $n = strlen($plain_text);
         if ($n % 16) {
@@ -54,6 +56,8 @@ class MD5Crypt
 
     static public function decrypt($enc_text, $password, $iv_len = 16)
     {
+        $password = self::adjustPassword($password, $iv_len); // added by aki
+
         $enc_text = base64_decode($enc_text);
         $n = strlen($enc_text);
         $i = $iv_len;
@@ -69,8 +73,27 @@ class MD5Crypt
     }
 
     // }}}
+    // {{{ adjustPassword()
 
+    /**
+     * $password（salt）の長さが $iv_len を超えていたら md5() した後、カットして収める
+     *
+     * @author  aki
+     * @since   2007/07/02
+     * @access  private
+     * @return  string
+     */
+    static private function adjustPassword($password, $iv_len)
+    {
+        if (strlen($password) > $iv_len) {
+            $password = substr(md5($password), 0, $iv_len);
+        }
+        return $password;
+    }
+
+    // }}}
 }
+
 // }}}
 
 /******************************************/

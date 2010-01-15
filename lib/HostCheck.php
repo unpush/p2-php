@@ -134,10 +134,10 @@ EOF;
                 ($flag == $types['private']   && self::isAddressPrivate($address))  ||
                 ($flag == $types['docomo']    && self::isAddressDocomo($address))   ||
                 ($flag == $types['au']        && self::isAddressAu($address))       ||
-                ($flag == $types['softbank']  && self::isAddressSoftbank($address)) ||
+                ($flag == $types['softbank']  && self::isAddressSoftBank($address)) ||
                 ($flag == $types['willcom']   && self::isAddressWillcom($address))  ||
                 ($flag == $types['emobile']   && self::isAddressEmobile($address))  ||
-                ($flag == $types['iphone']    && self::isAddressIphone($address))   ||
+                ($flag == $types['iphone']    && self::isAddressIPhone($address))   ||
                 ($flag == $types['custom'] && (!empty($custom) || !empty($custom_re)) &&
                     self::isAddressInBand($address, $custom, $custom_re,
                             'custom', filemtime(P2_CONF_DIR . '/conf_hostcheck.php')
@@ -549,12 +549,12 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddressSoftbank()
+    // {{{ isAddressSoftBank()
 
     /**
      * SoftBank?
      */
-    static public function isAddressSoftbank($address = null)
+    static public function isAddressSoftBank($address = null)
     {
         include P2_CONF_DIR . '/ip_softbank.php';
 
@@ -621,12 +621,12 @@ EOF;
     }
 
     // }}}
-    // {{{ isAddressIphone()
+    // {{{ isAddressIPhone()
 
     /**
      * iPhone 3G (SoftBank)?
      */
-    static public function isAddressIphone($address = null)
+    static public function isAddressIPhone($address = null)
     {
         include P2_CONF_DIR . '/ip_iphone.php';
 
@@ -642,6 +642,134 @@ EOF;
 
         return self::isAddressInBand($address, $band, $regex,
                 'iphone', filemtime(P2_CONF_DIR . '/ip_iphone.php'));
+    }
+
+    // }}}
+    // {{{ isAddressJigWeb()
+
+    /**
+     * IPは jig web?
+     *
+     * @param   string  $addr
+     * @return  boolean
+     */
+    function isAddressJigWeb($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+        // bw5022.jig.jp
+        $reghost = '/^bw\d+\.jig\.jp$/';
+
+        $bands = array(
+            '202.181.98.241',   // 2007/08/06
+            //'210.143.108.0/24', // 2005/6/23
+        );
+        return self::isAddressInBand($addr, $bands, $reghost, 'jigweb');
+    }
+
+    // }}}
+    // {{{ isAddressJig()
+
+    /**
+     * IPは jigアプリ?
+     *
+     * @link    http://br.jig.jp/pc/ip_br.html
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    function isAddressJig($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+
+        // br***.jig.jp
+        $reghost = '/^br\d+\.jig\.jp$/';
+
+        // @updated 2009/06/04
+        $bands = array(
+            '59.106.14.175/32',
+            '59.106.14.176/32',
+            '59.106.23.169/32',
+            '59.106.23.170/31',
+            '59.106.23.172/31',
+            '59.106.23.174/32',
+            '112.78.114.171/32',
+            '112.78.114.172/30',
+            '112.78.114.176/29',
+            '112.78.114.184/30',
+            '112.78.114.188/31',
+            '112.78.114.191/32',
+            '112.78.114.192/29',
+            '112.78.114.200/30',
+            '112.78.114.204/31',
+            '112.78.114.206/32',
+            '112.78.114.208/32',
+            '202.181.96.94/32',
+            '202.181.98.153/32',
+            '202.181.98.156/32',
+            '202.181.98.160/32',
+            '202.181.98.179/32',
+            '202.181.98.182/32',
+            '202.181.98.185/32',
+            '202.181.98.196/32',
+            '202.181.98.218/32',
+            '202.181.98.221/32',
+            '202.181.98.223/32',
+            '202.181.98.247/32',
+            '210.188.205.81/32',
+            '210.188.205.83/32',
+            '210.188.205.97/32',
+            '210.188.205.166/31',
+            '210.188.205.168/31',
+            '210.188.205.170/32',
+            '210.188.220.169/32',
+            '210.188.220.170/31',
+            '210.188.220.172/30',
+            '219.94.133.167/32',
+            '219.94.133.192/32',
+            '219.94.133.243/32',
+            '219.94.144.5/32',
+            '219.94.144.6/31',
+            '219.94.144.23/32',
+            '219.94.144.24/32',
+            '219.94.147.35/32',
+            '219.94.147.36/30',
+            '219.94.147.42/31',
+            '219.94.147.44/32',
+            '219.94.166.8/30',
+            '219.94.166.173/32',
+            '219.94.197.196/30',
+            '219.94.197.200/30',
+            '219.94.197.204/31'
+        );
+        return self::isAddressInBand($addr, $bands, $reghost, 'jig');
+    }
+
+    // }}}
+    // {{{ isAddressIbis()
+
+    /**
+     * IPは ibis?
+     *
+     * @static
+     * @access  public
+     * @return  boolean
+     */
+    static public function isAddressIbis($addr = null)
+    {
+        if (is_null($addr)) {
+            $addr = $_SERVER['REMOTE_ADDR'];
+        }
+
+        // http://qb5.2ch.net/test/read.cgi/operate/1183341095/504
+        $bands = array(
+            '219.117.203.9', // システム移行が完了すれば利用しなくなるらしい
+            '59.106.52.16/29'
+        );
+        return self::isAddressInBand($addr, $bands);
     }
 
     // }}}

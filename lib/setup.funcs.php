@@ -173,6 +173,7 @@ function p2_load_class($name)
             StrSjis |
             SubjectTxt |
             Thread(?:[A-Z][A-Za-z]*)? |
+            UA |
             Wap[A-Z][A-Za-z]*
         )$/x', $name))
     {

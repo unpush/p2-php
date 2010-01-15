@@ -170,25 +170,13 @@ function p2_init()
     // PEARインストールディレクトリ、検索パスに追加される
     define('P2_PEAR_DIR', P2_BASE_DIR . '/includes');
 
-    // PEARをハックしたファイル用ディレクトリ、通常のPEARより優先的に検索パスに追加される
-    // Cache/Container/db.php(PEAR::Cache)がMySQL縛りだったので、汎用的にしたものを置いている
-    // include_pathを追加するのはパフォーマンスに影響を及ぼすため、本当に必要な場合のみ定義
-    if (defined('P2_USE_PEAR_HACK')) {
-        define('P2_PEAR_HACK_DIR', P2_BASE_DIR . '/lib/pear_hack');
-    }
-
     // コマンドラインツール
     define('P2_CLI_DIR', P2_BASE_DIR . '/cli');
 
     // 検索パスをセット
-    $include_path = '';
-    if (defined('P2_PEAR_HACK_DIR')) {
-        $include_path = P2_PEAR_HACK_DIR . PATH_SEPARATOR;
-    }
     if (is_dir(P2_PEAR_DIR)) {
-        $include_path .= P2_PEAR_DIR . PATH_SEPARATOR;
+        set_include_path(P2_PEAR_DIR . PATH_SEPARATOR . get_include_path());
     }
-    set_include_path($include_path . get_include_path());
 
     // }}}
     // {{{ 環境チェックとデバッグ

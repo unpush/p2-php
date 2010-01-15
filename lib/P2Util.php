@@ -61,6 +61,172 @@ class P2Util
     static private $_postDataStore = null;
 
     // }}}
+    // {{{ getMyHost()
+
+    /**
+     * ポート番号を削ったホスト名を取得する
+     *
+     * @param   void
+     * @return  string|null
+     */
+    static public function getMyHost()
+    {
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            return null;
+        }
+        return preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
+    }
+
+    // }}}
+    // {{{ getCookieDomain()
+
+    /**
+     * @param   void
+     * @return  string
+     */
+    static public function getCookieDomain()
+    {
+        return '';
+    }
+
+    // }}}
+    // {{{ encodeCookieName()
+
+    /**
+     * @param   string $key
+     * @return  string
+     */
+    static private function encodeCookieName($key)
+    {
+        // 配列指定用に、[]だけそのまま残して、URLエンコードをかける
+        return $key_urlen = preg_replace_callback(
+            '/[^\\[\\]]+/',
+            array(__CLASS__, 'rawurldecodeCallback'),
+            $key
+        );
+    }
+
+    // }}}
+    // {{{ setCookie()
+
+    /**
+     * setcookie() では、auで必要なmax ageが設定されないので、こちらを利用する
+     *
+     * @access  public
+     * @param   string  $key
+     * @param   string  $value
+     * @param   int     $expires
+     * @param   string  $path
+     * @param   string  $domain
+     * @param   boolean $secure
+     * @param   boolean $httponly
+     * @return  boolean
+     */
+    static public function setCookie($key, $value = '', $expires = null, $path = '', $domain = null, $secure = false, $httponly = true)
+    {
+        if (is_null($domain)) {
+            $domain = self::getCookieDomain();
+        }
+        is_null($expires) and $expires = time() + 60 * 60 * 24 * 365;
+
+        if (headers_sent()) {
+            return false;
+        }
+
+        // Mac IEは、動作不良を起こすらしいっぽいので、httponlyの対象から外す。（そもそも対応もしていない）
+        // MAC IE5.1  Mozilla/4.0 (compatible; MSIE 5.16; Mac_PowerPC)
+        if (preg_match('/MSIE \d\\.\d+; Mac/', geti($_SERVER['HTTP_USER_AGENT']))) {
+            $httponly = false;
+        }
+
+        // setcookie($key, $value, $expires, $path, $domain, $secure = false, $httponly = true);
+        /*
+        if (is_array($name)) {
+            list($k, $v) = each($name);
+            $name = $k . '[' . $v . ']';
+        }
+        */
+        if ($expires) {
+            $maxage = $expires - time();
+        }
+
+        header(
+            'Set-Cookie: '. self::encodeCookieName($key) . '=' . rawurlencode($value)
+                 . (empty($domain) ? '' : '; Domain=' . $domain)
+                 . (empty($expires) ? '' : '; expires=' . gmdate('D, d-M-Y H:i:s', $expires) . ' GMT')
+                 . (empty($maxage) ? '' : '; Max-Age=' . $maxage)
+                 . (empty($path) ? '' : '; Path=' . $path)
+                 . (!$secure ? '' : '; Secure')
+                 . (!$httponly ? '' : '; HttpOnly'),
+             $replace = false
+        );
+
+        return true;
+    }
+
+    // }}}
+    // {{{ unsetCookie()
+
+    /**
+     * クッキーを消去する。変数 $_COOKIE も。
+     *
+     * @param   string  $key  key, k1[k2]
+     * @param   string  $path
+     * @param   string  $domain
+     * @return  boolean
+     */
+    static public function unsetCookie($key, $path = '', $domain = null)
+    {
+        if (is_null($domain)) {
+            $domain = self::getCookieDomain();
+        }
+
+        // 配列をsetcookie()する時は、キー文字列をPHPの配列の場合のように、'' や "" でクォートしない。
+        // それらはキー文字列として認識されてしまう。['hoge']ではなく、[hoge]と指定する。
+        // setcookie()で、一時キーは[]で囲まないようにする。（無効な処理となる。） k1[k2] という表記で指定する。
+        // setcookie()では配列をまとめて削除することはできない。
+        // k1 の指定で k1[k2] は消えないので、このメソッドで対応している。
+
+        // $keyが配列として指定されていたなら
+        $cakey = null; // $_COOKIE用のキー
+        if (preg_match('/\]$/', $key)) {
+            // 最初のキーを[]で囲む
+            $cakey = preg_replace('/^([^\[]+)/', '[$1]', $key);
+            // []のキーを''で囲む
+            $cakey = preg_replace('/\[([^\[\]]+)\]/', "['$1']", $cakey);
+            //var_dump($cakey);
+        }
+
+        // 対象Cookie値が配列であれば再帰処理を行う
+        $cArray = null;
+        if ($cakey) {
+            eval("isset(\$_COOKIE{$cakey}) && is_array(\$_COOKIE{$cakey}) and \$cArray = \$_COOKIE{$cakey};");
+        } else {
+            if (isset($_COOKIE[$key]) && is_array($_COOKIE[$key])) {
+                $cArray = $_COOKIE[$key];
+            }
+        }
+        if (is_array($cArray)) {
+            foreach ($cArray as $k => $v) {
+                $keyr = "{$key}[{$k}]";
+                if (!self::unsetCookie($keyr, $path, $domain)) {
+                    return false;
+                }
+            }
+        }
+
+        if (is_array($cArray) or setcookie("$key", '', time() - 3600, $path, $domain)) {
+            if ($cakey) {
+                eval("unset(\$_COOKIE{$cakey});");
+            } else {
+                unset($_COOKIE[$key]);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    // }}}
     // {{{ fileDownload()
 
     /**
@@ -106,7 +272,7 @@ class P2Util
             if ($wap_res->isRedirect() && array_key_exists('Location', $wap_res->headers)) {
                 $location = $wap_res->headers['Location'];
                 $location_ht = htmlspecialchars($location, ENT_QUOTES);
-                $location_t = P2Util::throughIme($location);
+                $location_t = self::throughIme($location);
                 $_info_msg_ht .= "Location: <a href=\"{$location_t}\"{$_conf['ext_win_target_at']}>{$location_ht}</a><br>";
             }
             $_info_msg_ht .= "p2 info: <a href=\"{$url_t}\"{$_conf['ext_win_target_at']}>{$wap_req->url}</a> に接続できませんでした。</div>";
@@ -1862,6 +2028,21 @@ ERR;
     static public function urlSafeBase64Encode($str)
     {
         return strtr(rtrim(base64_encode($str), '='), '+/', '-_');
+    }
+
+    // }}}
+    // {{{ rawurldecodeCallback()
+
+    /**
+     * preg_replace_callback()のコールバック関数として
+     * マッチ箇所全体にrawurldecode()をかける
+     *
+     * @param   array   $m
+     * @return  string
+     */
+    static public function rawurldecodeCallback(array $m)
+    {
+        return rawurlencode($m[0]);
     }
 
     // }}}
