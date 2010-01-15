@@ -1,9 +1,4 @@
 <?php
-/* vim: set fileencoding=cp932 ai et ts=4 sw=4 sts=0 fdm=marker: */
-/* mi: charset=Shift_JIS */
-
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 /**
  * p2 - ボードメニュークラス for menu.php
  */

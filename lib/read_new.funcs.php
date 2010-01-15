@@ -3,8 +3,6 @@
     p2 - for read_new.php, read_new_k.php, read_new_i.php
 */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 /**
  * 新着まとめ読みのキャッシュを残す
  *

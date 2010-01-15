@@ -8,7 +8,6 @@ require_once './conf/conf.inc.php';
 
 require_once P2_LIB_DIR . '/Thread.php';
 require_once P2_LIB_DIR . '/ThreadRead.php';
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/NgAbornCtl.php';
 require_once P2_LIB_DIR . '/ShowThread.php';
 require_once P2_LIB_DIR . '/P2Validate.php';

@@ -1,6 +1,4 @@
 <?php
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 /**
  * p2 - ThreadRead ƒNƒ‰ƒX
  */

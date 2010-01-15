@@ -1,8 +1,6 @@
 <?php
 // p2 - チャットちゃんねる cha2.net の関数
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 /**
  * チャットちゃんねる cha2.net の dat を読んで保存する関数
  * （差分取得には未対応）

@@ -5,9 +5,6 @@
 
 require_once './conf/conf.inc.php';
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-require_once P2_LIB_DIR . '/P2View.php';
-
 $_login->authorize(); // ユーザ認証
 
 // 書き込んだレスのログをダウンロード

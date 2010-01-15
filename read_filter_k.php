@@ -28,8 +28,6 @@ if (P2Validate::host($host) || P2Validate::bbs($bbs) || P2Validate::key($key)) {
 // }}}
 // {{{ 前回フィルタ値読み込み
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 $cachefile = $_conf['pref_dir'] . '/p2_res_filter.txt';
 
 $res_filter = array();

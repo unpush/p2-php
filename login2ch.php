@@ -4,7 +4,6 @@
  */
 
 require_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/P2Validate.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ

@@ -12,7 +12,6 @@ if (_isCalledAsStandAlone()) {
 }
 
 require_once P2_LIB_DIR . '/Thread.php';
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/dele.funcs.php'; // íœˆ——p‚ÌŠÖ”ŒS
 require_once P2_LIB_DIR . '/P2Validate.php';
 

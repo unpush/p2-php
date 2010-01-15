@@ -63,6 +63,7 @@ require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'Session.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'Login.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'UA.php';
 require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'P2View.php';
+require_once P2_LIB_DIR . DIRECTORY_SEPARATOR . 'FileCtl.php';
 
 // }}}
 

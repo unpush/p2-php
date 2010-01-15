@@ -5,8 +5,6 @@
 // http://www.machi.to/offlaw.txt
 // ªIPî•ñ‚ªŠÜ‚Ü‚ê‚Ä‚¢‚È‚¢B¡‚Ì‚Æ‚±‚ë‚Í—˜—p‚µ‚Ä‚¢‚È‚¢
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 /**
  * ‚Ü‚¿BBS‚Ì read.cgi ‚ð“Ç‚ñ‚Å dat‚É•Û‘¶‚·‚éŠÖ”
  *

@@ -4,7 +4,6 @@
 */
 
 include_once './conf/conf.inc.php';
-require_once P2_LIB_DIR . '/FileCtl.php';
 
 $_login->authorize(); // ƒ†[ƒU”FØ
 

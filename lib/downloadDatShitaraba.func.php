@@ -1,8 +1,6 @@
 <?php
 // p2 - したらばJBBS（jbbs.livedoor.jp）の関数
 
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 /**
  * したらばJBBSの rawmode.cgi を読んで、datに保存する（2ch風に整形）
  * @see http://blog.livedoor.jp/bbsnews/archives/50283526.html

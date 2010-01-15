@@ -1,6 +1,5 @@
 <?php
 require_once P2_LIB_DIR . '/DataPhp.php';
-require_once P2_LIB_DIR . '/FileCtl.php';
 
 /**
  * p2用のユーティリティクラス

@@ -1,6 +1,4 @@
 <?php
-require_once P2_LIB_DIR . '/FileCtl.php';
-
 /**
  * スレッドあぼーんを複数一括解除する関数
  *

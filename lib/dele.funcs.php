@@ -3,7 +3,6 @@
     p2 - スレッドデータ、DATを削除するための関数郡
 */
 
-require_once P2_LIB_DIR . '/FileCtl.php';
 require_once P2_LIB_DIR . '/setFav.func.php';
 require_once P2_LIB_DIR . '/setPalace.func.php';
 
